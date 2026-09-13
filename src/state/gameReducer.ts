@@ -147,7 +147,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return nextOrderState(state.dex, { excludeRecipeId: state.recipe.id });
 
     case "SHOW_HINT":
-      return { ...state, hint: buildHintLine(state.recipe, state.pizza) };
+      return { ...state, hint: buildHintLine(state.recipe, state.pizza, true) };
 
     default:
       return state;
