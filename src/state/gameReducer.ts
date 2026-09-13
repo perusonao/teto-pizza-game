@@ -38,7 +38,7 @@ export type GameAction =
   | { type: "SHOW_HINT" };
 
 function nextOrderState(dex: string[], orderOptions: NextOrderOptions): GameState {
-  const order = getNextOrder(orderOptions);
+  const order = getNextOrder({ ...orderOptions, dex });
   const recipe = getRecipe(order.recipeId);
   if (!recipe) {
     throw new Error(`Unknown recipe for order ${order.id}`);

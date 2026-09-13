@@ -31,6 +31,19 @@ export interface NextOrderOptions {
   preferFirst?: boolean;
   /** Avoid repeating this recipe id when picking randomly (used on replay). */
   excludeRecipeId?: string;
+  /** Recipe ids already registered in the dex; undiscovered ones are prioritized. */
+  dex?: string[];
+}
+
+function pickRandom(pool: Order[]): Order {
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+/** Narrows `pool` to entries that don't repeat `excludeRecipeId`, unless that would empty it. */
+function avoidRepeat(pool: Order[], excludeRecipeId: string | undefined): Order[] {
+  if (!excludeRecipeId) return pool;
+  const withoutRepeat = pool.filter((o) => o.recipeId !== excludeRecipeId);
+  return withoutRepeat.length > 0 ? withoutRepeat : pool;
 }
 
 export function getNextOrder(options: NextOrderOptions = {}): Order {
@@ -38,9 +51,12 @@ export function getNextOrder(options: NextOrderOptions = {}): Order {
     return ORDERS.find((o) => o.recipeId === "margherita") ?? ORDERS[0];
   }
 
-  const candidates = options.excludeRecipeId
-    ? ORDERS.filter((o) => o.recipeId !== options.excludeRecipeId)
-    : ORDERS;
-  const pool = candidates.length > 0 ? candidates : ORDERS;
-  return pool[Math.floor(Math.random() * pool.length)];
+  const dex = options.dex ?? [];
+  const undiscovered = ORDERS.filter((o) => !dex.includes(o.recipeId));
+  const pool =
+    undiscovered.length > 0
+      ? avoidRepeat(undiscovered, options.excludeRecipeId)
+      : avoidRepeat(ORDERS, options.excludeRecipeId);
+
+  return pickRandom(pool);
 }
