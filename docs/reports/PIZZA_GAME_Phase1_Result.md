@@ -131,5 +131,5 @@ public/favicon.svg
 
 ## 8. Commit / PR
 
-- Commit SHA: この機能ブランチの先頭コミット（`git log -1` で確認可能。PR作成後にURLを追記）
-- PR URL: `<pending>`（このセクションはPR作成後に追記）
+- Commit SHA: `36e2880d7c28ff7254e6d5e9367cdfa77f85063f`
+- PR URL: https://github.com/perusonao/teto-pizza-game/pull/1
