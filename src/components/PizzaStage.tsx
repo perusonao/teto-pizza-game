@@ -78,6 +78,22 @@ export function PizzaStage({
     };
   }, []);
 
+  // If interaction is disabled mid-gesture (e.g. the player starts BAKE with a second
+  // pointer while the first is still down on the dough), abort immediately rather than
+  // letting a since-stale pointerup still commit APPLY_SAUCE into a later phase.
+  useEffect(() => {
+    if (interactive) return;
+    const g = gestureRef.current;
+    if (g.pointerId === null) return;
+    try {
+      circleRef.current?.releasePointerCapture(g.pointerId);
+    } catch {
+      // Already released.
+    }
+    clearTrail();
+    gestureRef.current = createGestureState();
+  }, [interactive]);
+
   function clearTrail() {
     if (fadeTimeoutRef.current !== null) {
       window.clearTimeout(fadeTimeoutRef.current);

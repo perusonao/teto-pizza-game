@@ -98,12 +98,17 @@
 }
 
 .pizza-dough {
+  /* Single source of truth for the border width: absolutely positioned children (like
+     .pizza-paint-trail) are placed against this element's padding box, which is inset by
+     this much from the border-box that getBoundingClientRect()/pointer math use. Reusing
+     the same variable for both keeps them structurally unable to drift apart. */
+  --dough-border-width: 10px;
   position: relative;
   width: min(78vw, 300px);
   height: min(78vw, 300px);
   border-radius: 50%;
   background: radial-gradient(circle at 40% 35%, #f3d9a4, #e2b876 85%);
-  border: 10px solid #c99b56;
+  border: var(--dough-border-width) solid #c99b56;
   box-shadow: inset 0 0 20px rgba(120, 70, 20, 0.35), 0 6px 14px rgba(0, 0, 0, 0.25);
   transition: filter 0.4s ease;
 }
@@ -223,9 +228,12 @@
    Clipped to the same circle used for hit-testing so it never draws past the crust. */
 .pizza-paint-trail {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  /* .pizza-dough's border-box (what pointer math measures via getBoundingClientRect) is
+     wider than its padding box (where inset:0 would land) by the border width on each
+     side. Extend outward by that same amount so this SVG's rendered box is exactly the
+     border-box, keeping pointer/dough-percent/SVG-viewBox coordinates in lockstep even
+     near the rim. */
+  inset: calc(-1 * var(--dough-border-width));
   pointer-events: none;
   clip-path: circle(48% at 50% 50%);
   z-index: 3;
