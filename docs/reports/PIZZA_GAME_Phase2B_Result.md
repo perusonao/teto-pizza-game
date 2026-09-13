@@ -275,8 +275,10 @@ burnt時の焦げ斑点・具材の暗色化により、スコアやバッジの
 - ベースコミット（着手前 `origin/main`）: `c7a6161079bd1eca1bb19507922ff2fee952f28f`
 - 実装コミット: `921eed9b65fe6388ef13632a83f1d08c566d5144`
   （`Phase 2B: Visual Feedback + Replay Motivation Polish`）
-- Pull Request: （このコミット後に作成、リンクは本レポート末尾を参照）
-- CI状態: （PR作成後に確認）
+- Pull Request: https://github.com/perusonao/teto-pizza-game/pull/6
+- CI状態: **green**（`build` ジョブ = `success`、実行時間13秒、
+  https://github.com/perusonao/teto-pizza-game/actions/runs/34759917041 ）
+- PRの `mergeable_state`: `clean`（mainとのコンフリクトなし）
 - ローカルの `npm ci` / `npm run lint` / `npm run build` はすべて成功（0エラー・0警告）
 - 自動マージは行っていない。マージの可否・タイミングはリポジトリオーナー
   （perusonao）の判断に委ねる
