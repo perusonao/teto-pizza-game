@@ -12,7 +12,7 @@ interface RecipeHintSet {
 
 export const RECIPE_HINTS: Record<string, RecipeHintSet> = {
   margherita: {
-    empty: "まずはトマトソースを塗ってみて！",
+    empty: "まずはトマトソースを塗ってみて！ピザを指でなぞると塗れるよ。",
     missing: {
       mozzarella: "とろっとしたモッツァレラをたっぷりのせよう！",
       basil: "仕上げに香り高いバジルをのせたら完成に近いよ！",
@@ -20,7 +20,7 @@ export const RECIPE_HINTS: Record<string, RecipeHintSet> = {
     ready: "いい感じ！「焼く！」を押してみよう。",
   },
   marinara: {
-    empty: "マリナーラはまずトマトソースからだよ！",
+    empty: "マリナーラはまずトマトソースからだよ！指でくるくるなぞって塗ってみて。",
     missing: {
       garlic: "にんにくをぱらぱらっと散らしてみて！香りが決め手だよ。",
       oregano: "オレガノを振ったら、ナポリの下町の味になるよ！",
@@ -28,7 +28,7 @@ export const RECIPE_HINTS: Record<string, RecipeHintSet> = {
     ready: "シンプルだけど本格的！そろそろ焼いちゃおう。",
   },
   "quattro-formaggi": {
-    empty: "クアトロ フォルマッジは、まずオリーブオイルを塗るところから！",
+    empty: "クアトロ フォルマッジは、まずオリーブオイルを塗るところから！指でなぞって広げてね。",
     missing: {
       mozzarella: "まずはモッツァレラをのせて土台を作ろう！",
       gorgonzola: "ゴルゴンゾーラも忘れずに、少しクセのある香りが決め手だよ！",
@@ -50,7 +50,7 @@ export function buildHintLine(recipe: Recipe, pizza: PizzaState): DialogueLine {
 
   let text: string;
   if (sauceRequirement && !hasCorrectSauce) {
-    text = hints?.empty ?? "まずはソースを塗ってみて！";
+    text = hints?.empty ?? "まずはソースを塗ってみて！ピザを指でなぞると塗れるよ。";
   } else {
     const missingReq = recipe.requiredIngredients.find((req) => {
       if (getIngredient(req.ingredientId)?.category === "sauce") return false;

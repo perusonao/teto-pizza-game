@@ -98,18 +98,26 @@
 }
 
 .pizza-dough {
+  /* Single source of truth for the border width: absolutely positioned children (like
+     .pizza-paint-trail) are placed against this element's padding box, which is inset by
+     this much from the border-box that getBoundingClientRect()/pointer math use. Reusing
+     the same variable for both keeps them structurally unable to drift apart. */
+  --dough-border-width: 10px;
   position: relative;
   width: min(78vw, 300px);
   height: min(78vw, 300px);
   border-radius: 50%;
   background: radial-gradient(circle at 40% 35%, #f3d9a4, #e2b876 85%);
-  border: 10px solid #c99b56;
+  border: var(--dough-border-width) solid #c99b56;
   box-shadow: inset 0 0 20px rgba(120, 70, 20, 0.35), 0 6px 14px rgba(0, 0, 0, 0.25);
   transition: filter 0.4s ease;
 }
 
 .pizza-dough--interactive {
   cursor: pointer;
+  /* Pointer gestures (tap + sauce-paint drag) are handled by hand, scoped to the dough
+     itself so the rest of the page keeps its normal scroll behavior. */
+  touch-action: none;
 }
 
 .pizza-dough--raw {
@@ -213,6 +221,35 @@
     radial-gradient(circle at 70% 64%, rgba(255, 255, 240, 0.6) 0%, rgba(255, 255, 240, 0.12) 13%, transparent 24%),
     radial-gradient(circle, rgba(214, 186, 88, 0.16) 0%, rgba(154, 122, 40, 0.2) 78%, rgba(120, 90, 24, 0.24) 100%);
   box-shadow: inset 0 0 10px rgba(90, 68, 18, 0.22);
+}
+
+/* Freehand sauce-paint trail: drawn imperatively (ref + direct SVG attribute writes) while
+   dragging, sharing the dough's own 0-100% box so it never drifts from the tap coordinates.
+   Clipped to the same circle used for hit-testing so it never draws past the crust. */
+.pizza-paint-trail {
+  position: absolute;
+  /* .pizza-dough's border-box (what pointer math measures via getBoundingClientRect) is
+     wider than its padding box (where inset:0 would land) by the border width on each
+     side. Extend outward by that same amount so this SVG's rendered box is exactly the
+     border-box, keeping pointer/dough-percent/SVG-viewBox coordinates in lockstep even
+     near the rim. */
+  inset: calc(-1 * var(--dough-border-width));
+  pointer-events: none;
+  clip-path: circle(48% at 50% 50%);
+  z-index: 3;
+}
+
+.pizza-paint-trail__stroke {
+  fill: none;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.85;
+  transition: opacity 260ms ease;
+}
+
+.pizza-paint-trail__stroke--fade {
+  opacity: 0;
 }
 
 .pizza-topping {
@@ -566,6 +603,20 @@
 @keyframes flicker {
   from { transform: scale(1); }
   to { transform: scale(1.15) rotate(-3deg); }
+}
+
+.bake-oven__caption-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bake-oven__caption-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 0 1.5px #fff9ec;
 }
 
 .bake-oven__caption {

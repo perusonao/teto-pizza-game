@@ -1,3 +1,5 @@
+import { DOUGH_CENTER, DOUGH_RADIUS } from "../logic/pizzaCoordinates";
+
 export interface PlacedTopping {
   id: string;
   ingredientId: string;
@@ -26,10 +28,6 @@ export function createEmptyPizza(): PizzaState {
 
 /** Minimum distance (in the same 0-100% unit as x/y) between two toppings. */
 export const MIN_TOPPING_DISTANCE = 9;
-
-/** Pizza dough is a circle of radius ~48% centered at (50, 50); see PizzaStage's tap clamp. */
-const DOUGH_CENTER = 50;
-const DOUGH_RADIUS = 48;
 
 export function isTooClose(
   existing: PlacedTopping[],
