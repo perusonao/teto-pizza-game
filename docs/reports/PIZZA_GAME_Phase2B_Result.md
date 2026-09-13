@@ -270,16 +270,40 @@ burnt時の焦げ斑点・具材の暗色化により、スコアやバッジの
 - E2Eの自動テストコードはリポジトリに追加していない（Phase 2Aの方針を踏襲し、手動
   Playwright確認のみで検証、過剰なテスト追加を避けた）
 
+## 9A. PR自動レビュー指摘への対応
+
+PR作成直後、`chatgpt-codex-connector[bot]` による自動レビュー（P2）で以下の指摘を
+受け、検証のうえ修正・再pushした。
+
+**指摘**: `src/App.css` の `.ingredient-chip__cheese`（トレイのアイコン枠用、
+`height: 26px`）が、`.pizza-cheese--*`（チーズ固有の形状、例えばパルミジャーノは
+`height: 9px`）と同じ要素に同時に適用されており、CSSの詳細度が同じ場合は
+スタイルシート内で後に書かれた方が勝つため、トレイ上ではパルミジャーノが
+21×26のブロックとして表示されてしまい、ピザ上の薄い削り片の形と一致しなくなる。
+
+**対応**: `IngredientTray.tsx` でトレイのアイコンをラッパー
+（`.ingredient-chip__cheese-slot`、高さ26pxの枠のみを担当）とチーズ本体
+（`.pizza-cheese--*`、形状のみを担当）の2要素に分離し、詳細度の衝突を解消した
+（コミット `a5802c9`）。修正後、Playwrightでトレイのパルミジャーノ要素の
+`getBoundingClientRect()` を実測したところ 幅23×高さ15（-18°回転後のバウンディング
+ボックスとして、回転前の21×9と整合する期待値どおり）となり、トレイとピザ上で
+同じ形状が表示されることを確認した。レビューコメントへ返信し、スレッドを
+解決済みにした。
+
 ## 10. commit SHA / PR URL / CI状態 / merge readiness
 
 - ベースコミット（着手前 `origin/main`）: `c7a6161079bd1eca1bb19507922ff2fee952f28f`
 - 実装コミット: `921eed9b65fe6388ef13632a83f1d08c566d5144`
   （`Phase 2B: Visual Feedback + Replay Motivation Polish`）
+- 修正コミット（PRの最新head）: `a5802c9`
+  （`fix: トレイのチーズアイコンが本来の高さで表示されない不具合を修正`。9A章参照）
 - Pull Request: https://github.com/perusonao/teto-pizza-game/pull/6
-- CI状態: **green**（`build` ジョブ = `success`、実行時間13秒、
-  https://github.com/perusonao/teto-pizza-game/actions/runs/34759917041 ）
+- CI状態: **green**（最新head `a5802c9` の `build` ジョブ = `success`、実行時間14秒、
+  https://github.com/perusonao/teto-pizza-game/actions/runs/34760121343 ）
 - PRの `mergeable_state`: `clean`（mainとのコンフリクトなし）
 - ローカルの `npm ci` / `npm run lint` / `npm run build` はすべて成功（0エラー・0警告）
+- Codex自動レビューのP2指摘1件は検証のうえ修正・再push済み（9A章）。それ以外の
+  未対応レビューコメントなし
 - 自動マージは行っていない。マージの可否・タイミングはリポジトリオーナー
   （perusonao）の判断に委ねる
 
