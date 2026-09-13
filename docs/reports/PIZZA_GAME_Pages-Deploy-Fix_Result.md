@@ -131,10 +131,9 @@ npm run build       success
 |---|---|
 | root cause | `github-pages` environment が旧作業ブランチだけを許可し、`main` deployment を protection rule で拒否していた |
 | 修正ファイル | workflow / game code の修正なし。本報告書のみ追加 |
-| commit SHA | `REPORT_COMMIT_SHA` |
-| PR URL | `REPORT_PR_URL` |
-| CI結果 | `REPORT_CI_RESULT` |
+| commit SHA | `493a3b7b979383ab8252fcb45b15a19723be3248`（本報告書追加） |
+| PR URL | https://github.com/perusonao/teto-pizza-game/pull/4 |
+| CI結果 | **成功（green）**。`npm ci` / `npm run lint` / `npm run build` が成功（run `34750207656`） |
 | Pages deploy結果 | **成功**。run `34749210841` attempt 2、build / deploy ともに success |
 | Public Demo実測結果 | **成功**。HTTP 200、JS/CSS 200、実ブラウザでゲーム画面を確認 |
 | Phase 2開始可否 | **開始可**。CI / Pages / Public Demo の阻害要因は解消済み |
-
