@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { classifyBake, type BakeState } from "../logic/bake";
+import tetoImg from "../assets/characters/teto.webp";
 
 interface BakeOverlayProps {
   targetStart: number;
@@ -64,7 +65,10 @@ export function BakeOverlay({ targetStart, targetEnd, onConfirm, onTick }: BakeO
     <div className="bake-overlay">
       <div className="bake-oven">
         <span className="bake-oven__flame">{"\u{1F525}"}</span>
-        <p className="bake-oven__caption">{CAPTION[bakeState]}</p>
+        <div className="bake-oven__caption-row">
+          <img className="bake-oven__caption-avatar" src={tetoImg} alt="テト" />
+          <p className="bake-oven__caption">{CAPTION[bakeState]}</p>
+        </div>
       </div>
       <div className="bake-gauge">
         <div className="bake-gauge__zone bake-gauge__zone--raw" style={{ width: `${targetStart}%` }} />

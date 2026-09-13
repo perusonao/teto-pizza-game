@@ -119,6 +119,7 @@ function App() {
         pizza={state.pizza}
         recipe={state.recipe}
         interactive={state.phase === "PREPARE"}
+        activeIngredient={selectedIngredientId ? (getIngredient(selectedIngredientId) ?? null) : null}
         bakeProgress={bakeProgress}
         placement={state.placement}
         resultRevealed={state.phase === "RESULT"}
