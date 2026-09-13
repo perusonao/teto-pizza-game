@@ -28,7 +28,7 @@ export interface GameState {
 
 export type GameAction =
   | { type: "BEGIN_PREPARE" }
-  | { type: "APPLY_SAUCE"; ingredientId: string }
+  | { type: "APPLY_SAUCE"; ingredientId: string; x: number; y: number }
   | { type: "PLACE_TOPPING"; ingredientId: string; x: number; y: number }
   | { type: "RESET_PIZZA" }
   | { type: "START_BAKE" }
@@ -73,6 +73,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const pizza: PizzaState = {
         ...state.pizza,
         sauceIds: [action.ingredientId],
+        sauceOrigin: { x: action.x, y: action.y },
+        sauceToken: state.pizza.sauceToken + 1,
       };
       return { ...state, pizza, hint: buildHintLine(state.recipe, pizza) };
     }

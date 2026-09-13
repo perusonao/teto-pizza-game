@@ -5,14 +5,23 @@ export interface PlacedTopping {
   y: number;
 }
 
+export interface SauceOrigin {
+  x: number;
+  y: number;
+}
+
 export interface PizzaState {
   sauceIds: string[];
+  /** Tap point the sauce spread animation should originate from (Phase 2C "painted" feel). */
+  sauceOrigin: SauceOrigin | null;
+  /** Bumped every APPLY_SAUCE so the spread animation replays even at the same spot. */
+  sauceToken: number;
   toppings: PlacedTopping[];
   bakeResult: number | null;
 }
 
 export function createEmptyPizza(): PizzaState {
-  return { sauceIds: [], toppings: [], bakeResult: null };
+  return { sauceIds: [], sauceOrigin: null, sauceToken: 0, toppings: [], bakeResult: null };
 }
 
 /** Minimum distance (in the same 0-100% unit as x/y) between two toppings. */

@@ -115,25 +115,58 @@
 .pizza-dough--raw {
   background: radial-gradient(circle at 40% 35%, #faf1dc, #f0e2bc 85%);
   filter: saturate(0.85) brightness(1.03);
+  /* Pale crust: the ring stays visible even on sauce-heavy recipes where the dough
+     face itself is mostly hidden, so raw is still readable without the RESULT text. */
+  border-color: #ecd9a3;
+  transition: filter 0.4s ease, border-color 0.4s ease;
 }
 
 .pizza-dough--perfect {
   background: radial-gradient(circle at 40% 35%, #eec27a, #c9863c 85%);
   filter: saturate(1.12) brightness(0.99);
+  /* Golden-brown crust: perfect's key "looks tasty" signal, independent of sauce coverage. */
+  border-color: #a06a2b;
+  transition: filter 0.4s ease, border-color 0.4s ease;
 }
 
 .pizza-dough--burnt {
   background: radial-gradient(circle at 40% 35%, #8f6236, #4d2f16 85%);
   filter: saturate(0.85) brightness(0.88) contrast(1.12);
+  border-color: #3a2211;
+  transition: filter 0.4s ease, border-color 0.4s ease;
 }
 
-/* Bake state also touches every topping so half-baked/burnt reads even without the RESULT screen. */
+/* Bake state also touches every topping so half-baked/burnt/perfect reads even without
+   the RESULT screen. */
 .pizza-dough--raw .pizza-topping {
   filter: brightness(1.02) saturate(0.92);
 }
 
+.pizza-dough--perfect .pizza-topping {
+  /* Very light roasted warmth -- not char, just "cooked". */
+  filter: brightness(1.02) saturate(1.06) sepia(0.05);
+}
+
 .pizza-dough--burnt .pizza-topping {
   filter: brightness(0.62) saturate(0.7) sepia(0.25);
+}
+
+/* Sauce warms/deepens as it bakes; stays vivid and "raw-looking" until then.
+   :not(oil) keeps olive oil's own gloss layer (below) untouched here. */
+.pizza-dough--raw .pizza-sauce-layer:not(.pizza-sauce-layer--oil) {
+  filter: saturate(1.18) brightness(1.06);
+}
+
+.pizza-dough--perfect .pizza-sauce-layer:not(.pizza-sauce-layer--oil) {
+  filter: saturate(1.08) brightness(0.95) hue-rotate(-6deg);
+}
+
+.pizza-dough--raw .pizza-sauce-layer--oil {
+  filter: brightness(1.04);
+}
+
+.pizza-dough--perfect .pizza-sauce-layer--oil {
+  filter: brightness(0.97) saturate(1.08);
 }
 
 .pizza-char-spots {
@@ -154,7 +187,22 @@
   position: absolute;
   inset: 6%;
   border-radius: 50%;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.3s ease, filter 0.4s ease;
+  /* "Painted" feel: the sauce spreads out from the tapped point instead of just fading in.
+     Linear growth keeps the radius reading as a steadily expanding circle rather than
+     snapping to full coverage in the first few frames. */
+  animation: sauce-spread 380ms linear both;
+}
+
+@keyframes sauce-spread {
+  0% {
+    clip-path: circle(0% at var(--sauce-origin-x, 50%) var(--sauce-origin-y, 50%));
+    opacity: 0.55;
+  }
+  100% {
+    clip-path: circle(150% at var(--sauce-origin-x, 50%) var(--sauce-origin-y, 50%));
+    opacity: 1;
+  }
 }
 
 /* Olive oil: a glossy translucent sheen instead of a flat fill, so it never merges into the dough.
@@ -171,7 +219,11 @@
   position: absolute;
   transform: translate(-50%, -50%);
   pointer-events: none;
-  animation: drop-in 0.25s ease;
+  /* Landing feel: drops in slightly from above and overshoots before settling, so placing
+     an ingredient reads as "set down on the pizza" rather than "a tap registered". Plays
+     once per topping on mount, so auto-nudged toppings still land naturally at their
+     final (possibly adjusted) spot. */
+  animation: topping-land 220ms linear both;
   transition: filter 0.3s ease;
 }
 
@@ -234,18 +286,31 @@
   transform: rotate(-18deg) scale(1.16);
 }
 
+/* Perfect-only: a light golden toast on top of the melt, distinct from --charred (burnt).
+   Combined-class selector (not declaration order) wins over .pizza-cheese--melted alone,
+   so it can't be silently overridden by later stylesheet edits -- see Phase 2B 9A postmortem. */
+.pizza-cheese--melted.pizza-cheese--toasted {
+  filter: brightness(1.06) saturate(1.12) sepia(0.14);
+}
+
 .pizza-cheese--charred {
   filter: brightness(0.6) saturate(0.75) sepia(0.25);
 }
 
-@keyframes drop-in {
-  from {
-    transform: translate(-50%, -50%) scale(0.3);
+@keyframes topping-land {
+  0% {
+    transform: translate(-50%, calc(-50% - 14px)) scale(0.6);
     opacity: 0;
   }
-  to {
-    transform: translate(-50%, -50%) scale(1);
+  55% {
+    transform: translate(-50%, -50%) scale(1.12);
     opacity: 1;
+  }
+  80% {
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
   }
 }
 
@@ -269,6 +334,32 @@
 .pizza-bake-overlay--burnt {
   background: radial-gradient(circle, rgba(50, 26, 12, 0.22) 18%, rgba(20, 10, 5, 0.6) 100%);
   opacity: 0.85;
+}
+
+/* One-shot warm flash the instant a perfect bake reaches RESULT -- "it turned out great". */
+.pizza-perfect-glow {
+  position: absolute;
+  inset: -10px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(255, 224, 150, 0.85) 0%, rgba(255, 200, 110, 0.4) 55%, transparent 78%);
+  mix-blend-mode: screen;
+  animation: perfect-glow 700ms ease-out both;
+}
+
+@keyframes perfect-glow {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  35% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.2);
+  }
 }
 
 .pizza-reject-mark {
