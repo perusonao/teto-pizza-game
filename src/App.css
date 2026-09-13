@@ -384,7 +384,7 @@
   font-size: 26px;
 }
 
-.ingredient-chip__cheese {
+.ingredient-chip__cheese-slot {
   display: flex;
   align-items: center;
   justify-content: center;
