@@ -4,6 +4,9 @@ import type { Recipe } from "../data/recipes";
 import type { PizzaState, PlacementFeedback } from "../state/pizzaState";
 import { classifyBake } from "../logic/bake";
 
+/** Must match .pizza-sauce-layer's `inset` in App.css. */
+const SAUCE_LAYER_INSET_PERCENT = 6;
+
 interface PizzaStageProps {
   pizza: PizzaState;
   recipe: Recipe;
@@ -51,10 +54,16 @@ export function PizzaStage({
       : bakeState === "burnt"
         ? "pizza-cheese--melted pizza-cheese--charred"
         : "";
+  // sauceOrigin.x/y are tap coordinates as a percentage of .pizza-dough's own box, but the
+  // clip-path "at X% Y%" on .pizza-sauce-layer resolves against that layer's own box, which
+  // is inset 6% from the dough (see .pizza-sauce-layer below). Re-project into the sauce
+  // layer's coordinate space so the spread starts under the tap, not shifted toward center.
   const sauceOrigin = pizza.sauceOrigin ?? { x: 50, y: 50 };
+  const toSauceLayerPercent = (doughPercent: number) =>
+    ((doughPercent - SAUCE_LAYER_INSET_PERCENT) / (100 - 2 * SAUCE_LAYER_INSET_PERCENT)) * 100;
   const sauceOriginStyle = {
-    "--sauce-origin-x": `${sauceOrigin.x}%`,
-    "--sauce-origin-y": `${sauceOrigin.y}%`,
+    "--sauce-origin-x": `${toSauceLayerPercent(sauceOrigin.x)}%`,
+    "--sauce-origin-y": `${toSauceLayerPercent(sauceOrigin.y)}%`,
   } as CSSProperties;
 
   return (
