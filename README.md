@@ -5,6 +5,7 @@
 
 - 設計ドキュメント: [`docs/design/`](docs/design/PIZZA_GAME_SSOT.md)（SSOT / MVP仕様 / データモデル / UI仕様）
 - Phase 1 実装結果: [`docs/reports/PIZZA_GAME_Phase1_Result.md`](docs/reports/PIZZA_GAME_Phase1_Result.md)
+- Public Demo: https://perusonao.github.io/teto-pizza-game/ （`main` push時にGitHub Pagesへ自動デプロイ）
 
 ## 開発
 
