@@ -148,7 +148,7 @@ Hint文言のみで補助する方針も、既存 `missing` 文言（「◯◯�
 
 ## 12. Git
 
-- Commit SHA: （コミット後に追記）
-- PR: （作成後に番号・URLを追記、mainへ向けて作成・auto-mergeなし）
+- Commit SHA: `d3694cb`
+- PR: [#9](https://github.com/perusonao/teto-pizza-game/pull/9)（`main`向け、auto-mergeなし・未マージ）
 - `git status`: 上記4ファイルのみ変更。既存local untracked report/screenshotsは
   コミット対象に含めていない。
