@@ -29,6 +29,32 @@ export const RECIPES: Recipe[] = [
     ],
     bakeTarget: { start: 60, end: 80 },
   },
+  {
+    id: "marinara",
+    nameJa: "マリナーラ",
+    description:
+      "トマトソースとにんにく、オレガノだけ。チーズを使わない、ナポリ生まれの下町ピザ。",
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "garlic", minCount: 3 },
+      { ingredientId: "oregano", minCount: 2 },
+    ],
+    bakeTarget: { start: 45, end: 65 },
+  },
+  {
+    id: "quattro-formaggi",
+    nameJa: "クアトロ フォルマッジ",
+    description:
+      "モッツァレラ・ゴルゴンゾーラ・パルミジャーノ・フォンティーナ、4種のチーズが溶け合う濃厚な一枚。",
+    requiredIngredients: [
+      { ingredientId: "olive-oil", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "gorgonzola", minCount: 2 },
+      { ingredientId: "parmigiano", minCount: 2 },
+      { ingredientId: "fontina", minCount: 2 },
+    ],
+    bakeTarget: { start: 65, end: 85 },
+  },
 ];
 
 export function getRecipe(id: string): Recipe | undefined {

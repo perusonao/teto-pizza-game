@@ -7,45 +7,20 @@ export interface DialogueLine {
 }
 
 export const DIALOGUE: Record<string, DialogueLine> = {
-  "order.mito": {
-    speaker: "mito",
-    id: "order.mito",
-    textJa: "マルゲリータが食べたいな！おすすめを教えてテト！",
-  },
   "order.teto": {
     speaker: "teto",
     id: "order.teto",
     textJa: "よし！おいしいピザを作ろう！生地にソースを塗って好きなトッピングを選んでね。",
   },
-  "prepare.hint.empty": {
-    speaker: "mito",
-    id: "prepare.hint.empty",
-    textJa: "まずはソースを塗ってみて！",
-  },
-  "prepare.hint.sauceOnly": {
-    speaker: "mito",
-    id: "prepare.hint.sauceOnly",
-    textJa: "いいね！次はモッツァレラをのせよう。",
-  },
-  "prepare.hint.needBasil": {
-    speaker: "mito",
-    id: "prepare.hint.needBasil",
-    textJa: "あとはバジルをのせたら完成に近いよ！",
-  },
-  "prepare.hint.ready": {
-    speaker: "mito",
-    id: "prepare.hint.ready",
-    textJa: "いい感じ！「焼く！」を押してみよう。",
-  },
   "bake.teto": {
     speaker: "teto",
     id: "bake.teto",
-    textJa: "いい香り…ちょうどいいタイミングで取り出そう！",
+    textJa: "いい香り…色の変化をよく見て、ちょうどいいタイミングで取り出そう！",
   },
   "result.blue.high": {
     speaker: "blue",
     id: "result.blue.high",
-    textJa: "最高だよ！これぞマルゲリータ！また作って！",
+    textJa: "最高だよ！これぞ職人の仕事！また作って！",
   },
   "result.blue.mid": {
     speaker: "blue",
@@ -57,10 +32,15 @@ export const DIALOGUE: Record<string, DialogueLine> = {
     id: "result.blue.low",
     textJa: "うーん、次はレシピどおりの材料で挑戦してみて！",
   },
-  "discovered.mito": {
-    speaker: "mito",
-    id: "discovered.mito",
-    textJa: "マルゲリータがレシピ図鑑に登録されたよ！",
+  "result.blue.low.raw": {
+    speaker: "blue",
+    id: "result.blue.low.raw",
+    textJa: "うわ、真ん中がまだ生っぽいや…次はもう少し長めに焼いてみよう！",
+  },
+  "result.blue.low.burnt": {
+    speaker: "blue",
+    id: "result.blue.low.burnt",
+    textJa: "うっ、香ばしいを通り越して焦げてるよ…次は早めに取り出してみて！",
   },
 };
 

@@ -1,11 +1,11 @@
-import { useReducer, useState } from "react";
+import { useReducer, useRef, useState } from "react";
 import { DialogueBox } from "./components/DialogueBox";
 import { PizzaStage } from "./components/PizzaStage";
 import { IngredientTray } from "./components/IngredientTray";
 import { BakeOverlay } from "./components/BakeOverlay";
 import { ResultPanel } from "./components/ResultPanel";
 import { DexOverlay } from "./components/DexOverlay";
-import { getLine } from "./data/dialogue";
+import { getLine, type DialogueLine } from "./data/dialogue";
 import { getIngredient, type Ingredient, type IngredientCategory } from "./data/ingredients";
 import { createInitialGameState, gameReducer } from "./state/gameReducer";
 import "./App.css";
@@ -13,10 +13,30 @@ import "./App.css";
 function App() {
   const [state, dispatch] = useReducer(gameReducer, undefined, createInitialGameState);
   const [activeCategory, setActiveCategory] = useState<IngredientCategory>("sauce");
-  const [selectedIngredientId, setSelectedIngredientId] = useState<string | null>(
-    "tomato-sauce",
-  );
+  const [selectedIngredientId, setSelectedIngredientId] = useState<string | null>(null);
   const [isDexOpen, setDexOpen] = useState(false);
+  const [liveBake, setLiveBake] = useState(0);
+  const bakeFrameSkip = useRef(0);
+
+  // Every new order should start the player off with the recipe's own sauce selected,
+  // so a fresh order never opens on a sauce that belongs to a different recipe.
+  const [lastOrderId, setLastOrderId] = useState(state.order.id);
+  if (lastOrderId !== state.order.id) {
+    setLastOrderId(state.order.id);
+    const primarySauce = state.recipe.requiredIngredients.find(
+      (req) => getIngredient(req.ingredientId)?.category === "sauce",
+    );
+    setSelectedIngredientId(primarySauce?.ingredientId ?? null);
+    setActiveCategory("sauce");
+  }
+
+  const [lastPhase, setLastPhase] = useState(state.phase);
+  if (lastPhase !== state.phase) {
+    setLastPhase(state.phase);
+    if (state.phase === "BAKE") {
+      setLiveBake(0);
+    }
+  }
 
   function handleSelectIngredient(ingredient: Ingredient) {
     setSelectedIngredientId(ingredient.id);
@@ -37,8 +57,41 @@ function App() {
     }
   }
 
+  function handleBakeTick(value: number) {
+    bakeFrameSkip.current += 1;
+    if (bakeFrameSkip.current % 3 !== 0) return;
+    setLiveBake(value);
+  }
+
   const bakeProgress =
-    state.phase === "RESULT" || state.phase === "DISCOVERED" ? state.pizza.bakeResult : null;
+    state.phase === "BAKE"
+      ? liveBake
+      : state.phase === "RESULT" || state.phase === "DISCOVERED"
+        ? state.pizza.bakeResult
+        : null;
+
+  const orderLine: DialogueLine = {
+    speaker: "mito",
+    id: state.order.id,
+    textJa: state.order.lineJa,
+  };
+
+  const discoveredLine: DialogueLine = {
+    speaker: "mito",
+    id: `discovered.${state.recipe.id}`,
+    textJa: state.justDiscovered
+      ? `${state.recipe.nameJa}がレシピ図鑑に載ったよ！やったね！`
+      : `${state.recipe.nameJa}、また上手にできたね！`,
+  };
+
+  let resultLineKey = "result.blue.mid";
+  if (state.score) {
+    if (state.score.stars === 3) resultLineKey = "result.blue.high";
+    else if (state.score.stars === 2) resultLineKey = "result.blue.mid";
+    else if (state.bakeState === "raw") resultLineKey = "result.blue.low.raw";
+    else if (state.bakeState === "burnt") resultLineKey = "result.blue.low.burnt";
+    else resultLineKey = "result.blue.low";
+  }
 
   return (
     <div className="app-frame">
@@ -52,30 +105,22 @@ function App() {
       <section className="dialogue-area">
         {state.phase === "ORDER" && (
           <>
-            <DialogueBox {...getLine("order.mito")} />
+            <DialogueBox {...orderLine} />
             <DialogueBox {...getLine("order.teto")} />
           </>
         )}
-        {state.phase === "PREPARE" && state.hintKey && <DialogueBox {...getLine(state.hintKey)} />}
+        {state.phase === "PREPARE" && state.hint && <DialogueBox {...state.hint} />}
         {state.phase === "BAKE" && <DialogueBox {...getLine("bake.teto")} />}
-        {state.phase === "RESULT" && state.score && (
-          <DialogueBox
-            {...getLine(
-              state.score.stars === 3
-                ? "result.blue.high"
-                : state.score.stars === 2
-                  ? "result.blue.mid"
-                  : "result.blue.low",
-            )}
-          />
-        )}
-        {state.phase === "DISCOVERED" && <DialogueBox {...getLine("discovered.mito")} />}
+        {state.phase === "RESULT" && state.score && <DialogueBox {...getLine(resultLineKey)} />}
+        {state.phase === "DISCOVERED" && <DialogueBox {...discoveredLine} />}
       </section>
 
       <PizzaStage
         pizza={state.pizza}
+        recipe={state.recipe}
         interactive={state.phase === "PREPARE"}
         bakeProgress={bakeProgress}
+        placement={state.placement}
         onTap={handleTapPizza}
       />
 
@@ -130,17 +175,22 @@ function App() {
           targetStart={state.recipe.bakeTarget.start}
           targetEnd={state.recipe.bakeTarget.end}
           onConfirm={(value) => dispatch({ type: "CONFIRM_BAKE", value })}
+          onTick={handleBakeTick}
         />
       )}
 
       {state.phase === "RESULT" && state.score && (
-        <ResultPanel score={state.score} onRegister={() => dispatch({ type: "REGISTER_TO_DEX" })} />
+        <ResultPanel
+          score={state.score}
+          bakeState={state.bakeState}
+          onRegister={() => dispatch({ type: "REGISTER_TO_DEX" })}
+        />
       )}
 
       {state.phase === "DISCOVERED" && (
         <div className="action-row action-row--column">
           {state.justDiscovered && (
-            <p className="discovered-banner">{state.recipe.nameJa}を発見しました！</p>
+            <p className="discovered-banner">{"✨"} {state.recipe.nameJa}を発見しました！</p>
           )}
           <button
             type="button"
@@ -153,7 +203,11 @@ function App() {
       )}
 
       {isDexOpen && (
-        <DexOverlay discoveredRecipeIds={state.dex} onClose={() => setDexOpen(false)} />
+        <DexOverlay
+          discoveredRecipeIds={state.dex}
+          newlyDiscoveredId={state.justDiscovered ? state.recipe.id : null}
+          onClose={() => setDexOpen(false)}
+        />
       )}
     </div>
   );

@@ -1,7 +1,15 @@
-import { getNextOrder, type Order } from "../data/orders";
+import { getNextOrder, type NextOrderOptions, type Order } from "../data/orders";
 import { getRecipe, type Recipe } from "../data/recipes";
+import { buildHintLine } from "../data/hints";
+import type { DialogueLine } from "../data/dialogue";
 import { scorePizza, type ScoreBreakdown } from "../logic/scoring";
-import { createEmptyPizza, type PizzaState } from "./pizzaState";
+import { classifyBake, type BakeState } from "../logic/bake";
+import {
+  createEmptyPizza,
+  findOpenSpot,
+  type PizzaState,
+  type PlacementFeedback,
+} from "./pizzaState";
 
 export type GamePhase = "ORDER" | "PREPARE" | "BAKE" | "RESULT" | "DISCOVERED";
 
@@ -11,9 +19,11 @@ export interface GameState {
   recipe: Recipe;
   pizza: PizzaState;
   score: ScoreBreakdown | null;
+  bakeState: BakeState | null;
   dex: string[];
   justDiscovered: boolean;
-  hintKey: string | null;
+  hint: DialogueLine | null;
+  placement: PlacementFeedback | null;
 }
 
 export type GameAction =
@@ -27,8 +37,8 @@ export type GameAction =
   | { type: "PLAY_AGAIN" }
   | { type: "SHOW_HINT" };
 
-function initialOrderState(dex: string[]): GameState {
-  const order = getNextOrder();
+function nextOrderState(dex: string[], orderOptions: NextOrderOptions): GameState {
+  const order = getNextOrder(orderOptions);
   const recipe = getRecipe(order.recipeId);
   if (!recipe) {
     throw new Error(`Unknown recipe for order ${order.id}`);
@@ -39,43 +49,50 @@ function initialOrderState(dex: string[]): GameState {
     recipe,
     pizza: createEmptyPizza(),
     score: null,
+    bakeState: null,
     dex,
     justDiscovered: false,
-    hintKey: null,
+    hint: null,
+    placement: null,
   };
 }
 
 export function createInitialGameState(): GameState {
-  return initialOrderState([]);
-}
-
-function nextHint(pizza: PizzaState): string | null {
-  const hasSauce = pizza.sauceIds.length > 0;
-  const cheeseCount = pizza.toppings.filter((t) => t.ingredientId === "mozzarella").length;
-  const basilCount = pizza.toppings.filter((t) => t.ingredientId === "basil").length;
-
-  if (!hasSauce) return "prepare.hint.empty";
-  if (cheeseCount < 3) return "prepare.hint.sauceOnly";
-  if (basilCount < 2) return "prepare.hint.needBasil";
-  return "prepare.hint.ready";
+  return nextOrderState([], { preferFirst: true });
 }
 
 let placedIdCounter = 0;
+let placementTokenCounter = 0;
 
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case "BEGIN_PREPARE":
-      return { ...state, phase: "PREPARE", hintKey: nextHint(state.pizza) };
+      return { ...state, phase: "PREPARE", hint: buildHintLine(state.recipe, state.pizza) };
 
     case "APPLY_SAUCE": {
       const pizza: PizzaState = {
         ...state.pizza,
         sauceIds: [action.ingredientId],
       };
-      return { ...state, pizza, hintKey: nextHint(pizza) };
+      return { ...state, pizza, hint: buildHintLine(state.recipe, pizza) };
     }
 
     case "PLACE_TOPPING": {
+      const spot = findOpenSpot(state.pizza.toppings, action.x, action.y);
+      placementTokenCounter += 1;
+
+      if (!spot) {
+        return {
+          ...state,
+          placement: {
+            status: "rejected",
+            x: action.x,
+            y: action.y,
+            token: placementTokenCounter,
+          },
+        };
+      }
+
       placedIdCounter += 1;
       const pizza: PizzaState = {
         ...state.pizza,
@@ -84,17 +101,28 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           {
             id: `topping-${placedIdCounter}`,
             ingredientId: action.ingredientId,
-            x: action.x,
-            y: action.y,
+            x: spot.x,
+            y: spot.y,
           },
         ],
       };
-      return { ...state, pizza, hintKey: nextHint(pizza) };
+      const wasAdjusted = spot.x !== action.x || spot.y !== action.y;
+      return {
+        ...state,
+        pizza,
+        hint: buildHintLine(state.recipe, pizza),
+        placement: {
+          status: wasAdjusted ? "adjusted" : "placed",
+          x: spot.x,
+          y: spot.y,
+          token: placementTokenCounter,
+        },
+      };
     }
 
     case "RESET_PIZZA": {
       const pizza = createEmptyPizza();
-      return { ...state, pizza, hintKey: nextHint(pizza) };
+      return { ...state, pizza, hint: buildHintLine(state.recipe, pizza), placement: null };
     }
 
     case "START_BAKE":
@@ -103,7 +131,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case "CONFIRM_BAKE": {
       const pizza: PizzaState = { ...state.pizza, bakeResult: action.value };
       const score = scorePizza(state.recipe, pizza);
-      return { ...state, pizza, score, phase: "RESULT" };
+      const bakeState = classifyBake(action.value, state.recipe.bakeTarget);
+      return { ...state, pizza, score, bakeState, phase: "RESULT" };
     }
 
     case "REGISTER_TO_DEX": {
@@ -113,10 +142,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case "PLAY_AGAIN":
-      return initialOrderState(state.dex);
+      return nextOrderState(state.dex, { excludeRecipeId: state.recipe.id });
 
     case "SHOW_HINT":
-      return { ...state, hintKey: nextHint(state.pizza) };
+      return { ...state, hint: buildHintLine(state.recipe, state.pizza) };
 
     default:
       return state;
