@@ -54,19 +54,22 @@ dist/assets/index-IJW83Ekm.js   236.97 kB
 | 項目 | 内容 |
 |---|---|
 | base main SHA | `0f3f553e1a99b95c2926bf0313687e5ed39fbec` |
-| commit SHA | `f682a0942090d57e088f73b9129fb14c74119a4e`（PR #2 最新head） |
-| PR URL | https://github.com/perusonao/teto-pizza-game/pull/2 |
-| CI結果 | **成功（green）**。`ci.yml` の `build` ジョブが `completed` / `success` (Run: https://github.com/perusonao/teto-pizza-game/actions/runs/34748686460)。`mergeable_state: clean`。ローカルでの`npm ci`/`lint`/`build`もFresh実行で全て成功（上記参照） |
-| Pages設定 | **未完了（手動UI操作が必要）**。`deploy.yml` は追加済みだが、リポジトリ側で **Settings → Pages → Build and deployment → Source を「GitHub Actions」に設定**する操作がAPI経由では実行不可のため未実施 |
-| Public Demo予定URL | `https://perusonao.github.io/teto-pizza-game/` |
+| commit SHA | `133b439a92a246aa0db6b53d42e364e47136e526`（PR #2 マージコミット、`main` HEAD） |
+| PR URL | https://github.com/perusonao/teto-pizza-game/pull/2（**MERGED**） |
+| CI結果 | **成功（green）**。`ci.yml` の `build` ジョブが `completed` / `success` (Run: https://github.com/perusonao/teto-pizza-game/actions/runs/34748686460 ほか)。マージ後、`mergeable_state: clean`のままPR #2はマージ済み。ローカルでの`npm ci`/`lint`/`build`もFresh実行で全て成功（上記参照） |
+| Pages設定 | **未完了（手動UI操作が必要）— 実測で確認済み**。`main`マージ後に`deploy.yml`が自動起動（Run: https://github.com/perusonao/teto-pizza-game/actions/runs/34749026402）。`npm ci`/`npm run build`ステップは成功（Vite base設定がCI環境でも正しく機能することを確認）したが、`actions/configure-pages@v5`ステップが失敗し、後続の`upload-pages-artifact`/`deploy`はskippedとなった。原因はリポジトリでGitHub Pagesが未有効化（Settings → Pages → Source未設定）のため。**Settings → Pages → Source を「GitHub Actions」に設定後、`deploy.yml`を再実行（workflow_dispatchまたは次のmain push）すれば成功する見込み** |
+| Public Demo予定URL | `https://perusonao.github.io/teto-pizza-game/`（Pages有効化・初回デプロイ成功後に利用可能） |
 | default branch状態 | **未変更**。引き続き `claude/teto-pizza-shop-phase-0-1-364h1p` のまま（API経由でのdefault branch変更手段がこのセッションのツールセットに存在しないため、手動UI操作が必要） |
-| Phase 2開始可否 | **条件付きで可**。コード基盤（CI/Pages workflow, Vite base設定）は整備完了し、PR #2のCIはgreen・マージ可能状態。ただし下記「必要な手動GitHub UI操作」（Pages Source設定・default branch変更）の実施とPR #2のマージをもって完全完了とする |
+| Phase 2開始可否 | **可（コード基盤としては完了）**。PR #2はマージ済み、CIはgreen、`main`にCI/Pages workflowとVite base設定が反映済み。残るのはリポジトリ管理者による手動UI操作2件（Pages Source設定・default branch変更）のみで、Phase 2のコード開発自体を妨げるものではない |
 
 ## 必要な手動GitHub UI操作（API経由では実行不可）
 
 1. **Settings → Pages**
    - "Build and deployment" の Source を **GitHub Actions** に設定する
    - （初回のみ必要。設定後は `deploy.yml` が `main` push時に自動デプロイする）
+   - 設定後、`Deploy to GitHub Pages` ワークフローを手動再実行（Actions タブ →
+     `workflow_dispatch`）するか、`main` に何か1つpushすれば初回デプロイが
+     成功する（`npm ci`/`npm run build`ステップは既にCI上で成功確認済み）
 2. **Settings → Branches**
    - Default branch を `claude/teto-pizza-shop-phase-0-1-364h1p` から **`main`** に変更する
    - 変更後、既存の未マージブランチがある場合はベースを `main` に付け替える
