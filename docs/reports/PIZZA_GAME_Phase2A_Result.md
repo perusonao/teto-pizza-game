@@ -58,7 +58,7 @@ Status: 実装完了・レビュー待ち
 - `BakeOverlay`（BAKE中のゲージ）: 生焼けゾーン／目標ゾーン／焦げゾーンを色分けし、現在位置に応じて針の色とキャプション文言（「まだ生っぽいね…」「香ばしいにおい！今がチャンス！」「ちょっと焦げてきたかも！？」）が変化。BAKE中の焼成値を親コンポーネントへ間引きコールバックで伝搬し、ピザ本体もリアルタイムに色が変わるようにした
 - `ResultPanel`: 焼き加減バッジ（💧生焼け／✅いい焼き加減／🔥焦げ）をスコアバーの上に表示し、採点と視覚を直結
 - `scoring.ts`: 焼成が `perfect` でない場合は★3を上限★2にキャップする補正を追加。これにより「焦げているのに★3で大絶賛」のような見た目とスコアの矛盾を防いだ（実装後のブラウザ確認で発見し修正）
-- ブルーのコメントも★1かつ生焼け／焦げの場合に専用セリフ（`result.blue.low.raw` / `result.blue.low.burnt`）を表示するよう分岐
+- ブルーのコメントは `bakeState` を最優先で判定し、生焼け／焦げの場合は★2でも専用セリフ（`result.blue.low.raw` / `result.blue.low.burnt`）を表示するよう修正。材料は正しいが焼成だけ外れたケース（★2になりやすい）で汎用の「おいしいよ」コメントが専用セリフより先に選ばれてしまうバグを、PRの自動レビュー（Codex）指摘を受けて修正した（詳細は10章）
 - 失敗してもゲームオーバーにはならず、必ず RESULT → DISCOVERED → 再プレイに進める
 
 ### 2.6 ミトのヒント強化
@@ -140,21 +140,27 @@ Playwright（Chromium, viewport 390×844）で確認。
 
 ```
 ORDER 1: マルゲリータが食べたいな！おすすめを教えてテト！
-Confirmed perfect bake at 62.60
+Confirmed perfect bake at 62.59
 RESULT 1: 最高だよ！これぞ職人の仕事！また作って！ | badge: ✅ 焼き加減: いい焼き加減
 
-order -> marinara（今日はシンプルにマリナーラの気分！トマトとにんにくの香りが恋しいな。）
-baked recipe=marinara mode=raw value=2.24
-blue says: おいしいよ！でももう少し極められそうだね。 | badge: 💧 焼き加減: 生焼け
-
 order -> quattro-formaggi（チーズたっぷりのクアトロ フォルマッジが食べたい！とろとろにしてね！）
-baked recipe=quattro-formaggi mode=burnt value=89.20
-blue says: おいしいよ！でももう少し極められそうだね。 | badge: 🔥 焼き加減: 焦げ
+baked recipe=quattro-formaggi mode=raw value=2.19
+blue says: うわ、真ん中がまだ生っぽいや…次はもう少し長めに焼いてみよう！ | badge: 💧 焼き加減: 生焼け
 
-seenRecipes: [ margherita, marinara, quattro-formaggi ]  rawDone: true  burntDone: true
+order -> margherita（マルゲリータが食べたいな！おすすめを教えてテト！）
+baked recipe=margherita mode=burnt value=83.83
+blue says: うっ、香ばしいを通り越して焦げてるよ…次は早めに取り出してみて！ | badge: 🔥 焼き加減: 焦げ
+
+order -> marinara（今日はシンプルにマリナーラの気分！トマトとにんにくの香りが恋しいな。）
+baked recipe=marinara mode=perfect value=48.02
+blue says: 最高だよ！これぞ職人の仕事！また作って！ | badge: ✅ 焼き加減: いい焼き加減
+
+seenRecipes: [ margherita, quattro-formaggi, marinara ]  rawDone: true  burntDone: true
 CONSOLE ERRORS: none
 ALL CHECKS PASSED
 ```
+
+（上記は9A章の修正を反映した再実行結果。修正前は raw/burnt でも「おいしいよ！でももう少し極められそうだね。」という汎用セリフが出ていたが、修正後は生焼け・焦げそれぞれの専用セリフが正しく出るようになっている。）
 
 いずれのレシピも DISCOVERED まで到達し、図鑑に正しく登録されることを確認した。
 
@@ -162,9 +168,9 @@ ALL CHECKS PASSED
 
 同一セッション内で以下3状態をそれぞれ最低1回確認した（上記ログの通り）。
 
-- perfect（いい焼き加減）: マルゲリータ, value=62.60 → ★3, バッジ「✅ いい焼き加減」
-- raw（生焼け）: マリナーラ, value=2.24 → ★2（生焼けのため★3キャップ）, バッジ「💧 生焼け」
-- burnt（焦げ）: クアトロ フォルマッジ, value=89.20 → ★2（焦げのため★3キャップ）, バッジ「🔥 焦げ」
+- perfect（いい焼き加減）: マルゲリータ, value=62.59 → ★3, バッジ「✅ いい焼き加減」
+- raw（生焼け）: クアトロ フォルマッジ, value=2.19 → ★2（生焼けのため★3キャップ）, バッジ「💧 生焼け」, ブルーの専用セリフ表示
+- burnt（焦げ）: マルゲリータ, value=83.83 → ★2（焦げのため★3キャップ）, バッジ「🔥 焦げ」, ブルーの専用セリフ表示
 
 3状態それぞれでピザの見た目（オーバーレイ色・焦げの場合は煙アニメーション）・ブルーのコメント・スコアバッジ・★上限が連動して変化することを確認した。
 
@@ -186,6 +192,15 @@ ALL CHECKS PASSED
 10. `10-discovered-new.png` — DISCOVERED（新規発見バナー）
 11. `11-dex-new-badge.png` — 図鑑（NEWバッジ付きマルゲリータ、他2件は？？？）
 12. `12-dex-all-3-recipes.png` — 図鑑（3レシピ表示、マリナーラ・クアトロ フォルマッジも発見済み）
+
+## 9A. PR自動レビュー指摘への対応
+
+PR作成直後、`chatgpt-codex-connector[bot]` による自動レビューで以下2件のP2指摘を受け、いずれも検証のうえ修正・再pushした。
+
+1. **焼成失敗時のブルーのセリフが選ばれない**: 材料が正しいまま生焼け／焦げにすると★2止まりになりやすく、`App.tsx` の分岐が「★2判定 → bakeState判定」の順だったため、専用の生焼け／焦げセリフ（`result.blue.low.raw` / `.low.burnt`）が実質到達不能だった。分岐順序を「★3 → bakeStateがraw/burnt → ★2 → それ以外」に変更し、材料が合っていても焼成が外れていれば必ず専用セリフが出るように修正した
+2. **誤ったソースでもヒントが進んでしまう**: `hints.ts` の `hasSauce` が「何かソースが塗られていること」しか見ておらず、例えばマルゲリータにオリーブオイルを塗っても「ソース完了」とみなされ、次のヒントに進んでしまっていた。レシピが要求する正しいソースIDが塗られているかを見るように修正した
+
+修正後、両ケースをPlaywrightで再現して意図通りの挙動になることを確認済み（生焼け・焦げでそれぞれ専用セリフが出ること、誤ったソースを塗ってもヒントが「まずはトマトソースを塗ってみて！」のまま進まないこと）。修正はレポート添付のスクリーンショットにも反映済み。
 
 ## 10. known issues
 

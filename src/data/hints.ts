@@ -41,13 +41,15 @@ export const RECIPE_HINTS: Record<string, RecipeHintSet> = {
 
 export function buildHintLine(recipe: Recipe, pizza: PizzaState): DialogueLine {
   const hints = RECIPE_HINTS[recipe.id];
-  const requiresSauce = recipe.requiredIngredients.some(
+  const sauceRequirement = recipe.requiredIngredients.find(
     (req) => getIngredient(req.ingredientId)?.category === "sauce",
   );
-  const hasSauce = pizza.sauceIds.length > 0;
+  const hasCorrectSauce = sauceRequirement
+    ? pizza.sauceIds.includes(sauceRequirement.ingredientId)
+    : false;
 
   let text: string;
-  if (requiresSauce && !hasSauce) {
+  if (sauceRequirement && !hasCorrectSauce) {
     text = hints?.empty ?? "まずはソースを塗ってみて！";
   } else {
     const missingReq = recipe.requiredIngredients.find((req) => {

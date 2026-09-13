@@ -87,9 +87,9 @@ function App() {
   let resultLineKey = "result.blue.mid";
   if (state.score) {
     if (state.score.stars === 3) resultLineKey = "result.blue.high";
-    else if (state.score.stars === 2) resultLineKey = "result.blue.mid";
     else if (state.bakeState === "raw") resultLineKey = "result.blue.low.raw";
     else if (state.bakeState === "burnt") resultLineKey = "result.blue.low.burnt";
+    else if (state.score.stars === 2) resultLineKey = "result.blue.mid";
     else resultLineKey = "result.blue.low";
   }
 
