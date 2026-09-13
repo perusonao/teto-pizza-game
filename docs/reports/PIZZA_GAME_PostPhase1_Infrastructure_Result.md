@@ -67,12 +67,20 @@ dist/assets/index-IJW83Ekm.js   236.97 kB
 1. **Settings → Pages**
    - "Build and deployment" の Source を **GitHub Actions** に設定する
    - （初回のみ必要。設定後は `deploy.yml` が `main` push時に自動デプロイする）
-   - 設定後、`Deploy to GitHub Pages` ワークフローを手動再実行（Actions タブ →
-     `workflow_dispatch`）するか、`main` に何か1つpushすれば初回デプロイが
-     成功する（`npm ci`/`npm run build`ステップは既にCI上で成功確認済み）
+   - 設定後の初回デプロイは、**失敗した既存のRun
+     (https://github.com/perusonao/teto-pizza-game/actions/runs/34749026402)
+     を「Re-run all jobs」で再実行**するか、`main` に何か1つpushすれば成功する
+     見込み（`npm ci`/`npm run build`ステップは既にCI上で成功確認済み）
+   - 注意: Actions タブの `workflow_dispatch` ボタンによる手動起動は、
+     ワークフローファイルが**デフォルトブランチ**に存在する場合にのみ表示される。
+     デフォルトブランチが `main` に変更されるまでは `deploy.yml` に対する
+     `workflow_dispatch` は利用できないため、それまでは上記の再実行 or push
+     を使う
 2. **Settings → Branches**
    - Default branch を `claude/teto-pizza-shop-phase-0-1-364h1p` から **`main`** に変更する
    - 変更後、既存の未マージブランチがある場合はベースを `main` に付け替える
+   - この変更後は `deploy.yml` に対する `workflow_dispatch` もActionsタブから
+     利用可能になる
 
 いずれもリポジトリ管理者権限が必要な操作であり、このセッションで利用可能な
 GitHub MCPツールセットには repository settings (default branch) および
