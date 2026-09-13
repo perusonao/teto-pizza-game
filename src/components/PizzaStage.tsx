@@ -1,4 +1,4 @@
-import { useRef, type MouseEvent } from "react";
+import { useRef, type CSSProperties, type MouseEvent } from "react";
 import { getIngredient } from "../data/ingredients";
 import type { Recipe } from "../data/recipes";
 import type { PizzaState, PlacementFeedback } from "../state/pizzaState";
@@ -10,6 +10,8 @@ interface PizzaStageProps {
   interactive: boolean;
   bakeProgress: number | null;
   placement: PlacementFeedback | null;
+  /** True while RESULT is showing the finished pizza; gates the one-shot perfect glow. */
+  resultRevealed: boolean;
   onTap: (xPercent: number, yPercent: number) => void;
 }
 
@@ -19,6 +21,7 @@ export function PizzaStage({
   interactive,
   bakeProgress,
   placement,
+  resultRevealed,
   onTap,
 }: PizzaStageProps) {
   const circleRef = useRef<HTMLDivElement>(null);
@@ -44,10 +47,15 @@ export function PizzaStage({
   const bakeIntensity = bakeProgress === null ? 0 : Math.min(1, bakeProgress / 100);
   const meltClass =
     bakeState === "perfect"
-      ? "pizza-cheese--melted"
+      ? "pizza-cheese--melted pizza-cheese--toasted"
       : bakeState === "burnt"
         ? "pizza-cheese--melted pizza-cheese--charred"
         : "";
+  const sauceOrigin = pizza.sauceOrigin ?? { x: 50, y: 50 };
+  const sauceOriginStyle = {
+    "--sauce-origin-x": `${sauceOrigin.x}%`,
+    "--sauce-origin-y": `${sauceOrigin.y}%`,
+  } as CSSProperties;
 
   return (
     <div className="pizza-stage">
@@ -60,8 +68,12 @@ export function PizzaStage({
       >
         {sauceIngredient && (
           <div
+            key={pizza.sauceToken}
             className={`pizza-sauce-layer ${isOilSauce ? "pizza-sauce-layer--oil" : ""}`}
-            style={isOilSauce ? undefined : { backgroundColor: sauceIngredient.color, opacity: 0.85 }}
+            style={{
+              ...(isOilSauce ? {} : { backgroundColor: sauceIngredient.color, opacity: 0.85 }),
+              ...sauceOriginStyle,
+            }}
           />
         )}
         {pizza.toppings.map((t) => {
@@ -106,6 +118,9 @@ export function PizzaStage({
               {"\u{1F4A8}"}
             </span>
           </>
+        )}
+        {resultRevealed && bakeState === "perfect" && (
+          <div key="perfect-glow" className="pizza-perfect-glow" />
         )}
       </div>
     </div>

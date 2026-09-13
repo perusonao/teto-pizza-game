@@ -51,7 +51,7 @@ function App() {
     const ingredient = getIngredient(selectedIngredientId);
     if (!ingredient) return;
     if (ingredient.placement === "spread") {
-      dispatch({ type: "APPLY_SAUCE", ingredientId: ingredient.id });
+      dispatch({ type: "APPLY_SAUCE", ingredientId: ingredient.id, x, y });
     } else {
       dispatch({ type: "PLACE_TOPPING", ingredientId: ingredient.id, x, y });
     }
@@ -121,6 +121,7 @@ function App() {
         interactive={state.phase === "PREPARE"}
         bakeProgress={bakeProgress}
         placement={state.placement}
+        resultRevealed={state.phase === "RESULT"}
         onTap={handleTapPizza}
       />
 
