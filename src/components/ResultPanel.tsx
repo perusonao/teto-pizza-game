@@ -1,7 +1,9 @@
 import type { ScoreBreakdown } from "../logic/scoring";
+import { BAKE_STATE_LABEL, type BakeState } from "../logic/bake";
 
 interface ResultPanelProps {
   score: ScoreBreakdown;
+  bakeState: BakeState | null;
   onRegister: () => void;
 }
 
@@ -11,10 +13,21 @@ const SCORE_ROWS: Array<{ key: keyof ScoreBreakdown; label: string }> = [
   { key: "bakeScore", label: "焼き加減" },
 ];
 
-export function ResultPanel({ score, onRegister }: ResultPanelProps) {
+const BAKE_STATE_ICON: Record<BakeState, string> = {
+  raw: "\u{1F4A7}",
+  perfect: "✅",
+  burnt: "\u{1F525}",
+};
+
+export function ResultPanel({ score, bakeState, onRegister }: ResultPanelProps) {
   return (
     <div className="result-panel">
       <div className="result-panel__stars">{"⭐".repeat(score.stars)}</div>
+      {bakeState && (
+        <p className={`result-panel__bake-badge result-panel__bake-badge--${bakeState}`}>
+          {BAKE_STATE_ICON[bakeState]} 焼き加減: {BAKE_STATE_LABEL[bakeState]}
+        </p>
+      )}
       <div className="result-panel__bars">
         {SCORE_ROWS.map((row) => (
           <div key={row.key} className="score-bar">

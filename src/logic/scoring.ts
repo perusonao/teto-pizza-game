@@ -1,5 +1,6 @@
 import type { Recipe } from "../data/recipes";
 import type { PizzaState } from "../state/pizzaState";
+import { classifyBake } from "./bake";
 
 export interface ScoreBreakdown {
   matchScore: number;
@@ -9,7 +10,7 @@ export interface ScoreBreakdown {
   stars: 1 | 2 | 3;
 }
 
-function countUsedIngredient(pizza: PizzaState, ingredientId: string): number {
+export function countUsedIngredient(pizza: PizzaState, ingredientId: string): number {
   if (pizza.sauceIds.includes(ingredientId)) return 1;
   return pizza.toppings.filter((t) => t.ingredientId === ingredientId).length;
 }
@@ -47,7 +48,14 @@ export function scorePizza(recipe: Recipe, pizza: PizzaState): ScoreBreakdown {
   }
 
   const total = (matchScore + ingredientScore + bakeScore) / 3;
-  const stars: 1 | 2 | 3 = total >= 90 ? 3 : total >= 60 ? 2 : 1;
+  let stars: 1 | 2 | 3 = total >= 90 ? 3 : total >= 60 ? 2 : 1;
+
+  // A pizza that isn't baked to the perfect zone should never read as a flawless ★3 —
+  // the visual (raw/burnt), Blue's comment, and the score must stay consistent.
+  if (pizza.bakeResult !== null && stars === 3) {
+    const bakeState = classifyBake(pizza.bakeResult, recipe.bakeTarget);
+    if (bakeState !== "perfect") stars = 2;
+  }
 
   return { matchScore, ingredientScore, bakeScore, total, stars };
 }

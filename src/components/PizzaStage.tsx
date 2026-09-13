@@ -1,15 +1,26 @@
 import { useRef, type MouseEvent } from "react";
 import { getIngredient } from "../data/ingredients";
-import type { PizzaState } from "../state/pizzaState";
+import type { Recipe } from "../data/recipes";
+import type { PizzaState, PlacementFeedback } from "../state/pizzaState";
+import { classifyBake } from "../logic/bake";
 
 interface PizzaStageProps {
   pizza: PizzaState;
+  recipe: Recipe;
   interactive: boolean;
   bakeProgress: number | null;
+  placement: PlacementFeedback | null;
   onTap: (xPercent: number, yPercent: number) => void;
 }
 
-export function PizzaStage({ pizza, interactive, bakeProgress, onTap }: PizzaStageProps) {
+export function PizzaStage({
+  pizza,
+  recipe,
+  interactive,
+  bakeProgress,
+  placement,
+  onTap,
+}: PizzaStageProps) {
   const circleRef = useRef<HTMLDivElement>(null);
 
   function handleClick(event: MouseEvent<HTMLDivElement>) {
@@ -28,17 +39,17 @@ export function PizzaStage({ pizza, interactive, bakeProgress, onTap }: PizzaSta
 
   const sauceId = pizza.sauceIds[0];
   const sauceColor = sauceId ? getIngredient(sauceId)?.color : undefined;
-  const bakeTone = bakeProgress === null ? 0 : Math.min(1, bakeProgress / 100);
+  const bakeState = bakeProgress !== null ? classifyBake(bakeProgress, recipe.bakeTarget) : null;
+  const bakeIntensity = bakeProgress === null ? 0 : Math.min(1, bakeProgress / 100);
 
   return (
     <div className="pizza-stage">
       <div
         ref={circleRef}
-        className={`pizza-dough ${interactive ? "pizza-dough--interactive" : ""}`}
+        className={`pizza-dough ${interactive ? "pizza-dough--interactive" : ""} ${
+          bakeState ? `pizza-dough--${bakeState}` : ""
+        }`}
         onClick={handleClick}
-        style={{
-          filter: bakeProgress !== null ? `brightness(${1 - bakeTone * 0.25}) saturate(${1 + bakeTone * 0.3})` : undefined,
-        }}
       >
         {sauceColor && (
           <div
@@ -59,8 +70,30 @@ export function PizzaStage({ pizza, interactive, bakeProgress, onTap }: PizzaSta
             </span>
           );
         })}
-        {bakeProgress !== null && bakeProgress > 0 && (
-          <div className="pizza-bake-overlay" style={{ opacity: bakeTone * 0.55 }} />
+        {placement?.status === "rejected" && (
+          <span
+            key={placement.token}
+            className="pizza-reject-mark"
+            style={{ left: `${placement.x}%`, top: `${placement.y}%` }}
+          >
+            {"✕"}
+          </span>
+        )}
+        {bakeState && (
+          <div
+            className={`pizza-bake-overlay pizza-bake-overlay--${bakeState}`}
+            style={{ opacity: bakeState === "perfect" ? 0.3 + bakeIntensity * 0.25 : undefined }}
+          />
+        )}
+        {bakeState === "burnt" && (
+          <>
+            <span className="pizza-smoke" style={{ left: "32%", top: "18%" }}>
+              {"\u{1F4A8}"}
+            </span>
+            <span className="pizza-smoke pizza-smoke--delay" style={{ left: "62%", top: "24%" }}>
+              {"\u{1F4A8}"}
+            </span>
+          </>
         )}
       </div>
     </div>
