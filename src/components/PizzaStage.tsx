@@ -38,9 +38,16 @@ export function PizzaStage({
   }
 
   const sauceId = pizza.sauceIds[0];
-  const sauceColor = sauceId ? getIngredient(sauceId)?.color : undefined;
+  const sauceIngredient = sauceId ? getIngredient(sauceId) : undefined;
+  const isOilSauce = sauceIngredient?.id === "olive-oil";
   const bakeState = bakeProgress !== null ? classifyBake(bakeProgress, recipe.bakeTarget) : null;
   const bakeIntensity = bakeProgress === null ? 0 : Math.min(1, bakeProgress / 100);
+  const meltClass =
+    bakeState === "perfect"
+      ? "pizza-cheese--melted"
+      : bakeState === "burnt"
+        ? "pizza-cheese--melted pizza-cheese--charred"
+        : "";
 
   return (
     <div className="pizza-stage">
@@ -51,10 +58,10 @@ export function PizzaStage({
         }`}
         onClick={handleClick}
       >
-        {sauceColor && (
+        {sauceIngredient && (
           <div
-            className="pizza-sauce-layer"
-            style={{ backgroundColor: sauceColor, opacity: 0.85 }}
+            className={`pizza-sauce-layer ${isOilSauce ? "pizza-sauce-layer--oil" : ""}`}
+            style={isOilSauce ? undefined : { backgroundColor: sauceIngredient.color, opacity: 0.85 }}
           />
         )}
         {pizza.toppings.map((t) => {
@@ -66,7 +73,11 @@ export function PizzaStage({
               className="pizza-topping"
               style={{ left: `${t.x}%`, top: `${t.y}%` }}
             >
-              {ingredient.emoji}
+              {ingredient.category === "cheese" ? (
+                <span className={`pizza-cheese pizza-cheese--${ingredient.id} ${meltClass}`} />
+              ) : (
+                <span className="pizza-topping__emoji">{ingredient.emoji}</span>
+              )}
             </span>
           );
         })}
@@ -87,6 +98,7 @@ export function PizzaStage({
         )}
         {bakeState === "burnt" && (
           <>
+            <div className="pizza-char-spots" />
             <span className="pizza-smoke" style={{ left: "32%", top: "18%" }}>
               {"\u{1F4A8}"}
             </span>

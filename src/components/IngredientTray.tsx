@@ -47,7 +47,11 @@ export function IngredientTray({
             }`}
             onClick={() => onSelectIngredient(ingredient)}
           >
-            <span className="ingredient-chip__emoji">{ingredient.emoji}</span>
+            {ingredient.category === "cheese" ? (
+              <span className={`ingredient-chip__cheese pizza-cheese pizza-cheese--${ingredient.id}`} />
+            ) : (
+              <span className="ingredient-chip__emoji">{ingredient.emoji}</span>
+            )}
             <span className="ingredient-chip__name">{ingredient.nameJa}</span>
           </button>
         ))}
