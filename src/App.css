@@ -271,8 +271,16 @@
 }
 
 /* ---------- Cheese identity (shape + size + texture differ per cheese) ---------- */
+/* Generic fallback so a new cheese ingredient is still visible before it gets a
+   dedicated .pizza-cheese--<id> rule below. Each dedicated rule sets its own
+   width/height/background and so overrides this by selector specificity. */
 .pizza-cheese {
   display: block;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--cheese-color, #f0d9a0);
+  box-shadow: 0 2px 3px rgba(30, 16, 4, 0.3), 0 0 0 1.5px rgba(255, 255, 255, 0.8);
   transition: transform 0.3s ease, filter 0.3s ease;
 }
 

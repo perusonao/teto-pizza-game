@@ -9,16 +9,20 @@ export interface BakeTarget {
 }
 
 export interface Recipe {
-  id: string;
+  id: RecipeId;
   nameJa: string;
   description: string;
   requiredIngredients: RecipeRequirement[];
   bakeTarget: BakeTarget;
 }
 
-export const RECIPES: Recipe[] = [
+/** Derived from RECIPES below (each id is narrowed with `as const`) so this
+ *  union can never drift out of sync with the actual recipe data. */
+export type RecipeId = (typeof RECIPES)[number]["id"];
+
+export const RECIPES = [
   {
-    id: "margherita",
+    id: "margherita" as const,
     nameJa: "マルゲリータ",
     description:
       "トマトソース・モッツァレラ・バジルだけで作る、いちばんシンプルで奥が深いピザ。",
@@ -30,7 +34,7 @@ export const RECIPES: Recipe[] = [
     bakeTarget: { start: 60, end: 80 },
   },
   {
-    id: "marinara",
+    id: "marinara" as const,
     nameJa: "マリナーラ",
     description:
       "トマトソースとにんにく、オレガノだけ。チーズを使わない、ナポリ生まれの下町ピザ。",
@@ -42,7 +46,7 @@ export const RECIPES: Recipe[] = [
     bakeTarget: { start: 45, end: 65 },
   },
   {
-    id: "quattro-formaggi",
+    id: "quattro-formaggi" as const,
     nameJa: "クアトロ フォルマッジ",
     description:
       "モッツァレラ・ゴルゴンゾーラ・パルミジャーノ・フォンティーナ、4種のチーズが溶け合う濃厚な一枚。",
@@ -57,6 +61,6 @@ export const RECIPES: Recipe[] = [
   },
 ];
 
-export function getRecipe(id: string): Recipe | undefined {
+export function getRecipe(id: RecipeId): Recipe | undefined {
   return RECIPES.find((r) => r.id === id);
 }

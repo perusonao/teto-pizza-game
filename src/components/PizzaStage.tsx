@@ -285,7 +285,10 @@ export function PizzaStage({
               style={{ left: `${t.x}%`, top: `${t.y}%` }}
             >
               {ingredient.category === "cheese" ? (
-                <span className={`pizza-cheese pizza-cheese--${ingredient.id} ${meltClass}`} />
+                <span
+                  className={`pizza-cheese pizza-cheese--${ingredient.id} ${meltClass}`}
+                  style={{ "--cheese-color": ingredient.color } as CSSProperties}
+                />
               ) : (
                 <span className="pizza-topping__emoji">{ingredient.emoji}</span>
               )}

@@ -1,6 +1,8 @@
+import type { RecipeId } from "./recipes";
+
 export interface Order {
   id: string;
-  recipeId: string;
+  recipeId: RecipeId;
   requestedBy: "mito";
   lineJa: string;
 }
