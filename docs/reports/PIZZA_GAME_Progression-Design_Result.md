@@ -75,5 +75,7 @@
 
 ## Commit / PR
 
-- Commit: 本レポート内では未確定（PR作成後に追記）
-- PR: 未マージのまま残す（auto-mergeは使用しない）
+- Commit SHA: `61155b29cc0e63c95f5daddfa3f5d575df90939d`（実装コミット。本レポートのSHA追記のみを
+  行うfollow-upコミットはこの後に別途追加）
+- PR URL: https://github.com/perusonao/teto-pizza-game/pull/14
+- PRは**未マージ**のまま残す（auto-mergeは使用していない）
