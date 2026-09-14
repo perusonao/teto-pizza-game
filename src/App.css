@@ -794,10 +794,45 @@
   min-height: 40px;
 }
 
+.dex-overlay__progress {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  background: #f5ecd8;
+  border-radius: 12px;
+  padding: 8px 14px;
+  margin-bottom: 12px;
+}
+
+.dex-overlay__progress--complete {
+  background: #fdecc8;
+}
+
+.dex-overlay__progress-count {
+  font-size: 16px;
+  font-weight: 800;
+  color: #6b4226;
+}
+
+.dex-overlay__progress-sub {
+  font-size: 12px;
+  font-weight: 700;
+  color: #a1662f;
+}
+
 .dex-overlay__list {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.dex-overlay__footer {
+  margin-top: 14px;
+}
+
+.dex-overlay__footer .cta-button {
+  width: 100%;
 }
 
 .dex-card {
@@ -808,7 +843,31 @@
 }
 
 .dex-card--locked {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
   opacity: 0.6;
+}
+
+.dex-card__lock-icon {
+  font-size: 18px;
+}
+
+.dex-card__lock-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.dex-card__lock-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #6b4226;
+}
+
+.dex-card__lock-hint {
+  font-size: 11px;
+  color: #8a6a45;
 }
 
 .dex-card--new {
