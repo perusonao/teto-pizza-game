@@ -201,6 +201,6 @@ persistence、economy、shop management、backend。
 
 ## Commit / PR
 
-- Commit SHA: （コミット後に記載）
-- PR URL: （PR作成後に記載）
+- Commit SHA: `674454e54e653625ff6a7a1d53b6b7a1ca32a980`
+- PR URL: https://github.com/perusonao/teto-pizza-game/pull/11
 - PRは**未マージ**のまま残す。
