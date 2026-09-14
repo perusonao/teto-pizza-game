@@ -217,6 +217,37 @@ describe("persistDex / loadSave roundtrip", () => {
   it("does not throw when the storage backend throws on write", () => {
     expect(() => persistDex([validEntry], throwingStorage())).not.toThrow();
   });
+
+  it("does not rewrite storage when the given Dex already matches what's stored", () => {
+    const storage = fakeStorage({ [SAVE_STORAGE_KEY]: saveWith({ dex: [validEntry] }) });
+    const before = storage.getItem(SAVE_STORAGE_KEY);
+    persistDex([validEntry], storage);
+    // Same string instance -- setItem was never called, not just "wrote the same thing".
+    expect(storage.getItem(SAVE_STORAGE_KEY)).toBe(before);
+  });
+
+  it("never overwrites a save with an unrecognized schemaVersion just because hydration fell back to an empty Dex", () => {
+    // Regression test (PR #16 review): App.tsx's persistence effect also fires once on
+    // mount with whatever the initial hydration produced. If storage holds a save this
+    // client doesn't understand (e.g. a newer schemaVersion with real progression),
+    // loadSave().dex correctly falls back to [] -- but persistDex must never take that as
+    // license to blindly overwrite the real, still-unrecognized save with a fresh empty one
+    // before the player has done anything.
+    const untouchedRaw = JSON.stringify({
+      schemaVersion: 999,
+      dex: [validEntry],
+      pitzBalance: 500,
+      ownedIngredientIds: [],
+      missionBest: { someFutureMission: true },
+    });
+    const storage = fakeStorage({ [SAVE_STORAGE_KEY]: untouchedRaw });
+
+    const hydratedDex = loadSave(storage).dex; // falls back to [] -- schemaVersion 999 is unknown
+    expect(hydratedDex).toEqual([]);
+    persistDex(hydratedDex, storage);
+
+    expect(storage.getItem(SAVE_STORAGE_KEY)).toBe(untouchedRaw);
+  });
 });
 
 describe("clearSave", () => {

@@ -172,11 +172,35 @@ export function loadSave(storage: StorageLike | null = getDefaultStorage()): Per
   }
 }
 
+function dexEntriesEqual(a: DexEntry, b: DexEntry): boolean {
+  return (
+    a.recipeId === b.recipeId &&
+    a.discovered === b.discovered &&
+    a.bestScore === b.bestScore &&
+    a.bestStars === b.bestStars &&
+    a.timesMade === b.timesMade
+  );
+}
+
+function dexEquals(a: DexState, b: readonly DexEntry[]): boolean {
+  return a.length === b.length && a.every((entry, i) => dexEntriesEqual(entry, b[i]));
+}
+
 /**
  * Persists just the Dex slice of progression. Reads the current save first and only
  * replaces its `dex` field, so any other saved field is preserved rather than reset to
  * default on every write. Swallows storage failures (quota exceeded, storage disabled) --
  * the round already happened in memory, so a failed save must never break gameplay.
+ *
+ * Skips the write entirely when `dex` already matches what `loadSave` reads back. This is
+ * more than an optimization: App.tsx's persistence effect also fires once on mount with
+ * whatever Dex hydration produced, and if storage holds a save this client doesn't
+ * recognize (e.g. a newer `schemaVersion`), hydration falls back to an empty Dex -- without
+ * this check, that mount-time call would immediately overwrite the unrecognized save with a
+ * fresh empty one, destroying real progression before the player did anything. Since a
+ * genuinely unrecognized save's Dex ([]) is never equal to a *real* Dex the player has
+ * actually earned, skipping no-op writes here also means "don't touch a save you can't
+ * make sense of" for free.
  */
 export function persistDex(
   dex: DexState,
@@ -185,6 +209,7 @@ export function persistDex(
   if (!storage) return;
   try {
     const current = loadSave(storage);
+    if (dexEquals(dex, current.dex)) return;
     const next: PersistentSaveV1 = { ...current, dex: [...dex] };
     storage.setItem(SAVE_STORAGE_KEY, JSON.stringify(next));
   } catch {

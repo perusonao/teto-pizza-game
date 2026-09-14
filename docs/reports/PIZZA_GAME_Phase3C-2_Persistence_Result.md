@@ -143,18 +143,38 @@ export interface PersistentSaveV1 {
 いずれの経路でも `console.error` を大量発生させる実装にはしていない（すべてtry/catchで
 静かにフォールバックし、余計なログ出力は行わない）。
 
+## PR review findings
+
+- Codex（自動レビューbot）が `src/App.tsx` の永続化effectに対してP2指摘:
+  「mount時にもこのeffectが発火するため、storageに`schemaVersion`不明のsaveがある場合、
+  hydrationは空のDexにfallbackし、そのまま`persistDex`が呼ばれる。`persistDex`は
+  未対応のsaveをdefaultとして読み直し、空のv1 payloadで上書きしてしまう。結果として、
+  新しいschemaで書かれたsaveを古い（キャッシュされた）クライアントで開いただけで、
+  プレイヤーが何もしないうちに新しい進捗を消してしまいうる」。実際に再現可能な
+  バグだったため、`persistDex`に「書き込もうとしているDexが、読み直した現在の保存内容と
+  完全に一致する場合は書き込み自体をskipする」という比較を追加して修正
+  （`src/state/persistence.ts` の `dexEquals`/`dexEntriesEqual`）。これにより、
+  mount直後に発火する初回effect（hydrationした値をそのまま書き戻そうとするだけの
+  呼び出し）は常にno-opになり、「未対応versionのsaveがある状態でアプリを開いただけで
+  上書きされる」問題も、「未対応versionから復元した空DexはOWNEDの実データと一致しない
+  限りその場では書き込まれない」という形で同時に解消される。実際にプレイして
+  `REGISTER_TO_DEX`が発火した場合（＝Dexの中身が本当に変わった場合）は従来通り
+  正しく保存される。回帰テストを2件追加（下記Testsセクション参照）、390×844実機
+  （Chromium）でも「schemaVersion不明のsaveを設定→reload→mount後もraw storageが
+  一切変化しない」ことを追加確認済み。
+
 ## Tests
 
 `npm test`:
 
 ```
  Test Files  5 passed (5)
-      Tests  57 passed (57)
+      Tests  59 passed (59)
 ```
 
 既存35テスト（scoring/placement/dex/gameReducerのPhase 3C-1分）は無変更のまま全てpass。
-新規22テスト（`persistence.test.ts` 20件 + `gameReducer.test.ts` の hydration 3件、
-うち5件重複ケース含め正味の内訳は下記）:
+新規24テスト（`persistence.test.ts` 22件 + `gameReducer.test.ts` の hydration 3件、
+うち1件は上記PRレビュー対応の回帰テスト。正味の内訳は下記）:
 
 ### `src/state/persistence.test.ts`
 
@@ -177,6 +197,10 @@ export interface PersistentSaveV1 {
   - シミュレートしたreload後も`timesMade`が保持される
   - Dexだけ書き込んでも他の保存済みフィールド（例: `pitzBalance`）は保持される
   - 書き込み時にstorageがthrowしても例外を外に投げない
+  - 保存内容と完全一致するDexを渡した場合は`setItem`自体を呼ばない（書き込みskip）
+  - **（PRレビュー回帰テスト）** `schemaVersion`不明のsaveに対し、hydration結果（空Dex）を
+    そのまま`persistDex`に渡しても、raw storageの中身（未対応versionの実データ）が
+    一切書き換わらないこと
 - `clearSave`:
   - 削除後の`loadSave`はfreshになる
   - storageが`null`/throwする場合もthrowしない
@@ -223,15 +247,20 @@ Playwrightで以下を確認:
    同様に正常起動し、Dexは `🍕 発見 0 / 6`（＝ fresh save に安全にフォールバックし、
    信頼できないバージョンのDexデータを復元していない）ことを確認
    （console error 0件）。
+3. **（PRレビュー対応の追加確認）** `schemaVersion: 999`・実データ入りのDexを持つ
+   saveを設定 → reload → mount完了後、`localStorage.getItem('teto-pizza-save-v1')` が
+   設定した生JSONと**完全に一致**したまま変化していないことを確認（＝ mount時の
+   hydrationだけでは未対応saveを一切上書きしない）。
 
 ## Regression results
 
 - `npm run lint`（oxlint）: ✅ pass, exit code 0
-- `npm test`（vitest）: ✅ 57/57 pass（既存35 + 新規22）
+- `npm test`（vitest）: ✅ 59/59 pass（既存35 + 新規24）
 - `npm run build`（`tsc -b && vite build`）: ✅ pass
 - `git diff --check`: ✅ no whitespace errors
 - 実機確認（390×844, Chromium）: console error 0件、overflowなし（上記参照）
-- Corrupt save / unknown schemaVersion 実機確認: いずれも正常起動、console error 0件
+- Corrupt save / unknown schemaVersion 実機確認: いずれも正常起動、console error 0件、
+  未対応saveがmountだけで上書きされないことも確認済み（PRレビュー対応）
 
 ## Known issues
 
@@ -258,7 +287,9 @@ Playwrightで以下を確認:
 - Reducerはpureなまま維持、副作用は`App.tsx`の`useEffect`一箇所のみに限定
 - 壊れたJSON・unknown schemaVersion・不正エントリ・storage利用不可のいずれでも
   ゲームがクラッシュせず、console errorも発生しない
-- lint / test / build すべてグリーン（57/57テスト）
+- unknown schemaVersionのsaveを、mountするだけで上書き・破壊しない
+  （PRレビューで指摘・修正済み、回帰テストと実機確認で担保）
+- lint / test / build すべてグリーン（59/59テスト）
 - 390×844実機確認で指定項目（NEW/NEW BEST semantics・★・BEST・timesMade・reload後の
   永続化・PLAY AGAIN・overflowなし・console error 0件）を確認済み
 - Corrupt-save / unknown-schemaVersionの実機フォールバックも確認済み
