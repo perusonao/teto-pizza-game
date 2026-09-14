@@ -41,6 +41,33 @@ export const RECIPE_HINTS: Record<string, RecipeHintSet> = {
     },
     ready: "4種のチーズが勢ぞろい！とろとろに焼き上げよう！",
   },
+  genovese: {
+    empty: "ジェノベーゼは、まず緑のジェノベーゼソースを塗ってみて！",
+    emptyHint: "指でなぞると緑のソースが広がるよ。ふちの近くまで大胆に塗ってみて！",
+    missing: {
+      mozzarella: "モッツァレラをのせて、まろやかさをプラスしよう！",
+      "cherry-tomato": "チェリートマトを散らすと彩りがぐっと良くなるよ！",
+    },
+    ready: "彩り鮮やかになった！そろそろ焼いてみよう。",
+  },
+  bismarck: {
+    empty: "ビスマルクはまずトマトソースからだよ！",
+    emptyHint: "指でくるくるなぞると塗れるよ。ふちの近くまで大胆に広げてみて！",
+    missing: {
+      mozzarella: "モッツァレラをたっぷりのせよう！",
+      egg: "まんなかに卵をのせたら、ビスマルクらしくなるよ！",
+    },
+    ready: "卵がまんなかで輝いてる！焼いてみよう。",
+  },
+  funghi: {
+    empty: "フンギはまずトマトソースを塗るところから！",
+    emptyHint: "指でなぞるとトマトソースが塗れるよ。ふちの近くまで大胆に広げてみて！",
+    missing: {
+      mozzarella: "モッツァレラをのせて土台を作ろう！",
+      mushroom: "マッシュルームをたっぷりのせて、香り豊かに仕上げよう！",
+    },
+    ready: "きのこの香りがいい感じ！そろそろ焼いてみよう。",
+  },
 };
 
 export function buildHintLine(
