@@ -23,6 +23,14 @@ export interface Ingredient {
    *  Mastery gate and is always OWNED (see src/state/progression.ts). Only a future
    *  ingredient added after Phase 3C-3 would set this. */
   unlockCondition?: IngredientUnlockCondition;
+  /** Shop price in Pitz (Phase 3C-5, see src/logic/economy.ts's `purchaseIngredient` and
+   *  docs/design/PIZZA_GAME_PROGRESSION_SSOT.md section 9). Only meaningful for an
+   *  AVAILABLE_TO_BUY ingredient (one with `unlockCondition`) -- absent for every current
+   *  Starter Set ingredient, since those are always OWNED and never for sale. A future
+   *  ingredient must set this to a positive integer to actually be purchasable; anything
+   *  else (absent, zero, negative, fractional, NaN) reads as "not for sale"
+   *  (`purchaseIngredient`'s `NOT_FOR_SALE` reason). */
+  pricePitz?: number;
 }
 
 export const INGREDIENTS: Ingredient[] = [

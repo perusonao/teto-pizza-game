@@ -28,8 +28,18 @@ import { isNewMissionBest } from "../logic/missionScoring";
  * src/mission/lunchRush.ts), each a monotonic (never-decreasing) Mission Score BEST -- same
  * "BEST never goes down" rule Dex BEST already follows. No schema/version bump needed here
  * either: the field's shape (a record keyed by mission id) was already reserved, this phase
- * just starts actually validating and using its contents. `pitzBalance` remains unread and
- * unwritten, reserved for a later phase.
+ * just starts actually validating and using its contents.
+ *
+ * Phase 3C-5 (Pitz + Shop) is the first phase to actually read/write `pitzBalance`, and the
+ * first to write non-default `ownedIngredientIds` (via a purchase). Both live on `GameState`
+ * now (see src/state/gameReducer.ts) alongside `dex`, so `persistProgress` below is the one
+ * canonical write path for all three of GameState's own persisted fields together -- it reads
+ * the current save once and patches `dex`/`pitzBalance`/`ownedIngredientIds` in a single
+ * merge, so a Pitz-balance or ingredient-ownership change can never accidentally clobber
+ * `missionBest` (owned separately by `persistMissionBest`/`loadMissionBest`, Mission run state
+ * living outside GameState entirely) or vice versa. `persistDex` is kept as its own function
+ * (and still fully tested) for any caller that only ever touches Dex, but App.tsx itself calls
+ * `persistProgress` for every GameState-driven save since Phase 3C-5.
  */
 
 export const SAVE_STORAGE_KEY = "teto-pizza-save-v1";
@@ -38,13 +48,15 @@ const CURRENT_SCHEMA_VERSION = 1;
 export interface PersistentSaveV1 {
   schemaVersion: 1;
   dex: DexEntry[];
-  /** Reserved for Phase 3C-4+ (Pitz). Always 0 in this phase -- nothing writes to it yet. */
+  /** Pitz balance (Phase 3C-5, SSOT section 3). Earned via `CLAIM_MISSION_REWARD` (a
+   *  completed Lunch Rush run), spent via `PURCHASE_INGREDIENT`. Free play never changes
+   *  this. Always a non-negative number -- see `sanitizePitzBalance` below. */
   pitzBalance: number;
-  /** Canonical OWNED ingredient ids (Phase 3C-3, SSOT section 6). Always a superset of the
+  /** Canonical OWNED ingredient ids (Phase 3C-3+, SSOT section 6). Always a superset of the
    *  Starter Set (SSOT section 5: all 13 existing ingredients are OWNED unconditionally --
    *  see `sanitizeOwnedIngredientIds` below, which backfills them unconditionally on every
-   *  load). Purchasing itself (moving a future ingredient from AVAILABLE_TO_BUY to OWNED)
-   *  is reserved for Phase 3C-4+ -- nothing writes non-starter ids into this yet. */
+   *  load). Grows only via a successful purchase (Phase 3C-5, `PURCHASE_INGREDIENT`) -- an
+   *  ingredient is never removed once added (SSOT section 9: purchases are permanent). */
   ownedIngredientIds: string[];
   /** Mission Score BEST per mission id (Phase 3C-4, SSOT section 11). Keyed by mission id
    *  (e.g. `{ "lunch-rush": 742 }`, see `LUNCH_RUSH_MISSION_ID` in src/mission/lunchRush.ts)
@@ -257,6 +269,72 @@ export function persistDex(
     const current = loadSave(storage);
     if (dexEquals(dex, current.dex)) return;
     const next: PersistentSaveV1 = { ...current, dex: [...dex] };
+    storage.setItem(SAVE_STORAGE_KEY, JSON.stringify(next));
+  } catch {
+    // Storage full, disabled, or otherwise unavailable -- gameplay continues unaffected.
+  }
+}
+
+/** True when both id lists contain exactly the same set of ids, ignoring order/duplicates.
+ *  Used by `persistProgress` to decide whether `ownedIngredientIds` actually changed (a fresh
+ *  purchase appends an id; comparing as sets means a save whose list happens to be in a
+ *  different order, e.g. after `sanitizeOwnedIngredientIds`'s dedupe, is still treated as
+ *  unchanged rather than triggering a spurious write). */
+function sameStringSet(a: readonly string[], b: readonly string[]): boolean {
+  if (a.length !== b.length) return false;
+  const setB = new Set(b);
+  return a.every((id) => setB.has(id));
+}
+
+/** The progression fields `GameState` itself owns (src/state/gameReducer.ts) -- everything
+ *  `persistProgress` patches in one merge. Deliberately excludes `missionBest`, which lives
+ *  outside GameState (Mission run state, src/mission/lunchRush.ts) and is only ever written
+ *  through `persistMissionBest`. */
+export interface ProgressionSnapshot {
+  dex: DexState;
+  pitzBalance: number;
+  ownedIngredientIds: readonly string[];
+}
+
+/**
+ * Canonical write path (Phase 3C-5) for every progression field `GameState` itself tracks --
+ * `dex`, `pitzBalance`, `ownedIngredientIds` -- patched together in one read-modify-write
+ * against the current save. Supersedes calling `persistDex` alone from App.tsx: a Pitz-balance
+ * change (Mission reward) or an ownership change (a purchase) needs saving exactly as much as
+ * a Dex change does, and merging all three in one write here means they can never race each
+ * other into clobbering one another (each call reads the *current* save fresh, so a `dex`-only
+ * change never has stale pre-purchase `pitzBalance` sitting in its `snapshot`, since callers
+ * always pass the full current `GameState` slice, not a partial one).
+ *
+ * `missionBest` is never touched here -- it's read fresh from the current save and carried
+ * through unchanged (`...current`), exactly like `persistDex`'s own pattern. Skips the write
+ * entirely when nothing in the snapshot actually differs from what's stored (same reasoning as
+ * `persistDex`'s no-op skip: avoids clobbering a save this client doesn't fully recognize with
+ * a redundant, no-op write on mount). Swallows storage failures like every other write in this
+ * module -- a failed save must never break gameplay.
+ */
+export function persistProgress(
+  snapshot: ProgressionSnapshot,
+  storage: StorageLike | null = getDefaultStorage(),
+): void {
+  if (!storage) return;
+  try {
+    const current = loadSave(storage);
+    const nextDex = [...snapshot.dex];
+    const nextPitzBalance = sanitizePitzBalance(snapshot.pitzBalance);
+    const nextOwnedIngredientIds = sanitizeOwnedIngredientIds([...snapshot.ownedIngredientIds]);
+
+    const dexUnchanged = dexEquals(nextDex, current.dex);
+    const pitzUnchanged = nextPitzBalance === current.pitzBalance;
+    const ownedUnchanged = sameStringSet(nextOwnedIngredientIds, current.ownedIngredientIds);
+    if (dexUnchanged && pitzUnchanged && ownedUnchanged) return;
+
+    const next: PersistentSaveV1 = {
+      ...current,
+      dex: nextDex,
+      pitzBalance: nextPitzBalance,
+      ownedIngredientIds: nextOwnedIngredientIds,
+    };
     storage.setItem(SAVE_STORAGE_KEY, JSON.stringify(next));
   } catch {
     // Storage full, disabled, or otherwise unavailable -- gameplay continues unaffected.

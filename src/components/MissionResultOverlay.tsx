@@ -4,6 +4,12 @@ interface MissionResultOverlayProps {
   bestQuality: number;
   score: number;
   isNewBest: boolean;
+  /** This run's Pitz reward (Phase 3C-5, ../logic/economy.ts's `calculateMissionReward`) --
+   *  always 0 for a 0-serve run. Shown as "+N Pitz", never as a standalone balance. */
+  pitzReward: number;
+  /** Pitz balance *after* this run's reward has been applied (src/state/gameReducer.ts's
+   *  CLAIM_MISSION_REWARD) -- current balance, not the reward amount itself. */
+  pitzBalance: number;
   onRetry: () => void;
   onExit: () => void;
 }
@@ -16,6 +22,8 @@ export function MissionResultOverlay({
   bestQuality,
   score,
   isNewBest,
+  pitzReward,
+  pitzBalance,
   onRetry,
   onExit,
 }: MissionResultOverlayProps) {
@@ -37,7 +45,13 @@ export function MissionResultOverlay({
             {"🎯"} SCORE <strong>{score}</strong>
             {isNewBest && <span className="mission-result__new-best">NEW BEST!</span>}
           </p>
+          <p className="mission-result__row mission-result__row--pitz">
+            {"\u{1FA99}"} <strong>+{pitzReward} Pitz</strong>
+          </p>
         </div>
+        <p className="mission-result__balance">
+          現在残高: {"\u{1FA99}"} {pitzBalance} Pitz
+        </p>
         <div className="action-row action-row--column">
           <button type="button" className="cta-button cta-button--primary" onClick={onRetry}>
             もう一度

@@ -7,6 +7,7 @@ import {
   loadSave,
   persistDex,
   persistMissionBest,
+  persistProgress,
   type StorageLike,
 } from "./persistence";
 import { EMPTY_DEX, registerScoreToDex, type DexEntry } from "./dex";
@@ -304,6 +305,85 @@ describe("ownedIngredientIds (Phase 3C-3 Starter Set backfill)", () => {
     });
     const save = loadSave(storage);
     expect(save.ownedIngredientIds.sort()).toEqual([...STARTER_INGREDIENT_IDS].sort());
+  });
+});
+
+describe("persistProgress (Phase 3C-5)", () => {
+  it("roundtrips pitzBalance", () => {
+    const storage = fakeStorage();
+    persistProgress({ dex: EMPTY_DEX, pitzBalance: 120, ownedIngredientIds: STARTER_INGREDIENT_IDS }, storage);
+    expect(loadSave(storage).pitzBalance).toBe(120);
+  });
+
+  it("roundtrips a purchased (non-starter) ownedIngredientIds entry", () => {
+    const storage = fakeStorage();
+    const owned = [...STARTER_INGREDIENT_IDS]; // no non-starter ingredient exists in production
+    persistProgress({ dex: EMPTY_DEX, pitzBalance: 0, ownedIngredientIds: owned }, storage);
+    expect(loadSave(storage).ownedIngredientIds.sort()).toEqual([...owned].sort());
+  });
+
+  it("a Pitz balance update does not clobber an existing Dex", () => {
+    const storage = fakeStorage({ [SAVE_STORAGE_KEY]: saveWith({ dex: [validEntry] }) });
+    persistProgress(
+      { dex: [validEntry], pitzBalance: 90, ownedIngredientIds: STARTER_INGREDIENT_IDS },
+      storage,
+    );
+    const save = loadSave(storage);
+    expect(save.dex).toEqual([validEntry]);
+    expect(save.pitzBalance).toBe(90);
+  });
+
+  it("a Pitz balance / purchase update does not clobber missionBest", () => {
+    const storage = fakeStorage({ [SAVE_STORAGE_KEY]: saveWith({ missionBest: { "lunch-rush": 742 } }) });
+    persistProgress(
+      { dex: EMPTY_DEX, pitzBalance: 200, ownedIngredientIds: STARTER_INGREDIENT_IDS },
+      storage,
+    );
+    const save = loadSave(storage);
+    expect(save.missionBest).toEqual({ "lunch-rush": 742 });
+    expect(save.pitzBalance).toBe(200);
+  });
+
+  it("a missionBest update (persistMissionBest) does not clobber pitzBalance or ownedIngredientIds", () => {
+    const storage = fakeStorage({ [SAVE_STORAGE_KEY]: saveWith({ pitzBalance: 150 }) });
+    persistMissionBest("lunch-rush", 500, storage);
+    const save = loadSave(storage);
+    expect(save.pitzBalance).toBe(150);
+    expect(save.missionBest["lunch-rush"]).toBe(500);
+  });
+
+  it("does not rewrite storage when nothing in the snapshot actually changed", () => {
+    const storage = fakeStorage({
+      [SAVE_STORAGE_KEY]: saveWith({ pitzBalance: 60, ownedIngredientIds: [...STARTER_INGREDIENT_IDS] }),
+    });
+    const before = storage.getItem(SAVE_STORAGE_KEY);
+    persistProgress({ dex: EMPTY_DEX, pitzBalance: 60, ownedIngredientIds: STARTER_INGREDIENT_IDS }, storage);
+    expect(storage.getItem(SAVE_STORAGE_KEY)).toBe(before);
+  });
+
+  it("does not throw when the storage backend throws on write", () => {
+    expect(() =>
+      persistProgress(
+        { dex: EMPTY_DEX, pitzBalance: 10, ownedIngredientIds: STARTER_INGREDIENT_IDS },
+        throwingStorage(),
+      ),
+    ).not.toThrow();
+  });
+
+  it("never overwrites a save with an unrecognized schemaVersion (same guard as persistDex)", () => {
+    const untouchedRaw = JSON.stringify({
+      schemaVersion: 999,
+      dex: [validEntry],
+      pitzBalance: 500,
+      ownedIngredientIds: [],
+      missionBest: { someFutureMission: true },
+    });
+    const storage = fakeStorage({ [SAVE_STORAGE_KEY]: untouchedRaw });
+
+    const hydrated = loadSave(storage); // falls back to defaults -- schemaVersion 999 is unknown
+    persistProgress(hydrated, storage);
+
+    expect(storage.getItem(SAVE_STORAGE_KEY)).toBe(untouchedRaw);
   });
 });
 

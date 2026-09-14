@@ -9,6 +9,7 @@ import { MissionHud } from "./components/MissionHud";
 import { MissionIntroOverlay } from "./components/MissionIntroOverlay";
 import { MissionServePanel } from "./components/MissionServePanel";
 import { MissionResultOverlay } from "./components/MissionResultOverlay";
+import { ShopOverlay } from "./components/ShopOverlay";
 import {
   buildBlueResultLine,
   buildMitoOrderLine,
@@ -20,7 +21,7 @@ import {
 import { getIngredient, type Ingredient, type IngredientCategory } from "./data/ingredients";
 import { createInitialGameState, gameReducer, type GameState } from "./state/gameReducer";
 import { discoveredRecipeIds } from "./state/dex";
-import { loadSave, loadMissionBest, persistDex, persistMissionBest } from "./state/persistence";
+import { loadSave, loadMissionBest, persistProgress, persistMissionBest } from "./state/persistence";
 import {
   DEFAULT_MISSION_CONFIG,
   LUNCH_RUSH_MISSION_ID,
@@ -31,6 +32,7 @@ import {
   type MissionConfig,
 } from "./mission/lunchRush";
 import { averageQualityScore, missionScore } from "./logic/missionScoring";
+import { calculateMissionReward } from "./logic/economy";
 import "./App.css";
 
 const MISSION_TICK_MS = 250;
@@ -62,11 +64,11 @@ function findPrimarySauceId(recipe: GameState["recipe"]): string | null {
 
 function App() {
   // The round in progress never persists (ORDER/PREPARE/BAKE/RESULT always start fresh), but
-  // Dex BEST/timesMade and owned ingredients do -- load them once on mount and hydrate the
-  // initial state with them.
+  // Dex BEST/timesMade, owned ingredients, and Pitz balance do -- load them once on mount and
+  // hydrate the initial state with them.
   const [state, dispatch] = useReducer(gameReducer, undefined, () => {
     const save = loadSave();
-    return createInitialGameState(save.dex, save.ownedIngredientIds);
+    return createInitialGameState(save.dex, save.ownedIngredientIds, save.pitzBalance);
   });
   const [activeCategory, setActiveCategory] = useState<IngredientCategory>("sauce");
   // Every order (including the very first one) should start the player off with the
@@ -75,6 +77,7 @@ function App() {
     findPrimarySauceId(state.recipe),
   );
   const [isDexOpen, setDexOpen] = useState(false);
+  const [isShopOpen, setShopOpen] = useState(false);
   const [liveBake, setLiveBake] = useState(0);
   const bakeFrameSkip = useRef(0);
 
@@ -95,11 +98,18 @@ function App() {
     }
   }
 
-  // Only fires when the Dex reference actually changes (REGISTER_TO_DEX), not on every
-  // render -- the reducer itself stays pure, this is the one place progression is saved.
+  // Fires whenever any of GameState's own persisted progression fields change (Dex BEST/
+  // timesMade, Pitz balance, owned ingredients) -- the reducer itself stays pure, this is the
+  // one place that saves them (Phase 3C-5's canonical `persistProgress`, see
+  // src/state/persistence.ts). `missionBest` is a separate concern, saved by its own effect
+  // below.
   useEffect(() => {
-    persistDex(state.dex);
-  }, [state.dex]);
+    persistProgress({
+      dex: state.dex,
+      pitzBalance: state.pitzBalance,
+      ownedIngredientIds: state.ownedIngredientIds,
+    });
+  }, [state.dex, state.pitzBalance, state.ownedIngredientIds]);
 
   // --- Lunch Rush mission (Phase 3C-4) --------------------------------------------------
   // A separate reducer, not a field on GameState: Mission run state (which screen, the
@@ -139,6 +149,26 @@ function App() {
     persistMissionBest(LUNCH_RUSH_MISSION_ID, missionScore(mission.metrics));
   }, [mission.mode, mission.metrics]);
 
+  // Grants this run's Pitz reward exactly once (Phase 3C-5). Deliberately does NOT rely on
+  // this effect only ever firing once per run -- a rerender, React StrictMode's dev-only
+  // double effect invocation, or opening/closing the Dex/Shop overlay can all cause this
+  // effect body to run again while `mission.mode` is still "RESULT". Safety instead comes
+  // from `CLAIM_MISSION_REWARD`'s own idempotency guard (src/state/gameReducer.ts): it's keyed
+  // on `mission.runId` (a fresh id assigned by every START, retry included -- see
+  // src/mission/lunchRush.ts), so dispatching the exact same runId+amount any number of times
+  // only ever applies the first one. The reward amount itself
+  // (`calculateMissionReward`, ../logic/economy.ts) is a pure function of `mission.metrics`,
+  // which is frozen the instant `mode` becomes "RESULT" -- recomputing it here on every fire
+  // always yields the same amount for the same run.
+  useEffect(() => {
+    if (mission.mode !== "RESULT") return;
+    dispatch({
+      type: "CLAIM_MISSION_REWARD",
+      runId: mission.runId,
+      amount: calculateMissionReward(mission.metrics),
+    });
+  }, [mission.mode, mission.runId, mission.metrics]);
+
   // Canonical entry point for both a fresh Mission start (from Intro) and "もう一度"
   // (retry, from Result) -- both must behave identically. Codex review (PR #18, P2-2): the
   // Dex overlay has a higher z-index than Mission's own overlays, so if it was left open
@@ -169,6 +199,10 @@ function App() {
   function exitMissionToFree() {
     missionDispatch({ type: "EXIT_TO_FREE" });
     dispatch({ type: "PLAY_AGAIN" });
+  }
+
+  function handlePurchaseIngredient(ingredientId: string) {
+    dispatch({ type: "PURCHASE_INGREDIENT", ingredientId });
   }
 
   function handleSelectIngredient(ingredient: Ingredient) {
@@ -234,9 +268,17 @@ function App() {
     <div className="app-frame">
       <header className="app-header">
         <h1 className="app-header__title">テトのピザ屋さん</h1>
-        <button type="button" className="app-header__dex-button" onClick={() => setDexOpen(true)}>
-          {"\u{1F4D6}"} レシピ図鑑
-        </button>
+        <div className="app-header__actions">
+          <span className="app-header__pitz" aria-label={`Pitz残高 ${state.pitzBalance}`}>
+            {"\u{1FA99}"} {state.pitzBalance}
+          </span>
+          <button type="button" className="app-header__shop-button" onClick={() => setShopOpen(true)}>
+            {"\u{1F6D2}"} Shop
+          </button>
+          <button type="button" className="app-header__dex-button" onClick={() => setDexOpen(true)}>
+            {"\u{1F4D6}"} レシピ図鑑
+          </button>
+        </div>
       </header>
 
       {isMissionPlaying && mission.clock && (
@@ -391,6 +433,16 @@ function App() {
         />
       )}
 
+      {isShopOpen && (
+        <ShopOverlay
+          dex={state.dex}
+          ownedIngredientIds={state.ownedIngredientIds}
+          pitzBalance={state.pitzBalance}
+          onPurchase={handlePurchaseIngredient}
+          onClose={() => setShopOpen(false)}
+        />
+      )}
+
       {mission.mode === "INTRO" && (
         <MissionIntroOverlay
           durationSeconds={resolveMissionConfig().durationSeconds}
@@ -406,6 +458,8 @@ function App() {
           bestQuality={mission.metrics.bestQualityScore}
           score={missionScore(mission.metrics)}
           isNewBest={missionScore(mission.metrics) > missionBestAtStartOfRun}
+          pitzReward={calculateMissionReward(mission.metrics)}
+          pitzBalance={state.pitzBalance}
           onRetry={startMission}
           onExit={exitMissionToFree}
         />

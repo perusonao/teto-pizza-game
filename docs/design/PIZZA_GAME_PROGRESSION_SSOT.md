@@ -144,16 +144,27 @@ LOCKED ──(totalStars がしきい値 minTotalStars 達成)──> AVAILABLE_
 ## 8. Mission → Pitz
 
 - Mission が Pitz の **唯一の入手経路** とする（食材売却・広告視聴等の他の入手経路は作らない）。
-- Mission は以下の2種類を持つ。
-
-  1. **常設ミッション（何度でも達成可能）**: 「ピザを1枚完成させる」。RESULT確定のたびに
-     達成し、Quality に応じた Pitz を得る（★1〜★5 それぞれに固定の Pitz 報酬額を割り当てる）。
-     これが Phase 3C における実質的な基本収入ループになる。
-  2. **一度きりのマイルストーンミッション**: 「はじめてのピザを完成させる」「図鑑を3種類
-     埋める」「いずれかのレシピを Quality ★4 以上で作る」など。達成済みは記録し、
-     二重には報酬を出さない。
-- Mission の一覧・達成条件・報酬額は Phase 3C-5（第12章）で確定する。本ドキュメントでは
-  「常設＋マイルストーンの2層構造」「唯一の Pitz 入手経路」という骨格のみを正典として定める。
+  FREE play（フリープレイ）は常に 0 Pitz。
+- **Phase 3C-5で確定（実装済み）**: Pitz は Lunch Rush の **1 run 単位** で、Mission Result
+  画面到達時に一度だけ付与される。1枚ごとの即時付与（下記の旧「常設ミッション」案）ではなく、
+  1 run（複数枚のピザ提供）の集計 metrics（`servedCount` / `averageQualityScore`）から
+  `calculateMissionReward()`（`src/logic/economy.ts`）で導出する。詳細な計算式・実例は
+  `docs/reports/PIZZA_GAME_Phase3C-5_Pitz-Shop_Result.md` を参照。
+  - `Mission Score`（`missionScore()`, `src/logic/missionScoring.ts`）とPitz reward は別概念・
+    別関数。上限のないリーダーボード的スコアと、1 run あたり上限のある報酬を混同しない。
+  - 0枚提供（`servedCount === 0`）は常に 0 Pitz。
+  - 報酬付与は「1 run につき一度だけ」を状態レベルで保証する（rerender・StrictMode二重
+    effect・Dex/Shop開閉・retry等に依存しない。`MissionState.runId` と
+    `GameState.lastClaimedMissionRunId` によるidempotent guardで実現。詳細は上記レポート）。
+- 以下は Phase 3C 設計時点（v1.0）の初期案であり、**Phase 3C-5では採用しなかった**
+  （置き換え履歴として残す）:
+  1. ~~常設ミッション（何度でも達成可能）: 「ピザを1枚完成させる」。RESULT確定のたびに
+     達成し、Quality に応じた Pitz を得る（★1〜★5 それぞれに固定の Pitz 報酬額を割り当てる）。~~
+     → Lunch Rush run単位の報酬に一本化した（上記）。FREE playのRESULTではPitzを一切
+     付与しない、という本章冒頭の「FREE = 0 Pitz」の方がプロジェクト全体の
+     「経営要素を目的化しない」方針（`PIZZA_GAME_SSOT.md`）とも整合するため。
+  2. ~~一度きりのマイルストーンミッション（「はじめてのピザを完成させる」等）~~
+     → Phase 3C-5のscopeでは未実装（対象外）。将来必要になれば別途SSOT改訂の上で追加する。
 
 ## 9. Pitz → Ingredient permanent purchase（Shop）
 
@@ -279,3 +290,8 @@ availabilityがPhase 3C-3として先行して完了している。実行順序�
   「`totalStars`（全レシピの Dex BEST ★ の合計、derived・非永続化）」に更新。第2・7・12・14・16章
   を実装（`src/logic/mastery.ts` / `src/state/progression.ts`）と一致するよう修正。
   詳細は `docs/reports/PIZZA_GAME_Phase3C-3_Mastery-Availability_Result.md` を参照。
+- v1.2: Phase 3C-5 実装を受けて、第8章（Mission → Pitz）を「1枚ごとの即時付与（常設ミッション）
+  + マイルストーンミッション」案から「Lunch Rush 1 run 単位・Mission Result到達時に一度だけ
+  付与」方式に更新（軽微・明白な確定として、実装に合わせてSSOT側を更新。第19章の指示に基づく）。
+  FREE play = 0 Pitz / Mission が唯一の入手経路、という骨格は変更なし。
+  詳細は `docs/reports/PIZZA_GAME_Phase3C-5_Pitz-Shop_Result.md` を参照。

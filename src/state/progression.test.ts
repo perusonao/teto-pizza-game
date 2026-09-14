@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { availableRecipeIds, ingredientState, isRecipeAvailable } from "./progression";
 import { INGREDIENTS, STARTER_INGREDIENT_IDS, type Ingredient } from "../data/ingredients";
-import { RECIPES } from "../data/recipes";
+import { RECIPES, type Recipe } from "../data/recipes";
+import { purchaseIngredient } from "../logic/economy";
 
 /** A hypothetical future ingredient, defined only in this test file -- never added to
  *  src/data/ingredients.ts (Phase 3C-3 adds no new ingredients or recipes). */
@@ -13,6 +14,25 @@ const MOCK_FUTURE_INGREDIENT: Ingredient = {
   emoji: "❓",
   placement: "scatter",
   unlockCondition: { minTotalStars: 10 },
+  pricePitz: 100,
+};
+
+/** A hypothetical future recipe that depends on `MOCK_FUTURE_INGREDIENT` plus one Starter Set
+ *  ingredient -- defined only in this test file (Phase 3C-5 adds no new recipe, per SSOT
+ *  section 12/scope: Recipe #7/salami is explicitly out of scope). Exercises the "owned
+ *  ingredient -> dependent recipe available" derivation end to end. */
+const MOCK_FUTURE_RECIPE: Recipe = {
+  // Cast: RecipeId is derived from the real RECIPES array (src/data/recipes.ts) and can't
+  // include a test-only id at the type level -- this recipe is only ever passed directly to
+  // isRecipeAvailable, never through RECIPES-derived machinery (order selection, etc).
+  id: "mock-future-recipe" as Recipe["id"],
+  nameJa: "テスト用未来レシピ",
+  description: "test only",
+  requiredIngredients: [
+    { ingredientId: "tomato-sauce", minCount: 1 },
+    { ingredientId: MOCK_FUTURE_INGREDIENT.id, minCount: 1 },
+  ],
+  bakeTarget: { start: 0, end: 100 },
 };
 
 describe("ingredientState", () => {
@@ -76,5 +96,45 @@ describe("availableRecipeIds", () => {
     // margherita / quattro-formaggi / genovese / bismarck / funghi all require mozzarella;
     // only marinara does not.
     expect(ids).toEqual(["marinara"]);
+  });
+});
+
+describe("Phase 3C-5 economy integration: purchase -> OWNED -> dependent recipe available", () => {
+  it("a future recipe is unavailable while its mock ingredient is only AVAILABLE_TO_BUY (not yet purchased)", () => {
+    expect(ingredientState(MOCK_FUTURE_INGREDIENT, STARTER_INGREDIENT_IDS, 10)).toBe(
+      "AVAILABLE_TO_BUY",
+    );
+    expect(isRecipeAvailable(MOCK_FUTURE_RECIPE, STARTER_INGREDIENT_IDS)).toBe(false);
+  });
+
+  it("purchasing the mock ingredient moves it to OWNED and makes the dependent recipe available -- with no separate recipeUnlocked flag involved", () => {
+    const result = purchaseIngredient({
+      ingredient: MOCK_FUTURE_INGREDIENT,
+      ownedIngredientIds: STARTER_INGREDIENT_IDS,
+      totalStars: 10,
+      pitzBalance: 100,
+    });
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+
+    // The only thing that changed is ownedIngredientIds -- recipe availability is re-derived
+    // from it via isRecipeAvailable, not written or flipped anywhere directly.
+    expect(ingredientState(MOCK_FUTURE_INGREDIENT, result.nextOwnedIngredientIds, 10)).toBe("OWNED");
+    expect(isRecipeAvailable(MOCK_FUTURE_RECIPE, result.nextOwnedIngredientIds)).toBe(true);
+  });
+
+  it("purchasing does not affect any other recipe's availability", () => {
+    const result = purchaseIngredient({
+      ingredient: MOCK_FUTURE_INGREDIENT,
+      ownedIngredientIds: STARTER_INGREDIENT_IDS,
+      totalStars: 10,
+      pitzBalance: 100,
+    });
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+
+    for (const recipe of RECIPES) {
+      expect(isRecipeAvailable(recipe, result.nextOwnedIngredientIds)).toBe(true);
+    }
   });
 });
