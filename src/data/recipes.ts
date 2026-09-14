@@ -103,3 +103,9 @@ export type RecipeId = (typeof RECIPES)[number]["id"];
 export function getRecipe(id: RecipeId): Recipe | undefined {
   return RECIPES.find((r) => r.id === id);
 }
+
+/** Stable 0-based position of a recipe within RECIPES, used to deterministically
+ *  rotate between dialogue variants without any extra play-history state. */
+export function getRecipeIndex(id: RecipeId): number {
+  return RECIPES.findIndex((r) => r.id === id);
+}
