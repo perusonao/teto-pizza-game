@@ -289,14 +289,6 @@ export function PizzaStage({
                   className={`pizza-cheese pizza-cheese--${ingredient.id} ${meltClass}`}
                   style={{ "--cheese-color": ingredient.color } as CSSProperties}
                 />
-              ) : ingredient.id === "salami" ? (
-                // Phase 3C-6: a small CSS-drawn disc (same technique as the cheese ingredients
-                // above, not a new rendering mechanism) so salami reads as a round red-brown
-                // slice rather than relying on an emoji glyph that varies by platform.
-                <span
-                  className={`pizza-topping-disc pizza-topping-disc--salami ${meltClass}`}
-                  style={{ "--topping-color": ingredient.color } as CSSProperties}
-                />
               ) : (
                 <span className="pizza-topping__emoji">{ingredient.emoji}</span>
               )}

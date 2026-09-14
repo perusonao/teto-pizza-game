@@ -289,13 +289,13 @@ describe("purchaseIngredient", () => {
     }
   });
 
-  // Phase 3C-6: salami is the first production ingredient that is NOT Starter Set -- unlike
+  // Phase 3C-6: onion is the first production ingredient that is NOT Starter Set -- unlike
   // every ingredient above, it genuinely starts LOCKED and only becomes purchasable once
   // totalStars/pitzBalance clear its real, production `unlockCondition`/`pricePitz`.
-  it("salami (Phase 3C-6) is LOCKED, not ALREADY_OWNED, on a fresh save", () => {
-    const salami = getIngredient("salami")!;
+  it("onion (Phase 3C-6) is LOCKED, not ALREADY_OWNED, on a fresh save", () => {
+    const onion = getIngredient("onion")!;
     const result = purchaseIngredient({
-      ingredient: salami,
+      ingredient: onion,
       ownedIngredientIds: [...STARTER_INGREDIENT_IDS],
       totalStars: 0,
       pitzBalance: 999999,
@@ -303,17 +303,17 @@ describe("purchaseIngredient", () => {
     expect(result).toEqual({ success: false, reason: "LOCKED" });
   });
 
-  it("salami becomes purchasable once totalStars/pitzBalance clear its real production requirement", () => {
-    const salami = getIngredient("salami")!;
+  it("onion becomes purchasable once totalStars/pitzBalance clear its real production requirement", () => {
+    const onion = getIngredient("onion")!;
     const result = purchaseIngredient({
-      ingredient: salami,
+      ingredient: onion,
       ownedIngredientIds: [...STARTER_INGREDIENT_IDS],
-      totalStars: salami.unlockCondition!.minTotalStars,
-      pitzBalance: salami.pricePitz!,
+      totalStars: onion.unlockCondition!.minTotalStars,
+      pitzBalance: onion.pricePitz!,
     });
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.nextOwnedIngredientIds).toEqual([...STARTER_INGREDIENT_IDS, "salami"]);
+      expect(result.nextOwnedIngredientIds).toEqual([...STARTER_INGREDIENT_IDS, "onion"]);
       expect(result.nextPitzBalance).toBe(0);
     }
   });

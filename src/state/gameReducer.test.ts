@@ -148,13 +148,12 @@ describe("pitzBalance carry-over (Phase 3C-5)", () => {
 });
 
 describe("PURCHASE_INGREDIENT (reducer)", () => {
-  // Every real production ingredient is Starter Set (already OWNED, see
-  // STARTER_INGREDIENT_IDS) -- Phase 3C-5 adds no purchasable ingredient to production data
-  // (SSOT: Recipe #7/salami stays out of scope). The reducer's happy-path transaction itself
-  // (LOCKED/AVAILABLE_TO_BUY/insufficient funds/success) is exhaustively covered against mock
-  // ingredients by the pure `purchaseIngredient` function's own tests (src/logic/economy.test.ts)
-  // and by the purchase -> OWNED -> recipe-available integration tests
-  // (src/state/progression.test.ts) -- these tests only cover this reducer's own wiring/guards.
+  // Production does have one purchasable ingredient since Phase 3C-6 (`onion`, gating the
+  // `fugazza` recipe), but this describe block still uses a mock ingredient for its own
+  // reducer-wiring tests below -- the pure `purchaseIngredient` function's own tests
+  // (src/logic/economy.test.ts) and the purchase -> OWNED -> recipe-available integration
+  // tests (src/state/progression.test.ts) already cover the real `onion` data directly, so
+  // these tests only need to cover this reducer's own wiring/guards in isolation.
 
   it("purchasing an already-OWNED (starter) ingredient is a complete no-op", () => {
     const state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 500);

@@ -322,24 +322,24 @@ describe("persistProgress (Phase 3C-5)", () => {
     expect(loadSave(storage).ownedIngredientIds.sort()).toEqual([...owned].sort());
   });
 
-  it("roundtrips a purchased salami (Phase 3C-6's first real non-Starter ingredient)", () => {
+  it("roundtrips a purchased onion (Phase 3C-6's first real non-Starter ingredient)", () => {
     const storage = fakeStorage();
-    const owned = [...STARTER_INGREDIENT_IDS, "salami"];
+    const owned = [...STARTER_INGREDIENT_IDS, "onion"];
     persistProgress({ dex: EMPTY_DEX, pitzBalance: 0, ownedIngredientIds: owned }, storage);
     const loaded = loadSave(storage).ownedIngredientIds;
-    expect(loaded).toContain("salami");
+    expect(loaded).toContain("onion");
     expect(loaded.sort()).toEqual([...owned].sort());
   });
 
-  it("a reload after purchasing salami keeps it OWNED (does not fall back to LOCKED)", () => {
+  it("a reload after purchasing onion keeps it OWNED (does not fall back to LOCKED)", () => {
     const storage = fakeStorage();
     persistProgress(
-      { dex: EMPTY_DEX, pitzBalance: 0, ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "salami"] },
+      { dex: EMPTY_DEX, pitzBalance: 0, ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "onion"] },
       storage,
     );
     // Simulate a fresh reload: read the save back exactly like App.tsx's mount-time hydration.
     const reloaded = loadSave(storage);
-    expect(reloaded.ownedIngredientIds).toContain("salami");
+    expect(reloaded.ownedIngredientIds).toContain("onion");
   });
 
   it("a Pitz balance update does not clobber an existing Dex", () => {

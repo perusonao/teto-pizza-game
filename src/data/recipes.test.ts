@@ -13,35 +13,35 @@ const STARTER_RECIPE_IDS = [
   "funghi",
 ];
 
-describe("RECIPES (Phase 3C-6: salami-pizza is Recipe #7)", () => {
+describe("RECIPES (Phase 3C-6: fugazza is Recipe #7)", () => {
   it("has exactly 7 recipes total", () => {
     expect(RECIPES).toHaveLength(7);
   });
 
   it("the current Starter 6 are unchanged", () => {
-    expect(RECIPES.filter((r) => r.id !== "salami-pizza").map((r) => r.id).sort()).toEqual(
+    expect(RECIPES.filter((r) => r.id !== "fugazza").map((r) => r.id).sort()).toEqual(
       [...STARTER_RECIPE_IDS].sort(),
     );
   });
 
-  describe("salami-pizza", () => {
-    const recipe = getRecipe("salami-pizza");
+  describe("fugazza", () => {
+    const recipe = getRecipe("fugazza");
 
     it("exists and has the expected display name", () => {
       expect(recipe).toBeDefined();
-      expect(recipe?.nameJa).toBe("サラミピザ");
+      expect(recipe?.nameJa).toBe("フガッサ");
     });
 
-    it("requires exactly tomato-sauce + mozzarella + salami", () => {
+    it("requires exactly olive-oil + onion + oregano (no tomato sauce, no cheese)", () => {
       expect(recipe?.requiredIngredients.map((r) => r.ingredientId).sort()).toEqual(
-        ["mozzarella", "salami", "tomato-sauce"].sort(),
+        ["olive-oil", "onion", "oregano"].sort(),
       );
     });
 
-    it("requires salami (its only non-Starter, gating ingredient)", () => {
-      const salamiReq = recipe?.requiredIngredients.find((r) => r.ingredientId === "salami");
-      expect(salamiReq).toBeDefined();
-      expect(salamiReq?.minCount).toBeGreaterThan(0);
+    it("requires onion (its only non-Starter, gating ingredient)", () => {
+      const onionReq = recipe?.requiredIngredients.find((r) => r.ingredientId === "onion");
+      expect(onionReq).toBeDefined();
+      expect(onionReq?.minCount).toBeGreaterThan(0);
     });
 
     it("has a bake target that is a natural (start < end, positive) range", () => {
@@ -50,12 +50,12 @@ describe("RECIPES (Phase 3C-6: salami-pizza is Recipe #7)", () => {
       expect(recipe?.bakeTarget.end).toBeLessThan(100);
     });
 
-    it("is unavailable while salami is not owned (Starter Set only)", () => {
+    it("is unavailable while onion is not owned (Starter Set only)", () => {
       expect(isRecipeAvailable(recipe!, STARTER_INGREDIENT_IDS)).toBe(false);
     });
 
-    it("becomes available once salami is owned", () => {
-      expect(isRecipeAvailable(recipe!, [...STARTER_INGREDIENT_IDS, "salami"])).toBe(true);
+    it("becomes available once onion is owned", () => {
+      expect(isRecipeAvailable(recipe!, [...STARTER_INGREDIENT_IDS, "onion"])).toBe(true);
     });
   });
 
@@ -73,9 +73,9 @@ describe("RECIPES (Phase 3C-6: salami-pizza is Recipe #7)", () => {
     }
   });
 
-  it("recipe/order id integrity: order-salami-pizza exists and targets salami-pizza", () => {
-    const order = ORDERS.find((o) => o.id === "order-salami-pizza");
+  it("recipe/order id integrity: order-fugazza exists and targets fugazza", () => {
+    const order = ORDERS.find((o) => o.id === "order-fugazza");
     expect(order).toBeDefined();
-    expect(order?.recipeId).toBe("salami-pizza");
+    expect(order?.recipeId).toBe("fugazza");
   });
 });

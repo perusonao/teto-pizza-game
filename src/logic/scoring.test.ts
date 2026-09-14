@@ -108,19 +108,19 @@ describe("scorePizza", () => {
   });
 });
 
-describe("scorePizza -- salami-pizza (Phase 3C-6, real production recipe)", () => {
-  const SALAMI_PIZZA = getRecipe("salami-pizza")!;
+describe("scorePizza -- fugazza (Phase 3C-6, real production recipe)", () => {
+  const FUGAZZA = getRecipe("fugazza")!;
 
-  /** 5 required toppings (2 mozzarella + 3 salami) spread evenly around a ring -- well within
+  /** 5 required toppings (4 onion + 1 oregano) spread evenly around a ring -- well within
    *  the dough and far enough apart to earn full placement credit, exactly like any other
-   *  recipe (salami gets no special-cased placement scoring, per SSOT section 14). */
+   *  recipe (onion gets no special-cased placement scoring, per SSOT section 14). */
   function wellPlacedToppings(): PizzaState["toppings"] {
     const items = [
-      { id: "t1", ingredientId: "mozzarella" },
-      { id: "t2", ingredientId: "mozzarella" },
-      { id: "t3", ingredientId: "salami" },
-      { id: "t4", ingredientId: "salami" },
-      { id: "t5", ingredientId: "salami" },
+      { id: "t1", ingredientId: "onion" },
+      { id: "t2", ingredientId: "onion" },
+      { id: "t3", ingredientId: "onion" },
+      { id: "t4", ingredientId: "onion" },
+      { id: "t5", ingredientId: "oregano" },
     ];
     return items.map((item, i) => {
       const angle = (i / items.length) * Math.PI * 2;
@@ -130,42 +130,42 @@ describe("scorePizza -- salami-pizza (Phase 3C-6, real production recipe)", () =
 
   it("can reach ★★★★★ with correct ingredients, good placement, and a perfect bake", () => {
     const pizza = pizzaWith({
-      sauceIds: ["tomato-sauce"],
+      sauceIds: ["olive-oil"],
       toppings: wellPlacedToppings(),
-      bakeResult: (SALAMI_PIZZA.bakeTarget.start + SALAMI_PIZZA.bakeTarget.end) / 2,
+      bakeResult: (FUGAZZA.bakeTarget.start + FUGAZZA.bakeTarget.end) / 2,
     });
-    const score = scorePizza(SALAMI_PIZZA, pizza);
+    const score = scorePizza(FUGAZZA, pizza);
     expect(score.total).toBeGreaterThanOrEqual(90);
     expect(score.stars).toBe(5);
   });
 
-  it("is not unfairly penalized for salami's 3-item placement (same generic placement scoring)", () => {
+  it("is not unfairly penalized for onion's 4-item placement (same generic placement scoring)", () => {
     const pizza = pizzaWith({
-      sauceIds: ["tomato-sauce"],
+      sauceIds: ["olive-oil"],
       toppings: wellPlacedToppings(),
-      bakeResult: (SALAMI_PIZZA.bakeTarget.start + SALAMI_PIZZA.bakeTarget.end) / 2,
+      bakeResult: (FUGAZZA.bakeTarget.start + FUGAZZA.bakeTarget.end) / 2,
     });
-    const score = scorePizza(SALAMI_PIZZA, pizza);
+    const score = scorePizza(FUGAZZA, pizza);
     expect(score.placementScore).toBe(100);
   });
 
   it("caps at ★4 even with perfect ingredients/placement when the bake is raw", () => {
     const pizza = pizzaWith({
-      sauceIds: ["tomato-sauce"],
+      sauceIds: ["olive-oil"],
       toppings: wellPlacedToppings(),
-      bakeResult: SALAMI_PIZZA.bakeTarget.start - 2, // just under target -> raw
+      bakeResult: FUGAZZA.bakeTarget.start - 2, // just under target -> raw
     });
-    const score = scorePizza(SALAMI_PIZZA, pizza);
+    const score = scorePizza(FUGAZZA, pizza);
     expect(score.stars).toBeLessThanOrEqual(4);
   });
 
   it("caps at ★4 even with perfect ingredients/placement when the bake is burnt", () => {
     const pizza = pizzaWith({
-      sauceIds: ["tomato-sauce"],
+      sauceIds: ["olive-oil"],
       toppings: wellPlacedToppings(),
-      bakeResult: SALAMI_PIZZA.bakeTarget.end + 2, // just over target -> burnt
+      bakeResult: FUGAZZA.bakeTarget.end + 2, // just over target -> burnt
     });
-    const score = scorePizza(SALAMI_PIZZA, pizza);
+    const score = scorePizza(FUGAZZA, pizza);
     expect(score.stars).toBeLessThanOrEqual(4);
   });
 });

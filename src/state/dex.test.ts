@@ -97,16 +97,16 @@ describe("registerScoreToDex", () => {
   });
 });
 
-describe("registerScoreToDex -- salami-pizza (Phase 3C-6, Recipe #7)", () => {
-  it("registers BEST/timesMade for salami-pizza exactly like any other recipe id", () => {
-    const first = registerScoreToDex(EMPTY_DEX, "salami-pizza", scoreOf(96, 5));
+describe("registerScoreToDex -- fugazza (Phase 3C-6, Recipe #7)", () => {
+  it("registers BEST/timesMade for fugazza exactly like any other recipe id", () => {
+    const first = registerScoreToDex(EMPTY_DEX, "fugazza", scoreOf(96, 5));
     expect(first.wasNewDiscovery).toBe(true);
     expect(first.dex).toEqual([
-      { recipeId: "salami-pizza", discovered: true, bestScore: 96, bestStars: 5, timesMade: 1 },
+      { recipeId: "fugazza", discovered: true, bestScore: 96, bestStars: 5, timesMade: 1 },
     ]);
 
-    const second = registerScoreToDex(first.dex, "salami-pizza", scoreOf(80, 4));
-    const entry = second.dex.find((e) => e.recipeId === "salami-pizza");
+    const second = registerScoreToDex(first.dex, "fugazza", scoreOf(80, 4));
+    const entry = second.dex.find((e) => e.recipeId === "fugazza");
     expect(entry?.bestScore).toBe(96); // BEST never goes down
     expect(entry?.bestStars).toBe(5);
     expect(entry?.timesMade).toBe(2);

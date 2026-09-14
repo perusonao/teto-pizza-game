@@ -49,17 +49,10 @@ export function IngredientTray({
             onClick={() => onSelectIngredient(ingredient)}
           >
             {ingredient.category === "cheese" ? (
-              <span className="ingredient-chip__disc-slot">
+              <span className="ingredient-chip__cheese-slot">
                 <span
                   className={`pizza-cheese pizza-cheese--${ingredient.id}`}
                   style={{ "--cheese-color": ingredient.color } as CSSProperties}
-                />
-              </span>
-            ) : ingredient.id === "salami" ? (
-              <span className="ingredient-chip__disc-slot">
-                <span
-                  className="pizza-topping-disc pizza-topping-disc--salami"
-                  style={{ "--topping-color": ingredient.color } as CSSProperties}
                 />
               </span>
             ) : (

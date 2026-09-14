@@ -17,9 +17,10 @@ interface ShopOverlayProps {
  * Shop products (Phase 3C-5, see docs/design/PIZZA_GAME_PROGRESSION_SSOT.md section 9): every
  * ingredient with a Mastery gate (`unlockCondition`). Starter Set ingredients (see
  * src/data/ingredients.ts's `STARTER_INGREDIENT_IDS`) never appear here -- they're always
- * OWNED and never for sale. Currently empty in production (Phase 3C-5 deliberately adds no new
- * ingredient of its own, per SSOT section 12/scope -- Recipe #7/salami is Phase 3C-6's job) --
- * the empty state below handles that safely rather than assuming at least one product exists.
+ * OWNED and never for sale. Production's first (and currently only) product is Phase 3C-6's
+ * `onion` (see docs/design/PIZZA_GAME_PROGRESSION_SSOT.md section 12) -- the empty-state
+ * branch below is kept for safety (e.g. a future save with no purchasable ingredients),
+ * not because it's expected to trigger today.
  */
 const SHOP_PRODUCTS: readonly Ingredient[] = INGREDIENTS.filter((i) => i.unlockCondition);
 
@@ -28,7 +29,7 @@ function remainingStarsFor(ingredient: Ingredient, stars: number): number {
   return Math.max(0, (ingredient.unlockCondition?.minTotalStars ?? 0) - stars);
 }
 
-/** "解放: 🍕 サラミピザ" style label listing the recipe name(s) this ingredient unlocks --
+/** "解放: 🍕 フガッサ" style label listing the recipe name(s) this ingredient unlocks --
  *  derived purely for display (see `recipesUnlockedByIngredient`'s own doc comment). Empty
  *  when this ingredient doesn't complete any recipe on its own (not expected in production
  *  today, but never crashes if a future ingredient doesn't gate a recipe). */
@@ -39,7 +40,7 @@ function unlockedRecipeLabel(ingredientId: string, ownedIngredientIds: readonly 
     .join("、");
 }
 
-/** Local, purely-presentational purchase feedback (Phase 3C-6, SSOT section 7-8): "サラミを
+/** Local, purely-presentational purchase feedback (Phase 3C-6, SSOT section 7-8): "たまねぎを
  *  仕入れました！" + which recipe it just unlocked. Captured at the moment "購入" is clicked
  *  (before `ownedIngredientIds` actually updates) so the unlocked-recipe list reflects what
  *  the purchase *did*, not the post-purchase state where it would already read as owned/empty.
