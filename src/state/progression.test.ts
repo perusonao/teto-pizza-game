@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { availableRecipeIds, ingredientState, isRecipeAvailable } from "./progression";
-import { INGREDIENTS, STARTER_INGREDIENT_IDS, type Ingredient } from "../data/ingredients";
+import {
+  availableRecipeIds,
+  ingredientState,
+  isRecipeAvailable,
+  recipesUnlockedByIngredient,
+} from "./progression";
+import { INGREDIENTS, STARTER_INGREDIENT_IDS, getIngredient, type Ingredient } from "../data/ingredients";
 import { RECIPES, type Recipe } from "../data/recipes";
 import { purchaseIngredient } from "../logic/economy";
 
@@ -37,13 +42,14 @@ const MOCK_FUTURE_RECIPE: Recipe = {
 
 describe("ingredientState", () => {
   it("every existing starter ingredient is OWNED for a fresh player (empty owned list)", () => {
-    for (const ingredient of INGREDIENTS) {
+    for (const id of STARTER_INGREDIENT_IDS) {
+      const ingredient = getIngredient(id)!;
       expect(ingredientState(ingredient, [], 0)).toBe("OWNED");
     }
   });
 
   it("a starter ingredient never becomes LOCKED, even if missing from ownedIngredientIds", () => {
-    const [firstStarter] = INGREDIENTS;
+    const firstStarter = getIngredient(STARTER_INGREDIENT_IDS[0])!;
     expect(ingredientState(firstStarter, [], 0)).not.toBe("LOCKED");
     expect(ingredientState(firstStarter, [], 0)).toBe("OWNED");
   });
@@ -63,11 +69,72 @@ describe("ingredientState", () => {
   });
 });
 
+describe("ingredientState -- salami (Phase 3C-6 production data, not a mock)", () => {
+  const salami = INGREDIENTS.find((i) => i.id === "salami")!;
+  const threshold = salami.unlockCondition!.minTotalStars;
+
+  it("is not part of the Starter Set", () => {
+    expect(STARTER_INGREDIENT_IDS).not.toContain("salami");
+  });
+
+  it("has a minTotalStars unlock condition and a positive integer price", () => {
+    expect(salami.unlockCondition).toBeDefined();
+    expect(threshold).toBeGreaterThan(0);
+    expect(Number.isInteger(salami.pricePitz)).toBe(true);
+    expect(salami.pricePitz).toBeGreaterThan(0);
+  });
+
+  it("is LOCKED on a fresh save (0 totalStars, not owned)", () => {
+    expect(ingredientState(salami, STARTER_INGREDIENT_IDS, 0)).toBe("LOCKED");
+  });
+
+  it("is LOCKED one star below threshold", () => {
+    expect(ingredientState(salami, STARTER_INGREDIENT_IDS, threshold - 1)).toBe("LOCKED");
+  });
+
+  it("is AVAILABLE_TO_BUY at exactly the threshold", () => {
+    expect(ingredientState(salami, STARTER_INGREDIENT_IDS, threshold)).toBe("AVAILABLE_TO_BUY");
+  });
+
+  it("is AVAILABLE_TO_BUY above the threshold", () => {
+    expect(ingredientState(salami, STARTER_INGREDIENT_IDS, threshold + 10)).toBe("AVAILABLE_TO_BUY");
+  });
+
+  it("is OWNED once purchased, regardless of totalStars", () => {
+    expect(ingredientState(salami, [...STARTER_INGREDIENT_IDS, "salami"], 0)).toBe("OWNED");
+  });
+});
+
+describe("recipesUnlockedByIngredient (Shop 'これを買うと' preview, Phase 3C-6)", () => {
+  it("salami-pizza is listed as unlocked by salami before it's owned", () => {
+    expect(recipesUnlockedByIngredient("salami", STARTER_INGREDIENT_IDS)).toEqual([
+      "salami-pizza",
+    ]);
+  });
+
+  it("returns empty once salami is already owned (salami-pizza is already available)", () => {
+    expect(
+      recipesUnlockedByIngredient("salami", [...STARTER_INGREDIENT_IDS, "salami"]),
+    ).toEqual([]);
+  });
+
+  it("a Starter ingredient unlocks nothing (every Starter recipe is already available)", () => {
+    expect(recipesUnlockedByIngredient("mozzarella", STARTER_INGREDIENT_IDS)).toEqual([]);
+  });
+});
+
 describe("isRecipeAvailable", () => {
-  it("every current recipe is available when only the Starter Set is owned", () => {
-    for (const recipe of RECIPES) {
+  it("every Starter Set recipe (all except salami-pizza) is available when only the Starter Set is owned", () => {
+    const starterRecipes = RECIPES.filter((r) => r.id !== "salami-pizza");
+    expect(starterRecipes).toHaveLength(6);
+    for (const recipe of starterRecipes) {
       expect(isRecipeAvailable(recipe, STARTER_INGREDIENT_IDS)).toBe(true);
     }
+  });
+
+  it("salami-pizza is not available when only the Starter Set is owned (Phase 3C-6: needs salami)", () => {
+    const salamiPizza = RECIPES.find((r) => r.id === "salami-pizza")!;
+    expect(isRecipeAvailable(salamiPizza, STARTER_INGREDIENT_IDS)).toBe(false);
   });
 
   it("is false when a required ingredient is missing", () => {
@@ -84,10 +151,9 @@ describe("isRecipeAvailable", () => {
 });
 
 describe("availableRecipeIds", () => {
-  it("returns all 6 current recipes for a fresh player", () => {
-    expect(availableRecipeIds(STARTER_INGREDIENT_IDS).sort()).toEqual(
-      RECIPES.map((r) => r.id).sort(),
-    );
+  it("returns exactly the 6 Starter Set recipes for a fresh player (salami-pizza excluded)", () => {
+    const starterRecipeIds = RECIPES.filter((r) => r.id !== "salami-pizza").map((r) => r.id);
+    expect(availableRecipeIds(STARTER_INGREDIENT_IDS).sort()).toEqual(starterRecipeIds.sort());
   });
 
   it("excludes a recipe whose required ingredient is missing", () => {
@@ -133,8 +199,12 @@ describe("Phase 3C-5 economy integration: purchase -> OWNED -> dependent recipe 
     expect(result.success).toBe(true);
     if (!result.success) return;
 
+    // Every real Starter Set recipe stays available; salami-pizza (needs the unrelated
+    // `salami` ingredient, untouched by this purchase) stays unavailable -- purchasing one
+    // ingredient must never leak into a *different* recipe's availability.
     for (const recipe of RECIPES) {
-      expect(isRecipeAvailable(recipe, result.nextOwnedIngredientIds)).toBe(true);
+      const expected = recipe.id !== "salami-pizza";
+      expect(isRecipeAvailable(recipe, result.nextOwnedIngredientIds)).toBe(expected);
     }
   });
 });

@@ -44,6 +44,12 @@ export const ORDERS: Order[] = [
     requestedBy: "mito",
     lineJa: "きのこたっぷりのフンギが食べたい気分！マッシュルームの香りが恋しいな。",
   },
+  {
+    id: "order-salami-pizza",
+    recipeId: "salami-pizza",
+    requestedBy: "mito",
+    lineJa: "サラミが仕入れられたんだって！サラミピザを作ってみてほしいな！",
+  },
 ];
 
 export interface NextOrderOptions {

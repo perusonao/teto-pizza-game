@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { getNextOrder, ORDERS } from "./orders";
+import { STARTER_INGREDIENT_IDS } from "./ingredients";
+import { availableRecipeIds } from "../state/progression";
 
 describe("getNextOrder availability filtering", () => {
   it("never selects a recipe outside availableRecipeIds", () => {
@@ -40,6 +42,29 @@ describe("getNextOrder availability filtering", () => {
     for (let i = 0; i < 50; i++) {
       const order = getNextOrder({});
       expect(ORDERS.map((o) => o.recipeId)).toContain(order.recipeId);
+    }
+  });
+});
+
+describe("getNextOrder + real Progression data (Phase 3C-6: salami-pizza)", () => {
+  it("FREE (Starter Set owned only) never selects salami-pizza", () => {
+    const ids = availableRecipeIds(STARTER_INGREDIENT_IDS);
+    expect(ids).not.toContain("salami-pizza");
+    for (let i = 0; i < 50; i++) {
+      const order = getNextOrder({ availableRecipeIds: ids });
+      expect(order.recipeId).not.toBe("salami-pizza");
+    }
+  });
+
+  it("once salami is purchased, salami-pizza becomes an eligible order candidate", () => {
+    const ids = availableRecipeIds([...STARTER_INGREDIENT_IDS, "salami"]);
+    expect(ids).toContain("salami-pizza");
+    // With every Starter recipe already discovered, salami-pizza is the sole undiscovered
+    // recipe left -- undiscovered-priority (SSOT section 9) must always pick it.
+    const dex = ids.filter((id) => id !== "salami-pizza");
+    for (let i = 0; i < 50; i++) {
+      const order = getNextOrder({ availableRecipeIds: ids, dex });
+      expect(order.recipeId).toBe("salami-pizza");
     }
   });
 });

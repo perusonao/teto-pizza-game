@@ -1,6 +1,6 @@
 # テトのピザ屋さん（仮） Pitz Progression SSOT
 
-Status: Phase 3C 設計確定（Final Verdict A / 実装未着手）
+Status: Phase 3C-1〜3C-6 実装完了（3C-6: サラミ/サラミピザ + Lunch Rush連携まで完了）
 Owner: プロジェクト全体設計
 関連ドキュメント: `PIZZA_GAME_SSOT.md`（プロジェクト全体の正典）/ `PIZZA_GAME_DATA_MODEL.md` /
 `PIZZA_GAME_UI_SPEC.md` / `PIZZA_GAME_Phase3B2_Dex-Progression_Result.md`
@@ -196,23 +196,38 @@ LOCKED ──(totalStars がしきい値 minTotalStars 達成)──> AVAILABLE_
   ボーナスを逃すだけで通常の ORDER に戻る。
 - 発生条件・倍率・UI表現の詳細は Phase 3C-6（第12章）で確定する。
 
-## 12. #7 レシピ提案: サラミ → サラミピザ
+## 12. #7 レシピ: サラミ → サラミピザ（Phase 3C-6で実装・確定）
 
-Shop で最初に解放される新食材として **サラミ（salami）** を推奨する。
+Shop で最初に解放される新食材として **サラミ（salami）** を採用した。以下は
+Phase 3C-6（`docs/reports/PIZZA_GAME_Phase3C-6_First-Progression_Result.md`）で確定した
+最終値であり、「candidate」ではなく正典として扱う。
 
-- Unlock条件: `unlockCondition: { minTotalStars: N }`（第7章の合計★方式。全レシピ共通の
+- Unlock条件: `unlockCondition: { minTotalStars: 12 }`（第7章の合計★方式。全レシピ共通の
   `totalStars` に対するしきい値で判定する。特定レシピのMastery回数と個別に紐付ける方式は
-  採用しない。具体的な N はレシピ実装時に確定）。
+  採用しない）。
+  - 設計当初の candidate（`minTotalStars: 18`）は、実プレイシミュレーション上「初心者
+    （Starter平均★2程度）」が既存Starter 6レシピを全て発見しても最大 `totalStars` が
+    16にしかならず、しきい値に到達できないことが判明したため、12へ調整した
+    （詳細はPhase 3C-6レポートのBalance verification節を参照）。
+  - `minTotalStars: 12` は実測で「上手」プレイヤーはStarter 3枚目、「普通」は4枚目、
+    「初心者」は5枚目で到達する — いずれもStarter 6レシピの完全コンプリートを
+    必須にしない（第15章の設計意図と整合）。
+- 価格: `pricePitz: 120`。Phase 3C-5で確定した報酬式（1 runあたり約50〜150 Pitz、
+  実測でも85〜140 Pitz程度）から、Lunch Rush 1〜2回で購入可能な水準として維持した
+  （candidateどおり、調整不要と判断）。
 - 食材の組み合わせとしては、トマトソース・モッツァレラという既存の構成にサラミを足すだけで
-  自然に理解できる、マルゲリータ／ビスマルク／フンギの延長線上にある組み合わせを意図している
-  （こちらはunlock条件ではなく、レシピ設計上の意匠として維持する）。
-- 新レシピ「サラミピザ」: `tomato-sauce` + `mozzarella` + `salami` という、既存の
-  マルゲリータ・ビスマルク・フンギと同系統（トマト+モッツァレラ+具材1種）の構成にする。
-  実在するピザとして自然な組み合わせであり、架空の食材・組み合わせを避ける方針
-  （`PIZZA_GAME_SSOT.md` 第1章）に沿う。
+  自然に理解できる、マルゲリータ／ビスマルク／フンギの延長線上にある組み合わせにした。
+- 新レシピ「サラミピザ」（`salami-pizza`）: `tomato-sauce` ×1 + `mozzarella` ×2 +
+  `salami` ×3 という、既存のマルゲリータ・ビスマルク・フンギと同系統
+  （トマト+モッツァレラ+具材1種）の構成。実在するピザとして自然な組み合わせであり、
+  架空の食材・組み合わせを避ける方針（`PIZZA_GAME_SSOT.md` 第1章）に沿う。
+  `bakeTarget: { start: 62, end: 82 }`（既存6レシピと同じ幅20の自然なレンジ）。
+- サラミ自体の解放判定は `salami` の `ingredientState`（LOCKED/AVAILABLE_TO_BUY/OWNED）
+  のみが担い、`salami-pizza` に専用の `recipeUnlocked` 相当のフラグは一切持たせていない
+  （第10章のとおり、`isRecipeAvailable` が `requiredIngredients` の OWNED 判定から
+  毎回 derive する）。
 - 新食材1種・新レシピ1種のみという最小構成で、Phase 3C の Shop/Mastery/Pitz ループを
-  最初に実証する「最初の一歩」として位置づける。具体的な価格・Mastery しきい値の
-  最終値・`bakeTarget` はレシピ実装時（Phase 3C-6）に確定する。
+  最初に実証する「最初の一歩」として完成した。
 
 ## 13. Phase 3C の対象外（Out of Scope）
 
@@ -268,8 +283,12 @@ Shop で最初に解放される新食材として **サラミ（salami）** を
   （`LOCKED`/`AVAILABLE_TO_BUY`/`OWNED` の状態導出ロジック自体はPhase 3C-3で先行実装済み）。 |
 | **3C-5** | Mission（第8章）。常設/マイルストーンミッション、Mission→Pitz付与ロジックを実装
   （Mastery=`totalStars`はPhase 3C-3で先行実装済み。レシピ別カウンターは採用しない）。 |
-| **3C-6** | サラミ食材・サラミピザレシピ（第12章）+ Lunch Rush（第11章）。Shop/Mastery/Pitz
-  ループの最初の実コンテンツと、期間限定ボーナスイベントを実装。 |
+| **3C-6** | サラミ食材・サラミピザレシピ（第12章）実装完了。`minTotalStars: 12` /
+  `pricePitz: 120` を実プレイシミュレーションで確定し、fresh saveから
+  「Starter作成 → totalStars上昇 → Shop解放 → Lunch RushでPitz獲得 → 購入 →
+  サラミピザ作成 → Dex 7/7」までの一周を実装・実機確認した（Lunch Rush自体は
+  Phase 3C-4で実装済み。3C-6はその上に最初の実コンテンツを乗せた）。詳細は
+  `docs/reports/PIZZA_GAME_Phase3C-6_First-Progression_Result.md` を参照。 |
 
 各フェーズの完了条件（Definition of Done）は、着手時に本ドキュメントを参照しつつ
 フェーズ単位の Result レポート（`docs/reports/PIZZA_GAME_Phase3C-*_Result.md`）側で定める。
@@ -295,3 +314,9 @@ availabilityがPhase 3C-3として先行して完了している。実行順序�
   付与」方式に更新（軽微・明白な確定として、実装に合わせてSSOT側を更新。第19章の指示に基づく）。
   FREE play = 0 Pitz / Mission が唯一の入手経路、という骨格は変更なし。
   詳細は `docs/reports/PIZZA_GAME_Phase3C-5_Pitz-Shop_Result.md` を参照。
+- v1.3: Phase 3C-6 実装（サラミ・サラミピザ）を受けて、第12章を「レシピ提案」から
+  「実装・確定」に更新。`minTotalStars` を設計時 candidate の18から実プレイ
+  シミュレーションに基づき12へ調整（18では初心者プレイヤーがStarter 6レシピを
+  完走してもしきい値に届かないことが判明したため）。`pricePitz: 120` は
+  candidateどおり維持。第16章のロードマップ表（3C-6行）を実装済みの内容に更新。
+  詳細は `docs/reports/PIZZA_GAME_Phase3C-6_First-Progression_Result.md` を参照。

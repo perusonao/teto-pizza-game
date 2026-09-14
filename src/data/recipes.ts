@@ -94,6 +94,25 @@ export const RECIPES = [
     ],
     bakeTarget: { start: 58, end: 78 },
   },
+  /**
+   * Phase 3C-6's first Recipe #7 (see docs/design/PIZZA_GAME_PROGRESSION_SSOT.md section 12):
+   * the same "tomato + mozzarella + one topping" family as bismarck/funghi, but its
+   * `salami` requirement means it is never available until that ingredient is purchased
+   * (src/state/progression.ts's `isRecipeAvailable` -- there is no separate `recipeUnlocked`
+   * flag; availability derives purely from `requiredIngredients` being OWNED).
+   */
+  {
+    id: "salami-pizza",
+    nameJa: "サラミピザ",
+    description:
+      "トマトソースとモッツァレラの上に、ピリッと香ばしいサラミをたっぷりのせた食べ応えのある一枚。",
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "salami", minCount: 3 },
+    ],
+    bakeTarget: { start: 62, end: 82 },
+  },
 ] as const;
 
 /** Derived from RECIPES above so this union can never drift out of sync with

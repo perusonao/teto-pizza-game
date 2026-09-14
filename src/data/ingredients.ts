@@ -138,6 +138,28 @@ export const INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F344}",
     placement: "scatter",
   },
+  /**
+   * Phase 3C-6: the first non-Starter ingredient (see
+   * docs/design/PIZZA_GAME_PROGRESSION_SSOT.md sections 6-7, 12 and
+   * docs/reports/PIZZA_GAME_Phase3C-6_First-Progression_Result.md for the threshold/price
+   * balancing that landed on these exact numbers). LOCKED on a fresh save (no starter
+   * treatment); becomes AVAILABLE_TO_BUY once `totalStars` (src/logic/mastery.ts) reaches 12,
+   * then OWNED via a 120 Pitz Shop purchase (src/logic/economy.ts's `purchaseIngredient`).
+   * Renders as a small CSS-drawn disc (like the cheese ingredients) rather than an emoji --
+   * see PizzaStage.tsx / IngredientTray.tsx's `ingredient.id === "salami"` branch -- so `emoji`
+   * below is only a fallback for any future context that reads it directly (e.g. Dex card
+   * ingredient chips), not what's shown on the pizza itself.
+   */
+  {
+    id: "salami",
+    category: "topping",
+    nameJa: "サラミ",
+    color: "#a5382c",
+    emoji: "\u{1F534}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 12 },
+    pricePitz: 120,
+  },
 ];
 
 export const CATEGORY_ORDER: IngredientCategory[] = ["sauce", "cheese", "topping"];

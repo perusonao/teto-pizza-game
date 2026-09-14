@@ -374,6 +374,43 @@
   filter: brightness(0.6) saturate(0.75) sepia(0.25);
 }
 
+/* ---------- Salami identity (Phase 3C-6) ---------- */
+/* A small round red-brown disc, deliberately distinct from every existing topping: rounder
+   and smaller than mozzarella's blobby oval, plainly red/brown rather than tomato-sauce's
+   flat spread layer, and a solid disc rather than mushroom/cherry-tomato's emoji glyphs. */
+.pizza-topping-disc {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--topping-color, #a5382c);
+  box-shadow: 0 2px 3px rgba(30, 16, 4, 0.3), 0 0 0 1.5px rgba(255, 245, 230, 0.6);
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.pizza-topping-disc--salami {
+  background: radial-gradient(circle at 32% 28%, #d97a67 0 3px, transparent 3.6px),
+    radial-gradient(circle at 68% 55%, #d97a67 0 2.4px, transparent 3px),
+    radial-gradient(circle at 74% 22%, rgba(217, 122, 103, 0.85) 0 2px, transparent 2.6px),
+    radial-gradient(circle at 30% 34%, #a5382c, #7a2620 100%);
+}
+
+/* Reuses the same melt/toast/char class names the cheese pieces already carry (see
+   PizzaStage.tsx) so salami gets the same "cooked" bake feedback -- combined selectors, not
+   a duplicate rule set, so this can't drift out of sync with the cheese version above. */
+.pizza-topping-disc.pizza-cheese--melted {
+  transform: scale(1.12);
+  filter: brightness(1.05) saturate(1.05);
+}
+
+.pizza-topping-disc.pizza-cheese--melted.pizza-cheese--toasted {
+  filter: brightness(1.05) saturate(1.12) sepia(0.1);
+}
+
+.pizza-topping-disc.pizza-cheese--charred {
+  filter: brightness(0.55) saturate(0.7) sepia(0.2);
+}
+
 @keyframes topping-land {
   0% {
     transform: translate(-50%, calc(-50% - 14px)) scale(0.6);
@@ -552,7 +589,7 @@
   font-size: 26px;
 }
 
-.ingredient-chip__cheese-slot {
+.ingredient-chip__disc-slot {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1216,6 +1253,16 @@
   padding: 8px 14px;
 }
 
+.shop-overlay__feedback {
+  font-size: 13px;
+  font-weight: 700;
+  color: #4c9a2a;
+  background: #eef7e5;
+  border-radius: 12px;
+  padding: 10px 14px;
+  line-height: 1.5;
+}
+
 .shop-overlay__empty {
   font-size: 13px;
   color: #8a6a45;
@@ -1234,14 +1281,25 @@
 
 .shop-item {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 4px;
   background: #fff;
   border-radius: 12px;
   padding: 10px 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.shop-item__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.shop-item__unlocks {
+  font-size: 11px;
+  color: #8a6a45;
 }
 
 .shop-item__info {
