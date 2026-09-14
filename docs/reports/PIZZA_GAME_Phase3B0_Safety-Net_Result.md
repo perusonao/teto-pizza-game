@@ -39,38 +39,74 @@
 export interface Recipe {
   id: RecipeId;
   ...
+  requiredIngredients: readonly RecipeRequirement[];
+  ...
 }
 
-export type RecipeId = (typeof RECIPES)[number]["id"];
-
 export const RECIPES = [
-  { id: "margherita" as const, ... },
-  { id: "marinara" as const, ... },
-  { id: "quattro-formaggi" as const, ... },
-];
+  { id: "margherita", ... },
+  { id: "marinara", ... },
+  { id: "quattro-formaggi", ... },
+] as const;
+
+export type RecipeId = (typeof RECIPES)[number]["id"];
 
 export function getRecipe(id: RecipeId): Recipe | undefined { ... }
 ```
 
-- `RecipeId` は `RECIPES` 配列の `id` フィールド（各 `as const` でリテラル化）から
-  型レベルで導出した union。手書きの ID リストを別途持たないため、
-  recipe 追加/削除時に自動で追従する。
+- `RecipeId` は `RECIPES` 配列の `id` フィールドから型レベルで導出した union。
+  手書きの ID リストを別途持たないため、recipe 追加/削除時に自動で追従する。
 - `src/data/orders.ts` の `Order.recipeId` を `string` → `RecipeId` に変更。
 - 存在しない `recipeId` を `ORDERS` に書くと `tsc -b` がコンパイルエラーで検出する
   （下記で実証済み）。
 
+### Codex P2レビュー対応（PR #10 review thread）
+
+初回実装は各 recipe の `id` へ個別に `id: "margherita" as const` を付ける方式だった。
+Codexの指摘: 将来 recipe 追加時に1件でも `as const` を付け忘れると、その要素の
+`id` が `string` へ widen し、`RecipeId`（union全体）も `string` へ widen して
+`Order.recipeId` の compile-time integrity check が静かに無効化される、というもの。
+
+対応として、`as const` を **配列全体（`RECIPES` 末尾）に1箇所だけ** 付与する方式に変更。
+配列リテラル全体を `as const` にすることで、各要素の `id` は個別の注釈なしに
+自動で string literal 型として保持される。これに伴い、`as const` は
+`requiredIngredients` などネスト配列も `readonly` にするため、
+`Recipe.requiredIngredients` の型を `RecipeRequirement[]` → `readonly RecipeRequirement[]`
+に変更（既存の利用箇所は `.map` / `.find` / `.filter` のみで書き込みなし。
+`scoring.ts` / `hints.ts` / `DexOverlay.tsx` / `App.tsx` で読み取り専用利用のみ確認済み）。
+
+手書きの `RecipeId` 一覧やヘルパー型・factory関数は追加していない
+（`RECIPES` 自体から `(typeof RECIPES)[number]["id"]` で導出する方式を維持）。
+
 ### 検証手順（実施後、必ず元に戻す）
 
-`src/data/orders.ts` の `quattro-formaggi` order の `recipeId` を
-`"quattro-formaggi-typo"` に一時変更して `npx tsc -b` を実行:
+1. `src/data/orders.ts` の `quattro-formaggi` order の `recipeId` を
+   `"quattro-formaggi-typo"` に一時変更して `npx tsc -b` を実行:
 
-```
-src/data/orders.ts(25,5): error TS2820: Type '"quattro-formaggi-typo"' is not
-assignable to type '"margherita" | "marinara" | "quattro-formaggi"'.
-Did you mean '"quattro-formaggi"'?
-```
+   ```
+   src/data/orders.ts(25,5): error TS2820: Type '"quattro-formaggi-typo"' is not
+   assignable to type '"margherita" | "marinara" | "quattro-formaggi"'.
+   Did you mean '"quattro-formaggi"'?
+   ```
 
-→ 期待通り検出。変更は直後に元へ戻し、`npm run build` がクリーンに通ることを再確認済み。
+   → 期待通り検出。
+
+2. Codexの指摘シナリオを再現するため、`RECIPES` に **`as const` を付けない**
+   4件目の recipe (`id: "verify-temp-no-as-const"`) を一時追加した状態で、
+   上記1の invalid `recipeId` テストを再実行:
+
+   ```
+   src/data/orders.ts(25,5): error TS2820: Type '"quattro-formaggi-typo"' is not
+   assignable to type '"margherita" | "marinara" | "quattro-formaggi" |
+   "verify-temp-no-as-const"'. Did you mean '"quattro-formaggi"'?
+   ```
+
+   → `RecipeId` が `"verify-temp-no-as-const"` を含む4つのリテラル union のままで、
+   `string` へ widen していないことを確認（widen していれば invalid な
+   `recipeId` はエラーにならないはず）。
+
+3. 両方の一時変更（`orders.ts` の typo、`recipes.ts` の検証用recipe）を元に戻し、
+   `npm run build` / `npm run lint` / `git diff --check` がクリーンに通ることを再確認。
 
 新しい test framework やランタイムバリデーションは導入していない（純粋に型レベルの対応）。
 
@@ -121,6 +157,7 @@ persistence、management、新test infrastructure。
 
 ## Commit / PR
 
-- Commit SHA: `aae8226d3cac88cbb9c24750a62aad0d4bea2945`
+- Initial commit SHA: `aae8226d3cac88cbb9c24750a62aad0d4bea2945`
+- Codex P2 fix commit SHA: (このコミット。git log 参照)
 - PR URL: https://github.com/perusonao/teto-pizza-game/pull/10
 - PR is left **unmerged** as instructed.
