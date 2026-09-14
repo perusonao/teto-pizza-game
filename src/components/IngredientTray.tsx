@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import {
   CATEGORY_LABEL,
   CATEGORY_ORDER,
@@ -49,7 +50,10 @@ export function IngredientTray({
           >
             {ingredient.category === "cheese" ? (
               <span className="ingredient-chip__cheese-slot">
-                <span className={`pizza-cheese pizza-cheese--${ingredient.id}`} />
+                <span
+                  className={`pizza-cheese pizza-cheese--${ingredient.id}`}
+                  style={{ "--cheese-color": ingredient.color } as CSSProperties}
+                />
               </span>
             ) : (
               <span className="ingredient-chip__emoji">{ingredient.emoji}</span>

@@ -9,14 +9,17 @@ export interface BakeTarget {
 }
 
 export interface Recipe {
-  id: string;
+  id: RecipeId;
   nameJa: string;
   description: string;
-  requiredIngredients: RecipeRequirement[];
+  requiredIngredients: readonly RecipeRequirement[];
   bakeTarget: BakeTarget;
 }
 
-export const RECIPES: Recipe[] = [
+/** `as const` on the whole array (not per-id) keeps every id a string literal
+ *  automatically, so RecipeId always reflects RECIPES with no hand-maintained
+ *  id list and no per-entry annotation to remember when adding a recipe. */
+export const RECIPES = [
   {
     id: "margherita",
     nameJa: "マルゲリータ",
@@ -55,8 +58,12 @@ export const RECIPES: Recipe[] = [
     ],
     bakeTarget: { start: 65, end: 85 },
   },
-];
+] as const;
 
-export function getRecipe(id: string): Recipe | undefined {
+/** Derived from RECIPES above so this union can never drift out of sync with
+ *  the actual recipe data. */
+export type RecipeId = (typeof RECIPES)[number]["id"];
+
+export function getRecipe(id: RecipeId): Recipe | undefined {
   return RECIPES.find((r) => r.id === id);
 }
