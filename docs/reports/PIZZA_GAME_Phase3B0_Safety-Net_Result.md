@@ -121,6 +121,6 @@ persistence、management、新test infrastructure。
 
 ## Commit / PR
 
-- Commit SHA: (このレポートをコミットするコミットのSHA。git log 参照)
+- Commit SHA: `aae8226d3cac88cbb9c24750a62aad0d4bea2945`
 - PR URL: (作成後に追記)
 - PR is left **unmerged** as instructed.
