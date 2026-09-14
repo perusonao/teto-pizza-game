@@ -1,10 +1,12 @@
 import { getNextOrder, type NextOrderOptions, type Order } from "../data/orders";
 import { getRecipe, type Recipe } from "../data/recipes";
 import { buildHintLine } from "../data/hints";
+import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import type { DialogueLine } from "../data/dialogue";
 import { scorePizza, type ScoreBreakdown } from "../logic/scoring";
 import { classifyBake, type BakeState } from "../logic/bake";
 import { discoveredRecipeIds, registerScoreToDex, EMPTY_DEX, type DexState } from "./dex";
+import { availableRecipeIds } from "./progression";
 import {
   createEmptyPizza,
   findOpenSpot,
@@ -22,6 +24,10 @@ export interface GameState {
   score: ScoreBreakdown | null;
   bakeState: BakeState | null;
   dex: DexState;
+  /** Canonical OWNED ingredient ids (Phase 3C-3). Always a superset of the Starter Set.
+   *  Read-only in this phase -- there is no purchase action yet, so this only ever flows
+   *  through from `createInitialGameState`'s hydration into every subsequent order. */
+  ownedIngredientIds: readonly string[];
   justDiscovered: boolean;
   /** True when REGISTER_TO_DEX just improved this recipe's Dex BEST (including its very
    *  first discovery, which trivially sets the first BEST). RESULT/DISCOVERED UI uses this
@@ -42,8 +48,16 @@ export type GameAction =
   | { type: "PLAY_AGAIN" }
   | { type: "SHOW_HINT" };
 
-function nextOrderState(dex: DexState, orderOptions: NextOrderOptions): GameState {
-  const order = getNextOrder({ ...orderOptions, dex: discoveredRecipeIds(dex) });
+function nextOrderState(
+  dex: DexState,
+  ownedIngredientIds: readonly string[],
+  orderOptions: NextOrderOptions,
+): GameState {
+  const order = getNextOrder({
+    ...orderOptions,
+    dex: discoveredRecipeIds(dex),
+    availableRecipeIds: availableRecipeIds(ownedIngredientIds),
+  });
   const recipe = getRecipe(order.recipeId);
   if (!recipe) {
     throw new Error(`Unknown recipe for order ${order.id}`);
@@ -56,6 +70,7 @@ function nextOrderState(dex: DexState, orderOptions: NextOrderOptions): GameStat
     score: null,
     bakeState: null,
     dex,
+    ownedIngredientIds,
     justDiscovered: false,
     justGotNewBest: false,
     hint: null,
@@ -63,11 +78,15 @@ function nextOrderState(dex: DexState, orderOptions: NextOrderOptions): GameStat
   };
 }
 
-/** `dex` defaults to empty for existing call sites (tests, a from-scratch player); App.tsx
- *  passes in the loaded Dex from persistence.ts so a reload hydrates BEST/timesMade while
- *  everything else (the round in progress) starts fresh at ORDER regardless. */
-export function createInitialGameState(dex: DexState = EMPTY_DEX): GameState {
-  return nextOrderState(dex, { preferFirst: true });
+/** `dex` defaults to empty and `ownedIngredientIds` defaults to the Starter Set for
+ *  existing call sites (tests, a from-scratch player); App.tsx passes in both from
+ *  persistence.ts so a reload hydrates BEST/timesMade/ownership while everything else (the
+ *  round in progress) starts fresh at ORDER regardless. */
+export function createInitialGameState(
+  dex: DexState = EMPTY_DEX,
+  ownedIngredientIds: readonly string[] = STARTER_INGREDIENT_IDS,
+): GameState {
+  return nextOrderState(dex, ownedIngredientIds, { preferFirst: true });
 }
 
 let placedIdCounter = 0;
@@ -168,7 +187,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case "PLAY_AGAIN":
-      return nextOrderState(state.dex, { excludeRecipeId: state.recipe.id });
+      return nextOrderState(state.dex, state.ownedIngredientIds, {
+        excludeRecipeId: state.recipe.id,
+      });
 
     case "SHOW_HINT":
       return { ...state, hint: buildHintLine(state.recipe, state.pizza, true) };

@@ -1,6 +1,7 @@
 import { RECIPES } from "../data/recipes";
 import { getIngredient } from "../data/ingredients";
 import type { DexEntry, DexState } from "../state/dex";
+import { totalStars } from "../logic/mastery";
 
 interface DexOverlayProps {
   dex: DexState;
@@ -23,6 +24,7 @@ export function DexOverlay({ dex, newlyDiscoveredId, newBestRecipeId, onClose }:
   const total = RECIPES.length;
   const discoveredCount = dex.filter((e) => e.discovered).length;
   const isComplete = discoveredCount >= total;
+  const mastery = totalStars(dex);
 
   return (
     <div className="dex-overlay">
@@ -34,12 +36,15 @@ export function DexOverlay({ dex, newlyDiscoveredId, newBestRecipeId, onClose }:
           </button>
         </div>
         <div className={`dex-overlay__progress ${isComplete ? "dex-overlay__progress--complete" : ""}`}>
-          <p className="dex-overlay__progress-count">
-            {isComplete ? `🏆 ${total} / ${total}` : `🍕 発見 ${discoveredCount} / ${total}`}
-          </p>
-          <p className="dex-overlay__progress-sub">
-            {isComplete ? "コンプリート！" : `あと${total - discoveredCount}種類！`}
-          </p>
+          <div className="dex-overlay__progress-row">
+            <p className="dex-overlay__progress-count">
+              {isComplete ? `🏆 ${total} / ${total}` : `🍕 発見 ${discoveredCount} / ${total}`}
+            </p>
+            <p className="dex-overlay__progress-sub">
+              {isComplete ? "コンプリート！" : `あと${total - discoveredCount}種類！`}
+            </p>
+          </div>
+          <p className="dex-overlay__mastery-total">{"⭐"} 合計★ {mastery}</p>
         </div>
         <div className="dex-overlay__list">
           {RECIPES.map((recipe) => {

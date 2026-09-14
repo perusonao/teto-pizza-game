@@ -37,7 +37,7 @@ RESULT → DISCOVERED）を一切変更せずに、**「作り続けたくなる
 |---|---|
 | **Pitz** | Phase 3C で追加するゲーム内通貨。ミッション達成で獲得し、食材の恒久購入にのみ使用する。 |
 | **Quality（★1〜★5）** | RESULT 採点を5段階の品質評価に拡張したもの（第4章）。既存の★1〜3表示を置き換える。 |
-| **Mastery（習熟度）** | レシピごとの上達度。そのレシピを高品質で作った回数から算出し、Shop解放条件になる（第7章）。 |
+| **Mastery（習熟度）** | 全レシピの Dex BEST ★ の合計（`totalStars`）。Dexから毎回 derived で算出し、保存しない。食材の入荷条件（LOCKED → AVAILABLE_TO_BUY）に使う（第7章）。 |
 | **Mission（ミッション）** | 達成すると Pitz を得られる短い目標（第8章）。 |
 | **Shop（食材ショップ）** | Pitz を消費して食材を恒久購入できる画面（第9章）。 |
 | **Starter Set** | 既存6レシピ。Shop購入なしで最初から作れるレシピ群（第5章）。 |
@@ -90,7 +90,7 @@ RESULT → DISCOVERED）を一切変更せずに、**「作り続けたくなる
 Phase 3C 以降に追加する食材（Starter Set に含まれない食材）は、次の3状態のいずれかを持つ。
 
 ```
-LOCKED ──(Masteryしきい値達成)──> AVAILABLE_TO_BUY ──(Pitzで購入)──> OWNED
+LOCKED ──(totalStars がしきい値 minTotalStars 達成)──> AVAILABLE_TO_BUY ──(Pitzで購入)──> OWNED
 ```
 
 | 状態 | 意味 | Shop表示 | PREPAREでの使用 |
@@ -104,16 +104,42 @@ LOCKED ──(Masteryしきい値達成)──> AVAILABLE_TO_BUY ──(Pitzで�
 
 ## 7. Mastery → Shop availability
 
-- Mastery（習熟度）は **Starter Set の各レシピごと** に持つカウンターとする。
-  「そのレシピを Quality ★4 以上で完成させた回数」を Mastery 値とする。
-- 各 `LOCKED` 食材は、Starter Set のいずれか1レシピと紐付き、そのレシピの Mastery が
-  しきい値（初期設計では 3 回）に達すると `LOCKED` → `AVAILABLE_TO_BUY` へ遷移する。
-- 紐付け方針は「新食材のレシピが、既存レシピの延長として自然に理解できる組み合わせ」に
-  すること（架空の組み合わせにしない、という `PIZZA_GAME_SSOT.md` 第1章の方針を継承）。
-  第11章の #7 提案（サラミ）はこの方針の最初の適用例。
-- Mastery はプレイヤーへの「ごほうび」の伏線として機能させ、数値そのものを大きく
-  プレイヤーに意識させる UI（プログレスバー等）は Phase 3C では必須要件にしない
-  （Shop 内で「あと◯回、★4以上で作ると解放」程度の軽い表示に留める）。
+**Mastery は `totalStars`（全レシピの Dex BEST ★ の合計）として定義する。レシピ別の
+カウンターは持たない**（Phase 3C-3 で確定。実装は `src/logic/mastery.ts` の
+`totalStars(dex)`。詳細は
+`docs/reports/PIZZA_GAME_Phase3C-3_Mastery-Availability_Result.md` を参照）。
+
+- `totalStars` は「発見済み各レシピの Dex BEST ★（`bestStars`）の合計」。未発見レシピは
+  0 として扱う。
+- **保存しない**。Dex（`dex: DexEntry[]`）から呼び出すたびに derived で算出する
+  （第14章・第15章の通り、保存されるのは Dex 自体のみ）。
+- `timesMade`（作った回数）や直近1回のスコアは `totalStars` に一切影響しない。
+  影響するのは各レシピの Dex BEST（`bestStars`）の更新のみ。
+- 各 `LOCKED` 食材は `unlockCondition: { minTotalStars: N }` を持ち、
+  `totalStars >= N` になった時点で `LOCKED` → `AVAILABLE_TO_BUY` へ遷移する
+  （特定レシピへの個別紐付けではなく、全レシピ共通の1指標に対するしきい値判定。
+  第11章の #7 提案（サラミ）はこの方針の最初の適用例）。
+
+**合計★方式（レシピ別カウンター方式ではなく）を採用する理由**:
+
+- プレイヤーに理解しやすい（「あと★2で入荷」のように進捗を一言で示せる）
+- 全レシピの上達がまんべんなく Progression に寄与する（特定1レシピの周回作業にならない）
+- ★5を狙う意味が最後まで残る（★4止まりでも進むが、★5の方が早く進む）
+- Dex BEST との相性がよく、新しい保存領域を増やさずに済む
+
+**役割分離**（Progression 全体を通して厳守する）:
+
+```
+ピザを作る → Dex BEST更新 → totalStars増加 → unlockCondition達成
+  → 食材が AVAILABLE_TO_BUY → Mission で Pitz を稼ぐ → Shop で購入 → OWNED
+  → 必要食材が揃ったレシピが available になる
+```
+
+- **★（totalStars）** は入荷条件（`LOCKED` → `AVAILABLE_TO_BUY`）を判定するためだけに使う。
+- **Pitz** は購入手段（`AVAILABLE_TO_BUY` → `OWNED`）。
+- **★だけで食材が `OWNED` になることはない** — 入荷と購入は常に別ステップとして扱う。
+- Mastery（`totalStars`）そのものを大きくプレイヤーに意識させる UI（プログレスバー等）は
+  Phase 3C では必須要件にしない（Shop 内で「あと★◯で入荷」程度の軽い表示に留める）。
 
 ## 8. Mission → Pitz
 
@@ -163,9 +189,12 @@ LOCKED ──(Masteryしきい値達成)──> AVAILABLE_TO_BUY ──(Pitzで�
 
 Shop で最初に解放される新食材として **サラミ（salami）** を推奨する。
 
-- 紐付けレシピ: **マルゲリータ**（Mastery ★4以上×3回でサラミが `AVAILABLE_TO_BUY` になる）。
-  トマトソース・モッツァレラという構成がそのまま活きる、最小差分で自然に理解できる
-  組み合わせのため。
+- Unlock条件: `unlockCondition: { minTotalStars: N }`（第7章の合計★方式。全レシピ共通の
+  `totalStars` に対するしきい値で判定する。特定レシピのMastery回数と個別に紐付ける方式は
+  採用しない。具体的な N はレシピ実装時に確定）。
+- 食材の組み合わせとしては、トマトソース・モッツァレラという既存の構成にサラミを足すだけで
+  自然に理解できる、マルゲリータ／ビスマルク／フンギの延長線上にある組み合わせを意図している
+  （こちらはunlock条件ではなく、レシピ設計上の意匠として維持する）。
 - 新レシピ「サラミピザ」: `tomato-sauce` + `mozzarella` + `salami` という、既存の
   マルゲリータ・ビスマルク・フンギと同系統（トマト+モッツァレラ+具材1種）の構成にする。
   実在するピザとして自然な組み合わせであり、架空の食材・組み合わせを避ける方針
@@ -185,13 +214,15 @@ Shop で最初に解放される新食材として **サラミ（salami）** を
 ## 14. Persistence: localStorage
 
 - Phase 3C で新たに永続化するデータ: Pitz残高 / Dex（発見済みレシピ + 第15章のBEST品質）/
-  食材の所持状態（`OWNED` になった食材ID一覧）/ Mastery カウンター（レシピ別）/
-  達成済みマイルストーンミッションのID一覧。
+  食材の所持状態（`OWNED` になった食材ID一覧）/ 達成済みマイルストーンミッションのID一覧。
+  Mastery（`totalStars`）は永続化しない — 第7章の通り Dex BEST から毎回 derived で
+  算出するため、保存領域を別途持たない。
 - 既存の `GameState`（現在のピザの中身・進行中フェーズ等、1プレイ中のみ有効な状態）は
   従来通り永続化しない。ページリロードでリセットされて良いのは「今作っている途中の
   ピザ」のみとし、進捗（Dex/Pitz/所持食材/Mastery/ミッション）はリロードをまたいで残す。
 - 保存キーは1つの名前空間にまとめ、スキーマにバージョン番号を持たせる
-  （例: `{ version: 1, pitz, dex, ownedIngredientIds, masteryByRecipeId, completedMissionIds }`）。
+  （例: `{ version: 1, pitz, dex, ownedIngredientIds, completedMissionIds }`。Mastery
+  （`totalStars`）は上記の通り derived のためスキーマに含めない）。
   将来のスキーマ変更時は `version` を見て移行またはデフォルト値でフォールバックし、
   壊れた/旧形式のデータで例外を投げてゲームが起動不能にならないようにする。
 - 具体的なキー名・移行コードは Phase 3C-1（第15章）で確定する。本章では
@@ -222,15 +253,21 @@ Shop で最初に解放される新食材として **サラミ（salami）** を
   `DexOverlay` に BEST 表示を追加。 |
 | **3C-3** | Quality ★1〜5 化（第4章）。`scoring.ts` の星変換ロジックを5段階に拡張し、
   RESULT・Dex 表示を更新。 |
-| **3C-4** | Ingredient State と Shop UI（第6・9章）。`LOCKED`/`AVAILABLE_TO_BUY`/`OWNED` の
-  状態管理と、Pitzで恒久購入するShop画面を実装。 |
-| **3C-5** | Mastery と Mission（第7・8章）。レシピ別 Mastery カウンター、常設/マイルストーン
-  ミッション、Mission→Pitz付与ロジックを実装。 |
+| **3C-4** | Shop UI（第9章）。`AVAILABLE_TO_BUY` 食材をPitzで恒久購入するShop画面を実装
+  （`LOCKED`/`AVAILABLE_TO_BUY`/`OWNED` の状態導出ロジック自体はPhase 3C-3で先行実装済み）。 |
+| **3C-5** | Mission（第8章）。常設/マイルストーンミッション、Mission→Pitz付与ロジックを実装
+  （Mastery=`totalStars`はPhase 3C-3で先行実装済み。レシピ別カウンターは採用しない）。 |
 | **3C-6** | サラミ食材・サラミピザレシピ（第12章）+ Lunch Rush（第11章）。Shop/Mastery/Pitz
   ループの最初の実コンテンツと、期間限定ボーナスイベントを実装。 |
 
 各フェーズの完了条件（Definition of Done）は、着手時に本ドキュメントを参照しつつ
 フェーズ単位の Result レポート（`docs/reports/PIZZA_GAME_Phase3C-*_Result.md`）側で定める。
+
+注記: 実際の実装順序は上表の当初想定と異なり、Quality ★1-5化 + Dex BESTがPhase 3C-1、
+localStorage永続化基盤がPhase 3C-2、Mastery（`totalStars`）とIngredient/Recipe
+availabilityがPhase 3C-3として先行して完了している。実行順序・実装内容の正典は
+各 `docs/reports/PIZZA_GAME_Phase3C-*_Result.md` とし、上表は設計時点のロードマップ
+（残タスクの見取り図）として扱う。
 
 ---
 
@@ -238,3 +275,7 @@ Shop で最初に解放される新食材として **サラミ（salami）** を
 
 - v1.0: Phase 3C Progression Design 初版確定（Final Verdict A: PITZ PROGRESSION SSOT READY TO
   COMMIT）。design/docs のみ。production code・tests・workflow の変更は含まない。
+- v1.1: Phase 3C-3 実装（PR #17）を受けて、Mastery の正式定義を「レシピ別★4以上達成回数」から
+  「`totalStars`（全レシピの Dex BEST ★ の合計、derived・非永続化）」に更新。第2・7・12・14・16章
+  を実装（`src/logic/mastery.ts` / `src/state/progression.ts`）と一致するよう修正。
+  詳細は `docs/reports/PIZZA_GAME_Phase3C-3_Mastery-Availability_Result.md` を参照。

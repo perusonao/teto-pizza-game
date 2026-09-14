@@ -53,6 +53,12 @@ export interface NextOrderOptions {
   excludeRecipeId?: string;
   /** Recipe ids already registered in the dex; undiscovered ones are prioritized. */
   dex?: string[];
+  /** Recipe ids the player can currently make (see src/state/progression.ts's
+   *  `availableRecipeIds`). When provided, only orders for these recipes are considered --
+   *  undiscovered-priority below still applies within that subset. Omit (or pass every
+   *  recipe id) to consider all recipes, which is what every existing call site does today
+   *  since all 6 current recipes are always available (Starter Set). */
+  availableRecipeIds?: string[];
 }
 
 function pickRandom(pool: Order[]): Order {
@@ -66,17 +72,28 @@ function avoidRepeat(pool: Order[], excludeRecipeId: string | undefined): Order[
   return withoutRepeat.length > 0 ? withoutRepeat : pool;
 }
 
+/** Narrows `ORDERS` to `availableRecipeIds` when given. Falls back to every order instead of
+ *  an empty pool -- an order phase must never have zero candidates to pick from, even if
+ *  availability data is unexpectedly empty (e.g. a corrupt/future ownership list). */
+function availableOrders(availableRecipeIds: string[] | undefined): Order[] {
+  if (!availableRecipeIds) return ORDERS;
+  const filtered = ORDERS.filter((o) => availableRecipeIds.includes(o.recipeId));
+  return filtered.length > 0 ? filtered : ORDERS;
+}
+
 export function getNextOrder(options: NextOrderOptions = {}): Order {
+  const pool = availableOrders(options.availableRecipeIds);
+
   if (options.preferFirst) {
-    return ORDERS.find((o) => o.recipeId === "margherita") ?? ORDERS[0];
+    return pool.find((o) => o.recipeId === "margherita") ?? pool[0];
   }
 
   const dex = options.dex ?? [];
-  const undiscovered = ORDERS.filter((o) => !dex.includes(o.recipeId));
-  const pool =
+  const undiscovered = pool.filter((o) => !dex.includes(o.recipeId));
+  const finalPool =
     undiscovered.length > 0
       ? avoidRepeat(undiscovered, options.excludeRecipeId)
-      : avoidRepeat(ORDERS, options.excludeRecipeId);
+      : avoidRepeat(pool, options.excludeRecipeId);
 
-  return pickRandom(pool);
+  return pickRandom(finalPool);
 }
