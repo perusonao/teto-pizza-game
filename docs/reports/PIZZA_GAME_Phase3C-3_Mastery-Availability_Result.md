@@ -346,11 +346,12 @@ E2E確認としては、代わりに「Starter Setは制限されたsaveから�
 
 ## Known issues
 
-- P1: 本フェーズの `totalStars`（Dex BEST合計★）ベースのMastery定義は、
-  `docs/design/PIZZA_GAME_PROGRESSION_SSOT.md` 第7章が定義する「レシピ別★4以上達成回数」
-  とは異なる（本チケットの指示に明示的に従った結果の意図的な差分）。3C-4以降で
-  Shop/購入フローを実装する際は、どちらの定義を正式なMasteryとするかSSOTを更新して
-  明確化する必要がある。
+- **Resolved before merge**: Progression SSOT updated to the canonical `totalStars`
+  definition（`docs/design/PIZZA_GAME_PROGRESSION_SSOT.md` v1.1）。旧P1「本フェーズの
+  `totalStars` ベースのMastery定義がSSOT第7章の『レシピ別★4以上達成回数』案と矛盾する」は、
+  SSOT第2・7・12・14・16章を `totalStars` 方式に合わせて更新し解消した（詳細は次節
+  「Merge Gate修正: SSOT整合」を参照）。production code（`src/logic/mastery.ts` /
+  `src/state/progression.ts`）は元々この新しい正式仕様と一致していたため無変更。
 - P2: `ingredientState` / `isRecipeAvailable` / `availableRecipeIds` はいずれも
   現在の実データに対しては常に固定値（OWNED / true / 全6レシピ）を返す「まだ実際には
   分岐しない」コードパスである。実際に分岐するのは将来食材が追加されてから
@@ -365,6 +366,73 @@ E2E確認としては、代わりに「Starter Setは制限されたsaveから�
   再確認が必要。
 - Pitz・Shop UI・Mission・Lunch Rush・Recipe #7・salami・素材消費/在庫は
   本フェーズの非スコープであり、未実装（意図通り）。
+
+## Merge Gate修正: SSOT整合（追加commit）
+
+PR #17 レビューで指摘されたP1（本フェーズのMastery実装 `totalStars` と
+`docs/design/PIZZA_GAME_PROGRESSION_SSOT.md` 第7章旧案「レシピ別★4以上達成回数」との
+不一致）を、SSOT側を実装に合わせて更新することで解消した。production codeの変更は
+**無し**（`src/logic/mastery.ts` / `src/state/progression.ts` は元々このPRの最初のcommit
+時点から `totalStars` 方式で実装されており、今回のcommitはSSOT文書のみを更新した）。
+
+### SSOT変更内容（`docs/design/PIZZA_GAME_PROGRESSION_SSOT.md` v1.0 → v1.1）
+
+- **第2章（用語定義）**: Mastery の定義を「レシピを高品質で作った回数」から
+  「全レシピの Dex BEST ★ の合計（`totalStars`）、derived・非永続化」に更新。
+- **第6章**: LOCKED→AVAILABLE_TO_BUYの遷移図に `totalStars` / `minTotalStars` の
+  用語を明示。
+- **第7章（Mastery → Shop availability）**: 全面改訂。
+  - Mastery を `totalStars`（全レシピのDex BEST★合計）として正式定義し、
+    「レシピ別カウンター」案を廃止。
+  - `unlockCondition: { minTotalStars: N }` という、レシピへの個別紐付けを持たない
+    全レシピ共通のしきい値判定であることを明記。
+  - 合計★方式を採用する理由（理解しやすさ／全レシピへの寄与／★5を狙う意味／Dex BESTとの
+    相性）を簡潔に追記。
+  - 「作る→Dex BEST更新→totalStars増加→unlock condition達成→AVAILABLE_TO_BUY→
+    Mission→Pitz→Shop購入→OWNED→recipe available」という基本ループと、
+    「★は入荷条件、Pitzは購入手段、★だけではOWNEDにならない」という役割分離を明文化。
+- **第12章（#7サラミ提案）**: 「マルゲリータのMastery ★4以上×3回」という旧案の紐付け
+  カウンター表現を削除し、`unlockCondition: { minTotalStars: N }` ベースの表現に更新
+  （具体的なNやsalami実装自体は本PRでは追加していない、対象外のまま）。
+- **第14章（Persistence）**: 永続化データ一覧から「Masteryカウンター（レシピ別）」を削除し、
+  「`totalStars` は derived のため永続化しない」ことを明記。スキーマ例からも
+  `masteryByRecipeId` を削除。
+- **第16章（Roadmap）**: 3C-4/3C-5の説明文からレシピ別Mastery/Ingredient State関連の
+  古い表現を除去し、実際の実装順序（3C-1〜3C-3で先行実装済み）を簡潔な注記として追加。
+- **改訂履歴**: v1.1エントリを追加し、本更新の経緯と参照先（本レポート）を記録。
+
+### Design intent（SSOTに記載した採用理由、要約）
+
+合計★（`totalStars`）方式を正式仕様とした理由:
+
+- プレイヤーに理解しやすい（「あと★2で入荷」と一言で進捗を示せる）
+- 全レシピの上達がProgressionにまんべんなく寄与する（1レシピの周回作業にならない）
+- ★5を狙う意味が最後まで残る
+- Dex BESTとの相性がよく、新しい保存領域を増やさずに済む
+
+### 役割分離（今後のPhase 3C-4以降が守るべき境界として明文化）
+
+- ★（`totalStars`）: 食材の入荷条件（`LOCKED` → `AVAILABLE_TO_BUY`）にのみ使う
+- Pitz: 購入手段（`AVAILABLE_TO_BUY` → `OWNED`）
+- ★だけで食材が `OWNED` になることはない（入荷と購入は常に別ステップ）
+
+### Production code側の確認結果
+
+`src/logic/mastery.ts` の `totalStars(dex)` と `src/state/progression.ts` の
+`ingredientState()`（`unlockCondition.minTotalStars` を参照）は、更新後のSSOT第7章と
+完全に一致することを確認した。**不要なrefactorは行わず、production codeは無変更**。
+
+### Verification（この追加commit時点）
+
+```
+$ npm run lint    # oxlint: pass, exit code 0
+$ npm test        # vitest: 91/91 pass（既存件数のまま、production code無変更のため回帰なし）
+$ npm run build   # tsc -b && vite build: pass
+$ git diff --check
+```
+
+いずれもグリーン。production codeを変更していないため、テスト件数・内容ともに前回commit
+（0cce513）から変化なし。
 
 ## Final Verdict
 
@@ -384,6 +452,5 @@ E2E確認としては、代わりに「Starter Setは制限されたsaveから�
 - lint / test / build すべてグリーン（91/91テスト）
 - 390×844実機確認で指定項目（6/6完走・Dex BEST/Mastery永続化・reload後のORDER開始・
   Starter backfill safety net・console/page error 0件・overflowなし）を確認済み
-- Known issuesのうち1件はP1（Mastery定義のSSOTとの差分、3C-4着手前に要整理）だが、
-  本チケットの明示的な指示に従った意図的な設計判断でありブロッカーではない。残りは
-  いずれもP2
+- P0: 0件 / P1: 0件（Mastery定義のSSOT不一致は本追加commitでSSOT側を更新し解消済み）。
+  残るKnown issuesはいずれもP2（ブロッカーなし）
