@@ -127,8 +127,15 @@ interface DexEntry {
 
 - `registerScoreToDex(dex, recipeId, score)` が唯一の書き込み経路。初回は
   `discovered: true, bestScore: score.total, bestStars: score.stars, timesMade: 1` で新規作成。
-  既存エントリがある場合は `score.total > existing.bestScore` のときだけ `bestScore`/`bestStars`
-  を更新し、`timesMade` は常に+1（BESTが更新されたかどうかに関わらず）。
+  既存エントリがある場合は `isBetterQuality(score, existing)` が true のときだけ
+  `bestScore`/`bestStars` を更新し、`timesMade` は常に+1（BESTが更新されたかどうかに関わらず）。
+  `isBetterQuality` は **★（stars）を第一キー、total を第二キー** とする比較にしている
+  （PRレビュー時にCodexが指摘した実バグの修正: 単純に `total` だけで比較すると、
+  「焼きperfectで★5・total94」の後に「焼きが外れて★4止まり・total99」という
+  ラウンドが来た場合、totalが大きいという理由だけでBESTの★表示が5→4に**後退**してしまう。
+  SSOT第15章の「Quality（★）の記録は単調増加」という定義上、starsこそが主たる
+  Qualityそのものであり、totalは補助情報にすぎないため、star降格を絶対に起こさない
+  比較にする必要があった）。
 - `discoveredRecipeIds(dex)` / `isDiscovered(dex, id)` は既存コードが期待していた
   「発見済みID配列」「発見済みか」という形を維持するための派生ヘルパー。
   `src/data/orders.ts`（次の注文の抽選）と `src/data/dialogue.ts`
@@ -178,7 +185,7 @@ interface DexEntry {
 $ npm test
 
  Test Files  4 passed (4)
-      Tests  33 passed (33)
+      Tests  35 passed (35)
 ```
 
 ### `src/logic/scoring.test.ts`
@@ -201,6 +208,10 @@ $ npm test
 - 初回結果でBESTエントリが作成される
 - より高いスコアでBESTが更新される
 - より低いスコアではBESTを上書きしない（が`timesMade`は増える）
+- **totalが高くてもstarsが低い（焼きcapで★4止まり）ラウンドはBESTを上書きしない**
+  （★5・total94の後に★4・total99が来ても、BESTは★5・total94のまま）
+- **starsが高ければtotalが低くてもBESTになる**（★4・total99の後に★5・total91が来たら、
+  BESTは★5・total91に更新される）
 - レシピごとにBEST/timesMadeが独立している
 - `discoveredRecipeIds` / `isDiscovered` が発見済みのみを反映する
 
@@ -255,10 +266,19 @@ boolean値をそのまま描画するだけの分岐であるため、リスク�
 ## Regression results
 
 - `npm run lint`（oxlint）: ✅ pass, exit code 0
-- `npm test`（vitest）: ✅ 33/33 pass
+- `npm test`（vitest）: ✅ 35/35 pass
 - `npm run build`（`tsc -b && vite build`）: ✅ pass（テストファイルを含む全srcの型チェックも通過）
 - `git diff --check`: ✅ no whitespace errors
 - 実機確認（390×844, Chromium）: console error 0件、overflowなし（上記参照）
+
+## PR review findings
+
+- Codex（自動レビューbot）が `src/state/dex.ts` のBEST比較ロジックに対してP2指摘:
+  「`score.total > existing.bestScore` だけで比較すると、焼きcapにより★が下がった
+  高total ラウンドがBESTを上書きしてしまい、表示上の★が後退しうる」。実際にバグとして
+  再現可能だったため、`isBetterQuality()`（★を第一キー・totalを第二キーとする比較）に
+  修正し、回帰テストを2件追加（上記Testsセクション参照）。Verdictに影響する既知の問題
+  としては解消済み。
 
 ## Known issues
 

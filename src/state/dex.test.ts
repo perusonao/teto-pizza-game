@@ -51,6 +51,28 @@ describe("registerScoreToDex", () => {
     expect(entry?.timesMade).toBe(3);
   });
 
+  it("does not let a higher total override a previously higher star rating (bake-cap regression)", () => {
+    // A perfect-bake ★5 round, then a higher-total round that the bake cap holds at ★4.
+    const first = registerScoreToDex(EMPTY_DEX, "margherita", scoreOf(94, 5));
+    const second = registerScoreToDex(first.dex, "margherita", scoreOf(99, 4));
+
+    expect(second.isNewBest).toBe(false);
+    const entry = second.dex.find((e) => e.recipeId === "margherita");
+    expect(entry?.bestScore).toBe(94);
+    expect(entry?.bestStars).toBe(5);
+    expect(entry?.timesMade).toBe(2);
+  });
+
+  it("lets a higher star rating become BEST even with a lower total", () => {
+    const first = registerScoreToDex(EMPTY_DEX, "margherita", scoreOf(99, 4));
+    const second = registerScoreToDex(first.dex, "margherita", scoreOf(91, 5));
+
+    expect(second.isNewBest).toBe(true);
+    const entry = second.dex.find((e) => e.recipeId === "margherita");
+    expect(entry?.bestScore).toBe(91);
+    expect(entry?.bestStars).toBe(5);
+  });
+
   it("keeps each recipe's BEST and timesMade independent of the others", () => {
     const afterMargherita = registerScoreToDex(EMPTY_DEX, "margherita", scoreOf(80, 4));
     const afterBoth = registerScoreToDex(afterMargherita.dex, "marinara", scoreOf(65, 3));

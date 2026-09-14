@@ -45,6 +45,19 @@ export interface DexRegisterResult {
 }
 
 /**
+ * Ranks a round against an existing Dex entry by stars first, total second. Quality (per
+ * docs/design/PIZZA_GAME_PROGRESSION_SSOT.md section 15) *is* the star rating — the total is
+ * just supporting detail — so stars has to be the primary, monotonic axis: comparing by total
+ * alone would let a higher-total round baked outside the perfect zone (capped below ★5) quietly
+ * overwrite an earlier round that actually reached a higher star tier, making BEST's displayed
+ * stars go down even though "BEST never goes down" is the whole point of this model.
+ */
+function isBetterQuality(score: ScoreBreakdown, existing: DexEntry): boolean {
+  if (score.stars !== existing.bestStars) return score.stars > existing.bestStars;
+  return score.total > existing.bestScore;
+}
+
+/**
  * Registers one completed round's score against the Dex. This is the only place BEST is
  * ever written, so "BEST never goes down" and "timesMade always increments exactly once
  * per round" both hold by construction — callers just need to call this exactly once per
@@ -68,7 +81,7 @@ export function registerScoreToDex(
     return { dex: [...dex, entry], wasNewDiscovery: true, isNewBest: true };
   }
 
-  const isNewBest = score.total > existing.bestScore;
+  const isNewBest = isBetterQuality(score, existing);
   const updated: DexEntry = {
     ...existing,
     discovered: true,
