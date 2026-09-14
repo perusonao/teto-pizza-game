@@ -155,6 +155,7 @@ Phase 3B-1のrecipe dataも無変更。
 
 ## Commit / PR
 
-- Commit SHA: （このレポートをコミットした後にcommit SHAを追記）
-- PR URL: （PR作成後に追記）
+- Commit SHA: `1a282f9`（実装コミット。本レポートのSHA追記のみを行うfollow-upコミットは
+  この後に別途追加）
+- PR URL: https://github.com/perusonao/teto-pizza-game/pull/12
 - PRは**未マージ**のまま残す（auto-mergeは使用していない）。
