@@ -4,6 +4,7 @@ import { buildHintLine } from "../data/hints";
 import type { DialogueLine } from "../data/dialogue";
 import { scorePizza, type ScoreBreakdown } from "../logic/scoring";
 import { classifyBake, type BakeState } from "../logic/bake";
+import { discoveredRecipeIds, registerScoreToDex, EMPTY_DEX, type DexState } from "./dex";
 import {
   createEmptyPizza,
   findOpenSpot,
@@ -20,8 +21,12 @@ export interface GameState {
   pizza: PizzaState;
   score: ScoreBreakdown | null;
   bakeState: BakeState | null;
-  dex: string[];
+  dex: DexState;
   justDiscovered: boolean;
+  /** True when REGISTER_TO_DEX just improved this recipe's Dex BEST (including its very
+   *  first discovery, which trivially sets the first BEST). RESULT/DISCOVERED UI uses this
+   *  to show a "NEW BEST!" moment for repeat plays specifically. */
+  justGotNewBest: boolean;
   hint: DialogueLine | null;
   placement: PlacementFeedback | null;
 }
@@ -37,8 +42,8 @@ export type GameAction =
   | { type: "PLAY_AGAIN" }
   | { type: "SHOW_HINT" };
 
-function nextOrderState(dex: string[], orderOptions: NextOrderOptions): GameState {
-  const order = getNextOrder({ ...orderOptions, dex });
+function nextOrderState(dex: DexState, orderOptions: NextOrderOptions): GameState {
+  const order = getNextOrder({ ...orderOptions, dex: discoveredRecipeIds(dex) });
   const recipe = getRecipe(order.recipeId);
   if (!recipe) {
     throw new Error(`Unknown recipe for order ${order.id}`);
@@ -52,13 +57,14 @@ function nextOrderState(dex: string[], orderOptions: NextOrderOptions): GameStat
     bakeState: null,
     dex,
     justDiscovered: false,
+    justGotNewBest: false,
     hint: null,
     placement: null,
   };
 }
 
 export function createInitialGameState(): GameState {
-  return nextOrderState([], { preferFirst: true });
+  return nextOrderState(EMPTY_DEX, { preferFirst: true });
 }
 
 let placedIdCounter = 0;
@@ -138,9 +144,24 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case "REGISTER_TO_DEX": {
-      const alreadyDiscovered = state.dex.includes(state.recipe.id);
-      const dex = alreadyDiscovered ? state.dex : [...state.dex, state.recipe.id];
-      return { ...state, dex, justDiscovered: !alreadyDiscovered, phase: "DISCOVERED" };
+      // Only a RESULT with a score can register. This makes the Dex update atomic per
+      // round: a stray or repeated dispatch (e.g. after the phase has already moved on to
+      // DISCOVERED) can never double-count timesMade or re-evaluate BEST for the same round.
+      if (state.phase !== "RESULT" || !state.score) {
+        return state;
+      }
+      const { dex, wasNewDiscovery, isNewBest } = registerScoreToDex(
+        state.dex,
+        state.recipe.id,
+        state.score,
+      );
+      return {
+        ...state,
+        dex,
+        justDiscovered: wasNewDiscovery,
+        justGotNewBest: isNewBest,
+        phase: "DISCOVERED",
+      };
     }
 
     case "PLAY_AGAIN":

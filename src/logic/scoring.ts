@@ -1,13 +1,56 @@
 import type { Recipe } from "../data/recipes";
 import type { PizzaState } from "../state/pizzaState";
-import { classifyBake } from "./bake";
+import { classifyBake, type BakeState } from "./bake";
+import { scorePlacement } from "./placement";
+
+export type QualityStars = 1 | 2 | 3 | 4 | 5;
 
 export interface ScoreBreakdown {
+  /** Required-ingredient correctness, 0-100 ("Recipe correctness" in the SSOT). */
   matchScore: number;
+  /** Penalizes ingredients on the pizza that the recipe didn't ask for, 0-100 ("Purity"). */
   ingredientScore: number;
+  /** How thoughtfully toppings were placed, 0-100 (see logic/placement.ts). */
+  placementScore: number;
+  /** How close the bake landed to the recipe's target zone, 0-100. */
   bakeScore: number;
+  /** Weighted total across all four metrics below, 0-100. */
   total: number;
-  stars: 1 | 2 | 3;
+  stars: QualityStars;
+}
+
+/**
+ * Weight each 0-100 metric contributes to `total` (must sum to 100). Per
+ * docs/design/PIZZA_GAME_PROGRESSION_SSOT.md section 4 / Phase 3C-1 scope:
+ * Recipe correctness 35 + Purity 15 + Placement 20 + Bake 30 = 100.
+ */
+const WEIGHT_MATCH = 35;
+const WEIGHT_INGREDIENT = 15;
+const WEIGHT_PLACEMENT = 20;
+const WEIGHT_BAKE = 30;
+
+/** total (0-100) -> Quality stars, before the perfect-bake cap below is applied. */
+const STAR_THRESHOLDS: ReadonlyArray<{ min: number; stars: QualityStars }> = [
+  { min: 90, stars: 5 },
+  { min: 75, stars: 4 },
+  { min: 60, stars: 3 },
+  { min: 40, stars: 2 },
+  { min: 0, stars: 1 },
+];
+
+export function starsFromTotal(total: number): QualityStars {
+  const match = STAR_THRESHOLDS.find((t) => total >= t.min);
+  return match ? match.stars : 1;
+}
+
+/**
+ * A pizza that isn't baked to the perfect zone should never read as a flawless ★5 — the
+ * visual (raw/burnt), Blue's comment, and the score must stay consistent. This is the single
+ * place that rule lives; callers (RESULT UI, Dex, etc.) never need to re-apply it.
+ */
+export function capStarsForBake(stars: QualityStars, bakeState: BakeState | null): QualityStars {
+  if (stars === 5 && bakeState !== null && bakeState !== "perfect") return 4;
+  return stars;
 }
 
 export function countUsedIngredient(pizza: PizzaState, ingredientId: string): number {
@@ -34,6 +77,8 @@ export function scorePizza(recipe: Recipe, pizza: PizzaState): ScoreBreakdown {
   const ingredientScore =
     used.length === 0 ? 0 : Math.max(0, 100 - (extraCount / used.length) * 100);
 
+  const placementScore = scorePlacement(pizza.toppings);
+
   let bakeScore = 0;
   if (pizza.bakeResult !== null) {
     const { start, end } = recipe.bakeTarget;
@@ -47,15 +92,15 @@ export function scorePizza(recipe: Recipe, pizza: PizzaState): ScoreBreakdown {
     }
   }
 
-  const total = (matchScore + ingredientScore + bakeScore) / 3;
-  let stars: 1 | 2 | 3 = total >= 90 ? 3 : total >= 60 ? 2 : 1;
+  const total =
+    (matchScore * WEIGHT_MATCH +
+      ingredientScore * WEIGHT_INGREDIENT +
+      placementScore * WEIGHT_PLACEMENT +
+      bakeScore * WEIGHT_BAKE) /
+    100;
 
-  // A pizza that isn't baked to the perfect zone should never read as a flawless ★3 —
-  // the visual (raw/burnt), Blue's comment, and the score must stay consistent.
-  if (pizza.bakeResult !== null && stars === 3) {
-    const bakeState = classifyBake(pizza.bakeResult, recipe.bakeTarget);
-    if (bakeState !== "perfect") stars = 2;
-  }
+  const bakeState = pizza.bakeResult !== null ? classifyBake(pizza.bakeResult, recipe.bakeTarget) : null;
+  const stars = capStarsForBake(starsFromTotal(total), bakeState);
 
-  return { matchScore, ingredientScore, bakeScore, total, stars };
+  return { matchScore, ingredientScore, placementScore, bakeScore, total, stars };
 }

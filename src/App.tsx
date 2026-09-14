@@ -15,6 +15,7 @@ import {
 } from "./data/dialogue";
 import { getIngredient, type Ingredient, type IngredientCategory } from "./data/ingredients";
 import { createInitialGameState, gameReducer, type GameState } from "./state/gameReducer";
+import { discoveredRecipeIds } from "./state/dex";
 import "./App.css";
 
 function findPrimarySauceId(recipe: GameState["recipe"]): string | null {
@@ -89,7 +90,7 @@ function App() {
     state.order.id,
     state.order.lineJa,
     state.recipe,
-    state.dex,
+    discoveredRecipeIds(state.dex),
   );
 
   const discoveredLine: DialogueLine = {
@@ -215,6 +216,9 @@ function App() {
           {state.justDiscovered && (
             <p className="discovered-banner">{"✨"} {state.recipe.nameJa}を発見しました！</p>
           )}
+          {!state.justDiscovered && state.justGotNewBest && (
+            <p className="discovered-banner discovered-banner--best">{"🌟"} NEW BEST!</p>
+          )}
           <button
             type="button"
             className="cta-button cta-button--primary"
@@ -227,8 +231,9 @@ function App() {
 
       {isDexOpen && (
         <DexOverlay
-          discoveredRecipeIds={state.dex}
+          dex={state.dex}
           newlyDiscoveredId={state.justDiscovered ? state.recipe.id : null}
+          newBestRecipeId={!state.justDiscovered && state.justGotNewBest ? state.recipe.id : null}
           onClose={() => setDexOpen(false)}
         />
       )}

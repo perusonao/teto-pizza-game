@@ -1,15 +1,27 @@
 import { RECIPES } from "../data/recipes";
 import { getIngredient } from "../data/ingredients";
+import type { DexEntry, DexState } from "../state/dex";
 
 interface DexOverlayProps {
-  discoveredRecipeIds: string[];
+  dex: DexState;
+  /** Recipe discovered for the very first time this round (drives the NEW badge). */
   newlyDiscoveredId: string | null;
+  /** Recipe whose Dex BEST just improved on a repeat play this round (drives the NEW BEST
+   *  badge). Mutually exclusive with `newlyDiscoveredId` in practice: a first discovery
+   *  shows NEW, not NEW BEST — the caller only sets one of the two per round. */
+  newBestRecipeId: string | null;
   onClose: () => void;
 }
 
-export function DexOverlay({ discoveredRecipeIds, newlyDiscoveredId, onClose }: DexOverlayProps) {
+const MAX_STARS = 5;
+
+function starLabel(stars: DexEntry["bestStars"]): string {
+  return "★".repeat(stars) + "☆".repeat(MAX_STARS - stars);
+}
+
+export function DexOverlay({ dex, newlyDiscoveredId, newBestRecipeId, onClose }: DexOverlayProps) {
   const total = RECIPES.length;
-  const discoveredCount = discoveredRecipeIds.length;
+  const discoveredCount = dex.filter((e) => e.discovered).length;
   const isComplete = discoveredCount >= total;
 
   return (
@@ -31,9 +43,10 @@ export function DexOverlay({ discoveredRecipeIds, newlyDiscoveredId, onClose }: 
         </div>
         <div className="dex-overlay__list">
           {RECIPES.map((recipe) => {
-            const discovered = discoveredRecipeIds.includes(recipe.id);
-            const isNew = discovered && recipe.id === newlyDiscoveredId;
-            if (!discovered) {
+            const entry = dex.find((e) => e.recipeId === recipe.id && e.discovered);
+            const isNew = !!entry && recipe.id === newlyDiscoveredId;
+            const showNewBest = !!entry && recipe.id === newBestRecipeId;
+            if (!entry) {
               return (
                 <div key={recipe.id} className="dex-card dex-card--locked">
                   <span className="dex-card__lock-icon">🔒</span>
@@ -49,6 +62,7 @@ export function DexOverlay({ discoveredRecipeIds, newlyDiscoveredId, onClose }: 
                 <h3>
                   {recipe.nameJa}
                   {isNew && <span className="dex-card__badge">NEW</span>}
+                  {showNewBest && <span className="dex-card__badge dex-card__badge--best">NEW BEST!</span>}
                 </h3>
                 <p>{recipe.description}</p>
                 <div className="dex-card__ingredients">
@@ -60,6 +74,11 @@ export function DexOverlay({ discoveredRecipeIds, newlyDiscoveredId, onClose }: 
                       </span>
                     );
                   })}
+                </div>
+                <div className="dex-card__mastery">
+                  <span className="dex-card__best-stars">{starLabel(entry.bestStars)}</span>
+                  <span className="dex-card__best-score">BEST {Math.round(entry.bestScore)}</span>
+                  <span className="dex-card__times-made">{entry.timesMade}回作成</span>
                 </div>
               </div>
             );
