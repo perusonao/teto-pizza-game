@@ -15,7 +15,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 16px;
   background: #6b4226;
   color: #fff9ec;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
@@ -27,15 +29,45 @@
   font-weight: 700;
 }
 
+.app-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* ---------- Pitz (Phase 3C-5) ---------- */
+.app-header__pitz {
+  font-size: 12px;
+  font-weight: 800;
+  background: rgba(255, 249, 236, 0.16);
+  border-radius: 999px;
+  padding: 6px 10px;
+  white-space: nowrap;
+}
+
+.app-header__shop-button {
+  border: none;
+  background: #e4572e;
+  color: #fff9ec;
+  font-weight: 700;
+  font-size: 12px;
+  border-radius: 999px;
+  padding: 8px 10px;
+  min-height: 40px;
+  white-space: nowrap;
+}
+
 .app-header__dex-button {
   border: none;
   background: #f2b705;
   color: #4a2e0a;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 12px;
   border-radius: 999px;
-  padding: 8px 12px;
-  min-height: 44px;
+  padding: 8px 10px;
+  min-height: 40px;
+  white-space: nowrap;
 }
 
 /* ---------- Dialogue ---------- */
@@ -1157,4 +1189,110 @@
   background: #fdecc8;
   border-radius: 999px;
   padding: 3px 8px;
+}
+
+.mission-result__row--pitz strong {
+  color: #b8860b;
+}
+
+.mission-result__balance {
+  font-size: 12px;
+  color: #8a6a45;
+}
+
+/* ---------- Shop (Phase 3C-5) ---------- */
+.shop-overlay__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.shop-overlay__balance {
+  font-size: 15px;
+  font-weight: 800;
+  color: #6b4226;
+  background: #f5ecd8;
+  border-radius: 12px;
+  padding: 8px 14px;
+}
+
+.shop-overlay__empty {
+  font-size: 13px;
+  color: #8a6a45;
+  background: #f5ecd8;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.shop-overlay__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.shop-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  background: #fff;
+  border-radius: 12px;
+  padding: 10px 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.shop-item__info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #4a2e0a;
+  font-weight: 700;
+}
+
+.shop-item__status {
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.shop-item__status--locked {
+  color: #8a6a45;
+}
+
+.shop-item__status--owned {
+  color: #4c9a2a;
+}
+
+.shop-item__buy {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.shop-item__price {
+  font-size: 12px;
+  font-weight: 700;
+  color: #6b4226;
+  white-space: nowrap;
+}
+
+.shop-item__buy-button {
+  border: none;
+  background: #f2b705;
+  color: #4a2e0a;
+  font-weight: 800;
+  font-size: 12px;
+  border-radius: 999px;
+  padding: 8px 14px;
+  min-height: 36px;
+}
+
+.shop-item__buy-button:disabled {
+  background: #e0d0ac;
+  color: #a1662f;
+  opacity: 0.7;
 }

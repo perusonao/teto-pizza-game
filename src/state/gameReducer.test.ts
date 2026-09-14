@@ -101,6 +101,141 @@ describe("createInitialGameState hydration", () => {
     const state = createInitialGameState(EMPTY_DEX, owned);
     expect(state.ownedIngredientIds).toEqual(owned);
   });
+
+  it("defaults pitzBalance to 0 when none is given", () => {
+    const state = createInitialGameState();
+    expect(state.pitzBalance).toBe(0);
+  });
+
+  it("carries a hydrated pitzBalance through into the initial state", () => {
+    const state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 120);
+    expect(state.pitzBalance).toBe(120);
+  });
+
+  it("starts with no claimed Mission run", () => {
+    const state = createInitialGameState();
+    expect(state.lastClaimedMissionRunId).toBeNull();
+  });
+});
+
+describe("pitzBalance carry-over (Phase 3C-5)", () => {
+  it("PLAY_AGAIN carries pitzBalance forward unchanged", () => {
+    let state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 75);
+    state = gameReducer(state, { type: "PLAY_AGAIN" });
+    expect(state.pitzBalance).toBe(75);
+  });
+
+  it("MISSION_RESET_ORDER carries pitzBalance forward unchanged", () => {
+    let state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 75);
+    state = gameReducer(state, { type: "MISSION_RESET_ORDER" });
+    expect(state.pitzBalance).toBe(75);
+  });
+
+  it("MISSION_NEXT_ORDER carries pitzBalance forward unchanged", () => {
+    let state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 75);
+    state = gameReducer(state, { type: "BEGIN_PREPARE" });
+    state = gameReducer(state, { type: "APPLY_SAUCE", ingredientId: "tomato-sauce", x: 50, y: 50 });
+    state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "mozzarella", x: 40, y: 50 });
+    state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "mozzarella", x: 60, y: 50 });
+    state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "mozzarella", x: 50, y: 30 });
+    state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "basil", x: 50, y: 65 });
+    state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "basil", x: 35, y: 65 });
+    state = gameReducer(state, { type: "START_BAKE" });
+    state = gameReducer(state, { type: "CONFIRM_BAKE", value: 70 });
+    state = gameReducer(state, { type: "MISSION_NEXT_ORDER" });
+    expect(state.pitzBalance).toBe(75);
+  });
+});
+
+describe("PURCHASE_INGREDIENT (reducer)", () => {
+  // Every real production ingredient is Starter Set (already OWNED, see
+  // STARTER_INGREDIENT_IDS) -- Phase 3C-5 adds no purchasable ingredient to production data
+  // (SSOT: Recipe #7/salami stays out of scope). The reducer's happy-path transaction itself
+  // (LOCKED/AVAILABLE_TO_BUY/insufficient funds/success) is exhaustively covered against mock
+  // ingredients by the pure `purchaseIngredient` function's own tests (src/logic/economy.test.ts)
+  // and by the purchase -> OWNED -> recipe-available integration tests
+  // (src/state/progression.test.ts) -- these tests only cover this reducer's own wiring/guards.
+
+  it("purchasing an already-OWNED (starter) ingredient is a complete no-op", () => {
+    const state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 500);
+    const after = gameReducer(state, { type: "PURCHASE_INGREDIENT", ingredientId: "tomato-sauce" });
+    expect(after).toBe(state);
+  });
+
+  it("purchasing an unknown ingredient id is a no-op and never throws", () => {
+    const state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 500);
+    expect(() =>
+      gameReducer(state, { type: "PURCHASE_INGREDIENT", ingredientId: "not-a-real-ingredient" }),
+    ).not.toThrow();
+    const after = gameReducer(state, { type: "PURCHASE_INGREDIENT", ingredientId: "not-a-real-ingredient" });
+    expect(after).toBe(state);
+  });
+
+  it("a no-op purchase never changes pitzBalance or ownedIngredientIds", () => {
+    const state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 500);
+    const after = gameReducer(state, { type: "PURCHASE_INGREDIENT", ingredientId: "mozzarella" });
+    expect(after.pitzBalance).toBe(500);
+    expect(after.ownedIngredientIds).toEqual(state.ownedIngredientIds);
+  });
+});
+
+describe("CLAIM_MISSION_REWARD (reducer, Phase 3C-5)", () => {
+  it("adds the reward amount to pitzBalance and records the claimed runId", () => {
+    const state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 100);
+    const after = gameReducer(state, { type: "CLAIM_MISSION_REWARD", runId: 1, amount: 80 });
+    expect(after.pitzBalance).toBe(180);
+    expect(after.lastClaimedMissionRunId).toBe(1);
+  });
+
+  it("granting the same runId a second time is a complete no-op (no double grant)", () => {
+    const state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 100);
+    const first = gameReducer(state, { type: "CLAIM_MISSION_REWARD", runId: 1, amount: 80 });
+    const second = gameReducer(first, { type: "CLAIM_MISSION_REWARD", runId: 1, amount: 80 });
+    expect(second).toBe(first);
+    expect(second.pitzBalance).toBe(180);
+  });
+
+  it("granting the same runId many times (simulating rerenders/StrictMode) never compounds", () => {
+    let state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 0);
+    for (let i = 0; i < 10; i++) {
+      state = gameReducer(state, { type: "CLAIM_MISSION_REWARD", runId: 5, amount: 90 });
+    }
+    expect(state.pitzBalance).toBe(90);
+  });
+
+  it("a retry (fresh runId) after a claimed run grants a new reward on top of the previous one", () => {
+    let state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 0);
+    state = gameReducer(state, { type: "CLAIM_MISSION_REWARD", runId: 1, amount: 80 });
+    expect(state.pitzBalance).toBe(80);
+    // Retrying re-dispatches the *previous* run's id once more before the new run's own claim
+    // fires (mirrors the shape of App.tsx's granting effect across a retry) -- must still be a
+    // no-op even interleaved with the new run's claim.
+    state = gameReducer(state, { type: "CLAIM_MISSION_REWARD", runId: 1, amount: 80 });
+    expect(state.pitzBalance).toBe(80);
+    state = gameReducer(state, { type: "CLAIM_MISSION_REWARD", runId: 2, amount: 60 });
+    expect(state.pitzBalance).toBe(140);
+    expect(state.lastClaimedMissionRunId).toBe(2);
+  });
+
+  it("a 0-amount grant still records the runId as claimed (so a later duplicate dispatch is a no-op)", () => {
+    const state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 0);
+    const after = gameReducer(state, { type: "CLAIM_MISSION_REWARD", runId: 1, amount: 0 });
+    expect(after.pitzBalance).toBe(0);
+    expect(after.lastClaimedMissionRunId).toBe(1);
+  });
+
+  it("never applies a negative amount even if one is somehow dispatched", () => {
+    const state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 100);
+    const after = gameReducer(state, { type: "CLAIM_MISSION_REWARD", runId: 1, amount: -50 });
+    expect(after.pitzBalance).toBe(100);
+  });
+
+  it("claiming a reward never touches Dex or ownedIngredientIds", () => {
+    const state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 0);
+    const after = gameReducer(state, { type: "CLAIM_MISSION_REWARD", runId: 1, amount: 80 });
+    expect(after.dex).toEqual(state.dex);
+    expect(after.ownedIngredientIds).toEqual(state.ownedIngredientIds);
+  });
 });
 
 describe("order selection availability (Phase 3C-3)", () => {

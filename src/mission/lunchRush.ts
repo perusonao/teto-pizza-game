@@ -99,12 +99,22 @@ export interface MissionState {
   /** Set only while PLAYING (and retained, inert, in RESULT for display); null otherwise. */
   clock: MissionClock | null;
   metrics: MissionMetrics;
+  /** Increments by one on every START (Phase 3C-5, SSOT section 8-9) -- a fresh, unique id
+   *  for each run, a fresh start *and* every retry alike. This is the identity a Pitz reward
+   *  grant is keyed against (see src/state/gameReducer.ts's `lastClaimedMissionRunId` /
+   *  `CLAIM_MISSION_REWARD`): it's what lets "grant this run's reward exactly once" and
+   *  "retrying never re-grants the previous run's reward" both hold without depending on any
+   *  effect only firing once. Preserved (not reset) across EXIT_TO_FREE so it keeps
+   *  increasing for the lifetime of the session -- resetting it to 0 on exit would risk a
+   *  later run reusing an id an earlier run in the same session already claimed. */
+  runId: number;
 }
 
 export const INITIAL_MISSION_STATE: MissionState = {
   mode: "FREE",
   clock: null,
   metrics: EMPTY_MISSION_METRICS,
+  runId: 0,
 };
 
 export type MissionRunAction =
@@ -134,6 +144,7 @@ export function missionRunReducer(state: MissionState, action: MissionRunAction)
         mode: "PLAYING",
         clock: startMissionClock(action.now, action.config),
         metrics: EMPTY_MISSION_METRICS,
+        runId: state.runId + 1,
       };
 
     // Codex review (PR #18, P2-1): TICK alone is not the source of truth for "is this run
@@ -171,7 +182,8 @@ export function missionRunReducer(state: MissionState, action: MissionRunAction)
     }
 
     case "EXIT_TO_FREE":
-      return { mode: "FREE", clock: null, metrics: EMPTY_MISSION_METRICS };
+      // runId is deliberately preserved, not reset -- see the field's own doc comment above.
+      return { mode: "FREE", clock: null, metrics: EMPTY_MISSION_METRICS, runId: state.runId };
 
     default:
       return state;

@@ -105,6 +105,7 @@ describe("missionRunReducer", () => {
       mode: "FREE",
       clock: null,
       metrics: { servedCount: 0, totalQualityScore: 0, bestQualityScore: 0 },
+      runId: 0,
     });
   });
 
@@ -124,6 +125,7 @@ describe("missionRunReducer", () => {
         mode,
         clock: startMissionClock(0, { durationSeconds: 10 }),
         metrics: { servedCount: 3, totalQualityScore: 250, bestQualityScore: 90 },
+        runId: 2,
       };
       const next = missionRunReducer(from, {
         type: "START",
@@ -133,18 +135,55 @@ describe("missionRunReducer", () => {
       expect(next.mode).toBe("PLAYING");
       expect(next.clock).toEqual({ startedAt: 5_000, endsAt: 50_000 });
       expect(next.metrics).toEqual({ servedCount: 0, totalQualityScore: 0, bestQualityScore: 0 });
+      // Phase 3C-5: every START (including a retry from RESULT) gets its own fresh run id.
+      expect(next.runId).toBe(3);
     }
   });
 
-  it("retrying (START again from RESULT) resets mission metrics", () => {
+  it("retrying (START again from RESULT) resets mission metrics and assigns a fresh runId", () => {
     const finished: MissionState = {
       mode: "RESULT",
       clock: startMissionClock(0, { durationSeconds: 10 }),
       metrics: { servedCount: 5, totalQualityScore: 400, bestQualityScore: 95 },
+      runId: 7,
     };
     const retried = missionRunReducer(finished, { type: "START", now: 100_000 });
     expect(retried.mode).toBe("PLAYING");
     expect(retried.metrics.servedCount).toBe(0);
+    // A retry's runId must differ from the run it's retrying, so a Pitz reward grant keyed on
+    // the previous run's id (src/state/gameReducer.ts's CLAIM_MISSION_REWARD) never applies to
+    // this new run, and this new run's own grant never collides with the previous one.
+    expect(retried.runId).toBe(8);
+    expect(retried.runId).not.toBe(finished.runId);
+  });
+
+  describe("runId (Phase 3C-5)", () => {
+    it("each successive START increments runId by exactly one", () => {
+      let state = INITIAL_MISSION_STATE;
+      const seen: number[] = [];
+      for (let i = 0; i < 5; i++) {
+        state = missionRunReducer(state, { type: "START", now: i * 1000 });
+        seen.push(state.runId);
+        // End the run (as a real expiry would) before starting the next one.
+        state = missionRunReducer(state, { type: "TICK", now: (i + 1) * 1000 + 1_000_000 });
+      }
+      expect(seen).toEqual([1, 2, 3, 4, 5]);
+    });
+
+    it("SERVE and TICK never change runId", () => {
+      const started = missionRunReducer(INITIAL_MISSION_STATE, { type: "START", now: 0 });
+      const served = missionRunReducer(started, { type: "SERVE", qualityTotal: 80, now: 1 });
+      expect(served.runId).toBe(started.runId);
+      const ticked = missionRunReducer(served, { type: "TICK", now: 2 });
+      expect(ticked.runId).toBe(started.runId);
+    });
+
+    it("EXIT_TO_FREE preserves runId instead of resetting it to 0", () => {
+      const started = missionRunReducer(INITIAL_MISSION_STATE, { type: "START", now: 0 });
+      const exited = missionRunReducer(started, { type: "EXIT_TO_FREE" });
+      expect(exited.runId).toBe(started.runId);
+      expect(exited.runId).not.toBe(0);
+    });
   });
 
   it("SERVE accumulates metrics only while PLAYING", () => {
@@ -152,6 +191,7 @@ describe("missionRunReducer", () => {
       mode: "PLAYING",
       clock: startMissionClock(0, { durationSeconds: 60 }),
       metrics: { servedCount: 0, totalQualityScore: 0, bestQualityScore: 0 },
+      runId: 0,
     };
     const afterOne = missionRunReducer(playing, { type: "SERVE", qualityTotal: 80, now: 1_000 });
     expect(afterOne.metrics).toEqual({ servedCount: 1, totalQualityScore: 80, bestQualityScore: 80 });
@@ -160,7 +200,12 @@ describe("missionRunReducer", () => {
 
   it("SERVE is a no-op outside of PLAYING (e.g. FREE, INTRO, RESULT)", () => {
     for (const mode of ["FREE", "INTRO", "RESULT"] as const) {
-      const state: MissionState = { mode, clock: null, metrics: { servedCount: 0, totalQualityScore: 0, bestQualityScore: 0 } };
+      const state: MissionState = {
+        mode,
+        clock: null,
+        metrics: { servedCount: 0, totalQualityScore: 0, bestQualityScore: 0 },
+        runId: 0,
+      };
       const next = missionRunReducer(state, { type: "SERVE", qualityTotal: 99, now: 1_000 });
       expect(next).toBe(state);
     }
@@ -174,6 +219,7 @@ describe("missionRunReducer", () => {
         mode: "PLAYING",
         clock: startMissionClock(0, { durationSeconds }),
         metrics: { servedCount: 2, totalQualityScore: 150, bestQualityScore: 90 },
+        runId: 0,
       };
     }
 
@@ -254,6 +300,7 @@ describe("missionRunReducer", () => {
       mode: "PLAYING",
       clock: startMissionClock(0, { durationSeconds: 60 }),
       metrics: { servedCount: 0, totalQualityScore: 0, bestQualityScore: 0 },
+      runId: 0,
     };
     const next = missionRunReducer(playing, { type: "TICK", now: 30_000 });
     expect(next).toBe(playing);
@@ -264,6 +311,7 @@ describe("missionRunReducer", () => {
       mode: "PLAYING",
       clock: startMissionClock(0, { durationSeconds: 10 }),
       metrics: { servedCount: 2, totalQualityScore: 150, bestQualityScore: 90 },
+      runId: 0,
     };
     const next = missionRunReducer(playing, { type: "TICK", now: 10_000 });
     expect(next.mode).toBe("RESULT");
@@ -276,6 +324,7 @@ describe("missionRunReducer", () => {
       mode: "PLAYING",
       clock: startMissionClock(0, { durationSeconds: 10 }),
       metrics: { servedCount: 1, totalQualityScore: 70, bestQualityScore: 70 },
+      runId: 0,
     };
     const afterExpiry = missionRunReducer(playing, { type: "TICK", now: 10_000 });
     expect(afterExpiry.mode).toBe("RESULT");
@@ -293,15 +342,16 @@ describe("missionRunReducer", () => {
     expect(next).toBe(INITIAL_MISSION_STATE);
   });
 
-  it("EXIT_TO_FREE resets Mission runtime (mode, clock, metrics) from any mode", () => {
+  it("EXIT_TO_FREE resets Mission runtime (mode, clock, metrics) from any mode, preserving runId", () => {
     for (const mode of ["INTRO", "PLAYING", "RESULT"] as const) {
       const state: MissionState = {
         mode,
         clock: startMissionClock(0, { durationSeconds: 10 }),
         metrics: { servedCount: 4, totalQualityScore: 300, bestQualityScore: 92 },
+        runId: 3,
       };
       const next = missionRunReducer(state, { type: "EXIT_TO_FREE" });
-      expect(next).toEqual(INITIAL_MISSION_STATE);
+      expect(next).toEqual({ ...INITIAL_MISSION_STATE, runId: 3 });
     }
   });
 });
