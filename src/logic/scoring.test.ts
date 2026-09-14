@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { capStarsForBake, scorePizza, starsFromTotal } from "./scoring";
 import { createEmptyPizza, type PizzaState } from "../state/pizzaState";
-import type { Recipe } from "../data/recipes";
+import { getRecipe, type Recipe } from "../data/recipes";
 
 // A minimal recipe used purely as scoring input; reuses a real RecipeId ("margherita")
 // since RecipeId is a closed union derived from data/recipes.ts, but the requirements/
@@ -105,5 +105,67 @@ describe("scorePizza", () => {
     const score = scorePizza(RECIPE, pizza);
     expect(score.total).toBeGreaterThanOrEqual(90);
     expect(score.stars).toBe(4);
+  });
+});
+
+describe("scorePizza -- fugazza (Phase 3C-6, real production recipe)", () => {
+  const FUGAZZA = getRecipe("fugazza")!;
+
+  /** 5 required toppings (4 onion + 1 oregano) spread evenly around a ring -- well within
+   *  the dough and far enough apart to earn full placement credit, exactly like any other
+   *  recipe (onion gets no special-cased placement scoring, per SSOT section 14). */
+  function wellPlacedToppings(): PizzaState["toppings"] {
+    const items = [
+      { id: "t1", ingredientId: "onion" },
+      { id: "t2", ingredientId: "onion" },
+      { id: "t3", ingredientId: "onion" },
+      { id: "t4", ingredientId: "onion" },
+      { id: "t5", ingredientId: "oregano" },
+    ];
+    return items.map((item, i) => {
+      const angle = (i / items.length) * Math.PI * 2;
+      return { ...item, x: 50 + Math.cos(angle) * 26, y: 50 + Math.sin(angle) * 26 };
+    });
+  }
+
+  it("can reach ★★★★★ with correct ingredients, good placement, and a perfect bake", () => {
+    const pizza = pizzaWith({
+      sauceIds: ["olive-oil"],
+      toppings: wellPlacedToppings(),
+      bakeResult: (FUGAZZA.bakeTarget.start + FUGAZZA.bakeTarget.end) / 2,
+    });
+    const score = scorePizza(FUGAZZA, pizza);
+    expect(score.total).toBeGreaterThanOrEqual(90);
+    expect(score.stars).toBe(5);
+  });
+
+  it("is not unfairly penalized for onion's 4-item placement (same generic placement scoring)", () => {
+    const pizza = pizzaWith({
+      sauceIds: ["olive-oil"],
+      toppings: wellPlacedToppings(),
+      bakeResult: (FUGAZZA.bakeTarget.start + FUGAZZA.bakeTarget.end) / 2,
+    });
+    const score = scorePizza(FUGAZZA, pizza);
+    expect(score.placementScore).toBe(100);
+  });
+
+  it("caps at ★4 even with perfect ingredients/placement when the bake is raw", () => {
+    const pizza = pizzaWith({
+      sauceIds: ["olive-oil"],
+      toppings: wellPlacedToppings(),
+      bakeResult: FUGAZZA.bakeTarget.start - 2, // just under target -> raw
+    });
+    const score = scorePizza(FUGAZZA, pizza);
+    expect(score.stars).toBeLessThanOrEqual(4);
+  });
+
+  it("caps at ★4 even with perfect ingredients/placement when the bake is burnt", () => {
+    const pizza = pizzaWith({
+      sauceIds: ["olive-oil"],
+      toppings: wellPlacedToppings(),
+      bakeResult: FUGAZZA.bakeTarget.end + 2, // just over target -> burnt
+    });
+    const score = scorePizza(FUGAZZA, pizza);
+    expect(score.stars).toBeLessThanOrEqual(4);
   });
 });

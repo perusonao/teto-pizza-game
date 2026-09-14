@@ -354,6 +354,7 @@ function App() {
             onChangeCategory={handleChangeCategory}
             selectedIngredientId={selectedIngredientId}
             onSelectIngredient={handleSelectIngredient}
+            ownedIngredientIds={state.ownedIngredientIds}
           />
           <div className="action-row">
             <button

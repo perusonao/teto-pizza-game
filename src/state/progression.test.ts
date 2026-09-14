@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { availableRecipeIds, ingredientState, isRecipeAvailable } from "./progression";
-import { INGREDIENTS, STARTER_INGREDIENT_IDS, type Ingredient } from "../data/ingredients";
+import {
+  availableRecipeIds,
+  ingredientState,
+  isRecipeAvailable,
+  recipesUnlockedByIngredient,
+} from "./progression";
+import { INGREDIENTS, STARTER_INGREDIENT_IDS, getIngredient, type Ingredient } from "../data/ingredients";
 import { RECIPES, type Recipe } from "../data/recipes";
 import { purchaseIngredient } from "../logic/economy";
 
@@ -18,9 +23,8 @@ const MOCK_FUTURE_INGREDIENT: Ingredient = {
 };
 
 /** A hypothetical future recipe that depends on `MOCK_FUTURE_INGREDIENT` plus one Starter Set
- *  ingredient -- defined only in this test file (Phase 3C-5 adds no new recipe, per SSOT
- *  section 12/scope: Recipe #7/salami is explicitly out of scope). Exercises the "owned
- *  ingredient -> dependent recipe available" derivation end to end. */
+ *  ingredient -- defined only in this test file. Exercises the "owned ingredient -> dependent
+ *  recipe available" derivation end to end, independent of the real `fugazza` recipe below. */
 const MOCK_FUTURE_RECIPE: Recipe = {
   // Cast: RecipeId is derived from the real RECIPES array (src/data/recipes.ts) and can't
   // include a test-only id at the type level -- this recipe is only ever passed directly to
@@ -37,13 +41,14 @@ const MOCK_FUTURE_RECIPE: Recipe = {
 
 describe("ingredientState", () => {
   it("every existing starter ingredient is OWNED for a fresh player (empty owned list)", () => {
-    for (const ingredient of INGREDIENTS) {
+    for (const id of STARTER_INGREDIENT_IDS) {
+      const ingredient = getIngredient(id)!;
       expect(ingredientState(ingredient, [], 0)).toBe("OWNED");
     }
   });
 
   it("a starter ingredient never becomes LOCKED, even if missing from ownedIngredientIds", () => {
-    const [firstStarter] = INGREDIENTS;
+    const firstStarter = getIngredient(STARTER_INGREDIENT_IDS[0])!;
     expect(ingredientState(firstStarter, [], 0)).not.toBe("LOCKED");
     expect(ingredientState(firstStarter, [], 0)).toBe("OWNED");
   });
@@ -63,11 +68,70 @@ describe("ingredientState", () => {
   });
 });
 
+describe("ingredientState -- onion (Phase 3C-6 production data, not a mock)", () => {
+  const onion = INGREDIENTS.find((i) => i.id === "onion")!;
+  const threshold = onion.unlockCondition!.minTotalStars;
+
+  it("is not part of the Starter Set", () => {
+    expect(STARTER_INGREDIENT_IDS).not.toContain("onion");
+  });
+
+  it("has a minTotalStars unlock condition and a positive integer price", () => {
+    expect(onion.unlockCondition).toBeDefined();
+    expect(threshold).toBeGreaterThan(0);
+    expect(Number.isInteger(onion.pricePitz)).toBe(true);
+    expect(onion.pricePitz).toBeGreaterThan(0);
+  });
+
+  it("is LOCKED on a fresh save (0 totalStars, not owned)", () => {
+    expect(ingredientState(onion, STARTER_INGREDIENT_IDS, 0)).toBe("LOCKED");
+  });
+
+  it("is LOCKED one star below threshold", () => {
+    expect(ingredientState(onion, STARTER_INGREDIENT_IDS, threshold - 1)).toBe("LOCKED");
+  });
+
+  it("is AVAILABLE_TO_BUY at exactly the threshold", () => {
+    expect(ingredientState(onion, STARTER_INGREDIENT_IDS, threshold)).toBe("AVAILABLE_TO_BUY");
+  });
+
+  it("is AVAILABLE_TO_BUY above the threshold", () => {
+    expect(ingredientState(onion, STARTER_INGREDIENT_IDS, threshold + 10)).toBe("AVAILABLE_TO_BUY");
+  });
+
+  it("is OWNED once purchased, regardless of totalStars", () => {
+    expect(ingredientState(onion, [...STARTER_INGREDIENT_IDS, "onion"], 0)).toBe("OWNED");
+  });
+});
+
+describe("recipesUnlockedByIngredient (Shop 'これを買うと' preview, Phase 3C-6)", () => {
+  it("fugazza is listed as unlocked by onion before it's owned", () => {
+    expect(recipesUnlockedByIngredient("onion", STARTER_INGREDIENT_IDS)).toEqual(["fugazza"]);
+  });
+
+  it("returns empty once onion is already owned (fugazza is already available)", () => {
+    expect(recipesUnlockedByIngredient("onion", [...STARTER_INGREDIENT_IDS, "onion"])).toEqual(
+      [],
+    );
+  });
+
+  it("a Starter ingredient unlocks nothing (every Starter recipe is already available)", () => {
+    expect(recipesUnlockedByIngredient("mozzarella", STARTER_INGREDIENT_IDS)).toEqual([]);
+  });
+});
+
 describe("isRecipeAvailable", () => {
-  it("every current recipe is available when only the Starter Set is owned", () => {
-    for (const recipe of RECIPES) {
+  it("every Starter Set recipe (all except fugazza) is available when only the Starter Set is owned", () => {
+    const starterRecipes = RECIPES.filter((r) => r.id !== "fugazza");
+    expect(starterRecipes).toHaveLength(6);
+    for (const recipe of starterRecipes) {
       expect(isRecipeAvailable(recipe, STARTER_INGREDIENT_IDS)).toBe(true);
     }
+  });
+
+  it("fugazza is not available when only the Starter Set is owned (Phase 3C-6: needs onion)", () => {
+    const fugazza = RECIPES.find((r) => r.id === "fugazza")!;
+    expect(isRecipeAvailable(fugazza, STARTER_INGREDIENT_IDS)).toBe(false);
   });
 
   it("is false when a required ingredient is missing", () => {
@@ -84,10 +148,9 @@ describe("isRecipeAvailable", () => {
 });
 
 describe("availableRecipeIds", () => {
-  it("returns all 6 current recipes for a fresh player", () => {
-    expect(availableRecipeIds(STARTER_INGREDIENT_IDS).sort()).toEqual(
-      RECIPES.map((r) => r.id).sort(),
-    );
+  it("returns exactly the 6 Starter Set recipes for a fresh player (fugazza excluded)", () => {
+    const starterRecipeIds = RECIPES.filter((r) => r.id !== "fugazza").map((r) => r.id);
+    expect(availableRecipeIds(STARTER_INGREDIENT_IDS).sort()).toEqual(starterRecipeIds.sort());
   });
 
   it("excludes a recipe whose required ingredient is missing", () => {
@@ -133,8 +196,12 @@ describe("Phase 3C-5 economy integration: purchase -> OWNED -> dependent recipe 
     expect(result.success).toBe(true);
     if (!result.success) return;
 
+    // Every real Starter Set recipe stays available; fugazza (needs the unrelated `onion`
+    // ingredient, untouched by this purchase) stays unavailable -- purchasing one ingredient
+    // must never leak into a *different* recipe's availability.
     for (const recipe of RECIPES) {
-      expect(isRecipeAvailable(recipe, result.nextOwnedIngredientIds)).toBe(true);
+      const expected = recipe.id !== "fugazza";
+      expect(isRecipeAvailable(recipe, result.nextOwnedIngredientIds)).toBe(expected);
     }
   });
 });

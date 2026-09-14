@@ -50,3 +50,23 @@ export function availableRecipeIds(ownedIngredientIds: readonly string[]): Recip
     (recipe) => recipe.id,
   );
 }
+
+/**
+ * Recipes that are *not yet* available but would become available if `ingredientId` were
+ * added to `ownedIngredientIds` -- i.e. this ingredient is the only thing standing between
+ * the player and that recipe (Phase 3C-6, SSOT section 8: "何を買うと何ができるかを購入前にも
+ * 分かるようにする"). Purely presentational (Shop's "これを買うと: 🍕 フガッサ" preview and
+ * post-purchase "新しいピザが作れます！" feedback) -- never used to gate anything itself, since
+ * `isRecipeAvailable` above stays the one source of truth for actual availability.
+ */
+export function recipesUnlockedByIngredient(
+  ingredientId: string,
+  ownedIngredientIds: readonly string[],
+): RecipeId[] {
+  const hypotheticallyOwned = new Set([...ownedIngredientIds, ingredientId]);
+  return RECIPES.filter(
+    (recipe) =>
+      !isRecipeAvailable(recipe, ownedIngredientIds) &&
+      recipe.requiredIngredients.every((req) => hypotheticallyOwned.has(req.ingredientId)),
+  ).map((recipe) => recipe.id);
+}

@@ -1,6 +1,6 @@
 # テトのピザ屋さん（仮） Pitz Progression SSOT
 
-Status: Phase 3C 設計確定（Final Verdict A / 実装未着手）
+Status: Phase 3C-1〜3C-6 実装完了（3C-6: たまねぎ/フガッサ + Lunch Rush連携まで完了）
 Owner: プロジェクト全体設計
 関連ドキュメント: `PIZZA_GAME_SSOT.md`（プロジェクト全体の正典）/ `PIZZA_GAME_DATA_MODEL.md` /
 `PIZZA_GAME_UI_SPEC.md` / `PIZZA_GAME_Phase3B2_Dex-Progression_Result.md`
@@ -118,7 +118,7 @@ LOCKED ──(totalStars がしきい値 minTotalStars 達成)──> AVAILABLE_
 - 各 `LOCKED` 食材は `unlockCondition: { minTotalStars: N }` を持ち、
   `totalStars >= N` になった時点で `LOCKED` → `AVAILABLE_TO_BUY` へ遷移する
   （特定レシピへの個別紐付けではなく、全レシピ共通の1指標に対するしきい値判定。
-  第11章の #7 提案（サラミ）はこの方針の最初の適用例）。
+  第12章の #7 提案（onion/Fugazza）はこの方針の最初の適用例）。
 
 **合計★方式（レシピ別カウンター方式ではなく）を採用する理由**:
 
@@ -175,7 +175,7 @@ LOCKED ──(totalStars がしきい値 minTotalStars 達成)──> AVAILABLE_
 
 ## 10. Recipe availability derived from owned ingredients
 
-- Starter Set 以外の新レシピ（第11章のサラミピザ等）は、**それ自体を購入する概念を持たない**。
+- Starter Set 以外の新レシピ（第12章の Fugazza 等）は、**それ自体を購入する概念を持たない**。
   レシピが「作成可能かどうか」は、そのレシピの `requiredIngredients` が全て `OWNED` かどうかから
   **導出** される（レシピ専用のロック状態を別途持たない）。
 - ORDER フェーズの注文候補（現行 `src/data/orders.ts` の `getNextOrder`）は、
@@ -196,23 +196,45 @@ LOCKED ──(totalStars がしきい値 minTotalStars 達成)──> AVAILABLE_
   ボーナスを逃すだけで通常の ORDER に戻る。
 - 発生条件・倍率・UI表現の詳細は Phase 3C-6（第12章）で確定する。
 
-## 12. #7 レシピ提案: サラミ → サラミピザ
+## 12. #7 レシピ: たまねぎ → フガッサ（Phase 3C-6で実装・確定）
 
-Shop で最初に解放される新食材として **サラミ（salami）** を推奨する。
+Shop で最初に解放される新食材として **たまねぎ（onion）** を採用した。以下は
+Phase 3C-6（`docs/reports/PIZZA_GAME_Phase3C-6_First-Progression_Result.md`）で確定した
+最終値であり、「candidate」ではなく正典として扱う。
 
-- Unlock条件: `unlockCondition: { minTotalStars: N }`（第7章の合計★方式。全レシピ共通の
+設計当初はサラミ／サラミピザを候補としていたが、PIZZA DB の canonical JSON-LD による
+実在ピザ検証の結果、**たまねぎ（onion）／フガッサ（Fugazza）** へ置換した。フガッサは
+アルゼンチン生まれの実在するピザで、生地にオリーブオイルを塗り、大量のたまねぎと
+オレガノをのせて焼く、トマトソース・チーズを使わない一枚である。架空の食材・組み合わせを
+避ける方針（`PIZZA_GAME_SSOT.md` 第1章「PIZZA DBのテキスト・画像・データそのものは
+使用しない」を遵守しつつ、分類・実在性の参考にするという第1章の方針）により、
+実在性がより明確なこちらを正式採用とした。しきい値・価格はサラミ案から変更していない。
+
+- Unlock条件: `unlockCondition: { minTotalStars: 12 }`（第7章の合計★方式。全レシピ共通の
   `totalStars` に対するしきい値で判定する。特定レシピのMastery回数と個別に紐付ける方式は
-  採用しない。具体的な N はレシピ実装時に確定）。
-- 食材の組み合わせとしては、トマトソース・モッツァレラという既存の構成にサラミを足すだけで
-  自然に理解できる、マルゲリータ／ビスマルク／フンギの延長線上にある組み合わせを意図している
-  （こちらはunlock条件ではなく、レシピ設計上の意匠として維持する）。
-- 新レシピ「サラミピザ」: `tomato-sauce` + `mozzarella` + `salami` という、既存の
-  マルゲリータ・ビスマルク・フンギと同系統（トマト+モッツァレラ+具材1種）の構成にする。
-  実在するピザとして自然な組み合わせであり、架空の食材・組み合わせを避ける方針
-  （`PIZZA_GAME_SSOT.md` 第1章）に沿う。
+  採用しない）。
+  - 設計当初の candidate（`minTotalStars: 18`）は、実プレイシミュレーション上「初心者
+    （Starter平均★2程度）」が既存Starter 6レシピを全て発見しても最大 `totalStars` が
+    16にしかならず、しきい値に到達できないことが判明したため、12へ調整した
+    （詳細はPhase 3C-6レポートのBalance verification節を参照）。この調整はどの食材・
+    レシピを採用するかとは独立な判断であり、onionへの置換後も同じ値を維持している。
+  - `minTotalStars: 12` は実測で「上手」プレイヤーはStarter 3枚目、「普通」は4枚目、
+    「初心者」は5枚目で到達する — いずれもStarter 6レシピの完全コンプリートを
+    必須にしない（第15章の設計意図と整合）。
+- 価格: `pricePitz: 120`。Phase 3C-5で確定した報酬式（1 runあたり約50〜150 Pitz、
+  実測でも85〜140 Pitz程度）から、Lunch Rush 1〜2回で購入可能な水準として維持した
+  （candidateどおり、調整不要と判断）。
+- 新レシピ「フガッサ」（`fugazza`）: `olive-oil` ×1 + `onion` ×4 + `oregano` ×1
+  という構成。トマトソース・チーズを使わない、マリナーラと同系統の「ソース+具材のみ」の
+  構成にした。実在するピザとして自然な組み合わせであり、架空の食材・組み合わせを避ける
+  方針（`PIZZA_GAME_SSOT.md` 第1章）に沿う。`bakeTarget: { start: 63, end: 83 }`
+  （既存6レシピと同じ幅20の自然なレンジ）。
+- onion自体の解放判定は `onion` の `ingredientState`（LOCKED/AVAILABLE_TO_BUY/OWNED）
+  のみが担い、`fugazza` に専用の `recipeUnlocked` 相当のフラグは一切持たせていない
+  （第10章のとおり、`isRecipeAvailable` が `requiredIngredients` の OWNED 判定から
+  毎回 derive する）。
 - 新食材1種・新レシピ1種のみという最小構成で、Phase 3C の Shop/Mastery/Pitz ループを
-  最初に実証する「最初の一歩」として位置づける。具体的な価格・Mastery しきい値の
-  最終値・`bakeTarget` はレシピ実装時（Phase 3C-6）に確定する。
+  最初に実証する「最初の一歩」として完成した。
 
 ## 13. Phase 3C の対象外（Out of Scope）
 
@@ -268,8 +290,12 @@ Shop で最初に解放される新食材として **サラミ（salami）** を
   （`LOCKED`/`AVAILABLE_TO_BUY`/`OWNED` の状態導出ロジック自体はPhase 3C-3で先行実装済み）。 |
 | **3C-5** | Mission（第8章）。常設/マイルストーンミッション、Mission→Pitz付与ロジックを実装
   （Mastery=`totalStars`はPhase 3C-3で先行実装済み。レシピ別カウンターは採用しない）。 |
-| **3C-6** | サラミ食材・サラミピザレシピ（第12章）+ Lunch Rush（第11章）。Shop/Mastery/Pitz
-  ループの最初の実コンテンツと、期間限定ボーナスイベントを実装。 |
+| **3C-6** | たまねぎ食材・フガッサレシピ（第12章）実装完了。`minTotalStars: 12` /
+  `pricePitz: 120` を実プレイシミュレーションで確定し、fresh saveから
+  「Starter作成 → totalStars上昇 → Shop解放 → Lunch RushでPitz獲得 → 購入 →
+  フガッサ作成 → Dex 7/7」までの一周を実装・実機確認した（Lunch Rush自体は
+  Phase 3C-4で実装済み。3C-6はその上に最初の実コンテンツを乗せた）。詳細は
+  `docs/reports/PIZZA_GAME_Phase3C-6_First-Progression_Result.md` を参照。 |
 
 各フェーズの完了条件（Definition of Done）は、着手時に本ドキュメントを参照しつつ
 フェーズ単位の Result レポート（`docs/reports/PIZZA_GAME_Phase3C-*_Result.md`）側で定める。
@@ -295,3 +321,13 @@ availabilityがPhase 3C-3として先行して完了している。実行順序�
   付与」方式に更新（軽微・明白な確定として、実装に合わせてSSOT側を更新。第19章の指示に基づく）。
   FREE play = 0 Pitz / Mission が唯一の入手経路、という骨格は変更なし。
   詳細は `docs/reports/PIZZA_GAME_Phase3C-5_Pitz-Shop_Result.md` を参照。
+- v1.3: Phase 3C-6 実装（たまねぎ・フガッサ）を受けて、第12章を「レシピ提案」から
+  「実装・確定」に更新。design初期の検討ではサラミ／サラミピザを候補としていたが、
+  PIZZA DB の canonical JSON-LD による実在ピザ検証の結果、より実在性が明確な
+  たまねぎ（onion）／フガッサ（Fugazza、アルゼンチンの実在するたまねぎピザ）へ
+  置換した。`minTotalStars` を設計時 candidate の18から実プレイシミュレーションに
+  基づき12へ調整（18では初心者プレイヤーがStarter 6レシピを完走してもしきい値に
+  届かないことが判明したため。この調整はサラミ→onionの置換とは独立の判断で、
+  置換後も12を維持）。`pricePitz: 120` はcandidateどおり維持。第16章のロードマップ表
+  （3C-6行）を実装済みの内容に更新。詳細は
+  `docs/reports/PIZZA_GAME_Phase3C-6_First-Progression_Result.md` を参照。

@@ -1216,6 +1216,16 @@
   padding: 8px 14px;
 }
 
+.shop-overlay__feedback {
+  font-size: 13px;
+  font-weight: 700;
+  color: #4c9a2a;
+  background: #eef7e5;
+  border-radius: 12px;
+  padding: 10px 14px;
+  line-height: 1.5;
+}
+
 .shop-overlay__empty {
   font-size: 13px;
   color: #8a6a45;
@@ -1234,14 +1244,25 @@
 
 .shop-item {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 4px;
   background: #fff;
   border-radius: 12px;
   padding: 10px 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.shop-item__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.shop-item__unlocks {
+  font-size: 11px;
+  color: #8a6a45;
 }
 
 .shop-item__info {

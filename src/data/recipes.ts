@@ -94,6 +94,27 @@ export const RECIPES = [
     ],
     bakeTarget: { start: 58, end: 78 },
   },
+  /**
+   * Phase 3C-6's first Recipe #7 (see docs/design/PIZZA_GAME_PROGRESSION_SSOT.md section 12).
+   * Fugazza is a real Argentine onion pizza (dough brushed with olive oil, no tomato sauce or
+   * cheese, piled with onion and oregano) -- chosen to match a real-world pizza per PIZZA DB's
+   * canonical data, replacing an earlier salami/salami-pizza draft. Its `onion` requirement
+   * means it is never available until that ingredient is purchased (src/state/progression.ts's
+   * `isRecipeAvailable` -- there is no separate `recipeUnlocked` flag; availability derives
+   * purely from `requiredIngredients` being OWNED).
+   */
+  {
+    id: "fugazza",
+    nameJa: "フガッサ",
+    description:
+      "オリーブオイルを塗った生地に、たまねぎとオレガノをたっぷりのせて焼き上げる、アルゼンチン生まれの香ばしい一枚。",
+    requiredIngredients: [
+      { ingredientId: "olive-oil", minCount: 1 },
+      { ingredientId: "onion", minCount: 4 },
+      { ingredientId: "oregano", minCount: 1 },
+    ],
+    bakeTarget: { start: 63, end: 83 },
+  },
 ] as const;
 
 /** Derived from RECIPES above so this union can never drift out of sync with

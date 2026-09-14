@@ -6,7 +6,7 @@ import {
 } from "./economy";
 import type { MissionMetrics } from "./missionScoring";
 import type { Ingredient } from "../data/ingredients";
-import { INGREDIENTS } from "../data/ingredients";
+import { STARTER_INGREDIENT_IDS, getIngredient } from "../data/ingredients";
 
 function metrics(servedCount: number, totalQualityScore: number, bestQualityScore = 0): MissionMetrics {
   return { servedCount, totalQualityScore, bestQualityScore };
@@ -276,8 +276,9 @@ describe("purchaseIngredient", () => {
     expect(owned).toEqual(["tomato-sauce"]);
   });
 
-  it("every current production (Starter Set) ingredient is already OWNED and therefore never purchasable", () => {
-    for (const ingredient of INGREDIENTS) {
+  it("every current Starter Set ingredient is already OWNED and therefore never purchasable", () => {
+    for (const id of STARTER_INGREDIENT_IDS) {
+      const ingredient = getIngredient(id)!;
       const result = purchaseIngredient({
         ingredient,
         ownedIngredientIds: [],
@@ -285,6 +286,35 @@ describe("purchaseIngredient", () => {
         pitzBalance: 999999,
       });
       expect(result).toEqual({ success: false, reason: "ALREADY_OWNED" });
+    }
+  });
+
+  // Phase 3C-6: onion is the first production ingredient that is NOT Starter Set -- unlike
+  // every ingredient above, it genuinely starts LOCKED and only becomes purchasable once
+  // totalStars/pitzBalance clear its real, production `unlockCondition`/`pricePitz`.
+  it("onion (Phase 3C-6) is LOCKED, not ALREADY_OWNED, on a fresh save", () => {
+    const onion = getIngredient("onion")!;
+    const result = purchaseIngredient({
+      ingredient: onion,
+      ownedIngredientIds: [...STARTER_INGREDIENT_IDS],
+      totalStars: 0,
+      pitzBalance: 999999,
+    });
+    expect(result).toEqual({ success: false, reason: "LOCKED" });
+  });
+
+  it("onion becomes purchasable once totalStars/pitzBalance clear its real production requirement", () => {
+    const onion = getIngredient("onion")!;
+    const result = purchaseIngredient({
+      ingredient: onion,
+      ownedIngredientIds: [...STARTER_INGREDIENT_IDS],
+      totalStars: onion.unlockCondition!.minTotalStars,
+      pitzBalance: onion.pricePitz!,
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.nextOwnedIngredientIds).toEqual([...STARTER_INGREDIENT_IDS, "onion"]);
+      expect(result.nextPitzBalance).toBe(0);
     }
   });
 });

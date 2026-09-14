@@ -44,6 +44,12 @@ export const ORDERS: Order[] = [
     requestedBy: "mito",
     lineJa: "きのこたっぷりのフンギが食べたい気分！マッシュルームの香りが恋しいな。",
   },
+  {
+    id: "order-fugazza",
+    recipeId: "fugazza",
+    requestedBy: "mito",
+    lineJa: "たまねぎが仕入れられたんだって！アルゼンチン風のフガッサを作ってみてほしいな！",
+  },
 ];
 
 export interface NextOrderOptions {

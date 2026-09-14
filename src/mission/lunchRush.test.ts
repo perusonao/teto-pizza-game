@@ -97,6 +97,30 @@ describe("pickMissionOrder", () => {
     }
     expect(seen.size).toBe(3);
   });
+
+  // Phase 3C-6: Mission reuses the exact same availableRecipeIds() filter as free play (see
+  // this file's top comment) -- no fugazza special-case lives here, so this is really
+  // exercising src/state/progression.ts's availableRecipeIds() through Mission's own call site.
+  it("never picks fugazza when it isn't in the available pool (before purchase)", () => {
+    const starterIds: RecipeId[] = [
+      "margherita",
+      "marinara",
+      "quattro-formaggi",
+      "genovese",
+      "bismarck",
+      "funghi",
+    ];
+    for (let i = 0; i < 50; i++) {
+      const order = pickMissionOrder(starterIds);
+      expect(order.recipeId).not.toBe("fugazza");
+    }
+  });
+
+  it("can pick fugazza once it's included in the available pool (after purchase)", () => {
+    const ids: RecipeId[] = ["fugazza"];
+    const order = pickMissionOrder(ids);
+    expect(order.recipeId).toBe("fugazza");
+  });
 });
 
 describe("missionRunReducer", () => {

@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { getNextOrder, ORDERS } from "./orders";
+import { STARTER_INGREDIENT_IDS } from "./ingredients";
+import { availableRecipeIds } from "../state/progression";
 
 describe("getNextOrder availability filtering", () => {
   it("never selects a recipe outside availableRecipeIds", () => {
@@ -40,6 +42,29 @@ describe("getNextOrder availability filtering", () => {
     for (let i = 0; i < 50; i++) {
       const order = getNextOrder({});
       expect(ORDERS.map((o) => o.recipeId)).toContain(order.recipeId);
+    }
+  });
+});
+
+describe("getNextOrder + real Progression data (Phase 3C-6: fugazza)", () => {
+  it("FREE (Starter Set owned only) never selects fugazza", () => {
+    const ids = availableRecipeIds(STARTER_INGREDIENT_IDS);
+    expect(ids).not.toContain("fugazza");
+    for (let i = 0; i < 50; i++) {
+      const order = getNextOrder({ availableRecipeIds: ids });
+      expect(order.recipeId).not.toBe("fugazza");
+    }
+  });
+
+  it("once onion is purchased, fugazza becomes an eligible order candidate", () => {
+    const ids = availableRecipeIds([...STARTER_INGREDIENT_IDS, "onion"]);
+    expect(ids).toContain("fugazza");
+    // With every Starter recipe already discovered, fugazza is the sole undiscovered
+    // recipe left -- undiscovered-priority (SSOT section 9) must always pick it.
+    const dex = ids.filter((id) => id !== "fugazza");
+    for (let i = 0; i < 50; i++) {
+      const order = getNextOrder({ availableRecipeIds: ids, dex });
+      expect(order.recipeId).toBe("fugazza");
     }
   });
 });

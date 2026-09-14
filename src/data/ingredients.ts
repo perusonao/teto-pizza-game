@@ -138,6 +138,29 @@ export const INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F344}",
     placement: "scatter",
   },
+  /**
+   * Phase 3C-6: the first non-Starter ingredient (see
+   * docs/design/PIZZA_GAME_PROGRESSION_SSOT.md sections 6-7, 12 and
+   * docs/reports/PIZZA_GAME_Phase3C-6_First-Progression_Result.md for the threshold/price
+   * balancing that landed on these exact numbers, and for why this replaced an earlier
+   * salami/salami-pizza draft -- onion/Fugazza matched a real-world pizza per PIZZA DB's
+   * canonical data, per the project's "no invented ingredient combinations" policy,
+   * `PIZZA_GAME_SSOT.md` section 1). LOCKED on a fresh save (no starter treatment); becomes
+   * AVAILABLE_TO_BUY once `totalStars` (src/logic/mastery.ts) reaches 12, then OWNED via a
+   * 120 Pitz Shop purchase (src/logic/economy.ts's `purchaseIngredient`). Renders with the
+   * ordinary emoji-topping path (no dedicated CSS treatment needed -- 🧅 already reads clearly
+   * as onion, distinct from every other topping).
+   */
+  {
+    id: "onion",
+    category: "topping",
+    nameJa: "たまねぎ",
+    color: "#e8d9a8",
+    emoji: "\u{1F9C5}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 12 },
+    pricePitz: 120,
+  },
 ];
 
 export const CATEGORY_ORDER: IngredientCategory[] = ["sauce", "cheese", "topping"];
