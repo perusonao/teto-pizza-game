@@ -1,4 +1,4 @@
-import { useReducer, useRef, useState } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import { DialogueBox } from "./components/DialogueBox";
 import { PizzaStage } from "./components/PizzaStage";
 import { IngredientTray } from "./components/IngredientTray";
@@ -16,6 +16,7 @@ import {
 import { getIngredient, type Ingredient, type IngredientCategory } from "./data/ingredients";
 import { createInitialGameState, gameReducer, type GameState } from "./state/gameReducer";
 import { discoveredRecipeIds } from "./state/dex";
+import { loadSave, persistDex } from "./state/persistence";
 import "./App.css";
 
 function findPrimarySauceId(recipe: GameState["recipe"]): string | null {
@@ -26,7 +27,11 @@ function findPrimarySauceId(recipe: GameState["recipe"]): string | null {
 }
 
 function App() {
-  const [state, dispatch] = useReducer(gameReducer, undefined, createInitialGameState);
+  // The round in progress never persists (ORDER/PREPARE/BAKE/RESULT always start fresh), but
+  // Dex BEST/timesMade does -- load it once on mount and hydrate the initial state with it.
+  const [state, dispatch] = useReducer(gameReducer, undefined, () =>
+    createInitialGameState(loadSave().dex),
+  );
   const [activeCategory, setActiveCategory] = useState<IngredientCategory>("sauce");
   // Every order (including the very first one) should start the player off with the
   // recipe's own sauce selected, so PREPARE never opens with nothing selected.
@@ -53,6 +58,12 @@ function App() {
       setLiveBake(0);
     }
   }
+
+  // Only fires when the Dex reference actually changes (REGISTER_TO_DEX), not on every
+  // render -- the reducer itself stays pure, this is the one place progression is saved.
+  useEffect(() => {
+    persistDex(state.dex);
+  }, [state.dex]);
 
   function handleSelectIngredient(ingredient: Ingredient) {
     setSelectedIngredientId(ingredient.id);
