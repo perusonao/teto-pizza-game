@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useRef, useState } from "react";
+import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { DialogueBox } from "./components/DialogueBox";
 import { PizzaStage } from "./components/PizzaStage";
 import { IngredientTray } from "./components/IngredientTray";
@@ -10,6 +10,11 @@ import { MissionIntroOverlay } from "./components/MissionIntroOverlay";
 import { MissionServePanel } from "./components/MissionServePanel";
 import { MissionResultOverlay } from "./components/MissionResultOverlay";
 import { ShopOverlay } from "./components/ShopOverlay";
+import { ReferencePreview } from "./components/ReferencePreview";
+import { SauceMetricsPanel } from "./components/SauceMetricsPanel";
+import { getReferencePizza } from "./data/referencePizza";
+import { computeSauceMetrics, emptySauceMetrics } from "./logic/sauceField";
+import { scoreSauceAgainstReference } from "./logic/referenceScoring";
 import {
   buildBlueResultLine,
   buildMitoOrderLine,
@@ -224,6 +229,14 @@ function App() {
     }
   }
 
+  // Phase 4A-1A: one dispense tick from the Margherita Reference prototype's tomato-sauce
+  // dispenser (PizzaStage only calls this when its `referenceModeEnabled` prop is true --
+  // see that gating below). Kept separate from handleTapPizza/APPLY_SAUCE so this
+  // prototype-only mechanic can never reach any other ingredient/recipe/Mission path.
+  function handleSauceDeposit(ingredientId: string, x: number, y: number, amount: number) {
+    dispatch({ type: "DEPOSIT_SAUCE", ingredientId, x, y, amount });
+  }
+
   function handleBakeTick(value: number) {
     bakeFrameSkip.current += 1;
     if (bakeFrameSkip.current % 3 !== 0) return;
@@ -263,6 +276,26 @@ function App() {
   // -- reusing it would cost the same tempo `MissionServePanel` exists to avoid (Phase 3C-4
   // section 17). Every other phase's dialogue is completely unaffected, Mission or not.
   const showFreeResultDialogue = state.phase === "RESULT" && !isMissionActive;
+
+  // Phase 4A-1A Scope Guard: the Reference Pizza / tomato-sauce dispenser / Prototype
+  // Metrics are a shadow-only prototype for exactly one case -- FREE Margherita, never
+  // Mission play, never any other recipe. `referencePizza` is null for every other recipe
+  // (../data/referencePizza.ts), which alone would gate everything below it, but the
+  // explicit `!isMissionActive` check keeps that true by construction even if a future
+  // recipe reuses "margherita" during a Mission-only variant.
+  const referencePizza = getReferencePizza(state.recipe.id);
+  const referenceModeEnabled = referencePizza !== null && !isMissionActive;
+  const sauceMetrics = useMemo(
+    () => (referenceModeEnabled ? computeSauceMetrics(state.pizza.sauceDeposits) : emptySauceMetrics()),
+    [referenceModeEnabled, state.pizza.sauceDeposits],
+  );
+  const sauceShadowScore = useMemo(
+    () =>
+      referencePizza
+        ? scoreSauceAgainstReference(sauceMetrics, referencePizza.sauce)
+        : { quantitySimilarity: 0, coverageSimilarity: 0, overall: 0 },
+    [referencePizza, sauceMetrics],
+  );
 
   return (
     <div className="app-frame">
@@ -323,8 +356,16 @@ function App() {
         bakeProgress={bakeProgress}
         placement={state.placement}
         resultRevealed={state.phase === "RESULT"}
+        referenceModeEnabled={referenceModeEnabled}
         onTap={handleTapPizza}
+        onSauceDeposit={handleSauceDeposit}
       />
+
+      {state.phase === "PREPARE" && referenceModeEnabled && referencePizza && (
+        <div className="reference-tools-row">
+          <ReferencePreview reference={referencePizza} />
+        </div>
+      )}
 
       {state.phase === "ORDER" && (
         <div className="action-row">
@@ -345,6 +386,10 @@ function App() {
             </button>
           )}
         </div>
+      )}
+
+      {state.phase === "PREPARE" && referenceModeEnabled && (
+        <SauceMetricsPanel metrics={sauceMetrics} shadowScore={sauceShadowScore} />
       )}
 
       {state.phase === "PREPARE" && (

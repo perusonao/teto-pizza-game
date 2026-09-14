@@ -12,18 +12,41 @@ export interface SauceOrigin {
   y: number;
 }
 
+/** One tick of the Phase 4A-1A tomato-sauce dispenser (../logic/sauceDispenseController.ts):
+ *  where it landed (dough-percent coordinates, which may fall outside the dough circle --
+ *  see ../logic/pizzaCoordinates.ts's `isInsideDough`) and how much normalized quantity it
+ *  added (../logic/sauceQuantity.ts). Only ever populated by DEPOSIT_SAUCE; APPLY_SAUCE
+ *  (every other ingredient, every other recipe, Mission play) never touches this array. */
+export interface SauceDeposit {
+  x: number;
+  y: number;
+  amount: number;
+}
+
 export interface PizzaState {
   sauceIds: string[];
   /** Tap point the sauce spread animation should originate from (Phase 2C "painted" feel). */
   sauceOrigin: SauceOrigin | null;
-  /** Bumped every APPLY_SAUCE so the spread animation replays even at the same spot. */
+  /** Bumped every APPLY_SAUCE/first DEPOSIT_SAUCE so the spread animation replays even at
+   *  the same spot. */
   sauceToken: number;
+  /** Phase 4A-1A: raw deposit log for the current sauce application, used only to derive
+   *  Prototype Metrics (../logic/sauceField.ts) for the Margherita Reference prototype.
+   *  Always empty for every other recipe/ingredient path (APPLY_SAUCE never appends here). */
+  sauceDeposits: SauceDeposit[];
   toppings: PlacedTopping[];
   bakeResult: number | null;
 }
 
 export function createEmptyPizza(): PizzaState {
-  return { sauceIds: [], sauceOrigin: null, sauceToken: 0, toppings: [], bakeResult: null };
+  return {
+    sauceIds: [],
+    sauceOrigin: null,
+    sauceToken: 0,
+    sauceDeposits: [],
+    toppings: [],
+    bakeResult: null,
+  };
 }
 
 /** Minimum distance (in the same 0-100% unit as x/y) between two toppings. */

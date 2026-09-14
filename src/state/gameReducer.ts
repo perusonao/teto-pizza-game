@@ -55,6 +55,12 @@ export interface GameState {
 export type GameAction =
   | { type: "BEGIN_PREPARE" }
   | { type: "APPLY_SAUCE"; ingredientId: string; x: number; y: number }
+  // Phase 4A-1A: one dispense tick from the Margherita Reference prototype's tomato-sauce
+  // dispenser (src/logic/sauceDispenseController.ts). Distinct from APPLY_SAUCE (which
+  // every other ingredient/recipe/Mission path still uses unchanged) so this prototype-only
+  // mechanic can never affect anything outside its own gate -- see PizzaStage's
+  // `referenceModeEnabled` prop and App.tsx's `handleSauceDeposit`.
+  | { type: "DEPOSIT_SAUCE"; ingredientId: string; x: number; y: number; amount: number }
   | { type: "PLACE_TOPPING"; ingredientId: string; x: number; y: number }
   | { type: "RESET_PIZZA" }
   | { type: "START_BAKE" }
@@ -168,6 +174,32 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         sauceIds: [action.ingredientId],
         sauceOrigin: { x: action.x, y: action.y },
         sauceToken: state.pizza.sauceToken + 1,
+        // A single-commit APPLY_SAUCE always replaces whatever sauce was there, deposit
+        // log included -- this is the one-shot path (every recipe but the Margherita
+        // Reference prototype's tomato sauce, plus Mission play), so any stale Phase
+        // 4A-1A deposits from a since-abandoned dispense session can never linger into it.
+        sauceDeposits: [],
+      };
+      return { ...state, pizza, hint: buildHintLine(state.recipe, pizza) };
+    }
+
+    // Phase 4A-1A: appends one dispense tick to the running deposit log and, only on the
+    // very first tick of a fresh application (sauceIds not already this ingredient),
+    // mirrors APPLY_SAUCE's own sauceOrigin/sauceToken bump so the existing sauce-spread
+    // CSS animation (App.css) still plays exactly once per application -- now starting the
+    // instant the player presses down instead of waiting for release.
+    case "DEPOSIT_SAUCE": {
+      if (!state.ownedIngredientIds.includes(action.ingredientId)) return state;
+      const isFreshApplication = state.pizza.sauceIds[0] !== action.ingredientId;
+      const pizza: PizzaState = {
+        ...state.pizza,
+        sauceIds: [action.ingredientId],
+        sauceOrigin: isFreshApplication ? { x: action.x, y: action.y } : state.pizza.sauceOrigin,
+        sauceToken: isFreshApplication ? state.pizza.sauceToken + 1 : state.pizza.sauceToken,
+        sauceDeposits: [
+          ...(isFreshApplication ? [] : state.pizza.sauceDeposits),
+          { x: action.x, y: action.y, amount: action.amount },
+        ],
       };
       return { ...state, pizza, hint: buildHintLine(state.recipe, pizza) };
     }
