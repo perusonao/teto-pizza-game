@@ -291,7 +291,7 @@ regressionがないことを確認した。
 ```
 $ npm test
  Test Files  13 passed (13)
-      Tests  248 passed (248)
+      Tests  254 passed (254)
 ```
 
 既存206テストは全て無変更のまま維持。新規追加42テストの内訳:
@@ -310,6 +310,50 @@ $ npm test
 - `src/state/progression.test.ts`（+14件、既存3件修正）: onion実データでの
   ingredientState全遷移・recipesUnlockedByIngredient・既存の「全6レシピ常時available」
   前提テストをStarter 6限定に修正
+
+## Codex review follow-up: ingredient ownership boundary (P2)
+
+Codex flagged (against the original salami/salami-pizza commit, since superseded by the
+onion/Fugazza swap) that `IngredientTray` rendered every topping in a category regardless of
+ownership, and that `APPLY_SAUCE`/`PLACE_TOPPING` had no ownership check of their own -- so a
+LOCKED or AVAILABLE_TO_BUY (not yet purchased) ingredient could in principle be placed on a
+pizza. Fresh-inspected against the current onion/Fugazza HEAD: **the underlying gap was real
+and unchanged by the ingredient swap** (the review comment's own suggested fix path was still
+exactly correct), so it was fixed rather than dismissed as stale.
+
+**Fix** (two layers, both minimal changes to existing architecture, no new mechanics):
+
+1. `src/components/IngredientTray.tsx` now takes `ownedIngredientIds` and filters
+   `ingredientsByCategory(activeCategory)` down to owned ids before rendering -- a LOCKED/
+   AVAILABLE_TO_BUY ingredient (onion, before purchase) never appears as a chip at all.
+   `App.tsx` passes `state.ownedIngredientIds` through (the same canonical field already used
+   everywhere else).
+2. `src/state/gameReducer.ts`'s `APPLY_SAUCE` and `PLACE_TOPPING` cases now guard on
+   `state.ownedIngredientIds.includes(action.ingredientId)`, returning `state` unchanged
+   (the same no-op shape `PURCHASE_INGREDIENT` already uses for a failed transaction) when the
+   ingredient isn't owned -- so ownership is enforced at the action boundary independent of
+   whatever the UI does or doesn't offer. Since Mission reuses this exact same reducer/round
+   machinery (no separate Mission round state, per this file's own top comment), the same rule
+   holds identically in FREE and Mission.
+
+**Tests** (`src/state/gameReducer.test.ts`, new `describe` block, 6 cases): PLACE_TOPPING is a
+no-op for onion while LOCKED; still a no-op once AVAILABLE_TO_BUY but not yet purchased
+(totalStars >= 12 via 3 discovered Starter recipes, onion itself not owned); succeeds once
+onion is OWNED; APPLY_SAUCE is a no-op for a constructed "unowned sauce" scenario (proving the
+guard itself, since no production sauce is ever unowned today); Starter ingredients remain
+placeable (regression); the same rejection holds after `MISSION_RESET_ORDER` (FREE/Mission
+parity). Verified these tests actually catch the regression by reverting the reducer guard and
+confirming 4 of the 6 fail without it, then re-confirming all pass with the fix restored.
+Reload/ownership-roundtrip coverage was already in place (`persistence.test.ts`'s "roundtrips a
+purchased onion" / "keeps it OWNED" tests, section above) and needed no changes.
+
+**Re-verified 390×844 walkthrough**: extended the same fresh-save Playwright script with an
+ownership/tray-visibility check (comparing the topping tab's actual chip list against
+`ownedIngredientIds` read from `localStorage`) called on *every* PREPARE phase entered --
+6 Starter rounds, all Lunch Rush rounds, the post-purchase throwaway round, and the Fugazza
+round itself. **43/43 checks passed**: onion's chip is absent for every round before purchase
+(including AVAILABLE_TO_BUY-but-unpurchased and every in-Mission round) and present only from
+the first PREPARE after purchase onward. 0 console/page errors, no overflow.
 
 ## lint / build / git diff --check
 
@@ -368,8 +412,15 @@ P0/P1: 0件。
 - 390×844の実機walkthroughで、fresh saveから「Starter作成→totalStars上昇→
   threshold到達（Starter未完走時点）→Lunch RushでPitz獲得→Shop購入→
   fugazza作成→Dex 7/7→reload後も全状態維持」までの一周を実証した
-  （27/27チェックPASS、console/page error 0件、horizontal overflowなし）。
-- 既存206テストを一切壊さず、onion関連42件を新規追加（計248件全てPASS）。
+  （onion tray可視性チェック込みで43/43チェックPASS、console/page error 0件、
+  horizontal overflowなし）。
+- Codex review（P2）で指摘された「未購入ingredientがIngredientTray/action boundaryで
+  使用可能になりうる」問題を、fresh-inspectして現HEAD（onion/Fugazza版）でも再現することを
+  確認した上で、UI filter（IngredientTray）+ reducer側のownership guard
+  （APPLY_SAUCE/PLACE_TOPPING）の二重の防御で修正し、6件のテストを追加した
+  （詳細は上記「Codex review follow-up」節）。
+- 既存206テストを一切壊さず、onion関連42件 + Codex follow-up 6件を新規追加
+  （計254件全てPASS）。
 - lint/typecheck/build/git diff --checkすべてグリーン。
 - P0/P1: 0件。残るKnown issuesはいずれもP2（ブロッカーなし）。
 

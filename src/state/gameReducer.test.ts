@@ -178,6 +178,93 @@ describe("PURCHASE_INGREDIENT (reducer)", () => {
   });
 });
 
+// Codex review follow-up (PR #20, P2, originally filed against the salami/salami-pizza draft
+// but the underlying gap applies equally to onion): IngredientTray only ever *offers* owned
+// ingredients (src/components/IngredientTray.tsx filters by `ownedIngredientIds`), but until
+// this fix APPLY_SAUCE/PLACE_TOPPING themselves had no ownership check at all -- a LOCKED or
+// AVAILABLE_TO_BUY (not yet purchased) ingredient id reaching the reducer by any other path (a
+// stray dispatch, a future UI bug, a devtools call) would have been silently accepted and
+// placed on the pizza. These tests dispatch directly against the reducer, bypassing the UI
+// entirely, to prove the action boundary itself now rejects an unowned ingredient -- not just
+// that the tray happens to hide it.
+describe("Ownership boundary on APPLY_SAUCE/PLACE_TOPPING (Phase 3C-6 follow-up)", () => {
+  function preparedState(ownedIngredientIds: readonly string[], dex = EMPTY_DEX): GameState {
+    const state = createInitialGameState(dex, ownedIngredientIds, 0);
+    return gameReducer(state, { type: "BEGIN_PREPARE" });
+  }
+
+  it("PLACE_TOPPING is a complete no-op for onion while LOCKED (fresh save, 0 totalStars)", () => {
+    const state = preparedState(STARTER_INGREDIENT_IDS);
+    const after = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "onion", x: 50, y: 50 });
+    expect(after).toBe(state);
+    expect(after.pizza.toppings).toHaveLength(0);
+  });
+
+  it("PLACE_TOPPING is still a no-op for onion once AVAILABLE_TO_BUY but not yet purchased", () => {
+    // totalStars = 15 (>= onion's minTotalStars of 12) via 3 discovered Starter recipes, but
+    // onion itself is not in ownedIngredientIds -- AVAILABLE_TO_BUY, not OWNED.
+    const dex = [
+      { recipeId: "margherita", discovered: true, bestScore: 95, bestStars: 5 as const, timesMade: 1 },
+      { recipeId: "marinara", discovered: true, bestScore: 95, bestStars: 5 as const, timesMade: 1 },
+      { recipeId: "genovese", discovered: true, bestScore: 95, bestStars: 5 as const, timesMade: 1 },
+    ];
+    const state = preparedState(STARTER_INGREDIENT_IDS, dex);
+    const after = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "onion", x: 50, y: 50 });
+    expect(after).toBe(state);
+    expect(after.pizza.toppings).toHaveLength(0);
+  });
+
+  it("PLACE_TOPPING succeeds for onion once it is OWNED", () => {
+    const state = preparedState([...STARTER_INGREDIENT_IDS, "onion"]);
+    const after = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "onion", x: 50, y: 50 });
+    expect(after.pizza.toppings).toHaveLength(1);
+    expect(after.pizza.toppings[0].ingredientId).toBe("onion");
+  });
+
+  it("APPLY_SAUCE is a complete no-op for an unowned ingredient (direct reducer attempt)", () => {
+    // No production sauce is ever unowned today (all 3 are Starter Set) -- this constructs
+    // that situation directly against the reducer to prove the guard itself, independent of
+    // whether the UI could ever produce it.
+    const owned = STARTER_INGREDIENT_IDS.filter((id) => id !== "olive-oil");
+    const state = preparedState(owned);
+    const after = gameReducer(state, { type: "APPLY_SAUCE", ingredientId: "olive-oil", x: 50, y: 50 });
+    expect(after).toBe(state);
+    expect(after.pizza.sauceIds).toEqual([]);
+  });
+
+  it("Starter ingredients remain placeable (regression)", () => {
+    const state = preparedState(STARTER_INGREDIENT_IDS);
+    const withSauce = gameReducer(state, {
+      type: "APPLY_SAUCE",
+      ingredientId: "tomato-sauce",
+      x: 50,
+      y: 50,
+    });
+    const withTopping = gameReducer(withSauce, {
+      type: "PLACE_TOPPING",
+      ingredientId: "mozzarella",
+      x: 40,
+      y: 50,
+    });
+    expect(withSauce.pizza.sauceIds).toEqual(["tomato-sauce"]);
+    expect(withTopping.pizza.toppings).toHaveLength(1);
+    expect(withTopping.pizza.toppings[0].ingredientId).toBe("mozzarella");
+  });
+
+  it("FREE and Mission share the same ownership rule (both go through this same reducer)", () => {
+    // MISSION_RESET_ORDER builds its ORDER-phase state through the exact same buildOrderState
+    // path as free play (see gameReducer.ts's top comment) -- there is no separate Mission
+    // round state, so a PLACE_TOPPING dispatched mid-Mission is guarded identically.
+    const missionState = gameReducer(
+      preparedState(STARTER_INGREDIENT_IDS),
+      { type: "MISSION_RESET_ORDER" },
+    );
+    const prepared = gameReducer(missionState, { type: "BEGIN_PREPARE" });
+    const after = gameReducer(prepared, { type: "PLACE_TOPPING", ingredientId: "onion", x: 50, y: 50 });
+    expect(after.pizza.toppings).toHaveLength(0);
+  });
+});
+
 describe("CLAIM_MISSION_REWARD (reducer, Phase 3C-5)", () => {
   it("adds the reward amount to pitzBalance and records the claimed runId", () => {
     const state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 100);

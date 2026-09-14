@@ -156,6 +156,13 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return { ...state, phase: "PREPARE", hint: buildHintLine(state.recipe, state.pizza) };
 
     case "APPLY_SAUCE": {
+      // Ownership boundary (Phase 3C-6 follow-up): IngredientTray only ever offers owned
+      // ingredients (src/components/IngredientTray.tsx filters by `ownedIngredientIds`), but
+      // this guard makes that the UI's job, not its only safeguard -- a LOCKED/AVAILABLE_TO_BUY
+      // ingredient id can never be applied even if it somehow reaches this action (a stray
+      // dispatch, a future UI bug, ...). A no-op, same shape as PURCHASE_INGREDIENT's own
+      // "unknown/invalid id -> return state unchanged" guard below.
+      if (!state.ownedIngredientIds.includes(action.ingredientId)) return state;
       const pizza: PizzaState = {
         ...state.pizza,
         sauceIds: [action.ingredientId],
@@ -166,6 +173,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case "PLACE_TOPPING": {
+      // Same ownership boundary as APPLY_SAUCE above.
+      if (!state.ownedIngredientIds.includes(action.ingredientId)) return state;
       const spot = findOpenSpot(state.pizza.toppings, action.x, action.y);
       placementTokenCounter += 1;
 
