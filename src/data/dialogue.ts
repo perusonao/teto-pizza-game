@@ -99,10 +99,13 @@ const BLUE_RESULT_VARIANTS: Record<BlueBand, readonly ((name: string) => string)
 };
 
 function classifyBlueBand(score: ScoreBreakdown, bakeState: BakeState | null): BlueBand {
-  if (score.stars === 3) return "high";
+  // Raw/burnt gets its own doneness-specific line regardless of how good the rest of the
+  // pizza is — scoring.ts already caps such a round below ★5, but a ★4 raw/burnt pizza
+  // should still hear about the bake, not the generic "amazing!" line.
   if (bakeState === "raw") return "lowRaw";
   if (bakeState === "burnt") return "lowBurnt";
-  if (score.stars === 2) return "mid";
+  if (score.stars >= 4) return "high";
+  if (score.stars === 3) return "mid";
   return "low";
 }
 
