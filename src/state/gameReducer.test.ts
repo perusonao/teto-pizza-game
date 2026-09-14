@@ -133,3 +133,94 @@ describe("order selection availability (Phase 3C-3)", () => {
     expect(state.ownedIngredientIds).toEqual(owned);
   });
 });
+
+describe("Mission order actions (Phase 3C-4)", () => {
+  it("MISSION_RESET_ORDER picks a fresh available-pool order from any phase, including PREPARE/BAKE mid-round", () => {
+    let state = createInitialGameState();
+    state = gameReducer(state, { type: "BEGIN_PREPARE" });
+    expect(state.phase).toBe("PREPARE");
+
+    const reset = gameReducer(state, { type: "MISSION_RESET_ORDER" });
+    expect(reset.phase).toBe("ORDER");
+    expect(reset.pizza.toppings).toEqual([]);
+    expect(reset.pizza.sauceIds).toEqual([]);
+  });
+
+  it("MISSION_RESET_ORDER never repeats the just-active recipe when another is available", () => {
+    const owned = ["tomato-sauce", "mozzarella", "basil", "garlic", "oregano"]; // margherita + marinara
+    let state = createInitialGameState(EMPTY_DEX, owned);
+    for (let i = 0; i < 30; i++) {
+      const before = state.recipe.id;
+      state = gameReducer(state, { type: "MISSION_RESET_ORDER" });
+      expect(state.recipe.id).not.toBe(before);
+    }
+  });
+
+  it("MISSION_RESET_ORDER only ever selects a recipe from the currently-owned/available pool", () => {
+    const marginallyOwned = ["tomato-sauce", "mozzarella", "basil"]; // margherita only
+    let state = createInitialGameState(EMPTY_DEX, marginallyOwned);
+    for (let i = 0; i < 20; i++) {
+      state = gameReducer(state, { type: "MISSION_RESET_ORDER" });
+      expect(state.recipe.id).toBe("margherita");
+    }
+  });
+
+  it("MISSION_NEXT_ORDER is a no-op outside of RESULT (mirrors REGISTER_TO_DEX's atomicity guard)", () => {
+    const orderState = createInitialGameState();
+    expect(gameReducer(orderState, { type: "MISSION_NEXT_ORDER" })).toBe(orderState);
+  });
+
+  it("MISSION_NEXT_ORDER registers the round to the Dex (discovery, BEST, timesMade) and advances straight to a fresh ORDER, skipping DISCOVERED", () => {
+    const resultState = playToResult(70); // Margherita's perfect zone is 60-80
+    expect(resultState.phase).toBe("RESULT");
+
+    const next = gameReducer(resultState, { type: "MISSION_NEXT_ORDER" });
+    expect(next.phase).toBe("ORDER"); // never DISCOVERED during Mission
+
+    const entry = next.dex.find((e) => e.recipeId === "margherita");
+    expect(entry?.discovered).toBe(true);
+    expect(entry?.timesMade).toBe(1);
+    expect(entry?.bestScore).toBe(resultState.score?.total);
+    expect(entry?.bestStars).toBe(resultState.score?.stars);
+  });
+
+  it("MISSION_NEXT_ORDER updates Dex BEST on a repeat play the same way REGISTER_TO_DEX does", () => {
+    let state = playToResult(70);
+    state = gameReducer(state, { type: "MISSION_NEXT_ORDER" }); // first margherita registered, BEST set
+
+    // Force the Mission loop back onto margherita specifically (MISSION_NEXT_ORDER's own
+    // rotation may have picked a different recipe) by forcing a fresh order until it lands on
+    // margherita again, then play it through exactly like `playToResult` does.
+    for (let i = 0; i < 30 && state.recipe.id !== "margherita"; i++) {
+      state = gameReducer(state, { type: "MISSION_RESET_ORDER" });
+    }
+    expect(state.recipe.id).toBe("margherita");
+
+    state = gameReducer(state, { type: "BEGIN_PREPARE" });
+    state = gameReducer(state, { type: "APPLY_SAUCE", ingredientId: "tomato-sauce", x: 50, y: 50 });
+    state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "mozzarella", x: 40, y: 50 });
+    state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "mozzarella", x: 60, y: 50 });
+    state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "mozzarella", x: 50, y: 30 });
+    state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "basil", x: 50, y: 65 });
+    state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "basil", x: 35, y: 65 });
+    state = gameReducer(state, { type: "START_BAKE" });
+    state = gameReducer(state, { type: "CONFIRM_BAKE", value: 65 }); // still in the perfect zone
+    expect(state.phase).toBe("RESULT");
+
+    const beforeEntry = state.dex.find((e) => e.recipeId === "margherita");
+    expect(beforeEntry?.timesMade).toBe(1);
+
+    const after = gameReducer(state, { type: "MISSION_NEXT_ORDER" });
+    const afterEntry = after.dex.find((e) => e.recipeId === "margherita");
+    expect(afterEntry?.timesMade).toBe(2);
+  });
+
+  it("MISSION_NEXT_ORDER registers exactly once even if dispatched twice in a row", () => {
+    const resultState = playToResult(70);
+    const first = gameReducer(resultState, { type: "MISSION_NEXT_ORDER" });
+    // The phase has already moved to ORDER, so a stray repeat must be a true no-op (ORDER has
+    // no `score`, which is exactly the guard MISSION_NEXT_ORDER shares with REGISTER_TO_DEX).
+    const second = gameReducer(first, { type: "MISSION_NEXT_ORDER" });
+    expect(second).toBe(first);
+  });
+});

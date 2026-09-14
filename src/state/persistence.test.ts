@@ -3,13 +3,16 @@ import {
   SAVE_STORAGE_KEY,
   clearSave,
   createDefaultSave,
+  loadMissionBest,
   loadSave,
   persistDex,
+  persistMissionBest,
   type StorageLike,
 } from "./persistence";
 import { EMPTY_DEX, registerScoreToDex, type DexEntry } from "./dex";
 import type { ScoreBreakdown, QualityStars } from "../logic/scoring";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
+import { LUNCH_RUSH_MISSION_ID } from "../mission/lunchRush";
 
 function scoreOf(total: number, stars: QualityStars): ScoreBreakdown {
   return {
@@ -314,5 +317,80 @@ describe("clearSave", () => {
   it("does not throw when storage is unavailable or throws", () => {
     expect(() => clearSave(null)).not.toThrow();
     expect(() => clearSave(throwingStorage())).not.toThrow();
+  });
+});
+
+describe("Mission BEST (Phase 3C-4)", () => {
+  it("loadMissionBest is 0 for a fresh player (no save at all)", () => {
+    expect(loadMissionBest(LUNCH_RUSH_MISSION_ID, fakeStorage())).toBe(0);
+  });
+
+  it("loadMissionBest is 0 when the save exists but has no entry for this mission id", () => {
+    const storage = fakeStorage({ [SAVE_STORAGE_KEY]: saveWith({ missionBest: {} }) });
+    expect(loadMissionBest(LUNCH_RUSH_MISSION_ID, storage)).toBe(0);
+  });
+
+  it("persistMissionBest writes a first score and loadMissionBest reads it back", () => {
+    const storage = fakeStorage();
+    persistMissionBest(LUNCH_RUSH_MISSION_ID, 742, storage);
+    expect(loadMissionBest(LUNCH_RUSH_MISSION_ID, storage)).toBe(742);
+  });
+
+  it("persistMissionBest never lets BEST go down (monotonic, like Dex BEST)", () => {
+    const storage = fakeStorage();
+    persistMissionBest(LUNCH_RUSH_MISSION_ID, 742, storage);
+    persistMissionBest(LUNCH_RUSH_MISSION_ID, 500, storage);
+    expect(loadMissionBest(LUNCH_RUSH_MISSION_ID, storage)).toBe(742);
+  });
+
+  it("persistMissionBest updates BEST when the new score is strictly higher", () => {
+    const storage = fakeStorage();
+    persistMissionBest(LUNCH_RUSH_MISSION_ID, 500, storage);
+    persistMissionBest(LUNCH_RUSH_MISSION_ID, 742, storage);
+    expect(loadMissionBest(LUNCH_RUSH_MISSION_ID, storage)).toBe(742);
+  });
+
+  it("persistMissionBest keys BEST per mission id -- other missions never collide", () => {
+    const storage = fakeStorage();
+    persistMissionBest(LUNCH_RUSH_MISSION_ID, 300, storage);
+    persistMissionBest("some-other-future-mission", 900, storage);
+    expect(loadMissionBest(LUNCH_RUSH_MISSION_ID, storage)).toBe(300);
+    expect(loadMissionBest("some-other-future-mission", storage)).toBe(900);
+  });
+
+  it("persistMissionBest preserves other saved fields (Dex, ownedIngredientIds)", () => {
+    const storage = fakeStorage({ [SAVE_STORAGE_KEY]: saveWith({ dex: [validEntry] }) });
+    persistMissionBest(LUNCH_RUSH_MISSION_ID, 400, storage);
+    const save = loadSave(storage);
+    expect(save.dex).toEqual([validEntry]);
+    expect(save.missionBest[LUNCH_RUSH_MISSION_ID]).toBe(400);
+  });
+
+  it("persistMissionBest does not throw when the storage backend throws on write", () => {
+    expect(() => persistMissionBest(LUNCH_RUSH_MISSION_ID, 100, throwingStorage())).not.toThrow();
+  });
+
+  it("sanitizes a corrupt missionBest record on load: negative/non-integer/non-numeric values are dropped", () => {
+    const storage = fakeStorage({
+      [SAVE_STORAGE_KEY]: JSON.stringify({
+        ...createDefaultSave(),
+        missionBest: {
+          [LUNCH_RUSH_MISSION_ID]: 742,
+          negative: -5,
+          fractional: 12.5,
+          notANumber: "742",
+          nullish: null,
+        },
+      }),
+    });
+    const save = loadSave(storage);
+    expect(save.missionBest).toEqual({ [LUNCH_RUSH_MISSION_ID]: 742 });
+  });
+
+  it("a malformed (non-object) missionBest falls back to an empty record instead of throwing", () => {
+    const storage = fakeStorage({
+      [SAVE_STORAGE_KEY]: JSON.stringify({ ...createDefaultSave(), missionBest: "not-an-object" }),
+    });
+    expect(loadSave(storage).missionBest).toEqual({});
   });
 });

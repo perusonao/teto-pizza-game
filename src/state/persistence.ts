@@ -2,6 +2,7 @@ import { RECIPES } from "../data/recipes";
 import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import type { DexEntry, DexState } from "./dex";
 import type { QualityStars } from "../logic/scoring";
+import { isNewMissionBest } from "../logic/missionScoring";
 
 /**
  * Minimal cross-reload persistence (Phase 3C-2, see
@@ -21,7 +22,14 @@ import type { QualityStars } from "../logic/scoring";
  * -- there is no purchase flow in this phase, so every save's `ownedIngredientIds` is still
  * always exactly the Starter Set (this schema doesn't need a version bump for that: the
  * shape hasn't changed, only how a downstream consumer uses one already-reserved field).
- * `pitzBalance` / `missionBest` remain unread and unwritten, reserved for later phases.
+ *
+ * Phase 3C-4 (Lunch Rush) is the first phase to actually read/write `missionBest`: one
+ * entry per mission id (currently just `LUNCH_RUSH_MISSION_ID`, see
+ * src/mission/lunchRush.ts), each a monotonic (never-decreasing) Mission Score BEST -- same
+ * "BEST never goes down" rule Dex BEST already follows. No schema/version bump needed here
+ * either: the field's shape (a record keyed by mission id) was already reserved, this phase
+ * just starts actually validating and using its contents. `pitzBalance` remains unread and
+ * unwritten, reserved for a later phase.
  */
 
 export const SAVE_STORAGE_KEY = "teto-pizza-save-v1";
@@ -38,8 +46,12 @@ export interface PersistentSaveV1 {
    *  load). Purchasing itself (moving a future ingredient from AVAILABLE_TO_BUY to OWNED)
    *  is reserved for Phase 3C-4+ -- nothing writes non-starter ids into this yet. */
   ownedIngredientIds: string[];
-  /** Reserved for Phase 3C-5+ (Mission). Always empty in this phase. */
-  missionBest: Record<string, unknown>;
+  /** Mission Score BEST per mission id (Phase 3C-4, SSOT section 11). Keyed by mission id
+   *  (e.g. `{ "lunch-rush": 742 }`, see `LUNCH_RUSH_MISSION_ID` in src/mission/lunchRush.ts)
+   *  rather than a single flat number so future missions never collide with each other's
+   *  BEST. Absent keys read back as 0 BEST (`loadMissionBest`) -- never negative, never
+   *  written except through `persistMissionBest`'s monotonic ("never goes down") write. */
+  missionBest: Record<string, number>;
 }
 
 const KNOWN_RECIPE_IDS: readonly string[] = RECIPES.map((r) => r.id);
@@ -117,9 +129,25 @@ function sanitizeOwnedIngredientIds(raw: unknown): string[] {
   return Array.from(new Set([...STARTER_INGREDIENT_IDS, ...validKnownIds]));
 }
 
-function sanitizeMissionBest(raw: unknown): Record<string, unknown> {
+function isValidMissionBestValue(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value) && Number.isInteger(value) && value >= 0;
+}
+
+/**
+ * Sanitizes the saved Mission BEST record. Phase 3C-2 reserved this field's *shape*
+ * (a plain record keyed by mission id) without validating or reading its contents; Phase
+ * 3C-4 is the first phase to actually use it, so this is the first real validation of what's
+ * inside. Per-key, not all-or-nothing (matches `sanitizeDex`'s per-entry tolerance below): an
+ * invalid value under one mission id is simply dropped rather than discarding every other
+ * mission's BEST.
+ */
+function sanitizeMissionBest(raw: unknown): Record<string, number> {
   if (typeof raw !== "object" || raw === null || Array.isArray(raw)) return {};
-  return { ...(raw as Record<string, unknown>) };
+  const result: Record<string, number> = {};
+  for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
+    if (isValidMissionBestValue(value)) result[key] = value;
+  }
+  return result;
 }
 
 export function createDefaultSave(): PersistentSaveV1 {
@@ -229,6 +257,44 @@ export function persistDex(
     const current = loadSave(storage);
     if (dexEquals(dex, current.dex)) return;
     const next: PersistentSaveV1 = { ...current, dex: [...dex] };
+    storage.setItem(SAVE_STORAGE_KEY, JSON.stringify(next));
+  } catch {
+    // Storage full, disabled, or otherwise unavailable -- gameplay continues unaffected.
+  }
+}
+
+/** Reads one mission's persisted BEST score. Never throws (delegates to `loadSave`'s own
+ *  safe fallback): no storage, a read error, or a corrupt/absent entry all read back as 0. */
+export function loadMissionBest(
+  missionId: string,
+  storage: StorageLike | null = getDefaultStorage(),
+): number {
+  const save = loadSave(storage);
+  return save.missionBest[missionId] ?? 0;
+}
+
+/**
+ * Persists a Mission's BEST score, monotonically -- same "never goes down" rule Dex BEST
+ * follows (src/state/dex.ts). A write that isn't actually a new BEST is skipped entirely
+ * (no-op), the same reasoning as `persistDex`'s no-op skip: it avoids ever downgrading a
+ * BEST, and avoids clobbering a save this client doesn't otherwise recognize with a
+ * redundant write. Swallows storage failures like every other write in this module -- a
+ * failed save must never break gameplay.
+ */
+export function persistMissionBest(
+  missionId: string,
+  score: number,
+  storage: StorageLike | null = getDefaultStorage(),
+): void {
+  if (!storage) return;
+  try {
+    const current = loadSave(storage);
+    const existingBest = current.missionBest[missionId] ?? 0;
+    if (!isNewMissionBest(score, existingBest)) return;
+    const next: PersistentSaveV1 = {
+      ...current,
+      missionBest: { ...current.missionBest, [missionId]: score },
+    };
     storage.setItem(SAVE_STORAGE_KEY, JSON.stringify(next));
   } catch {
     // Storage full, disabled, or otherwise unavailable -- gameplay continues unaffected.

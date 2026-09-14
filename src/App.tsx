@@ -5,6 +5,10 @@ import { IngredientTray } from "./components/IngredientTray";
 import { BakeOverlay } from "./components/BakeOverlay";
 import { ResultPanel } from "./components/ResultPanel";
 import { DexOverlay } from "./components/DexOverlay";
+import { MissionHud } from "./components/MissionHud";
+import { MissionIntroOverlay } from "./components/MissionIntroOverlay";
+import { MissionServePanel } from "./components/MissionServePanel";
+import { MissionResultOverlay } from "./components/MissionResultOverlay";
 import {
   buildBlueResultLine,
   buildMitoOrderLine,
@@ -16,8 +20,37 @@ import {
 import { getIngredient, type Ingredient, type IngredientCategory } from "./data/ingredients";
 import { createInitialGameState, gameReducer, type GameState } from "./state/gameReducer";
 import { discoveredRecipeIds } from "./state/dex";
-import { loadSave, persistDex } from "./state/persistence";
+import { loadSave, loadMissionBest, persistDex, persistMissionBest } from "./state/persistence";
+import {
+  DEFAULT_MISSION_CONFIG,
+  LUNCH_RUSH_MISSION_ID,
+  missionRunReducer,
+  remainingSeconds,
+  INITIAL_MISSION_STATE,
+  type MissionConfig,
+} from "./mission/lunchRush";
+import { averageQualityScore, missionScore } from "./logic/missionScoring";
 import "./App.css";
+
+const MISSION_TICK_MS = 250;
+
+/**
+ * Production always runs the canonical 180s Lunch Rush duration. The only way to shorten it
+ * is a `?missionDuration=` URL param gated behind `import.meta.env.DEV` -- Vite statically
+ * replaces that check with `false` in a production build, so this whole branch (and the
+ * shortened-duration code path) is dead-code-eliminated from what ships; it exists purely so
+ * manual browser verification (Playwright, real device) doesn't have to sit through a real
+ * 3-minute run. This is not a debug UI -- there is no on-screen control, only a URL param.
+ */
+function resolveMissionConfig(): MissionConfig {
+  if (import.meta.env.DEV) {
+    const override = Number(new URLSearchParams(window.location.search).get("missionDuration"));
+    if (Number.isFinite(override) && override > 0) {
+      return { durationSeconds: override };
+    }
+  }
+  return DEFAULT_MISSION_CONFIG;
+}
 
 function findPrimarySauceId(recipe: GameState["recipe"]): string | null {
   const primarySauce = recipe.requiredIngredients.find(
@@ -67,6 +100,61 @@ function App() {
     persistDex(state.dex);
   }, [state.dex]);
 
+  // --- Lunch Rush mission (Phase 3C-4) --------------------------------------------------
+  // A separate reducer, not a field on GameState: Mission run state (which screen, the
+  // clock, served-this-run metrics) has no overlap with what GameState already tracks
+  // (order/recipe/pizza/dex/ownedIngredientIds), so keeping it apart is a clean boundary,
+  // not duplication -- see src/mission/lunchRush.ts's top comment.
+  const [mission, missionDispatch] = useReducer(missionRunReducer, INITIAL_MISSION_STATE);
+  // The persisted Mission BEST as of the *start* of the current/most recent run -- read fresh
+  // from storage every time a run starts (see `startMission` below), not tracked as a
+  // continuously-updated cache. This is purely a snapshot for the "NEW BEST!" comparison on
+  // the eventual Mission Result screen: it deliberately does not move when the persistence
+  // effect below writes a new BEST mid-run, so that comparison (and the badge it drives)
+  // stays stable for the rest of this run instead of flickering off the instant it's written.
+  const [missionBestAtStartOfRun, setMissionBestAtStartOfRun] = useState(() =>
+    loadMissionBest(LUNCH_RUSH_MISSION_ID),
+  );
+  // Ticks a display timestamp roughly 4x/second while PLAYING, driving both the HUD's
+  // countdown and the expiration check below. One interval, cleared whenever Mission stops
+  // PLAYING -- never a per-second (or finer) setTimeout chain (SSOT section 4/14).
+  const [missionNow, setMissionNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (mission.mode !== "PLAYING") return;
+    const id = window.setInterval(() => {
+      const now = Date.now();
+      setMissionNow(now);
+      missionDispatch({ type: "TICK", now });
+    }, MISSION_TICK_MS);
+    return () => window.clearInterval(id);
+  }, [mission.mode]);
+
+  // Persists the Mission BEST exactly once per run, the moment the run's own Result screen
+  // appears -- mirrors the persistDex effect's "fires on the canonical state change" shape.
+  // Talks only to storage (an external system), never back into local component state, so
+  // this can't cascade into an extra render of its own.
+  useEffect(() => {
+    if (mission.mode !== "RESULT") return;
+    persistMissionBest(LUNCH_RUSH_MISSION_ID, missionScore(mission.metrics));
+  }, [mission.mode, mission.metrics]);
+
+  function startMission() {
+    setMissionBestAtStartOfRun(loadMissionBest(LUNCH_RUSH_MISSION_ID));
+    missionDispatch({ type: "START", now: Date.now(), config: resolveMissionConfig() });
+    dispatch({ type: "MISSION_RESET_ORDER" });
+  }
+
+  function handleMissionServeNext() {
+    if (!state.score) return;
+    missionDispatch({ type: "SERVE", qualityTotal: state.score.total });
+    dispatch({ type: "MISSION_NEXT_ORDER" });
+  }
+
+  function exitMissionToFree() {
+    missionDispatch({ type: "EXIT_TO_FREE" });
+    dispatch({ type: "PLAY_AGAIN" });
+  }
+
   function handleSelectIngredient(ingredient: Ingredient) {
     setSelectedIngredientId(ingredient.id);
   }
@@ -114,6 +202,18 @@ function App() {
       : `${state.recipe.nameJa}、また上手にできたね！`,
   };
 
+  const isMissionPlaying = mission.mode === "PLAYING";
+  // Free play's own RESULT dialogue/ResultPanel are gated on this, not just `!isMissionPlaying`
+  // -- once a run's timer expires mid-round, `mission.mode` flips straight to "RESULT" while
+  // `state.phase` can still be sitting at "RESULT" (or PREPARE/BAKE) from the interrupted
+  // round. `MissionResultOverlay` covers the whole screen either way, but this keeps free
+  // play's own RESULT UI from rendering (uselessly) underneath it during that window.
+  const isMissionActive = mission.mode === "PLAYING" || mission.mode === "RESULT";
+  // During a Mission run, free play's own RESULT dialogue (Teto/Blue's comments) is skipped
+  // -- reusing it would cost the same tempo `MissionServePanel` exists to avoid (Phase 3C-4
+  // section 17). Every other phase's dialogue is completely unaffected, Mission or not.
+  const showFreeResultDialogue = state.phase === "RESULT" && !isMissionActive;
+
   return (
     <div className="app-frame">
       <header className="app-header">
@@ -122,6 +222,13 @@ function App() {
           {"\u{1F4D6}"} レシピ図鑑
         </button>
       </header>
+
+      {isMissionPlaying && mission.clock && (
+        <MissionHud
+          remainingSeconds={remainingSeconds(missionNow, mission.clock)}
+          servedCount={mission.metrics.servedCount}
+        />
+      )}
 
       <section className="dialogue-area">
         {state.phase === "ORDER" && (
@@ -132,7 +239,7 @@ function App() {
         )}
         {state.phase === "PREPARE" && state.hint && <DialogueBox {...state.hint} />}
         {state.phase === "BAKE" && <DialogueBox {...buildTetoBakeLine(state.recipe)} />}
-        {state.phase === "RESULT" && state.score && state.bakeState && (
+        {showFreeResultDialogue && state.score && state.bakeState && (
           <>
             <DialogueBox
               {...buildTetoResultLine(state.recipe, state.bakeState, state.pizza.bakeResult)}
@@ -168,8 +275,17 @@ function App() {
             className="cta-button cta-button--primary"
             onClick={() => dispatch({ type: "BEGIN_PREPARE" })}
           >
-            ピザを作る！
+            {mission.mode === "FREE" ? <>{"\u{1F355}"} フリープレイ</> : "ピザを作る！"}
           </button>
+          {mission.mode === "FREE" && (
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={() => missionDispatch({ type: "SHOW_INTRO" })}
+            >
+              {"⏱"} Lunch Rush
+            </button>
+          )}
         </div>
       )}
 
@@ -216,7 +332,15 @@ function App() {
         />
       )}
 
-      {state.phase === "RESULT" && state.score && (
+      {state.phase === "RESULT" && state.score && isMissionPlaying && (
+        <MissionServePanel
+          score={state.score}
+          servedCount={mission.metrics.servedCount}
+          onNext={handleMissionServeNext}
+        />
+      )}
+
+      {state.phase === "RESULT" && state.score && !isMissionActive && (
         <ResultPanel
           score={state.score}
           bakeState={state.bakeState}
@@ -248,6 +372,26 @@ function App() {
           newlyDiscoveredId={state.justDiscovered ? state.recipe.id : null}
           newBestRecipeId={!state.justDiscovered && state.justGotNewBest ? state.recipe.id : null}
           onClose={() => setDexOpen(false)}
+        />
+      )}
+
+      {mission.mode === "INTRO" && (
+        <MissionIntroOverlay
+          durationSeconds={resolveMissionConfig().durationSeconds}
+          onStart={startMission}
+          onClose={() => missionDispatch({ type: "EXIT_TO_FREE" })}
+        />
+      )}
+
+      {mission.mode === "RESULT" && (
+        <MissionResultOverlay
+          servedCount={mission.metrics.servedCount}
+          averageQuality={averageQualityScore(mission.metrics)}
+          bestQuality={mission.metrics.bestQualityScore}
+          score={missionScore(mission.metrics)}
+          isNewBest={missionScore(mission.metrics) > missionBestAtStartOfRun}
+          onRetry={startMission}
+          onExit={exitMissionToFree}
         />
       )}
     </div>
