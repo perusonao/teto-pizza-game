@@ -5,7 +5,14 @@ import { IngredientTray } from "./components/IngredientTray";
 import { BakeOverlay } from "./components/BakeOverlay";
 import { ResultPanel } from "./components/ResultPanel";
 import { DexOverlay } from "./components/DexOverlay";
-import { getLine, type DialogueLine } from "./data/dialogue";
+import {
+  buildBlueResultLine,
+  buildMitoOrderLine,
+  buildTetoBakeLine,
+  buildTetoOrderLine,
+  buildTetoResultLine,
+  type DialogueLine,
+} from "./data/dialogue";
 import { getIngredient, type Ingredient, type IngredientCategory } from "./data/ingredients";
 import { createInitialGameState, gameReducer, type GameState } from "./state/gameReducer";
 import "./App.css";
@@ -78,11 +85,12 @@ function App() {
         ? state.pizza.bakeResult
         : null;
 
-  const orderLine: DialogueLine = {
-    speaker: "mito",
-    id: state.order.id,
-    textJa: state.order.lineJa,
-  };
+  const orderLine = buildMitoOrderLine(
+    state.order.id,
+    state.order.lineJa,
+    state.recipe,
+    state.dex,
+  );
 
   const discoveredLine: DialogueLine = {
     speaker: "mito",
@@ -91,15 +99,6 @@ function App() {
       ? `${state.recipe.nameJa}がレシピ図鑑に載ったよ！やったね！`
       : `${state.recipe.nameJa}、また上手にできたね！`,
   };
-
-  let resultLineKey = "result.blue.mid";
-  if (state.score) {
-    if (state.score.stars === 3) resultLineKey = "result.blue.high";
-    else if (state.bakeState === "raw") resultLineKey = "result.blue.low.raw";
-    else if (state.bakeState === "burnt") resultLineKey = "result.blue.low.burnt";
-    else if (state.score.stars === 2) resultLineKey = "result.blue.mid";
-    else resultLineKey = "result.blue.low";
-  }
 
   return (
     <div className="app-frame">
@@ -114,12 +113,26 @@ function App() {
         {state.phase === "ORDER" && (
           <>
             <DialogueBox {...orderLine} />
-            <DialogueBox {...getLine("order.teto")} />
+            <DialogueBox {...buildTetoOrderLine(state.recipe)} />
           </>
         )}
         {state.phase === "PREPARE" && state.hint && <DialogueBox {...state.hint} />}
-        {state.phase === "BAKE" && <DialogueBox {...getLine("bake.teto")} />}
-        {state.phase === "RESULT" && state.score && <DialogueBox {...getLine(resultLineKey)} />}
+        {state.phase === "BAKE" && <DialogueBox {...buildTetoBakeLine(state.recipe)} />}
+        {state.phase === "RESULT" && state.score && state.bakeState && (
+          <>
+            <DialogueBox
+              {...buildTetoResultLine(state.recipe, state.bakeState, state.pizza.bakeResult)}
+            />
+            <DialogueBox
+              {...buildBlueResultLine(
+                state.recipe,
+                state.score,
+                state.bakeState,
+                state.pizza.bakeResult,
+              )}
+            />
+          </>
+        )}
         {state.phase === "DISCOVERED" && <DialogueBox {...discoveredLine} />}
       </section>
 
