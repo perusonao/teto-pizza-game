@@ -7,6 +7,7 @@ import { scorePizza, type ScoreBreakdown } from "../logic/scoring";
 import { classifyBake, type BakeState } from "../logic/bake";
 import { discoveredRecipeIds, registerScoreToDex, EMPTY_DEX, type DexState } from "./dex";
 import { availableRecipeIds } from "./progression";
+import { pickMissionOrder } from "../mission/lunchRush";
 import {
   createEmptyPizza,
   findOpenSpot,
@@ -46,18 +47,23 @@ export type GameAction =
   | { type: "CONFIRM_BAKE"; value: number }
   | { type: "REGISTER_TO_DEX" }
   | { type: "PLAY_AGAIN" }
-  | { type: "SHOW_HINT" };
+  | { type: "SHOW_HINT" }
+  // Phase 3C-4 (Lunch Rush): both below reuse this same round machinery (an ORDER phase with
+  // a freshly-picked, available recipe) -- there is no separate Mission round state. See
+  // src/mission/lunchRush.ts's top comment for the canonical/derived boundary this keeps.
+  | { type: "MISSION_NEXT_ORDER" }
+  | { type: "MISSION_RESET_ORDER" };
 
-function nextOrderState(
+/** Builds a fresh ORDER-phase state around an already-picked `order` -- the one place that
+ *  resets pizza/score/bakeState/hint/placement/justDiscovered/justGotNewBest for a new round,
+ *  shared by every "start a new round" path (free play's `nextOrderState` below, and Mission's
+ *  MISSION_NEXT_ORDER/MISSION_RESET_ORDER) so they can never drift out of sync on what a
+ *  "fresh round" resets. */
+function buildOrderState(
+  order: Order,
   dex: DexState,
   ownedIngredientIds: readonly string[],
-  orderOptions: NextOrderOptions,
 ): GameState {
-  const order = getNextOrder({
-    ...orderOptions,
-    dex: discoveredRecipeIds(dex),
-    availableRecipeIds: availableRecipeIds(ownedIngredientIds),
-  });
   const recipe = getRecipe(order.recipeId);
   if (!recipe) {
     throw new Error(`Unknown recipe for order ${order.id}`);
@@ -76,6 +82,28 @@ function nextOrderState(
     hint: null,
     placement: null,
   };
+}
+
+function nextOrderState(
+  dex: DexState,
+  ownedIngredientIds: readonly string[],
+  orderOptions: NextOrderOptions,
+): GameState {
+  const order = getNextOrder({
+    ...orderOptions,
+    dex: discoveredRecipeIds(dex),
+    availableRecipeIds: availableRecipeIds(ownedIngredientIds),
+  });
+  return buildOrderState(order, dex, ownedIngredientIds);
+}
+
+/** Picks a fresh Mission order (see ../mission/lunchRush.ts's `pickMissionOrder`) and builds
+ *  the ORDER-phase state around it. Shared by MISSION_NEXT_ORDER and MISSION_RESET_ORDER so
+ *  both pick a Mission order the exact same way. */
+function nextMissionOrderState(state: GameState): GameState {
+  const ids = availableRecipeIds(state.ownedIngredientIds);
+  const order = pickMissionOrder(ids, state.recipe.id);
+  return buildOrderState(order, state.dex, state.ownedIngredientIds);
 }
 
 /** `dex` defaults to empty and `ownedIngredientIds` defaults to the Starter Set for
@@ -190,6 +218,26 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return nextOrderState(state.dex, state.ownedIngredientIds, {
         excludeRecipeId: state.recipe.id,
       });
+
+    // Registers the current RESULT into the Dex (same rule as REGISTER_TO_DEX: BEST never
+    // goes down, timesMade always increments once) and, in the same step, advances straight
+    // to the next Mission order -- deliberately skipping DISCOVERED so Mission's serve flow
+    // never pays the DISCOVERED overlay's pacing cost (SSOT section 11 / Phase 3C-4 scope).
+    // Same atomicity guarantee as REGISTER_TO_DEX: only valid from a RESULT with a score, so
+    // a stray/repeated dispatch can never double-register a round.
+    case "MISSION_NEXT_ORDER": {
+      if (state.phase !== "RESULT" || !state.score) {
+        return state;
+      }
+      const { dex } = registerScoreToDex(state.dex, state.recipe.id, state.score);
+      return nextMissionOrderState({ ...state, dex });
+    }
+
+    // Forces a fresh Mission order regardless of the current phase -- used when a Mission run
+    // starts or retries, since the underlying round could be sitting anywhere (idle at ORDER,
+    // or frozen mid-PREPARE/BAKE/RESULT if the previous run's timer expired mid-round).
+    case "MISSION_RESET_ORDER":
+      return nextMissionOrderState(state);
 
     case "SHOW_HINT":
       return { ...state, hint: buildHintLine(state.recipe, state.pizza, true) };
