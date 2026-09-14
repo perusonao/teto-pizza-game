@@ -26,6 +26,24 @@ export const ORDERS: Order[] = [
     requestedBy: "mito",
     lineJa: "チーズたっぷりのクアトロ フォルマッジが食べたい！とろとろにしてね！",
   },
+  {
+    id: "order-genovese",
+    recipeId: "genovese",
+    requestedBy: "mito",
+    lineJa: "緑のソースのピザ、気になるな〜！ジェノベーゼを作ってみて！",
+  },
+  {
+    id: "order-bismarck",
+    recipeId: "bismarck",
+    requestedBy: "mito",
+    lineJa: "まんなかに卵がのったピザって見たことある？ビスマルクを食べてみたいな！",
+  },
+  {
+    id: "order-funghi",
+    recipeId: "funghi",
+    requestedBy: "mito",
+    lineJa: "きのこたっぷりのフンギが食べたい気分！マッシュルームの香りが恋しいな。",
+  },
 ];
 
 export interface NextOrderOptions {

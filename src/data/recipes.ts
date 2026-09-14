@@ -58,6 +58,42 @@ export const RECIPES = [
     ],
     bakeTarget: { start: 65, end: 85 },
   },
+  {
+    id: "genovese",
+    nameJa: "ジェノベーゼ",
+    description:
+      "バジル香る緑のジェノベーゼソースに、モッツァレラとチェリートマトを合わせた、彩り鮮やかな一枚。",
+    requiredIngredients: [
+      { ingredientId: "pesto", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "cherry-tomato", minCount: 3 },
+    ],
+    bakeTarget: { start: 50, end: 70 },
+  },
+  {
+    id: "bismarck",
+    nameJa: "ビスマルク",
+    description:
+      "トマトソースとモッツァレラの上に卵をのせて焼き上げる、まんなかがとろ〜り輝くピザ。",
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 3 },
+      { ingredientId: "egg", minCount: 1 },
+    ],
+    bakeTarget: { start: 55, end: 75 },
+  },
+  {
+    id: "funghi",
+    nameJa: "フンギ",
+    description:
+      "トマトソースとモッツァレラに、香り豊かなマッシュルームをたっぷりのせたきのこ好きのための一枚。",
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "mushroom", minCount: 3 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+  },
 ] as const;
 
 /** Derived from RECIPES above so this union can never drift out of sync with
