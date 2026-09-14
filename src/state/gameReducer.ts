@@ -63,8 +63,11 @@ function nextOrderState(dex: DexState, orderOptions: NextOrderOptions): GameStat
   };
 }
 
-export function createInitialGameState(): GameState {
-  return nextOrderState(EMPTY_DEX, { preferFirst: true });
+/** `dex` defaults to empty for existing call sites (tests, a from-scratch player); App.tsx
+ *  passes in the loaded Dex from persistence.ts so a reload hydrates BEST/timesMade while
+ *  everything else (the round in progress) starts fresh at ORDER regardless. */
+export function createInitialGameState(dex: DexState = EMPTY_DEX): GameState {
+  return nextOrderState(dex, { preferFirst: true });
 }
 
 let placedIdCounter = 0;

@@ -1,5 +1,18 @@
 import { describe, expect, it } from "vitest";
 import { createInitialGameState, gameReducer, type GameState } from "./gameReducer";
+import { registerScoreToDex, EMPTY_DEX } from "./dex";
+import type { ScoreBreakdown, QualityStars } from "../logic/scoring";
+
+function scoreOf(total: number, stars: QualityStars): ScoreBreakdown {
+  return {
+    matchScore: total,
+    ingredientScore: total,
+    placementScore: total,
+    bakeScore: total,
+    total,
+    stars,
+  };
+}
 
 /** Plays through PREPARE -> BAKE -> RESULT for the initial (Margherita) order, placing every
  *  required ingredient so the round scores well, then confirms the bake at `bakeValue`. */
@@ -49,5 +62,31 @@ describe("REGISTER_TO_DEX (reducer)", () => {
     const orderState = createInitialGameState();
     const after = gameReducer(orderState, { type: "REGISTER_TO_DEX" });
     expect(after).toBe(orderState);
+  });
+});
+
+describe("createInitialGameState hydration", () => {
+  it("always starts at ORDER, with no dex, when given no saved progression", () => {
+    const state = createInitialGameState();
+    expect(state.phase).toBe("ORDER");
+    expect(state.dex).toEqual(EMPTY_DEX);
+  });
+
+  it("starts at ORDER even when hydrated with a non-empty Dex (round in progress never persists)", () => {
+    const { dex } = registerScoreToDex(EMPTY_DEX, "margherita", scoreOf(91, 5));
+    const state = createInitialGameState(dex);
+    expect(state.phase).toBe("ORDER");
+  });
+
+  it("carries a loaded Dex's BEST and timesMade into the hydrated state", () => {
+    let dex = EMPTY_DEX;
+    dex = registerScoreToDex(dex, "margherita", scoreOf(72, 3)).dex;
+    dex = registerScoreToDex(dex, "margherita", scoreOf(91, 5)).dex;
+
+    const state = createInitialGameState(dex);
+    const entry = state.dex.find((e) => e.recipeId === "margherita");
+    expect(entry?.bestScore).toBe(91);
+    expect(entry?.bestStars).toBe(5);
+    expect(entry?.timesMade).toBe(2);
   });
 });
