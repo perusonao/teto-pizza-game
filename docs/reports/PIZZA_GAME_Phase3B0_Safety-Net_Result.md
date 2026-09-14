@@ -122,5 +122,5 @@ persistence、management、新test infrastructure。
 ## Commit / PR
 
 - Commit SHA: `aae8226d3cac88cbb9c24750a62aad0d4bea2945`
-- PR URL: (作成後に追記)
+- PR URL: https://github.com/perusonao/teto-pizza-game/pull/10
 - PR is left **unmerged** as instructed.
