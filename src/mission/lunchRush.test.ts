@@ -153,16 +153,100 @@ describe("missionRunReducer", () => {
       clock: startMissionClock(0, { durationSeconds: 60 }),
       metrics: { servedCount: 0, totalQualityScore: 0, bestQualityScore: 0 },
     };
-    const afterOne = missionRunReducer(playing, { type: "SERVE", qualityTotal: 80 });
+    const afterOne = missionRunReducer(playing, { type: "SERVE", qualityTotal: 80, now: 1_000 });
     expect(afterOne.metrics).toEqual({ servedCount: 1, totalQualityScore: 80, bestQualityScore: 80 });
+    expect(afterOne.mode).toBe("PLAYING");
   });
 
   it("SERVE is a no-op outside of PLAYING (e.g. FREE, INTRO, RESULT)", () => {
     for (const mode of ["FREE", "INTRO", "RESULT"] as const) {
       const state: MissionState = { mode, clock: null, metrics: { servedCount: 0, totalQualityScore: 0, bestQualityScore: 0 } };
-      const next = missionRunReducer(state, { type: "SERVE", qualityTotal: 99 });
+      const next = missionRunReducer(state, { type: "SERVE", qualityTotal: 99, now: 1_000 });
       expect(next).toBe(state);
     }
+  });
+
+  // Codex review (PR #18, P2-1): a serve landing at or after the deadline must never count,
+  // no matter how late the next TICK would arrive -- SERVE checks the deadline itself.
+  describe("SERVE deadline enforcement (Codex review P2-1)", () => {
+    function playingAt(durationSeconds: number): MissionState {
+      return {
+        mode: "PLAYING",
+        clock: startMissionClock(0, { durationSeconds }),
+        metrics: { servedCount: 2, totalQualityScore: 150, bestQualityScore: 90 },
+      };
+    }
+
+    it("accepts a serve 1ms before the deadline", () => {
+      const playing = playingAt(10); // endsAt = 10_000
+      const next = missionRunReducer(playing, { type: "SERVE", qualityTotal: 70, now: 9_999 });
+      expect(next.mode).toBe("PLAYING");
+      expect(next.metrics).toEqual({ servedCount: 3, totalQualityScore: 220, bestQualityScore: 90 });
+    });
+
+    it("rejects a serve at exactly the deadline and ends the run", () => {
+      const playing = playingAt(10); // endsAt = 10_000
+      const next = missionRunReducer(playing, { type: "SERVE", qualityTotal: 99, now: 10_000 });
+      expect(next.mode).toBe("RESULT");
+      // Metrics are untouched by the rejected serve -- the expired pizza's quality never
+      // enters servedCount/totalQualityScore/bestQualityScore (and therefore never affects
+      // missionScore or any persisted Mission BEST derived from them).
+      expect(next.metrics).toEqual(playing.metrics);
+    });
+
+    it("rejects a serve well after the deadline and ends the run", () => {
+      const playing = playingAt(10); // endsAt = 10_000
+      const next = missionRunReducer(playing, { type: "SERVE", qualityTotal: 100, now: 60_000 });
+      expect(next.mode).toBe("RESULT");
+      expect(next.metrics).toEqual(playing.metrics);
+    });
+
+    it("an expired serve never increments servedCount", () => {
+      const playing = playingAt(10);
+      const next = missionRunReducer(playing, { type: "SERVE", qualityTotal: 100, now: 10_000 });
+      expect(next.metrics.servedCount).toBe(playing.metrics.servedCount);
+    });
+
+    it("an expired serve never increases totalQualityScore", () => {
+      const playing = playingAt(10);
+      const next = missionRunReducer(playing, { type: "SERVE", qualityTotal: 100, now: 10_000 });
+      expect(next.metrics.totalQualityScore).toBe(playing.metrics.totalQualityScore);
+    });
+
+    it("an expired serve can never produce a higher Mission Score than the run already had", () => {
+      const playing = playingAt(10);
+      const scoreBefore = playing.metrics.servedCount * 100 + playing.metrics.totalQualityScore;
+      const next = missionRunReducer(playing, { type: "SERVE", qualityTotal: 100, now: 10_000 });
+      const scoreAfter = next.metrics.servedCount * 100 + next.metrics.totalQualityScore;
+      expect(scoreAfter).toBe(scoreBefore);
+    });
+
+    it("a delayed/throttled TICK does not let an already-expired SERVE slip through first", () => {
+      // Simulates the exact race the review flagged: real time has passed `endsAt`, but no
+      // TICK has run yet (mode is still "PLAYING" going into this dispatch).
+      const playing = playingAt(10); // endsAt = 10_000
+      expect(playing.mode).toBe("PLAYING"); // TICK hasn't fired -- this is the race window
+      const afterLateServe = missionRunReducer(playing, {
+        type: "SERVE",
+        qualityTotal: 100,
+        now: 45_000, // well past endsAt, as if TICK had been throttled for 35s
+      });
+      expect(afterLateServe.mode).toBe("RESULT");
+      expect(afterLateServe.metrics).toEqual(playing.metrics);
+
+      // The (finally delayed) TICK arriving after that must be a pure no-op (one-shot
+      // finish, same guarantee as the ordinary TICK-driven expiry path).
+      const afterLateTick = missionRunReducer(afterLateServe, { type: "TICK", now: 45_100 });
+      expect(afterLateTick).toBe(afterLateServe);
+    });
+
+    it("SERVE ending the run this way is itself one-shot: a second SERVE after is also rejected and does not change state again", () => {
+      const playing = playingAt(10);
+      const afterFirst = missionRunReducer(playing, { type: "SERVE", qualityTotal: 100, now: 10_000 });
+      expect(afterFirst.mode).toBe("RESULT");
+      const afterSecond = missionRunReducer(afterFirst, { type: "SERVE", qualityTotal: 100, now: 20_000 });
+      expect(afterSecond).toBe(afterFirst);
+    });
   });
 
   it("TICK is a no-op while time remains", () => {

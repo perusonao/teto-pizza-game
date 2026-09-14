@@ -110,7 +110,7 @@ export const INITIAL_MISSION_STATE: MissionState = {
 export type MissionRunAction =
   | { type: "SHOW_INTRO" }
   | { type: "START"; now: number; config?: MissionConfig }
-  | { type: "SERVE"; qualityTotal: number }
+  | { type: "SERVE"; qualityTotal: number; now: number }
   | { type: "TICK"; now: number }
   | { type: "EXIT_TO_FREE" };
 
@@ -136,8 +136,25 @@ export function missionRunReducer(state: MissionState, action: MissionRunAction)
         metrics: EMPTY_MISSION_METRICS,
       };
 
+    // Codex review (PR #18, P2-1): TICK alone is not the source of truth for "is this run
+    // still open" -- it only fires on its own ~250ms interval (App.tsx) and can be delayed
+    // or throttled, leaving a window where `mode` is still "PLAYING" even though
+    // `clock.endsAt` has already passed in wall-clock time. A SERVE landing in that window
+    // must not silently count. So every SERVE re-checks the deadline itself against
+    // `action.now` (the timestamp the serve actually happened at, passed in rather than read
+    // from `Date.now()` here so this stays a pure, directly-testable reducer): a serve at or
+    // after `endsAt` is rejected outright (metrics untouched -- servedCount/
+    // totalQualityScore/bestQualityScore, and therefore missionScore and any persisted
+    // Mission BEST derived from them, can never include it) and immediately ends the run
+    // (PLAYING -> RESULT), exactly like a TICK-detected expiry would. Ending it here as well
+    // is what closes the race: whichever of TICK or SERVE observes the expired deadline
+    // first flips `mode` away from "PLAYING", and the one-shot guard below (and on TICK)
+    // makes sure nothing after that can flip it again.
     case "SERVE": {
-      if (state.mode !== "PLAYING") return state;
+      if (state.mode !== "PLAYING" || !state.clock) return state;
+      if (isMissionExpired(action.now, state.clock)) {
+        return { ...state, mode: "RESULT" };
+      }
       return { ...state, metrics: recordServe(state.metrics, action.qualityTotal) };
     }
 

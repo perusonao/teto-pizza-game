@@ -239,7 +239,7 @@ export function missionScore(metrics: MissionMetrics): number {
 
 ## Tests
 
-`npm test`:
+`npm test`（初回実装時点、Codexレビュー対応前）:
 
 ```
  Test Files  10 passed (10)
@@ -247,6 +247,10 @@ export function missionScore(metrics: MissionMetrics): number {
 ```
 
 既存91テストは無変更のまま全てpass。新規54テストの内訳:
+
+> 以下は初回実装時点の内訳。Codexレビュー対応（後述「Codex review response」節）で
+> `src/mission/lunchRush.test.ts`へさらに8件追加し、最終的に**153/153**（既存91件 +
+> 新規62件）になっている。
 
 ### `src/mission/lunchRush.test.ts`（24件）
 - MissionConfigのデフォルト値（180秒）
@@ -332,8 +336,141 @@ ALL CHECKS PASSED
 - ORDER画面の唯一の見た目変更は、既存の単一CTAボタンが「🍕 フリープレイ」への改名+
   隣に「⏱ Lunch Rush」が増えたことのみ。dispatch先（`BEGIN_PREPARE`）は無変更。
 
+## Codex review response (PR #18)
+
+PR #18へのCodexレビューで指摘された未解決P2 2件に対応した（commit: 本レポート更新時点の
+HEAD）。
+
+### P2-1: Reject serves after the mission deadline
+
+**指摘**: `clock.endsAt`を過ぎた後でも、次の250ms `TICK`より前なら`missionRunReducer`の
+`mode`がまだ`"PLAYING"`のため、`SERVE`アクションがそのまま記録されてしまうraceが
+存在した。TICKの遅延・スロットリングが起きるほどこのwindowは広がり、期限後のピザが
+`servedCount`/`totalQualityScore`/`missionScore`/Mission BESTへ混入し得た。
+
+**修正**（`src/mission/lunchRush.ts`）:
+
+- `MissionRunAction`の`SERVE`ケースに`now: number`を追加必須化（`Date.now()`を
+  reducer内部へ直接埋め込まず、呼び出し側から渡すことでpure・直接テスト可能な設計を維持）。
+- `SERVE`ハンドラ自身が`isMissionExpired(action.now, state.clock)`で期限を検証するように
+  変更。`TICK`だけをexpiration truthにしない — `SERVE`は自分で締切をチェックする。
+
+```ts
+case "SERVE": {
+  if (state.mode !== "PLAYING" || !state.clock) return state;
+  if (isMissionExpired(action.now, state.clock)) {
+    return { ...state, mode: "RESULT" }; // reject: metrics untouched, run ends now
+  }
+  return { ...state, metrics: recordServe(state.metrics, action.qualityTotal) };
+}
+```
+
+- 境界: `servedAt < endsAt` → 有効（`recordServe`が呼ばれmetricsに加算）。
+  `servedAt >= endsAt` → 無効（metrics不変のままMission即終了、`mode`が
+  `"PLAYING" -> "RESULT"`）。`isMissionExpired`の既存定義（`now >= endsAt`）をそのまま
+  再利用しているため、`TICK`の期限判定と`SERVE`の期限判定は完全に同じ境界を共有する
+  （2箇所で別々の閾値ロジックを持たない）。
+- 二重終了は既存の一shot guard（`mode !== "PLAYING"`なら即return）でそのまま防止される
+  — `SERVE`によるRESULT遷移後に届く遅延`TICK`も、その後の追加`SERVE`も無反応。
+- `src/App.tsx`の`handleMissionServeNext`も同じ`now`を使って
+  `isMissionExpired(now, mission.clock)`を評価し、拒否された（=期限切れの）serveでは
+  `gameReducer`へ`MISSION_NEXT_ORDER`をdispatchしない — 裏の`GameState`は
+  （通常のTICK駆動expiryと全く同様に）そのRESULTのまま凍結され、Dex登録も注文の
+  advanceも起きない。Mission Score/BESTだけでなくDex側にも期限後のpizzaが紛れ込まない。
+
+### P2-2: Close the Dex before starting a retry
+
+**指摘**: Mission中にDexを開いたまま（閉じずに）時間切れになると、
+Mission Result overlayが（より高いz-indexで）一時的にDexを覆い隠すだけで、
+`isDexOpen`状態自体はtrueのまま残っていた。「もう一度」で`startMission`を呼んでも
+Dexは閉じられないため、Result overlayがunmountされた瞬間、既にカウントダウンが
+始まっている新runの上にDexが再浮上してしまっていた。
+
+**修正**（`src/App.tsx`）: 初回開始・retry両方が通る唯一の入口である`startMission`関数の
+先頭で`setDexOpen(false)`を呼ぶように変更。
+
+```ts
+function startMission() {
+  setDexOpen(false);
+  setMissionBestAtStartOfRun(loadMissionBest(LUNCH_RUSH_MISSION_ID));
+  missionDispatch({ type: "START", now: Date.now(), config: resolveMissionConfig() });
+  dispatch({ type: "MISSION_RESET_ORDER" });
+}
+```
+
+`startMission`はMission Introからの初回スタートと、Mission Resultからの「もう一度」の
+両方で使われる共通の入口（canonical entry point）であるため、この1箇所の修正で両方の
+ケースが安全になる。
+
+### Tests（追加）
+
+`src/mission/lunchRush.test.ts`へ`describe("SERVE deadline enforcement (Codex review
+P2-1)")`を追加（8件、指示の最低限をすべて満たす）:
+
+- `endsAt - 1ms`のserve → accepted（metricsに加算される）
+- `endsAt`ちょうどのserve → rejected + `mode`が`RESULT`へ
+- `endsAt`より十分後のserve → rejected + `mode`が`RESULT`へ
+- 期限切れserveは`servedCount`を一切増やさない
+- 期限切れserveは`totalQualityScore`を一切増やさない
+- 期限切れserveはMission Score（`servedCount*100+totalQualityScore`）を実行前より
+  上げられない
+- 遅延/throttleされた`TICK`をシミュレート（`mode`がまだ`PLAYING`のまま期限を大幅に
+  過ぎた状態で`SERVE`を送っても拒否され、その後に届く遅延`TICK`は既にRESULTへ
+  遷移済みの状態を変えないno-opであることを確認）
+- 拒否によるRESULT遷移自体もone-shot（拒否後さらに`SERVE`を送っても状態参照が
+  変わらない）
+
+既存の`SERVE`関連テスト2件は`now`引数を追加する形で更新した（挙動は変更なし）。
+
+P2-2（Dexのclose）はcomponent/unit testインフラ（RTL等）がこのプロジェクトに存在しない
+ため（既存91+新規テストは全て`.test.ts`・`environment: "node"`のpure logicテストの
+みで、DOM/Reactコンポーネントのレンダリングテストは元から無い）、指示の「可能な範囲で」
+に従いbrowser regression（下記）で実機確認した。
+
+### Browser regression（P2-2の再現+修正確認）
+
+Playwright/Chromium、390×844で、指摘のシナリオをそのまま再現して確認:
+
+1. Mission開始（`?missionDuration=8`のdev短縮設定）
+2. Mission中に`レシピ図鑑`ボタンでDexを開き、**閉じずに放置**
+3. タイマーが切れ、`LUNCH RUSH RESULT` overlayがDexの上に重なって表示されることを確認
+   （スクリーンショットでDex overlayの内容が背後に透けて見えることを確認 — 修正前の
+   バグ状態そのものを再現）
+4. 「もう一度」をクリック
+5. **修正確認**: 新runが始まった直後、Dex overlay（`.dex-overlay`）が非表示
+   （`isVisible() === false`）であることを確認。タイマー（`⏱ 0:09 -> ⏱ 0:07`, 1.2秒待機後）
+   が正常にカウントダウンしていることも確認。
+6. その後もこのrunを最後まで走らせ、「フリープレイへ」で通常ORDERへ戻り、
+   Dexが表示されていないことを再確認。
+
+```
+DEX_VISIBLE_AFTER_RETRY (must be false): false
+TIMER before/after 1.2s wait: ⏱ 0:09 -> ⏱ 0:07
+DEX_VISIBLE_AT_END (must be false): false
+
+=== SUMMARY ===
+console errors: none
+page errors: none
+overflow findings: none
+ALL CHECKS PASSED
+```
+
+FREE play（ORDER→PREPARE→BAKE→RESULT→レシピ図鑑登録→DISCOVERED）も同セッションで
+再確認し、console/page error 0件・horizontal overflowなしを維持していることを確認した。
+
+検証用の一時スクリプトはコミットに含めていない（devサーバーでの手動確認用途のため、
+Phase 3C-4初回実装時と同じ方針）。
+
 ## Known issues
 
+- **Resolved（この追加commitで解消）**: 旧P2「Reject serves after the mission
+  deadline」（Codex指摘） — `SERVE`が締切を自前で検証するよう修正、期限後のserveは
+  metrics/Mission Score/BESTへ一切混入しなくなった。詳細は上記
+  「Codex review response」を参照。
+- **Resolved（この追加commitで解消）**: 旧P2「Close the Dex before starting a
+  retry」（Codex指摘） — `startMission`（初回開始・retry共通の入口）がDexを強制的に
+  閉じるよう修正、Mission Resultに覆い隠されていたDexが新run開始後に再浮上しなくなった。
+  詳細は上記「Codex review response」を参照。
 - **P2**: 時間切れの遷移は「フェーズ境界を待つ」のではなく「検知した瞬間に即座に
   Mission Resultへ遷移する」方式を採用した。PREPARE/BAKE中にタイマーが切れた場合、
   その時点で作りかけのピザはMission Scoreに一切カウントされない（安全・クラッシュなし
@@ -350,7 +487,7 @@ ALL CHECKS PASSED
 - Pitz獲得・Pitz UI・Shop・Recipe #7・salami・inventory quantity・複数Mission・
   Mission map・経営要素・leaderboardは本フェーズの非スコープであり未実装（意図通り）。
 
-P0/P1: 0件。
+P0/P1: 0件。Codexから指摘された未解決P2 2件はいずれも本追加commitで解消した。
 
 ## Final Verdict
 
@@ -364,9 +501,17 @@ P0/P1: 0件。
 - Mission state（`MissionState`）とGameState（round in progress）の境界が明確で、
   二重管理になっていない。
 - Timerはdrift耐性のある絶対時刻方式、単一interval、二重終了防止を単体テストで
-  確認済み（fake clock、実際のブラウザ待機は不要）。
+  確認済み（fake clock、実際のブラウザ待機は不要）。`SERVE`自身も締切を自己検証するため、
+  TICKの遅延・スロットリングに対しても期限後serveの混入が構造的に起こらないことを
+  Codexレビュー対応で追加確認済み。
+- Mission開始/retryの唯一の入口（`startMission`）がDex overlay状態を確実にリセットする
+  ため、Dexを開いたまま時間切れ→retryしても新runにDexが再浮上しない。
 - schemaVersionをbumpせずにMission BESTの永続化を追加（既存フィールドの形を維持）。
-- lint / test / build すべてグリーン（145/145テスト、既存91件を維持しつつ新規54件追加）。
+- lint / test / build すべてグリーン（153/153テスト、既存91件を維持しつつ新規62件追加
+  — 初回実装54件 + Codexレビュー対応8件）。
 - 390×844実機確認で指定21項目（FREE regression・Mission入口〜Result〜Retry〜Exit〜
-  reload〜Dex反映・console/page error 0件・overflowなし）を確認済み。
-- P0: 0件 / P1: 0件。残るKnown issuesはいずれもP2（ブロッカーなし）。
+  reload〜Dex反映・console/page error 0件・overflowなし）を確認済み。Codexレビュー
+  対応でP2-2の再現+修正確認（Dex open→時間切れ→Retry→Dex非表示・timer正常）も
+  browser regressionで追加確認済み。
+- P0: 0件 / P1: 0件。残るKnown issuesはいずれもP2（ブロッカーなし、Codex指摘2件は
+  Resolved）。

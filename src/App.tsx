@@ -24,6 +24,7 @@ import { loadSave, loadMissionBest, persistDex, persistMissionBest } from "./sta
 import {
   DEFAULT_MISSION_CONFIG,
   LUNCH_RUSH_MISSION_ID,
+  isMissionExpired,
   missionRunReducer,
   remainingSeconds,
   INITIAL_MISSION_STATE,
@@ -138,7 +139,15 @@ function App() {
     persistMissionBest(LUNCH_RUSH_MISSION_ID, missionScore(mission.metrics));
   }, [mission.mode, mission.metrics]);
 
+  // Canonical entry point for both a fresh Mission start (from Intro) and "もう一度"
+  // (retry, from Result) -- both must behave identically. Codex review (PR #18, P2-2): the
+  // Dex overlay has a higher z-index than Mission's own overlays, so if it was left open
+  // when the previous run ended (Result covers it, but doesn't close it), it would resurface
+  // on top of the *newly started* run the instant Result unmounts, with that run's timer
+  // already counting down underneath. Force it closed here so neither entry point can leave
+  // it open over a running Mission.
   function startMission() {
+    setDexOpen(false);
     setMissionBestAtStartOfRun(loadMissionBest(LUNCH_RUSH_MISSION_ID));
     missionDispatch({ type: "START", now: Date.now(), config: resolveMissionConfig() });
     dispatch({ type: "MISSION_RESET_ORDER" });
@@ -146,8 +155,15 @@ function App() {
 
   function handleMissionServeNext() {
     if (!state.score) return;
-    missionDispatch({ type: "SERVE", qualityTotal: state.score.total });
-    dispatch({ type: "MISSION_NEXT_ORDER" });
+    const now = Date.now();
+    missionDispatch({ type: "SERVE", qualityTotal: state.score.total, now });
+    // Mirrors missionRunReducer's own SERVE deadline check (Codex review, P2-1): a serve at
+    // or after the deadline is rejected there (metrics untouched, run ends), so the
+    // underlying round must likewise not be registered/advanced here -- it stays frozen at
+    // RESULT with its score unregistered, exactly like a TICK-detected expiry would leave it.
+    if (mission.clock && !isMissionExpired(now, mission.clock)) {
+      dispatch({ type: "MISSION_NEXT_ORDER" });
+    }
   }
 
   function exitMissionToFree() {
