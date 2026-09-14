@@ -158,6 +158,6 @@ persistence、management、新test infrastructure。
 ## Commit / PR
 
 - Initial commit SHA: `aae8226d3cac88cbb9c24750a62aad0d4bea2945`
-- Codex P2 fix commit SHA: (このコミット。git log 参照)
+- Codex P2 fix commit SHA: `f772cd90cfab65fbd6788cd984195128920508c0`
 - PR URL: https://github.com/perusonao/teto-pizza-game/pull/10
 - PR is left **unmerged** as instructed.
