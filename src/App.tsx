@@ -7,13 +7,24 @@ import { ResultPanel } from "./components/ResultPanel";
 import { DexOverlay } from "./components/DexOverlay";
 import { getLine, type DialogueLine } from "./data/dialogue";
 import { getIngredient, type Ingredient, type IngredientCategory } from "./data/ingredients";
-import { createInitialGameState, gameReducer } from "./state/gameReducer";
+import { createInitialGameState, gameReducer, type GameState } from "./state/gameReducer";
 import "./App.css";
+
+function findPrimarySauceId(recipe: GameState["recipe"]): string | null {
+  const primarySauce = recipe.requiredIngredients.find(
+    (req) => getIngredient(req.ingredientId)?.category === "sauce",
+  );
+  return primarySauce?.ingredientId ?? null;
+}
 
 function App() {
   const [state, dispatch] = useReducer(gameReducer, undefined, createInitialGameState);
   const [activeCategory, setActiveCategory] = useState<IngredientCategory>("sauce");
-  const [selectedIngredientId, setSelectedIngredientId] = useState<string | null>(null);
+  // Every order (including the very first one) should start the player off with the
+  // recipe's own sauce selected, so PREPARE never opens with nothing selected.
+  const [selectedIngredientId, setSelectedIngredientId] = useState<string | null>(() =>
+    findPrimarySauceId(state.recipe),
+  );
   const [isDexOpen, setDexOpen] = useState(false);
   const [liveBake, setLiveBake] = useState(0);
   const bakeFrameSkip = useRef(0);
@@ -23,10 +34,7 @@ function App() {
   const [lastOrderId, setLastOrderId] = useState(state.order.id);
   if (lastOrderId !== state.order.id) {
     setLastOrderId(state.order.id);
-    const primarySauce = state.recipe.requiredIngredients.find(
-      (req) => getIngredient(req.ingredientId)?.category === "sauce",
-    );
-    setSelectedIngredientId(primarySauce?.ingredientId ?? null);
+    setSelectedIngredientId(findPrimarySauceId(state.recipe));
     setActiveCategory("sauce");
   }
 
