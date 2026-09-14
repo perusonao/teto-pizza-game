@@ -28,10 +28,12 @@ function findPrimarySauceId(recipe: GameState["recipe"]): string | null {
 
 function App() {
   // The round in progress never persists (ORDER/PREPARE/BAKE/RESULT always start fresh), but
-  // Dex BEST/timesMade does -- load it once on mount and hydrate the initial state with it.
-  const [state, dispatch] = useReducer(gameReducer, undefined, () =>
-    createInitialGameState(loadSave().dex),
-  );
+  // Dex BEST/timesMade and owned ingredients do -- load them once on mount and hydrate the
+  // initial state with them.
+  const [state, dispatch] = useReducer(gameReducer, undefined, () => {
+    const save = loadSave();
+    return createInitialGameState(save.dex, save.ownedIngredientIds);
+  });
   const [activeCategory, setActiveCategory] = useState<IngredientCategory>("sauce");
   // Every order (including the very first one) should start the player off with the
   // recipe's own sauce selected, so PREPARE never opens with nothing selected.

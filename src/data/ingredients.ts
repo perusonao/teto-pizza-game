@@ -1,5 +1,16 @@
 export type IngredientCategory = "sauce" | "cheese" | "topping";
 
+/**
+ * Data-driven gate for a future (non-starter) ingredient's LOCKED -> AVAILABLE_TO_BUY
+ * transition (see docs/design/PIZZA_GAME_PROGRESSION_SSOT.md section 6-7 and
+ * src/state/progression.ts). `minTotalStars` is compared against the sum of Dex BEST
+ * stars across every recipe (src/logic/mastery.ts's `totalStars`) -- deliberately a
+ * single flat number rather than a rule engine, since that's all Phase 3C-3 needs.
+ */
+export interface IngredientUnlockCondition {
+  minTotalStars: number;
+}
+
 export interface Ingredient {
   id: string;
   category: IngredientCategory;
@@ -8,6 +19,10 @@ export interface Ingredient {
   emoji: string;
   /** "spread" covers the whole pizza in one tap; "scatter" is placed point by point. */
   placement: "spread" | "scatter";
+  /** Absent for every current (Starter Set) ingredient -- a starter ingredient has no
+   *  Mastery gate and is always OWNED (see src/state/progression.ts). Only a future
+   *  ingredient added after Phase 3C-3 would set this. */
+  unlockCondition?: IngredientUnlockCondition;
 }
 
 export const INGREDIENTS: Ingredient[] = [
@@ -132,3 +147,14 @@ export function getIngredient(id: string): Ingredient | undefined {
 export function ingredientsByCategory(category: IngredientCategory): Ingredient[] {
   return INGREDIENTS.filter((i) => i.category === category);
 }
+
+/**
+ * Every current ingredient (all 13) is Starter Set (see
+ * docs/design/PIZZA_GAME_PROGRESSION_SSOT.md section 5) -- always OWNED, no Mastery gate.
+ * Derived from `unlockCondition` being absent rather than a separate hand-maintained id
+ * list, so a future ingredient only needs to add an `unlockCondition` to stop being
+ * treated as starter; nothing here needs to change when that happens.
+ */
+export const STARTER_INGREDIENT_IDS: readonly string[] = INGREDIENTS.filter(
+  (i) => !i.unlockCondition,
+).map((i) => i.id);

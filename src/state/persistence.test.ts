@@ -9,6 +9,7 @@ import {
 } from "./persistence";
 import { EMPTY_DEX, registerScoreToDex, type DexEntry } from "./dex";
 import type { ScoreBreakdown, QualityStars } from "../logic/scoring";
+import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
 
 function scoreOf(total: number, stars: QualityStars): ScoreBreakdown {
   return {
@@ -247,6 +248,59 @@ describe("persistDex / loadSave roundtrip", () => {
     persistDex(hydratedDex, storage);
 
     expect(storage.getItem(SAVE_STORAGE_KEY)).toBe(untouchedRaw);
+  });
+});
+
+describe("ownedIngredientIds (Phase 3C-3 Starter Set backfill)", () => {
+  it("a fresh save owns all 13 starter ingredients", () => {
+    const save = loadSave(fakeStorage());
+    expect(save.ownedIngredientIds.sort()).toEqual([...STARTER_INGREDIENT_IDS].sort());
+  });
+
+  it("an existing save with an empty ownedIngredientIds still gets every starter ingredient", () => {
+    // Simulates a pre-3C-3 save (or one that otherwise ended up with an empty list) --
+    // starter ownership must never be lost just because this field was empty/absent.
+    const storage = fakeStorage({
+      [SAVE_STORAGE_KEY]: saveWith({ ownedIngredientIds: [] }),
+    });
+    const save = loadSave(storage);
+    expect(save.ownedIngredientIds.sort()).toEqual([...STARTER_INGREDIENT_IDS].sort());
+  });
+
+  it("backfills starter ingredients missing from an otherwise-valid partial list", () => {
+    const partial = STARTER_INGREDIENT_IDS.slice(1); // missing the first starter ingredient
+    const storage = fakeStorage({
+      [SAVE_STORAGE_KEY]: saveWith({ ownedIngredientIds: partial }),
+    });
+    const save = loadSave(storage);
+    expect(save.ownedIngredientIds.sort()).toEqual([...STARTER_INGREDIENT_IDS].sort());
+  });
+
+  it("drops unknown ingredient ids while keeping the full starter set", () => {
+    const storage = fakeStorage({
+      [SAVE_STORAGE_KEY]: saveWith({
+        ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "not-a-real-ingredient"],
+      }),
+    });
+    const save = loadSave(storage);
+    expect(save.ownedIngredientIds).not.toContain("not-a-real-ingredient");
+    expect(save.ownedIngredientIds.sort()).toEqual([...STARTER_INGREDIENT_IDS].sort());
+  });
+
+  it("roundtrips an already-valid ownedIngredientIds list unchanged", () => {
+    const storage = fakeStorage({
+      [SAVE_STORAGE_KEY]: saveWith({ ownedIngredientIds: [...STARTER_INGREDIENT_IDS] }),
+    });
+    const save = loadSave(storage);
+    expect(save.ownedIngredientIds.sort()).toEqual([...STARTER_INGREDIENT_IDS].sort());
+  });
+
+  it("a corrupt/unknown-schemaVersion save still falls back to full starter ownership", () => {
+    const storage = fakeStorage({
+      [SAVE_STORAGE_KEY]: JSON.stringify({ ...createDefaultSave(), schemaVersion: 999 }),
+    });
+    const save = loadSave(storage);
+    expect(save.ownedIngredientIds.sort()).toEqual([...STARTER_INGREDIENT_IDS].sort());
   });
 });
 

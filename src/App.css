@@ -819,9 +819,8 @@
 
 .dex-overlay__progress {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 8px;
+  flex-direction: column;
+  gap: 4px;
   background: #f5ecd8;
   border-radius: 12px;
   padding: 8px 14px;
@@ -830,6 +829,13 @@
 
 .dex-overlay__progress--complete {
   background: #fdecc8;
+}
+
+.dex-overlay__progress-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
 }
 
 .dex-overlay__progress-count {
@@ -842,6 +848,12 @@
   font-size: 12px;
   font-weight: 700;
   color: #a1662f;
+}
+
+.dex-overlay__mastery-total {
+  font-size: 12px;
+  font-weight: 700;
+  color: #8a6a1f;
 }
 
 .dex-overlay__list {

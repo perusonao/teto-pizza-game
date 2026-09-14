@@ -1,5 +1,5 @@
 import { RECIPES } from "../data/recipes";
-import { INGREDIENTS } from "../data/ingredients";
+import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import type { DexEntry, DexState } from "./dex";
 import type { QualityStars } from "../logic/scoring";
 
@@ -10,11 +10,18 @@ import type { QualityStars } from "../logic/scoring";
  * itself is never serialized here. `PersistentSaveV1` is its own independent shape so the
  * save schema can evolve without being coupled to runtime state types.
  *
- * Scope for this phase: only `dex` (BEST quality + timesMade per recipe) is ever written or
- * read back into gameplay. `pitzBalance` / `ownedIngredientIds` / `missionBest` exist on the
- * schema now (per SSOT section 14's future fields) purely so later phases don't need another
- * migration to add them, but nothing in this phase writes non-default values for them or
- * exposes them in the UI.
+ * Scope through Phase 3C-2: only `dex` (BEST quality + timesMade per recipe) was ever
+ * written or read back into gameplay. `pitzBalance` / `ownedIngredientIds` / `missionBest`
+ * existed on the schema (per SSOT section 14's future fields) purely so later phases
+ * wouldn't need another migration to add them.
+ *
+ * Phase 3C-3 starts actually *reading* `ownedIngredientIds` into gameplay (see
+ * src/state/progression.ts and gameReducer.ts's `nextOrderState`) to derive ingredient
+ * state and recipe availability. Nothing here writes non-default values for it yet though
+ * -- there is no purchase flow in this phase, so every save's `ownedIngredientIds` is still
+ * always exactly the Starter Set (this schema doesn't need a version bump for that: the
+ * shape hasn't changed, only how a downstream consumer uses one already-reserved field).
+ * `pitzBalance` / `missionBest` remain unread and unwritten, reserved for later phases.
  */
 
 export const SAVE_STORAGE_KEY = "teto-pizza-save-v1";
@@ -25,8 +32,11 @@ export interface PersistentSaveV1 {
   dex: DexEntry[];
   /** Reserved for Phase 3C-4+ (Pitz). Always 0 in this phase -- nothing writes to it yet. */
   pitzBalance: number;
-  /** Reserved for Phase 3C-4+ (Shop). Defaults to the full starter set (SSOT section 5: all
-   *  13 existing ingredients are OWNED unconditionally), matching current actual gameplay. */
+  /** Canonical OWNED ingredient ids (Phase 3C-3, SSOT section 6). Always a superset of the
+   *  Starter Set (SSOT section 5: all 13 existing ingredients are OWNED unconditionally --
+   *  see `sanitizeOwnedIngredientIds` below, which backfills them unconditionally on every
+   *  load). Purchasing itself (moving a future ingredient from AVAILABLE_TO_BUY to OWNED)
+   *  is reserved for Phase 3C-4+ -- nothing writes non-starter ids into this yet. */
   ownedIngredientIds: string[];
   /** Reserved for Phase 3C-5+ (Mission). Always empty in this phase. */
   missionBest: Record<string, unknown>;
@@ -91,12 +101,20 @@ function sanitizePitzBalance(raw: unknown): number {
   return typeof raw === "number" && Number.isFinite(raw) && raw >= 0 ? raw : 0;
 }
 
+/**
+ * Sanitizes the saved owned-ingredient list and unconditionally backfills the Starter Set
+ * into it (SSOT section 5: all 13 existing ingredients are OWNED, no exceptions). This
+ * covers every way a save could otherwise end up missing one: the field absent entirely (a
+ * pre-3C-3 save, or any non-array value), or -- defensively, since nothing in this phase
+ * ever writes a save missing them, but a future phase's purchase flow could get this wrong
+ * -- an array that's present but simply doesn't list every starter id. Either way, the
+ * starter ingredients must never read back as anything other than OWNED.
+ */
 function sanitizeOwnedIngredientIds(raw: unknown): string[] {
-  if (!Array.isArray(raw)) return [...KNOWN_INGREDIENT_IDS];
-  const owned = raw.filter(
-    (id): id is string => typeof id === "string" && KNOWN_INGREDIENT_IDS.includes(id),
-  );
-  return Array.from(new Set(owned));
+  const validKnownIds = Array.isArray(raw)
+    ? raw.filter((id): id is string => typeof id === "string" && KNOWN_INGREDIENT_IDS.includes(id))
+    : [];
+  return Array.from(new Set([...STARTER_INGREDIENT_IDS, ...validKnownIds]));
 }
 
 function sanitizeMissionBest(raw: unknown): Record<string, unknown> {
@@ -109,7 +127,7 @@ export function createDefaultSave(): PersistentSaveV1 {
     schemaVersion: CURRENT_SCHEMA_VERSION,
     dex: [],
     pitzBalance: 0,
-    ownedIngredientIds: [...KNOWN_INGREDIENT_IDS],
+    ownedIngredientIds: [...STARTER_INGREDIENT_IDS],
     missionBest: {},
   };
 }

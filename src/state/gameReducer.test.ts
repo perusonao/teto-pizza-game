@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { createInitialGameState, gameReducer, type GameState } from "./gameReducer";
 import { registerScoreToDex, EMPTY_DEX } from "./dex";
 import type { ScoreBreakdown, QualityStars } from "../logic/scoring";
+import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
 
 function scoreOf(total: number, stars: QualityStars): ScoreBreakdown {
   return {
@@ -88,5 +89,47 @@ describe("createInitialGameState hydration", () => {
     expect(entry?.bestScore).toBe(91);
     expect(entry?.bestStars).toBe(5);
     expect(entry?.timesMade).toBe(2);
+  });
+
+  it("defaults ownedIngredientIds to the full Starter Set when none is given", () => {
+    const state = createInitialGameState();
+    expect([...state.ownedIngredientIds].sort()).toEqual([...STARTER_INGREDIENT_IDS].sort());
+  });
+
+  it("carries a hydrated ownedIngredientIds through into the initial state", () => {
+    const owned = ["tomato-sauce", "mozzarella"];
+    const state = createInitialGameState(EMPTY_DEX, owned);
+    expect(state.ownedIngredientIds).toEqual(owned);
+  });
+});
+
+describe("order selection availability (Phase 3C-3)", () => {
+  it("all 6 current recipes remain reachable when every starter ingredient is owned", () => {
+    const seen = new Set<string>();
+    let state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS);
+    for (let i = 0; i < 60 && seen.size < 6; i++) {
+      seen.add(state.recipe.id);
+      state = gameReducer(state, { type: "PLAY_AGAIN" });
+    }
+    expect(seen.size).toBe(6);
+  });
+
+  it("never selects a recipe whose required ingredients are not owned", () => {
+    // Only margherita's ingredients are owned -- every other recipe needs an ingredient
+    // this list doesn't have (mozzarella-only recipes still need their own extra
+    // ingredient, e.g. marinara needs garlic/oregano instead of mozzarella at all).
+    const marginallyOwned = ["tomato-sauce", "mozzarella", "basil"];
+    let state = createInitialGameState(EMPTY_DEX, marginallyOwned);
+    for (let i = 0; i < 30; i++) {
+      expect(state.recipe.id).toBe("margherita");
+      state = gameReducer(state, { type: "PLAY_AGAIN" });
+    }
+  });
+
+  it("carries ownedIngredientIds forward across PLAY_AGAIN", () => {
+    const owned = ["tomato-sauce", "mozzarella", "basil"];
+    let state = createInitialGameState(EMPTY_DEX, owned);
+    state = gameReducer(state, { type: "PLAY_AGAIN" });
+    expect(state.ownedIngredientIds).toEqual(owned);
   });
 });
