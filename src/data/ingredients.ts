@@ -1,3 +1,5 @@
+import { SAUCE_TOMATO_HEX } from "../logic/sauceField";
+
 export type IngredientCategory = "sauce" | "cheese" | "topping";
 
 /**
@@ -38,7 +40,9 @@ export const INGREDIENTS: Ingredient[] = [
     id: "tomato-sauce",
     category: "sauce",
     nameJa: "トマトソース",
-    color: "#c73b2e",
+    // Human Feel Fix 4: SSOT'd with the painted/baked sauce heatmap's own color -- see
+    // SAUCE_TOMATO_HEX's doc comment (../logic/sauceField.ts) for why.
+    color: SAUCE_TOMATO_HEX,
     emoji: "\u{1F345}",
     placement: "spread",
   },

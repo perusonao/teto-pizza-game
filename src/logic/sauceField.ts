@@ -299,9 +299,68 @@ export function totalDispensed(deposits: readonly SauceDepositLike[]): number {
   return deposits.reduce((sum, d) => sum + d.amount, 0);
 }
 
-/** The sauce heatmap's own tomato color, r/g/b out of 255 -- shared with
- *  `sauceFieldToRgbaPixels` below so the visual and this constant can never drift apart. */
-export const SAUCE_HEATMAP_COLOR = { r: 196, g: 46, b: 34 } as const;
+/** Human Feel Fix 4 (Sauce Visual Polish): the single hex SSOT for "tomato sauce red" --
+ *  shared by the painted/baked heatmap below (via `SAUCE_HEATMAP_COLOR`, derived from this)
+ *  *and* the tomato-sauce ingredient's own swatch color (../data/ingredients.ts), which
+ *  drives the tray chip, the Reference popover's mini-pizza sauce circle and its bar-fill,
+ *  and the paint-trail stroke. Before this fix the two lived as separately hard-coded hex
+ *  values a few RGB steps apart (#c73b2e vs (196,46,34)) -- close enough nobody had noticed,
+ *  but exactly the kind of drift the brief's "PREPARE中と完成/見本のSauceが別物に見えない"
+ *  requirement flags. One value now, so they can't separately drift again. */
+export const SAUCE_TOMATO_HEX = "#c73b2e";
+
+function hexToRgb(hex: string): { r: number; g: number; b: number } {
+  const n = Number.parseInt(hex.slice(1), 16);
+  return { r: (n >> 16) & 0xff, g: (n >> 8) & 0xff, b: n & 0xff };
+}
+
+/** The sauce heatmap's own tomato color, r/g/b out of 255 -- derived from `SAUCE_TOMATO_HEX`
+ *  above so the visual and that constant can never drift apart. */
+export const SAUCE_HEATMAP_COLOR = hexToRgb(SAUCE_TOMATO_HEX);
+
+/**
+ * Human Feel Fix 4 (Sauce Visual Polish): alpha curve tuning for `sauceFieldToRgbaPixels`
+ * below. Real per-cell field values, measured from `IDEAL_MARGHERITA_SAUCE_FIXTURE`
+ * (../data/referencePizza.ts) and a single dispense tick (`SAUCE_RATE_PER_TICK`, 0.02 --
+ * see ../logic/sauceQuantity.ts), are what these three constants are tuned against, not
+ * round numbers picked in isolation:
+ *  - a single tap/light dab lands a touched cell around 0.02-0.03.
+ *  - the ideal fixture (a full, evenly-painted coat) sits mostly in 0.02-0.07, its own
+ *    heaviest overlap point (adjacent ring falloffs stacking) topping out near 0.068.
+ *  - genuinely re-painting the same area (two full coats) pushes a cell past 0.1, up to
+ *    roughly 0.14 at its densest.
+ * Fix 3's `min(0.85, value * 2.2)` put the *entire* ideal fixture's range at alpha
+ * 0.02-0.15 -- so even "painted well" barely registered, reading as "the dough got a
+ * little pink" rather than "sauce was spread on it" (the exact Fix 4 Gate complaint). This
+ * curve instead front-loads visibility (`ALPHA_FLOOR`, reached almost immediately once a
+ * cell is touched at all -- no cell should ever look like bare dough with a faint tint)
+ * and lets `DENSITY_AT_CAP` sit comfortably above the ideal fixture's own heaviest cell but
+ * still well inside reach of a real re-painted area, so "untouched -> thin -> good coverage
+ * -> overlapped" stay four visually distinct reads instead of collapsing opacity to two
+ * (see sauceField.test.ts's Fix 4 describe block for the concrete before/after numbers).
+ */
+const MIN_VISIBLE_VALUE = 0.005;
+/** Alpha the instant a cell crosses `MIN_VISIBLE_VALUE` -- already unambiguously "sauce",
+ *  with the dough still visibly showing through underneath (the brief's 薄塗り target). */
+const ALPHA_FLOOR = 0.46;
+/** Alpha at and beyond `DENSITY_AT_CAP` -- a heavily re-painted spot, vivid and dense but
+ *  never a flat opaque block (a sliver of dough texture stays visible even here). */
+const ALPHA_CAP = 0.93;
+/** Field value at which the curve reaches `ALPHA_CAP`. Chosen above the ideal fixture's own
+ *  max cell value (~0.068) -- so a single well-painted coat reads as "good", with headroom
+ *  left, not "already maxed out" -- and within easy reach of a real two-coat overlap
+ *  (~0.1-0.14). */
+const DENSITY_AT_CAP = 0.09;
+
+/** value -> alpha (0-1), sqrt-shaped so the rise from `ALPHA_FLOOR` is fast at first (a light
+ *  dab is immediately readable as sauce) and gentler approaching `ALPHA_CAP` (extra overlap
+ *  past "good coverage" reads as "a bit more", not a second dramatic jump) -- matching the
+ *  brief's 薄い/適量/厚い three-way distinction without ever using opacity as a flat on/off
+ *  switch. */
+function densityToAlpha(value: number): number {
+  const t = Math.min(1, Math.max(0, (value - MIN_VISIBLE_VALUE) / (DENSITY_AT_CAP - MIN_VISIBLE_VALUE)));
+  return ALPHA_FLOOR + (ALPHA_CAP - ALPHA_FLOOR) * Math.sqrt(t);
+}
 
 /**
  * Human Feel Fix 3 (Sauce Visual): one RGBA byte quadruple per field cell -- a
@@ -314,7 +373,9 @@ export const SAUCE_HEATMAP_COLOR = { r: 196, g: 46, b: 34 } as const;
  * `fillRect` cells and Fix 2's overlapping-circle cells still could. Pulled out as its own
  * pure function (no Canvas API used here at all) specifically so this "one pixel per cell,
  * alpha only, no shape" property is unit-testable without a real browser -- see
- * sauceField.test.ts.
+ * sauceField.test.ts. Human Feel Fix 4 only changed the color source (now SSOT'd, see
+ * `SAUCE_TOMATO_HEX` above) and the value->alpha curve (`densityToAlpha` above); the
+ * one-pixel-per-cell/no-shape structure this comment describes is unchanged.
  */
 export function sauceFieldToRgbaPixels(field: Float64Array): Uint8ClampedArray {
   const pixels = new Uint8ClampedArray(SAUCE_FIELD_SIZE * SAUCE_FIELD_SIZE * 4);
@@ -322,11 +383,8 @@ export function sauceFieldToRgbaPixels(field: Float64Array): Uint8ClampedArray {
     for (let col = 0; col < SAUCE_FIELD_SIZE; col += 1) {
       if (!isCellInsideDough(row, col)) continue;
       const value = field[row * SAUCE_FIELD_SIZE + col];
-      if (value <= 0.005) continue;
-      // Thin spots stay translucent (the dough shows through), heavier overlap reads
-      // darker/more opaque up to the cap -- one continuous gradient covers all three of
-      // "thin" / "well-painted" / "overlapped" rather than three separate visual states.
-      const alpha = Math.min(0.85, value * 2.2);
+      if (value <= MIN_VISIBLE_VALUE) continue;
+      const alpha = densityToAlpha(value);
       const pixelIndex = (row * SAUCE_FIELD_SIZE + col) * 4;
       pixels[pixelIndex] = SAUCE_HEATMAP_COLOR.r;
       pixels[pixelIndex + 1] = SAUCE_HEATMAP_COLOR.g;
