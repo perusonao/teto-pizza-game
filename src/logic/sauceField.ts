@@ -11,7 +11,7 @@
  * spread thin must read as low quantity / high coverage, or this whole prototype can't tell
  * "dumped a puddle" apart from "painted it on".
  */
-import { distanceFromCenter, isInsideDough } from "./pizzaCoordinates";
+import { DOUGH_RADIUS, distanceFromCenter } from "./pizzaCoordinates";
 import { clampQuantity } from "./sauceQuantity";
 
 export interface SauceDepositLike {
@@ -27,8 +27,13 @@ export const SAUCE_FIELD_SIZE = 16;
 
 /** A density cell counts as "touched" (contributes to coverage) once it holds more than
  *  this much normalized quantity -- filters out the near-zero falloff tail of a brush
- *  that only grazed a neighboring cell, which would otherwise inflate coverage. */
-const COVERAGE_THRESHOLD = 0.02;
+ *  that only grazed a neighboring cell, which would otherwise inflate coverage. Kept
+ *  deliberately just *below* one full dispense tick's own amount (`SAUCE_RATE_PER_TICK`,
+ *  0.02 -- see ../logic/sauceQuantity.ts) rather than equal to it: a single dab landing
+ *  squarely in a cell should register as "touched" on its own, not require a second
+ *  overlapping tick to clear the bar (Codex Broad Review MUST FIX 6 follow-up -- see
+ *  ../data/referencePizza.ts's fixture, which depends on isolated dabs actually counting). */
+const COVERAGE_THRESHOLD = 0.015;
 
 /** How many grid cells out from a deposit's own cell the brush falloff reaches. A deposit
  *  lighting up only its exact cell would make "spread while moving" indistinguishable from
@@ -44,6 +49,49 @@ function cellCenterPercent(index: number): number {
  *  the full 16x16 square (the square's corners are outside the round dough). */
 export function isCellInsideDough(row: number, col: number): boolean {
   return distanceFromCenter(cellCenterPercent(col), cellCenterPercent(row)) <= 48;
+}
+
+/** Radius (dough-percent units) of a single deposit's own physical footprint -- the "dab" a
+ *  dispenser tip leaves at one instant, distinct from BRUSH_RADIUS_CELLS (a grid-cell
+ *  falloff used only for the visual/coverage field below). Used to blend a deposit's amount
+ *  between quantity (inside) and overflow *smoothly* across the dough rim instead of a
+ *  binary inside/outside test on the deposit's center point alone (Codex Broad Review MUST
+ *  FIX 5 -- Overflow Boundary): two deposits a fraction of a percent apart, one just inside
+ *  the rim and one just outside, must produce nearly the same split, never a 0%/100% flip. */
+const DEPOSIT_FOOTPRINT_RADIUS = 3;
+
+/**
+ * Fraction (0-1) of a disk of radius `DEPOSIT_FOOTPRINT_RADIUS` centered at (x, y) that
+ * overlaps the dough circle (center 50,50, radius `DOUGH_RADIUS`), via the standard
+ * circle-circle intersection area formula, normalized by the *deposit's own* footprint area
+ * (never the dough's -- the question is "how much of this deposit landed inside", not "how
+ * much of the dough this deposit covers"). 1 well inside the rim, 0 well outside, and a
+ * smooth continuous ramp through the thin annulus around the rim where the two circles
+ * actually overlap. By construction `insideDoughFraction(...) + (1 - insideDoughFraction(...))
+ * === 1` always, so splitting one deposit's amount by this fraction conserves its full
+ * amount exactly (quantity + overflow) at every position, including right on the rim.
+ */
+export function insideDoughFraction(x: number, y: number): number {
+  const d = distanceFromCenter(x, y);
+  const R = DOUGH_RADIUS;
+  const r = DEPOSIT_FOOTPRINT_RADIUS;
+
+  if (d >= R + r) return 0; // Fully outside: the two circles don't touch at all.
+  if (d <= R - r) return 1; // Fully inside: the deposit's whole footprint clears the rim.
+
+  const clampAcos = (value: number) => Math.acos(Math.min(1, Math.max(-1, value)));
+  const d2 = d * d;
+  const R2 = R * R;
+  const r2 = r * r;
+
+  const alphaR = clampAcos((d2 + R2 - r2) / (2 * d * R));
+  const alphaR2 = clampAcos((d2 + r2 - R2) / (2 * d * r));
+  const triangleTerm =
+    0.5 * Math.sqrt(Math.max(0, (-d + R + r) * (d + R - r) * (d - R + r) * (d + R + r)));
+  const intersectionArea = R2 * alphaR + r2 * alphaR2 - triangleTerm;
+
+  const footprintArea = Math.PI * r2;
+  return Math.min(1, Math.max(0, intersectionArea / footprintArea));
 }
 
 let cachedInDoughCellCount: number | null = null;
@@ -129,24 +177,35 @@ export function emptySauceMetrics(): SauceMetrics {
 
 /**
  * The single entry point Prototype Metrics (and the shadow reference score) read from.
- * Splits deposits into inside-dough vs. overflow *first* -- quantity/coverage/evenness are
- * derived only from the inside-dough field, overflow is tracked purely as amount/ratio, so
- * "sauce that missed the pizza" can never quietly inflate quantity or coverage.
+ * Splits every deposit's amount between inside-dough and overflow *continuously*, via
+ * `insideDoughFraction` above, instead of the deposit's raw center point alone -- so a
+ * deposit landing exactly on the rim contributes half to each, and a position change of a
+ * fraction of a percent near the rim shifts the split by a similarly small amount, never a
+ * discontinuous 0%/100% flip. quantity/coverage/evenness are derived only from each
+ * deposit's inside-weighted share, overflow is tracked purely as amount/ratio, so "sauce
+ * that missed the pizza" can never quietly inflate quantity or coverage -- and the two
+ * shares always sum back to the deposit's full amount (see `insideDoughFraction`'s own doc
+ * comment), so summing quantity + overflowAmount across a whole gesture conserves the total
+ * dispensed exactly.
  */
 export function computeSauceMetrics(deposits: readonly SauceDepositLike[]): SauceMetrics {
   if (deposits.length === 0) return emptySauceMetrics();
 
-  const insideDeposits: SauceDepositLike[] = [];
+  const insideWeightedDeposits: SauceDepositLike[] = [];
+  let quantity = 0;
   let overflowAmount = 0;
   for (const deposit of deposits) {
-    if (isInsideDough(deposit.x, deposit.y)) {
-      insideDeposits.push(deposit);
-    } else {
-      overflowAmount += deposit.amount;
+    const insideFraction = insideDoughFraction(deposit.x, deposit.y);
+    const insideAmount = deposit.amount * insideFraction;
+    quantity += insideAmount;
+    overflowAmount += deposit.amount - insideAmount; // exact complement -- conservation.
+    if (insideAmount > 0) {
+      insideWeightedDeposits.push({ x: deposit.x, y: deposit.y, amount: insideAmount });
     }
   }
+  quantity = clampQuantity(quantity);
 
-  const field = buildSauceField(insideDeposits);
+  const field = buildSauceField(insideWeightedDeposits);
   const inDoughValues: number[] = [];
   let touched = 0;
   for (let r = 0; r < SAUCE_FIELD_SIZE; r += 1) {
@@ -158,11 +217,10 @@ export function computeSauceMetrics(deposits: readonly SauceDepositLike[]): Sauc
     }
   }
 
-  const quantity = clampQuantity(insideDeposits.reduce((sum, d) => sum + d.amount, 0));
   const coverage = inDoughCellCount() === 0 ? 0 : touched / inDoughCellCount();
   const evenness = computeEvenness(inDoughValues);
-  const totalDispensed = quantity + overflowAmount;
-  const overflowRatio = totalDispensed <= 1e-9 ? 0 : overflowAmount / totalDispensed;
+  const totalDispensedAmount = quantity + overflowAmount;
+  const overflowRatio = totalDispensedAmount <= 1e-9 ? 0 : overflowAmount / totalDispensedAmount;
 
   return { quantity, coverage, evenness, overflowAmount, overflowRatio };
 }

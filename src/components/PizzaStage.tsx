@@ -1,21 +1,22 @@
 import {
   useEffect,
   useMemo,
+  useReducer as useReactReducer,
   useRef,
   type CSSProperties,
+  type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import { getIngredient, type Ingredient } from "../data/ingredients";
 import type { Recipe } from "../data/recipes";
-import type { PizzaState, PlacementFeedback } from "../state/pizzaState";
+import type { PizzaState, PlacementFeedback, SauceDeposit } from "../state/pizzaState";
 import { classifyBake } from "../logic/bake";
 import { SauceDispenseController } from "../logic/sauceDispenseController";
 import {
   buildSauceField,
-  computeSauceMetrics,
+  insideDoughFraction,
   isCellInsideDough,
   SAUCE_FIELD_SIZE,
-  totalDispensed,
 } from "../logic/sauceField";
 import {
   clampToDough,
@@ -49,12 +50,25 @@ interface PizzaStageProps {
    *  Mission play, never any other recipe -- see App.tsx's `referenceModeEnabled`). Gates
    *  the hold-to-build-quantity tomato-sauce dispenser and its heatmap visualization;
    *  every other ingredient/recipe/phase keeps the original Phase 3A tap/drag-commit path
-   *  below completely untouched. */
+   *  below completely untouched. Also doubles as this component's one and only "abort any
+   *  active dispense session" switch: App.tsx sets this false while the Reference popover
+   *  is open, reusing the same effect BAKE already aborts through (Codex Broad Review MUST
+   *  FIX 1 -- Gesture Session Safety).
+   */
   referenceModeEnabled: boolean;
   onTap: (xPercent: number, yPercent: number) => void;
-  /** Phase 4A-1A: fired once per dispense tick while painting tomato sauce in Reference
-   *  mode (see `referenceModeEnabled`). Never fired for any other ingredient/recipe. */
-  onSauceDeposit: (ingredientId: string, xPercent: number, yPercent: number, amount: number) => void;
+  /** Phase 4A-1A (Post-Codex-Fix): fired with the *entire* accumulated-so-far deposit array
+   *  for the in-progress dispense session on every tick, and with `[]` the instant that
+   *  session ends for any reason (commit or discard) -- lets the Prototype Metrics panel
+   *  (App.tsx) show live numbers during the hold without canonical game state ever seeing an
+   *  uncommitted gesture (MUST FIX 7 -- Cancel Transaction). */
+  onDispenseProgress: (deposits: readonly SauceDeposit[]) => void;
+  /** Phase 4A-1A (Post-Codex-Fix): fired exactly once, at a *successful* pointerup, with the
+   *  complete dispense session's deposits. Never fired for a cancelled/discarded session
+   *  (pointercancel, lost capture, blur/visibilitychange, an ingredient change or Reference
+   *  overlay open mid-hold, a BAKE abort, or unmount) -- those all discard locally instead.
+   *  App.tsx dispatches this as one atomic COMMIT_SAUCE_DISPENSE action. */
+  onDispenseCommit: (ingredientId: string, deposits: SauceDeposit[]) => void;
 }
 
 interface GestureState {
@@ -81,6 +95,21 @@ function createGestureState(): GestureState {
   };
 }
 
+/** Phase 4A-1A (Post-Codex-Fix) MUST FIX 1 -- Gesture Session Safety: an immutable snapshot
+ *  taken once, at pointerdown, of everything the rest of a dispense gesture's lifetime needs
+ *  to behave consistently. Every subsequent pointermove/up/cancel/lostpointercapture (and
+ *  every abort trigger: ingredient change, Reference overlay open, BAKE, blur/hidden,
+ *  unmount) is driven by comparing against *this* snapshot -- never by re-reading whatever
+ *  `activeIngredient`/`referenceModeEnabled` happen to be by the time that later event fires.
+ *  `token` additionally invalidates any in-flight `requestAnimationFrame` callback that
+ *  somehow outlives `cancelAnimationFrame` (belt-and-suspenders: it shouldn't, but a stale
+ *  frame checking the token can never call back into a stopped or superseded session). */
+interface DispenseSession {
+  token: number;
+  pointerId: number;
+  ingredientId: string;
+}
+
 export function PizzaStage({
   pizza,
   recipe,
@@ -91,56 +120,172 @@ export function PizzaStage({
   resultRevealed,
   referenceModeEnabled,
   onTap,
-  onSauceDeposit,
+  onDispenseProgress,
+  onDispenseCommit,
 }: PizzaStageProps) {
   const circleRef = useRef<HTMLDivElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
   const heatmapRef = useRef<HTMLCanvasElement>(null);
   const gestureRef = useRef<GestureState>(createGestureState());
   const fadeTimeoutRef = useRef<number | null>(null);
-  // Phase 4A-1A dispense session (see ../logic/sauceDispenseController.ts). Both refs are
-  // only ever non-null between a reference-mode pointerdown and its stopDispensing() --
-  // stopDispensing() is unconditionally safe to call even when neither is set.
+
+  // Phase 4A-1A (Post-Codex-Fix) dispense session bookkeeping. `forceRender` is the escape
+  // hatch that lets `activeSessionRef`/`pendingDepositsRef` (necessarily refs -- they're
+  // mutated from a requestAnimationFrame loop and from event handlers alike, synchronously,
+  // for correct cap math) still drive a re-render for the heatmap/opacity visuals below;
+  // every mutation site pairs a ref write with a `forceRender()` call. `pendingVersion`
+  // (the counter itself) doubles as a stable memoization key for `effectiveDeposits` below,
+  // so that derived array is only ever rebuilt when a session mutation actually happened --
+  // never on every unrelated re-render (e.g. a BAKE-overlay tick elsewhere on the page).
+  const [pendingVersion, forceRender] = useReactReducer((c: number) => c + 1, 0);
+  const sessionTokenCounterRef = useRef(0);
+  const activeSessionRef = useRef<DispenseSession | null>(null);
   const dispenseControllerRef = useRef<SauceDispenseController | null>(null);
   const dispenseRafRef = useRef<number | null>(null);
-  // Kept in sync with pizza.sauceDeposits below so the dispense controller can read "how
-  // much has this application already put down (inside dough + overflow)" without holding
-  // its own copy of state that could drift from the reducer's.
-  const totalDispensedRef = useRef(0);
-
-  const isPaintMode = activeIngredient?.placement === "spread";
-  const isTomatoSauceReference =
-    referenceModeEnabled && isPaintMode && activeIngredient?.id === "tomato-sauce";
+  /** MUST FIX 7 -- Cancel Transaction: every tick of the *current, not-yet-committed*
+   *  session, held here only -- never dispatched to canonical game state until a successful
+   *  pointerup calls `onDispenseCommit`. Discarded (never sent anywhere) on cancel/lost
+   *  capture/blur/hidden/ingredient-change/overlay-open/BAKE/unmount. */
+  const pendingDepositsRef = useRef<SauceDeposit[]>([]);
+  const pendingTotalRef = useRef(0);
+  /** Sum of every deposit already committed to canonical state for this sauce application
+   *  (prior finished strokes) -- combined with `pendingTotalRef` to give the dispense
+   *  controller the true running total for cap purposes across the whole application. */
+  const committedTotalRef = useRef(0);
+  const activeIngredientIdRef = useRef<string | null>(activeIngredient?.id ?? null);
 
   useEffect(() => {
-    totalDispensedRef.current = totalDispensed(pizza.sauceDeposits);
+    committedTotalRef.current = pizza.sauceDeposits.reduce((sum, d) => sum + d.amount, 0);
   }, [pizza.sauceDeposits]);
+
+  function resetSessionBuffers() {
+    pendingDepositsRef.current = [];
+    pendingTotalRef.current = 0;
+  }
+
+  function appendPendingDeposit(deposit: SauceDeposit) {
+    pendingDepositsRef.current = [...pendingDepositsRef.current, deposit];
+    pendingTotalRef.current += deposit.amount;
+    onDispenseProgress(pendingDepositsRef.current);
+    forceRender();
+  }
+
+  /** Ends the active session (if any), either committing its buffered deposits as one
+   *  atomic action (`commit: true`, only ever called from a successful pointerup) or
+   *  discarding them entirely (every abort path). Safe to call with no active session. */
+  function endDispenseSession(commit: boolean) {
+    if (dispenseRafRef.current !== null) {
+      cancelAnimationFrame(dispenseRafRef.current);
+      dispenseRafRef.current = null;
+    }
+    dispenseControllerRef.current?.stop();
+    dispenseControllerRef.current = null;
+
+    const session = activeSessionRef.current;
+    activeSessionRef.current = null;
+    if (commit && session && pendingDepositsRef.current.length > 0) {
+      onDispenseCommit(session.ingredientId, pendingDepositsRef.current);
+    }
+    resetSessionBuffers();
+    onDispenseProgress([]);
+    forceRender();
+  }
+
+  /** Shared cleanup for every abort trigger (ingredient change, Reference overlay open via
+   *  `interactive`, BAKE via `interactive`, blur/hidden, window-level fallback): discards
+   *  any active session, releases pointer capture if still held, and resets the gesture. */
+  function abortActiveGesture() {
+    const pointerId = gestureRef.current.pointerId;
+    if (activeSessionRef.current) endDispenseSession(false);
+    if (pointerId !== null) {
+      try {
+        circleRef.current?.releasePointerCapture(pointerId);
+      } catch {
+        // Already released.
+      }
+    }
+    clearTrail();
+    gestureRef.current = createGestureState();
+  }
 
   useEffect(() => {
     return () => {
       if (fadeTimeoutRef.current !== null) window.clearTimeout(fadeTimeoutRef.current);
-      stopDispensing();
+      if (activeSessionRef.current) endDispenseSession(false);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- unmount-only cleanup.
   }, []);
 
-  // If interaction is disabled mid-gesture (e.g. the player starts BAKE with a second
-  // pointer while the first is still down on the dough), abort immediately rather than
-  // letting a since-stale pointerup still commit APPLY_SAUCE/DEPOSIT_SAUCE into a later
-  // phase. This is the fix for the Phase 3A BAKE race, extended to also stop a Phase 4A-1A
-  // dispense session the same way -- never leave its timer loop running past this point.
+  // If interaction is disabled mid-gesture -- BAKE starting via a second pointer while the
+  // first is still down on the dough, or App.tsx setting `interactive` false while the
+  // Reference popover is open -- abort immediately rather than letting a since-stale
+  // pointerup still commit into a later phase or overlay-hidden state. This is the fix for
+  // the Phase 3A BAKE race, generalized (Codex Broad Review MUST FIX 1) to every trigger
+  // that can end a gesture out from under its own pointer events.
   useEffect(() => {
     if (interactive) return;
-    const g = gestureRef.current;
-    if (g.pointerId === null) return;
-    try {
-      circleRef.current?.releasePointerCapture(g.pointerId);
-    } catch {
-      // Already released.
-    }
-    stopDispensing();
-    clearTrail();
-    gestureRef.current = createGestureState();
+    abortActiveGesture();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [interactive]);
+
+  // Codex Broad Review MUST FIX 1: an ingredient switch mid-hold (a second finger tapping a
+  // different tray item while the first is still dispensing) must abort the session using
+  // the ingredient it was *started* with, never silently continue under a stale
+  // `isTomatoSauceReference` re-check against the *new* selection.
+  useEffect(() => {
+    const newId = activeIngredient?.id ?? null;
+    if (activeIngredientIdRef.current === newId) return;
+    activeIngredientIdRef.current = newId;
+    if (activeSessionRef.current) abortActiveGesture();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeIngredient]);
+
+  // Codex Broad Review MUST FIX 3 / MUST FIX 9: a backgrounded tab or an app-switch on
+  // mobile must never leave a dispense session (and its requestAnimationFrame loop) running
+  // -- `visibilitychange`/`blur` abort it outright, independent of and in addition to
+  // MAX_TICKS_PER_STEP's own defense against a stale session's next `step()` depositing a
+  // huge backlog burst if this ever somehow failed to fire.
+  useEffect(() => {
+    function abortForBackgrounding() {
+      if (activeSessionRef.current) abortActiveGesture();
+    }
+    function handleVisibilityChange() {
+      if (document.hidden) abortForBackgrounding();
+    }
+    window.addEventListener("blur", abortForBackgrounding);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      window.removeEventListener("blur", abortForBackgrounding);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Codex Broad Review MUST FIX 9 -- window-level pointerup/pointercancel fallback: if
+  // setPointerCapture ever fails (some browsers can refuse it) and the finger lifts off
+  // after leaving the dough element, the native pointerup fires on whatever element is now
+  // under it, never bubbling through this component's own onPointerUp/onPointerCancel at
+  // all. This window listener is the backstop -- a no-op whenever the element-level handler
+  // already handled the same event (see below), so it never double-processes the normal,
+  // captured case.
+  useEffect(() => {
+    function handleWindowPointerEnd(event: PointerEvent) {
+      const g = gestureRef.current;
+      if (g.pointerId !== event.pointerId) return; // already handled by the element itself.
+      if (activeSessionRef.current?.pointerId === event.pointerId) {
+        endDispenseSession(event.type === "pointerup");
+      }
+      clearTrail();
+      gestureRef.current = createGestureState();
+    }
+    window.addEventListener("pointerup", handleWindowPointerEnd);
+    window.addEventListener("pointercancel", handleWindowPointerEnd);
+    return () => {
+      window.removeEventListener("pointerup", handleWindowPointerEnd);
+      window.removeEventListener("pointercancel", handleWindowPointerEnd);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function clearTrail() {
     if (fadeTimeoutRef.current !== null) {
@@ -154,39 +299,40 @@ export function PizzaStage({
     }
   }
 
-  function appendPoint(x: number, y: number) {
+  function appendTrailPoint(x: number, y: number) {
     const g = gestureRef.current;
     g.pathD += g.pathD ? ` L ${x.toFixed(2)} ${y.toFixed(2)}` : `M ${x.toFixed(2)} ${y.toFixed(2)}`;
     pathRef.current?.setAttribute("d", g.pathD);
   }
 
-  /** Starts a Phase 4A-1A dispense session at `dough` and drives it from a
-   *  requestAnimationFrame loop keyed on real timestamps (never on how many pointermove
-   *  events fire) -- see SauceDispenseController's own doc comment for why. */
-  function startDispensing(dough: DoughPoint) {
-    if (!activeIngredient) return;
-    const ingredientId = activeIngredient.id;
+  const isPaintMode = activeIngredient?.placement === "spread";
+
+  /** Starts a Phase 4A-1A dispense session for `pointerId` at `dough`, snapshotting the
+   *  ingredient it's for, and drives it from a requestAnimationFrame loop keyed on real
+   *  timestamps (never on how many pointermove events fire) -- see
+   *  SauceDispenseController's own doc comment for why. */
+  function startDispenseSession(pointerId: number, ingredientId: string, dough: DoughPoint) {
+    sessionTokenCounterRef.current += 1;
+    const token = sessionTokenCounterRef.current;
+    activeSessionRef.current = { token, pointerId, ingredientId };
+    resetSessionBuffers();
+
     const controller = new SauceDispenseController({
-      onDeposit: (deposit) => onSauceDeposit(ingredientId, deposit.x, deposit.y, deposit.amount),
-      getTotalDispensed: () => totalDispensedRef.current,
+      onDeposit: (deposit) => appendPendingDeposit(deposit),
+      getTotalDispensed: () => committedTotalRef.current + pendingTotalRef.current,
     });
     dispenseControllerRef.current = controller;
     controller.start(performance.now(), dough);
 
     const loop = (now: number) => {
+      if (activeSessionRef.current?.token !== token) return; // superseded/stopped -- self-halt.
       controller.step(now);
-      dispenseRafRef.current = controller.isActive ? requestAnimationFrame(loop) : null;
+      dispenseRafRef.current =
+        controller.isActive && activeSessionRef.current?.token === token
+          ? requestAnimationFrame(loop)
+          : null;
     };
     dispenseRafRef.current = requestAnimationFrame(loop);
-  }
-
-  function stopDispensing() {
-    if (dispenseRafRef.current !== null) {
-      cancelAnimationFrame(dispenseRafRef.current);
-      dispenseRafRef.current = null;
-    }
-    dispenseControllerRef.current?.stop();
-    dispenseControllerRef.current = null;
   }
 
   function handlePointerDown(event: ReactPointerEvent<HTMLDivElement>) {
@@ -209,35 +355,43 @@ export function PizzaStage({
       lastInsideDough: dough,
     };
 
+    // MUST FIX 9: prevents this press from also producing a compatibility mouse event, a
+    // text-selection drag, or (combined with the CSS below) a long-press context menu/
+    // callout competing with the dispenser's own long-press gesture.
+    event.preventDefault();
+
     try {
       event.currentTarget.setPointerCapture(event.pointerId);
     } catch {
-      // Some browsers can refuse capture; the drag still works via normal event bubbling.
+      // Some browsers can refuse capture; the window-level fallback above covers release.
     }
 
-    if (isTomatoSauceReference) {
+    const wantsReferenceDispense =
+      referenceModeEnabled && isPaintMode && activeIngredient?.id === "tomato-sauce";
+    if (wantsReferenceDispense && activeIngredient) {
       // Sauce starts coming out the instant the dispenser is pressed, not on release --
       // draw the trail's first point immediately to match.
-      appendPoint(dough.x, dough.y);
-      startDispensing(dough);
+      appendTrailPoint(dough.x, dough.y);
+      startDispenseSession(event.pointerId, activeIngredient.id, dough);
     }
   }
 
-  function processMovePoint(clientX: number, clientY: number) {
+  function processMovePoint(clientX: number, clientY: number, pointerId: number) {
     const g = gestureRef.current;
     if (!g.rect) return;
 
     const dough = clientPointToDoughPercent(clientX, clientY, g.rect);
+    const session = activeSessionRef.current;
 
-    if (isTomatoSauceReference) {
+    if (session && session.pointerId === pointerId) {
       // Reference dispense mode: quantity is produced only by the timer loop started in
-      // startDispensing() above (see SauceDispenseController). A move only updates the
-      // trail and where the *next* timed tick lands -- it never deposits by itself, or a
-      // fast drag firing many pointermove events would dispense more sauce than a slow one
-      // over the same hold, exactly what SAUCE_TICK_MS-based ticking is meant to prevent.
+      // startDispenseSession() above (see SauceDispenseController). A move only records the
+      // finger's timestamped path for tick interpolation and updates the trail -- it never
+      // deposits by itself, or a fast drag firing many pointermove events would dispense
+      // more sauce than a slow one over the same hold.
       if (isInsideDough(dough.x, dough.y)) g.lastInsideDough = dough;
-      appendPoint(dough.x, dough.y);
-      dispenseControllerRef.current?.move(dough);
+      appendTrailPoint(dough.x, dough.y);
+      dispenseControllerRef.current?.move(dough, performance.now());
       return;
     }
 
@@ -246,11 +400,11 @@ export function PizzaStage({
       const dy = clientY - g.startClientY;
       if (Math.hypot(dx, dy) < DRAG_THRESHOLD_PX) return;
       g.dragging = true;
-      if (isPaintMode) appendPoint(g.startDough.x, g.startDough.y);
+      if (isPaintMode) appendTrailPoint(g.startDough.x, g.startDough.y);
     }
 
     if (isInsideDough(dough.x, dough.y)) g.lastInsideDough = dough;
-    if (isPaintMode) appendPoint(dough.x, dough.y);
+    if (isPaintMode) appendTrailPoint(dough.x, dough.y);
   }
 
   function handlePointerMove(event: ReactPointerEvent<HTMLDivElement>) {
@@ -259,8 +413,8 @@ export function PizzaStage({
 
     // Coalesced events give the finer-grained samples the browser batched between frames,
     // so a fast drag still produces a continuous trail instead of a few widely-spaced dots.
-    // Position interpolation only -- see processMovePoint's reference-mode branch above for
-    // why this can never be used to compute dispensed quantity.
+    // Position interpolation only -- see processMovePoint's session branch above for why
+    // this can never be used to compute dispensed quantity.
     let events: Array<{ clientX: number; clientY: number }> = [event.nativeEvent];
     try {
       const coalesced = event.nativeEvent.getCoalescedEvents?.();
@@ -270,7 +424,7 @@ export function PizzaStage({
     }
 
     for (const point of events) {
-      processMovePoint(point.clientX, point.clientY);
+      processMovePoint(point.clientX, point.clientY, event.pointerId);
     }
   }
 
@@ -282,22 +436,19 @@ export function PizzaStage({
     }
   }
 
-  function endDispenseGesture() {
-    stopDispensing();
-    pathRef.current?.classList.add("pizza-paint-trail__stroke--fade");
-    fadeTimeoutRef.current = window.setTimeout(clearTrail, TRAIL_FADE_MS);
-    gestureRef.current = createGestureState();
-  }
-
   function handlePointerUp(event: ReactPointerEvent<HTMLDivElement>) {
     const g = gestureRef.current;
     if (g.pointerId !== event.pointerId) return;
     releaseCapture(event);
 
-    if (isTomatoSauceReference) {
-      // Every deposit was already committed as it happened (DEPOSIT_SAUCE ticks) -- there
-      // is nothing left to commit on release, only the dispense session itself to stop.
-      endDispenseGesture();
+    const session = activeSessionRef.current;
+    if (session && session.pointerId === event.pointerId) {
+      // MUST FIX 7: the *only* place a dispense session's buffered deposits are ever
+      // committed to canonical state -- a successful, in-element pointerup.
+      endDispenseSession(true);
+      pathRef.current?.classList.add("pizza-paint-trail__stroke--fade");
+      fadeTimeoutRef.current = window.setTimeout(clearTrail, TRAIL_FADE_MS);
+      gestureRef.current = createGestureState();
       return;
     }
 
@@ -323,8 +474,9 @@ export function PizzaStage({
       return;
     }
 
-    // Sauce paint: commit wherever the stroke last touched the dough, clamped onto it so
-    // releasing just past the rim still lands cleanly instead of doing nothing.
+    // Sauce paint (legacy, non-Reference path): commit wherever the stroke last touched the
+    // dough, clamped onto it so releasing just past the rim still lands cleanly instead of
+    // doing nothing.
     const commitPoint = g.lastInsideDough ?? g.startDough;
     const clamped = clampToDough(commitPoint.x, commitPoint.y);
     onTap(clamped.x, clamped.y);
@@ -341,7 +493,7 @@ export function PizzaStage({
     const g = gestureRef.current;
     if (g.pointerId !== event.pointerId) return;
     releaseCapture(event);
-    stopDispensing();
+    if (activeSessionRef.current?.pointerId === event.pointerId) endDispenseSession(false);
     clearTrail();
     gestureRef.current = createGestureState();
   }
@@ -353,9 +505,15 @@ export function PizzaStage({
     // to stop it. Safe even when this pointerId was never the active gesture.
     const g = gestureRef.current;
     if (g.pointerId !== event.pointerId) return;
-    stopDispensing();
+    if (activeSessionRef.current?.pointerId === event.pointerId) endDispenseSession(false);
     clearTrail();
     gestureRef.current = createGestureState();
+  }
+
+  function handleContextMenu(event: ReactMouseEvent<HTMLDivElement>) {
+    // MUST FIX 9: a long-press dispense hold must never surface the browser's own
+    // long-press context menu / callout mid-gesture.
+    if (gestureRef.current.pointerId !== null) event.preventDefault();
   }
 
   const sauceId = pizza.sauceIds[0];
@@ -379,32 +537,26 @@ export function PizzaStage({
   } as CSSProperties;
   const trailStrokeStyle = { stroke: activeIngredient?.color ?? "#c73b2e" } as CSSProperties;
 
-  // Phase 4A-1A Visual Feedback: for the Margherita Reference prototype's tomato sauce
-  // only, the flat base sauce fill's own opacity now tracks dispensed quantity (a light
-  // dab reads thin/translucent, a full application reads thick/opaque) instead of the
-  // fixed 0.85 every other recipe/sauce still uses -- otherwise the heatmap below it would
-  // be nearly invisible against an already-fully-opaque fill regardless of how little
-  // sauce was actually applied. Deliberately a small, local opacity formula, not a new
-  // rendering system -- every other ingredient/recipe's `.pizza-sauce-layer` is untouched.
-  const referenceSauceMetrics = useMemo(() => {
-    if (!referenceModeEnabled || sauceIngredient?.id !== "tomato-sauce") return null;
-    return computeSauceMetrics(pizza.sauceDeposits);
-  }, [referenceModeEnabled, sauceIngredient?.id, pizza.sauceDeposits]);
-  // `null` (every recipe/sauce but this prototype's tomato sauce) deliberately omits the
-  // CSS var entirely below, so `var(--sauce-target-opacity, 1)` falls through to the exact
-  // same 1 the keyframe used to hard-code -- no visual change for anything but this one case.
-  const baseSauceOpacity = referenceSauceMetrics
-    ? Math.min(0.92, 0.22 + referenceSauceMetrics.quantity * 0.68)
-    : null;
-  const sauceOpacityStyle = (
-    baseSauceOpacity !== null ? { "--sauce-target-opacity": baseSauceOpacity } : {}
-  ) as CSSProperties;
-
-  // Phase 4A-1A: Prototype-only tomato-sauce heatmap for the Margherita Reference
-  // prototype, drawn from the exact same field the Prototype Metrics panel reads
-  // (../logic/sauceField.ts) so what the player sees always matches what is measured.
-  const showSauceHeatmap =
-    referenceModeEnabled && sauceIngredient?.id === "tomato-sauce" && pizza.sauceDeposits.length > 0;
+  // Phase 4A-1A (Post-Codex-Fix) MUST FIX 8 -- Visual Truth: the Margherita Reference
+  // prototype's tomato sauce is represented *only* by the field-derived heatmap below, both
+  // while an active dispense session is buffering uncommitted ticks and once a stroke is
+  // committed -- never by the flat, full-circle base fill every other sauce/recipe still
+  // uses (a uniformly-tinted whole dough would misrepresent low coverage as "sauce
+  // everywhere, just faint", exactly the complaint this fixes). `isReferenceSauceContext`
+  // covers both cases so the flat fill and the heatmap never both try to render at once.
+  const committedSauceIsTomatoReference = referenceModeEnabled && sauceIngredient?.id === "tomato-sauce";
+  const hasActiveReferenceSession = activeSessionRef.current !== null;
+  const isReferenceSauceContext = committedSauceIsTomatoReference || hasActiveReferenceSession;
+  const effectiveDeposits = useMemo<readonly SauceDeposit[]>(() => {
+    if (!isReferenceSauceContext || pendingDepositsRef.current.length === 0) {
+      return pizza.sauceDeposits;
+    }
+    return [...pizza.sauceDeposits, ...pendingDepositsRef.current];
+    // pendingVersion is the reactive proxy for pendingDepositsRef.current -- see its own
+    // declaration above.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isReferenceSauceContext, pizza.sauceDeposits, pendingVersion]);
+  const showSauceHeatmap = isReferenceSauceContext && effectiveDeposits.length > 0;
 
   useEffect(() => {
     if (!showSauceHeatmap) return;
@@ -414,9 +566,14 @@ export function PizzaStage({
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    const insideDeposits = pizza.sauceDeposits.filter((d) => isInsideDough(d.x, d.y));
-    const outsideDeposits = pizza.sauceDeposits.filter((d) => !isInsideDough(d.x, d.y));
-    const field = buildSauceField(insideDeposits);
+    // MUST FIX 5: each deposit's amount is split continuously between its inside-dough
+    // share (what the heatmap paints) and its overflow share (drawn as a faint marker
+    // below), via the exact same insideDoughFraction the metrics use -- so the visual and
+    // the numbers can never disagree about a deposit straddling the rim.
+    const insideWeighted = effectiveDeposits
+      .map((d) => ({ x: d.x, y: d.y, amount: d.amount * insideDoughFraction(d.x, d.y) }))
+      .filter((d) => d.amount > 0);
+    const field = buildSauceField(insideWeighted);
     const cellPx = canvas.width / SAUCE_FIELD_SIZE;
 
     for (let row = 0; row < SAUCE_FIELD_SIZE; row += 1) {
@@ -430,17 +587,20 @@ export function PizzaStage({
       }
     }
 
-    // Faint overflow markers where sauce landed off the dough -- a Human Feel cue, not a
-    // penalty (Prototype Metrics' own overflow numbers are the actual measurement).
-    ctx.fillStyle = "rgba(196, 46, 34, 0.55)";
-    for (const deposit of outsideDeposits) {
+    // Overflow markers where sauce landed off (or straddling) the dough -- alpha scaled by
+    // how much of that deposit actually missed, so a near-rim dab reads as a faint touch and
+    // a fully overflowed one as a solid mark, matching the continuous split above.
+    for (const deposit of effectiveDeposits) {
+      const overflowFraction = 1 - insideDoughFraction(deposit.x, deposit.y);
+      if (overflowFraction <= 0) continue;
       const px = (deposit.x / 100) * canvas.width;
       const py = (deposit.y / 100) * canvas.height;
+      ctx.fillStyle = `rgba(196, 46, 34, ${0.55 * overflowFraction})`;
       ctx.beginPath();
       ctx.arc(px, py, 3, 0, Math.PI * 2);
       ctx.fill();
     }
-  }, [showSauceHeatmap, pizza.sauceDeposits]);
+  }, [showSauceHeatmap, effectiveDeposits]);
 
   return (
     <div className="pizza-stage">
@@ -454,22 +614,22 @@ export function PizzaStage({
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerCancel}
         onLostPointerCapture={handleLostPointerCapture}
+        onContextMenu={handleContextMenu}
       >
-        {sauceIngredient && (
+        {sauceIngredient && !isReferenceSauceContext && (
           <div
             key={pizza.sauceToken}
             className={`pizza-sauce-layer ${isOilSauce ? "pizza-sauce-layer--oil" : ""}`}
             style={{
-              ...(isOilSauce ? {} : { backgroundColor: sauceIngredient.color }),
+              ...(isOilSauce ? {} : { backgroundColor: sauceIngredient.color, opacity: 0.85 }),
               ...sauceOriginStyle,
-              ...sauceOpacityStyle,
             }}
           />
         )}
         {showSauceHeatmap && (
           <canvas
             ref={heatmapRef}
-            className="pizza-sauce-heatmap"
+            className={`pizza-sauce-heatmap ${bakeState ? `pizza-sauce-heatmap--${bakeState}` : ""}`}
             width={HEATMAP_CANVAS_PX}
             height={HEATMAP_CANVAS_PX}
             aria-hidden="true"

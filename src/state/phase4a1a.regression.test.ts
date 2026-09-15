@@ -9,9 +9,11 @@ import { createEmptyPizza } from "./pizzaState";
 
 /**
  * Phase 4A-1A regression suite (SSOT section 10/13's "Scope Guard"): confirms the Phase
- * 4A-1A additions (DEPOSIT_SAUCE, PizzaState.sauceDeposits, the Reference/shadow-scoring
- * modules) cannot influence anything they aren't explicitly wired into -- authoritative
- * scoring, Dex, Mission, non-Margherita sauce, or a reducer phase transition.
+ * 4A-1A additions (COMMIT_SAUCE_DISPENSE, PizzaState.sauceDeposits, the Reference/shadow-
+ * scoring modules) cannot influence anything they aren't explicitly wired into --
+ * authoritative scoring, Dex, Mission, non-Margherita sauce, or a reducer phase transition.
+ * See gameReducer.commitSauceDispense.test.ts for the full reducer scope-guard suite this
+ * complements (Codex Broad Review MUST FIX 2).
  */
 
 function preparedState(recipeIdOwned: readonly string[]): GameState {
@@ -79,45 +81,46 @@ describe("Regression: non-Margherita sauce interaction", () => {
     expect(state.pizza.sauceDeposits).toEqual([]);
   });
 
-  it("DEPOSIT_SAUCE is never dispatched by any code path for a non-tomato-sauce/non-Margherita ingredient -- the reducer still accepts it if sent, but nothing in the app wires that up (App.tsx's referenceModeEnabled/isTomatoSauceReference gate)", () => {
-    // Direct reducer probe only, to prove the reducer's own guardrails (ownership) still
-    // apply identically to this new action -- not a claim that the UI ever sends this.
-    const state = preparedState(["olive-oil"]);
+  it("COMMIT_SAUCE_DISPENSE is a complete no-op for a non-tomato-sauce ingredient, even on Margherita where the recipe/phase would otherwise qualify", () => {
+    // Direct reducer probe: proves the reducer's own ingredient guard (not just the app's
+    // wiring, which never sends this for olive-oil at all -- App.tsx's referenceModeEnabled/
+    // isTomatoSauceReference gate) independently rejects it.
+    const state = preparedState(STARTER_INGREDIENT_IDS);
     const after = gameReducer(state, {
-      type: "DEPOSIT_SAUCE",
+      type: "COMMIT_SAUCE_DISPENSE",
       ingredientId: "olive-oil",
-      x: 50,
-      y: 50,
-      amount: 0.02,
+      deposits: [{ x: 50, y: 50, amount: 0.02 }],
     });
-    expect(after.pizza.sauceIds).toEqual(["olive-oil"]);
+    expect(after).toBe(state);
+    expect(after.pizza.sauceIds).toEqual([]);
   });
 });
 
-describe("Regression: no direct invalid state transition", () => {
-  it("DEPOSIT_SAUCE never changes `phase`, whatever phase it's dispatched from", () => {
+describe("Regression: no direct invalid state transition (Codex MUST FIX 2 -- inverted from the pre-fix spec)", () => {
+  // Pre-Codex-Fix, this exact scenario asserted DEPOSIT_SAUCE *was* accepted (only `phase`
+  // itself was checked as "unchanged", since DEPOSIT_SAUCE never touched it either way).
+  // MUST FIX 2 explicitly calls for that spec to be inverted: COMMIT_SAUCE_DISPENSE must now
+  // reject entirely (state identity-equal, no fields touched) when dispatched from ORDER.
+  it("COMMIT_SAUCE_DISPENSE is rejected outright when dispatched from ORDER, not merely 'accepted without changing phase'", () => {
     const orderState = createInitialGameState();
     expect(orderState.phase).toBe("ORDER");
     const after = gameReducer(orderState, {
-      type: "DEPOSIT_SAUCE",
+      type: "COMMIT_SAUCE_DISPENSE",
       ingredientId: "tomato-sauce",
-      x: 50,
-      y: 50,
-      amount: 0.02,
+      deposits: [{ x: 50, y: 50, amount: 0.02 }],
     });
-    expect(after.phase).toBe("ORDER"); // unchanged -- matches APPLY_SAUCE's own lack of a phase gate
+    expect(after).toBe(orderState); // full rejection, not a partial/silent accept
   });
 
-  it("REGISTER_TO_DEX is still a no-op outside RESULT even with deposits on the pizza", () => {
+  it("REGISTER_TO_DEX is still a no-op outside RESULT even with a committed deposit log on the pizza", () => {
     let state = preparedState(STARTER_INGREDIENT_IDS);
     state = gameReducer(state, {
-      type: "DEPOSIT_SAUCE",
+      type: "COMMIT_SAUCE_DISPENSE",
       ingredientId: "tomato-sauce",
-      x: 50,
-      y: 50,
-      amount: 0.02,
+      deposits: [{ x: 50, y: 50, amount: 0.02 }],
     });
     expect(state.phase).toBe("PREPARE");
+    expect(state.pizza.sauceDeposits.length).toBeGreaterThan(0);
     const after = gameReducer(state, { type: "REGISTER_TO_DEX" });
     expect(after).toBe(state);
   });

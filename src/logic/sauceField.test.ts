@@ -3,6 +3,7 @@ import {
   buildSauceField,
   computeSauceMetrics,
   emptySauceMetrics,
+  insideDoughFraction,
   isCellInsideDough,
   SAUCE_FIELD_SIZE,
   totalDispensed,
@@ -70,19 +71,20 @@ describe("computeSauceMetrics: quantity and coverage are never the same measurem
 });
 
 describe("computeSauceMetrics: overflow", () => {
-  it("deposits outside the dough circle count as overflow, not quantity/coverage", () => {
-    // (50, 50) is dough center; radius is 48, so (50, 100) is far outside.
-    const metrics = computeSauceMetrics([{ x: 50, y: 100, amount: 0.4 }]);
+  it("deposits well outside the dough circle count entirely as overflow, not quantity/coverage", () => {
+    // (50, 50) is dough center, radius 48; (50, 110) is distance 60 away -- well past even
+    // the smoothed rim transition (see insideDoughFraction's own tests below).
+    const metrics = computeSauceMetrics([{ x: 50, y: 110, amount: 0.4 }]);
     expect(metrics.quantity).toBe(0);
     expect(metrics.coverage).toBe(0);
     expect(metrics.overflowAmount).toBeCloseTo(0.4);
     expect(metrics.overflowRatio).toBeCloseTo(1);
   });
 
-  it("mixing inside and outside deposits reports both independently", () => {
+  it("mixing well-inside and well-outside deposits reports both independently", () => {
     const metrics = computeSauceMetrics([
       { x: 50, y: 50, amount: 0.3 },
-      { x: 50, y: 100, amount: 0.1 },
+      { x: 50, y: 110, amount: 0.1 },
     ]);
     expect(metrics.quantity).toBeCloseTo(0.3);
     expect(metrics.overflowAmount).toBeCloseTo(0.1);
@@ -92,6 +94,56 @@ describe("computeSauceMetrics: overflow", () => {
   it("no overflow gives an overflowRatio of 0", () => {
     const metrics = computeSauceMetrics([{ x: 50, y: 50, amount: 0.3 }]);
     expect(metrics.overflowRatio).toBe(0);
+  });
+
+  it("inside + overflow conserves the total dispensed amount exactly, even for a deposit straddling the rim", () => {
+    const deposits = [
+      { x: 50, y: 50, amount: 0.3 },
+      { x: 98, y: 50, amount: 0.2 }, // distance 48 from center -- exactly on the rim
+      { x: 50, y: 110, amount: 0.1 },
+    ];
+    const metrics = computeSauceMetrics(deposits);
+    expect(metrics.quantity + metrics.overflowAmount).toBeCloseTo(totalDispensed(deposits), 9);
+  });
+});
+
+describe("insideDoughFraction (rim boundary continuity, Codex MUST FIX 5)", () => {
+  it("is 1 for a deposit well inside the rim", () => {
+    expect(insideDoughFraction(50, 50)).toBe(1);
+    expect(insideDoughFraction(60, 60)).toBe(1);
+  });
+
+  it("is 0 for a deposit well outside the rim", () => {
+    expect(insideDoughFraction(50, 110)).toBe(0);
+  });
+
+  it("is close to 0.5 for a deposit centered exactly on the rim", () => {
+    // Center (50,50), radius 48 -> (98, 50) is distance exactly 48 away.
+    const fraction = insideDoughFraction(98, 50);
+    expect(fraction).toBeGreaterThan(0.4);
+    expect(fraction).toBeLessThan(0.6);
+  });
+
+  it("never jumps discontinuously across the rim -- a tiny position change near it produces only a small change in fraction", () => {
+    const justInside = insideDoughFraction(97.9, 50); // distance 47.9
+    const justOutside = insideDoughFraction(98.1, 50); // distance 48.1
+    expect(Math.abs(justInside - justOutside)).toBeLessThan(0.05);
+  });
+
+  it("is monotonically non-increasing as a deposit moves farther from the center", () => {
+    const distances = [0, 40, 44, 46, 47, 48, 49, 50, 52, 60];
+    const fractions = distances.map((d) => insideDoughFraction(50 + d, 50));
+    for (let i = 1; i < fractions.length; i += 1) {
+      expect(fractions[i]).toBeLessThanOrEqual(fractions[i - 1] + 1e-9);
+    }
+  });
+
+  it("always stays within [0, 1]", () => {
+    for (const d of [0, 10, 30, 44.9, 45, 45.1, 48, 50.9, 51, 51.1, 100]) {
+      const fraction = insideDoughFraction(50 + d, 50);
+      expect(fraction).toBeGreaterThanOrEqual(0);
+      expect(fraction).toBeLessThanOrEqual(1);
+    }
   });
 });
 

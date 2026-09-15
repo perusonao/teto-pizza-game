@@ -15,12 +15,32 @@ export interface SauceOrigin {
 /** One tick of the Phase 4A-1A tomato-sauce dispenser (../logic/sauceDispenseController.ts):
  *  where it landed (dough-percent coordinates, which may fall outside the dough circle --
  *  see ../logic/pizzaCoordinates.ts's `isInsideDough`) and how much normalized quantity it
- *  added (../logic/sauceQuantity.ts). Only ever populated by DEPOSIT_SAUCE; APPLY_SAUCE
- *  (every other ingredient, every other recipe, Mission play) never touches this array. */
+ *  added (../logic/sauceQuantity.ts). Only ever populated by COMMIT_SAUCE_DISPENSE (never
+ *  incrementally -- see that action's own reducer case); APPLY_SAUCE (every other
+ *  ingredient, every other recipe, Mission play) never touches this array. */
 export interface SauceDeposit {
   x: number;
   y: number;
   amount: number;
+}
+
+function isFiniteNumber(value: number): boolean {
+  return typeof value === "number" && Number.isFinite(value);
+}
+
+/** A single deposit is only ever valid with finite x/y and a strictly positive, finite
+ *  amount (Codex Broad Review MUST FIX 2 -- Reducer Scope Guard). NaN/Infinity/zero/negative
+ *  amounts are exactly the "stale/late/corrupted action" shapes that guard exists for. */
+export function isValidSauceDeposit(deposit: SauceDeposit): boolean {
+  return isFiniteNumber(deposit.x) && isFiniteNumber(deposit.y) && isFiniteNumber(deposit.amount) &&
+    deposit.amount > 0;
+}
+
+/** A commit batch is valid only if it is non-empty and every deposit in it is valid --
+ *  partial application of a corrupted payload is never attempted; an invalid batch is
+ *  rejected in full (see COMMIT_SAUCE_DISPENSE's reducer case). */
+export function isValidSauceDepositBatch(deposits: readonly SauceDeposit[]): boolean {
+  return deposits.length > 0 && deposits.every(isValidSauceDeposit);
 }
 
 export interface PizzaState {

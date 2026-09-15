@@ -1,9 +1,14 @@
-import { useState } from "react";
 import type { ReferencePizza } from "../data/referencePizza";
 import { getIngredient } from "../data/ingredients";
 
 interface ReferencePreviewProps {
   reference: ReferencePizza;
+  isOpen: boolean;
+  /** Phase 4A-1A (Post-Codex-Fix): controlled, not local state -- App.tsx folds `isOpen`
+   *  into PizzaStage's `interactive` prop so opening this popover aborts any in-progress
+   *  tomato-sauce dispense session exactly like BAKE does (Codex Broad Review MUST FIX 1/9).
+   *  A component-local `useState` here could never reach that effect. */
+  onOpenChange: (isOpen: boolean) => void;
 }
 
 /**
@@ -14,10 +19,10 @@ interface ReferencePreviewProps {
  * The popover renders a small static illustration, not the real interactive PizzaStage --
  * it never accepts pointer input itself, and its full-screen backdrop intercepts every tap
  * while open so a mis-tap can never reach the dough underneath (requirement: "Reference
- * 表示中でも誤操作しないこと").
+ * 表示中でも誤操作しないこと"). Opening it also ends any active dispense session outright
+ * (see `isOpen`'s doc comment) rather than merely blocking taps on top of a live one.
  */
-export function ReferencePreview({ reference }: ReferencePreviewProps) {
-  const [isOpen, setOpen] = useState(false);
+export function ReferencePreview({ reference, isOpen, onOpenChange }: ReferencePreviewProps) {
   const sauceIngredient = getIngredient(reference.sauce.ingredientId);
 
   return (
@@ -25,7 +30,7 @@ export function ReferencePreview({ reference }: ReferencePreviewProps) {
       <button
         type="button"
         className="reference-preview__button"
-        onClick={() => setOpen(true)}
+        onClick={() => onOpenChange(true)}
         aria-haspopup="dialog"
       >
         {"\u{1F4D0}"} 見本
@@ -35,7 +40,7 @@ export function ReferencePreview({ reference }: ReferencePreviewProps) {
         <div
           className="reference-preview__backdrop"
           role="presentation"
-          onClick={() => setOpen(false)}
+          onClick={() => onOpenChange(false)}
         >
           <div
             className="reference-preview__panel"
@@ -48,7 +53,7 @@ export function ReferencePreview({ reference }: ReferencePreviewProps) {
               <button
                 type="button"
                 className="reference-preview__close"
-                onClick={() => setOpen(false)}
+                onClick={() => onOpenChange(false)}
               >
                 閉じる
               </button>

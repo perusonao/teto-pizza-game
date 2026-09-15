@@ -10,11 +10,14 @@ import { purchaseIngredient } from "../logic/economy";
 import { discoveredRecipeIds, registerScoreToDex, EMPTY_DEX, type DexState } from "./dex";
 import { availableRecipeIds } from "./progression";
 import { pickMissionOrder } from "../mission/lunchRush";
+import { getReferencePizza } from "../data/referencePizza";
 import {
   createEmptyPizza,
   findOpenSpot,
+  isValidSauceDepositBatch,
   type PizzaState,
   type PlacementFeedback,
+  type SauceDeposit,
 } from "./pizzaState";
 
 export type GamePhase = "ORDER" | "PREPARE" | "BAKE" | "RESULT" | "DISCOVERED";
@@ -43,6 +46,15 @@ export interface GameState {
    *  first Mission run in this session completes; deliberately not persisted (Mission run
    *  identity has no meaning across a reload, same as `MissionState` itself). */
   lastClaimedMissionRunId: number | null;
+  /** Codex Broad Review MUST FIX 2 (Reducer Scope Guard): true for the whole lifetime of a
+   *  Mission round (set by MISSION_RESET_ORDER/MISSION_NEXT_ORDER's shared
+   *  `nextMissionOrderState`, cleared by every free-play round-start path), read directly by
+   *  COMMIT_SAUCE_DISPENSE's own guard below. This makes "the Phase 4A-1A Reference/Quantity
+   *  Prototype never applies during Mission play" a fact the reducer itself enforces from its
+   *  own state -- not a contract the dispatch site (App.tsx) has to uphold correctly on its
+   *  own every time, and not something a caller can spoof via the action payload. Transient
+   *  only: never read or written by persistence.ts (a round in progress is never persisted). */
+  isMissionRound: boolean;
   justDiscovered: boolean;
   /** True when REGISTER_TO_DEX just improved this recipe's Dex BEST (including its very
    *  first discovery, which trivially sets the first BEST). RESULT/DISCOVERED UI uses this
@@ -55,12 +67,18 @@ export interface GameState {
 export type GameAction =
   | { type: "BEGIN_PREPARE" }
   | { type: "APPLY_SAUCE"; ingredientId: string; x: number; y: number }
-  // Phase 4A-1A: one dispense tick from the Margherita Reference prototype's tomato-sauce
-  // dispenser (src/logic/sauceDispenseController.ts). Distinct from APPLY_SAUCE (which
+  // Phase 4A-1A (Post-Codex-Fix, MUST FIX 7 -- Cancel Transaction): commits one *complete,
+  // already-finished* tomato-sauce dispense gesture from the Margherita Reference prototype
+  // (src/logic/sauceDispenseController.ts) as a single atomic batch -- PizzaStage buffers
+  // every tick locally while the gesture is in progress and only ever dispatches this once,
+  // at a successful pointerup. A cancelled/discarded gesture (pointercancel, lost pointer
+  // capture, an ingredient change or Reference-overlay-open mid-hold, a BAKE abort, or
+  // component unmount) never dispatches this at all, so canonical pizza state can never
+  // reflect a stroke the player didn't actually finish. Distinct from APPLY_SAUCE (which
   // every other ingredient/recipe/Mission path still uses unchanged) so this prototype-only
-  // mechanic can never affect anything outside its own gate -- see PizzaStage's
-  // `referenceModeEnabled` prop and App.tsx's `handleSauceDeposit`.
-  | { type: "DEPOSIT_SAUCE"; ingredientId: string; x: number; y: number; amount: number }
+  // mechanic can never affect anything outside its own gate -- see this action's own reducer
+  // case for the full validation contract (MUST FIX 2).
+  | { type: "COMMIT_SAUCE_DISPENSE"; ingredientId: string; deposits: SauceDeposit[] }
   | { type: "PLACE_TOPPING"; ingredientId: string; x: number; y: number }
   | { type: "RESET_PIZZA" }
   | { type: "START_BAKE" }
@@ -93,8 +111,10 @@ interface ProgressionCarry {
  *  shared by every "start a new round" path (free play's `nextOrderState` below, and Mission's
  *  MISSION_NEXT_ORDER/MISSION_RESET_ORDER) so they can never drift out of sync on what a
  *  "fresh round" resets. Everything in `carry` (Dex, owned ingredients, Pitz balance, claimed
- *  Mission run id) passes through untouched -- a new round never resets progression. */
-function buildOrderState(order: Order, carry: ProgressionCarry): GameState {
+ *  Mission run id) passes through untouched -- a new round never resets progression.
+ *  `isMissionRound` is set explicitly by each caller (never carried) since it describes the
+ *  round about to start, not something to preserve from the previous one. */
+function buildOrderState(order: Order, carry: ProgressionCarry, isMissionRound: boolean): GameState {
   const recipe = getRecipe(order.recipeId);
   if (!recipe) {
     throw new Error(`Unknown recipe for order ${order.id}`);
@@ -107,6 +127,7 @@ function buildOrderState(order: Order, carry: ProgressionCarry): GameState {
     score: null,
     bakeState: null,
     ...carry,
+    isMissionRound,
     justDiscovered: false,
     justGotNewBest: false,
     hint: null,
@@ -114,27 +135,34 @@ function buildOrderState(order: Order, carry: ProgressionCarry): GameState {
   };
 }
 
+/** Every free-play "start a new round" path (initial state, PLAY_AGAIN, exiting Mission to
+ *  free) goes through here -- always `isMissionRound: false`. */
 function nextOrderState(carry: ProgressionCarry, orderOptions: NextOrderOptions): GameState {
   const order = getNextOrder({
     ...orderOptions,
     dex: discoveredRecipeIds(carry.dex),
     availableRecipeIds: availableRecipeIds(carry.ownedIngredientIds),
   });
-  return buildOrderState(order, carry);
+  return buildOrderState(order, carry, false);
 }
 
 /** Picks a fresh Mission order (see ../mission/lunchRush.ts's `pickMissionOrder`) and builds
- *  the ORDER-phase state around it. Shared by MISSION_NEXT_ORDER and MISSION_RESET_ORDER so
- *  both pick a Mission order the exact same way. */
+ *  the ORDER-phase state around it -- always `isMissionRound: true`. Shared by
+ *  MISSION_NEXT_ORDER and MISSION_RESET_ORDER so both pick a Mission order the exact same
+ *  way and both mark the round as Mission's identically. */
 function nextMissionOrderState(state: GameState): GameState {
   const ids = availableRecipeIds(state.ownedIngredientIds);
   const order = pickMissionOrder(ids, state.recipe.id);
-  return buildOrderState(order, {
-    dex: state.dex,
-    ownedIngredientIds: state.ownedIngredientIds,
-    pitzBalance: state.pitzBalance,
-    lastClaimedMissionRunId: state.lastClaimedMissionRunId,
-  });
+  return buildOrderState(
+    order,
+    {
+      dex: state.dex,
+      ownedIngredientIds: state.ownedIngredientIds,
+      pitzBalance: state.pitzBalance,
+      lastClaimedMissionRunId: state.lastClaimedMissionRunId,
+    },
+    true,
+  );
 }
 
 /** `dex` defaults to empty, `ownedIngredientIds` defaults to the Starter Set, and
@@ -183,22 +211,32 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return { ...state, pizza, hint: buildHintLine(state.recipe, pizza) };
     }
 
-    // Phase 4A-1A: appends one dispense tick to the running deposit log and, only on the
-    // very first tick of a fresh application (sauceIds not already this ingredient),
-    // mirrors APPLY_SAUCE's own sauceOrigin/sauceToken bump so the existing sauce-spread
-    // CSS animation (App.css) still plays exactly once per application -- now starting the
-    // instant the player presses down instead of waiting for release.
-    case "DEPOSIT_SAUCE": {
+    // Phase 4A-1A (Post-Codex-Fix, MUST FIX 2 -- Reducer Scope Guard): commits one complete
+    // dispense gesture's worth of deposits as a single atomic batch. Every condition below
+    // is independently enforced here, at the reducer/action boundary -- never trusted from
+    // the UI alone -- so a stale, late, or malformed action can never mutate canonical pizza
+    // state for BAKE/RESULT/ORDER, a non-Margherita recipe, a non-tomato-sauce ingredient, or
+    // (via `isMissionRound`) a Mission round, whatever PizzaStage/App.tsx intended to gate.
+    case "COMMIT_SAUCE_DISPENSE": {
+      if (state.phase !== "PREPARE") return state;
+      if (state.isMissionRound) return state;
+      const reference = getReferencePizza(state.recipe.id);
+      if (!reference || reference.sauce.ingredientId !== action.ingredientId) return state;
       if (!state.ownedIngredientIds.includes(action.ingredientId)) return state;
+      if (!isValidSauceDepositBatch(action.deposits)) return state;
+
       const isFreshApplication = state.pizza.sauceIds[0] !== action.ingredientId;
+      const firstPoint = action.deposits[0];
       const pizza: PizzaState = {
         ...state.pizza,
         sauceIds: [action.ingredientId],
-        sauceOrigin: isFreshApplication ? { x: action.x, y: action.y } : state.pizza.sauceOrigin,
+        sauceOrigin: isFreshApplication
+          ? { x: firstPoint.x, y: firstPoint.y }
+          : state.pizza.sauceOrigin,
         sauceToken: isFreshApplication ? state.pizza.sauceToken + 1 : state.pizza.sauceToken,
         sauceDeposits: [
           ...(isFreshApplication ? [] : state.pizza.sauceDeposits),
-          { x: action.x, y: action.y, amount: action.amount },
+          ...action.deposits,
         ],
       };
       return { ...state, pizza, hint: buildHintLine(state.recipe, pizza) };

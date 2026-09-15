@@ -150,6 +150,12 @@
   /* Pointer gestures (tap + sauce-paint drag) are handled by hand, scoped to the dough
      itself so the rest of the page keeps its normal scroll behavior. */
   touch-action: none;
+  /* Phase 4A-1A (Post-Codex-Fix) MUST FIX 9 -- Mobile Termination: a long-press dispense
+     hold must never trigger iOS Safari's own text-selection/callout bubble or Android's
+     text-selection handles competing with the gesture. */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .pizza-dough--raw {
@@ -1337,6 +1343,23 @@
   width: calc(100% + 2 * var(--dough-border-width));
   height: calc(100% + 2 * var(--dough-border-width));
   pointer-events: none;
+}
+
+/* MUST FIX 8 (Visual Truth) follow-up: now that the heatmap is the *only* sauce visual for
+   this prototype (see PizzaStage's `isReferenceSauceContext`), it needs the same bake-state
+   tinting `.pizza-sauce-layer` gets elsewhere, or the sauce would stop reacting to bake
+   state entirely once the flat fill is skipped. Same filter values as
+   `.pizza-dough--raw/--perfect .pizza-sauce-layer` above, applied to the canvas instead. */
+.pizza-dough--raw .pizza-sauce-heatmap--raw {
+  filter: saturate(1.18) brightness(1.06);
+}
+
+.pizza-dough--perfect .pizza-sauce-heatmap--perfect {
+  filter: saturate(1.08) brightness(0.95) hue-rotate(-6deg);
+}
+
+.pizza-dough--burnt .pizza-sauce-heatmap--burnt {
+  filter: brightness(0.55) saturate(0.7) sepia(0.25);
 }
 
 .reference-tools-row {
