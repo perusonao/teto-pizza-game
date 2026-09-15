@@ -323,3 +323,117 @@ and resolved.
 ## FINAL VERDICT (Final P2 boundary-fix round)
 
 **A. READY FOR FINAL CODEX RE-REVIEW**
+
+## Final P2 follow-up — Disable keyboard dough input behind overlays
+
+**Thread:** `discussion_r4017893706` (PR #26, `src/components/PizzaStage.tsx:709`)
+
+### Root cause confirmed
+
+`GameScreen.tsx` passed `interactive={state.phase === "PREPARE" &&
+!isReferencePopoverOpen}` to `PizzaStage` — unlike the physical-drag gate
+a few lines below it (`physicalDragEnabled={referenceModeEnabled &&
+!isReferencePopoverOpen && !isGlobalOverlayOpen}`), this never looked at
+`isGlobalOverlayOpen`. Dex and Shop are ordinary overlays that don't trap
+focus or make the underlying screen `inert`, so with `interactive` still
+`true` while either was open, `PizzaStage`'s dough kept `tabIndex={0}`
+and its `handleKeyDown` (which only checks its own `interactive` prop)
+kept responding to Enter/Space — Tab could reach the dough from an
+overlay/header control and place sauce or a topping behind the modal.
+
+### Fix
+
+One line, `src/screens/GameScreen.tsx`:
+
+```diff
+- interactive={state.phase === "PREPARE" && !isReferencePopoverOpen}
++ interactive={state.phase === "PREPARE" && !isReferencePopoverOpen && !isGlobalOverlayOpen}
+```
+
+This reuses the exact `isGlobalOverlayOpen` prop already threaded through
+`GameScreen` for the physical-drag gate (`App.tsx`'s `isDexOpen ||
+isShopOpen`) — no second overlay-state system introduced. With
+`interactive` now `false` while a global overlay is open, `PizzaStage`
+already does the rest on its own: `tabIndex` becomes `-1` (removing the
+dough from tab order entirely) and `handleKeyDown`'s existing `if
+(!interactive || ...) return;` guard rejects any Enter/Space that still
+reaches it. No changes to `PizzaStage.tsx` itself were needed.
+
+### Tests added (`src/screens/GameScreen.keyboardOverlay.test.tsx`, new file, +7)
+
+Mounts the real `GameScreen` wired to the real `gameReducer`, with
+`onTapPizza` reproducing App.tsx's own `handleTapPizza` (spread ingredient
+→ `APPLY_SAUCE`, scatter ingredient → `PLACE_TOPPING`) so a keyboard
+Enter/Space on the dough exercises the same dispatch path the real app
+uses:
+
+1. Dex open + a selected sauce (tomato-sauce) + Enter on the focused
+   dough → no sauce applied.
+2. Dex open + a selected topping (garlic) + Space → no topping placed.
+3. Shop open + Enter on a selected sauce → no sauce applied.
+4. Shop open + Space on a selected topping → no topping placed.
+5. Closing the overlay restores keyboard interaction (a subsequent Enter
+   places the topping normally).
+6. Reference-popover-only gating is unchanged: `isReferencePopoverOpen`
+   alone (no global overlay) still blocks keyboard placement, exactly as
+   before this fix.
+7. Normal mouse/touch `PizzaStage` interaction (pointerdown/pointerup on
+   the dough, no overlay open) is unaffected.
+
+Existing regression coverage confirms the rest of the required surface
+without duplicating it: `GameScreen.physicalDragOverlay.test.tsx` (Human
+Feel physical Mozzarella/Basil drag-vs-overlay behavior) is untouched and
+still passes unchanged after this fix.
+
+### Total tests
+
+**480/480 passing** (up from 473 going into this round).
+
+### Verification
+
+`tsc -b`, `oxlint`, `vitest run` (480/480), `vite build`, `git diff
+--check` — all clean.
+
+### Browser verification (390x844, headless Chromium)
+
+Real dev server, real dispatched keyboard events (`focus()` +
+`page.keyboard.press`), not mocked:
+
+- PREPARE → select a topping (にんにく) → open Dex → focus the dough →
+  Enter → **no topping placed**; Space → **no topping placed**.
+- Close Dex → Enter on the dough → **topping placed** (keyboard restored).
+- Re-select the topping → open Shop → Enter → **no additional topping
+  placed**; Space → **no additional topping placed**.
+- Close Shop → Enter → **topping placed again**.
+- 0 vertical/horizontal scroll throughout, fixed Bake CTA (`.prepare-bake-bar`)
+  visible throughout, 0 console errors.
+
+**10/10 checks passed.**
+
+### Scope guard
+
+No changes to scoring, sauce visual/rendering, sauce quantity semantics,
+physical drop radius/grace behavior, Ingredient Palette paging, legacy
+scoring, stars, Dex BEST, Mission, Lunch Rush, Pitz, Shop behavior,
+progression, save schema, Economy, Time Attack, or Scoring 2.0. The only
+production-code change is the single `interactive` expression in
+`GameScreen.tsx` above.
+
+### Unresolved threads
+
+**0** after this round. The single remaining P2 thread
+(`discussion_r4017893706`) was replied to with root cause/fix/tests/SHA
+and resolved.
+
+### Re-review requested
+
+`@codex review` requested on PR #26 after the reply/resolve.
+
+### Merge status
+
+**Not merged.** PR #26 remains open, awaiting this round's re-review.
+Final merge decision happens only after the new-head Codex review.
+
+## FINAL VERDICT (Final P2 keyboard-overlay round)
+
+**A. READY FOR FINAL CODEX RE-REVIEW**

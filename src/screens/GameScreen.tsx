@@ -258,7 +258,7 @@ export function GameScreen({
       <PizzaStage
         pizza={state.pizza}
         recipe={state.recipe}
-        interactive={state.phase === "PREPARE" && !isReferencePopoverOpen}
+        interactive={state.phase === "PREPARE" && !isReferencePopoverOpen && !isGlobalOverlayOpen}
         activeIngredient={selectedIngredientId ? (getIngredient(selectedIngredientId) ?? null) : null}
         bakeProgress={bakeProgress}
         placement={state.placement}
