@@ -596,25 +596,31 @@
   color: #fff;
 }
 
+/* Phase 4A-1B Human Feel Fix 2: a fixed 3x2 grid, never scrollable -- iPhone retesting of
+   Fix 1 (drag threshold + iOS callout suppression) still came back "unresponsive", and the
+   actual cause was this: scrolling the tray and dragging a piece onto the pizza are the same
+   single-finger swipe gesture, so every drag attempt was also a scroll attempt the browser
+   had to arbitrate. Removing scrolling removes that arbitration entirely instead of tuning
+   it further. `MAX_INGREDIENT_PALETTE_SLOTS` (src/data/ingredients.ts) keeps this a no-op
+   grid.template overflow guard rather than a hard product limit. */
 .ingredient-tray {
-  display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  padding-bottom: 8px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 8px;
 }
 
 .ingredient-chip {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 4px;
-  min-width: 72px;
-  min-height: 72px;
+  min-height: 76px;
   border-radius: 12px;
   border: 2px solid transparent;
   background: #fff8ea;
   padding: 8px 6px;
-  flex-shrink: 0;
   transition: transform 0.08s ease, box-shadow 0.08s ease;
   /* iOS Safari fires its own text-selection/callout UI on a touch-and-hold over button
      content (the emoji/text spans below) unless explicitly suppressed -- left unset, that
@@ -632,8 +638,14 @@
   background: #fff1de;
 }
 
+/* Phase 4A-1B Human Feel Fix 2: the grid has no native gesture left to share this button
+   with (pan-x existed only to keep the tray's old horizontal scroll usable -- gone now), so
+   this can go straight to `none`, the same "no ambiguity" setting `.pizza-dough--interactive`
+   already uses for the sauce-paint gesture. That's the "iOS Safari drag start" minimum this
+   round's brief asked for: nothing left for the browser to arbitrate before handing pointer
+   events to the drag handlers below. */
 .ingredient-chip--physical {
-  touch-action: pan-x;
+  touch-action: none;
 }
 
 /* Phase 4A-1B Human Feel fix: fires the instant a physical ingredient is touched, before
@@ -641,6 +653,8 @@
    app registered my touch" confirmation instead of leaving the chip inert until enough
    movement accumulates, which is what read as "reacts poorly" in hands-on testing. */
 .ingredient-chip--grabbing {
+  position: relative;
+  z-index: 1;
   transform: scale(1.08);
   box-shadow: 0 4px 10px rgba(47, 25, 8, 0.22);
   border-color: #e4572e;

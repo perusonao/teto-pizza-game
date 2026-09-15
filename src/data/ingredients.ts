@@ -180,6 +180,20 @@ export function ingredientsByCategory(category: IngredientCategory): Ingredient[
 }
 
 /**
+ * Phase 4A-1B Human Feel Fix 2: the Ingredient Palette (`IngredientTray.tsx`) is a fixed
+ * 3x2 grid with no scrolling -- scrolling the tray and dragging a piece onto the pizza were
+ * two touch gestures competing for the same swipe, which iPhone testing pinned as the actual
+ * cause of "feels unresponsive" (not the drag tuning Fix 1 already shipped). Every category
+ * today owns <=6 ingredients so this cap is a no-op in practice, but it's enforced
+ * unconditionally so a future category (or the 7th `onion`-style unlock) can't silently
+ * regress back into needing scroll. This is also the constant a future "seat at most N
+ * ingredients on the countertop" loadout feature (see
+ * docs/design/PIZZA_GAME_Phase4A-1B_Ingredient-Palette-Fixed-Grid_Design.md) is expected to
+ * reuse for its own cap, rather than inventing a second one.
+ */
+export const MAX_INGREDIENT_PALETTE_SLOTS = 6;
+
+/**
  * Every current ingredient (all 13) is Starter Set (see
  * docs/design/PIZZA_GAME_PROGRESSION_SSOT.md section 5) -- always OWNED, no Mastery gate.
  * Derived from `unlockCondition` being absent rather than a separate hand-maintained id

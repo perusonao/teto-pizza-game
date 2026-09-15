@@ -10,6 +10,7 @@ import {
   CATEGORY_LABEL,
   CATEGORY_ORDER,
   ingredientsByCategory,
+  MAX_INGREDIENT_PALETTE_SLOTS,
   type Ingredient,
   type IngredientCategory,
 } from "../data/ingredients";
@@ -64,9 +65,11 @@ export function IngredientTray({
   onPhysicalDrop,
   resetToken,
 }: IngredientTrayProps) {
-  const items = ingredientsByCategory(activeCategory).filter((i) =>
-    ownedIngredientIds.includes(i.id),
-  );
+  // Phase 4A-1B Human Feel Fix 2: capped to a fixed 3x2 grid, no scrolling -- see
+  // MAX_INGREDIENT_PALETTE_SLOTS in data/ingredients.ts for why.
+  const items = ingredientsByCategory(activeCategory)
+    .filter((i) => ownedIngredientIds.includes(i.id))
+    .slice(0, MAX_INGREDIENT_PALETTE_SLOTS);
   const sessionRef = useRef<DragSession | null>(null);
   const frameRef = useRef<number | null>(null);
   const pendingPointRef = useRef<{ x: number; y: number } | null>(null);
