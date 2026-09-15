@@ -193,17 +193,140 @@ production build:
   [34951221594](https://github.com/perusonao/teto-pizza-game/actions/runs/34951221594) —
   **`status: completed`, `conclusion: success`**.
 
+## Independent Review P2 fix: stale physical-drag session survives RESET_PIZZA
+
+### Finding
+
+Independent Review flagged (PR #26 discussion
+[`r4012637679`](https://github.com/perusonao/teto-pizza-game/pull/26#discussion_r4012637679),
+`src/components/IngredientTray.tsx:164`, P2): if a second pointer taps
+「やり直す」(`RESET_PIZZA`) while a first pointer is mid-drag on a
+draggable ingredient chip, `RESET_PIZZA` only ever changes `state.pizza`
+— none of the three signals `IngredientTray` already aborts an active
+drag session on (`physicalDragEnabled`, `selectedIngredientId`,
+`activeCategory`) move when it fires. The first pointer's session
+therefore survives the reset; releasing it afterward calls
+`onPhysicalDrop`, which commits `PLACE_TOPPING` onto the just-emptied
+pizza.
+
+### Fix
+
+`src/screens/GameScreen.tsx` — the one place 「やり直す」 is wired to
+`onResetPizza` — now owns a local `pizzaResetToken` counter and a
+`handleResetPizza` wrapper that bumps it in the same synchronous click
+handler that dispatches `RESET_PIZZA`, then passes the counter to
+`<IngredientTray resetToken={pizzaResetToken} />` alongside its existing
+props.
+
+`src/components/IngredientTray.tsx` gained a fourth "abort on change"
+effect, sitting directly alongside the existing three
+(`physicalDragEnabled`/`selectedIngredientId`/`activeCategory`):
+
+```ts
+useEffect(() => {
+  if (sessionRef.current) clearSession();
+}, [resetToken]);
+```
+
+`clearSession()` is the same function the other three effects and every
+existing abort path (`pointercancel`, `lostpointercapture`, `blur`,
+`visibilitychange`, Escape) already call — it nulls `sessionRef.current`,
+cancels the scheduled preview frame, clears the preview, and releases
+pointer capture. Once it has run, the stale pointer's later `pointerup`
+(handled by `finishDrag`) finds `sessionRef.current` already `null` and
+returns immediately, exactly like every other already-aborted session
+does — no new abort path was introduced, no existing one was touched.
+
+This is UI-only session-lifecycle wiring local to `GameScreen.tsx` and
+`IngredientTray.tsx`: `gameReducer.ts`, `pizzaState.ts`, and every
+legacy-authority system (scoring, Dex BEST, Mission, Pitz, Shop,
+progression, save schema) are untouched.
+
+### Regression tests added
+
+`src/components/IngredientTray.physicalDragReset.test.tsx` (new file, 10
+tests) wires the real `IngredientTray` component to the real
+`gameReducer` (never a mock of `PLACE_TOPPING`/`RESET_PIZZA`), with a
+harness `handleResetPizza` that mirrors `GameScreen.tsx`'s fix exactly:
+
+1. **Required regression (Mozzarella)** — drag started, `RESET_PIZZA`
+   dispatched mid-drag (before release), the original pointer released
+   over a valid drop point → `toppings.length === 0`.
+2. **Same race, Basil** — identical sequence through the same code path
+   → `toppings.length === 0`, confirming the fix isn't Mozzarella-
+   specific.
+3. **Non-regression: a drag that finishes before any reset still places
+   normally** → `toppings.length === 1` (the fix doesn't over-cancel).
+4. **Non-regression: a reset with no active drag session is a harmless
+   no-op** → a later, independent drag still places normally.
+5. **Existing safety nets, re-verified against the real reducer (all
+   previously verified only manually in the browser, now automated):**
+   outside-drop, `pointercancel`, `lostpointercapture`, window `blur`,
+   `visibilitychange`, and multi-touch (a second, non-primary pointer
+   cannot hijack or duplicate the first pointer's session) — all still
+   place nothing (or exactly one topping, for multi-touch's legitimate
+   first-pointer completion) after the fix.
+
+**Sanity-checked the tests themselves**: temporarily reverted the fix
+(`git stash`) and re-ran this file — the two required regression cases
+(Mozzarella and Basil) failed exactly as the finding describes (1 topping
+committed onto the reset pizza instead of 0), while all other cases
+(outside-drop, pointercancel, lostpointercapture, blur, visibilitychange,
+multi-touch, and the two non-regression checks) passed regardless,
+confirming the new tests isolate this specific race rather than
+coincidentally passing either way.
+
+### Verification after the fix
+
+| Check | Result |
+|---|---|
+| `npx tsc -b` | Clean, no errors |
+| `npm run lint` (oxlint) | Clean, 0 errors |
+| `npx vitest run` | **403/403 tests passing** (28 test files — 393 prior + 10 new) |
+| `npx vite build` | Clean, `dist/` produced |
+| `git diff --check` | Clean, no whitespace errors |
+
+### PR #26 state after the P2 fix push
+
+- Pushed to `codex/phase-4a-1b-physical-interaction` at commit
+  `0d8976c`.
+- GitHub Actions `build` check on head commit `0d8976c`, run
+  [34954620960](https://github.com/perusonao/teto-pizza-game/actions/runs/34954620960):
+  first attempt failed on
+  `src/state/gameReducer.commitSauceDispense.test.ts`'s
+  `"rejects during a Mission round even though the recipe/ingredient/
+  phase would otherwise be valid"` — a pre-existing test (last touched in
+  PR #21, untouched by this fix or the Post-#25 integration) whose
+  20-attempt retry loop for landing `MISSION_RESET_ORDER` on `margherita`
+  has a small nonzero chance of exhausting all 20 tries. Confirmed as an
+  unrelated flake, not a regression from this change: ran the same test
+  file 5/5 and the full suite 3/3 locally, both 100% green. Re-ran only
+  the failed job (`rerun_failed_jobs`, no code change) — **`status:
+  completed`, `conclusion: success`** on the same commit `0d8976c`.
+- `pull_request_read get`: `mergeable_state` **`clean`**.
+- Review thread `r4012637679` (P2, `src/components/IngredientTray.tsx:164`):
+  replied with the fix summary and regression-test description
+  ([`r4014278792`](https://github.com/perusonao/teto-pizza-game/pull/26#discussion_r4014278792)),
+  then **resolved**.
+- `pull_request_read get_review_comments`: 1 thread total, **0
+  unresolved** (`is_resolved: true`).
+- `pull_request_read get_review_comments`: **0 unresolved review
+  threads** remaining on PR #26.
+
 ## Verdict
 
-**A. MERGE READY FOR INDEPENDENT REVIEW / IPHONE GATE.**
+**A. READY FOR PHYSICAL IPHONE GATE.**
 
 All local verification (tsc/oxlint/vitest/build/git diff --check/conflict
-marker scan) passed cleanly, every required feature was confirmed present
-and working together at 390×844 with no console errors and no horizontal
-overflow, and no legacy-authority system (scoring/Dex BEST/Mission/Pitz/
-Shop/progression/save schema) was touched. `mergeable_state` is `clean`
-and the GitHub Actions `build` check on the pushed head (`7b55603`) is
-green. Per instructions, PR #26 was **not** merged — that step, along
-with the physical-iPhone Human Feel gate for the new Mozzarella/Basil
-interactions (per PR #26's own "pre-merge/broad-rollout gate" note), is
-left for the user.
+marker scan) passed cleanly both after the Post-#25 integration and after
+this P2 fix, every required feature was confirmed present and working
+together at 390×844 with no console errors and no horizontal overflow,
+and no legacy-authority system (scoring/Dex BEST/Mission/Pitz/Shop/
+progression/save schema) was touched by either change. `mergeable_state`
+is `clean`, the GitHub Actions `build` check on the final pushed head
+(`0d8976c`) is green, the P2 finding is fixed with a regression test that
+was confirmed to fail without the fix, its review thread is resolved, and
+PR #26 has 0 unresolved review threads. Per instructions, PR #26 was
+**not** merged — that step, along with the physical-iPhone Human Feel
+gate for the new Mozzarella/Basil interactions (per PR #26's own
+"pre-merge/broad-rollout gate" note), is left for the user.
