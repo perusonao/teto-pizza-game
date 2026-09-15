@@ -7,6 +7,12 @@ import { MissionHud } from "../components/MissionHud";
 import { MissionIntroOverlay } from "../components/MissionIntroOverlay";
 import { MissionServePanel } from "../components/MissionServePanel";
 import { MissionResultOverlay } from "../components/MissionResultOverlay";
+import { ReferencePreview } from "../components/ReferencePreview";
+import { SauceMetricsPanel } from "../components/SauceMetricsPanel";
+import type { ReferencePizza } from "../data/referencePizza";
+import type { SauceMetrics } from "../logic/sauceField";
+import type { SauceReferenceShadowScore } from "../logic/referenceScoring";
+import type { SauceDeposit } from "../state/pizzaState";
 import {
   buildBlueResultLine,
   buildMitoOrderLine,
@@ -43,6 +49,11 @@ interface GameScreenProps {
   activeCategory: IngredientCategory;
   selectedIngredientId: string | null;
   bakeProgress: number | null;
+  referenceModeEnabled: boolean;
+  referencePizza: ReferencePizza | null;
+  isReferencePopoverOpen: boolean;
+  sauceMetrics: SauceMetrics;
+  sauceShadowScore: SauceReferenceShadowScore;
   onGoHome: () => void;
   onOpenDex: () => void;
   onOpenShop: () => void;
@@ -62,6 +73,9 @@ interface GameScreenProps {
   onMissionStart: () => void;
   onMissionExitToFree: () => void;
   onMissionCloseIntro: () => void;
+  onReferencePopoverChange: (isOpen: boolean) => void;
+  onDispenseProgress: (deposits: readonly SauceDeposit[]) => void;
+  onDispenseCommit: (ingredientId: string, deposits: SauceDeposit[]) => void;
 }
 
 export function GameScreen({
@@ -73,6 +87,11 @@ export function GameScreen({
   activeCategory,
   selectedIngredientId,
   bakeProgress,
+  referenceModeEnabled,
+  referencePizza,
+  isReferencePopoverOpen,
+  sauceMetrics,
+  sauceShadowScore,
   onGoHome,
   onOpenDex,
   onOpenShop,
@@ -92,6 +111,9 @@ export function GameScreen({
   onMissionStart,
   onMissionExitToFree,
   onMissionCloseIntro,
+  onReferencePopoverChange,
+  onDispenseProgress,
+  onDispenseCommit,
 }: GameScreenProps) {
   const isMissionPlaying = mission.mode === "PLAYING";
   // Free play's own RESULT dialogue/ResultPanel are gated on this, not just `!isMissionPlaying`
@@ -176,13 +198,26 @@ export function GameScreen({
       <PizzaStage
         pizza={state.pizza}
         recipe={state.recipe}
-        interactive={state.phase === "PREPARE"}
+        interactive={state.phase === "PREPARE" && !isReferencePopoverOpen}
         activeIngredient={selectedIngredientId ? (getIngredient(selectedIngredientId) ?? null) : null}
         bakeProgress={bakeProgress}
         placement={state.placement}
         resultRevealed={state.phase === "RESULT"}
+        referenceModeEnabled={referenceModeEnabled}
         onTap={onTapPizza}
+        onDispenseProgress={onDispenseProgress}
+        onDispenseCommit={onDispenseCommit}
       />
+
+      {state.phase === "PREPARE" && referenceModeEnabled && referencePizza && (
+        <div className="reference-tools-row">
+          <ReferencePreview
+            reference={referencePizza}
+            isOpen={isReferencePopoverOpen}
+            onOpenChange={onReferencePopoverChange}
+          />
+        </div>
+      )}
 
       {state.phase === "ORDER" && (
         <div className="action-row">
@@ -195,6 +230,10 @@ export function GameScreen({
             </button>
           )}
         </div>
+      )}
+
+      {state.phase === "PREPARE" && referenceModeEnabled && (
+        <SauceMetricsPanel metrics={sauceMetrics} shadowScore={sauceShadowScore} />
       )}
 
       {state.phase === "PREPARE" && (
