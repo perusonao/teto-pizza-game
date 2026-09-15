@@ -188,11 +188,138 @@ All 4 Independent Review threads on PR #26:
 
 `@codex review` re-requested on PR #26 after all four replies.
 
-## Remaining blockers
+## Remaining blockers (as of the P1/P2-A/P2-B round)
 
 None identified. PR #26 is not merged (per this round's explicit
 instruction) — it awaits the re-review this round requested.
 
-## FINAL VERDICT
+## FINAL VERDICT (P1/P2-A/P2-B round)
 
 **A. READY FOR CODEX RE-REVIEW**
+
+---
+
+## Final P2 follow-up — Clamp grace drops inside the reducer boundary
+
+The Codex re-review of HEAD `7aa3d6cdddd899426fd970e97842ef2d5d04f8ec`
+resolved all three prior findings and surfaced exactly one new finding,
+P2 (no P1).
+
+- **Reviewed HEAD:** `7aa3d6cdddd899426fd970e97842ef2d5d04f8ec`
+- **Fix SHA (pushed to PR #26 head):** `7392a42ac0a5e2870afb282f58b6dc20b5d96bc5`
+
+### Finding
+
+For a drop in the piece-drop edge-grace annulus (`48 < distance <= 52`
+dough-percent units) at many non-axis angles, `clampToDough`
+(`src/logic/pizzaCoordinates.ts`) could return a point whose recomputed
+`Math.hypot` distance from center was a hair over `DOUGH_RADIUS` (e.g.
+`48.00000000000001`). `resolvePieceDrop` (`src/logic/pieceDrag.ts`)
+treated that as a valid drop and showed a valid preview, but
+`gameReducer`'s `PLACE_TOPPING` handler subsequently rejected the
+identical coordinates because `isInsideDough` requires `distance <=
+DOUGH_RADIUS` exactly — a rim drop that looked placeable in the preview
+sometimes silently placed nothing on release.
+
+### Root cause
+
+`clampToDough` scaled by `DOUGH_RADIUS / distance` and returned
+`{ DOUGH_CENTER + dx*scale, DOUGH_CENTER + dy*scale }`. Reconstructing the
+distance from that result via a fresh `Math.hypot` call doesn't always
+invert the scale exactly in IEEE-754 double precision — reproduced by
+sweeping every angle 0–359.99° at several grace-annulus distances: 43,549
+of the sampled angle/distance pairs rounded to *over* `DOUGH_RADIUS`, with
+a worst observed overflow of `~2.8e-14` (at 52 units, ~22.31°).
+`isInsideDough`'s reducer-side check and `clampToDough`'s preview-side
+projection were each internally consistent but not consistent *with each
+other* at that precision.
+
+### Fix
+
+`src/logic/pizzaCoordinates.ts`: added `CLAMP_INSET_EPSILON = 1e-9` and
+changed `clampToDough`'s scale from `DOUGH_RADIUS / distance` to
+`(DOUGH_RADIUS - CLAMP_INSET_EPSILON) / distance`. Re-running the same
+angle/distance sweep with this margin: **0** overflow cases (checked up
+to distance 1000, far beyond anything `resolvePieceDrop` ever passes in),
+with a maximum inward shift of `~1e-9` dough-percent — many orders of
+magnitude below one visible pixel or one `toFixed(2)` rendering unit.
+`isInsideDough`/`DOUGH_RADIUS` themselves are untouched — the reducer's
+boundary is not loosened; the guarantee comes entirely from the clamp
+side landing a hair inside it, so preview and reducer share one
+consistent contract instead of two separately-tuned tolerances.
+
+### Tests added (`src/logic/pieceDrag.test.ts`, +13 tests, all in the existing file)
+
+- Updated the one pre-existing hardcoded exact-`98` grace-clamp assertion
+  to `toBeCloseTo` (the point now legitimately lands `~1e-9` inside `98`,
+  not exactly on it).
+- **Invariant fuzz test:** every point `clampToDough` returns satisfies
+  `isInsideDough`, swept across all angles (0–359°) and 8 distances
+  (48.001–100).
+- +X axis, +Y axis, 45°, and 30° grace drops each individually confirmed
+  inside the boundary.
+- The exact worst-case angle/distance found while reproducing this
+  finding (52 units @ 22.31°) pinned directly, plus a dedicated "inward
+  shift stays under 1e-6" assertion.
+- Multiple grace-annulus distances (48.001–52) at a fixed non-axis angle
+  (30°).
+- A drop past the edge-grace boundary (`DOUGH_RADIUS + PIECE_DROP_EDGE_GRACE
+  + 0.5`) remains rejected by `resolvePieceDrop` (no loosening of the
+  outer boundary).
+- An ordinary inside-dough drop (no clamping) is unaffected.
+- `gameReducer` `PLACE_TOPPING` integration tests (real reducer, not
+  mocked) for **both Mozzarella and Basil**: the pinned worst-case
+  angle/distance now places (`toppings.length === 1`,
+  `placement.status !== "rejected"`), and a spread of 5 grace
+  distance/angle combinations across both ingredients all place
+  successfully in sequence.
+- Sanity-checked by reverting the fix locally: 6 of the new/updated tests
+  failed exactly as expected (including both reducer-level
+  Mozzarella/Basil "always places" tests going from length 1 to length 0),
+  confirming the tests isolate this specific inconsistency.
+
+### Total tests
+
+**473/473 passing** (up from 460 going into this round).
+
+### Verification
+
+`tsc -b`, `oxlint`, `vitest run` (473/473), `vite build`, `git diff
+--check` — all clean.
+
+### Browser verification (390x844, headless Chromium)
+
+- Golden path (HOME → GAME → Margherita → Sauce → Cheese → Mozzarella x3
+  → Topping → Basil x2 → Bake) unaffected: 0 vertical/horizontal scroll,
+  Bake CTA visible, 0 console errors.
+- Real dispatched `PointerEvent`s (exact fractional `clientX`/`clientY`,
+  dispatched on the pointer-captured chip element to mirror native
+  capture routing) driving a physical drag to a grace-annulus point 51.9
+  dough-percent units from center, swept across **19 angles** (0° through
+  337.5°) for Mozzarella and 2 angles for Basil: every case showed a
+  **valid preview** before release and **committed** on release
+  (`before=0`/`after=1` topping count each time), 0 console errors —
+  **63/63 checks passed**.
+
+### Unresolved threads
+
+**0** after this round. The single new P2 thread
+(`discussion_r4017391946`) was replied to with root cause/fix/tests/SHA
+and resolved.
+
+### CI
+
+`build` check green on PR #26 HEAD `7392a42ac0a5e2870afb282f58b6dc20b5d96bc5`;
+`mergeable_state`: `clean`.
+
+### Re-review requested
+
+`@codex review` requested on PR #26 after the reply/resolve.
+
+### Merge status
+
+**Not merged.** PR #26 remains open, awaiting this round's re-review.
+
+## FINAL VERDICT (Final P2 boundary-fix round)
+
+**A. READY FOR FINAL CODEX RE-REVIEW**
