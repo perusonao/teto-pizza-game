@@ -8,6 +8,7 @@ import {
   SAUCE_FIELD_SIZE,
   totalDispensed,
 } from "./sauceField";
+import { SAUCE_RATE_PER_TICK } from "./sauceQuantity";
 
 /** Spreads `total` amount across `count` deposits arranged evenly around the dough. */
 function wideDeposits(total: number, count: number): Array<{ x: number; y: number; amount: number }> {
@@ -152,6 +153,17 @@ describe("coverage", () => {
     const metrics = computeSauceMetrics(wideDeposits(1.0, 100));
     expect(metrics.coverage).toBeGreaterThanOrEqual(0);
     expect(metrics.coverage).toBeLessThanOrEqual(1);
+  });
+
+  // Pins the exact boundary Codex flagged (P1, PR #21): COVERAGE_THRESHOLD must stay
+  // strictly below one normal dispense tick's own amount (SAUCE_RATE_PER_TICK, imported
+  // here rather than duplicated as a literal so this test breaks if the two constants are
+  // ever changed back into the wrong order relative to each other), otherwise a player who
+  // paints quickly enough that each tick lands in its own cell would visibly cover the dough
+  // while the coverage metric silently stayed at 0.
+  it("a single normal dispense tick registers as touched (coverage > 0)", () => {
+    const metrics = computeSauceMetrics([{ x: 50, y: 50, amount: SAUCE_RATE_PER_TICK }]);
+    expect(metrics.coverage).toBeGreaterThan(0);
   });
 });
 
