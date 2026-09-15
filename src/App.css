@@ -597,6 +597,16 @@
   background: #fff8ea;
   padding: 8px 6px;
   flex-shrink: 0;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+  /* iOS Safari fires its own text-selection/callout UI on a touch-and-hold over button
+     content (the emoji/text spans below) unless explicitly suppressed -- left unset, that
+     native UI can grab a slow-starting drag gesture out from under the pointer handlers
+     below, which is exactly the kind of "operation feels unresponsive" failure a screen
+     recording alone won't show (the callout can flash and vanish within a frame or two). */
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .ingredient-chip--selected {
@@ -606,6 +616,16 @@
 
 .ingredient-chip--physical {
   touch-action: pan-x;
+}
+
+/* Phase 4A-1B Human Feel fix: fires the instant a physical ingredient is touched, before
+   the drag-intent threshold (src/logic/pieceDrag.ts) is crossed -- gives immediate "the
+   app registered my touch" confirmation instead of leaving the chip inert until enough
+   movement accumulates, which is what read as "reacts poorly" in hands-on testing. */
+.ingredient-chip--grabbing {
+  transform: scale(1.08);
+  box-shadow: 0 4px 10px rgba(47, 25, 8, 0.22);
+  border-color: #e4572e;
 }
 
 .ingredient-chip__drag-hint {

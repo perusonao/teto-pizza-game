@@ -73,6 +73,11 @@ export function IngredientTray({
   const suppressClickIdRef = useRef<string | null>(null);
   const [preview, setPreview] = useState<DragPreview | null>(null);
   const [announcement, setAnnouncement] = useState("");
+  // Phase 4A-1B Human Feel fix: set the instant a physical ingredient is touched (not once
+  // drag-intent is confirmed), purely so `.ingredient-chip--grabbing` can give the finger
+  // immediate visual confirmation. Never read for drag/drop logic -- sessionRef stays the
+  // single source of truth there.
+  const [grabbedId, setGrabbedId] = useState<string | null>(null);
 
   function clearScheduledFrame() {
     if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
@@ -85,6 +90,7 @@ export function IngredientTray({
     sessionRef.current = null;
     clearScheduledFrame();
     setPreview(null);
+    setGrabbedId(null);
     if (session) {
       try {
         session.source.releasePointerCapture(session.pointerId);
@@ -200,6 +206,7 @@ export function IngredientTray({
       startY: event.clientY,
       dragging: false,
     };
+    setGrabbedId(ingredient.id);
     try {
       event.currentTarget.setPointerCapture(event.pointerId);
     } catch {
@@ -277,7 +284,9 @@ export function IngredientTray({
             type="button"
             className={`ingredient-chip ${
               selectedIngredientId === ingredient.id ? "ingredient-chip--selected" : ""
-            } ${isDraggable(ingredient) ? "ingredient-chip--physical" : ""}`}
+            } ${isDraggable(ingredient) ? "ingredient-chip--physical" : ""} ${
+              grabbedId === ingredient.id ? "ingredient-chip--grabbing" : ""
+            }`}
             aria-pressed={selectedIngredientId === ingredient.id}
             onPointerDown={(event) => handlePointerDown(event, ingredient)}
             onPointerMove={handlePointerMove}

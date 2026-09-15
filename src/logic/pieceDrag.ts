@@ -5,7 +5,12 @@ import {
   type DoughPoint,
 } from "./pizzaCoordinates";
 
-export const PIECE_DRAG_THRESHOLD_PX = 6;
+// Phase 4A-1B Human Feel fix: lowered from 6 -- hands-on iPhone testing read the previous
+// value as "have to drag pretty far before it grabs". The angle gate right below (still
+// >=37 degrees off horizontal for touch) is what actually protects the IngredientTray's
+// horizontal scroll from a false-positive grab, so shrinking just the distance keeps that
+// protection intact while letting a small, mostly-vertical nudge register immediately.
+export const PIECE_DRAG_THRESHOLD_PX = 4;
 export const PIECE_DROP_EDGE_GRACE = 4;
 
 export function hasPieceDragIntent(
