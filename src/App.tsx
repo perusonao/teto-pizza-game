@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { HomeScreen } from "./screens/HomeScreen";
+import { PreviewBadge } from "./components/PreviewBadge";
 import { GameScreen } from "./screens/GameScreen";
 import { DexOverlay } from "./components/DexOverlay";
 import { ShopOverlay } from "./components/ShopOverlay";
@@ -374,6 +375,7 @@ function App() {
 
   return (
     <div className="app-frame">
+      <PreviewBadge />
       {screen === "HOME" && (
         <HomeScreen
           pitzBalance={state.pitzBalance}

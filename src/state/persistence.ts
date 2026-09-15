@@ -42,7 +42,18 @@ import { isNewMissionBest } from "../logic/missionScoring";
  * `persistProgress` for every GameState-driven save since Phase 3C-5.
  */
 
-export const SAVE_STORAGE_KEY = "teto-pizza-save-v1";
+/**
+ * Preview deployments (perusonao/teto-pizza-game-preview) share the production app's
+ * `perusonao.github.io` origin -- only the path differs -- and `localStorage` is scoped by
+ * origin, not path, so a preview build reading/writing the production key would silently
+ * mix a reviewer's real save with whatever a preview round leaves behind. `VITE_PREVIEW_MODE`
+ * is set only by the preview build pipeline (never by the production `vite build`, which
+ * leaves it unset), so this never changes production's key and needs no schema/version bump
+ * -- `PersistentSaveV1`'s shape is identical either way, just stored under a different key.
+ */
+export const SAVE_STORAGE_KEY = import.meta.env.VITE_PREVIEW_MODE
+  ? "teto-pizza-preview-save-v1"
+  : "teto-pizza-save-v1";
 const CURRENT_SCHEMA_VERSION = 1;
 
 export interface PersistentSaveV1 {

@@ -1,3 +1,21 @@
+/* ---------- Preview badge (perusonao/teto-pizza-game-preview only) ---------- */
+.preview-badge {
+  position: fixed;
+  bottom: calc(4px + env(safe-area-inset-bottom, 0px));
+  right: 6px;
+  z-index: 999;
+  font-size: 9px;
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: rgba(255, 249, 236, 0.75);
+  background: rgba(43, 26, 10, 0.55);
+  border-radius: 6px;
+  padding: 2px 6px;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
 .app-frame {
   width: 100%;
   max-width: 390px;
