@@ -28,6 +28,30 @@
 import { computeSauceMetrics, type SauceDepositLike, type SauceMetrics } from "../logic/sauceField";
 import { SAUCE_RATE_PER_TICK } from "../logic/sauceQuantity";
 
+export type InteractionFamily =
+  | "SPREAD"
+  | "HOLD_SCATTER"
+  | "TAP_PLACE"
+  | "SPRINKLE"
+  | "DRIZZLE"
+  | "SPECIAL"
+  | "NON_INTERACTIVE";
+
+export interface ReferencePieceGroup {
+  ingredientId: "mozzarella" | "basil";
+  positions: readonly { x: number; y: number }[];
+  interaction: {
+    family: "TAP_PLACE";
+    primaryInput: "DRAG_FROM_TRAY";
+    fallbackInput: "TAP_ON_PIZZA";
+    landingStyle: "HEAVY_SQUASH" | "LIGHT_LEAF";
+  };
+  matching: {
+    fullCreditRadius: number;
+    zeroCreditRadius: number;
+  };
+}
+
 export interface ReferenceSauce {
   ingredientId: string;
   /** Target normalized quantity, 0.0-1.0. Derived from `IDEAL_MARGHERITA_SAUCE_FIXTURE`'s
@@ -40,6 +64,8 @@ export interface ReferenceSauce {
 export interface ReferencePizza {
   recipeId: "margherita";
   sauce: ReferenceSauce;
+  /** Phase 4A-1B game-authored prototype layout; never a PIZZA DB quantity claim. */
+  pieceGroups: readonly ReferencePieceGroup[];
 }
 
 /** Concentric rings (radius, point count) the fixture paints along, staying inside the
@@ -98,6 +124,37 @@ export const MARGHERITA_REFERENCE: ReferencePizza = {
     quantity: round2(IDEAL_MARGHERITA_SAUCE_METRICS.quantity),
     coverage: round2(IDEAL_MARGHERITA_SAUCE_METRICS.coverage),
   },
+  pieceGroups: [
+    {
+      ingredientId: "mozzarella",
+      positions: [
+        { x: 35, y: 35 },
+        { x: 65, y: 36 },
+        { x: 50, y: 66 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "basil",
+      positions: [
+        { x: 31, y: 62 },
+        { x: 69, y: 62 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "LIGHT_LEAF",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
 };
 
 /** Returns the Reference Pizza for `recipeId`, or null for every recipe but Margherita

@@ -72,3 +72,19 @@ describe("getReferencePizza (Scope Guard)", () => {
     }
   });
 });
+
+describe("Phase 4A-1B piece reference", () => {
+  it("defines game-authored 3/2 TAP_PLACE groups using DRAG_FROM_TRAY", () => {
+    const [mozzarella, basil] = MARGHERITA_REFERENCE.pieceGroups;
+    expect(mozzarella.ingredientId).toBe("mozzarella");
+    expect(mozzarella.positions).toHaveLength(3);
+    expect(basil.ingredientId).toBe("basil");
+    expect(basil.positions).toHaveLength(2);
+    for (const group of MARGHERITA_REFERENCE.pieceGroups) {
+      expect(group.interaction.family).toBe("TAP_PLACE");
+      expect(group.interaction.primaryInput).toBe("DRAG_FROM_TRAY");
+      expect(group.interaction.fallbackInput).toBe("TAP_ON_PIZZA");
+      expect(group.matching).toEqual({ fullCreditRadius: 8, zeroCreditRadius: 22 });
+    }
+  });
+});

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { DialogueBox } from "./components/DialogueBox";
 import { PizzaStage } from "./components/PizzaStage";
 import { IngredientTray } from "./components/IngredientTray";
@@ -14,7 +14,9 @@ import { ReferencePreview } from "./components/ReferencePreview";
 import { SauceMetricsPanel } from "./components/SauceMetricsPanel";
 import { getReferencePizza } from "./data/referencePizza";
 import { computeSauceMetrics, emptySauceMetrics } from "./logic/sauceField";
-import { scoreSauceAgainstReference } from "./logic/referenceScoring";
+import { scorePiecesAgainstReference, scoreSauceAgainstReference } from "./logic/referenceScoring";
+import { resolvePieceDrop } from "./logic/pieceDrag";
+import type { DoughPoint } from "./logic/pizzaCoordinates";
 import type { SauceDeposit } from "./state/pizzaState";
 import {
   buildBlueResultLine,
@@ -98,6 +100,16 @@ function App() {
   const [pendingSauceDeposits, setPendingSauceDeposits] = useState<SauceDeposit[]>([]);
   const [liveBake, setLiveBake] = useState(0);
   const bakeFrameSkip = useRef(0);
+  const pizzaDropTargetRef = useRef<HTMLDivElement | null>(null);
+
+  const handleDoughElementChange = useCallback((element: HTMLDivElement | null) => {
+    pizzaDropTargetRef.current = element;
+  }, []);
+
+  const resolvePhysicalDrop = useCallback((clientX: number, clientY: number) => {
+    const element = pizzaDropTargetRef.current;
+    return element ? resolvePieceDrop(clientX, clientY, element.getBoundingClientRect()) : null;
+  }, []);
 
   // Every new order should start the player off with the recipe's own sauce selected,
   // so a fresh order never opens on a sauce that belongs to a different recipe.
@@ -249,6 +261,11 @@ function App() {
     }
   }
 
+  function handlePhysicalDrop(ingredient: Ingredient, point: DoughPoint) {
+    setSelectedIngredientId(ingredient.id);
+    dispatch({ type: "PLACE_TOPPING", ingredientId: ingredient.id, x: point.x, y: point.y });
+  }
+
   // Phase 4A-1A (Post-Codex-Fix) MUST FIX 7 -- Cancel Transaction: PizzaStage buffers every
   // dispense tick locally and only ever calls one of these two -- `onDispenseProgress` many
   // times per session (live preview, never touching canonical state) and
@@ -330,6 +347,13 @@ function App() {
         : { quantitySimilarity: 0, coverageSimilarity: 0, overall: 0 },
     [referencePizza, sauceMetrics],
   );
+  const pieceShadowMetrics = useMemo(
+    () =>
+      referencePizza
+        ? scorePiecesAgainstReference(state.pizza.toppings, referencePizza.pieceGroups)
+        : [],
+    [referencePizza, state.pizza.toppings],
+  );
 
   return (
     <div className="app-frame">
@@ -391,6 +415,7 @@ function App() {
         placement={state.placement}
         resultRevealed={state.phase === "RESULT"}
         referenceModeEnabled={referenceModeEnabled}
+        onDoughElementChange={handleDoughElementChange}
         onTap={handleTapPizza}
         onDispenseProgress={handleDispenseProgress}
         onDispenseCommit={handleDispenseCommit}
@@ -428,7 +453,11 @@ function App() {
       )}
 
       {state.phase === "PREPARE" && referenceModeEnabled && (
-        <SauceMetricsPanel metrics={sauceMetrics} shadowScore={sauceShadowScore} />
+        <SauceMetricsPanel
+          metrics={sauceMetrics}
+          shadowScore={sauceShadowScore}
+          pieceMetrics={pieceShadowMetrics}
+        />
       )}
 
       {state.phase === "PREPARE" && (
@@ -439,6 +468,10 @@ function App() {
             selectedIngredientId={selectedIngredientId}
             onSelectIngredient={handleSelectIngredient}
             ownedIngredientIds={state.ownedIngredientIds}
+            physicalDragEnabled={referenceModeEnabled && !isReferencePopoverOpen}
+            draggableIngredientIds={["mozzarella", "basil"]}
+            resolvePhysicalDrop={resolvePhysicalDrop}
+            onPhysicalDrop={handlePhysicalDrop}
           />
           <div className="action-row">
             <button
