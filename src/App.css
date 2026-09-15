@@ -150,6 +150,12 @@
   /* Pointer gestures (tap + sauce-paint drag) are handled by hand, scoped to the dough
      itself so the rest of the page keeps its normal scroll behavior. */
   touch-action: none;
+  /* Phase 4A-1A (Post-Codex-Fix) MUST FIX 9 -- Mobile Termination: a long-press dispense
+     hold must never trigger iOS Safari's own text-selection/callout bubble or Android's
+     text-selection handles competing with the gesture. */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .pizza-dough--raw {
@@ -234,6 +240,13 @@
   animation: sauce-spread 380ms linear both;
 }
 
+/* Phase 4A-1A: the 100% keyframe's opacity used to hard-code 1 -- since a CSS animation's
+   `forwards`/`both` fill keeps its final keyframe's computed value in force even after the
+   animation ends, that silently overrode any later inline `opacity` change on this element
+   (the Margherita Reference prototype's per-quantity fade, see PizzaStage's
+   `baseSauceOpacity`) for good. Routing the target through this custom property instead
+   lets the inline style still set it; every other sauce/recipe defaults to 1, identical to
+   the old hard-coded value. */
 @keyframes sauce-spread {
   0% {
     clip-path: circle(0% at var(--sauce-origin-x, 50%) var(--sauce-origin-y, 50%));
@@ -241,7 +254,7 @@
   }
   100% {
     clip-path: circle(150% at var(--sauce-origin-x, 50%) var(--sauce-origin-y, 50%));
-    opacity: 1;
+    opacity: var(--sauce-target-opacity, 1);
   }
 }
 
@@ -1316,4 +1329,205 @@
   background: #e0d0ac;
   color: #a1662f;
   opacity: 0.7;
+}
+
+/* ---------- Phase 4A-1A: Reference Sauce Quantity prototype ---------- */
+
+/* Sauce heatmap: drawn from the exact 16x16 field Prototype Metrics reads (see
+   src/logic/sauceField.ts), layered above the flat .pizza-sauce-layer fill and below
+   toppings by DOM order alone -- no z-index needed. Not clip-path'd to the dough circle so
+   the faint overflow dots it also draws can still show just past the rim. */
+.pizza-sauce-heatmap {
+  position: absolute;
+  inset: calc(-1 * var(--dough-border-width));
+  width: calc(100% + 2 * var(--dough-border-width));
+  height: calc(100% + 2 * var(--dough-border-width));
+  pointer-events: none;
+}
+
+/* MUST FIX 8 (Visual Truth) follow-up: now that the heatmap is the *only* sauce visual for
+   this prototype (see PizzaStage's `isReferenceSauceContext`), it needs the same bake-state
+   tinting `.pizza-sauce-layer` gets elsewhere, or the sauce would stop reacting to bake
+   state entirely once the flat fill is skipped. Same filter values as
+   `.pizza-dough--raw/--perfect .pizza-sauce-layer` above, applied to the canvas instead. */
+.pizza-dough--raw .pizza-sauce-heatmap--raw {
+  filter: saturate(1.18) brightness(1.06);
+}
+
+.pizza-dough--perfect .pizza-sauce-heatmap--perfect {
+  filter: saturate(1.08) brightness(0.95) hue-rotate(-6deg);
+}
+
+.pizza-dough--burnt .pizza-sauce-heatmap--burnt {
+  filter: brightness(0.55) saturate(0.7) sepia(0.25);
+}
+
+.reference-tools-row {
+  display: flex;
+  justify-content: center;
+  padding: 0 16px;
+  margin-top: -4px;
+}
+
+.reference-preview__button {
+  border: none;
+  background: #f5ecd8;
+  color: #6b4226;
+  font-weight: 700;
+  font-size: 13px;
+  border-radius: 999px;
+  padding: 8px 16px;
+  min-height: 36px;
+}
+
+.reference-preview__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(30, 18, 8, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 25;
+  padding: 16px;
+}
+
+.reference-preview__panel {
+  width: 100%;
+  max-width: 320px;
+  max-height: 85%;
+  overflow-y: auto;
+  background: #fff8ea;
+  border-radius: 18px;
+  padding: 16px;
+}
+
+.reference-preview__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.reference-preview__header h2 {
+  font-size: 16px;
+  color: #6b4226;
+}
+
+.reference-preview__close {
+  border: none;
+  background: #e6d5ae;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-weight: 700;
+  font-size: 12px;
+  min-height: 32px;
+}
+
+.reference-mini-pizza {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  margin: 4px auto 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #f3d9a4, #e2b876 85%);
+  border: 6px solid #c99b56;
+  box-shadow: inset 0 0 12px rgba(120, 70, 20, 0.3);
+}
+
+.reference-mini-pizza__sauce {
+  position: absolute;
+  inset: 8%;
+  border-radius: 50%;
+}
+
+.reference-mini-pizza__topping {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-size: 18px;
+}
+
+.reference-preview__caption {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #6b4226;
+  margin-bottom: 12px;
+}
+
+.reference-preview__bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.reference-preview__bar-label {
+  flex: 0 0 auto;
+  font-size: 11px;
+  font-weight: 700;
+  color: #8a6a1f;
+  width: 92px;
+}
+
+.reference-preview__bar {
+  flex: 1;
+  height: 10px;
+  background: #e6d5ae;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.reference-preview__bar-fill {
+  height: 100%;
+  background: #c73b2e;
+  border-radius: 999px;
+}
+
+.sauce-metrics-panel {
+  margin: 4px 16px 0;
+  background: #f5ecd8;
+  border-radius: 12px;
+  padding: 8px 12px;
+}
+
+.sauce-metrics-panel__toggle {
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  color: #8a6a1f;
+  padding: 2px 0;
+}
+
+.sauce-metrics-panel__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.sauce-metrics-panel__chip {
+  font-size: 11px;
+  color: #6b4226;
+  background: #fff8ea;
+  border-radius: 999px;
+  padding: 4px 8px;
+}
+
+.sauce-metrics-panel__chip--warn {
+  background: #fbdcd2;
+  color: #a1341f;
+}
+
+.sauce-metrics-panel__detail {
+  margin-top: 6px;
+  border-top: 1px solid #e6d5ae;
+  padding-top: 6px;
+}
+
+.sauce-metrics-panel__detail-note {
+  font-size: 10px;
+  color: #a1662f;
+  margin-bottom: 4px;
 }

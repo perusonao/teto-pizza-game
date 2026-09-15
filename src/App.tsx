@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useRef, useState } from "react";
+import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { DialogueBox } from "./components/DialogueBox";
 import { PizzaStage } from "./components/PizzaStage";
 import { IngredientTray } from "./components/IngredientTray";
@@ -10,6 +10,12 @@ import { MissionIntroOverlay } from "./components/MissionIntroOverlay";
 import { MissionServePanel } from "./components/MissionServePanel";
 import { MissionResultOverlay } from "./components/MissionResultOverlay";
 import { ShopOverlay } from "./components/ShopOverlay";
+import { ReferencePreview } from "./components/ReferencePreview";
+import { SauceMetricsPanel } from "./components/SauceMetricsPanel";
+import { getReferencePizza } from "./data/referencePizza";
+import { computeSauceMetrics, emptySauceMetrics } from "./logic/sauceField";
+import { scoreSauceAgainstReference } from "./logic/referenceScoring";
+import type { SauceDeposit } from "./state/pizzaState";
 import {
   buildBlueResultLine,
   buildMitoOrderLine,
@@ -78,6 +84,18 @@ function App() {
   );
   const [isDexOpen, setDexOpen] = useState(false);
   const [isShopOpen, setShopOpen] = useState(false);
+  // Phase 4A-1A (Post-Codex-Fix) MUST FIX 1/9: opening the Reference ("見本") popover must
+  // abort any in-progress tomato-sauce dispense session, exactly like BAKE does -- lifted
+  // here (rather than left as ReferencePreview's own local state) so `interactive` below can
+  // fold it in, reusing PizzaStage's existing "interactive went false -> abort" effect
+  // instead of adding a second, parallel abort mechanism.
+  const [isReferencePopoverOpen, setReferencePopoverOpen] = useState(false);
+  // Phase 4A-1A (Post-Codex-Fix) MUST FIX 7 -- Cancel Transaction: the current in-progress
+  // dispense session's not-yet-committed deposits, mirrored up from PizzaStage purely so
+  // Prototype Metrics can show live numbers while holding -- see handleDispenseProgress/
+  // handleDispenseCommit below. Declared here (not lower, near those handlers) so the
+  // lastOrderId reset block just below can safely clear it.
+  const [pendingSauceDeposits, setPendingSauceDeposits] = useState<SauceDeposit[]>([]);
   const [liveBake, setLiveBake] = useState(0);
   const bakeFrameSkip = useRef(0);
 
@@ -88,6 +106,13 @@ function App() {
     setLastOrderId(state.order.id);
     setSelectedIngredientId(findPrimarySauceId(state.recipe));
     setActiveCategory("sauce");
+    // A leftover-open Reference popover from the previous round must never carry over --
+    // it would otherwise hold `interactive` false on the fresh round for no visible reason.
+    setReferencePopoverOpen(false);
+    // Defensive: a fresh round's pizza is always empty, so any uncommitted dispense preview
+    // from the previous round (which should already be [] by the time a round can end) must
+    // never bleed into the new one's Prototype Metrics.
+    setPendingSauceDeposits([]);
   }
 
   const [lastPhase, setLastPhase] = useState(state.phase);
@@ -224,6 +249,21 @@ function App() {
     }
   }
 
+  // Phase 4A-1A (Post-Codex-Fix) MUST FIX 7 -- Cancel Transaction: PizzaStage buffers every
+  // dispense tick locally and only ever calls one of these two -- `onDispenseProgress` many
+  // times per session (live preview, never touching canonical state) and
+  // `onDispenseCommit` at most once, only from a *successful* pointerup. A cancelled/
+  // discarded session calls neither commit nor leaves anything in `pendingSauceDeposits`
+  // (PizzaStage always follows a discard with `onDispenseProgress([])`).
+  function handleDispenseProgress(deposits: readonly SauceDeposit[]) {
+    setPendingSauceDeposits(deposits as SauceDeposit[]);
+  }
+
+  function handleDispenseCommit(ingredientId: string, deposits: SauceDeposit[]) {
+    dispatch({ type: "COMMIT_SAUCE_DISPENSE", ingredientId, deposits });
+    setPendingSauceDeposits([]);
+  }
+
   function handleBakeTick(value: number) {
     bakeFrameSkip.current += 1;
     if (bakeFrameSkip.current % 3 !== 0) return;
@@ -263,6 +303,33 @@ function App() {
   // -- reusing it would cost the same tempo `MissionServePanel` exists to avoid (Phase 3C-4
   // section 17). Every other phase's dialogue is completely unaffected, Mission or not.
   const showFreeResultDialogue = state.phase === "RESULT" && !isMissionActive;
+
+  // Phase 4A-1A Scope Guard: the Reference Pizza / tomato-sauce dispenser / Prototype
+  // Metrics are a shadow-only prototype for exactly one case -- FREE Margherita, never
+  // Mission play, never any other recipe. `referencePizza` is null for every other recipe
+  // (../data/referencePizza.ts), which alone would gate everything below it, but the
+  // explicit `!isMissionActive` check keeps that true by construction even if a future
+  // recipe reuses "margherita" during a Mission-only variant.
+  const referencePizza = getReferencePizza(state.recipe.id);
+  const referenceModeEnabled = referencePizza !== null && !isMissionActive;
+  // Live metrics include the current in-progress dispense session's uncommitted deposits
+  // (`pendingSauceDeposits`, MUST FIX 7) alongside canonical `state.pizza.sauceDeposits`, so
+  // the Prototype Metrics panel updates in real time while holding -- without canonical game
+  // state ever seeing the uncommitted stroke itself.
+  const sauceMetrics = useMemo(
+    () =>
+      referenceModeEnabled
+        ? computeSauceMetrics([...state.pizza.sauceDeposits, ...pendingSauceDeposits])
+        : emptySauceMetrics(),
+    [referenceModeEnabled, state.pizza.sauceDeposits, pendingSauceDeposits],
+  );
+  const sauceShadowScore = useMemo(
+    () =>
+      referencePizza
+        ? scoreSauceAgainstReference(sauceMetrics, referencePizza.sauce)
+        : { quantitySimilarity: 0, coverageSimilarity: 0, overall: 0 },
+    [referencePizza, sauceMetrics],
+  );
 
   return (
     <div className="app-frame">
@@ -318,13 +385,26 @@ function App() {
       <PizzaStage
         pizza={state.pizza}
         recipe={state.recipe}
-        interactive={state.phase === "PREPARE"}
+        interactive={state.phase === "PREPARE" && !isReferencePopoverOpen}
         activeIngredient={selectedIngredientId ? (getIngredient(selectedIngredientId) ?? null) : null}
         bakeProgress={bakeProgress}
         placement={state.placement}
         resultRevealed={state.phase === "RESULT"}
+        referenceModeEnabled={referenceModeEnabled}
         onTap={handleTapPizza}
+        onDispenseProgress={handleDispenseProgress}
+        onDispenseCommit={handleDispenseCommit}
       />
+
+      {state.phase === "PREPARE" && referenceModeEnabled && referencePizza && (
+        <div className="reference-tools-row">
+          <ReferencePreview
+            reference={referencePizza}
+            isOpen={isReferencePopoverOpen}
+            onOpenChange={setReferencePopoverOpen}
+          />
+        </div>
+      )}
 
       {state.phase === "ORDER" && (
         <div className="action-row">
@@ -345,6 +425,10 @@ function App() {
             </button>
           )}
         </div>
+      )}
+
+      {state.phase === "PREPARE" && referenceModeEnabled && (
+        <SauceMetricsPanel metrics={sauceMetrics} shadowScore={sauceShadowScore} />
       )}
 
       {state.phase === "PREPARE" && (
