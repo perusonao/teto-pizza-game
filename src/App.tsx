@@ -1,37 +1,20 @@
 import { useEffect, useReducer, useRef, useState } from "react";
-import { DialogueBox } from "./components/DialogueBox";
-import { PizzaStage } from "./components/PizzaStage";
-import { IngredientTray } from "./components/IngredientTray";
-import { BakeOverlay } from "./components/BakeOverlay";
-import { ResultPanel } from "./components/ResultPanel";
+import { HomeScreen } from "./screens/HomeScreen";
+import { GameScreen } from "./screens/GameScreen";
 import { DexOverlay } from "./components/DexOverlay";
-import { MissionHud } from "./components/MissionHud";
-import { MissionIntroOverlay } from "./components/MissionIntroOverlay";
-import { MissionServePanel } from "./components/MissionServePanel";
-import { MissionResultOverlay } from "./components/MissionResultOverlay";
 import { ShopOverlay } from "./components/ShopOverlay";
-import {
-  buildBlueResultLine,
-  buildMitoOrderLine,
-  buildTetoBakeLine,
-  buildTetoOrderLine,
-  buildTetoResultLine,
-  type DialogueLine,
-} from "./data/dialogue";
 import { getIngredient, type Ingredient, type IngredientCategory } from "./data/ingredients";
 import { createInitialGameState, gameReducer, type GameState } from "./state/gameReducer";
-import { discoveredRecipeIds } from "./state/dex";
 import { loadSave, loadMissionBest, persistProgress, persistMissionBest } from "./state/persistence";
 import {
   DEFAULT_MISSION_CONFIG,
   LUNCH_RUSH_MISSION_ID,
   isMissionExpired,
   missionRunReducer,
-  remainingSeconds,
   INITIAL_MISSION_STATE,
   type MissionConfig,
 } from "./mission/lunchRush";
-import { averageQualityScore, missionScore } from "./logic/missionScoring";
+import { missionScore } from "./logic/missionScoring";
 import { calculateMissionReward } from "./logic/economy";
 import "./App.css";
 
@@ -62,6 +45,15 @@ function findPrimarySauceId(recipe: GameState["recipe"]): string | null {
   return primarySauce?.ingredientId ?? null;
 }
 
+/** Which top-level view is showing (Issue #24: HOME/GAME separation). Lives in App.tsx, not
+ *  either screen -- both HomeScreen and GameScreen are pure views over the one GameState/
+ *  MissionState this component owns, so which of the two is on screen is itself just more
+ *  App-level UI state, the same way `isDexOpen`/`isShopOpen` already were pre-split. */
+type Screen = "HOME" | "GAME";
+
+const GO_HOME_CONFIRM_MESSAGE =
+  "ピザ作りを中断してホームに戻りますか？作りかけのピザは失われます。";
+
 function App() {
   // The round in progress never persists (ORDER/PREPARE/BAKE/RESULT always start fresh), but
   // Dex BEST/timesMade, owned ingredients, and Pitz balance do -- load them once on mount and
@@ -70,6 +62,10 @@ function App() {
     const save = loadSave();
     return createInitialGameState(save.dex, save.ownedIngredientIds, save.pitzBalance);
   });
+  // HOME is always the first screen shown (Issue #24 requirement) regardless of what round
+  // hydration produced -- a resumed ORDER-phase round from a prior session is simply what
+  // GAME shows once the player taps into it from HOME.
+  const [screen, setScreen] = useState<Screen>("HOME");
   const [activeCategory, setActiveCategory] = useState<IngredientCategory>("sauce");
   // Every order (including the very first one) should start the player off with the
   // recipe's own sauce selected, so PREPARE never opens with nothing selected.
@@ -230,6 +226,41 @@ function App() {
     setLiveBake(value);
   }
 
+  // --- HOME / GAME navigation (Issue #24) -----------------------------------------------
+  // A round only counts as "in progress" (and therefore worth confirming before it's
+  // discarded) while the player has actually started building or is mid-Mission -- ORDER,
+  // RESULT and DISCOVERED all reflect a completed or not-yet-started step, so leaving from
+  // any of those loses nothing.
+  function isRoundInProgress(): boolean {
+    return (
+      mission.mode === "PLAYING" ||
+      (mission.mode === "FREE" && (state.phase === "PREPARE" || state.phase === "BAKE"))
+    );
+  }
+
+  function handleGoHome() {
+    if (isRoundInProgress() && !window.confirm(GO_HOME_CONFIRM_MESSAGE)) {
+      return;
+    }
+    if (mission.mode !== "FREE") {
+      // Also tidies up a lingering Mission Intro/Result overlay (no confirmation needed for
+      // those -- nothing in-progress to lose there).
+      exitMissionToFree();
+    } else if (state.phase === "PREPARE" || state.phase === "BAKE") {
+      dispatch({ type: "PLAY_AGAIN" });
+    }
+    setScreen("HOME");
+  }
+
+  function handleStartFreePlay() {
+    setScreen("GAME");
+  }
+
+  function handleStartLunchRush() {
+    setScreen("GAME");
+    missionDispatch({ type: "SHOW_INTRO" });
+  }
+
   const bakeProgress =
     state.phase === "BAKE"
       ? liveBake
@@ -237,192 +268,49 @@ function App() {
         ? state.pizza.bakeResult
         : null;
 
-  const orderLine = buildMitoOrderLine(
-    state.order.id,
-    state.order.lineJa,
-    state.recipe,
-    discoveredRecipeIds(state.dex),
-  );
-
-  const discoveredLine: DialogueLine = {
-    speaker: "mito",
-    id: `discovered.${state.recipe.id}`,
-    textJa: state.justDiscovered
-      ? `${state.recipe.nameJa}がレシピ図鑑に載ったよ！やったね！`
-      : `${state.recipe.nameJa}、また上手にできたね！`,
-  };
-
-  const isMissionPlaying = mission.mode === "PLAYING";
-  // Free play's own RESULT dialogue/ResultPanel are gated on this, not just `!isMissionPlaying`
-  // -- once a run's timer expires mid-round, `mission.mode` flips straight to "RESULT" while
-  // `state.phase` can still be sitting at "RESULT" (or PREPARE/BAKE) from the interrupted
-  // round. `MissionResultOverlay` covers the whole screen either way, but this keeps free
-  // play's own RESULT UI from rendering (uselessly) underneath it during that window.
-  const isMissionActive = mission.mode === "PLAYING" || mission.mode === "RESULT";
-  // During a Mission run, free play's own RESULT dialogue (Teto/Blue's comments) is skipped
-  // -- reusing it would cost the same tempo `MissionServePanel` exists to avoid (Phase 3C-4
-  // section 17). Every other phase's dialogue is completely unaffected, Mission or not.
-  const showFreeResultDialogue = state.phase === "RESULT" && !isMissionActive;
-
   return (
     <div className="app-frame">
-      <header className="app-header">
-        <h1 className="app-header__title">テトのピザ屋さん</h1>
-        <div className="app-header__actions">
-          <span className="app-header__pitz" aria-label={`Pitz残高 ${state.pitzBalance}`}>
-            {"\u{1FA99}"} {state.pitzBalance}
-          </span>
-          <button type="button" className="app-header__shop-button" onClick={() => setShopOpen(true)}>
-            {"\u{1F6D2}"} Shop
-          </button>
-          <button type="button" className="app-header__dex-button" onClick={() => setDexOpen(true)}>
-            {"\u{1F4D6}"} レシピ図鑑
-          </button>
-        </div>
-      </header>
-
-      {isMissionPlaying && mission.clock && (
-        <MissionHud
-          remainingSeconds={remainingSeconds(missionNow, mission.clock)}
-          servedCount={mission.metrics.servedCount}
+      {screen === "HOME" && (
+        <HomeScreen
+          pitzBalance={state.pitzBalance}
+          dex={state.dex}
+          onStartFreePlay={handleStartFreePlay}
+          onStartLunchRush={handleStartLunchRush}
+          onOpenDex={() => setDexOpen(true)}
+          onOpenShop={() => setShopOpen(true)}
         />
       )}
 
-      <section className="dialogue-area">
-        {state.phase === "ORDER" && (
-          <>
-            <DialogueBox {...orderLine} />
-            <DialogueBox {...buildTetoOrderLine(state.recipe)} />
-          </>
-        )}
-        {state.phase === "PREPARE" && state.hint && <DialogueBox {...state.hint} />}
-        {state.phase === "BAKE" && <DialogueBox {...buildTetoBakeLine(state.recipe)} />}
-        {showFreeResultDialogue && state.score && state.bakeState && (
-          <>
-            <DialogueBox
-              {...buildTetoResultLine(state.recipe, state.bakeState, state.pizza.bakeResult)}
-            />
-            <DialogueBox
-              {...buildBlueResultLine(
-                state.recipe,
-                state.score,
-                state.bakeState,
-                state.pizza.bakeResult,
-              )}
-            />
-          </>
-        )}
-        {state.phase === "DISCOVERED" && <DialogueBox {...discoveredLine} />}
-      </section>
-
-      <PizzaStage
-        pizza={state.pizza}
-        recipe={state.recipe}
-        interactive={state.phase === "PREPARE"}
-        activeIngredient={selectedIngredientId ? (getIngredient(selectedIngredientId) ?? null) : null}
-        bakeProgress={bakeProgress}
-        placement={state.placement}
-        resultRevealed={state.phase === "RESULT"}
-        onTap={handleTapPizza}
-      />
-
-      {state.phase === "ORDER" && (
-        <div className="action-row">
-          <button
-            type="button"
-            className="cta-button cta-button--primary"
-            onClick={() => dispatch({ type: "BEGIN_PREPARE" })}
-          >
-            {mission.mode === "FREE" ? <>{"\u{1F355}"} フリープレイ</> : "ピザを作る！"}
-          </button>
-          {mission.mode === "FREE" && (
-            <button
-              type="button"
-              className="secondary-button"
-              onClick={() => missionDispatch({ type: "SHOW_INTRO" })}
-            >
-              {"⏱"} Lunch Rush
-            </button>
-          )}
-        </div>
-      )}
-
-      {state.phase === "PREPARE" && (
-        <>
-          <IngredientTray
-            activeCategory={activeCategory}
-            onChangeCategory={handleChangeCategory}
-            selectedIngredientId={selectedIngredientId}
-            onSelectIngredient={handleSelectIngredient}
-            ownedIngredientIds={state.ownedIngredientIds}
-          />
-          <div className="action-row">
-            <button
-              type="button"
-              className="secondary-button"
-              onClick={() => dispatch({ type: "RESET_PIZZA" })}
-            >
-              やり直す
-            </button>
-            <button
-              type="button"
-              className="cta-button cta-button--bake"
-              onClick={() => dispatch({ type: "START_BAKE" })}
-            >
-              {"\u{1F525}"} 焼く！
-            </button>
-            <button
-              type="button"
-              className="secondary-button"
-              onClick={() => dispatch({ type: "SHOW_HINT" })}
-            >
-              ヒント
-            </button>
-          </div>
-        </>
-      )}
-
-      {state.phase === "BAKE" && (
-        <BakeOverlay
-          targetStart={state.recipe.bakeTarget.start}
-          targetEnd={state.recipe.bakeTarget.end}
-          onConfirm={(value) => dispatch({ type: "CONFIRM_BAKE", value })}
-          onTick={handleBakeTick}
+      {screen === "GAME" && (
+        <GameScreen
+          state={state}
+          mission={mission}
+          missionNow={missionNow}
+          missionDurationSeconds={resolveMissionConfig().durationSeconds}
+          missionBestAtStartOfRun={missionBestAtStartOfRun}
+          activeCategory={activeCategory}
+          selectedIngredientId={selectedIngredientId}
+          bakeProgress={bakeProgress}
+          onGoHome={handleGoHome}
+          onOpenDex={() => setDexOpen(true)}
+          onOpenShop={() => setShopOpen(true)}
+          onBeginPrepare={() => dispatch({ type: "BEGIN_PREPARE" })}
+          onShowMissionIntro={() => missionDispatch({ type: "SHOW_INTRO" })}
+          onResetPizza={() => dispatch({ type: "RESET_PIZZA" })}
+          onStartBake={() => dispatch({ type: "START_BAKE" })}
+          onShowHint={() => dispatch({ type: "SHOW_HINT" })}
+          onChangeCategory={handleChangeCategory}
+          onSelectIngredient={handleSelectIngredient}
+          onTapPizza={handleTapPizza}
+          onBakeTick={handleBakeTick}
+          onConfirmBake={(value) => dispatch({ type: "CONFIRM_BAKE", value })}
+          onRegisterToDex={() => dispatch({ type: "REGISTER_TO_DEX" })}
+          onPlayAgain={() => dispatch({ type: "PLAY_AGAIN" })}
+          onMissionServeNext={handleMissionServeNext}
+          onMissionStart={startMission}
+          onMissionExitToFree={exitMissionToFree}
+          onMissionCloseIntro={() => missionDispatch({ type: "EXIT_TO_FREE" })}
         />
-      )}
-
-      {state.phase === "RESULT" && state.score && isMissionPlaying && (
-        <MissionServePanel
-          score={state.score}
-          servedCount={mission.metrics.servedCount}
-          onNext={handleMissionServeNext}
-        />
-      )}
-
-      {state.phase === "RESULT" && state.score && !isMissionActive && (
-        <ResultPanel
-          score={state.score}
-          bakeState={state.bakeState}
-          onRegister={() => dispatch({ type: "REGISTER_TO_DEX" })}
-        />
-      )}
-
-      {state.phase === "DISCOVERED" && (
-        <div className="action-row action-row--column">
-          {state.justDiscovered && (
-            <p className="discovered-banner">{"✨"} {state.recipe.nameJa}を発見しました！</p>
-          )}
-          {!state.justDiscovered && state.justGotNewBest && (
-            <p className="discovered-banner discovered-banner--best">{"🌟"} NEW BEST!</p>
-          )}
-          <button
-            type="button"
-            className="cta-button cta-button--primary"
-            onClick={() => dispatch({ type: "PLAY_AGAIN" })}
-          >
-            もう一度作る
-          </button>
-        </div>
       )}
 
       {isDexOpen && (
@@ -441,28 +329,6 @@ function App() {
           pitzBalance={state.pitzBalance}
           onPurchase={handlePurchaseIngredient}
           onClose={() => setShopOpen(false)}
-        />
-      )}
-
-      {mission.mode === "INTRO" && (
-        <MissionIntroOverlay
-          durationSeconds={resolveMissionConfig().durationSeconds}
-          onStart={startMission}
-          onClose={() => missionDispatch({ type: "EXIT_TO_FREE" })}
-        />
-      )}
-
-      {mission.mode === "RESULT" && (
-        <MissionResultOverlay
-          servedCount={mission.metrics.servedCount}
-          averageQuality={averageQualityScore(mission.metrics)}
-          bestQuality={mission.metrics.bestQualityScore}
-          score={missionScore(mission.metrics)}
-          isNewBest={missionScore(mission.metrics) > missionBestAtStartOfRun}
-          pitzReward={calculateMissionReward(mission.metrics)}
-          pitzBalance={state.pitzBalance}
-          onRetry={startMission}
-          onExit={exitMissionToFree}
         />
       )}
     </div>
