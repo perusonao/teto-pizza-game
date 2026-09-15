@@ -253,6 +253,16 @@ function App() {
   }
 
   function handleStartFreePlay() {
+    // A completed round (RESULT/DISCOVERED) left over from before the player went back to
+    // HOME must not resurface here -- "ピザを作る" always means "start a fresh pizza", not
+    // "reopen whatever I last finished". `handleGoHome` deliberately leaves RESULT/DISCOVERED
+    // alone when *leaving* GAME (nothing in-progress to confirm/lose there), so this is the
+    // one place that resets it, right before GAME shows again. mission.mode is guaranteed
+    // "FREE" here: HOME is only ever reached via `handleGoHome`, which always calls
+    // `exitMissionToFree()` first when it isn't already FREE.
+    if (state.phase === "RESULT" || state.phase === "DISCOVERED") {
+      dispatch({ type: "PLAY_AGAIN" });
+    }
     setScreen("GAME");
   }
 

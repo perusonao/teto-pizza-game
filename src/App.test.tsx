@@ -120,6 +120,27 @@ describe("HOME/GAME separation (Issue #24)", () => {
     expect(document.querySelector(".home-screen")).toBeInTheDocument();
   });
 
+  it("starts a fresh ORDER instead of reopening a finished round from HOME's CTA", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
+    await user.click(screen.getByRole("button", { name: /フリープレイ/ })); // ORDER -> PREPARE
+    await user.click(screen.getByRole("button", { name: /焼く/ })); // PREPARE -> BAKE
+    await user.click(screen.getByRole("button", { name: "取り出す！" })); // BAKE -> RESULT
+    await user.click(screen.getByRole("button", { name: "レシピ図鑑に登録する" })); // RESULT -> DISCOVERED
+    expect(screen.getByRole("button", { name: /もう一度作る/ })).toBeInTheDocument();
+
+    // DISCOVERED has nothing in-progress to lose, so no confirmation is needed leaving GAME.
+    await user.click(screen.getByRole("button", { name: /ホーム/ }));
+    expect(document.querySelector(".home-screen")).toBeInTheDocument();
+
+    // Tapping HOME's CTA again must land on a fresh ORDER, not reopen the DISCOVERED screen
+    // this same round left behind.
+    await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
+    expect(screen.queryByRole("button", { name: /もう一度作る/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /フリープレイ/ })).toBeInTheDocument();
+  });
+
   it("reads Pitz balance and Dex progress from persisted state, never hard-coded", () => {
     seedSave({
       pitzBalance: 250,
