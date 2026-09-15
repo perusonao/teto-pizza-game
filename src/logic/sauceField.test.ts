@@ -8,6 +8,8 @@ import {
   insideTargetFraction,
   isCellInsideDough,
   SAUCE_FIELD_SIZE,
+  SAUCE_HEATMAP_COLOR,
+  sauceFieldToRgbaPixels,
   SAUCE_TARGET_RADIUS,
   totalDispensed,
 } from "./sauceField";
@@ -268,5 +270,55 @@ describe("SauceMetrics.edgeAmount / edgeRatio (Human Feel Fix 2)", () => {
     ]);
     expect(metrics.edgeRatio).toBeGreaterThanOrEqual(0);
     expect(metrics.edgeRatio).toBeLessThanOrEqual(1);
+  });
+});
+
+describe("sauceFieldToRgbaPixels (Human Feel Fix 3: pixels, never shapes)", () => {
+  it("returns exactly one RGBA pixel per field cell -- SAUCE_FIELD_SIZE^2 * 4 bytes, no more, no less", () => {
+    const field = buildSauceField([{ x: 50, y: 50, amount: 0.3 }]);
+    const pixels = sauceFieldToRgbaPixels(field);
+    expect(pixels.length).toBe(SAUCE_FIELD_SIZE * SAUCE_FIELD_SIZE * 4);
+  });
+
+  it("an empty field is fully transparent (every alpha byte 0) -- no cell paints on its own", () => {
+    const field = buildSauceField([]);
+    const pixels = sauceFieldToRgbaPixels(field);
+    for (let i = 3; i < pixels.length; i += 4) {
+      expect(pixels[i]).toBe(0);
+    }
+  });
+
+  it("a cell outside the dough circle is never painted even if the raw field has a value there (BRUSH_RADIUS_CELLS falloff can reach it)", () => {
+    // A deposit right on the rim spreads a little past it into out-of-dough cells via the
+    // brush falloff -- sauceFieldToRgbaPixels must still leave those transparent, exactly
+    // like the coverage/evenness math (computeSauceMetrics) already does.
+    const field = buildSauceField([{ x: 98, y: 50, amount: 0.3 }]);
+    const pixels = sauceFieldToRgbaPixels(field);
+    for (let row = 0; row < SAUCE_FIELD_SIZE; row += 1) {
+      for (let col = 0; col < SAUCE_FIELD_SIZE; col += 1) {
+        if (isCellInsideDough(row, col)) continue;
+        const alphaIndex = (row * SAUCE_FIELD_SIZE + col) * 4 + 3;
+        expect(pixels[alphaIndex]).toBe(0);
+      }
+    }
+  });
+
+  it("a touched in-dough cell gets the sauce heatmap color with a non-zero alpha", () => {
+    const field = buildSauceField([{ x: 50, y: 50, amount: 0.3 }]);
+    const pixels = sauceFieldToRgbaPixels(field);
+    const centerCell = Math.floor(SAUCE_FIELD_SIZE / 2);
+    const centerIndex = (centerCell * SAUCE_FIELD_SIZE + centerCell) * 4;
+    expect(pixels[centerIndex]).toBe(SAUCE_HEATMAP_COLOR.r);
+    expect(pixels[centerIndex + 1]).toBe(SAUCE_HEATMAP_COLOR.g);
+    expect(pixels[centerIndex + 2]).toBe(SAUCE_HEATMAP_COLOR.b);
+    expect(pixels[centerIndex + 3]).toBeGreaterThan(0);
+  });
+
+  it("more overlap (a larger field value) never produces a lower alpha than less overlap -- the darker/lighter gradient never inverts", () => {
+    const thin = sauceFieldToRgbaPixels(buildSauceField([{ x: 50, y: 50, amount: 0.02 }]));
+    const thick = sauceFieldToRgbaPixels(buildSauceField([{ x: 50, y: 50, amount: 0.3 }]));
+    const centerCell = Math.floor(SAUCE_FIELD_SIZE / 2);
+    const alphaIndex = (centerCell * SAUCE_FIELD_SIZE + centerCell) * 4 + 3;
+    expect(thick[alphaIndex]).toBeGreaterThan(thin[alphaIndex]);
   });
 });

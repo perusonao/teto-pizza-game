@@ -196,32 +196,57 @@ export function GameScreen({
         />
       )}
 
-      <section className="dialogue-area">
-        {state.phase === "ORDER" && (
-          <>
-            <DialogueBox {...mitoOrderLine} />
-            <DialogueBox {...buildTetoOrderLine(state.recipe)} />
-          </>
-        )}
-        {state.phase === "PREPARE" && state.hint && <DialogueBox {...state.hint} />}
-        {state.phase === "BAKE" && <DialogueBox {...buildTetoBakeLine(state.recipe)} />}
-        {showFreeResultDialogue && state.score && state.bakeState && (
-          <>
-            <DialogueBox
-              {...buildTetoResultLine(state.recipe, state.bakeState, state.pizza.bakeResult)}
+      {state.phase !== "PREPARE" && (
+        <section className="dialogue-area">
+          {state.phase === "ORDER" && (
+            <>
+              <DialogueBox {...mitoOrderLine} />
+              <DialogueBox {...buildTetoOrderLine(state.recipe)} />
+            </>
+          )}
+          {state.phase === "BAKE" && <DialogueBox {...buildTetoBakeLine(state.recipe)} />}
+          {showFreeResultDialogue && state.score && state.bakeState && (
+            <>
+              <DialogueBox
+                {...buildTetoResultLine(state.recipe, state.bakeState, state.pizza.bakeResult)}
+              />
+              <DialogueBox
+                {...buildBlueResultLine(
+                  state.recipe,
+                  state.score,
+                  state.bakeState,
+                  state.pizza.bakeResult,
+                )}
+              />
+            </>
+          )}
+          {state.phase === "DISCOVERED" && <DialogueBox {...discoveredLine} />}
+        </section>
+      )}
+
+      {/* Human Feel Fix 3 (Compact Header/Reference, brief section C): PREPARE used to spend
+          the dialogue-area's full character-portrait DialogueBox on `state.hint` (always
+          non-null -- see data/hints.ts's buildHintLine) plus a separate .reference-tools-row
+          just for the 見本 button -- together the single biggest reason PREPARE didn't fit
+          390x844 without scrolling. One compact row replaces both: the recipe name, the same
+          live hint text (still sourced from state.hint, just without the portrait/bubble
+          chrome), and the *same* <ReferencePreview> component (its own popover/modal is
+          completely unchanged) inline. */}
+      {state.phase === "PREPARE" && (
+        <div className="order-card">
+          <div className="order-card__text">
+            <span className="order-card__recipe-name">{state.recipe.nameJa}</span>
+            <span className="order-card__hint">{state.hint?.textJa ?? state.recipe.description}</span>
+          </div>
+          {referenceModeEnabled && referencePizza && (
+            <ReferencePreview
+              reference={referencePizza}
+              isOpen={isReferencePopoverOpen}
+              onOpenChange={onReferencePopoverChange}
             />
-            <DialogueBox
-              {...buildBlueResultLine(
-                state.recipe,
-                state.score,
-                state.bakeState,
-                state.pizza.bakeResult,
-              )}
-            />
-          </>
-        )}
-        {state.phase === "DISCOVERED" && <DialogueBox {...discoveredLine} />}
-      </section>
+          )}
+        </div>
+      )}
 
       <PizzaStage
         pizza={state.pizza}
@@ -238,16 +263,6 @@ export function GameScreen({
         onDispenseCommit={onDispenseCommit}
       />
 
-      {state.phase === "PREPARE" && referenceModeEnabled && referencePizza && (
-        <div className="reference-tools-row">
-          <ReferencePreview
-            reference={referencePizza}
-            isOpen={isReferencePopoverOpen}
-            onOpenChange={onReferencePopoverChange}
-          />
-        </div>
-      )}
-
       {state.phase === "ORDER" && (
         <div className="action-row">
           <button type="button" className="cta-button cta-button--primary" onClick={onBeginPrepare}>
@@ -261,15 +276,24 @@ export function GameScreen({
         </div>
       )}
 
-      {state.phase === "PREPARE" && referenceModeEnabled && referencePizza && (
-        <SauceMetricsPanel
-          metrics={sauceMetrics}
-          shadowScore={sauceShadowScore}
-          reference={referencePizza.sauce}
-          isDispensing={isDispensingSauce}
-          pieceMetrics={pieceShadowMetrics}
-        />
-      )}
+      {/* Human Feel Fix 3 (Compact Evaluation UI, brief section F): shown only while Sauce is
+          the active category -- Cheese/Topping never needed a sauce readout, and hiding it
+          then is most of this panel's contribution to the 1-screen budget. Positioned right
+          after PizzaStage ("Pizza Stage近くに", per the brief), not beside it -- a true
+          side-by-side layout would mean resizing the dough itself, which section A's
+          "Pizza操作領域を極端に縮小しない" rules out as this round's tradeoff. */}
+      {state.phase === "PREPARE" &&
+        referenceModeEnabled &&
+        referencePizza &&
+        activeCategory === "sauce" && (
+          <SauceMetricsPanel
+            metrics={sauceMetrics}
+            shadowScore={sauceShadowScore}
+            reference={referencePizza.sauce}
+            isDispensing={isDispensingSauce}
+            pieceMetrics={pieceShadowMetrics}
+          />
+        )}
 
       {state.phase === "PREPARE" && (
         <>
@@ -285,7 +309,14 @@ export function GameScreen({
             onPhysicalDrop={onPhysicalDrop}
             resetToken={pizzaResetToken}
           />
-          <div className="action-row">
+          {/* Human Feel Fix 3 (Fixed Bake CTA, brief section B): `.prepare-bake-bar` is
+              `position: fixed` to the viewport (matching .app-frame's own centered max-width,
+              see App.css), not the old `.action-row` + flex `margin-top: auto` this replaces
+              -- that trick only pushes to the bottom of content that already fits the
+              viewport, which is exactly what silently failed once PREPARE grew taller than
+              844px (the bug this whole round exists to fix). `.ingredient-panel` reserves
+              matching bottom padding so this bar can never cover the Palette above it. */}
+          <div className="action-row prepare-bake-bar">
             <button type="button" className="secondary-button" onClick={handleResetPizza}>
               やり直す
             </button>

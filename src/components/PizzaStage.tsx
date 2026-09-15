@@ -18,8 +18,8 @@ import { PointerTimestampNormalizer } from "../logic/pointerTimestampNormalizer"
 import {
   buildSauceField,
   insideDoughFraction,
-  isCellInsideDough,
   SAUCE_FIELD_SIZE,
+  sauceFieldToRgbaPixels,
   SAUCE_TARGET_RADIUS,
 } from "../logic/sauceField";
 import {
@@ -642,31 +642,36 @@ export function PizzaStage({
       .map((d) => ({ x: d.x, y: d.y, amount: d.amount * insideDoughFraction(d.x, d.y) }))
       .filter((d) => d.amount > 0);
     const field = buildSauceField(insideWeighted);
-    const cellPx = canvas.width / SAUCE_FIELD_SIZE;
-    // Human Feel Fix 2 (Sauce Visual): each cell paints as a soft circle noticeably larger
-    // than the cell itself, not a hard-edged rect exactly matching the cell's own bounds --
-    // neighboring cells' circles overlap and blend into one continuous surface instead of a
-    // visible 16x16 grid, which is what "spreads naturally / adjacent deposits visually
-    // connect" (this round's brief) actually needs from this same field data. Still one
-    // fillStyle + one shape per touched cell -- no new render pass, no WebGL.
-    const blobRadiusPx = cellPx * 0.75;
-
-    for (let row = 0; row < SAUCE_FIELD_SIZE; row += 1) {
-      for (let col = 0; col < SAUCE_FIELD_SIZE; col += 1) {
-        if (!isCellInsideDough(row, col)) continue;
-        const value = field[row * SAUCE_FIELD_SIZE + col];
-        if (value <= 0.005) continue;
-        // Thin spots stay translucent (the dough shows through), heavier overlap reads
-        // darker/more opaque up to the cap -- one continuous gradient covers all three of
-        // "thin" / "well-painted" / "overlapped" rather than three separate visual states.
-        const alpha = Math.min(0.85, value * 2.2);
-        const cx = col * cellPx + cellPx / 2;
-        const cy = row * cellPx + cellPx / 2;
-        ctx.fillStyle = `rgba(196, 46, 34, ${alpha})`;
-        ctx.beginPath();
-        ctx.arc(cx, cy, blobRadiusPx, 0, Math.PI * 2);
-        ctx.fill();
-      }
+    // Human Feel Fix 3 (Sauce Visual): Fix 2's overlapping-circle cells (still one shape per
+    // touched cell) improved on a hard-edged grid, but each circle's own crisp edge still
+    // tiled into a visible "flower/stamp" pattern once painted for real -- exactly the
+    // "16x16マスを塗っている" look the brief flags as still-FIX-REQUIRED. `sauceFieldToRgbaPixels`
+    // (sauceField.ts) turns the same field into one RGBA pixel per cell (no shape at all);
+    // writing that 1:1 into a tiny SAUCE_FIELD_SIZE x SAUCE_FIELD_SIZE canvas and drawing it
+    // scaled up here with `imageSmoothingEnabled` on lets the browser's own image upscaler
+    // blend every cell into its neighbors continuously. Still the same 16x16 field, still
+    // Canvas2D only (no WebGL), still one extra small canvas + one drawImage call.
+    const fieldCanvas = document.createElement("canvas");
+    fieldCanvas.width = SAUCE_FIELD_SIZE;
+    fieldCanvas.height = SAUCE_FIELD_SIZE;
+    const fieldCtx = fieldCanvas.getContext("2d");
+    if (fieldCtx) {
+      const imageData = fieldCtx.createImageData(SAUCE_FIELD_SIZE, SAUCE_FIELD_SIZE);
+      imageData.data.set(sauceFieldToRgbaPixels(field));
+      fieldCtx.putImageData(imageData, 0, 0);
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(
+        fieldCanvas,
+        0,
+        0,
+        SAUCE_FIELD_SIZE,
+        SAUCE_FIELD_SIZE,
+        0,
+        0,
+        canvas.width,
+        canvas.height,
+      );
     }
 
     // Overflow markers where sauce landed off (or straddling) the dough -- alpha scaled by

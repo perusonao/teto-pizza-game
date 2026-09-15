@@ -143,6 +143,43 @@
   color: #3a2a1a;
 }
 
+/* ---------- Order card (Human Feel Fix 3, PREPARE only) ---------- */
+/* Replaces the character-portrait DialogueBox + separate .reference-tools-row PREPARE used
+   to spend on the recipe name/hint/見本 button -- one compact row instead of two stacked
+   ones, see GameScreen.tsx's own comment for the full rationale. */
+.order-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 6px 12px 0;
+  padding: 8px 12px;
+  background: #fff8ea;
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(47, 25, 8, 0.12);
+}
+
+.order-card__text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.order-card__recipe-name {
+  font-size: 13px;
+  font-weight: 800;
+  color: #6b4226;
+}
+
+.order-card__hint {
+  font-size: 11.5px;
+  color: #a1662f;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* ---------- Pizza stage ---------- */
 .pizza-stage {
   display: flex;
@@ -563,6 +600,11 @@
 /* ---------- Ingredient tray ---------- */
 .ingredient-panel {
   padding: 4px 12px 0;
+  /* Human Feel Fix 3: reserves room for .prepare-bake-bar (position: fixed, see its own
+     rule below) so the fixed CTA bar can never sit on top of the last two Palette rows.
+     IngredientTray only ever renders during PREPARE (see GameScreen.tsx), so this is safe
+     to apply unconditionally rather than needing its own phase-scoped modifier class. */
+  padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
 }
 
 .category-tabs {
@@ -739,6 +781,26 @@
 
 .action-row--column {
   flex-direction: column;
+}
+
+/* Human Feel Fix 3 (Fixed Bake CTA, brief section B): position: fixed to the *viewport*, not
+   .app-frame (a fixed-position element ignores a non-fixed ancestor's own layout) -- so this
+   replicates .app-frame's own centering (body's `display:flex; justify-content:center`) and
+   max-width by hand by centering itself the same way, rather than relying on being a
+   descendant of it. This is what makes the CTA robust against PREPARE overflowing 844px at
+   all: `margin-top: auto` on a plain `.action-row` (still used by every non-PREPARE phase)
+   only pushes to the bottom of content that already fits on screen. */
+.prepare-bake-bar {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  width: 100%;
+  max-width: 390px;
+  margin-top: 0;
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(180deg, rgba(239, 220, 179, 0) 0%, #efdcb3 40%, #efdcb3 100%);
+  z-index: 40;
 }
 
 .cta-button {
@@ -1674,9 +1736,13 @@
 
 .sauce-target-guide circle {
   fill: none;
-  stroke: rgba(107, 66, 38, 0.22);
-  stroke-width: 0.6;
-  stroke-dasharray: 2.4 2.2;
+  /* Human Feel Fix 3 (brief section E): the previous 0.6/0.22 pairing read as basically
+     invisible on a physical screen ("現在より実機で認識できるようにする") -- bolder stroke +
+     opacity here, but still a plain dashed line (no glow/color change) so it stays a hint,
+     not competition for the sauce itself once painting starts covering it. */
+  stroke: rgba(107, 66, 38, 0.4);
+  stroke-width: 1.1;
+  stroke-dasharray: 3 2.4;
 }
 
 .pizza-sauce-heatmap {
@@ -1709,13 +1775,6 @@
 
 .pizza-dough--burnt .pizza-sauce-heatmap--burnt {
   filter: blur(1px) brightness(0.55) saturate(0.7) sepia(0.25);
-}
-
-.reference-tools-row {
-  display: flex;
-  justify-content: center;
-  padding: 0 16px;
-  margin-top: -4px;
 }
 
 .reference-preview__button {
@@ -1798,7 +1857,7 @@
   position: absolute;
   inset: calc(50% - var(--target-radius));
   border-radius: 50%;
-  border: 1px dashed rgba(107, 66, 38, 0.3);
+  border: 1.5px dashed rgba(107, 66, 38, 0.4);
   pointer-events: none;
 }
 

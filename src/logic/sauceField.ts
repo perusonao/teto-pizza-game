@@ -298,3 +298,41 @@ export function computeSauceMetrics(deposits: readonly SauceDepositLike[]): Sauc
 export function totalDispensed(deposits: readonly SauceDepositLike[]): number {
   return deposits.reduce((sum, d) => sum + d.amount, 0);
 }
+
+/** The sauce heatmap's own tomato color, r/g/b out of 255 -- shared with
+ *  `sauceFieldToRgbaPixels` below so the visual and this constant can never drift apart. */
+export const SAUCE_HEATMAP_COLOR = { r: 196, g: 46, b: 34 } as const;
+
+/**
+ * Human Feel Fix 3 (Sauce Visual): one RGBA byte quadruple per field cell -- a
+ * `SAUCE_FIELD_SIZE * SAUCE_FIELD_SIZE * 4`-length buffer, out-of-dough cells and untouched
+ * cells left fully transparent (all zero). This is deliberately *pixels*, not shapes: the
+ * caller (PizzaStage.tsx) writes it 1:1 into a tiny `SAUCE_FIELD_SIZE`x`SAUCE_FIELD_SIZE`
+ * canvas and draws that scaled up with `imageSmoothingEnabled` on, so the browser's own
+ * image upscaler blends every cell into its neighbors continuously -- there is no per-cell
+ * rect/circle left to tile into a visible grid/stamp pattern the way both the original flat
+ * `fillRect` cells and Fix 2's overlapping-circle cells still could. Pulled out as its own
+ * pure function (no Canvas API used here at all) specifically so this "one pixel per cell,
+ * alpha only, no shape" property is unit-testable without a real browser -- see
+ * sauceField.test.ts.
+ */
+export function sauceFieldToRgbaPixels(field: Float64Array): Uint8ClampedArray {
+  const pixels = new Uint8ClampedArray(SAUCE_FIELD_SIZE * SAUCE_FIELD_SIZE * 4);
+  for (let row = 0; row < SAUCE_FIELD_SIZE; row += 1) {
+    for (let col = 0; col < SAUCE_FIELD_SIZE; col += 1) {
+      if (!isCellInsideDough(row, col)) continue;
+      const value = field[row * SAUCE_FIELD_SIZE + col];
+      if (value <= 0.005) continue;
+      // Thin spots stay translucent (the dough shows through), heavier overlap reads
+      // darker/more opaque up to the cap -- one continuous gradient covers all three of
+      // "thin" / "well-painted" / "overlapped" rather than three separate visual states.
+      const alpha = Math.min(0.85, value * 2.2);
+      const pixelIndex = (row * SAUCE_FIELD_SIZE + col) * 4;
+      pixels[pixelIndex] = SAUCE_HEATMAP_COLOR.r;
+      pixels[pixelIndex + 1] = SAUCE_HEATMAP_COLOR.g;
+      pixels[pixelIndex + 2] = SAUCE_HEATMAP_COLOR.b;
+      pixels[pixelIndex + 3] = Math.round(alpha * 255);
+    }
+  }
+  return pixels;
+}
