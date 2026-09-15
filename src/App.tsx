@@ -402,6 +402,7 @@ function App() {
           isReferencePopoverOpen={isReferencePopoverOpen}
           sauceMetrics={sauceMetrics}
           sauceShadowScore={sauceShadowScore}
+          isDispensingSauce={pendingSauceDeposits.length > 0}
           pieceShadowMetrics={pieceShadowMetrics}
           onGoHome={handleGoHome}
           onOpenDex={() => setDexOpen(true)}

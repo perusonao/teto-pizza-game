@@ -20,6 +20,7 @@ import {
   insideDoughFraction,
   isCellInsideDough,
   SAUCE_FIELD_SIZE,
+  SAUCE_TARGET_RADIUS,
 } from "../logic/sauceField";
 import {
   clampToDough,
@@ -394,9 +395,12 @@ export function PizzaStage({
     const wantsReferenceDispense =
       referenceModeEnabled && isPaintMode && activeIngredient?.id === "tomato-sauce";
     if (wantsReferenceDispense && activeIngredient) {
-      // Sauce starts coming out the instant the dispenser is pressed, not on release --
-      // draw the trail's first point immediately to match.
-      appendTrailPoint(dough.x, dough.y);
+      // Human Feel Fix 2: no trail point here (unlike the legacy paint-drag path below) --
+      // a reference dispense session's visual is the sauce heatmap alone (see
+      // showSauceHeatmap/the canvas draw effect further down), which already re-renders every
+      // tick. A raw pointer-path stroke drawn on top of it is what iPhone retesting flagged
+      // as "looks like a thick red line", not "sauce spreading" -- see
+      // docs/reports/PIZZA_GAME_Phase4A-1B_iPhone-HumanFeel-Fix2_Result.md.
       // Timestamp-preservation follow-up: one performance.now() sample here, shared by both
       // the controller's own start() and the normalizer built alongside it -- every later
       // pointermove sample (including each one inside a coalesced batch) is normalized
@@ -436,9 +440,9 @@ export function PizzaStage({
       // moment this loop runs is exactly the bug this fixes: on a slow/coalesced frame,
       // several samples processed in the same synchronous loop would otherwise all collapse
       // to nearly the same instant, destroying the finger's real movement-over-time history
-      // that SauceDispenseController's tick interpolation depends on.
+      // that SauceDispenseController's tick interpolation depends on. Human Feel Fix 2: no
+      // appendTrailPoint here -- see the matching comment in handlePointerDown above.
       if (isInsideDough(dough.x, dough.y)) g.lastInsideDough = dough;
-      appendTrailPoint(dough.x, dough.y);
       const normalizedTimestamp =
         timestampNormalizerRef.current?.normalize(rawEventTimestamp) ?? performance.now();
       dispenseControllerRef.current?.move(dough, normalizedTimestamp);
@@ -639,15 +643,29 @@ export function PizzaStage({
       .filter((d) => d.amount > 0);
     const field = buildSauceField(insideWeighted);
     const cellPx = canvas.width / SAUCE_FIELD_SIZE;
+    // Human Feel Fix 2 (Sauce Visual): each cell paints as a soft circle noticeably larger
+    // than the cell itself, not a hard-edged rect exactly matching the cell's own bounds --
+    // neighboring cells' circles overlap and blend into one continuous surface instead of a
+    // visible 16x16 grid, which is what "spreads naturally / adjacent deposits visually
+    // connect" (this round's brief) actually needs from this same field data. Still one
+    // fillStyle + one shape per touched cell -- no new render pass, no WebGL.
+    const blobRadiusPx = cellPx * 0.75;
 
     for (let row = 0; row < SAUCE_FIELD_SIZE; row += 1) {
       for (let col = 0; col < SAUCE_FIELD_SIZE; col += 1) {
         if (!isCellInsideDough(row, col)) continue;
         const value = field[row * SAUCE_FIELD_SIZE + col];
         if (value <= 0.005) continue;
+        // Thin spots stay translucent (the dough shows through), heavier overlap reads
+        // darker/more opaque up to the cap -- one continuous gradient covers all three of
+        // "thin" / "well-painted" / "overlapped" rather than three separate visual states.
         const alpha = Math.min(0.85, value * 2.2);
+        const cx = col * cellPx + cellPx / 2;
+        const cy = row * cellPx + cellPx / 2;
         ctx.fillStyle = `rgba(196, 46, 34, ${alpha})`;
-        ctx.fillRect(col * cellPx, row * cellPx, cellPx + 0.5, cellPx + 0.5);
+        ctx.beginPath();
+        ctx.arc(cx, cy, blobRadiusPx, 0, Math.PI * 2);
+        ctx.fill();
       }
     }
 
@@ -685,6 +703,19 @@ export function PizzaStage({
         onContextMenu={handleContextMenu}
         onKeyDown={handleKeyDown}
       >
+        {/* Human Feel Fix 2 (Target Area Guide): a very faint, dashed "paint up to here"
+            ring at SAUCE_TARGET_RADIUS -- the exact same constant edgeAmount/edgeRatio
+            (../logic/sauceField.ts) score against, so this can never show a different area
+            than what actually counts as "the ear" (brief section 5). First child, no
+            z-index, so it sits below the sauce/heatmap/toppings that follow it by DOM order
+            alone -- same convention the heatmap itself already uses. Shown only while the
+            player can actually paint (referenceModeEnabled + interactive), never during
+            BAKE/RESULT or behind the Reference popover. */}
+        {referenceModeEnabled && interactive && (
+          <svg className="sauce-target-guide" viewBox="0 0 100 100" aria-hidden="true">
+            <circle cx="50" cy="50" r={SAUCE_TARGET_RADIUS} />
+          </svg>
+        )}
         {sauceIngredient && !isReferenceSauceContext && (
           <div
             key={pizza.sauceToken}

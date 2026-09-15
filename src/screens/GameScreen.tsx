@@ -57,6 +57,9 @@ interface GameScreenProps {
   isReferencePopoverOpen: boolean;
   sauceMetrics: SauceMetrics;
   sauceShadowScore: SauceReferenceShadowScore;
+  /** Human Feel Fix 2: whether a tomato-sauce dispense session currently has any buffered
+   *  (uncommitted) deposits -- drives SauceMetricsPanel's live message visibility. */
+  isDispensingSauce: boolean;
   pieceShadowMetrics: readonly PieceReferenceMetrics[];
   onGoHome: () => void;
   onOpenDex: () => void;
@@ -99,6 +102,7 @@ export function GameScreen({
   isReferencePopoverOpen,
   sauceMetrics,
   sauceShadowScore,
+  isDispensingSauce,
   pieceShadowMetrics,
   onGoHome,
   onOpenDex,
@@ -257,10 +261,12 @@ export function GameScreen({
         </div>
       )}
 
-      {state.phase === "PREPARE" && referenceModeEnabled && (
+      {state.phase === "PREPARE" && referenceModeEnabled && referencePizza && (
         <SauceMetricsPanel
           metrics={sauceMetrics}
           shadowScore={sauceShadowScore}
+          reference={referencePizza.sauce}
+          isDispensing={isDispensingSauce}
           pieceMetrics={pieceShadowMetrics}
         />
       )}

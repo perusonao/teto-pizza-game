@@ -1661,29 +1661,54 @@
    src/logic/sauceField.ts), layered above the flat .pizza-sauce-layer fill and below
    toppings by DOM order alone -- no z-index needed. Not clip-path'd to the dough circle so
    the faint overflow dots it also draws can still show just past the rim. */
+/* Human Feel Fix 2 (Target Area Guide): same inset/viewBox convention as .pizza-paint-trail
+   below (border-box-aligned 0-100 coordinate space, so `r` in the SVG is directly in
+   dough-percent units, exactly matching SAUCE_TARGET_RADIUS with no separate unit
+   conversion). Deliberately fainter than the sauce itself -- a hint, not a second sauce
+   layer -- and never intercepts pointer input. */
+.sauce-target-guide {
+  position: absolute;
+  inset: calc(-1 * var(--dough-border-width));
+  pointer-events: none;
+}
+
+.sauce-target-guide circle {
+  fill: none;
+  stroke: rgba(107, 66, 38, 0.22);
+  stroke-width: 0.6;
+  stroke-dasharray: 2.4 2.2;
+}
+
 .pizza-sauce-heatmap {
   position: absolute;
   inset: calc(-1 * var(--dough-border-width));
   width: calc(100% + 2 * var(--dough-border-width));
   height: calc(100% + 2 * var(--dough-border-width));
   pointer-events: none;
+  /* Human Feel Fix 2 (Sauce Visual): softens the overlapping-circle cells drawn in
+     PizzaStage's canvas effect into a continuous painted surface instead of a busy dot
+     pattern -- a cheap CSS filter, not an extra render pass, per the brief's "no heavy
+     Canvas/WebGL" constraint. */
+  filter: blur(1px);
 }
 
 /* MUST FIX 8 (Visual Truth) follow-up: now that the heatmap is the *only* sauce visual for
    this prototype (see PizzaStage's `isReferenceSauceContext`), it needs the same bake-state
    tinting `.pizza-sauce-layer` gets elsewhere, or the sauce would stop reacting to bake
    state entirely once the flat fill is skipped. Same filter values as
-   `.pizza-dough--raw/--perfect .pizza-sauce-layer` above, applied to the canvas instead. */
+   `.pizza-dough--raw/--perfect .pizza-sauce-layer` above, applied to the canvas instead --
+   each one keeps the blur(1px) above (a `filter` list replaces, it doesn't merge with the
+   base rule's). */
 .pizza-dough--raw .pizza-sauce-heatmap--raw {
-  filter: saturate(1.18) brightness(1.06);
+  filter: blur(1px) saturate(1.18) brightness(1.06);
 }
 
 .pizza-dough--perfect .pizza-sauce-heatmap--perfect {
-  filter: saturate(1.08) brightness(0.95) hue-rotate(-6deg);
+  filter: blur(1px) saturate(1.08) brightness(0.95) hue-rotate(-6deg);
 }
 
 .pizza-dough--burnt .pizza-sauce-heatmap--burnt {
-  filter: brightness(0.55) saturate(0.7) sepia(0.25);
+  filter: blur(1px) brightness(0.55) saturate(0.7) sepia(0.25);
 }
 
 .reference-tools-row {
@@ -1762,6 +1787,19 @@
   position: absolute;
   inset: 8%;
   border-radius: 50%;
+}
+
+/* Human Feel Fix 2 (Target Area Guide): same convention as .sauce-target-guide on the main
+   dough, sized from the same SAUCE_TARGET_RADIUS constant via the --target-radius custom
+   property. Drawn before .reference-mini-pizza__sauce in the DOM, so the (still mostly
+   opaque) sauce circle painted on top of it hides most of the ring anyway -- it's meant to
+   read as "this is the area", not to compete with the sauce swatch for attention. */
+.reference-mini-pizza__target-guide {
+  position: absolute;
+  inset: calc(50% - var(--target-radius));
+  border-radius: 50%;
+  border: 1px dashed rgba(107, 66, 38, 0.3);
+  pointer-events: none;
 }
 
 .reference-mini-pizza__topping {
@@ -1843,6 +1881,61 @@
   font-weight: 700;
   color: #8a6a1f;
   padding: 2px 0;
+  margin-top: 6px;
+}
+
+/* Human Feel Fix 2: the player-facing row -- 広さ/均一さ/ふち, always visible (not behind
+   the 開発用 toggle below). */
+.sauce-metrics-panel__player-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sauce-metrics-panel__player-heading {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b4226;
+  margin-right: 2px;
+}
+
+.sauce-metrics-panel__player-chip {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b4226;
+  background: #fff8ea;
+  border-radius: 999px;
+  padding: 3px 9px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.sauce-metrics-panel__tier {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.sauce-metrics-panel__tier--great {
+  color: #4c9a2a;
+}
+
+.sauce-metrics-panel__tier--good {
+  color: #c78a1e;
+}
+
+.sauce-metrics-panel__tier--poor {
+  color: #c73b2e;
+}
+
+/* One short line, replaced wholesale each render -- see SauceMetricsPanel.tsx's own doc
+   comment for why this is never more than one message at a time. */
+.sauce-metrics-panel__live-message {
+  margin: 6px 0 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #a1662f;
 }
 
 .sauce-metrics-panel__row {

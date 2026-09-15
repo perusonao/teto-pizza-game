@@ -1,6 +1,8 @@
+import type { CSSProperties } from "react";
 import type { ReferencePizza } from "../data/referencePizza";
 import { getIngredient } from "../data/ingredients";
 import { stablePieceRotation } from "../logic/pieceDrag";
+import { SAUCE_TARGET_RADIUS } from "../logic/sauceField";
 
 interface ReferencePreviewProps {
   reference: ReferencePizza;
@@ -61,6 +63,14 @@ export function ReferencePreview({ reference, isOpen, onOpenChange }: ReferenceP
             </div>
 
             <div className="reference-mini-pizza" aria-hidden="true">
+              {/* Human Feel Fix 2 (Target Area Guide, brief section 2): the same
+                  SAUCE_TARGET_RADIUS boundary PizzaStage's own guide ring uses, so the
+                  Reference popover never shows a different "leave the ear" area than the
+                  one the player's own dough guide (and edgeAmount/edgeRatio scoring) uses. */}
+              <div
+                className="reference-mini-pizza__target-guide"
+                style={{ "--target-radius": `${SAUCE_TARGET_RADIUS}%` } as CSSProperties}
+              />
               <div
                 className="reference-mini-pizza__sauce"
                 style={{

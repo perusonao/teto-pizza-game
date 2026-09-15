@@ -1,14 +1,19 @@
 import { describe, expect, it } from "vitest";
 import {
   buildSauceField,
+  circleOverlapFraction,
   computeSauceMetrics,
   emptySauceMetrics,
   insideDoughFraction,
+  insideTargetFraction,
   isCellInsideDough,
   SAUCE_FIELD_SIZE,
+  SAUCE_TARGET_RADIUS,
   totalDispensed,
 } from "./sauceField";
 import { SAUCE_RATE_PER_TICK } from "./sauceQuantity";
+import { DOUGH_RADIUS } from "./pizzaCoordinates";
+import { IDEAL_MARGHERITA_SAUCE_FIXTURE } from "../data/referencePizza";
 
 /** Spreads `total` amount across `count` deposits arranged evenly around the dough. */
 function wideDeposits(total: number, count: number): Array<{ x: number; y: number; amount: number }> {
@@ -196,5 +201,72 @@ describe("totalDispensed", () => {
       { x: 50, y: 100, amount: 0.05 },
     ];
     expect(totalDispensed(deposits)).toBeCloseTo(0.25);
+  });
+});
+
+describe("SAUCE_TARGET_RADIUS / circleOverlapFraction / insideTargetFraction (Human Feel Fix 2)", () => {
+  it("SAUCE_TARGET_RADIUS is strictly inside DOUGH_RADIUS, leaving a real rim margin", () => {
+    expect(SAUCE_TARGET_RADIUS).toBeLessThan(DOUGH_RADIUS);
+    expect(DOUGH_RADIUS - SAUCE_TARGET_RADIUS).toBeGreaterThanOrEqual(4);
+  });
+
+  it("circleOverlapFraction against DOUGH_RADIUS is exactly insideDoughFraction", () => {
+    for (const [x, y] of [[50, 50], [80, 60], [50, 110]] as const) {
+      expect(circleOverlapFraction(x, y, DOUGH_RADIUS)).toBe(insideDoughFraction(x, y));
+    }
+  });
+
+  it("insideTargetFraction never exceeds insideDoughFraction (the target circle is strictly inside the dough circle)", () => {
+    for (const d of [0, 10, 30, 38, 40, 42, 44, 46, 48, 50]) {
+      const target = insideTargetFraction(50 + d, 50);
+      const dough = insideDoughFraction(50 + d, 50);
+      expect(target).toBeLessThanOrEqual(dough + 1e-9);
+    }
+  });
+
+  it("is 1 well inside the target radius, 0 well outside it, and never jumps discontinuously across it", () => {
+    expect(insideTargetFraction(50, 50)).toBe(1);
+    expect(insideTargetFraction(50, 96)).toBe(0); // distance 46: inside the dough, well outside the target radius (40) + footprint (3).
+    const justInside = insideTargetFraction(50 + SAUCE_TARGET_RADIUS - 0.1, 50);
+    const justOutside = insideTargetFraction(50 + SAUCE_TARGET_RADIUS + 0.1, 50);
+    expect(Math.abs(justInside - justOutside)).toBeLessThan(0.05);
+  });
+});
+
+describe("SauceMetrics.edgeAmount / edgeRatio (Human Feel Fix 2)", () => {
+  it("is 0 for a deposit well inside the target radius", () => {
+    const metrics = computeSauceMetrics([{ x: 50, y: 50, amount: 0.3 }]);
+    expect(metrics.edgeAmount).toBe(0);
+    expect(metrics.edgeRatio).toBe(0);
+  });
+
+  it("counts (nearly) the full amount for a deposit painted onto the rim band, still inside the dough", () => {
+    // distance 44 from center: inside DOUGH_RADIUS (48, so not overflow) but outside
+    // SAUCE_TARGET_RADIUS (40, so counted as edge).
+    const metrics = computeSauceMetrics([{ x: 94, y: 50, amount: 0.3 }]);
+    expect(metrics.overflowAmount).toBeCloseTo(0, 5);
+    expect(metrics.edgeAmount).toBeCloseTo(0.3, 1);
+    expect(metrics.edgeRatio).toBeGreaterThan(0.9);
+  });
+
+  it("counts true overflow (past the dough entirely) as edge too -- 'missed the pizza' and 'touched the ear' are the same player mistake here", () => {
+    const metrics = computeSauceMetrics([{ x: 50, y: 110, amount: 0.2 }]);
+    expect(metrics.overflowRatio).toBeCloseTo(1);
+    expect(metrics.edgeRatio).toBeCloseTo(1);
+  });
+
+  it("the reference fixture's own edgeRatio is near 0 -- the game's 'ideal' example never touches the rim band it warns players away from", () => {
+    const metrics = computeSauceMetrics(IDEAL_MARGHERITA_SAUCE_FIXTURE);
+    expect(metrics.edgeRatio).toBeLessThan(0.03);
+  });
+
+  it("edgeRatio is bounded to [0, 1]", () => {
+    const metrics = computeSauceMetrics([
+      { x: 50, y: 50, amount: 0.2 },
+      { x: 94, y: 50, amount: 0.2 },
+      { x: 50, y: 110, amount: 0.2 },
+    ]);
+    expect(metrics.edgeRatio).toBeGreaterThanOrEqual(0);
+    expect(metrics.edgeRatio).toBeLessThanOrEqual(1);
   });
 });

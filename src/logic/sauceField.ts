@@ -61,23 +61,46 @@ export function isCellInsideDough(row: number, col: number): boolean {
 const DEPOSIT_FOOTPRINT_RADIUS = 3;
 
 /**
- * Fraction (0-1) of a disk of radius `DEPOSIT_FOOTPRINT_RADIUS` centered at (x, y) that
- * overlaps the dough circle (center 50,50, radius `DOUGH_RADIUS`), via the standard
- * circle-circle intersection area formula, normalized by the *deposit's own* footprint area
- * (never the dough's -- the question is "how much of this deposit landed inside", not "how
- * much of the dough this deposit covers"). 1 well inside the rim, 0 well outside, and a
- * smooth continuous ramp through the thin annulus around the rim where the two circles
- * actually overlap. By construction `insideDoughFraction(...) + (1 - insideDoughFraction(...))
- * === 1` always, so splitting one deposit's amount by this fraction conserves its full
- * amount exactly (quantity + overflow) at every position, including right on the rim.
+ * Human Feel Fix 2 (Sauce Painting Visual/Scoring Discoverability): the "paint up to here,
+ * leave the crust bare" boundary, in the same dough-percent units as `DOUGH_RADIUS` --
+ * strictly smaller than it (48), leaving a deliberate rim margin. This is the single
+ * geometry constant behind both:
+ *  - the Target Area Guide rendered on the dough and on the Reference Pizza mini preview
+ *    (PizzaStage.tsx, ReferencePreview.tsx) -- so the guide is never drawn from a different
+ *    number than the one scoring below actually uses (Human Feel Fix 2 brief section 5).
+ *  - `insideTargetFraction`/`edgeAmount`/`edgeRatio` below, the shadow-only "did this sauce
+ *    stay off the ear" signal the player-facing ふち (edge) evaluation
+ *    (../logic/sauceEvaluation.ts) reads.
+ * Chosen so `IDEAL_MARGHERITA_SAUCE_FIXTURE` (../data/referencePizza.ts, outermost ring at
+ * radius 36 + its own `DEPOSIT_FOOTPRINT_RADIUS`-sized footprint) stays entirely inside it --
+ * pinned by sauceField.test.ts, so an unrelated future tuning change can't silently make the
+ * game's own "ideal" example fail its own edge check.
  */
-export function insideDoughFraction(x: number, y: number): number {
+export const SAUCE_TARGET_RADIUS = 40;
+
+/**
+ * Fraction (0-1) of a disk of radius `footprintRadius` centered at (x, y) that overlaps a
+ * circle of radius `circleRadius` centered on the dough's own center, via the standard
+ * circle-circle intersection area formula, normalized by the *deposit's own* footprint area
+ * (never the target circle's -- the question is "how much of this deposit landed inside",
+ * not "how much of the circle this deposit covers"). 1 well inside, 0 well outside, and a
+ * smooth continuous ramp through the thin annulus where the two circles actually overlap --
+ * never a discontinuous 0%/100% flip for a deposit a fraction of a percent from the boundary.
+ * `insideDoughFraction`/`insideTargetFraction` below are both just this against their own
+ * fixed radius, so every boundary in this file shares the exact same continuity guarantee.
+ */
+export function circleOverlapFraction(
+  x: number,
+  y: number,
+  circleRadius: number,
+  footprintRadius: number = DEPOSIT_FOOTPRINT_RADIUS,
+): number {
   const d = distanceFromCenter(x, y);
-  const R = DOUGH_RADIUS;
-  const r = DEPOSIT_FOOTPRINT_RADIUS;
+  const R = circleRadius;
+  const r = footprintRadius;
 
   if (d >= R + r) return 0; // Fully outside: the two circles don't touch at all.
-  if (d <= R - r) return 1; // Fully inside: the deposit's whole footprint clears the rim.
+  if (d <= R - r) return 1; // Fully inside: the deposit's whole footprint clears the boundary.
 
   const clampAcos = (value: number) => Math.acos(Math.min(1, Math.max(-1, value)));
   const d2 = d * d;
@@ -92,6 +115,26 @@ export function insideDoughFraction(x: number, y: number): number {
 
   const footprintArea = Math.PI * r2;
   return Math.min(1, Math.max(0, intersectionArea / footprintArea));
+}
+
+/**
+ * By construction `insideDoughFraction(...) + (1 - insideDoughFraction(...)) === 1` always,
+ * so splitting one deposit's amount by this fraction conserves its full amount exactly
+ * (quantity + overflow) at every position, including right on the rim. See
+ * `circleOverlapFraction`'s own doc comment for the continuity guarantee this relies on.
+ */
+export function insideDoughFraction(x: number, y: number): number {
+  return circleOverlapFraction(x, y, DOUGH_RADIUS);
+}
+
+/** Same continuity guarantee as `insideDoughFraction`, against the smaller
+ *  `SAUCE_TARGET_RADIUS` boundary instead of the dough's own edge -- see `edgeAmount` below
+ *  for what this feeds. Because `SAUCE_TARGET_RADIUS < DOUGH_RADIUS`,
+ *  `insideTargetFraction(x, y) <= insideDoughFraction(x, y)` always holds: the target circle
+ *  is strictly inside the dough circle, so anything the target circle doesn't cover fully
+ *  overlaps the dough circle's own extra margin (or lies outside the dough entirely). */
+export function insideTargetFraction(x: number, y: number): number {
+  return circleOverlapFraction(x, y, SAUCE_TARGET_RADIUS);
 }
 
 let cachedInDoughCellCount: number | null = null;
@@ -169,10 +212,27 @@ export interface SauceMetrics {
   overflowAmount: number;
   /** overflowAmount / (quantity + overflowAmount), 0 when nothing has been deposited. */
   overflowRatio: number;
+  /** Human Feel Fix 2: normalized quantity deposited beyond `SAUCE_TARGET_RADIUS` -- the rim
+   *  band still on the dough (between the target radius and `DOUGH_RADIUS`) *and* true
+   *  overflow both count here, unlike `overflowAmount` (dough-radius-relative only), because
+   *  the player-facing ふち (edge) evaluation treats "touched the ear" and "missed the pizza
+   *  entirely" as the same mistake: sauce that isn't staying inside the target area. See
+   *  ../logic/sauceEvaluation.ts. */
+  edgeAmount: number;
+  /** edgeAmount / (quantity + overflowAmount), 0 when nothing has been deposited. */
+  edgeRatio: number;
 }
 
 export function emptySauceMetrics(): SauceMetrics {
-  return { quantity: 0, coverage: 0, evenness: 1, overflowAmount: 0, overflowRatio: 0 };
+  return {
+    quantity: 0,
+    coverage: 0,
+    evenness: 1,
+    overflowAmount: 0,
+    overflowRatio: 0,
+    edgeAmount: 0,
+    edgeRatio: 0,
+  };
 }
 
 /**
@@ -194,11 +254,18 @@ export function computeSauceMetrics(deposits: readonly SauceDepositLike[]): Sauc
   const insideWeightedDeposits: SauceDepositLike[] = [];
   let quantity = 0;
   let overflowAmount = 0;
+  let edgeAmount = 0;
   for (const deposit of deposits) {
     const insideFraction = insideDoughFraction(deposit.x, deposit.y);
     const insideAmount = deposit.amount * insideFraction;
     quantity += insideAmount;
     overflowAmount += deposit.amount - insideAmount; // exact complement -- conservation.
+    // Unlike quantity/overflow (split once, between each other), edgeAmount is deliberately
+    // *not* part of that split -- it's a second, independent read of the same deposit against
+    // a different (smaller) boundary, so "how much stayed off the ear" and "how much stayed
+    // on the pizza at all" can disagree freely (a deposit can be fully inside-dough and still
+    // fully in the edge band at once).
+    edgeAmount += deposit.amount * (1 - insideTargetFraction(deposit.x, deposit.y));
     if (insideAmount > 0) {
       insideWeightedDeposits.push({ x: deposit.x, y: deposit.y, amount: insideAmount });
     }
@@ -221,8 +288,9 @@ export function computeSauceMetrics(deposits: readonly SauceDepositLike[]): Sauc
   const evenness = computeEvenness(inDoughValues);
   const totalDispensedAmount = quantity + overflowAmount;
   const overflowRatio = totalDispensedAmount <= 1e-9 ? 0 : overflowAmount / totalDispensedAmount;
+  const edgeRatio = totalDispensedAmount <= 1e-9 ? 0 : edgeAmount / totalDispensedAmount;
 
-  return { quantity, coverage, evenness, overflowAmount, overflowRatio };
+  return { quantity, coverage, evenness, overflowAmount, overflowRatio, edgeAmount, edgeRatio };
 }
 
 /** Sum of every deposit's amount regardless of inside/outside dough -- the running total
