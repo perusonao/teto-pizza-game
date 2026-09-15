@@ -6,11 +6,13 @@
  * (./scoring.ts), never touches Dex BEST/★, and never reaches Mission scoring
  * (./missionScoring.ts). It exists only so the Prototype Metrics panel can show "how close
  * is this to the reference" while validating the *interaction*. Authoritative Scoring 2.0
- * (folding Reference matching into the real score) is explicitly deferred to Phase 4A-1B --
+ * (folding Reference matching into the real score) is explicitly deferred to Phase 4A-2 --
  * see the Phase 4A-1A result report's Scope Guard section. Do not wire this into
  * gameReducer's CONFIRM_BAKE/scorePizza call.
  */
-import type { ReferenceSauce } from "../data/referencePizza";
+import type { ReferencePieceGroup, ReferenceSauce } from "../data/referencePizza";
+import type { PlacedTopping } from "../state/pizzaState";
+import { scorePieceGroups, type PieceReferenceMetrics } from "./referenceMatching";
 import type { SauceMetrics } from "./sauceField";
 
 export interface SauceReferenceShadowScore {
@@ -31,4 +33,12 @@ export function scoreSauceAgainstReference(
     coverageSimilarity,
     overall: (quantitySimilarity + coverageSimilarity) / 2,
   };
+}
+
+/** Phase 4A-1B shadow-only piece evaluation. It is intentionally not a ScoreBreakdown. */
+export function scorePiecesAgainstReference(
+  toppings: readonly PlacedTopping[],
+  groups: readonly ReferencePieceGroup[],
+): PieceReferenceMetrics[] {
+  return scorePieceGroups(toppings, groups);
 }

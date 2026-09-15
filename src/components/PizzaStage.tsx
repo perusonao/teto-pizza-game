@@ -1,10 +1,12 @@
 import {
   useEffect,
+  useCallback,
   useMemo,
   useReducer as useReactReducer,
   useRef,
   type CSSProperties,
   type MouseEvent as ReactMouseEvent,
+  type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import { getIngredient, type Ingredient } from "../data/ingredients";
@@ -26,6 +28,7 @@ import {
   toSauceLayerPercent,
   type DoughPoint,
 } from "../logic/pizzaCoordinates";
+import { stablePieceRotation } from "../logic/pieceDrag";
 
 /** Screen-space finger/mouse movement (px) before a press becomes a drag instead of a tap. */
 const DRAG_THRESHOLD_PX = 10;
@@ -57,6 +60,7 @@ interface PizzaStageProps {
    *  FIX 1 -- Gesture Session Safety).
    */
   referenceModeEnabled: boolean;
+  onDoughElementChange?: (element: HTMLDivElement | null) => void;
   onTap: (xPercent: number, yPercent: number) => void;
   /** Phase 4A-1A (Post-Codex-Fix): fired with the *entire* accumulated-so-far deposit array
    *  for the in-progress dispense session on every tick, and with `[]` the instant that
@@ -120,6 +124,7 @@ export function PizzaStage({
   placement,
   resultRevealed,
   referenceModeEnabled,
+  onDoughElementChange,
   onTap,
   onDispenseProgress,
   onDispenseCommit,
@@ -159,6 +164,11 @@ export function PizzaStage({
    *  (see PointerTimestampNormalizer's doc comment) -- never re-created per pointermove
    *  sample. `null` whenever no reference-dispense session is active. */
   const timestampNormalizerRef = useRef<PointerTimestampNormalizer | null>(null);
+
+  const setDoughElement = useCallback((element: HTMLDivElement | null) => {
+    circleRef.current = element;
+    onDoughElementChange?.(element);
+  }, [onDoughElementChange]);
 
   useEffect(() => {
     committedTotalRef.current = pizza.sauceDeposits.reduce((sum, d) => sum + d.amount, 0);
@@ -564,6 +574,12 @@ export function PizzaStage({
     if (gestureRef.current.pointerId !== null) event.preventDefault();
   }
 
+  function handleKeyDown(event: ReactKeyboardEvent<HTMLDivElement>) {
+    if (!interactive || (event.key !== "Enter" && event.key !== " ")) return;
+    event.preventDefault();
+    onTap(50, 50);
+  }
+
   const sauceId = pizza.sauceIds[0];
   const sauceIngredient = sauceId ? getIngredient(sauceId) : undefined;
   const isOilSauce = sauceIngredient?.id === "olive-oil";
@@ -653,7 +669,11 @@ export function PizzaStage({
   return (
     <div className="pizza-stage">
       <div
-        ref={circleRef}
+        ref={setDoughElement}
+        data-pizza-drop-target="true"
+        role="button"
+        tabIndex={interactive ? 0 : -1}
+        aria-label="ピザ。選択中の素材を置くにはEnterまたはスペース"
         className={`pizza-dough ${interactive ? "pizza-dough--interactive" : ""} ${
           bakeState ? `pizza-dough--${bakeState}` : ""
         }`}
@@ -663,6 +683,7 @@ export function PizzaStage({
         onPointerCancel={handlePointerCancel}
         onLostPointerCapture={handleLostPointerCapture}
         onContextMenu={handleContextMenu}
+        onKeyDown={handleKeyDown}
       >
         {sauceIngredient && !isReferenceSauceContext && (
           <div
@@ -689,8 +710,12 @@ export function PizzaStage({
           return (
             <span
               key={t.id}
-              className="pizza-topping"
-              style={{ left: `${t.x}%`, top: `${t.y}%` }}
+              className={`pizza-topping pizza-topping--${ingredient.id}`}
+              style={{
+                left: `${t.x}%`,
+                top: `${t.y}%`,
+                "--piece-rotation": `${stablePieceRotation(t.ingredientId, t.x, t.y)}deg`,
+              } as CSSProperties}
             >
               {ingredient.category === "cheese" ? (
                 <span

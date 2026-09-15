@@ -27,6 +27,8 @@ import { discoveredRecipeIds } from "../state/dex";
 import { remainingSeconds, type MissionState } from "../mission/lunchRush";
 import { averageQualityScore, missionScore } from "../logic/missionScoring";
 import { calculateMissionReward } from "../logic/economy";
+import type { PieceReferenceMetrics } from "../logic/referenceMatching";
+import type { DoughPoint } from "../logic/pizzaCoordinates";
 
 /**
  * GAME screen (Issue #24). Everything that happens while an actual round is in play --
@@ -54,6 +56,7 @@ interface GameScreenProps {
   isReferencePopoverOpen: boolean;
   sauceMetrics: SauceMetrics;
   sauceShadowScore: SauceReferenceShadowScore;
+  pieceShadowMetrics: readonly PieceReferenceMetrics[];
   onGoHome: () => void;
   onOpenDex: () => void;
   onOpenShop: () => void;
@@ -76,6 +79,9 @@ interface GameScreenProps {
   onReferencePopoverChange: (isOpen: boolean) => void;
   onDispenseProgress: (deposits: readonly SauceDeposit[]) => void;
   onDispenseCommit: (ingredientId: string, deposits: SauceDeposit[]) => void;
+  onDoughElementChange: (element: HTMLDivElement | null) => void;
+  resolvePhysicalDrop: (clientX: number, clientY: number) => DoughPoint | null;
+  onPhysicalDrop: (ingredient: Ingredient, point: DoughPoint) => void;
 }
 
 export function GameScreen({
@@ -92,6 +98,7 @@ export function GameScreen({
   isReferencePopoverOpen,
   sauceMetrics,
   sauceShadowScore,
+  pieceShadowMetrics,
   onGoHome,
   onOpenDex,
   onOpenShop,
@@ -114,6 +121,9 @@ export function GameScreen({
   onReferencePopoverChange,
   onDispenseProgress,
   onDispenseCommit,
+  onDoughElementChange,
+  resolvePhysicalDrop,
+  onPhysicalDrop,
 }: GameScreenProps) {
   const isMissionPlaying = mission.mode === "PLAYING";
   // Free play's own RESULT dialogue/ResultPanel are gated on this, not just `!isMissionPlaying`
@@ -204,6 +214,7 @@ export function GameScreen({
         placement={state.placement}
         resultRevealed={state.phase === "RESULT"}
         referenceModeEnabled={referenceModeEnabled}
+        onDoughElementChange={onDoughElementChange}
         onTap={onTapPizza}
         onDispenseProgress={onDispenseProgress}
         onDispenseCommit={onDispenseCommit}
@@ -233,7 +244,11 @@ export function GameScreen({
       )}
 
       {state.phase === "PREPARE" && referenceModeEnabled && (
-        <SauceMetricsPanel metrics={sauceMetrics} shadowScore={sauceShadowScore} />
+        <SauceMetricsPanel
+          metrics={sauceMetrics}
+          shadowScore={sauceShadowScore}
+          pieceMetrics={pieceShadowMetrics}
+        />
       )}
 
       {state.phase === "PREPARE" && (
@@ -244,6 +259,10 @@ export function GameScreen({
             selectedIngredientId={selectedIngredientId}
             onSelectIngredient={onSelectIngredient}
             ownedIngredientIds={state.ownedIngredientIds}
+            physicalDragEnabled={referenceModeEnabled && !isReferencePopoverOpen}
+            draggableIngredientIds={["mozzarella", "basil"]}
+            resolvePhysicalDrop={resolvePhysicalDrop}
+            onPhysicalDrop={onPhysicalDrop}
           />
           <div className="action-row">
             <button type="button" className="secondary-button" onClick={onResetPizza}>
