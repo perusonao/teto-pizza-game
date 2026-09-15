@@ -17,7 +17,11 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 6px;
-  padding: 10px 16px;
+  /* iOS standalone PWA runs with `apple-mobile-web-app-status-bar-style: black-translucent`
+     (index.html) + `viewport-fit=cover`, which lets content draw under the notch/status
+     bar -- without this, the title/Pitz/home button in this fixed-at-the-top header would
+     sit right behind it on a notched device. */
+  padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 10px;
   background: #6b4226;
   color: #fff9ec;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
@@ -1329,6 +1333,182 @@
   background: #e0d0ac;
   color: #a1662f;
   opacity: 0.7;
+}
+
+/* ==========================================================================
+   HOME / GAME screens (Issue #24)
+   ========================================================================== */
+
+/* Both screens are flex children of .app-frame (already `display:flex;
+   flex-direction:column`) and need to keep behaving like one themselves --
+   .action-row's `margin-top:auto` (GAME's action rows) only pushes to the
+   bottom of *this* box, and `min-height:0` lets children (the pizza stage,
+   the dex list, ...) size/scroll correctly inside a flex column instead of
+   forcing the whole frame to grow. */
+.home-screen,
+.game-screen {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ---------- HOME header extras ---------- */
+.app-header__dex-pill {
+  font-size: 11px;
+  font-weight: 800;
+  background: rgba(255, 249, 236, 0.16);
+  border-radius: 999px;
+  padding: 6px 10px;
+  white-space: nowrap;
+}
+
+.app-header__settings-button {
+  border: none;
+  background: rgba(255, 249, 236, 0.16);
+  color: #fff9ec;
+  font-size: 14px;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  line-height: 1;
+}
+
+.app-header__settings-button:disabled {
+  opacity: 0.55;
+}
+
+.app-header__home-button {
+  border: none;
+  background: rgba(255, 249, 236, 0.16);
+  color: #fff9ec;
+  font-weight: 700;
+  font-size: 12.5px;
+  border-radius: 999px;
+  padding: 8px 12px;
+  min-height: 40px;
+  white-space: nowrap;
+}
+
+/* ---------- HOME hero ---------- */
+.home-hero {
+  position: relative;
+  margin: 10px 16px 0;
+  padding-top: 40px;
+  min-height: 236px;
+  border-radius: 20px;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(228, 87, 46, 0.35), transparent 60%),
+    linear-gradient(180deg, #6b4226 0%, #4a2e16 100%);
+  box-shadow: inset 0 0 0 2px rgba(255, 249, 236, 0.12), 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.home-hero__teto {
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #fff3df;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+  margin-bottom: -2px;
+}
+
+.home-hero__bubble {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  color: #3a2a1a;
+  padding: 9px 14px;
+  border-radius: 14px;
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: center;
+  max-width: 80%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.home-hero__bubble::after {
+  content: "";
+  position: absolute;
+  bottom: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 7px solid transparent;
+  border-top-color: #fff;
+  border-bottom: 0;
+}
+
+/* ---------- HOME primary CTA ---------- */
+.home-cta-row {
+  padding: 12px 16px 0;
+}
+
+.cta-button--home {
+  width: 100%;
+  min-height: 54px;
+  font-size: 17px;
+}
+
+/* ---------- HOME 2x2 menu ---------- */
+.home-menu {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 12px 16px 0;
+}
+
+.home-menu__card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  min-height: 92px;
+  background: #fff8ea;
+  border: 2px solid #e6d3a3;
+  border-radius: 16px;
+  padding: 12px 14px;
+  text-align: left;
+  box-shadow: 0 2px 5px rgba(107, 66, 38, 0.12);
+}
+
+.home-menu__icon {
+  font-size: 21px;
+}
+
+.home-menu__label {
+  font-size: 14px;
+  font-weight: 800;
+  color: #4a2e0a;
+}
+
+.home-menu__sub {
+  font-size: 11px;
+  font-weight: 600;
+  color: #a1662f;
+}
+
+.home-menu__card--disabled {
+  opacity: 0.55;
+}
+
+/* ---------- HOME footer ---------- */
+.home-footer {
+  margin-top: auto;
+  padding: 14px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+  text-align: center;
+}
+
+.home-footer__message {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #8a5a2c;
 }
 
 /* ---------- Phase 4A-1A: Reference Sauce Quantity prototype ---------- */
