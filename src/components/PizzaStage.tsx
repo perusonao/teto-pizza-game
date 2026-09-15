@@ -12,6 +12,7 @@ import type { Recipe } from "../data/recipes";
 import type { PizzaState, PlacementFeedback, SauceDeposit } from "../state/pizzaState";
 import { classifyBake } from "../logic/bake";
 import { SauceDispenseController } from "../logic/sauceDispenseController";
+import { PointerTimestampNormalizer } from "../logic/pointerTimestampNormalizer";
 import {
   buildSauceField,
   insideDoughFraction,
@@ -153,6 +154,11 @@ export function PizzaStage({
    *  controller the true running total for cap purposes across the whole application. */
   const committedTotalRef = useRef(0);
   const activeIngredientIdRef = useRef<string | null>(activeIngredient?.id ?? null);
+  /** Timestamp-preservation follow-up: one instance per active dispense session, built at
+   *  pointerdown from that event's own `timeStamp` + a single `performance.now()` sample
+   *  (see PointerTimestampNormalizer's doc comment) -- never re-created per pointermove
+   *  sample. `null` whenever no reference-dispense session is active. */
+  const timestampNormalizerRef = useRef<PointerTimestampNormalizer | null>(null);
 
   useEffect(() => {
     committedTotalRef.current = pizza.sauceDeposits.reduce((sum, d) => sum + d.amount, 0);
@@ -183,6 +189,7 @@ export function PizzaStage({
 
     const session = activeSessionRef.current;
     activeSessionRef.current = null;
+    timestampNormalizerRef.current = null;
     if (commit && session && pendingDepositsRef.current.length > 0) {
       onDispenseCommit(session.ingredientId, pendingDepositsRef.current);
     }
@@ -310,8 +317,16 @@ export function PizzaStage({
   /** Starts a Phase 4A-1A dispense session for `pointerId` at `dough`, snapshotting the
    *  ingredient it's for, and drives it from a requestAnimationFrame loop keyed on real
    *  timestamps (never on how many pointermove events fire) -- see
-   *  SauceDispenseController's own doc comment for why. */
-  function startDispenseSession(pointerId: number, ingredientId: string, dough: DoughPoint) {
+   *  SauceDispenseController's own doc comment for why. `startTimestamp` is the single
+   *  `performance.now()` sample taken at pointerdown, shared with the
+   *  `PointerTimestampNormalizer` constructed alongside it so both agree on "now" at the
+   *  exact same instant. */
+  function startDispenseSession(
+    pointerId: number,
+    ingredientId: string,
+    dough: DoughPoint,
+    startTimestamp: number,
+  ) {
     sessionTokenCounterRef.current += 1;
     const token = sessionTokenCounterRef.current;
     activeSessionRef.current = { token, pointerId, ingredientId };
@@ -322,7 +337,7 @@ export function PizzaStage({
       getTotalDispensed: () => committedTotalRef.current + pendingTotalRef.current,
     });
     dispenseControllerRef.current = controller;
-    controller.start(performance.now(), dough);
+    controller.start(startTimestamp, dough);
 
     const loop = (now: number) => {
       if (activeSessionRef.current?.token !== token) return; // superseded/stopped -- self-halt.
@@ -372,11 +387,25 @@ export function PizzaStage({
       // Sauce starts coming out the instant the dispenser is pressed, not on release --
       // draw the trail's first point immediately to match.
       appendTrailPoint(dough.x, dough.y);
-      startDispenseSession(event.pointerId, activeIngredient.id, dough);
+      // Timestamp-preservation follow-up: one performance.now() sample here, shared by both
+      // the controller's own start() and the normalizer built alongside it -- every later
+      // pointermove sample (including each one inside a coalesced batch) is normalized
+      // relative to *this* pair, never re-stamped with a fresh performance.now() of its own.
+      const startTimestamp = performance.now();
+      timestampNormalizerRef.current = new PointerTimestampNormalizer(
+        event.nativeEvent.timeStamp,
+        startTimestamp,
+      );
+      startDispenseSession(event.pointerId, activeIngredient.id, dough, startTimestamp);
     }
   }
 
-  function processMovePoint(clientX: number, clientY: number, pointerId: number) {
+  function processMovePoint(
+    clientX: number,
+    clientY: number,
+    pointerId: number,
+    rawEventTimestamp: number,
+  ) {
     const g = gestureRef.current;
     if (!g.rect) return;
 
@@ -389,9 +418,20 @@ export function PizzaStage({
       // finger's timestamped path for tick interpolation and updates the trail -- it never
       // deposits by itself, or a fast drag firing many pointermove events would dispense
       // more sauce than a slow one over the same hold.
+      //
+      // Timestamp-preservation follow-up: `rawEventTimestamp` is *this specific sample's*
+      // own event.timeStamp (the main event's, or one coalesced sample's -- see
+      // handlePointerMove) normalized through this gesture's one PointerTimestampNormalizer,
+      // never a freshly-read performance.now(). Re-stamping every sample with "now" at the
+      // moment this loop runs is exactly the bug this fixes: on a slow/coalesced frame,
+      // several samples processed in the same synchronous loop would otherwise all collapse
+      // to nearly the same instant, destroying the finger's real movement-over-time history
+      // that SauceDispenseController's tick interpolation depends on.
       if (isInsideDough(dough.x, dough.y)) g.lastInsideDough = dough;
       appendTrailPoint(dough.x, dough.y);
-      dispenseControllerRef.current?.move(dough, performance.now());
+      const normalizedTimestamp =
+        timestampNormalizerRef.current?.normalize(rawEventTimestamp) ?? performance.now();
+      dispenseControllerRef.current?.move(dough, normalizedTimestamp);
       return;
     }
 
@@ -413,9 +453,17 @@ export function PizzaStage({
 
     // Coalesced events give the finer-grained samples the browser batched between frames,
     // so a fast drag still produces a continuous trail instead of a few widely-spaced dots.
-    // Position interpolation only -- see processMovePoint's session branch above for why
-    // this can never be used to compute dispensed quantity.
-    let events: Array<{ clientX: number; clientY: number }> = [event.nativeEvent];
+    // Timestamp-preservation follow-up: each sample's *own* event.timeStamp travels with it
+    // all the way to processMovePoint/the dispense controller now -- getCoalescedEvents()'s
+    // whole value is recovering the finger's real sub-frame movement *and timing* history on
+    // a slow/coalesced frame, which re-stamping every sample with a fresh performance.now()
+    // (the pre-fix behavior) silently threw away. When it returns entries, they fully
+    // replace the single main-event entry below (never concatenated) -- per spec the target
+    // event's own sample is itself the last entry in that list, so this never double-
+    // registers it alongside the array.
+    let events: Array<{ clientX: number; clientY: number; timeStamp: number }> = [
+      event.nativeEvent,
+    ];
     try {
       const coalesced = event.nativeEvent.getCoalescedEvents?.();
       if (coalesced && coalesced.length > 0) events = coalesced;
@@ -424,7 +472,7 @@ export function PizzaStage({
     }
 
     for (const point of events) {
-      processMovePoint(point.clientX, point.clientY, event.pointerId);
+      processMovePoint(point.clientX, point.clientY, event.pointerId, point.timeStamp);
     }
   }
 
