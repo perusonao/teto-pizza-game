@@ -55,6 +55,12 @@ interface GameScreenProps {
   referenceModeEnabled: boolean;
   referencePizza: ReferencePizza | null;
   isReferencePopoverOpen: boolean;
+  /** Independent Review P2-A (PR #26, discussion_r4017018600): true whenever a global overlay
+   *  (Dex or Shop -- Reference has its own `isReferencePopoverOpen` already wired into the same
+   *  gate below) is open. A second pointer opening one of these mid-drag must abort the first
+   *  pointer's physical-drag session exactly like Reference already does, since IngredientTray's
+   *  window-level pointerup/pointercancel listeners don't know or care what's visually on top. */
+  isGlobalOverlayOpen: boolean;
   sauceMetrics: SauceMetrics;
   sauceShadowScore: SauceReferenceShadowScore;
   /** Human Feel Fix 2: whether a tomato-sauce dispense session currently has any buffered
@@ -100,6 +106,7 @@ export function GameScreen({
   referenceModeEnabled,
   referencePizza,
   isReferencePopoverOpen,
+  isGlobalOverlayOpen,
   sauceMetrics,
   sauceShadowScore,
   isDispensingSauce,
@@ -303,7 +310,9 @@ export function GameScreen({
             selectedIngredientId={selectedIngredientId}
             onSelectIngredient={onSelectIngredient}
             ownedIngredientIds={state.ownedIngredientIds}
-            physicalDragEnabled={referenceModeEnabled && !isReferencePopoverOpen}
+            physicalDragEnabled={
+              referenceModeEnabled && !isReferencePopoverOpen && !isGlobalOverlayOpen
+            }
             draggableIngredientIds={["mozzarella", "basil"]}
             resolvePhysicalDrop={resolvePhysicalDrop}
             onPhysicalDrop={onPhysicalDrop}

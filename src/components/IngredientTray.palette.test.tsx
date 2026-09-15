@@ -189,3 +189,94 @@ describe("Ingredient Palette: fixed 3x2 grid, no scroll (Human Feel Fix 2)", () 
     expect(toppingCount()).toBe(0);
   });
 });
+
+describe("Purchased onion stays reachable via page nav (Independent Review P1, PR #26)", () => {
+  const allToppingIds = ingredientsByCategory("topping").map((i) => i.id);
+  const sevenOwnedTopping = [...STARTER_INGREDIENT_IDS, ...allToppingIds];
+
+  it("with <=6 owned in a category, no page nav is rendered (unchanged from pre-fix)", () => {
+    render(<Harness category="topping" />);
+    expect(screen.queryByRole("group", { name: "素材ページ切り替え" })).not.toBeInTheDocument();
+  });
+
+  it("with exactly 6 owned in a category, no page nav is rendered", () => {
+    // The starter topping set (basil/garlic/oregano/cherry-tomato/egg/mushroom) is already
+    // exactly MAX_INGREDIENT_PALETTE_SLOTS -- the boundary case right below the P1 bug.
+    expect(ingredientsByCategory("topping").filter((i) => STARTER_INGREDIENT_IDS.includes(i.id))).toHaveLength(
+      MAX_INGREDIENT_PALETTE_SLOTS,
+    );
+    render(<Harness category="topping" />);
+    expect(screen.queryByRole("group", { name: "素材ページ切り替え" })).not.toBeInTheDocument();
+  });
+
+  it("with 7 owned (onion purchased), page 1 shows the original 6 and hides onion", () => {
+    render(<Harness category="topping" ownedIngredientIds={sevenOwnedTopping} />);
+    expect(screen.getByRole("group", { name: "素材ページ切り替え" })).toBeInTheDocument();
+    expect(screen.getByText("1 / 2")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /たまねぎ/ })).not.toBeInTheDocument();
+  });
+
+  it("navigating to page 2 reveals onion, and it can be selected", () => {
+    render(<Harness category="topping" ownedIngredientIds={sevenOwnedTopping} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "次のページ" }));
+
+    expect(screen.getByText("2 / 2")).toBeInTheDocument();
+    const onionChip = screen.getByRole("button", { name: /たまねぎ/ });
+    expect(onionChip).toBeInTheDocument();
+
+    fireEvent.click(onionChip);
+    expect(screen.getByTestId("selected-id").textContent).toBe("onion");
+  });
+
+  it("onion is not in draggableIngredientIds, so it selects via tap like every other non-physical topping", () => {
+    render(<Harness category="topping" ownedIngredientIds={sevenOwnedTopping} />);
+    fireEvent.click(screen.getByRole("button", { name: "次のページ" }));
+    const onionChip = screen.getByRole("button", { name: /たまねぎ/ });
+
+    expect(onionChip.className).not.toMatch(/ingredient-chip--physical/);
+    fireEvent.click(onionChip);
+    expect(screen.getByTestId("selected-id").textContent).toBe("onion");
+  });
+
+  it("the 前のページ button is disabled on page 1 and 次のページ disabled on the last page", () => {
+    render(<Harness category="topping" ownedIngredientIds={sevenOwnedTopping} />);
+    expect(screen.getByRole("button", { name: "前のページ" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "次のページ" })).not.toBeDisabled();
+
+    fireEvent.click(screen.getByRole("button", { name: "次のページ" }));
+    expect(screen.getByRole("button", { name: "前のページ" })).not.toBeDisabled();
+    expect(screen.getByRole("button", { name: "次のページ" })).toBeDisabled();
+  });
+
+  it("switching category resets back to page 1", () => {
+    const { rerender } = render(<Harness category="topping" ownedIngredientIds={sevenOwnedTopping} />);
+    fireEvent.click(screen.getByRole("button", { name: "次のページ" }));
+    expect(screen.getByText("2 / 2")).toBeInTheDocument();
+
+    rerender(<Harness category="cheese" ownedIngredientIds={sevenOwnedTopping} />);
+    rerender(<Harness category="topping" ownedIngredientIds={sevenOwnedTopping} />);
+    expect(screen.getByText("1 / 2")).toBeInTheDocument();
+  });
+
+  it("switching pages mid-drag aborts the stale session (no commit onto the new page)", () => {
+    render(<Harness category="topping" ownedIngredientIds={sevenOwnedTopping} />);
+    const chip = findChip("basil");
+
+    startDrag(chip, 1);
+    fireEvent.click(screen.getByRole("button", { name: "次のページ" }));
+    fireEvent.pointerUp(chip, { pointerId: 1, clientX: INSIDE_CLIENT.x, clientY: INSIDE_CLIENT.y });
+
+    expect(toppingCount()).toBe(0);
+  });
+
+  it("no regression: Mozzarella/Basil selection and physical drag on page 1 still work with 7 owned", () => {
+    render(<Harness category="topping" ownedIngredientIds={sevenOwnedTopping} />);
+    const chip = findChip("basil");
+
+    startDrag(chip, 1);
+    fireEvent.pointerUp(chip, { pointerId: 1, clientX: INSIDE_CLIENT.x, clientY: INSIDE_CLIENT.y });
+
+    expect(toppingCount()).toBe(1);
+  });
+});

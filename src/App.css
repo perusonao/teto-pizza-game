@@ -680,6 +680,40 @@
   background: #fff1de;
 }
 
+/* Independent Review P1 (PR #26): shown only when a category owns more than
+   MAX_INGREDIENT_PALETTE_SLOTS ingredients (IngredientTray.tsx). A compact row, not a second
+   scroll surface -- keeps the 3x2 grid's own gesture surface exactly as Fix 2 left it. */
+.ingredient-page-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.ingredient-page-nav__button {
+  min-width: 36px;
+  min-height: 28px;
+  border: none;
+  border-radius: 8px;
+  background: #e6d5ae;
+  color: #6b4226;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.ingredient-page-nav__button:disabled {
+  opacity: 0.4;
+}
+
+.ingredient-page-nav__label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #6b4226;
+  min-width: 32px;
+  text-align: center;
+}
+
 /* Phase 4A-1B Human Feel Fix 2: the grid has no native gesture left to share this button
    with (pan-x existed only to keep the tray's old horizontal scroll usable -- gone now), so
    this can go straight to `none`, the same "no ambiguity" setting `.pizza-dough--interactive`
@@ -800,7 +834,12 @@
   margin-top: 0;
   padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
   background: linear-gradient(180deg, rgba(239, 220, 179, 0) 0%, #efdcb3 40%, #efdcb3 100%);
-  z-index: 40;
+  /* Independent Review P2-B (PR #26, discussion_r4017018615): must stay below every modal
+     backdrop (.dex-overlay/.shop-overlay's shared 20, .mission-overlay and
+     .reference-preview__backdrop's shared 25) so Bake/Reset/hint controls can never render or
+     receive taps above an open overlay. Still above ordinary in-flow PREPARE content (z-index:
+     auto) and .app-header (5), which never overlaps it spatially anyway. */
+  z-index: 10;
 }
 
 .cta-button {

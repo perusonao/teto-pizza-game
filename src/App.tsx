@@ -400,6 +400,7 @@ function App() {
           referenceModeEnabled={referenceModeEnabled}
           referencePizza={referencePizza}
           isReferencePopoverOpen={isReferencePopoverOpen}
+          isGlobalOverlayOpen={isDexOpen || isShopOpen}
           sauceMetrics={sauceMetrics}
           sauceShadowScore={sauceShadowScore}
           isDispensingSauce={pendingSauceDeposits.length > 0}

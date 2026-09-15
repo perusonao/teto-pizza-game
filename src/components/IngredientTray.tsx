@@ -65,11 +65,24 @@ export function IngredientTray({
   onPhysicalDrop,
   resetToken,
 }: IngredientTrayProps) {
-  // Phase 4A-1B Human Feel Fix 2: capped to a fixed 3x2 grid, no scrolling -- see
-  // MAX_INGREDIENT_PALETTE_SLOTS in data/ingredients.ts for why.
-  const items = ingredientsByCategory(activeCategory)
-    .filter((i) => ownedIngredientIds.includes(i.id))
-    .slice(0, MAX_INGREDIENT_PALETTE_SLOTS);
+  // Phase 4A-1B Human Feel Fix 2: the visible grid stays a fixed 3x2 (MAX_INGREDIENT_PALETTE_SLOTS
+  // in data/ingredients.ts), no scrolling. Independent Review P1 (PR #26, discussion_r4017018587):
+  // a 7th owned ingredient in one category (onion, once purchased, joins 6 existing topping
+  // ingredients) was unconditionally sliced off and could never be selected. Rather than special
+  // -casing onion, owned ingredients in the active category are now paged MAX_INGREDIENT_PALETTE_
+  // SLOTS at a time -- a category with <=6 owned (every category today, minus a purchased onion)
+  // renders exactly as before with no page control at all; a 7th+ owned ingredient becomes
+  // reachable via a small page nav rendered only when it's actually needed.
+  const [page, setPage] = useState(0);
+  const categoryItems = ingredientsByCategory(activeCategory).filter((i) =>
+    ownedIngredientIds.includes(i.id),
+  );
+  const pageCount = Math.max(1, Math.ceil(categoryItems.length / MAX_INGREDIENT_PALETTE_SLOTS));
+  const currentPage = Math.min(page, pageCount - 1);
+  const items = categoryItems.slice(
+    currentPage * MAX_INGREDIENT_PALETTE_SLOTS,
+    (currentPage + 1) * MAX_INGREDIENT_PALETTE_SLOTS,
+  );
   const sessionRef = useRef<DragSession | null>(null);
   const frameRef = useRef<number | null>(null);
   const pendingPointRef = useRef<{ x: number; y: number } | null>(null);
@@ -187,12 +200,26 @@ export function IngredientTray({
 
   useEffect(() => {
     if (sessionRef.current) clearSession();
+    setPage(0);
   }, [activeCategory]);
+
+  // A page switch unmounts the currently-dragged chip's button element (React reconciles it
+  // away once it's no longer in `items`), so any in-flight session on it must end the same way
+  // switching category already does -- otherwise its pointer capture and window listeners would
+  // keep tracking a session bound to a chip no longer on screen.
+  useEffect(() => {
+    if (sessionRef.current) clearSession();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fires purely off the page change.
+  }, [currentPage]);
 
   useEffect(() => {
     if (sessionRef.current) clearSession();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- fires purely off the token bump.
   }, [resetToken]);
+
+  function goToPage(next: number) {
+    setPage(Math.max(0, Math.min(pageCount - 1, next)));
+  }
 
   function isDraggable(ingredient: Ingredient): boolean {
     return physicalDragEnabled && draggableIngredientIds.includes(ingredient.id);
@@ -313,6 +340,37 @@ export function IngredientTray({
           </button>
         ))}
       </div>
+
+      {/* Independent Review P1 (PR #26): only rendered once a category actually owns more than
+          MAX_INGREDIENT_PALETTE_SLOTS ingredients -- every category today stays exactly as it
+          was pre-fix (no nav, no layout change) until a 7th ingredient in one category is
+          actually owned. Page switching, not scrolling, so it never reintroduces the
+          single-finger-swipe conflict Fix 2 removed. */}
+      {pageCount > 1 && (
+        <div className="ingredient-page-nav" role="group" aria-label="素材ページ切り替え">
+          <button
+            type="button"
+            className="ingredient-page-nav__button"
+            onClick={() => goToPage(currentPage - 1)}
+            disabled={currentPage === 0}
+            aria-label="前のページ"
+          >
+            {"◀"}
+          </button>
+          <span className="ingredient-page-nav__label">
+            {currentPage + 1} / {pageCount}
+          </span>
+          <button
+            type="button"
+            className="ingredient-page-nav__button"
+            onClick={() => goToPage(currentPage + 1)}
+            disabled={currentPage === pageCount - 1}
+            aria-label="次のページ"
+          >
+            {"▶"}
+          </button>
+        </div>
+      )}
 
       {preview && (
         <div
