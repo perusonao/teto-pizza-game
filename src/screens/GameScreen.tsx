@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { DialogueBox } from "../components/DialogueBox";
 import { PizzaStage } from "../components/PizzaStage";
 import { IngredientTray } from "../components/IngredientTray";
@@ -125,6 +126,19 @@ export function GameScreen({
   resolvePhysicalDrop,
   onPhysicalDrop,
 }: GameScreenProps) {
+  // Independent Review P2 (PR #26): RESET_PIZZA only clears `state.pizza` -- it never touches
+  // `physicalDragEnabled`/`selectedIngredientId`/`activeCategory`, the three signals
+  // IngredientTray already watches to abort a stale physical-drag session. Without this, a
+  // second pointer tapping "やり直す" mid-drag left the first pointer's session alive; releasing
+  // it afterward committed a PLACE_TOPPING onto the freshly emptied pizza. Bumped here (the one
+  // place "やり直す" is wired to onResetPizza) and handed to IngredientTray as `resetToken` so it
+  // can add a fourth "abort on change" effect alongside its existing three.
+  const [pizzaResetToken, setPizzaResetToken] = useState(0);
+  function handleResetPizza() {
+    setPizzaResetToken((token) => token + 1);
+    onResetPizza();
+  }
+
   const isMissionPlaying = mission.mode === "PLAYING";
   // Free play's own RESULT dialogue/ResultPanel are gated on this, not just `!isMissionPlaying`
   // -- once a run's timer expires mid-round, `mission.mode` flips straight to "RESULT" while
@@ -263,9 +277,10 @@ export function GameScreen({
             draggableIngredientIds={["mozzarella", "basil"]}
             resolvePhysicalDrop={resolvePhysicalDrop}
             onPhysicalDrop={onPhysicalDrop}
+            resetToken={pizzaResetToken}
           />
           <div className="action-row">
-            <button type="button" className="secondary-button" onClick={onResetPizza}>
+            <button type="button" className="secondary-button" onClick={handleResetPizza}>
               やり直す
             </button>
             <button type="button" className="cta-button cta-button--bake" onClick={onStartBake}>

@@ -26,6 +26,13 @@ interface IngredientTrayProps {
   draggableIngredientIds?: readonly string[];
   resolvePhysicalDrop?: (clientX: number, clientY: number) => DoughPoint | null;
   onPhysicalDrop?: (ingredient: Ingredient, point: DoughPoint) => void;
+  /** Independent Review P2 (PR #26): bumped by the caller every time RESET_PIZZA fires (see
+   *  GameScreen.tsx's `handleResetPizza`). RESET_PIZZA changes only `state.pizza` -- none of
+   *  `physicalDragEnabled`/`selectedIngredientId`/`activeCategory` (the three signals already
+   *  watched below) moves when it fires -- so without this, a second pointer resetting the
+   *  pizza mid-drag left the first pointer's session alive to commit a stale `onPhysicalDrop`
+   *  onto the freshly emptied pizza the moment it lifted. */
+  resetToken?: number;
 }
 
 interface DragSession {
@@ -55,6 +62,7 @@ export function IngredientTray({
   draggableIngredientIds = [],
   resolvePhysicalDrop,
   onPhysicalDrop,
+  resetToken,
 }: IngredientTrayProps) {
   const items = ingredientsByCategory(activeCategory).filter((i) =>
     ownedIngredientIds.includes(i.id),
@@ -171,6 +179,11 @@ export function IngredientTray({
   useEffect(() => {
     if (sessionRef.current) clearSession();
   }, [activeCategory]);
+
+  useEffect(() => {
+    if (sessionRef.current) clearSession();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fires purely off the token bump.
+  }, [resetToken]);
 
   function isDraggable(ingredient: Ingredient): boolean {
     return physicalDragEnabled && draggableIngredientIds.includes(ingredient.id);
