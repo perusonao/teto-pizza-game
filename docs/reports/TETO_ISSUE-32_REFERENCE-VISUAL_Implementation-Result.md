@@ -10,7 +10,8 @@ geometry, calibration, or piece/coordinate data was touched.
 
 - Base (verified via `git fetch origin main && git rev-parse origin/main`):
   `6248108fba95b4fa93c66a59dc194eaa066c713e`
-- New HEAD: `8c9ad63f895c7d15a333e1beeb06d0f288b255a1`
+- New HEAD: `9a5151fb754ee1975c42c1058cdd778c11fae8e0` (implementation commit
+  `8c9ad63f895c7d15a333e1beeb06d0f288b255a1` + this report's own doc commit)
 - Branch: `claude/teto-pizza-reference-visual-uptz2l`
 - PR: https://github.com/perusonao/teto-pizza-game/pull/35 (draft, not merged)
 
@@ -138,9 +139,14 @@ keep the change minimal.
 ## CI result
 
 GitHub Actions `CI` workflow (`.github/workflows/ci.yml`, runs `npm ci && npm
-run lint && npm test && npm run build` on PR to `main`) triggered on PR #35.
-See the PR's checks tab for live status; all local runs of the same commands
-above passed clean prior to push.
+run lint && npm test && npm run build` on PR to `main`) ran twice on PR #35,
+once per pushed commit, both **green**:
+
+- Run [#79](https://github.com/perusonao/teto-pizza-game/actions/runs/35121791700) — `8c9ad63` (implementation) — `success`
+- Run [#80](https://github.com/perusonao/teto-pizza-game/actions/runs/35121928503) — `9a5151f` (+ this report, current head) — `success`
+
+PR mergeable state: `clean` (no merge conflict against `main`). No review
+comments or requested changes are open.
 
 ## Preview environment
 
