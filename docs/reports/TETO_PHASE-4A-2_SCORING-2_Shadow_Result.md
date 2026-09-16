@@ -4,7 +4,8 @@
 
 - Audited/expected main SHA: `a80698487bd4f56585a9a1572e0025d726631716` — confirmed identical to `origin/main` at implementation start (`git log origin/main -1` returned the same SHA). No drift to reconcile.
 - Implementation branch: `claude/teto-scoring-2-shadow-2qlzz6`
-- Implementation HEAD SHA: see the commit this report ships in (first commit on this branch).
+- Original implementation HEAD SHA: `d3d2ce734c2efa4a587804c837ccfa3e13d14bf1` (PR #31, Codex broad-review target).
+- Codex P1 blocker fix HEAD SHA: see the commit this report ships in (second commit on this branch) — see "Codex P1 Blocker Fix" section below.
 
 ### Fresh Audit document
 
@@ -166,19 +167,46 @@ All flows run against a real dev/build server with a real headless Chromium at e
 
 Console errors across every run: **0**. No horizontal overflow at 390px in any screenshot. RESULT screens do scroll vertically in Preview mode once the Shadow panel is appended below the existing legacy panel/button — this is the panel's own additional content, only ever present in Preview builds, and does not affect the Production layout at all (verified: Production RESULT screen is pixel-identical in structure to pre-PR, just without the panel).
 
+## Codex P1 Blocker Fix
+
+**Original blocker** (Codex broad review, PR #31, reviewed HEAD `d3d2ce734c2efa4a587804c837ccfa3e13d14bf1`, verdict "B. FIX BLOCKERS THEN VERIFY"): *Malformed array containers/elements can still throw instead of Scoring 2.0 failing closed.* No `docs/reports/TETO_PR-31_SCORING-2_Shadow_Codex-Review.md` was present in the working tree, so this was independently reproduced from the blocker description before any fix was written.
+
+**Root cause.** Every original Scoring 2.0 component function assumed its `pizza`/`reference` collection arguments were genuinely well-formed arrays of well-formed elements — true for every real caller (`gameReducer.ts`'s `CONFIRM_BAKE` always passes a canonical, reducer-validated `PizzaState`; `referencePizza.ts`'s `ReferencePizza` is static authored config), but each function is independently exported/public, so nothing enforced that at the module boundary itself. Three concrete throw sites were confirmed by reproduction before any fix:
+
+1. `scorePieceGroupV2`'s own pre-existing `isFinitePoint(point)` guard (added for the original P0/P1 pass) itself read `point.x`/`point.y` unconditionally — a `null` array element (`toppings: [null]`) threw *inside the guard meant to protect against exactly this class of bad data*.
+2. A non-array `toppings`/`groups`/`sauceIds` container (`null`, `undefined`, an object, a string) reaching any `.filter`/`.map`/`for...of` in `piecesComponent.ts`, `recipeComponent.ts`, or `../scoring.ts`'s `countUsedIngredient` (called from `recipeComponent.ts`) threw a `TypeError` immediately.
+3. **Unvalidated Reference positions.** `group.positions` was never sanitized before reaching `../referenceMatching.ts`'s Hungarian assignment (`minimumCostColumns`) — a malformed/non-finite Reference position (not just a malformed *player* topping, which the original P0/P1 pass already guarded) reproduces the exact NaN-cost-matrix hang documented in this report's "Reused-primitive robustness finding" section, this time from the Reference side rather than the player side.
+
+Any of these, reached from `computeScoringV2Shadow` (the one call site inside `gameReducer.ts`'s `CONFIRM_BAKE` case), would either crash the reducer (breaking the whole round, not just the Shadow number) or hang the tab.
+
+**Normalization/validation approach.** New module `src/logic/scoringV2/boundary.ts`: a small set of pure sanitizers (`toSafeArray`, `isFiniteCoordinate`, `sanitizeCoordinates`, `sanitizeSauceDeposits`, `sanitizeToppings`, `sanitizeStringArray`, `sanitizeObjectArray`) that normalize `unknown` input into a clean, always-well-formed array — a non-array container becomes `[]`, a malformed/null/primitive element is *dropped* (never coerced into a substitute value that could read as real data), and every coordinate is required to be a finite number (`Number.isFinite` rejects NaN and both signs of Infinity). Applied at every public Scoring 2.0 boundary that consumes a collection:
+
+- `index.ts`: `pizza` itself falls back to `createEmptyPizza()` if it isn't a non-null object; `pizza.sauceDeposits` is sanitized before `computeSauceMetrics` (legacy `../sauceField.ts`, not modified).
+- `piecesComponent.ts`: `scorePieceGroupV2` now treats *both* its `toppings` and `group` arguments as `unknown` internally (real callers keep the typed signature) — `group.positions` is sanitized via `sanitizeCoordinates` before ever reaching `scorePieceGroup`'s Hungarian matcher, `group.matching`'s radii are read defensively (missing/wrong-typed → `NaN` → already fails `isValidToleranceBand`), and `toppings` goes through `sanitizeToppings`. `scorePiecesComponentV2`'s `groups` container is normalized via `toSafeArray` before `.map`.
+- `recipeComponent.ts`: `recipe.requiredIngredients` is normalized and element-validated before use; `pizza.sauceIds`/`pizza.toppings` are sanitized into a minimal stand-in *before* being handed to `../scoring.ts`'s `countUsedIngredient` — that legacy primitive itself was **not modified** (out of scope, and modifying it would touch authoritative `scorePizza` too).
+
+**Adversarial cases added** (`src/logic/scoringV2/malformedInput.test.ts`, new file, 136 tests): null/undefined/object/string/number/boolean containers (`MALFORMED_CONTAINERS`, 6 shapes × every sanitizer + every consuming function); null/undefined/primitive/missing-field/wrong-type/NaN/+Infinity/-Infinity elements (`MALFORMED_ELEMENTS`, 14 shapes); malformed Reference positions (mixed valid+invalid, feeding the Hungarian matcher); malformed `group.matching` (missing entirely, wrong-typed radii); mixed valid+invalid elements in the same array (pinning that a good element survives alongside dropped bad ones, in order); an "everything malformed at once" case across every collection on the pizza simultaneously; empty arrays; and a `pizza` argument that is itself `null`/`undefined`. Every case asserts `not.toThrow()` and a finite result; the Reference-position and full Hungarian-matcher paths are additionally run under the same `timeout 60 npx vitest run` hard-timeout discipline used to catch the original hang, confirming none of these cases hang either.
+
+**Exact tests.** New file `src/logic/scoringV2/malformedInput.test.ts`: **136 tests**, all passing. Combined with the rest of the suite: see updated Test totals below.
+
+**Valid-input Golden Matrix confirmed unchanged.** `malformedInput.test.ts`'s own "Permutation invariance and Golden Matrix survive the boundary fix unchanged" block re-asserts piece-permutation invariance and `perfect > empty` (`empty.totalScore === 0`) post-fix; every pre-existing test in `scoringV2.test.ts` (30 tests, including the full perfect/good/poor/empty Golden Matrix ordering) still passes unmodified — no assertion was weakened or loosened to accommodate the fix.
+
+**Legacy authority / save isolation confirmed unchanged.** No file under `../scoring.ts`, `../bake.ts`, `../missionScoring.ts`, `src/state/dex.ts`, `src/state/persistence.ts`, or `src/mission/lunchRush.ts` was touched by this fix. `gameReducer.test.ts`'s pre-existing legacy-isolation tests (score/stars/Dex BEST/Mission-serve assertions) and `persistence.test.ts`'s save-schema tests all still pass unmodified.
+
 ## Test totals
 
-- Before this PR (baseline, confirmed at audited main SHA): **39 test files, 518 tests, all passing**.
-- After this PR: **41 test files, 563 tests, all passing** (+2 files, +45 tests: 30 in `scoringV2.test.ts`, 5 in `ScoringV2ShadowPanel.test.tsx`, 7 new cases added to `gameReducer.test.ts`, 3 new cases added to `persistence.test.ts`).
+- Before PR #31 (baseline, confirmed at audited main SHA): **39 test files, 518 tests, all passing**.
+- After PR #31's original implementation (`d3d2ce7`): **41 test files, 563 tests, all passing**.
+- After the Codex P1 blocker fix (this update): **42 test files, 699 tests, all passing** (+1 file, +136 tests: `malformedInput.test.ts`, all adversarial regression cases; 0 tests weakened or removed anywhere in the suite).
 - `npx tsc -b`: clean, no errors.
 - `npx oxlint`: clean, no warnings.
-- `npx vite build`: succeeds, production bundle confirmed free of Shadow debug UI (see above).
+- `npx vite build`: succeeds, production bundle confirmed free of Shadow debug UI (see above; re-confirmed after this fix).
 - `git diff --check`: clean, no whitespace errors.
 
 ## Known limitations
 
 1. **`docs/reports/TETO_PHASE-4A-2_SCORING-2_Fresh-Audit.md` does not exist in the repo.** This implementation worked from the P0/P1 contracts embedded in the task instructions, independently re-verified against current-main source (see "Fresh Audit P0/P1 Resolution"). A real audit document should still be authored and reconciled against this report before Phase 4A-3 planning.
-2. **Hungarian-matcher NaN/Infinity hang** (`referenceMatching.ts`'s `minimumCostColumns`) is a real latent gap in existing reviewed code, worked around defensively at the Scoring 2.0 boundary only (non-finite toppings filtered before they reach it). The primitive itself is unfixed — recommend a small, isolated follow-up PR to harden it directly, since `referenceScoring.ts`'s live-preview path calls the same matcher (currently safe only because canonical `PizzaState` can never hold non-finite topping coordinates today).
+2. ~~**Hungarian-matcher NaN/Infinity hang**~~ — **addressed at the Scoring 2.0 boundary by the Codex P1 blocker fix above**, for both the player-topping side (original P0/P1 pass) and the Reference-position side (this fix). `../referenceMatching.ts`'s `minimumCostColumns` primitive itself is still unfixed at its source — a malformed cost could still hang it if some *other*, non-Scoring-2.0 caller ever fed it unsanitized data directly (currently only `referenceScoring.ts`'s live-preview path calls it, always with reducer-validated `PizzaState` data). Recommend a small, isolated follow-up PR to harden the primitive itself so every caller benefits, not just Scoring 2.0's own boundary.
 3. **Bake is fully unavailable this phase** — no reviewed Scoring 2.0 Bake similarity primitive exists; `totalScore` is a 3-component (Sauce/Pieces/Recipe) weighted sum, not yet the full four-category model the architecture is designed for.
 4. **Calibration nuance**: a full-quantity-but-badly-distributed sauce dump can currently outscore a well-distributed-but-under-quantity spread (see Golden Matrix). Both are legitimate distinct mistakes; the 30/30/20/20 sauce sub-weights simply favor correcting quantity over distribution right now.
 5. **Lunch Rush → Margherita was not reproducible live in a single browser session** due to Mission's own pre-existing "never repeat the just-active recipe" rule combined with the session always starting on Margherita in FREE mode; covered instead by a deterministic reducer-level integration test, plus a live run against Lunch Rush's Reference-unavailable path (Marinara) exercising the exact same rendering code.

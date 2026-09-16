@@ -10,6 +10,7 @@
 import type { ReferencePieceGroup } from "../../data/referencePizza";
 import { scorePieceGroup } from "../referenceMatching";
 import type { PlacedTopping } from "../../state/pizzaState";
+import { sanitizeCoordinates, sanitizeToppings, toSafeArray } from "./boundary";
 import { isValidToleranceBand, safeUnit } from "./tolerance";
 import type { PieceGroupScoreV2, PiecesComponentV2 } from "./types";
 
@@ -24,36 +25,48 @@ const PLACEMENT_WEIGHT = 70;
 
 /**
  * Scores one topping group (e.g. every mozzarella piece) against its Reference positions.
+ *
  * P1-1: `group.matching`'s tolerance radii are static, authored config
  * (../../data/referencePizza.ts) that should always be a valid band, but this still validates
  * it before calling `scorePieceGroup` (which does not itself validate) rather than trusting a
  * future edit of that data never introduces `zeroCreditRadius <= fullCreditRadius` -- an
  * invalid band here fails closed to a 0 score for this group instead of risking a divide by
  * zero inside `scorePieceGroup`'s own distance-similarity curve.
+ *
+ * Codex P1 blocker fix: `toppings` and `group` are declared with their real types for callers
+ * (autocomplete, compile-time safety), but both are treated as `unknown` internally via
+ * ./boundary.ts's sanitizers before any array operation or property read -- a non-array
+ * `toppings`, a `group` that isn't an object, a malformed/null element in either, or a
+ * non-finite coordinate anywhere are all normalized/dropped rather than thrown on. A NaN/
+ * Infinity coordinate reaching `scorePieceGroup`'s own Hungarian assignment
+ * (../referenceMatching.ts) doesn't just produce a bad number -- the algorithm's cost-matrix
+ * search can fail to terminate on a non-finite cost -- so untrusted points (on *both* the
+ * player and the Reference side) are excluded here, before it, entirely.
  */
-function isFinitePoint(point: { x: number; y: number }): boolean {
-  return Number.isFinite(point.x) && Number.isFinite(point.y);
-}
-
 export function scorePieceGroupV2(
   toppings: readonly PlacedTopping[],
   group: ReferencePieceGroup,
 ): PieceGroupScoreV2 {
-  // Defense-in-depth: PLACE_TOPPING (../../state/gameReducer.ts) already rejects a non-finite
-  // x/y before it ever reaches canonical state, but ./index.ts's own P1 contract ("Infinity
-  // cannot escape the public scoring API") must hold even if this is ever called with data
-  // that didn't come through that reducer. A NaN/Infinity coordinate reaching
-  // `scorePieceGroup`'s own Hungarian assignment (../referenceMatching.ts) doesn't just
-  // produce a bad number -- the algorithm's cost-matrix search can fail to terminate on a
-  // non-finite cost, so an untrusted point is excluded here, before it, entirely (treated as
-  // "not really placed"), rather than "sanitized" into some finite substitute value.
-  const safeToppings = toppings.filter((t) => isFinitePoint(t));
-  const playerCount = safeToppings.filter((t) => t.ingredientId === group.ingredientId).length;
-  const targetCount = group.positions.length;
+  const groupRecord: Record<string, unknown> =
+    typeof group === "object" && group !== null ? (group as unknown as Record<string, unknown>) : {};
+  const ingredientId = typeof groupRecord.ingredientId === "string" ? groupRecord.ingredientId : "";
+  const safePositions = sanitizeCoordinates(groupRecord.positions);
+  const matchingRecord: Record<string, unknown> =
+    typeof groupRecord.matching === "object" && groupRecord.matching !== null
+      ? (groupRecord.matching as Record<string, unknown>)
+      : {};
+  const fullCreditRadius =
+    typeof matchingRecord.fullCreditRadius === "number" ? matchingRecord.fullCreditRadius : Number.NaN;
+  const zeroCreditRadius =
+    typeof matchingRecord.zeroCreditRadius === "number" ? matchingRecord.zeroCreditRadius : Number.NaN;
 
-  if (!isValidToleranceBand(group.matching.fullCreditRadius, group.matching.zeroCreditRadius)) {
+  const safeToppings = sanitizeToppings(toppings);
+  const playerCount = safeToppings.filter((t) => t.ingredientId === ingredientId).length;
+  const targetCount = safePositions.length;
+
+  if (!isValidToleranceBand(fullCreditRadius, zeroCreditRadius)) {
     return {
-      ingredientId: group.ingredientId,
+      ingredientId,
       targetCount,
       playerCount,
       quantitySimilarity: 0,
@@ -62,7 +75,17 @@ export function scorePieceGroupV2(
     };
   }
 
-  const metrics = scorePieceGroup(safeToppings, group);
+  // `scorePieceGroup` (../referenceMatching.ts) only ever reads `.ingredientId`/`.positions`/
+  // `.matching` -- never `.interaction` -- so a group reconstructed from already-sanitized
+  // data is safe to hand it wholesale, reusing its reviewed matching logic unchanged rather
+  // than re-deriving an equivalent computation here.
+  const safeGroup: ReferencePieceGroup = {
+    ...group,
+    ingredientId: ingredientId as ReferencePieceGroup["ingredientId"],
+    positions: safePositions,
+    matching: { fullCreditRadius, zeroCreditRadius },
+  };
+  const metrics = scorePieceGroup(safeToppings as PlacedTopping[], safeGroup);
   const quantitySimilarity = safeUnit(metrics.quantitySimilarity);
   const placementSimilarity =
     metrics.placementSimilarity === null ? null : safeUnit(metrics.placementSimilarity);
@@ -79,14 +102,24 @@ export function scorePieceGroupV2(
   };
 }
 
-/** Equal-weighted average across every group (currently mozzarella + basil, 50/50) -- a
- *  provisional Phase 4A-2 shadow choice, not a claim that every ingredient type should always
- *  weigh the same once this expands past Margherita's two groups. */
+/**
+ * Equal-weighted average across every group (currently mozzarella + basil, 50/50) -- a
+ * provisional Phase 4A-2 shadow choice, not a claim that every ingredient type should always
+ * weigh the same once this expands past Margherita's two groups.
+ *
+ * Codex P1 blocker fix: `groups` is normalized via ./boundary.ts's `toSafeArray` before
+ * `.map` -- a non-array `groups` (null/undefined/an object/a string) becomes `[]` rather than
+ * throwing, and each element is handed to `scorePieceGroupV2` as-is (which itself defends
+ * against a malformed single element, per that function's own P1 fix above), so a mix of
+ * valid and malformed groups in the same array degrades gracefully rather than losing the
+ * whole component to one bad entry.
+ */
 export function scorePiecesComponentV2(
   toppings: readonly PlacedTopping[],
   groups: readonly ReferencePieceGroup[],
 ): PiecesComponentV2 {
-  const scoredGroups = groups.map((group) => scorePieceGroupV2(toppings, group));
+  const safeGroups = toSafeArray(groups) as ReferencePieceGroup[];
+  const scoredGroups = safeGroups.map((group) => scorePieceGroupV2(toppings, group));
   const score =
     scoredGroups.length === 0
       ? 100 // No piece groups at all for this recipe -- nothing to fall short on.

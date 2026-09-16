@@ -15,8 +15,9 @@
  */
 import { getReferencePizza } from "../../data/referencePizza";
 import type { Recipe } from "../../data/recipes";
-import type { PizzaState } from "../../state/pizzaState";
+import { createEmptyPizza, type PizzaState } from "../../state/pizzaState";
 import { computeSauceMetrics } from "../sauceField";
+import { sanitizeSauceDeposits } from "./boundary";
 import { scoreSauceComponentV2 } from "./sauceComponent";
 import { scorePiecesComponentV2 } from "./piecesComponent";
 import { scoreRecipeComponentV2 } from "./recipeComponent";
@@ -48,6 +49,12 @@ const PIECES_WEIGHT = 20;
 const RECIPE_WEIGHT = 15;
 
 export function computeScoringV2Shadow(recipe: Recipe, pizza: PizzaState): ScoringV2Result {
+  // Codex P1 blocker fix: `pizza` itself (not just its fields) is a public-API argument that
+  // can violate its own TypeScript type at runtime -- a `null`/`undefined`/non-object value
+  // here would throw on the very first `pizza.sauceDeposits` read below. Falls back to a
+  // genuinely empty pizza rather than special-casing "no pizza" as its own result shape, so
+  // every downstream component still sees one consistent, always-valid `PizzaState`.
+  const safePizza: PizzaState = typeof pizza === "object" && pizza !== null ? pizza : createEmptyPizza();
   const bake = { available: false as const, reason: BAKE_UNAVAILABLE_REASON };
   const reference = getReferencePizza(recipe.id);
 
@@ -72,10 +79,17 @@ export function computeScoringV2Shadow(recipe: Recipe, pizza: PizzaState): Scori
   // ../../data/recipeSauceProfiles.ts; both interaction kinds go through the exact same
   // dispense/commit path in PizzaStage.tsx -- pinned by scoringV2.test.ts's PAINT_TEMPORARY
   // scoreable test).
-  const sauceMetrics = computeSauceMetrics(pizza.sauceDeposits);
+  //
+  // Codex P1 blocker fix: sanitized via ./boundary.ts's `sanitizeSauceDeposits` before ever
+  // reaching `computeSauceMetrics` (../sauceField.ts, legacy Phase 4A-1A code this PR does not
+  // modify) -- that primitive assumes a well-formed array and does not itself validate, so a
+  // malformed `sauceDeposits` (non-array, or containing null/malformed/non-finite elements)
+  // is normalized to a clean subset here, at the Scoring 2.0 boundary, instead.
+  const safeSauceDeposits = sanitizeSauceDeposits(safePizza.sauceDeposits);
+  const sauceMetrics = computeSauceMetrics(safeSauceDeposits);
   const sauce = scoreSauceComponentV2(sauceMetrics, reference.sauce);
-  const pieces = scorePiecesComponentV2(pizza.toppings, reference.pieceGroups);
-  const recipeComponent = scoreRecipeComponentV2(recipe, pizza);
+  const pieces = scorePiecesComponentV2(safePizza.toppings, reference.pieceGroups);
+  const recipeComponent = scoreRecipeComponentV2(recipe, safePizza);
 
   const totalScore =
     safeUnit(

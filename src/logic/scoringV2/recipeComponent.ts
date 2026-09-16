@@ -15,17 +15,42 @@
 import { countUsedIngredient } from "../scoring";
 import type { Recipe } from "../../data/recipes";
 import type { PizzaState } from "../../state/pizzaState";
+import { sanitizeStringArray, sanitizeToppings, toSafeArray } from "./boundary";
 import { safeUnit } from "./tolerance";
 import type { RecipeComponentV2 } from "./types";
 
+/**
+ * Codex P1 blocker fix: `../scoring.ts`'s `countUsedIngredient` is legacy authoritative
+ * plumbing (shared with `scorePizza`/`ScoreBreakdown`) and stays out of this PR's scope --
+ * it is never modified here. Instead, `pizza.sauceIds`/`pizza.toppings` are sanitized into a
+ * minimal, always-well-formed stand-in (only the two fields that primitive actually reads)
+ * *before* being handed to it, so a malformed `pizza` can never reach it at all -- this keeps
+ * the legacy function's own valid-input behavior completely untouched while still failing
+ * closed here.
+ */
+function safePizzaForRecipeCheck(pizza: PizzaState): PizzaState {
+  return {
+    ...pizza,
+    sauceIds: sanitizeStringArray(pizza?.sauceIds),
+    // `id` is synthesized -- `countUsedIngredient` never reads it, only `ingredientId`, but
+    // `PizzaState.toppings`'s own type requires it, so a placeholder keeps this a genuine
+    // `PizzaState` rather than a structurally-similar stand-in.
+    toppings: sanitizeToppings(pizza?.toppings).map((t, i) => ({ id: `safe-${i}`, ...t })),
+  };
+}
+
 export function scoreRecipeComponentV2(recipe: Recipe, pizza: PizzaState): RecipeComponentV2 {
-  const required = recipe.requiredIngredients;
+  const required = toSafeArray(recipe?.requiredIngredients).filter(
+    (req): req is { ingredientId: string; minCount: number } =>
+      typeof req === "object" && req !== null && typeof (req as Record<string, unknown>).ingredientId === "string",
+  );
   if (required.length === 0) {
     return { available: true, requiredTypesPresent: 0, requiredTypesTotal: 0, score: 100 };
   }
 
+  const safePizza = safePizzaForRecipeCheck(pizza);
   const requiredTypesPresent = required.filter(
-    (req) => countUsedIngredient(pizza, req.ingredientId) >= 1,
+    (req) => countUsedIngredient(safePizza, req.ingredientId) >= 1,
   ).length;
   const score = safeUnit(requiredTypesPresent / required.length) * 100;
 
