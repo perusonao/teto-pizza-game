@@ -362,6 +362,81 @@ function densityToAlpha(value: number): number {
   return ALPHA_FLOOR + (ALPHA_CAP - ALPHA_FLOOR) * Math.sqrt(t);
 }
 
+const BLUR_KERNEL = [
+  [1, 2, 1],
+  [2, 4, 2],
+  [1, 2, 1],
+];
+const BLUR_KERNEL_WEIGHT_SUM = 16;
+
+/** One 3x3 binomial blur pass. A flat plateau (every cell in a 3x3 window equal to `v`) maps
+ *  to itself exactly: the kernel's weights sum to 16, so 9 cells at `v` sum to `16v`, divided
+ *  back down to `v`. Cells outside the grid are simply skipped (not counted in the
+ *  denominator) rather than clamped/mirrored -- see `smoothSauceFieldForDisplay` below for
+ *  why that boundary choice never under-weights a dough-visible cell. */
+function blurPass(field: Float64Array): Float64Array {
+  const out = new Float64Array(SAUCE_FIELD_SIZE * SAUCE_FIELD_SIZE);
+  for (let row = 0; row < SAUCE_FIELD_SIZE; row += 1) {
+    for (let col = 0; col < SAUCE_FIELD_SIZE; col += 1) {
+      let sum = 0;
+      for (let dr = -1; dr <= 1; dr += 1) {
+        const r = row + dr;
+        if (r < 0 || r >= SAUCE_FIELD_SIZE) continue;
+        for (let dc = -1; dc <= 1; dc += 1) {
+          const c = col + dc;
+          if (c < 0 || c >= SAUCE_FIELD_SIZE) continue;
+          sum += field[r * SAUCE_FIELD_SIZE + c] * BLUR_KERNEL[dr + 1][dc + 1];
+        }
+      }
+      out[row * SAUCE_FIELD_SIZE + col] = sum / BLUR_KERNEL_WEIGHT_SUM;
+    }
+  }
+  return out;
+}
+
+/**
+ * Phase 4A-1B.1 Fix B (Short Sauce Stroke): a render-only blur applied to a copy of the
+ * field, never to the field itself. Callers that feed metrics (`computeSauceMetrics` above)
+ * never call this -- only the heatmap canvas's own draw path (PizzaStage.tsx) does, right
+ * before `sauceFieldToRgbaPixels` below turns the result into pixels. Same input -> same
+ * `buildSauceField` output -> same `computeSauceMetrics` -> only the *pixels* this produces
+ * change.
+ *
+ * Two `blurPass` calls (not one): a single 3x3 pass softened a lone dab's edges but its
+ * falloff (BRUSH_RADIUS_CELLS=1, a 3x3 block) still read as a soft-edged *square* rather than
+ * a round dab -- composing the same separable kernel twice widens its effective support to
+ * 5x5 and pulls the corners down relatively further than the sides (two passes of a
+ * binomial kernel approach a Gaussian, which is radially symmetric, unlike a single pass's
+ * still-somewhat-square footprint), reading as a round blob. A flat plateau still maps to
+ * itself exactly through *both* passes (each pass alone is exact on a plateau, so chaining
+ * two is too), so a normal/broad-coverage stroke's already-good look is still untouched --
+ * only a lone dab or a short stroke's own hard-edged block (mostly surrounded by untouched,
+ * zero-value cells) gets pulled down and spread wider.
+ *
+ * Independent Review follow-up (Codex, PR #28): two chained passes reach 2 cells out, which
+ * let a well-painted coat that (correctly) stops right at `SAUCE_TARGET_RADIUS` bleed a
+ * whisper of visible color (just over `MIN_VISIBLE_VALUE`) into cells in the rim band beyond
+ * it -- `IDEAL_MARGHERITA_SAUCE_FIXTURE` itself, whose authoritative `edgeAmount` is exactly
+ * 0, newly lit up 19 such cells. That is display painting sauce the ふち (edge) evaluation
+ * says isn't there. Fixed by never letting the blur *raise* a rim-band cell (distance from
+ * center beyond `SAUCE_TARGET_RADIUS`, same boundary `edgeAmount`/`edgeRatio` score against)
+ * above its own raw value -- `Math.min` against `field` there, every other cell (everywhere
+ * an isolated dab/short stroke actually happens in normal play) still gets the full two-pass
+ * smoothing untouched.
+ */
+export function smoothSauceFieldForDisplay(field: Float64Array): Float64Array {
+  const smoothed = blurPass(blurPass(field));
+  for (let row = 0; row < SAUCE_FIELD_SIZE; row += 1) {
+    for (let col = 0; col < SAUCE_FIELD_SIZE; col += 1) {
+      const idx = row * SAUCE_FIELD_SIZE + col;
+      if (distanceFromCenter(cellCenterPercent(col), cellCenterPercent(row)) > SAUCE_TARGET_RADIUS) {
+        smoothed[idx] = Math.min(smoothed[idx], field[idx]);
+      }
+    }
+  }
+  return smoothed;
+}
+
 /**
  * Human Feel Fix 3 (Sauce Visual): one RGBA byte quadruple per field cell -- a
  * `SAUCE_FIELD_SIZE * SAUCE_FIELD_SIZE * 4`-length buffer, out-of-dough cells and untouched

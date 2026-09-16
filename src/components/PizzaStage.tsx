@@ -21,6 +21,7 @@ import {
   SAUCE_FIELD_SIZE,
   sauceFieldToRgbaPixels,
   SAUCE_TARGET_RADIUS,
+  smoothSauceFieldForDisplay,
 } from "../logic/sauceField";
 import {
   clampToDough,
@@ -670,13 +671,20 @@ export function PizzaStage({
     // scaled up here with `imageSmoothingEnabled` on lets the browser's own image upscaler
     // blend every cell into its neighbors continuously. Still the same 16x16 field, still
     // Canvas2D only (no WebGL), still one extra small canvas + one drawImage call.
+    //
+    // Phase 4A-1B.1 Fix B: `field` above (and everything metrics reads, computeSauceMetrics
+    // included) is untouched -- `smoothSauceFieldForDisplay` only runs on the *pixel* copy
+    // below, so an isolated dab/short stroke's hard 3x3 block reads as a soft round dab
+    // without changing quantity/coverage/evenness/edge or an already-good broad-coverage look
+    // (see that function's own doc comment in sauceField.ts for why a flat plateau is a no-op).
+    const displayField = smoothSauceFieldForDisplay(field);
     const fieldCanvas = document.createElement("canvas");
     fieldCanvas.width = SAUCE_FIELD_SIZE;
     fieldCanvas.height = SAUCE_FIELD_SIZE;
     const fieldCtx = fieldCanvas.getContext("2d");
     if (fieldCtx) {
       const imageData = fieldCtx.createImageData(SAUCE_FIELD_SIZE, SAUCE_FIELD_SIZE);
-      imageData.data.set(sauceFieldToRgbaPixels(field));
+      imageData.data.set(sauceFieldToRgbaPixels(displayField));
       fieldCtx.putImageData(imageData, 0, 0);
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = "high";

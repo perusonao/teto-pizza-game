@@ -12,6 +12,7 @@ import {
   sauceFieldToRgbaPixels,
   SAUCE_TARGET_RADIUS,
   SAUCE_TOMATO_HEX,
+  smoothSauceFieldForDisplay,
   totalDispensed,
 } from "./sauceField";
 import { SAUCE_RATE_PER_TICK } from "./sauceQuantity";
@@ -394,5 +395,151 @@ describe("sauceFieldToRgbaPixels alpha curve (Human Feel Fix 4)", () => {
   it("SAUCE_TOMATO_HEX SSOT: the tomato-sauce ingredient's own tray/reference-preview color matches the painted heatmap color", () => {
     const tomatoSauce = INGREDIENTS.find((i) => i.id === "tomato-sauce");
     expect(tomatoSauce?.color).toBe(SAUCE_TOMATO_HEX);
+  });
+});
+
+/**
+ * Phase 4A-1B.1 Fix B (Short Sauce Stroke): pins the *authoritative* metrics for an isolated
+ * single tap and a very short stroke exactly as they are today, before the render-only
+ * smoothing this fix adds -- computeSauceMetrics/buildSauceField are never touched by that
+ * fix (only PizzaStage.tsx's canvas draw path feeds `smoothSauceFieldForDisplay`'s output
+ * into pixels), so these numbers must stay bit-for-bit whatever they already were.
+ */
+describe("Regression (Phase 4A-1B.1 Fix B): authoritative field unchanged for isolated tap / short stroke", () => {
+  it("an isolated single tap's metrics are unchanged", () => {
+    const metrics = computeSauceMetrics([{ x: 50, y: 50, amount: SAUCE_RATE_PER_TICK }]);
+    expect(metrics.quantity).toBeCloseTo(0.02, 10);
+    expect(metrics.coverage).toBeCloseTo(0.005319148936170213, 10);
+    expect(metrics.evenness).toBeCloseTo(0.6547677550192725, 10);
+    expect(metrics.overflowAmount).toBe(0);
+    expect(metrics.edgeAmount).toBe(0);
+  });
+
+  it("a very short stroke's (three adjacent taps) metrics are unchanged", () => {
+    const deposits = [
+      { x: 48, y: 50, amount: SAUCE_RATE_PER_TICK },
+      { x: 50, y: 50, amount: SAUCE_RATE_PER_TICK },
+      { x: 52, y: 50, amount: SAUCE_RATE_PER_TICK },
+    ];
+    const metrics = computeSauceMetrics(deposits);
+    expect(metrics.quantity).toBeCloseTo(0.06, 10);
+    expect(metrics.coverage).toBeCloseTo(0.047872340425531915, 10);
+    expect(metrics.evenness).toBeCloseTo(0.6813936726183989, 10);
+    expect(metrics.overflowAmount).toBe(0);
+    expect(metrics.edgeAmount).toBe(0);
+  });
+
+  it("computing metrics again after also computing the render-smoothed field (same call order the real UI now does) produces identical metrics -- the two paths share no mutable state", () => {
+    const deposits = [{ x: 50, y: 50, amount: SAUCE_RATE_PER_TICK }];
+    const before = computeSauceMetrics(deposits);
+    const field = buildSauceField(deposits);
+    smoothSauceFieldForDisplay(field); // render-only path, like PizzaStage.tsx now runs
+    const after = computeSauceMetrics(deposits);
+    expect(after).toEqual(before);
+  });
+});
+
+/**
+ * Phase 4A-1B.1 Fix B: `smoothSauceFieldForDisplay` itself -- render-only, applied to a copy
+ * of the field, never to `field`/`computeSauceMetrics`'s own inputs or outputs.
+ */
+describe("smoothSauceFieldForDisplay (Phase 4A-1B.1 Fix B: Short Sauce Stroke)", () => {
+  it("never mutates the field it's given", () => {
+    const field = buildSauceField([{ x: 50, y: 50, amount: SAUCE_RATE_PER_TICK }]);
+    const snapshot = Float64Array.from(field);
+    smoothSauceFieldForDisplay(field);
+    expect(field).toEqual(snapshot);
+  });
+
+  // Independent Review follow-up (Codex, PR #28): two chained blur passes could bleed a
+  // whisper of newly-visible color into the rim band beyond SAUCE_TARGET_RADIUS even where
+  // the raw field had nothing there -- painting sauce the player-facing ふち (edge)
+  // evaluation says isn't there. IDEAL_MARGHERITA_SAUCE_FIXTURE (edgeAmount exactly 0) is the
+  // concrete case Codex found: 19 previously-invisible rim-band cells crossed the visibility
+  // floor before this fix.
+  it("never makes a previously-invisible rim-band cell (beyond SAUCE_TARGET_RADIUS) visible -- display can't show edge sauce the ふち metric says isn't there", () => {
+    const field = buildSauceField(IDEAL_MARGHERITA_SAUCE_FIXTURE);
+    const smoothed = smoothSauceFieldForDisplay(field);
+    const MIN_VISIBLE_VALUE = 0.005; // sauceFieldToRgbaPixels's own visibility floor
+    for (let row = 0; row < SAUCE_FIELD_SIZE; row += 1) {
+      for (let col = 0; col < SAUCE_FIELD_SIZE; col += 1) {
+        if (!isCellInsideDough(row, col)) continue;
+        const idx = row * SAUCE_FIELD_SIZE + col;
+        const cellCenter = ((i: number) => ((i + 0.5) / SAUCE_FIELD_SIZE) * 100);
+        const dist = Math.hypot(cellCenter(col) - 50, cellCenter(row) - 50);
+        if (dist <= SAUCE_TARGET_RADIUS) continue;
+        const rawVisible = field[idx] > MIN_VISIBLE_VALUE;
+        const smoothedVisible = smoothed[idx] > MIN_VISIBLE_VALUE;
+        expect(smoothedVisible && !rawVisible).toBe(false);
+      }
+    }
+  });
+
+  it("a rim-band cell's smoothed value never exceeds its own raw value -- the clamp only ever pulls display down there, never up", () => {
+    const field = buildSauceField(IDEAL_MARGHERITA_SAUCE_FIXTURE);
+    const smoothed = smoothSauceFieldForDisplay(field);
+    for (let row = 0; row < SAUCE_FIELD_SIZE; row += 1) {
+      for (let col = 0; col < SAUCE_FIELD_SIZE; col += 1) {
+        const idx = row * SAUCE_FIELD_SIZE + col;
+        const cellCenter = ((i: number) => ((i + 0.5) / SAUCE_FIELD_SIZE) * 100);
+        const dist = Math.hypot(cellCenter(col) - 50, cellCenter(row) - 50);
+        if (dist <= SAUCE_TARGET_RADIUS) continue;
+        expect(smoothed[idx]).toBeLessThanOrEqual(field[idx] + 1e-12);
+      }
+    }
+  });
+
+  it("an exact flat plateau (every cell in a 3x3 window equal) maps to itself -- normal/broad coverage's already-good look is untouched", () => {
+    const field = new Float64Array(SAUCE_FIELD_SIZE * SAUCE_FIELD_SIZE);
+    const V = 0.05;
+    // Fill a block well away from the grid's own edge so every cell checked below has a full,
+    // unclipped 5x5 neighborhood of equal-valued cells (two chained 3x3 passes reach 2 cells
+    // out -- see smoothSauceFieldForDisplay's own doc comment).
+    for (let r = 2; r <= 13; r += 1) {
+      for (let c = 2; c <= 13; c += 1) {
+        field[r * SAUCE_FIELD_SIZE + c] = V;
+      }
+    }
+    const smoothed = smoothSauceFieldForDisplay(field);
+    for (let r = 4; r <= 11; r += 1) {
+      for (let c = 4; c <= 11; c += 1) {
+        expect(smoothed[r * SAUCE_FIELD_SIZE + c]).toBeCloseTo(V, 10);
+      }
+    }
+  });
+
+  it("softens an isolated single-cell spike into a wider, lower-peak gradient instead of a hard-edged block", () => {
+    const field = new Float64Array(SAUCE_FIELD_SIZE * SAUCE_FIELD_SIZE);
+    const center = Math.floor(SAUCE_FIELD_SIZE / 2);
+    field[center * SAUCE_FIELD_SIZE + center] = 0.08;
+    const smoothed = smoothSauceFieldForDisplay(field);
+
+    // The spike's own peak is pulled down (spread into its neighbors)...
+    expect(smoothed[center * SAUCE_FIELD_SIZE + center]).toBeLessThan(0.08);
+    expect(smoothed[center * SAUCE_FIELD_SIZE + center]).toBeGreaterThan(0);
+    // ...while its immediate (previously-zero) neighbors now carry some of it, reading as a
+    // round falloff instead of a hard square edge. Two chained 3x3 passes reach 2 cells out.
+    expect(smoothed[center * SAUCE_FIELD_SIZE + (center + 1)]).toBeGreaterThan(0);
+    expect(smoothed[(center + 1) * SAUCE_FIELD_SIZE + center]).toBeGreaterThan(0);
+    expect(smoothed[center * SAUCE_FIELD_SIZE + (center + 2)]).toBeGreaterThan(0);
+    // A cell one further step out (3 away, outside the chained blur's reach) stays untouched.
+    expect(smoothed[center * SAUCE_FIELD_SIZE + (center + 3)]).toBe(0);
+  });
+
+  it("preserves the total quantity/coverage/evenness metrics computed from the raw field -- it is display-only, so callers that (mistakenly) fed the smoothed field into computeSauceMetrics-style aggregation would still see the isolated tap's coverage grow (a rounder, wider dab), matching the visual fix", () => {
+    const deposits = [{ x: 50, y: 50, amount: SAUCE_RATE_PER_TICK }];
+    const raw = buildSauceField(deposits);
+    const smoothed = smoothSauceFieldForDisplay(raw);
+    let rawTouched = 0;
+    let smoothedTouched = 0;
+    for (let i = 0; i < raw.length; i += 1) {
+      if (raw[i] > 0) rawTouched += 1;
+      if (smoothed[i] > 0) smoothedTouched += 1;
+    }
+    // The visual footprint widens (this is the whole point of the fix)...
+    expect(smoothedTouched).toBeGreaterThan(rawTouched);
+    // ...but computeSauceMetrics (the authoritative metrics path) never sees `smoothed` --
+    // only PizzaStage.tsx's pixel-generation path does -- so real coverage is untouched.
+    expect(computeSauceMetrics(deposits).coverage).toBeCloseTo(0.005319148936170213, 10);
   });
 });
