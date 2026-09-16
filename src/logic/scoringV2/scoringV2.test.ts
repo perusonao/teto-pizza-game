@@ -173,6 +173,23 @@ describe("scoreSauceComponentV2", () => {
 });
 
 describe("scorePieceGroupV2 / scorePiecesComponentV2", () => {
+  function mozzarellaAtReference(count: number) {
+    return Array.from({ length: count }, (_, i) => ({
+      id: `m${i}`,
+      ingredientId: "mozzarella" as const,
+      ...MOZZARELLA_GROUP.positions[i % MOZZARELLA_GROUP.positions.length],
+    }));
+  }
+
+  function mozzarellaFarFromReference(count: number) {
+    return Array.from({ length: count }, (_, i) => ({
+      id: `far-m${i}`,
+      ingredientId: "mozzarella" as const,
+      x: 0,
+      y: 0,
+    }));
+  }
+
   it("Reference-exact mozzarella placement scores near-perfect", () => {
     const toppings = MOZZARELLA_GROUP.positions.map((p, i) => ({
       id: `m${i}`,
@@ -252,6 +269,79 @@ describe("scorePieceGroupV2 / scorePiecesComponentV2", () => {
     assertAvailable(result);
     expect(result.playerCount).toBe(4);
     expect(Number.isFinite(result.score)).toBe(true);
+  });
+
+  it("applies the asymmetric over-quantity placement gate without penalizing exact-count placement", () => {
+    const exactExcellent = scorePieceGroupV2(mozzarellaAtReference(3), MOZZARELLA_GROUP);
+    const exactPoor = scorePieceGroupV2(mozzarellaFarFromReference(3), MOZZARELLA_GROUP);
+    const underExcellent = scorePieceGroupV2(mozzarellaAtReference(2), MOZZARELLA_GROUP);
+    assertAvailable(exactExcellent);
+    assertAvailable(exactPoor);
+    assertAvailable(underExcellent);
+
+    expect(exactExcellent.quantitySimilarity).toBe(1);
+    expect(exactExcellent.placementSimilarity).toBe(1);
+    expect(exactExcellent.score).toBe(100);
+    expect(exactPoor.score).toBeCloseTo(
+      30 + (exactPoor.placementSimilarity ?? 0) * 70,
+      10,
+    );
+    expect(underExcellent.quantitySimilarity).toBe(0.75);
+    expect(underExcellent.placementSimilarity).toBe(1);
+    expect(underExcellent.score).toBe(92.5);
+  });
+
+  it("continuously reduces placement influence for one extra, moderate, and severe over-quantity", () => {
+    const counts = [3, 4, 5, 9];
+    const excellent = counts.map((count) => {
+      const result = scorePieceGroupV2(mozzarellaAtReference(count), MOZZARELLA_GROUP);
+      assertAvailable(result);
+      return result;
+    });
+    const poor = counts.map((count) => {
+      const result = scorePieceGroupV2(mozzarellaFarFromReference(count), MOZZARELLA_GROUP);
+      assertAvailable(result);
+      return result;
+    });
+
+    expect(excellent.map((result) => result.quantitySimilarity)).toEqual([1, 0.75, 0.5, 0]);
+    expect(excellent.map((result) => result.score)).toEqual([100, 75, 50, 0]);
+
+    const placementInfluence = excellent.map((result, index) => result.score - poor[index].score);
+    expect(placementInfluence[0]).toBeGreaterThan(placementInfluence[1]);
+    expect(placementInfluence[1]).toBeGreaterThan(placementInfluence[2]);
+    expect(placementInfluence[2]).toBeGreaterThan(placementInfluence[3]);
+    expect(placementInfluence[3]).toBeCloseTo(0, 10);
+  });
+
+  it("gates a severe over-quantity group even when Hungarian matching finds an excellent subset", () => {
+    const result = scorePieceGroupV2(mozzarellaAtReference(9), MOZZARELLA_GROUP);
+    assertAvailable(result);
+    expect(result.playerCount).toBe(9);
+    expect(result.targetCount).toBe(3);
+    expect(result.quantitySimilarity).toBe(0);
+    expect(result.placementSimilarity).toBe(1);
+    expect(result.score).toBe(0);
+  });
+
+  it("keeps severe-overquantity scoring permutation-invariant", () => {
+    const toppings = mozzarellaAtReference(9);
+    const shuffled = [
+      toppings[8],
+      toppings[1],
+      toppings[6],
+      toppings[3],
+      toppings[0],
+      toppings[7],
+      toppings[2],
+      toppings[5],
+      toppings[4],
+    ];
+    const a = scorePieceGroupV2(toppings, MOZZARELLA_GROUP);
+    const b = scorePieceGroupV2(shuffled, MOZZARELLA_GROUP);
+    assertAvailable(a);
+    assertAvailable(b);
+    expect(a).toEqual(b);
   });
 
   it("same-type piece permutation invariance: shuffling player order never changes the group score", () => {

@@ -28,6 +28,19 @@ const QUANTITY_WEIGHT = 30;
 const PLACEMENT_WEIGHT = 70;
 
 /**
+ * Placement remains fully influential at or below the authoritative target count. Above the
+ * target, the existing quantity similarity also gates placement so a best-matching subset of
+ * many extra pieces cannot retain disproportionate placement credit.
+ */
+function overQuantityPlacementGate(
+  playerCount: number,
+  targetCount: number,
+  quantitySimilarity: number,
+): number {
+  return playerCount <= targetCount ? 1 : quantitySimilarity;
+}
+
+/**
  * Scores one topping group (e.g. every mozzarella piece) against its Reference positions.
  *
  * Codex P1 blocker fix, Round 3: this is now THE single enforcement point for the strict
@@ -101,8 +114,14 @@ export function scorePieceGroupV2(
   const quantitySimilarity = safeUnit(metrics.quantitySimilarity);
   const placementSimilarity =
     metrics.placementSimilarity === null ? null : safeUnit(metrics.placementSimilarity);
+  const placementGate = overQuantityPlacementGate(
+    metrics.playerCount,
+    metrics.targetCount,
+    quantitySimilarity,
+  );
   const score =
-    quantitySimilarity * QUANTITY_WEIGHT + (placementSimilarity ?? 0) * PLACEMENT_WEIGHT;
+    quantitySimilarity * QUANTITY_WEIGHT +
+    (placementSimilarity ?? 0) * PLACEMENT_WEIGHT * placementGate;
 
   return {
     available: true,

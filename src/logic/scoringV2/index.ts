@@ -24,7 +24,7 @@ import { scoreRecipeComponentV2 } from "./recipeComponent";
 import { safeUnit } from "./tolerance";
 import type { ScoringV2Result } from "./types";
 
-export const SCORING_V2_RULESET_VERSION = "phase-4a-2-shadow-1";
+export const SCORING_V2_RULESET_VERSION = "phase-4a-2-shadow-2";
 
 const REFERENCE_UNAVAILABLE_REASON =
   "この料理はまだ Reference Pizza（お手本データ）がありません。Phase 4A-2時点ではマルゲリータのみ対応しています。";
