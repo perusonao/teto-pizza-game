@@ -17,11 +17,13 @@ export interface PieceReferenceMetrics {
   matches: readonly ReferenceMatch[];
 }
 
-function clamp01(value: number): number {
+/** Exported so other reviewed primitives (e.g. ./scoringV2) can reuse the exact same
+ *  clamp/curve shape instead of redefining an equivalent one. */
+export function clamp01(value: number): number {
   return Math.min(1, Math.max(0, value));
 }
 
-function smoothstep(value: number): number {
+export function smoothstep(value: number): number {
   const t = clamp01(value);
   return t * t * (3 - 2 * t);
 }

@@ -10,6 +10,7 @@ import { MissionServePanel } from "../components/MissionServePanel";
 import { MissionResultOverlay } from "../components/MissionResultOverlay";
 import { ReferencePreview } from "../components/ReferencePreview";
 import { SauceMetricsPanel } from "../components/SauceMetricsPanel";
+import { ScoringV2ShadowPanel } from "../components/ScoringV2ShadowPanel";
 import type { ReferencePizza } from "../data/referencePizza";
 import type { SauceMetrics } from "../logic/sauceField";
 import type { SauceReferenceShadowScore } from "../logic/referenceScoring";
@@ -361,6 +362,12 @@ export function GameScreen({
       {state.phase === "RESULT" && state.score && !isMissionActive && (
         <ResultPanel score={state.score} bakeState={state.bakeState} onRegister={onRegisterToDex} />
       )}
+
+      {/* Phase 4A-2: Scoring 2.0 Shadow debug panel -- shown for both FREE and Lunch Rush
+          RESULT (unlike ResultPanel/MissionServePanel above, this is not gated on
+          isMissionActive), and internally gated on VITE_PREVIEW_MODE so production never
+          renders it (see ScoringV2ShadowPanel.tsx's own file header). */}
+      {state.phase === "RESULT" && <ScoringV2ShadowPanel result={state.scoringV2Shadow} />}
 
       {state.phase === "DISCOVERED" && (
         <div className="action-row action-row--column">

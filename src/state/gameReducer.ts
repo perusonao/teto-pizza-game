@@ -5,6 +5,7 @@ import { getIngredient, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import type { DialogueLine } from "../data/dialogue";
 import { scorePizza, type ScoreBreakdown } from "../logic/scoring";
 import { classifyBake, type BakeState } from "../logic/bake";
+import { computeScoringV2Shadow, type ScoringV2Result } from "../logic/scoringV2";
 import { totalStars } from "../logic/mastery";
 import { purchaseIngredient } from "../logic/economy";
 import { discoveredRecipeIds, registerScoreToDex, EMPTY_DEX, type DexState } from "./dex";
@@ -30,6 +31,16 @@ export interface GameState {
   pizza: PizzaState;
   score: ScoreBreakdown | null;
   bakeState: BakeState | null;
+  /** Phase 4A-2 Scoring 2.0 Shadow (src/logic/scoringV2/). Computed once, at CONFIRM_BAKE,
+   *  from the exact canonical pizza that was just baked -- never App.tsx's UI-only live-
+   *  preview useMemo (see ../logic/scoringV2/index.ts's own file header). Additive/transient
+   *  only: never persisted (src/state/persistence.ts never serializes GameState at all), and
+   *  never read by anything that feeds `score`/`bakeState`/Dex/Mission/Pitz/progression --
+   *  see ../logic/scoringV2/types.ts's file header for the full non-negotiable boundary. Null
+   *  until the first CONFIRM_BAKE of a round, and reset to null for every fresh round
+   *  (`buildOrderState` below) so a stale previous round's Shadow result can never leak into
+   *  a new one's PREPARE/BAKE phases. */
+  scoringV2Shadow: ScoringV2Result | null;
   dex: DexState;
   /** Canonical OWNED ingredient ids (Phase 3C-3+). Always a superset of the Starter Set.
    *  Mutated by PURCHASE_INGREDIENT (Phase 3C-5); every other action carries it through
@@ -119,6 +130,7 @@ function buildOrderState(order: Order, carry: ProgressionCarry, isMissionRound: 
     pizza: createEmptyPizza(),
     score: null,
     bakeState: null,
+    scoringV2Shadow: null,
     ...carry,
     isMissionRound,
     justDiscovered: false,
@@ -298,7 +310,12 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const pizza: PizzaState = { ...state.pizza, bakeResult: action.value };
       const score = scorePizza(state.recipe, pizza);
       const bakeState = classifyBake(action.value, state.recipe.bakeTarget);
-      return { ...state, pizza, score, bakeState, phase: "RESULT" };
+      // P0-2: computed here, from this exact canonical `pizza` (the same one `scorePizza`
+      // above just scored authoritatively) -- the one and only Scoring 2.0 Shadow call site,
+      // shared by FREE and Lunch Rush alike (both dispatch this same action; see
+      // ../logic/scoringV2/index.ts's own file header).
+      const scoringV2Shadow = computeScoringV2Shadow(state.recipe, pizza);
+      return { ...state, pizza, score, bakeState, scoringV2Shadow, phase: "RESULT" };
     }
 
     case "REGISTER_TO_DEX": {

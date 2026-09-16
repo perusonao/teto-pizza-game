@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { createInitialGameState, gameReducer, type GameState } from "./gameReducer";
 import { registerScoreToDex, EMPTY_DEX } from "./dex";
-import type { ScoreBreakdown, QualityStars } from "../logic/scoring";
+import { scorePizza, type ScoreBreakdown, type QualityStars } from "../logic/scoring";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
+import { buildIdealMargheritaSauceFixture, MARGHERITA_REFERENCE } from "../data/referencePizza";
+import { EMPTY_MISSION_METRICS, recordServe } from "../logic/missionScoring";
 
 function scoreOf(total: number, stars: QualityStars): ScoreBreakdown {
   return {
@@ -443,5 +445,119 @@ describe("Mission order actions (Phase 3C-4)", () => {
     // no `score`, which is exactly the guard MISSION_NEXT_ORDER shares with REGISTER_TO_DEX).
     const second = gameReducer(first, { type: "MISSION_NEXT_ORDER" });
     expect(second).toBe(first);
+  });
+});
+
+/**
+ * Phase 4A-2 Scoring 2.0 Shadow: P0-2 (canonical CONFIRM_BAKE computation, shared by FREE and
+ * Lunch Rush) and the "never touches legacy authority" boundary. See
+ * ../logic/scoringV2/scoringV2.test.ts for the scoring module's own unit tests (tolerance
+ * validation, component formulas, golden ordering) -- these tests are specifically about the
+ * gameReducer integration: *when* and *from what* it's computed, and that nothing legacy
+ * moves because of it.
+ */
+describe("Phase 4A-2 Scoring 2.0 Shadow (gameReducer integration)", () => {
+  const [MOZZARELLA_GROUP, BASIL_GROUP] = MARGHERITA_REFERENCE.pieceGroups;
+
+  /** PREPARE -> BAKE -> RESULT for Margherita, committing a Reference-like sauce dispense
+   *  (not the legacy one-shot APPLY_SAUCE `playToResult` above uses, which never populates
+   *  `sauceDeposits` -- COMMIT_SAUCE_DISPENSE is the real PAINT-profile path PizzaStage.tsx
+   *  actually dispatches) and Reference-exact piece placements, so the resulting Shadow score
+   *  is meaningfully high rather than the near-zero an empty sauceDeposits log would produce. */
+  function playMargheritaToResultWithShadowSauce(bakeValue: number): GameState {
+    let state = createInitialGameState(); // preferFirst -> margherita
+    state = gameReducer(state, { type: "BEGIN_PREPARE" });
+    state = gameReducer(state, {
+      type: "COMMIT_SAUCE_DISPENSE",
+      ingredientId: "tomato-sauce",
+      deposits: buildIdealMargheritaSauceFixture(),
+    });
+    for (const p of MOZZARELLA_GROUP.positions) {
+      state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "mozzarella", x: p.x, y: p.y });
+    }
+    for (const p of BASIL_GROUP.positions) {
+      state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "basil", x: p.x, y: p.y });
+    }
+    state = gameReducer(state, { type: "START_BAKE" });
+    return gameReducer(state, { type: "CONFIRM_BAKE", value: bakeValue });
+  }
+
+  it("scoringV2Shadow is null before the first CONFIRM_BAKE of a round (ORDER/PREPARE/BAKE)", () => {
+    let state = createInitialGameState();
+    expect(state.scoringV2Shadow).toBeNull();
+    state = gameReducer(state, { type: "BEGIN_PREPARE" });
+    expect(state.scoringV2Shadow).toBeNull();
+    state = gameReducer(state, { type: "START_BAKE" });
+    expect(state.scoringV2Shadow).toBeNull();
+  });
+
+  it("FREE: CONFIRM_BAKE computes an available Scoring 2.0 Shadow result from the canonical, just-committed sauce/pieces (P0-2)", () => {
+    const state = playMargheritaToResultWithShadowSauce(70);
+    expect(state.phase).toBe("RESULT");
+    expect(state.scoringV2Shadow).not.toBeNull();
+    expect(state.scoringV2Shadow?.available).toBe(true);
+    expect(state.scoringV2Shadow?.totalScore).not.toBeNull();
+    expect(state.scoringV2Shadow?.totalScore as number).toBeGreaterThan(90);
+  });
+
+  it("scoringV2Shadow resets to null for a fresh round (PLAY_AGAIN) -- a stale previous round's Shadow can never leak into the next one", () => {
+    const resultState = playMargheritaToResultWithShadowSauce(70);
+    expect(resultState.scoringV2Shadow).not.toBeNull();
+    const fresh = gameReducer(resultState, { type: "PLAY_AGAIN" });
+    expect(fresh.scoringV2Shadow).toBeNull();
+  });
+
+  it("Lunch Rush: CONFIRM_BAKE computes the Shadow result from that exact mission pizza's canonical bake state (P0-2, same reducer path as FREE)", () => {
+    const marginallyOwned = ["tomato-sauce", "mozzarella", "basil"]; // margherita is the only available recipe
+    let state = createInitialGameState(EMPTY_DEX, marginallyOwned);
+    state = gameReducer(state, { type: "MISSION_RESET_ORDER" });
+    expect(state.recipe.id).toBe("margherita");
+    expect(state.isMissionRound).toBe(true);
+
+    state = gameReducer(state, { type: "BEGIN_PREPARE" });
+    state = gameReducer(state, {
+      type: "COMMIT_SAUCE_DISPENSE",
+      ingredientId: "tomato-sauce",
+      deposits: buildIdealMargheritaSauceFixture(),
+    });
+    for (const p of MOZZARELLA_GROUP.positions) {
+      state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "mozzarella", x: p.x, y: p.y });
+    }
+    for (const p of BASIL_GROUP.positions) {
+      state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "basil", x: p.x, y: p.y });
+    }
+    state = gameReducer(state, { type: "START_BAKE" });
+    state = gameReducer(state, { type: "CONFIRM_BAKE", value: 70 });
+
+    expect(state.phase).toBe("RESULT");
+    expect(state.isMissionRound).toBe(true);
+    expect(state.scoringV2Shadow).not.toBeNull();
+    expect(state.scoringV2Shadow?.available).toBe(true);
+    expect(state.scoringV2Shadow?.totalScore as number).toBeGreaterThan(90);
+  });
+
+  it("legacy authoritative score/stars are exactly what scorePizza alone computes -- Scoring 2.0 Shadow never influences them", () => {
+    const state = playMargheritaToResultWithShadowSauce(70);
+    const legacyOnly = scorePizza(state.recipe, state.pizza);
+    expect(state.score).toEqual(legacyOnly);
+    expect(state.score?.stars).toBe(legacyOnly.stars);
+  });
+
+  it("Dex BEST/timesMade registration is driven only by state.score, never by scoringV2Shadow.totalScore", () => {
+    const state = playMargheritaToResultWithShadowSauce(70);
+    const after = gameReducer(state, { type: "REGISTER_TO_DEX" });
+    const entry = after.dex.find((e) => e.recipeId === "margherita");
+    expect(entry?.bestScore).toBe(state.score?.total);
+    expect(entry?.bestStars).toBe(state.score?.stars);
+    // The two are a different scale/formula entirely -- this PR's whole "shadow, not
+    // authority" contract would be silently broken if they ever coincided by construction.
+    expect(entry?.bestScore).not.toBe(state.scoringV2Shadow?.totalScore);
+  });
+
+  it("Mission serve/reward metrics are driven only by state.score.total, never by scoringV2Shadow.totalScore", () => {
+    const state = playMargheritaToResultWithShadowSauce(70);
+    const metrics = recordServe(EMPTY_MISSION_METRICS, state.score!.total);
+    expect(metrics.totalQualityScore).toBe(state.score!.total);
+    expect(metrics.totalQualityScore).not.toBe(state.scoringV2Shadow?.totalScore);
   });
 });
