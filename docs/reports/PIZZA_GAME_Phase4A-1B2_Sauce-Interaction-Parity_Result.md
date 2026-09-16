@@ -145,3 +145,69 @@ Across the flow, the fixed Bake bar remained visible (measured bottom `834` with
 PR created, CI green, dedicated Preview deployed successfully. Production `main` was not merged or modified.
 
 **WAITING FOR IPHONE HUMAN FEEL**
+
+---
+
+## Codex merge-blocker fix — Sauce gesture survives RESET_PIZZA
+
+### Blocking finding
+
+The final independent merge gate found one blocking P2 lifecycle race: while a Sauce pointer
+remained held, tapping `やり直す` cleared canonical `state.pizza` but did not invalidate
+PizzaStage's local dispense session. Releasing the pre-reset pointer could therefore dispatch
+`COMMIT_SAUCE_DISPENSE` and restore Sauce onto the freshly reset pizza.
+
+### Root cause
+
+`GameScreen` already incremented `pizzaResetToken` in the same handler that dispatched
+`RESET_PIZZA`, but only `IngredientTray` consumed it for the PR #26 physical-piece drag race.
+PizzaStage watched `interactive` and ingredient changes, neither of which changes during a normal
+reset, so its controller, RAF, pending deposits, pointer capture, and gesture refs stayed live.
+
+### Exact fix
+
+The existing reset generation is now passed to both interaction owners. PizzaStage observes
+`pizzaResetToken` and invokes its existing semantic `abortActiveGesture()` path whenever the
+generation changes. That path stops the controller/RAF, discards pending deposits, reports empty
+progress, safely releases pointer capture, clears the trail, and replaces the gesture state.
+Later pointerup/pointercancel/lostpointercapture events from the old pointer no longer match a
+session and cannot dispatch `COMMIT_SAUCE_DISPENSE`. A new post-reset pointerdown starts normally.
+
+No recipe, profile, scoring, Reference, persistence, Inventory, Economy, palette, physical-piece,
+or visual-polish behavior changed.
+
+### Regression tests added
+
+`PizzaStage.sauceReset.test.tsx` uses the real game reducer and the same reset-token wiring as
+GameScreen. It covers:
+
+- tomato pointerdown → reset → stale pointerup;
+- pesto pointerdown/move → reset → stale pointerup;
+- olive-oil `PAINT_TEMPORARY` reset followed by a successful fresh gesture;
+- Lunch Rush pesto reset followed by a successful fresh gesture;
+- reset followed by pointercancel, lostpointercapture, blur, and visibilitychange;
+- explicit assertions that stale paths never attempt `COMMIT_SAUCE_DISPENSE` and canonical Sauce
+  remains empty.
+
+Full Vitest after the fix: **39 files / 518 tests passed**. Existing assertions were not weakened.
+TypeScript, lint, production build, and `git diff --check` also passed.
+
+### Browser verification — 390×844
+
+Production build, Lunch Rush Genovese:
+
+1. Confirmed empty initial Sauce field (`heatmap = 0`, legacy flat layer = 0).
+2. Began a held pesto drag and activated `やり直す` before its release.
+3. Confirmed the stale release left the pizza empty (`heatmap = 0`, flat layer = 0) and the
+   initial Sauce hint remained active.
+4. Performed a new post-reset pesto drag and confirmed it painted normally (`heatmap = 1`) and
+   advanced the hint to the mozzarella step.
+5. Confirmed `window.innerWidth × innerHeight = 390 × 844` and console errors = **0**.
+
+### Commit
+
+- Final blocker-fix implementation SHA: `b9ed315b4fbd5afb3198c30a225086e68d8d458a`
+
+## Updated status
+
+**READY FOR BLOCKER VERIFICATION**
