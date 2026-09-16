@@ -87,4 +87,29 @@ describe("Phase 4A-1B piece reference", () => {
       expect(group.matching).toEqual({ fullCreditRadius: 8, zeroCreditRadius: 22 });
     }
   });
+
+  it("pins the authoritative target coordinates exactly", () => {
+    expect(
+      MARGHERITA_REFERENCE.pieceGroups.map(({ ingredientId, positions }) => ({
+        ingredientId,
+        positions,
+      })),
+    ).toEqual([
+      {
+        ingredientId: "mozzarella",
+        positions: [
+          { x: 35, y: 35 },
+          { x: 65, y: 36 },
+          { x: 50, y: 66 },
+        ],
+      },
+      {
+        ingredientId: "basil",
+        positions: [
+          { x: 31, y: 62 },
+          { x: 69, y: 62 },
+        ],
+      },
+    ]);
+  });
 });

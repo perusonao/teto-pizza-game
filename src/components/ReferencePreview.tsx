@@ -3,6 +3,7 @@ import type { ReferencePizza } from "../data/referencePizza";
 import { getIngredient } from "../data/ingredients";
 import { stablePieceRotation } from "../logic/pieceDrag";
 import { SAUCE_TARGET_RADIUS } from "../logic/sauceField";
+import { IngredientPieceVisual } from "./IngredientPieceVisual";
 
 interface ReferencePreviewProps {
   reference: ReferencePizza;
@@ -91,7 +92,7 @@ export function ReferencePreview({ reference, isOpen, onOpenChange }: ReferenceP
                       transform: `translate(-50%, -50%) rotate(${stablePieceRotation(group.ingredientId, position.x, position.y)}deg)`,
                     }}
                   >
-                    {ingredient?.emoji}
+                    {ingredient && <IngredientPieceVisual ingredient={ingredient} />}
                   </span>
                 ));
               })}
