@@ -60,6 +60,10 @@ interface PizzaStageProps {
   /** Recipe-owned sauce behavior shared by FREE and Lunch Rush. Reference mode remains a
    * separate concern: it controls only Margherita's guide/metrics/reference UI. */
   sauceInteractionProfile: RecipeSauceProfile;
+  /** Canonical pizza reset generation, shared with IngredientTray. A change permanently
+   * invalidates every gesture that started against the pre-reset pizza, including buffered
+   * Sauce deposits that have not reached canonical state yet. */
+  resetToken: number;
   onDoughElementChange?: (element: HTMLDivElement | null) => void;
   onTap: (xPercent: number, yPercent: number) => void;
   /** Phase 4A-1A (Post-Codex-Fix): fired with the *entire* accumulated-so-far deposit array
@@ -125,6 +129,7 @@ export function PizzaStage({
   resultRevealed,
   referenceModeEnabled,
   sauceInteractionProfile,
+  resetToken,
   onDoughElementChange,
   onTap,
   onDispenseProgress,
@@ -245,6 +250,20 @@ export function PizzaStage({
     abortActiveGesture();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [interactive]);
+
+  // RESET_PIZZA changes canonical pizza state without changing `interactive` or the selected
+  // ingredient, so neither lifecycle guard above can observe it. Reuse GameScreen's existing
+  // reset generation (already consumed by IngredientTray) to invalidate the complete local
+  // gesture transaction: controller/RAF, pending deposits, pointer capture, trail and gesture
+  // refs. A later pointerup/cancel/lost-capture from the pre-reset pointer then sees no matching
+  // gesture/session and cannot dispatch COMMIT_SAUCE_DISPENSE. The next pointerdown starts a
+  // fresh session normally against the reset pizza.
+  useEffect(() => {
+    if (activeSessionRef.current || gestureRef.current.pointerId !== null) {
+      abortActiveGesture();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fires purely off the reset generation.
+  }, [resetToken]);
 
   // Codex Broad Review MUST FIX 1: an ingredient switch mid-hold (a second finger tapping a
   // different tray item while the first is still dispensing) must abort the session using

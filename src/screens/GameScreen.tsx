@@ -140,13 +140,10 @@ export function GameScreen({
   resolvePhysicalDrop,
   onPhysicalDrop,
 }: GameScreenProps) {
-  // Independent Review P2 (PR #26): RESET_PIZZA only clears `state.pizza` -- it never touches
-  // `physicalDragEnabled`/`selectedIngredientId`/`activeCategory`, the three signals
-  // IngredientTray already watches to abort a stale physical-drag session. Without this, a
-  // second pointer tapping "やり直す" mid-drag left the first pointer's session alive; releasing
-  // it afterward committed a PLACE_TOPPING onto the freshly emptied pizza. Bumped here (the one
-  // place "やり直す" is wired to onResetPizza) and handed to IngredientTray as `resetToken` so it
-  // can add a fourth "abort on change" effect alongside its existing three.
+  // RESET_PIZZA only clears `state.pizza`; it does not change the interaction props that would
+  // otherwise abort local pointer state. This generation was introduced for IngredientTray's
+  // physical-drag reset race in PR #26 and is now shared with PizzaStage so both topping drags
+  // and buffered Sauce gestures become permanently invalid in the same reset transaction.
   const [pizzaResetToken, setPizzaResetToken] = useState(0);
   function handleResetPizza() {
     setPizzaResetToken((token) => token + 1);
@@ -268,6 +265,7 @@ export function GameScreen({
         resultRevealed={state.phase === "RESULT"}
         referenceModeEnabled={referenceModeEnabled}
         sauceInteractionProfile={sauceInteractionProfile}
+        resetToken={pizzaResetToken}
         onDoughElementChange={onDoughElementChange}
         onTap={onTapPizza}
         onDispenseProgress={onDispenseProgress}
