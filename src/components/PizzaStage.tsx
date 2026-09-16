@@ -10,6 +10,7 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import { getIngredient, type Ingredient } from "../data/ingredients";
+import { IngredientPieceVisual } from "./IngredientPieceVisual";
 import type { Recipe } from "../data/recipes";
 import type { RecipeSauceProfile } from "../data/recipeSauceProfiles";
 import type { PizzaState, PlacementFeedback, SauceDeposit } from "../state/pizzaState";
@@ -801,10 +802,7 @@ export function PizzaStage({
               } as CSSProperties}
             >
               {ingredient.category === "cheese" ? (
-                <span
-                  className={`pizza-cheese pizza-cheese--${ingredient.id} ${meltClass}`}
-                  style={{ "--cheese-color": ingredient.color } as CSSProperties}
-                />
+                <IngredientPieceVisual ingredient={ingredient} className={meltClass} />
               ) : (
                 <span className="pizza-topping__emoji">{ingredient.emoji}</span>
               )}

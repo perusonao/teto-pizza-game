@@ -87,4 +87,20 @@ describe("Phase 4A-1B piece reference", () => {
       expect(group.matching).toEqual({ fullCreditRadius: 8, zeroCreditRadius: 22 });
     }
   });
+
+  /** Issue #32 Phase 1 (Reference/Player Visual Consistency) touched only rendering -- this
+   *  pins that the underlying Scoring 2.0 fixture coordinates and counts are byte-for-byte
+   *  unchanged from before that phase. */
+  it("pins exact target coordinates and piece counts (Issue #32 Phase 1 visual-only change)", () => {
+    const [mozzarella, basil] = MARGHERITA_REFERENCE.pieceGroups;
+    expect(mozzarella.positions).toEqual([
+      { x: 35, y: 35 },
+      { x: 65, y: 36 },
+      { x: 50, y: 66 },
+    ]);
+    expect(basil.positions).toEqual([
+      { x: 31, y: 62 },
+      { x: 69, y: 62 },
+    ]);
+  });
 });
