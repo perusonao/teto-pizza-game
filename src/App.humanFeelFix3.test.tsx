@@ -54,7 +54,11 @@ describe("PREPARE 1-screen layout (Human Feel Fix 3)", () => {
   });
 
   it("the PREPARE action row (やり直す/焼く/ヒント) uses the fixed-position Bake CTA bar class", async () => {
-    await enterFreePlayPrepare();
+    const user = await enterFreePlayPrepare();
+    // Issue #32 Phase 2: 焼く only appears once the making flow has reached TOPPING (SAUCE and
+    // CHEESE show the "次へ" step-confirm CTA in the same slot instead).
+    await user.click(screen.getByRole("button", { name: /次へ/ }));
+    await user.click(screen.getByRole("button", { name: /次へ/ }));
     const bakeButton = screen.getByRole("button", { name: /焼く/ });
     const actionRow = bakeButton.closest(".action-row");
     expect(actionRow).toHaveClass("prepare-bake-bar");
@@ -76,23 +80,29 @@ describe("Sauce evaluation panel: Sauce-category-only (Human Feel Fix 3 brief se
   });
 
   it("hides the panel entirely on the Cheese tab", async () => {
+    // Issue #32 Phase 2: category tabs are locked to the current making step -- reaching
+    // CHEESE now goes through the real "次へ" step-confirm CTA, not a free tab click.
     const user = await enterFreePlayPrepare();
-    await user.click(screen.getByRole("button", { name: "チーズ" }));
+    await user.click(screen.getByRole("button", { name: /次へ/ }));
     expect(document.querySelector(".sauce-metrics-panel")).not.toBeInTheDocument();
     expect(screen.queryByText("ソースのでき")).not.toBeInTheDocument();
   });
 
   it("hides the panel entirely on the Topping tab", async () => {
     const user = await enterFreePlayPrepare();
-    await user.click(screen.getByRole("button", { name: "トッピング" }));
+    await user.click(screen.getByRole("button", { name: /次へ/ }));
+    await user.click(screen.getByRole("button", { name: /次へ/ }));
     expect(document.querySelector(".sauce-metrics-panel")).not.toBeInTheDocument();
   });
 
-  it("shows the panel again after switching back to Sauce", async () => {
+  it("shows the panel again only after a whole-pizza discard/restart back to Sauce", async () => {
+    // Issue #32 Phase 2: the making flow is one-way -- there is no backward-editing path from
+    // CHEESE to SAUCE. The only way back to SAUCE (and the Sauce-only panel) is the explicit
+    // whole-pizza discard/restart ("やり直す"), never a free tab click.
     const user = await enterFreePlayPrepare();
-    await user.click(screen.getByRole("button", { name: "チーズ" }));
+    await user.click(screen.getByRole("button", { name: /次へ/ }));
     expect(document.querySelector(".sauce-metrics-panel")).not.toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "ソース" }));
+    await user.click(screen.getByRole("button", { name: "やり直す" }));
     expect(document.querySelector(".sauce-metrics-panel")).toBeInTheDocument();
   });
 });

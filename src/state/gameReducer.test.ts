@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createInitialGameState, gameReducer, type GameState } from "./gameReducer";
+import { createInitialGameState, gameReducer, type GameState, type MakingStep } from "./gameReducer";
 import { registerScoreToDex, EMPTY_DEX } from "./dex";
 import { scorePizza, type ScoreBreakdown, type QualityStars } from "../logic/scoring";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
@@ -23,9 +23,11 @@ function playToResult(bakeValue: number): GameState {
   let state = createInitialGameState();
   state = gameReducer(state, { type: "BEGIN_PREPARE" });
   state = gameReducer(state, { type: "APPLY_SAUCE", ingredientId: "tomato-sauce", x: 50, y: 50 });
+  state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // SAUCE -> CHEESE
   state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "mozzarella", x: 40, y: 50 });
   state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "mozzarella", x: 60, y: 50 });
   state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "mozzarella", x: 50, y: 30 });
+  state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // CHEESE -> TOPPING
   state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "basil", x: 50, y: 65 });
   state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "basil", x: 35, y: 65 });
   state = gameReducer(state, { type: "START_BAKE" });
@@ -190,13 +192,26 @@ describe("PURCHASE_INGREDIENT (reducer)", () => {
 // entirely, to prove the action boundary itself now rejects an unowned ingredient -- not just
 // that the tray happens to hide it.
 describe("Ownership boundary on APPLY_SAUCE/PLACE_TOPPING (Phase 3C-6 follow-up)", () => {
-  function preparedState(ownedIngredientIds: readonly string[], dex = EMPTY_DEX): GameState {
-    const state = createInitialGameState(dex, ownedIngredientIds, 0);
-    return gameReducer(state, { type: "BEGIN_PREPARE" });
+  // Issue #32 Phase 2: onion is a "topping"-category ingredient, so exercising its ownership
+  // gate now also requires the making flow to have reached the TOPPING step -- advance via
+  // the same CONFIRM_MAKING_STEP a real player's "次へ"/焼く！ taps would dispatch, never by
+  // constructing `makingStep` by hand.
+  function preparedState(
+    ownedIngredientIds: readonly string[],
+    dex = EMPTY_DEX,
+    makingStep: MakingStep = "SAUCE",
+  ): GameState {
+    let state = gameReducer(createInitialGameState(dex, ownedIngredientIds, 0), {
+      type: "BEGIN_PREPARE",
+    });
+    while (state.makingStep !== makingStep) {
+      state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" });
+    }
+    return state;
   }
 
   it("PLACE_TOPPING is a complete no-op for onion while LOCKED (fresh save, 0 totalStars)", () => {
-    const state = preparedState(STARTER_INGREDIENT_IDS);
+    const state = preparedState(STARTER_INGREDIENT_IDS, EMPTY_DEX, "TOPPING");
     const after = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "onion", x: 50, y: 50 });
     expect(after).toBe(state);
     expect(after.pizza.toppings).toHaveLength(0);
@@ -210,14 +225,14 @@ describe("Ownership boundary on APPLY_SAUCE/PLACE_TOPPING (Phase 3C-6 follow-up)
       { recipeId: "marinara", discovered: true, bestScore: 95, bestStars: 5 as const, timesMade: 1 },
       { recipeId: "genovese", discovered: true, bestScore: 95, bestStars: 5 as const, timesMade: 1 },
     ];
-    const state = preparedState(STARTER_INGREDIENT_IDS, dex);
+    const state = preparedState(STARTER_INGREDIENT_IDS, dex, "TOPPING");
     const after = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "onion", x: 50, y: 50 });
     expect(after).toBe(state);
     expect(after.pizza.toppings).toHaveLength(0);
   });
 
   it("PLACE_TOPPING succeeds for onion once it is OWNED", () => {
-    const state = preparedState([...STARTER_INGREDIENT_IDS, "onion"]);
+    const state = preparedState([...STARTER_INGREDIENT_IDS, "onion"], EMPTY_DEX, "TOPPING");
     const after = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "onion", x: 50, y: 50 });
     expect(after.pizza.toppings).toHaveLength(1);
     expect(after.pizza.toppings[0].ingredientId).toBe("onion");
@@ -242,7 +257,8 @@ describe("Ownership boundary on APPLY_SAUCE/PLACE_TOPPING (Phase 3C-6 follow-up)
       x: 50,
       y: 50,
     });
-    const withTopping = gameReducer(withSauce, {
+    const atCheese = gameReducer(withSauce, { type: "CONFIRM_MAKING_STEP" });
+    const withTopping = gameReducer(atCheese, {
       type: "PLACE_TOPPING",
       ingredientId: "mozzarella",
       x: 40,
@@ -472,9 +488,11 @@ describe("Phase 4A-2 Scoring 2.0 Shadow (gameReducer integration)", () => {
       ingredientId: "tomato-sauce",
       deposits: buildIdealMargheritaSauceFixture(),
     });
+    state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // SAUCE -> CHEESE
     for (const p of MOZZARELLA_GROUP.positions) {
       state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "mozzarella", x: p.x, y: p.y });
     }
+    state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // CHEESE -> TOPPING
     for (const p of BASIL_GROUP.positions) {
       state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "basil", x: p.x, y: p.y });
     }
@@ -520,9 +538,11 @@ describe("Phase 4A-2 Scoring 2.0 Shadow (gameReducer integration)", () => {
       ingredientId: "tomato-sauce",
       deposits: buildIdealMargheritaSauceFixture(),
     });
+    state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // SAUCE -> CHEESE
     for (const p of MOZZARELLA_GROUP.positions) {
       state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "mozzarella", x: p.x, y: p.y });
     }
+    state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // CHEESE -> TOPPING
     for (const p of BASIL_GROUP.positions) {
       state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "basil", x: p.x, y: p.y });
     }

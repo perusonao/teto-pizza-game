@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { GameScreen } from "./GameScreen";
 import { getRecipeSauceProfile } from "../data/recipeSauceProfiles";
-import { createInitialGameState, gameReducer } from "../state/gameReducer";
+import { createInitialGameState, gameReducer, type MakingStep } from "../state/gameReducer";
 import { INITIAL_MISSION_STATE } from "../mission/lunchRush";
 import { resolvePieceDrop } from "../logic/pieceDrag";
 import { emptySauceMetrics } from "../logic/sauceField";
@@ -33,6 +33,16 @@ import type { DoughPoint } from "../logic/pizzaCoordinates";
 const referencePizza = getReferencePizza("margherita");
 if (!referencePizza) throw new Error("Margherita reference fixture missing");
 
+// Issue #32 Phase 2: PLACE_TOPPING/APPLY_SAUCE are now gated on `state.makingStep` matching
+// the selected ingredient's own category (see gameReducer.ts) -- this harness's `category`
+// prop selects which ingredient a test exercises, so the making flow must be advanced to that
+// category's own step at mount, via CONFIRM_MAKING_STEP.
+const CATEGORY_TO_MAKING_STEP: Record<IngredientCategory, MakingStep> = {
+  sauce: "SAUCE",
+  cheese: "CHEESE",
+  topping: "TOPPING",
+};
+
 function Harness({
   category,
   ingredientId,
@@ -42,9 +52,13 @@ function Harness({
   ingredientId: string;
   initialReferencePopoverOpen?: boolean;
 }) {
-  const [state, dispatch] = useReducer(gameReducer, undefined, () =>
-    gameReducer(createInitialGameState(), { type: "BEGIN_PREPARE" }),
-  );
+  const [state, dispatch] = useReducer(gameReducer, undefined, () => {
+    let initial = gameReducer(createInitialGameState(), { type: "BEGIN_PREPARE" });
+    while (initial.makingStep !== CATEGORY_TO_MAKING_STEP[category]) {
+      initial = gameReducer(initial, { type: "CONFIRM_MAKING_STEP" });
+    }
+    return initial;
+  });
   const [isGlobalOverlayOpen, setGlobalOverlayOpen] = useState(false);
   const [isReferencePopoverOpen, setReferencePopoverOpen] = useState(initialReferencePopoverOpen);
   const [activeCategory, setActiveCategory] = useState<IngredientCategory>(category);
@@ -110,6 +124,7 @@ function Harness({
         onBeginPrepare={() => {}}
         onShowMissionIntro={() => {}}
         onResetPizza={() => dispatch({ type: "RESET_PIZZA" })}
+        onConfirmMakingStep={() => dispatch({ type: "CONFIRM_MAKING_STEP" })}
         onStartBake={() => {}}
         onShowHint={() => {}}
         onChangeCategory={setActiveCategory}

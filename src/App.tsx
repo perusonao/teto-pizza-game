@@ -12,7 +12,12 @@ import { resolvePieceDrop } from "./logic/pieceDrag";
 import type { DoughPoint } from "./logic/pizzaCoordinates";
 import type { SauceDeposit } from "./state/pizzaState";
 import { getIngredient, type Ingredient, type IngredientCategory } from "./data/ingredients";
-import { createInitialGameState, gameReducer, type GameState } from "./state/gameReducer";
+import {
+  createInitialGameState,
+  gameReducer,
+  type GameState,
+  type MakingStep,
+} from "./state/gameReducer";
 import { loadSave, loadMissionBest, persistProgress, persistMissionBest } from "./state/persistence";
 import {
   DEFAULT_MISSION_CONFIG,
@@ -46,6 +51,21 @@ function resolveMissionConfig(): MissionConfig {
   return DEFAULT_MISSION_CONFIG;
 }
 
+/** Issue #32 Phase 2: `activeCategory` is a *view* of the reducer's own `state.makingStep`,
+ *  never the other way around -- the tray always shows the category for whichever making
+ *  step is currently open (App.tsx no longer owns an independent, freely-switchable
+ *  category selection). */
+function makingStepToCategory(step: MakingStep): IngredientCategory {
+  switch (step) {
+    case "SAUCE":
+      return "sauce";
+    case "CHEESE":
+      return "cheese";
+    case "TOPPING":
+      return "topping";
+  }
+}
+
 function findPrimarySauceId(recipe: GameState["recipe"]): string | null {
   const primarySauce = recipe.requiredIngredients.find(
     (req) => getIngredient(req.ingredientId)?.category === "sauce",
@@ -74,7 +94,9 @@ function App() {
   // hydration produced -- a resumed ORDER-phase round from a prior session is simply what
   // GAME shows once the player taps into it from HOME.
   const [screen, setScreen] = useState<Screen>("HOME");
-  const [activeCategory, setActiveCategory] = useState<IngredientCategory>("sauce");
+  // Issue #32 Phase 2: derived, never independently set -- see makingStepToCategory's doc
+  // comment above.
+  const activeCategory = makingStepToCategory(state.makingStep);
   // Every order (including the very first one) should start the player off with the
   // recipe's own sauce selected, so PREPARE never opens with nothing selected.
   const [selectedIngredientId, setSelectedIngredientId] = useState<string | null>(() =>
@@ -113,7 +135,6 @@ function App() {
   if (lastOrderId !== state.order.id) {
     setLastOrderId(state.order.id);
     setSelectedIngredientId(findPrimarySauceId(state.recipe));
-    setActiveCategory("sauce");
     // A leftover-open Reference popover from the previous round must never carry over --
     // it would otherwise hold `interactive` false on the fresh round for no visible reason.
     setReferencePopoverOpen(false);
@@ -121,6 +142,21 @@ function App() {
     // from the previous round (which should already be [] by the time a round can end) must
     // never bleed into the new one's Prototype Metrics.
     setPendingSauceDeposits([]);
+  }
+
+  // Issue #32 Phase 2: a making-step confirmation (or a RESET_PIZZA, which returns
+  // `makingStep` to "SAUCE") never carries the previous step's selection forward -- the tray
+  // only ever offers the new step's own category, so a stale selection would otherwise sit
+  // unusable (or, worse, silently no-op the next tap since the reducer rejects it) until the
+  // player explicitly picks something new from the tray. `lastOrderId`'s own sync above
+  // already re-selects the recipe's primary sauce for a brand new round, so this only fires
+  // for a same-round step change.
+  const [lastMakingStep, setLastMakingStep] = useState(state.makingStep);
+  if (lastMakingStep !== state.makingStep) {
+    setLastMakingStep(state.makingStep);
+    if (lastOrderId === state.order.id) {
+      setSelectedIngredientId(null);
+    }
   }
 
   const [lastPhase, setLastPhase] = useState(state.phase);
@@ -242,9 +278,13 @@ function App() {
     setSelectedIngredientId(ingredient.id);
   }
 
-  function handleChangeCategory(category: IngredientCategory) {
-    setActiveCategory(category);
-  }
+  // Issue #32 Phase 2: `activeCategory` is derived from `state.makingStep` (see
+  // makingStepToCategory above) -- tabs no longer freely switch, so there is nothing left for
+  // a category-tab click to do. IngredientTray still calls this (its own tabs stay disabled
+  // for every category but the current step, see IngredientTray.tsx), so this is kept as an
+  // explicit no-op rather than removed, to make that "does nothing" intentional rather than
+  // an unwired prop.
+  function handleChangeCategory(_category: IngredientCategory) {}
 
   function handleTapPizza(x: number, y: number) {
     if (!selectedIngredientId) return;
@@ -414,6 +454,7 @@ function App() {
           onBeginPrepare={() => dispatch({ type: "BEGIN_PREPARE" })}
           onShowMissionIntro={() => missionDispatch({ type: "SHOW_INTRO" })}
           onResetPizza={() => dispatch({ type: "RESET_PIZZA" })}
+          onConfirmMakingStep={() => dispatch({ type: "CONFIRM_MAKING_STEP" })}
           onStartBake={() => dispatch({ type: "START_BAKE" })}
           onShowHint={() => dispatch({ type: "SHOW_HINT" })}
           onChangeCategory={handleChangeCategory}

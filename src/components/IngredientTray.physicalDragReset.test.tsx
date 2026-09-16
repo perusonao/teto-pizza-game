@@ -2,9 +2,29 @@ import { useReducer, useState } from "react";
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { IngredientTray } from "./IngredientTray";
-import { createInitialGameState, gameReducer } from "../state/gameReducer";
+import { createInitialGameState, gameReducer, type GameState, type MakingStep } from "../state/gameReducer";
 import { resolvePieceDrop } from "../logic/pieceDrag";
 import { getIngredient, type Ingredient, type IngredientCategory } from "../data/ingredients";
+
+// Issue #32 Phase 2: PLACE_TOPPING now requires the making flow to have reached the placed
+// ingredient's own category step (see gameReducer.ts). This harness fixes one category for
+// its whole lifetime (mirroring how these physical-drag tests were already written), so both
+// the initial mount and any RESET_PIZZA (which -- correctly -- returns `makingStep` to
+// "SAUCE", the flow's start) fast-forward back to that one category's step via
+// CONFIRM_MAKING_STEP, exactly like a real player re-confirming each step would.
+const CATEGORY_TO_MAKING_STEP: Record<IngredientCategory, MakingStep> = {
+  sauce: "SAUCE",
+  cheese: "CHEESE",
+  topping: "TOPPING",
+};
+
+function advanceToStep(state: GameState, category: IngredientCategory): GameState {
+  let next = state;
+  while (next.makingStep !== CATEGORY_TO_MAKING_STEP[category]) {
+    next = gameReducer(next, { type: "CONFIRM_MAKING_STEP" });
+  }
+  return next;
+}
 
 /**
  * Independent Review P2 (PR #26, discussion_r4012637679): a second pointer dispatching
@@ -28,7 +48,7 @@ const OUTSIDE_CLIENT = { x: 900, y: 900 };
 
 function Harness({ category }: { category: IngredientCategory }) {
   const [state, dispatch] = useReducer(gameReducer, undefined, () =>
-    gameReducer(createInitialGameState(), { type: "BEGIN_PREPARE" }),
+    advanceToStep(gameReducer(createInitialGameState(), { type: "BEGIN_PREPARE" }), category),
   );
   const [resetToken, setResetToken] = useState(0);
 
@@ -41,10 +61,17 @@ function Harness({ category }: { category: IngredientCategory }) {
   }
 
   // Mirrors GameScreen.tsx's handleResetPizza exactly: bump the token, then dispatch
-  // RESET_PIZZA, in the same synchronous click handler "やり直す" is wired to.
+  // RESET_PIZZA, in the same synchronous click handler "やり直す" is wired to. RESET_PIZZA
+  // itself returns `makingStep` to "SAUCE" -- fast-forward back to this harness's fixed
+  // category afterward (React 18 batches same-handler dispatches, so this reduces in order)
+  // so a subsequent drag in the same test keeps exercising that category.
+  const stepsAfterReset = ["sauce", "cheese", "topping"].indexOf(category);
   function handleResetPizza() {
     setResetToken((token) => token + 1);
     dispatch({ type: "RESET_PIZZA" });
+    for (let i = 0; i < stepsAfterReset; i += 1) {
+      dispatch({ type: "CONFIRM_MAKING_STEP" });
+    }
   }
 
   return (

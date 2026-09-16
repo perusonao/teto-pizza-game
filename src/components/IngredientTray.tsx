@@ -34,6 +34,13 @@ interface IngredientTrayProps {
    *  pizza mid-drag left the first pointer's session alive to commit a stale `onPhysicalDrop`
    *  onto the freshly emptied pizza the moment it lifted. */
   resetToken?: number;
+  /** Issue #32 Phase 2: bumped by the reducer's own CONFIRM_MAKING_STEP/RESET_PIZZA (see
+   *  GameState.makingStepToken, src/state/gameReducer.ts). A step confirmation changes only
+   *  `state.makingStep` -- none of the three signals already watched above move when it
+   *  fires -- so without this, a physical-drag session started while a step was still open
+   *  could survive the confirmation and commit onto the step that follows it. Mirrors
+   *  `resetToken`'s own effect below exactly. */
+  makingStepToken?: number;
 }
 
 interface DragSession {
@@ -64,6 +71,7 @@ export function IngredientTray({
   resolvePhysicalDrop,
   onPhysicalDrop,
   resetToken,
+  makingStepToken,
 }: IngredientTrayProps) {
   // Phase 4A-1B Human Feel Fix 2: the visible grid stays a fixed 3x2 (MAX_INGREDIENT_PALETTE_SLOTS
   // in data/ingredients.ts), no scrolling. Independent Review P1 (PR #26, discussion_r4017018587):
@@ -217,6 +225,11 @@ export function IngredientTray({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- fires purely off the token bump.
   }, [resetToken]);
 
+  useEffect(() => {
+    if (sessionRef.current) clearSession();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fires purely off the token bump.
+  }, [makingStepToken]);
+
   function goToPage(next: number) {
     setPage(Math.max(0, Math.min(pageCount - 1, next)));
   }
@@ -294,18 +307,33 @@ export function IngredientTray({
   return (
     <div className="ingredient-panel">
       <div className="category-tabs">
-        {CATEGORY_ORDER.map((category) => (
-          <button
-            key={category}
-            type="button"
-            className={`category-tab category-tab--${category} ${
-              activeCategory === category ? "category-tab--active" : ""
-            }`}
-            onClick={() => onChangeCategory(category)}
-          >
-            {CATEGORY_LABEL[category]}
-          </button>
-        ))}
+        {CATEGORY_ORDER.map((category, index) => {
+          // Issue #32 Phase 2: the making flow is one-way (SAUCE -> CHEESE -> TOPPING) --
+          // only the current step's tab is ever interactive. A step before it reads as
+          // completed (not a mysterious disabled tab); a step after it is simply not
+          // reachable yet. `disabled` keeps a locked tab out of both click and keyboard
+          // (Tab/Enter/Space) activation -- the reducer's own `makingStep` gate is the final
+          // guard either way, this is only the UI half of "no backward-editing path".
+          const activeIndex = CATEGORY_ORDER.indexOf(activeCategory);
+          const isCompleted = index < activeIndex;
+          const isActive = category === activeCategory;
+          return (
+            <button
+              key={category}
+              type="button"
+              className={`category-tab category-tab--${category} ${
+                isActive ? "category-tab--active" : ""
+              } ${isCompleted ? "category-tab--completed" : ""} ${
+                !isActive && !isCompleted ? "category-tab--locked" : ""
+              }`}
+              disabled={!isActive}
+              aria-current={isActive ? "step" : undefined}
+              onClick={() => onChangeCategory(category)}
+            >
+              {isCompleted ? `✓ ${CATEGORY_LABEL[category]}` : CATEGORY_LABEL[category]}
+            </button>
+          );
+        })}
       </div>
       <div className="ingredient-tray">
         {items.map((ingredient) => (

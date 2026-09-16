@@ -646,6 +646,24 @@
   color: #fff;
 }
 
+/* Issue #32 Phase 2: the making flow is one-way, so only the current step's tab is ever
+   `disabled={false}` (see IngredientTray.tsx). A completed step reads as done (checkmark +
+   quieter fill), never as a mysteriously broken control; an upcoming step reads as simply not
+   reached yet (dimmed, same base fill as the default `.category-tab` background). */
+.category-tab--completed {
+  background: #cdbb95;
+  color: #6b4226;
+  opacity: 0.85;
+}
+
+.category-tab--locked {
+  opacity: 0.55;
+}
+
+.category-tab:disabled {
+  cursor: default;
+}
+
 /* Phase 4A-1B Human Feel Fix 2: a fixed 3x2 grid, never scrollable -- iPhone retesting of
    Fix 1 (drag threshold + iOS callout suppression) still came back "unresponsive", and the
    actual cause was this: scrolling the tray and dragging a piece onto the pizza are the same

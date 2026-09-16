@@ -76,6 +76,7 @@ interface GameScreenProps {
   onBeginPrepare: () => void;
   onShowMissionIntro: () => void;
   onResetPizza: () => void;
+  onConfirmMakingStep: () => void;
   onStartBake: () => void;
   onShowHint: () => void;
   onChangeCategory: (category: IngredientCategory) => void;
@@ -121,6 +122,7 @@ export function GameScreen({
   onBeginPrepare,
   onShowMissionIntro,
   onResetPizza,
+  onConfirmMakingStep,
   onStartBake,
   onShowHint,
   onChangeCategory,
@@ -267,6 +269,7 @@ export function GameScreen({
         referenceModeEnabled={referenceModeEnabled}
         sauceInteractionProfile={sauceInteractionProfile}
         resetToken={pizzaResetToken}
+        makingStepToken={state.makingStepToken}
         onDoughElementChange={onDoughElementChange}
         onTap={onTapPizza}
         onDispenseProgress={onDispenseProgress}
@@ -320,6 +323,7 @@ export function GameScreen({
             resolvePhysicalDrop={resolvePhysicalDrop}
             onPhysicalDrop={onPhysicalDrop}
             resetToken={pizzaResetToken}
+            makingStepToken={state.makingStepToken}
           />
           {/* Human Feel Fix 3 (Fixed Bake CTA, brief section B): `.prepare-bake-bar` is
               `position: fixed` to the viewport (matching .app-frame's own centered max-width,
@@ -327,14 +331,28 @@ export function GameScreen({
               -- that trick only pushes to the bottom of content that already fits the
               viewport, which is exactly what silently failed once PREPARE grew taller than
               844px (the bug this whole round exists to fix). `.ingredient-panel` reserves
-              matching bottom padding so this bar can never cover the Palette above it. */}
+              matching bottom padding so this bar can never cover the Palette above it.
+              Issue #32 Phase 2: SAUCE and CHEESE each get an explicit "次へ" (next step) CTA
+              that dispatches CONFIRM_MAKING_STEP -- TOPPING's forward action is the existing
+              焼く！ button, which doubles as TOPPING's own implicit confirm (no separate
+              button needed: 焼く！ already leaves PREPARE entirely via START_BAKE). */}
           <div className="action-row prepare-bake-bar">
             <button type="button" className="secondary-button" onClick={handleResetPizza}>
               やり直す
             </button>
-            <button type="button" className="cta-button cta-button--bake" onClick={onStartBake}>
-              {"\u{1F525}"} 焼く！
-            </button>
+            {state.makingStep === "TOPPING" ? (
+              <button type="button" className="cta-button cta-button--bake" onClick={onStartBake}>
+                {"\u{1F525}"} 焼く！
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="cta-button cta-button--bake"
+                onClick={onConfirmMakingStep}
+              >
+                次へ {"→"}
+              </button>
+            )}
             <button type="button" className="secondary-button" onClick={onShowHint}>
               ヒント
             </button>

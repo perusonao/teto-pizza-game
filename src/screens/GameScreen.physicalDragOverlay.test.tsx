@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { GameScreen } from "./GameScreen";
 import { getRecipeSauceProfile } from "../data/recipeSauceProfiles";
-import { createInitialGameState, gameReducer } from "../state/gameReducer";
+import { createInitialGameState, gameReducer, type MakingStep } from "../state/gameReducer";
 import { INITIAL_MISSION_STATE } from "../mission/lunchRush";
 import { resolvePieceDrop } from "../logic/pieceDrag";
 import { emptySauceMetrics } from "../logic/sauceField";
@@ -33,10 +33,24 @@ const INSIDE_CLIENT = { x: 150, y: 150 };
 const referencePizza = getReferencePizza("margherita");
 if (!referencePizza) throw new Error("Margherita reference fixture missing");
 
+// Issue #32 Phase 2: PLACE_TOPPING is now gated on `state.makingStep` matching the placed
+// ingredient's own category (see gameReducer.ts) -- this harness's `category` prop selects
+// which physical-drag ingredient (mozzarella/basil) a test exercises, so the making flow must
+// be advanced to that category's own step at mount, via CONFIRM_MAKING_STEP.
+const CATEGORY_TO_MAKING_STEP: Record<IngredientCategory, MakingStep> = {
+  sauce: "SAUCE",
+  cheese: "CHEESE",
+  topping: "TOPPING",
+};
+
 function Harness({ category }: { category: IngredientCategory }) {
-  const [state, dispatch] = useReducer(gameReducer, undefined, () =>
-    gameReducer(createInitialGameState(), { type: "BEGIN_PREPARE" }),
-  );
+  const [state, dispatch] = useReducer(gameReducer, undefined, () => {
+    let initial = gameReducer(createInitialGameState(), { type: "BEGIN_PREPARE" });
+    while (initial.makingStep !== CATEGORY_TO_MAKING_STEP[category]) {
+      initial = gameReducer(initial, { type: "CONFIRM_MAKING_STEP" });
+    }
+    return initial;
+  });
   const [isGlobalOverlayOpen, setGlobalOverlayOpen] = useState(false);
 
   function resolvePhysicalDrop(clientX: number, clientY: number): DoughPoint | null {
@@ -80,6 +94,7 @@ function Harness({ category }: { category: IngredientCategory }) {
         onBeginPrepare={() => {}}
         onShowMissionIntro={() => {}}
         onResetPizza={() => dispatch({ type: "RESET_PIZZA" })}
+        onConfirmMakingStep={() => dispatch({ type: "CONFIRM_MAKING_STEP" })}
         onStartBake={() => {}}
         onShowHint={() => {}}
         onChangeCategory={() => {}}

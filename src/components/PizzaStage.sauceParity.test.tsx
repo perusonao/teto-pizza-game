@@ -45,6 +45,7 @@ describe("PizzaStage recipe sauce interaction parity", () => {
           referenceModeEnabled={recipeId === "margherita"}
           sauceInteractionProfile={getRecipeSauceProfile(recipeId)}
           resetToken={0}
+          makingStepToken={0}
           onTap={onTap}
           onDispenseProgress={onDispenseProgress}
           onDispenseCommit={onDispenseCommit}

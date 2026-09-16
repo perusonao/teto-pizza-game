@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { GameScreen } from "./GameScreen";
 import { getRecipeSauceProfile } from "../data/recipeSauceProfiles";
-import { createInitialGameState, gameReducer } from "../state/gameReducer";
+import { createInitialGameState, gameReducer, type MakingStep } from "../state/gameReducer";
 import { INITIAL_MISSION_STATE } from "../mission/lunchRush";
 import { resolvePieceDrop } from "../logic/pieceDrag";
 import { emptySauceMetrics } from "../logic/sauceField";
@@ -38,11 +38,31 @@ import type { DoughPoint } from "../logic/pizzaCoordinates";
 const referencePizza = getReferencePizza("margherita");
 if (!referencePizza) throw new Error("Margherita reference fixture missing");
 
+// Issue #32 Phase 2: PLACE_TOPPING/APPLY_SAUCE are now gated on `state.makingStep` matching
+// the selected ingredient's own category (see gameReducer.ts), and `activeCategory` is a
+// *view* of that same field (never independent local state -- mirrors App.tsx's own
+// makingStepToCategory). This harness's `category` prop selects which ingredient a test
+// starts on, so the making flow is advanced to that category's own step at mount.
+const CATEGORY_TO_MAKING_STEP: Record<IngredientCategory, MakingStep> = {
+  sauce: "SAUCE",
+  cheese: "CHEESE",
+  topping: "TOPPING",
+};
+const MAKING_STEP_TO_CATEGORY: Record<MakingStep, IngredientCategory> = {
+  SAUCE: "sauce",
+  CHEESE: "cheese",
+  TOPPING: "topping",
+};
+
 function Harness({ category, ingredientId }: { category: IngredientCategory; ingredientId: string }) {
-  const [state, dispatch] = useReducer(gameReducer, undefined, () =>
-    gameReducer(createInitialGameState(), { type: "BEGIN_PREPARE" }),
-  );
-  const [activeCategory, setActiveCategory] = useState<IngredientCategory>(category);
+  const [state, dispatch] = useReducer(gameReducer, undefined, () => {
+    let initial = gameReducer(createInitialGameState(), { type: "BEGIN_PREPARE" });
+    while (initial.makingStep !== CATEGORY_TO_MAKING_STEP[category]) {
+      initial = gameReducer(initial, { type: "CONFIRM_MAKING_STEP" });
+    }
+    return initial;
+  });
+  const activeCategory = MAKING_STEP_TO_CATEGORY[state.makingStep];
   const [selectedIngredientId, setSelectedIngredientId] = useState<string | null>(null);
 
   function resolvePhysicalDrop(clientX: number, clientY: number): DoughPoint | null {
@@ -97,9 +117,10 @@ function Harness({ category, ingredientId }: { category: IngredientCategory; ing
         onBeginPrepare={() => {}}
         onShowMissionIntro={() => {}}
         onResetPizza={() => dispatch({ type: "RESET_PIZZA" })}
+        onConfirmMakingStep={() => dispatch({ type: "CONFIRM_MAKING_STEP" })}
         onStartBake={() => {}}
         onShowHint={() => {}}
-        onChangeCategory={setActiveCategory}
+        onChangeCategory={() => {}}
         onSelectIngredient={(ingredient) => setSelectedIngredientId(ingredient.id)}
         onTapPizza={handleTapPizza}
         onBakeTick={() => {}}
@@ -189,7 +210,11 @@ describe("SPREAD ingredients have no generic keyboard center-tap activation (PR 
     selectIngredient("tomato-sauce");
     expect(getDough().getAttribute("tabindex")).toBe("-1");
 
-    fireEvent.click(screen.getByRole("button", { name: "トッピング" }));
+    // Issue #32 Phase 2: category tabs are locked to the current making step (no free
+    // switching -- see IngredientTray.tsx), so reaching the topping tray now goes through the
+    // real "次へ" step-confirm CTA (SAUCE -> CHEESE -> TOPPING), exactly like a real player.
+    fireEvent.click(screen.getByRole("button", { name: /次へ/ }));
+    fireEvent.click(screen.getByRole("button", { name: /次へ/ }));
     fireEvent.click(screen.getByRole("button", { name: /にんにく/ }));
     expect(getDough().getAttribute("tabindex")).toBe("0");
   });
