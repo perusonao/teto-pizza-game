@@ -109,3 +109,78 @@ export function sanitizeObjectArray(value: unknown): Record<string, unknown>[] {
 export function sanitizeStringArray(value: unknown): string[] {
   return toSafeArray(value).filter((v): v is string => typeof v === "string");
 }
+
+/**
+ * Codex P1 blocker fix, Round 2 -- STRICT validation for *authoritative* Reference/
+ * requirement data, deliberately different from every lenient `sanitize*` helper above.
+ *
+ * The sanitizers above exist for PLAYER input: a malformed element there genuinely means
+ * "the player didn't place a real piece/deposit here", so dropping it and scoring the rest
+ * is the correct, tolerant reading. Reference positions and required-ingredient lists are
+ * the opposite kind of data -- they *are* the scoring truth (the target a player's pizza is
+ * judged against). Silently filtering a malformed element out of a Reference/requirement
+ * list doesn't mean "the Reference target has fewer requirements than it really does" -- it
+ * means the data feeding the scorer is corrupt, and a smaller, filtered-down target is not a
+ * fact about the recipe, it is an artifact of that corruption. Scoring a player's pizza
+ * against a corrupted-and-shrunk target can silently award a normal (even 100) score for a
+ * pizza that never actually matched the *real* Reference at all.
+ *
+ * `StrictReferenceValidation` is therefore all-or-nothing: a non-array container, or *any*
+ * single malformed element anywhere in the array, invalidates the whole collection --
+ * callers (./piecesComponent.ts, ./recipeComponent.ts) turn a `{ valid: false }` result into
+ * an explicit `{ available: false, reason }` for the affected component (and ./index.ts
+ * propagates that up into the whole `ScoringV2Result` being unavailable), never a numeric
+ * score computed from whatever happened to survive filtering. A genuinely well-formed empty
+ * array (`[]`) is still `{ valid: true, items: [] }` -- "this recipe legitimately requires
+ * nothing here" is a real, valid fact a recipe's data can express, and stays available.
+ */
+export type StrictReferenceValidation<T> =
+  | { valid: true; items: readonly T[] }
+  | { valid: false };
+
+/** Strictly validates a Reference position list (e.g. `ReferencePieceGroup.positions`): the
+ *  container itself must be a real array, and every element must be a finite `{x, y}`
+ *  coordinate -- one malformed position anywhere invalidates the whole list rather than
+ *  quietly shrinking the target to whatever positions happened to be well-formed. */
+export function validateCoordinateArrayStrict(value: unknown): StrictReferenceValidation<SafeCoordinate> {
+  if (!Array.isArray(value)) return { valid: false };
+  const items: SafeCoordinate[] = [];
+  for (const element of value) {
+    if (!isFiniteCoordinate(element)) return { valid: false };
+    items.push({ x: element.x, y: element.y });
+  }
+  return { valid: true, items };
+}
+
+export interface StrictRequiredIngredient {
+  ingredientId: string;
+  minCount: number;
+}
+
+/** Strictly validates a recipe's required-ingredient list (`Recipe.requiredIngredients`):
+ *  the container must be a real array, and every element must be a well-formed
+ *  `{ingredientId: string, minCount: finite number}` -- one malformed requirement
+ *  invalidates the whole list, the same all-or-nothing rule as `validateCoordinateArrayStrict`
+ *  and for the same reason (a filtered-down requirement list is not a fact about the recipe). */
+export function validateRequiredIngredientsStrict(
+  value: unknown,
+): StrictReferenceValidation<StrictRequiredIngredient> {
+  if (!Array.isArray(value)) return { valid: false };
+  const items: StrictRequiredIngredient[] = [];
+  for (const element of value) {
+    if (!isPlainObject(element)) return { valid: false };
+    if (typeof element.ingredientId !== "string") return { valid: false };
+    if (!isFiniteNumber(element.minCount)) return { valid: false };
+    items.push({ ingredientId: element.ingredientId, minCount: element.minCount });
+  }
+  return { valid: true, items };
+}
+
+/** Shared reason string for every "authoritative Reference/requirement data was malformed"
+ *  unavailable result -- ./piecesComponent.ts and ./recipeComponent.ts both use this exact
+ *  message. Distinct from ./index.ts's own `REFERENCE_UNAVAILABLE_REASON` ("no Reference
+ *  fixture exists for this recipe at all", P0-1) -- this one means "a Reference fixture
+ *  exists, but its own data failed strict validation" -- though both are handled identically
+ *  by ./index.ts (the whole `ScoringV2Result` fails closed either way). */
+export const MALFORMED_REFERENCE_REASON =
+  "このレシピの Reference/必須材料データが不正なため、Scoring 2.0 はこの結果を採点できません（フェイルクローズ）。";

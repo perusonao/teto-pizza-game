@@ -15,9 +15,14 @@
 import { countUsedIngredient } from "../scoring";
 import type { Recipe } from "../../data/recipes";
 import type { PizzaState } from "../../state/pizzaState";
-import { sanitizeStringArray, sanitizeToppings, toSafeArray } from "./boundary";
+import {
+  MALFORMED_REFERENCE_REASON,
+  sanitizeStringArray,
+  sanitizeToppings,
+  validateRequiredIngredientsStrict,
+} from "./boundary";
 import { safeUnit } from "./tolerance";
-import type { RecipeComponentV2 } from "./types";
+import type { RecipeComponentV2, ScoringV2Unavailable } from "./types";
 
 /**
  * Codex P1 blocker fix: `../scoring.ts`'s `countUsedIngredient` is legacy authoritative
@@ -39,11 +44,28 @@ function safePizzaForRecipeCheck(pizza: PizzaState): PizzaState {
   };
 }
 
-export function scoreRecipeComponentV2(recipe: Recipe, pizza: PizzaState): RecipeComponentV2 {
-  const required = toSafeArray(recipe?.requiredIngredients).filter(
-    (req): req is { ingredientId: string; minCount: number } =>
-      typeof req === "object" && req !== null && typeof (req as Record<string, unknown>).ingredientId === "string",
-  );
+/**
+ * Codex P1 blocker fix, Round 2: `recipe.requiredIngredients` is authoritative Reference data
+ * (it defines what "correct" even means for this component), not player input -- so it goes
+ * through ./boundary.ts's *strict* `validateRequiredIngredientsStrict` instead of a lenient
+ * filter. A non-array container, or even a single malformed requirement mixed in among
+ * otherwise-valid ones, fails the whole component closed (`available: false`) rather than
+ * silently scoring against whatever subset of requirements happened to survive filtering --
+ * see boundary.ts's own doc comment for why a filtered-down authoritative list is unsafe (it
+ * can make an incomplete/wrong recipe trivially satisfiable, including a false 100).
+ * A genuinely well-formed empty array is still valid: `required.length === 0` below only
+ * reaches a real, fully-validated empty list, never a corrupted one that got filtered down to
+ * nothing.
+ */
+export function scoreRecipeComponentV2(
+  recipe: Recipe,
+  pizza: PizzaState,
+): RecipeComponentV2 | ScoringV2Unavailable {
+  const validation = validateRequiredIngredientsStrict(recipe?.requiredIngredients);
+  if (!validation.valid) {
+    return { available: false, reason: MALFORMED_REFERENCE_REASON };
+  }
+  const required = validation.items;
   if (required.length === 0) {
     return { available: true, requiredTypesPresent: 0, requiredTypesTotal: 0, score: 100 };
   }

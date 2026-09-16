@@ -6,6 +6,14 @@
  * system, e.g. data that round-tripped through JSON or a future integration this module has
  * no control over). Every case must: never throw, never hang, and never produce a NaN/
  * Infinity or an accidentally-high score for data that isn't real.
+ *
+ * Round 2 (Codex narrow-verification follow-up) adds a second, stricter rule for
+ * *authoritative* Reference/requirement data specifically (`recipe.requiredIngredients`,
+ * `ReferencePieceGroup.positions`/`.matching`, the `groups`/`pieceGroups` container itself):
+ * malformed data there must invalidate the affected component (`available: false`), never
+ * silently score against whatever subset of it happened to be well-formed. See
+ * ./boundary.ts's `StrictReferenceValidation` doc comment for the full player-input-vs-
+ * authoritative-Reference distinction this file's two halves are organized around.
  */
 import { describe, expect, it } from "vitest";
 import { computeScoringV2Shadow } from "./index";
@@ -19,11 +27,23 @@ import {
   toSafeArray,
 } from "./boundary";
 import { getRecipe } from "../../data/recipes";
-import { MARGHERITA_REFERENCE, type ReferencePieceGroup } from "../../data/referencePizza";
+import {
+  buildIdealMargheritaSauceFixture,
+  MARGHERITA_REFERENCE,
+  type ReferencePieceGroup,
+} from "../../data/referencePizza";
 import { createEmptyPizza, type PizzaState } from "../../state/pizzaState";
 
 const MARGHERITA = getRecipe("margherita")!;
-const [MOZZARELLA_GROUP] = MARGHERITA_REFERENCE.pieceGroups;
+const [MOZZARELLA_GROUP, BASIL_GROUP] = MARGHERITA_REFERENCE.pieceGroups;
+
+/** Narrows a `{ available: boolean }` result for tests that pass valid input and only want to
+ *  assert on the normal-shape fields -- see ./scoringV2.test.ts's identical helper. */
+function assertAvailable<T extends { available: boolean }>(
+  result: T,
+): asserts result is Extract<T, { available: true }> {
+  expect(result.available).toBe(true);
+}
 
 /** Every malformed-container shape the P1 blocker names, reused across every sanitizer test
  *  below so each sanitizer is checked against the exact same adversarial matrix. */
@@ -142,6 +162,14 @@ describe("boundary.ts sanitizers -- malformed elements are dropped, not thrown o
   });
 });
 
+/**
+ * `scorePieceGroupV2` is deliberately the LENIENT, crash/hang-safety layer -- it stays
+ * defensive-but-filtering even for malformed Reference data (see its own updated doc comment
+ * in piecesComponent.ts). The STRICT "malformed authoritative Reference data must invalidate
+ * the result" rule is enforced one level up, in `scorePiecesComponentV2` -- see the
+ * "Codex P1 Round 2: STRICT Reference position validation" describe block further below,
+ * which exercises the exact same malformed shapes through the strict entry point instead.
+ */
 describe("scorePieceGroupV2 -- adversarial toppings/group input", () => {
   it.each(MALFORMED_CONTAINERS)("toppings container is %s -> finite 0-ish result, never throws", (_label, toppings) => {
     expect(() => scorePieceGroupV2(toppings as never, MOZZARELLA_GROUP)).not.toThrow();
@@ -216,59 +244,248 @@ describe("scorePieceGroupV2 -- adversarial toppings/group input", () => {
   });
 });
 
-describe("scorePiecesComponentV2 -- adversarial groups container", () => {
-  it.each(MALFORMED_CONTAINERS)("groups container is %s -> full marks (no groups to fall short on), never throws", (_label, groups) => {
-    expect(() => scorePiecesComponentV2([], groups as never)).not.toThrow();
-    const result = scorePiecesComponentV2([], groups as never);
-    expect(result.score).toBe(100);
-    expect(Number.isFinite(result.score)).toBe(true);
-  });
+describe("scorePiecesComponentV2 -- adversarial groups container (STRICT: authoritative Reference data)", () => {
+  it.each(MALFORMED_CONTAINERS)(
+    "groups container is %s -> available:false, never a numeric score, never throws",
+    (_label, groups) => {
+      expect(() => scorePiecesComponentV2([], groups as never)).not.toThrow();
+      const result = scorePiecesComponentV2([], groups as never);
+      expect(result.available).toBe(false);
+    },
+  );
 
-  it("groups array contains malformed elements mixed with a valid group -> degrades gracefully, never throws", () => {
+  it("groups array contains one malformed element mixed with an otherwise-valid group -> available:false (one bad group invalidates the whole component), never throws", () => {
     const groups = [null, "garbage", 42, MOZZARELLA_GROUP];
     expect(() => scorePiecesComponentV2([], groups as never)).not.toThrow();
     const result = scorePiecesComponentV2([], groups as never);
-    expect(result.groups).toHaveLength(4);
-    expect(Number.isFinite(result.score)).toBe(true);
+    expect(result.available).toBe(false);
+  });
+
+  it("a genuinely valid, empty groups array is still available and scores full marks (a real recipe can legitimately require zero piece groups)", () => {
+    const result = scorePiecesComponentV2([], []);
+    assertAvailable(result);
+    expect(result.score).toBe(100);
+    expect(result.groups).toEqual([]);
+  });
+
+  it("fully valid groups (the real Margherita Reference) still score normally -- no regression from the stricter gate", () => {
+    const toppings = [
+      ...MOZZARELLA_GROUP.positions.map((p, i) => ({ id: `m${i}`, ingredientId: "mozzarella", ...p })),
+      ...BASIL_GROUP.positions.map((p, i) => ({ id: `b${i}`, ingredientId: "basil", ...p })),
+    ];
+    const result = scorePiecesComponentV2(toppings, MARGHERITA_REFERENCE.pieceGroups);
+    assertAvailable(result);
+    expect(result.score).toBeGreaterThan(90);
+  });
+});
+
+/**
+ * Round 2: every malformed-position shape the blocker's regression-test list names, applied
+ * to a single position mixed in among an otherwise fully-valid Reference position list --
+ * this is exactly the shape of exploit Codex's narrow verification found (a partially
+ * malformed list quietly shrinking into an easier, smaller target a player could trivially
+ * "complete" for a normal or even 100 score).
+ */
+const MALFORMED_POSITION_CASES: Array<[string, unknown]> = [
+  ["missing x", { y: 35 }],
+  ["missing y", { x: 35 }],
+  ["x wrong type", { x: "35", y: 35 }],
+  ["y wrong type", { x: 35, y: "35" }],
+  ["NaN x", { x: Number.NaN, y: 35 }],
+  ["NaN y", { x: 35, y: Number.NaN }],
+  ["+Infinity x", { x: Number.POSITIVE_INFINITY, y: 35 }],
+  ["-Infinity x", { x: Number.NEGATIVE_INFINITY, y: 35 }],
+  ["+Infinity y", { x: 35, y: Number.POSITIVE_INFINITY }],
+  ["-Infinity y", { x: 35, y: Number.NEGATIVE_INFINITY }],
+  ["null element", null],
+  ["primitive element", "garbage"],
+];
+
+describe("Codex P1 Round 2: STRICT Reference position validation (scorePiecesComponentV2)", () => {
+  it.each(MALFORMED_POSITION_CASES)(
+    "one malformed mozzarella Reference position (%s) mixed with otherwise-valid positions -> available:false, never a numeric score",
+    (_label, malformedPosition) => {
+      const brokenMozzarella: ReferencePieceGroup = {
+        ...MOZZARELLA_GROUP,
+        positions: [...MOZZARELLA_GROUP.positions, malformedPosition as never],
+      };
+      const groups = [brokenMozzarella, BASIL_GROUP];
+      // A pizza that would otherwise score very well against the *valid* subset of positions
+      // -- exactly the case that must NOT be rewarded with a high/normal score.
+      const toppings = [
+        ...MOZZARELLA_GROUP.positions.map((p, i) => ({ id: `m${i}`, ingredientId: "mozzarella", ...p })),
+        ...BASIL_GROUP.positions.map((p, i) => ({ id: `b${i}`, ingredientId: "basil", ...p })),
+      ];
+      expect(() => scorePiecesComponentV2(toppings, groups)).not.toThrow();
+      const result = scorePiecesComponentV2(toppings, groups);
+      expect(result.available).toBe(false);
+    },
+  );
+
+  it.each(MALFORMED_POSITION_CASES)(
+    "one malformed basil Reference position (%s) mixed with otherwise-valid positions -> available:false, never a numeric score",
+    (_label, malformedPosition) => {
+      const brokenBasil: ReferencePieceGroup = {
+        ...BASIL_GROUP,
+        positions: [...BASIL_GROUP.positions, malformedPosition as never],
+      };
+      const groups = [MOZZARELLA_GROUP, brokenBasil];
+      const toppings = [
+        ...MOZZARELLA_GROUP.positions.map((p, i) => ({ id: `m${i}`, ingredientId: "mozzarella", ...p })),
+        ...BASIL_GROUP.positions.map((p, i) => ({ id: `b${i}`, ingredientId: "basil", ...p })),
+      ];
+      expect(() => scorePiecesComponentV2(toppings, groups)).not.toThrow();
+      const result = scorePiecesComponentV2(toppings, groups);
+      expect(result.available).toBe(false);
+    },
+  );
+
+  it("the exact exploit shape Codex's narrow verification found (a corrupted-down target trivially 'completable' for >90) now fails closed instead", () => {
+    const brokenGroup: ReferencePieceGroup = {
+      ...MOZZARELLA_GROUP,
+      positions: [
+        { x: 35, y: 35 },
+        { x: Number.NaN, y: 40 } as never,
+        null as never,
+        { x: Number.POSITIVE_INFINITY, y: 10 } as never,
+        "garbage" as never,
+      ],
+    };
+    const toppings = [{ id: "m0", ingredientId: "mozzarella", x: 35, y: 35 }];
+    const result = scorePiecesComponentV2(toppings, [brokenGroup, BASIL_GROUP]);
+    expect(result.available).toBe(false);
+  });
+
+  it("malformed group.matching (missing, or wrong-typed radii) also fails the component closed, not just a 0-scored-but-available group", () => {
+    const missingMatching = { ...MOZZARELLA_GROUP, matching: undefined as never };
+    const wrongTypeMatching = {
+      ...MOZZARELLA_GROUP,
+      matching: { fullCreditRadius: "8" as never, zeroCreditRadius: "22" as never },
+    };
+    for (const brokenGroup of [missingMatching, wrongTypeMatching]) {
+      const result = scorePiecesComponentV2([], [brokenGroup, BASIL_GROUP]);
+      expect(result.available).toBe(false);
+    }
+  });
+
+  it("fully valid Reference positions still score normally -- no regression from the stricter gate", () => {
+    const toppings = [
+      ...MOZZARELLA_GROUP.positions.map((p, i) => ({ id: `m${i}`, ingredientId: "mozzarella", ...p })),
+      ...BASIL_GROUP.positions.map((p, i) => ({ id: `b${i}`, ingredientId: "basil", ...p })),
+    ];
+    const result = scorePiecesComponentV2(toppings, MARGHERITA_REFERENCE.pieceGroups);
+    assertAvailable(result);
+    expect(result.score).toBeGreaterThan(90);
   });
 });
 
 describe("scoreRecipeComponentV2 -- adversarial recipe/pizza input", () => {
-  it.each(MALFORMED_CONTAINERS)("recipe.requiredIngredients is %s -> treated as no requirements, score 100, never throws", (_label, requiredIngredients) => {
-    const brokenRecipe = { ...MARGHERITA, requiredIngredients: requiredIngredients as never };
-    expect(() => scoreRecipeComponentV2(brokenRecipe, createEmptyPizza())).not.toThrow();
-    const result = scoreRecipeComponentV2(brokenRecipe, createEmptyPizza());
-    expect(result.score).toBe(100);
-    expect(Number.isFinite(result.score)).toBe(true);
+  describe("STRICT: malformed requiredIngredients (authoritative) must fail closed, never score 100 or any other number", () => {
+    it.each(MALFORMED_CONTAINERS)(
+      "recipe.requiredIngredients is %s -> available:false, never throws",
+      (_label, requiredIngredients) => {
+        const brokenRecipe = { ...MARGHERITA, requiredIngredients: requiredIngredients as never };
+        expect(() => scoreRecipeComponentV2(brokenRecipe, createEmptyPizza())).not.toThrow();
+        const result = scoreRecipeComponentV2(brokenRecipe, createEmptyPizza());
+        expect(result.available).toBe(false);
+      },
+    );
+
+    it("requiredIngredients contains one malformed element mixed with valid ones -> available:false (invalidates the whole list), never throws", () => {
+      const brokenRecipe = {
+        ...MARGHERITA,
+        requiredIngredients: [
+          { ingredientId: "tomato-sauce", minCount: 1 },
+          null,
+          "garbage",
+          42,
+          { minCount: 1 }, // missing ingredientId
+        ] as never,
+      };
+      expect(() => scoreRecipeComponentV2(brokenRecipe, createEmptyPizza())).not.toThrow();
+      const result = scoreRecipeComponentV2(brokenRecipe, createEmptyPizza());
+      expect(result.available).toBe(false);
+    });
+
+    it("requiredIngredients with a malformed minCount (missing/wrong type/NaN) also fails closed", () => {
+      for (const minCount of [undefined, "1", Number.NaN]) {
+        const brokenRecipe = {
+          ...MARGHERITA,
+          requiredIngredients: [{ ingredientId: "tomato-sauce", minCount: minCount as never }],
+        };
+        const result = scoreRecipeComponentV2(brokenRecipe, createEmptyPizza());
+        expect(result.available).toBe(false);
+      }
+    });
+
+    it("a genuinely valid, empty requiredIngredients array is still available and scores full marks (a real recipe can legitimately require nothing)", () => {
+      const emptyRecipe = { ...MARGHERITA, requiredIngredients: [] };
+      const result = scoreRecipeComponentV2(emptyRecipe, createEmptyPizza());
+      assertAvailable(result);
+      expect(result.score).toBe(100);
+    });
+
+    it("fully valid requiredIngredients still score normally -- no regression from the stricter gate", () => {
+      const pizza = { ...createEmptyPizza(), sauceIds: ["tomato-sauce"] };
+      const result = scoreRecipeComponentV2(MARGHERITA, pizza);
+      assertAvailable(result);
+      expect(Number.isFinite(result.score)).toBe(true);
+    });
   });
 
-  it("requiredIngredients contains malformed elements mixed with valid ones -> only valid requirements counted, never throws", () => {
-    const brokenRecipe = {
-      ...MARGHERITA,
-      requiredIngredients: [
-        { ingredientId: "tomato-sauce", minCount: 1 },
-        null,
-        "garbage",
-        42,
-        { minCount: 1 }, // missing ingredientId
-      ] as never,
+  describe("player input (pizza.sauceIds/pizza.toppings) stays lenient, unchanged", () => {
+    it.each(MALFORMED_CONTAINERS)("pizza.sauceIds is %s -> never throws, treated as none present", (_label, sauceIds) => {
+      const pizza = { ...createEmptyPizza(), sauceIds: sauceIds as never };
+      expect(() => scoreRecipeComponentV2(MARGHERITA, pizza)).not.toThrow();
+      const result = scoreRecipeComponentV2(MARGHERITA, pizza);
+      assertAvailable(result);
+      expect(Number.isFinite(result.score)).toBe(true);
+    });
+
+    it.each(MALFORMED_CONTAINERS)("pizza.toppings is %s -> never throws, treated as none present", (_label, toppings) => {
+      const pizza = { ...createEmptyPizza(), toppings: toppings as never };
+      expect(() => scoreRecipeComponentV2(MARGHERITA, pizza)).not.toThrow();
+      const result = scoreRecipeComponentV2(MARGHERITA, pizza);
+      assertAvailable(result);
+      expect(Number.isFinite(result.score)).toBe(true);
+    });
+  });
+});
+
+describe("Codex P1 Round 2: computeScoringV2Shadow propagates authoritative-Reference unavailability to the whole result", () => {
+  it("malformed recipe.requiredIngredients fails the WHOLE result closed (available:false, totalScore:null), even though Sauce/Pieces would otherwise score well", () => {
+    const brokenMargherita = { ...MARGHERITA, requiredIngredients: "not-an-array" as never };
+    const greatPizza = {
+      ...createEmptyPizza(),
+      sauceIds: ["tomato-sauce"],
+      toppings: [
+        ...MOZZARELLA_GROUP.positions.map((p, i) => ({ id: `m${i}`, ingredientId: "mozzarella", ...p })),
+        ...BASIL_GROUP.positions.map((p, i) => ({ id: `b${i}`, ingredientId: "basil", ...p })),
+      ],
     };
-    expect(() => scoreRecipeComponentV2(brokenRecipe, createEmptyPizza())).not.toThrow();
-    const result = scoreRecipeComponentV2(brokenRecipe, createEmptyPizza());
-    expect(result.requiredTypesTotal).toBe(1);
-    expect(Number.isFinite(result.score)).toBe(true);
+    expect(() => computeScoringV2Shadow(brokenMargherita, greatPizza)).not.toThrow();
+    const result = computeScoringV2Shadow(brokenMargherita, greatPizza);
+    expect(result.available).toBe(false);
+    expect(result.totalScore).toBeNull();
+    // Sauce itself has nothing wrong with its own data, so its component can still compute a
+    // normal similarity -- but the *whole result* still reads as unavailable, since Recipe
+    // correctness (the broken one) can't be honestly combined into a total.
+    expect(result.components.recipe.available).toBe(false);
   });
 
-  it.each(MALFORMED_CONTAINERS)("pizza.sauceIds is %s -> never throws, treated as none present", (_label, sauceIds) => {
-    const pizza = { ...createEmptyPizza(), sauceIds: sauceIds as never };
-    expect(() => scoreRecipeComponentV2(MARGHERITA, pizza)).not.toThrow();
-    expect(Number.isFinite(scoreRecipeComponentV2(MARGHERITA, pizza).score)).toBe(true);
-  });
-
-  it.each(MALFORMED_CONTAINERS)("pizza.toppings is %s -> never throws, treated as none present", (_label, toppings) => {
-    const pizza = { ...createEmptyPizza(), toppings: toppings as never };
-    expect(() => scoreRecipeComponentV2(MARGHERITA, pizza)).not.toThrow();
-    expect(Number.isFinite(scoreRecipeComponentV2(MARGHERITA, pizza).score)).toBe(true);
+  it("fully valid recipe + a great pizza still scores normally end-to-end -- no regression from the stricter gate", () => {
+    const greatPizza = {
+      ...createEmptyPizza(),
+      sauceIds: ["tomato-sauce"],
+      sauceDeposits: buildIdealMargheritaSauceFixture(),
+      toppings: [
+        ...MOZZARELLA_GROUP.positions.map((p, i) => ({ id: `m${i}`, ingredientId: "mozzarella", ...p })),
+        ...BASIL_GROUP.positions.map((p, i) => ({ id: `b${i}`, ingredientId: "basil", ...p })),
+      ],
+    };
+    const result = computeScoringV2Shadow(MARGHERITA, greatPizza);
+    expect(result.available).toBe(true);
+    expect(result.totalScore as number).toBeGreaterThan(80);
   });
 });
 

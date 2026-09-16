@@ -91,6 +91,35 @@ export function computeScoringV2Shadow(recipe: Recipe, pizza: PizzaState): Scori
   const pieces = scorePiecesComponentV2(safePizza.toppings, reference.pieceGroups);
   const recipeComponent = scoreRecipeComponentV2(recipe, safePizza);
 
+  // Codex P1 blocker fix, Round 2: `pieces`/`recipeComponent` can now themselves be
+  // `{ available: false }` -- ./piecesComponent.ts's and ./recipeComponent.ts's own strict
+  // validation of their authoritative Reference/requirement data rejected it outright, rather
+  // than scoring against a filtered-down subset. A `totalScore` partially built from an
+  // unavailable component would be exactly the "normal-looking score built on corrupted
+  // Reference data" the blocker exists to prevent, so the whole result fails closed here too
+  // -- same shape as the P0-1 "no Reference fixture at all" branch above, just triggered by
+  // "a Reference fixture exists, but its own data failed strict validation" instead.
+  if (!pieces.available) {
+    return {
+      rulesetVersion: SCORING_V2_RULESET_VERSION,
+      recipeId: recipe.id,
+      available: false,
+      unavailableReason: pieces.reason,
+      totalScore: null,
+      components: { sauce, pieces, recipe: recipeComponent, bake },
+    };
+  }
+  if (!recipeComponent.available) {
+    return {
+      rulesetVersion: SCORING_V2_RULESET_VERSION,
+      recipeId: recipe.id,
+      available: false,
+      unavailableReason: recipeComponent.reason,
+      totalScore: null,
+      components: { sauce, pieces, recipe: recipeComponent, bake },
+    };
+  }
+
   const totalScore =
     safeUnit(
       (sauce.score * SAUCE_WEIGHT + pieces.score * PIECES_WEIGHT + recipeComponent.score * RECIPE_WEIGHT) /

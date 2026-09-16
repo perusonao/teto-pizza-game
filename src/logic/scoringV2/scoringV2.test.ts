@@ -20,6 +20,17 @@ function pizzaWith(overrides: Partial<PizzaState>): PizzaState {
   return { ...createEmptyPizza(), ...overrides };
 }
 
+/** Codex P1 blocker fix, Round 2: `scorePiecesComponentV2`/`scoreRecipeComponentV2` can now
+ *  return `{ available: false }` (strict authoritative-data validation) alongside their
+ *  normal shape -- this narrows a result for tests that pass genuinely valid input and only
+ *  want to assert on the normal-shape fields, without repeating an `if (!result.available)
+ *  throw` at every call site. */
+function assertAvailable<T extends { available: boolean }>(
+  result: T,
+): asserts result is Extract<T, { available: true }> {
+  expect(result.available).toBe(true);
+}
+
 function ring(radius: number, count: number, amount = 0.02): SauceDeposit[] {
   const deposits: SauceDeposit[] = [];
   for (let i = 0; i < count; i += 1) {
@@ -265,6 +276,7 @@ describe("scorePieceGroupV2 / scorePiecesComponentV2", () => {
   it("scorePiecesComponentV2 averages across mozzarella + basil and stays finite", () => {
     const pizza = referenceLikePizza();
     const result = scorePiecesComponentV2(pizza.toppings, MARGHERITA_REFERENCE.pieceGroups);
+    assertAvailable(result);
     expect(result.groups).toHaveLength(2);
     expect(Number.isFinite(result.score)).toBe(true);
     expect(result.score).toBeGreaterThan(90);
@@ -281,6 +293,7 @@ describe("scoreRecipeComponentV2 (presence-only, no overlap with Pieces)", () =>
       ],
     });
     const result = scoreRecipeComponentV2(MARGHERITA, pizza);
+    assertAvailable(result);
     expect(result.score).toBe(100);
     expect(result.requiredTypesPresent).toBe(3);
   });
@@ -288,6 +301,7 @@ describe("scoreRecipeComponentV2 (presence-only, no overlap with Pieces)", () =>
   it("a missing required type lowers the score proportionally", () => {
     const pizza = pizzaWith({ sauceIds: ["tomato-sauce"] }); // no mozzarella, no basil
     const result = scoreRecipeComponentV2(MARGHERITA, pizza);
+    assertAvailable(result);
     expect(result.requiredTypesPresent).toBe(1);
     expect(result.score).toBeCloseTo((1 / 3) * 100, 10);
   });
@@ -311,6 +325,8 @@ describe("scoreRecipeComponentV2 (presence-only, no overlap with Pieces)", () =>
     });
     const onePieceRecipe = scoreRecipeComponentV2(MARGHERITA, onePiece);
     const threePiecesRecipe = scoreRecipeComponentV2(MARGHERITA, threePieces);
+    assertAvailable(onePieceRecipe);
+    assertAvailable(threePiecesRecipe);
     expect(onePieceRecipe.score).toBe(threePiecesRecipe.score);
     expect(onePieceRecipe.score).toBe(100);
 

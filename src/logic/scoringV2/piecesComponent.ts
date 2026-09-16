@@ -10,9 +10,14 @@
 import type { ReferencePieceGroup } from "../../data/referencePizza";
 import { scorePieceGroup } from "../referenceMatching";
 import type { PlacedTopping } from "../../state/pizzaState";
-import { sanitizeCoordinates, sanitizeToppings, toSafeArray } from "./boundary";
+import {
+  MALFORMED_REFERENCE_REASON,
+  sanitizeCoordinates,
+  sanitizeToppings,
+  validateCoordinateArrayStrict,
+} from "./boundary";
 import { isValidToleranceBand, safeUnit } from "./tolerance";
-import type { PieceGroupScoreV2, PiecesComponentV2 } from "./types";
+import type { PieceGroupScoreV2, PiecesComponentV2, ScoringV2Unavailable } from "./types";
 
 /** Sub-weights within one piece group's own score, sum to 100. Placement is weighted above
  *  raw count: getting *close to* three well-placed mozzarella pieces should read as a much
@@ -42,6 +47,16 @@ const PLACEMENT_WEIGHT = 70;
  * (../referenceMatching.ts) doesn't just produce a bad number -- the algorithm's cost-matrix
  * search can fail to terminate on a non-finite cost -- so untrusted points (on *both* the
  * player and the Reference side) are excluded here, before it, entirely.
+ *
+ * Codex P1 blocker fix, Round 2: this function stays deliberately *lenient* -- it is the
+ * crash/hang-safety layer for PLAYER input (`toppings`), never thrown on however malformed
+ * `group` is either. It is NOT where authoritative Reference validity is decided: a `group`
+ * with a malformed/partially-malformed position list still gets a (safe, filtered, low)
+ * score here rather than an `available: false` -- callers that need the strict "a corrupted
+ * Reference must invalidate the result, never score a shrunk-down subset" rule use
+ * `scorePiecesComponentV2` below instead, which gates on `../boundary.ts`'s strict validators
+ * *before* ever calling this function. Direct callers of this function (tests included) get
+ * the lenient/defensive behavior on purpose; the strict contract lives one level up.
  */
 export function scorePieceGroupV2(
   toppings: readonly PlacedTopping[],
@@ -103,23 +118,59 @@ export function scorePieceGroupV2(
 }
 
 /**
+ * Codex P1 blocker fix, Round 2: strictly validates one group's own authoritative Reference
+ * data -- its `ingredientId`, its `positions` list (every element, via
+ * `validateCoordinateArrayStrict`), and its `matching` tolerance radii -- before
+ * `scorePiecesComponentV2` below ever calls the lenient `scorePieceGroupV2` on it. Unlike
+ * that function's own internal sanitization (drop-and-continue, meant for player input), this
+ * is all-or-nothing: a single malformed position, a non-array `positions`, a missing/malformed
+ * `matching`, or an invalid tolerance band all fail the *entire group* closed.
+ */
+function isGroupReferenceDataValid(group: ReferencePieceGroup): boolean {
+  if (typeof group !== "object" || group === null) return false;
+  const record = group as unknown as Record<string, unknown>;
+  if (typeof record.ingredientId !== "string") return false;
+  if (!validateCoordinateArrayStrict(record.positions).valid) return false;
+  const matching = record.matching;
+  if (typeof matching !== "object" || matching === null) return false;
+  const matchingRecord = matching as Record<string, unknown>;
+  const { fullCreditRadius, zeroCreditRadius } = matchingRecord;
+  if (typeof fullCreditRadius !== "number" || typeof zeroCreditRadius !== "number") return false;
+  return isValidToleranceBand(fullCreditRadius, zeroCreditRadius);
+}
+
+/**
  * Equal-weighted average across every group (currently mozzarella + basil, 50/50) -- a
  * provisional Phase 4A-2 shadow choice, not a claim that every ingredient type should always
  * weigh the same once this expands past Margherita's two groups.
  *
- * Codex P1 blocker fix: `groups` is normalized via ./boundary.ts's `toSafeArray` before
- * `.map` -- a non-array `groups` (null/undefined/an object/a string) becomes `[]` rather than
- * throwing, and each element is handed to `scorePieceGroupV2` as-is (which itself defends
- * against a malformed single element, per that function's own P1 fix above), so a mix of
- * valid and malformed groups in the same array degrades gracefully rather than losing the
- * whole component to one bad entry.
+ * Codex P1 blocker fix, Round 2: `groups` (and every element in it) is the authoritative
+ * Reference container this component scores against, so it is validated *strictly* here --
+ * a non-array `groups`, or any single group anywhere in it that fails
+ * `isGroupReferenceDataValid` above (a malformed position list, missing/invalid tolerance
+ * radii, ...), fails the whole component closed (`available: false`) *before* any scoring
+ * happens, rather than silently scoring the player's pizza against whatever positions
+ * happened to survive filtering (which could turn a genuinely wrong pizza into an
+ * accidental, meaningless 100 -- see ./boundary.ts's own doc comment on why a filtered-down
+ * Reference is unsafe). A `groups` that is a genuinely well-formed empty array is still
+ * valid: "this recipe requires no piece groups" is a real fact a recipe can express, so
+ * `scoredGroups.length === 0` after a *valid* (possibly empty) `groups` still reads as full
+ * marks, exactly as before.
  */
 export function scorePiecesComponentV2(
   toppings: readonly PlacedTopping[],
   groups: readonly ReferencePieceGroup[],
-): PiecesComponentV2 {
-  const safeGroups = toSafeArray(groups) as ReferencePieceGroup[];
-  const scoredGroups = safeGroups.map((group) => scorePieceGroupV2(toppings, group));
+): PiecesComponentV2 | ScoringV2Unavailable {
+  if (!Array.isArray(groups)) {
+    return { available: false, reason: MALFORMED_REFERENCE_REASON };
+  }
+  for (const group of groups) {
+    if (!isGroupReferenceDataValid(group)) {
+      return { available: false, reason: MALFORMED_REFERENCE_REASON };
+    }
+  }
+
+  const scoredGroups = groups.map((group) => scorePieceGroupV2(toppings, group));
   const score =
     scoredGroups.length === 0
       ? 100 // No piece groups at all for this recipe -- nothing to fall short on.
