@@ -25,110 +25,115 @@ Current feature baseline after PR #29:
 - PR #26 — Phase 4A-1B Cheese & Topping Physical Interaction: merged.
 - PR #28 First-Fun fixes are incorporated through PR #29; do not merge #28 separately.
 - PR #29 — Phase 4A-1B.2 Recipe Sauce Interaction Parity: merged.
-- PR #29 reviewed head: `19a7957baa4817d1dce9a035bff479bb050aae77`.
-- PR #29 blocker fix: `b9ed315b4fbd5afb3198c30a225086e68d8d458a`.
 - Feature merge baseline after #29: `466d50eb6fbaf3db5aa0008d647df4f0b10e0001`.
-- Exact-head PR CI passed. Focused tests 20/20; full suite 39 files / 518 tests.
-- GitHub Pages deployment Run #23 completed successfully.
+- GitHub Pages deployment succeeded.
+- iPhone post-deploy Human Feel passed without a blocking interaction failure.
 
-## Phase 4A-1B Human Feel result
+Sauce rendering remains a follow-up polish/calibration concern, not a blocker for shadow scoring.
 
-2026-09-16 iPhone Public Demo screen recording was reviewed after deployment.
+## Current priority — Phase 4A-2 Scoring 2.0 Shadow
 
-Observed working end-to-end:
+Issue #30 is the execution issue. The Fresh Audit has been completed against exact main SHA `a80698487bd4f56585a9a1572e0025d726631716` with verdict **B — READY WITH MINOR DESIGN CHANGES**.
 
-- HOME → pizza making
-- sauce painting
-- mozzarella / topping placement
-- bake → RESULT
-- RESULT → HOME
-- switching to other recipes
-- Margherita reached 99 points / 5 stars during the recording
-- Genovese and Funghi recipe transitions were also observed
+Key implementation contracts from the audit:
 
-No Human-Feel-blocking interaction failure was identified in that recording. Phase 4A-1B can therefore move forward as the production interaction baseline.
+- Existing 16×16 sauce metrics, tolerant distance scoring and permutation-invariant piece matching should be reused rather than rewritten.
+- Margherita is currently the primary authoritative Reference calibration recipe. Recipes without a real Reference fixture must return explicit unavailable/null rather than fabricated targets.
+- Shadow scoring must be computed from the canonical pizza at `CONFIRM_BAKE`, including FREE and Lunch Rush; it must not depend on UI-only live-preview gating.
+- Scoring outputs must be deterministic, finite and fail-closed. Invalid tolerance bands must not leak NaN/Infinity.
+- Verify `PAINT_TEMPORARY` is represented in canonical scoreable sauce data with regression tests.
+- Phase 4A-2 remains shadow-only: legacy score, stars, Dex BEST, rewards, progression and save-v1 semantics remain authoritative.
 
-Visual follow-up remains desirable: sauce can still read as a blurred color field rather than convincing liquid sauce, and some intermediate tomato strokes can show rectangular/white-band artifacts. Treat this as polish/calibration work, not a blocker to the next scoring prototype.
-
-## Remaining known issue
-
-Issue #27 tracks accessibility live-region re-announcement for consecutive same-ingredient physical drops. This does not block normal touch/pointer gameplay or Phase 4A-2, but should be fixed in a focused accessibility follow-up.
-
-## Next priority — Phase 4A-2 Scoring 2.0 shadow prototype
-
-Goal: move from primarily recipe correctness toward rewarding how well the player physically recreates the reference pizza.
-
-Phase 4A-2 must remain shadow-only until calibrated. Do not silently replace authoritative legacy scoring/progression.
-
-Candidate scoring dimensions:
-
-- sauce coverage / quantity
-- sauce evenness
-- sauce edge/rim control
-- topping quantity
-- topping placement / distribution
-- bake quality
-
-Requirements:
-
-1. Audit the current scoring/reference/state contracts on fresh main before implementation.
-2. Define tolerant continuous metrics rather than brittle exact matching.
-3. Keep order/permutation invariance where ingredient placement order should not matter.
-4. Keep legacy Dex BEST, ★1–5, totalStars, Mission, Pitz, Shop and save v1 authoritative during the shadow phase.
-5. Add a preview/debug comparison surface only where appropriate; production should not expose raw prototype metrics unnecessarily.
-6. Test representative good/acceptable/bad physical pizzas and edge cases.
-7. Run independent review before any authoritative scoring integration.
-8. Use iPhone Human Feel/calibration before Phase 4A-3.
+Long-term Scoring 2.0 architecture should remain compatible with four categories: Recipe / Sauce / Pieces / Bake. Margherita-specific calibration component weights are not automatically the permanent global formula.
 
 ## Ordered roadmap
 
+### Milestone 1 — Making Game
+
 - [x] Phase 1 — core vertical slice
-- [x] Phase 2 — Starter content / making polish
+- [x] Phase 2 — starter content / making polish
 - [x] Phase 3A — Sauce Painting
-- [x] Phase 3B — Starter recipes / Dex / character replay polish
+- [x] Phase 3B — starter recipes / Dex / character replay polish
 - [x] Phase 3C — scoring/persistence/progression/Lunch Rush/Pitz/Shop
 - [x] Phase 4A-1A — Reference Sauce Quantity Prototype
 - [x] HOME/GAME separation + App Icon/PWA
 - [x] Phase 4A-1B — Cheese & Topping Physical Interaction
 - [x] Phase 4A-1B.1/1B.2 — First-Fun + Recipe Sauce Interaction Parity
-- [x] iPhone post-deploy Human Feel smoke check — no blocking interaction failure observed
-- [ ] Focused accessibility follow-up — Issue #27
-- [ ] Phase 4A-2 — tolerant continuous Scoring 2.0 shadow prototype
-- [ ] Independent review + calibration
-- [ ] Phase 4A-3 — integrate Scoring 2.0 into authoritative progression only after calibration
+- [x] iPhone post-deploy Human Feel smoke check
+- [x] Phase 4A-2 Fresh Audit
+- [ ] Phase 4A-2 Scoring 2.0 Shadow Core — next implementation task
+- [ ] Phase 4A-2 Codex independent review
+- [ ] Phase 4A-2 Preview + iPhone calibration using deliberately good/normal/poor pizzas
+- [ ] Save v2 Migration — safe v1→v2 migration before new persistent semantics
+- [ ] Phase 4A-3 — integrate calibrated Scoring 2.0 into authoritative RESULT/stars/Dex BEST/progression
+- [ ] Score-based Baked Visual Polish — render-only post-score baked appearance; never feed visual correction back into scoring
+- [ ] Sauce Polish — texture, edge response and visual quality after scoring behavior is stable
+
+### Milestone 2 — Pizza Shop / Economy
+
+- [ ] Inventory Foundation — separate consumable stock from permanent ingredient ownership
+- [ ] Restock / Shop inventory flow
+- [ ] Atomic material consumption at the reviewed bake/confirmation boundary
+- [ ] Revenue / ingredient cost / profit foundation
+- [ ] Lunch Rush economy integration
+- [ ] Dough inventory/consumption after Save v2; Practice remains non-consuming
+
+### Milestone 3 — Replayability
+
 - [ ] Phase 4B — Difficulty / Hint Policy: Practice, Normal, Challenge, Lunch Rush
-- [ ] Phase 4C — Content Catalog for safe 10→20→30 recipe scaling
+- [ ] Time Attack — quality-gated count-up challenge, initially small recipe scope
+- [ ] Recipe expansion toward 20
+- [ ] Pizza Dex expansion — undiscovered → discovered → BEST → MASTER
+
+### Milestone 4 — Content Foundation / Long-term Progression
+
+- [ ] Phase 4C — Content Catalog for safe recipe/ingredient scaling
 - [ ] Phase 4D — Recipe / Ingredient Editor + JSON import/export + preview/test-play
+- [ ] Recipe expansion 20 → 30
 - [ ] Phase 4E — Progression 2.0 / post-Dex-completion motivation
-- [ ] Recipe expansion 10 → 20 → 30
-- [ ] Advanced mechanics and final character/visual/sound polish
+- [ ] Recover/normalize the PIZZA DB-derived larger catalog only from verified source data; do not treat prior 160/181 audit counts as repository truth without source recovery
+
+### Milestone 5 — Character / Final Polish
+
+- [ ] Character Experience — richer Teto/Mito/Blue reactions during making and results
+- [ ] Final visual / animation / sound polish
+- [ ] Advanced mechanics only after the core making, scoring, economy and replay loops are stable
+
+## Parallel / non-blocking work
+
+- [ ] Issue #27 — accessibility live-region re-announcement for consecutive same-ingredient physical drops. Non-blocking for normal touch gameplay and Phase 4A-2.
+- [ ] SSOT documentation cleanup — reconcile stale legacy scoring/UI documents with current code truth.
+- [ ] PIZZA DB source recovery / catalog normalization as a separate research/data line; do not block the current Making Game milestone.
 
 ## Data/design constraints
 
-PIZZA DB audit found roughly 160 canonical pizzas and 181 unique ingredients. Interaction should be covered by reusable families such as SPREAD / HOLD_SCATTER / TAP_PLACE / SPRINKLE / DRIZZLE / SPECIAL rather than unique mechanics per ingredient.
+Interaction should scale through reusable families such as SPREAD / HOLD_SCATTER / TAP_PLACE / SPRINKLE / DRIZZLE / SPECIAL rather than unique mechanics per ingredient.
 
-Quantity evidence in the audited source data was 0/181. Do not present prototype quantity as canonical grams/ml. Use normalized internal quantity until reliable source-backed data exists.
+Do not present prototype quantity as canonical grams/ml without reliable source-backed data. Use normalized internal quantity.
+
+Reference ingredient, player ingredient and scoring ingredient should represent the same underlying ingredient semantics; baked/result visual transformation is render-only.
 
 ## Non-negotiable guards
 
-- Do not break the core `ORDER → PREPARE → BAKE → RESULT → DISCOVERED` loop.
-- Preserve existing save compatibility unless a separately reviewed migration is intentionally introduced.
-- Scoring 2.0 stays shadow-only until calibration is explicitly complete.
-- Do not silently change Dex BEST, stars, totalStars, Mission, Pitz, Shop or progression semantics during Phase 4A-2.
+- Do not break `ORDER → PREPARE → BAKE → RESULT → DISCOVERED`.
+- Preserve save compatibility unless a separately reviewed migration is intentionally introduced.
+- Scoring 2.0 stays shadow-only until independent review and iPhone calibration pass.
+- Do not silently change Dex BEST, stars, totalStars, Mission, Pitz, Shop or progression during Phase 4A-2.
+- Do not fabricate Reference targets for recipes that do not have authoritative fixtures.
 - Smartphone vertical remains the primary UX target.
 - Fresh repository state and tests outrank stale handoff text.
 
 ## Preferred workflow
 
-`Codex design/audit → Claude Code implementation → Codex independent review → Claude Code fixes → user iPhone Human Feel test`
+`Codex design/audit → Claude Code implementation → Codex independent review → Claude Code fixes → user iPhone Human Feel/calibration`
 
-Claude Code is the primary implementation agent. Keep tasks small enough to complete efficiently, generally around 2–3 hours of Claude Code work where practical. Result reports should be written to `docs/reports/` for implementation/review phases.
+Claude Code is the primary implementation agent. Keep implementation tasks around 2–3 hours where practical. Result reports belong under `docs/reports/`.
 
 ## New-session startup checklist
 
-1. Inspect fresh GitHub `main`, open PRs, open issues and Actions state.
-2. Read this file and Issue #22.
+1. Inspect fresh GitHub `main`, open PRs, issues and Actions state.
+2. Read this file, Issue #22 and the current execution issue.
 3. Treat fresh GitHub state as authoritative if anything conflicts.
-4. Confirm whether Issue #27 is still open.
-5. For Phase 4A-2, audit current scoring/reference/state code before proposing implementation changes.
-6. Keep Scoring 2.0 shadow-only until independent review and iPhone calibration pass.
+4. Read the latest phase audit/result report before implementation.
+5. Keep Phase 4A-2 shadow-only until independent review and iPhone calibration pass.
+6. Whenever priority, completion status, estimates, architecture or direction changes, update both Issue #22 and this file.
