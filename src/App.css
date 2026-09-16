@@ -378,7 +378,7 @@
 
 .pizza-topping__emoji {
   display: block;
-  font-size: 28px;
+  font-size: var(--ingredient-piece-emoji-size, 28px);
   filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
 }
 
@@ -397,8 +397,8 @@
 }
 
 .pizza-cheese--mozzarella {
-  width: 28px;
-  height: 23px;
+  width: var(--ingredient-piece-mozzarella-width, 28px);
+  height: var(--ingredient-piece-mozzarella-height, 23px);
   border-radius: 55% 45% 48% 52% / 55% 50% 50% 45%;
   background: radial-gradient(circle at 35% 30%, #fffdf5, #f3ead0 65%, #e6d8ae 100%);
   box-shadow: 0 2px 3px rgba(30, 16, 4, 0.3), 0 0 0 1.5px rgba(255, 255, 255, 0.8), inset 0 -3px 4px rgba(255, 255, 255, 0.55);
@@ -1913,15 +1913,12 @@
 .reference-mini-pizza__topping {
   position: absolute;
   transform: translate(-50%, -50%);
-  font-size: 18px;
-}
-
-.reference-mini-pizza__topping--mozzarella {
-  font-size: 16px;
-}
-
-.reference-mini-pizza__topping--basil {
-  font-size: 17px;
+  /* Match the playable pizza's physical-piece ratio: 128px Reference interior / 280px
+     playable interior = 0.457. Only the inner shared visual is resized; target centers and
+     the outer translate/rotation wrapper above remain unchanged. */
+  --ingredient-piece-emoji-size: 12.8px;
+  --ingredient-piece-mozzarella-width: 12.8px;
+  --ingredient-piece-mozzarella-height: 10.5px;
 }
 
 @media (prefers-reduced-motion: reduce) {

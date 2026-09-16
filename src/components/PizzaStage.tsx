@@ -32,6 +32,7 @@ import {
   type DoughPoint,
 } from "../logic/pizzaCoordinates";
 import { stablePieceRotation } from "../logic/pieceDrag";
+import { IngredientPieceVisual } from "./IngredientPieceVisual";
 
 /** Screen-space finger/mouse movement (px) before a press becomes a drag instead of a tap. */
 const DRAG_THRESHOLD_PX = 10;
@@ -800,14 +801,7 @@ export function PizzaStage({
                 "--piece-rotation": `${stablePieceRotation(t.ingredientId, t.x, t.y)}deg`,
               } as CSSProperties}
             >
-              {ingredient.category === "cheese" ? (
-                <span
-                  className={`pizza-cheese pizza-cheese--${ingredient.id} ${meltClass}`}
-                  style={{ "--cheese-color": ingredient.color } as CSSProperties}
-                />
-              ) : (
-                <span className="pizza-topping__emoji">{ingredient.emoji}</span>
-              )}
+              <IngredientPieceVisual ingredient={ingredient} className={meltClass} />
             </span>
           );
         })}

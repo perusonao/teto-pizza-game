@@ -2,7 +2,6 @@ import {
   useEffect,
   useRef,
   useState,
-  type CSSProperties,
   type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
 } from "react";
@@ -16,6 +15,7 @@ import {
 } from "../data/ingredients";
 import type { DoughPoint } from "../logic/pizzaCoordinates";
 import { hasPieceDragIntent } from "../logic/pieceDrag";
+import { IngredientPieceVisual } from "./IngredientPieceVisual";
 
 interface IngredientTrayProps {
   activeCategory: IngredientCategory;
@@ -327,13 +327,13 @@ export function IngredientTray({
           >
             {ingredient.category === "cheese" ? (
               <span className="ingredient-chip__cheese-slot">
-                <span
-                  className={`pizza-cheese pizza-cheese--${ingredient.id}`}
-                  style={{ "--cheese-color": ingredient.color } as CSSProperties}
-                />
+                <IngredientPieceVisual ingredient={ingredient} />
               </span>
             ) : (
-              <span className="ingredient-chip__emoji">{ingredient.emoji}</span>
+              <IngredientPieceVisual
+                ingredient={ingredient}
+                emojiClassName="ingredient-chip__emoji"
+              />
             )}
             <span className="ingredient-chip__name">{ingredient.nameJa}</span>
             {isDraggable(ingredient) && <span className="ingredient-chip__drag-hint">上へドラッグ</span>}
@@ -380,14 +380,10 @@ export function IngredientTray({
           style={{ left: preview.x, top: preview.y }}
           aria-hidden="true"
         >
-          {preview.ingredient.category === "cheese" ? (
-            <span
-              className={`pizza-cheese pizza-cheese--${preview.ingredient.id}`}
-              style={{ "--cheese-color": preview.ingredient.color } as CSSProperties}
-            />
-          ) : (
-            <span className="piece-drag-preview__emoji">{preview.ingredient.emoji}</span>
-          )}
+          <IngredientPieceVisual
+            ingredient={preview.ingredient}
+            emojiClassName="piece-drag-preview__emoji"
+          />
         </div>
       )}
       <span className="sr-only" aria-live="polite">{announcement}</span>
