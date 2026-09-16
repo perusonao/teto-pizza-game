@@ -10,8 +10,14 @@ geometry, calibration, or piece/coordinate data was touched.
 
 - Base (verified via `git fetch origin main && git rev-parse origin/main`):
   `6248108fba95b4fa93c66a59dc194eaa066c713e`
-- New HEAD: `9a5151fb754ee1975c42c1058cdd778c11fae8e0` (implementation commit
-  `8c9ad63f895c7d15a333e1beeb06d0f288b255a1` + this report's own doc commit)
+- Implementation commit: `8c9ad63f895c7d15a333e1beeb06d0f288b255a1`
+- **Deployed-to-Preview SHA (code-frozen since deployment):
+  `27672ff3325dbbda4964856ad34be527c4367d4b`** — this is the commit actually
+  built and live at the Preview URL below; it contains the implementation
+  commit plus one prior docs-only report commit, no code changes.
+- This report's own final commit (docs-only, after the deployed SHA above —
+  **not** rebuilt/redeployed, since it changes no source file) will be PR
+  #35's head after this update lands.
 - Branch: `claude/teto-pizza-reference-visual-uptz2l`
 - PR: https://github.com/perusonao/teto-pizza-game/pull/35 (draft, not merged)
 
@@ -150,52 +156,132 @@ comments or requested changes are open.
 
 ## Preview environment
 
-This repository has **no per-PR preview deployment**. The only deploy
-workflow (`.github/workflows/deploy.yml`) triggers exclusively on push to
-`main` (GitHub Pages) — there is no dedicated Preview environment a
-draft/open PR can be deployed to ahead of merge. In its place, this phase was
-verified with a local production-equivalent build (`npm run dev`) driven by
-Playwright/Chromium at a 390×844 viewport (see next section) as the closest
-available substitute for "deploy PR to Preview, verify on iPhone."
+### Correction
 
-## 390×844 manual verification (local dev server + Playwright, substituting for Preview)
+An earlier revision of this report stated no dedicated Preview environment
+existed and substituted a local `npm run dev` check instead. That was wrong:
+`perusonao/teto-pizza-game-preview` is a separate, dedicated repository for
+exactly this purpose, publishing to
+**https://perusonao.github.io/teto-pizza-game-preview/**. It has been used for
+every prior iPhone Human Feel pass (PRs #26, #31, and others — see its Actions
+history). This section replaces the earlier one with the actual deployment.
 
-Verified via screenshots (Home → レシピ選択 → フリープレイ PREPARE → sauce paint
-→ mozzarella + basil placement → Reference popover → BAKE → RESULT):
+### How it works
 
-- Reference mozzarella now renders as the same white physical blob shape as
-  the player's placed mozzarella (previously 🧀 emoji) — confirmed side by
-  side with the popover open over an in-progress player pizza that already
-  had two mozzarella pieces placed.
-- Reference basil renders the same 🌿 artwork, sized consistently relative to
-  the now-physical mozzarella.
-- No overlap or overflow introduced in the 140px mini pizza at any of the 5
-  piece positions.
-- Reference popover remains fully readable (header, caption, sauce-quantity/
-  coverage bars all intact).
-- Player PREPARE, BAKE (including melt/toast/char states), and RESULT (Legacy
-  score/stars unaffected — verified a full bake produced a normal 4.5★/94
-  Legacy result) all rendered correctly with no regressions.
+`perusonao/teto-pizza-game-preview` has two workflows:
+
+1. **`deploy-from-source.yml`** (`workflow_dispatch`, inputs `ref` +
+   `pr_number`) — checks out the given ref of `perusonao/teto-pizza-game`,
+   runs `vite build --base=/teto-pizza-game-preview/` with
+   `VITE_PREVIEW_MODE=1`, `VITE_PREVIEW_PR`, `VITE_PREVIEW_SHA` set (the
+   source repo's own existing `PreviewBadge`/`SAVE_STORAGE_KEY` SSOT, see
+   `src/components/PreviewBadge.tsx` and `src/state/persistence.ts` — nothing
+   in this phase's diff touches either), patches the PWA manifest's
+   `start_url`/`scope` to the preview base path, injects
+   `<meta name="robots" content="noindex, nofollow">`, and pushes the result
+   into this repo's `site/` on `main`.
+2. **`pages.yml`** — publishes `site/` to GitHub Pages. It is nominally
+   `on: push: branches: [main]`, but a push made by a workflow's own default
+   `GITHUB_TOKEN` does not trigger other workflows (GitHub's loop-prevention
+   rule) — confirmed from this repo's own run history, where every deploy
+   after `deploy-from-source.yml` was introduced needed a **second**, manual
+   `workflow_dispatch` of `pages.yml` to actually publish. This phase's
+   deployment needed the same second step.
+
+### Deployment performed
+
+- Source SHA deployed: **`27672ff3325dbbda4964856ad34be527c4367d4b`** (PR #35's
+  exact head at deployment time — confirmed unchanged since)
+- Step 1 — `deploy-from-source.yml` run
+  [#8](https://github.com/perusonao/teto-pizza-game-preview/actions/runs/35122712410)
+  (`workflow_dispatch`, `ref=27672ff3325dbbda4964856ad34be527c4367d4b`,
+  `pr_number=35`) — **success**. Produced commit
+  [`6c7d8b5`](https://github.com/perusonao/teto-pizza-game-preview/commit/6c7d8b57041d3ff50743b81cda708745f4160160)
+  ("Deploy preview: 27672ff3325dbbda4964856ad34be527c4367d4b (27672ff)") on
+  `teto-pizza-game-preview`'s `main`, replacing `site/`'s JS/CSS bundle and
+  updating `README.md`'s recorded source ref/commit/PR/build time.
+- Step 2 — `pages.yml` run
+  [#13](https://github.com/perusonao/teto-pizza-game-preview/actions/runs/35122851546)
+  (manually re-dispatched per the loop-prevention note above, since step 1's
+  bot push didn't auto-trigger it) — **success**.
+- Deployed Preview URL: **https://perusonao.github.io/teto-pizza-game-preview/**
+- Preview safeguards, all inherited unmodified from the existing pipeline
+  (nothing in this phase's diff touches any of them): base path
+  `/teto-pizza-game-preview/`, on-screen `PREVIEW · PR#35 · 27672ff` badge
+  (`PreviewBadge.tsx`), `noindex, nofollow`, separate
+  `VITE_PREVIEW_MODE`-gated localStorage save key (`persistence.ts`), and no
+  connection whatsoever to `teto-pizza-game`'s production Pages/`main`/Actions.
+
+## 390×844 smoke test
+
+**This session's own network egress policy blocks `*.github.io`** (confirmed:
+`api.github.com`, `github.com`, and `raw.githubusercontent.com` all reachable;
+`perusonao.github.io` gets a `403`/`CONNECT tunnel failed` from this
+environment's proxy, both via `curl` and via Playwright/Chromium launched in
+this session — an organization network policy on this sandbox, unrelated to
+the deployment or to a real device on a normal network). The GitHub Actions
+API independently confirms both deploy steps above completed successfully, so
+the live page is expected to be reachable normally from an actual iPhone.
+
+To still execute the exact required checklist rather than skip it, the
+identical artifact was reproduced locally and smoke-tested: `git` at this
+session's checkout of PR #35 HEAD (`27672ff`, unchanged) built with
+`vite build --base=/teto-pizza-game-preview/` and
+`VITE_PREVIEW_MODE=1 VITE_PREVIEW_PR=35 VITE_PREVIEW_SHA=27672ff` — the same
+command and env vars `deploy-from-source.yml` runs — then the same
+manifest/robots patches applied, then served locally and driven with
+Playwright at 390×844. The resulting JS bundle hash,
+**`index-BRpkyau8.js`**, is byte-identical to the one
+`deploy-from-source.yml` committed into `teto-pizza-game-preview`'s `site/`
+(verified via `mcp__github__get_commit` on `6c7d8b5`), confirming this local
+artifact is what is actually live at the Preview URL, not just a similar
+build.
+
+Checklist result (all pass):
+
+| Check | Result |
+|---|---|
+| HOME loads normally | ✅ loads, no layout issues |
+| PREVIEW badge visible | ✅ `PREVIEW · PR#35 · 27672ff` bottom-right |
+| Making flow opens normally (レシピ選択 → フリープレイ PREPARE) | ✅ |
+| Reference popover opens | ✅ |
+| Reference mozzarella is the shared white physical shape, not 🧀 | ✅ confirmed 3 `.pizza-cheese.pizza-cheese--mozzarella` elements; dialog text contains no `🧀` |
+| Reference basil visually representative of player basil | ✅ 2 `.ingredient-piece-visual__emoji` (🌿) pieces, scaled consistently with mozzarella |
+| No horizontal overflow (HOME / PREPARE / Reference open) | ✅ `scrollWidth <= clientWidth` at all three checkpoints |
+| No console errors | ✅ zero `console.error`/`pageerror` events across the whole flow |
+| Production unchanged | ✅ this deployment only touched `teto-pizza-game-preview`; no commits, pushes, or workflow runs against `teto-pizza-game`'s `main` or its `deploy.yml` |
+
+Screenshots taken during this pass (HOME, PREPARE, Reference-open) match the
+live Preview build pixel-for-pixel (same bundle hash).
 
 ## Remaining Human Feel checks
 
-Since no dedicated Preview environment exists to deploy the PR to, an actual
-iPhone/Safari pass (real device or a hosted preview URL) has not been done and
-should happen before merge:
+The smoke test above substituted for direct access to the live URL from this
+session, but is not a replacement for actual on-device touch/feel testing.
+Still to do on a real iPhone at **https://perusonao.github.io/teto-pizza-game-preview/**:
 
 - Real-device rendering of the scaled-down `.pizza-cheese` mozzarella shape at
   140px (`transform: scale()` on a shape with an inset box-shadow can render
   slightly differently across engines/DPRs than in Chromium headless).
 - Real Safari font rendering of the scaled basil emoji at
   `calc(28px * 0.5)` = 14px.
-- Popover open/close and backdrop-tap-to-dismiss timing/feel on a real touch
-  device (untouched code path, but worth reconfirming after this change).
+- Popover open/close and backdrop-tap-to-dismiss touch feel (untouched code
+  path, but worth reconfirming after this change).
+- Simply loading the actual live URL on-device, since this session could not
+  do so itself (see network-policy note above).
 
 ## Verdict
 
-**B. IMPLEMENTATION COMPLETE — PREVIEW BLOCKED**
+**A. READY FOR IPHONE HUMAN FEEL**
 
 Implementation, focused/full test suites, typecheck, lint, build, and
-`git diff --check` are all complete and clean. A dedicated Preview environment
-to deploy the PR to before the iPhone Human Feel pass does not exist in this
-repository, so that final on-device check could not be performed as specified.
+`git diff --check` are complete and clean; CI is green on PR #35's current
+head; the Preview deployment to `perusonao/teto-pizza-game-preview` at
+source SHA `27672ff3325dbbda4964856ad34be527c4367d4b` succeeded (both
+pipeline steps green, confirmed via the Actions API); and a smoke test against
+a verified byte-identical local rebuild of that exact artifact passed every
+required check. PR #35 remains a draft and unmerged. What's left is the
+on-device iPhone pass itself at
+https://perusonao.github.io/teto-pizza-game-preview/, which this sandboxed
+session's own network policy (blocks `*.github.io`) prevented it from loading
+directly.
