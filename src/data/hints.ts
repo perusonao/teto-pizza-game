@@ -13,7 +13,7 @@ interface RecipeHintSet {
 
 export const RECIPE_HINTS: Record<string, RecipeHintSet> = {
   margherita: {
-    empty: "まずはトマトソースを塗ってみて！",
+    empty: "指でなぞってトマトソースを塗ろう！",
     emptyHint: "ピザを指でなぞると、トマトソースが塗れるよ。ふちの近くまで大胆に広げてみて！",
     missing: {
       mozzarella: "とろっとしたモッツァレラをたっぷりのせよう！",
@@ -22,7 +22,7 @@ export const RECIPE_HINTS: Record<string, RecipeHintSet> = {
     ready: "いい感じ！「焼く！」を押してみよう。",
   },
   marinara: {
-    empty: "マリナーラはまずトマトソースからだよ！",
+    empty: "指でなぞってトマトソースを塗ろう！",
     emptyHint: "指でくるくるなぞると塗れるよ。ふちの近くまで大胆に広げてみて！",
     missing: {
       garlic: "にんにくをぱらぱらっと散らしてみて！香りが決め手だよ。",
@@ -31,7 +31,7 @@ export const RECIPE_HINTS: Record<string, RecipeHintSet> = {
     ready: "シンプルだけど本格的！そろそろ焼いちゃおう。",
   },
   "quattro-formaggi": {
-    empty: "クアトロ フォルマッジは、まずオリーブオイルを塗るところから！",
+    empty: "指でなぞってオリーブオイルを塗ろう！",
     emptyHint: "指でなぞるとオリーブオイルが広がるよ。ふちの近くまでしっかり塗ってみて！",
     missing: {
       mozzarella: "まずはモッツァレラをのせて土台を作ろう！",
@@ -42,7 +42,7 @@ export const RECIPE_HINTS: Record<string, RecipeHintSet> = {
     ready: "4種のチーズが勢ぞろい！とろとろに焼き上げよう！",
   },
   genovese: {
-    empty: "ジェノベーゼは、まず緑のジェノベーゼソースを塗ってみて！",
+    empty: "指でなぞって緑のソースを塗ろう！",
     emptyHint: "指でなぞると緑のソースが広がるよ。ふちの近くまで大胆に塗ってみて！",
     missing: {
       mozzarella: "モッツァレラをのせて、まろやかさをプラスしよう！",
@@ -51,7 +51,7 @@ export const RECIPE_HINTS: Record<string, RecipeHintSet> = {
     ready: "彩り鮮やかになった！そろそろ焼いてみよう。",
   },
   bismarck: {
-    empty: "ビスマルクはまずトマトソースからだよ！",
+    empty: "指でなぞってトマトソースを塗ろう！",
     emptyHint: "指でくるくるなぞると塗れるよ。ふちの近くまで大胆に広げてみて！",
     missing: {
       mozzarella: "モッツァレラをたっぷりのせよう！",
@@ -60,7 +60,7 @@ export const RECIPE_HINTS: Record<string, RecipeHintSet> = {
     ready: "卵がまんなかで輝いてる！焼いてみよう。",
   },
   funghi: {
-    empty: "フンギはまずトマトソースを塗るところから！",
+    empty: "指でなぞってトマトソースを塗ろう！",
     emptyHint: "指でなぞるとトマトソースが塗れるよ。ふちの近くまで大胆に広げてみて！",
     missing: {
       mozzarella: "モッツァレラをのせて土台を作ろう！",

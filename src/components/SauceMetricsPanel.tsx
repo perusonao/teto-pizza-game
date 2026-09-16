@@ -78,72 +78,84 @@ export function SauceMetricsPanel({
           previous message (brief section 4: "常時文章を大量表示せず、短い1メッセージのみ"). */}
       {liveMessage && <p className="sauce-metrics-panel__live-message">{liveMessage}</p>}
 
-      <button
-        type="button"
-        className="sauce-metrics-panel__toggle"
-        onClick={() => setExpanded((v) => !v)}
-        aria-expanded={expanded}
-      >
-        {"\u{1F9EA}"} Prototype Metrics（開発用） {expanded ? "▴" : "▾"}
-      </button>
+      {/* Phase 4A-1B.1 Fix C: the toggle and its raw/debug detail below are Preview-only --
+          import.meta.env.VITE_PREVIEW_MODE is the project's existing Preview/Production SSOT
+          (see PreviewBadge.tsx, persistence.ts's SAVE_STORAGE_KEY), statically false in a
+          production `vite build` so Vite dead-code-eliminates this whole subtree there. The
+          player-facing 広さ/均一さ/ふち row and live message above are never gated -- only
+          this internal-numbers block is. */}
+      {import.meta.env.VITE_PREVIEW_MODE && (
+        <>
+          <button
+            type="button"
+            className="sauce-metrics-panel__toggle"
+            onClick={() => setExpanded((v) => !v)}
+            aria-expanded={expanded}
+          >
+            {"\u{1F9EA}"} Prototype Metrics（開発用） {expanded ? "▴" : "▾"}
+          </button>
 
-      {expanded && (
-        <div className="sauce-metrics-panel__detail">
-          <p className="sauce-metrics-panel__detail-note">
-            以下は内部の生の数値と、見本との近さを試験的に見るだけの参考値です。★やスコアには反映されません。
-          </p>
-          <div className="sauce-metrics-panel__row">
-            <span className="sauce-metrics-panel__chip">
-              量 <strong>{percent(metrics.quantity)}</strong>
-            </span>
-            <span className="sauce-metrics-panel__chip">
-              被覆 <strong>{percent(metrics.coverage)}</strong>
-            </span>
-            <span className="sauce-metrics-panel__chip">
-              均一性 <strong>{percent(metrics.evenness)}</strong>
-            </span>
-            <span
-              className={`sauce-metrics-panel__chip ${
-                metrics.overflowRatio > 0 ? "sauce-metrics-panel__chip--warn" : ""
-              }`}
-            >
-              はみ出し <strong>{percent(metrics.overflowRatio)}</strong>
-            </span>
-            <span
-              className={`sauce-metrics-panel__chip ${
-                metrics.edgeRatio > 0 ? "sauce-metrics-panel__chip--warn" : ""
-              }`}
-            >
-              ふち量 <strong>{percent(metrics.edgeRatio)}</strong>
-            </span>
-          </div>
-          <div className="sauce-metrics-panel__row">
-            <span className="sauce-metrics-panel__chip">
-              量の近さ <strong>{percent(shadowScore.quantitySimilarity)}</strong>
-            </span>
-            <span className="sauce-metrics-panel__chip">
-              広さの近さ <strong>{percent(shadowScore.coverageSimilarity)}</strong>
-            </span>
-            <span className="sauce-metrics-panel__chip">
-              総合 <strong>{percent(shadowScore.overall)}</strong>
-            </span>
-          </div>
-          {pieceMetrics.map((piece) => (
-            <div className="sauce-metrics-panel__row" key={piece.ingredientId}>
-              <span className="sauce-metrics-panel__chip">
-                {piece.ingredientId === "mozzarella" ? "モッツァレラ" : "バジル"} 個数{" "}
-                <strong>{piece.playerCount}/{piece.targetCount}</strong>
-              </span>
-              <span className="sauce-metrics-panel__chip">
-                量の近さ <strong>{percent(piece.quantitySimilarity)}</strong>
-              </span>
-              <span className="sauce-metrics-panel__chip">
-                配置の近さ{" "}
-                <strong>{piece.placementSimilarity === null ? "未評価" : percent(piece.placementSimilarity)}</strong>
-              </span>
+          {expanded && (
+            <div className="sauce-metrics-panel__detail">
+              <p className="sauce-metrics-panel__detail-note">
+                以下は内部の生の数値と、見本との近さを試験的に見るだけの参考値です。★やスコアには反映されません。
+              </p>
+              <div className="sauce-metrics-panel__row">
+                <span className="sauce-metrics-panel__chip">
+                  量 <strong>{percent(metrics.quantity)}</strong>
+                </span>
+                <span className="sauce-metrics-panel__chip">
+                  被覆 <strong>{percent(metrics.coverage)}</strong>
+                </span>
+                <span className="sauce-metrics-panel__chip">
+                  均一性 <strong>{percent(metrics.evenness)}</strong>
+                </span>
+                <span
+                  className={`sauce-metrics-panel__chip ${
+                    metrics.overflowRatio > 0 ? "sauce-metrics-panel__chip--warn" : ""
+                  }`}
+                >
+                  はみ出し <strong>{percent(metrics.overflowRatio)}</strong>
+                </span>
+                <span
+                  className={`sauce-metrics-panel__chip ${
+                    metrics.edgeRatio > 0 ? "sauce-metrics-panel__chip--warn" : ""
+                  }`}
+                >
+                  ふち量 <strong>{percent(metrics.edgeRatio)}</strong>
+                </span>
+              </div>
+              <div className="sauce-metrics-panel__row">
+                <span className="sauce-metrics-panel__chip">
+                  量の近さ <strong>{percent(shadowScore.quantitySimilarity)}</strong>
+                </span>
+                <span className="sauce-metrics-panel__chip">
+                  広さの近さ <strong>{percent(shadowScore.coverageSimilarity)}</strong>
+                </span>
+                <span className="sauce-metrics-panel__chip">
+                  総合 <strong>{percent(shadowScore.overall)}</strong>
+                </span>
+              </div>
+              {pieceMetrics.map((piece) => (
+                <div className="sauce-metrics-panel__row" key={piece.ingredientId}>
+                  <span className="sauce-metrics-panel__chip">
+                    {piece.ingredientId === "mozzarella" ? "モッツァレラ" : "バジル"} 個数{" "}
+                    <strong>{piece.playerCount}/{piece.targetCount}</strong>
+                  </span>
+                  <span className="sauce-metrics-panel__chip">
+                    量の近さ <strong>{percent(piece.quantitySimilarity)}</strong>
+                  </span>
+                  <span className="sauce-metrics-panel__chip">
+                    配置の近さ{" "}
+                    <strong>
+                      {piece.placementSimilarity === null ? "未評価" : percent(piece.placementSimilarity)}
+                    </strong>
+                  </span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
     </div>
   );

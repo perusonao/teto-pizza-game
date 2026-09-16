@@ -1793,8 +1793,18 @@
   /* Human Feel Fix 2 (Sauce Visual): softens the overlapping-circle cells drawn in
      PizzaStage's canvas effect into a continuous painted surface instead of a busy dot
      pattern -- a cheap CSS filter, not an extra render pass, per the brief's "no heavy
-     Canvas/WebGL" constraint. */
-  filter: blur(1px);
+     Canvas/WebGL" constraint.
+     Phase 4A-1B.1 Fix B (Short Sauce Stroke): raised from blur(1px) to blur(3px). 1px softened
+     only the canvas's own already-blurred pixel edge (sauceField.ts's drawImage upscale +
+     smoothSauceFieldForDisplay's field blur), leaving an isolated dab/very-short-stroke read
+     as a soft-edged square/bar (its underlying support is a square/rectangular cell block --
+     see smoothSauceFieldForDisplay's doc comment). blur(3px) rounds that same shape into a
+     dab/cloud instead, while a normal/broad-coverage stroke's own edges were already soft
+     enough that another ~2px changes nothing about its interior and only softens its outer
+     edge a touch further (verified in the Phase 4A-1B.1 result report's browser screenshots:
+     isolated tap, short stroke, normal stroke, broad coverage, before/after). This is
+     rendering only -- no field/metrics value changes with it. */
+  filter: blur(3px);
 }
 
 /* MUST FIX 8 (Visual Truth) follow-up: now that the heatmap is the *only* sauce visual for
@@ -1802,18 +1812,18 @@
    tinting `.pizza-sauce-layer` gets elsewhere, or the sauce would stop reacting to bake
    state entirely once the flat fill is skipped. Same filter values as
    `.pizza-dough--raw/--perfect .pizza-sauce-layer` above, applied to the canvas instead --
-   each one keeps the blur(1px) above (a `filter` list replaces, it doesn't merge with the
-   base rule's). */
+   each one keeps the blur(3px) above (a `filter` list replaces, it doesn't merge with the
+   base rule's; see Fix B's comment on that rule for why it's 3px now, not 1px). */
 .pizza-dough--raw .pizza-sauce-heatmap--raw {
-  filter: blur(1px) saturate(1.18) brightness(1.06);
+  filter: blur(3px) saturate(1.18) brightness(1.06);
 }
 
 .pizza-dough--perfect .pizza-sauce-heatmap--perfect {
-  filter: blur(1px) saturate(1.08) brightness(0.95) hue-rotate(-6deg);
+  filter: blur(3px) saturate(1.08) brightness(0.95) hue-rotate(-6deg);
 }
 
 .pizza-dough--burnt .pizza-sauce-heatmap--burnt {
-  filter: blur(1px) brightness(0.55) saturate(0.7) sepia(0.25);
+  filter: blur(3px) brightness(0.55) saturate(0.7) sepia(0.25);
 }
 
 .reference-preview__button {
