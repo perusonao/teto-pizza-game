@@ -27,7 +27,7 @@ Current feature baseline after PR #29:
 - PR #29 — Phase 4A-1B.2 Recipe Sauce Interaction Parity: merged.
 - PR #29 reviewed head: `19a7957baa4817d1dce9a035bff479bb050aae77`.
 - PR #29 blocker fix: `b9ed315b4fbd5afb3198c30a225086e68d8d458a`.
-- Merge/main baseline after #29: `466d50eb6fbaf3db5aa0008d647df4f0b10e0001`.
+- Feature merge baseline after #29: `466d50eb6fbaf3db5aa0008d647df4f0b10e0001`.
 - Exact-head PR CI passed. Focused tests 20/20; full suite 39 files / 518 tests.
 - GitHub Pages deployment Run #23 completed successfully.
 
