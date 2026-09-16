@@ -41,7 +41,14 @@ export interface SauceComponentV2 {
   score: number;
 }
 
+/** `scorePieceGroupV2` (../piecesComponent.ts) returns this OR `ScoringV2Unavailable` -- the
+ *  strict Reference-validity gate lives on that function itself (Codex P1 Round 3), so a
+ *  `PieceGroupScoreV2` is only ever produced once the group's own authoritative Reference
+ *  data (`ingredientId`/`positions`/`matching`) has already passed strict validation.
+ *  `PiecesComponentV2.groups` below only ever holds this branch -- if any single group comes
+ *  back unavailable, the whole `PiecesComponentV2` does too (never a mix of the two). */
 export interface PieceGroupScoreV2 {
+  available: true;
   ingredientId: string;
   targetCount: number;
   playerCount: number;

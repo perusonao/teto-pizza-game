@@ -12,7 +12,6 @@ import { scorePieceGroup } from "../referenceMatching";
 import type { PlacedTopping } from "../../state/pizzaState";
 import {
   MALFORMED_REFERENCE_REASON,
-  sanitizeCoordinates,
   sanitizeToppings,
   validateCoordinateArrayStrict,
 } from "./boundary";
@@ -31,76 +30,74 @@ const PLACEMENT_WEIGHT = 70;
 /**
  * Scores one topping group (e.g. every mozzarella piece) against its Reference positions.
  *
- * P1-1: `group.matching`'s tolerance radii are static, authored config
- * (../../data/referencePizza.ts) that should always be a valid band, but this still validates
- * it before calling `scorePieceGroup` (which does not itself validate) rather than trusting a
- * future edit of that data never introduces `zeroCreditRadius <= fullCreditRadius` -- an
- * invalid band here fails closed to a 0 score for this group instead of risking a divide by
- * zero inside `scorePieceGroup`'s own distance-similarity curve.
+ * Codex P1 blocker fix, Round 3: this is now THE single enforcement point for the strict
+ * "malformed authoritative Reference data must invalidate the result, never score a
+ * filtered-down subset" rule. Round 2 put this check only in `scorePiecesComponentV2` below,
+ * which left this function itself reachable as a direct, unguarded bypass -- Codex's narrow
+ * verification reproduced it: a direct call with one malformed Reference position mixed into
+ * otherwise-valid ones still filtered it out and returned a normal, even 100, score. The
+ * fix: validate `group`'s own authoritative data (its `ingredientId`, its `positions` list
+ * via `validateCoordinateArrayStrict` -- one malformed position anywhere invalidates the
+ * *whole* list, not just that position -- and its `matching` tolerance radii) FIRST, before
+ * any filtering or Hungarian matching, and return `{ available: false, reason }` instead of a
+ * `PieceGroupScoreV2` the moment any of it fails. There is now exactly one place this
+ * validation happens; `scorePiecesComponentV2` below no longer duplicates it -- it simply
+ * calls this function per group and checks each result's own `available` field, so no caller
+ * can route around the rule by calling this function directly instead of the aggregate one.
  *
- * Codex P1 blocker fix: `toppings` and `group` are declared with their real types for callers
- * (autocomplete, compile-time safety), but both are treated as `unknown` internally via
- * ./boundary.ts's sanitizers before any array operation or property read -- a non-array
- * `toppings`, a `group` that isn't an object, a malformed/null element in either, or a
- * non-finite coordinate anywhere are all normalized/dropped rather than thrown on. A NaN/
- * Infinity coordinate reaching `scorePieceGroup`'s own Hungarian assignment
- * (../referenceMatching.ts) doesn't just produce a bad number -- the algorithm's cost-matrix
- * search can fail to terminate on a non-finite cost -- so untrusted points (on *both* the
- * player and the Reference side) are excluded here, before it, entirely.
- *
- * Codex P1 blocker fix, Round 2: this function stays deliberately *lenient* -- it is the
- * crash/hang-safety layer for PLAYER input (`toppings`), never thrown on however malformed
- * `group` is either. It is NOT where authoritative Reference validity is decided: a `group`
- * with a malformed/partially-malformed position list still gets a (safe, filtered, low)
- * score here rather than an `available: false` -- callers that need the strict "a corrupted
- * Reference must invalidate the result, never score a shrunk-down subset" rule use
- * `scorePiecesComponentV2` below instead, which gates on `../boundary.ts`'s strict validators
- * *before* ever calling this function. Direct callers of this function (tests included) get
- * the lenient/defensive behavior on purpose; the strict contract lives one level up.
+ * PLAYER input (`toppings`) stays deliberately lenient, unchanged from Round 1/2: a non-array
+ * `toppings`, or a malformed/null/non-finite element within it, is normalized/dropped via
+ * `sanitizeToppings` (never thrown on) -- a malformed *player* piece genuinely means "the
+ * player didn't place a real piece here", a different question entirely from "is the
+ * Reference target itself trustworthy", which is what this function's own strict gate above
+ * decides for the *other* argument.
  */
 export function scorePieceGroupV2(
   toppings: readonly PlacedTopping[],
   group: ReferencePieceGroup,
-): PieceGroupScoreV2 {
-  const groupRecord: Record<string, unknown> =
-    typeof group === "object" && group !== null ? (group as unknown as Record<string, unknown>) : {};
-  const ingredientId = typeof groupRecord.ingredientId === "string" ? groupRecord.ingredientId : "";
-  const safePositions = sanitizeCoordinates(groupRecord.positions);
-  const matchingRecord: Record<string, unknown> =
-    typeof groupRecord.matching === "object" && groupRecord.matching !== null
-      ? (groupRecord.matching as Record<string, unknown>)
-      : {};
-  const fullCreditRadius =
-    typeof matchingRecord.fullCreditRadius === "number" ? matchingRecord.fullCreditRadius : Number.NaN;
-  const zeroCreditRadius =
-    typeof matchingRecord.zeroCreditRadius === "number" ? matchingRecord.zeroCreditRadius : Number.NaN;
-
-  const safeToppings = sanitizeToppings(toppings);
-  const playerCount = safeToppings.filter((t) => t.ingredientId === ingredientId).length;
-  const targetCount = safePositions.length;
-
-  if (!isValidToleranceBand(fullCreditRadius, zeroCreditRadius)) {
-    return {
-      ingredientId,
-      targetCount,
-      playerCount,
-      quantitySimilarity: 0,
-      placementSimilarity: null,
-      score: 0,
-    };
+): PieceGroupScoreV2 | ScoringV2Unavailable {
+  if (typeof group !== "object" || group === null) {
+    return { available: false, reason: MALFORMED_REFERENCE_REASON };
+  }
+  const record = group as unknown as Record<string, unknown>;
+  if (typeof record.ingredientId !== "string") {
+    return { available: false, reason: MALFORMED_REFERENCE_REASON };
+  }
+  const positionsValidation = validateCoordinateArrayStrict(record.positions);
+  if (!positionsValidation.valid) {
+    return { available: false, reason: MALFORMED_REFERENCE_REASON };
+  }
+  if (typeof record.matching !== "object" || record.matching === null) {
+    return { available: false, reason: MALFORMED_REFERENCE_REASON };
+  }
+  const matchingRecord = record.matching as Record<string, unknown>;
+  const { fullCreditRadius, zeroCreditRadius } = matchingRecord;
+  if (
+    typeof fullCreditRadius !== "number" ||
+    typeof zeroCreditRadius !== "number" ||
+    !isValidToleranceBand(fullCreditRadius, zeroCreditRadius)
+  ) {
+    return { available: false, reason: MALFORMED_REFERENCE_REASON };
   }
 
+  // Every value used below is now known-valid by the checks above -- no further defensive
+  // fallback is needed or wanted here, since reaching this point is itself the proof.
+  const ingredientId = record.ingredientId;
+  const positions = positionsValidation.items;
+
+  const safeToppings = sanitizeToppings(toppings);
+
   // `scorePieceGroup` (../referenceMatching.ts) only ever reads `.ingredientId`/`.positions`/
-  // `.matching` -- never `.interaction` -- so a group reconstructed from already-sanitized
+  // `.matching` -- never `.interaction` -- so a group reconstructed from already-validated
   // data is safe to hand it wholesale, reusing its reviewed matching logic unchanged rather
   // than re-deriving an equivalent computation here.
-  const safeGroup: ReferencePieceGroup = {
+  const validatedGroup: ReferencePieceGroup = {
     ...group,
     ingredientId: ingredientId as ReferencePieceGroup["ingredientId"],
-    positions: safePositions,
+    positions,
     matching: { fullCreditRadius, zeroCreditRadius },
   };
-  const metrics = scorePieceGroup(safeToppings as PlacedTopping[], safeGroup);
+  const metrics = scorePieceGroup(safeToppings as PlacedTopping[], validatedGroup);
   const quantitySimilarity = safeUnit(metrics.quantitySimilarity);
   const placementSimilarity =
     metrics.placementSimilarity === null ? null : safeUnit(metrics.placementSimilarity);
@@ -108,6 +105,7 @@ export function scorePieceGroupV2(
     quantitySimilarity * QUANTITY_WEIGHT + (placementSimilarity ?? 0) * PLACEMENT_WEIGHT;
 
   return {
+    available: true,
     ingredientId: metrics.ingredientId,
     targetCount: metrics.targetCount,
     playerCount: metrics.playerCount,
@@ -118,44 +116,21 @@ export function scorePieceGroupV2(
 }
 
 /**
- * Codex P1 blocker fix, Round 2: strictly validates one group's own authoritative Reference
- * data -- its `ingredientId`, its `positions` list (every element, via
- * `validateCoordinateArrayStrict`), and its `matching` tolerance radii -- before
- * `scorePiecesComponentV2` below ever calls the lenient `scorePieceGroupV2` on it. Unlike
- * that function's own internal sanitization (drop-and-continue, meant for player input), this
- * is all-or-nothing: a single malformed position, a non-array `positions`, a missing/malformed
- * `matching`, or an invalid tolerance band all fail the *entire group* closed.
- */
-function isGroupReferenceDataValid(group: ReferencePieceGroup): boolean {
-  if (typeof group !== "object" || group === null) return false;
-  const record = group as unknown as Record<string, unknown>;
-  if (typeof record.ingredientId !== "string") return false;
-  if (!validateCoordinateArrayStrict(record.positions).valid) return false;
-  const matching = record.matching;
-  if (typeof matching !== "object" || matching === null) return false;
-  const matchingRecord = matching as Record<string, unknown>;
-  const { fullCreditRadius, zeroCreditRadius } = matchingRecord;
-  if (typeof fullCreditRadius !== "number" || typeof zeroCreditRadius !== "number") return false;
-  return isValidToleranceBand(fullCreditRadius, zeroCreditRadius);
-}
-
-/**
  * Equal-weighted average across every group (currently mozzarella + basil, 50/50) -- a
  * provisional Phase 4A-2 shadow choice, not a claim that every ingredient type should always
  * weigh the same once this expands past Margherita's two groups.
  *
- * Codex P1 blocker fix, Round 2: `groups` (and every element in it) is the authoritative
- * Reference container this component scores against, so it is validated *strictly* here --
- * a non-array `groups`, or any single group anywhere in it that fails
- * `isGroupReferenceDataValid` above (a malformed position list, missing/invalid tolerance
- * radii, ...), fails the whole component closed (`available: false`) *before* any scoring
- * happens, rather than silently scoring the player's pizza against whatever positions
- * happened to survive filtering (which could turn a genuinely wrong pizza into an
- * accidental, meaningless 100 -- see ./boundary.ts's own doc comment on why a filtered-down
- * Reference is unsafe). A `groups` that is a genuinely well-formed empty array is still
- * valid: "this recipe requires no piece groups" is a real fact a recipe can express, so
- * `scoredGroups.length === 0` after a *valid* (possibly empty) `groups` still reads as full
- * marks, exactly as before.
+ * Codex P1 blocker fix, Round 3: `groups` (the container) is still validated here -- a
+ * non-array `groups` fails the whole component closed before anything else, since that is a
+ * container-level concern `scorePieceGroupV2` (which scores one already-selected group) never
+ * sees. Per-group Reference validity, though, is no longer re-checked here -- it is enforced
+ * exactly once, inside `scorePieceGroupV2` above, and this function simply asks each group's
+ * own result whether it succeeded (`available`). If any group comes back unavailable, the
+ * whole component fails closed too, for the same reason Round 2 established: a total built
+ * from a mix of trustworthy and corrupted groups is not honestly computable. A `groups` that
+ * is a genuinely well-formed empty array is still valid: "this recipe requires no piece
+ * groups" is a real fact a recipe can express, so `scoredGroups.length === 0` after a *valid*
+ * (possibly empty) `groups` still reads as full marks, exactly as before.
  */
 export function scorePiecesComponentV2(
   toppings: readonly PlacedTopping[],
@@ -164,13 +139,16 @@ export function scorePiecesComponentV2(
   if (!Array.isArray(groups)) {
     return { available: false, reason: MALFORMED_REFERENCE_REASON };
   }
+
+  const scoredGroups: PieceGroupScoreV2[] = [];
   for (const group of groups) {
-    if (!isGroupReferenceDataValid(group)) {
-      return { available: false, reason: MALFORMED_REFERENCE_REASON };
+    const result = scorePieceGroupV2(toppings, group);
+    if (!result.available) {
+      return { available: false, reason: result.reason };
     }
+    scoredGroups.push(result);
   }
 
-  const scoredGroups = groups.map((group) => scorePieceGroupV2(toppings, group));
   const score =
     scoredGroups.length === 0
       ? 100 // No piece groups at all for this recipe -- nothing to fall short on.

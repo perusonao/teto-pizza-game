@@ -180,6 +180,7 @@ describe("scorePieceGroupV2 / scorePiecesComponentV2", () => {
       ...p,
     }));
     const result = scorePieceGroupV2(toppings, MOZZARELLA_GROUP);
+    assertAvailable(result);
     expect(Number.isFinite(result.score)).toBe(true);
     expect(result.score).toBeGreaterThan(95);
   });
@@ -206,6 +207,9 @@ describe("scorePieceGroupV2 / scorePiecesComponentV2", () => {
       ],
       MOZZARELLA_GROUP,
     );
+    assertAvailable(exact);
+    assertAvailable(slightlyOff);
+    assertAvailable(badlyOff);
     expect(exact.score).toBeGreaterThan(slightlyOff.score);
     expect(slightlyOff.score).toBeGreaterThan(badlyOff.score);
     expect(Number.isFinite(badlyOff.score)).toBe(true);
@@ -223,6 +227,8 @@ describe("scorePieceGroupV2 / scorePiecesComponentV2", () => {
       ],
       BASIL_GROUP,
     );
+    assertAvailable(exact);
+    assertAvailable(poor);
     expect(exact.score).toBeGreaterThan(90);
     expect(poor.score).toBeLessThan(exact.score);
     expect(Number.isFinite(poor.score)).toBe(true);
@@ -230,6 +236,7 @@ describe("scorePieceGroupV2 / scorePiecesComponentV2", () => {
 
   it("missing pieces (none placed) score 0, finite, with a null placementSimilarity", () => {
     const result = scorePieceGroupV2([], MOZZARELLA_GROUP);
+    assertAvailable(result);
     expect(result.playerCount).toBe(0);
     expect(result.quantitySimilarity).toBe(0);
     expect(result.placementSimilarity).toBeNull();
@@ -242,6 +249,7 @@ describe("scorePieceGroupV2 / scorePiecesComponentV2", () => {
       { id: "m-extra", ingredientId: "mozzarella", x: 50, y: 20 },
     ];
     const result = scorePieceGroupV2(toppings, MOZZARELLA_GROUP);
+    assertAvailable(result);
     expect(result.playerCount).toBe(4);
     expect(Number.isFinite(result.score)).toBe(true);
   });
@@ -255,11 +263,13 @@ describe("scorePieceGroupV2 / scorePiecesComponentV2", () => {
     const shuffled = [toppings[2], toppings[0], toppings[1]];
     const a = scorePieceGroupV2(toppings, MOZZARELLA_GROUP);
     const b = scorePieceGroupV2(shuffled, MOZZARELLA_GROUP);
+    assertAvailable(a);
+    assertAvailable(b);
     expect(a.score).toBeCloseTo(b.score, 10);
     expect(a.quantitySimilarity).toBe(b.quantitySimilarity);
   });
 
-  it("scorePieceGroupV2 fails closed (score 0, finite) for an invalid tolerance band, instead of trusting the group's own data", () => {
+  it("scorePieceGroupV2 fails closed (available:false) for an invalid tolerance band, instead of trusting the group's own data", () => {
     const brokenGroup: ReferencePieceGroup = {
       ...MOZZARELLA_GROUP,
       matching: { fullCreditRadius: 30, zeroCreditRadius: 10 }, // zero <= full
@@ -268,9 +278,7 @@ describe("scorePieceGroupV2 / scorePiecesComponentV2", () => {
       MOZZARELLA_GROUP.positions.map((p, i) => ({ id: `m${i}`, ingredientId: "mozzarella", ...p })),
       brokenGroup,
     );
-    expect(result.score).toBe(0);
-    expect(result.placementSimilarity).toBeNull();
-    expect(Number.isFinite(result.score)).toBe(true);
+    expect(result.available).toBe(false);
   });
 
   it("scorePiecesComponentV2 averages across mozzarella + basil and stays finite", () => {
@@ -334,6 +342,8 @@ describe("scoreRecipeComponentV2 (presence-only, no overlap with Pieces)", () =>
     // belongs there, per the Fresh Audit's "no double-penalizing" contract).
     const onePieceGroup = scorePieceGroupV2(onePiece.toppings, MOZZARELLA_GROUP);
     const threePieceGroup = scorePieceGroupV2(threePieces.toppings, MOZZARELLA_GROUP);
+    assertAvailable(onePieceGroup);
+    assertAvailable(threePieceGroup);
     expect(onePieceGroup.quantitySimilarity).toBeLessThan(threePieceGroup.quantitySimilarity);
   });
 });

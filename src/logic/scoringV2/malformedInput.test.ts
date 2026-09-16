@@ -73,6 +73,28 @@ const MALFORMED_ELEMENTS: Array<[string, unknown]> = [
   ["-Infinity y", { x: 50, y: Number.NEGATIVE_INFINITY, ingredientId: "mozzarella" }],
 ];
 
+/**
+ * Every malformed-position shape the blocker's regression-test list names, usable both bare
+ * (as one single malformed Reference position) and mixed into an otherwise fully-valid
+ * Reference position list -- this is exactly the shape of exploit Codex's narrow verification
+ * found (a partially malformed list quietly shrinking into an easier, smaller target a player
+ * could trivially "complete" for a normal or even 100 score).
+ */
+const MALFORMED_POSITION_CASES: Array<[string, unknown]> = [
+  ["missing x", { y: 35 }],
+  ["missing y", { x: 35 }],
+  ["x wrong type", { x: "35", y: 35 }],
+  ["y wrong type", { x: 35, y: "35" }],
+  ["NaN x", { x: Number.NaN, y: 35 }],
+  ["NaN y", { x: 35, y: Number.NaN }],
+  ["+Infinity x", { x: Number.POSITIVE_INFINITY, y: 35 }],
+  ["-Infinity x", { x: Number.NEGATIVE_INFINITY, y: 35 }],
+  ["+Infinity y", { x: 35, y: Number.POSITIVE_INFINITY }],
+  ["-Infinity y", { x: 35, y: Number.NEGATIVE_INFINITY }],
+  ["null element", null],
+  ["primitive element", "garbage"],
+];
+
 describe("boundary.ts sanitizers -- malformed containers normalize to []", () => {
   it.each(MALFORMED_CONTAINERS)("toSafeArray(%s) -> []", (_label, value) => {
     expect(() => toSafeArray(value)).not.toThrow();
@@ -163,43 +185,38 @@ describe("boundary.ts sanitizers -- malformed elements are dropped, not thrown o
 });
 
 /**
- * `scorePieceGroupV2` is deliberately the LENIENT, crash/hang-safety layer -- it stays
- * defensive-but-filtering even for malformed Reference data (see its own updated doc comment
- * in piecesComponent.ts). The STRICT "malformed authoritative Reference data must invalidate
- * the result" rule is enforced one level up, in `scorePiecesComponentV2` -- see the
- * "Codex P1 Round 2: STRICT Reference position validation" describe block further below,
- * which exercises the exact same malformed shapes through the strict entry point instead.
+ * Codex P1 blocker fix, Round 3: `scorePieceGroupV2` is now THE single, direct-callable
+ * enforcement point for strict Reference validation -- Round 2 left it reachable as a bypass
+ * (calling it directly instead of `scorePiecesComponentV2` skipped the strict gate entirely).
+ * This block is the DIRECT-entry adversarial matrix Codex's narrow verification specifically
+ * asked for: every case here calls `scorePieceGroupV2` itself, never the aggregate function,
+ * so there is no ambiguity about which layer is actually being exercised.
+ *
+ * Two halves, matching the player-input-vs-authoritative-Reference distinction:
+ * - `group` (the authoritative Reference side) is now STRICT: any malformed shape anywhere
+ *   in it invalidates the whole call (`available: false`), never a filtered/lower score.
+ * - `toppings` (the player side) stays LENIENT, unchanged from Round 1/2: malformed elements
+ *   are dropped, never thrown on, and never invalidate the result by themselves.
  */
-describe("scorePieceGroupV2 -- adversarial toppings/group input", () => {
-  it.each(MALFORMED_CONTAINERS)("toppings container is %s -> finite 0-ish result, never throws", (_label, toppings) => {
-    expect(() => scorePieceGroupV2(toppings as never, MOZZARELLA_GROUP)).not.toThrow();
-    const result = scorePieceGroupV2(toppings as never, MOZZARELLA_GROUP);
-    expect(result.playerCount).toBe(0);
-    expect(Number.isFinite(result.score)).toBe(true);
+describe("scorePieceGroupV2 -- DIRECT-entry adversarial matrix (Codex P1 Round 3)", () => {
+  const VALID_MOZZARELLA_TOPPINGS = MOZZARELLA_GROUP.positions.map((p, i) => ({
+    id: `m${i}`,
+    ingredientId: "mozzarella",
+    ...p,
+  }));
+
+  it("1. fully valid Reference -> normal score, unchanged from before this fix", () => {
+    const result = scorePieceGroupV2(VALID_MOZZARELLA_TOPPINGS, MOZZARELLA_GROUP);
+    assertAvailable(result);
+    expect(result.targetCount).toBe(MOZZARELLA_GROUP.positions.length);
+    expect(result.score).toBeGreaterThan(95);
   });
 
-  it.each(MALFORMED_CONTAINERS)("group is %s -> unavailable-shaped 0 result, never throws", (_label, group) => {
-    const toppings = [{ id: "m0", ingredientId: "mozzarella", x: 35, y: 35 }];
-    expect(() => scorePieceGroupV2(toppings, group as never)).not.toThrow();
-    const result = scorePieceGroupV2(toppings, group as never);
-    expect(result.score).toBe(0);
-    expect(result.placementSimilarity).toBeNull();
-    expect(Number.isFinite(result.score)).toBe(true);
-  });
-
-  it("group.positions malformed (not an array) -> targetCount 0, finite, never throws", () => {
-    const brokenGroup = { ...MOZZARELLA_GROUP, positions: "not-an-array" as never };
-    expect(() => scorePieceGroupV2([], brokenGroup)).not.toThrow();
-    const result = scorePieceGroupV2([], brokenGroup);
-    expect(result.targetCount).toBe(0);
-    expect(Number.isFinite(result.score)).toBe(true);
-  });
-
-  it("group.positions contains malformed Reference position elements (mixed valid + invalid) -> matches only the valid ones, never hangs, never throws", () => {
+  it("2. mixed valid + invalid Reference positions -> available:false (THE exact bypass Codex reproduced: this used to return targetCount 1 / score 100)", () => {
     const brokenGroup: ReferencePieceGroup = {
       ...MOZZARELLA_GROUP,
       positions: [
-        { x: 35, y: 35 },
+        { x: 35, y: 35 }, // the one valid position a corrupted list would have "shrunk" to
         { x: Number.NaN, y: 40 } as never,
         null as never,
         { x: Number.POSITIVE_INFINITY, y: 10 } as never,
@@ -209,27 +226,92 @@ describe("scorePieceGroupV2 -- adversarial toppings/group input", () => {
     const toppings = [{ id: "m0", ingredientId: "mozzarella", x: 35, y: 35 }];
     expect(() => scorePieceGroupV2(toppings, brokenGroup)).not.toThrow();
     const result = scorePieceGroupV2(toppings, brokenGroup);
-    expect(result.targetCount).toBe(1); // only the one valid position survives sanitization
-    expect(Number.isFinite(result.score)).toBe(true);
-    expect(result.score).toBeGreaterThan(90); // the single valid position is an exact match
+    expect(result.available).toBe(false);
   });
 
-  it("group.matching missing entirely -> invalid tolerance band -> 0 score, never throws", () => {
+  it("3. Reference positions containing a null element -> available:false, never throws", () => {
+    const brokenGroup: ReferencePieceGroup = {
+      ...MOZZARELLA_GROUP,
+      positions: [...MOZZARELLA_GROUP.positions, null as never],
+    };
+    expect(() => scorePieceGroupV2(VALID_MOZZARELLA_TOPPINGS, brokenGroup)).not.toThrow();
+    expect(scorePieceGroupV2(VALID_MOZZARELLA_TOPPINGS, brokenGroup).available).toBe(false);
+  });
+
+  it("4. Reference positions containing a primitive element -> available:false, never throws", () => {
+    const brokenGroup: ReferencePieceGroup = {
+      ...MOZZARELLA_GROUP,
+      positions: [...MOZZARELLA_GROUP.positions, "garbage" as never],
+    };
+    expect(() => scorePieceGroupV2(VALID_MOZZARELLA_TOPPINGS, brokenGroup)).not.toThrow();
+    expect(scorePieceGroupV2(VALID_MOZZARELLA_TOPPINGS, brokenGroup).available).toBe(false);
+  });
+
+  it.each(MALFORMED_POSITION_CASES)(
+    "5-9. one malformed Reference position (%s) mixed with otherwise-valid positions -> available:false, never throws",
+    (_label, malformedPosition) => {
+      const brokenGroup: ReferencePieceGroup = {
+        ...MOZZARELLA_GROUP,
+        positions: [...MOZZARELLA_GROUP.positions, malformedPosition as never],
+      };
+      expect(() => scorePieceGroupV2(VALID_MOZZARELLA_TOPPINGS, brokenGroup)).not.toThrow();
+      const result = scorePieceGroupV2(VALID_MOZZARELLA_TOPPINGS, brokenGroup);
+      expect(result.available).toBe(false);
+    },
+  );
+
+  it.each(MALFORMED_CONTAINERS)(
+    "group.positions container is %s (non-array) -> available:false, never throws",
+    (_label, positions) => {
+      const brokenGroup = { ...MOZZARELLA_GROUP, positions: positions as never };
+      expect(() => scorePieceGroupV2([], brokenGroup)).not.toThrow();
+      expect(scorePieceGroupV2([], brokenGroup).available).toBe(false);
+    },
+  );
+
+  it.each(MALFORMED_CONTAINERS)("group itself is %s -> available:false, never throws", (_label, group) => {
+    const toppings = [{ id: "m0", ingredientId: "mozzarella", x: 35, y: 35 }];
+    expect(() => scorePieceGroupV2(toppings, group as never)).not.toThrow();
+    expect(scorePieceGroupV2(toppings, group as never).available).toBe(false);
+  });
+
+  it("group.matching missing entirely -> available:false, never throws", () => {
     const brokenGroup = { ...MOZZARELLA_GROUP, matching: undefined as never };
     expect(() => scorePieceGroupV2([], brokenGroup)).not.toThrow();
-    expect(scorePieceGroupV2([], brokenGroup).score).toBe(0);
+    expect(scorePieceGroupV2([], brokenGroup).available).toBe(false);
   });
 
-  it("group.matching radii are wrong type (strings) -> invalid tolerance band -> 0 score, never throws", () => {
+  it("group.matching radii are wrong type (strings) -> available:false, never throws", () => {
     const brokenGroup = {
       ...MOZZARELLA_GROUP,
       matching: { fullCreditRadius: "8" as never, zeroCreditRadius: "22" as never },
     };
     expect(() => scorePieceGroupV2([], brokenGroup)).not.toThrow();
-    expect(scorePieceGroupV2([], brokenGroup).score).toBe(0);
+    expect(scorePieceGroupV2([], brokenGroup).available).toBe(false);
   });
 
-  it("toppings array contains malformed elements mixed with valid ones -> only valid ones counted, never throws", () => {
+  it("group.matching forms an invalid tolerance band (zero <= full) -> available:false, never throws", () => {
+    const brokenGroup: ReferencePieceGroup = {
+      ...MOZZARELLA_GROUP,
+      matching: { fullCreditRadius: 30, zeroCreditRadius: 10 },
+    };
+    expect(scorePieceGroupV2(VALID_MOZZARELLA_TOPPINGS, brokenGroup).available).toBe(false);
+  });
+
+  // --- PLAYER side (toppings) stays lenient -- unchanged from Round 1/2 ---------------------
+
+  it.each(MALFORMED_CONTAINERS)(
+    "toppings container is %s -> still available (lenient player-input contract), playerCount 0, never throws",
+    (_label, toppings) => {
+      expect(() => scorePieceGroupV2(toppings as never, MOZZARELLA_GROUP)).not.toThrow();
+      const result = scorePieceGroupV2(toppings as never, MOZZARELLA_GROUP);
+      assertAvailable(result);
+      expect(result.playerCount).toBe(0);
+      expect(Number.isFinite(result.score)).toBe(true);
+    },
+  );
+
+  it("toppings array contains malformed elements mixed with valid ones -> still available, only valid ones counted, never throws", () => {
     const toppings = [
       { id: "m0", ingredientId: "mozzarella", x: 35, y: 35 },
       null,
@@ -239,6 +321,7 @@ describe("scorePieceGroupV2 -- adversarial toppings/group input", () => {
     ];
     expect(() => scorePieceGroupV2(toppings as never, MOZZARELLA_GROUP)).not.toThrow();
     const result = scorePieceGroupV2(toppings as never, MOZZARELLA_GROUP);
+    assertAvailable(result);
     expect(result.playerCount).toBe(2); // only the two well-formed mozzarella pieces
     expect(Number.isFinite(result.score)).toBe(true);
   });
@@ -278,28 +361,6 @@ describe("scorePiecesComponentV2 -- adversarial groups container (STRICT: author
     expect(result.score).toBeGreaterThan(90);
   });
 });
-
-/**
- * Round 2: every malformed-position shape the blocker's regression-test list names, applied
- * to a single position mixed in among an otherwise fully-valid Reference position list --
- * this is exactly the shape of exploit Codex's narrow verification found (a partially
- * malformed list quietly shrinking into an easier, smaller target a player could trivially
- * "complete" for a normal or even 100 score).
- */
-const MALFORMED_POSITION_CASES: Array<[string, unknown]> = [
-  ["missing x", { y: 35 }],
-  ["missing y", { x: 35 }],
-  ["x wrong type", { x: "35", y: 35 }],
-  ["y wrong type", { x: 35, y: "35" }],
-  ["NaN x", { x: Number.NaN, y: 35 }],
-  ["NaN y", { x: 35, y: Number.NaN }],
-  ["+Infinity x", { x: Number.POSITIVE_INFINITY, y: 35 }],
-  ["-Infinity x", { x: Number.NEGATIVE_INFINITY, y: 35 }],
-  ["+Infinity y", { x: 35, y: Number.POSITIVE_INFINITY }],
-  ["-Infinity y", { x: 35, y: Number.NEGATIVE_INFINITY }],
-  ["null element", null],
-  ["primitive element", "garbage"],
-];
 
 describe("Codex P1 Round 2: STRICT Reference position validation (scorePiecesComponentV2)", () => {
   it.each(MALFORMED_POSITION_CASES)(
@@ -552,10 +613,11 @@ describe("Permutation invariance and Golden Matrix survive the boundary fix unch
       ...p,
     }));
     const shuffled = [toppings[2], toppings[0], toppings[1]];
-    expect(scorePieceGroupV2(toppings, MOZZARELLA_GROUP).score).toBeCloseTo(
-      scorePieceGroupV2(shuffled, MOZZARELLA_GROUP).score,
-      10,
-    );
+    const a = scorePieceGroupV2(toppings, MOZZARELLA_GROUP);
+    const b = scorePieceGroupV2(shuffled, MOZZARELLA_GROUP);
+    assertAvailable(a);
+    assertAvailable(b);
+    expect(a.score).toBeCloseTo(b.score, 10);
   });
 
   it("Golden ordering (perfect > good > poor > empty) is unaffected by the sanitization boundary", () => {
