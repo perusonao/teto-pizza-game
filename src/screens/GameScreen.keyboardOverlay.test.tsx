@@ -140,8 +140,15 @@ function toppingCount(): number {
   return Number(screen.getByTestId("topping-count").textContent);
 }
 
+// PR #26 Final P2 Follow-up #2 (discussion_r4021268603): a SPREAD ingredient (tomato-sauce)
+// selected no longer advertises "Enterまたはスペース" in the dough's aria-label (PizzaStage now
+// only offers that when a real keyboard action exists), so this looks the dough up by its stable
+// data attribute instead of an aria-label that's intentionally conditional on the selected
+// ingredient's placement.
 function getDough(): HTMLElement {
-  return screen.getByRole("button", { name: "ピザ。選択中の素材を置くにはEnterまたはスペース" });
+  const dough = document.querySelector('[data-pizza-drop-target="true"]');
+  if (!dough) throw new Error("PizzaStage dough element not found");
+  return dough as HTMLElement;
 }
 
 function selectIngredient(ingredientId: string) {

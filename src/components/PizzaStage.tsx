@@ -324,6 +324,12 @@ export function PizzaStage({
   }
 
   const isPaintMode = activeIngredient?.placement === "spread";
+  // PR #26 Final P2 Follow-up #2 (discussion_r4021268603): SPREAD ingredients have no working
+  // keyboard activation (see handleKeyDown below), so the dough must not advertise one via
+  // tabIndex/aria-label while one is selected -- misleading assistive tech about a control that
+  // silently does nothing useful is worse than temporarily dropping it from the tab order.
+  // Scatter (TAP_PLACE) toppings are completely unaffected.
+  const isKeyboardPlaceable = interactive && !isPaintMode;
 
   /** Starts a Phase 4A-1A dispense session for `pointerId` at `dough`, snapshotting the
    *  ingredient it's for, and drives it from a requestAnimationFrame loop keyed on real
@@ -581,6 +587,19 @@ export function PizzaStage({
   function handleKeyDown(event: ReactKeyboardEvent<HTMLDivElement>) {
     if (!interactive || (event.key !== "Enter" && event.key !== " ")) return;
     event.preventDefault();
+    // PR #26 Final P2 Follow-up #2 (discussion_r4021268603): a SPREAD ingredient (tomato-sauce's
+    // Reference dispense path) has no real keyboard interaction yet -- the generic center-point
+    // onTap silently dispatches APPLY_SAUCE without ever populating sauceDeposits, so Reference
+    // Sauce rendering (which only draws from deposits) and Sauce Metrics both stay blank/zero
+    // while pizza state has actually changed. Rather than invent a keyboard Sauce painter in
+    // this PR, don't expose a "placement" for SPREAD at all; scatter (TAP_PLACE) toppings are
+    // unaffected and keep the exact behavior below. isKeyboardPlaceable (tabIndex/aria-label
+    // below) already keeps the dough out of the tab order in this state, but this guard is the
+    // one that actually matters -- a click can still focus a tabIndex={-1} element.
+    if (isPaintMode) return;
+    // discussion_r4021268607: holding Enter/Space auto-repeats keydown, and each event used to
+    // call onTap again -- one physical key press must place at most one piece.
+    if (event.repeat) return;
     onTap(50, 50);
   }
 
@@ -695,8 +714,8 @@ export function PizzaStage({
         ref={setDoughElement}
         data-pizza-drop-target="true"
         role="button"
-        tabIndex={interactive ? 0 : -1}
-        aria-label="ピザ。選択中の素材を置くにはEnterまたはスペース"
+        tabIndex={isKeyboardPlaceable ? 0 : -1}
+        aria-label={isKeyboardPlaceable ? "ピザ。選択中の素材を置くにはEnterまたはスペース" : "ピザ"}
         className={`pizza-dough ${interactive ? "pizza-dough--interactive" : ""} ${
           bakeState ? `pizza-dough--${bakeState}` : ""
         }`}

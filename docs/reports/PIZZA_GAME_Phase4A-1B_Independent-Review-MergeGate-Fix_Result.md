@@ -437,3 +437,180 @@ Final merge decision happens only after the new-head Codex review.
 ## FINAL VERDICT (Final P2 keyboard-overlay round)
 
 **A. READY FOR FINAL CODEX RE-REVIEW**
+
+## Final Codex P2 Follow-up #2
+
+Codex's review of `56bbf2b` found two new P2s, both on `PizzaStage.tsx`'s
+`handleKeyDown` (line ~584):
+
+- **`discussion_r4021268603` — Provide a valid keyboard path for reference
+  sauce.** With tomato-sauce selected, Enter/Space called the generic
+  `onTap(50, 50)`, which App.tsx routes to `APPLY_SAUCE`. That action always
+  sets `sauceDeposits: []`, but the Reference Sauce visualization and Sauce
+  Metrics both only ever read from `sauceDeposits` — so the keyboard action
+  mutated `pizza.sauceIds` while showing no sauce and leaving every metric
+  at zero.
+- **`discussion_r4021268607` — Ignore repeated keyboard activation.**
+  Holding Enter/Space auto-repeats `keydown`, and every repeat called
+  `onTap` again, so one held key could dispatch many `PLACE_TOPPING`s.
+
+### Product decision (per this round's instructions)
+
+No new keyboard Sauce painting/dispense system is introduced in PR #26.
+SPREAD ingredients (Sauce) are gesture-based; this round only removes the
+misleading "placement" keyboard invokes for them and de-duplicates
+auto-repeat. A future accessibility design can add a real keyboard Sauce
+interaction separately.
+
+### Root cause confirmed
+
+`handleKeyDown` called `onTap(50, 50)` unconditionally for Enter/Space
+whenever `interactive` was true, regardless of which ingredient (SPREAD
+or scatter) was selected, and regardless of whether the triggering
+`keydown` was a fresh press or a browser auto-repeat.
+
+### Fix A — Keyboard Sauce Guard
+
+`PizzaStage.tsx` already has a general interaction-family signal for
+exactly this — `const isPaintMode = activeIngredient?.placement ===
+"spread"` (used a few lines below for the pointer paint-vs-scatter
+branch). `handleKeyDown` now reuses it instead of hardcoding
+`ingredientId === "tomato-sauce"`:
+
+```diff
+ function handleKeyDown(event: ReactKeyboardEvent<HTMLDivElement>) {
+   if (!interactive || (event.key !== "Enter" && event.key !== " ")) return;
+   event.preventDefault();
++  if (isPaintMode) return;
++  if (event.repeat) return;
+   onTap(50, 50);
+ }
+```
+
+This blocks the generic keyboard "placement" for **every** SPREAD
+ingredient (tomato-sauce, olive-oil, pesto), not just the one Codex named
+— a real fix for the interaction family, not a special case. Scatter
+(TAP_PLACE) toppings are completely unaffected; mouse/touch/pointer Sauce
+painting is completely unaffected (no pointer handler was touched).
+
+**ARIA/tabIndex**: also added `isKeyboardPlaceable = interactive &&
+!isPaintMode`, and the dough now uses it instead of bare `interactive`
+for `tabIndex` and `aria-label`:
+
+```diff
+- tabIndex={interactive ? 0 : -1}
+- aria-label="ピザ。選択中の素材を置くにはEnterまたはスペース"
++ tabIndex={isKeyboardPlaceable ? 0 : -1}
++ aria-label={isKeyboardPlaceable ? "ピザ。選択中の素材を置くにはEnterまたはスペース" : "ピザ"}
+```
+
+While a SPREAD ingredient is selected, the dough drops out of the Tab
+order and its label no longer claims an Enter/Space action exists —
+assistive tech is never told about an activation that does nothing.
+`handleKeyDown`'s own `isPaintMode` check is the actual enforcement (a
+click can still focus a `tabIndex={-1}` element), so this is defense in
+depth, not the only guard. Nothing about `className`
+(`pizza-dough--interactive`), pointer handlers, `APPLY_SAUCE`,
+`sauceDeposits`, Sauce Metrics, Sauce visual rendering, or Reference
+Sauce rendering was touched.
+
+### Fix B — Ignore key repeat
+
+`if (event.repeat) return;`, checked after the SPREAD guard, before
+`onTap`. Uses the platform's own `KeyboardEvent.repeat` signal — no
+timer/debounce. A release + fresh (non-repeated) press still places
+normally.
+
+### Tests added
+
+- `src/screens/GameScreen.keyboardSpreadRepeat.test.tsx` (new file, +10 —
+  real `GameScreen` + real `gameReducer`, same harness pattern as
+  `GameScreen.keyboardOverlay.test.tsx`): Reference tomato-sauce selected
+  + Enter → `sauceIds`/`sauceDeposits` both untouched; same for Space;
+  dough drops out of the tab order while tomato-sauce is selected;
+  selecting a topping afterward restores the tab stop; mouse/touch Sauce
+  application (olive-oil, a plain non-Reference SPREAD ingredient) is
+  completely unaffected; a topping placed with Enter `repeat=false`
+  places exactly once; two repeated (`repeat=true`) Enters add nothing
+  more; same pair for Space; a genuine keyup+keydown (not a repeat)
+  places a second piece, confirming repeat suppression doesn't
+  over-block real presses.
+- `src/screens/GameScreen.keyboardOverlay.test.tsx` (existing file, not
+  weakened — only its `getDough()` helper was updated): two of its tests
+  select `tomato-sauce` and previously located the dough by the
+  Enter/Space aria-label. That label is now conditional on the selected
+  ingredient's placement (an intentional, correct effect of Fix A), so
+  `getDough()` now looks the dough up by its stable
+  `data-pizza-drop-target="true"` attribute instead. Every assertion in
+  every one of its 7 tests is unchanged and all 7 still pass.
+
+### Total tests
+
+**490/490 passing** (up from 480 going into this round: +10 new, 0
+removed, 0 weakened).
+
+### Verification
+
+`tsc -b`, `oxlint`, `vitest run` (490/490), `vite build`, `git diff
+--check` — all clean.
+
+### Browser verification (390x844, headless Chromium, real dev server)
+
+- **A.** Selecting tomato-sauce (and, generically, pesto — a SPREAD
+  ingredient not restricted to the Reference id) removes the dough from
+  the tab order (`tabindex="-1"`); Enter/Space on either produces no
+  `.pizza-sauce-layer` and no console error. (The tomato-sauce case
+  itself has no visible signal either way by design — that's the
+  original bug — so pesto is the generic, visually-provable case; the
+  tomato-sauce-specific state-level guarantee comes from the real-reducer
+  unit tests above.)
+- **B.** Selecting olive-oil and dragging on the dough (mouse) still
+  produces a visible `.pizza-sauce-layer` — pointer-based Sauce painting
+  is unaffected.
+- **C.** Selecting a topping (garlic) and pressing Enter once places
+  exactly one piece.
+- **D.** Two synthetic `repeat: true` `keydown`s right after add nothing
+  more.
+- **E.** Same pair for Space (one real press places a second piece; two
+  repeats add nothing further).
+- **F./G.** Opening Dex, then Shop, each block keyboard placement (count
+  unchanged).
+- **H.** Closing the overlay restores keyboard placement (count +1).
+- **I.** 0 vertical/horizontal scroll.
+- **J.** Fixed Bake CTA (`.prepare-bake-bar`) visible and its Bake button
+  enabled with no overlay open.
+- **K.** 0 console errors.
+
+**17/17 checks passed.**
+
+### Scope guard
+
+No changes to scoring, stars, BEST, Sauce scoring, Sauce quantity model,
+Sauce heatmap/rendering algorithm, Reference scoring, physical drag
+radius/grace, the 3x2 palette/paging, ingredient quantity, recipe
+generalization, Dex, Shop, Mission, Lunch Rush, Pitz, Economy, Time
+Attack, save schema, or progression. The only production-code file
+touched is `src/components/PizzaStage.tsx` (one new derived boolean, two
+early-return guards in `handleKeyDown`, and the `tabIndex`/`aria-label`
+expressions on the dough element).
+
+### Unresolved threads
+
+**0** after this round. Both new P2 threads (`discussion_r4021268603`,
+`discussion_r4021268607`) were replied to with root cause/fix/tests/SHA
+and resolved.
+
+### Re-review requested
+
+`@codex review` requested on PR #26 after the replies/resolves.
+
+### Merge status
+
+**Not merged.** PR #26 remains open. Even with tests, CI, and unresolved
+threads all green, merge is gated on this round's new-head Codex review
+completing with no new actionable P1/P2 findings — that review has not
+yet happened as of this section.
+
+## FINAL VERDICT (Final Codex P2 Follow-up #2 round)
+
+**WAITING FOR NEW-HEAD CODEX REVIEW**
