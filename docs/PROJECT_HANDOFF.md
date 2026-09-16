@@ -11,9 +11,7 @@ The game is not merely about selecting the correct recipe ingredients. The targe
 > See the ordered/reference pizza, recreate it physically by hand, bake it, and score higher the closer/better it is made.
 
 Core loop: `ORDER → PREPARE → BAKE → RESULT → DISCOVERED`.
-
 Progression loop: `make → stars → stock unlock → Lunch Rush → Pitz → buy ingredient → new pizza → Dex/mastery → replay`.
-
 Primary device: smartphone vertical. Verification baseline: 390×844.
 
 ## Current production baseline
@@ -69,7 +67,13 @@ Long-term Scoring 2.0 architecture should remain compatible with four categories
 - [ ] Score-based Baked Visual Polish — render-only post-score baked appearance; never feed visual correction back into scoring
 - [ ] Sauce Polish — texture, edge response and visual quality after scoring behavior is stable
 
-### Milestone 2 — Pizza Shop / Economy
+### Milestone 2 — Game / Replayability
+
+- [ ] Phase 4B — Difficulty / Hint Policy: Practice, Normal, Challenge, Lunch Rush
+- [ ] Time Attack — quality-gated count-up challenge, initially small recipe scope
+- [ ] Recipe expansion toward 20
+
+### Milestone 3 — Pizza Shop / Content Foundation
 
 - [ ] Inventory Foundation — separate consumable stock from permanent ingredient ownership
 - [ ] Restock / Shop inventory flow
@@ -77,23 +81,14 @@ Long-term Scoring 2.0 architecture should remain compatible with four categories
 - [ ] Revenue / ingredient cost / profit foundation
 - [ ] Lunch Rush economy integration
 - [ ] Dough inventory/consumption after Save v2; Practice remains non-consuming
-
-### Milestone 3 — Replayability
-
-- [ ] Phase 4B — Difficulty / Hint Policy: Practice, Normal, Challenge, Lunch Rush
-- [ ] Time Attack — quality-gated count-up challenge, initially small recipe scope
-- [ ] Recipe expansion toward 20
-- [ ] Pizza Dex expansion — undiscovered → discovered → BEST → MASTER
-
-### Milestone 4 — Content Foundation / Long-term Progression
-
 - [ ] Phase 4C — Content Catalog for safe recipe/ingredient scaling
 - [ ] Phase 4D — Recipe / Ingredient Editor + JSON import/export + preview/test-play
 - [ ] Recipe expansion 20 → 30
+- [ ] Pizza Dex expansion — undiscovered → discovered → BEST → MASTER
 - [ ] Phase 4E — Progression 2.0 / post-Dex-completion motivation
 - [ ] Recover/normalize the PIZZA DB-derived larger catalog only from verified source data; do not treat prior 160/181 audit counts as repository truth without source recovery
 
-### Milestone 5 — Character / Final Polish
+### Milestone 4 — Character / Final Polish
 
 - [ ] Character Experience — richer Teto/Mito/Blue reactions during making and results
 - [ ] Final visual / animation / sound polish
@@ -108,9 +103,7 @@ Long-term Scoring 2.0 architecture should remain compatible with four categories
 ## Data/design constraints
 
 Interaction should scale through reusable families such as SPREAD / HOLD_SCATTER / TAP_PLACE / SPRINKLE / DRIZZLE / SPECIAL rather than unique mechanics per ingredient.
-
 Do not present prototype quantity as canonical grams/ml without reliable source-backed data. Use normalized internal quantity.
-
 Reference ingredient, player ingredient and scoring ingredient should represent the same underlying ingredient semantics; baked/result visual transformation is render-only.
 
 ## Non-negotiable guards
