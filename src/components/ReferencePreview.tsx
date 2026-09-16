@@ -1,5 +1,8 @@
+import type { CSSProperties } from "react";
 import type { ReferencePizza } from "../data/referencePizza";
 import { getIngredient } from "../data/ingredients";
+import { stablePieceRotation } from "../logic/pieceDrag";
+import { SAUCE_TARGET_RADIUS } from "../logic/sauceField";
 
 interface ReferencePreviewProps {
   reference: ReferencePizza;
@@ -60,6 +63,14 @@ export function ReferencePreview({ reference, isOpen, onOpenChange }: ReferenceP
             </div>
 
             <div className="reference-mini-pizza" aria-hidden="true">
+              {/* Human Feel Fix 2 (Target Area Guide, brief section 2): the same
+                  SAUCE_TARGET_RADIUS boundary PizzaStage's own guide ring uses, so the
+                  Reference popover never shows a different "leave the ear" area than the
+                  one the player's own dough guide (and edgeAmount/edgeRatio scoring) uses. */}
+              <div
+                className="reference-mini-pizza__target-guide"
+                style={{ "--target-radius": `${SAUCE_TARGET_RADIUS}%` } as CSSProperties}
+              />
               <div
                 className="reference-mini-pizza__sauce"
                 style={{
@@ -68,25 +79,26 @@ export function ReferencePreview({ reference, isOpen, onOpenChange }: ReferenceP
                   transform: `scale(${0.55 + reference.sauce.coverage * 0.4})`,
                 }}
               />
-              <span className="reference-mini-pizza__topping" style={{ left: "35%", top: "38%" }}>
-                {"\u{1F9C0}"}
-              </span>
-              <span className="reference-mini-pizza__topping" style={{ left: "62%", top: "32%" }}>
-                {"\u{1F9C0}"}
-              </span>
-              <span className="reference-mini-pizza__topping" style={{ left: "50%", top: "62%" }}>
-                {"\u{1F9C0}"}
-              </span>
-              <span className="reference-mini-pizza__topping" style={{ left: "44%", top: "52%" }}>
-                {"\u{1F33F}"}
-              </span>
-              <span className="reference-mini-pizza__topping" style={{ left: "60%", top: "58%" }}>
-                {"\u{1F33F}"}
-              </span>
+              {reference.pieceGroups.flatMap((group) => {
+                const ingredient = getIngredient(group.ingredientId);
+                return group.positions.map((position, index) => (
+                  <span
+                    key={`${group.ingredientId}-${index}`}
+                    className={`reference-mini-pizza__topping reference-mini-pizza__topping--${group.ingredientId}`}
+                    style={{
+                      left: `${position.x}%`,
+                      top: `${position.y}%`,
+                      transform: `translate(-50%, -50%) rotate(${stablePieceRotation(group.ingredientId, position.x, position.y)}deg)`,
+                    }}
+                  >
+                    {ingredient?.emoji}
+                  </span>
+                ));
+              })}
             </div>
 
             <p className="reference-preview__caption">
-              トマトソースは生地全体にまんべんなく、ふちを少し残して塗るのが目安だよ。
+              ソースをまんべんなく塗って、モッツァレラ3個とバジル2枚を見本に近く置こう。
             </p>
 
             <div className="reference-preview__bar-row">

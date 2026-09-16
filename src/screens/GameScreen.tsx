@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { DialogueBox } from "../components/DialogueBox";
 import { PizzaStage } from "../components/PizzaStage";
 import { IngredientTray } from "../components/IngredientTray";
@@ -27,6 +28,8 @@ import { discoveredRecipeIds } from "../state/dex";
 import { remainingSeconds, type MissionState } from "../mission/lunchRush";
 import { averageQualityScore, missionScore } from "../logic/missionScoring";
 import { calculateMissionReward } from "../logic/economy";
+import type { PieceReferenceMetrics } from "../logic/referenceMatching";
+import type { DoughPoint } from "../logic/pizzaCoordinates";
 
 /**
  * GAME screen (Issue #24). Everything that happens while an actual round is in play --
@@ -52,8 +55,18 @@ interface GameScreenProps {
   referenceModeEnabled: boolean;
   referencePizza: ReferencePizza | null;
   isReferencePopoverOpen: boolean;
+  /** Independent Review P2-A (PR #26, discussion_r4017018600): true whenever a global overlay
+   *  (Dex or Shop -- Reference has its own `isReferencePopoverOpen` already wired into the same
+   *  gate below) is open. A second pointer opening one of these mid-drag must abort the first
+   *  pointer's physical-drag session exactly like Reference already does, since IngredientTray's
+   *  window-level pointerup/pointercancel listeners don't know or care what's visually on top. */
+  isGlobalOverlayOpen: boolean;
   sauceMetrics: SauceMetrics;
   sauceShadowScore: SauceReferenceShadowScore;
+  /** Human Feel Fix 2: whether a tomato-sauce dispense session currently has any buffered
+   *  (uncommitted) deposits -- drives SauceMetricsPanel's live message visibility. */
+  isDispensingSauce: boolean;
+  pieceShadowMetrics: readonly PieceReferenceMetrics[];
   onGoHome: () => void;
   onOpenDex: () => void;
   onOpenShop: () => void;
@@ -76,6 +89,9 @@ interface GameScreenProps {
   onReferencePopoverChange: (isOpen: boolean) => void;
   onDispenseProgress: (deposits: readonly SauceDeposit[]) => void;
   onDispenseCommit: (ingredientId: string, deposits: SauceDeposit[]) => void;
+  onDoughElementChange: (element: HTMLDivElement | null) => void;
+  resolvePhysicalDrop: (clientX: number, clientY: number) => DoughPoint | null;
+  onPhysicalDrop: (ingredient: Ingredient, point: DoughPoint) => void;
 }
 
 export function GameScreen({
@@ -90,8 +106,11 @@ export function GameScreen({
   referenceModeEnabled,
   referencePizza,
   isReferencePopoverOpen,
+  isGlobalOverlayOpen,
   sauceMetrics,
   sauceShadowScore,
+  isDispensingSauce,
+  pieceShadowMetrics,
   onGoHome,
   onOpenDex,
   onOpenShop,
@@ -114,7 +133,23 @@ export function GameScreen({
   onReferencePopoverChange,
   onDispenseProgress,
   onDispenseCommit,
+  onDoughElementChange,
+  resolvePhysicalDrop,
+  onPhysicalDrop,
 }: GameScreenProps) {
+  // Independent Review P2 (PR #26): RESET_PIZZA only clears `state.pizza` -- it never touches
+  // `physicalDragEnabled`/`selectedIngredientId`/`activeCategory`, the three signals
+  // IngredientTray already watches to abort a stale physical-drag session. Without this, a
+  // second pointer tapping "やり直す" mid-drag left the first pointer's session alive; releasing
+  // it afterward committed a PLACE_TOPPING onto the freshly emptied pizza. Bumped here (the one
+  // place "やり直す" is wired to onResetPizza) and handed to IngredientTray as `resetToken` so it
+  // can add a fourth "abort on change" effect alongside its existing three.
+  const [pizzaResetToken, setPizzaResetToken] = useState(0);
+  function handleResetPizza() {
+    setPizzaResetToken((token) => token + 1);
+    onResetPizza();
+  }
+
   const isMissionPlaying = mission.mode === "PLAYING";
   // Free play's own RESULT dialogue/ResultPanel are gated on this, not just `!isMissionPlaying`
   // -- once a run's timer expires mid-round, `mission.mode` flips straight to "RESULT" while
@@ -168,56 +203,72 @@ export function GameScreen({
         />
       )}
 
-      <section className="dialogue-area">
-        {state.phase === "ORDER" && (
-          <>
-            <DialogueBox {...mitoOrderLine} />
-            <DialogueBox {...buildTetoOrderLine(state.recipe)} />
-          </>
-        )}
-        {state.phase === "PREPARE" && state.hint && <DialogueBox {...state.hint} />}
-        {state.phase === "BAKE" && <DialogueBox {...buildTetoBakeLine(state.recipe)} />}
-        {showFreeResultDialogue && state.score && state.bakeState && (
-          <>
-            <DialogueBox
-              {...buildTetoResultLine(state.recipe, state.bakeState, state.pizza.bakeResult)}
+      {state.phase !== "PREPARE" && (
+        <section className="dialogue-area">
+          {state.phase === "ORDER" && (
+            <>
+              <DialogueBox {...mitoOrderLine} />
+              <DialogueBox {...buildTetoOrderLine(state.recipe)} />
+            </>
+          )}
+          {state.phase === "BAKE" && <DialogueBox {...buildTetoBakeLine(state.recipe)} />}
+          {showFreeResultDialogue && state.score && state.bakeState && (
+            <>
+              <DialogueBox
+                {...buildTetoResultLine(state.recipe, state.bakeState, state.pizza.bakeResult)}
+              />
+              <DialogueBox
+                {...buildBlueResultLine(
+                  state.recipe,
+                  state.score,
+                  state.bakeState,
+                  state.pizza.bakeResult,
+                )}
+              />
+            </>
+          )}
+          {state.phase === "DISCOVERED" && <DialogueBox {...discoveredLine} />}
+        </section>
+      )}
+
+      {/* Human Feel Fix 3 (Compact Header/Reference, brief section C): PREPARE used to spend
+          the dialogue-area's full character-portrait DialogueBox on `state.hint` (always
+          non-null -- see data/hints.ts's buildHintLine) plus a separate .reference-tools-row
+          just for the 見本 button -- together the single biggest reason PREPARE didn't fit
+          390x844 without scrolling. One compact row replaces both: the recipe name, the same
+          live hint text (still sourced from state.hint, just without the portrait/bubble
+          chrome), and the *same* <ReferencePreview> component (its own popover/modal is
+          completely unchanged) inline. */}
+      {state.phase === "PREPARE" && (
+        <div className="order-card">
+          <div className="order-card__text">
+            <span className="order-card__recipe-name">{state.recipe.nameJa}</span>
+            <span className="order-card__hint">{state.hint?.textJa ?? state.recipe.description}</span>
+          </div>
+          {referenceModeEnabled && referencePizza && (
+            <ReferencePreview
+              reference={referencePizza}
+              isOpen={isReferencePopoverOpen}
+              onOpenChange={onReferencePopoverChange}
             />
-            <DialogueBox
-              {...buildBlueResultLine(
-                state.recipe,
-                state.score,
-                state.bakeState,
-                state.pizza.bakeResult,
-              )}
-            />
-          </>
-        )}
-        {state.phase === "DISCOVERED" && <DialogueBox {...discoveredLine} />}
-      </section>
+          )}
+        </div>
+      )}
 
       <PizzaStage
         pizza={state.pizza}
         recipe={state.recipe}
-        interactive={state.phase === "PREPARE" && !isReferencePopoverOpen}
+        interactive={state.phase === "PREPARE" && !isReferencePopoverOpen && !isGlobalOverlayOpen}
         activeIngredient={selectedIngredientId ? (getIngredient(selectedIngredientId) ?? null) : null}
         bakeProgress={bakeProgress}
         placement={state.placement}
         resultRevealed={state.phase === "RESULT"}
         referenceModeEnabled={referenceModeEnabled}
+        onDoughElementChange={onDoughElementChange}
         onTap={onTapPizza}
         onDispenseProgress={onDispenseProgress}
         onDispenseCommit={onDispenseCommit}
       />
-
-      {state.phase === "PREPARE" && referenceModeEnabled && referencePizza && (
-        <div className="reference-tools-row">
-          <ReferencePreview
-            reference={referencePizza}
-            isOpen={isReferencePopoverOpen}
-            onOpenChange={onReferencePopoverChange}
-          />
-        </div>
-      )}
 
       {state.phase === "ORDER" && (
         <div className="action-row">
@@ -232,9 +283,24 @@ export function GameScreen({
         </div>
       )}
 
-      {state.phase === "PREPARE" && referenceModeEnabled && (
-        <SauceMetricsPanel metrics={sauceMetrics} shadowScore={sauceShadowScore} />
-      )}
+      {/* Human Feel Fix 3 (Compact Evaluation UI, brief section F): shown only while Sauce is
+          the active category -- Cheese/Topping never needed a sauce readout, and hiding it
+          then is most of this panel's contribution to the 1-screen budget. Positioned right
+          after PizzaStage ("Pizza Stage近くに", per the brief), not beside it -- a true
+          side-by-side layout would mean resizing the dough itself, which section A's
+          "Pizza操作領域を極端に縮小しない" rules out as this round's tradeoff. */}
+      {state.phase === "PREPARE" &&
+        referenceModeEnabled &&
+        referencePizza &&
+        activeCategory === "sauce" && (
+          <SauceMetricsPanel
+            metrics={sauceMetrics}
+            shadowScore={sauceShadowScore}
+            reference={referencePizza.sauce}
+            isDispensing={isDispensingSauce}
+            pieceMetrics={pieceShadowMetrics}
+          />
+        )}
 
       {state.phase === "PREPARE" && (
         <>
@@ -244,9 +310,23 @@ export function GameScreen({
             selectedIngredientId={selectedIngredientId}
             onSelectIngredient={onSelectIngredient}
             ownedIngredientIds={state.ownedIngredientIds}
+            physicalDragEnabled={
+              referenceModeEnabled && !isReferencePopoverOpen && !isGlobalOverlayOpen
+            }
+            draggableIngredientIds={["mozzarella", "basil"]}
+            resolvePhysicalDrop={resolvePhysicalDrop}
+            onPhysicalDrop={onPhysicalDrop}
+            resetToken={pizzaResetToken}
           />
-          <div className="action-row">
-            <button type="button" className="secondary-button" onClick={onResetPizza}>
+          {/* Human Feel Fix 3 (Fixed Bake CTA, brief section B): `.prepare-bake-bar` is
+              `position: fixed` to the viewport (matching .app-frame's own centered max-width,
+              see App.css), not the old `.action-row` + flex `margin-top: auto` this replaces
+              -- that trick only pushes to the bottom of content that already fits the
+              viewport, which is exactly what silently failed once PREPARE grew taller than
+              844px (the bug this whole round exists to fix). `.ingredient-panel` reserves
+              matching bottom padding so this bar can never cover the Palette above it. */}
+          <div className="action-row prepare-bake-bar">
+            <button type="button" className="secondary-button" onClick={handleResetPizza}>
               やり直す
             </button>
             <button type="button" className="cta-button cta-button--bake" onClick={onStartBake}>

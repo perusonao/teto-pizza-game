@@ -10,6 +10,7 @@ import { purchaseIngredient } from "../logic/economy";
 import { discoveredRecipeIds, registerScoreToDex, EMPTY_DEX, type DexState } from "./dex";
 import { availableRecipeIds } from "./progression";
 import { pickMissionOrder } from "../mission/lunchRush";
+import { isInsideDough } from "../logic/pizzaCoordinates";
 import { getReferencePizza } from "../data/referencePizza";
 import {
   createEmptyPizza,
@@ -243,6 +244,12 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case "PLACE_TOPPING": {
+      // Phase 4A-1B: a tray drag can finish after PREPARE was synchronously left by a
+      // second pointer (BAKE/overlay/navigation). Reject the late commit at the canonical
+      // boundary, independent of component cleanup.
+      if (state.phase !== "PREPARE") return state;
+      if (!Number.isFinite(action.x) || !Number.isFinite(action.y)) return state;
+      if (!isInsideDough(action.x, action.y)) return state;
       // Same ownership boundary as APPLY_SAUCE above.
       if (!state.ownedIngredientIds.includes(action.ingredientId)) return state;
       const spot = findOpenSpot(state.pizza.toppings, action.x, action.y);

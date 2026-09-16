@@ -1,3 +1,21 @@
+/* ---------- Preview badge (perusonao/teto-pizza-game-preview only) ---------- */
+.preview-badge {
+  position: fixed;
+  bottom: calc(4px + env(safe-area-inset-bottom, 0px));
+  right: 6px;
+  z-index: 999;
+  font-size: 9px;
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: rgba(255, 249, 236, 0.75);
+  background: rgba(43, 26, 10, 0.55);
+  border-radius: 6px;
+  padding: 2px 6px;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
 .app-frame {
   width: 100%;
   max-width: 390px;
@@ -123,6 +141,43 @@
   font-size: 13.5px;
   line-height: 1.4;
   color: #3a2a1a;
+}
+
+/* ---------- Order card (Human Feel Fix 3, PREPARE only) ---------- */
+/* Replaces the character-portrait DialogueBox + separate .reference-tools-row PREPARE used
+   to spend on the recipe name/hint/見本 button -- one compact row instead of two stacked
+   ones, see GameScreen.tsx's own comment for the full rationale. */
+.order-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 6px 12px 0;
+  padding: 8px 12px;
+  background: #fff8ea;
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(47, 25, 8, 0.12);
+}
+
+.order-card__text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.order-card__recipe-name {
+  font-size: 13px;
+  font-weight: 800;
+  color: #6b4226;
+}
+
+.order-card__hint {
+  font-size: 11.5px;
+  color: #a1662f;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ---------- Pizza stage ---------- */
@@ -313,6 +368,14 @@
   transition: filter 0.3s ease;
 }
 
+.pizza-topping--mozzarella {
+  animation: mozzarella-land 220ms ease-out both;
+}
+
+.pizza-topping--basil {
+  animation: basil-land 280ms ease-out both;
+}
+
 .pizza-topping__emoji {
   display: block;
   font-size: 28px;
@@ -405,6 +468,37 @@
   }
   100% {
     transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes mozzarella-land {
+  0% {
+    transform: translate(-50%, calc(-50% - 8px)) scale(0.78);
+    opacity: 0.6;
+  }
+  52% {
+    transform: translate(-50%, -50%) scaleX(1.1) scaleY(0.86);
+    opacity: 1;
+  }
+  78% {
+    transform: translate(-50%, -50%) scaleX(0.97) scaleY(1.05);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes basil-land {
+  0% {
+    transform: translate(-50%, calc(-50% - 16px)) rotate(calc(var(--piece-rotation) - 12deg)) scale(0.72);
+    opacity: 0;
+  }
+  68% {
+    transform: translate(-50%, calc(-50% + 2px)) rotate(calc(var(--piece-rotation) + 3deg)) scale(1.04);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(var(--piece-rotation)) scale(1);
   }
 }
 
@@ -506,6 +600,11 @@
 /* ---------- Ingredient tray ---------- */
 .ingredient-panel {
   padding: 4px 12px 0;
+  /* Human Feel Fix 3: reserves room for .prepare-bake-bar (position: fixed, see its own
+     rule below) so the fixed CTA bar can never sit on top of the last two Palette rows.
+     IngredientTray only ever renders during PREPARE (see GameScreen.tsx), so this is safe
+     to apply unconditionally rather than needing its own phase-scoped modifier class. */
+  padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
 }
 
 .category-tabs {
@@ -539,30 +638,151 @@
   color: #fff;
 }
 
+/* Phase 4A-1B Human Feel Fix 2: a fixed 3x2 grid, never scrollable -- iPhone retesting of
+   Fix 1 (drag threshold + iOS callout suppression) still came back "unresponsive", and the
+   actual cause was this: scrolling the tray and dragging a piece onto the pizza are the same
+   single-finger swipe gesture, so every drag attempt was also a scroll attempt the browser
+   had to arbitrate. Removing scrolling removes that arbitration entirely instead of tuning
+   it further. `MAX_INGREDIENT_PALETTE_SLOTS` (src/data/ingredients.ts) keeps this a no-op
+   grid.template overflow guard rather than a hard product limit. */
 .ingredient-tray {
-  display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  padding-bottom: 8px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 8px;
 }
 
 .ingredient-chip {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 4px;
-  min-width: 72px;
-  min-height: 72px;
+  min-height: 76px;
   border-radius: 12px;
   border: 2px solid transparent;
   background: #fff8ea;
   padding: 8px 6px;
-  flex-shrink: 0;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+  /* iOS Safari fires its own text-selection/callout UI on a touch-and-hold over button
+     content (the emoji/text spans below) unless explicitly suppressed -- left unset, that
+     native UI can grab a slow-starting drag gesture out from under the pointer handlers
+     below, which is exactly the kind of "operation feels unresponsive" failure a screen
+     recording alone won't show (the callout can flash and vanish within a frame or two). */
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .ingredient-chip--selected {
   border-color: #e4572e;
   background: #fff1de;
+}
+
+/* Independent Review P1 (PR #26): shown only when a category owns more than
+   MAX_INGREDIENT_PALETTE_SLOTS ingredients (IngredientTray.tsx). A compact row, not a second
+   scroll surface -- keeps the 3x2 grid's own gesture surface exactly as Fix 2 left it. */
+.ingredient-page-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.ingredient-page-nav__button {
+  min-width: 36px;
+  min-height: 28px;
+  border: none;
+  border-radius: 8px;
+  background: #e6d5ae;
+  color: #6b4226;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.ingredient-page-nav__button:disabled {
+  opacity: 0.4;
+}
+
+.ingredient-page-nav__label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #6b4226;
+  min-width: 32px;
+  text-align: center;
+}
+
+/* Phase 4A-1B Human Feel Fix 2: the grid has no native gesture left to share this button
+   with (pan-x existed only to keep the tray's old horizontal scroll usable -- gone now), so
+   this can go straight to `none`, the same "no ambiguity" setting `.pizza-dough--interactive`
+   already uses for the sauce-paint gesture. That's the "iOS Safari drag start" minimum this
+   round's brief asked for: nothing left for the browser to arbitrate before handing pointer
+   events to the drag handlers below. */
+.ingredient-chip--physical {
+  touch-action: none;
+}
+
+/* Phase 4A-1B Human Feel fix: fires the instant a physical ingredient is touched, before
+   the drag-intent threshold (src/logic/pieceDrag.ts) is crossed -- gives immediate "the
+   app registered my touch" confirmation instead of leaving the chip inert until enough
+   movement accumulates, which is what read as "reacts poorly" in hands-on testing. */
+.ingredient-chip--grabbing {
+  position: relative;
+  z-index: 1;
+  transform: scale(1.08);
+  box-shadow: 0 4px 10px rgba(47, 25, 8, 0.22);
+  border-color: #e4572e;
+}
+
+.ingredient-chip__drag-hint {
+  font-size: 9px;
+  line-height: 1;
+  color: #a04a27;
+  white-space: nowrap;
+}
+
+.piece-drag-preview {
+  position: fixed;
+  z-index: 200;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(1.06);
+  border-radius: 50%;
+  background: rgba(255, 248, 234, 0.78);
+  box-shadow: 0 10px 18px rgba(47, 25, 8, 0.3);
+  opacity: 0.9;
+}
+
+.piece-drag-preview--valid {
+  box-shadow: 0 8px 16px rgba(40, 110, 35, 0.32), 0 0 0 3px rgba(76, 154, 42, 0.55);
+  transform: translate(-50%, -50%) scale(1.14);
+}
+
+.piece-drag-preview--basil {
+  background: rgba(240, 250, 230, 0.72);
+  box-shadow: 0 8px 14px rgba(30, 85, 30, 0.22);
+}
+
+.piece-drag-preview__emoji {
+  font-size: 30px;
+  filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.24));
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .ingredient-chip__emoji {
@@ -595,6 +815,31 @@
 
 .action-row--column {
   flex-direction: column;
+}
+
+/* Human Feel Fix 3 (Fixed Bake CTA, brief section B): position: fixed to the *viewport*, not
+   .app-frame (a fixed-position element ignores a non-fixed ancestor's own layout) -- so this
+   replicates .app-frame's own centering (body's `display:flex; justify-content:center`) and
+   max-width by hand by centering itself the same way, rather than relying on being a
+   descendant of it. This is what makes the CTA robust against PREPARE overflowing 844px at
+   all: `margin-top: auto` on a plain `.action-row` (still used by every non-PREPARE phase)
+   only pushes to the bottom of content that already fits on screen. */
+.prepare-bake-bar {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  width: 100%;
+  max-width: 390px;
+  margin-top: 0;
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(180deg, rgba(239, 220, 179, 0) 0%, #efdcb3 40%, #efdcb3 100%);
+  /* Independent Review P2-B (PR #26, discussion_r4017018615): must stay below every modal
+     backdrop (.dex-overlay/.shop-overlay's shared 20, .mission-overlay and
+     .reference-preview__backdrop's shared 25) so Bake/Reset/hint controls can never render or
+     receive taps above an open overlay. Still above ordinary in-flow PREPARE content (z-index:
+     auto) and .app-header (5), which never overlaps it spatially anyway. */
+  z-index: 10;
 }
 
 .cta-button {
@@ -1517,36 +1762,58 @@
    src/logic/sauceField.ts), layered above the flat .pizza-sauce-layer fill and below
    toppings by DOM order alone -- no z-index needed. Not clip-path'd to the dough circle so
    the faint overflow dots it also draws can still show just past the rim. */
+/* Human Feel Fix 2 (Target Area Guide): same inset/viewBox convention as .pizza-paint-trail
+   below (border-box-aligned 0-100 coordinate space, so `r` in the SVG is directly in
+   dough-percent units, exactly matching SAUCE_TARGET_RADIUS with no separate unit
+   conversion). Deliberately fainter than the sauce itself -- a hint, not a second sauce
+   layer -- and never intercepts pointer input. */
+.sauce-target-guide {
+  position: absolute;
+  inset: calc(-1 * var(--dough-border-width));
+  pointer-events: none;
+}
+
+.sauce-target-guide circle {
+  fill: none;
+  /* Human Feel Fix 3 (brief section E): the previous 0.6/0.22 pairing read as basically
+     invisible on a physical screen ("現在より実機で認識できるようにする") -- bolder stroke +
+     opacity here, but still a plain dashed line (no glow/color change) so it stays a hint,
+     not competition for the sauce itself once painting starts covering it. */
+  stroke: rgba(107, 66, 38, 0.4);
+  stroke-width: 1.1;
+  stroke-dasharray: 3 2.4;
+}
+
 .pizza-sauce-heatmap {
   position: absolute;
   inset: calc(-1 * var(--dough-border-width));
   width: calc(100% + 2 * var(--dough-border-width));
   height: calc(100% + 2 * var(--dough-border-width));
   pointer-events: none;
+  /* Human Feel Fix 2 (Sauce Visual): softens the overlapping-circle cells drawn in
+     PizzaStage's canvas effect into a continuous painted surface instead of a busy dot
+     pattern -- a cheap CSS filter, not an extra render pass, per the brief's "no heavy
+     Canvas/WebGL" constraint. */
+  filter: blur(1px);
 }
 
 /* MUST FIX 8 (Visual Truth) follow-up: now that the heatmap is the *only* sauce visual for
    this prototype (see PizzaStage's `isReferenceSauceContext`), it needs the same bake-state
    tinting `.pizza-sauce-layer` gets elsewhere, or the sauce would stop reacting to bake
    state entirely once the flat fill is skipped. Same filter values as
-   `.pizza-dough--raw/--perfect .pizza-sauce-layer` above, applied to the canvas instead. */
+   `.pizza-dough--raw/--perfect .pizza-sauce-layer` above, applied to the canvas instead --
+   each one keeps the blur(1px) above (a `filter` list replaces, it doesn't merge with the
+   base rule's). */
 .pizza-dough--raw .pizza-sauce-heatmap--raw {
-  filter: saturate(1.18) brightness(1.06);
+  filter: blur(1px) saturate(1.18) brightness(1.06);
 }
 
 .pizza-dough--perfect .pizza-sauce-heatmap--perfect {
-  filter: saturate(1.08) brightness(0.95) hue-rotate(-6deg);
+  filter: blur(1px) saturate(1.08) brightness(0.95) hue-rotate(-6deg);
 }
 
 .pizza-dough--burnt .pizza-sauce-heatmap--burnt {
-  filter: brightness(0.55) saturate(0.7) sepia(0.25);
-}
-
-.reference-tools-row {
-  display: flex;
-  justify-content: center;
-  padding: 0 16px;
-  margin-top: -4px;
+  filter: blur(1px) brightness(0.55) saturate(0.7) sepia(0.25);
 }
 
 .reference-preview__button {
@@ -1620,10 +1887,44 @@
   border-radius: 50%;
 }
 
+/* Human Feel Fix 2 (Target Area Guide): same convention as .sauce-target-guide on the main
+   dough, sized from the same SAUCE_TARGET_RADIUS constant via the --target-radius custom
+   property. Drawn before .reference-mini-pizza__sauce in the DOM, so the (still mostly
+   opaque) sauce circle painted on top of it hides most of the ring anyway -- it's meant to
+   read as "this is the area", not to compete with the sauce swatch for attention. */
+.reference-mini-pizza__target-guide {
+  position: absolute;
+  inset: calc(50% - var(--target-radius));
+  border-radius: 50%;
+  border: 1.5px dashed rgba(107, 66, 38, 0.4);
+  pointer-events: none;
+}
+
 .reference-mini-pizza__topping {
   position: absolute;
   transform: translate(-50%, -50%);
   font-size: 18px;
+}
+
+.reference-mini-pizza__topping--mozzarella {
+  font-size: 16px;
+}
+
+.reference-mini-pizza__topping--basil {
+  font-size: 17px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pizza-topping,
+  .pizza-topping--mozzarella,
+  .pizza-topping--basil {
+    animation-duration: 1ms;
+    animation-iteration-count: 1;
+  }
+
+  .piece-drag-preview {
+    transition: none;
+  }
 }
 
 .reference-preview__caption {
@@ -1678,6 +1979,61 @@
   font-weight: 700;
   color: #8a6a1f;
   padding: 2px 0;
+  margin-top: 6px;
+}
+
+/* Human Feel Fix 2: the player-facing row -- 広さ/均一さ/ふち, always visible (not behind
+   the 開発用 toggle below). */
+.sauce-metrics-panel__player-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sauce-metrics-panel__player-heading {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b4226;
+  margin-right: 2px;
+}
+
+.sauce-metrics-panel__player-chip {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b4226;
+  background: #fff8ea;
+  border-radius: 999px;
+  padding: 3px 9px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.sauce-metrics-panel__tier {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.sauce-metrics-panel__tier--great {
+  color: #4c9a2a;
+}
+
+.sauce-metrics-panel__tier--good {
+  color: #c78a1e;
+}
+
+.sauce-metrics-panel__tier--poor {
+  color: #c73b2e;
+}
+
+/* One short line, replaced wholesale each render -- see SauceMetricsPanel.tsx's own doc
+   comment for why this is never more than one message at a time. */
+.sauce-metrics-panel__live-message {
+  margin: 6px 0 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #a1662f;
 }
 
 .sauce-metrics-panel__row {

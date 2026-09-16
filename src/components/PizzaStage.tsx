@@ -1,10 +1,12 @@
 import {
   useEffect,
+  useCallback,
   useMemo,
   useReducer as useReactReducer,
   useRef,
   type CSSProperties,
   type MouseEvent as ReactMouseEvent,
+  type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import { getIngredient, type Ingredient } from "../data/ingredients";
@@ -16,8 +18,9 @@ import { PointerTimestampNormalizer } from "../logic/pointerTimestampNormalizer"
 import {
   buildSauceField,
   insideDoughFraction,
-  isCellInsideDough,
   SAUCE_FIELD_SIZE,
+  sauceFieldToRgbaPixels,
+  SAUCE_TARGET_RADIUS,
 } from "../logic/sauceField";
 import {
   clampToDough,
@@ -26,6 +29,7 @@ import {
   toSauceLayerPercent,
   type DoughPoint,
 } from "../logic/pizzaCoordinates";
+import { stablePieceRotation } from "../logic/pieceDrag";
 
 /** Screen-space finger/mouse movement (px) before a press becomes a drag instead of a tap. */
 const DRAG_THRESHOLD_PX = 10;
@@ -57,6 +61,7 @@ interface PizzaStageProps {
    *  FIX 1 -- Gesture Session Safety).
    */
   referenceModeEnabled: boolean;
+  onDoughElementChange?: (element: HTMLDivElement | null) => void;
   onTap: (xPercent: number, yPercent: number) => void;
   /** Phase 4A-1A (Post-Codex-Fix): fired with the *entire* accumulated-so-far deposit array
    *  for the in-progress dispense session on every tick, and with `[]` the instant that
@@ -120,6 +125,7 @@ export function PizzaStage({
   placement,
   resultRevealed,
   referenceModeEnabled,
+  onDoughElementChange,
   onTap,
   onDispenseProgress,
   onDispenseCommit,
@@ -159,6 +165,11 @@ export function PizzaStage({
    *  (see PointerTimestampNormalizer's doc comment) -- never re-created per pointermove
    *  sample. `null` whenever no reference-dispense session is active. */
   const timestampNormalizerRef = useRef<PointerTimestampNormalizer | null>(null);
+
+  const setDoughElement = useCallback((element: HTMLDivElement | null) => {
+    circleRef.current = element;
+    onDoughElementChange?.(element);
+  }, [onDoughElementChange]);
 
   useEffect(() => {
     committedTotalRef.current = pizza.sauceDeposits.reduce((sum, d) => sum + d.amount, 0);
@@ -313,6 +324,12 @@ export function PizzaStage({
   }
 
   const isPaintMode = activeIngredient?.placement === "spread";
+  // PR #26 Final P2 Follow-up #2 (discussion_r4021268603): SPREAD ingredients have no working
+  // keyboard activation (see handleKeyDown below), so the dough must not advertise one via
+  // tabIndex/aria-label while one is selected -- misleading assistive tech about a control that
+  // silently does nothing useful is worse than temporarily dropping it from the tab order.
+  // Scatter (TAP_PLACE) toppings are completely unaffected.
+  const isKeyboardPlaceable = interactive && !isPaintMode;
 
   /** Starts a Phase 4A-1A dispense session for `pointerId` at `dough`, snapshotting the
    *  ingredient it's for, and drives it from a requestAnimationFrame loop keyed on real
@@ -384,9 +401,12 @@ export function PizzaStage({
     const wantsReferenceDispense =
       referenceModeEnabled && isPaintMode && activeIngredient?.id === "tomato-sauce";
     if (wantsReferenceDispense && activeIngredient) {
-      // Sauce starts coming out the instant the dispenser is pressed, not on release --
-      // draw the trail's first point immediately to match.
-      appendTrailPoint(dough.x, dough.y);
+      // Human Feel Fix 2: no trail point here (unlike the legacy paint-drag path below) --
+      // a reference dispense session's visual is the sauce heatmap alone (see
+      // showSauceHeatmap/the canvas draw effect further down), which already re-renders every
+      // tick. A raw pointer-path stroke drawn on top of it is what iPhone retesting flagged
+      // as "looks like a thick red line", not "sauce spreading" -- see
+      // docs/reports/PIZZA_GAME_Phase4A-1B_iPhone-HumanFeel-Fix2_Result.md.
       // Timestamp-preservation follow-up: one performance.now() sample here, shared by both
       // the controller's own start() and the normalizer built alongside it -- every later
       // pointermove sample (including each one inside a coalesced batch) is normalized
@@ -426,9 +446,9 @@ export function PizzaStage({
       // moment this loop runs is exactly the bug this fixes: on a slow/coalesced frame,
       // several samples processed in the same synchronous loop would otherwise all collapse
       // to nearly the same instant, destroying the finger's real movement-over-time history
-      // that SauceDispenseController's tick interpolation depends on.
+      // that SauceDispenseController's tick interpolation depends on. Human Feel Fix 2: no
+      // appendTrailPoint here -- see the matching comment in handlePointerDown above.
       if (isInsideDough(dough.x, dough.y)) g.lastInsideDough = dough;
-      appendTrailPoint(dough.x, dough.y);
       const normalizedTimestamp =
         timestampNormalizerRef.current?.normalize(rawEventTimestamp) ?? performance.now();
       dispenseControllerRef.current?.move(dough, normalizedTimestamp);
@@ -564,6 +584,25 @@ export function PizzaStage({
     if (gestureRef.current.pointerId !== null) event.preventDefault();
   }
 
+  function handleKeyDown(event: ReactKeyboardEvent<HTMLDivElement>) {
+    if (!interactive || (event.key !== "Enter" && event.key !== " ")) return;
+    event.preventDefault();
+    // PR #26 Final P2 Follow-up #2 (discussion_r4021268603): a SPREAD ingredient (tomato-sauce's
+    // Reference dispense path) has no real keyboard interaction yet -- the generic center-point
+    // onTap silently dispatches APPLY_SAUCE without ever populating sauceDeposits, so Reference
+    // Sauce rendering (which only draws from deposits) and Sauce Metrics both stay blank/zero
+    // while pizza state has actually changed. Rather than invent a keyboard Sauce painter in
+    // this PR, don't expose a "placement" for SPREAD at all; scatter (TAP_PLACE) toppings are
+    // unaffected and keep the exact behavior below. isKeyboardPlaceable (tabIndex/aria-label
+    // below) already keeps the dough out of the tab order in this state, but this guard is the
+    // one that actually matters -- a click can still focus a tabIndex={-1} element.
+    if (isPaintMode) return;
+    // discussion_r4021268607: holding Enter/Space auto-repeats keydown, and each event used to
+    // call onTap again -- one physical key press must place at most one piece.
+    if (event.repeat) return;
+    onTap(50, 50);
+  }
+
   const sauceId = pizza.sauceIds[0];
   const sauceIngredient = sauceId ? getIngredient(sauceId) : undefined;
   const isOilSauce = sauceIngredient?.id === "olive-oil";
@@ -622,17 +661,36 @@ export function PizzaStage({
       .map((d) => ({ x: d.x, y: d.y, amount: d.amount * insideDoughFraction(d.x, d.y) }))
       .filter((d) => d.amount > 0);
     const field = buildSauceField(insideWeighted);
-    const cellPx = canvas.width / SAUCE_FIELD_SIZE;
-
-    for (let row = 0; row < SAUCE_FIELD_SIZE; row += 1) {
-      for (let col = 0; col < SAUCE_FIELD_SIZE; col += 1) {
-        if (!isCellInsideDough(row, col)) continue;
-        const value = field[row * SAUCE_FIELD_SIZE + col];
-        if (value <= 0.005) continue;
-        const alpha = Math.min(0.85, value * 2.2);
-        ctx.fillStyle = `rgba(196, 46, 34, ${alpha})`;
-        ctx.fillRect(col * cellPx, row * cellPx, cellPx + 0.5, cellPx + 0.5);
-      }
+    // Human Feel Fix 3 (Sauce Visual): Fix 2's overlapping-circle cells (still one shape per
+    // touched cell) improved on a hard-edged grid, but each circle's own crisp edge still
+    // tiled into a visible "flower/stamp" pattern once painted for real -- exactly the
+    // "16x16マスを塗っている" look the brief flags as still-FIX-REQUIRED. `sauceFieldToRgbaPixels`
+    // (sauceField.ts) turns the same field into one RGBA pixel per cell (no shape at all);
+    // writing that 1:1 into a tiny SAUCE_FIELD_SIZE x SAUCE_FIELD_SIZE canvas and drawing it
+    // scaled up here with `imageSmoothingEnabled` on lets the browser's own image upscaler
+    // blend every cell into its neighbors continuously. Still the same 16x16 field, still
+    // Canvas2D only (no WebGL), still one extra small canvas + one drawImage call.
+    const fieldCanvas = document.createElement("canvas");
+    fieldCanvas.width = SAUCE_FIELD_SIZE;
+    fieldCanvas.height = SAUCE_FIELD_SIZE;
+    const fieldCtx = fieldCanvas.getContext("2d");
+    if (fieldCtx) {
+      const imageData = fieldCtx.createImageData(SAUCE_FIELD_SIZE, SAUCE_FIELD_SIZE);
+      imageData.data.set(sauceFieldToRgbaPixels(field));
+      fieldCtx.putImageData(imageData, 0, 0);
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(
+        fieldCanvas,
+        0,
+        0,
+        SAUCE_FIELD_SIZE,
+        SAUCE_FIELD_SIZE,
+        0,
+        0,
+        canvas.width,
+        canvas.height,
+      );
     }
 
     // Overflow markers where sauce landed off (or straddling) the dough -- alpha scaled by
@@ -653,7 +711,11 @@ export function PizzaStage({
   return (
     <div className="pizza-stage">
       <div
-        ref={circleRef}
+        ref={setDoughElement}
+        data-pizza-drop-target="true"
+        role="button"
+        tabIndex={isKeyboardPlaceable ? 0 : -1}
+        aria-label={isKeyboardPlaceable ? "ピザ。選択中の素材を置くにはEnterまたはスペース" : "ピザ"}
         className={`pizza-dough ${interactive ? "pizza-dough--interactive" : ""} ${
           bakeState ? `pizza-dough--${bakeState}` : ""
         }`}
@@ -663,7 +725,21 @@ export function PizzaStage({
         onPointerCancel={handlePointerCancel}
         onLostPointerCapture={handleLostPointerCapture}
         onContextMenu={handleContextMenu}
+        onKeyDown={handleKeyDown}
       >
+        {/* Human Feel Fix 2 (Target Area Guide): a very faint, dashed "paint up to here"
+            ring at SAUCE_TARGET_RADIUS -- the exact same constant edgeAmount/edgeRatio
+            (../logic/sauceField.ts) score against, so this can never show a different area
+            than what actually counts as "the ear" (brief section 5). First child, no
+            z-index, so it sits below the sauce/heatmap/toppings that follow it by DOM order
+            alone -- same convention the heatmap itself already uses. Shown only while the
+            player can actually paint (referenceModeEnabled + interactive), never during
+            BAKE/RESULT or behind the Reference popover. */}
+        {referenceModeEnabled && interactive && (
+          <svg className="sauce-target-guide" viewBox="0 0 100 100" aria-hidden="true">
+            <circle cx="50" cy="50" r={SAUCE_TARGET_RADIUS} />
+          </svg>
+        )}
         {sauceIngredient && !isReferenceSauceContext && (
           <div
             key={pizza.sauceToken}
@@ -689,8 +765,12 @@ export function PizzaStage({
           return (
             <span
               key={t.id}
-              className="pizza-topping"
-              style={{ left: `${t.x}%`, top: `${t.y}%` }}
+              className={`pizza-topping pizza-topping--${ingredient.id}`}
+              style={{
+                left: `${t.x}%`,
+                top: `${t.y}%`,
+                "--piece-rotation": `${stablePieceRotation(t.ingredientId, t.x, t.y)}deg`,
+              } as CSSProperties}
             >
               {ingredient.category === "cheese" ? (
                 <span

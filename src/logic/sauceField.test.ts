@@ -1,14 +1,23 @@
 import { describe, expect, it } from "vitest";
 import {
   buildSauceField,
+  circleOverlapFraction,
   computeSauceMetrics,
   emptySauceMetrics,
   insideDoughFraction,
+  insideTargetFraction,
   isCellInsideDough,
   SAUCE_FIELD_SIZE,
+  SAUCE_HEATMAP_COLOR,
+  sauceFieldToRgbaPixels,
+  SAUCE_TARGET_RADIUS,
+  SAUCE_TOMATO_HEX,
   totalDispensed,
 } from "./sauceField";
 import { SAUCE_RATE_PER_TICK } from "./sauceQuantity";
+import { DOUGH_RADIUS } from "./pizzaCoordinates";
+import { IDEAL_MARGHERITA_SAUCE_FIXTURE } from "../data/referencePizza";
+import { INGREDIENTS } from "../data/ingredients";
 
 /** Spreads `total` amount across `count` deposits arranged evenly around the dough. */
 function wideDeposits(total: number, count: number): Array<{ x: number; y: number; amount: number }> {
@@ -196,5 +205,194 @@ describe("totalDispensed", () => {
       { x: 50, y: 100, amount: 0.05 },
     ];
     expect(totalDispensed(deposits)).toBeCloseTo(0.25);
+  });
+});
+
+describe("SAUCE_TARGET_RADIUS / circleOverlapFraction / insideTargetFraction (Human Feel Fix 2)", () => {
+  it("SAUCE_TARGET_RADIUS is strictly inside DOUGH_RADIUS, leaving a real rim margin", () => {
+    expect(SAUCE_TARGET_RADIUS).toBeLessThan(DOUGH_RADIUS);
+    expect(DOUGH_RADIUS - SAUCE_TARGET_RADIUS).toBeGreaterThanOrEqual(4);
+  });
+
+  it("circleOverlapFraction against DOUGH_RADIUS is exactly insideDoughFraction", () => {
+    for (const [x, y] of [[50, 50], [80, 60], [50, 110]] as const) {
+      expect(circleOverlapFraction(x, y, DOUGH_RADIUS)).toBe(insideDoughFraction(x, y));
+    }
+  });
+
+  it("insideTargetFraction never exceeds insideDoughFraction (the target circle is strictly inside the dough circle)", () => {
+    for (const d of [0, 10, 30, 38, 40, 42, 44, 46, 48, 50]) {
+      const target = insideTargetFraction(50 + d, 50);
+      const dough = insideDoughFraction(50 + d, 50);
+      expect(target).toBeLessThanOrEqual(dough + 1e-9);
+    }
+  });
+
+  it("is 1 well inside the target radius, 0 well outside it, and never jumps discontinuously across it", () => {
+    expect(insideTargetFraction(50, 50)).toBe(1);
+    expect(insideTargetFraction(50, 96)).toBe(0); // distance 46: inside the dough, well outside the target radius (40) + footprint (3).
+    const justInside = insideTargetFraction(50 + SAUCE_TARGET_RADIUS - 0.1, 50);
+    const justOutside = insideTargetFraction(50 + SAUCE_TARGET_RADIUS + 0.1, 50);
+    expect(Math.abs(justInside - justOutside)).toBeLessThan(0.05);
+  });
+});
+
+describe("SauceMetrics.edgeAmount / edgeRatio (Human Feel Fix 2)", () => {
+  it("is 0 for a deposit well inside the target radius", () => {
+    const metrics = computeSauceMetrics([{ x: 50, y: 50, amount: 0.3 }]);
+    expect(metrics.edgeAmount).toBe(0);
+    expect(metrics.edgeRatio).toBe(0);
+  });
+
+  it("counts (nearly) the full amount for a deposit painted onto the rim band, still inside the dough", () => {
+    // distance 44 from center: inside DOUGH_RADIUS (48, so not overflow) but outside
+    // SAUCE_TARGET_RADIUS (40, so counted as edge).
+    const metrics = computeSauceMetrics([{ x: 94, y: 50, amount: 0.3 }]);
+    expect(metrics.overflowAmount).toBeCloseTo(0, 5);
+    expect(metrics.edgeAmount).toBeCloseTo(0.3, 1);
+    expect(metrics.edgeRatio).toBeGreaterThan(0.9);
+  });
+
+  it("counts true overflow (past the dough entirely) as edge too -- 'missed the pizza' and 'touched the ear' are the same player mistake here", () => {
+    const metrics = computeSauceMetrics([{ x: 50, y: 110, amount: 0.2 }]);
+    expect(metrics.overflowRatio).toBeCloseTo(1);
+    expect(metrics.edgeRatio).toBeCloseTo(1);
+  });
+
+  it("the reference fixture's own edgeRatio is near 0 -- the game's 'ideal' example never touches the rim band it warns players away from", () => {
+    const metrics = computeSauceMetrics(IDEAL_MARGHERITA_SAUCE_FIXTURE);
+    expect(metrics.edgeRatio).toBeLessThan(0.03);
+  });
+
+  it("edgeRatio is bounded to [0, 1]", () => {
+    const metrics = computeSauceMetrics([
+      { x: 50, y: 50, amount: 0.2 },
+      { x: 94, y: 50, amount: 0.2 },
+      { x: 50, y: 110, amount: 0.2 },
+    ]);
+    expect(metrics.edgeRatio).toBeGreaterThanOrEqual(0);
+    expect(metrics.edgeRatio).toBeLessThanOrEqual(1);
+  });
+});
+
+describe("sauceFieldToRgbaPixels (Human Feel Fix 3: pixels, never shapes)", () => {
+  it("returns exactly one RGBA pixel per field cell -- SAUCE_FIELD_SIZE^2 * 4 bytes, no more, no less", () => {
+    const field = buildSauceField([{ x: 50, y: 50, amount: 0.3 }]);
+    const pixels = sauceFieldToRgbaPixels(field);
+    expect(pixels.length).toBe(SAUCE_FIELD_SIZE * SAUCE_FIELD_SIZE * 4);
+  });
+
+  it("an empty field is fully transparent (every alpha byte 0) -- no cell paints on its own", () => {
+    const field = buildSauceField([]);
+    const pixels = sauceFieldToRgbaPixels(field);
+    for (let i = 3; i < pixels.length; i += 4) {
+      expect(pixels[i]).toBe(0);
+    }
+  });
+
+  it("a cell outside the dough circle is never painted even if the raw field has a value there (BRUSH_RADIUS_CELLS falloff can reach it)", () => {
+    // A deposit right on the rim spreads a little past it into out-of-dough cells via the
+    // brush falloff -- sauceFieldToRgbaPixels must still leave those transparent, exactly
+    // like the coverage/evenness math (computeSauceMetrics) already does.
+    const field = buildSauceField([{ x: 98, y: 50, amount: 0.3 }]);
+    const pixels = sauceFieldToRgbaPixels(field);
+    for (let row = 0; row < SAUCE_FIELD_SIZE; row += 1) {
+      for (let col = 0; col < SAUCE_FIELD_SIZE; col += 1) {
+        if (isCellInsideDough(row, col)) continue;
+        const alphaIndex = (row * SAUCE_FIELD_SIZE + col) * 4 + 3;
+        expect(pixels[alphaIndex]).toBe(0);
+      }
+    }
+  });
+
+  it("a touched in-dough cell gets the sauce heatmap color with a non-zero alpha", () => {
+    const field = buildSauceField([{ x: 50, y: 50, amount: 0.3 }]);
+    const pixels = sauceFieldToRgbaPixels(field);
+    const centerCell = Math.floor(SAUCE_FIELD_SIZE / 2);
+    const centerIndex = (centerCell * SAUCE_FIELD_SIZE + centerCell) * 4;
+    expect(pixels[centerIndex]).toBe(SAUCE_HEATMAP_COLOR.r);
+    expect(pixels[centerIndex + 1]).toBe(SAUCE_HEATMAP_COLOR.g);
+    expect(pixels[centerIndex + 2]).toBe(SAUCE_HEATMAP_COLOR.b);
+    expect(pixels[centerIndex + 3]).toBeGreaterThan(0);
+  });
+
+  it("more overlap (a larger field value) never produces a lower alpha than less overlap -- the darker/lighter gradient never inverts", () => {
+    const thin = sauceFieldToRgbaPixels(buildSauceField([{ x: 50, y: 50, amount: 0.02 }]));
+    const thick = sauceFieldToRgbaPixels(buildSauceField([{ x: 50, y: 50, amount: 0.3 }]));
+    const centerCell = Math.floor(SAUCE_FIELD_SIZE / 2);
+    const alphaIndex = (centerCell * SAUCE_FIELD_SIZE + centerCell) * 4 + 3;
+    expect(thick[alphaIndex]).toBeGreaterThan(thin[alphaIndex]);
+  });
+});
+
+/**
+ * Human Feel Fix 4 (Sauce Visual Polish): the iPhone Gate complaint this round fixes --
+ * painted sauce read as "the dough got a little pink" rather than "sauce was spread on it",
+ * because Fix 3's `min(0.85, value * 2.2)` alpha curve put even a fully, evenly painted
+ * dough (`IDEAL_MARGHERITA_SAUCE_FIXTURE`) at alpha ~0.02-0.15 -- see `densityToAlpha`'s own
+ * doc comment (sauceField.ts) for the measured field values these tests are built from.
+ * These pin the four-way visual distinction the brief asks for (untouched / thin / good /
+ * overlapped) directly against realistic field values, not round numbers.
+ */
+describe("sauceFieldToRgbaPixels alpha curve (Human Feel Fix 4)", () => {
+  function alphasOf(pixels: Uint8ClampedArray): number[] {
+    const out: number[] = [];
+    for (let i = 3; i < pixels.length; i += 4) if (pixels[i] > 0) out.push(pixels[i]);
+    return out;
+  }
+
+  function medianOf(sorted: readonly number[]): number {
+    return sorted[Math.floor(sorted.length / 2)];
+  }
+
+  it("an untouched field has zero alpha everywhere (未塗布)", () => {
+    const pixels = sauceFieldToRgbaPixels(buildSauceField([]));
+    for (let i = 3; i < pixels.length; i += 4) expect(pixels[i]).toBe(0);
+  });
+
+  it("a single light dab already reads clearly as sauce, not a faint dough tint (薄塗り floor)", () => {
+    const field = buildSauceField([{ x: 50, y: 50, amount: SAUCE_RATE_PER_TICK }]);
+    const pixels = sauceFieldToRgbaPixels(field);
+    const centerCell = Math.floor(SAUCE_FIELD_SIZE / 2);
+    const alpha = pixels[(centerCell * SAUCE_FIELD_SIZE + centerCell) * 4 + 3];
+    // Fix 3's formula put this exact case at alpha ~4 (out of 255) -- essentially invisible.
+    // Fix 4 puts any touched cell comfortably past half-opaque immediately.
+    expect(alpha).toBeGreaterThan(128);
+  });
+
+  it("a single light dab (薄塗り) has a lower opacity than the ideal fixture's well-painted density (適量)", () => {
+    const dabAlpha = alphasOf(
+      sauceFieldToRgbaPixels(buildSauceField([{ x: 50, y: 50, amount: SAUCE_RATE_PER_TICK }])),
+    )[0];
+    const idealAlphas = alphasOf(sauceFieldToRgbaPixels(buildSauceField(IDEAL_MARGHERITA_SAUCE_FIXTURE))).sort(
+      (a, b) => a - b,
+    );
+    expect(dabAlpha).toBeLessThan(medianOf(idealAlphas));
+  });
+
+  it("re-painting the same area (重ね塗り) has a higher opacity than the ideal fixture's well-painted density (適量), never the reverse", () => {
+    const idealAlphas = alphasOf(sauceFieldToRgbaPixels(buildSauceField(IDEAL_MARGHERITA_SAUCE_FIXTURE))).sort(
+      (a, b) => a - b,
+    );
+    const overlapped = [...IDEAL_MARGHERITA_SAUCE_FIXTURE, ...IDEAL_MARGHERITA_SAUCE_FIXTURE];
+    const overlapAlphas = alphasOf(sauceFieldToRgbaPixels(buildSauceField(overlapped))).sort((a, b) => a - b);
+    expect(medianOf(overlapAlphas)).toBeGreaterThan(medianOf(idealAlphas));
+  });
+
+  it("sauce color stays in the tomato hue family at every density -- never shifts toward a different color as it darkens/lightens", () => {
+    const light = sauceFieldToRgbaPixels(buildSauceField([{ x: 50, y: 50, amount: SAUCE_RATE_PER_TICK }]));
+    const heavy = sauceFieldToRgbaPixels(buildSauceField([{ x: 50, y: 50, amount: 0.3 }]));
+    const centerCell = Math.floor(SAUCE_FIELD_SIZE / 2);
+    const pixelIndex = (centerCell * SAUCE_FIELD_SIZE + centerCell) * 4;
+    for (const pixels of [light, heavy]) {
+      const [r, g, b] = [pixels[pixelIndex], pixels[pixelIndex + 1], pixels[pixelIndex + 2]];
+      expect(r).toBeGreaterThan(g * 1.5);
+      expect(r).toBeGreaterThan(b * 1.5);
+    }
+  });
+
+  it("SAUCE_TOMATO_HEX SSOT: the tomato-sauce ingredient's own tray/reference-preview color matches the painted heatmap color", () => {
+    const tomatoSauce = INGREDIENTS.find((i) => i.id === "tomato-sauce");
+    expect(tomatoSauce?.color).toBe(SAUCE_TOMATO_HEX);
   });
 });
