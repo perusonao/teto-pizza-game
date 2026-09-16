@@ -32,18 +32,19 @@ export interface SaucePlayerEvaluation {
 
 /** coverage/reference.coverage >= this -> great; >= COVERAGE_POOR_RATIO -> good; else poor.
  *  Reference-relative (not absolute) because a smaller/larger reference target should still
- *  read as "close to it" on its own terms. */
-const COVERAGE_GREAT_RATIO = 0.85;
-const COVERAGE_POOR_RATIO = 0.55;
+ *  read as "close to it" on its own terms. Exported so ./scoringV2's continuous Sauce
+ *  component can share these exact thresholds instead of re-tuning its own. */
+export const COVERAGE_GREAT_RATIO = 0.85;
+export const COVERAGE_POOR_RATIO = 0.55;
 
 /** evenness is already self-normalized 0-1 (see sauceField.ts's computeEvenness) -- these are
  *  absolute thresholds, not reference-relative. */
-const EVENNESS_GREAT = 0.9;
-const EVENNESS_POOR = 0.85;
+export const EVENNESS_GREAT = 0.9;
+export const EVENNESS_POOR = 0.85;
 
 /** edgeRatio: lower is better (less sauce beyond SAUCE_TARGET_RADIUS). */
-const EDGE_GREAT = 0.03;
-const EDGE_POOR = 0.12;
+export const EDGE_GREAT = 0.03;
+export const EDGE_POOR = 0.12;
 
 function tierFor(value: number, greatAt: number, poorBelow: number): SauceTier {
   if (value >= greatAt) return "great";

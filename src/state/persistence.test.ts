@@ -494,3 +494,37 @@ describe("Mission BEST (Phase 3C-4)", () => {
     expect(loadSave(storage).missionBest).toEqual({});
   });
 });
+
+/**
+ * Phase 4A-2 Scoring 2.0 Shadow scope guard: `PersistentSaveV1`'s shape (schemaVersion, dex,
+ * pitzBalance, ownedIngredientIds, missionBest) is completely untouched by this phase --
+ * `GameState.scoringV2Shadow` (src/state/gameReducer.ts) is additive/transient runtime state
+ * only, and `GameState` itself was never serialized here even before this phase (see this
+ * file's own top comment). These tests pin that "additive" claim rather than just asserting
+ * it in a comment.
+ */
+describe("Save schema unaffected by Scoring 2.0 Shadow (Phase 4A-2 scope guard)", () => {
+  it("createDefaultSave's shape has exactly the five pre-existing fields -- no scoringV2 field was added", () => {
+    expect(Object.keys(createDefaultSave()).sort()).toEqual(
+      ["dex", "missionBest", "ownedIngredientIds", "pitzBalance", "schemaVersion"].sort(),
+    );
+  });
+
+  it("persistProgress's written JSON never contains a scoringV2/Shadow key", () => {
+    const storage = fakeStorage();
+    persistProgress(
+      { dex: [{ recipeId: "margherita", discovered: true, bestScore: 90, bestStars: 5, timesMade: 1 }], pitzBalance: 50, ownedIngredientIds: STARTER_INGREDIENT_IDS },
+      storage,
+    );
+    const raw = storage.getItem(SAVE_STORAGE_KEY);
+    expect(raw).not.toBeNull();
+    expect(raw).not.toMatch(/scoringV2/i);
+    expect(raw).not.toMatch(/shadow/i);
+  });
+
+  it("loadSave round-trips the exact same schema regardless of what scoringV2Shadow the round in progress currently holds (GameState is never serialized)", () => {
+    const storage = fakeStorage({ [SAVE_STORAGE_KEY]: JSON.stringify(createDefaultSave()) });
+    const loaded = loadSave(storage);
+    expect(Object.keys(loaded).sort()).toEqual(Object.keys(createDefaultSave()).sort());
+  });
+});
