@@ -7,19 +7,25 @@
 | Fix A: First Sauce Touch copy | **DONE** |
 | Fix B: Short Sauce Stroke visual smoothing | **DONE** |
 | Fix C: Production Prototype Metrics hiding | **DONE** |
-| Full vitest suite | **PASS** (503/503) |
+| Full vitest suite | **PASS** (505/505) |
 | typecheck (`tsc -b`) | **PASS** |
 | lint (`oxlint`) | **PASS** |
 | production build (`vite build`) | **PASS**, Prototype Metrics dead-code-eliminated |
 | `git diff --check` | **PASS** (no whitespace errors) |
 | Browser 390x844 walkthrough | **PASS**, 0 console errors |
 | Issue #27 | **untouched**, confirmed out of scope |
+| Independent Review (Codex, PR #28) | 1 P2 finding, self-caused by Fix B, fixed same round |
 
 - **Baseline main SHA:** `20c23b96fc7d72f2ef8105f509b36111b3d9210b` (PR #26 merge
   commit; confirmed `origin/main` HEAD and a clean working tree before any edits)
 - **Branch:** `claude/phase-4a-1b1-first-fun-fix-b445ge` (new branch cut directly
   from that `main` SHA; PR #26's own branch was not reused)
-- **Commit SHA:** `04f8a0401aa77931d16806af6692054ee1648284`
+- **Initial commit SHA:** `04f8a0401aa77931d16806af6692054ee1648284` (Fix A/B/C)
+- **Report commit SHA:** `fe9a7e4ab17039d8071fd46b4cf2c35ff49eb2cb` (this report,
+  first version -- PR #28 opened here, CI green, Preview deployed from this SHA)
+- **Follow-up fix commit SHA:** this commit (branch tip after this report
+  edit — see section 10 below and the PR's own commit history for the
+  final pushed hash; Independent Review fix, pushed after PR #28 was opened)
 
 ## 0. Pre-flight state check
 
@@ -234,10 +240,11 @@ changes themselves (Fix A/Fix C), not loosened.
 | | Before this round | After this round |
 | --- | --- | --- |
 | Test files | 35 | 36 |
-| Tests | ~490 (pre-existing suite, all passing on `main`) | **503, all passing** |
+| Tests | ~490 (pre-existing suite, all passing on `main`) | **505, all passing** |
 
 (`npm test` / `vitest run` output: `Test Files 36 passed (36)` /
-`Tests 503 passed (503)`.)
+`Tests 505 passed (505)` -- includes 2 further regression tests added in
+section 11's Independent Review follow-up.)
 
 ## 6. Verification
 
@@ -320,7 +327,49 @@ section 1's file list) — confirmed via `git diff main...HEAD --
 src/components/IngredientTray.tsx` returning empty. Left for its own
 dedicated follow-up as directed.
 
-## 10. FINAL VERDICT
+## 10. Independent Review (Codex, PR #28) follow-up
+
+One P2 finding on `src/logic/sauceField.ts:417`
+(`smoothSauceFieldForDisplay`): two chained 3x3 blur passes (Fix B's own
+reach is 2 cells) could bleed a cell in the rim band beyond
+`SAUCE_TARGET_RADIUS` from fully invisible (raw value 0, below
+`MIN_VISIBLE_VALUE`) to just barely visible — display painting a hint of
+sauce past the `ふち` (edge) guide even where the authoritative
+`edgeAmount`/`edgeRatio` metric says 0. Concretely reproduced against
+`IDEAL_MARGHERITA_SAUCE_FIXTURE` (the game's own "ideal", `edgeAmount`
+exactly 0): 19 previously-invisible rim-band cells newly crossed the
+visibility floor after the two blur passes, before this fix.
+
+**Triage:** self-caused by this same PR's own Fix B (not a pre-existing,
+unrelated concern), small, and well-scoped to fix within Fix B's own
+render-only boundary — so fixed directly in this round (the one
+"必要な修正確認" round after Independent Review) rather than filed as a
+separate Issue, even though it doesn't corrupt data or break a main
+interaction (the brief's own P2 Merge-Blocker bar).
+
+**Fix:** `smoothSauceFieldForDisplay` now clamps every rim-band cell
+(distance from center beyond `SAUCE_TARGET_RADIUS`) to
+`Math.min(smoothed, raw)` after the two blur passes — display can never
+*raise* a cell's visibility past its own raw value once past the edge
+boundary the ふち evaluation scores against. Every cell inside the target
+radius (where an isolated dab/short stroke actually happens during normal
+play) still gets the full, unclamped two-pass smoothing this fix is for.
+Still render-only: `computeSauceMetrics`/`buildSauceField` are untouched by
+this follow-up too.
+
+**Verification:** two new regression tests in `sauceField.test.ts` pin
+`IDEAL_MARGHERITA_SAUCE_FIXTURE` never gaining a newly-visible rim-band cell,
+and that a rim-band cell's smoothed value never exceeds its own raw value.
+Full suite re-run: 505/505 passing (up from 503, +2 for this follow-up).
+typecheck/lint/build/`git diff --check` all re-verified green. Isolated
+dab/short stroke/broad-coverage screenshots re-captured post-fix and
+confirmed visually unchanged from section 6 (the clamp only touches the
+rim band, outside where those scenarios paint).
+
+- **Follow-up commit SHA:** this commit (see section 0's "Follow-up fix
+  commit SHA" note, and the PR's commit history for the final pushed hash)
+
+## 11. FINAL VERDICT
 
 **READY FOR PR → CI → PREVIEW DEPLOY → WAITING FOR IPHONE HUMAN FEEL.**
 
@@ -330,7 +379,9 @@ walkthrough at 390x844 confirms the golden path and all specified edge cases
 (isolated dab, short stroke, normal painting, Mozzarella/Basil physical
 drag, Bake→Result) with 0 console errors and no regressions. Production
 build confirmed to fully exclude Prototype Metrics; Preview build confirmed
-to include it. Issue #27 confirmed untouched.
+to include it. Issue #27 confirmed untouched. The one Independent Review
+finding (section 10) was self-caused by this round's own Fix B and is fixed
+in the same round, within the brief's one-round fix-confirmation allowance.
 
 **Not merged to `main`.** Per the brief's stop condition, this round stops
 at PR-created / CI-green / Preview-deploy-complete, awaiting a physical

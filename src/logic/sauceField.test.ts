@@ -451,6 +451,44 @@ describe("smoothSauceFieldForDisplay (Phase 4A-1B.1 Fix B: Short Sauce Stroke)",
     expect(field).toEqual(snapshot);
   });
 
+  // Independent Review follow-up (Codex, PR #28): two chained blur passes could bleed a
+  // whisper of newly-visible color into the rim band beyond SAUCE_TARGET_RADIUS even where
+  // the raw field had nothing there -- painting sauce the player-facing ふち (edge)
+  // evaluation says isn't there. IDEAL_MARGHERITA_SAUCE_FIXTURE (edgeAmount exactly 0) is the
+  // concrete case Codex found: 19 previously-invisible rim-band cells crossed the visibility
+  // floor before this fix.
+  it("never makes a previously-invisible rim-band cell (beyond SAUCE_TARGET_RADIUS) visible -- display can't show edge sauce the ふち metric says isn't there", () => {
+    const field = buildSauceField(IDEAL_MARGHERITA_SAUCE_FIXTURE);
+    const smoothed = smoothSauceFieldForDisplay(field);
+    const MIN_VISIBLE_VALUE = 0.005; // sauceFieldToRgbaPixels's own visibility floor
+    for (let row = 0; row < SAUCE_FIELD_SIZE; row += 1) {
+      for (let col = 0; col < SAUCE_FIELD_SIZE; col += 1) {
+        if (!isCellInsideDough(row, col)) continue;
+        const idx = row * SAUCE_FIELD_SIZE + col;
+        const cellCenter = ((i: number) => ((i + 0.5) / SAUCE_FIELD_SIZE) * 100);
+        const dist = Math.hypot(cellCenter(col) - 50, cellCenter(row) - 50);
+        if (dist <= SAUCE_TARGET_RADIUS) continue;
+        const rawVisible = field[idx] > MIN_VISIBLE_VALUE;
+        const smoothedVisible = smoothed[idx] > MIN_VISIBLE_VALUE;
+        expect(smoothedVisible && !rawVisible).toBe(false);
+      }
+    }
+  });
+
+  it("a rim-band cell's smoothed value never exceeds its own raw value -- the clamp only ever pulls display down there, never up", () => {
+    const field = buildSauceField(IDEAL_MARGHERITA_SAUCE_FIXTURE);
+    const smoothed = smoothSauceFieldForDisplay(field);
+    for (let row = 0; row < SAUCE_FIELD_SIZE; row += 1) {
+      for (let col = 0; col < SAUCE_FIELD_SIZE; col += 1) {
+        const idx = row * SAUCE_FIELD_SIZE + col;
+        const cellCenter = ((i: number) => ((i + 0.5) / SAUCE_FIELD_SIZE) * 100);
+        const dist = Math.hypot(cellCenter(col) - 50, cellCenter(row) - 50);
+        if (dist <= SAUCE_TARGET_RADIUS) continue;
+        expect(smoothed[idx]).toBeLessThanOrEqual(field[idx] + 1e-12);
+      }
+    }
+  });
+
   it("an exact flat plateau (every cell in a 3x3 window equal) maps to itself -- normal/broad coverage's already-good look is untouched", () => {
     const field = new Float64Array(SAUCE_FIELD_SIZE * SAUCE_FIELD_SIZE);
     const V = 0.05;

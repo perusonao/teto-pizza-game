@@ -412,9 +412,29 @@ function blurPass(field: Float64Array): Float64Array {
  * two is too), so a normal/broad-coverage stroke's already-good look is still untouched --
  * only a lone dab or a short stroke's own hard-edged block (mostly surrounded by untouched,
  * zero-value cells) gets pulled down and spread wider.
+ *
+ * Independent Review follow-up (Codex, PR #28): two chained passes reach 2 cells out, which
+ * let a well-painted coat that (correctly) stops right at `SAUCE_TARGET_RADIUS` bleed a
+ * whisper of visible color (just over `MIN_VISIBLE_VALUE`) into cells in the rim band beyond
+ * it -- `IDEAL_MARGHERITA_SAUCE_FIXTURE` itself, whose authoritative `edgeAmount` is exactly
+ * 0, newly lit up 19 such cells. That is display painting sauce the ふち (edge) evaluation
+ * says isn't there. Fixed by never letting the blur *raise* a rim-band cell (distance from
+ * center beyond `SAUCE_TARGET_RADIUS`, same boundary `edgeAmount`/`edgeRatio` score against)
+ * above its own raw value -- `Math.min` against `field` there, every other cell (everywhere
+ * an isolated dab/short stroke actually happens in normal play) still gets the full two-pass
+ * smoothing untouched.
  */
 export function smoothSauceFieldForDisplay(field: Float64Array): Float64Array {
-  return blurPass(blurPass(field));
+  const smoothed = blurPass(blurPass(field));
+  for (let row = 0; row < SAUCE_FIELD_SIZE; row += 1) {
+    for (let col = 0; col < SAUCE_FIELD_SIZE; col += 1) {
+      const idx = row * SAUCE_FIELD_SIZE + col;
+      if (distanceFromCenter(cellCenterPercent(col), cellCenterPercent(row)) > SAUCE_TARGET_RADIUS) {
+        smoothed[idx] = Math.min(smoothed[idx], field[idx]);
+      }
+    }
+  }
+  return smoothed;
 }
 
 /**
