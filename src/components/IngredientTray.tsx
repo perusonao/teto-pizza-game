@@ -2,7 +2,6 @@ import {
   useEffect,
   useRef,
   useState,
-  type CSSProperties,
   type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
 } from "react";
@@ -14,6 +13,7 @@ import {
   type Ingredient,
   type IngredientCategory,
 } from "../data/ingredients";
+import { IngredientPieceVisual } from "./IngredientPieceVisual";
 import type { DoughPoint } from "../logic/pizzaCoordinates";
 import { hasPieceDragIntent } from "../logic/pieceDrag";
 
@@ -327,10 +327,7 @@ export function IngredientTray({
           >
             {ingredient.category === "cheese" ? (
               <span className="ingredient-chip__cheese-slot">
-                <span
-                  className={`pizza-cheese pizza-cheese--${ingredient.id}`}
-                  style={{ "--cheese-color": ingredient.color } as CSSProperties}
-                />
+                <IngredientPieceVisual ingredient={ingredient} />
               </span>
             ) : (
               <span className="ingredient-chip__emoji">{ingredient.emoji}</span>
@@ -381,10 +378,7 @@ export function IngredientTray({
           aria-hidden="true"
         >
           {preview.ingredient.category === "cheese" ? (
-            <span
-              className={`pizza-cheese pizza-cheese--${preview.ingredient.id}`}
-              style={{ "--cheese-color": preview.ingredient.color } as CSSProperties}
-            />
+            <IngredientPieceVisual ingredient={preview.ingredient} />
           ) : (
             <span className="piece-drag-preview__emoji">{preview.ingredient.emoji}</span>
           )}

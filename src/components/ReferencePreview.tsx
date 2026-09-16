@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import type { ReferencePizza } from "../data/referencePizza";
 import { getIngredient } from "../data/ingredients";
+import { IngredientPieceVisual } from "./IngredientPieceVisual";
 import { stablePieceRotation } from "../logic/pieceDrag";
 import { SAUCE_TARGET_RADIUS } from "../logic/sauceField";
 
@@ -81,6 +82,7 @@ export function ReferencePreview({ reference, isOpen, onOpenChange }: ReferenceP
               />
               {reference.pieceGroups.flatMap((group) => {
                 const ingredient = getIngredient(group.ingredientId);
+                if (!ingredient) return [];
                 return group.positions.map((position, index) => (
                   <span
                     key={`${group.ingredientId}-${index}`}
@@ -91,7 +93,7 @@ export function ReferencePreview({ reference, isOpen, onOpenChange }: ReferenceP
                       transform: `translate(-50%, -50%) rotate(${stablePieceRotation(group.ingredientId, position.x, position.y)}deg)`,
                     }}
                   >
-                    {ingredient?.emoji}
+                    <IngredientPieceVisual ingredient={ingredient} />
                   </span>
                 ));
               })}

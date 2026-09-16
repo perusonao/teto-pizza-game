@@ -382,6 +382,14 @@
   filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
 }
 
+/* Issue #32 Phase 1: base rule for IngredientPieceVisual's emoji branch (any ingredient that
+   isn't a physical .pizza-cheese piece). Every context that renders it sets its own font-size
+   (e.g. .pizza-topping__emoji above for the player pizza, .reference-mini-pizza__topping--basil
+   below for the Reference popover) -- this is just a display fallback. */
+.ingredient-piece-visual__emoji {
+  display: block;
+}
+
 /* ---------- Cheese identity (shape + size + texture differ per cheese) ---------- */
 /* Generic fallback so a new cheese ingredient is still visible before it gets a
    dedicated .pizza-cheese--<id> rule below. Each dedicated rule sets its own
@@ -1889,6 +1897,12 @@
   background: radial-gradient(circle at 40% 35%, #f3d9a4, #e2b876 85%);
   border: 6px solid #c99b56;
   box-shadow: inset 0 0 12px rgba(120, 70, 20, 0.3);
+  /* Issue #32 Phase 1: this mini pizza (140px) is a fixed-size, scaled-down stand-in for the
+     player's own dough (.pizza-dough, min(78vw, 300px) -- 140/300 ~= 0.467, rounded to a clean
+     0.5). IngredientPieceVisual's physical pieces are sized for the full-size dough, so every
+     piece rendered inside this mini pizza is scaled down by this single factor to keep the
+     Reference reading at the same relative size as what the player actually places. */
+  --reference-piece-scale: 0.5;
 }
 
 .reference-mini-pizza__sauce {
@@ -1913,15 +1927,20 @@
 .reference-mini-pizza__topping {
   position: absolute;
   transform: translate(-50%, -50%);
-  font-size: 18px;
 }
 
-.reference-mini-pizza__topping--mozzarella {
-  font-size: 16px;
+/* Mozzarella: scale down the same .pizza-cheese physical shape the player's pizza and
+   ingredient tray use (see IngredientPieceVisual) instead of the old standalone 🧀 emoji, so
+   the Reference shows the identical white physical piece the player is placing. */
+.reference-mini-pizza__topping--mozzarella .pizza-cheese {
+  transform: scale(var(--reference-piece-scale));
 }
 
-.reference-mini-pizza__topping--basil {
-  font-size: 17px;
+/* Basil: same emoji artwork the player places, scaled down by the same factor as mozzarella
+   above (relative to .pizza-topping__emoji's 28px on the full-size dough) so the two pieces
+   stay proportionate to each other and to what the player will actually see. */
+.reference-mini-pizza__topping--basil .ingredient-piece-visual__emoji {
+  font-size: calc(28px * var(--reference-piece-scale));
 }
 
 @media (prefers-reduced-motion: reduce) {
