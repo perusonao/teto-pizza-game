@@ -277,6 +277,16 @@ describe("SauceMetrics.edgeAmount / edgeRatio (Human Feel Fix 2)", () => {
 });
 
 describe("sauceFieldToRgbaPixels (Human Feel Fix 3: pixels, never shapes)", () => {
+  it("uses the recipe sauce color while preserving the same field alpha", () => {
+    const field = buildSauceField([{ x: 50, y: 50, amount: 0.02 }]);
+    const tomato = sauceFieldToRgbaPixels(field);
+    const pesto = sauceFieldToRgbaPixels(field, "#6b8e3d");
+    const centerIndex = ((SAUCE_FIELD_SIZE / 2) * SAUCE_FIELD_SIZE + SAUCE_FIELD_SIZE / 2) * 4;
+
+    expect(Array.from(pesto.slice(centerIndex, centerIndex + 3))).toEqual([107, 142, 61]);
+    expect(pesto[centerIndex + 3]).toBe(tomato[centerIndex + 3]);
+  });
+
   it("returns exactly one RGBA pixel per field cell -- SAUCE_FIELD_SIZE^2 * 4 bytes, no more, no less", () => {
     const field = buildSauceField([{ x: 50, y: 50, amount: 0.3 }]);
     const pixels = sauceFieldToRgbaPixels(field);

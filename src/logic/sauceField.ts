@@ -452,7 +452,11 @@ export function smoothSauceFieldForDisplay(field: Float64Array): Float64Array {
  * `SAUCE_TOMATO_HEX` above) and the value->alpha curve (`densityToAlpha` above); the
  * one-pixel-per-cell/no-shape structure this comment describes is unchanged.
  */
-export function sauceFieldToRgbaPixels(field: Float64Array): Uint8ClampedArray {
+export function sauceFieldToRgbaPixels(
+  field: Float64Array,
+  colorHex: string = SAUCE_TOMATO_HEX,
+): Uint8ClampedArray {
+  const color = hexToRgb(colorHex);
   const pixels = new Uint8ClampedArray(SAUCE_FIELD_SIZE * SAUCE_FIELD_SIZE * 4);
   for (let row = 0; row < SAUCE_FIELD_SIZE; row += 1) {
     for (let col = 0; col < SAUCE_FIELD_SIZE; col += 1) {
@@ -461,9 +465,9 @@ export function sauceFieldToRgbaPixels(field: Float64Array): Uint8ClampedArray {
       if (value <= MIN_VISIBLE_VALUE) continue;
       const alpha = densityToAlpha(value);
       const pixelIndex = (row * SAUCE_FIELD_SIZE + col) * 4;
-      pixels[pixelIndex] = SAUCE_HEATMAP_COLOR.r;
-      pixels[pixelIndex + 1] = SAUCE_HEATMAP_COLOR.g;
-      pixels[pixelIndex + 2] = SAUCE_HEATMAP_COLOR.b;
+      pixels[pixelIndex] = color.r;
+      pixels[pixelIndex + 1] = color.g;
+      pixels[pixelIndex + 2] = color.b;
       pixels[pixelIndex + 3] = Math.round(alpha * 255);
     }
   }

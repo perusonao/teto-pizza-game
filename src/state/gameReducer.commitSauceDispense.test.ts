@@ -3,6 +3,10 @@ import { createInitialGameState, gameReducer, type GameState } from "./gameReduc
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { EMPTY_DEX } from "./dex";
 import type { SauceDeposit } from "./pizzaState";
+import { createEmptyPizza } from "./pizzaState";
+import { RECIPES, type RecipeId } from "../data/recipes";
+import { ORDERS } from "../data/orders";
+import { getRecipeSauceProfile } from "../data/recipeSauceProfiles";
 
 /**
  * Phase 4A-1A (Post-Codex-Fix): COMMIT_SAUCE_DISPENSE reducer tests. Replaces the old
@@ -17,6 +21,21 @@ function preparedMargheritaState(ownedIngredientIds: readonly string[] = STARTER
   const state = createInitialGameState(EMPTY_DEX, ownedIngredientIds, 0);
   expect(state.recipe.id).toBe("margherita"); // createInitialGameState always starts here
   return gameReducer(state, { type: "BEGIN_PREPARE" });
+}
+
+function preparedRecipeState(recipeId: RecipeId, isMissionRound = false): GameState {
+  const base = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 0);
+  const recipe = RECIPES.find((candidate) => candidate.id === recipeId);
+  const order = ORDERS.find((candidate) => candidate.recipeId === recipeId);
+  if (!recipe || !order) throw new Error(`Missing test data for ${recipeId}`);
+  return {
+    ...base,
+    phase: "PREPARE",
+    order,
+    recipe,
+    pizza: createEmptyPizza(),
+    isMissionRound,
+  };
 }
 
 function deposit(x: number, y: number, amount: number): SauceDeposit {
@@ -121,23 +140,22 @@ describe("COMMIT_SAUCE_DISPENSE: reducer scope guard (Codex MUST FIX 2)", () => 
     expect(after).toBe(before);
   });
 
-  it("rejects for a non-Margherita recipe (no Reference Pizza exists for it)", () => {
-    const owned = ["tomato-sauce", "garlic", "oregano"]; // marinara-owning set
-    let state = createInitialGameState(EMPTY_DEX, owned);
-    for (let i = 0; i < 20 && state.recipe.id !== "marinara"; i += 1) {
-      state = gameReducer(state, { type: "MISSION_RESET_ORDER" });
+  it("accepts the configured sauce for every recipe with an empty starting field", () => {
+    for (const recipe of RECIPES) {
+      const state = preparedRecipeState(recipe.id);
+      expect(state.pizza.sauceIds).toEqual([]);
+      expect(state.pizza.sauceDeposits).toEqual([]);
+
+      const profile = getRecipeSauceProfile(recipe.id);
+      const after = gameReducer(state, {
+        type: "COMMIT_SAUCE_DISPENSE",
+        ingredientId: profile.ingredientId,
+        deposits,
+      });
+
+      expect(after.pizza.sauceIds).toEqual([profile.ingredientId]);
+      expect(after.pizza.sauceDeposits).toEqual(deposits);
     }
-    expect(state.recipe.id).toBe("marinara");
-    // Force back out of the Mission round this loop used to reach marinara -- free play only.
-    state = { ...state, isMissionRound: false };
-    state = gameReducer(state, { type: "BEGIN_PREPARE" });
-    const after = gameReducer(state, {
-      type: "COMMIT_SAUCE_DISPENSE",
-      ingredientId: "tomato-sauce",
-      deposits,
-    });
-    expect(after).toBe(state);
-    expect(after.pizza.sauceDeposits).toEqual([]);
   });
 
   it("rejects for any ingredient other than tomato-sauce, even on Margherita", () => {
@@ -226,25 +244,16 @@ describe("COMMIT_SAUCE_DISPENSE: reducer scope guard (Codex MUST FIX 2)", () => 
     expect(afterNegative).toBe(state);
   });
 
-  it("rejects during a Mission round even though the recipe/ingredient/phase would otherwise be valid", () => {
-    let state = createInitialGameState(); // margherita, isMissionRound: false
-    state = gameReducer(state, { type: "MISSION_RESET_ORDER" }); // -> isMissionRound: true
-    expect(state.isMissionRound).toBe(true);
-    // MISSION_RESET_ORDER can land on any available recipe -- force it back to margherita.
-    for (let i = 0; i < 20 && state.recipe.id !== "margherita"; i += 1) {
-      state = gameReducer(state, { type: "MISSION_RESET_ORDER" });
-    }
-    expect(state.recipe.id).toBe("margherita");
-    state = gameReducer(state, { type: "BEGIN_PREPARE" });
-    expect(state.phase).toBe("PREPARE");
-
+  it("uses the same recipe sauce profile during a Mission round", () => {
+    const state = preparedRecipeState("genovese", true);
     const after = gameReducer(state, {
       type: "COMMIT_SAUCE_DISPENSE",
-      ingredientId: "tomato-sauce",
+      ingredientId: "pesto",
       deposits,
     });
-    expect(after).toBe(state);
-    expect(after.pizza.sauceDeposits).toEqual([]);
+    expect(after.isMissionRound).toBe(true);
+    expect(after.pizza.sauceIds).toEqual(["pesto"]);
+    expect(after.pizza.sauceDeposits).toEqual(deposits);
   });
 });
 

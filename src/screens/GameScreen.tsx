@@ -14,6 +14,7 @@ import type { ReferencePizza } from "../data/referencePizza";
 import type { SauceMetrics } from "../logic/sauceField";
 import type { SauceReferenceShadowScore } from "../logic/referenceScoring";
 import type { SauceDeposit } from "../state/pizzaState";
+import type { RecipeSauceProfile } from "../data/recipeSauceProfiles";
 import {
   buildBlueResultLine,
   buildMitoOrderLine,
@@ -53,6 +54,7 @@ interface GameScreenProps {
   selectedIngredientId: string | null;
   bakeProgress: number | null;
   referenceModeEnabled: boolean;
+  sauceInteractionProfile: RecipeSauceProfile;
   referencePizza: ReferencePizza | null;
   isReferencePopoverOpen: boolean;
   /** Independent Review P2-A (PR #26, discussion_r4017018600): true whenever a global overlay
@@ -104,6 +106,7 @@ export function GameScreen({
   selectedIngredientId,
   bakeProgress,
   referenceModeEnabled,
+  sauceInteractionProfile,
   referencePizza,
   isReferencePopoverOpen,
   isGlobalOverlayOpen,
@@ -264,6 +267,7 @@ export function GameScreen({
         placement={state.placement}
         resultRevealed={state.phase === "RESULT"}
         referenceModeEnabled={referenceModeEnabled}
+        sauceInteractionProfile={sauceInteractionProfile}
         onDoughElementChange={onDoughElementChange}
         onTap={onTapPizza}
         onDispenseProgress={onDispenseProgress}

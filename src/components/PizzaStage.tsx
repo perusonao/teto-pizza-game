@@ -11,6 +11,7 @@ import {
 } from "react";
 import { getIngredient, type Ingredient } from "../data/ingredients";
 import type { Recipe } from "../data/recipes";
+import type { RecipeSauceProfile } from "../data/recipeSauceProfiles";
 import type { PizzaState, PlacementFeedback, SauceDeposit } from "../state/pizzaState";
 import { classifyBake } from "../logic/bake";
 import { SauceDispenseController } from "../logic/sauceDispenseController";
@@ -52,16 +53,13 @@ interface PizzaStageProps {
   placement: PlacementFeedback | null;
   /** True while RESULT is showing the finished pizza; gates the one-shot perfect glow. */
   resultRevealed: boolean;
-  /** Phase 4A-1A: true only for the Margherita Reference prototype in free play (never
-   *  Mission play, never any other recipe -- see App.tsx's `referenceModeEnabled`). Gates
-   *  the hold-to-build-quantity tomato-sauce dispenser and its heatmap visualization;
-   *  every other ingredient/recipe/phase keeps the original Phase 3A tap/drag-commit path
-   *  below completely untouched. Also doubles as this component's one and only "abort any
-   *  active dispense session" switch: App.tsx sets this false while the Reference popover
-   *  is open, reusing the same effect BAKE already aborts through (Codex Broad Review MUST
-   *  FIX 1 -- Gesture Session Safety).
-   */
+  /** True only for the FREE Margherita Reference UI. This does not gate sauce interaction;
+   *  `sauceInteractionProfile` does that for every recipe and mode. App.tsx still folds an
+   *  open Reference popover into `interactive`, so opening it aborts an active gesture. */
   referenceModeEnabled: boolean;
+  /** Recipe-owned sauce behavior shared by FREE and Lunch Rush. Reference mode remains a
+   * separate concern: it controls only Margherita's guide/metrics/reference UI. */
+  sauceInteractionProfile: RecipeSauceProfile;
   onDoughElementChange?: (element: HTMLDivElement | null) => void;
   onTap: (xPercent: number, yPercent: number) => void;
   /** Phase 4A-1A (Post-Codex-Fix): fired with the *entire* accumulated-so-far deposit array
@@ -126,6 +124,7 @@ export function PizzaStage({
   placement,
   resultRevealed,
   referenceModeEnabled,
+  sauceInteractionProfile,
   onDoughElementChange,
   onTap,
   onDispenseProgress,
@@ -399,11 +398,11 @@ export function PizzaStage({
       // Some browsers can refuse capture; the window-level fallback above covers release.
     }
 
-    const wantsReferenceDispense =
-      referenceModeEnabled && isPaintMode && activeIngredient?.id === "tomato-sauce";
-    if (wantsReferenceDispense && activeIngredient) {
+    const wantsProfileDispense =
+      isPaintMode && activeIngredient?.id === sauceInteractionProfile.ingredientId;
+    if (wantsProfileDispense && activeIngredient) {
       // Human Feel Fix 2: no trail point here (unlike the legacy paint-drag path below) --
-      // a reference dispense session's visual is the sauce heatmap alone (see
+      // a profile dispense session's visual is the sauce heatmap alone (see
       // showSauceHeatmap/the canvas draw effect further down), which already re-renders every
       // tick. A raw pointer-path stroke drawn on top of it is what iPhone retesting flagged
       // as "looks like a thick red line", not "sauce spreading" -- see
@@ -625,26 +624,23 @@ export function PizzaStage({
   } as CSSProperties;
   const trailStrokeStyle = { stroke: activeIngredient?.color ?? "#c73b2e" } as CSSProperties;
 
-  // Phase 4A-1A (Post-Codex-Fix) MUST FIX 8 -- Visual Truth: the Margherita Reference
-  // prototype's tomato sauce is represented *only* by the field-derived heatmap below, both
-  // while an active dispense session is buffering uncommitted ticks and once a stroke is
-  // committed -- never by the flat, full-circle base fill every other sauce/recipe still
-  // uses (a uniformly-tinted whole dough would misrepresent low coverage as "sauce
-  // everywhere, just faint", exactly the complaint this fixes). `isReferenceSauceContext`
-  // covers both cases so the flat fill and the heatmap never both try to render at once.
-  const committedSauceIsTomatoReference = referenceModeEnabled && sauceIngredient?.id === "tomato-sauce";
-  const hasActiveReferenceSession = activeSessionRef.current !== null;
-  const isReferenceSauceContext = committedSauceIsTomatoReference || hasActiveReferenceSession;
+  // Sauce parity keeps the Phase 4A-1A visual-truth contract for every recipe: the sauce is
+  // represented only by the field-derived heatmap while a gesture is pending and after it
+  // commits. A flat, full-circle fill would misrepresent low coverage as sauce everywhere.
+  const committedSauceUsesProfile = sauceIngredient?.id === sauceInteractionProfile.ingredientId;
+  const hasActiveProfileSession = activeSessionRef.current !== null;
+  const isFieldSauceContext = committedSauceUsesProfile || hasActiveProfileSession;
   const effectiveDeposits = useMemo<readonly SauceDeposit[]>(() => {
-    if (!isReferenceSauceContext || pendingDepositsRef.current.length === 0) {
+    if (!isFieldSauceContext || pendingDepositsRef.current.length === 0) {
       return pizza.sauceDeposits;
     }
     return [...pizza.sauceDeposits, ...pendingDepositsRef.current];
     // pendingVersion is the reactive proxy for pendingDepositsRef.current -- see its own
     // declaration above.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isReferenceSauceContext, pizza.sauceDeposits, pendingVersion]);
-  const showSauceHeatmap = isReferenceSauceContext && effectiveDeposits.length > 0;
+  }, [isFieldSauceContext, pizza.sauceDeposits, pendingVersion]);
+  const showSauceHeatmap = isFieldSauceContext && effectiveDeposits.length > 0;
+  const fieldSauceColor = sauceIngredient?.color ?? activeIngredient?.color ?? "#c73b2e";
 
   useEffect(() => {
     if (!showSauceHeatmap) return;
@@ -684,7 +680,7 @@ export function PizzaStage({
     const fieldCtx = fieldCanvas.getContext("2d");
     if (fieldCtx) {
       const imageData = fieldCtx.createImageData(SAUCE_FIELD_SIZE, SAUCE_FIELD_SIZE);
-      imageData.data.set(sauceFieldToRgbaPixels(displayField));
+      imageData.data.set(sauceFieldToRgbaPixels(displayField, fieldSauceColor));
       fieldCtx.putImageData(imageData, 0, 0);
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = "high";
@@ -709,12 +705,15 @@ export function PizzaStage({
       if (overflowFraction <= 0) continue;
       const px = (deposit.x / 100) * canvas.width;
       const py = (deposit.y / 100) * canvas.height;
-      ctx.fillStyle = `rgba(196, 46, 34, ${0.55 * overflowFraction})`;
+      ctx.save();
+      ctx.globalAlpha = 0.55 * overflowFraction;
+      ctx.fillStyle = fieldSauceColor;
       ctx.beginPath();
       ctx.arc(px, py, 3, 0, Math.PI * 2);
       ctx.fill();
+      ctx.restore();
     }
-  }, [showSauceHeatmap, effectiveDeposits]);
+  }, [showSauceHeatmap, effectiveDeposits, fieldSauceColor]);
 
   return (
     <div className="pizza-stage">
@@ -748,7 +747,7 @@ export function PizzaStage({
             <circle cx="50" cy="50" r={SAUCE_TARGET_RADIUS} />
           </svg>
         )}
-        {sauceIngredient && !isReferenceSauceContext && (
+        {sauceIngredient && !isFieldSauceContext && (
           <div
             key={pizza.sauceToken}
             className={`pizza-sauce-layer ${isOilSauce ? "pizza-sauce-layer--oil" : ""}`}
@@ -761,7 +760,9 @@ export function PizzaStage({
         {showSauceHeatmap && (
           <canvas
             ref={heatmapRef}
-            className={`pizza-sauce-heatmap ${bakeState ? `pizza-sauce-heatmap--${bakeState}` : ""}`}
+            className={`pizza-sauce-heatmap ${isOilSauce ? "pizza-sauce-heatmap--oil" : ""} ${
+              bakeState ? `pizza-sauce-heatmap--${bakeState}` : ""
+            }`}
             width={HEATMAP_CANVAS_PX}
             height={HEATMAP_CANVAS_PX}
             aria-hidden="true"

@@ -11,7 +11,7 @@ import { discoveredRecipeIds, registerScoreToDex, EMPTY_DEX, type DexState } fro
 import { availableRecipeIds } from "./progression";
 import { pickMissionOrder } from "../mission/lunchRush";
 import { isInsideDough } from "../logic/pizzaCoordinates";
-import { getReferencePizza } from "../data/referencePizza";
+import { getRecipeSauceProfile } from "../data/recipeSauceProfiles";
 import {
   createEmptyPizza,
   findOpenSpot,
@@ -47,14 +47,9 @@ export interface GameState {
    *  first Mission run in this session completes; deliberately not persisted (Mission run
    *  identity has no meaning across a reload, same as `MissionState` itself). */
   lastClaimedMissionRunId: number | null;
-  /** Codex Broad Review MUST FIX 2 (Reducer Scope Guard): true for the whole lifetime of a
-   *  Mission round (set by MISSION_RESET_ORDER/MISSION_NEXT_ORDER's shared
-   *  `nextMissionOrderState`, cleared by every free-play round-start path), read directly by
-   *  COMMIT_SAUCE_DISPENSE's own guard below. This makes "the Phase 4A-1A Reference/Quantity
-   *  Prototype never applies during Mission play" a fact the reducer itself enforces from its
-   *  own state -- not a contract the dispatch site (App.tsx) has to uphold correctly on its
-   *  own every time, and not something a caller can spoof via the action payload. Transient
-   *  only: never read or written by persistence.ts (a round in progress is never persisted). */
+  /** True for the whole lifetime of a Mission round. Sauce parity deliberately does not use
+   *  this as an interaction gate: FREE and Lunch Rush resolve the same recipe sauce profile
+   *  and dispatch through the same reducer action. Transient only; never persisted. */
   isMissionRound: boolean;
   justDiscovered: boolean;
   /** True when REGISTER_TO_DEX just improved this recipe's Dex BEST (including its very
@@ -68,17 +63,14 @@ export interface GameState {
 export type GameAction =
   | { type: "BEGIN_PREPARE" }
   | { type: "APPLY_SAUCE"; ingredientId: string; x: number; y: number }
-  // Phase 4A-1A (Post-Codex-Fix, MUST FIX 7 -- Cancel Transaction): commits one *complete,
-  // already-finished* tomato-sauce dispense gesture from the Margherita Reference prototype
+  // Commits one complete, already-finished recipe-sauce dispense gesture
   // (src/logic/sauceDispenseController.ts) as a single atomic batch -- PizzaStage buffers
   // every tick locally while the gesture is in progress and only ever dispatches this once,
   // at a successful pointerup. A cancelled/discarded gesture (pointercancel, lost pointer
   // capture, an ingredient change or Reference-overlay-open mid-hold, a BAKE abort, or
   // component unmount) never dispatches this at all, so canonical pizza state can never
-  // reflect a stroke the player didn't actually finish. Distinct from APPLY_SAUCE (which
-  // every other ingredient/recipe/Mission path still uses unchanged) so this prototype-only
-  // mechanic can never affect anything outside its own gate -- see this action's own reducer
-  // case for the full validation contract (MUST FIX 2).
+  // reflect a stroke the player didn't actually finish. The reducer validates the ingredient
+  // against the current recipe's shared sauce profile for both FREE and Lunch Rush.
   | { type: "COMMIT_SAUCE_DISPENSE"; ingredientId: string; deposits: SauceDeposit[] }
   | { type: "PLACE_TOPPING"; ingredientId: string; x: number; y: number }
   | { type: "RESET_PIZZA" }
@@ -216,13 +208,13 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     // dispense gesture's worth of deposits as a single atomic batch. Every condition below
     // is independently enforced here, at the reducer/action boundary -- never trusted from
     // the UI alone -- so a stale, late, or malformed action can never mutate canonical pizza
-    // state for BAKE/RESULT/ORDER, a non-Margherita recipe, a non-tomato-sauce ingredient, or
-    // (via `isMissionRound`) a Mission round, whatever PizzaStage/App.tsx intended to gate.
+    // state for BAKE/RESULT/ORDER or an ingredient outside the current recipe's sauce profile,
+    // whatever PizzaStage/App.tsx intended to gate. FREE and Lunch Rush deliberately share
+    // this same boundary and profile lookup.
     case "COMMIT_SAUCE_DISPENSE": {
       if (state.phase !== "PREPARE") return state;
-      if (state.isMissionRound) return state;
-      const reference = getReferencePizza(state.recipe.id);
-      if (!reference || reference.sauce.ingredientId !== action.ingredientId) return state;
+      const sauceProfile = getRecipeSauceProfile(state.recipe.id);
+      if (sauceProfile.ingredientId !== action.ingredientId) return state;
       if (!state.ownedIngredientIds.includes(action.ingredientId)) return state;
       if (!isValidSauceDepositBatch(action.deposits)) return state;
 
