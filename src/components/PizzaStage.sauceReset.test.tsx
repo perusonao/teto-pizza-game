@@ -1,0 +1,259 @@
+import "@testing-library/jest-dom/vitest";
+import { useReducer, useState } from "react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { getIngredient, STARTER_INGREDIENT_IDS } from "../data/ingredients";
+import { ORDERS } from "../data/orders";
+import { getRecipe, type RecipeId } from "../data/recipes";
+import { getRecipeSauceProfile } from "../data/recipeSauceProfiles";
+import { createInitialGameState, gameReducer, type GameState } from "../state/gameReducer";
+import { createEmptyPizza, type SauceDeposit } from "../state/pizzaState";
+import { PizzaStage } from "./PizzaStage";
+
+const DOUGH_RECT = {
+  left: 0,
+  top: 0,
+  width: 300,
+  height: 300,
+  right: 300,
+  bottom: 300,
+} as DOMRect;
+
+function preparedRecipeState(recipeId: RecipeId, isMissionRound: boolean): GameState {
+  const base = createInitialGameState(undefined, STARTER_INGREDIENT_IDS, 0);
+  const recipe = getRecipe(recipeId);
+  const order = ORDERS.find((candidate) => candidate.recipeId === recipeId);
+  if (!recipe || !order) throw new Error(`Missing fixture for ${recipeId}`);
+  return {
+    ...base,
+    phase: "PREPARE",
+    recipe,
+    order,
+    pizza: createEmptyPizza(),
+    isMissionRound,
+  };
+}
+
+function Harness({
+  recipeId,
+  isMissionRound = false,
+  onCommitAttempt,
+}: {
+  recipeId: RecipeId;
+  isMissionRound?: boolean;
+  onCommitAttempt?: () => void;
+}) {
+  const [state, dispatch] = useReducer(
+    gameReducer,
+    undefined,
+    () => preparedRecipeState(recipeId, isMissionRound),
+  );
+  const [resetToken, setResetToken] = useState(0);
+  const profile = getRecipeSauceProfile(recipeId);
+  const ingredient = getIngredient(profile.ingredientId);
+  if (!ingredient) throw new Error(`Missing ingredient fixture for ${profile.ingredientId}`);
+
+  function handleReset() {
+    // Mirrors GameScreen's canonical reset wiring: the same generation invalidates local
+    // interactions while RESET_PIZZA clears reducer state.
+    setResetToken((token) => token + 1);
+    dispatch({ type: "RESET_PIZZA" });
+  }
+
+  function handleCommit(ingredientId: string, deposits: SauceDeposit[]) {
+    onCommitAttempt?.();
+    dispatch({ type: "COMMIT_SAUCE_DISPENSE", ingredientId, deposits });
+  }
+
+  return (
+    <div>
+      <button type="button" onClick={handleReset}>
+        やり直す
+      </button>
+      <span data-testid="sauce-id-count">{state.pizza.sauceIds.length}</span>
+      <span data-testid="deposit-count">{state.pizza.sauceDeposits.length}</span>
+      <PizzaStage
+        pizza={state.pizza}
+        recipe={state.recipe}
+        interactive
+        activeIngredient={ingredient}
+        bakeProgress={null}
+        placement={null}
+        resultRevealed={false}
+        referenceModeEnabled={recipeId === "margherita" && !isMissionRound}
+        sauceInteractionProfile={profile}
+        resetToken={resetToken}
+        onTap={() => {}}
+        onDispenseProgress={() => {}}
+        onDispenseCommit={handleCommit}
+      />
+    </div>
+  );
+}
+
+function dough(): HTMLElement {
+  const element = document.querySelector<HTMLElement>('[data-pizza-drop-target="true"]');
+  if (!element) throw new Error("Pizza dough missing");
+  element.getBoundingClientRect = () => DOUGH_RECT;
+  return element;
+}
+
+function pointerDown(element: HTMLElement, pointerId = 1) {
+  fireEvent.pointerDown(element, {
+    pointerId,
+    isPrimary: true,
+    pointerType: "touch",
+    clientX: 120,
+    clientY: 120,
+  });
+}
+
+function pointerMove(element: HTMLElement, pointerId = 1) {
+  fireEvent.pointerMove(element, {
+    pointerId,
+    isPrimary: true,
+    pointerType: "touch",
+    clientX: 180,
+    clientY: 180,
+  });
+}
+
+function pointerUp(element: HTMLElement, pointerId = 1) {
+  fireEvent.pointerUp(element, {
+    pointerId,
+    isPrimary: true,
+    pointerType: "touch",
+    clientX: 180,
+    clientY: 180,
+  });
+}
+
+function reset() {
+  fireEvent.click(screen.getByRole("button", { name: "やり直す" }));
+}
+
+function expectSauceEmpty() {
+  expect(screen.getByTestId("sauce-id-count")).toHaveTextContent("0");
+  expect(screen.getByTestId("deposit-count")).toHaveTextContent("0");
+}
+
+function expectSaucePainted() {
+  expect(screen.getByTestId("sauce-id-count")).toHaveTextContent("1");
+  expect(Number(screen.getByTestId("deposit-count").textContent)).toBeGreaterThan(0);
+}
+
+beforeEach(() => {
+  vi.stubGlobal("requestAnimationFrame", vi.fn(() => 1));
+  vi.stubGlobal("cancelAnimationFrame", vi.fn());
+  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(null);
+});
+
+afterEach(() => {
+  Object.defineProperty(document, "hidden", { value: false, configurable: true });
+  cleanup();
+  vi.restoreAllMocks();
+  vi.unstubAllGlobals();
+});
+
+describe("PizzaStage Sauce reset invalidation", () => {
+  it("tomato: pointerdown -> RESET -> pointerup cannot restore Sauce", () => {
+    const onCommitAttempt = vi.fn();
+    render(<Harness recipeId="margherita" onCommitAttempt={onCommitAttempt} />);
+    const element = dough();
+
+    pointerDown(element);
+    reset();
+    pointerUp(element);
+
+    expectSauceEmpty();
+    expect(onCommitAttempt).not.toHaveBeenCalled();
+  });
+
+  it("pesto: pointerdown/move -> RESET -> pointerup cannot restore Sauce", () => {
+    const onCommitAttempt = vi.fn();
+    render(<Harness recipeId="genovese" onCommitAttempt={onCommitAttempt} />);
+    const element = dough();
+
+    pointerDown(element);
+    pointerMove(element);
+    reset();
+    pointerUp(element);
+
+    expectSauceEmpty();
+    expect(onCommitAttempt).not.toHaveBeenCalled();
+  });
+
+  it("olive-oil PAINT_TEMPORARY: a new post-reset gesture paints normally", () => {
+    render(<Harness recipeId="quattro-formaggi" />);
+    const element = dough();
+
+    pointerDown(element, 1);
+    reset();
+    pointerUp(element, 1);
+    expectSauceEmpty();
+
+    pointerDown(element, 2);
+    pointerMove(element, 2);
+    pointerUp(element, 2);
+    expectSaucePainted();
+  });
+
+  it("Lunch Rush uses the same reset invalidation and permits a fresh pesto gesture", () => {
+    render(<Harness recipeId="genovese" isMissionRound />);
+    const element = dough();
+
+    pointerDown(element, 1);
+    pointerMove(element, 1);
+    reset();
+    pointerUp(element, 1);
+    expectSauceEmpty();
+
+    pointerDown(element, 2);
+    pointerUp(element, 2);
+    expectSaucePainted();
+  });
+
+  it("RESET -> pointercancel -> stale pointerup remains empty without a commit", () => {
+    const onCommitAttempt = vi.fn();
+    render(<Harness recipeId="genovese" onCommitAttempt={onCommitAttempt} />);
+    const element = dough();
+
+    pointerDown(element);
+    reset();
+    fireEvent.pointerCancel(element, { pointerId: 1 });
+    pointerUp(element);
+
+    expectSauceEmpty();
+    expect(onCommitAttempt).not.toHaveBeenCalled();
+  });
+
+  it("RESET -> lostpointercapture -> stale pointerup remains empty without a commit", () => {
+    const onCommitAttempt = vi.fn();
+    render(<Harness recipeId="quattro-formaggi" onCommitAttempt={onCommitAttempt} />);
+    const element = dough();
+
+    pointerDown(element);
+    reset();
+    fireEvent.lostPointerCapture(element, { pointerId: 1 });
+    pointerUp(element);
+
+    expectSauceEmpty();
+    expect(onCommitAttempt).not.toHaveBeenCalled();
+  });
+
+  it("RESET -> blur/visibilitychange -> stale pointerup remains empty without a commit", () => {
+    const onCommitAttempt = vi.fn();
+    render(<Harness recipeId="margherita" onCommitAttempt={onCommitAttempt} />);
+    const element = dough();
+
+    pointerDown(element);
+    reset();
+    fireEvent(window, new Event("blur"));
+    Object.defineProperty(document, "hidden", { value: true, configurable: true });
+    fireEvent(document, new Event("visibilitychange"));
+    pointerUp(element);
+
+    expectSauceEmpty();
+    expect(onCommitAttempt).not.toHaveBeenCalled();
+  });
+});

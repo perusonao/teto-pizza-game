@@ -5,6 +5,7 @@ import { GameScreen } from "./screens/GameScreen";
 import { DexOverlay } from "./components/DexOverlay";
 import { ShopOverlay } from "./components/ShopOverlay";
 import { getReferencePizza } from "./data/referencePizza";
+import { getRecipeSauceProfile } from "./data/recipeSauceProfiles";
 import { computeSauceMetrics, emptySauceMetrics } from "./logic/sauceField";
 import { scorePiecesAgainstReference, scoreSauceAgainstReference } from "./logic/referenceScoring";
 import { resolvePieceDrop } from "./logic/pieceDrag";
@@ -347,6 +348,7 @@ function App() {
   // recipe reuses "margherita" during a Mission-only variant.
   const referencePizza = getReferencePizza(state.recipe.id);
   const referenceModeEnabled = referencePizza !== null && !isMissionActive;
+  const sauceInteractionProfile = getRecipeSauceProfile(state.recipe.id);
   // Live metrics include the current in-progress dispense session's uncommitted deposits
   // (`pendingSauceDeposits`, MUST FIX 7) alongside canonical `state.pizza.sauceDeposits`, so
   // the Prototype Metrics panel updates in real time while holding -- without canonical game
@@ -398,6 +400,7 @@ function App() {
           selectedIngredientId={selectedIngredientId}
           bakeProgress={bakeProgress}
           referenceModeEnabled={referenceModeEnabled}
+          sauceInteractionProfile={sauceInteractionProfile}
           referencePizza={referencePizza}
           isReferencePopoverOpen={isReferencePopoverOpen}
           isGlobalOverlayOpen={isDexOpen || isShopOpen}

@@ -12,12 +12,11 @@ export interface SauceOrigin {
   y: number;
 }
 
-/** One tick of the Phase 4A-1A tomato-sauce dispenser (../logic/sauceDispenseController.ts):
+/** One tick of the shared recipe-sauce dispenser (../logic/sauceDispenseController.ts):
  *  where it landed (dough-percent coordinates, which may fall outside the dough circle --
  *  see ../logic/pizzaCoordinates.ts's `isInsideDough`) and how much normalized quantity it
  *  added (../logic/sauceQuantity.ts). Only ever populated by COMMIT_SAUCE_DISPENSE (never
- *  incrementally -- see that action's own reducer case); APPLY_SAUCE (every other
- *  ingredient, every other recipe, Mission play) never touches this array. */
+ *  incrementally -- see that action's own reducer case). */
 export interface SauceDeposit {
   x: number;
   y: number;
@@ -50,9 +49,9 @@ export interface PizzaState {
   /** Bumped every APPLY_SAUCE/first DEPOSIT_SAUCE so the spread animation replays even at
    *  the same spot. */
   sauceToken: number;
-  /** Phase 4A-1A: raw deposit log for the current sauce application, used only to derive
-   *  Prototype Metrics (../logic/sauceField.ts) for the Margherita Reference prototype.
-   *  Always empty for every other recipe/ingredient path (APPLY_SAUCE never appends here). */
+  /** Raw authoritative deposit log for the current sauce application. All recipe sauce
+   *  profiles render from it; Margherita's Reference prototype additionally derives its
+   *  shadow-only metrics from the same values. */
   sauceDeposits: SauceDeposit[];
   toppings: PlacedTopping[];
   bakeResult: number | null;

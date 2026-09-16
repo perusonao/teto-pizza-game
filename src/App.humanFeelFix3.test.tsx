@@ -39,7 +39,7 @@ describe("PREPARE 1-screen layout (Human Feel Fix 3)", () => {
     expect(orderCard).toBeInTheDocument();
     expect(orderCard).toHaveTextContent("マルゲリータ");
     // buildHintLine's empty-sauce message for Margherita -- see data/hints.ts.
-    expect(orderCard).toHaveTextContent("まずはトマトソースを塗ってみて");
+    expect(orderCard).toHaveTextContent("指でなぞってトマトソースを塗ろう");
     expect(screen.getByRole("button", { name: /見本/ })).toBeInTheDocument();
 
     // The old per-phase dialogue-area (character portrait + speech bubble) must not also be

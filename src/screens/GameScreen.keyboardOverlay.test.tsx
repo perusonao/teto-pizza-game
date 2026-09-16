@@ -2,6 +2,7 @@ import { useReducer, useState } from "react";
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { GameScreen } from "./GameScreen";
+import { getRecipeSauceProfile } from "../data/recipeSauceProfiles";
 import { createInitialGameState, gameReducer } from "../state/gameReducer";
 import { INITIAL_MISSION_STATE } from "../mission/lunchRush";
 import { resolvePieceDrop } from "../logic/pieceDrag";
@@ -95,6 +96,7 @@ function Harness({
         selectedIngredientId={selectedIngredientId}
         bakeProgress={null}
         referenceModeEnabled
+        sauceInteractionProfile={getRecipeSauceProfile(state.recipe.id)}
         referencePizza={referencePizza}
         isReferencePopoverOpen={isReferencePopoverOpen}
         isGlobalOverlayOpen={isGlobalOverlayOpen}
