@@ -122,7 +122,6 @@ function Harness({
         onOpenDex={() => {}}
         onOpenShop={() => {}}
         onBeginPrepare={() => {}}
-        onShowMissionIntro={() => {}}
         onResetPizza={() => dispatch({ type: "RESET_PIZZA" })}
         onConfirmMakingStep={() => dispatch({ type: "CONFIRM_MAKING_STEP" })}
         onStartBake={() => {}}

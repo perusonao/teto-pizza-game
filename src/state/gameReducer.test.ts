@@ -182,6 +182,70 @@ describe("PURCHASE_INGREDIENT (reducer)", () => {
   });
 });
 
+describe("SELECT_RECIPE (Issue #39 Pizza Select)", () => {
+  it("starts a fresh ORDER-phase round for the explicitly chosen, available recipe", () => {
+    const state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 75);
+    const after = gameReducer(state, { type: "SELECT_RECIPE", recipeId: "bismarck" });
+    expect(after.recipe.id).toBe("bismarck");
+    expect(after.order.recipeId).toBe("bismarck");
+    expect(after.phase).toBe("ORDER");
+    expect(after.pizza.toppings).toHaveLength(0);
+    expect(after.makingStep).toBe("SAUCE");
+    expect(after.isMissionRound).toBe(false);
+  });
+
+  it("carries dex/pitzBalance/ownedIngredientIds forward unchanged", () => {
+    const dex = registerScoreToDex(EMPTY_DEX, "margherita", {
+      matchScore: 100,
+      ingredientScore: 100,
+      placementScore: 100,
+      bakeScore: 100,
+      total: 96,
+      stars: 5 as QualityStars,
+    }).dex;
+    const state = createInitialGameState(dex, STARTER_INGREDIENT_IDS, 75);
+    const after = gameReducer(state, { type: "SELECT_RECIPE", recipeId: "bismarck" });
+    expect(after.dex).toBe(dex);
+    expect(after.pitzBalance).toBe(75);
+    expect(after.ownedIngredientIds).toEqual(STARTER_INGREDIENT_IDS);
+  });
+
+  it("rebuilds a fresh round even mid-PREPARE/RESULT of a different recipe", () => {
+    let state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 0);
+    state = gameReducer(state, { type: "BEGIN_PREPARE" });
+    state = gameReducer(state, { type: "APPLY_SAUCE", ingredientId: "tomato-sauce", x: 50, y: 50 });
+    const after = gameReducer(state, { type: "SELECT_RECIPE", recipeId: "bismarck" });
+    expect(after.recipe.id).toBe("bismarck");
+    expect(after.phase).toBe("ORDER");
+    expect(after.pizza.sauceIds).toHaveLength(0);
+  });
+
+  it("rejects a locked recipe (fugazza before onion is owned) and returns state unchanged", () => {
+    const state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 0);
+    const after = gameReducer(state, { type: "SELECT_RECIPE", recipeId: "fugazza" });
+    expect(after).toBe(state);
+  });
+
+  it("selects fugazza once onion is owned (recipe becomes available)", () => {
+    const ownedWithOnion = [...STARTER_INGREDIENT_IDS, "onion"];
+    const state = createInitialGameState(EMPTY_DEX, ownedWithOnion, 0);
+    const after = gameReducer(state, { type: "SELECT_RECIPE", recipeId: "fugazza" });
+    expect(after.recipe.id).toBe("fugazza");
+    expect(after.phase).toBe("ORDER");
+  });
+
+  it("never touches Mission's own random order selection", () => {
+    let state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 0);
+    const before = state;
+    state = gameReducer(state, { type: "SELECT_RECIPE", recipeId: "bismarck" });
+    // Mission's own order picker still works after a SELECT_RECIPE dispatch -- selecting a
+    // recipe for FREE never mutates or bypasses pickMissionOrder/getNextOrder.
+    const missionState = gameReducer(state, { type: "MISSION_RESET_ORDER" });
+    expect(missionState.isMissionRound).toBe(true);
+    expect(before.recipe.id).toBe("margherita");
+  });
+});
+
 // Codex review follow-up (PR #20, P2, originally filed against the salami/salami-pizza draft
 // but the underlying gap applies equally to onion): IngredientTray only ever *offers* owned
 // ingredients (src/components/IngredientTray.tsx filters by `ownedIngredientIds`), but until

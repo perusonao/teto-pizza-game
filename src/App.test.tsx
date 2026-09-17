@@ -6,11 +6,12 @@ import { SAVE_STORAGE_KEY, type PersistentSaveV1 } from "./state/persistence";
 import { STARTER_INGREDIENT_IDS } from "./data/ingredients";
 
 /**
- * HOME/GAME separation (Issue #24) integration coverage. Renders the real `App` (real
- * reducers, real localStorage) end-to-end rather than mocking anything internal -- these
- * tests exist specifically to catch a broken navigation wire or a HOME number that silently
- * stops tracking `GameState`, not to re-verify scoring/economy/Dex rules already covered by
- * their own unit suites (src/logic, src/state).
+ * HOME/GAME separation (Issue #24) integration coverage, extended by Issue #39 for the
+ * HOME -> Pizza Select -> FREE navigation this file's own describe block now covers end to
+ * end. Renders the real `App` (real reducers, real localStorage) end-to-end rather than
+ * mocking anything internal -- these tests exist specifically to catch a broken navigation
+ * wire or a HOME number that silently stops tracking `GameState`, not to re-verify
+ * scoring/economy/Dex rules already covered by their own unit suites (src/logic, src/state).
  */
 
 function seedSave(overrides: Partial<PersistentSaveV1>): void {
@@ -43,15 +44,57 @@ describe("HOME/GAME separation (Issue #24)", () => {
     expect(screen.getByRole("button", { name: /ピザを作る/ })).toBeInTheDocument();
   });
 
-  it("navigates HOME -> FREE play on the primary CTA", async () => {
+  it("navigates HOME -> Pizza Select on the primary CTA (Issue #39), not straight into GAME", async () => {
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
-    expect(document.querySelector(".game-screen")).toBeInTheDocument();
+    expect(document.querySelector(".pizza-select-screen")).toBeInTheDocument();
+    expect(document.querySelector(".game-screen")).not.toBeInTheDocument();
     expect(document.querySelector(".home-screen")).not.toBeInTheDocument();
-    // Free play's ORDER phase CTA ("フリープレイ") confirms this landed on a real round, not
-    // just an empty shell.
+    expect(screen.getByText("作るピザを選ぼう！")).toBeInTheDocument();
+    // The old redundant "フリープレイ / Lunch Rush" two-choice picker must not appear here --
+    // Pizza Select's cards are the only FREE entry point now.
+    expect(screen.queryByRole("button", { name: /フリープレイ/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Lunch Rush/ })).not.toBeInTheDocument();
+  });
+
+  it("selects an unlocked recipe from Pizza Select and starts FREE with that exact recipe", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
+    // Bismarck is unlocked (Starter Set only) and undiscovered on a fresh save -- NEW.
+    await user.click(screen.getByRole("button", { name: "ビスマルク、未挑戦" }));
+    expect(document.querySelector(".game-screen")).toBeInTheDocument();
+    expect(document.querySelector(".pizza-select-screen")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /フリープレイ/ })).toBeInTheDocument();
+    // Teto's ORDER-phase dialogue always names the current recipe -- confirms the selected
+    // recipeId (not a random one) actually reached GameScreen/state.recipe.
+    expect(screen.getAllByText(/ビスマルク/).length).toBeGreaterThan(0);
+    // The in-round secondary Lunch Rush entry point was removed from GAME's ORDER action row
+    // (Issue #39 PS1) -- only the one FREE CTA remains here.
+    expect(screen.queryByRole("button", { name: /Lunch Rush/ })).not.toBeInTheDocument();
+  });
+
+  it("a locked recipe card (fugazza, before onion is owned) cannot start a round", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
+    const lockedCard = screen.getByRole("button", { name: "？？？、未解放" });
+    expect(lockedCard).toBeDisabled();
+    await user.click(lockedCard);
+    // Still on Pizza Select -- a disabled button's click is a no-op, never reaching GAME.
+    expect(document.querySelector(".pizza-select-screen")).toBeInTheDocument();
+    expect(document.querySelector(".game-screen")).not.toBeInTheDocument();
+  });
+
+  it("navigates Pizza Select -> HOME via its back button", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
+    expect(document.querySelector(".pizza-select-screen")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /ホーム/ }));
+    expect(document.querySelector(".home-screen")).toBeInTheDocument();
+    expect(document.querySelector(".pizza-select-screen")).not.toBeInTheDocument();
   });
 
   it("navigates HOME -> Lunch Rush straight into the Mission Intro overlay", async () => {
@@ -93,6 +136,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
+    await user.click(screen.getByRole("button", { name: "ビスマルク、未挑戦" })); // Pizza Select -> GAME
     expect(document.querySelector(".game-screen")).toBeInTheDocument();
     // Still ORDER phase -- nothing built yet, so no confirmation should even be asked.
     const confirmSpy = vi.spyOn(window, "confirm");
@@ -105,6 +149,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
+    await user.click(screen.getByRole("button", { name: "ビスマルク、未挑戦" })); // Pizza Select -> GAME
     await user.click(screen.getByRole("button", { name: /フリープレイ/ })); // BEGIN_PREPARE -> PREPARE phase
     // Issue #32 Phase 2: 焼く only appears once the making flow reaches TOPPING.
     await user.click(screen.getByRole("button", { name: /次へ/ }));
@@ -127,6 +172,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
+    await user.click(screen.getByRole("button", { name: "ビスマルク、未挑戦" })); // Pizza Select -> GAME
     await user.click(screen.getByRole("button", { name: /フリープレイ/ })); // ORDER -> PREPARE
     // Issue #32 Phase 2: 焼く only appears once the making flow reaches TOPPING.
     await user.click(screen.getByRole("button", { name: /次へ/ }));
@@ -140,9 +186,11 @@ describe("HOME/GAME separation (Issue #24)", () => {
     await user.click(screen.getByRole("button", { name: /ホーム/ }));
     expect(document.querySelector(".home-screen")).toBeInTheDocument();
 
-    // Tapping HOME's CTA again must land on a fresh ORDER, not reopen the DISCOVERED screen
-    // this same round left behind.
+    // Tapping HOME's CTA again lands on Pizza Select, now showing bismarck as COMPLETED
+    // (just discovered above) rather than NEW -- selecting it again must land on a fresh
+    // ORDER, not reopen the DISCOVERED screen this same round left behind.
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
+    await user.click(screen.getByRole("button", { name: /ビスマルク/ }));
     expect(screen.queryByRole("button", { name: /もう一度作る/ })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /フリープレイ/ })).toBeInTheDocument();
   });

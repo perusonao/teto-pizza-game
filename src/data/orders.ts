@@ -52,6 +52,12 @@ export const ORDERS: Order[] = [
   },
 ];
 
+/** Looks up the one Order for an explicit recipe id (Issue #39 Pizza Select: every recipe in
+ *  ORDERS today maps 1:1 to a RecipeId, so this is a direct find, not a new data shape). */
+export function findOrderForRecipe(recipeId: RecipeId): Order | undefined {
+  return ORDERS.find((order) => order.recipeId === recipeId);
+}
+
 export interface NextOrderOptions {
   /** Prefer the margherita order (used on the very first play of a session). */
   preferFirst?: boolean;

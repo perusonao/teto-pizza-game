@@ -1,5 +1,5 @@
-import { getNextOrder, type NextOrderOptions, type Order } from "../data/orders";
-import { getRecipe, type Recipe } from "../data/recipes";
+import { findOrderForRecipe, getNextOrder, type NextOrderOptions, type Order } from "../data/orders";
+import { getRecipe, type Recipe, type RecipeId } from "../data/recipes";
 import { buildHintLine } from "../data/hints";
 import { getIngredient, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import type { DialogueLine } from "../data/dialogue";
@@ -9,7 +9,7 @@ import { computeScoringV2Shadow, type ScoringV2Result } from "../logic/scoringV2
 import { totalStars } from "../logic/mastery";
 import { purchaseIngredient } from "../logic/economy";
 import { discoveredRecipeIds, registerScoreToDex, EMPTY_DEX, type DexState } from "./dex";
-import { availableRecipeIds } from "./progression";
+import { availableRecipeIds, isRecipeAvailable } from "./progression";
 import { pickMissionOrder } from "../mission/lunchRush";
 import { isInsideDough } from "../logic/pizzaCoordinates";
 import { getRecipeSauceProfile } from "../data/recipeSauceProfiles";
@@ -119,6 +119,15 @@ export type GameAction =
   | { type: "CONFIRM_BAKE"; value: number }
   | { type: "REGISTER_TO_DEX" }
   | { type: "PLAY_AGAIN" }
+  // Issue #39 (Pizza Select): starts a fresh FREE round for an explicitly player-chosen
+  // recipe -- structurally identical to PLAY_AGAIN's `nextOrderState` case, just keyed by an
+  // explicit id instead of "not the current recipe." Never touches Mission's own order
+  // selection (MISSION_NEXT_ORDER/MISSION_RESET_ORDER, still `getNextOrder`-random). Rejects
+  // (returns `state` unchanged) a recipe that isn't currently available, mirroring
+  // PURCHASE_INGREDIENT's "reject invalid, return state unchanged" pattern -- Pizza Select's
+  // UI already never wires a LOCKED card's button to this, but a stray/forced dispatch must
+  // still be unable to start a locked recipe's round.
+  | { type: "SELECT_RECIPE"; recipeId: RecipeId }
   | { type: "SHOW_HINT" }
   // Phase 3C-4 (Lunch Rush): both below reuse this same round machinery (an ORDER phase with
   // a freshly-picked, available recipe) -- there is no separate Mission round state. See
@@ -427,6 +436,23 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         },
         { excludeRecipeId: state.recipe.id },
       );
+
+    case "SELECT_RECIPE": {
+      const recipe = getRecipe(action.recipeId);
+      if (!recipe || !isRecipeAvailable(recipe, state.ownedIngredientIds)) return state;
+      const order = findOrderForRecipe(action.recipeId);
+      if (!order) return state;
+      return buildOrderState(
+        order,
+        {
+          dex: state.dex,
+          ownedIngredientIds: state.ownedIngredientIds,
+          pitzBalance: state.pitzBalance,
+          lastClaimedMissionRunId: state.lastClaimedMissionRunId,
+        },
+        false,
+      );
+    }
 
     // Registers the current RESULT into the Dex (same rule as REGISTER_TO_DEX: BEST never
     // goes down, timesMade always increments once) and, in the same step, advances straight
