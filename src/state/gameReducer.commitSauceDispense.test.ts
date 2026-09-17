@@ -20,7 +20,10 @@ import { getRecipeSauceProfile } from "../data/recipeSauceProfiles";
 function preparedMargheritaState(ownedIngredientIds: readonly string[] = STARTER_INGREDIENT_IDS): GameState {
   const state = createInitialGameState(EMPTY_DEX, ownedIngredientIds, 0);
   expect(state.recipe.id).toBe("margherita"); // createInitialGameState always starts here
-  return gameReducer(state, { type: "BEGIN_PREPARE" });
+  const prepared = gameReducer(state, { type: "BEGIN_PREPARE" });
+  // Issue #33 D1: BEGIN_PREPARE now lands at DOUGH -- every caller in this file exercises
+  // SAUCE-step COMMIT_SAUCE_DISPENSE, so advance past DOUGH once here.
+  return gameReducer(prepared, { type: "CONFIRM_MAKING_STEP" });
 }
 
 function preparedRecipeState(recipeId: RecipeId, isMissionRound = false): GameState {
@@ -31,6 +34,10 @@ function preparedRecipeState(recipeId: RecipeId, isMissionRound = false): GameSt
   return {
     ...base,
     phase: "PREPARE",
+    // Issue #33 D1: this fixture hand-builds a PREPARE state directly (not via BEGIN_PREPARE),
+    // so its own `makingStep` must be set explicitly -- every caller exercises SAUCE-step
+    // COMMIT_SAUCE_DISPENSE.
+    makingStep: "SAUCE",
     order,
     recipe,
     pizza: createEmptyPizza(),

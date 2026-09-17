@@ -12,6 +12,12 @@ import { STARTER_INGREDIENT_IDS, type IngredientCategory } from "../data/ingredi
  */
 
 const MAKING_STEP_TO_CATEGORY: Record<MakingStep, IngredientCategory> = {
+  // Issue #33 D1: DOUGH has no tray category of its own (IngredientTray is never rendered
+  // while it's the active step -- see GameScreen.tsx) -- this harness's own while-loop below
+  // always advances past it to the requested SAUCE/CHEESE/TOPPING target, so this entry is
+  // never actually looked up; it exists only to keep this a total, type-checked map, mirroring
+  // App.tsx's own makingStepToCategory placeholder.
+  DOUGH: "sauce",
   SAUCE: "sauce",
   CHEESE: "cheese",
   TOPPING: "topping",
@@ -85,6 +91,8 @@ describe("IngredientTray step lock (Issue #32 Phase 2)", () => {
         let initial = gameReducer(createInitialGameState(undefined, STARTER_INGREDIENT_IDS), {
           type: "BEGIN_PREPARE",
         });
+        // Issue #33 D1: DOUGH -> SAUCE -> CHEESE, two confirms now instead of one.
+        initial = gameReducer(initial, { type: "CONFIRM_MAKING_STEP" }); // -> SAUCE
         return gameReducer(initial, { type: "CONFIRM_MAKING_STEP" }); // -> CHEESE
       });
       return (

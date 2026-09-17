@@ -30,6 +30,9 @@ function preparedRecipeState(recipeId: RecipeId, isMissionRound: boolean): GameS
     recipe,
     order,
     pizza: createEmptyPizza(),
+    // Issue #33 D1: createInitialGameState now starts at "DOUGH" -- this fixture is
+    // specifically for the SAUCE gesture-reset contract, so force it to SAUCE explicitly.
+    makingStep: "SAUCE",
     isMissionRound,
   };
 }
@@ -70,6 +73,17 @@ function Harness({
       <button type="button" onClick={handleReset}>
         やり直す
       </button>
+      {/* Issue #33 D1: RESET_PIZZA now returns to DOUGH (the new first step), not SAUCE --
+          this dedicated button lets a test explicitly re-confirm DOUGH -> SAUCE after a reset
+          (mirroring the real DOUGH step being confirmed by the player), for the specific tests
+          below that exercise "a fresh gesture after reset paints normally" rather than the
+          stale-gesture-discard contract. */}
+      <button
+        type="button"
+        onClick={() => dispatch({ type: "CONFIRM_MAKING_STEP" })}
+      >
+        次へ
+      </button>
       <span data-testid="sauce-id-count">{state.pizza.sauceIds.length}</span>
       <span data-testid="deposit-count">{state.pizza.sauceDeposits.length}</span>
       <PizzaStage
@@ -83,9 +97,13 @@ function Harness({
         referenceModeEnabled={recipeId === "margherita" && !isMissionRound}
         resetToken={resetToken}
         makingStepToken={state.makingStepToken}
+        makingStep={state.makingStep}
+        showDoughShape
         onTap={() => {}}
         onDispenseProgress={() => {}}
         onDispenseCommit={handleCommit}
+        onDoughStretchProgress={() => {}}
+        onDoughStretchCommit={() => {}}
       />
     </div>
   );
@@ -130,6 +148,13 @@ function pointerUp(element: HTMLElement, pointerId = 1) {
 
 function reset() {
   fireEvent.click(screen.getByRole("button", { name: "やり直す" }));
+}
+
+/** Issue #33 D1: RESET_PIZZA returns to DOUGH -- advances DOUGH -> SAUCE via the harness's
+ *  own dedicated button so a test can reach "a fresh gesture after reset" the same way a
+ *  real player would (confirming DOUGH again first). */
+function confirmToSauce() {
+  fireEvent.click(screen.getByRole("button", { name: "次へ" }));
 }
 
 function expectSauceEmpty() {
@@ -192,6 +217,7 @@ describe("PizzaStage Sauce reset invalidation", () => {
     pointerUp(element, 1);
     expectSauceEmpty();
 
+    confirmToSauce();
     pointerDown(element, 2);
     pointerMove(element, 2);
     pointerUp(element, 2);
@@ -208,6 +234,7 @@ describe("PizzaStage Sauce reset invalidation", () => {
     pointerUp(element, 1);
     expectSauceEmpty();
 
+    confirmToSauce();
     pointerDown(element, 2);
     pointerUp(element, 2);
     expectSaucePainted();

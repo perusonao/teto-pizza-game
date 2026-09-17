@@ -232,6 +232,68 @@
   filter: brightness(0.62) saturate(0.7) sepia(0.25);
 }
 
+/* ---------- Issue #33 D1: Dough shape carry-through ---------- */
+/* `.pizza-dough-shape` is the player's actual hand-stretched boundary (PizzaStage clips it
+   to an objectBoundingBox <clipPath> built from `pizza.doughShape` -- see that component's
+   own comment) -- rendered from the moment PREPARE begins through BAKE/RESULT unchanged.
+   `.pizza-dough` itself becomes a neutral "work surface" behind it (below,
+   `--has-shape-layer`) rather than doubling as the dough's own color, so the shape's actual
+   boundary reads clearly instead of blending into an already-full circle of the same hue. */
+/* Deliberately placed after .pizza-dough--raw/--perfect/--burnt above: same specificity
+   (one class), so source order decides, and this is meant to win over their own `background`
+   on the *outer* element for the whole PREPARE-onward lifetime of a round -- the crust color
+   itself now lives on `.pizza-dough-shape` (below, correctly cascaded via a higher-specificity
+   compound selector), so the outer box only ever needs to be a neutral backdrop once this
+   class is present. Keep this block after the raw/perfect/burnt rules if it ever moves. */
+.pizza-dough--has-shape-layer {
+  background: radial-gradient(circle at 40% 35%, #f7ecd4, #ecdfc0 85%);
+  border-color: #d8c49a;
+}
+
+.pizza-dough-shape {
+  position: absolute;
+  /* Same border-box alignment as .pizza-paint-trail/.sauce-target-guide -- keeps this
+     layer's clip-path coordinates (built from the same 0-100 dough-percent space pointer
+     math already uses) in lockstep with the actual hit area, even near the rim. */
+  inset: calc(-1 * var(--dough-border-width));
+  pointer-events: none;
+  background: radial-gradient(circle at 40% 35%, #f3d9a4, #e2b876 85%);
+  box-shadow: inset 0 0 14px rgba(120, 70, 20, 0.3);
+}
+
+/* Mirrors .pizza-dough--raw/--perfect/--burnt's own background swap (above) onto the shape
+   layer specifically -- `filter` on .pizza-dough itself already cascades visually into every
+   descendant (including this one) with no extra rule needed, but `background` does not, so
+   the crust-color swap needs restating here once, the same pattern .pizza-sauce-layer's own
+   cascaded overrides below already use. */
+.pizza-dough--raw .pizza-dough-shape {
+  background: radial-gradient(circle at 40% 35%, #faf1dc, #f0e2bc 85%);
+}
+
+.pizza-dough--perfect .pizza-dough-shape {
+  background: radial-gradient(circle at 40% 35%, #eec27a, #c9863c 85%);
+}
+
+.pizza-dough--burnt .pizza-dough-shape {
+  background: radial-gradient(circle at 40% 35%, #8f6236, #4d2f16 85%);
+}
+
+/* Same "paint/stretch up to here" guide convention as .sauce-target-guide below, at the full
+   DOUGH_RADIUS target -- gives a first-time player a visible boundary to pull toward even
+   while the dough itself is still small. Shown only during DOUGH's own interaction. */
+.dough-target-guide {
+  position: absolute;
+  inset: calc(-1 * var(--dough-border-width));
+  pointer-events: none;
+}
+
+.dough-target-guide circle {
+  fill: none;
+  stroke: rgba(107, 66, 38, 0.4);
+  stroke-width: 1.1;
+  stroke-dasharray: 3 2.4;
+}
+
 /* Sauce warms/deepens as it bakes; stays vivid and "raw-looking" until then.
    :not(oil) keeps olive oil's own gloss layer (below) untouched here. */
 .pizza-dough--raw .pizza-sauce-layer:not(.pizza-sauce-layer--oil) {

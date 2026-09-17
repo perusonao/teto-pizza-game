@@ -23,16 +23,34 @@ describe("First Sauce Touch copy (Phase 4A-1B.1 Fix A)", () => {
   it("buildHintLine's initial (non-explicit) call for Margherita returns the gesture-guidance copy, not just the old ingredient-only line", () => {
     const recipe = getRecipe("margherita");
     if (!recipe) throw new Error("margherita recipe fixture is missing");
-    const line = buildHintLine(recipe, createEmptyPizza());
+    const line = buildHintLine(recipe, createEmptyPizza(), "SAUCE");
     expect(line.textJa).toBe("指でなぞってトマトソースを塗ろう！");
   });
 
   it("the explicit hint (ヒント button) copy is unchanged -- Fix A only touches the default first-shown line", () => {
     const recipe = getRecipe("margherita");
     if (!recipe) throw new Error("margherita recipe fixture is missing");
-    const line = buildHintLine(recipe, createEmptyPizza(), true);
+    const line = buildHintLine(recipe, createEmptyPizza(), "SAUCE", true);
     expect(line.textJa).toBe(
       "ピザを指でなぞると、トマトソースが塗れるよ。ふちの近くまで大胆に広げてみて！",
     );
+  });
+});
+
+describe("Issue #33 D1: DOUGH hint branch", () => {
+  it("never falls through to the recipe's own sauce copy while makingStep is DOUGH", () => {
+    const recipe = getRecipe("margherita");
+    if (!recipe) throw new Error("margherita recipe fixture is missing");
+    const line = buildHintLine(recipe, createEmptyPizza(), "DOUGH");
+    expect(line.textJa).not.toMatch(/ソース/);
+    expect(line.textJa).toMatch(/生地/);
+  });
+
+  it("the explicit DOUGH hint differs from the default one", () => {
+    const recipe = getRecipe("margherita");
+    if (!recipe) throw new Error("margherita recipe fixture is missing");
+    const defaultLine = buildHintLine(recipe, createEmptyPizza(), "DOUGH");
+    const explicitLine = buildHintLine(recipe, createEmptyPizza(), "DOUGH", true);
+    expect(explicitLine.textJa).not.toBe(defaultLine.textJa);
   });
 });
