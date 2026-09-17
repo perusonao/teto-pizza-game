@@ -79,11 +79,11 @@ Implementation rules:
 
 ### P0 — HOME / FREE clarity — Issue #39
 
-1. PS0 Fresh Audit: HOME/mode navigation, FREE recipe selection, recipe/unlock/Dex/BEST SSOT and official character assets.
-2. PS1 Navigation restructure: HOME 「ピザを作る」 → Pizza Select; HOME 「ランチラッシュ」 → Lunch Rush.
-3. PS2 Functional Pizza Select: completed / NEW / locked cards and correct selected-recipe handoff into Making Game.
-4. PS3 Visual reproduction: HOME + Pizza Select toward the approved rustic pizza-shop direction using official assets.
-5. PS4 Preview + real iPhone 390×844 Human Feel.
+1. PS0 Fresh Audit: HOME/mode navigation, FREE recipe selection, recipe/unlock/Dex/BEST SSOT and official character assets. **Done** (merged via PR #40).
+2. PS1 Navigation restructure: HOME 「ピザを作る」 → Pizza Select; HOME 「ランチラッシュ」 → Lunch Rush. **Done** (merged via PR #40).
+3. PS2 Functional Pizza Select: completed / NEW / locked cards and correct selected-recipe handoff into Making Game. **Done** (merged via PR #40).
+4. PS3 Visual reproduction: HOME + Pizza Select toward the approved rustic pizza-shop direction using official assets. **Done** (PR #41 — see `docs/reports/TETO_ISSUE-39_PS3_Visual-Result.md`), pending PS4 iPhone Human Feel.
+5. PS4 Preview + real iPhone 390×844 Human Feel. **Next** — do not start further Issue #39 visual work until the user confirms PS3 on a real iPhone.
 
 Issue #39 may run alongside read-only Issue #32 audit work. Avoid simultaneous implementation in overlapping App/navigation files.
 
@@ -186,6 +186,20 @@ While Codex availability is limited:
 Use Codex for important independent reviews when available; do not block routine progress waiting for it.
 
 Claude Code implementation tasks should generally stay around 2–3 hours where practical. Result reports belong under `docs/reports/`.
+
+### Standard completion rule (Issue #39 PS3 onward)
+
+A change is not "改修完了" (done) until every one of these steps has actually run, in order:
+
+`implementation → tests → commit/push → PR → CI → Preview deploy → Preview smoke test`
+
+Do not report a task complete before the Preview deploy has finished and its smoke test has
+run — CI green on `perusonao/teto-pizza-game` alone is not enough, since the separate
+`perusonao/teto-pizza-game-preview` pipeline (manual `deploy-from-source.yml` + `pages.yml`
+dispatch, see the Issue #39 PS1/PS2 Preview-Gate report for the exact commands) is what the
+user actually opens on a real device. If Preview deploy genuinely cannot be completed in a
+session (e.g. sandboxed network policy blocking the dispatch itself), say so explicitly as a
+blocker rather than silently skipping the step.
 
 ## New-session startup checklist
 
