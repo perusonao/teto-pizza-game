@@ -105,6 +105,20 @@ export function ScoringV2ShadowPanel({ result }: ScoringV2ShadowPanelProps) {
             result.components.pieces.groups.map((group) => (
               <PieceGroupRow group={group} key={group.ingredientId} />
             ))}
+
+          {!isUnavailable(result.components.recipe) && (
+            <div className="scoring-v2-panel__row">
+              <span className="scoring-v2-panel__chip">
+                必須 {result.components.recipe.requiredTypesPresent}/{result.components.recipe.requiredTypesTotal}
+              </span>
+              <span className="scoring-v2-panel__chip">
+                余分な種類 {result.components.recipe.extraTypesCount}
+              </span>
+              <span className="scoring-v2-panel__chip">
+                純度 {round(result.components.recipe.purityMultiplier * 100)}%
+              </span>
+            </div>
+          )}
         </>
       )}
     </div>

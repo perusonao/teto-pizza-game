@@ -75,7 +75,18 @@ export interface RecipeComponentV2 {
    *  on the pizza at all. */
   requiredTypesPresent: number;
   requiredTypesTotal: number;
-  /** 0-100. */
+  /** Issue #32 purity: total distinct ingredient types used on the pizza at all (required or
+   *  not) -- the denominator `extraTypesCount` is diluted by, mirroring ../scoring.ts's legacy
+   *  `ingredientScore`'s own shape. 0 for a genuinely empty pizza. */
+  usedTypesTotal: number;
+  /** Issue #32 purity: how many of `usedTypesTotal` are ingredient types this recipe never
+   *  required at all (an unspecified/wrong-substitution ingredient). Duplicate placements of
+   *  the same extra type still count once -- quantity is never this component's concern. */
+  extraTypesCount: number;
+  /** Issue #32 purity: 0-1 multiplier applied to the presence score above, 1 when
+   *  `extraTypesCount` is 0 (unchanged from pre-Issue-#32 behavior). */
+  purityMultiplier: number;
+  /** 0-100 = (requiredTypesPresent / requiredTypesTotal) * 100 * purityMultiplier. */
   score: number;
 }
 
