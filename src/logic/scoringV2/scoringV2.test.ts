@@ -438,6 +438,231 @@ describe("scoreRecipeComponentV2 (presence-only, no overlap with Pieces)", () =>
   });
 });
 
+/**
+ * Issue #32: purity -- Recipe must also detect ingredient types the recipe never asked for,
+ * not just check presence of required types. See
+ * docs/reports/TETO_ISSUE-32_RECIPE-PURITY_Result.md for the formula this pins:
+ * `score = (requiredTypesPresent / requiredTypesTotal) * 100 * purityMultiplier`, where
+ * `purityMultiplier = 1 - extraTypesCount / usedTypesTotal` (0 when no types are used at all).
+ */
+describe("scoreRecipeComponentV2 purity (Issue #32 -- extra/wrong ingredient types)", () => {
+  it("1: all required types present, zero extras -> unchanged full score (regression pin)", () => {
+    const pizza = pizzaWith({
+      sauceIds: ["tomato-sauce"],
+      toppings: [
+        { id: "m0", ingredientId: "mozzarella", x: 40, y: 40 },
+        { id: "m1", ingredientId: "mozzarella", x: 45, y: 45 },
+        { id: "m2", ingredientId: "mozzarella", x: 50, y: 50 },
+        { id: "b0", ingredientId: "basil", x: 50, y: 65 },
+        { id: "b1", ingredientId: "basil", x: 55, y: 65 },
+      ],
+    });
+    const result = scoreRecipeComponentV2(MARGHERITA, pizza);
+    assertAvailable(result);
+    expect(result.score).toBe(100);
+    expect(result.extraTypesCount).toBe(0);
+    expect(result.purityMultiplier).toBe(1);
+  });
+
+  it("2: a missing required type (no extras) lowers score via presence only, purity untouched", () => {
+    const pizza = pizzaWith({ sauceIds: ["tomato-sauce"], toppings: [] }); // no mozzarella, no basil
+    const result = scoreRecipeComponentV2(MARGHERITA, pizza);
+    assertAvailable(result);
+    expect(result.extraTypesCount).toBe(0);
+    expect(result.purityMultiplier).toBe(1);
+    expect(result.score).toBeCloseTo((1 / 3) * 100, 10);
+  });
+
+  it("3: wrong-type substitution (basil missing, pepperoni placed instead) scores at or below missing-alone -- never identical (closes the Fresh Audit's case F/E parity gap)", () => {
+    const missingAlone = scoreRecipeComponentV2(
+      MARGHERITA,
+      pizzaWith({
+        sauceIds: ["tomato-sauce"],
+        toppings: [
+          { id: "m0", ingredientId: "mozzarella", x: 40, y: 40 },
+          { id: "m1", ingredientId: "mozzarella", x: 45, y: 45 },
+          { id: "m2", ingredientId: "mozzarella", x: 50, y: 50 },
+        ],
+      }),
+    );
+    const wrongSubstitution = scoreRecipeComponentV2(
+      MARGHERITA,
+      pizzaWith({
+        sauceIds: ["tomato-sauce"],
+        toppings: [
+          { id: "m0", ingredientId: "mozzarella", x: 40, y: 40 },
+          { id: "m1", ingredientId: "mozzarella", x: 45, y: 45 },
+          { id: "m2", ingredientId: "mozzarella", x: 50, y: 50 },
+          { id: "p0", ingredientId: "pepperoni", x: 50, y: 65 },
+        ],
+      }),
+    );
+    assertAvailable(missingAlone);
+    assertAvailable(wrongSubstitution);
+    expect(missingAlone.score).toBeCloseTo((2 / 3) * 100, 10);
+    expect(wrongSubstitution.extraTypesCount).toBe(1);
+    expect(wrongSubstitution.purityMultiplier).toBeLessThan(1);
+    expect(wrongSubstitution.score).toBeLessThan(missingAlone.score);
+  });
+
+  it("4: all required types present + one extra unspecified type -> below full, but not zero (no all-or-nothing cliff); extra > no-extra ordering holds", () => {
+    const clean = scoreRecipeComponentV2(MARGHERITA, referenceLikePizza());
+    const withExtra = scoreRecipeComponentV2(
+      MARGHERITA,
+      pizzaWith({
+        ...referenceLikePizza(),
+        toppings: [...referenceLikePizza().toppings, { id: "x0", ingredientId: "mushroom", x: 20, y: 20 }],
+      }),
+    );
+    assertAvailable(clean);
+    assertAvailable(withExtra);
+    expect(clean.score).toBe(100);
+    expect(withExtra.extraTypesCount).toBe(1);
+    expect(withExtra.score).toBeLessThan(clean.score);
+    expect(withExtra.score).toBeGreaterThan(0);
+    // Pieces/Sauce must never react to a Recipe-level extra ingredient -- responsibility guard.
+    const cleanShadow = computeScoringV2Shadow(MARGHERITA, referenceLikePizza());
+    const extraShadow = computeScoringV2Shadow(
+      MARGHERITA,
+      pizzaWith({
+        ...referenceLikePizza(),
+        toppings: [...referenceLikePizza().toppings, { id: "x0", ingredientId: "mushroom", x: 20, y: 20 }],
+      }),
+    );
+    if (cleanShadow.components.pieces.available && extraShadow.components.pieces.available) {
+      expect(extraShadow.components.pieces.score).toBe(cleanShadow.components.pieces.score);
+    }
+    if (cleanShadow.components.sauce.available && extraShadow.components.sauce.available) {
+      expect(extraShadow.components.sauce.score).toBe(cleanShadow.components.sauce.score);
+    }
+  });
+
+  it("5: severe same-type overquantity (9 mozzarella vs. target 3) never changes Recipe -- purity counts extra TYPES, not extra pieces of an already-required type", () => {
+    const normal = scoreRecipeComponentV2(MARGHERITA, referenceLikePizza());
+    const overquantity = scoreRecipeComponentV2(
+      MARGHERITA,
+      pizzaWith({
+        sauceIds: ["tomato-sauce"],
+        toppings: [
+          ...Array.from({ length: 9 }, (_, i) => ({
+            id: `m${i}`,
+            ingredientId: "mozzarella",
+            x: 30 + i * 4,
+            y: 40,
+          })),
+          { id: "b0", ingredientId: "basil", x: 50, y: 65 },
+          { id: "b1", ingredientId: "basil", x: 55, y: 65 },
+        ],
+      }),
+    );
+    assertAvailable(normal);
+    assertAvailable(overquantity);
+    expect(overquantity.score).toBe(normal.score);
+    expect(overquantity.score).toBe(100);
+    expect(overquantity.extraTypesCount).toBe(0);
+  });
+
+  it("6: poor placement (correct types, far from Reference spots) does not affect Recipe -- placement stays purely Pieces' concern", () => {
+    const goodPlacement = scoreRecipeComponentV2(MARGHERITA, referenceLikePizza());
+    const poorPlacement = scoreRecipeComponentV2(
+      MARGHERITA,
+      pizzaWith({
+        sauceIds: ["tomato-sauce"],
+        toppings: [
+          { id: "m0", ingredientId: "mozzarella", x: 5, y: 5 },
+          { id: "m1", ingredientId: "mozzarella", x: 8, y: 5 },
+          { id: "m2", ingredientId: "mozzarella", x: 5, y: 8 },
+          { id: "b0", ingredientId: "basil", x: 95, y: 95 },
+          { id: "b1", ingredientId: "basil", x: 92, y: 95 },
+        ],
+      }),
+    );
+    assertAvailable(goodPlacement);
+    assertAvailable(poorPlacement);
+    expect(poorPlacement.score).toBe(goodPlacement.score);
+    expect(poorPlacement.score).toBe(100);
+  });
+
+  it("7: empty pizza scores 0 with full purity (no extras exist to detect on nothing)", () => {
+    const result = scoreRecipeComponentV2(MARGHERITA, createEmptyPizza());
+    assertAvailable(result);
+    expect(result.score).toBe(0);
+    expect(result.usedTypesTotal).toBe(0);
+    expect(result.extraTypesCount).toBe(0);
+    expect(result.purityMultiplier).toBe(1);
+  });
+
+  it("8: duplicate placements of the same extra type count once, not per-piece (extraTypesCount is type-cardinality, not quantity)", () => {
+    const oneExtraPiece = scoreRecipeComponentV2(
+      MARGHERITA,
+      pizzaWith({
+        ...referenceLikePizza(),
+        toppings: [...referenceLikePizza().toppings, { id: "x0", ingredientId: "mushroom", x: 20, y: 20 }],
+      }),
+    );
+    const fiveExtraPieces = scoreRecipeComponentV2(
+      MARGHERITA,
+      pizzaWith({
+        ...referenceLikePizza(),
+        toppings: [
+          ...referenceLikePizza().toppings,
+          ...Array.from({ length: 5 }, (_, i) => ({
+            id: `x${i}`,
+            ingredientId: "mushroom",
+            x: 20 + i,
+            y: 20,
+          })),
+        ],
+      }),
+    );
+    assertAvailable(oneExtraPiece);
+    assertAvailable(fiveExtraPieces);
+    expect(oneExtraPiece.extraTypesCount).toBe(1);
+    expect(fiveExtraPieces.extraTypesCount).toBe(1);
+    expect(oneExtraPiece.score).toBe(fiveExtraPieces.score);
+  });
+
+  it("9: Bismarck Recipe component (pure function, no Reference fixture needed) -- correct required types score 100, an extra unspecified type lowers it below 100", () => {
+    const bismarck = getRecipe("bismarck")!;
+    const correct = scoreRecipeComponentV2(
+      bismarck,
+      pizzaWith({
+        sauceIds: ["tomato-sauce"],
+        toppings: [
+          { id: "m0", ingredientId: "mozzarella", x: 40, y: 40 },
+          { id: "m1", ingredientId: "mozzarella", x: 45, y: 45 },
+          { id: "m2", ingredientId: "mozzarella", x: 50, y: 50 },
+          { id: "e0", ingredientId: "egg", x: 50, y: 50 },
+        ],
+      }),
+    );
+    const withExtra = scoreRecipeComponentV2(
+      bismarck,
+      pizzaWith({
+        sauceIds: ["tomato-sauce"],
+        toppings: [
+          { id: "m0", ingredientId: "mozzarella", x: 40, y: 40 },
+          { id: "m1", ingredientId: "mozzarella", x: 45, y: 45 },
+          { id: "m2", ingredientId: "mozzarella", x: 50, y: 50 },
+          { id: "e0", ingredientId: "egg", x: 50, y: 50 },
+          { id: "p0", ingredientId: "pepperoni", x: 20, y: 20 },
+        ],
+      }),
+    );
+    assertAvailable(correct);
+    assertAvailable(withExtra);
+    expect(correct.score).toBe(100);
+    expect(withExtra.extraTypesCount).toBe(1);
+    expect(withExtra.score).toBeLessThan(100);
+
+    // Bismarck itself still has no Scoring 2.0 Reference fixture -- the whole Shadow result
+    // stays available:false regardless of this purity fix (P0-1 gate untouched).
+    const shadow = computeScoringV2Shadow(bismarck, createEmptyPizza());
+    expect(shadow.available).toBe(false);
+    expect(shadow.totalScore).toBeNull();
+  });
+});
+
 describe("computeScoringV2Shadow (P0-1 Reference availability + P0-2 canonical entry point)", () => {
   it("unavailable Reference recipe (e.g. marinara) returns available:false, totalScore:null, and every Reference-dependent component unavailable -- never a fabricated number", () => {
     const marinara = getRecipe("marinara")!;
