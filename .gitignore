@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Review Playthrough videos (Human Review evidence) -- delivered to the user directly, never
+# committed (large binaries don't belong in this repo's history).
+artifacts/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

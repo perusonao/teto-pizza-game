@@ -254,6 +254,73 @@ PS1/PS2 precedent):
 
 ---
 
+## 10a. Review Playthrough Video
+
+- **Filename:** `artifacts/review/TETO_ISSUE-39_PS3_Preview-Playthrough.webm` (474 KB, source
+  capture) and `artifacts/review/TETO_ISSUE-39_PS3_Preview-Playthrough.mp4` (267 KB, H.264,
+  converted with the system `ffmpeg` for wider playback compatibility) — delivered to the user
+  directly in this session (not committed; `artifacts/` was added to `.gitignore` so a large
+  review video never lands in this repo's history).
+- **Viewport:** 390×844 (matches `ffprobe`: `width=390 height=844`).
+- **Duration:** 13.32s (`ffprobe`), matching the scripted scenario's own measured
+  `durationMs: 13365`.
+- **Preview PR / SHA:** PR #41, `87658d4` — confirmed on-screen via the visible
+  `PREVIEW · PR#41 · 87658d4` badge for the whole recording.
+- **Recorded against:** the exact preview-equivalent build from section 9 (same commit, same
+  `VITE_PREVIEW_MODE`/`VITE_PREVIEW_PR`/`VITE_PREVIEW_SHA` build), driven with real Playwright
+  pointer/click events (not a page-load-only capture) via headless Chromium
+  (`/opt/pw-browsers/chromium-1194`).
+
+**Scenario played (with the required 1–3s holds at each review point, never fast-forwarded):**
+
+1. Launch Preview (badge confirmed).
+2. HOME held 2s — Teto/Mito/Blue hero, Pitz balance, Dex progress pill, and the primary
+   "ピザを作る" CTA all visible and asserted present before the hold.
+3. Tap "ピザを作る".
+4. Pizza Select held 3s at the top of the grid — recipe cards, NEW badges, layout visible.
+5. Scrolled down (held 1.2s) to bring the locked フガッサ card into view, so every card
+   (including stars/BEST-bearing states and the lock) is shown; scrolled back to the top before
+   the next tap.
+6. Tap ビスマルク.
+7. Bismarck's FREE ORDER screen held 3s (asserted: dialogue names ビスマルク, no redundant
+   in-round Lunch Rush button).
+8. Tap "🏠 ホーム" — back to HOME (held 0.8s, re-asserted no overflow).
+9–10. Tap "ランチラッシュ" — Lunch Rush Mission Intro overlay reached directly (held 2s,
+   asserted mission text present).
+11. Context closed, video finalized.
+
+**Automated assertions during the recording** (all passed; the script throws immediately on any
+horizontal-overflow regression so a failing capture could never silently ship):
+
+| Step | scrollWidth | clientWidth | overflow |
+|---|---|---|---|
+| HOME | 390 | 390 | false |
+| PIZZA_SELECT (top) | 390 | 390 | false |
+| PIZZA_SELECT (scrolled to locked card) | 390 | 390 | false |
+| GAME_ORDER_BISMARCK | 390 | 390 | false |
+| HOME (after back) | 390 | 390 | false |
+| LUNCH_RUSH | 390 | 390 | false |
+
+Plus: preview badge text exact match, Bismarck ORDER dialogue contains "ビスマルク", no
+"Lunch Rush" text inside GAME/ORDER, and Lunch Rush reached directly from HOME.
+
+**Visual review points for the user to judge from the video** (this report's own automated
+checks cover correctness/overflow, not subjective feel):
+
+- Does HOME read as a warm pizzeria at a glance within the 2s hold (characters, wood/brick,
+  oven glow)?
+- Do Pizza Select's cards feel visually distinct/"fun to pick from" (pizza thumbnails, colors,
+  parchment cards) rather than the old flat/text-only PS2 look, across the 3s hold + scroll?
+- Does the locked フガッサ card's unlock hint read clearly during the scroll?
+- Does the HOME → Pizza Select → Bismarck → back → Lunch Rush flow feel smooth on real
+  interaction timing (not just correct on inspection)?
+
+Preview Gate is not being called complete without this video — it is included precisely because
+the earlier screenshot-only evidence (section 10) cannot show interaction timing or scroll
+behavior the way this recording does.
+
+---
+
 ## 11. Blockers
 
 None found. The only limitation was this sandbox's outbound network policy blocking a direct
