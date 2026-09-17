@@ -106,6 +106,9 @@ describe("HOME/GAME separation (Issue #24)", () => {
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
     await user.click(screen.getByRole("button", { name: /フリープレイ/ })); // BEGIN_PREPARE -> PREPARE phase
+    // Issue #32 Phase 2: 焼く only appears once the making flow reaches TOPPING.
+    await user.click(screen.getByRole("button", { name: /次へ/ }));
+    await user.click(screen.getByRole("button", { name: /次へ/ }));
     expect(screen.getByRole("button", { name: /焼く/ })).toBeInTheDocument();
 
     // Cancel: stays on GAME, PREPARE state untouched.
@@ -125,6 +128,9 @@ describe("HOME/GAME separation (Issue #24)", () => {
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
     await user.click(screen.getByRole("button", { name: /フリープレイ/ })); // ORDER -> PREPARE
+    // Issue #32 Phase 2: 焼く only appears once the making flow reaches TOPPING.
+    await user.click(screen.getByRole("button", { name: /次へ/ }));
+    await user.click(screen.getByRole("button", { name: /次へ/ }));
     await user.click(screen.getByRole("button", { name: /焼く/ })); // PREPARE -> BAKE
     await user.click(screen.getByRole("button", { name: "取り出す！" })); // BAKE -> RESULT
     await user.click(screen.getByRole("button", { name: "レシピ図鑑に登録する" })); // RESULT -> DISCOVERED

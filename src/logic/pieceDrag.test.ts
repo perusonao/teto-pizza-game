@@ -158,19 +158,26 @@ describe("clampToDough / isInsideDough boundary consistency (Independent Review 
 });
 
 describe("PLACE_TOPPING accepts every grace-annulus drop resolvePieceDrop resolves (Independent Review Final P2)", () => {
-  function freshPrepareState() {
-    return gameReducer(createInitialGameState(), { type: "BEGIN_PREPARE" });
+  // Issue #32 Phase 2: mozzarella (cheese) and basil (topping) each now require the making
+  // flow to have reached their own step -- `atStep` advances via CONFIRM_MAKING_STEP (never by
+  // constructing `makingStep` by hand) to the step the ingredient under test actually needs.
+  function freshPrepareState(atStep: "CHEESE" | "TOPPING") {
+    let state = gameReducer(createInitialGameState(), { type: "BEGIN_PREPARE" });
+    while (state.makingStep !== atStep) {
+      state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" });
+    }
+    return state;
   }
 
   it.each([
-    ["Mozzarella", "mozzarella"],
-    ["Basil", "basil"],
+    ["Mozzarella", "mozzarella", "CHEESE"] as const,
+    ["Basil", "basil", "TOPPING"] as const,
   ])(
     "%s: the exact reported overflow angle (52 units @ 22.31°) always places, never silently rejected",
-    (_label, ingredientId) => {
+    (_label, ingredientId, atStep) => {
       const { x, y } = pointAtPolar(52, 22.31);
       const clamped = clampToDough(x, y);
-      let state = freshPrepareState();
+      let state = freshPrepareState(atStep);
       state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId, x: clamped.x, y: clamped.y });
       expect(state.pizza.toppings).toHaveLength(1);
       expect(state.placement?.status).not.toBe("rejected");
@@ -178,19 +185,39 @@ describe("PLACE_TOPPING accepts every grace-annulus drop resolvePieceDrop resolv
   );
 
   it("Mozzarella and Basil both place successfully across a spread of grace distances/angles", () => {
-    let state = freshPrepareState();
-    const cases: Array<{ ingredientId: string; distance: number; angle: number }> = [
-      { ingredientId: "mozzarella", distance: 48.5, angle: 0 },
-      { ingredientId: "mozzarella", distance: 49, angle: 90 },
-      { ingredientId: "basil", distance: 50, angle: 45 },
-      { ingredientId: "basil", distance: 51, angle: 30 },
-      { ingredientId: "mozzarella", distance: 52, angle: 22.31 },
+    let state = freshPrepareState("CHEESE");
+    const mozzarellaCases: Array<{ distance: number; angle: number }> = [
+      { distance: 48.5, angle: 0 },
+      { distance: 49, angle: 90 },
+      { distance: 52, angle: 22.31 },
+    ];
+    const basilCases: Array<{ distance: number; angle: number }> = [
+      { distance: 50, angle: 45 },
+      { distance: 51, angle: 30 },
     ];
     let placedCount = 0;
-    for (const { ingredientId, distance, angle } of cases) {
+    for (const { distance, angle } of mozzarellaCases) {
       const { x, y } = pointAtPolar(distance, angle);
       const clamped = clampToDough(x, y);
-      state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId, x: clamped.x, y: clamped.y });
+      state = gameReducer(state, {
+        type: "PLACE_TOPPING",
+        ingredientId: "mozzarella",
+        x: clamped.x,
+        y: clamped.y,
+      });
+      placedCount += 1;
+      expect(state.pizza.toppings).toHaveLength(placedCount);
+    }
+    state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // CHEESE -> TOPPING
+    for (const { distance, angle } of basilCases) {
+      const { x, y } = pointAtPolar(distance, angle);
+      const clamped = clampToDough(x, y);
+      state = gameReducer(state, {
+        type: "PLACE_TOPPING",
+        ingredientId: "basil",
+        x: clamped.x,
+        y: clamped.y,
+      });
       placedCount += 1;
       expect(state.pizza.toppings).toHaveLength(placedCount);
     }

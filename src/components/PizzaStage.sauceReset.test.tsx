@@ -83,6 +83,7 @@ function Harness({
         referenceModeEnabled={recipeId === "margherita" && !isMissionRound}
         sauceInteractionProfile={profile}
         resetToken={resetToken}
+        makingStepToken={state.makingStepToken}
         onTap={() => {}}
         onDispenseProgress={() => {}}
         onDispenseCommit={handleCommit}

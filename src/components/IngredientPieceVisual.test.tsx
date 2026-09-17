@@ -80,6 +80,7 @@ describe("Player pizza mozzarella uses the shared IngredientPieceVisual primitiv
         referenceModeEnabled={false}
         sauceInteractionProfile={profile}
         resetToken={0}
+        makingStepToken={0}
         onTap={() => {}}
         onDispenseProgress={() => {}}
         onDispenseCommit={() => {}}

@@ -2,7 +2,7 @@ import { useReducer, useState } from "react";
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { IngredientTray } from "./IngredientTray";
-import { createInitialGameState, gameReducer } from "../state/gameReducer";
+import { createInitialGameState, gameReducer, type MakingStep } from "../state/gameReducer";
 import { resolvePieceDrop } from "../logic/pieceDrag";
 import {
   getIngredient,
@@ -28,6 +28,16 @@ import {
 const DOUGH_RECT = { left: 0, top: 0, width: 300, height: 300 } as DOMRect;
 const INSIDE_CLIENT = { x: 150, y: 150 };
 
+// Issue #32 Phase 2: PLACE_TOPPING is now gated on the reducer's own `makingStep` matching
+// the placed ingredient's category (see gameReducer.ts) -- a Harness mounted to exercise a
+// given category's physical drag must advance the making flow to that category's own step
+// first, via CONFIRM_MAKING_STEP, exactly like a real player's "次へ" tap would.
+const CATEGORY_TO_MAKING_STEP: Record<IngredientCategory, MakingStep> = {
+  sauce: "SAUCE",
+  cheese: "CHEESE",
+  topping: "TOPPING",
+};
+
 function Harness({
   category,
   ownedIngredientIds = STARTER_INGREDIENT_IDS,
@@ -35,9 +45,16 @@ function Harness({
   category: IngredientCategory;
   ownedIngredientIds?: readonly string[];
 }) {
-  const [state, dispatch] = useReducer(gameReducer, undefined, () =>
-    gameReducer(createInitialGameState(undefined, ownedIngredientIds), { type: "BEGIN_PREPARE" }),
-  );
+  const [state, dispatch] = useReducer(gameReducer, undefined, () => {
+    let initial = gameReducer(createInitialGameState(undefined, ownedIngredientIds), {
+      type: "BEGIN_PREPARE",
+    });
+    const targetStep = CATEGORY_TO_MAKING_STEP[category];
+    while (initial.makingStep !== targetStep) {
+      initial = gameReducer(initial, { type: "CONFIRM_MAKING_STEP" });
+    }
+    return initial;
+  });
   const [resetToken, setResetToken] = useState(0);
   const [selectedIngredientId, setSelectedIngredientId] = useState<string | null>(null);
 

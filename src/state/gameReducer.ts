@@ -24,11 +24,35 @@ import {
 
 export type GamePhase = "ORDER" | "PREPARE" | "BAKE" | "RESULT" | "DISCOVERED";
 
+/** Issue #32 Phase 2: the canonical, reducer-authoritative sub-step of the PREPARE phase's
+ *  making flow -- SAUCE -> CHEESE -> TOPPING, one-way only (see CONFIRM_MAKING_STEP below).
+ *  A string union rather than a numeric index so Issue #33 can prepend "DOUGH" later without
+ *  renumbering anything else. `activeCategory` (App.tsx) is a *view* of this field, never the
+ *  other way around -- the reducer is the only place this contract is enforced. */
+export type MakingStep = "SAUCE" | "CHEESE" | "TOPPING";
+
+const MAKING_STEP_ORDER: readonly MakingStep[] = ["SAUCE", "CHEESE", "TOPPING"];
+
+function nextMakingStep(step: MakingStep): MakingStep {
+  const index = MAKING_STEP_ORDER.indexOf(step);
+  return MAKING_STEP_ORDER[Math.min(index + 1, MAKING_STEP_ORDER.length - 1)];
+}
+
 export interface GameState {
   phase: GamePhase;
   order: Order;
   recipe: Recipe;
   pizza: PizzaState;
+  /** Issue #32 Phase 2: which making step (SAUCE/CHEESE/TOPPING) is currently open for
+   *  interaction. Always "SAUCE" for a fresh round (`buildOrderState` below) and after
+   *  RESET_PIZZA -- a discarded pizza re-enters the making flow at the start. Only
+   *  CONFIRM_MAKING_STEP advances it, and only forward. */
+  makingStep: MakingStep;
+  /** Bumped by CONFIRM_MAKING_STEP (and by RESET_PIZZA alongside its own `makingStep` reset)
+   *  so PizzaStage/IngredientTray's existing `resetToken`-style gesture-abort effects can key
+   *  off a step transition exactly like they already key off a whole-pizza reset -- a gesture
+   *  in flight when a step confirms must not be able to commit into the step that follows it. */
+  makingStepToken: number;
   score: ScoreBreakdown | null;
   bakeState: BakeState | null;
   /** Phase 4A-2 Scoring 2.0 Shadow (src/logic/scoringV2/). Computed once, at CONFIRM_BAKE,
@@ -84,6 +108,12 @@ export type GameAction =
   // against the current recipe's shared sauce profile for both FREE and Lunch Rush.
   | { type: "COMMIT_SAUCE_DISPENSE"; ingredientId: string; deposits: SauceDeposit[] }
   | { type: "PLACE_TOPPING"; ingredientId: string; x: number; y: number }
+  // Issue #32 Phase 2: the one reducer-authoritative transition for the making flow's
+  // SAUCE -> CHEESE -> TOPPING sub-steps (see MakingStep above). Advances `makingStep` one
+  // step forward and bumps `makingStepToken`; a no-op past "TOPPING" or outside PREPARE.
+  // TOPPING -> BAKE remains a separate, pre-existing transition (START_BAKE) -- this action
+  // never touches `phase`.
+  | { type: "CONFIRM_MAKING_STEP" }
   | { type: "RESET_PIZZA" }
   | { type: "START_BAKE" }
   | { type: "CONFIRM_BAKE"; value: number }
@@ -128,6 +158,8 @@ function buildOrderState(order: Order, carry: ProgressionCarry, isMissionRound: 
     order,
     recipe,
     pizza: createEmptyPizza(),
+    makingStep: "SAUCE",
+    makingStepToken: 0,
     score: null,
     bakeState: null,
     scoringV2Shadow: null,
@@ -195,6 +227,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return { ...state, phase: "PREPARE", hint: buildHintLine(state.recipe, state.pizza) };
 
     case "APPLY_SAUCE": {
+      // Issue #32 Phase 2: sauce is only ever legal while PREPARE is still on the SAUCE
+      // making step -- this also closes a pre-existing gap (this action previously had no
+      // `phase` guard at all, let alone a step guard).
+      if (state.phase !== "PREPARE" || state.makingStep !== "SAUCE") return state;
       // Ownership boundary (Phase 3C-6 follow-up): IngredientTray only ever offers owned
       // ingredients (src/components/IngredientTray.tsx filters by `ownedIngredientIds`), but
       // this guard makes that the UI's job, not its only safeguard -- a LOCKED/AVAILABLE_TO_BUY
@@ -224,7 +260,12 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     // whatever PizzaStage/App.tsx intended to gate. FREE and Lunch Rush deliberately share
     // this same boundary and profile lookup.
     case "COMMIT_SAUCE_DISPENSE": {
-      if (state.phase !== "PREPARE") return state;
+      // Issue #32 Phase 2: same making-step gate as APPLY_SAUCE -- a dispense session that
+      // straddles a step confirmation (or is dispatched after one) must never mutate the
+      // pizza. PizzaStage's `makingStepToken`-keyed abort effect is what stops the gesture
+      // itself from surviving long enough to dispatch this in the first place; this is the
+      // reducer-boundary backstop that holds even if that abort somehow didn't fire.
+      if (state.phase !== "PREPARE" || state.makingStep !== "SAUCE") return state;
       const sauceProfile = getRecipeSauceProfile(state.recipe.id);
       if (sauceProfile.ingredientId !== action.ingredientId) return state;
       if (!state.ownedIngredientIds.includes(action.ingredientId)) return state;
@@ -256,6 +297,16 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (!isInsideDough(action.x, action.y)) return state;
       // Same ownership boundary as APPLY_SAUCE above.
       if (!state.ownedIngredientIds.includes(action.ingredientId)) return state;
+      // Issue #32 Phase 2: PLACE_TOPPING is shared by both CHEESE and TOPPING ingredients
+      // (see src/data/ingredients.ts) -- gate on the ingredient's own category against the
+      // current making step, not merely `phase`, so cheese can't be placed during TOPPING (or
+      // vice versa). An ingredient in neither making-flow category (or an unknown id) can
+      // never be placed via this action.
+      const placingIngredient = getIngredient(action.ingredientId);
+      if (!placingIngredient) return state;
+      if (placingIngredient.category === "cheese" && state.makingStep !== "CHEESE") return state;
+      if (placingIngredient.category === "topping" && state.makingStep !== "TOPPING") return state;
+      if (placingIngredient.category === "sauce") return state;
       const spot = findOpenSpot(state.pizza.toppings, action.x, action.y);
       placementTokenCounter += 1;
 
@@ -299,8 +350,35 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case "RESET_PIZZA": {
+      // Issue #32 Phase 2: whole-pizza discard/restart is the explicit recovery path, but it
+      // only ever makes sense while a round is still being made -- a stray/direct dispatch
+      // during BAKE/RESULT/DISCOVERED must not silently blank a pizza those phases are
+      // displaying/scored from (previously unguarded). A discarded pizza also re-enters the
+      // making flow at its start, so `makingStep` resets to "SAUCE" alongside it, bumping
+      // `makingStepToken` the same way CONFIRM_MAKING_STEP does so any gesture from the
+      // pre-reset pizza is invalidated by the same mechanism.
+      if (state.phase !== "PREPARE") return state;
       const pizza = createEmptyPizza();
-      return { ...state, pizza, hint: buildHintLine(state.recipe, pizza), placement: null };
+      return {
+        ...state,
+        pizza,
+        makingStep: "SAUCE",
+        makingStepToken: state.makingStepToken + 1,
+        hint: buildHintLine(state.recipe, pizza),
+        placement: null,
+      };
+    }
+
+    // Issue #32 Phase 2: the one reducer-authoritative transition for the making flow's
+    // sub-steps. Forward-only (SAUCE -> CHEESE -> TOPPING, clamped past TOPPING -- reaching
+    // BAKE is the pre-existing, separate START_BAKE transition) and a no-op outside PREPARE,
+    // so a direct dispatch can never advance a step that isn't open yet or move a round that
+    // has already left PREPARE.
+    case "CONFIRM_MAKING_STEP": {
+      if (state.phase !== "PREPARE") return state;
+      const makingStep = nextMakingStep(state.makingStep);
+      if (makingStep === state.makingStep) return state;
+      return { ...state, makingStep, makingStepToken: state.makingStepToken + 1 };
     }
 
     case "START_BAKE":

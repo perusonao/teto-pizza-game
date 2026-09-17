@@ -65,6 +65,13 @@ interface PizzaStageProps {
    * invalidates every gesture that started against the pre-reset pizza, including buffered
    * Sauce deposits that have not reached canonical state yet. */
   resetToken: number;
+  /** Issue #32 Phase 2: bumped by the reducer's own CONFIRM_MAKING_STEP/RESET_PIZZA (see
+   *  GameState.makingStepToken, src/state/gameReducer.ts). A step confirmation changes only
+   *  `state.makingStep` -- none of `interactive`/`activeIngredient`/`resetToken` moves when it
+   *  fires -- so without this, a dispense (or topping-drag) gesture in flight when the player
+   *  confirms SAUCE/CHEESE could still commit into the step that follows it. Mirrors
+   *  `resetToken`'s own abort effect below exactly. */
+  makingStepToken: number;
   onDoughElementChange?: (element: HTMLDivElement | null) => void;
   onTap: (xPercent: number, yPercent: number) => void;
   /** Phase 4A-1A (Post-Codex-Fix): fired with the *entire* accumulated-so-far deposit array
@@ -131,6 +138,7 @@ export function PizzaStage({
   referenceModeEnabled,
   sauceInteractionProfile,
   resetToken,
+  makingStepToken,
   onDoughElementChange,
   onTap,
   onDispenseProgress,
@@ -265,6 +273,19 @@ export function PizzaStage({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- fires purely off the reset generation.
   }, [resetToken]);
+
+  // Issue #32 Phase 2: a making-step confirmation (SAUCE -> CHEESE, CHEESE -> TOPPING) must
+  // invalidate an in-flight gesture exactly like a whole-pizza RESET_PIZZA already does above
+  // -- otherwise a slow drag started while SAUCE was still open could still commit its
+  // COMMIT_SAUCE_DISPENSE after the player has already confirmed CHEESE. The reducer's own
+  // `state.makingStep` gate (src/state/gameReducer.ts) is the final backstop either way; this
+  // is what stops the gesture from surviving long enough to reach it.
+  useEffect(() => {
+    if (activeSessionRef.current || gestureRef.current.pointerId !== null) {
+      abortActiveGesture();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fires purely off the token bump.
+  }, [makingStepToken]);
 
   // Codex Broad Review MUST FIX 1: an ingredient switch mid-hold (a second finger tapping a
   // different tray item while the first is still dispensing) must abort the session using
