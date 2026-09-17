@@ -12,7 +12,6 @@ import {
 import { getIngredient, type Ingredient } from "../data/ingredients";
 import { IngredientPieceVisual } from "./IngredientPieceVisual";
 import type { Recipe } from "../data/recipes";
-import type { RecipeSauceProfile } from "../data/recipeSauceProfiles";
 import type { PizzaState, PlacementFeedback, SauceDeposit } from "../state/pizzaState";
 import { classifyBake } from "../logic/bake";
 import { SauceDispenseController } from "../logic/sauceDispenseController";
@@ -54,13 +53,9 @@ interface PizzaStageProps {
   placement: PlacementFeedback | null;
   /** True while RESULT is showing the finished pizza; gates the one-shot perfect glow. */
   resultRevealed: boolean;
-  /** True only for the FREE Margherita Reference UI. This does not gate sauce interaction;
-   *  `sauceInteractionProfile` does that for every recipe and mode. App.tsx still folds an
-   *  open Reference popover into `interactive`, so opening it aborts an active gesture. */
+  /** True only for the FREE Margherita Reference UI. App.tsx still folds an open Reference
+   *  popover into `interactive`, so opening it aborts an active gesture. */
   referenceModeEnabled: boolean;
-  /** Recipe-owned sauce behavior shared by FREE and Lunch Rush. Reference mode remains a
-   * separate concern: it controls only Margherita's guide/metrics/reference UI. */
-  sauceInteractionProfile: RecipeSauceProfile;
   /** Canonical pizza reset generation, shared with IngredientTray. A change permanently
    * invalidates every gesture that started against the pre-reset pizza, including buffered
    * Sauce deposits that have not reached canonical state yet. */
@@ -136,7 +131,6 @@ export function PizzaStage({
   placement,
   resultRevealed,
   referenceModeEnabled,
-  sauceInteractionProfile,
   resetToken,
   makingStepToken,
   onDoughElementChange,
@@ -439,13 +433,16 @@ export function PizzaStage({
       // Some browsers can refuse capture; the window-level fallback above covers release.
     }
 
-    const wantsProfileDispense =
-      isPaintMode && activeIngredient?.id === sauceInteractionProfile.ingredientId;
-    if (wantsProfileDispense && activeIngredient) {
+    // Issue #32 sauce parity fix: every spread (sauce) ingredient uses this same incremental
+    // dispense/heatmap session, whether or not it's the current recipe's own required sauce --
+    // see COMMIT_SAUCE_DISPENSE's own comment (src/state/gameReducer.ts) for why a mismatched
+    // sauce no longer needs (or gets) a different gesture contract.
+    const wantsDispenseSession = isPaintMode;
+    if (wantsDispenseSession && activeIngredient) {
       // Human Feel Fix 2: no trail point here (unlike the legacy paint-drag path below) --
-      // a profile dispense session's visual is the sauce heatmap alone (see
-      // showSauceHeatmap/the canvas draw effect further down), which already re-renders every
-      // tick. A raw pointer-path stroke drawn on top of it is what iPhone retesting flagged
+      // a dispense session's visual is the sauce heatmap alone (see showSauceHeatmap/the
+      // canvas draw effect further down), which already re-renders every tick. A raw
+      // pointer-path stroke drawn on top of it is what iPhone retesting flagged
       // as "looks like a thick red line", not "sauce spreading" -- see
       // docs/reports/PIZZA_GAME_Phase4A-1B_iPhone-HumanFeel-Fix2_Result.md.
       // Timestamp-preservation follow-up: one performance.now() sample here, shared by both
@@ -668,9 +665,17 @@ export function PizzaStage({
   // Sauce parity keeps the Phase 4A-1A visual-truth contract for every recipe: the sauce is
   // represented only by the field-derived heatmap while a gesture is pending and after it
   // commits. A flat, full-circle fill would misrepresent low coverage as sauce everywhere.
-  const committedSauceUsesProfile = sauceIngredient?.id === sauceInteractionProfile.ingredientId;
-  const hasActiveProfileSession = activeSessionRef.current !== null;
-  const isFieldSauceContext = committedSauceUsesProfile || hasActiveProfileSession;
+  // Issue #32 sauce parity fix: this used to require the *committed* sauce to match
+  // `sauceInteractionProfile.ingredientId` -- that made a committed off-recipe sauce fall
+  // back to the flat legacy layer below even though COMMIT_SAUCE_DISPENSE (the only action
+  // that ever populates `sauceDeposits`) now accepts every sauce ingredient. Checking
+  // `sauceDeposits.length` instead keys off which *path* actually produced this pizza's
+  // committed sauce -- the legacy one-shot `APPLY_SAUCE` always resets deposits to `[]`
+  // (gameReducer.ts), so any non-empty deposit log can only have come from the dispense
+  // pipeline, whatever ingredient it's for.
+  const hasCommittedFieldDeposits = pizza.sauceDeposits.length > 0;
+  const hasActiveDispenseSession = activeSessionRef.current !== null;
+  const isFieldSauceContext = hasCommittedFieldDeposits || hasActiveDispenseSession;
   const effectiveDeposits = useMemo<readonly SauceDeposit[]>(() => {
     if (!isFieldSauceContext || pendingDepositsRef.current.length === 0) {
       return pizza.sauceDeposits;

@@ -3,7 +3,6 @@ import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render } from "@testing-library/react";
 import { getIngredient, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { getRecipe } from "../data/recipes";
-import { getRecipeSauceProfile } from "../data/recipeSauceProfiles";
 import { createEmptyPizza } from "../state/pizzaState";
 import { IngredientPieceVisual } from "./IngredientPieceVisual";
 import { PizzaStage } from "./PizzaStage";
@@ -59,7 +58,6 @@ describe("IngredientPieceVisual", () => {
 describe("Player pizza mozzarella uses the shared IngredientPieceVisual primitive", () => {
   it("a placed mozzarella topping on PizzaStage renders the same .pizza-cheese shape", () => {
     const recipe = getRecipe("margherita");
-    const profile = getRecipeSauceProfile("margherita");
     if (!recipe) throw new Error("Missing margherita recipe fixture");
     const activeIngredient = getIngredient(STARTER_INGREDIENT_IDS[0]) ?? null;
 
@@ -78,7 +76,6 @@ describe("Player pizza mozzarella uses the shared IngredientPieceVisual primitiv
         placement={null}
         resultRevealed={false}
         referenceModeEnabled={false}
-        sauceInteractionProfile={profile}
         resetToken={0}
         makingStepToken={0}
         onTap={() => {}}

@@ -158,11 +158,22 @@ describe("COMMIT_SAUCE_DISPENSE: reducer scope guard (Codex MUST FIX 2)", () => 
     }
   });
 
-  it("rejects for any ingredient other than tomato-sauce, even on Margherita", () => {
+  it("Issue #32 sauce parity fix: accepts a sauce ingredient other than tomato-sauce on Margherita (off-recipe sauce uses the same dispense path)", () => {
     const state = preparedMargheritaState();
     const after = gameReducer(state, {
       type: "COMMIT_SAUCE_DISPENSE",
       ingredientId: "olive-oil",
+      deposits,
+    });
+    expect(after.pizza.sauceIds).toEqual(["olive-oil"]);
+    expect(after.pizza.sauceDeposits).toEqual(deposits);
+  });
+
+  it("rejects a non-sauce ingredient (category guard, independent of recipe match)", () => {
+    const state = preparedMargheritaState();
+    const after = gameReducer(state, {
+      type: "COMMIT_SAUCE_DISPENSE",
+      ingredientId: "mozzarella",
       deposits,
     });
     expect(after).toBe(state);

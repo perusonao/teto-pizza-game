@@ -2111,6 +2111,67 @@
   filter: blur(3px) brightness(0.55) saturate(0.7) sepia(0.25);
 }
 
+/* Issue #32 Fresh Audit Finding 2-A/2-B (olive-oil visibility): the heatmap canvas already
+   applies this class for olive oil (PizzaStage.tsx's `isOilSauce`), but no rule ever matched
+   it, so olive oil rendered with the exact same generic treatment as tomato/pesto -- and its
+   own paint color (`#e9d9a0`, ingredients.ts) is a near-match for the dough's own warm pale
+   gold background (`#e2b876`/`#f3d9a4`, `.pizza-dough` above), so it read as barely-there even
+   once it did.
+   This only ever touches the canvas's own *rendered pixels* -- `filter` operates on whatever
+   `sauceFieldToRgbaPixels` (src/logic/sauceField.ts) already drew, alpha included. An
+   untouched cell there is fully transparent (alpha 0) and stays exactly as transparent through
+   every filter function below, so bare dough is never tinted -- only a cell sauce was actually
+   painted onto reads differently. Nothing here changes a single byte of sauceField.ts's
+   density/coverage/quantity math or anything Scoring 2.0 reads; `sauceIds`/`sauceDeposits`
+   (what scoring sees) are untouched by a className.
+   saturate + contrast push olive oil's own pale, dough-adjacent gold toward a deeper, more
+   amber "oil" read; brightness darkens it a touch further so it doesn't wash back out at the
+   alpha curve's own floor (ALPHA_FLOOR 0.46); drop-shadow traces the painted alpha shape
+   itself with a warm, soft highlight -- a gloss halo that only ever appears where sauce
+   actually is, never as a flat background layer some unpainted dough could pick up. */
+.pizza-sauce-heatmap--oil {
+  filter:
+    blur(3px)
+    saturate(2.1)
+    contrast(1.4)
+    brightness(0.82)
+    drop-shadow(0 0 3px rgba(255, 246, 214, 0.65));
+}
+
+/* Same combined intent as `.pizza-dough--raw/--perfect/--burnt .pizza-sauce-heatmap--raw/
+   --perfect/--burnt` above, for when the committed sauce is *also* olive oil (both classes
+   land on the same canvas at once, see PizzaStage.tsx) -- each keeps this rule's own
+   saturate/contrast/brightness/drop-shadow read instead of losing it to the plain bake-state
+   rule's own filter list (a three-class selector here outranks both two-class alternatives on
+   specificity, so this always wins whichever order the classes happen to be declared in). */
+.pizza-dough--raw .pizza-sauce-heatmap--oil.pizza-sauce-heatmap--raw {
+  filter:
+    blur(3px)
+    saturate(2.3)
+    contrast(1.4)
+    brightness(0.86)
+    drop-shadow(0 0 3px rgba(255, 246, 214, 0.65));
+}
+
+.pizza-dough--perfect .pizza-sauce-heatmap--oil.pizza-sauce-heatmap--perfect {
+  filter:
+    blur(3px)
+    saturate(2.1)
+    contrast(1.4)
+    brightness(0.78)
+    hue-rotate(-4deg)
+    drop-shadow(0 0 3px rgba(255, 246, 214, 0.55));
+}
+
+.pizza-dough--burnt .pizza-sauce-heatmap--oil.pizza-sauce-heatmap--burnt {
+  filter:
+    blur(3px)
+    brightness(0.58)
+    saturate(1.6)
+    contrast(1.25)
+    sepia(0.18);
+}
+
 .reference-preview__button {
   border: none;
   background: #f5ecd8;
