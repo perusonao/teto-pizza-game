@@ -9,9 +9,12 @@ import { MissionIntroOverlay } from "../components/MissionIntroOverlay";
 import { MissionServePanel } from "../components/MissionServePanel";
 import { MissionResultOverlay } from "../components/MissionResultOverlay";
 import { ReferencePreview } from "../components/ReferencePreview";
+import { PlayerReferencePreview } from "../components/PlayerReferencePreview";
+import { PizzaThumbnail } from "../components/PizzaThumbnail";
 import { SauceMetricsPanel } from "../components/SauceMetricsPanel";
 import { ScoringV2ShadowPanel } from "../components/ScoringV2ShadowPanel";
 import type { ReferencePizza } from "../data/referencePizza";
+import { getPlayerReferencePizza } from "../data/playerReference";
 import type { SauceMetrics } from "../logic/sauceField";
 import type { SauceReferenceShadowScore } from "../logic/referenceScoring";
 import type { SauceDeposit } from "../state/pizzaState";
@@ -238,19 +241,47 @@ export function GameScreen({
           just for the 見本 button -- together the single biggest reason PREPARE didn't fit
           390x844 without scrolling. One compact row replaces both: the recipe name, the same
           live hint text (still sourced from state.hint, just without the portrait/bubble
-          chrome), and the *same* <ReferencePreview> component (its own popover/modal is
-          completely unchanged) inline. */}
+          chrome), and a persistent mini Reference thumbnail.
+
+          Issue #47 Slice B (Findings F/H): the mini thumbnail (reusing the same deterministic
+          `PizzaThumbnail` Pizza Select's own cards use) is now always shown here, for every
+          recipe -- not gated on `referenceModeEnabled` (Scoring 2.0's own Margherita-only,
+          FREE-only gate, still unchanged and still driving SauceMetricsPanel/physical drag
+          below). Tapping it opens the same `isReferencePopoverOpen` popover as before: the
+          exact, unchanged Margherita `ReferencePreview` panel when a Scoring 2.0 Reference
+          fixture exists for this recipe, or the new generic `PlayerReferencePreview` panel
+          (../data/playerReference.ts, independent of Scoring 2.0) for every other recipe. */}
       {state.phase === "PREPARE" && (
         <div className="order-card">
           <div className="order-card__text">
             <span className="order-card__recipe-name">{state.recipe.nameJa}</span>
             <span className="order-card__hint">{state.hint?.textJa ?? state.recipe.description}</span>
           </div>
-          {referenceModeEnabled && referencePizza && (
+          <button
+            type="button"
+            className="mini-reference"
+            onClick={() => onReferencePopoverChange(true)}
+            aria-haspopup="dialog"
+            aria-label={`${state.recipe.nameJa}の見本を拡大表示`}
+          >
+            <span className="mini-reference__thumb" aria-hidden="true">
+              <PizzaThumbnail recipe={state.recipe} />
+            </span>
+            <span className="mini-reference__label">見本</span>
+          </button>
+          {referencePizza ? (
             <ReferencePreview
               reference={referencePizza}
               isOpen={isReferencePopoverOpen}
               onOpenChange={onReferencePopoverChange}
+              renderTrigger={false}
+            />
+          ) : (
+            <PlayerReferencePreview
+              reference={getPlayerReferencePizza(state.recipe)}
+              isOpen={isReferencePopoverOpen}
+              onOpenChange={onReferencePopoverChange}
+              renderTrigger={false}
             />
           )}
         </div>

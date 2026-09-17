@@ -2322,6 +2322,78 @@
   border-radius: 999px;
 }
 
+/* ---------- Issue #47 Slice B Finding H: persistent mini Reference (order-card) ---------- */
+/* Always visible during PREPARE (every recipe, see GameScreen.tsx's order-card comment) --
+   reuses .pizza-thumbnail (../components/PizzaThumbnail.tsx) at a smaller fixed size than its
+   Pizza Select card usage (64px) so it fits the compact order-card row without crowding the
+   recipe name/hint text or growing tall enough to threaten PizzaStage's own clearance. */
+.mini-reference {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex: 0 0 auto;
+  border: none;
+  background: none;
+  padding: 2px;
+  min-height: 44px;
+}
+
+.mini-reference__thumb .pizza-thumbnail {
+  width: 48px;
+  height: 48px;
+  --thumb-piece-scale: 0.26;
+}
+
+.mini-reference__label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #6b4226;
+}
+
+/* ---------- Issue #47 Slice B Finding F: generic player-facing Reference popover ---------- */
+/* Same fixed-size scaled-down dough convention as .reference-mini-pizza above, but generic --
+   no per-ingredient-id selector (unlike .reference-mini-pizza__topping--mozzarella/--basil)
+   since this panel renders whichever ingredients ../data/playerReference.ts generated for the
+   current recipe, not a fixed pair. */
+.player-reference-mini-pizza {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  margin: 4px auto 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #f3d9a4, #e2b876 85%);
+  border: 6px solid #c99b56;
+  box-shadow: inset 0 0 12px rgba(120, 70, 20, 0.3);
+  --player-reference-piece-scale: 0.5;
+}
+
+.player-reference-mini-pizza__sauce {
+  position: absolute;
+  inset: 8%;
+  border-radius: 50%;
+  opacity: 0.85;
+}
+
+.player-reference-mini-pizza__piece {
+  position: absolute;
+}
+
+.player-reference-mini-pizza__piece .pizza-cheese {
+  transform: scale(var(--player-reference-piece-scale));
+}
+
+.player-reference-mini-pizza__piece .ingredient-piece-visual__emoji {
+  font-size: calc(28px * var(--player-reference-piece-scale));
+}
+
+.player-reference-preview__disclaimer {
+  font-size: 10.5px;
+  line-height: 1.4;
+  color: #a1662f;
+  opacity: 0.85;
+}
+
 .sauce-metrics-panel {
   margin: 4px 16px 0;
   background: #f5ecd8;

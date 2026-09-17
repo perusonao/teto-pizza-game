@@ -13,6 +13,11 @@ interface ReferencePreviewProps {
    *  tomato-sauce dispense session exactly like BAKE does (Codex Broad Review MUST FIX 1/9).
    *  A component-local `useState` here could never reach that effect. */
   onOpenChange: (isOpen: boolean) => void;
+  /** Issue #47 Slice B Finding H: false when a separate always-visible mini thumbnail
+   *  already serves as this popover's trigger, so this component only owns the popover
+   *  panel itself. Defaults to true (unchanged existing behavior) so every pre-existing
+   *  caller/test that doesn't pass this prop keeps rendering its own inline 見本 button. */
+  renderTrigger?: boolean;
 }
 
 /**
@@ -26,19 +31,26 @@ interface ReferencePreviewProps {
  * 表示中でも誤操作しないこと"). Opening it also ends any active dispense session outright
  * (see `isOpen`'s doc comment) rather than merely blocking taps on top of a live one.
  */
-export function ReferencePreview({ reference, isOpen, onOpenChange }: ReferencePreviewProps) {
+export function ReferencePreview({
+  reference,
+  isOpen,
+  onOpenChange,
+  renderTrigger = true,
+}: ReferencePreviewProps) {
   const sauceIngredient = getIngredient(reference.sauce.ingredientId);
 
   return (
     <>
-      <button
-        type="button"
-        className="reference-preview__button"
-        onClick={() => onOpenChange(true)}
-        aria-haspopup="dialog"
-      >
-        {"\u{1F4D0}"} 見本
-      </button>
+      {renderTrigger && (
+        <button
+          type="button"
+          className="reference-preview__button"
+          onClick={() => onOpenChange(true)}
+          aria-haspopup="dialog"
+        >
+          {"\u{1F4D0}"} 見本
+        </button>
+      )}
 
       {isOpen && (
         <div
