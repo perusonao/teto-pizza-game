@@ -125,8 +125,16 @@ export type GameAction =
   // (returns `state` unchanged) a recipe that isn't currently available, mirroring
   // PURCHASE_INGREDIENT's "reject invalid, return state unchanged" pattern -- Pizza Select's
   // UI already never wires a LOCKED card's button to this, but a stray/forced dispatch must
-  // still be unable to start a locked recipe's round.
+  // still be unable to start a locked recipe's round. Issue #47 Finding C: Pizza Select
+  // already made the recipe choice explicit, so this lands straight at PREPARE (see
+  // `startPreparingRecipe` below) instead of the old, now-redundant FREE-mode ORDER gate.
   | { type: "SELECT_RECIPE"; recipeId: RecipeId }
+  // Issue #47 Finding D: RESULT/DISCOVERED's "もう一度つくる" -- retries the *exact same*
+  // recipe just played (unlike PLAY_AGAIN, which explicitly excludes it). Reuses
+  // `startPreparingRecipe`'s own body keyed to `state.recipe.id`, so it lands at a fresh
+  // PREPARE the same way SELECT_RECIPE does. A no-op if the current recipe somehow has no
+  // order (should never happen for a recipe the player just played).
+  | { type: "RETRY_SAME_RECIPE" }
   | { type: "SHOW_HINT" }
   // Phase 3C-4 (Lunch Rush): both below reuse this same round machinery (an ORDER phase with
   // a freshly-picked, available recipe) -- there is no separate Mission round state. See
@@ -208,6 +216,26 @@ function nextMissionOrderState(state: GameState): GameState {
     },
     true,
   );
+}
+
+/** Issue #47 Finding C/D: builds a fresh PREPARE-phase state around an explicitly chosen
+ *  recipe's order -- the ORDER-phase state `buildOrderState` produces, immediately advanced
+ *  the same way BEGIN_PREPARE advances it (phase -> "PREPARE", hint built from the fresh
+ *  empty pizza). Shared by SELECT_RECIPE (Pizza Select's own pick) and RETRY_SAME_RECIPE
+ *  (RESULT/DISCOVERED's "もう一度つくる"), since both skip the now-redundant FREE-mode ORDER
+ *  gate the same way. Returns `null` if `recipeId` has no order (SELECT_RECIPE additionally
+ *  guards availability before calling this; RETRY_SAME_RECIPE's recipeId is always the one
+ *  just played, so this should never actually miss for it).
+ */
+function startPreparingRecipe(recipeId: RecipeId, carry: ProgressionCarry): GameState | null {
+  const order = findOrderForRecipe(recipeId);
+  if (!order) return null;
+  const orderState = buildOrderState(order, carry, false);
+  return {
+    ...orderState,
+    phase: "PREPARE",
+    hint: buildHintLine(orderState.recipe, orderState.pizza),
+  };
 }
 
 /** `dex` defaults to empty, `ownedIngredientIds` defaults to the Starter Set, and
@@ -447,19 +475,25 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case "SELECT_RECIPE": {
       const recipe = getRecipe(action.recipeId);
       if (!recipe || !isRecipeAvailable(recipe, state.ownedIngredientIds)) return state;
-      const order = findOrderForRecipe(action.recipeId);
-      if (!order) return state;
-      return buildOrderState(
-        order,
-        {
+      return (
+        startPreparingRecipe(action.recipeId, {
           dex: state.dex,
           ownedIngredientIds: state.ownedIngredientIds,
           pitzBalance: state.pitzBalance,
           lastClaimedMissionRunId: state.lastClaimedMissionRunId,
-        },
-        false,
+        }) ?? state
       );
     }
+
+    case "RETRY_SAME_RECIPE":
+      return (
+        startPreparingRecipe(state.recipe.id, {
+          dex: state.dex,
+          ownedIngredientIds: state.ownedIngredientIds,
+          pitzBalance: state.pitzBalance,
+          lastClaimedMissionRunId: state.lastClaimedMissionRunId,
+        }) ?? state
+      );
 
     // Registers the current RESULT into the Dex (same rule as REGISTER_TO_DEX: BEST never
     // goes down, timesMade always increments once) and, in the same step, advances straight

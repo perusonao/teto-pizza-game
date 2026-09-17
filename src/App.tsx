@@ -329,11 +329,21 @@ function App() {
   // A round only counts as "in progress" (and therefore worth confirming before it's
   // discarded) while the player has actually started building or is mid-Mission -- ORDER,
   // RESULT and DISCOVERED all reflect a completed or not-yet-started step, so leaving from
-  // any of those loses nothing.
+  // any of those loses nothing. Issue #47 Finding C: SELECT_RECIPE/RETRY_SAME_RECIPE now land
+  // straight at PREPARE with a still-untouched round (no more intermediate ORDER tap), so
+  // PREPARE alone no longer implies anything would actually be lost -- also require the round
+  // to have actually moved (past the SAUCE making step, or with sauce/toppings already on the
+  // pizza). BAKE is unconditional: reaching it always means TOPPING was confirmed, a real step
+  // worth confirming before discarding.
   function isRoundInProgress(): boolean {
+    const hasStartedPreparing =
+      state.makingStep !== "SAUCE" ||
+      state.pizza.sauceIds.length > 0 ||
+      state.pizza.toppings.length > 0;
     return (
       mission.mode === "PLAYING" ||
-      (mission.mode === "FREE" && (state.phase === "PREPARE" || state.phase === "BAKE"))
+      (mission.mode === "FREE" &&
+        (state.phase === "BAKE" || (state.phase === "PREPARE" && hasStartedPreparing)))
     );
   }
 
@@ -376,6 +386,14 @@ function App() {
   // Select is only reachable while `mission.mode` is already "FREE".
   function handleBackFromPizzaSelect() {
     setScreen("HOME");
+  }
+
+  // Issue #47 Finding D: DISCOVERED's "別のピザを作る" -- same destination/no-confirmation
+  // shape as HOME's own 「ピザを作る」 entry point (handleStartFreePlay); DISCOVERED has
+  // nothing in-progress to lose, mirroring handleGoHome's own isRoundInProgress() exemption
+  // for DISCOVERED.
+  function handleBackToPizzaSelectFromDiscovered() {
+    setScreen("PIZZA_SELECT");
   }
 
   function handleStartLunchRush() {
@@ -471,8 +489,6 @@ function App() {
           isDispensingSauce={pendingSauceDeposits.length > 0}
           pieceShadowMetrics={pieceShadowMetrics}
           onGoHome={handleGoHome}
-          onOpenDex={() => setDexOpen(true)}
-          onOpenShop={() => setShopOpen(true)}
           onBeginPrepare={() => dispatch({ type: "BEGIN_PREPARE" })}
           onResetPizza={() => dispatch({ type: "RESET_PIZZA" })}
           onConfirmMakingStep={() => dispatch({ type: "CONFIRM_MAKING_STEP" })}
@@ -484,7 +500,8 @@ function App() {
           onBakeTick={handleBakeTick}
           onConfirmBake={(value) => dispatch({ type: "CONFIRM_BAKE", value })}
           onRegisterToDex={() => dispatch({ type: "REGISTER_TO_DEX" })}
-          onPlayAgain={() => dispatch({ type: "PLAY_AGAIN" })}
+          onRetrySameRecipe={() => dispatch({ type: "RETRY_SAME_RECIPE" })}
+          onBackToPizzaSelect={handleBackToPizzaSelectFromDiscovered}
           onMissionServeNext={handleMissionServeNext}
           onMissionStart={startMission}
           onMissionExitToFree={exitMissionToFree}

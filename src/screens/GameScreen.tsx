@@ -69,8 +69,6 @@ interface GameScreenProps {
   isDispensingSauce: boolean;
   pieceShadowMetrics: readonly PieceReferenceMetrics[];
   onGoHome: () => void;
-  onOpenDex: () => void;
-  onOpenShop: () => void;
   onBeginPrepare: () => void;
   onResetPizza: () => void;
   onConfirmMakingStep: () => void;
@@ -82,7 +80,14 @@ interface GameScreenProps {
   onBakeTick: (value: number) => void;
   onConfirmBake: (value: number) => void;
   onRegisterToDex: () => void;
-  onPlayAgain: () => void;
+  /** Issue #47 Finding D: DISCOVERED's "もう一度つくる" -- retries the exact same recipe
+   *  (RETRY_SAME_RECIPE), replacing the old single "もう一度作る" button that always started a
+   *  *different* recipe. */
+  onRetrySameRecipe: () => void;
+  /** Issue #47 Finding D: DISCOVERED's "別のピザを作る" -- returns to Pizza Select so the
+   *  player can explicitly choose a different recipe (mirrors HOME's own 「ピザを作る」 entry
+   *  point rather than picking a new recipe at random). */
+  onBackToPizzaSelect: () => void;
   onMissionServeNext: () => void;
   onMissionStart: () => void;
   onMissionExitToFree: () => void;
@@ -113,8 +118,6 @@ export function GameScreen({
   isDispensingSauce,
   pieceShadowMetrics,
   onGoHome,
-  onOpenDex,
-  onOpenShop,
   onBeginPrepare,
   onResetPizza,
   onConfirmMakingStep,
@@ -126,7 +129,8 @@ export function GameScreen({
   onBakeTick,
   onConfirmBake,
   onRegisterToDex,
-  onPlayAgain,
+  onRetrySameRecipe,
+  onBackToPizzaSelect,
   onMissionServeNext,
   onMissionStart,
   onMissionExitToFree,
@@ -177,6 +181,11 @@ export function GameScreen({
 
   return (
     <div className="game-screen">
+      {/* Issue #47 Finding K: Shop/Pizza Dex were reachable from every Making phase
+          (ORDER/PREPARE/BAKE/RESULT/DISCOVERED) via this header -- removed so Making stays
+          focused on making and HOME remains the sole hub for Shop/Dex navigation (Issue #22's
+          navigation contract). 🏠ホーム stays -- it is the correct "leave Making, land on the
+          hub" affordance and already has its own isRoundInProgress()-gated confirm dialog. */}
       <header className="app-header">
         <button type="button" className="app-header__home-button" onClick={onGoHome}>
           {"\u{1F3E0}"} ホーム
@@ -185,12 +194,6 @@ export function GameScreen({
           <span className="app-header__pitz" aria-label={`Pitz残高 ${state.pitzBalance}`}>
             {"\u{1FA99}"} {state.pitzBalance}
           </span>
-          <button type="button" className="app-header__shop-button" onClick={onOpenShop}>
-            {"\u{1F6D2}"} Shop
-          </button>
-          <button type="button" className="app-header__dex-button" onClick={onOpenDex}>
-            {"\u{1F4D6}"} レシピ図鑑
-          </button>
         </div>
       </header>
 
@@ -386,8 +389,23 @@ export function GameScreen({
           {!state.justDiscovered && state.justGotNewBest && (
             <p className="discovered-banner discovered-banner--best">{"\u{1F31F}"} NEW BEST!</p>
           )}
-          <button type="button" className="cta-button cta-button--primary" onClick={onPlayAgain}>
-            もう一度作る
+          {/* Issue #47 Finding D: two distinct actions replace the old single "もう一度作る"
+              button, which always started a *different* recipe (PLAY_AGAIN's excludeRecipeId)
+              despite reading like a retry. "もう一度つくる" now retries this exact recipe
+              (RETRY_SAME_RECIPE); "別のピザを作る" returns to Pizza Select. */}
+          <button
+            type="button"
+            className="cta-button cta-button--primary"
+            onClick={onRetrySameRecipe}
+          >
+            もう一度つくる
+          </button>
+          <button
+            type="button"
+            className="cta-button cta-button--secondary"
+            onClick={onBackToPizzaSelect}
+          >
+            別のピザを作る
           </button>
         </div>
       )}
