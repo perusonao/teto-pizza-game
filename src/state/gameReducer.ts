@@ -12,7 +12,6 @@ import { discoveredRecipeIds, registerScoreToDex, EMPTY_DEX, type DexState } fro
 import { availableRecipeIds, isRecipeAvailable } from "./progression";
 import { pickMissionOrder } from "../mission/lunchRush";
 import { isInsideDough } from "../logic/pizzaCoordinates";
-import { getRecipeSauceProfile } from "../data/recipeSauceProfiles";
 import {
   createEmptyPizza,
   findOpenSpot,
@@ -265,9 +264,18 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     // dispense gesture's worth of deposits as a single atomic batch. Every condition below
     // is independently enforced here, at the reducer/action boundary -- never trusted from
     // the UI alone -- so a stale, late, or malformed action can never mutate canonical pizza
-    // state for BAKE/RESULT/ORDER or an ingredient outside the current recipe's sauce profile,
-    // whatever PizzaStage/App.tsx intended to gate. FREE and Lunch Rush deliberately share
-    // this same boundary and profile lookup.
+    // state for BAKE/RESULT/ORDER or a non-sauce ingredient, whatever PizzaStage/App.tsx
+    // intended to gate. FREE and Lunch Rush deliberately share this same boundary.
+    //
+    // Issue #32 sauce parity fix: this used to additionally require
+    // `action.ingredientId === getRecipeSauceProfile(state.recipe.id).ingredientId`, rejecting
+    // (silent no-op) any sauce that didn't match the current recipe -- PizzaStage's UI then
+    // fell back to the legacy one-shot APPLY_SAUCE path for that case, so picking a sauce that
+    // didn't match the recipe painted instantly at full coverage instead of gradually like the
+    // recipe-correct one (Fresh Audit Finding 1-B). Recipe/Purity scoring already reacts to a
+    // wrong `sauceIds[0]` normally either way (it never depended on this guard) -- so any of
+    // the three sauce ingredients may now use this same incremental dispense path, matching
+    // and required for the recipe or not.
     case "COMMIT_SAUCE_DISPENSE": {
       // Issue #32 Phase 2: same making-step gate as APPLY_SAUCE -- a dispense session that
       // straddles a step confirmation (or is dispatched after one) must never mutate the
@@ -275,8 +283,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // itself from surviving long enough to dispatch this in the first place; this is the
       // reducer-boundary backstop that holds even if that abort somehow didn't fire.
       if (state.phase !== "PREPARE" || state.makingStep !== "SAUCE") return state;
-      const sauceProfile = getRecipeSauceProfile(state.recipe.id);
-      if (sauceProfile.ingredientId !== action.ingredientId) return state;
+      if (getIngredient(action.ingredientId)?.category !== "sauce") return state;
       if (!state.ownedIngredientIds.includes(action.ingredientId)) return state;
       if (!isValidSauceDepositBatch(action.deposits)) return state;
 

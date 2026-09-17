@@ -2,7 +2,6 @@ import { useReducer, useState } from "react";
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { GameScreen } from "./GameScreen";
-import { getRecipeSauceProfile } from "../data/recipeSauceProfiles";
 import { createInitialGameState, gameReducer, type MakingStep } from "../state/gameReducer";
 import { INITIAL_MISSION_STATE } from "../mission/lunchRush";
 import { resolvePieceDrop } from "../logic/pieceDrag";
@@ -10,6 +9,7 @@ import { emptySauceMetrics } from "../logic/sauceField";
 import { getReferencePizza } from "../data/referencePizza";
 import { getIngredient, type Ingredient, type IngredientCategory } from "../data/ingredients";
 import type { DoughPoint } from "../logic/pizzaCoordinates";
+import type { SauceDeposit } from "../state/pizzaState";
 
 /**
  * PR #26 Final P2 Follow-up #2 (discussion_r4021268603, discussion_r4021268607): the Codex
@@ -73,7 +73,17 @@ function Harness({ category, ingredientId }: { category: IngredientCategory; ing
     dispatch({ type: "PLACE_TOPPING", ingredientId: ingredient.id, x: point.x, y: point.y });
   }
 
+  // Mirrors App.tsx's own handleDispenseCommit exactly -- the real path a pointer tap/drag on
+  // any spread (sauce) ingredient now uses (Issue #32 sauce parity fix), matching or not the
+  // current recipe's own required sauce.
+  function handleDispenseCommit(ingredientId: string, deposits: SauceDeposit[]) {
+    dispatch({ type: "COMMIT_SAUCE_DISPENSE", ingredientId, deposits });
+  }
+
   // Mirrors App.tsx's own handleTapPizza exactly (spread -> APPLY_SAUCE, scatter -> PLACE_TOPPING).
+  // No longer reachable from a pointer gesture on a spread ingredient (PizzaStage always starts
+  // a dispense session for those now -- see handleDispenseCommit above), but kept wired for
+  // scatter ingredients and this suite's own keyboard-path assertions (`onTap(50, 50)`).
   function handleTapPizza(x: number, y: number) {
     if (!selectedIngredientId) return;
     const ingredient = getIngredient(selectedIngredientId);
@@ -103,7 +113,6 @@ function Harness({ category, ingredientId }: { category: IngredientCategory; ing
         selectedIngredientId={selectedIngredientId}
         bakeProgress={null}
         referenceModeEnabled
-        sauceInteractionProfile={getRecipeSauceProfile(state.recipe.id)}
         referencePizza={referencePizza}
         isReferencePopoverOpen={false}
         isGlobalOverlayOpen={false}
@@ -132,7 +141,7 @@ function Harness({ category, ingredientId }: { category: IngredientCategory; ing
         onMissionCloseIntro={() => {}}
         onReferencePopoverChange={() => {}}
         onDispenseProgress={() => {}}
-        onDispenseCommit={() => {}}
+        onDispenseCommit={handleDispenseCommit}
         onDoughElementChange={() => {}}
         resolvePhysicalDrop={resolvePhysicalDrop}
         onPhysicalDrop={handlePhysicalDrop}

@@ -81,14 +81,29 @@ describe("Regression: non-Margherita sauce interaction", () => {
     expect(state.pizza.sauceDeposits).toEqual([]);
   });
 
-  it("COMMIT_SAUCE_DISPENSE is a complete no-op for a non-tomato-sauce ingredient, even on Margherita where the recipe/phase would otherwise qualify", () => {
-    // Direct reducer probe: proves the reducer's own ingredient guard (not just the app's
-    // wiring, which never sends this for olive-oil at all -- App.tsx's referenceModeEnabled/
-    // isTomatoSauceReference gate) independently rejects it.
+  it("Issue #32 sauce parity fix: COMMIT_SAUCE_DISPENSE now accepts a non-recipe sauce ingredient on Margherita, instead of rejecting it", () => {
+    // Pre-fix, this reducer guard rejected any sauce that didn't match the current recipe's
+    // own required ingredient -- PizzaStage's UI then fell back to the legacy one-shot
+    // APPLY_SAUCE path for that case (Fresh Audit Finding 1-B: instant full-pizza fill instead
+    // of the incremental dispense/heatmap gesture). Recipe/Purity scoring already reacted to
+    // a wrong `sauceIds[0]` normally either way, so loosening this guard to "any sauce-
+    // category ingredient" (still gated by phase/step/ownership/deposit-shape below) changes
+    // nothing scoring reads -- only which gesture pipeline paints it.
     const state = preparedState(STARTER_INGREDIENT_IDS);
     const after = gameReducer(state, {
       type: "COMMIT_SAUCE_DISPENSE",
       ingredientId: "olive-oil",
+      deposits: [{ x: 50, y: 50, amount: 0.02 }],
+    });
+    expect(after.pizza.sauceIds).toEqual(["olive-oil"]);
+    expect(after.pizza.sauceDeposits).toEqual([{ x: 50, y: 50, amount: 0.02 }]);
+  });
+
+  it("COMMIT_SAUCE_DISPENSE is still a complete no-op for a non-sauce ingredient, even on Margherita where the recipe/phase would otherwise qualify", () => {
+    const state = preparedState(STARTER_INGREDIENT_IDS);
+    const after = gameReducer(state, {
+      type: "COMMIT_SAUCE_DISPENSE",
+      ingredientId: "mozzarella",
       deposits: [{ x: 50, y: 50, amount: 0.02 }],
     });
     expect(after).toBe(state);
