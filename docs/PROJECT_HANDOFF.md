@@ -27,7 +27,14 @@ Primary device: smartphone vertical. Verification baseline: 390×844.
 - **Issue #47 — Making UX Cleanup (実機レビュー導線・見本・再挑戦・操作性改善). Complete.** Fresh Audit — see `docs/reports/TETO_ISSUE-47_MAKING-UX_Fresh-Audit.md` (audited SHA `6e554918c42fc4d8ed267b715992e5ed5cf68e4f`). Verdict: **B. READY — 3 IMPLEMENTATION SLICES**. Slice A (PR #49, Findings A/B/C/D/E/K) and Slice B (PR #50, Findings F/H) are both **merged**, Human Feel **PASS**. Slice C's own findings: I (sauce repaint vs. one-way flow) confirmed already correct, no code change needed; J (Cheese/Topping drag scope) explicitly handed to **Issue #37 M2** rather than implemented here, per Issue #47's own "don't double-implement" scope guard — this hand-off is not unfinished Issue #47 work, it is Issue #47's own decision.
 - **Issue #33 — Dough Shaping. Current active priority**, now that Issue #47's Human Feel PASS gate is satisfied. D0 Fresh Audit done and **revalidated** against `main` SHA `45fdf1a3ceae305f34dd1a8637b1a306f27dbfd5` (post Issue #47 Slice A/B) — see `docs/reports/TETO_ISSUE-33_DOUGH-D0_Fresh-Audit.md`'s appended "Revalidation" section. Revalidation verdict: **B. PR #46 NEEDS MINOR D0 UPDATE — READY AFTER UPDATE** — the original gesture (drag-from-center-outward radial stretch), shape model (8-point radial array), state design (`PizzaState.doughShape`, no Save schema change) and completion threshold (size-only, ≥75% provisional) all remain valid; only two additive `gameReducer.ts` literal-edit clarifications were added (see report §R.4). **D1 implementation may now proceed.**
 - Issue #37 — parent roadmap for Making Game 2.0 physical pizza-making flow. Its own M0 gate is satisfied (Issue #32 P1 done); M1 (Dough Shaping, #33) is now active per the above. Issue #47 Slice C's Finding J hand-off remains tracked under this issue's M2 checklist.
-- Issue #38 — Scoring 2.0-linked Pitz reward / Economy connection.
+- **Issue #38 — Scoring 2.0-linked Pitz reward / Economy connection.** Fresh Audit done — see
+  `docs/reports/TETO_ISSUE-38_PITZ-REWARD_Fresh-Audit.md` (audited SHA
+  `2da3949de5bd642c709ca6ba343bc57d8101d03d`, PR #51). Verdict: **A. READY AFTER SCORING
+  AUTHORITY** — the reward contract (FREE-only per-pizza `recipeBaseReward × qualityMultiplier`,
+  exactly-once via an extended `REGISTER_TO_DEX`, no Save v2 dependency) is fully specified,
+  but implementation waits on Scoring 2.0 Human Feel calibration + the Phase 4A-3 authority
+  decision, exactly as Issue #38's own gate already required. Lunch Rush's existing per-run
+  Pitz reward (`calculateMissionReward`) is unaffected and stays as-is.
 - Issue #39 — HOME/FREE navigation redesign + Pizza Select. PS1/PS2/PS3 **complete** (PR #40, PR #41, both merged into `main`); PS4 iPhone Human Feel **PASS**. Remaining HOME visual polish (see "Parallel / non-blocking" below) is tracked as future polish, not an Issue #39 blocker.
 
 Scoring 2.0 Shadow has already been implemented and calibrated. It remains non-authoritative until the remaining consistency/Human Feel gates pass.
@@ -162,9 +169,16 @@ Issue #47 is complete; Issue #33 is now the active priority (see below).
 
 ### P4 — Pitz / Economy — Issue #38
 
-1. Fresh Audit existing Pitz/save/shop contracts.
-2. Deterministic score-based reward core. Current design candidate: `recipeBaseReward × qualityMultiplier = earnedPitz`; exact balance values remain provisional until playtesting.
+1. Fresh Audit existing Pitz/save/shop contracts. **Done** — see
+   `docs/reports/TETO_ISSUE-38_PITZ-REWARD_Fresh-Audit.md`. Verdict: **A. READY AFTER SCORING
+   AUTHORITY**.
+2. Deterministic score-based reward core. Design candidate confirmed as a sensible minimal V1:
+   `recipeBaseReward × qualityMultiplier = earnedPitz`, bands reusing `scoring.ts`'s existing
+   star thresholds; exact balance values remain provisional until playtesting. FREE-only in the
+   first slice; Lunch Rush's existing per-run reward is left unchanged.
 3. RESULT one-time credit + before→after Pitz display; prevent reload/re-entry double credit.
+   Designed to extend the existing `REGISTER_TO_DEX` atomic reducer transaction rather than add
+   a new action.
 4. iPhone Human Feel / reward balance.
 
 Currency contract: **Pitz**. Do not introduce ¥/円 as the game currency.
