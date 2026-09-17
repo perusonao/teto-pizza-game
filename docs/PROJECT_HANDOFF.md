@@ -23,7 +23,7 @@ Primary device: smartphone vertical. Verification baseline: 390×844.
 ## Current roadmap issues
 
 - Issue #22 — overall development roadmap / session handoff SSOT.
-- Issue #32 — Reference / Recipe / Interaction consistency gate before Scoring 2.0 authority.
+- Issue #32 — Reference / Recipe / Interaction consistency gate before Scoring 2.0 authority. Interaction Consistency Fresh Audit done (see P1 item 2 below); remaining P1 fix slice not yet implemented.
 - Issue #33 — Dough Shaping.
 - Issue #37 — parent roadmap for Making Game 2.0 physical pizza-making flow.
 - Issue #38 — Scoring 2.0-linked Pitz reward / Economy connection.
@@ -102,7 +102,7 @@ These are tracked under "Parallel / non-blocking" below and do not block moving 
 ### P1 — Scoring consistency gate — Issue #32
 
 1. Recipe correctness Fresh Audit/pinning: missing/wrong/extra ingredient types belong to Recipe; quantity/placement belong primarily to Pieces; avoid double penalty.
-2. Resolve remaining sauce interaction parity, olive-oil visibility and tap-vs-drag decisions within scope.
+2. Interaction Consistency Fresh Audit (see `docs/reports/TETO_ISSUE-32_INTERACTION-CONSISTENCY_Fresh-Audit.md`, audited SHA `6dced18c8bc0da93276c5fd0822eafa636853201`) found: golden-path sauce parity (tomato/pesto/olive-oil) and golden-path tap-vs-drag are **already correct** on current main — no change needed. Two confirmed P1 defects remain to fix before Making Game 2.0/Dough starts: (a) selecting a sauce that does not match the current recipe silently falls back to the old instant one-shot full-spread `APPLY_SAUCE` path instead of the new incremental paint/heatmap mechanic (reachable in FREE and Lunch Rush alike); (b) olive-oil's heatmap canvas applies a `pizza-sauce-heatmap--oil` CSS class that has no matching rule, so it renders with no visibility treatment and a paint color that nearly matches the dough background — a prior dedicated olive-oil-visibility fix is now dead code on the normal play path.
 3. Re-calibrate only when concrete Human Feel evidence requires it; do not restart numeric coefficient tuning without a failing behavior.
 
 ### P2 — Making Game 2.0 — Issues #33 / #37
