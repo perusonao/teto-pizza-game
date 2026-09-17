@@ -6,7 +6,7 @@ Revalidation section) — no new audit, per the task instruction.
 
 - **Base SHA (fresh `origin/main` at task start):** `2da3949de5bd642c709ca6ba343bc57d8101d03d`
   (Merge PR #51: Issue #33 Dough D0 revalidation) — matches the task's expected SHA exactly.
-- **Implementation SHA (PR head):** `<filled in after commit — see PR>`
+- **Implementation SHA (PR head):** `e1f171a309077db6d2df03c90237924e68900e1e`
 - **Branch:** `claude/dough-d1-implementation-puivuf`
 
 ---
