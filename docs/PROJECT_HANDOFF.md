@@ -1,6 +1,6 @@
 # Teto Pizza Game — Project Handoff / Roadmap SSOT
 
-Updated: 2026-09-17
+Updated: 2026-09-17 (Issue #33 D0 Fresh Audit)
 
 > Fresh GitHub/main state always wins if this document becomes stale.
 
@@ -23,9 +23,9 @@ Primary device: smartphone vertical. Verification baseline: 390×844.
 ## Current roadmap issues
 
 - Issue #22 — overall development roadmap / session handoff SSOT.
-- Issue #32 — Reference / Recipe / Interaction consistency gate before Scoring 2.0 authority. Interaction Consistency Fresh Audit done (see P1 item 2 below); remaining P1 fix slice not yet implemented.
-- Issue #33 — Dough Shaping.
-- Issue #37 — parent roadmap for Making Game 2.0 physical pizza-making flow.
+- Issue #32 — Reference / Recipe / Interaction consistency gate before Scoring 2.0 authority. **P1 complete**: Recipe correctness Fresh Audit done, and the Interaction Consistency P1 fix slice (off-recipe sauce fallback + olive-oil heatmap visibility) is implemented and merged via PR #45. Issue #37's own M0 gate ("#32 P1 Human Feel consistency を解決") is satisfied.
+- Issue #33 — Dough Shaping. **Current active priority.** D0 Fresh Audit / interaction design done — see `docs/reports/TETO_ISSUE-33_DOUGH-D0_Fresh-Audit.md`. Verdict: ready for a D1 interaction prototype (radial-stretch gesture, 8-point radial shape model, size-only completion gate); D1 implementation not yet started.
+- Issue #37 — parent roadmap for Making Game 2.0 physical pizza-making flow. M0 gate satisfied by Issue #32 P1's completion; M1 (Dough Shaping, #33) is next.
 - Issue #38 — Scoring 2.0-linked Pitz reward / Economy connection.
 - Issue #39 — HOME/FREE navigation redesign + Pizza Select. PS1/PS2/PS3 **complete** (PR #40, PR #41, both merged into `main`); PS4 iPhone Human Feel **PASS**. Remaining HOME visual polish (see "Parallel / non-blocking" below) is tracked as future polish, not an Issue #39 blocker.
 
@@ -35,8 +35,10 @@ Scoring 2.0 Shadow has already been implemented and calibrated. It remains non-a
 
 - **PR #40** — HOME navigation + functional Pizza Select. MERGED.
 - **PR #41** — HOME + Pizza Select visual reproduction. MERGED. Merge SHA: `1b1ff6c69b837ff7f0da6ab3c14df7843812d8c3`.
+- **PR #44** — Issue #32 Interaction Consistency Fresh Audit (docs-only). MERGED.
+- **PR #45** — Issue #32: unify sauce painting (off-recipe fallback fix) and restore olive-oil visibility. MERGED (`merged_at: 2026-09-17T13:47:04Z`). This closes out Issue #32's P1 scope.
 
-Both are reflected in current `main`. **Next priority: Issue #32 Recipe correctness** (see P1 below).
+All of the above are reflected in current `main` (HEAD `6e554918c42fc4d8ed267b715992e5ed5cf68e4f`). **Next priority: Issue #33 Dough Shaping D1** (see P2 below; D0 audit complete).
 
 ## Navigation contract
 
@@ -99,15 +101,17 @@ Issue #39's navigation/functional/visual work (PS1–PS4) is complete. Two HOME 
 
 These are tracked under "Parallel / non-blocking" below and do not block moving on to Issue #32.
 
-### P1 — Scoring consistency gate — Issue #32
+### P1 — Scoring consistency gate — Issue #32 (COMPLETE)
 
-1. Recipe correctness Fresh Audit/pinning: missing/wrong/extra ingredient types belong to Recipe; quantity/placement belong primarily to Pieces; avoid double penalty.
-2. Interaction Consistency Fresh Audit (see `docs/reports/TETO_ISSUE-32_INTERACTION-CONSISTENCY_Fresh-Audit.md`, audited SHA `6dced18c8bc0da93276c5fd0822eafa636853201`) found: golden-path sauce parity (tomato/pesto/olive-oil) and golden-path tap-vs-drag are **already correct** on current main — no change needed. Two confirmed P1 defects remain to fix before Making Game 2.0/Dough starts: (a) selecting a sauce that does not match the current recipe silently falls back to the old instant one-shot full-spread `APPLY_SAUCE` path instead of the new incremental paint/heatmap mechanic (reachable in FREE and Lunch Rush alike); (b) olive-oil's heatmap canvas applies a `pizza-sauce-heatmap--oil` CSS class that has no matching rule, so it renders with no visibility treatment and a paint color that nearly matches the dough background — a prior dedicated olive-oil-visibility fix is now dead code on the normal play path.
-3. Re-calibrate only when concrete Human Feel evidence requires it; do not restart numeric coefficient tuning without a failing behavior.
+1. Recipe correctness Fresh Audit/pinning: missing/wrong/extra ingredient types belong to Recipe; quantity/placement belong primarily to Pieces; avoid double penalty. **Done.**
+2. Interaction Consistency Fresh Audit (see `docs/reports/TETO_ISSUE-32_INTERACTION-CONSISTENCY_Fresh-Audit.md`, audited SHA `6dced18c8bc0da93276c5fd0822eafa636853201`) found: golden-path sauce parity (tomato/pesto/olive-oil) and golden-path tap-vs-drag are **already correct** on current main — no change needed. Two confirmed P1 defects were fixed and merged via **PR #45** (see `docs/reports/TETO_ISSUE-32_SAUCE-PARITY_Result.md`): (a) selecting a sauce that does not match the current recipe no longer falls back to the old instant one-shot full-spread `APPLY_SAUCE` path — it now uses the same incremental paint/heatmap mechanic as the recipe-correct sauce, in FREE and Lunch Rush alike; (b) olive-oil's heatmap canvas now has a dedicated `pizza-sauce-heatmap--oil` CSS rule, so painted vs. unpainted area is clearly distinguishable at 390×844. **Done.**
+3. Re-calibrate only when concrete Human Feel evidence requires it; do not restart numeric coefficient tuning without a failing behavior. (No new evidence has required this.)
 
-### P2 — Making Game 2.0 — Issues #33 / #37
+Issue #32's P1 scope is closed. Issue #37's M0 gate ("#32 P1 Human Feel consistency を解決") is satisfied — Making Game 2.0 work (P2 below) may proceed.
 
-1. Dough Shaping prototype + iPhone Human Feel.
+### P2 — Making Game 2.0 — Issues #33 / #37 (CURRENT PRIORITY)
+
+1. Dough Shaping prototype + iPhone Human Feel. **D0 Fresh Audit / interaction design done** — see `docs/reports/TETO_ISSUE-33_DOUGH-D0_Fresh-Audit.md` (audited SHA `6e554918c42fc4d8ed267b715992e5ed5cf68e4f`). Verdict: ready for D1 — recommended gesture is a single-finger drag-from-center-outward radial stretch, recommended shape model is an 8-point radial array (smoothed for display), completion is a provisional size-only threshold (mean radius ≥ 75% of target), state lives on `PizzaState.doughShape` (no Save schema change — `GameState`/`PizzaState` are never persisted). D1 implementation itself has not started.
 2. Preserve exact dough/sauce/cheese/topping choices into baked visual identity; avoid hidden auto-correction.
 3. Interactive bake judgment.
 4. FINISH step for post-bake basil/finishing oil where recipes require it.
