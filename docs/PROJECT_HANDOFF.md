@@ -1,132 +1,199 @@
 # Teto Pizza Game — Project Handoff / Roadmap SSOT
 
-Updated: 2026-09-16
+Updated: 2026-09-17
 
 > Fresh GitHub/main state always wins if this document becomes stale.
 
 ## Product goal
 
-The game is not merely about selecting the correct recipe ingredients. The target experience is:
-
 > See the ordered/reference pizza, recreate it physically by hand, bake it, and score higher the closer/better it is made.
 
-Core loop: `ORDER → PREPARE → BAKE → RESULT → DISCOVERED`.
-Progression loop: `make → stars → stock unlock → Lunch Rush → Pitz → buy ingredient → new pizza → Dex/mastery → replay`.
+Making Game 2.0 target: `DOUGH → SAUCE → CHEESE → TOPPING → BAKE → FINISH → RESULT`.
+
+Core experience principle:
+
+> 操作 → 見た目が変わる → その状態を次工程へ持ち越す → 完成した一枚に個性として残る
+
+Progression target:
+
+`choose pizza → make → improve stars/BEST → unlock/discover → Lunch Rush → earn Pitz → buy ingredients → make new pizza → Dex/mastery → replay`
+
 Primary device: smartphone vertical. Verification baseline: 390×844.
 
-## Current production baseline
+## Current roadmap issues
 
-Current feature baseline after PR #29:
+- Issue #22 — overall development roadmap / session handoff SSOT.
+- Issue #32 — Reference / Recipe / Interaction consistency gate before Scoring 2.0 authority.
+- Issue #33 — Dough Shaping.
+- Issue #37 — parent roadmap for Making Game 2.0 physical pizza-making flow.
+- Issue #38 — Scoring 2.0-linked Pitz reward / Economy connection.
+- Issue #39 — HOME/FREE navigation redesign + Pizza Select. **Current highest-priority navigation / First-Fun slice.**
 
-- PR #21 — Phase 4A-1A Reference Sauce Quantity Prototype: merged.
-- PR #25 — HOME/GAME separation + App Icon/PWA: merged.
-- PR #26 — Phase 4A-1B Cheese & Topping Physical Interaction: merged.
-- PR #28 First-Fun fixes are incorporated through PR #29; do not merge #28 separately.
-- PR #29 — Phase 4A-1B.2 Recipe Sauce Interaction Parity: merged.
-- Feature merge baseline after #29: `466d50eb6fbaf3db5aa0008d647df4f0b10e0001`.
-- GitHub Pages deployment succeeded.
-- iPhone post-deploy Human Feel passed without a blocking interaction failure.
+Scoring 2.0 Shadow has already been implemented and calibrated. It remains non-authoritative until the remaining consistency/Human Feel gates pass.
 
-Sauce rendering remains a follow-up polish/calibration concern, not a blocker for shadow scoring.
+## Navigation contract
 
-## Current priority — Phase 4A-2 Scoring 2.0 Shadow
+HOME is the hub; do not use a redundant second FREE/Lunch Rush mode picker after 「ピザを作る」.
 
-Issue #30 is the execution issue. The Fresh Audit has been completed against exact main SHA `a80698487bd4f56585a9a1572e0025d726631716` with verdict **B — READY WITH MINOR DESIGN CHANGES**.
+Target routes:
 
-Key implementation contracts from the audit:
+- `HOME → ピザを作る → Pizza Select → selected recipe → Making Game`
+- `HOME → ランチラッシュ → Lunch Rush`
+- `HOME → ピザ図鑑 → Pizza Dex`
+- `HOME → ショップ → Shop`
 
-- Existing 16×16 sauce metrics, tolerant distance scoring and permutation-invariant piece matching should be reused rather than rewritten.
-- Margherita is currently the primary authoritative Reference calibration recipe. Recipes without a real Reference fixture must return explicit unavailable/null rather than fabricated targets.
-- Shadow scoring must be computed from the canonical pizza at `CONFIRM_BAKE`, including FREE and Lunch Rush; it must not depend on UI-only live-preview gating.
-- Scoring outputs must be deterministic, finite and fail-closed. Invalid tolerance bands must not leak NaN/Infinity.
-- Verify `PAINT_TEMPORARY` is represented in canonical scoreable sauce data with regression tests.
-- Phase 4A-2 remains shadow-only: legacy score, stars, Dex BEST, rewards, progression and save-v1 semantics remain authoritative.
+### Pizza Select
 
-Long-term Scoring 2.0 architecture should remain compatible with four categories: Recipe / Sauce / Pieces / Bake. Margherita-specific calibration component weights are not automatically the permanent global formula.
+Purpose: choose **what to make now** in FREE.
 
-## Ordered roadmap
+Target state semantics:
 
-### Milestone 1 — Making Game
+- completed recipe: name + highest stars/BEST
+- unlocked but unplayed: `NEW`
+- locked: `？？？` + lock
 
-- [x] Phase 1 — core vertical slice
-- [x] Phase 2 — starter content / making polish
-- [x] Phase 3A — Sauce Painting
-- [x] Phase 3B — starter recipes / Dex / character replay polish
-- [x] Phase 3C — scoring/persistence/progression/Lunch Rush/Pitz/Shop
-- [x] Phase 4A-1A — Reference Sauce Quantity Prototype
-- [x] HOME/GAME separation + App Icon/PWA
-- [x] Phase 4A-1B — Cheese & Topping Physical Interaction
-- [x] Phase 4A-1B.1/1B.2 — First-Fun + Recipe Sauce Interaction Parity
-- [x] iPhone post-deploy Human Feel smoke check
-- [x] Phase 4A-2 Fresh Audit
-- [ ] Phase 4A-2 Scoring 2.0 Shadow Core — next implementation task
-- [ ] Phase 4A-2 Codex independent review
-- [ ] Phase 4A-2 Preview + iPhone calibration using deliberately good/normal/poor pizzas
-- [ ] Save v2 Migration — safe v1→v2 migration before new persistent semantics
-- [ ] Phase 4A-3 — integrate calibrated Scoring 2.0 into authoritative RESULT/stars/Dex BEST/progression
-- [ ] Score-based Baked Visual Polish — render-only post-score baked appearance; never feed visual correction back into scoring
-- [ ] Sauce Polish — texture, edge response and visual quality after scoring behavior is stable
+Example visual target only: マルゲリータ ⭐️⭐️⭐️⭐️⭐️ / ビスマルク 🆕 / ？？？ / ？？？.
 
-### Milestone 2 — Game / Replayability
+Actual recipe availability, Bismarck data, unlock rules and References must come from current-main Fresh Audit. Never fabricate missing recipe/reference/progression data.
 
-- [ ] Phase 4B — Difficulty / Hint Policy: Practice, Normal, Challenge, Lunch Rush
-- [ ] Time Attack — quality-gated count-up challenge, initially small recipe scope
-- [ ] Recipe expansion toward 20
+### Pizza Dex
 
-### Milestone 3 — Pizza Shop / Content Foundation
+Purpose: collection/record view — what has been discovered and achieved. It is distinct from Pizza Select but must reuse the same recipe/progression SSOT rather than duplicate state.
 
-- [ ] Inventory Foundation — separate consumable stock from permanent ingredient ownership
-- [ ] Restock / Shop inventory flow
-- [ ] Atomic material consumption at the reviewed bake/confirmation boundary
-- [ ] Revenue / ingredient cost / profit foundation
-- [ ] Lunch Rush economy integration
-- [ ] Dough inventory/consumption after Save v2; Practice remains non-consuming
-- [ ] Phase 4C — Content Catalog for safe recipe/ingredient scaling
-- [ ] Phase 4D — Recipe / Ingredient Editor + JSON import/export + preview/test-play
-- [ ] Recipe expansion 20 → 30
-- [ ] Pizza Dex expansion — undiscovered → discovered → BEST → MASTER
-- [ ] Phase 4E — Progression 2.0 / post-Dex-completion motivation
-- [ ] Recover/normalize the PIZZA DB-derived larger catalog only from verified source data; do not treat prior 160/181 audit counts as repository truth without source recovery
+### Shop
 
-### Milestone 4 — Character / Final Polish
+Purpose: spend Pitz / obtain ingredients. Full functional redesign waits for Save v2 / Inventory / Economy contracts so the project does not build a decorative dead-end shop first.
 
-- [ ] Character Experience — richer Teto/Mito/Blue reactions during making and results
-- [ ] Final visual / animation / sound polish
-- [ ] Advanced mechanics only after the core making, scoring, economy and replay loops are stable
+## Approved visual direction
 
-## Parallel / non-blocking work
+The target direction for HOME, Pizza Select, Pizza Dex and Shop is a warm rustic pizza-shop presentation: wood, brick, oven warmth, wooden signs and parchment-like cards.
 
-- [ ] Issue #27 — accessibility live-region re-announcement for consecutive same-ingredient physical drops. Non-blocking for normal touch gameplay and Phase 4A-2.
-- [ ] SSOT documentation cleanup — reconcile stale legacy scoring/UI documents with current code truth.
-- [ ] PIZZA DB source recovery / catalog normalization as a separate research/data line; do not block the current Making Game milestone.
+Implementation rules:
 
-## Data/design constraints
+- use official repository Teto/Mito/Blue assets; generated substitute dogs are not official characters
+- keep text, stars, BEST, NEW, locks, counters and buttons as real HTML/CSS UI where practical rather than baking them into a single image
+- adapt visual references to 390×844; do not shrink wide/four-column mockups until unreadable
+- preserve touch target size, accessibility and no horizontal overflow
 
-Interaction should scale through reusable families such as SPREAD / HOLD_SCATTER / TAP_PLACE / SPRINKLE / DRIZZLE / SPECIAL rather than unique mechanics per ingredient.
-Do not present prototype quantity as canonical grams/ml without reliable source-backed data. Use normalized internal quantity.
-Reference ingredient, player ingredient and scoring ingredient should represent the same underlying ingredient semantics; baked/result visual transformation is render-only.
+## Re-prioritized ordered roadmap
+
+### P0 — HOME / FREE clarity — Issue #39
+
+1. PS0 Fresh Audit: HOME/mode navigation, FREE recipe selection, recipe/unlock/Dex/BEST SSOT and official character assets.
+2. PS1 Navigation restructure: HOME 「ピザを作る」 → Pizza Select; HOME 「ランチラッシュ」 → Lunch Rush.
+3. PS2 Functional Pizza Select: completed / NEW / locked cards and correct selected-recipe handoff into Making Game.
+4. PS3 Visual reproduction: HOME + Pizza Select toward the approved rustic pizza-shop direction using official assets.
+5. PS4 Preview + real iPhone 390×844 Human Feel.
+
+Issue #39 may run alongside read-only Issue #32 audit work. Avoid simultaneous implementation in overlapping App/navigation files.
+
+### P1 — Scoring consistency gate — Issue #32
+
+1. Recipe correctness Fresh Audit/pinning: missing/wrong/extra ingredient types belong to Recipe; quantity/placement belong primarily to Pieces; avoid double penalty.
+2. Resolve remaining sauce interaction parity, olive-oil visibility and tap-vs-drag decisions within scope.
+3. Re-calibrate only when concrete Human Feel evidence requires it; do not restart numeric coefficient tuning without a failing behavior.
+
+### P2 — Making Game 2.0 — Issues #33 / #37
+
+1. Dough Shaping prototype + iPhone Human Feel.
+2. Preserve exact dough/sauce/cheese/topping choices into baked visual identity; avoid hidden auto-correction.
+3. Interactive bake judgment.
+4. FINISH step for post-bake basil/finishing oil where recipes require it.
+5. RESULT identity: completed pizza as visual hero + descriptive traits/Teto reaction; score/stars secondary.
+
+### P3 — Scoring 2.0 Authority / RESULT
+
+1. Introduce Save v2 migration first if persistent semantics must change.
+2. Make calibrated Scoring 2.0 authoritative only after Issue #32 + Making Game Human Feel gates.
+3. Integrate stars / Dex BEST / progression without Recipe/Pieces/Dough/Bake/Finish double penalties.
+4. Score-based baked visual/sauce polish only after behavior and authority are stable.
+
+### P4 — Pitz / Economy — Issue #38
+
+1. Fresh Audit existing Pitz/save/shop contracts.
+2. Deterministic score-based reward core. Current design candidate: `recipeBaseReward × qualityMultiplier = earnedPitz`; exact balance values remain provisional until playtesting.
+3. RESULT one-time credit + before→after Pitz display; prevent reload/re-entry double credit.
+4. iPhone Human Feel / reward balance.
+
+Currency contract: **Pitz**. Do not introduce ¥/円 as the game currency.
+
+### P5 — Save v2 / Inventory / Shop
+
+1. Safe v1→v2 migration before new persistent semantics.
+2. Consumable inventory separate from permanent ingredient ownership.
+3. Restock / Shop purchasing.
+4. Atomic material consumption at the reviewed confirmation boundary.
+5. Revenue / ingredient cost / profit foundation.
+6. Lunch Rush economy integration.
+7. Dough inventory/consumption only after Save v2; Practice remains non-consuming.
+8. Apply the approved Shop visual direction once the purchase loop is functional.
+
+### P6 — Replayability / Content
+
+- Difficulty / Hint Policy: Practice, Normal, Challenge, Lunch Rush.
+- Time Attack after quality/authority contracts stabilize.
+- Recipe expansion toward 20 using reviewed References rather than fabricated targets.
+- Content Catalog + Recipe/Ingredient Editor before large-scale expansion.
+- Pizza Dex visual overhaul and expansion: undiscovered → discovered → BEST → MASTER.
+- Progression 2.0 / post-Dex-completion motivation.
+- Recover/normalize larger PIZZA DB-derived catalog only from verified source data.
+
+### P7 — Character / Final Polish
+
+- richer official Teto/Mito/Blue reactions coordinated with Making Game/RESULT traits
+- final animation / sound / visual polish
+- advanced mechanics only after making, scoring, economy and replay loops are stable
+
+## Screen implementation timing
+
+| Order | Screen | Timing |
+|---|---|---|
+| 1 | HOME | Issue #39 now |
+| 2 | Pizza Select | Issue #39 now |
+| 3 | Making Game | #32 → #33 → #37 |
+| 4 | RESULT | Scoring 2.0 Authority / Making Game 2.0 |
+| 5 | Pizza Dex | after score/BEST authority stabilizes, before broad recipe expansion |
+| 6 | Lunch Rush | after Making Game 2.0 stabilizes |
+| 7 | Pitz reward UI | Issue #38 after authority |
+| 8 | Shop | after Save v2 / Inventory |
+| 9 | Achievements / final progression | Progression 2.0 |
+
+## Parallel / non-blocking
+
+- Issue #27 accessibility live-region follow-up.
+- SSOT docs cleanup against fresh code truth.
+- PIZZA DB source recovery/catalog normalization as separate research/data work.
 
 ## Non-negotiable guards
 
-- Do not break `ORDER → PREPARE → BAKE → RESULT → DISCOVERED`.
-- Preserve save compatibility unless a separately reviewed migration is intentionally introduced.
-- Scoring 2.0 stays shadow-only until independent review and iPhone calibration pass.
-- Do not silently change Dex BEST, stars, totalStars, Mission, Pitz, Shop or progression during Phase 4A-2.
-- Do not fabricate Reference targets for recipes that do not have authoritative fixtures.
-- Smartphone vertical remains the primary UX target.
-- Fresh repository state and tests outrank stale handoff text.
+- preserve the playable making loop and reset/stale-pointer safety
+- preserve save compatibility unless a separately reviewed migration is intentionally introduced
+- Scoring 2.0 remains non-authoritative until its gates pass
+- do not silently change Dex BEST, stars, totalStars, Mission, Pitz, Shop or progression during navigation/visual-only work
+- do not fabricate Reference targets, recipes, unlocks or catalog data
+- player-made shape/placement should remain visibly identifiable through later steps; avoid silent normalization
+- reasonable imperfection should remain viable
+- official repository character assets are authoritative for Teto/Mito/Blue appearance
+- smartphone vertical remains primary
+- fresh repository state/tests outrank stale handoff text
 
 ## Preferred workflow
 
-`Codex design/audit → Claude Code implementation → Codex independent review → Claude Code fixes → user iPhone Human Feel/calibration`
+While Codex availability is limited:
 
-Claude Code is the primary implementation agent. Keep implementation tasks around 2–3 hours where practical. Result reports belong under `docs/reports/`.
+`Fresh Audit/design → Claude Code implementation → tests/review → Preview → user iPhone Human Feel`
+
+Use Codex for important independent reviews when available; do not block routine progress waiting for it.
+
+Claude Code implementation tasks should generally stay around 2–3 hours where practical. Result reports belong under `docs/reports/`.
 
 ## New-session startup checklist
 
 1. Inspect fresh GitHub `main`, open PRs, issues and Actions state.
 2. Read this file, Issue #22 and the current execution issue.
 3. Treat fresh GitHub state as authoritative if anything conflicts.
-4. Read the latest phase audit/result report before implementation.
-5. Keep Phase 4A-2 shadow-only until independent review and iPhone calibration pass.
-6. Whenever priority, completion status, estimates, architecture or direction changes, update both Issue #22 and this file.
+4. Read the latest relevant audit/result report before implementation.
+5. Keep Scoring 2.0 non-authoritative until the defined gates pass.
+6. Whenever priority, completion status, estimates, architecture, navigation or visual direction changes, update both Issue #22 and this file.
+
+Issue #37 remains the parent roadmap for physical pizza-making UX. Issue #39 is the current HOME/FREE navigation execution issue.
