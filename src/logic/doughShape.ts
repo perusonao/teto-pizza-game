@@ -57,14 +57,63 @@ function lerpTowardAtLeast(current: number, distance: number, weight: number): n
   return Math.min(current + (target - current) * weight, DOUGH_RADIUS);
 }
 
+/** Issue #33 D2 Human Feel Fix: how far a stretch's influence spreads across the ring of 8
+ *  control points, keyed by continuous circular distance (in control-point-index units) from
+ *  the touch angle. D1 moved only the two bracketing points, so a single full-reach pull
+ *  could jump one point from its initial radius straight to DOUGH_RADIUS while its immediate
+ *  neighbor stayed untouched -- a ~30-unit gap over one 45° step that read as a sharp
+ *  spike/polygon-vertex rather than stretched dough. `1.0` at the touch itself, `0.45` one
+ *  control point away, `0.12` two away, `0` beyond that (D0/D2 audit's own example range:
+ *  adjacent ~0.35-0.55, next ~0-0.15) -- linearly interpolated between those anchors so a
+ *  touch between two control points doesn't snap discontinuously from one weight profile to
+ *  another. Deliberately a simple piecewise-linear falloff, not a physics/spring model. */
+const STRETCH_ADJACENT_WEIGHT = 0.45;
+const STRETCH_NEXT_WEIGHT = 0.12;
+
+/** Issue #33 D2: the spike-suppression constraint (D0/D2 audit §3) -- within one
+ *  `applyStretchPoint` call, a point may jump at most this far above the average of its two
+ *  immediate neighbors' *pre-call* radii. This is a local, neighbor-aware clamp (never a
+ *  global average, never forced toward a perfect circle): a point that was already a valid
+ *  outlier from earlier gestures is never pulled back down (see the `Math.max` floor in
+ *  `applyStretchPoint` below, which keeps every point's own monotonic non-decrease intact),
+ *  and a point far from the current touch is never touched by it at all. Reaching
+ *  DOUGH_RADIUS at one exact spot now takes a few gestures in roughly the same area (each one
+ *  also raises that area's neighbors, which raises the next pull's own cap) rather than one
+ *  instant full-reach drag -- "progressive and controllable," not "rubbery snap." */
+const STRETCH_SPIKE_MAX_DELTA = 12;
+
+function circularIndexDistance(a: number, b: number, count: number): number {
+  const raw = Math.abs(a - b) % count;
+  return raw > count / 2 ? count - raw : raw;
+}
+
+/** Piecewise-linear falloff: 1 at d=0, STRETCH_ADJACENT_WEIGHT at d=1,
+ *  STRETCH_NEXT_WEIGHT at d=2, 0 beyond -- see STRETCH_ADJACENT_WEIGHT's own doc comment. */
+function stretchFalloff(circularDistance: number): number {
+  if (circularDistance <= 1) {
+    return 1 + (STRETCH_ADJACENT_WEIGHT - 1) * circularDistance;
+  }
+  if (circularDistance <= 2) {
+    return STRETCH_ADJACENT_WEIGHT + (STRETCH_NEXT_WEIGHT - STRETCH_ADJACENT_WEIGHT) * (circularDistance - 1);
+  }
+  return 0;
+}
+
 /**
  * Projects one touch/drag point (dough-percent coordinates, same space as
- * `pizzaCoordinates.ts`) onto the shape, moving the two angular control points bracketing
- * that point's angle toward the touch distance -- weighted by angular closeness, so a touch
- * exactly at a control point's own angle moves only that point, and a touch halfway between
- * two moves both equally (D0 §4.2). A point outside the dough (distance > DOUGH_RADIUS) is
- * clamped to the rim first, matching every other gesture family's own `isInsideDough`/
- * `clampToDough` convention. Returns a new shape; never mutates `shape`.
+ * `pizzaCoordinates.ts`) onto the shape (D0 §4.2, D2 Human Feel Fix). The touch angle's
+ * closest control point receives the strongest pull; its immediate neighbors (circular
+ * indices i-1/i+1) follow with a meaningful fraction, and the next ring out (i-2/i+2) with a
+ * smaller fraction, per `stretchFalloff` above -- "neighboring dough regions stretch somewhat
+ * together" rather than only the two points nearest the touch moving in isolation. Each
+ * point's own per-call increase is then capped relative to its pre-call neighbors
+ * (`STRETCH_SPIKE_MAX_DELTA`) so one drag can't spike a single point far past its
+ * surroundings, while a `Math.max` floor against that point's own pre-call value keeps every
+ * point strictly monotonic non-decreasing across calls (D0 §4.6, unchanged) -- the clamp can
+ * only soften *this* gesture's own reach, never undo growth a previous gesture already
+ * committed. A point outside the dough (distance > DOUGH_RADIUS) is clamped to the rim first,
+ * matching every other gesture family's own `isInsideDough`/`clampToDough` convention.
+ * Returns a new shape; never mutates `shape`.
  */
 export function applyStretchPoint(shape: DoughShape, xDough: number, yDough: number): DoughShape {
   const dx = xDough - DOUGH_CENTER;
@@ -75,16 +124,25 @@ export function applyStretchPoint(shape: DoughShape, xDough: number, yDough: num
   let angle = Math.atan2(dy, dx);
   if (angle < 0) angle += Math.PI * 2;
 
-  const step = (Math.PI * 2) / DOUGH_SHAPE_POINTS;
+  const n = shape.radii.length;
+  const step = (Math.PI * 2) / n;
   const rawIndex = angle / step;
-  const index0 = Math.floor(rawIndex) % DOUGH_SHAPE_POINTS;
-  const index1 = (index0 + 1) % DOUGH_SHAPE_POINTS;
-  const weight1 = rawIndex - Math.floor(rawIndex);
-  const weight0 = 1 - weight1;
 
-  const radii = shape.radii.slice();
-  radii[index0] = lerpTowardAtLeast(radii[index0], distance, weight0);
-  radii[index1] = lerpTowardAtLeast(radii[index1], distance, weight1);
+  const original = shape.radii;
+  const propagated = original.slice();
+  for (let i = 0; i < n; i += 1) {
+    const weight = stretchFalloff(circularIndexDistance(i, rawIndex, n));
+    if (weight <= 0) continue;
+    propagated[i] = lerpTowardAtLeast(original[i], distance, weight);
+  }
+
+  const radii = propagated.map((value, i) => {
+    const prevNeighbor = original[(i - 1 + n) % n];
+    const nextNeighbor = original[(i + 1) % n];
+    const cap = (prevNeighbor + nextNeighbor) / 2 + STRETCH_SPIKE_MAX_DELTA;
+    return Math.max(original[i], Math.min(value, cap));
+  });
+
   return { radii };
 }
 

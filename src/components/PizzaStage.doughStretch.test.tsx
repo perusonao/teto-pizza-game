@@ -127,17 +127,19 @@ describe("PizzaStage DOUGH radial-stretch gesture", () => {
     expect(meanProgress()).toBeGreaterThan(doughSizeProgress(createInitialDoughShape()));
   });
 
-  it("only the two bracketing control points change from a single pull, not the whole shape", () => {
+  it("Issue #33 D2: a single pull spreads to neighboring points (mean rises) without jumping the whole shape to full size", () => {
     render(<Harness />);
     const element = dough();
 
-    // Angle 0 exactly ("east") -- only index 0 should move.
+    // Angle 0 exactly ("east") -- propagates to index 0 (primary), 1/7 (immediate
+    // neighbors), 2/6 (next ring); see src/logic/doughShape.test.ts for the exact per-point
+    // math this component-level test doesn't re-derive.
     pointerDown(element, clientPoint(50 + 40, 50));
     pointerUp(element, clientPoint(50 + 40, 50));
 
-    // mean progress increased by roughly 1/8th of the full pull (one of eight points moved).
     const initial = doughSizeProgress(createInitialDoughShape());
     expect(meanProgress()).toBeGreaterThan(initial);
+    // Still well short of every point having jumped to the full pull distance.
     expect(meanProgress()).toBeLessThan(initial + 40 / DOUGH_RADIUS);
   });
 
