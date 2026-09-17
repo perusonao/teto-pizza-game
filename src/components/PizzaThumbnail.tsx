@@ -3,6 +3,7 @@ import type { Recipe } from "../data/recipes";
 import { getIngredient } from "../data/ingredients";
 import { IngredientPieceVisual } from "./IngredientPieceVisual";
 import { stablePieceRotation } from "../logic/pieceDrag";
+import { PIECE_RING_POSITIONS } from "../logic/pizzaReferenceLayout";
 
 interface PizzaThumbnailProps {
   recipe: Recipe;
@@ -21,19 +22,9 @@ interface PizzaThumbnailProps {
  * every recipe. The two stay independent responsibilities per Issue #39's scope guard.
  */
 
-/** Fixed ring of slot positions (dough-percent coordinates); a recipe's non-sauce
- *  ingredients are assigned to these in `requiredIngredients` order, so the same recipe
- *  always renders the same layout. */
-const PIECE_POSITIONS = [
-  { x: 50, y: 24 },
-  { x: 73, y: 36 },
-  { x: 76, y: 63 },
-  { x: 58, y: 79 },
-  { x: 38, y: 79 },
-  { x: 22, y: 63 },
-  { x: 25, y: 36 },
-  { x: 50, y: 52 },
-] as const;
+/** A recipe's non-sauce ingredients are assigned to `PIECE_RING_POSITIONS` in
+ *  `requiredIngredients` order, so the same recipe always renders the same layout. */
+const PIECE_POSITIONS = PIECE_RING_POSITIONS;
 
 export function PizzaThumbnail({ recipe }: PizzaThumbnailProps) {
   const sauceIngredient = recipe.requiredIngredients

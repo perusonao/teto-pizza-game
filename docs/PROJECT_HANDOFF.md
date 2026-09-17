@@ -118,15 +118,19 @@ Fresh Audit **done** — see `docs/reports/TETO_ISSUE-47_MAKING-UX_Fresh-Audit.m
    ORDER→PREPARE gate after Pizza Select; add a same-recipe retry action + a second "別のピザを
    作る" button (今の「もう一度作る」は`excludeRecipeId`で毎回別レシピを選ぶ設計だったと判明);
    remove Shop/Pizza Dex navigation from the Making header; bump the Next CTA's touch-target
-   height to match HOME's own primary CTA. Not started.
-2. **Slice B — Reference UX**: a persistent mini Reference thumbnail during Making (reusing
-   existing `ReferencePreview`/`IngredientPieceVisual`/Reference SSOT, no new data model); expand
-   `referencePizza.ts` beyond Margherita — sauce-target generation is mechanically generatable for
-   all 7 recipes from the existing fixture algorithm, but piece-placement layouts need hand
-   authorship per recipe (scope this as its own follow-up, not compressed into Slice B). Scoring
-   2.0 Shadow already shares the same Reference SSOT as the player-facing popover, so this
-   expansion unblocks both simultaneously — Scoring 2.0 stays non-authoritative regardless. Not
-   started.
+   height to match HOME's own primary CTA. **Done** (merged via PR #49 — see
+   `docs/reports/TETO_ISSUE-47_SLICE-A_Result.md`).
+2. **Slice B — Reference UX**: a persistent mini Reference thumbnail during Making, and a
+   player-facing completed-pizza reference for every playable recipe. **Implemented** — see
+   `docs/reports/TETO_ISSUE-47_SLICE-B_REFERENCE_Result.md` (PR pending review/merge). Built as
+   a deliberately separate `src/data/playerReference.ts` (generic, deterministic, generated
+   purely from `Recipe.requiredIngredients`/ingredients, available for all 7 recipes) rather
+   than expanding `referencePizza.ts` itself — that file remains Scoring 2.0's own
+   Margherita-only authoritative target geometry, unchanged and untouched by this slice, per
+   the explicit instruction not to fabricate Scoring 2.0 target coordinates. Margherita's
+   existing `ReferencePreview` popover (Scoring 2.0-derived, precise bars) is unchanged and
+   still used for Margherita specifically; every other recipe uses the new generic popover
+   (identity + approximate placement, no numeric precision).
 3. **Slice C — Making controls**: sauce repaint-within-step and the one-way step guard are
    already correct (documented, no code change needed). Cheese/Topping drag scope (today's real
    tray drag-and-drop is Margherita/mozzarella/basil-only; every other recipe/ingredient only has
