@@ -6,11 +6,15 @@ Revalidation section) — no new audit, per the task instruction.
 
 - **Base SHA (fresh `origin/main` at task start):** `2da3949de5bd642c709ca6ba343bc57d8101d03d`
   (Merge PR #51: Issue #33 Dough D0 revalidation) — matches the task's expected SHA exactly.
-- **Implementation SHA (PR head):** `19e993274e86216417ea2c238cefa7ea6ad25518`
-- **Branch:** `claude/dough-d1-implementation-puivuf`
-- **PR:** [#54](https://github.com/perusonao/teto-pizza-game/pull/54) — CI green (`build` check, `success`), `mergeable_state: clean`.
-- **Preview:** deployed to `perusonao/teto-pizza-game-preview` at this exact SHA — badge confirmed
-  `PREVIEW · PR#54 · 19e9932` (§11).
+- **D1 implementation SHA:** `19e993274e86216417ea2c238cefa7ea6ad25518`
+- **D2 Human Feel Fix SHA (PR head):** `8ddefcdba54b598ae1abadd74dacbece9deb7994`
+- **Branch:** `claude/dough-d1-implementation-puivuf` (same branch/PR throughout D1 and D2)
+- **PR:** [#54](https://github.com/perusonao/teto-pizza-game/pull/54) — CI green, `mergeable_state: clean`.
+- **Preview:** deployed to `perusonao/teto-pizza-game-preview` at the current HEAD each time —
+  see §11 for D1's own deployment record and §14 for D2's.
+- **Status:** D1 functional result — PASS. D1 Human Feel result (ChatGPT review of
+  `TETO_ISSUE-33_DOUGH-D1_ReviewPlaythrough.mp4`) — **NEEDS D2 POLISH BEFORE MERGE** (sharp
+  local spikes from a single-direction drag). §14 documents the D2 fix for that finding.
 
 ---
 
@@ -52,10 +56,13 @@ the dough (single-finger radial drag from center outward) before sauce becomes a
 `src/logic/doughShape.ts` (pure, no DOM, mirrors `sauceQuantity.ts`'s own convention):
 
 - `applyStretchPoint(shape, xDough, yDough)`: projects the touch point to `(angle, distance)`
-  from `DOUGH_CENTER`; the two angular control points bracketing that angle each move toward
-  `max(currentRadius, distance)`, weighted by angular closeness (a touch exactly at a control
-  point's own angle moves only that point). **Monotonic by construction** — the blend target is
-  never below the current value, so a point can never shrink within one DOUGH attempt.
+  from `DOUGH_CENTER`. **Updated by the D2 Human Feel Fix (§14)** — originally (D1) only the
+  two control points bracketing the touch angle moved; as of D2, the touch spreads across a
+  falloff of nearby control points (strongest at the closest point, tapering through its
+  neighbors) with a spike-suppression clamp, so a single drag no longer creates a sharp
+  isolated bulge. **Monotonic by construction** — every point's own value only ever increases
+  across calls, so a point can never shrink within one DOUGH attempt (see §14 for exactly how
+  this is preserved alongside the new clamp).
 - `smoothDoughShapeForDisplay(shape, scale)`: Catmull-Rom-to-Bezier through the 8 points,
   producing a closed SVG path — used both for the on-screen shape (`scale = 1`, 0–100 percent
   space) and for `PizzaStage`'s `objectBoundingBox` clip-path (`scale = 0.01`, 0–1 fractions).
@@ -314,3 +321,213 @@ before/after confirmed the fix, full suite re-verified green afterward.
   currently-thin wedge (§11 item 5), once D3 scoring integration revisits placement rules.
 - Re-evaluate `.pizza-dough`'s border-ring visibility once the shape is small (§11 item 6) —
   possibly a thin outer guide ring that stays visible regardless of the inner shape's size.
+
+---
+
+## 14. D2 Human Feel Fix
+
+### 14.1 Original Human Feel finding
+
+ChatGPT reviewed `artifacts/review/TETO_ISSUE-33_DOUGH-D1_ReviewPlaythrough.mp4`. D1's
+functional result: **PASS** (every acceptance item in the original task — DOUGH first,
+gesture, completion gate, carry-through, reset/retry — worked correctly). D1's Human Feel
+result: **NEEDS D2 POLISH BEFORE MERGE** — dragging in one direction could produce a sharp,
+localized bulge that read as manipulating polygon/control points rather than stretching pizza
+dough. Root cause (confirmed by inspection and reproduced numerically, see 14.2): D1's
+`applyStretchPoint` only ever moved the two control points immediately bracketing the touch
+angle. A single full-reach pull at one control point's own angle jumped that point from
+`INITIAL_DOUGH_RADIUS` (≈18.24) straight to `DOUGH_RADIUS` (48) — a ~30-unit radius gap to its
+completely untouched immediate neighbor over one 45° step — which the Catmull-Rom smoothing
+could soften visually but not eliminate at that magnitude.
+
+**D2 scope discipline (per the task's own instruction): the D1 architecture is unchanged.**
+Still the 8-point radial array, still reducer-owned `PizzaState.doughShape`, still a
+single-finger outward stretch committed atomically at pointerup, still `resetToken`/
+`makingStepToken` stale-gesture protection, still the 0.75 size-only completion rule, still
+carry-through into SAUCE/CHEESE/TOPPING/BAKE/RESULT unchanged. Only `applyStretchPoint`'s own
+internal math changed; its signature, its call sites (`PizzaStage.tsx`), and every other
+exported function in `doughShape.ts` are untouched.
+
+### 14.2 Algorithm: before vs. after
+
+**D1 (before):** touch angle → continuous index `rawIndex` → the two bracketing integer
+indices `index0 = floor(rawIndex)`, `index1 = index0 + 1` each blend toward the touch distance
+with complementary weights `weight0 + weight1 = 1`. No other point is ever touched by a given
+gesture step.
+
+**D2 (after):** touch angle → the same continuous `rawIndex` → **every** control point `i`
+receives a weight from a continuous, circular-distance-based falloff (`stretchFalloff`,
+14.3), and blends toward the touch distance by that weight (zero-weight points, `circularDistance
+>= 2`, are skipped as a no-op). The result is then passed through a **spike-suppression clamp**
+(14.4) before being returned. Both stages live inside the same `applyStretchPoint` function in
+`src/logic/doughShape.ts`; nothing moved to a new file or a new exported API.
+
+```
+// D1
+radii[index0] = lerpTowardAtLeast(radii[index0], distance, weight0);
+radii[index1] = lerpTowardAtLeast(radii[index1], distance, weight1);
+
+// D2
+for (i of all 8 points) {
+  weight = stretchFalloff(circularIndexDistance(i, rawIndex, 8));
+  if (weight > 0) propagated[i] = lerpTowardAtLeast(original[i], distance, weight);
+}
+radii[i] = max(original[i], min(propagated[i], neighborAvg(original, i) + SPIKE_MAX_DELTA));
+```
+
+### 14.3 Propagation weights
+
+`stretchFalloff(d)` — piecewise-linear, continuous in the circular distance `d` (in
+control-point-index units) from the touch angle to a given control point:
+
+| Circular distance `d` | Weight |
+|---|---|
+| 0 (touch itself) | 1.0 |
+| 1 (immediate neighbor, `i±1`) | **0.45** |
+| 2 (next ring, `i±2`) | **0.12** |
+| > 2 | 0 |
+
+Linearly interpolated between these anchors (e.g. `d = 0.5` → weight `0.725`) so a touch
+between two control points doesn't snap discontinuously between weight profiles. These are the
+task's own example-concept numbers (adjacent ~0.35–0.55, next ~0–0.15) — chosen as a starting
+point and confirmed sufficient by the numeric/visual verification in 14.6, not further tuned.
+`i±2` is included (not left out) because the D0/D2 audit's own "optionally, only if needed"
+condition was met: without it, the falloff cut off too abruptly at the first neighbor and the
+transition from "touched region" to "untouched region" was still visually a step.
+
+Circular indexing (`circularIndexDistance`) means index 0 and index 7 are always exactly 1
+apart, matching every other 8-point wraparound already in this codebase (`(i + 1) %
+DOUGH_SHAPE_POINTS` etc.) — verified explicitly by a dedicated test (14.7).
+
+### 14.4 Spike suppression
+
+A **neighbor-aware clamp**, not a physics/spring model and not a global average:
+
+```
+cap = (original[i-1] + original[i+1]) / 2 + SPIKE_MAX_DELTA   // SPIKE_MAX_DELTA = 12
+radii[i] = max(original[i], min(propagated[i], cap))
+```
+
+- The cap uses each point's **pre-call** neighbor values, so it measures "how far did *this one
+  gesture step* push this point past what its surroundings already were" — exactly the
+  "sharp mountain from one drag" complaint — rather than a shape-wide constraint.
+- The outer `max(original[i], ...)` floor is what keeps every point's own monotonic
+  non-decrease intact (D0 §4.6, explicitly kept): the clamp can only soften *this* gesture's
+  own reach, it can never undo growth a previous gesture already committed. Pinned by an
+  explicit test (`doughShape.test.ts`, "is monotonic across every point... across a long mixed
+  gesture sequence").
+- Reaching `DOUGH_RADIUS` at one exact spot now takes a few gestures in roughly the same area
+  (each one also raises that area's neighbors, which raises the next pull's own cap) instead of
+  one instant full-reach drag — this is what satisfies task item 4's "progressive and
+  controllable... not rubbery snap/instant inflation" without a separate sensitivity change
+  (14.5).
+- Never forces a perfect circle and never globally averages: a point with no nearby touch
+  history is never altered by a clamp evaluation elsewhere on the shape (the clamp only ever
+  runs against the point *this call's* propagation just touched), and the floor guarantees
+  genuine player-made asymmetry (e.g. one side pulled, the other never touched) is fully
+  preserved — see 14.7's "asymmetry remains fully achievable" test.
+
+`SPIKE_MAX_DELTA = 12` was chosen and confirmed (14.6) to noticeably soften a single pull
+(the D1-baseline ~30-unit one-step gap drops to well under half that) while still letting the
+touched point end up clearly the largest in its neighborhood, and without preventing the 0.75
+completion threshold from being reached in a handful of gestures (14.6).
+
+### 14.5 Drag sensitivity
+
+Reviewed per task item 4. **No gain/sensitivity reduction was made.** The touched point's own
+target distance is still a direct 1:1 mapping of pointer distance from center (unchanged from
+D1) — this is what makes the gesture feel immediately responsive, and the Human Feel complaint
+was specifically about the *shape* one drag produced (an isolated spike), not about how far a
+single drag could reach. Softening that shape via propagation + the spike clamp (14.3/14.4)
+addressed the complaint directly without also making the primary point's own response feel
+laggy. Confirmed by the visual check in 14.6: a single strong pull now reads as a smooth,
+rounded bulge, not a rubbery snap or a slow crawl.
+
+### 14.6 Verification
+
+**Numeric** (via a standalone reimplementation matching `doughShape.ts` exactly, cross-checked
+against the actual unit tests):
+
+| Scenario | Result |
+|---|---|
+| 1 full-reach pull at one control point | touched point: 48 → clamped to 30.24; immediate neighbor: 18.24 → 28.03 (gap 2.21, vs. D1's ~30) |
+| 1 full-reach pull, opposite-side point | unchanged (weight 0 beyond circular distance 2) |
+| 4 full-reach pulls spread evenly around the circle | mean/`DOUGH_RADIUS` = 0.800 (already clears 0.75) |
+| 6 full-reach pulls spread evenly | mean/`DOUGH_RADIUS` = 0.904 |
+| 6 moderate (80%-reach) pulls spread evenly | mean/`DOUGH_RADIUS` = 0.764 (clears 0.75 within the task's own 4–6 gesture guidance) |
+| 30 repeated pulls at the exact same spot (adversarial, ignoring the rest of the dough) | max adjacent-pair gap ≈ 26.9, still under the D1 single-pull baseline gap (≈29.8) |
+| 8 full-reach pulls, one at each control point | mean/`DOUGH_RADIUS` = 0.956 |
+
+**Visual** (headless Chromium, 390×844, against the live dev build): a single full-reach pull
+now renders as a smooth, rounded, organic bulge with no visible corner or octagon vertex; five
+gestures spread around the circle render as a broad, near-circular pizza disc indistinguishable
+from "handmade dough" at a glance. Screenshots reviewed directly during this session (not
+committed; the same shapes are shown live in the focused comparison MP4, §14.8). Given these
+screenshots showed no remaining corners, `smoothDoughShapeForDisplay`'s existing Catmull-Rom
+interpolation (§3) was **not** modified — task item 5 was explicitly conditional on visible
+corners persisting after the propagation/clamp change, and none did.
+
+### 14.7 Tests
+
+`src/logic/doughShape.test.ts` — the `applyStretchPoint` describe block was substantially
+rewritten for D2 (24 tests total in the file, up from 12):
+
+- primary point changes most, immediate neighbors change by a pinned exact amount, next ring
+  changes by a smaller pinned amount, opposite side (`circularDistance >= 3`) is byte-for-byte
+  untouched — one test with exact numeric pins plus an explicit ordering assertion
+- circular neighbor wrapping at the 0/7 boundary behaves identically to any interior pair
+- a touch exactly between two control points spreads to a wider, smoothly-tapered set of
+  points (not just the old two bracketing points)
+- spike suppression: a single full-reach pull's one-step gap to its neighbor is asserted to be
+  less than half the D1 baseline gap
+- repeated pulls at the exact same spot cannot exceed the D1 single-pull baseline gap
+  (adversarial-case bound, see 14.6)
+- asymmetry remains fully achievable: an untouched far side stays exactly at
+  `INITIAL_DOUGH_RADIUS` after repeated same-side pulls, and ends up meaningfully smaller than
+  the pulled side
+- a few (4, 5, and 6) natural gestures spread around the circle each independently reach the
+  0.75 completion threshold
+- monotonic non-decrease, both the original single-point check and a new 40-step mixed-gesture
+  sequence check covering **every** point, not just the touched one
+- the original clamp-to-`DOUGH_RADIUS`, center-tap-no-op, and no-mutation tests are unchanged
+
+`src/components/PizzaStage.doughStretch.test.tsx` — the one test whose title/assertions
+literally described the removed "only two bracketing points" behavior was rewritten to
+describe the new propagation behavior at the level this component test actually observes (mean
+progress), without re-deriving per-point math that's already pinned in `doughShape.test.ts`.
+
+Every other D1 test file (`onewayFlow.test.ts`'s DOUGH describe block, the reducer-level
+`COMMIT_DOUGH_STRETCH` stale-event/monotonic/carry-through tests, the App/GameScreen
+integration tests) required **no changes** — they exercise `applyStretchPoint` only through
+its public contract (a monotonic, valid `DoughShape` in, a monotonic, valid `DoughShape` out),
+which D2 preserves exactly.
+
+`npm test`: **979/979 passing** (up from 972 before this fix — the doughShape describe block
+gained tests net of the two rewrites). `npx tsc -b`: clean. `npm run lint` (oxlint): clean.
+`npm run build`: clean.
+
+### 14.8 Exact final SHA
+
+D2 code SHA: `8ddefcdba54b598ae1abadd74dacbece9deb7994` (see this report's own header for any
+later docs-only commits on top). Only `src/logic/doughShape.ts` (algorithm),
+`src/logic/doughShape.test.ts` (rewritten tests), `src/components/PizzaStage.doughStretch.test.tsx`
+(one test description update), and this report were touched — no other file in the D1 diff
+changed.
+
+Focused comparison video: `artifacts/review/TETO_ISSUE-33_DOUGH-D2_HumanFeel.mp4` (not
+committed).
+
+### 14.9 Remaining cosmetic D2 ideas (not implemented — out of this task's scope per its own §8)
+
+- Flour texture / particle effects (explicitly excluded by this task).
+- A slightly larger `i±2` weight or a third ring (`i±3`) if a real-device Human Feel pass still
+  finds the transition between "touched" and "untouched" regions too abrupt for a very isolated
+  single pull — the current weights were tuned against headless-Chromium visual review, not a
+  physical iPhone.
+- `SPIKE_MAX_DELTA` could be lowered further (softer single-pull bulge, slower to reach full
+  radius at one spot) or raised (more immediate single-pull reach, less clamping) — 12 was
+  chosen as a reasonable middle ground and is a single named constant, trivial to retune.
+- The adversarial "30 repeated pulls at the exact same spot" case (14.6) still leaves a
+  moderate gap at the edge of the influence radius; a possible D3-era refinement is widening
+  the falloff or adding a very small `i±3` weight specifically to soften that boundary, without
+  changing the general design.
