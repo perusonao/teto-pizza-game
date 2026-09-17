@@ -51,6 +51,7 @@ describe("PizzaSelectScreen (Issue #39 PS2)", () => {
     const card = screen.getByRole("button", { name: "ビスマルク、未挑戦" });
     expect(card).toBeEnabled();
     expect(card).toHaveTextContent("NEW");
+    expect(card.querySelector(".pizza-thumbnail")).toBeInTheDocument();
   });
 
   it("renders fugazza as a disabled LOCKED card when onion isn't owned", () => {
@@ -65,6 +66,20 @@ describe("PizzaSelectScreen (Issue #39 PS2)", () => {
     const card = screen.getByRole("button", { name: "？？？、未解放" });
     expect(card).toBeDisabled();
     expect(card).toHaveTextContent("？？？");
+  });
+
+  it("shows a real-data unlock hint on the locked card, not a fabricated condition", () => {
+    render(
+      <PizzaSelectScreen
+        dex={EMPTY_DEX}
+        ownedIngredientIds={STARTER_INGREDIENT_IDS}
+        onSelectRecipe={() => {}}
+        onBack={() => {}}
+      />,
+    );
+    const card = screen.getByRole("button", { name: "？？？、未解放" });
+    expect(card).toHaveTextContent("たまねぎ");
+    expect(card).toHaveTextContent("12");
   });
 
   it("renders a completed recipe with its highest stars and BEST score", () => {

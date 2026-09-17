@@ -1625,6 +1625,23 @@
   min-height: 0;
 }
 
+/* ---------- Issue #39 PS3: warm wood pizzeria treatment ---------- */
+/* HOME and Pizza Select only (never GAME, out of this pass's scope) -- a subtle plank
+   texture behind the parchment-toned cards, built entirely from CSS gradients (no image
+   asset), matching the "暖かい木造のピザ屋" direction without competing with card content. */
+.home-screen,
+.pizza-select-screen {
+  background:
+    repeating-linear-gradient(
+      180deg,
+      rgba(107, 66, 38, 0.05) 0px,
+      rgba(107, 66, 38, 0.05) 1px,
+      transparent 1px,
+      transparent 34px
+    ),
+    linear-gradient(180deg, #f7ecd4 0%, #efdcb3 100%);
+}
+
 /* ---------- HOME header extras ---------- */
 .app-header__dex-pill {
   font-size: 11px;
@@ -1662,31 +1679,92 @@
   white-space: nowrap;
 }
 
+/* PS3: HOME's header reads as a hung wooden shop sign -- a warmer brown gradient + carved
+   bottom edge -- rather than the plain flat brown bar GAME/Pizza Select still use. Purely
+   decorative (same real title/Pitz/Dex/settings DOM as before). */
+.app-header--shop-sign {
+  background: linear-gradient(180deg, #7a4d2c 0%, #5c3419 100%);
+  border-bottom: 3px solid #402108;
+  border-radius: 0 0 14px 14px;
+}
+
 /* ---------- HOME hero ---------- */
 .home-hero {
   position: relative;
   margin: 10px 16px 0;
-  padding-top: 40px;
-  min-height: 236px;
+  padding-top: 30px;
+  min-height: 200px;
   border-radius: 20px;
   overflow: hidden;
   display: flex;
   align-items: flex-end;
   justify-content: center;
+  /* Brick courses (repeating-linear-gradient) behind a warm oven-glow radial, evoking a
+     pizzeria's brick oven wall without a baked-in image. */
   background:
-    radial-gradient(circle at 50% 0%, rgba(228, 87, 46, 0.35), transparent 60%),
+    radial-gradient(circle at 50% 100%, rgba(255, 154, 70, 0.45), transparent 65%),
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.16) 0px,
+      rgba(0, 0, 0, 0.16) 2px,
+      transparent 2px,
+      transparent 22px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.12) 0px,
+      rgba(0, 0, 0, 0.12) 2px,
+      transparent 2px,
+      transparent 38px
+    ),
     linear-gradient(180deg, #6b4226 0%, #4a2e16 100%);
   box-shadow: inset 0 0 0 2px rgba(255, 249, 236, 0.12), 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
+.home-hero__oven-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 105%, rgba(255, 180, 90, 0.55), transparent 55%);
+  animation: oven-glow-flicker 3.2s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes oven-glow-flicker {
+  from {
+    opacity: 0.75;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.home-hero__cast {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 6px;
+}
+
 .home-hero__teto {
-  width: 190px;
-  height: 190px;
+  width: 176px;
+  height: 176px;
   border-radius: 50%;
   object-fit: cover;
   border: 4px solid #fff3df;
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
   margin-bottom: -2px;
+  z-index: 1;
+}
+
+.home-hero__sidekick {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #fff3df;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  margin-bottom: 8px;
 }
 
 .home-hero__bubble {
@@ -1704,6 +1782,7 @@
   text-align: center;
   max-width: 80%;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  z-index: 1;
 }
 
 .home-hero__bubble::after {
@@ -1717,22 +1796,36 @@
   border-bottom: 0;
 }
 
-/* ---------- HOME primary CTA ---------- */
+/* ---------- HOME primary + secondary CTA ---------- */
 .home-cta-row {
+  display: flex;
+  gap: 8px;
   padding: 12px 16px 0;
 }
 
 .cta-button--home {
-  width: 100%;
+  flex: 1.3;
   min-height: 54px;
-  font-size: 17px;
+  font-size: 16px;
 }
 
-/* ---------- HOME 2x2 menu ---------- */
+.cta-button--secondary {
+  border: 2px solid #c99b56;
+  background: #fff8ea;
+  color: #6b4226;
+}
+
+.cta-button--home-secondary {
+  flex: 1;
+  min-height: 54px;
+  font-size: 13px;
+}
+
+/* ---------- HOME sub navigation (ピザ図鑑 / ショップ / 実績) ---------- */
 .home-menu {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
   padding: 12px 16px 0;
 }
 
@@ -1741,27 +1834,28 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 3px;
-  min-height: 92px;
+  min-height: 84px;
   background: #fff8ea;
   border: 2px solid #e6d3a3;
-  border-radius: 16px;
-  padding: 12px 14px;
+  border-radius: 14px;
+  padding: 10px 10px;
   text-align: left;
   box-shadow: 0 2px 5px rgba(107, 66, 38, 0.12);
 }
 
 .home-menu__icon {
-  font-size: 21px;
+  font-size: 19px;
 }
 
 .home-menu__label {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 800;
   color: #4a2e0a;
+  line-height: 1.2;
 }
 
 .home-menu__sub {
-  font-size: 11px;
+  font-size: 9.5px;
   font-weight: 600;
   color: #a1662f;
 }
@@ -1783,12 +1877,10 @@
   color: #8a5a2c;
 }
 
-/* ---------- Pizza Select (Issue #39 PS2) ---------- */
-/* Functional-first: real DOM/CSS, no baked image, reusing .app-header/.home-menu__card's own
-   sizing conventions rather than inventing new ones. Visual reproduction of the mockup's
-   warm wood/parchment treatment is PS3 scope -- this pass only has to stay legible and
-   overflow-free at 360-390px, which a 2-column grid (never the mockup's 4-across) already
-   guarantees the same way .home-menu does today. */
+/* ---------- Pizza Select (Issue #39 PS2/PS3) ---------- */
+/* Real DOM/CSS throughout, no baked image -- parchment-toned cards on the shared wood-plank
+   screen background above. A 2-column grid (never the mockup's 4-across) keeps every card
+   legible and overflow-free at 360-390px. */
 .pizza-select-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1800,32 +1892,45 @@
 .pizza-select-card {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 6px;
-  min-height: 92px;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+  min-height: 132px;
   width: 100%;
-  background: #fff8ea;
-  border: 2px solid #e6d3a3;
+  /* Parchment/menu-card feel: warm paper gradient + a slightly deeper wood-tone border than
+     HOME's flatter cards. */
+  background: linear-gradient(180deg, #fffaf0 0%, #fbf0d8 100%);
+  border: 2px solid #d9b876;
   border-radius: 16px;
-  padding: 12px 14px;
-  text-align: left;
-  box-shadow: 0 2px 5px rgba(107, 66, 38, 0.12);
+  padding: 10px 10px 12px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(107, 66, 38, 0.16);
   position: relative;
 }
 
 .pizza-select-card:disabled {
-  opacity: 0.55;
+  opacity: 0.65;
 }
 
 .pizza-select-card--locked {
-  align-items: center;
   justify-content: center;
   gap: 4px;
 }
 
+.pizza-select-card__lock-silhouette {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 40% 35%, #e4d3ab, #cbb27f 85%);
+  box-shadow: inset 0 0 0 2px rgba(107, 66, 38, 0.25);
+}
+
 .pizza-select-card__lock-icon {
   font-size: 22px;
+  filter: grayscale(0.4);
 }
 
 .pizza-select-card__lock-label {
@@ -1834,11 +1939,19 @@
   color: #6b4226;
 }
 
+.pizza-select-card__unlock-hint {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: #a1662f;
+  line-height: 1.3;
+  padding: 0 2px;
+}
+
 .pizza-select-card__name {
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 800;
   color: #4a2e0a;
-  line-height: 1.3;
+  line-height: 1.25;
 }
 
 .pizza-select-card__badge {
@@ -1852,11 +1965,13 @@
   border-radius: 999px;
   padding: 2px 7px;
   letter-spacing: 0.5px;
+  z-index: 1;
 }
 
 .pizza-select-card__mastery {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 2px;
 }
 
@@ -1869,6 +1984,61 @@
   font-size: 11px;
   font-weight: 700;
   color: #a1662f;
+}
+
+/* ---------- Issue #39 PS3: Pizza Select card thumbnail ---------- */
+/* A small deterministic preview built from the recipe's own ingredient data (see
+   ../components/PizzaThumbnail.tsx) -- scales the same physical .pizza-cheese shapes and
+   emoji Making Game itself uses down to card size via --thumb-piece-scale, the same pattern
+   .reference-mini-pizza already uses for the Scoring 2.0 Reference popover (a separate,
+   Margherita-only fixture this thumbnail never reads). */
+.pizza-thumbnail {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 4px solid #d9b876;
+  box-shadow: inset 0 0 8px rgba(120, 70, 20, 0.25), 0 1px 3px rgba(107, 66, 38, 0.2);
+  overflow: hidden;
+  --thumb-piece-scale: 0.34;
+}
+
+.pizza-thumbnail__base {
+  position: absolute;
+  inset: 6%;
+  border-radius: 50%;
+  opacity: 0.9;
+}
+
+.pizza-thumbnail__piece {
+  position: absolute;
+  transform: translate(-50%, -50%) rotate(var(--piece-rotation, 0deg));
+}
+
+.pizza-thumbnail__piece .pizza-cheese {
+  transform: scale(var(--thumb-piece-scale));
+}
+
+.pizza-thumbnail__piece-emoji {
+  display: block;
+  font-size: calc(28px * var(--thumb-piece-scale) * 1.7);
+  line-height: 1;
+}
+
+/* Fills the grid's remaining space below a short recipe list (today: 7 recipes, 4 rows)
+   with the same static-tagline convention HOME's own footer already uses, instead of a
+   dead blank gap -- pinned to the bottom of the scroll container by the shared flex column
+   (.pizza-select-screen), matching .home-footer's own `margin-top: auto` pattern. */
+.pizza-select-footer {
+  margin-top: auto;
+  padding: 10px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+  text-align: center;
+}
+
+.pizza-select-footer__message {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #8a5a2c;
 }
 
 /* ---------- Phase 4A-1A: Reference Sauce Quantity prototype ---------- */

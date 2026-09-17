@@ -2,6 +2,7 @@ import { RECIPES, type RecipeId } from "../data/recipes";
 import type { DexState } from "../state/dex";
 import { recipeCardState, type RecipeCardState } from "../state/pizzaSelect";
 import { starLabel } from "../logic/scoring";
+import { PizzaThumbnail } from "../components/PizzaThumbnail";
 
 /**
  * Pizza Select (Issue #39 PS1/PS2). Reached from HOME's 「ピザを作る」 CTA, replacing the old
@@ -49,8 +50,11 @@ function RecipeSelectCard({
         aria-disabled="true"
         aria-label={cardAriaLabel(card)}
       >
-        <span className="pizza-select-card__lock-icon">{"\u{1F512}"}</span>
+        <span className="pizza-select-card__lock-silhouette" aria-hidden="true">
+          <span className="pizza-select-card__lock-icon">{"\u{1F512}"}</span>
+        </span>
         <p className="pizza-select-card__lock-label">？？？</p>
+        {card.unlockHint && <p className="pizza-select-card__unlock-hint">{card.unlockHint}</p>}
       </button>
     );
   }
@@ -63,6 +67,7 @@ function RecipeSelectCard({
       onClick={() => onSelectRecipe(card.recipe.id)}
     >
       {card.kind === "NEW" && <span className="pizza-select-card__badge">NEW</span>}
+      <PizzaThumbnail recipe={card.recipe} />
       <p className="pizza-select-card__name">{card.recipe.nameJa}</p>
       {card.kind === "COMPLETED" && (
         <div className="pizza-select-card__mastery">
@@ -99,6 +104,12 @@ export function PizzaSelectScreen({
           );
         })}
       </div>
+
+      <footer className="pizza-select-footer">
+        <p className="pizza-select-footer__message">
+          {"\u{1F355}"} 今日はどのピザに挑戦する？
+        </p>
+      </footer>
     </div>
   );
 }
