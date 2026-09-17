@@ -1,9 +1,11 @@
 # Issue #39 PS1/PS2 — PR #40 Preview / iPhone Gate
 
 - **main SHA (origin/main):** `6f609f1a9952d6797f94fdaa7b446e3b2ed63a6f` (unchanged since PR #40 was opened)
-- **PR #40 HEAD SHA:** `42ada54d32578fc70730421ed173fb3f5b0eeaf9` (matches the expected reviewed HEAD exactly — no drift)
+- **PR #40 reviewed HEAD SHA (code, unchanged):** `42ada54d32578fc70730421ed173fb3f5b0eeaf9` (matches the expected reviewed HEAD exactly — no drift; this is the exact commit deployed to Preview and smoke-tested below)
+- **PR #40 current HEAD SHA (after this gate's own docs-only report commit):** `5c80461bbb3e42b3b540a6040829cdc0fa83777e` (adds only `docs/reports/TETO_ISSUE-39_PS1-PS2_Preview-Gate.md` — no production code touched)
 - **PR #40 state:** OPEN, `mergeable_state: clean`
-- **CI:** `build` check run — `completed` / `success` (run [35200185139](https://github.com/perusonao/teto-pizza-game/actions/runs/35200185139))
+- **CI on `42ada54`:** `build` check run — `completed` / `success` (run [35200185139](https://github.com/perusonao/teto-pizza-game/actions/runs/35200185139))
+- **CI on `5c80461`:** `build` check run — `completed` / `success` (run [35207018755](https://github.com/perusonao/teto-pizza-game/actions/runs/35207018755))
 - **Scope:** Preview deployment + smoke gate only. **PS3 visual reproduction was not started.**
 
 ---
