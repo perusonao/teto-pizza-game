@@ -13,6 +13,7 @@ import type { DoughPoint } from "./logic/pizzaCoordinates";
 import type { SauceDeposit } from "./state/pizzaState";
 import type { RecipeId } from "./data/recipes";
 import { getIngredient, type Ingredient, type IngredientCategory } from "./data/ingredients";
+import { isDoughShapeComplete, type DoughShape } from "./logic/doughShape";
 import {
   createInitialGameState,
   gameReducer,
@@ -55,9 +56,15 @@ function resolveMissionConfig(): MissionConfig {
 /** Issue #32 Phase 2: `activeCategory` is a *view* of the reducer's own `state.makingStep`,
  *  never the other way around -- the tray always shows the category for whichever making
  *  step is currently open (App.tsx no longer owns an independent, freely-switchable
- *  category selection). */
+ *  category selection). Issue #33 D1: DOUGH has no tray/`IngredientCategory` of its own --
+ *  IngredientTray is hidden entirely while `makingStep === "DOUGH"` (see GameScreen.tsx), so
+ *  this value is never actually rendered for it; "sauce" is a harmless placeholder purely to
+ *  keep this a total function without inventing a new `IngredientCategory`/widening that
+ *  shared type (Issue #33 D1 Risk 1: keep `IngredientCategory` untouched). */
 function makingStepToCategory(step: MakingStep): IngredientCategory {
   switch (step) {
+    case "DOUGH":
+      return "sauce";
     case "SAUCE":
       return "sauce";
     case "CHEESE":
@@ -99,11 +106,11 @@ function App() {
   // Issue #32 Phase 2: derived, never independently set -- see makingStepToCategory's doc
   // comment above.
   const activeCategory = makingStepToCategory(state.makingStep);
-  // Every order (including the very first one) should start the player off with the
-  // recipe's own sauce selected, so PREPARE never opens with nothing selected.
-  const [selectedIngredientId, setSelectedIngredientId] = useState<string | null>(() =>
-    findPrimarySauceId(state.recipe),
-  );
+  // Issue #33 D1: a fresh round now starts at DOUGH, which has no tray/selectable ingredient
+  // at all -- nothing is pre-selected here any more. SAUCE's own "start with the recipe's
+  // primary sauce already picked" behavior (unchanged) now fires from the `lastMakingStep`
+  // sync below, the moment the round actually reaches SAUCE, instead of at round start.
+  const [selectedIngredientId, setSelectedIngredientId] = useState<string | null>(null);
   const [isDexOpen, setDexOpen] = useState(false);
   const [isShopOpen, setShopOpen] = useState(false);
   // Phase 4A-1A (Post-Codex-Fix) MUST FIX 1/9: opening the Reference ("見本") popover must
@@ -118,6 +125,11 @@ function App() {
   // handleDispenseCommit below. Declared here (not lower, near those handlers) so the
   // lastOrderId reset block just below can safely clear it.
   const [pendingSauceDeposits, setPendingSauceDeposits] = useState<SauceDeposit[]>([]);
+  // Issue #33 D1: mirrors `pendingSauceDeposits` exactly -- the current in-progress DOUGH
+  // gesture's uncommitted shape, mirrored up from PizzaStage purely so the DOUGH step's CTA
+  // can react to the size-completion threshold live, while dragging, without canonical game
+  // state ever seeing an uncommitted gesture. `null` whenever no DOUGH gesture is active.
+  const [pendingDoughShape, setPendingDoughShape] = useState<DoughShape | null>(null);
   const [liveBake, setLiveBake] = useState(0);
   const bakeFrameSkip = useRef(0);
   const pizzaDropTargetRef = useRef<HTMLDivElement | null>(null);
@@ -136,7 +148,9 @@ function App() {
   const [lastOrderId, setLastOrderId] = useState(state.order.id);
   if (lastOrderId !== state.order.id) {
     setLastOrderId(state.order.id);
-    setSelectedIngredientId(findPrimarySauceId(state.recipe));
+    // Issue #33 D1: a fresh round starts at DOUGH, not SAUCE -- nothing selectable yet (see
+    // `selectedIngredientId`'s own declaration above).
+    setSelectedIngredientId(null);
     // A leftover-open Reference popover from the previous round must never carry over --
     // it would otherwise hold `interactive` false on the fresh round for no visible reason.
     setReferencePopoverOpen(false);
@@ -144,20 +158,25 @@ function App() {
     // from the previous round (which should already be [] by the time a round can end) must
     // never bleed into the new one's Prototype Metrics.
     setPendingSauceDeposits([]);
+    setPendingDoughShape(null);
   }
 
-  // Issue #32 Phase 2: a making-step confirmation (or a RESET_PIZZA, which returns
-  // `makingStep` to "SAUCE") never carries the previous step's selection forward -- the tray
-  // only ever offers the new step's own category, so a stale selection would otherwise sit
-  // unusable (or, worse, silently no-op the next tap since the reducer rejects it) until the
-  // player explicitly picks something new from the tray. `lastOrderId`'s own sync above
-  // already re-selects the recipe's primary sauce for a brand new round, so this only fires
-  // for a same-round step change.
+  // Issue #32 Phase 2 / Issue #33 D1: a making-step confirmation (or a RESET_PIZZA, which
+  // returns `makingStep` to "DOUGH") never carries the previous step's selection forward --
+  // the tray only ever offers the new step's own category, so a stale selection would
+  // otherwise sit unusable (or, worse, silently no-op the next tap since the reducer rejects
+  // it) until the player explicitly picks something new from the tray. DOUGH/CHEESE/TOPPING
+  // all start with nothing selected (tap-to-pick, unchanged); SAUCE is the one step that
+  // starts with the recipe's own primary sauce already picked for the player -- previously
+  // this ran once, at round start, back when SAUCE was itself the first step; now it fires
+  // here instead, the moment the round actually reaches SAUCE (round start or a same-round
+  // DOUGH -> SAUCE confirm alike). `lastOrderId`'s own sync above already handles a brand new
+  // round's own reset, so this only fires for a same-round step change.
   const [lastMakingStep, setLastMakingStep] = useState(state.makingStep);
   if (lastMakingStep !== state.makingStep) {
     setLastMakingStep(state.makingStep);
     if (lastOrderId === state.order.id) {
-      setSelectedIngredientId(null);
+      setSelectedIngredientId(state.makingStep === "SAUCE" ? findPrimarySauceId(state.recipe) : null);
     }
   }
 
@@ -319,6 +338,17 @@ function App() {
     setPendingSauceDeposits([]);
   }
 
+  // Issue #33 D1: mirrors handleDispenseProgress/handleDispenseCommit exactly -- see
+  // PizzaStageProps' own doc comments for the full contract.
+  function handleDoughStretchProgress(shape: DoughShape | null) {
+    setPendingDoughShape(shape);
+  }
+
+  function handleDoughStretchCommit(shape: DoughShape) {
+    dispatch({ type: "COMMIT_DOUGH_STRETCH", shape });
+    setPendingDoughShape(null);
+  }
+
   function handleBakeTick(value: number) {
     bakeFrameSkip.current += 1;
     if (bakeFrameSkip.current % 3 !== 0) return;
@@ -332,12 +362,13 @@ function App() {
   // any of those loses nothing. Issue #47 Finding C: SELECT_RECIPE/RETRY_SAME_RECIPE now land
   // straight at PREPARE with a still-untouched round (no more intermediate ORDER tap), so
   // PREPARE alone no longer implies anything would actually be lost -- also require the round
-  // to have actually moved (past the SAUCE making step, or with sauce/toppings already on the
-  // pizza). BAKE is unconditional: reaching it always means TOPPING was confirmed, a real step
-  // worth confirming before discarding.
+  // to have actually moved (past the DOUGH making step, or with sauce/toppings already on the
+  // pizza -- Issue #33 D1: DOUGH is now the first step, replacing SAUCE here). BAKE is
+  // unconditional: reaching it always means TOPPING was confirmed, a real step worth
+  // confirming before discarding.
   function isRoundInProgress(): boolean {
     const hasStartedPreparing =
-      state.makingStep !== "SAUCE" ||
+      state.makingStep !== "DOUGH" ||
       state.pizza.sauceIds.length > 0 ||
       state.pizza.toppings.length > 0;
     return (
@@ -407,6 +438,19 @@ function App() {
       : state.phase === "RESULT" || state.phase === "DISCOVERED"
         ? state.pizza.bakeResult
         : null;
+
+  // Issue #33 D1: the dough boundary only starts rendering/clipping `.pizza-dough` once the
+  // round has actually entered PREPARE (or later) -- ORDER's own pre-existing plain-circle
+  // dough preview (shown before Lunch Rush's own "ピザを作る！" tap) is untouched.
+  const showDoughShape = state.phase !== "ORDER";
+  // Live size-completion gate for the DOUGH step's own CTA (GameScreen): includes the
+  // current in-progress gesture's uncommitted shape (`pendingDoughShape`) alongside the
+  // canonical committed one, mirroring `sauceMetrics`' own live-preview pattern above, so the
+  // CTA can unlock mid-drag rather than only after the player releases.
+  const doughShapeComplete = useMemo(
+    () => isDoughShapeComplete(pendingDoughShape ?? state.pizza.doughShape),
+    [pendingDoughShape, state.pizza.doughShape],
+  );
 
   // Mirrors GameScreen's own `isMissionActive` derivation (mission.mode-based, cheap to
   // recompute) -- needed here too because `referenceModeEnabled` below must stay gated on it
@@ -488,6 +532,8 @@ function App() {
           sauceShadowScore={sauceShadowScore}
           isDispensingSauce={pendingSauceDeposits.length > 0}
           pieceShadowMetrics={pieceShadowMetrics}
+          showDoughShape={showDoughShape}
+          doughShapeComplete={doughShapeComplete}
           onGoHome={handleGoHome}
           onBeginPrepare={() => dispatch({ type: "BEGIN_PREPARE" })}
           onResetPizza={() => dispatch({ type: "RESET_PIZZA" })}
@@ -509,6 +555,8 @@ function App() {
           onReferencePopoverChange={setReferencePopoverOpen}
           onDispenseProgress={handleDispenseProgress}
           onDispenseCommit={handleDispenseCommit}
+          onDoughStretchProgress={handleDoughStretchProgress}
+          onDoughStretchCommit={handleDoughStretchCommit}
           onDoughElementChange={handleDoughElementChange}
           resolvePhysicalDrop={resolvePhysicalDrop}
           onPhysicalDrop={handlePhysicalDrop}

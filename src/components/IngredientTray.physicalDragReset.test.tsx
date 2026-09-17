@@ -61,11 +61,12 @@ function Harness({ category }: { category: IngredientCategory }) {
   }
 
   // Mirrors GameScreen.tsx's handleResetPizza exactly: bump the token, then dispatch
-  // RESET_PIZZA, in the same synchronous click handler "やり直す" is wired to. RESET_PIZZA
-  // itself returns `makingStep` to "SAUCE" -- fast-forward back to this harness's fixed
-  // category afterward (React 18 batches same-handler dispatches, so this reduces in order)
-  // so a subsequent drag in the same test keeps exercising that category.
-  const stepsAfterReset = ["sauce", "cheese", "topping"].indexOf(category);
+  // RESET_PIZZA, in the same synchronous click handler "やり直す" is wired to. Issue #33 D1:
+  // RESET_PIZZA now returns `makingStep` to "DOUGH" (the new first step, one earlier than
+  // "SAUCE") -- fast-forward back to this harness's fixed category afterward (React 18/19
+  // batches same-handler dispatches, so this reduces in order) so a subsequent drag in the
+  // same test keeps exercising that category. +1 for the extra DOUGH -> SAUCE confirm.
+  const stepsAfterReset = ["sauce", "cheese", "topping"].indexOf(category) + 1;
   function handleResetPizza() {
     setResetToken((token) => token + 1);
     dispatch({ type: "RESET_PIZZA" });

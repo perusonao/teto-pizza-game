@@ -86,6 +86,8 @@ function Harness({ category }: { category: IngredientCategory }) {
         sauceShadowScore={{ quantitySimilarity: 0, coverageSimilarity: 0, overall: 0 }}
         isDispensingSauce={false}
         pieceShadowMetrics={[]}
+        showDoughShape
+        doughShapeComplete={false}
         onGoHome={() => {}}
         onBeginPrepare={() => {}}
         onResetPizza={() => dispatch({ type: "RESET_PIZZA" })}
@@ -107,6 +109,8 @@ function Harness({ category }: { category: IngredientCategory }) {
         onReferencePopoverChange={() => {}}
         onDispenseProgress={() => {}}
         onDispenseCommit={() => {}}
+        onDoughStretchProgress={() => {}}
+        onDoughStretchCommit={() => {}}
         onDoughElementChange={() => {}}
         resolvePhysicalDrop={resolvePhysicalDrop}
         onPhysicalDrop={handlePhysicalDrop}

@@ -18,6 +18,7 @@ import { getPlayerReferencePizza } from "../data/playerReference";
 import type { SauceMetrics } from "../logic/sauceField";
 import type { SauceReferenceShadowScore } from "../logic/referenceScoring";
 import type { SauceDeposit } from "../state/pizzaState";
+import type { DoughShape } from "../logic/doughShape";
 import {
   buildBlueResultLine,
   buildMitoOrderLine,
@@ -71,6 +72,13 @@ interface GameScreenProps {
    *  (uncommitted) deposits -- drives SauceMetricsPanel's live message visibility. */
   isDispensingSauce: boolean;
   pieceShadowMetrics: readonly PieceReferenceMetrics[];
+  /** Issue #33 D1: true once the round has entered PREPARE (or later) -- threaded straight
+   *  through to PizzaStage's own `showDoughShape` prop. */
+  showDoughShape: boolean;
+  /** Issue #33 D1: live size-completion gate (mean radii / DOUGH_RADIUS >= threshold),
+   *  including the current in-progress gesture -- drives the DOUGH step's own CTA
+   *  disabled/enabled state. */
+  doughShapeComplete: boolean;
   onGoHome: () => void;
   onBeginPrepare: () => void;
   onResetPizza: () => void;
@@ -98,6 +106,8 @@ interface GameScreenProps {
   onReferencePopoverChange: (isOpen: boolean) => void;
   onDispenseProgress: (deposits: readonly SauceDeposit[]) => void;
   onDispenseCommit: (ingredientId: string, deposits: SauceDeposit[]) => void;
+  onDoughStretchProgress: (shape: DoughShape | null) => void;
+  onDoughStretchCommit: (shape: DoughShape) => void;
   onDoughElementChange: (element: HTMLDivElement | null) => void;
   resolvePhysicalDrop: (clientX: number, clientY: number) => DoughPoint | null;
   onPhysicalDrop: (ingredient: Ingredient, point: DoughPoint) => void;
@@ -120,6 +130,8 @@ export function GameScreen({
   sauceShadowScore,
   isDispensingSauce,
   pieceShadowMetrics,
+  showDoughShape,
+  doughShapeComplete,
   onGoHome,
   onBeginPrepare,
   onResetPizza,
@@ -141,6 +153,8 @@ export function GameScreen({
   onReferencePopoverChange,
   onDispenseProgress,
   onDispenseCommit,
+  onDoughStretchProgress,
+  onDoughStretchCommit,
   onDoughElementChange,
   resolvePhysicalDrop,
   onPhysicalDrop,
@@ -298,10 +312,14 @@ export function GameScreen({
         referenceModeEnabled={referenceModeEnabled}
         resetToken={pizzaResetToken}
         makingStepToken={state.makingStepToken}
+        makingStep={state.makingStep}
+        showDoughShape={showDoughShape}
         onDoughElementChange={onDoughElementChange}
         onTap={onTapPizza}
         onDispenseProgress={onDispenseProgress}
         onDispenseCommit={onDispenseCommit}
+        onDoughStretchProgress={onDoughStretchProgress}
+        onDoughStretchCommit={onDoughStretchCommit}
       />
 
       {state.phase === "ORDER" && (
@@ -317,8 +335,11 @@ export function GameScreen({
           then is most of this panel's contribution to the 1-screen budget. Positioned right
           after PizzaStage ("Pizza Stage近くに", per the brief), not beside it -- a true
           side-by-side layout would mean resizing the dough itself, which section A's
-          "Pizza操作領域を極端に縮小しない" rules out as this round's tradeoff. */}
+          "Pizza操作領域を極端に縮小しない" rules out as this round's tradeoff. Issue #33 D1:
+          explicitly excludes DOUGH too -- there is no sauce readout to show before sauce is
+          even reachable. */}
       {state.phase === "PREPARE" &&
+        state.makingStep !== "DOUGH" &&
         referenceModeEnabled &&
         referencePizza &&
         activeCategory === "sauce" && (
@@ -333,21 +354,26 @@ export function GameScreen({
 
       {state.phase === "PREPARE" && (
         <>
-          <IngredientTray
-            activeCategory={activeCategory}
-            onChangeCategory={onChangeCategory}
-            selectedIngredientId={selectedIngredientId}
-            onSelectIngredient={onSelectIngredient}
-            ownedIngredientIds={state.ownedIngredientIds}
-            physicalDragEnabled={
-              referenceModeEnabled && !isReferencePopoverOpen && !isGlobalOverlayOpen
-            }
-            draggableIngredientIds={["mozzarella", "basil"]}
-            resolvePhysicalDrop={resolvePhysicalDrop}
-            onPhysicalDrop={onPhysicalDrop}
-            resetToken={pizzaResetToken}
-            makingStepToken={state.makingStepToken}
-          />
+          {/* Issue #33 D1: DOUGH isn't a tray-selectable ingredient/category at all (see
+              App.tsx's makingStepToCategory) -- the whole ingredient palette is hidden while
+              it's the active step, reappearing exactly as before once SAUCE opens. */}
+          {state.makingStep !== "DOUGH" && (
+            <IngredientTray
+              activeCategory={activeCategory}
+              onChangeCategory={onChangeCategory}
+              selectedIngredientId={selectedIngredientId}
+              onSelectIngredient={onSelectIngredient}
+              ownedIngredientIds={state.ownedIngredientIds}
+              physicalDragEnabled={
+                referenceModeEnabled && !isReferencePopoverOpen && !isGlobalOverlayOpen
+              }
+              draggableIngredientIds={["mozzarella", "basil"]}
+              resolvePhysicalDrop={resolvePhysicalDrop}
+              onPhysicalDrop={onPhysicalDrop}
+              resetToken={pizzaResetToken}
+              makingStepToken={state.makingStepToken}
+            />
+          )}
           {/* Human Feel Fix 3 (Fixed Bake CTA, brief section B): `.prepare-bake-bar` is
               `position: fixed` to the viewport (matching .app-frame's own centered max-width,
               see App.css), not the old `.action-row` + flex `margin-top: auto` this replaces
@@ -355,10 +381,14 @@ export function GameScreen({
               viewport, which is exactly what silently failed once PREPARE grew taller than
               844px (the bug this whole round exists to fix). `.ingredient-panel` reserves
               matching bottom padding so this bar can never cover the Palette above it.
-              Issue #32 Phase 2: SAUCE and CHEESE each get an explicit "次へ" (next step) CTA
-              that dispatches CONFIRM_MAKING_STEP -- TOPPING's forward action is the existing
-              焼く！ button, which doubles as TOPPING's own implicit confirm (no separate
-              button needed: 焼く！ already leaves PREPARE entirely via START_BAKE). */}
+              Issue #32 Phase 2 / Issue #33 D1: DOUGH/SAUCE/CHEESE each get an explicit "次へ"
+              (next step) CTA that dispatches CONFIRM_MAKING_STEP -- TOPPING's forward action
+              is the existing 焼く！ button, which doubles as TOPPING's own implicit confirm
+              (no separate button needed: 焼く！ already leaves PREPARE entirely via
+              START_BAKE). DOUGH's own 次へ is additionally disabled until
+              `doughShapeComplete` (the task's own "size-only" completion gate) -- the only
+              step whose CTA is ever disabled; SAUCE/CHEESE's has never been (no reducer-side
+              completion gate exists for them either, by design). */}
           <div className="action-row prepare-bake-bar">
             <button type="button" className="secondary-button" onClick={handleResetPizza}>
               やり直す
@@ -372,6 +402,7 @@ export function GameScreen({
                 type="button"
                 className="cta-button cta-button--bake"
                 onClick={onConfirmMakingStep}
+                disabled={state.makingStep === "DOUGH" && !doughShapeComplete}
               >
                 次へ {"→"}
               </button>

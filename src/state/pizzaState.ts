@@ -1,4 +1,5 @@
 import { DOUGH_CENTER, DOUGH_RADIUS } from "../logic/pizzaCoordinates";
+import { createInitialDoughShape, type DoughShape } from "../logic/doughShape";
 
 export interface PlacedTopping {
   id: string;
@@ -43,6 +44,13 @@ export function isValidSauceDepositBatch(deposits: readonly SauceDeposit[]): boo
 }
 
 export interface PizzaState {
+  /** Issue #33 D1: canonical, reducer-owned dough boundary (8-point radial array -- see
+   *  ../logic/doughShape.ts), committed atomically by COMMIT_DOUGH_STRETCH at a successful
+   *  pointerup, mirroring sauceDeposits' own ephemeral-gesture/canonical-commit split. Rides
+   *  along on `pizza` through SAUCE/CHEESE/TOPPING/BAKE/RESULT unchanged once DOUGH confirms
+   *  (D0 §5/§7) so the player's own hand-stretched shape stays visible instead of silently
+   *  reverting to a perfect circle -- no Save schema impact, see createEmptyPizza below. */
+  doughShape: DoughShape;
   sauceIds: string[];
   /** Tap point the sauce spread animation should originate from (Phase 2C "painted" feel). */
   sauceOrigin: SauceOrigin | null;
@@ -59,6 +67,7 @@ export interface PizzaState {
 
 export function createEmptyPizza(): PizzaState {
   return {
+    doughShape: createInitialDoughShape(),
     sauceIds: [],
     sauceOrigin: null,
     sauceToken: 0,

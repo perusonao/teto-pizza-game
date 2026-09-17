@@ -1,9 +1,31 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "./App";
 import { SAVE_STORAGE_KEY, type PersistentSaveV1 } from "./state/persistence";
 import { STARTER_INGREDIENT_IDS } from "./data/ingredients";
+
+/** Issue #33 D1: a fresh round now starts at DOUGH, whose own "次へ" stays disabled until the
+ *  size-completion threshold is met. Simulates enough taps around the dough's full radius to
+ *  clear it (a stretch applies on pointerdown itself -- see PizzaStage's own DOUGH gesture
+ *  branch -- so a tap at each of the 8 control-point angles is enough, no drag needed). */
+function completeDoughStep() {
+  const dough = document.querySelector<HTMLElement>('[data-pizza-drop-target="true"]');
+  if (!dough) throw new Error("Pizza dough missing");
+  dough.getBoundingClientRect = () =>
+    ({ left: 0, top: 0, width: 300, height: 300, right: 300, bottom: 300, x: 0, y: 0, toJSON: () => {} }) as DOMRect;
+
+  const center = 150; // 50% of a 300px box
+  const radius = 140; // safely inside DOUGH_RADIUS (48%) to avoid float rounding at the rim
+  for (let i = 0; i < 8; i += 1) {
+    const angle = (i / 8) * Math.PI * 2;
+    const clientX = center + Math.cos(angle) * radius;
+    const clientY = center + Math.sin(angle) * radius;
+    const pointerId = 1000 + i;
+    fireEvent.pointerDown(dough, { pointerId, isPrimary: true, pointerType: "touch", clientX, clientY });
+    fireEvent.pointerUp(dough, { pointerId, isPrimary: true, pointerType: "touch", clientX, clientY });
+  }
+}
 
 /**
  * HOME/GAME separation (Issue #24) integration coverage, extended by Issue #39 for the
@@ -180,7 +202,10 @@ describe("HOME/GAME separation (Issue #24)", () => {
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
     await user.click(screen.getByRole("button", { name: "ビスマルク、未挑戦" })); // Pizza Select -> GAME, already PREPARE (Finding C)
-    // Issue #32 Phase 2: 焼く only appears once the making flow reaches TOPPING.
+    // Issue #32 Phase 2 / Issue #33 D1: 焼く only appears once the making flow reaches
+    // TOPPING (DOUGH -> SAUCE -> CHEESE -> TOPPING).
+    completeDoughStep();
+    await user.click(screen.getByRole("button", { name: /次へ/ }));
     await user.click(screen.getByRole("button", { name: /次へ/ }));
     await user.click(screen.getByRole("button", { name: /次へ/ }));
     expect(screen.getByRole("button", { name: /焼く/ })).toBeInTheDocument();
@@ -202,7 +227,10 @@ describe("HOME/GAME separation (Issue #24)", () => {
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
     await user.click(screen.getByRole("button", { name: "ビスマルク、未挑戦" })); // Pizza Select -> GAME, already PREPARE
-    // Issue #32 Phase 2: 焼く only appears once the making flow reaches TOPPING.
+    // Issue #32 Phase 2 / Issue #33 D1: 焼く only appears once the making flow reaches
+    // TOPPING (DOUGH -> SAUCE -> CHEESE -> TOPPING).
+    completeDoughStep();
+    await user.click(screen.getByRole("button", { name: /次へ/ }));
     await user.click(screen.getByRole("button", { name: /次へ/ }));
     await user.click(screen.getByRole("button", { name: /次へ/ }));
     await user.click(screen.getByRole("button", { name: /焼く/ })); // PREPARE -> BAKE
@@ -232,6 +260,8 @@ describe("HOME/GAME separation (Issue #24)", () => {
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
     await user.click(screen.getByRole("button", { name: "ビスマルク、未挑戦" }));
+    completeDoughStep();
+    await user.click(screen.getByRole("button", { name: /次へ/ }));
     await user.click(screen.getByRole("button", { name: /次へ/ }));
     await user.click(screen.getByRole("button", { name: /次へ/ }));
     await user.click(screen.getByRole("button", { name: /焼く/ }));
@@ -244,8 +274,11 @@ describe("HOME/GAME separation (Issue #24)", () => {
     expect(document.querySelector(".pizza-select-screen")).not.toBeInTheDocument();
     expect(document.querySelector(".order-card")).toHaveTextContent("ビスマルク");
     expect(screen.queryByRole("button", { name: /フリープレイ/ })).not.toBeInTheDocument();
-    // Fresh making state: the flow is back at the SAUCE step (次へ, not 焼く, is showing).
-    expect(screen.getByRole("button", { name: /次へ/ })).toBeInTheDocument();
+    // Issue #33 D1: fresh making state is back at DOUGH (次へ shows, disabled until stretched
+    // again), not 焼く.
+    const nextButton = screen.getByRole("button", { name: /次へ/ });
+    expect(nextButton).toBeInTheDocument();
+    expect(nextButton).toBeDisabled();
     expect(screen.queryByRole("button", { name: /焼く/ })).not.toBeInTheDocument();
   });
 
@@ -254,6 +287,8 @@ describe("HOME/GAME separation (Issue #24)", () => {
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
     await user.click(screen.getByRole("button", { name: "ビスマルク、未挑戦" }));
+    completeDoughStep();
+    await user.click(screen.getByRole("button", { name: /次へ/ }));
     await user.click(screen.getByRole("button", { name: /次へ/ }));
     await user.click(screen.getByRole("button", { name: /次へ/ }));
     await user.click(screen.getByRole("button", { name: /焼く/ }));
@@ -274,6 +309,8 @@ describe("HOME/GAME separation (Issue #24)", () => {
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
     await user.click(screen.getByRole("button", { name: "ビスマルク、未挑戦" }));
+    completeDoughStep();
+    await user.click(screen.getByRole("button", { name: /次へ/ }));
     await user.click(screen.getByRole("button", { name: /次へ/ }));
     await user.click(screen.getByRole("button", { name: /次へ/ }));
     await user.click(screen.getByRole("button", { name: /焼く/ }));
