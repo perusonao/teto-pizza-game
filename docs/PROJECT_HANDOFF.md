@@ -1,6 +1,6 @@
 # Teto Pizza Game — Project Handoff / Roadmap SSOT
 
-Updated: 2026-09-17
+Updated: 2026-09-17 (Issue #47 Making UX Fresh Audit)
 
 > Fresh GitHub/main state always wins if this document becomes stale.
 
@@ -23,9 +23,10 @@ Primary device: smartphone vertical. Verification baseline: 390×844.
 ## Current roadmap issues
 
 - Issue #22 — overall development roadmap / session handoff SSOT.
-- Issue #32 — Reference / Recipe / Interaction consistency gate before Scoring 2.0 authority. Interaction Consistency Fresh Audit done (see P1 item 2 below); remaining P1 fix slice not yet implemented.
-- Issue #33 — Dough Shaping.
-- Issue #37 — parent roadmap for Making Game 2.0 physical pizza-making flow.
+- Issue #32 — Reference / Recipe / Interaction consistency gate before Scoring 2.0 authority. **Complete** — Recipe correctness, Interaction Consistency Fresh Audit, and the sauce-parity/olive-oil-visibility fix (PR #45) have all landed.
+- **Issue #47 — Making UX Cleanup (実機レビュー導線・見本・再挑戦・操作性改善). Current active priority**, scheduled explicitly before Issue #33 per the user's 2026-09-17 iPhone Review Playthrough. Fresh Audit **done** — see `docs/reports/TETO_ISSUE-47_MAKING-UX_Fresh-Audit.md` (audited SHA `6e554918c42fc4d8ed267b715992e5ed5cf68e4f`). Verdict: **B. READY — 3 IMPLEMENTATION SLICES**. Implementation has not started.
+- Issue #33 — Dough Shaping. D0 Fresh Audit done (see `docs/reports/TETO_ISSUE-33_DOUGH-D0_Fresh-Audit.md`); **queued immediately after Issue #47's Human Feel PASS**, per the user's explicit re-priority. D1 implementation not yet started.
+- Issue #37 — parent roadmap for Making Game 2.0 physical pizza-making flow. Its own M0 gate additionally now depends on Issue #47's Slice C (J) hand-off — see that issue's M2 checklist.
 - Issue #38 — Scoring 2.0-linked Pitz reward / Economy connection.
 - Issue #39 — HOME/FREE navigation redesign + Pizza Select. PS1/PS2/PS3 **complete** (PR #40, PR #41, both merged into `main`); PS4 iPhone Human Feel **PASS**. Remaining HOME visual polish (see "Parallel / non-blocking" below) is tracked as future polish, not an Issue #39 blocker.
 
@@ -35,8 +36,9 @@ Scoring 2.0 Shadow has already been implemented and calibrated. It remains non-a
 
 - **PR #40** — HOME navigation + functional Pizza Select. MERGED.
 - **PR #41** — HOME + Pizza Select visual reproduction. MERGED. Merge SHA: `1b1ff6c69b837ff7f0da6ab3c14df7843812d8c3`.
+- **PR #45** — Issue #32 sauce parity + olive-oil visibility. MERGED. Current `main` SHA as of the Issue #47 audit: `6e554918c42fc4d8ed267b715992e5ed5cf68e4f`.
 
-Both are reflected in current `main`. **Next priority: Issue #32 Recipe correctness** (see P1 below).
+**Next priority: Issue #47 Making UX Cleanup implementation (Slice A first — see that issue's Fresh Audit report §17), before resuming Issue #33 D1.**
 
 ## Navigation contract
 
@@ -99,15 +101,42 @@ Issue #39's navigation/functional/visual work (PS1–PS4) is complete. Two HOME 
 
 These are tracked under "Parallel / non-blocking" below and do not block moving on to Issue #32.
 
-### P1 — Scoring consistency gate — Issue #32
+### P1 — Scoring consistency gate — Issue #32 (COMPLETE)
 
-1. Recipe correctness Fresh Audit/pinning: missing/wrong/extra ingredient types belong to Recipe; quantity/placement belong primarily to Pieces; avoid double penalty.
-2. Interaction Consistency Fresh Audit (see `docs/reports/TETO_ISSUE-32_INTERACTION-CONSISTENCY_Fresh-Audit.md`, audited SHA `6dced18c8bc0da93276c5fd0822eafa636853201`) found: golden-path sauce parity (tomato/pesto/olive-oil) and golden-path tap-vs-drag are **already correct** on current main — no change needed. Two confirmed P1 defects remain to fix before Making Game 2.0/Dough starts: (a) selecting a sauce that does not match the current recipe silently falls back to the old instant one-shot full-spread `APPLY_SAUCE` path instead of the new incremental paint/heatmap mechanic (reachable in FREE and Lunch Rush alike); (b) olive-oil's heatmap canvas applies a `pizza-sauce-heatmap--oil` CSS class that has no matching rule, so it renders with no visibility treatment and a paint color that nearly matches the dough background — a prior dedicated olive-oil-visibility fix is now dead code on the normal play path.
+1. Recipe correctness Fresh Audit/pinning: missing/wrong/extra ingredient types belong to Recipe; quantity/placement belong primarily to Pieces; avoid double penalty. **Done.**
+2. Interaction Consistency Fresh Audit (see `docs/reports/TETO_ISSUE-32_INTERACTION-CONSISTENCY_Fresh-Audit.md`, audited SHA `6dced18c8bc0da93276c5fd0822eafa636853201`) found golden-path sauce parity/tap-vs-drag already correct, plus two P1 defects (off-recipe sauce fallback; olive-oil heatmap visibility). **Both fixed and merged via PR #45** (see `docs/reports/TETO_ISSUE-32_SAUCE-PARITY_Result.md`). **Done.**
 3. Re-calibrate only when concrete Human Feel evidence requires it; do not restart numeric coefficient tuning without a failing behavior.
 
-### P2 — Making Game 2.0 — Issues #33 / #37
+### P1.5 — Making UX Cleanup — Issue #47 (CURRENT PRIORITY, before Issue #33 D1)
 
-1. Dough Shaping prototype + iPhone Human Feel.
+Scheduled ahead of Issue #33 Dough Shaping per the user's 2026-09-17 iPhone Review Playthrough.
+Fresh Audit **done** — see `docs/reports/TETO_ISSUE-47_MAKING-UX_Fresh-Audit.md` (audited SHA
+`6e554918c42fc4d8ed267b715992e5ed5cf68e4f`). Verdict: **B. READY — 3 IMPLEMENTATION SLICES**.
+
+1. **Slice A — Navigation/Retry/HOME** (lowest risk, no new data): HOME message-bubble z-index
+   occlusion fix; Lunch Rush button flex-ratio wrap fix; remove/relabel the redundant FREE-mode
+   ORDER→PREPARE gate after Pizza Select; add a same-recipe retry action + a second "別のピザを
+   作る" button (今の「もう一度作る」は`excludeRecipeId`で毎回別レシピを選ぶ設計だったと判明);
+   remove Shop/Pizza Dex navigation from the Making header; bump the Next CTA's touch-target
+   height to match HOME's own primary CTA. Not started.
+2. **Slice B — Reference UX**: a persistent mini Reference thumbnail during Making (reusing
+   existing `ReferencePreview`/`IngredientPieceVisual`/Reference SSOT, no new data model); expand
+   `referencePizza.ts` beyond Margherita — sauce-target generation is mechanically generatable for
+   all 7 recipes from the existing fixture algorithm, but piece-placement layouts need hand
+   authorship per recipe (scope this as its own follow-up, not compressed into Slice B). Scoring
+   2.0 Shadow already shares the same Reference SSOT as the player-facing popover, so this
+   expansion unblocks both simultaneously — Scoring 2.0 stays non-authoritative regardless. Not
+   started.
+3. **Slice C — Making controls**: sauce repaint-within-step and the one-way step guard are
+   already correct (documented, no code change needed). Cheese/Topping drag scope (today's real
+   tray drag-and-drop is Margherita/mozzarella/basil-only; every other recipe/ingredient only has
+   single-point tap/drag-release commit) is handed to Issue #37 M2, which already owns this exact
+   system, rather than decided here.
+
+### P2 — Making Game 2.0 — Issues #33 / #37 (queued immediately after Issue #47 Human Feel PASS)
+
+1. Dough Shaping prototype + iPhone Human Feel. D0 Fresh Audit done (see
+   `docs/reports/TETO_ISSUE-33_DOUGH-D0_Fresh-Audit.md`); D1 implementation waits for Issue #47.
 2. Preserve exact dough/sauce/cheese/topping choices into baked visual identity; avoid hidden auto-correction.
 3. Interactive bake judgment.
 4. FINISH step for post-bake basil/finishing oil where recipes require it.
@@ -162,7 +191,7 @@ Currency contract: **Pitz**. Do not introduce ¥/円 as the game currency.
 |---|---|---|
 | 1 | HOME | Issue #39 now |
 | 2 | Pizza Select | Issue #39 now |
-| 3 | Making Game | #32 → #33 → #37 |
+| 3 | Making Game | #32 (done) → **#47 (current)** → #33 → #37 |
 | 4 | RESULT | Scoring 2.0 Authority / Making Game 2.0 |
 | 5 | Pizza Dex | after score/BEST authority stabilizes, before broad recipe expansion |
 | 6 | Lunch Rush | after Making Game 2.0 stabilizes |
@@ -237,4 +266,4 @@ Rules for this sequence:
 5. Keep Scoring 2.0 non-authoritative until the defined gates pass.
 6. Whenever priority, completion status, estimates, architecture, navigation or visual direction changes, update both Issue #22 and this file.
 
-Issue #37 remains the parent roadmap for physical pizza-making UX. Issue #39 is the current HOME/FREE navigation execution issue.
+Issue #37 remains the parent roadmap for physical pizza-making UX. Issue #39's HOME/FREE navigation work is complete. **Issue #47 (Making UX Cleanup) is the current execution issue, scheduled before Issue #33 D1.**
