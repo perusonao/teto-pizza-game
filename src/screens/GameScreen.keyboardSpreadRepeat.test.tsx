@@ -121,8 +121,6 @@ function Harness({ category, ingredientId }: { category: IngredientCategory; ing
         isDispensingSauce={false}
         pieceShadowMetrics={[]}
         onGoHome={() => {}}
-        onOpenDex={() => {}}
-        onOpenShop={() => {}}
         onBeginPrepare={() => {}}
         onResetPizza={() => dispatch({ type: "RESET_PIZZA" })}
         onConfirmMakingStep={() => dispatch({ type: "CONFIRM_MAKING_STEP" })}
@@ -134,7 +132,8 @@ function Harness({ category, ingredientId }: { category: IngredientCategory; ing
         onBakeTick={() => {}}
         onConfirmBake={() => {}}
         onRegisterToDex={() => {}}
-        onPlayAgain={() => {}}
+        onRetrySameRecipe={() => {}}
+        onBackToPizzaSelect={() => {}}
         onMissionServeNext={() => {}}
         onMissionStart={() => {}}
         onMissionExitToFree={() => {}}

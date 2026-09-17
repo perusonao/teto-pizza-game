@@ -29,9 +29,9 @@ async function enterFreePlayPrepare() {
   await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
   // Issue #39: HOME's CTA now lands on Pizza Select first -- pick Margherita explicitly so
   // this suite's own "マルゲリータ" assertions below still hold (a fresh save's undiscovered,
-  // unlocked Margherita renders as a NEW card).
+  // unlocked Margherita renders as a NEW card). Issue #47 Finding C: selecting a recipe now
+  // lands straight at PREPARE -- the old redundant フリープレイ tap is gone.
   await user.click(screen.getByRole("button", { name: "マルゲリータ、未挑戦" }));
-  await user.click(screen.getByRole("button", { name: /フリープレイ/ }));
   return user;
 }
 

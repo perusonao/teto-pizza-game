@@ -183,15 +183,18 @@ describe("PURCHASE_INGREDIENT (reducer)", () => {
 });
 
 describe("SELECT_RECIPE (Issue #39 Pizza Select)", () => {
-  it("starts a fresh ORDER-phase round for the explicitly chosen, available recipe", () => {
+  // Issue #47 Finding C: Pizza Select already made the recipe choice explicit, so SELECT_RECIPE
+  // now lands straight at PREPARE, skipping the old, redundant FREE-mode ORDER gate.
+  it("starts a fresh PREPARE-phase round for the explicitly chosen, available recipe", () => {
     const state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 75);
     const after = gameReducer(state, { type: "SELECT_RECIPE", recipeId: "bismarck" });
     expect(after.recipe.id).toBe("bismarck");
     expect(after.order.recipeId).toBe("bismarck");
-    expect(after.phase).toBe("ORDER");
+    expect(after.phase).toBe("PREPARE");
     expect(after.pizza.toppings).toHaveLength(0);
     expect(after.makingStep).toBe("SAUCE");
     expect(after.isMissionRound).toBe(false);
+    expect(after.hint).not.toBeNull();
   });
 
   it("carries dex/pitzBalance/ownedIngredientIds forward unchanged", () => {
@@ -216,7 +219,7 @@ describe("SELECT_RECIPE (Issue #39 Pizza Select)", () => {
     state = gameReducer(state, { type: "APPLY_SAUCE", ingredientId: "tomato-sauce", x: 50, y: 50 });
     const after = gameReducer(state, { type: "SELECT_RECIPE", recipeId: "bismarck" });
     expect(after.recipe.id).toBe("bismarck");
-    expect(after.phase).toBe("ORDER");
+    expect(after.phase).toBe("PREPARE");
     expect(after.pizza.sauceIds).toHaveLength(0);
   });
 
@@ -231,7 +234,7 @@ describe("SELECT_RECIPE (Issue #39 Pizza Select)", () => {
     const state = createInitialGameState(EMPTY_DEX, ownedWithOnion, 0);
     const after = gameReducer(state, { type: "SELECT_RECIPE", recipeId: "fugazza" });
     expect(after.recipe.id).toBe("fugazza");
-    expect(after.phase).toBe("ORDER");
+    expect(after.phase).toBe("PREPARE");
   });
 
   it("never touches Mission's own random order selection", () => {
@@ -243,6 +246,50 @@ describe("SELECT_RECIPE (Issue #39 Pizza Select)", () => {
     const missionState = gameReducer(state, { type: "MISSION_RESET_ORDER" });
     expect(missionState.isMissionRound).toBe(true);
     expect(before.recipe.id).toBe("margherita");
+  });
+});
+
+describe("RETRY_SAME_RECIPE (Issue #47 Finding D)", () => {
+  it("retries the exact same recipe just played, landing straight at PREPARE with a fresh pizza", () => {
+    const discovered = gameReducer(playToResult(70), { type: "REGISTER_TO_DEX" });
+    expect(discovered.phase).toBe("DISCOVERED");
+    expect(discovered.recipe.id).toBe("margherita");
+
+    const retried = gameReducer(discovered, { type: "RETRY_SAME_RECIPE" });
+    expect(retried.recipe.id).toBe("margherita");
+    expect(retried.order.recipeId).toBe("margherita");
+    expect(retried.phase).toBe("PREPARE");
+    expect(retried.makingStep).toBe("SAUCE");
+    expect(retried.pizza.sauceIds).toHaveLength(0);
+    expect(retried.pizza.toppings).toHaveLength(0);
+    expect(retried.score).toBeNull();
+    expect(retried.bakeState).toBeNull();
+    expect(retried.hint).not.toBeNull();
+  });
+
+  it("never falls back to a different recipe (unlike PLAY_AGAIN's excludeRecipeId)", () => {
+    // A fresh save only owns the Starter Set, so margherita/marinara/genovese are the only
+    // available recipes -- run RETRY_SAME_RECIPE many times and confirm it never drifts off
+    // the current recipe the way PLAY_AGAIN's random selection would.
+    let state = gameReducer(playToResult(70), { type: "REGISTER_TO_DEX" });
+    for (let i = 0; i < 10; i++) {
+      state = gameReducer(state, { type: "RETRY_SAME_RECIPE" });
+      expect(state.recipe.id).toBe("margherita");
+    }
+  });
+
+  it("preserves dex/pitzBalance/ownedIngredientIds (progression) unchanged", () => {
+    const dex = registerScoreToDex(EMPTY_DEX, "margherita", scoreOf(96, 5)).dex;
+    const seeded: GameState = {
+      ...gameReducer(playToResult(70), { type: "REGISTER_TO_DEX" }),
+      dex,
+      pitzBalance: 75,
+      ownedIngredientIds: STARTER_INGREDIENT_IDS,
+    };
+    const retried = gameReducer(seeded, { type: "RETRY_SAME_RECIPE" });
+    expect(retried.dex).toBe(dex);
+    expect(retried.pitzBalance).toBe(75);
+    expect(retried.ownedIngredientIds).toEqual(STARTER_INGREDIENT_IDS);
   });
 });
 
