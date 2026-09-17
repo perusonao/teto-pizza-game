@@ -37,6 +37,13 @@ describe("recipeCardState (Issue #39 Pizza Select)", () => {
     expect(card).toEqual({ kind: "NEW", recipe: fugazza });
   });
 
+  it("LOCKED carries an unlock hint built only from the missing ingredient's real unlockCondition", () => {
+    const card = recipeCardState(fugazza, EMPTY_DEX, STARTER_INGREDIENT_IDS);
+    if (card.kind !== "LOCKED") throw new Error("Expected fugazza to be LOCKED");
+    expect(card.unlockHint).toContain("たまねぎ");
+    expect(card.unlockHint).toContain("12");
+  });
+
   it("LOCKED takes precedence over any stale Dex entry for an unavailable recipe", () => {
     // Defensive: a recipe should never render COMPLETED/NEW once its ingredients are no
     // longer all owned, even if a Dex entry exists from before (not a real save-shape today,
