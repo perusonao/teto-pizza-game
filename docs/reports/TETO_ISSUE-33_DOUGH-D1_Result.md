@@ -6,8 +6,11 @@ Revalidation section) — no new audit, per the task instruction.
 
 - **Base SHA (fresh `origin/main` at task start):** `2da3949de5bd642c709ca6ba343bc57d8101d03d`
   (Merge PR #51: Issue #33 Dough D0 revalidation) — matches the task's expected SHA exactly.
-- **Implementation SHA (PR head):** `e1f171a309077db6d2df03c90237924e68900e1e`
+- **Implementation SHA (PR head):** `19e993274e86216417ea2c238cefa7ea6ad25518`
 - **Branch:** `claude/dough-d1-implementation-puivuf`
+- **PR:** [#54](https://github.com/perusonao/teto-pizza-game/pull/54) — CI green (`build` check, `success`), `mergeable_state: clean`.
+- **Preview:** deployed to `perusonao/teto-pizza-game-preview` at this exact SHA — badge confirmed
+  `PREVIEW · PR#54 · 19e9932` (§11).
 
 ---
 
@@ -232,7 +235,49 @@ evenness score, Dough inventory, Save migration, Economy/Pitz changes, Scoring 2
 changes, Recipe changes, Reference scoring changes, Sauce scoring changes, Cheese/Topping
 gesture redesign, Bake scoring changes.
 
-## 11. Known D1 limitations
+## 11. Preview deployment & smoke verification
+
+Deployed via `teto-pizza-game-preview`'s existing manual pipeline (unchanged, no new workflow
+files added), following the exact process from `docs/reports/TETO_ISSUE-39_PS1-PS2_Preview-Gate.md`:
+
+1. `deploy-from-source.yml` (`workflow_dispatch`) with `ref=19e993274e86216417ea2c238cefa7ea6ad25518`,
+   `pr_number=54` → success, pushed `perusonao/teto-pizza-game-preview`'s `site/` and `README.md`
+   as commit `5beda69825d83e517b3fd0f7c0ea56d7f178c358` ("Deploy preview:
+   19e993274e86216417ea2c238cefa7ea6ad25518 (19e9932)").
+2. `pages.yml` (`workflow_dispatch`) → success, published that same commit.
+3. `README.md` on the preview repo's `main` confirms: Source ref `19e993274e86216417ea2c238cefa7ea6ad25518`,
+   Source PR `#54`.
+
+**Preview URL:** https://perusonao.github.io/teto-pizza-game-preview/
+
+This sandboxed session's outbound network policy blocks `perusonao.github.io` directly (same
+caveat the PS1/PS2 Preview-Gate report already documented for this project). To still verify
+real behavior rather than only trusting the Actions run logs, this session rebuilt **the exact
+same source commit with the exact same build command** the workflow used
+(`VITE_PREVIEW_MODE=1 VITE_PREVIEW_PR=54 VITE_PREVIEW_SHA=19e9932 vite build
+--base=/teto-pizza-game-preview/`, plus the same manifest/`noindex` post-processing read
+directly from `deploy-from-source.yml`), served that output locally, and drove a real
+headless-Chromium (390×844) smoke test and the full Review Playthrough recording against it —
+byte-for-byte the same static bundle now live at the Preview URL.
+
+| Check | Result |
+|---|---|
+| Preview badge | ✅ `"PREVIEW · PR#54 · 19e9932"` |
+| `noindex` | ✅ `<meta name="robots" content="noindex, nofollow">` present |
+| Storage isolation | ✅ confirmed by inspection — `persistence.ts` (untouched by this PR) keys the save under `teto-pizza-preview-save-v1` whenever `VITE_PREVIEW_MODE` is set, never the production `teto-pizza-save-v1`; empty `localStorage` on first load confirms a fresh preview-scoped save |
+| Production untouched | ✅ `deploy-from-source.yml` only ever pushes to the separate `teto-pizza-game-preview` repo (confirmed by reading the unmodified workflow); no push was made to `teto-pizza-game`'s `main`/Pages/Actions by this session |
+| 390×844 no overflow | ✅ `scrollWidth === clientWidth` (390) |
+| DOUGH renders correctly | ✅ small initial dough, dashed target-guide ring, DOUGH-specific hint text, tray/SauceMetricsPanel hidden |
+| Next CTA gating | ✅ disabled before the size threshold, enabled after a full radial stretch |
+
+**One real gap found and fixed during this smoke pass:** the DOUGH CTA's `disabled` attribute
+correctly blocked the click but had no visual distinction from the enabled state (no
+`.cta-button:disabled` rule existed anywhere in `App.css`, since no CTA before this PR was ever
+disabled). Added a muted/flat disabled style (commit `19e9932`) so "not yet" reads at a glance,
+per the task's own "Next disabled / unavailable... clearly available" requirement — screenshots
+before/after confirmed the fix, full suite re-verified green afterward.
+
+## 12. Known D1 limitations
 
 1. **Provisional numeric knobs**, exactly as flagged by the D0 audit: `INITIAL_DOUGH_RADIUS_FRACTION`
    (0.38) and `DOUGH_COMPLETION_THRESHOLD` (0.75) are both tunable, not final — real iPhone
@@ -257,7 +302,7 @@ gesture redesign, Bake scoring changes.
    `doughShape` boundary sits well inside the full 300px circle (e.g. the initial small dough) —
    acceptable for D1 (decoration explicitly deferred), but a D2 polish candidate.
 
-## 12. Recommended D2 polish items
+## 13. Recommended D2 polish items
 
 - Real iPhone Human Feel pass on `INITIAL_DOUGH_RADIUS_FRACTION`/`DOUGH_COMPLETION_THRESHOLD`.
 - Decoration pass: subtle flour texture, stretch-mark shading along the boundary, a soft
