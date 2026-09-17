@@ -6,6 +6,7 @@
   `claude/teto-issue-39-fresh-audit-t3eq3x`, not yet merged to `main`)
 - **Implementation SHA:** `fac135046247c0a980a8dcbb7cb9e7f4896a6118`
 - **Branch:** `claude/pizza-select-navigation-mhnxgy`
+- **PR:** https://github.com/perusonao/teto-pizza-game/pull/40
 - **Scope:** PS1 (navigation restructure) + PS2 (functional Pizza Select). PS3 (visual
   reproduction) was explicitly not started, per the task's own stop instruction.
 
