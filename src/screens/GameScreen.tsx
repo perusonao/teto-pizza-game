@@ -74,7 +74,6 @@ interface GameScreenProps {
   onOpenDex: () => void;
   onOpenShop: () => void;
   onBeginPrepare: () => void;
-  onShowMissionIntro: () => void;
   onResetPizza: () => void;
   onConfirmMakingStep: () => void;
   onStartBake: () => void;
@@ -120,7 +119,6 @@ export function GameScreen({
   onOpenDex,
   onOpenShop,
   onBeginPrepare,
-  onShowMissionIntro,
   onResetPizza,
   onConfirmMakingStep,
   onStartBake,
@@ -281,11 +279,6 @@ export function GameScreen({
           <button type="button" className="cta-button cta-button--primary" onClick={onBeginPrepare}>
             {mission.mode === "FREE" ? <>{"\u{1F355}"} フリープレイ</> : "ピザを作る！"}
           </button>
-          {mission.mode === "FREE" && (
-            <button type="button" className="secondary-button" onClick={onShowMissionIntro}>
-              {"⏱"} Lunch Rush
-            </button>
-          )}
         </div>
       )}
 

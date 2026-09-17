@@ -1617,6 +1617,7 @@
    the dex list, ...) size/scroll correctly inside a flex column instead of
    forcing the whole frame to grow. */
 .home-screen,
+.pizza-select-screen,
 .game-screen {
   display: flex;
   flex-direction: column;
@@ -1780,6 +1781,94 @@
   font-size: 11.5px;
   font-weight: 600;
   color: #8a5a2c;
+}
+
+/* ---------- Pizza Select (Issue #39 PS2) ---------- */
+/* Functional-first: real DOM/CSS, no baked image, reusing .app-header/.home-menu__card's own
+   sizing conventions rather than inventing new ones. Visual reproduction of the mockup's
+   warm wood/parchment treatment is PS3 scope -- this pass only has to stay legible and
+   overflow-free at 360-390px, which a 2-column grid (never the mockup's 4-across) already
+   guarantees the same way .home-menu does today. */
+.pizza-select-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 14px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+  overflow-y: auto;
+}
+
+.pizza-select-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 6px;
+  min-height: 92px;
+  width: 100%;
+  background: #fff8ea;
+  border: 2px solid #e6d3a3;
+  border-radius: 16px;
+  padding: 12px 14px;
+  text-align: left;
+  box-shadow: 0 2px 5px rgba(107, 66, 38, 0.12);
+  position: relative;
+}
+
+.pizza-select-card:disabled {
+  opacity: 0.55;
+}
+
+.pizza-select-card--locked {
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.pizza-select-card__lock-icon {
+  font-size: 22px;
+}
+
+.pizza-select-card__lock-label {
+  font-size: 14px;
+  font-weight: 800;
+  color: #6b4226;
+}
+
+.pizza-select-card__name {
+  font-size: 14px;
+  font-weight: 800;
+  color: #4a2e0a;
+  line-height: 1.3;
+}
+
+.pizza-select-card__badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 10px;
+  font-weight: 800;
+  color: #fff;
+  background: #e4572e;
+  border-radius: 999px;
+  padding: 2px 7px;
+  letter-spacing: 0.5px;
+}
+
+.pizza-select-card__mastery {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pizza-select-card__stars {
+  font-size: 12px;
+  color: #f2b705;
+}
+
+.pizza-select-card__best {
+  font-size: 11px;
+  font-weight: 700;
+  color: #a1662f;
 }
 
 /* ---------- Phase 4A-1A: Reference Sauce Quantity prototype ---------- */

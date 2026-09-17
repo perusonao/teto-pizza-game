@@ -1,7 +1,8 @@
 import { RECIPES } from "../data/recipes";
 import { getIngredient } from "../data/ingredients";
-import type { DexEntry, DexState } from "../state/dex";
+import type { DexState } from "../state/dex";
 import { totalStars } from "../logic/mastery";
+import { starLabel } from "../logic/scoring";
 
 interface DexOverlayProps {
   dex: DexState;
@@ -12,12 +13,6 @@ interface DexOverlayProps {
    *  shows NEW, not NEW BEST — the caller only sets one of the two per round. */
   newBestRecipeId: string | null;
   onClose: () => void;
-}
-
-const MAX_STARS = 5;
-
-function starLabel(stars: DexEntry["bestStars"]): string {
-  return "★".repeat(stars) + "☆".repeat(MAX_STARS - stars);
 }
 
 export function DexOverlay({ dex, newlyDiscoveredId, newBestRecipeId, onClose }: DexOverlayProps) {

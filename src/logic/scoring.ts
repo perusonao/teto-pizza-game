@@ -5,6 +5,14 @@ import { scorePlacement } from "./placement";
 
 export type QualityStars = 1 | 2 | 3 | 4 | 5;
 
+const MAX_STARS = 5;
+
+/** Shared ★☆ rendering for any Quality stars value -- used by both the Dex overlay and Pizza
+ *  Select (Issue #39) so the two screens can never render stars differently. */
+export function starLabel(stars: QualityStars): string {
+  return "★".repeat(stars) + "☆".repeat(MAX_STARS - stars);
+}
+
 export interface ScoreBreakdown {
   /** Required-ingredient correctness, 0-100 ("Recipe correctness" in the SSOT). */
   matchScore: number;

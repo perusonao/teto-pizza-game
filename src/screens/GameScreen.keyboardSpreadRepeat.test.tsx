@@ -115,7 +115,6 @@ function Harness({ category, ingredientId }: { category: IngredientCategory; ing
         onOpenDex={() => {}}
         onOpenShop={() => {}}
         onBeginPrepare={() => {}}
-        onShowMissionIntro={() => {}}
         onResetPizza={() => dispatch({ type: "RESET_PIZZA" })}
         onConfirmMakingStep={() => dispatch({ type: "CONFIRM_MAKING_STEP" })}
         onStartBake={() => {}}

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { HomeScreen } from "./screens/HomeScreen";
+import { PizzaSelectScreen } from "./screens/PizzaSelectScreen";
 import { PreviewBadge } from "./components/PreviewBadge";
 import { GameScreen } from "./screens/GameScreen";
 import { DexOverlay } from "./components/DexOverlay";
@@ -11,6 +12,7 @@ import { scorePiecesAgainstReference, scoreSauceAgainstReference } from "./logic
 import { resolvePieceDrop } from "./logic/pieceDrag";
 import type { DoughPoint } from "./logic/pizzaCoordinates";
 import type { SauceDeposit } from "./state/pizzaState";
+import type { RecipeId } from "./data/recipes";
 import { getIngredient, type Ingredient, type IngredientCategory } from "./data/ingredients";
 import {
   createInitialGameState,
@@ -73,11 +75,12 @@ function findPrimarySauceId(recipe: GameState["recipe"]): string | null {
   return primarySauce?.ingredientId ?? null;
 }
 
-/** Which top-level view is showing (Issue #24: HOME/GAME separation). Lives in App.tsx, not
- *  either screen -- both HomeScreen and GameScreen are pure views over the one GameState/
- *  MissionState this component owns, so which of the two is on screen is itself just more
+/** Which top-level view is showing (Issue #24: HOME/GAME separation; Issue #39 adds
+ *  PIZZA_SELECT between HOME and GAME for FREE). Lives in App.tsx, not any screen component --
+ *  HomeScreen/PizzaSelectScreen/GameScreen are all pure views over the one GameState/
+ *  MissionState this component owns, so which of the three is on screen is itself just more
  *  App-level UI state, the same way `isDexOpen`/`isShopOpen` already were pre-split. */
-type Screen = "HOME" | "GAME";
+type Screen = "HOME" | "PIZZA_SELECT" | "GAME";
 
 const GO_HOME_CONFIRM_MESSAGE =
   "ピザ作りを中断してホームに戻りますか？作りかけのピザは失われます。";
@@ -349,18 +352,31 @@ function App() {
     setScreen("HOME");
   }
 
+  // Issue #39: 「ピザを作る」no longer drops straight into GAME/ORDER with whatever recipe
+  // random selection last landed on -- it goes to Pizza Select first, so the player picks the
+  // recipe explicitly (see handleSelectRecipe below). No stale-RESULT reset is needed here
+  // (unlike the old direct-to-GAME behavior this replaces): SELECT_RECIPE always builds a
+  // fresh ORDER-phase round via buildOrderState regardless of whatever phase the previous
+  // round was left in.
   function handleStartFreePlay() {
-    // A completed round (RESULT/DISCOVERED) left over from before the player went back to
-    // HOME must not resurface here -- "ピザを作る" always means "start a fresh pizza", not
-    // "reopen whatever I last finished". `handleGoHome` deliberately leaves RESULT/DISCOVERED
-    // alone when *leaving* GAME (nothing in-progress to confirm/lose there), so this is the
-    // one place that resets it, right before GAME shows again. mission.mode is guaranteed
-    // "FREE" here: HOME is only ever reached via `handleGoHome`, which always calls
-    // `exitMissionToFree()` first when it isn't already FREE.
-    if (state.phase === "RESULT" || state.phase === "DISCOVERED") {
-      dispatch({ type: "PLAY_AGAIN" });
-    }
+    setScreen("PIZZA_SELECT");
+  }
+
+  // Pizza Select's card tap -- starts a fresh FREE round for the explicitly chosen recipe
+  // (SELECT_RECIPE, src/state/gameReducer.ts) and enters GAME. The reducer itself re-checks
+  // availability, so a locked recipe can never start a round even via a stray dispatch; the
+  // UI-level guard is PizzaSelectScreen's LOCKED cards never wiring this callback at all.
+  function handleSelectRecipe(recipeId: RecipeId) {
+    dispatch({ type: "SELECT_RECIPE", recipeId });
     setScreen("GAME");
+  }
+
+  // Pizza Select's own back button. No confirmation needed -- Pizza Select never has an
+  // in-progress round of its own to lose (mirrors leaving ORDER/RESULT today), and this must
+  // not reuse `handleGoHome`'s Mission-exit branch, which is irrelevant here since Pizza
+  // Select is only reachable while `mission.mode` is already "FREE".
+  function handleBackFromPizzaSelect() {
+    setScreen("HOME");
   }
 
   function handleStartLunchRush() {
@@ -429,6 +445,15 @@ function App() {
         />
       )}
 
+      {screen === "PIZZA_SELECT" && (
+        <PizzaSelectScreen
+          dex={state.dex}
+          ownedIngredientIds={state.ownedIngredientIds}
+          onSelectRecipe={handleSelectRecipe}
+          onBack={handleBackFromPizzaSelect}
+        />
+      )}
+
       {screen === "GAME" && (
         <GameScreen
           state={state}
@@ -452,7 +477,6 @@ function App() {
           onOpenDex={() => setDexOpen(true)}
           onOpenShop={() => setShopOpen(true)}
           onBeginPrepare={() => dispatch({ type: "BEGIN_PREPARE" })}
-          onShowMissionIntro={() => missionDispatch({ type: "SHOW_INTRO" })}
           onResetPizza={() => dispatch({ type: "RESET_PIZZA" })}
           onConfirmMakingStep={() => dispatch({ type: "CONFIRM_MAKING_STEP" })}
           onStartBake={() => dispatch({ type: "START_BAKE" })}
