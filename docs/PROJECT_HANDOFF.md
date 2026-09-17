@@ -27,9 +27,16 @@ Primary device: smartphone vertical. Verification baseline: 390×844.
 - Issue #33 — Dough Shaping.
 - Issue #37 — parent roadmap for Making Game 2.0 physical pizza-making flow.
 - Issue #38 — Scoring 2.0-linked Pitz reward / Economy connection.
-- Issue #39 — HOME/FREE navigation redesign + Pizza Select. **Current highest-priority navigation / First-Fun slice.**
+- Issue #39 — HOME/FREE navigation redesign + Pizza Select. PS1/PS2/PS3 **complete** (PR #40, PR #41, both merged into `main`); PS4 iPhone Human Feel **PASS**. Remaining HOME visual polish (see "Parallel / non-blocking" below) is tracked as future polish, not an Issue #39 blocker.
 
 Scoring 2.0 Shadow has already been implemented and calibrated. It remains non-authoritative until the remaining consistency/Human Feel gates pass.
+
+### Recent merges
+
+- **PR #40** — HOME navigation + functional Pizza Select. MERGED.
+- **PR #41** — HOME + Pizza Select visual reproduction. MERGED. Merge SHA: `1b1ff6c69b837ff7f0da6ab3c14df7843812d8c3`.
+
+Both are reflected in current `main`. **Next priority: Issue #32 Recipe correctness** (see P1 below).
 
 ## Navigation contract
 
@@ -83,9 +90,14 @@ Implementation rules:
 2. PS1 Navigation restructure: HOME 「ピザを作る」 → Pizza Select; HOME 「ランチラッシュ」 → Lunch Rush. **Done** (merged via PR #40).
 3. PS2 Functional Pizza Select: completed / NEW / locked cards and correct selected-recipe handoff into Making Game. **Done** (merged via PR #40).
 4. PS3 Visual reproduction: HOME + Pizza Select toward the approved rustic pizza-shop direction using official assets. **Done** (PR #41 — see `docs/reports/TETO_ISSUE-39_PS3_Visual-Result.md`), pending PS4 iPhone Human Feel.
-5. PS4 Preview + real iPhone 390×844 Human Feel. **Next** — do not start further Issue #39 visual work until the user confirms PS3 on a real iPhone.
+5. PS4 Preview + real iPhone 390×844 Human Feel. **Done — PASS.** The user confirmed PS3 on a real iPhone at 390×844.
 
-Issue #39 may run alongside read-only Issue #32 audit work. Avoid simultaneous implementation in overlapping App/navigation files.
+Issue #39's navigation/functional/visual work (PS1–PS4) is complete. Two HOME visual items remain as **non-blocking future polish** (not an Issue #39 gate, not a Human Feel failure):
+
+- HOME's lower half has more empty space than ideal.
+- Pizza thumbnail representation on cards could be strengthened further.
+
+These are tracked under "Parallel / non-blocking" below and do not block moving on to Issue #32.
 
 ### P1 — Scoring consistency gate — Issue #32
 
@@ -163,6 +175,8 @@ Currency contract: **Pitz**. Do not introduce ¥/円 as the game currency.
 - Issue #27 accessibility live-region follow-up.
 - SSOT docs cleanup against fresh code truth.
 - PIZZA DB source recovery/catalog normalization as separate research/data work.
+- HOME visual polish (future, non-blocking, not an Issue #39 gate): reduce HOME's lower-half
+  empty space; strengthen pizza thumbnail representation on Pizza Select cards.
 
 ## Non-negotiable guards
 
@@ -191,15 +205,28 @@ Claude Code implementation tasks should generally stay around 2–3 hours where 
 
 A change is not "改修完了" (done) until every one of these steps has actually run, in order:
 
-`implementation → tests → commit/push → PR → CI → Preview deploy → Preview smoke test`
+`Fresh Audit/design → implementation → focused/full tests → typecheck/lint/build → commit/push → PR → CI → dedicated Preview deployment → Preview smoke test → targeted 390×844 Review Playthrough → MP4 video output → Human Feel review → merge`
 
-Do not report a task complete before the Preview deploy has finished and its smoke test has
-run — CI green on `perusonao/teto-pizza-game` alone is not enough, since the separate
-`perusonao/teto-pizza-game-preview` pipeline (manual `deploy-from-source.yml` + `pages.yml`
-dispatch, see the Issue #39 PS1/PS2 Preview-Gate report for the exact commands) is what the
-user actually opens on a real device. If Preview deploy genuinely cannot be completed in a
-session (e.g. sandboxed network policy blocking the dispatch itself), say so explicitly as a
-blocker rather than silently skipping the step.
+Rules for this sequence:
+
+- Do not report a task "implementation complete" before its dedicated Preview deployment has
+  finished. CI green on `perusonao/teto-pizza-game` alone is not enough, since the separate
+  `perusonao/teto-pizza-game-preview` pipeline (manual `deploy-from-source.yml` + `pages.yml`
+  dispatch, see the Issue #39 PS1/PS2 Preview-Gate report for the exact commands) is what the
+  user actually opens on a real device. If Preview deploy genuinely cannot be completed in a
+  session (e.g. sandboxed network policy blocking the dispatch itself), say so explicitly as a
+  blocker rather than silently skipping the step.
+- The Review Playthrough is not a fixed, always-identical script — design it each time around
+  the specific review question this change needs answered (what changed, what could have
+  regressed, what the user needs to actually see).
+- Video: 390×844 is the primary viewport. Hold 1–3 seconds on every screen/state that matters
+  for review. Prefer MP4 output (convert from the capture tool's native format if needed) for
+  playback compatibility.
+- Never commit a large review video into the repository. `artifacts/` (including
+  `artifacts/review/`) is gitignored; deliver video directly to the user instead of committing
+  it.
+- **Audit-only tasks are exempt from Preview deployment and video capture** — a read-only
+  Fresh Audit that changes no production code has nothing to deploy or play through.
 
 ## New-session startup checklist
 
