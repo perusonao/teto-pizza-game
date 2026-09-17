@@ -938,6 +938,18 @@
   box-shadow: 0 0 0 4px rgba(255, 210, 100, 0.7), 0 4px 12px rgba(179, 38, 10, 0.5);
 }
 
+/* Issue #33 D1: the DOUGH step's own CTA is the first `.cta-button` ever disabled (SAUCE/
+   CHEESE's 次へ never is) -- without this, `disabled` blocked the click correctly but looked
+   identical to the enabled button, contradicting the task's own "Before threshold: Next
+   disabled / unavailable... After threshold: Next becomes clearly available" requirement.
+   Muted/flat in place of the vibrant gradient + shadow, so "not yet" reads at a glance. */
+.cta-button:disabled {
+  background: #d9c7a6;
+  color: #8a7250;
+  box-shadow: none;
+  opacity: 0.75;
+}
+
 .secondary-button {
   min-height: 44px;
   border: 2px solid #c99b56;
