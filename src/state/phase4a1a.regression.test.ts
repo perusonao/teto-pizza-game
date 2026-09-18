@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createInitialGameState, gameReducer, type GameState } from "./gameReducer";
 import { EMPTY_DEX, registerScoreToDex } from "./dex";
-import { scorePizza } from "../logic/scoring";
 import { missionScore, averageQualityScore } from "../logic/missionScoring";
 import { totalStars } from "../logic/mastery";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
@@ -24,22 +23,7 @@ function preparedState(recipeIdOwned: readonly string[]): GameState {
   return gameReducer(prepared, { type: "CONFIRM_MAKING_STEP" });
 }
 
-describe("Regression: legacy scoring untouched by sauceDeposits", () => {
-  it("scorePizza ignores PizzaState.sauceDeposits entirely -- same score with or without a deposit log", () => {
-    const withoutDeposits = { ...createEmptyPizza(), sauceIds: ["tomato-sauce"], bakeResult: 70 };
-    const withDeposits = {
-      ...withoutDeposits,
-      sauceDeposits: [
-        { x: 50, y: 50, amount: 0.3 },
-        { x: 20, y: 80, amount: 0.9 }, // even a wildly overflowing deposit log
-      ],
-    };
-    const recipeState = preparedState(STARTER_INGREDIENT_IDS);
-    expect(scorePizza(recipeState.recipe, withoutDeposits)).toEqual(
-      scorePizza(recipeState.recipe, withDeposits),
-    );
-  });
-
+describe("Regression: PizzaState shape unaffected by sauceDeposits", () => {
   it("createEmptyPizza's shape addition (sauceDeposits: []) doesn't change any other field's default", () => {
     const pizza = createEmptyPizza();
     expect(pizza.sauceIds).toEqual([]);

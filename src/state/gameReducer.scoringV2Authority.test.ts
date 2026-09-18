@@ -5,7 +5,6 @@ import {
   type GameState,
 } from "./gameReducer";
 import { EMPTY_DEX } from "./dex";
-import { scorePizza } from "../logic/scoring";
 import { getRecipe, type RecipeId } from "../data/recipes";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { buildIdealSauceFixture, getReferencePizza } from "../data/referencePizza";
@@ -146,17 +145,6 @@ describe("A1 Authority Cutover: state.score is Scoring 2.0-derived (gameReducer 
       expect(good.score?.total as number).toBeGreaterThan(poor.score?.total as number);
     },
   );
-
-  it("legacy scorePizza is no longer authoritative -- state.score differs from legacy for a Reference-quality pizza (Sauce now matters)", () => {
-    const state = playToResultForRecipe("margherita", perfectPizzaForRecipe("margherita"));
-    const legacyOnly = scorePizza(state.recipe, state.pizza);
-    // Legacy scorePizza never reads sauceDeposits at all (Phase 4A-1A scope guard, re-confirmed
-    // by phase4a1a.regression.test.ts) -- Scoring 2.0's Sauce component (52/100 of the total) is
-    // exactly the dimension legacy is blind to, so the two formulas' totals must differ here.
-    expect(state.score?.total).not.toBe(legacyOnly.total);
-    expect(state.scoringV2Result?.totalScore).not.toBeNull();
-    expect(state.score?.total).toBe(state.scoringV2Result?.totalScore);
-  });
 
   it("empty pizza never throws and produces a finite, low authoritative score (Bake alone still scores when baked inside the target zone)", () => {
     let state = createInitialGameState(EMPTY_DEX, ALL_INGREDIENT_IDS);
