@@ -129,7 +129,6 @@ function Harness({
         onTapPizza={handleTapPizza}
         onBakeTick={() => {}}
         onConfirmBake={() => {}}
-        onRegisterToDex={() => {}}
         onRetrySameRecipe={() => {}}
         onBackToPizzaSelect={() => {}}
         onMissionServeNext={() => {}}

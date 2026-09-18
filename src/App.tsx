@@ -273,6 +273,24 @@ function App() {
     dispatch({ type: "MISSION_RESET_ORDER" });
   }
 
+  // RESULT 2.0 Slice 1: FREE's Dex/BEST/Pitz registration (REGISTER_TO_DEX) used to be a
+  // separate player-facing "レシピ図鑑に登録する" tap between two phases (RESULT -> DISCOVERED).
+  // That two-step bureaucratic-feeling flow is gone -- this dispatches both actions back to
+  // back in the same handler, so useReducer applies REGISTER_TO_DEX against the state
+  // CONFIRM_BAKE just produced (phase: "RESULT", state.score set) before anything renders.
+  // REGISTER_TO_DEX itself, its exactly-once phase guard, and the Pitz/BEST/Dex reducer logic
+  // it runs (../state/gameReducer.ts) are completely unchanged -- only the trigger moved from
+  // a button's onClick to this orchestration point. Guarded on `!state.isMissionRound` (the
+  // same flag REGISTER_TO_DEX's own Pitz-credit branch already reads) so a Mission round's
+  // CONFIRM_BAKE never also fires this -- Lunch Rush keeps registering exclusively via its own
+  // MISSION_NEXT_ORDER/MISSION_SERVE path, untouched by this change.
+  function handleConfirmBake(value: number) {
+    dispatch({ type: "CONFIRM_BAKE", value });
+    if (!state.isMissionRound) {
+      dispatch({ type: "REGISTER_TO_DEX" });
+    }
+  }
+
   function handleMissionServeNext() {
     if (!state.score) return;
     const now = Date.now();
@@ -544,8 +562,7 @@ function App() {
           onSelectIngredient={handleSelectIngredient}
           onTapPizza={handleTapPizza}
           onBakeTick={handleBakeTick}
-          onConfirmBake={(value) => dispatch({ type: "CONFIRM_BAKE", value })}
-          onRegisterToDex={() => dispatch({ type: "REGISTER_TO_DEX" })}
+          onConfirmBake={handleConfirmBake}
           onRetrySameRecipe={() => dispatch({ type: "RETRY_SAME_RECIPE" })}
           onBackToPizzaSelect={handleBackToPizzaSelectFromDiscovered}
           onMissionServeNext={handleMissionServeNext}

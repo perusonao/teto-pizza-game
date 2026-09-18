@@ -1062,23 +1062,39 @@
 }
 
 /* ---------- Result panel ---------- */
+/* RESULT 2.0 Slice 1: the merged Hero result screen, rendered directly under the always-
+   present PizzaStage hero (GameScreen.tsx) -- this panel itself starts right at the short
+   heading, deliberately compact/de-emphasized (smaller than the hero pizza above it) so the
+   player's own completed pizza stays the visual anchor per the task's information-hierarchy
+   requirement, not this panel's headline. */
 .result-panel {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: 4px 20px 20px;
+  gap: 10px;
+  padding: 0 20px 24px;
+}
+
+.result-panel__heading {
+  font-size: 15px;
+  font-weight: 700;
+  color: #3a2a1a;
+  text-align: center;
+  margin: 0;
+  max-width: 320px;
 }
 
 .result-panel__headline {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 2px;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px 10px;
 }
 
 .result-panel__stars {
-  font-size: 30px;
+  font-size: 22px;
   letter-spacing: 1px;
   color: #f2b705;
 }
@@ -1088,18 +1104,23 @@
 }
 
 .result-panel__score {
-  font-size: 22px;
+  font-size: 16px;
   font-weight: 800;
   color: #6b4226;
 }
 
 .result-panel__bake-badge {
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 700;
   border-radius: 999px;
-  padding: 4px 12px;
+  padding: 3px 10px;
   background: #f5ecd8;
   color: #6b4226;
+  /* .result-panel__headline is a row now (stars/score/badge de-emphasized together, see
+     above) -- this lets the badge wrap onto its own line on narrow (360px) widths without
+     forcing the stars/score pair apart. */
+  flex-basis: 100%;
+  text-align: center;
 }
 
 .result-panel__bake-badge--raw {
@@ -1117,11 +1138,52 @@
   color: #6b2f18;
 }
 
+/* RESULT 2.0 Slice 1: the old "score breakdown" table (ソース/具材/配置/焼き) is real detail,
+   not the merged screen's own primary content -- collapsed behind native <details> so it
+   never pushes the hero pizza/heading/CTA down by default (the task's own "細かい内訳や説明で
+   完成ピザを押し下げない" requirement), while staying one tap away for a player who wants it.
+   No JS state, no new interaction pattern. */
+.result-panel__details {
+  width: 100%;
+  max-width: 320px;
+}
+
+.result-panel__details-summary {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #8a6a44;
+  text-align: center;
+  cursor: pointer;
+  list-style: none;
+  padding: 4px 0;
+}
+
+.result-panel__details-summary::-webkit-details-marker {
+  display: none;
+}
+
+.result-panel__details-summary::after {
+  content: " \25BE";
+}
+
+.result-panel__details[open] .result-panel__details-summary::after {
+  content: " \25B4";
+}
+
 .result-panel__bars {
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: 8px;
+  margin-top: 6px;
+}
+
+/* Nested inside .result-panel (also a flex column) rather than directly in .game-screen, so
+   the inherited `.action-row` margin-top:auto has no bottom-of-viewport pull here -- the CTAs
+   simply follow the panel's own content in normal flow, which is what keeps them reachable
+   without an oversized gap once the details above are collapsed (the default state). */
+.result-panel__actions {
+  margin-top: 4px;
 }
 
 .score-bar {

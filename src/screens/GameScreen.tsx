@@ -20,12 +20,10 @@ import type { SauceReferenceShadowScore } from "../logic/referenceScoring";
 import type { SauceDeposit } from "../state/pizzaState";
 import type { DoughShape } from "../logic/doughShape";
 import {
-  buildBlueResultLine,
   buildMitoOrderLine,
   buildTetoBakeLine,
   buildTetoOrderLine,
   buildTetoResultLine,
-  type DialogueLine,
 } from "../data/dialogue";
 import { getIngredient, type Ingredient, type IngredientCategory } from "../data/ingredients";
 import type { GameState } from "../state/gameReducer";
@@ -90,7 +88,6 @@ interface GameScreenProps {
   onTapPizza: (x: number, y: number) => void;
   onBakeTick: (value: number) => void;
   onConfirmBake: (value: number) => void;
-  onRegisterToDex: () => void;
   /** Issue #47 Finding D: DISCOVERED's "もう一度つくる" -- retries the exact same recipe
    *  (RETRY_SAME_RECIPE), replacing the old single "もう一度作る" button that always started a
    *  *different* recipe. */
@@ -143,7 +140,6 @@ export function GameScreen({
   onTapPizza,
   onBakeTick,
   onConfirmBake,
-  onRegisterToDex,
   onRetrySameRecipe,
   onBackToPizzaSelect,
   onMissionServeNext,
@@ -176,10 +172,16 @@ export function GameScreen({
   // round. `MissionResultOverlay` covers the whole screen either way, but this keeps free
   // play's own RESULT UI from rendering (uselessly) underneath it during that window.
   const isMissionActive = mission.mode === "PLAYING" || mission.mode === "RESULT";
-  // During a Mission run, free play's own RESULT dialogue (Teto/Blue's comments) is skipped
-  // -- reusing it would cost the same tempo `MissionServePanel` exists to avoid (Phase 3C-4
-  // section 17). Every other phase's dialogue is completely unaffected, Mission or not.
-  const showFreeResultDialogue = state.phase === "RESULT" && !isMissionActive;
+  // RESULT 2.0 Slice 1: REGISTER_TO_DEX now applies automatically the instant CONFIRM_BAKE
+  // lands (App.tsx's `handleConfirmBake`), so a FREE round's `state.phase` goes straight from
+  // "BAKE" to "DISCOVERED" -- there is no longer a player-visible moment where phase sits at
+  // "RESULT" alone for FREE (Mission is untouched: MissionServePanel/MissionResultOverlay
+  // still read `state.phase === "RESULT"` exactly as before). This single flag gates the one
+  // merged Hero result screen for both of FREE's internal phases, so a stray/interrupted
+  // dispatch that somehow leaves phase at "RESULT" (e.g. a failed REGISTER_TO_DEX guard) still
+  // renders a complete screen instead of the old score-only one.
+  const isFreeResultScreen =
+    !isMissionActive && (state.phase === "RESULT" || state.phase === "DISCOVERED");
 
   const mitoOrderLine = buildMitoOrderLine(
     state.order.id,
@@ -188,13 +190,17 @@ export function GameScreen({
     discoveredRecipeIds(state.dex),
   );
 
-  const discoveredLine: DialogueLine = {
-    speaker: "mito",
-    id: `discovered.${state.recipe.id}`,
-    textJa: state.justDiscovered
-      ? `${state.recipe.nameJa}がレシピ図鑑に載ったよ！やったね！`
-      : `${state.recipe.nameJa}、また上手にできたね！`,
-  };
+  // RESULT 2.0 Slice 1: Teto's existing short reaction line (`buildTetoResultLine`, unchanged
+  // -- same authored-variant-line pattern, same seeding) is now the merged screen's own short
+  // heading (`ResultPanel`'s `headingJa`), rendered directly under the completed-pizza hero
+  // instead of in a separate two-portrait DialogueBox stack above it. Blue's longer reaction
+  // line is dropped from this screen (not from `dialogue.ts` -- still a pure, independently
+  // testable function) to keep the merged screen to one short line, per the task's own "短い
+  // RESULT heading" requirement.
+  const resultHeadingJa =
+    isFreeResultScreen && state.score && state.bakeState
+      ? buildTetoResultLine(state.recipe, state.bakeState, state.pizza.bakeResult).textJa
+      : "";
 
   return (
     <div className="game-screen">
@@ -221,7 +227,14 @@ export function GameScreen({
         />
       )}
 
-      {state.phase !== "PREPARE" && (
+      {/* RESULT 2.0 Slice 1: the merged Hero result screen (`isFreeResultScreen`) renders its
+          own short heading (`resultHeadingJa`, fed to `ResultPanel`) directly under the
+          completed-pizza hero instead of here -- skipping this whole section for that screen,
+          not just its old RESULT/DISCOVERED-specific content, reclaims the `.dialogue-area`'s
+          `min-height: 84px` reserved space so the hero pizza is the first thing on screen
+          (the task's own "完成ピザを押し下げない" requirement), rather than leaving an empty
+          gap above it. ORDER/BAKE dialogue is completely unaffected, Mission or not. */}
+      {state.phase !== "PREPARE" && !isFreeResultScreen && (
         <section className="dialogue-area">
           {state.phase === "ORDER" && (
             <>
@@ -230,22 +243,6 @@ export function GameScreen({
             </>
           )}
           {state.phase === "BAKE" && <DialogueBox {...buildTetoBakeLine(state.recipe)} />}
-          {showFreeResultDialogue && state.score && state.bakeState && (
-            <>
-              <DialogueBox
-                {...buildTetoResultLine(state.recipe, state.bakeState, state.pizza.bakeResult)}
-              />
-              <DialogueBox
-                {...buildBlueResultLine(
-                  state.recipe,
-                  state.score,
-                  state.bakeState,
-                  state.pizza.bakeResult,
-                )}
-              />
-            </>
-          )}
-          {state.phase === "DISCOVERED" && <DialogueBox {...discoveredLine} />}
         </section>
       )}
 
@@ -311,7 +308,7 @@ export function GameScreen({
         activeIngredient={selectedIngredientId ? (getIngredient(selectedIngredientId) ?? null) : null}
         bakeProgress={bakeProgress}
         placement={state.placement}
-        resultRevealed={state.phase === "RESULT"}
+        resultRevealed={isFreeResultScreen}
         referenceModeEnabled={referenceModeEnabled}
         resetToken={pizzaResetToken}
         makingStepToken={state.makingStepToken}
@@ -434,7 +431,14 @@ export function GameScreen({
         />
       )}
 
-      {state.phase === "RESULT" && state.score && !isMissionActive && (
+      {/* RESULT 2.0 Slice 1: one merged Hero result screen replaces the old two-phase
+          ResultPanel (RESULT, score/stars only, behind a "レシピ図鑑に登録する" tap) +
+          DISCOVERED (a separate action-row for the banner/Pitz/retry CTAs) split. The
+          underlying phase split and REGISTER_TO_DEX's reducer transaction are both unchanged
+          (see App.tsx's `handleConfirmBake` and ../state/gameReducer.ts) -- this only merges
+          what was already, by the time a player could see it, always-together information
+          into one component. Issue #47 Finding D's two retry CTAs are unchanged. */}
+      {isFreeResultScreen && state.score && (
         <ResultPanel
           score={state.score}
           bakeState={state.bakeState}
@@ -443,78 +447,23 @@ export function GameScreen({
               ? state.scoringV2Result.components.sauce.score
               : null
           }
-          onRegister={onRegisterToDex}
+          headingJa={resultHeadingJa}
+          recipeNameJa={state.recipe.nameJa}
+          justDiscovered={state.justDiscovered}
+          justGotNewBest={state.justGotNewBest}
+          pitzCredit={state.lastPitzCredit}
+          onRetrySameRecipe={onRetrySameRecipe}
+          onBackToPizzaSelect={onBackToPizzaSelect}
         />
       )}
 
       {/* Phase 4A-2 / A1: Scoring 2.0 debug panel (Preview-only internal breakdown) -- shown
-          for both FREE and Lunch Rush RESULT (unlike ResultPanel/MissionServePanel above, this
-          is not gated on isMissionActive), and internally gated on VITE_PREVIEW_MODE so
-          production never renders it (see ScoringV2DebugPanel.tsx's own file header). */}
-      {state.phase === "RESULT" && <ScoringV2DebugPanel result={state.scoringV2Result} />}
-
-      {state.phase === "DISCOVERED" && (
-        <div className="action-row action-row--column">
-          {state.justDiscovered && (
-            <p className="discovered-banner">
-              {"✨"} {state.recipe.nameJa}を発見しました！
-            </p>
-          )}
-          {!state.justDiscovered && state.justGotNewBest && (
-            <p className="discovered-banner discovered-banner--best">{"\u{1F31F}"} NEW BEST!</p>
-          )}
-          {/* Issue #38 E-P1/E-P2: FREE's per-pizza Pitz credit, applied atomically by
-              REGISTER_TO_DEX (../state/gameReducer.ts) -- this reads the reducer-applied
-              `lastPitzCredit` snapshot only, it never recomputes any of these numbers itself.
-              `null` for a Mission round (Lunch Rush never reaches DISCOVERED at all, see
-              MISSION_NEXT_ORDER), so this can never render mid-Mission. */}
-          {state.lastPitzCredit && (
-            <div className="pitz-credit-summary">
-              <p className="pitz-credit-summary__headline">
-                今回の獲得 <strong>+{state.lastPitzCredit.earnedPitz} Pitz</strong>
-              </p>
-              <dl className="pitz-credit-summary__details">
-                <div className="pitz-credit-summary__row">
-                  <dt>基本報酬</dt>
-                  <dd>{state.lastPitzCredit.baseReward} Pitz</dd>
-                </div>
-                <div className="pitz-credit-summary__row">
-                  <dt>出来栄え倍率</dt>
-                  <dd>×{state.lastPitzCredit.multiplier.toFixed(2)}</dd>
-                </div>
-                <div className="pitz-credit-summary__row">
-                  <dt>所持Pitz</dt>
-                  <dd>
-                    {state.lastPitzCredit.balanceBefore} {"→"} {state.lastPitzCredit.balanceAfter}
-                  </dd>
-                </div>
-              </dl>
-              {state.lastPitzCredit.earnedPitz === 0 && (
-                <p className="pitz-credit-summary__zero-note">
-                  出来栄えが基準に届かず、今回はPitzを獲得できませんでした。
-                </p>
-              )}
-            </div>
-          )}
-          {/* Issue #47 Finding D: two distinct actions replace the old single "もう一度作る"
-              button, which always started a *different* recipe (PLAY_AGAIN's excludeRecipeId)
-              despite reading like a retry. "もう一度つくる" now retries this exact recipe
-              (RETRY_SAME_RECIPE); "別のピザを作る" returns to Pizza Select. */}
-          <button
-            type="button"
-            className="cta-button cta-button--primary"
-            onClick={onRetrySameRecipe}
-          >
-            もう一度つくる
-          </button>
-          <button
-            type="button"
-            className="cta-button cta-button--secondary"
-            onClick={onBackToPizzaSelect}
-          >
-            別のピザを作る
-          </button>
-        </div>
+          for both FREE and Lunch Rush RESULT, and internally gated on VITE_PREVIEW_MODE so
+          production never renders it (see ScoringV2DebugPanel.tsx's own file header). RESULT
+          2.0 Slice 1: FREE's own RESULT/DISCOVERED are now merged (`isFreeResultScreen`) --
+          Mission's still-separate RESULT (`isMissionPlaying`, MissionServePanel) is unchanged. */}
+      {(isFreeResultScreen || (state.phase === "RESULT" && isMissionPlaying)) && (
+        <ScoringV2DebugPanel result={state.scoringV2Result} />
       )}
 
       {mission.mode === "INTRO" && (

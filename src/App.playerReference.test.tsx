@@ -134,8 +134,9 @@ describe("Mini Reference (Bismarck, B2 PART C2 -- also a Scoring 2.0 fixture rec
     await user.click(screen.getByRole("button", { name: /次へ/ })); // SAUCE -> CHEESE
     await user.click(screen.getByRole("button", { name: /次へ/ })); // CHEESE -> TOPPING
     await user.click(screen.getByRole("button", { name: /焼く/ }));
+    // RESULT 2.0 Slice 1: REGISTER_TO_DEX now applies automatically at BAKE -> RESULT, so this
+    // lands directly on the merged Hero result screen -- no separate registration tap.
     await user.click(screen.getByRole("button", { name: "取り出す！" }));
-    await user.click(screen.getByRole("button", { name: "レシピ図鑑に登録する" })); // DISCOVERED
 
     await user.click(screen.getByRole("button", { name: "もう一度つくる" }));
 
