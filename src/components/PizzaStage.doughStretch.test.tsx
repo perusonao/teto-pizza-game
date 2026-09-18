@@ -237,6 +237,64 @@ describe("PizzaStage DOUGH radial-stretch gesture", () => {
     expect(Number(screen.getByTestId("topping-count").textContent)).toBe(before.topping);
   });
 
+  it("Issue #33 D3A: a drag inward after a drag outward shrinks the shape back down (reversible within one live preview)", () => {
+    render(<Harness />);
+    const element = dough();
+
+    pointerDown(element, clientPoint(50 + 40, 50));
+    pointerUp(element, clientPoint(50 + 40, 50));
+    const stretched = meanProgress();
+    expect(stretched).toBeGreaterThan(doughSizeProgress(createInitialDoughShape()));
+
+    pointerDown(element, clientPoint(50 + 40, 50));
+    pointerMove(element, clientPoint(50 + 12, 50));
+    pointerUp(element, clientPoint(50 + 12, 50));
+
+    expect(meanProgress()).toBeLessThan(stretched);
+  });
+
+  it("Issue #33 D3A: stretching past the ideal guide-ring size is not hard-stopped", () => {
+    render(<Harness />);
+    const element = dough();
+
+    // A gesture must *start* inside the DOUGH_RADIUS hit circle (handlePointerDown's own
+    // isInsideDough gate, unchanged by D3A), but pointermove is free to continue past it -- so
+    // press just inside the rim, then drag on out beyond the old DOUGH_RADIUS ceiling.
+    for (let i = 0; i < 8; i += 1) {
+      const angle = (i / 8) * Math.PI * 2;
+      for (let pull = 0; pull < 5; pull += 1) {
+        const startPoint = clientPoint(50 + Math.cos(angle) * 46, 50 + Math.sin(angle) * 46);
+        const farPoint = clientPoint(50 + Math.cos(angle) * 57, 50 + Math.sin(angle) * 57);
+        pointerDown(element, startPoint, i + 1);
+        pointerMove(element, farPoint, i + 1);
+        pointerUp(element, farPoint, i + 1);
+      }
+    }
+
+    // mean(radii)/DOUGH_RADIUS > 1 means the committed shape's average size is already past
+    // the ideal/reference boundary the guide ring draws -- and nothing clamped it back.
+    expect(meanProgress()).toBeGreaterThan(1);
+  });
+
+  it("Issue #33 D3A: an accidental tiny gesture right where the dough already is causes no visible change", () => {
+    render(<Harness />);
+    const element = dough();
+
+    // First gesture: spike-suppression means the touched point settles well short of the raw
+    // touch distance (see doughShape.test.ts's own pinned 40 -> 30.24 fixture) -- so the second
+    // touch below targets that *settled* radius, not the original raw touch point, to actually
+    // land within DOUGH_TINY_GESTURE_EPSILON of where the shape now is.
+    pointerDown(element, clientPoint(50 + 40, 50));
+    pointerUp(element, clientPoint(50 + 40, 50));
+    const settled = meanProgress();
+
+    pointerDown(element, clientPoint(50 + 30.24, 50));
+    pointerMove(element, clientPoint(50 + 30.4, 50));
+    pointerUp(element, clientPoint(50 + 30.4, 50));
+
+    expect(meanProgress()).toBeCloseTo(settled, 3);
+  });
+
   it("repeated pulls around the circle reach the D1 completion threshold", () => {
     render(<Harness />);
     const element = dough();

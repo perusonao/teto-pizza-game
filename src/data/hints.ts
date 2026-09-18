@@ -5,12 +5,13 @@ import type { PizzaState } from "../state/pizzaState";
 import type { MakingStep } from "../state/gameReducer";
 import type { DialogueLine } from "./dialogue";
 
-/** Issue #33 D1: DOUGH's own hint copy -- concise per the task's own "avoid long tutorial
+/** Issue #33 D1/D3A: DOUGH's own hint copy -- concise per the task's own "avoid long tutorial
  *  copy" guidance, distinct from every recipe's sauce copy so it never silently falls
- *  through to a misleading "塗ろう" (sauce) line before sauce is even reachable. */
-const DOUGH_HINT = "生地を外側へ伸ばそう";
+ *  through to a misleading "塗ろう" (sauce) line before sauce is even reachable. D3A: updated
+ *  to mention shrinking/correcting, not just stretching, now that the gesture is reversible. */
+const DOUGH_HINT = "生地を伸ばしたり縮めたりして形を整えよう";
 const DOUGH_HINT_EXPLICIT =
-  "生地の上を指で押さえて、外側に向かってなぞってみて。だんだん大きく伸びていくよ！";
+  "指で外側へなぞると伸び、内側へ戻すと縮むよ。伸ばしすぎても、縮めてやり直せるよ！";
 
 interface RecipeHintSet {
   empty: string;
