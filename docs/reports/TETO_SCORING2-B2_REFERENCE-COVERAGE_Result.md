@@ -3,9 +3,10 @@
 **Type:** Fresh Audit + bounded implementation (§4, mechanical infra) + design-only candidates
 (§9, marinara/funghi) + **PART A implementation of the approved marinara/funghi geometry (§10,
 coverage 3/7)** + design-only candidates (§11, genovese/fugazza) + **PART C1 implementation of
-the approved genovese/fugazza geometry (§12, coverage now 5/7)** + **PART C2 design-only
-candidates for bismarck/quattro-formaggi (§13, not yet approved — the final 2 of 7)**. Does
-**not** close B2 — see §12.5/§13.6 verdicts.
+the approved genovese/fugazza geometry (§12, coverage now 5/7)** + design-only candidates for
+bismarck/quattro-formaggi (§13) + **PART C2 implementation of the approved bismarck/
+quattro-formaggi geometry (§14, coverage now 7/7 — full B2 acceptance target reached)**. See
+§14.5 for the final verdict.
 
 - **Audited/base main SHA:** `142a18252db56d9ee4c236cc80062673d5e68c80` (Merge PR #55: Scoring
   2.0 Authority Fresh Audit, docs-only). Confirmed via `git fetch origin main && git rev-parse
@@ -26,10 +27,10 @@ candidates for bismarck/quattro-formaggi (§13, not yet approved — the final 2
 | Funghi | **APPROVED / IMPLEMENTED** | §10 — ChatGPT-approved geometry, registered in `getReferencePizza`. |
 | Genovese | **APPROVED / IMPLEMENTED** | §12 — ChatGPT-approved geometry, registered in `getReferencePizza`. |
 | Fugazza | **APPROVED / IMPLEMENTED** | §12 — ChatGPT-approved geometry (8/22 approved for this recipe only), registered. |
-| Bismarck | **CANDIDATE / NOT APPROVED** | §13.1 — design-only, no code implements it; egg tolerance (14/30) explicitly justified, not 8/22. |
-| Quattro Formaggi | **CANDIDATE / NOT APPROVED** | §13.2 — design-only, no code implements it; two-ring composition, cross-group overlap explicitly reviewed. |
+| Bismarck | **APPROVED / IMPLEMENTED** | §14 — ChatGPT-approved geometry, registered in `getReferencePizza`; egg tolerance is 14/30 (explicitly not 8/22). |
+| Quattro Formaggi | **APPROVED / IMPLEMENTED** | §14 — ChatGPT-approved geometry, registered in `getReferencePizza`; two-ring composition, cross-group overlap confirmed live in the Review Playthrough. |
 
-**Overall B2: OPEN, coverage 5/7.**
+**Overall B2: COMPLETE, coverage 7/7 — full acceptance target reached.**
 
 ---
 
@@ -971,3 +972,146 @@ rings rather than quadrants, with cross-group overlap explicitly measured, not a
 Once reviewed, this closes the full authoring pass for all 7 recipes' worth of *proposed*
 geometry — implementation of whichever of these two are approved would bring coverage to 6/7 or
 7/7, completing B2 entirely.
+
+---
+
+## 14. PART C2 — Implemented: Bismarck / Quattro Formaggi Reference geometry (APPROVED, 7/7)
+
+**Base for this slice:** `origin/main` at `f4640266df8fca321a1cc6001855cae9d3b63636` — unchanged
+since §10/§12's rebase; re-confirmed via a fresh `git fetch origin main` before starting, no
+drift, no rebase needed.
+
+§13's candidate geometry was re-confirmed against current code before implementing, per this
+slice's process instruction: `recipes.ts`'s `requiredIngredients` for both bismarck
+(`tomato-sauce×1, mozzarella×3, egg×1`) and quattro-formaggi (`olive-oil×1, mozzarella×2,
+gorgonzola×2, parmigiano×2, fontina×2`) matched §13's piece-group counts exactly, and
+`recipeSauceProfiles.ts` already mapped both to the correct sauce ingredient — no contradiction
+found, so this slice went straight to implementation, as instructed, without an additional
+design audit.
+
+A dedicated implementation write-up (script/command traces, full RESULT-panel transcripts, and
+the ReferencePreview bug this slice found) lives in a separate report:
+`docs/reports/TETO_SCORING2-B2_PARTC2_Result.md`. This section gives the summary needed to close
+out the B2 tracking report itself.
+
+### 14.1 What was implemented
+
+`src/data/referencePizza.ts`:
+
+- `BISMARCK_REFERENCE`: `sauce: computeMechanicalSauceReference("bismarck")`, `pieceGroups`:
+  `mozzarella` at `(31,32), (70,34), (48,72)` with `{ fullCreditRadius: 8, zeroCreditRadius: 22 }`,
+  and `egg` at `(50,50)` with `{ fullCreditRadius: 14, zeroCreditRadius: 30 }` — byte-identical to
+  §13.1's proposal, including the egg's deliberately wider tolerance.
+- `QUATTRO_FORMAGGI_REFERENCE`: `sauce: computeMechanicalSauceReference("quattro-formaggi")`,
+  four `pieceGroups` — `mozzarella` at `(53,33), (47,67)` and `gorgonzola` at `(33,47), (67,53)`
+  (inner ring), `parmigiano` at `(72,35), (28,65)` and `fontina` at `(35,28), (65,72)` (outer
+  ring) — all four `{ fullCreditRadius: 8, zeroCreditRadius: 22 }`, byte-identical to §13.2's
+  proposal.
+- `getReferencePizza` extended from a 5-entry to the full 7-entry `Map<RecipeId, ReferencePizza>`
+  — **Reference coverage is now 7/7, every real recipe.**
+
+**A real bug was found and fixed in the same slice** (not a new feature, not a scoring change):
+`src/components/ReferencePreview.tsx` hardcoded Margherita's own name/caption
+(`"マルゲリータの見本"`, `"モッツァレラ3個とバジル2枚..."`) regardless of which recipe was
+actually open, and `src/App.css` scaled only Margherita's specific ingredient classes
+(`.reference-mini-pizza__topping--mozzarella`, `--basil`). This was invisible until this slice —
+`referenceModeEnabled` (`App.tsx`, pre-existing from Issue #47 Slice B) gates on
+`getReferencePizza(recipe.id) !== null`, not specifically on Margherita, so every recipe this B2
+effort has newly covered was silently routed through this popover already; bismarck (mozzarella
++ egg) is the first of them where the wrong hardcoded ingredients would have actually been
+visible in the caption text and the wrong CSS scale would have actually mis-sized a piece
+(mozzarella scaled correctly by luck since it's also in Margherita's set, but the caption and
+`<h2>` title were still wrong, and quattro-formaggi's four unscaled cheese pieces would have
+rendered oversized). Fixed by parameterizing the title/caption on a new required `recipeNameJa`
+prop and computing the piece caption from the reference's own `pieceGroups` (same pattern
+`PlayerReferencePreview.tsx` already used), and generalizing the two CSS selectors. This is a
+display-layer text/CSS fix only — it does not touch scoring weights/coefficients, authority
+wiring, `gameReducer.ts`, `missionScoring.ts`, or Player Reference data, so it stays inside this
+slice's constraints while being necessary for the Review Playthrough to demonstrate real,
+non-misleading Reference diagnostics for the two new recipes.
+
+**Files touched:** `src/data/referencePizza.ts`, `src/components/ReferencePreview.tsx`,
+`src/screens/GameScreen.tsx`, `src/App.css`, and the test files listed in §14.2.
+
+**Not touched:** `gameReducer.ts`, `dex.ts`, `missionScoring.ts`, `economy.ts`,
+`piecesComponent.ts`, `referenceMatching.ts`, `sauceComponent.ts`, `recipeComponent.ts`,
+`bakeComponent.ts`, `playerReference.ts`, any scoring weight/coefficient.
+
+### 14.2 Tests added / updated
+
+- `referencePizza.test.ts`: individual `it` per recipe pinning the exact object returned by
+  `getReferencePizza`, a new "coverage is exactly 7/7" loop over `RECIPES`, a "returns null only
+  for an unknown id" test, and exact-geometry pins for `BISMARCK_REFERENCE`/
+  `QUATTRO_FORMAGGI_REFERENCE` (including the egg's 14/30 tolerance, explicitly not 8/22).
+- `scoringV2.test.ts` / `malformedInput.test.ts` / `ScoringV2ShadowPanel.test.tsx`: the
+  "Reference-unavailable recipe" example (previously always a real bismarck lookup) is now a
+  synthetic `{ ...MARGHERITA, id: "no-such-recipe" }`, since no real recipe is left uncovered;
+  `it.each` availability/Golden-Matrix/permutation-invariance lists extended to include
+  `"bismarck"` and `"quattro-formaggi"`; a new regression test confirms genovese/fugazza (PART
+  C1) remain available and unaffected.
+- `playerReference.test.ts`: the coverage-matching test now loops all 7 `RECIPES` asserting
+  `getReferencePizza(recipe.id) !== null`; the old "Bismarck has a player reference despite
+  having no Scoring 2.0 fixture" test (false premise now) is rewritten to prove
+  `getPlayerReferencePizza`'s independence from `getReferencePizza` using a synthetic id instead.
+- `ReferencePreview.test.tsx` / `App.playerReference.test.tsx`: updated for the new required
+  `recipeNameJa` prop; the latter's Bismarck describe block is the regression pin for the
+  popover bug fix — asserts the dialog title matches `/ビスマルクの見本/` and that no leftover
+  `/マルゲリータ/` text is present.
+
+**Full verification (this session):**
+
+| Check | Result |
+|---|---|
+| Full suite (`npm test`) | **1061 passed**, 54 files, 0 failed |
+| Typecheck + build (`tsc -b && vite build`) | ✅ clean |
+| Lint (`oxlint`) | ✅ 0 findings |
+| CI (`build` check, PR #57 HEAD `3be9fc9e07775d3c4ef60df688d8c7ede60192ad`) | ✅ success |
+
+### 14.3 Preview / Review Playthrough
+
+- **Preview deploy:** `deploy-from-source.yml` dispatched with
+  `ref=3be9fc9e07775d3c4ef60df688d8c7ede60192ad, pr_number=57`, followed by `pages.yml`. Also
+  independently verified via a byte-identical local rebuild
+  (`VITE_PREVIEW_MODE=1 VITE_PREVIEW_PR=57 VITE_PREVIEW_SHA=3be9fc9`) served locally and driven
+  with real headless-Chromium pointer gestures, the same network-sandboxing caveat as every
+  prior Preview-Gate report in this repo.
+- **Review Playthrough (390×844, real pointer gestures):** full playthroughs of both newly
+  covered recipes. Video: `artifacts/review/TETO_SCORING2-B2_PARTC2_Review-Playthrough.mp4`
+  (gitignored, delivered directly to the user).
+- **What the video shows:**
+  1. **Bismarck**: the Reference diagnostic popover opened *before* playing, showing its own
+     correct title/caption (`ビスマルク 見本` / `トマトソースをまんべんなく塗って、モッツァレラ
+     3個とたまご1個を見本に近く置こう。`) — the live regression proof of the ReferencePreview bug
+     fix. Then dough → sauce → mozzarella×3 placement at the approved coordinates → egg
+     placement at (50,50) → bake → RESULT with Scoring 2.0 Shadow `Total: 99/100`
+     (`available: true`, mozzarella 3/3 @ 100, egg 1/1 @ 100).
+  2. **Quattro Formaggi**: its own Reference diagnostic popover (4-group data, confirming it is
+     not a stale/shared fixture), then dough → sauce (olive-oil) → all 4 cheese groups placed
+     together in the single CHEESE step (mozzarella/gorgonzola inner ring, parmigiano/fontina
+     outer ring) with a deliberate hold showing all 4 groups on the dough at once — visual
+     confirmation of the inner/outer ring layout and cross-group overlap — then bake → RESULT
+     with Scoring 2.0 Shadow `Total: 99/100` (`available: true`, all four groups — mozzarella
+     2/2, gorgonzola 2/2, parmigiano 2/2, fontina 2/2 — each scoring 100).
+  3. Both RESULTs show the legacy ★ stars/number (`★★★★★ 100`) as a visually and numerically
+     separate panel from the dev-only "🧪 Scoring 2.0 Shadow" section throughout — Shadow/legacy
+     are not confused or conflated.
+- **No merge.** PR #57 remains open/draft.
+
+### 14.4 B2 status after PART C2
+
+**Scoring 2.0 Reference coverage: 7/7 — margherita, marinara, funghi, genovese, fugazza,
+bismarck, quattro-formaggi.** This is the full acceptance target from §7; B2 is complete.
+
+### 14.5 Final verdict
+
+**B2 COMPLETE — READY FOR HUMAN REVIEW.** All 7 recipes have reviewed, ChatGPT-approved,
+non-fabricated Reference geometry, registered in `getReferencePizza` and independently confirmed
+reachable through real gameplay. A real display-layer bug (Margherita hardcoded into
+`ReferencePreview`) was found and fixed as part of reaching full coverage, with its own
+regression test. No scoring weight/coefficient, authority wiring, `gameReducer` scoring
+authority, `missionScoring`, Player Reference, or A1 official-scoring cutover was touched at any
+point across PART A/B/C1/C2. Remaining risk: the piece-scoring model still averages all of a
+recipe's ingredient groups equally regardless of group count (the N>2-groups limitation surfaced
+in §13.4) — quattro-formaggi's 4 equally-weighted groups is the first real case of this in
+production data; this is a pre-existing scoring-model characteristic, not something introduced
+or worsened by this slice, and is called out here for whoever reviews this PR next.
