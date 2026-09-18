@@ -1,6 +1,6 @@
 # Teto Pizza Game — Project Handoff / Roadmap SSOT
 
-Updated: 2026-09-18 (Issue #33 Dough D1/D2 COMPLETE / Human Feel PASS via PR #54; Issue #38 Pitz Reward Fresh Audit; Scoring 2.0 Authority Fresh Audit)
+Updated: 2026-09-18 (Issue #33 Dough D1/D2 COMPLETE / Human Feel PASS via PR #54; Issue #38 Pitz Reward Fresh Audit; Scoring 2.0 Authority Fresh Audit; Save v2 E0 migration implementation, PR #56 open, DO NOT MERGE pending review)
 
 > Fresh GitHub/main state always wins if this document becomes stale.
 
@@ -53,9 +53,10 @@ Primary device: smartphone vertical. Verification baseline: 390×844.
 - Save v2 / Inventory (P5, no dedicated issue number yet). Fresh Audit **done** — see
   `docs/reports/TETO_SAVE-V2_INVENTORY_Fresh-Audit.md` (audited SHA
   `2da3949de5bd642c709ca6ba343bc57d8101d03d`). Verdict: **B. READY WITH MINOR DESIGN DECISIONS**.
-  Does not change current priority (Issue #33 D1/D2 is complete; next is Issue #33 D3 or Issue
-  #37 M2 per the above); tracked as prep work for when P5 becomes active. See P5 below for the
-  recommended E0→E1→E2→E3 build order.
+  **E0 (Save v2 migration) implementation done, PR #56 open, DO NOT MERGE pending review** — see
+  `docs/reports/TETO_SAVE-V2_E0_Result.md`. Does not change current priority (Issue #33 D1/D2 is
+  complete; next is Issue #33 D3 or Issue #37 M2 per the above); tracked as prep work for when P5
+  becomes active. See P5 below for the recommended E0→E1→E2→E3 build order.
 - Issue #39 — HOME/FREE navigation redesign + Pizza Select. PS1/PS2/PS3 **complete** (PR #40, PR #41, both merged into `main`); PS4 iPhone Human Feel **PASS**. Remaining HOME visual polish (see "Parallel / non-blocking" below) is tracked as future polish, not an Issue #39 blocker.
 
 Scoring 2.0 Shadow has already been implemented and calibrated. It remains non-authoritative until the remaining consistency/Human Feel gates pass. **Scoring 2.0 Authority Fresh Audit done** — see `docs/reports/TETO_SCORING2_AUTHORITY_Fresh-Audit.md` (audited SHA `2da3949de5bd642c709ca6ba343bc57d8101d03d`). Verdict: **D. BLOCKED BY ANOTHER SYSTEM** — not by Dough (that dependency is explicitly cleared), but by two findings internal to Scoring 2.0 itself: it has **no Bake component at all** (any recipe, always unavailable — legacy's heaviest weight, 30/100), and it has **Reference coverage for exactly 1 of 7 recipes** (Margherita only), so a literal authority cutover today would break RESULT/stars/BEST/Dex/progression for 6 of 7 recipes. The Recipe/Sauce/Pieces invariants, the reducer-boundary cutover design, and every Dex/Mission/progression/save-compatibility question are otherwise confirmed ready — no further coefficient tuning required. Recommended sequence: **B1 (add a Bake similarity component) and B2 (Reference coverage for the remaining 6 recipes), in parallel, both gating A1 (authority adapter at `gameReducer.ts`'s `CONFIRM_BAKE`) → A2 (cutover verification) → A3 (legacy cleanup)**.
@@ -238,7 +239,19 @@ a strict build order): **E0 Save v2 migration → E1 InventoryState → E2 atomi
 CONFIRM_BAKE → E3 Shop 2.0 restock** — consumption is sequenced *before* restock because Starter
 ingredients are unconditionally unlimited stock (first-pizza safety by construction), which makes
 E2 a zero-visible-impact change validated against the one existing purchasable ingredient
-(`onion`) before any new Shop UI risk lands. Next recommended implementation task: **E0**.
+(`onion`) before any new Shop UI risk lands.
+
+**E0 implementation done, PR open, pending review** — see
+`docs/reports/TETO_SAVE-V2_E0_Result.md` (branch `claude/teto-e0-save-v2-migration-ly42xe`, HEAD
+SHA `1aa61485dd3f3c1d6eb11f69aba1416061e6d65a`, **PR #56 — DO NOT MERGE** until ChatGPT Human
+Feel/review passes). `schemaVersion` bumped to 2, `PersistentSaveV2` adds `inventory:
+Record<string, number>`; standalone `migrateV1toV2` carries every existing v1 field through
+unchanged and backfills `inventory` for already-purchased (non-Starter) ingredients via
+`DEFAULT_MIGRATION_RESTOCK_QTY = 4` (matches `fugazza`'s `onion` `minCount`); Starter ingredients
+can never acquire finite stock semantics. No gameplay change — `inventory` is not read by any
+reducer/UI yet (E1's job). Full suite 999/999, typecheck/lint/build clean, CI green, dedicated
+Preview deploy + 390×844 Review Playthrough done. Next recommended implementation task after E0
+merges: **E1 (InventoryState)**.
 
 1. Safe v1→v2 migration before new persistent semantics.
 2. Consumable inventory separate from permanent ingredient ownership.

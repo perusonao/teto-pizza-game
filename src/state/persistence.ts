@@ -40,6 +40,16 @@ import { isNewMissionBest } from "../logic/missionScoring";
  * living outside GameState entirely) or vice versa. `persistDex` is kept as its own function
  * (and still fully tested) for any caller that only ever touches Dex, but App.tsx itself calls
  * `persistProgress` for every GameState-driven save since Phase 3C-5.
+ *
+ * Save v2 / Inventory E0 (see docs/reports/TETO_SAVE-V2_INVENTORY_Fresh-Audit.md sec. 4) bumps
+ * `schemaVersion` to `2` and adds `inventory: Record<string, number>` (ingredientId -> stock),
+ * the persisted field InventoryState (E1) will read. E0 itself only extends the storage layer:
+ * `migrateV1toV2` is a standalone, deterministic step that carries every existing v1 field
+ * through unchanged and backfills `inventory` for already-purchased ingredients (never zeroed --
+ * see `DEFAULT_MIGRATION_RESTOCK_QTY` below); a v2 save is simply re-validated field-by-field,
+ * same tier-2 behavior v1 already had. No `GameState`/reducer/UI reads `inventory` yet -- that is
+ * E1's job. `PersistentSaveV1` is kept as its own type (still used by `migrateV1toV2` and by
+ * tests that seed a raw legacy save) rather than folded into `PersistentSaveV2`.
  */
 
 /**
@@ -54,7 +64,21 @@ import { isNewMissionBest } from "../logic/missionScoring";
 export const SAVE_STORAGE_KEY = import.meta.env.VITE_PREVIEW_MODE
   ? "teto-pizza-preview-save-v1"
   : "teto-pizza-save-v1";
-const CURRENT_SCHEMA_VERSION = 1;
+const CURRENT_SCHEMA_VERSION = 2;
+
+/**
+ * Migration backfill quantity for an already-purchased finite-stock ingredient (Save v2
+ * Inventory Fresh Audit sec. 4/6 -- the audit deliberately left this exact value as an
+ * implementation decision). Chosen as the smallest defensible nonzero value: `onion` is
+ * today's only ingredient with an `unlockCondition` (src/data/ingredients.ts), and its one
+ * consuming recipe, `fugazza`, requires `minCount: 4` (src/data/recipes.ts). A smaller
+ * backfill (e.g. 1) would migrate an existing purchaser of `onion` into a save that still
+ * technically "owns" it but can never place enough for a fully on-recipe Fugazza -- exactly
+ * the kind of one-purchase-later dead end the audit requires E0 to avoid. 4 is the smallest
+ * quantity that lets that one real recipe be prepared at its designed quantity immediately
+ * after migration, with no economy/balance judgment beyond matching existing data.
+ */
+export const DEFAULT_MIGRATION_RESTOCK_QTY = 4;
 
 export interface PersistentSaveV1 {
   schemaVersion: 1;
@@ -77,8 +101,27 @@ export interface PersistentSaveV1 {
   missionBest: Record<string, number>;
 }
 
+/**
+ * Save v2 (E0, see docs/reports/TETO_SAVE-V2_INVENTORY_Fresh-Audit.md sec. 4/5). Same four
+ * fields as v1, unchanged in shape and meaning, plus `inventory`. `inventory` is a partial
+ * `ingredientId -> stock` map for finite-stock ingredients only -- an ingredient with no
+ * `unlockCondition` (every current Starter ingredient) is unconditionally unlimited and must
+ * never appear as a key here (`sanitizeInventory` strips it even if present in raw storage);
+ * an absent id for a purchasable ingredient reads back as 0 stock, matching how an absent
+ * `ownedIngredientIds` entry already reads back as not-owned.
+ */
+export interface PersistentSaveV2 {
+  schemaVersion: 2;
+  dex: DexEntry[];
+  pitzBalance: number;
+  ownedIngredientIds: string[];
+  missionBest: Record<string, number>;
+  inventory: Record<string, number>;
+}
+
 const KNOWN_RECIPE_IDS: readonly string[] = RECIPES.map((r) => r.id);
 const KNOWN_INGREDIENT_IDS: readonly string[] = INGREDIENTS.map((i) => i.id);
+const STARTER_INGREDIENT_ID_SET: ReadonlySet<string> = new Set(STARTER_INGREDIENT_IDS);
 
 function isKnownRecipeId(value: unknown): value is string {
   return typeof value === "string" && KNOWN_RECIPE_IDS.includes(value);
@@ -173,35 +216,139 @@ function sanitizeMissionBest(raw: unknown): Record<string, number> {
   return result;
 }
 
-export function createDefaultSave(): PersistentSaveV1 {
+/**
+ * Sanitizes the saved inventory (Save v2 E0). Per-key tolerant, matching
+ * `sanitizeMissionBest`'s style: one bad entry doesn't cost the rest. Two independent gates
+ * per entry, both required: the id must be a *known, purchasable* ingredient (in
+ * `KNOWN_INGREDIENT_IDS` and NOT in `STARTER_INGREDIENT_ID_SET`), and the value must be a
+ * non-negative integer. A Starter ingredient id is dropped here unconditionally even if
+ * present in raw storage -- Starter ingredients must never acquire finite stock semantics
+ * (Fresh Audit sec. 5/6), so this sanitizer is the enforcement point for that rule on every
+ * load, not just on migration.
+ */
+function sanitizeInventory(raw: unknown): Record<string, number> {
+  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) return {};
+  const result: Record<string, number> = {};
+  for (const [id, value] of Object.entries(raw as Record<string, unknown>)) {
+    if (!KNOWN_INGREDIENT_IDS.includes(id)) continue;
+    if (STARTER_INGREDIENT_ID_SET.has(id)) continue;
+    if (!isNonNegativeInteger(value)) continue;
+    result[id] = value;
+  }
+  return result;
+}
+
+/**
+ * Grants a nonzero migration restock to every already-purchased (non-Starter, known)
+ * ingredient in `ownedIngredientIds`, so a v1->v2 migration can never leave a player who
+ * already paid Pitz for an ingredient holding 0 usable stock of it -- that would be a
+ * brand-new "bought but can't use it" dead end this feature must not introduce (Fresh Audit
+ * sec. 4/6). Starter ingredients are never granted an entry here at all; they stay
+ * structurally unlimited regardless of migration. Pure and deterministic: same input always
+ * produces the same output.
+ */
+export function backfillInventoryForMigratedSave(
+  ownedIngredientIds: readonly string[],
+): Record<string, number> {
+  const inventory: Record<string, number> = {};
+  for (const id of ownedIngredientIds) {
+    if (STARTER_INGREDIENT_ID_SET.has(id)) continue;
+    if (!KNOWN_INGREDIENT_IDS.includes(id)) continue;
+    inventory[id] = DEFAULT_MIGRATION_RESTOCK_QTY;
+  }
+  return inventory;
+}
+
+/**
+ * Standalone, deterministic v1->v2 migration step (Fresh Audit sec. 4). A pure function of
+ * its input: `dex`/`pitzBalance`/`ownedIngredientIds`/`missionBest` are carried through
+ * verbatim (never reset -- a migration must never look like a progression wipe), and
+ * `inventory` is populated via `backfillInventoryForMigratedSave` rather than left empty.
+ * Deliberately written as its own independently-callable/testable unit, not inlined into the
+ * load pipeline, so a future v2->v3 step can be added the same way without touching this one.
+ * Idempotent in the sense that matters here: called twice with the same input, it returns an
+ * equal result both times (no `Date.now()`/`Math.random()` anywhere in it). The caller still
+ * runs its result through the same per-field sanitizers a direct v2 read goes through
+ * (`sanitizeSave` below), so this function only needs to shape the v2 fields -- not validate
+ * the contents of a structurally-valid v1 input.
+ */
+export function migrateV1toV2(v1: PersistentSaveV1): PersistentSaveV2 {
+  return {
+    schemaVersion: 2,
+    dex: v1.dex,
+    pitzBalance: v1.pitzBalance,
+    ownedIngredientIds: v1.ownedIngredientIds,
+    missionBest: v1.missionBest,
+    inventory: backfillInventoryForMigratedSave(v1.ownedIngredientIds),
+  };
+}
+
+export function createDefaultSave(): PersistentSaveV2 {
   return {
     schemaVersion: CURRENT_SCHEMA_VERSION,
     dex: [],
     pitzBalance: 0,
     ownedIngredientIds: [...STARTER_INGREDIENT_IDS],
     missionBest: {},
+    inventory: {},
   };
 }
 
 /**
- * Validates a raw parsed JSON value against the PersistentSaveV1 root shape. A malformed
- * root (not an object, wrong/missing `schemaVersion`, `dex` not an array) discards the whole
- * save and falls back to fresh -- there's no way to trust anything else in it. Problems
- * *inside* an otherwise-valid root (a bad Dex entry, an unknown ingredient id) are instead
- * repaired field-by-field so they don't need to cost the rest of the save.
+ * Tier 2 of the load pipeline (Fresh Audit sec. 4): from a structurally-valid object root,
+ * decides whether this is a migratable v1 save, an already-v2 save, or unrecognized, and
+ * returns a v2-shaped (not yet per-field sanitized) record -- or null when the root can't be
+ * made sense of at all. This is a deliberate, unchanged safety boundary carried over from v1:
+ * a build can only migrate backward-known versions forward; an unrecognized `schemaVersion`
+ * (root not an object, `dex` not an array under a claimed v1/v2, or any other version number,
+ * e.g. a future v3 read by this exact build) has always fallen back to a fresh default, and
+ * still does -- v1 or v2 alike, this is erasure-to-default, not a new gap.
  */
-function sanitizeSave(raw: unknown): PersistentSaveV1 | null {
+function toIntermediateV2(raw: Record<string, unknown>): Record<string, unknown> | null {
+  if (raw.schemaVersion === 1) {
+    if (!Array.isArray(raw.dex)) return null;
+    const v1: PersistentSaveV1 = {
+      schemaVersion: 1,
+      dex: raw.dex as DexEntry[],
+      pitzBalance: raw.pitzBalance as number,
+      ownedIngredientIds: Array.isArray(raw.ownedIngredientIds)
+        ? (raw.ownedIngredientIds as string[])
+        : [],
+      missionBest:
+        typeof raw.missionBest === "object" && raw.missionBest !== null
+          ? (raw.missionBest as Record<string, number>)
+          : {},
+    };
+    return migrateV1toV2(v1) as unknown as Record<string, unknown>;
+  }
+  if (raw.schemaVersion === 2) {
+    if (!Array.isArray(raw.dex)) return null;
+    return raw;
+  }
+  return null;
+}
+
+/**
+ * Validates a raw parsed JSON value against the PersistentSaveV2 root shape, migrating a v1
+ * root forward first when recognized. A malformed root (not an object, unrecognized
+ * `schemaVersion`, `dex` not an array) discards the whole save and falls back to fresh --
+ * there's no way to trust anything else in it. Problems *inside* an otherwise-valid root (a
+ * bad Dex entry, an unknown ingredient id, an invalid inventory entry) are instead repaired
+ * field-by-field so they don't need to cost the rest of the save.
+ */
+function sanitizeSave(raw: unknown): PersistentSaveV2 | null {
   if (typeof raw !== "object" || raw === null) return null;
   const r = raw as Record<string, unknown>;
-  if (r.schemaVersion !== CURRENT_SCHEMA_VERSION) return null;
-  if (!Array.isArray(r.dex)) return null;
+  const intermediate = toIntermediateV2(r);
+  if (!intermediate) return null;
 
   return {
     schemaVersion: CURRENT_SCHEMA_VERSION,
-    dex: sanitizeDex(r.dex),
-    pitzBalance: sanitizePitzBalance(r.pitzBalance),
-    ownedIngredientIds: sanitizeOwnedIngredientIds(r.ownedIngredientIds),
-    missionBest: sanitizeMissionBest(r.missionBest),
+    dex: sanitizeDex(intermediate.dex),
+    pitzBalance: sanitizePitzBalance(intermediate.pitzBalance),
+    ownedIngredientIds: sanitizeOwnedIngredientIds(intermediate.ownedIngredientIds),
+    missionBest: sanitizeMissionBest(intermediate.missionBest),
+    inventory: sanitizeInventory(intermediate.inventory),
   };
 }
 
@@ -229,7 +376,7 @@ function getDefaultStorage(): StorageLike | null {
  * error, malformed JSON, an invalid root shape, or an unknown schema version all fall back
  * to a fresh default save so the game is always playable.
  */
-export function loadSave(storage: StorageLike | null = getDefaultStorage()): PersistentSaveV1 {
+export function loadSave(storage: StorageLike | null = getDefaultStorage()): PersistentSaveV2 {
   if (!storage) return createDefaultSave();
   try {
     const raw = storage.getItem(SAVE_STORAGE_KEY);
@@ -279,7 +426,7 @@ export function persistDex(
   try {
     const current = loadSave(storage);
     if (dexEquals(dex, current.dex)) return;
-    const next: PersistentSaveV1 = { ...current, dex: [...dex] };
+    const next: PersistentSaveV2 = { ...current, dex: [...dex] };
     storage.setItem(SAVE_STORAGE_KEY, JSON.stringify(next));
   } catch {
     // Storage full, disabled, or otherwise unavailable -- gameplay continues unaffected.
@@ -340,7 +487,7 @@ export function persistProgress(
     const ownedUnchanged = sameStringSet(nextOwnedIngredientIds, current.ownedIngredientIds);
     if (dexUnchanged && pitzUnchanged && ownedUnchanged) return;
 
-    const next: PersistentSaveV1 = {
+    const next: PersistentSaveV2 = {
       ...current,
       dex: nextDex,
       pitzBalance: nextPitzBalance,
@@ -380,7 +527,7 @@ export function persistMissionBest(
     const current = loadSave(storage);
     const existingBest = current.missionBest[missionId] ?? 0;
     if (!isNewMissionBest(score, existingBest)) return;
-    const next: PersistentSaveV1 = {
+    const next: PersistentSaveV2 = {
       ...current,
       missionBest: { ...current.missionBest, [missionId]: score },
     };

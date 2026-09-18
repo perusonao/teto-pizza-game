@@ -1,13 +1,18 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   SAVE_STORAGE_KEY,
+  DEFAULT_MIGRATION_RESTOCK_QTY,
+  backfillInventoryForMigratedSave,
   clearSave,
   createDefaultSave,
   loadMissionBest,
   loadSave,
+  migrateV1toV2,
   persistDex,
   persistMissionBest,
   persistProgress,
+  type PersistentSaveV1,
+  type PersistentSaveV2,
   type StorageLike,
 } from "./persistence";
 import { EMPTY_DEX, registerScoreToDex, type DexEntry } from "./dex";
@@ -63,12 +68,28 @@ const validEntry: DexEntry = {
   timesMade: 3,
 };
 
-/** Builds a raw save payload from the default save plus overrides. `overrides` is
- *  intentionally untyped (`Record<string, unknown>`, not `Partial<PersistentSaveV1>`) since
+/** Builds a raw save payload from the default (v2) save plus overrides. `overrides` is
+ *  intentionally untyped (`Record<string, unknown>`, not `Partial<PersistentSaveV2>`) since
  *  several tests below deliberately construct malformed Dex entries to exercise validation --
- *  those shapes must not type-check as real `DexEntry`/`PersistentSaveV1` values. */
+ *  those shapes must not type-check as real `DexEntry`/`PersistentSaveV2` values. */
 function saveWith(overrides: Record<string, unknown>): string {
   return JSON.stringify({ ...createDefaultSave(), ...overrides });
+}
+
+/** A structurally-valid raw v1 save (pre-E0 shape, no `inventory` field). Used by the
+ *  migration test matrix below to simulate an existing player's storage untouched by Save v2. */
+function defaultV1Save(): PersistentSaveV1 {
+  return {
+    schemaVersion: 1,
+    dex: [],
+    pitzBalance: 0,
+    ownedIngredientIds: [...STARTER_INGREDIENT_IDS],
+    missionBest: {},
+  };
+}
+
+function v1SaveWith(overrides: Record<string, unknown>): string {
+  return JSON.stringify({ ...defaultV1Save(), ...overrides });
 }
 
 describe("loadSave", () => {
@@ -407,6 +428,229 @@ describe("persistProgress (Phase 3C-5)", () => {
   });
 });
 
+describe("migrateV1toV2 (Save v2 / Inventory E0, standalone unit)", () => {
+  it("carries dex/pitzBalance/ownedIngredientIds/missionBest through unchanged", () => {
+    const v1: PersistentSaveV1 = {
+      schemaVersion: 1,
+      dex: [validEntry],
+      pitzBalance: 250,
+      ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "onion"],
+      missionBest: { [LUNCH_RUSH_MISSION_ID]: 742 },
+    };
+    const v2 = migrateV1toV2(v1);
+    expect(v2.schemaVersion).toBe(2);
+    expect(v2.dex).toEqual(v1.dex);
+    expect(v2.pitzBalance).toBe(v1.pitzBalance);
+    expect(v2.ownedIngredientIds).toEqual(v1.ownedIngredientIds);
+    expect(v2.missionBest).toEqual(v1.missionBest);
+  });
+
+  it("backfills a nonzero migration stock for an already-purchased (non-Starter) ingredient", () => {
+    const v1: PersistentSaveV1 = {
+      ...defaultV1Save(),
+      ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "onion"],
+    };
+    const v2 = migrateV1toV2(v1);
+    expect(v2.inventory).toEqual({ onion: DEFAULT_MIGRATION_RESTOCK_QTY });
+    expect(v2.inventory.onion).toBeGreaterThan(0);
+  });
+
+  it("does not grant any inventory entry when no non-Starter ingredient was ever purchased", () => {
+    const v1: PersistentSaveV1 = { ...defaultV1Save(), ownedIngredientIds: [...STARTER_INGREDIENT_IDS] };
+    expect(migrateV1toV2(v1).inventory).toEqual({});
+  });
+
+  it("never grants a Starter ingredient a finite inventory entry via backfill, even defensively", () => {
+    const inventory = backfillInventoryForMigratedSave([...STARTER_INGREDIENT_IDS, "onion"]);
+    for (const starterId of STARTER_INGREDIENT_IDS) {
+      expect(inventory[starterId]).toBeUndefined();
+    }
+    expect(inventory.onion).toBe(DEFAULT_MIGRATION_RESTOCK_QTY);
+  });
+
+  it("is a pure/deterministic function: the same input migrated twice yields an equal result", () => {
+    const v1: PersistentSaveV1 = {
+      schemaVersion: 1,
+      dex: [validEntry],
+      pitzBalance: 80,
+      ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "onion"],
+      missionBest: { [LUNCH_RUSH_MISSION_ID]: 300 },
+    };
+    expect(migrateV1toV2(v1)).toEqual(migrateV1toV2(v1));
+  });
+});
+
+describe("loadSave: v1 -> v2 migration pipeline (Save v2 / Inventory E0)", () => {
+  it("migrates an existing valid v1 progression intact", () => {
+    const storage = fakeStorage({
+      [SAVE_STORAGE_KEY]: v1SaveWith({
+        dex: [validEntry],
+        pitzBalance: 250,
+        ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "onion"],
+        missionBest: { [LUNCH_RUSH_MISSION_ID]: 742 },
+      }),
+    });
+    const save = loadSave(storage);
+    expect(save.schemaVersion).toBe(2);
+    expect(save.dex).toEqual([validEntry]);
+    expect(save.pitzBalance).toBe(250);
+    expect(save.ownedIngredientIds.sort()).toEqual([...STARTER_INGREDIENT_IDS, "onion"].sort());
+    expect(save.missionBest).toEqual({ [LUNCH_RUSH_MISSION_ID]: 742 });
+  });
+
+  it("a v1 save with a purchased onion migrates into a nonzero onion stock", () => {
+    const storage = fakeStorage({
+      [SAVE_STORAGE_KEY]: v1SaveWith({ ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "onion"] }),
+    });
+    const save = loadSave(storage);
+    expect(save.inventory.onion).toBe(DEFAULT_MIGRATION_RESTOCK_QTY);
+    expect(save.inventory.onion).toBeGreaterThan(0);
+  });
+
+  it("a v1 save that never purchased onion does not incorrectly receive finite onion stock", () => {
+    const storage = fakeStorage({
+      [SAVE_STORAGE_KEY]: v1SaveWith({ ownedIngredientIds: [...STARTER_INGREDIENT_IDS] }),
+    });
+    const save = loadSave(storage);
+    expect(save.inventory.onion).toBeUndefined();
+    expect(save.inventory).toEqual({});
+  });
+
+  it("never attaches finite stock to a Starter ingredient via migration, even when it's redundantly listed", () => {
+    const storage = fakeStorage({
+      [SAVE_STORAGE_KEY]: v1SaveWith({ ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "onion"] }),
+    });
+    const save = loadSave(storage);
+    for (const starterId of STARTER_INGREDIENT_IDS) {
+      expect(save.inventory[starterId]).toBeUndefined();
+    }
+  });
+
+  it("migrating the same stored v1 save repeatedly (no write-back) is deterministic/idempotent", () => {
+    const raw = v1SaveWith({
+      ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "onion"],
+      pitzBalance: 40,
+    });
+    const storage = fakeStorage({ [SAVE_STORAGE_KEY]: raw });
+    const first = loadSave(storage);
+    const second = loadSave(storage);
+    expect(first).toEqual(second);
+    // loadSave is read-only -- the raw v1 JSON in storage is untouched by either read.
+    expect(storage.getItem(SAVE_STORAGE_KEY)).toBe(raw);
+  });
+});
+
+describe("loadSave: v2 sanitize/pass-through (Save v2 / Inventory E0)", () => {
+  it("round-trips an already-v2 save unchanged", () => {
+    const v2: PersistentSaveV2 = {
+      schemaVersion: 2,
+      dex: [validEntry],
+      pitzBalance: 60,
+      ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "onion"],
+      missionBest: { [LUNCH_RUSH_MISSION_ID]: 500 },
+      inventory: { onion: 7 },
+    };
+    const storage = fakeStorage({ [SAVE_STORAGE_KEY]: JSON.stringify(v2) });
+    expect(loadSave(storage)).toEqual(v2);
+  });
+
+  it("re-loading an already-v2 save repeatedly is idempotent (tier-2 pass-through only)", () => {
+    const storage = fakeStorage({
+      [SAVE_STORAGE_KEY]: saveWith({ inventory: { onion: 4 } }),
+    });
+    expect(loadSave(storage)).toEqual(loadSave(storage));
+  });
+
+  it("sanitizes invalid inventory entries: drops unknown ids, negative/non-integer values, and Starter ids", () => {
+    const storage = fakeStorage({
+      [SAVE_STORAGE_KEY]: JSON.stringify({
+        ...createDefaultSave(),
+        inventory: {
+          onion: 5,
+          "not-a-real-ingredient": 3,
+          mozzarella: 2, // Starter ingredient -- must never carry finite stock semantics
+          negative: -1,
+          fractional: 1.5,
+          notANumber: "5",
+        },
+      }),
+    });
+    const save = loadSave(storage);
+    expect(save.inventory).toEqual({ onion: 5 });
+  });
+
+  it("a malformed (non-object) inventory falls back to an empty record instead of throwing", () => {
+    const storage = fakeStorage({
+      [SAVE_STORAGE_KEY]: JSON.stringify({ ...createDefaultSave(), inventory: "not-an-object" }),
+    });
+    expect(loadSave(storage).inventory).toEqual({});
+  });
+});
+
+describe("loadSave: malformed/unrecognized-schema fallback (Save v2 / Inventory E0)", () => {
+  it("falls back to a fresh v2 default on malformed JSON", () => {
+    const storage = fakeStorage({ [SAVE_STORAGE_KEY]: "{bad json" });
+    const save = loadSave(storage);
+    expect(save).toEqual(createDefaultSave());
+    expect(save.schemaVersion).toBe(2);
+  });
+
+  it("falls back to fresh on an unrecognized future schemaVersion (e.g. a hypothetical v3)", () => {
+    const storage = fakeStorage({
+      [SAVE_STORAGE_KEY]: JSON.stringify({ ...createDefaultSave(), schemaVersion: 3 }),
+    });
+    expect(loadSave(storage)).toEqual(createDefaultSave());
+  });
+
+  it("falls back to fresh when a claimed v1 root has a non-array dex", () => {
+    const storage = fakeStorage({
+      [SAVE_STORAGE_KEY]: JSON.stringify({ schemaVersion: 1, dex: "nope" }),
+    });
+    expect(loadSave(storage)).toEqual(createDefaultSave());
+  });
+
+  it("falls back to fresh when a claimed v2 root has a non-array dex", () => {
+    const storage = fakeStorage({
+      [SAVE_STORAGE_KEY]: JSON.stringify({ ...createDefaultSave(), dex: "nope" }),
+    });
+    expect(loadSave(storage)).toEqual(createDefaultSave());
+  });
+});
+
+/**
+ * Preview deployments (perusonao/teto-pizza-game-preview) and production share the
+ * `perusonao.github.io` origin, so `SAVE_STORAGE_KEY` (computed once at module load from
+ * `VITE_PREVIEW_MODE`) is the only thing keeping a reviewer's Preview save from mixing with a
+ * real player's `localStorage`. `vi.resetModules()` + a dynamic re-import is required here
+ * because that constant is fixed at module evaluation time -- a plain `vi.stubEnv` after this
+ * file's static top-level import would have no effect on the already-evaluated module.
+ */
+describe("Preview/production storage namespace isolation (Save v2 / Inventory E0)", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("uses the production key when VITE_PREVIEW_MODE is unset", async () => {
+    vi.resetModules();
+    const mod = await import("./persistence");
+    expect(mod.SAVE_STORAGE_KEY).toBe("teto-pizza-save-v1");
+  });
+
+  it("uses a distinct Preview key when VITE_PREVIEW_MODE is set, and a production-namespaced save is invisible under it", async () => {
+    vi.resetModules();
+    vi.stubEnv("VITE_PREVIEW_MODE", "true");
+    const previewMod = await import("./persistence");
+
+    expect(previewMod.SAVE_STORAGE_KEY).toBe("teto-pizza-preview-save-v1");
+    expect(previewMod.SAVE_STORAGE_KEY).not.toBe(SAVE_STORAGE_KEY);
+
+    const storage = fakeStorage();
+    // A save written under the production key must not be visible under the Preview key.
+    storage.setItem(SAVE_STORAGE_KEY, saveWith({ pitzBalance: 999 }));
+    expect(previewMod.loadSave(storage)).toEqual(previewMod.createDefaultSave());
+  });
+});
+
 describe("clearSave", () => {
   it("removes a stored save so the next load is fresh", () => {
     const storage = fakeStorage({ [SAVE_STORAGE_KEY]: saveWith({ dex: [validEntry] }) });
@@ -504,9 +748,9 @@ describe("Mission BEST (Phase 3C-4)", () => {
  * it in a comment.
  */
 describe("Save schema unaffected by Scoring 2.0 Shadow (Phase 4A-2 scope guard)", () => {
-  it("createDefaultSave's shape has exactly the five pre-existing fields -- no scoringV2 field was added", () => {
+  it("createDefaultSave's shape has exactly the pre-existing fields plus Save v2's `inventory` -- no scoringV2 field was added", () => {
     expect(Object.keys(createDefaultSave()).sort()).toEqual(
-      ["dex", "missionBest", "ownedIngredientIds", "pitzBalance", "schemaVersion"].sort(),
+      ["dex", "inventory", "missionBest", "ownedIngredientIds", "pitzBalance", "schemaVersion"].sort(),
     );
   });
 
