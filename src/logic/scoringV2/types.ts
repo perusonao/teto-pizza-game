@@ -1,11 +1,13 @@
 /**
- * Phase 4A-2: Scoring 2.0 Shadow public types.
+ * Phase 4A-2 / A1: Scoring 2.0 public types.
  *
- * SHADOW ONLY -- nothing in this module (or anywhere under ./logic/scoringV2/) feeds
- * ../scoring.ts's `ScoreBreakdown`, Dex BEST/★, Mission scoring, Pitz, or the persisted save
- * (see src/state/persistence.ts, which never serializes GameState). See
- * docs/reports/TETO_PHASE-4A-2_SCORING-2_Shadow_Result.md for the architecture this
- * implements and why.
+ * Authoritative -- `computeScoringV2`'s result (this module's `ScoringV2Result`) is converted
+ * by `toLegacyScoreBreakdown` (./toLegacyScoreBreakdown.ts) into the legacy `ScoreBreakdown`
+ * shape that `state.score` is built from at CONFIRM_BAKE, so it does feed `ScoreBreakdown`,
+ * Dex BEST/★, Mission scoring and progression (see src/state/gameReducer.ts). It is still never
+ * itself persisted (see src/state/persistence.ts, which never serializes GameState). See
+ * docs/reports/TETO_PHASE-4A-2_SCORING-2_Shadow_Result.md for the original architecture this
+ * implements, and docs/reports/TETO_SCORING2-A1_AUTHORITY_Result.md for the authority cutover.
  *
  * P0-1 (Reference availability): only Margherita has an authoritative Reference fixture
  * (../../data/referencePizza.ts's `getReferencePizza`). Every Reference-dependent component

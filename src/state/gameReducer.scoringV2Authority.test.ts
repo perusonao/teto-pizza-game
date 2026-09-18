@@ -13,7 +13,7 @@ import { createEmptyPizza, type PizzaState, type SauceDeposit } from "./pizzaSta
 
 /**
  * A1 Authority Cutover (docs/reports/TETO_SCORING2-A1_AUTHORITY_Result.md): `gameReducer.ts`'s
- * CONFIRM_BAKE now derives `state.score` from Scoring 2.0 (`computeScoringV2Shadow` +
+ * CONFIRM_BAKE now derives `state.score` from Scoring 2.0 (`computeScoringV2` +
  * `toLegacyScoreBreakdown`), not legacy `scorePizza`. These tests are specifically about the
  * *authority boundary* -- that `state.score` (read by Dex/progression/Mission/RESULT) really is
  * Scoring 2.0-derived now, for all 7 recipes, in both FREE and Lunch Rush, and that nothing
@@ -123,12 +123,12 @@ describe("A1 Authority Cutover: state.score is Scoring 2.0-derived (gameReducer 
       const state = playToResultForRecipe(recipeId, perfectPizzaForRecipe(recipeId));
       expect(state.phase).toBe("RESULT");
       expect(state.score).not.toBeNull();
-      expect(state.scoringV2Shadow).not.toBeNull();
-      expect(state.scoringV2Shadow?.available).toBe(true);
-      expect(state.scoringV2Shadow?.totalScore).not.toBeNull();
+      expect(state.scoringV2Result).not.toBeNull();
+      expect(state.scoringV2Result?.available).toBe(true);
+      expect(state.scoringV2Result?.totalScore).not.toBeNull();
       // The authority boundary itself: state.score.total is *exactly* Scoring 2.0's own total,
       // not independently (re)computed.
-      expect(state.score?.total).toBe(state.scoringV2Shadow?.totalScore);
+      expect(state.score?.total).toBe(state.scoringV2Result?.totalScore);
       expect(Number.isFinite(state.score?.total)).toBe(true);
       expect(state.score?.stars).toBeGreaterThanOrEqual(1);
       expect(state.score?.stars).toBeLessThanOrEqual(5);
@@ -154,8 +154,8 @@ describe("A1 Authority Cutover: state.score is Scoring 2.0-derived (gameReducer 
     // by phase4a1a.regression.test.ts) -- Scoring 2.0's Sauce component (52/100 of the total) is
     // exactly the dimension legacy is blind to, so the two formulas' totals must differ here.
     expect(state.score?.total).not.toBe(legacyOnly.total);
-    expect(state.scoringV2Shadow?.totalScore).not.toBeNull();
-    expect(state.score?.total).toBe(state.scoringV2Shadow?.totalScore);
+    expect(state.scoringV2Result?.totalScore).not.toBeNull();
+    expect(state.score?.total).toBe(state.scoringV2Result?.totalScore);
   });
 
   it("empty pizza never throws and produces a finite, low authoritative score (Bake alone still scores when baked inside the target zone)", () => {
@@ -176,7 +176,7 @@ describe("A1 Authority Cutover: state.score is Scoring 2.0-derived (gameReducer 
   it("FREE: ResultPanel-facing state.score comes from Scoring 2.0 in a non-Mission round", () => {
     const state = playToResultForRecipe("margherita", perfectPizzaForRecipe("margherita"));
     expect(state.isMissionRound).toBe(false);
-    expect(state.score?.total).toBe(state.scoringV2Shadow?.totalScore);
+    expect(state.score?.total).toBe(state.scoringV2Result?.totalScore);
   });
 
   it("Lunch Rush: MissionServePanel-facing state.score comes from the same authoritative CONFIRM_BAKE path as FREE", () => {
@@ -190,7 +190,7 @@ describe("A1 Authority Cutover: state.score is Scoring 2.0-derived (gameReducer 
     state = gameReducer(state, { type: "CONFIRM_BAKE", value: Math.round((start + end) / 2) });
 
     expect(state.phase).toBe("RESULT");
-    expect(state.score?.total).toBe(state.scoringV2Shadow?.totalScore);
+    expect(state.score?.total).toBe(state.scoringV2Result?.totalScore);
     expect(Number.isFinite(state.score?.total)).toBe(true);
   });
 
@@ -228,18 +228,18 @@ describe("A1 Authority Cutover: state.score is Scoring 2.0-derived (gameReducer 
     expect(bismarck).toBeDefined();
   });
 
-  it("retry: RETRY_SAME_RECIPE/PLAY_AGAIN reset score and scoringV2Shadow to null for a fresh round", () => {
+  it("retry: RETRY_SAME_RECIPE/PLAY_AGAIN reset score and scoringV2Result to null for a fresh round", () => {
     const resultState = playToResultForRecipe("margherita", perfectPizzaForRecipe("margherita"));
     expect(resultState.score).not.toBeNull();
-    expect(resultState.scoringV2Shadow).not.toBeNull();
+    expect(resultState.scoringV2Result).not.toBeNull();
 
     const retried = gameReducer(resultState, { type: "RETRY_SAME_RECIPE" });
     expect(retried.score).toBeNull();
-    expect(retried.scoringV2Shadow).toBeNull();
+    expect(retried.scoringV2Result).toBeNull();
 
     const playedAgain = gameReducer(resultState, { type: "PLAY_AGAIN" });
     expect(playedAgain.score).toBeNull();
-    expect(playedAgain.scoringV2Shadow).toBeNull();
+    expect(playedAgain.scoringV2Result).toBeNull();
   });
 
   it("malformed pizza (non-array toppings/sauceDeposits) fails closed on Sauce/Pieces/Recipe, never throws", () => {

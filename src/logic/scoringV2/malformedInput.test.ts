@@ -16,7 +16,7 @@
  * authoritative-Reference distinction this file's two halves are organized around.
  */
 import { describe, expect, it } from "vitest";
-import { computeScoringV2Shadow } from "./index";
+import { computeScoringV2 } from "./index";
 import { scorePieceGroupV2, scorePiecesComponentV2 } from "./piecesComponent";
 import { scoreRecipeComponentV2 } from "./recipeComponent";
 import {
@@ -513,7 +513,7 @@ describe("scoreRecipeComponentV2 -- adversarial recipe/pizza input", () => {
   });
 });
 
-describe("Codex P1 Round 2: computeScoringV2Shadow propagates authoritative-Reference unavailability to the whole result", () => {
+describe("Codex P1 Round 2: computeScoringV2 propagates authoritative-Reference unavailability to the whole result", () => {
   it("malformed recipe.requiredIngredients fails the WHOLE result closed (available:false, totalScore:null), even though Sauce/Pieces would otherwise score well", () => {
     const brokenMargherita = { ...MARGHERITA, requiredIngredients: "not-an-array" as never };
     const greatPizza = {
@@ -524,8 +524,8 @@ describe("Codex P1 Round 2: computeScoringV2Shadow propagates authoritative-Refe
         ...BASIL_GROUP.positions.map((p, i) => ({ id: `b${i}`, ingredientId: "basil", ...p })),
       ],
     };
-    expect(() => computeScoringV2Shadow(brokenMargherita, greatPizza)).not.toThrow();
-    const result = computeScoringV2Shadow(brokenMargherita, greatPizza);
+    expect(() => computeScoringV2(brokenMargherita, greatPizza)).not.toThrow();
+    const result = computeScoringV2(brokenMargherita, greatPizza);
     expect(result.available).toBe(false);
     expect(result.totalScore).toBeNull();
     // Sauce itself has nothing wrong with its own data, so its component can still compute a
@@ -548,37 +548,37 @@ describe("Codex P1 Round 2: computeScoringV2Shadow propagates authoritative-Refe
       // longer "great" end-to-end, which is the whole point of adding it.
       bakeResult: (MARGHERITA.bakeTarget.start + MARGHERITA.bakeTarget.end) / 2,
     };
-    const result = computeScoringV2Shadow(MARGHERITA, greatPizza);
+    const result = computeScoringV2(MARGHERITA, greatPizza);
     expect(result.available).toBe(true);
     expect(result.totalScore as number).toBeGreaterThan(80);
   });
 });
 
-describe("computeScoringV2Shadow -- full public-API adversarial matrix (never throws, never hangs, always finite)", () => {
+describe("computeScoringV2 -- full public-API adversarial matrix (never throws, never hangs, always finite)", () => {
   it("pizza itself is null -> falls back to an effectively-empty pizza, never throws", () => {
-    expect(() => computeScoringV2Shadow(MARGHERITA, null as unknown as PizzaState)).not.toThrow();
-    const result = computeScoringV2Shadow(MARGHERITA, null as unknown as PizzaState);
+    expect(() => computeScoringV2(MARGHERITA, null as unknown as PizzaState)).not.toThrow();
+    const result = computeScoringV2(MARGHERITA, null as unknown as PizzaState);
     expect(result.available).toBe(true); // Margherita has a Reference; the *pizza* was the malformed part
     expect(result.totalScore).toBe(0);
   });
 
   it("pizza itself is undefined -> falls back to an effectively-empty pizza, never throws", () => {
-    expect(() => computeScoringV2Shadow(MARGHERITA, undefined as unknown as PizzaState)).not.toThrow();
-    expect(computeScoringV2Shadow(MARGHERITA, undefined as unknown as PizzaState).totalScore).toBe(0);
+    expect(() => computeScoringV2(MARGHERITA, undefined as unknown as PizzaState)).not.toThrow();
+    expect(computeScoringV2(MARGHERITA, undefined as unknown as PizzaState).totalScore).toBe(0);
   });
 
   it.each(MALFORMED_CONTAINERS)("pizza.sauceDeposits is %s -> finite result, never throws", (_label, sauceDeposits) => {
     const pizza = { ...createEmptyPizza(), sauceDeposits: sauceDeposits as never };
-    expect(() => computeScoringV2Shadow(MARGHERITA, pizza)).not.toThrow();
-    const result = computeScoringV2Shadow(MARGHERITA, pizza);
+    expect(() => computeScoringV2(MARGHERITA, pizza)).not.toThrow();
+    const result = computeScoringV2(MARGHERITA, pizza);
     expect(result.totalScore).not.toBeNull();
     expect(Number.isFinite(result.totalScore as number)).toBe(true);
   });
 
   it.each(MALFORMED_CONTAINERS)("pizza.toppings is %s -> finite result, never throws", (_label, toppings) => {
     const pizza = { ...createEmptyPizza(), toppings: toppings as never };
-    expect(() => computeScoringV2Shadow(MARGHERITA, pizza)).not.toThrow();
-    const result = computeScoringV2Shadow(MARGHERITA, pizza);
+    expect(() => computeScoringV2(MARGHERITA, pizza)).not.toThrow();
+    const result = computeScoringV2(MARGHERITA, pizza);
     expect(result.totalScore).not.toBeNull();
     expect(Number.isFinite(result.totalScore as number)).toBe(true);
   });
@@ -592,8 +592,8 @@ describe("computeScoringV2Shadow -- full public-API adversarial matrix (never th
       toppings: [undefined, 42, { ingredientId: "mozzarella" }, { x: Number.NaN, y: Number.NaN, ingredientId: "basil" }] as never,
       bakeResult: null,
     };
-    expect(() => computeScoringV2Shadow(MARGHERITA, pizza as unknown as PizzaState)).not.toThrow();
-    const result = computeScoringV2Shadow(MARGHERITA, pizza as unknown as PizzaState);
+    expect(() => computeScoringV2(MARGHERITA, pizza as unknown as PizzaState)).not.toThrow();
+    const result = computeScoringV2(MARGHERITA, pizza as unknown as PizzaState);
     expect(result.totalScore).not.toBeNull();
     expect(Number.isFinite(result.totalScore as number)).toBe(true);
     expect(result.totalScore).toBe(0); // every collection sanitized down to nothing real
@@ -606,8 +606,8 @@ describe("computeScoringV2Shadow -- full public-API adversarial matrix (never th
     // still needs coverage even though no real recipe exercises it anymore.
     const noReferenceRecipe = { ...MARGHERITA, id: "no-such-recipe" as typeof MARGHERITA.id };
     const pizza = { ...createEmptyPizza(), sauceDeposits: "garbage" as never, toppings: null as never };
-    expect(() => computeScoringV2Shadow(noReferenceRecipe, pizza)).not.toThrow();
-    const result = computeScoringV2Shadow(noReferenceRecipe, pizza);
+    expect(() => computeScoringV2(noReferenceRecipe, pizza)).not.toThrow();
+    const result = computeScoringV2(noReferenceRecipe, pizza);
     expect(result.available).toBe(false);
     expect(result.totalScore).toBeNull();
   });
@@ -629,14 +629,14 @@ describe("Permutation invariance and Golden Matrix survive the boundary fix unch
   });
 
   it("Golden ordering (perfect > good > poor > empty) is unaffected by the sanitization boundary", () => {
-    const perfect = computeScoringV2Shadow(
+    const perfect = computeScoringV2(
       MARGHERITA,
       { ...createEmptyPizza(), sauceIds: ["tomato-sauce"], sauceDeposits: [], toppings: [
           ...MARGHERITA_REFERENCE.pieceGroups[0].positions.map((p, i) => ({ id: `m${i}`, ingredientId: "mozzarella", ...p })),
           ...MARGHERITA_REFERENCE.pieceGroups[1].positions.map((p, i) => ({ id: `b${i}`, ingredientId: "basil", ...p })),
         ] },
     );
-    const empty = computeScoringV2Shadow(MARGHERITA, createEmptyPizza());
+    const empty = computeScoringV2(MARGHERITA, createEmptyPizza());
     expect(perfect.totalScore as number).toBeGreaterThan(empty.totalScore as number);
     expect(empty.totalScore).toBe(0);
   });
@@ -652,10 +652,10 @@ describe("Permutation invariance and Golden Matrix survive the boundary fix unch
       ],
     };
     const { start, end } = MARGHERITA.bakeTarget;
-    const idealBake = computeScoringV2Shadow(MARGHERITA, { ...basePizza, bakeResult: (start + end) / 2 });
-    const rawBake = computeScoringV2Shadow(MARGHERITA, { ...basePizza, bakeResult: start - 25 });
-    const burntBake = computeScoringV2Shadow(MARGHERITA, { ...basePizza, bakeResult: end + 25 });
-    const unbaked = computeScoringV2Shadow(MARGHERITA, { ...basePizza, bakeResult: null });
+    const idealBake = computeScoringV2(MARGHERITA, { ...basePizza, bakeResult: (start + end) / 2 });
+    const rawBake = computeScoringV2(MARGHERITA, { ...basePizza, bakeResult: start - 25 });
+    const burntBake = computeScoringV2(MARGHERITA, { ...basePizza, bakeResult: end + 25 });
+    const unbaked = computeScoringV2(MARGHERITA, { ...basePizza, bakeResult: null });
 
     expect(idealBake.totalScore as number).toBeGreaterThan(rawBake.totalScore as number);
     expect(idealBake.totalScore as number).toBeGreaterThan(burntBake.totalScore as number);

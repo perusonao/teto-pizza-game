@@ -1,5 +1,5 @@
 /**
- * Phase 4A-2: Scoring 2.0 Shadow Sauce component -- quantity, coverage, evenness, edge/rim
+ * Phase 4A-2: Scoring 2.0 Sauce component -- quantity, coverage, evenness, edge/rim
  * control, all derived from ../sauceField.ts's `SauceMetrics` (the same reviewed primitive
  * ../referenceScoring.ts's Phase 4A-1A shadow score and ../sauceEvaluation.ts's player-facing
  * 広さ/均一さ/ふち tiers already read from) -- never a second, independent read of raw
@@ -73,7 +73,7 @@ export function scoreSauceComponentV2(
   // evenness is already self-normalized 0-1, higher-is-better (../sauceField.ts's
   // computeEvenness) -- it reads directly as a similarity, no tolerance band needed.
   // edgeRatio is lower-is-better, read as a "distance" against the exact EDGE_GREAT/EDGE_POOR
-  // thresholds the player-facing ふち tier already uses (../sauceEvaluation.ts), so Shadow
+  // thresholds the player-facing ふち tier already uses (../sauceEvaluation.ts), so this
   // scoring can never disagree with what the player sees about what counts as a good edge.
   const evennessScore = presence * safeUnit(metrics.evenness);
   const edgeScore = presence * safeToleranceSimilarity(safeUnit(metrics.edgeRatio), EDGE_GREAT, EDGE_POOR);

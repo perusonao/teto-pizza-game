@@ -2574,7 +2574,7 @@
   margin-bottom: 4px;
 }
 
-/* Phase 4A-2: Scoring 2.0 Shadow debug panel (ScoringV2ShadowPanel.tsx) -- preview/dev-only,
+/* Phase 4A-2 / A1: Scoring 2.0 debug panel (ScoringV2DebugPanel.tsx) -- preview/dev-only,
    styled like sauce-metrics-panel's own __detail block above so it reads as "the same kind of
    开発用 readout", not a second unrelated UI language. */
 .scoring-v2-panel {
