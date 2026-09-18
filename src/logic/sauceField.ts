@@ -11,8 +11,9 @@
  * spread thin must read as low quantity / high coverage, or this whole prototype can't tell
  * "dumped a puddle" apart from "painted it on".
  */
-import { DOUGH_RADIUS, distanceFromCenter } from "./pizzaCoordinates";
+import { DOUGH_CENTER, DOUGH_RADIUS, distanceFromCenter } from "./pizzaCoordinates";
 import { clampQuantity } from "./sauceQuantity";
+import { doughShapeRadiusAtAngle, isInsideDoughShape, type DoughShape } from "./doughShape";
 
 export interface SauceDepositLike {
   x: number;
@@ -49,6 +50,18 @@ function cellCenterPercent(index: number): number {
  *  the full 16x16 square (the square's corners are outside the round dough). */
 export function isCellInsideDough(row: number, col: number): boolean {
   return distanceFromCenter(cellCenterPercent(col), cellCenterPercent(row)) <= 48;
+}
+
+/**
+ * Sauce Free Boundary: the same grid-cell test as `isCellInsideDough` above, but against the
+ * player's *current* D3A dough silhouette instead of a fixed `DOUGH_RADIUS` circle. Used only
+ * by the render path (`sauceFieldToRgbaPixels`'s `isCellVisible` parameter, wired from
+ * PizzaStage's heatmap effect) -- `isCellInsideDough` itself is untouched and remains what
+ * `computeSauceMetrics`/Scoring 2.0 read, so this never changes a scored number, only what the
+ * player can *see* painted.
+ */
+export function isCellInsideDoughShape(row: number, col: number, shape: DoughShape): boolean {
+  return isInsideDoughShape(shape, cellCenterPercent(col), cellCenterPercent(row));
 }
 
 /** Radius (dough-percent units) of a single deposit's own physical footprint -- the "dab" a
@@ -135,6 +148,20 @@ export function insideDoughFraction(x: number, y: number): number {
  *  overlaps the dough circle's own extra margin (or lies outside the dough entirely). */
 export function insideTargetFraction(x: number, y: number): number {
   return circleOverlapFraction(x, y, SAUCE_TARGET_RADIUS);
+}
+
+/**
+ * Sauce Free Boundary: render-only counterpart to `insideDoughFraction`, against the player's
+ * current D3A dough silhouette instead of the fixed `DOUGH_RADIUS` circle -- treats the
+ * silhouette as locally circular at the deposit's own angle (`doughShapeRadiusAtAngle`), which
+ * is an approximation for a `circleOverlapFraction` computed against a true irregular polygon,
+ * but keeps the exact same continuity guarantee (no discontinuous 0%/100% flip near a rim that
+ * itself continuously varies by angle) with no new math needed. Never called by
+ * `computeSauceMetrics`/Scoring 2.0 -- see `isCellInsideDoughShape`'s own doc comment.
+ */
+export function insideDoughShapeFraction(shape: DoughShape, x: number, y: number): number {
+  const localRadius = doughShapeRadiusAtAngle(shape, Math.atan2(y - DOUGH_CENTER, x - DOUGH_CENTER));
+  return circleOverlapFraction(x, y, localRadius);
 }
 
 let cachedInDoughCellCount: number | null = null;
@@ -455,12 +482,18 @@ export function smoothSauceFieldForDisplay(field: Float64Array): Float64Array {
 export function sauceFieldToRgbaPixels(
   field: Float64Array,
   colorHex: string = SAUCE_TOMATO_HEX,
+  /** Sauce Free Boundary: which cells are eligible to paint at all -- defaults to the fixed
+   *  `isCellInsideDough` circle (byte-identical to every pre-existing caller). PizzaStage's
+   *  heatmap effect passes a D3A-dough-shape-aware test instead, so the *visible* sauce can
+   *  follow the player's actual dough silhouette without this function's Scoring-adjacent
+   *  default behavior changing for any other caller. */
+  isCellVisible: (row: number, col: number) => boolean = isCellInsideDough,
 ): Uint8ClampedArray {
   const color = hexToRgb(colorHex);
   const pixels = new Uint8ClampedArray(SAUCE_FIELD_SIZE * SAUCE_FIELD_SIZE * 4);
   for (let row = 0; row < SAUCE_FIELD_SIZE; row += 1) {
     for (let col = 0; col < SAUCE_FIELD_SIZE; col += 1) {
-      if (!isCellInsideDough(row, col)) continue;
+      if (!isCellVisible(row, col)) continue;
       const value = field[row * SAUCE_FIELD_SIZE + col];
       if (value <= MIN_VISIBLE_VALUE) continue;
       const alpha = densityToAlpha(value);

@@ -5,8 +5,10 @@ import {
   computeSauceMetrics,
   emptySauceMetrics,
   insideDoughFraction,
+  insideDoughShapeFraction,
   insideTargetFraction,
   isCellInsideDough,
+  isCellInsideDoughShape,
   SAUCE_FIELD_SIZE,
   SAUCE_HEATMAP_COLOR,
   sauceFieldToRgbaPixels,
@@ -17,8 +19,13 @@ import {
 } from "./sauceField";
 import { SAUCE_RATE_PER_TICK } from "./sauceQuantity";
 import { DOUGH_RADIUS } from "./pizzaCoordinates";
+import { DOUGH_SHAPE_POINTS, DOUGH_SHAPE_TECHNICAL_MAX_RADIUS, type DoughShape } from "./doughShape";
 import { IDEAL_MARGHERITA_SAUCE_FIXTURE } from "../data/referencePizza";
 import { INGREDIENTS } from "../data/ingredients";
+
+function uniformShape(radius: number): DoughShape {
+  return { radii: new Array(DOUGH_SHAPE_POINTS).fill(radius) };
+}
 
 /** Spreads `total` amount across `count` deposits arranged evenly around the dough. */
 function wideDeposits(total: number, count: number): Array<{ x: number; y: number; amount: number }> {
@@ -551,5 +558,105 @@ describe("smoothSauceFieldForDisplay (Phase 4A-1B.1 Fix B: Short Sauce Stroke)",
     // ...but computeSauceMetrics (the authoritative metrics path) never sees `smoothed` --
     // only PizzaStage.tsx's pixel-generation path does -- so real coverage is untouched.
     expect(computeSauceMetrics(deposits).coverage).toBeCloseTo(0.005319148936170213, 10);
+  });
+});
+
+/**
+ * Sauce Free Boundary: `isCellInsideDoughShape`/`insideDoughShapeFraction` are the render-only,
+ * D3A-dough-shape-aware counterparts to `isCellInsideDough`/`insideDoughFraction` -- used only by
+ * PizzaStage's heatmap effect (never by `computeSauceMetrics`, confirmed by every existing
+ * `computeSauceMetrics` test above being untouched by this PR). These pin that they genuinely
+ * follow the player's own current dough shape instead of the fixed DOUGH_RADIUS circle.
+ */
+describe("isCellInsideDoughShape / insideDoughShapeFraction (Sauce Free Boundary)", () => {
+  it("a uniform DOUGH_RADIUS-sized shape agrees with the fixed-circle isCellInsideDough everywhere", () => {
+    const shape = uniformShape(48);
+    for (let row = 0; row < SAUCE_FIELD_SIZE; row += 1) {
+      for (let col = 0; col < SAUCE_FIELD_SIZE; col += 1) {
+        expect(isCellInsideDoughShape(row, col, shape)).toBe(isCellInsideDough(row, col));
+      }
+    }
+  });
+
+  it("a shape stretched past the old fixed DOUGH_RADIUS circle makes previously-outside cells paintable", () => {
+    const shape = uniformShape(DOUGH_SHAPE_TECHNICAL_MAX_RADIUS); // 58 > DOUGH_RADIUS (48)
+    // Cell just outside the old fixed circle but inside the technical-max one, straight east.
+    const col = Math.floor(((50 + 52) / 100) * SAUCE_FIELD_SIZE);
+    const row = Math.floor((50 / 100) * SAUCE_FIELD_SIZE);
+    expect(isCellInsideDough(row, col)).toBe(false);
+    expect(isCellInsideDoughShape(row, col, shape)).toBe(true);
+  });
+
+  it("a shape shrunk below the old fixed circle makes previously-inside cells no longer paintable", () => {
+    const shape = uniformShape(20);
+    const col = Math.floor(((50 + 30) / 100) * SAUCE_FIELD_SIZE); // inside the old fixed circle (48)
+    const row = Math.floor((50 / 100) * SAUCE_FIELD_SIZE);
+    expect(isCellInsideDough(row, col)).toBe(true);
+    expect(isCellInsideDoughShape(row, col, shape)).toBe(false);
+  });
+
+  it("insideDoughShapeFraction is 1 well inside the shape and 0 well outside it, matching insideDoughFraction's own shape for a uniform circle", () => {
+    const shape = uniformShape(48);
+    expect(insideDoughShapeFraction(shape, 50, 50)).toBe(insideDoughFraction(50, 50));
+    expect(insideDoughShapeFraction(shape, 50 + 90, 50)).toBe(insideDoughFraction(50 + 90, 50));
+  });
+
+  it("insideDoughShapeFraction follows an asymmetric shape: full credit past the old fixed circle on the stretched side", () => {
+    const shape: DoughShape = { radii: uniformShape(30).radii.slice() };
+    shape.radii[0] = 55; // angle-index 0 = dough-local east, past the old fixed 48
+    // A deposit at distance 52 east -- outside the old fixed circle, inside this shape.
+    expect(insideDoughShapeFraction(shape, 50 + 52, 50)).toBe(1);
+    // The same absolute position would have been partially/fully overflow against the old
+    // fixed circle.
+    expect(insideDoughFraction(50 + 52, 50)).toBeLessThan(1);
+  });
+});
+
+/** sauceFieldToRgbaPixels's new `isCellVisible` parameter: default behavior (every existing
+ *  caller/test above) must stay byte-identical; passing a shape-aware predicate must change
+ *  only which cells are eligible to paint. */
+describe("sauceFieldToRgbaPixels isCellVisible parameter (Sauce Free Boundary)", () => {
+  it("defaults to isCellInsideDough -- omitting the parameter changes nothing", () => {
+    const field = buildSauceField([{ x: 50, y: 50, amount: 0.3 }]);
+    const withDefault = sauceFieldToRgbaPixels(field);
+    const withExplicitDefault = sauceFieldToRgbaPixels(field, SAUCE_TOMATO_HEX, isCellInsideDough);
+    expect(Array.from(withDefault)).toEqual(Array.from(withExplicitDefault));
+  });
+
+  it("a shape-aware predicate can paint a cell the fixed circle would have left transparent", () => {
+    // Cell (row 13, col 14): center at dough-percent (90.625, 84.375), distance from center
+    // ~53.2 -- outside the old fixed DOUGH_RADIUS circle (48) but inside a shape stretched to
+    // DOUGH_SHAPE_TECHNICAL_MAX_RADIUS (58). Deposit placed exactly at that cell's own center
+    // so the field has a value there with no falloff ambiguity.
+    const row = 13;
+    const col = 14;
+    const field = buildSauceField([{ x: 90.625, y: 84.375, amount: 0.3 }]);
+    const shape = uniformShape(DOUGH_SHAPE_TECHNICAL_MAX_RADIUS);
+    expect(isCellInsideDough(row, col)).toBe(false);
+    expect(isCellInsideDoughShape(row, col, shape)).toBe(true);
+
+    const fixedCirclePixels = sauceFieldToRgbaPixels(field);
+    const shapeAwarePixels = sauceFieldToRgbaPixels(field, SAUCE_TOMATO_HEX, (r, c) =>
+      isCellInsideDoughShape(r, c, shape),
+    );
+    const alphaIndex = (row * SAUCE_FIELD_SIZE + col) * 4 + 3;
+    expect(fixedCirclePixels[alphaIndex]).toBe(0);
+    expect(shapeAwarePixels[alphaIndex]).toBeGreaterThan(0);
+  });
+
+  it("a shape-aware predicate never paints a cell with zero underlying field value, regardless of visibility", () => {
+    // Cell (row 13, col 1) is symmetric-opposite of the deposit above: inside the same
+    // stretched shape's own visibility test, but the deposit's brush falloff never reaches it.
+    const row = 13;
+    const col = 1;
+    const field = buildSauceField([{ x: 90.625, y: 84.375, amount: 0.3 }]);
+    const shape = uniformShape(DOUGH_SHAPE_TECHNICAL_MAX_RADIUS);
+    expect(isCellInsideDoughShape(row, col, shape)).toBe(true);
+
+    const pixels = sauceFieldToRgbaPixels(field, SAUCE_TOMATO_HEX, (r, c) =>
+      isCellInsideDoughShape(r, c, shape),
+    );
+    const alphaIndex = (row * SAUCE_FIELD_SIZE + col) * 4 + 3;
+    expect(pixels[alphaIndex]).toBe(0);
   });
 });

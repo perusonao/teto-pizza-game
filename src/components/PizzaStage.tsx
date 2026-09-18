@@ -21,7 +21,8 @@ import { PointerTimestampNormalizer } from "../logic/pointerTimestampNormalizer"
 import { applyStretchPoint, smoothDoughShapeForDisplay, type DoughShape } from "../logic/doughShape";
 import {
   buildSauceField,
-  insideDoughFraction,
+  isCellInsideDoughShape,
+  insideDoughShapeFraction,
   SAUCE_FIELD_SIZE,
   sauceFieldToRgbaPixels,
   SAUCE_TARGET_RADIUS,
@@ -816,12 +817,15 @@ export function PizzaStage({
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // MUST FIX 5: each deposit's amount is split continuously between its inside-dough
-    // share (what the heatmap paints) and its overflow share (drawn as a faint marker
-    // below), via the exact same insideDoughFraction the metrics use -- so the visual and
-    // the numbers can never disagree about a deposit straddling the rim.
+    // Sauce Free Boundary: unlike MUST FIX 5's original fixed-circle split (still exactly what
+    // computeSauceMetrics/Scoring 2.0 read, untouched), the *visible* heatmap now weights each
+    // deposit against the player's actual current D3A dough silhouette (pizza.doughShape) --
+    // so sauce painted anywhere on the real dough (even past the old fixed DOUGH_RADIUS circle,
+    // once D3A has stretched that direction further out) reads as real sauce, not a faint
+    // overflow dot. Scored numbers never read this weighting -- see sauceField.ts's own doc
+    // comment on insideDoughShapeFraction/isCellInsideDoughShape for why this is render-only.
     const insideWeighted = effectiveDeposits
-      .map((d) => ({ x: d.x, y: d.y, amount: d.amount * insideDoughFraction(d.x, d.y) }))
+      .map((d) => ({ x: d.x, y: d.y, amount: d.amount * insideDoughShapeFraction(pizza.doughShape, d.x, d.y) }))
       .filter((d) => d.amount > 0);
     const field = buildSauceField(insideWeighted);
     // Human Feel Fix 3 (Sauce Visual): Fix 2's overlapping-circle cells (still one shape per
@@ -846,7 +850,11 @@ export function PizzaStage({
     const fieldCtx = fieldCanvas.getContext("2d");
     if (fieldCtx) {
       const imageData = fieldCtx.createImageData(SAUCE_FIELD_SIZE, SAUCE_FIELD_SIZE);
-      imageData.data.set(sauceFieldToRgbaPixels(displayField, fieldSauceColor));
+      imageData.data.set(
+        sauceFieldToRgbaPixels(displayField, fieldSauceColor, (row, col) =>
+          isCellInsideDoughShape(row, col, pizza.doughShape),
+        ),
+      );
       fieldCtx.putImageData(imageData, 0, 0);
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = "high";
@@ -863,11 +871,14 @@ export function PizzaStage({
       );
     }
 
-    // Overflow markers where sauce landed off (or straddling) the dough -- alpha scaled by
-    // how much of that deposit actually missed, so a near-rim dab reads as a faint touch and
-    // a fully overflowed one as a solid mark, matching the continuous split above.
+    // Overflow markers where sauce landed off (or straddling) the player's *actual* dough
+    // silhouette -- alpha scaled by how much of that deposit actually missed it, so a near-rim
+    // dab reads as a faint touch and a fully overflowed one (genuinely off the dough entirely)
+    // as a solid mark. Only sauce that misses the real (possibly D3A-distorted) dough shape
+    // gets this treatment now; sauce inside it, even past the old fixed DOUGH_RADIUS circle, is
+    // real heatmap paint (above), not a marker dot.
     for (const deposit of effectiveDeposits) {
-      const overflowFraction = 1 - insideDoughFraction(deposit.x, deposit.y);
+      const overflowFraction = 1 - insideDoughShapeFraction(pizza.doughShape, deposit.x, deposit.y);
       if (overflowFraction <= 0) continue;
       const px = (deposit.x / 100) * canvas.width;
       const py = (deposit.y / 100) * canvas.height;
@@ -879,7 +890,7 @@ export function PizzaStage({
       ctx.fill();
       ctx.restore();
     }
-  }, [showSauceHeatmap, effectiveDeposits, fieldSauceColor]);
+  }, [showSauceHeatmap, effectiveDeposits, fieldSauceColor, pizza.doughShape]);
 
   return (
     <div className="pizza-stage">

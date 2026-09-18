@@ -9,8 +9,10 @@ import {
   INITIAL_DOUGH_RADIUS,
   applyStretchPoint,
   createInitialDoughShape,
+  doughShapeRadiusAtAngle,
   doughSizeProgress,
   isDoughShapeComplete,
+  isInsideDoughShape,
   isValidDoughShape,
   smoothDoughShapeForDisplay,
   type DoughShape,
@@ -402,5 +404,67 @@ describe("smoothDoughShapeForDisplay", () => {
   it("produces a path for a shape shrunk below the initial radius without throwing", () => {
     const shape = applyStretchPoint(uniformShape(30), ...pointAt(0, DOUGH_SHAPE_MIN_RADIUS));
     expect(() => smoothDoughShapeForDisplay(shape)).not.toThrow();
+  });
+});
+
+/** Sauce Free Boundary: D3A's dough is no longer a fixed circle -- these pin the boundary
+ *  test the sauce render path (../sauceField.ts's isCellInsideDoughShape/
+ *  insideDoughShapeFraction) uses instead of the old fixed DOUGH_RADIUS circle. */
+describe("doughShapeRadiusAtAngle / isInsideDoughShape", () => {
+  it("matches every control point's own radius exactly at its own angle, for a uniform shape", () => {
+    const shape = uniformShape(40);
+    for (let i = 0; i < DOUGH_SHAPE_POINTS; i += 1) {
+      const angle = (i / DOUGH_SHAPE_POINTS) * Math.PI * 2;
+      expect(doughShapeRadiusAtAngle(shape, angle)).toBeCloseTo(40, 10);
+    }
+  });
+
+  it("linearly interpolates between two bracketing control points for an asymmetric shape", () => {
+    const shape: DoughShape = { radii: uniformShape(40).radii.slice() };
+    shape.radii[0] = 20; // angle 0
+    shape.radii[1] = 40; // angle 2*PI/8 (index 1)
+    const step = (Math.PI * 2) / DOUGH_SHAPE_POINTS;
+    const halfway = doughShapeRadiusAtAngle(shape, step / 2);
+    expect(halfway).toBeCloseTo(30, 10); // midpoint of 20 and 40
+  });
+
+  it("a uniform shape's isInsideDoughShape agrees with a plain circle test at every angle", () => {
+    const shape = uniformShape(40);
+    const [insideX, insideY] = pointAt(3, 39);
+    const [outsideX, outsideY] = pointAt(3, 41);
+    expect(isInsideDoughShape(shape, insideX, insideY)).toBe(true);
+    expect(isInsideDoughShape(shape, outsideX, outsideY)).toBe(false);
+  });
+
+  it("respects an asymmetric D3A shape: inside on the stretched side, outside on the shrunk side", () => {
+    // A directly-constructed shape (not built via applyStretchPoint's own gesture-shaping
+    // rules, e.g. spike suppression, which are unrelated to this boundary-math test): angle
+    // index 0 stretched out past the *old* fixed DOUGH_RADIUS (48); index 4 (opposite side)
+    // shrunk down near the minimum.
+    const shape: DoughShape = { radii: uniformShape(30).radii.slice() };
+    shape.radii[0] = 55;
+    shape.radii[4] = DOUGH_SHAPE_MIN_RADIUS;
+
+    // A point at distance 52 along the stretched direction -- past the *old* fixed circle
+    // (48) but this shape itself now legitimately reaches out to 55 there.
+    const [stretchedX, stretchedY] = pointAt(0, 52);
+    expect(isInsideDoughShape(shape, stretchedX, stretchedY)).toBe(true);
+
+    // A point at distance 20 along the shrunk direction -- well inside the old fixed circle,
+    // but now outside this player's own much smaller dough there.
+    const [shrunkX, shrunkY] = pointAt(4, 20);
+    expect(isInsideDoughShape(shape, shrunkX, shrunkY)).toBe(false);
+  });
+
+  it("the exact center is always inside, for any shape (including a shrunk-to-minimum one)", () => {
+    const shape = uniformShape(DOUGH_SHAPE_MIN_RADIUS);
+    expect(isInsideDoughShape(shape, 50, 50)).toBe(true);
+  });
+
+  it("technical-max-radius shape reaches out to DOUGH_SHAPE_TECHNICAL_MAX_RADIUS, not DOUGH_RADIUS", () => {
+    const shape = uniformShape(DOUGH_SHAPE_TECHNICAL_MAX_RADIUS);
+    const [justInsideX, justInsideY] = pointAt(2, DOUGH_SHAPE_TECHNICAL_MAX_RADIUS - 1);
+    expect(isInsideDoughShape(shape, justInsideX, justInsideY)).toBe(true);
+    expect(DOUGH_RADIUS).toBeLessThan(DOUGH_SHAPE_TECHNICAL_MAX_RADIUS);
   });
 });
