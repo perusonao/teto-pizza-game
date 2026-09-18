@@ -17,6 +17,7 @@ import { getReferencePizza } from "../../data/referencePizza";
 import type { Recipe } from "../../data/recipes";
 import { createEmptyPizza, type PizzaState } from "../../state/pizzaState";
 import { computeSauceMetrics } from "../sauceField";
+import { scoreBakeComponentV2 } from "./bakeComponent";
 import { sanitizeSauceDeposits } from "./boundary";
 import { scoreSauceComponentV2 } from "./sauceComponent";
 import { scorePiecesComponentV2 } from "./piecesComponent";
@@ -24,29 +25,29 @@ import { scoreRecipeComponentV2 } from "./recipeComponent";
 import { safeUnit } from "./tolerance";
 import type { ScoringV2Result } from "./types";
 
-export const SCORING_V2_RULESET_VERSION = "phase-4a-2-shadow-2";
+export const SCORING_V2_RULESET_VERSION = "phase-4a-2-shadow-3";
 
 const REFERENCE_UNAVAILABLE_REASON =
   "この料理はまだ Reference Pizza（お手本データ）がありません。Phase 4A-2時点ではマルゲリータのみ対応しています。";
 
 /**
- * Bake scope guard: no reviewed Scoring 2.0 Bake similarity primitive exists yet (only
- * ../bake.ts's categorical raw/perfect/burnt `classifyBake`, and ../scoring.ts's own inline
- * continuous formula, which is legacy `ScoreBreakdown` plumbing this PR does not repurpose --
- * see the Fresh Audit's explicit Bake scope guard: "do NOT broaden this PR into a large Bake
- * redesign"). Always unavailable this phase, for every recipe, Reference or not.
- */
-const BAKE_UNAVAILABLE_REASON =
-  "Scoring 2.0 用の Bake 類似度プリミティブは未レビューのため、このフェーズでは未提供です（暫定）。";
-
-/** Weights across the three available components for `totalScore`, sum to 100. Mirrors the
- *  Fresh Audit's Margherita-only 65/20/15 calibration split (Sauce/Pieces/Recipe) -- per the
- *  SCORING ARCHITECTURE brief, this is explicitly *not* meant to be read as the permanent
- *  four-category (Recipe/Sauce/Pieces/Bake) global weighting once a reviewed Bake primitive
- *  exists; it is this phase's shadow-only calibration for the components that exist today. */
-const SAUCE_WEIGHT = 65;
-const PIECES_WEIGHT = 20;
-const RECIPE_WEIGHT = 15;
+ * B1 weight split (see docs/reports/TETO_SCORING2-B1_BAKE_Result.md's "Bake formula / weight
+ * decision" for the full reasoning this comment summarizes): adding a real Bake weight is a
+ * genuine calibration decision, so rather than inventing four fresh numbers, this keeps the
+ * *existing*, already-iPhone-calibrated Sauce:Pieces:Recipe ratio (65:20:15) completely
+ * unchanged and only rescales it down to make room for Bake -- 65/20/15 each multiplied by 0.8
+ * gives 52/16/12 (same ratio to each other, verified: 52/16 = 65/20 = 3.25, 52/12 = 65/15 =
+ * 4.333, 16/12 = 20/15 = 1.333). Bake itself takes the freed 20 points: the smaller of
+ * the two anchors this task named (legacy's own Bake weight is 30/100, its single heaviest --
+ * the Fresh Audit's cited historical conceptual direction is Recipe15/Sauce35/Pieces30/Bake20),
+ * chosen deliberately conservative since this new formula has no iPhone Human-Feel evidence of
+ * its own yet, unlike the Sauce/Pieces/Recipe ratio it's being weighed against. All four sum to
+ * 100. Ruleset version bumped (-shadow-2 -> -shadow-3) so a stored/logged Shadow result can
+ * never be misread against the pre-Bake formula. */
+const SAUCE_WEIGHT = 52;
+const PIECES_WEIGHT = 16;
+const RECIPE_WEIGHT = 12;
+const BAKE_WEIGHT = 20;
 
 export function computeScoringV2Shadow(recipe: Recipe, pizza: PizzaState): ScoringV2Result {
   // Codex P1 blocker fix: `pizza` itself (not just its fields) is a public-API argument that
@@ -55,7 +56,11 @@ export function computeScoringV2Shadow(recipe: Recipe, pizza: PizzaState): Scori
   // genuinely empty pizza rather than special-casing "no pizza" as its own result shape, so
   // every downstream component still sees one consistent, always-valid `PizzaState`.
   const safePizza: PizzaState = typeof pizza === "object" && pizza !== null ? pizza : createEmptyPizza();
-  const bake = { available: false as const, reason: BAKE_UNAVAILABLE_REASON };
+  // B1: computed unconditionally, ahead of the Reference-availability gate below -- Bake needs
+  // no Reference fixture (see ./bakeComponent.ts's file header), so it is real for all 7
+  // recipes from this PR onward, even though `reference`-gated Sauce/Pieces/Recipe (and
+  // therefore the whole result's `available`/`totalScore`) still are not, pending B2.
+  const bake = scoreBakeComponentV2(safePizza.bakeResult, recipe.bakeTarget);
   const reference = getReferencePizza(recipe.id);
 
   if (!reference) {
@@ -119,10 +124,27 @@ export function computeScoringV2Shadow(recipe: Recipe, pizza: PizzaState): Scori
       components: { sauce, pieces, recipe: recipeComponent, bake },
     };
   }
+  // B1: `bake` can only be unavailable here if `recipe.bakeTarget` itself is malformed (see
+  // ./bakeComponent.ts) -- never happens for real authored recipes, but the same fail-closed
+  // discipline as the two branches above applies: a `totalScore` cannot be built from a
+  // malformed weighted input.
+  if (!bake.available) {
+    return {
+      rulesetVersion: SCORING_V2_RULESET_VERSION,
+      recipeId: recipe.id,
+      available: false,
+      unavailableReason: bake.reason,
+      totalScore: null,
+      components: { sauce, pieces, recipe: recipeComponent, bake },
+    };
+  }
 
   const totalScore =
     safeUnit(
-      (sauce.score * SAUCE_WEIGHT + pieces.score * PIECES_WEIGHT + recipeComponent.score * RECIPE_WEIGHT) /
+      (sauce.score * SAUCE_WEIGHT +
+        pieces.score * PIECES_WEIGHT +
+        recipeComponent.score * RECIPE_WEIGHT +
+        bake.score * BAKE_WEIGHT) /
         100 /
         100,
     ) * 100;
@@ -146,4 +168,5 @@ export type {
   PieceGroupScoreV2,
   RecipeComponentV2,
   BakeComponentV2,
+  BakeComponentV2Available,
 } from "./types";

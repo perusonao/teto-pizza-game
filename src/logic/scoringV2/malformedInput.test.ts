@@ -543,6 +543,10 @@ describe("Codex P1 Round 2: computeScoringV2Shadow propagates authoritative-Refe
         ...MOZZARELLA_GROUP.positions.map((p, i) => ({ id: `m${i}`, ingredientId: "mozzarella", ...p })),
         ...BASIL_GROUP.positions.map((p, i) => ({ id: `b${i}`, ingredientId: "basil", ...p })),
       ],
+      // B1: "great" now includes an ideally-baked result too -- Bake is a real, weighted
+      // component (./bakeComponent.ts), so an otherwise-perfect but never-baked pizza is no
+      // longer "great" end-to-end, which is the whole point of adding it.
+      bakeResult: (MARGHERITA.bakeTarget.start + MARGHERITA.bakeTarget.end) / 2,
     };
     const result = computeScoringV2Shadow(MARGHERITA, greatPizza);
     expect(result.available).toBe(true);
@@ -631,5 +635,27 @@ describe("Permutation invariance and Golden Matrix survive the boundary fix unch
     const empty = computeScoringV2Shadow(MARGHERITA, createEmptyPizza());
     expect(perfect.totalScore as number).toBeGreaterThan(empty.totalScore as number);
     expect(empty.totalScore).toBe(0);
+  });
+
+  it("B1 Golden Matrix extension: an otherwise-identical pizza scores highest baked ideally, lower raw/burnt, lowest unbaked", () => {
+    const basePizza = {
+      ...createEmptyPizza(),
+      sauceIds: ["tomato-sauce"],
+      sauceDeposits: buildIdealMargheritaSauceFixture(),
+      toppings: [
+        ...MARGHERITA_REFERENCE.pieceGroups[0].positions.map((p, i) => ({ id: `m${i}`, ingredientId: "mozzarella", ...p })),
+        ...MARGHERITA_REFERENCE.pieceGroups[1].positions.map((p, i) => ({ id: `b${i}`, ingredientId: "basil", ...p })),
+      ],
+    };
+    const { start, end } = MARGHERITA.bakeTarget;
+    const idealBake = computeScoringV2Shadow(MARGHERITA, { ...basePizza, bakeResult: (start + end) / 2 });
+    const rawBake = computeScoringV2Shadow(MARGHERITA, { ...basePizza, bakeResult: start - 25 });
+    const burntBake = computeScoringV2Shadow(MARGHERITA, { ...basePizza, bakeResult: end + 25 });
+    const unbaked = computeScoringV2Shadow(MARGHERITA, { ...basePizza, bakeResult: null });
+
+    expect(idealBake.totalScore as number).toBeGreaterThan(rawBake.totalScore as number);
+    expect(idealBake.totalScore as number).toBeGreaterThan(burntBake.totalScore as number);
+    expect(rawBake.totalScore as number).toBeGreaterThan(unbaked.totalScore as number);
+    expect(burntBake.totalScore as number).toBeGreaterThan(unbaked.totalScore as number);
   });
 });

@@ -119,6 +119,20 @@ export function ScoringV2ShadowPanel({ result }: ScoringV2ShadowPanelProps) {
               </span>
             </div>
           )}
+
+          {!isUnavailable(result.components.bake) && (
+            <div className="scoring-v2-panel__row">
+              <span className="scoring-v2-panel__chip">
+                焼き加減 {result.components.bake.bakeState ?? "未焼成"}
+              </span>
+              <span className="scoring-v2-panel__chip">
+                目標との差 {round(result.components.bake.distanceFromIdeal)}
+              </span>
+              <span className="scoring-v2-panel__chip">
+                類似度 {round(result.components.bake.similarity * 100)}%
+              </span>
+            </div>
+          )}
         </>
       )}
     </div>
