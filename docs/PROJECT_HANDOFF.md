@@ -210,22 +210,24 @@ as a dependency. Recommended sequence, refining the steps below: **B1 Bake compo
 Reference coverage (parallel) → A1 authority adapter (`gameReducer.ts` `CONFIRM_BAKE`) → A2
 cutover verification → A3 legacy cleanup**.
 
-1. Add a reviewed Bake similarity component to Scoring 2.0 (**B1** — **implemented**, PR #58,
-   `docs/reports/TETO_SCORING2-B1_BAKE_Result.md`, not yet merged; still Shadow-only).
+1. Add a reviewed Bake similarity component to Scoring 2.0 (**B1** — **implemented and merged**,
+   PR #58, merge SHA `f4640266df8fca321a1cc6001855cae9d3b63636`,
+   `docs/reports/TETO_SCORING2-B1_BAKE_Result.md`; still Shadow-only, real for every recipe
+   regardless of B2's own Reference-coverage gate).
 2. Extend Reference coverage from Margherita-only to the remaining 6 recipes (**B2**), via
    whatever reviewed-fixture-authoring path Issue #32's own P1 acceptance criterion specifies.
-   **B2 Fresh Audit + bounded mechanical infra done** — see `docs/reports/
-   TETO_SCORING2-B2_REFERENCE-COVERAGE_Result.md`. Finding: Issue #32's own "define the safe
-   path for adding reviewed References to other recipes" acceptance item is still open/unchecked
-   on GitHub, and no approved source for the 6 recipes' piece-placement geometry exists (sauce
-   quantity/coverage targets are mechanically derivable for all 7 recipes and are now
-   implemented via `computeMechanicalSauceReference`, but piece `(x, y)` positions/tolerance
-   radii were, and remain, a human-authored design decision Margherita's own Reference already
-   documents as such). Per the CRITICAL RULE against fabricating target geometry, this task
-   stopped short of registering the 6 recipes in `getReferencePizza` and instead shipped the
-   generalized, tested sauce-derivation infra plus a concrete per-recipe authoring
-   template/proposal for a future reviewed-geometry pass. **B2 remains open** — Reference
-   coverage is still Margherita-only (1/7).
+   **B2 is now at 3/7 (margherita, marinara, funghi) — PART A implemented and reviewed-approved,
+   PART B (genovese/fugazza) proposed as new candidates, not yet approved** — see
+   `docs/reports/TETO_SCORING2-B2_REFERENCE-COVERAGE_Result.md` §10/§11. Finding: Issue #32's own
+   "define the safe path for adding reviewed References to other recipes" acceptance item is
+   still open/unchecked on GitHub, and no approved source for the remaining 4 recipes'
+   piece-placement geometry exists yet (sauce quantity/coverage targets are mechanically
+   derivable for all 7 recipes via `computeMechanicalSauceReference`; piece `(x, y)`
+   positions/tolerance radii are a human-authored design decision, reviewed per-recipe via a
+   design-proposal → ChatGPT-approval → implementation pipeline this task established and used
+   for marinara/funghi). Per the CRITICAL RULE against fabricating target geometry,
+   quattro-formaggi and bismarck still have no candidate at all (explicitly out of scope so
+   far). **B2 remains open** — Reference coverage is 3/7.
 3. Introduce Save v2 migration first only if persistent semantics must change (this audit found
    none required for the cutover itself — Dex's `bestScore`/`bestStars` schema is already
    formula-agnostic).
