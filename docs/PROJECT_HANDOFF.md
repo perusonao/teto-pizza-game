@@ -1,6 +1,6 @@
 # Teto Pizza Game — Project Handoff / Roadmap SSOT
 
-Updated: 2026-09-18 (Issue #33 Dough D1/D2 COMPLETE / Human Feel PASS via PR #54; Issue #38 Pitz Reward Fresh Audit; Scoring 2.0 Authority Fresh Audit; Save v2 E0 migration implementation, PR #56 open, DO NOT MERGE pending review)
+Updated: 2026-09-18 (Scoring 2.0 B1 Bake component MERGED via PR #58; B2 Reference coverage COMPLETE 7/7 via PR #57; Scoring 2.0 A1 Authority Cutover Pre-Implementation Fresh Audit done, verdict B — see `docs/reports/TETO_SCORING2-A1_AUTHORITY_PreImplementation-Audit.md`; Issue #33 Dough D1/D2 COMPLETE / Human Feel PASS via PR #54; Issue #38 Pitz Reward Fresh Audit; Save v2 E0 migration implementation, PR #56 open, DO NOT MERGE pending review)
 
 > Fresh GitHub/main state always wins if this document becomes stale.
 
@@ -59,17 +59,33 @@ Primary device: smartphone vertical. Verification baseline: 390×844.
   becomes active. See P5 below for the recommended E0→E1→E2→E3 build order.
 - Issue #39 — HOME/FREE navigation redesign + Pizza Select. PS1/PS2/PS3 **complete** (PR #40, PR #41, both merged into `main`); PS4 iPhone Human Feel **PASS**. Remaining HOME visual polish (see "Parallel / non-blocking" below) is tracked as future polish, not an Issue #39 blocker.
 
-Scoring 2.0 Shadow has already been implemented and calibrated. It remains non-authoritative until the remaining consistency/Human Feel gates pass. **Scoring 2.0 Authority Fresh Audit done** — see `docs/reports/TETO_SCORING2_AUTHORITY_Fresh-Audit.md` (audited SHA `2da3949de5bd642c709ca6ba343bc57d8101d03d`). Verdict: **D. BLOCKED BY ANOTHER SYSTEM** — not by Dough (that dependency is explicitly cleared), but by two findings internal to Scoring 2.0 itself: it has **no Bake component at all** (any recipe, always unavailable — legacy's heaviest weight, 30/100), and it has **Reference coverage for exactly 1 of 7 recipes** (Margherita only), so a literal authority cutover today would break RESULT/stars/BEST/Dex/progression for 6 of 7 recipes. The Recipe/Sauce/Pieces invariants, the reducer-boundary cutover design, and every Dex/Mission/progression/save-compatibility question are otherwise confirmed ready — no further coefficient tuning required. Recommended sequence: **B1 (add a Bake similarity component) and B2 (Reference coverage for the remaining 6 recipes), in parallel, both gating A1 (authority adapter at `gameReducer.ts`'s `CONFIRM_BAKE`) → A2 (cutover verification) → A3 (legacy cleanup)**.
+Scoring 2.0 Shadow has already been implemented and calibrated. It remains non-authoritative pending the A1 authority cutover (see below) — B1 and B2 are both now closed. **Scoring 2.0 Authority Fresh Audit** (original) — see `docs/reports/TETO_SCORING2_AUTHORITY_Fresh-Audit.md` (audited SHA `2da3949de5bd642c709ca6ba343bc57d8101d03d`, verdict at the time: **D. BLOCKED BY ANOTHER SYSTEM**, on two findings: no Bake component at all, and Reference coverage for exactly 1 of 7 recipes). **Both of those blockers are now closed** — see below.
 
-**B1 (Bake similarity component) is now implemented** — see PR #58 (branch
-`claude/scoring2-bake-component-383kgw`, head SHA `3859f588116c97b9ee154594c24aa6d8fbb10ce5`,
-**not yet merged**) and `docs/reports/TETO_SCORING2-B1_BAKE_Result.md`. `BakeComponentV2`
+**B1 (Bake similarity component) — MERGED.** PR #58, merge commit `f464026` on `main`, see
+`docs/reports/TETO_SCORING2-B1_BAKE_Result.md`. `BakeComponentV2`
 (`src/logic/scoringV2/bakeComponent.ts`) reuses `classifyBake`'s thresholds and legacy
 `scorePizza`'s own symmetric nearest-edge distance formula, needs no Reference fixture (so it is
-real for all 7 recipes already, ahead of B2), and is wired into `totalScore` at a rescaled
-Sauce:Pieces:Recipe:Bake weight of 52:16:12:20 (ruleset `phase-4a-2-shadow-3`). Scoring 2.0
-remains Shadow-only; this closes B1 only — **B2 (Reference coverage for the remaining 6 recipes)
-is still open** and still gates A1 (authority adapter) exactly as this audit's own sequence says.
+real for all 7 recipes), and is wired into `totalScore` at a rescaled Sauce:Pieces:Recipe:Bake
+weight of 52:16:12:20 (ruleset `phase-4a-2-shadow-3`).
+
+**B2 (Reference coverage for the remaining 6 recipes) — MERGED, 7/7 complete.** PR #57, merge
+commit `a063068` on `main` (current HEAD as of this update), see
+`docs/reports/TETO_SCORING2-B2_REFERENCE-COVERAGE_Result.md` and
+`docs/reports/TETO_SCORING2-B2_PARTC2_Result.md`. `getReferencePizza` (`src/data/referencePizza.ts`)
+now returns a reviewed `ReferencePizza` (sauce target + piece-group geometry) for all 7 recipes —
+margherita, marinara, funghi, genovese, fugazza, bismarck, quattro-formaggi — pinned by
+`scoringV2.test.ts`'s Golden Matrix (`perfect > good > poor > empty`) for every one of them.
+
+Scoring 2.0 remains **Shadow-only** — both B1 and B2 close the blockers that stood in the way of
+authority cutover, but neither one flips `state.score` itself. **A1 (authority adapter at
+`gameReducer.ts`'s `CONFIRM_BAKE`) Pre-Implementation Fresh Audit is now done** — see
+`docs/reports/TETO_SCORING2-A1_AUTHORITY_PreImplementation-Audit.md` (audited SHA
+`a063068abdfcdbcee6450c2b0dd43e174236c291` = current `main` HEAD). Verdict: **B. READY WITH MINOR
+DESIGN DECISION** — no remaining hard blocker; the one open item is a small, non-blocking product
+decision on how `ResultPanel`'s player-facing feedback breakdown should represent Sauce (Scoring
+2.0's heaviest, 52/100, component, which has no equivalent field in today's legacy
+`ScoreBreakdown` shape). Recommended sequence from here: **A1 (authority adapter, ~3–4 hours) →
+A2 (cutover verification) → A3 (legacy cleanup)**. No Save migration is required for A1.
 
 ### Recent merges
 
@@ -202,42 +218,41 @@ Issue #47 is complete; Issue #33 is now the active priority (see below).
 
 ### P3 — Scoring 2.0 Authority / RESULT
 
-Fresh Audit **done** — see `docs/reports/TETO_SCORING2_AUTHORITY_Fresh-Audit.md` (audited SHA
-`2da3949de5bd642c709ca6ba343bc57d8101d03d`). Verdict: **D. BLOCKED BY ANOTHER SYSTEM** — blocked
-by two findings internal to Scoring 2.0 itself (no Bake component exists yet, for any recipe;
-Reference coverage exists for only 1 of 7 recipes), **not** by Dough, which is explicitly cleared
-as a dependency. Recommended sequence, refining the steps below: **B1 Bake component + B2
-Reference coverage (parallel) → A1 authority adapter (`gameReducer.ts` `CONFIRM_BAKE`) → A2
-cutover verification → A3 legacy cleanup**.
+Original Fresh Audit — see `docs/reports/TETO_SCORING2_AUTHORITY_Fresh-Audit.md` (audited SHA
+`2da3949de5bd642c709ca6ba343bc57d8101d03d`, verdict at the time: **D. BLOCKED BY ANOTHER SYSTEM**,
+on two findings: no Bake component for any recipe; Reference coverage for only 1 of 7 recipes).
+**Both blockers are now closed** — see B1/B2 below. **A1 Pre-Implementation Fresh Audit done** —
+see `docs/reports/TETO_SCORING2-A1_AUTHORITY_PreImplementation-Audit.md` (audited SHA
+`a063068abdfcdbcee6450c2b0dd43e174236c291` = current `main` HEAD). Current verdict: **B. READY
+WITH MINOR DESIGN DECISION**.
 
 1. Add a reviewed Bake similarity component to Scoring 2.0 (**B1** — **implemented and merged**,
-   PR #58, merge SHA `f4640266df8fca321a1cc6001855cae9d3b63636`,
-   `docs/reports/TETO_SCORING2-B1_BAKE_Result.md`; still Shadow-only, real for every recipe
+   PR #58, merge commit `f464026` on `main`,
+   `docs/reports/TETO_SCORING2-B1_BAKE_Result.md`; Shadow-only, real for every recipe
    regardless of B2's own Reference-coverage gate).
-2. Extend Reference coverage from Margherita-only to the remaining 6 recipes (**B2**), via
-   whatever reviewed-fixture-authoring path Issue #32's own P1 acceptance criterion specifies.
-   **B2 is now at 3/7 (margherita, marinara, funghi) — PART A implemented and reviewed-approved,
-   PART B (genovese/fugazza) proposed as new candidates, not yet approved** — see
-   `docs/reports/TETO_SCORING2-B2_REFERENCE-COVERAGE_Result.md` §10/§11. Finding: Issue #32's own
-   "define the safe path for adding reviewed References to other recipes" acceptance item is
-   still open/unchecked on GitHub, and no approved source for the remaining 4 recipes'
-   piece-placement geometry exists yet (sauce quantity/coverage targets are mechanically
-   derivable for all 7 recipes via `computeMechanicalSauceReference`; piece `(x, y)`
-   positions/tolerance radii are a human-authored design decision, reviewed per-recipe via a
-   design-proposal → ChatGPT-approval → implementation pipeline this task established and used
-   for marinara/funghi). Per the CRITICAL RULE against fabricating target geometry,
-   quattro-formaggi and bismarck still have no candidate at all (explicitly out of scope so
-   far). **B2 remains open** — Reference coverage is 3/7.
-3. Introduce Save v2 migration first only if persistent semantics must change (this audit found
-   none required for the cutover itself — Dex's `bestScore`/`bestStars` schema is already
-   formula-agnostic).
-4. Make calibrated Scoring 2.0 authoritative only after B1+B2 close, Issue #32 (done), and
-   Making Game Human Feel gates.
-5. Integrate stars / Dex BEST / progression without Recipe/Pieces/Dough/Bake/Finish double
-   penalties — confirmed to need zero code changes at cutover (`dex.ts`/`missionScoring.ts`/
-   `progression.ts` already only depend on `ScoreBreakdown`'s shape, not which formula produced
-   it).
-6. Score-based baked visual/sauce polish only after behavior and authority are stable.
+2. Extend Reference coverage from Margherita-only to the remaining 6 recipes (**B2** — **implemented
+   and merged, 7/7 complete**, PR #57, merge commit `a063068` on `main` = current HEAD) — see
+   `docs/reports/TETO_SCORING2-B2_REFERENCE-COVERAGE_Result.md` and
+   `docs/reports/TETO_SCORING2-B2_PARTC2_Result.md`. `getReferencePizza` now returns a reviewed
+   `ReferencePizza` for all 7 recipes (margherita, marinara, funghi, genovese, fugazza, bismarck,
+   quattro-formaggi), pinned by `scoringV2.test.ts`'s Golden Matrix for every one of them.
+3. **A1 authority adapter** (`gameReducer.ts` `CONFIRM_BAKE`): Pre-Implementation Fresh Audit
+   done, verdict **B. READY WITH MINOR DESIGN DECISION** — see
+   `docs/reports/TETO_SCORING2-A1_AUTHORITY_PreImplementation-Audit.md`. No remaining hard
+   blocker; the one open item is a small, non-blocking product decision on how `ResultPanel`'s
+   feedback breakdown should represent Sauce (Scoring 2.0's heaviest, 52/100, component, with no
+   equivalent field in today's legacy `ScoreBreakdown` shape — recommended fix: add a 4th feedback
+   row). No Save migration required. Estimated size: ~3–4 hours. **A1 implementation itself has
+   not started** — this is audit-only.
+4. Save v2 migration is **not required** for the cutover itself — Dex's `bestScore`/`bestStars`
+   schema is already formula-agnostic, re-confirmed by the A1 audit.
+5. Make calibrated Scoring 2.0 authoritative only after A1 lands, is Human-Feel-verified (A2), and
+   Making Game Human Feel gates otherwise hold.
+6. Integrate stars / Dex BEST / progression without Recipe/Pieces/Dough/Bake/Finish double
+   penalties — confirmed (again, independently, by the A1 audit) to need zero code changes at
+   cutover beyond the `CONFIRM_BAKE` adapter itself (`dex.ts`/`missionScoring.ts`/`progression.ts`
+   already only depend on `ScoreBreakdown`'s `.total`/`.stars`, not which formula produced them).
+7. Score-based baked visual/sauce polish only after behavior and authority are stable.
 
 ### P4 — Pitz / Economy — Issue #38
 
