@@ -1,6 +1,6 @@
 # Teto Pizza Game — Project Handoff / Roadmap SSOT
 
-Updated: 2026-09-18 (Issue #33 Dough D1/D2 COMPLETE / Human Feel PASS via PR #54; Issue #38 Pitz Reward Fresh Audit)
+Updated: 2026-09-18 (Issue #33 Dough D1/D2 COMPLETE / Human Feel PASS via PR #54; Issue #38 Pitz Reward Fresh Audit; Scoring 2.0 Authority Fresh Audit)
 
 > Fresh GitHub/main state always wins if this document becomes stale.
 
@@ -58,7 +58,7 @@ Primary device: smartphone vertical. Verification baseline: 390×844.
   recommended E0→E1→E2→E3 build order.
 - Issue #39 — HOME/FREE navigation redesign + Pizza Select. PS1/PS2/PS3 **complete** (PR #40, PR #41, both merged into `main`); PS4 iPhone Human Feel **PASS**. Remaining HOME visual polish (see "Parallel / non-blocking" below) is tracked as future polish, not an Issue #39 blocker.
 
-Scoring 2.0 Shadow has already been implemented and calibrated. It remains non-authoritative until the remaining consistency/Human Feel gates pass.
+Scoring 2.0 Shadow has already been implemented and calibrated. It remains non-authoritative until the remaining consistency/Human Feel gates pass. **Scoring 2.0 Authority Fresh Audit done** — see `docs/reports/TETO_SCORING2_AUTHORITY_Fresh-Audit.md` (audited SHA `2da3949de5bd642c709ca6ba343bc57d8101d03d`). Verdict: **D. BLOCKED BY ANOTHER SYSTEM** — not by Dough (that dependency is explicitly cleared), but by two findings internal to Scoring 2.0 itself: it has **no Bake component at all** (any recipe, always unavailable — legacy's heaviest weight, 30/100), and it has **Reference coverage for exactly 1 of 7 recipes** (Margherita only), so a literal authority cutover today would break RESULT/stars/BEST/Dex/progression for 6 of 7 recipes. The Recipe/Sauce/Pieces invariants, the reducer-boundary cutover design, and every Dex/Mission/progression/save-compatibility question are otherwise confirmed ready — no further coefficient tuning required. Recommended sequence: **B1 (add a Bake similarity component) and B2 (Reference coverage for the remaining 6 recipes), in parallel, both gating A1 (authority adapter at `gameReducer.ts`'s `CONFIRM_BAKE`) → A2 (cutover verification) → A3 (legacy cleanup)**.
 
 ### Recent merges
 
@@ -191,10 +191,27 @@ Issue #47 is complete; Issue #33 is now the active priority (see below).
 
 ### P3 — Scoring 2.0 Authority / RESULT
 
-1. Introduce Save v2 migration first if persistent semantics must change.
-2. Make calibrated Scoring 2.0 authoritative only after Issue #32 + Making Game Human Feel gates.
-3. Integrate stars / Dex BEST / progression without Recipe/Pieces/Dough/Bake/Finish double penalties.
-4. Score-based baked visual/sauce polish only after behavior and authority are stable.
+Fresh Audit **done** — see `docs/reports/TETO_SCORING2_AUTHORITY_Fresh-Audit.md` (audited SHA
+`2da3949de5bd642c709ca6ba343bc57d8101d03d`). Verdict: **D. BLOCKED BY ANOTHER SYSTEM** — blocked
+by two findings internal to Scoring 2.0 itself (no Bake component exists yet, for any recipe;
+Reference coverage exists for only 1 of 7 recipes), **not** by Dough, which is explicitly cleared
+as a dependency. Recommended sequence, refining the steps below: **B1 Bake component + B2
+Reference coverage (parallel) → A1 authority adapter (`gameReducer.ts` `CONFIRM_BAKE`) → A2
+cutover verification → A3 legacy cleanup**.
+
+1. Add a reviewed Bake similarity component to Scoring 2.0 (**B1** — does not exist today).
+2. Extend Reference coverage from Margherita-only to the remaining 6 recipes (**B2**), via
+   whatever reviewed-fixture-authoring path Issue #32's own P1 acceptance criterion specifies.
+3. Introduce Save v2 migration first only if persistent semantics must change (this audit found
+   none required for the cutover itself — Dex's `bestScore`/`bestStars` schema is already
+   formula-agnostic).
+4. Make calibrated Scoring 2.0 authoritative only after B1+B2 close, Issue #32 (done), and
+   Making Game Human Feel gates.
+5. Integrate stars / Dex BEST / progression without Recipe/Pieces/Dough/Bake/Finish double
+   penalties — confirmed to need zero code changes at cutover (`dex.ts`/`missionScoring.ts`/
+   `progression.ts` already only depend on `ScoreBreakdown`'s shape, not which formula produced
+   it).
+6. Score-based baked visual/sauce polish only after behavior and authority are stable.
 
 ### P4 — Pitz / Economy — Issue #38
 
