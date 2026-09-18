@@ -84,6 +84,29 @@ reset-retry) recorded and delivered to the user. Scoring 2.0 weights, Pitz, Save
 Recipe reference data are all confirmed unchanged (diff-verified). **Verdict: A. READY FOR HUMAN
 REVIEW — PR #68 stays OPEN, not merged, pending the user's own review of the video/Preview.**
 
+**2026-09-18 addendum 3 (RESULT 2.0 Slice 1: Completed Pizza Hero + Result Flow Foundation,
+PR #75 OPEN)** — see `docs/reports/TETO_RESULT-2_Fresh-Audit.md` (Verdict **B — READY, MULTIPLE
+SLICES**, audited `main` SHA `27818efb...`, confirmed still applicable at this session's own
+fresh base SHA `aaf56edaea533f9efc63b3ba623bf1ae8425a6b5` — PR #68 above is now confirmed
+MERGED) and `docs/reports/TETO_RESULT-2_SLICE1_Result.md`. Slice 1 merges FREE's two-phase
+RESULT (score/stars, behind a "レシピ図鑑に登録する" tap) + DISCOVERED (banner/Pitz/retry CTAs)
+split into one merged Hero result screen: the player's own completed pizza (`PizzaStage`,
+already unconditionally rendered pre-existing) is now the visual anchor, not a reference image,
+and never rebuilt between RESULT/DISCOVERED. `REGISTER_TO_DEX`'s Dex/BEST/Pitz reducer
+transaction is completely unchanged (same exactly-once `state.phase !== "RESULT"` guard, zero
+diff in `gameReducer.ts`) — it now fires automatically right after `CONFIRM_BAKE`
+(`App.tsx`'s new `handleConfirmBake`, guarded on `!state.isMissionRound`), so a FREE round's
+phase goes straight `BAKE` → `DISCOVERED` with no player-visible intermediate "score only, not
+yet registered" screen, and Lunch Rush is fully unaffected (dedicated regression test added).
+Scoring 2.0/Pitz formula/Dex/BEST rules: all unchanged (diff-verified, zero changes under
+`src/logic/scoringV2/**`, `src/logic/pitzReward.ts`, `src/state/dex.ts`). 1198/1198 tests pass
+(11 new), typecheck/lint/build clean, dedicated Preview deploy done (PR #75, head
+`e5d5452a6af05e3f8329a65226a0592df2df5def`), 390×844 Review Playthrough recorded and delivered.
+**Verdict: READY FOR HUMAN REVIEW — PR #75 stays OPEN, not merged, pending the user's own
+review of the video/Preview.** Next open work on this track: Slice 2/3 (feedback-line
+translation layer, reveal sequencing, Cooking Time scaffold) — explicitly not started this
+session, per the task's own scope guard.
+
 > Fresh GitHub/main state always wins if this document becomes stale.
 
 ## Product goal
@@ -367,7 +390,7 @@ Issue #47 is complete; Issue #33 is now the active priority (see below).
    hard-clipped to it — see `docs/reports/TETO_SAUCE-FREE-BOUNDARY_Result.md`.
 3. Interactive bake judgment.
 4. FINISH step for post-bake basil/finishing oil where recipes require it.
-5. RESULT identity: completed pizza as visual hero + descriptive traits/Teto reaction; score/stars secondary.
+5. RESULT identity: completed pizza as visual hero + descriptive traits/Teto reaction; score/stars secondary. **Slice 1 (Completed Pizza Hero + Result Flow Foundation) implemented — PR #75, OPEN pending Human Review.** See RESULT 2.0 addendum above and `docs/reports/TETO_RESULT-2_SLICE1_Result.md`. Slice 2/3 (feedback-line translation layer, reveal sequencing, Cooking Time scaffold) remain open.
 
 ### P3 — Scoring 2.0 Authority / RESULT
 
@@ -492,7 +515,7 @@ Audit's §6.
 | 1 | HOME | Issue #39 now |
 | 2 | Pizza Select | Issue #39 now |
 | 3 | Making Game | #32 (done) → #47 (done) → **#33 D1/D2 (COMPLETE, PR #54, Human Feel PASS)** → **#33 D3A (MERGED, PR #65)** → **Sauce Free Boundary (MERGED, PR #66)** → #37 |
-| 4 | RESULT | Scoring 2.0 Authority / Making Game 2.0 |
+| 4 | RESULT | Scoring 2.0 Authority / Making Game 2.0 → **RESULT 2.0 Slice 1 (Hero + Flow Foundation) implemented, PR #75 OPEN pending Human Review** |
 | 5 | Pizza Dex | after score/BEST authority stabilizes, before broad recipe expansion |
 | 6 | Lunch Rush | after Making Game 2.0 stabilizes |
 | 7 | Pitz reward UI | Issue #38 E-P1/E-P2 MERGED via PR #64 |
