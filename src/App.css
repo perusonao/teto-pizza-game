@@ -261,22 +261,14 @@
   box-shadow: inset 0 0 14px rgba(120, 70, 20, 0.3);
 }
 
-/* Mirrors .pizza-dough--raw/--perfect/--burnt's own background swap (above) onto the shape
-   layer specifically -- `filter` on .pizza-dough itself already cascades visually into every
-   descendant (including this one) with no extra rule needed, but `background` does not, so
-   the crust-color swap needs restating here once, the same pattern .pizza-sauce-layer's own
-   cascaded overrides below already use. */
-.pizza-dough--raw .pizza-dough-shape {
-  background: radial-gradient(circle at 40% 35%, #faf1dc, #f0e2bc 85%);
-}
-
-.pizza-dough--perfect .pizza-dough-shape {
-  background: radial-gradient(circle at 40% 35%, #eec27a, #c9863c 85%);
-}
-
-.pizza-dough--burnt .pizza-dough-shape {
-  background: radial-gradient(circle at 40% 35%, #8f6236, #4d2f16 85%);
-}
+/* M3A Bake Judgment: `.pizza-dough-shape`'s bake-time crust color used to come from 3 discrete
+   `.pizza-dough--raw/--perfect/--burnt .pizza-dough-shape` compound rules swapping `background`
+   (a radial-gradient) the instant `classifyBake` crossed `recipe.bakeTarget.start`/`.end` -- a
+   `background` change can't be transitioned by the browser, so this was a hard visual snap at
+   exactly the scoring boundary. PizzaStage now sets this element's `background` inline every
+   frame from `doughVisualColors(bakeHeat)` (../logic/bakeVisual.ts), a continuous function of
+   the same underlying position with no seam at the boundary; the 3 old compound rules are gone
+   (dead the instant BAKE starts, since the inline style always wins) rather than left stale. */
 
 /* Same "paint/stretch up to here" guide convention as .sauce-target-guide below, at the full
    DOUGH_RADIUS target -- gives a first-time player a visible boundary to pull toward even
@@ -439,6 +431,14 @@
   border-radius: 50%;
   background: var(--cheese-color, #f0d9a0);
   box-shadow: 0 2px 3px rgba(30, 16, 4, 0.3), 0 0 0 1.5px rgba(255, 255, 255, 0.8);
+  /* M3A Bake Judgment: `--bake-melt-scale` (default 1, i.e. no-op outside BAKE/RESULT) is set
+     inline every frame from `cheeseVisualFrame(bakeHeat)` (../logic/bakeVisual.ts) -- a
+     continuous melt/toast/char progression in place of the old discrete `.pizza-cheese--melted
+     /--toasted/--charred` class swap below (kept only for IngredientPieceVisual's own generic
+     className contract, unused by PizzaStage's live bake path now). `scale()` here composes
+     with each cheese's own base `transform` (e.g. parmigiano's `rotate` below) instead of
+     replacing it, unlike an inline `transform` would. */
+  transform: scale(var(--bake-melt-scale, 1));
   transition: transform 0.3s ease, filter 0.3s ease;
 }
 
@@ -467,7 +467,7 @@
   width: 21px;
   height: 9px;
   border-radius: 2px;
-  transform: rotate(-18deg);
+  transform: rotate(-18deg) scale(var(--bake-melt-scale, 1));
   background: linear-gradient(160deg, #fff6d8, #e7d182);
   box-shadow: 0 2px 2px rgba(30, 16, 4, 0.35), 0 0 0 1.3px rgba(255, 255, 255, 0.8);
 }
@@ -480,6 +480,10 @@
   box-shadow: 0 2px 3px rgba(30, 16, 4, 0.3), 0 0 0 1.5px rgba(255, 255, 255, 0.8), inset 0 -2px 3px rgba(255, 255, 255, 0.35);
 }
 
+/* Legacy discrete melt look -- PizzaStage's own live bake path no longer applies these
+   classNames (see `.pizza-cheese`'s own `--bake-melt-scale` comment above); kept only for
+   IngredientPieceVisual's generic className passthrough contract (its own test still exercises
+   this exact class name). */
 .pizza-cheese--melted {
   transform: scale(1.16);
   filter: brightness(1.06) saturate(1.05);
@@ -548,26 +552,25 @@
   }
 }
 
+/* M3A Bake Judgment: used to be one element whose `background` swapped between 3 discrete
+   gradients (--raw/--perfect/--burnt) picked by `classifyBake` -- another un-animatable
+   `background` snap at the exact scoring boundary (see ../logic/bakeVisual.ts's file header).
+   Replaced by 2 always-mounted layers (below) with a fixed `background` each, faded purely by
+   `opacity` (which PizzaStage sets inline every frame from a continuous intensity) -- opacity
+   *is* natively interpolable, so neither layer can pop in or swap look at a fixed instant. */
 .pizza-bake-overlay {
   position: absolute;
   inset: 0;
   border-radius: 50%;
   pointer-events: none;
-  transition: opacity 0.3s ease, background 0.3s ease;
 }
 
-.pizza-bake-overlay--raw {
+.pizza-bake-overlay--sheen {
   background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.05) 70%);
-  opacity: 0.5;
 }
 
-.pizza-bake-overlay--perfect {
-  background: radial-gradient(circle, transparent 30%, #935a1f 100%);
-}
-
-.pizza-bake-overlay--burnt {
+.pizza-bake-overlay--char {
   background: radial-gradient(circle, rgba(50, 26, 12, 0.22) 18%, rgba(20, 10, 5, 0.6) 100%);
-  opacity: 0.85;
 }
 
 /* One-shot warm flash the instant a perfect bake reaches RESULT -- "it turned out great". */
@@ -621,8 +624,17 @@
   }
 }
 
-.pizza-smoke {
+/* M3A Bake Judgment: `smoke-rise`'s own keyframes already animate `opacity` every cycle, and a
+   running CSS animation always wins the cascade over an inline style on the same property --
+   so PizzaStage's continuous char intensity fades this wrapper (position/opacity) instead,
+   leaving `.pizza-smoke` itself to just play the rise/scale/fade loop unchanged. */
+.pizza-smoke-wrap {
   position: absolute;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.pizza-smoke {
   font-size: 20px;
   pointer-events: none;
   animation: smoke-rise 1.6s ease-out infinite;

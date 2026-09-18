@@ -16,6 +16,13 @@ import type { Recipe } from "../data/recipes";
 import type { PizzaState, PlacementFeedback, SauceDeposit } from "../state/pizzaState";
 import type { MakingStep } from "../state/gameReducer";
 import { classifyBake } from "../logic/bake";
+import {
+  charIntensity,
+  cheeseVisualFrame,
+  computeBakeHeat,
+  doughVisualColors,
+  rawSheenIntensity,
+} from "../logic/bakeVisual";
 import { SauceDispenseController } from "../logic/sauceDispenseController";
 import { PointerTimestampNormalizer } from "../logic/pointerTimestampNormalizer";
 import { applyStretchPoint, smoothDoughShapeForDisplay, type DoughShape } from "../logic/doughShape";
@@ -746,13 +753,27 @@ export function PizzaStage({
   const sauceIngredient = sauceId ? getIngredient(sauceId) : undefined;
   const isOilSauce = sauceIngredient?.id === "olive-oil";
   const bakeState = bakeProgress !== null ? classifyBake(bakeProgress, recipe.bakeTarget) : null;
-  const bakeIntensity = bakeProgress === null ? 0 : Math.min(1, bakeProgress / 100);
-  const meltClass =
-    bakeState === "perfect"
-      ? "pizza-cheese--melted pizza-cheese--toasted"
-      : bakeState === "burnt"
-        ? "pizza-cheese--melted pizza-cheese--charred"
-        : "";
+  // M3A Bake Judgment: `bakeHeat` (see ../logic/bakeVisual.ts's own file header) is the
+  // continuous doneness scalar every visual below reads instead of `bakeState` -- `bakeState`
+  // itself is kept only for the one thing that still legitimately wants a hard reveal, the
+  // RESULT-screen perfect glow further down (gated on `resultRevealed`, i.e. after the
+  // player has already committed their CONFIRM_BAKE tap, not a BAKE-time "tell").
+  const bakeHeat = bakeProgress === null ? 0 : computeBakeHeat(bakeProgress, recipe.bakeTarget);
+  const doughColors = bakeProgress === null ? null : doughVisualColors(bakeHeat);
+  const doughShapeStyle: CSSProperties | undefined = doughColors
+    ? {
+        background: `radial-gradient(circle at 40% 35%, ${doughColors.colorA}, ${doughColors.colorB} 85%)`,
+      }
+    : undefined;
+  const cheeseFrame = bakeProgress === null ? null : cheeseVisualFrame(bakeHeat);
+  const cheeseStyle: CSSProperties | undefined = cheeseFrame
+    ? ({
+        "--bake-melt-scale": cheeseFrame.scale,
+        filter: `brightness(${cheeseFrame.brightness.toFixed(3)}) saturate(${cheeseFrame.saturate.toFixed(3)}) sepia(${cheeseFrame.sepia.toFixed(3)})`,
+      } as CSSProperties)
+    : undefined;
+  const bakeCharIntensity = bakeProgress === null ? 0 : charIntensity(bakeHeat);
+  const bakeRawSheenIntensity = bakeProgress === null ? 0 : rawSheenIntensity(bakeHeat);
   // sauceOrigin.x/y are dough-local percent, but the clip-path "at X% Y%" on .pizza-sauce-layer
   // resolves against that layer's own box, which is inset 6% from the dough. Re-project into
   // the sauce layer's coordinate space so the spread starts under the tap/paint point.
@@ -918,13 +939,14 @@ export function PizzaStage({
             plate/border) takes the organic shape. First child (below sauce/heatmap/toppings)
             so they visually sit on top of it, satisfying "sauce/cheese/toppings sit on the
             shaped dough" with no per-layer change needed elsewhere. Carries through every
-            phase once the round has entered PREPARE (`showDoughShape`), including
-            BAKE/RESULT's own raw/perfect/burnt coloring (see App.css's cascaded overrides). */}
+            phase once the round has entered PREPARE (`showDoughShape`), including BAKE/RESULT's
+            own continuous doneness coloring (M3A Bake Judgment: `doughShapeStyle` above,
+            ../logic/bakeVisual.ts) overriding App.css's neutral has-shape-layer default. */}
         {showDoughShape && (
           <div
             className="pizza-dough-shape"
             aria-hidden="true"
-            style={{ clipPath: `url(#${doughClipId})` }}
+            style={{ clipPath: `url(#${doughClipId})`, ...doughShapeStyle }}
           >
             <svg width="0" height="0" style={{ position: "absolute" }}>
               <defs>
@@ -993,7 +1015,7 @@ export function PizzaStage({
               } as CSSProperties}
             >
               {ingredient.category === "cheese" ? (
-                <IngredientPieceVisual ingredient={ingredient} className={meltClass} />
+                <IngredientPieceVisual ingredient={ingredient} style={cheeseStyle} />
               ) : (
                 <span className="pizza-topping__emoji">{ingredient.emoji}</span>
               )}
@@ -1009,20 +1031,29 @@ export function PizzaStage({
             {"✕"}
           </span>
         )}
-        {bakeState && (
-          <div
-            className={`pizza-bake-overlay pizza-bake-overlay--${bakeState}`}
-            style={{ opacity: bakeState === "perfect" ? 0.3 + bakeIntensity * 0.25 : undefined }}
-          />
-        )}
-        {bakeState === "burnt" && (
+        {/* M3A Bake Judgment: the old `pizza-bake-overlay--raw/--perfect/--burnt` swapped
+            `background` (a radial-gradient) per discrete `bakeState` -- the same un-animatable
+            snap `../logic/bakeVisual.ts`'s file header documents for the dough color. Split
+            into two always-mounted layers whose only per-frame change is `opacity` (which
+            *does* transition/interpolate natively), each driven by a continuous intensity, so
+            neither can pop in or swap look at a fixed instant. */}
+        {bakeProgress !== null && (
           <>
-            <div className="pizza-char-spots" />
-            <span className="pizza-smoke" style={{ left: "32%", top: "18%" }}>
-              {"\u{1F4A8}"}
+            <div className="pizza-bake-overlay pizza-bake-overlay--sheen" style={{ opacity: bakeRawSheenIntensity * 0.5 }} />
+            <div className="pizza-bake-overlay pizza-bake-overlay--char" style={{ opacity: bakeCharIntensity * 0.85 }} />
+          </>
+        )}
+        {bakeProgress !== null && (
+          <>
+            <div className="pizza-char-spots" style={{ opacity: bakeCharIntensity }} />
+            {/* `smoke-rise`'s own keyframes (App.css) already drive this span's opacity each
+                cycle -- a CSS animation always wins the cascade over an inline style on the
+                same property, so `bakeCharIntensity` fades a wrapping element instead. */}
+            <span className="pizza-smoke-wrap" style={{ left: "32%", top: "18%", opacity: bakeCharIntensity }}>
+              <span className="pizza-smoke">{"\u{1F4A8}"}</span>
             </span>
-            <span className="pizza-smoke pizza-smoke--delay" style={{ left: "62%", top: "24%" }}>
-              {"\u{1F4A8}"}
+            <span className="pizza-smoke-wrap" style={{ left: "62%", top: "24%", opacity: bakeCharIntensity }}>
+              <span className="pizza-smoke pizza-smoke--delay">{"\u{1F4A8}"}</span>
             </span>
           </>
         )}
