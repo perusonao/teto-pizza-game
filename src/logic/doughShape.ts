@@ -210,6 +210,46 @@ export function applyStretchPoint(shape: DoughShape, xDough: number, yDough: num
   return { radii };
 }
 
+/**
+ * Sauce Free Boundary: the dough's own local radius at an arbitrary angle (radians, same
+ * atan2/canvas convention as `applyStretchPoint`), linearly interpolated between the two
+ * bracketing control points -- a straight-edged N-gon reading of the shape, not the smoothed
+ * Catmull-Rom curve `smoothDoughShapeForDisplay` renders. Deliberately the simpler of the two:
+ * this is a boundary *test* (is this point inside the dough), not a display path, and an
+ * octagon-accurate boundary is more than close enough for "does sauce painting respect the
+ * player's actual hand-shaped dough" -- see `isInsideDoughShape` below, the only thing that
+ * calls this.
+ */
+export function doughShapeRadiusAtAngle(shape: DoughShape, angle: number): number {
+  const n = shape.radii.length;
+  const step = (Math.PI * 2) / n;
+  let normalizedAngle = angle % (Math.PI * 2);
+  if (normalizedAngle < 0) normalizedAngle += Math.PI * 2;
+
+  const rawIndex = normalizedAngle / step;
+  const lowerIndex = Math.floor(rawIndex) % n;
+  const upperIndex = (lowerIndex + 1) % n;
+  const fraction = rawIndex - Math.floor(rawIndex);
+
+  return shape.radii[lowerIndex] + (shape.radii[upperIndex] - shape.radii[lowerIndex]) * fraction;
+}
+
+/**
+ * Sauce Free Boundary (Issue #37 M2 sibling task): whether a dough-percent point sits inside
+ * the *current, possibly D3A-distorted* dough silhouette -- never a fixed `DOUGH_RADIUS`
+ * circle. Used only by the sauce render path (`../sauceField.ts`'s shape-aware variants); the
+ * fixed-circle `isInsideDough` (./pizzaCoordinates.ts) remains what Scoring 2.0's
+ * `computeSauceMetrics` and topping placement (`PLACE_TOPPING`) both read, unchanged -- see the
+ * Fresh Audit's explicit reasoning for keeping those on the old boundary.
+ */
+export function isInsideDoughShape(shape: DoughShape, x: number, y: number): boolean {
+  const dx = x - DOUGH_CENTER;
+  const dy = y - DOUGH_CENTER;
+  const distance = Math.hypot(dx, dy);
+  if (distance === 0) return true;
+  return distance <= doughShapeRadiusAtAngle(shape, Math.atan2(dy, dx));
+}
+
 /** mean(radii) / DOUGH_RADIUS -- the one and only D1 completion signal (size, not
  *  roundness/evenness/symmetry -- see DOUGH_COMPLETION_THRESHOLD's own doc comment). */
 export function doughSizeProgress(shape: DoughShape): number {
