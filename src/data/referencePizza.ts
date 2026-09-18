@@ -212,18 +212,110 @@ export const MARGHERITA_REFERENCE: ReferencePizza = {
 };
 
 /**
- * Returns the Reference Pizza for `recipeId`, or null for every recipe but Margherita.
+ * B2 PART A (docs/reports/TETO_SCORING2-B2_REFERENCE-COVERAGE_Result.md section 10): reviewed
+ * and ChatGPT-approved piece geometry for marinara (garlic x3, oregano x2). Positions/tolerance
+ * are exactly the candidate proposed in that report's section 9.2 -- unchanged by
+ * implementation, per the review process this project uses (design proposal -> human/ChatGPT
+ * review -> implement the approved numbers verbatim, never re-derive or "improve" them at
+ * implementation time).
+ */
+export const MARINARA_REFERENCE: ReferencePizza = {
+  recipeId: "marinara",
+  sauce: computeMechanicalSauceReference("marinara"),
+  pieceGroups: [
+    {
+      ingredientId: "garlic",
+      positions: [
+        { x: 33, y: 41 },
+        { x: 69, y: 43 },
+        { x: 50, y: 68 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "oregano",
+      positions: [
+        { x: 38, y: 63 },
+        { x: 64, y: 60 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "LIGHT_LEAF",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
+/**
+ * B2 PART A: reviewed and ChatGPT-approved piece geometry for funghi (mozzarella x2,
+ * mushroom x3). Positions/tolerance are exactly the candidate proposed in the B2 report's
+ * section 9.3.
+ */
+export const FUNGHI_REFERENCE: ReferencePizza = {
+  recipeId: "funghi",
+  sauce: computeMechanicalSauceReference("funghi"),
+  pieceGroups: [
+    {
+      ingredientId: "mozzarella",
+      positions: [
+        { x: 36, y: 38 },
+        { x: 66, y: 40 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "mushroom",
+      positions: [
+        { x: 50, y: 30 },
+        { x: 30, y: 62 },
+        { x: 70, y: 64 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
+const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
+  [MARGHERITA_REFERENCE.recipeId, MARGHERITA_REFERENCE],
+  [MARINARA_REFERENCE.recipeId, MARINARA_REFERENCE],
+  [FUNGHI_REFERENCE.recipeId, FUNGHI_REFERENCE],
+]);
+
+/**
+ * Returns the Reference Pizza for `recipeId`, or null for a recipe with no reviewed geometry
+ * yet.
  *
- * B2 (see docs/reports/TETO_SCORING2-B2_REFERENCE-COVERAGE_Result.md): coverage remains
- * Margherita-only, unchanged by that report's work. `computeMechanicalSauceReference` above
- * shows a correct sauce target is already mechanically reachable for the other 6 recipes, but
- * each `ReferencePizza` also needs its `pieceGroups` -- reviewed (x, y) target positions and
- * tolerance radii per required topping -- and no approved source for those exists yet
- * (Issue #32's own "define the safe path for adding reviewed References to other recipes"
- * acceptance item is still open). Fabricating those positions here would be exactly what this
- * project's non-negotiable guard against fabricated Reference targets forbids, so this
- * function is intentionally left unchanged rather than half-populating new entries.
+ * B2 (see docs/reports/TETO_SCORING2-B2_REFERENCE-COVERAGE_Result.md): coverage is now
+ * margherita/marinara/funghi (3/7) -- marinara and funghi's `pieceGroups` are the exact
+ * candidate geometry that report's section 9 proposed and ChatGPT's review approved (section
+ * 10). The remaining 4 recipes (genovese, bismarck, quattro-formaggi, fugazza) still have no
+ * approved piece geometry -- genovese/fugazza have design-only candidates (section 11, NOT YET
+ * APPROVED); bismarck/quattro-formaggi have none at all yet. Fabricating any of those here
+ * would be exactly what this project's non-negotiable guard against fabricated Reference
+ * targets forbids, so this function only ever returns a non-null result for a recipe whose
+ * geometry has gone through that review.
  */
 export function getReferencePizza(recipeId: string): ReferencePizza | null {
-  return recipeId === MARGHERITA_REFERENCE.recipeId ? MARGHERITA_REFERENCE : null;
+  return REFERENCE_PIZZAS.get(recipeId as RecipeId) ?? null;
 }

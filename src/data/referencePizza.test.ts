@@ -3,9 +3,11 @@ import {
   buildIdealMargheritaSauceFixture,
   buildIdealSauceFixture,
   computeMechanicalSauceReference,
+  FUNGHI_REFERENCE,
   getReferencePizza,
   IDEAL_MARGHERITA_SAUCE_FIXTURE,
   MARGHERITA_REFERENCE,
+  MARINARA_REFERENCE,
 } from "./referencePizza";
 import { RECIPES, type RecipeId } from "./recipes";
 import { getRecipeSauceProfile } from "./recipeSauceProfiles";
@@ -65,31 +67,84 @@ describe("Reference fixture reachability", () => {
   });
 });
 
-describe("getReferencePizza (Scope Guard)", () => {
+describe("getReferencePizza (B2 PART A: coverage is now margherita/marinara/funghi, 3/7)", () => {
   it("returns the Margherita reference for margherita", () => {
     expect(getReferencePizza("margherita")).toBe(MARGHERITA_REFERENCE);
   });
 
-  it("returns null for every other recipe", () => {
-    for (const id of ["marinara", "quattro-formaggi", "pesto-genovese", "unknown-recipe"]) {
+  it("returns the Marinara reference for marinara", () => {
+    expect(getReferencePizza("marinara")).toBe(MARINARA_REFERENCE);
+  });
+
+  it("returns the Funghi reference for funghi", () => {
+    expect(getReferencePizza("funghi")).toBe(FUNGHI_REFERENCE);
+  });
+
+  it("returns null for a recipe with no reviewed geometry, and for an unknown id", () => {
+    for (const id of ["quattro-formaggi", "pesto-genovese", "unknown-recipe"]) {
       expect(getReferencePizza(id)).toBeNull();
     }
   });
 
   /** B2 (docs/reports/TETO_SCORING2-B2_REFERENCE-COVERAGE_Result.md): still pins the exact
-   *  pre-B2 coverage state for all 6 target recipes -- the mechanical sauce infra below does
-   *  not change this, on purpose (no `pieceGroups` source exists for them yet). */
-  it("still returns null for every B2 target recipe (piece-geometry blocker unresolved)", () => {
+   *  remaining-blocked coverage state for the 4 recipes PART A did not touch. Genovese/fugazza
+   *  have design-only candidates (section 11, NOT YET APPROVED); bismarck/quattro-formaggi
+   *  have none yet -- none of the four are registered here. */
+  it("still returns null for every recipe PART A did not implement", () => {
     for (const id of [
-      "marinara",
       "quattro-formaggi",
       "genovese",
       "bismarck",
-      "funghi",
       "fugazza",
     ] satisfies RecipeId[]) {
       expect(getReferencePizza(id)).toBeNull();
     }
+  });
+});
+
+/**
+ * B2 PART A: pins the exact ChatGPT-approved coordinates/tolerance for marinara and funghi,
+ * the same style as the existing "Phase 4A-1B piece reference" Margherita pin below -- so an
+ * accidental future edit to these literals fails a test immediately, the same guarantee
+ * Margherita's own geometry has had since Phase 4A-1B.
+ */
+describe("MARINARA_REFERENCE / FUNGHI_REFERENCE (B2 PART A: reviewed, approved geometry)", () => {
+  it("marinara: garlic x3 / oregano x2 at the exact approved positions, 8/22 tolerance", () => {
+    const [garlic, oregano] = MARINARA_REFERENCE.pieceGroups;
+    expect(garlic.ingredientId).toBe("garlic");
+    expect(garlic.positions).toEqual([
+      { x: 33, y: 41 },
+      { x: 69, y: 43 },
+      { x: 50, y: 68 },
+    ]);
+    expect(oregano.ingredientId).toBe("oregano");
+    expect(oregano.positions).toEqual([
+      { x: 38, y: 63 },
+      { x: 64, y: 60 },
+    ]);
+    for (const group of MARINARA_REFERENCE.pieceGroups) {
+      expect(group.matching).toEqual({ fullCreditRadius: 8, zeroCreditRadius: 22 });
+    }
+    expect(MARINARA_REFERENCE.sauce).toEqual(computeMechanicalSauceReference("marinara"));
+  });
+
+  it("funghi: mozzarella x2 / mushroom x3 at the exact approved positions, 8/22 tolerance", () => {
+    const [mozzarella, mushroom] = FUNGHI_REFERENCE.pieceGroups;
+    expect(mozzarella.ingredientId).toBe("mozzarella");
+    expect(mozzarella.positions).toEqual([
+      { x: 36, y: 38 },
+      { x: 66, y: 40 },
+    ]);
+    expect(mushroom.ingredientId).toBe("mushroom");
+    expect(mushroom.positions).toEqual([
+      { x: 50, y: 30 },
+      { x: 30, y: 62 },
+      { x: 70, y: 64 },
+    ]);
+    for (const group of FUNGHI_REFERENCE.pieceGroups) {
+      expect(group.matching).toEqual({ fullCreditRadius: 8, zeroCreditRadius: 22 });
+    }
+    expect(FUNGHI_REFERENCE.sauce).toEqual(computeMechanicalSauceReference("funghi"));
   });
 });
 

@@ -297,7 +297,14 @@ large egg vs. scattered pieces), and fugazza (no-cheese, olive-oil base) as call
 
 ---
 
-## 9. Candidate geometry — NOT YET APPROVED (Marinara / Funghi design pass)
+## 9. Candidate geometry — Marinara / Funghi design pass
+
+> **Status update:** ChatGPT reviewed this section's candidates and **approved both**
+> (marinara's geometry, funghi's geometry, and the 8/22 tolerance **for these two recipes
+> specifically, not as a universal rule**). §10 below implements them verbatim. This section's
+> own content is left unchanged below as the historical design record; do not re-derive these
+> numbers from scratch — the coordinates that shipped in §10 are copied byte-for-byte from
+> here.
 
 **Follow-up to §8, same PR #57.** PR #57's bounded mechanical implementation (§4) was accepted
 as-is, not merged. This section is a design-only pass exercising §6's proposed authoring

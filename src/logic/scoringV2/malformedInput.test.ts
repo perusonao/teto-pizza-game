@@ -600,10 +600,12 @@ describe("computeScoringV2Shadow -- full public-API adversarial matrix (never th
   });
 
   it("still available:false / totalScore:null for a Reference-unavailable recipe, even with malformed pizza data at the same time", () => {
-    const marinara = getRecipe("marinara")!;
+    // B2 PART A gave marinara a reviewed Reference (see referencePizza.ts) -- bismarck still
+    // has none, so it's the example used here now.
+    const bismarck = getRecipe("bismarck")!;
     const pizza = { ...createEmptyPizza(), sauceDeposits: "garbage" as never, toppings: null as never };
-    expect(() => computeScoringV2Shadow(marinara, pizza)).not.toThrow();
-    const result = computeScoringV2Shadow(marinara, pizza);
+    expect(() => computeScoringV2Shadow(bismarck, pizza)).not.toThrow();
+    const result = computeScoringV2Shadow(bismarck, pizza);
     expect(result.available).toBe(false);
     expect(result.totalScore).toBeNull();
   });
