@@ -2,7 +2,7 @@
  * Human Feel Fix 2 (Sauce Painting Visual/Scoring Discoverability): turns `SauceMetrics`
  * (./sauceField.ts) into what the player actually sees -- three ◎/○/× tiers (広さ/均一さ/ふち)
  * and one short live message while painting. Shadow-only, same as everything else in
- * ./referenceScoring.ts and ./sauceField.ts: never feeds `scorePizza`/Dex BEST/★/Mission/
+ * ./referenceScoring.ts and ./sauceField.ts: never feeds `state.score`/Dex BEST/★/Mission/
  * Pitz/Shop/progression, and this file does not change any of those either.
  *
  * `SAUCE_TARGET_RADIUS` (./sauceField.ts) is the one geometry constant both the Target Area

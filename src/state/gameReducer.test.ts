@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createInitialGameState, gameReducer, type GameState, type MakingStep } from "./gameReducer";
 import { registerScoreToDex, EMPTY_DEX } from "./dex";
-import { scorePizza, type ScoreBreakdown, type QualityStars } from "../logic/scoring";
+import type { ScoreBreakdown, QualityStars } from "../logic/scoring";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { buildIdealMargheritaSauceFixture, MARGHERITA_REFERENCE } from "../data/referencePizza";
 import { EMPTY_MISSION_METRICS, recordServe } from "../logic/missionScoring";
@@ -674,16 +674,6 @@ describe("Phase 4A-2 Scoring 2.0 / A1 Authority Cutover (gameReducer integration
     expect(state.scoringV2Result).not.toBeNull();
     expect(state.scoringV2Result?.available).toBe(true);
     expect(state.scoringV2Result?.totalScore as number).toBeGreaterThan(90);
-  });
-
-  it("A1: authoritative score/stars are exactly what Scoring 2.0 computes -- legacy scorePizza no longer feeds state.score", () => {
-    const state = playMargheritaToResultWithShadowSauce(70);
-    const legacyOnly = scorePizza(state.recipe, state.pizza);
-    // Legacy scorePizza is still callable (Option A, not deleted) but is no longer read for
-    // state.score -- the two authorities never coexist, so their outputs must differ here
-    // (legacy ignores sauceDeposits entirely; Scoring 2.0's Sauce is 52/100 of the total).
-    expect(state.score).not.toEqual(legacyOnly);
-    expect(state.score?.total).toBe(state.scoringV2Result?.totalScore);
   });
 
   it("A1: Dex BEST/timesMade registration is driven by state.score, which now *is* scoringV2Result.totalScore", () => {

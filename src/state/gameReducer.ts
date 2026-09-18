@@ -482,9 +482,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // Scoring 2.0 call site, shared by FREE and Lunch Rush alike (both dispatch this same
       // action; see ../logic/scoringV2/index.ts's own file header). `toLegacyScoreBreakdown`
       // adapts it into the `ScoreBreakdown` shape every downstream consumer already reads
-      // formula-agnostically (see ../logic/scoringV2/toLegacyScoreBreakdown.ts). Legacy
-      // `scorePizza` (../logic/scoring.ts) is kept callable elsewhere (Option A, not deleted at
-      // A1) but is no longer read for `state.score` -- the two never hold authority at once.
+      // formula-agnostically (see ../logic/scoringV2/toLegacyScoreBreakdown.ts). The legacy
+      // `scorePizza` formula (previously ../logic/scoring.ts) was retired in A3b -- Scoring 2.0
+      // is the sole scoring authority now.
       const scoringV2Result = computeScoringV2(state.recipe, pizza);
       const score = toLegacyScoreBreakdown(scoringV2Result, action.value, state.recipe.bakeTarget);
       return { ...state, pizza, score, bakeState, scoringV2Result, phase: "RESULT" };

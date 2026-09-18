@@ -2,12 +2,11 @@ import { describe, expect, it } from "vitest";
 import { MARGHERITA_REFERENCE } from "../data/referencePizza";
 import { getRecipe } from "../data/recipes";
 import { scorePiecesAgainstReference } from "../logic/referenceScoring";
-import { scorePizza } from "../logic/scoring";
 import { createDefaultSave } from "./persistence";
 import { createEmptyPizza } from "./pizzaState";
 
 describe("Regression: Phase 4A-1B remains shadow-only", () => {
-  it("reference matching neither mutates pizza state nor changes the authoritative legacy score", () => {
+  it("reference matching neither mutates pizza state nor changes it as a side effect", () => {
     const pizza = {
       ...createEmptyPizza(),
       sauceIds: ["tomato-sauce"],
@@ -23,7 +22,6 @@ describe("Regression: Phase 4A-1B remains shadow-only", () => {
     const recipe = getRecipe("margherita");
     expect(recipe).toBeDefined();
     if (!recipe) throw new Error("Margherita recipe fixture is missing");
-    const legacyBefore = scorePizza(recipe, pizza);
 
     const shadow = scorePiecesAgainstReference(
       pizza.toppings,
@@ -32,7 +30,6 @@ describe("Regression: Phase 4A-1B remains shadow-only", () => {
 
     expect(shadow.every((metric) => metric.placementSimilarity === 1)).toBe(true);
     expect(pizza).toEqual(snapshot);
-    expect(scorePizza(recipe, pizza)).toEqual(legacyBefore);
   });
 
   it("does not add canonical reference or animation fields to the save schema", () => {
