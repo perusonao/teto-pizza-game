@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { computeScoringV2Shadow, SCORING_V2_RULESET_VERSION } from "./index";
+import { scoreBakeComponentV2 } from "./bakeComponent";
 import { scoreSauceComponentV2 } from "./sauceComponent";
 import { scorePieceGroupV2, scorePiecesComponentV2 } from "./piecesComponent";
 import { scoreRecipeComponentV2 } from "./recipeComponent";
@@ -169,6 +170,118 @@ describe("scoreSauceComponentV2", () => {
     const a = scoreSauceComponentV2(computeSauceMetrics(deposits), reference);
     const b = scoreSauceComponentV2(computeSauceMetrics([...deposits]), reference);
     expect(a).toEqual(b);
+  });
+});
+
+describe("scoreBakeComponentV2 (B1)", () => {
+  const target = MARGHERITA.bakeTarget; // { start: 60, end: 80 }
+
+  it("ideal: any bakeResult inside the target zone scores a perfect 100, distance 0, state 'perfect'", () => {
+    for (const bakeResult of [target.start, (target.start + target.end) / 2, target.end]) {
+      const result = scoreBakeComponentV2(bakeResult, target);
+      assertAvailable(result);
+      expect(result.score).toBe(100);
+      expect(result.similarity).toBe(1);
+      expect(result.distanceFromIdeal).toBe(0);
+      expect(result.bakeState).toBe("perfect");
+      expect(result.bakeResult).toBe(bakeResult);
+    }
+  });
+
+  it("under (raw): below the target zone scores below 100, finite, state 'raw', with a positive distance", () => {
+    const result = scoreBakeComponentV2(target.start - 15, target);
+    assertAvailable(result);
+    expect(Number.isFinite(result.score)).toBe(true);
+    expect(result.score).toBeLessThan(100);
+    expect(result.score).toBeGreaterThanOrEqual(0);
+    expect(result.bakeState).toBe("raw");
+    expect(result.distanceFromIdeal).toBe(15);
+  });
+
+  it("over (burnt): above the target zone scores below 100, finite, state 'burnt', with a positive distance", () => {
+    const result = scoreBakeComponentV2(target.end + 15, target);
+    assertAvailable(result);
+    expect(Number.isFinite(result.score)).toBe(true);
+    expect(result.score).toBeLessThan(100);
+    expect(result.score).toBeGreaterThanOrEqual(0);
+    expect(result.bakeState).toBe("burnt");
+    expect(result.distanceFromIdeal).toBe(15);
+  });
+
+  it("symmetric nearest-edge model: equal distance below start and above end score identically", () => {
+    const raw = scoreBakeComponentV2(target.start - 12, target);
+    const burnt = scoreBakeComponentV2(target.end + 12, target);
+    assertAvailable(raw);
+    assertAvailable(burnt);
+    expect(raw.score).toBeCloseTo(burnt.score, 9);
+    expect(raw.distanceFromIdeal).toBe(burnt.distanceFromIdeal);
+  });
+
+  it("degrades monotonically the further bakeResult drifts from the zone, on both sides", () => {
+    const nearRaw = scoreBakeComponentV2(target.start - 5, target);
+    const farRaw = scoreBakeComponentV2(target.start - 25, target);
+    const nearBurnt = scoreBakeComponentV2(target.end + 5, target);
+    const farBurnt = scoreBakeComponentV2(target.end + 25, target);
+    assertAvailable(nearRaw);
+    assertAvailable(farRaw);
+    assertAvailable(nearBurnt);
+    assertAvailable(farBurnt);
+    expect(nearRaw.score).toBeGreaterThan(farRaw.score);
+    expect(nearBurnt.score).toBeGreaterThan(farBurnt.score);
+  });
+
+  it("boundary: one tick below start is 'raw' and one tick above end is 'burnt' (classifyBake's own exclusive edges)", () => {
+    const justBelow = scoreBakeComponentV2(target.start - 1, target);
+    const justAbove = scoreBakeComponentV2(target.end + 1, target);
+    assertAvailable(justBelow);
+    assertAvailable(justAbove);
+    expect(justBelow.bakeState).toBe("raw");
+    expect(justAbove.bakeState).toBe("burnt");
+    expect(justBelow.score).toBeGreaterThan(90);
+    expect(justAbove.score).toBeGreaterThan(90);
+  });
+
+  it("malformed: bakeResult null (not yet baked) scores 0, available, state null -- never a crash or NaN", () => {
+    const result = scoreBakeComponentV2(null, target);
+    assertAvailable(result);
+    expect(result.score).toBe(0);
+    expect(result.similarity).toBe(0);
+    expect(result.bakeState).toBeNull();
+    expect(result.bakeResult).toBeNull();
+    expect(result.distanceFromIdeal).toBe(0);
+  });
+
+  it.each([Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, "70" as unknown as number, undefined as unknown as number])(
+    "malformed: bakeResult %p reads as not-yet-baked, never NaN/throws",
+    (malformed) => {
+      expect(() => scoreBakeComponentV2(malformed, target)).not.toThrow();
+      const result = scoreBakeComponentV2(malformed, target);
+      assertAvailable(result);
+      expect(result.score).toBe(0);
+      expect(result.bakeResult).toBeNull();
+    },
+  );
+
+  it("malformed: an inverted or zero-width bakeTarget fails the component closed (available:false), never divides by zero", () => {
+    const zeroWidth = scoreBakeComponentV2(70, { start: 70, end: 70 });
+    const inverted = scoreBakeComponentV2(70, { start: 80, end: 60 });
+    expect(zeroWidth.available).toBe(false);
+    expect(inverted.available).toBe(false);
+  });
+
+  it("malformed: a non-finite bakeTarget fails the component closed", () => {
+    const result = scoreBakeComponentV2(70, { start: Number.NaN, end: 80 });
+    expect(result.available).toBe(false);
+  });
+
+  it("score is always finite and within [0, 100] across a wide sweep of bakeResult values", () => {
+    for (let value = -200; value <= 200; value += 5) {
+      const result = scoreBakeComponentV2(value, target);
+      assertAvailable(result);
+      expect(Number.isFinite(result.score)).toBe(true);
+      expect(result.score).toBeGreaterThanOrEqual(0);
+      expect(result.score).toBeLessThanOrEqual(100);
+    }
   });
 });
 
@@ -664,7 +777,7 @@ describe("scoreRecipeComponentV2 purity (Issue #32 -- extra/wrong ingredient typ
 });
 
 describe("computeScoringV2Shadow (P0-1 Reference availability + P0-2 canonical entry point)", () => {
-  it("unavailable Reference recipe (e.g. marinara) returns available:false, totalScore:null, and every Reference-dependent component unavailable -- never a fabricated number", () => {
+  it("unavailable Reference recipe (e.g. marinara) returns available:false, totalScore:null, and every Reference-DEPENDENT component unavailable -- never a fabricated number", () => {
     const marinara = getRecipe("marinara")!;
     const result = computeScoringV2Shadow(marinara, createEmptyPizza());
     expect(result.available).toBe(false);
@@ -673,7 +786,10 @@ describe("computeScoringV2Shadow (P0-1 Reference availability + P0-2 canonical e
     expect(result.components.sauce.available).toBe(false);
     expect(result.components.pieces.available).toBe(false);
     expect(result.components.recipe.available).toBe(false);
-    expect(result.components.bake.available).toBe(false);
+    // B1: Bake needs no Reference fixture at all (../../data/recipes.ts's `bakeTarget` is
+    // static per-recipe data, defined for all 7 recipes) -- it stays real even when the whole
+    // result is unavailable because Sauce/Pieces/Recipe still are (P0-1/B2).
+    expect(result.components.bake.available).toBe(true);
   });
 
   it("every recipe without a Reference fixture is unavailable (Scope Guard: Margherita only)", () => {
@@ -685,9 +801,28 @@ describe("computeScoringV2Shadow (P0-1 Reference availability + P0-2 canonical e
     }
   });
 
-  it("Bake stays explicitly unavailable/provisional even for Margherita (no reviewed Scoring 2.0 Bake primitive this phase)", () => {
-    const result = computeScoringV2Shadow(MARGHERITA, referenceLikePizza());
-    expect(result.components.bake.available).toBe(false);
+  it("B1: Bake is real for Margherita and folds into totalScore -- ideal bake scores higher than raw/burnt", () => {
+    const { start, end } = MARGHERITA.bakeTarget;
+    const idealResult = computeScoringV2Shadow(
+      MARGHERITA,
+      pizzaWith({ ...referenceLikePizza(), bakeResult: (start + end) / 2 }),
+    );
+    const rawResult = computeScoringV2Shadow(
+      MARGHERITA,
+      pizzaWith({ ...referenceLikePizza(), bakeResult: start - 20 }),
+    );
+    const burntResult = computeScoringV2Shadow(
+      MARGHERITA,
+      pizzaWith({ ...referenceLikePizza(), bakeResult: end + 20 }),
+    );
+
+    expect(idealResult.components.bake.available).toBe(true);
+    expect(idealResult.components.bake.available && idealResult.components.bake.score).toBe(100);
+    expect(idealResult.totalScore).not.toBeNull();
+    expect(rawResult.totalScore).not.toBeNull();
+    expect(burntResult.totalScore).not.toBeNull();
+    expect(idealResult.totalScore as number).toBeGreaterThan(rawResult.totalScore as number);
+    expect(idealResult.totalScore as number).toBeGreaterThan(burntResult.totalScore as number);
   });
 
   it("carries the ruleset version so a stored/compared result can't be misread against a different formula", () => {

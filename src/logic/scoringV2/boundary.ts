@@ -176,6 +176,20 @@ export function validateRequiredIngredientsStrict(
   return { valid: true, items };
 }
 
+/** B1 (Bake component): `Recipe.bakeTarget` is authoritative per-recipe data (it defines what
+ *  "correctly baked" even means), same category as `requiredIngredients` above, so it gets the
+ *  same strict, non-collection validation -- a malformed target (missing/non-finite `start`/
+ *  `end`, or an inverted/zero-width `end <= start` zone) fails the Bake component closed rather
+ *  than silently computing a distance against a nonsensical zone. */
+export function isValidBakeTarget(value: unknown): value is { start: number; end: number } {
+  return (
+    isPlainObject(value) &&
+    isFiniteNumber(value.start) &&
+    isFiniteNumber(value.end) &&
+    value.end > value.start
+  );
+}
+
 /** Shared reason string for every "authoritative Reference/requirement data was malformed"
  *  unavailable result -- ./piecesComponent.ts and ./recipeComponent.ts both use this exact
  *  message. Distinct from ./index.ts's own `REFERENCE_UNAVAILABLE_REASON` ("no Reference

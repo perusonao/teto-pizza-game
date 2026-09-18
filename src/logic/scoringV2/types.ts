@@ -16,6 +16,7 @@
  * unambiguous "Reference unavailable" state (see ./index.ts's own comment) rather than a
  * partial reveal -- a later phase can split that out once there's a reason to.
  */
+import type { BakeState } from "../bake";
 
 /** A component that has nothing meaningful to report (no Reference fixture for this recipe,
  *  or -- for Bake -- no reviewed Scoring 2.0 primitive yet). Never a stand-in zero score. */
@@ -90,11 +91,39 @@ export interface RecipeComponentV2 {
   score: number;
 }
 
-/** Always unavailable in this phase -- see ./index.ts's BAKE_UNAVAILABLE_REASON and the
- *  Fresh Audit's Bake scope guard (no reviewed Scoring 2.0 Bake similarity primitive exists
- *  yet; this PR does not add one). Legacy Bake scoring (../scoring.ts, ../bake.ts) is
- *  untouched. */
-export type BakeComponentV2 = ScoringV2Unavailable;
+/**
+ * B1 (Bake similarity component): closeness of the confirmed bake gauge value to the recipe's
+ * own target zone (`Recipe.bakeTarget`). Unlike Sauce/Pieces/Recipe, this needs no Reference
+ * fixture -- `bakeTarget` is static per-recipe data already defined for all 7 recipes -- so it
+ * is computed the same way whether or not a Reference Pizza exists for this recipe. It does not
+ * by itself flip `ScoringV2Result.available` (P0-1's Reference gate on Sauce/Pieces/Recipe is
+ * untouched); see ./bakeComponent.ts for the formula (reuses ../bake.ts's `classifyBake`
+ * thresholds and ../scoring.ts legacy `scorePizza`'s own distance-from-nearest-edge shape).
+ */
+export interface BakeComponentV2Available {
+  available: true;
+  /** The confirmed bake gauge value this was scored against, or null when the pizza has not
+   *  been baked yet. */
+  bakeResult: number | null;
+  /** ../bake.ts's `classifyBake` categorical state for `bakeResult`, or null when not yet
+   *  baked. */
+  bakeState: BakeState | null;
+  /** 0 when `bakeResult` falls inside the recipe's target zone, else the distance (same units
+   *  as `bakeResult`/`BakeTarget`) from the nearest edge of that zone. 0 when not yet baked
+   *  does not by itself mean "perfect" -- see `bakeResult`/`bakeState`. */
+  distanceFromIdeal: number;
+  /** 0-1 continuous similarity -- 1 inside the target zone, degrading symmetrically as
+   *  `bakeResult` moves away from either edge (raw below, burnt above), 0 when not yet baked. */
+  similarity: number;
+  /** 0-100 = similarity * 100. */
+  score: number;
+}
+
+/** Unavailable only when `Recipe.bakeTarget` itself is malformed (see
+ *  ./boundary.ts's `isValidBakeTarget`) -- in real gameplay this never happens, since
+ *  `bakeTarget` is static authored recipe config, but the public function stays fail-closed for
+ *  the same reason every other component here is. */
+export type BakeComponentV2 = BakeComponentV2Available | ScoringV2Unavailable;
 
 export interface ScoringV2Components {
   sauce: SauceComponentV2 | ScoringV2Unavailable;
