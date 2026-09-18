@@ -61,6 +61,16 @@ Primary device: smartphone vertical. Verification baseline: 390×844.
 
 Scoring 2.0 Shadow has already been implemented and calibrated. It remains non-authoritative until the remaining consistency/Human Feel gates pass. **Scoring 2.0 Authority Fresh Audit done** — see `docs/reports/TETO_SCORING2_AUTHORITY_Fresh-Audit.md` (audited SHA `2da3949de5bd642c709ca6ba343bc57d8101d03d`). Verdict: **D. BLOCKED BY ANOTHER SYSTEM** — not by Dough (that dependency is explicitly cleared), but by two findings internal to Scoring 2.0 itself: it has **no Bake component at all** (any recipe, always unavailable — legacy's heaviest weight, 30/100), and it has **Reference coverage for exactly 1 of 7 recipes** (Margherita only), so a literal authority cutover today would break RESULT/stars/BEST/Dex/progression for 6 of 7 recipes. The Recipe/Sauce/Pieces invariants, the reducer-boundary cutover design, and every Dex/Mission/progression/save-compatibility question are otherwise confirmed ready — no further coefficient tuning required. Recommended sequence: **B1 (add a Bake similarity component) and B2 (Reference coverage for the remaining 6 recipes), in parallel, both gating A1 (authority adapter at `gameReducer.ts`'s `CONFIRM_BAKE`) → A2 (cutover verification) → A3 (legacy cleanup)**.
 
+**B1 (Bake similarity component) is now implemented** — see PR #58 (branch
+`claude/scoring2-bake-component-383kgw`, head SHA `3859f588116c97b9ee154594c24aa6d8fbb10ce5`,
+**not yet merged**) and `docs/reports/TETO_SCORING2-B1_BAKE_Result.md`. `BakeComponentV2`
+(`src/logic/scoringV2/bakeComponent.ts`) reuses `classifyBake`'s thresholds and legacy
+`scorePizza`'s own symmetric nearest-edge distance formula, needs no Reference fixture (so it is
+real for all 7 recipes already, ahead of B2), and is wired into `totalScore` at a rescaled
+Sauce:Pieces:Recipe:Bake weight of 52:16:12:20 (ruleset `phase-4a-2-shadow-3`). Scoring 2.0
+remains Shadow-only; this closes B1 only — **B2 (Reference coverage for the remaining 6 recipes)
+is still open** and still gates A1 (authority adapter) exactly as this audit's own sequence says.
+
 ### Recent merges
 
 - **PR #40** — HOME navigation + functional Pizza Select. MERGED.
@@ -200,7 +210,8 @@ as a dependency. Recommended sequence, refining the steps below: **B1 Bake compo
 Reference coverage (parallel) → A1 authority adapter (`gameReducer.ts` `CONFIRM_BAKE`) → A2
 cutover verification → A3 legacy cleanup**.
 
-1. Add a reviewed Bake similarity component to Scoring 2.0 (**B1** — does not exist today).
+1. Add a reviewed Bake similarity component to Scoring 2.0 (**B1** — **implemented**, PR #58,
+   `docs/reports/TETO_SCORING2-B1_BAKE_Result.md`, not yet merged; still Shadow-only).
 2. Extend Reference coverage from Margherita-only to the remaining 6 recipes (**B2**), via
    whatever reviewed-fixture-authoring path Issue #32's own P1 acceptance criterion specifies.
 3. Introduce Save v2 migration first only if persistent semantics must change (this audit found
