@@ -136,7 +136,6 @@ function Harness({ category, ingredientId }: { category: IngredientCategory; ing
         onTapPizza={handleTapPizza}
         onBakeTick={() => {}}
         onConfirmBake={() => {}}
-        onRegisterToDex={() => {}}
         onRetrySameRecipe={() => {}}
         onBackToPizzaSelect={() => {}}
         onMissionServeNext={() => {}}

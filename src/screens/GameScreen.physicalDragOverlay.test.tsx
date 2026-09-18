@@ -99,7 +99,6 @@ function Harness({ category }: { category: IngredientCategory }) {
         onTapPizza={() => {}}
         onBakeTick={() => {}}
         onConfirmBake={() => {}}
-        onRegisterToDex={() => {}}
         onRetrySameRecipe={() => {}}
         onBackToPizzaSelect={() => {}}
         onMissionServeNext={() => {}}

@@ -158,6 +158,30 @@ describe("HOME/GAME separation (Issue #24)", () => {
     expect(screen.queryByRole("button", { name: /フリープレイ/ })).not.toBeInTheDocument();
   });
 
+  // RESULT 2.0 Slice 1 regression: `handleConfirmBake`'s new auto-REGISTER_TO_DEX dispatch is
+  // guarded on `!state.isMissionRound` -- this pins that a Lunch Rush round's own CONFIRM_BAKE
+  // still lands on MissionServePanel (score + immediate 次の注文へ), never the FREE-only merged
+  // Hero result screen, and never applies a stray per-pizza Pitz/Dex credit mid-run.
+  it("Lunch Rush: CONFIRM_BAKE still shows MissionServePanel, not FREE's merged RESULT screen", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /ランチラッシュ/ }));
+    await user.click(screen.getByRole("button", { name: "スタート" }));
+    await user.click(screen.getByRole("button", { name: "ピザを作る！" }));
+    completeDoughStep();
+    await user.click(screen.getByRole("button", { name: /次へ/ }));
+    await user.click(screen.getByRole("button", { name: /次へ/ }));
+    await user.click(screen.getByRole("button", { name: /次へ/ }));
+    await user.click(screen.getByRole("button", { name: /焼く/ }));
+    await user.click(screen.getByRole("button", { name: "取り出す！" }));
+
+    expect(screen.getByRole("button", { name: "次の注文へ" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "もう一度つくる" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "別のピザを作る" })).not.toBeInTheDocument();
+    expect(screen.queryByText(/を発見しました/)).not.toBeInTheDocument();
+    expect(document.querySelector(".pitz-credit-summary")).not.toBeInTheDocument();
+  });
+
   it("opens the Dex overlay from HOME without leaving HOME underneath", async () => {
     const user = userEvent.setup();
     render(<App />);
@@ -234,8 +258,10 @@ describe("HOME/GAME separation (Issue #24)", () => {
     await user.click(screen.getByRole("button", { name: /次へ/ }));
     await user.click(screen.getByRole("button", { name: /次へ/ }));
     await user.click(screen.getByRole("button", { name: /焼く/ })); // PREPARE -> BAKE
-    await user.click(screen.getByRole("button", { name: "取り出す！" })); // BAKE -> RESULT
-    await user.click(screen.getByRole("button", { name: "レシピ図鑑に登録する" })); // RESULT -> DISCOVERED
+    // RESULT 2.0 Slice 1: REGISTER_TO_DEX now applies automatically at BAKE -> RESULT (App.tsx's
+    // handleConfirmBake), so this one tap lands directly on the merged Hero result screen --
+    // there is no separate "レシピ図鑑に登録する" tap between RESULT and DISCOVERED anymore.
+    await user.click(screen.getByRole("button", { name: "取り出す！" })); // BAKE -> RESULT/DISCOVERED
     // Issue #47 Finding D: the old single "もう一度作る" (always a *different* recipe) is
     // replaced by two explicit actions.
     expect(screen.queryByRole("button", { name: "もう一度作る" })).not.toBeInTheDocument();
@@ -255,6 +281,42 @@ describe("HOME/GAME separation (Issue #24)", () => {
     expect(document.querySelector(".order-card")).toHaveTextContent("ビスマルク");
   });
 
+  // RESULT 2.0 Slice 1: REGISTER_TO_DEX (Dex/BEST/Pitz) now applies automatically the instant
+  // BAKE confirms -- there is no separate "レシピ図鑑に登録する" tap between RESULT and
+  // DISCOVERED anymore (App.tsx's `handleConfirmBake`). This pins that end-to-end: one tap on
+  // 取り出す！ already shows the discovery banner and Pitz credit, and the player's own
+  // completed pizza (not a reference/placeholder image) stays the visual hero throughout.
+  it("RESULT 2.0: auto-registers to Dex/Pitz on BAKE confirm and shows the player's own completed pizza as hero", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
+    await user.click(screen.getByRole("button", { name: "ビスマルク、未挑戦" }));
+    completeDoughStep();
+    await user.click(screen.getByRole("button", { name: /次へ/ }));
+    await user.click(screen.getByRole("button", { name: /次へ/ }));
+    await user.click(screen.getByRole("button", { name: /次へ/ }));
+    await user.click(screen.getByRole("button", { name: /焼く/ }));
+
+    // The same PizzaStage element (and the pizza it was built on) carries straight through
+    // BAKE -> RESULT -- no remount, no reset to a blank/reference stage.
+    const pizzaBeforeConfirm = document.querySelector(".pizza-stage .pizza-dough");
+    expect(pizzaBeforeConfirm).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "取り出す！" }));
+
+    // No intermediate "score only, tap to register" screen -- the discovery banner, the CTAs,
+    // and the completed pizza are all present on the very first render after confirming BAKE.
+    expect(screen.queryByRole("button", { name: "レシピ図鑑に登録する" })).not.toBeInTheDocument();
+    expect(screen.getByText(/を発見しました/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "もう一度つくる" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "別のピザを作る" })).toBeInTheDocument();
+
+    // Still the exact same pizza element -- RESULT never rebuilds/replaces it with a fresh or
+    // reference stage (the task's own "Preserve player pizza" requirement).
+    const pizzaAfterConfirm = document.querySelector(".pizza-stage .pizza-dough");
+    expect(pizzaAfterConfirm).toBe(pizzaBeforeConfirm);
+  });
+
   it("「もう一度つくる」retries the exact same recipe with a fresh pizza (Finding D)", async () => {
     const user = userEvent.setup();
     render(<App />);
@@ -266,7 +328,6 @@ describe("HOME/GAME separation (Issue #24)", () => {
     await user.click(screen.getByRole("button", { name: /次へ/ }));
     await user.click(screen.getByRole("button", { name: /焼く/ }));
     await user.click(screen.getByRole("button", { name: "取り出す！" }));
-    await user.click(screen.getByRole("button", { name: "レシピ図鑑に登録する" })); // DISCOVERED
 
     await user.click(screen.getByRole("button", { name: "もう一度つくる" }));
 
@@ -293,7 +354,6 @@ describe("HOME/GAME separation (Issue #24)", () => {
     await user.click(screen.getByRole("button", { name: /次へ/ }));
     await user.click(screen.getByRole("button", { name: /焼く/ }));
     await user.click(screen.getByRole("button", { name: "取り出す！" }));
-    await user.click(screen.getByRole("button", { name: "レシピ図鑑に登録する" })); // DISCOVERED
 
     await user.click(screen.getByRole("button", { name: "別のピザを作る" }));
 
@@ -315,7 +375,6 @@ describe("HOME/GAME separation (Issue #24)", () => {
     await user.click(screen.getByRole("button", { name: /次へ/ }));
     await user.click(screen.getByRole("button", { name: /焼く/ }));
     await user.click(screen.getByRole("button", { name: "取り出す！" }));
-    await user.click(screen.getByRole("button", { name: "レシピ図鑑に登録する" })); // DISCOVERED
 
     const pitzBefore = screen.getByLabelText(/Pitz残高/).textContent;
     await user.click(screen.getByRole("button", { name: "もう一度つくる" }));
