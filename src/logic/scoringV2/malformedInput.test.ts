@@ -600,12 +600,14 @@ describe("computeScoringV2Shadow -- full public-API adversarial matrix (never th
   });
 
   it("still available:false / totalScore:null for a Reference-unavailable recipe, even with malformed pizza data at the same time", () => {
-    // B2 PART A gave marinara a reviewed Reference (see referencePizza.ts) -- bismarck still
-    // has none, so it's the example used here now.
-    const bismarck = getRecipe("bismarck")!;
+    // B2 PART C2: all 7 real recipes now have a reviewed Reference (see referencePizza.ts),
+    // so this uses a synthetic recipe id getReferencePizza was never taught, rather than a
+    // real recipe -- the "no Reference fixture" branch is still real production code and
+    // still needs coverage even though no real recipe exercises it anymore.
+    const noReferenceRecipe = { ...MARGHERITA, id: "no-such-recipe" as typeof MARGHERITA.id };
     const pizza = { ...createEmptyPizza(), sauceDeposits: "garbage" as never, toppings: null as never };
-    expect(() => computeScoringV2Shadow(bismarck, pizza)).not.toThrow();
-    const result = computeScoringV2Shadow(bismarck, pizza);
+    expect(() => computeScoringV2Shadow(noReferenceRecipe, pizza)).not.toThrow();
+    const result = computeScoringV2Shadow(noReferenceRecipe, pizza);
     expect(result.available).toBe(false);
     expect(result.totalScore).toBeNull();
   });

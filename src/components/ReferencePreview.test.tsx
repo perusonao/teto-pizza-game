@@ -19,7 +19,12 @@ afterEach(() => {
 function Harness() {
   const [isOpen, setIsOpen] = useState(true);
   return (
-    <ReferencePreview reference={MARGHERITA_REFERENCE} isOpen={isOpen} onOpenChange={setIsOpen} />
+    <ReferencePreview
+      reference={MARGHERITA_REFERENCE}
+      recipeNameJa="マルゲリータ"
+      isOpen={isOpen}
+      onOpenChange={setIsOpen}
+    />
   );
 }
 

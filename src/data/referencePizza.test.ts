@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  BISMARCK_REFERENCE,
   buildIdealMargheritaSauceFixture,
   buildIdealSauceFixture,
   computeMechanicalSauceReference,
@@ -10,8 +11,9 @@ import {
   IDEAL_MARGHERITA_SAUCE_FIXTURE,
   MARGHERITA_REFERENCE,
   MARINARA_REFERENCE,
+  QUATTRO_FORMAGGI_REFERENCE,
 } from "./referencePizza";
-import { RECIPES, type RecipeId } from "./recipes";
+import { RECIPES } from "./recipes";
 import { getRecipeSauceProfile } from "./recipeSauceProfiles";
 import { computeSauceMetrics } from "../logic/sauceField";
 import { scoreSauceAgainstReference } from "../logic/referenceScoring";
@@ -69,7 +71,7 @@ describe("Reference fixture reachability", () => {
   });
 });
 
-describe("getReferencePizza (B2 PART C1: coverage is now margherita/marinara/funghi/genovese/fugazza, 5/7)", () => {
+describe("getReferencePizza (B2 PART C2: coverage is now all 7 recipes)", () => {
   it("returns the Margherita reference for margherita", () => {
     expect(getReferencePizza("margherita")).toBe(MARGHERITA_REFERENCE);
   });
@@ -90,18 +92,26 @@ describe("getReferencePizza (B2 PART C1: coverage is now margherita/marinara/fun
     expect(getReferencePizza("fugazza")).toBe(FUGAZZA_REFERENCE);
   });
 
-  it("returns null for a recipe with no reviewed geometry, and for an unknown id", () => {
-    for (const id of ["quattro-formaggi", "bismarck-egg", "unknown-recipe"]) {
+  it("returns the Bismarck reference for bismarck", () => {
+    expect(getReferencePizza("bismarck")).toBe(BISMARCK_REFERENCE);
+  });
+
+  it("returns the Quattro Formaggi reference for quattro-formaggi", () => {
+    expect(getReferencePizza("quattro-formaggi")).toBe(QUATTRO_FORMAGGI_REFERENCE);
+  });
+
+  it("returns null only for an unknown id -- every real recipe now has reviewed geometry", () => {
+    for (const id of ["bismarck-egg", "pesto-genovese", "unknown-recipe"]) {
       expect(getReferencePizza(id)).toBeNull();
     }
   });
 
-  /** B2 (docs/reports/TETO_SCORING2-B2_REFERENCE-COVERAGE_Result.md): still pins the exact
-   *  remaining-blocked coverage state for the 2 recipes PART C1 did not touch. Both have
-   *  design-only candidates (section 13, NOT YET APPROVED) -- neither is registered here. */
-  it("still returns null for every recipe PART C1 did not implement", () => {
-    for (const id of ["quattro-formaggi", "bismarck"] satisfies RecipeId[]) {
-      expect(getReferencePizza(id)).toBeNull();
+  /** B2 PART C2: every one of the 7 real recipes now returns a Reference -- this is the
+   *  positive mirror of every prior phase's "still returns null" regression pin, now that
+   *  there is nothing left to be null. */
+  it("coverage is exactly 7/7 -- every RECIPES entry has a non-null Reference", () => {
+    for (const recipe of RECIPES) {
+      expect(getReferencePizza(recipe.id)).not.toBeNull();
     }
   });
 });
@@ -191,6 +201,63 @@ describe("GENOVESE_REFERENCE / FUGAZZA_REFERENCE (B2 PART C1: reviewed, approved
       expect(group.matching).toEqual({ fullCreditRadius: 8, zeroCreditRadius: 22 });
     }
     expect(FUGAZZA_REFERENCE.sauce).toEqual(computeMechanicalSauceReference("fugazza"));
+  });
+});
+
+/**
+ * B2 PART C2: pins the exact ChatGPT-approved coordinates/tolerance for bismarck and
+ * quattro-formaggi, completing 7/7 coverage.
+ */
+describe("BISMARCK_REFERENCE / QUATTRO_FORMAGGI_REFERENCE (B2 PART C2: reviewed, approved geometry)", () => {
+  it("bismarck: mozzarella x3 at 8/22, egg x1 at the deliberately wider 14/30", () => {
+    const [mozzarella, egg] = BISMARCK_REFERENCE.pieceGroups;
+    expect(mozzarella.ingredientId).toBe("mozzarella");
+    expect(mozzarella.positions).toEqual([
+      { x: 31, y: 32 },
+      { x: 70, y: 34 },
+      { x: 48, y: 72 },
+    ]);
+    expect(mozzarella.matching).toEqual({ fullCreditRadius: 8, zeroCreditRadius: 22 });
+
+    expect(egg.ingredientId).toBe("egg");
+    expect(egg.positions).toEqual([{ x: 50, y: 50 }]);
+    // The one deliberate departure from 8/22 in the whole B2 authoring pass -- pinned
+    // explicitly so an accidental "normalize to 8/22" edit fails immediately, since nothing
+    // else about this group's shape would visibly signal the mistake.
+    expect(egg.matching).toEqual({ fullCreditRadius: 14, zeroCreditRadius: 30 });
+
+    expect(BISMARCK_REFERENCE.sauce).toEqual(computeMechanicalSauceReference("bismarck"));
+  });
+
+  it("quattro-formaggi: 4 cheese groups (mozzarella/gorgonzola inner ring, parmigiano/fontina outer ring) at the exact approved positions, 8/22 tolerance throughout", () => {
+    const [mozzarella, gorgonzola, parmigiano, fontina] = QUATTRO_FORMAGGI_REFERENCE.pieceGroups;
+
+    expect(mozzarella.ingredientId).toBe("mozzarella");
+    expect(mozzarella.positions).toEqual([
+      { x: 53, y: 33 },
+      { x: 47, y: 67 },
+    ]);
+    expect(gorgonzola.ingredientId).toBe("gorgonzola");
+    expect(gorgonzola.positions).toEqual([
+      { x: 33, y: 47 },
+      { x: 67, y: 53 },
+    ]);
+    expect(parmigiano.ingredientId).toBe("parmigiano");
+    expect(parmigiano.positions).toEqual([
+      { x: 72, y: 35 },
+      { x: 28, y: 65 },
+    ]);
+    expect(fontina.ingredientId).toBe("fontina");
+    expect(fontina.positions).toEqual([
+      { x: 35, y: 28 },
+      { x: 65, y: 72 },
+    ]);
+    for (const group of QUATTRO_FORMAGGI_REFERENCE.pieceGroups) {
+      expect(group.matching).toEqual({ fullCreditRadius: 8, zeroCreditRadius: 22 });
+    }
+    expect(QUATTRO_FORMAGGI_REFERENCE.sauce).toEqual(
+      computeMechanicalSauceReference("quattro-formaggi"),
+    );
   });
 });
 

@@ -30,9 +30,8 @@
  * Margherita-only so other recipes' Reference data can use this same shape, and the ideal
  * sauce fixture is exposed as a generic, ingredient-agnostic builder
  * (`buildIdealSauceFixture`/`computeMechanicalSauceReference`) reusable for any recipe's sauce
- * target. Coverage itself (`getReferencePizza`) is now margherita/marinara/funghi/genovese/
- * fugazza (5/7, PART A + PART C1) -- see that function's own doc comment for exactly why the
- * remaining 2 (bismarck, quattro-formaggi) are not registered yet.
+ * target. Coverage itself (`getReferencePizza`) is now all 7 recipes (PART A + PART C1 +
+ * PART C2) -- see that function's own doc comment for the review trail behind each entry.
  */
 import { computeSauceMetrics, type SauceDepositLike, type SauceMetrics } from "../logic/sauceField";
 import { SAUCE_RATE_PER_TICK } from "../logic/sauceQuantity";
@@ -380,26 +379,140 @@ export const FUGAZZA_REFERENCE: ReferencePizza = {
   ],
 };
 
+/**
+ * B2 PART C2 (docs/reports/TETO_SCORING2-B2_REFERENCE-COVERAGE_Result.md section 13.1):
+ * reviewed and ChatGPT-approved piece geometry for bismarck (mozzarella x3, egg x1).
+ * Mozzarella reuses the standard 8/22 tolerance (identical physical piece as every other
+ * recipe's mozzarella); egg uses a deliberately wider 14/30 -- not derived from any rendered
+ * size difference (egg has none -- it renders through the same generic emoji path as every
+ * other topping), but from a semantic argument specific to a single, centered hero piece with
+ * no quantity/placement pattern to read. See section 13.1 for the full rationale; this does
+ * not establish 14/30 (or 8/22) as a rule for any future single-piece group.
+ */
+export const BISMARCK_REFERENCE: ReferencePizza = {
+  recipeId: "bismarck",
+  sauce: computeMechanicalSauceReference("bismarck"),
+  pieceGroups: [
+    {
+      ingredientId: "mozzarella",
+      positions: [
+        { x: 31, y: 32 },
+        { x: 70, y: 34 },
+        { x: 48, y: 72 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "egg",
+      positions: [{ x: 50, y: 50 }],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 14, zeroCreditRadius: 30 },
+    },
+  ],
+};
+
+/**
+ * B2 PART C2: reviewed and ChatGPT-approved piece geometry for quattro-formaggi (mozzarella x2,
+ * gorgonzola x2, parmigiano x2, fontina x2). Two concentric rings -- mozzarella/gorgonzola
+ * inner, parmigiano/fontina outer, each pair diametrically opposite within its own ring --
+ * deliberately not a rigid quadrant split (see section 13.2). All four groups use the standard
+ * 8/22 tolerance: each cheese's own `.pizza-cheese--<id>` shape is a similarly small physical
+ * size to mozzarella's baseline, none egg-sized, so none has bismarck's kind of justification
+ * to diverge.
+ */
+export const QUATTRO_FORMAGGI_REFERENCE: ReferencePizza = {
+  recipeId: "quattro-formaggi",
+  sauce: computeMechanicalSauceReference("quattro-formaggi"),
+  pieceGroups: [
+    {
+      ingredientId: "mozzarella",
+      positions: [
+        { x: 53, y: 33 },
+        { x: 47, y: 67 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "gorgonzola",
+      positions: [
+        { x: 33, y: 47 },
+        { x: 67, y: 53 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "parmigiano",
+      positions: [
+        { x: 72, y: 35 },
+        { x: 28, y: 65 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "fontina",
+      positions: [
+        { x: 35, y: 28 },
+        { x: 65, y: 72 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
 const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [MARGHERITA_REFERENCE.recipeId, MARGHERITA_REFERENCE],
   [MARINARA_REFERENCE.recipeId, MARINARA_REFERENCE],
   [FUNGHI_REFERENCE.recipeId, FUNGHI_REFERENCE],
   [GENOVESE_REFERENCE.recipeId, GENOVESE_REFERENCE],
   [FUGAZZA_REFERENCE.recipeId, FUGAZZA_REFERENCE],
+  [BISMARCK_REFERENCE.recipeId, BISMARCK_REFERENCE],
+  [QUATTRO_FORMAGGI_REFERENCE.recipeId, QUATTRO_FORMAGGI_REFERENCE],
 ]);
 
 /**
- * Returns the Reference Pizza for `recipeId`, or null for a recipe with no reviewed geometry
- * yet.
+ * Returns the Reference Pizza for `recipeId`, or null for an unrecognized id.
  *
- * B2 (see docs/reports/TETO_SCORING2-B2_REFERENCE-COVERAGE_Result.md): coverage is now
- * margherita/marinara/funghi/genovese/fugazza (5/7) -- each of the four non-Margherita entries'
- * `pieceGroups` is the exact candidate geometry this report proposed and ChatGPT's review
- * approved. The remaining 2 recipes (bismarck, quattro-formaggi) still have no approved piece
- * geometry -- both have design-only candidates (section 13, NOT YET APPROVED). Fabricating
- * either here would be exactly what this project's non-negotiable guard against fabricated
- * Reference targets forbids, so this function only ever returns a non-null result for a recipe
- * whose geometry has gone through that review.
+ * B2 PART C2 (see docs/reports/TETO_SCORING2-B2_REFERENCE-COVERAGE_Result.md section 14):
+ * coverage is now all 7 recipes -- every entry's `pieceGroups` is the exact geometry that
+ * report proposed (sections 9/11/13) and ChatGPT's review approved for that recipe
+ * specifically, never a fabricated stand-in. Bismarck's `egg` group is the one deliberate
+ * departure from the otherwise-universal 8/22 tolerance (14/30, section 13.1) -- that is a
+ * one-off, recipe-specific judgment call, not a new default for any future single-piece group.
  */
 export function getReferencePizza(recipeId: string): ReferencePizza | null {
   return REFERENCE_PIZZAS.get(recipeId as RecipeId) ?? null;
