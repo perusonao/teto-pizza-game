@@ -2,8 +2,10 @@
 
 **Type:** Fresh Audit + bounded implementation (§4, mechanical infra) + design-only candidates
 (§9, marinara/funghi) + **PART A implementation of the approved marinara/funghi geometry (§10,
-coverage now 3/7)** + **PART B design-only candidates for genovese/fugazza (§11, not yet
-approved)**. Does **not** close B2 — see §10.5/§11.5 verdicts.
+coverage 3/7)** + design-only candidates (§11, genovese/fugazza) + **PART C1 implementation of
+the approved genovese/fugazza geometry (§12, coverage now 5/7)** + **PART C2 design-only
+candidates for bismarck/quattro-formaggi (§13, not yet approved — the final 2 of 7)**. Does
+**not** close B2 — see §12.5/§13.6 verdicts.
 
 - **Audited/base main SHA:** `142a18252db56d9ee4c236cc80062673d5e68c80` (Merge PR #55: Scoring
   2.0 Authority Fresh Audit, docs-only). Confirmed via `git fetch origin main && git rev-parse
@@ -19,15 +21,15 @@ approved)**. Does **not** close B2 — see §10.5/§11.5 verdicts.
 
 | Recipe | Status | Notes |
 |---|---|---|
-| Margherita | **EXISTING** | Unaffected by this task; still the original Phase 4A-1B Reference. |
+| Margherita | **IMPLEMENTED** | Unaffected by this task; still the original Phase 4A-1B Reference. |
 | Marinara | **APPROVED / IMPLEMENTED** | §10 — ChatGPT-approved geometry, registered in `getReferencePizza`. |
 | Funghi | **APPROVED / IMPLEMENTED** | §10 — ChatGPT-approved geometry, registered in `getReferencePizza`. |
-| Genovese | **CANDIDATE / NOT APPROVED** | §11.1 — design-only, no code implements it. |
-| Fugazza | **CANDIDATE / NOT APPROVED** | §11.2 — design-only, no code implements it; tolerance explicitly reconsidered. |
-| Bismarck | **NOT AUTHORED** | Explicitly out of scope this pass (single-egg tolerance question unresolved). |
-| Quattro Formaggi | **NOT AUTHORED** | Explicitly out of scope this pass (4 overlapping cheese groups unresolved). |
+| Genovese | **APPROVED / IMPLEMENTED** | §12 — ChatGPT-approved geometry, registered in `getReferencePizza`. |
+| Fugazza | **APPROVED / IMPLEMENTED** | §12 — ChatGPT-approved geometry (8/22 approved for this recipe only), registered. |
+| Bismarck | **CANDIDATE / NOT APPROVED** | §13.1 — design-only, no code implements it; egg tolerance (14/30) explicitly justified, not 8/22. |
+| Quattro Formaggi | **CANDIDATE / NOT APPROVED** | §13.2 — design-only, no code implements it; two-ring composition, cross-group overlap explicitly reviewed. |
 
-**Overall B2: OPEN, coverage 3/7.**
+**Overall B2: OPEN, coverage 5/7.**
 
 ---
 
@@ -706,3 +708,266 @@ reasoned proposals (§11.1/§11.2) ready for review, each addressing the specifi
 was given (genovese as its own composition; fugazza's tolerance explicitly reconsidered, not
 assumed). B2 overall remains **OPEN at 3/7** — quattro-formaggi and bismarck still have no
 candidate at all, by the task's own explicit instruction not to design them yet.
+
+---
+
+## 12. PART C1 — Implemented: Genovese / Fugazza Reference geometry (APPROVED)
+
+**Base for this slice:** `origin/main` at `f4640266df8fca321a1cc6001855cae9d3b63636` — unchanged
+since §10's rebase; re-confirmed via a fresh `git fetch origin main` before starting this slice,
+no drift, no rebase needed this time.
+
+ChatGPT reviewed §11's candidates and returned: **APPROVED** — genovese's geometry, fugazza's
+geometry, and `fullCreditRadius: 8, zeroCreditRadius: 22` **for these two recipes specifically**
+(fugazza's onion tolerance explicitly re-affirmed as approved-for-this-recipe-only, not a
+universal rule for every future ingredient). This section implements exactly what was approved,
+verbatim.
+
+### 12.1 What was implemented
+
+`src/data/referencePizza.ts`:
+
+- `GENOVESE_REFERENCE`: `sauce: computeMechanicalSauceReference("genovese")`, `pieceGroups`:
+  `mozzarella` at `(33,42), (59,65)` and `cherry-tomato` at `(48,32), (40,70), (70,47)`, both
+  `{ fullCreditRadius: 8, zeroCreditRadius: 22 }` — byte-identical to §11.1's proposal.
+- `FUGAZZA_REFERENCE`: `sauce: computeMechanicalSauceReference("fugazza")`, `pieceGroups`:
+  `onion` at `(30,36), (69,35), (33,67), (67,63)` and `oregano` at `(51,46)`, same tolerance —
+  byte-identical to §11.2's proposal.
+- `getReferencePizza` extended from a 3-entry to a 5-entry `Map<RecipeId, ReferencePizza>`;
+  still returns `null` for quattro-formaggi and bismarck.
+
+**Files touched:** `src/data/referencePizza.ts`, `src/data/referencePizza.test.ts`,
+`src/logic/scoringV2/scoringV2.test.ts`, `src/data/playerReference.test.ts`. No change was
+needed to `malformedInput.test.ts` or `ScoringV2ShadowPanel.test.tsx` this time — both already
+used bismarck (still unavailable) as their example, unaffected by genovese/fugazza's move to
+available.
+
+**Not touched:** `gameReducer.ts`, `dex.ts`, `missionScoring.ts`, `economy.ts`,
+`piecesComponent.ts`, `referenceMatching.ts`, `sauceComponent.ts`, `recipeComponent.ts`,
+`bakeComponent.ts`, any scoring weight/coefficient.
+
+### 12.2 Tests added / updated
+
+Extended the same generalized parameterization §10 built (no new fixture-literal helpers
+needed):
+
+- Availability: `it.each(["marinara", "funghi", "genovese", "fugazza"])` now covers all four
+  PART A/C1 recipes for `available: true` + every component available (including B1's Bake).
+- Golden Matrix: `it.each(["margherita", "marinara", "funghi", "genovese", "fugazza"])` perfect
+  > good > poor > empty.
+- Permutation invariance: `it.each(["marinara", "funghi", "genovese", "fugazza"])` shuffled
+  `toppings` order produces an identical `totalScore`.
+- Regression: `getReferencePizza` still `null` for quattro-formaggi/bismarck only (down from 4
+  recipes); `GENOVESE_REFERENCE`/`FUGAZZA_REFERENCE` pin the exact approved coordinates/
+  tolerance; a new explicit test that marinara/funghi (PART A) remain available and unaffected
+  by this slice, mirroring the same regression guarantee §10 gave margherita.
+- `playerReference.test.ts`'s scope-guard test updated to the 5-recipe covered set.
+
+**Full verification (this session):**
+
+| Check | Result |
+|---|---|
+| Focused (`referencePizza.test.ts`, `scoringV2/*`, `playerReference.test.ts`, `ScoringV2ShadowPanel.test.tsx`) | 308 passed |
+| Full suite (`npm test`) | **1050 passed**, 54 files, 0 failed |
+| Typecheck + build (`tsc -b && vite build`) | ✅ clean |
+| Lint (`oxlint`) | ✅ 0 findings |
+| CI (`build` check, PR #57 HEAD `c611323da9b30472332a6a8bedc6234d6fdfc4db`) | ✅ success |
+
+### 12.3 Preview / Review Playthrough
+
+- **Preview deploy:** `deploy-from-source.yml` with `ref=c611323da9b30472332a6a8bedc6234d6fdfc4db,
+  pr_number=57` → success, then `pages.yml` → success. Badge confirmed
+  `PREVIEW · PR#57 · c611323` (verified via GitHub Actions API + a byte-identical local rebuild
+  driven with real headless-Chromium gestures, same network-sandboxing caveat as every prior
+  Preview-Gate report in this repo).
+- **Fugazza is LOCKED on a fresh save** (its `onion` requirement has an `unlockCondition`,
+  `src/data/ingredients.ts`) — `isRecipeAvailable` (`src/state/progression.ts`) only ever reads
+  `ownedIngredientIds`, never `totalStars`, so the Review Playthrough seeded a valid
+  `PersistentSaveV2` (`schemaVersion: 2`, all 13 starter ingredients + `onion` owned,
+  `inventory: { onion: 4 }`) into `localStorage` before navigating, rather than playing through
+  the Shop/Mastery unlock loop — a legitimate, schema-accurate way to reach a real make-fugazza
+  round, not a shortcut around Scoring 2.0 itself (every gesture inside the round is still real).
+- **Review Playthrough (390×844, real pointer gestures):** brief marinara regression check
+  (PART A, still available), then full playthroughs of genovese and fugazza — dough stretch,
+  real hold-and-drag sauce paint (pesto for genovese, olive-oil/PAINT_TEMPORARY for fugazza,
+  confirming both interaction kinds still commit through the same real gesture path), cheese/
+  topping placement by tray-select-then-tap at the exact approved coordinates, BAKE gauge
+  timing. Video: `artifacts/review/TETO_SCORING2-B2_PARTC1_Review-Playthrough.mp4` (gitignored,
+  delivered directly to the user).
+- **What the video shows:**
+  1. Marinara (PART A) still reaches RESULT with Shadow `available:true` — brief regression
+     confirmation for a previously-approved recipe, as requested.
+  2. Genovese reaches RESULT with Shadow `Total: 99/100` (Sauce 97–99 across two takes, Pieces
+     100, Recipe 100, Bake 100) — **newly `available:true`**.
+  3. Fugazza reaches RESULT with Shadow `Total: 99/100` (Sauce 97, Pieces 100 — including the
+     single-piece `oregano` group scoring a clean 100 — Recipe 100, Bake 100) — **newly
+     `available:true`**.
+  4. B1's Bake component visibly contributes a real, non-placeholder score (100 in both takes
+     shown) in the Shadow breakdown for both newly-covered recipes.
+  5. The legacy ★ stars/number (e.g. both recipes' `★★★★★ 100`) stay a visually and numerically
+     separate panel from the dev-only "🧪 Scoring 2.0 Shadow" section throughout.
+- **No merge.** PR #57 remains open/draft.
+
+### 12.4 B2 status after PART C1
+
+**Scoring 2.0 Reference coverage: 5/7** (margherita, marinara, funghi, genovese, fugazza).
+Remaining: bismarck, quattro-formaggi — see §13.
+
+### 12.5 Verdict for PART C1
+
+**APPROVED AND IMPLEMENTED.** Genovese and fugazza both produce sensible, non-fabricated,
+reviewed-geometry scores; regression confirmed for margherita and marinara/funghi; B1's Bake
+component and Scoring 2.0's Shadow-only, non-authoritative status are both intact and
+independently re-verified this slice.
+
+---
+
+## 13. PART C2 — Candidate geometry: Bismarck / Quattro Formaggi (the final two)
+
+**Design-only, same as §9/§11 — no code implements the coordinates below.** `getReferencePizza`
+does not return bismarck or quattro-formaggi. These are the last two of the seven recipes.
+
+### 13.1 Bismarck — `tomato-sauce`, `mozzarella × 3`, `egg × 1`
+
+| Group | # | x | y | Distance from center | Full / Zero |
+|---|---|---|---|---|---|
+| mozzarella | 1 | 31 | 32 | 26.2 | 8 / 22 |
+| mozzarella | 2 | 70 | 34 | 25.6 | 8 / 22 |
+| mozzarella | 3 | 48 | 72 | 22.1 | 8 / 22 |
+| egg | 1 | 50 | 50 | 0.0 | **14 / 30** |
+
+Mozzarella pairwise spacing: 39.1–43.9 apart (well above 22). Rim clearance: 21.8–25.9 units for
+mozzarella; egg's own 30-unit zeroCreditRadius leaves 18 units of dough before the rim.
+
+**Mozzarella (×3, 8/22) — no reason to diverge.** Pushed slightly wider than every prior
+recipe's own cheese band (22.1–26.2 units from center vs. the usual 16–24) specifically to
+leave the center clear for the egg, forming a loose ring around it — matching the real dish's
+look (mozzarella melted around a central cracked egg). It's the identical physical piece as
+every other recipe's mozzarella, so 8/22 stays unchanged.
+
+**Egg (×1, 14/30 — not the default 8/22, deliberately).** Checked the rendering code first, per
+the task's explicit instruction to inspect real visual size before proposing a number:
+`ingredients.ts` defines `egg` as category `"topping"`, not `"cheese"` — it renders through the
+exact same generic 28px emoji path (`IngredientPieceVisual`'s emoji branch) as garlic/oregano/
+mushroom/onion. **There is zero rendered-size difference between egg and any other topping in
+this codebase.** The wider tolerance proposed here is therefore *not* a rendered-size argument
+at all (unlike every prior tolerance decision, which asked "does this render bigger?" and found
+no evidence either way) — it's a semantic one: bismarck has exactly one required egg, so there
+is no quantity/placement pattern to read the way 2–4 scattered pieces form a recognizable shape,
+and a real fried egg cracked by hand lands with more positional variance than a small dragged
+cheese chunk while still reading as "correct" anywhere clearly central. `14/30` keeps
+`fullCreditRadius`/`zeroCreditRadius`'s ratio similar to `8/22` (≈0.47 vs. ≈0.36) but shifts the
+whole band outward, rewarding "roughly centered" rather than the precision a multi-piece pattern
+needs. This is a deliberate, one-off judgment call — the next single-hero-piece recipe (if any)
+needs its own justification, not a copy of `14/30` any more than it should copy `8/22`.
+
+### 13.2 Quattro Formaggi — `olive-oil`, `mozzarella × 2`, `gorgonzola × 2`, `parmigiano × 2`, `fontina × 2`
+
+| Group | # | x | y | Distance from center | Full / Zero |
+|---|---|---|---|---|---|
+| mozzarella | 1 | 53 | 33 | 17.3 | 8 / 22 |
+| mozzarella | 2 | 47 | 67 | 17.3 | 8 / 22 |
+| gorgonzola | 1 | 33 | 47 | 17.3 | 8 / 22 |
+| gorgonzola | 2 | 67 | 53 | 17.3 | 8 / 22 |
+| parmigiano | 1 | 72 | 35 | 26.6 | 8 / 22 |
+| parmigiano | 2 | 28 | 65 | 26.6 | 8 / 22 |
+| fontina | 1 | 35 | 28 | 26.6 | 8 / 22 |
+| fontina | 2 | 65 | 72 | 26.6 | 8 / 22 |
+
+Same-type spacing: mozzarella/gorgonzola (inner ring) 34.5 apart; parmigiano/fontina (outer
+ring) 53.3 apart — both diametrically opposite within their own ring, maximizing intra-group
+separation. Nearest cross-type distance: 18.7 units. Rim clearance: 21.4 units (outer ring,
+tightest) to 30.7 units (inner ring).
+
+**Two concentric rings, not four quadrants.** Mozzarella and gorgonzola sit on an inner ring
+(radius ≈17), diametrically opposite each other; parmigiano and fontina sit on an outer ring
+(radius ≈27), also diametrically opposite. This maximizes each cheese's own same-type spacing
+while avoiding a rigid NE/NW/SE/SW quadrant split: no cheese owns a "corner," and the two rings
+interleave so every 45° slice of the pizza has a different cheese than its neighbor — closer to
+how a real quattro formaggi actually looks (four cheeses distributed across the whole surface,
+not four wedges). Ring angles are offset from clean 90°/45° multiples (80°/170°/260°/350° and
+35°/125°/215°/305° instead of 90/180/270/0 and 45/135/225/315) for the same non-rigid-symmetry
+reason every prior proposal uses. Tolerance stays 8/22 for all four: each cheese's own
+`.pizza-cheese--<id>` CSS shape (gorgonzola 19×17px, parmigiano 21×9px, fontina 22×20px) is a
+similar small size to mozzarella's 28×23px baseline — none is egg-sized, so none has bismarck's
+kind of justification to diverge.
+
+**Cross-group overlap/collision — explicitly reviewed, not assumed safe (per the task's own
+instruction).** This is the most crowded recipe proposed so far: 8 points on one dough, vs.
+genovese's 5 or funghi's 5. Nearest cross-type distance is 18.7 units (gorgonzola–parmigiano) —
+tighter than genovese's own 18.0 minimum by less than a full unit, and every prior recipe's
+tightest cross-type gap already sat in the same 18–19 band, so this isn't a new problem, just
+the same one at higher density. Visually, at that spacing the four cheese icons are close but
+distinguishable — different shapes and colors help in a way two same-appearance icons (e.g. two
+mozzarella groups) wouldn't. **No automatic collision check exists anywhere in the scoring
+model** (`scorePieceGroupV2`/`scorePiecesComponentV2` only ever compare positions within the
+same `ingredientId`); this was checked by hand, the same as every prior recipe, and is exactly
+the kind of check §9.4/§11.4 already flagged would eventually need either a larger dough area or
+an actual tooling check once a recipe finally needs more than 8 points.
+
+### 13.3 Visual artifacts (updated, same links as §9.5/§11.3)
+
+- **Shareable review link:** https://claude.ai/artifact/Bquy5fF4bc4Rur8Wm42tft (republished —
+  same URL, now shows all 7 recipes: 5 implemented, bismarck/quattro-formaggi tagged
+  "Candidate · not yet approved" with their own rationale and the egg-tolerance/cross-group-
+  overlap discussion above rendered on the page itself, using the game's real
+  `.pizza-cheese--<id>` CSS shapes for gorgonzola/parmigiano/fontina, not approximations).
+- **Committed screenshots:** `docs/reports/screenshots/scoring2-b2-reference-design/
+  00-overview-390w.png` (all 7, full page), `06-bismarck-candidate.png`,
+  `07-quattro-formaggi-candidate.png` (new); `01`–`05` updated in place to reflect the current
+  5/7-implemented status.
+
+### 13.4 Limitations of the current nearest-reference matching model (surfaced by this pass)
+
+Requested explicitly by this task's instructions — consolidating and extending §9.4/§11.4's
+findings now that both remaining recipes have been designed against the model:
+
+1. **No rendered-size ground truth for tolerance radii** (§9.4, reconfirmed for cheese and
+   restated for egg above). The model has no field anywhere that says "this ingredient is
+   visually N pixels/units across" — every tolerance choice is a human judgment call, whether
+   that call is "reuse 8/22, nothing suggests otherwise" (mozzarella/gorgonzola/parmigiano/
+   fontina here) or "deliberately diverge, for a reason unrelated to rendering" (egg's 14/30).
+2. **No "hero vs. scattered piece" concept** (§11.4, restated). Egg's wider tolerance had to be
+   justified from first principles each time; the type system does not distinguish a
+   single-focal-object group from a multi-piece pattern group, so nothing prevents a future
+   author from reflexively copying `8/22` (or `14/30`) onto the next single-piece recipe without
+   re-deriving whether either number actually fits.
+3. **No automatic cross-group collision/overlap detection** (§9.4/§11.4, now stress-tested at
+   quattro-formaggi's 8-point density). Every proposal in this whole B2 effort — margherita
+   through quattro-formaggi — has been checked for cross-group visual crowding by hand,
+   computing pairwise distances outside the game and eyeballing the mockup. This has worked at
+   the point-counts seen so far (5–8 points, tightest gap always 18–19 units), but nothing in
+   `piecesComponent.ts`/`referenceMatching.ts` would catch it automatically if a future author
+   skipped that manual step, and a hypothetical recipe needing more groups than quattro-formaggi
+   would eventually run out of room on a fixed-size dough without either a larger canvas or an
+   actual anti-crowding algorithm.
+4. **Equal-weight group averaging doesn't scale-test well past 2 groups.**
+   `scorePiecesComponentV2` averages every group equally (`piecesComponent.ts`'s own comment
+   already calls this "provisional," not a general N-group formula) — true at 2 groups (50/50,
+   margherita through fugazza) and now genuinely exercised for the first time at N=4
+   (quattro-formaggi: 25/25/25/25). Nothing in this candidate's design depends on that
+   changing, but it's worth flagging that quattro-formaggi is the first recipe where this
+   provisional formula's behavior at N>2 actually matters in practice, not just in theory.
+
+None of these are proposed as fixes here — the task asked for limitations to surface, not a
+redesign of the matching model, and changing `piecesComponent.ts`/`referenceMatching.ts` is
+explicitly out of scope for a Reference-authoring task per every prior section's own scope guard.
+
+### 13.5 Scope guard
+
+No production code was changed in this pass (only this report and the screenshots were added —
+`git status` confirms no `.ts`/`.tsx` diff). `getReferencePizza` still returns non-null only for
+the 5 recipes §12 implemented; bismarck and quattro-formaggi are **not** registered. No scoring
+coefficients, weights, or authority wiring were touched. No Preview deployment was performed for
+this design-only pass — nothing user-reachable changed.
+
+### 13.6 Verdict for PART C2
+
+**CANDIDATE GEOMETRY PROPOSED — NOT YET APPROVED.** Bismarck and quattro-formaggi now have
+concrete, reasoned proposals ready for review, each directly addressing its own specific
+instruction (bismarck's egg tolerance derived from inspecting real rendering code and a
+semantic argument, not assumed; quattro-formaggi's four groups arranged as two interleaved
+rings rather than quadrants, with cross-group overlap explicitly measured, not assumed safe).
+Once reviewed, this closes the full authoring pass for all 7 recipes' worth of *proposed*
+geometry — implementation of whichever of these two are approved would bring coverage to 6/7 or
+7/7, completing B2 entirely.
