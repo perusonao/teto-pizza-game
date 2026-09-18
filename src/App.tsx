@@ -97,7 +97,7 @@ function App() {
   // hydrate the initial state with them.
   const [state, dispatch] = useReducer(gameReducer, undefined, () => {
     const save = loadSave();
-    return createInitialGameState(save.dex, save.ownedIngredientIds, save.pitzBalance);
+    return createInitialGameState(save.dex, save.ownedIngredientIds, save.pitzBalance, save.inventory);
   });
   // HOME is always the first screen shown (Issue #24 requirement) regardless of what round
   // hydration produced -- a resumed ORDER-phase round from a prior session is simply what
@@ -198,8 +198,9 @@ function App() {
       dex: state.dex,
       pitzBalance: state.pitzBalance,
       ownedIngredientIds: state.ownedIngredientIds,
+      inventory: state.inventory,
     });
-  }, [state.dex, state.pitzBalance, state.ownedIngredientIds]);
+  }, [state.dex, state.pitzBalance, state.ownedIngredientIds, state.inventory]);
 
   // --- Lunch Rush mission (Phase 3C-4) --------------------------------------------------
   // A separate reducer, not a field on GameState: Mission run state (which screen, the

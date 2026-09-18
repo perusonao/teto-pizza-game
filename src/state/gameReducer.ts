@@ -11,6 +11,7 @@ import { purchaseIngredient } from "../logic/economy";
 import { applyPitzCredit, type PitzCredit } from "../logic/pitzReward";
 import { discoveredRecipeIds, registerScoreToDex, EMPTY_DEX, type DexState } from "./dex";
 import { availableRecipeIds, isRecipeAvailable } from "./progression";
+import { EMPTY_INVENTORY, type InventoryState } from "./inventory";
 import { pickMissionOrder } from "../mission/lunchRush";
 import { isInsideDough } from "../logic/pizzaCoordinates";
 import { isValidDoughShape, type DoughShape } from "../logic/doughShape";
@@ -76,6 +77,12 @@ export interface GameState {
    *  (spend) and CLAIM_MISSION_REWARD (earn) only -- never by anything else, including the
    *  round machinery itself (making/serving a pizza never touches this directly). */
   pitzBalance: number;
+  /** Save v2 / Inventory E1: canonical consumable stock, keyed by ingredient id
+   *  (../state/inventory.ts). Separate from `ownedIngredientIds` -- this is "how many units
+   *  remain," not "can this ever be placed." No reducer case mutates this in E1 (that's E2's
+   *  job); every action that isn't a "start a new round" path carries it through unchanged via
+   *  its existing `{ ...state, ... }` pattern, same as `ownedIngredientIds` today. */
+  inventory: InventoryState;
   /** Idempotency key for CLAIM_MISSION_REWARD (Phase 3C-5): the Mission run id
    *  (`MissionState.runId`, ../mission/lunchRush.ts) whose Pitz reward has already been
    *  applied to `pitzBalance`. A run's reward is granted at most once no matter how many
@@ -176,6 +183,7 @@ interface ProgressionCarry {
   ownedIngredientIds: readonly string[];
   pitzBalance: number;
   lastClaimedMissionRunId: number | null;
+  inventory: InventoryState;
 }
 
 /** Builds a fresh ORDER-phase state around an already-picked `order` -- the one place that
@@ -240,6 +248,7 @@ function nextMissionOrderState(state: GameState): GameState {
       ownedIngredientIds: state.ownedIngredientIds,
       pitzBalance: state.pitzBalance,
       lastClaimedMissionRunId: state.lastClaimedMissionRunId,
+      inventory: state.inventory,
     },
     true,
   );
@@ -274,9 +283,10 @@ export function createInitialGameState(
   dex: DexState = EMPTY_DEX,
   ownedIngredientIds: readonly string[] = STARTER_INGREDIENT_IDS,
   pitzBalance = 0,
+  inventory: InventoryState = EMPTY_INVENTORY,
 ): GameState {
   return nextOrderState(
-    { dex, ownedIngredientIds, pitzBalance, lastClaimedMissionRunId: null },
+    { dex, ownedIngredientIds, pitzBalance, lastClaimedMissionRunId: null, inventory },
     { preferFirst: true },
   );
 }
@@ -544,6 +554,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           ownedIngredientIds: state.ownedIngredientIds,
           pitzBalance: state.pitzBalance,
           lastClaimedMissionRunId: state.lastClaimedMissionRunId,
+          inventory: state.inventory,
         },
         { excludeRecipeId: state.recipe.id },
       );
@@ -557,6 +568,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           ownedIngredientIds: state.ownedIngredientIds,
           pitzBalance: state.pitzBalance,
           lastClaimedMissionRunId: state.lastClaimedMissionRunId,
+          inventory: state.inventory,
         }) ?? state
       );
     }
@@ -568,6 +580,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           ownedIngredientIds: state.ownedIngredientIds,
           pitzBalance: state.pitzBalance,
           lastClaimedMissionRunId: state.lastClaimedMissionRunId,
+          inventory: state.inventory,
         }) ?? state
       );
 

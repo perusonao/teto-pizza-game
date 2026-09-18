@@ -5,6 +5,7 @@ import type { ScoreBreakdown, QualityStars } from "../logic/scoring";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { buildIdealMargheritaSauceFixture, MARGHERITA_REFERENCE } from "../data/referencePizza";
 import { EMPTY_MISSION_METRICS, recordServe } from "../logic/missionScoring";
+import { EMPTY_INVENTORY, type InventoryState } from "./inventory";
 
 function scoreOf(total: number, stars: QualityStars): ScoreBreakdown {
   return {
@@ -693,5 +694,136 @@ describe("Phase 4A-2 Scoring 2.0 / A1 Authority Cutover (gameReducer integration
     const metrics = recordServe(EMPTY_MISSION_METRICS, state.score!.total);
     expect(metrics.totalQualityScore).toBe(state.score!.total);
     expect(metrics.totalQualityScore).toBe(state.scoringV2Result?.totalScore);
+  });
+});
+
+/** Save v2 / Inventory E1: `inventory` carry-through across every "start a new round"/round-
+ *  machinery path, mirroring this file's own existing `ownedIngredientIds`/`pitzBalance`
+ *  carry-through tests 1:1 (see docs/reports/TETO_INVENTORY-E1_Implementation-Preflight.md
+ *  section 6/12). `inventory` itself is never mutated by any reducer case in E1 -- these tests
+ *  confirm every path threads the same value through unchanged, never resetting it to
+ *  `EMPTY_INVENTORY`/`undefined`. */
+describe("inventory carry-through (Save v2 / Inventory E1)", () => {
+  const seededInventory: InventoryState = { onion: 3 };
+
+  /** Same shape as this file's own `playToResult`, but seeded with an explicit inventory and
+   *  owned-ingredient set so MISSION_NEXT_ORDER (fugazza-eligible) and FREE flows can both
+   *  reuse it. */
+  function playToResultWithInventory(
+    inventory: InventoryState,
+    ownedIngredientIds: readonly string[] = STARTER_INGREDIENT_IDS,
+    bakeValue = 70,
+  ): GameState {
+    let state = createInitialGameState(EMPTY_DEX, ownedIngredientIds, 0, inventory);
+    state = gameReducer(state, { type: "BEGIN_PREPARE" });
+    state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // DOUGH -> SAUCE
+    state = gameReducer(state, { type: "APPLY_SAUCE", ingredientId: "tomato-sauce", x: 50, y: 50 });
+    state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // SAUCE -> CHEESE
+    state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "mozzarella", x: 40, y: 50 });
+    state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "mozzarella", x: 60, y: 50 });
+    state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "mozzarella", x: 50, y: 30 });
+    state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // CHEESE -> TOPPING
+    state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "basil", x: 50, y: 65 });
+    state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "basil", x: 35, y: 65 });
+    state = gameReducer(state, { type: "START_BAKE" });
+    state = gameReducer(state, { type: "CONFIRM_BAKE", value: bakeValue });
+    return state;
+  }
+
+  it("createInitialGameState defaults inventory to EMPTY_INVENTORY when none is given", () => {
+    const state = createInitialGameState();
+    expect(state.inventory).toEqual(EMPTY_INVENTORY);
+  });
+
+  it("carries a hydrated inventory through into the initial state", () => {
+    const state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 0, seededInventory);
+    expect(state.inventory).toEqual(seededInventory);
+  });
+
+  it("a normal in-round action (CONFIRM_MAKING_STEP) carries inventory through unchanged", () => {
+    let state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 0, seededInventory);
+    state = gameReducer(state, { type: "BEGIN_PREPARE" });
+    state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // DOUGH -> SAUCE
+    expect(state.inventory).toEqual(seededInventory);
+  });
+
+  it("BAKE/RESULT (CONFIRM_BAKE) carries inventory through unchanged", () => {
+    const state = playToResultWithInventory(seededInventory);
+    expect(state.phase).toBe("RESULT");
+    expect(state.inventory).toEqual(seededInventory);
+  });
+
+  it("REGISTER_TO_DEX / DISCOVERED carries inventory through unchanged", () => {
+    const resultState = playToResultWithInventory(seededInventory);
+    const discovered = gameReducer(resultState, { type: "REGISTER_TO_DEX" });
+    expect(discovered.phase).toBe("DISCOVERED");
+    expect(discovered.inventory).toEqual(seededInventory);
+  });
+
+  it("FREE retry (RETRY_SAME_RECIPE) carries inventory through unchanged", () => {
+    const discovered = gameReducer(playToResultWithInventory(seededInventory), {
+      type: "REGISTER_TO_DEX",
+    });
+    const retried = gameReducer(discovered, { type: "RETRY_SAME_RECIPE" });
+    expect(retried.phase).toBe("PREPARE");
+    expect(retried.inventory).toEqual(seededInventory);
+  });
+
+  it("PLAY_AGAIN carries inventory through unchanged", () => {
+    let state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 0, seededInventory);
+    state = gameReducer(state, { type: "PLAY_AGAIN" });
+    expect(state.inventory).toEqual(seededInventory);
+  });
+
+  it("SELECT_RECIPE carries inventory through unchanged", () => {
+    const state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 0, seededInventory);
+    const after = gameReducer(state, { type: "SELECT_RECIPE", recipeId: "bismarck" });
+    expect(after.phase).toBe("PREPARE");
+    expect(after.inventory).toEqual(seededInventory);
+  });
+
+  it("RESET_PIZZA carries inventory through unchanged", () => {
+    let state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 0, seededInventory);
+    state = gameReducer(state, { type: "BEGIN_PREPARE" });
+    state = gameReducer(state, { type: "APPLY_SAUCE", ingredientId: "tomato-sauce", x: 50, y: 50 });
+    state = gameReducer(state, { type: "RESET_PIZZA" });
+    expect(state.pizza.sauceIds).toHaveLength(0);
+    expect(state.inventory).toEqual(seededInventory);
+  });
+
+  it("MISSION_RESET_ORDER carries inventory through unchanged", () => {
+    let state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 0, seededInventory);
+    state = gameReducer(state, { type: "MISSION_RESET_ORDER" });
+    expect(state.isMissionRound).toBe(true);
+    expect(state.inventory).toEqual(seededInventory);
+  });
+
+  it("MISSION_NEXT_ORDER (nextMissionOrderState, the one hand-built carry-object site) carries inventory through unchanged", () => {
+    const resultState = playToResultWithInventory(seededInventory);
+    const next = gameReducer(resultState, { type: "MISSION_NEXT_ORDER" });
+    expect(next.phase).toBe("ORDER"); // Lunch Rush: straight to the next order, skipping DISCOVERED
+    expect(next.inventory).toEqual(seededInventory);
+  });
+
+  it("ownedIngredientIds and inventory vary independently -- an ingredient can be owned/unlocked with zero stock", () => {
+    const ownedWithOnion = [...STARTER_INGREDIENT_IDS, "onion"];
+    const state = createInitialGameState(EMPTY_DEX, ownedWithOnion, 0, EMPTY_INVENTORY);
+    expect(state.ownedIngredientIds).toContain("onion");
+    expect(state.inventory.onion ?? 0).toBe(0);
+  });
+
+  it("ownedIngredientIds and inventory changes never leak into each other across PURCHASE_INGREDIENT", () => {
+    // totalStars = 15 (>= onion's minTotalStars of 12), same fixture as the ownership-boundary
+    // suite above, so onion is AVAILABLE_TO_BUY rather than LOCKED for this purchase.
+    const dex = [
+      { recipeId: "margherita", discovered: true, bestScore: 95, bestStars: 5 as const, timesMade: 1 },
+      { recipeId: "marinara", discovered: true, bestScore: 95, bestStars: 5 as const, timesMade: 1 },
+      { recipeId: "genovese", discovered: true, bestScore: 95, bestStars: 5 as const, timesMade: 1 },
+    ];
+    const state = createInitialGameState(dex, STARTER_INGREDIENT_IDS, 500, seededInventory);
+    const after = gameReducer(state, { type: "PURCHASE_INGREDIENT", ingredientId: "onion" });
+    expect(after.ownedIngredientIds).toContain("onion");
+    // PURCHASE_INGREDIENT (E1 scope) only ever grants ownership -- it must not touch inventory.
+    expect(after.inventory).toEqual(seededInventory);
   });
 });
