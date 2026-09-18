@@ -50,6 +50,12 @@ Primary device: smartphone vertical. Verification baseline: 390×844.
   but implementation waits on Scoring 2.0 Human Feel calibration + the Phase 4A-3 authority
   decision, exactly as Issue #38's own gate already required. Lunch Rush's existing per-run
   Pitz reward (`calculateMissionReward`) is unaffected and stays as-is.
+- Save v2 / Inventory (P5, no dedicated issue number yet). Fresh Audit **done** — see
+  `docs/reports/TETO_SAVE-V2_INVENTORY_Fresh-Audit.md` (audited SHA
+  `2da3949de5bd642c709ca6ba343bc57d8101d03d`). Verdict: **B. READY WITH MINOR DESIGN DECISIONS**.
+  Does not change current priority (Issue #33 D1/D2 is complete; next is Issue #33 D3 or Issue
+  #37 M2 per the above); tracked as prep work for when P5 becomes active. See P5 below for the
+  recommended E0→E1→E2→E3 build order.
 - Issue #39 — HOME/FREE navigation redesign + Pizza Select. PS1/PS2/PS3 **complete** (PR #40, PR #41, both merged into `main`); PS4 iPhone Human Feel **PASS**. Remaining HOME visual polish (see "Parallel / non-blocking" below) is tracked as future polish, not an Issue #39 blocker.
 
 Scoring 2.0 Shadow has already been implemented and calibrated. It remains non-authoritative until the remaining consistency/Human Feel gates pass.
@@ -207,6 +213,15 @@ Issue #47 is complete; Issue #33 is now the active priority (see below).
 Currency contract: **Pitz**. Do not introduce ¥/円 as the game currency.
 
 ### P5 — Save v2 / Inventory / Shop
+
+Fresh Audit done — see `docs/reports/TETO_SAVE-V2_INVENTORY_Fresh-Audit.md` (audited SHA
+`2da3949de5bd642c709ca6ba343bc57d8101d03d`). Verdict: **B. READY WITH MINOR DESIGN DECISIONS**.
+Recommended build order (refines the scope list below, which described *what* this phase owns, not
+a strict build order): **E0 Save v2 migration → E1 InventoryState → E2 atomic consumption at
+CONFIRM_BAKE → E3 Shop 2.0 restock** — consumption is sequenced *before* restock because Starter
+ingredients are unconditionally unlimited stock (first-pizza safety by construction), which makes
+E2 a zero-visible-impact change validated against the one existing purchasable ingredient
+(`onion`) before any new Shop UI risk lands. Next recommended implementation task: **E0**.
 
 1. Safe v1→v2 migration before new persistent semantics.
 2. Consumable inventory separate from permanent ingredient ownership.
