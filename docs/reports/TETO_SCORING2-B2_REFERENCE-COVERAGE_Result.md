@@ -15,6 +15,20 @@ approved)**. Does **not** close B2 — see §10.5/§11.5 verdicts.
   playerReference.ts`, `src/data/recipes.ts`, `src/data/recipeSauceProfiles.ts`, `src/logic/
   scoringV2/*` (all 8 files), `src/logic/referenceMatching.ts`, `src/data/referencePizza.test.ts`.
 
+### Status matrix (current, this HEAD)
+
+| Recipe | Status | Notes |
+|---|---|---|
+| Margherita | **EXISTING** | Unaffected by this task; still the original Phase 4A-1B Reference. |
+| Marinara | **APPROVED / IMPLEMENTED** | §10 — ChatGPT-approved geometry, registered in `getReferencePizza`. |
+| Funghi | **APPROVED / IMPLEMENTED** | §10 — ChatGPT-approved geometry, registered in `getReferencePizza`. |
+| Genovese | **CANDIDATE / NOT APPROVED** | §11.1 — design-only, no code implements it. |
+| Fugazza | **CANDIDATE / NOT APPROVED** | §11.2 — design-only, no code implements it; tolerance explicitly reconsidered. |
+| Bismarck | **NOT AUTHORED** | Explicitly out of scope this pass (single-egg tolerance question unresolved). |
+| Quattro Formaggi | **NOT AUTHORED** | Explicitly out of scope this pass (4 overlapping cheese groups unresolved). |
+
+**Overall B2: OPEN, coverage 3/7.**
+
 ---
 
 ## 1. What Issue #32 actually approved (and what it didn't)
