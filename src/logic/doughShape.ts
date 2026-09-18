@@ -19,8 +19,41 @@ export const INITIAL_DOUGH_RADIUS_FRACTION = 0.38;
 export const INITIAL_DOUGH_RADIUS = DOUGH_RADIUS * INITIAL_DOUGH_RADIUS_FRACTION;
 
 /** "ピザとして十分な大きさ" -- size-only D1 completion gate (D0 §8). Provisional, tunable
- *  during D2 Human Feel; deliberately does not evaluate roundness/evenness/symmetry. */
+ *  during D2 Human Feel; deliberately does not evaluate roundness/evenness/symmetry.
+ *
+ *  Issue #33 D3A: this remains the *ideal/reference* boundary (mean radius / DOUGH_RADIUS) --
+ *  a UI-only CTA gate, never a hard-stop on the gesture itself (see DOUGH_SHAPE_TECHNICAL_MAX_
+ *  RADIUS below for the one real hard-stop, and the D3A Fresh Audit §2 for why those two were
+ *  never actually the same constraint even before this change). */
 export const DOUGH_COMPLETION_THRESHOLD = 0.75;
+
+/** Issue #33 D3A (reversible dough shaping): the floor a control point's radius may shrink to
+ *  when the player drags inward -- "縮めすぎ防止のminimum". Set well below INITIAL_DOUGH_RADIUS
+ *  (~18.24) so a real, meaningful shrink range exists, but comfortably above 0 so the boundary
+ *  can never collapse to a degenerate point or produce a self-intersecting rendered path. */
+export const DOUGH_SHAPE_MIN_RADIUS = 10;
+
+/** Issue #33 D3A (free boundary): the *technical* safety ceiling on an individual control
+ *  point's own radius -- distinct from DOUGH_RADIUS (48), which stays the *ideal/reference*
+ *  target the dashed guide ring shows and DOUGH_COMPLETION_THRESHOLD measures against.
+ *  Before D3A, DOUGH_RADIUS silently played both roles at once: a player could never stretch a
+ *  region past the guide ring at all, because the guide ring's own radius was also the hard
+ *  clamp. D3A's own instruction is to allow exceeding the ideal size while keeping a real
+ *  technical bound against breaking the interaction canvas -- see the D3A Fresh Audit §2's
+ *  clip-path analysis for why a control point's rendered radius already can't paint past
+ *  `.pizza-dough-shape`'s own box edge (a silent, free technical clamp on the 4 cardinal
+ *  control points at radius 50) and why this ceiling only needs to stay safely under the box's
+ *  diagonal-corner distance (~70.7) to remain visible, meaningful overshoot on the 4 diagonal
+ *  control points rather than an invisible one. */
+export const DOUGH_SHAPE_TECHNICAL_MAX_RADIUS = 58;
+
+/** Issue #33 D3A: below this per-point delta (in dough-percent units, the same units as every
+ *  radius here), a gesture's implied change at its own nearest control point is treated as
+ *  "accidental tiny gesture" and the whole call is a no-op -- see the D3A Fresh Audit §4 item 4
+ *  for why this is defined as "touch position already close to the shape's own current value"
+ *  rather than as a drag-distance/tap-duration heuristic (which would also suppress the
+ *  existing, still-desired "a deliberate tap far from center registers instantly" behavior). */
+export const DOUGH_TINY_GESTURE_EPSILON = 0.5;
 
 export interface DoughShape {
   /** Radius (dough-percent units, 0..DOUGH_RADIUS) at each of the N control points, indexed
@@ -35,13 +68,17 @@ function isFiniteNumber(value: number): boolean {
 }
 
 /** A committed shape is only ever valid with exactly N finite radii, each within
- *  [0, DOUGH_RADIUS] -- the same "stale/late/corrupted action" guard shape every other
- *  reducer action's payload validator (isValidSauceDepositBatch, etc.) already follows. */
+ *  [DOUGH_SHAPE_MIN_RADIUS, DOUGH_SHAPE_TECHNICAL_MAX_RADIUS] -- the same "stale/late/corrupted
+ *  action" guard shape every other reducer action's payload validator (isValidSauceDepositBatch,
+ *  etc.) already follows. Issue #33 D3A: was `[0, DOUGH_RADIUS]`; see DOUGH_SHAPE_MIN_RADIUS/
+ *  DOUGH_SHAPE_TECHNICAL_MAX_RADIUS's own doc comments for why the bounds moved. */
 export function isValidDoughShape(shape: DoughShape): boolean {
   return (
     Array.isArray(shape.radii) &&
     shape.radii.length === DOUGH_SHAPE_POINTS &&
-    shape.radii.every((r) => isFiniteNumber(r) && r >= 0 && r <= DOUGH_RADIUS)
+    shape.radii.every(
+      (r) => isFiniteNumber(r) && r >= DOUGH_SHAPE_MIN_RADIUS && r <= DOUGH_SHAPE_TECHNICAL_MAX_RADIUS,
+    )
   );
 }
 
@@ -49,12 +86,14 @@ export function createInitialDoughShape(): DoughShape {
   return { radii: new Array(DOUGH_SHAPE_POINTS).fill(INITIAL_DOUGH_RADIUS) };
 }
 
-function lerpTowardAtLeast(current: number, distance: number, weight: number): number {
-  // Monotonic by construction (D0 §4.6): the target is never below `current`, so blending
-  // toward it by any weight in [0, 1] can never shrink the point -- "pulling always helps,
-  // never hurts," with no separate clamp-against-shrinking check needed anywhere else.
-  const target = Math.max(current, distance);
-  return Math.min(current + (target - current) * weight, DOUGH_RADIUS);
+/** Issue #33 D3A: true bidirectional lerp toward `target` -- replaces the D1/D2-era
+ *  `lerpTowardAtLeast`, which special-cased `target = Math.max(current, distance)` so a touch
+ *  closer to center than the point's current radius was a guaranteed no-op there. D3A's whole
+ *  point is that the touch position directly represents "desired local radius" in either
+ *  direction (see the Fresh Audit §3's "root-cause finding") -- so this is now a plain,
+ *  unconditional lerp, with no floor and no clamp of its own (the caller clamps afterward). */
+function lerpToward(current: number, target: number, weight: number): number {
+  return current + (target - current) * weight;
 }
 
 /** Issue #33 D2 Human Feel Fix: how far a stretch's influence spreads across the ring of 8
@@ -70,16 +109,20 @@ function lerpTowardAtLeast(current: number, distance: number, weight: number): n
 const STRETCH_ADJACENT_WEIGHT = 0.45;
 const STRETCH_NEXT_WEIGHT = 0.12;
 
-/** Issue #33 D2: the spike-suppression constraint (D0/D2 audit §3) -- within one
- *  `applyStretchPoint` call, a point may jump at most this far above the average of its two
- *  immediate neighbors' *pre-call* radii. This is a local, neighbor-aware clamp (never a
- *  global average, never forced toward a perfect circle): a point that was already a valid
- *  outlier from earlier gestures is never pulled back down (see the `Math.max` floor in
- *  `applyStretchPoint` below, which keeps every point's own monotonic non-decrease intact),
- *  and a point far from the current touch is never touched by it at all. Reaching
- *  DOUGH_RADIUS at one exact spot now takes a few gestures in roughly the same area (each one
- *  also raises that area's neighbors, which raises the next pull's own cap) rather than one
- *  instant full-reach drag -- "progressive and controllable," not "rubbery snap." */
+/** Issue #33 D2/D3A: the spike-suppression constraint (D0/D2 audit §3) -- within one
+ *  `applyStretchPoint` call, a touched point may move at most this far above *or* below the
+ *  average of its two immediate neighbors' *pre-call* radii. This is a local, neighbor-aware
+ *  clamp (never a global average, never forced toward a perfect circle) applied **only** to
+ *  points this call's own falloff weight is nonzero for -- a point outside the touch's
+ *  influence is passed through byte-for-byte unchanged, never re-clamped against neighbors that
+ *  may have drifted asymmetric from some earlier, unrelated gesture (Fresh Audit §5: applying
+ *  this clamp to every point unconditionally, as D1/D2 did, was harmless only because the old
+ *  monotonic floor happened to make it a no-op for untouched points -- removing that floor
+ *  without this fix would have let one gesture silently reshape an untouched part of the dough
+ *  elsewhere). D3A made this bound symmetric (was: growth-only, since there was no shrink to
+ *  guard against yet) so "progressive and controllable, not a rubbery snap/instant flip" now
+ *  holds in both directions -- reaching either extreme at one exact spot still takes a few
+ *  gestures in roughly the same area, never one instant full-reach drag. */
 const STRETCH_SPIKE_MAX_DELTA = 12;
 
 function circularIndexDistance(a: number, b: number, count: number): number {
@@ -101,24 +144,38 @@ function stretchFalloff(circularDistance: number): number {
 
 /**
  * Projects one touch/drag point (dough-percent coordinates, same space as
- * `pizzaCoordinates.ts`) onto the shape (D0 §4.2, D2 Human Feel Fix). The touch angle's
- * closest control point receives the strongest pull; its immediate neighbors (circular
+ * `pizzaCoordinates.ts`) onto the shape (D0 §4.2, D2 Human Feel Fix, D3A reversible/
+ * free-boundary rewrite). The touch position directly represents the *desired* local radius
+ * for its own angular region -- dragging from center outward stretches that direction;
+ * dragging from the rim inward shrinks it back (Issue #33 D3A, Fresh Audit §3). The touch
+ * angle's closest control point receives the strongest pull; its immediate neighbors (circular
  * indices i-1/i+1) follow with a meaningful fraction, and the next ring out (i-2/i+2) with a
- * smaller fraction, per `stretchFalloff` above -- "neighboring dough regions stretch somewhat
- * together" rather than only the two points nearest the touch moving in isolation. Each
- * point's own per-call increase is then capped relative to its pre-call neighbors
- * (`STRETCH_SPIKE_MAX_DELTA`) so one drag can't spike a single point far past its
- * surroundings, while a `Math.max` floor against that point's own pre-call value keeps every
- * point strictly monotonic non-decreasing across calls (D0 §4.6, unchanged) -- the clamp can
- * only soften *this* gesture's own reach, never undo growth a previous gesture already
- * committed. A point outside the dough (distance > DOUGH_RADIUS) is clamped to the rim first,
- * matching every other gesture family's own `isInsideDough`/`clampToDough` convention.
- * Returns a new shape; never mutates `shape`.
+ * smaller fraction, per `stretchFalloff` above -- "neighboring dough regions move somewhat
+ * together" rather than only the two points nearest the touch moving in isolation.
+ *
+ * A touch whose implied target is already within `DOUGH_TINY_GESTURE_EPSILON` of the nearest
+ * control point's *current* value is treated as an accidental tiny gesture and is a complete
+ * no-op (returns `shape` unchanged) -- see that constant's own doc comment for why this is
+ * defined as "already close to the current shape," not a drag-distance heuristic.
+ *
+ * Each point this call actually touches (nonzero falloff weight) is then re-clamped to within
+ * `STRETCH_SPIKE_MAX_DELTA` of its own pre-call neighbor average, in *both* directions (D3A:
+ * was growth-only), so one drag can't spike -- or collapse -- a single point far past its
+ * surroundings in one call; a point this call's weight is zero for is passed through completely
+ * untouched (Fresh Audit §5). The final per-point value is clamped to
+ * `[DOUGH_SHAPE_MIN_RADIUS, DOUGH_SHAPE_TECHNICAL_MAX_RADIUS]` (D3A: was `[0, DOUGH_RADIUS]` --
+ * see those constants' own doc comments for why the bounds moved and what they now mean). A
+ * touch point beyond the technical ceiling is clamped to it first, matching every other gesture
+ * family's own `isInsideDough`/`clampToDough` convention of projecting an out-of-range point
+ * back onto a boundary rather than rejecting it. Returns a new shape; never mutates `shape`.
+ *
+ * D3A intentionally removed the D1/D2-era monotonic-non-decrease guarantee: a committed shape
+ * can now shrink as well as grow, by design (this is the whole point of "reversible" shaping).
  */
 export function applyStretchPoint(shape: DoughShape, xDough: number, yDough: number): DoughShape {
   const dx = xDough - DOUGH_CENTER;
   const dy = yDough - DOUGH_CENTER;
-  const distance = Math.min(Math.hypot(dx, dy), DOUGH_RADIUS);
+  const distance = Math.min(Math.hypot(dx, dy), DOUGH_SHAPE_TECHNICAL_MAX_RADIUS);
   if (distance <= 0) return shape;
 
   let angle = Math.atan2(dy, dx);
@@ -129,18 +186,25 @@ export function applyStretchPoint(shape: DoughShape, xDough: number, yDough: num
   const rawIndex = angle / step;
 
   const original = shape.radii;
-  const propagated = original.slice();
-  for (let i = 0; i < n; i += 1) {
-    const weight = stretchFalloff(circularIndexDistance(i, rawIndex, n));
-    if (weight <= 0) continue;
-    propagated[i] = lerpTowardAtLeast(original[i], distance, weight);
-  }
+  const nearestIndex = Math.round(rawIndex) % n;
+  if (Math.abs(distance - original[nearestIndex]) < DOUGH_TINY_GESTURE_EPSILON) return shape;
 
-  const radii = propagated.map((value, i) => {
+  const radii = original.map((currentValue, i) => {
+    const weight = stretchFalloff(circularIndexDistance(i, rawIndex, n));
+    if (weight <= 0) return currentValue;
+
+    const blended = lerpToward(currentValue, distance, weight);
     const prevNeighbor = original[(i - 1 + n) % n];
     const nextNeighbor = original[(i + 1) % n];
-    const cap = (prevNeighbor + nextNeighbor) / 2 + STRETCH_SPIKE_MAX_DELTA;
-    return Math.max(original[i], Math.min(value, cap));
+    const neighborAverage = (prevNeighbor + nextNeighbor) / 2;
+    const spikeClamped = Math.max(
+      neighborAverage - STRETCH_SPIKE_MAX_DELTA,
+      Math.min(blended, neighborAverage + STRETCH_SPIKE_MAX_DELTA),
+    );
+    return Math.max(
+      DOUGH_SHAPE_MIN_RADIUS,
+      Math.min(spikeClamped, DOUGH_SHAPE_TECHNICAL_MAX_RADIUS),
+    );
   });
 
   return { radii };

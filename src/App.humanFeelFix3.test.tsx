@@ -85,7 +85,7 @@ describe("PREPARE 1-screen layout (Human Feel Fix 3)", () => {
 
     const orderCard = document.querySelector(".order-card");
     expect(orderCard).toBeInTheDocument();
-    expect(orderCard).toHaveTextContent("生地を外側へ伸ばそう");
+    expect(orderCard).toHaveTextContent("生地を伸ばしたり縮めたりして形を整えよう");
   });
 
   it("the Reference popover (existing modal, unchanged) still opens from the compact card's 見本 button", async () => {

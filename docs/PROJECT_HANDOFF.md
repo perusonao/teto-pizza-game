@@ -1,7 +1,16 @@
 # Teto Pizza Game — Project Handoff / Roadmap SSOT
 
-Updated: 2026-09-18 (**Issue #38 Pitz Reward V1 (E-P1/E-P2) implementation done, PR #64 open,
-pending ChatGPT/Human Review** — see `docs/reports/TETO_ISSUE-38_PITZ-REWARD_Result.md`: a pure
+Updated: 2026-09-18 (**Issue #33 D3A Reversible Dough Shaping implementation done, PR #65 open,
+pending ChatGPT/Human Review** — see
+`docs/reports/TETO_ISSUE-33_D3A_REVERSIBLE-DOUGH_Result.md`: the DOUGH gesture is now
+bidirectional (stretch **and** shrink), using the same touch-position-as-desired-radius model,
+by removing the D1/D2-era monotonic-only floor from `applyStretchPoint`. A new
+`DOUGH_SHAPE_TECHNICAL_MAX_RADIUS` (58) is decoupled from the ideal/reference `DOUGH_RADIUS`
+(48, unchanged), so a player can now stretch visibly past the guide ring instead of being
+hard-clamped at it; `DOUGH_SHAPE_MIN_RADIUS` (10) prevents shrinking to a degenerate point. No
+Dough scoring, Scoring 2.0/Pitz/Recipe reference changes — out of scope per the task, deferred to
+D3B. **Issue #38 Pitz Reward V1 (E-P1/E-P2) MERGED via PR #64** — see
+`docs/reports/TETO_ISSUE-38_PITZ-REWARD_Result.md`: a pure
 `recipeBaseReward x qualityMultiplier` reward core (`src/logic/pitzReward.ts`), `Recipe.
 baseRewardPitz` (100 for all 7 recipes), FREE-only exactly-once crediting via an extended
 `REGISTER_TO_DEX`, a new DISCOVERED-phase Pitz summary, no Save schema change, Lunch Rush fully
@@ -58,13 +67,25 @@ Primary device: smartphone vertical. Verification baseline: 390×844.
   found a sharp single-direction-drag spike, and ChatGPT's review of the resulting 390×844
   H.264 D2 Review Playthrough MP4 returned **Human Feel verdict: PASS** — PR #54 was merged
   after that PASS. Issue #33 D1/D2 is complete; no additional real-iPhone Human Feel
-  confirmation is a required gate for D3 or for Issue #37 M2.
+  confirmation is a required gate for D3 or for Issue #37 M2. **D3A Reversible Dough Shaping
+  implementation done, PR #65 open, pending ChatGPT/Human Review** — see
+  `docs/reports/TETO_ISSUE-33_D3A_REVERSIBLE-DOUGH_Fresh-Audit.md` and
+  `docs/reports/TETO_ISSUE-33_D3A_REVERSIBLE-DOUGH_Result.md`: `applyStretchPoint`'s D1/D2-era
+  monotonic-only floor removed so a drag toward center now shrinks the touched region (the same
+  touch-position-as-desired-radius model, now bidirectional, no new gesture concept); a new
+  `DOUGH_SHAPE_TECHNICAL_MAX_RADIUS` (58) decoupled from the ideal/reference `DOUGH_RADIUS` (48,
+  unchanged) lets a player stretch visibly past the guide ring instead of being hard-clamped at
+  it; `DOUGH_SHAPE_MIN_RADIUS` (10) is the new shrink floor; spike suppression made symmetric and
+  correctly scoped (a latent bug fix — see the Result report §3). No Dough scoring, no Scoring
+  2.0/Pitz/Recipe reference changes (explicitly out of scope, deferred to D3B); `PizzaState.
+  doughShape`'s own 8-point shape model is unchanged. 1132/1132 tests pass, typecheck/lint/build
+  clean, dedicated Preview deploy + 390×844 Review Playthrough done.
 - Issue #37 — parent roadmap for Making Game 2.0 physical pizza-making flow. Its own M0 gate is
-  satisfied (Issue #32 P1 done); M1 (Dough Shaping, #33) D1/D2 are merged per the above. Issue
-  #47 Slice C's Finding J hand-off (Cheese/Topping drag scope) remains tracked under this
-  issue's M2 checklist as the next open item.
-- **Issue #38 — Scoring 2.0-linked Pitz reward / Economy connection. E-P1/E-P2 implementation
-  done, PR #64 open, pending ChatGPT/Human Review.** Fresh Audit — see
+  satisfied (Issue #32 P1 done); M1 (Dough Shaping, #33) D1/D2 are merged, D3A is open per the
+  above. Issue #47 Slice C's Finding J hand-off (Cheese/Topping drag scope) remains tracked under
+  this issue's M2 checklist as the next open item.
+- **Issue #38 — Scoring 2.0-linked Pitz reward / Economy connection. E-P1/E-P2 MERGED via
+  PR #64.** Fresh Audit — see
   `docs/reports/TETO_ISSUE-38_PITZ-REWARD_Fresh-Audit.md` (verdict **A. READY AFTER SCORING
   AUTHORITY**, since satisfied by A1/A2/A3). Implementation — see
   `docs/reports/TETO_ISSUE-38_PITZ-REWARD_Result.md`: `recipeBaseReward × qualityMultiplier`
@@ -74,13 +95,13 @@ Primary device: smartphone vertical. Verification baseline: 390×844.
   Lunch Rush's existing per-run Pitz reward (`calculateMissionReward`) is unaffected and
   confirmed isolated (dedicated tests + Review Playthrough). 1113/1113 tests pass, typecheck/
   lint/build clean, dedicated Preview deploy + 390×844 Review Playthrough done. **Next: E-P3
-  Human Feel / balance** once this PR passes review.
+  Human Feel / balance**, independent of and not blocking Issue #33 D3A.
 - Save v2 / Inventory (P5, no dedicated issue number yet). Fresh Audit **done** — see
   `docs/reports/TETO_SAVE-V2_INVENTORY_Fresh-Audit.md` (audited SHA
   `2da3949de5bd642c709ca6ba343bc57d8101d03d`). Verdict: **B. READY WITH MINOR DESIGN DECISIONS**.
   **E0 (Save v2 migration) MERGED — PR #56.** See
-  `docs/reports/TETO_SAVE-V2_E0_Result.md`. Does not change current priority (Issue #33 D1/D2 is
-  complete; Issue #38 Pitz Reward E-P1/E-P2 is the most recently implemented track, PR #64 open);
+  `docs/reports/TETO_SAVE-V2_E0_Result.md`. Does not change current priority (Issue #33 D3A is
+  the most recently implemented track, PR #65 open; Issue #38 Pitz Reward E-P1/E-P2 is merged);
   tracked as prep work for when P5 becomes active. See P5 below for the recommended
   E0→E1→E2→E3 build order — **E1 (InventoryState) is next on this track.**
 - Issue #39 — HOME/FREE navigation redesign + Pizza Select. PS1/PS2/PS3 **complete** (PR #40, PR #41, both merged into `main`); PS4 iPhone Human Feel **PASS**. Remaining HOME visual polish (see "Parallel / non-blocking" below) is tracked as future polish, not an Issue #39 blocker.
@@ -156,11 +177,14 @@ exact condition the A3b Result report's own "When is A3 COMPLETE?" section named
   `12666faf55ed1e479d51572f6a8e3fcfc744cf31`. A2 Human Review PASS.
 - **PR #62** — Scoring 2.0 A3a safe rename/cleanup. MERGED.
 - **PR #63** — Scoring 2.0 A3b legacy retirement (`scorePizza`/`scorePlacement` deleted). MERGED.
+- **PR #64** — Issue #38 Pitz Reward E-P1/E-P2 (score-based reward core + RESULT/persistence).
+  MERGED. Merge commit `2a2b9b107990e0ff8b7b2c1b30e21baac181080d`.
 
-**Next priority: Issue #38 Pitz Reward E-P3 (Human Feel / balance)** once PR #64 (E-P1/E-P2)
-passes review and merges — see `docs/reports/TETO_ISSUE-38_PITZ-REWARD_Result.md`. Independent
-of that: Issue #33 D3 (score/visual integration), Issue #37 M2 (Cheese/Topping drag scope), and
-Save v2 E1 (InventoryState) are all open, ungated tracks.
+**Next priority: Issue #33 D3A Reversible Dough Shaping Human Review** — PR #65 open, pending
+ChatGPT/Human Review of its 390×844 Review Playthrough — see
+`docs/reports/TETO_ISSUE-33_D3A_REVERSIBLE-DOUGH_Result.md`. Independent of that: Issue #38 Pitz
+Reward E-P3 (Human Feel / balance), Issue #37 M2 (Cheese/Topping drag scope), and Save v2 E1
+(InventoryState) are all open, ungated tracks.
 
 ## Navigation contract
 
@@ -269,7 +293,14 @@ Issue #47 is complete; Issue #33 is now the active priority (see below).
    review; ChatGPT's review of the resulting D2 Review Playthrough MP4 returned **Human Feel
    verdict: PASS**, and PR #54 was merged after that PASS. No additional real-iPhone Human
    Feel confirmation is a required gate — item 2 below (score/visual integration, i.e. D3) and
-   Issue #37 M2 may both proceed.
+   Issue #37 M2 may both proceed. **D3A Reversible Dough Shaping implementation done, PR #65
+   open, pending ChatGPT/Human Review** — see
+   `docs/reports/TETO_ISSUE-33_D3A_REVERSIBLE-DOUGH_Result.md`: the gesture is now bidirectional
+   (stretch and shrink), and stretching past the ideal/reference size is now allowed (a new
+   technical-only ceiling, decoupled from the ideal guide-ring target) instead of hard-clamped at
+   it. No Dough scoring/Scoring 2.0/Pitz/Recipe changes — deferred to D3B, which should not begin
+   until this PR's Human Review and a real-device Human Feel pass both confirm the gesture itself
+   (see the Result report §10).
 2. Preserve exact dough/sauce/cheese/topping choices into baked visual identity; avoid hidden auto-correction.
 3. Interactive bake judgment.
 4. FINISH step for post-bake basil/finishing oil where recipes require it.
@@ -328,16 +359,17 @@ on two findings: no Bake component for any recipe; Reference coverage for only 1
 1. Fresh Audit existing Pitz/save/shop contracts. **Done** — see
    `docs/reports/TETO_ISSUE-38_PITZ-REWARD_Fresh-Audit.md`. Verdict: **A. READY AFTER SCORING
    AUTHORITY**.
-2. Deterministic score-based reward core (E-P1). **Implemented** — see
-   `docs/reports/TETO_ISSUE-38_PITZ-REWARD_Result.md` (PR #64, pending review):
+2. Deterministic score-based reward core (E-P1). **Implemented and MERGED via PR #64** — see
+   `docs/reports/TETO_ISSUE-38_PITZ-REWARD_Result.md`:
    `src/logic/pitzReward.ts`'s `recipeBaseReward × qualityMultiplier = earnedPitz`, bands
    reusing `scoring.ts`'s existing star thresholds; exact balance values remain provisional
    until E-P3 playtesting. FREE-only; Lunch Rush's existing per-run reward is unchanged.
 3. RESULT one-time credit + before→after Pitz display; prevent reload/re-entry double credit
-   (E-P2). **Implemented** — see the same Result report: extends the existing
-   `REGISTER_TO_DEX` atomic reducer transaction (no new action), `GameState.lastPitzCredit`
-   transient snapshot feeds a new DISCOVERED-phase summary.
-4. iPhone Human Feel / reward balance (E-P3). **Next open step**, once PR #64 merges.
+   (E-P2). **Implemented and MERGED via PR #64** — see the same Result report: extends the
+   existing `REGISTER_TO_DEX` atomic reducer transaction (no new action), `GameState.
+   lastPitzCredit` transient snapshot feeds a new DISCOVERED-phase summary.
+4. iPhone Human Feel / reward balance (E-P3). **Next open step** on this track — independent of
+   and not blocking Issue #33 D3A.
 
 Currency contract: **Pitz**. Do not introduce ¥/円 as the game currency.
 
@@ -396,11 +428,11 @@ Audit's §6.
 |---|---|---|
 | 1 | HOME | Issue #39 now |
 | 2 | Pizza Select | Issue #39 now |
-| 3 | Making Game | #32 (done) → #47 (done) → **#33 D1/D2 (COMPLETE, PR #54, Human Feel PASS)** → #37 |
+| 3 | Making Game | #32 (done) → #47 (done) → **#33 D1/D2 (COMPLETE, PR #54, Human Feel PASS)** → **#33 D3A (PR #65 open, pending review)** → #37 |
 | 4 | RESULT | Scoring 2.0 Authority / Making Game 2.0 |
 | 5 | Pizza Dex | after score/BEST authority stabilizes, before broad recipe expansion |
 | 6 | Lunch Rush | after Making Game 2.0 stabilizes |
-| 7 | Pitz reward UI | Issue #38 E-P1/E-P2 implemented, PR #64 pending review |
+| 7 | Pitz reward UI | Issue #38 E-P1/E-P2 MERGED via PR #64 |
 | 8 | Shop | after Save v2 / Inventory |
 | 9 | Achievements / final progression | Progression 2.0 |
 
@@ -475,11 +507,15 @@ Rules for this sequence:
    merged into `main`; legacy `scorePizza`/`scorePlacement` no longer exist in the codebase in
    any form. See `docs/reports/TETO_SCORING2-A3A_SAFE-RENAME_Result.md` and
    `docs/reports/TETO_SCORING2-A3B_LEGACY-RETIREMENT_Result.md`.
-6. **Issue #38 (Pitz Reward) E-P1/E-P2 implementation is done, PR #64 open, pending ChatGPT/
-   Human Review** — see `docs/reports/TETO_ISSUE-38_PITZ-REWARD_Result.md`. Do not re-implement
-   the reward core or re-litigate the FREE-only/Lunch-Rush-unchanged mode contract without a
-   specific regression; the next open work on this track is E-P3 (Human Feel/balance), once #64
-   merges.
-7. Whenever priority, completion status, estimates, architecture, navigation or visual direction changes, update both Issue #22 and this file.
+6. **Issue #38 (Pitz Reward) E-P1/E-P2 is implemented and MERGED via PR #64** — see
+   `docs/reports/TETO_ISSUE-38_PITZ-REWARD_Result.md`. Do not re-implement the reward core or
+   re-litigate the FREE-only/Lunch-Rush-unchanged mode contract without a specific regression;
+   the next open work on this track is E-P3 (Human Feel/balance).
+7. **Issue #33 D3A (Reversible Dough Shaping) implementation is done, PR #65 open, pending
+   ChatGPT/Human Review** — see `docs/reports/TETO_ISSUE-33_D3A_REVERSIBLE-DOUGH_Result.md`. Do
+   not re-implement the gesture or re-litigate the monotonic-floor removal / technical-vs-ideal
+   boundary split without a specific regression; D3B (Dough scoring integration) should not begin
+   until this PR's Human Review and a real-device Human Feel pass both confirm the gesture.
+8. Whenever priority, completion status, estimates, architecture, navigation or visual direction changes, update both Issue #22 and this file.
 
-Issue #37 remains the parent roadmap for physical pizza-making UX. Issue #39's HOME/FREE navigation work is complete. Issue #47 (Making UX Cleanup) is complete (Slice A/B merged, Human Feel PASS; Slice C's Finding J handed to Issue #37 M2). **Issue #33 (Dough Shaping) D1/D2 are COMPLETE, Human Feel PASS** (PR #54, merge SHA `c0b93504f84adbccdc1c75567677d234f832cfb1`, see `docs/reports/TETO_ISSUE-33_DOUGH-D1_Result.md`) — ChatGPT's review of the D2 Review Playthrough MP4 returned PASS and PR #54 was merged after that. Issue #33 D3 (score/visual integration) and Issue #37 M2 (Cheese/Topping drag scope) are the next open Making Game 2.0 items, neither gated on further Dough Human Feel work. **Scoring 2.0 A1 Authority Cutover is MERGED** (PR #60, merge commit `12666faf55ed1e479d51572f6a8e3fcfc744cf31`, A2 Human Review PASSED) — see `docs/reports/TETO_SCORING2-A1_AUTHORITY_Result.md`; **A3 (A3a + A3b) is fully COMPLETE and MERGED** — PR #62 and PR #63 are both merged into `main` (see `docs/reports/TETO_SCORING2-A3A_SAFE-RENAME_Result.md` and `docs/reports/TETO_SCORING2-A3B_LEGACY-RETIREMENT_Result.md` — `scorePizza`/`scorePlacement` no longer exist anywhere in the codebase). **Issue #38 (Pitz Reward) E-P1/E-P2 is implemented, PR #64 open, pending ChatGPT/Human Review** — see `docs/reports/TETO_ISSUE-38_PITZ-REWARD_Result.md`.
+Issue #37 remains the parent roadmap for physical pizza-making UX. Issue #39's HOME/FREE navigation work is complete. Issue #47 (Making UX Cleanup) is complete (Slice A/B merged, Human Feel PASS; Slice C's Finding J handed to Issue #37 M2). **Issue #33 (Dough Shaping) D1/D2 are COMPLETE, Human Feel PASS** (PR #54, merge SHA `c0b93504f84adbccdc1c75567677d234f832cfb1`, see `docs/reports/TETO_ISSUE-33_DOUGH-D1_Result.md`) — ChatGPT's review of the D2 Review Playthrough MP4 returned PASS and PR #54 was merged after that. **Issue #33 D3A (reversible/free-boundary shaping) implementation is done, PR #65 open, pending ChatGPT/Human Review** — see `docs/reports/TETO_ISSUE-33_D3A_REVERSIBLE-DOUGH_Result.md`. Issue #37 M2 (Cheese/Topping drag scope) remains a separate, ungated Making Game 2.0 item. **Scoring 2.0 A1 Authority Cutover is MERGED** (PR #60, merge commit `12666faf55ed1e479d51572f6a8e3fcfc744cf31`, A2 Human Review PASSED) — see `docs/reports/TETO_SCORING2-A1_AUTHORITY_Result.md`; **A3 (A3a + A3b) is fully COMPLETE and MERGED** — PR #62 and PR #63 are both merged into `main` (see `docs/reports/TETO_SCORING2-A3A_SAFE-RENAME_Result.md` and `docs/reports/TETO_SCORING2-A3B_LEGACY-RETIREMENT_Result.md` — `scorePizza`/`scorePlacement` no longer exist anywhere in the codebase). **Issue #38 (Pitz Reward) E-P1/E-P2 is implemented and MERGED via PR #64** — see `docs/reports/TETO_ISSUE-38_PITZ-REWARD_Result.md`.

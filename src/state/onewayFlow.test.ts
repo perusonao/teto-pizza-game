@@ -73,7 +73,7 @@ describe.each([
   ["FREE", false],
   ["Lunch Rush", true],
 ])("Issue #32/#33 one-way making flow (%s)", (_label, isMissionRound) => {
-  describe("DOUGH (Issue #33 D1)", () => {
+  describe("DOUGH (Issue #33 D1, reversibility extended by D3A)", () => {
     it("starts a fresh PREPARE round at DOUGH, with a small uniform initial shape", () => {
       const state = preparedState(isMissionRound);
       expect(state.makingStep).toBe("DOUGH");
@@ -150,6 +150,41 @@ describe.each([
       expect(result.pizza.doughShape).toEqual(shape);
       // Scoring 2.0 authority is untouched by DOUGH -- still computed normally alongside it.
       expect(result.score).not.toBeNull();
+    });
+
+    it("Issue #33 D3A: an over-stretched-then-corrected shape commits and carries through to SAUCE exactly as shaped -- the full 'fail then fix' loop", () => {
+      const state = preparedState(isMissionRound);
+      // Stretch one direction well past the ideal size.
+      let shape = state.pizza.doughShape;
+      for (let i = 0; i < 4; i += 1) {
+        shape = applyStretchPoint(shape, 50 + DOUGH_RADIUS + 8, 50);
+      }
+      const overStretched = gameReducer(state, { type: "COMMIT_DOUGH_STRETCH", shape });
+      expect(overStretched.pizza.doughShape.radii[0]).toBeGreaterThan(DOUGH_RADIUS);
+
+      // Correct it: pull the same direction back toward the center.
+      let corrected = shape;
+      for (let i = 0; i < 4; i += 1) {
+        corrected = applyStretchPoint(corrected, 50 + 12, 50);
+      }
+      const afterCorrection = gameReducer(overStretched, {
+        type: "COMMIT_DOUGH_STRETCH",
+        shape: corrected,
+      });
+      expect(afterCorrection.pizza.doughShape.radii[0]).toBeLessThan(
+        overStretched.pizza.doughShape.radii[0],
+      );
+
+      // Then stretch a different direction and confirm -- the corrected shape (not a reset
+      // circle) is what carries into SAUCE.
+      const anotherDirection = applyStretchPoint(afterCorrection.pizza.doughShape, 50, 50 + 40);
+      const final = gameReducer(afterCorrection, {
+        type: "COMMIT_DOUGH_STRETCH",
+        shape: anotherDirection,
+      });
+      const atSauce = confirm(final);
+      expect(atSauce.makingStep).toBe("SAUCE");
+      expect(atSauce.pizza.doughShape).toEqual(anotherDirection);
     });
   });
 
