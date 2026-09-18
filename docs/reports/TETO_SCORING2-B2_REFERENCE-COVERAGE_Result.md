@@ -1,7 +1,8 @@
 # Teto Pizza Game — Scoring 2.0 B2 (Reference Coverage) — Fresh Audit + Bounded Result
 
-**Type:** Fresh Audit + bounded implementation (safe mechanical infrastructure only). Does
-**not** close B2 — see Final Verdict.
+**Type:** Fresh Audit + bounded implementation (safe mechanical infrastructure only), plus a
+§9 design-only follow-up (candidate marinara/funghi piece geometry, not yet approved, not
+implemented). Does **not** close B2 — see §8/§9 verdicts.
 
 - **Audited/base main SHA:** `142a18252db56d9ee4c236cc80062673d5e68c80` (Merge PR #55: Scoring
   2.0 Authority Fresh Audit, docs-only). Confirmed via `git fetch origin main && git rev-parse
@@ -293,3 +294,133 @@ bismarck, funghi, fugazza — reviewed `(x, y)` target positions and tolerance r
 piece group (§6's table), following (or replacing) the proposed authoring process in §6, with
 particular design attention on quattro-formaggi (4 overlapping cheese groups), bismarck (single
 large egg vs. scattered pieces), and fugazza (no-cheese, olive-oil base) as called out above.
+
+---
+
+## 9. Candidate geometry — NOT YET APPROVED (Marinara / Funghi design pass)
+
+**Follow-up to §8, same PR #57.** PR #57's bounded mechanical implementation (§4) was accepted
+as-is, not merged. This section is a design-only pass exercising §6's proposed authoring
+process on the two lowest-risk recipes (marinara, funghi) before scaling it to the remaining
+four. **No code in this repository implements the coordinates below.** They are a proposal for
+human/ChatGPT review, following exactly the same constraints as §1–§3: not derived from
+`playerReference.ts`, not copied from PIZZA DB, no coefficient changes, no authority cutover.
+
+### 9.1 Method used
+
+For each recipe: piece **counts** come directly from `recipes.ts`'s `requiredIngredients`
+(mechanical, not a choice — see §3). Piece **positions** were hand-placed on the same 0–100
+dough-space coordinate system Margherita's own `pieceGroups` already use, following the pattern
+Margherita's own (game-authored, not measured) layout already establishes: a loose, intentionally
+non-symmetric spread, each same-ingredient pair kept comfortably above `zeroCreditRadius` (22)
+apart so the tolerance bands never create ambiguous overlap, and every point kept well inside
+`DOUGH_RADIUS` (48) with margin comparable to Margherita's own (roughly 24–32 units of clearance
+to the rim, vs. Margherita's 25.5–32). Tolerance radii reuse Margherita's `fullCreditRadius: 8,
+zeroCreditRadius: 22` unchanged — no concrete reason to differ was found (see §9.4).
+
+### 9.2 Candidate: マリナーラ (marinara) — `tomato-sauce`, `garlic × 3`, `oregano × 2`
+
+| Group | # | x | y | Distance from center | Full / Zero |
+|---|---|---|---|---|---|
+| garlic | 1 | 33 | 41 | 19.2 | 8 / 22 |
+| garlic | 2 | 69 | 43 | 20.2 | 8 / 22 |
+| garlic | 3 | 50 | 68 | 18.0 | 8 / 22 |
+| oregano | 1 | 38 | 63 | 17.7 | 8 / 22 |
+| oregano | 2 | 64 | 60 | 17.2 | 8 / 22 |
+
+Same-group spacing: garlic 31.4–36.1 apart (Margherita mozzarella: 30.0–34.4); oregano 26.2 apart
+(Margherita basil: 38.0). Rim clearance: 27.8–30.8 units for every point (Margherita: 25.5–32.0).
+
+**Rationale:** marinara has no cheese at all, so garlic (×3) takes over mozzarella's "anchor
+triangle spread across the dough" role, at a distance-from-center band (18.0–20.2) matching
+Margherita's own mozzarella band (16.0–21.2) — a real, roughly-even hand-placed triangle should
+score well without needing to be exact. Oregano (×2) takes basil's lower-middle accent role.
+Positions are deliberately not mirror-symmetric (33/69 rather than 33/67; 41/43 rather than an
+exact 41/41), matching how Margherita's own 35/65, 35/36 mozzarella pair also isn't a perfect
+mirror — a rigid symmetric target would otherwise mark an equally reasonable, slightly uneven
+real placement as wrong, which the task's own "avoid punishing reasonable handmade placement"
+requirement specifically warns against.
+
+### 9.3 Candidate: フンギ (funghi) — `tomato-sauce`, `mozzarella × 2`, `mushroom × 3`
+
+| Group | # | x | y | Distance from center | Full / Zero |
+|---|---|---|---|---|---|
+| mozzarella | 1 | 36 | 38 | 18.4 | 8 / 22 |
+| mozzarella | 2 | 66 | 40 | 18.9 | 8 / 22 |
+| mushroom | 1 | 50 | 30 | 20.0 | 8 / 22 |
+| mushroom | 2 | 30 | 62 | 23.3 | 8 / 22 |
+| mushroom | 3 | 70 | 64 | 24.4 | 8 / 22 |
+
+Same-group spacing: mozzarella 30.1 apart (Margherita basil: 38.0); mushroom 37.7–40.0 apart
+(Margherita mozzarella: 30.0–34.4, spread slightly wider on purpose — see rationale). Rim
+clearance: 23.6–29.6 units (Margherita: 25.5–32.0, comparable, funghi's mushroom group runs
+closest to the rim of anything proposed here but still clears it by >23 units).
+
+**Rationale:** funghi's counts invert Margherita's (2 cheese / 3 topping instead of 3/2), so the
+*roles* invert too: mozzarella (×2) takes basil's compact upper-middle accent role; mushroom
+(×3) takes mozzarella's wide-triangle role, but spread further apart (top-center plus two lower
+corners) than Margherita's own mozzarella triangle, so it reads as "mushrooms scattered across
+the whole pizza" — matching funghi's real identity as a topping-forward dish rather than
+Margherita's cheese-forward one. Distance-from-center for every point in this pass (18.0–24.4
+across both recipes) stays inside one consistent band, so neither candidate reads as unusually
+cramped or unusually rim-hugging relative to Margherita or to each other.
+
+### 9.4 Concern discovered about the current piece-scoring model (design-pass finding, no code changed)
+
+Read `piecesComponent.ts`/`referenceMatching.ts` again specifically while choosing these
+tolerance radii (not previously flagged in §3): **`fullCreditRadius`/`zeroCreditRadius` have no
+source of truth to derive from at all.** No file in the codebase defines a per-ingredient
+physical footprint (pixel size, hitbox radius, or similar) that a tolerance band could be
+computed from — every scatter ingredient (mozzarella's CSS blob included) renders through the
+same generic sizing path regardless of the ingredient's real-world size, and `scorePieceGroupV2`
+takes `fullCreditRadius`/`zeroCreditRadius` as opaque authored numbers with no validation beyond
+"is this a valid band" (`isValidToleranceBand`). Reusing Margherita's `8/22` for marinara/funghi
+here is therefore a **judgment call by analogy** ("these pieces aren't obviously bigger or
+smaller than mozzarella/basil"), not a measurement — and the same will be true for every future
+recipe's tolerance radii unless a future slice adds an actual size-derivation mechanism. This
+does not block the current two candidates (nothing here suggested 8/22 is wrong for them), but
+a reviewer evaluating bismarck's single large egg (§6) in particular should not assume the same
+default transfers without a deliberate check, since egg is the first target ingredient
+plausibly large enough that the analogy breaks down.
+
+Two smaller observations, not blockers: (1) nothing in the scoring code checks for accidental
+overlap *between different groups'* target positions (Hungarian matching only ever compares
+same-ingredient positions) — verified by eye for both candidates above, but a recipe with more
+groups (quattro-formaggi's four) will need the same manual check, or a future lint helper, since
+nothing today would catch it automatically. (2) pieces have no rim-margin concept analogous to
+sauce's `SAUCE_TARGET_RADIUS` — any `(x, y)` in `[0, 100]` is technically a valid target,
+including flush against the dough edge; both candidates above were kept well clear of this by
+manual choice, not by any code-enforced constraint.
+
+### 9.5 Visual artifacts produced (design review only, no implementation)
+
+- **Shareable review link (ChatGPT/human):** https://claude.ai/artifact/Bquy5fF4bc4Rur8Wm42tft
+  — interactive page, real ingredient emoji/CSS shapes, 390px-width primary layout, light/dark
+  themed, shows Margherita (existing/approved) alongside both candidates with full/zero-credit
+  tolerance rings drawn to scale and the same rationale text as above.
+- **Committed static screenshots** (same visual content, for durable in-repo reference):
+  - `docs/reports/screenshots/scoring2-b2-reference-design/00-overview-390w.png` — all three
+    panels, full page, 390×844-equivalent width.
+  - `docs/reports/screenshots/scoring2-b2-reference-design/01-margherita-existing.png`
+  - `docs/reports/screenshots/scoring2-b2-reference-design/02-marinara-candidate.png`
+  - `docs/reports/screenshots/scoring2-b2-reference-design/03-funghi-candidate.png`
+
+### 9.6 Scope guard for this design pass
+
+No production code was changed in this pass (only this report and the screenshots above were
+added — `git status` confirms no `.ts`/`.tsx` diff). `getReferencePizza` still returns non-null
+for Margherita only; marinara and funghi are **not** registered. No scoring coefficients,
+weights, or authority wiring were touched. No Preview deployment was performed (per the task's
+own "no Preview deployment required if this remains design-only" instruction) — nothing
+user-reachable changed. **PR #57 remains unmerged**, and this design-pass content lives in the
+same PR as an additional commit, not implementation.
+
+### 9.7 Verdict for this pass
+
+**CANDIDATE GEOMETRY PROPOSED — NOT YET APPROVED.** Marinara and funghi now have concrete,
+reasoned `(x, y)` + tolerance-radius proposals ready for human/ChatGPT review, following the
+authoring process §6 proposed. Pending that review's outcome (approve as-is, request
+adjustments, or reject the approach), the same method is intended to scale to genovese,
+bismarck, quattro-formaggi, and fugazza — with bismarck and quattro-formaggi flagged in §6 and
+§9.4 as needing the most reviewer attention (single large egg; four overlapping cheese groups)
+before this exact 8/22-reuse-by-analogy pattern should be assumed to transfer unchanged.
