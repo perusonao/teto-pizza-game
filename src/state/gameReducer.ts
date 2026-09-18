@@ -8,6 +8,7 @@ import { classifyBake, type BakeState } from "../logic/bake";
 import { computeScoringV2, toLegacyScoreBreakdown, type ScoringV2Result } from "../logic/scoringV2";
 import { totalStars } from "../logic/mastery";
 import { purchaseIngredient } from "../logic/economy";
+import { applyPitzCredit, type PitzCredit } from "../logic/pitzReward";
 import { discoveredRecipeIds, registerScoreToDex, EMPTY_DEX, type DexState } from "./dex";
 import { availableRecipeIds, isRecipeAvailable } from "./progression";
 import { pickMissionOrder } from "../mission/lunchRush";
@@ -94,6 +95,15 @@ export interface GameState {
   justGotNewBest: boolean;
   hint: DialogueLine | null;
   placement: PlacementFeedback | null;
+  /** Issue #38 E-P1/E-P2: canonical transient RESULT/DISCOVERED display snapshot for the
+   *  per-pizza Pitz credit `REGISTER_TO_DEX` just applied (../logic/pitzReward.ts) -- the display
+   *  layer reads these five numbers rather than recomputing any of them (same discipline
+   *  `scoringV2Result` already follows). `null` until `REGISTER_TO_DEX` actually credits a round
+   *  (FREE only -- Lunch Rush's `MISSION_NEXT_ORDER` never sets this, so it never leaks a
+   *  per-pizza number into Lunch Rush's own unchanged per-run reward), and reset to `null` for
+   *  every fresh round (`buildOrderState` below) so a stale previous round's credit can never
+   *  leak into a new one. Never persisted -- transient exactly like `score`/`scoringV2Result`. */
+  lastPitzCredit: PitzCredit | null;
 }
 
 export type GameAction =
@@ -201,6 +211,7 @@ function buildOrderState(order: Order, carry: ProgressionCarry, isMissionRound: 
     justGotNewBest: false,
     hint: null,
     placement: null,
+    lastPitzCredit: null,
   };
 }
 
@@ -494,6 +505,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // Only a RESULT with a score can register. This makes the Dex update atomic per
       // round: a stray or repeated dispatch (e.g. after the phase has already moved on to
       // DISCOVERED) can never double-count timesMade or re-evaluate BEST for the same round.
+      // Issue #38 E-P1/E-P2: the same guard is what makes the Pitz credit below exactly-once
+      // too -- a second dispatch against the post-transition state (phase already DISCOVERED)
+      // is rejected here before either Dex or Pitz is touched a second time (Pattern A, see
+      // docs/reports/TETO_ISSUE-38_PITZ-REWARD_Fresh-Audit.md sec. 3).
       if (state.phase !== "RESULT" || !state.score) {
         return state;
       }
@@ -502,12 +517,23 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         state.recipe.id,
         state.score,
       );
+      // FREE only: Lunch Rush keeps its existing, unchanged per-run reward
+      // (calculateMissionReward via CLAIM_MISSION_REWARD/MISSION_NEXT_ORDER) -- this per-pizza
+      // credit must never also apply inside a Mission round, or a Lunch Rush pizza would earn
+      // Pitz twice under two different formulas. Registration UI itself already never renders
+      // during a Mission round (ResultPanel is gated on `!isMissionActive`), but this guard is
+      // the reducer-level backstop, not just a UI convention.
+      const lastPitzCredit = state.isMissionRound
+        ? null
+        : applyPitzCredit(state.recipe.baseRewardPitz, state.score.total, state.pitzBalance);
       return {
         ...state,
         dex,
         justDiscovered: wasNewDiscovery,
         justGotNewBest: isNewBest,
         phase: "DISCOVERED",
+        pitzBalance: lastPitzCredit ? lastPitzCredit.balanceAfter : state.pitzBalance,
+        lastPitzCredit,
       };
     }
 

@@ -463,6 +463,39 @@ export function GameScreen({
           {!state.justDiscovered && state.justGotNewBest && (
             <p className="discovered-banner discovered-banner--best">{"\u{1F31F}"} NEW BEST!</p>
           )}
+          {/* Issue #38 E-P1/E-P2: FREE's per-pizza Pitz credit, applied atomically by
+              REGISTER_TO_DEX (../state/gameReducer.ts) -- this reads the reducer-applied
+              `lastPitzCredit` snapshot only, it never recomputes any of these numbers itself.
+              `null` for a Mission round (Lunch Rush never reaches DISCOVERED at all, see
+              MISSION_NEXT_ORDER), so this can never render mid-Mission. */}
+          {state.lastPitzCredit && (
+            <div className="pitz-credit-summary">
+              <p className="pitz-credit-summary__headline">
+                今回の獲得 <strong>+{state.lastPitzCredit.earnedPitz} Pitz</strong>
+              </p>
+              <dl className="pitz-credit-summary__details">
+                <div className="pitz-credit-summary__row">
+                  <dt>基本報酬</dt>
+                  <dd>{state.lastPitzCredit.baseReward} Pitz</dd>
+                </div>
+                <div className="pitz-credit-summary__row">
+                  <dt>出来栄え倍率</dt>
+                  <dd>×{state.lastPitzCredit.multiplier.toFixed(2)}</dd>
+                </div>
+                <div className="pitz-credit-summary__row">
+                  <dt>所持Pitz</dt>
+                  <dd>
+                    {state.lastPitzCredit.balanceBefore} {"→"} {state.lastPitzCredit.balanceAfter}
+                  </dd>
+                </div>
+              </dl>
+              {state.lastPitzCredit.earnedPitz === 0 && (
+                <p className="pitz-credit-summary__zero-note">
+                  出来栄えが基準に届かず、今回はPitzを獲得できませんでした。
+                </p>
+              )}
+            </div>
+          )}
           {/* Issue #47 Finding D: two distinct actions replace the old single "もう一度作る"
               button, which always started a *different* recipe (PLAY_AGAIN's excludeRecipeId)
               despite reading like a retry. "もう一度つくる" now retries this exact recipe
