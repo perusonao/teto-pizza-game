@@ -1,10 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
   buildIdealMargheritaSauceFixture,
+  buildIdealSauceFixture,
+  computeMechanicalSauceReference,
   getReferencePizza,
   IDEAL_MARGHERITA_SAUCE_FIXTURE,
   MARGHERITA_REFERENCE,
 } from "./referencePizza";
+import { RECIPES, type RecipeId } from "./recipes";
+import { getRecipeSauceProfile } from "./recipeSauceProfiles";
 import { computeSauceMetrics } from "../logic/sauceField";
 import { scoreSauceAgainstReference } from "../logic/referenceScoring";
 
@@ -70,6 +74,67 @@ describe("getReferencePizza (Scope Guard)", () => {
     for (const id of ["marinara", "quattro-formaggi", "pesto-genovese", "unknown-recipe"]) {
       expect(getReferencePizza(id)).toBeNull();
     }
+  });
+
+  /** B2 (docs/reports/TETO_SCORING2-B2_REFERENCE-COVERAGE_Result.md): still pins the exact
+   *  pre-B2 coverage state for all 6 target recipes -- the mechanical sauce infra below does
+   *  not change this, on purpose (no `pieceGroups` source exists for them yet). */
+  it("still returns null for every B2 target recipe (piece-geometry blocker unresolved)", () => {
+    for (const id of [
+      "marinara",
+      "quattro-formaggi",
+      "genovese",
+      "bismarck",
+      "funghi",
+      "fugazza",
+    ] satisfies RecipeId[]) {
+      expect(getReferencePizza(id)).toBeNull();
+    }
+  });
+});
+
+/**
+ * B2: `computeMechanicalSauceReference` reuses the exact same ideal-fixture-derivation
+ * Margherita's own sauce target already relies on, generalized to read each recipe's sauce
+ * ingredient from `recipeSauceProfiles.ts` -- proving a real, reachable target is already
+ * mechanically available for every recipe's sauce, independent of the still-open piece-
+ * geometry question (see the B2 report for the full per-recipe authoring template).
+ */
+describe("computeMechanicalSauceReference (B2 mechanical infra)", () => {
+  it("the general fixture builder is geometry-identical to the (now-aliased) Margherita one", () => {
+    expect(buildIdealSauceFixture()).toEqual(buildIdealMargheritaSauceFixture());
+    expect(buildIdealSauceFixture()).toEqual(IDEAL_MARGHERITA_SAUCE_FIXTURE);
+  });
+
+  it("reproduces Margherita's own already-accepted sauce target exactly", () => {
+    expect(computeMechanicalSauceReference("margherita")).toEqual(MARGHERITA_REFERENCE.sauce);
+  });
+
+  it.each(RECIPES.map((r) => r.id))(
+    "produces a reachable, sane, correctly-identified sauce target for %s",
+    (recipeId) => {
+      const target = computeMechanicalSauceReference(recipeId);
+      const profile = getRecipeSauceProfile(recipeId);
+
+      expect(target.ingredientId).toBe(profile.ingredientId);
+      expect(target.quantity).toBeGreaterThan(0.1);
+      expect(target.quantity).toBeLessThan(1);
+      expect(target.coverage).toBeGreaterThan(0.1);
+      expect(target.coverage).toBeLessThan(1);
+
+      // Reachability, same standard as the Margherita-specific test above: the fixture that
+      // produced this exact target scores near-perfectly against its own derived target,
+      // regardless of which sauce ingredient the recipe actually uses (the geometry, not the
+      // ingredient identity, is what similarity is computed from).
+      const metrics = computeSauceMetrics(buildIdealSauceFixture());
+      const shadow = scoreSauceAgainstReference(metrics, target);
+      expect(shadow.overall).toBeGreaterThan(0.95);
+    },
+  );
+
+  it("every recipe's mechanical target uses that recipe's own real sauce ingredient (never a fabricated stand-in)", () => {
+    const ids = new Set(RECIPES.map((r) => computeMechanicalSauceReference(r.id).ingredientId));
+    expect(ids).toEqual(new Set(["tomato-sauce", "pesto", "olive-oil"]));
   });
 });
 

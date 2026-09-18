@@ -24,9 +24,19 @@
  * referencePizza.test.ts's "Reference fixture -> target within tolerance -> high shadow
  * similarity" test, which would fail immediately if this ever drifted out of sync (e.g. a
  * future sauceField.ts tuning change).
+ *
+ * B2 (see docs/reports/TETO_SCORING2-B2_REFERENCE-COVERAGE_Result.md): the types below
+ * (`ReferencePizza.recipeId`, `ReferencePieceGroup.ingredientId`) are widened past
+ * Margherita-only so other recipes' Reference data can use this same shape, and the ideal
+ * sauce fixture is exposed as a generic, ingredient-agnostic builder
+ * (`buildIdealSauceFixture`/`computeMechanicalSauceReference`) reusable for any recipe's sauce
+ * target. Coverage itself (`getReferencePizza`) remains Margherita-only -- see that function's
+ * own doc comment for exactly why.
  */
 import { computeSauceMetrics, type SauceDepositLike, type SauceMetrics } from "../logic/sauceField";
 import { SAUCE_RATE_PER_TICK } from "../logic/sauceQuantity";
+import type { RecipeId } from "./recipes";
+import { getRecipeSauceProfile } from "./recipeSauceProfiles";
 
 export type InteractionFamily =
   | "SPREAD"
@@ -38,7 +48,13 @@ export type InteractionFamily =
   | "NON_INTERACTIVE";
 
 export interface ReferencePieceGroup {
-  ingredientId: "mozzarella" | "basil";
+  /** Any topping ingredient id (not just Margherita's mozzarella/basil) -- B2 (Scoring 2.0
+   *  Reference coverage, see docs/reports/TETO_SCORING2-B2_REFERENCE-COVERAGE_Result.md)
+   *  widened this from a Margherita-only union so future recipes' reviewed piece groups can
+   *  use this same type without another type-level change. Widening this field alone adds no
+   *  new Reference data -- see that report for exactly what a real 6-recipe entry still needs
+   *  (reviewed positions/tolerance radii), which this type change does not provide. */
+  ingredientId: string;
   positions: readonly { x: number; y: number }[];
   interaction: {
     family: "TAP_PLACE";
@@ -62,7 +78,10 @@ export interface ReferenceSauce {
 }
 
 export interface ReferencePizza {
-  recipeId: "margherita";
+  /** Widened from a Margherita-only literal to `RecipeId` (B2, see the Reference-coverage
+   *  report cited above) -- a type-level prerequisite for adding other recipes' References,
+   *  not itself new Reference data. */
+  recipeId: RecipeId;
   sauce: ReferenceSauce;
   /** Phase 4A-1B game-authored prototype layout; never a PIZZA DB quantity claim. */
   pieceGroups: readonly ReferencePieceGroup[];
@@ -83,14 +102,22 @@ const FIXTURE_RINGS: ReadonlyArray<{ radius: number; count: number }> = [
 ];
 
 /**
- * A concrete, literally-paintable tomato-sauce deposit sequence representing "painted well":
- * evenly spread across most of the dough's interior in overlapping concentric passes,
- * leaving the rim bare, at a moderate per-point amount (one dispense tick's worth each --
- * see ../logic/sauceQuantity.ts) exactly as a real hold-and-drag gesture would produce.
- * Exported (not just a private constant) so both the target derivation below and
- * referencePizza.test.ts's reachability test compute metrics from the exact same fixture.
+ * A concrete, literally-paintable deposit sequence representing "painted well": evenly spread
+ * across most of the dough's interior in overlapping concentric passes, leaving the rim bare,
+ * at a moderate per-point amount (one dispense tick's worth each -- see
+ * ../logic/sauceQuantity.ts) exactly as a real hold-and-drag gesture would produce.
+ *
+ * B2 (Scoring 2.0 Reference coverage): this geometry was always ingredient-agnostic -- it
+ * never referenced tomato sauce specifically, only dough-space coordinates and a generic
+ * per-tick amount -- so it is renamed/exposed here as the general-purpose builder. "Painted
+ * evenly, rim left bare" is the same physical quality standard regardless of which sauce
+ * ingredient a recipe uses (see ../logic/scoringV2/sauceComponent.ts, which never reads
+ * `ingredientId` when comparing metrics), so reusing this one fixture's geometry for every
+ * sauce-based recipe is a mechanical derivation, not a fabricated per-recipe number -- see
+ * `computeMechanicalSauceReference` below and
+ * docs/reports/TETO_SCORING2-B2_REFERENCE-COVERAGE_Result.md.
  */
-export function buildIdealMargheritaSauceFixture(): SauceDepositLike[] {
+export function buildIdealSauceFixture(): SauceDepositLike[] {
   const deposits: SauceDepositLike[] = [];
   for (const { radius, count } of FIXTURE_RINGS) {
     for (let i = 0; i < count; i += 1) {
@@ -105,6 +132,13 @@ export function buildIdealMargheritaSauceFixture(): SauceDepositLike[] {
   return deposits;
 }
 
+/** Preserved name/signature for existing callers (referencePizza.test.ts's reachability
+ *  suite) -- Margherita's fixture was never actually Margherita-specific geometry, so this is
+ *  now a thin, byte-identical alias of the general builder above rather than a duplicate. */
+export function buildIdealMargheritaSauceFixture(): SauceDepositLike[] {
+  return buildIdealSauceFixture();
+}
+
 export const IDEAL_MARGHERITA_SAUCE_FIXTURE: SauceDepositLike[] = buildIdealMargheritaSauceFixture();
 
 /** Metrics of the ideal fixture -- the reference target below is this, rounded to 2 decimals
@@ -117,13 +151,33 @@ function round2(value: number): number {
   return Math.round(value * 100) / 100;
 }
 
-export const MARGHERITA_REFERENCE: ReferencePizza = {
-  recipeId: "margherita",
-  sauce: {
-    ingredientId: "tomato-sauce",
+/**
+ * B2: mechanically derives a `ReferenceSauce` target for any recipe from its own
+ * `RecipeSauceProfile` (../data/recipeSauceProfiles.ts) and the shared ideal-fixture geometry
+ * above -- the exact same derivation Margherita's own `sauce` field already uses (see
+ * `MARGHERITA_REFERENCE` below, which is defined in terms of this same fixture's metrics).
+ * This produces a real, reachable, non-fabricated sauce target for every one of the 7 recipes
+ * today -- it does NOT by itself make `getReferencePizza` return non-null for a recipe, since
+ * a `ReferencePizza` also needs its `pieceGroups`, which this function does not and cannot
+ * provide (see the file-level Scope Guard and the B2 report for exactly why). Exported so a
+ * future authoring pass can read off ready-to-use sauce numbers without recomputing them by
+ * hand, and so this file's own tests can prove the derivation is consistent across recipes.
+ */
+export function computeMechanicalSauceReference(recipeId: RecipeId): ReferenceSauce {
+  const profile = getRecipeSauceProfile(recipeId);
+  return {
+    ingredientId: profile.ingredientId,
     quantity: round2(IDEAL_MARGHERITA_SAUCE_METRICS.quantity),
     coverage: round2(IDEAL_MARGHERITA_SAUCE_METRICS.coverage),
-  },
+  };
+}
+
+export const MARGHERITA_REFERENCE: ReferencePizza = {
+  recipeId: "margherita",
+  // Byte-identical to the previous hand-written literal ({ tomato-sauce, 0.92, 0.72 }) --
+  // now expressed via the shared mechanical derivation so it can never silently drift from
+  // what `computeMechanicalSauceReference` produces for every other recipe.
+  sauce: computeMechanicalSauceReference("margherita"),
   pieceGroups: [
     {
       ingredientId: "mozzarella",
@@ -157,8 +211,19 @@ export const MARGHERITA_REFERENCE: ReferencePizza = {
   ],
 };
 
-/** Returns the Reference Pizza for `recipeId`, or null for every recipe but Margherita
- *  (Scope Guard: no other recipe gets a Reference Pizza in this phase). */
+/**
+ * Returns the Reference Pizza for `recipeId`, or null for every recipe but Margherita.
+ *
+ * B2 (see docs/reports/TETO_SCORING2-B2_REFERENCE-COVERAGE_Result.md): coverage remains
+ * Margherita-only, unchanged by that report's work. `computeMechanicalSauceReference` above
+ * shows a correct sauce target is already mechanically reachable for the other 6 recipes, but
+ * each `ReferencePizza` also needs its `pieceGroups` -- reviewed (x, y) target positions and
+ * tolerance radii per required topping -- and no approved source for those exists yet
+ * (Issue #32's own "define the safe path for adding reviewed References to other recipes"
+ * acceptance item is still open). Fabricating those positions here would be exactly what this
+ * project's non-negotiable guard against fabricated Reference targets forbids, so this
+ * function is intentionally left unchanged rather than half-populating new entries.
+ */
 export function getReferencePizza(recipeId: string): ReferencePizza | null {
   return recipeId === MARGHERITA_REFERENCE.recipeId ? MARGHERITA_REFERENCE : null;
 }
