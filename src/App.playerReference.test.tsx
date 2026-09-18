@@ -6,8 +6,21 @@ import App from "./App";
 /**
  * Issue #47 Slice B (Findings F/H) integration coverage: the persistent mini Reference
  * thumbnail during Making PREPARE, its tap-to-expand popover, and its lifecycle across
- * reset/retry/recipe-switch -- for both a recipe with a Scoring 2.0 Reference fixture
- * (Margherita) and one without (Bismarck), end to end through the real `App`.
+ * reset/retry/recipe-switch, end to end through the real `App`.
+ *
+ * B2 (Reference coverage 7/7, see docs/reports/TETO_SCORING2-B2_REFERENCE-COVERAGE_Result.md):
+ * this file originally paired one recipe with a Scoring 2.0 Reference fixture (Margherita)
+ * against one genuinely without one (Bismarck), to prove both the precise `ReferencePreview`
+ * and the generic `PlayerReferencePreview` paths render correctly end to end. Now that every
+ * real recipe has a reviewed Reference fixture, Bismarck also takes the precise-panel path --
+ * kept here as a *second* concrete recipe proving that path generalizes correctly (not just a
+ * Margherita special case; this is exactly the bug this same B2 pass found and fixed --
+ * `ReferencePreview` used to hardcode "マルゲリータ" in its title/caption regardless of which
+ * recipe was open, invisible while only Margherita ever reached it). The generic
+ * `PlayerReferencePreview` panel itself is unit-tested directly elsewhere
+ * (`PlayerReferencePreview.test.tsx`) and remains real, working code -- it is simply not
+ * reachable through this integration test's real `App` flow for any of the current 7 recipes,
+ * since none of them lack a Reference fixture anymore.
  */
 beforeEach(() => {
   window.localStorage.clear();
@@ -82,21 +95,27 @@ describe("Mini Reference (Margherita, Scoring 2.0 fixture)", () => {
   });
 });
 
-describe("Mini Reference (Bismarck, no Scoring 2.0 fixture)", () => {
-  it("is visible during PREPARE even though Scoring 2.0 has no Reference fixture for it", async () => {
+describe("Mini Reference (Bismarck, B2 PART C2 -- also a Scoring 2.0 fixture recipe now)", () => {
+  it("is visible during PREPARE", async () => {
     const user = userEvent.setup();
     await enterMakingWith(user, "ビスマルク、未挑戦");
     expect(document.querySelector(".mini-reference")).toBeInTheDocument();
   });
 
-  it("tapping it opens the generic player reference popover, not Margherita's", async () => {
+  it("tapping it opens Bismarck's own precise popover, not a leftover Margherita title/caption", async () => {
     const user = userEvent.setup();
     await enterMakingWith(user, "ビスマルク、未挑戦");
     await user.click(screen.getByRole("button", { name: /ビスマルクの見本を拡大表示/ }));
+    // B2 found and fixed a real bug here: ReferencePreview used to hardcode "マルゲリータ"
+    // in its title/aria-label/caption regardless of which recipe was actually open, invisible
+    // while Margherita was the only recipe that ever reached this panel. This dialog query
+    // itself is the regression pin -- it fails again immediately if that ever comes back.
     expect(screen.getByRole("dialog", { name: /ビスマルクの見本/ })).toBeInTheDocument();
-    // The generic panel never shows numeric quantity/coverage bars (no fabricated precision).
-    expect(document.querySelector(".reference-preview__bar-row")).not.toBeInTheDocument();
-    expect(screen.getByText(/採点の基準座標ではありません/)).toBeInTheDocument();
+    expect(screen.queryByText(/マルゲリータ/)).not.toBeInTheDocument();
+    // The precise panel (real Scoring 2.0 Reference data) shows numeric quantity/coverage bars
+    // -- the opposite of the old generic-panel expectation, since Bismarck now has real data.
+    expect(document.querySelector(".reference-preview__bar-row")).toBeInTheDocument();
+    expect(screen.queryByText(/採点の基準座標ではありません/)).not.toBeInTheDocument();
   });
 
   it("RESET_PIZZA preserves the same-recipe mini reference", async () => {

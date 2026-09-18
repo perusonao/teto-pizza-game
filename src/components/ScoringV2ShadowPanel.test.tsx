@@ -61,8 +61,10 @@ describe("Production/Preview gating (mirrors SauceMetricsPanel's Fix C pattern)"
 
   it("Preview + a Reference-unavailable recipe shows the explicit unavailable message, never a fabricated number", () => {
     vi.stubEnv("VITE_PREVIEW_MODE", "true");
-    const marinara = getRecipe("marinara")!;
-    const result = computeScoringV2Shadow(marinara, createEmptyPizza());
+    // B2 PART C2: all 7 real recipes now have a reviewed Reference -- a synthetic id
+    // getReferencePizza was never taught is what exercises this branch now.
+    const noReferenceRecipe = { ...MARGHERITA, id: "no-such-recipe" as typeof MARGHERITA.id };
+    const result = computeScoringV2Shadow(noReferenceRecipe, createEmptyPizza());
     render(<ScoringV2ShadowPanel result={result} />);
     expect(screen.getByText("Reference unavailable")).toBeInTheDocument();
     expect(screen.queryByText(/Total:/)).not.toBeInTheDocument();

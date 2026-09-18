@@ -7,6 +7,10 @@ import { SAUCE_TARGET_RADIUS } from "../logic/sauceField";
 
 interface ReferencePreviewProps {
   reference: ReferencePizza;
+  /** B2 (Reference coverage 7/7): this popover now renders for every recipe with a Scoring
+   *  2.0 Reference, not just Margherita -- the recipe's own display name, so the title/aria
+   *  label never reads "マルゲリータの見本" while making a different recipe. */
+  recipeNameJa: string;
   isOpen: boolean;
   /** Phase 4A-1A (Post-Codex-Fix): controlled, not local state -- App.tsx folds `isOpen`
    *  into PizzaStage's `interactive` prop so opening this popover aborts any in-progress
@@ -21,8 +25,9 @@ interface ReferencePreviewProps {
 }
 
 /**
- * Phase 4A-1A: "見本" (Reference) button + compact popover. Shown only during Margherita
- * FREE PREPARE (see App.tsx's `referenceModeEnabled` gating) so the player can check what
+ * Phase 4A-1A: "見本" (Reference) button + compact popover. Shown during FREE PREPARE for any
+ * recipe with a Scoring 2.0 Reference fixture (see App.tsx's `referenceModeEnabled` gating --
+ * originally Margherita-only, now every recipe B2 has covered) so the player can check what
  * they're aiming for without a permanent on-screen image crowding the 390x844 layout.
  *
  * The popover renders a small static illustration, not the real interactive PizzaStage --
@@ -33,11 +38,19 @@ interface ReferencePreviewProps {
  */
 export function ReferencePreview({
   reference,
+  recipeNameJa,
   isOpen,
   onOpenChange,
   renderTrigger = true,
 }: ReferencePreviewProps) {
   const sauceIngredient = getIngredient(reference.sauce.ingredientId);
+  const pieceCaption = reference.pieceGroups
+    .map((group) => {
+      const ingredient = getIngredient(group.ingredientId);
+      return ingredient ? `${ingredient.nameJa}${group.positions.length}個` : null;
+    })
+    .filter((text): text is string => text !== null)
+    .join("と");
 
   return (
     <>
@@ -61,11 +74,11 @@ export function ReferencePreview({
           <div
             className="reference-preview__panel"
             role="dialog"
-            aria-label="マルゲリータの見本"
+            aria-label={`${recipeNameJa}の見本`}
             onClick={(event) => event.stopPropagation()}
           >
             <div className="reference-preview__header">
-              <h2>マルゲリータ 見本</h2>
+              <h2>{recipeNameJa} 見本</h2>
               <button
                 type="button"
                 className="reference-preview__close"
@@ -112,7 +125,8 @@ export function ReferencePreview({
             </div>
 
             <p className="reference-preview__caption">
-              ソースをまんべんなく塗って、モッツァレラ3個とバジル2枚を見本に近く置こう。
+              {sauceIngredient?.nameJa ?? "ソース"}をまんべんなく塗って、{pieceCaption}
+              を見本に近く置こう。
             </p>
 
             <div className="reference-preview__bar-row">

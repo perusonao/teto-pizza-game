@@ -2333,17 +2333,18 @@
   transform: translate(-50%, -50%);
 }
 
-/* Mozzarella: scale down the same .pizza-cheese physical shape the player's pizza and
-   ingredient tray use (see IngredientPieceVisual) instead of the old standalone 🧀 emoji, so
-   the Reference shows the identical white physical piece the player is placing. */
-.reference-mini-pizza__topping--mozzarella .pizza-cheese {
+/* B2 (Reference coverage 7/7): generalized from a mozzarella/basil-only pair of selectors --
+   this popover now renders whichever piece groups a recipe's own ReferencePizza defines, not
+   just Margherita's two, so the scale-down rule needs to apply to any physical .pizza-cheese
+   shape or emoji piece here, matching .player-reference-mini-pizza's own already-generic
+   convention below rather than requiring a new per-ingredient-id rule for every future recipe.
+   Same physical pieces the player's own pizza and ingredient tray use (see
+   IngredientPieceVisual), scaled down by the same factor for every ingredient. */
+.reference-mini-pizza__topping .pizza-cheese {
   transform: scale(var(--reference-piece-scale));
 }
 
-/* Basil: same emoji artwork the player places, scaled down by the same factor as mozzarella
-   above (relative to .pizza-topping__emoji's 28px on the full-size dough) so the two pieces
-   stay proportionate to each other and to what the player will actually see. */
-.reference-mini-pizza__topping--basil .ingredient-piece-visual__emoji {
+.reference-mini-pizza__topping .ingredient-piece-visual__emoji {
   font-size: calc(28px * var(--reference-piece-scale));
 }
 

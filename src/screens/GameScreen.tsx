@@ -259,12 +259,14 @@ export function GameScreen({
 
           Issue #47 Slice B (Findings F/H): the mini thumbnail (reusing the same deterministic
           `PizzaThumbnail` Pizza Select's own cards use) is now always shown here, for every
-          recipe -- not gated on `referenceModeEnabled` (Scoring 2.0's own Margherita-only,
-          FREE-only gate, still unchanged and still driving SauceMetricsPanel/physical drag
+          recipe -- not gated on `referenceModeEnabled` (Scoring 2.0's own Reference-coverage
+          gate, FREE-only, still unchanged and still driving SauceMetricsPanel/physical drag
           below). Tapping it opens the same `isReferencePopoverOpen` popover as before: the
-          exact, unchanged Margherita `ReferencePreview` panel when a Scoring 2.0 Reference
-          fixture exists for this recipe, or the new generic `PlayerReferencePreview` panel
-          (../data/playerReference.ts, independent of Scoring 2.0) for every other recipe. */}
+          precise `ReferencePreview` panel (numeric bars, exact target coordinates) for any
+          recipe B2 has a Scoring 2.0 Reference fixture for -- originally Margherita-only, now
+          every recipe B2 has covered -- or the generic `PlayerReferencePreview` panel
+          (../data/playerReference.ts, independent of Scoring 2.0) for any recipe that still
+          has none. */}
       {state.phase === "PREPARE" && (
         <div className="order-card">
           <div className="order-card__text">
@@ -286,6 +288,7 @@ export function GameScreen({
           {referencePizza ? (
             <ReferencePreview
               reference={referencePizza}
+              recipeNameJa={state.recipe.nameJa}
               isOpen={isReferencePopoverOpen}
               onOpenChange={onReferencePopoverChange}
               renderTrigger={false}

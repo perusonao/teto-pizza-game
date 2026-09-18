@@ -58,10 +58,16 @@ describe("getPlayerReferencePizza", () => {
     expect(first).toEqual(second);
   });
 
-  it("Bismarck has a player reference despite having no Scoring 2.0 Reference fixture", () => {
+  /** B2 PART C2: bismarck now has a Scoring 2.0 Reference fixture too (coverage is 7/7), so
+   *  this no longer demonstrates independence via a real recipe lacking one -- a synthetic
+   *  recipe id (never registered in referencePizza.ts's lookup map) is used instead to prove
+   *  getPlayerReferencePizza genuinely never reads getReferencePizza at all, rather than only
+   *  coincidentally working whenever both happen to exist. */
+  it("works even for a recipe id with no Scoring 2.0 Reference fixture (independence, not coincidence)", () => {
     const bismarck = RECIPES.find((r) => r.id === "bismarck")!;
-    expect(getReferencePizza("bismarck")).toBeNull();
-    const reference = getPlayerReferencePizza(bismarck);
+    const syntheticRecipe = { ...bismarck, id: "no-such-recipe" as typeof bismarck.id };
+    expect(getReferencePizza(syntheticRecipe.id)).toBeNull();
+    const reference = getPlayerReferencePizza(syntheticRecipe);
     expect(reference.pieceGroups.map((g) => g.ingredientId)).toEqual(["mozzarella", "egg"]);
     expect(reference.sauceIngredientId).toBe("tomato-sauce");
   });
@@ -79,14 +85,16 @@ describe("getPlayerReferencePizza", () => {
 });
 
 describe("Scoring 2.0 Reference fixtures unchanged (scope guard)", () => {
-  it("still returns a Reference Pizza only for margherita, null for every other recipe", () => {
+  /** B2 PART C2 (docs/reports/TETO_SCORING2-B2_REFERENCE-COVERAGE_Result.md): coverage is now
+   *  all 7 recipes -- this playerReference.ts guard test is updated to match; it still pins
+   *  that this file (`getPlayerReferencePizza`) stays entirely independent of whatever
+   *  `getReferencePizza` covers, for every recipe, now that there is nothing left uncovered. */
+  it("Scoring 2.0 Reference coverage is 7/7 -- getPlayerReferencePizza stays independent regardless", () => {
     for (const recipe of RECIPES) {
-      const scoringReference = getReferencePizza(recipe.id);
-      if (recipe.id === "margherita") {
-        expect(scoringReference).not.toBeNull();
-      } else {
-        expect(scoringReference).toBeNull();
-      }
+      expect(getReferencePizza(recipe.id)).not.toBeNull();
+      // getPlayerReferencePizza itself never reads getReferencePizza -- already pinned by this
+      // file's own header comment/imports; re-confirmed here by simply calling it too.
+      expect(getPlayerReferencePizza(recipe)).toBeTruthy();
     }
   });
 });
