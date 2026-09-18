@@ -37,6 +37,7 @@ const MOCK_FUTURE_RECIPE: Recipe = {
     { ingredientId: MOCK_FUTURE_INGREDIENT.id, minCount: 1 },
   ],
   bakeTarget: { start: 0, end: 100 },
+  baseRewardPitz: 100,
 };
 
 describe("ingredientState", () => {

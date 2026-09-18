@@ -14,6 +14,12 @@ export interface Recipe {
   description: string;
   requiredIngredients: readonly RecipeRequirement[];
   bakeTarget: BakeTarget;
+  /** Issue #38 E-P1: static per-recipe base for the Pitz reward formula
+   *  (`recipeBaseReward x qualityMultiplier`, see ../logic/pitzReward.ts). Never persisted --
+   *  authored data on `Recipe` itself, identical in shape to `Ingredient.pricePitz`. V1
+   *  deliberately gives every recipe the same value (no difficulty-based differentiation without
+   *  Human Feel evidence, per Issue #38's own Fresh Audit sec. 2). */
+  baseRewardPitz: number;
 }
 
 /** `as const` on the whole array (not per-id) keeps every id a string literal
@@ -31,6 +37,7 @@ export const RECIPES = [
       { ingredientId: "basil", minCount: 2 },
     ],
     bakeTarget: { start: 60, end: 80 },
+    baseRewardPitz: 100,
   },
   {
     id: "marinara",
@@ -43,6 +50,7 @@ export const RECIPES = [
       { ingredientId: "oregano", minCount: 2 },
     ],
     bakeTarget: { start: 45, end: 65 },
+    baseRewardPitz: 100,
   },
   {
     id: "quattro-formaggi",
@@ -57,6 +65,7 @@ export const RECIPES = [
       { ingredientId: "fontina", minCount: 2 },
     ],
     bakeTarget: { start: 65, end: 85 },
+    baseRewardPitz: 100,
   },
   {
     id: "genovese",
@@ -69,6 +78,7 @@ export const RECIPES = [
       { ingredientId: "cherry-tomato", minCount: 3 },
     ],
     bakeTarget: { start: 50, end: 70 },
+    baseRewardPitz: 100,
   },
   {
     id: "bismarck",
@@ -81,6 +91,7 @@ export const RECIPES = [
       { ingredientId: "egg", minCount: 1 },
     ],
     bakeTarget: { start: 55, end: 75 },
+    baseRewardPitz: 100,
   },
   {
     id: "funghi",
@@ -93,6 +104,7 @@ export const RECIPES = [
       { ingredientId: "mushroom", minCount: 3 },
     ],
     bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
   },
   /**
    * Phase 3C-6's first Recipe #7 (see docs/design/PIZZA_GAME_PROGRESSION_SSOT.md section 12).
@@ -114,6 +126,7 @@ export const RECIPES = [
       { ingredientId: "oregano", minCount: 1 },
     ],
     bakeTarget: { start: 63, end: 83 },
+    baseRewardPitz: 100,
   },
 ] as const;
 
