@@ -1,6 +1,6 @@
 # Teto Pizza Game — Project Handoff / Roadmap SSOT
 
-Updated: 2026-09-17 (Issue #33 Dough D0 Revalidation, post Issue #47 Slice A/B)
+Updated: 2026-09-18 (Issue #33 Dough D1/D2 merged via PR #54; Issue #38 Pitz Reward Fresh Audit)
 
 > Fresh GitHub/main state always wins if this document becomes stale.
 
@@ -25,11 +25,26 @@ Primary device: smartphone vertical. Verification baseline: 390×844.
 - Issue #22 — overall development roadmap / session handoff SSOT.
 - Issue #32 — Reference / Recipe / Interaction consistency gate before Scoring 2.0 authority. **Complete** — Recipe correctness, Interaction Consistency Fresh Audit, and the sauce-parity/olive-oil-visibility fix (PR #45) have all landed.
 - **Issue #47 — Making UX Cleanup (実機レビュー導線・見本・再挑戦・操作性改善). Complete.** Fresh Audit — see `docs/reports/TETO_ISSUE-47_MAKING-UX_Fresh-Audit.md` (audited SHA `6e554918c42fc4d8ed267b715992e5ed5cf68e4f`). Verdict: **B. READY — 3 IMPLEMENTATION SLICES**. Slice A (PR #49, Findings A/B/C/D/E/K) and Slice B (PR #50, Findings F/H) are both **merged**, Human Feel **PASS**. Slice C's own findings: I (sauce repaint vs. one-way flow) confirmed already correct, no code change needed; J (Cheese/Topping drag scope) explicitly handed to **Issue #37 M2** rather than implemented here, per Issue #47's own "don't double-implement" scope guard — this hand-off is not unfinished Issue #47 work, it is Issue #47's own decision.
-- **Issue #33 — Dough Shaping. Current active priority**, now that Issue #47's Human Feel PASS gate is satisfied. D0 Fresh Audit done and **revalidated** against `main` SHA `45fdf1a3ceae305f34dd1a8637b1a306f27dbfd5` (post Issue #47 Slice A/B) — see `docs/reports/TETO_ISSUE-33_DOUGH-D0_Fresh-Audit.md`'s appended "Revalidation" section. Revalidation verdict: **B. PR #46 NEEDS MINOR D0 UPDATE — READY AFTER UPDATE** — the original gesture (drag-from-center-outward radial stretch), shape model (8-point radial array), state design (`PizzaState.doughShape`, no Save schema change) and completion threshold (size-only, ≥75% provisional) all remain valid; only two additive `gameReducer.ts` literal-edit clarifications were added (see report §R.4). **D1 implementation may now proceed.**
-- Issue #37 — parent roadmap for Making Game 2.0 physical pizza-making flow. Its own M0 gate is satisfied (Issue #32 P1 done); M1 (Dough Shaping, #33) is now active per the above. Issue #47 Slice C's Finding J hand-off remains tracked under this issue's M2 checklist.
+- **Issue #33 — Dough Shaping. D1/D2 merged** via **PR #54** (base SHA
+  `2da3949de5bd642c709ca6ba343bc57d8101d03d`). Making flow is now
+  `DOUGH → SAUCE → CHEESE → TOPPING → BAKE`, implemented exactly per the D0 (and revalidated D0)
+  design: single-finger drag-from-center-outward radial stretch, 8-point radial shape model
+  (`PizzaState.doughShape`, no Save schema change), size-only ≥75% completion threshold — see
+  `docs/reports/TETO_ISSUE-33_DOUGH-D1_Result.md`. Status: **D1 functional result — PASS**; a
+  **D2 Human Feel Fix** (neighbor-propagation falloff + spike suppression, replacing D1's
+  two-bracketing-point-only blend) was applied after a ChatGPT review of the D1 playthrough
+  found a sharp single-direction-drag spike. PR #54's own body still requested a further
+  real-iPhone Human Feel review before merge; no confirmed real-device Human Feel PASS for D2
+  is recorded in-repo as of this update — treat D3 (score/visual integration, which Issue #33's
+  own phasing gates on Human Feel passing) as still waiting on that confirmation, not yet clear
+  to start.
+- Issue #37 — parent roadmap for Making Game 2.0 physical pizza-making flow. Its own M0 gate is
+  satisfied (Issue #32 P1 done); M1 (Dough Shaping, #33) D1/D2 are merged per the above. Issue
+  #47 Slice C's Finding J hand-off (Cheese/Topping drag scope) remains tracked under this
+  issue's M2 checklist as the next open item.
 - **Issue #38 — Scoring 2.0-linked Pitz reward / Economy connection.** Fresh Audit done — see
   `docs/reports/TETO_ISSUE-38_PITZ-REWARD_Fresh-Audit.md` (audited SHA
-  `2da3949de5bd642c709ca6ba343bc57d8101d03d`, PR #51). Verdict: **A. READY AFTER SCORING
+  `2da3949de5bd642c709ca6ba343bc57d8101d03d`, PR #52). Verdict: **A. READY AFTER SCORING
   AUTHORITY** — the reward contract (FREE-only per-pizza `recipeBaseReward × qualityMultiplier`,
   exactly-once via an extended `REGISTER_TO_DEX`, no Save v2 dependency) is fully specified,
   but implementation waits on Scoring 2.0 Human Feel calibration + the Phase 4A-3 authority
@@ -45,9 +60,14 @@ Scoring 2.0 Shadow has already been implemented and calibrated. It remains non-a
 - **PR #41** — HOME + Pizza Select visual reproduction. MERGED. Merge SHA: `1b1ff6c69b837ff7f0da6ab3c14df7843812d8c3`.
 - **PR #45** — Issue #32 sauce parity + olive-oil visibility. MERGED.
 - **PR #49** — Issue #47 Slice A (Navigation/Retry/HOME, Findings A/B/C/D/E/K). MERGED.
-- **PR #50** — Issue #47 Slice B (Reference UX, Findings F/H). MERGED. Current `main` SHA as of this Issue #33 D0 revalidation: `45fdf1a3ceae305f34dd1a8637b1a306f27dbfd5`.
+- **PR #50** — Issue #47 Slice B (Reference UX, Findings F/H). MERGED.
+- **PR #51** — Issue #33 Dough D0 revalidation (docs-only). MERGED.
+- **PR #54** — Issue #33 Dough D1/D2 (radial-stretch gesture + Human Feel Fix). MERGED. Current
+  `main` SHA as of this update: `c0b93504f84adbccdc1c75567677d234f832cfb1`.
 
-**Next priority: Issue #33 Dough Shaping D1 implementation** (D0 design revalidated and confirmed ready — see `docs/reports/TETO_ISSUE-33_DOUGH-D0_Fresh-Audit.md`'s Revalidation section, verdict B, minor `gameReducer.ts` literal clarifications only).
+**Next priority: real-iPhone Human Feel confirmation for Issue #33's D2 Dough fix** (not yet
+recorded in-repo — see `docs/reports/TETO_ISSUE-33_DOUGH-D1_Result.md` §14), then either D3
+(score/visual integration) or Issue #37 M2 (Cheese/Topping drag scope hand-off).
 
 ## Navigation contract
 
@@ -150,11 +170,11 @@ Issue #47 is complete; Issue #33 is now the active priority (see below).
 
 ### P2 — Making Game 2.0 — Issues #33 / #37 (ACTIVE — Issue #47 Human Feel PASS gate satisfied)
 
-1. Dough Shaping prototype + iPhone Human Feel. D0 Fresh Audit done and **revalidated** against
-   `main` SHA `45fdf1a3ceae305f34dd1a8637b1a306f27dbfd5` (post Issue #47 Slice A/B) — see
-   `docs/reports/TETO_ISSUE-33_DOUGH-D0_Fresh-Audit.md`'s appended Revalidation section.
-   Revalidation verdict **B** (minor `gameReducer.ts` literal clarifications only; gesture/
-   shape-model/state-design recommendations unchanged). **D1 implementation may now proceed.**
+1. Dough Shaping D1/D2 **merged** via **PR #54** — see `docs/reports/TETO_ISSUE-33_DOUGH-D1_Result.md`.
+   D1 functional result: PASS. D2 Human Feel Fix (neighbor-propagation falloff + spike
+   suppression) applied after a ChatGPT playthrough review; no confirmed real-iPhone Human Feel
+   PASS is recorded in-repo yet. Per Issue #33's own phasing, item 2 below (score/visual
+   integration, i.e. D3) should wait for that confirmation before starting.
 2. Preserve exact dough/sauce/cheese/topping choices into baked visual identity; avoid hidden auto-correction.
 3. Interactive bake judgment.
 4. FINISH step for post-bake basil/finishing oil where recipes require it.
@@ -216,7 +236,7 @@ Currency contract: **Pitz**. Do not introduce ¥/円 as the game currency.
 |---|---|---|
 | 1 | HOME | Issue #39 now |
 | 2 | Pizza Select | Issue #39 now |
-| 3 | Making Game | #32 (done) → #47 (done) → **#33 (current)** → #37 |
+| 3 | Making Game | #32 (done) → #47 (done) → **#33 D1/D2 (merged, PR #54; Human Feel confirmation pending)** → #37 |
 | 4 | RESULT | Scoring 2.0 Authority / Making Game 2.0 |
 | 5 | Pizza Dex | after score/BEST authority stabilizes, before broad recipe expansion |
 | 6 | Lunch Rush | after Making Game 2.0 stabilizes |
@@ -291,4 +311,4 @@ Rules for this sequence:
 5. Keep Scoring 2.0 non-authoritative until the defined gates pass.
 6. Whenever priority, completion status, estimates, architecture, navigation or visual direction changes, update both Issue #22 and this file.
 
-Issue #37 remains the parent roadmap for physical pizza-making UX. Issue #39's HOME/FREE navigation work is complete. Issue #47 (Making UX Cleanup) is complete (Slice A/B merged, Human Feel PASS; Slice C's Finding J handed to Issue #37 M2). **Issue #33 (Dough Shaping) D1 is the current execution issue** — D0 design revalidated and ready, see `docs/reports/TETO_ISSUE-33_DOUGH-D0_Fresh-Audit.md`.
+Issue #37 remains the parent roadmap for physical pizza-making UX. Issue #39's HOME/FREE navigation work is complete. Issue #47 (Making UX Cleanup) is complete (Slice A/B merged, Human Feel PASS; Slice C's Finding J handed to Issue #37 M2). **Issue #33 (Dough Shaping) D1/D2 are merged** (PR #54, see `docs/reports/TETO_ISSUE-33_DOUGH-D1_Result.md`) — a confirmed real-iPhone Human Feel PASS for the D2 fix is not yet recorded in-repo; that confirmation and Issue #37 M2 (Cheese/Topping drag scope) are the next open Making Game 2.0 items. Issue #38 (Pitz Reward) has a completed Fresh Audit — see `docs/reports/TETO_ISSUE-38_PITZ-REWARD_Fresh-Audit.md` — verdict A, ready after Scoring 2.0 authority.
