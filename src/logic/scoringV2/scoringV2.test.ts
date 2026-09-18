@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeScoringV2Shadow, SCORING_V2_RULESET_VERSION } from "./index";
+import { computeScoringV2, SCORING_V2_RULESET_VERSION } from "./index";
 import { scoreBakeComponentV2 } from "./bakeComponent";
 import { scoreSauceComponentV2 } from "./sauceComponent";
 import { scorePieceGroupV2, scorePiecesComponentV2 } from "./piecesComponent";
@@ -636,8 +636,8 @@ describe("scoreRecipeComponentV2 purity (Issue #32 -- extra/wrong ingredient typ
     expect(withExtra.score).toBeLessThan(clean.score);
     expect(withExtra.score).toBeGreaterThan(0);
     // Pieces/Sauce must never react to a Recipe-level extra ingredient -- responsibility guard.
-    const cleanShadow = computeScoringV2Shadow(MARGHERITA, referenceLikePizza());
-    const extraShadow = computeScoringV2Shadow(
+    const cleanShadow = computeScoringV2(MARGHERITA, referenceLikePizza());
+    const extraShadow = computeScoringV2(
       MARGHERITA,
       pizzaWith({
         ...referenceLikePizza(),
@@ -773,13 +773,13 @@ describe("scoreRecipeComponentV2 purity (Issue #32 -- extra/wrong ingredient typ
     // Bismarck now has a Scoring 2.0 Reference fixture too (B2 PART C2) -- a footnote here,
     // not this test's main point (which is that scoreRecipeComponentV2 itself never needed
     // one, Reference or not). An empty pizza still produces a real, available Shadow result.
-    const shadow = computeScoringV2Shadow(bismarck, createEmptyPizza());
+    const shadow = computeScoringV2(bismarck, createEmptyPizza());
     expect(shadow.available).toBe(true);
     expect(shadow.totalScore).toBe(0);
   });
 });
 
-describe("computeScoringV2Shadow (P0-1 Reference availability + P0-2 canonical entry point)", () => {
+describe("computeScoringV2 (P0-1 Reference availability + P0-2 canonical entry point)", () => {
   /** B2 PART C2 (docs/reports/TETO_SCORING2-B2_REFERENCE-COVERAGE_Result.md section 14): all 7
    *  real recipes now have reviewed Reference geometry, so there is no longer a genuinely
    *  unavailable *real* recipe to use as this pin's example. The "no Reference fixture" branch
@@ -788,7 +788,7 @@ describe("computeScoringV2Shadow (P0-1 Reference availability + P0-2 canonical e
    *  `getReferencePizza` was never taught, rather than a real recipe that's now available. */
   it("unavailable Reference (unrecognized recipe id) returns available:false, totalScore:null, and every Reference-dependent component unavailable -- never a fabricated number", () => {
     const noReferenceRecipe = { ...MARGHERITA, id: "no-such-recipe" as typeof MARGHERITA.id };
-    const result = computeScoringV2Shadow(noReferenceRecipe, createEmptyPizza());
+    const result = computeScoringV2(noReferenceRecipe, createEmptyPizza());
     expect(result.available).toBe(false);
     expect(result.totalScore).toBeNull();
     expect(result.unavailableReason).not.toBeNull();
@@ -816,7 +816,7 @@ describe("computeScoringV2Shadow (P0-1 Reference availability + P0-2 canonical e
       "quattro-formaggi",
     ] as const) {
       const recipe = getRecipe(id)!;
-      const result = computeScoringV2Shadow(recipe, referenceLikePizzaForRecipe(id));
+      const result = computeScoringV2(recipe, referenceLikePizzaForRecipe(id));
       expect(result.available).toBe(true);
       expect(result.totalScore).not.toBeNull();
     }
@@ -824,15 +824,15 @@ describe("computeScoringV2Shadow (P0-1 Reference availability + P0-2 canonical e
 
   it("B1: Bake is real for Margherita and folds into totalScore -- ideal bake scores higher than raw/burnt", () => {
     const { start, end } = MARGHERITA.bakeTarget;
-    const idealResult = computeScoringV2Shadow(
+    const idealResult = computeScoringV2(
       MARGHERITA,
       pizzaWith({ ...referenceLikePizza(), bakeResult: (start + end) / 2 }),
     );
-    const rawResult = computeScoringV2Shadow(
+    const rawResult = computeScoringV2(
       MARGHERITA,
       pizzaWith({ ...referenceLikePizza(), bakeResult: start - 20 }),
     );
-    const burntResult = computeScoringV2Shadow(
+    const burntResult = computeScoringV2(
       MARGHERITA,
       pizzaWith({ ...referenceLikePizza(), bakeResult: end + 20 }),
     );
@@ -847,7 +847,7 @@ describe("computeScoringV2Shadow (P0-1 Reference availability + P0-2 canonical e
   });
 
   it("carries the ruleset version so a stored/compared result can't be misread against a different formula", () => {
-    const result = computeScoringV2Shadow(MARGHERITA, referenceLikePizza());
+    const result = computeScoringV2(MARGHERITA, referenceLikePizza());
     expect(result.rulesetVersion).toBe(SCORING_V2_RULESET_VERSION);
   });
 
@@ -863,7 +863,7 @@ describe("computeScoringV2Shadow (P0-1 Reference availability + P0-2 canonical e
         { id: "b0", ingredientId: "basil", x: Number.NaN, y: Number.NaN },
       ],
     };
-    const result = computeScoringV2Shadow(MARGHERITA, pathological);
+    const result = computeScoringV2(MARGHERITA, pathological);
     expect(result.totalScore).not.toBeNull();
     expect(Number.isFinite(result.totalScore as number)).toBe(true);
     if (result.components.sauce.available) expect(Number.isFinite(result.components.sauce.score)).toBe(true);
@@ -877,11 +877,11 @@ describe("computeScoringV2Shadow (P0-1 Reference availability + P0-2 canonical e
   });
 });
 
-describe("Golden ordering (Fresh Audit scoring principle: better physical pizza -> higher Shadow score)", () => {
+describe("Golden ordering (Fresh Audit scoring principle: better physical pizza -> higher score)", () => {
   it("perfect (Reference-exact) > good (slightly imperfect) > poor (concentrated/badly placed) > empty", () => {
-    const perfect = computeScoringV2Shadow(MARGHERITA, referenceLikePizza());
+    const perfect = computeScoringV2(MARGHERITA, referenceLikePizza());
 
-    const good = computeScoringV2Shadow(
+    const good = computeScoringV2(
       MARGHERITA,
       pizzaWith({
         sauceIds: ["tomato-sauce"],
@@ -896,7 +896,7 @@ describe("Golden ordering (Fresh Audit scoring principle: better physical pizza 
       }),
     );
 
-    const poor = computeScoringV2Shadow(
+    const poor = computeScoringV2(
       MARGHERITA,
       pizzaWith({
         sauceIds: ["tomato-sauce"],
@@ -908,7 +908,7 @@ describe("Golden ordering (Fresh Audit scoring principle: better physical pizza 
       }),
     );
 
-    const empty = computeScoringV2Shadow(MARGHERITA, createEmptyPizza());
+    const empty = computeScoringV2(MARGHERITA, createEmptyPizza());
 
     expect(perfect.totalScore).not.toBeNull();
     expect(good.totalScore).not.toBeNull();
@@ -977,12 +977,12 @@ function poorPizzaForRecipe(recipeId: RecipeId): PizzaState {
   });
 }
 
-describe("computeScoringV2Shadow -- B2 newly covered recipes (marinara, funghi, genovese, fugazza, bismarck, quattro-formaggi)", () => {
+describe("computeScoringV2 -- B2 newly covered recipes (marinara, funghi, genovese, fugazza, bismarck, quattro-formaggi)", () => {
   it.each(["marinara", "funghi", "genovese", "fugazza", "bismarck", "quattro-formaggi"] as const)(
     "%s is now available:true with a reviewed Reference",
     (id) => {
       const recipe = getRecipe(id)!;
-      const result = computeScoringV2Shadow(recipe, referenceLikePizzaForRecipe(id));
+      const result = computeScoringV2(recipe, referenceLikePizzaForRecipe(id));
       expect(result.available).toBe(true);
       expect(result.unavailableReason).toBeNull();
       expect(result.totalScore).not.toBeNull();
@@ -1010,10 +1010,10 @@ describe("computeScoringV2Shadow -- B2 newly covered recipes (marinara, funghi, 
     "%s: perfect (Reference-exact) > good > poor > empty",
     (id) => {
       const recipe = getRecipe(id)!;
-      const perfect = computeScoringV2Shadow(recipe, referenceLikePizzaForRecipe(id));
-      const good = computeScoringV2Shadow(recipe, goodPizzaForRecipe(id));
-      const poor = computeScoringV2Shadow(recipe, poorPizzaForRecipe(id));
-      const empty = computeScoringV2Shadow(recipe, createEmptyPizza());
+      const perfect = computeScoringV2(recipe, referenceLikePizzaForRecipe(id));
+      const good = computeScoringV2(recipe, goodPizzaForRecipe(id));
+      const poor = computeScoringV2(recipe, poorPizzaForRecipe(id));
+      const empty = computeScoringV2(recipe, createEmptyPizza());
 
       expect(perfect.totalScore).not.toBeNull();
       expect(good.totalScore).not.toBeNull();
@@ -1037,15 +1037,15 @@ describe("computeScoringV2Shadow -- B2 newly covered recipes (marinara, funghi, 
       const ordered = referenceLikePizzaForRecipe(id);
       const shuffled = { ...ordered, toppings: [...ordered.toppings].reverse() };
 
-      const orderedResult = computeScoringV2Shadow(recipe, ordered);
-      const shuffledResult = computeScoringV2Shadow(recipe, shuffled);
+      const orderedResult = computeScoringV2(recipe, ordered);
+      const shuffledResult = computeScoringV2(recipe, shuffled);
 
       expect(orderedResult.totalScore).toEqual(shuffledResult.totalScore);
     },
   );
 
   it("margherita remains available and unaffected by every later PART's new coverage (no cross-recipe regression)", () => {
-    const result = computeScoringV2Shadow(MARGHERITA, referenceLikePizza());
+    const result = computeScoringV2(MARGHERITA, referenceLikePizza());
     expect(result.available).toBe(true);
     expect(result.totalScore).not.toBeNull();
   });
@@ -1053,7 +1053,7 @@ describe("computeScoringV2Shadow -- B2 newly covered recipes (marinara, funghi, 
   it("marinara and funghi (PART A) remain available and unaffected by genovese/fugazza/bismarck/quattro-formaggi's new coverage (no cross-recipe regression)", () => {
     for (const id of ["marinara", "funghi"] as const) {
       const recipe = getRecipe(id)!;
-      const result = computeScoringV2Shadow(recipe, referenceLikePizzaForRecipe(id));
+      const result = computeScoringV2(recipe, referenceLikePizzaForRecipe(id));
       expect(result.available).toBe(true);
       expect(result.totalScore).not.toBeNull();
     }
@@ -1062,22 +1062,21 @@ describe("computeScoringV2Shadow -- B2 newly covered recipes (marinara, funghi, 
   it("genovese and fugazza (PART C1) remain available and unaffected by bismarck/quattro-formaggi's new coverage (no cross-recipe regression)", () => {
     for (const id of ["genovese", "fugazza"] as const) {
       const recipe = getRecipe(id)!;
-      const result = computeScoringV2Shadow(recipe, referenceLikePizzaForRecipe(id));
+      const result = computeScoringV2(recipe, referenceLikePizzaForRecipe(id));
       expect(result.available).toBe(true);
       expect(result.totalScore).not.toBeNull();
     }
   });
 
-  it("Scoring 2.0 stays non-authoritative for the newly-covered recipes too -- computeScoringV2Shadow has no side effects on state.score/Dex/Mission", () => {
-    // computeScoringV2Shadow is a pure function of (recipe, pizza) with no reducer/state
+  it("computeScoringV2 is a deterministic pure function -- same input, same output, for the newly-covered recipes too", () => {
+    // computeScoringV2 is a pure function of (recipe, pizza) with no reducer/state
     // access at all -- calling it twice with the same input is deterministic and produces no
-    // observable effect beyond its return value, which is exactly the Shadow-only contract
-    // this whole module (see its own file header) is built on. Explicitly re-pinned here for
-    // the two newly-covered recipes since PART A is the first time they can produce a
-    // non-null totalScore, i.e. the first time this contract is actually exercised for them.
+    // observable effect beyond its return value. Explicitly re-pinned here for the two
+    // newly-covered recipes since PART A is the first time they can produce a non-null
+    // totalScore, i.e. the first time this contract is actually exercised for them.
     const marinara = getRecipe("marinara")!;
-    const first = computeScoringV2Shadow(marinara, referenceLikePizzaForRecipe("marinara"));
-    const second = computeScoringV2Shadow(marinara, referenceLikePizzaForRecipe("marinara"));
+    const first = computeScoringV2(marinara, referenceLikePizzaForRecipe("marinara"));
+    const second = computeScoringV2(marinara, referenceLikePizzaForRecipe("marinara"));
     expect(first).toEqual(second);
   });
 });

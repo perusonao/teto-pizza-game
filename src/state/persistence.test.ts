@@ -742,7 +742,7 @@ describe("Mission BEST (Phase 3C-4)", () => {
 /**
  * Phase 4A-2 Scoring 2.0 Shadow scope guard: `PersistentSaveV1`'s shape (schemaVersion, dex,
  * pitzBalance, ownedIngredientIds, missionBest) is completely untouched by this phase --
- * `GameState.scoringV2Shadow` (src/state/gameReducer.ts) is additive/transient runtime state
+ * `GameState.scoringV2Result` (src/state/gameReducer.ts) is additive/transient runtime state
  * only, and `GameState` itself was never serialized here even before this phase (see this
  * file's own top comment). These tests pin that "additive" claim rather than just asserting
  * it in a comment.
@@ -766,7 +766,7 @@ describe("Save schema unaffected by Scoring 2.0 Shadow (Phase 4A-2 scope guard)"
     expect(raw).not.toMatch(/shadow/i);
   });
 
-  it("loadSave round-trips the exact same schema regardless of what scoringV2Shadow the round in progress currently holds (GameState is never serialized)", () => {
+  it("loadSave round-trips the exact same schema regardless of what scoringV2Result the round in progress currently holds (GameState is never serialized)", () => {
     const storage = fakeStorage({ [SAVE_STORAGE_KEY]: JSON.stringify(createDefaultSave()) });
     const loaded = loadSave(storage);
     expect(Object.keys(loaded).sort()).toEqual(Object.keys(createDefaultSave()).sort());

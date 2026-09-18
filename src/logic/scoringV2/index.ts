@@ -1,8 +1,9 @@
 /**
- * Phase 4A-2: Scoring 2.0 Shadow -- the single entry point (`computeScoringV2Shadow`) every
- * caller uses. SHADOW ONLY: see ./types.ts's file header for the full non-negotiable list of
- * what this must never touch (legacy `ScoreBreakdown`, Dex BEST/★, Mission scoring, Pitz,
- * save schema).
+ * Phase 4A-2 / A1: Scoring 2.0 -- the single entry point (`computeScoringV2`) every caller
+ * uses. Authoritative for `state.score`/RESULT/Dex BEST/Mission/progression (see
+ * `toLegacyScoreBreakdown`, exported below, which is how CONFIRM_BAKE derives the legacy
+ * `ScoreBreakdown` shape from this function's result) -- see ./types.ts's file header for the
+ * full detail.
  *
  * P0-2 (Canonical bake-time computation): the one caller of this function is
  * src/state/gameReducer.ts's CONFIRM_BAKE case, which calls it with the exact `PizzaState`
@@ -49,7 +50,7 @@ const PIECES_WEIGHT = 16;
 const RECIPE_WEIGHT = 12;
 const BAKE_WEIGHT = 20;
 
-export function computeScoringV2Shadow(recipe: Recipe, pizza: PizzaState): ScoringV2Result {
+export function computeScoringV2(recipe: Recipe, pizza: PizzaState): ScoringV2Result {
   // Codex P1 blocker fix: `pizza` itself (not just its fields) is a public-API argument that
   // can violate its own TypeScript type at runtime -- a `null`/`undefined`/non-object value
   // here would throw on the very first `pizza.sauceDeposits` read below. Falls back to a

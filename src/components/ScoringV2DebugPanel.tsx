@@ -5,7 +5,7 @@ import type {
   ScoringV2Unavailable,
 } from "../logic/scoringV2";
 
-interface ScoringV2ShadowPanelProps {
+interface ScoringV2DebugPanelProps {
   result: ScoringV2Result | null;
 }
 
@@ -49,25 +49,25 @@ function PieceGroupRow({ group }: { group: PieceGroupScoreV2 }) {
 }
 
 /**
- * Phase 4A-2: compact developer/calibration debug panel for Scoring 2.0 Shadow
- * (src/logic/scoringV2/). STRICTLY preview/dev-only -- `import.meta.env.VITE_PREVIEW_MODE` is
- * the project's existing Preview/Production SSOT (see PreviewBadge.tsx, SauceMetricsPanel.tsx,
+ * Phase 4A-2 / A1: compact developer/calibration debug panel for Scoring 2.0's authoritative
+ * result (src/logic/scoringV2/). STRICTLY preview/dev-only -- `import.meta.env.VITE_PREVIEW_MODE`
+ * is the project's existing Preview/Production SSOT (see PreviewBadge.tsx, SauceMetricsPanel.tsx,
  * persistence.ts's SAVE_STORAGE_KEY), statically `false` in a production `vite build` so Vite
  * dead-code-eliminates this whole component's rendered output from what ships (pinned by
  * scoringV2.test.ts's production-build assertion).
  *
- * This is a calibration tool, not final player UI -- it intentionally exposes raw component
- * numbers RESULT never will. It never renders anything that could be mistaken for the
- * player's actual score: no ★, no "Total" without the word "Shadow" beside it.
+ * This is a calibration/debug tool, not final player UI -- it intentionally exposes raw
+ * component numbers RESULT never will. It never renders anything that could be mistaken for
+ * the player's actual score: no ★, no "Total" without the word "Debug" beside it.
  */
-export function ScoringV2ShadowPanel({ result }: ScoringV2ShadowPanelProps) {
+export function ScoringV2DebugPanel({ result }: ScoringV2DebugPanelProps) {
   if (!import.meta.env.VITE_PREVIEW_MODE) return null;
   if (!result) return null;
 
   return (
     <div className="scoring-v2-panel">
       <p className="scoring-v2-panel__heading">
-        {"\u{1F9EA}"} Scoring 2.0 Shadow（開発用・{result.rulesetVersion}）
+        {"\u{1F9EA}"} Scoring 2.0 Debug（開発用・{result.rulesetVersion}）
       </p>
 
       {!result.available && (

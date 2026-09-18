@@ -7,7 +7,7 @@ interface ResultPanelProps {
   /** A1 Authority Cutover: Scoring 2.0's Sauce component score (0-100), Scoring 2.0's single
    *  heaviest component (52/100) and the one dimension `ScoreBreakdown` itself has no field
    *  for (see ../logic/scoringV2/toLegacyScoreBreakdown.ts's file header). Read straight from
-   *  `state.scoringV2Shadow.components.sauce` at the call site rather than folded into any of
+   *  `state.scoringV2Result.components.sauce` at the call site rather than folded into any of
    *  `score`'s four legacy fields, so it is never silently discarded from player-facing
    *  feedback. `null` only when Scoring 2.0 itself came back unavailable (should not happen
    *  for any of the 7 shipped recipes -- see the adapter's own fallback contract) -- the row is

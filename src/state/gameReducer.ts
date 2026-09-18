@@ -5,7 +5,7 @@ import { getIngredient, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import type { DialogueLine } from "../data/dialogue";
 import type { ScoreBreakdown } from "../logic/scoring";
 import { classifyBake, type BakeState } from "../logic/bake";
-import { computeScoringV2Shadow, toLegacyScoreBreakdown, type ScoringV2Result } from "../logic/scoringV2";
+import { computeScoringV2, toLegacyScoreBreakdown, type ScoringV2Result } from "../logic/scoringV2";
 import { totalStars } from "../logic/mastery";
 import { purchaseIngredient } from "../logic/economy";
 import { discoveredRecipeIds, registerScoreToDex, EMPTY_DEX, type DexState } from "./dex";
@@ -56,16 +56,16 @@ export interface GameState {
   makingStepToken: number;
   score: ScoreBreakdown | null;
   bakeState: BakeState | null;
-  /** Phase 4A-2 Scoring 2.0 Shadow (src/logic/scoringV2/). Computed once, at CONFIRM_BAKE,
-   *  from the exact canonical pizza that was just baked -- never App.tsx's UI-only live-
-   *  preview useMemo (see ../logic/scoringV2/index.ts's own file header). Additive/transient
-   *  only: never persisted (src/state/persistence.ts never serializes GameState at all), and
-   *  never read by anything that feeds `score`/`bakeState`/Dex/Mission/Pitz/progression --
-   *  see ../logic/scoringV2/types.ts's file header for the full non-negotiable boundary. Null
-   *  until the first CONFIRM_BAKE of a round, and reset to null for every fresh round
-   *  (`buildOrderState` below) so a stale previous round's Shadow result can never leak into
-   *  a new one's PREPARE/BAKE phases. */
-  scoringV2Shadow: ScoringV2Result | null;
+  /** Phase 4A-2 / A1: Scoring 2.0's own result (src/logic/scoringV2/), computed once at
+   *  CONFIRM_BAKE from the exact canonical pizza that was just baked -- never App.tsx's
+   *  UI-only live-preview useMemo (see ../logic/scoringV2/index.ts's own file header). This IS
+   *  what `score` above is derived from that same CONFIRM_BAKE case, via
+   *  `toLegacyScoreBreakdown` -- i.e. it feeds `score`/Dex/Mission/progression, it is not a
+   *  side channel. Additive/transient only: never persisted (src/state/persistence.ts never
+   *  serializes GameState at all). Null until the first CONFIRM_BAKE of a round, and reset to
+   *  null for every fresh round (`buildOrderState` below) so a stale previous round's result
+   *  can never leak into a new one's PREPARE/BAKE phases. */
+  scoringV2Result: ScoringV2Result | null;
   dex: DexState;
   /** Canonical OWNED ingredient ids (Phase 3C-3+). Always a superset of the Starter Set.
    *  Mutated by PURCHASE_INGREDIENT (Phase 3C-5); every other action carries it through
@@ -194,7 +194,7 @@ function buildOrderState(order: Order, carry: ProgressionCarry, isMissionRound: 
     makingStepToken: 0,
     score: null,
     bakeState: null,
-    scoringV2Shadow: null,
+    scoringV2Result: null,
     ...carry,
     isMissionRound,
     justDiscovered: false,
@@ -485,9 +485,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // formula-agnostically (see ../logic/scoringV2/toLegacyScoreBreakdown.ts). Legacy
       // `scorePizza` (../logic/scoring.ts) is kept callable elsewhere (Option A, not deleted at
       // A1) but is no longer read for `state.score` -- the two never hold authority at once.
-      const scoringV2Shadow = computeScoringV2Shadow(state.recipe, pizza);
-      const score = toLegacyScoreBreakdown(scoringV2Shadow, action.value, state.recipe.bakeTarget);
-      return { ...state, pizza, score, bakeState, scoringV2Shadow, phase: "RESULT" };
+      const scoringV2Result = computeScoringV2(state.recipe, pizza);
+      const score = toLegacyScoreBreakdown(scoringV2Result, action.value, state.recipe.bakeTarget);
+      return { ...state, pizza, score, bakeState, scoringV2Result, phase: "RESULT" };
     }
 
     case "REGISTER_TO_DEX": {

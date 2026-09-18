@@ -1,5 +1,5 @@
 /**
- * Phase 4A-2: Scoring 2.0 Shadow Recipe correctness component -- required ingredient *type*
+ * Phase 4A-2: Scoring 2.0 Recipe correctness component -- required ingredient *type*
  * presence, reusing ../scoring.ts's `countUsedIngredient` primitive wholesale, plus (Issue #32)
  * a purity check for ingredient types the recipe never asked for at all.
  *

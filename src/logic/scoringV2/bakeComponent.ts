@@ -1,5 +1,5 @@
 /**
- * B1: Scoring 2.0 Shadow Bake similarity component -- see the Fresh Audit
+ * B1: Scoring 2.0 Bake similarity component -- see the Fresh Audit
  * (docs/reports/TETO_SCORING2_AUTHORITY_Fresh-Audit.md section 9, "B1 -- Bake similarity
  * component for Scoring 2.0") for why this was the last missing invariant before Scoring 2.0
  * Authority could even be considered.

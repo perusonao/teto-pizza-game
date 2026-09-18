@@ -12,7 +12,7 @@ import { ReferencePreview } from "../components/ReferencePreview";
 import { PlayerReferencePreview } from "../components/PlayerReferencePreview";
 import { PizzaThumbnail } from "../components/PizzaThumbnail";
 import { SauceMetricsPanel } from "../components/SauceMetricsPanel";
-import { ScoringV2ShadowPanel } from "../components/ScoringV2ShadowPanel";
+import { ScoringV2DebugPanel } from "../components/ScoringV2DebugPanel";
 import type { ReferencePizza } from "../data/referencePizza";
 import { getPlayerReferencePizza } from "../data/playerReference";
 import type { SauceMetrics } from "../logic/sauceField";
@@ -439,19 +439,19 @@ export function GameScreen({
           score={state.score}
           bakeState={state.bakeState}
           sauceScore={
-            state.scoringV2Shadow?.components.sauce.available
-              ? state.scoringV2Shadow.components.sauce.score
+            state.scoringV2Result?.components.sauce.available
+              ? state.scoringV2Result.components.sauce.score
               : null
           }
           onRegister={onRegisterToDex}
         />
       )}
 
-      {/* Phase 4A-2: Scoring 2.0 Shadow debug panel -- shown for both FREE and Lunch Rush
-          RESULT (unlike ResultPanel/MissionServePanel above, this is not gated on
-          isMissionActive), and internally gated on VITE_PREVIEW_MODE so production never
-          renders it (see ScoringV2ShadowPanel.tsx's own file header). */}
-      {state.phase === "RESULT" && <ScoringV2ShadowPanel result={state.scoringV2Shadow} />}
+      {/* Phase 4A-2 / A1: Scoring 2.0 debug panel (Preview-only internal breakdown) -- shown
+          for both FREE and Lunch Rush RESULT (unlike ResultPanel/MissionServePanel above, this
+          is not gated on isMissionActive), and internally gated on VITE_PREVIEW_MODE so
+          production never renders it (see ScoringV2DebugPanel.tsx's own file header). */}
+      {state.phase === "RESULT" && <ScoringV2DebugPanel result={state.scoringV2Result} />}
 
       {state.phase === "DISCOVERED" && (
         <div className="action-row action-row--column">

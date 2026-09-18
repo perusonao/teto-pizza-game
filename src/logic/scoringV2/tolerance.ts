@@ -3,7 +3,7 @@
  * full-credit/zero-credit tolerance band goes through `safeToleranceSimilarity` below instead
  * of calling ../referenceMatching.ts's `distanceSimilarity` directly, so an invalid band
  * (zero <= full, a negative radius, a non-finite value) can never propagate NaN/Infinity into
- * a Shadow score -- it fails closed to 0 (finite, deterministic, "no credit") instead.
+ * a score -- it fails closed to 0 (finite, deterministic, "no credit") instead.
  *
  * Reuses `distanceSimilarity`'s own reviewed smoothstep-interpolation shape (Phase 4A-1B) --
  * this file only adds the validation `distanceSimilarity` itself doesn't do, it does not

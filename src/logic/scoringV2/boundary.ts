@@ -9,8 +9,8 @@
  * function in this module is independently exported/public, and the Scoring 2.0 contract
  * ("fail-closed, never throw, never NaN/Infinity") must hold even when called directly with
  * data that violates its own TypeScript types at runtime -- a thrown error inside
- * `computeScoringV2Shadow` would propagate out of gameReducer.ts's CONFIRM_BAKE case and crash
- * the whole round, not just the Shadow number (see scoringV2.test.ts's "malformed input"
+ * `computeScoringV2` would propagate out of gameReducer.ts's CONFIRM_BAKE case and crash
+ * the whole round, not just the score (see scoringV2.test.ts's "malformed input"
  * describe block for the exact adversarial cases this defends against).
  *
  * Every helper below treats its argument as `unknown` and normalizes rather than trusts:

@@ -586,7 +586,7 @@ describe("Mission order actions (Phase 3C-4)", () => {
  * See ../logic/scoringV2/scoringV2.test.ts for the scoring module's own unit tests (tolerance
  * validation, component formulas, golden ordering) and ./gameReducer.scoringV2Authority.test.ts
  * for the full 7-recipe authority regression matrix -- these tests are specifically about when
- * and from what `scoringV2Shadow` itself is computed, and (post-A1) that `state.score` really
+ * and from what `scoringV2Result` itself is computed, and (post-A1) that `state.score` really
  * is derived from it, not independently.
  */
 describe("Phase 4A-2 Scoring 2.0 / A1 Authority Cutover (gameReducer integration)", () => {
@@ -595,8 +595,9 @@ describe("Phase 4A-2 Scoring 2.0 / A1 Authority Cutover (gameReducer integration
   /** PREPARE -> BAKE -> RESULT for Margherita, committing a Reference-like sauce dispense
    *  (not the legacy one-shot APPLY_SAUCE `playToResult` above uses, which never populates
    *  `sauceDeposits` -- COMMIT_SAUCE_DISPENSE is the real PAINT-profile path PizzaStage.tsx
-   *  actually dispatches) and Reference-exact piece placements, so the resulting Shadow score
-   *  is meaningfully high rather than the near-zero an empty sauceDeposits log would produce. */
+   *  actually dispatches) and Reference-exact piece placements, so the resulting Scoring 2.0
+   *  score is meaningfully high rather than the near-zero an empty sauceDeposits log would
+   *  produce. */
   function playMargheritaToResultWithShadowSauce(bakeValue: number): GameState {
     let state = createInitialGameState(); // preferFirst -> margherita
     state = gameReducer(state, { type: "BEGIN_PREPARE" });
@@ -618,32 +619,32 @@ describe("Phase 4A-2 Scoring 2.0 / A1 Authority Cutover (gameReducer integration
     return gameReducer(state, { type: "CONFIRM_BAKE", value: bakeValue });
   }
 
-  it("scoringV2Shadow is null before the first CONFIRM_BAKE of a round (ORDER/PREPARE/BAKE)", () => {
+  it("scoringV2Result is null before the first CONFIRM_BAKE of a round (ORDER/PREPARE/BAKE)", () => {
     let state = createInitialGameState();
-    expect(state.scoringV2Shadow).toBeNull();
+    expect(state.scoringV2Result).toBeNull();
     state = gameReducer(state, { type: "BEGIN_PREPARE" });
-    expect(state.scoringV2Shadow).toBeNull();
+    expect(state.scoringV2Result).toBeNull();
     state = gameReducer(state, { type: "START_BAKE" });
-    expect(state.scoringV2Shadow).toBeNull();
+    expect(state.scoringV2Result).toBeNull();
   });
 
-  it("FREE: CONFIRM_BAKE computes an available Scoring 2.0 Shadow result from the canonical, just-committed sauce/pieces (P0-2)", () => {
+  it("FREE: CONFIRM_BAKE computes an available Scoring 2.0 result from the canonical, just-committed sauce/pieces (P0-2)", () => {
     const state = playMargheritaToResultWithShadowSauce(70);
     expect(state.phase).toBe("RESULT");
-    expect(state.scoringV2Shadow).not.toBeNull();
-    expect(state.scoringV2Shadow?.available).toBe(true);
-    expect(state.scoringV2Shadow?.totalScore).not.toBeNull();
-    expect(state.scoringV2Shadow?.totalScore as number).toBeGreaterThan(90);
+    expect(state.scoringV2Result).not.toBeNull();
+    expect(state.scoringV2Result?.available).toBe(true);
+    expect(state.scoringV2Result?.totalScore).not.toBeNull();
+    expect(state.scoringV2Result?.totalScore as number).toBeGreaterThan(90);
   });
 
-  it("scoringV2Shadow resets to null for a fresh round (PLAY_AGAIN) -- a stale previous round's Shadow can never leak into the next one", () => {
+  it("scoringV2Result resets to null for a fresh round (PLAY_AGAIN) -- a stale previous round's result can never leak into the next one", () => {
     const resultState = playMargheritaToResultWithShadowSauce(70);
-    expect(resultState.scoringV2Shadow).not.toBeNull();
+    expect(resultState.scoringV2Result).not.toBeNull();
     const fresh = gameReducer(resultState, { type: "PLAY_AGAIN" });
-    expect(fresh.scoringV2Shadow).toBeNull();
+    expect(fresh.scoringV2Result).toBeNull();
   });
 
-  it("Lunch Rush: CONFIRM_BAKE computes the Shadow result from that exact mission pizza's canonical bake state (P0-2, same reducer path as FREE)", () => {
+  it("Lunch Rush: CONFIRM_BAKE computes the Scoring 2.0 result from that exact mission pizza's canonical bake state (P0-2, same reducer path as FREE)", () => {
     const marginallyOwned = ["tomato-sauce", "mozzarella", "basil"]; // margherita is the only available recipe
     let state = createInitialGameState(EMPTY_DEX, marginallyOwned);
     state = gameReducer(state, { type: "MISSION_RESET_ORDER" });
@@ -670,9 +671,9 @@ describe("Phase 4A-2 Scoring 2.0 / A1 Authority Cutover (gameReducer integration
 
     expect(state.phase).toBe("RESULT");
     expect(state.isMissionRound).toBe(true);
-    expect(state.scoringV2Shadow).not.toBeNull();
-    expect(state.scoringV2Shadow?.available).toBe(true);
-    expect(state.scoringV2Shadow?.totalScore as number).toBeGreaterThan(90);
+    expect(state.scoringV2Result).not.toBeNull();
+    expect(state.scoringV2Result?.available).toBe(true);
+    expect(state.scoringV2Result?.totalScore as number).toBeGreaterThan(90);
   });
 
   it("A1: authoritative score/stars are exactly what Scoring 2.0 computes -- legacy scorePizza no longer feeds state.score", () => {
@@ -682,10 +683,10 @@ describe("Phase 4A-2 Scoring 2.0 / A1 Authority Cutover (gameReducer integration
     // state.score -- the two authorities never coexist, so their outputs must differ here
     // (legacy ignores sauceDeposits entirely; Scoring 2.0's Sauce is 52/100 of the total).
     expect(state.score).not.toEqual(legacyOnly);
-    expect(state.score?.total).toBe(state.scoringV2Shadow?.totalScore);
+    expect(state.score?.total).toBe(state.scoringV2Result?.totalScore);
   });
 
-  it("A1: Dex BEST/timesMade registration is driven by state.score, which now *is* scoringV2Shadow.totalScore", () => {
+  it("A1: Dex BEST/timesMade registration is driven by state.score, which now *is* scoringV2Result.totalScore", () => {
     const state = playMargheritaToResultWithShadowSauce(70);
     const after = gameReducer(state, { type: "REGISTER_TO_DEX" });
     const entry = after.dex.find((e) => e.recipeId === "margherita");
@@ -694,13 +695,13 @@ describe("Phase 4A-2 Scoring 2.0 / A1 Authority Cutover (gameReducer integration
     // Post-cutover, state.score.total IS Scoring 2.0's own total (via the adapter) -- this is
     // the authority boundary this cutover exists to flip, re-asserted here rather than just in
     // ./gameReducer.scoringV2Authority.test.ts's own dedicated suite.
-    expect(entry?.bestScore).toBe(state.scoringV2Shadow?.totalScore);
+    expect(entry?.bestScore).toBe(state.scoringV2Result?.totalScore);
   });
 
-  it("A1: Mission serve/reward metrics are driven by state.score.total, which now *is* scoringV2Shadow.totalScore", () => {
+  it("A1: Mission serve/reward metrics are driven by state.score.total, which now *is* scoringV2Result.totalScore", () => {
     const state = playMargheritaToResultWithShadowSauce(70);
     const metrics = recordServe(EMPTY_MISSION_METRICS, state.score!.total);
     expect(metrics.totalQualityScore).toBe(state.score!.total);
-    expect(metrics.totalQualityScore).toBe(state.scoringV2Shadow?.totalScore);
+    expect(metrics.totalQualityScore).toBe(state.scoringV2Result?.totalScore);
   });
 });

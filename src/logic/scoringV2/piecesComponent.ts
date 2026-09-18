@@ -1,5 +1,5 @@
 /**
- * Phase 4A-2: Scoring 2.0 Shadow Pieces component -- mozzarella/basil placement, reusing
+ * Phase 4A-2: Scoring 2.0 Pieces component -- mozzarella/basil placement, reusing
  * ../referenceMatching.ts's `scorePieceGroup` (Hungarian-assignment, permutation-invariant
  * matching against the Reference's own positions) wholesale rather than re-deriving an
  * equivalent placement algorithm.
@@ -22,7 +22,7 @@ import type { PieceGroupScoreV2, PiecesComponentV2, ScoringV2Unavailable } from 
  *  raw count: getting *close to* three well-placed mozzarella pieces should read as a much
  *  better pizza than dropping three anywhere at all, matching the SSOT's "recreate it
  *  physically" goal over a pure ingredient-counting one (the count-only side of that is
- *  already ../scoring.ts's `matchScore`, which this Shadow component is deliberately not a
+ *  already ../scoring.ts's `matchScore`, which this component is deliberately not a
  *  duplicate of). */
 const QUANTITY_WEIGHT = 30;
 const PLACEMENT_WEIGHT = 70;

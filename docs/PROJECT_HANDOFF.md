@@ -1,8 +1,13 @@
 # Teto Pizza Game — Project Handoff / Roadmap SSOT
 
-Updated: 2026-09-18 (**Scoring 2.0 A1 Authority Cutover MERGED** — PR #60, merge commit
-`12666faf55ed1e479d51572f6a8e3fcfc744cf31` on `main`, Human Review (A2) **PASS**; `state.score`
-is now Scoring 2.0-derived for all 7 recipes/FREE/Lunch Rush, see
+Updated: 2026-09-18 (**Scoring 2.0 A3a Safe Rename/Cleanup implementation done**, PR pending
+review — see `docs/reports/TETO_SCORING2-A3A_SAFE-RENAME_Result.md`;
+`computeScoringV2Shadow`→`computeScoringV2`, `ScoringV2ShadowPanel`→`ScoringV2DebugPanel`,
+`GameState.scoringV2Shadow`→`scoringV2Result`, plus stale "SHADOW ONLY" file-header/test-title
+comment fixes -- no deletions, no behavior change, 1089/1089 tests pass. **A3b (delete legacy
+`scorePizza`/`scorePlacement`) not yet started.** **Scoring 2.0 A1 Authority Cutover MERGED** —
+PR #60, merge commit `12666faf55ed1e479d51572f6a8e3fcfc744cf31` on `main`, Human Review (A2)
+**PASS**; `state.score` is now Scoring 2.0-derived for all 7 recipes/FREE/Lunch Rush, see
 `docs/reports/TETO_SCORING2-A1_AUTHORITY_Result.md`; **A3 Legacy Cleanup Fresh Audit done**, see
 `docs/reports/TETO_SCORING2-A3_LEGACY-CLEANUP_PreImplementation-Audit.md`; Scoring 2.0 B1 Bake
 component MERGED via PR #58; B2 Reference coverage COMPLETE 7/7 via PR #57; Issue #33 Dough D1/D2
@@ -92,15 +97,23 @@ READY WITH MINOR DESIGN DECISION** — see
 decision (§2, Option 1: give `ResultPanel` a 4th "ソース" feedback row rather than discard or fake
 Sauce) has been decided and implemented as part of A1. `gameReducer.ts`'s `CONFIRM_BAKE` now
 computes `state.score` via a new pure adapter, `toLegacyScoreBreakdown` (`src/logic/scoringV2/
-toLegacyScoreBreakdown.ts`), from `computeScoringV2Shadow`'s result — Scoring 2.0 is authoritative
-for `total`/`stars`/RESULT/Dex BEST/progression/FREE/Lunch Rush, for all 7 recipes. Legacy
+toLegacyScoreBreakdown.ts`), from `computeScoringV2Shadow`'s result (renamed to
+`computeScoringV2` by A3a, see below) — Scoring 2.0 is authoritative for
+`total`/`stars`/RESULT/Dex BEST/progression/FREE/Lunch Rush, for all 7 recipes. Legacy
 `scorePizza` (`src/logic/scoring.ts`) is kept callable (Option A, not deleted) but no longer feeds
 `state.score` — the two authorities never coexist (confirmed with zero production call sites of
 `scorePizza(` remaining, by the A3 Fresh Audit's exhaustive grep). `ScoringV2ShadowPanel`
-(Preview-only debug panel) is left untouched, per the audit's §4/F recommendation. **A2 Human
-Review: PASS — PR #60 merged into `main`.** No Save migration was needed or made. **Next: A3
-Legacy Cleanup** — see `docs/reports/TETO_SCORING2-A3_LEGACY-CLEANUP_PreImplementation-Audit.md`
-(verdict: **C. SPLIT A3** into A3a safe cleanup/rename and A3b deeper legacy retirement).
+(Preview-only debug panel, renamed to `ScoringV2DebugPanel` by A3a) is left untouched
+functionally, per the audit's §4/F recommendation. **A2 Human
+Review: PASS — PR #60 merged into `main`.** No Save migration was needed or made. **A3 Legacy
+Cleanup Fresh Audit** — see `docs/reports/TETO_SCORING2-A3_LEGACY-CLEANUP_PreImplementation-Audit.md`
+(verdict: **C. SPLIT A3** into A3a safe cleanup/rename and A3b deeper legacy retirement). **A3a
+implementation done, PR pending review** — see
+`docs/reports/TETO_SCORING2-A3A_SAFE-RENAME_Result.md`: `computeScoringV2Shadow`→
+`computeScoringV2`, `ScoringV2ShadowPanel`→`ScoringV2DebugPanel`,
+`GameState.scoringV2Shadow`→`scoringV2Result`, plus stale "SHADOW ONLY" file-header/test-title
+comment fixes; no deletions, no behavior change, 1089/1089 tests pass. **Next: A3b** (delete
+legacy `scorePizza`/`scorePlacement` and their ~13-test dependent surface) — not yet started.
 
 ### Recent merges
 
@@ -421,8 +434,10 @@ Rules for this sequence:
 5. Scoring 2.0 is now authoritative (A1 implemented and merged via PR #60; A2 Human Review
    PASSED) — do not re-open the Shadow-only question without a specific regression to justify
    it. A3 Legacy Cleanup Fresh Audit is done (see
-   `docs/reports/TETO_SCORING2-A3_LEGACY-CLEANUP_PreImplementation-Audit.md`); A3 implementation
-   itself has not started.
+   `docs/reports/TETO_SCORING2-A3_LEGACY-CLEANUP_PreImplementation-Audit.md`); **A3a (safe
+   rename/cleanup) implementation is done, PR pending review** — see
+   `docs/reports/TETO_SCORING2-A3A_SAFE-RENAME_Result.md`. **A3b (delete legacy
+   `scorePizza`/`scorePlacement`) has not started.**
 6. Whenever priority, completion status, estimates, architecture, navigation or visual direction changes, update both Issue #22 and this file.
 
-Issue #37 remains the parent roadmap for physical pizza-making UX. Issue #39's HOME/FREE navigation work is complete. Issue #47 (Making UX Cleanup) is complete (Slice A/B merged, Human Feel PASS; Slice C's Finding J handed to Issue #37 M2). **Issue #33 (Dough Shaping) D1/D2 are COMPLETE, Human Feel PASS** (PR #54, merge SHA `c0b93504f84adbccdc1c75567677d234f832cfb1`, see `docs/reports/TETO_ISSUE-33_DOUGH-D1_Result.md`) — ChatGPT's review of the D2 Review Playthrough MP4 returned PASS and PR #54 was merged after that. Issue #33 D3 (score/visual integration) and Issue #37 M2 (Cheese/Topping drag scope) are the next open Making Game 2.0 items, neither gated on further Dough Human Feel work. **Scoring 2.0 A1 Authority Cutover is MERGED** (PR #60, merge commit `12666faf55ed1e479d51572f6a8e3fcfc744cf31`, A2 Human Review PASSED) — see `docs/reports/TETO_SCORING2-A1_AUTHORITY_Result.md`; **A3 Legacy Cleanup Fresh Audit is done** — see `docs/reports/TETO_SCORING2-A3_LEGACY-CLEANUP_PreImplementation-Audit.md` (verdict: SPLIT A3 into A3a/A3b) — A3 implementation itself has not started. Issue #38 (Pitz Reward) has a completed Fresh Audit — see `docs/reports/TETO_ISSUE-38_PITZ-REWARD_Fresh-Audit.md` — verdict A, ready now that Scoring 2.0 authority (A1) is implemented, pending A2's own Human Review.
+Issue #37 remains the parent roadmap for physical pizza-making UX. Issue #39's HOME/FREE navigation work is complete. Issue #47 (Making UX Cleanup) is complete (Slice A/B merged, Human Feel PASS; Slice C's Finding J handed to Issue #37 M2). **Issue #33 (Dough Shaping) D1/D2 are COMPLETE, Human Feel PASS** (PR #54, merge SHA `c0b93504f84adbccdc1c75567677d234f832cfb1`, see `docs/reports/TETO_ISSUE-33_DOUGH-D1_Result.md`) — ChatGPT's review of the D2 Review Playthrough MP4 returned PASS and PR #54 was merged after that. Issue #33 D3 (score/visual integration) and Issue #37 M2 (Cheese/Topping drag scope) are the next open Making Game 2.0 items, neither gated on further Dough Human Feel work. **Scoring 2.0 A1 Authority Cutover is MERGED** (PR #60, merge commit `12666faf55ed1e479d51572f6a8e3fcfc744cf31`, A2 Human Review PASSED) — see `docs/reports/TETO_SCORING2-A1_AUTHORITY_Result.md`; **A3 Legacy Cleanup Fresh Audit is done** — see `docs/reports/TETO_SCORING2-A3_LEGACY-CLEANUP_PreImplementation-Audit.md` (verdict: SPLIT A3 into A3a/A3b) — **A3a (safe rename/cleanup) is implemented, PR pending review** (see `docs/reports/TETO_SCORING2-A3A_SAFE-RENAME_Result.md`); **A3b (delete legacy scorePizza/scorePlacement) has not started.** Issue #38 (Pitz Reward) has a completed Fresh Audit — see `docs/reports/TETO_ISSUE-38_PITZ-REWARD_Fresh-Audit.md` — verdict A, ready now that Scoring 2.0 authority (A1) is implemented, pending A2's own Human Review.
