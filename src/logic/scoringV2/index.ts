@@ -170,3 +170,5 @@ export type {
   BakeComponentV2,
   BakeComponentV2Available,
 } from "./types";
+
+export { toLegacyScoreBreakdown } from "./toLegacyScoreBreakdown";
