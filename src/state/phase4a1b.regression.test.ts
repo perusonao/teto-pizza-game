@@ -35,9 +35,12 @@ describe("Regression: Phase 4A-1B remains shadow-only", () => {
     expect(scorePizza(recipe, pizza)).toEqual(legacyBefore);
   });
 
-  it("does not add canonical reference or animation fields to save schema v1", () => {
+  it("does not add canonical reference or animation fields to the save schema", () => {
+    // Save v2 E0 added `inventory` (see docs/reports/TETO_SAVE-V2_INVENTORY_Fresh-Audit.md);
+    // this pins that Phase 4A-1B Reference/animation work still adds nothing further.
     expect(Object.keys(createDefaultSave()).sort()).toEqual([
       "dex",
+      "inventory",
       "missionBest",
       "ownedIngredientIds",
       "pitzBalance",
