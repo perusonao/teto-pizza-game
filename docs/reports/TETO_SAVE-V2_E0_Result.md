@@ -4,7 +4,10 @@
   Authority Fresh Audit (docs-only)" — matches the expected/authoritative SHA given for this
   session; confirmed via `git fetch origin && git rev-parse origin/main`).
 - **Branch:** `claude/teto-e0-save-v2-migration-ly42xe`.
-- **HEAD SHA:** `1aa61485dd3f3c1d6eb11f69aba1416061e6d65a`.
+- **Reviewed/deployed HEAD SHA (code, unchanged since):** `1aa61485dd3f3c1d6eb11f69aba1416061e6d65a`
+  — this is the exact commit CI, the Preview deploy, and the Review Playthrough all target below.
+- **Current HEAD SHA (after this report's own docs-only commit):** `4d87cc8f516072fea0994a21e467c836d2703788`
+  — adds only this report and the `PROJECT_HANDOFF.md` status update; no production code touched.
 - **PR:** [#56 — Save v2 / Inventory E0: safe v1→v2 persistence migration](https://github.com/perusonao/teto-pizza-game/pull/56).
   **DO NOT MERGE** — open, pending ChatGPT Human Feel review per this session's instructions.
 - **Design source:** `docs/reports/TETO_SAVE-V2_INVENTORY_Fresh-Audit.md` sec. 4-6 (audited SHA
