@@ -9,9 +9,9 @@ MINOR DESIGN DECISION**). This report is the SSOT for what actually landed.
 - **Start SHA**: `7d2420a9f4d38b4b2d592257b59539c87fe5b5fb` (`origin/main`, matches the Pre-
   Implementation Audit's own HEAD and the task's expected SHA exactly — `git fetch origin main &&
   git rev-parse origin/main` re-confirmed before any change).
-- **Final SHA**: see the branch's head commit at PR time (`claude/scoring-2-a1-authority-o0qlp6`)
-  — this report is committed in the same PR as the implementation, so the PR's own commit list is
-  authoritative for the exact SHA; no rebase/force-push was used.
+- **Final SHA**: `e56a1a1da6b6d7ce0c269ca4f16d19f735943361` (branch
+  `claude/scoring-2-a1-authority-o0qlp6`, single commit on top of the start SHA above — no
+  rebase/force-push used).
 
 ## 1. Authority: before → after
 
