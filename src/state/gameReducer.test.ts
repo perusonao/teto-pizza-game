@@ -22,6 +22,7 @@ function scoreOf(total: number, stars: QualityStars): ScoreBreakdown {
 function playToResult(bakeValue: number): GameState {
   let state = createInitialGameState();
   state = gameReducer(state, { type: "BEGIN_PREPARE" });
+  state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // DOUGH -> SAUCE
   state = gameReducer(state, { type: "APPLY_SAUCE", ingredientId: "tomato-sauce", x: 50, y: 50 });
   state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // SAUCE -> CHEESE
   state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "mozzarella", x: 40, y: 50 });
@@ -192,7 +193,8 @@ describe("SELECT_RECIPE (Issue #39 Pizza Select)", () => {
     expect(after.order.recipeId).toBe("bismarck");
     expect(after.phase).toBe("PREPARE");
     expect(after.pizza.toppings).toHaveLength(0);
-    expect(after.makingStep).toBe("SAUCE");
+    // Issue #33 D1: a fresh round now starts at DOUGH, the new first step.
+    expect(after.makingStep).toBe("DOUGH");
     expect(after.isMissionRound).toBe(false);
     expect(after.hint).not.toBeNull();
   });
@@ -259,7 +261,8 @@ describe("RETRY_SAME_RECIPE (Issue #47 Finding D)", () => {
     expect(retried.recipe.id).toBe("margherita");
     expect(retried.order.recipeId).toBe("margherita");
     expect(retried.phase).toBe("PREPARE");
-    expect(retried.makingStep).toBe("SAUCE");
+    // Issue #33 D1: a fresh round now starts at DOUGH, the new first step.
+    expect(retried.makingStep).toBe("DOUGH");
     expect(retried.pizza.sauceIds).toHaveLength(0);
     expect(retried.pizza.toppings).toHaveLength(0);
     expect(retried.score).toBeNull();
@@ -594,6 +597,7 @@ describe("Phase 4A-2 Scoring 2.0 Shadow (gameReducer integration)", () => {
   function playMargheritaToResultWithShadowSauce(bakeValue: number): GameState {
     let state = createInitialGameState(); // preferFirst -> margherita
     state = gameReducer(state, { type: "BEGIN_PREPARE" });
+    state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // DOUGH -> SAUCE
     state = gameReducer(state, {
       type: "COMMIT_SAUCE_DISPENSE",
       ingredientId: "tomato-sauce",
@@ -644,6 +648,7 @@ describe("Phase 4A-2 Scoring 2.0 Shadow (gameReducer integration)", () => {
     expect(state.isMissionRound).toBe(true);
 
     state = gameReducer(state, { type: "BEGIN_PREPARE" });
+    state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // DOUGH -> SAUCE
     state = gameReducer(state, {
       type: "COMMIT_SAUCE_DISPENSE",
       ingredientId: "tomato-sauce",

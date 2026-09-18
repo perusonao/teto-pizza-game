@@ -2,7 +2,15 @@ import { getIngredient } from "./ingredients";
 import type { Recipe } from "./recipes";
 import { countUsedIngredient } from "../logic/scoring";
 import type { PizzaState } from "../state/pizzaState";
+import type { MakingStep } from "../state/gameReducer";
 import type { DialogueLine } from "./dialogue";
+
+/** Issue #33 D1: DOUGH's own hint copy -- concise per the task's own "avoid long tutorial
+ *  copy" guidance, distinct from every recipe's sauce copy so it never silently falls
+ *  through to a misleading "塗ろう" (sauce) line before sauce is even reachable. */
+const DOUGH_HINT = "生地を外側へ伸ばそう";
+const DOUGH_HINT_EXPLICIT =
+  "生地の上を指で押さえて、外側に向かってなぞってみて。だんだん大きく伸びていくよ！";
 
 interface RecipeHintSet {
   empty: string;
@@ -73,8 +81,17 @@ export const RECIPE_HINTS: Record<string, RecipeHintSet> = {
 export function buildHintLine(
   recipe: Recipe,
   pizza: PizzaState,
+  makingStep: MakingStep,
   isExplicitHint = false,
 ): DialogueLine {
+  if (makingStep === "DOUGH") {
+    return {
+      speaker: "mito",
+      id: `hint.dough.${recipe.id}`,
+      textJa: isExplicitHint ? DOUGH_HINT_EXPLICIT : DOUGH_HINT,
+    };
+  }
+
   const hints = RECIPE_HINTS[recipe.id];
   const sauceRequirement = recipe.requiredIngredients.find(
     (req) => getIngredient(req.ingredientId)?.category === "sauce",

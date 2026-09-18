@@ -55,9 +55,13 @@ function renderStage(
       referenceModeEnabled={overrides.referenceModeEnabled ?? recipeId === "margherita"}
       resetToken={0}
       makingStepToken={0}
+      makingStep="SAUCE"
+      showDoughShape
       onTap={onTap}
       onDispenseProgress={onDispenseProgress}
       onDispenseCommit={onDispenseCommit}
+      onDoughStretchProgress={() => {}}
+      onDoughStretchCommit={() => {}}
     />,
   );
 

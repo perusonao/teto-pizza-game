@@ -1,6 +1,7 @@
 import {
   useEffect,
   useCallback,
+  useId,
   useMemo,
   useReducer as useReactReducer,
   useRef,
@@ -13,9 +14,11 @@ import { getIngredient, type Ingredient } from "../data/ingredients";
 import { IngredientPieceVisual } from "./IngredientPieceVisual";
 import type { Recipe } from "../data/recipes";
 import type { PizzaState, PlacementFeedback, SauceDeposit } from "../state/pizzaState";
+import type { MakingStep } from "../state/gameReducer";
 import { classifyBake } from "../logic/bake";
 import { SauceDispenseController } from "../logic/sauceDispenseController";
 import { PointerTimestampNormalizer } from "../logic/pointerTimestampNormalizer";
+import { applyStretchPoint, smoothDoughShapeForDisplay, type DoughShape } from "../logic/doughShape";
 import {
   buildSauceField,
   insideDoughFraction,
@@ -27,6 +30,7 @@ import {
 import {
   clampToDough,
   clientPointToDoughPercent,
+  DOUGH_RADIUS,
   isInsideDough,
   toSauceLayerPercent,
   type DoughPoint,
@@ -67,6 +71,25 @@ interface PizzaStageProps {
    *  confirms SAUCE/CHEESE could still commit into the step that follows it. Mirrors
    *  `resetToken`'s own abort effect below exactly. */
   makingStepToken: number;
+  /** Issue #33 D1: the reducer's current making step -- gates the DOUGH radial-stretch
+   *  gesture branch below (active only while `makingStep === "DOUGH"`), mirroring how
+   *  `isPaintMode`/`activeIngredient?.placement` already gate the sauce/topping gesture
+   *  families. */
+  makingStep: MakingStep;
+  /** True once the round has actually entered PREPARE (or later) -- the dough boundary only
+   *  starts rendering/clipping `.pizza-dough` from that point on, so ORDER's pre-existing
+   *  plain-circle dough preview (Lunch Rush's own order screen) is untouched. */
+  showDoughShape: boolean;
+  /** Fired with the current in-progress (uncommitted) shape on every DOUGH gesture update,
+   *  and with `null` the instant that gesture ends for any reason (commit or discard) --
+   *  mirrors `onDispenseProgress`'s own live-preview contract exactly, letting the CTA's
+   *  size-completion gate (GameScreen) react in real time without canonical game state ever
+   *  seeing an uncommitted gesture. */
+  onDoughStretchProgress: (shape: DoughShape | null) => void;
+  /** Fired exactly once, at a successful pointerup, with the gesture's final shape. Never
+   *  fired for a cancelled/discarded gesture (pointercancel, lost capture, blur/hidden, a
+   *  reset or step change mid-hold, or unmount) -- those all discard locally instead. */
+  onDoughStretchCommit: (shape: DoughShape) => void;
   onDoughElementChange?: (element: HTMLDivElement | null) => void;
   onTap: (xPercent: number, yPercent: number) => void;
   /** Phase 4A-1A (Post-Codex-Fix): fired with the *entire* accumulated-so-far deposit array
@@ -133,6 +156,10 @@ export function PizzaStage({
   referenceModeEnabled,
   resetToken,
   makingStepToken,
+  makingStep,
+  showDoughShape,
+  onDoughStretchProgress,
+  onDoughStretchCommit,
   onDoughElementChange,
   onTap,
   onDispenseProgress,
@@ -143,6 +170,12 @@ export function PizzaStage({
   const heatmapRef = useRef<HTMLCanvasElement>(null);
   const gestureRef = useRef<GestureState>(createGestureState());
   const fadeTimeoutRef = useRef<number | null>(null);
+  /** Issue #33 D1: the current in-progress (uncommitted) DOUGH gesture's shape -- null
+   *  whenever no DOUGH gesture is active. Mirrors `pendingDepositsRef`'s own
+   *  ephemeral/canonical split: only ever committed to canonical `pizza.doughShape` via
+   *  `onDoughStretchCommit` at a successful pointerup, discarded on every other end trigger. */
+  const doughGestureShapeRef = useRef<DoughShape | null>(null);
+  const doughClipId = useId();
 
   // Phase 4A-1A (Post-Codex-Fix) dispense session bookkeeping. `forceRender` is the escape
   // hatch that lets `activeSessionRef`/`pendingDepositsRef` (necessarily refs -- they're
@@ -217,12 +250,23 @@ export function PizzaStage({
     forceRender();
   }
 
+  /** Issue #33 D1: discards the in-progress DOUGH gesture (if any) without committing --
+   *  called from every abort trigger below, exactly mirroring `endDispenseSession(false)`'s
+   *  own "discard, never dispatch" contract for sauce. Safe to call with no active gesture. */
+  function discardDoughGesture() {
+    if (doughGestureShapeRef.current === null) return;
+    doughGestureShapeRef.current = null;
+    onDoughStretchProgress(null);
+    forceRender();
+  }
+
   /** Shared cleanup for every abort trigger (ingredient change, Reference overlay open via
    *  `interactive`, BAKE via `interactive`, blur/hidden, window-level fallback): discards
    *  any active session, releases pointer capture if still held, and resets the gesture. */
   function abortActiveGesture() {
     const pointerId = gestureRef.current.pointerId;
     if (activeSessionRef.current) endDispenseSession(false);
+    discardDoughGesture();
     if (pointerId !== null) {
       try {
         circleRef.current?.releasePointerCapture(pointerId);
@@ -300,7 +344,11 @@ export function PizzaStage({
   // huge backlog burst if this ever somehow failed to fire.
   useEffect(() => {
     function abortForBackgrounding() {
-      if (activeSessionRef.current) abortActiveGesture();
+      // Issue #33 D1: this used to only check activeSessionRef (the sauce dispense session),
+      // silently missing an in-progress DOUGH gesture (which never sets that ref) -- widened
+      // to the same general "is any gesture live" check the resetToken/makingStepToken abort
+      // effects already use, so backgrounding the tab mid-stretch discards it too.
+      if (activeSessionRef.current || gestureRef.current.pointerId !== null) abortActiveGesture();
     }
     function handleVisibilityChange() {
       if (document.hidden) abortForBackgrounding();
@@ -327,6 +375,10 @@ export function PizzaStage({
       if (g.pointerId !== event.pointerId) return; // already handled by the element itself.
       if (activeSessionRef.current?.pointerId === event.pointerId) {
         endDispenseSession(event.type === "pointerup");
+      }
+      if (doughGestureShapeRef.current !== null) {
+        if (event.type === "pointerup") onDoughStretchCommit(doughGestureShapeRef.current);
+        discardDoughGesture();
       }
       clearTrail();
       gestureRef.current = createGestureState();
@@ -358,13 +410,22 @@ export function PizzaStage({
     pathRef.current?.setAttribute("d", g.pathD);
   }
 
+  // Issue #33 D1: gates the DOUGH radial-stretch gesture branch below, mirroring isPaintMode's
+  // own role for sauce -- mutually exclusive with it in practice (IngredientTray/activeIngredient
+  // are never set during DOUGH, see GameScreen), but each branch below checks its own gate
+  // independently rather than assuming that.
+  const isDoughStep = makingStep === "DOUGH";
   const isPaintMode = activeIngredient?.placement === "spread";
   // PR #26 Final P2 Follow-up #2 (discussion_r4021268603): SPREAD ingredients have no working
   // keyboard activation (see handleKeyDown below), so the dough must not advertise one via
   // tabIndex/aria-label while one is selected -- misleading assistive tech about a control that
   // silently does nothing useful is worse than temporarily dropping it from the tab order.
   // Scatter (TAP_PLACE) toppings are completely unaffected.
-  const isKeyboardPlaceable = interactive && !isPaintMode;
+  // Issue #33 D1: DOUGH has no keyboard equivalent yet either (same gap as sauce painting,
+  // tracked under Issue #27 -- not reinvented here per the D0 audit's own scope note), so it
+  // must not advertise a "place material" tab stop/aria-label a keypress can't actually do
+  // anything useful with.
+  const isKeyboardPlaceable = interactive && !isPaintMode && !isDoughStep;
 
   /** Starts a Phase 4A-1A dispense session for `pointerId` at `dough`, snapshotting the
    *  ingredient it's for, and drives it from a requestAnimationFrame loop keyed on real
@@ -455,6 +516,17 @@ export function PizzaStage({
         startTimestamp,
       );
       startDispenseSession(event.pointerId, activeIngredient.id, dough, startTimestamp);
+    } else if (isDoughStep) {
+      // Issue #33 D1: position-driven, no RAF/tick -- applying the very first stretch point
+      // immediately at pointerdown (rather than waiting for the first pointermove) is what
+      // makes the gesture read as instantly responsive (task requirement: "Gesture feedback
+      // must feel immediate") and, just as importantly, structurally guarantees this gesture
+      // can never fall through to the generic tap/onTap path below at pointerup even for a
+      // press with no movement at all (Issue #32 Finding 1-B's lesson, pinned by a regression
+      // test).
+      doughGestureShapeRef.current = applyStretchPoint(pizza.doughShape, dough.x, dough.y);
+      onDoughStretchProgress(doughGestureShapeRef.current);
+      forceRender();
     }
   }
 
@@ -490,6 +562,18 @@ export function PizzaStage({
       const normalizedTimestamp =
         timestampNormalizerRef.current?.normalize(rawEventTimestamp) ?? performance.now();
       dispenseControllerRef.current?.move(dough, normalizedTimestamp);
+      return;
+    }
+
+    // Issue #33 D1: every move updates the shape live, with no drag-threshold gate (unlike
+    // the tap-vs-drag logic below) -- position-driven, no RAF/tick, a pure function of the
+    // current pointer position (D0 §4.2). `applyStretchPoint` clamps distance to DOUGH_RADIUS
+    // internally, so a point dragged outside the dough still projects correctly onto the rim
+    // without needing isInsideDough/clampToDough here.
+    if (isDoughStep && doughGestureShapeRef.current !== null && pointerId === g.pointerId) {
+      doughGestureShapeRef.current = applyStretchPoint(doughGestureShapeRef.current, dough.x, dough.y);
+      onDoughStretchProgress(doughGestureShapeRef.current);
+      forceRender();
       return;
     }
 
@@ -558,6 +642,20 @@ export function PizzaStage({
       return;
     }
 
+    // Issue #33 D1: the DOUGH gesture's own commit, ahead of the generic tap/topping-drag
+    // fallback below -- a DOUGH-step press always populates doughGestureShapeRef at
+    // pointerdown (even a tap with no movement), so this branch structurally intercepts
+    // every DOUGH-step release before it could ever reach onTap/PLACE_TOPPING/APPLY_SAUCE
+    // (regression-pinned, learning directly from Issue #32 Finding 1-B).
+    if (doughGestureShapeRef.current !== null) {
+      onDoughStretchCommit(doughGestureShapeRef.current);
+      doughGestureShapeRef.current = null;
+      onDoughStretchProgress(null);
+      forceRender();
+      gestureRef.current = createGestureState();
+      return;
+    }
+
     const rect = g.rect;
     if (!rect) {
       gestureRef.current = createGestureState();
@@ -600,6 +698,7 @@ export function PizzaStage({
     if (g.pointerId !== event.pointerId) return;
     releaseCapture(event);
     if (activeSessionRef.current?.pointerId === event.pointerId) endDispenseSession(false);
+    discardDoughGesture();
     clearTrail();
     gestureRef.current = createGestureState();
   }
@@ -607,11 +706,12 @@ export function PizzaStage({
   function handleLostPointerCapture(event: ReactPointerEvent<HTMLDivElement>) {
     // A browser can revoke pointer capture without ever firing pointercancel (e.g. a system
     // gesture stealing it) -- treat that exactly like pointercancel so a dispense session
-    // (or an in-progress topping/sauce drag) can never keep running with nothing left able
-    // to stop it. Safe even when this pointerId was never the active gesture.
+    // (or an in-progress topping/sauce/dough gesture) can never keep running with nothing
+    // left able to stop it. Safe even when this pointerId was never the active gesture.
     const g = gestureRef.current;
     if (g.pointerId !== event.pointerId) return;
     if (activeSessionRef.current?.pointerId === event.pointerId) endDispenseSession(false);
+    discardDoughGesture();
     clearTrail();
     gestureRef.current = createGestureState();
   }
@@ -661,6 +761,26 @@ export function PizzaStage({
     "--sauce-origin-y": `${toSauceLayerPercent(sauceOrigin.y)}%`,
   } as CSSProperties;
   const trailStrokeStyle = { stroke: activeIngredient?.color ?? "#c73b2e" } as CSSProperties;
+
+  // Issue #33 D1: the shape actually drawn -- the live in-progress gesture's shape while one
+  // is active, otherwise the canonical committed `pizza.doughShape` (carried through every
+  // later making step/BAKE/RESULT unchanged, since COMMIT_DOUGH_STRETCH only ever fires
+  // while makingStep is still "DOUGH" -- see gameReducer.ts). Mirrors `effectiveDeposits`'
+  // own ref-plus-pendingVersion pattern immediately below.
+  const displayDoughShape = useMemo<DoughShape>(() => {
+    return doughGestureShapeRef.current ?? pizza.doughShape;
+    // pendingVersion is the reactive proxy for doughGestureShapeRef.current -- see its own
+    // declaration above.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pizza.doughShape, pendingVersion]);
+  // objectBoundingBox clipPath units (0-1 fractions) so the clip stays correct regardless of
+  // .pizza-dough's own responsive rendered pixel size (min(78vw, 300px)) -- see the CSS's own
+  // comment on .pizza-dough-shape for why clip-path targets the dedicated inner layer rather
+  // than .pizza-dough itself.
+  const doughClipPathD = useMemo(
+    () => smoothDoughShapeForDisplay(displayDoughShape, 0.01),
+    [displayDoughShape],
+  );
 
   // Sauce parity keeps the Phase 4A-1A visual-truth contract for every recipe: the sauce is
   // represented only by the field-derived heatmap while a gesture is pending and after it
@@ -771,7 +891,7 @@ export function PizzaStage({
         aria-label={isKeyboardPlaceable ? "ピザ。選択中の素材を置くにはEnterまたはスペース" : "ピザ"}
         className={`pizza-dough ${interactive ? "pizza-dough--interactive" : ""} ${
           bakeState ? `pizza-dough--${bakeState}` : ""
-        }`}
+        } ${showDoughShape ? "pizza-dough--has-shape-layer" : ""}`}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -780,6 +900,40 @@ export function PizzaStage({
         onContextMenu={handleContextMenu}
         onKeyDown={handleKeyDown}
       >
+        {/* Issue #33 D1: the player's actual hand-shaped dough boundary -- rendered from
+            `displayDoughShape` (the live in-progress gesture while dragging, else the
+            canonical committed `pizza.doughShape`), clipped to itself via an
+            objectBoundingBox <clipPath> so only this layer (not the outer .pizza-dough
+            plate/border) takes the organic shape. First child (below sauce/heatmap/toppings)
+            so they visually sit on top of it, satisfying "sauce/cheese/toppings sit on the
+            shaped dough" with no per-layer change needed elsewhere. Carries through every
+            phase once the round has entered PREPARE (`showDoughShape`), including
+            BAKE/RESULT's own raw/perfect/burnt coloring (see App.css's cascaded overrides). */}
+        {showDoughShape && (
+          <div
+            className="pizza-dough-shape"
+            aria-hidden="true"
+            style={{ clipPath: `url(#${doughClipId})` }}
+          >
+            <svg width="0" height="0" style={{ position: "absolute" }}>
+              <defs>
+                <clipPath id={doughClipId} clipPathUnits="objectBoundingBox">
+                  <path d={doughClipPathD} />
+                </clipPath>
+              </defs>
+            </svg>
+          </div>
+        )}
+        {/* Issue #33 D1: a faint dashed ring at the full DOUGH_RADIUS target -- the same
+            "paint/stretch up to here" guide convention as Human Feel Fix 2's own
+            sauce-target-guide below, so a first-time player always has a visible target to
+            pull the dough out toward even while it's still small. Shown only during the
+            DOUGH step's own interaction, never once it's confirmed. */}
+        {isDoughStep && interactive && (
+          <svg className="dough-target-guide" viewBox="0 0 100 100" aria-hidden="true">
+            <circle cx="50" cy="50" r={DOUGH_RADIUS} />
+          </svg>
+        )}
         {/* Human Feel Fix 2 (Target Area Guide): a very faint, dashed "paint up to here"
             ring at SAUCE_TARGET_RADIUS -- the exact same constant edgeAmount/edgeRatio
             (../logic/sauceField.ts) score against, so this can never show a different area

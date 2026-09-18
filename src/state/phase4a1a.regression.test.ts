@@ -18,7 +18,10 @@ import { createEmptyPizza } from "./pizzaState";
 
 function preparedState(recipeIdOwned: readonly string[]): GameState {
   const state = createInitialGameState(EMPTY_DEX, recipeIdOwned, 0);
-  return gameReducer(state, { type: "BEGIN_PREPARE" });
+  const prepared = gameReducer(state, { type: "BEGIN_PREPARE" });
+  // Issue #33 D1: BEGIN_PREPARE now lands at DOUGH, the new first step -- every caller in
+  // this file exercises SAUCE-step sauce-dispense actions, so advance past DOUGH once here.
+  return gameReducer(prepared, { type: "CONFIRM_MAKING_STEP" });
 }
 
 describe("Regression: legacy scoring untouched by sauceDeposits", () => {
@@ -76,6 +79,7 @@ describe("Regression: non-Margherita sauce interaction", () => {
     }
     expect(state.recipe.id).toBe("marinara");
     state = gameReducer(state, { type: "BEGIN_PREPARE" });
+    state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // DOUGH -> SAUCE
     state = gameReducer(state, { type: "APPLY_SAUCE", ingredientId: "tomato-sauce", x: 50, y: 50 });
     expect(state.pizza.sauceIds).toEqual(["tomato-sauce"]);
     expect(state.pizza.sauceDeposits).toEqual([]);

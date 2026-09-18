@@ -14,6 +14,7 @@ describe("Phase 4A-1B PLACE_TOPPING phase boundary", () => {
 
   it("accepts an owned piece during PREPARE and rejects the same action after BAKE starts", () => {
     let state = gameReducer(createInitialGameState(), { type: "BEGIN_PREPARE" });
+    state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // DOUGH -> SAUCE
     state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // SAUCE -> CHEESE (mozzarella)
     state = gameReducer(state, {
       type: "PLACE_TOPPING",

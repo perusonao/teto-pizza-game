@@ -49,6 +49,9 @@ const CATEGORY_TO_MAKING_STEP: Record<IngredientCategory, MakingStep> = {
   topping: "TOPPING",
 };
 const MAKING_STEP_TO_CATEGORY: Record<MakingStep, IngredientCategory> = {
+  // Issue #33 D1: never actually reached here -- this harness's while-loop below always
+  // advances past DOUGH to the requested SAUCE/CHEESE/TOPPING category at mount.
+  DOUGH: "sauce",
   SAUCE: "sauce",
   CHEESE: "cheese",
   TOPPING: "topping",
@@ -120,6 +123,8 @@ function Harness({ category, ingredientId }: { category: IngredientCategory; ing
         sauceShadowScore={{ quantitySimilarity: 0, coverageSimilarity: 0, overall: 0 }}
         isDispensingSauce={false}
         pieceShadowMetrics={[]}
+        showDoughShape
+        doughShapeComplete={false}
         onGoHome={() => {}}
         onBeginPrepare={() => {}}
         onResetPizza={() => dispatch({ type: "RESET_PIZZA" })}
@@ -141,6 +146,8 @@ function Harness({ category, ingredientId }: { category: IngredientCategory; ing
         onReferencePopoverChange={() => {}}
         onDispenseProgress={() => {}}
         onDispenseCommit={handleDispenseCommit}
+        onDoughStretchProgress={() => {}}
+        onDoughStretchCommit={() => {}}
         onDoughElementChange={() => {}}
         resolvePhysicalDrop={resolvePhysicalDrop}
         onPhysicalDrop={handlePhysicalDrop}

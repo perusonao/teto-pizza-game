@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "./App";
 
@@ -22,6 +22,28 @@ async function enterMakingWith(user: ReturnType<typeof userEvent.setup>, cardNam
   render(<App />);
   await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
   await user.click(screen.getByRole("button", { name: cardName }));
+}
+
+/** Issue #33 D1: a fresh round now starts at DOUGH, whose own "次へ" stays disabled until the
+ *  size-completion threshold is met. Simulates enough taps around the dough's full radius to
+ *  clear it (a stretch applies on pointerdown itself -- see PizzaStage's own DOUGH gesture
+ *  branch -- so a tap at each of the 8 control-point angles is enough, no drag needed). */
+function completeDoughStep() {
+  const dough = document.querySelector<HTMLElement>('[data-pizza-drop-target="true"]');
+  if (!dough) throw new Error("Pizza dough missing");
+  dough.getBoundingClientRect = () =>
+    ({ left: 0, top: 0, width: 300, height: 300, right: 300, bottom: 300, x: 0, y: 0, toJSON: () => {} }) as DOMRect;
+
+  const center = 150; // 50% of a 300px box
+  const radius = 140; // safely inside DOUGH_RADIUS (48%) to avoid float rounding at the rim
+  for (let i = 0; i < 8; i += 1) {
+    const angle = (i / 8) * Math.PI * 2;
+    const clientX = center + Math.cos(angle) * radius;
+    const clientY = center + Math.sin(angle) * radius;
+    const pointerId = 1000 + i;
+    fireEvent.pointerDown(dough, { pointerId, isPrimary: true, pointerType: "touch", clientX, clientY });
+    fireEvent.pointerUp(dough, { pointerId, isPrimary: true, pointerType: "touch", clientX, clientY });
+  }
 }
 
 describe("Mini Reference (Margherita, Scoring 2.0 fixture)", () => {
@@ -88,8 +110,10 @@ describe("Mini Reference (Bismarck, no Scoring 2.0 fixture)", () => {
   it("RETRY_SAME_RECIPE (もう一度つくる) preserves the same-recipe reference", async () => {
     const user = userEvent.setup();
     await enterMakingWith(user, "ビスマルク、未挑戦");
-    await user.click(screen.getByRole("button", { name: /次へ/ }));
-    await user.click(screen.getByRole("button", { name: /次へ/ }));
+    completeDoughStep();
+    await user.click(screen.getByRole("button", { name: /次へ/ })); // DOUGH -> SAUCE
+    await user.click(screen.getByRole("button", { name: /次へ/ })); // SAUCE -> CHEESE
+    await user.click(screen.getByRole("button", { name: /次へ/ })); // CHEESE -> TOPPING
     await user.click(screen.getByRole("button", { name: /焼く/ }));
     await user.click(screen.getByRole("button", { name: "取り出す！" }));
     await user.click(screen.getByRole("button", { name: "レシピ図鑑に登録する" })); // DISCOVERED
