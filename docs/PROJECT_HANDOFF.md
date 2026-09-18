@@ -52,6 +52,22 @@ PASS via PR #54; **Save v2 / Inventory E0 migration MERGED via PR #56** (schemaV
 `inventory` field reserved, no gameplay change yet -- E1 InventoryState is the next Save v2 step,
 independent of Issue #38).)
 
+**2026-09-18 addendum (Roadmap/SSOT Fresh Sync)** — see
+`docs/reports/TETO_ROADMAP-SSOT_FRESH-SYNC_2026-09-18.md`, audited SHA `398d48443f3bd299259bb63e3c9bd717091506ea`
+(current `main` HEAD, matches this document's own last update). Everything above this addendum was
+already correct as of that SHA (re-verified fresh via `pull_request_read`, not just cited from
+prior docs). Two things changed *after* that SHA that this document did not yet know about:
+
+- **M3A Bake Judgment (PR #68) is OPEN, NOT MERGED.** Base `398d484`, fading bake guide +
+  continuous (non-snapping) bake visuals, 1188/1188 tests reported by its author, but its own PR
+  body marks the dedicated Preview deployment + 390×844 Review Playthrough as "in progress, to
+  follow" (unchecked). Do not treat M3 Bake Judgment as either "not started" or "done" — it is
+  mid-flight in a PR this document did not previously mention.
+- **Cooking Time / Efficiency** (the other named candidate in Issue #37's 2026-09-18 expansion
+  note) has no PR or issue evidence of any work started, audit or otherwise, as of this SHA. Safe
+  phrasing: *"Cooking Time / Efficiency is the next design track under evaluation."* Do not assert
+  an audit is "in progress" for this track unless a future fresh check finds one.
+
 > Fresh GitHub/main state always wins if this document becomes stale.
 
 ## Product goal
@@ -557,5 +573,8 @@ Rules for this sequence:
    Scoring 2.0 Sauce component/reference fixture, are unchanged. Do not re-implement this boundary
    test or re-litigate the render-only-vs-scoring split without a specific regression.
 9. Whenever priority, completion status, estimates, architecture, navigation or visual direction changes, update both Issue #22 and this file.
+10. **Check for PR #68 (M3A Bake Judgment) before starting any Bake-related work.** As of SHA
+    `398d48443f3bd299259bb63e3c9bd717091506ea` it is open, unmerged, and may have advanced or
+    merged since — re-check fresh GitHub state rather than assuming either outcome from this text.
 
 Issue #37 remains the parent roadmap for physical pizza-making UX. Issue #39's HOME/FREE navigation work is complete. Issue #47 (Making UX Cleanup) is complete (Slice A/B merged, Human Feel PASS; Slice C's Finding J handed to Issue #37 M2). **Issue #33 (Dough Shaping) D1/D2 are COMPLETE, Human Feel PASS** (PR #54, merge SHA `c0b93504f84adbccdc1c75567677d234f832cfb1`, see `docs/reports/TETO_ISSUE-33_DOUGH-D1_Result.md`) — ChatGPT's review of the D2 Review Playthrough MP4 returned PASS and PR #54 was merged after that. **Issue #33 D3A (reversible/free-boundary shaping) is MERGED via PR #65** — see `docs/reports/TETO_ISSUE-33_D3A_REVERSIBLE-DOUGH_Result.md`. **Sauce Free Boundary is MERGED via PR #66** — see `docs/reports/TETO_SAUCE-FREE-BOUNDARY_Result.md`. Issue #37 M2 (Cheese/Topping drag scope) remains a separate, ungated Making Game 2.0 item. **Scoring 2.0 A1 Authority Cutover is MERGED** (PR #60, merge commit `12666faf55ed1e479d51572f6a8e3fcfc744cf31`, A2 Human Review PASSED) — see `docs/reports/TETO_SCORING2-A1_AUTHORITY_Result.md`; **A3 (A3a + A3b) is fully COMPLETE and MERGED** — PR #62 and PR #63 are both merged into `main` (see `docs/reports/TETO_SCORING2-A3A_SAFE-RENAME_Result.md` and `docs/reports/TETO_SCORING2-A3B_LEGACY-RETIREMENT_Result.md` — `scorePizza`/`scorePlacement` no longer exist anywhere in the codebase). **Issue #38 (Pitz Reward) E-P1/E-P2 is implemented and MERGED via PR #64** — see `docs/reports/TETO_ISSUE-38_PITZ-REWARD_Result.md`.
