@@ -579,14 +579,17 @@ describe("Mission order actions (Phase 3C-4)", () => {
 });
 
 /**
- * Phase 4A-2 Scoring 2.0 Shadow: P0-2 (canonical CONFIRM_BAKE computation, shared by FREE and
- * Lunch Rush) and the "never touches legacy authority" boundary. See
- * ../logic/scoringV2/scoringV2.test.ts for the scoring module's own unit tests (tolerance
- * validation, component formulas, golden ordering) -- these tests are specifically about the
- * gameReducer integration: *when* and *from what* it's computed, and that nothing legacy
- * moves because of it.
+ * Phase 4A-2 Scoring 2.0 -> A1 Authority Cutover: P0-2 (canonical CONFIRM_BAKE computation,
+ * shared by FREE and Lunch Rush) still holds unchanged, but the authority boundary itself
+ * flipped in A1 (docs/reports/TETO_SCORING2-A1_AUTHORITY_Result.md): `state.score` is now
+ * Scoring 2.0-derived (via `toLegacyScoreBreakdown`), not legacy `scorePizza`'s own output.
+ * See ../logic/scoringV2/scoringV2.test.ts for the scoring module's own unit tests (tolerance
+ * validation, component formulas, golden ordering) and ./gameReducer.scoringV2Authority.test.ts
+ * for the full 7-recipe authority regression matrix -- these tests are specifically about when
+ * and from what `scoringV2Shadow` itself is computed, and (post-A1) that `state.score` really
+ * is derived from it, not independently.
  */
-describe("Phase 4A-2 Scoring 2.0 Shadow (gameReducer integration)", () => {
+describe("Phase 4A-2 Scoring 2.0 / A1 Authority Cutover (gameReducer integration)", () => {
   const [MOZZARELLA_GROUP, BASIL_GROUP] = MARGHERITA_REFERENCE.pieceGroups;
 
   /** PREPARE -> BAKE -> RESULT for Margherita, committing a Reference-like sauce dispense
@@ -672,28 +675,32 @@ describe("Phase 4A-2 Scoring 2.0 Shadow (gameReducer integration)", () => {
     expect(state.scoringV2Shadow?.totalScore as number).toBeGreaterThan(90);
   });
 
-  it("legacy authoritative score/stars are exactly what scorePizza alone computes -- Scoring 2.0 Shadow never influences them", () => {
+  it("A1: authoritative score/stars are exactly what Scoring 2.0 computes -- legacy scorePizza no longer feeds state.score", () => {
     const state = playMargheritaToResultWithShadowSauce(70);
     const legacyOnly = scorePizza(state.recipe, state.pizza);
-    expect(state.score).toEqual(legacyOnly);
-    expect(state.score?.stars).toBe(legacyOnly.stars);
+    // Legacy scorePizza is still callable (Option A, not deleted) but is no longer read for
+    // state.score -- the two authorities never coexist, so their outputs must differ here
+    // (legacy ignores sauceDeposits entirely; Scoring 2.0's Sauce is 52/100 of the total).
+    expect(state.score).not.toEqual(legacyOnly);
+    expect(state.score?.total).toBe(state.scoringV2Shadow?.totalScore);
   });
 
-  it("Dex BEST/timesMade registration is driven only by state.score, never by scoringV2Shadow.totalScore", () => {
+  it("A1: Dex BEST/timesMade registration is driven by state.score, which now *is* scoringV2Shadow.totalScore", () => {
     const state = playMargheritaToResultWithShadowSauce(70);
     const after = gameReducer(state, { type: "REGISTER_TO_DEX" });
     const entry = after.dex.find((e) => e.recipeId === "margherita");
     expect(entry?.bestScore).toBe(state.score?.total);
     expect(entry?.bestStars).toBe(state.score?.stars);
-    // The two are a different scale/formula entirely -- this PR's whole "shadow, not
-    // authority" contract would be silently broken if they ever coincided by construction.
-    expect(entry?.bestScore).not.toBe(state.scoringV2Shadow?.totalScore);
+    // Post-cutover, state.score.total IS Scoring 2.0's own total (via the adapter) -- this is
+    // the authority boundary this cutover exists to flip, re-asserted here rather than just in
+    // ./gameReducer.scoringV2Authority.test.ts's own dedicated suite.
+    expect(entry?.bestScore).toBe(state.scoringV2Shadow?.totalScore);
   });
 
-  it("Mission serve/reward metrics are driven only by state.score.total, never by scoringV2Shadow.totalScore", () => {
+  it("A1: Mission serve/reward metrics are driven by state.score.total, which now *is* scoringV2Shadow.totalScore", () => {
     const state = playMargheritaToResultWithShadowSauce(70);
     const metrics = recordServe(EMPTY_MISSION_METRICS, state.score!.total);
     expect(metrics.totalQualityScore).toBe(state.score!.total);
-    expect(metrics.totalQualityScore).not.toBe(state.scoringV2Shadow?.totalScore);
+    expect(metrics.totalQualityScore).toBe(state.scoringV2Shadow?.totalScore);
   });
 });

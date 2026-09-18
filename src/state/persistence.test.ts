@@ -772,3 +772,59 @@ describe("Save schema unaffected by Scoring 2.0 Shadow (Phase 4A-2 scope guard)"
     expect(Object.keys(loaded).sort()).toEqual(Object.keys(createDefaultSave()).sort());
   });
 });
+
+/**
+ * A1 Authority Cutover: `dex[].bestScore`/`bestStars` are plain numbers with no formula tag
+ * (see docs/reports/TETO_SCORING2-A1_AUTHORITY_PreImplementation-Audit.md section 6) -- a save
+ * written back when legacy `scorePizza` was authoritative must still load unchanged after the
+ * cutover, and its BEST must still only ever move up under the new formula (dex.ts's own
+ * `isBetterQuality`, itself formula-agnostic and untouched by this cutover).
+ */
+describe("Save compatibility across the A1 Authority Cutover (pre-cutover save still loads)", () => {
+  it("a save written under legacy scorePizza authority loads unchanged post-cutover -- no migration triggered by the formula switch", () => {
+    const preCutoverSave: PersistentSaveV2 = {
+      schemaVersion: 2,
+      dex: [
+        { recipeId: "margherita", discovered: true, bestScore: 91, bestStars: 5, timesMade: 3 },
+        { recipeId: "bismarck", discovered: true, bestScore: 62, bestStars: 3, timesMade: 1 },
+      ],
+      pitzBalance: 40,
+      ownedIngredientIds: [...STARTER_INGREDIENT_IDS],
+      missionBest: { [LUNCH_RUSH_MISSION_ID]: 88 },
+      inventory: {},
+    };
+    const storage = fakeStorage({ [SAVE_STORAGE_KEY]: JSON.stringify(preCutoverSave) });
+    const loaded = loadSave(storage);
+    expect(loaded).toEqual(preCutoverSave);
+  });
+
+  it("registerScoreToDex against a pre-cutover BEST only raises it when the new (Scoring 2.0-derived) score is actually better", () => {
+    const preCutoverEntry: DexEntry = {
+      recipeId: "margherita",
+      discovered: true,
+      bestScore: 91,
+      bestStars: 5,
+      timesMade: 3,
+    };
+    const dex = [preCutoverEntry];
+
+    const worseUnderNewFormula = scoreOf(70, 3);
+    const { dex: afterWorse, isNewBest: worseIsNewBest } = registerScoreToDex(
+      dex,
+      "margherita",
+      worseUnderNewFormula,
+    );
+    expect(worseIsNewBest).toBe(false);
+    expect(afterWorse.find((e) => e.recipeId === "margherita")?.bestScore).toBe(91);
+    expect(afterWorse.find((e) => e.recipeId === "margherita")?.bestStars).toBe(5);
+
+    const betterUnderNewFormula = scoreOf(97, 5);
+    const { dex: afterBetter, isNewBest: betterIsNewBest } = registerScoreToDex(
+      dex,
+      "margherita",
+      betterUnderNewFormula,
+    );
+    expect(betterIsNewBest).toBe(true);
+    expect(afterBetter.find((e) => e.recipeId === "margherita")?.bestScore).toBe(97);
+  });
+});

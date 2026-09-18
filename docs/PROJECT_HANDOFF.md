@@ -1,6 +1,11 @@
 # Teto Pizza Game — Project Handoff / Roadmap SSOT
 
-Updated: 2026-09-18 (Scoring 2.0 B1 Bake component MERGED via PR #58; B2 Reference coverage COMPLETE 7/7 via PR #57; Scoring 2.0 A1 Authority Cutover Pre-Implementation Fresh Audit done, verdict B — see `docs/reports/TETO_SCORING2-A1_AUTHORITY_PreImplementation-Audit.md`; Issue #33 Dough D1/D2 COMPLETE / Human Feel PASS via PR #54; Issue #38 Pitz Reward Fresh Audit; Save v2 E0 migration implementation, PR #56 open, DO NOT MERGE pending review)
+Updated: 2026-09-18 (**Scoring 2.0 A1 Authority Cutover IMPLEMENTED** — `state.score` is now
+Scoring 2.0-derived for all 7 recipes/FREE/Lunch Rush, see
+`docs/reports/TETO_SCORING2-A1_AUTHORITY_Result.md`; PR open, **DO NOT MERGE** pending Human
+Review (A2); Scoring 2.0 B1 Bake component MERGED via PR #58; B2 Reference coverage COMPLETE 7/7
+via PR #57; Issue #33 Dough D1/D2 COMPLETE / Human Feel PASS via PR #54; Issue #38 Pitz Reward
+Fresh Audit; Save v2 E0 migration implementation, PR #56 open, DO NOT MERGE pending review)
 
 > Fresh GitHub/main state always wins if this document becomes stale.
 
@@ -76,16 +81,21 @@ now returns a reviewed `ReferencePizza` (sauce target + piece-group geometry) fo
 margherita, marinara, funghi, genovese, fugazza, bismarck, quattro-formaggi — pinned by
 `scoringV2.test.ts`'s Golden Matrix (`perfect > good > poor > empty`) for every one of them.
 
-Scoring 2.0 remains **Shadow-only** — both B1 and B2 close the blockers that stood in the way of
-authority cutover, but neither one flips `state.score` itself. **A1 (authority adapter at
-`gameReducer.ts`'s `CONFIRM_BAKE`) Pre-Implementation Fresh Audit is now done** — see
-`docs/reports/TETO_SCORING2-A1_AUTHORITY_PreImplementation-Audit.md` (audited SHA
-`a063068abdfcdbcee6450c2b0dd43e174236c291` = current `main` HEAD). Verdict: **B. READY WITH MINOR
-DESIGN DECISION** — no remaining hard blocker; the one open item is a small, non-blocking product
-decision on how `ResultPanel`'s player-facing feedback breakdown should represent Sauce (Scoring
-2.0's heaviest, 52/100, component, which has no equivalent field in today's legacy
-`ScoreBreakdown` shape). Recommended sequence from here: **A1 (authority adapter, ~3–4 hours) →
-A2 (cutover verification) → A3 (legacy cleanup)**. No Save migration is required for A1.
+**A1 (authority cutover) is now IMPLEMENTED** — see
+`docs/reports/TETO_SCORING2-A1_AUTHORITY_Result.md` (start SHA `7d2420a9f4d38b4b2d592257b59539c87fe5b5fb`
+= the Pre-Implementation Audit's own HEAD). The Pre-Implementation Fresh Audit's verdict was **B.
+READY WITH MINOR DESIGN DECISION** — see
+`docs/reports/TETO_SCORING2-A1_AUTHORITY_PreImplementation-Audit.md` — and that one open design
+decision (§2, Option 1: give `ResultPanel` a 4th "ソース" feedback row rather than discard or fake
+Sauce) has been decided and implemented as part of A1. `gameReducer.ts`'s `CONFIRM_BAKE` now
+computes `state.score` via a new pure adapter, `toLegacyScoreBreakdown` (`src/logic/scoringV2/
+toLegacyScoreBreakdown.ts`), from `computeScoringV2Shadow`'s result — Scoring 2.0 is authoritative
+for `total`/`stars`/RESULT/Dex BEST/progression/FREE/Lunch Rush, for all 7 recipes. Legacy
+`scorePizza` (`src/logic/scoring.ts`) is kept callable (Option A, not deleted) but no longer feeds
+`state.score` — the two authorities never coexist. `ScoringV2ShadowPanel` (Preview-only debug
+panel) is left untouched, per the audit's §4/F recommendation (its own cleanup/repurposing is an
+A3 decision, not A1's). **PR open, DO NOT MERGE — pending Human Review (A2)** before proceeding to
+the Merge Gate. No Save migration was needed or made.
 
 ### Recent merges
 
@@ -221,10 +231,11 @@ Issue #47 is complete; Issue #33 is now the active priority (see below).
 Original Fresh Audit — see `docs/reports/TETO_SCORING2_AUTHORITY_Fresh-Audit.md` (audited SHA
 `2da3949de5bd642c709ca6ba343bc57d8101d03d`, verdict at the time: **D. BLOCKED BY ANOTHER SYSTEM**,
 on two findings: no Bake component for any recipe; Reference coverage for only 1 of 7 recipes).
-**Both blockers are now closed** — see B1/B2 below. **A1 Pre-Implementation Fresh Audit done** —
-see `docs/reports/TETO_SCORING2-A1_AUTHORITY_PreImplementation-Audit.md` (audited SHA
-`a063068abdfcdbcee6450c2b0dd43e174236c291` = current `main` HEAD). Current verdict: **B. READY
-WITH MINOR DESIGN DECISION**.
+**Both blockers are now closed** — see B1/B2 below. **A1 is now IMPLEMENTED** — see
+`docs/reports/TETO_SCORING2-A1_AUTHORITY_Result.md` (the Pre-Implementation Audit's own verdict,
+**B. READY WITH MINOR DESIGN DECISION**, is in
+`docs/reports/TETO_SCORING2-A1_AUTHORITY_PreImplementation-Audit.md`). PR open, **DO NOT MERGE**
+pending Human Review (A2).
 
 1. Add a reviewed Bake similarity component to Scoring 2.0 (**B1** — **implemented and merged**,
    PR #58, merge commit `f464026` on `main`,
@@ -236,22 +247,23 @@ WITH MINOR DESIGN DECISION**.
    `docs/reports/TETO_SCORING2-B2_PARTC2_Result.md`. `getReferencePizza` now returns a reviewed
    `ReferencePizza` for all 7 recipes (margherita, marinara, funghi, genovese, fugazza, bismarck,
    quattro-formaggi), pinned by `scoringV2.test.ts`'s Golden Matrix for every one of them.
-3. **A1 authority adapter** (`gameReducer.ts` `CONFIRM_BAKE`): Pre-Implementation Fresh Audit
-   done, verdict **B. READY WITH MINOR DESIGN DECISION** — see
-   `docs/reports/TETO_SCORING2-A1_AUTHORITY_PreImplementation-Audit.md`. No remaining hard
-   blocker; the one open item is a small, non-blocking product decision on how `ResultPanel`'s
-   feedback breakdown should represent Sauce (Scoring 2.0's heaviest, 52/100, component, with no
-   equivalent field in today's legacy `ScoreBreakdown` shape — recommended fix: add a 4th feedback
-   row). No Save migration required. Estimated size: ~3–4 hours. **A1 implementation itself has
-   not started** — this is audit-only.
+3. **A1 authority adapter** (`gameReducer.ts` `CONFIRM_BAKE`): **IMPLEMENTED** — see
+   `docs/reports/TETO_SCORING2-A1_AUTHORITY_Result.md`. `state.score` is now derived from
+   Scoring 2.0 via the new `toLegacyScoreBreakdown` adapter for all 7 recipes/FREE/Lunch Rush;
+   `ResultPanel` gained a 4th "ソース" feedback row (the design decision the Pre-Implementation
+   Audit surfaced, now decided and implemented). Legacy `scorePizza` kept callable, not deleted,
+   no longer authoritative. No Save migration needed. **PR open, DO NOT MERGE pending Human
+   Review (A2).**
 4. Save v2 migration is **not required** for the cutover itself — Dex's `bestScore`/`bestStars`
-   schema is already formula-agnostic, re-confirmed by the A1 audit.
-5. Make calibrated Scoring 2.0 authoritative only after A1 lands, is Human-Feel-verified (A2), and
-   Making Game Human Feel gates otherwise hold.
+   schema is already formula-agnostic, re-confirmed by the A1 audit and by A1's own
+   save-compatibility regression tests.
+5. **Next: A2 (Human Feel / cutover verification on the A1 PR) before merge**, then A3 (legacy
+   `scorePizza`/Shadow-panel cleanup, deliberately not done in A1).
 6. Integrate stars / Dex BEST / progression without Recipe/Pieces/Dough/Bake/Finish double
-   penalties — confirmed (again, independently, by the A1 audit) to need zero code changes at
-   cutover beyond the `CONFIRM_BAKE` adapter itself (`dex.ts`/`missionScoring.ts`/`progression.ts`
-   already only depend on `ScoreBreakdown`'s `.total`/`.stars`, not which formula produced them).
+   penalties — confirmed (again, independently, by the A1 audit, and now by A1's own regression
+   suite) to need zero code changes at cutover beyond the `CONFIRM_BAKE` adapter itself
+   (`dex.ts`/`missionScoring.ts`/`progression.ts` already only depend on `ScoreBreakdown`'s
+   `.total`/`.stars`, not which formula produced them).
 7. Score-based baked visual/sauce polish only after behavior and authority are stable.
 
 ### P4 — Pitz / Economy — Issue #38
@@ -344,7 +356,9 @@ merges: **E1 (InventoryState)**.
 
 - preserve the playable making loop and reset/stale-pointer safety
 - preserve save compatibility unless a separately reviewed migration is intentionally introduced
-- Scoring 2.0 remains non-authoritative until its gates pass
+- Scoring 2.0 is now authoritative (A1 implemented, PR open pending Human Review/A2 — do not
+  merge until that review passes); legacy `scorePizza` and Scoring 2.0 must never both hold
+  authority at once
 - do not silently change Dex BEST, stars, totalStars, Mission, Pitz, Shop or progression during navigation/visual-only work
 - do not fabricate Reference targets, recipes, unlocks or catalog data
 - player-made shape/placement should remain visibly identifiable through later steps; avoid silent normalization
@@ -396,7 +410,8 @@ Rules for this sequence:
 2. Read this file, Issue #22 and the current execution issue.
 3. Treat fresh GitHub state as authoritative if anything conflicts.
 4. Read the latest relevant audit/result report before implementation.
-5. Keep Scoring 2.0 non-authoritative until the defined gates pass.
+5. Scoring 2.0 is now authoritative (A1 implemented) — its PR must pass Human Review (A2) before
+   merge; do not re-open the Shadow-only question without a specific regression to justify it.
 6. Whenever priority, completion status, estimates, architecture, navigation or visual direction changes, update both Issue #22 and this file.
 
-Issue #37 remains the parent roadmap for physical pizza-making UX. Issue #39's HOME/FREE navigation work is complete. Issue #47 (Making UX Cleanup) is complete (Slice A/B merged, Human Feel PASS; Slice C's Finding J handed to Issue #37 M2). **Issue #33 (Dough Shaping) D1/D2 are COMPLETE, Human Feel PASS** (PR #54, merge SHA `c0b93504f84adbccdc1c75567677d234f832cfb1`, see `docs/reports/TETO_ISSUE-33_DOUGH-D1_Result.md`) — ChatGPT's review of the D2 Review Playthrough MP4 returned PASS and PR #54 was merged after that. Issue #33 D3 (score/visual integration) and Issue #37 M2 (Cheese/Topping drag scope) are the next open Making Game 2.0 items, neither gated on further Dough Human Feel work. Issue #38 (Pitz Reward) has a completed Fresh Audit — see `docs/reports/TETO_ISSUE-38_PITZ-REWARD_Fresh-Audit.md` — verdict A, ready after Scoring 2.0 authority.
+Issue #37 remains the parent roadmap for physical pizza-making UX. Issue #39's HOME/FREE navigation work is complete. Issue #47 (Making UX Cleanup) is complete (Slice A/B merged, Human Feel PASS; Slice C's Finding J handed to Issue #37 M2). **Issue #33 (Dough Shaping) D1/D2 are COMPLETE, Human Feel PASS** (PR #54, merge SHA `c0b93504f84adbccdc1c75567677d234f832cfb1`, see `docs/reports/TETO_ISSUE-33_DOUGH-D1_Result.md`) — ChatGPT's review of the D2 Review Playthrough MP4 returned PASS and PR #54 was merged after that. Issue #33 D3 (score/visual integration) and Issue #37 M2 (Cheese/Topping drag scope) are the next open Making Game 2.0 items, neither gated on further Dough Human Feel work. **Scoring 2.0 A1 Authority Cutover is now IMPLEMENTED** (PR open, DO NOT MERGE pending Human Review/A2) — see `docs/reports/TETO_SCORING2-A1_AUTHORITY_Result.md`; next is A2 Human Review, then A3 (legacy `scorePizza`/Shadow-panel cleanup). Issue #38 (Pitz Reward) has a completed Fresh Audit — see `docs/reports/TETO_ISSUE-38_PITZ-REWARD_Fresh-Audit.md` — verdict A, ready now that Scoring 2.0 authority (A1) is implemented, pending A2's own Human Review.

@@ -3,9 +3,9 @@ import { getRecipe, type Recipe, type RecipeId } from "../data/recipes";
 import { buildHintLine } from "../data/hints";
 import { getIngredient, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import type { DialogueLine } from "../data/dialogue";
-import { scorePizza, type ScoreBreakdown } from "../logic/scoring";
+import type { ScoreBreakdown } from "../logic/scoring";
 import { classifyBake, type BakeState } from "../logic/bake";
-import { computeScoringV2Shadow, type ScoringV2Result } from "../logic/scoringV2";
+import { computeScoringV2Shadow, toLegacyScoreBreakdown, type ScoringV2Result } from "../logic/scoringV2";
 import { totalStars } from "../logic/mastery";
 import { purchaseIngredient } from "../logic/economy";
 import { discoveredRecipeIds, registerScoreToDex, EMPTY_DEX, type DexState } from "./dex";
@@ -476,13 +476,17 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case "CONFIRM_BAKE": {
       const pizza: PizzaState = { ...state.pizza, bakeResult: action.value };
-      const score = scorePizza(state.recipe, pizza);
       const bakeState = classifyBake(action.value, state.recipe.bakeTarget);
-      // P0-2: computed here, from this exact canonical `pizza` (the same one `scorePizza`
-      // above just scored authoritatively) -- the one and only Scoring 2.0 Shadow call site,
-      // shared by FREE and Lunch Rush alike (both dispatch this same action; see
-      // ../logic/scoringV2/index.ts's own file header).
+      // A1 Authority Cutover: Scoring 2.0 (../logic/scoringV2/) is now authoritative for
+      // `state.score` -- computed here, from this exact canonical `pizza`, the one and only
+      // Scoring 2.0 call site, shared by FREE and Lunch Rush alike (both dispatch this same
+      // action; see ../logic/scoringV2/index.ts's own file header). `toLegacyScoreBreakdown`
+      // adapts it into the `ScoreBreakdown` shape every downstream consumer already reads
+      // formula-agnostically (see ../logic/scoringV2/toLegacyScoreBreakdown.ts). Legacy
+      // `scorePizza` (../logic/scoring.ts) is kept callable elsewhere (Option A, not deleted at
+      // A1) but is no longer read for `state.score` -- the two never hold authority at once.
       const scoringV2Shadow = computeScoringV2Shadow(state.recipe, pizza);
+      const score = toLegacyScoreBreakdown(scoringV2Shadow, action.value, state.recipe.bakeTarget);
       return { ...state, pizza, score, bakeState, scoringV2Shadow, phase: "RESULT" };
     }
 

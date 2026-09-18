@@ -435,7 +435,16 @@ export function GameScreen({
       )}
 
       {state.phase === "RESULT" && state.score && !isMissionActive && (
-        <ResultPanel score={state.score} bakeState={state.bakeState} onRegister={onRegisterToDex} />
+        <ResultPanel
+          score={state.score}
+          bakeState={state.bakeState}
+          sauceScore={
+            state.scoringV2Shadow?.components.sauce.available
+              ? state.scoringV2Shadow.components.sauce.score
+              : null
+          }
+          onRegister={onRegisterToDex}
+        />
       )}
 
       {/* Phase 4A-2: Scoring 2.0 Shadow debug panel -- shown for both FREE and Lunch Rush
