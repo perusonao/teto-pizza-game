@@ -79,12 +79,12 @@ describe("getPlayerReferencePizza", () => {
 });
 
 describe("Scoring 2.0 Reference fixtures unchanged (scope guard)", () => {
-  /** B2 PART A (docs/reports/TETO_SCORING2-B2_REFERENCE-COVERAGE_Result.md): coverage is now
-   *  margherita/marinara/funghi (3/7) -- this playerReference.ts guard test is updated to
-   *  match, not loosened; it still pins that this file (`getPlayerReferencePizza`) stays
-   *  entirely independent of whatever `getReferencePizza` covers, for every recipe. */
-  it("Scoring 2.0 Reference coverage matches B2 PART A exactly: margherita/marinara/funghi available, every other recipe null", () => {
-    const covered = new Set(["margherita", "marinara", "funghi"]);
+  /** B2 PART C1 (docs/reports/TETO_SCORING2-B2_REFERENCE-COVERAGE_Result.md): coverage is now
+   *  margherita/marinara/funghi/genovese/fugazza (5/7) -- this playerReference.ts guard test is
+   *  updated to match, not loosened; it still pins that this file (`getPlayerReferencePizza`)
+   *  stays entirely independent of whatever `getReferencePizza` covers, for every recipe. */
+  it("Scoring 2.0 Reference coverage matches B2 PART C1 exactly: 5 recipes available, bismarck/quattro-formaggi null", () => {
+    const covered = new Set(["margherita", "marinara", "funghi", "genovese", "fugazza"]);
     for (const recipe of RECIPES) {
       const scoringReference = getReferencePizza(recipe.id);
       if (covered.has(recipe.id)) {

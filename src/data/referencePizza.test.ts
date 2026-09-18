@@ -3,7 +3,9 @@ import {
   buildIdealMargheritaSauceFixture,
   buildIdealSauceFixture,
   computeMechanicalSauceReference,
+  FUGAZZA_REFERENCE,
   FUNGHI_REFERENCE,
+  GENOVESE_REFERENCE,
   getReferencePizza,
   IDEAL_MARGHERITA_SAUCE_FIXTURE,
   MARGHERITA_REFERENCE,
@@ -67,7 +69,7 @@ describe("Reference fixture reachability", () => {
   });
 });
 
-describe("getReferencePizza (B2 PART A: coverage is now margherita/marinara/funghi, 3/7)", () => {
+describe("getReferencePizza (B2 PART C1: coverage is now margherita/marinara/funghi/genovese/fugazza, 5/7)", () => {
   it("returns the Margherita reference for margherita", () => {
     expect(getReferencePizza("margherita")).toBe(MARGHERITA_REFERENCE);
   });
@@ -80,23 +82,25 @@ describe("getReferencePizza (B2 PART A: coverage is now margherita/marinara/fung
     expect(getReferencePizza("funghi")).toBe(FUNGHI_REFERENCE);
   });
 
+  it("returns the Genovese reference for genovese", () => {
+    expect(getReferencePizza("genovese")).toBe(GENOVESE_REFERENCE);
+  });
+
+  it("returns the Fugazza reference for fugazza", () => {
+    expect(getReferencePizza("fugazza")).toBe(FUGAZZA_REFERENCE);
+  });
+
   it("returns null for a recipe with no reviewed geometry, and for an unknown id", () => {
-    for (const id of ["quattro-formaggi", "pesto-genovese", "unknown-recipe"]) {
+    for (const id of ["quattro-formaggi", "bismarck-egg", "unknown-recipe"]) {
       expect(getReferencePizza(id)).toBeNull();
     }
   });
 
   /** B2 (docs/reports/TETO_SCORING2-B2_REFERENCE-COVERAGE_Result.md): still pins the exact
-   *  remaining-blocked coverage state for the 4 recipes PART A did not touch. Genovese/fugazza
-   *  have design-only candidates (section 11, NOT YET APPROVED); bismarck/quattro-formaggi
-   *  have none yet -- none of the four are registered here. */
-  it("still returns null for every recipe PART A did not implement", () => {
-    for (const id of [
-      "quattro-formaggi",
-      "genovese",
-      "bismarck",
-      "fugazza",
-    ] satisfies RecipeId[]) {
+   *  remaining-blocked coverage state for the 2 recipes PART C1 did not touch. Both have
+   *  design-only candidates (section 13, NOT YET APPROVED) -- neither is registered here. */
+  it("still returns null for every recipe PART C1 did not implement", () => {
+    for (const id of ["quattro-formaggi", "bismarck"] satisfies RecipeId[]) {
       expect(getReferencePizza(id)).toBeNull();
     }
   });
@@ -145,6 +149,48 @@ describe("MARINARA_REFERENCE / FUNGHI_REFERENCE (B2 PART A: reviewed, approved g
       expect(group.matching).toEqual({ fullCreditRadius: 8, zeroCreditRadius: 22 });
     }
     expect(FUNGHI_REFERENCE.sauce).toEqual(computeMechanicalSauceReference("funghi"));
+  });
+});
+
+/**
+ * B2 PART C1: pins the exact ChatGPT-approved coordinates/tolerance for genovese and fugazza,
+ * the same guarantee every other implemented recipe's geometry already has.
+ */
+describe("GENOVESE_REFERENCE / FUGAZZA_REFERENCE (B2 PART C1: reviewed, approved geometry)", () => {
+  it("genovese: mozzarella x2 / cherry-tomato x3 at the exact approved positions, 8/22 tolerance", () => {
+    const [mozzarella, cherryTomato] = GENOVESE_REFERENCE.pieceGroups;
+    expect(mozzarella.ingredientId).toBe("mozzarella");
+    expect(mozzarella.positions).toEqual([
+      { x: 33, y: 42 },
+      { x: 59, y: 65 },
+    ]);
+    expect(cherryTomato.ingredientId).toBe("cherry-tomato");
+    expect(cherryTomato.positions).toEqual([
+      { x: 48, y: 32 },
+      { x: 40, y: 70 },
+      { x: 70, y: 47 },
+    ]);
+    for (const group of GENOVESE_REFERENCE.pieceGroups) {
+      expect(group.matching).toEqual({ fullCreditRadius: 8, zeroCreditRadius: 22 });
+    }
+    expect(GENOVESE_REFERENCE.sauce).toEqual(computeMechanicalSauceReference("genovese"));
+  });
+
+  it("fugazza: onion x4 / oregano x1 at the exact approved positions, 8/22 tolerance", () => {
+    const [onion, oregano] = FUGAZZA_REFERENCE.pieceGroups;
+    expect(onion.ingredientId).toBe("onion");
+    expect(onion.positions).toEqual([
+      { x: 30, y: 36 },
+      { x: 69, y: 35 },
+      { x: 33, y: 67 },
+      { x: 67, y: 63 },
+    ]);
+    expect(oregano.ingredientId).toBe("oregano");
+    expect(oregano.positions).toEqual([{ x: 51, y: 46 }]);
+    for (const group of FUGAZZA_REFERENCE.pieceGroups) {
+      expect(group.matching).toEqual({ fullCreditRadius: 8, zeroCreditRadius: 22 });
+    }
+    expect(FUGAZZA_REFERENCE.sauce).toEqual(computeMechanicalSauceReference("fugazza"));
   });
 });
 

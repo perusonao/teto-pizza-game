@@ -798,11 +798,11 @@ describe("computeScoringV2Shadow (P0-1 Reference availability + P0-2 canonical e
     expect(result.components.bake.available).toBe(true);
   });
 
-  /** B2 PART A: marinara/funghi moved out of this "still unavailable" list -- see the new
-   *  "B2 PART A newly covered recipes" describe block below for their own availability +
-   *  Golden ordering coverage. */
-  it("every recipe still without a Reference fixture is unavailable (genovese/bismarck/quattro-formaggi/fugazza)", () => {
-    for (const id of ["quattro-formaggi", "genovese", "bismarck", "fugazza"] as const) {
+  /** B2 PART A/C1: marinara/funghi/genovese/fugazza moved out of this "still unavailable"
+   *  list -- see the new "B2 newly covered recipes" describe block below for their own
+   *  availability + Golden ordering coverage. */
+  it("every recipe still without a Reference fixture is unavailable (bismarck/quattro-formaggi)", () => {
+    for (const id of ["quattro-formaggi", "bismarck"] as const) {
       const recipe = getRecipe(id)!;
       const result = computeScoringV2Shadow(recipe, createEmptyPizza());
       expect(result.available).toBe(false);
@@ -965,25 +965,28 @@ function poorPizzaForRecipe(recipeId: RecipeId): PizzaState {
   });
 }
 
-describe("computeScoringV2Shadow -- B2 PART A newly covered recipes (marinara, funghi)", () => {
-  it.each(["marinara", "funghi"] as const)("%s is now available:true with a reviewed Reference", (id) => {
-    const recipe = getRecipe(id)!;
-    const result = computeScoringV2Shadow(recipe, referenceLikePizzaForRecipe(id));
-    expect(result.available).toBe(true);
-    expect(result.unavailableReason).toBeNull();
-    expect(result.totalScore).not.toBeNull();
-    expect(result.components.sauce.available).toBe(true);
-    expect(result.components.pieces.available).toBe(true);
-    expect(result.components.recipe.available).toBe(true);
-    // B1 (merged onto main after this test was first written): Bake needs no Reference
-    // fixture at all, so it's already real/available for every recipe including these two --
-    // see bakeComponent.ts's file header. Not B2's concern to test further here (B1 owns its
-    // own Golden ordering coverage); just confirmed not to regress for the newly-covered
-    // recipes' overall `available:true` result.
-    expect(result.components.bake.available).toBe(true);
-  });
+describe("computeScoringV2Shadow -- B2 newly covered recipes (marinara, funghi, genovese, fugazza)", () => {
+  it.each(["marinara", "funghi", "genovese", "fugazza"] as const)(
+    "%s is now available:true with a reviewed Reference",
+    (id) => {
+      const recipe = getRecipe(id)!;
+      const result = computeScoringV2Shadow(recipe, referenceLikePizzaForRecipe(id));
+      expect(result.available).toBe(true);
+      expect(result.unavailableReason).toBeNull();
+      expect(result.totalScore).not.toBeNull();
+      expect(result.components.sauce.available).toBe(true);
+      expect(result.components.pieces.available).toBe(true);
+      expect(result.components.recipe.available).toBe(true);
+      // B1 (merged onto main after this test was first written): Bake needs no Reference
+      // fixture at all, so it's already real/available for every recipe including these four
+      // -- see bakeComponent.ts's file header. Not B2's concern to test further here (B1 owns
+      // its own Golden ordering coverage); just confirmed not to regress for the newly-covered
+      // recipes' overall `available:true` result.
+      expect(result.components.bake.available).toBe(true);
+    },
+  );
 
-  it.each(["margherita", "marinara", "funghi"] as const)(
+  it.each(["margherita", "marinara", "funghi", "genovese", "fugazza"] as const)(
     "%s: perfect (Reference-exact) > good > poor > empty",
     (id) => {
       const recipe = getRecipe(id)!;
@@ -1007,7 +1010,7 @@ describe("computeScoringV2Shadow -- B2 PART A newly covered recipes (marinara, f
     },
   );
 
-  it.each(["marinara", "funghi"] as const)(
+  it.each(["marinara", "funghi", "genovese", "fugazza"] as const)(
     "%s: same-type piece permutation invariance holds for the new Reference groups too",
     (id) => {
       const recipe = getRecipe(id)!;
@@ -1021,10 +1024,19 @@ describe("computeScoringV2Shadow -- B2 PART A newly covered recipes (marinara, f
     },
   );
 
-  it("margherita remains available and unaffected by marinara/funghi's new coverage (no cross-recipe regression)", () => {
+  it("margherita remains available and unaffected by marinara/funghi/genovese/fugazza's new coverage (no cross-recipe regression)", () => {
     const result = computeScoringV2Shadow(MARGHERITA, referenceLikePizza());
     expect(result.available).toBe(true);
     expect(result.totalScore).not.toBeNull();
+  });
+
+  it("marinara and funghi (PART A) remain available and unaffected by genovese/fugazza's new coverage (no cross-recipe regression)", () => {
+    for (const id of ["marinara", "funghi"] as const) {
+      const recipe = getRecipe(id)!;
+      const result = computeScoringV2Shadow(recipe, referenceLikePizzaForRecipe(id));
+      expect(result.available).toBe(true);
+      expect(result.totalScore).not.toBeNull();
+    }
   });
 
   it("Scoring 2.0 stays non-authoritative for the newly-covered recipes too -- computeScoringV2Shadow has no side effects on state.score/Dex/Mission", () => {
