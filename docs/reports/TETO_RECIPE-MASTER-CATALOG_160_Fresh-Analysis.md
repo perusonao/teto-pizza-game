@@ -438,8 +438,11 @@ tolerance, Vegetariana's own-entry question). New from this pass:
 - **PR #81 base SHA (floating `main` ref, both at creation and at this follow-up):**
   `b784cd3164f412252d6e6b1d70b52a5ec665553b` — see §2.1 for why these three SHA labels are
   kept distinct and what was/wasn't re-audited between them.
-- **HEAD SHA (this follow-up commit):** `<filled in after this commit — see PR #81 for the
-  current value; this report is committed in the same commit as the HEAD it describes>`
+- **HEAD SHA (the substantive Fresh Gate follow-up commit — provenance/framing fixes, no
+  catalog content change):** `ad1ec4364124b6982a7145ee897e635fc5948341`. (A trailing
+  doc-only commit fills in this exact value after that commit was made — see PR #81's commit
+  list for the branch's actual current tip, which may be one commit ahead of this SHA for
+  that reason alone.)
 - **Catalog count:** 53 total entries (51 viable, 2 `rejected_duplicate`) — **not** 160; see
   §3. This has not changed since the original version of this report; only provenance/framing
   text changed in this follow-up.
