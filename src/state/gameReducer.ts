@@ -14,6 +14,7 @@ import {
   type CookingTimingState,
 } from "../logic/cookingTiming";
 import { computeScoringV2, toLegacyScoreBreakdown, type ScoringV2Result } from "../logic/scoringV2";
+import { evaluatePizzaCompletion, type PizzaCompletionResult } from "../logic/completionGate";
 import { totalStars } from "../logic/mastery";
 import { purchaseIngredient, restockIngredient } from "../logic/economy";
 import { applyPitzCredit, type PitzCredit } from "../logic/pitzReward";
@@ -81,6 +82,13 @@ export interface GameState {
    *  null for every fresh round (`buildOrderState` below) so a stale previous round's result
    *  can never leak into a new one's PREPARE/BAKE phases. */
   scoringV2Result: ScoringV2Result | null;
+  /** Completion Gate Phase 1 (../logic/completionGate.ts): PASS/FAILED for the exact pizza
+   *  `scoringV2Result` was just computed from, at the same CONFIRM_BAKE step. FAILED gates
+   *  REGISTER_TO_DEX's own Dex/BEST/Starter-Grant/Pitz side effects (see that case below) --
+   *  Scoring 2.0 itself is computed either way (never gated on this), since a FAILED pizza's
+   *  score is simply never used, not undefined. Null until the first CONFIRM_BAKE of a round,
+   *  reset to null for every fresh round, same lifecycle as `scoringV2Result`. */
+  completion: PizzaCompletionResult | null;
   dex: DexState;
   /** Canonical OWNED ingredient ids (Phase 3C-3+). Always a superset of the Starter Set.
    *  Mutated by PURCHASE_INGREDIENT (Phase 3C-5); every other action carries it through
@@ -286,6 +294,7 @@ function buildOrderState(order: Order, carry: ProgressionCarry, isMissionRound: 
     score: null,
     bakeState: null,
     scoringV2Result: null,
+    completion: null,
     cookingTiming: null,
     ...carry,
     isMissionRound,
@@ -676,12 +685,21 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // is the sole scoring authority now.
       const scoringV2Result = computeScoringV2(state.recipe, pizza);
       const score = toLegacyScoreBreakdown(scoringV2Result, action.value, state.recipe.bakeTarget);
+      // Completion Gate Phase 1: computed unconditionally (FREE and Lunch Rush alike), from
+      // this exact canonical `pizza`, alongside Scoring 2.0 -- the two are independent (see
+      // ../logic/completionGate.ts's own file header). Only REGISTER_TO_DEX below actually
+      // branches on it today (FREE only, per the Result Report's Lunch Rush decision); Mission's
+      // MISSION_NEXT_ORDER keeps its pre-existing behavior unchanged this phase.
+      const completion = evaluatePizzaCompletion(state.recipe, pizza);
       // EP2: consumes exactly the finite ingredients this canonical `pizza` actually used
       // (placed-piece count for scatter, 1-per-sauce-id for spread), computed as one pure
       // next-inventory value from `state.inventory` + `pizza` -- see consumePizzaInventory's
       // own doc comment (./inventory.ts) for the full consumption/clamp/atomicity contract.
+      // Completion Gate Phase 1: unaffected by `completion` -- ingredients used on a FAILED
+      // pizza were still genuinely used (see the Result Report's inventory semantics section),
+      // so this consumption happens exactly the same way regardless of the gate's outcome.
       const inventory = consumePizzaInventory(pizza, state.inventory);
-      return { ...state, pizza, score, bakeState, scoringV2Result, inventory, phase: "RESULT" };
+      return { ...state, pizza, score, bakeState, scoringV2Result, completion, inventory, phase: "RESULT" };
     }
 
     case "REGISTER_TO_DEX": {
@@ -693,6 +711,16 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // is rejected here before either Dex or Pitz is touched a second time (Pattern A, see
       // docs/reports/TETO_ISSUE-38_PITZ-REWARD_Fresh-Audit.md sec. 3).
       if (state.phase !== "RESULT" || !state.score) {
+        return state;
+      }
+      // Completion Gate Phase 1: a FAILED pizza never registers -- no Dex discovery/BEST/
+      // timesMade update, no Starter Grant, no Pitz credit (see ../logic/completionGate.ts and
+      // the Result Report's FAILED semantics section for the full rationale). `state` is
+      // returned completely unchanged, so the round stays parked at "RESULT" with
+      // `lastPitzCredit`/`lastStarterGrantNotice` still at their fresh-round `null` -- the
+      // FAILED RESULT UI reads `state.completion` directly instead of any of the fields this
+      // case would otherwise set.
+      if (state.completion?.status === "FAILED") {
         return state;
       }
       const { dex, wasNewDiscovery, isNewBest } = registerScoreToDex(
@@ -789,6 +817,12 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (state.phase !== "RESULT" || !state.score) {
         return state;
       }
+      // Completion Gate Phase 1 Scope Guard (see the Result Report's Lunch Rush section):
+      // `state.completion` is computed for every Mission round too (CONFIRM_BAKE above), but
+      // deliberately not read here -- applying the gate to Lunch Rush's serve-a-quota flow is a
+      // Mission balance decision (a FAILED pizza mid-run would still consume the run's own
+      // time/ingredients for zero served count) explicitly deferred to a later phase, not an
+      // oversight. FREE-only gating (REGISTER_TO_DEX above) is what Phase 1 ships.
       const { dex } = registerScoreToDex(state.dex, state.recipe.id, state.score);
       // EP4: the second (and last) place `dex` changes -- see REGISTER_TO_DEX's own comment
       // above for why this exact spot, atomically with the `dex` update, is where a Lunch Rush
