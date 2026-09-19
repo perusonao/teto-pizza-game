@@ -659,10 +659,73 @@
 .ingredient-panel {
   padding: 4px 12px 0;
   /* Human Feel Fix 3: reserves room for .prepare-bake-bar (position: fixed, see its own
-     rule below) so the fixed CTA bar can never sit on top of the last two Palette rows.
+     rule below) so the fixed CTA bar can never sit on top of the last Palette row.
      IngredientTray only ever renders during PREPARE (see GameScreen.tsx), so this is safe
-     to apply unconditionally rather than needing its own phase-scoped modifier class. */
-  padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+     to apply unconditionally rather than needing its own phase-scoped modifier class.
+     Visual Polish 1A: shared with `.ingredient-scroll-cue` below via `--bake-bar-reserve` so
+     the two can never drift out of sync -- this padding is what actually makes the last row
+     reachable by scrolling; the cue below only makes that fact visible before the player
+     scrolls (see the Result Report for why a Recommended row stacking on top of the Other
+     grid doesn't defeat this reservation -- it's trailing space at the very end of the
+     document flow either way, the P1 bug was pure discoverability, not unreachability). */
+  --bake-bar-reserve: 84px;
+  padding-bottom: calc(var(--bake-bar-reserve) + env(safe-area-inset-bottom, 0px));
+}
+
+/* Visual Polish 1A (Ingredient Tray Overflow, P1-1): a zero-height marker at the true end of
+   the tray's in-flow content (rendered by IngredientTray.tsx, just after the page-nav) --
+   IntersectionObserver watches this node to know whether any tray content still sits below
+   the visible-above-the-CTA-bar area, entirely decoupled from the CSS numbers above (no
+   scrollHeight/scrollY math in JS to keep in sync by hand). */
+.ingredient-panel__content-end {
+  height: 0;
+}
+
+/* Shown only while `.ingredient-panel__content-end` is not yet visible above the fixed
+   `.prepare-bake-bar` -- i.e. exactly when a player would otherwise have no on-screen reason
+   to suspect more ingredients exist below the fold (P1-1's actual failure mode). A gradient
+   fade + small bouncing chevron, matching the audit's own AI mock brief; `pointer-events:
+   none` and `aria-hidden` keep it purely decorative, never a tap target or an
+   assistive-tech stop. */
+.ingredient-scroll-cue {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(var(--bake-bar-reserve) + env(safe-area-inset-bottom, 0px));
+  width: 100%;
+  max-width: 390px;
+  height: 30px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 2px;
+  background: linear-gradient(180deg, rgba(247, 236, 212, 0) 0%, #f7ecd4 80%);
+  pointer-events: none;
+  /* Must stay below .prepare-bake-bar (10) but above ordinary in-flow PREPARE content
+     (z-index: auto), exactly like that bar's own z-index comment already reasons about. */
+  z-index: 9;
+}
+
+.ingredient-scroll-cue__chevron {
+  font-size: 14px;
+  color: #a04a27;
+  opacity: 0.85;
+  animation: ingredient-scroll-cue-bounce 1.4s ease-in-out infinite;
+}
+
+@keyframes ingredient-scroll-cue-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(3px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ingredient-scroll-cue__chevron {
+    animation: none;
+  }
 }
 
 /* ---------- Ingredient Tray Scalability: Recommended / Other (Issue #86) ---------- */
