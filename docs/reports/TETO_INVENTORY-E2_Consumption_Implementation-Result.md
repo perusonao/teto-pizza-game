@@ -14,10 +14,9 @@ production deploy were touched in this session, per instruction.
   the branch (`claude/inventory-e2-atomic-consumption-3uknx2`) was already `0 behind / 0 ahead` of
   this exact SHA.
 - **Branch**: `claude/inventory-e2-atomic-consumption-3uknx2`.
-- **PR**: opened against `main` in this session (see the session's own PR-creation step below) —
-  left **OPEN**, not merged, per instruction.
-- **HEAD SHA (this implementation)**: recorded in the PR itself (the commit created by this
-  session's own `git commit`, pushed to the branch above).
+- **PR**: [#82](https://github.com/perusonao/teto-pizza-game/pull/82) — left **OPEN**, not
+  merged, per instruction.
+- **HEAD SHA (this implementation)**: `ad7994b4c8f6b3a1eed53007fd9a278c4638f8ab`.
 - **Changed files** (exactly 3 touched, 1 new): `src/state/inventory.ts`,
   `src/state/gameReducer.ts`, `src/state/inventory.test.ts` (extended),
   `src/state/gameReducer.inventoryConsumption.test.ts` (new), plus this report.
