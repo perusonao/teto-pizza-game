@@ -22,7 +22,16 @@ export function buildCompletionFailureMessage(failed: PizzaCompletionFailed): st
     case "INSUFFICIENT_REQUIRED_AMOUNT":
       return `${ingredientNameJa(failed.ingredientId)}が足りませんでした`;
     case "INSUFFICIENT_SAUCE":
-      return `${ingredientNameJa(failed.ingredientId)}が少なすぎます`;
+      // Human Feel Tuning 1A (P1 follow-up to the 11 Recipe Human Feel Audit,
+      // docs/reports/TETO_11-RECIPE_HUMAN-FEEL_Post-Completion-CT2_Audit.md section 12): the
+      // gate here is a coverage-area check (../logic/completionGate.ts's `checkSauceQuantity`),
+      // not purely a quantity one -- a single straight one-way swipe can dispense plenty of
+      // sauce and still fail this check because it never covers enough of the dough. The old
+      // 「少なすぎます」("not enough") phrasing reads as an amount problem and tempts a player to
+      // just hold longer/press harder rather than spread wider, which can never pass. This copy
+      // change is the only behavior change in that tuning pass -- the gate/threshold themselves
+      // are untouched.
+      return `${ingredientNameJa(failed.ingredientId)}をもう少し広くぬろう！`;
     case "UNDERBAKED":
       return "生焼けで提供できません";
     case "OVERBAKED":
