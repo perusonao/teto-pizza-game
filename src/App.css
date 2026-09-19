@@ -1792,6 +1792,45 @@
   opacity: 0.7;
 }
 
+/* ---------- Shop restock rows (Economy & Progression 1.0 EP3) ---------- */
+.shop-item__restock {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.shop-item__stock {
+  font-size: 12px;
+  font-weight: 700;
+  color: #4a2e0a;
+  white-space: nowrap;
+}
+
+.shop-item__restock-qty {
+  font-size: 12px;
+  font-weight: 700;
+  color: #4c9a2a;
+  white-space: nowrap;
+}
+
+.shop-item__restock-button {
+  border: none;
+  background: #f2b705;
+  color: #4a2e0a;
+  font-weight: 800;
+  font-size: 12px;
+  border-radius: 999px;
+  padding: 8px 14px;
+  min-height: 36px;
+}
+
+.shop-item__restock-button:disabled {
+  background: #e0d0ac;
+  color: #a1662f;
+  opacity: 0.7;
+}
+
 /* ==========================================================================
    HOME / GAME screens (Issue #24)
    ========================================================================== */

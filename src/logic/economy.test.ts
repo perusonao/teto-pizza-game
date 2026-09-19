@@ -3,10 +3,12 @@ import {
   MISSION_REWARD_BASE_PITZ,
   calculateMissionReward,
   purchaseIngredient,
+  restockIngredient,
 } from "./economy";
 import type { MissionMetrics } from "./missionScoring";
 import type { Ingredient } from "../data/ingredients";
 import { STARTER_INGREDIENT_IDS, getIngredient } from "../data/ingredients";
+import type { InventoryState } from "../state/inventory";
 
 function metrics(servedCount: number, totalQualityScore: number, bestQualityScore = 0): MissionMetrics {
   return { servedCount, totalQualityScore, bestQualityScore };
@@ -315,6 +317,178 @@ describe("purchaseIngredient", () => {
     if (result.success) {
       expect(result.nextOwnedIngredientIds).toEqual([...STARTER_INGREDIENT_IDS, "onion"]);
       expect(result.nextPitzBalance).toBe(0);
+    }
+  });
+});
+
+describe("restockIngredient (Economy & Progression 1.0 EP3)", () => {
+  const OWNED_FINITE_INGREDIENT: Ingredient = {
+    id: "mock-owned-finite",
+    category: "topping",
+    nameJa: "補充可能（テスト用）",
+    color: "#000",
+    emoji: "❓",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 5 },
+    pricePitz: 120,
+    restockQuantity: 12,
+  };
+
+  function restock(overrides: Partial<Parameters<typeof restockIngredient>[0]> = {}) {
+    return restockIngredient({
+      ingredient: OWNED_FINITE_INGREDIENT,
+      ownedIngredientIds: [OWNED_FINITE_INGREDIENT.id],
+      inventory: {},
+      pitzBalance: 1000,
+      ...overrides,
+    });
+  }
+
+  it("restocks an owned finite ingredient: inventory increases by exactly restockQuantity", () => {
+    const result = restock({ inventory: { [OWNED_FINITE_INGREDIENT.id]: 3 } });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.nextInventory).toEqual({ [OWNED_FINITE_INGREDIENT.id]: 15 }); // 3 + 12
+    }
+  });
+
+  it("adds exactly the packQuantity onto an absent (0) inventory entry", () => {
+    const result = restock({ inventory: {} });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.nextInventory).toEqual({ [OWNED_FINITE_INGREDIENT.id]: 12 });
+    }
+  });
+
+  it("subtracts exactly pricePitz from pitzBalance on a successful restock", () => {
+    const result = restock({ pitzBalance: 500 });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.nextPitzBalance).toBe(380); // 500 - 120
+    }
+  });
+
+  it("real onion data restocks 12 units for 120 Pitz, per the SSOT-confirmed values", () => {
+    const onion = getIngredient("onion")!;
+    const result = restockIngredient({
+      ingredient: onion,
+      ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "onion"],
+      inventory: { onion: 0 },
+      pitzBalance: 200,
+    });
+    expect(result).toEqual({ success: true, nextInventory: { onion: 12 }, nextPitzBalance: 80 });
+  });
+
+  it("rejects atomically when Pitz is insufficient -- neither balance nor inventory changes", () => {
+    const inventory: InventoryState = { [OWNED_FINITE_INGREDIENT.id]: 3 };
+    const result = restockIngredient({
+      ingredient: OWNED_FINITE_INGREDIENT,
+      ownedIngredientIds: [OWNED_FINITE_INGREDIENT.id],
+      inventory,
+      pitzBalance: 119, // one short of the 120 price
+    });
+    expect(result).toEqual({ success: false, reason: "INSUFFICIENT_FUNDS" });
+  });
+
+  it("succeeds with the exact balance, leaving exactly 0 Pitz", () => {
+    const result = restock({ pitzBalance: 120 });
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.nextPitzBalance).toBe(0);
+  });
+
+  it("rejects restocking an unlimited (Starter) ingredient regardless of ownership/balance", () => {
+    for (const id of STARTER_INGREDIENT_IDS) {
+      const ingredient = getIngredient(id)!;
+      const result = restockIngredient({
+        ingredient,
+        ownedIngredientIds: [id],
+        inventory: {},
+        pitzBalance: 999999,
+      });
+      expect(result).toEqual({ success: false, reason: "UNLIMITED" });
+    }
+  });
+
+  it("rejects restocking a finite ingredient that is not yet owned (LOCKED or AVAILABLE_TO_BUY)", () => {
+    const result = restock({ ownedIngredientIds: [] });
+    expect(result).toEqual({ success: false, reason: "NOT_OWNED" });
+  });
+
+  it("rejects an ingredient with no restockQuantity set", () => {
+    const noQuantity: Ingredient = { ...OWNED_FINITE_INGREDIENT, id: "mock-no-qty", restockQuantity: undefined };
+    const result = restockIngredient({
+      ingredient: noQuantity,
+      ownedIngredientIds: [noQuantity.id],
+      inventory: {},
+      pitzBalance: 1000,
+    });
+    expect(result).toEqual({ success: false, reason: "NOT_FOR_SALE" });
+  });
+
+  it("rejects a zero/negative/fractional restockQuantity", () => {
+    for (const restockQuantity of [0, -5, 2.5, NaN]) {
+      const bad: Ingredient = { ...OWNED_FINITE_INGREDIENT, id: `mock-bad-qty-${restockQuantity}`, restockQuantity };
+      const result = restockIngredient({
+        ingredient: bad,
+        ownedIngredientIds: [bad.id],
+        inventory: {},
+        pitzBalance: 1000,
+      });
+      expect(result).toEqual({ success: false, reason: "NOT_FOR_SALE" });
+    }
+  });
+
+  it("rejects an ingredient with no valid pricePitz, even if restockQuantity is set", () => {
+    const noPrice: Ingredient = { ...OWNED_FINITE_INGREDIENT, id: "mock-no-price-restock", pricePitz: undefined };
+    const result = restockIngredient({
+      ingredient: noPrice,
+      ownedIngredientIds: [noPrice.id],
+      inventory: {},
+      pitzBalance: 1000,
+    });
+    expect(result).toEqual({ success: false, reason: "NOT_FOR_SALE" });
+  });
+
+  it("is repeatable, unlike purchaseIngredient -- two successful restocks in a row both apply", () => {
+    const first = restock({ inventory: {}, pitzBalance: 1000 });
+    expect(first.success).toBe(true);
+    if (!first.success) return;
+    const second = restockIngredient({
+      ingredient: OWNED_FINITE_INGREDIENT,
+      ownedIngredientIds: [OWNED_FINITE_INGREDIENT.id],
+      inventory: first.nextInventory,
+      pitzBalance: first.nextPitzBalance,
+    });
+    expect(second.success).toBe(true);
+    if (second.success) {
+      expect(second.nextInventory).toEqual({ [OWNED_FINITE_INGREDIENT.id]: 24 });
+      expect(second.nextPitzBalance).toBe(760); // 1000 - 120 - 120
+    }
+  });
+
+  it("a double-tap sequence (same pre-restock input called twice) is not a special case -- each independent application charges once", () => {
+    const input = {
+      ingredient: OWNED_FINITE_INGREDIENT,
+      ownedIngredientIds: [OWNED_FINITE_INGREDIENT.id],
+      inventory: {} as InventoryState,
+      pitzBalance: 250,
+    };
+    const first = restockIngredient(input);
+    const second = restockIngredient(input); // same input, not chained -- simulates a double-tap
+    expect(first).toEqual(second);
+  });
+
+  it("does not mutate the input inventory object", () => {
+    const inventory: InventoryState = { [OWNED_FINITE_INGREDIENT.id]: 3 };
+    restock({ inventory });
+    expect(inventory).toEqual({ [OWNED_FINITE_INGREDIENT.id]: 3 });
+  });
+
+  it("touches only the target ingredient's own inventory key, leaving every other id untouched", () => {
+    const result = restock({ inventory: { [OWNED_FINITE_INGREDIENT.id]: 0, "other-id": 7 } });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.nextInventory).toEqual({ [OWNED_FINITE_INGREDIENT.id]: 12, "other-id": 7 });
     }
   });
 });

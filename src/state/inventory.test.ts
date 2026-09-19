@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { getIngredient } from "../data/ingredients";
 import { createEmptyPizza, type PizzaState } from "./pizzaState";
 import {
+  canPlaceIngredient,
   consumePizzaInventory,
   EMPTY_INVENTORY,
   hasStock,
@@ -178,5 +179,64 @@ describe("consumePizzaInventory (Economy & Progression 1.0 EP2)", () => {
     expect(consumePizzaInventory(pizza, { "does-not-exist": 10 })).toEqual({
       "does-not-exist": 10,
     });
+  });
+});
+
+describe("canPlaceIngredient (Economy & Progression 1.0 EP3 Stock Gate)", () => {
+  it("is always true for an unlimited (Starter) ingredient, regardless of placed count or inventory", () => {
+    const pizza = scatterPizza("mozzarella", 999);
+    expect(canPlaceIngredient(mozzarella, EMPTY_INVENTORY, pizza)).toBe(true);
+    expect(canPlaceIngredient(mozzarella, { mozzarella: 0 }, pizza)).toBe(true);
+  });
+
+  it("is false for a finite scatter ingredient with 0 remaining stock", () => {
+    const pizza = createEmptyPizza();
+    expect(canPlaceIngredient(onion, EMPTY_INVENTORY, pizza)).toBe(false);
+    expect(canPlaceIngredient(onion, { onion: 0 }, pizza)).toBe(false);
+  });
+
+  it("is true while placed-count-so-far stays below stock, false once it would reach or exceed it", () => {
+    const inventory: InventoryState = { onion: 3 };
+    expect(canPlaceIngredient(onion, inventory, scatterPizza("onion", 0))).toBe(true);
+    expect(canPlaceIngredient(onion, inventory, scatterPizza("onion", 2))).toBe(true);
+    // Exactly 3 already placed against a stock of 3 -- placing a 4th must be rejected.
+    expect(canPlaceIngredient(onion, inventory, scatterPizza("onion", 3))).toBe(false);
+    expect(canPlaceIngredient(onion, inventory, scatterPizza("onion", 5))).toBe(false);
+  });
+
+  it("counts only pieces of the same ingredient id already on the pizza -- other toppings don't consume its reservation", () => {
+    const pizza: PizzaState = {
+      ...createEmptyPizza(),
+      toppings: [
+        { id: "t1", ingredientId: "mushroom", x: 1, y: 1 },
+        { id: "t2", ingredientId: "mushroom", x: 2, y: 2 },
+      ],
+    };
+    expect(canPlaceIngredient(onion, { onion: 1 }, pizza)).toBe(true);
+  });
+
+  it("a fresh spread/sauce application is gated on remaining stock (0 blocks it)", () => {
+    const pizza = createEmptyPizza();
+    expect(canPlaceIngredient(getIngredient(FAKE_FINITE_SPREAD)!, EMPTY_INVENTORY, pizza)).toBe(false);
+    expect(
+      canPlaceIngredient(getIngredient(FAKE_FINITE_SPREAD)!, { [FAKE_FINITE_SPREAD]: 1 }, pizza),
+    ).toBe(true);
+  });
+
+  it("continuing to dispense the already-active sauce this round never re-gates against a stock of exactly 1", () => {
+    // sauceIds already carries this exact id -- re-applying/continuing it costs no *additional*
+    // unit, so a stock of exactly 1 (already reserved by the current application) must still
+    // allow it, unlike switching to a *different* sauce with the same stock level.
+    const pizza: PizzaState = { ...createEmptyPizza(), sauceIds: [FAKE_FINITE_SPREAD] };
+    expect(
+      canPlaceIngredient(getIngredient(FAKE_FINITE_SPREAD)!, { [FAKE_FINITE_SPREAD]: 1 }, pizza),
+    ).toBe(true);
+  });
+
+  it("switching away from a different currently-active sauce is still gated on the new one's own stock", () => {
+    const pizza: PizzaState = { ...createEmptyPizza(), sauceIds: ["tomato-sauce"] };
+    expect(
+      canPlaceIngredient(getIngredient(FAKE_FINITE_SPREAD)!, { [FAKE_FINITE_SPREAD]: 0 }, pizza),
+    ).toBe(false);
   });
 });

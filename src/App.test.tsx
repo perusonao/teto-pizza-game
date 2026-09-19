@@ -438,3 +438,85 @@ describe("HOME/GAME separation (Issue #24)", () => {
     expect(screen.getByLabelText("Pitz残高 40")).toBeInTheDocument();
   });
 });
+
+/** Economy & Progression 1.0 EP3: seeds a v2 save directly (rather than `seedSave`'s v1 shape)
+ *  so `inventory` can be set to an exact value -- a v1 seed would migrate onion's stock to the
+ *  fixed `DEFAULT_MIGRATION_RESTOCK_QTY` (4) via `backfillInventoryForMigratedSave`, which these
+ *  Shop-UI tests need to control precisely (e.g. a specific low stock, or exactly enough/not
+ *  enough Pitz for one restock). */
+function seedSaveV2(overrides: {
+  pitzBalance?: number;
+  ownedIngredientIds?: string[];
+  inventory?: Record<string, number>;
+  dex?: Array<{
+    recipeId: string;
+    discovered: boolean;
+    bestScore: number;
+    bestStars: 1 | 2 | 3 | 4 | 5;
+    timesMade: number;
+  }>;
+}): void {
+  const save = {
+    schemaVersion: 2,
+    dex: overrides.dex ?? [],
+    pitzBalance: overrides.pitzBalance ?? 0,
+    ownedIngredientIds: overrides.ownedIngredientIds ?? [...STARTER_INGREDIENT_IDS],
+    missionBest: {},
+    inventory: overrides.inventory ?? {},
+  };
+  window.localStorage.setItem(SAVE_STORAGE_KEY, JSON.stringify(save));
+}
+
+describe("Shop 2.0 restock (Economy & Progression 1.0 EP3)", () => {
+  const ownedWithOnion = [...STARTER_INGREDIENT_IDS, "onion"];
+
+  it("shows a restock row (stock/qty/price/CTA) for an owned finite ingredient, not a plain 購入済み checkmark", async () => {
+    const user = userEvent.setup();
+    seedSaveV2({ pitzBalance: 200, ownedIngredientIds: ownedWithOnion, inventory: { onion: 2 } });
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /ショップ/ }));
+    const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
+    expect(within(shop).getByText(/在庫 2/)).toBeInTheDocument();
+    expect(within(shop).getByText("+12")).toBeInTheDocument();
+    expect(within(shop).getByText(/120 Pitz/)).toBeInTheDocument();
+    expect(within(shop).getByRole("button", { name: "補充する" })).toBeInTheDocument();
+    expect(within(shop).queryByText("購入済み")).not.toBeInTheDocument();
+  });
+
+  it("補充する credits inventory by +12 and debits Pitz by 120 in one atomic tap", async () => {
+    const user = userEvent.setup();
+    seedSaveV2({ pitzBalance: 200, ownedIngredientIds: ownedWithOnion, inventory: { onion: 2 } });
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /ショップ/ }));
+    const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
+    await user.click(within(shop).getByRole("button", { name: "補充する" }));
+    expect(within(shop).getByText(/在庫 14/)).toBeInTheDocument(); // 2 + 12
+    expect(within(shop).getByText(/補充しました/)).toBeInTheDocument();
+    expect(within(shop).getByText(/80 Pitz/)).toBeInTheDocument(); // 200 - 120
+  });
+
+  it("disables 補充する when Pitz balance is insufficient for the restock price", async () => {
+    const user = userEvent.setup();
+    seedSaveV2({ pitzBalance: 50, ownedIngredientIds: ownedWithOnion, inventory: { onion: 2 } });
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /ショップ/ }));
+    const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
+    const button = within(shop).getByRole("button", { name: "補充する" });
+    expect(button).toBeDisabled();
+    await user.click(button);
+    // A disabled button never fires a click handler -- stock/Pitz must stay exactly as seeded.
+    expect(within(shop).getByText(/在庫 2/)).toBeInTheDocument();
+  });
+
+  it("an ingredient the player doesn't own yet never shows a restock row", async () => {
+    const user = userEvent.setup();
+    // onion LOCKED (totalStars 0 < 12, and not owned) -- the pre-EP3 LOCKED/AVAILABLE_TO_BUY
+    // branches must be completely unaffected by the restock UI addition.
+    seedSaveV2({ pitzBalance: 999, ownedIngredientIds: [...STARTER_INGREDIENT_IDS] });
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /ショップ/ }));
+    const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
+    expect(within(shop).queryByRole("button", { name: "補充する" })).not.toBeInTheDocument();
+    expect(within(shop).queryByText(/在庫/)).not.toBeInTheDocument();
+  });
+});

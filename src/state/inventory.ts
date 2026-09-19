@@ -45,6 +45,48 @@ export function remainingStock(
 }
 
 /**
+ * Economy & Progression 1.0 EP3: the placement-time Stock Gate (§8 of the EP3 task) --
+ * "reservation/limit check" only, never a consumption. Answers "would placing one more of
+ * `ingredient` right now, given what this exact `pizza` already carries, exceed its remaining
+ * stock?" `CONFIRM_BAKE`'s `consumePizzaInventory` (below) remains the *only* place inventory
+ * is actually decremented; this function never mutates or reads anything but the two inputs it
+ * is given, and reads the same `hasStock` unlimited/finite distinction that function already
+ * established in E1/E2 -- an unconditionally unlimited (Starter) ingredient is unaffected here
+ * exactly as it is there.
+ *
+ * - **scatter**: `alreadyUsedThisRound` is the exact count of `PlacedTopping`s already on this
+ *   pizza for `ingredient.id` -- the same "actual placed count, never `Recipe.minCount`" read
+ *   EP2's `consumePizzaInventory` uses, so a gate computed here and a consumption computed at
+ *   CONFIRM_BAKE can never disagree about how many pieces of a finite ingredient a given pizza
+ *   is carrying. Recomputed fresh from `pizza.toppings` on every call (no separate counter to
+ *   drift out of sync), so it stays correct as more pieces are placed one at a time.
+ * - **spread/sauce**: `pizza.sauceIds` is always length <=1 and fully replaced by
+ *   `APPLY_SAUCE`/`COMMIT_SAUCE_DISPENSE` (never incrementally appended). If `ingredient.id` is
+ *   *already* the pizza's current sauce, continuing to dispense/re-apply it always passes --
+ *   that single unit was already reserved by its first application, so this is never re-checked
+ *   against `hasStock` a second time (unlike the scatter branch, there is no growing placed
+ *   count to re-validate against). Only a *fresh* application (including switching away from a
+ *   different sauce) is gated on `hasStock(ingredient, inventory, 0)` -- that is what actually
+ *   needs a free unit.
+ *
+ * No shipped spread/sauce ingredient has `unlockCondition` today (only `onion`, scatter/topping)
+ * -- this branch is exercised by unit tests via synthetic fixtures, not yet by any real
+ * in-game item, exactly like `consumePizzaInventory`'s own EP2 test-data note.
+ */
+export function canPlaceIngredient(
+  ingredient: Ingredient,
+  inventory: InventoryState,
+  pizza: PizzaState,
+): boolean {
+  if (ingredient.placement === "scatter") {
+    const alreadyPlaced = pizza.toppings.filter((t) => t.ingredientId === ingredient.id).length;
+    return hasStock(ingredient, inventory, alreadyPlaced);
+  }
+  if (pizza.sauceIds.includes(ingredient.id)) return true;
+  return hasStock(ingredient, inventory, 0);
+}
+
+/**
  * Economy & Progression 1.0 EP2: the sole inventory-consumption transaction. Pure function of
  * the exact `pizza` that was just baked plus the current `inventory` -- called once, from
  * `gameReducer.ts`'s `CONFIRM_BAKE` case (the atomic transaction boundary the EP2 SSOT

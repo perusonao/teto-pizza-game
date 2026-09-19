@@ -314,6 +314,12 @@ function App() {
     dispatch({ type: "PURCHASE_INGREDIENT", ingredientId });
   }
 
+  // Economy & Progression 1.0 EP3: a separate dispatch from handlePurchaseIngredient above --
+  // see gameReducer.ts's RESTOCK_INGREDIENT case for why the two transactions stay distinct.
+  function handleRestockIngredient(ingredientId: string) {
+    dispatch({ type: "RESTOCK_INGREDIENT", ingredientId });
+  }
+
   function handleSelectIngredient(ingredient: Ingredient) {
     setSelectedIngredientId(ingredient.id);
   }
@@ -595,7 +601,9 @@ function App() {
           dex={state.dex}
           ownedIngredientIds={state.ownedIngredientIds}
           pitzBalance={state.pitzBalance}
+          inventory={state.inventory}
           onPurchase={handlePurchaseIngredient}
+          onRestock={handleRestockIngredient}
           onClose={() => setShopOpen(false)}
         />
       )}

@@ -7,11 +7,16 @@ import type { ScoreBreakdown } from "../logic/scoring";
 import { classifyBake, type BakeState } from "../logic/bake";
 import { computeScoringV2, toLegacyScoreBreakdown, type ScoringV2Result } from "../logic/scoringV2";
 import { totalStars } from "../logic/mastery";
-import { purchaseIngredient } from "../logic/economy";
+import { purchaseIngredient, restockIngredient } from "../logic/economy";
 import { applyPitzCredit, type PitzCredit } from "../logic/pitzReward";
 import { discoveredRecipeIds, registerScoreToDex, EMPTY_DEX, type DexState } from "./dex";
 import { availableRecipeIds, isRecipeAvailable } from "./progression";
-import { consumePizzaInventory, EMPTY_INVENTORY, type InventoryState } from "./inventory";
+import {
+  canPlaceIngredient,
+  consumePizzaInventory,
+  EMPTY_INVENTORY,
+  type InventoryState,
+} from "./inventory";
 import { pickMissionOrder } from "../mission/lunchRush";
 import { isInsideDough } from "../logic/pizzaCoordinates";
 import { isValidDoughShape, type DoughShape } from "../logic/doughShape";
@@ -173,7 +178,11 @@ export type GameAction =
   // Phase 3C-5 (Pitz + Shop): both reuse the pure economy rules in ../logic/economy.ts --
   // this reducer only applies their result, it never computes a price or a reward itself.
   | { type: "PURCHASE_INGREDIENT"; ingredientId: string }
-  | { type: "CLAIM_MISSION_REWARD"; runId: number; amount: number };
+  | { type: "CLAIM_MISSION_REWARD"; runId: number; amount: number }
+  // Economy & Progression 1.0 EP3 (Shop 2.0 restock): a *separate* transaction from
+  // PURCHASE_INGREDIENT above -- see ../logic/economy.ts's `restockIngredient` doc comment for
+  // why the two are never merged. Repeatable, unlike PURCHASE_INGREDIENT's exactly-once grant.
+  | { type: "RESTOCK_INGREDIENT"; ingredientId: string };
 
 /** Progression fields every "start a new round" path must carry forward unchanged --
  *  factored out so `buildOrderState`'s signature can't silently drop one when a new field is
@@ -315,6 +324,14 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // dispatch, a future UI bug, ...). A no-op, same shape as PURCHASE_INGREDIENT's own
       // "unknown/invalid id -> return state unchanged" guard below.
       if (!state.ownedIngredientIds.includes(action.ingredientId)) return state;
+      // EP3 Stock Gate: a reservation/limit check only (never a consumption -- CONFIRM_BAKE's
+      // consumePizzaInventory remains the sole place stock is actually decremented). No shipped
+      // spread ingredient is finite today (only `onion`, scatter/topping), so this is a no-op
+      // for every current sauce -- see canPlaceIngredient's own doc comment (../state/inventory.ts).
+      const sauceIngredient = getIngredient(action.ingredientId);
+      if (!sauceIngredient || !canPlaceIngredient(sauceIngredient, state.inventory, state.pizza)) {
+        return state;
+      }
       const pizza: PizzaState = {
         ...state.pizza,
         sauceIds: [action.ingredientId],
@@ -352,11 +369,18 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // itself from surviving long enough to dispatch this in the first place; this is the
       // reducer-boundary backstop that holds even if that abort somehow didn't fire.
       if (state.phase !== "PREPARE" || state.makingStep !== "SAUCE") return state;
-      if (getIngredient(action.ingredientId)?.category !== "sauce") return state;
+      const dispenseIngredient = getIngredient(action.ingredientId);
+      if (dispenseIngredient?.category !== "sauce") return state;
       if (!state.ownedIngredientIds.includes(action.ingredientId)) return state;
       if (!isValidSauceDepositBatch(action.deposits)) return state;
 
       const isFreshApplication = state.pizza.sauceIds[0] !== action.ingredientId;
+      // EP3 Stock Gate: only a *fresh* application (switching to/starting a sauce this pizza
+      // doesn't already carry) could consume a new unit at CONFIRM_BAKE -- continuing to dispense
+      // more of the already-active sauce is still the same one unit, so it is never re-gated here.
+      if (isFreshApplication && !canPlaceIngredient(dispenseIngredient, state.inventory, state.pizza)) {
+        return state;
+      }
       const firstPoint = action.deposits[0];
       const pizza: PizzaState = {
         ...state.pizza,
@@ -392,6 +416,23 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (placingIngredient.category === "cheese" && state.makingStep !== "CHEESE") return state;
       if (placingIngredient.category === "topping" && state.makingStep !== "TOPPING") return state;
       if (placingIngredient.category === "sauce") return state;
+      // EP3 Stock Gate: a reservation/limit check only -- placed count for a finite (owned,
+      // `unlockCondition`-bearing) ingredient can never exceed its remaining stock this round.
+      // Never decrements `state.inventory` itself (CONFIRM_BAKE's consumePizzaInventory remains
+      // the sole consumption point) -- this only rejects the placement, exactly like the
+      // "no open spot" case just below, reusing the same rejected-placement feedback.
+      if (!canPlaceIngredient(placingIngredient, state.inventory, state.pizza)) {
+        placementTokenCounter += 1;
+        return {
+          ...state,
+          placement: {
+            status: "rejected",
+            x: action.x,
+            y: action.y,
+            token: placementTokenCounter,
+          },
+        };
+      }
       const spot = findOpenSpot(state.pizza.toppings, action.x, action.y);
       placementTokenCounter += 1;
 
@@ -643,6 +684,35 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return {
         ...state,
         ownedIngredientIds: result.nextOwnedIngredientIds,
+        pitzBalance: result.nextPitzBalance,
+      };
+    }
+
+    // Economy & Progression 1.0 EP3: applies one restock transaction (../logic/economy.ts's
+    // `restockIngredient`, the only place NOT_OWNED/UNLIMITED/NOT_FOR_SALE/INSUFFICIENT_FUNDS
+    // are evaluated). A failed restock (not owned, unlimited/Starter, not for sale, insufficient
+    // funds) returns `state` completely unchanged -- same "no partial-failure state" contract as
+    // PURCHASE_INGREDIENT. A successful restock updates `pitzBalance` and `inventory` together in
+    // the same step, so a charge can never land without its matching stock credit, or vice versa.
+    // Repeatable by design (unlike PURCHASE_INGREDIENT): the same ingredient can be restocked
+    // again immediately, each call its own independent, atomic transaction. Sequential dispatch
+    // processing (the same reasoning `restockIngredient`'s own doc comment gives) is what keeps a
+    // double-tap from double-crediting: a second RESTOCK_INGREDIENT sees the already-debited
+    // `pitzBalance` from the first, so it either succeeds again at the new price (a real second
+    // purchase) or fails on insufficient funds -- it can never apply the first tap's charge twice.
+    case "RESTOCK_INGREDIENT": {
+      const ingredient = getIngredient(action.ingredientId);
+      if (!ingredient) return state;
+      const result = restockIngredient({
+        ingredient,
+        ownedIngredientIds: state.ownedIngredientIds,
+        inventory: state.inventory,
+        pitzBalance: state.pitzBalance,
+      });
+      if (!result.success) return state;
+      return {
+        ...state,
+        inventory: result.nextInventory,
         pitzBalance: result.nextPitzBalance,
       };
     }

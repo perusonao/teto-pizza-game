@@ -4,12 +4,20 @@ import { getRecipe } from "../data/recipes";
 import { ingredientState, recipesUnlockedByIngredient } from "../state/progression";
 import { totalStars } from "../logic/mastery";
 import type { DexState } from "../state/dex";
+import { remainingStock, type InventoryState } from "../state/inventory";
 
 interface ShopOverlayProps {
   dex: DexState;
   ownedIngredientIds: readonly string[];
   pitzBalance: number;
+  /** Economy & Progression 1.0 EP3: read-only, for the OWNED-row restock display (current
+   *  stock/CTA affordability) -- ShopOverlay never mutates this itself. */
+  inventory: InventoryState;
   onPurchase: (ingredientId: string) => void;
+  /** EP3: dispatches RESTOCK_INGREDIENT, a *separate* transaction from `onPurchase`
+   *  (PURCHASE_INGREDIENT) -- see gameReducer.ts's RESTOCK_INGREDIENT case / economy.ts's
+   *  `restockIngredient` doc comment for why the two are never merged into one handler. */
+  onRestock: (ingredientId: string) => void;
   onClose: () => void;
 }
 
@@ -57,15 +65,33 @@ interface PurchaseFeedback {
   unlockedRecipeNames: string[];
 }
 
+/** EP3: local, purely-presentational restock feedback ("たまねぎを補充しました！") -- mirrors
+ *  `PurchaseFeedback`'s own component-local pattern exactly, kept as a separate type/state
+ *  rather than merged into it, since restock has no "unlocked recipe" concept to report and is
+ *  a structurally different transaction (see RestockIngredientResult in ../logic/economy.ts). */
+interface RestockFeedback {
+  ingredientId: string;
+  ingredientNameJa: string;
+  quantity: number;
+  /** Stock immediately before this restock's own dispatch -- lets `showRestockFeedback` below
+   *  confirm the credit actually landed (mirrors `showFeedback`'s own "landed in
+   *  ownedIngredientIds" gate), so a rejected tap (e.g. insufficient funds slipping through a
+   *  stale disabled-button render) never shows a false "補充しました" message. */
+  stockBefore: number;
+}
+
 export function ShopOverlay({
   dex,
   ownedIngredientIds,
   pitzBalance,
+  inventory,
   onPurchase,
+  onRestock,
   onClose,
 }: ShopOverlayProps) {
   const stars = totalStars(dex);
   const [feedback, setFeedback] = useState<PurchaseFeedback | null>(null);
+  const [restockFeedback, setRestockFeedback] = useState<RestockFeedback | null>(null);
 
   function handleBuy(ingredient: Ingredient) {
     const unlockedRecipeNames = recipesUnlockedByIngredient(ingredient.id, dex, ownedIngredientIds)
@@ -73,6 +99,23 @@ export function ShopOverlay({
       .filter((name): name is string => !!name);
     onPurchase(ingredient.id);
     setFeedback({ ingredientId: ingredient.id, ingredientNameJa: ingredient.nameJa, unlockedRecipeNames });
+    setRestockFeedback(null);
+  }
+
+  // EP3: captured before dispatch, same "describe what the action just did" timing as
+  // handleBuy above -- restockIngredient's own atomicity means a failed restock (insufficient
+  // funds) never changes `inventory`, so `showRestockFeedback` below (gated on the stock
+  // actually having grown) never shows a false "補充しました" message for a rejected tap.
+  function handleRestock(ingredient: Ingredient) {
+    const stockBefore = inventory[ingredient.id] ?? 0;
+    onRestock(ingredient.id);
+    setRestockFeedback({
+      ingredientId: ingredient.id,
+      ingredientNameJa: ingredient.nameJa,
+      quantity: ingredient.restockQuantity ?? 0,
+      stockBefore,
+    });
+    setFeedback(null);
   }
 
   // Only shows once the purchase this feedback describes has actually landed in
@@ -80,6 +123,10 @@ export function ShopOverlay({
   // a stale render) never shows a false "仕入れました" message, since that id simply won't be
   // owned yet on the next render.
   const showFeedback = feedback && ownedIngredientIds.includes(feedback.ingredientId);
+  // EP3: mirrors showFeedback's own landed-check -- only true once `inventory` actually grew
+  // past what it was immediately before this restock's dispatch.
+  const showRestockFeedback =
+    restockFeedback && (inventory[restockFeedback.ingredientId] ?? 0) > restockFeedback.stockBefore;
 
   return (
     <div className="dex-overlay">
@@ -104,6 +151,12 @@ export function ShopOverlay({
                 {"\u{1F355}"} 新しいピザが作れます！「{feedback.unlockedRecipeNames.join("、")}」
               </>
             )}
+          </p>
+        )}
+
+        {showRestockFeedback && (
+          <p className="shop-overlay__feedback">
+            {"\u{1F4E6}"} {restockFeedback.ingredientNameJa}を{restockFeedback.quantity}補充しました！
           </p>
         )}
 
@@ -146,10 +199,30 @@ export function ShopOverlay({
                       </div>
                     )}
 
+                    {/* EP3: every SHOP_PRODUCTS entry has `unlockCondition` by construction (the
+                        list's own filter above), so an OWNED row here is always a genuinely
+                        finite ingredient -- restock, never a plain "✓ 購入済み" checkmark, is the
+                        only OWNED presentation this list ever needs (unlike a hypothetical
+                        Starter/unlimited ingredient, which this list structurally never lists at
+                        all -- see the "Unlimited" scope note in the EP3 Result report). */}
                     {state === "OWNED" && (
-                      <span className="shop-item__status shop-item__status--owned">
-                        {"✓"} 購入済み
-                      </span>
+                      <div className="shop-item__restock">
+                        <span className="shop-item__stock">
+                          在庫 {remainingStock(ingredient, inventory)}
+                        </span>
+                        <span className="shop-item__restock-qty">+{ingredient.restockQuantity}</span>
+                        <span className="shop-item__price">
+                          {"\u{1FA99}"} {ingredient.pricePitz} Pitz
+                        </span>
+                        <button
+                          type="button"
+                          className="shop-item__restock-button"
+                          disabled={pitzBalance < (ingredient.pricePitz ?? Infinity)}
+                          onClick={() => handleRestock(ingredient)}
+                        >
+                          補充する
+                        </button>
+                      </div>
                     )}
                   </div>
                   {/* "何を買うと何ができるか" preview (SSOT section 8): shown before purchase

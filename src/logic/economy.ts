@@ -1,6 +1,7 @@
 import type { Ingredient } from "../data/ingredients";
 import { averageQualityScore, type MissionMetrics } from "./missionScoring";
 import { ingredientState } from "../state/progression";
+import type { InventoryState } from "../state/inventory";
 
 /**
  * Economy rules (Phase 3C-5, see docs/design/PIZZA_GAME_PROGRESSION_SSOT.md sections 3, 8-9
@@ -121,6 +122,83 @@ export function purchaseIngredient(input: PurchaseIngredientInput): PurchaseIngr
   return {
     success: true,
     nextOwnedIngredientIds: [...ownedIngredientIds, ingredient.id],
+    nextPitzBalance: pitzBalance - ingredient.pricePitz,
+  };
+}
+
+// ---------------------------------------------------------------------------------------------
+// Ingredient restock (Pitz -> +inventory batch, Economy & Progression 1.0 EP3)
+// ---------------------------------------------------------------------------------------------
+
+/**
+ * Economy & Progression 1.0 EP3: restock is a *separate* transaction from `purchaseIngredient`
+ * above, deliberately never folded into it. `purchaseIngredient`'s own contract is "grant
+ * ownership exactly once" -- calling it again for an already-OWNED ingredient always rejects
+ * with `ALREADY_OWNED`, by design (SSOT section 9: "purchases are permanent," never repeatable).
+ * Restocking an already-owned finite ingredient's stock is a genuinely different rule (repeatable,
+ * credits `inventory[id]` instead of `ownedIngredientIds`), so it needs its own failure-reason
+ * vocabulary and its own pure function -- reusing `purchaseIngredient` here would either have to
+ * special-case OWNED into a different code path internally (muddying its own single-purpose
+ * contract) or silently change what "purchase" has always meant. This keeps the two Shop
+ * concepts -- "unlock a new ingredient" vs. "restock a finite ingredient you already own" --
+ * exactly as structurally separate in code as the EP3 task requires them to be in product terms.
+ */
+export type RestockFailureReason = "NOT_OWNED" | "UNLIMITED" | "NOT_FOR_SALE" | "INSUFFICIENT_FUNDS";
+
+export interface RestockIngredientInput {
+  ingredient: Ingredient;
+  ownedIngredientIds: readonly string[];
+  inventory: InventoryState;
+  pitzBalance: number;
+}
+
+export type RestockIngredientResult =
+  | { success: true; nextInventory: InventoryState; nextPitzBalance: number }
+  | { success: false; reason: RestockFailureReason };
+
+/** A valid restock batch size: a positive integer, mirroring `isValidPrice`'s own rules for
+ *  the same reasons (an ingredient with anything else set as `restockQuantity` is simply not
+ *  restockable, never "free" or "an infinite/zero-sized batch"). */
+function isValidQuantity(quantity: number | undefined): quantity is number {
+  return typeof quantity === "number" && Number.isInteger(quantity) && quantity > 0;
+}
+
+/**
+ * The one restock transaction: Pitz -> `+restockQuantity` on `inventory[ingredient.id]` (SSOT
+ * `TETO_ECONOMY-PROGRESSION-1_MATRIX.md` section 2). Pure and atomic by construction, exactly
+ * like `purchaseIngredient` above: it never mutates its input, only returns what the *next*
+ * state should be, so the caller (gameReducer's `RESTOCK_INGREDIENT`) applies the whole
+ * transaction in one reducer step or not at all -- there is no partial-success case where Pitz
+ * is spent without inventory being credited, or vice versa.
+ *
+ * Restock only ever applies to an ingredient that is (a) already OWNED and (b) genuinely finite
+ * (`unlockCondition` present, i.e. not a permanently-unlimited Starter ingredient) -- an
+ * ingredient the player has never unlocked, or one that's structurally unlimited, is never a
+ * valid restock target regardless of Pitz balance. This is the EP3 task's own "既にunlock/owned
+ * 済みの有限ingredientについて" scope boundary, enforced here rather than left to callers.
+ *
+ * Calling this twice with the *same* pre-restock input (e.g. a double-tap before a re-render)
+ * always returns the same successful result both times -- harmless for the identical reason
+ * `purchaseIngredient`'s own doc comment gives: a `useReducer` dispatch queue applies actions
+ * sequentially against the already-updated state, so a genuine double-dispatch is charged and
+ * credited exactly once per actual successful application, never twice from one tap.
+ */
+export function restockIngredient(input: RestockIngredientInput): RestockIngredientResult {
+  const { ingredient, ownedIngredientIds, inventory, pitzBalance } = input;
+
+  if (!ingredient.unlockCondition) return { success: false, reason: "UNLIMITED" };
+  if (!ownedIngredientIds.includes(ingredient.id)) return { success: false, reason: "NOT_OWNED" };
+  if (!isValidPrice(ingredient.pricePitz) || !isValidQuantity(ingredient.restockQuantity)) {
+    return { success: false, reason: "NOT_FOR_SALE" };
+  }
+  if (pitzBalance < ingredient.pricePitz) return { success: false, reason: "INSUFFICIENT_FUNDS" };
+
+  return {
+    success: true,
+    nextInventory: {
+      ...inventory,
+      [ingredient.id]: (inventory[ingredient.id] ?? 0) + ingredient.restockQuantity,
+    },
     nextPitzBalance: pitzBalance - ingredient.pricePitz,
   };
 }
