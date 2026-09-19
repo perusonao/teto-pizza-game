@@ -429,20 +429,58 @@ tolerance, Vegetariana's own-entry question). New from this pass:
 
 ---
 
-## Final Report (Fresh Gate follow-up)
+## 16. Final base sync (PR #81, second follow-up)
 
-- **Latest `main` SHA (confirmed via `git fetch origin` at this follow-up):**
-  `b784cd3164f412252d6e6b1d70b52a5ec665553b`
-- **Initial audited `main` SHA (session start, content baseline):**
+Per a third follow-up request, this branch was synced to the latest `main` a second time,
+after Economy & Progression 1.0 EP2 (Inventory atomic consumption, PR #82) merged:
+
+- `git fetch origin` confirmed `main`'s tip at `397ad41c1e7e6dcd02ee300bf1a06712d4a0c019`
+  (matches the SHA supplied in the request; not taken on faith — verified directly against
+  `origin/main`).
+- `src/data/recipes.ts` and `src/data/ingredients.ts` were diffed between the previous
+  `prBaseShaAtFollowUp` (`b784cd316...`) and this new SHA: **byte-identical**. EP2 touched
+  only `src/state/inventory.ts`, `src/state/gameReducer.ts`, and their own tests — nothing
+  this catalog's content depends on.
+- `git merge origin/main` (merge commit `cd4f80730e1d5f6e0ce8fa79ba5c5b03beb0ce6b`) — **clean,
+  zero conflicts**. This branch's own files (`data/recipes/*.json`,
+  `docs/design/TETO_RECIPE-EXPANSION-20.md`, `docs/design/TETO_RECIPE-MASTER-CATALOG.md`,
+  `docs/reports/TETO_RECIPE-MASTER-CATALOG_160_Fresh-Analysis.md`,
+  `tools/validate_recipe_catalog.py`) are byte-identical before and after the merge (verified
+  by diff).
+- Post-merge, `git diff 397ad41... HEAD --stat -- src/ tests/` is **empty** — this PR carries
+  no `src/**` or test diff of its own; every `src/**`/test file the merge brought in came from
+  `main` itself.
+- `initialAuditedMainSha` (`8918fe4b...`) is **not** rewritten anywhere — a new field,
+  `finalPrBaseSyncMainSha` (`397ad41...`), was added alongside it in all three JSON catalogs
+  and this report, keeping every provenance SHA distinct and traceable.
+- `tools/validate_recipe_catalog.py` re-run post-merge: 53 recipes / 62 ingredients / 11
+  mechanics, all checks pass. `catalogEntryCount`/`viableEntryCount` (53/51) and every
+  recipe/ingredient/mechanic entry are byte-identical to pre-sync — confirmed programmatically,
+  not just asserted.
+
+---
+
+## Final Report (updated: final base sync)
+
+- **Latest `main` SHA (confirmed via `git fetch origin` at the final base sync):**
+  `397ad41c1e7e6dcd02ee300bf1a06712d4a0c019` (EP2, PR #82)
+- **Initial audited `main` SHA (session start, content baseline — never rewritten):**
   `8918fe4bd93816b0acefe4a35106fa1a4e8653e2`
-- **PR #81 base SHA (floating `main` ref, both at creation and at this follow-up):**
-  `b784cd3164f412252d6e6b1d70b52a5ec665553b` — see §2.1 for why these three SHA labels are
-  kept distinct and what was/wasn't re-audited between them.
-- **HEAD SHA (the substantive Fresh Gate follow-up commit — provenance/framing fixes, no
-  catalog content change):** `ad1ec4364124b6982a7145ee897e635fc5948341`. (A trailing
-  doc-only commit fills in this exact value after that commit was made — see PR #81's commit
-  list for the branch's actual current tip, which may be one commit ahead of this SHA for
-  that reason alone.)
+- **PR #81 base SHA at this final sync (floating `main` ref):**
+  `397ad41c1e7e6dcd02ee300bf1a06712d4a0c019` — matches latest `main` exactly, since this
+  branch was just merged up to it (§16). See §2.1/§16 for why every provenance SHA label is
+  kept distinct and what was/wasn't re-audited at each one.
+- **Branch HEAD SHA (merge commit, final base sync):**
+  `cd4f80730e1d5f6e0ce8fa79ba5c5b03beb0ce6b` — a clean merge of `origin/main` into this
+  branch, zero conflicts, this branch's own 5 files byte-identical before/after (§16). (One
+  trailing doc-only commit, updating this Final Report section itself with the sync's own
+  SHAs, lands on top of this merge commit — check PR #81's commit list for the branch's exact
+  current tip, expected to be one commit ahead of this SHA for that reason alone.)
+- **Mergeability: clean, no conflicts.** Verified by actually performing the merge
+  (`git merge origin/main`, §16), not by a passive "mergeable_state" read alone — the merge
+  completed with the `ort` strategy and no conflict markers.
+- *(Earlier Fresh Gate follow-up HEAD, superseded by the merge commit above:
+  `ad1ec4364124b6982a7145ee897e635fc5948341`.)*
 - **Catalog count:** 53 total entries (51 viable, 2 `rejected_duplicate`) — **not** 160; see
   §3. This has not changed since the original version of this report; only provenance/framing
   text changed in this follow-up.
@@ -494,19 +532,25 @@ tolerance, Vegetariana's own-entry question). New from this pass:
 - **PR #79 disposition:** **not closed now.** Planned/conditional recommendation only, to be
   acted on after PR #81 itself passes Fresh Gate review and is adopted as SSOT: close PR #79
   as superseded at that point, not before. See §13 for full reasoning.
-- **Changed files (this follow-up commit):** `data/recipes/pizza_master_catalog.json`
-  (provenance fields + schemaNote updated), `data/recipes/ingredient_master_catalog.json`
-  (same), `data/recipes/gameplay_mechanic_master.json` (same),
-  `docs/design/TETO_RECIPE-MASTER-CATALOG.md` (provenance/framing/verification-status
-  clarifications), `docs/reports/TETO_RECIPE-MASTER-CATALOG_160_Fresh-Analysis.md` (this file
-  — provenance section added, framing corrected throughout, PR #79 section rewritten, this
-  Final Report section rewritten). No recipe/ingredient/mechanic *entries* were added,
-  removed, or recounted — catalog content is unchanged from the original version of this PR.
+- **Changed files (this session, cumulative across both follow-ups + final sync):**
+  `data/recipes/pizza_master_catalog.json` (provenance fields + schemaNote updated, twice —
+  once for the provenance/framing follow-up, once for `finalPrBaseSyncMainSha`),
+  `data/recipes/ingredient_master_catalog.json` (same), `data/recipes/gameplay_mechanic_master.json`
+  (same), `docs/design/TETO_RECIPE-MASTER-CATALOG.md` (provenance/framing/verification-status
+  clarifications), `docs/reports/TETO_RECIPE-MASTER-CATALOG_160_Fresh-Analysis.md` (this
+  file). Plus, from the final base sync's merge commit only: every `src/**`/test/docs file
+  EP1 (PR #80) and EP2 (PR #82) added to `main` — all of it came from `main` itself via the
+  merge, none of it is this PR's own authored diff (confirmed empty in §16). No
+  recipe/ingredient/mechanic *entry* in this catalog was added, removed, or recounted at any
+  point across either follow-up — catalog content is unchanged from the original version of
+  this PR.
 - **Branch:** `claude/teto-recipe-expansion-20-0x9ykd`
 - **PR:** [#81](https://github.com/perusonao/teto-pizza-game/pull/81) — OPEN, not merged.
-- **Scope creep:** none. This follow-up touched only the 3 JSON catalog files' top-level
-  metadata and 2 markdown docs' text — no `src/**`, no test, no EP2/Inventory/Shop/Save/Pitz/
-  Scoring/RESULT file, no new recipe added to inflate any count (§14).
+- **Scope creep:** none. Beyond the provenance/framing text fixes (3 JSON files' top-level
+  metadata, 2 markdown docs' text) and the explicitly-requested base-sync merge itself, no
+  `src/**` diff, test diff, or EP2/Inventory/Shop/Save/Pitz/Scoring/RESULT file is authored by
+  this PR — everything `src/**`-shaped in the diff came from the merge, not from new work
+  (§16). No new recipe was added to inflate any count (§14).
 - **Unresolved product decisions:** 8 items, unchanged by this follow-up, see §15.
 
 **FINAL VERDICT: A. 53-ENTRY MASTER FOUNDATION READY FOR SSOT REVIEW**
