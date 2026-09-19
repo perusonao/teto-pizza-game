@@ -139,6 +139,18 @@ export function IngredientTray({
   const suppressClickIdRef = useRef<string | null>(null);
   const [preview, setPreview] = useState<DragPreview | null>(null);
   const [announcement, setAnnouncement] = useState("");
+  // Visual Polish 1A (Ingredient Tray Overflow, P1-1): whether any tray content -- the last
+  // "Other" row, or the page-nav -- still sits below the area actually visible above the fixed
+  // `.prepare-bake-bar`. `contentEndRef` marks the true end of that content (see
+  // `.ingredient-panel__content-end` in App.css); the observer's `rootMargin` shrinks its
+  // effective viewport by roughly the CTA bar's own reserved height so "intersecting" means
+  // "visible above the bar", not merely "within the raw window bounds" (which would include the
+  // dead space the bar itself covers). This replaces hand-rolled scrollY/scrollHeight math with
+  // one browser-native signal that already recomputes itself on scroll, resize, and any layout
+  // change (category switch, page switch, Recommended row appearing/disappearing) without this
+  // component needing to know why its own content height just changed.
+  const contentEndRef = useRef<HTMLDivElement | null>(null);
+  const [hasMoreBelow, setHasMoreBelow] = useState(false);
   // Phase 4A-1B Human Feel fix: set the instant a physical ingredient is touched (not once
   // drag-intent is confirmed), purely so `.ingredient-chip--grabbing` can give the finger
   // immediate visual confirmation. Never read for drag/drop logic -- sessionRef stays the
@@ -237,6 +249,27 @@ export function IngredientTray({
     // remain valid for the component lifetime; keeping one listener set also avoids a drag
     // preview frame being cancelled by the selection rerender that starts the gesture.
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const target = contentEndRef.current;
+    // jsdom (this project's unit-test DOM, see vitest.config.ts) has no IntersectionObserver;
+    // the cue then simply never shows in tests unless a test explicitly stubs it in (see
+    // IngredientTray.scrollCue.test.tsx), which is the correct default -- a unit test
+    // environment has no real scroll/viewport to reason about anyway.
+    if (!target || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setHasMoreBelow(!entry.isIntersecting),
+      // At maximum scroll, the sentinel (the true end of in-flow content) sits exactly
+      // `--bake-bar-reserve` (App.css, 84px) above the viewport's bottom edge -- that's what
+      // the reserved padding-bottom *is* -- so shrinking the observer's effective viewport by
+      // slightly less than that (78px) is what makes "intersecting" track "scrolled all the
+      // way down" rather than firing a few pixels early or (worse, leaving the cue stuck on
+      // forever) never firing at all.
+      { rootMargin: "0px 0px -78px 0px" },
+    );
+    observer.observe(target);
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
@@ -441,6 +474,17 @@ export function IngredientTray({
           >
             {"▶"}
           </button>
+        </div>
+      )}
+
+      {/* Visual Polish 1A (Ingredient Tray Overflow, P1-1): the true end of this panel's
+          in-flow content -- see this ref's own doc comment above and `.ingredient-panel__
+          content-end` in App.css. Always rendered (zero height, aria-hidden) so the observer
+          has one stable node to watch across category/page changes. */}
+      <div ref={contentEndRef} className="ingredient-panel__content-end" aria-hidden="true" />
+      {hasMoreBelow && (
+        <div className="ingredient-scroll-cue" aria-hidden="true">
+          <span className="ingredient-scroll-cue__chevron">{"▼"}</span>
         </div>
       )}
 
