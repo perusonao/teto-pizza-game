@@ -229,7 +229,7 @@ function nextOrderState(carry: ProgressionCarry, orderOptions: NextOrderOptions)
   const order = getNextOrder({
     ...orderOptions,
     dex: discoveredRecipeIds(carry.dex),
-    availableRecipeIds: availableRecipeIds(carry.ownedIngredientIds),
+    availableRecipeIds: availableRecipeIds(carry.dex, carry.ownedIngredientIds),
   });
   return buildOrderState(order, carry, false);
 }
@@ -239,7 +239,7 @@ function nextOrderState(carry: ProgressionCarry, orderOptions: NextOrderOptions)
  *  MISSION_NEXT_ORDER and MISSION_RESET_ORDER so both pick a Mission order the exact same
  *  way and both mark the round as Mission's identically. */
 function nextMissionOrderState(state: GameState): GameState {
-  const ids = availableRecipeIds(state.ownedIngredientIds);
+  const ids = availableRecipeIds(state.dex, state.ownedIngredientIds);
   const order = pickMissionOrder(ids, state.recipe.id);
   return buildOrderState(
     order,
@@ -561,7 +561,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case "SELECT_RECIPE": {
       const recipe = getRecipe(action.recipeId);
-      if (!recipe || !isRecipeAvailable(recipe, state.ownedIngredientIds)) return state;
+      if (!recipe || !isRecipeAvailable(recipe, state.dex, state.ownedIngredientIds)) return state;
       return (
         startPreparingRecipe(action.recipeId, {
           dex: state.dex,

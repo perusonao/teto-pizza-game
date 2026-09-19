@@ -3,6 +3,25 @@ import { RECIPES, getRecipe } from "./recipes";
 import { ORDERS } from "./orders";
 import { STARTER_INGREDIENT_IDS } from "./ingredients";
 import { isRecipeAvailable } from "../state/progression";
+import { EMPTY_DEX, registerScoreToDex, type DexState } from "../state/dex";
+import type { QualityStars } from "../logic/scoring";
+
+/** Builds a Dex where `recipeIds` are discovered at `stars` each -- a shorthand for
+ *  simulating "played through the Chapter 1 chain up to here." */
+function dexDiscovering(recipeIds: readonly string[], stars: QualityStars): DexState {
+  let dex: DexState = EMPTY_DEX;
+  for (const recipeId of recipeIds) {
+    dex = registerScoreToDex(dex, recipeId, {
+      matchScore: 100,
+      ingredientScore: 100,
+      placementScore: 100,
+      bakeScore: 100,
+      total: stars * 20,
+      stars,
+    }).dex;
+  }
+  return dex;
+}
 
 const STARTER_RECIPE_IDS = [
   "margherita",
@@ -50,12 +69,28 @@ describe("RECIPES (Phase 3C-6: fugazza is Recipe #7)", () => {
       expect(recipe?.bakeTarget.end).toBeLessThan(100);
     });
 
-    it("is unavailable while onion is not owned (Starter Set only)", () => {
-      expect(isRecipeAvailable(recipe!, STARTER_INGREDIENT_IDS)).toBe(false);
+    it("is unavailable while onion is not owned (Starter Set only), even once its recipe-unlock chain/stars gate holds", () => {
+      const chainDex = dexDiscovering(
+        ["margherita", "funghi", "marinara", "bismarck", "genovese", "quattro-formaggi"],
+        5 as QualityStars,
+      );
+      expect(isRecipeAvailable(recipe!, chainDex, STARTER_INGREDIENT_IDS)).toBe(false);
     });
 
-    it("becomes available once onion is owned", () => {
-      expect(isRecipeAvailable(recipe!, [...STARTER_INGREDIENT_IDS, "onion"])).toBe(true);
+    it("is unavailable while its recipe-unlock chain/stars gate isn't met, even once onion is owned", () => {
+      expect(isRecipeAvailable(recipe!, EMPTY_DEX, [...STARTER_INGREDIENT_IDS, "onion"])).toBe(
+        false,
+      );
+    });
+
+    it("becomes available once both the recipe-unlock gate and onion ownership hold", () => {
+      const chainDex = dexDiscovering(
+        ["margherita", "funghi", "marinara", "bismarck", "genovese", "quattro-formaggi"],
+        5 as QualityStars,
+      );
+      expect(isRecipeAvailable(recipe!, chainDex, [...STARTER_INGREDIENT_IDS, "onion"])).toBe(
+        true,
+      );
     });
   });
 
