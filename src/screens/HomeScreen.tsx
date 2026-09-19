@@ -25,19 +25,28 @@ import type { DexState } from "../state/dex";
 interface HomeScreenProps {
   pitzBalance: number;
   dex: DexState;
+  /** Inventory Screen: read-only "how many ingredients do I currently own" sub-label -- the
+   *  same `ownedIngredientIds` SSOT already threaded through GAME (see GameState), never a
+   *  separately-maintained count. */
+  ownedIngredientCount: number;
+  totalIngredientCount: number;
   onStartFreePlay: () => void;
   onStartLunchRush: () => void;
   onOpenDex: () => void;
   onOpenShop: () => void;
+  onOpenInventory: () => void;
 }
 
 export function HomeScreen({
   pitzBalance,
   dex,
+  ownedIngredientCount,
+  totalIngredientCount,
   onStartFreePlay,
   onStartLunchRush,
   onOpenDex,
   onOpenShop,
+  onOpenInventory,
 }: HomeScreenProps) {
   const totalRecipes = RECIPES.length;
   const discoveredCount = dex.filter((e) => e.discovered).length;
@@ -103,6 +112,13 @@ export function HomeScreen({
           <span className="home-menu__icon">{"\u{1F3EA}"}</span>
           <span className="home-menu__label">ショップ</span>
           <span className="home-menu__sub">所持 Pitz {pitzBalance}</span>
+        </button>
+        <button type="button" className="home-menu__card" onClick={onOpenInventory}>
+          <span className="home-menu__icon">{"\u{1F9FA}"}</span>
+          <span className="home-menu__label">材料</span>
+          <span className="home-menu__sub">
+            所持 {ownedIngredientCount}/{totalIngredientCount}種
+          </span>
         </button>
         <button
           type="button"

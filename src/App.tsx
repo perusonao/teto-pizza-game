@@ -5,6 +5,7 @@ import { PreviewBadge } from "./components/PreviewBadge";
 import { GameScreen } from "./screens/GameScreen";
 import { DexOverlay } from "./components/DexOverlay";
 import { ShopOverlay } from "./components/ShopOverlay";
+import { InventoryOverlay } from "./components/InventoryOverlay";
 import { getReferencePizza } from "./data/referencePizza";
 import { computeSauceMetrics, emptySauceMetrics } from "./logic/sauceField";
 import { scorePiecesAgainstReference, scoreSauceAgainstReference } from "./logic/referenceScoring";
@@ -12,7 +13,7 @@ import { resolvePieceDrop } from "./logic/pieceDrag";
 import type { DoughPoint } from "./logic/pizzaCoordinates";
 import type { SauceDeposit } from "./state/pizzaState";
 import type { RecipeId } from "./data/recipes";
-import { getIngredient, type Ingredient, type IngredientCategory } from "./data/ingredients";
+import { getIngredient, INGREDIENTS, type Ingredient, type IngredientCategory } from "./data/ingredients";
 import { isDoughShapeComplete, type DoughShape } from "./logic/doughShape";
 import {
   createInitialGameState,
@@ -138,6 +139,7 @@ function App() {
   const [selectedIngredientId, setSelectedIngredientId] = useState<string | null>(null);
   const [isDexOpen, setDexOpen] = useState(false);
   const [isShopOpen, setShopOpen] = useState(false);
+  const [isInventoryOpen, setInventoryOpen] = useState(false);
   // Phase 4A-1A (Post-Codex-Fix) MUST FIX 1/9: opening the Reference ("見本") popover must
   // abort any in-progress tomato-sauce dispense session, exactly like BAKE does -- lifted
   // here (rather than left as ReferencePreview's own local state) so `interactive` below can
@@ -563,10 +565,13 @@ function App() {
         <HomeScreen
           pitzBalance={state.pitzBalance}
           dex={state.dex}
+          ownedIngredientCount={state.ownedIngredientIds.length}
+          totalIngredientCount={INGREDIENTS.length}
           onStartFreePlay={handleStartFreePlay}
           onStartLunchRush={handleStartLunchRush}
           onOpenDex={() => setDexOpen(true)}
           onOpenShop={() => setShopOpen(true)}
+          onOpenInventory={() => setInventoryOpen(true)}
         />
       )}
 
@@ -592,7 +597,7 @@ function App() {
           referenceModeEnabled={referenceModeEnabled}
           referencePizza={referencePizza}
           isReferencePopoverOpen={isReferencePopoverOpen}
-          isGlobalOverlayOpen={isDexOpen || isShopOpen}
+          isGlobalOverlayOpen={isDexOpen || isShopOpen || isInventoryOpen}
           sauceMetrics={sauceMetrics}
           sauceShadowScore={sauceShadowScore}
           isDispensingSauce={pendingSauceDeposits.length > 0}
@@ -645,6 +650,14 @@ function App() {
           onPurchase={handlePurchaseIngredient}
           onRestock={handleRestockIngredient}
           onClose={() => setShopOpen(false)}
+        />
+      )}
+
+      {isInventoryOpen && (
+        <InventoryOverlay
+          ownedIngredientIds={state.ownedIngredientIds}
+          inventory={state.inventory}
+          onClose={() => setInventoryOpen(false)}
         />
       )}
     </div>

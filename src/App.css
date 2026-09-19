@@ -1918,6 +1918,99 @@
   opacity: 0.7;
 }
 
+/* ---------- Inventory Screen (read-only stock view) ---------- */
+.inventory-overlay__summary {
+  font-size: 12px;
+  font-weight: 700;
+  color: #6b4226;
+  margin-bottom: 10px;
+}
+
+.inventory-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.inventory-tab {
+  border: 2px solid #e6d3a3;
+  background: #fff8ea;
+  color: #8a6a45;
+  font-weight: 700;
+  font-size: 12px;
+  border-radius: 999px;
+  padding: 6px 12px;
+  min-height: 32px;
+}
+
+.inventory-tab--active {
+  background: #f2b705;
+  border-color: #f2b705;
+  color: #4a2e0a;
+}
+
+.inventory-overlay__empty {
+  font-size: 12px;
+  color: #8a6a45;
+  padding: 12px 4px;
+}
+
+.inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.inventory-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 8px 6px 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  text-align: center;
+}
+
+.inventory-card__emoji {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.inventory-card__cheese-slot {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.inventory-card__name {
+  font-size: 11px;
+  font-weight: 700;
+  color: #4a2e0a;
+  line-height: 1.2;
+}
+
+.inventory-card__category {
+  font-size: 9px;
+  font-weight: 600;
+  color: #a1662f;
+}
+
+.inventory-card__stock {
+  font-size: 12px;
+  font-weight: 800;
+  color: #4c9a2a;
+}
+
+.inventory-card__stock--zero {
+  color: #b4432f;
+  opacity: 0.75;
+}
+
 /* ==========================================================================
    HOME / GAME screens (Issue #24)
    ========================================================================== */
@@ -2145,10 +2238,13 @@
   padding-right: 12px;
 }
 
-/* ---------- HOME sub navigation (ピザ図鑑 / ショップ / 実績) ---------- */
+/* ---------- HOME sub navigation (ピザ図鑑 / ショップ / 材料 / 実績) ---------- */
+/* Inventory Screen: a 4th card joined this grid, so it wraps to 2x2 (rather than a cramped
+   4-across row) to stay legible at 360-390px width -- see the Inventory Screen Result report's
+   mobile verification. */
 .home-menu {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 8px;
   padding: 12px 16px 0;
 }
