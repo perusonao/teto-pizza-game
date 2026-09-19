@@ -80,7 +80,7 @@ describe("getNextOrder + real Progression data (Economy & Progression 1.0 EP1: c
     expect(ids).not.toContain("fugazza");
   });
 
-  it("once the full Chapter 1 chain is discovered and onion is purchased, fugazza becomes an eligible order candidate", () => {
+  it("once the full Chapter 1 chain is discovered and onion is owned, fugazza becomes an eligible order candidate", () => {
     const chainDex = dexDiscovering(
       ["margherita", "funghi", "marinara", "bismarck", "genovese", "quattro-formaggi"],
       5 as QualityStars,

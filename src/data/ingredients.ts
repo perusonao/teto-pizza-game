@@ -44,19 +44,21 @@ export interface Ingredient {
    *  `pricePitz` rather than reusing it, since the two numbers are independent (SSOT: batch
    *  size and price both vary per ingredient, not derived from one another). */
   restockQuantity?: number;
-  /** Economy & Progression 1.0 EP4: true for a finite (`unlockCondition`-bearing) ingredient
-   *  whose *initial* OWNED status is granted for free by its governing recipe's Starter Grant
-   *  (see ../state/starterStock.ts) rather than a manual Shop purchase -- the player never
-   *  spends Pitz to first obtain it, only to restock it later. Still finite/restockable exactly
-   *  like `onion` -- the Stock Gate (`hasStock`/`canPlaceIngredient`/`consumePizzaInventory`,
+  /** Economy & Progression 1.0 EP4 (see the EP4 Result report's finalized product decision,
+   *  §7): true for a finite (`unlockCondition`-bearing) ingredient whose *initial* OWNED status
+   *  is granted for free by its governing recipe's Starter Grant (see ../state/starterStock.ts)
+   *  rather than a manual Shop purchase -- the player never spends Pitz to first obtain it, only
+   *  to restock it later. Still finite/restockable exactly like every other ingredient here --
+   *  the Stock Gate (`hasStock`/`canPlaceIngredient`/`consumePizzaInventory`,
    *  ../state/inventory.ts) and Shop restock (`restockIngredient`, ../logic/economy.ts) key
    *  purely on `unlockCondition`'s presence, unaffected by this flag. This flag exists only to
    *  suppress the *initial-unlock* LOCKED/AVAILABLE_TO_BUY purchase UI/transaction
    *  (ShopOverlay's product list, `purchaseIngredient`) for an ingredient that was never meant
-   *  to be independently bought before its recipe unlocks -- see the EP4 Result report for why
-   *  `unlockCondition.minTotalStars` is otherwise unused/inert on every ingredient that sets
-   *  this. `onion` does NOT set this: it keeps its original Phase 3C-6 manual-purchase path
-   *  unchanged, with EP4's Starter Grant layered on top of (never replacing) it. */
+   *  to be independently bought before its recipe unlocks -- `unlockCondition.minTotalStars` is
+   *  otherwise unused/inert on every ingredient that sets this. `onion` sets this too: its old
+   *  Phase 3C-6 manual-purchase path (buyable once `totalStars` alone reached 12, independent of
+   *  `fugazza`'s own unlock) is retired -- Starter Grant is now the only way `onion` is ever
+   *  first obtained, exactly like the other 10 EP4-added rows below it. */
   starterGrantOnly?: boolean;
 }
 
@@ -73,9 +75,10 @@ export const INGREDIENTS: Ingredient[] = [
   },
   /**
    * Economy & Progression 1.0 EP4 (see docs/reports/TETO_ECONOMY-PROGRESSION_EP4_Starter-Stock_Result.md):
-   * the first 9 of the matrix's 10 non-Starter rows referenced by `onion`'s own EP3 comment
-   * below (mushroom/garlic/oregano/egg/pesto/cherry-tomato/gorgonzola/parmigiano/fontina share
-   * this same treatment). Each gains `unlockCondition` (so the Stock Gate/`consumePizzaInventory`
+   * 9 of the matrix's 10 non-Starter rows other than `onion` itself (mushroom/garlic/oregano/
+   * egg/pesto/cherry-tomato/gorgonzola/parmigiano/fontina share this same treatment; `onion`
+   * gets the identical treatment further below, alongside its own recipe/PIZZA DB provenance
+   * comment). Each gains `unlockCondition` (so the Stock Gate/`consumePizzaInventory`
    * -- ../state/inventory.ts -- start tracking it as finite, exactly like `onion`) plus
    * `pricePitz`/`restockQuantity` (so Shop restock, ../logic/economy.ts's `restockIngredient`,
    * has a valid transaction once its Starter Grant stock runs out) and `starterGrantOnly: true`
@@ -242,21 +245,21 @@ export const INGREDIENTS: Ingredient[] = [
    * already-confirmed "Restock batch" for onion (TETO_ECONOMY-PROGRESSION-1_MATRIX.md section
    * 2) -- 12 units for the same 120 Pitz `pricePitz` already shipped above, unchanged since.
    *
-   * EP4 (Economy & Progression 1.0, Starter Stock): the original Phase 3C-6 exception --
-   * onion's *initial* ownership required a manual 120 Pitz Shop purchase once `totalStars`
-   * reached 12 (`AVAILABLE_TO_BUY`), the only ingredient in the game that ever worked that way
-   * -- is retired. `onion` now ALSO receives a free Starter Grant (../state/starterStock.ts) the
-   * moment `fugazza` itself unlocks: 4 onion x 10 plays = 40 units, credited to `inventory`
-   * alongside `ownedIngredientIds`, exactly like every other EP4 Starter Grant ingredient. This
-   * is additive, not a replacement: `unlockCondition`/`pricePitz`/`restockQuantity` below are
-   * left completely unchanged (still 12/120/unlockCondition unlockable at 12 stars), so the
-   * original manual-purchase path still technically works if a player happens to reach 12
-   * totalStars before fugazza's own chain/stars gate -- see the EP4 Result report for why this
-   * vestigial path was deliberately left in place rather than removed (a product decision, not
-   * an oversight). `onion` deliberately does NOT set `starterGrantOnly` for this reason -- unlike
-   * the matrix's other 10 non-Starter rows (mushroom/garlic/oregano/egg/pesto/cherry-tomato/
-   * olive-oil/gorgonzola/parmigiano/fontina, all EP4-added above), it keeps a real, working
-   * AVAILABLE_TO_BUY path.
+   * EP4 (Economy & Progression 1.0, Starter Stock): the original Phase 3C-6 manual-purchase
+   * path -- onion's *initial* ownership required a manual 120 Pitz Shop purchase once
+   * `totalStars` reached 12 (`AVAILABLE_TO_BUY`), independently of whether `fugazza` itself was
+   * anywhere near unlocked -- is retired. `onion` now sets `starterGrantOnly: true`, exactly
+   * like the matrix's other 10 non-Starter rows above: Shop never shows a LOCKED/AVAILABLE_TO_BUY
+   * row for it and `purchaseIngredient` rejects a direct `PURCHASE_INGREDIENT` the same
+   * defensive way (see ../logic/economy.ts), so `unlockCondition.minTotalStars` below is now
+   * inert, kept only as the original production value rather than renumbered to 0. `onion`'s
+   * *only* path to its first unit is its free Starter Grant (../state/starterStock.ts), paid out
+   * the moment `fugazza` itself unlocks: 4 onion x 10 plays = 40 units, credited to `inventory`
+   * alongside `ownedIngredientIds` in the same step, exactly like every other EP4 Starter Grant
+   * ingredient. `unlockCondition`/`pricePitz`/`restockQuantity` below are otherwise unchanged --
+   * once OWNED, Shop restock still charges the original 120 Pitz for 12 units, completely
+   * independent from (never compounding with) the one-time 40-unit Starter Grant. See the EP4
+   * Result report §7 for the finalized product decision retiring the old manual-purchase path.
    */
   {
     id: "onion",
@@ -268,6 +271,7 @@ export const INGREDIENTS: Ingredient[] = [
     unlockCondition: { minTotalStars: 12 },
     pricePitz: 120,
     restockQuantity: 12,
+    starterGrantOnly: true,
   },
 ];
 

@@ -362,7 +362,7 @@ describe("persistProgress (Phase 3C-5)", () => {
     expect(loadSave(storage).ownedIngredientIds.sort()).toEqual([...owned].sort());
   });
 
-  it("roundtrips a purchased onion (Phase 3C-6's first real non-Starter ingredient)", () => {
+  it("roundtrips an owned onion (Phase 3C-6's first real non-Starter ingredient; EP4: owned via Starter Grant, not purchase)", () => {
     const storage = fakeStorage();
     const owned = [...STARTER_INGREDIENT_IDS, "onion"];
     persistProgress(
@@ -380,7 +380,7 @@ describe("persistProgress (Phase 3C-5)", () => {
     expect(loaded.sort()).toEqual([...owned].sort());
   });
 
-  it("a reload after purchasing onion keeps it OWNED (does not fall back to LOCKED)", () => {
+  it("a reload after onion is owned keeps it OWNED (does not fall back to LOCKED)", () => {
     const storage = fakeStorage();
     persistProgress(
       {

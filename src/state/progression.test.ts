@@ -91,6 +91,10 @@ describe("ingredientState", () => {
   });
 });
 
+// This describe block exercises the pure `ingredientState` derivation only -- LOCKED/
+// AVAILABLE_TO_BUY/OWNED stay meaningful states for onion regardless of EP4's
+// `starterGrantOnly` flag (../data/ingredients.ts), which only gates the Shop UI/
+// `purchaseIngredient` transaction (see ../logic/economy.test.ts), never this function.
 describe("ingredientState -- onion (Phase 3C-6 production data, not a mock)", () => {
   const onion = INGREDIENTS.find((i) => i.id === "onion")!;
   const threshold = onion.unlockCondition!.minTotalStars;
@@ -122,7 +126,7 @@ describe("ingredientState -- onion (Phase 3C-6 production data, not a mock)", ()
     expect(ingredientState(onion, STARTER_INGREDIENT_IDS, threshold + 10)).toBe("AVAILABLE_TO_BUY");
   });
 
-  it("is OWNED once purchased, regardless of totalStars", () => {
+  it("is OWNED once in ownedIngredientIds (e.g. via its Starter Grant), regardless of totalStars", () => {
     expect(ingredientState(onion, [...STARTER_INGREDIENT_IDS, "onion"], 0)).toBe("OWNED");
   });
 });

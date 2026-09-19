@@ -152,6 +152,37 @@ describe("applyStarterGrants: Recipe #2-#7 grant amounts", () => {
     expect(result.inventory.oregano).toBe(30); // 20 (marinara) + 10 (fugazza)
     expect(result.ownedIngredientIds).toContain("onion");
   });
+
+  // Economy & Progression 1.0 EP4 (finalized product decision, EP4 Result report §7): onion's
+  // old Phase 3C-6 manual-purchase path is retired -- its Starter Grant is now the *only* path
+  // to first ownership, so this exactly-once guarantee is exactly as load-bearing for onion as
+  // it already is for every other Starter Grant ingredient (the generic "exactly-once" describe
+  // block below covers the same code path with margherita/funghi; this test pins it against
+  // fugazza/onion specifically, per the task's own required scenario).
+  it("does not double-grant onion when fugazza's own unlock is (re-)evaluated again with the same claimed ledger", () => {
+    const dex = dexDiscovering(
+      ["margherita", "funghi", "marinara", "bismarck", "genovese", "quattro-formaggi"],
+      5 as QualityStars,
+    );
+    const alreadyClaimed = [
+      "funghi",
+      "marinara",
+      "bismarck",
+      "genovese",
+      "quattro-formaggi",
+      "fugazza",
+    ];
+    // Simulates: reload, PLAY_AGAIN, RETRY_SAME_RECIPE, HOME round-trip, Shop open/close, a
+    // second REGISTER_TO_DEX/MISSION_NEXT_ORDER call -- fugazza is already claimed.
+    const priorInventory: InventoryState = { onion: 40 };
+    const priorOwned = [...STARTER_INGREDIENT_IDS, "onion"];
+    const result = applyStarterGrants(dex, priorOwned, priorInventory, alreadyClaimed);
+    expect(result.grantedRecipeIds).toEqual([]);
+    expect(result.inventory).toEqual({ onion: 40 }); // still 40, never 80
+    expect(result.inventory).toBe(priorInventory); // same reference -- no-op, not just same value
+    expect(result.ownedIngredientIds).toBe(priorOwned);
+    expect(result.claimedRecipeIds).toBe(alreadyClaimed);
+  });
 });
 
 describe("applyStarterGrants: scatter vs spread/sauce derivation", () => {

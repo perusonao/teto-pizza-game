@@ -66,8 +66,8 @@ function ingredientsOwned(recipe: Recipe, ownedIngredientIds: readonly string[])
  * A recipe is available exactly when both axes hold: `recipeUnlocked` (EP1's new Dex-derived
  * gate) AND every required ingredient is OWNED (SSOT section 10, unchanged). Neither axis
  * substitutes for the other -- a recipe whose chain/stars gate is satisfied but whose
- * ingredients aren't all owned (fugazza before `onion` is purchased) is still unavailable, and
- * vice versa.
+ * ingredients aren't all owned (fugazza before its Starter Grant has landed `onion`) is still
+ * unavailable, and vice versa.
  */
 export function isRecipeAvailable(
   recipe: Recipe,

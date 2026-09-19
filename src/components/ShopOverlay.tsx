@@ -28,16 +28,17 @@ interface ShopOverlayProps {
  * OWNED and never for sale.
  *
  * Economy & Progression 1.0 EP4: a `starterGrantOnly` ingredient (mushroom/garlic/oregano/egg/
- * pesto/cherry-tomato/olive-oil/gorgonzola/parmigiano/fontina) is additionally hidden entirely
- * -- no LOCKED/AVAILABLE_TO_BUY row at all -- until it is already OWNED. Its first unit is
- * always free via its governing recipe's Starter Grant (../state/starterStock.ts), never a
- * manual purchase, so a Shop row offering to buy it before that would be a transaction that
- * doesn't actually exist (`purchaseIngredient` rejects it, see ../logic/economy.ts). Once
- * OWNED, it appears exactly like `onion` always has: a restock-only row. `onion` itself keeps
- * its original Phase 3C-6 LOCKED/AVAILABLE_TO_BUY/OWNED lifecycle unchanged (it never sets
- * `starterGrantOnly`), so this filter is a no-op for it at every stage. Needs `ownedIngredientIds`
- * (unlike the old module-level constant), so this is now computed per render rather than once at
- * module load.
+ * pesto/cherry-tomato/olive-oil/gorgonzola/parmigiano/fontina/onion -- every non-Starter
+ * ingredient in the game, see src/data/ingredients.ts) is additionally hidden entirely -- no
+ * LOCKED/AVAILABLE_TO_BUY row at all -- until it is already OWNED. Its first unit is always
+ * free via its governing recipe's Starter Grant (../state/starterStock.ts), never a manual
+ * purchase, so a Shop row offering to buy it before that would be a transaction that doesn't
+ * actually exist (`purchaseIngredient` rejects it, see ../logic/economy.ts). Once OWNED, it
+ * appears as a restock-only row. `onion`'s old Phase 3C-6 LOCKED/AVAILABLE_TO_BUY manual-
+ * purchase lifecycle (buyable once `totalStars` alone reached 12) is retired -- it now sets
+ * `starterGrantOnly` too, so this filter treats it identically to every other finite ingredient.
+ * Needs `ownedIngredientIds` (unlike the old module-level constant), so this is now computed
+ * per render rather than once at module load.
  */
 function shopProducts(ownedIngredientIds: readonly string[]): readonly Ingredient[] {
   return INGREDIENTS.filter((i) => {

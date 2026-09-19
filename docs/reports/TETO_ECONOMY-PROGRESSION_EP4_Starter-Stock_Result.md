@@ -8,6 +8,13 @@ RESULT 2.0, no Lunch Rush UX change, no Making-flow tab work, no Pizza Select vi
 Ranking, and no Test-Achievement-Reset UI — per the task's own Scope Guard. Reset *compatibility*
 (not the Reset feature itself) is designed and tested.
 
+> **Follow-up commit note**: this report was originally filed at verdict **B** with one open
+> product decision (§7: whether to retire `onion`'s vestigial Phase 3C-6 manual-purchase path).
+> A later commit on this same branch/PR resolves that decision (retired) and upgrades the verdict
+> to **A** — see §7, §12.1, and the FINAL VERDICT section for exactly what changed. Everything
+> else in this report (§0–§6, §8–§11, §13, §15) describes the original implementation and remains
+> accurate as-is; it is not restated here.
+
 ## 0. Audited state / branch / PR
 
 - **Audited `origin/main` SHA**: `29ccc65146d8750fc229b9f1fa9b745c4bf9e541` ("Economy &
@@ -313,7 +320,8 @@ before the grant lands. All finite/Stock-Gate/restock logic (`hasStock`, `consum
 `restockIngredient`, `STARTER_INGREDIENT_IDS`) is completely unaffected by this new field — it
 continues to key purely on `unlockCondition`'s presence, unchanged from EP1–EP3.
 
-`onion` deliberately does **not** set `starterGrantOnly` — see §7.
+`onion` now sets `starterGrantOnly` too, exactly like the other 10 rows — see §7 (resolved in a
+follow-up commit on this same branch/PR).
 
 ---
 
@@ -327,38 +335,54 @@ continuing to pass unmodified for every margherita-only test.
 
 ---
 
-## 7. Fugazza / onion behavior — what changed, what didn't, and one flagged decision
+## 7. Fugazza / onion behavior — what changed, what didn't (RESOLVED)
 
-**Changed**: フガッサ's unlock now *also* triggers a free, additive Starter Grant —
-`ownedIngredientIds` gains `onion` and `inventory.onion += 40`, at the exact moment
-`recipeUnlocked(fugazza, dex)` first becomes true (chain + 12★), with no Pitz required.
+> **Update (follow-up commit on this same branch/PR, after the B verdict below was first
+> filed)**: the product decision this section originally flagged as open has been made and
+> implemented. §7 is left in its original form below for the historical record of *why* the
+> question existed, with this note marking the resolution and pointing at what actually shipped.
 
-**Unchanged (deliberately, per "既存価格を変更しない")**: `onion.unlockCondition = { minTotalStars:
-12 }`, `pricePitz: 120`, `restockQuantity: 12` are byte-identical to EP3's shipped values. The
-Shop restock transaction (`RESTOCK_INGREDIENT` → `restockIngredient`) is completely untouched.
+**Resolution**: option **(b)** — retire the vestigial manual-purchase path — is what shipped.
+`onion` now sets `starterGrantOnly: true` in `src/data/ingredients.ts`, exactly like the other 10
+EP4 Starter Grant ingredients. Concretely:
 
-**Flagged product decision (not resolved here)**: `onion` still keeps its original Phase 3C-6
-*manual purchase* path (`purchaseIngredient`, Shop's `AVAILABLE_TO_BUY` row) alongside the new
-grant — I did **not** set `starterGrantOnly` on it. Two considered options:
+- Shop never shows a LOCKED/AVAILABLE_TO_BUY row for `onion` before it is owned — `shopProducts`
+  (`ShopOverlay.tsx`) hides it the same way it already hid the other 10 rows.
+- A direct `PURCHASE_INGREDIENT` dispatch for `onion` — even once `totalStars`/`pitzBalance` clear
+  its `unlockCondition`/`pricePitz` (i.e. `ingredientState` would report `AVAILABLE_TO_BUY`) — is
+  rejected with `NOT_FOR_SALE` by `purchaseIngredient`'s existing `starterGrantOnly` check. No new
+  branch was needed; the mechanism §5 already built for the other 10 ingredients now also covers
+  `onion`, since it keys purely on the flag.
+- `onion`'s **only** path to first ownership is its Starter Grant: +40 units
+  (`minCount:4 × STARTER_STOCK_PLAYS_CHAPTER_1`), credited to `inventory` alongside
+  `ownedIngredientIds` in the same `applyStarterGrants` transaction, the instant `fugazza` itself
+  unlocks (chain + 12★) — unchanged from what was already described above, and already
+  exactly-once/idempotent via the same `starterGrantClaimedRecipeIds` ledger every other recipe
+  uses (§3), including across reload/PLAY_AGAIN/RETRY_SAME_RECIPE/HOME/Shop-open-close/mode-switch
+  and a second REGISTER_TO_DEX/MISSION_NEXT_ORDER evaluation.
+- **Unchanged, still deliberate** (per "既存価格を変更しない"): `onion.unlockCondition = {
+  minTotalStars: 12 }`, `pricePitz: 120`, `restockQuantity: 12` remain byte-identical to EP3's
+  shipped values — `minTotalStars: 12` is now inert data (like the other 10 rows' `{
+  minTotalStars: 0 }`), kept at its original production value rather than renumbered, per this
+  same discipline. The Shop restock transaction (`RESTOCK_INGREDIENT` → `restockIngredient`) is
+  **completely untouched and unaffected by `starterGrantOnly`** (that flag is never read by
+  `restockIngredient`, which keys purely on `unlockCondition`/ownership): once `onion` is OWNED
+  (via its Starter Grant), Shop restock still charges the original 120 Pitz for +12 units, a
+  transaction fully independent from — never compounding with — the one-time 40-unit Starter
+  Grant.
 
-- **(a) Keep both paths** (what this implementation does): the manual purchase becomes vestigial
-  in ordinary play (by the time フガッサ's own gate is satisfied, the grant has already landed),
-  reachable only in the edge case where `totalStars` crosses 12 *before* `quattro-formaggi` is
-  discovered (chain and stars-threshold conditions can decouple since totalStars accrues from any
-  recipe). Harmless if reached — pays real Pitz for something about to be free, no double-grant,
-  no exploit — but is a second, redundant way to reach the same end state.
-- **(b) Retire it** (set `starterGrantOnly: true` on `onion` too, exactly like the other 10 rows):
-  more literally matches the design SSOT's repeated "no exception, same rule as every other
-  recipe" language, but would retire/rewrite several pre-existing, currently-passing Phase
-  3C-6/EP3 regression tests that explicitly pin the manual-purchase mechanic
-  (`economy.test.ts`'s "onion (Phase 3C-6) is LOCKED, not ALREADY_OWNED..." /"...becomes
-  purchasable once totalStars/pitzBalance clear its real production requirement", plus a
-  `gameReducer.test.ts` `PURCHASE_INGREDIENT`+onion test) — a larger, EP3-touching footprint the
-  task's own Scope Guard ("EP3再設計をしない") argues against taking on inside this slice.
-
-I chose **(a)** as the minimal, scope-respecting option and am flagging **(b)** explicitly as a
-product decision for a future slice, per the task's own "flag rather than silently decide"
-instruction. This is the primary reason this report's verdict is **B**, not **A** (§14).
+**Why this was safe to do now**: the original concern (§7, as first written) was that retiring the
+path would touch several pre-existing Phase 3C-6/EP3 regression tests pinning the manual-purchase
+mechanic, a larger footprint than this slice's own Scope Guard wanted to take on. Those tests have
+now been updated in place to assert the new, correct behavior instead
+(`economy.test.ts`: "onion is LOCKED, not ALREADY_OWNED..." unchanged; "...becomes purchasable
+once totalStars/pitzBalance clear its real production requirement" replaced with "onion is
+NOT_FOR_SALE (never purchasable) even once totalStars/pitzBalance clear its unlockCondition/
+pricePitz — Starter Grant only"; `gameReducer.test.ts`'s `PURCHASE_INGREDIENT`+onion isolation test
+similarly updated to assert the reducer-level no-op) — no EP3 restock/Stock-Gate logic itself was
+touched, only the one call site (`purchaseIngredient`'s existing `starterGrantOnly` branch) and its
+covering tests, keeping this within the same "data + one flag" footprint §5 already established
+for the other 10 ingredients. See §12 for the updated test inventory and full-suite result.
 
 ---
 
@@ -494,10 +518,10 @@ identically and neither double-applies when the other mode is also exercised aft
   "never re-grant after REGISTER_TO_DEX" scenario rather than a separate test each — functionally
   equivalent coverage, noted here for traceability rather than silently merged.
 
-**Full suite**: `npm run test` → **66 test files, 1325 tests, all passing** (was 1298 on
-`origin/main`; +27 new: +21 `starterStock.test.ts`, +6 persistence ledger tests; a handful of
-existing "carries X unchanged" tests were renamed/updated in place to their post-grant
-equivalents rather than duplicated, so the count above is exactly additive).
+**Full suite (at the original B-verdict commit)**: `npm run test` → **66 test files, 1325 tests,
+all passing** (was 1298 on `origin/main`; +27 new: +21 `starterStock.test.ts`, +6 persistence
+ledger tests; a handful of existing "carries X unchanged" tests were renamed/updated in place to
+their post-grant equivalents rather than duplicated, so the count above is exactly additive).
 
 **Typecheck**: `npx tsc -b --force` → clean, no errors.
 
@@ -506,6 +530,51 @@ equivalents rather than duplicated, so the count above is exactly additive).
 **Build**: `npm run build` → succeeds (`tsc -b && vite build`), bundle size effectively unchanged
 (332.24 kB → 332.24 kB JS, gzip 104.44–104.45 kB; the ~14 KB of new ingredient/grant data and
 logic is well within normal minification noise for this bundle).
+
+### 12.1 Follow-up commit (§7 resolution): updated/added tests
+
+Retiring `onion`'s manual-purchase path (§7) touched exactly the tests §7 originally named as the
+reason for deferring the decision, plus a small amount of new coverage pinning the resolved
+behavior directly:
+
+- `src/data/ingredients.ts`: `onion` gains `starterGrantOnly: true`; doc comments (the field's own,
+  the 10-row block comment, `onion`'s own block comment) updated to describe the unified behavior.
+- `src/components/ShopOverlay.tsx`, `src/state/progression.ts`, `src/state/pizzaSelect.ts`: doc
+  comments describing `onion` as keeping a working manual-purchase path corrected.
+- `src/logic/economy.test.ts`: "onion becomes purchasable once totalStars/pitzBalance clear its
+  real production requirement" replaced with "onion is NOT_FOR_SALE (never purchasable) even once
+  totalStars/pitzBalance clear its unlockCondition/pricePitz — Starter Grant only"; the
+  pre-existing "onion is LOCKED, not ALREADY_OWNED, on a fresh save" and "real onion data restocks
+  12 units for 120 Pitz" tests are unchanged (both already covered behavior orthogonal to the
+  purchase-path retirement).
+- `src/state/gameReducer.test.ts`: the `PURCHASE_INGREDIENT`+onion "ownedIngredientIds and
+  inventory changes never leak into each other" test replaced with "PURCHASE_INGREDIENT is a
+  complete no-op for onion even once AVAILABLE_TO_BUY (Starter Grant only, EP4)", asserting the
+  dispatch returns state completely unchanged; surrounding stale comments corrected.
+- `src/data/ingredients.test.ts`: new "is starterGrantOnly (its old manual-purchase path is
+  retired)" assertion.
+- `src/state/starterStock.test.ts`: new "does not double-grant onion when fugazza's own unlock is
+  (re-)evaluated again with the same claimed ledger" test, pinning the exactly-once guarantee
+  against fugazza/onion specifically (the pre-existing exactly-once suite already covered the same
+  code path generically via margherita/funghi).
+- Minor stale-wording fixes ("purchased" → "owned"/"granted") in
+  `src/state/persistence.test.ts`, `src/data/orders.test.ts`,
+  `src/components/IngredientTray.palette.test.tsx`, `src/state/progression.test.ts` — comments and
+  test titles only, no behavior change. `persistence.test.ts`'s v1→v2 migration tests that
+  legitimately describe a **legacy** pre-EP4 save with a manually-purchased `onion` (a real
+  historical case migration must still handle correctly) were deliberately left as-is.
+
+**Full suite (after this follow-up commit)**: `npm run test` → **66 test files, 1342 tests, all
+passing**. Note the 1325 baseline above predates this branch merging `origin/main` (which brought
+in PR #93's unrelated Pizza Select mobile-pager tests, raising the baseline to 1340 immediately
+before this follow-up commit) — this follow-up commit itself is **exactly +2** (the two new tests
+named above; every other change updates an existing test in place, none removed).
+
+**Typecheck** (after follow-up): `npx tsc -b --force` → clean, no errors.
+
+**Lint** (after follow-up): `npm run lint` (oxlint) → clean, exit 0.
+
+**Build** (after follow-up): `npm run build` → succeeds (`tsc -b && vite build`).
 
 ---
 
@@ -547,10 +616,10 @@ captured, not attached to this report but reproducible from the commands below):
 
 ## 14. Unresolved decisions / open items
 
-1. **§7 — onion's vestigial manual-purchase path**: kept (option (a)), not retired. Product call
-   needed on whether a future slice should set `starterGrantOnly` on `onion` too and retire the
-   Phase 3C-6 manual-purchase regression tests, or leave it as documented, harmless legacy
-   behavior.
+1. ~~**§7 — onion's vestigial manual-purchase path**~~ — **RESOLVED** in a follow-up commit on
+   this same branch/PR: `onion` now sets `starterGrantOnly: true` and its old Phase 3C-6
+   manual-purchase path is retired, exactly like the other 10 EP4 Starter Grant ingredients. See
+   §7 for what shipped and §12 for the updated/added tests.
 2. **Restock prices (§2.6)** are now sourced from the existing design SSOT rather than invented,
    but that SSOT's own §12/§14 note they are "derived, not simulator-verified against live code"
    and flagged for a future Human Feel/playtesting pass — unchanged, inherited caveat, not
@@ -573,13 +642,20 @@ is designed/tested, per §10); broad visual redesign.
 
 ---
 
-## FINAL VERDICT: **B — IMPLEMENTED, PRODUCT DECISION REQUIRED**
+## FINAL VERDICT: **A — EP4 COMPLETE — READY FOR MERGE REVIEW**
 
-Implementation is complete, typechecked, linted, fully tested (1325/1325 passing, +27 net new
-tests directly covering the task's required scenarios), built successfully, and manually verified
-at 390×844 for the migration/exactly-once/UI-correctness path. **Not verdict A** because §7
-contains one explicit, load-bearing product decision this report surfaces rather than silently
-resolves: whether `onion`'s pre-existing Phase 3C-6 manual-purchase path should be retired now
-that the Starter Grant supersedes it in all ordinary play, which would touch already-shipped EP3
-regression tests outside this slice's own Scope Guard if decided the other way. Per instruction,
-**this PR is left OPEN and is not merged**, regardless of verdict.
+*(Originally filed as **B — IMPLEMENTED, PRODUCT DECISION REQUIRED**; upgraded to **A** by the
+follow-up commit on this same branch/PR documented in §7/§12.1, which resolves the one item that
+had blocked A.)*
+
+Implementation is complete, typechecked, linted, fully tested (1342/1342 passing across the full
+suite — 1325 at the original implementation, +15 from merging `origin/main`'s PR #93, +2 from this
+follow-up), built successfully, and manually verified at 390×844 for the migration/exactly-once/
+UI-correctness path. §7's product decision — whether `onion`'s pre-existing Phase 3C-6
+manual-purchase path should be retired now that the Starter Grant supersedes it in all ordinary
+play — has been made and implemented: it is retired (`starterGrantOnly: true`), matching the
+design SSOT's own "no exception, same rule as every other recipe" language exactly, with no gap in
+regression coverage (§12.1). Onion's Shop restock (120 Pitz → +12 units) remains completely
+unchanged and independent from its one-time 40-unit Starter Grant, per §2.6/§7. No other item in
+§14 blocks a merge-ready verdict. Per instruction, **this PR is left OPEN and is not merged into
+`main`**, regardless of verdict — merge remains a human decision.

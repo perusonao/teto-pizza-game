@@ -228,7 +228,7 @@ describe("Purchased onion stays reachable via page nav (Independent Review P1, P
     expect(screen.queryByRole("group", { name: "素材ページ切り替え" })).not.toBeInTheDocument();
   });
 
-  it("with 7 owned (onion purchased), page 1 shows the original 6 and hides onion", () => {
+  it("with 7 owned (onion owned), page 1 shows the original 6 and hides onion", () => {
     render(<Harness category="topping" ownedIngredientIds={sevenOwnedTopping} />);
     expect(screen.getByRole("group", { name: "素材ページ切り替え" })).toBeInTheDocument();
     expect(screen.getByText("1 / 2")).toBeInTheDocument();

@@ -174,12 +174,13 @@ describe("pitzBalance carry-over (Phase 3C-5)", () => {
 });
 
 describe("PURCHASE_INGREDIENT (reducer)", () => {
-  // Production does have one purchasable ingredient since Phase 3C-6 (`onion`, gating the
-  // `fugazza` recipe), but this describe block still uses a mock ingredient for its own
-  // reducer-wiring tests below -- the pure `purchaseIngredient` function's own tests
-  // (src/logic/economy.test.ts) and the purchase -> OWNED -> recipe-available integration
-  // tests (src/state/progression.test.ts) already cover the real `onion` data directly, so
-  // these tests only need to cover this reducer's own wiring/guards in isolation.
+  // Economy & Progression 1.0 EP4: every production ingredient is now either permanently
+  // Starter (always OWNED) or `starterGrantOnly` (never manually purchasable, including
+  // `onion` -- see the "PURCHASE_INGREDIENT is a complete no-op for onion..." test below), so
+  // this describe block uses an already-OWNED/unknown-id mock for its own reducer-wiring tests
+  // -- the pure `purchaseIngredient` function's own tests (src/logic/economy.test.ts) already
+  // cover the real production data directly, so these tests only need to cover this reducer's
+  // own wiring/guards in isolation.
 
   it("purchasing an already-OWNED (starter) ingredient is a complete no-op", () => {
     const state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 500);
@@ -370,7 +371,7 @@ describe("Ownership boundary on APPLY_SAUCE/PLACE_TOPPING (Phase 3C-6 follow-up)
     expect(after.pizza.toppings).toHaveLength(0);
   });
 
-  it("PLACE_TOPPING is still a no-op for onion once AVAILABLE_TO_BUY but not yet purchased", () => {
+  it("PLACE_TOPPING is still a no-op for onion once AVAILABLE_TO_BUY but not yet owned", () => {
     // totalStars = 15 (>= onion's minTotalStars of 12) via 3 discovered Starter recipes, but
     // onion itself is not in ownedIngredientIds -- AVAILABLE_TO_BUY, not OWNED.
     const dex = [
@@ -889,9 +890,13 @@ describe("inventory carry-through (Save v2 / Inventory E1)", () => {
     expect(state.inventory.onion ?? 0).toBe(0);
   });
 
-  it("ownedIngredientIds and inventory changes never leak into each other across PURCHASE_INGREDIENT", () => {
-    // totalStars = 15 (>= onion's minTotalStars of 12), same fixture as the ownership-boundary
-    // suite above, so onion is AVAILABLE_TO_BUY rather than LOCKED for this purchase.
+  // Economy & Progression 1.0 EP4 (finalized product decision, EP4 Result report §7): onion's
+  // old Phase 3C-6 manual-purchase path is retired -- it now sets `starterGrantOnly`, so even
+  // with totalStars = 15 (>= its minTotalStars of 12, AVAILABLE_TO_BUY) a direct
+  // PURCHASE_INGREDIENT dispatch is rejected and the reducer returns state completely unchanged
+  // (ownedIngredientIds/inventory/pitzBalance all untouched) -- proving the isolation this test
+  // originally checked still holds, now via the "no-op" path rather than a successful purchase.
+  it("PURCHASE_INGREDIENT is a complete no-op for onion even once AVAILABLE_TO_BUY (Starter Grant only, EP4)", () => {
     const dex = [
       { recipeId: "margherita", discovered: true, bestScore: 95, bestStars: 5 as const, timesMade: 1 },
       { recipeId: "marinara", discovered: true, bestScore: 95, bestStars: 5 as const, timesMade: 1 },
@@ -899,8 +904,9 @@ describe("inventory carry-through (Save v2 / Inventory E1)", () => {
     ];
     const state = createInitialGameState(dex, STARTER_INGREDIENT_IDS, 500, seededInventory);
     const after = gameReducer(state, { type: "PURCHASE_INGREDIENT", ingredientId: "onion" });
-    expect(after.ownedIngredientIds).toContain("onion");
-    // PURCHASE_INGREDIENT (E1 scope) only ever grants ownership -- it must not touch inventory.
+    expect(after).toBe(state);
+    expect(after.ownedIngredientIds).not.toContain("onion");
     expect(after.inventory).toEqual(seededInventory);
+    expect(after.pitzBalance).toBe(500);
   });
 });
