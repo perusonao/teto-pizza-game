@@ -255,7 +255,10 @@ affect — confirmed by the full green run, not just by inspection).
   - No console errors or page errors during the full walkthrough.
   - No horizontal overflow observed on Pizza Select/PREPARE/BAKE/RESULT at 390px width
     (screenshots captured at each step).
-- **GitHub CI status**: see the created PR for live check results (not fabricated here).
+- **GitHub CI status**: ✅ confirmed green — PR #82's `build` check run
+  (`.github/workflows`, run [35411158462](https://github.com/perusonao/teto-pizza-game/actions/runs/35411158462/job/105810925088))
+  completed with conclusion `success` at `2026-09-19T00:59:57Z`, checked live via the GitHub API
+  after the docs-fixup push (`8817c68`).
 - **Production deploy**: none made, per instruction.
 
 ## 16. Scope creep check
