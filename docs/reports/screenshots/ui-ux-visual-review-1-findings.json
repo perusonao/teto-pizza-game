@@ -1,0 +1,102 @@
+{
+  "consoleErrors": {
+    "390-fresh": [],
+    "390-seeded": [],
+    "390-lunchrush-result": [],
+    "360-fresh": [],
+    "360-seeded": []
+  },
+  "overflow": {
+    "01-home-390.png": {
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "innerWidth": 390
+    },
+    "02-recipe-select-390.png": {
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "innerWidth": 390
+    },
+    "03-prepare-simple-390.png": {
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "innerWidth": 390
+    },
+    "05-bake-390.png": {
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "innerWidth": 390
+    },
+    "06-result-pass-390.png": {
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "innerWidth": 390
+    },
+    "08-shop-390.png": {
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "innerWidth": 390
+    },
+    "10-dex-390.png": {
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "innerWidth": 390
+    },
+    "09-inventory-390.png": {
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "innerWidth": 390
+    },
+    "08b-shop-seeded-390.png": {
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "innerWidth": 390
+    },
+    "02b-recipe-select-scalability-390.png": {
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "innerWidth": 390
+    },
+    "04-prepare-complex-390.png": {
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "innerWidth": 390
+    },
+    "07-result-failed-390.png": {
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "innerWidth": 390
+    },
+    "11-lunch-rush-390.png": {
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "innerWidth": 390
+    },
+    "12-lunch-rush-result-390.png": {
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "innerWidth": 390
+    },
+    "13-home-360.png": {
+      "scrollWidth": 360,
+      "clientWidth": 360,
+      "innerWidth": 360
+    },
+    "15-result-pass-360.png": {
+      "scrollWidth": 360,
+      "clientWidth": 360,
+      "innerWidth": 360
+    },
+    "14-prepare-complex-360.png": {
+      "scrollWidth": 360,
+      "clientWidth": 360,
+      "innerWidth": 360
+    },
+    "16-result-failed-360.png": {
+      "scrollWidth": 360,
+      "clientWidth": 360,
+      "innerWidth": 360
+    }
+  },
+  "notes": []
+}
