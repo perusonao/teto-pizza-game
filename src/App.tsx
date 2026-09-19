@@ -302,6 +302,14 @@ function App() {
     // RESULT with its score unregistered, exactly like a TICK-detected expiry would leave it.
     if (mission.clock && !isMissionExpired(now, mission.clock)) {
       dispatch({ type: "MISSION_NEXT_ORDER" });
+      // Issue #85 UX-1: MISSION_NEXT_ORDER always lands at a fresh phase "ORDER"
+      // (gameReducer.ts's buildOrderState), which used to wait for a second, redundant
+      // 「ピザを作る！」 tap before PREPARE reopened. React 18 batches same-tick dispatches (this
+      // mirrors handleConfirmBake's own back-to-back CONFIRM_BAKE + REGISTER_TO_DEX above), so
+      // this never renders the ORDER screen -- it advances straight to PREPARE, the same way
+      // SELECT_RECIPE/RETRY_SAME_RECIPE already skip it (gameReducer.ts's startPreparingRecipe).
+      // FREE's own onBeginPrepare/ORDER gate is a separate call site, untouched by this.
+      dispatch({ type: "BEGIN_PREPARE" });
     }
   }
 
