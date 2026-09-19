@@ -52,54 +52,56 @@ export function InventoryOverlay({ ownedIngredientIds, inventory, onClose }: Inv
           </button>
         </div>
 
-        <p className="inventory-overlay__summary">
-          所持 {owned.length}/{INGREDIENTS.length}種
-        </p>
+        <div className="dex-overlay__body">
+          <p className="inventory-overlay__summary">
+            所持 {owned.length}/{INGREDIENTS.length}種
+          </p>
 
-        <div className="inventory-tabs" role="tablist" aria-label="材料カテゴリ">
-          {TAB_ORDER.map((tab) => (
-            <button
-              key={tab}
-              type="button"
-              role="tab"
-              aria-selected={activeTab === tab}
-              className={`inventory-tab ${activeTab === tab ? "inventory-tab--active" : ""}`}
-              onClick={() => setActiveTab(tab)}
-            >
-              {TAB_LABEL[tab]}
-            </button>
-          ))}
-        </div>
-
-        {visible.length === 0 && (
-          <p className="inventory-overlay__empty">まだこのカテゴリの材料を持っていません</p>
-        )}
-
-        {visible.length > 0 && (
-          <div className="inventory-grid">
-            {visible.map((ingredient) => {
-              const stock = remainingStock(ingredient, inventory);
-              return (
-                <div key={ingredient.id} className="inventory-card">
-                  {ingredient.category === "cheese" ? (
-                    <span className="inventory-card__cheese-slot">
-                      <IngredientPieceVisual ingredient={ingredient} />
-                    </span>
-                  ) : (
-                    <span className="inventory-card__emoji">{ingredient.emoji}</span>
-                  )}
-                  <span className="inventory-card__name">{ingredient.nameJa}</span>
-                  <span className="inventory-card__category">{CATEGORY_LABEL[ingredient.category]}</span>
-                  <span
-                    className={`inventory-card__stock ${stock === 0 ? "inventory-card__stock--zero" : ""}`}
-                  >
-                    {stock === "UNLIMITED" ? "∞" : `×${stock}`}
-                  </span>
-                </div>
-              );
-            })}
+          <div className="inventory-tabs" role="tablist" aria-label="材料カテゴリ">
+            {TAB_ORDER.map((tab) => (
+              <button
+                key={tab}
+                type="button"
+                role="tab"
+                aria-selected={activeTab === tab}
+                className={`inventory-tab ${activeTab === tab ? "inventory-tab--active" : ""}`}
+                onClick={() => setActiveTab(tab)}
+              >
+                {TAB_LABEL[tab]}
+              </button>
+            ))}
           </div>
-        )}
+
+          {visible.length === 0 && (
+            <p className="inventory-overlay__empty">まだこのカテゴリの材料を持っていません</p>
+          )}
+
+          {visible.length > 0 && (
+            <div className="inventory-grid">
+              {visible.map((ingredient) => {
+                const stock = remainingStock(ingredient, inventory);
+                return (
+                  <div key={ingredient.id} className="inventory-card">
+                    {ingredient.category === "cheese" ? (
+                      <span className="inventory-card__cheese-slot">
+                        <IngredientPieceVisual ingredient={ingredient} />
+                      </span>
+                    ) : (
+                      <span className="inventory-card__emoji">{ingredient.emoji}</span>
+                    )}
+                    <span className="inventory-card__name">{ingredient.nameJa}</span>
+                    <span className="inventory-card__category">{CATEGORY_LABEL[ingredient.category]}</span>
+                    <span
+                      className={`inventory-card__stock ${stock === 0 ? "inventory-card__stock--zero" : ""}`}
+                    >
+                      {stock === "UNLIMITED" ? "∞" : `×${stock}`}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

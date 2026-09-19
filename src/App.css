@@ -1385,20 +1385,37 @@
   z-index: 20;
 }
 
+/* HOME Global Overlay shell (Dex/Shop/Inventory share this): the panel's own height is a fixed
+   viewport-derived rule (80dvh, capped so it never runs under the top safe area), never the
+   content's intrinsic height -- so switching Inventory's category tabs (3 items vs. many) or
+   opening Dex/Shop instead never changes the panel's outer size or top/bottom position. Only
+   `.dex-overlay__body` (the scrollable region below the fixed header) grows/shrinks/scrolls. */
 .dex-overlay__panel {
   width: 100%;
-  max-height: 80%;
+  height: 80dvh;
+  max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 20px);
   background: #fff8ea;
   border-radius: 20px 20px 0 0;
-  padding: 16px;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .dex-overlay__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex: 0 0 auto;
+  padding: 16px 16px 0;
   margin-bottom: 12px;
+}
+
+.dex-overlay__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 16px calc(16px + env(safe-area-inset-bottom, 0px));
 }
 
 .dex-overlay__close {
@@ -1762,7 +1779,7 @@
 }
 
 /* ---------- Shop (Phase 3C-5) ---------- */
-.shop-overlay__panel {
+.shop-overlay__body {
   display: flex;
   flex-direction: column;
   gap: 10px;

@@ -1,0 +1,506 @@
+{
+  "390x844/dex": {
+    "label": "Dex",
+    "viewport": {
+      "name": "390x844",
+      "width": 390,
+      "height": 844
+    },
+    "panelBox": {
+      "x": 0,
+      "y": 168.8125,
+      "width": 390,
+      "height": 675.1875
+    },
+    "appFrameBox": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 844
+    },
+    "horizontalOverflow": false,
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "bodyOverflow": {
+      "scrollHeight": 607,
+      "clientHeight": 607
+    },
+    "consoleErrorsSoFar": []
+  },
+  "390x844/shop": {
+    "label": "Shop",
+    "viewport": {
+      "name": "390x844",
+      "width": 390,
+      "height": 844
+    },
+    "panelBox": {
+      "x": 0,
+      "y": 168.8125,
+      "width": 390,
+      "height": 675.1875
+    },
+    "appFrameBox": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 844
+    },
+    "horizontalOverflow": false,
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "bodyOverflow": {
+      "scrollHeight": 607,
+      "clientHeight": 607
+    },
+    "consoleErrorsSoFar": []
+  },
+  "390x844/inventory-all": {
+    "label": "Inventory / すべて",
+    "viewport": {
+      "name": "390x844",
+      "width": 390,
+      "height": 844
+    },
+    "panelBox": {
+      "x": 0,
+      "y": 168.8125,
+      "width": 390,
+      "height": 675.1875
+    },
+    "appFrameBox": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 844
+    },
+    "horizontalOverflow": false,
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "bodyOverflow": {
+      "scrollHeight": 607,
+      "clientHeight": 607
+    },
+    "consoleErrorsSoFar": []
+  },
+  "390x844/inventory-sauce": {
+    "label": "Inventory / ソース",
+    "viewport": {
+      "name": "390x844",
+      "width": 390,
+      "height": 844
+    },
+    "panelBox": {
+      "x": 0,
+      "y": 168.8125,
+      "width": 390,
+      "height": 675.1875
+    },
+    "appFrameBox": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 844
+    },
+    "horizontalOverflow": false,
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "bodyOverflow": {
+      "scrollHeight": 607,
+      "clientHeight": 607
+    },
+    "consoleErrorsSoFar": []
+  },
+  "390x844/inventory-cheese": {
+    "label": "Inventory / チーズ",
+    "viewport": {
+      "name": "390x844",
+      "width": 390,
+      "height": 844
+    },
+    "panelBox": {
+      "x": 0,
+      "y": 168.8125,
+      "width": 390,
+      "height": 675.1875
+    },
+    "appFrameBox": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 844
+    },
+    "horizontalOverflow": false,
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "bodyOverflow": {
+      "scrollHeight": 607,
+      "clientHeight": 607
+    },
+    "consoleErrorsSoFar": []
+  },
+  "390x844/inventory-topping": {
+    "label": "Inventory / トッピング",
+    "viewport": {
+      "name": "390x844",
+      "width": 390,
+      "height": 844
+    },
+    "panelBox": {
+      "x": 0,
+      "y": 168.8125,
+      "width": 390,
+      "height": 675.1875
+    },
+    "appFrameBox": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 844
+    },
+    "horizontalOverflow": false,
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "bodyOverflow": {
+      "scrollHeight": 607,
+      "clientHeight": 607
+    },
+    "consoleErrorsSoFar": []
+  },
+  "390x844/dex-long": {
+    "label": "Dex (全レシピ発見)",
+    "viewport": {
+      "name": "390x844",
+      "width": 390,
+      "height": 844
+    },
+    "panelBox": {
+      "x": 0,
+      "y": 168.8125,
+      "width": 390,
+      "height": 675.1875
+    },
+    "appFrameBox": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 844
+    },
+    "horizontalOverflow": false,
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "bodyOverflow": {
+      "scrollHeight": 607,
+      "clientHeight": 607
+    },
+    "consoleErrorsSoFar": []
+  },
+  "390x844/shop-long": {
+    "label": "Shop (全材料所持)",
+    "viewport": {
+      "name": "390x844",
+      "width": 390,
+      "height": 844
+    },
+    "panelBox": {
+      "x": 0,
+      "y": 168.8125,
+      "width": 390,
+      "height": 675.1875
+    },
+    "appFrameBox": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 844
+    },
+    "horizontalOverflow": false,
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "bodyOverflow": {
+      "scrollHeight": 980,
+      "clientHeight": 607
+    },
+    "consoleErrorsSoFar": []
+  },
+  "390x844/inventory-all-long": {
+    "label": "Inventory / すべて (全材料所持)",
+    "viewport": {
+      "name": "390x844",
+      "width": 390,
+      "height": 844
+    },
+    "panelBox": {
+      "x": 0,
+      "y": 168.8125,
+      "width": 390,
+      "height": 675.1875
+    },
+    "appFrameBox": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 844
+    },
+    "horizontalOverflow": false,
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "bodyOverflow": {
+      "scrollHeight": 607,
+      "clientHeight": 607
+    },
+    "consoleErrorsSoFar": []
+  },
+  "360w/dex": {
+    "label": "Dex",
+    "viewport": {
+      "name": "360w",
+      "width": 360,
+      "height": 800
+    },
+    "panelBox": {
+      "x": 0,
+      "y": 160,
+      "width": 360,
+      "height": 640
+    },
+    "appFrameBox": {
+      "x": 0,
+      "y": 0,
+      "width": 360,
+      "height": 800
+    },
+    "horizontalOverflow": false,
+    "scrollWidth": 360,
+    "clientWidth": 360,
+    "bodyOverflow": {
+      "scrollHeight": 572,
+      "clientHeight": 572
+    },
+    "consoleErrorsSoFar": []
+  },
+  "360w/shop": {
+    "label": "Shop",
+    "viewport": {
+      "name": "360w",
+      "width": 360,
+      "height": 800
+    },
+    "panelBox": {
+      "x": 0,
+      "y": 160,
+      "width": 360,
+      "height": 640
+    },
+    "appFrameBox": {
+      "x": 0,
+      "y": 0,
+      "width": 360,
+      "height": 800
+    },
+    "horizontalOverflow": false,
+    "scrollWidth": 360,
+    "clientWidth": 360,
+    "bodyOverflow": {
+      "scrollHeight": 572,
+      "clientHeight": 572
+    },
+    "consoleErrorsSoFar": []
+  },
+  "360w/inventory-all": {
+    "label": "Inventory / すべて",
+    "viewport": {
+      "name": "360w",
+      "width": 360,
+      "height": 800
+    },
+    "panelBox": {
+      "x": 0,
+      "y": 160,
+      "width": 360,
+      "height": 640
+    },
+    "appFrameBox": {
+      "x": 0,
+      "y": 0,
+      "width": 360,
+      "height": 800
+    },
+    "horizontalOverflow": false,
+    "scrollWidth": 360,
+    "clientWidth": 360,
+    "bodyOverflow": {
+      "scrollHeight": 572,
+      "clientHeight": 572
+    },
+    "consoleErrorsSoFar": []
+  },
+  "360w/inventory-sauce": {
+    "label": "Inventory / ソース",
+    "viewport": {
+      "name": "360w",
+      "width": 360,
+      "height": 800
+    },
+    "panelBox": {
+      "x": 0,
+      "y": 160,
+      "width": 360,
+      "height": 640
+    },
+    "appFrameBox": {
+      "x": 0,
+      "y": 0,
+      "width": 360,
+      "height": 800
+    },
+    "horizontalOverflow": false,
+    "scrollWidth": 360,
+    "clientWidth": 360,
+    "bodyOverflow": {
+      "scrollHeight": 572,
+      "clientHeight": 572
+    },
+    "consoleErrorsSoFar": []
+  },
+  "360w/inventory-cheese": {
+    "label": "Inventory / チーズ",
+    "viewport": {
+      "name": "360w",
+      "width": 360,
+      "height": 800
+    },
+    "panelBox": {
+      "x": 0,
+      "y": 160,
+      "width": 360,
+      "height": 640
+    },
+    "appFrameBox": {
+      "x": 0,
+      "y": 0,
+      "width": 360,
+      "height": 800
+    },
+    "horizontalOverflow": false,
+    "scrollWidth": 360,
+    "clientWidth": 360,
+    "bodyOverflow": {
+      "scrollHeight": 572,
+      "clientHeight": 572
+    },
+    "consoleErrorsSoFar": []
+  },
+  "360w/inventory-topping": {
+    "label": "Inventory / トッピング",
+    "viewport": {
+      "name": "360w",
+      "width": 360,
+      "height": 800
+    },
+    "panelBox": {
+      "x": 0,
+      "y": 160,
+      "width": 360,
+      "height": 640
+    },
+    "appFrameBox": {
+      "x": 0,
+      "y": 0,
+      "width": 360,
+      "height": 800
+    },
+    "horizontalOverflow": false,
+    "scrollWidth": 360,
+    "clientWidth": 360,
+    "bodyOverflow": {
+      "scrollHeight": 572,
+      "clientHeight": 572
+    },
+    "consoleErrorsSoFar": []
+  },
+  "360w/dex-long": {
+    "label": "Dex (全レシピ発見)",
+    "viewport": {
+      "name": "360w",
+      "width": 360,
+      "height": 800
+    },
+    "panelBox": {
+      "x": 0,
+      "y": 160,
+      "width": 360,
+      "height": 640
+    },
+    "appFrameBox": {
+      "x": 0,
+      "y": 0,
+      "width": 360,
+      "height": 800
+    },
+    "horizontalOverflow": false,
+    "scrollWidth": 360,
+    "clientWidth": 360,
+    "bodyOverflow": {
+      "scrollHeight": 572,
+      "clientHeight": 572
+    },
+    "consoleErrorsSoFar": []
+  },
+  "360w/shop-long": {
+    "label": "Shop (全材料所持)",
+    "viewport": {
+      "name": "360w",
+      "width": 360,
+      "height": 800
+    },
+    "panelBox": {
+      "x": 0,
+      "y": 160,
+      "width": 360,
+      "height": 640
+    },
+    "appFrameBox": {
+      "x": 0,
+      "y": 0,
+      "width": 360,
+      "height": 800
+    },
+    "horizontalOverflow": false,
+    "scrollWidth": 360,
+    "clientWidth": 360,
+    "bodyOverflow": {
+      "scrollHeight": 1064,
+      "clientHeight": 572
+    },
+    "consoleErrorsSoFar": []
+  },
+  "360w/inventory-all-long": {
+    "label": "Inventory / すべて (全材料所持)",
+    "viewport": {
+      "name": "360w",
+      "width": 360,
+      "height": 800
+    },
+    "panelBox": {
+      "x": 0,
+      "y": 160,
+      "width": 360,
+      "height": 640
+    },
+    "appFrameBox": {
+      "x": 0,
+      "y": 0,
+      "width": 360,
+      "height": 800
+    },
+    "horizontalOverflow": false,
+    "scrollWidth": 360,
+    "clientWidth": 360,
+    "bodyOverflow": {
+      "scrollHeight": 576,
+      "clientHeight": 572
+    },
+    "consoleErrorsSoFar": []
+  }
+}
