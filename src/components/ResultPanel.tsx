@@ -2,8 +2,16 @@ import type { ScoreBreakdown } from "../logic/scoring";
 import { BAKE_STATE_LABEL, type BakeState } from "../logic/bake";
 import type { PitzCredit } from "../logic/pitzReward";
 import type { StarterGrantNotice } from "../state/starterStock";
+import type { PizzaCompletionResult } from "../logic/completionGate";
+import { buildCompletionFailureMessage } from "../data/completionMessages";
 
 interface ResultPanelProps {
+  /** Completion Gate Phase 1: when this is `{ status: "FAILED" }`, every prop below except
+   *  `bakeState`/`onRetrySameRecipe`/`onBackToPizzaSelect` is ignored -- a FAILED round never
+   *  has a real score/stars/Pitz/Dex outcome to show (see ../logic/completionGate.ts and the
+   *  Result Report's RESULT UI section). `null` only for a Mission round (which never renders
+   *  this component -- GameScreen's own `!isMissionActive` gate), same as `pitzCredit`. */
+  completion: PizzaCompletionResult | null;
   score: ScoreBreakdown;
   bakeState: BakeState | null;
   /** A1 Authority Cutover: Scoring 2.0's Sauce component score (0-100), Scoring 2.0's single
@@ -79,6 +87,7 @@ const FEEDBACK_ROWS: Array<{ key: string; label: string; value: (score: ScoreBre
  * completed pizza is already the first thing on screen before any of this.
  */
 export function ResultPanel({
+  completion,
   score,
   bakeState,
   sauceScore,
@@ -91,6 +100,55 @@ export function ResultPanel({
   onRetrySameRecipe,
   onBackToPizzaSelect,
 }: ResultPanelProps) {
+  // Completion Gate Phase 1: a FAILED round gets its own small, distinct card -- reusing the
+  // same outer structure/CTAs as the PASS branch below (per the Result Report's RESULT UI
+  // section: "reuse the RESULT structure, don't build new UI"), but never the stars/score/
+  // Dex/Pitz-credit markup, so a FAILED pizza can never be misread as a normal ★1 result.
+  if (completion?.status === "FAILED") {
+    const failureMessage = buildCompletionFailureMessage(completion);
+    return (
+      <div className="result-panel result-panel--failed">
+        <p className="result-panel__heading result-panel__heading--failed">失敗</p>
+        <div className="result-panel__headline">
+          <p className="result-panel__failed-reason" role="alert">
+            {failureMessage}
+          </p>
+          {bakeState && (
+            <p className={`result-panel__bake-badge result-panel__bake-badge--${bakeState}`}>
+              {BAKE_STATE_ICON[bakeState]} 焼き加減: {BAKE_STATE_LABEL[bakeState]}
+            </p>
+          )}
+        </div>
+
+        <div className="pitz-credit-summary pitz-credit-summary--failed">
+          <p className="pitz-credit-summary__headline">
+            今回の獲得 <strong>+0 Pitz</strong>
+          </p>
+          <p className="pitz-credit-summary__zero-note">
+            今回は料理として成立しなかったため、提供できませんでした。
+          </p>
+        </div>
+
+        <div className="action-row action-row--column result-panel__actions">
+          <button
+            type="button"
+            className="cta-button cta-button--primary"
+            onClick={onRetrySameRecipe}
+          >
+            もう一度つくる
+          </button>
+          <button
+            type="button"
+            className="cta-button cta-button--secondary"
+            onClick={onBackToPizzaSelect}
+          >
+            別のピザを作る
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const filledStars = "★".repeat(score.stars);
   const emptyStars = "☆".repeat(MAX_STARS - score.stars);
 

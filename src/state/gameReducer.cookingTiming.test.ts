@@ -139,12 +139,25 @@ describe("HOME (PLAY_AGAIN) clears timing entirely", () => {
 
 describe("DISCOVERED keeps the same completedMs the round just produced", () => {
   it("REGISTER_TO_DEX (RESULT -> DISCOVERED) does not clear cookingTiming", () => {
+    // Completion Gate Phase 1: this must be a real, PASSing pizza -- an empty one (no sauce/
+    // cheese/topping) is now a FAILED round (../logic/completionGate.ts), for which
+    // REGISTER_TO_DEX is a complete no-op (phase stays "RESULT", never reaches "DISCOVERED" --
+    // see gameReducer.pitzReward.test.ts's own Completion Gate coverage for that behavior).
+    // This test is only about cookingTiming surviving that transition, so it needs the
+    // transition to actually happen.
     let state = beginFreePrepare(0);
+    state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // DOUGH -> SAUCE
+    state = gameReducer(state, { type: "APPLY_SAUCE", ingredientId: "tomato-sauce", x: 50, y: 50 });
+    state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // SAUCE -> CHEESE
+    state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "mozzarella", x: 40, y: 50 });
+    state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "mozzarella", x: 60, y: 50 });
+    state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "mozzarella", x: 50, y: 30 });
     state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" });
-    state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" });
-    state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" });
+    state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "basil", x: 50, y: 65 });
+    state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "basil", x: 35, y: 65 });
     state = gameReducer(state, { type: "START_BAKE", now: 15_000 });
-    state = gameReducer(state, { type: "CONFIRM_BAKE", value: 5 });
+    state = gameReducer(state, { type: "CONFIRM_BAKE", value: 70 });
+    expect(state.completion?.status).toBe("PASS");
     expect(state.cookingTiming?.completedMs).toBe(15_000);
     state = gameReducer(state, { type: "REGISTER_TO_DEX" });
     expect(state.phase).toBe("DISCOVERED");

@@ -87,16 +87,31 @@ function goodPizzaForRecipe(recipeId: RecipeId): PizzaState {
   });
 }
 
+/**
+ * Completion Gate Phase 1: a "poor" pizza for this suite's Dex BEST comparison must still
+ * PASS the gate (every required ingredient at least at its own `minCount`, sauce above the
+ * gate's own minimum floor -- see ../logic/completionGate.ts) while still scoring badly under
+ * Scoring 2.0 -- otherwise this is no longer "a worse but real round," it's a FAILED one, which
+ * this suite's BEST-never-lowers assertion isn't about. `ring(25, 16)` (a small, tight blob
+ * rather than the Reference's own full-dough spread) clears the gate's sauce floor but stays
+ * well below the "poor" sauce tier boundary (../logic/sauceEvaluation.ts's
+ * `COVERAGE_POOR_RATIO`), and every required piece is placed (never fewer than `minCount`) but
+ * clustered in one corner instead of matched to the Reference's own positions.
+ */
 function poorPizzaForRecipe(recipeId: RecipeId): PizzaState {
   const reference = getReferencePizza(recipeId);
   if (!reference) throw new Error(`Missing Reference fixture for ${recipeId}`);
   return pizzaWith({
     sauceIds: [reference.sauce.ingredientId],
-    sauceDeposits: Array.from({ length: 10 }, () => ({ x: 55, y: 55, amount: 0.02 })),
-    toppings: [
-      { id: `${recipeId}-poor-0`, ingredientId: reference.pieceGroups[0].ingredientId, x: 12, y: 12 },
-      { id: `${recipeId}-poor-1`, ingredientId: reference.pieceGroups[1].ingredientId, x: 88, y: 88 },
-    ],
+    sauceDeposits: ring(25, 16, 0.02),
+    toppings: reference.pieceGroups.flatMap((group, gi) =>
+      group.positions.map((_, i) => ({
+        id: `${recipeId}-poor-${gi}-${i}`,
+        ingredientId: group.ingredientId,
+        x: 10 + (i % 3) * 4,
+        y: 10 + (i % 3) * 4,
+      })),
+    ),
   });
 }
 
