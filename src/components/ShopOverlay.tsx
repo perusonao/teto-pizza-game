@@ -25,12 +25,27 @@ interface ShopOverlayProps {
  * Shop products (Phase 3C-5, see docs/design/PIZZA_GAME_PROGRESSION_SSOT.md section 9): every
  * ingredient with a Mastery gate (`unlockCondition`). Starter Set ingredients (see
  * src/data/ingredients.ts's `STARTER_INGREDIENT_IDS`) never appear here -- they're always
- * OWNED and never for sale. Production's first (and currently only) product is Phase 3C-6's
- * `onion` (see docs/design/PIZZA_GAME_PROGRESSION_SSOT.md section 12) -- the empty-state
- * branch below is kept for safety (e.g. a future save with no purchasable ingredients),
- * not because it's expected to trigger today.
+ * OWNED and never for sale.
+ *
+ * Economy & Progression 1.0 EP4: a `starterGrantOnly` ingredient (mushroom/garlic/oregano/egg/
+ * pesto/cherry-tomato/olive-oil/gorgonzola/parmigiano/fontina) is additionally hidden entirely
+ * -- no LOCKED/AVAILABLE_TO_BUY row at all -- until it is already OWNED. Its first unit is
+ * always free via its governing recipe's Starter Grant (../state/starterStock.ts), never a
+ * manual purchase, so a Shop row offering to buy it before that would be a transaction that
+ * doesn't actually exist (`purchaseIngredient` rejects it, see ../logic/economy.ts). Once
+ * OWNED, it appears exactly like `onion` always has: a restock-only row. `onion` itself keeps
+ * its original Phase 3C-6 LOCKED/AVAILABLE_TO_BUY/OWNED lifecycle unchanged (it never sets
+ * `starterGrantOnly`), so this filter is a no-op for it at every stage. Needs `ownedIngredientIds`
+ * (unlike the old module-level constant), so this is now computed per render rather than once at
+ * module load.
  */
-const SHOP_PRODUCTS: readonly Ingredient[] = INGREDIENTS.filter((i) => i.unlockCondition);
+function shopProducts(ownedIngredientIds: readonly string[]): readonly Ingredient[] {
+  return INGREDIENTS.filter((i) => {
+    if (!i.unlockCondition) return false;
+    if (i.starterGrantOnly && !ownedIngredientIds.includes(i.id)) return false;
+    return true;
+  });
+}
 
 /** One shop row's derived, presentation-only state -- never a stored/duplicated flag. */
 function remainingStarsFor(ingredient: Ingredient, stars: number): number {
@@ -90,6 +105,7 @@ export function ShopOverlay({
   onClose,
 }: ShopOverlayProps) {
   const stars = totalStars(dex);
+  const products = shopProducts(ownedIngredientIds);
   const [feedback, setFeedback] = useState<PurchaseFeedback | null>(null);
   const [restockFeedback, setRestockFeedback] = useState<RestockFeedback | null>(null);
 
@@ -160,13 +176,13 @@ export function ShopOverlay({
           </p>
         )}
 
-        {SHOP_PRODUCTS.length === 0 && (
+        {products.length === 0 && (
           <p className="shop-overlay__empty">新しい素材は、ピザの腕前が上がると入荷します</p>
         )}
 
-        {SHOP_PRODUCTS.length > 0 && (
+        {products.length > 0 && (
           <div className="shop-overlay__list">
-            {SHOP_PRODUCTS.map((ingredient) => {
+            {products.map((ingredient) => {
               const state = ingredientState(ingredient, ownedIngredientIds, stars);
               const unlocksLabel = unlockedRecipeLabel(ingredient.id, dex, ownedIngredientIds);
               return (
@@ -199,7 +215,7 @@ export function ShopOverlay({
                       </div>
                     )}
 
-                    {/* EP3: every SHOP_PRODUCTS entry has `unlockCondition` by construction (the
+                    {/* EP3: every `products` entry has `unlockCondition` by construction (the
                         list's own filter above), so an OWNED row here is always a genuinely
                         finite ingredient -- restock, never a plain "✓ 購入済み" checkmark, is the
                         only OWNED presentation this list ever needs (unlike a hypothetical

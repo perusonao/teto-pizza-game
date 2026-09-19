@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createInitialGameState, gameReducer, type GameState } from "./gameReducer";
-import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
+import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { EMPTY_DEX } from "./dex";
 import type { SauceDeposit } from "./pizzaState";
 import { createEmptyPizza } from "./pizzaState";
@@ -17,8 +17,19 @@ import { getRecipeSauceProfile } from "../data/recipeSauceProfiles";
  * can never mutate canonical pizza state.
  */
 
-function preparedMargheritaState(ownedIngredientIds: readonly string[] = STARTER_INGREDIENT_IDS): GameState {
-  const state = createInitialGameState(EMPTY_DEX, ownedIngredientIds, 0);
+// EP4: several recipes' own sauces (pesto/olive-oil among them) are no longer trivially
+// Starter-owned or unconditionally in stock -- this suite exercises COMMIT_SAUCE_DISPENSE's own
+// reducer guards across every recipe, not ownership/Stock Gate gating, so fixtures below own
+// every ingredient outright and seed each finite one with generous stock.
+const ALL_INGREDIENT_IDS = INGREDIENTS.map((i) => i.id);
+const GENEROUS_INVENTORY = Object.fromEntries(
+  INGREDIENTS.filter((i) => i.unlockCondition).map((i) => [i.id, 999]),
+);
+
+function preparedMargheritaState(
+  ownedIngredientIds: readonly string[] = STARTER_INGREDIENT_IDS,
+): GameState {
+  const state = createInitialGameState(EMPTY_DEX, ownedIngredientIds, 0, GENEROUS_INVENTORY);
   expect(state.recipe.id).toBe("margherita"); // createInitialGameState always starts here
   const prepared = gameReducer(state, { type: "BEGIN_PREPARE" });
   // Issue #33 D1: BEGIN_PREPARE now lands at DOUGH -- every caller in this file exercises
@@ -27,7 +38,7 @@ function preparedMargheritaState(ownedIngredientIds: readonly string[] = STARTER
 }
 
 function preparedRecipeState(recipeId: RecipeId, isMissionRound = false): GameState {
-  const base = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 0);
+  const base = createInitialGameState(EMPTY_DEX, ALL_INGREDIENT_IDS, 0, GENEROUS_INVENTORY);
   const recipe = RECIPES.find((candidate) => candidate.id === recipeId);
   const order = ORDERS.find((candidate) => candidate.recipeId === recipeId);
   if (!recipe || !order) throw new Error(`Missing test data for ${recipeId}`);
@@ -166,7 +177,9 @@ describe("COMMIT_SAUCE_DISPENSE: reducer scope guard (Codex MUST FIX 2)", () => 
   });
 
   it("Issue #32 sauce parity fix: accepts a sauce ingredient other than tomato-sauce on Margherita (off-recipe sauce uses the same dispense path)", () => {
-    const state = preparedMargheritaState();
+    // EP4: `olive-oil` is no longer trivially Starter-owned -- own it explicitly (stock is
+    // already seeded generously by `preparedMargheritaState`'s own default inventory).
+    const state = preparedMargheritaState([...STARTER_INGREDIENT_IDS, "olive-oil"]);
     const after = gameReducer(state, {
       type: "COMMIT_SAUCE_DISPENSE",
       ingredientId: "olive-oil",

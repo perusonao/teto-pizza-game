@@ -21,6 +21,7 @@ import {
   type MakingStep,
 } from "./state/gameReducer";
 import { loadSave, loadMissionBest, persistProgress, persistMissionBest } from "./state/persistence";
+import { applyStarterGrants } from "./state/starterStock";
 import {
   DEFAULT_MISSION_CONFIG,
   LUNCH_RUSH_MISSION_ID,
@@ -97,7 +98,31 @@ function App() {
   // hydrate the initial state with them.
   const [state, dispatch] = useReducer(gameReducer, undefined, () => {
     const save = loadSave();
-    return createInitialGameState(save.dex, save.ownedIngredientIds, save.pitzBalance, save.inventory);
+    // Economy & Progression 1.0 EP4 migration catch-up: `recipeUnlocked` (src/state/
+    // progression.ts) is purely a function of `dex`, so an existing player's save can already
+    // show one or more Chapter 1 recipes unlocked (from play before this build ever shipped)
+    // with no Starter Grant ever recorded for them (`starterGrantClaimedRecipeIds` reads back
+    // empty for any pre-EP4 save -- see persistence.ts's own doc comment on that field). Running
+    // `applyStarterGrants` once here, before `createInitialGameState`, backfills exactly those
+    // recipes' Starter Stock so an existing player is never left holding an unlocked recipe they
+    // still can't make even once -- and is a complete no-op (same reference back) for a save that
+    // already has every currently-unlocked recipe's grant claimed, so it's safe to run
+    // unconditionally on every load, not just an existing player's very first post-EP4 load.
+    // `createInitialGameState` itself deliberately never does this (see its own doc comment) --
+    // this load path is the one explicit call site.
+    const grant = applyStarterGrants(
+      save.dex,
+      save.ownedIngredientIds,
+      save.inventory,
+      save.starterGrantClaimedRecipeIds,
+    );
+    return createInitialGameState(
+      save.dex,
+      grant.ownedIngredientIds,
+      save.pitzBalance,
+      grant.inventory,
+      grant.claimedRecipeIds,
+    );
   });
   // HOME is always the first screen shown (Issue #24 requirement) regardless of what round
   // hydration produced -- a resumed ORDER-phase round from a prior session is simply what
@@ -199,8 +224,15 @@ function App() {
       pitzBalance: state.pitzBalance,
       ownedIngredientIds: state.ownedIngredientIds,
       inventory: state.inventory,
+      starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
     });
-  }, [state.dex, state.pitzBalance, state.ownedIngredientIds, state.inventory]);
+  }, [
+    state.dex,
+    state.pitzBalance,
+    state.ownedIngredientIds,
+    state.inventory,
+    state.starterGrantClaimedRecipeIds,
+  ]);
 
   // --- Lunch Rush mission (Phase 3C-4) --------------------------------------------------
   // A separate reducer, not a field on GameState: Mission run state (which screen, the

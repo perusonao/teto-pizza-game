@@ -7,7 +7,7 @@ import { INITIAL_MISSION_STATE } from "../mission/lunchRush";
 import { resolvePieceDrop } from "../logic/pieceDrag";
 import { emptySauceMetrics } from "../logic/sauceField";
 import { getReferencePizza } from "../data/referencePizza";
-import { getIngredient, type Ingredient, type IngredientCategory } from "../data/ingredients";
+import { getIngredient, INGREDIENTS, type Ingredient, type IngredientCategory } from "../data/ingredients";
 import type { DoughPoint } from "../logic/pizzaCoordinates";
 
 /**
@@ -32,6 +32,13 @@ import type { DoughPoint } from "../logic/pizzaCoordinates";
 const referencePizza = getReferencePizza("margherita");
 if (!referencePizza) throw new Error("Margherita reference fixture missing");
 
+// EP4: "garlic" (this harness's own generic topping fixture) is now finite -- seed generous
+// stock for every finite ingredient so the Stock Gate never blocks a placement this harness's
+// own tests aren't about.
+const GENEROUS_INVENTORY = Object.fromEntries(
+  INGREDIENTS.filter((i) => i.unlockCondition).map((i) => [i.id, 999]),
+);
+
 // Issue #32 Phase 2: PLACE_TOPPING/APPLY_SAUCE are now gated on `state.makingStep` matching
 // the selected ingredient's own category (see gameReducer.ts) -- this harness's `category`
 // prop selects which ingredient a test exercises, so the making flow must be advanced to that
@@ -52,7 +59,13 @@ function Harness({
   initialReferencePopoverOpen?: boolean;
 }) {
   const [state, dispatch] = useReducer(gameReducer, undefined, () => {
-    let initial = gameReducer(createInitialGameState(), { type: "BEGIN_PREPARE" });
+    // EP4: "garlic" (this harness's own generic topping fixture) is no longer trivially
+    // Starter-owned -- this harness is about keyboard/overlay interaction gating, not ownership,
+    // so it owns every ingredient outright.
+    let initial = gameReducer(
+      createInitialGameState(undefined, INGREDIENTS.map((i) => i.id), 0, GENEROUS_INVENTORY),
+      { type: "BEGIN_PREPARE" },
+    );
     while (initial.makingStep !== CATEGORY_TO_MAKING_STEP[category]) {
       initial = gameReducer(initial, { type: "CONFIRM_MAKING_STEP" });
     }

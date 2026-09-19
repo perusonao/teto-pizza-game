@@ -29,12 +29,14 @@ describe("onion (Phase 3C-6)", () => {
   });
 });
 
-describe("Starter Set is unchanged (regression)", () => {
-  it("still has exactly 13 Starter ingredients", () => {
-    expect(STARTER_INGREDIENT_IDS).toHaveLength(13);
+describe("Starter Set (EP4: shrunk to Margherita's own 3 permanently-unlimited ingredients)", () => {
+  it("has exactly 3 Starter ingredients (tomato-sauce/mozzarella/basil)", () => {
+    expect(STARTER_INGREDIENT_IDS.slice().sort()).toEqual(
+      ["tomato-sauce", "mozzarella", "basil"].sort(),
+    );
   });
 
-  it("total production ingredient count is 14 (13 Starter + onion)", () => {
+  it("total production ingredient count is still 14 (3 Starter + 10 EP4 Starter-Grant + onion)", () => {
     expect(INGREDIENTS).toHaveLength(14);
   });
 });

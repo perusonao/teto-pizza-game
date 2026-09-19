@@ -5,6 +5,7 @@ import { missionScore, averageQualityScore } from "../logic/missionScoring";
 import { totalStars } from "../logic/mastery";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { createEmptyPizza } from "./pizzaState";
+import { EMPTY_INVENTORY, type InventoryState } from "./inventory";
 
 /**
  * Phase 4A-1A regression suite (SSOT section 10/13's "Scope Guard"): confirms the Phase
@@ -15,8 +16,11 @@ import { createEmptyPizza } from "./pizzaState";
  * complements (Codex Broad Review MUST FIX 2).
  */
 
-function preparedState(recipeIdOwned: readonly string[]): GameState {
-  const state = createInitialGameState(EMPTY_DEX, recipeIdOwned, 0);
+function preparedState(
+  recipeIdOwned: readonly string[],
+  inventory: InventoryState = EMPTY_INVENTORY,
+): GameState {
+  const state = createInitialGameState(EMPTY_DEX, recipeIdOwned, 0, inventory);
   const prepared = gameReducer(state, { type: "BEGIN_PREPARE" });
   // Issue #33 D1: BEGIN_PREPARE now lands at DOUGH, the new first step -- every caller in
   // this file exercises SAUCE-step sauce-dispense actions, so advance past DOUGH once here.
@@ -77,7 +81,10 @@ describe("Regression: non-Margherita sauce interaction", () => {
     // a wrong `sauceIds[0]` normally either way, so loosening this guard to "any sauce-
     // category ingredient" (still gated by phase/step/ownership/deposit-shape below) changes
     // nothing scoring reads -- only which gesture pipeline paints it.
-    const state = preparedState(STARTER_INGREDIENT_IDS);
+    // EP4: `olive-oil` is no longer trivially Starter-owned or unconditionally in stock -- own
+    // it and seed a unit of stock explicitly, since this test is about the sauce-parity reducer
+    // guard, not ownership/the Stock Gate.
+    const state = preparedState([...STARTER_INGREDIENT_IDS, "olive-oil"], { "olive-oil": 1 });
     const after = gameReducer(state, {
       type: "COMMIT_SAUCE_DISPENSE",
       ingredientId: "olive-oil",

@@ -116,6 +116,12 @@ export function purchaseIngredient(input: PurchaseIngredientInput): PurchaseIngr
   if (state === "LOCKED") return { success: false, reason: "LOCKED" };
 
   // state === "AVAILABLE_TO_BUY"
+  // Economy & Progression 1.0 EP4: a `starterGrantOnly` ingredient's *first* unit is always
+  // free via its governing recipe's Starter Grant (../state/starterStock.ts), never a manual
+  // purchase -- ShopOverlay never wires a buy button to one of these while unowned (see its own
+  // product-list filter), but this rejects a stray/direct PURCHASE_INGREDIENT dispatch the same
+  // defensive way every other reducer-boundary check in this codebase does.
+  if (ingredient.starterGrantOnly) return { success: false, reason: "NOT_FOR_SALE" };
   if (!isValidPrice(ingredient.pricePitz)) return { success: false, reason: "NOT_FOR_SALE" };
   if (pitzBalance < ingredient.pricePitz) return { success: false, reason: "INSUFFICIENT_FUNDS" };
 

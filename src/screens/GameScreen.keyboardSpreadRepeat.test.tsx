@@ -7,7 +7,7 @@ import { INITIAL_MISSION_STATE } from "../mission/lunchRush";
 import { resolvePieceDrop } from "../logic/pieceDrag";
 import { emptySauceMetrics } from "../logic/sauceField";
 import { getReferencePizza } from "../data/referencePizza";
-import { getIngredient, type Ingredient, type IngredientCategory } from "../data/ingredients";
+import { getIngredient, INGREDIENTS, type Ingredient, type IngredientCategory } from "../data/ingredients";
 import type { DoughPoint } from "../logic/pizzaCoordinates";
 import type { SauceDeposit } from "../state/pizzaState";
 
@@ -57,9 +57,21 @@ const MAKING_STEP_TO_CATEGORY: Record<MakingStep, IngredientCategory> = {
   TOPPING: "topping",
 };
 
+// EP4: "garlic"/"olive-oil" are now finite -- seed generous stock for every finite ingredient
+// so the Stock Gate never blocks a placement this harness's own tests aren't about.
+const GENEROUS_INVENTORY = Object.fromEntries(
+  INGREDIENTS.filter((i) => i.unlockCondition).map((i) => [i.id, 999]),
+);
+
 function Harness({ category, ingredientId }: { category: IngredientCategory; ingredientId: string }) {
   const [state, dispatch] = useReducer(gameReducer, undefined, () => {
-    let initial = gameReducer(createInitialGameState(), { type: "BEGIN_PREPARE" });
+    // EP4: "garlic"/"olive-oil" (this harness's own generic ingredient fixtures) are no longer
+    // trivially Starter-owned -- this harness is about keyboard interaction, not ownership, so
+    // it owns every ingredient outright.
+    let initial = gameReducer(
+      createInitialGameState(undefined, INGREDIENTS.map((i) => i.id), 0, GENEROUS_INVENTORY),
+      { type: "BEGIN_PREPARE" },
+    );
     while (initial.makingStep !== CATEGORY_TO_MAKING_STEP[category]) {
       initial = gameReducer(initial, { type: "CONFIRM_MAKING_STEP" });
     }

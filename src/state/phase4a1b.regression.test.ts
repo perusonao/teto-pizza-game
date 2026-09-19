@@ -42,6 +42,7 @@ describe("Regression: Phase 4A-1B remains shadow-only", () => {
       "ownedIngredientIds",
       "pitzBalance",
       "schemaVersion",
+      "starterGrantClaimedRecipeIds",
     ]);
   });
 });

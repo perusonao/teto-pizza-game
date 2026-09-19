@@ -59,7 +59,10 @@ describe("recipeCardState (Issue #39 Pizza Select, extended by Economy & Progres
 
   it("is NEW when available but not yet discovered (bismarck, once its chain is discovered)", () => {
     const dex = dexDiscovering(CHAIN_TO_BISMARCK, 1 as QualityStars);
-    const card = recipeCardState(bismarck, dex, STARTER_INGREDIENT_IDS);
+    // EP4: `egg` (bismarck's own non-Starter ingredient) is no longer trivially owned -- own it
+    // explicitly, as production's bismarck Starter Grant would have the instant this chain
+    // unlocked.
+    const card = recipeCardState(bismarck, dex, [...STARTER_INGREDIENT_IDS, "egg"]);
     expect(card).toEqual({ kind: "NEW", recipe: bismarck });
   });
 
@@ -73,13 +76,21 @@ describe("recipeCardState (Issue #39 Pizza Select, extended by Economy & Progres
       total: 91.5,
       stars: 5 as QualityStars,
     }).dex;
-    const card = recipeCardState(bismarck, dex, STARTER_INGREDIENT_IDS);
+    const card = recipeCardState(bismarck, dex, [...STARTER_INGREDIENT_IDS, "egg"]);
     expect(card).toEqual({ kind: "COMPLETED", recipe: bismarck, bestStars: 5, bestScore: 91.5 });
   });
 
   it("becomes NEW instead of LOCKED once both the unlockCondition and onion ownership hold (fugazza)", () => {
     const dex = dexDiscovering(CHAIN_TO_FUGAZZA, 5 as QualityStars);
-    const card = recipeCardState(fugazza, dex, [...STARTER_INGREDIENT_IDS, "onion"]);
+    // EP4: olive-oil/oregano are also no longer trivially owned -- own them explicitly (as
+    // production's quattro-formaggi/marinara Starter Grant would have) so onion is the one
+    // ingredient this test is isolating.
+    const card = recipeCardState(fugazza, dex, [
+      ...STARTER_INGREDIENT_IDS,
+      "olive-oil",
+      "oregano",
+      "onion",
+    ]);
     expect(card).toEqual({ kind: "NEW", recipe: fugazza });
   });
 

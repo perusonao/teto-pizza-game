@@ -95,7 +95,9 @@ describe("PizzaSelectScreen (Issue #39 PS2, extended by Economy & Progression 1.
     render(
       <PizzaSelectScreen
         dex={dex}
-        ownedIngredientIds={STARTER_INGREDIENT_IDS}
+        // EP4: `egg` (bismarck's own non-Starter ingredient) is no longer trivially owned --
+        // own it explicitly, as production's bismarck Starter Grant would have.
+        ownedIngredientIds={[...STARTER_INGREDIENT_IDS, "egg"]}
         onSelectRecipe={() => {}}
         onBack={() => {}}
       />,
@@ -163,7 +165,8 @@ describe("PizzaSelectScreen (Issue #39 PS2, extended by Economy & Progression 1.
     render(
       <PizzaSelectScreen
         dex={dex}
-        ownedIngredientIds={STARTER_INGREDIENT_IDS}
+        // EP4: `egg` (bismarck's own non-Starter ingredient) is no longer trivially owned.
+        ownedIngredientIds={[...STARTER_INGREDIENT_IDS, "egg"]}
         onSelectRecipe={onSelectRecipe}
         onBack={() => {}}
       />,

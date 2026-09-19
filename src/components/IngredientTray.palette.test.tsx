@@ -217,12 +217,14 @@ describe("Purchased onion stays reachable via page nav (Independent Review P1, P
   });
 
   it("with exactly 6 owned in a category, no page nav is rendered", () => {
-    // The starter topping set (basil/garlic/oregano/cherry-tomato/egg/mushroom) is already
-    // exactly MAX_INGREDIENT_PALETTE_SLOTS -- the boundary case right below the P1 bug.
-    expect(ingredientsByCategory("topping").filter((i) => STARTER_INGREDIENT_IDS.includes(i.id))).toHaveLength(
-      MAX_INGREDIENT_PALETTE_SLOTS,
-    );
-    render(<Harness category="topping" />);
+    // EP4: only `basil` remains Starter among toppings now (garlic/oregano/cherry-tomato/egg/
+    // mushroom all gained their own `unlockCondition`) -- own every topping except `onion`
+    // explicitly (as production's Starter Grants would have by this point) to keep exercising
+    // this test's own boundary case: exactly MAX_INGREDIENT_PALETTE_SLOTS owned, right below the
+    // P1 bug this suite is named for.
+    const sixOwnedToppings = allToppingIds.filter((id) => id !== "onion");
+    expect(sixOwnedToppings).toHaveLength(MAX_INGREDIENT_PALETTE_SLOTS);
+    render(<Harness category="topping" ownedIngredientIds={[...STARTER_INGREDIENT_IDS, ...sixOwnedToppings]} />);
     expect(screen.queryByRole("group", { name: "素材ページ切り替え" })).not.toBeInTheDocument();
   });
 

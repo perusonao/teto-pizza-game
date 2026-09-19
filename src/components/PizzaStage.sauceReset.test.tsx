@@ -2,7 +2,7 @@ import "@testing-library/jest-dom/vitest";
 import { useReducer, useState } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { getIngredient, STARTER_INGREDIENT_IDS } from "../data/ingredients";
+import { getIngredient, INGREDIENTS } from "../data/ingredients";
 import { ORDERS } from "../data/orders";
 import { getRecipe, type RecipeId } from "../data/recipes";
 import { getRecipeSauceProfile } from "../data/recipeSauceProfiles";
@@ -19,8 +19,17 @@ const DOUGH_RECT = {
   bottom: 300,
 } as DOMRect;
 
+// EP4: several recipes' own ingredients (pesto/olive-oil among them) are no longer trivially
+// Starter-owned or unconditionally in stock -- this suite is about sauce reset/gesture-
+// invalidation mechanics, not ownership/Stock Gate gating, so it owns every ingredient outright
+// and seeds each finite one with generous stock rather than tracking each recipe's own subset.
+const ALL_INGREDIENT_IDS = INGREDIENTS.map((i) => i.id);
+const GENEROUS_INVENTORY = Object.fromEntries(
+  INGREDIENTS.filter((i) => i.unlockCondition).map((i) => [i.id, 999]),
+);
+
 function preparedRecipeState(recipeId: RecipeId, isMissionRound: boolean): GameState {
-  const base = createInitialGameState(undefined, STARTER_INGREDIENT_IDS, 0);
+  const base = createInitialGameState(undefined, ALL_INGREDIENT_IDS, 0, GENEROUS_INVENTORY);
   const recipe = getRecipe(recipeId);
   const order = ORDERS.find((candidate) => candidate.recipeId === recipeId);
   if (!recipe || !order) throw new Error(`Missing fixture for ${recipeId}`);

@@ -1,5 +1,6 @@
 import { findOrderForRecipe, getNextOrder, type NextOrderOptions, type Order } from "../data/orders";
 import { getRecipe, type Recipe, type RecipeId } from "../data/recipes";
+import { applyStarterGrants } from "./starterStock";
 import { buildHintLine } from "../data/hints";
 import { getIngredient, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import type { DialogueLine } from "../data/dialogue";
@@ -88,6 +89,18 @@ export interface GameState {
    *  job); every action that isn't a "start a new round" path carries it through unchanged via
    *  its existing `{ ...state, ... }` pattern, same as `ownedIngredientIds` today. */
   inventory: InventoryState;
+  /** Economy & Progression 1.0 EP4: the exactly-once Starter Grant ledger (../state/
+   *  starterStock.ts's `applyStarterGrants`) -- every recipe id whose free Starter Stock has
+   *  ever been credited to `inventory`/`ownedIngredientIds`, so a later call (this round's own
+   *  REGISTER_TO_DEX/MISSION_NEXT_ORDER, a future round, a reload, a future Achievement Reset)
+   *  can never grant it a second time. Deliberately a separate concept from `dex`'s own
+   *  discovery/unlock state -- "is this recipe currently unlocked" and "has its Starter Grant
+   *  ever been claimed" must never be conflated, or a future Dex reset would either re-grant
+   *  (if conflated one way) or permanently softlock the recipe after a reset (if conflated the
+   *  other way). Mutated only by `applyStarterGrants`'s own callers (REGISTER_TO_DEX,
+   *  MISSION_NEXT_ORDER below, and App.tsx's load-time migration catch-up) -- every other action
+   *  carries it through unchanged, exactly like `ownedIngredientIds`/`inventory` themselves. */
+  starterGrantClaimedRecipeIds: readonly string[];
   /** Idempotency key for CLAIM_MISSION_REWARD (Phase 3C-5): the Mission run id
    *  (`MissionState.runId`, ../mission/lunchRush.ts) whose Pitz reward has already been
    *  applied to `pitzBalance`. A run's reward is granted at most once no matter how many
@@ -193,6 +206,7 @@ interface ProgressionCarry {
   pitzBalance: number;
   lastClaimedMissionRunId: number | null;
   inventory: InventoryState;
+  starterGrantClaimedRecipeIds: readonly string[];
 }
 
 /** Builds a fresh ORDER-phase state around an already-picked `order` -- the one place that
@@ -258,6 +272,7 @@ function nextMissionOrderState(state: GameState): GameState {
       pitzBalance: state.pitzBalance,
       lastClaimedMissionRunId: state.lastClaimedMissionRunId,
       inventory: state.inventory,
+      starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
     },
     true,
   );
@@ -285,17 +300,31 @@ function startPreparingRecipe(recipeId: RecipeId, carry: ProgressionCarry): Game
 
 /** `dex` defaults to empty, `ownedIngredientIds` defaults to the Starter Set, and
  *  `pitzBalance` defaults to 0 for existing call sites (tests, a from-scratch player);
- *  App.tsx passes all three in from persistence.ts so a reload hydrates BEST/timesMade/
- *  ownership/Pitz while everything else (the round in progress) starts fresh at ORDER
- *  regardless. */
+ *  App.tsx passes all four (plus EP4's `starterGrantClaimedRecipeIds`) in from persistence.ts so
+ *  a reload hydrates BEST/timesMade/ownership/Pitz/the Starter Grant ledger while everything
+ *  else (the round in progress) starts fresh at ORDER regardless. Deliberately a pure
+ *  passthrough -- this never itself calls `applyStarterGrants` (../state/starterStock.ts),
+ *  unlike REGISTER_TO_DEX/MISSION_NEXT_ORDER below, so a caller that hands it an already-unlocked
+ *  `dex` alongside a deliberately smaller `ownedIngredientIds` (as many existing tests do, to
+ *  exercise `isRecipeAvailable`'s ingredient-ownership axis in isolation) keeps getting back
+ *  exactly the state it asked for. App.tsx's own load path is the one place that runs the EP4
+ *  migration catch-up explicitly, before calling this. */
 export function createInitialGameState(
   dex: DexState = EMPTY_DEX,
   ownedIngredientIds: readonly string[] = STARTER_INGREDIENT_IDS,
   pitzBalance = 0,
   inventory: InventoryState = EMPTY_INVENTORY,
+  starterGrantClaimedRecipeIds: readonly string[] = [],
 ): GameState {
   return nextOrderState(
-    { dex, ownedIngredientIds, pitzBalance, lastClaimedMissionRunId: null, inventory },
+    {
+      dex,
+      ownedIngredientIds,
+      pitzBalance,
+      lastClaimedMissionRunId: null,
+      inventory,
+      starterGrantClaimedRecipeIds,
+    },
     { preferFirst: true },
   );
 }
@@ -585,6 +614,21 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         state.recipe.id,
         state.score,
       );
+      // Economy & Progression 1.0 EP4: this is one of the two places `dex` can change (the
+      // other is MISSION_NEXT_ORDER below), and `recipeUnlocked` (../state/progression.ts) is
+      // purely a function of `dex` -- so this is exactly where a newly-unlocked recipe's own
+      // Starter Grant must be applied, atomically in the same transition, so `ownedIngredientIds`
+      // reflects it before any later action (SELECT_RECIPE/PLAY_AGAIN's own `isRecipeAvailable`/
+      // `availableRecipeIds` checks) ever reads it. `applyStarterGrants` is idempotent against
+      // `starterGrantClaimedRecipeIds`, so calling it on every registration (not just ones that
+      // happen to newly unlock something) is always safe and a no-op when nothing is newly
+      // eligible (see its own doc comment, ../state/starterStock.ts).
+      const grant = applyStarterGrants(
+        dex,
+        state.ownedIngredientIds,
+        state.inventory,
+        state.starterGrantClaimedRecipeIds,
+      );
       // FREE only: Lunch Rush keeps its existing, unchanged per-run reward
       // (calculateMissionReward via CLAIM_MISSION_REWARD/MISSION_NEXT_ORDER) -- this per-pizza
       // credit must never also apply inside a Mission round, or a Lunch Rush pizza would earn
@@ -597,6 +641,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return {
         ...state,
         dex,
+        ownedIngredientIds: grant.ownedIngredientIds,
+        inventory: grant.inventory,
+        starterGrantClaimedRecipeIds: grant.claimedRecipeIds,
         justDiscovered: wasNewDiscovery,
         justGotNewBest: isNewBest,
         phase: "DISCOVERED",
@@ -613,6 +660,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           pitzBalance: state.pitzBalance,
           lastClaimedMissionRunId: state.lastClaimedMissionRunId,
           inventory: state.inventory,
+          starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
         },
         { excludeRecipeId: state.recipe.id },
       );
@@ -627,6 +675,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           pitzBalance: state.pitzBalance,
           lastClaimedMissionRunId: state.lastClaimedMissionRunId,
           inventory: state.inventory,
+          starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
         }) ?? state
       );
     }
@@ -639,6 +688,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           pitzBalance: state.pitzBalance,
           lastClaimedMissionRunId: state.lastClaimedMissionRunId,
           inventory: state.inventory,
+          starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
         }) ?? state
       );
 
@@ -653,7 +703,22 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         return state;
       }
       const { dex } = registerScoreToDex(state.dex, state.recipe.id, state.score);
-      return nextMissionOrderState({ ...state, dex });
+      // EP4: the second (and last) place `dex` changes -- see REGISTER_TO_DEX's own comment
+      // above for why this exact spot, atomically with the `dex` update, is where a Lunch Rush
+      // round's registration must also apply any newly-eligible Starter Grant.
+      const grant = applyStarterGrants(
+        dex,
+        state.ownedIngredientIds,
+        state.inventory,
+        state.starterGrantClaimedRecipeIds,
+      );
+      return nextMissionOrderState({
+        ...state,
+        dex,
+        ownedIngredientIds: grant.ownedIngredientIds,
+        inventory: grant.inventory,
+        starterGrantClaimedRecipeIds: grant.claimedRecipeIds,
+      });
     }
 
     // Forces a fresh Mission order regardless of the current phase -- used when a Mission run

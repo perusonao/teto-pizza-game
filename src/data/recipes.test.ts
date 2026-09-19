@@ -88,9 +88,17 @@ describe("RECIPES (Phase 3C-6: fugazza is Recipe #7)", () => {
         ["margherita", "funghi", "marinara", "bismarck", "genovese", "quattro-formaggi"],
         5 as QualityStars,
       );
-      expect(isRecipeAvailable(recipe!, chainDex, [...STARTER_INGREDIENT_IDS, "onion"])).toBe(
-        true,
-      );
+      // EP4: olive-oil/oregano are also no longer trivially Starter-owned -- own them
+      // explicitly (as production's quattro-formaggi/marinara Starter Grant would have) so
+      // this test keeps isolating onion, its own stated subject.
+      expect(
+        isRecipeAvailable(recipe!, chainDex, [
+          ...STARTER_INGREDIENT_IDS,
+          "olive-oil",
+          "oregano",
+          "onion",
+        ]),
+      ).toBe(true);
     });
   });
 

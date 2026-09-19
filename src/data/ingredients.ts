@@ -44,6 +44,20 @@ export interface Ingredient {
    *  `pricePitz` rather than reusing it, since the two numbers are independent (SSOT: batch
    *  size and price both vary per ingredient, not derived from one another). */
   restockQuantity?: number;
+  /** Economy & Progression 1.0 EP4: true for a finite (`unlockCondition`-bearing) ingredient
+   *  whose *initial* OWNED status is granted for free by its governing recipe's Starter Grant
+   *  (see ../state/starterStock.ts) rather than a manual Shop purchase -- the player never
+   *  spends Pitz to first obtain it, only to restock it later. Still finite/restockable exactly
+   *  like `onion` -- the Stock Gate (`hasStock`/`canPlaceIngredient`/`consumePizzaInventory`,
+   *  ../state/inventory.ts) and Shop restock (`restockIngredient`, ../logic/economy.ts) key
+   *  purely on `unlockCondition`'s presence, unaffected by this flag. This flag exists only to
+   *  suppress the *initial-unlock* LOCKED/AVAILABLE_TO_BUY purchase UI/transaction
+   *  (ShopOverlay's product list, `purchaseIngredient`) for an ingredient that was never meant
+   *  to be independently bought before its recipe unlocks -- see the EP4 Result report for why
+   *  `unlockCondition.minTotalStars` is otherwise unused/inert on every ingredient that sets
+   *  this. `onion` does NOT set this: it keeps its original Phase 3C-6 manual-purchase path
+   *  unchanged, with EP4's Starter Grant layered on top of (never replacing) it. */
+  starterGrantOnly?: boolean;
 }
 
 export const INGREDIENTS: Ingredient[] = [
@@ -57,6 +71,26 @@ export const INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F345}",
     placement: "spread",
   },
+  /**
+   * Economy & Progression 1.0 EP4 (see docs/reports/TETO_ECONOMY-PROGRESSION_EP4_Starter-Stock_Result.md):
+   * the first 9 of the matrix's 10 non-Starter rows referenced by `onion`'s own EP3 comment
+   * below (mushroom/garlic/oregano/egg/pesto/cherry-tomato/gorgonzola/parmigiano/fontina share
+   * this same treatment). Each gains `unlockCondition` (so the Stock Gate/`consumePizzaInventory`
+   * -- ../state/inventory.ts -- start tracking it as finite, exactly like `onion`) plus
+   * `pricePitz`/`restockQuantity` (so Shop restock, ../logic/economy.ts's `restockIngredient`,
+   * has a valid transaction once its Starter Grant stock runs out) and `starterGrantOnly: true`
+   * (so Shop never shows a LOCKED/AVAILABLE_TO_BUY row for it -- its *first* unit ever is always
+   * free, via its governing recipe's Starter Grant, ../state/starterStock.ts -- restock is the
+   * only Shop transaction that ever applies to it). `minTotalStars: 0` is otherwise inert: with
+   * `starterGrantOnly` suppressing both the Shop row and `purchaseIngredient` itself for it, this
+   * ingredient's LOCKED/AVAILABLE_TO_BUY state (from `ingredientState`) is never read or acted on
+   * before ownership actually lands via the grant. `restockQuantity`/`pricePitz` follow the same
+   * 3-plays-per-restock, 10-Pitz-per-unit ratio `onion`'s own EP3 numbers already established
+   * (120 Pitz / 12 units = 10 Pitz/unit, 12 units / 4-per-pizza = 3 plays) applied to this
+   * ingredient's own largest per-recipe `minCount` across every recipe requiring it (see
+   * src/data/recipes.ts) -- a deliberate, consistent extrapolation, not a value from any existing
+   * SSOT table (flagged as a product decision in the EP4 Result report, not silently invented).
+   */
   {
     id: "olive-oil",
     category: "sauce",
@@ -64,6 +98,10 @@ export const INGREDIENTS: Ingredient[] = [
     color: "#e9d9a0",
     emoji: "\u{1FAD2}",
     placement: "spread",
+    unlockCondition: { minTotalStars: 0 },
+    pricePitz: 30,
+    restockQuantity: 3,
+    starterGrantOnly: true,
   },
   {
     id: "pesto",
@@ -72,6 +110,10 @@ export const INGREDIENTS: Ingredient[] = [
     color: "#6b8e3d",
     emoji: "\u{1F33F}",
     placement: "spread",
+    unlockCondition: { minTotalStars: 0 },
+    pricePitz: 30,
+    restockQuantity: 3,
+    starterGrantOnly: true,
   },
   {
     id: "mozzarella",
@@ -88,6 +130,10 @@ export const INGREDIENTS: Ingredient[] = [
     color: "#e8e0c8",
     emoji: "\u{1F9C0}",
     placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    pricePitz: 60,
+    restockQuantity: 6,
+    starterGrantOnly: true,
   },
   {
     id: "parmigiano",
@@ -96,6 +142,10 @@ export const INGREDIENTS: Ingredient[] = [
     color: "#f6e6a8",
     emoji: "\u{1F9C0}",
     placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    pricePitz: 60,
+    restockQuantity: 6,
+    starterGrantOnly: true,
   },
   {
     id: "fontina",
@@ -104,6 +154,10 @@ export const INGREDIENTS: Ingredient[] = [
     color: "#f0d9a0",
     emoji: "\u{1F9C0}",
     placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    pricePitz: 60,
+    restockQuantity: 6,
+    starterGrantOnly: true,
   },
   {
     id: "basil",
@@ -120,6 +174,10 @@ export const INGREDIENTS: Ingredient[] = [
     color: "#f2ecd9",
     emoji: "\u{1F9C4}",
     placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    pricePitz: 90,
+    restockQuantity: 9,
+    starterGrantOnly: true,
   },
   {
     id: "oregano",
@@ -128,6 +186,10 @@ export const INGREDIENTS: Ingredient[] = [
     color: "#5f7a3d",
     emoji: "\u{1F343}",
     placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    pricePitz: 60,
+    restockQuantity: 6,
+    starterGrantOnly: true,
   },
   {
     id: "cherry-tomato",
@@ -136,6 +198,10 @@ export const INGREDIENTS: Ingredient[] = [
     color: "#e2412f",
     emoji: "\u{1F345}",
     placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    pricePitz: 90,
+    restockQuantity: 9,
+    starterGrantOnly: true,
   },
   {
     id: "egg",
@@ -144,6 +210,10 @@ export const INGREDIENTS: Ingredient[] = [
     color: "#f2c94c",
     emoji: "\u{1F95A}",
     placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    pricePitz: 30,
+    restockQuantity: 3,
+    starterGrantOnly: true,
   },
   {
     id: "mushroom",
@@ -152,6 +222,10 @@ export const INGREDIENTS: Ingredient[] = [
     color: "#b08968",
     emoji: "\u{1F344}",
     placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    pricePitz: 90,
+    restockQuantity: 9,
+    starterGrantOnly: true,
   },
   /**
    * Phase 3C-6: the first non-Starter ingredient (see
@@ -160,20 +234,29 @@ export const INGREDIENTS: Ingredient[] = [
    * balancing that landed on these exact numbers, and for why this replaced an earlier
    * salami/salami-pizza draft -- onion/Fugazza matched a real-world pizza per PIZZA DB's
    * canonical data, per the project's "no invented ingredient combinations" policy,
-   * `PIZZA_GAME_SSOT.md` section 1). LOCKED on a fresh save (no starter treatment); becomes
-   * AVAILABLE_TO_BUY once `totalStars` (src/logic/mastery.ts) reaches 12, then OWNED via a
-   * 120 Pitz Shop purchase (src/logic/economy.ts's `purchaseIngredient`). Renders with the
-   * ordinary emoji-topping path (no dedicated CSS treatment needed -- 🧅 already reads clearly
-   * as onion, distinct from every other topping).
+   * `PIZZA_GAME_SSOT.md` section 1). Renders with the ordinary emoji-topping path (no dedicated
+   * CSS treatment needed -- 🧅 already reads clearly as onion, distinct from every other
+   * topping).
    *
    * EP3 (Economy & Progression 1.0, Shop 2.0 restock): `restockQuantity: 12` is the SSOT's
    * already-confirmed "Restock batch" for onion (TETO_ECONOMY-PROGRESSION-1_MATRIX.md section
-   * 2) -- 12 units for the same 120 Pitz `pricePitz` already shipped above, unchanged by this
-   * revision. `onion` remains the only shipped ingredient with `unlockCondition` today; the
-   * matrix's other 10 non-Starter rows (mushroom/garlic/oregano/egg/pesto/cherry-tomato/
-   * olive-oil/gorgonzola/parmigiano/fontina) are EP4's own scope (the `starterStockPlays`
-   * free-grant slice that first gives them `unlockCondition`/`pricePitz` at all) -- not added
-   * here, per EP3's Scope Guard against inventing new locked ingredients ahead of that slice.
+   * 2) -- 12 units for the same 120 Pitz `pricePitz` already shipped above, unchanged since.
+   *
+   * EP4 (Economy & Progression 1.0, Starter Stock): the original Phase 3C-6 exception --
+   * onion's *initial* ownership required a manual 120 Pitz Shop purchase once `totalStars`
+   * reached 12 (`AVAILABLE_TO_BUY`), the only ingredient in the game that ever worked that way
+   * -- is retired. `onion` now ALSO receives a free Starter Grant (../state/starterStock.ts) the
+   * moment `fugazza` itself unlocks: 4 onion x 10 plays = 40 units, credited to `inventory`
+   * alongside `ownedIngredientIds`, exactly like every other EP4 Starter Grant ingredient. This
+   * is additive, not a replacement: `unlockCondition`/`pricePitz`/`restockQuantity` below are
+   * left completely unchanged (still 12/120/unlockCondition unlockable at 12 stars), so the
+   * original manual-purchase path still technically works if a player happens to reach 12
+   * totalStars before fugazza's own chain/stars gate -- see the EP4 Result report for why this
+   * vestigial path was deliberately left in place rather than removed (a product decision, not
+   * an oversight). `onion` deliberately does NOT set `starterGrantOnly` for this reason -- unlike
+   * the matrix's other 10 non-Starter rows (mushroom/garlic/oregano/egg/pesto/cherry-tomato/
+   * olive-oil/gorgonzola/parmigiano/fontina, all EP4-added above), it keeps a real, working
+   * AVAILABLE_TO_BUY path.
    */
   {
     id: "onion",
@@ -219,11 +302,16 @@ export function ingredientsByCategory(category: IngredientCategory): Ingredient[
 export const MAX_INGREDIENT_PALETTE_SLOTS = 6;
 
 /**
- * Every current ingredient (all 13) is Starter Set (see
- * docs/design/PIZZA_GAME_PROGRESSION_SSOT.md section 5) -- always OWNED, no Mastery gate.
- * Derived from `unlockCondition` being absent rather than a separate hand-maintained id
- * list, so a future ingredient only needs to add an `unlockCondition` to stop being
- * treated as starter; nothing here needs to change when that happens.
+ * EP4 (Economy & Progression 1.0, Starter Stock): only `tomato-sauce`/`mozzarella`/`basil`
+ * remain Starter Set now -- Margherita's own three ingredients, permanently unlimited by design
+ * (see docs/reports/TETO_ECONOMY-PROGRESSION_EP4_Starter-Stock_Result.md), never touched by this
+ * revision even though several of them (`tomato-sauce`, `mozzarella`) are also required by other,
+ * lockable recipes. Every other pre-EP4 Starter ingredient (mushroom/garlic/oregano/egg/pesto/
+ * cherry-tomato/olive-oil/gorgonzola/parmigiano/fontina) now has its own `unlockCondition` and is
+ * OWNED only via its governing recipe's Starter Grant (../state/starterStock.ts), not
+ * unconditionally. Still derived from `unlockCondition` being absent rather than a
+ * hand-maintained id list, so this set shrinks/grows automatically as ingredient data changes --
+ * nothing here needed to change for EP4 itself, only the ingredient data above did.
  */
 export const STARTER_INGREDIENT_IDS: readonly string[] = INGREDIENTS.filter(
   (i) => !i.unlockCondition,
