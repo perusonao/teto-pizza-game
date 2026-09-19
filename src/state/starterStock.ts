@@ -1,4 +1,4 @@
-import { RECIPES, type Recipe, type RecipeId } from "../data/recipes";
+import { RECIPES, getRecipe, type Recipe, type RecipeId } from "../data/recipes";
 import { getIngredient } from "../data/ingredients";
 import { recipeUnlocked } from "./progression";
 import type { DexState } from "./dex";
@@ -88,11 +88,18 @@ export interface StarterGrantResult {
  * gates this function.
  *
  * Multiple recipes sharing a finite ingredient (e.g. `oregano`: marinara + fugazza, `olive-oil`:
- * quattro-formaggi + fugazza) each add their own amount additively to the same shared
- * `inventory[id]` -- this is intentional (EP4 task: "Recipe A unlock -> mushroom +X; Recipe B
- * unlock -> mushroom +Y" both apply). The same recipe is still only ever granted once, no matter
- * how many times this function is called with its id already unlocked -- that is the whole point
- * of `claimedRecipeIds`.
+ * quattro-formaggi + fugazza) each *top up* the same shared `inventory[id]` to at least their own
+ * amount, rather than adding on top of it (Economy Tuning 1 P0b, see the Result report's shared
+ * Starter Grant gate section: `Math.max(current, grantAmount)`, replacing EP4's original plain
+ * addition). Every recipe's own grant amount is already sized to exactly
+ * `STARTER_STOCK_PLAYS_CHAPTER_1` plays of *that* recipe alone (`starterGrantForRecipe` above) --
+ * flooring instead of adding still guarantees at least that many plays the instant the newly
+ * unlocked recipe grants (current stock can only ever be topped *up* to the floor, never reduced,
+ * so a player who never touched the shared ingredient keeps whatever they already had if it's
+ * already enough), while avoiding unbounded stacking for a player who unlocks several
+ * ingredient-sharing recipes back to back without ever spending the shared stock down. The same
+ * recipe is still only ever granted once, no matter how many times this function is called with
+ * its id already unlocked -- that is the whole point of `claimedRecipeIds`.
  *
  * A true no-op call (nothing newly eligible) returns its exact input `inventory`/
  * `ownedIngredientIds`/`claimedRecipeIds` back by reference -- callers that compare by reference
@@ -120,7 +127,8 @@ export function applyStarterGrants(
     const grant = starterGrantForRecipe(recipe);
     const invUpdates: Record<string, number> = {};
     for (const [id, amount] of Object.entries(grant)) {
-      invUpdates[id] = (nextInventory[id] ?? 0) + amount;
+      // Economy Tuning 1 P0b: floor, not add -- see this function's own doc comment above.
+      invUpdates[id] = Math.max(nextInventory[id] ?? 0, amount);
       if (!ownedSet.has(id)) {
         ownedSet.add(id);
         ownedChanged = true;
@@ -141,5 +149,40 @@ export function applyStarterGrants(
     ownedIngredientIds: ownedChanged ? Array.from(ownedSet) : ownedIngredientIds,
     claimedRecipeIds: Array.from(claimedSet),
     grantedRecipeIds,
+  };
+}
+
+/**
+ * Economy Tuning 1 P1 (Starter Grant UX): a ready-to-render transient notice for the recipe(s)
+ * `applyStarterGrants` just granted -- so a first-time grant is no longer silent (the task's own
+ * problem statement: the player is never told "you just got 10 free plays"). Pure derivation off
+ * `applyStarterGrants`'s own `grantedRecipeIds` output -- no new persisted state, no independent
+ * "was this shown" bookkeeping: `grantedRecipeIds` is already empty on every no-op/already-claimed
+ * call (margherita included, since it's never in `grantedRecipeIds` either -- see
+ * `STARTER_GRANT_EXEMPT_RECIPE_ID` above), so this reuses that same exactly-once ledger as its
+ * SSOT rather than tracking its own. Callers (gameReducer's `REGISTER_TO_DEX`) treat the result as
+ * transient UI state, reset on every fresh round exactly like `lastPitzCredit`
+ * (../state/gameReducer.ts) -- never persisted, never re-shown on reload.
+ *
+ * Multiple simultaneous grants are rare but possible (a single registration can discover a recipe
+ * and immediately cross a chained recipe's own `minTotalStars` gate in the same call, per
+ * `RECIPES`' own unlock chain) -- their names are joined into the one line below rather than
+ * requiring callers to juggle a list of banners for what is, in practice, always a single recipe.
+ */
+export interface StarterGrantNotice {
+  /** Recipe ids granted in this exact transaction, in `RECIPES` order -- never empty. */
+  recipeIds: readonly RecipeId[];
+  /** Ready-to-render copy, e.g. `🎁「マリナーラ」の材料を最初の10回分プレゼントしました！`. */
+  messageJa: string;
+}
+
+export function buildStarterGrantNotice(
+  grantedRecipeIds: readonly RecipeId[],
+): StarterGrantNotice | null {
+  if (grantedRecipeIds.length === 0) return null;
+  const namesJa = grantedRecipeIds.map((id) => getRecipe(id)!.nameJa).join("・");
+  return {
+    recipeIds: grantedRecipeIds,
+    messageJa: `\u{1F381}「${namesJa}」の材料を最初の${STARTER_STOCK_PLAYS_CHAPTER_1}回分プレゼントしました！`,
   };
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyStarterGrants, STARTER_STOCK_PLAYS_CHAPTER_1 } from "./starterStock";
+import { applyStarterGrants, buildStarterGrantNotice, STARTER_STOCK_PLAYS_CHAPTER_1 } from "./starterStock";
 import { registerScoreToDex, EMPTY_DEX, type DexState } from "./dex";
 import { getIngredient, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { hasStock, remainingStock, EMPTY_INVENTORY, type InventoryState } from "./inventory";
@@ -118,13 +118,14 @@ describe("applyStarterGrants: Recipe #2-#7 grant amounts", () => {
     expect(result.inventory).toEqual({ "olive-oil": 10, gorgonzola: 20, parmigiano: 20, fontina: 20 });
   });
 
-  it("Recipe #7 (fugazza) grants onion = 4x10=40, plus olive-oil/oregano additively on top of quattro-formaggi/marinara's own grants", () => {
+  it("Recipe #7 (fugazza) grants onion = 4x10=40, and floors (not adds onto) olive-oil/oregano against quattro-formaggi/marinara's own untouched grants", () => {
     const dex = dexDiscovering(
       ["margherita", "funghi", "marinara", "bismarck", "genovese", "quattro-formaggi"],
       5 as QualityStars, // >= 12 totalStars for fugazza's own gate
     );
     // Simulate marinara's and quattro-formaggi's own grants already having landed (oregano 20,
-    // olive-oil 10), exactly as production would have applied them at those earlier moments.
+    // olive-oil 10), exactly as production would have applied them at those earlier moments,
+    // and never touched since (Case A: the "never consumed" shared-ingredient scenario).
     const priorInventory: InventoryState = {
       garlic: 30,
       oregano: 20,
@@ -146,10 +147,11 @@ describe("applyStarterGrants: Recipe #2-#7 grant amounts", () => {
     ]);
     expect(result.grantedRecipeIds).toEqual(["fugazza"]);
     expect(result.inventory.onion).toBe(40);
-    // Additive, not overwritten: fugazza's own +10 olive-oil / +10 oregano land on top of the
-    // amounts marinara/quattro-formaggi already granted.
-    expect(result.inventory["olive-oil"]).toBe(20); // 10 (quattro) + 10 (fugazza)
-    expect(result.inventory.oregano).toBe(30); // 20 (marinara) + 10 (fugazza)
+    // Economy Tuning 1 P0b: floor (Math.max), not add. Both shared ingredients already exceed
+    // fugazza's own 10-play grant amount, so neither changes -- no stacking on top of what
+    // marinara/quattro-formaggi already granted.
+    expect(result.inventory["olive-oil"]).toBe(10); // max(10, 10) -- unchanged, not 20
+    expect(result.inventory.oregano).toBe(20); // max(20, 10) -- unchanged, not 30
     expect(result.ownedIngredientIds).toContain("onion");
   });
 
@@ -235,7 +237,7 @@ describe("applyStarterGrants: exactly-once", () => {
     expect(result.inventory).toEqual({ mushroom: 30 });
   });
 
-  it("shared ingredient additive grant: two different recipes unlocking separately both credit the shared pool, but neither recipe is ever charged twice", () => {
+  it("shared ingredient grant (Economy Tuning 1 P0b floor): two different recipes unlocking separately both reach the shared pool's floor, but neither recipe is ever charged twice", () => {
     // oregano is shared by marinara (2/play) and fugazza (1/play) -- unlock marinara first.
     let dex = dexDiscovering(["margherita", "funghi"], 1 as QualityStars);
     let result = applyStarterGrants(dex, STARTER_INGREDIENT_IDS, EMPTY_INVENTORY, ["funghi"]);
@@ -246,15 +248,114 @@ describe("applyStarterGrants: exactly-once", () => {
     expect(result.grantedRecipeIds).toEqual([]);
     expect(result.inventory.oregano).toBe(20);
 
-    // Now unlock the rest of the chain through fugazza -- oregano gets fugazza's own +1x10 on
-    // top, additively, exactly once.
+    // Now unlock the rest of the chain through fugazza -- fugazza's own grant amount (1 x 10 =
+    // 10) is already below the untouched 20 marinara left behind, so the floor leaves it
+    // unchanged (Case A below covers this exact scenario in isolation).
     dex = dexDiscovering(
       ["marinara", "bismarck", "genovese", "quattro-formaggi"],
       5 as QualityStars,
     );
     result = applyStarterGrants(dex, result.ownedIngredientIds, result.inventory, result.claimedRecipeIds);
-    expect(result.inventory.oregano).toBe(30); // 20 + fugazza's own 10
+    expect(result.inventory.oregano).toBe(20); // max(20, 10) -- not 30
     expect(result.claimedRecipeIds).toContain("fugazza");
+  });
+
+  /**
+   * Economy Tuning 1 P0b implementation gate: Cases A-D below pin the exact shared-ingredient
+   * floor semantics (`Math.max(current, grantAmount)`) against every point on the "how much of
+   * the shared pool is left when the second recipe unlocks" spectrum, using oregano's real
+   * production numbers (marinara grants 20, fugazza grants 10 -- see the recipe/ingredient data).
+   * In every case the invariant is the same: after fugazza's own grant, `oregano >= 10`, i.e. at
+   * least `STARTER_STOCK_PLAYS_CHAPTER_1` fugazza plays (1 oregano/play) are guaranteed, and the
+   * floor never *reduces* whatever was already there.
+   */
+  describe("Economy Tuning 1 P0b: shared ingredient floor Cases A-D (oregano, marinara -> fugazza)", () => {
+    const CLAIMED_THROUGH_QUATTRO = [
+      "funghi",
+      "marinara",
+      "bismarck",
+      "genovese",
+      "quattro-formaggi",
+    ];
+    const DEX_UNLOCKING_FUGAZZA = dexDiscovering(
+      ["margherita", "funghi", "marinara", "bismarck", "genovese", "quattro-formaggi"],
+      5 as QualityStars,
+    );
+
+    it("Case A: shared ingredient never consumed before the next recipe unlocks -- floor leaves the untouched surplus alone", () => {
+      // marinara's own 20 oregano, never spent.
+      const priorInventory: InventoryState = { oregano: 20 };
+      const result = applyStarterGrants(
+        DEX_UNLOCKING_FUGAZZA,
+        STARTER_INGREDIENT_IDS,
+        priorInventory,
+        CLAIMED_THROUGH_QUATTRO,
+      );
+      expect(result.inventory.oregano).toBe(20); // max(20, 10)
+      expect(result.inventory.oregano).toBeGreaterThanOrEqual(10);
+    });
+
+    it("Case B: shared ingredient partially consumed (5 marinara plays, 10 of 20 spent) -- floor tops up to exactly fugazza's own 10-play amount", () => {
+      const priorInventory: InventoryState = { oregano: 10 }; // 20 - (2 x 5)
+      const result = applyStarterGrants(
+        DEX_UNLOCKING_FUGAZZA,
+        STARTER_INGREDIENT_IDS,
+        priorInventory,
+        CLAIMED_THROUGH_QUATTRO,
+      );
+      expect(result.inventory.oregano).toBe(10); // max(10, 10)
+      expect(result.inventory.oregano).toBeGreaterThanOrEqual(10);
+    });
+
+    it("Case C: shared ingredient nearly used up (9 marinara plays, 18 of 20 spent) -- floor tops the remainder back up to fugazza's own guarantee", () => {
+      const priorInventory: InventoryState = { oregano: 2 }; // 20 - (2 x 9)
+      const result = applyStarterGrants(
+        DEX_UNLOCKING_FUGAZZA,
+        STARTER_INGREDIENT_IDS,
+        priorInventory,
+        CLAIMED_THROUGH_QUATTRO,
+      );
+      expect(result.inventory.oregano).toBe(10); // max(2, 10)
+      expect(result.inventory.oregano).toBeGreaterThanOrEqual(10);
+    });
+
+    it("Case D: shared ingredient stock is exactly 0 when the next recipe unlocks -- floor still guarantees the full 10-play amount", () => {
+      const priorInventory: InventoryState = { oregano: 0 };
+      const result = applyStarterGrants(
+        DEX_UNLOCKING_FUGAZZA,
+        STARTER_INGREDIENT_IDS,
+        priorInventory,
+        CLAIMED_THROUGH_QUATTRO,
+      );
+      expect(result.inventory.oregano).toBe(10); // max(0, 10)
+    });
+
+    it("Case E: re-running the same already-claimed grant never re-floors or re-grants the shared ingredient", () => {
+      const priorInventory: InventoryState = { oregano: 10 };
+      const claimedWithFugazza = [...CLAIMED_THROUGH_QUATTRO, "fugazza"];
+      const result = applyStarterGrants(
+        DEX_UNLOCKING_FUGAZZA,
+        [...STARTER_INGREDIENT_IDS, "onion"],
+        priorInventory,
+        claimedWithFugazza,
+      );
+      expect(result.grantedRecipeIds).toEqual([]);
+      expect(result.inventory).toBe(priorInventory); // same reference -- true no-op
+      expect(result.inventory.oregano).toBe(10);
+    });
+
+    it("the floor never reduces existing stock, in any of Cases A-D", () => {
+      for (const current of [0, 2, 10, 20, 999]) {
+        const result = applyStarterGrants(
+          DEX_UNLOCKING_FUGAZZA,
+          STARTER_INGREDIENT_IDS,
+          { oregano: current },
+          CLAIMED_THROUGH_QUATTRO,
+        );
+        expect(result.inventory.oregano).toBeGreaterThanOrEqual(current);
+        expect(result.inventory.oregano).toBeGreaterThanOrEqual(10);
+      }
+    });
   });
 });
 
@@ -377,5 +478,69 @@ describe("Starter Grant integration via the reducer (REGISTER_TO_DEX / MISSION_N
     // Exactly 30 placed pieces (10 plays x 3/pizza) still have stock; the 31st does not.
     expect(hasStock(mushroom, discovered.inventory, 29)).toBe(true);
     expect(hasStock(mushroom, discovered.inventory, 30)).toBe(false);
+  });
+
+  describe("Economy Tuning 1 P1: Starter Grant notice (state.lastStarterGrantNotice)", () => {
+    it("REGISTER_TO_DEX sets a notice naming the newly granted recipe, with the '10回分' copy and the gift emoji", () => {
+      const discovered = gameReducer(playMargheritaToResult(), { type: "REGISTER_TO_DEX" });
+      expect(discovered.lastStarterGrantNotice).not.toBeNull();
+      expect(discovered.lastStarterGrantNotice?.recipeIds).toEqual(["funghi"]);
+      expect(discovered.lastStarterGrantNotice?.messageJa).toContain("フンギ");
+      expect(discovered.lastStarterGrantNotice?.messageJa).toContain("10回分");
+      expect(discovered.lastStarterGrantNotice?.messageJa).toContain("\u{1F381}"); // 🎁
+    });
+
+    it("never set for margherita itself -- margherita is never in grantedRecipeIds", () => {
+      // The very first REGISTER_TO_DEX in the game discovers margherita but grants funghi's
+      // Starter Stock (margherita is exempt, see STARTER_GRANT_EXEMPT_RECIPE_ID) -- the notice
+      // must name funghi, never margherita, and never fire for a round that doesn't unlock
+      // anything at all.
+      const discovered = gameReducer(playMargheritaToResult(), { type: "REGISTER_TO_DEX" });
+      expect(discovered.lastStarterGrantNotice?.messageJa).not.toContain("マルゲリータ");
+    });
+
+    it("is null when the round's REGISTER_TO_DEX grants nothing new (already claimed)", () => {
+      const first = gameReducer(playMargheritaToResult(), { type: "REGISTER_TO_DEX" });
+      expect(first.lastStarterGrantNotice).not.toBeNull();
+      // A second margherita round after funghi is already claimed: nothing new to grant.
+      const retried = gameReducer(first, { type: "RETRY_SAME_RECIPE" });
+      const secondResult = gameReducer(retried, { type: "START_BAKE" });
+      const secondBaked = gameReducer(secondResult, { type: "CONFIRM_BAKE", value: 70 });
+      const secondDiscovered = gameReducer(secondBaked, { type: "REGISTER_TO_DEX" });
+      expect(secondDiscovered.lastStarterGrantNotice).toBeNull();
+    });
+
+    it("never set by MISSION_NEXT_ORDER -- Lunch Rush skips DISCOVERED entirely, so there is no notice to show", () => {
+      const next = gameReducer(playMargheritaToResult(true), { type: "MISSION_NEXT_ORDER" });
+      expect(next.lastStarterGrantNotice).toBeNull();
+      // The grant itself still happened (existing coverage above) -- only the notice is absent.
+      expect(next.starterGrantClaimedRecipeIds).toEqual(["funghi"]);
+    });
+
+    it("resets to null on PLAY_AGAIN/RETRY_SAME_RECIPE/SELECT_RECIPE -- never re-shown after leaving DISCOVERED (no reload/replay re-display)", () => {
+      const discovered = gameReducer(playMargheritaToResult(), { type: "REGISTER_TO_DEX" });
+      expect(discovered.lastStarterGrantNotice).not.toBeNull();
+
+      expect(gameReducer(discovered, { type: "PLAY_AGAIN" }).lastStarterGrantNotice).toBeNull();
+      expect(gameReducer(discovered, { type: "RETRY_SAME_RECIPE" }).lastStarterGrantNotice).toBeNull();
+      expect(
+        gameReducer(discovered, { type: "SELECT_RECIPE", recipeId: "margherita" }).lastStarterGrantNotice,
+      ).toBeNull();
+    });
+
+    it("buildStarterGrantNotice is a pure function: null for an empty grant, a single-recipe message otherwise", () => {
+      expect(buildStarterGrantNotice([])).toBeNull();
+      const notice = buildStarterGrantNotice(["marinara"]);
+      expect(notice?.recipeIds).toEqual(["marinara"]);
+      expect(notice?.messageJa).toBe(
+        `\u{1F381}「${getRecipe("marinara")!.nameJa}」の材料を最初の${STARTER_STOCK_PLAYS_CHAPTER_1}回分プレゼントしました！`,
+      );
+    });
+
+    it("joins multiple simultaneous grants into one message rather than dropping any", () => {
+      const notice = buildStarterGrantNotice(["marinara", "bismarck"]);
+      expect(notice?.messageJa).toContain(getRecipe("marinara")!.nameJa);
+      expect(notice?.messageJa).toContain(getRecipe("bismarck")!.nameJa);
+    });
   });
 });
