@@ -1,6 +1,6 @@
 import { findOrderForRecipe, getNextOrder, type NextOrderOptions, type Order } from "../data/orders";
 import { getRecipe, type Recipe, type RecipeId } from "../data/recipes";
-import { applyStarterGrants } from "./starterStock";
+import { applyStarterGrants, buildStarterGrantNotice, type StarterGrantNotice } from "./starterStock";
 import { buildHintLine } from "../data/hints";
 import { getIngredient, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import type { DialogueLine } from "../data/dialogue";
@@ -129,6 +129,14 @@ export interface GameState {
    *  every fresh round (`buildOrderState` below) so a stale previous round's credit can never
    *  leak into a new one. Never persisted -- transient exactly like `score`/`scoringV2Result`. */
   lastPitzCredit: PitzCredit | null;
+  /** Economy Tuning 1 P1: canonical transient DISCOVERED display snapshot for the Starter Grant
+   *  `REGISTER_TO_DEX` just applied (../state/starterStock.ts's `buildStarterGrantNotice`) --
+   *  `null` on every call that granted nothing (already-claimed, margherita, or no newly-unlocked
+   *  recipe), and reset to `null` for every fresh round (`buildOrderState` below), exactly like
+   *  `lastPitzCredit` above. Never persisted, never set by `MISSION_NEXT_ORDER` (Lunch Rush skips
+   *  DISCOVERED entirely, so there is nowhere to show it -- the reset above still clears any stale
+   *  value before the next order). */
+  lastStarterGrantNotice: StarterGrantNotice | null;
 }
 
 export type GameAction =
@@ -243,6 +251,7 @@ function buildOrderState(order: Order, carry: ProgressionCarry, isMissionRound: 
     hint: null,
     placement: null,
     lastPitzCredit: null,
+    lastStarterGrantNotice: null,
   };
 }
 
@@ -649,6 +658,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         phase: "DISCOVERED",
         pitzBalance: lastPitzCredit ? lastPitzCredit.balanceAfter : state.pitzBalance,
         lastPitzCredit,
+        lastStarterGrantNotice: buildStarterGrantNotice(grant.grantedRecipeIds),
       };
     }
 

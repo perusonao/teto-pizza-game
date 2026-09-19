@@ -93,6 +93,9 @@ export const INGREDIENTS: Ingredient[] = [
    * not a value invented in this revision (every `restockQuantity` here already matched the
    * matrix's own `minCount x 3` sizing; only `pricePitz` needed correcting to the matrix's own
    * non-uniform per-ingredient prices, see the EP4 Result report's Fresh Audit correction note).
+   * Economy Tuning 1 (docs/reports/TETO_ECONOMY-TUNING-1_Implementation-Result.md) retunes every
+   * one of these `pricePitz` values again to that task's own TARGET price table (`restockQuantity`
+   * untouched throughout) -- see each ingredient's own inline comment below for its exact number.
    */
   {
     id: "olive-oil",
@@ -102,7 +105,9 @@ export const INGREDIENTS: Ingredient[] = [
     emoji: "\u{1FAD2}",
     placement: "spread",
     unlockCondition: { minTotalStars: 0 },
-    pricePitz: 50,
+    // Economy Tuning 1 (docs/reports/TETO_ECONOMY-TUNING-1_Implementation-Result.md): restock
+    // price only, per the task's TARGET price table -- restockQuantity is unchanged.
+    pricePitz: 65,
     restockQuantity: 3,
     starterGrantOnly: true,
   },
@@ -114,7 +119,7 @@ export const INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F33F}",
     placement: "spread",
     unlockCondition: { minTotalStars: 0 },
-    pricePitz: 60,
+    pricePitz: 90,
     restockQuantity: 3,
     starterGrantOnly: true,
   },
@@ -134,7 +139,7 @@ export const INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F9C0}",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
-    pricePitz: 70,
+    pricePitz: 90,
     restockQuantity: 6,
     starterGrantOnly: true,
   },
@@ -146,7 +151,7 @@ export const INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F9C0}",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
-    pricePitz: 70,
+    pricePitz: 90,
     restockQuantity: 6,
     starterGrantOnly: true,
   },
@@ -158,7 +163,7 @@ export const INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F9C0}",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
-    pricePitz: 70,
+    pricePitz: 90,
     restockQuantity: 6,
     starterGrantOnly: true,
   },
@@ -178,7 +183,7 @@ export const INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F9C4}",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
-    pricePitz: 60,
+    pricePitz: 90,
     restockQuantity: 9,
     starterGrantOnly: true,
   },
@@ -190,7 +195,7 @@ export const INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F343}",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
-    pricePitz: 45,
+    pricePitz: 55,
     restockQuantity: 6,
     starterGrantOnly: true,
   },
@@ -202,7 +207,7 @@ export const INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F345}",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
-    pricePitz: 60,
+    pricePitz: 55,
     restockQuantity: 9,
     starterGrantOnly: true,
   },
@@ -214,7 +219,7 @@ export const INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F95A}",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
-    pricePitz: 45,
+    pricePitz: 105,
     restockQuantity: 3,
     starterGrantOnly: true,
   },
@@ -226,7 +231,7 @@ export const INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F344}",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
-    pricePitz: 60,
+    pricePitz: 150,
     restockQuantity: 9,
     starterGrantOnly: true,
   },
@@ -256,10 +261,14 @@ export const INGREDIENTS: Ingredient[] = [
    * *only* path to its first unit is its free Starter Grant (../state/starterStock.ts), paid out
    * the moment `fugazza` itself unlocks: 4 onion x 10 plays = 40 units, credited to `inventory`
    * alongside `ownedIngredientIds` in the same step, exactly like every other EP4 Starter Grant
-   * ingredient. `unlockCondition`/`pricePitz`/`restockQuantity` below are otherwise unchanged --
-   * once OWNED, Shop restock still charges the original 120 Pitz for 12 units, completely
+   * ingredient. `restockQuantity` below is unchanged -- still 12 units per restock, completely
    * independent from (never compounding with) the one-time 40-unit Starter Grant. See the EP4
    * Result report §7 for the finalized product decision retiring the old manual-purchase path.
+   *
+   * Economy Tuning 1 (docs/reports/TETO_ECONOMY-TUNING-1_Implementation-Result.md): `pricePitz`
+   * raised from 120 to 170 (the task's TARGET price table) -- restock price only, never
+   * compounding with the free 40-unit Starter Grant above, and `restockQuantity`/
+   * `unlockCondition` are untouched.
    */
   {
     id: "onion",
@@ -269,7 +278,7 @@ export const INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F9C5}",
     placement: "scatter",
     unlockCondition: { minTotalStars: 12 },
-    pricePitz: 120,
+    pricePitz: 170,
     restockQuantity: 12,
     starterGrantOnly: true,
   },

@@ -1,6 +1,68 @@
 import { describe, expect, it } from "vitest";
 import { INGREDIENTS, STARTER_INGREDIENT_IDS, getIngredient } from "./ingredients";
 
+/**
+ * Economy Tuning 1 (docs/reports/TETO_ECONOMY-TUNING-1_Implementation-Result.md), section 1's
+ * own TARGET price table -- pinned here as one fixed-value map so any future accidental price
+ * drift on these 11 ingredients fails a test immediately, rather than only showing up in a
+ * Human Feel playtest. `restockQuantity` is asserted unchanged from its pre-Tuning-1 value in
+ * the same table -- this task never touches restock batch sizes.
+ */
+const TARGET_PRICE_PITZ: Record<string, number> = {
+  mushroom: 150,
+  garlic: 90,
+  oregano: 55,
+  egg: 105,
+  pesto: 90,
+  "cherry-tomato": 55,
+  "olive-oil": 65,
+  gorgonzola: 90,
+  parmigiano: 90,
+  fontina: 90,
+  onion: 170,
+};
+
+const UNCHANGED_RESTOCK_QUANTITY: Record<string, number> = {
+  mushroom: 9,
+  garlic: 9,
+  oregano: 6,
+  egg: 3,
+  pesto: 3,
+  "cherry-tomato": 9,
+  "olive-oil": 3,
+  gorgonzola: 6,
+  parmigiano: 6,
+  fontina: 6,
+  onion: 12,
+};
+
+describe("Economy Tuning 1: TARGET Shop prices", () => {
+  for (const [id, targetPrice] of Object.entries(TARGET_PRICE_PITZ)) {
+    it(`${id}.pricePitz is fixed at the TARGET price (${targetPrice})`, () => {
+      expect(getIngredient(id)?.pricePitz).toBe(targetPrice);
+    });
+  }
+
+  it("covers every starterGrantOnly ingredient in production data -- no row silently unpinned", () => {
+    const starterGrantOnlyIds = INGREDIENTS.filter((i) => i.starterGrantOnly).map((i) => i.id);
+    expect(starterGrantOnlyIds.slice().sort()).toEqual(Object.keys(TARGET_PRICE_PITZ).slice().sort());
+  });
+
+  for (const [id, quantity] of Object.entries(UNCHANGED_RESTOCK_QUANTITY)) {
+    it(`${id}.restockQuantity is unchanged by this task (${quantity})`, () => {
+      expect(getIngredient(id)?.restockQuantity).toBe(quantity);
+    });
+  }
+
+  it("every TARGET price is still a valid (positive integer) Shop price", () => {
+    for (const id of Object.keys(TARGET_PRICE_PITZ)) {
+      const ingredient = getIngredient(id)!;
+      expect(Number.isInteger(ingredient.pricePitz)).toBe(true);
+      expect(ingredient.pricePitz).toBeGreaterThan(0);
+    }
+  });
+});
+
 describe("onion (Phase 3C-6)", () => {
   const onion = getIngredient("onion");
 

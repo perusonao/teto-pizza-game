@@ -370,15 +370,16 @@ describe("restockIngredient (Economy & Progression 1.0 EP3)", () => {
     }
   });
 
-  it("real onion data restocks 12 units for 120 Pitz, per the SSOT-confirmed values", () => {
+  it("real onion data restocks 12 units for 170 Pitz, per Economy Tuning 1's TARGET price", () => {
     const onion = getIngredient("onion")!;
+    expect(onion.pricePitz).toBe(170);
     const result = restockIngredient({
       ingredient: onion,
       ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "onion"],
       inventory: { onion: 0 },
       pitzBalance: 200,
     });
-    expect(result).toEqual({ success: true, nextInventory: { onion: 12 }, nextPitzBalance: 80 });
+    expect(result).toEqual({ success: true, nextInventory: { onion: 12 }, nextPitzBalance: 30 });
   });
 
   it("rejects atomically when Pitz is insufficient -- neither balance nor inventory changes", () => {

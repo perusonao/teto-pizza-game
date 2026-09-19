@@ -1317,6 +1317,21 @@
   color: #b8860b;
 }
 
+/* ---------- Starter Grant notice (Economy Tuning 1 P1, DISCOVERED only) ---------- */
+.starter-grant-notice {
+  width: 100%;
+  max-width: 320px;
+  box-sizing: border-box;
+  margin: 0;
+  background: #eaf5e4;
+  border-radius: 14px;
+  padding: 10px 16px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #3f6b2a;
+  text-align: center;
+}
+
 /* ---------- Pitz credit summary (Issue #38 E-P1/E-P2, DISCOVERED only) ---------- */
 .pitz-credit-summary {
   width: 100%;

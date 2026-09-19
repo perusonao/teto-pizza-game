@@ -49,6 +49,7 @@ function baseProps() {
     justDiscovered: false,
     justGotNewBest: false,
     pitzCredit: null,
+    starterGrantNotice: null,
     onRetrySameRecipe: vi.fn(),
     onBackToPizzaSelect: vi.fn(),
   };
@@ -125,6 +126,26 @@ describe("ResultPanel", () => {
   it("shows a zero-Pitz explanatory note when earnedPitz is 0", () => {
     render(<ResultPanel {...baseProps()} pitzCredit={basePitzCredit({ earnedPitz: 0 })} />);
     expect(screen.getByText(/今回はPitzを獲得できませんでした/)).toBeInTheDocument();
+  });
+
+  // Economy Tuning 1 P1: the Starter Grant notice.
+  it("renders the Starter Grant notice when provided", () => {
+    render(
+      <ResultPanel
+        {...baseProps()}
+        starterGrantNotice={{
+          recipeIds: ["funghi"],
+          messageJa: "\u{1F381}「フンギ」の材料を最初の10回分プレゼントしました！",
+        }}
+      />,
+    );
+    expect(screen.getByText(/フンギ/)).toBeInTheDocument();
+    expect(screen.getByText(/10回分/)).toBeInTheDocument();
+  });
+
+  it("omits the Starter Grant notice when null (the common case -- no new recipe just unlocked)", () => {
+    render(<ResultPanel {...baseProps()} starterGrantNotice={null} />);
+    expect(screen.queryByText(/プレゼントしました/)).not.toBeInTheDocument();
   });
 
   it("wires the retry-same-recipe and back-to-select CTAs", () => {

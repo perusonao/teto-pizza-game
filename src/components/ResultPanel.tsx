@@ -1,6 +1,7 @@
 import type { ScoreBreakdown } from "../logic/scoring";
 import { BAKE_STATE_LABEL, type BakeState } from "../logic/bake";
 import type { PitzCredit } from "../logic/pitzReward";
+import type { StarterGrantNotice } from "../state/starterStock";
 
 interface ResultPanelProps {
   score: ScoreBreakdown;
@@ -30,6 +31,11 @@ interface ResultPanelProps {
    *  only for a Mission round, which never renders this component at all (see GameScreen's
    *  `!isMissionActive` gate), so in practice this is always non-null here. */
   pitzCredit: PitzCredit | null;
+  /** Economy Tuning 1 P1 (`state.lastStarterGrantNotice`): non-null only the instant this
+   *  round's REGISTER_TO_DEX actually granted a recipe's Starter Grant -- never shown for
+   *  margherita (never granted), an already-claimed recipe, or a reload/replay (transient,
+   *  reset every fresh round, see ../state/gameReducer.ts's own doc comment for the field). */
+  starterGrantNotice: StarterGrantNotice | null;
   /** Issue #47 Finding D: retries this exact recipe (RETRY_SAME_RECIPE). */
   onRetrySameRecipe: () => void;
   /** Issue #47 Finding D: returns to Pizza Select so the player can choose a different recipe. */
@@ -81,6 +87,7 @@ export function ResultPanel({
   justDiscovered,
   justGotNewBest,
   pitzCredit,
+  starterGrantNotice,
   onRetrySameRecipe,
   onBackToPizzaSelect,
 }: ResultPanelProps) {
@@ -118,6 +125,12 @@ export function ResultPanel({
           {justDiscovered
             ? `✨ ${recipeNameJa}を発見しました！`
             : `\u{1F31F} NEW BEST!`}
+        </p>
+      )}
+
+      {starterGrantNotice && (
+        <p className="starter-grant-notice" aria-live="polite">
+          {starterGrantNotice.messageJa}
         </p>
       )}
 

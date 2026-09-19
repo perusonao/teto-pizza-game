@@ -540,12 +540,12 @@ describe("Shop 2.0 restock (Economy & Progression 1.0 EP3)", () => {
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
     expect(within(shop).getByText(/在庫 2/)).toBeInTheDocument();
     expect(within(shop).getByText("+12")).toBeInTheDocument();
-    expect(within(shop).getByText(/120 Pitz/)).toBeInTheDocument();
+    expect(within(shop).getByText(/170 Pitz/)).toBeInTheDocument();
     expect(within(shop).getByRole("button", { name: "補充する" })).toBeInTheDocument();
     expect(within(shop).queryByText("購入済み")).not.toBeInTheDocument();
   });
 
-  it("補充する credits inventory by +12 and debits Pitz by 120 in one atomic tap", async () => {
+  it("補充する credits inventory by +12 and debits Pitz by 170 in one atomic tap", async () => {
     const user = userEvent.setup();
     seedSaveV2({ pitzBalance: 200, ownedIngredientIds: ownedWithOnion, inventory: { onion: 2 } });
     render(<App />);
@@ -554,7 +554,7 @@ describe("Shop 2.0 restock (Economy & Progression 1.0 EP3)", () => {
     await user.click(within(shop).getByRole("button", { name: "補充する" }));
     expect(within(shop).getByText(/在庫 14/)).toBeInTheDocument(); // 2 + 12
     expect(within(shop).getByText(/補充しました/)).toBeInTheDocument();
-    expect(within(shop).getByText(/80 Pitz/)).toBeInTheDocument(); // 200 - 120
+    expect(within(shop).getByText(/30 Pitz/)).toBeInTheDocument(); // 200 - 170
   });
 
   it("disables 補充する when Pitz balance is insufficient for the restock price", async () => {
