@@ -162,6 +162,82 @@ export const RECIPES = [
     unlockCondition: { requiresRecipeId: "quattro-formaggi", minTotalStars: 12 },
     mysteryLock: true,
   },
+  /**
+   * Recipe Expansion Batch 1A (see docs/reports/TETO_RECIPE-EXPANSION_BATCH-1A_Implementation-Result.md):
+   * the first 4 recipes drawn from the Fresh Recipe Master Catalog's own analysis-derived
+   * "Batch 1" (docs/reports/TETO_RECIPE-MASTER-CATALOG_160_Fresh-Analysis.md section 11) --
+   * `id`/`nameJa`/`requiredIngredients`' ingredient ids/`bakeTarget` are taken verbatim from
+   * `data/recipes/pizza_master_catalog.json` (the catalog's own ground-truth entries for
+   * `salsiccia`/`pepperoni`/`napoletana`/`tonno-e-cipolla`, all `implementationClass: "B"` --
+   * new ingredient data only, zero new mechanic, both existing `spread`/`scatter`). Each
+   * `minCount` is a Batch 1A-original decision (the catalog's own 53-entry foundation does not
+   * fix production `minCount` for any candidate) sized to match the existing recipes' own
+   * scatter density (2-4 per topping) -- see the Result Report's minCount-rationale section.
+   * `unlockCondition`/chain order is likewise a Batch 1A-original, explicitly *provisional*
+   * extension of the existing #2-#7 chain (no canonical post-フガッサ order exists anywhere in
+   * this repo) -- see the Result Report's own "Batch 1A暫定progression" section for the full
+   * rationale; none sets `mysteryLock` (フガッサ's "big reveal" stays a one-off, not a new
+   * default). `baseRewardPitz: 100` matches every other recipe (Issue #38 V1: no
+   * difficulty-based reward differentiation without Human Feel evidence).
+   */
+  {
+    id: "salsiccia",
+    nameJa: "サルシッチャ",
+    description:
+      "トマトソースとモッツァレラの上に、ゴロッとした自家製ソーセージをのせて焼き上げる、食べ応えたっぷりの一枚。",
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "sausage", minCount: 3 },
+    ],
+    bakeTarget: { start: 62, end: 82 },
+    baseRewardPitz: 100,
+    unlockCondition: { requiresRecipeId: "fugazza", minTotalStars: 16 },
+  },
+  {
+    id: "pepperoni",
+    nameJa: "ペパロニ",
+    description:
+      "トマトソースとモッツァレラに、ピリッと香ばしいペパロニをたっぷりのせた、みんな大好き定番ピザ。",
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "pepperoni", minCount: 4 },
+    ],
+    bakeTarget: { start: 60, end: 80 },
+    baseRewardPitz: 100,
+    unlockCondition: { requiresRecipeId: "salsiccia", minTotalStars: 20 },
+  },
+  {
+    id: "napoletana",
+    nameJa: "ナポリ",
+    description:
+      "トマトソースとモッツァレラに、塩気のきいたアンチョビとオレガノを効かせた、ナポリ生まれの本格派ピザ。",
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "anchovy", minCount: 3 },
+      { ingredientId: "oregano", minCount: 1 },
+    ],
+    bakeTarget: { start: 48, end: 68 },
+    baseRewardPitz: 100,
+    unlockCondition: { requiresRecipeId: "pepperoni", minTotalStars: 24 },
+  },
+  {
+    id: "tonno-e-cipolla",
+    nameJa: "トンノ・エ・チポッラ",
+    description:
+      "トマトソースとモッツァレラに、ツナとたまねぎを合わせた、さっぱり食べられる魚介のピザ。",
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "onion", minCount: 2 },
+      { ingredientId: "tuna", minCount: 3 },
+    ],
+    bakeTarget: { start: 55, end: 75 },
+    baseRewardPitz: 100,
+    unlockCondition: { requiresRecipeId: "napoletana", minTotalStars: 28 },
+  },
 ] as const;
 
 /** Derived from RECIPES above so this union can never drift out of sync with

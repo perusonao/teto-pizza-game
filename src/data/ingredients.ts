@@ -282,6 +282,75 @@ export const INGREDIENTS: Ingredient[] = [
     restockQuantity: 12,
     starterGrantOnly: true,
   },
+  /**
+   * Recipe Expansion Batch 1A (see docs/reports/TETO_RECIPE-EXPANSION_BATCH-1A_Implementation-Result.md):
+   * 4 new topping rows, one per new recipe (../data/recipes.ts's salsiccia/pepperoni/napoletana/
+   * tonno-e-cipolla), each `newIngredientsIntroduced` per the Fresh Recipe Master Catalog
+   * (data/recipes/pizza_master_catalog.json). Follows the exact same EP4/starterGrantOnly
+   * pattern as every ingredient above: `unlockCondition: { minTotalStars: 0 }` (inert -- the
+   * Shop row is suppressed entirely by `starterGrantOnly` regardless, matching the majority
+   * convention of every EP4 row except `onion`'s own pre-EP4 legacy value), `starterGrantOnly:
+   * true` (first unit always free via the governing recipe's Starter Grant, never a manual
+   * purchase), `restockQuantity` = that recipe's own `minCount x 3` (the same "~3 recommended
+   * plays" sizing every existing finite topping already uses -- mushroom/garlic/cherry-tomato/
+   * onion). `pricePitz` has no ingredient-specific formula anywhere in this codebase (Economy
+   * Tuning 1's own TARGET table was hand-tuned per ingredient, not derived) -- these four are
+   * priced in the same upper-middle tier as the other "premium" flavor toppings (mushroom 150,
+   * onion 170), since introducing meat/fish toppings is the same kind of catalog-expanding
+   * event as those two were; see the Result Report's pricing-rationale section for the full
+   * per-ingredient reasoning. Emoji: no exact Unicode glyph exists for any of these foods, so
+   * each reuses the closest distinct existing glyph from the platform's food/animal set,
+   * exactly like `pesto`/`basil` already sharing the herb emoji -- `IngredientPieceVisual`
+   * only ever renders the emoji for a non-cheese ingredient, never a claim about visual realism.
+   */
+  {
+    id: "sausage",
+    category: "topping",
+    nameJa: "ソーセージ",
+    color: "#8b4a3f",
+    emoji: "\u{1F32D}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    pricePitz: 140,
+    restockQuantity: 9,
+    starterGrantOnly: true,
+  },
+  {
+    id: "pepperoni",
+    category: "topping",
+    nameJa: "ペパロニ",
+    color: "#c1272d",
+    emoji: "\u{1F534}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    pricePitz: 130,
+    restockQuantity: 12,
+    starterGrantOnly: true,
+  },
+  {
+    id: "anchovy",
+    category: "topping",
+    nameJa: "アンチョビ",
+    color: "#8ba3b8",
+    emoji: "\u{1F41F}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    pricePitz: 110,
+    restockQuantity: 9,
+    starterGrantOnly: true,
+  },
+  {
+    id: "tuna",
+    category: "topping",
+    nameJa: "ツナ",
+    color: "#5b7c99",
+    emoji: "\u{1F420}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    pricePitz: 120,
+    restockQuantity: 9,
+    starterGrantOnly: true,
+  },
 ];
 
 export const CATEGORY_ORDER: IngredientCategory[] = ["sauce", "cheese", "topping"];

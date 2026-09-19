@@ -4,8 +4,8 @@ import { RECIPES } from "./recipes";
 import { getRecipeSauceProfile, RECIPE_SAUCE_PROFILES } from "./recipeSauceProfiles";
 
 describe("recipe sauce interaction profiles", () => {
-  it("covers all seven recipes and points at each recipe's required sauce", () => {
-    expect(Object.keys(RECIPE_SAUCE_PROFILES)).toHaveLength(7);
+  it("covers all eleven recipes and points at each recipe's required sauce", () => {
+    expect(Object.keys(RECIPE_SAUCE_PROFILES)).toHaveLength(11);
 
     for (const recipe of RECIPES) {
       const profile = getRecipeSauceProfile(recipe.id);

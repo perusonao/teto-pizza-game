@@ -123,6 +123,28 @@ describe("PizzaSelectScreen pager (Issue #88 UX-4)", () => {
   });
 
   it("5. shows a dot-per-recipe position indicator at 7 recipes, advancing with Next", async () => {
+    // Recipe Expansion Batch 1A: full production RECIPES is now 11 (> PAGER_DOT_INDICATOR_MAX
+    // 10), which switches to counter mode on its own -- see test 16b below for that. This test
+    // keeps exercising dot mode specifically via a 7-recipe subset, its own original subject.
+    const user = userEvent.setup();
+    const { container } = render(
+      <PizzaSelectScreen
+        dex={ALL_UNLOCKED_DEX}
+        ownedIngredientIds={ALL_OWNED_INGREDIENTS}
+        onSelectRecipe={() => {}}
+        onBack={() => {}}
+        recipes={RECIPES.slice(0, 7)}
+      />,
+    );
+    const dots = container.querySelectorAll(".pizza-select-dot");
+    expect(dots).toHaveLength(7);
+    expect(container.querySelectorAll(".pizza-select-dot--active")).toHaveLength(1);
+    expect(screen.getByLabelText("1 / 7")).toBeInTheDocument();
+    await user.click(nextButton());
+    expect(screen.getByLabelText("2 / 7")).toBeInTheDocument();
+  });
+
+  it("5b. full production RECIPES (11) switches to counter mode, never an 11-dot row (Batch 1A 11-recipe gate)", async () => {
     const user = userEvent.setup();
     const { container } = render(
       <PizzaSelectScreen
@@ -132,12 +154,11 @@ describe("PizzaSelectScreen pager (Issue #88 UX-4)", () => {
         onBack={() => {}}
       />,
     );
-    const dots = container.querySelectorAll(".pizza-select-dot");
-    expect(dots).toHaveLength(7);
-    expect(container.querySelectorAll(".pizza-select-dot--active")).toHaveLength(1);
-    expect(screen.getByLabelText("1 / 7")).toBeInTheDocument();
+    expect(RECIPES.length).toBe(11);
+    expect(container.querySelectorAll(".pizza-select-dot")).toHaveLength(0);
+    expect(screen.getByLabelText("1 / 11")).toBeInTheDocument();
     await user.click(nextButton());
-    expect(screen.getByLabelText("2 / 7")).toBeInTheDocument();
+    expect(screen.getByLabelText("2 / 11")).toBeInTheDocument();
   });
 
   it("6. tapping the CTA on the current (unlocked) recipe reports its exact id", async () => {
@@ -185,9 +206,11 @@ describe("PizzaSelectScreen pager (Issue #88 UX-4)", () => {
       dex: ALL_UNLOCKED_DEX,
       ownedIngredientIds: ALL_OWNED_INGREDIENTS,
     });
-    // Navigate to the last card (fugazza, index 6) via Next -- exercises the pager's own
-    // chrome (position indicator) at the exact card Issue #88 flags as the leak-risk surface.
-    for (let i = 0; i < RECIPES.length - 1; i++) {
+    // Navigate to fugazza's own card (Batch 1A: no longer the last card -- 4 more recipes now
+    // follow it in RECIPES order) via Next -- exercises the pager's own chrome (position
+    // indicator) at the exact card Issue #88 flags as the leak-risk surface.
+    const fugazzaIndex = RECIPES.findIndex((r) => r.id === "fugazza");
+    for (let i = 0; i < fugazzaIndex; i++) {
       await user.click(nextButton());
     }
     expect(screen.getByText("フガッサ")).toBeInTheDocument(); // unlocked in this dex -> real name

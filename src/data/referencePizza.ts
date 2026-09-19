@@ -494,6 +494,192 @@ export const QUATTRO_FORMAGGI_REFERENCE: ReferencePizza = {
   ],
 };
 
+/**
+ * Recipe Expansion Batch 1A (see docs/reports/TETO_RECIPE-EXPANSION_BATCH-1A_Implementation-Result.md):
+ * Scoring 2.0 Reference fixtures for the 4 new recipes -- without one of these,
+ * `computeScoringV2` (../logic/scoringV2/index.ts) returns `available: false` for that recipe
+ * and BAKE/RESULT can never produce a real score, so this is required production data, not an
+ * optional polish pass. No external review process (ChatGPT/human) was run for Batch 1A the
+ * way B2's PART A/C1/C2 entries above were -- positions below are authored directly against
+ * the same visual-balance criteria those entries already established (evenly spread within the
+ * dough's radius-48 interior, no two pieces of one group colliding, standard 8/22 full/zero
+ * credit tolerance for every group since none of these ingredients has an established physical
+ * size difference from mozzarella/mushroom/onion -- the same generic emoji-chip rendering as
+ * every other topping, see ../components/IngredientPieceVisual.tsx). `HEAVY_SQUASH` landing
+ * style for every meat/fish group (matching mushroom/onion/garlic/cherry-tomato/egg's own
+ * chunky-piece treatment); `oregano`'s existing `LIGHT_LEAF` treatment (from `FUGAZZA_REFERENCE`
+ * above) is reused unchanged for napoletana's own oregano group.
+ */
+export const SALSICCIA_REFERENCE: ReferencePizza = {
+  recipeId: "salsiccia",
+  sauce: computeMechanicalSauceReference("salsiccia"),
+  pieceGroups: [
+    {
+      ingredientId: "mozzarella",
+      positions: [
+        { x: 35, y: 35 },
+        { x: 65, y: 65 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "sausage",
+      positions: [
+        { x: 50, y: 28 },
+        { x: 30, y: 60 },
+        { x: 70, y: 62 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
+export const PEPPERONI_REFERENCE: ReferencePizza = {
+  recipeId: "pepperoni",
+  sauce: computeMechanicalSauceReference("pepperoni"),
+  pieceGroups: [
+    {
+      ingredientId: "mozzarella",
+      positions: [
+        { x: 50, y: 35 },
+        { x: 50, y: 65 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "pepperoni",
+      positions: [
+        { x: 30, y: 32 },
+        { x: 70, y: 32 },
+        { x: 30, y: 68 },
+        { x: 70, y: 68 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
+export const NAPOLETANA_REFERENCE: ReferencePizza = {
+  recipeId: "napoletana",
+  sauce: computeMechanicalSauceReference("napoletana"),
+  pieceGroups: [
+    {
+      ingredientId: "mozzarella",
+      positions: [
+        { x: 36, y: 38 },
+        { x: 66, y: 40 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "anchovy",
+      positions: [
+        { x: 50, y: 30 },
+        { x: 32, y: 62 },
+        { x: 68, y: 64 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "oregano",
+      positions: [{ x: 50, y: 50 }],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "LIGHT_LEAF",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
+export const TONNO_E_CIPOLLA_REFERENCE: ReferencePizza = {
+  recipeId: "tonno-e-cipolla",
+  sauce: computeMechanicalSauceReference("tonno-e-cipolla"),
+  pieceGroups: [
+    {
+      ingredientId: "mozzarella",
+      positions: [
+        { x: 33, y: 40 },
+        { x: 63, y: 38 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "onion",
+      positions: [
+        { x: 38, y: 66 },
+        { x: 62, y: 66 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "tuna",
+      positions: [
+        { x: 50, y: 26 },
+        { x: 30, y: 52 },
+        { x: 70, y: 52 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
 const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [MARGHERITA_REFERENCE.recipeId, MARGHERITA_REFERENCE],
   [MARINARA_REFERENCE.recipeId, MARINARA_REFERENCE],
@@ -502,6 +688,10 @@ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [FUGAZZA_REFERENCE.recipeId, FUGAZZA_REFERENCE],
   [BISMARCK_REFERENCE.recipeId, BISMARCK_REFERENCE],
   [QUATTRO_FORMAGGI_REFERENCE.recipeId, QUATTRO_FORMAGGI_REFERENCE],
+  [SALSICCIA_REFERENCE.recipeId, SALSICCIA_REFERENCE],
+  [PEPPERONI_REFERENCE.recipeId, PEPPERONI_REFERENCE],
+  [NAPOLETANA_REFERENCE.recipeId, NAPOLETANA_REFERENCE],
+  [TONNO_E_CIPOLLA_REFERENCE.recipeId, TONNO_E_CIPOLLA_REFERENCE],
 ]);
 
 /**

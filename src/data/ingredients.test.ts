@@ -20,6 +20,12 @@ const TARGET_PRICE_PITZ: Record<string, number> = {
   parmigiano: 90,
   fontina: 90,
   onion: 170,
+  // Recipe Expansion Batch 1A (docs/reports/TETO_RECIPE-EXPANSION_BATCH-1A_Implementation-Result.md):
+  // 4 new starterGrantOnly toppings -- see that report's pricing-rationale section.
+  sausage: 140,
+  pepperoni: 130,
+  anchovy: 110,
+  tuna: 120,
 };
 
 const UNCHANGED_RESTOCK_QUANTITY: Record<string, number> = {
@@ -34,6 +40,10 @@ const UNCHANGED_RESTOCK_QUANTITY: Record<string, number> = {
   parmigiano: 6,
   fontina: 6,
   onion: 12,
+  sausage: 9,
+  pepperoni: 12,
+  anchovy: 9,
+  tuna: 9,
 };
 
 describe("Economy Tuning 1: TARGET Shop prices", () => {
@@ -106,7 +116,7 @@ describe("Starter Set (EP4: shrunk to Margherita's own 3 permanently-unlimited i
     );
   });
 
-  it("total production ingredient count is still 14 (3 Starter + 10 EP4 Starter-Grant + onion)", () => {
-    expect(INGREDIENTS).toHaveLength(14);
+  it("total production ingredient count is now 18 (3 Starter + 10 EP4 Starter-Grant + onion + Batch 1A's 4)", () => {
+    expect(INGREDIENTS).toHaveLength(18);
   });
 });

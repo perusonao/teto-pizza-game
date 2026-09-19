@@ -54,6 +54,28 @@ export const RECIPE_SAUCE_PROFILES: Readonly<Record<RecipeId, RecipeSauceProfile
     // TODO: olive-oil -> DRIZZLE candidate.
     interaction: "PAINT_TEMPORARY",
   },
+  // Recipe Expansion Batch 1A: all 4 new recipes use tomato-sauce/PAINT, per the Fresh Recipe
+  // Master Catalog's own `sauce: "tomato-sauce"` field for each (see ../data/recipes.ts).
+  salsiccia: {
+    recipeId: "salsiccia",
+    ingredientId: "tomato-sauce",
+    interaction: "PAINT",
+  },
+  pepperoni: {
+    recipeId: "pepperoni",
+    ingredientId: "tomato-sauce",
+    interaction: "PAINT",
+  },
+  napoletana: {
+    recipeId: "napoletana",
+    ingredientId: "tomato-sauce",
+    interaction: "PAINT",
+  },
+  "tonno-e-cipolla": {
+    recipeId: "tonno-e-cipolla",
+    ingredientId: "tomato-sauce",
+    interaction: "PAINT",
+  },
 };
 
 export function getRecipeSauceProfile(recipeId: RecipeId): RecipeSauceProfile {
