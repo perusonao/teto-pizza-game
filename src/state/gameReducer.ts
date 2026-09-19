@@ -6,6 +6,13 @@ import { getIngredient, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import type { DialogueLine } from "../data/dialogue";
 import type { ScoreBreakdown } from "../logic/scoring";
 import { classifyBake, type BakeState } from "../logic/bake";
+import {
+  finishCookingTiming,
+  pauseCookingTiming,
+  resumeCookingTiming,
+  startCookingTiming,
+  type CookingTimingState,
+} from "../logic/cookingTiming";
 import { computeScoringV2, toLegacyScoreBreakdown, type ScoringV2Result } from "../logic/scoringV2";
 import { totalStars } from "../logic/mastery";
 import { purchaseIngredient, restockIngredient } from "../logic/economy";
@@ -137,10 +144,29 @@ export interface GameState {
    *  DISCOVERED entirely, so there is nowhere to show it -- the reset above still clears any stale
    *  value before the next order). */
   lastStarterGrantNotice: StarterGrantNotice | null;
+  /** Cooking Time CT1: deterministic FREE-only "active making" timing (../logic/
+   *  cookingTiming.ts), spanning `BEGIN_PREPARE`/an equivalent fresh-PREPARE entry (RESET_PIZZA,
+   *  SELECT_RECIPE, RETRY_SAME_RECIPE) through `START_BAKE` -- BAKE's own needle-tap minigame is
+   *  deliberately excluded (Fresh Audit boundary recommendation D). Always `null` for a Mission
+   *  round (`isMissionRound`) -- Lunch Rush keeps its own unrelated `MissionClock`
+   *  (../mission/lunchRush.ts) untouched, and this field is never read by any Mission/Scoring/
+   *  Pitz code path. Measurement-only: not read by `computeScoringV2` or `applyPitzCredit`, and
+   *  never persisted (`persistence.ts` never serializes `GameState`, same as `score`/
+   *  `scoringV2Result` above). `completedMs` stays populated (not reset) across REGISTER_TO_DEX's
+   *  RESULT -> DISCOVERED transition so a DISCOVERED-phase display could read the same round's
+   *  value if a later slice wants to; every "start a new round" path resets this to `null` via
+   *  `buildOrderState`/`startPreparingRecipe` below, same as `score`/`scoringV2Result`. */
+  cookingTiming: CookingTimingState | null;
 }
 
 export type GameAction =
-  | { type: "BEGIN_PREPARE" }
+  // Cooking Time CT1: `now` is optional so every pre-existing call site (production and the
+  // ~50 tests that dispatch this with no timing concern at all) keeps compiling unchanged --
+  // omitting it simply leaves `cookingTiming` at `null` (timing not measured for that
+  // dispatch), it is never defaulted to `Date.now()` inside this reducer. App.tsx's real
+  // dispatch always passes it; see ../logic/cookingTiming.ts's own file header for why the
+  // reducer itself must never read the wall clock.
+  | { type: "BEGIN_PREPARE"; now?: number }
   | { type: "APPLY_SAUCE"; ingredientId: string; x: number; y: number }
   // Commits one complete, already-finished recipe-sauce dispense gesture
   // (src/logic/sauceDispenseController.ts) as a single atomic batch -- PizzaStage buffers
@@ -168,8 +194,13 @@ export type GameAction =
   // the reducer layer for DOUGH -> SAUCE too, exactly like every other step -- the size
   // completion threshold is a UI-only CTA-disabled gate (GameScreen), not a reducer rule.
   | { type: "CONFIRM_MAKING_STEP" }
-  | { type: "RESET_PIZZA" }
-  | { type: "START_BAKE" }
+  // Cooking Time CT1: `now` optional, same reasoning as BEGIN_PREPARE above -- a discard/redo
+  // is treated as starting the timed attempt over (a fresh `startCookingTiming`), not a pause/
+  // resume of the discarded one, since CT1 attaches no reward/score to this yet (see the
+  // Implementation Result report's explicit deviation note from the Fresh Audit's own
+  // RESET_PIZZA recommendation).
+  | { type: "RESET_PIZZA"; now?: number }
+  | { type: "START_BAKE"; now?: number }
   | { type: "CONFIRM_BAKE"; value: number }
   | { type: "REGISTER_TO_DEX" }
   | { type: "PLAY_AGAIN" }
@@ -183,13 +214,13 @@ export type GameAction =
   // still be unable to start a locked recipe's round. Issue #47 Finding C: Pizza Select
   // already made the recipe choice explicit, so this lands straight at PREPARE (see
   // `startPreparingRecipe` below) instead of the old, now-redundant FREE-mode ORDER gate.
-  | { type: "SELECT_RECIPE"; recipeId: RecipeId }
+  | { type: "SELECT_RECIPE"; recipeId: RecipeId; now?: number }
   // Issue #47 Finding D: RESULT/DISCOVERED's "もう一度つくる" -- retries the *exact same*
   // recipe just played (unlike PLAY_AGAIN, which explicitly excludes it). Reuses
   // `startPreparingRecipe`'s own body keyed to `state.recipe.id`, so it lands at a fresh
   // PREPARE the same way SELECT_RECIPE does. A no-op if the current recipe somehow has no
   // order (should never happen for a recipe the player just played).
-  | { type: "RETRY_SAME_RECIPE" }
+  | { type: "RETRY_SAME_RECIPE"; now?: number }
   | { type: "SHOW_HINT" }
   // Phase 3C-4 (Lunch Rush): both below reuse this same round machinery (an ORDER phase with
   // a freshly-picked, available recipe) -- there is no separate Mission round state. See
@@ -203,7 +234,18 @@ export type GameAction =
   // Economy & Progression 1.0 EP3 (Shop 2.0 restock): a *separate* transaction from
   // PURCHASE_INGREDIENT above -- see ../logic/economy.ts's `restockIngredient` doc comment for
   // why the two are never merged. Repeatable, unlike PURCHASE_INGREDIENT's exactly-once grant.
-  | { type: "RESTOCK_INGREDIENT"; ingredientId: string };
+  | { type: "RESTOCK_INGREDIENT"; ingredientId: string }
+  // Cooking Time CT1: the only minimal pause boundary this slice implements -- driven by
+  // App.tsx from the exact same `isReferencePopoverOpen`/`isGlobalOverlayOpen` signals that
+  // already gate PizzaStage interactivity during PREPARE (GameScreen.tsx's own
+  // `interactive={...}` condition), not a new detection mechanism. No `visibilitychange`/
+  // `blur` wiring here -- see cookingTiming's own module header / the Implementation Result
+  // report's "CT2 recommended scope" for why that is deliberately deferred, not an oversight.
+  // Both are no-ops outside PREPARE or once `cookingTiming` is already finished/absent
+  // (Mission rounds always have it `null`), so a stray dispatch can never affect BAKE/RESULT
+  // or leak into a Mission round.
+  | { type: "PAUSE_COOKING_TIMING"; now: number }
+  | { type: "RESUME_COOKING_TIMING"; now: number };
 
 /** Progression fields every "start a new round" path must carry forward unchanged --
  *  factored out so `buildOrderState`'s signature can't silently drop one when a new field is
@@ -244,6 +286,7 @@ function buildOrderState(order: Order, carry: ProgressionCarry, isMissionRound: 
     score: null,
     bakeState: null,
     scoringV2Result: null,
+    cookingTiming: null,
     ...carry,
     isMissionRound,
     justDiscovered: false,
@@ -295,8 +338,18 @@ function nextMissionOrderState(state: GameState): GameState {
  *  gate the same way. Returns `null` if `recipeId` has no order (SELECT_RECIPE additionally
  *  guards availability before calling this; RETRY_SAME_RECIPE's recipeId is always the one
  *  just played, so this should never actually miss for it).
+ *
+ * Cooking Time CT1: this path lands at PREPARE directly, without ever dispatching
+ * `BEGIN_PREPARE` -- so it must start `cookingTiming` itself (`now` optional, same convention
+ * as every other CT1 action) rather than relying on a BEGIN_PREPARE case that never runs here.
+ * Always `false` for `isMissionRound` (see `buildOrderState` above), so this never needs an
+ * `isMissionRound` check the way BEGIN_PREPARE's own reducer case does.
  */
-function startPreparingRecipe(recipeId: RecipeId, carry: ProgressionCarry): GameState | null {
+function startPreparingRecipe(
+  recipeId: RecipeId,
+  carry: ProgressionCarry,
+  now?: number,
+): GameState | null {
   const order = findOrderForRecipe(recipeId);
   if (!order) return null;
   const orderState = buildOrderState(order, carry, false);
@@ -304,6 +357,7 @@ function startPreparingRecipe(recipeId: RecipeId, carry: ProgressionCarry): Game
     ...orderState,
     phase: "PREPARE",
     hint: buildHintLine(orderState.recipe, orderState.pizza, orderState.makingStep),
+    cookingTiming: now !== undefined ? startCookingTiming(now) : null,
   };
 }
 
@@ -348,6 +402,13 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         ...state,
         phase: "PREPARE",
         hint: buildHintLine(state.recipe, state.pizza, state.makingStep),
+        // Cooking Time CT1: FREE only -- this same action also fires for Lunch Rush's
+        // continuous per-pizza flow (App.tsx's handleMissionServeNext, right after
+        // MISSION_NEXT_ORDER, which already set `isMissionRound: true` before this case ever
+        // runs), and Mission must never accumulate a Cooking Time of its own alongside its
+        // existing MissionClock (../mission/lunchRush.ts, untouched).
+        cookingTiming:
+          !state.isMissionRound && action.now !== undefined ? startCookingTiming(action.now) : null,
       };
 
     case "APPLY_SAUCE": {
@@ -532,6 +593,12 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         makingStepToken: state.makingStepToken + 1,
         hint: buildHintLine(state.recipe, pizza, "DOUGH"),
         placement: null,
+        // Cooking Time CT1: the discarded pizza's own elapsed time is discarded with it --
+        // a fresh `cookingTiming` starts immediately (the player is still actively in PREPARE,
+        // just restarting the assembly), rather than pausing/resuming the old one. `null` for
+        // a Mission round (or if `now` wasn't supplied), same convention as BEGIN_PREPARE.
+        cookingTiming:
+          !state.isMissionRound && action.now !== undefined ? startCookingTiming(action.now) : null,
       };
     }
 
@@ -572,7 +639,17 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case "START_BAKE":
-      return { ...state, phase: "BAKE" };
+      // Cooking Time CT1: finalizes `cookingTiming.completedMs` right here, before BAKE's own
+      // needle-tap minigame ever starts -- see cookingTiming's own module header for why the
+      // boundary ends exactly at this transition, not at CONFIRM_BAKE.
+      return {
+        ...state,
+        phase: "BAKE",
+        cookingTiming:
+          state.cookingTiming && action.now !== undefined
+            ? finishCookingTiming(state.cookingTiming, action.now)
+            : state.cookingTiming,
+      };
 
     case "CONFIRM_BAKE": {
       // Economy & Progression 1.0 EP2: CONFIRM_BAKE is the sole inventory-consumption
@@ -686,7 +763,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           lastClaimedMissionRunId: state.lastClaimedMissionRunId,
           inventory: state.inventory,
           starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
-        }) ?? state
+        }, action.now) ?? state
       );
     }
 
@@ -699,7 +776,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           lastClaimedMissionRunId: state.lastClaimedMissionRunId,
           inventory: state.inventory,
           starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
-        }) ?? state
+        }, action.now) ?? state
       );
 
     // Registers the current RESULT into the Dex (same rule as REGISTER_TO_DEX: BEST never
@@ -809,6 +886,19 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         pitzBalance: state.pitzBalance + amount,
         lastClaimedMissionRunId: action.runId,
       };
+    }
+
+    // Cooking Time CT1 minimal pause boundary (see the GameAction doc comment above): a no-op
+    // outside PREPARE or with no `cookingTiming` running (already finished, or a Mission round,
+    // which never has one) -- so this can never affect BAKE/RESULT or leak into Lunch Rush.
+    case "PAUSE_COOKING_TIMING": {
+      if (state.phase !== "PREPARE" || !state.cookingTiming) return state;
+      return { ...state, cookingTiming: pauseCookingTiming(state.cookingTiming, action.now) };
+    }
+
+    case "RESUME_COOKING_TIMING": {
+      if (state.phase !== "PREPARE" || !state.cookingTiming) return state;
+      return { ...state, cookingTiming: resumeCookingTiming(state.cookingTiming, action.now) };
     }
 
     default:

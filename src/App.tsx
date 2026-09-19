@@ -236,6 +236,27 @@ function App() {
     state.starterGrantClaimedRecipeIds,
   ]);
 
+  // Cooking Time CT1: the one minimal pause boundary this slice implements (see the Fresh
+  // Audit report's §2.2 and gameReducer.ts's GameAction doc comment) -- reuses the exact same
+  // `isReferencePopoverOpen`/`isGlobalOverlayOpen` signals GameScreen already gates PizzaStage
+  // interactivity on during PREPARE, rather than adding a second detection mechanism. No
+  // `visibilitychange`/`blur` wiring here -- deliberately deferred (see the Implementation
+  // Result report's "CT2 recommended scope"). A no-op whenever `cookingTiming` isn't running
+  // (Mission rounds, or FREE outside PREPARE) since PAUSE/RESUME_COOKING_TIMING's own reducer
+  // guards already handle that; this effect only needs to track the boolean's transitions.
+  const isCookingTimingPauseSignal = isReferencePopoverOpen || isDexOpen || isShopOpen || isInventoryOpen;
+  const wasCookingTimingPausedRef = useRef(false);
+  useEffect(() => {
+    if (isCookingTimingPauseSignal === wasCookingTimingPausedRef.current) return;
+    wasCookingTimingPausedRef.current = isCookingTimingPauseSignal;
+    const now = Date.now();
+    if (isCookingTimingPauseSignal) {
+      dispatch({ type: "PAUSE_COOKING_TIMING", now });
+    } else {
+      dispatch({ type: "RESUME_COOKING_TIMING", now });
+    }
+  }, [isCookingTimingPauseSignal]);
+
   // --- Lunch Rush mission (Phase 3C-4) --------------------------------------------------
   // A separate reducer, not a field on GameState: Mission run state (which screen, the
   // clock, served-this-run metrics) has no overlap with what GameState already tracks
@@ -343,7 +364,10 @@ function App() {
       // this never renders the ORDER screen -- it advances straight to PREPARE, the same way
       // SELECT_RECIPE/RETRY_SAME_RECIPE already skip it (gameReducer.ts's startPreparingRecipe).
       // FREE's own onBeginPrepare/ORDER gate is a separate call site, untouched by this.
-      dispatch({ type: "BEGIN_PREPARE" });
+      // Cooking Time CT1: `now` is passed here too, but MISSION_NEXT_ORDER above already set
+      // `isMissionRound: true` before this reducer case runs, so it stays a no-op --
+      // Lunch Rush never accumulates a Cooking Time of its own.
+      dispatch({ type: "BEGIN_PREPARE", now: Date.now() });
     }
   }
 
@@ -474,7 +498,7 @@ function App() {
   // availability, so a locked recipe can never start a round even via a stray dispatch; the
   // UI-level guard is PizzaSelectScreen's LOCKED cards never wiring this callback at all.
   function handleSelectRecipe(recipeId: RecipeId) {
-    dispatch({ type: "SELECT_RECIPE", recipeId });
+    dispatch({ type: "SELECT_RECIPE", recipeId, now: Date.now() });
     setScreen("GAME");
   }
 
@@ -605,17 +629,17 @@ function App() {
           showDoughShape={showDoughShape}
           doughShapeComplete={doughShapeComplete}
           onGoHome={handleGoHome}
-          onBeginPrepare={() => dispatch({ type: "BEGIN_PREPARE" })}
-          onResetPizza={() => dispatch({ type: "RESET_PIZZA" })}
+          onBeginPrepare={() => dispatch({ type: "BEGIN_PREPARE", now: Date.now() })}
+          onResetPizza={() => dispatch({ type: "RESET_PIZZA", now: Date.now() })}
           onConfirmMakingStep={() => dispatch({ type: "CONFIRM_MAKING_STEP" })}
-          onStartBake={() => dispatch({ type: "START_BAKE" })}
+          onStartBake={() => dispatch({ type: "START_BAKE", now: Date.now() })}
           onShowHint={() => dispatch({ type: "SHOW_HINT" })}
           onChangeCategory={handleChangeCategory}
           onSelectIngredient={handleSelectIngredient}
           onTapPizza={handleTapPizza}
           onBakeTick={handleBakeTick}
           onConfirmBake={handleConfirmBake}
-          onRetrySameRecipe={() => dispatch({ type: "RETRY_SAME_RECIPE" })}
+          onRetrySameRecipe={() => dispatch({ type: "RETRY_SAME_RECIPE", now: Date.now() })}
           onBackToPizzaSelect={handleBackToPizzaSelectFromDiscovered}
           onMissionServeNext={handleMissionServeNext}
           onMissionStart={startMission}
