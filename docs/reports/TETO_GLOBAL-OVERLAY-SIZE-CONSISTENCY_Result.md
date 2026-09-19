@@ -224,7 +224,7 @@ Raw data: `docs/reports/screenshots/global-overlay-size-20260919/geometry-result
 
 ## HEAD SHA
 
-See the branch's latest commit after this report is committed (reported in the PR).
+`4a21148710c49aebc30018fdecb3ac024881cba3` (branch `claude/home-global-overlay-size-lmspz2`).
 
 ## Remaining risks
 
