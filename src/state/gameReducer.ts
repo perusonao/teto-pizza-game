@@ -11,7 +11,7 @@ import { purchaseIngredient } from "../logic/economy";
 import { applyPitzCredit, type PitzCredit } from "../logic/pitzReward";
 import { discoveredRecipeIds, registerScoreToDex, EMPTY_DEX, type DexState } from "./dex";
 import { availableRecipeIds, isRecipeAvailable } from "./progression";
-import { EMPTY_INVENTORY, type InventoryState } from "./inventory";
+import { consumePizzaInventory, EMPTY_INVENTORY, type InventoryState } from "./inventory";
 import { pickMissionOrder } from "../mission/lunchRush";
 import { isInsideDough } from "../logic/pizzaCoordinates";
 import { isValidDoughShape, type DoughShape } from "../logic/doughShape";
@@ -496,6 +496,18 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return { ...state, phase: "BAKE" };
 
     case "CONFIRM_BAKE": {
+      // Economy & Progression 1.0 EP2: CONFIRM_BAKE is the sole inventory-consumption
+      // transaction boundary (the SSOT's explicit decision -- PREPARE-time placement never
+      // touches `inventory`). This guard makes that transaction exactly-once, the same
+      // pattern REGISTER_TO_DEX already uses against its own phase ("RESULT"): only a round
+      // still actually in "BAKE" may confirm. Without it, a duplicate/stray CONFIRM_BAKE
+      // dispatched against the post-transition state (phase already "RESULT") would
+      // recompute the bake and, worse, re-run inventory consumption a second time for a
+      // pizza that was already baked -- this is the fix for that pre-existing gap (E1
+      // Preflight/Fresh Audit both flagged CONFIRM_BAKE as having no `phase` guard at all).
+      if (state.phase !== "BAKE") {
+        return state;
+      }
       const pizza: PizzaState = { ...state.pizza, bakeResult: action.value };
       const bakeState = classifyBake(action.value, state.recipe.bakeTarget);
       // A1 Authority Cutover: Scoring 2.0 (../logic/scoringV2/) is now authoritative for
@@ -508,7 +520,12 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // is the sole scoring authority now.
       const scoringV2Result = computeScoringV2(state.recipe, pizza);
       const score = toLegacyScoreBreakdown(scoringV2Result, action.value, state.recipe.bakeTarget);
-      return { ...state, pizza, score, bakeState, scoringV2Result, phase: "RESULT" };
+      // EP2: consumes exactly the finite ingredients this canonical `pizza` actually used
+      // (placed-piece count for scatter, 1-per-sauce-id for spread), computed as one pure
+      // next-inventory value from `state.inventory` + `pizza` -- see consumePizzaInventory's
+      // own doc comment (./inventory.ts) for the full consumption/clamp/atomicity contract.
+      const inventory = consumePizzaInventory(pizza, state.inventory);
+      return { ...state, pizza, score, bakeState, scoringV2Result, inventory, phase: "RESULT" };
     }
 
     case "REGISTER_TO_DEX": {
