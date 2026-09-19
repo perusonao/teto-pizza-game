@@ -3,17 +3,19 @@
 **Scope: read-only design. No production code (`src/**`, tests, scoring, Pitz formula, Save
 schema, Recipe data, Shop/RESULT production UI) was touched in this session. Docs only.**
 
-- **Audited `origin/main` SHA**: `d0f17d57e06a9cddaf1cbb143d1dbaba8bb8bdf3` ("docs: RESULT 2.0
-  Slice 2 Player Feedback Preflight (read-only) (#74)"). Fetched fresh via `git fetch origin` at
-  session start.
-- **PR #75 (RESULT 2.0 Slice 1)**: confirmed **OPEN**, base `aaf56edaea533f9efc63b3ba623bf1ae8425a6b5`,
-  head `e5d5452a6af05e3f8329a65226a0592df2df5def`, not merged, "Human Review待ち" per its own PR
-  body ("stays OPEN pending dedicated Preview deployment, Review Playthrough video, and Human
-  Review"). **Not read beyond its PR metadata, not built on, not touched.** This design was done
-  entirely against `main` as of the SHA above, which is a few commits ahead of PR #75's base
-  (`398d4844`→`aaf56ed` lineage) but does not include PR #75's own diff.
-- Other open PRs on this repo (`#72`, `#46`, `#34`, `#3`) are stale/docs-only/unrelated — none
-  touch economy, Shop, Save schema, or recipe data.
+- **Audited `origin/main` SHA (original design)**: `d0f17d57e06a9cddaf1cbb143d1dbaba8bb8bdf3`.
+- **Audited `origin/main` SHA (this product-decision-finalization revision)**:
+  `5d28c5dc996c0ea76aa6428f158a766165477213` ("docs: Pizza DB 160 catalog recovery audit
+  (read-only, verdict D) (#76)"). Fetched fresh via `git fetch origin` at the start of this
+  revision. Two PRs landed on `main` since the original design: **PR #75 (RESULT 2.0 Slice 1)
+  merged** (`70f8485`) and **PR #76 (Pizza DB 160 catalog recovery audit, docs-only, verdict D)
+  merged** (`5d28c5d`). Neither touches economy/Shop/Save/Recipe data — re-confirmed by diffing
+  `d0f17d5..5d28c5d`: PR #75's file list is `App.tsx`/`ResultPanel.tsx`/`GameScreen.tsx`/CSS/tests
+  (RESULT UI only) plus its own Result report; PR #76 is a single new docs file plus a
+  `PROJECT_HANDOFF.md` update. Neither changes anything this design depends on. PR #77 (this
+  design's own PR) reports `mergeable_state: "clean"` against the new `main` tip.
+- **PR #77 (this design)**: confirmed **OPEN**, not merged, per instruction. This revision updates
+  it in place — no new PR was created.
 
 ---
 
@@ -22,51 +24,55 @@ schema, Recipe data, Shop/RESULT production UI) was touched in this session. Doc
 The user's fixed decision for this design: **only Margherita is makeable at game start; the
 other 6 recipes are locked and unlock progressively through play.** This is a genuine reversal of
 the currently-shipped model — today (`docs/design/PIZZA_GAME_PROGRESSION_SSOT.md` §5,
-re-confirmed against `src/state/progression.ts`/`src/data/ingredients.ts` on this SHA) all 6
-"Starter Set" recipes (margherita/marinara/quattro-formaggi/genovese/bismarck/funghi) are
-**always available from the very first launch**, with zero unlock condition; only the 7th recipe
-(フガッサ/fugazza, gated on the `onion` ingredient) has ever had a lock. Sections 1-11 below design
-the full replacement system: which 6 of `RECIPES` unlock in what order, on what conditions,
-what ingredients accompany each unlock and how the player acquires them, how in-game material
-stock and pricing work, and how this connects to Pitz, Shop, Dex/BEST, RESULT and MASTER.
+re-confirmed against `src/state/progression.ts`/`src/data/ingredients.ts`) all 6 "Starter Set"
+recipes (margherita/marinara/quattro-formaggi/genovese/bismarck/funghi) are **always available
+from the very first launch**, with zero unlock condition; only the 7th recipe (フガッサ/fugazza,
+gated on the `onion` ingredient) has ever had a lock. Sections 1-11 below design the full
+replacement system.
 
 **Core design choices, stated up front (justified in the sections that follow):**
 
 1. **Recommended unlock order**: マルゲリータ(start) → フンギ → マリナーラ → ビスマルク →
-   ジェノベーゼ → クアトロフォルマッジ → フガッサ(last, unchanged from today's already-shipped
-   onion gate).
+   ジェノベーゼ → クアトロフォルマッジ → フガッサ.
 2. **Unlock mechanism**: a new, explicit `Recipe.unlockCondition` — orthogonal to ingredient
    ownership — primarily "the previous recipe has been discovered" (any quality, ★1 floor is
    enough) for recipes #2–#5, plus a light `totalStars` signal only for the last two slots (#6,
    #7). No recipe before #6 ever requires a minimum score.
-3. **Unlock ≠ purchase**: for recipes #2–#6, the new ingredient(s) that recipe needs are
-   **auto-granted for free, exactly one pizza's worth**, the instant the recipe unlocks — so a
-   player is never told "new recipe!" and then blocked by an empty tray. Recipe #7 (フガッサ)
-   keeps its **existing, unchanged, real Shop purchase** (`onion`, 120 Pitz) — the one deliberate
-   "now really spend your Pitz" milestone.
+3. **Unlock ≠ purchase — DECIDED: Option A-10 (Unlock Starter Stock), applied uniformly to
+   recipes #2–#7.** The instant a recipe unlocks, every new ingredient it needs is granted for
+   free at a quantity of **`starterStockPlays = 10`** pizzas' worth — enough to practice the
+   recipe roughly ten times, chase a BEST, and get comfortable with its new mechanic, before ever
+   needing to touch the Shop. **This now includes フガッサ/`onion`** — the previous design's
+   "keep onion's existing real 120-Pitz purchase, no free grant" exception is **removed**; Chapter
+   1 uses one uniform acquisition rule across all six unlockable recipes. Shop purchases become
+   relevant only as *restocking*, starting from each recipe's 11th play. See §4 (fully rewritten
+   in this revision) for the full rationale and the `starterStockPlays` tuning-parameter design.
 4. **Inventory unit model**: category-specific — scatter ingredients (cheese/topping) consume by
    **placed-piece count**; spread ingredients (sauce) consume as a **binary 1-use-per-pizza**.
-   This is not invented here; it is the model the existing, already-merged Inventory E1 Fresh
-   Audit (`docs/reports/TETO_SAVE-V2_E1_INVENTORY_Fresh-Audit.md` §6) already worked out and
-   explicitly left for "E2/a later design step" to ratify. This document ratifies it.
-5. **Starter inventory**: Margherita's 3 ingredients stay **permanently, unconditionally
-   unlimited** — unchanged from today's already-shipped Starter policy. This is the single
-   biggest lever against softlocks (§8) and is not renegotiated here.
-6. **Progression length**: recommend **FAST** (~6–9 plays to unlock and first-make all 7
-   recipes) over NORMAL/SLOW alternatives (§7 "TARGET"), because the 7-recipe set is documented
-   project-wide as the *first chapter* before a future 20-recipe catalog (`PROJECT_HANDOFF.md`
-   P6), and because every existing precedent in this codebase (onion/fugazza's own tuning
-   history) already aims for "a few plays," not a long grind.
+   Unchanged from the original design; ratifies the existing Inventory E1 Fresh Audit
+   (`docs/reports/TETO_SAVE-V2_E1_INVENTORY_Fresh-Audit.md` §6).
+5. **Starter inventory (Margherita only)**: Margherita's 3 ingredients stay **permanently,
+   unconditionally unlimited** — unchanged from today's already-shipped Starter policy, and
+   structurally distinct from `starterStockPlays` (§5 explains the difference explicitly). This
+   is the single biggest lever against softlocks (§8).
+6. **Progression length**: recommend **FAST** (§7b) — unchanged reasoning, now reinforced by the
+   fact that no recipe (including フガッサ) requires banked Pitz before its first play.
 
-Final verdict: **B. READY — NEEDS ONE PRODUCT DECISION** (§ Final Verdict).
+**Final verdict: A. READY — ECONOMY & PROGRESSION 1.0 DESIGN APPROVED.** The previous revision's
+one open product decision (free-grant vs. universal-Shop-purchase for recipes #2–#6, with フガッサ
+as a standing exception) has been resolved by explicit product decision: **Option A-10 for all of
+#2–#7, no exception.** No other blocker was found while making this revision (§ Final Verdict
+below states this explicitly, per instruction not to upgrade the verdict silently if a real
+blocker existed).
 
 ---
 
 ## 1. STEP 1 — Current content matrix
 
-Read directly from `src/data/recipes.ts`, `src/data/ingredients.ts`, `src/data/referencePizza.ts`,
-`src/state/progression.ts`, `src/logic/economy.ts`, `src/logic/pitzReward.ts` on the audited SHA.
-No values below are inferred or guessed.
+**This section describes today's *shipped* code, not this design's target state.** Read directly
+from `src/data/recipes.ts`, `src/data/ingredients.ts`, `src/data/referencePizza.ts`,
+`src/state/progression.ts`, `src/logic/economy.ts`, `src/logic/pitzReward.ts`. Unchanged since the
+original design (re-confirmed: PR #75/#76 did not touch any of these files).
 
 | # | Recipe id | Name | Sauce (placement) | Required ingredients (`minCount`) | Piece total | Reference fixture | Bake target | Current unlock state | Current Shop dependency | Current Pitz reward |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -85,46 +91,41 @@ rating — the same table this design reuses for every Pitz calculation below.
 
 Every current ingredient except `onion` has **no `unlockCondition`** — all 13 are Starter, always
 `OWNED`, never for sale (`STARTER_INGREDIENT_IDS` in `src/data/ingredients.ts`). This is exactly
-the fact that has to change for the user's fixed decision (§2).
-
-`isRecipeAvailable` (`src/state/progression.ts`) derives a recipe's makeability **purely** from
-whether every required ingredient is `OWNED` — there is no separate "recipe unlocked" flag
-anywhere in the codebase today (explicit design comment on the function itself). `recipeCardState`
-(`src/state/pizzaSelect.ts`) already renders a `LOCKED` card with an optional text hint
-(`unlockHintFor`, sourced only from `Ingredient.unlockCondition`) — today this only ever fires for
-フガッサ, since it is the only recipe with a non-Starter ingredient.
+the fact that has to change for the user's fixed decision (§2). **Today's `onion`/`pricePitz: 120`
+real-purchase-required flow is the one thing this revision explicitly removes as an exception
+(§4)** — the code cited in this row still describes what is shipped right now, not the target.
 
 ---
 
 ## 2. STEP 2 — Difficulty / teaching order
 
-Evaluated on: sauce operation, topping count/types, placement difficulty, bake difficulty,
-recipe recognition, ingredients newly introduced, and continuity from the previous recipe
-(re-using an already-learned gesture/ingredient lowers the learning delta; introducing a brand
-new spread-sauce color or a brand new placement pattern raises it).
+Unchanged from the original design. Evaluated on: sauce operation, topping count/types,
+placement difficulty, bake difficulty, recipe recognition, ingredients newly introduced, and
+continuity from the previous recipe.
 
 | Order | Recipe | New vs. prior step | Why this position |
 |---|---|---|---|
 | 1 | **マルゲリータ** (start) | everything | Teaches spread-sauce (tomato) + scatter placement (2 types) + one bake zone. Simplest, most iconic, zero prerequisite. |
-| 2 | **フンギ** | +1 ingredient (mushroom) | Reuses tomato-sauce + mozzarella verbatim (same piece count/shape as #1) and adds exactly one new topping. Bake zone (58–80) nearly overlaps #1's — the lowest possible learning delta for "second pizza," so it reinforces the just-learned mechanic instead of introducing a new one. |
-| 3 | **マリナーラ** | +2 ingredients (garlic, oregano), −cheese | Still tomato-sauce (zero new sauce mechanic) but removes cheese entirely — the first "not every pizza needs cheese" recognition lesson. Same piece total as #1/#2. Bake zone (45–65) is meaningfully different from #1/#2 — first real "learn a new bake window" moment. |
-| 4 | **ビスマルク** | +1 ingredient (egg) | Reuses tomato-sauce + mozzarella again (zero new base mechanic) but introduces a single, precisely-placed centerpiece instead of scattered pieces — a genuinely new placement skill, and the clearest "read the pizza, not the clock" bake-recognition cue (egg white/yolk state) of any of the 7. Lowest total piece count (5) keeps this step's overall load light even though it's conceptually new. |
-| 5 | **ジェノベーゼ** | +2 ingredients (cherry-tomato), +1 new sauce (pesto) | First alternate spread sauce — a new color/texture to paint, but the same underlying "spread" gesture as tomato-sauce, so the *motor* skill transfers even though the *visual* target is new. |
-| 6 | **クアトロ フォルマッジ** | +3 cheeses (gorgonzola/parmigiano/fontina), +1 new sauce (olive-oil) | The recognition/sorting capstone: a second alternate spread sauce (olive-oil is pale/translucent — genuinely harder to read coverage on than tomato/pesto) **and** three brand-new cheeses that must be told apart from mozzarella and each other, at the highest piece count (9) and highest ingredient-type count (5) of any recipe. Deliberately placed second-to-last, not earlier, so it never has to double as a "your very first new sauce" moment. |
-| 7 | **フガッサ** (last) | +1 ingredient (onion), reuses olive-oil + oregano | Nothing mechanically new (both its ingredients were already learned in #3/#6) — it demands *mastery* of everything learned so far: oil-painting, the highest single-ingredient scatter count of any recipe (onion×4), and the least visually forgiving presentation (no sauce-red, no cheese-melt — bake state reads purely off dough/oil/onion char). A fitting "graduation" recipe, and it is **already the existing implemented unlock slot** (onion/Shop-gated) — keeping it last preserves that precedent instead of fighting it. |
+| 2 | **フンギ** | +1 ingredient (mushroom) | Reuses tomato-sauce + mozzarella verbatim (same piece count/shape as #1) and adds exactly one new topping. Bake zone (58–80) nearly overlaps #1's — the lowest possible learning delta for "second pizza." |
+| 3 | **マリナーラ** | +2 ingredients (garlic, oregano), −cheese | Still tomato-sauce (zero new sauce mechanic) but removes cheese entirely — the first "not every pizza needs cheese" recognition lesson. Bake zone (45–65) is the first real "learn a new bake window" moment. |
+| 4 | **ビスマルク** | +1 ingredient (egg) | Reuses tomato-sauce + mozzarella again but introduces a single, precisely-placed centerpiece instead of scattered pieces — a genuinely new placement skill and the clearest bake-recognition cue (egg white/yolk state) of any of the 7. Lowest total piece count (5). |
+| 5 | **ジェノベーゼ** | +2 ingredients (cherry-tomato), +1 new sauce (pesto) | First alternate spread sauce — new color/texture to paint, same "spread" gesture as tomato-sauce, so the motor skill transfers even though the visual target is new. |
+| 6 | **クアトロ フォルマッジ** | +3 cheeses (gorgonzola/parmigiano/fontina), +1 new sauce (olive-oil) | The recognition/sorting capstone: a second alternate spread sauce (olive-oil is pale/translucent — genuinely harder to read coverage on) **and** three brand-new cheeses that must be told apart from mozzarella and each other, at the highest piece count (9) and highest ingredient-type count (5) of any recipe. |
+| 7 | **フガッサ** (last) | +1 ingredient (onion), reuses olive-oil + oregano | Nothing mechanically new (both its ingredients were already learned in #3/#6) — it demands *mastery* of everything learned so far: oil-painting, the highest single-ingredient scatter count of any recipe (onion×4), and the least visually forgiving presentation (no sauce-red, no cheese-melt). A fitting "graduation" recipe by content difficulty alone — its position no longer depends on being the one recipe with a real-purchase requirement (§4 removes that distinction), it earns last place purely on §2's own difficulty axes. |
 
 ---
 
 ## 3. STEP 3 — Unlock conditions
 
 **Principle (per the user's fixed decision): no skill wall early. The first new recipe unlocks
-fast. Only the last one or two slots may carry a light skill signal.**
+fast. Only the last one or two slots may carry a light skill signal.** Unchanged from the
+original design — this revision only changes *what materials arrive with* an unlock (§4), not
+*when* a recipe becomes visible/eligible.
 
 ### 3.1 New architecture: `Recipe.unlockCondition` (orthogonal to ingredient ownership)
 
 Today, `isRecipeAvailable` derives availability **only** from ingredient ownership — there is no
-recipe-level lock at all (explicit in the code's own comments). That is precisely what has to
-change. The recommended model adds a small, new, explicit field:
+recipe-level lock at all. The recommended model adds a small, new, explicit field:
 
 ```ts
 // src/data/recipes.ts (design — not implemented in this session)
@@ -143,438 +144,427 @@ export interface Recipe {
 ```
 
 `isRecipeAvailable` becomes a **two-axis AND**: `recipeUnlocked(recipe) && ingredientsOwned(recipe)`
-— exactly the "Recipe unlocked ≠ Ingredient purchased" separation the task requires (§4). This is
-a deliberate, explicit new concept, not a reuse of the ingredient `unlockCondition` mechanism —
-reusing that would conflate two things the fixed decision asks to keep separate (an ingredient's
-`minTotalStars` gate answers "is this ingredient in the Shop yet," not "is this recipe visible
-yet").
+— the "Recipe unlocked ≠ Ingredient acquired" separation the task requires (§4).
 
 ### 3.2 Concrete conditions, all 7 recipes
 
 | # | Recipe | `unlockCondition` | Rationale |
 |---|---|---|---|
 | 1 | margherita | *(none — always unlocked)* | Start. |
-| 2 | funghi | `{ requiresRecipeId: "margherita" }` | Unlocks the instant Margherita is completed once, **any quality** (★1 floor still counts as "discovered"). Matches "早く解禁"/"もう1枚作りたいタイミングで次の目標" directly. |
+| 2 | funghi | `{ requiresRecipeId: "margherita" }` | Unlocks the instant Margherita is completed once, **any quality** (★1 floor still counts as "discovered"). |
 | 3 | marinara | `{ requiresRecipeId: "funghi" }` | Same pattern — chained, one recipe at a time. |
 | 4 | bismarck | `{ requiresRecipeId: "marinara" }` | Same pattern. |
 | 5 | genovese | `{ requiresRecipeId: "bismarck" }` | Same pattern. |
-| 6 | quattro-formaggi | `{ requiresRecipeId: "genovese", minTotalStars: 8 }` | First light skill signal. By this point 5 recipes are discoverable; even at the ★1 floor per recipe, `totalStars` is already 5 — reaching 8 needs only a modest average (~1.6★/recipe), comfortably inside the task's own "beginner" band (quality 50–65 ⇒ mostly ★2–★3). Not a wall: it asks for "keep playing normally," not "get good." |
-| 7 | fugazza | `{ requiresRecipeId: "quattro-formaggi", minTotalStars: 12 }` | **Unchanged value** — this is `onion`'s existing, already-shipped, already-simulated `minTotalStars: 12` (`docs/design/PIZZA_GAME_PROGRESSION_SSOT.md` §12: *"上手3枚目/普通4枚目/初心者5枚目で到達"*). Reusing the exact number that has already been play-tested (even if under the old "all 6 available at once" model) is the lowest-risk choice — it does not need to be re-derived from scratch, and §7's simulation below re-validates it under the *new* sequential-unlock model too. The added `requiresRecipeId: "quattro-formaggi"` is new — it guarantees recipe #7 never becomes visible before #6, closing a gap the bare `minTotalStars: 12` alone would not (both numbers could theoretically be reached in either order). |
+| 6 | quattro-formaggi | `{ requiresRecipeId: "genovese", minTotalStars: 8 }` | First light skill signal. By this point 5 recipes are discoverable; even at the ★1 floor per recipe, `totalStars` is already 5 — reaching 8 needs only a modest average (~1.6★/recipe). |
+| 7 | fugazza | `{ requiresRecipeId: "quattro-formaggi", minTotalStars: 12 }` | Recipe-level *visibility/sequencing* condition — unchanged value, reusing `onion`'s existing, already-shipped, already-simulated `minTotalStars: 12`. **What changes in this revision is not this condition, but what happens once it is met** (§4): `onion` is now free-granted like every other new ingredient, not purchased. |
 
-No recipe before #6 has any score/star requirement at all — completing the previous recipe even
-at the worst possible quality (★1, i.e. `total < 40`) is sufficient. This is a deliberate,
-literal implementation of the task's own listed candidate, "前レシピを1回完成."
+No recipe before #6 has any score/star requirement at all. This is unchanged from the original
+design and is **not** what this revision resolves — the resolved item is acquisition method
+(§4), not unlock timing.
 
 ---
 
-## 4. STEP 4 — Unlock ≠ Purchase: the four concepts, and the recommended option
+## 4. STEP 4 — Unlock ≠ Purchase: DECIDED — Option A-10 (Unlock Starter Stock)
 
-Per the task's framing, four concepts are kept explicitly distinct:
+*(Fully rewritten in this revision. The original design's "Option A vs. Option D, hybrid,
+フガッサ excepted" framing is superseded by the product decision below.)*
 
-- **A. Recipe unlocked** — `Recipe.unlockCondition` satisfied (§3). Purely a visibility/eligibility
-  flag; flips a Pizza Select card from `LOCKED` toward `NEW`.
-- **B. Ingredient unlocked** — the ingredient becomes *eligible to own* (today: `AVAILABLE_TO_BUY`
-  via `Ingredient.unlockCondition`). Under this design, **derived from Recipe unlock**, not the
-  other way around (a reversal of today's dependency direction — today ingredient state drives
-  recipe availability; from now on, recipe unlock drives which ingredients become eligible).
-- **C. Ingredient purchased** — the ingredient becomes `OWNED` (Pitz spent, or auto-granted — see
-  below).
-- **D. Ingredient inventory** — how many consumable units are currently in stock (§ Step 5/6).
+### 4.1 The decision
 
-### 4.1 Option comparison (as the task requests)
+> **Every recipe unlock (#2–#7) grants a free starter stock of every new ingredient that recipe
+> needs, sized to `starterStockPlays = 10` pizzas' worth. フガッサ/`onion` is included — no
+> exception.**
 
-| Option | Description | Verdict |
-|---|---|---|
-| A. Free 1-pizza gift on unlock | The moment a recipe unlocks, its new ingredient(s) are auto-granted `OWNED` + exactly one pizza's worth of inventory stock, at zero Pitz cost. | **Recommended for recipes #2–#6.** |
-| B. Pitz reward on unlock | Unlock grants a flat Pitz bonus instead of ingredients directly. | Rejected as the *sole* mechanism — still requires a second trip through the Shop before the new recipe is actually makeable, reintroducing the "unlocked but can't play it yet" gap the task explicitly flags as bad UX. Fine as a *minor addendum* (see RESULT integration, §10) but not a substitute for A. |
-| C. First-play consumption-free | The new ingredients are free to use but only for the *very first* completion of that recipe, tracked separately from stock. | Functionally near-identical to A once A's "grant exactly 1 pizza's worth of stock" is chosen — A is simpler (no new "used the free pass yet?" flag; it's just an inventory value that reaches 0 like any other) and reuses ordinary inventory decrement logic instead of a special case. |
-| D. Shop purchase required | No free grant; the player must buy before making the recipe at all. | **Recommended, unchanged, for recipe #7 (フガッサ/onion) only** — this is what's already shipped and already tuned (120 Pitz, §12 of the existing SSOT). Keeping exactly one deliberate "go spend Pitz for real" milestone gives the Shop a genuine purpose without making every unlock feel gated behind money. |
+Basic loop, as specified:
 
-### 4.2 Recommended model
+```
+新レシピ解禁
+→ 10回分スターター材料獲得
+→ 練習
+→ 上達/BEST更新
+→ 在庫減少
+→ Shopで補充
+→ 再挑戦
+```
 
-**Hybrid A + D**, split cleanly by recipe:
+Purpose (as specified, retained verbatim as the design rationale):
 
-- Recipes **#2–#6** (funghi, marinara, bismarck, genovese, quattro-formaggi): the instant the
-  recipe's `unlockCondition` is met, its new ingredient(s) are auto-added to
-  `ownedIngredientIds` **and** granted inventory stock equal to exactly one pizza's requirement
-  (§6 table, "Free 1-pizza grant" column) — no Shop trip needed to try the recipe for the first
-  time. A **second** attempt at that recipe (to improve BEST, or just because it was fun)
-  consumes that stock and, once exhausted, requires an ordinary priced Shop restock (§6).
-- Recipe **#7** (フガッサ): **unchanged** from today's shipped behavior — `onion` stays a real,
-  priced (120 Pitz), no-free-grant Shop purchase. This is deliberately the one "graduation"
-  moment in the whole 7-recipe arc that requires the player to have actually earned and spent
-  Pitz before playing it, consistent with its position as the hardest/last recipe (§2) and with
-  how the existing codebase's own design history already treats it (`PIZZA_GAME_Phase3C-6_
-  First-Progression_Result.md`).
+- Enough material to genuinely practice a new recipe, not just try it once.
+- Room to fail and re-attempt the new operation/mechanic without fear of running out mid-way.
+- No forced Shop trip immediately after unlocking.
+- Enough headroom to chase a BEST/quality improvement, not just a single pass/fail attempt.
+- A natural, un-forced glide into Shop/Inventory once the free stock is actually exhausted (by
+  the recipe's 11th attempt).
 
-This directly resolves the task's own flagged bad case ("新レシピ解禁！→材料不足なので遊べません")
-for 6 of 7 recipes, while keeping exactly one real "spend Pitz to unlock a pizza" moment intact
-and untouched.
+### 4.2 Why this supersedes the original "Option A vs. D" split
+
+The original design kept フガッサ/`onion` on the existing, already-shipped "real 120-Pitz
+purchase, no free grant" path, specifically to preserve one deliberate "now really spend your
+Pitz" milestone and minimize implementation risk (reusing already-tested code unchanged). The
+product decision explicitly removes that exception: **Chapter 1's rule is uniform across all 6
+unlockable recipes.** The Shop's role is not eliminated — it is *relocated*: instead of being the
+gate for a recipe's very first play, it becomes the natural mechanism for a recipe's **11th
+play onward** for every one of #2–#7, including フガッサ. This is arguably a stronger, more
+consistent design than the original hybrid: a player who has played a recipe ten times and wants
+an eleventh has clearly demonstrated interest in it, which is a better-earned moment to introduce
+"now spend Pitz to keep going" than a first-unlock cliff ever was.
+
+### 4.3 `starterStockPlays`: an Economy tuning parameter, not a magic number
+
+**`starterStockPlays = 10` is a Chapter-1-scoped balance constant, not a value to be inlined
+anywhere in implementation code.** Design requirement for whichever slice implements this
+(§12 EP4):
+
+```ts
+// src/data/economyConfig.ts (design — not implemented in this session)
+/** How many pizzas' worth of a newly-unlocked recipe's new ingredient(s) are granted for free,
+ *  the instant that recipe's unlockCondition is satisfied. A single named constant, never an
+ *  inlined literal at any call site, precisely so a future catalog tier (see below) can override
+ *  it per-recipe without a call-site edit. */
+export const STARTER_STOCK_PLAYS_CHAPTER_1 = 10;
+```
+
+This must **not** be hand-copied as a literal `10` into `gameReducer.ts`, `economy.ts`, or
+anywhere else — every computation of a starter-grant quantity (`minCount × starterStockPlays`
+for scatter, `starterStockPlays` uses for spread) must read this one constant.
+
+**Future scaling (explicitly out of scope to design further here, recorded only as a forward
+note per instruction)**: once the catalog grows beyond Chapter 1's 7 recipes (the 160-class
+catalog referenced in `docs/reports/TETO_PIZZADB-160_CATALOG_Recovery-Audit.md`, verdict D — not
+otherwise read or relied on by this design), `starterStockPlays` should become **tier-scoped**,
+not a single global constant:
+
+| Tier | `starterStockPlays` (illustrative, not decided here) |
+|---|---|
+| starter | 10 |
+| early | 10 |
+| mid | 5 |
+| late | 3 |
+| master | 0–3 |
+
+**Chapter 1 itself uses exactly one value, `10`, uniformly for recipes #2–#7 — no tiering within
+Chapter 1.** The table above is a forward design note for a future catalog-expansion design
+session, not a Chapter-1 decision, and must not be implemented ahead of that future session.
+
+### 4.4 Starter-grant quantities (derivation)
+
+Per §6.1's unit model (unchanged): scatter ingredients grant `minCount × 10` pieces; spread/sauce
+ingredients grant `10` uses. Full table in §6.2 (revised) and in the companion MATRIX doc.
+
+### 4.5 What remains true from the original design
+
+- **A/B/C/D framing retained for the record**: Option A (free grant, now specifically "A-10")
+  is the decided mechanism; Option B (flat Pitz bonus on unlock) remains rejected as a
+  *substitute* for A-10, for the same reason as before — it still requires a Shop trip before the
+  recipe is actually playable, which A-10 is specifically designed to avoid. Option C
+  (first-play-free, tracked separately from stock) is subsumed by A-10 — a 10-play stock value
+  *is* the "first N plays free" mechanism, just sized generously rather than to exactly one play.
+  **Option D (Shop purchase required, no free grant) is no longer used anywhere in Chapter 1**,
+  including フガッサ — this is the one concrete change this revision makes to the option
+  landscape.
 
 ---
 
 ## 5. STEP 5 — Starter inventory
 
 **Margherita's 3 ingredients (`tomato-sauce`, `mozzarella`, `basil`) stay permanently,
-unconditionally unlimited — unchanged from the already-shipped Starter policy.** This directly
-answers the task's "3枚/5枚/無限" question: **無限 (unlimited)**, not a numeric cap, because:
+unconditionally unlimited — unchanged from the already-shipped Starter policy, and unaffected by
+this revision.** This directly answers the task's "3枚/5枚/無限" question: **無限 (unlimited)**,
+not a numeric cap.
 
-- It is already implemented and tested (`hasStock`'s design in
-  `docs/reports/TETO_SAVE-V2_E1_INVENTORY_Fresh-Audit.md` §5: "Starter ingredients... unconditionally exempt from the stock
-  check entirely," not merely "a large default number").
+**Explicit distinction from `starterStockPlays` (§4), to avoid confusion between two
+similarly-named but structurally different guarantees:**
+
+| | Margherita's own 3 ingredients | Every other recipe's new ingredient(s) |
+|---|---|---|
+| Mechanism | Permanently exempt from stock tracking entirely (`hasStock` returns `true` unconditionally) | Finite stock, initialized to `minCount × starterStockPlays` (or `starterStockPlays` uses, for sauce) on unlock |
+| Can ever reach 0? | No — never tracked as a countable quantity | Yes — after 10 plays' worth of consumption, exactly as intended (§4.1's loop) |
+| Why | Softlock guard (§8) — must never be capable of running out | Practice buffer — *meant* to eventually run out, at a generous size, so Shop restocking becomes relevant |
+
+Reasons for keeping Margherita's own policy unchanged (unaffected by this revision):
+
+- It is already implemented and tested (`hasStock`'s design in the Inventory E1 Fresh Audit §5).
 - It is the single load-bearing softlock guard (§8): as long as Margherita's own ingredients can
-  never run out, the player always has *some* recipe they can make and *some* way to earn Pitz
-  (per-pizza FREE-mode credit, confirmed live in `src/logic/pitzReward.ts`/
-  `docs/reports/TETO_ISSUE-38_PITZ-REWARD_Result.md` — FREE mode credits Pitz on every completed
-  round, not only Lunch Rush, and not only on first discovery).
-- Introducing an artificial starter cap (3 or 5) would add a brand-new failure mode ("ran out of
-  dough on your first try") that does not exist today, for no design benefit — nothing in the
-  task's own goals calls for scarcity on the very first recipe.
-
-No other recipe needs its own "starter inventory" — its first playable copy is the free 1-pizza
-grant from §4, sized exactly to that recipe's own `minCount`s (table in §6).
+  never run out, the player always has *some* recipe they can make and *some* way to earn Pitz.
+- No other recipe needs a *separate* "starter inventory" concept beyond §4's uniform 10-play
+  grant — Margherita is the sole permanently-unlimited case, by design, not merely the first one
+  to receive a large grant.
 
 ---
 
 ## 6. STEP 6 — Material prices
 
-### 6.1 Inventory unit model (STEP 4 in the task's own numbering — "material stock unit")
+### 6.1 Inventory unit model
 
-**Recommended: Option C, category-specific units** — not "1 unit = 1 pizza" uniformly (Option A
-in the task's phrasing) and not raw UI piece count for everything (Option B). This is not
-invented fresh here; it is the exact model the existing, merged **Inventory E1 Fresh Audit**
-(`docs/reports/TETO_SAVE-V2_E1_INVENTORY_Fresh-Audit.md` §6) already derived from the real
-`gameReducer.ts`/`pizzaState.ts` shapes and explicitly deferred to "E2's decision" — this design
-ratifies it as that decision:
+Unchanged from the original design — ratifies the existing Inventory E1 Fresh Audit
+(`docs/reports/TETO_SAVE-V2_E1_INVENTORY_Fresh-Audit.md` §6), not renegotiated in this revision:
 
 - **Scatter ingredients** (every cheese/topping, `placement: "scatter"`): **1 unit = 1 placed
-  piece**. `state.pizza.toppings.filter(t => t.ingredientId === id).length` is already a real,
-  directly-readable number — no new tracked state needed. A recipe's `minCount` is its baseline
-  consumption per pizza (a player who places more than `minCount` consumes more).
-- **Spread/sauce ingredients** (`placement: "spread"`): **1 unit = 1 pizza's use**, binary
-  (`sauceIds.includes(id) ? 1 : 0`) — there is no "how much area" quantity in any current recipe
-  (every sauce requirement is `minCount: 1`), and painted coverage is a scoring concept
-  (`SauceComponentV2`), not an inventory one. Treating it as anything other than binary would
-  invent a metric nothing else in the codebase uses.
+  piece**. A recipe's `minCount` is its baseline consumption per pizza.
+- **Spread/sauce ingredients** (`placement: "spread"`): **1 unit = 1 pizza's use**, binary.
 
-This single rule applies uniformly to all 14 ingredients, including the 3 that stay Starter
-(which are simply exempt from the stock check entirely, not "unit = ∞").
+### 6.2 Price table (revised — starter grants now ×10, フガッサ/onion included)
 
-### 6.2 Price table
+All 7 recipe base rewards are `baseRewardPitz: 100`, unchanged. A single pizza's Pitz payout is
+one of `{0, 50, 80, 100, 120}` depending on stars. **Restock pricing target is unchanged from the
+original design**: a full 3-pizza restock batch should cost roughly one NORMAL-tier pizza's own
+reward (≈80–100 Pitz) for an ordinary topping, scaling up modestly for higher-piece-count or
+thematically "special" ingredients. **Only the "starter grant" column changes in this revision**
+(×10 instead of ×1, and フガッサ/onion now has a grant instead of "none").
 
-All 7 recipe base rewards are `baseRewardPitz: 100` (recipes.ts, unchanged, not re-tuned here —
-out of scope). A single pizza's Pitz payout is one of `{0, 50, 80, 100, 120}` depending on stars
-(§1). **Pricing target**: a full 3-pizza restock batch should cost roughly one NORMAL-tier
-pizza's own reward (≈80–100 Pitz) for an ordinary topping, scaling up modestly for
-higher-piece-count or thematically "special" ingredients — restocking should always cost
-noticeably less than what the pizza it enables can earn back, never break-even or negative.
-
-| Ingredient | Category/placement | `minCount`/pizza (home recipe) | Unlocks with | Free 1-pizza grant on unlock | Restock batch (≈3 pizzas) | Restock price (Pitz) | Cost/pizza (restock) |
+| Ingredient | Category/placement | `minCount`/pizza (home recipe) | Unlocks with | **Starter grant on unlock (`starterStockPlays = 10`)** | Restock batch (≈3 pizzas) | Restock price (Pitz) | Cost/pizza (restock) |
 |---|---|---|---|---|---|---|---|
 | tomato-sauce | sauce/spread | 1 use | Margherita (Starter) | n/a — permanently unlimited | n/a | free | 0 |
 | mozzarella | cheese/scatter | 2–3 | Margherita (Starter) | n/a — permanently unlimited | n/a | free | 0 |
 | basil | topping/scatter | 2 | Margherita (Starter) | n/a — permanently unlimited | n/a | free | 0 |
-| mushroom | topping/scatter | 3 | フンギ (#2) | Yes, 3 units | 9 units | 60 Pitz | ~20/pizza |
-| garlic | topping/scatter | 3 | マリナーラ (#3) | Yes, 3 units | 9 units | 60 Pitz | ~20/pizza |
-| oregano | topping/scatter | 2 (also used 1/pizza by フガッサ) | マリナーラ (#3) | Yes, 2 units | 6 units | 45 Pitz | ~22.5/pizza (マリナーラ) / ~7.5 (フガッサ) |
-| egg | topping/scatter | 1 | ビスマルク (#4) | Yes, 1 unit | 3 units | 45 Pitz | 15/pizza |
-| pesto | sauce/spread | 1 use | ジェノベーゼ (#5) | Yes, 1 use | 3 uses | 60 Pitz | 20/pizza |
-| cherry-tomato | topping/scatter | 3 | ジェノベーゼ (#5) | Yes, 3 units | 9 units | 60 Pitz | ~20/pizza |
-| olive-oil | sauce/spread | 1 use (also used by フガッサ) | クアトロ フォルマッジ (#6) | Yes, 1 use | 3 uses | 50 Pitz | ~16.7/pizza |
-| gorgonzola | cheese/scatter | 2 | クアトロ フォルマッジ (#6) | Yes, 2 units | 6 units | 70 Pitz | ~23.3/pizza |
-| parmigiano | cheese/scatter | 2 | クアトロ フォルマッジ (#6) | Yes, 2 units | 6 units | 70 Pitz | ~23.3/pizza |
-| fontina | cheese/scatter | 2 | クアトロ フォルマッジ (#6) | Yes, 2 units | 6 units | 70 Pitz | ~23.3/pizza |
-| onion | topping/scatter | 4 | フガッサ (#7) | **No — existing real purchase, unchanged** | 12 units | **120 Pitz (existing, unchanged)** | 40/pizza |
+| mushroom | topping/scatter | 3 | フンギ (#2) | **30 units** (3 × 10) | 9 units | 60 Pitz | ~20/pizza |
+| garlic | topping/scatter | 3 | マリナーラ (#3) | **30 units** | 9 units | 60 Pitz | ~20/pizza |
+| oregano | topping/scatter | 2 (also used 1/pizza by フガッサ) | マリナーラ (#3) | **20 units** (2 × 10) | 6 units | 45 Pitz | ~22.5/pizza (マリナーラ) / ~7.5 (フガッサ) |
+| egg | topping/scatter | 1 | ビスマルク (#4) | **10 units** | 3 units | 45 Pitz | 15/pizza |
+| pesto | sauce/spread | 1 use | ジェノベーゼ (#5) | **10 uses** | 3 uses | 60 Pitz | 20/pizza |
+| cherry-tomato | topping/scatter | 3 | ジェノベーゼ (#5) | **30 units** | 9 units | 60 Pitz | ~20/pizza |
+| olive-oil | sauce/spread | 1 use (also used by フガッサ) | クアトロ フォルマッジ (#6) | **10 uses** | 3 uses | 50 Pitz | ~16.7/pizza |
+| gorgonzola | cheese/scatter | 2 | クアトロ フォルマッジ (#6) | **20 units** | 6 units | 70 Pitz | ~23.3/pizza |
+| parmigiano | cheese/scatter | 2 | クアトロ フォルマッジ (#6) | **20 units** | 6 units | 70 Pitz | ~23.3/pizza |
+| fontina | cheese/scatter | 2 | クアトロ フォルマッジ (#6) | **20 units** | 6 units | 70 Pitz | ~23.3/pizza |
+| onion | topping/scatter | 4 | フガッサ (#7) | **40 units** (4 × 10) — **no exception, same rule as every other recipe** | 12 units | 120 Pitz (unchanged restock price) | 40/pizza |
 
-Sanity check: fully restocking クアトロ フォルマッジ 3× costs `50+70+70+70=260` Pitz for 3 pizzas
-(~86.7/pizza) — comfortably under one NORMAL-tier pizza's own ~90–100 Pitz reward, i.e. the
-recipe "pays for its own upkeep" even at moderate skill, appropriately for the most
-ingredient-heavy recipe in the set. フガッサ's 40/pizza-equivalent is deliberately the highest,
-matching its "graduation" position (§2).
+Onion's restock batch/price (12 units / 120 Pitz for the 11th-play-onward refill) is **unchanged**
+from the original design — only the *initial* acquisition changes (free 40-unit grant instead of
+a mandatory purchase). Shared ingredients (`oregano`, `olive-oil`) top up the same
+`inventory[id]` pool additively when a second recipe that uses them unlocks later (per the task's
+explicit "同一材料が複数レシピで共有される場合は、inventoryへ通常加算する" instruction) — e.g. a
+player who unlocks マリナーラ then later フガッサ ends up with `oregano` stock from *two* separate
+10-play grants added together, not overwritten.
+
+Sanity check (unchanged from original): fully restocking クアトロ フォルマッジ 3× still costs 260
+Pitz for 3 pizzas (~86.7/pizza) — comfortably under one NORMAL-tier pizza's own ~90–100 Pitz
+reward. This math is unaffected by the starter-grant-size change, since restock batch/pricing is
+a separate, unchanged parameter from the starter grant.
 
 ---
 
-## 7. STEP 7 — Economy simulation
+## 7. STEP 7 — Economy simulation (revised)
 
 Three player types, START → all 7 recipes discovered and makeable at least once, using §3's
-conditions and §1's Pitz table. `STAR_THRESHOLDS`: `<40→★1(×0)`, `40–59→★2(×0.5)`,
-`60–74→★3(×0.8)`, `75–89→★4(×1.0)`, `≥90→★5(×1.2)`.
+unlock conditions and §4's uniform 10-play starter grant (now including フガッサ). `STAR_
+THRESHOLDS`: `<40→★1(×0)`, `40–59→★2(×0.5)`, `60–74→★3(×0.8)`, `75–89→★4(×1.0)`, `≥90→★5(×1.2)`.
 
 | | Player A (beginner, quality ~50–65) | Player B (normal, quality ~70–85) | Player C (skilled, quality ~90+) |
 |---|---|---|---|
-| Typical stars/play | mostly ★2–★3 (avg ≈2.5) | mostly ★3–★4 (avg ≈3.7) | mostly ★5, occasional ★4 if bake missed (avg ≈4.8) |
+| Typical stars/play | mostly ★2–★3 (avg ≈2.5) | mostly ★3–★4 (avg ≈3.7) | mostly ★5, occasional ★4 (avg ≈4.8) |
 | Typical Pitz/play | ~50–80 (avg ≈65) | ~80–100 (avg ≈90) | ~115–120 (avg ≈115) |
 | Plays to discover #1–#6 (1 attempt each, chained unlock) | 6 | 6 | 6 |
-| `totalStars` after 6 discoveries | ≈6×2.5 ≈ 15 | ≈6×3.7 ≈ 22 | ≈6×4.8 ≈ 29 |
-| Cumulative Pitz after 6 discovery plays (no restocks yet) | ≈6×65 ≈ 390 | ≈6×90 ≈ 540 | ≈6×115 ≈ 690 |
-| `minTotalStars: 8` (recipe #6 gate) met? | Yes, already at discovery #4–5 | Yes, already at discovery #3–4 | Yes, already at discovery #2–3 |
+| `totalStars` after 6 discoveries | ≈15 | ≈22 | ≈29 |
+| `minTotalStars: 8` (recipe #6 gate) met? | Yes, by discovery #4–5 | Yes, by discovery #3–4 | Yes, by discovery #2–3 |
 | `minTotalStars: 12` (recipe #7 gate) met? | Yes, by discovery #5–6 | Yes, by discovery #4–5 | Yes, by discovery #3–4 |
-| Can afford onion (120 Pitz) once eligible? | Yes — 390 Pitz banked well exceeds 120 | Yes — 540 Pitz banked | Yes — 690 Pitz banked |
-| **Plays to unlock + first-make all 7** | **~6–8** (6 discovery plays + 1–2 buffer for a below-★2 attempt needing a retry, or immediate) | **~6–7** | **~6–7** |
+| **Pitz needed to first-make フガッサ once eligible** | **0 — free 40-unit onion grant, no purchase check** | **0** | **0** |
+| **Plays to unlock + first-make all 7** | **~6–7** | **~6–7** | **~6–7** |
 
-**Reading this simulation**: because recipes #2–#6 unlock on bare completion (★1 floor already
-counts) and grant their ingredients free, the *sequencing* gates are satisfied almost
-immediately for every skill tier — the design deliberately does not use skill to pace the first
-five unlocks. The only place skill tier visibly matters is *how many spare Pitz* a player has
-banked by the time フガッサ becomes eligible (§3 row 7) — all three tiers clear the 120 Pitz bar
-comfortably, because `baseRewardPitz: 100` is large relative to `onion`'s price by design
-(consistent with the existing SSOT's own §12 calibration note). No player type is at risk of
-reaching recipe #7's *conditions* without also having the Pitz to act on them.
+**What changed vs. the original simulation**: the original table included a "can afford onion
+(120 Pitz)?" affordability check as part of reaching "all 7 unlocked and makeable." **That check
+no longer exists** — フガッサ's first play, like every other unlockable recipe's first play, costs
+zero Pitz once its `unlockCondition` is met (§4). All three player tiers now reach "all 7
+unlocked and makeable at least once" in essentially the same ~6–7 plays, purely gated by
+`totalStars`/completion sequencing, never by banked currency. Pitz's role is now **exclusively**
+about *replaying* a recipe past its free 10-play allowance (§4.1's loop, "在庫減少→Shopで補充"),
+which happens well after the "all 7 unlocked" milestone for every simulated tier, since 10 plays
+of headroom per recipe is generous relative to a first playthrough.
 
 ---
 
-## 7b. TARGET — FAST / NORMAL / SLOW progression length
-
-The task asks for three explicit *design* variants (not player skill tiers — §7 already covers
-that), compared against what the current game's own time/reward scale actually supports, with one
-recommended.
+## 7b. TARGET — FAST / NORMAL / SLOW progression length (unaffected, reconfirmed)
 
 | Variant | Structure | Approx. plays to unlock all 7 |
 |---|---|---|
-| **FAST** (recommended) | Exactly as designed in §3: chained completion-only gates for #2–#5, light `totalStars` (8/12) for #6/#7. | **~6–9** |
-| NORMAL | Same chain, but each of #3–#6 additionally requires the *previous* recipe to have been made **twice** (not once), and #6/#7 thresholds raised to 10/16. | **~12–18** |
-| SLOW | Adds a real BEST-quality floor (e.g. `total ≥ 50` on the previous recipe, not just "discovered") to #4–#7, on top of NORMAL's replay requirement. | **~25–35** |
+| **FAST** (recommended) | Exactly as designed in §3: chained completion-only gates for #2–#5, light `totalStars` (8/12) for #6/#7. | **~6–7** (revised down slightly from ~6–9, since フガッサ no longer has a separate Pitz-affordability step) |
+| NORMAL | Same chain, but each of #3–#6 additionally requires the previous recipe to have been made twice, and #6/#7 thresholds raised to 10/16. | **~12–18** |
+| SLOW | Adds a real BEST-quality floor to #4–#7 on top of NORMAL's replay requirement. | **~25–35** |
 
-**Recommendation: FAST.** Reasons:
-
-- It is the only variant consistent with the task's repeated, explicit instruction not to place a
-  skill wall early and to unlock the next goal quickly ("もう1枚作りたいと思うタイミングで次の
-  目標を提示する").
-- `PROJECT_HANDOFF.md` P6 already documents these 7 recipes as the *first chapter* — "Recipe
-  expansion toward 20 using reviewed References" is explicitly future work. Gating the onboarding
-  arc itself with NORMAL/SLOW-style grinding would work against that roadmap, not for it: better
-  to get players through the starter menu quickly and into replay/Lunch Rush/mastery territory
-  (where NORMAL/SLOW-style depth belongs) than to slow down content they haven't even seen yet.
-- The one existing, already-play-tested precedent in this codebase (`onion`'s `minTotalStars: 12`
-  under the *old* all-6-at-once model) was itself explicitly tuned to be reached by "the 3rd–5th
-  pizza," i.e. a FAST-style pace — §7's simulation shows the same number, reused unchanged, still
-  lands at a comparable pace under the new sequential model. Choosing NORMAL/SLOW here would mean
-  discarding the only real playtesting data this project has, not building on it.
-- NORMAL/SLOW-style pacing is exactly where MASTER (§11) and a future 20-recipe catalog should
-  live, not the first 7 recipes.
+**Recommendation: FAST — unchanged.** The reasoning from the original design holds and is
+slightly strengthened: removing フガッサ's Pitz-purchase requirement removes the *one* place the
+original FAST estimate had any currency dependency at all — the revised FAST path is now purely
+skill/completion-paced from start to finish, which is the cleanest possible realization of "don't
+put a skill or money wall in the onboarding chapter."
 
 ---
 
-## 8. STEP 8 — Softlock analysis
+## 8. STEP 8 — Softlock analysis (revised)
 
 | Case | Risk under this design | Why |
 |---|---|---|
-| Pitz = 0 | **None.** | Margherita is always makeable (unlimited Starter stock) and always pays Pitz per completion (even ★1 pays 0, but any real attempt above quality 40 pays ≥50) — the player can always return to it to earn more. Recipes #2–#6's *first* play never requires Pitz at all (§4 free grant). |
-| Inventory = 0 (ran out of a purchased ingredient) | **None for recipes #1–#6's first play.** Possible-but-recoverable for a *repeat* play of #2–#6, or for フガッサ at any point. | A depleted non-Starter ingredient simply removes that one tile from the tray (per the existing `hasStock` design) — it never blocks Margherita, never blocks trying a newly-unlocked recipe for the first time, and is always resolved by playing Margherita (or any already-owned recipe) to earn Pitz, then restocking. |
-| All materials short | **None.** | Same as above — Margherita's own materials cannot be short by construction. |
-| Immediately after a new recipe unlocks | **None.** | This is precisely what §4's free 1-pizza grant exists to prevent — a freshly-unlocked recipe is guaranteed makeable at least once, at zero Pitz cost, the instant it appears. |
-| Low score streak | **None.** | Recipes #2–#5 need only a completion (★1 floor), not a score. #6/#7's `totalStars` thresholds are reachable even at floor-level play once enough recipes are discovered (§7). A player stuck at ★1–★2 forever *does* progress slower toward #6/#7, but never below zero progress, and Margherita remains playable throughout. |
-| Shop purchase mistake (bought the "wrong" thing) | **Low.** | All Shop purchases here are additive stock, never destructive (no sell-back, no ingredient loss) — a "wrong" purchase just means a different ingredient got restocked; nothing is lost, and Pitz can always be earned again via Margherita. |
-| Save migration user (existing player, mid-progression) | **Needs an explicit migration rule — see below.** | Not a softlock by design, but requires a one-time decision at implementation time. |
-| Lunch Rush-only play | **None.** | Lunch Rush's own order pool (`getNextOrder`'s `availableRecipeIds` parameter, already present in `src/data/orders.ts`) should be restricted to *unlocked* recipes exactly the same way FREE's Pizza Select is — this already has a designed extension point (`availableRecipeIds`), so Lunch Rush automatically respects the new lock state without inventing a second gate. A Lunch-Rush-only player still earns Pitz per served pizza and still discovers recipes via Mission serves, so `totalStars`/Dex progress the same way regardless of which mode is played. |
+| Pitz = 0 | **None, for any of the 7 recipes' first play, including フガッサ.** | Margherita is always makeable (unlimited Starter stock) and always pays Pitz per completion. Recipes #2–#7's *first ten* plays never require Pitz at all (§4's uniform 10-play grant) — this is a **strengthening** vs. the original design, which still had one Pitz-gated recipe (フガッサ). |
+| Inventory = 0 (ran out of a granted/purchased ingredient) | **None for any recipe's first 10 plays.** Possible-but-recoverable beyond that (any recipe's 11th+ play). | A depleted ingredient simply removes that one tile from the tray — it never blocks Margherita, never blocks a newly-unlocked recipe's practice window, and is always resolved by playing Margherita (or any already-stocked recipe) to earn Pitz, then restocking. |
+| All materials short | **None.** | Same as above — Margherita's own materials cannot be short by construction, and every other recipe starts with a 10-play buffer. |
+| Immediately after a new recipe unlocks | **None — strengthened.** | §4's uniform starter grant guarantees not just "makeable once" (the original design's Option A) but "makeable roughly ten times" — a materially larger practice buffer than the original design provided, for every recipe including フガッサ. |
+| Low score streak | **None.** | Unchanged from original — recipes #2–#5 need only a completion (★1 floor), not a score. |
+| Shop purchase mistake | **Low, and now applies uniformly, including フガッサ.** | All Shop purchases are additive stock, never destructive. The original design's one asymmetric case (a player could "mis-plan" around needing exactly 120 Pitz for onion with no free alternative) no longer exists — every recipe, フガッサ included, has the same 10-play grace window before any purchase decision matters at all. |
+| Save migration user | **Unchanged — still needs an explicit migration rule at implementation time (§8 of the original design, retained).** | Not resolved further in this revision; the recommended rule (retroactive chain application against existing Dex state) is unaffected by the starter-grant change. |
+| Lunch Rush-only play | **None.** | Unchanged from original — `getNextOrder`'s existing `availableRecipeIds` parameter already provides the extension point. |
 
-**Migration rule (needed once, at implementation time, not resolved further in this design
-session)**: an existing save today has all 6 Starter recipes already `discovered` in most real
-play. Two options: (a) grandfather every already-discovered recipe as unlocked-and-owned
-regardless of the new chain (no regression for existing players — matches this project's
-long-standing "existing players are never punished by a new system" principle, e.g.
-`PIZZA_GAME_PROGRESSION_SSOT.md` §1's own "既存プレイヤーに不利益を与えない"), or (b) apply the
-new chain retroactively from their existing Dex state (a player who already discovered 4 of 6
-would simply already satisfy #2–#4's `requiresRecipeId` chain, landing them at whatever unlock
-position their existing Dex naturally implies). **Recommend (b)**: it requires no special-casing
-in the reducer (the same `recipeUnlocked` derivation just runs against their existing Dex, same
-as a fresh save), and in practice produces the same "no regression" result as (a) for any player
-who has ever completed multiple recipes, since the chain conditions are so low a bar. Only a
-brand-new save with `dex.length === 0` actually starts at "Margherita only" — exactly the
-intended new-player experience.
-
-**Conclusion: no unrecoverable "nothing can be made" state exists under this design**, for the
-same structural reason the existing E1 audit already established for Starter ingredients: the
-guarantee holds "by construction," not by a chosen buffer size.
+**Conclusion: no unrecoverable "nothing can be made" state exists under this design, and this
+revision closes the one place the original design's softlock analysis carried a (still very low,
+but non-zero) currency dependency — フガッサ's first play.**
 
 ---
 
-## 9. STEP 9 — Pizza Select locked-state UX
+## 9. STEP 9 — Pizza Select locked-state UX (rationale adjusted, treatment unchanged)
 
-The existing `RecipeCardState`/`recipeCardState` (`src/state/pizzaSelect.ts`) and
-`PizzaSelectScreen`/`RecipeSelectCard` (`src/screens/PizzaSelectScreen.tsx`) already render a
-`LOCKED` card as a `🔒 ？？？` silhouette with an optional text hint
-(`unlockHintFor`, currently only ever fires for フガッサ). This design recommends **two different
-treatments for two different unlock stages**, directly answering the task's own comparison:
+The differentiated treatment recommended in the original design is **retained**:
 
 - **Recipes #2–#6 (chain-unlocked)**: show the **recipe name**, not `？？？` — e.g.
-  `🔒 フンギ / マルゲリータを1枚完成させると解禁`. Rationale: these unlocks are near-immediate
-  and teaching-focused; showing the name maintains curiosity and gives a concrete, one-step-away
-  goal ("just one more pizza") rather than mystery. This is a deliberate UI change from today's
-  uniform `？？？` treatment, scoped to this stage only.
-- **Recipe #7 (フガッサ)**: keep the **existing** `？？？` + ingredient/star hint behavior
-  unchanged (`🔒 ？？？ / たまねぎを解放（★12）で作れます`, already implemented, already
-  correct). Rationale: this is the one deliberate "mystery capstone" reveal in the whole arc —
-  its late position (§2) and real-purchase requirement (§4) both support keeping it a genuine
-  surprise rather than a foregone one-step-away goal.
+  `🔒 フンギ / マルゲリータを1枚完成させると解禁`.
+- **Recipe #7 (フガッサ)**: keep the existing `？？？` + star hint (`🔒 ？？？ / あと★◯で解禁`).
 
-This gives every player, at every stage, a clear, truthful answer to "what do I do next" (per the
-task's own explicit goal), while reserving exactly one moment of "？？？" mystery for the finale.
+**What changes in this revision is only the justification for #7's continued mystery
+treatment**, since the original rationale partly cited its real-purchase requirement (now
+removed, §4). The mystery-reveal treatment for フガッサ is retained on presentation grounds alone:
+its late position (§2, hardest/last by content difficulty) and its status as the single largest
+starter grant (40 onion units, §6.2) both support keeping it the one deliberate "big reveal"
+moment in the arc, independent of how its ingredients are acquired. This is a presentation
+choice, not a re-derivation of the acquisition mechanic itself.
 
 ---
 
-## 10. STEP 10 — RESULT integration (design only — PR #75 not touched)
+## 10. STEP 10 — RESULT integration (design only — PR #75 now merged, still not touched by this design)
 
-**No code change proposed or made here.** PR #75 (RESULT 2.0 Slice 1) stays untouched, per
-instruction. This section is forward-looking design for whichever slice eventually wires
-progression feedback into RESULT/DISCOVERED, once that surface stabilizes.
+**No code change proposed or made here.** PR #75 (RESULT 2.0 Slice 1) merged into `main` since
+the original design revision (§ audited SHA note above) — this design still does not read its
+diff beyond what was already public in its merged Result report title, and proposes no change to
+its shipped code. This section remains forward-looking design for whichever future slice wires
+progression feedback into RESULT/DISCOVERED.
 
-Two complementary signals, both derivable purely from state this design already defines (no new
-scoring/formula work):
+Two complementary signals, both derivable purely from state this design already defines:
 
-1. **"How close to the next unlock" progress line**, shown on a round that does *not* itself
-   trigger a new unlock — e.g. `次のレシピまで、あと1枚！` (chain-gate case, recipes #2–#5) or
-   `次のレシピまで ★8 / あと3！`（totalStars case, recipes #6/#7). This slots naturally into the
-   RESULT 2.0 Fresh Audit's own proposed hierarchy item 7 ("NEW BEST / Dex") — it is the same
-   kind of "payoff, not a formula dump" signal that audit already recommends surfacing on the
-   merged screen, not a new concept.
-2. **"New recipe unlocked!" banner**, shown on the round that crosses a threshold — e.g.
-   `🎉 NEW RECIPE ビスマルク解禁！` — paired with the free-1-pizza-grant note if applicable
-   (`卵を1個プレゼントされました！`), mirroring `ShopOverlay`'s existing purchase-feedback pattern
-   (`「たまねぎを仕入れました！→新しいピザが作れます！」`) rather than inventing a new copy
-   style.
+1. **"How close to the next unlock" progress line** — e.g. `次のレシピまで、あと1枚！` (chain-gate
+   case) or `次のレシピまで ★8 / あと3！`（totalStars case).
+2. **"New recipe unlocked!" banner**, paired with the **starter-grant note** (revised wording) —
+   e.g. `🎉 NEW RECIPE ビスマルク解禁！たまごを10個プレゼントされました！` (was "1個" in the
+   original design; now reflects the 10-play grant), mirroring `ShopOverlay`'s existing
+   purchase-feedback copy pattern.
 
-Both are additive display concerns over state this design already produces
-(`recipeUnlocked`/`totalStars`/the free-grant event) — **no interaction with Scoring 2.0, Pitz
-formula, or Save schema**, consistent with the scope guard.
+No interaction with Scoring 2.0, Pitz formula, or Save schema, consistent with the scope guard.
 
 ---
 
-## 11. STEP 11 — MASTER recommendation
+## 11. STEP 11 — MASTER recommendation (unaffected)
 
-No `MASTER` concept exists in code today — it appears only as a future roadmap term
-(`PROJECT_HANDOFF.md` P6: *"Pizza Dex visual overhaul and expansion: undiscovered → discovered →
-BEST → MASTER"*). **Recommendation: MASTER must not gate any of the 7 base-recipe unlocks
-designed here.** It belongs to:
-
-- **Optional mastery / late-game**: a Dex-completion cosmetic tier (e.g. "achieved ★5 on this
-  recipe" badge), unlocked *after* a recipe is already makeable, never a precondition for making
-  it.
-- **Cosmetic/reward**: title, sticker, or Dex-card visual treatment — not a currency, not a gate.
-- **Advanced/future recipe unlock**: the natural home for NORMAL/SLOW-style pacing (§7b) that
-  this design deliberately keeps out of the first 7 recipes — e.g. a future 8th+ recipe (the P6
-  20-recipe catalog) could reasonably require MASTER on 2–3 earlier recipes, once the base loop
-  is established and grinding is no longer "the tutorial."
-
-MASTER is explicitly **not** suited to "optional mastery + late-game + cosmetic" being mutually
-exclusive — it can be all three at once for the 7-recipe set (cosmetic reward now, precondition
-for content that doesn't exist yet), just never a wall between a new player and the base 7.
+Unchanged from the original design. No `MASTER` concept exists in code today. **MASTER must not
+gate any of the 7 base-recipe unlocks designed here** — it belongs to optional late-game
+mastery/cosmetic reward, and to a future advanced-recipe unlock (the 20-recipe / 160-class
+catalog expansion — see `docs/reports/TETO_PIZZADB-160_CATALOG_Recovery-Audit.md`, verdict D, not
+otherwise relied on here), where the tiered `starterStockPlays` table sketched in §4.3 would also
+live.
 
 ---
 
-## 12. Implementation slices
+## 12. Implementation slices (revised order and content, per this revision's instruction)
 
-Ordered for minimal risk, each independently shippable/testable, sequenced against the existing
-Inventory E1/E2 track (`docs/reports/TETO_SAVE-V2_E1_INVENTORY_Fresh-Audit.md`,
-`docs/reports/TETO_INVENTORY-E1_Implementation-Preflight.md`) rather than duplicating it.
+Sequenced against the existing Inventory E1/E2 track, in the exact top-level order specified for
+this revision:
 
 | Slice | Scope | Depends on |
 |---|---|---|
-| **EP0** | **Land Inventory E1 first** (already fully scoped/audited, "under 1.5 hours," verdict A — see the Preflight report). Not part of this design, but every slice below assumes `InventoryState`/`hasStock`/`remainingStock` exist. | Nothing new from this design. |
-| **EP1** | `Recipe.unlockCondition` type + data (§3.1/3.2) + `recipeUnlocked()` pure function + `isRecipeAvailable` becomes the two-axis AND (§4). Pure logic + unit tests, no UI change yet. | EP0 not required (orthogonal). |
-| **EP2** | Pizza Select: differentiated LOCKED rendering (§9) — recipe name + hint for #2–#6, unchanged `？？？` for #7. `recipeCardState` gains the new axis. | EP1. |
-| **EP3** | Free 1-pizza grant on recipe unlock (§4.2, §6 table's "Free grant" column) — auto-`OWNED` + auto-stock for the newly-required ingredient(s), fired once per unlock crossing (needs a stored "already granted" guard, exactly-once, same pattern as `REGISTER_TO_DEX`'s existing exactly-once guard). | EP0 (writes to `InventoryState`), EP1. |
-| **EP4** | Inventory **consumption** at `CONFIRM_BAKE` (§6.1 unit model: scatter=placed-piece-count, sauce=binary) — this is Inventory **E2**, not newly invented here; this design ratifies its unit-semantics open question. Must add the `phase !== "BAKE"` guard the E1 audit already flagged as a pre-existing defect. | EP0. |
-| **EP5** | Shop 2.0 restock UI + pricing (§6.2 table) — extends `purchaseIngredient`/`ShopOverlay` from "grant ownership once" to "credit `inventory[id]` by a batch quantity, repeatable." This is Inventory **E3**, sequenced after E4 exists (a restock UI with nothing consuming stock yet sells nothing meaningful). | EP4. |
-| **EP6** | Lunch Rush order pool restricted to unlocked recipes (§8 table, "Lunch Rush-only play" row) — wire `getNextOrder`'s existing `availableRecipeIds` parameter to the new `recipeUnlocked` axis, mirroring how FREE's Pizza Select already will. | EP1. |
-| **EP7** | RESULT progression feedback (§10) — progress line + unlock banner. Explicitly deferred until RESULT 2.0 (PR #75 and its Slice 2 successor) has landed and stabilized; must not touch PR #75 itself. | EP1, EP3, and RESULT 2.0 merged (external dependency, not owned by this track). |
-| **EP8** | Save v1→v2-era migration rule (§8, "Save migration user") — apply the new chain retroactively against existing Dex state; add a regression test asserting no existing player regresses. | EP1. |
+| **EP0 — Inventory E1 foundation** | Land the already-fully-scoped, already-audited Inventory E1 slice (`InventoryState`/`hasStock`/`remainingStock`, carry-through into `GameState`/persistence) — see `docs/reports/TETO_SAVE-V2_E1_INVENTORY_Fresh-Audit.md` and its Preflight, verdict A, "under 1.5 hours." Not part of this design; every slice below assumes it exists. | Nothing new from this design. |
+| **EP1 — Recipe Unlock foundation** | `Recipe.unlockCondition` type + data (§3.1/3.2) + `recipeUnlocked()` pure function + `isRecipeAvailable` becomes the two-axis AND (§4). Pizza Select's differentiated LOCKED rendering (§9). Lunch Rush order pool restricted to unlocked recipes via the existing `availableRecipeIds` extension point. Pure logic + unit tests, no Inventory dependency yet. | EP0 not required (orthogonal). |
+| **EP2 — Inventory E2 atomic consumption** | Inventory consumption at `CONFIRM_BAKE` (§6.1 unit model: scatter=placed-piece-count, sauce=binary). This is Inventory **E2**, not newly invented here; this design ratifies its unit-semantics open question. Must add the `phase !== "BAKE"` guard the E1 audit already flagged as a pre-existing defect. | EP0. |
+| **EP3 — Shop 2.0 restock/purchase** | Extends `purchaseIngredient`/`ShopOverlay` from "grant ownership once" to "credit `inventory[id]` by a batch quantity, repeatable" (§6.2 restock table). Applies uniformly to all 11 non-Starter ingredients, `onion` included — no special-cased purchase-gate logic for フガッサ needs to be written or preserved. | EP2. |
+| **EP4 — Chapter 1 economy integration** | Wires EP1's recipe-unlock event to a new, exactly-once "grant starter stock" transaction: on `recipeUnlocked` crossing false→true, auto-`OWNED` the recipe's new ingredient(s) and credit `inventory[id]` by `minCount × STARTER_STOCK_PLAYS_CHAPTER_1` (scatter) or `STARTER_STOCK_PLAYS_CHAPTER_1` uses (spread) — reading the named constant (§4.3), never an inlined `10`. Needs an exactly-once guard, same pattern as `REGISTER_TO_DEX`'s existing `phase !== "RESULT"` guard (§13 risk). Shared ingredients (`oregano`/`olive-oil`) additively top up existing stock, per §6.2. Save v1→v2-era migration rule (§8) ships in this slice, not before it. | EP1, EP2, EP3. |
+| **Human Feel / balance** | Real playtesting pass against §7's simulation and §6.2's price table — confirm `starterStockPlays = 10`, the two `totalStars` thresholds (8/12), and restock prices feel right in actual play, adjusting the named constants (never inlining a replacement) if evidence calls for it — mirroring how `onion`'s own threshold was adjusted once (18→12) after an earlier simulation pass. | EP4. |
 
-Each slice fits the project's own "~2–3 hours" Claude Code sizing convention
-(`PROJECT_HANDOFF.md` "Preferred workflow"). EP0 (Inventory E1) is not re-scoped here — it is
-already fully designed and ready independently of this document.
+RESULT integration (§10) remains explicitly **deferred** until RESULT 2.0's own follow-up slices
+stabilize independently of this track — it is not one of the numbered EPs above, consistent with
+it having an external dependency this design does not control.
 
 ---
 
-## 13. Risks
+## 13. Risks (revised)
 
-- **Reversing today's "6 Starter recipes always available" model is a real behavior change**,
-  not an additive one — any existing player's very next launch will suddenly see 5 recipes they
-  could previously make shown as locked, unless EP8's migration rule (§8) ships in the same
-  release as EP1/EP2. This is the single highest-risk item in the whole design: shipping EP1/EP2
-  without EP8 would be a genuine regression for existing players, directly against this project's
-  own "no incumbent-player harm" principle.
-- **`STARTER_INGREDIENT_IDS` shrinks from 13 to 3** (only `tomato-sauce`/`mozzarella`/`basil`
-  remain unconditionally Starter) — every other ingredient gains an `unlockCondition` for the
-  first time. This touches `src/data/ingredients.ts` broadly (10 of 14 entries), even though each
-  individual edit is small and mechanical (adding one field, no new type).
-  `MAX_INGREDIENT_PALETTE_SLOTS` (6) is not at risk — クアトロ still needs only 5 ingredient
-  types, unchanged.
-- **Two independent "unlocked" concepts (Recipe vs. Ingredient) must never drift out of sync.**
-  §3.1's two-axis AND (`recipeUnlocked && ingredientsOwned`) is the safeguard; a future
-  implementer must not shortcut this back into single-axis logic (which is exactly today's bug,
-  just inverted).
-- **The free-grant mechanism (EP3) needs an exactly-once guard.** Without one, re-satisfying an
-  already-granted condition (e.g. via a save reload, or a Mission-mode registration) could
-  re-grant free stock repeatedly — the same class of risk `REGISTER_TO_DEX`'s existing
-  `phase !== "RESULT"` guard already solves for Pitz/BEST/Dex; EP3 should copy that pattern, not
-  invent a new one.
-- **Price/threshold numbers in §6/§3 are derived, not simulator-verified against live code** —
-  this session is docs-only and did not run the game. The derivation is shown explicitly (§6.2,
-  §7) so an implementer can sanity-check against real playtesting before treating any single
-  number as final, exactly as the existing onion/fugazza numbers were themselves adjusted once
-  (`minTotalStars: 18 → 12`) after a first simulation pass proved too strict.
-- **RESULT integration (§10, EP7) has an external dependency** (PR #75/RESULT 2.0 landing) this
-  design does not control and must not be rushed to unblock.
+- **Reversing today's "6 Starter recipes always available" model is still a real behavior
+  change** — unaffected by this revision. EP4's migration rule must ship in the same release as
+  EP1, or existing players regress (unchanged risk from the original design, now explicitly
+  folded into EP4 rather than a separate EP8).
+- **`STARTER_INGREDIENT_IDS` still shrinks from 13 to 3** — unaffected by this revision.
+- **The starter-grant mechanism (EP4) needs an exactly-once guard** — unaffected in kind, but
+  now larger in blast radius if it fails: a re-triggerable grant bug would over-grant **10 plays'
+  worth** of stock per accidental re-fire (vs. 1 pizza's worth in the original design), making
+  this guard's correctness more consequential to get right, not just as important. Copy
+  `REGISTER_TO_DEX`'s existing exactly-once pattern rather than inventing a new one.
+- **`starterStockPlays` must be a single named constant, never inlined** (§4.3) — this is a new,
+  explicit requirement of this revision. A future tiered-catalog expansion (§4.3's forward table)
+  depends on every call site reading one constant rather than a scattered literal `10`; failing
+  to enforce this now would make that future migration a much larger find-and-replace exercise
+  than it needs to be.
+- **The removed フガッサ/`onion` purchase-requirement exception simplifies EP3/EP4's logic** (one
+  fewer special case to implement and test), which **reduces** implementation risk relative to
+  the original design's hybrid — noted here as a risk reduction, not a new risk.
+- **Price/threshold numbers in §6/§3 remain derived, not simulator-verified against live code** —
+  unaffected by this revision; still flagged for Human Feel validation (§12's final row).
+- **RESULT integration (§10) still has an external dependency** on RESULT 2.0's own follow-up
+  work, now that PR #75 (its first slice) has merged — unaffected in kind, timing updated.
 
 ---
 
-## 14. Unresolved design decisions
+## 14. Unresolved design decisions (revised — one item resolved and removed)
 
-1. **Migration policy exact mechanics (§8)** — this design recommends "apply the new chain
-   retroactively against existing Dex" but the exact reducer-level implementation (a one-time
-   backfill vs. a purely-derived check with no persisted migration step at all) should be decided
-   at EP8 implementation time, informed by how `migrateV1toV2`'s existing precedent handles
-   similar backfills.
-2. **Exact free-grant guard mechanism (EP3)** — whether "already granted" is tracked as a new
-   persisted set (`grantedUnlockIds: string[]`) or derived implicitly from "is the ingredient
-   already OWNED" (simpler, but subtly different if a player could otherwise lose ownership,
-   which nothing today allows) is an implementation-time call, not resolved here.
-3. **Whether `oregano`'s and `olive-oil`'s dual role** (used by two different recipes at
-   different `minCount`s) should have one shared inventory pool or should the price table's
-   "cost per pizza" column vary by which recipe consumes it — this design treats them as one
-   shared pool (simplest, matches `InventoryState`'s flat `Record<id, number>` shape) but flags
-   it explicitly since the two `minCount`s differ.
-4. **Exact FAST-variant numbers (§7b) are a recommendation, not a locked spec** — an implementer
-   with real playtest data may find `minTotalStars: 8`/`12` want a small adjustment, the same way
-   the existing onion threshold was itself adjusted once from an initial candidate.
+~~1. Free-grant (Option A) vs. universal Shop purchase (Option D) for recipes #2–#6, with フガッサ
+as a standing exception.~~ **RESOLVED by this revision — see §4. Option A-10, uniform across
+#2–#7, no exception.**
+
+Remaining, unaffected by this revision:
+
+1. **Migration policy exact mechanics (§8)** — the recommended "apply the new chain retroactively
+   against existing Dex" is a design-level recommendation; the exact reducer-level implementation
+   should be decided at EP4 implementation time.
+2. **Exact starter-grant guard mechanism (EP4)** — whether "already granted" is tracked as a new
+   persisted set or derived implicitly from "is the ingredient already OWNED" is an
+   implementation-time call.
+3. **Whether `oregano`'s and `olive-oil`'s dual role** (used by two different recipes, additively
+   topped up per §6.2) should have one shared inventory pool (as designed) or separate per-recipe
+   pools — this design treats them as one shared pool (simplest, matches `InventoryState`'s flat
+   `Record<id, number>` shape) but flags it explicitly.
+4. **Exact FAST-variant numbers (§7b) are a recommendation, not a locked spec** — subject to the
+   Human Feel pass in §12's final row.
+
+None of these four is a product-level blocker — each is an ordinary implementation-time detail,
+consistent with how every other "READY" verdict in this project's own audit history (e.g. the
+Inventory E1 Fresh Audit's own verdict A) still lists comparable open implementation notes
+without that preventing a READY verdict.
 
 ---
 
 ## Final verdict
 
-**B. READY — NEEDS ONE PRODUCT DECISION.**
+**A. READY — ECONOMY & PROGRESSION 1.0 DESIGN APPROVED.**
 
-Everything in this design derives from real, currently-shipped code and the existing,
-already-play-tested onion/fugazza precedent — no scoring/Pitz-formula/Save-schema work is
-required to begin implementation, and Inventory E1 (the one true prerequisite) is independently
-already fully audited and ready (verdict A in its own Preflight). The one genuine open product
-decision, not resolvable from code alone, is:
-
-> **Should recipes #2–#6 truly receive a free first-pizza ingredient grant (§4.2's recommended
-> Option A), or should every unlock require an explicit Shop purchase like フガッサ does today
-> (Option D for all 7)?**
-
-This design recommends the hybrid (A for #2–#6, D unchanged for #7) because it is the only option
-that satisfies both "never unlock-then-block" and "keep the Shop meaningful" simultaneously — but
-it is a genuine product/tone choice (a more "commerce-forward" design could reasonably prefer D
-for all 7, accepting the UX risk the task itself flagged), not something this audit can settle
-unilaterally.
+The previous revision's one genuine open product decision — free-grant vs. universal-Shop-purchase
+for recipes #2–#6, with フガッサ as a standing exception — has been resolved by explicit product
+decision (§4: **Option A-10, `starterStockPlays = 10`, applied uniformly to recipes #2–#7, no
+exception**). This revision re-checked the rest of the design against the new `main` tip
+(`5d28c5d`, two merged PRs since the original audit) and found **no other blocker**: neither PR #75
+(RESULT 2.0 Slice 1, merged) nor PR #76 (Pizza DB 160 catalog audit, docs-only, verdict D) touches
+anything this design depends on, and PR #77 itself reports a clean, conflict-free merge state
+against the new base. The four items in §14 are ordinary implementation-time details, not
+product-level blockers, and do not prevent this verdict.
 
 ## Report summary
 
-- **Audited SHA**: `d0f17d57e06a9cddaf1cbb143d1dbaba8bb8bdf3` (`main`).
-- **PR #75**: OPEN, not touched, not built on.
+- **Audited SHA**: `5d28c5dc996c0ea76aa6428f158a766165477213` (`main`, this revision) —
+  `d0f17d57e06a9cddaf1cbb143d1dbaba8bb8bdf3` (`main`, original design).
+- **PR #75**: merged since the original design; not touched, not built on beyond its public title.
+- **PR #77** (this design): OPEN, updated in place by this revision, not merged.
 - **Recommended 7-recipe unlock order**: マルゲリータ(start) → フンギ → マリナーラ → ビスマルク →
-  ジェノベーゼ → クアトロフォルマッジ → フガッサ.
-- **Recommended progression length**: FAST, ~6–9 plays to unlock and first-make all 7.
-- **Inventory model**: category-specific — scatter=placed-piece count, sauce=binary 1-use/pizza
-  (ratifies the existing Inventory E1 audit's own open question).
-- **Starter policy**: Margherita's 3 ingredients stay permanently unlimited, unchanged.
-- **Softlock policy**: no unrecoverable "nothing makeable" state, by construction (Margherita
-  always playable + always pays Pitz + free 1-pizza grant on every new unlock except フガッサ).
-- **Major unresolved decision**: free-grant (Option A) vs. universal Shop purchase (Option D) for
-  recipes #2–#6 (§ Final Verdict).
-- **Next production slice**: **EP0 (Inventory E1)**, already independently ready, followed by
-  **EP1** (`Recipe.unlockCondition` + two-axis availability).
-- **Final verdict**: **B. READY — NEEDS ONE PRODUCT DECISION.**
+  ジェノベーゼ → クアトロフォルマッジ → フガッサ. Unchanged.
+- **`starterStockPlays`**: **10**, Chapter-1-scoped named constant, applied uniformly to recipes
+  #2–#7.
+- **Margherita policy**: permanently, unconditionally unlimited ingredients + normal Pitz earning
+  — unchanged, the core softlock guard, structurally distinct from `starterStockPlays`.
+- **Recipes #2–#7 policy**: unlock condition unchanged from the original design (§3); acquisition
+  method is now uniformly "10-play free starter grant," Shop relevant only from the 11th play.
+- **フガッサ exception removed**: **Yes** — `onion` now receives the same 10-play free grant
+  (40 units) as every other newly-unlocked ingredient; its existing 120-Pitz/12-unit *restock*
+  price is unchanged and applies only to its 11th-play-onward refills.
+- **Unresolved decisions remaining**: 4 ordinary implementation-time details (§14), none
+  product-blocking.
+- **CI status**: N/A — docs-only change, no code path affected, no CI-relevant file touched.
+- **Final verdict**: **A. READY — ECONOMY & PROGRESSION 1.0 DESIGN APPROVED.**
