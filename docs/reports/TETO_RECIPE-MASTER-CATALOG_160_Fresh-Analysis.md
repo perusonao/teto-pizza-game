@@ -460,11 +460,12 @@ tolerance, Vegetariana's own-entry question). New from this pass:
   follow-up, checked 53 recipe / 62 ingredient / 11 mechanic entries, **all checks passed**
   (duplicate ids, orphan references, `usedByRecipeCount` consistency, mechanic reference
   consistency, required fields, rejected-duplicate pointer presence).
-- **CI:** not run/observed in this session (docs/data-only change; this report does not claim
-  a CI result it hasn't actually seen on GitHub — check PR #81's checks tab directly for the
-  live status. `src/**` is unmodified, so the repository's existing `npm ci`/lint/build/test
-  suite has no reason to be affected, but that expectation is not a substitute for the actual
-  CI run).
+- **CI:** checked via GitHub at push time — the `build` check run was `queued`
+  (id `105810073153`, not yet completed as of this report). This report does not claim a
+  final CI result it hasn't observed — check PR #81's checks tab directly for the completed
+  status. `src/**` is unmodified, so the repository's existing `npm ci`/lint/build/test suite
+  has no reason to be affected, but that expectation is not a substitute for the actual
+  completed run.
 - **Unique ingredient count:** 62 (existing 14 + new 48) — unchanged by this follow-up.
 - **Recipes buildable with existing 14 ingredients only:** 5. **+1 new ingredient:** 17.
   **+2 new ingredients:** 10. (unchanged by this follow-up; see §5)
