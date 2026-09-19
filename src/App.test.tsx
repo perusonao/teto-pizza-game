@@ -200,6 +200,46 @@ describe("HOME/GAME separation (Issue #24)", () => {
     expect(document.querySelector(".pitz-credit-summary")).not.toBeInTheDocument();
   });
 
+  // Issue #85 UX-1: MissionServePanel's own "次の注文へ" tap used to land back at Mission's
+  // ORDER phase, requiring a second, redundant 「ピザを作る！」 tap before PREPARE reopened for
+  // the next pizza. handleMissionServeNext now also dispatches BEGIN_PREPARE in the same tick,
+  // so the next order skips straight to PREPARE -- covers two consecutive pizzas to pin that
+  // servedCount/mission HUD keep advancing correctly across the auto-advance, not just once.
+  it("Lunch Rush: 次の注文へ skips the redundant ORDER gate and lands straight at PREPARE", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /ランチラッシュ/ }));
+    await user.click(screen.getByRole("button", { name: "スタート" }));
+    await user.click(screen.getByRole("button", { name: "ピザを作る！" }));
+    completeDoughStep();
+    await user.click(screen.getByRole("button", { name: /次へ/ }));
+    await user.click(screen.getByRole("button", { name: /次へ/ }));
+    await user.click(screen.getByRole("button", { name: /次へ/ }));
+    await user.click(screen.getByRole("button", { name: /焼く/ }));
+    await user.click(screen.getByRole("button", { name: "取り出す！" }));
+
+    expect(screen.getByRole("button", { name: "次の注文へ" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "次の注文へ" }));
+
+    // No intermediate ORDER-phase CTA -- straight to PREPARE's own DOUGH step.
+    expect(screen.queryByRole("button", { name: "ピザを作る！" })).not.toBeInTheDocument();
+    expect(document.querySelector('[data-pizza-drop-target="true"]')).toBeInTheDocument();
+    expect(document.querySelector(".mission-hud__served")?.textContent).toContain("1"); // servedCount after pizza 1
+
+    // A second pizza confirms this holds across repeated auto-advances, not just once.
+    completeDoughStep();
+    await user.click(screen.getByRole("button", { name: /次へ/ }));
+    await user.click(screen.getByRole("button", { name: /次へ/ }));
+    await user.click(screen.getByRole("button", { name: /次へ/ }));
+    await user.click(screen.getByRole("button", { name: /焼く/ }));
+    await user.click(screen.getByRole("button", { name: "取り出す！" }));
+    expect(screen.getByRole("button", { name: "次の注文へ" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "次の注文へ" }));
+    expect(screen.queryByRole("button", { name: "ピザを作る！" })).not.toBeInTheDocument();
+    expect(document.querySelector('[data-pizza-drop-target="true"]')).toBeInTheDocument();
+    expect(document.querySelector(".mission-hud__served")?.textContent).toContain("2"); // servedCount after pizza 2
+  });
+
   it("opens the Dex overlay from HOME without leaving HOME underneath", async () => {
     const user = userEvent.setup();
     render(<App />);
