@@ -620,3 +620,24 @@ export function clearSave(storage: StorageLike | null = getDefaultStorage()): vo
     // ignore -- nothing to clean up if storage itself is unavailable.
   }
 }
+
+/**
+ * Full Game Reset (Issue #89): clears the save and reports whether it is actually gone --
+ * `clearSave` above always swallows storage errors (matching every other writer in this
+ * module), which is fine for its original "best-effort dev/test cleanup" purpose but not
+ * enough for a player-facing destructive action, which must not claim success (and reload
+ * into what would look like a stale, not-actually-reset game) when the underlying
+ * `removeItem` silently failed or the key survives it. No storage at all (disabled/
+ * unavailable) is reported as success: `loadSave`'s own no-storage branch already falls back
+ * to `createDefaultSave()` unconditionally, so there is nothing that could resurrect stale
+ * progression in that case either.
+ */
+export function resetSave(storage: StorageLike | null = getDefaultStorage()): boolean {
+  if (!storage) return true;
+  clearSave(storage);
+  try {
+    return storage.getItem(SAVE_STORAGE_KEY) === null;
+  } catch {
+    return false;
+  }
+}

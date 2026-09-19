@@ -18,8 +18,8 @@ import type { DexState } from "../state/dex";
  *
  * "実績" (Achievements) has no backing feature yet (no mission/stat system beyond Dex/Lunch
  * Rush/Shop exists in this codebase) -- per Issue #24 it is rendered disabled/"近日公開"
- * rather than inventing fake progress for it. "設定" (Settings) is likewise decorative for
- * the same reason: there is no settings screen to open yet.
+ * rather than inventing fake progress for it. "設定" (Settings) opens `SettingsOverlay`
+ * (Issue #89 Reset 1A) -- its first and, today, only content is Full Game Reset.
  */
 
 interface HomeScreenProps {
@@ -35,6 +35,7 @@ interface HomeScreenProps {
   onOpenDex: () => void;
   onOpenShop: () => void;
   onOpenInventory: () => void;
+  onOpenSettings: () => void;
 }
 
 export function HomeScreen({
@@ -47,6 +48,7 @@ export function HomeScreen({
   onOpenDex,
   onOpenShop,
   onOpenInventory,
+  onOpenSettings,
 }: HomeScreenProps) {
   const totalRecipes = RECIPES.length;
   const discoveredCount = dex.filter((e) => e.discovered).length;
@@ -68,9 +70,8 @@ export function HomeScreen({
           <button
             type="button"
             className="app-header__settings-button"
-            disabled
-            aria-disabled="true"
-            title="設定は近日公開"
+            onClick={onOpenSettings}
+            aria-label="設定"
           >
             {"\u{2699}\u{FE0F}"}
           </button>
