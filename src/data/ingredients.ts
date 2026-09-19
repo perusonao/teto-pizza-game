@@ -84,12 +84,12 @@ export const INGREDIENTS: Ingredient[] = [
    * only Shop transaction that ever applies to it). `minTotalStars: 0` is otherwise inert: with
    * `starterGrantOnly` suppressing both the Shop row and `purchaseIngredient` itself for it, this
    * ingredient's LOCKED/AVAILABLE_TO_BUY state (from `ingredientState`) is never read or acted on
-   * before ownership actually lands via the grant. `restockQuantity`/`pricePitz` follow the same
-   * 3-plays-per-restock, 10-Pitz-per-unit ratio `onion`'s own EP3 numbers already established
-   * (120 Pitz / 12 units = 10 Pitz/unit, 12 units / 4-per-pizza = 3 plays) applied to this
-   * ingredient's own largest per-recipe `minCount` across every recipe requiring it (see
-   * src/data/recipes.ts) -- a deliberate, consistent extrapolation, not a value from any existing
-   * SSOT table (flagged as a product decision in the EP4 Result report, not silently invented).
+   * before ownership actually lands via the grant. `restockQuantity`/`pricePitz` are exactly
+   * `docs/design/TETO_ECONOMY-PROGRESSION-1_MATRIX.md` section 2's already-decided "Restock
+   * batch"/"Restock price (Pitz)" columns for each of these rows -- a pre-existing design SSOT,
+   * not a value invented in this revision (every `restockQuantity` here already matched the
+   * matrix's own `minCount x 3` sizing; only `pricePitz` needed correcting to the matrix's own
+   * non-uniform per-ingredient prices, see the EP4 Result report's Fresh Audit correction note).
    */
   {
     id: "olive-oil",
@@ -99,7 +99,7 @@ export const INGREDIENTS: Ingredient[] = [
     emoji: "\u{1FAD2}",
     placement: "spread",
     unlockCondition: { minTotalStars: 0 },
-    pricePitz: 30,
+    pricePitz: 50,
     restockQuantity: 3,
     starterGrantOnly: true,
   },
@@ -111,7 +111,7 @@ export const INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F33F}",
     placement: "spread",
     unlockCondition: { minTotalStars: 0 },
-    pricePitz: 30,
+    pricePitz: 60,
     restockQuantity: 3,
     starterGrantOnly: true,
   },
@@ -131,7 +131,7 @@ export const INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F9C0}",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
-    pricePitz: 60,
+    pricePitz: 70,
     restockQuantity: 6,
     starterGrantOnly: true,
   },
@@ -143,7 +143,7 @@ export const INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F9C0}",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
-    pricePitz: 60,
+    pricePitz: 70,
     restockQuantity: 6,
     starterGrantOnly: true,
   },
@@ -155,7 +155,7 @@ export const INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F9C0}",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
-    pricePitz: 60,
+    pricePitz: 70,
     restockQuantity: 6,
     starterGrantOnly: true,
   },
@@ -175,7 +175,7 @@ export const INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F9C4}",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
-    pricePitz: 90,
+    pricePitz: 60,
     restockQuantity: 9,
     starterGrantOnly: true,
   },
@@ -187,7 +187,7 @@ export const INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F343}",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
-    pricePitz: 60,
+    pricePitz: 45,
     restockQuantity: 6,
     starterGrantOnly: true,
   },
@@ -199,7 +199,7 @@ export const INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F345}",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
-    pricePitz: 90,
+    pricePitz: 60,
     restockQuantity: 9,
     starterGrantOnly: true,
   },
@@ -211,7 +211,7 @@ export const INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F95A}",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
-    pricePitz: 30,
+    pricePitz: 45,
     restockQuantity: 3,
     starterGrantOnly: true,
   },
@@ -223,7 +223,7 @@ export const INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F344}",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
-    pricePitz: 90,
+    pricePitz: 60,
     restockQuantity: 9,
     starterGrantOnly: true,
   },

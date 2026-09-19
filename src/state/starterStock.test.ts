@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyStarterGrants, STARTER_STOCK_PLAYS } from "./starterStock";
+import { applyStarterGrants, STARTER_STOCK_PLAYS_CHAPTER_1 } from "./starterStock";
 import { registerScoreToDex, EMPTY_DEX, type DexState } from "./dex";
 import { getIngredient, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { hasStock, remainingStock, EMPTY_INVENTORY, type InventoryState } from "./inventory";
@@ -31,9 +31,9 @@ function dexDiscovering(recipeIds: readonly string[], stars: QualityStars): DexS
   return dex;
 }
 
-describe("STARTER_STOCK_PLAYS", () => {
+describe("STARTER_STOCK_PLAYS_CHAPTER_1", () => {
   it("is the named constant 10", () => {
-    expect(STARTER_STOCK_PLAYS).toBe(10);
+    expect(STARTER_STOCK_PLAYS_CHAPTER_1).toBe(10);
   });
 });
 
@@ -155,7 +155,7 @@ describe("applyStarterGrants: Recipe #2-#7 grant amounts", () => {
 });
 
 describe("applyStarterGrants: scatter vs spread/sauce derivation", () => {
-  it("every scatter ingredient's grant is exactly requiredIngredients.minCount x STARTER_STOCK_PLAYS", () => {
+  it("every scatter ingredient's grant is exactly requiredIngredients.minCount x STARTER_STOCK_PLAYS_CHAPTER_1", () => {
     const dex = dexDiscovering(
       ["margherita", "funghi", "marinara", "bismarck", "genovese", "quattro-formaggi"],
       5 as QualityStars,
@@ -164,10 +164,10 @@ describe("applyStarterGrants: scatter vs spread/sauce derivation", () => {
     const genovese = getRecipe("genovese")!;
     const cherryTomatoReq = genovese.requiredIngredients.find((r) => r.ingredientId === "cherry-tomato")!;
     expect(getIngredient("cherry-tomato")!.placement).toBe("scatter");
-    expect(result.inventory["cherry-tomato"]).toBe(cherryTomatoReq.minCount * STARTER_STOCK_PLAYS);
+    expect(result.inventory["cherry-tomato"]).toBe(cherryTomatoReq.minCount * STARTER_STOCK_PLAYS_CHAPTER_1);
   });
 
-  it("every spread/sauce ingredient's grant is exactly STARTER_STOCK_PLAYS (1 use x plays), independent of minCount", () => {
+  it("every spread/sauce ingredient's grant is exactly STARTER_STOCK_PLAYS_CHAPTER_1 (1 use x plays), independent of minCount", () => {
     const dex = dexDiscovering(["margherita", "funghi", "marinara", "bismarck"], 1 as QualityStars);
     const result = applyStarterGrants(dex, STARTER_INGREDIENT_IDS, EMPTY_INVENTORY, [
       "funghi",
@@ -175,7 +175,7 @@ describe("applyStarterGrants: scatter vs spread/sauce derivation", () => {
       "bismarck",
     ]);
     expect(getIngredient("pesto")!.placement).toBe("spread");
-    expect(result.inventory.pesto).toBe(STARTER_STOCK_PLAYS);
+    expect(result.inventory.pesto).toBe(STARTER_STOCK_PLAYS_CHAPTER_1);
   });
 });
 

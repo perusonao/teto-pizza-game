@@ -8,11 +8,14 @@ import type { InventoryState } from "./inventory";
  * Economy & Progression 1.0 EP4 (see
  * docs/reports/TETO_ECONOMY-PROGRESSION_EP4_Starter-Stock_Result.md): the free ingredient grant
  * a recipe's *first* unlock pays out, so a player who has just unlocked Recipe #2-#7 can make it
- * at least `STARTER_STOCK_PLAYS` times before ever needing to visit the Shop. One named tuning
- * constant, applied identically to every Chapter 1 recipe (no per-Tier variation -- out of
- * scope, see the EP4 task's own Scope Guard).
+ * at least `STARTER_STOCK_PLAYS_CHAPTER_1` times before ever needing to visit the Shop. One
+ * named tuning constant, applied identically to every Chapter 1 recipe (no per-Tier variation --
+ * out of scope, see the EP4 task's own Scope Guard). The `_CHAPTER_1` suffix is deliberate, per
+ * `docs/design/TETO_ECONOMY-PROGRESSION-1_MATRIX.md` section 4: once the catalog grows past
+ * Chapter 1, this is expected to become tier-scoped rather than a single global value -- that
+ * future change is explicitly out of scope here, but the name should never need to change for it.
  */
-export const STARTER_STOCK_PLAYS = 10;
+export const STARTER_STOCK_PLAYS_CHAPTER_1 = 10;
 
 /**
  * `margherita` is the one recipe EP4 deliberately never grants for: it has no `unlockCondition`
@@ -25,14 +28,16 @@ const STARTER_GRANT_EXEMPT_RECIPE_ID: RecipeId = "margherita";
 
 /**
  * The exact Starter Grant amount for one recipe, keyed by ingredient id -- "recipe ingredient
- * requirement x `STARTER_STOCK_PLAYS`" per the EP4 task's own required derivation. `scatter`
- * grants `req.minCount x STARTER_STOCK_PLAYS` (enough pieces for `STARTER_STOCK_PLAYS` bakes at
- * the recipe's own per-pizza piece count); `spread`/sauce grants exactly `STARTER_STOCK_PLAYS`
- * (1 use per bake, matching `consumePizzaInventory`'s own "1 pizza = 1 unit per distinct sauce
- * id" rule). Skips any ingredient without `unlockCondition` (an unlimited/Starter ingredient,
- * e.g. `tomato-sauce`/`mozzarella` shared with margherita) -- granting it would be inert, and
- * more importantly, a value in `InventoryState` for it would violate the Save v2 invariant that
- * an unlimited ingredient never appears as an inventory key (../state/persistence.ts's
+ * requirement x `STARTER_STOCK_PLAYS_CHAPTER_1`" per the EP4 task's own required derivation
+ * (matches `docs/design/TETO_ECONOMY-PROGRESSION-1_MATRIX.md` section 1/2's own "Starter grant
+ * on unlock" column exactly). `scatter` grants `req.minCount x STARTER_STOCK_PLAYS_CHAPTER_1`
+ * (enough pieces for that many bakes at the recipe's own per-pizza piece count); `spread`/sauce
+ * grants exactly `STARTER_STOCK_PLAYS_CHAPTER_1` (1 use per bake, matching
+ * `consumePizzaInventory`'s own "1 pizza = 1 unit per distinct sauce id" rule). Skips any
+ * ingredient without `unlockCondition` (an unlimited/Starter ingredient, e.g.
+ * `tomato-sauce`/`mozzarella` shared with margherita) -- granting it would be inert, and more
+ * importantly, a value in `InventoryState` for it would violate the Save v2 invariant that an
+ * unlimited ingredient never appears as an inventory key (../state/persistence.ts's
  * `sanitizeInventory` already strips one if it somehow got there). Also skips an unknown
  * ingredient id, mirroring `consumePizzaInventory`'s own fail-closed behavior.
  */
@@ -42,7 +47,9 @@ function starterGrantForRecipe(recipe: Recipe): Readonly<Record<string, number>>
     const ingredient = getIngredient(req.ingredientId);
     if (!ingredient?.unlockCondition) continue;
     const amount =
-      ingredient.placement === "scatter" ? req.minCount * STARTER_STOCK_PLAYS : STARTER_STOCK_PLAYS;
+      ingredient.placement === "scatter"
+        ? req.minCount * STARTER_STOCK_PLAYS_CHAPTER_1
+        : STARTER_STOCK_PLAYS_CHAPTER_1;
     grant[ingredient.id] = (grant[ingredient.id] ?? 0) + amount;
   }
   return grant;
