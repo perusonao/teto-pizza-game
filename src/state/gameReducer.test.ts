@@ -345,8 +345,9 @@ describe("Ownership boundary on APPLY_SAUCE/PLACE_TOPPING (Phase 3C-6 follow-up)
     ownedIngredientIds: readonly string[],
     dex = EMPTY_DEX,
     makingStep: MakingStep = "SAUCE",
+    inventory: InventoryState = EMPTY_INVENTORY,
   ): GameState {
-    let state = gameReducer(createInitialGameState(dex, ownedIngredientIds, 0), {
+    let state = gameReducer(createInitialGameState(dex, ownedIngredientIds, 0, inventory), {
       type: "BEGIN_PREPARE",
     });
     while (state.makingStep !== makingStep) {
@@ -376,8 +377,13 @@ describe("Ownership boundary on APPLY_SAUCE/PLACE_TOPPING (Phase 3C-6 follow-up)
     expect(after.pizza.toppings).toHaveLength(0);
   });
 
-  it("PLACE_TOPPING succeeds for onion once it is OWNED", () => {
-    const state = preparedState([...STARTER_INGREDIENT_IDS, "onion"], EMPTY_DEX, "TOPPING");
+  it("PLACE_TOPPING succeeds for onion once it is OWNED and has stock (Economy & Progression 1.0 EP3 Stock Gate)", () => {
+    // EP3: ownership alone is no longer sufficient for a finite ingredient -- onion also needs
+    // remaining stock (`inventory.onion > 0`), exactly like every other finite ingredient's
+    // placement gate below. This test seeds a nonzero stock so it keeps testing what it always
+    // tested (the *ownership* boundary), not a stock boundary covered separately in
+    // gameReducer.restock.test.ts.
+    const state = preparedState([...STARTER_INGREDIENT_IDS, "onion"], EMPTY_DEX, "TOPPING", { onion: 1 });
     const after = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "onion", x: 50, y: 50 });
     expect(after.pizza.toppings).toHaveLength(1);
     expect(after.pizza.toppings[0].ingredientId).toBe("onion");

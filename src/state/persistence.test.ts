@@ -372,6 +372,23 @@ describe("persistProgress (Phase 3C-5)", () => {
     expect(reloaded.ownedIngredientIds).toContain("onion");
   });
 
+  it("Economy & Progression 1.0 EP3: roundtrips a restocked ingredient's inventory count", () => {
+    // No new persistence code was written for EP3 -- RESTOCK_INGREDIENT only ever produces the
+    // same shape (a plain non-negative integer under a known, non-Starter ingredient id)
+    // PURCHASE_INGREDIENT/CONFIRM_BAKE already write through this exact path. This test closes
+    // the loop explicitly for the EP3 task's own required "restock後のinventory persistence"
+    // scenario, rather than leaving it purely inferred from the unrelated tests above.
+    const storage = fakeStorage();
+    const owned = [...STARTER_INGREDIENT_IDS, "onion"];
+    persistProgress(
+      { dex: EMPTY_DEX, pitzBalance: 80, ownedIngredientIds: owned, inventory: { onion: 15 } },
+      storage,
+    );
+    const reloaded = loadSave(storage);
+    expect(reloaded.inventory).toEqual({ onion: 15 });
+    expect(reloaded.pitzBalance).toBe(80);
+  });
+
   it("a Pitz balance update does not clobber an existing Dex", () => {
     const storage = fakeStorage({ [SAVE_STORAGE_KEY]: saveWith({ dex: [validEntry] }) });
     persistProgress(

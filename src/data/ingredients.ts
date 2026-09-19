@@ -25,14 +25,25 @@ export interface Ingredient {
    *  Mastery gate and is always OWNED (see src/state/progression.ts). Only a future
    *  ingredient added after Phase 3C-3 would set this. */
   unlockCondition?: IngredientUnlockCondition;
-  /** Shop price in Pitz (Phase 3C-5, see src/logic/economy.ts's `purchaseIngredient` and
-   *  docs/design/PIZZA_GAME_PROGRESSION_SSOT.md section 9). Only meaningful for an
-   *  AVAILABLE_TO_BUY ingredient (one with `unlockCondition`) -- absent for every current
-   *  Starter Set ingredient, since those are always OWNED and never for sale. A future
-   *  ingredient must set this to a positive integer to actually be purchasable; anything
-   *  else (absent, zero, negative, fractional, NaN) reads as "not for sale"
-   *  (`purchaseIngredient`'s `NOT_FOR_SALE` reason). */
+  /** Shop price in Pitz -- doubles as both the one-time unlock purchase price
+   *  (`purchaseIngredient`, Phase 3C-5) and the Economy & Progression 1.0 EP3 restock price
+   *  (`restockIngredient`, src/logic/economy.ts), per
+   *  docs/design/TETO_ECONOMY-PROGRESSION-1_MATRIX.md section 2 ("Restock price (Pitz)" is the
+   *  same number as the original unlock price, unchanged by EP3). Only meaningful for an
+   *  ingredient with `unlockCondition` -- absent for every current Starter Set ingredient,
+   *  since those are always OWNED, unconditionally unlimited, and never for sale. A future
+   *  ingredient must set this to a positive integer to actually be purchasable/restockable;
+   *  anything else (absent, zero, negative, fractional, NaN) reads as "not for sale"
+   *  (`purchaseIngredient`/`restockIngredient`'s shared `NOT_FOR_SALE` reason). */
   pricePitz?: number;
+  /** EP3: how many units (scatter) or uses (spread/sauce) one restock purchase grants, per
+   *  docs/design/TETO_ECONOMY-PROGRESSION-1_MATRIX.md section 2's "Restock batch" column.
+   *  Only meaningful alongside `pricePitz` on a finite (`unlockCondition`-bearing) ingredient --
+   *  `restockIngredient` treats anything else (absent, zero, negative, fractional, NaN) as
+   *  "not for sale", exactly like an invalid `pricePitz`. Deliberately a separate field from
+   *  `pricePitz` rather than reusing it, since the two numbers are independent (SSOT: batch
+   *  size and price both vary per ingredient, not derived from one another). */
+  restockQuantity?: number;
 }
 
 export const INGREDIENTS: Ingredient[] = [
@@ -154,6 +165,15 @@ export const INGREDIENTS: Ingredient[] = [
    * 120 Pitz Shop purchase (src/logic/economy.ts's `purchaseIngredient`). Renders with the
    * ordinary emoji-topping path (no dedicated CSS treatment needed -- 🧅 already reads clearly
    * as onion, distinct from every other topping).
+   *
+   * EP3 (Economy & Progression 1.0, Shop 2.0 restock): `restockQuantity: 12` is the SSOT's
+   * already-confirmed "Restock batch" for onion (TETO_ECONOMY-PROGRESSION-1_MATRIX.md section
+   * 2) -- 12 units for the same 120 Pitz `pricePitz` already shipped above, unchanged by this
+   * revision. `onion` remains the only shipped ingredient with `unlockCondition` today; the
+   * matrix's other 10 non-Starter rows (mushroom/garlic/oregano/egg/pesto/cherry-tomato/
+   * olive-oil/gorgonzola/parmigiano/fontina) are EP4's own scope (the `starterStockPlays`
+   * free-grant slice that first gives them `unlockCondition`/`pricePitz` at all) -- not added
+   * here, per EP3's Scope Guard against inventing new locked ingredients ahead of that slice.
    */
   {
     id: "onion",
@@ -164,6 +184,7 @@ export const INGREDIENTS: Ingredient[] = [
     placement: "scatter",
     unlockCondition: { minTotalStars: 12 },
     pricePitz: 120,
+    restockQuantity: 12,
   },
 ];
 
