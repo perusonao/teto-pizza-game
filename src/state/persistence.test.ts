@@ -19,6 +19,7 @@ import { EMPTY_DEX, registerScoreToDex, type DexEntry } from "./dex";
 import type { ScoreBreakdown, QualityStars } from "../logic/scoring";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { LUNCH_RUSH_MISSION_ID } from "../mission/lunchRush";
+import { EMPTY_INVENTORY } from "./inventory";
 
 function scoreOf(total: number, stars: QualityStars): ScoreBreakdown {
   return {
@@ -332,21 +333,24 @@ describe("ownedIngredientIds (Phase 3C-3 Starter Set backfill)", () => {
 describe("persistProgress (Phase 3C-5)", () => {
   it("roundtrips pitzBalance", () => {
     const storage = fakeStorage();
-    persistProgress({ dex: EMPTY_DEX, pitzBalance: 120, ownedIngredientIds: STARTER_INGREDIENT_IDS }, storage);
+    persistProgress(
+      { dex: EMPTY_DEX, pitzBalance: 120, ownedIngredientIds: STARTER_INGREDIENT_IDS, inventory: EMPTY_INVENTORY },
+      storage,
+    );
     expect(loadSave(storage).pitzBalance).toBe(120);
   });
 
   it("roundtrips a purchased (non-starter) ownedIngredientIds entry", () => {
     const storage = fakeStorage();
     const owned = [...STARTER_INGREDIENT_IDS];
-    persistProgress({ dex: EMPTY_DEX, pitzBalance: 0, ownedIngredientIds: owned }, storage);
+    persistProgress({ dex: EMPTY_DEX, pitzBalance: 0, ownedIngredientIds: owned, inventory: EMPTY_INVENTORY }, storage);
     expect(loadSave(storage).ownedIngredientIds.sort()).toEqual([...owned].sort());
   });
 
   it("roundtrips a purchased onion (Phase 3C-6's first real non-Starter ingredient)", () => {
     const storage = fakeStorage();
     const owned = [...STARTER_INGREDIENT_IDS, "onion"];
-    persistProgress({ dex: EMPTY_DEX, pitzBalance: 0, ownedIngredientIds: owned }, storage);
+    persistProgress({ dex: EMPTY_DEX, pitzBalance: 0, ownedIngredientIds: owned, inventory: EMPTY_INVENTORY }, storage);
     const loaded = loadSave(storage).ownedIngredientIds;
     expect(loaded).toContain("onion");
     expect(loaded.sort()).toEqual([...owned].sort());
@@ -355,7 +359,12 @@ describe("persistProgress (Phase 3C-5)", () => {
   it("a reload after purchasing onion keeps it OWNED (does not fall back to LOCKED)", () => {
     const storage = fakeStorage();
     persistProgress(
-      { dex: EMPTY_DEX, pitzBalance: 0, ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "onion"] },
+      {
+        dex: EMPTY_DEX,
+        pitzBalance: 0,
+        ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "onion"],
+        inventory: EMPTY_INVENTORY,
+      },
       storage,
     );
     // Simulate a fresh reload: read the save back exactly like App.tsx's mount-time hydration.
@@ -366,7 +375,7 @@ describe("persistProgress (Phase 3C-5)", () => {
   it("a Pitz balance update does not clobber an existing Dex", () => {
     const storage = fakeStorage({ [SAVE_STORAGE_KEY]: saveWith({ dex: [validEntry] }) });
     persistProgress(
-      { dex: [validEntry], pitzBalance: 90, ownedIngredientIds: STARTER_INGREDIENT_IDS },
+      { dex: [validEntry], pitzBalance: 90, ownedIngredientIds: STARTER_INGREDIENT_IDS, inventory: EMPTY_INVENTORY },
       storage,
     );
     const save = loadSave(storage);
@@ -377,7 +386,7 @@ describe("persistProgress (Phase 3C-5)", () => {
   it("a Pitz balance / purchase update does not clobber missionBest", () => {
     const storage = fakeStorage({ [SAVE_STORAGE_KEY]: saveWith({ missionBest: { "lunch-rush": 742 } }) });
     persistProgress(
-      { dex: EMPTY_DEX, pitzBalance: 200, ownedIngredientIds: STARTER_INGREDIENT_IDS },
+      { dex: EMPTY_DEX, pitzBalance: 200, ownedIngredientIds: STARTER_INGREDIENT_IDS, inventory: EMPTY_INVENTORY },
       storage,
     );
     const save = loadSave(storage);
@@ -398,14 +407,22 @@ describe("persistProgress (Phase 3C-5)", () => {
       [SAVE_STORAGE_KEY]: saveWith({ pitzBalance: 60, ownedIngredientIds: [...STARTER_INGREDIENT_IDS] }),
     });
     const before = storage.getItem(SAVE_STORAGE_KEY);
-    persistProgress({ dex: EMPTY_DEX, pitzBalance: 60, ownedIngredientIds: STARTER_INGREDIENT_IDS }, storage);
+    persistProgress(
+      { dex: EMPTY_DEX, pitzBalance: 60, ownedIngredientIds: STARTER_INGREDIENT_IDS, inventory: EMPTY_INVENTORY },
+      storage,
+    );
     expect(storage.getItem(SAVE_STORAGE_KEY)).toBe(before);
   });
 
   it("does not throw when the storage backend throws on write", () => {
     expect(() =>
       persistProgress(
-        { dex: EMPTY_DEX, pitzBalance: 10, ownedIngredientIds: STARTER_INGREDIENT_IDS },
+        {
+          dex: EMPTY_DEX,
+          pitzBalance: 10,
+          ownedIngredientIds: STARTER_INGREDIENT_IDS,
+          inventory: EMPTY_INVENTORY,
+        },
         throwingStorage(),
       ),
     ).not.toThrow();
@@ -757,7 +774,12 @@ describe("Save schema unaffected by Scoring 2.0 Shadow (Phase 4A-2 scope guard)"
   it("persistProgress's written JSON never contains a scoringV2/Shadow key", () => {
     const storage = fakeStorage();
     persistProgress(
-      { dex: [{ recipeId: "margherita", discovered: true, bestScore: 90, bestStars: 5, timesMade: 1 }], pitzBalance: 50, ownedIngredientIds: STARTER_INGREDIENT_IDS },
+      {
+        dex: [{ recipeId: "margherita", discovered: true, bestScore: 90, bestStars: 5, timesMade: 1 }],
+        pitzBalance: 50,
+        ownedIngredientIds: STARTER_INGREDIENT_IDS,
+        inventory: EMPTY_INVENTORY,
+      },
       storage,
     );
     const raw = storage.getItem(SAVE_STORAGE_KEY);

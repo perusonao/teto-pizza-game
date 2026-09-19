@@ -3,6 +3,7 @@ import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import type { DexEntry, DexState } from "./dex";
 import type { QualityStars } from "../logic/scoring";
 import { isNewMissionBest } from "../logic/missionScoring";
+import type { InventoryState } from "./inventory";
 
 /**
  * Minimal cross-reload persistence (Phase 3C-2, see
@@ -444,6 +445,18 @@ function sameStringSet(a: readonly string[], b: readonly string[]): boolean {
   return a.every((id) => setB.has(id));
 }
 
+/** True when both inventory maps carry the same per-id stock values -- unlike
+ *  `sameStringSet`, key *presence* alone isn't enough here (values matter, not just which ids
+ *  are tracked), so this compares every id appearing in either map, treating an absent key as
+ *  `0` (matching `sanitizeInventory`/`hasStock`'s own "absent = 0" convention). */
+function sameInventory(a: InventoryState, b: InventoryState): boolean {
+  const ids = new Set([...Object.keys(a), ...Object.keys(b)]);
+  for (const id of ids) {
+    if ((a[id] ?? 0) !== (b[id] ?? 0)) return false;
+  }
+  return true;
+}
+
 /** The progression fields `GameState` itself owns (src/state/gameReducer.ts) -- everything
  *  `persistProgress` patches in one merge. Deliberately excludes `missionBest`, which lives
  *  outside GameState (Mission run state, src/mission/lunchRush.ts) and is only ever written
@@ -452,6 +465,7 @@ export interface ProgressionSnapshot {
   dex: DexState;
   pitzBalance: number;
   ownedIngredientIds: readonly string[];
+  inventory: InventoryState;
 }
 
 /**
@@ -481,17 +495,20 @@ export function persistProgress(
     const nextDex = [...snapshot.dex];
     const nextPitzBalance = sanitizePitzBalance(snapshot.pitzBalance);
     const nextOwnedIngredientIds = sanitizeOwnedIngredientIds([...snapshot.ownedIngredientIds]);
+    const nextInventory = sanitizeInventory(snapshot.inventory);
 
     const dexUnchanged = dexEquals(nextDex, current.dex);
     const pitzUnchanged = nextPitzBalance === current.pitzBalance;
     const ownedUnchanged = sameStringSet(nextOwnedIngredientIds, current.ownedIngredientIds);
-    if (dexUnchanged && pitzUnchanged && ownedUnchanged) return;
+    const inventoryUnchanged = sameInventory(nextInventory, current.inventory);
+    if (dexUnchanged && pitzUnchanged && ownedUnchanged && inventoryUnchanged) return;
 
     const next: PersistentSaveV2 = {
       ...current,
       dex: nextDex,
       pitzBalance: nextPitzBalance,
       ownedIngredientIds: nextOwnedIngredientIds,
+      inventory: nextInventory,
     };
     storage.setItem(SAVE_STORAGE_KEY, JSON.stringify(next));
   } catch {
