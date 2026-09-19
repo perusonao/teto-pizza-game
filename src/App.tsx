@@ -15,6 +15,7 @@ import type { SauceDeposit } from "./state/pizzaState";
 import type { RecipeId } from "./data/recipes";
 import { getIngredient, INGREDIENTS, type Ingredient, type IngredientCategory } from "./data/ingredients";
 import { isDoughShapeComplete, type DoughShape } from "./logic/doughShape";
+import { isAnyCookingTimingPauseReasonActive } from "./logic/cookingTiming";
 import {
   createInitialGameState,
   gameReducer,
@@ -236,15 +237,49 @@ function App() {
     state.starterGrantClaimedRecipeIds,
   ]);
 
-  // Cooking Time CT1: the one minimal pause boundary this slice implements (see the Fresh
-  // Audit report's §2.2 and gameReducer.ts's GameAction doc comment) -- reuses the exact same
-  // `isReferencePopoverOpen`/`isGlobalOverlayOpen` signals GameScreen already gates PizzaStage
-  // interactivity on during PREPARE, rather than adding a second detection mechanism. No
-  // `visibilitychange`/`blur` wiring here -- deliberately deferred (see the Implementation
-  // Result report's "CT2 recommended scope"). A no-op whenever `cookingTiming` isn't running
-  // (Mission rounds, or FREE outside PREPARE) since PAUSE/RESUME_COOKING_TIMING's own reducer
-  // guards already handle that; this effect only needs to track the boolean's transitions.
-  const isCookingTimingPauseSignal = isReferencePopoverOpen || isDexOpen || isShopOpen || isInventoryOpen;
+  // Cooking Time CT2: closes CT1's own deliberately-deferred gap -- the app being backgrounded
+  // (iOS home-screen swipe / app switch, browser tab switch, alt-tab) must not silently keep
+  // billing Cooking Time while the player isn't even looking at the screen. Tracks
+  // `document.visibilitychange` and `window` `blur`/`focus` as two independent booleans (a
+  // mobile Safari backgrounding fires both roughly together, a desktop alt-tab may fire only
+  // `blur`) rather than one merged handler, so neither signal going stale on its own platform
+  // can mask the other.
+  const [isDocumentHidden, setDocumentHidden] = useState(() => document.hidden);
+  const [isWindowBlurred, setWindowBlurred] = useState(false);
+  useEffect(() => {
+    const handleVisibilityChange = () => setDocumentHidden(document.hidden);
+    const handleBlur = () => setWindowBlurred(true);
+    const handleFocus = () => setWindowBlurred(false);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("blur", handleBlur);
+    window.addEventListener("focus", handleFocus);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("blur", handleBlur);
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, []);
+
+  // Cooking Time CT1/CT2: the pause boundary (see the Fresh Audit report's §2.2 and
+  // gameReducer.ts's GameAction doc comment) -- CT1 covered `isReferencePopoverOpen`/
+  // `isGlobalOverlayOpen` only (the Reference popover and the Dex/Shop/Inventory overlays);
+  // CT2 adds the background signals above into the same combined boolean via
+  // `isAnyCookingTimingPauseReasonActive` (../logic/cookingTiming.ts). This is still a single
+  // OR, not a reason-`Set`/counter, and that is deliberately enough: because every reason feeds
+  // this one signal and the effect below only dispatches on *its* transitions, an overlapping
+  // case -- Reference open -> app backgrounds -> foregrounds -> Reference still open -- can
+  // never resume early. The combined value only flips to `false` once every reason is `false`
+  // at the same time, regardless of the order they toggled in. A no-op whenever `cookingTiming`
+  // isn't running (Mission rounds, or FREE outside PREPARE) since PAUSE/RESUME_COOKING_TIMING's
+  // own reducer guards already handle that; this effect only needs to track the transitions.
+  const isCookingTimingPauseSignal = isAnyCookingTimingPauseReasonActive(
+    isReferencePopoverOpen,
+    isDexOpen,
+    isShopOpen,
+    isInventoryOpen,
+    isDocumentHidden,
+    isWindowBlurred,
+  );
   const wasCookingTimingPausedRef = useRef(false);
   useEffect(() => {
     if (isCookingTimingPauseSignal === wasCookingTimingPausedRef.current) return;
@@ -630,7 +665,7 @@ function App() {
           doughShapeComplete={doughShapeComplete}
           onGoHome={handleGoHome}
           onBeginPrepare={() => dispatch({ type: "BEGIN_PREPARE", now: Date.now() })}
-          onResetPizza={() => dispatch({ type: "RESET_PIZZA", now: Date.now() })}
+          onResetPizza={() => dispatch({ type: "RESET_PIZZA" })}
           onConfirmMakingStep={() => dispatch({ type: "CONFIRM_MAKING_STEP" })}
           onStartBake={() => dispatch({ type: "START_BAKE", now: Date.now() })}
           onShowHint={() => dispatch({ type: "SHOW_HINT" })}

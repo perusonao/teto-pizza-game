@@ -78,16 +78,32 @@ describe("pause boundary (Reference popover / Dex / Shop / Inventory overlay)", 
   });
 });
 
-describe("RESET_PIZZA discards the old timing and starts a fresh one", () => {
-  it("old timing cleared -- a new startedAt replaces it, not a pause of the old run", () => {
+describe("RESET_PIZZA (CT2): same run, timer continues uninterrupted -- not a fresh timer", () => {
+  it("leaves cookingTiming completely untouched (no restart, no pause)", () => {
     let state = beginFreePrepare(1_000);
-    state = gameReducer(state, { type: "RESET_PIZZA", now: 9_000 });
-    expect(state.cookingTiming).toEqual({
-      startedAt: 9_000,
-      pausedAt: null,
-      accumulatedPauseMs: 0,
-      completedMs: null,
-    });
+    const beforeReset = state.cookingTiming;
+    state = gameReducer(state, { type: "RESET_PIZZA" });
+    expect(state.cookingTiming).toEqual(beforeReset);
+  });
+
+  it("total active time across a mid-round reset is the full elapsed span, not re-rolled to zero", () => {
+    let state = beginFreePrepare(0);
+    state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // some active time on a bad start
+    state = gameReducer(state, { type: "RESET_PIZZA" }); // discard and redo from DOUGH
+    expect(state.makingStep).toBe("DOUGH");
+    state = gameReducer(state, { type: "START_BAKE", now: 45_000 });
+    // 45s of total active PREPARE time spanning the reset -- resetting never re-rolls the clock,
+    // closing CT1's own explicitly-flagged "reset to re-roll a slow start" gap.
+    expect(state.cookingTiming?.completedMs).toBe(45_000);
+  });
+
+  it("a reset while paused (an overlay open) keeps the same pause running across the reset", () => {
+    let state = beginFreePrepare(0);
+    state = gameReducer(state, { type: "PAUSE_COOKING_TIMING", now: 5_000 }); // 5s active so far
+    state = gameReducer(state, { type: "RESET_PIZZA" });
+    state = gameReducer(state, { type: "RESUME_COOKING_TIMING", now: 20_000 }); // 15s paused
+    state = gameReducer(state, { type: "START_BAKE", now: 25_000 }); // +5s active
+    expect(state.cookingTiming?.completedMs).toBe(10_000);
   });
 });
 

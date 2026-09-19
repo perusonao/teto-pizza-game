@@ -1,18 +1,23 @@
 /**
- * Cooking Time CT1: deterministic FREE-mode "active making" timing foundation (see
- * docs/reports/TETO_COOKING-TIME-EFFICIENCY_Fresh-Audit.md and
- * docs/reports/TETO_COOKING-TIME_CT1_Implementation-Result.md).
+ * Cooking Time CT1/CT2: deterministic FREE-mode "active making" timing foundation (see
+ * docs/reports/TETO_COOKING-TIME-EFFICIENCY_Fresh-Audit.md,
+ * docs/reports/TETO_COOKING-TIME_CT1_Implementation-Result.md, and
+ * docs/reports/TETO_COOKING-TIME_CT2_Efficiency-Result.md).
  *
- * Measures `BEGIN_PREPARE` (or an equivalent fresh-PREPARE entry -- RESET_PIZZA,
- * SELECT_RECIPE, RETRY_SAME_RECIPE) -> `START_BAKE` only. BAKE's own needle-tap minigame is
- * deliberately excluded (see the Fresh Audit's boundary recommendation D) -- this module never
- * reads anything from ../logic/bake.ts and is never called from CONFIRM_BAKE onward.
+ * Measures `BEGIN_PREPARE` (or an equivalent fresh-PREPARE entry -- SELECT_RECIPE,
+ * RETRY_SAME_RECIPE) -> `START_BAKE` only. BAKE's own needle-tap minigame is deliberately
+ * excluded (see the Fresh Audit's boundary recommendation D) -- this module never reads anything
+ * from ../logic/bake.ts and is never called from CONFIRM_BAKE onward. CT2: `RESET_PIZZA`
+ * (mid-PREPARE discard/redo) is no longer a fresh-timing entry point -- see gameReducer.ts's own
+ * `RESET_PIZZA` case comment for why the same run's clock now continues through it uninterrupted.
  *
  * Pure, absolute-epoch-ms shape mirroring ../mission/lunchRush.ts's `MissionClock`: every
  * function takes `now` as a plain argument, never reads `Date.now()` itself, so this is
  * exactly as deterministically testable as `startMissionClock`/`remainingMs` already are.
- * `src/state/gameReducer.ts` is the only caller; `App.tsx` is the only place that reads real
- * wall-clock time, exactly like Mission's own boundary.
+ * `src/state/gameReducer.ts` is the only caller of the timing functions; `App.tsx` is the only
+ * place that reads real wall-clock time (both for the reducer's `now` payloads and for
+ * `isAnyCookingTimingPauseReasonActive`'s own reasons below), exactly like Mission's own
+ * boundary.
  */
 export interface CookingTimingState {
   startedAt: number;
@@ -55,4 +60,19 @@ export function finishCookingTiming(timing: CookingTimingState, now: number): Co
   const effectiveEnd = timing.pausedAt ?? now;
   const elapsed = effectiveEnd - timing.startedAt - timing.accumulatedPauseMs;
   return { ...timing, completedMs: Math.max(0, elapsed) };
+}
+
+/**
+ * Cooking Time CT2: combines every independent pause reason (Reference popover, Dex/Shop/
+ * Inventory overlay, app backgrounded via `visibilitychange`/`blur`) into the one signal
+ * `App.tsx` dispatches PAUSE/RESUME_COOKING_TIMING on the transitions of. A plain boolean OR is
+ * sufficient and deliberately not a reason-`Set`/counter: as long as every reason feeds into the
+ * same OR and the caller only dispatches on *this combined value's* transitions (never per
+ * individual reason), an overlapping case -- Reference open -> app backgrounds -> foregrounds ->
+ * Reference still open -- can never resume early, since the combined signal only ever flips to
+ * `false` once every one of its inputs is `false` at the same time. Exported so this exact logic
+ * (not a hand-copied re-implementation of it) is what `App.tsx` calls and what CT2's tests cover.
+ */
+export function isAnyCookingTimingPauseReasonActive(...reasons: readonly boolean[]): boolean {
+  return reasons.some(Boolean);
 }
