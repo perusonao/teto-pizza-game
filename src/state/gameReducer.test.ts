@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createInitialGameState, gameReducer, type GameState, type MakingStep } from "./gameReducer";
-import { registerScoreToDex, EMPTY_DEX } from "./dex";
+import { registerScoreToDex, EMPTY_DEX, type DexState } from "./dex";
 import type { ScoreBreakdown, QualityStars } from "../logic/scoring";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { buildIdealMargheritaSauceFixture, MARGHERITA_REFERENCE } from "../data/referencePizza";
@@ -17,6 +17,26 @@ function scoreOf(total: number, stars: QualityStars): ScoreBreakdown {
     stars,
   };
 }
+
+/** Builds a Dex where `recipeIds` are discovered at `stars` each -- a shorthand for
+ *  simulating "played through the Chapter 1 chain up to here" (Economy & Progression 1.0
+ *  EP1's recipe-unlock gate, src/state/progression.ts's `recipeUnlocked`). */
+function dexDiscovering(recipeIds: readonly string[], stars: QualityStars): DexState {
+  let dex: DexState = EMPTY_DEX;
+  for (const recipeId of recipeIds) {
+    dex = registerScoreToDex(dex, recipeId, scoreOf(stars * 20, stars)).dex;
+  }
+  return dex;
+}
+
+/** Dex with every recipe in the Chapter 1 chain already discovered at ★2 (10 totalStars for 5
+ *  recipes before quattro-formaggi/fugazza, satisfying both stars gates) -- used by tests that
+ *  need every recipe unlocked (EP1's recipe-unlock axis) so they can focus on a different
+ *  concern (order rotation, ingredient-ownership gating, ...). */
+const ALL_RECIPES_UNLOCKED_DEX: DexState = dexDiscovering(
+  ["margherita", "funghi", "marinara", "bismarck", "genovese", "quattro-formaggi"],
+  3 as QualityStars,
+);
 
 /** Plays through PREPARE -> BAKE -> RESULT for the initial (Margherita) order, placing every
  *  required ingredient so the round scores well, then confirms the bake at `bakeValue`. */
@@ -187,8 +207,12 @@ describe("PURCHASE_INGREDIENT (reducer)", () => {
 describe("SELECT_RECIPE (Issue #39 Pizza Select)", () => {
   // Issue #47 Finding C: Pizza Select already made the recipe choice explicit, so SELECT_RECIPE
   // now lands straight at PREPARE, skipping the old, redundant FREE-mode ORDER gate.
+  // bismarck needs margherita->funghi->marinara discovered first (Economy & Progression 1.0
+  // EP1's recipe-unlock chain), so these tests seed a Dex with that chain already discovered.
+  const bismarckUnlockedDex = dexDiscovering(["margherita", "funghi", "marinara"], 1 as QualityStars);
+
   it("starts a fresh PREPARE-phase round for the explicitly chosen, available recipe", () => {
-    const state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 75);
+    const state = createInitialGameState(bismarckUnlockedDex, STARTER_INGREDIENT_IDS, 75);
     const after = gameReducer(state, { type: "SELECT_RECIPE", recipeId: "bismarck" });
     expect(after.recipe.id).toBe("bismarck");
     expect(after.order.recipeId).toBe("bismarck");
@@ -201,23 +225,15 @@ describe("SELECT_RECIPE (Issue #39 Pizza Select)", () => {
   });
 
   it("carries dex/pitzBalance/ownedIngredientIds forward unchanged", () => {
-    const dex = registerScoreToDex(EMPTY_DEX, "margherita", {
-      matchScore: 100,
-      ingredientScore: 100,
-      placementScore: 100,
-      bakeScore: 100,
-      total: 96,
-      stars: 5 as QualityStars,
-    }).dex;
-    const state = createInitialGameState(dex, STARTER_INGREDIENT_IDS, 75);
+    const state = createInitialGameState(bismarckUnlockedDex, STARTER_INGREDIENT_IDS, 75);
     const after = gameReducer(state, { type: "SELECT_RECIPE", recipeId: "bismarck" });
-    expect(after.dex).toBe(dex);
+    expect(after.dex).toBe(bismarckUnlockedDex);
     expect(after.pitzBalance).toBe(75);
     expect(after.ownedIngredientIds).toEqual(STARTER_INGREDIENT_IDS);
   });
 
   it("rebuilds a fresh round even mid-PREPARE/RESULT of a different recipe", () => {
-    let state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 0);
+    let state = createInitialGameState(bismarckUnlockedDex, STARTER_INGREDIENT_IDS, 0);
     state = gameReducer(state, { type: "BEGIN_PREPARE" });
     state = gameReducer(state, { type: "APPLY_SAUCE", ingredientId: "tomato-sauce", x: 50, y: 50 });
     const after = gameReducer(state, { type: "SELECT_RECIPE", recipeId: "bismarck" });
@@ -226,22 +242,36 @@ describe("SELECT_RECIPE (Issue #39 Pizza Select)", () => {
     expect(after.pizza.sauceIds).toHaveLength(0);
   });
 
-  it("rejects a locked recipe (fugazza before onion is owned) and returns state unchanged", () => {
+  it("rejects a recipe whose EP1 recipe-unlock chain isn't discovered yet and returns state unchanged", () => {
     const state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 0);
+    const after = gameReducer(state, { type: "SELECT_RECIPE", recipeId: "bismarck" });
+    expect(after).toBe(state);
+  });
+
+  it("rejects a locked recipe (fugazza before onion is owned) even once its recipe-unlock chain/stars gate is satisfied", () => {
+    const chainDex = dexDiscovering(
+      ["margherita", "funghi", "marinara", "bismarck", "genovese", "quattro-formaggi"],
+      5 as QualityStars,
+    );
+    const state = createInitialGameState(chainDex, STARTER_INGREDIENT_IDS, 0);
     const after = gameReducer(state, { type: "SELECT_RECIPE", recipeId: "fugazza" });
     expect(after).toBe(state);
   });
 
-  it("selects fugazza once onion is owned (recipe becomes available)", () => {
+  it("selects fugazza once both its recipe-unlock chain/stars gate and onion ownership hold", () => {
+    const chainDex = dexDiscovering(
+      ["margherita", "funghi", "marinara", "bismarck", "genovese", "quattro-formaggi"],
+      5 as QualityStars,
+    );
     const ownedWithOnion = [...STARTER_INGREDIENT_IDS, "onion"];
-    const state = createInitialGameState(EMPTY_DEX, ownedWithOnion, 0);
+    const state = createInitialGameState(chainDex, ownedWithOnion, 0);
     const after = gameReducer(state, { type: "SELECT_RECIPE", recipeId: "fugazza" });
     expect(after.recipe.id).toBe("fugazza");
     expect(after.phase).toBe("PREPARE");
   });
 
   it("never touches Mission's own random order selection", () => {
-    let state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 0);
+    let state = createInitialGameState(bismarckUnlockedDex, STARTER_INGREDIENT_IDS, 0);
     const before = state;
     state = gameReducer(state, { type: "SELECT_RECIPE", recipeId: "bismarck" });
     // Mission's own order picker still works after a SELECT_RECIPE dispatch -- selecting a
@@ -458,14 +488,22 @@ describe("CLAIM_MISSION_REWARD (reducer, Phase 3C-5)", () => {
 });
 
 describe("order selection availability (Phase 3C-3)", () => {
-  it("all 6 current recipes remain reachable when every starter ingredient is owned", () => {
+  it("all 6 Chapter 1 recipes remain reachable when every starter ingredient is owned and their EP1 recipe-unlock chain is already discovered", () => {
     const seen = new Set<string>();
-    let state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS);
+    let state = createInitialGameState(ALL_RECIPES_UNLOCKED_DEX, STARTER_INGREDIENT_IDS);
     for (let i = 0; i < 60 && seen.size < 6; i++) {
       seen.add(state.recipe.id);
       state = gameReducer(state, { type: "PLAY_AGAIN" });
     }
     expect(seen.size).toBe(6);
+  });
+
+  it("only margherita is reachable on a fresh save (empty Dex), regardless of ingredient ownership (Economy & Progression 1.0 EP1)", () => {
+    let state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS);
+    for (let i = 0; i < 20; i++) {
+      expect(state.recipe.id).toBe("margherita");
+      state = gameReducer(state, { type: "PLAY_AGAIN" });
+    }
   });
 
   it("never selects a recipe whose required ingredients are not owned", () => {
@@ -502,7 +540,10 @@ describe("Mission order actions (Phase 3C-4)", () => {
 
   it("MISSION_RESET_ORDER never repeats the just-active recipe when another is available", () => {
     const owned = ["tomato-sauce", "mozzarella", "basil", "garlic", "oregano"]; // margherita + marinara
-    let state = createInitialGameState(EMPTY_DEX, owned);
+    // marinara needs funghi discovered first (Economy & Progression 1.0 EP1 chain) --
+    // margherita/funghi discovered so both margherita and marinara are unlocked recipes.
+    const dex = dexDiscovering(["margherita", "funghi"], 1 as QualityStars);
+    let state = createInitialGameState(dex, owned);
     for (let i = 0; i < 30; i++) {
       const before = state.recipe.id;
       state = gameReducer(state, { type: "MISSION_RESET_ORDER" });
@@ -777,7 +818,7 @@ describe("inventory carry-through (Save v2 / Inventory E1)", () => {
 
   it("SELECT_RECIPE carries inventory through unchanged", () => {
     const state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 0, seededInventory);
-    const after = gameReducer(state, { type: "SELECT_RECIPE", recipeId: "bismarck" });
+    const after = gameReducer(state, { type: "SELECT_RECIPE", recipeId: "margherita" });
     expect(after.phase).toBe("PREPARE");
     expect(after.inventory).toEqual(seededInventory);
   });

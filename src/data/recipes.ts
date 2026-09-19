@@ -8,6 +8,23 @@ export interface BakeTarget {
   end: number;
 }
 
+/**
+ * Economy & Progression 1.0 EP1 (see docs/reports/TETO_ECONOMY-PROGRESSION-1_Fresh-Design.md
+ * sec. 3.1 / docs/design/TETO_ECONOMY-PROGRESSION-1_MATRIX.md sec. 1): a recipe-level unlock
+ * gate, orthogonal to `Ingredient.unlockCondition`/ownership (src/data/ingredients.ts,
+ * src/state/inventory.ts). Both fields are AND'd together when both are present (a recipe
+ * chained to a discovery threshold can still also require a score threshold, e.g.
+ * quattro-formaggi). Absent on a recipe (only `margherita`) means always unlocked.
+ */
+export interface RecipeUnlockCondition {
+  /** Unlocked once this recipe has been discovered (Dex `discovered: true`) at least once, at
+   *  any quality -- an ★1 floor result still counts. */
+  requiresRecipeId?: RecipeId;
+  /** Additionally (AND, not OR) requires this much accumulated totalStars
+   *  (src/logic/mastery.ts). */
+  minTotalStars?: number;
+}
+
 export interface Recipe {
   id: RecipeId;
   nameJa: string;
@@ -20,6 +37,14 @@ export interface Recipe {
    *  deliberately gives every recipe the same value (no difficulty-based differentiation without
    *  Human Feel evidence, per Issue #38's own Fresh Audit sec. 2). */
   baseRewardPitz: number;
+  /** EP1: absent means always unlocked (margherita only). See `recipeUnlocked`
+   *  (src/state/progression.ts), the sole reader of this field. */
+  unlockCondition?: RecipeUnlockCondition;
+  /** EP1 Pizza Select UX (Fresh Design sec. 9): when true, a LOCKED card for this recipe keeps
+   *  the existing `？？？` mystery treatment (name hidden, only a progress hint shown) instead
+   *  of revealing the recipe name. Absent/false is the default for every chain-unlocked recipe
+   *  (#2-#6) -- only `fugazza` (#7, the deliberate "big reveal") sets this. */
+  mysteryLock?: boolean;
 }
 
 /** `as const` on the whole array (not per-id) keeps every id a string literal
@@ -38,6 +63,7 @@ export const RECIPES = [
     ],
     bakeTarget: { start: 60, end: 80 },
     baseRewardPitz: 100,
+    // Start recipe -- no unlockCondition, always unlocked (Economy & Progression 1.0 EP1).
   },
   {
     id: "marinara",
@@ -51,6 +77,7 @@ export const RECIPES = [
     ],
     bakeTarget: { start: 45, end: 65 },
     baseRewardPitz: 100,
+    unlockCondition: { requiresRecipeId: "funghi" },
   },
   {
     id: "quattro-formaggi",
@@ -66,6 +93,7 @@ export const RECIPES = [
     ],
     bakeTarget: { start: 65, end: 85 },
     baseRewardPitz: 100,
+    unlockCondition: { requiresRecipeId: "genovese", minTotalStars: 8 },
   },
   {
     id: "genovese",
@@ -79,6 +107,7 @@ export const RECIPES = [
     ],
     bakeTarget: { start: 50, end: 70 },
     baseRewardPitz: 100,
+    unlockCondition: { requiresRecipeId: "bismarck" },
   },
   {
     id: "bismarck",
@@ -92,6 +121,7 @@ export const RECIPES = [
     ],
     bakeTarget: { start: 55, end: 75 },
     baseRewardPitz: 100,
+    unlockCondition: { requiresRecipeId: "marinara" },
   },
   {
     id: "funghi",
@@ -105,15 +135,17 @@ export const RECIPES = [
     ],
     bakeTarget: { start: 58, end: 78 },
     baseRewardPitz: 100,
+    unlockCondition: { requiresRecipeId: "margherita" },
   },
   /**
    * Phase 3C-6's first Recipe #7 (see docs/design/PIZZA_GAME_PROGRESSION_SSOT.md section 12).
    * Fugazza is a real Argentine onion pizza (dough brushed with olive oil, no tomato sauce or
    * cheese, piled with onion and oregano) -- chosen to match a real-world pizza per PIZZA DB's
-   * canonical data, replacing an earlier salami/salami-pizza draft. Its `onion` requirement
-   * means it is never available until that ingredient is purchased (src/state/progression.ts's
-   * `isRecipeAvailable` -- there is no separate `recipeUnlocked` flag; availability derives
-   * purely from `requiredIngredients` being OWNED).
+   * canonical data, replacing an earlier salami/salami-pizza draft. Recipe #7 in the Chapter 1
+   * unlock chain (Economy & Progression 1.0 EP1) -- availability is now the two-axis AND of
+   * `recipeUnlocked` (this `unlockCondition`) and `onion` being OWNED
+   * (src/state/progression.ts's `isRecipeAvailable`). Keeps the mystery (`？？？`) Pizza Select
+   * treatment as the one deliberate "big reveal" of Chapter 1 (`mysteryLock`).
    */
   {
     id: "fugazza",
@@ -127,6 +159,8 @@ export const RECIPES = [
     ],
     bakeTarget: { start: 63, end: 83 },
     baseRewardPitz: 100,
+    unlockCondition: { requiresRecipeId: "quattro-formaggi", minTotalStars: 12 },
+    mysteryLock: true,
   },
 ] as const;
 
