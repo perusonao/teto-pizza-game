@@ -17,6 +17,7 @@ import { computeScoringV2, toLegacyScoreBreakdown, type ScoringV2Result } from "
 import { totalStars } from "../logic/mastery";
 import { purchaseIngredient, restockIngredient } from "../logic/economy";
 import { applyPitzCredit, type PitzCredit } from "../logic/pitzReward";
+import { evaluateCookingEfficiency, type CookingEfficiencyCredit } from "../logic/efficiency";
 import { discoveredRecipeIds, registerScoreToDex, EMPTY_DEX, type DexState } from "./dex";
 import { availableRecipeIds, isRecipeAvailable } from "./progression";
 import {
@@ -144,19 +145,34 @@ export interface GameState {
    *  DISCOVERED entirely, so there is nowhere to show it -- the reset above still clears any stale
    *  value before the next order). */
   lastStarterGrantNotice: StarterGrantNotice | null;
-  /** Cooking Time CT1: deterministic FREE-only "active making" timing (../logic/
-   *  cookingTiming.ts), spanning `BEGIN_PREPARE`/an equivalent fresh-PREPARE entry (RESET_PIZZA,
-   *  SELECT_RECIPE, RETRY_SAME_RECIPE) through `START_BAKE` -- BAKE's own needle-tap minigame is
-   *  deliberately excluded (Fresh Audit boundary recommendation D). Always `null` for a Mission
-   *  round (`isMissionRound`) -- Lunch Rush keeps its own unrelated `MissionClock`
-   *  (../mission/lunchRush.ts) untouched, and this field is never read by any Mission/Scoring/
-   *  Pitz code path. Measurement-only: not read by `computeScoringV2` or `applyPitzCredit`, and
-   *  never persisted (`persistence.ts` never serializes `GameState`, same as `score`/
-   *  `scoringV2Result` above). `completedMs` stays populated (not reset) across REGISTER_TO_DEX's
-   *  RESULT -> DISCOVERED transition so a DISCOVERED-phase display could read the same round's
-   *  value if a later slice wants to; every "start a new round" path resets this to `null` via
-   *  `buildOrderState`/`startPreparingRecipe` below, same as `score`/`scoringV2Result`. */
+  /** Cooking Time CT1/CT2: deterministic FREE-only "active making" timing (../logic/
+   *  cookingTiming.ts), spanning `BEGIN_PREPARE`/an equivalent fresh-PREPARE entry (SELECT_RECIPE,
+   *  RETRY_SAME_RECIPE) through `START_BAKE` -- BAKE's own needle-tap minigame is deliberately
+   *  excluded (Fresh Audit boundary recommendation D). Always `null` for a Mission round
+   *  (`isMissionRound`) -- Lunch Rush keeps its own unrelated `MissionClock`
+   *  (../mission/lunchRush.ts) untouched, and this field is never read by any Mission/Scoring
+   *  code path (CT2's own Efficiency bonus below is FREE-only for the same reason). Never
+   *  persisted (`persistence.ts` never serializes `GameState`, same as `score`/`scoringV2Result`
+   *  above). `completedMs` stays populated (not reset) across REGISTER_TO_DEX's RESULT ->
+   *  DISCOVERED transition (that is in fact exactly where CT2's `lastEfficiencyCredit` below
+   *  reads it from) and across DISCOVERED -> a same-order RESET_PIZZA is not possible (RESET_PIZZA
+   *  is PREPARE-only); every "start a new round" path resets this to `null` via
+   *  `buildOrderState`/`startPreparingRecipe` below, same as `score`/`scoringV2Result`. **CT2
+   *  policy change**: `RESET_PIZZA` (mid-PREPARE discard/redo) is *not* one of the "start a new
+   *  round" paths that resets this -- see its own reducer case below for why the same run's clock
+   *  now continues through a reset uninterrupted, superseding CT1's original "fresh timer on
+   *  reset" behavior (see docs/reports/TETO_COOKING-TIME_CT2_Efficiency-Result.md's RESET policy
+   *  section for the full A/B/C comparison this decision is based on). */
   cookingTiming: CookingTimingState | null;
+  /** Cooking Time CT2: canonical transient RESULT/DISCOVERED display+reward snapshot for this
+   *  round's "手際" (Efficiency) evaluation (../logic/efficiency.ts) -- `null` whenever
+   *  `lastPitzCredit` is also `null` (Mission round) or `cookingTiming.completedMs` never
+   *  finalized (should not happen for a FREE round that reached RESULT). Strictly additive to
+   *  `lastPitzCredit`: never read by `computeScoringV2`/`ScoreBreakdown.total`, and never folded
+   *  into `pitzReward.ts`'s own `baseReward x qualityMultiplier` -- `REGISTER_TO_DEX` adds
+   *  `bonusPitz` on top of `lastPitzCredit.balanceAfter` when crediting `pitzBalance`. Reset to
+   *  `null` for every fresh round exactly like `lastPitzCredit`. */
+  lastEfficiencyCredit: CookingEfficiencyCredit | null;
 }
 
 export type GameAction =
@@ -194,12 +210,14 @@ export type GameAction =
   // the reducer layer for DOUGH -> SAUCE too, exactly like every other step -- the size
   // completion threshold is a UI-only CTA-disabled gate (GameScreen), not a reducer rule.
   | { type: "CONFIRM_MAKING_STEP" }
-  // Cooking Time CT1: `now` optional, same reasoning as BEGIN_PREPARE above -- a discard/redo
-  // is treated as starting the timed attempt over (a fresh `startCookingTiming`), not a pause/
-  // resume of the discarded one, since CT1 attaches no reward/score to this yet (see the
-  // Implementation Result report's explicit deviation note from the Fresh Audit's own
-  // RESET_PIZZA recommendation).
-  | { type: "RESET_PIZZA"; now?: number }
+  // Cooking Time CT2: no `now` payload -- unlike BEGIN_PREPARE/START_BAKE/SELECT_RECIPE/
+  // RETRY_SAME_RECIPE, this action never starts, finishes, or otherwise touches `cookingTiming`
+  // at all (see its own reducer case below). CT1 originally gave this a `now?: number` and
+  // treated a reset as starting the timed attempt over; re-decided for CT2 now that an
+  // Efficiency bonus exists to game -- a fresh timer on every reset would let a player "re-roll"
+  // a slow start for free, so the same run's clock now continues through a reset uninterrupted
+  // instead (see docs/reports/TETO_COOKING-TIME_CT2_Efficiency-Result.md's RESET policy section).
+  | { type: "RESET_PIZZA" }
   | { type: "START_BAKE"; now?: number }
   | { type: "CONFIRM_BAKE"; value: number }
   | { type: "REGISTER_TO_DEX" }
@@ -295,6 +313,7 @@ function buildOrderState(order: Order, carry: ProgressionCarry, isMissionRound: 
     placement: null,
     lastPitzCredit: null,
     lastStarterGrantNotice: null,
+    lastEfficiencyCredit: null,
   };
 }
 
@@ -593,12 +612,15 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         makingStepToken: state.makingStepToken + 1,
         hint: buildHintLine(state.recipe, pizza, "DOUGH"),
         placement: null,
-        // Cooking Time CT1: the discarded pizza's own elapsed time is discarded with it --
-        // a fresh `cookingTiming` starts immediately (the player is still actively in PREPARE,
-        // just restarting the assembly), rather than pausing/resuming the old one. `null` for
-        // a Mission round (or if `now` wasn't supplied), same convention as BEGIN_PREPARE.
-        cookingTiming:
-          !state.isMissionRound && action.now !== undefined ? startCookingTiming(action.now) : null,
+        // Cooking Time CT2 (re-decided from CT1's original "fresh timer on reset"):
+        // `cookingTiming` is deliberately absent from this returned object, so `...state` above
+        // carries it through completely untouched -- not restarted, not paused/resumed. The
+        // player is still mid-attempt on the same order, just discarding and redoing the
+        // assembly, so the clock counts this exactly like any other few seconds of active
+        // PREPARE time. This also means a reset mid-pause (an overlay open when RESET_PIZZA
+        // fires) correctly stays paused across the reset with no special-casing needed here --
+        // whatever PAUSE_COOKING_TIMING already set (`pausedAt`/`accumulatedPauseMs`) simply
+        // isn't touched by this action at all.
       };
     }
 
@@ -724,6 +746,24 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const lastPitzCredit = state.isMissionRound
         ? null
         : applyPitzCredit(state.recipe.baseRewardPitz, state.score.total, state.pitzBalance);
+      // Cooking Time CT2: the additive Efficiency bonus, computed independently of
+      // `lastPitzCredit` above and never folded into its own `multiplier`/`earnedPitz`
+      // (pitzReward.ts is untouched by CT2 -- see efficiency.ts's own file header). FREE only,
+      // same guard as `lastPitzCredit` (redundant with `cookingTiming` always being `null` for a
+      // Mission round, but explicit here rather than relying on that alone), and additionally
+      // requires `cookingTiming.completedMs` to have actually finalized (should always be true
+      // for a FREE round that reached RESULT via START_BAKE, but a defensive `null` check all the
+      // same rather than asserting).
+      const lastEfficiencyCredit =
+        !state.isMissionRound && state.cookingTiming?.completedMs != null
+          ? evaluateCookingEfficiency(
+              state.recipe,
+              state.cookingTiming.completedMs,
+              state.score.total,
+              state.recipe.baseRewardPitz,
+            )
+          : null;
+      const pitzBalanceAfterQuality = lastPitzCredit ? lastPitzCredit.balanceAfter : state.pitzBalance;
       return {
         ...state,
         dex,
@@ -733,8 +773,14 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         justDiscovered: wasNewDiscovery,
         justGotNewBest: isNewBest,
         phase: "DISCOVERED",
-        pitzBalance: lastPitzCredit ? lastPitzCredit.balanceAfter : state.pitzBalance,
+        // The Efficiency bonus is credited on top of the quality-based balance above -- additive,
+        // never compounded into `lastPitzCredit.balanceAfter` itself (that field stays exactly
+        // what `applyPitzCredit` computed, so its own display keeps meaning "quality reward
+        // only"; ResultPanel adds `lastEfficiencyCredit.bonusPitz` back in for the final
+        // displayed balance arrow -- see its own comment).
+        pitzBalance: pitzBalanceAfterQuality + (lastEfficiencyCredit?.bonusPitz ?? 0),
         lastPitzCredit,
+        lastEfficiencyCredit,
         lastStarterGrantNotice: buildStarterGrantNotice(grant.grantedRecipeIds),
       };
     }

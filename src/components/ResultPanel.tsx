@@ -1,6 +1,7 @@
 import type { ScoreBreakdown } from "../logic/scoring";
 import { BAKE_STATE_LABEL, type BakeState } from "../logic/bake";
 import type { PitzCredit } from "../logic/pitzReward";
+import { EFFICIENCY_TIER_LABEL_JA, formatCookingTime, type CookingEfficiencyCredit } from "../logic/efficiency";
 import type { StarterGrantNotice } from "../state/starterStock";
 
 interface ResultPanelProps {
@@ -31,6 +32,15 @@ interface ResultPanelProps {
    *  only for a Mission round, which never renders this component at all (see GameScreen's
    *  `!isMissionActive` gate), so in practice this is always non-null here. */
   pitzCredit: PitzCredit | null;
+  /** Cooking Time CT2 (`state.lastEfficiencyCredit`): the "手際" (Efficiency) secondary
+   *  evaluation snapshot -- `null`/omitted under the exact same conditions as `pitzCredit`
+   *  (Mission round; never both null/non-null independently in practice for a FREE round that
+   *  reached RESULT). Optional (unlike `pitzCredit`) purely so this component's existing test
+   *  call sites that predate CT2 keep compiling unchanged -- omitting it behaves exactly like
+   *  `null`, no efficiency rows rendered. Deliberately rendered as a smaller, secondary block
+   *  below the quality-driven headline/`pitzCredit` summary -- quality stays the visual lead,
+   *  per the task's own "品質が主役、手際は副評価" instruction. */
+  efficiencyCredit?: CookingEfficiencyCredit | null;
   /** Economy Tuning 1 P1 (`state.lastStarterGrantNotice`): non-null only the instant this
    *  round's REGISTER_TO_DEX actually granted a recipe's Starter Grant -- never shown for
    *  margherita (never granted), an already-claimed recipe, or a reload/replay (transient,
@@ -87,6 +97,7 @@ export function ResultPanel({
   justDiscovered,
   justGotNewBest,
   pitzCredit,
+  efficiencyCredit,
   starterGrantNotice,
   onRetrySameRecipe,
   onBackToPizzaSelect,
@@ -137,7 +148,8 @@ export function ResultPanel({
       {pitzCredit && (
         <div className="pitz-credit-summary">
           <p className="pitz-credit-summary__headline">
-            今回の獲得 <strong>+{pitzCredit.earnedPitz} Pitz</strong>
+            今回の獲得{" "}
+            <strong>+{pitzCredit.earnedPitz + (efficiencyCredit?.bonusPitz ?? 0)} Pitz</strong>
           </p>
           <dl className="pitz-credit-summary__details">
             <div className="pitz-credit-summary__row">
@@ -148,10 +160,31 @@ export function ResultPanel({
               <dt>出来栄え倍率</dt>
               <dd>×{pitzCredit.multiplier.toFixed(2)}</dd>
             </div>
+            {/* Cooking Time CT2: 調理時間/手際 are display-only rows, deliberately styled
+                identically (and just as small) as 基本報酬/出来栄え倍率 above -- quality's own
+                stars/score headline stays the only visually prominent number on this screen. */}
+            {efficiencyCredit && (
+              <div className="pitz-credit-summary__row">
+                <dt>調理時間</dt>
+                <dd>{formatCookingTime(efficiencyCredit.cookingTimeMs)}</dd>
+              </div>
+            )}
+            {efficiencyCredit && (
+              <div className="pitz-credit-summary__row">
+                <dt>手際</dt>
+                <dd>{EFFICIENCY_TIER_LABEL_JA[efficiencyCredit.tier]}</dd>
+              </div>
+            )}
+            {efficiencyCredit && efficiencyCredit.bonusPitz > 0 && (
+              <div className="pitz-credit-summary__row">
+                <dt>手際ボーナス</dt>
+                <dd>+{efficiencyCredit.bonusPitz} Pitz</dd>
+              </div>
+            )}
             <div className="pitz-credit-summary__row">
               <dt>所持Pitz</dt>
               <dd>
-                {pitzCredit.balanceBefore} {"→"} {pitzCredit.balanceAfter}
+                {pitzCredit.balanceBefore} {"→"} {pitzCredit.balanceAfter + (efficiencyCredit?.bonusPitz ?? 0)}
               </dd>
             </div>
           </dl>

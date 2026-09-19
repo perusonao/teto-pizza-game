@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   finishCookingTiming,
+  isAnyCookingTimingPauseReasonActive,
   pauseCookingTiming,
   resumeCookingTiming,
   startCookingTiming,
@@ -96,5 +97,31 @@ describe("pauseCookingTiming / resumeCookingTiming", () => {
     const finished: CookingTimingState = finishCookingTiming(startCookingTiming(0), 1_000);
     expect(pauseCookingTiming(finished, 2_000)).toBe(finished);
     expect(resumeCookingTiming(finished, 3_000)).toBe(finished);
+  });
+});
+
+describe("isAnyCookingTimingPauseReasonActive (CT2)", () => {
+  it("is false when every reason is false", () => {
+    expect(isAnyCookingTimingPauseReasonActive(false, false, false)).toBe(false);
+    expect(isAnyCookingTimingPauseReasonActive()).toBe(false);
+  });
+
+  it("is true when any single reason is true", () => {
+    expect(isAnyCookingTimingPauseReasonActive(true, false, false)).toBe(true);
+    expect(isAnyCookingTimingPauseReasonActive(false, true, false)).toBe(true);
+    expect(isAnyCookingTimingPauseReasonActive(false, false, true)).toBe(true);
+  });
+
+  it("stays true for every combination of overlapping reasons", () => {
+    expect(isAnyCookingTimingPauseReasonActive(true, true, false)).toBe(true);
+    expect(isAnyCookingTimingPauseReasonActive(true, true, true)).toBe(true);
+  });
+
+  it("models the overlap scenario the task specifically calls out: Reference open -> app backgrounds -> foregrounds -> Reference still open never reads as resumed", () => {
+    // reasons: [referencePopoverOpen, appBackgrounded]
+    expect(isAnyCookingTimingPauseReasonActive(true, false)).toBe(true); // Reference opens
+    expect(isAnyCookingTimingPauseReasonActive(true, true)).toBe(true); // app also backgrounds
+    expect(isAnyCookingTimingPauseReasonActive(true, false)).toBe(true); // app foregrounds -- Reference still open, still paused
+    expect(isAnyCookingTimingPauseReasonActive(false, false)).toBe(false); // Reference finally closes -- now it may resume
   });
 });

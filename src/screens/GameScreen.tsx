@@ -477,6 +477,7 @@ export function GameScreen({
           justDiscovered={state.justDiscovered}
           justGotNewBest={state.justGotNewBest}
           pitzCredit={state.lastPitzCredit}
+          efficiencyCredit={state.lastEfficiencyCredit}
           starterGrantNotice={state.lastStarterGrantNotice}
           onRetrySameRecipe={onRetrySameRecipe}
           onBackToPizzaSelect={onBackToPizzaSelect}

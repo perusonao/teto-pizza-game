@@ -4,6 +4,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { ResultPanel } from "./ResultPanel";
 import type { ScoreBreakdown } from "../logic/scoring";
 import type { PitzCredit } from "../logic/pitzReward";
+import type { CookingEfficiencyCredit } from "../logic/efficiency";
 
 /**
  * A1 Authority Cutover: ResultPanel gained a 4th feedback row ("ソース") so Scoring 2.0's Sauce
@@ -146,6 +147,56 @@ describe("ResultPanel", () => {
   it("omits the Starter Grant notice when null (the common case -- no new recipe just unlocked)", () => {
     render(<ResultPanel {...baseProps()} starterGrantNotice={null} />);
     expect(screen.queryByText(/プレゼントしました/)).not.toBeInTheDocument();
+  });
+
+  // Cooking Time CT2.
+  function baseEfficiencyCredit(overrides: Partial<CookingEfficiencyCredit> = {}): CookingEfficiencyCredit {
+    return {
+      tier: "GOOD",
+      bonusRate: 0.06,
+      bonusPitz: 6,
+      cookingTimeMs: 42_000,
+      ...overrides,
+    };
+  }
+
+  it("renders 調理時間/手際 and adds the Efficiency bonus into the total/balance when provided", () => {
+    render(
+      <ResultPanel
+        {...baseProps()}
+        pitzCredit={basePitzCredit({ earnedPitz: 42, balanceAfter: 142 })}
+        efficiencyCredit={baseEfficiencyCredit()}
+      />,
+    );
+    expect(screen.getByText("調理時間")).toBeInTheDocument();
+    expect(screen.getByText("0:42")).toBeInTheDocument();
+    expect(screen.getByText("手際")).toBeInTheDocument();
+    expect(screen.getByText("スムーズ")).toBeInTheDocument();
+    expect(screen.getByText("手際ボーナス")).toBeInTheDocument();
+    expect(screen.getByText("+6 Pitz")).toBeInTheDocument();
+    // Headline total and the balance arrow both include the bonus on top of earnedPitz/balanceAfter.
+    expect(screen.getByText(/\+48 Pitz/)).toBeInTheDocument();
+    expect(screen.getByText(/148/)).toBeInTheDocument();
+  });
+
+  it("omits the Efficiency bonus row (but still shows 手際) when bonusPitz is 0", () => {
+    render(
+      <ResultPanel
+        {...baseProps()}
+        pitzCredit={basePitzCredit()}
+        efficiencyCredit={baseEfficiencyCredit({ tier: "NORMAL", bonusRate: 0, bonusPitz: 0 })}
+      />,
+    );
+    expect(screen.getByText("手際")).toBeInTheDocument();
+    expect(screen.getByText("ふつう")).toBeInTheDocument();
+    expect(screen.queryByText("手際ボーナス")).not.toBeInTheDocument();
+  });
+
+  it("omits every Cooking Time / Efficiency row when efficiencyCredit is null/omitted (Mission round, or no timing data)", () => {
+    render(<ResultPanel {...baseProps()} pitzCredit={basePitzCredit()} />);
+    expect(screen.queryByText("調理時間")).not.toBeInTheDocument();
+    expect(screen.queryByText("手際")).not.toBeInTheDocument();
+    expect(screen.queryByText("手際ボーナス")).not.toBeInTheDocument();
   });
 
   it("wires the retry-same-recipe and back-to-select CTAs", () => {
