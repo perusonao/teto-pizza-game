@@ -2,6 +2,7 @@ import { useState } from "react";
 import { DialogueBox } from "../components/DialogueBox";
 import { PizzaStage } from "../components/PizzaStage";
 import { IngredientTray } from "../components/IngredientTray";
+import { MakingStepTabs } from "../components/MakingStepTabs";
 import { BakeOverlay } from "../components/BakeOverlay";
 import { ResultPanel } from "../components/ResultPanel";
 import { MissionHud } from "../components/MissionHud";
@@ -165,6 +166,14 @@ export function GameScreen({
     onResetPizza();
   }
 
+  // Issue #86 (UX-2): the single gate for "may the immediate next making step be entered right
+  // now" -- computed once here and shared by both MakingStepTabs (its own next-tab tappability)
+  // and the 「次へ」 CTA's own `disabled` attribute below, so the one existing UI-only completion
+  // rule (DOUGH's `doughShapeComplete`, the reducer itself never gates CONFIRM_MAKING_STEP on
+  // completion -- see onewayFlow.test.ts) is defined in exactly one place, never duplicated.
+  // SAUCE/CHEESE have no completion gate today, so this is unconditionally true for them.
+  const nextStepReady = state.makingStep !== "DOUGH" || doughShapeComplete;
+
   const isMissionPlaying = mission.mode === "PLAYING";
   // Free play's own RESULT dialogue/ResultPanel are gated on this, not just `!isMissionPlaying`
   // -- once a run's timer expires mid-round, `mission.mode` flips straight to "RESULT" while
@@ -264,6 +273,19 @@ export function GameScreen({
           every recipe B2 has covered -- or the generic `PlayerReferencePreview` panel
           (../data/playerReference.ts, independent of Scoring 2.0) for any recipe that still
           has none. */}
+      {/* Issue #86 (UX-2): the primary making-step navigation, replacing "next-only" CTA
+          navigation as the way a player understands which step they're on and which is next.
+          Rendered for every PREPARE step, including DOUGH (which had no tab of its own before
+          this -- see MakingStepTabs.tsx's own header comment for the full SSOT contract). The
+          pre-existing 「次へ」/「焼く！」 CTA bar below stays as an auxiliary control, unchanged. */}
+      {state.phase === "PREPARE" && (
+        <MakingStepTabs
+          currentStep={state.makingStep}
+          nextReady={nextStepReady}
+          onAdvance={onConfirmMakingStep}
+        />
+      )}
+
       {state.phase === "PREPARE" && (
         <div className="order-card">
           <div className="order-card__text">
@@ -364,6 +386,9 @@ export function GameScreen({
               selectedIngredientId={selectedIngredientId}
               onSelectIngredient={onSelectIngredient}
               ownedIngredientIds={state.ownedIngredientIds}
+              recipe={state.recipe}
+              inventory={state.inventory}
+              pizza={state.pizza}
               physicalDragEnabled={
                 referenceModeEnabled && !isReferencePopoverOpen && !isGlobalOverlayOpen
               }
@@ -402,7 +427,7 @@ export function GameScreen({
                 type="button"
                 className="cta-button cta-button--bake"
                 onClick={onConfirmMakingStep}
-                disabled={state.makingStep === "DOUGH" && !doughShapeComplete}
+                disabled={!nextStepReady}
               >
                 次へ {"→"}
               </button>

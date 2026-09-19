@@ -665,53 +665,121 @@
   padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
 }
 
-.category-tabs {
-  display: flex;
-  gap: 6px;
+/* ---------- Ingredient Tray Scalability: Recommended / Other (Issue #86) ---------- */
+.ingredient-section {
   margin-bottom: 8px;
 }
 
-.category-tab {
-  flex: 1;
+.ingredient-section__title {
+  margin: 0 0 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #a04a27;
+  letter-spacing: 0.02em;
+}
+
+/* "このピザにおすすめ" -- a recipe's own requiredIngredients count is small, curated data (never
+   more than a handful per category), so a horizontal-scroll row (never wrapping, never paged)
+   is enough to keep it from ever overflowing the viewport even in an unusually
+   ingredient-heavy recipe -- see IngredientTray.tsx's own doc comment. */
+.ingredient-row--recommended {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ingredient-row--recommended .ingredient-chip {
+  flex: 0 0 auto;
+  width: 84px;
+}
+
+/* ---------- Making Step Tabs (Issue #86 UX-2) ---------- */
+/* Primary navigation for the PREPARE making flow -- see MakingStepTabs.tsx's own header
+   comment for the SSOT contract. Replaces the old `.category-tabs`/`.category-tab*` rules,
+   which only ever covered SAUCE/CHEESE/TOPPING inside IngredientTray; this covers all five
+   steps (DOUGH/SAUCE/CHEESE/TOPPING + a non-interactive BAKE indicator) and is rendered by
+   GameScreen for every PREPARE step, including DOUGH (which had no tab before this). */
+.making-step-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 6px 12px 0;
+}
+
+.making-step-tab {
+  flex: 1 1 0;
   border: none;
   border-radius: 10px 10px 0 0;
-  padding: 10px 4px;
-  font-size: 13px;
+  padding: 8px 2px;
+  font-size: 11px;
   font-weight: 700;
   background: #e6d5ae;
   color: #6b4226;
-  min-height: 44px;
+  min-height: 40px;
+  white-space: nowrap;
 }
 
-.category-tab--active.category-tab--sauce {
+.making-step-tab--active.making-step-tab--dough {
+  background: #c9a06a;
+  color: #3a260f;
+}
+.making-step-tab--active.making-step-tab--sauce {
   background: #e4572e;
   color: #fff;
 }
-.category-tab--active.category-tab--cheese {
+.making-step-tab--active.making-step-tab--cheese {
   background: #f2b705;
   color: #4a2e0a;
 }
-.category-tab--active.category-tab--topping {
+.making-step-tab--active.making-step-tab--topping {
   background: #4c9a2a;
   color: #fff;
 }
 
-/* Issue #32 Phase 2: the making flow is one-way, so only the current step's tab is ever
-   `disabled={false}` (see IngredientTray.tsx). A completed step reads as done (checkmark +
-   quieter fill), never as a mysteriously broken control; an upcoming step reads as simply not
-   reached yet (dimmed, same base fill as the default `.category-tab` background). */
-.category-tab--completed {
+/* The one *actionable* tab: the immediate next step, once its own gate (nextReady) allows it --
+   a slightly raised/bordered treatment so it visibly invites a tap, distinct from both the
+   inert current-step indicator and a fully locked future step. */
+.making-step-tab--next:not(:disabled) {
+  box-shadow: inset 0 0 0 2px rgba(228, 87, 46, 0.55);
+  opacity: 1;
+}
+
+/* Issue #32 Phase 2 / Issue #86: the making flow is one-way, so only the immediate next step's
+   tab is ever enabled (see MakingStepTabs.tsx). A completed step reads as done (checkmark +
+   quieter fill), never as a mysteriously broken control; a locked (not-yet-reachable) step
+   reads as simply not reached yet (dimmed, same base fill as the default tab background). */
+.making-step-tab--completed {
   background: #cdbb95;
   color: #6b4226;
   opacity: 0.85;
 }
 
-.category-tab--locked {
+.making-step-tab--locked {
   opacity: 0.55;
 }
 
-.category-tab:disabled {
+.making-step-tab:disabled {
   cursor: default;
+}
+
+/* The BAKE indicator: always a plain, non-focusable `<div>` (never a `<button>`) -- see
+   MakingStepTabs.tsx's own header comment for why START_BAKE stays reachable only via the
+   dedicated 「焼く！」 CTA. Deliberately narrower than the four real tabs (`flex: 0 0 auto`) so
+   it reads as a trailing destination marker, not a fifth equal step. */
+.making-step-tab--bake {
+  flex: 0 0 auto;
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  opacity: 0.45;
+}
+
+.making-step-tab--bake-ready {
+  opacity: 0.85;
+  background: #f6d67a;
 }
 
 /* Phase 4A-1B Human Feel Fix 2: a fixed 3x2 grid, never scrollable -- iPhone retesting of
@@ -877,6 +945,25 @@
   color: #4a2e0a;
   font-weight: 600;
   white-space: nowrap;
+}
+
+/* Issue #86 (Inventory表示): finite ingredients show their remaining count ("×27"), unlimited
+   (Starter) ingredients show "∞" -- `IngredientTray.tsx`'s `renderChip`, sourced from the
+   existing EP1/EP3 `remainingStock` (src/state/inventory.ts), never a re-derived count. */
+.ingredient-chip__stock {
+  font-size: 9px;
+  color: #a04a27;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Issue #86: a stock-0 (or otherwise unplaceable) ingredient -- `canPlaceIngredient`
+   (src/state/inventory.ts), the same EP3 Stock Gate the reducer itself uses at placement time.
+   `disabled` (see IngredientTray.tsx) already keeps it out of both click and pointer-drag
+   activation; this is purely the visual half. */
+.ingredient-chip--disabled {
+  opacity: 0.4;
+  filter: grayscale(0.6);
 }
 
 /* ---------- Action row ---------- */

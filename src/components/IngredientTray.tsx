@@ -6,8 +6,6 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import {
-  CATEGORY_LABEL,
-  CATEGORY_ORDER,
   ingredientsByCategory,
   MAX_INGREDIENT_PALETTE_SLOTS,
   type Ingredient,
@@ -16,13 +14,33 @@ import {
 import { IngredientPieceVisual } from "./IngredientPieceVisual";
 import type { DoughPoint } from "../logic/pizzaCoordinates";
 import { hasPieceDragIntent } from "../logic/pieceDrag";
+import type { Recipe } from "../data/recipes";
+import { canPlaceIngredient, remainingStock, type InventoryState } from "../state/inventory";
+import type { PizzaState } from "../state/pizzaState";
 
 interface IngredientTrayProps {
   activeCategory: IngredientCategory;
-  onChangeCategory: (category: IngredientCategory) => void;
+  /** Issue #86: the making-step tab strip (MakingStepTabs.tsx, rendered by GameScreen) is now
+   *  the tray's own former `category-tabs` -- no in-tray control drives a category switch any
+   *  more. Kept optional purely so any remaining caller that still threads App.tsx's old,
+   *  already-inert `handleChangeCategory` through doesn't need to change; never read here. */
+  onChangeCategory?: (category: IngredientCategory) => void;
   selectedIngredientId: string | null;
   onSelectIngredient: (ingredient: Ingredient) => void;
   ownedIngredientIds: readonly string[];
+  /** Issue #86: drives the "このピザにおすすめ" grouping below -- the current round's recipe,
+   *  unchanged for both FREE and Lunch Rush (Lunch Rush's own order recipe already flows through
+   *  `state.recipe` exactly like FREE's does, so no mode branching is needed here to make
+   *  "required ingredients surface first" true for Lunch Rush too). */
+  recipe: Recipe;
+  /** Issue #86: read-only inputs to the EP3 Stock Gate (`canPlaceIngredient`) and EP1/EP3's own
+   *  `remainingStock` -- both already-shipped, reducer-shared functions (src/state/inventory.ts),
+   *  reused here purely for *display* (remaining-count badge, disabled chip). Placement itself is
+   *  still gated exclusively at the reducer boundary (APPLY_SAUCE/COMMIT_SAUCE_DISPENSE/
+   *  PLACE_TOPPING, src/state/gameReducer.ts) -- nothing here bypasses or re-implements that gate,
+   *  a disabled chip only ever prevents a *doomed* placement attempt from starting. */
+  inventory: InventoryState;
+  pizza: PizzaState;
   physicalDragEnabled?: boolean;
   draggableIngredientIds?: readonly string[];
   resolvePhysicalDrop?: (clientX: number, clientY: number) => DoughPoint | null;
@@ -62,10 +80,12 @@ interface DragPreview {
 
 export function IngredientTray({
   activeCategory,
-  onChangeCategory,
   selectedIngredientId,
   onSelectIngredient,
   ownedIngredientIds,
+  recipe,
+  inventory,
+  pizza,
   physicalDragEnabled = false,
   draggableIngredientIds = [],
   resolvePhysicalDrop,
@@ -73,21 +93,43 @@ export function IngredientTray({
   resetToken,
   makingStepToken,
 }: IngredientTrayProps) {
-  // Phase 4A-1B Human Feel Fix 2: the visible grid stays a fixed 3x2 (MAX_INGREDIENT_PALETTE_SLOTS
-  // in data/ingredients.ts), no scrolling. Independent Review P1 (PR #26, discussion_r4017018587):
-  // a 7th owned ingredient in one category (onion, once purchased, joins 6 existing topping
-  // ingredients) was unconditionally sliced off and could never be selected. Rather than special
-  // -casing onion, owned ingredients in the active category are now paged MAX_INGREDIENT_PALETTE_
-  // SLOTS at a time -- a category with <=6 owned (every category today, minus a purchased onion)
-  // renders exactly as before with no page control at all; a 7th+ owned ingredient becomes
-  // reachable via a small page nav rendered only when it's actually needed.
-  const [page, setPage] = useState(0);
-  const categoryItems = ingredientsByCategory(activeCategory).filter((i) =>
-    ownedIngredientIds.includes(i.id),
+  // Issue #86 (Ingredient Tray Scalability): rather than one flat list of every owned ingredient
+  // in the active category (which stopped scaling well past the current ~14-ingredient catalog --
+  // see docs/reports/TETO_INGREDIENT-ECONOMY-UI-SCALABILITY_Fresh-Audit.md), the tray splits owned
+  // ingredients into two groups. "Recommended" is this round's own recipe requirements
+  // (`recipe.requiredIngredients`) that fall in the active category and are actually owned --
+  // deliberately the *same* field for FREE and Lunch Rush (Lunch Rush's `state.recipe` is already
+  // the current order's own recipe, so "surface what this order needs first" falls out of reusing
+  // this one field rather than a Mission-only branch). "Other" is every remaining owned ingredient
+  // in the category, so FREE creativity is never restricted to only the recommended set -- see
+  // this file's own IngredientTrayProps doc comment.
+  const recommendedIds = new Set(
+    recipe.requiredIngredients
+      .map((requirement) => requirement.ingredientId)
+      .filter((id) => ownedIngredientIds.includes(id)),
   );
-  const pageCount = Math.max(1, Math.ceil(categoryItems.length / MAX_INGREDIENT_PALETTE_SLOTS));
+  const recommendedItems = ingredientsByCategory(activeCategory).filter((i) =>
+    recommendedIds.has(i.id),
+  );
+  const otherItems = ingredientsByCategory(activeCategory).filter(
+    (i) => ownedIngredientIds.includes(i.id) && !recommendedIds.has(i.id),
+  );
+
+  // Phase 4A-1B Human Feel Fix 2: the visible "Other" grid stays a fixed 3x2
+  // (MAX_INGREDIENT_PALETTE_SLOTS in data/ingredients.ts), no scrolling. Independent Review P1
+  // (PR #26, discussion_r4017018587): a 7th owned ingredient in one category was unconditionally
+  // sliced off and could never be selected. Rather than special-casing it, owned "Other"
+  // ingredients are paged MAX_INGREDIENT_PALETTE_SLOTS at a time -- a category with <=6 "Other"
+  // owned (every category today) renders exactly as before with no page control at all; a 7th+
+  // becomes reachable via a small page nav rendered only when it's actually needed. Issue #86:
+  // this is also the mechanism that keeps a 30/62+-ingredient catalog from ever rendering more
+  // than 6 "Other" chips at once, alongside the small, recipe-bounded "Recommended" row above it
+  // (a recipe's own requiredIngredients count is curated, authored data -- never large enough on
+  // its own to need paging; see the Result Report's 30/62-ingredient scalability verification).
+  const [page, setPage] = useState(0);
+  const pageCount = Math.max(1, Math.ceil(otherItems.length / MAX_INGREDIENT_PALETTE_SLOTS));
   const currentPage = Math.min(page, pageCount - 1);
-  const items = categoryItems.slice(
+  const items = otherItems.slice(
     currentPage * MAX_INGREDIENT_PALETTE_SLOTS,
     (currentPage + 1) * MAX_INGREDIENT_PALETTE_SLOTS,
   );
@@ -304,71 +346,76 @@ export function IngredientTray({
     }
   }
 
+  // Issue #86 (Inventory表示): read-only display of the EP1/EP3 Stock Gate's own state --
+  // `canPlaceIngredient`/`remainingStock` are the exact same functions CONFIRM_MAKING_STEP's
+  // sibling actions (APPLY_SAUCE/COMMIT_SAUCE_DISPENSE/PLACE_TOPPING) already gate placement on
+  // (src/state/gameReducer.ts), never a re-implementation. A disabled chip's `disabled`
+  // attribute keeps it out of both click and pointer-drag activation (matching the pre-existing
+  // locked-tab pattern), so an out-of-stock ingredient can never even be *selected* here -- but
+  // the reducer's own gate remains the sole real enforcement either way (this only spares the
+  // player a doomed placement attempt).
+  function renderChip(ingredient: Ingredient) {
+    const stock = remainingStock(ingredient, inventory);
+    const placeable = canPlaceIngredient(ingredient, inventory, pizza);
+    return (
+      <button
+        key={ingredient.id}
+        type="button"
+        className={`ingredient-chip ${
+          selectedIngredientId === ingredient.id ? "ingredient-chip--selected" : ""
+        } ${isDraggable(ingredient) ? "ingredient-chip--physical" : ""} ${
+          grabbedId === ingredient.id ? "ingredient-chip--grabbing" : ""
+        } ${!placeable ? "ingredient-chip--disabled" : ""}`}
+        aria-pressed={selectedIngredientId === ingredient.id}
+        disabled={!placeable}
+        onPointerDown={(event) => handlePointerDown(event, ingredient)}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerCancel}
+        onLostPointerCapture={handleLostPointerCapture}
+        onClick={(event) => handleClick(event, ingredient)}
+      >
+        {ingredient.category === "cheese" ? (
+          <span className="ingredient-chip__cheese-slot">
+            <IngredientPieceVisual ingredient={ingredient} />
+          </span>
+        ) : (
+          <span className="ingredient-chip__emoji">{ingredient.emoji}</span>
+        )}
+        <span className="ingredient-chip__name">{ingredient.nameJa}</span>
+        <span className="ingredient-chip__stock">{stock === "UNLIMITED" ? "∞" : `×${stock}`}</span>
+        {isDraggable(ingredient) && <span className="ingredient-chip__drag-hint">上へドラッグ</span>}
+      </button>
+    );
+  }
+
   return (
     <div className="ingredient-panel">
-      <div className="category-tabs">
-        {CATEGORY_ORDER.map((category, index) => {
-          // Issue #32 Phase 2: the making flow is one-way (SAUCE -> CHEESE -> TOPPING) --
-          // only the current step's tab is ever interactive. A step before it reads as
-          // completed (not a mysterious disabled tab); a step after it is simply not
-          // reachable yet. `disabled` keeps a locked tab out of both click and keyboard
-          // (Tab/Enter/Space) activation -- the reducer's own `makingStep` gate is the final
-          // guard either way, this is only the UI half of "no backward-editing path".
-          const activeIndex = CATEGORY_ORDER.indexOf(activeCategory);
-          const isCompleted = index < activeIndex;
-          const isActive = category === activeCategory;
-          return (
-            <button
-              key={category}
-              type="button"
-              className={`category-tab category-tab--${category} ${
-                isActive ? "category-tab--active" : ""
-              } ${isCompleted ? "category-tab--completed" : ""} ${
-                !isActive && !isCompleted ? "category-tab--locked" : ""
-              }`}
-              disabled={!isActive}
-              aria-current={isActive ? "step" : undefined}
-              onClick={() => onChangeCategory(category)}
-            >
-              {isCompleted ? `✓ ${CATEGORY_LABEL[category]}` : CATEGORY_LABEL[category]}
-            </button>
-          );
-        })}
-      </div>
-      <div className="ingredient-tray">
-        {items.map((ingredient) => (
-          <button
-            key={ingredient.id}
-            type="button"
-            className={`ingredient-chip ${
-              selectedIngredientId === ingredient.id ? "ingredient-chip--selected" : ""
-            } ${isDraggable(ingredient) ? "ingredient-chip--physical" : ""} ${
-              grabbedId === ingredient.id ? "ingredient-chip--grabbing" : ""
-            }`}
-            aria-pressed={selectedIngredientId === ingredient.id}
-            onPointerDown={(event) => handlePointerDown(event, ingredient)}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
-            onPointerCancel={handlePointerCancel}
-            onLostPointerCapture={handleLostPointerCapture}
-            onClick={(event) => handleClick(event, ingredient)}
-          >
-            {ingredient.category === "cheese" ? (
-              <span className="ingredient-chip__cheese-slot">
-                <IngredientPieceVisual ingredient={ingredient} />
-              </span>
-            ) : (
-              <span className="ingredient-chip__emoji">{ingredient.emoji}</span>
-            )}
-            <span className="ingredient-chip__name">{ingredient.nameJa}</span>
-            {isDraggable(ingredient) && <span className="ingredient-chip__drag-hint">上へドラッグ</span>}
-          </button>
-        ))}
-      </div>
+      {/* Issue #86 (Ingredient Tray Scalability): "このピザにおすすめ" -- this round's own recipe
+          requirements, owned and in the active category. Omitted entirely once empty (a recipe
+          with no requirement in this category, e.g. marinara has no CHEESE requirement at all)
+          rather than showing an empty heading. */}
+      {recommendedItems.length > 0 && (
+        <section className="ingredient-section ingredient-section--recommended">
+          <h3 className="ingredient-section__title">このピザにおすすめ</h3>
+          <div className="ingredient-row ingredient-row--recommended">
+            {recommendedItems.map((ingredient) => renderChip(ingredient))}
+          </div>
+        </section>
+      )}
 
-      {/* Independent Review P1 (PR #26): only rendered once a category actually owns more than
+      {/* "その他" -- every other owned ingredient in the active category, so FREE play is never
+          limited to only the recommended set (see IngredientTrayProps' own doc comment). */}
+      <section className="ingredient-section ingredient-section--other">
+        {recommendedItems.length > 0 && otherItems.length > 0 && (
+          <h3 className="ingredient-section__title">その他</h3>
+        )}
+        <div className="ingredient-tray">{items.map((ingredient) => renderChip(ingredient))}</div>
+      </section>
+
+      {/* Independent Review P1 (PR #26): only rendered once "Other" actually owns more than
           MAX_INGREDIENT_PALETTE_SLOTS ingredients -- every category today stays exactly as it
-          was pre-fix (no nav, no layout change) until a 7th ingredient in one category is
+          was pre-fix (no nav, no layout change) until a 7th "Other" ingredient in one category is
           actually owned. Page switching, not scrolling, so it never reintroduces the
           single-finger-swipe conflict Fix 2 removed. */}
       {pageCount > 1 && (
