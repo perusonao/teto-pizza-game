@@ -2,6 +2,8 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "./App";
+import { SAVE_STORAGE_KEY, type PersistentSaveV1 } from "./state/persistence";
+import { STARTER_INGREDIENT_IDS } from "./data/ingredients";
 
 /**
  * Issue #47 Slice B (Findings F/H) integration coverage: the persistent mini Reference
@@ -31,7 +33,27 @@ afterEach(() => {
   window.localStorage.clear();
 });
 
+/** Economy & Progression 1.0 EP1: bismarck needs margherita->funghi->marinara discovered
+ *  first (the Chapter 1 recipe-unlock chain, src/state/progression.ts's `recipeUnlocked`).
+ *  Pre-seeds that chain into localStorage so bismarck shows up as an unlocked, NEW Pizza
+ *  Select card -- unaffected for the Margherita-only flows in this file, which never call it. */
+function seedBismarckUnlocked(): void {
+  const save: PersistentSaveV1 = {
+    schemaVersion: 1,
+    dex: [
+      { recipeId: "margherita", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 },
+      { recipeId: "funghi", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 },
+      { recipeId: "marinara", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 },
+    ],
+    pitzBalance: 0,
+    ownedIngredientIds: [...STARTER_INGREDIENT_IDS],
+    missionBest: {},
+  };
+  window.localStorage.setItem(SAVE_STORAGE_KEY, JSON.stringify(save));
+}
+
 async function enterMakingWith(user: ReturnType<typeof userEvent.setup>, cardName: string) {
+  if (cardName.startsWith("ビスマルク")) seedBismarckUnlocked();
   render(<App />);
   await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
   await user.click(screen.getByRole("button", { name: cardName }));
@@ -157,7 +179,9 @@ describe("Selecting a different recipe updates the reference", () => {
 
     await user.click(screen.getByRole("button", { name: /ホーム/ }));
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
-    await user.click(screen.getByRole("button", { name: "マルゲリータ、未挑戦" }));
+    // The pre-seeded Chapter 1 chain (bismarck's own unlock prerequisite) already discovered
+    // margherita, so its card now reads COMPLETED, not NEW -- match by recipe name only.
+    await user.click(screen.getByRole("button", { name: /マルゲリータ/ }));
 
     expect(
       screen.queryByRole("button", { name: /ビスマルクの見本を拡大表示/ }),

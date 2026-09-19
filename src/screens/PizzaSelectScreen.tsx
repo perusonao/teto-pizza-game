@@ -30,7 +30,7 @@ function cardAriaLabel(card: RecipeCardState): string {
     case "NEW":
       return `${card.recipe.nameJa}、未挑戦`;
     case "LOCKED":
-      return "？？？、未解放";
+      return card.mystery ? "？？？、未解放" : `${card.recipe.nameJa}、未解放`;
   }
 }
 
@@ -53,7 +53,9 @@ function RecipeSelectCard({
         <span className="pizza-select-card__lock-silhouette" aria-hidden="true">
           <span className="pizza-select-card__lock-icon">{"\u{1F512}"}</span>
         </span>
-        <p className="pizza-select-card__lock-label">？？？</p>
+        <p className="pizza-select-card__lock-label">
+          {card.mystery ? "？？？" : card.recipe.nameJa}
+        </p>
         {card.unlockHint && <p className="pizza-select-card__unlock-hint">{card.unlockHint}</p>}
       </button>
     );

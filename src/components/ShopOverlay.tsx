@@ -33,8 +33,12 @@ function remainingStarsFor(ingredient: Ingredient, stars: number): number {
  *  derived purely for display (see `recipesUnlockedByIngredient`'s own doc comment). Empty
  *  when this ingredient doesn't complete any recipe on its own (not expected in production
  *  today, but never crashes if a future ingredient doesn't gate a recipe). */
-function unlockedRecipeLabel(ingredientId: string, ownedIngredientIds: readonly string[]): string {
-  return recipesUnlockedByIngredient(ingredientId, ownedIngredientIds)
+function unlockedRecipeLabel(
+  ingredientId: string,
+  dex: DexState,
+  ownedIngredientIds: readonly string[],
+): string {
+  return recipesUnlockedByIngredient(ingredientId, dex, ownedIngredientIds)
     .map((id) => getRecipe(id)?.nameJa)
     .filter((name): name is string => !!name)
     .join("、");
@@ -64,7 +68,7 @@ export function ShopOverlay({
   const [feedback, setFeedback] = useState<PurchaseFeedback | null>(null);
 
   function handleBuy(ingredient: Ingredient) {
-    const unlockedRecipeNames = recipesUnlockedByIngredient(ingredient.id, ownedIngredientIds)
+    const unlockedRecipeNames = recipesUnlockedByIngredient(ingredient.id, dex, ownedIngredientIds)
       .map((id) => getRecipe(id)?.nameJa)
       .filter((name): name is string => !!name);
     onPurchase(ingredient.id);
@@ -111,7 +115,7 @@ export function ShopOverlay({
           <div className="shop-overlay__list">
             {SHOP_PRODUCTS.map((ingredient) => {
               const state = ingredientState(ingredient, ownedIngredientIds, stars);
-              const unlocksLabel = unlockedRecipeLabel(ingredient.id, ownedIngredientIds);
+              const unlocksLabel = unlockedRecipeLabel(ingredient.id, dex, ownedIngredientIds);
               return (
                 <div key={ingredient.id} className="shop-item">
                   <div className="shop-item__row">

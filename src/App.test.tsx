@@ -48,6 +48,22 @@ function seedSave(overrides: Partial<PersistentSaveV1>): void {
   window.localStorage.setItem(SAVE_STORAGE_KEY, JSON.stringify(save));
 }
 
+/** Economy & Progression 1.0 EP1: bismarck needs margherita->funghi->marinara discovered
+ *  first (the Chapter 1 recipe-unlock chain, src/state/progression.ts's `recipeUnlocked`).
+ *  Many of this file's end-to-end flows exercise a second, still-undiscovered recipe after
+ *  margherita -- bismarck was the arbitrary pick before EP1 (when every Starter recipe was
+ *  always available) and stays the pick here, just with its own chain pre-seeded so it
+ *  actually shows up as an unlocked, NEW card on Pizza Select. */
+function seedBismarckUnlocked(): void {
+  seedSave({
+    dex: [
+      { recipeId: "margherita", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 },
+      { recipeId: "funghi", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 },
+      { recipeId: "marinara", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 },
+    ],
+  });
+}
+
 beforeEach(() => {
   window.localStorage.clear();
 });
@@ -81,6 +97,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
   });
 
   it("selects an unlocked recipe from Pizza Select and starts FREE with that exact recipe", async () => {
+    seedBismarckUnlocked();
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
@@ -105,6 +122,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
   // remains the sole hub. Checked across ORDER (Lunch Rush's own ORDER screen, the one place
   // GAME still renders phase "ORDER" for FREE-mode content) and PREPARE.
   it("never renders Shop/Pizza Dex navigation inside GAME's header (Finding K)", async () => {
+    seedBismarckUnlocked();
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
@@ -209,6 +227,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
   });
 
   it("navigates GAME -> HOME via the header button when nothing is in progress", async () => {
+    seedBismarckUnlocked();
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
@@ -222,6 +241,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
   });
 
   it("confirms before discarding an in-progress pizza when leaving GAME for HOME", async () => {
+    seedBismarckUnlocked();
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
@@ -247,6 +267,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
   });
 
   it("starts a fresh round instead of reopening a finished round from HOME's CTA", async () => {
+    seedBismarckUnlocked();
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
@@ -287,6 +308,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
   // 取り出す！ already shows the discovery banner and Pitz credit, and the player's own
   // completed pizza (not a reference/placeholder image) stays the visual hero throughout.
   it("RESULT 2.0: auto-registers to Dex/Pitz on BAKE confirm and shows the player's own completed pizza as hero", async () => {
+    seedBismarckUnlocked();
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
@@ -318,6 +340,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
   });
 
   it("「もう一度つくる」retries the exact same recipe with a fresh pizza (Finding D)", async () => {
+    seedBismarckUnlocked();
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
@@ -344,6 +367,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
   });
 
   it("「別のピザを作る」returns to Pizza Select instead of retrying (Finding D)", async () => {
+    seedBismarckUnlocked();
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
@@ -365,6 +389,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
   // reducer level (src/state/gameReducer.test.ts) -- this checks the one progression field
   // GAME's own header still surfaces (Pitz balance) stays stable across the same UI flow.
   it("keeps Pitz balance stable across a same-recipe retry", async () => {
+    seedBismarckUnlocked();
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));

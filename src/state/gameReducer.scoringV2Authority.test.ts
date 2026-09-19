@@ -6,6 +6,7 @@ import {
 } from "./gameReducer";
 import { EMPTY_DEX } from "./dex";
 import { getRecipe, type RecipeId } from "../data/recipes";
+import { findOrderForRecipe } from "../data/orders";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { buildIdealSauceFixture, getReferencePizza } from "../data/referencePizza";
 import { createEmptyPizza, type PizzaState, type SauceDeposit } from "./pizzaState";
@@ -99,17 +100,23 @@ function poorPizzaForRecipe(recipeId: RecipeId): PizzaState {
   });
 }
 
-/** SELECT_RECIPE -> manually swap in `pizza` -> START_BAKE -> CONFIRM_BAKE at the recipe's own
+/** Directly swaps in `recipe`/`order`/`pizza` -> START_BAKE -> CONFIRM_BAKE at the recipe's own
  *  perfect-zone midpoint. START_BAKE has no making-flow gate (`case "START_BAKE": return
  *  {...state, phase: "BAKE"}`), so this is a legitimate way to drive the reducer straight to
  *  RESULT for a specific canonical `pizza` without replaying every PREPARE step through the UI
  *  action sequence -- CONFIRM_BAKE's own scoring logic only ever reads `state.recipe` and the
- *  `pizza` it's handed, never `makingStep`. */
+ *  `pizza` it's handed, never `makingStep`. Bypasses `SELECT_RECIPE` (and therefore Economy &
+ *  Progression 1.0 EP1's recipe-unlock chain gate, src/state/progression.ts's
+ *  `isRecipeAvailable`) entirely and deliberately, per this file's own top comment: this suite
+ *  tests the CONFIRM_BAKE authority boundary for all 7 recipes, which is orthogonal to
+ *  progression gating -- exactly like the ownership axis already was, and exactly like this
+ *  same function already bypasses `makingStep`. */
 function playToResultForRecipe(recipeId: RecipeId, pizza: PizzaState): GameState {
+  const recipe = getRecipe(recipeId);
+  const order = findOrderForRecipe(recipeId);
+  if (!recipe || !order) throw new Error(`Unknown recipe ${recipeId}`);
   let state = createInitialGameState(EMPTY_DEX, ALL_INGREDIENT_IDS);
-  state = gameReducer(state, { type: "SELECT_RECIPE", recipeId });
-  if (state.recipe.id !== recipeId) throw new Error(`Failed to select ${recipeId}`);
-  state = { ...state, pizza };
+  state = { ...state, recipe, order, pizza };
   state = gameReducer(state, { type: "START_BAKE" });
   const { start, end } = state.recipe.bakeTarget;
   return gameReducer(state, { type: "CONFIRM_BAKE", value: Math.round((start + end) / 2) });
