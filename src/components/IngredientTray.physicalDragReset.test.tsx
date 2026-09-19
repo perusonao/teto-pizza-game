@@ -83,10 +83,12 @@ function Harness({ category }: { category: IngredientCategory }) {
       <span data-testid="topping-count">{state.pizza.toppings.length}</span>
       <IngredientTray
         activeCategory={category}
-        onChangeCategory={() => {}}
         selectedIngredientId={null}
         onSelectIngredient={() => {}}
         ownedIngredientIds={state.ownedIngredientIds}
+        recipe={state.recipe}
+        inventory={state.inventory}
+        pizza={state.pizza}
         physicalDragEnabled
         draggableIngredientIds={["mozzarella", "basil"]}
         resolvePhysicalDrop={resolvePhysicalDrop}
