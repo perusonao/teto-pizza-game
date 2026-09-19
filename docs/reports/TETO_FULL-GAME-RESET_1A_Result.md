@@ -286,3 +286,48 @@ browser viewports verified with 0 console errors and 0 horizontal overflow; the 
 `tsc`, `oxlint`, and `npm run build` are all green; no schema, gameplay, or Firebase code was
 touched; the change is exactly the audit's recommended "thin UI + integration slice around
 `clearSave()`" — no new fresh-state construction, no per-field reset list to maintain.
+
+---
+
+## 17. Main Merge / Conflict Resolution (post-PR #107)
+
+PR #107 ("Visual Polish 1A: Ingredient Tray scroll cue for hidden ingredients") squash-merged to
+`main` (`c40f9571322e464a9e9db3fa531cf8a1ef3a4daa`) while this PR was open, leaving PR #106
+`mergeable=false`. Resolved on the same branch (`claude/teto-pizza-reset-1a-yr7h4n`), no new PR:
+
+- **Fetched** `origin/main` — new HEAD `c40f957` (one squash commit past this PR's original base
+  `2ae37f1e0`), containing only `#107`'s own changes: `src/App.css` (+69 lines, an
+  IntersectionObserver-driven scroll cue for the Ingredient Tray), `src/components/
+  IngredientTray.tsx`, a new `IngredientTray.scrollCue.test.tsx`, and its own Result Report +
+  screenshots. No file it touched overlaps this PR's non-CSS files.
+- **Conflict:** `src/App.css` only — both PRs appended new rule blocks near the same region of
+  the file (`#107`'s `.ingredient-scroll-cue*` rules and this PR's `.settings-overlay*`/
+  `.settings-reset-confirm*` rules land close together relative to each `git diff`'s own context,
+  but touch disjoint line ranges within it).
+- **Resolution:** `git merge origin/main` — Git's own three-way merge (`ort` strategy) resolved
+  `App.css` automatically with **no manual edits and no conflict markers**; every rule from both
+  PRs is present and intact post-merge (verified directly: `.ingredient-scroll-cue`/
+  `.ingredient-scroll-cue__chevron` from #107 and `.settings-overlay__section`/
+  `.settings-reset-confirm*` from this PR all still exist, at their own distinct positions in the
+  file). No other file conflicted. Nothing from either PR's own spec was altered, trimmed, or
+  reordered by the merge — this was a pure git auto-merge, not a manual reconciliation.
+- **New HEAD:** `8bfb88fec858e0b2e6a71fa15a163ba55b7dc747` (merge commit `Merge remote-tracking
+  branch 'origin/main' into claude/teto-pizza-reset-1a-yr7h4n`, `claude/teto-pizza-reset-1a-yr7h4n`).
+- **Re-verification after merge:**
+  - Focused (`persistence.test.ts` + `App.fullGameReset.test.tsx` + #107's own
+    `IngredientTray.scrollCue.test.tsx`): **105/105 passing**.
+  - Full suite: **1630/1630 passing**, 83 files (1625 from this PR + 5 new from #107). One
+    transient failure (`phase4a1a.regression.test.ts`, a pre-existing `Math.random`-seeded recipe
+    test unrelated to either PR's diff) appeared once when run as part of the full 83-file suite
+    and was confirmed a pre-existing order-dependent flake: it passes in isolation and the very
+    next full-suite run was 1630/1630 clean with no code changes in between.
+  - `npx tsc -b`: clean.
+  - `npx oxlint`: clean.
+  - `npm run build`: succeeds (`vite build`, 814ms).
+  - Browser re-check at **390×844** and **360×800** (same Cancel/Confirm/reload flows as §12):
+    unchanged results — 0 console errors, 0 horizontal overflow at both, Reset 1A's own UI
+    unaffected by #107's Ingredient Tray scroll cue landing in the same stylesheet.
+- **Scope:** no unrelated spec changes made to satisfy the merge — both PRs' behavior is fully
+  preserved as authored; this section is additive documentation only.
+
+**Verdict unchanged: A. READY TO MERGE.**
