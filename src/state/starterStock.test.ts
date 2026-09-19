@@ -187,6 +187,152 @@ describe("applyStarterGrants: Recipe #2-#7 grant amounts", () => {
   });
 });
 
+/**
+ * Recipe Expansion Batch 1A (docs/reports/TETO_RECIPE-EXPANSION_BATCH-1A_Implementation-Result.md):
+ * dedicated Starter Grant coverage for the 4 new recipes (#8-#11), mirroring the #2-#7 suite
+ * above exactly -- each recipe's own grant is `minCount x STARTER_STOCK_PLAYS_CHAPTER_1` per
+ * scatter ingredient, granted exactly once, gated by the same chain unlockCondition.
+ */
+describe("applyStarterGrants: Batch 1A recipe grant amounts (#8-#11)", () => {
+  const CHAIN_TO_FUGAZZA = [
+    "margherita",
+    "funghi",
+    "marinara",
+    "bismarck",
+    "genovese",
+    "quattro-formaggi",
+    "fugazza",
+  ];
+
+  // `mozzarella` has no `unlockCondition` -- it is a Starter (permanently-unlimited) ingredient
+  // exactly like `tomato-sauce`/`basil` (see ../data/ingredients.ts's STARTER_INGREDIENT_IDS),
+  // so `starterGrantForRecipe` skips it entirely (see that function's own doc comment) even
+  // though every Batch 1A recipe requires it -- no inventory entry, ever, for a Starter
+  // ingredient. Only the genuinely finite (unlockCondition-bearing) new toppings get a grant.
+  it("Recipe #8 (salsiccia, requires fugazza discovered + 16 stars) grants sausage=3x10=30 only (mozzarella stays ungranted/unlimited)", () => {
+    const dex = dexDiscovering(CHAIN_TO_FUGAZZA, 5 as QualityStars); // 7 x 5 = 35 >= 16
+    const result = applyStarterGrants(dex, STARTER_INGREDIENT_IDS, EMPTY_INVENTORY, [
+      "funghi",
+      "marinara",
+      "bismarck",
+      "genovese",
+      "quattro-formaggi",
+      "fugazza",
+    ]);
+    expect(result.grantedRecipeIds).toEqual(["salsiccia"]);
+    expect(result.inventory).toEqual({ sausage: 30 });
+    expect(result.ownedIngredientIds).toContain("sausage");
+  });
+
+  it("Recipe #9 (pepperoni, requires salsiccia discovered + 20 stars) grants pepperoni=4x10=40 only", () => {
+    const dex = dexDiscovering([...CHAIN_TO_FUGAZZA, "salsiccia"], 5 as QualityStars); // 8x5=40>=20
+    const result = applyStarterGrants(dex, STARTER_INGREDIENT_IDS, EMPTY_INVENTORY, [
+      "funghi",
+      "marinara",
+      "bismarck",
+      "genovese",
+      "quattro-formaggi",
+      "fugazza",
+      "salsiccia",
+    ]);
+    expect(result.grantedRecipeIds).toEqual(["pepperoni"]);
+    expect(result.inventory).toEqual({ pepperoni: 40 });
+  });
+
+  it("Recipe #10 (napoletana, requires pepperoni discovered + 24 stars) grants anchovy=3x10=30, and floors oregano against marinara's existing grant", () => {
+    const dex = dexDiscovering(
+      [...CHAIN_TO_FUGAZZA, "salsiccia", "pepperoni"],
+      5 as QualityStars, // 9x5=45>=24
+    );
+    const priorInventory: InventoryState = { oregano: 20 }; // marinara's own untouched grant
+    const result = applyStarterGrants(dex, STARTER_INGREDIENT_IDS, priorInventory, [
+      "funghi",
+      "marinara",
+      "bismarck",
+      "genovese",
+      "quattro-formaggi",
+      "fugazza",
+      "salsiccia",
+      "pepperoni",
+    ]);
+    expect(result.grantedRecipeIds).toEqual(["napoletana"]);
+    expect(result.inventory.anchovy).toBe(30);
+    // napoletana's own oregano grant is 1x10=10; floor keeps marinara's existing 20 unchanged.
+    expect(result.inventory.oregano).toBe(20);
+  });
+
+  it("Recipe #11 (tonno-e-cipolla, requires napoletana discovered + 28 stars) grants tuna=3x10=30, and floors onion against fugazza's existing 40", () => {
+    const dex = dexDiscovering(
+      [...CHAIN_TO_FUGAZZA, "salsiccia", "pepperoni", "napoletana"],
+      5 as QualityStars, // 10x5=50>=28
+    );
+    const priorInventory: InventoryState = { onion: 40 }; // fugazza's own untouched grant
+    const result = applyStarterGrants(dex, STARTER_INGREDIENT_IDS, priorInventory, [
+      "funghi",
+      "marinara",
+      "bismarck",
+      "genovese",
+      "quattro-formaggi",
+      "fugazza",
+      "salsiccia",
+      "pepperoni",
+      "napoletana",
+    ]);
+    expect(result.grantedRecipeIds).toEqual(["tonno-e-cipolla"]);
+    expect(result.inventory.tuna).toBe(30);
+    // tonno-e-cipolla's own onion grant is 2x10=20; floor keeps fugazza's existing 40 unchanged.
+    expect(result.inventory.onion).toBe(40);
+  });
+
+  it.each(["salsiccia", "pepperoni", "napoletana", "tonno-e-cipolla"])(
+    "%s is never re-granted once already claimed (exact-once ledger)",
+    (recipeId) => {
+      const dex = dexDiscovering(
+        [...CHAIN_TO_FUGAZZA, "salsiccia", "pepperoni", "napoletana", "tonno-e-cipolla"],
+        5 as QualityStars,
+      );
+      const alreadyClaimed = [
+        "funghi",
+        "marinara",
+        "bismarck",
+        "genovese",
+        "quattro-formaggi",
+        "fugazza",
+        "salsiccia",
+        "pepperoni",
+        "napoletana",
+        "tonno-e-cipolla",
+      ];
+      const priorInventory: InventoryState = {
+        sausage: 30,
+        pepperoni: 40,
+        anchovy: 30,
+        oregano: 20,
+        tuna: 30,
+        onion: 40,
+      };
+      const priorOwned = [...STARTER_INGREDIENT_IDS, "sausage", "pepperoni", "anchovy", "tuna", "onion"];
+      const result = applyStarterGrants(dex, priorOwned, priorInventory, alreadyClaimed);
+      expect(result.grantedRecipeIds).toEqual([]);
+      expect(result.inventory).toBe(priorInventory);
+      expect(result.ownedIngredientIds).toBe(priorOwned);
+      expect(result.claimedRecipeIds).toBe(alreadyClaimed);
+      expect(recipeId).toBeTruthy(); // parameterized purely for a readable test name per recipe
+    },
+  );
+
+  it.each([
+    ["salsiccia", "サルシッチャ"],
+    ["pepperoni", "ペパロニ"],
+    ["napoletana", "ナポリ"],
+    ["tonno-e-cipolla", "トンノ・エ・チポッラ"],
+  ])("buildStarterGrantNotice for %s reads '🎁「%s」の材料を最初の10回分プレゼントしました！'", (recipeId, nameJa) => {
+    const notice = buildStarterGrantNotice([recipeId as never]);
+    expect(notice).not.toBeNull();
+    expect(notice!.messageJa).toBe(`🎁「${nameJa}」の材料を最初の10回分プレゼントしました！`);
+  });
+});
+
 describe("applyStarterGrants: scatter vs spread/sauce derivation", () => {
   it("every scatter ingredient's grant is exactly requiredIngredients.minCount x STARTER_STOCK_PLAYS_CHAPTER_1", () => {
     const dex = dexDiscovering(

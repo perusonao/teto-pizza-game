@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { RECIPES, getRecipe } from "./recipes";
+import { RECIPES, getRecipe, type RecipeId } from "./recipes";
 import { ORDERS } from "./orders";
 import { STARTER_INGREDIENT_IDS } from "./ingredients";
 import { isRecipeAvailable } from "../state/progression";
@@ -32,15 +32,52 @@ const STARTER_RECIPE_IDS = [
   "funghi",
 ];
 
-describe("RECIPES (Phase 3C-6: fugazza is Recipe #7)", () => {
-  it("has exactly 7 recipes total", () => {
-    expect(RECIPES).toHaveLength(7);
+/** Recipe Expansion Batch 1A (docs/reports/TETO_RECIPE-EXPANSION_BATCH-1A_Implementation-Result.md):
+ *  the 4 new recipes appended after fugazza's chain, per that report's own "Batch 1A暫定
+ *  progression" section. */
+const BATCH_1A_RECIPE_IDS: readonly RecipeId[] = [
+  "salsiccia",
+  "pepperoni",
+  "napoletana",
+  "tonno-e-cipolla",
+];
+
+describe("RECIPES (Phase 3C-6: fugazza is Recipe #7; Batch 1A adds #8-#11)", () => {
+  it("has exactly 11 recipes total (7 shipped + Batch 1A's 4)", () => {
+    expect(RECIPES).toHaveLength(11);
   });
 
-  it("the current Starter 6 are unchanged", () => {
-    expect(RECIPES.filter((r) => r.id !== "fugazza").map((r) => r.id).sort()).toEqual(
-      [...STARTER_RECIPE_IDS].sort(),
-    );
+  it("the pre-Batch-1A Starter 6 + fugazza are unchanged", () => {
+    expect(
+      RECIPES.filter((r) => r.id !== "fugazza" && !BATCH_1A_RECIPE_IDS.includes(r.id))
+        .map((r) => r.id)
+        .sort(),
+    ).toEqual([...STARTER_RECIPE_IDS].sort());
+  });
+
+  it("Batch 1A's 4 recipes exist exactly once each, ids unique across all 11", () => {
+    for (const id of BATCH_1A_RECIPE_IDS) {
+      expect(RECIPES.filter((r) => r.id === id)).toHaveLength(1);
+    }
+    expect(new Set(RECIPES.map((r) => r.id)).size).toBe(RECIPES.length);
+  });
+
+  describe.each(BATCH_1A_RECIPE_IDS)("%s (Batch 1A)", (id) => {
+    it("exists, uses only existing spread/scatter mechanics ingredients, and has a valid bake target", () => {
+      const r = getRecipe(id);
+      expect(r).toBeDefined();
+      expect(r!.requiredIngredients.length).toBeGreaterThan(0);
+      expect(r!.bakeTarget.start).toBeLessThan(r!.bakeTarget.end);
+      expect(r!.bakeTarget.start).toBeGreaterThan(0);
+      expect(r!.bakeTarget.end).toBeLessThan(100);
+      expect(r!.baseRewardPitz).toBe(100);
+    });
+
+    it("has a chain unlockCondition (never available from a fresh save)", () => {
+      const r = getRecipe(id);
+      expect(r!.unlockCondition?.requiresRecipeId).toBeDefined();
+      expect(r!.unlockCondition?.minTotalStars).toBeGreaterThan(0);
+    });
   });
 
   describe("fugazza", () => {

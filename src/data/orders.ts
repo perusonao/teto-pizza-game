@@ -50,6 +50,30 @@ export const ORDERS: Order[] = [
     requestedBy: "mito",
     lineJa: "たまねぎが仕入れられたんだって！アルゼンチン風のフガッサを作ってみてほしいな！",
   },
+  {
+    id: "order-salsiccia",
+    recipeId: "salsiccia",
+    requestedBy: "mito",
+    lineJa: "ゴロゴロのソーセージがのったサルシッチャが食べたいな！食べ応えたっぷりにしてね！",
+  },
+  {
+    id: "order-pepperoni",
+    recipeId: "pepperoni",
+    requestedBy: "mito",
+    lineJa: "定番のペパロニピザが食べたい気分！ピリッと香ばしいのをお願いね！",
+  },
+  {
+    id: "order-napoletana",
+    recipeId: "napoletana",
+    requestedBy: "mito",
+    lineJa: "アンチョビがきいたナポリピザ、本場の味が気になるな！作ってみて！",
+  },
+  {
+    id: "order-tonno-e-cipolla",
+    recipeId: "tonno-e-cipolla",
+    requestedBy: "mito",
+    lineJa: "ツナとたまねぎのトンノ・エ・チポッラ、さっぱりしてておいしそう！食べてみたいな！",
+  },
 ];
 
 /** Looks up the one Order for an explicit recipe id (Issue #39 Pizza Select: every recipe in

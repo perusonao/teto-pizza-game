@@ -261,9 +261,12 @@ describe("Purchased onion stays reachable via page nav (Independent Review P1, P
 
   it("with exactly 6 'Other' owned, no page nav is rendered", () => {
     // EP4: only `basil` remains Starter among toppings now (garlic/oregano/cherry-tomato/egg/
-    // mushroom all gained their own `unlockCondition`) -- own every topping except `onion`
-    // explicitly (as production's Starter Grants would have by this point).
-    const sixOwnedToppings = allToppingIds.filter((id) => id !== "onion");
+    // mushroom all gained their own `unlockCondition`) -- own every pre-Batch-1A topping except
+    // `onion` explicitly (as production's Starter Grants would have by this point). Batch 1A
+    // added 4 more toppings (sausage/pepperoni/anchovy/tuna) to the catalog, so this boundary
+    // case is now pinned via an explicit list rather than "every topping except onion" (which
+    // would be 10, not 6) -- still the same original 6-topping boundary this test exists to pin.
+    const sixOwnedToppings = ["basil", "garlic", "oregano", "cherry-tomato", "egg", "mushroom"];
     expect(sixOwnedToppings).toHaveLength(MAX_INGREDIENT_PALETTE_SLOTS);
     render(
       <Harness
