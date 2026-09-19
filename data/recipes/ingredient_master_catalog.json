@@ -1,0 +1,136 @@
+{
+  "$schemaNote": "Ingredient Master Catalog v1 — companion to pizza_master_catalog.json. See docs/design/TETO_RECIPE-MASTER-CATALOG.md. Research/data artifact only; NOT wired into src/**.",
+  "catalogVersion": "1.0.0",
+  "generatedDate": "2026-09-18",
+  "auditedMainSha": "5d28c5dc996c0ea76aa6428f158a766165477213",
+  "sourceNote": "Derived entirely from this repository's existing production data (src/data/ingredients.ts, read-only) plus the 7 recipes in pizza_master_catalog.json, because pizzadb.jp and every other external domain tested were unreachable this session (see the Research Result report). This catalog intentionally does NOT attempt to reproduce the prior, unverifiable '181 unique ingredients' figure — see pizza_master_catalog.json's canonicalRecipeCountNote for the same reasoning applied to ingredients.",
+  "uniqueIngredientCount": 14,
+  "ingredients": [
+    {
+      "id": "tomato-sauce",
+      "displayName": "トマトソース / Tomato Sauce",
+      "aliases": ["Pizza Sauce", "San Marzano Tomato Sauce (unverified specific variety)"],
+      "family": "sauce:tomato",
+      "usedByRecipeCount": 4,
+      "currentlyImplemented": true,
+      "candidateShopTier": "starter-not-for-sale"
+    },
+    {
+      "id": "olive-oil",
+      "displayName": "オリーブオイル / Olive Oil",
+      "aliases": ["Extra Virgin Olive Oil (unverified specific grade)"],
+      "family": "sauce:oil",
+      "usedByRecipeCount": 2,
+      "currentlyImplemented": true,
+      "candidateShopTier": "starter-not-for-sale"
+    },
+    {
+      "id": "pesto",
+      "displayName": "ジェノベーゼソース / Pesto",
+      "aliases": ["Pesto alla Genovese", "Basil Pesto"],
+      "family": "sauce:pesto",
+      "usedByRecipeCount": 1,
+      "currentlyImplemented": true,
+      "candidateShopTier": "starter-not-for-sale"
+    },
+    {
+      "id": "mozzarella",
+      "displayName": "モッツァレラ / Mozzarella",
+      "aliases": ["Mozzarella di Bufala (unverified specific variety; game data does not distinguish)", "Fior di Latte"],
+      "family": "cheese",
+      "usedByRecipeCount": 5,
+      "currentlyImplemented": true,
+      "candidateShopTier": "starter-not-for-sale"
+    },
+    {
+      "id": "gorgonzola",
+      "displayName": "ゴルゴンゾーラ / Gorgonzola",
+      "aliases": [],
+      "family": "cheese",
+      "usedByRecipeCount": 1,
+      "currentlyImplemented": true,
+      "candidateShopTier": "starter-not-for-sale"
+    },
+    {
+      "id": "parmigiano",
+      "displayName": "パルミジャーノ / Parmigiano",
+      "aliases": ["Parmigiano-Reggiano", "Parmesan"],
+      "family": "cheese",
+      "usedByRecipeCount": 1,
+      "currentlyImplemented": true,
+      "candidateShopTier": "starter-not-for-sale"
+    },
+    {
+      "id": "fontina",
+      "displayName": "フォンティーナ / Fontina",
+      "aliases": [],
+      "family": "cheese",
+      "usedByRecipeCount": 1,
+      "currentlyImplemented": true,
+      "candidateShopTier": "starter-not-for-sale"
+    },
+    {
+      "id": "basil",
+      "displayName": "バジル / Basil",
+      "aliases": ["Fresh Basil"],
+      "family": "topping:herb",
+      "usedByRecipeCount": 1,
+      "currentlyImplemented": true,
+      "candidateShopTier": "starter-not-for-sale"
+    },
+    {
+      "id": "garlic",
+      "displayName": "にんにく / Garlic",
+      "aliases": [],
+      "family": "topping:aromatic",
+      "usedByRecipeCount": 1,
+      "currentlyImplemented": true,
+      "candidateShopTier": "starter-not-for-sale"
+    },
+    {
+      "id": "oregano",
+      "displayName": "オレガノ / Oregano",
+      "aliases": ["Dried Oregano"],
+      "family": "topping:herb",
+      "usedByRecipeCount": 2,
+      "currentlyImplemented": true,
+      "candidateShopTier": "starter-not-for-sale"
+    },
+    {
+      "id": "cherry-tomato",
+      "displayName": "チェリートマト / Cherry Tomato",
+      "aliases": ["Grape Tomato (unverified specific variety)"],
+      "family": "topping:vegetable",
+      "usedByRecipeCount": 1,
+      "currentlyImplemented": true,
+      "candidateShopTier": "starter-not-for-sale"
+    },
+    {
+      "id": "egg",
+      "displayName": "たまご / Egg",
+      "aliases": [],
+      "family": "topping:protein",
+      "usedByRecipeCount": 1,
+      "currentlyImplemented": true,
+      "candidateShopTier": "starter-not-for-sale"
+    },
+    {
+      "id": "mushroom",
+      "displayName": "マッシュルーム / Mushroom",
+      "aliases": ["Button Mushroom (unverified specific variety)"],
+      "family": "topping:vegetable",
+      "usedByRecipeCount": 1,
+      "currentlyImplemented": true,
+      "candidateShopTier": "starter-not-for-sale"
+    },
+    {
+      "id": "onion",
+      "displayName": "たまねぎ / Onion",
+      "aliases": [],
+      "family": "topping:vegetable",
+      "usedByRecipeCount": 1,
+      "currentlyImplemented": true,
+      "candidateShopTier": "shop:unlocked-tier1 (minTotalStars 12, 120 Pitz — src/data/ingredients.ts)"
+    }
+  ]
+}
