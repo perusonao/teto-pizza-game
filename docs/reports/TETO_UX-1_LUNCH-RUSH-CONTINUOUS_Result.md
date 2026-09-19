@@ -200,3 +200,63 @@ plus this report — no reducer file, component file, or schema file touched.
 **A. UX-1 COMPLETE — READY FOR MERGE REVIEW**
 
 Per task instructions, this PR is left OPEN and is NOT merged.
+
+## Post-PR#90 Rebase Verification
+
+PR #90 ("docs: Ingredient Economy & UI Scalability -- fresh data-first audit", docs-only) merged
+into `main`, making PR #91's old head un-mergeable. This section records bringing PR #91 back in
+sync with the new `main`.
+
+- **Latest `origin/main` SHA:** `b77f87235e49a222272b990676dc94bfefd1e53b` (PR #90 merge).
+- **Previous PR #91 HEAD:** `d574a4e7a8bd266990d2f591c7ea7918f3b9357e` (single commit, parented on
+  `ccdf77722c8bed8d9560d5b5d5a02bcb6b344649`, the pre-PR#83 `main`).
+- **New PR #91 HEAD:** `13b60c1ef8ef64c2b90fa13a6747965685a08fc9` — `d574a4e`'s single commit
+  cherry-picked cleanly onto the new `main` (`b77f872`).
+- **Conflicts:** NO. The cherry-pick applied with zero conflicts; PR #90 is docs-only and never
+  touched `src/App.tsx` or `src/App.test.tsx`, and no other merged PR since `d574a4e`'s base
+  (`ccdf777`) touched `handleMissionServeNext` or its surrounding lines.
+- **Changed production files:** unchanged in scope — still exactly `src/App.tsx` (+8 lines) and
+  `src/App.test.tsx` (+40 lines), plus this report. `git diff --stat origin/main HEAD` after the
+  rebase confirms no additional file was touched:
+  ```
+  docs/reports/TETO_UX-1_LUNCH-RUSH-CONTINUOUS_Result.md | 202 +++++++++++++++++++++
+  src/App.test.tsx                                       |  40 ++++
+  src/App.tsx                                            |   8 +
+  3 files changed, 250 insertions(+)
+  ```
+- **Tests:**
+  - Focused `src/App.test.tsx`: 1 test file, 26 tests, all passed (includes the Issue #85 Lunch
+    Rush continuous-progression test).
+  - `npx tsc -b`: clean, no errors.
+  - `npm run lint` (`oxlint`): clean, no findings.
+  - Full suite (`npm test`): `Test Files 65 passed (65)` / `Tests 1299 passed (1299)` — identical
+    counts to the pre-rebase run, confirming PR #90 introduced no new tests and PR #91 lost none.
+- **Build:** `npm run build` (`tsc -b && vite build`) succeeded, `dist/` emitted with no errors.
+- **Smoke result (390×844, headless Chromium via `playwright-core` against `vite preview`):**
+  Drove Lunch Rush end to end for two consecutive pizzas (ORDER →「ピザを作る！」→ DOUGH → 3×「次へ」
+  → 「焼く」→「取り出す！」→ RESULT →「次の注文へ」, twice).
+  ```json
+  {
+    "orderButtonVisibleAfterPizza1": false,
+    "doughVisibleAfterPizza1": true,
+    "servedCountAfterPizza1": "🍕 1",
+    "servedCountAfterPizza2": "🍕 2",
+    "orderButtonVisibleAfterPizza2": false,
+    "doughVisibleAfterPizza2": true,
+    "overflow": { "scrollWidth": 390, "clientWidth": 390 },
+    "consoleErrors": []
+  }
+  ```
+  - No redundant「ピザを作る！」tap reappears between RESULT and the next pizza's PREPARE, for
+    either pizza — the UX-1 fix still holds after the rebase.
+  - `servedCount` advances correctly (`1` → `2`), confirming score/HUD state and no double-count.
+  - No horizontal overflow at 390px width; no console/page errors during the run.
+  - Inventory consumption and Pitz reward call sites (`CONFIRM_BAKE`/`REGISTER_TO_DEX`) are
+    untouched by the rebase (still upstream of and unrelated to the cherry-picked commit), so no
+    double-consumption or double-grant risk was introduced.
+  - FREE mode's separate `onBeginPrepare` call site (`App.tsx:563` on the new `main`) is untouched;
+    no FREE regression from this rebase.
+
+**Merge readiness:** PR #91 is up to date with `origin/main` (fast-forward-able from `main`'s
+perspective once opened for merge), carries no conflicts, and re-passes every check from the
+original Result report. Left **OPEN**, not merged, per task instructions.
