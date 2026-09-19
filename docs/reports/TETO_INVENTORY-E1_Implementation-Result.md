@@ -8,8 +8,9 @@ consumption, no `CONFIRM_BAKE` decrement, no shortage UI, no Shop changes.**
   session start; the pre-created remote branch
   (`claude/inventory-e1-production-28q492`) was byte-identical to `origin/main` at this SHA (no
   prior work on it), so the implementation branch was reset to fresh `origin/main` directly.
-- **Head SHA**: see the commit this report ships with (single commit on
-  `claude/inventory-e1-production-28q492`).
+- **Head SHA**: original implementation commit `b1c5d319c6dce9fa2cf6ab65feffb85afd584793`; see §0
+  below for the subsequent Fresh Merge Gate sync against `main`'s later tip (PR #77) and this
+  PR's current head as of that sync.
 - **Drift check against the Preflight** (`docs/reports/TETO_INVENTORY-E1_Implementation-Preflight.md`,
   audited SHA `aaf56ed`): `git diff aaf56ed origin/main --stat` for
   `gameReducer.ts`/`persistence.ts`/`App.tsx`/`ingredients.ts`/`progression.ts` showed only
@@ -17,6 +18,51 @@ consumption, no `CONFIRM_BAKE` decrement, no shortage UI, no Shop changes.**
   function and a prop rewire, both well clear of the hydration/persistence call sites the
   Preflight cited. No re-audit was needed; implementation proceeded directly per the Preflight's
   own file scope.
+
+## 0. Fresh Merge Gate update (2026-09-19, PR #77 sync)
+
+This PR was re-synced to fresh `main` after **PR #77 (Economy & Progression 1.0 Fresh Design)**
+merged, so it could pass a Fresh Merge Gate without losing E1's own scope guard.
+
+- **Audited latest `main` SHA (this update)**: `654629f283e33f1be6f506588464ce9e24a6d03b` ("Economy
+  & Progression 1.0: Fresh Design (docs-only, Margherita-only start) (#77)"). Fetched fresh via
+  `git fetch origin`, not assumed from any prior report.
+- **Previous PR #78 HEAD**: `b1c5d319c6dce9fa2cf6ab65feffb85afd584793` (1 behind fresh `main`, 1
+  ahead — exactly PR #77's own docs-only commit).
+- **New PR #78 HEAD**: `bc1bf1ac182832bd0cda6ed4a0a89e3e59c4e109` (merge commit).
+- **Main-sync method**: `git merge origin/main` (a plain merge, not a rebase — this branch had
+  already been pushed and reviewed against, so history was preserved rather than rewritten).
+- **Conflicts**: **none.** PR #77 is docs-only — exactly two new files
+  (`docs/design/TETO_ECONOMY-PROGRESSION-1_MATRIX.md`,
+  `docs/reports/TETO_ECONOMY-PROGRESSION-1_Fresh-Design.md`), zero overlap with any file this PR
+  touches (`src/state/*`, `src/App.tsx`). Confirmed before merging via
+  `git diff 5d28c5d 654629f --stat`.
+- **Scope creep check**: `git diff origin/main HEAD --name-only` after the merge lists exactly the
+  same 9 files as before the sync (`src/state/inventory.ts`/`inventory.test.ts` (new),
+  `src/state/gameReducer.ts`/`gameReducer.test.ts`/`gameReducer.pitzReward.test.ts`,
+  `src/state/persistence.ts`/`persistence.test.ts`, `src/App.tsx`, this report) — **zero new files,
+  zero scope creep.** In particular, none of `Recipe.unlockCondition`, `recipeUnlocked()`,
+  `STARTER_STOCK_PLAYS_CHAPTER_1`/`starterStockPlays`, any starter-stock-grant transaction, or any
+  `CONFIRM_BAKE` consumption/decrement exists anywhere in this diff — confirmed by grep across
+  `src/` for each of those identifiers (only pre-existing comments describing today's *shipped*
+  no-unlock-flag model matched, not new implementation). PR #77's own design explicitly names this
+  PR's slice **"EP0 — Inventory E1 foundation"**, a dependency every later EP1–EP4 slice assumes
+  exists, and requires **no code change from this PR** to be consistent with it — confirmed by
+  reading PR #77's Fresh Design doc in full (§12, `docs/reports/TETO_ECONOMY-PROGRESSION-1_Fresh-Design.md`).
+- **Economy & Progression 1.0 design consistency**: `InventoryState`'s shape
+  (`Readonly<Record<string, number>>`), the scatter=placed-piece-count / sauce=binary-1-use unit
+  model, and the `ownedIngredientIds`/`inventory` separation this PR ships are all exactly what PR
+  #77 §4.3/§6.1/§14 item 3 assume EP0 already provides — re-verified line-by-line against this PR's
+  own `src/state/inventory.ts`, not just asserted. No rework was needed in either direction.
+- **Post-merge verification**: `npx tsc -b` clean, `npx oxlint` clean, `npx vitest run` →
+  **1217/1217 pass** (identical count to pre-sync — the merge added no test files, confirming
+  PR #77 truly changed nothing this suite exercises), `npm run build` clean. `ownedIngredientIds`/
+  `inventory` independence and the `PLAY_AGAIN`/`SELECT_RECIPE`/`RETRY_SAME_RECIPE`/
+  `MISSION_NEXT_ORDER` carry-through tests (§8 below) all re-ran green, unmodified, after the
+  merge.
+- **PR mergeability**: after this sync, PR #78 is exactly caught up with `main`'s tip (0 behind, 1
+  ahead — this merge commit itself), no conflicts.
+- **PR #78 remains OPEN, not merged, per instruction.**
 
 ## 1. Changed files
 
