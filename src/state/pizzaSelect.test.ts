@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { recipeCardState } from "./pizzaSelect";
+import {
+  clampPagerIndex,
+  pagerIndicatorKind,
+  PAGER_DOT_INDICATOR_MAX,
+  recipeCardState,
+} from "./pizzaSelect";
 import { getRecipe } from "../data/recipes";
 import { EMPTY_DEX, registerScoreToDex, type DexState } from "./dex";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
@@ -145,5 +150,50 @@ describe("recipeCardState (Issue #39 Pizza Select, extended by Economy & Progres
     }).dex;
     const card = recipeCardState(fugazza, dex, STARTER_INGREDIENT_IDS);
     expect(card.kind).toBe("LOCKED");
+  });
+});
+
+describe("clampPagerIndex (Issue #88 UX-4 pager)", () => {
+  it("passes through an in-range index unchanged", () => {
+    expect(clampPagerIndex(3, 7)).toBe(3);
+    expect(clampPagerIndex(0, 7)).toBe(0);
+    expect(clampPagerIndex(6, 7)).toBe(6);
+  });
+
+  it("clamps below zero up to 0 (never wraps to the last index)", () => {
+    expect(clampPagerIndex(-1, 7)).toBe(0);
+    expect(clampPagerIndex(-100, 7)).toBe(0);
+  });
+
+  it("clamps past the end down to the last valid index (never wraps to 0)", () => {
+    expect(clampPagerIndex(7, 7)).toBe(6);
+    expect(clampPagerIndex(999, 7)).toBe(6);
+  });
+
+  it("degenerately clamps to 0 for an empty collection", () => {
+    expect(clampPagerIndex(0, 0)).toBe(0);
+    expect(clampPagerIndex(5, 0)).toBe(0);
+  });
+
+  it("scales unchanged to a much larger collection (53/100/160-recipe future)", () => {
+    expect(clampPagerIndex(52, 53)).toBe(52);
+    expect(clampPagerIndex(53, 53)).toBe(52);
+    expect(clampPagerIndex(159, 160)).toBe(159);
+    expect(clampPagerIndex(160, 160)).toBe(159);
+  });
+});
+
+describe("pagerIndicatorKind (Issue #88 UX-4 pager, never a 53-dot row)", () => {
+  it("uses dots at/under the max (today's 7 production recipes included)", () => {
+    expect(pagerIndicatorKind(1)).toBe("dots");
+    expect(pagerIndicatorKind(7)).toBe("dots");
+    expect(pagerIndicatorKind(PAGER_DOT_INDICATOR_MAX)).toBe("dots");
+  });
+
+  it("switches to a numeric counter once past the max -- never a 53-entry dot row", () => {
+    expect(pagerIndicatorKind(PAGER_DOT_INDICATOR_MAX + 1)).toBe("counter");
+    expect(pagerIndicatorKind(53)).toBe("counter");
+    expect(pagerIndicatorKind(100)).toBe("counter");
+    expect(pagerIndicatorKind(160)).toBe("counter");
   });
 });

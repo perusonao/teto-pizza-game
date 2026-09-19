@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import App from "./App";
 import { SAVE_STORAGE_KEY, type PersistentSaveV1 } from "./state/persistence";
 import { STARTER_INGREDIENT_IDS } from "./data/ingredients";
+import { RECIPES, type RecipeId } from "./data/recipes";
 
 /**
  * Issue #47 Slice B (Findings F/H) integration coverage: the persistent mini Reference
@@ -52,11 +53,25 @@ function seedBismarckUnlocked(): void {
   window.localStorage.setItem(SAVE_STORAGE_KEY, JSON.stringify(save));
 }
 
-async function enterMakingWith(user: ReturnType<typeof userEvent.setup>, cardName: string) {
-  if (cardName.startsWith("ビスマルク")) seedBismarckUnlocked();
+/** Issue #88 (UX-4): Pizza Select is a single-recipe pager now, not a grid of per-recipe
+ *  buttons -- reaching a given recipe means paging Next `RECIPES`-order-index times from the
+ *  pager's own index-0 default, then tapping the one shared CTA. */
+async function selectRecipeInPizzaSelect(
+  user: ReturnType<typeof userEvent.setup>,
+  recipeId: RecipeId,
+) {
+  const targetIndex = RECIPES.findIndex((r) => r.id === recipeId);
+  for (let i = 0; i < targetIndex; i += 1) {
+    await user.click(screen.getByRole("button", { name: "次のレシピ" }));
+  }
+  await user.click(screen.getByRole("button", { name: /このピザを作る/ }));
+}
+
+async function enterMakingWith(user: ReturnType<typeof userEvent.setup>, recipeId: RecipeId) {
+  if (recipeId === "bismarck") seedBismarckUnlocked();
   render(<App />);
   await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
-  await user.click(screen.getByRole("button", { name: cardName }));
+  await selectRecipeInPizzaSelect(user, recipeId);
 }
 
 /** Issue #33 D1: a fresh round now starts at DOUGH, whose own "次へ" stays disabled until the
@@ -84,13 +99,13 @@ function completeDoughStep() {
 describe("Mini Reference (Margherita, Scoring 2.0 fixture)", () => {
   it("is visible during PREPARE without pressing anything", async () => {
     const user = userEvent.setup();
-    await enterMakingWith(user, "マルゲリータ、未挑戦");
+    await enterMakingWith(user, "margherita");
     expect(document.querySelector(".mini-reference")).toBeInTheDocument();
   });
 
   it("tapping it opens the existing unchanged Margherita popover", async () => {
     const user = userEvent.setup();
-    await enterMakingWith(user, "マルゲリータ、未挑戦");
+    await enterMakingWith(user, "margherita");
     await user.click(screen.getByRole("button", { name: /マルゲリータの見本を拡大表示/ }));
     expect(screen.getByRole("dialog", { name: /マルゲリータの見本/ })).toBeInTheDocument();
     // No numeric-precision content was lost for Margherita -- its own reviewed sauce bars
@@ -100,7 +115,7 @@ describe("Mini Reference (Margherita, Scoring 2.0 fixture)", () => {
 
   it("closing the popover leaves the mini reference in place", async () => {
     const user = userEvent.setup();
-    await enterMakingWith(user, "マルゲリータ、未挑戦");
+    await enterMakingWith(user, "margherita");
     await user.click(screen.getByRole("button", { name: /マルゲリータの見本を拡大表示/ }));
     await user.click(screen.getByRole("button", { name: "閉じる" }));
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
@@ -109,7 +124,7 @@ describe("Mini Reference (Margherita, Scoring 2.0 fixture)", () => {
 
   it("RESET_PIZZA (やり直す) preserves the same-recipe mini reference", async () => {
     const user = userEvent.setup();
-    await enterMakingWith(user, "マルゲリータ、未挑戦");
+    await enterMakingWith(user, "margherita");
     expect(document.querySelector(".mini-reference")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "やり直す" }));
     expect(document.querySelector(".mini-reference")).toBeInTheDocument();
@@ -120,13 +135,13 @@ describe("Mini Reference (Margherita, Scoring 2.0 fixture)", () => {
 describe("Mini Reference (Bismarck, B2 PART C2 -- also a Scoring 2.0 fixture recipe now)", () => {
   it("is visible during PREPARE", async () => {
     const user = userEvent.setup();
-    await enterMakingWith(user, "ビスマルク、未挑戦");
+    await enterMakingWith(user, "bismarck");
     expect(document.querySelector(".mini-reference")).toBeInTheDocument();
   });
 
   it("tapping it opens Bismarck's own precise popover, not a leftover Margherita title/caption", async () => {
     const user = userEvent.setup();
-    await enterMakingWith(user, "ビスマルク、未挑戦");
+    await enterMakingWith(user, "bismarck");
     await user.click(screen.getByRole("button", { name: /ビスマルクの見本を拡大表示/ }));
     // B2 found and fixed a real bug here: ReferencePreview used to hardcode "マルゲリータ"
     // in its title/aria-label/caption regardless of which recipe was actually open, invisible
@@ -142,7 +157,7 @@ describe("Mini Reference (Bismarck, B2 PART C2 -- also a Scoring 2.0 fixture rec
 
   it("RESET_PIZZA preserves the same-recipe mini reference", async () => {
     const user = userEvent.setup();
-    await enterMakingWith(user, "ビスマルク、未挑戦");
+    await enterMakingWith(user, "bismarck");
     await user.click(screen.getByRole("button", { name: "やり直す" }));
     expect(document.querySelector(".mini-reference")).toBeInTheDocument();
     expect(document.querySelector(".order-card")).toHaveTextContent("ビスマルク");
@@ -150,7 +165,7 @@ describe("Mini Reference (Bismarck, B2 PART C2 -- also a Scoring 2.0 fixture rec
 
   it("RETRY_SAME_RECIPE (もう一度つくる) preserves the same-recipe reference", async () => {
     const user = userEvent.setup();
-    await enterMakingWith(user, "ビスマルク、未挑戦");
+    await enterMakingWith(user, "bismarck");
     completeDoughStep();
     await user.click(screen.getByRole("button", { name: /次へ/ })); // DOUGH -> SAUCE
     await user.click(screen.getByRole("button", { name: /次へ/ })); // SAUCE -> CHEESE
@@ -172,16 +187,18 @@ describe("Mini Reference (Bismarck, B2 PART C2 -- also a Scoring 2.0 fixture rec
 describe("Selecting a different recipe updates the reference", () => {
   it("Pizza Select -> a different recipe swaps the mini/expanded reference accordingly", async () => {
     const user = userEvent.setup();
-    await enterMakingWith(user, "ビスマルク、未挑戦");
+    await enterMakingWith(user, "bismarck");
     expect(
       screen.getByRole("button", { name: /ビスマルクの見本を拡大表示/ }),
     ).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: /ホーム/ }));
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
-    // The pre-seeded Chapter 1 chain (bismarck's own unlock prerequisite) already discovered
-    // margherita, so its card now reads COMPLETED, not NEW -- match by recipe name only.
-    await user.click(screen.getByRole("button", { name: /マルゲリータ/ }));
+    // The pager remounts fresh at index 0 (margherita, RECIPES' own first entry) every time
+    // Pizza Select is re-entered -- the pre-seeded Chapter 1 chain (bismarck's own unlock
+    // prerequisite) already discovered margherita too, so its card now reads COMPLETED, not
+    // NEW, but it's still the default card shown with no Next presses needed.
+    await selectRecipeInPizzaSelect(user, "margherita");
 
     expect(
       screen.queryByRole("button", { name: /ビスマルクの見本を拡大表示/ }),

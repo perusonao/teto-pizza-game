@@ -107,6 +107,30 @@ review of the video/Preview.** Next open work on this track: Slice 2/3 (feedback
 translation layer, reveal sequencing, Cooking Time scaffold) — explicitly not started this
 session, per the task's own scope guard.
 
+**2026-09-19 addendum (Gameplay UX Next: Fresh Audit, docs-only, PR open)** — see
+`docs/reports/TETO_GAMEPLAY-UX-NEXT_Fresh-Audit.md`, audited `main` SHA `c3741810cf2fce96a6cc2f422e919d9aa471b1ec`
+(current HEAD at the time of that audit). A READ-ONLY Fresh Audit/design pass over five requested
+UX improvements — Lunch Rush continuous per-pizza progression (UX-1), Making-step tabs replacing/
+augmenting the 「次へ」 CTA (UX-2), a local (GitHub-Pages-only, no backend) Lunch Rush run
+ranking/history (UX-3), a single-screen Pizza Select pager replacing the scrolling card grid (UX-4),
+and a confirmation-gated "achievement-only" (Dex-only) test reset (UX-5). **Verdict: A. READY FOR
+IMPLEMENTATION** — all five have concrete, minimal-risk designs reusing existing architecture
+(`recipeCardState`, `IngredientTray`'s already-built-but-inert `category-tabs` pattern, the
+`persistProgress`-style read-patch-write schema pattern, existing `MISSION_NEXT_ORDER`/
+`BEGIN_PREPARE` actions), and are confirmed file-conflict-free against **PR #83 (Economy &
+Progression 1.0 EP3: Shop 2.0 restock + placement Stock Gate)**, which is itself an **active
+OPEN PR** at this audit's SHA (not yet merged) — this document did not previously mention EP3 at
+all; it is recorded here for the first time. The audit also found and flagged forward to EP4 (not
+yet implemented) a still-open design question from `docs/reports/TETO_ECONOMY-PROGRESSION-1_Fresh-Design.md`:
+EP4's exactly-once starter-stock grant guard must key off `ownedIngredientIds` (not `dex`/
+discovery), or a future UX-5 Achievement Reset could re-arm an unlimited starter-stock grant loop —
+see the audit report §6 for the full reasoning. Three old open PRs re-confirmed stale/superseded by
+this audit (not closed, out of its read-only scope): **#72** (already represented by this document's
+own RESULT 2.0 addendum's "PR #68 ... now confirmed MERGED" line), **#46** (Dough D0 audit,
+superseded by merged D1/D2/D3A), **#34** (Issue #32 Phase 1, superseded by merged PR #45). No
+production code changed this session; five implementation slices (one per UX item, each ~30min–2h)
+are specified in the audit report §8, none blocking Economy 1.0's own EP3→EP4→Human-Feel sequence.
+
 > Fresh GitHub/main state always wins if this document becomes stale.
 
 ## Product goal

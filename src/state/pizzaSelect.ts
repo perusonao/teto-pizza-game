@@ -65,3 +65,31 @@ export function recipeCardState(
   }
   return { kind: "NEW", recipe };
 }
+
+/**
+ * Issue #88 (UX-4): Pizza Select single-screen pager. Everything below is pure
+ * index/count arithmetic over whatever recipe collection the caller passes in
+ * (`PizzaSelectScreen`'s `recipes` prop, `RECIPES` by default) -- nothing here hard-codes the
+ * production count of 7, so a future Chapter/Tier filter that narrows `RECIPES` down to a
+ * `visibleRecipes` subset before handing it to the pager needs no change here at all.
+ */
+
+/** Clamp-at-ends, never wrap: paging past either end is a no-op rather than an infinite
+ *  carousel back to the opposite recipe (Issue #88's own "意図しない無限carouselにはしない"
+ *  requirement). Works for any `total` >= 1; `total <= 0` degenerately clamps to 0. */
+export function clampPagerIndex(index: number, total: number): number {
+  if (total <= 0) return 0;
+  return Math.min(Math.max(index, 0), total - 1);
+}
+
+/** Above this many entries, a row of one-dot-per-recipe stops being scannable (Issue #88
+ *  explicitly forbids ever laying out a 53-dot indicator) -- switch to a compact "N / total"
+ *  counter instead. 10 keeps today's 7 recipes comfortably in dot mode while already covering
+ *  the Scale Gate's own "~10: pager" band from the Fresh Audit. */
+export const PAGER_DOT_INDICATOR_MAX = 10;
+
+export type PagerIndicatorKind = "dots" | "counter";
+
+export function pagerIndicatorKind(total: number): PagerIndicatorKind {
+  return total <= PAGER_DOT_INDICATOR_MAX ? "dots" : "counter";
+}
