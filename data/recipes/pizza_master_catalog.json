@@ -1,0 +1,2114 @@
+{
+  "schemaNote": "Fresh Recipe Master Catalog v2 (160-scale, data-first pass). Research/design artifact only; NOT wired into src/**. Never claims a fabricated 160-count -- see catalogEntryCount/viableEntryCount/statusBreakdown.",
+  "catalogVersion": "2.0.0",
+  "generatedDate": "2026-09-19",
+  "auditedMainSha": "8918fe4bd93816b0acefe4a35106fa1a4e8653e2",
+  "illustrativeTargetCeiling": 160,
+  "catalogEntryCount": 53,
+  "viableEntryCount": 51,
+  "rejectedDuplicateCount": 2,
+  "statusBreakdown": {
+    "verified_internal": 7,
+    "game_design_candidate": 21,
+    "deferred": 5,
+    "verification_pending": 18,
+    "rejected_duplicate": 2
+  },
+  "recipes": [
+    {
+      "id": "margherita",
+      "nameJa": "マルゲリータ",
+      "nameOriginal": "Pizza Margherita",
+      "aliases": [
+        "Margherita"
+      ],
+      "regionOrStyle": "Italy (Naples)",
+      "descriptionShort": "Phase 1 vertical slice recipe.",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "basil",
+        "mozzarella",
+        "tomato-sauce"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": {
+        "start": 60,
+        "end": 80
+      },
+      "mechanics": [
+        "spread",
+        "scatter"
+      ],
+      "visualIdentity": "Phase 1 vertical slice recipe.",
+      "sourceReferences": [
+        "internal://src/data/recipes.ts#margherita"
+      ],
+      "verificationStatus": "verified_internal",
+      "implementationClass": "A",
+      "difficulty": 1,
+      "progressionTier": "starter",
+      "gameDesignStatus": "shipped",
+      "currentGameRecipe": true,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": []
+    },
+    {
+      "id": "marinara",
+      "nameJa": "マリナーラ",
+      "nameOriginal": "Pizza alla Marinara",
+      "aliases": [
+        "Marinara"
+      ],
+      "regionOrStyle": "Italy (Naples)",
+      "descriptionShort": "No-cheese Neapolitan classic. Alias risk vs 'marinara sauce' (pasta sauce).",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "garlic",
+        "oregano",
+        "tomato-sauce"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": {
+        "start": 45,
+        "end": 65
+      },
+      "mechanics": [
+        "spread",
+        "scatter"
+      ],
+      "visualIdentity": "No-cheese Neapolitan classic. Alias risk vs 'marinara sauce' (pasta sauce).",
+      "sourceReferences": [
+        "internal://src/data/recipes.ts#marinara"
+      ],
+      "verificationStatus": "verified_internal",
+      "implementationClass": "A",
+      "difficulty": 1,
+      "progressionTier": "starter",
+      "gameDesignStatus": "shipped",
+      "currentGameRecipe": true,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": []
+    },
+    {
+      "id": "quattro-formaggi",
+      "nameJa": "クアトロ フォルマッジ",
+      "nameOriginal": "Pizza ai Quattro Formaggi",
+      "aliases": [
+        "Quattro Formaggi"
+      ],
+      "regionOrStyle": "Italy (national)",
+      "descriptionShort": "4-cheese, oil base. Distinct from Quattro Stagioni (unrelated dish, naming trap).",
+      "sauce": "olive-oil",
+      "ingredients": [
+        "fontina",
+        "gorgonzola",
+        "mozzarella",
+        "olive-oil",
+        "parmigiano"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": {
+        "start": 65,
+        "end": 85
+      },
+      "mechanics": [
+        "spread",
+        "scatter"
+      ],
+      "visualIdentity": "4-cheese, oil base. Distinct from Quattro Stagioni (unrelated dish, naming trap).",
+      "sourceReferences": [
+        "internal://src/data/recipes.ts#quattro-formaggi"
+      ],
+      "verificationStatus": "verified_internal",
+      "implementationClass": "A",
+      "difficulty": 3,
+      "progressionTier": "early",
+      "gameDesignStatus": "shipped",
+      "currentGameRecipe": true,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": []
+    },
+    {
+      "id": "genovese",
+      "nameJa": "ジェノベーゼ",
+      "nameOriginal": "Pizza Genovese (pesto)",
+      "aliases": [
+        "Pizza al Pesto"
+      ],
+      "regionOrStyle": "Italy (Liguria-referencing name)",
+      "descriptionShort": "Alias risk vs Neapolitan 'alla Genovese' onion ragu (pasta sauce, unrelated).",
+      "sauce": "pesto",
+      "ingredients": [
+        "cherry-tomato",
+        "mozzarella",
+        "pesto"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": {
+        "start": 50,
+        "end": 70
+      },
+      "mechanics": [
+        "spread",
+        "scatter"
+      ],
+      "visualIdentity": "Alias risk vs Neapolitan 'alla Genovese' onion ragu (pasta sauce, unrelated).",
+      "sourceReferences": [
+        "internal://src/data/recipes.ts#genovese"
+      ],
+      "verificationStatus": "verified_internal",
+      "implementationClass": "A",
+      "difficulty": 2,
+      "progressionTier": "early",
+      "gameDesignStatus": "shipped",
+      "currentGameRecipe": true,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": []
+    },
+    {
+      "id": "bismarck",
+      "nameJa": "ビスマルク",
+      "nameOriginal": "Pizza Bismarck",
+      "aliases": [
+        "Pizza alla Bismarck"
+      ],
+      "regionOrStyle": "Italy/Germany-associated",
+      "descriptionShort": "eggCenter gap: real dish centers a whole egg; game currently scatters it. Retrofit candidate, not changed here.",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "egg",
+        "mozzarella",
+        "tomato-sauce"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": {
+        "start": 55,
+        "end": 75
+      },
+      "mechanics": [
+        "spread",
+        "scatter"
+      ],
+      "visualIdentity": "eggCenter gap: real dish centers a whole egg; game currently scatters it. Retrofit candidate, not changed here.",
+      "sourceReferences": [
+        "internal://src/data/recipes.ts#bismarck"
+      ],
+      "verificationStatus": "verified_internal",
+      "implementationClass": "A",
+      "difficulty": 2,
+      "progressionTier": "mid",
+      "gameDesignStatus": "shipped",
+      "currentGameRecipe": true,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": []
+    },
+    {
+      "id": "funghi",
+      "nameJa": "フンギ",
+      "nameOriginal": "Pizza ai Funghi",
+      "aliases": [
+        "Funghi"
+      ],
+      "regionOrStyle": "Italy",
+      "descriptionShort": "",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "mozzarella",
+        "mushroom",
+        "tomato-sauce"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": {
+        "start": 58,
+        "end": 78
+      },
+      "mechanics": [
+        "spread",
+        "scatter"
+      ],
+      "visualIdentity": "",
+      "sourceReferences": [
+        "internal://src/data/recipes.ts#funghi"
+      ],
+      "verificationStatus": "verified_internal",
+      "implementationClass": "A",
+      "difficulty": 2,
+      "progressionTier": "mid",
+      "gameDesignStatus": "shipped",
+      "currentGameRecipe": true,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": []
+    },
+    {
+      "id": "fugazza",
+      "nameJa": "フガッサ",
+      "nameOriginal": "Fugazza",
+      "aliases": [
+        "Argentine Onion Pizza"
+      ],
+      "regionOrStyle": "Argentina (Genoese-Italian immigrant tradition)",
+      "descriptionShort": "Distinct from Fugazzeta (cheese-stuffed variant, catalogued separately, deferred).",
+      "sauce": "olive-oil",
+      "ingredients": [
+        "olive-oil",
+        "onion",
+        "oregano"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": {
+        "start": 63,
+        "end": 83
+      },
+      "mechanics": [
+        "spread",
+        "scatter"
+      ],
+      "visualIdentity": "Distinct from Fugazzeta (cheese-stuffed variant, catalogued separately, deferred).",
+      "sourceReferences": [
+        "internal://src/data/recipes.ts#fugazza"
+      ],
+      "verificationStatus": "verified_internal",
+      "implementationClass": "A",
+      "difficulty": 2,
+      "progressionTier": "late",
+      "gameDesignStatus": "shipped",
+      "currentGameRecipe": true,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": []
+    },
+    {
+      "id": "pepperoni",
+      "nameJa": "ペパロニ",
+      "nameOriginal": "Pepperoni Pizza",
+      "aliases": [
+        "Pepperoni"
+      ],
+      "regionOrStyle": "USA (Italian-American)",
+      "descriptionShort": "Onboarding recipe for Chapter 2; reuses 2/3 existing ingredients.",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "mozzarella",
+        "pepperoni",
+        "tomato-sauce"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": {
+        "start": 60,
+        "end": 80
+      },
+      "mechanics": [
+        "spread",
+        "scatter"
+      ],
+      "visualIdentity": "Onboarding recipe for Chapter 2; reuses 2/3 existing ingredients.",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "game_design_candidate",
+      "implementationClass": "B",
+      "difficulty": 1,
+      "progressionTier": "early",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": [
+        "pepperoni"
+      ]
+    },
+    {
+      "id": "napoletana",
+      "nameJa": "ナポリ",
+      "nameOriginal": "Pizza Napoletana (with anchovy)",
+      "aliases": [
+        "Napoletana",
+        "ナポリターナ"
+      ],
+      "regionOrStyle": "Italy (Naples)",
+      "descriptionShort": "Ambiguity vs Romana (deferred, crust-thickness-only distinction).",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "anchovy",
+        "mozzarella",
+        "oregano",
+        "tomato-sauce"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": {
+        "start": 48,
+        "end": 68
+      },
+      "mechanics": [
+        "spread",
+        "scatter"
+      ],
+      "visualIdentity": "Ambiguity vs Romana (deferred, crust-thickness-only distinction).",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "game_design_candidate",
+      "implementationClass": "B",
+      "difficulty": 2,
+      "progressionTier": "early",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": [
+        "anchovy"
+      ]
+    },
+    {
+      "id": "hawaiian",
+      "nameJa": "ハワイアン",
+      "nameOriginal": "Hawaiian Pizza",
+      "aliases": [
+        "Hawaiian"
+      ],
+      "regionOrStyle": "Canada (popularized internationally)",
+      "descriptionShort": "High visual distinctiveness; reuses ham once introduced.",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "ham",
+        "mozzarella",
+        "pineapple",
+        "tomato-sauce"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": {
+        "start": 60,
+        "end": 80
+      },
+      "mechanics": [
+        "spread",
+        "scatter"
+      ],
+      "visualIdentity": "High visual distinctiveness; reuses ham once introduced.",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "game_design_candidate",
+      "implementationClass": "B",
+      "difficulty": 2,
+      "progressionTier": "early",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": [
+        "ham",
+        "pineapple"
+      ]
+    },
+    {
+      "id": "salsiccia",
+      "nameJa": "サルシッチャ",
+      "nameOriginal": "Pizza Salsiccia",
+      "aliases": [
+        "Sausage Pizza"
+      ],
+      "regionOrStyle": "Italy",
+      "descriptionShort": "Visually distinct from pepperoni (coiled/chunk vs disc).",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "mozzarella",
+        "sausage",
+        "tomato-sauce"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": {
+        "start": 62,
+        "end": 82
+      },
+      "mechanics": [
+        "spread",
+        "scatter"
+      ],
+      "visualIdentity": "Visually distinct from pepperoni (coiled/chunk vs disc).",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "game_design_candidate",
+      "implementationClass": "B",
+      "difficulty": 2,
+      "progressionTier": "early",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": [
+        "sausage"
+      ]
+    },
+    {
+      "id": "tonno-e-cipolla",
+      "nameJa": "トンノ・エ・チポッラ",
+      "nameOriginal": "Tonno e Cipolla (Tuna & Onion)",
+      "aliases": [
+        "Tuna Pizza"
+      ],
+      "regionOrStyle": "Italy/international pizzeria staple",
+      "descriptionShort": "Reuses onion (introduced by Fugazza) -- strong ingredient economy.",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "mozzarella",
+        "onion",
+        "tomato-sauce",
+        "tuna"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": {
+        "start": 55,
+        "end": 75
+      },
+      "mechanics": [
+        "spread",
+        "scatter"
+      ],
+      "visualIdentity": "Reuses onion (introduced by Fugazza) -- strong ingredient economy.",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "game_design_candidate",
+      "implementationClass": "B",
+      "difficulty": 2,
+      "progressionTier": "mid",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": [
+        "tuna"
+      ]
+    },
+    {
+      "id": "ortolana",
+      "nameJa": "オルトラーナ",
+      "nameOriginal": "Pizza Ortolana",
+      "aliases": [
+        "Vegetariana (broader category term, not a fixed dish -- alias only)"
+      ],
+      "regionOrStyle": "Italy",
+      "descriptionShort": "'Vegetariana' is a broad meat-free label, not a specific topping set -- kept as alias, not primary name.",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "bell-pepper",
+        "cherry-tomato",
+        "mozzarella",
+        "onion",
+        "tomato-sauce",
+        "zucchini"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": {
+        "start": 50,
+        "end": 70
+      },
+      "mechanics": [
+        "spread",
+        "scatter"
+      ],
+      "visualIdentity": "'Vegetariana' is a broad meat-free label, not a specific topping set -- kept as alias, not primary name.",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "game_design_candidate",
+      "implementationClass": "B",
+      "difficulty": 3,
+      "progressionTier": "mid",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": [
+        "zucchini",
+        "bell-pepper"
+      ]
+    },
+    {
+      "id": "capricciosa",
+      "nameJa": "カプリチョーザ",
+      "nameOriginal": "Pizza Capricciosa",
+      "aliases": [
+        "Capricciosa"
+      ],
+      "regionOrStyle": "Italy",
+      "descriptionShort": "High-density 'everything' pizza; introduces ham/black-olive, both reused by Quattro Stagioni.",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "black-olive",
+        "ham",
+        "mozzarella",
+        "mushroom",
+        "oregano",
+        "tomato-sauce"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": {
+        "start": 58,
+        "end": 78
+      },
+      "mechanics": [
+        "spread",
+        "scatter"
+      ],
+      "visualIdentity": "High-density 'everything' pizza; introduces ham/black-olive, both reused by Quattro Stagioni.",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "game_design_candidate",
+      "implementationClass": "B",
+      "difficulty": 3,
+      "progressionTier": "mid",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": [
+        "ham",
+        "black-olive"
+      ]
+    },
+    {
+      "id": "prosciutto",
+      "nameJa": "プロシュート",
+      "nameOriginal": "Pizza Prosciutto (Crudo e Rucola)",
+      "aliases": [
+        "Prosciutto Crudo"
+      ],
+      "regionOrStyle": "Italy",
+      "descriptionShort": "Flagship postBakeFinishing (scatter sub-type) recipe. Reuses parmigiano as a finishing shaving too.",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "arugula",
+        "mozzarella",
+        "parmigiano",
+        "prosciutto-crudo",
+        "tomato-sauce"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [
+        "prosciutto-crudo",
+        "arugula"
+      ],
+      "bakeProfile": {
+        "start": 55,
+        "end": 75
+      },
+      "mechanics": [
+        "spread",
+        "scatter",
+        "postBakeFinishing"
+      ],
+      "visualIdentity": "Flagship postBakeFinishing (scatter sub-type) recipe. Reuses parmigiano as a finishing shaving too.",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "game_design_candidate",
+      "implementationClass": "D",
+      "difficulty": 4,
+      "progressionTier": "late",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": [
+        "prosciutto-crudo",
+        "arugula"
+      ]
+    },
+    {
+      "id": "diavola",
+      "nameJa": "ディアボラ",
+      "nameOriginal": "Pizza Diavola",
+      "aliases": [
+        "Diavola"
+      ],
+      "regionOrStyle": "Italy",
+      "descriptionShort": "postBakeFinishing drizzle sub-type. Visual closeness to Pepperoni flagged; differentiated by finishing step.",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "chili-oil",
+        "mozzarella",
+        "spicy-salami",
+        "tomato-sauce"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [
+        "chili-oil"
+      ],
+      "bakeProfile": {
+        "start": 60,
+        "end": 82
+      },
+      "mechanics": [
+        "spread",
+        "scatter",
+        "postBakeFinishing"
+      ],
+      "visualIdentity": "postBakeFinishing drizzle sub-type. Visual closeness to Pepperoni flagged; differentiated by finishing step.",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "game_design_candidate",
+      "implementationClass": "D",
+      "difficulty": 4,
+      "progressionTier": "late",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": [
+        "spicy-salami",
+        "chili-oil"
+      ]
+    },
+    {
+      "id": "frutti-di-mare",
+      "nameJa": "フルッティ・ディ・マーレ",
+      "nameOriginal": "Pizza Frutti di Mare (simplified)",
+      "aliases": [
+        "Seafood Pizza"
+      ],
+      "regionOrStyle": "Italy (coastal regions)",
+      "descriptionShort": "No-cheese (reuses Marinara/Fugazza's noCheese pattern). Deliberately short bake window (seafood overcooks fast).",
+      "sauce": "olive-oil",
+      "ingredients": [
+        "garlic",
+        "olive-oil",
+        "parsley",
+        "shrimp"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [
+        "parsley"
+      ],
+      "bakeProfile": {
+        "start": 52,
+        "end": 72
+      },
+      "mechanics": [
+        "spread",
+        "scatter",
+        "postBakeFinishing"
+      ],
+      "visualIdentity": "No-cheese (reuses Marinara/Fugazza's noCheese pattern). Deliberately short bake window (seafood overcooks fast).",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "game_design_candidate",
+      "implementationClass": "D",
+      "difficulty": 4,
+      "progressionTier": "late",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": [
+        "shrimp",
+        "parsley"
+      ]
+    },
+    {
+      "id": "quattro-stagioni",
+      "nameJa": "クアトロ・スタジオーニ",
+      "nameOriginal": "Pizza Quattro Stagioni",
+      "aliases": [
+        "Four Seasons Pizza"
+      ],
+      "regionOrStyle": "Italy",
+      "descriptionShort": "Flagship quadrant-placement recipe. Reuses ham/black-olive from Capricciosa; artichoke is the only new ingredient.",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "artichoke",
+        "black-olive",
+        "ham",
+        "mozzarella",
+        "mushroom",
+        "tomato-sauce"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": {
+        "start": 58,
+        "end": 78
+      },
+      "mechanics": [
+        "spread",
+        "scatter",
+        "quadrantPlacement"
+      ],
+      "visualIdentity": "Flagship quadrant-placement recipe. Reuses ham/black-olive from Capricciosa; artichoke is the only new ingredient.",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "game_design_candidate",
+      "implementationClass": "D",
+      "difficulty": 5,
+      "progressionTier": "master",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": [
+        "artichoke"
+      ]
+    },
+    {
+      "id": "mezza-e-mezza",
+      "nameJa": "メッザ・エ・メッザ",
+      "nameOriginal": "Mezza e Mezza (Half and Half)",
+      "aliases": [
+        "Half and Half",
+        "半分こピザ"
+      ],
+      "regionOrStyle": "General pizzeria practice (international)",
+      "descriptionShort": "Serving format layered on 2 existing recipes, not a fixed named dish. Zero new ingredients; pure mechanic cost. Recipe-pairing rule is an open product decision.",
+      "sauce": null,
+      "ingredients": [],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": null,
+      "mechanics": [
+        "scatter",
+        "halfAndHalfSplit"
+      ],
+      "visualIdentity": "Serving format layered on 2 existing recipes, not a fixed named dish. Zero new ingredients; pure mechanic cost. Recipe-pairing rule is an open product decision.",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "game_design_candidate",
+      "implementationClass": "D",
+      "difficulty": 5,
+      "progressionTier": "master",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": []
+    },
+    {
+      "id": "calzone",
+      "nameJa": "カルツォーネ",
+      "nameOriginal": "Calzone",
+      "aliases": [
+        "Calzone"
+      ],
+      "regionOrStyle": "Italy (Naples)",
+      "descriptionShort": "Explicitly its own implementation class per task instruction (fold mechanic).",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "ham",
+        "mozzarella",
+        "ricotta",
+        "tomato-sauce"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": {
+        "start": 70,
+        "end": 90
+      },
+      "mechanics": [
+        "spread",
+        "scatter",
+        "foldDough"
+      ],
+      "visualIdentity": "Explicitly its own implementation class per task instruction (fold mechanic).",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "game_design_candidate",
+      "implementationClass": "D",
+      "difficulty": 5,
+      "progressionTier": "master",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": [
+        "ricotta"
+      ]
+    },
+    {
+      "id": "prosciutto-e-funghi",
+      "nameJa": "プロシュート・エ・フンギ",
+      "nameOriginal": "Prosciutto e Funghi",
+      "aliases": [],
+      "regionOrStyle": "Italy",
+      "descriptionShort": "Straight combination of Prosciutto's postBakeFinishing + Funghi's existing scatter. Adds no new mechanic beyond Prosciutto alone -- deferred to 40-tier as low-effort second postBakeFinishing exerciser.",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "mozzarella",
+        "mushroom",
+        "prosciutto-crudo",
+        "tomato-sauce"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [
+        "prosciutto-crudo"
+      ],
+      "bakeProfile": null,
+      "mechanics": [
+        "spread",
+        "scatter",
+        "postBakeFinishing"
+      ],
+      "visualIdentity": "Straight combination of Prosciutto's postBakeFinishing + Funghi's existing scatter. Adds no new mechanic beyond Prosciutto alone -- deferred to 40-tier as low-effort second postBakeFinishing exerciser.",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "deferred",
+      "implementationClass": "D",
+      "difficulty": 3,
+      "progressionTier": "late",
+      "gameDesignStatus": "deferred",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": []
+    },
+    {
+      "id": "romana",
+      "nameJa": "ロマーナ",
+      "nameOriginal": "Pizza Romana",
+      "aliases": [
+        "Roman-style"
+      ],
+      "regionOrStyle": "Italy (Rome) -- ambiguous",
+      "descriptionShort": "Distinguished from Napoletana mainly by crust thickness, which is not a game mechanic today. Deferred rather than fabricating a distinguishing topping set.",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "anchovy",
+        "oregano",
+        "tomato-sauce"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": null,
+      "mechanics": [
+        "spread",
+        "scatter"
+      ],
+      "visualIdentity": "Distinguished from Napoletana mainly by crust thickness, which is not a game mechanic today. Deferred rather than fabricating a distinguishing topping set.",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "deferred",
+      "implementationClass": "E",
+      "difficulty": 2,
+      "progressionTier": "early",
+      "gameDesignStatus": "deferred",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": []
+    },
+    {
+      "id": "fugazzeta",
+      "nameJa": "フガゼータ",
+      "nameOriginal": "Fugazzeta",
+      "aliases": [],
+      "regionOrStyle": "Argentina",
+      "descriptionShort": "Cheese-stuffed variant of Fugazza. Shares Calzone's fold/stuff cost category without a materially different mechanic at 20-recipe stage. Distinct dish from Fugazza (not merged).",
+      "sauce": "olive-oil",
+      "ingredients": [
+        "mozzarella",
+        "olive-oil",
+        "onion",
+        "oregano"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": null,
+      "mechanics": [
+        "spread",
+        "scatter",
+        "stuffedDough"
+      ],
+      "visualIdentity": "Cheese-stuffed variant of Fugazza. Shares Calzone's fold/stuff cost category without a materially different mechanic at 20-recipe stage. Distinct dish from Fugazza (not merged).",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "deferred",
+      "implementationClass": "D",
+      "difficulty": 4,
+      "progressionTier": "late",
+      "gameDesignStatus": "deferred",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": []
+    },
+    {
+      "id": "boscaiola",
+      "nameJa": "ボスカイオーラ",
+      "nameOriginal": "Pizza Boscaiola",
+      "aliases": [
+        "Woodsman-style"
+      ],
+      "regionOrStyle": "Italy",
+      "descriptionShort": "Reuses mushroom + sausage entirely; zero new ingredients.",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "mozzarella",
+        "mushroom",
+        "sausage",
+        "tomato-sauce"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": null,
+      "mechanics": [
+        "spread",
+        "scatter"
+      ],
+      "visualIdentity": "Reuses mushroom + sausage entirely; zero new ingredients.",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "game_design_candidate",
+      "implementationClass": "B",
+      "difficulty": 2,
+      "progressionTier": "mid",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": []
+    },
+    {
+      "id": "pugliese",
+      "nameJa": "プリエーゼ",
+      "nameOriginal": "Pizza Pugliese",
+      "aliases": [
+        "Puglia-style"
+      ],
+      "regionOrStyle": "Italy (Puglia)",
+      "descriptionShort": "Ambiguity vs Marinara/Napoletana without the breadcrumb differentiator -- kept distinct via breadcrumb topping, flagged for external verification.",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "breadcrumb",
+        "mozzarella",
+        "onion",
+        "oregano",
+        "tomato-sauce"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": null,
+      "mechanics": [
+        "spread",
+        "scatter"
+      ],
+      "visualIdentity": "Ambiguity vs Marinara/Napoletana without the breadcrumb differentiator -- kept distinct via breadcrumb topping, flagged for external verification.",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "verification_pending",
+      "implementationClass": "B",
+      "difficulty": 2,
+      "progressionTier": "mid",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": [
+        "breadcrumb"
+      ]
+    },
+    {
+      "id": "siciliana",
+      "nameJa": "シチリアーナ",
+      "nameOriginal": "Pizza Siciliana",
+      "aliases": [
+        "Sicilian-style"
+      ],
+      "regionOrStyle": "Italy (Sicily)",
+      "descriptionShort": "Thick pan-style; shares specialShapePan subsystem with Detroit Style.",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "anchovy",
+        "breadcrumb",
+        "caciocavallo",
+        "tomato-sauce"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": null,
+      "mechanics": [
+        "spread",
+        "scatter",
+        "specialShapePan"
+      ],
+      "visualIdentity": "Thick pan-style; shares specialShapePan subsystem with Detroit Style.",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "verification_pending",
+      "implementationClass": "D",
+      "difficulty": 4,
+      "progressionTier": "late",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": [
+        "caciocavallo"
+      ]
+    },
+    {
+      "id": "calabrese",
+      "nameJa": "カラブレーゼ",
+      "nameOriginal": "Pizza Calabrese ('Nduja)",
+      "aliases": [
+        "'Nduja Pizza"
+      ],
+      "regionOrStyle": "Italy (Calabria)",
+      "descriptionShort": "'Nduja applied via existing spread placement (topping-category ingredient with placement=spread) -- zero new mechanic needed, just a new ingredient row.",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "mozzarella",
+        "nduja",
+        "tomato-sauce"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": null,
+      "mechanics": [
+        "spread",
+        "scatter"
+      ],
+      "visualIdentity": "'Nduja applied via existing spread placement (topping-category ingredient with placement=spread) -- zero new mechanic needed, just a new ingredient row.",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "verification_pending",
+      "implementationClass": "B",
+      "difficulty": 3,
+      "progressionTier": "late",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": [
+        "nduja"
+      ]
+    },
+    {
+      "id": "ai-carciofi",
+      "nameJa": "アーティチョークのピザ",
+      "nameOriginal": "Pizza ai Carciofi",
+      "aliases": [
+        "Artichoke Pizza"
+      ],
+      "regionOrStyle": "Italy",
+      "descriptionShort": "Reuses artichoke (introduced by Quattro Stagioni) -- resolves that ingredient's single-recipe cost flag.",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "artichoke",
+        "garlic",
+        "mozzarella",
+        "tomato-sauce"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": null,
+      "mechanics": [
+        "spread",
+        "scatter"
+      ],
+      "visualIdentity": "Reuses artichoke (introduced by Quattro Stagioni) -- resolves that ingredient's single-recipe cost flag.",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "game_design_candidate",
+      "implementationClass": "B",
+      "difficulty": 2,
+      "progressionTier": "mid",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": []
+    },
+    {
+      "id": "alla-norma",
+      "nameJa": "アッラ・ノルマ風",
+      "nameOriginal": "Pizza alla Norma-style",
+      "aliases": [
+        "Norma"
+      ],
+      "regionOrStyle": "Italy (Sicily) -- primarily a pasta dish",
+      "descriptionShort": "'Alla Norma' is primarily documented as a PASTA dish; its pizza adaptation is less canonically established -- explicitly not claimed as verified.",
+      "sauce": "olive-oil",
+      "ingredients": [
+        "basil",
+        "eggplant",
+        "mozzarella",
+        "olive-oil",
+        "ricotta-salata"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": null,
+      "mechanics": [
+        "spread",
+        "scatter"
+      ],
+      "visualIdentity": "'Alla Norma' is primarily documented as a PASTA dish; its pizza adaptation is less canonically established -- explicitly not claimed as verified.",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "verification_pending",
+      "implementationClass": "B",
+      "difficulty": 3,
+      "progressionTier": "late",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": [
+        "eggplant",
+        "ricotta-salata"
+      ]
+    },
+    {
+      "id": "contadina",
+      "nameJa": "コンタディーナ",
+      "nameOriginal": "Pizza Contadina (Farmer-style)",
+      "aliases": [
+        "Farmer's Pizza"
+      ],
+      "regionOrStyle": "Italy (generic regional)",
+      "descriptionShort": "Rejected: a straight combination of Salsiccia + Ortolana's ingredients with no distinct identity of its own -- explicit anti-padding example.",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "bell-pepper",
+        "mozzarella",
+        "mushroom",
+        "sausage",
+        "tomato-sauce"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": null,
+      "mechanics": [
+        "spread",
+        "scatter"
+      ],
+      "visualIdentity": "Rejected: a straight combination of Salsiccia + Ortolana's ingredients with no distinct identity of its own -- explicit anti-padding example.",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "rejected_duplicate",
+      "implementationClass": "E",
+      "difficulty": 2,
+      "progressionTier": "mid",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": "salsiccia+ortolana",
+      "newIngredientsIntroduced": []
+    },
+    {
+      "id": "ai-funghi-porcini",
+      "nameJa": "ポルチーニのピザ",
+      "nameOriginal": "Pizza ai Funghi Porcini",
+      "aliases": [
+        "Porcini Pizza"
+      ],
+      "regionOrStyle": "Italy",
+      "descriptionShort": "Porcini kept as a SEPARATE ingredient id from mushroom -- distinct variety, price tier and visual, not a naming variant (explicit dedup-discipline example).",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "mozzarella",
+        "porcini",
+        "tomato-sauce"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": null,
+      "mechanics": [
+        "spread",
+        "scatter"
+      ],
+      "visualIdentity": "Porcini kept as a SEPARATE ingredient id from mushroom -- distinct variety, price tier and visual, not a naming variant (explicit dedup-discipline example).",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "verification_pending",
+      "implementationClass": "B",
+      "difficulty": 3,
+      "progressionTier": "late",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": [
+        "porcini"
+      ]
+    },
+    {
+      "id": "al-tartufo",
+      "nameJa": "トリュフのピザ",
+      "nameOriginal": "Pizza al Tartufo",
+      "aliases": [
+        "Truffle Pizza"
+      ],
+      "regionOrStyle": "Italy",
+      "descriptionShort": "postBakeFinishing 'shaving' sub-type. Luxury/low-reuse ingredient -- explicit cost warning.",
+      "sauce": "olive-oil",
+      "ingredients": [
+        "fontina",
+        "olive-oil",
+        "truffle"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [
+        "truffle"
+      ],
+      "bakeProfile": null,
+      "mechanics": [
+        "spread",
+        "scatter",
+        "postBakeFinishing"
+      ],
+      "visualIdentity": "postBakeFinishing 'shaving' sub-type. Luxury/low-reuse ingredient -- explicit cost warning.",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "verification_pending",
+      "implementationClass": "D",
+      "difficulty": 5,
+      "progressionTier": "master",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": [
+        "truffle"
+      ]
+    },
+    {
+      "id": "speck-e-brie",
+      "nameJa": "スペック・エ・ブリー",
+      "nameOriginal": "Speck e Brie",
+      "aliases": [
+        "Alpine-style"
+      ],
+      "regionOrStyle": "Italy (South Tyrol / Alto Adige)",
+      "descriptionShort": "Reuses arugula's postBakeFinishing subsystem; walnut/brie/speck are ordinary pre-bake scatter.",
+      "sauce": "olive-oil",
+      "ingredients": [
+        "arugula",
+        "brie",
+        "olive-oil",
+        "speck",
+        "walnut"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [
+        "arugula"
+      ],
+      "bakeProfile": null,
+      "mechanics": [
+        "spread",
+        "scatter",
+        "postBakeFinishing"
+      ],
+      "visualIdentity": "Reuses arugula's postBakeFinishing subsystem; walnut/brie/speck are ordinary pre-bake scatter.",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "verification_pending",
+      "implementationClass": "D",
+      "difficulty": 4,
+      "progressionTier": "late",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": [
+        "brie",
+        "speck",
+        "walnut"
+      ]
+    },
+    {
+      "id": "wurstel-e-patatine",
+      "nameJa": "ウインナー・エ・ポテト",
+      "nameOriginal": "Wurstel e Patatine",
+      "aliases": [
+        "Hot Dog & Fries Pizza"
+      ],
+      "regionOrStyle": "Italy (kids' menu staple)",
+      "descriptionShort": "Playful, kid-friendly identity -- strong character/gameplay compatibility fit. Fries added post-bake to stay crisp.",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "french-fries",
+        "mozzarella",
+        "tomato-sauce",
+        "wurstel"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [
+        "french-fries"
+      ],
+      "bakeProfile": null,
+      "mechanics": [
+        "spread",
+        "scatter",
+        "postBakeFinishing"
+      ],
+      "visualIdentity": "Playful, kid-friendly identity -- strong character/gameplay compatibility fit. Fries added post-bake to stay crisp.",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "verification_pending",
+      "implementationClass": "D",
+      "difficulty": 2,
+      "progressionTier": "mid",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": [
+        "wurstel",
+        "french-fries"
+      ]
+    },
+    {
+      "id": "pizza-bianca",
+      "nameJa": "ピッツァ・ビアンカ",
+      "nameOriginal": "Pizza Bianca",
+      "aliases": [
+        "White Pizza (Italian, sauceless)"
+      ],
+      "regionOrStyle": "Italy (Rome)",
+      "descriptionShort": "Minimal-ingredient 'sauceless' identity; cheapest possible new recipe (1 new ingredient).",
+      "sauce": "olive-oil",
+      "ingredients": [
+        "olive-oil",
+        "rosemary"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": null,
+      "mechanics": [
+        "spread",
+        "scatter"
+      ],
+      "visualIdentity": "Minimal-ingredient 'sauceless' identity; cheapest possible new recipe (1 new ingredient).",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "game_design_candidate",
+      "implementationClass": "B",
+      "difficulty": 1,
+      "progressionTier": "early",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": [
+        "rosemary"
+      ]
+    },
+    {
+      "id": "bbq-chicken",
+      "nameJa": "BBQチキン",
+      "nameOriginal": "BBQ Chicken Pizza",
+      "aliases": [
+        "BBQ Chicken"
+      ],
+      "regionOrStyle": "USA",
+      "descriptionShort": "New sauce FLAVOR reuses existing spread placement (no new mechanic for the sauce itself); D-class driven only by cilantro's postBakeFinishing need.",
+      "sauce": "bbq-sauce",
+      "ingredients": [
+        "bbq-sauce",
+        "chicken",
+        "cilantro",
+        "mozzarella",
+        "onion"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [
+        "cilantro"
+      ],
+      "bakeProfile": null,
+      "mechanics": [
+        "spread",
+        "scatter",
+        "postBakeFinishing"
+      ],
+      "visualIdentity": "New sauce FLAVOR reuses existing spread placement (no new mechanic for the sauce itself); D-class driven only by cilantro's postBakeFinishing need.",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "verification_pending",
+      "implementationClass": "D",
+      "difficulty": 3,
+      "progressionTier": "late",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": [
+        "bbq-sauce",
+        "chicken",
+        "cilantro"
+      ]
+    },
+    {
+      "id": "buffalo-chicken",
+      "nameJa": "バッファローチキン",
+      "nameOriginal": "Buffalo Chicken Pizza",
+      "aliases": [
+        "Buffalo Chicken"
+      ],
+      "regionOrStyle": "USA",
+      "descriptionShort": "Reuses chicken (BBQ) and gorgonzola (blue-cheese family match, Chapter 1 reuse).",
+      "sauce": "olive-oil",
+      "ingredients": [
+        "buffalo-sauce",
+        "chicken",
+        "gorgonzola",
+        "mozzarella",
+        "olive-oil"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [
+        "buffalo-sauce"
+      ],
+      "bakeProfile": null,
+      "mechanics": [
+        "spread",
+        "scatter",
+        "postBakeFinishing"
+      ],
+      "visualIdentity": "Reuses chicken (BBQ) and gorgonzola (blue-cheese family match, Chapter 1 reuse).",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "verification_pending",
+      "implementationClass": "D",
+      "difficulty": 3,
+      "progressionTier": "late",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": [
+        "buffalo-sauce"
+      ]
+    },
+    {
+      "id": "meat-lovers",
+      "nameJa": "ミートラヴァーズ",
+      "nameOriginal": "Meat Lovers / Quattro Carni",
+      "aliases": [
+        "Meat Lovers"
+      ],
+      "regionOrStyle": "USA",
+      "descriptionShort": "High meat density; only 1 new ingredient (bacon), which is itself high-reuse (Breakfast Pizza).",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "bacon",
+        "ham",
+        "mozzarella",
+        "pepperoni",
+        "sausage",
+        "tomato-sauce"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": null,
+      "mechanics": [
+        "spread",
+        "scatter"
+      ],
+      "visualIdentity": "High meat density; only 1 new ingredient (bacon), which is itself high-reuse (Breakfast Pizza).",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "game_design_candidate",
+      "implementationClass": "B",
+      "difficulty": 3,
+      "progressionTier": "mid",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": [
+        "bacon"
+      ]
+    },
+    {
+      "id": "supreme",
+      "nameJa": "スプリーム",
+      "nameOriginal": "Supreme Pizza",
+      "aliases": [
+        "Supreme"
+      ],
+      "regionOrStyle": "USA",
+      "descriptionShort": "Zero new ingredients -- maximum density showcase at zero ingredient cost, pure existing-system reuse.",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "bell-pepper",
+        "black-olive",
+        "mozzarella",
+        "mushroom",
+        "onion",
+        "pepperoni",
+        "sausage",
+        "tomato-sauce"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": null,
+      "mechanics": [
+        "spread",
+        "scatter"
+      ],
+      "visualIdentity": "Zero new ingredients -- maximum density showcase at zero ingredient cost, pure existing-system reuse.",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "game_design_candidate",
+      "implementationClass": "B",
+      "difficulty": 3,
+      "progressionTier": "late",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": []
+    },
+    {
+      "id": "ricotta-bianca",
+      "nameJa": "リコッタ・ビアンカ",
+      "nameOriginal": "Ricotta Bianca (White Pizza, American-style)",
+      "aliases": [
+        "White Pizza"
+      ],
+      "regionOrStyle": "USA -- explicitly disambiguated from Pizza Bianca (Italian, above)",
+      "descriptionShort": "Alias-collision flagged explicitly against Pizza Bianca; renamed to avoid silent duplication. Reuses ricotta (Calzone).",
+      "sauce": "olive-oil",
+      "ingredients": [
+        "garlic",
+        "mozzarella",
+        "olive-oil",
+        "ricotta"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": null,
+      "mechanics": [
+        "spread",
+        "scatter"
+      ],
+      "visualIdentity": "Alias-collision flagged explicitly against Pizza Bianca; renamed to avoid silent duplication. Reuses ricotta (Calzone).",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "game_design_candidate",
+      "implementationClass": "B",
+      "difficulty": 2,
+      "progressionTier": "mid",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": []
+    },
+    {
+      "id": "philly-cheesesteak",
+      "nameJa": "フィリーチーズステーキ",
+      "nameOriginal": "Philly Cheesesteak Pizza",
+      "aliases": [
+        "Cheesesteak Pizza"
+      ],
+      "regionOrStyle": "USA -- fusion",
+      "descriptionShort": "Fusion dish, lower confidence than traditional Italian entries -- flagged for verification.",
+      "sauce": "olive-oil",
+      "ingredients": [
+        "bell-pepper",
+        "olive-oil",
+        "onion",
+        "provolone",
+        "steak"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": null,
+      "mechanics": [
+        "spread",
+        "scatter"
+      ],
+      "visualIdentity": "Fusion dish, lower confidence than traditional Italian entries -- flagged for verification.",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "verification_pending",
+      "implementationClass": "B",
+      "difficulty": 3,
+      "progressionTier": "late",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": [
+        "steak",
+        "provolone"
+      ]
+    },
+    {
+      "id": "breakfast-pizza",
+      "nameJa": "ブレックファストピザ",
+      "nameOriginal": "Breakfast Pizza",
+      "aliases": [
+        "Breakfast Pizza"
+      ],
+      "regionOrStyle": "USA",
+      "descriptionShort": "Zero new ingredients (egg reused from Bismarck, bacon from Meat Lovers).",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "bacon",
+        "egg",
+        "mozzarella",
+        "tomato-sauce"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": null,
+      "mechanics": [
+        "spread",
+        "scatter"
+      ],
+      "visualIdentity": "Zero new ingredients (egg reused from Bismarck, bacon from Meat Lovers).",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "game_design_candidate",
+      "implementationClass": "B",
+      "difficulty": 2,
+      "progressionTier": "mid",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": []
+    },
+    {
+      "id": "chicago-deep-dish",
+      "nameJa": "シカゴ・ディープディッシュ",
+      "nameOriginal": "Chicago Deep Dish",
+      "aliases": [
+        "Deep Dish"
+      ],
+      "regionOrStyle": "USA (Chicago)",
+      "descriptionShort": "Zero new ingredients; reversed layering order (cheese/toppings under sauce) + thick pan dough is a distinct 5th D-subsystem, not shared with fold/quadrant/half/postBake. High mechanic cost for few recipes -- low roadmap priority despite fame.",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "mozzarella",
+        "sausage",
+        "tomato-sauce"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": null,
+      "mechanics": [
+        "spread",
+        "scatter",
+        "layeredReverseOrder",
+        "specialShapePan"
+      ],
+      "visualIdentity": "Zero new ingredients; reversed layering order (cheese/toppings under sauce) + thick pan dough is a distinct 5th D-subsystem, not shared with fold/quadrant/half/postBake. High mechanic cost for few recipes -- low roadmap priority despite fame.",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "verification_pending",
+      "implementationClass": "D",
+      "difficulty": 5,
+      "progressionTier": "master",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": []
+    },
+    {
+      "id": "detroit-style",
+      "nameJa": "デトロイト・スタイル",
+      "nameOriginal": "Detroit Style",
+      "aliases": [
+        "Detroit Square Pizza"
+      ],
+      "regionOrStyle": "USA (Detroit)",
+      "descriptionShort": "Zero new ingredients. Sauce applied as a post-bake stripe (reuses postBakeFinishing's drizzle sub-type with an EXISTING ingredient) + specialShapePan (shared with Siciliana/Chicago).",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "mozzarella",
+        "pepperoni",
+        "tomato-sauce"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [
+        "tomato-sauce"
+      ],
+      "bakeProfile": null,
+      "mechanics": [
+        "spread",
+        "scatter",
+        "specialShapePan",
+        "postBakeFinishing"
+      ],
+      "visualIdentity": "Zero new ingredients. Sauce applied as a post-bake stripe (reuses postBakeFinishing's drizzle sub-type with an EXISTING ingredient) + specialShapePan (shared with Siciliana/Chicago).",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "verification_pending",
+      "implementationClass": "D",
+      "difficulty": 4,
+      "progressionTier": "master",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": []
+    },
+    {
+      "id": "stuffed-crust",
+      "nameJa": "スタッフドクラスト",
+      "nameOriginal": "Stuffed Crust Pizza",
+      "aliases": [
+        "Stuffed Crust"
+      ],
+      "regionOrStyle": "USA (commercial pizza chain origin, now broadly documented)",
+      "descriptionShort": "Fills the 'ring placement' evaluation axis gap explicitly. Zero new ingredients; crust-ring-only stuffing is smaller in scope than Calzone's full fold -- Class C, not D.",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "mozzarella",
+        "tomato-sauce"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": null,
+      "mechanics": [
+        "spread",
+        "scatter",
+        "ringPlacement"
+      ],
+      "visualIdentity": "Fills the 'ring placement' evaluation axis gap explicitly. Zero new ingredients; crust-ring-only stuffing is smaller in scope than Calzone's full fold -- Class C, not D.",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "game_design_candidate",
+      "implementationClass": "C",
+      "difficulty": 4,
+      "progressionTier": "master",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": []
+    },
+    {
+      "id": "shrimp-mayo",
+      "nameJa": "エビマヨ",
+      "nameOriginal": "Shrimp Mayo Pizza",
+      "aliases": [
+        "Ebi Mayo"
+      ],
+      "regionOrStyle": "Japan (pizzeria-chain staple)",
+      "descriptionShort": "Reuses shrimp (Frutti di Mare). Strong Japan-market fit given the game's setting.",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "corn",
+        "mayo",
+        "mozzarella",
+        "shrimp",
+        "tomato-sauce"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [
+        "mayo"
+      ],
+      "bakeProfile": null,
+      "mechanics": [
+        "spread",
+        "scatter",
+        "postBakeFinishing"
+      ],
+      "visualIdentity": "Reuses shrimp (Frutti di Mare). Strong Japan-market fit given the game's setting.",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "verification_pending",
+      "implementationClass": "D",
+      "difficulty": 3,
+      "progressionTier": "late",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": [
+        "corn",
+        "mayo"
+      ]
+    },
+    {
+      "id": "teriyaki-chicken",
+      "nameJa": "テリヤキチキン",
+      "nameOriginal": "Teriyaki Chicken Pizza",
+      "aliases": [
+        "Teriyaki Mayo Chicken"
+      ],
+      "regionOrStyle": "Japan (pizzeria-chain staple)",
+      "descriptionShort": "Strong Japan-market character/gameplay fit. Reuses chicken/onion/corn/mayo heavily.",
+      "sauce": "teriyaki-sauce",
+      "ingredients": [
+        "chicken",
+        "corn",
+        "mayo",
+        "mozzarella",
+        "nori",
+        "onion",
+        "teriyaki-sauce"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [
+        "mayo",
+        "nori"
+      ],
+      "bakeProfile": null,
+      "mechanics": [
+        "spread",
+        "scatter",
+        "postBakeFinishing"
+      ],
+      "visualIdentity": "Strong Japan-market character/gameplay fit. Reuses chicken/onion/corn/mayo heavily.",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "verification_pending",
+      "implementationClass": "D",
+      "difficulty": 4,
+      "progressionTier": "master",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": [
+        "teriyaki-sauce",
+        "nori"
+      ]
+    },
+    {
+      "id": "potato-bacon",
+      "nameJa": "ポテト・ベーコン",
+      "nameOriginal": "Potato and Bacon Pizza",
+      "aliases": [
+        "German/Japan-style Potato Pizza"
+      ],
+      "regionOrStyle": "Germany / Japan",
+      "descriptionShort": "Reuses bacon/rosemary/mayo entirely.",
+      "sauce": "olive-oil",
+      "ingredients": [
+        "bacon",
+        "mayo",
+        "olive-oil",
+        "potato",
+        "rosemary"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [
+        "mayo"
+      ],
+      "bakeProfile": null,
+      "mechanics": [
+        "spread",
+        "scatter",
+        "postBakeFinishing"
+      ],
+      "visualIdentity": "Reuses bacon/rosemary/mayo entirely.",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "verification_pending",
+      "implementationClass": "D",
+      "difficulty": 3,
+      "progressionTier": "late",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": [
+        "potato"
+      ]
+    },
+    {
+      "id": "nutella-dessert",
+      "nameJa": "ヌテラ・デザートピザ",
+      "nameOriginal": "Nutella Dessert Pizza",
+      "aliases": [
+        "Chocolate Hazelnut Pizza"
+      ],
+      "regionOrStyle": "Italy (documented pizzeria dessert item)",
+      "descriptionShort": "Introduces dessert-pizza genre and a new 'dusting' finishing sub-type (distinct from scatter/drizzle/shaving).",
+      "sauce": "nutella-spread",
+      "ingredients": [
+        "nutella-spread",
+        "powdered-sugar",
+        "strawberry"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [
+        "powdered-sugar"
+      ],
+      "bakeProfile": null,
+      "mechanics": [
+        "spread",
+        "scatter",
+        "postBakeFinishing"
+      ],
+      "visualIdentity": "Introduces dessert-pizza genre and a new 'dusting' finishing sub-type (distinct from scatter/drizzle/shaving).",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "verification_pending",
+      "implementationClass": "D",
+      "difficulty": 4,
+      "progressionTier": "master",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": [
+        "nutella-spread",
+        "strawberry",
+        "powdered-sugar"
+      ]
+    },
+    {
+      "id": "honey-fig",
+      "nameJa": "はちみつ・いちじくのデザートピザ",
+      "nameOriginal": "Honey Fig Dessert Pizza",
+      "aliases": [
+        "Fig and Honey Pizza"
+      ],
+      "regionOrStyle": "Italy (dessert pizzeria tradition)",
+      "descriptionShort": "Second dessert-family entry; exercises drizzle sub-type (vs Nutella's dusting) and reuses walnut.",
+      "sauce": null,
+      "ingredients": [
+        "fig",
+        "honey",
+        "mascarpone",
+        "walnut"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [
+        "honey"
+      ],
+      "bakeProfile": null,
+      "mechanics": [
+        "spread",
+        "scatter",
+        "postBakeFinishing"
+      ],
+      "visualIdentity": "Second dessert-family entry; exercises drizzle sub-type (vs Nutella's dusting) and reuses walnut.",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "verification_pending",
+      "implementationClass": "D",
+      "difficulty": 4,
+      "progressionTier": "master",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": [
+        "mascarpone",
+        "fig",
+        "honey"
+      ]
+    },
+    {
+      "id": "bufalina",
+      "nameJa": "ブファリーナ",
+      "nameOriginal": "Bufalina (Buffalo Mozzarella Margherita)",
+      "aliases": [
+        "Margherita DOP"
+      ],
+      "regionOrStyle": "Italy (Campania)",
+      "descriptionShort": "Rejected: a premium-mozzarella variant of Margherita with no mechanic or ingredient-set difference from the shipped recipe -- explicit anti-padding example.",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "basil",
+        "mozzarella",
+        "tomato-sauce"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": null,
+      "mechanics": [
+        "spread",
+        "scatter"
+      ],
+      "visualIdentity": "Rejected: a premium-mozzarella variant of Margherita with no mechanic or ingredient-set difference from the shipped recipe -- explicit anti-padding example.",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "rejected_duplicate",
+      "implementationClass": "E",
+      "difficulty": 1,
+      "progressionTier": "starter",
+      "gameDesignStatus": "candidate",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": "margherita",
+      "newIngredientsIntroduced": []
+    },
+    {
+      "id": "ny-style",
+      "nameJa": "ニューヨーク・スタイル",
+      "nameOriginal": "New York Style Pizza",
+      "aliases": [
+        "NY Slice"
+      ],
+      "regionOrStyle": "USA (New York) -- ambiguous",
+      "descriptionShort": "Distinguished from other tomato/mozzarella recipes mainly by large thin foldable slice format -- crust/serving-format difference, not a topping-mechanic difference. Same disposition as Romana.",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "mozzarella",
+        "tomato-sauce"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": null,
+      "mechanics": [
+        "spread",
+        "scatter"
+      ],
+      "visualIdentity": "Distinguished from other tomato/mozzarella recipes mainly by large thin foldable slice format -- crust/serving-format difference, not a topping-mechanic difference. Same disposition as Romana.",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "deferred",
+      "implementationClass": "E",
+      "difficulty": 1,
+      "progressionTier": "early",
+      "gameDesignStatus": "deferred",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": []
+    },
+    {
+      "id": "greek-style",
+      "nameJa": "ギリシャ・スタイル",
+      "nameOriginal": "Greek Style Pizza",
+      "aliases": [
+        "Greek Pan Pizza"
+      ],
+      "regionOrStyle": "USA (Greek-American pizzeria style) -- ambiguous",
+      "descriptionShort": "Overlaps with Detroit/Siciliana's pan-style family; deferred to avoid a 3rd near-identical pan-style entry without a distinguishing topping set. Feta deliberately not added to the Ingredient Master to avoid speculative bloat for a deferred recipe.",
+      "sauce": "tomato-sauce",
+      "ingredients": [
+        "mozzarella",
+        "tomato-sauce"
+      ],
+      "optionalIngredients": [],
+      "finishingIngredients": [],
+      "bakeProfile": null,
+      "mechanics": [
+        "spread",
+        "scatter",
+        "specialShapePan"
+      ],
+      "visualIdentity": "Overlaps with Detroit/Siciliana's pan-style family; deferred to avoid a 3rd near-identical pan-style entry without a distinguishing topping set. Feta deliberately not added to the Ingredient Master to avoid speculative bloat for a deferred recipe.",
+      "sourceReferences": [
+        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+      ],
+      "verificationStatus": "deferred",
+      "implementationClass": "E",
+      "difficulty": 2,
+      "progressionTier": "mid",
+      "gameDesignStatus": "deferred",
+      "currentGameRecipe": false,
+      "rejectedDuplicateOf": null,
+      "newIngredientsIntroduced": []
+    }
+  ]
+}

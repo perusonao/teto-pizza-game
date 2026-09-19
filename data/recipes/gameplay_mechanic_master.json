@@ -1,0 +1,86 @@
+{
+  "schemaNote": "Gameplay Mechanic Master v1. Research/design artifact only; NOT wired into src/**.",
+  "catalogVersion": "1.0.0",
+  "generatedDate": "2026-09-19",
+  "auditedMainSha": "8918fe4bd93816b0acefe4a35106fa1a4e8653e2",
+  "baselineOnlyRecipeCount": 28,
+  "needsNewMechanicRecipeCount": 23,
+  "mechanics": [
+    {
+      "id": "spread",
+      "label": "スプレッド（ソース塗布）",
+      "status": "existing_shipped",
+      "recipeCount": 51
+    },
+    {
+      "id": "scatter",
+      "label": "スキャッター（個別配置）",
+      "status": "existing_shipped",
+      "recipeCount": 51
+    },
+    {
+      "id": "centerPlacement",
+      "label": "中心配置（eggCenter等）",
+      "status": "gap_not_covered_by_any_new_candidate",
+      "recipeCount": 0,
+      "notes": "Bismarck (shipped, unchanged) already has this as a real-world implementation gap flagged by PR #79. Recommended retrofit target, not a new recipe."
+    },
+    {
+      "id": "ringPlacement",
+      "label": "リング配置（stuffed crust等）",
+      "status": "new_required",
+      "recipeCount": 1,
+      "implementationClass": "C"
+    },
+    {
+      "id": "quadrantPlacement",
+      "label": "4分割配置",
+      "status": "new_required",
+      "recipeCount": 1,
+      "implementationClass": "D"
+    },
+    {
+      "id": "halfAndHalfSplit",
+      "label": "ハーフ&ハーフ分割",
+      "status": "new_required",
+      "recipeCount": 1,
+      "implementationClass": "D"
+    },
+    {
+      "id": "layeredReverseOrder",
+      "label": "逆順レイヤー構築（deep dish）",
+      "status": "new_required",
+      "recipeCount": 1,
+      "implementationClass": "D"
+    },
+    {
+      "id": "postBakeFinishing",
+      "label": "焼成後仕上げ（scatter/drizzle/dusting/shaving）",
+      "status": "new_required",
+      "recipeCount": 15,
+      "implementationClass": "D",
+      "notes": "Highest-value single mechanic investment -- see analysis report. Sub-types: scatter, drizzle, dusting, shaving."
+    },
+    {
+      "id": "specialShapePan",
+      "label": "特殊形状（角型・厚底パン）",
+      "status": "new_required",
+      "recipeCount": 4,
+      "implementationClass": "D"
+    },
+    {
+      "id": "foldDough",
+      "label": "生地を折りたたむ（Calzone）",
+      "status": "new_required",
+      "recipeCount": 1,
+      "implementationClass": "D"
+    },
+    {
+      "id": "stuffedDough",
+      "label": "生地に具材を詰める（Fugazzeta）",
+      "status": "new_required",
+      "recipeCount": 1,
+      "implementationClass": "D"
+    }
+  ]
+}
