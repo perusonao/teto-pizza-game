@@ -291,10 +291,10 @@ describe("purchaseIngredient", () => {
     }
   });
 
-  // Phase 3C-6: onion is the first production ingredient that is NOT Starter Set -- unlike
-  // every ingredient above, it genuinely starts LOCKED and only becomes purchasable once
-  // totalStars/pitzBalance clear its real, production `unlockCondition`/`pricePitz`.
-  it("onion (Phase 3C-6) is LOCKED, not ALREADY_OWNED, on a fresh save", () => {
+  // Phase 3C-6 production data, still LOCKED below its own `unlockCondition` threshold --
+  // this axis (`ingredientState`'s LOCKED/AVAILABLE_TO_BUY/OWNED) is orthogonal to EP4's
+  // `starterGrantOnly` gate exercised by the tests below.
+  it("onion is LOCKED, not ALREADY_OWNED, on a fresh save", () => {
     const onion = getIngredient("onion")!;
     const result = purchaseIngredient({
       ingredient: onion,
@@ -305,19 +305,21 @@ describe("purchaseIngredient", () => {
     expect(result).toEqual({ success: false, reason: "LOCKED" });
   });
 
-  it("onion becomes purchasable once totalStars/pitzBalance clear its real production requirement", () => {
+  // Economy & Progression 1.0 EP4 (finalized product decision, see the EP4 Result report §7):
+  // onion's old Phase 3C-6 manual-purchase path is retired. Even once totalStars/pitzBalance
+  // clear its real `unlockCondition`/`pricePitz` (AVAILABLE_TO_BUY), `starterGrantOnly` rejects
+  // the purchase -- onion's first unit is only ever obtained via its Starter Grant
+  // (../state/starterStock.ts), exactly like every other EP4 Starter Grant ingredient.
+  it("onion is NOT_FOR_SALE (never purchasable) even once totalStars/pitzBalance clear its unlockCondition/pricePitz -- Starter Grant only", () => {
     const onion = getIngredient("onion")!;
+    expect(onion.starterGrantOnly).toBe(true);
     const result = purchaseIngredient({
       ingredient: onion,
       ownedIngredientIds: [...STARTER_INGREDIENT_IDS],
       totalStars: onion.unlockCondition!.minTotalStars,
       pitzBalance: onion.pricePitz!,
     });
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.nextOwnedIngredientIds).toEqual([...STARTER_INGREDIENT_IDS, "onion"]);
-      expect(result.nextPitzBalance).toBe(0);
-    }
+    expect(result).toEqual({ success: false, reason: "NOT_FOR_SALE" });
   });
 });
 

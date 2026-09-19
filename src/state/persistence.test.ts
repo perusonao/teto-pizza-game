@@ -334,7 +334,13 @@ describe("persistProgress (Phase 3C-5)", () => {
   it("roundtrips pitzBalance", () => {
     const storage = fakeStorage();
     persistProgress(
-      { dex: EMPTY_DEX, pitzBalance: 120, ownedIngredientIds: STARTER_INGREDIENT_IDS, inventory: EMPTY_INVENTORY },
+      {
+        dex: EMPTY_DEX,
+        pitzBalance: 120,
+        ownedIngredientIds: STARTER_INGREDIENT_IDS,
+        inventory: EMPTY_INVENTORY,
+        starterGrantClaimedRecipeIds: [],
+      },
       storage,
     );
     expect(loadSave(storage).pitzBalance).toBe(120);
@@ -343,20 +349,38 @@ describe("persistProgress (Phase 3C-5)", () => {
   it("roundtrips a purchased (non-starter) ownedIngredientIds entry", () => {
     const storage = fakeStorage();
     const owned = [...STARTER_INGREDIENT_IDS];
-    persistProgress({ dex: EMPTY_DEX, pitzBalance: 0, ownedIngredientIds: owned, inventory: EMPTY_INVENTORY }, storage);
+    persistProgress(
+      {
+        dex: EMPTY_DEX,
+        pitzBalance: 0,
+        ownedIngredientIds: owned,
+        inventory: EMPTY_INVENTORY,
+        starterGrantClaimedRecipeIds: [],
+      },
+      storage,
+    );
     expect(loadSave(storage).ownedIngredientIds.sort()).toEqual([...owned].sort());
   });
 
-  it("roundtrips a purchased onion (Phase 3C-6's first real non-Starter ingredient)", () => {
+  it("roundtrips an owned onion (Phase 3C-6's first real non-Starter ingredient; EP4: owned via Starter Grant, not purchase)", () => {
     const storage = fakeStorage();
     const owned = [...STARTER_INGREDIENT_IDS, "onion"];
-    persistProgress({ dex: EMPTY_DEX, pitzBalance: 0, ownedIngredientIds: owned, inventory: EMPTY_INVENTORY }, storage);
+    persistProgress(
+      {
+        dex: EMPTY_DEX,
+        pitzBalance: 0,
+        ownedIngredientIds: owned,
+        inventory: EMPTY_INVENTORY,
+        starterGrantClaimedRecipeIds: [],
+      },
+      storage,
+    );
     const loaded = loadSave(storage).ownedIngredientIds;
     expect(loaded).toContain("onion");
     expect(loaded.sort()).toEqual([...owned].sort());
   });
 
-  it("a reload after purchasing onion keeps it OWNED (does not fall back to LOCKED)", () => {
+  it("a reload after onion is owned keeps it OWNED (does not fall back to LOCKED)", () => {
     const storage = fakeStorage();
     persistProgress(
       {
@@ -364,6 +388,7 @@ describe("persistProgress (Phase 3C-5)", () => {
         pitzBalance: 0,
         ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "onion"],
         inventory: EMPTY_INVENTORY,
+        starterGrantClaimedRecipeIds: [],
       },
       storage,
     );
@@ -381,7 +406,13 @@ describe("persistProgress (Phase 3C-5)", () => {
     const storage = fakeStorage();
     const owned = [...STARTER_INGREDIENT_IDS, "onion"];
     persistProgress(
-      { dex: EMPTY_DEX, pitzBalance: 80, ownedIngredientIds: owned, inventory: { onion: 15 } },
+      {
+        dex: EMPTY_DEX,
+        pitzBalance: 80,
+        ownedIngredientIds: owned,
+        inventory: { onion: 15 },
+        starterGrantClaimedRecipeIds: [],
+      },
       storage,
     );
     const reloaded = loadSave(storage);
@@ -392,7 +423,13 @@ describe("persistProgress (Phase 3C-5)", () => {
   it("a Pitz balance update does not clobber an existing Dex", () => {
     const storage = fakeStorage({ [SAVE_STORAGE_KEY]: saveWith({ dex: [validEntry] }) });
     persistProgress(
-      { dex: [validEntry], pitzBalance: 90, ownedIngredientIds: STARTER_INGREDIENT_IDS, inventory: EMPTY_INVENTORY },
+      {
+        dex: [validEntry],
+        pitzBalance: 90,
+        ownedIngredientIds: STARTER_INGREDIENT_IDS,
+        inventory: EMPTY_INVENTORY,
+        starterGrantClaimedRecipeIds: [],
+      },
       storage,
     );
     const save = loadSave(storage);
@@ -403,7 +440,13 @@ describe("persistProgress (Phase 3C-5)", () => {
   it("a Pitz balance / purchase update does not clobber missionBest", () => {
     const storage = fakeStorage({ [SAVE_STORAGE_KEY]: saveWith({ missionBest: { "lunch-rush": 742 } }) });
     persistProgress(
-      { dex: EMPTY_DEX, pitzBalance: 200, ownedIngredientIds: STARTER_INGREDIENT_IDS, inventory: EMPTY_INVENTORY },
+      {
+        dex: EMPTY_DEX,
+        pitzBalance: 200,
+        ownedIngredientIds: STARTER_INGREDIENT_IDS,
+        inventory: EMPTY_INVENTORY,
+        starterGrantClaimedRecipeIds: [],
+      },
       storage,
     );
     const save = loadSave(storage);
@@ -425,7 +468,13 @@ describe("persistProgress (Phase 3C-5)", () => {
     });
     const before = storage.getItem(SAVE_STORAGE_KEY);
     persistProgress(
-      { dex: EMPTY_DEX, pitzBalance: 60, ownedIngredientIds: STARTER_INGREDIENT_IDS, inventory: EMPTY_INVENTORY },
+      {
+        dex: EMPTY_DEX,
+        pitzBalance: 60,
+        ownedIngredientIds: STARTER_INGREDIENT_IDS,
+        inventory: EMPTY_INVENTORY,
+        starterGrantClaimedRecipeIds: [],
+      },
       storage,
     );
     expect(storage.getItem(SAVE_STORAGE_KEY)).toBe(before);
@@ -439,6 +488,7 @@ describe("persistProgress (Phase 3C-5)", () => {
           pitzBalance: 10,
           ownedIngredientIds: STARTER_INGREDIENT_IDS,
           inventory: EMPTY_INVENTORY,
+          starterGrantClaimedRecipeIds: [],
         },
         throwingStorage(),
       ),
@@ -459,6 +509,106 @@ describe("persistProgress (Phase 3C-5)", () => {
     persistProgress(hydrated, storage);
 
     expect(storage.getItem(SAVE_STORAGE_KEY)).toBe(untouchedRaw);
+  });
+});
+
+/**
+ * Economy & Progression 1.0 EP4: `starterGrantClaimedRecipeIds` persistence. Added to v2's
+ * shape without a schema/version bump (see the field's own doc comment on `PersistentSaveV2`)
+ * -- these tests pin the round-trip and the specific "absent/malformed reads back as `[]`"
+ * migration contract that makes App.tsx's load-time `applyStarterGrants` catch-up call correct.
+ */
+describe("persistProgress / loadSave: starterGrantClaimedRecipeIds (Economy & Progression 1.0 EP4)", () => {
+  it("roundtrips a non-empty claimed ledger", () => {
+    const storage = fakeStorage();
+    persistProgress(
+      {
+        dex: EMPTY_DEX,
+        pitzBalance: 0,
+        ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "mushroom"],
+        inventory: { mushroom: 30 },
+        starterGrantClaimedRecipeIds: ["funghi"],
+      },
+      storage,
+    );
+    expect(loadSave(storage).starterGrantClaimedRecipeIds).toEqual(["funghi"]);
+  });
+
+  it("a pre-EP4 v2 save (field entirely absent) loads back with an empty ledger, not an error or a fallback to default", () => {
+    const preEp4Raw = JSON.stringify({
+      schemaVersion: 2,
+      dex: [validEntry],
+      pitzBalance: 40,
+      ownedIngredientIds: [...STARTER_INGREDIENT_IDS],
+      missionBest: {},
+      inventory: {},
+      // starterGrantClaimedRecipeIds intentionally omitted -- this is exactly what every save
+      // written before this field existed looks like.
+    });
+    const storage = fakeStorage({ [SAVE_STORAGE_KEY]: preEp4Raw });
+    const loaded = loadSave(storage);
+    expect(loaded.starterGrantClaimedRecipeIds).toEqual([]);
+    // The rest of a pre-EP4 save is otherwise carried through untouched -- this is a read-time
+    // backfill, not an erasure-to-default (same "never look like a progression wipe" guarantee
+    // migrateV1toV2 already gives every other field).
+    expect(loaded.dex).toEqual([validEntry]);
+    expect(loaded.pitzBalance).toBe(40);
+  });
+
+  it("a v1 save migrated to v2 also gets an empty claimed ledger (never invented as already-claimed)", () => {
+    const v1: PersistentSaveV1 = { ...defaultV1Save(), pitzBalance: 25 };
+    const migrated = migrateV1toV2(v1);
+    expect(migrated.starterGrantClaimedRecipeIds).toEqual([]);
+  });
+
+  it("sanitizes a malformed claimed ledger (non-array, or containing unknown/non-string ids) to an empty array, per-entry tolerant", () => {
+    const storage = fakeStorage({
+      [SAVE_STORAGE_KEY]: JSON.stringify({
+        ...createDefaultSave(),
+        starterGrantClaimedRecipeIds: ["funghi", "not-a-real-recipe", 42, null, "marinara"],
+      }),
+    });
+    expect(loadSave(storage).starterGrantClaimedRecipeIds.sort()).toEqual(["funghi", "marinara"]);
+  });
+
+  it("a non-array claimed ledger falls back to empty instead of throwing", () => {
+    const storage = fakeStorage({
+      [SAVE_STORAGE_KEY]: JSON.stringify({ ...createDefaultSave(), starterGrantClaimedRecipeIds: "nope" }),
+    });
+    expect(loadSave(storage).starterGrantClaimedRecipeIds).toEqual([]);
+  });
+
+  it("persistProgress skips the write when only the ledger would be unchanged, but does write when only the ledger changed", () => {
+    const storage = fakeStorage({
+      [SAVE_STORAGE_KEY]: saveWith({ starterGrantClaimedRecipeIds: ["funghi"] }),
+    });
+    const before = storage.getItem(SAVE_STORAGE_KEY);
+
+    // Same ledger, nothing else changed -- no-op write.
+    persistProgress(
+      {
+        dex: EMPTY_DEX,
+        pitzBalance: 0,
+        ownedIngredientIds: STARTER_INGREDIENT_IDS,
+        inventory: EMPTY_INVENTORY,
+        starterGrantClaimedRecipeIds: ["funghi"],
+      },
+      storage,
+    );
+    expect(storage.getItem(SAVE_STORAGE_KEY)).toBe(before);
+
+    // Only the ledger grew -- this alone must trigger a write.
+    persistProgress(
+      {
+        dex: EMPTY_DEX,
+        pitzBalance: 0,
+        ownedIngredientIds: STARTER_INGREDIENT_IDS,
+        inventory: EMPTY_INVENTORY,
+        starterGrantClaimedRecipeIds: ["funghi", "marinara"],
+      },
+      storage,
+    );
+    expect(loadSave(storage).starterGrantClaimedRecipeIds.sort()).toEqual(["funghi", "marinara"]);
   });
 });
 
@@ -583,6 +733,7 @@ describe("loadSave: v2 sanitize/pass-through (Save v2 / Inventory E0)", () => {
       ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "onion"],
       missionBest: { [LUNCH_RUSH_MISSION_ID]: 500 },
       inventory: { onion: 7 },
+      starterGrantClaimedRecipeIds: ["funghi"],
     };
     const storage = fakeStorage({ [SAVE_STORAGE_KEY]: JSON.stringify(v2) });
     expect(loadSave(storage)).toEqual(v2);
@@ -784,7 +935,15 @@ describe("Mission BEST (Phase 3C-4)", () => {
 describe("Save schema unaffected by Scoring 2.0 Shadow (Phase 4A-2 scope guard)", () => {
   it("createDefaultSave's shape has exactly the pre-existing fields plus Save v2's `inventory` -- no scoringV2 field was added", () => {
     expect(Object.keys(createDefaultSave()).sort()).toEqual(
-      ["dex", "inventory", "missionBest", "ownedIngredientIds", "pitzBalance", "schemaVersion"].sort(),
+      [
+        "dex",
+        "inventory",
+        "missionBest",
+        "ownedIngredientIds",
+        "pitzBalance",
+        "schemaVersion",
+        "starterGrantClaimedRecipeIds",
+      ].sort(),
     );
   });
 
@@ -796,6 +955,7 @@ describe("Save schema unaffected by Scoring 2.0 Shadow (Phase 4A-2 scope guard)"
         pitzBalance: 50,
         ownedIngredientIds: STARTER_INGREDIENT_IDS,
         inventory: EMPTY_INVENTORY,
+        starterGrantClaimedRecipeIds: [],
       },
       storage,
     );
@@ -831,6 +991,7 @@ describe("Save compatibility across the A1 Authority Cutover (pre-cutover save s
       ownedIngredientIds: [...STARTER_INGREDIENT_IDS],
       missionBest: { [LUNCH_RUSH_MISSION_ID]: 88 },
       inventory: {},
+      starterGrantClaimedRecipeIds: [],
     };
     const storage = fakeStorage({ [SAVE_STORAGE_KEY]: JSON.stringify(preCutoverSave) });
     const loaded = loadSave(storage);

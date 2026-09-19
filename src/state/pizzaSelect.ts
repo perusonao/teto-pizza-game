@@ -22,8 +22,9 @@ export type RecipeCardState =
  * a star-count progress line, never revealing the chain prerequisite by name; every other
  * chain-gated recipe (#2-#6) names the specific recipe still needed. `null` once the recipe's
  * own unlock gate is already satisfied (a LOCKED card can still result from the separate
- * ingredient-ownership axis, e.g. フガッサ before `onion` is purchased -- Shop is the
- * appropriate place to surface that, not this hint).
+ * ingredient-ownership axis, e.g. フガッサ before its Starter Grant has landed `onion` --
+ * that resolves itself automatically the moment fugazza unlocks, so there is nothing for
+ * this hint or Shop to surface for it).
  */
 function unlockHintFor(recipe: Recipe, dex: DexState): string | null {
   const condition = recipe.unlockCondition;

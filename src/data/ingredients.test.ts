@@ -27,14 +27,24 @@ describe("onion (Phase 3C-6)", () => {
     expect(onion?.category).toBe("topping");
     expect(onion?.placement).toBe("scatter");
   });
+
+  // Economy & Progression 1.0 EP4 (finalized product decision, EP4 Result report §7): onion's
+  // old Phase 3C-6 manual-purchase path is retired -- exactly like every other EP4 Starter
+  // Grant ingredient, its first unit is only ever obtained via its governing recipe's Starter
+  // Grant, never a manual Shop purchase.
+  it("is starterGrantOnly (its old manual-purchase path is retired)", () => {
+    expect(onion?.starterGrantOnly).toBe(true);
+  });
 });
 
-describe("Starter Set is unchanged (regression)", () => {
-  it("still has exactly 13 Starter ingredients", () => {
-    expect(STARTER_INGREDIENT_IDS).toHaveLength(13);
+describe("Starter Set (EP4: shrunk to Margherita's own 3 permanently-unlimited ingredients)", () => {
+  it("has exactly 3 Starter ingredients (tomato-sauce/mozzarella/basil)", () => {
+    expect(STARTER_INGREDIENT_IDS.slice().sort()).toEqual(
+      ["tomato-sauce", "mozzarella", "basil"].sort(),
+    );
   });
 
-  it("total production ingredient count is 14 (13 Starter + onion)", () => {
+  it("total production ingredient count is still 14 (3 Starter + 10 EP4 Starter-Grant + onion)", () => {
     expect(INGREDIENTS).toHaveLength(14);
   });
 });

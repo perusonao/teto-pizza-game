@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { PizzaSelectScreen } from "./PizzaSelectScreen";
 import { RECIPES, type Recipe, type RecipeId } from "../data/recipes";
 import { EMPTY_DEX, registerScoreToDex, type DexState } from "../state/dex";
-import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
+import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import type { QualityStars } from "../logic/scoring";
 
 afterEach(() => {
@@ -46,7 +46,10 @@ const ALL_UNLOCKED_DEX = dexDiscovering(
   [...CHAIN_TO_FUGAZZA, "fugazza"],
   3 as QualityStars,
 );
-const ALL_OWNED_INGREDIENTS = [...STARTER_INGREDIENT_IDS, "onion"];
+// EP4: 10 of these ingredients are no longer trivially Starter-owned -- own every ingredient
+// explicitly (as production's per-recipe Starter Grants would have by this point) so this
+// pager suite keeps exercising unlock-chain/pager mechanics, not ingredient ownership.
+const ALL_OWNED_INGREDIENTS = INGREDIENTS.map((i) => i.id);
 
 function renderPager(
   overrides: Partial<{
@@ -152,7 +155,13 @@ describe("PizzaSelectScreen pager (Issue #88 UX-4)", () => {
     const user = userEvent.setup();
     const bismarck = RECIPES.find((r) => r.id === "bismarck")!;
     const dex = dexDiscovering(CHAIN_TO_BISMARCK, 1 as QualityStars);
-    const { onSelectRecipe } = renderPager({ dex, recipes: [bismarck] });
+    // EP4: `egg` (bismarck's own non-Starter ingredient) is no longer trivially owned -- own it
+    // explicitly, as production's bismarck Starter Grant would have.
+    const { onSelectRecipe } = renderPager({
+      dex,
+      ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "egg"],
+      recipes: [bismarck],
+    });
     expect(screen.getByText("ビスマルク")).toBeInTheDocument();
     expect(screen.getByText("未挑戦")).toBeInTheDocument();
     await user.click(ctaButton());

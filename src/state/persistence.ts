@@ -118,6 +118,20 @@ export interface PersistentSaveV2 {
   ownedIngredientIds: string[];
   missionBest: Record<string, number>;
   inventory: Record<string, number>;
+  /** Economy & Progression 1.0 EP4: the exactly-once Starter Grant ledger
+   *  (../state/starterStock.ts's `applyStarterGrants`) -- every recipe id whose free Starter
+   *  Stock has ever been credited. Added to v2's shape without a schema/version bump (the EP4
+   *  task's own instruction against an unnecessary bump): exactly the same "reserve the field,
+   *  tolerate its absence as empty" pattern `ownedIngredientIds`/`pitzBalance`/`missionBest`
+   *  already went through when Phase 3C-2 first reserved *their* shape ahead of any phase that
+   *  actually wrote non-default values into them. An absent/malformed value here (every save
+   *  from before this field existed, including a migrated v1 save) reads back as `[]` --
+   *  deliberately *not* "every currently-unlocked recipe was already granted," since "unlocked"
+   *  and "claimed" are two separate concepts (see `starterStock.ts`'s own doc comment) --  which
+   *  is exactly what lets App.tsx's load-time `applyStarterGrants` catch-up call correctly
+   *  backfill Starter Stock for an existing player's already-unlocked recipes exactly once, the
+   *  first time this build loads their save (see the EP4 Result report's migration section). */
+  starterGrantClaimedRecipeIds: string[];
 }
 
 const KNOWN_RECIPE_IDS: readonly string[] = RECIPES.map((r) => r.id);
@@ -227,6 +241,22 @@ function sanitizeMissionBest(raw: unknown): Record<string, number> {
  * (Fresh Audit sec. 5/6), so this sanitizer is the enforcement point for that rule on every
  * load, not just on migration.
  */
+/**
+ * Sanitizes the saved Starter Grant claimed-recipe ledger (EP4). Per-entry tolerant, same style
+ * as `sanitizeDex`/`sanitizeMissionBest`: an absent/non-array value or one bad entry never costs
+ * the rest of the save. Only a known recipe id is kept (mirrors `sanitizeDex`'s own
+ * `isKnownRecipeId` gate), deduplicated -- `applyStarterGrants` itself is written to tolerate a
+ * duplicate id in its input array, but there is no reason for one to ever reach storage.
+ */
+function sanitizeStarterGrantClaimedRecipeIds(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return [];
+  const seen = new Set<string>();
+  for (const id of raw) {
+    if (isKnownRecipeId(id)) seen.add(id);
+  }
+  return Array.from(seen);
+}
+
 function sanitizeInventory(raw: unknown): Record<string, number> {
   if (typeof raw !== "object" || raw === null || Array.isArray(raw)) return {};
   const result: Record<string, number> = {};
@@ -281,6 +311,11 @@ export function migrateV1toV2(v1: PersistentSaveV1): PersistentSaveV2 {
     ownedIngredientIds: v1.ownedIngredientIds,
     missionBest: v1.missionBest,
     inventory: backfillInventoryForMigratedSave(v1.ownedIngredientIds),
+    // EP4's ledger did not exist in v1 -- always empty here. `sanitizeSave`'s own
+    // `sanitizeStarterGrantClaimedRecipeIds` call (below) then treats it exactly like any other
+    // pre-EP4 v2 save with the field absent: App.tsx's load-time `applyStarterGrants` catch-up is
+    // what backfills it correctly on first load, not this migration step.
+    starterGrantClaimedRecipeIds: [],
   };
 }
 
@@ -292,6 +327,7 @@ export function createDefaultSave(): PersistentSaveV2 {
     ownedIngredientIds: [...STARTER_INGREDIENT_IDS],
     missionBest: {},
     inventory: {},
+    starterGrantClaimedRecipeIds: [],
   };
 }
 
@@ -350,6 +386,9 @@ function sanitizeSave(raw: unknown): PersistentSaveV2 | null {
     ownedIngredientIds: sanitizeOwnedIngredientIds(intermediate.ownedIngredientIds),
     missionBest: sanitizeMissionBest(intermediate.missionBest),
     inventory: sanitizeInventory(intermediate.inventory),
+    starterGrantClaimedRecipeIds: sanitizeStarterGrantClaimedRecipeIds(
+      intermediate.starterGrantClaimedRecipeIds,
+    ),
   };
 }
 
@@ -466,6 +505,11 @@ export interface ProgressionSnapshot {
   pitzBalance: number;
   ownedIngredientIds: readonly string[];
   inventory: InventoryState;
+  /** EP4: the Starter Grant ledger (../state/starterStock.ts) -- persisted alongside the other
+   *  three so a grant applied this session (REGISTER_TO_DEX/MISSION_NEXT_ORDER) survives a
+   *  reload exactly like the `ownedIngredientIds`/`inventory` it credited in the same
+   *  transition. */
+  starterGrantClaimedRecipeIds: readonly string[];
 }
 
 /**
@@ -496,12 +540,21 @@ export function persistProgress(
     const nextPitzBalance = sanitizePitzBalance(snapshot.pitzBalance);
     const nextOwnedIngredientIds = sanitizeOwnedIngredientIds([...snapshot.ownedIngredientIds]);
     const nextInventory = sanitizeInventory(snapshot.inventory);
+    const nextClaimedRecipeIds = sanitizeStarterGrantClaimedRecipeIds([
+      ...snapshot.starterGrantClaimedRecipeIds,
+    ]);
 
     const dexUnchanged = dexEquals(nextDex, current.dex);
     const pitzUnchanged = nextPitzBalance === current.pitzBalance;
     const ownedUnchanged = sameStringSet(nextOwnedIngredientIds, current.ownedIngredientIds);
     const inventoryUnchanged = sameInventory(nextInventory, current.inventory);
-    if (dexUnchanged && pitzUnchanged && ownedUnchanged && inventoryUnchanged) return;
+    const claimedUnchanged = sameStringSet(
+      nextClaimedRecipeIds,
+      current.starterGrantClaimedRecipeIds,
+    );
+    if (dexUnchanged && pitzUnchanged && ownedUnchanged && inventoryUnchanged && claimedUnchanged) {
+      return;
+    }
 
     const next: PersistentSaveV2 = {
       ...current,
@@ -509,6 +562,7 @@ export function persistProgress(
       pitzBalance: nextPitzBalance,
       ownedIngredientIds: nextOwnedIngredientIds,
       inventory: nextInventory,
+      starterGrantClaimedRecipeIds: nextClaimedRecipeIds,
     };
     storage.setItem(SAVE_STORAGE_KEY, JSON.stringify(next));
   } catch {

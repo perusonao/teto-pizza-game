@@ -91,6 +91,10 @@ describe("ingredientState", () => {
   });
 });
 
+// This describe block exercises the pure `ingredientState` derivation only -- LOCKED/
+// AVAILABLE_TO_BUY/OWNED stay meaningful states for onion regardless of EP4's
+// `starterGrantOnly` flag (../data/ingredients.ts), which only gates the Shop UI/
+// `purchaseIngredient` transaction (see ../logic/economy.test.ts), never this function.
 describe("ingredientState -- onion (Phase 3C-6 production data, not a mock)", () => {
   const onion = INGREDIENTS.find((i) => i.id === "onion")!;
   const threshold = onion.unlockCondition!.minTotalStars;
@@ -122,7 +126,7 @@ describe("ingredientState -- onion (Phase 3C-6 production data, not a mock)", ()
     expect(ingredientState(onion, STARTER_INGREDIENT_IDS, threshold + 10)).toBe("AVAILABLE_TO_BUY");
   });
 
-  it("is OWNED once purchased, regardless of totalStars", () => {
+  it("is OWNED once in ownedIngredientIds (e.g. via its Starter Grant), regardless of totalStars", () => {
     expect(ingredientState(onion, [...STARTER_INGREDIENT_IDS, "onion"], 0)).toBe("OWNED");
   });
 });
@@ -205,16 +209,26 @@ describe("recipeUnlocked (Economy & Progression 1.0 EP1: chain + totalStars gate
 });
 
 describe("recipesUnlockedByIngredient (Shop 'これを買うと' preview, Phase 3C-6)", () => {
+  // EP4: fugazza also needs olive-oil/oregano owned (both non-Starter since EP4 -- in
+  // production these arrive via quattro-formaggi's/marinara's own Starter Grant, well before
+  // fugazza's own chain/stars gate can ever hold) -- `onion` remains the one ingredient this
+  // suite is deliberately testing as "the only thing still missing."
+  const FUGAZZA_OTHER_INGREDIENTS_OWNED = [...STARTER_INGREDIENT_IDS, "olive-oil", "oregano"];
+
   it("fugazza is listed as unlocked by onion once its recipe-level chain/stars gate already holds", () => {
     const dex = dexDiscovering(
       ["margherita", "funghi", "marinara", "bismarck", "genovese", "quattro-formaggi"],
       5 as QualityStars,
     );
-    expect(recipesUnlockedByIngredient("onion", dex, STARTER_INGREDIENT_IDS)).toEqual(["fugazza"]);
+    expect(
+      recipesUnlockedByIngredient("onion", dex, FUGAZZA_OTHER_INGREDIENTS_OWNED),
+    ).toEqual(["fugazza"]);
   });
 
   it("does not list fugazza while its recipe-level unlockCondition is still unmet, even hypothetically owning onion", () => {
-    expect(recipesUnlockedByIngredient("onion", EMPTY_DEX, STARTER_INGREDIENT_IDS)).toEqual([]);
+    expect(
+      recipesUnlockedByIngredient("onion", EMPTY_DEX, FUGAZZA_OTHER_INGREDIENTS_OWNED),
+    ).toEqual([]);
   });
 
   it("returns empty once onion is already owned (fugazza is already available)", () => {
@@ -223,7 +237,7 @@ describe("recipesUnlockedByIngredient (Shop 'これを買うと' preview, Phase 
       5 as QualityStars,
     );
     expect(
-      recipesUnlockedByIngredient("onion", dex, [...STARTER_INGREDIENT_IDS, "onion"]),
+      recipesUnlockedByIngredient("onion", dex, [...FUGAZZA_OTHER_INGREDIENTS_OWNED, "onion"]),
     ).toEqual([]);
   });
 
@@ -258,7 +272,12 @@ describe("isRecipeAvailable (two-axis AND: recipeUnlocked && ingredients owned)"
   it("is true once the recipe-unlock axis holds and every required ingredient is owned", () => {
     const funghi = RECIPES.find((r) => r.id === "funghi")!;
     const dex = dexDiscovering(["margherita"], 1 as QualityStars);
-    expect(isRecipeAvailable(funghi, dex, STARTER_INGREDIENT_IDS)).toBe(true);
+    // EP4: `mushroom` is no longer trivially Starter-owned (in production it arrives via
+    // funghi's own Starter Grant the instant this same Dex change unlocks it) -- own it
+    // explicitly here to keep testing this test's own claim (recipeUnlocked && ingredientsOwned
+    // -> available), independent of the Starter Grant mechanism itself (covered in
+    // starterStock.test.ts).
+    expect(isRecipeAvailable(funghi, dex, [...STARTER_INGREDIENT_IDS, "mushroom"])).toBe(true);
   });
 
   it("fugazza needs both axes: chain/stars unlocked AND onion owned", () => {
@@ -267,14 +286,16 @@ describe("isRecipeAvailable (two-axis AND: recipeUnlocked && ingredients owned)"
       ["margherita", "funghi", "marinara", "bismarck", "genovese", "quattro-formaggi"],
       5 as QualityStars,
     );
+    // EP4: olive-oil/oregano are also no longer trivially Starter-owned -- own them explicitly
+    // (as if already Starter-Granted by quattro-formaggi/marinara) so `onion` is the one
+    // ingredient this test is deliberately isolating.
+    const ownedExceptOnion = [...STARTER_INGREDIENT_IDS, "olive-oil", "oregano"];
     // Chain/stars satisfied, but onion not owned yet -- still unavailable.
-    expect(isRecipeAvailable(fugazza, chainDex, STARTER_INGREDIENT_IDS)).toBe(false);
+    expect(isRecipeAvailable(fugazza, chainDex, ownedExceptOnion)).toBe(false);
     // Onion owned, but chain/stars not yet satisfied -- still unavailable.
-    expect(isRecipeAvailable(fugazza, EMPTY_DEX, [...STARTER_INGREDIENT_IDS, "onion"])).toBe(
-      false,
-    );
+    expect(isRecipeAvailable(fugazza, EMPTY_DEX, [...ownedExceptOnion, "onion"])).toBe(false);
     // Both axes satisfied -- available.
-    expect(isRecipeAvailable(fugazza, chainDex, [...STARTER_INGREDIENT_IDS, "onion"])).toBe(true);
+    expect(isRecipeAvailable(fugazza, chainDex, [...ownedExceptOnion, "onion"])).toBe(true);
   });
 });
 
@@ -291,15 +312,24 @@ describe("availableRecipeIds", () => {
   it("grows one recipe at a time as the Chapter 1 chain is played through", () => {
     expect(availableRecipeIds(EMPTY_DEX, STARTER_INGREDIENT_IDS)).toEqual(["margherita"]);
 
+    // EP4: funghi/marinara's own non-Starter ingredients (mushroom, garlic/oregano) are no
+    // longer trivially owned -- own them explicitly here (as production's Starter Grant would
+    // have, the instant this same Dex change unlocks each recipe) so this test keeps exercising
+    // `availableRecipeIds`'s own chain-growth claim, independent of the grant mechanism itself.
     const afterMargherita = dexDiscovering(["margherita"], 1 as QualityStars);
-    expect(availableRecipeIds(afterMargherita, STARTER_INGREDIENT_IDS).sort()).toEqual(
-      ["margherita", "funghi"].sort(),
-    );
+    expect(
+      availableRecipeIds(afterMargherita, [...STARTER_INGREDIENT_IDS, "mushroom"]).sort(),
+    ).toEqual(["margherita", "funghi"].sort());
 
     const afterFunghi = dexDiscovering(["margherita", "funghi"], 1 as QualityStars);
-    expect(availableRecipeIds(afterFunghi, STARTER_INGREDIENT_IDS).sort()).toEqual(
-      ["margherita", "funghi", "marinara"].sort(),
-    );
+    expect(
+      availableRecipeIds(afterFunghi, [
+        ...STARTER_INGREDIENT_IDS,
+        "mushroom",
+        "garlic",
+        "oregano",
+      ]).sort(),
+    ).toEqual(["margherita", "funghi", "marinara"].sort());
   });
 });
 

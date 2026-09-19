@@ -80,12 +80,28 @@ describe("getNextOrder + real Progression data (Economy & Progression 1.0 EP1: c
     expect(ids).not.toContain("fugazza");
   });
 
-  it("once the full Chapter 1 chain is discovered and onion is purchased, fugazza becomes an eligible order candidate", () => {
+  it("once the full Chapter 1 chain is discovered and onion is owned, fugazza becomes an eligible order candidate", () => {
     const chainDex = dexDiscovering(
       ["margherita", "funghi", "marinara", "bismarck", "genovese", "quattro-formaggi"],
       5 as QualityStars,
     );
-    const ids = availableRecipeIds(chainDex, [...STARTER_INGREDIENT_IDS, "onion"]);
+    // EP4: every recipe's own non-Starter ingredients need to be owned too (in production,
+    // each recipe's own Starter Grant already did this the instant its chain/stars gate
+    // flipped) so `availableRecipeIds` sees every Chapter 1 recipe, not just margherita/fugazza.
+    const ids = availableRecipeIds(chainDex, [
+      ...STARTER_INGREDIENT_IDS,
+      "mushroom",
+      "garlic",
+      "oregano",
+      "egg",
+      "pesto",
+      "cherry-tomato",
+      "olive-oil",
+      "gorgonzola",
+      "parmigiano",
+      "fontina",
+      "onion",
+    ]);
     expect(ids).toContain("fugazza");
     // With every other recipe already discovered, fugazza is the sole undiscovered recipe
     // left -- undiscovered-priority (SSOT section 9) must always pick it.

@@ -203,7 +203,10 @@ describe("EP2 -> EP3 integration: consume -> low/out of stock -> Shop restock ->
     // (this is EP2's own already-documented onion/EP3-dependency scenario).
     let state = stateAtFugazzaBake(pizzaWithOnions(4), { onion: 4 });
     state = gameReducer(state, { type: "CONFIRM_BAKE", value: 70 });
-    expect(state.inventory).toEqual({ onion: 0 });
+    // EP4: `olive-oil` (this fixture's own sauce, `pizzaWithOnions`) is now also finite, so
+    // CONFIRM_BAKE's consumption tracks it too -- clamped to 0 same as `onion`, since neither
+    // fixture pre-seeds any olive-oil stock.
+    expect(state.inventory).toEqual({ onion: 0, "olive-oil": 0 });
 
     // Out of stock: a fresh PREPARE round can no longer place any onion (Stock Gate).
     let nextRound = gameReducer(state, { type: "PLAY_AGAIN" });
@@ -225,7 +228,7 @@ describe("EP2 -> EP3 integration: consume -> low/out of stock -> Shop restock ->
       amount: 200,
     });
     restocked = gameReducer(restocked, { type: "RESTOCK_INGREDIENT", ingredientId: "onion" });
-    expect(restocked.inventory).toEqual({ onion: 12 });
+    expect(restocked.inventory).toEqual({ onion: 12, "olive-oil": 0 });
 
     // Play again: onion is now placeable, and a fresh bake consumes from the restocked stock.
     const placed = gameReducer(restocked, { type: "PLACE_TOPPING", ingredientId: "onion", x: 50, y: 50 });
@@ -234,6 +237,6 @@ describe("EP2 -> EP3 integration: consume -> low/out of stock -> Shop restock ->
 
     const baking = { ...placed, phase: "BAKE" as const, pizza: pizzaWithOnions(4) };
     const finalState = gameReducer(baking, { type: "CONFIRM_BAKE", value: 70 });
-    expect(finalState.inventory).toEqual({ onion: 8 }); // 12 - 4
+    expect(finalState.inventory).toEqual({ onion: 8, "olive-oil": 0 }); // 12 - 4
   });
 });
