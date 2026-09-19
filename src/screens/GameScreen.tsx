@@ -206,8 +206,12 @@ export function GameScreen({
   // line is dropped from this screen (not from `dialogue.ts` -- still a pure, independently
   // testable function) to keep the merged screen to one short line, per the task's own "短い
   // RESULT heading" requirement.
+  // Completion Gate Phase 1: a FAILED round never computes this quality-based reaction line --
+  // ResultPanel renders its own "失敗" heading instead once `state.completion` is FAILED (see
+  // its own file header), so a congratulatory/neutral bake line can never appear alongside a
+  // pizza that was never actually servable.
   const resultHeadingJa =
-    isFreeResultScreen && state.score && state.bakeState
+    isFreeResultScreen && state.score && state.bakeState && state.completion?.status !== "FAILED"
       ? buildTetoResultLine(state.recipe, state.bakeState, state.pizza.bakeResult).textJa
       : "";
 
@@ -465,6 +469,7 @@ export function GameScreen({
           into one component. Issue #47 Finding D's two retry CTAs are unchanged. */}
       {isFreeResultScreen && state.score && (
         <ResultPanel
+          completion={state.completion}
           score={state.score}
           bakeState={state.bakeState}
           sauceScore={

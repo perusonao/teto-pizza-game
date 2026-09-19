@@ -44,6 +44,108 @@ function completeDoughStep() {
   }
 }
 
+/** Completion Gate Phase 1: a tap-select-then-tap-dough placement, reusing PizzaStage's own
+ *  "pointerdown+pointerup at the same point with no movement in between reads as a tap"
+ *  contract (see PizzaStage.tsx's `handlePointerUp`, the same one `completeDoughStep` above
+ *  already relies on for DOUGH) -- `onTap` then routes to APPLY_SAUCE/PLACE_TOPPING exactly
+ *  like App.tsx's own `handleTapPizza`. Needed now because a round with no sauce/cheese/
+ *  topping at all is a FAILED round (../logic/completionGate.ts), not merely a low-scoring
+ *  one, so this suite's real-round tests need an actual pizza, not just three "次へ" taps.
+ */
+async function selectAndTapPizza(
+  user: ReturnType<typeof userEvent.setup>,
+  ingredientNameJa: string,
+  xPercent: number,
+  yPercent: number,
+) {
+  // The chip's accessible name is its full text content (emoji + name + stock, e.g.
+  // "🍅トマトソース∞"), never just `nameJa` alone, so this matches by substring.
+  await user.click(screen.getByRole("button", { name: new RegExp(ingredientNameJa) }));
+  const dough = document.querySelector<HTMLElement>('[data-pizza-drop-target="true"]');
+  if (!dough) throw new Error("Pizza dough missing");
+  dough.getBoundingClientRect = () =>
+    ({ left: 0, top: 0, width: 300, height: 300, right: 300, bottom: 300, x: 0, y: 0, toJSON: () => {} }) as DOMRect;
+  const clientX = (xPercent / 100) * 300;
+  const clientY = (yPercent / 100) * 300;
+  const pointerId = Math.floor(Math.random() * 1_000_000);
+  fireEvent.pointerDown(dough, { pointerId, isPrimary: true, pointerType: "touch", clientX, clientY });
+  fireEvent.pointerUp(dough, { pointerId, isPrimary: true, pointerType: "touch", clientX, clientY });
+}
+
+/**
+ * Completion Gate Phase 1: a single tap on a sauce (spread) ingredient only ever lays down one
+ * small "starter tick" dab (see ../logic/sauceDispenseController.ts's own `start()` doc
+ * comment) -- deliberately too little to pass the Completion Gate's own sauce-quality floor
+ * (../logic/completionGate.ts), matching the spec's own "a single touch must not pass" Human
+ * Feel requirement. Real painting is a hold-and-drag gesture (PizzaStage's dispense session),
+ * but repeating several separate tap-release cycles at different points accumulates one starter
+ * dab each (`COMMIT_SAUCE_DISPENSE`'s own deposit log append, since the sauce is already the
+ * pizza's active one after the first tap) -- a `ring(25, 16)`-shaped spread of 16 such dabs
+ * around the dough's center is the exact fixture this suite's own
+ * gameReducer.scoringV2Authority.test.ts `ring()` helper already proved clears the gate's
+ * sauce-quality floor while staying a deliberately mediocre application.
+ */
+async function paintSauceRing(
+  user: ReturnType<typeof userEvent.setup>,
+  ingredientNameJa: string,
+  radius: number,
+  count: number,
+) {
+  await user.click(screen.getByRole("button", { name: new RegExp(ingredientNameJa) }));
+  const dough = document.querySelector<HTMLElement>('[data-pizza-drop-target="true"]');
+  if (!dough) throw new Error("Pizza dough missing");
+  dough.getBoundingClientRect = () =>
+    ({ left: 0, top: 0, width: 300, height: 300, right: 300, bottom: 300, x: 0, y: 0, toJSON: () => {} }) as DOMRect;
+  for (let i = 0; i < count; i += 1) {
+    const angle = (i / count) * Math.PI * 2;
+    const xPercent = 50 + Math.cos(angle) * radius;
+    const yPercent = 50 + Math.sin(angle) * radius;
+    const clientX = (xPercent / 100) * 300;
+    const clientY = (yPercent / 100) * 300;
+    const pointerId = Math.floor(Math.random() * 1_000_000);
+    fireEvent.pointerDown(dough, { pointerId, isPrimary: true, pointerType: "touch", clientX, clientY });
+    fireEvent.pointerUp(dough, { pointerId, isPrimary: true, pointerType: "touch", clientX, clientY });
+  }
+}
+
+/**
+ * Completion Gate Phase 1: BakeOverlay drives its needle position from its own internal
+ * `requestAnimationFrame` loop against real wall-clock time (see BakeOverlay.tsx's own file
+ * header) -- left uncontrolled, an immediate "取り出す！" tap in a test captures whatever
+ * position a handful of real jsdom animation frames happened to reach, which is both far too
+ * low to land inside any recipe's PASS band and not deterministic. Stubbing
+ * `requestAnimationFrame`/`performance.now` (mirrors BakeOverlay.test.tsx's own approach) lets
+ * a test drive the needle to an exact, chosen value before confirming the bake.
+ *
+ * Call `stub()` BEFORE clicking "焼く" (so BakeOverlay's mount effect registers its first
+ * `requestAnimationFrame` call against the stub, not the real one), then `driveTo(value)` right
+ * before clicking "取り出す！", then `unstub()` afterward.
+ */
+function controlBakeNeedle() {
+  let now = 0;
+  let rafCallback: FrameRequestCallback | null = null;
+  return {
+    stub() {
+      vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
+        rafCallback = callback;
+        return 1;
+      });
+      vi.stubGlobal("cancelAnimationFrame", () => {});
+      vi.stubGlobal("performance", { now: () => now });
+    },
+    driveTo(targetPosition: number) {
+      const BAKE_NEEDLE_SPEED = 55; // percent per second, BakeOverlay.tsx's own SPEED constant
+      now += (targetPosition / BAKE_NEEDLE_SPEED) * 1000;
+      const callback = rafCallback;
+      rafCallback = null;
+      callback?.(now);
+    },
+    unstub() {
+      vi.unstubAllGlobals();
+    },
+  };
+}
+
 /**
  * HOME/GAME separation (Issue #24) integration coverage, extended by Issue #39 for the
  * HOME -> Pizza Select -> FREE navigation this file's own describe block now covers end to
@@ -376,9 +478,22 @@ describe("HOME/GAME separation (Issue #24)", () => {
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
     await selectRecipeInPizzaSelect(user, "bismarck");
     completeDoughStep();
-    await user.click(screen.getByRole("button", { name: /次へ/ }));
-    await user.click(screen.getByRole("button", { name: /次へ/ }));
-    await user.click(screen.getByRole("button", { name: /次へ/ }));
+    await user.click(screen.getByRole("button", { name: /次へ/ })); // DOUGH -> SAUCE
+    // Completion Gate Phase 1: this round must actually PASS (real sauce + every required
+    // ingredient at its own minCount + a bake inside bismarck's own acceptable band) for the
+    // discovery banner below to appear at all -- an empty pizza is now a FAILED round
+    // (../logic/completionGate.ts), which never registers to Dex (see this suite's own
+    // Completion Gate coverage in gameReducer.pitzReward.test.ts for that behavior directly).
+    await paintSauceRing(user, "トマトソース", 25, 16);
+    await user.click(screen.getByRole("button", { name: /次へ/ })); // SAUCE -> CHEESE
+    await selectAndTapPizza(user, "モッツァレラ", 40, 50);
+    await selectAndTapPizza(user, "モッツァレラ", 60, 50);
+    await selectAndTapPizza(user, "モッツァレラ", 50, 30);
+    await user.click(screen.getByRole("button", { name: /次へ/ })); // CHEESE -> TOPPING
+    await selectAndTapPizza(user, "たまご", 50, 65);
+
+    const needle = controlBakeNeedle();
+    needle.stub();
     await user.click(screen.getByRole("button", { name: /焼く/ }));
 
     // The same PizzaStage element (and the pizza it was built on) carries straight through
@@ -386,7 +501,10 @@ describe("HOME/GAME separation (Issue #24)", () => {
     const pizzaBeforeConfirm = document.querySelector(".pizza-stage .pizza-dough");
     expect(pizzaBeforeConfirm).toBeInTheDocument();
 
+    // bismarck's bakeTarget is {55, 75} -- 65 sits in the middle of the perfect zone.
+    needle.driveTo(65);
     await user.click(screen.getByRole("button", { name: "取り出す！" }));
+    needle.unstub();
 
     // No intermediate "score only, tap to register" screen -- the discovery banner, the CTAs,
     // and the completed pizza are all present on the very first render after confirming BAKE.

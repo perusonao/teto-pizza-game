@@ -42,6 +42,7 @@ function basePitzCredit(overrides: Partial<PitzCredit> = {}): PitzCredit {
 
 function baseProps() {
   return {
+    completion: { status: "PASS" as const },
     score: baseScore(),
     bakeState: "perfect" as const,
     sauceScore: 42,

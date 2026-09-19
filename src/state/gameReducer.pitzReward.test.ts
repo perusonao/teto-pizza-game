@@ -48,8 +48,10 @@ function playFreeMargheritaToResult(bakeValue: number, startState?: GameState): 
 }
 
 /** An intentionally minimal/incomplete round (no sauce, no cheese, no topping, baked at the
- *  extreme edge) -- exercises Scoring 2.0's own low-score path so this suite can assert a
- *  real 0-Pitz FREE credit without hand-faking `state.score`. */
+ *  extreme edge). Completion Gate Phase 1 (../logic/completionGate.ts): this is now a FAILED
+ *  pizza, not merely a low-scoring one -- it never reaches Scoring 2.0's reward path at all
+ *  (see the "Completion Gate Phase 1" describe block below), which is exactly the behavior
+ *  change this phase exists to make. */
 function playFreeMargheritaMinimalToResult(): GameState {
   let state = createInitialGameState();
   state = gameReducer(state, { type: "BEGIN_PREPARE" });
@@ -91,16 +93,17 @@ describe("FREE per-pizza Pitz credit (REGISTER_TO_DEX)", () => {
     expect(after.pitzBalance).toBe(expected.earnedPitz);
   });
 
-  it("a real low-quality FREE pizza (0-39 band) credits exactly 0 Pitz, balance unchanged", () => {
+  it("Completion Gate Phase 1: a FAILED FREE pizza (empty pizza, no sauce/cheese/topping) never credits Pitz at all -- it stays parked at RESULT, unregistered", () => {
     const resultState = playFreeMargheritaMinimalToResult();
-    expect(resultState.score!.total).toBeLessThan(40);
+    expect(resultState.completion?.status).toBe("FAILED");
 
     const after = gameReducer(resultState, { type: "REGISTER_TO_DEX" });
-    expect(after.lastPitzCredit).not.toBeNull();
-    expect(after.lastPitzCredit?.earnedPitz).toBe(0);
-    expect(after.lastPitzCredit?.balanceBefore).toBe(0);
-    expect(after.lastPitzCredit?.balanceAfter).toBe(0);
+    // Completion Gate Phase 1: REGISTER_TO_DEX is a complete no-op for a FAILED round -- no
+    // Pitz credit at all (not even a `{ earnedPitz: 0 }` snapshot -- see gameReducer.ts's own
+    // REGISTER_TO_DEX case comment), no phase transition, no balance change.
+    expect(after.lastPitzCredit).toBeNull();
     expect(after.pitzBalance).toBe(0);
+    expect(after.phase).toBe("RESULT");
   });
 
   it("REGISTER_TO_DEX credits Pitz exactly once, even if dispatched twice (double-click/duplicate dispatch)", () => {
