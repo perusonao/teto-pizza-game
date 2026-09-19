@@ -155,106 +155,108 @@ export function ShopOverlay({
           </button>
         </div>
 
-        <p className="shop-overlay__balance">
-          {"\u{1FA99}"} {pitzBalance} Pitz
-        </p>
-
-        {showFeedback && (
-          <p className="shop-overlay__feedback">
-            {"\u{1F355}"} {feedback.ingredientNameJa}を仕入れました！
-            {feedback.unlockedRecipeNames.length > 0 && (
-              <>
-                <br />
-                {"\u{1F355}"} 新しいピザが作れます！「{feedback.unlockedRecipeNames.join("、")}」
-              </>
-            )}
+        <div className="dex-overlay__body shop-overlay__body">
+          <p className="shop-overlay__balance">
+            {"\u{1FA99}"} {pitzBalance} Pitz
           </p>
-        )}
 
-        {showRestockFeedback && (
-          <p className="shop-overlay__feedback">
-            {"\u{1F4E6}"} {restockFeedback.ingredientNameJa}を{restockFeedback.quantity}補充しました！
-          </p>
-        )}
+          {showFeedback && (
+            <p className="shop-overlay__feedback">
+              {"\u{1F355}"} {feedback.ingredientNameJa}を仕入れました！
+              {feedback.unlockedRecipeNames.length > 0 && (
+                <>
+                  <br />
+                  {"\u{1F355}"} 新しいピザが作れます！「{feedback.unlockedRecipeNames.join("、")}」
+                </>
+              )}
+            </p>
+          )}
 
-        {products.length === 0 && (
-          <p className="shop-overlay__empty">新しい素材は、ピザの腕前が上がると入荷します</p>
-        )}
+          {showRestockFeedback && (
+            <p className="shop-overlay__feedback">
+              {"\u{1F4E6}"} {restockFeedback.ingredientNameJa}を{restockFeedback.quantity}補充しました！
+            </p>
+          )}
 
-        {products.length > 0 && (
-          <div className="shop-overlay__list">
-            {products.map((ingredient) => {
-              const state = ingredientState(ingredient, ownedIngredientIds, stars);
-              const unlocksLabel = unlockedRecipeLabel(ingredient.id, dex, ownedIngredientIds);
-              return (
-                <div key={ingredient.id} className="shop-item">
-                  <div className="shop-item__row">
-                    <div className="shop-item__info">
-                      <span className="shop-item__emoji">{ingredient.emoji}</span>
-                      <span className="shop-item__name">{ingredient.nameJa}</span>
+          {products.length === 0 && (
+            <p className="shop-overlay__empty">新しい素材は、ピザの腕前が上がると入荷します</p>
+          )}
+
+          {products.length > 0 && (
+            <div className="shop-overlay__list">
+              {products.map((ingredient) => {
+                const state = ingredientState(ingredient, ownedIngredientIds, stars);
+                const unlocksLabel = unlockedRecipeLabel(ingredient.id, dex, ownedIngredientIds);
+                return (
+                  <div key={ingredient.id} className="shop-item">
+                    <div className="shop-item__row">
+                      <div className="shop-item__info">
+                        <span className="shop-item__emoji">{ingredient.emoji}</span>
+                        <span className="shop-item__name">{ingredient.nameJa}</span>
+                      </div>
+
+                      {state === "LOCKED" && (
+                        <span className="shop-item__status shop-item__status--locked">
+                          {"\u{1F512}"} あと★{remainingStarsFor(ingredient, stars)}
+                        </span>
+                      )}
+
+                      {state === "AVAILABLE_TO_BUY" && (
+                        <div className="shop-item__buy">
+                          <span className="shop-item__price">
+                            {"\u{1FA99}"} {ingredient.pricePitz} Pitz
+                          </span>
+                          <button
+                            type="button"
+                            className="shop-item__buy-button"
+                            disabled={pitzBalance < (ingredient.pricePitz ?? Infinity)}
+                            onClick={() => handleBuy(ingredient)}
+                          >
+                            購入
+                          </button>
+                        </div>
+                      )}
+
+                      {/* EP3: every `products` entry has `unlockCondition` by construction (the
+                          list's own filter above), so an OWNED row here is always a genuinely
+                          finite ingredient -- restock, never a plain "✓ 購入済み" checkmark, is the
+                          only OWNED presentation this list ever needs (unlike a hypothetical
+                          Starter/unlimited ingredient, which this list structurally never lists at
+                          all -- see the "Unlimited" scope note in the EP3 Result report). */}
+                      {state === "OWNED" && (
+                        <div className="shop-item__restock">
+                          <span className="shop-item__stock">
+                            在庫 {remainingStock(ingredient, inventory)}
+                          </span>
+                          <span className="shop-item__restock-qty">+{ingredient.restockQuantity}</span>
+                          <span className="shop-item__price">
+                            {"\u{1FA99}"} {ingredient.pricePitz} Pitz
+                          </span>
+                          <button
+                            type="button"
+                            className="shop-item__restock-button"
+                            disabled={pitzBalance < (ingredient.pricePitz ?? Infinity)}
+                            onClick={() => handleRestock(ingredient)}
+                          >
+                            補充する
+                          </button>
+                        </div>
+                      )}
                     </div>
-
-                    {state === "LOCKED" && (
-                      <span className="shop-item__status shop-item__status--locked">
-                        {"\u{1F512}"} あと★{remainingStarsFor(ingredient, stars)}
-                      </span>
-                    )}
-
-                    {state === "AVAILABLE_TO_BUY" && (
-                      <div className="shop-item__buy">
-                        <span className="shop-item__price">
-                          {"\u{1FA99}"} {ingredient.pricePitz} Pitz
-                        </span>
-                        <button
-                          type="button"
-                          className="shop-item__buy-button"
-                          disabled={pitzBalance < (ingredient.pricePitz ?? Infinity)}
-                          onClick={() => handleBuy(ingredient)}
-                        >
-                          購入
-                        </button>
-                      </div>
-                    )}
-
-                    {/* EP3: every `products` entry has `unlockCondition` by construction (the
-                        list's own filter above), so an OWNED row here is always a genuinely
-                        finite ingredient -- restock, never a plain "✓ 購入済み" checkmark, is the
-                        only OWNED presentation this list ever needs (unlike a hypothetical
-                        Starter/unlimited ingredient, which this list structurally never lists at
-                        all -- see the "Unlimited" scope note in the EP3 Result report). */}
-                    {state === "OWNED" && (
-                      <div className="shop-item__restock">
-                        <span className="shop-item__stock">
-                          在庫 {remainingStock(ingredient, inventory)}
-                        </span>
-                        <span className="shop-item__restock-qty">+{ingredient.restockQuantity}</span>
-                        <span className="shop-item__price">
-                          {"\u{1FA99}"} {ingredient.pricePitz} Pitz
-                        </span>
-                        <button
-                          type="button"
-                          className="shop-item__restock-button"
-                          disabled={pitzBalance < (ingredient.pricePitz ?? Infinity)}
-                          onClick={() => handleRestock(ingredient)}
-                        >
-                          補充する
-                        </button>
-                      </div>
+                    {/* "何を買うと何ができるか" preview (SSOT section 8): shown before purchase
+                        (LOCKED/AVAILABLE_TO_BUY) so the player can see the payoff up front --
+                        never for OWNED, where the recipe is simply already available. */}
+                    {state !== "OWNED" && unlocksLabel && (
+                      <p className="shop-item__unlocks">
+                        これを買うと: {"\u{1F355}"} {unlocksLabel}
+                      </p>
                     )}
                   </div>
-                  {/* "何を買うと何ができるか" preview (SSOT section 8): shown before purchase
-                      (LOCKED/AVAILABLE_TO_BUY) so the player can see the payoff up front --
-                      never for OWNED, where the recipe is simply already available. */}
-                  {state !== "OWNED" && unlocksLabel && (
-                    <p className="shop-item__unlocks">
-                      これを買うと: {"\u{1F355}"} {unlocksLabel}
-                    </p>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
