@@ -245,7 +245,8 @@ suite, §14-15).
 
 ## 19. HEAD SHA
 
-To be recorded after commit (see PR description for the exact pushed SHA).
+`3631787f335e426dab9925e719d278c5197c0626` (branch `claude/inventory-screen-949giz`, based on
+`origin/main` @ `c647dcce629f9beaf9fc8bb36c4520afd8e1af39`).
 
 ## FINAL VERDICT
 
