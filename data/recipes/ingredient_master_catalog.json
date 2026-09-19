@@ -1,8 +1,7 @@
 {
-  "schemaNote": "Fresh Ingredient Master Catalog v2. Research/design artifact only; NOT wired into src/**.",
+  "schemaNote": "Fresh Ingredient Master Catalog v2.1 -- companion to the 53-entry recipe catalog (foundation for 160-scale expansion, not a 160-entry catalog itself). Research/design artifact only; NOT wired into src/**.",
   "catalogVersion": "2.0.0",
   "generatedDate": "2026-09-19",
-  "auditedMainSha": "8918fe4bd93816b0acefe4a35106fa1a4e8653e2",
   "totalIngredientCount": 62,
   "existingIngredientCount": 14,
   "newIngredientCount": 48,
@@ -1303,5 +1302,9 @@
       "mechanicDependency": "postBakeFinishing",
       "notes": "焼成後ドリズル。"
     }
-  ]
+  ],
+  "initialAuditedMainSha": "8918fe4bd93816b0acefe4a35106fa1a4e8653e2",
+  "initialAuditedMainShaNote": "The main SHA actually read/audited for this catalog's content (recipes.ts/ingredients.ts baseline) at session start. Recipe/ingredient CONTENT in this file is grounded in this SHA.",
+  "prBaseShaAtFollowUp": "b784cd3164f412252d6e6b1d70b52a5ec665553b",
+  "prBaseShaAtFollowUpNote": "main SHA confirmed via `git fetch origin` at PR #81's Fresh Gate follow-up (after EP1 merged as PR #80). A diff of src/data/recipes.ts between initialAuditedMainSha and this SHA was checked: EP1 added recipe-level `unlockCondition`/`mysteryLock` GATING fields only -- it did not change recipe ids, ingredients, bakeTarget, or the 7-recipe count. src/data/ingredients.ts is byte-identical between the two SHAs. This confirms the catalog's recipe/ingredient content baseline is still accurate as of this SHA, WITHOUT this being a claim that the full new main tree was re-audited end-to-end."
 }

@@ -1,14 +1,26 @@
-# TETO Recipe Master Catalog 160 — Fresh Analysis (READ-ONLY, data-first)
+# TETO Recipe Master Catalog — Fresh Analysis: 53-Entry Foundation for 160-Scale Expansion (READ-ONLY, data-first)
 
-**Audited `main` SHA:** `8918fe4bd93816b0acefe4a35106fa1a4e8653e2`
+**v1.1 — Fresh Gate follow-up.** This revision fixes a provenance/framing issue flagged
+against the original version of this report: it conflated "the `main` SHA audited at session
+start" with "the PR's base SHA," and its "160" framing could be misread as describing the
+current catalog size rather than a target scale. Both are corrected below; see the
+"Provenance (SHA) integrity" subsection of §2 and the "53 entries vs. the 160-scale target"
+framing used throughout. No catalog content (recipe/ingredient/mechanic entries or counts)
+changed in this revision — only provenance labeling and framing text.
+
+**Formal position: this is a Fresh Recipe Master Catalog — a 53-entry foundation for
+160-scale expansion, not a 160-entry catalog.** "160" is an illustrative target scale/
+architecture, never a current count.
+
 **Scope:** docs/data-only. No `src/**` change. No Recipe production implementation, Inventory,
-Shop, Save, Pitz, Scoring, RESULT, or EP1 change. No production deploy. No `main` merge.
+Shop, Save, Pitz, Scoring, RESULT, or EP2 change. No production deploy. No `main` merge.
 **Companion catalog/schema:** `docs/design/TETO_RECIPE-MASTER-CATALOG.md`
 **Companion data:** `data/recipes/pizza_master_catalog.json`,
 `data/recipes/ingredient_master_catalog.json`, `data/recipes/gameplay_mechanic_master.json`
-**Companion validator:** `tools/validate_recipe_catalog.py` — all checks pass against the
-committed JSON as of this report (duplicate id, orphan reference, `usedByRecipeCount`
-consistency, mechanic reference consistency, missing required fields, etc.).
+**Companion validator:** `tools/validate_recipe_catalog.py` — re-run for this follow-up,
+all checks pass against the committed JSON (duplicate id, orphan reference,
+`usedByRecipeCount` consistency, mechanic reference consistency, missing required fields,
+etc.).
 **Predecessor (not deleted, cross-referenced):** `docs/design/TETO_RECIPE-EXPANSION-20.md`
 
 All counts in this report are copied verbatim from a Python analysis script's direct
@@ -28,20 +40,56 @@ analysis — not up-front design judgment — determine implementation order. No
 30 additional candidates and 2 explicit rejected-duplicate examples, for **53 total catalog
 entries**.
 
-## 2. Source access and verification limitations
+## 2. Source access, verification limitations, and provenance (SHA) integrity
+
+### 2.1 Provenance — three distinct SHAs, never conflated
+
+| Label | SHA | What it means |
+|---|---|---|
+| `initialAuditedMainSha` | `8918fe4bd93816b0acefe4a35106fa1a4e8653e2` | The `main` SHA this catalog's recipe/ingredient *content* was actually read and audited against, at this task's session start (before Economy & Progression 1.0 EP1 merged). |
+| `prBaseShaAtCreation` | `b784cd3164f412252d6e6b1d70b52a5ec665553b` | PR #81's `base.sha` as reported by GitHub at PR-creation time (this had already advanced past `initialAuditedMainSha` because EP1 merged as PR #80 between this session starting and the PR being opened — GitHub's `base` is a floating branch ref, not a fixed commit, so it reflects `main`'s state at query time). |
+| `latestMainShaAtFollowUp` (== `prBaseShaAtFollowUp`) | `b784cd3164f412252d6e6b1d70b52a5ec665553b` | `main`'s current SHA, reconfirmed via `git fetch origin` at this Fresh Gate follow-up. Identical to `prBaseShaAtCreation` in this case (no further commits landed on `main` between PR creation and this follow-up). |
+
+**What was and wasn't re-audited at this follow-up**: `git fetch origin` was run and `main`'s
+current tip was confirmed directly (not assumed). A full re-audit of everything that changed
+between `initialAuditedMainSha` and `latestMainShaAtFollowUp` was **not** performed — that
+would mean re-reading the entire EP1 (PR #80) diff, which is out of this task's read-only
+recipe-catalog scope. Instead, a **targeted, honest check** was run: a `git diff` of exactly
+the two files this catalog's content baseline depends on,
+`src/data/recipes.ts` and `src/data/ingredients.ts`, between the two SHAs. Result:
+
+- `src/data/ingredients.ts`: **byte-identical** between the two SHAs (confirmed via
+  `git diff --stat`, zero output).
+- `src/data/recipes.ts`: **38 insertions, 4 deletions**, entirely accounted for by EP1 adding
+  a new `RecipeUnlockCondition` interface and per-recipe `unlockCondition`/`mysteryLock`
+  **gating metadata** (which recipe requires which prior recipe/star threshold to unlock, and
+  whether a locked card shows "？？？"). EP1 did **not** change any recipe's `id`, `nameJa`,
+  `requiredIngredients`, or `bakeTarget`, and did not add or remove any recipe (still exactly
+  7). The full diff was read and is reproduced in this report's git history for anyone who
+  wants to re-check it directly.
+
+**Conclusion**: this catalog's `verified_internal` (7 recipes) content — ids, ingredient
+sets, bake ranges — remains accurate as of `latestMainShaAtFollowUp`. This is a narrow,
+verifiable claim about two specific files, not a claim that the full `main` tree at
+`b784cd3164f412252d6e6b1d70b52a5ec665553b` was comprehensively re-audited.
+
+### 2.2 External source access
 
 - **This session's own direct test**: a `WebFetch` to `en.wikipedia.org` returned
   `EGRESS_BLOCKED`. This reconfirms PR #79's finding (pizzadb.jp and every other domain
   tested were blocked at the network-proxy level, not by robots.txt/ToS) using this session's
-  own evidence rather than citing PR #79 alone.
+  own evidence rather than citing PR #79 alone. (This test was performed once, earlier in the
+  same session that produced the original catalog; it was not re-run at this follow-up, which
+  made no new external-access attempt.)
 - Consequently, **no recipe or ingredient in this catalog is marked as verified against an
-  external source this session.** `verified_internal` is used only for the 7 recipes already
-  shipped in `src/data/recipes.ts` (verified against the actual repository, not pizzadb.jp).
-  Every other entry is `game_design_candidate` (well-established per general, independent
-  culinary knowledge), `verification_pending` (real but lower-confidence — fusion dishes,
-  contested provenance, or simply "would benefit from a source check"), `deferred`, or
-  `rejected_duplicate`. See `docs/design/TETO_RECIPE-MASTER-CATALOG.md` §5 for exact
-  definitions.
+  external source.** `verified_internal` is used only for the 7 recipes already shipped in
+  `src/data/recipes.ts`, and means **implementation-correspondence verified** (matches the
+  production source exactly) — **not** that the recipe's real-world culinary facts were
+  checked against pizzadb.jp or any other external cooking reference. `game_design_candidate`
+  and `verification_pending` are, despite their names, **also not externally verified** —
+  both mean "general culinary knowledge, unverified against any external source this
+  session." **Externally verified recipe count: 0.** See
+  `docs/design/TETO_RECIPE-MASTER-CATALOG.md` §5 for the exact per-status definitions.
 - PIZZA DB (pizzadb.jp) was treated strictly as it's defined in `PIZZA_GAME_SSOT.md` §1:
   inspiration/reference only. No PIZZA DB text, image, or structured data was copied — none
   was even reachable this session.
@@ -49,11 +97,17 @@ entries**.
   ingredient deduplication, implementation-class judgment, and the full efficiency analysis
   below are all independent of external source access and are complete for this pass.
 
-## 3. 160-scale gap — stated honestly, not padded
+## 3. 53 entries vs. the 160-scale target — stated honestly, not padded
+
+**Formal position, restated for absolute clarity: this is a Fresh Recipe Master Catalog —
+a 53-entry foundation for 160-scale expansion.** "160" names an architecture/target scale
+this catalog's schema and analysis method are designed to grow toward; it is never the
+current entry count, and nothing in this report should be read as claiming a 160-entry
+(or 160-verified) catalog exists.
 
 | Metric | Value |
 |---|---|
-| Illustrative target ceiling | 160 (unchanged historical reference point, never re-verified) |
+| Illustrative target scale (architecture, not a count) | 160 (unchanged historical reference point, never re-verified) |
 | **Total catalog entries produced this session** | **53** |
 | Viable entries (excludes rejected-duplicates) | 51 |
 | Rejected-duplicate entries (explicit anti-padding examples) | 2 |
@@ -97,7 +151,12 @@ non-rejected): **51**.
 the existing 14 — **not** from which recipe happened to introduce an ingredient first — so a
 recipe reusing an already-catalogued new ingredient still counts that ingredient as "needed.")
 
-## 6. Ingredient usage ranking (Top 20, across all 51 viable recipes)
+## 6. Ingredient usage ranking (Top 20, within the current 53-entry dataset)
+
+**All counts below are computed within the current 53-entry (51-viable) candidate dataset
+only.** They are not, and cannot yet be, a claim about usage at full 160-scale — no dataset
+of that size exists. Treat this ranking as a signal from the sample built so far, to be
+re-run as the catalog grows.
 
 | Rank | Ingredient | Recipe count | Existing/New |
 |---|---|---|---|
@@ -126,9 +185,10 @@ The 3 Chapter-1 Starter ingredients (`tomato-sauce`, `mozzarella`, `olive-oil`'s
 peers) remain the most-reused ingredients even across a 51-recipe catalog — validating
 Chapter 1's original ingredient choices independent of this analysis.
 
-## 7. Highest-value new ingredients (greedy incremental-unlock efficiency)
+## 7. Highest-value new ingredients (greedy incremental-unlock efficiency, within the current dataset)
 
-Greedy set-cover over the 44 new (non-Chapter-1) viable candidates: at each step, which single
+**This is a within-dataset ranking, not a full-160-scale claim.** Greedy set-cover over the
+44 new (non-Chapter-1) viable candidates *currently catalogued*: at each step, which single
 not-yet-added ingredient unlocks the most additional, not-yet-buildable recipes (accounting
 for recipes that need *combinations* of new ingredients, not just single ones)?
 
@@ -147,7 +207,13 @@ Early-tier `salsiccia`, a Mid-tier `boscaiola`, and — combined with the `speci
 addition. `ricotta` and `artichoke` are notable for resolving their own §"cost warning" status
 from the 20-recipe pass: once added, they stop being single-recipe-bound.
 
-## 8. Gameplay mechanic analysis
+## 8. Gameplay mechanic analysis (within the current 53-entry dataset)
+
+**Every recipe count below is measured within the current 53-entry candidate dataset.** It is
+not a claim about mechanic ROI at full 160-scale — that would require a 160-entry dataset,
+which does not exist yet. "`postBakeFinishing` = 15 recipes" means exactly that: 15 of the 51
+viable recipes *currently catalogued* need it, not "15 out of a 160-recipe universe" and not
+"the best mechanic at any possible future scale." Re-run this analysis as the catalog grows.
 
 | Mechanic | Recipe count | Status |
 |---|---|---|
@@ -165,7 +231,9 @@ from the 20-recipe pass: once added, they stop being single-recipe-bound.
 - **Recipes buildable with baseline mechanics only (no new mechanic at all):** 28 of 51 viable
   (55%).
 - **Recipes needing at least one new mechanic:** 23 of 51.
-- **`postBakeFinishing` is overwhelmingly the highest-value single mechanic investment**: one
+- **Within the current 53-entry dataset, `postBakeFinishing` is overwhelmingly the
+  highest-value single mechanic investment** (not a claim about the eventual 160-scale
+  catalog, which doesn't exist yet to measure): one
   subsystem (a new post-BAKE, pre-RESULT phase supporting scatter/drizzle/dusting/shaving
   sub-placements, gated by a `finishingOnly` ingredient flag — see
   `TETO_RECIPE-EXPANSION-20.md` §6.1 for the engineering sketch, which reused existing
@@ -287,6 +355,11 @@ catalog's structure.
 
 ## 13. PR #79 disposition recommendation
 
+**Status of this recommendation: PR #79 is NOT being closed now, and this report does not ask
+anyone to close it now.** Per this Fresh Gate follow-up's explicit instruction, PR #79 stays
+open and untouched until PR #81 itself has passed Fresh Gate review and has actually been
+adopted as SSOT.
+
 PR #79 (`claude/recipe-master-catalog-1j9jrb`, open, base SHA
 `5d28c5dc996c0ea76aa6428f158a766165477213`, not modified by this session) catalogued the same
 7 shipped recipes using a closely-related schema (this catalog's schema is a direct, compatible
@@ -294,35 +367,43 @@ descendant of it — same `sourceUrl`/`researchStatus` concept, renamed/extended
 `sourceReferences`/`verificationStatus`). This catalog's 53-entry, cross-referenced,
 validated dataset is a strict superset of PR #79's scope and depth.
 
-**Recommendation: close PR #79 in favor of this catalog**, rather than updating it in place
-or maintaining both as parallel "Recipe Master Catalog" SSOT candidates. Rationale:
+**Planned/conditional recommendation (future action, contingent on PR #81's own adoption —
+not an action to take today):** once PR #81 passes Fresh Gate review and is adopted as SSOT,
+close PR #79 as **superseded** by PR #81, rather than updating PR #79 in place or maintaining
+both as parallel "Recipe Master Catalog" SSOT candidates indefinitely. Rationale for that
+future step, recorded now so it doesn't need to be re-derived later:
 
-- The user's own instruction this session was explicit: **do not maintain two Master Catalogs
-  for the same purpose** ("同じ目的のMaster Catalogを複数作らないこと").
+- The user's own instruction is explicit: **do not maintain two Master Catalogs for the same
+  purpose long-term** ("同じ目的のMaster Catalogを複数作らないこと").
 - PR #79's branch (`claude/recipe-master-catalog-1j9jrb`) is based on an older `main` SHA
-  (`5d28c5dc99...`) than this session's (`8918fe4b...`, 10 commits ahead) — rebasing PR #79
-  forward and reconciling its 4-file, 7-recipe-only content with this session's 53-entry
-  catalog field-by-field would cost more than starting the merged history here.
+  (`5d28c5dc99...`) than this catalog's — rebasing PR #79 forward and reconciling its 4-file,
+  7-recipe-only content with this session's 53-entry catalog field-by-field would cost more
+  than the merged history already living in PR #81.
 - This catalog already incorporates every substantive finding from PR #79 (the same 7-recipe
   baseline, the same 4 naming-ambiguity notes, the same `eggCenter` implementation gap on
-  Bismarck) — nothing in PR #79 would be lost by closing it, provided this PR's link is
-  referenced in the closing comment.
-- **This session does not close PR #79 itself** — that decision belongs to the repository
-  owner/reviewer, per the task's explicit instruction. This is a recommendation only.
+  Bismarck) — nothing in PR #79 would be lost by closing it once PR #81 is adopted, provided
+  PR #81's link is referenced in the closing comment.
+- **Neither this session nor this report closes PR #79.** That decision belongs to the
+  repository owner/reviewer, and only after PR #81 itself clears review — not before.
 
-If the reviewer prefers **not** to close PR #79 (e.g. for external review-thread continuity),
-the second-best option is: merge PR #79 first (to its own already-stale base), then rebase
-this PR on top and note the schema migration (`sourceUrl`→`sourceReferences`,
-`researchStatus`→`verificationStatus`) explicitly in this PR's description. This is a strictly
-worse path (two SSOT-adjacent PRs open simultaneously in the interim) and is **not** the
-recommended path.
+If the reviewer prefers **not** to close PR #79 even after PR #81 is adopted (e.g. for
+external review-thread continuity), the second-best option, recorded for that scenario: merge
+PR #79 first (to its own already-stale base), then rebase PR #81 on top and note the schema
+migration (`sourceUrl`→`sourceReferences`, `researchStatus`→`verificationStatus`) explicitly
+in the description. This is a strictly worse path (two SSOT-adjacent PRs open simultaneously
+in the interim) and is **not** the recommended path.
 
 ## 14. Scope creep check
 
 - No `src/**` file was read for modification purposes (only read for context: `ingredients.ts`,
   `recipes.ts`, `pizzaCoordinates.ts` — all read-only, to ground mechanic-cost judgments in
-  the actual existing coordinate/placement system).
-- No EP1 branch, Inventory, Shop, Save, Pitz, Scoring, or RESULT code was touched.
+  the actual existing coordinate/placement system). At this Fresh Gate follow-up, the only
+  additional `src/**` interaction was a read-only `git diff` of `recipes.ts`/`ingredients.ts`
+  between the two audited SHAs (§2.1) — no file was edited.
+- EP1 (Economy & Progression 1.0's Recipe Unlock foundation) merged to `main` as PR #80
+  between this session's start and this follow-up. It is not touched, rebased onto, or
+  reimplemented by this PR. No Inventory, Shop, Save, Pitz, Scoring, or RESULT code was
+  touched. No new recipe was added to reach any particular count.
 - The task's mid-session pivot (20-recipe-first → 160-scale data-first) was treated as an
   explicit in-scope redirection by the task owner, not scope creep by this session — the
   original 20-recipe document was preserved, not replaced, exactly as instructed.
@@ -348,61 +429,92 @@ tolerance, Vegetariana's own-entry question). New from this pass:
 
 ---
 
-## Final Report
+## Final Report (Fresh Gate follow-up)
 
-- **Audited `main` SHA:** `8918fe4bd93816b0acefe4a35106fa1a4e8653e2`
-- **Catalog recipe count (total entries):** 53
-- **Verified recipe count (`verified_internal`):** 7
-- **Verification-pending count:** 18 (plus 21 `game_design_candidate`, 5 `deferred`, 2
-  `rejected_duplicate` — see §4 for the full breakdown)
-- **Unique ingredient count:** 62
-- **Existing ingredient count:** 14
-- **New ingredient count:** 48
-- **Recipes buildable with existing 14 ingredients only:** 5
-- **Recipes needing +1 new ingredient:** 17
-- **Recipes needing +2 new ingredients:** 10
-- **Ingredient usage Top 20:** see §6 (mozzarella 38, tomato-sauce 33, olive-oil 12, onion 9,
-  oregano 7, mushroom 6, ham 5, sausage 5, …)
-- **Highest-value new ingredients:** `sausage` (+3 recipes), then `anchovy`/`pepperoni`/
-  `ricotta`/`artichoke` (+2 each) — see §7
-- **Mechanic counts:** see §8 (`postBakeFinishing` 15, `specialShapePan` 4, six others at 1
-  each)
+- **Latest `main` SHA (confirmed via `git fetch origin` at this follow-up):**
+  `b784cd3164f412252d6e6b1d70b52a5ec665553b`
+- **Initial audited `main` SHA (session start, content baseline):**
+  `8918fe4bd93816b0acefe4a35106fa1a4e8653e2`
+- **PR #81 base SHA (floating `main` ref, both at creation and at this follow-up):**
+  `b784cd3164f412252d6e6b1d70b52a5ec665553b` — see §2.1 for why these three SHA labels are
+  kept distinct and what was/wasn't re-audited between them.
+- **HEAD SHA (this follow-up commit):** `<filled in after this commit — see PR #81 for the
+  current value; this report is committed in the same commit as the HEAD it describes>`
+- **Catalog count:** 53 total entries (51 viable, 2 `rejected_duplicate`) — **not** 160; see
+  §3. This has not changed since the original version of this report; only provenance/framing
+  text changed in this follow-up.
+- **Externally verified recipe count: 0.** No recipe or ingredient in this catalog has been
+  checked against an external culinary source (pizzadb.jp and all other domains tested remain
+  network-blocked — §2.2).
+- **Internal implementation-verified count (`verified_internal`): 7** — the 7 Chapter-1
+  recipes, meaning their id/ingredients/bakeProfile match `src/data/recipes.ts` exactly (§2.1
+  confirms this is still true as of the latest `main` SHA). This is a code-correspondence
+  check, not a culinary-fact verification — see §2.2.
+- **Pending/candidate/deferred/rejected counts:** `game_design_candidate` 21,
+  `verification_pending` 18, `deferred` 5, `rejected_duplicate` 2 (see §4 for the full
+  breakdown table).
+- **Validator result:** `python3 tools/validate_recipe_catalog.py` — re-run at this
+  follow-up, checked 53 recipe / 62 ingredient / 11 mechanic entries, **all checks passed**
+  (duplicate ids, orphan references, `usedByRecipeCount` consistency, mechanic reference
+  consistency, required fields, rejected-duplicate pointer presence).
+- **CI:** not run/observed in this session (docs/data-only change; this report does not claim
+  a CI result it hasn't actually seen on GitHub — check PR #81's checks tab directly for the
+  live status. `src/**` is unmodified, so the repository's existing `npm ci`/lint/build/test
+  suite has no reason to be affected, but that expectation is not a substitute for the actual
+  CI run).
+- **Unique ingredient count:** 62 (existing 14 + new 48) — unchanged by this follow-up.
+- **Recipes buildable with existing 14 ingredients only:** 5. **+1 new ingredient:** 17.
+  **+2 new ingredients:** 10. (unchanged by this follow-up; see §5)
+- **Ingredient usage Top 20 (within the current 53-entry dataset):** see §6 (mozzarella 38,
+  tomato-sauce 33, olive-oil 12, onion 9, oregano 7, mushroom 6, ham 5, sausage 5, …)
+- **Highest-value new ingredients (within the current dataset):** `sausage` (+3 recipes), then
+  `anchovy`/`pepperoni`/`ricotta`/`artichoke` (+2 each) — see §7
+- **Mechanic counts (within the current dataset):** see §8 (`postBakeFinishing` 15,
+  `specialShapePan` 4, six others at 1 each)
 - **Recipes buildable with current mechanics only (`spread`/`scatter`):** 28 of 51
-- **Highest-value new mechanic:** `postBakeFinishing` (15 recipes for 1 subsystem — by far the
-  single best ROI in the catalog)
+- **Highest-value new mechanic (within the current dataset, not a 160-scale claim):**
+  `postBakeFinishing` (15 of the 51 currently-catalogued recipes need it — by far the best
+  within-dataset ROI; re-measure once the catalog grows)
 - **Implementation Class A/B/C/D/E counts:** A=7, B=19, C=1, D=21, E=3
-- **Most efficient first addition batch:** Batch 1 — 19 recipes, 0 new mechanics (see §11)
+- **Most efficient first addition batch (within the current dataset):** Batch 1 — 19 recipes,
+  0 new mechanics (see §11)
 - **New materials needed for that batch:** 20 new ingredients (see §11's full list)
 - **New mechanics needed for that batch:** 0
 - **160-scale expansion roadmap:** see §12 — mechanic-subsystem-first sequencing,
   ingredient-reuse budget tracking, naming-ambiguity ledger, capped tier proliferation,
-  running validation script
-- **Source limitations:** pizzadb.jp and all other external domains tested were network-
-  blocked this session (re-confirmed directly, not just cited from PR #79); nothing here is
-  claimed as externally verified — see §2
-- **PR #79 recommendation:** close in favor of this catalog (§13) — recommendation only, not
-  executed by this session
-- **Changed files:** see the PR diff — summary: `docs/design/TETO_RECIPE-MASTER-CATALOG.md`
-  (new), `docs/reports/TETO_RECIPE-MASTER-CATALOG_160_Fresh-Analysis.md` (new, this file),
-  `docs/design/TETO_RECIPE-EXPANSION-20.md` (new this session, preserved with a pivot preface),
-  `data/recipes/pizza_master_catalog.json` (new), `data/recipes/ingredient_master_catalog.json`
-  (new), `data/recipes/gameplay_mechanic_master.json` (new), `tools/validate_recipe_catalog.py`
-  (new)
+  running validation script. Restated: this is an *architecture/method* for reaching 160, not
+  a claim that 160 entries exist.
+- **Source limitations:** pizzadb.jp and all other external domains tested remain
+  network-blocked (re-confirmed directly this session, not just cited from PR #79); nothing
+  in this catalog is, or has ever been, claimed as externally verified — see §2.2.
+- **PR #79 disposition:** **not closed now.** Planned/conditional recommendation only, to be
+  acted on after PR #81 itself passes Fresh Gate review and is adopted as SSOT: close PR #79
+  as superseded at that point, not before. See §13 for full reasoning.
+- **Changed files (this follow-up commit):** `data/recipes/pizza_master_catalog.json`
+  (provenance fields + schemaNote updated), `data/recipes/ingredient_master_catalog.json`
+  (same), `data/recipes/gameplay_mechanic_master.json` (same),
+  `docs/design/TETO_RECIPE-MASTER-CATALOG.md` (provenance/framing/verification-status
+  clarifications), `docs/reports/TETO_RECIPE-MASTER-CATALOG_160_Fresh-Analysis.md` (this file
+  — provenance section added, framing corrected throughout, PR #79 section rewritten, this
+  Final Report section rewritten). No recipe/ingredient/mechanic *entries* were added,
+  removed, or recounted — catalog content is unchanged from the original version of this PR.
 - **Branch:** `claude/teto-recipe-expansion-20-0x9ykd`
-- **HEAD SHA / PR:** see the PR description this report ships with (created after this report,
-  same session)
-- **Scope creep:** none beyond the task-directed pivot and the explicitly-requested validation
-  script (§14)
-- **Unresolved product decisions:** 8 items, see §15
+- **PR:** [#81](https://github.com/perusonao/teto-pizza-game/pull/81) — OPEN, not merged.
+- **Scope creep:** none. This follow-up touched only the 3 JSON catalog files' top-level
+  metadata and 2 markdown docs' text — no `src/**`, no test, no EP2/Inventory/Shop/Save/Pitz/
+  Scoring/RESULT file, no new recipe added to inflate any count (§14).
+- **Unresolved product decisions:** 8 items, unchanged by this follow-up, see §15.
 
-**FINAL VERDICT: A. MASTER DATASET READY FOR IMPLEMENTATION PLANNING**
+**FINAL VERDICT: A. 53-ENTRY MASTER FOUNDATION READY FOR SSOT REVIEW**
 
-Rationale: 51 viable, internally-consistent, validated catalog entries with a clear,
-data-derived, three-batch implementation roadmap (19 / 13 / 7 recipes) exist today. The
-160-scale gap is real and explicitly not papered over (§3), but it does not block using this
-dataset to plan Chapters 2–4 immediately — the roadmap in §11 is actionable as-is. Verdict B
-("ready with verification follow-up") was considered but rejected: verification status is a
-*label on every entry*, not a blocker on the dataset's usability for implementation planning,
-since `game_design_candidate`/`verification_pending` entries are explicitly distinguished from
-`verified_internal` ones throughout and the roadmap in §11 does not depend on upgrading any
-status.
+Rationale: the catalog's *content* (53 entries, 51 viable, internally consistent, fully
+validated) was already sound and remains unchanged by this follow-up. What this follow-up
+fixed was **provenance labeling and framing precision**, not substance: the initial-audit SHA
+vs. PR-base SHA conflation is resolved (§2.1), "160" is now unambiguously framed as a target
+scale rather than a current count throughout (§3 and elsewhere), `verified_internal`'s actual
+meaning (implementation-correspondence, not culinary-fact verification) is now explicit
+everywhere it's used (§2.2, design doc §5), every within-dataset ranking/ROI claim now says so
+explicitly (§6–§8), and PR #79's disposition is now correctly framed as a future, conditional
+action rather than something to execute today (§13). **This PR is not merged** — it remains
+open for SSOT review, exactly as instructed, whether the reviewer's verdict lands on A, B, or
+C.

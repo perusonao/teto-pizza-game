@@ -1,7 +1,24 @@
-# TETO Recipe Master Catalog — Design SSOT (candidate, v2, 160-scale data-first pass)
+# TETO Recipe Master Catalog — Fresh Recipe Master Catalog: 53-Entry Foundation for 160-Scale Expansion
 
-Status: **research/data artifact, not wired into `src/**`** — READ-ONLY design task
-Audited `main` SHA: `8918fe4bd93816b0acefe4a35106fa1a4e8653e2`
+Status: **research/data artifact, not wired into `src/**`** — READ-ONLY design task, v2.1
+(Fresh Gate follow-up)
+
+**This catalog holds 53 entries today (51 viable). "160" is an illustrative target
+scale/architecture this catalog is designed to grow toward — it is not, and must never be
+represented as, the current entry count.** See the companion report's "Provenance (SHA)
+integrity" and "53 entries vs. the 160-scale target" sections for the full framing.
+
+**Provenance — two distinct SHAs, never conflated:**
+- `initialAuditedMainSha`: `8918fe4bd93816b0acefe4a35106fa1a4e8653e2` — the `main` SHA this
+  catalog's recipe/ingredient *content* was actually read and audited against at session
+  start (before Economy & Progression 1.0 EP1 merged).
+- `prBaseShaAtFollowUp`: `b784cd3164f412252d6e6b1d70b52a5ec665553b` — the current `main` SHA
+  as of this Fresh Gate follow-up (after EP1 merged as PR #80), confirmed via `git fetch
+  origin`. **This is not being represented as a fresh end-to-end re-audit of the new main
+  tree** — only `src/data/recipes.ts`/`src/data/ingredients.ts` (the two files this catalog's
+  content baseline depends on) were diffed between the two SHAs; see the report for what that
+  diff found.
+
 Companion report: `docs/reports/TETO_RECIPE-MASTER-CATALOG_160_Fresh-Analysis.md`
 Companion data: `data/recipes/pizza_master_catalog.json`,
 `data/recipes/ingredient_master_catalog.json`, `data/recipes/gameplay_mechanic_master.json`
@@ -57,9 +74,13 @@ sources — that Margherita is tomato/mozzarella/basil, that Calzone is a folded
 prosciutto crudo is added after baking), explicitly separates that from PIZZA DB content, and
 is honest about what has and hasn't been independently verified this session.
 
-**The illustrative ceiling remains ~160, but this catalog does not claim to reach it.** It
-reaches **51 viable recipe candidates** (see `catalogEntryCount`/`viableEntryCount` in the
-JSON). The gap to 160 is not filled with fabricated entries — see report §"160-scale gap."
+**The illustrative ceiling remains ~160, but this catalog does not claim to reach it.** It is
+a **53-entry (51 viable) foundation for 160-scale expansion** — the schema, dedup discipline,
+and analysis method are built to scale to 160, but the *current entry count is 53, full stop*
+(see `catalogEntryCount`/`viableEntryCount` in the JSON). Any reference elsewhere in this
+document or the companion report to "160" describes the target architecture/scale this
+foundation is designed for, never the present catalog size. The gap to 160 is not filled with
+fabricated entries — see report §"53 entries vs. the 160-scale target."
 
 ## 2. Source policy compliance (PIZZA DB)
 
@@ -154,11 +175,17 @@ hand-tallied.
 
 | Status | Meaning |
 |---|---|
-| `verified_internal` | The 7 recipes already shipped in `src/data/recipes.ts` — verified against the actual production source, not against pizzadb.jp. |
-| `game_design_candidate` | Real, well-established dish per general culinary knowledge (multiple independent, mainstream sources would agree on its core ingredient set), not independently source-checked this session. |
-| `verification_pending` | Real dish, but either (a) fusion/less-standardized (e.g. `philly-cheesesteak`), (b) carries a specific factual claim this session couldn't independently confirm (e.g. `alla-norma`'s pizza-vs-pasta provenance), or (c) would benefit from an external source check once access is available. |
+| `verified_internal` | **Implementation-correspondence verified, not culinary-fact verified.** The 7 recipes already shipped in `src/data/recipes.ts` — this status means the entry's id/ingredients/bakeProfile were cross-checked against the actual production source and match it exactly. It does **not** mean the recipe's real-world culinary facts (that Margherita is the "correct" tomato/mozzarella/basil combination, etc.) were checked against any external cooking reference — no entry in this catalog carries that kind of verification (see §2/§7 — pizzadb.jp and all other external domains tested were unreachable this session). |
+| `game_design_candidate` | Real, well-established dish per general culinary knowledge (multiple independent, mainstream sources would agree on its core ingredient set), **not independently checked against any external source this session** — must not be read as "externally verified." |
+| `verification_pending` | Real dish, but either (a) fusion/less-standardized (e.g. `philly-cheesesteak`), (b) carries a specific factual claim this session couldn't independently confirm (e.g. `alla-norma`'s pizza-vs-pasta provenance), or (c) would benefit from an external source check once access is available. **Not externally verified.** |
 | `deferred` | A real, distinct dish, held back from the "ready to implement" set for a **design** reason (naming ambiguity, mechanic redundancy) — not a factual-accuracy reason. |
 | `rejected_duplicate` | Considered and explicitly rejected as a near-duplicate of an already-catalogued recipe or a straight combination of two others — recorded (not deleted) specifically to stop it from being re-proposed later without this reasoning being visible. |
+
+**Externally verified recipe count in this catalog: 0.** Only `verified_internal` (7, meaning
+"matches the shipped game code") exists today; `game_design_candidate` and
+`verification_pending` are both emphatically **not** external-fact-verified statuses, despite
+the word "candidate"/"pending" possibly reading otherwise — this line exists specifically to
+prevent that misreading.
 
 No entry is `verified_internal` or otherwise treated as externally verified without an actual
 external-source check having been performed and logged in that entry's `sourceReferences`.

@@ -1,8 +1,7 @@
 {
-  "schemaNote": "Fresh Recipe Master Catalog v2 (160-scale, data-first pass). Research/design artifact only; NOT wired into src/**. Never claims a fabricated 160-count -- see catalogEntryCount/viableEntryCount/statusBreakdown.",
+  "schemaNote": "Fresh Recipe Master Catalog v2.1 -- 53-entry FOUNDATION for a ~160-scale illustrative target, not a 160-entry catalog. Research/design artifact only; NOT wired into src/**. `catalogEntryCount`/`viableEntryCount` are ground truth; never adjusted toward 160 without that many actual, non-padded entries. `verificationStatus: verified_internal` means this entry's id/ingredients/bakeProfile were cross-checked against src/data/recipes.ts -- it does NOT mean the recipe's real-world culinary facts were verified against an external source. See docs/reports/TETO_RECIPE-MASTER-CATALOG_160_Fresh-Analysis.md section 'Provenance (SHA) integrity' for the initialAuditedMainSha vs. prBaseShaAtFollowUp distinction.",
   "catalogVersion": "2.0.0",
   "generatedDate": "2026-09-19",
-  "auditedMainSha": "8918fe4bd93816b0acefe4a35106fa1a4e8653e2",
   "illustrativeTargetCeiling": 160,
   "catalogEntryCount": 53,
   "viableEntryCount": 51,
@@ -2110,5 +2109,9 @@
       "rejectedDuplicateOf": null,
       "newIngredientsIntroduced": []
     }
-  ]
+  ],
+  "initialAuditedMainSha": "8918fe4bd93816b0acefe4a35106fa1a4e8653e2",
+  "initialAuditedMainShaNote": "The main SHA actually read/audited for this catalog's content (recipes.ts/ingredients.ts baseline) at session start. Recipe/ingredient CONTENT in this file is grounded in this SHA.",
+  "prBaseShaAtFollowUp": "b784cd3164f412252d6e6b1d70b52a5ec665553b",
+  "prBaseShaAtFollowUpNote": "main SHA confirmed via `git fetch origin` at PR #81's Fresh Gate follow-up (after EP1 merged as PR #80). A diff of src/data/recipes.ts between initialAuditedMainSha and this SHA was checked: EP1 added recipe-level `unlockCondition`/`mysteryLock` GATING fields only -- it did not change recipe ids, ingredients, bakeTarget, or the 7-recipe count. src/data/ingredients.ts is byte-identical between the two SHAs. This confirms the catalog's recipe/ingredient content baseline is still accurate as of this SHA, WITHOUT this being a claim that the full new main tree was re-audited end-to-end."
 }
