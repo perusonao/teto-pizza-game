@@ -2114,49 +2114,58 @@
   color: #8a5a2c;
 }
 
-/* ---------- Pizza Select (Issue #39 PS2/PS3) ---------- */
-/* Real DOM/CSS throughout, no baked image -- parchment-toned cards on the shared wood-plank
-   screen background above. A 2-column grid (never the mockup's 4-across) keeps every card
-   legible and overflow-free at 360-390px. */
-.pizza-select-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+/* ---------- Pizza Select (Issue #39 PS2/PS3, rebuilt as a pager by Issue #88 UX-4) ---------- */
+/* Real DOM/CSS throughout, no baked image -- a single parchment-toned card on the shared
+   wood-plank screen background above, sized to fit 390x844 in one screen with no vertical
+   scroll for normal selection (Issue #88). `.pizza-select-pager` is the flex column that
+   replaces the old scrolling `.pizza-select-grid`; `min-height: 0` on every flex-column layer
+   here (`.pizza-select-screen` already has it) lets the card panel shrink instead of forcing
+   the frame to grow/scroll on shorter viewports. */
+.pizza-select-pager {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
   padding: 14px 16px calc(14px + env(safe-area-inset-bottom, 0px));
-  overflow-y: auto;
+  gap: 14px;
 }
 
 .pizza-select-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  gap: 4px;
-  min-height: 132px;
+  justify-content: center;
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
   width: 100%;
   /* Parchment/menu-card feel: warm paper gradient + a slightly deeper wood-tone border than
      HOME's flatter cards. */
   background: linear-gradient(180deg, #fffaf0 0%, #fbf0d8 100%);
   border: 2px solid #d9b876;
-  border-radius: 16px;
-  padding: 10px 10px 12px;
+  border-radius: 20px;
+  padding: 16px 16px 20px;
   text-align: center;
   box-shadow: 0 2px 6px rgba(107, 66, 38, 0.16);
   position: relative;
 }
 
-.pizza-select-card:disabled {
-  opacity: 0.65;
+.pizza-select-card--locked {
+  opacity: 0.85;
 }
 
-.pizza-select-card--locked {
-  justify-content: center;
-  gap: 4px;
+/* Single-card focus mode gets a noticeably bigger thumbnail than the old 4-per-row grid did
+   (64px) -- `.pizza-thumbnail`'s own base size (also used unscoped by GameScreen's order
+   preview) stays untouched; only the Pizza Select card scopes it larger. */
+.pizza-select-card .pizza-thumbnail {
+  width: 128px;
+  height: 128px;
+  --thumb-piece-scale: 0.68;
 }
 
 .pizza-select-card__lock-silhouette {
-  width: 56px;
-  height: 56px;
+  width: 96px;
+  height: 96px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -2166,41 +2175,47 @@
 }
 
 .pizza-select-card__lock-icon {
-  font-size: 22px;
+  font-size: 36px;
   filter: grayscale(0.4);
 }
 
 .pizza-select-card__lock-label {
-  font-size: 14px;
+  font-size: 20px;
   font-weight: 800;
   color: #6b4226;
 }
 
 .pizza-select-card__unlock-hint {
-  font-size: 9.5px;
+  font-size: 12px;
   font-weight: 600;
   color: #a1662f;
-  line-height: 1.3;
-  padding: 0 2px;
+  line-height: 1.4;
+  padding: 0 8px;
 }
 
 .pizza-select-card__name {
-  font-size: 13.5px;
+  font-size: 20px;
   font-weight: 800;
   color: #4a2e0a;
   line-height: 1.25;
 }
 
+.pizza-select-card__status {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #a1662f;
+}
+
 .pizza-select-card__badge {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  font-size: 10px;
+  top: 12px;
+  right: 12px;
+  font-size: 11px;
   font-weight: 800;
   color: #fff;
   background: #e4572e;
   border-radius: 999px;
-  padding: 2px 7px;
+  padding: 3px 9px;
   letter-spacing: 0.5px;
   z-index: 1;
 }
@@ -2209,18 +2224,90 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 3px;
 }
 
 .pizza-select-card__stars {
-  font-size: 12px;
+  font-size: 18px;
   color: #f2b705;
 }
 
 .pizza-select-card__best {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   color: #a1662f;
+}
+
+/* ---------- Pizza Select pager navigation (Issue #88 UX-4) ---------- */
+/* Previous/Next sit either side of the position indicator, sized as real touch targets (not
+   small arrow glyphs) per Issue #88's own "Touch Targets" requirement, and disabled (never
+   hidden) at the clamped ends so the row's layout never shifts. */
+.pizza-select-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.pizza-select-nav-button {
+  flex: 1;
+  min-height: 52px;
+  border: 2px solid #c99b56;
+  background: #fff8ea;
+  color: #6b4226;
+  font-weight: 800;
+  font-size: 14px;
+  border-radius: 999px;
+  padding: 10px 12px;
+}
+
+.pizza-select-nav-button:disabled {
+  opacity: 0.4;
+  border-color: #d9c7a6;
+  color: #a1662f;
+}
+
+.pizza-select-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 0 4px;
+}
+
+.pizza-select-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d9c7a6;
+}
+
+.pizza-select-dot--active {
+  background: #e4572e;
+  width: 20px;
+  border-radius: 999px;
+}
+
+.pizza-select-counter {
+  flex-shrink: 0;
+  min-width: 56px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: #6b4226;
+}
+
+.pizza-select-cta {
+  /* .cta-button--primary sets `flex: 1` for its usual horizontal-row homes (e.g.
+     .home-cta-row) -- inside this pager's *vertical* flex column that would instead grow the
+     button to fill all remaining height (a giant circle, since .cta-button is fully rounded).
+     `flex: 0 0 auto` resets grow/shrink/basis so the button sizes to its own content only. */
+  flex: 0 0 auto;
+  width: 100%;
+  min-height: 54px;
+  font-size: 16px;
 }
 
 /* ---------- Issue #39 PS3: Pizza Select card thumbnail ---------- */
@@ -2260,22 +2347,6 @@
   display: block;
   font-size: calc(28px * var(--thumb-piece-scale) * 1.7);
   line-height: 1;
-}
-
-/* Fills the grid's remaining space below a short recipe list (today: 7 recipes, 4 rows)
-   with the same static-tagline convention HOME's own footer already uses, instead of a
-   dead blank gap -- pinned to the bottom of the scroll container by the shared flex column
-   (.pizza-select-screen), matching .home-footer's own `margin-top: auto` pattern. */
-.pizza-select-footer {
-  margin-top: auto;
-  padding: 10px 16px calc(14px + env(safe-area-inset-bottom, 0px));
-  text-align: center;
-}
-
-.pizza-select-footer__message {
-  font-size: 11.5px;
-  font-weight: 600;
-  color: #8a5a2c;
 }
 
 /* ---------- Phase 4A-1A: Reference Sauce Quantity prototype ---------- */

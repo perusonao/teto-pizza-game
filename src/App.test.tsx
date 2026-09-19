@@ -4,6 +4,23 @@ import userEvent from "@testing-library/user-event";
 import App from "./App";
 import { SAVE_STORAGE_KEY, type PersistentSaveV1 } from "./state/persistence";
 import { STARTER_INGREDIENT_IDS } from "./data/ingredients";
+import { RECIPES, type RecipeId } from "./data/recipes";
+
+/** Issue #88 (UX-4): Pizza Select is now a single-recipe pager, not a grid of per-recipe
+ *  buttons -- reaching a given recipe means paging Next `RECIPES`-order-index times from the
+ *  pager's own index-0 default, then tapping the one shared CTA (never the card itself, which
+ *  is no longer a button). Kept as a small per-file helper, matching this file's own existing
+ *  `completeDoughStep` convention rather than a shared test-utils module. */
+async function selectRecipeInPizzaSelect(
+  user: ReturnType<typeof userEvent.setup>,
+  recipeId: RecipeId,
+) {
+  const targetIndex = RECIPES.findIndex((r) => r.id === recipeId);
+  for (let i = 0; i < targetIndex; i += 1) {
+    await user.click(screen.getByRole("button", { name: "次のレシピ" }));
+  }
+  await user.click(screen.getByRole("button", { name: /このピザを作る/ }));
+}
 
 /** Issue #33 D1: a fresh round now starts at DOUGH, whose own "次へ" stays disabled until the
  *  size-completion threshold is met. Simulates enough taps around the dough's full radius to
@@ -102,7 +119,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
     // Bismarck is unlocked (Starter Set only) and undiscovered on a fresh save -- NEW.
-    await user.click(screen.getByRole("button", { name: "ビスマルク、未挑戦" }));
+    await selectRecipeInPizzaSelect(user, "bismarck");
     expect(document.querySelector(".game-screen")).toBeInTheDocument();
     expect(document.querySelector(".pizza-select-screen")).not.toBeInTheDocument();
     // Issue #47 Finding C: Pizza Select already made the recipe choice explicit, so selecting
@@ -126,7 +143,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
-    await user.click(screen.getByRole("button", { name: "ビスマルク、未挑戦" })); // Pizza Select -> GAME/PREPARE
+    await selectRecipeInPizzaSelect(user, "bismarck"); // Pizza Select -> GAME/PREPARE
     const header = document.querySelector<HTMLElement>(".game-screen .app-header")!;
     expect(within(header).queryByText(/Shop/)).not.toBeInTheDocument();
     expect(within(header).queryByText(/レシピ図鑑/)).not.toBeInTheDocument();
@@ -137,9 +154,14 @@ describe("HOME/GAME separation (Issue #24)", () => {
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
-    const lockedCard = screen.getByRole("button", { name: "？？？、未解放" });
-    expect(lockedCard).toBeDisabled();
-    await user.click(lockedCard);
+    const targetIndex = RECIPES.findIndex((r) => r.id === "fugazza");
+    for (let i = 0; i < targetIndex; i += 1) {
+      await user.click(screen.getByRole("button", { name: "次のレシピ" }));
+    }
+    expect(screen.getByLabelText("？？？、未解放")).toBeInTheDocument();
+    const cta = screen.getByRole("button", { name: /このピザを作る/ });
+    expect(cta).toBeDisabled();
+    await user.click(cta);
     // Still on Pizza Select -- a disabled button's click is a no-op, never reaching GAME.
     expect(document.querySelector(".pizza-select-screen")).toBeInTheDocument();
     expect(document.querySelector(".game-screen")).not.toBeInTheDocument();
@@ -271,7 +293,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
-    await user.click(screen.getByRole("button", { name: "ビスマルク、未挑戦" })); // Pizza Select -> GAME
+    await selectRecipeInPizzaSelect(user, "bismarck"); // Pizza Select -> GAME
     expect(document.querySelector(".game-screen")).toBeInTheDocument();
     // Still ORDER phase -- nothing built yet, so no confirmation should even be asked.
     const confirmSpy = vi.spyOn(window, "confirm");
@@ -285,7 +307,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
-    await user.click(screen.getByRole("button", { name: "ビスマルク、未挑戦" })); // Pizza Select -> GAME, already PREPARE (Finding C)
+    await selectRecipeInPizzaSelect(user, "bismarck"); // Pizza Select -> GAME, already PREPARE (Finding C)
     // Issue #32 Phase 2 / Issue #33 D1: 焼く only appears once the making flow reaches
     // TOPPING (DOUGH -> SAUCE -> CHEESE -> TOPPING).
     completeDoughStep();
@@ -311,7 +333,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
-    await user.click(screen.getByRole("button", { name: "ビスマルク、未挑戦" })); // Pizza Select -> GAME, already PREPARE
+    await selectRecipeInPizzaSelect(user, "bismarck"); // Pizza Select -> GAME, already PREPARE
     // Issue #32 Phase 2 / Issue #33 D1: 焼く only appears once the making flow reaches
     // TOPPING (DOUGH -> SAUCE -> CHEESE -> TOPPING).
     completeDoughStep();
@@ -337,7 +359,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
     // (just discovered above) rather than NEW -- selecting it again must land on a fresh
     // PREPARE, not reopen the DISCOVERED screen this same round left behind.
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
-    await user.click(screen.getByRole("button", { name: /ビスマルク/ }));
+    await selectRecipeInPizzaSelect(user, "bismarck");
     expect(screen.queryByRole("button", { name: "もう一度つくる" })).not.toBeInTheDocument();
     expect(document.querySelector(".order-card")).toHaveTextContent("ビスマルク");
   });
@@ -352,7 +374,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
-    await user.click(screen.getByRole("button", { name: "ビスマルク、未挑戦" }));
+    await selectRecipeInPizzaSelect(user, "bismarck");
     completeDoughStep();
     await user.click(screen.getByRole("button", { name: /次へ/ }));
     await user.click(screen.getByRole("button", { name: /次へ/ }));
@@ -384,7 +406,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
-    await user.click(screen.getByRole("button", { name: "ビスマルク、未挑戦" }));
+    await selectRecipeInPizzaSelect(user, "bismarck");
     completeDoughStep();
     await user.click(screen.getByRole("button", { name: /次へ/ }));
     await user.click(screen.getByRole("button", { name: /次へ/ }));
@@ -411,7 +433,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
-    await user.click(screen.getByRole("button", { name: "ビスマルク、未挑戦" }));
+    await selectRecipeInPizzaSelect(user, "bismarck");
     completeDoughStep();
     await user.click(screen.getByRole("button", { name: /次へ/ }));
     await user.click(screen.getByRole("button", { name: /次へ/ }));
@@ -433,7 +455,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
-    await user.click(screen.getByRole("button", { name: "ビスマルク、未挑戦" }));
+    await selectRecipeInPizzaSelect(user, "bismarck");
     completeDoughStep();
     await user.click(screen.getByRole("button", { name: /次へ/ }));
     await user.click(screen.getByRole("button", { name: /次へ/ }));
