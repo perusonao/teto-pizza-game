@@ -20,7 +20,14 @@ const DOUGH_RECT = {
 } as DOMRect;
 
 function preparedRecipeState(recipeId: RecipeId, isMissionRound: boolean): GameState {
-  const base = createInitialGameState(undefined, STARTER_INGREDIENT_IDS, 0);
+  // Economy & Progression 1.0 EP4: pesto/olive-oil (genovese/quattro-formaggi's own sauces) are
+  // no longer Starter/unlimited -- own the recipe's own sauce ingredient explicitly and seed an
+  // abundant stock so this fixture keeps testing the gesture-reset contract it's named for, not
+  // EP3's separate ownership/Stock Gate boundaries.
+  const sauceIngredientId = getRecipeSauceProfile(recipeId).ingredientId;
+  const base = createInitialGameState(undefined, [...STARTER_INGREDIENT_IDS, sauceIngredientId], 0, {
+    [sauceIngredientId]: 999,
+  });
   const recipe = getRecipe(recipeId);
   const order = ORDERS.find((candidate) => candidate.recipeId === recipeId);
   if (!recipe || !order) throw new Error(`Missing fixture for ${recipeId}`);

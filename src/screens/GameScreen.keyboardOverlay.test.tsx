@@ -7,7 +7,13 @@ import { INITIAL_MISSION_STATE } from "../mission/lunchRush";
 import { resolvePieceDrop } from "../logic/pieceDrag";
 import { emptySauceMetrics } from "../logic/sauceField";
 import { getReferencePizza } from "../data/referencePizza";
-import { getIngredient, type Ingredient, type IngredientCategory } from "../data/ingredients";
+import {
+  getIngredient,
+  STARTER_INGREDIENT_IDS,
+  type Ingredient,
+  type IngredientCategory,
+} from "../data/ingredients";
+import { EMPTY_DEX } from "../state/dex";
 import type { DoughPoint } from "../logic/pizzaCoordinates";
 
 /**
@@ -52,7 +58,16 @@ function Harness({
   initialReferencePopoverOpen?: boolean;
 }) {
   const [state, dispatch] = useReducer(gameReducer, undefined, () => {
-    let initial = gameReducer(createInitialGameState(), { type: "BEGIN_PREPARE" });
+    // Economy & Progression 1.0 EP4: garlic is no longer Starter/unlimited -- own and
+    // abundantly stock whichever ingredient this test targets so it keeps exercising the
+    // keyboard-overlay contract it's named for, not EP3's separate ownership/Stock Gate
+    // boundaries.
+    let initial = gameReducer(
+      createInitialGameState(EMPTY_DEX, [...STARTER_INGREDIENT_IDS, ingredientId], 0, {
+        [ingredientId]: 999,
+      }),
+      { type: "BEGIN_PREPARE" },
+    );
     while (initial.makingStep !== CATEGORY_TO_MAKING_STEP[category]) {
       initial = gameReducer(initial, { type: "CONFIRM_MAKING_STEP" });
     }

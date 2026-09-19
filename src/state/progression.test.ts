@@ -45,6 +45,15 @@ const MOCK_FUTURE_RECIPE: Recipe = {
   baseRewardPitz: 100,
 };
 
+/** Economy & Progression 1.0 EP4: `STARTER_INGREDIENT_IDS` shrank from 13 to margherita's own
+ *  3 -- tests below that mean "assume every real ingredient is owned" (because they're
+ *  exercising the *recipe-unlock* axis, not the *ingredient-ownership* axis) now need to say so
+ *  explicitly rather than relying on the old, much larger Starter Set as an implicit stand-in. */
+const ALL_INGREDIENT_IDS: readonly string[] = INGREDIENTS.map((i) => i.id);
+const ALL_INGREDIENT_IDS_EXCEPT_ONION: readonly string[] = ALL_INGREDIENT_IDS.filter(
+  (id) => id !== "onion",
+);
+
 /** Builds a Dex where `recipeIds` are discovered at `stars` each, in order -- a shorthand for
  *  simulating "played through the chain up to here" in the tests below. */
 function dexDiscovering(recipeIds: readonly string[], stars: QualityStars): DexState {
@@ -210,7 +219,9 @@ describe("recipesUnlockedByIngredient (Shop 'これを買うと' preview, Phase 
       ["margherita", "funghi", "marinara", "bismarck", "genovese", "quattro-formaggi"],
       5 as QualityStars,
     );
-    expect(recipesUnlockedByIngredient("onion", dex, STARTER_INGREDIENT_IDS)).toEqual(["fugazza"]);
+    expect(recipesUnlockedByIngredient("onion", dex, ALL_INGREDIENT_IDS_EXCEPT_ONION)).toEqual([
+      "fugazza",
+    ]);
   });
 
   it("does not list fugazza while its recipe-level unlockCondition is still unmet, even hypothetically owning onion", () => {
@@ -258,7 +269,7 @@ describe("isRecipeAvailable (two-axis AND: recipeUnlocked && ingredients owned)"
   it("is true once the recipe-unlock axis holds and every required ingredient is owned", () => {
     const funghi = RECIPES.find((r) => r.id === "funghi")!;
     const dex = dexDiscovering(["margherita"], 1 as QualityStars);
-    expect(isRecipeAvailable(funghi, dex, STARTER_INGREDIENT_IDS)).toBe(true);
+    expect(isRecipeAvailable(funghi, dex, ALL_INGREDIENT_IDS)).toBe(true);
   });
 
   it("fugazza needs both axes: chain/stars unlocked AND onion owned", () => {
@@ -267,14 +278,12 @@ describe("isRecipeAvailable (two-axis AND: recipeUnlocked && ingredients owned)"
       ["margherita", "funghi", "marinara", "bismarck", "genovese", "quattro-formaggi"],
       5 as QualityStars,
     );
-    // Chain/stars satisfied, but onion not owned yet -- still unavailable.
-    expect(isRecipeAvailable(fugazza, chainDex, STARTER_INGREDIENT_IDS)).toBe(false);
-    // Onion owned, but chain/stars not yet satisfied -- still unavailable.
-    expect(isRecipeAvailable(fugazza, EMPTY_DEX, [...STARTER_INGREDIENT_IDS, "onion"])).toBe(
-      false,
-    );
+    // Chain/stars satisfied, every other ingredient owned, but onion itself not owned yet.
+    expect(isRecipeAvailable(fugazza, chainDex, ALL_INGREDIENT_IDS_EXCEPT_ONION)).toBe(false);
+    // Onion (and everything else) owned, but chain/stars not yet satisfied -- still unavailable.
+    expect(isRecipeAvailable(fugazza, EMPTY_DEX, ALL_INGREDIENT_IDS)).toBe(false);
     // Both axes satisfied -- available.
-    expect(isRecipeAvailable(fugazza, chainDex, [...STARTER_INGREDIENT_IDS, "onion"])).toBe(true);
+    expect(isRecipeAvailable(fugazza, chainDex, ALL_INGREDIENT_IDS)).toBe(true);
   });
 });
 
@@ -288,16 +297,16 @@ describe("availableRecipeIds", () => {
     expect(availableRecipeIds(EMPTY_DEX, withoutMozzarella)).toEqual([]);
   });
 
-  it("grows one recipe at a time as the Chapter 1 chain is played through", () => {
-    expect(availableRecipeIds(EMPTY_DEX, STARTER_INGREDIENT_IDS)).toEqual(["margherita"]);
+  it("grows one recipe at a time as the Chapter 1 chain is played through (every ingredient owned, isolating the recipe-unlock axis)", () => {
+    expect(availableRecipeIds(EMPTY_DEX, ALL_INGREDIENT_IDS)).toEqual(["margherita"]);
 
     const afterMargherita = dexDiscovering(["margherita"], 1 as QualityStars);
-    expect(availableRecipeIds(afterMargherita, STARTER_INGREDIENT_IDS).sort()).toEqual(
+    expect(availableRecipeIds(afterMargherita, ALL_INGREDIENT_IDS).sort()).toEqual(
       ["margherita", "funghi"].sort(),
     );
 
     const afterFunghi = dexDiscovering(["margherita", "funghi"], 1 as QualityStars);
-    expect(availableRecipeIds(afterFunghi, STARTER_INGREDIENT_IDS).sort()).toEqual(
+    expect(availableRecipeIds(afterFunghi, ALL_INGREDIENT_IDS).sort()).toEqual(
       ["margherita", "funghi", "marinara"].sort(),
     );
   });

@@ -3,8 +3,16 @@ import { createInitialGameState, gameReducer, type GameState } from "./gameReduc
 import { EMPTY_DEX, registerScoreToDex } from "./dex";
 import { missionScore, averageQualityScore } from "../logic/missionScoring";
 import { totalStars } from "../logic/mastery";
-import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
+import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "../data/ingredients";
+import type { InventoryState } from "./inventory";
 import { createEmptyPizza } from "./pizzaState";
+
+/** Economy & Progression 1.0 EP4: olive-oil is no longer Starter/unlimited -- an abundant
+ *  seeded stock keeps the sauce-parity tests below exercising what they always tested (not
+ *  EP3's separate Stock Gate boundary). */
+const ABUNDANT_INVENTORY: InventoryState = Object.fromEntries(
+  INGREDIENTS.filter((i) => i.unlockCondition).map((i) => [i.id, 999]),
+);
 
 /**
  * Phase 4A-1A regression suite (SSOT section 10/13's "Scope Guard"): confirms the Phase
@@ -16,7 +24,7 @@ import { createEmptyPizza } from "./pizzaState";
  */
 
 function preparedState(recipeIdOwned: readonly string[]): GameState {
-  const state = createInitialGameState(EMPTY_DEX, recipeIdOwned, 0);
+  const state = createInitialGameState(EMPTY_DEX, recipeIdOwned, 0, ABUNDANT_INVENTORY);
   const prepared = gameReducer(state, { type: "BEGIN_PREPARE" });
   // Issue #33 D1: BEGIN_PREPARE now lands at DOUGH, the new first step -- every caller in
   // this file exercises SAUCE-step sauce-dispense actions, so advance past DOUGH once here.
@@ -77,7 +85,10 @@ describe("Regression: non-Margherita sauce interaction", () => {
     // a wrong `sauceIds[0]` normally either way, so loosening this guard to "any sauce-
     // category ingredient" (still gated by phase/step/ownership/deposit-shape below) changes
     // nothing scoring reads -- only which gesture pipeline paints it.
-    const state = preparedState(STARTER_INGREDIENT_IDS);
+    // Economy & Progression 1.0 EP4: olive-oil is no longer Starter -- own it explicitly so
+    // this test still exercises the sauce-parity guard it's named for, not the (separate)
+    // ownership boundary.
+    const state = preparedState([...STARTER_INGREDIENT_IDS, "olive-oil"]);
     const after = gameReducer(state, {
       type: "COMMIT_SAUCE_DISPENSE",
       ingredientId: "olive-oil",

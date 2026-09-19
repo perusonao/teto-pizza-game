@@ -34,7 +34,9 @@ describe("Regression: Phase 4A-1B remains shadow-only", () => {
 
   it("does not add canonical reference or animation fields to the save schema", () => {
     // Save v2 E0 added `inventory` (see docs/reports/TETO_SAVE-V2_INVENTORY_Fresh-Audit.md);
-    // this pins that Phase 4A-1B Reference/animation work still adds nothing further.
+    // Save v3 EP4 added `starterGrantClaimedRecipeIds` (see
+    // docs/reports/TETO_ECONOMY-PROGRESSION_EP4_Starter-Stock_Result.md); this pins that Phase
+    // 4A-1B Reference/animation work still adds nothing further beyond those two.
     expect(Object.keys(createDefaultSave()).sort()).toEqual([
       "dex",
       "inventory",
@@ -42,6 +44,7 @@ describe("Regression: Phase 4A-1B remains shadow-only", () => {
       "ownedIngredientIds",
       "pitzBalance",
       "schemaVersion",
+      "starterGrantClaimedRecipeIds",
     ]);
   });
 });

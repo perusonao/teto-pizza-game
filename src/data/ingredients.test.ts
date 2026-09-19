@@ -29,12 +29,26 @@ describe("onion (Phase 3C-6)", () => {
   });
 });
 
-describe("Starter Set is unchanged (regression)", () => {
-  it("still has exactly 13 Starter ingredients", () => {
-    expect(STARTER_INGREDIENT_IDS).toHaveLength(13);
+describe("Starter Set (Economy & Progression 1.0 EP4: shrinks from 13 to margherita's own 3)", () => {
+  it("has exactly 3 Starter ingredients -- margherita's own tomato-sauce/mozzarella/basil, permanently unlimited", () => {
+    // Deliberate EP4 change (see docs/design/TETO_ECONOMY-PROGRESSION-1_MATRIX.md sec. 2 and
+    // the Fresh Design's own flagged risk, sec. 13): every other ingredient now has an
+    // `unlockCondition` and arrives via the starter-grant mechanism instead of being Starter.
+    expect(STARTER_INGREDIENT_IDS).toHaveLength(3);
+    expect([...STARTER_INGREDIENT_IDS].sort()).toEqual(["basil", "mozzarella", "tomato-sauce"].sort());
   });
 
-  it("total production ingredient count is 14 (13 Starter + onion)", () => {
+  it("total production ingredient count is still 14 (3 Starter + 11 finite, unchanged by EP4)", () => {
     expect(INGREDIENTS).toHaveLength(14);
+  });
+
+  it("every non-Starter ingredient now has unlockCondition/pricePitz/restockQuantity (EP4b)", () => {
+    const nonStarter = INGREDIENTS.filter((i) => !STARTER_INGREDIENT_IDS.includes(i.id));
+    expect(nonStarter).toHaveLength(11);
+    for (const ingredient of nonStarter) {
+      expect(ingredient.unlockCondition).toBeDefined();
+      expect(ingredient.pricePitz).toBeGreaterThan(0);
+      expect(ingredient.restockQuantity).toBeGreaterThan(0);
+    }
   });
 });

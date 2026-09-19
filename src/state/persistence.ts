@@ -1,9 +1,14 @@
 import { RECIPES } from "../data/recipes";
 import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "../data/ingredients";
-import type { DexEntry, DexState } from "./dex";
+import { EMPTY_DEX, type DexEntry, type DexState } from "./dex";
 import type { QualityStars } from "../logic/scoring";
 import { isNewMissionBest } from "../logic/missionScoring";
 import type { InventoryState } from "./inventory";
+import {
+  applyStarterGrantsOnDexChange,
+  EMPTY_STARTER_GRANT_CLAIMS,
+  type StarterGrantClaimedRecipeIds,
+} from "./starterGrant";
 
 /**
  * Minimal cross-reload persistence (Phase 3C-2, see
@@ -65,7 +70,7 @@ import type { InventoryState } from "./inventory";
 export const SAVE_STORAGE_KEY = import.meta.env.VITE_PREVIEW_MODE
   ? "teto-pizza-preview-save-v1"
   : "teto-pizza-save-v1";
-const CURRENT_SCHEMA_VERSION = 2;
+const CURRENT_SCHEMA_VERSION = 3;
 
 /**
  * Migration backfill quantity for an already-purchased finite-stock ingredient (Save v2
@@ -118,6 +123,28 @@ export interface PersistentSaveV2 {
   ownedIngredientIds: string[];
   missionBest: Record<string, number>;
   inventory: Record<string, number>;
+}
+
+/**
+ * Save v3 (Economy & Progression 1.0 EP4, see
+ * docs/reports/TETO_ECONOMY-PROGRESSION_EP4_Starter-Stock_Result.md). Same five fields as v2,
+ * unchanged in shape and meaning, plus `starterGrantClaimedRecipeIds` -- the permanent ledger
+ * `../state/starterGrant.ts`'s exactly-once transaction reads and writes. A recipe id in this
+ * list means "this recipe's starter grant has already been applied, forever" -- it must never
+ * be cleared by anything short of a full save wipe (`clearSave`), including a future
+ * Achievement Reset (#89) that rewinds `dex`/Mastery, precisely so that scenario can never
+ * re-trigger a grant. See `migrateV2toV3` below for how an existing v2 save backfills this
+ * field (and the `inventory`/`ownedIngredientIds` its own already-unlocked recipes would have
+ * received, had EP4 shipped when they first unlocked) without any risk of a double-grant later.
+ */
+export interface PersistentSaveV3 {
+  schemaVersion: 3;
+  dex: DexEntry[];
+  pitzBalance: number;
+  ownedIngredientIds: string[];
+  missionBest: Record<string, number>;
+  inventory: Record<string, number>;
+  starterGrantClaimedRecipeIds: string[];
 }
 
 const KNOWN_RECIPE_IDS: readonly string[] = RECIPES.map((r) => r.id);
@@ -240,6 +267,23 @@ function sanitizeInventory(raw: unknown): Record<string, number> {
 }
 
 /**
+ * Sanitizes the saved starter-grant claim ledger (Save v3, EP4). Per-id tolerant like every
+ * other sanitizer in this module: an unknown/malformed entry is dropped, never enough to
+ * discard the whole save. Deduplicated (a recipe id can only ever be claimed once, so a
+ * duplicate in raw storage -- which should never happen from real writes, but a hand-edited or
+ * corrupted save could contain one -- collapses to one entry, same idempotent effect either
+ * way).
+ */
+function sanitizeStarterGrantClaimedRecipeIds(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return [];
+  const seen = new Set<string>();
+  for (const item of raw) {
+    if (typeof item === "string" && KNOWN_RECIPE_IDS.includes(item)) seen.add(item);
+  }
+  return [...seen];
+}
+
+/**
  * Grants a nonzero migration restock to every already-purchased (non-Starter, known)
  * ingredient in `ownedIngredientIds`, so a v1->v2 migration can never leave a player who
  * already paid Pitz for an ingredient holding 0 usable stock of it -- that would be a
@@ -284,7 +328,65 @@ export function migrateV1toV2(v1: PersistentSaveV1): PersistentSaveV2 {
   };
 }
 
-export function createDefaultSave(): PersistentSaveV2 {
+/**
+ * Standalone, deterministic v2->v3 migration step (Economy & Progression 1.0 EP4). Every
+ * existing field (`dex`/`pitzBalance`/`ownedIngredientIds`/`missionBest`/`inventory`) is
+ * carried through -- never reset, matching `migrateV1toV2`'s own "a migration must never look
+ * like a progression wipe" precedent -- while `starterGrantClaimedRecipeIds` (new in v3) is
+ * derived, not left empty.
+ *
+ * Migration policy (documented explicitly per instruction, since this is genuinely a product
+ * decision with more than one defensible answer):
+ *
+ * For every recipe whose `unlockCondition` is *already satisfied* by this save's existing
+ * `dex` (i.e. it would already be unlocked the moment this save loads under EP1's own
+ * `recipeUnlocked`, unaffected by this migration), this treats that recipe exactly as if its
+ * starter grant had fired the instant it unlocked: the recipe id is added to
+ * `starterGrantClaimedRecipeIds` (so it can never grant again, including after a future
+ * Achievement Reset, #89) AND its full starter-grant quantity is additively credited into
+ * `inventory` for each of its now-finite ingredients (reusing the exact same
+ * `applyStarterGrantsOnDexChange` transaction live gameplay uses, via the "as if everything
+ * unlocked from `EMPTY_DEX`" trick below) -- so an existing player who already unlocked, say,
+ * genovese pre-EP4 ends up with the *same* generous stock a brand-new player unlocking it today
+ * would get, never stranded at 0 stock for an ingredient (pesto/cherry-tomato) that used to be
+ * unconditionally unlimited (Starter) and has never been finite before this migration. `onion`'s
+ * pre-existing real inventory/ownership (from an actual EP3 purchase/restock) is preserved and
+ * only ever additively topped up here, never overwritten or reset, exactly like every other
+ * ingredient's additive grant rule.
+ *
+ * A recipe *not yet* unlocked by this save's `dex` is left unclaimed -- it receives its real,
+ * live starter grant automatically the first time it naturally unlocks during play, identically
+ * to a brand-new player. This is the "safe side" choice required when a migration decision is
+ * ambiguous: `ownedIngredientIds` is never stripped (a pre-EP4 save's now-finite ingredient ids
+ * that happen to belong to a not-yet-unlocked recipe are left in place rather than removed, so
+ * no existing capability is ever visibly taken away), at the cost of a narrow, purely cosmetic
+ * follow-up noted in the Result Report: such an id reads as "owned" with 0 stock until its
+ * recipe naturally unlocks, at which point the real grant tops it up to the correct amount --
+ * never a duplicate grant, never a crash, never negative/lost stock.
+ */
+export function migrateV2toV3(v2: PersistentSaveV2): PersistentSaveV3 {
+  const dex: DexState = sanitizeDex(v2.dex);
+  const ownedIngredientIds = sanitizeOwnedIngredientIds(v2.ownedIngredientIds);
+  const inventory = sanitizeInventory(v2.inventory);
+
+  const migrated = applyStarterGrantsOnDexChange(EMPTY_DEX, dex, {
+    ownedIngredientIds,
+    inventory,
+    starterGrantClaimedRecipeIds: EMPTY_STARTER_GRANT_CLAIMS,
+  });
+
+  return {
+    schemaVersion: 3,
+    dex: [...dex],
+    pitzBalance: v2.pitzBalance,
+    ownedIngredientIds: [...migrated.ownedIngredientIds],
+    missionBest: v2.missionBest,
+    inventory: { ...migrated.inventory },
+    starterGrantClaimedRecipeIds: [...migrated.starterGrantClaimedRecipeIds],
+  };
+}
+
+export function createDefaultSave(): PersistentSaveV3 {
   return {
     schemaVersion: CURRENT_SCHEMA_VERSION,
     dex: [],
@@ -292,6 +394,7 @@ export function createDefaultSave(): PersistentSaveV2 {
     ownedIngredientIds: [...STARTER_INGREDIENT_IDS],
     missionBest: {},
     inventory: {},
+    starterGrantClaimedRecipeIds: [...EMPTY_STARTER_GRANT_CLAIMS],
   };
 }
 
@@ -305,7 +408,7 @@ export function createDefaultSave(): PersistentSaveV2 {
  * e.g. a future v3 read by this exact build) has always fallen back to a fresh default, and
  * still does -- v1 or v2 alike, this is erasure-to-default, not a new gap.
  */
-function toIntermediateV2(raw: Record<string, unknown>): Record<string, unknown> | null {
+function toIntermediateSave(raw: Record<string, unknown>): Record<string, unknown> | null {
   if (raw.schemaVersion === 1) {
     if (!Array.isArray(raw.dex)) return null;
     const v1: PersistentSaveV1 = {
@@ -320,9 +423,15 @@ function toIntermediateV2(raw: Record<string, unknown>): Record<string, unknown>
           ? (raw.missionBest as Record<string, number>)
           : {},
     };
-    return migrateV1toV2(v1) as unknown as Record<string, unknown>;
+    const v2 = migrateV1toV2(v1);
+    return migrateV2toV3(v2) as unknown as Record<string, unknown>;
   }
   if (raw.schemaVersion === 2) {
+    if (!Array.isArray(raw.dex)) return null;
+    const v2 = raw as unknown as PersistentSaveV2;
+    return migrateV2toV3(v2) as unknown as Record<string, unknown>;
+  }
+  if (raw.schemaVersion === 3) {
     if (!Array.isArray(raw.dex)) return null;
     return raw;
   }
@@ -330,17 +439,17 @@ function toIntermediateV2(raw: Record<string, unknown>): Record<string, unknown>
 }
 
 /**
- * Validates a raw parsed JSON value against the PersistentSaveV2 root shape, migrating a v1
- * root forward first when recognized. A malformed root (not an object, unrecognized
+ * Validates a raw parsed JSON value against the PersistentSaveV3 root shape, migrating a v1 or
+ * v2 root forward first when recognized. A malformed root (not an object, unrecognized
  * `schemaVersion`, `dex` not an array) discards the whole save and falls back to fresh --
  * there's no way to trust anything else in it. Problems *inside* an otherwise-valid root (a
  * bad Dex entry, an unknown ingredient id, an invalid inventory entry) are instead repaired
  * field-by-field so they don't need to cost the rest of the save.
  */
-function sanitizeSave(raw: unknown): PersistentSaveV2 | null {
+function sanitizeSave(raw: unknown): PersistentSaveV3 | null {
   if (typeof raw !== "object" || raw === null) return null;
   const r = raw as Record<string, unknown>;
-  const intermediate = toIntermediateV2(r);
+  const intermediate = toIntermediateSave(r);
   if (!intermediate) return null;
 
   return {
@@ -350,6 +459,9 @@ function sanitizeSave(raw: unknown): PersistentSaveV2 | null {
     ownedIngredientIds: sanitizeOwnedIngredientIds(intermediate.ownedIngredientIds),
     missionBest: sanitizeMissionBest(intermediate.missionBest),
     inventory: sanitizeInventory(intermediate.inventory),
+    starterGrantClaimedRecipeIds: sanitizeStarterGrantClaimedRecipeIds(
+      intermediate.starterGrantClaimedRecipeIds,
+    ),
   };
 }
 
@@ -377,7 +489,7 @@ function getDefaultStorage(): StorageLike | null {
  * error, malformed JSON, an invalid root shape, or an unknown schema version all fall back
  * to a fresh default save so the game is always playable.
  */
-export function loadSave(storage: StorageLike | null = getDefaultStorage()): PersistentSaveV2 {
+export function loadSave(storage: StorageLike | null = getDefaultStorage()): PersistentSaveV3 {
   if (!storage) return createDefaultSave();
   try {
     const raw = storage.getItem(SAVE_STORAGE_KEY);
@@ -427,7 +539,7 @@ export function persistDex(
   try {
     const current = loadSave(storage);
     if (dexEquals(dex, current.dex)) return;
-    const next: PersistentSaveV2 = { ...current, dex: [...dex] };
+    const next: PersistentSaveV3 = { ...current, dex: [...dex] };
     storage.setItem(SAVE_STORAGE_KEY, JSON.stringify(next));
   } catch {
     // Storage full, disabled, or otherwise unavailable -- gameplay continues unaffected.
@@ -466,6 +578,11 @@ export interface ProgressionSnapshot {
   pitzBalance: number;
   ownedIngredientIds: readonly string[];
   inventory: InventoryState;
+  /** Economy & Progression 1.0 EP4: the starter-grant claim ledger (../state/starterGrant.ts).
+   *  Must be persisted alongside the other progression fields, or a grant claimed in memory
+   *  this session would be forgotten on the very next reload -- re-opening the exactly-once
+   *  hole the ledger exists to close. */
+  starterGrantClaimedRecipeIds: StarterGrantClaimedRecipeIds;
 }
 
 /**
@@ -496,19 +613,35 @@ export function persistProgress(
     const nextPitzBalance = sanitizePitzBalance(snapshot.pitzBalance);
     const nextOwnedIngredientIds = sanitizeOwnedIngredientIds([...snapshot.ownedIngredientIds]);
     const nextInventory = sanitizeInventory(snapshot.inventory);
+    const nextStarterGrantClaimedRecipeIds = sanitizeStarterGrantClaimedRecipeIds([
+      ...snapshot.starterGrantClaimedRecipeIds,
+    ]);
 
     const dexUnchanged = dexEquals(nextDex, current.dex);
     const pitzUnchanged = nextPitzBalance === current.pitzBalance;
     const ownedUnchanged = sameStringSet(nextOwnedIngredientIds, current.ownedIngredientIds);
     const inventoryUnchanged = sameInventory(nextInventory, current.inventory);
-    if (dexUnchanged && pitzUnchanged && ownedUnchanged && inventoryUnchanged) return;
+    const starterGrantClaimsUnchanged = sameStringSet(
+      nextStarterGrantClaimedRecipeIds,
+      current.starterGrantClaimedRecipeIds,
+    );
+    if (
+      dexUnchanged &&
+      pitzUnchanged &&
+      ownedUnchanged &&
+      inventoryUnchanged &&
+      starterGrantClaimsUnchanged
+    ) {
+      return;
+    }
 
-    const next: PersistentSaveV2 = {
+    const next: PersistentSaveV3 = {
       ...current,
       dex: nextDex,
       pitzBalance: nextPitzBalance,
       ownedIngredientIds: nextOwnedIngredientIds,
       inventory: nextInventory,
+      starterGrantClaimedRecipeIds: nextStarterGrantClaimedRecipeIds,
     };
     storage.setItem(SAVE_STORAGE_KEY, JSON.stringify(next));
   } catch {
@@ -544,7 +677,7 @@ export function persistMissionBest(
     const current = loadSave(storage);
     const existingBest = current.missionBest[missionId] ?? 0;
     if (!isNewMissionBest(score, existingBest)) return;
-    const next: PersistentSaveV2 = {
+    const next: PersistentSaveV3 = {
       ...current,
       missionBest: { ...current.missionBest, [missionId]: score },
     };

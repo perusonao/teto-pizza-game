@@ -1,10 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { RECIPES, getRecipe } from "./recipes";
 import { ORDERS } from "./orders";
-import { STARTER_INGREDIENT_IDS } from "./ingredients";
+import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "./ingredients";
 import { isRecipeAvailable } from "../state/progression";
 import { EMPTY_DEX, registerScoreToDex, type DexState } from "../state/dex";
 import type { QualityStars } from "../logic/scoring";
+
+/** Economy & Progression 1.0 EP4: `STARTER_INGREDIENT_IDS` shrank from 13 to margherita's own
+ *  3 -- the "becomes available" test below now owns everything explicitly (olive-oil/oregano
+ *  are no longer Starter either) rather than relying on the old, much larger Starter Set. */
+const ALL_INGREDIENT_IDS: readonly string[] = INGREDIENTS.map((i) => i.id);
 
 /** Builds a Dex where `recipeIds` are discovered at `stars` each -- a shorthand for
  *  simulating "played through the Chapter 1 chain up to here." */
@@ -88,9 +93,7 @@ describe("RECIPES (Phase 3C-6: fugazza is Recipe #7)", () => {
         ["margherita", "funghi", "marinara", "bismarck", "genovese", "quattro-formaggi"],
         5 as QualityStars,
       );
-      expect(isRecipeAvailable(recipe!, chainDex, [...STARTER_INGREDIENT_IDS, "onion"])).toBe(
-        true,
-      );
+      expect(isRecipeAvailable(recipe!, chainDex, ALL_INGREDIENT_IDS)).toBe(true);
     });
   });
 

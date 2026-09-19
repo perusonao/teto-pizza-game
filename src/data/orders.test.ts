@@ -1,9 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { getNextOrder, ORDERS } from "./orders";
-import { STARTER_INGREDIENT_IDS } from "./ingredients";
+import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "./ingredients";
 import { availableRecipeIds } from "../state/progression";
 import { EMPTY_DEX, registerScoreToDex, type DexState } from "../state/dex";
 import type { QualityStars } from "../logic/scoring";
+
+/** Economy & Progression 1.0 EP4: `STARTER_INGREDIENT_IDS` shrank from 13 to margherita's own
+ *  3 -- the fugazza test below now owns everything explicitly rather than relying on the old,
+ *  much larger Starter Set as an implicit "everything owned" stand-in. */
+const ALL_INGREDIENT_IDS: readonly string[] = INGREDIENTS.map((i) => i.id);
 
 /** Builds a Dex where `recipeIds` are discovered at `stars` each -- a shorthand for
  *  simulating "played through the Chapter 1 chain up to here." */
@@ -85,7 +90,7 @@ describe("getNextOrder + real Progression data (Economy & Progression 1.0 EP1: c
       ["margherita", "funghi", "marinara", "bismarck", "genovese", "quattro-formaggi"],
       5 as QualityStars,
     );
-    const ids = availableRecipeIds(chainDex, [...STARTER_INGREDIENT_IDS, "onion"]);
+    const ids = availableRecipeIds(chainDex, ALL_INGREDIENT_IDS);
     expect(ids).toContain("fugazza");
     // With every other recipe already discovered, fugazza is the sole undiscovered recipe
     // left -- undiscovered-priority (SSOT section 9) must always pick it.

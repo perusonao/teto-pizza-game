@@ -2,7 +2,15 @@ import { describe, expect, it } from "vitest";
 import { createInitialGameState, gameReducer, type GameState, type MakingStep } from "./gameReducer";
 import { registerScoreToDex, EMPTY_DEX, type DexState } from "./dex";
 import type { ScoreBreakdown, QualityStars } from "../logic/scoring";
-import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
+import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "../data/ingredients";
+
+/** Economy & Progression 1.0 EP4: `STARTER_INGREDIENT_IDS` shrank from 13 to margherita's own
+ *  3 -- tests below that mean "assume every real ingredient is owned" (they're exercising the
+ *  recipe-unlock axis, not the ingredient-ownership axis) say so explicitly now. */
+const ALL_INGREDIENT_IDS: readonly string[] = INGREDIENTS.map((i) => i.id);
+const ALL_INGREDIENT_IDS_EXCEPT_ONION: readonly string[] = ALL_INGREDIENT_IDS.filter(
+  (id) => id !== "onion",
+);
 import { buildIdealMargheritaSauceFixture, MARGHERITA_REFERENCE } from "../data/referencePizza";
 import { EMPTY_MISSION_METRICS, recordServe } from "../logic/missionScoring";
 import { EMPTY_INVENTORY, type InventoryState } from "./inventory";
@@ -212,7 +220,7 @@ describe("SELECT_RECIPE (Issue #39 Pizza Select)", () => {
   const bismarckUnlockedDex = dexDiscovering(["margherita", "funghi", "marinara"], 1 as QualityStars);
 
   it("starts a fresh PREPARE-phase round for the explicitly chosen, available recipe", () => {
-    const state = createInitialGameState(bismarckUnlockedDex, STARTER_INGREDIENT_IDS, 75);
+    const state = createInitialGameState(bismarckUnlockedDex, ALL_INGREDIENT_IDS, 75);
     const after = gameReducer(state, { type: "SELECT_RECIPE", recipeId: "bismarck" });
     expect(after.recipe.id).toBe("bismarck");
     expect(after.order.recipeId).toBe("bismarck");
@@ -233,7 +241,7 @@ describe("SELECT_RECIPE (Issue #39 Pizza Select)", () => {
   });
 
   it("rebuilds a fresh round even mid-PREPARE/RESULT of a different recipe", () => {
-    let state = createInitialGameState(bismarckUnlockedDex, STARTER_INGREDIENT_IDS, 0);
+    let state = createInitialGameState(bismarckUnlockedDex, ALL_INGREDIENT_IDS, 0);
     state = gameReducer(state, { type: "BEGIN_PREPARE" });
     state = gameReducer(state, { type: "APPLY_SAUCE", ingredientId: "tomato-sauce", x: 50, y: 50 });
     const after = gameReducer(state, { type: "SELECT_RECIPE", recipeId: "bismarck" });
@@ -263,8 +271,7 @@ describe("SELECT_RECIPE (Issue #39 Pizza Select)", () => {
       ["margherita", "funghi", "marinara", "bismarck", "genovese", "quattro-formaggi"],
       5 as QualityStars,
     );
-    const ownedWithOnion = [...STARTER_INGREDIENT_IDS, "onion"];
-    const state = createInitialGameState(chainDex, ownedWithOnion, 0);
+    const state = createInitialGameState(chainDex, ALL_INGREDIENT_IDS, 0);
     const after = gameReducer(state, { type: "SELECT_RECIPE", recipeId: "fugazza" });
     expect(after.recipe.id).toBe("fugazza");
     expect(after.phase).toBe("PREPARE");
@@ -494,9 +501,13 @@ describe("CLAIM_MISSION_REWARD (reducer, Phase 3C-5)", () => {
 });
 
 describe("order selection availability (Phase 3C-3)", () => {
-  it("all 6 Chapter 1 recipes remain reachable when every starter ingredient is owned and their EP1 recipe-unlock chain is already discovered", () => {
+  it("all 6 Chapter 1 recipes remain reachable when every ingredient is owned and their EP1 recipe-unlock chain is already discovered", () => {
+    // Deliberately excludes onion: fugazza is still undiscovered in ALL_RECIPES_UNLOCKED_DEX,
+    // and getNextOrder's own undiscovered-priority (src/data/orders.ts) would otherwise pick it
+    // exclusively forever once it's available -- this test is about the other 6's rotation, not
+    // that (already covered by orders.test.ts's own EP1 chain-unlock suite).
     const seen = new Set<string>();
-    let state = createInitialGameState(ALL_RECIPES_UNLOCKED_DEX, STARTER_INGREDIENT_IDS);
+    let state = createInitialGameState(ALL_RECIPES_UNLOCKED_DEX, ALL_INGREDIENT_IDS_EXCEPT_ONION);
     for (let i = 0; i < 60 && seen.size < 6; i++) {
       seen.add(state.recipe.id);
       state = gameReducer(state, { type: "PLAY_AGAIN" });
@@ -800,20 +811,25 @@ describe("inventory carry-through (Save v2 / Inventory E1)", () => {
     expect(state.inventory).toEqual(seededInventory);
   });
 
-  it("REGISTER_TO_DEX / DISCOVERED carries inventory through unchanged", () => {
+  it("REGISTER_TO_DEX / DISCOVERED carries pre-existing inventory through unchanged, additively alongside any EP4 starter grant", () => {
+    // Economy & Progression 1.0 EP4: discovering margherita here also crosses funghi's own
+    // `{ requiresRecipeId: "margherita" }` gate from locked to unlocked (EP1), so this exact
+    // REGISTER_TO_DEX dispatch also grants funghi's starter stock (mushroom x30) -- additive on
+    // top of the seeded onion inventory, never replacing it. See starterGrant.test.ts for
+    // dedicated, isolated coverage of the grant mechanism itself.
     const resultState = playToResultWithInventory(seededInventory);
     const discovered = gameReducer(resultState, { type: "REGISTER_TO_DEX" });
     expect(discovered.phase).toBe("DISCOVERED");
-    expect(discovered.inventory).toEqual(seededInventory);
+    expect(discovered.inventory).toEqual({ ...seededInventory, mushroom: 30 });
   });
 
-  it("FREE retry (RETRY_SAME_RECIPE) carries inventory through unchanged", () => {
+  it("FREE retry (RETRY_SAME_RECIPE) carries inventory through unchanged (including any EP4 starter grant already applied)", () => {
     const discovered = gameReducer(playToResultWithInventory(seededInventory), {
       type: "REGISTER_TO_DEX",
     });
     const retried = gameReducer(discovered, { type: "RETRY_SAME_RECIPE" });
     expect(retried.phase).toBe("PREPARE");
-    expect(retried.inventory).toEqual(seededInventory);
+    expect(retried.inventory).toEqual({ ...seededInventory, mushroom: 30 });
   });
 
   it("PLAY_AGAIN carries inventory through unchanged", () => {
@@ -845,11 +861,13 @@ describe("inventory carry-through (Save v2 / Inventory E1)", () => {
     expect(state.inventory).toEqual(seededInventory);
   });
 
-  it("MISSION_NEXT_ORDER (nextMissionOrderState, the one hand-built carry-object site) carries inventory through unchanged", () => {
+  it("MISSION_NEXT_ORDER (nextMissionOrderState, the one hand-built carry-object site) carries inventory through unchanged (including any EP4 starter grant already applied)", () => {
+    // Same funghi-crossing-unlock note as the REGISTER_TO_DEX test above -- MISSION_NEXT_ORDER
+    // registers this exact same margherita discovery via its own registerScoreToDex call.
     const resultState = playToResultWithInventory(seededInventory);
     const next = gameReducer(resultState, { type: "MISSION_NEXT_ORDER" });
     expect(next.phase).toBe("ORDER"); // Lunch Rush: straight to the next order, skipping DISCOVERED
-    expect(next.inventory).toEqual(seededInventory);
+    expect(next.inventory).toEqual({ ...seededInventory, mushroom: 30 });
   });
 
   it("ownedIngredientIds and inventory vary independently -- an ingredient can be owned/unlocked with zero stock", () => {

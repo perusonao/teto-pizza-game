@@ -2,8 +2,13 @@ import { describe, expect, it } from "vitest";
 import { recipeCardState } from "./pizzaSelect";
 import { getRecipe } from "../data/recipes";
 import { EMPTY_DEX, registerScoreToDex, type DexState } from "./dex";
-import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
+import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import type { QualityStars } from "../logic/scoring";
+
+/** Economy & Progression 1.0 EP4: `STARTER_INGREDIENT_IDS` shrank from 13 to margherita's own
+ *  3 -- tests below that mean "assume every real ingredient is owned" (they're exercising the
+ *  recipe-unlock axis, not the ingredient-ownership axis) say so explicitly now. */
+const ALL_INGREDIENT_IDS: readonly string[] = INGREDIENTS.map((i) => i.id);
 
 const margherita = getRecipe("margherita")!;
 const funghi = getRecipe("funghi")!;
@@ -59,7 +64,7 @@ describe("recipeCardState (Issue #39 Pizza Select, extended by Economy & Progres
 
   it("is NEW when available but not yet discovered (bismarck, once its chain is discovered)", () => {
     const dex = dexDiscovering(CHAIN_TO_BISMARCK, 1 as QualityStars);
-    const card = recipeCardState(bismarck, dex, STARTER_INGREDIENT_IDS);
+    const card = recipeCardState(bismarck, dex, ALL_INGREDIENT_IDS);
     expect(card).toEqual({ kind: "NEW", recipe: bismarck });
   });
 
@@ -73,13 +78,13 @@ describe("recipeCardState (Issue #39 Pizza Select, extended by Economy & Progres
       total: 91.5,
       stars: 5 as QualityStars,
     }).dex;
-    const card = recipeCardState(bismarck, dex, STARTER_INGREDIENT_IDS);
+    const card = recipeCardState(bismarck, dex, ALL_INGREDIENT_IDS);
     expect(card).toEqual({ kind: "COMPLETED", recipe: bismarck, bestStars: 5, bestScore: 91.5 });
   });
 
   it("becomes NEW instead of LOCKED once both the unlockCondition and onion ownership hold (fugazza)", () => {
     const dex = dexDiscovering(CHAIN_TO_FUGAZZA, 5 as QualityStars);
-    const card = recipeCardState(fugazza, dex, [...STARTER_INGREDIENT_IDS, "onion"]);
+    const card = recipeCardState(fugazza, dex, ALL_INGREDIENT_IDS);
     expect(card).toEqual({ kind: "NEW", recipe: fugazza });
   });
 

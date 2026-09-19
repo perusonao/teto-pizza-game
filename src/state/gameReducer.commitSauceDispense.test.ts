@@ -1,12 +1,24 @@
 import { describe, expect, it } from "vitest";
 import { createInitialGameState, gameReducer, type GameState } from "./gameReducer";
-import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
+import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { EMPTY_DEX } from "./dex";
+import type { InventoryState } from "./inventory";
 import type { SauceDeposit } from "./pizzaState";
 import { createEmptyPizza } from "./pizzaState";
 import { RECIPES, type RecipeId } from "../data/recipes";
 import { ORDERS } from "../data/orders";
 import { getRecipeSauceProfile } from "../data/recipeSauceProfiles";
+
+/** Economy & Progression 1.0 EP4: `STARTER_INGREDIENT_IDS` shrank from 13 to margherita's own
+ *  3 -- fixtures below that need every recipe's own sauce ingredient available (not just
+ *  margherita's tomato-sauce) now own everything explicitly. Ownership alone isn't enough for
+ *  a now-finite sauce ingredient either (EP3's Stock Gate, ./inventory.ts's `canPlaceIngredient`)
+ *  -- these fixtures also seed an abundant stock so this file keeps testing what it always
+ *  tested (the sauce-parity/scope-guard logic), not the separate Stock Gate boundary. */
+const ALL_INGREDIENT_IDS: readonly string[] = INGREDIENTS.map((i) => i.id);
+const ABUNDANT_INVENTORY: InventoryState = Object.fromEntries(
+  INGREDIENTS.filter((i) => i.unlockCondition).map((i) => [i.id, 999]),
+);
 
 /**
  * Phase 4A-1A (Post-Codex-Fix): COMMIT_SAUCE_DISPENSE reducer tests. Replaces the old
@@ -17,8 +29,11 @@ import { getRecipeSauceProfile } from "../data/recipeSauceProfiles";
  * can never mutate canonical pizza state.
  */
 
-function preparedMargheritaState(ownedIngredientIds: readonly string[] = STARTER_INGREDIENT_IDS): GameState {
-  const state = createInitialGameState(EMPTY_DEX, ownedIngredientIds, 0);
+function preparedMargheritaState(
+  ownedIngredientIds: readonly string[] = STARTER_INGREDIENT_IDS,
+  inventory: InventoryState = ABUNDANT_INVENTORY,
+): GameState {
+  const state = createInitialGameState(EMPTY_DEX, ownedIngredientIds, 0, inventory);
   expect(state.recipe.id).toBe("margherita"); // createInitialGameState always starts here
   const prepared = gameReducer(state, { type: "BEGIN_PREPARE" });
   // Issue #33 D1: BEGIN_PREPARE now lands at DOUGH -- every caller in this file exercises
@@ -27,7 +42,7 @@ function preparedMargheritaState(ownedIngredientIds: readonly string[] = STARTER
 }
 
 function preparedRecipeState(recipeId: RecipeId, isMissionRound = false): GameState {
-  const base = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 0);
+  const base = createInitialGameState(EMPTY_DEX, ALL_INGREDIENT_IDS, 0, ABUNDANT_INVENTORY);
   const recipe = RECIPES.find((candidate) => candidate.id === recipeId);
   const order = ORDERS.find((candidate) => candidate.recipeId === recipeId);
   if (!recipe || !order) throw new Error(`Missing test data for ${recipeId}`);
@@ -166,7 +181,7 @@ describe("COMMIT_SAUCE_DISPENSE: reducer scope guard (Codex MUST FIX 2)", () => 
   });
 
   it("Issue #32 sauce parity fix: accepts a sauce ingredient other than tomato-sauce on Margherita (off-recipe sauce uses the same dispense path)", () => {
-    const state = preparedMargheritaState();
+    const state = preparedMargheritaState([...STARTER_INGREDIENT_IDS, "olive-oil"]);
     const after = gameReducer(state, {
       type: "COMMIT_SAUCE_DISPENSE",
       ingredientId: "olive-oil",

@@ -210,6 +210,13 @@ describe("Ingredient Palette: fixed 3x2 grid, no scroll (Human Feel Fix 2)", () 
 describe("Purchased onion stays reachable via page nav (Independent Review P1, PR #26)", () => {
   const allToppingIds = ingredientsByCategory("topping").map((i) => i.id);
   const sevenOwnedTopping = [...STARTER_INGREDIENT_IDS, ...allToppingIds];
+  // Economy & Progression 1.0 EP4: the topping-category Starter set shrank to just `basil` --
+  // the other 6 toppings (`allToppingIds` minus onion) now need to be owned explicitly to
+  // exercise the exactly-6/exactly-7 page-nav boundary this suite is named for.
+  const sixOwnedTopping = [
+    ...STARTER_INGREDIENT_IDS,
+    ...allToppingIds.filter((id) => id !== "onion"),
+  ];
 
   it("with <=6 owned in a category, no page nav is rendered (unchanged from pre-fix)", () => {
     render(<Harness category="topping" />);
@@ -217,12 +224,12 @@ describe("Purchased onion stays reachable via page nav (Independent Review P1, P
   });
 
   it("with exactly 6 owned in a category, no page nav is rendered", () => {
-    // The starter topping set (basil/garlic/oregano/cherry-tomato/egg/mushroom) is already
-    // exactly MAX_INGREDIENT_PALETTE_SLOTS -- the boundary case right below the P1 bug.
-    expect(ingredientsByCategory("topping").filter((i) => STARTER_INGREDIENT_IDS.includes(i.id))).toHaveLength(
-      MAX_INGREDIENT_PALETTE_SLOTS,
-    );
-    render(<Harness category="topping" />);
+    // basil (Starter) + garlic/oregano/cherry-tomato/egg/mushroom (EP4: owned explicitly here)
+    // is exactly MAX_INGREDIENT_PALETTE_SLOTS -- the boundary case right below the P1 bug.
+    expect(
+      ingredientsByCategory("topping").filter((i) => sixOwnedTopping.includes(i.id)),
+    ).toHaveLength(MAX_INGREDIENT_PALETTE_SLOTS);
+    render(<Harness category="topping" ownedIngredientIds={sixOwnedTopping} />);
     expect(screen.queryByRole("group", { name: "素材ページ切り替え" })).not.toBeInTheDocument();
   });
 

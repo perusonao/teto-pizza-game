@@ -201,9 +201,12 @@ describe("EP2 -> EP3 integration: consume -> low/out of stock -> Shop restock ->
   it("the full product-goal loop: play (consume onion to 0) -> Shop restock -> play again (consume from restocked stock)", () => {
     // Round 1: 4 onion placed against a stock of exactly 4 -- consumed to 0 at CONFIRM_BAKE
     // (this is EP2's own already-documented onion/EP3-dependency scenario).
+    // Economy & Progression 1.0 EP4: olive-oil (fugazza's own sauce, `pizzaWithOnions`'s fixed
+    // `sauceIds: ["olive-oil"]`) is no longer Starter/unlimited either -- CONFIRM_BAKE now also
+    // consumes its one use, clamped to 0 from an absent (0) starting stock, same as onion.
     let state = stateAtFugazzaBake(pizzaWithOnions(4), { onion: 4 });
     state = gameReducer(state, { type: "CONFIRM_BAKE", value: 70 });
-    expect(state.inventory).toEqual({ onion: 0 });
+    expect(state.inventory).toEqual({ onion: 0, "olive-oil": 0 });
 
     // Out of stock: a fresh PREPARE round can no longer place any onion (Stock Gate).
     let nextRound = gameReducer(state, { type: "PLAY_AGAIN" });
@@ -225,7 +228,7 @@ describe("EP2 -> EP3 integration: consume -> low/out of stock -> Shop restock ->
       amount: 200,
     });
     restocked = gameReducer(restocked, { type: "RESTOCK_INGREDIENT", ingredientId: "onion" });
-    expect(restocked.inventory).toEqual({ onion: 12 });
+    expect(restocked.inventory).toEqual({ onion: 12, "olive-oil": 0 });
 
     // Play again: onion is now placeable, and a fresh bake consumes from the restocked stock.
     const placed = gameReducer(restocked, { type: "PLACE_TOPPING", ingredientId: "onion", x: 50, y: 50 });
@@ -234,6 +237,6 @@ describe("EP2 -> EP3 integration: consume -> low/out of stock -> Shop restock ->
 
     const baking = { ...placed, phase: "BAKE" as const, pizza: pizzaWithOnions(4) };
     const finalState = gameReducer(baking, { type: "CONFIRM_BAKE", value: 70 });
-    expect(finalState.inventory).toEqual({ onion: 8 }); // 12 - 4
+    expect(finalState.inventory).toEqual({ onion: 8, "olive-oil": 0 }); // onion 12 - 4
   });
 });

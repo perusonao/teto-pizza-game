@@ -3,11 +3,17 @@ import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { GameScreen } from "./GameScreen";
 import { createInitialGameState, gameReducer, type MakingStep } from "../state/gameReducer";
+import { EMPTY_DEX } from "../state/dex";
 import { INITIAL_MISSION_STATE } from "../mission/lunchRush";
 import { resolvePieceDrop } from "../logic/pieceDrag";
 import { emptySauceMetrics } from "../logic/sauceField";
 import { getReferencePizza } from "../data/referencePizza";
-import { getIngredient, type Ingredient, type IngredientCategory } from "../data/ingredients";
+import {
+  getIngredient,
+  STARTER_INGREDIENT_IDS,
+  type Ingredient,
+  type IngredientCategory,
+} from "../data/ingredients";
 import type { DoughPoint } from "../logic/pizzaCoordinates";
 import type { SauceDeposit } from "../state/pizzaState";
 
@@ -57,9 +63,25 @@ const MAKING_STEP_TO_CATEGORY: Record<MakingStep, IngredientCategory> = {
   TOPPING: "topping",
 };
 
+// Economy & Progression 1.0 EP4: garlic/olive-oil are no longer Starter/unlimited -- own and
+// abundantly stock both explicitly (alongside whichever ingredient a given test also targets)
+// so this file's tests keep exercising the keyboard-repeat/SPREAD-activation contract they're
+// named for, not EP3's separate ownership/Stock Gate boundaries. A test that advances through
+// SAUCE -> CHEESE -> TOPPING and interacts with the tray (e.g. clicking にんにく/garlic) needs
+// the topping owned too, even when the harness's own targeted `ingredientId` is a sauce.
+const KEYBOARD_TEST_OWNED_IDS = [...STARTER_INGREDIENT_IDS, "garlic", "olive-oil"];
+
 function Harness({ category, ingredientId }: { category: IngredientCategory; ingredientId: string }) {
   const [state, dispatch] = useReducer(gameReducer, undefined, () => {
-    let initial = gameReducer(createInitialGameState(), { type: "BEGIN_PREPARE" });
+    let initial = gameReducer(
+      createInitialGameState(
+        EMPTY_DEX,
+        [...new Set([...KEYBOARD_TEST_OWNED_IDS, ingredientId])],
+        0,
+        { garlic: 999, "olive-oil": 999, [ingredientId]: 999 },
+      ),
+      { type: "BEGIN_PREPARE" },
+    );
     while (initial.makingStep !== CATEGORY_TO_MAKING_STEP[category]) {
       initial = gameReducer(initial, { type: "CONFIRM_MAKING_STEP" });
     }

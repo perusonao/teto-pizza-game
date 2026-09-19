@@ -3,8 +3,13 @@ import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { PizzaSelectScreen } from "./PizzaSelectScreen";
 import { EMPTY_DEX, registerScoreToDex, type DexState } from "../state/dex";
-import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
+import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import type { QualityStars } from "../logic/scoring";
+
+/** Economy & Progression 1.0 EP4: `STARTER_INGREDIENT_IDS` shrank from 13 to margherita's own
+ *  3 -- tests below that mean "assume every real ingredient is owned" (they're exercising the
+ *  recipe-unlock axis, not the ingredient-ownership axis) say so explicitly now. */
+const ALL_INGREDIENT_IDS: readonly string[] = INGREDIENTS.map((i) => i.id);
 
 afterEach(() => {
   cleanup();
@@ -95,7 +100,7 @@ describe("PizzaSelectScreen (Issue #39 PS2, extended by Economy & Progression 1.
     render(
       <PizzaSelectScreen
         dex={dex}
-        ownedIngredientIds={STARTER_INGREDIENT_IDS}
+        ownedIngredientIds={ALL_INGREDIENT_IDS}
         onSelectRecipe={() => {}}
         onBack={() => {}}
       />,
@@ -163,7 +168,7 @@ describe("PizzaSelectScreen (Issue #39 PS2, extended by Economy & Progression 1.
     render(
       <PizzaSelectScreen
         dex={dex}
-        ownedIngredientIds={STARTER_INGREDIENT_IDS}
+        ownedIngredientIds={ALL_INGREDIENT_IDS}
         onSelectRecipe={onSelectRecipe}
         onBack={() => {}}
       />,

@@ -17,6 +17,11 @@ import {
   EMPTY_INVENTORY,
   type InventoryState,
 } from "./inventory";
+import {
+  applyStarterGrantsOnDexChange,
+  EMPTY_STARTER_GRANT_CLAIMS,
+  type StarterGrantClaimedRecipeIds,
+} from "./starterGrant";
 import { pickMissionOrder } from "../mission/lunchRush";
 import { isInsideDough } from "../logic/pizzaCoordinates";
 import { isValidDoughShape, type DoughShape } from "../logic/doughShape";
@@ -88,6 +93,15 @@ export interface GameState {
    *  job); every action that isn't a "start a new round" path carries it through unchanged via
    *  its existing `{ ...state, ... }` pattern, same as `ownedIngredientIds` today. */
   inventory: InventoryState;
+  /** Economy & Progression 1.0 EP4: permanent, exactly-once ledger of which recipes'
+   *  starter-stock grants (../state/starterGrant.ts) have already been claimed. Independent of
+   *  `dex` on purpose -- a future Achievement Reset (#89) that rewinds Dex (and therefore
+   *  `recipeUnlocked`) must never be able to re-trigger a grant this ledger already recorded,
+   *  which is exactly why this can't just be derived from "is `recipeUnlocked` currently true."
+   *  Mutated only by `REGISTER_TO_DEX`/`MISSION_NEXT_ORDER` (the two places `dex` itself
+   *  changes); every other action carries it through unchanged like every other progression
+   *  field. */
+  starterGrantClaimedRecipeIds: StarterGrantClaimedRecipeIds;
   /** Idempotency key for CLAIM_MISSION_REWARD (Phase 3C-5): the Mission run id
    *  (`MissionState.runId`, ../mission/lunchRush.ts) whose Pitz reward has already been
    *  applied to `pitzBalance`. A run's reward is granted at most once no matter how many
@@ -193,6 +207,7 @@ interface ProgressionCarry {
   pitzBalance: number;
   lastClaimedMissionRunId: number | null;
   inventory: InventoryState;
+  starterGrantClaimedRecipeIds: StarterGrantClaimedRecipeIds;
 }
 
 /** Builds a fresh ORDER-phase state around an already-picked `order` -- the one place that
@@ -258,6 +273,7 @@ function nextMissionOrderState(state: GameState): GameState {
       pitzBalance: state.pitzBalance,
       lastClaimedMissionRunId: state.lastClaimedMissionRunId,
       inventory: state.inventory,
+      starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
     },
     true,
   );
@@ -293,9 +309,17 @@ export function createInitialGameState(
   ownedIngredientIds: readonly string[] = STARTER_INGREDIENT_IDS,
   pitzBalance = 0,
   inventory: InventoryState = EMPTY_INVENTORY,
+  starterGrantClaimedRecipeIds: StarterGrantClaimedRecipeIds = EMPTY_STARTER_GRANT_CLAIMS,
 ): GameState {
   return nextOrderState(
-    { dex, ownedIngredientIds, pitzBalance, lastClaimedMissionRunId: null, inventory },
+    {
+      dex,
+      ownedIngredientIds,
+      pitzBalance,
+      lastClaimedMissionRunId: null,
+      inventory,
+      starterGrantClaimedRecipeIds,
+    },
     { preferFirst: true },
   );
 }
@@ -585,6 +609,16 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         state.recipe.id,
         state.score,
       );
+      // Economy & Progression 1.0 EP4: a Dex change is the only thing that can flip
+      // `recipeUnlocked` from false to true (EP1), so this is one of the two places (the other
+      // is MISSION_NEXT_ORDER below) a starter grant can ever fire. Computed from this exact
+      // before/after `dex` pair -- see applyStarterGrantsOnDexChange's own doc comment
+      // (./starterGrant.ts) for why this, and not a separate effect, is the safe trigger point.
+      const starterGrant = applyStarterGrantsOnDexChange(state.dex, dex, {
+        ownedIngredientIds: state.ownedIngredientIds,
+        inventory: state.inventory,
+        starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
+      });
       // FREE only: Lunch Rush keeps its existing, unchanged per-run reward
       // (calculateMissionReward via CLAIM_MISSION_REWARD/MISSION_NEXT_ORDER) -- this per-pizza
       // credit must never also apply inside a Mission round, or a Lunch Rush pizza would earn
@@ -597,6 +631,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return {
         ...state,
         dex,
+        ownedIngredientIds: starterGrant.ownedIngredientIds,
+        inventory: starterGrant.inventory,
+        starterGrantClaimedRecipeIds: starterGrant.starterGrantClaimedRecipeIds,
         justDiscovered: wasNewDiscovery,
         justGotNewBest: isNewBest,
         phase: "DISCOVERED",
@@ -613,6 +650,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           pitzBalance: state.pitzBalance,
           lastClaimedMissionRunId: state.lastClaimedMissionRunId,
           inventory: state.inventory,
+          starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
         },
         { excludeRecipeId: state.recipe.id },
       );
@@ -627,6 +665,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           pitzBalance: state.pitzBalance,
           lastClaimedMissionRunId: state.lastClaimedMissionRunId,
           inventory: state.inventory,
+          starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
         }) ?? state
       );
     }
@@ -639,6 +678,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           pitzBalance: state.pitzBalance,
           lastClaimedMissionRunId: state.lastClaimedMissionRunId,
           inventory: state.inventory,
+          starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
         }) ?? state
       );
 
@@ -653,7 +693,21 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         return state;
       }
       const { dex } = registerScoreToDex(state.dex, state.recipe.id, state.score);
-      return nextMissionOrderState({ ...state, dex });
+      // EP4: Lunch Rush's own Dex-registration path can cross a `recipeUnlocked` boundary just
+      // as easily as FREE's REGISTER_TO_DEX above -- same trigger, same helper, so a recipe
+      // unlocked mid-Lunch-Rush-run grants its starter stock exactly the same way.
+      const starterGrant = applyStarterGrantsOnDexChange(state.dex, dex, {
+        ownedIngredientIds: state.ownedIngredientIds,
+        inventory: state.inventory,
+        starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
+      });
+      return nextMissionOrderState({
+        ...state,
+        dex,
+        ownedIngredientIds: starterGrant.ownedIngredientIds,
+        inventory: starterGrant.inventory,
+        starterGrantClaimedRecipeIds: starterGrant.starterGrantClaimedRecipeIds,
+      });
     }
 
     // Forces a fresh Mission order regardless of the current phase -- used when a Mission run

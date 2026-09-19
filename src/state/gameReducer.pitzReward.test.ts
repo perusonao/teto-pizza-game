@@ -197,7 +197,7 @@ describe("Lunch Rush isolation -- no per-pizza FREE reward leakage", () => {
 });
 
 describe("Persistence -- credited pitzBalance round-trips, no schema migration", () => {
-  it("a FREE-credited pitzBalance survives persistProgress -> loadSave unchanged, schemaVersion stays 2", () => {
+  it("a FREE-credited pitzBalance survives persistProgress -> loadSave unchanged, schemaVersion stays 3", () => {
     const resultState = playFreeMargheritaToResult(70);
     const discovered = gameReducer(resultState, { type: "REGISTER_TO_DEX" });
     expect(discovered.pitzBalance).toBeGreaterThan(0);
@@ -209,12 +209,13 @@ describe("Persistence -- credited pitzBalance round-trips, no schema migration",
         pitzBalance: discovered.pitzBalance,
         ownedIngredientIds: discovered.ownedIngredientIds,
         inventory: discovered.inventory,
+        starterGrantClaimedRecipeIds: discovered.starterGrantClaimedRecipeIds,
       },
       storage,
     );
 
     const loaded = loadSave(storage);
-    expect(loaded.schemaVersion).toBe(2);
+    expect(loaded.schemaVersion).toBe(3);
     expect(loaded.pitzBalance).toBe(discovered.pitzBalance);
   });
 
@@ -229,6 +230,7 @@ describe("Persistence -- credited pitzBalance round-trips, no schema migration",
         pitzBalance: discovered.pitzBalance,
         ownedIngredientIds: discovered.ownedIngredientIds,
         inventory: discovered.inventory,
+        starterGrantClaimedRecipeIds: discovered.starterGrantClaimedRecipeIds,
       },
       storage,
     );
