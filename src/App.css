@@ -2106,6 +2106,120 @@
   opacity: 0.75;
 }
 
+/* ---------- Settings overlay (Issue #89 Reset 1A) ---------- */
+.settings-overlay__section {
+  background: #fff;
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.settings-overlay__section-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #4a2e0a;
+  margin: 0 0 6px;
+}
+
+.settings-overlay__section-desc {
+  font-size: 12px;
+  color: #8a6a45;
+  line-height: 1.5;
+  margin: 0 0 12px;
+}
+
+.settings-overlay__reset-trigger {
+  width: 100%;
+  min-height: 48px;
+  border: 2px solid #d94f3d;
+  background: #fff;
+  color: #d94f3d;
+  font-weight: 700;
+  font-size: 14px;
+  border-radius: 999px;
+}
+
+/* Reset confirmation modal: stacks above .settings-overlay's own .dex-overlay backdrop
+   (z-index: 20), matching the existing precedent set by .mission-overlay/
+   .reference-preview__backdrop (both z-index: 25) for "a modal above an already-open
+   overlay" in this codebase. Deliberately has no onClick of its own -- outside-tap must
+   never confirm a destructive action, and this codebase's existing overlay backdrops
+   (.dex-overlay) already don't close on outside-tap either, so an inert backdrop here
+   matches, not diverges from, that convention. */
+.settings-reset-confirm {
+  position: fixed;
+  inset: 0;
+  background: rgba(30, 18, 8, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 25;
+}
+
+.settings-reset-confirm__panel {
+  width: 100%;
+  max-width: 320px;
+  background: #fff8ea;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.settings-reset-confirm__title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #4a2e0a;
+  margin: 0 0 10px;
+}
+
+.settings-reset-confirm__body {
+  font-size: 13px;
+  color: #6b4226;
+  line-height: 1.6;
+  margin: 0 0 16px;
+}
+
+.settings-reset-confirm__error {
+  font-size: 12px;
+  font-weight: 700;
+  color: #b4432f;
+  margin: 0 0 12px;
+}
+
+.settings-reset-confirm__actions {
+  display: flex;
+  gap: 10px;
+}
+
+.settings-reset-confirm__cancel,
+.settings-reset-confirm__confirm {
+  flex: 1;
+  min-height: 48px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 14px;
+  border: none;
+}
+
+/* Cancel is the visually safer-looking action -- muted, never styled like a primary CTA --
+   so a mistap doesn't invite tapping it as though it were the "continue" button. */
+.settings-reset-confirm__cancel {
+  background: #e6d5ae;
+  color: #4a2e0a;
+}
+
+.settings-reset-confirm__confirm {
+  background: linear-gradient(180deg, #e4574c, #b4432f);
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(180, 67, 47, 0.4);
+}
+
+.settings-reset-confirm__cancel:disabled,
+.settings-reset-confirm__confirm:disabled {
+  opacity: 0.6;
+}
+
 /* ==========================================================================
    HOME / GAME screens (Issue #24)
    ========================================================================== */

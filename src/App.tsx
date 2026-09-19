@@ -6,6 +6,7 @@ import { GameScreen } from "./screens/GameScreen";
 import { DexOverlay } from "./components/DexOverlay";
 import { ShopOverlay } from "./components/ShopOverlay";
 import { InventoryOverlay } from "./components/InventoryOverlay";
+import { SettingsOverlay } from "./components/SettingsOverlay";
 import { getReferencePizza } from "./data/referencePizza";
 import { computeSauceMetrics, emptySauceMetrics } from "./logic/sauceField";
 import { scorePiecesAgainstReference, scoreSauceAgainstReference } from "./logic/referenceScoring";
@@ -22,7 +23,13 @@ import {
   type GameState,
   type MakingStep,
 } from "./state/gameReducer";
-import { loadSave, loadMissionBest, persistProgress, persistMissionBest } from "./state/persistence";
+import {
+  loadSave,
+  loadMissionBest,
+  persistProgress,
+  persistMissionBest,
+  resetSave,
+} from "./state/persistence";
 import { applyStarterGrants } from "./state/starterStock";
 import {
   DEFAULT_MISSION_CONFIG,
@@ -141,6 +148,7 @@ function App() {
   const [isDexOpen, setDexOpen] = useState(false);
   const [isShopOpen, setShopOpen] = useState(false);
   const [isInventoryOpen, setInventoryOpen] = useState(false);
+  const [isSettingsOpen, setSettingsOpen] = useState(false);
   // Phase 4A-1A (Post-Codex-Fix) MUST FIX 1/9: opening the Reference ("見本") popover must
   // abort any in-progress tomato-sauce dispense session, exactly like BAKE does -- lifted
   // here (rather than left as ReferencePreview's own local state) so `interactive` below can
@@ -518,6 +526,24 @@ function App() {
     setScreen("HOME");
   }
 
+  // Full Game Reset (Issue #89): the reload itself is the reset mechanism (Fresh Audit §13
+  // Option B), not a new fresh-state construction here -- clearing the one save key means the
+  // very next mount's `useReducer` lazy initializer above (`loadSave()` -> `createDefaultSave()`
+  // -> `applyStarterGrants` -> `createInitialGameState`) runs exactly as it does for a genuine
+  // first launch, and the reload also discards every one of this component's other ~13
+  // useState/useReducer hooks (screen, overlay flags, mission state, ...) for free, with no
+  // per-field enumeration to keep in sync. `resetSave` (persistence.ts) verifies the key is
+  // actually gone before this reloads -- a `false` return (storage removal failed/unavailable
+  // in a way that leaves the old save intact) must not reload into what would look like a
+  // silently-broken reset, so `SettingsOverlay` shows an error and lets the player retry instead.
+  function handleResetGameData(): boolean {
+    const succeeded = resetSave();
+    if (succeeded) {
+      window.location.reload();
+    }
+    return succeeded;
+  }
+
   // Issue #39: 「ピザを作る」no longer drops straight into GAME/ORDER with whatever recipe
   // random selection last landed on -- it goes to Pizza Select first, so the player picks the
   // recipe explicitly (see handleSelectRecipe below). No stale-RESULT reset is needed here
@@ -631,6 +657,7 @@ function App() {
           onOpenDex={() => setDexOpen(true)}
           onOpenShop={() => setShopOpen(true)}
           onOpenInventory={() => setInventoryOpen(true)}
+          onOpenSettings={() => setSettingsOpen(true)}
         />
       )}
 
@@ -656,7 +683,7 @@ function App() {
           referenceModeEnabled={referenceModeEnabled}
           referencePizza={referencePizza}
           isReferencePopoverOpen={isReferencePopoverOpen}
-          isGlobalOverlayOpen={isDexOpen || isShopOpen || isInventoryOpen}
+          isGlobalOverlayOpen={isDexOpen || isShopOpen || isInventoryOpen || isSettingsOpen}
           sauceMetrics={sauceMetrics}
           sauceShadowScore={sauceShadowScore}
           isDispensingSauce={pendingSauceDeposits.length > 0}
@@ -718,6 +745,10 @@ function App() {
           inventory={state.inventory}
           onClose={() => setInventoryOpen(false)}
         />
+      )}
+
+      {isSettingsOpen && (
+        <SettingsOverlay onClose={() => setSettingsOpen(false)} onResetGameData={handleResetGameData} />
       )}
     </div>
   );

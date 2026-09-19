@@ -11,6 +11,7 @@ import {
   persistDex,
   persistMissionBest,
   persistProgress,
+  resetSave,
   type PersistentSaveV1,
   type PersistentSaveV2,
   type StorageLike,
@@ -846,6 +847,55 @@ describe("clearSave", () => {
   it("does not throw when storage is unavailable or throws", () => {
     expect(() => clearSave(null)).not.toThrow();
     expect(() => clearSave(throwingStorage())).not.toThrow();
+  });
+});
+
+describe("resetSave (Issue #89 Full Game Reset)", () => {
+  it("removes a heavily progressed save and reports success", () => {
+    const storage = fakeStorage({ [SAVE_STORAGE_KEY]: saveWith({ dex: [validEntry], pitzBalance: 500 }) });
+    expect(resetSave(storage)).toBe(true);
+    expect(storage.getItem(SAVE_STORAGE_KEY)).toBeNull();
+    expect(loadSave(storage)).toEqual(createDefaultSave());
+  });
+
+  it("reports success (idempotent) when there was no save to begin with", () => {
+    const storage = fakeStorage();
+    expect(resetSave(storage)).toBe(true);
+    expect(storage.getItem(SAVE_STORAGE_KEY)).toBeNull();
+  });
+
+  it("reports success when called twice in a row (double-tap safe, no corruption)", () => {
+    const storage = fakeStorage({ [SAVE_STORAGE_KEY]: saveWith({ dex: [validEntry] }) });
+    expect(resetSave(storage)).toBe(true);
+    expect(resetSave(storage)).toBe(true);
+    expect(loadSave(storage)).toEqual(createDefaultSave());
+  });
+
+  it("reports success with no storage at all (loadSave's own no-storage fallback already yields a fresh save)", () => {
+    expect(resetSave(null)).toBe(true);
+  });
+
+  it("reports failure when removeItem throws and the key survives", () => {
+    expect(resetSave(throwingStorage())).toBe(false);
+  });
+
+  it("reports failure when removeItem silently no-ops and the key is still present", () => {
+    // Simulates a broken/read-only storage that neither throws nor actually deletes --
+    // clearSave()'s own try/catch can't detect this (no exception to catch), which is
+    // exactly why resetSave verifies via a follow-up getItem rather than trusting clearSave's
+    // void return.
+    const store = new Map([[SAVE_STORAGE_KEY, saveWith({ dex: [validEntry] })]]);
+    const brokenStorage: StorageLike = {
+      getItem: (key) => store.get(key) ?? null,
+      setItem: (key, value) => {
+        store.set(key, value);
+      },
+      removeItem: () => {
+        // no-op: pretends to succeed but never actually deletes the key.
+      },
+    };
+    expect(resetSave(brokenStorage)).toBe(false);
+    expect(brokenStorage.getItem(SAVE_STORAGE_KEY)).not.toBeNull();
   });
 });
 
