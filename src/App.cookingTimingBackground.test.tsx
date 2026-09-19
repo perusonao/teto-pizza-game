@@ -67,11 +67,95 @@ function completeDoughStep() {
   }
 }
 
+// Completion Gate Phase 1 (merged into this branch from PR #102): a round with no sauce/cheese/
+// topping at all is now a FAILED round (../logic/completionGate.ts), not merely a low-scoring
+// PASS -- so these Cooking Time tests, which only care about the *timing*, still need a real
+// PASSing pizza for the RESULT screen to ever reach the 手際/調理時間 markup at all. Reuses the
+// exact same tap/paint/needle-control helpers `App.test.tsx` already built for this (see that
+// file's own doc comments for the full rationale of each).
+async function selectAndTapPizza(
+  user: ReturnType<typeof userEvent.setup>,
+  ingredientNameJa: string,
+  xPercent: number,
+  yPercent: number,
+) {
+  await user.click(screen.getByRole("button", { name: new RegExp(ingredientNameJa) }));
+  const dough = document.querySelector<HTMLElement>('[data-pizza-drop-target="true"]');
+  if (!dough) throw new Error("Pizza dough missing");
+  dough.getBoundingClientRect = () =>
+    ({ left: 0, top: 0, width: 300, height: 300, right: 300, bottom: 300, x: 0, y: 0, toJSON: () => {} }) as DOMRect;
+  const clientX = (xPercent / 100) * 300;
+  const clientY = (yPercent / 100) * 300;
+  const pointerId = Math.floor(Math.random() * 1_000_000);
+  fireEvent.pointerDown(dough, { pointerId, isPrimary: true, pointerType: "touch", clientX, clientY });
+  fireEvent.pointerUp(dough, { pointerId, isPrimary: true, pointerType: "touch", clientX, clientY });
+}
+
+async function paintSauceRing(
+  user: ReturnType<typeof userEvent.setup>,
+  ingredientNameJa: string,
+  radius: number,
+  count: number,
+) {
+  await user.click(screen.getByRole("button", { name: new RegExp(ingredientNameJa) }));
+  const dough = document.querySelector<HTMLElement>('[data-pizza-drop-target="true"]');
+  if (!dough) throw new Error("Pizza dough missing");
+  dough.getBoundingClientRect = () =>
+    ({ left: 0, top: 0, width: 300, height: 300, right: 300, bottom: 300, x: 0, y: 0, toJSON: () => {} }) as DOMRect;
+  for (let i = 0; i < count; i += 1) {
+    const angle = (i / count) * Math.PI * 2;
+    const xPercent = 50 + Math.cos(angle) * radius;
+    const yPercent = 50 + Math.sin(angle) * radius;
+    const clientX = (xPercent / 100) * 300;
+    const clientY = (yPercent / 100) * 300;
+    const pointerId = Math.floor(Math.random() * 1_000_000);
+    fireEvent.pointerDown(dough, { pointerId, isPrimary: true, pointerType: "touch", clientX, clientY });
+    fireEvent.pointerUp(dough, { pointerId, isPrimary: true, pointerType: "touch", clientX, clientY });
+  }
+}
+
+/** Drives BakeOverlay's needle to an exact value before confirming -- see App.test.tsx's own
+ *  `controlBakeNeedle` doc comment for the full rationale (stubs `requestAnimationFrame`/
+ *  `performance.now`, independent of this file's own `Date.now` stub for Cooking Time). */
+function controlBakeNeedle() {
+  let now = 0;
+  let rafCallback: FrameRequestCallback | null = null;
+  return {
+    stub() {
+      vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
+        rafCallback = callback;
+        return 1;
+      });
+      vi.stubGlobal("cancelAnimationFrame", () => {});
+      vi.stubGlobal("performance", { now: () => now });
+    },
+    driveTo(targetPosition: number) {
+      const BAKE_NEEDLE_SPEED = 55; // percent per second, BakeOverlay.tsx's own SPEED constant
+      now += (targetPosition / BAKE_NEEDLE_SPEED) * 1000;
+      const callback = rafCallback;
+      rafCallback = null;
+      callback?.(now);
+    },
+    unstub() {
+      vi.unstubAllGlobals();
+    },
+  };
+}
+
+/** Builds a real, PASSing bismarck pizza (トマトソース ring + 3x モッツァレラ + 1x たまご,
+ *  bismarck's own three required ingredients) and confirms the bake in the middle of its
+ *  {55, 75} target zone -- everything these Cooking Time tests need beyond the pizza itself is
+ *  in each test's own `now`/pause-signal choreography around this call. */
 async function advanceThroughMakingSteps(user: ReturnType<typeof userEvent.setup>) {
   completeDoughStep();
-  await user.click(screen.getByRole("button", { name: /次へ/ }));
-  await user.click(screen.getByRole("button", { name: /次へ/ }));
-  await user.click(screen.getByRole("button", { name: /次へ/ }));
+  await user.click(screen.getByRole("button", { name: /次へ/ })); // DOUGH -> SAUCE
+  await paintSauceRing(user, "トマトソース", 25, 16);
+  await user.click(screen.getByRole("button", { name: /次へ/ })); // SAUCE -> CHEESE
+  await selectAndTapPizza(user, "モッツァレラ", 40, 50);
+  await selectAndTapPizza(user, "モッツァレラ", 60, 50);
+  await selectAndTapPizza(user, "モッツァレラ", 50, 30);
+  await user.click(screen.getByRole("button", { name: /次へ/ })); // CHEESE -> TOPPING
+  await selectAndTapPizza(user, "たまご", 50, 65);
 }
 
 function readDisplayedCookingTime(): string {
@@ -109,8 +193,12 @@ describe("Cooking Time CT2: background (visibilitychange/blur) exclusion", () =>
 
     now += 3_000; // another 3s of active work
     await advanceThroughMakingSteps(user);
+    const needle1 = controlBakeNeedle();
+    needle1.stub();
     await user.click(screen.getByRole("button", { name: /焼く/ })); // START_BAKE finalizes at `now`
+    needle1.driveTo(65); // bismarck's {55, 75} target zone
     await user.click(screen.getByRole("button", { name: "取り出す！" }));
+    needle1.unstub();
 
     // 5s + 3s active = 8s total -- the 30s background span is excluded entirely.
     expect(readDisplayedCookingTime()).toBe("0:08");
@@ -136,8 +224,12 @@ describe("Cooking Time CT2: background (visibilitychange/blur) exclusion", () =>
 
     now += 6_000;
     await advanceThroughMakingSteps(user);
+    const needle = controlBakeNeedle();
+    needle.stub();
     await user.click(screen.getByRole("button", { name: /焼く/ }));
+    needle.driveTo(65); // bismarck's {55, 75} target zone
     await user.click(screen.getByRole("button", { name: "取り出す！" }));
+    needle.unstub();
 
     // 4s + 6s active = 10s total -- the 20s hidden span is excluded.
     expect(readDisplayedCookingTime()).toBe("0:10");
@@ -162,8 +254,12 @@ describe("Cooking Time CT2: overlay pause (Reference popover)", () => {
 
     now += 6_000;
     await advanceThroughMakingSteps(user);
+    const needle = controlBakeNeedle();
+    needle.stub();
     await user.click(screen.getByRole("button", { name: /焼く/ }));
+    needle.driveTo(65); // bismarck's {55, 75} target zone
     await user.click(screen.getByRole("button", { name: "取り出す！" }));
+    needle.unstub();
 
     // 2s + 6s active = 8s total -- the 15s Reference-open span is excluded.
     expect(readDisplayedCookingTime()).toBe("0:08");
@@ -194,8 +290,12 @@ describe("Cooking Time CT2: overlapping pause reasons never resume prematurely",
     now += 4_000; // 4s active after the real resume
 
     await advanceThroughMakingSteps(user);
+    const needle = controlBakeNeedle();
+    needle.stub();
     await user.click(screen.getByRole("button", { name: /焼く/ }));
+    needle.driveTo(65); // bismarck's {55, 75} target zone
     await user.click(screen.getByRole("button", { name: "取り出す！" }));
+    needle.unstub();
 
     // 1s (before Reference opened) + 4s (after Reference actually closed) = 5s total. The whole
     // 10s + 20s + 5s = 35s span (Reference open, with a background overlap in the middle) is

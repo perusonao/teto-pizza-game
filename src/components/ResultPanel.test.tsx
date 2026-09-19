@@ -200,6 +200,28 @@ describe("ResultPanel", () => {
     expect(screen.queryByText("手際ボーナス")).not.toBeInTheDocument();
   });
 
+  // Completion Gate Phase 1 x Cooking Time CT2: FAILED must never show a "手際" evaluation --
+  // even a defensively-passed non-null efficiencyCredit (a stale prop, a future caller bug)
+  // must not leak through, since the whole FAILED branch returns before ever reaching the
+  // pitzCredit/efficiencyCredit markup (see ResultPanel.tsx's own early return).
+  it("FAILED never renders 調理時間/手際/手際ボーナス, even if efficiencyCredit/pitzCredit are (incorrectly) non-null", () => {
+    render(
+      <ResultPanel
+        {...baseProps()}
+        completion={{ status: "FAILED", reason: "UNDERBAKED", failures: [{ reason: "UNDERBAKED" }] }}
+        pitzCredit={basePitzCredit()}
+        efficiencyCredit={{ tier: "GOOD", bonusRate: 0.1, bonusPitz: 10, cookingTimeMs: 5_000 }}
+      />,
+    );
+    expect(screen.getByText("失敗")).toBeInTheDocument();
+    expect(screen.getByText(/\+0 Pitz/)).toBeInTheDocument();
+    expect(screen.queryByText("調理時間")).not.toBeInTheDocument();
+    expect(screen.queryByText("手際")).not.toBeInTheDocument();
+    expect(screen.queryByText("手際ボーナス")).not.toBeInTheDocument();
+    expect(screen.queryByText(/\+42 Pitz/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/\+10 Pitz/)).not.toBeInTheDocument();
+  });
+
   it("wires the retry-same-recipe and back-to-select CTAs", () => {
     const onRetrySameRecipe = vi.fn();
     const onBackToPizzaSelect = vi.fn();
