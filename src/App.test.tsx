@@ -147,6 +147,49 @@ function controlBakeNeedle() {
 }
 
 /**
+ * Lunch Rush Completion Gate 1A: bakes a genuine PASS order from Mission's own PREPARE step
+ * (DOUGH already cleared by the caller). A fresh save's very first Mission order is always
+ * margherita (the only recipe with no `unlockCondition`, ../data/recipes.ts) -- but Lunch
+ * Rush's own MISSION_NEXT_ORDER registers every order to the Dex regardless of PASS/FAILED
+ * (gameReducer.ts's own comment on that case), so a *second* order in the same run can already
+ * be funghi (`{ requiresRecipeId: "margherita" }`, auto-unlocked + its own Starter Grant
+ * auto-claimed the instant margherita is first registered, ../state/starterStock.ts) rather
+ * than margherita again (`pickMissionOrder`'s own repeat-avoidance). Rather than predicting
+ * which of the two a given call lands on, this places every ingredient either recipe could
+ * need -- sauce + 3x mozzarella (>= both recipes' own minCount) always, then 2x basil and/or
+ * 3x mushroom in TOPPING, whichever chip is actually present (mushroom only becomes owned once
+ * funghi unlocks) -- since the Completion Gate only ever fails on a MISSING/insufficient
+ * required ingredient, never an extra one. 70 sits inside both recipes' own bakeTarget perfect
+ * zone (margherita {60,80}, funghi {58,78}). Mirrors the bismarck PASS sequence this file's own
+ * "RESULT 2.0" test already establishes (paintSauceRing + selectAndTapPizza + controlBakeNeedle).
+ */
+async function bakeMissionOrderPass(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(screen.getByRole("button", { name: /次へ/ })); // DOUGH -> SAUCE
+  await paintSauceRing(user, "トマトソース", 25, 16);
+  await user.click(screen.getByRole("button", { name: /次へ/ })); // SAUCE -> CHEESE
+  await selectAndTapPizza(user, "モッツァレラ", 40, 50);
+  await selectAndTapPizza(user, "モッツァレラ", 60, 50);
+  await selectAndTapPizza(user, "モッツァレラ", 50, 30);
+  await user.click(screen.getByRole("button", { name: /次へ/ })); // CHEESE -> TOPPING
+  if (screen.queryByRole("button", { name: /バジル/ })) {
+    await selectAndTapPizza(user, "バジル", 45, 55);
+    await selectAndTapPizza(user, "バジル", 55, 45);
+  }
+  if (screen.queryByRole("button", { name: /マッシュルーム/ })) {
+    await selectAndTapPizza(user, "マッシュルーム", 40, 60);
+    await selectAndTapPizza(user, "マッシュルーム", 60, 60);
+    await selectAndTapPizza(user, "マッシュルーム", 50, 40);
+  }
+
+  const needle = controlBakeNeedle();
+  needle.stub();
+  await user.click(screen.getByRole("button", { name: /焼く/ }));
+  needle.driveTo(70);
+  await user.click(screen.getByRole("button", { name: "取り出す！" }));
+  needle.unstub();
+}
+
+/**
  * HOME/GAME separation (Issue #24) integration coverage, extended by Issue #39 for the
  * HOME -> Pizza Select -> FREE navigation this file's own describe block now covers end to
  * end. Renders the real `App` (real reducers, real localStorage) end-to-end rather than
@@ -311,11 +354,10 @@ describe("HOME/GAME separation (Issue #24)", () => {
     await user.click(screen.getByRole("button", { name: "スタート" }));
     await user.click(screen.getByRole("button", { name: "ピザを作る！" }));
     completeDoughStep();
-    await user.click(screen.getByRole("button", { name: /次へ/ }));
-    await user.click(screen.getByRole("button", { name: /次へ/ }));
-    await user.click(screen.getByRole("button", { name: /次へ/ }));
-    await user.click(screen.getByRole("button", { name: /焼く/ }));
-    await user.click(screen.getByRole("button", { name: "取り出す！" }));
+    // Lunch Rush Completion Gate 1A: this round must actually PASS (see bakeMissionOrderPass's
+    // own doc comment) -- an empty pizza is now a FAILED order (../logic/completionGate.ts),
+    // covered by this suite's own dedicated FAILED tests below, not this PASS-path assertion.
+    await bakeMissionOrderPass(user);
 
     expect(screen.getByRole("button", { name: "次の注文へ" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "もう一度つくる" })).not.toBeInTheDocument();
@@ -336,11 +378,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
     await user.click(screen.getByRole("button", { name: "スタート" }));
     await user.click(screen.getByRole("button", { name: "ピザを作る！" }));
     completeDoughStep();
-    await user.click(screen.getByRole("button", { name: /次へ/ }));
-    await user.click(screen.getByRole("button", { name: /次へ/ }));
-    await user.click(screen.getByRole("button", { name: /次へ/ }));
-    await user.click(screen.getByRole("button", { name: /焼く/ }));
-    await user.click(screen.getByRole("button", { name: "取り出す！" }));
+    await bakeMissionOrderPass(user);
 
     expect(screen.getByRole("button", { name: "次の注文へ" })).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "次の注文へ" }));
@@ -352,16 +390,95 @@ describe("HOME/GAME separation (Issue #24)", () => {
 
     // A second pizza confirms this holds across repeated auto-advances, not just once.
     completeDoughStep();
-    await user.click(screen.getByRole("button", { name: /次へ/ }));
-    await user.click(screen.getByRole("button", { name: /次へ/ }));
-    await user.click(screen.getByRole("button", { name: /次へ/ }));
-    await user.click(screen.getByRole("button", { name: /焼く/ }));
-    await user.click(screen.getByRole("button", { name: "取り出す！" }));
+    await bakeMissionOrderPass(user);
     expect(screen.getByRole("button", { name: "次の注文へ" })).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "次の注文へ" }));
     expect(screen.queryByRole("button", { name: "ピザを作る！" })).not.toBeInTheDocument();
     expect(document.querySelector('[data-pizza-drop-target="true"]')).toBeInTheDocument();
     expect(document.querySelector(".mission-hud__served")?.textContent).toContain("2"); // servedCount after pizza 2
+  });
+
+  // Lunch Rush Completion Gate 1A (docs/reports/TETO_LUNCH-RUSH_COMPLETION-GATE_1A_Result.md):
+  // a FAILED order (no ingredients placed at all -- ../logic/completionGate.ts's own
+  // MISSING_REQUIRED_INGREDIENT) must show the same short failure reason FREE's ResultPanel
+  // already shows (buildCompletionFailureMessage, ../data/completionMessages.ts), never the
+  // normal stars/score/+1 SERVED card, and must never bump servedCount.
+  it("Lunch Rush: a Completion FAILED order shows the failure reason and never counts as served", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /ランチラッシュ/ }));
+    await user.click(screen.getByRole("button", { name: "スタート" }));
+    await user.click(screen.getByRole("button", { name: "ピザを作る！" }));
+    completeDoughStep();
+    await user.click(screen.getByRole("button", { name: /次へ/ }));
+    await user.click(screen.getByRole("button", { name: /次へ/ }));
+    await user.click(screen.getByRole("button", { name: /次へ/ }));
+    await user.click(screen.getByRole("button", { name: /焼く/ }));
+    await user.click(screen.getByRole("button", { name: "取り出す！" }));
+
+    // The FAILED variant: reason text visible, no score/stars, no +1 SERVED, but the CTA to
+    // move on is still there (the order is consumed, not retried in place).
+    expect(screen.getByText("トマトソースが入っていません")).toBeInTheDocument();
+    expect(document.querySelector(".mission-serve-panel__score")).not.toBeInTheDocument();
+    expect(screen.queryByText(/SERVED/)).not.toBeInTheDocument();
+    expect(document.querySelector(".mission-hud__served")?.textContent).toContain("0");
+    const nextButton = screen.getByRole("button", { name: "次の注文へ" });
+
+    await user.click(nextButton);
+
+    // Order is still consumed and the run still advances to a fresh PREPARE -- not a retry of
+    // the same order -- but servedCount stays at 0 since nothing was actually served.
+    expect(screen.queryByRole("button", { name: "ピザを作る！" })).not.toBeInTheDocument();
+    expect(document.querySelector('[data-pizza-drop-target="true"]')).toBeInTheDocument();
+    expect(document.querySelector(".mission-hud__served")?.textContent).toContain("0");
+  });
+
+  // A second consecutive FAILED order pins that repeated failures neither loop the same order
+  // nor ever manage to sneak servedCount/score up -- "FAILEDだから無限にやり直せる" is explicitly
+  // not the semantics here (see the Result Report's Product Rule section).
+  it("Lunch Rush: repeated Completion FAILED orders never inflate servedCount or loop the same order", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /ランチラッシュ/ }));
+    await user.click(screen.getByRole("button", { name: "スタート" }));
+    await user.click(screen.getByRole("button", { name: "ピザを作る！" }));
+
+    for (let i = 0; i < 2; i += 1) {
+      completeDoughStep();
+      await user.click(screen.getByRole("button", { name: /次へ/ }));
+      await user.click(screen.getByRole("button", { name: /次へ/ }));
+      await user.click(screen.getByRole("button", { name: /次へ/ }));
+      await user.click(screen.getByRole("button", { name: /焼く/ }));
+      await user.click(screen.getByRole("button", { name: "取り出す！" }));
+      expect(document.querySelector(".mission-hud__served")?.textContent).toContain("0");
+      await user.click(screen.getByRole("button", { name: "次の注文へ" }));
+      expect(document.querySelector('[data-pizza-drop-target="true"]')).toBeInTheDocument();
+    }
+
+    expect(document.querySelector(".mission-hud__served")?.textContent).toContain("0");
+  });
+
+  // A PASS pizza served right after a FAILED one pins that the two never bleed into each
+  // other's counts -- FAILED stays 0/0, and the very next PASS still counts as exactly +1.
+  it("Lunch Rush: a PASS order right after a FAILED one still counts as exactly +1 served", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /ランチラッシュ/ }));
+    await user.click(screen.getByRole("button", { name: "スタート" }));
+    await user.click(screen.getByRole("button", { name: "ピザを作る！" }));
+
+    completeDoughStep();
+    await user.click(screen.getByRole("button", { name: /次へ/ }));
+    await user.click(screen.getByRole("button", { name: /次へ/ }));
+    await user.click(screen.getByRole("button", { name: /次へ/ }));
+    await user.click(screen.getByRole("button", { name: /焼く/ }));
+    await user.click(screen.getByRole("button", { name: "取り出す！" }));
+    await user.click(screen.getByRole("button", { name: "次の注文へ" }));
+
+    completeDoughStep();
+    await bakeMissionOrderPass(user);
+    await user.click(screen.getByRole("button", { name: "次の注文へ" }));
+    expect(document.querySelector(".mission-hud__served")?.textContent).toContain("1");
   });
 
   it("opens the Dex overlay from HOME without leaving HOME underneath", async () => {
@@ -601,10 +718,10 @@ describe("HOME/GAME separation (Issue #24)", () => {
     });
     render(<App />);
     expect(screen.getByLabelText("Pitz残高 250")).toBeInTheDocument();
-    // 11 total recipes (src/data/recipes.ts, Recipe Expansion Batch 1A) -- 1 discovered from
-    // the seeded save.
-    expect(screen.getByLabelText(/レシピ図鑑 発見数 1 \/ 11/)).toBeInTheDocument();
-    expect(screen.getByText(/発見 1\/11/)).toBeInTheDocument();
+    // 13 total recipes (src/data/recipes.ts, Recipe Expansion Batch 1A + Batch 1B-A) -- 1
+    // discovered from the seeded save.
+    expect(screen.getByLabelText(/レシピ図鑑 発見数 1 \/ 13/)).toBeInTheDocument();
+    expect(screen.getByText(/発見 1\/13/)).toBeInTheDocument();
   });
 
   it("still shows HOME first after a reload, with persisted progression intact", () => {

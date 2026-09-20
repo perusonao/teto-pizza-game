@@ -452,10 +452,11 @@ export function GameScreen({
         />
       )}
 
-      {state.phase === "RESULT" && state.score && isMissionPlaying && (
+      {state.phase === "RESULT" && state.score && state.completion && isMissionPlaying && (
         <MissionServePanel
           score={state.score}
           servedCount={mission.metrics.servedCount}
+          completion={state.completion}
           onNext={onMissionServeNext}
         />
       )}

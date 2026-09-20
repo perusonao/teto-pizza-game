@@ -3,8 +3,8 @@
   "catalogVersion": "2.0.0",
   "generatedDate": "2026-09-19",
   "totalIngredientCount": 62,
-  "existingIngredientCount": 18,
-  "newIngredientCount": 44,
+  "existingIngredientCount": 20,
+  "newIngredientCount": 42,
   "ingredients": [
     {
       "id": "tomato-sauce",
@@ -938,12 +938,10 @@
         "potato-bacon"
       ],
       "usedByRecipeCount": 2,
-      "existingInGame": false,
-      "visualDistinctiveness": 2,
-      "implementationCost": "new ingredient data row",
-      "reusePotential": "medium",
-      "mechanicDependency": null,
-      "notes": ""
+      "existingInGame": true,
+      "visualDistinctiveness": null,
+      "implementationCost": "none (shipped)",
+      "reusePotential": "n/a (already shipped)"
     },
     {
       "id": "bbq-sauce",
@@ -1037,12 +1035,10 @@
         "potato-bacon"
       ],
       "usedByRecipeCount": 3,
-      "existingInGame": false,
-      "visualDistinctiveness": 3,
-      "implementationCost": "new ingredient data row",
-      "reusePotential": "high",
-      "mechanicDependency": null,
-      "notes": ""
+      "existingInGame": true,
+      "visualDistinctiveness": null,
+      "implementationCost": "none (shipped)",
+      "reusePotential": "n/a (already shipped)"
     },
     {
       "id": "steak",
