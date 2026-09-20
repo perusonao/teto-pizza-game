@@ -28,6 +28,14 @@ export interface CookingProfile {
    *  fixed property of the step itself (`POST_BAKE_STEPS` below), not a per-recipe choice, so a
    *  profile can never accidentally place e.g. TOPPING after BAKE. */
   steps: readonly MakingStep[];
+  /** Recipe Cooking Steps 1.0 Phase 1A-T (docs/design/TETO_RECIPE-COOKING-STEPS_1.0.md §22.5):
+   *  reserved extension point for a future, explicitly opt-in Challenge Mode's per-step hard
+   *  time limit. Absent for every profile today (including every one built through Phase
+   *  1A-T/1B/2A/3A/3B) -- FREE and Lunch Rush both stay governed exactly as
+   *  §22.3/§22.4/§22.12 describe, with no per-step timeout of any kind. Present in the type but
+   *  read by nothing this phase (§22.13 acceptance criterion 6) -- not implemented, not
+   *  scheduled, in this slice. */
+  stepTimeLimits?: Partial<Record<MakingStep, { maxMs: number }>>;
 }
 
 /** Exactly today's fixed flow (`gameReducer.ts`'s pre-Phase-1A `MAKING_STEP_ORDER`) -- the

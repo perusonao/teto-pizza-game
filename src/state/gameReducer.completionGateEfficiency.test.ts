@@ -40,7 +40,16 @@ function idealMargherita(bakeResult: number): PizzaState {
 }
 
 function cookingTimingOf(completedMs: number): CookingTimingState {
-  return { startedAt: 0, pausedAt: null, accumulatedPauseMs: 0, completedMs };
+  return {
+    startedAt: 0,
+    pausedAt: null,
+    accumulatedPauseMs: 0,
+    completedMs,
+    activeStep: null,
+    stepStartedAt: null,
+    stepStartAccumulatedPauseMs: 0,
+    perStepElapsedMs: {},
+  };
 }
 
 /** Drives PREPARE -> BAKE -> RESULT for margherita from a directly-injected canonical `pizza`

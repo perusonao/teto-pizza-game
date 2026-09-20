@@ -20,6 +20,10 @@ describe("FREE round: BEGIN_PREPARE starts cookingTiming", () => {
       pausedAt: null,
       accumulatedPauseMs: 0,
       completedMs: null,
+      activeStep: "DOUGH",
+      stepStartedAt: 1_000,
+      stepStartAccumulatedPauseMs: 0,
+      perStepElapsedMs: {},
     });
   });
 
@@ -128,6 +132,10 @@ describe("RETRY_SAME_RECIPE / SELECT_RECIPE start a fresh timing (no BEGIN_PREPA
       pausedAt: null,
       accumulatedPauseMs: 0,
       completedMs: null,
+      activeStep: "DOUGH",
+      stepStartedAt: 100_000,
+      stepStartAccumulatedPauseMs: 0,
+      perStepElapsedMs: {},
     });
   });
 

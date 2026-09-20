@@ -13,6 +13,7 @@ import type { DialogueLine } from "../data/dialogue";
 import type { ScoreBreakdown } from "../logic/scoring";
 import { classifyBake, type BakeState } from "../logic/bake";
 import {
+  advanceStepTiming,
   finishCookingTiming,
   pauseCookingTiming,
   resumeCookingTiming,
@@ -253,7 +254,14 @@ export type GameAction =
   // (START_BAKE) -- this action never touches `phase`. Issue #33 D1: deliberately ungated at
   // the reducer layer for DOUGH -> SAUCE too, exactly like every other step -- the size
   // completion threshold is a UI-only CTA-disabled gate (GameScreen), not a reducer rule.
-  | { type: "CONFIRM_MAKING_STEP" }
+  //
+  // Recipe Cooking Steps 1.0 Phase 1A-T (design doc §22.2/§22.11): `now` is optional, same
+  // back-compat convention as BEGIN_PREPARE/START_BAKE/SELECT_RECIPE/RETRY_SAME_RECIPE --
+  // omitting it simply leaves `cookingTiming`'s per-step fields untouched by this dispatch
+  // (never defaulted to `Date.now()` inside the reducer). When present, it finalizes the
+  // outgoing step's `perStepElapsedMs` entry and starts the incoming step's own window; see the
+  // reducer case below.
+  | { type: "CONFIRM_MAKING_STEP"; now?: number }
   // Cooking Time CT2: no `now` payload -- unlike BEGIN_PREPARE/START_BAKE/SELECT_RECIPE/
   // RETRY_SAME_RECIPE, this action never starts, finishes, or otherwise touches `cookingTiming`
   // at all (see its own reducer case below). CT1 originally gave this a `now?: number` and
@@ -261,9 +269,15 @@ export type GameAction =
   // Efficiency bonus exists to game -- a fresh timer on every reset would let a player "re-roll"
   // a slow start for free, so the same run's clock now continues through a reset uninterrupted
   // instead (see docs/reports/TETO_COOKING-TIME_CT2_Efficiency-Result.md's RESET policy section).
+  // Phase 1A-T: this also means per-step timing is left exactly as untouched as the whole-round
+  // clock -- `activeStep`/`stepStartedAt` carry straight through a discard/redo (§22.11).
   | { type: "RESET_PIZZA" }
   | { type: "START_BAKE"; now?: number }
-  | { type: "CONFIRM_BAKE"; value: number }
+  // Recipe Cooking Steps 1.0 Phase 1A-T: `now` is optional, same convention as above -- when
+  // present and the recipe's profile lands the round on POST_BAKE (none of the 15 shipped
+  // recipes do), starts timing that phase's first step. No-op for `cookingTiming` on every
+  // profile without post-BAKE steps, whether or not `now` is supplied.
+  | { type: "CONFIRM_BAKE"; value: number; now?: number }
   | { type: "REGISTER_TO_DEX" }
   | { type: "PLAY_AGAIN" }
   // Issue #39 (Pizza Select): starts a fresh FREE round for an explicitly player-chosen
@@ -422,7 +436,7 @@ function startPreparingRecipe(
     ...orderState,
     phase: "PREPARE",
     hint: buildHintLine(orderState.recipe, orderState.pizza, orderState.makingStep),
-    cookingTiming: now !== undefined ? startCookingTiming(now) : null,
+    cookingTiming: now !== undefined ? startCookingTiming(now, orderState.makingStep) : null,
   };
 }
 
@@ -473,7 +487,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         // runs), and Mission must never accumulate a Cooking Time of its own alongside its
         // existing MissionClock (../mission/lunchRush.ts, untouched).
         cookingTiming:
-          !state.isMissionRound && action.now !== undefined ? startCookingTiming(action.now) : null,
+          !state.isMissionRound && action.now !== undefined
+            ? startCookingTiming(action.now, state.makingStep)
+            : null,
       };
 
     case "APPLY_SAUCE": {
@@ -706,7 +722,19 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           : postBakeSteps(state.cookingProfile);
       const currentIndex = steps.indexOf(state.makingStep);
       if (state.phase === "POST_BAKE" && currentIndex === steps.length - 1) {
-        return { ...state, phase: "RESULT", makingStepToken: state.makingStepToken + 1 };
+        return {
+          ...state,
+          phase: "RESULT",
+          makingStepToken: state.makingStepToken + 1,
+          // Phase 1A-T (§22.2): finalizes the last POST_BAKE step's own elapsed ms; no next
+          // step to start (RESULT has none). A no-op when `cookingTiming` is null (Mission
+          // round) or `now` wasn't supplied (same back-compat convention as every other timing
+          // dispatch).
+          cookingTiming:
+            state.cookingTiming && action.now !== undefined
+              ? advanceStepTiming(state.cookingTiming, action.now, null)
+              : state.cookingTiming,
+        };
       }
       const makingStep = nextStepWithin(state.makingStep, steps);
       if (makingStep === state.makingStep) return state;
@@ -722,21 +750,33 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         makingStep,
         makingStepToken: state.makingStepToken + 1,
         hint: buildHintLine(state.recipe, state.pizza, makingStep),
+        // Phase 1A-T (§22.2): finalizes the outgoing step's elapsed ms and starts the incoming
+        // one's window. Same back-compat no-op convention as above.
+        cookingTiming:
+          state.cookingTiming && action.now !== undefined
+            ? advanceStepTiming(state.cookingTiming, action.now, makingStep)
+            : state.cookingTiming,
       };
     }
 
-    case "START_BAKE":
+    case "START_BAKE": {
       // Cooking Time CT1: finalizes `cookingTiming.completedMs` right here, before BAKE's own
       // needle-tap minigame ever starts -- see cookingTiming's own module header for why the
       // boundary ends exactly at this transition, not at CONFIRM_BAKE.
-      return {
-        ...state,
-        phase: "BAKE",
-        cookingTiming:
-          state.cookingTiming && action.now !== undefined
-            ? finishCookingTiming(state.cookingTiming, action.now)
-            : state.cookingTiming,
-      };
+      const finishedRound =
+        state.cookingTiming && action.now !== undefined
+          ? finishCookingTiming(state.cookingTiming, action.now)
+          : state.cookingTiming;
+      // Phase 1A-T (§22.2/§22.3): finalizes the last PREPARE step's own elapsed ms into
+      // `perStepElapsedMs` and closes step timing out (`activeStep`/`stepStartedAt` -> null) --
+      // BAKE itself is never a `MakingStep` and never accumulates its own entry, matching
+      // `completedMs`'s existing BAKE-exclusion exactly.
+      const cookingTiming =
+        finishedRound && action.now !== undefined
+          ? advanceStepTiming(finishedRound, action.now, null)
+          : finishedRound;
+      return { ...state, phase: "BAKE", cookingTiming };
+    }
 
     case "CONFIRM_BAKE": {
       // Economy & Progression 1.0 EP2: CONFIRM_BAKE is the sole inventory-consumption
@@ -787,6 +827,16 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // recipe's non-default profile (none activated this phase) would ever land on "POST_BAKE"
       // here, entering it at that profile's own first post-BAKE step.
       const postBake = postBakeSteps(state.cookingProfile);
+      // Phase 1A-T (§22.2/§22.14): starts timing `postBake[0]` the instant the round actually
+      // enters POST_BAKE -- `state.cookingTiming.activeStep` is already `null` here (closed out
+      // by START_BAKE above), so this is purely a "start", never a re-finalize. No-op (byte-
+      // identical `cookingTiming`) whenever `postBake` is empty, `cookingTiming` is null
+      // (Mission round), or `now` wasn't supplied -- true for every one of the 15 shipped
+      // recipes today.
+      const cookingTiming =
+        postBake.length > 0 && state.cookingTiming && action.now !== undefined
+          ? advanceStepTiming(state.cookingTiming, action.now, postBake[0])
+          : state.cookingTiming;
       return {
         ...state,
         pizza,
@@ -795,6 +845,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         scoringV2Result,
         completion,
         inventory,
+        cookingTiming,
         ...(postBake.length > 0
           ? { phase: "POST_BAKE" as const, makingStep: postBake[0] }
           : { phase: "RESULT" as const }),

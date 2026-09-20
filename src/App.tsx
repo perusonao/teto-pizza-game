@@ -438,7 +438,7 @@ function App() {
   // CONFIRM_BAKE never also fires this -- Lunch Rush keeps registering exclusively via its own
   // MISSION_NEXT_ORDER/MISSION_SERVE path, untouched by this change.
   function handleConfirmBake(value: number) {
-    dispatch({ type: "CONFIRM_BAKE", value });
+    dispatch({ type: "CONFIRM_BAKE", value, now: Date.now() });
     if (!state.isMissionRound) {
       dispatch({ type: "REGISTER_TO_DEX" });
     }
@@ -762,7 +762,7 @@ function App() {
           onGoHome={handleGoHome}
           onBeginPrepare={() => dispatch({ type: "BEGIN_PREPARE", now: Date.now() })}
           onResetPizza={() => dispatch({ type: "RESET_PIZZA" })}
-          onConfirmMakingStep={() => dispatch({ type: "CONFIRM_MAKING_STEP" })}
+          onConfirmMakingStep={() => dispatch({ type: "CONFIRM_MAKING_STEP", now: Date.now() })}
           onStartBake={() => dispatch({ type: "START_BAKE", now: Date.now() })}
           onShowHint={() => dispatch({ type: "SHOW_HINT" })}
           onChangeCategory={handleChangeCategory}
