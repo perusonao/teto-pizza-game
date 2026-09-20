@@ -72,7 +72,14 @@ function resolveMissionConfig(): MissionConfig {
  *  IngredientTray is hidden entirely while `makingStep === "DOUGH"` (see GameScreen.tsx), so
  *  this value is never actually rendered for it; "sauce" is a harmless placeholder purely to
  *  keep this a total function without inventing a new `IngredientCategory`/widening that
- *  shared type (Issue #33 D1 Risk 1: keep `IngredientCategory` untouched). */
+ *  shared type (Issue #33 D1 Risk 1: keep `IngredientCategory` untouched).
+ *
+ *  Recipe Cooking Steps 1.0 Phase 1A (docs/design/TETO_RECIPE-COOKING-STEPS_1.0.md §8): `default`
+ *  covers the five widened `MakingStep` values (CUT/FOLD/SEAL/EDGE_FILL/FINISH) with the same
+ *  harmless "topping" placeholder DOUGH already used above -- no `CookingProfile` for any of the
+ *  15 shipped recipes ever produces one of these, and `IngredientTray` (the only consumer of
+ *  `activeCategory`) is hidden outside PREPARE, so this is exactly as unreachable as DOUGH's own
+ *  placeholder was before this phase, kept a total function ahead of each step's own UI. */
 function makingStepToCategory(step: MakingStep): IngredientCategory {
   switch (step) {
     case "DOUGH":
@@ -82,6 +89,8 @@ function makingStepToCategory(step: MakingStep): IngredientCategory {
     case "CHEESE":
       return "cheese";
     case "TOPPING":
+      return "topping";
+    default:
       return "topping";
   }
 }
