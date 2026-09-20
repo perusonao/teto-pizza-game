@@ -76,6 +76,20 @@ export const RECIPE_SAUCE_PROFILES: Readonly<Record<RecipeId, RecipeSauceProfile
     ingredientId: "tomato-sauce",
     interaction: "PAINT",
   },
+  // Recipe Expansion Batch 1B-A: pizza-bianca uses olive-oil (like quattro-formaggi/fugazza
+  // above), breakfast-pizza uses tomato-sauce, per the Fresh Recipe Master Catalog's own
+  // `sauce` field for each (see ../data/recipes.ts).
+  "pizza-bianca": {
+    recipeId: "pizza-bianca",
+    ingredientId: "olive-oil",
+    // TODO: olive-oil -> DRIZZLE candidate.
+    interaction: "PAINT_TEMPORARY",
+  },
+  "breakfast-pizza": {
+    recipeId: "breakfast-pizza",
+    ingredientId: "tomato-sauce",
+    interaction: "PAINT",
+  },
 };
 
 export function getRecipeSauceProfile(recipeId: RecipeId): RecipeSauceProfile {

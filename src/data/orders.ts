@@ -74,6 +74,18 @@ export const ORDERS: Order[] = [
     requestedBy: "mito",
     lineJa: "ツナとたまねぎのトンノ・エ・チポッラ、さっぱりしてておいしそう！食べてみたいな！",
   },
+  {
+    id: "order-pizza-bianca",
+    recipeId: "pizza-bianca",
+    requestedBy: "mito",
+    lineJa: "トマトソースを使わない白いピザがあるんだって！ピッツァ・ビアンカを作ってみて！",
+  },
+  {
+    id: "order-breakfast-pizza",
+    recipeId: "breakfast-pizza",
+    requestedBy: "mito",
+    lineJa: "たまごとベーコンがのったブレックファストピザ、朝ごはんみたいで気になるな！",
+  },
 ];
 
 /** Looks up the one Order for an explicit recipe id (Issue #39 Pizza Select: every recipe in

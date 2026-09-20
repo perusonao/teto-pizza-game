@@ -7,8 +7,8 @@
   "viableEntryCount": 51,
   "rejectedDuplicateCount": 2,
   "statusBreakdown": {
-    "verified_internal": 11,
-    "game_design_candidate": 17,
+    "verified_internal": 13,
+    "game_design_candidate": 15,
     "deferred": 5,
     "verification_pending": 18,
     "rejected_duplicate": 2
@@ -1380,21 +1380,24 @@
       ],
       "optionalIngredients": [],
       "finishingIngredients": [],
-      "bakeProfile": null,
+      "bakeProfile": {
+        "start": 50,
+        "end": 70
+      },
       "mechanics": [
         "spread",
         "scatter"
       ],
       "visualIdentity": "Minimal-ingredient 'sauceless' identity; cheapest possible new recipe (1 new ingredient).",
       "sourceReferences": [
-        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+        "internal://src/data/recipes.ts#pizza-bianca"
       ],
-      "verificationStatus": "game_design_candidate",
+      "verificationStatus": "verified_internal",
       "implementationClass": "B",
       "difficulty": 1,
       "progressionTier": "early",
-      "gameDesignStatus": "candidate",
-      "currentGameRecipe": false,
+      "gameDesignStatus": "shipped",
+      "currentGameRecipe": true,
       "rejectedDuplicateOf": null,
       "newIngredientsIntroduced": [
         "rosemary"
@@ -1660,21 +1663,24 @@
       ],
       "optionalIngredients": [],
       "finishingIngredients": [],
-      "bakeProfile": null,
+      "bakeProfile": {
+        "start": 56,
+        "end": 76
+      },
       "mechanics": [
         "spread",
         "scatter"
       ],
       "visualIdentity": "Zero new ingredients (egg reused from Bismarck, bacon from Meat Lovers).",
       "sourceReferences": [
-        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+        "internal://src/data/recipes.ts#breakfast-pizza"
       ],
-      "verificationStatus": "game_design_candidate",
+      "verificationStatus": "verified_internal",
       "implementationClass": "B",
       "difficulty": 2,
       "progressionTier": "mid",
-      "gameDesignStatus": "candidate",
-      "currentGameRecipe": false,
+      "gameDesignStatus": "shipped",
+      "currentGameRecipe": true,
       "rejectedDuplicateOf": null,
       "newIngredientsIntroduced": []
     },

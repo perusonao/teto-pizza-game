@@ -240,8 +240,21 @@ describe("Ingredient Palette: fixed 3x2 'Other' grid, no scroll (Human Feel Fix 
 });
 
 describe("Purchased onion stays reachable via page nav (Independent Review P1, PR #26)", () => {
-  const allToppingIds = ingredientsByCategory("topping").map((i) => i.id);
-  const sevenOwnedTopping = [...STARTER_INGREDIENT_IDS, ...allToppingIds];
+  // Recipe Expansion Batch 1A/1B-A grew the topping catalog to 13 -- "every topping" would no
+  // longer pin the original 7-owned/2-page boundary this suite exists to test (it'd instead be
+  // ceil(13/6)=3 pages), so this stays an explicit 7-topping list (the same original 6 from the
+  // "exactly 6 owned" case below, plus `onion` as the one revealed by page nav), matching that
+  // test's own already-established convention for the same reason.
+  const sevenOwnedTopping = [
+    ...STARTER_INGREDIENT_IDS,
+    "basil",
+    "garlic",
+    "oregano",
+    "cherry-tomato",
+    "egg",
+    "mushroom",
+    "onion",
+  ];
   const margherita = getRecipe("margherita");
   if (!margherita) throw new Error("margherita fixture missing");
   // Issue #86: margherita's own real `basil` requirement always claims one of the catalog's 7
