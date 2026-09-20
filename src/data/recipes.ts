@@ -192,7 +192,7 @@ export const RECIPES = [
     ],
     bakeTarget: { start: 62, end: 82 },
     baseRewardPitz: 100,
-    unlockCondition: { requiresRecipeId: "fugazza", minTotalStars: 16 },
+    unlockCondition: { requiresRecipeId: "fugazza", minTotalStars: 15 },
   },
   {
     id: "pepperoni",
@@ -206,7 +206,7 @@ export const RECIPES = [
     ],
     bakeTarget: { start: 60, end: 80 },
     baseRewardPitz: 100,
-    unlockCondition: { requiresRecipeId: "salsiccia", minTotalStars: 20 },
+    unlockCondition: { requiresRecipeId: "salsiccia", minTotalStars: 18 },
   },
   {
     id: "napoletana",
@@ -221,7 +221,7 @@ export const RECIPES = [
     ],
     bakeTarget: { start: 48, end: 68 },
     baseRewardPitz: 100,
-    unlockCondition: { requiresRecipeId: "pepperoni", minTotalStars: 24 },
+    unlockCondition: { requiresRecipeId: "pepperoni", minTotalStars: 21 },
   },
   {
     id: "tonno-e-cipolla",
@@ -236,7 +236,7 @@ export const RECIPES = [
     ],
     bakeTarget: { start: 55, end: 75 },
     baseRewardPitz: 100,
-    unlockCondition: { requiresRecipeId: "napoletana", minTotalStars: 28 },
+    unlockCondition: { requiresRecipeId: "napoletana", minTotalStars: 24 },
   },
   /**
    * Recipe Expansion Batch 1B-A (see docs/reports/TETO_RECIPE-EXPANSION_BATCH-1B-A_Result.md,
@@ -248,10 +248,14 @@ export const RECIPES = [
    * `spread`/`scatter`). Each `minCount`/`bakeTarget` is a Batch 1B-A-original decision (the
    * catalog's own entries do not fix production values for either field), sized to match the
    * existing recipes' own scatter density and bake-target span conventions. `unlockCondition`/
-   * chain order continues the exact same provisional +4 minTotalStars step Batch 1A's own chain
-   * established (16 -> 20 -> 24 -> 28 -> 32 -> 36); neither sets `mysteryLock` (フガッサ's "big
-   * reveal" stays a one-off). `baseRewardPitz: 100` matches every other recipe (Issue #38 V1:
-   * no difficulty-based reward differentiation without Human Feel evidence).
+   * chain order originally continued the same provisional +4 minTotalStars step Batch 1A's own
+   * chain established (16 -> 20 -> 24 -> 28 -> 32 -> 36); Progression Tuning 1 (see
+   * docs/reports/TETO_PROGRESSION-TUNING-1_Result.md) retuned this to a flat +3 step (15 -> 18
+   * -> 21 -> 24 -> 27 -> 30) to fix a compounding totalStars shortfall the +4 step created for a
+   * player whose Dex BEST never exceeds ★3 -- see that report for the full analysis. Neither sets
+   * `mysteryLock` (フガッサ's "big reveal" stays a one-off). `baseRewardPitz: 100` matches every
+   * other recipe (Issue #38 V1: no difficulty-based reward differentiation without Human Feel
+   * evidence).
    *
    * `pizza-bianca` deliberately has no tomato-sauce requirement -- its sauce ingredient is
    * `olive-oil`, exactly like the already-shipped `fugazza` (see that recipe's own comment
@@ -271,7 +275,7 @@ export const RECIPES = [
     ],
     bakeTarget: { start: 50, end: 70 },
     baseRewardPitz: 100,
-    unlockCondition: { requiresRecipeId: "tonno-e-cipolla", minTotalStars: 32 },
+    unlockCondition: { requiresRecipeId: "tonno-e-cipolla", minTotalStars: 27 },
   },
   {
     id: "breakfast-pizza",
@@ -286,7 +290,7 @@ export const RECIPES = [
     ],
     bakeTarget: { start: 56, end: 76 },
     baseRewardPitz: 100,
-    unlockCondition: { requiresRecipeId: "pizza-bianca", minTotalStars: 36 },
+    unlockCondition: { requiresRecipeId: "pizza-bianca", minTotalStars: 30 },
   },
   /**
    * Recipe Expansion Batch 1B-B (see docs/reports/TETO_RECIPE-EXPANSION_BATCH-1B-B_Result.md,
@@ -308,8 +312,10 @@ export const RECIPES = [
    * un-rebalanced 10-piece proposal would silently wrap and collide in that shared 8-slot ring
    * (src/data/playerReference.ts's per-recipe layout, reused by PizzaThumbnail's card preview
    * for every recipe), which this task avoids touching rather than growing to fit one recipe.
-   * `unlockCondition`/chain order continues the exact same provisional +4 minTotalStars step
-   * Batch 1A's own chain established (16 -> 20 -> 24 -> 28 -> 32 -> 36 -> 40); no `mysteryLock`
+   * `unlockCondition`/chain order originally continued the same provisional +4 minTotalStars step
+   * Batch 1A's own chain established (16 -> 20 -> 24 -> 28 -> 32 -> 36 -> 40); Progression Tuning
+   * 1 (see docs/reports/TETO_PROGRESSION-TUNING-1_Result.md) retuned this to a flat +3 step
+   * (15 -> 18 -> 21 -> 24 -> 27 -> 30 -> 33). No `mysteryLock`
    * (フガッサ's "big reveal" stays a one-off). `baseRewardPitz: 100` matches every other recipe
    * (Issue #38 V1: no difficulty-based reward differentiation without Human Feel evidence).
    */
@@ -328,7 +334,7 @@ export const RECIPES = [
     ],
     bakeTarget: { start: 58, end: 78 },
     baseRewardPitz: 100,
-    unlockCondition: { requiresRecipeId: "breakfast-pizza", minTotalStars: 40 },
+    unlockCondition: { requiresRecipeId: "breakfast-pizza", minTotalStars: 33 },
   },
   /**
    * Recipe Expansion Batch 1B-C (see docs/reports/TETO_RECIPE-EXPANSION_BATCH-1B-C_Result.md):
@@ -344,9 +350,13 @@ export const RECIPES = [
    * shared 8-slot ceiling (../logic/pizzaReferenceLayout.ts) capricciosa already reaches, this
    * task's own reference-capacity gate re-confirmed safe for this composition (see the Result
    * Report's Section 2 audit) before authoring this entry. `unlockCondition`/chain order
-   * continues the exact same provisional +4 minTotalStars step Batch 1A's own chain established
-   * (16 -> 20 -> 24 -> 28 -> 32 -> 36 -> 40 -> 44); no `mysteryLock` (フガッサ's "big reveal"
-   * stays a one-off). `baseRewardPitz: 100` matches every other recipe (Issue #38 V1: no
+   * originally continued the same provisional +4 minTotalStars step Batch 1A's own chain
+   * established (16 -> 20 -> 24 -> 28 -> 32 -> 36 -> 40 -> 44); Progression Tuning 1 (see
+   * docs/reports/TETO_PROGRESSION-TUNING-1_Result.md) retuned this to a flat +3 step (15 -> 18
+   * -> 21 -> 24 -> 27 -> 30 -> 33 -> 36) to fix a compounding totalStars shortfall the +4 step
+   * created for a player whose Dex BEST never exceeds ★3 -- see that report for the full
+   * analysis. No `mysteryLock` (フガッサ's "big reveal" stays a one-off). `baseRewardPitz: 100`
+   * matches every other recipe (Issue #38 V1: no
    * difficulty-based reward differentiation without Human Feel evidence).
    *
    * `supreme`, the catalog's other Batch 1B-C candidate, is deliberately NOT added here: it has
@@ -375,7 +385,7 @@ export const RECIPES = [
     ],
     bakeTarget: { start: 60, end: 80 },
     baseRewardPitz: 100,
-    unlockCondition: { requiresRecipeId: "capricciosa", minTotalStars: 44 },
+    unlockCondition: { requiresRecipeId: "capricciosa", minTotalStars: 36 },
   },
 ] as const;
 

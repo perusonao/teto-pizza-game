@@ -198,9 +198,9 @@ describe("RECIPES (Phase 3C-6: fugazza is Recipe #7; Batch 1A adds #8-#11; Batch
       expect(nonSauceCount).toBe(8);
     });
 
-    it("chains after breakfast-pizza, the last Batch 1B-A recipe, at 40 totalStars", () => {
+    it("chains after breakfast-pizza, the last Batch 1B-A recipe, at 33 totalStars (Progression Tuning 1)", () => {
       expect(recipe?.unlockCondition?.requiresRecipeId).toBe("breakfast-pizza");
-      expect(recipe?.unlockCondition?.minTotalStars).toBe(40);
+      expect(recipe?.unlockCondition?.minTotalStars).toBe(33);
     });
   });
 
@@ -238,9 +238,9 @@ describe("RECIPES (Phase 3C-6: fugazza is Recipe #7; Batch 1A adds #8-#11; Batch
       expect(nonSauceCount).toBe(8);
     });
 
-    it("chains after capricciosa, the last Batch 1B-B recipe, at 44 totalStars", () => {
+    it("chains after capricciosa, the last Batch 1B-B recipe, at 36 totalStars (Progression Tuning 1)", () => {
       expect(recipe?.unlockCondition?.requiresRecipeId).toBe("capricciosa");
-      expect(recipe?.unlockCondition?.minTotalStars).toBe(44);
+      expect(recipe?.unlockCondition?.minTotalStars).toBe(36);
     });
 
     it("has no Supreme entry in RECIPES -- deferred per the reference-capacity gate (see the Result Report)", () => {
