@@ -222,6 +222,63 @@ describe("missionRunReducer", () => {
     expect(afterOne.mode).toBe("PLAYING");
   });
 
+  // Lunch Rush Completion Gate 1A: `completionFailed` (App.tsx's read of `state.completion`,
+  // ../logic/completionGate.ts) must leave metrics completely untouched -- a FAILED order
+  // never becomes a counted serve, no matter what `qualityTotal` it was dispatched with (App.tsx
+  // always forces it to 0, but the reducer itself does not trust the caller for this -- see
+  // this case's own comment in lunchRush.ts).
+  describe("SERVE with completionFailed", () => {
+    const playing: MissionState = {
+      mode: "PLAYING",
+      clock: startMissionClock(0, { durationSeconds: 60 }),
+      metrics: { servedCount: 0, totalQualityScore: 0, bestQualityScore: 0 },
+      runId: 0,
+    };
+
+    it("leaves metrics untouched (servedCount/totalQualityScore/bestQualityScore all stay 0)", () => {
+      const next = missionRunReducer(playing, {
+        type: "SERVE",
+        qualityTotal: 0,
+        completionFailed: true,
+        now: 1_000,
+      });
+      expect(next.metrics).toEqual({ servedCount: 0, totalQualityScore: 0, bestQualityScore: 0 });
+      expect(next.mode).toBe("PLAYING");
+    });
+
+    it("stays untouched even if a non-zero qualityTotal were passed alongside it", () => {
+      const next = missionRunReducer(playing, {
+        type: "SERVE",
+        qualityTotal: 95,
+        completionFailed: true,
+        now: 1_000,
+      });
+      expect(next.metrics).toEqual({ servedCount: 0, totalQualityScore: 0, bestQualityScore: 0 });
+    });
+
+    it("a FAILED serve does not reset metrics a PASS serve already accumulated", () => {
+      const afterPass = missionRunReducer(playing, { type: "SERVE", qualityTotal: 60, now: 1_000 });
+      const afterFailed = missionRunReducer(afterPass, {
+        type: "SERVE",
+        qualityTotal: 0,
+        completionFailed: true,
+        now: 2_000,
+      });
+      expect(afterFailed.metrics).toEqual({ servedCount: 1, totalQualityScore: 60, bestQualityScore: 60 });
+    });
+
+    it("still ends the run one-shot if the deadline has already passed, same as a normal SERVE", () => {
+      const next = missionRunReducer(playing, {
+        type: "SERVE",
+        qualityTotal: 0,
+        completionFailed: true,
+        now: 60_000,
+      });
+      expect(next.mode).toBe("RESULT");
+      expect(next.metrics).toEqual({ servedCount: 0, totalQualityScore: 0, bestQualityScore: 0 });
+    });
+  });
+
   it("SERVE is a no-op outside of PLAYING (e.g. FREE, INTRO, RESULT)", () => {
     for (const mode of ["FREE", "INTRO", "RESULT"] as const) {
       const state: MissionState = {
