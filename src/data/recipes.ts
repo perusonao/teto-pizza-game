@@ -330,6 +330,53 @@ export const RECIPES = [
     baseRewardPitz: 100,
     unlockCondition: { requiresRecipeId: "breakfast-pizza", minTotalStars: 40 },
   },
+  /**
+   * Recipe Expansion Batch 1B-C (see docs/reports/TETO_RECIPE-EXPANSION_BATCH-1B-C_Result.md):
+   * the 4th recipe drawn from the Fresh Recipe Master Catalog's Batch 1B candidate pool --
+   * `id`/`nameJa`/`requiredIngredients`' ingredient ids are taken verbatim from
+   * `data/recipes/pizza_master_catalog.json`'s own `meat-lovers` entry (`implementationClass:
+   * "B"` -- zero new ingredient data, zero new mechanic; every one of bacon/ham/mozzarella/
+   * pepperoni/sausage/tomato-sauce already shipped in an earlier batch). `bakeProfile` was null
+   * in the catalog (like pizza-bianca/breakfast-pizza before it), so `bakeTarget` is a Batch
+   * 1B-C-original decision matching the existing tomato-sauce recipes' own span convention.
+   * `minCount` (mozzarella x2, bacon x2, ham x1, pepperoni x1, sausage x2) is sized to exactly
+   * 8 total non-sauce pieces across 5 ingredient types -- the same `PIECE_RING_POSITIONS`
+   * shared 8-slot ceiling (../logic/pizzaReferenceLayout.ts) capricciosa already reaches, this
+   * task's own reference-capacity gate re-confirmed safe for this composition (see the Result
+   * Report's Section 2 audit) before authoring this entry. `unlockCondition`/chain order
+   * continues the exact same provisional +4 minTotalStars step Batch 1A's own chain established
+   * (16 -> 20 -> 24 -> 28 -> 32 -> 36 -> 40 -> 44); no `mysteryLock` (フガッサ's "big reveal"
+   * stays a one-off). `baseRewardPitz: 100` matches every other recipe (Issue #38 V1: no
+   * difficulty-based reward differentiation without Human Feel evidence).
+   *
+   * `supreme`, the catalog's other Batch 1B-C candidate, is deliberately NOT added here: it has
+   * 7 non-sauce ingredient types (mozzarella/bell-pepper/black-olive/mushroom/onion/pepperoni/
+   * sausage), so even a minimum minCount of 1 per type already uses 7 of the shared ring's 8
+   * slots, leaving room for only one ingredient to ever exceed a single visible piece --
+   * thinner than every other production recipe's 2-4-piece scatter density (capricciosa's own
+   * 5-type/8-piece composition is the previous ceiling). Growing `PIECE_RING_POSITIONS` itself
+   * to fit one recipe is exactly the "大規模reference redesign" this task's own gate forbids
+   * doing unilaterally, so Supreme is deferred rather than shipped as an unnaturally thin
+   * "one of everything" pizza -- see the Result Report's Section 2/Final Verdict for the full
+   * capacity audit.
+   */
+  {
+    id: "meat-lovers",
+    nameJa: "ミートラヴァーズ",
+    description:
+      "トマトソースとモッツァレラに、ベーコン・ハム・ペパロニ・ソーセージをたっぷりのせた、お肉好きにはたまらない一枚。",
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "bacon", minCount: 2 },
+      { ingredientId: "ham", minCount: 1 },
+      { ingredientId: "pepperoni", minCount: 1 },
+      { ingredientId: "sausage", minCount: 2 },
+    ],
+    bakeTarget: { start: 60, end: 80 },
+    baseRewardPitz: 100,
+    unlockCondition: { requiresRecipeId: "capricciosa", minTotalStars: 44 },
+  },
 ] as const;
 
 /** Derived from RECIPES above so this union can never drift out of sync with

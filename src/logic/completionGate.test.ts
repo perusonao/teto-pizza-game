@@ -204,9 +204,9 @@ describe("evaluatePizzaCompletion", () => {
     expect(result.status).toBe("FAILED");
   });
 
-  it("27. all 14 recipes can be evaluated by the Completion Gate (PASS for an ideal pizza, FAILED for an empty one)", () => {
+  it("27. all 15 recipes can be evaluated by the Completion Gate (PASS for an ideal pizza, FAILED for an empty one)", () => {
     const allIds: readonly RecipeId[] = RECIPES.map((r) => r.id);
-    expect(allIds.length).toBe(14);
+    expect(allIds.length).toBe(15);
     for (const id of allIds) {
       const recipe = getRecipe(id)!;
       const reference = getReferencePizza(id);

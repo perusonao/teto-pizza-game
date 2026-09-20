@@ -858,6 +858,88 @@ export const CAPRICCIOSA_REFERENCE: ReferencePizza = {
   ],
 };
 
+/**
+ * Recipe Expansion Batch 1B-C: positions reuse the exact same 8-point octagon geometry as
+ * `PIECE_RING_POSITIONS` (../logic/pizzaReferenceLayout.ts, also what
+ * `playerReference.ts`'s independent player-facing reference generator walks for this same
+ * recipe) -- already proven collision-free and within dough bounds for an 8-piece recipe
+ * (quattro-formaggi/capricciosa reach the same 8-piece ceiling). Reusing it here is a
+ * coordinate choice, not a dependency: this file stays fully independent of
+ * `pizzaReferenceLayout.ts`/`playerReference.ts` (see this file's own header comment), it
+ * simply reaches the same well-spaced 8-point layout by hand for the same reason that file's
+ * generator does -- 8 non-overlapping points spread evenly across the dough.
+ */
+export const MEAT_LOVERS_REFERENCE: ReferencePizza = {
+  recipeId: "meat-lovers",
+  sauce: computeMechanicalSauceReference("meat-lovers"),
+  pieceGroups: [
+    {
+      ingredientId: "mozzarella",
+      positions: [
+        { x: 50, y: 24 },
+        { x: 73, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "bacon",
+      positions: [
+        { x: 76, y: 63 },
+        { x: 58, y: 79 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "ham",
+      positions: [{ x: 38, y: 79 }],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "pepperoni",
+      positions: [{ x: 22, y: 63 }],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "sausage",
+      positions: [
+        { x: 25, y: 36 },
+        { x: 50, y: 52 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
 const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [MARGHERITA_REFERENCE.recipeId, MARGHERITA_REFERENCE],
   [MARINARA_REFERENCE.recipeId, MARINARA_REFERENCE],
@@ -873,6 +955,7 @@ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [PIZZA_BIANCA_REFERENCE.recipeId, PIZZA_BIANCA_REFERENCE],
   [BREAKFAST_PIZZA_REFERENCE.recipeId, BREAKFAST_PIZZA_REFERENCE],
   [CAPRICCIOSA_REFERENCE.recipeId, CAPRICCIOSA_REFERENCE],
+  [MEAT_LOVERS_REFERENCE.recipeId, MEAT_LOVERS_REFERENCE],
 ]);
 
 /**

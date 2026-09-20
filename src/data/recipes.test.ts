@@ -50,9 +50,14 @@ const BATCH_1B_A_RECIPE_IDS: readonly RecipeId[] = ["pizza-bianca", "breakfast-p
  *  the 1 new recipe appended after Batch 1B-A's own chain. */
 const BATCH_1B_B_RECIPE_IDS: readonly RecipeId[] = ["capricciosa"];
 
-describe("RECIPES (Phase 3C-6: fugazza is Recipe #7; Batch 1A adds #8-#11; Batch 1B-A adds #12-#13; Batch 1B-B adds #14)", () => {
-  it("has exactly 14 recipes total (7 shipped + Batch 1A's 4 + Batch 1B-A's 2 + Batch 1B-B's 1)", () => {
-    expect(RECIPES).toHaveLength(14);
+/** Recipe Expansion Batch 1B-C (docs/reports/TETO_RECIPE-EXPANSION_BATCH-1B-C_Result.md):
+ *  the 1 new recipe appended after Batch 1B-B's own chain (Supreme deferred -- see that
+ *  report's Section 2/Final Verdict). */
+const BATCH_1B_C_RECIPE_IDS: readonly RecipeId[] = ["meat-lovers"];
+
+describe("RECIPES (Phase 3C-6: fugazza is Recipe #7; Batch 1A adds #8-#11; Batch 1B-A adds #12-#13; Batch 1B-B adds #14; Batch 1B-C adds #15)", () => {
+  it("has exactly 15 recipes total (7 shipped + Batch 1A's 4 + Batch 1B-A's 2 + Batch 1B-B's 1 + Batch 1B-C's 1)", () => {
+    expect(RECIPES).toHaveLength(15);
   });
 
   it("the pre-Batch-1A Starter 6 + fugazza are unchanged", () => {
@@ -62,14 +67,15 @@ describe("RECIPES (Phase 3C-6: fugazza is Recipe #7; Batch 1A adds #8-#11; Batch
           r.id !== "fugazza" &&
           !BATCH_1A_RECIPE_IDS.includes(r.id) &&
           !BATCH_1B_A_RECIPE_IDS.includes(r.id) &&
-          !BATCH_1B_B_RECIPE_IDS.includes(r.id),
+          !BATCH_1B_B_RECIPE_IDS.includes(r.id) &&
+          !BATCH_1B_C_RECIPE_IDS.includes(r.id),
       )
         .map((r) => r.id)
         .sort(),
     ).toEqual([...STARTER_RECIPE_IDS].sort());
   });
 
-  it("Batch 1A's 4 recipes exist exactly once each, ids unique across all 14", () => {
+  it("Batch 1A's 4 recipes exist exactly once each, ids unique across all 15", () => {
     for (const id of BATCH_1A_RECIPE_IDS) {
       expect(RECIPES.filter((r) => r.id === id)).toHaveLength(1);
     }
@@ -84,6 +90,12 @@ describe("RECIPES (Phase 3C-6: fugazza is Recipe #7; Batch 1A adds #8-#11; Batch
 
   it("Batch 1B-B's 1 recipe exists exactly once, chained after Batch 1B-A", () => {
     for (const id of BATCH_1B_B_RECIPE_IDS) {
+      expect(RECIPES.filter((r) => r.id === id)).toHaveLength(1);
+    }
+  });
+
+  it("Batch 1B-C's 1 recipe exists exactly once, chained after Batch 1B-B", () => {
+    for (const id of BATCH_1B_C_RECIPE_IDS) {
       expect(RECIPES.filter((r) => r.id === id)).toHaveLength(1);
     }
   });
@@ -189,6 +201,51 @@ describe("RECIPES (Phase 3C-6: fugazza is Recipe #7; Batch 1A adds #8-#11; Batch
     it("chains after breakfast-pizza, the last Batch 1B-A recipe, at 40 totalStars", () => {
       expect(recipe?.unlockCondition?.requiresRecipeId).toBe("breakfast-pizza");
       expect(recipe?.unlockCondition?.minTotalStars).toBe(40);
+    });
+  });
+
+  describe.each(BATCH_1B_C_RECIPE_IDS)("%s (Batch 1B-C)", (id) => {
+    it("exists, uses only existing spread/scatter mechanics ingredients, and has a valid bake target", () => {
+      const r = getRecipe(id);
+      expect(r).toBeDefined();
+      expect(r!.requiredIngredients.length).toBeGreaterThan(0);
+      expect(r!.bakeTarget.start).toBeLessThan(r!.bakeTarget.end);
+      expect(r!.bakeTarget.start).toBeGreaterThan(0);
+      expect(r!.bakeTarget.end).toBeLessThan(100);
+      expect(r!.baseRewardPitz).toBe(100);
+    });
+
+    it("has a chain unlockCondition (never available from a fresh save)", () => {
+      const r = getRecipe(id);
+      expect(r!.unlockCondition?.requiresRecipeId).toBeDefined();
+      expect(r!.unlockCondition?.minTotalStars).toBeGreaterThan(0);
+    });
+  });
+
+  describe("meat-lovers (Batch 1B-C)", () => {
+    const recipe = getRecipe("meat-lovers");
+
+    it("requires tomato-sauce + mozzarella + bacon + ham + pepperoni + sausage (exactly 6 ingredients, zero new ingredient data)", () => {
+      expect(recipe?.requiredIngredients.map((r) => r.ingredientId).sort()).toEqual(
+        ["bacon", "ham", "mozzarella", "pepperoni", "sausage", "tomato-sauce"].sort(),
+      );
+    });
+
+    it("has exactly 8 total non-sauce pieces (fits the player-reference ring's 8-slot ceiling)", () => {
+      const nonSauceCount = recipe!.requiredIngredients
+        .filter((r) => r.ingredientId !== "tomato-sauce")
+        .reduce((sum, r) => sum + r.minCount, 0);
+      expect(nonSauceCount).toBe(8);
+    });
+
+    it("chains after capricciosa, the last Batch 1B-B recipe, at 44 totalStars", () => {
+      expect(recipe?.unlockCondition?.requiresRecipeId).toBe("capricciosa");
+      expect(recipe?.unlockCondition?.minTotalStars).toBe(44);
+    });
+
+    it("has no Supreme entry in RECIPES -- deferred per the reference-capacity gate (see the Result Report)", () => {
+      const ids: readonly string[] = RECIPES.map((r) => r.id);
+      expect(ids.includes("supreme")).toBe(false);
     });
   });
 

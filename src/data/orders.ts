@@ -92,6 +92,12 @@ export const ORDERS: Order[] = [
     requestedBy: "mito",
     lineJa: "ハムとブラックオリーブがのった具だくさんのカプリチョーザが食べたいな！",
   },
+  {
+    id: "order-meat-lovers",
+    recipeId: "meat-lovers",
+    requestedBy: "mito",
+    lineJa: "お肉たっぷりのミートラヴァーズが食べたいな！ベーコンもハムもペパロニもソーセージも全部のせて！",
+  },
 ];
 
 /** Looks up the one Order for an explicit recipe id (Issue #39 Pizza Select: every recipe in
