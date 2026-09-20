@@ -5,6 +5,7 @@ import { ResultPanel } from "./ResultPanel";
 import type { ScoreBreakdown } from "../logic/scoring";
 import type { PitzCredit } from "../logic/pitzReward";
 import type { CookingEfficiencyCredit } from "../logic/efficiency";
+import type { CutEvaluation } from "../logic/cut/types";
 
 /**
  * A1 Authority Cutover: ResultPanel gained a 4th feedback row ("ソース") so Scoring 2.0's Sauce
@@ -220,6 +221,77 @@ describe("ResultPanel", () => {
     expect(screen.queryByText("手際ボーナス")).not.toBeInTheDocument();
     expect(screen.queryByText(/\+42 Pitz/)).not.toBeInTheDocument();
     expect(screen.queryByText(/\+10 Pitz/)).not.toBeInTheDocument();
+  });
+
+  // Pizza Cutting 1.0 Phase 3 (docs/design/TETO_PIZZA-CUTTING_1.0.md §14 Option D / RESULT UI
+  // section): the CUT evaluation preview, standalone and never folded into score.total.
+  function baseCutEvaluation(overrides: Partial<CutEvaluation> = {}): CutEvaluation {
+    return {
+      requestedSliceCount: 6,
+      completedCutCount: 3,
+      actualPieceCount: 6,
+      pieceAreas: [1, 1, 1, 1, 1, 1],
+      countCorrectness: 1,
+      completeness: 1,
+      centerAccuracy: 0.97,
+      uniformity: 0.93,
+      cutScore: 96,
+      ...overrides,
+    };
+  }
+
+  it("renders the CUT evaluation summary (score, slice count, and the three player-facing signals) when provided", () => {
+    render(<ResultPanel {...baseProps()} cutEvaluation={baseCutEvaluation()} />);
+    expect(screen.getByText(/カット/)).toBeInTheDocument();
+    expect(screen.getByText("96点")).toBeInTheDocument();
+    expect(screen.getByText(/6等分/)).toBeInTheDocument();
+    expect(screen.getByText("均等さ")).toBeInTheDocument();
+    expect(screen.getByText("93")).toBeInTheDocument();
+    expect(screen.getByText("中心")).toBeInTheDocument();
+    expect(screen.getByText("97")).toBeInTheDocument();
+    expect(screen.getByText("切り分け")).toBeInTheDocument();
+    expect(screen.getByText("100")).toBeInTheDocument();
+  });
+
+  it("never shows raw technical terms (uniformity/centerAccuracy/completeness) as player-facing text", () => {
+    render(<ResultPanel {...baseProps()} cutEvaluation={baseCutEvaluation()} />);
+    expect(screen.queryByText(/uniformity/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/centerAccuracy/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/completeness/i)).not.toBeInTheDocument();
+  });
+
+  it("shows the mismatch against the requested slice count when actualPieceCount differs", () => {
+    render(
+      <ResultPanel
+        {...baseProps()}
+        cutEvaluation={baseCutEvaluation({ actualPieceCount: 7, requestedSliceCount: 6 })}
+      />,
+    );
+    expect(screen.getByText(/7等分/)).toBeInTheDocument();
+    expect(screen.getByText(/目標 6等分/)).toBeInTheDocument();
+  });
+
+  it("omits the CUT evaluation summary for a non-CUT recipe (cutEvaluation null)", () => {
+    render(<ResultPanel {...baseProps()} cutEvaluation={null} />);
+    expect(document.querySelector(".cut-evaluation-summary")).not.toBeInTheDocument();
+    expect(screen.queryByText(/カット/)).not.toBeInTheDocument();
+  });
+
+  it("omits the CUT evaluation summary when the prop is not passed at all (existing call sites)", () => {
+    render(<ResultPanel {...baseProps()} />);
+    expect(document.querySelector(".cut-evaluation-summary")).not.toBeInTheDocument();
+  });
+
+  it("FAILED never renders the CUT evaluation summary, even if cutEvaluation is (incorrectly) non-null", () => {
+    render(
+      <ResultPanel
+        {...baseProps()}
+        completion={{ status: "FAILED", reason: "UNDERBAKED", failures: [{ reason: "UNDERBAKED" }] }}
+        cutEvaluation={baseCutEvaluation()}
+      />,
+    );
+    expect(screen.getByText("失敗")).toBeInTheDocument();
+    expect(document.querySelector(".cut-evaluation-summary")).not.toBeInTheDocument();
   });
 
   it("wires the retry-same-recipe and back-to-select CTAs", () => {

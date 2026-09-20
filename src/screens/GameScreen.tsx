@@ -17,6 +17,7 @@ import { PlayerReferencePreview } from "../components/PlayerReferencePreview";
 import { PizzaThumbnail } from "../components/PizzaThumbnail";
 import { SauceMetricsPanel } from "../components/SauceMetricsPanel";
 import { ScoringV2DebugPanel } from "../components/ScoringV2DebugPanel";
+import { CutDebugPanel } from "../components/CutDebugPanel";
 import type { ReferencePizza } from "../data/referencePizza";
 import { getPlayerReferencePizza } from "../data/playerReference";
 import type { SauceMetrics } from "../logic/sauceField";
@@ -558,6 +559,7 @@ export function GameScreen({
           pitzCredit={state.lastPitzCredit}
           efficiencyCredit={state.lastEfficiencyCredit}
           starterGrantNotice={state.lastStarterGrantNotice}
+          cutEvaluation={state.cutState.evaluation}
           onRetrySameRecipe={onRetrySameRecipe}
           onBackToPizzaSelect={onBackToPizzaSelect}
         />
@@ -570,6 +572,14 @@ export function GameScreen({
           Mission's still-separate RESULT (`isMissionPlaying`, MissionServePanel) is unchanged. */}
       {(isFreeResultScreen || (state.phase === "RESULT" && isMissionPlaying)) && (
         <ScoringV2DebugPanel result={state.scoringV2Result} />
+      )}
+
+      {/* Pizza Cutting 1.0 Phase 3 (design doc §18): CUT's own Preview-only debug panel,
+          same gating condition/contract as ScoringV2DebugPanel above -- `evaluation` is `null`
+          for every non-CUT recipe and any round that hasn't confirmed CUT yet, so this
+          renders nothing then (CutDebugPanel.tsx's own guard). */}
+      {(isFreeResultScreen || (state.phase === "RESULT" && isMissionPlaying)) && (
+        <CutDebugPanel evaluation={state.cutState.evaluation} />
       )}
 
       {mission.mode === "INTRO" && (

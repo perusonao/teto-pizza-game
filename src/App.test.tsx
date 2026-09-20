@@ -709,6 +709,69 @@ describe("HOME/GAME separation (Issue #24)", () => {
     // reference stage (the task's own "Preserve player pizza" requirement).
     const pizzaAfterConfirm = document.querySelector(".pizza-stage .pizza-dough");
     expect(pizzaAfterConfirm).toBe(pizzaBeforeConfirm);
+
+    // Pizza Cutting 1.0 Phase 3: bismarck's own profile never includes CUT (Phase 2 activated
+    // it on margherita only) -- its RESULT must never show a CUT evaluation card, not even an
+    // empty/zero one (the task's own "非CUTレシピでは...0点表示をしない" requirement).
+    expect(document.querySelector(".cut-evaluation-summary")).not.toBeInTheDocument();
+    expect(screen.queryByText(/カット/)).not.toBeInTheDocument();
+  });
+
+  // Pizza Cutting 1.0 Phase 3 (docs/design/TETO_PIZZA-CUTTING_1.0.md §14 Option D / RESULT UI
+  // section): the real BAKE -> POST_BAKE(CUT) -> RESULT walkthrough, driven through the actual
+  // UI (real pointer gestures via `completeCutStepIfPresent`, not a synthetic reducer dispatch)
+  // for margherita -- the one recipe Phase 2 activated CUT on and this repo's own default/
+  // first recipe. Confirms the CUT evaluation card renders on RESULT with player-facing
+  // Japanese labels, never the four raw technical signal names, and never perturbs the
+  // existing stars/score/Pitz headline.
+  it("Pizza Cutting Phase 3: margherita's RESULT shows the CUT evaluation card after a real CUT walkthrough", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
+    await selectRecipeInPizzaSelect(user, "margherita");
+    completeDoughStep();
+    await user.click(screen.getByRole("button", { name: /次へ/ })); // DOUGH -> SAUCE
+    await paintSauceRing(user, "トマトソース", 25, 16);
+    await user.click(screen.getByRole("button", { name: /次へ/ })); // SAUCE -> CHEESE
+    await selectAndTapPizza(user, "モッツァレラ", 40, 50);
+    await selectAndTapPizza(user, "モッツァレラ", 60, 50);
+    await selectAndTapPizza(user, "モッツァレラ", 50, 30);
+    await user.click(screen.getByRole("button", { name: /次へ/ })); // CHEESE -> TOPPING
+    await selectAndTapPizza(user, "バジル", 45, 55);
+    await selectAndTapPizza(user, "バジル", 55, 45);
+
+    const needle = controlBakeNeedle();
+    needle.stub();
+    await user.click(screen.getByRole("button", { name: /焼く/ }));
+    // margherita's bakeTarget is {60, 80} -- 70 sits in the middle of the perfect zone.
+    needle.driveTo(70);
+    await user.click(screen.getByRole("button", { name: "取り出す！" }));
+    needle.unstub();
+
+    // Lands on POST_BAKE/CUT, not RESULT yet -- the RESULT screen/CTAs aren't reachable until
+    // CUT itself confirms.
+    expect(screen.getByRole("button", { name: /切り終わる/ })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "もう一度つくる" })).not.toBeInTheDocument();
+
+    await completeCutStepIfPresent(user);
+
+    expect(screen.getByRole("button", { name: "もう一度つくる" })).toBeInTheDocument();
+    const cutCard = document.querySelector(".cut-evaluation-summary");
+    expect(cutCard).toBeInTheDocument();
+    expect(cutCard).toHaveTextContent(/カット/);
+    expect(cutCard).toHaveTextContent(/点/);
+    expect(cutCard).toHaveTextContent("均等さ");
+    expect(cutCard).toHaveTextContent("中心");
+    expect(cutCard).toHaveTextContent("切り分け");
+    // Never a raw technical term leaking into player-facing text.
+    expect(cutCard).not.toHaveTextContent(/uniformity/i);
+    expect(cutCard).not.toHaveTextContent(/centerAccuracy/i);
+    expect(cutCard).not.toHaveTextContent(/completeness/i);
+
+    // The existing quality headline (stars/score) is untouched by CUT -- still rendered,
+    // still the same component, never replaced or perturbed by the new card above it.
+    expect(document.querySelector(".result-panel__stars")).toBeInTheDocument();
+    expect(document.querySelector(".result-panel__score")).toBeInTheDocument();
   });
 
   it("「もう一度つくる」retries the exact same recipe with a fresh pizza (Finding D)", async () => {

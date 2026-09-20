@@ -5,6 +5,7 @@ import { EFFICIENCY_TIER_LABEL_JA, formatCookingTime, type CookingEfficiencyCred
 import type { StarterGrantNotice } from "../state/starterStock";
 import type { PizzaCompletionResult } from "../logic/completionGate";
 import { buildCompletionFailureMessage } from "../data/completionMessages";
+import type { CutEvaluation } from "../logic/cut/types";
 
 interface ResultPanelProps {
   /** Completion Gate Phase 1: when this is `{ status: "FAILED" }`, every prop below except
@@ -54,6 +55,16 @@ interface ResultPanelProps {
    *  margherita (never granted), an already-claimed recipe, or a reload/replay (transient,
    *  reset every fresh round, see ../state/gameReducer.ts's own doc comment for the field). */
   starterGrantNotice: StarterGrantNotice | null;
+  /** Pizza Cutting 1.0 Phase 3 (docs/design/TETO_PIZZA-CUTTING_1.0.md §14 Option D): the CUT
+   *  step's own standalone evaluation preview, read directly from `state.cutState.evaluation`
+   *  (GameScreen.tsx). `null`/`undefined` for every one of the 14 recipes whose profile never
+   *  includes CUT, and for any round that hasn't confirmed CUT yet -- this block simply omits
+   *  itself in either case (never a fabricated/zero CUT row), matching `sauceScore`'s own
+   *  "omit, don't fabricate" convention above. Optional purely so this component's existing
+   *  test call sites that predate Phase 3 keep compiling unchanged, same discipline as
+   *  `efficiencyCredit`. Never folded into `score.total` -- standalone display only, per the
+   *  design doc's own explicit non-goal for CUT Phase 1-3. */
+  cutEvaluation?: CutEvaluation | null;
   /** Issue #47 Finding D: retries this exact recipe (RETRY_SAME_RECIPE). */
   onRetrySameRecipe: () => void;
   /** Issue #47 Finding D: returns to Pizza Select so the player can choose a different recipe. */
@@ -108,6 +119,7 @@ export function ResultPanel({
   pitzCredit,
   efficiencyCredit,
   starterGrantNotice,
+  cutEvaluation,
   onRetrySameRecipe,
   onBackToPizzaSelect,
 }: ResultPanelProps) {
@@ -251,6 +263,34 @@ export function ResultPanel({
               出来栄えが基準に届かず、今回はPitzを獲得できませんでした。
             </p>
           )}
+        </div>
+      )}
+
+      {cutEvaluation && (
+        <div className="cut-evaluation-summary">
+          <p className="cut-evaluation-summary__headline">
+            {"✂️"} カット <strong>{Math.round(cutEvaluation.cutScore)}点</strong>
+          </p>
+          <p className="cut-evaluation-summary__slices">
+            {cutEvaluation.actualPieceCount}等分
+            {cutEvaluation.actualPieceCount !== cutEvaluation.requestedSliceCount
+              ? `（目標 ${cutEvaluation.requestedSliceCount}等分）`
+              : ""}
+          </p>
+          <dl className="cut-evaluation-summary__details">
+            <div className="cut-evaluation-summary__row">
+              <dt>均等さ</dt>
+              <dd>{Math.round(cutEvaluation.uniformity * 100)}</dd>
+            </div>
+            <div className="cut-evaluation-summary__row">
+              <dt>中心</dt>
+              <dd>{Math.round(cutEvaluation.centerAccuracy * 100)}</dd>
+            </div>
+            <div className="cut-evaluation-summary__row">
+              <dt>切り分け</dt>
+              <dd>{Math.round(cutEvaluation.completeness * 100)}</dd>
+            </div>
+          </dl>
         </div>
       )}
 
