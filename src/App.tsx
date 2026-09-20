@@ -31,7 +31,7 @@ import {
   resetSave,
 } from "./state/persistence";
 import { applyStarterGrants } from "./state/starterStock";
-import { ensureAnonymousUser, isFirebaseAvailable } from "./firebase";
+import { ensureAnonymousUser, isFirebaseAvailable, submitLunchRushScore } from "./firebase";
 import {
   DEFAULT_MISSION_CONFIG,
   LUNCH_RUSH_MISSION_ID,
@@ -329,6 +329,10 @@ function App() {
   const [missionBestAtStartOfRun, setMissionBestAtStartOfRun] = useState(() =>
     loadMissionBest(LUNCH_RUSH_MISSION_ID),
   );
+  // Firebase Ranking 1.0 Phase 1B: the last `mission.runId` a score submission was already
+  // attempted for -- see the submission effect below for why this guards against resubmitting
+  // the same run's score a second time.
+  const submittedMissionRunIdRef = useRef<number | null>(null);
   // Ticks a display timestamp roughly 4x/second while PLAYING, driving both the HUD's
   // countdown and the expiration check below. One interval, cleared whenever Mission stops
   // PLAYING -- never a per-second (or finer) setTimeout chain (SSOT section 4/14).
@@ -351,6 +355,27 @@ function App() {
     if (mission.mode !== "RESULT") return;
     persistMissionBest(LUNCH_RUSH_MISSION_ID, missionScore(mission.metrics));
   }, [mission.mode, mission.metrics]);
+
+  // Firebase Ranking 1.0 Phase 1B (Issue #87): the trusted score-submission path's one call
+  // site -- Lunch Rush RESULT -> submitLunchRushScore (src/firebase/submitLunchRushScore.ts),
+  // itself a no-op whenever Firebase is unconfigured or no auth user can be established. Purely
+  // fire-and-forget: nothing here awaits or branches on the result, so a rejected/failed/
+  // unavailable submission can never fail Lunch Rush's own RESULT screen or block offline
+  // gameplay -- this run's local `missionBest` (the effect above) has already been persisted
+  // regardless of whether this succeeds. `submittedMissionRunIdRef` guards against resubmitting
+  // the same run a second time if this effect body re-runs while `mission.mode` is still
+  // "RESULT" (a rerender, React StrictMode's dev-only double effect invocation, opening/closing
+  // an overlay) -- the same idempotency shape `CLAIM_MISSION_REWARD`'s own runId guard already
+  // uses for the Pitz reward effect below, applied here at the effect level since this call has
+  // no reducer state of its own to guard with.
+  useEffect(() => {
+    if (mission.mode !== "RESULT") return;
+    if (submittedMissionRunIdRef.current === mission.runId) return;
+    submittedMissionRunIdRef.current = mission.runId;
+    if (!isFirebaseAvailable()) return;
+    const clientDurationMs = mission.clock ? mission.clock.endsAt - mission.clock.startedAt : 0;
+    void submitLunchRushScore({ clientDurationMs, serves: mission.serves });
+  }, [mission.mode, mission.runId, mission.clock, mission.serves]);
 
   // Grants this run's Pitz reward exactly once (Phase 3C-5). Deliberately does NOT rely on
   // this effect only ever firing once per run -- a rerender, React StrictMode's dev-only
@@ -419,6 +444,7 @@ function App() {
     missionDispatch({
       type: "SERVE",
       qualityTotal: completionFailed ? 0 : state.score.total,
+      recipeId: state.recipe.id,
       completionFailed,
       now,
     });

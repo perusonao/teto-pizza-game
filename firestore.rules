@@ -1,0 +1,35 @@
+rules_version = '2';
+
+// Firebase Ranking 1.0 Phase 1B (Issue #87). The one rule this file exists to enforce: no
+// authenticated-or-otherwise client can ever write an authoritative score directly. Being
+// signed in (even with a real, non-anonymous Firebase Auth user) is never treated as
+// "authorized to write a score" here -- the only trusted writer of `runs/*` and
+// `leaderboards/*/entries/*` is `submitLunchRushScore`'s own Admin SDK write path
+// (functions/src/index.ts), which bypasses these rules entirely (Admin SDK requests are not
+// subject to Security Rules). See docs/design/TETO_FIREBASE-RANKING_SETUP.md's Phase 1B
+// section for the full architecture this backstops.
+//
+// Phase 1B ships no ranking UI (Issue #87's own phasing -- Phase 2A is the first read model),
+// so client *reads* are denied too, not just writes: minimum privilege for what actually
+// exists today, not a preemptive grant for a UI that doesn't exist yet. Opening
+// `leaderboards/*/entries` to public read is Phase 2A's own change, made when the top100/
+// own-rank UI actually needs it -- not before.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // The raw submission ledger -- never read by any client, ever (audit/debugging trail
+    // only, read via the Firebase Console or a future Admin-only tool).
+    match /runs/{runId} {
+      allow read, write: if false;
+    }
+
+    match /leaderboards/{periodId}/entries/{uid} {
+      allow read, write: if false;
+    }
+
+    // Deny-by-default backstop for any collection not explicitly matched above -- a new
+    // collection added later must have its own explicit rule to be reachable at all.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
