@@ -390,6 +390,52 @@ export const INGREDIENTS: Ingredient[] = [
     restockQuantity: 9,
     starterGrantOnly: true,
   },
+  /**
+   * Recipe Expansion Batch 1B-B (see docs/reports/TETO_RECIPE-EXPANSION_BATCH-1B-B_Result.md):
+   * 2 new topping rows for `capricciosa` (../data/recipes.ts), per the Fresh Recipe Master
+   * Catalog (data/recipes/pizza_master_catalog.json / ingredient_master_catalog.json). Follows
+   * the exact same EP4/starterGrantOnly pattern as every Batch 1A/1B-A row above:
+   * `unlockCondition: { minTotalStars: 0 }` (inert -- the Shop row is suppressed by
+   * `starterGrantOnly` regardless), `starterGrantOnly: true` (first unit always free via
+   * capricciosa's own Starter Grant), `restockQuantity` = capricciosa's own `minCount x 3`.
+   * `pricePitz` reuses the existing tier convention (no new formula): `ham` matches
+   * `sausage`/`bacon`'s premium-meat tier (140); `black-olive` matches `garlic`/`gorgonzola`'s
+   * mid-tier flavor topping tier (90). `restockQuantity` uses capricciosa's own actually-shipped
+   * `minCount` (ham x1, black-olive x2 -- see ../data/recipes.ts's own comment for why this
+   * rebalances the Fresh Design audit's original x2/x3 proposal down to fit the existing
+   * 8-slot player-reference ring ceiling), not the audit's pre-rebalance numbers. Emoji: no
+   * exact Unicode glyph exists for either food, so
+   * each reuses the closest distinct existing glyph convention `IngredientPieceVisual` already
+   * relies on for every non-cheese ingredient -- `ham` uses the generic meat-on-bone glyph
+   * (distinct from `bacon`'s strip glyph and `sausage`'s link glyph); `black-olive` reuses the
+   * plain-shape-emoji convention `pepperoni` already established (a small round olive has no
+   * dedicated glyph either, and `olive-oil` already owns the literal olive emoji), so it uses a
+   * black circle -- a small, dark, round piece, distinct in color from `pepperoni`'s red circle.
+   */
+  {
+    id: "ham",
+    category: "topping",
+    nameJa: "ハム",
+    color: "#e0a3a0",
+    emoji: "\u{1F356}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    pricePitz: 140,
+    restockQuantity: 3,
+    starterGrantOnly: true,
+  },
+  {
+    id: "black-olive",
+    category: "topping",
+    nameJa: "ブラックオリーブ",
+    color: "#2f2a22",
+    emoji: "⚫",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    pricePitz: 90,
+    restockQuantity: 6,
+    starterGrantOnly: true,
+  },
 ];
 
 export const CATEGORY_ORDER: IngredientCategory[] = ["sauce", "cheese", "topping"];

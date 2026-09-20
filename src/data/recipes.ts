@@ -288,6 +288,48 @@ export const RECIPES = [
     baseRewardPitz: 100,
     unlockCondition: { requiresRecipeId: "pizza-bianca", minTotalStars: 36 },
   },
+  /**
+   * Recipe Expansion Batch 1B-B (see docs/reports/TETO_RECIPE-EXPANSION_BATCH-1B-B_Result.md,
+   * and the read-only design audit docs/reports/TETO_RECIPE-EXPANSION_BATCH-1B_Fresh-Design.md's
+   * own "Batch 1B-B" slice, on branch claude/batch-1b-design-audit-92elmc, not merged to main):
+   * the 3rd recipe drawn from the Fresh Recipe Master Catalog's Batch 1B candidate pool -- `id`/
+   * `nameJa`/`requiredIngredients`' ingredient ids/`sauce`/`bakeTarget` are taken verbatim from
+   * `data/recipes/pizza_master_catalog.json`'s own `capricciosa` entry (`implementationClass:
+   * "B"` -- new ingredient data only, zero new mechanic, existing `spread`/`scatter`; that
+   * entry's own `bakeProfile` was already a fixed `{58, 78}` at audit time, unlike
+   * pizza-bianca/breakfast-pizza's own null `bakeProfile` in Batch 1B-A, so this task reuses it
+   * verbatim rather than authoring a new value). `minCount` starts from the Fresh Design
+   * audit's own proposed composition (tomato-sauce x1, mozzarella x2, mushroom x2, oregano x1,
+   * ham x2, black-olive x3) but rebalances ham/black-olive down to x1/x2 -- exactly 6
+   * ingredients, at `MAX_INGREDIENT_PALETTE_SLOTS` (../data/ingredients.ts) so the Ingredient
+   * Tray needs no scroll, AND exactly 8 total non-sauce pieces (2+2+1+1+2), the existing
+   * ceiling `PIECE_RING_POSITIONS` (../logic/pizzaReferenceLayout.ts) already supports without
+   * collision (quattro-formaggi already reaches this same 8-piece ceiling) -- the audit's own
+   * un-rebalanced 10-piece proposal would silently wrap and collide in that shared 8-slot ring
+   * (src/data/playerReference.ts's per-recipe layout, reused by PizzaThumbnail's card preview
+   * for every recipe), which this task avoids touching rather than growing to fit one recipe.
+   * `unlockCondition`/chain order continues the exact same provisional +4 minTotalStars step
+   * Batch 1A's own chain established (16 -> 20 -> 24 -> 28 -> 32 -> 36 -> 40); no `mysteryLock`
+   * (フガッサ's "big reveal" stays a one-off). `baseRewardPitz: 100` matches every other recipe
+   * (Issue #38 V1: no difficulty-based reward differentiation without Human Feel evidence).
+   */
+  {
+    id: "capricciosa",
+    nameJa: "カプリチョーザ",
+    description:
+      "トマトソースとモッツァレラに、マッシュルーム・ハム・ブラックオリーブをのせた、具だくさんの一枚。",
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "mushroom", minCount: 2 },
+      { ingredientId: "oregano", minCount: 1 },
+      { ingredientId: "ham", minCount: 1 },
+      { ingredientId: "black-olive", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    unlockCondition: { requiresRecipeId: "breakfast-pizza", minTotalStars: 40 },
+  },
 ] as const;
 
 /** Derived from RECIPES above so this union can never drift out of sync with
