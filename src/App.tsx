@@ -31,6 +31,7 @@ import {
   resetSave,
 } from "./state/persistence";
 import { applyStarterGrants } from "./state/starterStock";
+import { ensureAnonymousUser, isFirebaseAvailable } from "./firebase";
 import {
   DEFAULT_MISSION_CONFIG,
   LUNCH_RUSH_MISSION_ID,
@@ -244,6 +245,19 @@ function App() {
     state.inventory,
     state.starterGrantClaimedRecipeIds,
   ]);
+
+  // Firebase Ranking 1.0 Phase 1A (Issue #87): establishes an anonymous Firebase identity in
+  // the background, ahead of Phase 1B's score-submission path actually needing one -- purely
+  // fire-and-forget, no UI, no gameplay dependency. `isFirebaseAvailable()` is `false` for
+  // every build without a Firebase config (all of local dev/CI/production today, until Manual
+  // Setup happens -- see docs/design/TETO_FIREBASE-RANKING_SETUP.md), so this is a no-op then;
+  // `ensureAnonymousUser()` itself never throws or rejects, so a network failure here can never
+  // surface as an error to the player. Empty deps: runs once per mount, matching the "resolve
+  // to a stable identity for the session" intent -- there is nothing to re-run on state change.
+  useEffect(() => {
+    if (!isFirebaseAvailable()) return;
+    void ensureAnonymousUser();
+  }, []);
 
   // Cooking Time CT2: closes CT1's own deliberately-deferred gap -- the app being backgrounded
   // (iOS home-screen swipe / app switch, browser tab switch, alt-tab) must not silently keep
