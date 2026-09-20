@@ -120,7 +120,14 @@ export const INITIAL_MISSION_STATE: MissionState = {
 export type MissionRunAction =
   | { type: "SHOW_INTRO" }
   | { type: "START"; now: number; config?: MissionConfig }
-  | { type: "SERVE"; qualityTotal: number; now: number }
+  /** Lunch Rush Completion Gate 1A: `completionFailed` is App.tsx's read of the same
+   *  `state.completion` (../logic/completionGate.ts's `evaluatePizzaCompletion`, already
+   *  computed unconditionally at CONFIRM_BAKE for FREE and Mission alike) for the pizza this
+   *  SERVE is for. `true` means this order never becomes a counted serve -- see the SERVE
+   *  case below. Order rotation itself is unaffected here (App.tsx still dispatches
+   *  MISSION_NEXT_ORDER/BEGIN_PREPARE against `gameReducer` right after this, PASS or FAILED
+   *  alike) -- this reducer only owns the run's own metrics/clock, never order advancement. */
+  | { type: "SERVE"; qualityTotal: number; now: number; completionFailed?: boolean }
   | { type: "TICK"; now: number }
   | { type: "EXIT_TO_FREE" };
 
@@ -166,6 +173,13 @@ export function missionRunReducer(state: MissionState, action: MissionRunAction)
       if (isMissionExpired(action.now, state.clock)) {
         return { ...state, mode: "RESULT" };
       }
+      // Lunch Rush Completion Gate 1A: a FAILED pizza (../logic/completionGate.ts) never
+      // becomes a counted serve -- servedCount/totalQualityScore/bestQualityScore (and
+      // therefore missionScore and any persisted Mission BEST derived from them) stay exactly
+      // as they were. The order itself is still consumed and the run still advances to its
+      // next order -- that happens unconditionally in App.tsx's handleMissionServeNext, PASS
+      // or FAILED alike -- so this is not a retry: the player never gets this same order back.
+      if (action.completionFailed) return state;
       return { ...state, metrics: recordServe(state.metrics, action.qualityTotal) };
     }
 

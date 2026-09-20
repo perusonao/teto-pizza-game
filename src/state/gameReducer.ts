@@ -707,11 +707,13 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // is the sole scoring authority now.
       const scoringV2Result = computeScoringV2(state.recipe, pizza);
       const score = toLegacyScoreBreakdown(scoringV2Result, action.value, state.recipe.bakeTarget);
-      // Completion Gate Phase 1: computed unconditionally (FREE and Lunch Rush alike), from
-      // this exact canonical `pizza`, alongside Scoring 2.0 -- the two are independent (see
-      // ../logic/completionGate.ts's own file header). Only REGISTER_TO_DEX below actually
-      // branches on it today (FREE only, per the Result Report's Lunch Rush decision); Mission's
-      // MISSION_NEXT_ORDER keeps its pre-existing behavior unchanged this phase.
+      // Completion Gate Phase 1 / Lunch Rush Completion Gate 1A: computed unconditionally
+      // (FREE and Lunch Rush alike), from this exact canonical `pizza`, alongside Scoring 2.0
+      // -- the two are independent (see ../logic/completionGate.ts's own file header).
+      // REGISTER_TO_DEX below branches on it for FREE's own Dex/BEST/Pitz registration; Lunch
+      // Rush's own servedCount/quality/missionScore gating reads this same `state.completion`
+      // one layer up, in App.tsx's `handleMissionServeNext` (see MISSION_NEXT_ORDER's own
+      // comment below for why its Dex/Starter Grant registration itself stays unconditional).
       const completion = evaluatePizzaCompletion(state.recipe, pizza);
       // EP2: consumes exactly the finite ingredients this canonical `pizza` actually used
       // (placed-piece count for scatter, 1-per-sauce-id for spread), computed as one pure
@@ -863,12 +865,14 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (state.phase !== "RESULT" || !state.score) {
         return state;
       }
-      // Completion Gate Phase 1 Scope Guard (see the Result Report's Lunch Rush section):
-      // `state.completion` is computed for every Mission round too (CONFIRM_BAKE above), but
-      // deliberately not read here -- applying the gate to Lunch Rush's serve-a-quota flow is a
-      // Mission balance decision (a FAILED pizza mid-run would still consume the run's own
-      // time/ingredients for zero served count) explicitly deferred to a later phase, not an
-      // oversight. FREE-only gating (REGISTER_TO_DEX above) is what Phase 1 ships.
+      // Lunch Rush Completion Gate 1A (see docs/reports/TETO_LUNCH-RUSH_COMPLETION-GATE_1A_
+      // Result.md): `state.completion` gating for Lunch Rush's own servedCount/quality/
+      // missionScore now lives one layer up, in App.tsx's `handleMissionServeNext` and
+      // ../mission/lunchRush.ts's `missionRunReducer` SERVE case (the two places that own
+      // Mission's own run metrics) -- not here. This reducer's own Dex/BEST/timesMade/Starter
+      // Grant registration below is deliberately left exactly as it already was (unconditional
+      // on `state.completion`, same as before this phase): FREE-only completion gating on Dex
+      // itself (REGISTER_TO_DEX above) is untouched scope, not an oversight.
       const { dex } = registerScoreToDex(state.dex, state.recipe.id, state.score);
       // EP4: the second (and last) place `dex` changes -- see REGISTER_TO_DEX's own comment
       // above for why this exact spot, atomically with the `dex` update, is where a Lunch Rush

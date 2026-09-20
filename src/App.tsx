@@ -393,7 +393,21 @@ function App() {
   function handleMissionServeNext() {
     if (!state.score) return;
     const now = Date.now();
-    missionDispatch({ type: "SERVE", qualityTotal: state.score.total, now });
+    // Lunch Rush Completion Gate 1A: reads the exact same `state.completion` FREE's own
+    // REGISTER_TO_DEX gates on (../logic/completionGate.ts's `evaluatePizzaCompletion`,
+    // already computed unconditionally at CONFIRM_BAKE -- see gameReducer.ts's own comment)
+    // rather than any new Lunch Rush-only check, so the two modes can never drift on what
+    // counts as "a real, servable dish". A FAILED pizza's quality never enters the run's
+    // metrics (qualityTotal forced to 0 and completionFailed tells missionRunReducer to skip
+    // recordServe entirely) -- see lunchRush.ts's own SERVE case for why the order still
+    // advances below regardless.
+    const completionFailed = state.completion?.status === "FAILED";
+    missionDispatch({
+      type: "SERVE",
+      qualityTotal: completionFailed ? 0 : state.score.total,
+      completionFailed,
+      now,
+    });
     // Mirrors missionRunReducer's own SERVE deadline check (Codex review, P2-1): a serve at
     // or after the deadline is rejected there (metrics untouched, run ends), so the
     // underlying round must likewise not be registered/advanced here -- it stays frozen at
