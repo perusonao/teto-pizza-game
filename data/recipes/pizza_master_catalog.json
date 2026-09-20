@@ -7,8 +7,8 @@
   "viableEntryCount": 51,
   "rejectedDuplicateCount": 2,
   "statusBreakdown": {
-    "verified_internal": 7,
-    "game_design_candidate": 21,
+    "verified_internal": 11,
+    "game_design_candidate": 17,
     "deferred": 5,
     "verification_pending": 18,
     "rejected_duplicate": 2
@@ -309,14 +309,14 @@
       ],
       "visualIdentity": "Onboarding recipe for Chapter 2; reuses 2/3 existing ingredients.",
       "sourceReferences": [
-        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+        "internal://src/data/recipes.ts#pepperoni"
       ],
-      "verificationStatus": "game_design_candidate",
+      "verificationStatus": "verified_internal",
       "implementationClass": "B",
       "difficulty": 1,
       "progressionTier": "early",
-      "gameDesignStatus": "candidate",
-      "currentGameRecipe": false,
+      "gameDesignStatus": "shipped",
+      "currentGameRecipe": true,
       "rejectedDuplicateOf": null,
       "newIngredientsIntroduced": [
         "pepperoni"
@@ -351,14 +351,14 @@
       ],
       "visualIdentity": "Ambiguity vs Romana (deferred, crust-thickness-only distinction).",
       "sourceReferences": [
-        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+        "internal://src/data/recipes.ts#napoletana"
       ],
-      "verificationStatus": "game_design_candidate",
+      "verificationStatus": "verified_internal",
       "implementationClass": "B",
       "difficulty": 2,
       "progressionTier": "early",
-      "gameDesignStatus": "candidate",
-      "currentGameRecipe": false,
+      "gameDesignStatus": "shipped",
+      "currentGameRecipe": true,
       "rejectedDuplicateOf": null,
       "newIngredientsIntroduced": [
         "anchovy"
@@ -433,14 +433,14 @@
       ],
       "visualIdentity": "Visually distinct from pepperoni (coiled/chunk vs disc).",
       "sourceReferences": [
-        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+        "internal://src/data/recipes.ts#salsiccia"
       ],
-      "verificationStatus": "game_design_candidate",
+      "verificationStatus": "verified_internal",
       "implementationClass": "B",
       "difficulty": 2,
       "progressionTier": "early",
-      "gameDesignStatus": "candidate",
-      "currentGameRecipe": false,
+      "gameDesignStatus": "shipped",
+      "currentGameRecipe": true,
       "rejectedDuplicateOf": null,
       "newIngredientsIntroduced": [
         "sausage"
@@ -474,14 +474,14 @@
       ],
       "visualIdentity": "Reuses onion (introduced by Fugazza) -- strong ingredient economy.",
       "sourceReferences": [
-        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+        "internal://src/data/recipes.ts#tonno-e-cipolla"
       ],
-      "verificationStatus": "game_design_candidate",
+      "verificationStatus": "verified_internal",
       "implementationClass": "B",
       "difficulty": 2,
       "progressionTier": "mid",
-      "gameDesignStatus": "candidate",
-      "currentGameRecipe": false,
+      "gameDesignStatus": "shipped",
+      "currentGameRecipe": true,
       "rejectedDuplicateOf": null,
       "newIngredientsIntroduced": [
         "tuna"

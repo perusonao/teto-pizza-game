@@ -3,8 +3,8 @@
   "catalogVersion": "2.0.0",
   "generatedDate": "2026-09-19",
   "totalIngredientCount": 62,
-  "existingIngredientCount": 14,
-  "newIngredientCount": 48,
+  "existingIngredientCount": 18,
+  "newIngredientCount": 44,
   "ingredients": [
     {
       "id": "tomato-sauce",
@@ -367,12 +367,10 @@
         "supreme"
       ],
       "usedByRecipeCount": 4,
-      "existingInGame": false,
-      "visualDistinctiveness": 4,
-      "implementationCost": "new ingredient data row",
-      "reusePotential": "medium",
-      "mechanicDependency": null,
-      "notes": "米国式ピザの代表トッピング。"
+      "existingInGame": true,
+      "visualDistinctiveness": null,
+      "implementationCost": "none (shipped)",
+      "reusePotential": "n/a (already shipped)"
     },
     {
       "id": "anchovy",
@@ -388,12 +386,10 @@
         "siciliana"
       ],
       "usedByRecipeCount": 3,
-      "existingInGame": false,
-      "visualDistinctiveness": 4,
-      "implementationCost": "new ingredient data row",
-      "reusePotential": "medium",
-      "mechanicDependency": null,
-      "notes": ""
+      "existingInGame": true,
+      "visualDistinctiveness": null,
+      "implementationCost": "none (shipped)",
+      "reusePotential": "n/a (already shipped)"
     },
     {
       "id": "ham",
@@ -455,12 +451,10 @@
         "supreme"
       ],
       "usedByRecipeCount": 5,
-      "existingInGame": false,
-      "visualDistinctiveness": 3,
-      "implementationCost": "new ingredient data row",
-      "reusePotential": "medium",
-      "mechanicDependency": null,
-      "notes": ""
+      "existingInGame": true,
+      "visualDistinctiveness": null,
+      "implementationCost": "none (shipped)",
+      "reusePotential": "n/a (already shipped)"
     },
     {
       "id": "tuna",
@@ -474,12 +468,10 @@
         "tonno-e-cipolla"
       ],
       "usedByRecipeCount": 1,
-      "existingInGame": false,
-      "visualDistinctiveness": 3,
-      "implementationCost": "new ingredient data row",
-      "reusePotential": "medium",
-      "mechanicDependency": null,
-      "notes": ""
+      "existingInGame": true,
+      "visualDistinctiveness": null,
+      "implementationCost": "none (shipped)",
+      "reusePotential": "n/a (already shipped)"
     },
     {
       "id": "zucchini",
