@@ -2,10 +2,14 @@
 
 ## Audited main SHA
 
-`13151e8b2521dd90e7df17e2760e1321fc92be24` — "Firebase ranking Phase 1A: foundation and
-anonymous auth (#113)". Confirmed fresh via `git fetch origin` immediately before starting
-work; the working branch (`claude/phase4a1a-flake-elimination-g166rq`) was already
-fast-forwarded to this commit.
+Implementation started at `13151e8b2521dd90e7df17e2760e1321fc92be24` — "Firebase ranking
+Phase 1A: foundation and anonymous auth (#113)". Before opening the PR, Duplicate PR Gate #2's
+`git fetch origin` found main had advanced to `ef00ed744f9a721194efde1c527282d1ba648a74` —
+"Recipe Expansion Batch 1B-B: add Capricciosa (#114)", which adds a 14th recipe
+(`capricciosa`). Per the task's Gate #2 instructions, this branch merged that commit
+(`git merge origin/main`, clean, no conflicts) and **re-ran the target test (60x) and the full
+verification suite against the merged result** — see "Full verification" below. All numbers in
+this report are from that post-merge state (`ef00ed7`).
 
 Duplicate PR Gate #1 (before implementation): `git fetch origin` + a listing of every open PR
 and every `phase4a1a`/`flake`/`flaky`/"test reliability" branch found nothing in scope. Open
@@ -104,24 +108,32 @@ available) — no test-only production hook, no mocking of `Math.random`, no cha
 
 ## Regression verification
 
-- Target test file run individually: **100/100 runs**, `8 passed (8)` every time (isolated
+- Target test file run individually: **100/100 runs** at the pre-merge 13-recipe catalog
+  (`13151e8b`), plus **60/60 more runs** after merging main's 14-recipe catalog (`ef00ed7`,
+  Capricciosa) — **160/160 total**, `8 passed (8)` every time (isolated
   `npx vitest run src/state/phase4a1a.regression.test.ts` invocations, fresh process each
   time — rules out "passing only because an in-process retry loop happened to succeed").
-- Related state-layer tests (`src/state/`, 21 files): **511/511 passed**.
+- Related state-layer tests (`src/state/`, 21 files), post-merge: **514/514 passed**.
 - No `afterEach`/`Math.random` mock restore concerns apply — the fix uses no mocking.
 - No global leakage risk — the fix only changes local fixture construction (a `dex` array and
   removal of a loop), touching no shared/module-level state.
 
 ## Recipe-count scalability
 
-Production recipe count freshly confirmed at `docs/reports` audit time: **13 recipes** in
+Production recipe count freshly confirmed (post-merge, at `ef00ed7`): **14 recipes** in
 `src/data/recipes.ts` (`margherita, marinara, quattro-formaggi, genovese, bismarck, funghi,
-fugazza, salsiccia, pepperoni, napoletana, tonno-e-cipolla, pizza-bianca, breakfast-pizza`).
+fugazza, salsiccia, pepperoni, napoletana, tonno-e-cipolla, pizza-bianca, breakfast-pizza,
+capricciosa`) — one more than the 13 present when implementation started, since main
+advanced mid-task with PR #114 (Recipe Expansion Batch 1B-B). This was a live test of the
+scalability requirement, not a hypothetical: `capricciosa` requires `mozzarella`, `mushroom`,
+`ham`, and `black-olive`, none of which this test's fixture owns, so it doesn't affect
+`availableRecipeIds(funghiDiscoveredDex, owned)` at all — confirmed by re-running the target
+test 60x clean against the merged catalog (see below).
 
 The new fixture has no dependency on `RECIPES.length` or catalog composition beyond the two
 facts already true today and unrelated to how many recipes exist: (1) marinara's own three
 ingredients are not a subset of any other recipe's `requiredIngredients`, and (2) marinara's
-`unlockCondition` is satisfied by having `funghi` discovered. Adding recipe #14, #16, or
+`unlockCondition` is satisfied by having `funghi` discovered. Adding recipe #15, #16, or
 beyond does not change `availableRecipeIds(funghiDiscoveredDex, owned)`'s result (still
 exactly `["marinara"]`) unless some future recipe is deliberately authored to also require only
 `{tomato-sauce, garlic, oregano}` (or fewer) with no additional unlock gate — a same-class
@@ -130,13 +142,19 @@ scope. No probabilistic/catalog-length-dependent assertion remains.
 
 ## Full verification
 
-- `npx vitest run src/state/phase4a1a.regression.test.ts` × 100 (see above): 100/100 pass.
-- `npx vitest run src/state/`: 511/511 pass (21 files).
-- `npm test` (full suite), run 1: **87 test files, 1682 tests passed.**
-- `npm test` (full suite), run 2: **87 test files, 1682 tests passed** — identical counts both
-  runs, no new failures or flakes surfaced by this change or pre-existing elsewhere.
-  (Console shows repeated `Not implemented: HTMLCanvasElement's getContext()` jsdom warnings —
-  pre-existing, unrelated to this fix, not test failures.)
+All numbers below are from the final, post-merge state (`ef00ed7`, main + Capricciosa merged
+in) unless noted otherwise.
+
+- `npx vitest run src/state/phase4a1a.regression.test.ts` × 160 total (100 pre-merge + 60
+  post-merge): 160/160 pass.
+- `npx vitest run src/state/`: 514/514 pass (21 files).
+- `npm test` (full suite), run 1: **87 test files, 1705 tests passed.**
+- `npm test` (full suite), run 2: **87 test files, 1705 tests passed** — identical counts both
+  runs, no new failures or flakes surfaced by this change or pre-existing elsewhere. (Pre-merge,
+  at `13151e8b`, the same full suite ran twice as 87 files / 1682 tests, also identical both
+  times; the +23 test delta after merging is Batch 1B-B's own new Capricciosa coverage, not
+  something this PR added.) Console shows repeated `Not implemented: HTMLCanvasElement's
+  getContext()` jsdom warnings — pre-existing, unrelated to this fix, not test failures.
 - `npx tsc -b`: clean, no errors.
 - `npm run lint` (oxlint): clean, exit code 0, no warnings.
 - `npm run build` (`tsc -b && vite build`): succeeded — 107 modules transformed, build output
