@@ -91,6 +91,26 @@ describe("advanceStepTiming", () => {
     expect(advanced.perStepElapsedMs.DOUGH).toBe(4_000);
   });
 
+  it("Fresh Merge Gate fix: a step transition fired mid-pause never lets the pause's full span leak into the next step's elapsed time once resumed", () => {
+    // Exact reproduction from the Fresh Merge Gate finding: DOUGH starts at 0, is paused at
+    // 4000, and a (stray/test) CONFIRM_MAKING_STEP-equivalent boundary fires at 999_000 while
+    // still paused -- DOUGH correctly finalizes at the pause's own start (4000). The bug: SAUCE's
+    // own `stepStartedAt` used to be set to `now` (999_000, a timestamp *inside* the still-open
+    // pause) instead of the pause's own start, so once `resumeCookingTiming` later added the
+    // pause's *entire* duration (4_000 -> 1_000_000 = 996_000ms) to `accumulatedPauseMs`, SAUCE's
+    // own elapsed computation subtracted that whole span -- including the ~995s that occurred
+    // before SAUCE even nominally began -- clamping SAUCE's real, post-resume 5s of activity to
+    // zero.
+    let timing = startCookingTiming(0, "DOUGH");
+    timing = pauseCookingTiming(timing, 4_000);
+    timing = advanceStepTiming(timing, 999_000, "SAUCE"); // still paused at this boundary
+    expect(timing.perStepElapsedMs.DOUGH).toBe(4_000);
+    timing = resumeCookingTiming(timing, 1_000_000); // 996s paused in total
+    timing = advanceStepTiming(timing, 1_005_000, "CHEESE"); // 5s of real SAUCE activity
+    expect(timing.perStepElapsedMs.DOUGH).toBe(4_000);
+    expect(timing.perStepElapsedMs.SAUCE).toBe(5_000);
+  });
+
   it("clamps to zero rather than negative for an out-of-order `now`", () => {
     const timing = startCookingTiming(5_000, "DOUGH");
     const advanced = advanceStepTiming(timing, 1_000, "SAUCE");

@@ -491,3 +491,21 @@ describe("20. save schema unchanged by Step Timing", () => {
     expect(Object.keys(save)).not.toContain("perStepElapsedMs");
   });
 });
+
+describe("21. Fresh Merge Gate fix: a CONFIRM_MAKING_STEP dispatched mid-pause never lets the pause leak into the next step once resumed", () => {
+  it("reducer-level reproduction of the pause-boundary finding -- DOUGH=4000, SAUCE=5000, not clamped to 0", () => {
+    let state = preparedState(0);
+    state = gameReducer(state, { type: "PAUSE_COOKING_TIMING", now: 4_000 });
+    // A CONFIRM_MAKING_STEP dispatched while still paused (the UI itself gates interaction while
+    // paused via PizzaStage's `interactive` prop, but the reducer must still be correct against a
+    // stray/test dispatch that reaches it anyway).
+    state = confirmAt(state, 999_000);
+    expect(state.makingStep).toBe("SAUCE");
+    expect(state.cookingTiming?.perStepElapsedMs.DOUGH).toBe(4_000);
+    state = gameReducer(state, { type: "RESUME_COOKING_TIMING", now: 1_000_000 });
+    state = confirmAt(state, 1_005_000); // 5s of real SAUCE activity after resume
+    expect(state.makingStep).toBe("CHEESE");
+    expect(state.cookingTiming?.perStepElapsedMs.DOUGH).toBe(4_000);
+    expect(state.cookingTiming?.perStepElapsedMs.SAUCE).toBe(5_000);
+  });
+});

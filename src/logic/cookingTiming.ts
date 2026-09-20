@@ -147,7 +147,21 @@ export function advanceStepTiming(
     ...timing,
     perStepElapsedMs,
     activeStep: nextStep,
-    stepStartedAt: nextStep !== null ? now : null,
+    // Fresh Merge Gate fix (PR #125): if a step boundary fires while still paused
+    // (`timing.pausedAt !== null` -- a stray/test dispatch mid-pause; the UI itself gates
+    // interaction while paused, but the reducer never assumed that), the incoming step's own
+    // window must start at the pause's own beginning, not at `now` -- exactly the same
+    // "effective moment" substitution `stepElapsedMs`/`finishCookingTiming` already use for the
+    // *outgoing* side of this same transition. Using `now` here was the bug: `resumeCookingTiming`
+    // only adds the pause's full duration to `accumulatedPauseMs` once resumed, well after this
+    // step's `stepStartAccumulatedPauseMs` snapshot below is taken -- so `stepElapsedMs`'s
+    // `accumulatedPauseMs - stepStartAccumulatedPauseMs` delta would later subtract the *entire*
+    // pause (including the portion that elapsed before this step even nominally started) from
+    // this step's own elapsed time, potentially clamping a genuinely-active next step to zero.
+    // Anchoring `stepStartedAt` at `pausedAt` instead makes the pause's whole span fall *within*
+    // the new step's own window by construction, so the same delta subtraction removes exactly
+    // the paused time and nothing more.
+    stepStartedAt: nextStep !== null ? (timing.pausedAt ?? now) : null,
     stepStartAccumulatedPauseMs:
       nextStep !== null ? timing.accumulatedPauseMs : timing.stepStartAccumulatedPauseMs,
   };

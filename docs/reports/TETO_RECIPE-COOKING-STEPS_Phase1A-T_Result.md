@@ -271,21 +271,24 @@ No file under `functions/`, `src/mission/`, `src/logic/scoringV2/`, `src/logic/c
 New files:
 
 - `src/logic/cookingTiming.stepTiming.test.ts` — pure `advanceStepTiming`/`startCookingTiming`
-  clock math (12 tests): initial per-step state, single and multi-step walks, BAKE-boundary
+  clock math (13 tests): initial per-step state, single and multi-step walks, BAKE-boundary
   closure (no invented entry), starting a step from a closed timing (the `CONFIRM_BAKE` -> CUT
   shape), the true-no-op case, pause-aware accounting scoped to the active step only (not the
   whole round's cumulative pause), the still-paused-at-boundary edge case, negative-clamping,
-  same-step-revisited accumulation (defensive, not exercised by any current reducer path), and two
+  same-step-revisited accumulation (defensive, not exercised by any current reducer path), two
   `perStepElapsedMs`-sum-equals-`completedMs` tests (pause-free and pause-including) pinning
-  acceptance criterion §22.13 #2.
-- `src/state/gameReducer.stepTiming.test.ts` — reducer-level integration (26 tests), organized as
+  acceptance criterion §22.13 #2, and (added at the Fresh Merge Gate fix, §18) the pause-boundary
+  regression reproducing the exact finding.
+- `src/state/gameReducer.stepTiming.test.ts` — reducer-level integration (27 tests), organized as
   the task's own 20-item list (§ headers `1.` through `20.` in the file, several with more than
-  one `it`): initial state, PREPARE/DOUGH start, DOUGH->SAUCE->CHEESE->TOPPING->BAKE (with the
-  BAKE-exclusion and completedMs-sum checks folded in), default-profile CONFIRM_BAKE->RESULT,
-  future-fixture POST_BAKE entry (including the byte-identical-no-op proof for the 15 shipped
-  recipes), FINISH->CUT->RESULT, the full §22.11 reset matrix (RESET_PIZZA/RETRY_SAME_RECIPE/
-  SELECT_RECIPE/PLAY_AGAIN/MISSION_NEXT_ORDER), Lunch Rush MissionClock non-interference,
-  completedMs/efficiency/Scoring-2.0 byte-identical comparisons, and the save-schema check.
+  one `it`) plus a 21st block added at the Fresh Merge Gate fix (§18): initial state, PREPARE/
+  DOUGH start, DOUGH->SAUCE->CHEESE->TOPPING->BAKE (with the BAKE-exclusion and completedMs-sum
+  checks folded in), default-profile CONFIRM_BAKE->RESULT, future-fixture POST_BAKE entry
+  (including the byte-identical-no-op proof for the 15 shipped recipes), FINISH->CUT->RESULT, the
+  full §22.11 reset matrix (RESET_PIZZA/RETRY_SAME_RECIPE/SELECT_RECIPE/PLAY_AGAIN/
+  MISSION_NEXT_ORDER), Lunch Rush MissionClock non-interference, completedMs/efficiency/
+  Scoring-2.0 byte-identical comparisons, the save-schema check, and the pause-boundary
+  regression reproducing the exact finding at reducer level.
 
 Modified (structural updates only, to keep compiling/asserting against the widened
 `CookingTimingState` shape — **no pre-existing behavioral assertion changed**, same discipline
@@ -303,6 +306,9 @@ Phase 1A's own Result Report documents for its own structural-only test updates)
   data" default values, to keep compiling against the widened interface.
 
 ## 14. Verification
+
+**(As originally verified, before the Fresh Merge Gate fix — see §18/§18.1 for the post-fix
+numbers, which supersede these.)**
 
 - **Focused tests** (`cookingTiming.test.ts`, `cookingTiming.stepTiming.test.ts`,
   `gameReducer.cookingTiming.test.ts`, `data/cookingProfiles.test.ts`,
@@ -353,7 +359,93 @@ not performed, since there is nothing rendered differently to verify — the sam
    today), so this was a mechanical, zero-ambiguity change, but any *future* third call site must
    remember to supply it.
 
-## 17. Final Verdict
+## 18. Fresh Merge Gate fix — pause-boundary bug in `advanceStepTiming`
+
+**Finding:** a Fresh Merge Gate review of PR #125 (head `22bf491`) identified that a step
+boundary (`CONFIRM_MAKING_STEP`) firing while `cookingTiming` was still paused could later cause
+the *next* step's `perStepElapsedMs` entry to be incorrectly clamped to `0`, once the round was
+eventually resumed.
+
+**Root cause:** `advanceStepTiming`'s incoming-step bookkeeping set `stepStartedAt: now` — the
+dispatch's own timestamp — even when that dispatch happened *during* an already-open pause
+(`timing.pausedAt !== null`). The outgoing step's own finalization was already correct (it uses
+`timing.pausedAt ?? now` as the "effective moment", matching `finishCookingTiming`'s own
+discipline), but the incoming step's `stepStartedAt` did not get the same treatment. Concretely,
+for the exact reproduction the finding gave (`DOUGH` starts at `0`, paused at `4_000`, a step
+transition dispatched at `999_000` while still paused, resumed at `1_000_000`, the next step
+transition dispatched at `1_005_000`):
+
+1. `DOUGH` correctly finalizes to `4_000` (its own finalization already used `pausedAt ?? now`).
+2. `SAUCE`'s `stepStartedAt` was set to `999_000` (the dispatch's own `now`, still inside the open
+   pause) and `stepStartAccumulatedPauseMs` was snapshotted at `accumulatedPauseMs`'s pre-resume
+   value (`0`).
+3. `resumeCookingTiming` at `1_000_000` adds the pause's **entire** duration
+   (`1_000_000 - 4_000 = 996_000`ms) to `accumulatedPauseMs` — including the ~995 seconds that
+   elapsed *before* `SAUCE` even nominally started.
+4. `SAUCE`'s own finalization at `1_005_000` then computed
+   `pauseDuringStep = accumulatedPauseMs(996_000) - stepStartAccumulatedPauseMs(0) = 996_000`, and
+   `elapsed = 1_005_000 - 999_000 - 996_000 = -990_000`, clamped to `0` — silently discarding
+   `SAUCE`'s genuine 5 real seconds of post-resume activity.
+
+**Fix (minimal — one line, `src/logic/cookingTiming.ts`'s `advanceStepTiming`):**
+
+```diff
+- stepStartedAt: nextStep !== null ? now : null,
++ stepStartedAt: nextStep !== null ? (timing.pausedAt ?? now) : null,
+```
+
+Anchoring the incoming step's `stepStartedAt` at the pause's own start (exactly the same
+"effective moment" substitution already used everywhere else pause-awareness matters in this
+file) makes the entire open pause fall *within* the new step's own window by construction, so the
+same `accumulatedPauseMs`-delta subtraction at finalization time removes exactly the paused
+duration and nothing more — regardless of how long the pause turns out to last or when it is
+dispatched relative to it. `stepStartAccumulatedPauseMs`'s own snapshot logic needed no change.
+No other file, and no other behavior (whole-round `completedMs`, `efficiency.ts`, `FREE`'s own
+Cooking Time, `BAKE` exclusion, Lunch Rush's `MissionClock`, Scoring 2.0, or the save schema), was
+touched by this fix — confirmed by re-running the full existing suite unmodified (§18's own
+verification below) alongside the two new regression tests.
+
+**Regression tests added:**
+
+- `src/logic/cookingTiming.stepTiming.test.ts` — a new pure-logic test, "Fresh Merge Gate fix: a
+  step transition fired mid-pause never lets the pause's full span leak into the next step's
+  elapsed time once resumed", reproducing the finding's exact numbers.
+- `src/state/gameReducer.stepTiming.test.ts` — a new reducer-level test (`describe` block 21),
+  "Fresh Merge Gate fix: a `CONFIRM_MAKING_STEP` dispatched mid-pause never lets the pause leak
+  into the next step once resumed", the same scenario driven through `PAUSE_COOKING_TIMING` /
+  `CONFIRM_MAKING_STEP` / `RESUME_COOKING_TIMING` dispatches.
+
+**Verified the tests actually catch the bug**, not just pass trivially: both were run against the
+pre-fix code (the single line reverted to `now`) and both failed with `SAUCE` (or
+`perStepElapsedMs.SAUCE`) `=== 0` instead of the expected `5_000` — then re-verified green again
+after restoring the fix.
+
+| Check | Expected | Actual (pre-fix) | Actual (post-fix) |
+|---|---|---|---|
+| `DOUGH` elapsed | `4_000` | `4_000` (already correct) | `4_000` |
+| `SAUCE` elapsed | `5_000` | `0` (bug reproduced) | `5_000` |
+
+**Existing pause/BAKE/POST_BAKE/CUT tests all still pass** — every test in
+`cookingTiming.test.ts`, `cookingTiming.stepTiming.test.ts` (the other 11, pre-existing, tests),
+`gameReducer.cookingTiming.test.ts` (pause boundary, RESET_PIZZA, BAKE exclusion),
+`gameReducer.cookingSteps.test.ts` (POST_BAKE machinery), `gameReducer.stepTiming.test.ts` (the
+other 26 tests, including the FINISH→CUT fixture and BAKE-exclusion checks), and
+`data/cookingProfiles.test.ts` ran green, unmodified, after the fix.
+
+### 18.1 Verification (post-fix)
+
+- **Focused tests** (all 8 timing/cooking-steps-related files): **110/110 passed**, 0 failed.
+- **Full suite**, run twice:
+  - Run 1: **97 files / 1855 tests passed**, 0 failed.
+  - Run 2: **97 files / 1855 tests passed**, 0 failed. No flake.
+  - (2 more tests than the pre-fix §14 baseline of 1853 — exactly the 2 new regression tests
+    added; zero removed, zero pre-existing assertions changed.)
+- **TypeScript** (`npx tsc -b`): clean, 0 errors.
+- **Lint** (`npm run lint` / `oxlint`): clean, exit code 0.
+- **Production build** (`npm run build`): succeeded, 121 modules transformed, no new warnings.
+- **CI**: see the completion report to the user for PR #125's fresh CI status at push time.
+
+## 19. Final Verdict
 
 **Step Timing instrumentation implemented exactly per design doc §22, as an independent Phase
 1A-T slice sequenced after Phase 1A per §22.10.** Zero change to `completedMs`/efficiency/
@@ -365,5 +457,8 @@ design doc's own reset matrix (§22.11) and every one of the task's 20 required 
 pause-free and pause-including), BAKE is verifiably excluded from all step timing, and the CUT
 timing hand-off (§22.7/§22.14) is proven end-to-end via a test-only fixture with zero gesture/
 geometry/scoring code. `CookingProfile.stepTimeLimits` is present in the type, read by nothing
-(criterion #6, grep-verified). TypeScript/lint/build/tests all clean, full suite run twice with no
-flake. Ready for external Merge Gate review; **not merged by this session**, per instructions.
+(criterion #6, grep-verified). A Fresh Merge Gate review surfaced one real pause-boundary bug in
+`advanceStepTiming` (§18) — fixed with a single-line, minimal change, backed by two new regression
+tests proven to catch the original bug, with zero impact on any other verified behavior.
+TypeScript/lint/build/tests all clean, full suite run twice with no flake. Ready for external
+Merge Gate review; **not merged by this session**, per instructions.
