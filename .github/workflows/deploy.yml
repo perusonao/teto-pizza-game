@@ -25,6 +25,20 @@ jobs:
           node-version: 20
           cache: npm
 
+      # Temporary safe diagnostic: reports only whether each required secret is
+      # present. It never prints any secret value.
+      - name: Check Firebase secret presence
+        env:
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+        run: |
+          test -n "$VITE_FIREBASE_API_KEY" && echo "VITE_FIREBASE_API_KEY=true" || echo "VITE_FIREBASE_API_KEY=false"
+          test -n "$VITE_FIREBASE_AUTH_DOMAIN" && echo "VITE_FIREBASE_AUTH_DOMAIN=true" || echo "VITE_FIREBASE_AUTH_DOMAIN=false"
+          test -n "$VITE_FIREBASE_PROJECT_ID" && echo "VITE_FIREBASE_PROJECT_ID=true" || echo "VITE_FIREBASE_PROJECT_ID=false"
+          test -n "$VITE_FIREBASE_APP_ID" && echo "VITE_FIREBASE_APP_ID=true" || echo "VITE_FIREBASE_APP_ID=false"
+
       - run: npm ci
       - run: npm run build
         env:
