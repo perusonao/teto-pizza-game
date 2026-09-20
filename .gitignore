@@ -12,6 +12,14 @@ dist
 dist-ssr
 *.local
 
+# Firebase Ranking 1.0 Phase 1B (Issue #87): functions/lib is esbuild's bundled deploy output
+# (rebuilt by `npm run build` inside functions/, see functions/package.json), never source.
+# .firebaserc holds a real Firebase project id once Manual Setup creates one (see
+# .firebaserc.example) -- like .env.local, it's local/per-environment, never committed.
+functions/lib
+.firebaserc
+.firebase/
+
 # Review Playthrough videos (Human Review evidence) -- delivered to the user directly, never
 # committed (large binaries don't belong in this repo's history).
 artifacts/

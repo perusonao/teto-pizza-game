@@ -124,12 +124,13 @@ describe("pickMissionOrder", () => {
 });
 
 describe("missionRunReducer", () => {
-  it("starts at FREE with empty metrics and no clock", () => {
+  it("starts at FREE with empty metrics, no clock, and an empty serves log", () => {
     expect(INITIAL_MISSION_STATE).toEqual({
       mode: "FREE",
       clock: null,
       metrics: { servedCount: 0, totalQualityScore: 0, bestQualityScore: 0 },
       runId: 0,
+      serves: [],
     });
   });
 
@@ -143,13 +144,14 @@ describe("missionRunReducer", () => {
     expect(missionRunReducer(playing, { type: "SHOW_INTRO" })).toBe(playing);
   });
 
-  it("START moves to PLAYING with a fresh clock and reset metrics, from any mode", () => {
+  it("START moves to PLAYING with a fresh clock, reset metrics, and a reset serves log, from any mode", () => {
     for (const mode of ["FREE", "INTRO", "PLAYING", "RESULT"] as const) {
       const from: MissionState = {
         mode,
         clock: startMissionClock(0, { durationSeconds: 10 }),
         metrics: { servedCount: 3, totalQualityScore: 250, bestQualityScore: 90 },
         runId: 2,
+        serves: [{ recipeId: "margherita", qualityTotal: 80, completionStatus: "PASS" }],
       };
       const next = missionRunReducer(from, {
         type: "START",
@@ -159,6 +161,7 @@ describe("missionRunReducer", () => {
       expect(next.mode).toBe("PLAYING");
       expect(next.clock).toEqual({ startedAt: 5_000, endsAt: 50_000 });
       expect(next.metrics).toEqual({ servedCount: 0, totalQualityScore: 0, bestQualityScore: 0 });
+      expect(next.serves).toEqual([]);
       // Phase 3C-5: every START (including a retry from RESULT) gets its own fresh run id.
       expect(next.runId).toBe(3);
     }
@@ -170,10 +173,12 @@ describe("missionRunReducer", () => {
       clock: startMissionClock(0, { durationSeconds: 10 }),
       metrics: { servedCount: 5, totalQualityScore: 400, bestQualityScore: 95 },
       runId: 7,
+      serves: [{ recipeId: "margherita", qualityTotal: 80, completionStatus: "PASS" }],
     };
     const retried = missionRunReducer(finished, { type: "START", now: 100_000 });
     expect(retried.mode).toBe("PLAYING");
     expect(retried.metrics.servedCount).toBe(0);
+    expect(retried.serves).toEqual([]);
     // A retry's runId must differ from the run it's retrying, so a Pitz reward grant keyed on
     // the previous run's id (src/state/gameReducer.ts's CLAIM_MISSION_REWARD) never applies to
     // this new run, and this new run's own grant never collides with the previous one.
@@ -196,7 +201,12 @@ describe("missionRunReducer", () => {
 
     it("SERVE and TICK never change runId", () => {
       const started = missionRunReducer(INITIAL_MISSION_STATE, { type: "START", now: 0 });
-      const served = missionRunReducer(started, { type: "SERVE", qualityTotal: 80, now: 1 });
+      const served = missionRunReducer(started, {
+        type: "SERVE",
+        qualityTotal: 80,
+        recipeId: "margherita",
+        now: 1,
+      });
       expect(served.runId).toBe(started.runId);
       const ticked = missionRunReducer(served, { type: "TICK", now: 2 });
       expect(ticked.runId).toBe(started.runId);
@@ -216,10 +226,108 @@ describe("missionRunReducer", () => {
       clock: startMissionClock(0, { durationSeconds: 60 }),
       metrics: { servedCount: 0, totalQualityScore: 0, bestQualityScore: 0 },
       runId: 0,
+      serves: [],
     };
-    const afterOne = missionRunReducer(playing, { type: "SERVE", qualityTotal: 80, now: 1_000 });
+    const afterOne = missionRunReducer(playing, {
+      type: "SERVE",
+      qualityTotal: 80,
+      recipeId: "margherita",
+      now: 1_000,
+    });
     expect(afterOne.metrics).toEqual({ servedCount: 1, totalQualityScore: 80, bestQualityScore: 80 });
     expect(afterOne.mode).toBe("PLAYING");
+  });
+
+  // Firebase Ranking 1.0 Phase 1B (Issue #87): `serves` is the log the eventual score
+  // submission is built from (../shared/lunchRushScoring.ts). It must accumulate in exact
+  // lockstep with `metrics` -- appended in the same branch, reset at the same points -- so a
+  // submission can never disagree with what the player already saw.
+  describe("serves log (Firebase Ranking 1.0 Phase 1B)", () => {
+    const playing: MissionState = {
+      mode: "PLAYING",
+      clock: startMissionClock(0, { durationSeconds: 60 }),
+      metrics: { servedCount: 0, totalQualityScore: 0, bestQualityScore: 0 },
+      runId: 0,
+      serves: [],
+    };
+
+    it("a PASS serve appends a PASS record with the served recipeId/qualityTotal", () => {
+      const next = missionRunReducer(playing, {
+        type: "SERVE",
+        qualityTotal: 80,
+        recipeId: "margherita",
+        now: 1_000,
+      });
+      expect(next.serves).toEqual([
+        { recipeId: "margherita", qualityTotal: 80, completionStatus: "PASS" },
+      ]);
+    });
+
+    it("a FAILED serve still appends a FAILED record (qualityTotal forced to 0), unlike metrics", () => {
+      const next = missionRunReducer(playing, {
+        type: "SERVE",
+        qualityTotal: 95,
+        recipeId: "marinara",
+        completionFailed: true,
+        now: 1_000,
+      });
+      expect(next.metrics).toEqual({ servedCount: 0, totalQualityScore: 0, bestQualityScore: 0 });
+      expect(next.serves).toEqual([{ recipeId: "marinara", qualityTotal: 0, completionStatus: "FAILED" }]);
+    });
+
+    it("accumulates multiple serves, PASS and FAILED alike, in order", () => {
+      const afterFirst = missionRunReducer(playing, {
+        type: "SERVE",
+        qualityTotal: 80,
+        recipeId: "margherita",
+        now: 1_000,
+      });
+      const afterSecond = missionRunReducer(afterFirst, {
+        type: "SERVE",
+        qualityTotal: 0,
+        recipeId: "marinara",
+        completionFailed: true,
+        now: 2_000,
+      });
+      const afterThird = missionRunReducer(afterSecond, {
+        type: "SERVE",
+        qualityTotal: 60,
+        recipeId: "genovese",
+        now: 3_000,
+      });
+      expect(afterThird.serves).toEqual([
+        { recipeId: "margherita", qualityTotal: 80, completionStatus: "PASS" },
+        { recipeId: "marinara", qualityTotal: 0, completionStatus: "FAILED" },
+        { recipeId: "genovese", qualityTotal: 60, completionStatus: "PASS" },
+      ]);
+    });
+
+    it("a deadline-rejected SERVE (Codex review P2-1) does not append to serves either", () => {
+      const nearEnd: MissionState = {
+        mode: "PLAYING",
+        clock: startMissionClock(0, { durationSeconds: 10 }),
+        metrics: { servedCount: 0, totalQualityScore: 0, bestQualityScore: 0 },
+        runId: 0,
+        serves: [],
+      };
+      const next = missionRunReducer(nearEnd, {
+        type: "SERVE",
+        qualityTotal: 100,
+        recipeId: "margherita",
+        now: 10_000, // at/after endsAt -- rejected
+      });
+      expect(next.mode).toBe("RESULT");
+      expect(next.serves).toEqual([]);
+    });
+
+    it("EXIT_TO_FREE resets serves to an empty array", () => {
+      const withServes: MissionState = {
+        ...playing,
+        serves: [{ recipeId: "margherita", qualityTotal: 80, completionStatus: "PASS" }],
+      };
+      const next = missionRunReducer(withServes, { type: "EXIT_TO_FREE" });
+      expect(next.serves).toEqual([]);
+    });
   });
 
   // Lunch Rush Completion Gate 1A: `completionFailed` (App.tsx's read of `state.completion`,
@@ -233,12 +341,14 @@ describe("missionRunReducer", () => {
       clock: startMissionClock(0, { durationSeconds: 60 }),
       metrics: { servedCount: 0, totalQualityScore: 0, bestQualityScore: 0 },
       runId: 0,
+      serves: [],
     };
 
     it("leaves metrics untouched (servedCount/totalQualityScore/bestQualityScore all stay 0)", () => {
       const next = missionRunReducer(playing, {
         type: "SERVE",
         qualityTotal: 0,
+        recipeId: "margherita",
         completionFailed: true,
         now: 1_000,
       });
@@ -250,6 +360,7 @@ describe("missionRunReducer", () => {
       const next = missionRunReducer(playing, {
         type: "SERVE",
         qualityTotal: 95,
+        recipeId: "margherita",
         completionFailed: true,
         now: 1_000,
       });
@@ -257,10 +368,16 @@ describe("missionRunReducer", () => {
     });
 
     it("a FAILED serve does not reset metrics a PASS serve already accumulated", () => {
-      const afterPass = missionRunReducer(playing, { type: "SERVE", qualityTotal: 60, now: 1_000 });
+      const afterPass = missionRunReducer(playing, {
+        type: "SERVE",
+        qualityTotal: 60,
+        recipeId: "margherita",
+        now: 1_000,
+      });
       const afterFailed = missionRunReducer(afterPass, {
         type: "SERVE",
         qualityTotal: 0,
+        recipeId: "marinara",
         completionFailed: true,
         now: 2_000,
       });
@@ -271,6 +388,7 @@ describe("missionRunReducer", () => {
       const next = missionRunReducer(playing, {
         type: "SERVE",
         qualityTotal: 0,
+        recipeId: "margherita",
         completionFailed: true,
         now: 60_000,
       });
@@ -286,8 +404,14 @@ describe("missionRunReducer", () => {
         clock: null,
         metrics: { servedCount: 0, totalQualityScore: 0, bestQualityScore: 0 },
         runId: 0,
+        serves: [],
       };
-      const next = missionRunReducer(state, { type: "SERVE", qualityTotal: 99, now: 1_000 });
+      const next = missionRunReducer(state, {
+        type: "SERVE",
+        qualityTotal: 99,
+        recipeId: "margherita",
+        now: 1_000,
+      });
       expect(next).toBe(state);
     }
   });
@@ -301,19 +425,30 @@ describe("missionRunReducer", () => {
         clock: startMissionClock(0, { durationSeconds }),
         metrics: { servedCount: 2, totalQualityScore: 150, bestQualityScore: 90 },
         runId: 0,
+        serves: [],
       };
     }
 
     it("accepts a serve 1ms before the deadline", () => {
       const playing = playingAt(10); // endsAt = 10_000
-      const next = missionRunReducer(playing, { type: "SERVE", qualityTotal: 70, now: 9_999 });
+      const next = missionRunReducer(playing, {
+        type: "SERVE",
+        qualityTotal: 70,
+        recipeId: "margherita",
+        now: 9_999,
+      });
       expect(next.mode).toBe("PLAYING");
       expect(next.metrics).toEqual({ servedCount: 3, totalQualityScore: 220, bestQualityScore: 90 });
     });
 
     it("rejects a serve at exactly the deadline and ends the run", () => {
       const playing = playingAt(10); // endsAt = 10_000
-      const next = missionRunReducer(playing, { type: "SERVE", qualityTotal: 99, now: 10_000 });
+      const next = missionRunReducer(playing, {
+        type: "SERVE",
+        qualityTotal: 99,
+        recipeId: "margherita",
+        now: 10_000,
+      });
       expect(next.mode).toBe("RESULT");
       // Metrics are untouched by the rejected serve -- the expired pizza's quality never
       // enters servedCount/totalQualityScore/bestQualityScore (and therefore never affects
@@ -323,27 +458,47 @@ describe("missionRunReducer", () => {
 
     it("rejects a serve well after the deadline and ends the run", () => {
       const playing = playingAt(10); // endsAt = 10_000
-      const next = missionRunReducer(playing, { type: "SERVE", qualityTotal: 100, now: 60_000 });
+      const next = missionRunReducer(playing, {
+        type: "SERVE",
+        qualityTotal: 100,
+        recipeId: "margherita",
+        now: 60_000,
+      });
       expect(next.mode).toBe("RESULT");
       expect(next.metrics).toEqual(playing.metrics);
     });
 
     it("an expired serve never increments servedCount", () => {
       const playing = playingAt(10);
-      const next = missionRunReducer(playing, { type: "SERVE", qualityTotal: 100, now: 10_000 });
+      const next = missionRunReducer(playing, {
+        type: "SERVE",
+        qualityTotal: 100,
+        recipeId: "margherita",
+        now: 10_000,
+      });
       expect(next.metrics.servedCount).toBe(playing.metrics.servedCount);
     });
 
     it("an expired serve never increases totalQualityScore", () => {
       const playing = playingAt(10);
-      const next = missionRunReducer(playing, { type: "SERVE", qualityTotal: 100, now: 10_000 });
+      const next = missionRunReducer(playing, {
+        type: "SERVE",
+        qualityTotal: 100,
+        recipeId: "margherita",
+        now: 10_000,
+      });
       expect(next.metrics.totalQualityScore).toBe(playing.metrics.totalQualityScore);
     });
 
     it("an expired serve can never produce a higher Mission Score than the run already had", () => {
       const playing = playingAt(10);
       const scoreBefore = playing.metrics.servedCount * 100 + playing.metrics.totalQualityScore;
-      const next = missionRunReducer(playing, { type: "SERVE", qualityTotal: 100, now: 10_000 });
+      const next = missionRunReducer(playing, {
+        type: "SERVE",
+        qualityTotal: 100,
+        recipeId: "margherita",
+        now: 10_000,
+      });
       const scoreAfter = next.metrics.servedCount * 100 + next.metrics.totalQualityScore;
       expect(scoreAfter).toBe(scoreBefore);
     });
@@ -356,6 +511,7 @@ describe("missionRunReducer", () => {
       const afterLateServe = missionRunReducer(playing, {
         type: "SERVE",
         qualityTotal: 100,
+        recipeId: "margherita",
         now: 45_000, // well past endsAt, as if TICK had been throttled for 35s
       });
       expect(afterLateServe.mode).toBe("RESULT");
@@ -369,9 +525,19 @@ describe("missionRunReducer", () => {
 
     it("SERVE ending the run this way is itself one-shot: a second SERVE after is also rejected and does not change state again", () => {
       const playing = playingAt(10);
-      const afterFirst = missionRunReducer(playing, { type: "SERVE", qualityTotal: 100, now: 10_000 });
+      const afterFirst = missionRunReducer(playing, {
+        type: "SERVE",
+        qualityTotal: 100,
+        recipeId: "margherita",
+        now: 10_000,
+      });
       expect(afterFirst.mode).toBe("RESULT");
-      const afterSecond = missionRunReducer(afterFirst, { type: "SERVE", qualityTotal: 100, now: 20_000 });
+      const afterSecond = missionRunReducer(afterFirst, {
+        type: "SERVE",
+        qualityTotal: 100,
+        recipeId: "margherita",
+        now: 20_000,
+      });
       expect(afterSecond).toBe(afterFirst);
     });
   });
@@ -382,6 +548,7 @@ describe("missionRunReducer", () => {
       clock: startMissionClock(0, { durationSeconds: 60 }),
       metrics: { servedCount: 0, totalQualityScore: 0, bestQualityScore: 0 },
       runId: 0,
+      serves: [],
     };
     const next = missionRunReducer(playing, { type: "TICK", now: 30_000 });
     expect(next).toBe(playing);
@@ -393,6 +560,7 @@ describe("missionRunReducer", () => {
       clock: startMissionClock(0, { durationSeconds: 10 }),
       metrics: { servedCount: 2, totalQualityScore: 150, bestQualityScore: 90 },
       runId: 0,
+      serves: [],
     };
     const next = missionRunReducer(playing, { type: "TICK", now: 10_000 });
     expect(next.mode).toBe("RESULT");
@@ -406,6 +574,7 @@ describe("missionRunReducer", () => {
       clock: startMissionClock(0, { durationSeconds: 10 }),
       metrics: { servedCount: 1, totalQualityScore: 70, bestQualityScore: 70 },
       runId: 0,
+      serves: [],
     };
     const afterExpiry = missionRunReducer(playing, { type: "TICK", now: 10_000 });
     expect(afterExpiry.mode).toBe("RESULT");
@@ -423,13 +592,14 @@ describe("missionRunReducer", () => {
     expect(next).toBe(INITIAL_MISSION_STATE);
   });
 
-  it("EXIT_TO_FREE resets Mission runtime (mode, clock, metrics) from any mode, preserving runId", () => {
+  it("EXIT_TO_FREE resets Mission runtime (mode, clock, metrics, serves) from any mode, preserving runId", () => {
     for (const mode of ["INTRO", "PLAYING", "RESULT"] as const) {
       const state: MissionState = {
         mode,
         clock: startMissionClock(0, { durationSeconds: 10 }),
         metrics: { servedCount: 4, totalQualityScore: 300, bestQualityScore: 92 },
         runId: 3,
+        serves: [{ recipeId: "margherita", qualityTotal: 80, completionStatus: "PASS" }],
       };
       const next = missionRunReducer(state, { type: "EXIT_TO_FREE" });
       expect(next).toEqual({ ...INITIAL_MISSION_STATE, runId: 3 });
