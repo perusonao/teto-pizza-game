@@ -6,11 +6,138 @@ Pizza Cutting Phase 0 (PR #123) -- no progression/economy/gameplay/scoring/recip
 cooking-steps/pizza-cutting file was read for editing, only Firebase wiring and its own
 docs/report.
 
-This report covers two sessions: **Session 1** (below, through "FINAL VERDICT: B. READY --
-OWNER ACTION REQUIRED") produced PR #121's original code changes. **Session 2** (new section
-right below) resumed the same PR after the owner completed the GitHub Secrets setup, and
-attempted the real deploy / production smoke test. See "Session 2" for the current, up-to-date
-status and Final Verdict -- Session 1's own verdict below is superseded.
+This report now covers three sessions. **Session 1** produced PR #121's original code changes.
+**Session 2** resumed the PR after GitHub Secrets were configured, and found this session's own
+network policy blocks Firebase's login/Pages/Functions-invoke endpoints, so neither a real
+deploy nor a production smoke test could be performed from within it. **Session 3** (immediately
+below -- the current, authoritative status) resumed the PR after the **owner performed the real
+Firebase deploy from their own machine**, confirms that deploy, rebases onto the latest `main`,
+and re-verifies everything. See "Session 3" for the current Final Verdict -- Sessions 1 and 2's
+own verdicts further below are both superseded.
+
+## Session 3: owner-confirmed production deploy, rebase onto latest main, re-verification
+
+### PR Gate Check #1 (Session 3, before any change)
+
+- `git fetch origin` -- fresh, not trusting any prior session's recorded SHA. `origin/main` tip:
+  **`a2cd715f2b42cdebfa13750333cc24da91ed888e`** ("Pizza Cutting 1.0 Phase 1: geometry and
+  evaluation foundation (#126)"), one commit ahead of that: `a7b842c` ("HOME Weekly Ranking
+  route: reuse WeeklyRankingOverlay from HOME (#127)"). Both merged since Session 2's audit.
+- PR #121 confirmed **still open**, not closed/merged/superseded -- continuing it, no new PR
+  created. `list_pull_requests` (open): no other open PR touches Firebase or overlaps this
+  scope.
+- PR #121 state before this session's changes: head
+  `6ad22a4ddfbc330ac4ed6292cc042443a86db92e`, base `d62d535305dd65bf5f45c847363c38f421a40e23`
+  (Session 2's last sync point) -- two commits behind current `main`.
+- `git diff d62d535..origin/main --stat`: 18 files -- `src/logic/cut/*` (Pizza Cutting geometry/
+  evaluation, #126), `src/App.tsx` + `src/screens/HomeScreen.tsx` (#127, reusing the existing
+  `WeeklyRankingOverlay` from HOME), plus both PRs' own result reports/screenshots. **Zero
+  overlap** with PR #121's 6 files. No Cooking Steps/Pizza Cutting/gameplay file was read for
+  editing by this session.
+
+### Rebase / merge onto latest main
+
+`git merge origin/main` on `claude/teto-pizza-firebase-production-wwo9di` -- clean, **zero
+conflicts** (confirmed by the no-overlap check above). PR #121's own scope was untouched by the
+merge.
+
+`git diff origin/main...HEAD --stat` after the merge: still exactly PR #121's own 6 files
+(`.github/workflows/deploy.yml`, `docs/design/TETO_FIREBASE-RANKING_SETUP.md`, this report,
+`functions/src/index.ts`, `src/firebase/submitLunchRushScore.ts`, `src/firebase/
+submitLunchRushScore.test.ts`) -- no scope creep.
+
+### Owner-confirmed production deploy (Phase D -- now DONE)
+
+The owner performed the real Firebase deploy from their own machine (outside this session's
+network-restricted container, resolving Session 2's exact blocker). Confirmed, as reported by
+the owner:
+
+| Resource | Result |
+|---|---|
+| Firebase project | `teto-pizza-game` |
+| Cloud Function `submitLunchRushScore` | **Deploy complete** -- "Successful create operation", region **`asia-northeast1`** (matches this PR's own code fix, `onCall({ region: "asia-northeast1" }, ...)`, `functions/src/index.ts`) |
+| `firestore.rules` | Compiled successfully, **deployed successfully** |
+| `firestore.indexes.json` | **Deployed successfully** |
+| Artifact Registry cleanup policy | `asia-northeast1`, images older than 1 day auto-deleted (Cloud Functions Gen 2 build-artifact hygiene, not a change this PR made or needs to track further) |
+| Authorized domain | `perusonao.github.io` **added** to Firebase Console -> Authentication -> Settings -> Authorized domains |
+| GitHub Actions secrets | `VITE_FIREBASE_API_KEY` / `VITE_FIREBASE_AUTH_DOMAIN` / `VITE_FIREBASE_PROJECT_ID` / `VITE_FIREBASE_APP_ID` -- **configured** (values not verified or displayed by this session, per the Security Gate; presence taken as owner-reported) |
+
+This session did not perform the deploy itself and did not re-verify it against the live project
+(this session's network still cannot reach `*.cloudfunctions.net` or Firebase's Console/Admin
+surfaces to independently confirm -- see Session 2's Network policy finding, unchanged). This
+table records the owner's report, not an independent re-check. **A Firebase re-deploy was
+explicitly not needed and not performed by this session** -- the code deployed already matches
+what's in this PR (region `asia-northeast1`, unchanged since Session 1).
+
+**Node.js 20 runtime deprecation warning**: acknowledged (owner noted it appeared during their
+deploy) but deliberately **left untouched** -- an unrelated runtime version bump is out of this
+PR's scope and was not mixed in, per this task's own instruction.
+
+### Authorized domains -- now resolved
+
+Session 2 left this as "not yet determined, not treated as a blocker." **Now resolved**: the
+owner added `perusonao.github.io` (bare hostname) to Firebase Console -> `teto-pizza-game` ->
+Authentication -> Settings -> Authorized domains, ahead of any smoke test actually failing on it
+-- a reasonable precaution given Firebase Auth's own well-documented `auth/unauthorized-domain`
+behavior for a non-default domain, even though Session 2 deliberately didn't demand it
+speculatively. No further action needed here.
+
+### Production smoke test -- still correctly NOT performed
+
+Per this session's own explicit instruction: the production smoke test happens after PR #121
+merges and the next GitHub Pages deployment runs with the real `VITE_FIREBASE_*` secrets baked
+in -- not before, and not from this session (whose network still cannot reach
+`perusonao.github.io` or `*.cloudfunctions.net`, unchanged from Session 2's finding). Reporting
+"deploy succeeded" and "smoke test performed" would be two different claims; this report keeps
+them distinct. **Smoke test status: not yet performed (expected, by design, until after merge).**
+
+### Re-verification after rebase (fresh `npm ci`)
+
+| Command | Result |
+|---|---|
+| `npm run lint` (root, oxlint) | pass, no output |
+| `npx tsc --noEmit -p .` (root) | pass, no output |
+| `npm test` (root, vitest) -- run 1 | **1910/1910 tests passed**, 101 files |
+| `npm test` (root, vitest) -- run 2 | **1910/1910 tests passed** again (repeatability check) |
+| `npm run build` (root) | pass -- succeeds with no `VITE_FIREBASE_*` env set |
+| `npx vitest run src/firebase` (Firebase-focused tests) | **31/31 passed** |
+| `npm run typecheck` (functions) | pass, no output |
+| `npm run lint` (functions, oxlint) | pass, no output |
+| `npm test` (functions, vitest) | **32/32 passed** |
+| `npm run build` (functions, esbuild) | pass -- `lib/index.js` confirmed to still contain `onCall({ region: "asia-northeast1" }, ...)` |
+| Firestore rules emulator (`firebase-tools emulators:exec --only firestore "vitest run --config vitest.rules.config.ts"`) | **14/14 passed**, no rule weakened |
+
+All green -- no regression from the #126/#127 merge (Pizza Cutting geometry/evaluation logic and
+the HOME weekly-ranking route reuse are both independent of everything this PR touches).
+
+### PR Gate Check #2 (Session 3, immediately before finishing)
+
+- `git fetch origin main` again, immediately before the final push: `origin/main` unchanged at
+  `a2cd715f2b42cdebfa13750333cc24da91ed888e` since the earlier check in this same session -- no
+  new merge landed mid-session. `git merge-base --is-ancestor origin/main HEAD` confirms this
+  branch is fully caught up.
+- PR #121: still open, not closed/merged/superseded.
+- No new Firebase-scoped PR or duplicate branch appeared.
+- `git diff origin/main...HEAD --stat`: still exactly PR #121's own 6 files.
+- No secret value appears anywhere in this diff, this report, or any command output produced in
+  this session (only secret *names*, never values, per the Security Gate).
+- No progression/economy/scoring/recipe/save-schema/Cooking-Steps/Pizza-Cutting file changed --
+  both #126 and #127 were only merged *in* from `main`, never edited.
+
+### FINAL VERDICT (Session 3, current -- supersedes Sessions 1 and 2's verdicts below)
+
+**A. PRODUCTION CONNECTED.**
+
+All code/config changes are complete and re-verified after rebasing onto the latest `main`
+(1910/1910 root tests x2, 32/32 functions tests, 14/14 rules-emulator tests, all builds clean).
+The owner has completed the real Firebase deploy (`firestore:rules`, `firestore:indexes`,
+`functions` -- `submitLunchRushScore` live in `asia-northeast1`), added the Authorized domain,
+and configured all four GitHub Actions secrets. Nothing in this task's scope remains code-side or
+manual-setup-side blocked. The only remaining step -- the production smoke test -- is correctly
+deferred until after this PR merges and GitHub Pages redeploys with the real config, exactly as
+this session was instructed; it is not a blocker on this PR being ready, only on declaring the
+*end-to-end* production path smoke-tested. PR #121 remains open and is not merged by this
+session.
 
 ## Session 2: resume, rebase, deploy attempt, network findings
 
@@ -273,7 +400,7 @@ if that exact error appears, add `perusonao.github.io` at Firebase Console -> `t
   must be checked before `firebase deploy` -- the exact-`teto-pizza-game` check is called out in
   the commands above specifically to guard against this.
 
-### FINAL VERDICT (Session 2, current -- supersedes Session 1's verdict below)
+### FINAL VERDICT (Session 2 -- now superseded by Session 3's verdict above)
 
 **B. CODE READY -- OWNER ACTION REQUIRED.**
 
