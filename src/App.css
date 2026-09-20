@@ -1856,6 +1856,88 @@
   color: #8a6a45;
 }
 
+.mission-result__ranking-link {
+  width: 100%;
+}
+
+/* ---------- Weekly Ranking (Firebase Ranking 1.0 Phase 2A, Issue #87) ---------- */
+/* Shares .mission-overlay/.mission-overlay__panel's card shell (see that class's own rules
+   above) -- only its own list/row content gets new classes here, matching the existing Lunch
+   Rush visual language rather than introducing a second overlay style. */
+.ranking-overlay__panel {
+  max-width: 320px;
+}
+
+.ranking-overlay__week {
+  font-size: 12px;
+  color: #8a6a45;
+  margin-top: -6px;
+}
+
+.ranking-overlay__status {
+  font-size: 14px;
+  color: #6b4226;
+  padding: 12px 0;
+}
+
+.ranking-overlay__status--error {
+  color: #b3401f;
+}
+
+.ranking-overlay__list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  /* All 10 rows fit without scrolling on the 390x844 authority viewport (and 360x800) --
+     this cap is only a safety net for a shorter viewport than either of those. */
+  max-height: 440px;
+  overflow-y: auto;
+}
+
+.ranking-overlay__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f5ecd8;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #4a2e0a;
+}
+
+.ranking-overlay__row--you {
+  background: #fdecc8;
+  border: 1.5px solid #f2b705;
+}
+
+.ranking-overlay__row--outside {
+  width: 100%;
+  margin-top: 4px;
+}
+
+.ranking-overlay__rank {
+  font-weight: 800;
+  min-width: 36px;
+}
+
+.ranking-overlay__score {
+  font-weight: 700;
+  margin-left: auto;
+}
+
+.ranking-overlay__you-badge {
+  font-size: 11px;
+  font-weight: 800;
+  color: #b8860b;
+  background: #fff8ea;
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
 /* ---------- Shop (Phase 3C-5) ---------- */
 .shop-overlay__body {
   display: flex;

@@ -105,6 +105,7 @@ function Harness({ category }: { category: IngredientCategory }) {
         onMissionStart={() => {}}
         onMissionExitToFree={() => {}}
         onMissionCloseIntro={() => {}}
+        onShowRanking={() => {}}
         onReferencePopoverChange={() => {}}
         onDispenseProgress={() => {}}
         onDispenseCommit={() => {}}

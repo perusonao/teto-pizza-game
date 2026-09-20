@@ -12,6 +12,14 @@ interface MissionResultOverlayProps {
   pitzBalance: number;
   onRetry: () => void;
   onExit: () => void;
+  /** Firebase Ranking 1.0 Phase 2A (Issue #87): opens the weekly ranking overlay
+   *  (WeeklyRankingOverlay). This run's own score submission (App.tsx's Phase 1B effect) has
+   *  already fired by the time RESULT renders -- see that effect's own comment -- so tapping
+   *  this immediately after a run typically already reflects the just-submitted score, though
+   *  nothing here waits on or guarantees that (Phase 2A intentionally avoids adding global
+   *  submission/read synchronization; a player who wants the very latest can retry from the
+   *  ranking overlay itself). */
+  onShowRanking: () => void;
 }
 
 /** Shown once a Lunch Rush run's timer expires (Phase 3C-4 section 11). One screen, no extra
@@ -26,6 +34,7 @@ export function MissionResultOverlay({
   pitzBalance,
   onRetry,
   onExit,
+  onShowRanking,
 }: MissionResultOverlayProps) {
   return (
     <div className="mission-overlay">
@@ -52,6 +61,9 @@ export function MissionResultOverlay({
         <p className="mission-result__balance">
           現在残高: {"\u{1FA99}"} {pitzBalance} Pitz
         </p>
+        <button type="button" className="secondary-button mission-result__ranking-link" onClick={onShowRanking}>
+          {"\u{1F3C6}"} ランキングを見る
+        </button>
         <div className="action-row action-row--column">
           <button type="button" className="cta-button cta-button--primary" onClick={onRetry}>
             もう一度

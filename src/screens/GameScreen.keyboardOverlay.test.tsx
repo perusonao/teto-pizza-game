@@ -148,6 +148,7 @@ function Harness({
         onMissionStart={() => {}}
         onMissionExitToFree={() => {}}
         onMissionCloseIntro={() => {}}
+        onShowRanking={() => {}}
         onReferencePopoverChange={setReferencePopoverOpen}
         onDispenseProgress={() => {}}
         onDispenseCommit={() => {}}

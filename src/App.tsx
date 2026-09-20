@@ -7,6 +7,7 @@ import { DexOverlay } from "./components/DexOverlay";
 import { ShopOverlay } from "./components/ShopOverlay";
 import { InventoryOverlay } from "./components/InventoryOverlay";
 import { SettingsOverlay } from "./components/SettingsOverlay";
+import { WeeklyRankingOverlay } from "./components/WeeklyRankingOverlay";
 import { getReferencePizza } from "./data/referencePizza";
 import { computeSauceMetrics, emptySauceMetrics } from "./logic/sauceField";
 import { scorePiecesAgainstReference, scoreSauceAgainstReference } from "./logic/referenceScoring";
@@ -150,6 +151,11 @@ function App() {
   const [isShopOpen, setShopOpen] = useState(false);
   const [isInventoryOpen, setInventoryOpen] = useState(false);
   const [isSettingsOpen, setSettingsOpen] = useState(false);
+  // Firebase Ranking 1.0 Phase 2A (Issue #87): WeeklyRankingOverlay's open/closed state -- same
+  // App-level useState shape as isDexOpen/isShopOpen/isInventoryOpen/isSettingsOpen above, opened
+  // only from Lunch Rush RESULT (MissionResultOverlay's own "ランキングを見る" button, threaded
+  // through GameScreen's onShowRanking prop) rather than from HOME.
+  const [isRankingOpen, setRankingOpen] = useState(false);
   // Phase 4A-1A (Post-Codex-Fix) MUST FIX 1/9: opening the Reference ("見本") popover must
   // abort any in-progress tomato-sauce dispense session, exactly like BAKE does -- lifted
   // here (rather than left as ReferencePreview's own local state) so `interactive` below can
@@ -737,7 +743,7 @@ function App() {
           referenceModeEnabled={referenceModeEnabled}
           referencePizza={referencePizza}
           isReferencePopoverOpen={isReferencePopoverOpen}
-          isGlobalOverlayOpen={isDexOpen || isShopOpen || isInventoryOpen || isSettingsOpen}
+          isGlobalOverlayOpen={isDexOpen || isShopOpen || isInventoryOpen || isSettingsOpen || isRankingOpen}
           sauceMetrics={sauceMetrics}
           sauceShadowScore={sauceShadowScore}
           isDispensingSauce={pendingSauceDeposits.length > 0}
@@ -761,6 +767,7 @@ function App() {
           onMissionStart={startMission}
           onMissionExitToFree={exitMissionToFree}
           onMissionCloseIntro={() => missionDispatch({ type: "EXIT_TO_FREE" })}
+          onShowRanking={() => setRankingOpen(true)}
           onReferencePopoverChange={setReferencePopoverOpen}
           onDispenseProgress={handleDispenseProgress}
           onDispenseCommit={handleDispenseCommit}
@@ -804,6 +811,8 @@ function App() {
       {isSettingsOpen && (
         <SettingsOverlay onClose={() => setSettingsOpen(false)} onResetGameData={handleResetGameData} />
       )}
+
+      {isRankingOpen && <WeeklyRankingOverlay onClose={() => setRankingOpen(false)} />}
     </div>
   );
 }

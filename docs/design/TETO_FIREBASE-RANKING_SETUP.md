@@ -337,7 +337,7 @@ excludes them. A `FAILED` entry is still included in the submitted `serves[]` (`
 forced to 0) rather than silently dropped, specifically so the server enforces this rule from
 first principles instead of trusting the client's own prior filtering.
 
-## 19. Phase 2A connection point
+## 19. Phase 2A connection point (superseded by sections 21-26 below)
 
 Phase 2A (first read model) reads `leaderboards/{periodId}/entries` directly from the client --
 top100 (`orderBy("score", "desc"), orderBy("achievedAt", "asc"), limit(100)`) and an own-rank
@@ -346,6 +346,10 @@ loosen `firestore.rules`' current `allow read: if false;` on that collection to 
 rule at that point, not before. No Firestore schema change is anticipated for Phase 2A itself
 (section 14's schema was already designed with weekly/monthly/all-time in mind); the work is a
 new client-side query module and a ranking UI, both explicitly out of Phase 1B's scope.
+
+This section is the Phase 1B-era *plan*; see section 21 for what Phase 2A actually shipped
+(weekly-only, TOP 10 rather than top100 -- a deliberate, documented scope narrowing for a
+390px mobile screen and minimal Firestore reads, monthly/all-time/TOP 100 deferred to Phase 2B).
 
 ## 20. Manual Setup Required (Phase 1B additions)
 
@@ -370,3 +374,118 @@ Everything in section 8 (Phase 1A) still applies. Phase 1B adds:
 **Deliberately NOT required for Phase 1B**: App Check registration (Phase 0 audit's own
 recommended timing is Phase 3B, once there's an actual public leaderboard worth scripting
 against); any ranking UI Firebase Hosting/Pages change (GitHub Pages hosting is unchanged).
+
+## 21. Phase 2A: weekly ranking (first read model)
+
+Issue #87 Phase 2A. The first Lunch Rush ranking a player can actually see in-game: a weekly
+TOP 10, opened from the RESULT screen's own "🏆 ランキングを見る" button. Monthly ranking,
+all-time ranking, TOP 100, friend ranking, nicknames, avatars, rewards, seasons, App Check, and
+push notifications are all explicitly out of scope for this phase -- see the Phase 2A Result
+Report (`docs/reports/TETO_FIREBASE-RANKING_Phase2A_Result.md`) for the full scope decision.
+
+```
+Lunch Rush RESULT
+  -> "🏆 ランキングを見る" button (MissionResultOverlay's own onShowRanking prop)
+  -> WeeklyRankingOverlay (src/components/WeeklyRankingOverlay.tsx)
+  -> src/firebase/getWeeklyLeaderboard.ts (this phase's one new client API)
+     -> Firestore client read: leaderboards/{periodId}/entries
+        (periodId = "weekly_" + isoWeekId(now), src/shared/lunchRushPeriodIds.ts)
+```
+
+## 22. Period id authority moved to `src/shared/`
+
+`functions/src/periodIds.ts` (Phase 1B's own JST period-id derivation) moved to
+`src/shared/lunchRushPeriodIds.ts` in this phase, alongside `./lunchRushScoring.ts` -- the
+client's weekly leaderboard read needs to derive the exact same "which weekly period is 'this
+week'" answer the server already computes at submission time, so this became the second module
+both the Cloud Function and the browser share, instead of the client inventing a second,
+potentially-drifting week-numbering implementation (this task's own "no client-invented period
+ids" requirement). `functions/src/periodIds.ts` is now a one-line re-export of the moved file --
+`functions/src/submitLunchRushScore.ts`'s own `import ... from "./periodIds"` and
+`functions/src/periodIds.test.ts` are both unchanged and still pass. One function was added
+during the move, `jstWeekRange(epochMs)` -- the Monday-Sunday JST calendar-date range for the
+same ISO week `isoWeekId` already buckets by, used only for the ranking UI's "今週 9/14〜20"
+label, never for period-id bucketing itself.
+
+## 23. `getWeeklyLeaderboard()` (src/firebase/getWeeklyLeaderboard.ts)
+
+The only new client API this phase adds, alongside `submitLunchRushScore` in `src/firebase/
+index.ts`'s public surface. Deliberately the only file in `src/` that imports `firebase/
+firestore` -- Phase 1B's "the client never writes to Firestore directly" posture is unchanged
+(this module contains no `setDoc`/`addDoc`/`updateDoc`/`deleteDoc` at all, only reads), and no
+other component/module should import `firebase/firestore` directly either -- everything goes
+through this one function.
+
+Read shape, per call:
+1. `leaderboards/{periodId}/entries` (`periodId = "weekly_" + isoWeekId(now)`), `orderBy("score",
+   "desc"), orderBy("achievedAt", "asc"), limit(10)` -- the exact `score DESC, achievedAt ASC`
+   tie-break Phase 1B's own `upsertLeaderboardEntryIfHigher` was designed around (section 14),
+   matched here in the Firestore query, the returned `top[]`'s own `rank` ordering, and this
+   module's test suite alike (per this task's own "ordering must match everywhere" requirement).
+2. Only when the signed-in uid's own entry is *not* already one of those 10 results: one
+   single-doc read of the player's own `leaderboards/{periodId}/entries/{uid}`, plus (only if
+   that doc exists) one `count()` aggregation query (`where("score", ">", ownScore)`) to derive
+   an *approximate* rank -- see `WeeklyLeaderboardCurrentUserRank`'s own doc comment in that file
+   for exactly why this doesn't replicate the `achievedAt ASC` tie-break for an outside-top-10
+   exact score tie (a deliberately-scoped simplification, not a bug -- Phase 0 audit §7's own
+   fully tie-broken design is deferred to Phase 2B if this approximation ever proves
+   player-visible).
+
+Every outcome -- Firebase unconfigured, no signed-in user, a network/permission error thrown by
+the SDK -- resolves to a typed `GetWeeklyLeaderboardResult` (`"unavailable" | "error" |
+"success"`) instead of throwing, mirroring `submitLunchRushScore`'s own "never fail the caller"
+contract: a ranking-read failure can never be treated as a Lunch Rush gameplay failure.
+
+## 24. Firestore Security Rules (Phase 2A loosening)
+
+The one rule change this phase makes: `leaderboards/{periodId}/entries/{uid}` reads are now
+allowed **only** when `periodId` starts with `"weekly_"` --
+
+```
+match /leaderboards/{periodId}/entries/{uid} {
+  allow read: if periodId.matches('^weekly_.*');
+  allow write: if false;
+}
+```
+
+`monthly_*`/`all_all` stay exactly as read-denied as Phase 1B left them (no Phase 2A UI reads
+them -- this task's own "必要最小限" / minimum-necessary-privilege requirement), and **every**
+write (`weekly_*` included) stays denied exactly as Phase 1B left it -- Phase 2A does not loosen
+write access at all, only this one narrow read path. The condition depends only on the
+`periodId` path segment, never on `request.auth` -- Lunch Rush scores carry no personal
+information (no uid is ever rendered in the UI), so a public weekly leaderboard's read access is
+identical whether the requester is anonymous or authenticated. Verified against a real Firestore
+emulator in `firestore.rules.test.ts` (14 scenarios total, see the Result Report for the full
+list) -- run via:
+
+```bash
+npm install --no-save @firebase/rules-unit-testing   # once
+npx firebase-tools emulators:exec --only firestore \
+  "npx vitest run --config vitest.rules.config.ts"
+```
+
+## 25. Firestore index (no change needed)
+
+`firestore.indexes.json`'s existing composite index (`entries` collection, `queryScope:
+"COLLECTION"`, `score` DESCENDING + `achievedAt` ASCENDING -- predefined back in Phase 1B ahead
+of Phase 2A actually needing it) already covers this phase's TOP 10 query as-is: a `queryScope:
+"COLLECTION"` composite index applies to every collection sharing that collection ID at any
+document path, so the single index entry transparently covers `leaderboards/weekly_2026-W38/
+entries`, `leaderboards/weekly_2026-W39/entries`, etc., without one index per period. The
+`getCountFromServer` own-rank query (`where("score", ">", ownScore)`, a single inequality filter
+on one field) needs no composite index either -- Firestore's automatic single-field index
+already supports it. **No `firestore.indexes.json` change was needed for Phase 2A.**
+
+## 26. TOP 10, not TOP 100 (scope decision)
+
+Issue #87's own original language says "Top 100 display" for the eventual Lunch Rush Ranking 1.0
+product; this task's own Phase 2A brief explicitly asks for "スマホUIに適した小さな件数" (a small
+count suited to a mobile UI) with TOP 10 as its own suggested candidate, "大量全件readは禁止"
+(no bulk full-collection reads), and permits Phase 2A to decide the final count itself. TOP 10
+was chosen: it fits the 390×844 (and 360×800) authority viewport in one screen with zero internal
+scrolling (`WeeklyRankingOverlay`'s own `.ranking-overlay__list`, verified in browser -- see the
+Result Report's screenshots), keeps every leaderboard read to at most 10 + 1 (own entry) + 1
+(count aggregation) Firestore operations per open, and needs no pagination UI at all. A TOP 100
+view (Issue #87's original, eventual target) is deferred to Phase 2B alongside monthly/all-time
+ranking -- nothing in this phase's schema, rules, or index design blocks that later expansion
+(section 25 above).
