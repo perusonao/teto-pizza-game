@@ -46,9 +46,13 @@ const BATCH_1A_RECIPE_IDS: readonly RecipeId[] = [
  *  the 2 new recipes appended after Batch 1A's own chain. */
 const BATCH_1B_A_RECIPE_IDS: readonly RecipeId[] = ["pizza-bianca", "breakfast-pizza"];
 
-describe("RECIPES (Phase 3C-6: fugazza is Recipe #7; Batch 1A adds #8-#11; Batch 1B-A adds #12-#13)", () => {
-  it("has exactly 13 recipes total (7 shipped + Batch 1A's 4 + Batch 1B-A's 2)", () => {
-    expect(RECIPES).toHaveLength(13);
+/** Recipe Expansion Batch 1B-B (docs/reports/TETO_RECIPE-EXPANSION_BATCH-1B-B_Result.md):
+ *  the 1 new recipe appended after Batch 1B-A's own chain. */
+const BATCH_1B_B_RECIPE_IDS: readonly RecipeId[] = ["capricciosa"];
+
+describe("RECIPES (Phase 3C-6: fugazza is Recipe #7; Batch 1A adds #8-#11; Batch 1B-A adds #12-#13; Batch 1B-B adds #14)", () => {
+  it("has exactly 14 recipes total (7 shipped + Batch 1A's 4 + Batch 1B-A's 2 + Batch 1B-B's 1)", () => {
+    expect(RECIPES).toHaveLength(14);
   });
 
   it("the pre-Batch-1A Starter 6 + fugazza are unchanged", () => {
@@ -57,14 +61,15 @@ describe("RECIPES (Phase 3C-6: fugazza is Recipe #7; Batch 1A adds #8-#11; Batch
         (r) =>
           r.id !== "fugazza" &&
           !BATCH_1A_RECIPE_IDS.includes(r.id) &&
-          !BATCH_1B_A_RECIPE_IDS.includes(r.id),
+          !BATCH_1B_A_RECIPE_IDS.includes(r.id) &&
+          !BATCH_1B_B_RECIPE_IDS.includes(r.id),
       )
         .map((r) => r.id)
         .sort(),
     ).toEqual([...STARTER_RECIPE_IDS].sort());
   });
 
-  it("Batch 1A's 4 recipes exist exactly once each, ids unique across all 13", () => {
+  it("Batch 1A's 4 recipes exist exactly once each, ids unique across all 14", () => {
     for (const id of BATCH_1A_RECIPE_IDS) {
       expect(RECIPES.filter((r) => r.id === id)).toHaveLength(1);
     }
@@ -73,6 +78,12 @@ describe("RECIPES (Phase 3C-6: fugazza is Recipe #7; Batch 1A adds #8-#11; Batch
 
   it("Batch 1B-A's 2 recipes exist exactly once each, chained after Batch 1A", () => {
     for (const id of BATCH_1B_A_RECIPE_IDS) {
+      expect(RECIPES.filter((r) => r.id === id)).toHaveLength(1);
+    }
+  });
+
+  it("Batch 1B-B's 1 recipe exists exactly once, chained after Batch 1B-A", () => {
+    for (const id of BATCH_1B_B_RECIPE_IDS) {
       expect(RECIPES.filter((r) => r.id === id)).toHaveLength(1);
     }
   });
@@ -138,6 +149,46 @@ describe("RECIPES (Phase 3C-6: fugazza is Recipe #7; Batch 1A adds #8-#11; Batch
 
     it("chains after pizza-bianca", () => {
       expect(recipe?.unlockCondition?.requiresRecipeId).toBe("pizza-bianca");
+    });
+  });
+
+  describe.each(BATCH_1B_B_RECIPE_IDS)("%s (Batch 1B-B)", (id) => {
+    it("exists, uses only existing spread/scatter mechanics ingredients, and has a valid bake target", () => {
+      const r = getRecipe(id);
+      expect(r).toBeDefined();
+      expect(r!.requiredIngredients.length).toBeGreaterThan(0);
+      expect(r!.bakeTarget.start).toBeLessThan(r!.bakeTarget.end);
+      expect(r!.bakeTarget.start).toBeGreaterThan(0);
+      expect(r!.bakeTarget.end).toBeLessThan(100);
+      expect(r!.baseRewardPitz).toBe(100);
+    });
+
+    it("has a chain unlockCondition (never available from a fresh save)", () => {
+      const r = getRecipe(id);
+      expect(r!.unlockCondition?.requiresRecipeId).toBeDefined();
+      expect(r!.unlockCondition?.minTotalStars).toBeGreaterThan(0);
+    });
+  });
+
+  describe("capricciosa (Batch 1B-B)", () => {
+    const recipe = getRecipe("capricciosa");
+
+    it("requires tomato-sauce + mozzarella + mushroom + oregano + ham + black-olive (exactly 6 ingredients)", () => {
+      expect(recipe?.requiredIngredients.map((r) => r.ingredientId).sort()).toEqual(
+        ["black-olive", "ham", "mozzarella", "mushroom", "oregano", "tomato-sauce"].sort(),
+      );
+    });
+
+    it("has exactly 8 total non-sauce pieces (fits the player-reference ring's 8-slot ceiling)", () => {
+      const nonSauceCount = recipe!.requiredIngredients
+        .filter((r) => r.ingredientId !== "tomato-sauce")
+        .reduce((sum, r) => sum + r.minCount, 0);
+      expect(nonSauceCount).toBe(8);
+    });
+
+    it("chains after breakfast-pizza, the last Batch 1B-A recipe, at 40 totalStars", () => {
+      expect(recipe?.unlockCondition?.requiresRecipeId).toBe("breakfast-pizza");
+      expect(recipe?.unlockCondition?.minTotalStars).toBe(40);
     });
   });
 

@@ -3,8 +3,8 @@
   "catalogVersion": "2.0.0",
   "generatedDate": "2026-09-19",
   "totalIngredientCount": 62,
-  "existingIngredientCount": 20,
-  "newIngredientCount": 42,
+  "existingIngredientCount": 22,
+  "newIngredientCount": 40,
   "ingredients": [
     {
       "id": "tomato-sauce",
@@ -409,12 +409,10 @@
         "quattro-stagioni"
       ],
       "usedByRecipeCount": 5,
-      "existingInGame": false,
-      "visualDistinctiveness": 3,
-      "implementationCost": "new ingredient data row",
-      "reusePotential": "high",
-      "mechanicDependency": null,
-      "notes": "生ハム(prosciutto-crudo)とは別id。調理済みハムで焼成前にスキャッター。"
+      "existingInGame": true,
+      "visualDistinctiveness": null,
+      "implementationCost": "none (shipped)",
+      "reusePotential": "n/a (already shipped)"
     },
     {
       "id": "pineapple",
@@ -529,12 +527,10 @@
         "supreme"
       ],
       "usedByRecipeCount": 3,
-      "existingInGame": false,
-      "visualDistinctiveness": 3,
-      "implementationCost": "new ingredient data row",
-      "reusePotential": "high",
-      "mechanicDependency": null,
-      "notes": ""
+      "existingInGame": true,
+      "visualDistinctiveness": null,
+      "implementationCost": "none (shipped)",
+      "reusePotential": "n/a (already shipped)"
     },
     {
       "id": "prosciutto-crudo",

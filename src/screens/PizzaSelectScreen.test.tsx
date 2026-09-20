@@ -144,7 +144,7 @@ describe("PizzaSelectScreen pager (Issue #88 UX-4)", () => {
     expect(screen.getByLabelText("2 / 7")).toBeInTheDocument();
   });
 
-  it("5b. full production RECIPES (13) switches to counter mode, never a 13-dot row (Batch 1A/1B-A recipe-count gate)", async () => {
+  it("5b. full production RECIPES (14) switches to counter mode, never a 14-dot row (Batch 1A/1B-A/1B-B recipe-count gate)", async () => {
     const user = userEvent.setup();
     const { container } = render(
       <PizzaSelectScreen
@@ -154,11 +154,11 @@ describe("PizzaSelectScreen pager (Issue #88 UX-4)", () => {
         onBack={() => {}}
       />,
     );
-    expect(RECIPES.length).toBe(13);
+    expect(RECIPES.length).toBe(14);
     expect(container.querySelectorAll(".pizza-select-dot")).toHaveLength(0);
-    expect(screen.getByLabelText("1 / 13")).toBeInTheDocument();
+    expect(screen.getByLabelText("1 / 14")).toBeInTheDocument();
     await user.click(nextButton());
-    expect(screen.getByLabelText("2 / 13")).toBeInTheDocument();
+    expect(screen.getByLabelText("2 / 14")).toBeInTheDocument();
   });
 
   it("6. tapping the CTA on the current (unlocked) recipe reports its exact id", async () => {

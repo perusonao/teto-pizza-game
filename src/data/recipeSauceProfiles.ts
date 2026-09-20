@@ -90,6 +90,13 @@ export const RECIPE_SAUCE_PROFILES: Readonly<Record<RecipeId, RecipeSauceProfile
     ingredientId: "tomato-sauce",
     interaction: "PAINT",
   },
+  // Recipe Expansion Batch 1B-B: capricciosa uses tomato-sauce, per the Fresh Recipe Master
+  // Catalog's own `sauce` field (see ../data/recipes.ts).
+  capricciosa: {
+    recipeId: "capricciosa",
+    ingredientId: "tomato-sauce",
+    interaction: "PAINT",
+  },
 };
 
 export function getRecipeSauceProfile(recipeId: RecipeId): RecipeSauceProfile {
