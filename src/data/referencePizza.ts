@@ -764,6 +764,100 @@ export const BREAKFAST_PIZZA_REFERENCE: ReferencePizza = {
   ],
 };
 
+/**
+ * Recipe Expansion Batch 1B-B (see docs/reports/TETO_RECIPE-EXPANSION_BATCH-1B-B_Result.md):
+ * Scoring 2.0 Reference fixture for capricciosa -- without this, `computeScoringV2`
+ * (../logic/scoringV2/index.ts) returns `available: false` for it, so this is required
+ * production data, exactly like every other Batch 1A/1B-A entry above. No external review
+ * process was run for this batch either -- positions below are authored directly against the
+ * same visual-balance criteria those entries established: mozzarella/mushroom on an inner
+ * radius-18 ring (opposite-pair layout, matching `QUATTRO_FORMAGGI_REFERENCE`'s own two-cheese-
+ * pair convention above), ham/black-olive/oregano on an outer radius-32 ring (four evenly
+ * spaced points -- ham/oregano each a single hero piece, black-olive an opposite pair).
+ * `minCount` here is capricciosa's own actually-shipped x1 ham / x2 black-olive (see
+ * ../data/recipes.ts's own comment: rebalanced down from the Fresh Design audit's original
+ * x2/x3 proposal to fit the existing 8-slot player-reference ring ceiling
+ * `PIECE_RING_POSITIONS`, ../logic/pizzaReferenceLayout.ts, already enforces -- a constraint
+ * specific to that separate, generic player-facing layout, not this file's own hand-authored
+ * Scoring 2.0 geometry, but the same production minCount numbers apply here too). Standard
+ * 8/22 full/zero credit tolerance for every group (none of these five ingredients has an
+ * established physical size difference from mozzarella/mushroom/onion -- the same generic
+ * emoji-chip rendering as every other topping). `HEAVY_SQUASH` landing for
+ * mozzarella/mushroom/ham/black-olive (matching every other chunky topping); `oregano` reuses
+ * its existing `LIGHT_LEAF` treatment (from `FUGAZZA_REFERENCE` above), unchanged for
+ * capricciosa's own oregano group.
+ */
+export const CAPRICCIOSA_REFERENCE: ReferencePizza = {
+  recipeId: "capricciosa",
+  sauce: computeMechanicalSauceReference("capricciosa"),
+  pieceGroups: [
+    {
+      ingredientId: "mozzarella",
+      positions: [
+        { x: 63, y: 37 },
+        { x: 37, y: 63 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "mushroom",
+      positions: [
+        { x: 37, y: 37 },
+        { x: 63, y: 63 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "ham",
+      positions: [{ x: 82, y: 50 }],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "black-olive",
+      positions: [
+        { x: 66, y: 22 },
+        { x: 34, y: 78 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "oregano",
+      positions: [{ x: 18, y: 50 }],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "LIGHT_LEAF",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
 const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [MARGHERITA_REFERENCE.recipeId, MARGHERITA_REFERENCE],
   [MARINARA_REFERENCE.recipeId, MARINARA_REFERENCE],
@@ -778,6 +872,7 @@ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [TONNO_E_CIPOLLA_REFERENCE.recipeId, TONNO_E_CIPOLLA_REFERENCE],
   [PIZZA_BIANCA_REFERENCE.recipeId, PIZZA_BIANCA_REFERENCE],
   [BREAKFAST_PIZZA_REFERENCE.recipeId, BREAKFAST_PIZZA_REFERENCE],
+  [CAPRICCIOSA_REFERENCE.recipeId, CAPRICCIOSA_REFERENCE],
 ]);
 
 /**
