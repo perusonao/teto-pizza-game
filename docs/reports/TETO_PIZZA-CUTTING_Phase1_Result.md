@@ -1,12 +1,23 @@
 # TETO Pizza Cutting 1.0 — Phase 1 Result Report (Geometry / Evaluation Foundation)
 
-**Audited `origin/main` SHA:** `d62d535305dd65bf5f45c847363c38f421a40e23` (PR #125, "Recipe Cooking
-Steps 1.0 Phase 1A-T: Step Timing instrumentation", merged). Re-confirmed fresh via `git fetch
-origin` at both session start and immediately before PR creation (Duplicate Gate #2) — `main` did
-not move between the two checks.
+**Originally audited `origin/main` SHA (PR #126's own base):**
+`d62d535305dd65bf5f45c847363c38f421a40e23` (PR #125, "Recipe Cooking Steps 1.0 Phase 1A-T: Step
+Timing instrumentation", merged). Re-confirmed fresh via `git fetch origin` at both session start
+and immediately before PR creation (Duplicate Gate #2) — `main` did not move between the two
+checks.
 
-**Implementation SHA:** the commit on `claude/pizza-cutting-phase1-geometry-oja36m` this report
-ships alongside (see the PR's own head commit).
+**Fresh Merge Gate follow-up (main-catch-up pass):** `origin/main` advanced to
+`a7b842cb69925da6226d956306b470253df62818` (PR #127, "HOME Weekly Ranking route: reuse
+WeeklyRankingOverlay from HOME", merged) while PR #126 was under independent review. `git fetch
+origin` re-confirmed this SHA; PR #127 is entirely scoped to `src/App.tsx`/`src/screens/
+HomeScreen.tsx`/`src/App.test.tsx` (HOME routing), with zero overlap with `src/logic/cut/*`. The
+branch was merged forward onto `origin/main` (`git merge origin/main --no-edit`) — **clean, zero
+conflicts** (merge commit `3faae4b`) — and the full verification pass (§14) was re-run against the
+merged result. See §14/§24 for the re-verification detail and updated diff scope.
+
+**Implementation SHA (current PR head, post-merge):** the commit on
+`claude/pizza-cutting-phase1-geometry-oja36m` this report ships alongside (see the PR's own head
+commit — `git log -1` on this branch).
 
 **SSOT authority:** `docs/design/TETO_PIZZA-CUTTING_1.0.md` (Fresh Design, PR #123, merged) and its
 companion `docs/reports/TETO_PIZZA-CUTTING_1.0_Fresh-Design_Result.md`. No alternative cut-scoring
@@ -198,6 +209,8 @@ phase's `evaluateCut` has no `now`/timestamp parameter of any kind, by construct
 
 ## 14. Verification
 
+Original pass (base `d62d535`):
+
 - **Focused geometry/state tests:** `npx vitest run src/logic/cut/` — 4 files, 52/52 passed.
 - **Full suite, run 1:** `npx vitest run` — 101 files, 1907/1907 passed.
 - **Full suite, run 2 (determinism confirmation):** 101 files, 1907/1907 passed, identical count.
@@ -209,6 +222,22 @@ phase's `evaluateCut` has no `now`/timestamp parameter of any kind, by construct
   phase is entirely new files under `src/logic/cut/`. `CURRENT_SCHEMA_VERSION` in
   `src/state/persistence.ts` is unchanged (`= 2`). No `functions/**`, no `src/data/**`, no
   `src/state/gameReducer.ts`, no `src/App.tsx`, no `src/screens/**`, no `src/components/**` touched.
+
+**Re-verification pass, after merging `origin/main` @ `a7b842c` forward into this branch (§24):**
+
+- **Focused geometry/state tests:** `npx vitest run src/logic/cut/` — 4 files, 52/52 passed.
+- **Full suite, run 1:** `npx vitest run` — 101 files, **1909/1909** passed (+2 vs. the original
+  pass — PR #127's own `App.test.tsx` additions for the HOME Weekly Ranking route; no `src/logic/
+  cut/*` test count changed).
+- **Full suite, run 2 (determinism confirmation):** 101 files, 1909/1909 passed, identical count.
+- **TypeScript typecheck:** `npx tsc -b` — clean, no errors.
+- **Lint:** `npx oxlint` — clean, no warnings/errors.
+- **Production build:** `npm run build` — succeeds; same pre-existing >500kB chunk-size advisory,
+  unrelated.
+- **Diff scope (against the new `origin/main` @ `a7b842c`):** `git diff origin/main --stat` shows
+  **exactly the same 10 files as the original pass** —
+  `docs/reports/TETO_PIZZA-CUTTING_Phase1_Result.md` + the 9 files under `src/logic/cut/`. No
+  scope leakage from PR #127 (or anything else) into this PR's diff.
 
 ## 15. Numerical robustness
 
@@ -301,12 +330,33 @@ this phase, unchanged:
   relocation (design doc §12), any bottom-bar UI, and the guide-fade visual (needs
   `perStepElapsedMs.CUT`, already available since Phase 1A-T but not read by this phase).
 
+## 24. Fresh Merge Gate follow-up — main catch-up
+
+Performed after `origin/main` advanced to `a7b842c` (PR #127, HOME Weekly Ranking route) while
+PR #126 was under independent review:
+
+1. `git fetch origin` — confirmed `origin/main` at `a7b842cb69925da6226d956306b470253df62818`.
+2. Open-PR/scope re-check: PR #127's diff (`src/App.tsx`, `src/screens/HomeScreen.tsx`,
+   `src/App.test.tsx`, plus its own `docs/reports/TETO_HOME-WEEKLY-RANKING_Result.md` and
+   screenshots) touches HOME routing only — no file under `src/logic/cut/` or this report.
+3. `git merge origin/main --no-edit` on `claude/pizza-cutting-phase1-geometry-oja36m` — **clean
+   merge, zero conflicts** (merge commit `3faae4b`); `git status` reported no unmerged paths.
+4. `git merge-base HEAD origin/main` == `origin/main`'s own HEAD — branch is fully caught up.
+5. Post-merge diff re-check (`git diff origin/main --stat`): identical 10-file list to the
+   original PR — `docs/reports/TETO_PIZZA-CUTTING_Phase1_Result.md` +
+   `src/logic/cut/{types,types.test,geometry,geometry.test,evaluation,evaluation.test,state,
+   state.test,fixtures}.ts`. **No scope leakage.**
+6. Full re-verification (§14's "Re-verification pass") — all green, pushed as the new PR head.
+
 ## Final Verdict
 
-**READY FOR PHASE 2.** Every Phase 1 acceptance criterion (design doc §18's own "Geometry +
-transient state" row) is met: `src/logic/cut/{types,geometry,evaluation,state,fixtures}.ts` ship
-as pure functions with full unit coverage (52/52 focused, 1907/1907 full suite ×2, typecheck
-clean, lint clean, build clean), zero production code touched (`git diff origin/main --stat` is
-empty outside the new `src/logic/cut/` directory), zero recipes activated, zero Scoring 2.0/
-Completion Gate/Lunch Rush/save-schema changes, and the Step Timing hand-off boundary is both
-respected in code (no import of `../cookingTiming.ts`) and stated explicitly in this report (§12).
+**READY FOR PHASE 2 — and current on `main`.** Every Phase 1 acceptance criterion (design doc
+§18's own "Geometry + transient state" row) is met: `src/logic/cut/{types,geometry,evaluation,
+state,fixtures}.ts` ship as pure functions with full unit coverage (52/52 focused, 1909/1909 full
+suite ×2 post-merge, typecheck clean, lint clean, build clean), zero production code touched
+(`git diff origin/main --stat` is empty outside the new `src/logic/cut/` directory, both before
+and after the §24 main catch-up), zero recipes activated, zero Scoring 2.0/Completion Gate/Lunch
+Rush/save-schema changes, and the Step Timing hand-off boundary is both respected in code (no
+import of `../cookingTiming.ts`) and stated explicitly in this report (§12). The branch merged
+`origin/main` @ `a7b842c` (PR #127) forward with zero conflicts and zero scope drift (§24). Not
+merged — left open for independent review, per this task's own instruction.
