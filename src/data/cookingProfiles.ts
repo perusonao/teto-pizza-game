@@ -14,6 +14,7 @@
  */
 import type { RecipeId } from "./recipes";
 import type { MakingStep } from "../state/gameReducer";
+import type { CutConfig } from "../logic/cut/types";
 
 /**
  * A recipe's ordered cooking-step sequence. Deliberately minimal for Phase 1A -- just the
@@ -36,6 +37,11 @@ export interface CookingProfile {
    *  read by nothing this phase (§22.13 acceptance criterion 6) -- not implemented, not
    *  scheduled, in this slice. */
   stepTimeLimits?: Partial<Record<MakingStep, { maxMs: number }>>;
+  /** Pizza Cutting 1.0 Phase 2 (docs/design/TETO_PIZZA-CUTTING_1.0.md §1.2): only meaningful
+   *  when `"CUT"` is present in `steps` -- absent then means "6 slices" (../logic/cut/types.ts's
+   *  own `resolveRequestedSliceCount` default), never "CUT with an undefined slice count".
+   *  Absent entirely for a profile that never lists `"CUT"` at all. */
+  cutConfig?: CutConfig;
 }
 
 /** Exactly today's fixed flow (`gameReducer.ts`'s pre-Phase-1A `MAKING_STEP_ORDER`) -- the
@@ -45,12 +51,22 @@ export const DEFAULT_COOKING_PROFILE: CookingProfile = {
 };
 
 /**
- * No recipe has an entry yet (Phase 1A ships the foundation only -- see this file's own header).
- * A future step-implementation phase (CUT first, per the design doc's roadmap §21) adds real
- * entries here, one recipe at a time, each independently regression-tested against every recipe
- * that still resolves to `DEFAULT_COOKING_PROFILE`.
+ * Pizza Cutting 1.0 Phase 2 (docs/design/TETO_PIZZA-CUTTING_1.0.md §18/§13): the first, deliberately
+ * minimal real activation -- exactly one recipe (`margherita`, the design doc's own first
+ * candidate) carries a non-default profile, adding `"CUT"` as its one post-BAKE step with the
+ * Phase 1 design's own shipping target (`requestedSliceCount: 6`, §3.2). Every other recipe still
+ * resolves to `DEFAULT_COOKING_PROFILE` -- byte-identical `BAKE -> RESULT` for all 14 of them,
+ * unchanged by this phase (see gameReducer.cookingSteps.test.ts's own regression pins).
  */
-const COOKING_PROFILES: ReadonlyMap<RecipeId, CookingProfile> = new Map();
+const COOKING_PROFILES: ReadonlyMap<RecipeId, CookingProfile> = new Map([
+  [
+    "margherita",
+    {
+      steps: ["DOUGH", "SAUCE", "CHEESE", "TOPPING", "CUT"],
+      cutConfig: { requestedSliceCount: 6 },
+    },
+  ],
+]);
 
 /** Absent map entry -> `DEFAULT_COOKING_PROFILE`, mirroring `getReferencePizza`'s own
  *  absent-entry contract (../data/referencePizza.ts). */

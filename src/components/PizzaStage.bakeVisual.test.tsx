@@ -4,6 +4,7 @@ import { cleanup, render } from "@testing-library/react";
 import { PizzaStage } from "./PizzaStage";
 import { RECIPES } from "../data/recipes";
 import { createEmptyPizza, type PizzaState } from "../state/pizzaState";
+import { createCutState } from "../logic/cut/state";
 
 /**
  * M3A Bake Judgment Phase 6: the pizza's own bake visuals (dough color, cheese melt/toast/char,
@@ -46,6 +47,8 @@ function renderStage(bakeProgress: number | null) {
       onDispenseCommit={noop}
       onDoughStretchProgress={noop}
       onDoughStretchCommit={noop}
+      cutState={createCutState()}
+      onAddCutLine={noop}
     />,
   );
 }

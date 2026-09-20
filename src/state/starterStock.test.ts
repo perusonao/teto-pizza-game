@@ -6,6 +6,7 @@ import { hasStock, remainingStock, EMPTY_INVENTORY, type InventoryState } from "
 import { createInitialGameState, gameReducer, type GameState } from "./gameReducer";
 import type { QualityStars } from "../logic/scoring";
 import { getRecipe } from "../data/recipes";
+import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
 
 /**
  * Economy & Progression 1.0 EP4: dedicated unit/integration tests for the Starter Grant
@@ -630,7 +631,8 @@ describe("Starter Grant integration via the reducer (REGISTER_TO_DEX / MISSION_N
     state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "basil", x: 50, y: 65 });
     state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "basil", x: 35, y: 65 });
     state = gameReducer(state, { type: "START_BAKE" });
-    return gameReducer(state, { type: "CONFIRM_BAKE", value: 70 });
+    state = gameReducer(state, { type: "CONFIRM_BAKE", value: 70 });
+    return walkPostBakeToResult(state);
   }
 
   it("FREE: REGISTER_TO_DEX grants funghi's Starter Stock the instant margherita's own discovery unlocks it", () => {
@@ -729,7 +731,9 @@ describe("Starter Grant integration via the reducer (REGISTER_TO_DEX / MISSION_N
       // A second margherita round after funghi is already claimed: nothing new to grant.
       const retried = gameReducer(first, { type: "RETRY_SAME_RECIPE" });
       const secondResult = gameReducer(retried, { type: "START_BAKE" });
-      const secondBaked = gameReducer(secondResult, { type: "CONFIRM_BAKE", value: 70 });
+      const secondBaked = walkPostBakeToResult(
+        gameReducer(secondResult, { type: "CONFIRM_BAKE", value: 70 }),
+      );
       const secondDiscovered = gameReducer(secondBaked, { type: "REGISTER_TO_DEX" });
       expect(secondDiscovered.lastStarterGrantNotice).toBeNull();
     });

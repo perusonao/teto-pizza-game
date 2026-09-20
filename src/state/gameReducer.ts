@@ -36,6 +36,15 @@ import {
 } from "./inventory";
 import { pickMissionOrder } from "../mission/lunchRush";
 import { isInsideDough } from "../logic/pizzaCoordinates";
+import {
+  addCutLine,
+  createCutState,
+  evaluateCutState,
+  undoLastCutLine,
+  type CutState,
+} from "../logic/cut/state";
+import { isEdgeToEdgeCutLine, resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
+import { requiredCutCount } from "../logic/cut/evaluation";
 import { isValidDoughShape, type DoughShape } from "../logic/doughShape";
 import {
   createEmptyPizza,
@@ -218,6 +227,16 @@ export interface GameState {
    *  `bonusPitz` on top of `lastPitzCredit.balanceAfter` when crediting `pitzBalance`. Reset to
    *  `null` for every fresh round exactly like `lastPitzCredit`. */
   lastEfficiencyCredit: CookingEfficiencyCredit | null;
+  /** Pizza Cutting 1.0 Phase 2 (docs/design/TETO_PIZZA-CUTTING_1.0.md §11): the CUT step's own
+   *  transient state (../logic/cut/state.ts's `CutState` -- `config`/`lines`/`evaluation`),
+   *  reused wholesale rather than split into separate `cutLines`/`cutResult` fields, per Phase
+   *  1's own handoff note (its Result Report §23: "ready to be the implementation a
+   *  `GameState.cutState`-shaped reducer slice delegates to, rather than reimplemented").
+   *  Always present (never `null`) -- fresh every round via `createCutState(cookingProfile.
+   *  cutConfig)` (`buildOrderState` below), exactly as inert for the 14 non-CUT recipes as
+   *  `cookingProfile.cutConfig` itself is absent for them. Never persisted -- transient exactly
+   *  like `pizza`/`cookingTiming`. */
+  cutState: CutState;
 }
 
 export type GameAction =
@@ -321,7 +340,18 @@ export type GameAction =
   // (Mission rounds always have it `null`), so a stray dispatch can never affect BAKE/RESULT
   // or leak into a Mission round.
   | { type: "PAUSE_COOKING_TIMING"; now: number }
-  | { type: "RESUME_COOKING_TIMING"; now: number };
+  | { type: "RESUME_COOKING_TIMING"; now: number }
+  // Pizza Cutting 1.0 Phase 2 (design doc §2.2/§15.3): commits one complete edge-to-edge drag
+  // gesture (../logic/cut/types.ts's `buildRimToRimCutLine`, already clamped to a genuine
+  // rim-to-rim chord by the gesture layer) as a single atomic line -- mirrors
+  // COMMIT_DOUGH_STRETCH's own "gesture layer buffers locally, dispatches once at a successful
+  // pointerup" contract. Rejected (state unchanged) outside POST_BAKE's own CUT step, for a
+  // line that isn't genuinely edge-to-edge, or once the cut limit (`requiredCutCount + 2`) is
+  // already reached -- see the reducer case below for the full independent-of-the-UI guard.
+  | { type: "ADD_CUT_LINE"; line: CutLine }
+  // design doc §8.4: removes exactly the most recently committed line ("1本戻す"). A no-op
+  // outside POST_BAKE's own CUT step or with zero lines to undo.
+  | { type: "UNDO_CUT_LINE" };
 
 /** Progression fields every "start a new round" path must carry forward unchanged --
  *  factored out so `buildOrderState`'s signature can't silently drop one when a new field is
@@ -348,12 +378,18 @@ function buildOrderState(order: Order, carry: ProgressionCarry, isMissionRound: 
   if (!recipe) {
     throw new Error(`Unknown recipe for order ${order.id}`);
   }
+  const cookingProfile = getCookingProfile(recipe.id);
   return {
     phase: "ORDER",
     order,
     recipe,
-    cookingProfile: getCookingProfile(recipe.id),
+    cookingProfile,
     pizza: createEmptyPizza(),
+    // Pizza Cutting 1.0 Phase 2: fresh every round, from this round's own profile -- the one
+    // place `cutState` is (re)created, shared by every "start a new round" path exactly like
+    // `pizza`/`cookingTiming` above, so a previous pizza's cut lines/evaluation can never leak
+    // into a new one (design doc's own RESET/recipe-change semantics).
+    cutState: createCutState(cookingProfile.cutConfig),
     // Issue #33 D1 (D0 revalidation §R.4 item 1): every "start a new round" path shares this
     // one literal -- nextOrderState/FREE, nextMissionOrderState/Lunch Rush, and
     // startPreparingRecipe/SELECT_RECIPE+RETRY_SAME_RECIPE all route through here, so a fresh
@@ -721,11 +757,25 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           ? preBakeSteps(state.cookingProfile)
           : postBakeSteps(state.cookingProfile);
       const currentIndex = steps.indexOf(state.makingStep);
+      // Pizza Cutting 1.0 Phase 2 (design doc §15.3): confirming CUT itself (whichever
+      // POST_BAKE step this happens to be -- always the last one for Margherita's own profile,
+      // §1.1's FINISH->CUT ordering means a future profile could still have a step after it)
+      // is gated on `requiredCutCount` and computes `cutResult` exactly once, mirroring
+      // `CONFIRM_BAKE`'s own "reducer-level guard is the real backstop, never trust the UI
+      // alone" discipline for the CTA's disabled state (GameScreen). A no-op (state unchanged)
+      // below `requiredCutCount` -- the CTA is already disabled then, this is the backstop.
+      const isConfirmingCut = state.phase === "POST_BAKE" && state.makingStep === "CUT";
+      if (isConfirmingCut) {
+        const required = requiredCutCount(resolveRequestedSliceCount(state.cutState.config));
+        if (state.cutState.lines.length < required) return state;
+      }
+      const cutState = isConfirmingCut ? evaluateCutState(state.cutState) : state.cutState;
       if (state.phase === "POST_BAKE" && currentIndex === steps.length - 1) {
         return {
           ...state,
           phase: "RESULT",
           makingStepToken: state.makingStepToken + 1,
+          cutState,
           // Phase 1A-T (§22.2): finalizes the last POST_BAKE step's own elapsed ms; no next
           // step to start (RESULT has none). A no-op when `cookingTiming` is null (Mission
           // round) or `now` wasn't supplied (same back-compat convention as every other timing
@@ -749,6 +799,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         ...state,
         makingStep,
         makingStepToken: state.makingStepToken + 1,
+        cutState,
         hint: buildHintLine(state.recipe, state.pizza, makingStep),
         // Phase 1A-T (§22.2): finalizes the outgoing step's elapsed ms and starts the incoming
         // one's window. Same back-compat no-op convention as above.
@@ -757,6 +808,26 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             ? advanceStepTiming(state.cookingTiming, action.now, makingStep)
             : state.cookingTiming,
       };
+    }
+
+    // Pizza Cutting 1.0 Phase 2 (design doc §2.2/§15.3): the reducer-level backstop behind the
+    // gesture layer's own `isInsideDough` (start) + drag-threshold (tap rejection) +
+    // `buildRimToRimCutLine` (rim-to-rim construction) -- never trusts the UI alone, exactly
+    // like COMMIT_SAUCE_DISPENSE/COMMIT_DOUGH_STRETCH's own independent re-checks. A line that
+    // somehow isn't genuinely edge-to-edge (a stray/malformed dispatch) is rejected outright,
+    // never partially accepted. The cut limit (`requiredCutCount + 2`, design doc §8.4) bounds
+    // the interaction independent of the UI's own gesture gating.
+    case "ADD_CUT_LINE": {
+      if (state.phase !== "POST_BAKE" || state.makingStep !== "CUT") return state;
+      if (!isEdgeToEdgeCutLine(action.line)) return state;
+      const limit = requiredCutCount(resolveRequestedSliceCount(state.cutState.config)) + 2;
+      if (state.cutState.lines.length >= limit) return state;
+      return { ...state, cutState: addCutLine(state.cutState, action.line) };
+    }
+
+    case "UNDO_CUT_LINE": {
+      if (state.phase !== "POST_BAKE" || state.makingStep !== "CUT") return state;
+      return { ...state, cutState: undoLastCutLine(state.cutState) };
     }
 
     case "START_BAKE": {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createInitialGameState, gameReducer, type GameState, type MakingStep } from "./gameReducer";
 import { DOUGH_RADIUS } from "../logic/pizzaCoordinates";
+import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
 import {
   DOUGH_COMPLETION_THRESHOLD,
   applyStretchPoint,
@@ -145,7 +146,7 @@ describe.each([
       expect(s.pizza.doughShape).toEqual(shape);
       const baking = gameReducer(s, { type: "START_BAKE" });
       expect(baking.pizza.doughShape).toEqual(shape);
-      const result = gameReducer(baking, { type: "CONFIRM_BAKE", value: 70 });
+      const result = walkPostBakeToResult(gameReducer(baking, { type: "CONFIRM_BAKE", value: 70 }));
       expect(result.phase).toBe("RESULT");
       expect(result.pizza.doughShape).toEqual(shape);
       // Scoring 2.0 authority is untouched by DOUGH -- still computed normally alongside it.
@@ -320,7 +321,7 @@ describe.each([
       const atTopping = confirm(confirm(preparedAtSauceState(isMissionRound)));
       const withTopping = placeTopping(atTopping);
       const baking = gameReducer(withTopping, { type: "START_BAKE" });
-      const result = gameReducer(baking, { type: "CONFIRM_BAKE", value: 70 });
+      const result = walkPostBakeToResult(gameReducer(baking, { type: "CONFIRM_BAKE", value: 70 }));
       expect(result.phase).toBe("RESULT");
       expect(result.score).not.toBeNull();
     });

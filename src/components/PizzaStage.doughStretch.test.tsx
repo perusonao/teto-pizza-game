@@ -69,6 +69,8 @@ function Harness({ onCommitAttempt }: { onCommitAttempt?: () => void }) {
           onCommitAttempt?.();
           dispatch({ type: "COMMIT_DOUGH_STRETCH", shape });
         }}
+        cutState={state.cutState}
+        onAddCutLine={() => {}}
       />
     </div>
   );

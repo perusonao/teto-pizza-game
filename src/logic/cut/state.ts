@@ -47,6 +47,15 @@ export function resetCutState(state: CutState): CutState {
   return { config: state.config, lines: [], evaluation: null };
 }
 
+/** Pizza Cutting 1.0 Phase 2 (design doc §8.4): removes exactly the most recently committed
+ *  line, no others -- the one CUT-step undo affordance ("1本戻す"). A no-op (same reference
+ *  back) when there is nothing to undo. Invalidates any prior evaluation, same as `addCutLine`,
+ *  since a confirm after an undo must recompute against the now-shorter `lines`. */
+export function undoLastCutLine(state: CutState): CutState {
+  if (state.lines.length === 0) return state;
+  return { ...state, lines: state.lines.slice(0, -1), evaluation: null };
+}
+
 /** Computes `evaluateCut(state.lines, state.config)` and stores it as `evaluation` -- the CUT
  *  step's own confirm action calls this exactly once per attempt (design doc §11). Safe to call
  *  with zero lines (returns the same defined, non-`NaN` worst-case result `evaluateCut` always

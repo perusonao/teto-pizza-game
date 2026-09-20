@@ -113,6 +113,8 @@ function Harness({
         onDispenseCommit={handleCommit}
         onDoughStretchProgress={() => {}}
         onDoughStretchCommit={() => {}}
+        cutState={state.cutState}
+        onAddCutLine={() => {}}
       />
     </div>
   );

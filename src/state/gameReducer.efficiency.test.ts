@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createInitialGameState, gameReducer, type GameState } from "./gameReducer";
 import { buildIdealMargheritaSauceFixture, MARGHERITA_REFERENCE } from "../data/referencePizza";
+import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
 
 /**
  * Cooking Time CT2: `REGISTER_TO_DEX`'s `lastEfficiencyCredit` wiring (../logic/efficiency.ts).
@@ -36,7 +37,8 @@ function playHighQualityMargheritaToResult(bakeNow: number, isMissionRound = fal
     state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "basil", x: p.x, y: p.y });
   }
   state = gameReducer(state, { type: "START_BAKE", now: bakeNow });
-  return gameReducer(state, { type: "CONFIRM_BAKE", value: 70 });
+  state = gameReducer(state, { type: "CONFIRM_BAKE", value: 70 });
+  return walkPostBakeToResult(state);
 }
 
 describe("REGISTER_TO_DEX: lastEfficiencyCredit (CT2)", () => {
@@ -93,6 +95,7 @@ describe("REGISTER_TO_DEX: lastEfficiencyCredit (CT2)", () => {
     }
     state = gameReducer(state, { type: "START_BAKE" });
     state = gameReducer(state, { type: "CONFIRM_BAKE", value: 70 });
+    state = walkPostBakeToResult(state);
     expect(state.cookingTiming).toBeNull();
 
     const discovered = gameReducer(state, { type: "REGISTER_TO_DEX" });

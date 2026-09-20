@@ -6,6 +6,7 @@ import { getRecipe, RECIPES } from "../data/recipes";
 import { getRecipeSauceProfile } from "../data/recipeSauceProfiles";
 import { SAUCE_RATE_PER_TICK } from "../logic/sauceQuantity";
 import { createEmptyPizza, type PizzaState } from "../state/pizzaState";
+import { createCutState } from "../logic/cut/state";
 import { PizzaStage } from "./PizzaStage";
 
 /**
@@ -62,6 +63,8 @@ function renderStage(
       onDispenseCommit={onDispenseCommit}
       onDoughStretchProgress={() => {}}
       onDoughStretchCommit={() => {}}
+      cutState={createCutState()}
+      onAddCutLine={() => {}}
     />,
   );
 

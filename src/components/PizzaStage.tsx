@@ -38,12 +38,17 @@ import {
 import {
   clampToDough,
   clientPointToDoughPercent,
+  DOUGH_CENTER,
   DOUGH_RADIUS,
   isInsideDough,
   toSauceLayerPercent,
   type DoughPoint,
 } from "../logic/pizzaCoordinates";
 import { stablePieceRotation } from "../logic/pieceDrag";
+import { buildRimToRimCutLine, resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
+import { requiredCutCount } from "../logic/cut/evaluation";
+import type { CutState } from "../logic/cut/state";
+import { computeGuideOpacity } from "../logic/bakeGuideFade";
 
 /** Screen-space finger/mouse movement (px) before a press becomes a drag instead of a tap. */
 const DRAG_THRESHOLD_PX = 10;
@@ -112,6 +117,16 @@ interface PizzaStageProps {
    *  overlay open mid-hold, a BAKE abort, or unmount) -- those all discard locally instead.
    *  App.tsx dispatches this as one atomic COMMIT_SAUCE_DISPENSE action. */
   onDispenseCommit: (ingredientId: string, deposits: SauceDeposit[]) => void;
+  /** Pizza Cutting 1.0 Phase 2 (docs/design/TETO_PIZZA-CUTTING_1.0.md §2.2/§11): the CUT step's
+   *  own transient state (committed lines + config), read-only here -- rendering and the cut
+   *  limit/guide-line-count gates below, never mutated directly (PizzaStage only ever calls
+   *  `onAddCutLine`, mirroring every other gesture family's "gesture layer buffers locally,
+   *  dispatches once at a successful commit" contract). */
+  cutState: CutState;
+  /** Fired exactly once, at a successful pointerup, with one complete rim-to-rim `CutLine`
+   *  (already constructed by `buildRimToRimCutLine` below). Never fired for a cancelled/
+   *  discarded gesture or a tap with no real drag. */
+  onAddCutLine: (line: CutLine) => void;
 }
 
 interface GestureState {
@@ -172,18 +187,48 @@ export function PizzaStage({
   onTap,
   onDispenseProgress,
   onDispenseCommit,
+  cutState,
+  onAddCutLine,
 }: PizzaStageProps) {
   const circleRef = useRef<HTMLDivElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
   const heatmapRef = useRef<HTMLCanvasElement>(null);
   const gestureRef = useRef<GestureState>(createGestureState());
   const fadeTimeoutRef = useRef<number | null>(null);
+  /** Pizza Cutting 1.0 Phase 2: imperative refs for the in-progress drag preview -- mirrors
+   *  `pathRef`'s own "ref + direct SVG attribute writes while dragging" pattern exactly, never
+   *  triggering a React re-render per pointermove. */
+  const cutPreviewLineRef = useRef<SVGLineElement>(null);
+  const cutCutterIconRef = useRef<HTMLSpanElement>(null);
+  /** The angle-guide `<g>`'s own opacity is driven by a self-contained requestAnimationFrame
+   *  loop (see the effect below), independent of React state, matching every other purely
+   *  visual per-frame update in this component. */
+  const cutGuideGroupRef = useRef<SVGGElement>(null);
+  const cutGuideRafRef = useRef<number | null>(null);
   /** Issue #33 D1: the current in-progress (uncommitted) DOUGH gesture's shape -- null
    *  whenever no DOUGH gesture is active. Mirrors `pendingDepositsRef`'s own
    *  ephemeral/canonical split: only ever committed to canonical `pizza.doughShape` via
    *  `onDoughStretchCommit` at a successful pointerup, discarded on every other end trigger. */
   const doughGestureShapeRef = useRef<DoughShape | null>(null);
   const doughClipId = useId();
+
+  // Issue #33 D1: gates the DOUGH radial-stretch gesture branch below, mirroring isPaintMode's
+  // own role for sauce -- mutually exclusive with it in practice (IngredientTray/activeIngredient
+  // are never set during DOUGH, see GameScreen), but each branch below checks its own gate
+  // independently rather than assuming that.
+  const isDoughStep = makingStep === "DOUGH";
+  const isPaintMode = activeIngredient?.placement === "spread";
+  // Pizza Cutting 1.0 Phase 2 (design doc §2.2): gates the CUT edge-to-edge drag gesture branch
+  // below, mirroring isDoughStep's own role -- mutually exclusive with sauce/dough gestures in
+  // practice (CUT only ever becomes the active `makingStep` during POST_BAKE, after PREPARE/BAKE
+  // have both already ended), but each branch below checks its own gate independently. Declared
+  // this early (ahead of every other gesture helper) because the guide-fade effect below already
+  // needs it in its own dependency array.
+  const isCutStep = makingStep === "CUT";
+  const cutRequiredCount = requiredCutCount(resolveRequestedSliceCount(cutState.config));
+  // design doc §8.4: `requiredCutCount + 2` -- bounds the interaction with slack for an
+  // intentional redraw-via-undo-then-redraw cycle, without feeling hard-gated.
+  const cutLimit = cutRequiredCount + 2;
 
   // Phase 4A-1A (Post-Codex-Fix) dispense session bookkeeping. `forceRender` is the escape
   // hatch that lets `activeSessionRef`/`pendingDepositsRef` (necessarily refs -- they're
@@ -268,6 +313,40 @@ export function PizzaStage({
     forceRender();
   }
 
+  /** Pizza Cutting 1.0 Phase 2: hides the in-progress CUT preview line/cutter icon -- called on
+   *  every commit and every abort trigger, mirroring `clearTrail`'s own role for the sauce
+   *  paint trail. Safe to call with no active CUT gesture (a no-op opacity write). */
+  function clearCutPreviewLine() {
+    if (cutPreviewLineRef.current) cutPreviewLineRef.current.style.opacity = "0";
+    if (cutCutterIconRef.current) cutCutterIconRef.current.style.opacity = "0";
+  }
+
+  /** Updates the in-progress CUT preview line + cutter icon to the real rim-to-rim chord the
+   *  current drag would commit if released right now (`buildRimToRimCutLine`, same construction
+   *  `handlePointerUp` uses for the real commit) -- so the preview never lies about what's about
+   *  to happen. The cutter icon (🔪) follows the live pointer position, offset above it (design
+   *  doc §8.3) so it's never hidden under the finger itself. */
+  function updateCutPreviewLine(start: DoughPoint, current: DoughPoint) {
+    const line = buildRimToRimCutLine(start, current);
+    const previewEl = cutPreviewLineRef.current;
+    if (!previewEl) return;
+    if (!line) {
+      previewEl.style.opacity = "0";
+      return;
+    }
+    previewEl.setAttribute("x1", line.start.x.toFixed(2));
+    previewEl.setAttribute("y1", line.start.y.toFixed(2));
+    previewEl.setAttribute("x2", line.end.x.toFixed(2));
+    previewEl.setAttribute("y2", line.end.y.toFixed(2));
+    previewEl.style.opacity = "1";
+    const cutterEl = cutCutterIconRef.current;
+    if (cutterEl) {
+      cutterEl.style.left = `${current.x}%`;
+      cutterEl.style.top = `${Math.max(0, current.y - 8)}%`;
+      cutterEl.style.opacity = "1";
+    }
+  }
+
   /** Shared cleanup for every abort trigger (ingredient change, Reference overlay open via
    *  `interactive`, BAKE via `interactive`, blur/hidden, window-level fallback): discards
    *  any active session, releases pointer capture if still held, and resets the gesture. */
@@ -275,6 +354,7 @@ export function PizzaStage({
     const pointerId = gestureRef.current.pointerId;
     if (activeSessionRef.current) endDispenseSession(false);
     discardDoughGesture();
+    clearCutPreviewLine();
     if (pointerId !== null) {
       try {
         circleRef.current?.releasePointerCapture(pointerId);
@@ -333,6 +413,29 @@ export function PizzaStage({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- fires purely off the token bump.
   }, [makingStepToken]);
 
+  // Pizza Cutting 1.0 Phase 2 (design doc §8.2.1): the angle-guide's own fade curve, reusing
+  // BakeOverlay's already-shipped `computeGuideOpacity` unchanged -- full opacity for the first
+  // few seconds of *this* CUT attempt (teaches the ideal spacing every time, never gated behind
+  // a persisted first-time-only flag), fading to 0 afterward while the low-opacity center marker
+  // (rendered separately, never fading) remains for the whole step. Keyed on `makingStepToken` so
+  // entering CUT always restarts the fade at full opacity, matching every other per-step-entry
+  // reset in this component (resetToken/makingStepToken gesture-abort effects above).
+  useEffect(() => {
+    if (!isCutStep || !interactive) return;
+    const startTime = performance.now();
+    function loop(now: number) {
+      const elapsedSeconds = (now - startTime) / 1000;
+      const opacity = computeGuideOpacity(elapsedSeconds);
+      if (cutGuideGroupRef.current) cutGuideGroupRef.current.style.opacity = String(opacity);
+      cutGuideRafRef.current = opacity > 0 ? requestAnimationFrame(loop) : null;
+    }
+    cutGuideRafRef.current = requestAnimationFrame(loop);
+    return () => {
+      if (cutGuideRafRef.current !== null) cancelAnimationFrame(cutGuideRafRef.current);
+      cutGuideRafRef.current = null;
+    };
+  }, [isCutStep, interactive, makingStepToken]);
+
   // Codex Broad Review MUST FIX 1: an ingredient switch mid-hold (a second finger tapping a
   // different tray item while the first is still dispensing) must abort the session using
   // the ingredient it was *started* with, never silently continue under a stale
@@ -388,6 +491,7 @@ export function PizzaStage({
         if (event.type === "pointerup") onDoughStretchCommit(doughGestureShapeRef.current);
         discardDoughGesture();
       }
+      clearCutPreviewLine();
       clearTrail();
       gestureRef.current = createGestureState();
     }
@@ -418,12 +522,6 @@ export function PizzaStage({
     pathRef.current?.setAttribute("d", g.pathD);
   }
 
-  // Issue #33 D1: gates the DOUGH radial-stretch gesture branch below, mirroring isPaintMode's
-  // own role for sauce -- mutually exclusive with it in practice (IngredientTray/activeIngredient
-  // are never set during DOUGH, see GameScreen), but each branch below checks its own gate
-  // independently rather than assuming that.
-  const isDoughStep = makingStep === "DOUGH";
-  const isPaintMode = activeIngredient?.placement === "spread";
   // PR #26 Final P2 Follow-up #2 (discussion_r4021268603): SPREAD ingredients have no working
   // keyboard activation (see handleKeyDown below), so the dough must not advertise one via
   // tabIndex/aria-label while one is selected -- misleading assistive tech about a control that
@@ -433,7 +531,7 @@ export function PizzaStage({
   // tracked under Issue #27 -- not reinvented here per the D0 audit's own scope note), so it
   // must not advertise a "place material" tab stop/aria-label a keypress can't actually do
   // anything useful with.
-  const isKeyboardPlaceable = interactive && !isPaintMode && !isDoughStep;
+  const isKeyboardPlaceable = interactive && !isPaintMode && !isDoughStep && !isCutStep;
 
   /** Starts a Phase 4A-1A dispense session for `pointerId` at `dough`, snapshotting the
    *  ingredient it's for, and drives it from a requestAnimationFrame loop keyed on real
@@ -478,6 +576,11 @@ export function PizzaStage({
     const rect = circleRef.current.getBoundingClientRect();
     const dough = clientPointToDoughPercent(event.clientX, event.clientY, rect);
     if (!isInsideDough(dough.x, dough.y)) return;
+    // design doc §8.4: once the cut limit is reached, a new press simply starts no gesture at
+    // all (mirrors every other "reject at the source" gate in this component) -- ADD_CUT_LINE's
+    // own reducer-level guard is the real backstop, this is purely to avoid a confusing
+    // "nothing happens on release" interaction.
+    if (isCutStep && cutState.lines.length >= cutLimit) return;
 
     clearTrail();
     gestureRef.current = {
@@ -595,6 +698,10 @@ export function PizzaStage({
 
     if (isInsideDough(dough.x, dough.y)) g.lastInsideDough = dough;
     if (isPaintMode) appendTrailPoint(dough.x, dough.y);
+    // Pizza Cutting 1.0 Phase 2 (design doc §2.2): reuses the exact same DRAG_THRESHOLD_PX
+    // tap-vs-drag distinction above verbatim -- the live preview only appears once a real drag
+    // is underway, never for a press that turns out to be a tap.
+    if (isCutStep && g.dragging) updateCutPreviewLine(g.startDough, dough);
   }
 
   function handlePointerMove(event: ReactPointerEvent<HTMLDivElement>) {
@@ -670,6 +777,24 @@ export function PizzaStage({
       return;
     }
 
+    // Pizza Cutting 1.0 Phase 2 (design doc §2.2): CUT has no "tap" outcome at all -- a press
+    // with no real drag is simply discarded (never a degenerate zero-length cut, never routed
+    // to the generic onTap fallback below). A genuine drag commits one rim-to-rim `CutLine`,
+    // constructed from the raw press/release pair (`buildRimToRimCutLine` extends both ends out
+    // to the dough's rim along the drag's own direction, satisfying the "press/release may land
+    // short of the rim" start tolerance) -- ahead of every other branch below since CUT is
+    // mutually exclusive with sauce paint/topping drag by construction (`makingStep` gate).
+    if (isCutStep) {
+      clearCutPreviewLine();
+      if (g.dragging) {
+        const releaseDough = clientPointToDoughPercent(event.clientX, event.clientY, rect);
+        const line = buildRimToRimCutLine(g.startDough, releaseDough);
+        if (line) onAddCutLine(line);
+      }
+      gestureRef.current = createGestureState();
+      return;
+    }
+
     if (!g.dragging) {
       // Tap: unchanged Phase 2C one-tap behavior.
       onTap(g.startDough.x, g.startDough.y);
@@ -707,6 +832,7 @@ export function PizzaStage({
     releaseCapture(event);
     if (activeSessionRef.current?.pointerId === event.pointerId) endDispenseSession(false);
     discardDoughGesture();
+    clearCutPreviewLine();
     clearTrail();
     gestureRef.current = createGestureState();
   }
@@ -714,12 +840,13 @@ export function PizzaStage({
   function handleLostPointerCapture(event: ReactPointerEvent<HTMLDivElement>) {
     // A browser can revoke pointer capture without ever firing pointercancel (e.g. a system
     // gesture stealing it) -- treat that exactly like pointercancel so a dispense session
-    // (or an in-progress topping/sauce/dough gesture) can never keep running with nothing
+    // (or an in-progress topping/sauce/dough/CUT gesture) can never keep running with nothing
     // left able to stop it. Safe even when this pointerId was never the active gesture.
     const g = gestureRef.current;
     if (g.pointerId !== event.pointerId) return;
     if (activeSessionRef.current?.pointerId === event.pointerId) endDispenseSession(false);
     discardDoughGesture();
+    clearCutPreviewLine();
     clearTrail();
     gestureRef.current = createGestureState();
   }
@@ -783,6 +910,25 @@ export function PizzaStage({
     "--sauce-origin-y": `${toSauceLayerPercent(sauceOrigin.y)}%`,
   } as CSSProperties;
   const trailStrokeStyle = { stroke: activeIngredient?.color ?? "#c73b2e" } as CSSProperties;
+
+  // Pizza Cutting 1.0 Phase 2 (design doc §8.2): `cutRequiredCount` evenly-spaced full diameters
+  // through the dough's exact center -- the "aim for these" guide, faded by the effect above.
+  const cutGuideLines = useMemo(() => {
+    if (!isCutStep) return [];
+    const lines: { x1: number; y1: number; x2: number; y2: number }[] = [];
+    for (let i = 0; i < cutRequiredCount; i += 1) {
+      const angle = (Math.PI * i) / cutRequiredCount;
+      const dx = Math.cos(angle) * DOUGH_RADIUS;
+      const dy = Math.sin(angle) * DOUGH_RADIUS;
+      lines.push({
+        x1: DOUGH_CENTER - dx,
+        y1: DOUGH_CENTER - dy,
+        x2: DOUGH_CENTER + dx,
+        y2: DOUGH_CENTER + dy,
+      });
+    }
+    return lines;
+  }, [isCutStep, cutRequiredCount]);
 
   // Issue #33 D1: the shape actually drawn -- the live in-progress gesture's shape while one
   // is active, otherwise the canonical committed `pizza.doughShape` (carried through every
@@ -1059,6 +1205,44 @@ export function PizzaStage({
         )}
         {resultRevealed && bakeState === "perfect" && (
           <div key="perfect-glow" className="pizza-perfect-glow" />
+        )}
+        {/* Pizza Cutting 1.0 Phase 2 (design doc §8): angle guide (fades, §8.2.1) + persistent
+            center marker + committed cut lines + the in-progress drag preview, all in the same
+            0-100 dough-percent coordinate space every other overlay already uses. Shown only
+            while CUT is actually the active step. */}
+        {isCutStep && (
+          <svg className="pizza-cut-layer" viewBox="0 0 100 100" aria-hidden="true">
+            <g ref={cutGuideGroupRef} className="pizza-cut-guide-lines">
+              {cutGuideLines.map((line, index) => (
+                <line key={index} x1={line.x1} y1={line.y1} x2={line.x2} y2={line.y2} />
+              ))}
+            </g>
+            <circle className="pizza-cut-guide-center" cx={DOUGH_CENTER} cy={DOUGH_CENTER} r={1.4} />
+            {cutState.lines.map((line, index) => (
+              <line
+                key={index}
+                className="pizza-cut-line"
+                x1={line.start.x}
+                y1={line.start.y}
+                x2={line.end.x}
+                y2={line.end.y}
+              />
+            ))}
+            <line
+              ref={cutPreviewLineRef}
+              className="pizza-cut-preview-line"
+              x1={0}
+              y1={0}
+              x2={0}
+              y2={0}
+              style={{ opacity: 0 }}
+            />
+          </svg>
+        )}
+        {isCutStep && (
+          <span ref={cutCutterIconRef} className="pizza-cut-cutter-icon" aria-hidden="true" style={{ opacity: 0 }}>
+            {"\u{1F52A}"}
+          </span>
         )}
         <svg className="pizza-paint-trail" viewBox="0 0 100 100" aria-hidden="true">
           <path ref={pathRef} className="pizza-paint-trail__stroke" style={trailStrokeStyle} />

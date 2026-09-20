@@ -7,6 +7,7 @@ import { createEmptyPizza } from "./pizzaState";
 import { RECIPES, type RecipeId } from "../data/recipes";
 import { ORDERS } from "../data/orders";
 import { getRecipeSauceProfile } from "../data/recipeSauceProfiles";
+import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
 
 /**
  * Phase 4A-1A (Post-Codex-Fix): COMMIT_SAUCE_DISPENSE reducer tests. Replaces the old
@@ -148,6 +149,7 @@ describe("COMMIT_SAUCE_DISPENSE: reducer scope guard (Codex MUST FIX 2)", () => 
     });
     state = gameReducer(state, { type: "START_BAKE" });
     state = gameReducer(state, { type: "CONFIRM_BAKE", value: 70 });
+    state = walkPostBakeToResult(state);
     expect(state.phase).toBe("RESULT");
     const before = state;
     const after = gameReducer(state, {

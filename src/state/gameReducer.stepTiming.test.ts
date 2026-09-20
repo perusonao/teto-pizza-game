@@ -1,7 +1,30 @@
 import { describe, expect, it } from "vitest";
 import { createInitialGameState, gameReducer, type GameState } from "./gameReducer";
-import type { CookingProfile } from "../data/cookingProfiles";
+import { DEFAULT_COOKING_PROFILE, type CookingProfile } from "../data/cookingProfiles";
 import { createDefaultSave } from "./persistence";
+import { requiredCutCount } from "../logic/cut/evaluation";
+import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
+import { DOUGH_CENTER, DOUGH_RADIUS } from "../logic/pizzaCoordinates";
+
+/** Pizza Cutting 1.0 Phase 2: commits the minimum required ideal cut lines so CUT's own confirm
+ *  gate (`requiredCutCount`) is satisfied -- this file is about per-step *timing*, not CUT's
+ *  own gameplay evaluation, so the exact line shape doesn't matter, only that enough are
+ *  committed. */
+function commitRequiredCutLines(state: GameState): GameState {
+  const required = requiredCutCount(resolveRequestedSliceCount(state.cutState.config));
+  let next = state;
+  for (let i = 0; i < required; i += 1) {
+    const angle = (Math.PI * i) / required;
+    const dx = Math.cos(angle) * DOUGH_RADIUS;
+    const dy = Math.sin(angle) * DOUGH_RADIUS;
+    const line: CutLine = {
+      start: { x: DOUGH_CENTER - dx, y: DOUGH_CENTER - dy },
+      end: { x: DOUGH_CENTER + dx, y: DOUGH_CENTER + dy },
+    };
+    next = gameReducer(next, { type: "ADD_CUT_LINE", line });
+  }
+  return next;
+}
 
 /**
  * Recipe Cooking Steps 1.0 Phase 1A-T (docs/design/TETO_RECIPE-COOKING-STEPS_1.0.md §22):
@@ -141,7 +164,11 @@ describe("7. BAKE time never mixes into per-step elapsed", () => {
 
 describe("8. default CONFIRM_BAKE: RESULT, existing 15-recipe behavior unchanged", () => {
   it("lands on RESULT with makingStep left untouched, exactly as Phase 1A already established -- per-step data available but not required for it", () => {
-    let state = preparedState(0);
+    // Pizza Cutting 1.0 Phase 2: the round's initial recipe (createInitialGameState prefers
+    // margherita) now has its own CUT-enabled profile -- this test is about
+    // DEFAULT_COOKING_PROFILE's own (no post-BAKE steps) behavior, so it is forced directly,
+    // same fix as gameReducer.cookingSteps.test.ts's own equivalent test.
+    let state = withProfile(preparedState(0), DEFAULT_COOKING_PROFILE);
     state = confirmAt(state, 5_000);
     state = confirmAt(state, 9_000);
     state = confirmAt(state, 12_000);
@@ -186,7 +213,7 @@ describe("9. future fixture: CONFIRM_BAKE -> POST_BAKE starts post-bake timing",
   });
 
   it("is a byte-identical no-op for every one of the 15 shipped recipes (DEFAULT_COOKING_PROFILE has no post-BAKE steps)", () => {
-    let state = preparedState(0);
+    let state = withProfile(preparedState(0), DEFAULT_COOKING_PROFILE);
     state = confirmAt(state, 5_000);
     state = confirmAt(state, 9_000);
     state = confirmAt(state, 12_000);
@@ -230,6 +257,7 @@ describe("11. CUT -> RESULT: CUT captured", () => {
     state = gameReducer(state, { type: "START_BAKE", now: 20_000 });
     state = gameReducer(state, { type: "CONFIRM_BAKE", value: 70, now: 25_000 });
     state = confirmAt(state, 30_000); // FINISH -> CUT
+    state = commitRequiredCutLines(state);
     state = confirmAt(state, 33_000); // CUT -> RESULT, CUT: 3s
     expect(state.phase).toBe("RESULT");
     expect(state.cookingTiming?.perStepElapsedMs.CUT).toBe(3_000);
@@ -356,6 +384,11 @@ describe("16. Lunch Rush: MissionClock stays the sole enforced timer, untouched 
     state = confirmAt(state, 4_000);
     state = gameReducer(state, { type: "START_BAKE", now: 5_000 });
     state = gameReducer(state, { type: "CONFIRM_BAKE", value: 70, now: 6_000 });
+    // Only margherita is ever available from a from-scratch EMPTY_DEX (every other recipe's
+    // unlockCondition requires margherita discovered first), so MISSION_RESET_ORDER above
+    // deterministically picked margherita -- walks its own CUT step to reach RESULT.
+    state = commitRequiredCutLines(state);
+    state = confirmAt(state, 7_000);
     expect(state.phase).toBe("RESULT");
     expect(state.score).not.toBeNull();
     expect(state.lastPitzCredit).toBeNull(); // Mission rounds never credit FREE's own Pitz path
@@ -440,6 +473,8 @@ describe("18. existing efficiency unchanged by per-step timing", () => {
     withStepTiming = gameReducer(withStepTiming, { type: "CONFIRM_BAKE", value: 70, now: 15_500 });
     expect(withStepTiming.completion?.status).toBe("PASS");
     expect(withStepTiming.cookingTiming?.completedMs).toBe(15_000);
+    withStepTiming = commitRequiredCutLines(withStepTiming);
+    withStepTiming = confirmAt(withStepTiming, 16_000);
     withStepTiming = gameReducer(withStepTiming, { type: "REGISTER_TO_DEX" });
     expect(withStepTiming.phase).toBe("DISCOVERED");
     expect(withStepTiming.lastEfficiencyCredit).not.toBeNull();

@@ -6,6 +6,9 @@ import { findOrderForRecipe } from "../data/orders";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { createEmptyPizza, type PizzaState } from "./pizzaState";
 import type { InventoryState } from "./inventory";
+import { getCookingProfile } from "../data/cookingProfiles";
+import { createCutState } from "../logic/cut/state";
+import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
 
 /**
  * Economy & Progression 1.0 EP2: Inventory atomic consumption at CONFIRM_BAKE.
@@ -50,7 +53,20 @@ function stateAtFugazzaBake(
   const order = findOrderForRecipe("fugazza");
   if (!recipe || !order) throw new Error("Missing fugazza recipe/order fixture");
   let state = createInitialGameState(EMPTY_DEX, [...STARTER_INGREDIENT_IDS, "onion"], 0, inventory);
-  state = { ...state, recipe, order, pizza, isMissionRound };
+  // Pizza Cutting 1.0 Phase 2: `createInitialGameState` always seeds margherita's own
+  // CUT-enabled profile (../data/orders.ts's `preferFirst`) -- re-resolve `cookingProfile`/
+  // `cutState` for fugazza (whose profile is the unmodified DEFAULT_COOKING_PROFILE), same fix
+  // as gameReducer.completionGate.test.ts's own `playToResultForRecipe`.
+  const cookingProfile = getCookingProfile(recipe.id);
+  state = {
+    ...state,
+    recipe,
+    order,
+    pizza,
+    isMissionRound,
+    cookingProfile,
+    cutState: createCutState(cookingProfile.cutConfig),
+  };
   return gameReducer(state, { type: "START_BAKE" });
 }
 
@@ -136,7 +152,8 @@ describe("Economy & Progression 1.0 EP2: CONFIRM_BAKE inventory consumption", ()
     state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // CHEESE -> TOPPING
     state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "basil", x: 50, y: 65 });
     state = gameReducer(state, { type: "START_BAKE" });
-    const result = gameReducer(state, { type: "CONFIRM_BAKE", value: 70 });
+    state = gameReducer(state, { type: "CONFIRM_BAKE", value: 70 });
+    const result = walkPostBakeToResult(state);
     expect(result.phase).toBe("RESULT");
     expect(result.inventory).toEqual({ onion: 3 });
   });

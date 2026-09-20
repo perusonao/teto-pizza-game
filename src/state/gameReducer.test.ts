@@ -6,6 +6,7 @@ import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { buildIdealMargheritaSauceFixture, MARGHERITA_REFERENCE } from "../data/referencePizza";
 import { EMPTY_MISSION_METRICS, recordServe } from "../logic/missionScoring";
 import { EMPTY_INVENTORY, type InventoryState } from "./inventory";
+import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
 
 function scoreOf(total: number, stars: QualityStars): ScoreBreakdown {
   return {
@@ -54,7 +55,10 @@ function playToResult(bakeValue: number): GameState {
   state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "basil", x: 35, y: 65 });
   state = gameReducer(state, { type: "START_BAKE" });
   state = gameReducer(state, { type: "CONFIRM_BAKE", value: bakeValue });
-  return state;
+  // Pizza Cutting 1.0 Phase 2: margherita's own profile now adds a post-BAKE CUT step
+  // (../data/cookingProfiles.ts) -- walks the rest of the way to RESULT exactly like a real
+  // player's "カット完了" confirm would, a no-op for every other (CUT-free) recipe.
+  return walkPostBakeToResult(state);
 }
 
 describe("REGISTER_TO_DEX (reducer)", () => {
@@ -626,6 +630,7 @@ describe("Mission order actions (Phase 3C-4)", () => {
     state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "basil", x: 35, y: 65 });
     state = gameReducer(state, { type: "START_BAKE" });
     state = gameReducer(state, { type: "CONFIRM_BAKE", value: 65 }); // still in the perfect zone
+    state = walkPostBakeToResult(state);
     expect(state.phase).toBe("RESULT");
 
     const beforeEntry = state.dex.find((e) => e.recipeId === "margherita");
@@ -684,7 +689,8 @@ describe("Phase 4A-2 Scoring 2.0 / A1 Authority Cutover (gameReducer integration
       state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "basil", x: p.x, y: p.y });
     }
     state = gameReducer(state, { type: "START_BAKE" });
-    return gameReducer(state, { type: "CONFIRM_BAKE", value: bakeValue });
+    state = gameReducer(state, { type: "CONFIRM_BAKE", value: bakeValue });
+    return walkPostBakeToResult(state);
   }
 
   it("scoringV2Result is null before the first CONFIRM_BAKE of a round (ORDER/PREPARE/BAKE)", () => {
@@ -736,6 +742,7 @@ describe("Phase 4A-2 Scoring 2.0 / A1 Authority Cutover (gameReducer integration
     }
     state = gameReducer(state, { type: "START_BAKE" });
     state = gameReducer(state, { type: "CONFIRM_BAKE", value: 70 });
+    state = walkPostBakeToResult(state);
 
     expect(state.phase).toBe("RESULT");
     expect(state.isMissionRound).toBe(true);
@@ -794,7 +801,7 @@ describe("inventory carry-through (Save v2 / Inventory E1)", () => {
     state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "basil", x: 35, y: 65 });
     state = gameReducer(state, { type: "START_BAKE" });
     state = gameReducer(state, { type: "CONFIRM_BAKE", value: bakeValue });
-    return state;
+    return walkPostBakeToResult(state);
   }
 
   it("createInitialGameState defaults inventory to EMPTY_INVENTORY when none is given", () => {

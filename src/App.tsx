@@ -13,6 +13,7 @@ import { computeSauceMetrics, emptySauceMetrics } from "./logic/sauceField";
 import { scorePiecesAgainstReference, scoreSauceAgainstReference } from "./logic/referenceScoring";
 import { resolvePieceDrop } from "./logic/pieceDrag";
 import type { DoughPoint } from "./logic/pizzaCoordinates";
+import type { CutLine } from "./logic/cut/types";
 import type { SauceDeposit } from "./state/pizzaState";
 import type { RecipeId } from "./data/recipes";
 import { getIngredient, INGREDIENTS, type Ingredient, type IngredientCategory } from "./data/ingredients";
@@ -445,6 +446,25 @@ function App() {
   function handleConfirmBake(value: number) {
     dispatch({ type: "CONFIRM_BAKE", value, now: Date.now() });
     if (!state.isMissionRound) {
+      // REGISTER_TO_DEX's own `state.phase !== "RESULT"` guard makes this a safe no-op the
+      // instant a CUT-enabled recipe's profile lands the round on "POST_BAKE" instead --
+      // handleConfirmMakingStep below is what actually fires it once POST_BAKE's own last step
+      // (CUT) confirms and the round *really* reaches RESULT (Pizza Cutting 1.0 Phase 2,
+      // design doc §12's "REGISTER_TO_DEX orchestration must move" finding).
+      dispatch({ type: "REGISTER_TO_DEX" });
+    }
+  }
+
+  // Pizza Cutting 1.0 Phase 2 (design doc §12): CONFIRM_MAKING_STEP is also what finally leaves
+  // POST_BAKE for RESULT (confirming a CUT-enabled recipe's own last post-BAKE step) -- mirrors
+  // handleConfirmBake's own back-to-back dispatch exactly, relying on the same
+  // `state.phase !== "RESULT"` guard to make every other CONFIRM_MAKING_STEP call (every PREPARE
+  // step confirm, for every recipe) a harmless no-op here. Lunch Rush is unaffected: Mission's
+  // own registration (MISSION_NEXT_ORDER) fires from MissionServePanel's own explicit "次の注文へ"
+  // tap once phase is "RESULT" -- untouched by this dispatch.
+  function handleConfirmMakingStep() {
+    dispatch({ type: "CONFIRM_MAKING_STEP", now: Date.now() });
+    if (!state.isMissionRound) {
       dispatch({ type: "REGISTER_TO_DEX" });
     }
   }
@@ -555,6 +575,18 @@ function App() {
   function handleDoughStretchCommit(shape: DoughShape) {
     dispatch({ type: "COMMIT_DOUGH_STRETCH", shape });
     setPendingDoughShape(null);
+  }
+
+  // Pizza Cutting 1.0 Phase 2: mirrors handleDoughStretchCommit's own "gesture layer buffers
+  // locally, dispatches once at a successful pointerup" contract -- PizzaStage's CUT-mode
+  // pointer handling already constructed a genuine rim-to-rim `CutLine` (../logic/cut/types.ts's
+  // `buildRimToRimCutLine`) before calling this.
+  function handleAddCutLine(line: CutLine) {
+    dispatch({ type: "ADD_CUT_LINE", line });
+  }
+
+  function handleUndoCutLine() {
+    dispatch({ type: "UNDO_CUT_LINE" });
   }
 
   function handleBakeTick(value: number) {
@@ -768,7 +800,7 @@ function App() {
           onGoHome={handleGoHome}
           onBeginPrepare={() => dispatch({ type: "BEGIN_PREPARE", now: Date.now() })}
           onResetPizza={() => dispatch({ type: "RESET_PIZZA" })}
-          onConfirmMakingStep={() => dispatch({ type: "CONFIRM_MAKING_STEP", now: Date.now() })}
+          onConfirmMakingStep={handleConfirmMakingStep}
           onStartBake={() => dispatch({ type: "START_BAKE", now: Date.now() })}
           onShowHint={() => dispatch({ type: "SHOW_HINT" })}
           onChangeCategory={handleChangeCategory}
@@ -788,6 +820,8 @@ function App() {
           onDispenseCommit={handleDispenseCommit}
           onDoughStretchProgress={handleDoughStretchProgress}
           onDoughStretchCommit={handleDoughStretchCommit}
+          onAddCutLine={handleAddCutLine}
+          onUndoCutLine={handleUndoCutLine}
           onDoughElementChange={handleDoughElementChange}
           resolvePhysicalDrop={resolvePhysicalDrop}
           onPhysicalDrop={handlePhysicalDrop}
