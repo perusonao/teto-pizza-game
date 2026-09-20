@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createInitialGameState, gameReducer, type GameState } from "./gameReducer";
-import { EMPTY_DEX, registerScoreToDex } from "./dex";
+import { EMPTY_DEX, registerScoreToDex, type DexState } from "./dex";
 import { missionScore, averageQualityScore } from "../logic/missionScoring";
 import { totalStars } from "../logic/mastery";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
@@ -60,11 +60,22 @@ describe("Regression: Mission scoring untouched", () => {
 
 describe("Regression: non-Margherita sauce interaction", () => {
   it("APPLY_SAUCE for marinara's tomato-sauce still works exactly as before (single commit, no deposits)", () => {
-    const owned = ["tomato-sauce", "garlic", "oregano"]; // marinara only
-    let state = createInitialGameState(EMPTY_DEX, owned);
-    for (let i = 0; i < 20 && state.recipe.id !== "marinara"; i += 1) {
-      state = gameReducer(state, { type: "MISSION_RESET_ORDER" });
-    }
+    const owned = ["tomato-sauce", "garlic", "oregano"]; // marinara's own ingredients only
+    // Test Reliability 1A: marinara's `unlockCondition` is `{ requiresRecipeId: "funghi" }`
+    // (src/data/recipes.ts), so it stays LOCKED against EMPTY_DEX regardless of ingredient
+    // ownership -- `availableRecipeIds` (src/state/progression.ts) then comes back empty and
+    // `getNextOrder` (src/data/orders.ts) falls back to a uniform-random pick across every
+    // recipe. The old fixture relied on a `MISSION_RESET_ORDER` retry loop to land on marinara
+    // by chance (P(miss) = ((N-1)/N)^20 for N recipes -- worse as the catalog grows), a
+    // pre-existing flake this test never needed: marking `funghi` discovered satisfies
+    // marinara's own unlock condition directly, without discovering it "for real" via
+    // margherita/funghi rounds. With `funghi` discovered and only marinara's three ingredients
+    // owned, marinara is the one and only entry in the available pool -- deterministic
+    // regardless of `RECIPES`' length.
+    const funghiDiscoveredDex: DexState = [
+      { recipeId: "funghi", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 },
+    ];
+    let state = createInitialGameState(funghiDiscoveredDex, owned);
     expect(state.recipe.id).toBe("marinara");
     state = gameReducer(state, { type: "BEGIN_PREPARE" });
     state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // DOUGH -> SAUCE
