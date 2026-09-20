@@ -16,10 +16,15 @@ import type { DexState } from "../state/dex";
  * elsewhere in the game (Teto/Mito/Blue, `../assets/characters/*.webp`) -- no generated or
  * substitute artwork.
  *
- * "実績" (Achievements) has no backing feature yet (no mission/stat system beyond Dex/Lunch
- * Rush/Shop exists in this codebase) -- per Issue #24 it is rendered disabled/"近日公開"
- * rather than inventing fake progress for it. "設定" (Settings) opens `SettingsOverlay`
- * (Issue #89 Reset 1A) -- its first and, today, only content is Full Game Reset.
+ * HOME Weekly Ranking route: the sub-navigation grid's 4th card was "実績" (Achievements,
+ * disabled/"近日公開" -- no backing mission/stat system exists in this codebase yet, see Issue
+ * #24). It's swapped here for "🏆 ランキング" (opens the same `WeeklyRankingOverlay` Lunch Rush
+ * RESULT's "ランキングを見る" already opens, via `onOpenRanking`), keeping this grid's existing
+ * 2x2 layout intact rather than growing it to a 5th, orphaned card. This is a UI-only swap --
+ * Achievements' own feature/spec is untouched and simply not surfaced in this grid slot for
+ * now; it returns once it has real content instead of a permanent placeholder. "設定"
+ * (Settings) opens `SettingsOverlay` (Issue #89 Reset 1A) -- its first and, today, only content
+ * is Full Game Reset.
  */
 
 interface HomeScreenProps {
@@ -36,6 +41,11 @@ interface HomeScreenProps {
   onOpenShop: () => void;
   onOpenInventory: () => void;
   onOpenSettings: () => void;
+  /** HOME Weekly Ranking route (Issue #87 Firebase Ranking 1.0 Phase 2A follow-up): opens the
+   *  same `WeeklyRankingOverlay` App.tsx already mounts for Lunch Rush RESULT's own "ランキング
+   *  を見る" button (`isRankingOpen`/`setRankingOpen`) -- HOME just gets a second entry point
+   *  into that one piece of state, never a second ranking UI or fetch path. */
+  onOpenRanking: () => void;
 }
 
 export function HomeScreen({
@@ -49,6 +59,7 @@ export function HomeScreen({
   onOpenShop,
   onOpenInventory,
   onOpenSettings,
+  onOpenRanking,
 }: HomeScreenProps) {
   const totalRecipes = RECIPES.length;
   const discoveredCount = dex.filter((e) => e.discovered).length;
@@ -121,15 +132,10 @@ export function HomeScreen({
             所持 {ownedIngredientCount}/{totalIngredientCount}種
           </span>
         </button>
-        <button
-          type="button"
-          className="home-menu__card home-menu__card--disabled"
-          disabled
-          aria-disabled="true"
-        >
-          <span className="home-menu__icon">{"\u{1F3C5}"}</span>
-          <span className="home-menu__label">実績</span>
-          <span className="home-menu__sub">近日公開</span>
+        <button type="button" className="home-menu__card" onClick={onOpenRanking}>
+          <span className="home-menu__icon">{"\u{1F3C6}"}</span>
+          <span className="home-menu__label">ランキング</span>
+          <span className="home-menu__sub">今週のTOP10</span>
         </button>
       </section>
 
