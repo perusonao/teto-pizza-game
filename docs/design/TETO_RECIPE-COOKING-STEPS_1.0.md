@@ -2,18 +2,26 @@
 
 **Audited `origin/main` SHA:** `bdc0be38e4b61cbd955c02b930342617c42eda32` (fast-forwarded onto this
 branch before this document was written — this branch had zero prior commits beyond that point).
+Unchanged as of the Step Timing Architecture integration pass (see §22) — re-verified via
+Duplicate Gate #3, no new commits landed on `origin/main` in between.
 
 **Scope:** design-only. No production code, Recipe/Ingredient schema, Scoring, Completion Gate,
-Lunch Rush, Firebase, or save-schema change ships in this task. Every recommendation below is a
-proposal for a *future* implementation slice, not something this PR builds.
+Lunch Rush, Firebase, or save-schema change ships in this task — including the Step Timing
+Architecture (§22), which was integrated into this document per a Fresh Merge Gate follow-up and
+remains docs-only like everything else here. Every recommendation below is a proposal for a
+*future* implementation slice, not something this PR builds.
 
-**Duplicate Gate #1 result (before this audit started):** `git fetch origin` plus a search of
-every open PR and every remote branch found no in-flight "Pizza Cutting 1.0" work (no PR or
-branch by that name, or matching `cut`/`cutter`/`calzone`/`stuffed crust`/`finishing` exists,
-open or closed) and no open PR for Firebase Ranking, Economy Tuning, or Recipe Expansion (all
-three families are fully merged — Firebase Ranking through Phase 2A/#118, Economy Tuning through
-#119/#120, Recipe Expansion through Batch 1B-C/#117). This branch itself had no existing PR. Full
-detail: `docs/reports/TETO_RECIPE-COOKING-STEPS_Phase0_Result.md` §1.
+**Duplicate Gate #1/#2 result:** `git fetch origin` plus a search of every open PR and every
+remote branch found **no GitHub PR or branch of matching scope** — nothing named/matching "Pizza
+Cutting 1.0"/`cut`/`cutter`/`calzone`/`stuffed crust`/`finishing`, open or closed, anywhere in
+this repository's git remotes — and no open PR for Firebase Ranking, Economy Tuning, or Recipe
+Expansion (all three families are fully merged — Firebase Ranking through Phase 2A/#118, Economy
+Tuning through #119/#120, Recipe Expansion through Batch 1B-C/#117). This branch itself had no
+existing PR (now PR #122). **This is a GitHub-scoped result, not a claim that no Pizza Cutting
+design work exists at all** — a separate "Pizza Cutting Architecture" design session is currently
+stopped in the Claude Code UI (outside git/GitHub, so invisible to this search) and is expected to
+resume after this Cooking Steps work lands; see §20. Full detail:
+`docs/reports/TETO_RECIPE-COOKING-STEPS_Phase0_Result.md` §1.
 
 ---
 
@@ -398,6 +406,11 @@ Sauce/Pieces/Recipe/Bake components. A true "recompute CUT quality server-side f
 coordinates" capability is a pre-existing gap for the *whole* scoring system, not something this
 design regresses, and is explicitly out of scope for Phase 0 or any near-term step-addition slice.
 
+**Timing specifically:** Lunch Rush's `MissionClock` (mission-wide, fixed duration) stays the sole
+enforced time limit — Step Timing (§22) introduces no per-step hard timeout and no second timer a
+player perceives inside Lunch Rush; see §22.4/§22.12 for the fresh-audited detail and the explicit
+per-mode timer-authority table.
+
 ## 15. Save / persistence impact
 
 **No save-schema bump required.** `PersistentSaveV2` (`state/persistence.ts:114-135`) persists only
@@ -521,21 +534,27 @@ necessity from this matrix.
 
 ## 20. Relationship to Pizza Cutting 1.0
 
-Duplicate Gate #1 (repo-wide PR/branch search, see the Result Report §1) found **no existing "Pizza
-Cutting 1.0" branch or PR** — nothing to avoid duplicating today. This document's own CUT step
-design (§3, §6, §20 roadmap Phase 1B) is therefore the first concrete architecture proposal for
-whatever a future "Pizza Cutting 1.0" slice builds. The explicit recommendation: **that future
-slice should build CUT as the first real consumer of the `CookingProfile`/`POST_BAKE` foundation
-(§7/§8) this document proposes, not as a one-off hardcoded post-BAKE phase** — building CUT
-hardcoded first and generalizing later would recreate exactly the fixed-flow problem this audit
-exists to prevent.
+Duplicate Gate #1 and #2 (repo-wide PR/branch search on GitHub, see the Result Report §1) found
+**no PR or branch of matching scope on GitHub** — no "Pizza Cutting 1.0"/`cut`/`cutter`-named
+branch or PR exists in this repository's remotes, open or closed, at either gate. This is a
+GitHub-scoped finding only: **a separate, currently-stopped "Pizza Cutting Architecture" design
+session exists in the Claude Code UI outside this repository's git history**, and is expected to
+resume after this Cooking Steps work completes — it is not visible to a `git`/GitHub search
+because it never reached a branch or PR. This document's own CUT step design (§3, §6, §20 roadmap
+Phase 1B) is written to be the foundation that resumed session should build on, not a claim that
+no Pizza Cutting design work exists anywhere. The explicit recommendation, unchanged: **that
+future slice should build CUT as the first real consumer of the `CookingProfile`/`POST_BAKE`
+foundation (§7/§8) this document proposes, not as a one-off hardcoded post-BAKE phase** — building
+CUT hardcoded first and generalizing later would recreate exactly the fixed-flow problem this
+audit exists to prevent. Whoever resumes that session should read this document first.
 
 ## 21. Implementation roadmap (2-3 hour slices, sequenced by the Master Catalog's own cost ranking)
 
 | Slice | Scope | Depends on |
 |---|---|---|
 | **Phase 1A — Cooking Step Foundation** | `CookingProfile`/`getCookingProfile` (§7), `MakingStep`/`GamePhase` widening + `POST_BAKE` (§8), `MakingStepTabs` generalization (§9). Zero new recipes, zero visible behavior change — regression-tested against all 15 existing recipes. | none |
-| **Phase 1B — CUT integration** | First real POST_BAKE step: swipe gesture, completion (non-gating), basic scoring bonus (§10). This is "Pizza Cutting 1.0"'s likely scope — see §20. | 1A |
+| **Phase 1A-T — Step Timing instrumentation** | Per-step `activeStep`/`stepStartedAt`/`perStepElapsedMs` on `CookingTimingState` (§22.2), reset-rule wiring (§22.11), zero change to `completedMs`/efficiency/Lunch Rush behavior — acceptance criteria in §22.13. | 1A |
+| **Phase 1B — CUT integration** | First real POST_BAKE step: swipe gesture, completion (non-gating), basic scoring bonus (§10), consumes `perStepElapsedMs.CUT` from day one under §22.7's contract (§22.14). This is the Pizza Cutting Architecture session's likely scope — see §20. | 1A-T |
 | **Phase 1C — CUT human-feel** | Tuning pass on 1B's gesture/visual feedback (matches this repo's own established "human-feel fix" pattern, e.g. `PIZZA_GAME_Phase4A-1B_iPhone-HumanFeel-Fix*` series). | 1B |
 | **Phase 2A — FINISH / `postBakeFinishing`** | Highest ROI per Master Catalog §8 (unlocks 13-15 recipes for one subsystem). Reuses existing scatter/spread gestures, gated to POST_BAKE. Ingredient-usage model (§12) ships here. | 1A |
 | **Phase 2B — HALF/REGION modifier** | `mezza-e-mezza`/`quattro-stagioni`. Needs its own product decision first (which recipes can pair — `TETO_RECIPE-EXPANSION-20.md` §6.3 already flags this as unresolved). | 1A |
@@ -544,9 +563,309 @@ exists to prevent.
 | **Phase 4 — SPECIAL_SHAPE / REVERSE_LAYER** | Deep Dish / Detroit / Siciliana. Catalog §11 explicitly recommends *not* batching these — space across Master-tier content. | 1A |
 
 Scoring-component and Completion-Gate work for each step ships alongside that step's own slice
-(§10/§11's "additive, empty until built" design), never spent speculatively ahead of it.
+(§10/§11's "additive, empty until built" design), never spent speculatively ahead of it. Step
+Timing instrumentation (§22) is its own slice, **Phase 1A-T**, sequenced immediately after Phase
+1A and before Phase 1B — see §22.10 for why it is not folded into Phase 1A itself.
 
-## 22. Explicit non-goals (this document and any near-term follow-up)
+## 22. Step Timing Architecture
+
+Companion audit for the "when" axis of cooking steps — §3-§21 above design *what* operations a
+recipe needs; this section designs how the engine can measure *how long each one takes*, since a
+future Challenge Mode (§22.5) and a fair CUT contract (§22.7) both need elapsed-time data the
+current architecture doesn't yet expose per step. Fresh-audited against the same `bdc0be3` SHA as
+the rest of this document; no code changes ship in this task.
+
+### 22.1 Current behavior (fresh-audited against `src/logic/cookingTiming.ts` and `src/logic/efficiency.ts`)
+
+`GameState.cookingTiming: CookingTimingState | null` (`gameReducer.ts:174`) is a single,
+whole-round accumulator, **not per-step**:
+
+```ts
+interface CookingTimingState {
+  startedAt: number;
+  pausedAt: number | null;       // epoch ms the current pause began, or null while running
+  accumulatedPauseMs: number;    // total ms already spent paused, excluding any pause in progress
+  completedMs: number | null;    // finalized elapsed active ms, set once at START_BAKE
+}
+```
+
+Verified precisely against the code (not the brief's assumption, which this audit cross-checked
+and confirms is accurate):
+
+- **Starts** at `BEGIN_PREPARE`, or — for `SELECT_RECIPE`/`RETRY_SAME_RECIPE`'s direct-to-PREPARE
+  path — inside `startPreparingRecipe` (`gameReducer.ts:376-390`), which starts it itself since
+  those paths skip `BEGIN_PREPARE` entirely.
+- **FREE only.** Both start sites gate on `!state.isMissionRound` (`gameReducer.ts:433-438` for
+  `BEGIN_PREPARE`; `startPreparingRecipe` is unconditional because — per its own comment,
+  `gameReducer.ts:373-374` — `buildOrderState`'s `isMissionRound` argument is always `false` on
+  that path). **Lunch Rush rounds always have `cookingTiming: null`** — confirmed, not assumed.
+- **Ends** (finalizes `completedMs`) at `CONFIRM_BAKE`/`START_BAKE`, *before* BAKE's own
+  needle-tap minigame ever starts (`gameReducer.ts:673-682`). **BAKE's own duration is completely
+  excluded from `completedMs`** — `cookingTiming.ts` never imports anything from `logic/bake.ts`
+  and is never invoked from `CONFIRM_BAKE` onward (confirmed by that file's own header comment
+  and by grep — no call site after the BAKE transition touches it). This is the brief's own
+  "PREPARE→START_BAKE active time / BAKE除外" premise, and the fresh audit confirms it exactly as
+  stated, including the *reason* (`docs/reports/TETO_COOKING-TIME-EFFICIENCY_Fresh-Audit.md`'s
+  own "boundary recommendation D").
+- **Pausable**, via `PAUSE_COOKING_TIMING`/`RESUME_COOKING_TIMING` (`gameReducer.ts:978-985`),
+  combining every independent pause reason (Reference popover, Dex/Shop/Inventory overlay, app
+  backgrounded) through `isAnyCookingTimingPauseReasonActive`'s boolean-OR — a no-op outside
+  `PREPARE` or once `cookingTiming` is already finished/absent. **`RESET_PIZZA` does not reset
+  this clock** (CT2 change) — a mid-PREPARE discard/redo continues the same round's timer
+  uninterrupted, it does not start a fresh one.
+- **Consumed exactly once**, by `evaluateCookingEfficiency` (`efficiency.ts:146-155`) at
+  `REGISTER_TO_DEX` (the RESULT/DISCOVERED transition, `gameReducer.ts:787-813`), which derives a
+  `GOOD`/`NORMAL`/`SLOW` tier from `completedMs` against per-recipe thresholds
+  (`efficiencyThresholdsForRecipe`, scaled by `totalRequiredItemCount`) and a small, **quality-
+  gated** additive Pitz bonus (0-10% of `baseRewardPitz`) — never mixed into `ScoreBreakdown.total`
+  or `pitzReward.ts`'s own quality-multiplier formula (`efficiency.ts:1-19`'s own file header is
+  explicit about this independence).
+- **Never persisted** — `PersistentSaveV2` (`state/persistence.ts:114-135`) has no `cookingTiming`
+  field; this state is exactly as transient as `PizzaState` itself (§15 above).
+- **Lunch Rush's own timer is completely separate**: `mission/lunchRush.ts`'s `MissionClock`
+  (`{ startedAt, endsAt }`, `mission/lunchRush.ts:44-54`) is a single fixed-duration, mission-wide
+  countdown — not per-pizza, not per-step, and shares no code or state with `cookingTiming.ts`.
+  `LunchRushServeRecord` (`shared/lunchRushScoring.ts:28-34`, the per-serve log the server
+  recomputes the mission aggregate from — §14 above) carries `{ recipeId, qualityTotal,
+  completionStatus }` — **no timing field of any kind exists in Lunch Rush today**, confirmed by
+  reading that interface directly, not inferred.
+
+### 22.2 Per-step timing model (future, not built this phase)
+
+The minimum data/state boundary needed to extend the *existing* single accumulator with a
+per-step breakdown, without redesigning it — every existing field, every existing semantic
+(`completedMs` as the FREE-only, BAKE-excluded, pause-aware whole-round total feeding
+`efficiency.ts`) stays byte-for-byte as §22.1 describes it:
+
+```ts
+// Additive fields on the existing CookingTimingState (src/logic/cookingTiming.ts) — nothing
+// existing removed or renamed.
+interface CookingTimingState {
+  startedAt: number;
+  pausedAt: number | null;
+  accumulatedPauseMs: number;
+  completedMs: number | null;
+
+  // --- new, additive, optional (absent = today's exact behavior, no per-step data) ---
+  /** Which MakingStep (§8's widened union) is currently accumulating elapsed time, or null
+   *  outside PREPARE/POST_BAKE (ORDER/BAKE/RESULT/DISCOVERED). */
+  activeStep: MakingStep | null;
+  /** Epoch ms the *current* step's active window began (reset at every CONFIRM_MAKING_STEP
+   *  transition and at pause/resume, mirroring how the whole-round `startedAt` already works —
+   *  not a second independent clock, a per-step view of the same one). */
+  stepStartedAt: number | null;
+  /** Finalized elapsed ms per step already left, keyed by MakingStep. A step never reached this
+   *  round is simply absent (not zero) -- absence, not a sentinel, is "not measured yet". */
+  perStepElapsedMs: Readonly<Partial<Record<MakingStep, number>>>;
+}
+```
+
+Finalization mechanics mirror `finishCookingTiming`'s existing pattern exactly, just re-run at
+every `CONFIRM_MAKING_STEP` instead of only once at `START_BAKE`: on each step transition, compute
+`(effectiveEnd - stepStartedAt) - anyPauseDuringThisStep`, clamp to ≥0, and write it into
+`perStepElapsedMs[outgoingStep]` — the same "no negative time, pause span never counted"
+discipline `finishCookingTiming` already implements, applied once per step instead of once per
+round. **This requires §8's `MakingStep` widening (CUT/FOLD/SEAL/EDGE_FILL/FINISH) and `POST_BAKE`
+phase to exist first** — `activeStep`/`perStepElapsedMs` are typed against that wider union, so
+this instrumentation is structurally sequenced after Phase 1A, not merged into it (§22.10).
+
+### 22.3 FREE: `totalActiveTime` vs. `totalElapsedTime`, and where BAKE goes — resolved explicitly
+
+- **`totalActiveTime`** := exactly today's `completedMs` (§22.1) — active time only, pauses
+  subtracted, **BAKE excluded**. This stays the sole input to `efficiency.ts`'s tier/bonus
+  calculation; per-step instrumentation never changes what feeds it.
+- **`totalElapsedTime`** := a new, purely informational wall-clock span from the round's first
+  `stepStartedAt` to its last step's finalization, **including** any paused time. Never fed into
+  scoring, efficiency tiers, or Pitz — recorded only as a potential future display value ("real
+  time including interruptions"), and not required for the Phase 1A-T instrumentation slice itself
+  (§22.10) to be useful; flagged here only so the ambiguity the brief calls out has one answer
+  instead of none.
+- **BAKE is excluded from both**, by design, matching §22.1's existing boundary exactly — no
+  silent widening of the measured window. If a future slice adds `perStep.BAKE` for symmetry
+  (BAKE's needle-minigame already has its own internal duration data in `logic/bake.ts`, entirely
+  separate from this system), it must remain excluded from `totalActiveTime`/`totalElapsedTime`
+  and from `efficiency.ts`'s tier input — recording it and *scoring/pacing on* it are two different
+  decisions, and only the former is in scope for instrumentation.
+
+### 22.4 Lunch Rush: no dual timeout, internal step measurement only
+
+`MissionClock` (§22.1) stays the **only** enforced time limit for a Lunch Rush round — this design
+introduces **no per-step hard timeout**, and does not gate `CONFIRM_MAKING_STEP` on any per-step
+deadline. The brief's own instruction against a "mission timer + per-step hard timeout" dual
+restriction is followed exactly: `cookingTiming`'s per-step *measurement* (§22.2) may run during a
+Mission round purely for internal telemetry/future-Challenge-Mode plumbing (§22.5), but nothing
+reads it to reject or shorten a step, and it never becomes a second clock the player perceives or
+is scored against inside Lunch Rush. Existing Lunch Rush scoring (`shared/lunchRushScoring.ts`)
+and the Firebase server-authoritative recompute (`functions/src/submitLunchRushScore.ts`) are
+**unchanged** — `LunchRushServeRecord`'s shape gains no new field in this design, matching §14's
+existing "no Firebase change" scope.
+
+### 22.5 Future Challenge Mode (extension point only, not implemented)
+
+`CookingProfile` (§7) is the natural place to reserve an **optional** per-step hard limit for a
+future, explicitly-separate game mode:
+
+```ts
+interface CookingProfile {
+  // ...(§7's existing fields, unchanged)
+  /** Reserved extension point. Absent (every profile today, including any built through Phase
+   *  1A-T/1B/2A/3A/3B) means "no hard limit" — FREE and Lunch Rush both stay governed exactly as
+   *  §22.3/§22.4 describe. Only a future, explicitly opt-in Challenge Mode would ever populate
+   *  this. Not implemented, not scheduled, in this document. */
+  stepTimeLimits?: Partial<Record<MakingStep, { maxMs: number }>>;
+}
+```
+
+This is recorded as a typed extension point so a future Challenge Mode doesn't need a second data
+model bolted on later — it does **not** authorize building Challenge Mode now (§23's non-goals).
+
+### 22.6 Scoring principle: Quality primary, Time secondary — made explicit for every future step
+
+Step Timing instrumentation adds **zero** new inputs to `computeScoringV2` (Sauce/Pieces/Recipe/
+Bake, 52/16/12/20, §10) and **zero** change to Dex star thresholds (`logic/mastery.ts`, untouched)
+— purely a measurement layer, not a scoring layer, exactly like today's whole-round
+`cookingTiming`. The boundary this document commits any *future* per-step time-based bonus to:
+follow `efficiency.ts`'s own already-established discipline (§22.1's "quality-gated" bullet) —
+**a worse quality band must always dominate a better time/pace tier** (`efficiency.ts:84-103`'s
+own banded-rate table already enforces exactly this for the whole-round bonus, verified by that
+module's own test file). Any future per-step bonus (e.g. a CUT-pace bonus) must be layered the
+same way §10's scoring recommendation already requires new step components to be layered:
+additive, small, quality-gated, and never capable of letting a fast-but-low-quality round outscore
+a slower-but-high-quality one. Time is secondary by construction, not by convention.
+
+### 22.7 CUT boundary — timing/gesture data separation contract
+
+The Pizza Cutting design (§20) needs one explicit contract from this document: **timing data and
+gesture/scoring data are two independent channels that share only the step-boundary lifecycle
+(`stepStartedAt`/`CONFIRM_MAKING_STEP`), never a combined payload.** `perStepElapsedMs.CUT` (§22.2)
+is a plain scalar — elapsed ms spent inside the CUT step, computed exactly the same way as every
+other step's entry, with no awareness of cut-line coordinates, piece count, or piece-area
+evenness. The Pizza Cutting session owns, independently: the swipe-gesture algorithm, the cut-line
+representation, and piece-area/evenness scoring (§6's CUT row already scopes "evenness of piece
+sizes vs. target slice count" as CUT's own scoring signal, not this document's). If a future slice
+wants CUT pace to matter at all, it reads `perStepElapsedMs.CUT` as one optional input alongside
+its own gesture-quality signal, under §22.6's quality-primary discipline — this document designs
+the scalar's availability and its guardrail, not the CUT scoring formula itself, which stays
+entirely out of scope here exactly as §1 of this document already commits to.
+
+### 22.8 Save / persistence
+
+**No save-schema migration** — same conclusion as §15, restated precisely for step-level data:
+`activeStep`/`stepStartedAt`/`perStepElapsedMs` (§22.2) live on `GameState.cookingTiming`, which
+is round-transient exactly like the rest of `GameState`/`PizzaState` and is never written to
+`PersistentSaveV2` (`persistence.ts` has no serializer for `GameState` at all — confirmed, not
+assumed). A *separate*, explicitly future-only question — should a per-step pace ever be persisted
+for a Dex/history feature ("your best CUT pace") — is flagged, not designed or decided here; if it
+is ever wanted, it would need its own new, additively-absent-by-default `PersistentSaveV2` field
+(the same pattern `starterGrantClaimedRecipeIds` already used to extend the save shape without a
+version bump, `persistence.ts:121-134`), never a retrofit of the transient fields this section
+adds.
+
+### 22.9 Dependency map
+
+| Area | Impact of Step Timing instrumentation |
+|---|---|
+| `GameState`/`cookingTiming` | additive fields only (§22.2) — existing `completedMs` semantics unchanged |
+| PREPARE / POST_BAKE (`CONFIRM_MAKING_STEP`) | gains a per-transition finalize-and-restart of `stepStartedAt`/`perStepElapsedMs`; no new gating, no new failure mode |
+| BAKE | excluded from all timing totals, unchanged from today (§22.3) |
+| RESULT (`REGISTER_TO_DEX`) | `efficiency.ts` keeps reading `completedMs` exactly as today; `perStepElapsedMs` is available for a future RESULT display, not required for this instrumentation to be complete |
+| Lunch Rush (`MissionClock`) | unchanged; no dual timeout (§22.4); internal per-step measurement only |
+| Scoring (`ScoringV2`) | unchanged — zero new inputs (§22.6) |
+| Completion Gate | unchanged — timing is never a completion condition |
+| Dex (`logic/mastery.ts`, `state/dex.ts`) | unchanged this phase; a future persisted per-step best-pace feature is flagged only (§22.8), not designed |
+| Firebase Ranking (`functions/src/submitLunchRushScore.ts`, `LunchRushServeRecord`) | unchanged — no new field, no new trust-boundary surface (§22.4) |
+
+### 22.10 Roadmap placement: independent slice vs. folded into Phase 1A
+
+**Recommended: an independent slice, Phase 1A-T, sequenced immediately after Phase 1A and before
+Phase 1B** (§21's roadmap table already reflects this). Compared against folding it into Phase 1A
+itself:
+
+- Phase 1A's own completion bar (§18) is "provably zero behavior change for all 15 recipes,
+  independently testable" — a single, narrow claim. Bundling timing instrumentation in would mix
+  two independently-verifiable concerns into one slice and blow past the roadmap's own 2-3 hour
+  sizing convention (§21).
+- Phase 1A-T has a real, one-directional dependency on Phase 1A (it needs the widened `MakingStep`
+  union and the `POST_BAKE` phase to exist before `activeStep`/`perStepElapsedMs` can be typed
+  against them, §22.2) — so it cannot ship *before* 1A, but has no technical reason to ship
+  *inside* it.
+  Sequencing it directly after 1A (rather than, say, after 1B) means Phase 1B (CUT) can consume
+  `perStepElapsedMs.CUT` from its first line of code instead of retrofitting timing onto CUT
+  after the fact — directly serving §22.7's contract.
+
+### 22.11 Reset rules — retry / mid-round discard / recipe change / Lunch Rush next order
+
+Fresh-audited against every actual reset/transition path in `gameReducer.ts`, not assumed:
+
+| Trigger | Existing `cookingTiming` behavior today (confirmed) | Per-step fields (§22.2) — same rule, applied per-step |
+|---|---|---|
+| `RESET_PIZZA` (mid-PREPARE discard/redo, `gameReducer.ts:605`) | **Not reset** — CT2 deliberately lets the same round's whole-round clock continue uninterrupted through a discard (§22.1). | **Not reset** either, for the same reason: `activeStep`/`stepStartedAt` are untouched, `perStepElapsedMs` already finalized for prior steps stays as-is — a discard-and-redo of the current step is still time spent in that step, not a fresh round. |
+| `SELECT_RECIPE` (Pizza Select → PREPARE, `gameReducer.ts:831-844`) | **Fresh clock** — `startPreparingRecipe` calls `startCookingTiming(now)` unconditionally for a new round (FREE only). | **Fresh, empty `perStepElapsedMs`**, `activeStep` set to the profile's first step, `stepStartedAt = now` — a new recipe is a new round, never a continuation of a previous recipe's timing. |
+| `RETRY_SAME_RECIPE` (RESULT/DISCOVERED → PREPARE, `gameReducer.ts:846-856`) | **Fresh clock**, same `startPreparingRecipe` path as `SELECT_RECIPE` — "retry" starts a brand-new round, it does not resume the failed/finished one. | Same as `SELECT_RECIPE` — fresh, empty per-step state. |
+| `MISSION_NEXT_ORDER` (Lunch Rush's continuous serve loop, `gameReducer.ts:864-...`) | Routes through a fresh `nextOrderState`/`BEGIN_PREPARE`-equivalent with `isMissionRound: true`, so `cookingTiming` stays `null` (§22.1's FREE-only gate) — confirmed, this path never starts a clock at all today. | Stays `null`/absent for the same reason — a new Lunch Rush order is a fresh internal-measurement window (if Phase 1A-T's optional internal measurement runs during Mission at all, §22.4), never carried over from the previous serve. |
+| `BEGIN_PREPARE` (FREE's normal ORDER → PREPARE) | **Fresh clock**, gated `!isMissionRound` (§22.1). | Fresh, empty per-step state, same as `SELECT_RECIPE`. |
+
+**Rule stated once, generally:** any transition that already starts a fresh whole-round
+`cookingTiming` clock also starts fresh per-step state (empty `perStepElapsedMs`, new
+`stepStartedAt`); any transition that already preserves the whole-round clock (only
+`RESET_PIZZA` today) also preserves per-step state. Per-step timing never gets an independent
+reset rule of its own — it strictly inherits the whole-round clock's existing lifecycle, which is
+exactly why §22.2 designs it as additive fields on the *same* `CookingTimingState` object rather
+than a second, separately-managed state shape.
+
+### 22.12 Timer authority per mode — stated explicitly
+
+| Mode | What actually gates/limits play | Step Timing's role |
+|---|---|---|
+| **FREE** | No time limit at all, whole-round or per-step — a player may take as long as they like at any step. `cookingTiming`/`perStepElapsedMs` are pure measurement, feeding only `efficiency.ts`'s existing secondary Pitz-bonus tier (§22.1/§22.6). | **Authority: none.** Measurement only. |
+| **Lunch Rush** | `MissionClock` (`mission/lunchRush.ts:44-54`) — a single, fixed-duration, mission-wide countdown, unchanged by this design (§22.4/§14). No per-step deadline exists or is introduced. | **Authority: none.** If internal per-step measurement runs at all during Mission (optional, §22.4), it is telemetry/future-Challenge-Mode plumbing only — it cannot end a step, end a round, or affect Mission scoring. |
+| **Future Challenge Mode** (not implemented, §22.5) | Would be the **only** mode where a per-step limit (`CookingProfile.stepTimeLimits`, §22.5) could actually gate play — and only because that mode opts in explicitly. | **Authority: the mode itself, once built** — this document reserves the extension point and states the constraint (opt-in only, never retroactively applied to FREE or Lunch Rush) without designing Challenge Mode's own rules. |
+
+This table is the direct answer to "timer authority per mode": **today, and under every
+recommendation in this document, no timer ever has the authority to end a step or a round except
+Lunch Rush's own pre-existing `MissionClock` acting at the whole-mission level** — Step Timing
+instrumentation never gains enforcement authority anywhere outside a future, explicitly-opt-in
+Challenge Mode.
+
+### 22.13 Phase 1A-T acceptance criteria (for the follow-up implementation slice, not this PR)
+
+Mirroring how §18's migration strategy frames Phase 1A itself (a falsifiable, testable
+zero-regression bar), Phase 1A-T's own completion criteria for its future implementation PR:
+
+1. **Zero change to `completedMs`/efficiency behavior.** Every existing `cookingTiming.test.ts`/
+   `efficiency.test.ts` case continues to pass unmodified — per-step instrumentation is additive
+   data collected *alongside* the existing whole-round calculation, never a reimplementation of it.
+2. **`perStepElapsedMs` sums to `completedMs` for the pre-BAKE span**, within pause-accounting
+   rounding — a regression test asserting `sum(perStepElapsedMs[s] for s in preBakeSteps) ≈
+   completedMs` for a representative PREPARE walkthrough is required, since a mismatch would mean
+   the per-step finalization logic (§22.2) drifted from the whole-round one it's supposed to mirror.
+3. **Lunch Rush is unaffected**: a Mission-round regression test confirms `cookingTiming` (and any
+   per-step fields on it) never gates, delays, or fails a `CONFIRM_MAKING_STEP`/`SERVE` dispatch,
+   and that `LunchRushServeRecord`'s shape/tests are byte-identical to pre-Phase-1A-T (§22.4).
+4. **Reset-rule table (§22.11) has a test per row** — `RESET_PIZZA` preserves per-step state,
+   `SELECT_RECIPE`/`RETRY_SAME_RECIPE`/`BEGIN_PREPARE` all start fresh per-step state, confirmed
+   by assertion, not left to manual QA.
+5. **No new `GamePhase`/`MakingStep` value is required for this slice specifically** — Phase 1A-T
+   only needs the widened union Phase 1A already introduced (§8); it must not need to widen
+   `MakingStep`/`GamePhase` further on its own, or its sequencing after Phase 1A (§22.10) would be
+   wrong.
+6. **`CookingProfile.stepTimeLimits` (§22.5) is present in the type but read by nothing** — a
+   grep-level check that no reducer case, selector, or component conditions any behavior on it,
+   confirming the extension point stays inert until a real Challenge Mode slice exists.
+
+### 22.14 Phase 1A → Phase 1B (CUT) hand-off continuity
+
+Because `activeStep`/`stepStartedAt`/`perStepElapsedMs` are typed against §8's already-widened
+`MakingStep` union (which includes `CUT` from Phase 1A onward, even though nothing populates a
+`CUT` entry until Phase 1B ships), Phase 1B requires **zero timing-state migration** — it starts
+consuming `perStepElapsedMs.CUT` the moment `CookingProfile.steps` for a recipe first includes
+`"CUT"`, using the exact same finalization mechanics (§22.2) every other step already exercises
+since Phase 1A-T. This is the concrete form of §22.7's contract: Phase 1B's own gesture/scoring
+code (owned entirely by the Pizza Cutting design, §20) is additive on top of a timing channel that
+is already complete and already tested (§22.13) by the time Phase 1B starts, not something Phase
+1B needs to build or retrofit for itself.
+
+## 23. Explicit non-goals (this document and any near-term follow-up)
 
 - No production code, Recipe/Ingredient schema change, Scoring formula change, Completion Gate
   change, Lunch Rush change, Firebase change, or save-schema bump in this PR.
@@ -560,3 +879,11 @@ Scoring-component and Completion-Gate work for each step ships alongside that st
 - No new recipes added to `RECIPES` beyond the current 15.
 - No server-side recompute of per-pizza (as opposed to per-mission) score — a pre-existing gap
   (§14), not something this design is scoped to close.
+- No per-step hard timeout in FREE or Lunch Rush (§22.4/§22.12) — Step Timing (§22) is
+  measurement-only this phase and the next; enforcement stays reserved for a future, unbuilt
+  Challenge Mode (§22.5).
+- No Challenge Mode implementation — only a typed, inert extension point (§22.5) is reserved.
+- No per-step scoring formula (CUT pace bonus, etc.) — §22.6/§22.7 define the boundary a future
+  one must respect, not the formula itself.
+- No persisted per-step timing history (a future "best CUT pace" Dex feature) — flagged as a
+  possible future fork (§22.8), not designed or decided.
