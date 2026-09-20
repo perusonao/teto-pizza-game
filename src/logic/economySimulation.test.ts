@@ -5,6 +5,7 @@ import {
   GOOD_PLAYER,
   NORMAL_PLAYER,
   STRUGGLING_PLAYER,
+  STRUGGLING_HARD_CAP_PLAYER,
   simulateProgression,
   financeIngredientTable,
   STARTER_STOCK_PLAYS_CHAPTER_1,
@@ -141,6 +142,76 @@ describe("representative progression simulation (F, G)", () => {
       const order = result.unlockEvents.map((e) => e.recipeId);
       expect(order).toEqual(chainOrder);
     }
+  });
+});
+
+// Progression ceiling stress case (★3 hard cap) -- Fresh Merge Gate follow-up on PR #119 -------
+//
+// A SEPARATE, independent stress case from STRUGGLING_PLAYER above -- never described as that
+// profile's "ruled out" precursor. Confirms a purely mathematical progression-chain constraint,
+// independent of Pitz/inventory/Shop: with every recipe's own Dex BEST capped at exactly ★3 (the
+// single most pessimistic reading of "★1〜★3"), the unlock chain's own totalStars gates become
+// unreachable. This is a PROGRESSION finding (unlock pacing / minTotalStars gate spacing), not
+// an Economy one -- see the Result Report's own "Progression Tuning Handoff" section.
+describe("progression ceiling stress case (★3 hard cap)", () => {
+  it("the idealized ★3-per-recipe ceiling falls short of both capricciosa's and meat-lovers' own gates", () => {
+    // Purely data-driven (no simulation): if every recipe discovered so far had its Dex BEST
+    // capped at exactly ★3, is the NEXT recipe's own minTotalStars gate still reachable?
+    const chain = [
+      "margherita", "funghi", "marinara", "bismarck", "genovese", "quattro-formaggi", "fugazza",
+      "salsiccia", "pepperoni", "napoletana", "tonno-e-cipolla", "pizza-bianca",
+      "breakfast-pizza", "capricciosa", "meat-lovers",
+    ] as const;
+    const gates = new Map(
+      RECIPES.map((r) => [
+        r.id,
+        (r as { unlockCondition?: { minTotalStars?: number } }).unlockCondition?.minTotalStars,
+      ]),
+    );
+
+    // capricciosa is discovered 14th (13 recipes already discovered before it); its own gate is
+    // 40. An idealized flat ★3 ceiling across those 13 prior recipes caps totalStars at 39 --
+    // one star short, BEFORE meat-lovers is even reached.
+    const priorToCapricciosa = chain.indexOf("capricciosa");
+    expect(priorToCapricciosa).toBe(13);
+    expect(priorToCapricciosa * 3).toBe(39);
+    expect(gates.get("capricciosa")).toBe(40);
+    expect(priorToCapricciosa * 3).toBeLessThan(gates.get("capricciosa")!);
+
+    // meat-lovers is discovered 15th (14 recipes already discovered before it, capricciosa
+    // included); its own gate is 44. 14 × ★3 = 42 -- two stars short.
+    const priorToMeatLovers = chain.indexOf("meat-lovers");
+    expect(priorToMeatLovers).toBe(14);
+    expect(priorToMeatLovers * 3).toBe(42);
+    expect(gates.get("meat-lovers")).toBe(44);
+    expect(priorToMeatLovers * 3).toBeLessThan(gates.get("meat-lovers")!);
+  });
+
+  it("a profile whose Dex BEST never exceeds ★3 stalls on the progression ceiling, never on an economy shortage", () => {
+    const result = simulateProgression(STRUGGLING_HARD_CAP_PLAYER);
+
+    // The chain is NOT completed -- this is the expected, by-design outcome for this profile.
+    expect(result.completed).toBe(false);
+
+    // Critically: it never runs out of Pitz or ingredients. Zero shortage events, and a healthy
+    // Pitz surplus at the point it plateaus -- proving the stall is a totalStars/progression
+    // constraint, not an Economy one.
+    expect(result.shortageEvents.length).toBe(0);
+    expect(result.finalPitzBalance).toBeGreaterThan(0);
+
+    // It never reaches meat-lovers (nor, in this deterministic run, even capricciosa) --
+    // confirming the mathematical ceiling from the test above actually bites in practice, not
+    // just in the idealized "every recipe exactly ★3" arithmetic.
+    const unlockedIds = result.unlockEvents.map((e) => e.recipeId);
+    expect(unlockedIds).not.toContain("meat-lovers");
+    expect(unlockedIds).not.toContain("capricciosa");
+
+    // Deterministic pin: this exact profile plateaus at exactly this totalStars, one short of
+    // pizza-bianca's own ★32 gate -- pinned so a future change to the simulation's grind policy
+    // or this profile's own cycle can't silently "fix" this ceiling without the change being
+    // visible here.
+    expect(result.finalTotalStars).toBe(31);
+    expect(unlockedIds).not.toContain("pizza-bianca");
   });
 });
 

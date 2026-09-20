@@ -31,7 +31,7 @@ export type RoundOutcome = QualityStars | "FAILED";
  *  to land inside `STAR_THRESHOLDS`'/`QUALITY_MULTIPLIER_BANDS`' own bands (both 90/75/60/40/0)
  *  so the simulated Pitz reward always matches the star shown. */
 export interface PlayerProfile {
-  name: "GOOD" | "NORMAL" | "STRUGGLING";
+  name: "GOOD" | "NORMAL" | "STRUGGLING" | "STRUGGLING_HARD_CAP";
   /** Repeating sequence of round outcomes. */
   cycle: readonly RoundOutcome[];
 }
@@ -55,6 +55,27 @@ export const STRUGGLING_PLAYER: PlayerProfile = {
   // player who never once clears the ★4 band across an entire 15-recipe playthrough would be
   // an unrealistically harsh floor, not a representative one. 4/20 FAILED (20%) -- "FAILEDあり".
   cycle: [2, 1, 3, "FAILED", 2, 1, "FAILED", 3, 2, 1, "FAILED", 4, 2, 3, 1, "FAILED", 2, 1, 3, 4],
+};
+
+/**
+ * Economy Tuning 2 Fresh Merge Gate follow-up: a SEPARATE, independent stress case -- never a
+ * substitute for `STRUGGLING_PLAYER` above, and never described as its "ruled out" precursor.
+ * This profile literally never rolls above ★3 for any bake, for the entire run -- the single
+ * most pessimistic reading of "★1〜★3", with no execution-variance excursions at all. It exists
+ * to answer one specific, purely mathematical question about the unlock chain itself (see the
+ * Result Report's own "Progression Tuning Handoff" section): with every recipe's own BEST
+ * capped at exactly ★3, is `meat-lovers`' 44-totalStars gate reachable at all, independent of
+ * Pitz/inventory/Shop? 14 non-`meat-lovers` recipes × ★3 = 42 totalStars, one gate short of 44
+ * by construction -- this profile is expected, by design, to plateau below the top of the
+ * chain. That plateau is a PROGRESSION finding (unlock pacing / minTotalStars gate spacing), not
+ * an economy one: `simulateProgression` on this profile is expected to report `completed: false`
+ * with `shortageEvents.length === 0` -- i.e. it stops because totalStars cannot go any higher,
+ * never because Pitz or inventory ran out. Same 20% FAILED rate as `STRUGGLING_PLAYER`, so the
+ * two profiles differ in exactly one respect (the ★4 excursions), isolating that variable.
+ */
+export const STRUGGLING_HARD_CAP_PLAYER: PlayerProfile = {
+  name: "STRUGGLING_HARD_CAP",
+  cycle: [2, 1, 3, "FAILED", 2, 1, "FAILED", 3, 2, 1, "FAILED", 2, 3, 1, "FAILED", 2],
 };
 
 /** Representative 0-100 total for each star tier, chosen inside that tier's own band
