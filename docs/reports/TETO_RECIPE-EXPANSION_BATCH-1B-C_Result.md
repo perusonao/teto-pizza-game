@@ -3,9 +3,11 @@
 Meat Lovers + Supreme (reference-capacity gate outcome)
 
 - **Audited main SHA (Gate #1, session start)**: `ef00ed7`
-- **Base SHA after mid-task sync (Gate #2, Test Reliability 1A merged)**: `fcfecdb`
-- **Implementation HEAD**: `fcfecdb` + this batch's own commit(s) on
-  `claude/recipe-expansion-1b-c-9f0tmx`
+- **Base SHA after 1st mid-task sync (Test Reliability 1A merged, PR #115)**: `fcfecdb`
+- **Base SHA after 2nd mid-task sync, at Gate #2 (Firebase Ranking Phase 1B merged, PR #116,
+  untouched by this batch)**: `90816d3`
+- **Implementation HEAD**: `8d0bd40` (merge of `90816d3` + this batch's own commit
+  `a4aea84`) on `claude/recipe-expansion-1b-c-9f0tmx`
 - **Recipe count**: 14 → 15 (+1: `meat-lovers`; `supreme` deferred)
 - **Ingredient count**: 22 → 22 (unchanged — zero new ingredients this batch)
 
@@ -331,15 +333,20 @@ and after.
 
 ## 18. Verification
 
-- `npx vitest run` — **1714/1714 passed**, 87 files. Pre-merge (against `ef00ed7`): one run hit
-  the then-still-open `phase4a1a.regression.test.ts` flake (documented in Section 14), a second
-  passed clean. Post-merge (against `fcfecdb`, after inheriting PR #115's fix): **two
-  consecutive clean runs, 1714/1714 both times, zero flakes.**
-- `python3 tools/validate_recipe_catalog.py` — all checks passed.
+- `npx vitest run` — final state (after both mid-task syncs, against `90816d3` + Firebase Phase
+  1B's own new test files): **1746/1746 passed**, 89 files, two consecutive clean runs, zero
+  flakes. Earlier checkpoints along the way: against `ef00ed7` pre-first-sync, one run hit the
+  then-still-open `phase4a1a.regression.test.ts` flake (documented in Section 14), a second
+  passed clean (1714/1714); against `fcfecdb` post-first-sync (PR #115's fix inherited), two
+  clean runs at 1714/1714.
+- `python3 tools/validate_recipe_catalog.py` — all checks passed (both before and after both
+  syncs).
 - `npx tsc -b` — clean.
 - `npx oxlint` — clean.
-- `npm run build` — clean production build (460.60 kB JS / 140.57 kB gzip; no meaningful bundle
-  change, zero new ingredient/asset added).
+- `npm run build` — clean production build (469.95 kB JS / 143.74 kB gzip post-merge, up from
+  460.60 kB / 140.57 kB pre-Firebase-Phase-1B-merge purely from that unrelated PR's own
+  `submitLunchRushScore`/`lunchRushScoring` code; this batch itself adds zero new
+  ingredient/asset and no measurable bundle delta of its own).
 - Focused suites (`recipes.test.ts`, `referencePizza.test.ts`, `playerReference.test.ts`,
   `progression.test.ts`, `starterStock.test.ts`, `completionGate.test.ts`,
   `recipeSauceProfiles.test.ts`, `efficiency.test.ts`, `App.test.tsx`,
@@ -354,6 +361,19 @@ Supreme in a future batch needs a deliberate, reviewed decision on the ring itse
 it past 8 slots with a full regression pass across all 15 existing recipes) — out of scope for a
 single-recipe addition task. `hawaiian`/`ortolana` (also cited in the Batch 1B design audit as
 later candidates) are untouched, not evaluated this task.
+
+### Duplicate PR Gate #2 (pre-PR)
+
+`git fetch origin` immediately before opening the PR. `origin/main` had advanced twice since
+Gate #1 (`ef00ed7` → `fcfecdb` → `90816d3`): Test Reliability 1A (#115, see Section 14) and
+Firebase Ranking Phase 1B (#116, "server-authoritative score submission") both merged in the
+interim. Neither touches recipes/ingredients/reference/progression/Shop/Inventory/Dex — Firebase
+Phase 1B only adds `src/firebase/submitLunchRushScore.ts`, `src/shared/lunchRushScoring.ts`,
+`functions/**`, and Firestore config, none of which this batch's diff overlaps. Re-checked open
+PRs: still no Batch 1B-C/Meat Lovers/Supreme/bell-pepper duplicate. Merged `90816d3` into this
+branch (clean, zero conflicts) and re-ran the full verification pass (Section 18's numbers are
+already this post-merge state — **1746/1746 tests, `tsc`/`oxlint`/validator/build all clean**).
+No further main advance before pushing.
 
 ## 20. Final Verdict
 
