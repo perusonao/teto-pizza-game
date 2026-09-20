@@ -154,11 +154,11 @@ describe("PizzaSelectScreen pager (Issue #88 UX-4)", () => {
         onBack={() => {}}
       />,
     );
-    expect(RECIPES.length).toBe(14);
+    expect(RECIPES.length).toBe(15);
     expect(container.querySelectorAll(".pizza-select-dot")).toHaveLength(0);
-    expect(screen.getByLabelText("1 / 14")).toBeInTheDocument();
+    expect(screen.getByLabelText("1 / 15")).toBeInTheDocument();
     await user.click(nextButton());
-    expect(screen.getByLabelText("2 / 14")).toBeInTheDocument();
+    expect(screen.getByLabelText("2 / 15")).toBeInTheDocument();
   });
 
   it("6. tapping the CTA on the current (unlocked) recipe reports its exact id", async () => {

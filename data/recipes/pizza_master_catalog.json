@@ -7,8 +7,8 @@
   "viableEntryCount": 51,
   "rejectedDuplicateCount": 2,
   "statusBreakdown": {
-    "verified_internal": 14,
-    "game_design_candidate": 14,
+    "verified_internal": 15,
+    "game_design_candidate": 13,
     "deferred": 5,
     "verification_pending": 18,
     "rejected_duplicate": 2
@@ -1509,21 +1509,24 @@
       ],
       "optionalIngredients": [],
       "finishingIngredients": [],
-      "bakeProfile": null,
+      "bakeProfile": {
+        "start": 60,
+        "end": 80
+      },
       "mechanics": [
         "spread",
         "scatter"
       ],
       "visualIdentity": "High meat density; only 1 new ingredient (bacon), which is itself high-reuse (Breakfast Pizza).",
       "sourceReferences": [
-        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+        "internal://src/data/recipes.ts#meat-lovers"
       ],
-      "verificationStatus": "game_design_candidate",
+      "verificationStatus": "verified_internal",
       "implementationClass": "B",
       "difficulty": 3,
       "progressionTier": "mid",
-      "gameDesignStatus": "candidate",
-      "currentGameRecipe": false,
+      "gameDesignStatus": "shipped",
+      "currentGameRecipe": true,
       "rejectedDuplicateOf": null,
       "newIngredientsIntroduced": [
         "bacon"
