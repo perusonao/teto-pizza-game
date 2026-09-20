@@ -3,7 +3,7 @@ import { cleanup, fireEvent, render, screen, within } from "@testing-library/rea
 import userEvent from "@testing-library/user-event";
 import App from "./App";
 import { SAVE_STORAGE_KEY, type PersistentSaveV1 } from "./state/persistence";
-import { STARTER_INGREDIENT_IDS } from "./data/ingredients";
+import { EARLY_GAME_HINT_THRESHOLD, INGREDIENTS, STARTER_INGREDIENT_IDS } from "./data/ingredients";
 import { RECIPES, type RecipeId } from "./data/recipes";
 
 /** Issue #88 (UX-4): Pizza Select is now a single-recipe pager, not a grid of per-recipe
@@ -821,23 +821,21 @@ describe("Shop 2.0 restock (Economy & Progression 1.0 EP3)", () => {
 
 /**
  * Visual Polish 1C (AI UI/UX Visual Review 1.0, P1-3 / P2-5): fresh/early-game Shop guidance +
- * category filter. `EARLY_GAME_HINT_THRESHOLD` (ShopOverlay.tsx) is 8 today (half of the 15
- * shop-eligible ingredients) -- "few" below means fewer than 8 owned finite ingredients, "many"
- * means 8 or more.
+ * category filter. "few" below means fewer than `EARLY_GAME_HINT_THRESHOLD` owned finite
+ * ingredients, "many" means at least that many -- `MANY` is sized directly off the real,
+ * currently-shipped constant (imported from ShopOverlay.tsx) rather than a hardcoded copy of it,
+ * so this suite doesn't go stale every time a Recipe Expansion batch changes the ingredient
+ * catalog's size (as it already did once: 15 -> 17 shop-eligible ingredients moved the threshold
+ * from 8 to 9 when Batch 1B-A added rosemary/bacon).
  */
 describe("Shop Visual Polish 1C: empty state + scalability", () => {
   const FEW = ["mushroom"]; // funghi's own grant -- 1 shop product, topping category
-  // 8 owned finite ingredients spanning all 3 categories -- at/above EARLY_GAME_HINT_THRESHOLD.
-  const MANY = [
-    "olive-oil",
-    "pesto",
-    "gorgonzola",
-    "parmigiano",
-    "fontina",
-    "garlic",
-    "oregano",
-    "cherry-tomato",
-  ];
+  // The first `EARLY_GAME_HINT_THRESHOLD` shop-eligible ingredient ids, in catalog order --
+  // always exactly at the threshold, spanning whichever categories the catalog's own early
+  // entries happen to cover (today: sauce/cheese/topping, same 3 as ever).
+  const MANY = INGREDIENTS.filter((i) => i.unlockCondition)
+    .map((i) => i.id)
+    .slice(0, EARLY_GAME_HINT_THRESHOLD);
 
   it("A/B. fresh game (0 products) shows only the big empty-shop message, no hint/filter/list", async () => {
     const user = userEvent.setup();

@@ -2,6 +2,7 @@ import { useState } from "react";
 import {
   CATEGORY_TAB_LABEL,
   CATEGORY_TAB_ORDER,
+  EARLY_GAME_HINT_THRESHOLD,
   INGREDIENTS,
   type CategoryTab,
   type Ingredient,
@@ -53,25 +54,6 @@ function shopProducts(ownedIngredientIds: readonly string[]): readonly Ingredien
     return true;
   });
 }
-
-/**
- * Visual Polish 1C (AI UI/UX Visual Review 1.0, P1-3): every ingredient that could *ever* show
- * up in `shopProducts` above -- i.e. the Shop's eventual full catalog size once every recipe is
- * unlocked. Used only to size `EARLY_GAME_HINT_THRESHOLD` below; never a gate on what's
- * purchasable itself.
- */
-const TOTAL_SHOP_ELIGIBLE_INGREDIENTS = INGREDIENTS.filter((i) => i.unlockCondition).length;
-
-/**
- * How many *visible* Shop products it takes before the Shop stops reading as "empty/broken" and
- * the "レシピを解放すると増えます" progression hint (below) retires on its own. Set to half of
- * `TOTAL_SHOP_ELIGIBLE_INGREDIENTS` rather than a hand-picked constant, so the cutoff scales
- * automatically as the 18->20->62+ ingredient roadmap lands instead of needing re-tuning per
- * batch. Against today's data/recipes.ts unlock chain (funghi->marinara->bismarck->genovese->
- * quattro-formaggi->...), this threshold (8 of 15) covers the first 4 of 11 recipe unlocks --
- * the hint disappears the moment quattro-formaggi's 4-ingredient grant pushes the count past it.
- */
-const EARLY_GAME_HINT_THRESHOLD = Math.ceil(TOTAL_SHOP_ELIGIBLE_INGREDIENTS / 2);
 
 /** One shop row's derived, presentation-only state -- never a stored/duplicated flag. */
 function remainingStarsFor(ingredient: Ingredient, stars: number): number {
