@@ -55,6 +55,14 @@ const MAKING_STEP_TO_CATEGORY: Record<MakingStep, IngredientCategory> = {
   SAUCE: "sauce",
   CHEESE: "cheese",
   TOPPING: "topping",
+  // Recipe Cooking Steps 1.0 Phase 1A: unreachable here, same as DOUGH above -- no
+  // `CookingProfile` for any of the 15 shipped recipes ever produces one of these (see
+  // App.tsx's own makingStepToCategory, whose `default` mirrors this same placeholder).
+  CUT: "topping",
+  FOLD: "topping",
+  SEAL: "topping",
+  EDGE_FILL: "topping",
+  FINISH: "topping",
 };
 
 // EP4: "garlic"/"olive-oil" are now finite -- seed generous stock for every finite ingredient
