@@ -7,6 +7,33 @@
 - **Implementation HEAD**: `3cd5998b148dacf53851f99e2ce33ffa55967fbf` on `claude/lunch-rush-completion-gate-723h9h` — this work's own commit (`46abf5e`) merged forward onto `origin/main` after it advanced mid-session to `65a40c8` (`Visual Polish 1B: localize Lunch Rush Result (#109)`, `Sync Recipe Master with shipped Batch 1A (#108)` — neither overlaps this change's files; a clean merge, no conflicts).
 - **Duplicate PR Gate #2 (immediately before opening the PR)**: re-ran `git fetch origin` + `list_pull_requests` (open) against the post-merge state above — still no open PR or new branch covering this scope.
 
+## Post-main-sync update (PR #110, after Batch 1B-A merged to `main`)
+
+`main` advanced again after PR #110 was opened: **Recipe Expansion Batch 1B-A (`#112`, `Pizza Bianca` + `Breakfast Pizza`)** squash-merged, which made `#110` briefly `mergeable=false`. Per instruction, this reused `#110`'s existing branch — no new PR was opened.
+
+- **Latest `origin/main` SHA**: `6d5c0912611d2117974a9f2801f06fe4a68b9e0c` (`Recipe Expansion Batch 1B-A: Pizza Bianca + Breakfast Pizza (#112)`)
+- **New implementation HEAD**: `97e73a8` on `claude/lunch-rush-completion-gate-723h9h` (`git merge origin/main --no-edit`, merged directly onto the branch's prior head `01714d9`)
+- **Conflicts**: **none.** `git merge` resolved automatically (`ort` strategy) — Batch 1B-A's changes (`data/recipes/*_master_catalog.json`, `src/data/recipes.ts`/`ingredients.ts`/`orders.ts`/`referencePizza.ts`/`recipeSauceProfiles.ts` additions, their own test files, and its own new screenshots/Result Report) touch entirely different lines/files than this PR's Lunch Rush integration (`App.tsx`, `MissionServePanel.tsx`, `lunchRush.ts`, `gameReducer.ts` comments). The only file both branches touched was `src/App.test.tsx`, and even there the two changes landed in non-overlapping regions (Batch 1B-A added assertions elsewhere in the file; this PR's Lunch Rush tests are untouched) — Git auto-merged it with no manual resolution needed. Verified no leftover `<<<<<<<`/`=======`/`>>>>>>>` markers anywhere in `src/`/`data/` after the merge.
+- **Batch 1B-A content preserved**: confirmed 13 recipes present post-merge, including `pizza-bianca` and `breakfast-pizza` (`node -e` scan of `src/data/recipes.ts`'s `id:` fields).
+- **PR #109's Lunch Rush Result localization preserved**: `MissionResultOverlay.tsx`/`.test.tsx` (merged into this branch back at `3cd5998`, the first main-sync) carried through this second merge untouched — no conflicting change to that file in Batch 1B-A.
+- **Unrelated changes**: none introduced by this sync — the merge commit brings in exactly Batch 1B-A's own files plus this PR's own pre-existing files, nothing hand-edited beyond the merge itself.
+
+### Re-verification after the sync
+
+- **Lunch Rush Completion Gate focused tests** (`src/mission/lunchRush.test.ts`, `src/App.test.tsx`, `src/state/gameReducer.completionGate.test.ts`, `src/state/gameReducer.completionGateEfficiency.test.ts`, `src/logic/completionGate.test.ts`, `src/components/ResultPanel.test.tsx`): **134/134 passed**.
+  - PASS → `servedCount +1`, quality added: confirmed (`"Lunch Rush: 次の注文へ skips the redundant ORDER gate..."` and others).
+  - FAILED → `servedCount +0`, quality `+0`, order advances: confirmed (`"...a Completion FAILED order shows the failure reason and never counts as served"`).
+  - Repeated FAILED: confirmed (`"...repeated Completion FAILED orders never inflate servedCount or loop the same order"`).
+  - FAILED → PASS: confirmed (`"...a PASS order right after a FAILED one still counts as exactly +1 served"`).
+  - `missionBest`: unaffected — still derives purely from `mission.metrics`, which the above confirm is correct.
+  - FREE regression: `gameReducer.completionGate.test.ts`/`completionGateEfficiency.test.ts`/`completionGate.test.ts`/`ResultPanel.test.tsx` all pass unmodified.
+- **Full `npm test`**: **1660/1660 passed**, 84 test files (up from 1643/83 pre-sync — the 17 new tests are Batch 1B-A's own, carried in by the merge). No flaky tests observed (single deterministic run, all green).
+- **`npx tsc -b`**: clean.
+- **`npm run lint`** (oxlint): clean.
+- **`npm run build`**: succeeds.
+- **Browser re-verification** (Playwright/Chromium, 390×844, fresh `localStorage`): re-ran the exact same PASS → FAILED → next-order flow against the merged code. Identical result to the pre-sync run — PASS scores normally, FAILED shows `トマトソースが入っていません` with `servedCount` frozen at `1` both before and after advancing past the FAILED order, timer keeps counting (`2:58` → `2:56`), **0 console errors**, **0 horizontal overflow**. Screenshots re-captured in place (`docs/reports/screenshots/lunch-rush-completion-gate-1a/*_390x844.png`).
+- **Push**: `git push origin claude/lunch-rush-completion-gate-723h9h` (same branch, same PR #110) — not auto-merged.
+
 ## Fresh audit (this session, against the SHA above)
 
 Traced `CONFIRM_BAKE → evaluatePizzaCompletion → Scoring 2.0 → Lunch Rush SERVE → missionScore → persistMissionBest` directly in code:
