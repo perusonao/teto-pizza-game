@@ -8,7 +8,7 @@ Function + Firestore + Firestore Security Rules). No ranking UI is added by this
 
 `13151e8` ("Firebase ranking Phase 1A: foundation and anonymous auth (#113)"), fetched fresh
 from `origin/main` at the start of this task. `claude/firebase-ranking-phase-1b-v7lfle` was
-already at this exact commit (created for this task), so no rebase was needed.
+already at this exact commit (created for this task), so no rebase was needed at the start.
 
 **Duplicate PR Gate #1** (task start): `git fetch origin`, then GitHub checked fresh -- Issue
 #87 open (OWNER-authored); zero open PRs touch Firebase/Functions/Firestore/Ranking/Phase 1B
@@ -16,6 +16,18 @@ already at this exact commit (created for this task), so no rebase was needed.
 in-flight branch for this scope beyond this task's own designated branch. Concurrent-scope
 branches named in this task's instructions (Recipe Expansion Batch 1B-B, Test Reliability 1A)
 were not touched by anything in this PR.
+
+**Duplicate PR Gate #2** (immediately before opening the PR): a fresh `git fetch origin`
+showed `main` had advanced to `ef00ed7` ("Recipe Expansion Batch 1B-B: add Capricciosa
+(#114)") in the interim. Re-checked GitHub: still zero open PRs in Firebase/Functions/Ranking/
+Phase 1B scope. PR #115 ("Test Reliability 1A: eliminate phase4a1a randomized flake") is open
+but **not yet merged into `main`**, so per this task's own instruction its known flake fix was
+left untouched here -- it will be picked up automatically by a future `main` sync once it
+merges. `git diff --name-only 13151e8 ef00ed7` confirmed zero file overlap between #114 and
+this PR's own changes (#114 only touches recipe/ingredient data, its own tests, and its own
+result report/screenshots). `origin/main` was merged into this branch (a clean, no-conflict
+merge commit) and the full verification in section 12 was re-run afterward against the merged
+tree.
 
 ## 2. Phase 1A baseline (fresh-audited, not assumed from memory)
 
@@ -245,8 +257,11 @@ New/changed test files, all passing:
 | `functions/src/submitLunchRushScore.test.ts` (new) | 21 | A-L from this task's Function spec, against an in-memory Firestore fake |
 | `firestore.rules.test.ts` (new, not part of `npm test`) | 8 | Against a real Firestore emulator (section 8) |
 
-- **Root full suite**: `npx vitest run` -- **1714 passed**, **89 test files**, 0 failed (was
-  1682/87 files at the Phase 1A baseline; +32 tests, +2 files net in `src/`).
+- **Root full suite**: `npx vitest run` -- **1737 passed**, **89 test files**, 0 failed, run
+  after the Duplicate PR Gate #2 merge (section 1). Phase 1A baseline was 1682/87 files; this
+  PR's own changes add 32 tests/2 files net in `src/` (1714/89 measured pre-merge), and the
+  merged-in Recipe Expansion Batch 1B-B (#114) independently adds a further 23 tests to
+  existing files (no new files) -- 1682 + 32 + 23 = 1737, reconciling exactly.
 - **Root `tsc -b`**: clean, 0 errors.
 - **Root `oxlint`**: clean, 0 warnings/errors.
 - **Root `npm run build`**: succeeds with zero `VITE_FIREBASE_*` set (unchanged Phase 1A
@@ -369,7 +384,7 @@ unit tests, an in-memory fake, or a local Firestore emulator -- never a live pro
 **B. READY WITH MANUAL SETUP**
 
 The code is safe to merge as-is: offline gameplay is provably unaffected (root suite unchanged
-in behavior and fully passing -- 1714/1714, zero Firebase env build succeeds, byte-for-byte-
+in behavior and fully passing -- 1737/1737 post-merge, zero Firebase env build succeeds, byte-for-byte-
 unmodified `missionScoring.ts`/save/reset code paths), the server-authoritative submission path
 is complete end-to-end in code (validated by 68 new unit tests across three workspaces plus 8
 real-emulator Firestore Rules tests), and every anti-tamper requirement from Issue #87's own
