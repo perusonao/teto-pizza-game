@@ -680,6 +680,90 @@ export const TONNO_E_CIPOLLA_REFERENCE: ReferencePizza = {
   ],
 };
 
+/**
+ * Recipe Expansion Batch 1B-A (see docs/reports/TETO_RECIPE-EXPANSION_BATCH-1B-A_Result.md):
+ * Scoring 2.0 Reference fixtures for the 2 new recipes -- without one of these,
+ * `computeScoringV2` (../logic/scoringV2/index.ts) returns `available: false` for that recipe,
+ * so this is required production data, not optional polish, exactly like Batch 1A's own
+ * SALSICCIA/PEPPERONI/NAPOLETANA/TONNO_E_CIPOLLA entries above. No external review process was
+ * run for this batch either -- positions below are authored directly against the same
+ * visual-balance criteria those entries already established (evenly spread within the dough's
+ * radius-48 interior, no two pieces of one group colliding, standard 8/22 full/zero credit
+ * tolerance). `rosemary` uses `LIGHT_LEAF` landing (a herb sprig, matching `oregano`'s own
+ * treatment); `bacon`/`mozzarella` use `HEAVY_SQUASH` (matching every other chunky topping);
+ * `egg` reuses `BISMARCK_REFERENCE`'s own deliberate 14/30 tolerance -- same semantic
+ * justification (a single, centered hero piece with no quantity/placement pattern to read), not
+ * a new default.
+ */
+export const PIZZA_BIANCA_REFERENCE: ReferencePizza = {
+  recipeId: "pizza-bianca",
+  sauce: computeMechanicalSauceReference("pizza-bianca"),
+  pieceGroups: [
+    {
+      ingredientId: "rosemary",
+      positions: [
+        { x: 50, y: 28 },
+        { x: 30, y: 62 },
+        { x: 70, y: 62 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "LIGHT_LEAF",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
+export const BREAKFAST_PIZZA_REFERENCE: ReferencePizza = {
+  recipeId: "breakfast-pizza",
+  sauce: computeMechanicalSauceReference("breakfast-pizza"),
+  pieceGroups: [
+    {
+      ingredientId: "mozzarella",
+      positions: [
+        { x: 35, y: 40 },
+        { x: 65, y: 40 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "egg",
+      positions: [{ x: 50, y: 58 }],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 14, zeroCreditRadius: 30 },
+    },
+    {
+      ingredientId: "bacon",
+      positions: [
+        { x: 50, y: 26 },
+        { x: 30, y: 66 },
+        { x: 70, y: 66 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
 const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [MARGHERITA_REFERENCE.recipeId, MARGHERITA_REFERENCE],
   [MARINARA_REFERENCE.recipeId, MARINARA_REFERENCE],
@@ -692,6 +776,8 @@ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [PEPPERONI_REFERENCE.recipeId, PEPPERONI_REFERENCE],
   [NAPOLETANA_REFERENCE.recipeId, NAPOLETANA_REFERENCE],
   [TONNO_E_CIPOLLA_REFERENCE.recipeId, TONNO_E_CIPOLLA_REFERENCE],
+  [PIZZA_BIANCA_REFERENCE.recipeId, PIZZA_BIANCA_REFERENCE],
+  [BREAKFAST_PIZZA_REFERENCE.recipeId, BREAKFAST_PIZZA_REFERENCE],
 ]);
 
 /**

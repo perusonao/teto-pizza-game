@@ -302,6 +302,11 @@ describe("applyStarterGrants: Batch 1A recipe grant amounts (#8-#11)", () => {
         "pepperoni",
         "napoletana",
         "tonno-e-cipolla",
+        // pizza-bianca's own unlockCondition (requiresRecipeId: tonno-e-cipolla,
+        // minTotalStars: 32) is also satisfied by this test's 10x5=50-star chain, so it must
+        // already be claimed here too, or it would be newly (correctly) granted by this exact
+        // call -- this test's subject is Batch 1A's own exact-once ledger, not Batch 1B-A's.
+        "pizza-bianca",
       ];
       const priorInventory: InventoryState = {
         sausage: 30,
