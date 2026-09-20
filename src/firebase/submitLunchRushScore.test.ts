@@ -15,10 +15,10 @@ vi.mock("./auth", () => ({
   ensureAnonymousUser: () => ensureAnonymousUser(),
 }));
 
-const getFunctions = vi.fn((_app: unknown) => fakeFunctions);
+const getFunctions = vi.fn((_app: unknown, _region?: string) => fakeFunctions);
 const httpsCallable = vi.fn();
 vi.mock("firebase/functions", () => ({
-  getFunctions: (app: unknown) => getFunctions(app),
+  getFunctions: (app: unknown, region?: string) => getFunctions(app, region),
   httpsCallable: (functions: unknown, name: string) => httpsCallable(functions, name),
 }));
 
@@ -93,6 +93,24 @@ describe("submitLunchRushScore", () => {
     const { submitLunchRushScore } = await import("./submitLunchRushScore");
     const result = await submitLunchRushScore({ clientDurationMs: 180_000, serves });
     expect(result.status).toBe("failed");
+  });
+
+  it("requests the Functions instance for the Firestore-matching region (asia-northeast1)", async () => {
+    const callableFn = vi.fn().mockResolvedValue({
+      data: {
+        score: 0,
+        servedCount: 0,
+        totalQualityScore: 0,
+        bestQualityScore: 0,
+        isNewWeeklyBest: false,
+        isNewMonthlyBest: false,
+        isNewAllTimeBest: false,
+      },
+    });
+    httpsCallable.mockReturnValue(callableFn);
+    const { submitLunchRushScore } = await import("./submitLunchRushScore");
+    await submitLunchRushScore({ clientDurationMs: 0, serves: [] });
+    expect(getFunctions).toHaveBeenCalledWith(fakeApp, "asia-northeast1");
   });
 
   it("caches the Functions instance across calls (getFunctions invoked once)", async () => {

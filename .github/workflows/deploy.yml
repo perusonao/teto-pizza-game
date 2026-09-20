@@ -27,6 +27,19 @@ jobs:
 
       - run: npm ci
       - run: npm run build
+        env:
+          # Firebase Ranking 1.0 (Issue #87) production connection. A Firebase Web `apiKey` is
+          # not a secret (see .env.example's own comment) -- these are stored as repository
+          # secrets anyway, matching this project's existing env-based (never hard-coded)
+          # config architecture, rather than committing them to this file. Leaving any of them
+          # unset in the repository's Settings -> Secrets and variables -> Actions keeps the
+          # build in its fully-supported "Firebase unconfigured" state (src/firebase/config.ts)
+          # -- offline gameplay is unaffected either way, and this workflow step never fails
+          # because a var is unset.
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
 
       - uses: actions/configure-pages@v5
 

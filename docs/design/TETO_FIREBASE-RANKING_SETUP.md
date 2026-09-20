@@ -489,3 +489,72 @@ Result Report's screenshots), keeps every leaderboard read to at most 10 + 1 (ow
 view (Issue #87's original, eventual target) is deferred to Phase 2B alongside monthly/all-time
 ranking -- nothing in this phase's schema, rules, or index design blocks that later expansion
 (section 25 above).
+
+## 27. Phase 3A: real production connection
+
+Issue #87's production project (`teto-pizza-game`) was manually created (Firebase Web App
+registered, Anonymous Auth enabled, Firestore created). This phase wires the already-shipped
+Phase 1A/1B/2A code to that real project; it changes no gameplay/scoring/ranking-formula logic.
+See `docs/reports/TETO_FIREBASE-PRODUCTION-CONNECTION_Result.md` for the full result record.
+
+**Firestore region**: `asia-northeast1` (Tokyo), Production mode, Blaze plan -- chosen and
+created manually, not by this repo's code.
+
+**Cloud Function region**: the `submitLunchRushScore` callable Function is now deployed to
+`asia-northeast1` explicitly (`functions/src/index.ts`'s `onCall({ region: "asia-northeast1" },
+...)`), matching Firestore's region rather than the 2nd-gen Cloud Functions default
+(`us-central1`) -- co-locating the Function with the Firestore writes it performs avoids an
+unnecessary cross-region hop on every submission. The client (`src/firebase/
+submitLunchRushScore.ts`) requests its `Functions` instance for that same region
+(`getFunctions(app, "asia-northeast1")`) -- the Functions client SDK does not infer a Function's
+deployed region from its name alone, so both sides must agree on it explicitly or a callable
+invocation fails to find the deployed Function.
+
+**GitHub Actions repository secrets** (Settings -> Secrets and variables -> Actions -> New
+repository secret) that `.github/workflows/deploy.yml`'s build step now reads -- all four
+required together, matching `.env.example`/section 4 above; leaving any unset keeps the deployed
+Pages build in its fully-supported "Firebase unconfigured" state:
+
+- `VITE_FIREBASE_API_KEY`
+- `VITE_FIREBASE_AUTH_DOMAIN`
+- `VITE_FIREBASE_PROJECT_ID` (expected value: `teto-pizza-game`)
+- `VITE_FIREBASE_APP_ID`
+
+These are the same four public Web config values `.env.example` already documents (not
+Admin SDK/service-account credentials) -- stored as Actions secrets here only to keep this
+project's existing "no Firebase value hard-coded into source" convention, not because the
+`apiKey` itself must be kept confidential.
+
+**`.firebaserc`**: still gitignored, per-environment/local (`.gitignore`'s existing comment) --
+this phase does not commit a real project mapping, since doing so would break that established
+"never commit an environment-specific Firebase project selection" pattern for a Web `apiKey` that
+was already public via the four secrets above. Whoever runs `firebase deploy` (rules/indexes/
+functions) creates it locally instead:
+
+```bash
+cp .firebaserc.example .firebaserc   # then set "default" to "teto-pizza-game"
+# -- or, equivalently --
+npx firebase-tools use --add   # interactively pick teto-pizza-game, alias "default"
+```
+
+**Firebase CLI authentication**: `npx firebase-tools login` (interactive human login) or a CI
+service-account key referenced only via `GOOGLE_APPLICATION_CREDENTIALS`/`firebase deploy
+--token` from a secret store -- never committed to this repo. Real `firestore:rules`/
+`firestore:indexes`/`functions` deploys against `teto-pizza-game` require this; this phase's own
+code changes do not perform that deploy themselves when no authenticated Firebase CLI session is
+available in the environment that runs them (see the Result Report for this run's own status).
+
+**Authorized domain**: Firebase Anonymous Auth's `signInAnonymously()` is rejected by Firebase
+Auth's own backend (`auth/unauthorized-domain`) for any origin not on the project's Authorized
+domains list -- a *default* Firebase project only pre-authorizes its own `*.firebaseapp.com`/
+`*.web.app` domains, never an unrelated custom origin like GitHub Pages. Since production
+hosting stays on `https://perusonao.github.io/teto-pizza-game/` (section "AUTHORIZED DOMAIN" of
+this task; Firebase Hosting is deliberately not enabled), `perusonao.github.io` must be added
+explicitly:
+
+Firebase Console -> select project `teto-pizza-game` -> Build -> Authentication -> Settings tab
+-> Authorized domains -> Add domain -> enter exactly `perusonao.github.io` (bare hostname only --
+no `https://` scheme, no `/teto-pizza-game/` path; Authorized domains are host-only entries).
+
+This is a human, Console-only action (Manual Setup, like section 8's existing Authorized-domains
+line for Phase 1A) -- no code change in this repo can perform it.
