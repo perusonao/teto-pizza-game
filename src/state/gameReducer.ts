@@ -1,5 +1,11 @@
 import { findOrderForRecipe, getNextOrder, type NextOrderOptions, type Order } from "../data/orders";
 import { getRecipe, type Recipe, type RecipeId } from "../data/recipes";
+import {
+  getCookingProfile,
+  postBakeSteps,
+  preBakeSteps,
+  type CookingProfile,
+} from "../data/cookingProfiles";
 import { applyStarterGrants, buildStarterGrantNotice, type StarterGrantNotice } from "./starterStock";
 import { buildHintLine } from "../data/hints";
 import { getIngredient, STARTER_INGREDIENT_IDS } from "../data/ingredients";
@@ -7,6 +13,7 @@ import type { DialogueLine } from "../data/dialogue";
 import type { ScoreBreakdown } from "../logic/scoring";
 import { classifyBake, type BakeState } from "../logic/bake";
 import {
+  advanceStepTiming,
   finishCookingTiming,
   pauseCookingTiming,
   resumeCookingTiming,
@@ -39,27 +46,57 @@ import {
   type SauceDeposit,
 } from "./pizzaState";
 
-export type GamePhase = "ORDER" | "PREPARE" | "BAKE" | "RESULT" | "DISCOVERED";
+/** Recipe Cooking Steps 1.0 Phase 1A (docs/design/TETO_RECIPE-COOKING-STEPS_1.0.md §8): adds
+ *  `POST_BAKE`, a phase between BAKE and RESULT that hosts any step a recipe's `CookingProfile`
+ *  places after BAKE (CUT/FINISH). Every one of the 15 shipped recipes has an empty post-BAKE
+ *  step list (`../data/cookingProfiles.ts`'s `DEFAULT_COOKING_PROFILE`), so `CONFIRM_BAKE` below
+ *  skips `POST_BAKE` entirely and lands directly on `RESULT` for all of them, exactly as before
+ *  this phase -- `POST_BAKE` is reachable only via a recipe-specific profile, and Phase 1A
+ *  activates none. */
+export type GamePhase = "ORDER" | "PREPARE" | "BAKE" | "POST_BAKE" | "RESULT" | "DISCOVERED";
 
-/** Issue #32 Phase 2: the canonical, reducer-authoritative sub-step of the PREPARE phase's
- *  making flow -- DOUGH -> SAUCE -> CHEESE -> TOPPING, one-way only (see
- *  CONFIRM_MAKING_STEP below). A string union rather than a numeric index so Issue #33 could
- *  prepend "DOUGH" (now done) without renumbering anything else. `activeCategory` (App.tsx)
- *  is a *view* of this field, never the other way around -- the reducer is the only place
- *  this contract is enforced. */
-export type MakingStep = "DOUGH" | "SAUCE" | "CHEESE" | "TOPPING";
+/** Issue #32 Phase 2: the canonical, reducer-authoritative sub-step of the PREPARE/POST_BAKE
+ *  phases' making flow, one-way only (see CONFIRM_MAKING_STEP below). A string union rather than
+ *  a numeric index so Issue #33 could prepend "DOUGH" (now done) without renumbering anything
+ *  else. `activeCategory` (App.tsx) is a *view* of this field, never the other way around -- the
+ *  reducer is the only place this contract is enforced.
+ *
+ *  Recipe Cooking Steps 1.0 Phase 1A (docs/design/TETO_RECIPE-COOKING-STEPS_1.0.md §8): widened
+ *  from the original 4-value union (DOUGH/SAUCE/CHEESE/TOPPING) to represent every step the
+ *  design doc's taxonomy (§3) names, so a future recipe's `CookingProfile`
+ *  (../data/cookingProfiles.ts) and Phase 1A-T's per-step timing (§22.2) can be typed against the
+ *  full set now. CUT/FOLD/SEAL/EDGE_FILL/FINISH have zero gameplay behind them in this phase --
+ *  no reducer case, no UI, no `CookingProfile` entry ever produces one of these five for any of
+ *  the 15 shipped recipes (`DEFAULT_COOKING_PROFILE` never includes them) -- they exist purely so
+ *  the type is representable ahead of the step-implementation phases that will give each one real
+ *  behavior (design doc §21's roadmap). */
+export type MakingStep = "DOUGH" | "SAUCE" | "CHEESE" | "TOPPING" | "FOLD" | "SEAL" | "EDGE_FILL" | "CUT" | "FINISH";
 
-const MAKING_STEP_ORDER: readonly MakingStep[] = ["DOUGH", "SAUCE", "CHEESE", "TOPPING"];
-
-function nextMakingStep(step: MakingStep): MakingStep {
-  const index = MAKING_STEP_ORDER.indexOf(step);
-  return MAKING_STEP_ORDER[Math.min(index + 1, MAKING_STEP_ORDER.length - 1)];
+/** Generalizes the old module-level `MAKING_STEP_ORDER`/`nextMakingStep` (Issue #32 Phase 2) into
+ *  a pure, order-agnostic "advance one step within this list, clamped at the end" helper --
+ *  Recipe Cooking Steps 1.0 Phase 1A (§8) now calls this with the *active round's* own
+ *  `preBakeSteps(state.cookingProfile)`/`postBakeSteps(state.cookingProfile)` instead of one
+ *  global constant, so a recipe-specific sequence can be walked the exact same way the fixed one
+ *  always was. For every recipe on `DEFAULT_COOKING_PROFILE`, `steps` here is always exactly
+ *  `["DOUGH", "SAUCE", "CHEESE", "TOPPING"]` -- byte-identical to the pre-Phase-1A behavior. */
+function nextStepWithin(step: MakingStep, steps: readonly MakingStep[]): MakingStep {
+  const index = steps.indexOf(step);
+  return steps[Math.min(index + 1, steps.length - 1)];
 }
 
 export interface GameState {
   phase: GamePhase;
   order: Order;
   recipe: Recipe;
+  /** Recipe Cooking Steps 1.0 Phase 1A (docs/design/TETO_RECIPE-COOKING-STEPS_1.0.md §8):
+   *  snapshotted once per round (`buildOrderState`/`startPreparingRecipe` below, mirroring how
+   *  `recipe` itself is already snapshotted), the same way `getReferencePizza` is looked up
+   *  on demand rather than stored -- except this *is* stored, because `nextStepWithin` below
+   *  needs a stable ordered list to walk for the whole round, not a value re-derived per call.
+   *  `preBakeSteps`/`postBakeSteps` (../data/cookingProfiles.ts) derive the active PREPARE/
+   *  POST_BAKE sub-sequence from this on demand. Never persisted -- transient exactly like
+   *  `pizza`/`score` (`state/persistence.ts` never serializes `GameState`). */
+  cookingProfile: CookingProfile;
   pizza: PizzaState;
   /** Issue #32 Phase 2 / Issue #33 D1: which making step (DOUGH/SAUCE/CHEESE/TOPPING) is
    *  currently open for interaction. Always "DOUGH" for a fresh round (`buildOrderState`
@@ -217,7 +254,14 @@ export type GameAction =
   // (START_BAKE) -- this action never touches `phase`. Issue #33 D1: deliberately ungated at
   // the reducer layer for DOUGH -> SAUCE too, exactly like every other step -- the size
   // completion threshold is a UI-only CTA-disabled gate (GameScreen), not a reducer rule.
-  | { type: "CONFIRM_MAKING_STEP" }
+  //
+  // Recipe Cooking Steps 1.0 Phase 1A-T (design doc §22.2/§22.11): `now` is optional, same
+  // back-compat convention as BEGIN_PREPARE/START_BAKE/SELECT_RECIPE/RETRY_SAME_RECIPE --
+  // omitting it simply leaves `cookingTiming`'s per-step fields untouched by this dispatch
+  // (never defaulted to `Date.now()` inside the reducer). When present, it finalizes the
+  // outgoing step's `perStepElapsedMs` entry and starts the incoming step's own window; see the
+  // reducer case below.
+  | { type: "CONFIRM_MAKING_STEP"; now?: number }
   // Cooking Time CT2: no `now` payload -- unlike BEGIN_PREPARE/START_BAKE/SELECT_RECIPE/
   // RETRY_SAME_RECIPE, this action never starts, finishes, or otherwise touches `cookingTiming`
   // at all (see its own reducer case below). CT1 originally gave this a `now?: number` and
@@ -225,9 +269,15 @@ export type GameAction =
   // Efficiency bonus exists to game -- a fresh timer on every reset would let a player "re-roll"
   // a slow start for free, so the same run's clock now continues through a reset uninterrupted
   // instead (see docs/reports/TETO_COOKING-TIME_CT2_Efficiency-Result.md's RESET policy section).
+  // Phase 1A-T: this also means per-step timing is left exactly as untouched as the whole-round
+  // clock -- `activeStep`/`stepStartedAt` carry straight through a discard/redo (§22.11).
   | { type: "RESET_PIZZA" }
   | { type: "START_BAKE"; now?: number }
-  | { type: "CONFIRM_BAKE"; value: number }
+  // Recipe Cooking Steps 1.0 Phase 1A-T: `now` is optional, same convention as above -- when
+  // present and the recipe's profile lands the round on POST_BAKE (none of the 15 shipped
+  // recipes do), starts timing that phase's first step. No-op for `cookingTiming` on every
+  // profile without post-BAKE steps, whether or not `now` is supplied.
+  | { type: "CONFIRM_BAKE"; value: number; now?: number }
   | { type: "REGISTER_TO_DEX" }
   | { type: "PLAY_AGAIN" }
   // Issue #39 (Pizza Select): starts a fresh FREE round for an explicitly player-chosen
@@ -302,6 +352,7 @@ function buildOrderState(order: Order, carry: ProgressionCarry, isMissionRound: 
     phase: "ORDER",
     order,
     recipe,
+    cookingProfile: getCookingProfile(recipe.id),
     pizza: createEmptyPizza(),
     // Issue #33 D1 (D0 revalidation §R.4 item 1): every "start a new round" path shares this
     // one literal -- nextOrderState/FREE, nextMissionOrderState/Lunch Rush, and
@@ -385,7 +436,7 @@ function startPreparingRecipe(
     ...orderState,
     phase: "PREPARE",
     hint: buildHintLine(orderState.recipe, orderState.pizza, orderState.makingStep),
-    cookingTiming: now !== undefined ? startCookingTiming(now) : null,
+    cookingTiming: now !== undefined ? startCookingTiming(now, orderState.makingStep) : null,
   };
 }
 
@@ -436,7 +487,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         // runs), and Mission must never accumulate a Cooking Time of its own alongside its
         // existing MissionClock (../mission/lunchRush.ts, untouched).
         cookingTiming:
-          !state.isMissionRound && action.now !== undefined ? startCookingTiming(action.now) : null,
+          !state.isMissionRound && action.now !== undefined
+            ? startCookingTiming(action.now, state.makingStep)
+            : null,
       };
 
     case "APPLY_SAUCE": {
@@ -646,13 +699,44 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
     // Issue #32 Phase 2: the one reducer-authoritative transition for the making flow's
-    // sub-steps. Forward-only (DOUGH -> SAUCE -> CHEESE -> TOPPING, clamped past TOPPING --
-    // reaching BAKE is the pre-existing, separate START_BAKE transition) and a no-op outside
-    // PREPARE, so a direct dispatch can never advance a step that isn't open yet or move a
-    // round that has already left PREPARE.
+    // sub-steps. Forward-only (clamped at the active sub-sequence's last step -- reaching BAKE
+    // is the pre-existing, separate START_BAKE transition) and a no-op outside PREPARE/
+    // POST_BAKE, so a direct dispatch can never advance a step that isn't open yet or move a
+    // round that has already left one of those two phases.
+    //
+    // Recipe Cooking Steps 1.0 Phase 1A (docs/design/TETO_RECIPE-COOKING-STEPS_1.0.md §8): now
+    // also valid during POST_BAKE, walking `postBakeSteps(state.cookingProfile)` the same way
+    // PREPARE walks `preBakeSteps` -- "same CONFIRM_MAKING_STEP mechanism, same one-way gate" per
+    // that section. For every one of the 15 shipped recipes `postBakeSteps` is always empty, so
+    // `state.phase` can never actually be "POST_BAKE" for them (see CONFIRM_BAKE below) and this
+    // branch is unreachable in production; it exists so a future recipe's non-default profile
+    // (none activated this phase) has a working transition to exercise once its own step ships.
+    // Confirming the *last* POST_BAKE step is what finally leaves POST_BAKE for RESULT -- there
+    // is no separate "START_RESULT" action the way START_BAKE exists for PREPARE, since no step
+    // after the last one needs its own dedicated trigger.
     case "CONFIRM_MAKING_STEP": {
-      if (state.phase !== "PREPARE") return state;
-      const makingStep = nextMakingStep(state.makingStep);
+      if (state.phase !== "PREPARE" && state.phase !== "POST_BAKE") return state;
+      const steps =
+        state.phase === "PREPARE"
+          ? preBakeSteps(state.cookingProfile)
+          : postBakeSteps(state.cookingProfile);
+      const currentIndex = steps.indexOf(state.makingStep);
+      if (state.phase === "POST_BAKE" && currentIndex === steps.length - 1) {
+        return {
+          ...state,
+          phase: "RESULT",
+          makingStepToken: state.makingStepToken + 1,
+          // Phase 1A-T (§22.2): finalizes the last POST_BAKE step's own elapsed ms; no next
+          // step to start (RESULT has none). A no-op when `cookingTiming` is null (Mission
+          // round) or `now` wasn't supplied (same back-compat convention as every other timing
+          // dispatch).
+          cookingTiming:
+            state.cookingTiming && action.now !== undefined
+              ? advanceStepTiming(state.cookingTiming, action.now, null)
+              : state.cookingTiming,
+        };
+      }
+      const makingStep = nextStepWithin(state.makingStep, steps);
       if (makingStep === state.makingStep) return state;
       // Issue #33 D1: recompute `hint` for the step actually being entered -- every other
       // step's hint already happened to stay accurate across a step confirm purely from
@@ -666,21 +750,33 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         makingStep,
         makingStepToken: state.makingStepToken + 1,
         hint: buildHintLine(state.recipe, state.pizza, makingStep),
+        // Phase 1A-T (§22.2): finalizes the outgoing step's elapsed ms and starts the incoming
+        // one's window. Same back-compat no-op convention as above.
+        cookingTiming:
+          state.cookingTiming && action.now !== undefined
+            ? advanceStepTiming(state.cookingTiming, action.now, makingStep)
+            : state.cookingTiming,
       };
     }
 
-    case "START_BAKE":
+    case "START_BAKE": {
       // Cooking Time CT1: finalizes `cookingTiming.completedMs` right here, before BAKE's own
       // needle-tap minigame ever starts -- see cookingTiming's own module header for why the
       // boundary ends exactly at this transition, not at CONFIRM_BAKE.
-      return {
-        ...state,
-        phase: "BAKE",
-        cookingTiming:
-          state.cookingTiming && action.now !== undefined
-            ? finishCookingTiming(state.cookingTiming, action.now)
-            : state.cookingTiming,
-      };
+      const finishedRound =
+        state.cookingTiming && action.now !== undefined
+          ? finishCookingTiming(state.cookingTiming, action.now)
+          : state.cookingTiming;
+      // Phase 1A-T (§22.2/§22.3): finalizes the last PREPARE step's own elapsed ms into
+      // `perStepElapsedMs` and closes step timing out (`activeStep`/`stepStartedAt` -> null) --
+      // BAKE itself is never a `MakingStep` and never accumulates its own entry, matching
+      // `completedMs`'s existing BAKE-exclusion exactly.
+      const cookingTiming =
+        finishedRound && action.now !== undefined
+          ? advanceStepTiming(finishedRound, action.now, null)
+          : finishedRound;
+      return { ...state, phase: "BAKE", cookingTiming };
+    }
 
     case "CONFIRM_BAKE": {
       // Economy & Progression 1.0 EP2: CONFIRM_BAKE is the sole inventory-consumption
@@ -723,7 +819,37 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // pizza were still genuinely used (see the Result Report's inventory semantics section),
       // so this consumption happens exactly the same way regardless of the gate's outcome.
       const inventory = consumePizzaInventory(pizza, state.inventory);
-      return { ...state, pizza, score, bakeState, scoringV2Result, completion, inventory, phase: "RESULT" };
+      // Recipe Cooking Steps 1.0 Phase 1A (docs/design/TETO_RECIPE-COOKING-STEPS_1.0.md §8):
+      // `postBake` is empty for every one of the 15 shipped recipes (`DEFAULT_COOKING_PROFILE`
+      // has no post-BAKE steps), so `phase` below is always "RESULT" and `makingStep` is left
+      // completely untouched (carried through by `...state`, exactly as before this phase) for
+      // every real recipe today -- byte-identical to the pre-Phase-1A behavior. Only a future
+      // recipe's non-default profile (none activated this phase) would ever land on "POST_BAKE"
+      // here, entering it at that profile's own first post-BAKE step.
+      const postBake = postBakeSteps(state.cookingProfile);
+      // Phase 1A-T (§22.2/§22.14): starts timing `postBake[0]` the instant the round actually
+      // enters POST_BAKE -- `state.cookingTiming.activeStep` is already `null` here (closed out
+      // by START_BAKE above), so this is purely a "start", never a re-finalize. No-op (byte-
+      // identical `cookingTiming`) whenever `postBake` is empty, `cookingTiming` is null
+      // (Mission round), or `now` wasn't supplied -- true for every one of the 15 shipped
+      // recipes today.
+      const cookingTiming =
+        postBake.length > 0 && state.cookingTiming && action.now !== undefined
+          ? advanceStepTiming(state.cookingTiming, action.now, postBake[0])
+          : state.cookingTiming;
+      return {
+        ...state,
+        pizza,
+        score,
+        bakeState,
+        scoringV2Result,
+        completion,
+        inventory,
+        cookingTiming,
+        ...(postBake.length > 0
+          ? { phase: "POST_BAKE" as const, makingStep: postBake[0] }
+          : { phase: "RESULT" as const }),
+      };
     }
 
     case "REGISTER_TO_DEX": {

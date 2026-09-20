@@ -3,6 +3,7 @@ import { DialogueBox } from "../components/DialogueBox";
 import { PizzaStage } from "../components/PizzaStage";
 import { IngredientTray } from "../components/IngredientTray";
 import { MakingStepTabs } from "../components/MakingStepTabs";
+import { preBakeSteps } from "../data/cookingProfiles";
 import { BakeOverlay } from "../components/BakeOverlay";
 import { ResultPanel } from "../components/ResultPanel";
 import { MissionHud } from "../components/MissionHud";
@@ -289,6 +290,7 @@ export function GameScreen({
           pre-existing 「次へ」/「焼く！」 CTA bar below stays as an auxiliary control, unchanged. */}
       {state.phase === "PREPARE" && (
         <MakingStepTabs
+          steps={preBakeSteps(state.cookingProfile)}
           currentStep={state.makingStep}
           nextReady={nextStepReady}
           onAdvance={onConfirmMakingStep}

@@ -28,18 +28,36 @@ import type { MakingStep } from "../state/gameReducer";
  * BAKE is rendered as a trailing, permanently non-interactive indicator (never a `<button>`) --
  * per Issue #86's own recommendation, leaving `START_BAKE` reachable only through the existing
  * dedicated 「焼く！」 CTA rather than adding a second trigger for leaving PREPARE entirely.
+ *
+ * Recipe Cooking Steps 1.0 Phase 1A (docs/design/TETO_RECIPE-COOKING-STEPS_1.0.md §9): this
+ * component no longer owns its own fixed 4-step array -- the caller (GameScreen.tsx) now passes
+ * the active round's own sequence (`preBakeSteps(state.cookingProfile)`,
+ * ../data/cookingProfiles.ts), so a recipe-specific sequence can render here without a change to
+ * this file. For every one of the 15 shipped recipes that sequence is always exactly
+ * `["DOUGH", "SAUCE", "CHEESE", "TOPPING"]` (`DEFAULT_COOKING_PROFILE`), so the tab strip's
+ * visible content is unchanged. `STEP_LABEL` below covers every widened `MakingStep` value so
+ * this stays a total function ahead of any step's own implementation phase, but no `steps` prop
+ * this component is ever handed during normal play includes one of those future values yet.
  */
-
-const STEP_ORDER: readonly MakingStep[] = ["DOUGH", "SAUCE", "CHEESE", "TOPPING"];
 
 const STEP_LABEL: Record<MakingStep, string> = {
   DOUGH: "生地",
   SAUCE: "ソース",
   CHEESE: "チーズ",
   TOPPING: "トッピング",
+  CUT: "カット",
+  FOLD: "折りたたみ",
+  SEAL: "とじる",
+  EDGE_FILL: "ふちづめ",
+  FINISH: "仕上げ",
 };
 
 interface MakingStepTabsProps {
+  /** The active round's own ordered pre-BAKE step sequence (`preBakeSteps(state.cookingProfile)`,
+   *  ../data/cookingProfiles.ts) -- always `["DOUGH", "SAUCE", "CHEESE", "TOPPING"]` for every one
+   *  of the 15 shipped recipes today. Replaces this component's own former module-level
+   *  `STEP_ORDER` constant (Recipe Cooking Steps 1.0 Phase 1A, §9). */
+  steps: readonly MakingStep[];
   currentStep: MakingStep;
   /** Whether the immediate next step's tab may currently be tapped to advance -- the same gate
    *  driving the 「次へ」 CTA's own `disabled` attribute (see GameScreen.tsx). Ignored for every
@@ -50,12 +68,13 @@ interface MakingStepTabsProps {
   onAdvance: () => void;
 }
 
-export function MakingStepTabs({ currentStep, nextReady, onAdvance }: MakingStepTabsProps) {
-  const currentIndex = STEP_ORDER.indexOf(currentStep);
+export function MakingStepTabs({ steps, currentStep, nextReady, onAdvance }: MakingStepTabsProps) {
+  const currentIndex = steps.indexOf(currentStep);
+  const isLastStep = currentIndex === steps.length - 1;
 
   return (
     <div className="making-step-tabs" role="tablist" aria-label="ピザづくりの工程">
-      {STEP_ORDER.map((step, index) => {
+      {steps.map((step, index) => {
         const isCompleted = index < currentIndex;
         const isActive = index === currentIndex;
         const isNext = index === currentIndex + 1;
@@ -81,10 +100,13 @@ export function MakingStepTabs({ currentStep, nextReady, onAdvance }: MakingStep
           </button>
         );
       })}
-      {/* Non-interactive by design -- see this file's own header comment. */}
+      {/* Non-interactive by design -- see this file's own header comment. "Ready" once the
+          active step is the sequence's own last step (was a literal `"TOPPING"` check before
+          Phase 1A generalized `steps` -- `isLastStep` is the same condition, expressed against
+          whatever sequence this round is actually using). */}
       <div
         className={`making-step-tab making-step-tab--bake ${
-          currentStep === "TOPPING" ? "making-step-tab--bake-ready" : ""
+          isLastStep ? "making-step-tab--bake-ready" : ""
         }`}
         aria-hidden="true"
       >
