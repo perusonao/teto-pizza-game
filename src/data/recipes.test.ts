@@ -42,24 +42,39 @@ const BATCH_1A_RECIPE_IDS: readonly RecipeId[] = [
   "tonno-e-cipolla",
 ];
 
-describe("RECIPES (Phase 3C-6: fugazza is Recipe #7; Batch 1A adds #8-#11)", () => {
-  it("has exactly 11 recipes total (7 shipped + Batch 1A's 4)", () => {
-    expect(RECIPES).toHaveLength(11);
+/** Recipe Expansion Batch 1B-A (docs/reports/TETO_RECIPE-EXPANSION_BATCH-1B-A_Result.md):
+ *  the 2 new recipes appended after Batch 1A's own chain. */
+const BATCH_1B_A_RECIPE_IDS: readonly RecipeId[] = ["pizza-bianca", "breakfast-pizza"];
+
+describe("RECIPES (Phase 3C-6: fugazza is Recipe #7; Batch 1A adds #8-#11; Batch 1B-A adds #12-#13)", () => {
+  it("has exactly 13 recipes total (7 shipped + Batch 1A's 4 + Batch 1B-A's 2)", () => {
+    expect(RECIPES).toHaveLength(13);
   });
 
   it("the pre-Batch-1A Starter 6 + fugazza are unchanged", () => {
     expect(
-      RECIPES.filter((r) => r.id !== "fugazza" && !BATCH_1A_RECIPE_IDS.includes(r.id))
+      RECIPES.filter(
+        (r) =>
+          r.id !== "fugazza" &&
+          !BATCH_1A_RECIPE_IDS.includes(r.id) &&
+          !BATCH_1B_A_RECIPE_IDS.includes(r.id),
+      )
         .map((r) => r.id)
         .sort(),
     ).toEqual([...STARTER_RECIPE_IDS].sort());
   });
 
-  it("Batch 1A's 4 recipes exist exactly once each, ids unique across all 11", () => {
+  it("Batch 1A's 4 recipes exist exactly once each, ids unique across all 13", () => {
     for (const id of BATCH_1A_RECIPE_IDS) {
       expect(RECIPES.filter((r) => r.id === id)).toHaveLength(1);
     }
     expect(new Set(RECIPES.map((r) => r.id)).size).toBe(RECIPES.length);
+  });
+
+  it("Batch 1B-A's 2 recipes exist exactly once each, chained after Batch 1A", () => {
+    for (const id of BATCH_1B_A_RECIPE_IDS) {
+      expect(RECIPES.filter((r) => r.id === id)).toHaveLength(1);
+    }
   });
 
   describe.each(BATCH_1A_RECIPE_IDS)("%s (Batch 1A)", (id) => {
@@ -77,6 +92,52 @@ describe("RECIPES (Phase 3C-6: fugazza is Recipe #7; Batch 1A adds #8-#11)", () 
       const r = getRecipe(id);
       expect(r!.unlockCondition?.requiresRecipeId).toBeDefined();
       expect(r!.unlockCondition?.minTotalStars).toBeGreaterThan(0);
+    });
+  });
+
+  describe.each(BATCH_1B_A_RECIPE_IDS)("%s (Batch 1B-A)", (id) => {
+    it("exists, uses only existing spread/scatter mechanics ingredients, and has a valid bake target", () => {
+      const r = getRecipe(id);
+      expect(r).toBeDefined();
+      expect(r!.requiredIngredients.length).toBeGreaterThan(0);
+      expect(r!.bakeTarget.start).toBeLessThan(r!.bakeTarget.end);
+      expect(r!.bakeTarget.start).toBeGreaterThan(0);
+      expect(r!.bakeTarget.end).toBeLessThan(100);
+      expect(r!.baseRewardPitz).toBe(100);
+    });
+
+    it("has a chain unlockCondition (never available from a fresh save)", () => {
+      const r = getRecipe(id);
+      expect(r!.unlockCondition?.requiresRecipeId).toBeDefined();
+      expect(r!.unlockCondition?.minTotalStars).toBeGreaterThan(0);
+    });
+  });
+
+  describe("pizza-bianca (Batch 1B-A sauce architecture)", () => {
+    const recipe = getRecipe("pizza-bianca");
+
+    it("requires exactly olive-oil + rosemary (no tomato sauce)", () => {
+      expect(recipe?.requiredIngredients.map((r) => r.ingredientId).sort()).toEqual(
+        ["olive-oil", "rosemary"].sort(),
+      );
+    });
+
+    it("chains after tonno-e-cipolla, the last Batch 1A recipe", () => {
+      expect(recipe?.unlockCondition?.requiresRecipeId).toBe("tonno-e-cipolla");
+    });
+  });
+
+  describe("breakfast-pizza (Batch 1B-A)", () => {
+    const recipe = getRecipe("breakfast-pizza");
+
+    it("requires tomato-sauce + mozzarella + egg + bacon", () => {
+      expect(recipe?.requiredIngredients.map((r) => r.ingredientId).sort()).toEqual(
+        ["bacon", "egg", "mozzarella", "tomato-sauce"].sort(),
+      );
+    });
+
+    it("chains after pizza-bianca", () => {
+      expect(recipe?.unlockCondition?.requiresRecipeId).toBe("pizza-bianca");
     });
   });
 

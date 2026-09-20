@@ -351,6 +351,45 @@ export const INGREDIENTS: Ingredient[] = [
     restockQuantity: 9,
     starterGrantOnly: true,
   },
+  /**
+   * Recipe Expansion Batch 1B-A (see docs/reports/TETO_RECIPE-EXPANSION_BATCH-1B-A_Result.md):
+   * 2 new topping rows, one per new recipe (../data/recipes.ts's pizza-bianca/breakfast-pizza),
+   * per the Fresh Recipe Master Catalog (data/recipes/pizza_master_catalog.json /
+   * ingredient_master_catalog.json). Follows the exact same EP4/starterGrantOnly pattern as
+   * every Batch 1A row above: `unlockCondition: { minTotalStars: 0 }` (inert -- the Shop row is
+   * suppressed by `starterGrantOnly` regardless), `starterGrantOnly: true` (first unit always
+   * free via the governing recipe's Starter Grant), `restockQuantity` = that recipe's own
+   * `minCount x 3`. `pricePitz` reuses the existing tier convention (no new formula):
+   * `rosemary` matches `oregano`'s herb tier (55), `bacon` matches `sausage`'s premium-meat tier
+   * (140). Emoji: `bacon` uses the real Unicode bacon glyph (no existing ingredient needed a
+   * substitute); `rosemary` reuses a sprig-like glyph distinct from `basil`/`pesto`'s 🌿 and
+   * `oregano`'s 🍃, matching the "closest distinct existing glyph" convention `IngredientPieceVisual`
+   * already relies on for every non-cheese ingredient.
+   */
+  {
+    id: "rosemary",
+    category: "topping",
+    nameJa: "ローズマリー",
+    color: "#7c8f5e",
+    emoji: "\u{1F331}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    pricePitz: 55,
+    restockQuantity: 9,
+    starterGrantOnly: true,
+  },
+  {
+    id: "bacon",
+    category: "topping",
+    nameJa: "ベーコン",
+    color: "#c26b4e",
+    emoji: "\u{1F953}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    pricePitz: 140,
+    restockQuantity: 9,
+    starterGrantOnly: true,
+  },
 ];
 
 export const CATEGORY_ORDER: IngredientCategory[] = ["sauce", "cheese", "topping"];

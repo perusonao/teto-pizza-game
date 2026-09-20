@@ -238,6 +238,56 @@ export const RECIPES = [
     baseRewardPitz: 100,
     unlockCondition: { requiresRecipeId: "napoletana", minTotalStars: 28 },
   },
+  /**
+   * Recipe Expansion Batch 1B-A (see docs/reports/TETO_RECIPE-EXPANSION_BATCH-1B-A_Result.md,
+   * and the read-only design audit docs/reports/TETO_RECIPE-EXPANSION_BATCH-1B_Fresh-Design.md
+   * section 18's "Batch 1B-A" slice): the first 2 recipes drawn from the Fresh Recipe Master
+   * Catalog's Batch 1B candidate pool -- `id`/`nameJa`/`requiredIngredients`' ingredient ids/
+   * `sauce` are taken verbatim from `data/recipes/pizza_master_catalog.json` (both
+   * `implementationClass: "B"` -- new ingredient data only, zero new mechanic, both existing
+   * `spread`/`scatter`). Each `minCount`/`bakeTarget` is a Batch 1B-A-original decision (the
+   * catalog's own entries do not fix production values for either field), sized to match the
+   * existing recipes' own scatter density and bake-target span conventions. `unlockCondition`/
+   * chain order continues the exact same provisional +4 minTotalStars step Batch 1A's own chain
+   * established (16 -> 20 -> 24 -> 28 -> 32 -> 36); neither sets `mysteryLock` (フガッサ's "big
+   * reveal" stays a one-off). `baseRewardPitz: 100` matches every other recipe (Issue #38 V1:
+   * no difficulty-based reward differentiation without Human Feel evidence).
+   *
+   * `pizza-bianca` deliberately has no tomato-sauce requirement -- its sauce ingredient is
+   * `olive-oil`, exactly like the already-shipped `fugazza` (see that recipe's own comment
+   * above), which already proves the Completion Gate's sauce check (../logic/completionGate.ts's
+   * `checkSauceQuantity`) reads `getReferencePizza(recipe.id).sauce.ingredientId` generically --
+   * no "every recipe needs paintable tomato sauce" architecture exists in this codebase to work
+   * around.
+   */
+  {
+    id: "pizza-bianca",
+    nameJa: "ピッツァ・ビアンカ",
+    description:
+      "トマトソースを使わない、オリーブオイルとローズマリーだけのシンプルな白いピザ。ローマ生まれの飾らない一枚。",
+    requiredIngredients: [
+      { ingredientId: "olive-oil", minCount: 1 },
+      { ingredientId: "rosemary", minCount: 3 },
+    ],
+    bakeTarget: { start: 50, end: 70 },
+    baseRewardPitz: 100,
+    unlockCondition: { requiresRecipeId: "tonno-e-cipolla", minTotalStars: 32 },
+  },
+  {
+    id: "breakfast-pizza",
+    nameJa: "ブレックファストピザ",
+    description:
+      "トマトソースとモッツァレラの上に、たまごとベーコンをのせて焼き上げる、朝食にもぴったりの一枚。",
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "egg", minCount: 1 },
+      { ingredientId: "bacon", minCount: 3 },
+    ],
+    bakeTarget: { start: 56, end: 76 },
+    baseRewardPitz: 100,
+    unlockCondition: { requiresRecipeId: "pizza-bianca", minTotalStars: 36 },
+  },
 ] as const;
 
 /** Derived from RECIPES above so this union can never drift out of sync with
