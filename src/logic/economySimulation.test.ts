@@ -17,6 +17,10 @@ import {
  * docs/reports/TETO_ECONOMY-TUNING-2_Result.md). Covers the task's own required test list
  * (§10 A-K; L/Firebase scoring stays covered by the existing Firebase test suite, untouched
  * here).
+ *
+ * Progression Tuning 1 (see docs/reports/TETO_PROGRESSION-TUNING-1_Result.md) retuned
+ * `Recipe.unlockCondition.minTotalStars` for salsiccia through meat-lovers (see "progression
+ * ceiling stress case" below for the before/after gate table and the fixed hard-cap plateau).
  */
 
 // A. current economy table consistency ---------------------------------------------------
@@ -115,6 +119,15 @@ describe("representative progression simulation (F, G)", () => {
     expect(result.completed).toBe(true);
   });
 
+  it("every profile (including the ★3 hard-cap stress case) discovers every recipe id, no dupes/omissions", () => {
+    for (const profile of [GOOD_PLAYER, NORMAL_PLAYER, STRUGGLING_PLAYER, STRUGGLING_HARD_CAP_PLAYER]) {
+      const result = simulateProgression(profile);
+      const order = result.unlockEvents.map((e) => e.recipeId);
+      expect(new Set(order).size).toBe(order.length); // no duplicate unlock events
+      expect(order.every((id) => RECIPES.some((r) => r.id === id))).toBe(true);
+    }
+  });
+
   it("every profile discovers recipes in the real dependency-chain order (unlock chain untouched)", () => {
     // The actual unlock chain is defined by each recipe's own `unlockCondition.requiresRecipeId`
     // (../data/recipes.ts), not `RECIPES`' own declaration order (which lists
@@ -137,7 +150,7 @@ describe("representative progression simulation (F, G)", () => {
     }
     expect(chainOrder).toHaveLength(RECIPES.length);
 
-    for (const profile of [GOOD_PLAYER, NORMAL_PLAYER, STRUGGLING_PLAYER]) {
+    for (const profile of [GOOD_PLAYER, NORMAL_PLAYER, STRUGGLING_PLAYER, STRUGGLING_HARD_CAP_PLAYER]) {
       const result = simulateProgression(profile);
       const order = result.unlockEvents.map((e) => e.recipeId);
       expect(order).toEqual(chainOrder);
@@ -145,18 +158,30 @@ describe("representative progression simulation (F, G)", () => {
   });
 });
 
-// Progression ceiling stress case (★3 hard cap) -- Fresh Merge Gate follow-up on PR #119 -------
+// Progression Tuning 1: ★3 hard-cap reachability (fixes the PR #119 handoff finding) -----------
 //
-// A SEPARATE, independent stress case from STRUGGLING_PLAYER above -- never described as that
-// profile's "ruled out" precursor. Confirms a purely mathematical progression-chain constraint,
-// independent of Pitz/inventory/Shop: with every recipe's own Dex BEST capped at exactly ★3 (the
-// single most pessimistic reading of "★1〜★3"), the unlock chain's own totalStars gates become
-// unreachable. This is a PROGRESSION finding (unlock pacing / minTotalStars gate spacing), not
-// an Economy one -- see the Result Report's own "Progression Tuning Handoff" section.
-describe("progression ceiling stress case (★3 hard cap)", () => {
-  it("the idealized ★3-per-recipe ceiling falls short of both capricciosa's and meat-lovers' own gates", () => {
+// PR #119's "Progression Tuning Handoff" documented a mathematically real wall: with the OLD
+// unlock chain (a flat +4 `minTotalStars` step per recipe from fugazza(12) onward: 12→16→20→24→
+// 28→32→36→40→44), a player whose Dex BEST never exceeds ★3 for any recipe could gain at most
+// +3 totalStars per newly-discovered recipe -- one less than the chain's own +4 step demanded --
+// so the shortfall compounded by exactly 1 star every gate and eventually went negative
+// (old capricciosa gate 40 > 13×3=39; old meat-lovers gate 44 > 14×3=42). The deterministic
+// simulation confirmed this bit in practice even earlier, plateauing at totalStars 31, one short
+// of the OLD pizza-bianca ★32 gate, with zero Pitz/inventory shortage
+// (`shortageEvents.length === 0`) -- a pure progression-pacing wall, never an economy one.
+//
+// Progression Tuning 1's fix: retune `minTotalStars` for salsiccia through meat-lovers to a flat
+// +3 step (matching the ★3-hard-cap player's own maximum per-recipe capacity), leaving
+// quattro-formaggi(8)/fugazza(12) and every `requiresRecipeId`-only gate untouched:
+//   salsiccia 16→15, pepperoni 20→18, napoletana 24→21, tonno-e-cipolla 28→24,
+//   pizza-bianca 32→27, breakfast-pizza 36→30, capricciosa 40→33, meat-lovers 44→36.
+// This keeps a constant +6 star margin between the idealized ★3-only ceiling and every gate from
+// quattro-formaggi onward, so the shortfall can never compound to negative again, and scales
+// cleanly to a future 53-recipe chain as long as later gates keep the same <=+3-per-recipe step.
+describe("progression ceiling reachability (★3 hard cap) -- Progression Tuning 1", () => {
+  it("the idealized ★3-per-recipe ceiling now clears every gate, including capricciosa's and meat-lovers' own", () => {
     // Purely data-driven (no simulation): if every recipe discovered so far had its Dex BEST
-    // capped at exactly ★3, is the NEXT recipe's own minTotalStars gate still reachable?
+    // capped at exactly ★3, is the NEXT recipe's own minTotalStars gate reachable?
     const chain = [
       "margherita", "funghi", "marinara", "bismarck", "genovese", "quattro-formaggi", "fugazza",
       "salsiccia", "pepperoni", "napoletana", "tonno-e-cipolla", "pizza-bianca",
@@ -169,49 +194,56 @@ describe("progression ceiling stress case (★3 hard cap)", () => {
       ]),
     );
 
-    // capricciosa is discovered 14th (13 recipes already discovered before it); its own gate is
-    // 40. An idealized flat ★3 ceiling across those 13 prior recipes caps totalStars at 39 --
-    // one star short, BEFORE meat-lovers is even reached.
+    // capricciosa is discovered 14th (13 recipes already discovered before it); its new gate is
+    // 33. An idealized flat ★3 ceiling across those 13 prior recipes caps totalStars at 39 --
+    // now 6 stars of margin, not a 1-star shortfall.
     const priorToCapricciosa = chain.indexOf("capricciosa");
     expect(priorToCapricciosa).toBe(13);
     expect(priorToCapricciosa * 3).toBe(39);
-    expect(gates.get("capricciosa")).toBe(40);
-    expect(priorToCapricciosa * 3).toBeLessThan(gates.get("capricciosa")!);
+    expect(gates.get("capricciosa")).toBe(33);
+    expect(priorToCapricciosa * 3).toBeGreaterThanOrEqual(gates.get("capricciosa")!);
 
-    // meat-lovers is discovered 15th (14 recipes already discovered before it, capricciosa
-    // included); its own gate is 44. 14 × ★3 = 42 -- two stars short.
+    // meat-lovers is discovered 15th (14 recipes already discovered before it); its new gate is
+    // 36. 14 × ★3 = 42 -- 6 stars of margin, not a 2-star shortfall.
     const priorToMeatLovers = chain.indexOf("meat-lovers");
     expect(priorToMeatLovers).toBe(14);
     expect(priorToMeatLovers * 3).toBe(42);
-    expect(gates.get("meat-lovers")).toBe(44);
-    expect(priorToMeatLovers * 3).toBeLessThan(gates.get("meat-lovers")!);
+    expect(gates.get("meat-lovers")).toBe(36);
+    expect(priorToMeatLovers * 3).toBeGreaterThanOrEqual(gates.get("meat-lovers")!);
+
+    // Every numeric gate from quattro-formaggi onward keeps at least a +6 margin against the
+    // idealized ★3-only ceiling -- the shortfall that compounded under the old +4 step can never
+    // recur under the new flat +3 step, for any recipe in the chain.
+    for (let i = 0; i < chain.length; i++) {
+      const gate = gates.get(chain[i]);
+      if (gate === undefined) continue;
+      expect(i * 3).toBeGreaterThanOrEqual(gate);
+    }
   });
 
-  it("a profile whose Dex BEST never exceeds ★3 stalls on the progression ceiling, never on an economy shortage", () => {
+  it("a profile whose Dex BEST never exceeds ★3 now completes the full 15-recipe chain, still with zero economy shortage", () => {
     const result = simulateProgression(STRUGGLING_HARD_CAP_PLAYER);
 
-    // The chain is NOT completed -- this is the expected, by-design outcome for this profile.
-    expect(result.completed).toBe(false);
+    // Fixed by Progression Tuning 1: this profile is no longer permanently blocked.
+    expect(result.completed).toBe(true);
 
-    // Critically: it never runs out of Pitz or ingredients. Zero shortage events, and a healthy
-    // Pitz surplus at the point it plateaus -- proving the stall is a totalStars/progression
-    // constraint, not an Economy one.
+    // Still zero Pitz/inventory shortage -- the fix is purely a progression-gate retune, no
+    // economy value changed, so this invariant from PR #119 must still hold.
     expect(result.shortageEvents.length).toBe(0);
     expect(result.finalPitzBalance).toBeGreaterThan(0);
 
-    // It never reaches meat-lovers (nor, in this deterministic run, even capricciosa) --
-    // confirming the mathematical ceiling from the test above actually bites in practice, not
-    // just in the idealized "every recipe exactly ★3" arithmetic.
+    // Now reaches every recipe, meat-lovers included.
     const unlockedIds = result.unlockEvents.map((e) => e.recipeId);
-    expect(unlockedIds).not.toContain("meat-lovers");
-    expect(unlockedIds).not.toContain("capricciosa");
+    expect(unlockedIds).toContain("pizza-bianca");
+    expect(unlockedIds).toContain("capricciosa");
+    expect(unlockedIds).toContain("meat-lovers");
 
-    // Deterministic pin: this exact profile plateaus at exactly this totalStars, one short of
-    // pizza-bianca's own ★32 gate -- pinned so a future change to the simulation's grind policy
-    // or this profile's own cycle can't silently "fix" this ceiling without the change being
-    // visible here.
-    expect(result.finalTotalStars).toBe(31);
-    expect(unlockedIds).not.toContain("pizza-bianca");
+    // Deterministic pin (before -> after): PR #119 pinned this exact profile's plateau at
+    // totalStars 31 (blocked before pizza-bianca) under the OLD gates. Under the NEW gates it
+    // completes the full chain at exactly this totalStars -- pinned so a future change to the
+    // simulation's own grind policy, this profile's cycle, or the unlock gates can't silently
+    // regress this fix without the change being visible here.
+    expect(result.finalTotalStars).toBe(37);
   });
 });
 
@@ -252,7 +284,7 @@ describe("Shop purchase regression (I)", () => {
 
 describe("Inventory regression (J)", () => {
   it("final inventory never goes negative for any ingredient, for any profile", () => {
-    for (const profile of [GOOD_PLAYER, NORMAL_PLAYER, STRUGGLING_PLAYER]) {
+    for (const profile of [GOOD_PLAYER, NORMAL_PLAYER, STRUGGLING_PLAYER, STRUGGLING_HARD_CAP_PLAYER]) {
       const result = simulateProgression(profile);
       for (const amount of Object.values(result.finalInventory)) {
         expect(amount).toBeGreaterThanOrEqual(0);
@@ -294,7 +326,7 @@ describe("economy report dump (reference only, not an assertion)", () => {
   it("prints the economy table and simulation summaries", () => {
     console.log("--- Economy Table ---");
     console.table(financeIngredientTable());
-    for (const profile of [GOOD_PLAYER, NORMAL_PLAYER, STRUGGLING_PLAYER]) {
+    for (const profile of [GOOD_PLAYER, NORMAL_PLAYER, STRUGGLING_PLAYER, STRUGGLING_HARD_CAP_PLAYER]) {
       const result = simulateProgression(profile);
       console.log(`\n--- ${profile.name} PLAYER ---`);
       console.log(
