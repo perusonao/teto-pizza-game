@@ -74,10 +74,16 @@ interface SubmitLunchRushScoreResponse {
 
 let cachedFunctions: Functions | null | undefined;
 
+// Must match the deployed callable Function's own region (functions/src/index.ts's
+// `onCall({ region: ... })`) -- Firestore is pinned to asia-northeast1 (Tokyo, Manual Setup),
+// so the Function is deployed there too, and the client has to target that same region
+// explicitly since the Functions SDK otherwise defaults to us-central1.
+const FUNCTIONS_REGION = "asia-northeast1";
+
 function getFirebaseFunctions(): Functions | null {
   if (cachedFunctions !== undefined) return cachedFunctions;
   const app = getFirebaseApp();
-  cachedFunctions = app ? getFunctions(app) : null;
+  cachedFunctions = app ? getFunctions(app, FUNCTIONS_REGION) : null;
   return cachedFunctions;
 }
 

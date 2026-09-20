@@ -50,7 +50,11 @@ function createFirestoreAdapter(): FirestoreLike {
   };
 }
 
-export const submitLunchRushScore = onCall(async (request) => {
+// Firestore is pinned to asia-northeast1 (Tokyo, Manual Setup) -- the callable Function is
+// deployed to the same region rather than the 2nd-gen default (us-central1) so a submission
+// never crosses regions between the Function and its Firestore writes. The client's own
+// getFunctions() call (src/firebase/submitLunchRushScore.ts) must target this same region.
+export const submitLunchRushScore = onCall({ region: "asia-northeast1" }, async (request) => {
   try {
     return await handleSubmitLunchRushScore(
       request.data,
