@@ -338,6 +338,79 @@ describe("applyStarterGrants: Batch 1A recipe grant amounts (#8-#11)", () => {
   });
 });
 
+describe("applyStarterGrants: Batch 1B-B recipe grant amounts (#14, capricciosa)", () => {
+  const CHAIN_TO_BREAKFAST_PIZZA = [
+    "margherita",
+    "funghi",
+    "marinara",
+    "bismarck",
+    "genovese",
+    "quattro-formaggi",
+    "fugazza",
+    "salsiccia",
+    "pepperoni",
+    "napoletana",
+    "tonno-e-cipolla",
+    "pizza-bianca",
+    "breakfast-pizza",
+  ];
+  const ALREADY_CLAIMED = [
+    "funghi",
+    "marinara",
+    "bismarck",
+    "genovese",
+    "quattro-formaggi",
+    "fugazza",
+    "salsiccia",
+    "pepperoni",
+    "napoletana",
+    "tonno-e-cipolla",
+    "pizza-bianca",
+    "breakfast-pizza",
+  ];
+
+  it("Recipe #14 (capricciosa, requires breakfast-pizza discovered + 40 stars) grants ham=1x10=10 and black-olive=2x10=20 fresh, and floors mushroom/oregano against their existing grants (no duplicate-farming stacking)", () => {
+    const dex = dexDiscovering(CHAIN_TO_BREAKFAST_PIZZA, 5 as QualityStars); // 13x5=65>=40
+    // funghi's own untouched mushroom grant (3x10=30) and marinara's own untouched oregano
+    // grant (2x10=20) -- capricciosa's own mushroom/oregano minCount (2, 1) would only ask for
+    // 20/10, both lower than what's already stocked.
+    const priorInventory: InventoryState = { mushroom: 30, oregano: 20 };
+    const result = applyStarterGrants(dex, STARTER_INGREDIENT_IDS, priorInventory, ALREADY_CLAIMED);
+    expect(result.grantedRecipeIds).toEqual(["capricciosa"]);
+    expect(result.inventory.ham).toBe(10);
+    expect(result.inventory["black-olive"]).toBe(20);
+    // Floor, not add: capricciosa's own mushroom (20)/oregano (10) grant never stacks on top of
+    // the existing 30/20 -- the shared ingredient is only ever topped up to the higher floor.
+    expect(result.inventory.mushroom).toBe(30);
+    expect(result.inventory.oregano).toBe(20);
+    expect(result.ownedIngredientIds).toContain("ham");
+    expect(result.ownedIngredientIds).toContain("black-olive");
+  });
+
+  it("capricciosa is never re-granted once already claimed (exact-once ledger, no farming via repeated calls)", () => {
+    const dex = dexDiscovering(CHAIN_TO_BREAKFAST_PIZZA, 5 as QualityStars);
+    const alreadyClaimedWithCapricciosa = [...ALREADY_CLAIMED, "capricciosa"];
+    const priorInventory: InventoryState = {
+      mushroom: 30,
+      oregano: 20,
+      ham: 10,
+      "black-olive": 20,
+    };
+    const priorOwned = [...STARTER_INGREDIENT_IDS, "ham", "black-olive"];
+    const result = applyStarterGrants(dex, priorOwned, priorInventory, alreadyClaimedWithCapricciosa);
+    expect(result.grantedRecipeIds).toEqual([]);
+    expect(result.inventory).toBe(priorInventory);
+    expect(result.ownedIngredientIds).toBe(priorOwned);
+    expect(result.claimedRecipeIds).toBe(alreadyClaimedWithCapricciosa);
+  });
+
+  it("buildStarterGrantNotice for capricciosa reads '🎁「カプリチョーザ」の材料を最初の10回分プレゼントしました！'", () => {
+    const notice = buildStarterGrantNotice(["capricciosa" as never]);
+    expect(notice).not.toBeNull();
+    expect(notice!.messageJa).toBe("🎁「カプリチョーザ」の材料を最初の10回分プレゼントしました！");
+  });
+});
+
 describe("applyStarterGrants: scatter vs spread/sauce derivation", () => {
   it("every scatter ingredient's grant is exactly requiredIngredients.minCount x STARTER_STOCK_PLAYS_CHAPTER_1", () => {
     const dex = dexDiscovering(

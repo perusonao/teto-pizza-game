@@ -86,6 +86,12 @@ export const ORDERS: Order[] = [
     requestedBy: "mito",
     lineJa: "たまごとベーコンがのったブレックファストピザ、朝ごはんみたいで気になるな！",
   },
+  {
+    id: "order-capricciosa",
+    recipeId: "capricciosa",
+    requestedBy: "mito",
+    lineJa: "ハムとブラックオリーブがのった具だくさんのカプリチョーザが食べたいな！",
+  },
 ];
 
 /** Looks up the one Order for an explicit recipe id (Issue #39 Pizza Select: every recipe in

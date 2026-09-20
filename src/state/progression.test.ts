@@ -256,7 +256,7 @@ describe("isRecipeAvailable (two-axis AND: recipeUnlocked && ingredients owned)"
 
   it("every other recipe is unavailable on a fresh save, even with every ingredient owned (recipe-unlock axis blocks it)", () => {
     const others = RECIPES.filter((r) => r.id !== "margherita");
-    expect(others).toHaveLength(12);
+    expect(others).toHaveLength(13);
     const ownedEverything = [
       ...STARTER_INGREDIENT_IDS,
       "onion",
@@ -266,6 +266,8 @@ describe("isRecipeAvailable (two-axis AND: recipeUnlocked && ingredients owned)"
       "tuna",
       "rosemary",
       "bacon",
+      "ham",
+      "black-olive",
     ];
     for (const recipe of others) {
       expect(isRecipeAvailable(recipe, EMPTY_DEX, ownedEverything)).toBe(false);

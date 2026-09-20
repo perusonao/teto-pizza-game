@@ -7,8 +7,8 @@
   "viableEntryCount": 51,
   "rejectedDuplicateCount": 2,
   "statusBreakdown": {
-    "verified_internal": 13,
-    "game_design_candidate": 15,
+    "verified_internal": 14,
+    "game_design_candidate": 14,
     "deferred": 5,
     "verification_pending": 18,
     "rejected_duplicate": 2
@@ -561,14 +561,14 @@
       ],
       "visualIdentity": "High-density 'everything' pizza; introduces ham/black-olive, both reused by Quattro Stagioni.",
       "sourceReferences": [
-        "general_culinary_knowledge (unverified against any single external source this session -- see report Source Limitations)"
+        "internal://src/data/recipes.ts#capricciosa"
       ],
-      "verificationStatus": "game_design_candidate",
+      "verificationStatus": "verified_internal",
       "implementationClass": "B",
       "difficulty": 3,
       "progressionTier": "mid",
-      "gameDesignStatus": "candidate",
-      "currentGameRecipe": false,
+      "gameDesignStatus": "shipped",
+      "currentGameRecipe": true,
       "rejectedDuplicateOf": null,
       "newIngredientsIntroduced": [
         "ham",
