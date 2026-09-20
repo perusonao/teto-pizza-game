@@ -4,6 +4,7 @@ import type { CookingProfile } from "../data/cookingProfiles";
 import { DEFAULT_COOKING_PROFILE } from "../data/cookingProfiles";
 import { buildIdealSauceFixture, getReferencePizza } from "../data/referencePizza";
 import { createEmptyPizza, type PizzaState } from "./pizzaState";
+import { DOUGH_CENTER, DOUGH_RADIUS } from "../logic/pizzaCoordinates";
 
 /**
  * Recipe Cooking Steps 1.0 Phase 1A (docs/design/TETO_RECIPE-COOKING-STEPS_1.0.md §8/§18):
@@ -30,6 +31,26 @@ function withProfile(state: GameState, profile: CookingProfile): GameState {
 
 function confirm(state: GameState): GameState {
   return gameReducer(state, { type: "CONFIRM_MAKING_STEP" });
+}
+
+/** Pizza Cutting 1.0 Phase 2: commits `count` ideal (evenly-spaced, through-center) cut lines
+ *  via ADD_CUT_LINE, so a fixture's own CUT step can satisfy CONFIRM_MAKING_STEP's
+ *  `requiredCutCount` gate. Mirrors ../testSupport/postBakeFlow.ts's own fixture shape. */
+function idealCutLinesState(state: GameState, count: number): GameState {
+  let next = state;
+  for (let i = 0; i < count; i += 1) {
+    const angle = (Math.PI * i) / count;
+    const dx = Math.cos(angle) * DOUGH_RADIUS;
+    const dy = Math.sin(angle) * DOUGH_RADIUS;
+    next = gameReducer(next, {
+      type: "ADD_CUT_LINE",
+      line: {
+        start: { x: DOUGH_CENTER - dx, y: DOUGH_CENTER - dy },
+        end: { x: DOUGH_CENTER + dx, y: DOUGH_CENTER + dy },
+      },
+    });
+  }
+  return next;
 }
 
 function baked(state: GameState): GameState {
@@ -115,7 +136,12 @@ describe("Making sequence (nextStepWithin, driven by CookingProfile)", () => {
 
 describe("POST_BAKE (CONFIRM_BAKE / CONFIRM_MAKING_STEP)", () => {
   it("default recipe (no post-BAKE steps): CONFIRM_BAKE lands directly on RESULT, exactly as before this phase", () => {
-    const state = preparedState();
+    // Pizza Cutting 1.0 Phase 2: the round's *initial* recipe (createInitialGameState prefers
+    // margherita, ../data/orders.ts) now carries margherita's own CUT-enabled profile -- this
+    // test is about the `DEFAULT_COOKING_PROFILE` shape itself (any recipe without a post-BAKE
+    // step), so the profile is overridden directly, exactly like every other fixture in this
+    // file already does, rather than relying on whichever recipe happens to be "first".
+    const state = withProfile(preparedState(), DEFAULT_COOKING_PROFILE);
     expect(state.cookingProfile).toBe(DEFAULT_COOKING_PROFILE);
     const result = baked(state);
     expect(result.phase).toBe("RESULT");
@@ -137,7 +163,10 @@ describe("POST_BAKE (CONFIRM_BAKE / CONFIRM_MAKING_STEP)", () => {
   });
 
   it("POST_BAKE completion (confirming the last post-BAKE step) transitions to RESULT", () => {
-    const fixture: CookingProfile = { steps: ["DOUGH", "SAUCE", "CHEESE", "TOPPING", "CUT"] };
+    // Generic post-BAKE-step-walking mechanism under test here, not CUT's own specific
+    // confirm gate (pinned separately below and in gameReducer.cutStep.test.ts) -- FINISH has
+    // no completion requirement of its own, so it stays the right fixture step for this.
+    const fixture: CookingProfile = { steps: ["DOUGH", "SAUCE", "CHEESE", "TOPPING", "FINISH"] };
     const state = withProfile(preparedState(), fixture);
     const atPostBake = baked(state);
     expect(atPostBake.phase).toBe("POST_BAKE");
@@ -149,7 +178,10 @@ describe("POST_BAKE (CONFIRM_BAKE / CONFIRM_MAKING_STEP)", () => {
   });
 
   it("future-profile fixture with two post-BAKE steps (FINISH then CUT): confirms walk FINISH -> CUT -> RESULT", () => {
-    const fixture: CookingProfile = { steps: ["DOUGH", "SAUCE", "CHEESE", "TOPPING", "FINISH", "CUT"] };
+    const fixture: CookingProfile = {
+      steps: ["DOUGH", "SAUCE", "CHEESE", "TOPPING", "FINISH", "CUT"],
+      cutConfig: { requestedSliceCount: 6 },
+    };
     const state = withProfile(preparedState(), fixture);
     const atFinish = baked(state);
     expect(atFinish.phase).toBe("POST_BAKE");
@@ -159,12 +191,17 @@ describe("POST_BAKE (CONFIRM_BAKE / CONFIRM_MAKING_STEP)", () => {
     expect(atCut.phase).toBe("POST_BAKE");
     expect(atCut.makingStep).toBe("CUT");
 
-    const atResult = confirm(atCut);
+    // Pizza Cutting 1.0 Phase 2: CUT's own confirm is gated on `requiredCutCount` (§15.3) --
+    // commit the 3 required lines (6 slices) before the final confirm can reach RESULT.
+    const withLines = idealCutLinesState(atCut, 3);
+    const atResult = confirm(withLines);
     expect(atResult.phase).toBe("RESULT");
   });
 
   it("CONFIRM_MAKING_STEP is rejected outside PREPARE/POST_BAKE even for a post-BAKE-carrying fixture once RESULT is reached", () => {
-    const fixture: CookingProfile = { steps: ["DOUGH", "SAUCE", "CHEESE", "TOPPING", "CUT"] };
+    // FINISH again -- this test is about the terminal-RESULT idempotency guard, independent of
+    // CUT's own confirm gate.
+    const fixture: CookingProfile = { steps: ["DOUGH", "SAUCE", "CHEESE", "TOPPING", "FINISH"] };
     const state = withProfile(preparedState(), fixture);
     const atResult = confirm(baked(state));
     expect(atResult.phase).toBe("RESULT");
@@ -184,7 +221,11 @@ describe("POST_BAKE (CONFIRM_BAKE / CONFIRM_MAKING_STEP)", () => {
  */
 describe("REGISTER_TO_DEX / mission-serve orchestration boundary (Pizza Cutting 1.0 §12)", () => {
   it("default recipe: App.tsx's CONFIRM_BAKE + REGISTER_TO_DEX back-to-back dispatch registers normally (unchanged)", () => {
-    const state = preparedState();
+    // Pizza Cutting 1.0 Phase 2: forced to DEFAULT_COOKING_PROFILE, same reasoning as the
+    // "default recipe (no post-BAKE steps)" test above -- this test is about a recipe whose
+    // profile has no post-BAKE steps, and the round's actual initial recipe (margherita) no
+    // longer is one.
+    const state = withProfile(preparedState(), DEFAULT_COOKING_PROFILE);
     const afterBake = idealBaked(state);
     expect(afterBake.phase).toBe("RESULT");
     expect(afterBake.completion?.status).toBe("PASS");

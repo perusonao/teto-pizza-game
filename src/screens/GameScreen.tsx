@@ -4,6 +4,8 @@ import { PizzaStage } from "../components/PizzaStage";
 import { IngredientTray } from "../components/IngredientTray";
 import { MakingStepTabs } from "../components/MakingStepTabs";
 import { preBakeSteps } from "../data/cookingProfiles";
+import { requiredCutCount } from "../logic/cut/evaluation";
+import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
 import { BakeOverlay } from "../components/BakeOverlay";
 import { ResultPanel } from "../components/ResultPanel";
 import { MissionHud } from "../components/MissionHud";
@@ -111,6 +113,8 @@ interface GameScreenProps {
   onDispenseCommit: (ingredientId: string, deposits: SauceDeposit[]) => void;
   onDoughStretchProgress: (shape: DoughShape | null) => void;
   onDoughStretchCommit: (shape: DoughShape) => void;
+  onAddCutLine: (line: CutLine) => void;
+  onUndoCutLine: () => void;
   onDoughElementChange: (element: HTMLDivElement | null) => void;
   resolvePhysicalDrop: (clientX: number, clientY: number) => DoughPoint | null;
   onPhysicalDrop: (ingredient: Ingredient, point: DoughPoint) => void;
@@ -158,6 +162,8 @@ export function GameScreen({
   onDispenseCommit,
   onDoughStretchProgress,
   onDoughStretchCommit,
+  onAddCutLine,
+  onUndoCutLine,
   onDoughElementChange,
   resolvePhysicalDrop,
   onPhysicalDrop,
@@ -179,6 +185,13 @@ export function GameScreen({
   // completion -- see onewayFlow.test.ts) is defined in exactly one place, never duplicated.
   // SAUCE/CHEESE have no completion gate today, so this is unconditionally true for them.
   const nextStepReady = state.makingStep !== "DOUGH" || doughShapeComplete;
+
+  // Pizza Cutting 1.0 Phase 2 (design doc §8.4): mirrors `nextStepReady`'s own "UI-only
+  // completion gate, reducer never assumes it" role for CUT's own "切り終わる" CTA -- the
+  // reducer's own CONFIRM_MAKING_STEP re-checks this exact threshold independently (the real
+  // backstop, see gameReducer.ts), this is purely the CTA's disabled/enabled state.
+  const cutRequiredCount = requiredCutCount(resolveRequestedSliceCount(state.cutState.config));
+  const cutConfirmReady = state.cutState.lines.length >= cutRequiredCount;
 
   const isMissionPlaying = mission.mode === "PLAYING";
   // Free play's own RESULT dialogue/ResultPanel are gated on this, not just `!isMissionPlaying`
@@ -253,7 +266,7 @@ export function GameScreen({
           `min-height: 84px` reserved space so the hero pizza is the first thing on screen
           (the task's own "完成ピザを押し下げない" requirement), rather than leaving an empty
           gap above it. ORDER/BAKE dialogue is completely unaffected, Mission or not. */}
-      {state.phase !== "PREPARE" && !isFreeResultScreen && (
+      {state.phase !== "PREPARE" && state.phase !== "POST_BAKE" && !isFreeResultScreen && (
         <section className="dialogue-area">
           {state.phase === "ORDER" && (
             <>
@@ -334,10 +347,29 @@ export function GameScreen({
         </div>
       )}
 
+      {/* Pizza Cutting 1.0 Phase 2 (design doc §8.1): the CUT step's own compact instruction
+          row -- same `.order-card`-style component PREPARE already uses, reused verbatim rather
+          than inventing a second layout for what is structurally the same "recipe name + short
+          instruction" row. */}
+      {state.phase === "POST_BAKE" && state.makingStep === "CUT" && (
+        <div className="order-card">
+          <div className="order-card__text">
+            <span className="order-card__recipe-name">{state.recipe.nameJa}</span>
+            <span className="order-card__hint">
+              {`ピザを${state.cutState.config.requestedSliceCount ?? 6}等分に切ろう！`}
+            </span>
+          </div>
+        </div>
+      )}
+
       <PizzaStage
         pizza={state.pizza}
         recipe={state.recipe}
-        interactive={state.phase === "PREPARE" && !isReferencePopoverOpen && !isGlobalOverlayOpen}
+        interactive={
+          (state.phase === "PREPARE" || (state.phase === "POST_BAKE" && state.makingStep === "CUT")) &&
+          !isReferencePopoverOpen &&
+          !isGlobalOverlayOpen
+        }
         activeIngredient={selectedIngredientId ? (getIngredient(selectedIngredientId) ?? null) : null}
         bakeProgress={bakeProgress}
         placement={state.placement}
@@ -353,7 +385,41 @@ export function GameScreen({
         onDispenseCommit={onDispenseCommit}
         onDoughStretchProgress={onDoughStretchProgress}
         onDoughStretchCommit={onDoughStretchCommit}
+        cutState={state.cutState}
+        onAddCutLine={onAddCutLine}
       />
+
+      {/* Pizza Cutting 1.0 Phase 2 (design doc §8.1/§8.4): progress readout + the CUT step's own
+          bottom bar -- "1本戻す" (undo last line) / "切り終わる" (confirm, gated on
+          `cutConfirmReady`, same "reducer is the real backstop" discipline every other CTA in
+          this screen already follows). Deliberately its own bar, not a relabeled
+          `.prepare-bake-bar` -- "やり直す" there discards the *whole pizza* (RESET_PIZZA, PREPARE
+          -only), which has no meaning once a round has already left PREPARE/BAKE. */}
+      {state.phase === "POST_BAKE" && state.makingStep === "CUT" && (
+        <>
+          <div className="cut-progress-readout">
+            {state.cutState.lines.length} / {cutRequiredCount} 本
+          </div>
+          <div className="action-row prepare-bake-bar">
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={onUndoCutLine}
+              disabled={state.cutState.lines.length === 0}
+            >
+              {"\u{21A9}"} 1本戻す
+            </button>
+            <button
+              type="button"
+              className="cta-button cta-button--bake"
+              onClick={onConfirmMakingStep}
+              disabled={!cutConfirmReady}
+            >
+              切り終わる {"→"}
+            </button>
+          </div>
+        </>
+      )}
 
       {state.phase === "ORDER" && (
         <div className="action-row">

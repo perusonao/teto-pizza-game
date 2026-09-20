@@ -8,6 +8,9 @@ import { isRecipeAvailable } from "./progression";
 import { buildIdealSauceFixture, getReferencePizza } from "../data/referencePizza";
 import { createEmptyPizza, type PizzaState, type SauceDeposit } from "./pizzaState";
 import type { InventoryState } from "./inventory";
+import { getCookingProfile } from "../data/cookingProfiles";
+import { createCutState } from "../logic/cut/state";
+import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
 
 /**
  * Completion Gate Phase 1 (docs/reports/TETO_COMPLETION-GATE_PHASE1_Result.md): FAILED
@@ -63,9 +66,15 @@ function playToResultForRecipe(
     extra.inventory ?? {},
     extra.starterGrantClaimedRecipeIds ?? [],
   );
-  state = { ...state, recipe, order, pizza };
+  // Pizza Cutting 1.0 Phase 2: `createInitialGameState` always seeds margherita's own profile
+  // (../data/orders.ts's `preferFirst`) -- overriding `recipe` without also re-resolving
+  // `cookingProfile`/`cutState` for the *actual* `recipeId` under test would otherwise wrongly
+  // carry margherita's CUT-enabled profile onto every other recipe this helper simulates.
+  const cookingProfile = getCookingProfile(recipeId);
+  state = { ...state, recipe, order, pizza, cookingProfile, cutState: createCutState(cookingProfile.cutConfig) };
   state = gameReducer(state, { type: "START_BAKE" });
-  return gameReducer(state, { type: "CONFIRM_BAKE", value: pizza.bakeResult ?? recipe.bakeTarget.start });
+  state = gameReducer(state, { type: "CONFIRM_BAKE", value: pizza.bakeResult ?? recipe.bakeTarget.start });
+  return walkPostBakeToResult(state);
 }
 
 describe("Completion Gate Phase 1: FAILED semantics", () => {

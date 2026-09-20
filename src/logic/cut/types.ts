@@ -8,7 +8,7 @@
  * conflicting coordinate space. A `CutLine` lives in the exact same 0-100 dough-percent box
  * every other gesture family (DOUGH stretch, sauce dispense, topping drag) already uses.
  */
-import { DOUGH_RADIUS, distanceFromCenter, type DoughPoint } from "../pizzaCoordinates";
+import { DOUGH_CENTER, DOUGH_RADIUS, distanceFromCenter, type DoughPoint } from "../pizzaCoordinates";
 
 /**
  * One committed cut: a straight segment in dough-percent coordinates. Per the design doc's own
@@ -103,4 +103,40 @@ export function isEdgeToEdgeCutLine(
   toleranceEpsilon: number = RIM_TOLERANCE_DOUGH_PERCENT,
 ): boolean {
   return isNearRim(line.start, toleranceEpsilon) && isNearRim(line.end, toleranceEpsilon);
+}
+
+/**
+ * Pizza Cutting 1.0 Phase 2 (design doc §2.2): the real gesture layer's own construction of a
+ * genuine rim-to-rim chord from a raw press/release pair. `pressPoint` is guaranteed inside the
+ * dough (the gesture layer's own `isInsideDough` gate at pointerdown), but per the design's own
+ * "no pixel-perfect rim tap" start tolerance neither point is required to already be *on* the
+ * rim -- this extends the infinite line through both points out to its two intersections with
+ * the dough's circle, in the drag's own direction, so a press/release that both land short of
+ * the rim still commits the same full cut the player's drag direction intended (rather than a
+ * shorter, non-edge-to-edge segment). Returns `null` only for a truly zero-length direction
+ * (press and release resolved to the exact same dough-percent point) -- structurally unreachable
+ * once the gesture layer's own drag-vs-tap threshold has already been passed, kept only so this
+ * stays a total function over its input rather than one that can divide by zero.
+ */
+export function buildRimToRimCutLine(pressPoint: DoughPoint, releasePoint: DoughPoint): CutLine | null {
+  const dx = releasePoint.x - pressPoint.x;
+  const dy = releasePoint.y - pressPoint.y;
+  const directionLengthSquared = dx * dx + dy * dy;
+  if (directionLengthSquared === 0) return null;
+
+  const offsetX = pressPoint.x - DOUGH_CENTER;
+  const offsetY = pressPoint.y - DOUGH_CENTER;
+  const a = directionLengthSquared;
+  const b = 2 * (offsetX * dx + offsetY * dy);
+  const c = offsetX * offsetX + offsetY * offsetY - DOUGH_RADIUS * DOUGH_RADIUS;
+  // A press point inside (or on) the circle guarantees a non-negative discriminant -- the line
+  // through an interior point always crosses the boundary twice, in both directions.
+  const discriminant = Math.max(0, b * b - 4 * a * c);
+  const sqrtDiscriminant = Math.sqrt(discriminant);
+  const t1 = (-b - sqrtDiscriminant) / (2 * a);
+  const t2 = (-b + sqrtDiscriminant) / (2 * a);
+  return {
+    start: { x: pressPoint.x + t1 * dx, y: pressPoint.y + t1 * dy },
+    end: { x: pressPoint.x + t2 * dx, y: pressPoint.y + t2 * dy },
+  };
 }

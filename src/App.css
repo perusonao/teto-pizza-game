@@ -156,6 +156,15 @@
   white-space: nowrap;
 }
 
+/* ---------- Pizza Cutting 1.0 Phase 2: CUT progress readout ---------- */
+.cut-progress-readout {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: #6b4226;
+  padding: 2px 12px 4px;
+}
+
 /* ---------- Pizza stage ---------- */
 .pizza-stage {
   display: flex;
@@ -384,6 +393,54 @@
 
 .pizza-paint-trail__stroke--fade {
   opacity: 0;
+}
+
+/* ---------- Pizza Cutting 1.0 Phase 2 (CUT step) ---------- */
+/* Same border-box/clip-path convention as .pizza-paint-trail/.dough-target-guide above -- keeps
+   every overlay's 0-100 coordinate space in lockstep with the actual pointer hit area. */
+.pizza-cut-layer {
+  position: absolute;
+  inset: calc(-1 * var(--dough-border-width));
+  pointer-events: none;
+  clip-path: circle(48% at 50% 50%);
+  z-index: 4;
+}
+
+.pizza-cut-guide-lines {
+  transition: opacity 200ms linear;
+}
+
+.pizza-cut-guide-lines line {
+  stroke: rgba(107, 66, 38, 0.45);
+  stroke-width: 0.6;
+  stroke-dasharray: 2 2;
+}
+
+.pizza-cut-guide-center {
+  fill: rgba(107, 66, 38, 0.35);
+}
+
+.pizza-cut-line {
+  stroke: rgba(42, 26, 12, 0.88);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.pizza-cut-preview-line {
+  stroke: rgba(42, 26, 12, 0.55);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-dasharray: 3 2;
+  transition: opacity 120ms ease;
+}
+
+.pizza-cut-cutter-icon {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  font-size: 22px;
+  pointer-events: none;
+  z-index: 6;
+  transition: opacity 120ms ease;
 }
 
 .pizza-topping {

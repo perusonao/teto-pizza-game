@@ -20,9 +20,28 @@ describe("CookingProfile lookup (Recipe Cooking Steps 1.0 Phase 1A)", () => {
     expect(getCookingProfile("not-a-real-recipe-id" as RecipeId)).toBe(DEFAULT_COOKING_PROFILE);
   });
 
-  it("every one of the 15 shipped recipes has no profile entry -- all resolve to DEFAULT_COOKING_PROFILE", () => {
+  it("every recipe but margherita has no profile entry -- all resolve to DEFAULT_COOKING_PROFILE", () => {
+    // Pizza Cutting 1.0 Phase 2 (docs/design/TETO_PIZZA-CUTTING_1.0.md §18): margherita is the
+    // one deliberate, minimal real activation -- its own profile is asserted separately below.
     for (const recipe of RECIPES) {
+      if (recipe.id === "margherita") continue;
       expect(getCookingProfile(recipe.id)).toBe(DEFAULT_COOKING_PROFILE);
+    }
+  });
+
+  it("margherita is the sole CUT-enabled recipe: CUT appended after TOPPING, requestedSliceCount 6", () => {
+    const profile = getCookingProfile("margherita" as RecipeId);
+    expect(profile).not.toBe(DEFAULT_COOKING_PROFILE);
+    expect(profile.steps).toEqual(["DOUGH", "SAUCE", "CHEESE", "TOPPING", "CUT"]);
+    expect(profile.cutConfig?.requestedSliceCount).toBe(6);
+    expect(preBakeSteps(profile)).toEqual(["DOUGH", "SAUCE", "CHEESE", "TOPPING"]);
+    expect(postBakeSteps(profile)).toEqual(["CUT"]);
+  });
+
+  it("every recipe but margherita: BAKE -> RESULT is still direct (no post-BAKE steps)", () => {
+    for (const recipe of RECIPES) {
+      if (recipe.id === "margherita") continue;
+      expect(postBakeSteps(getCookingProfile(recipe.id))).toEqual([]);
     }
   });
 

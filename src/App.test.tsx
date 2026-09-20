@@ -187,6 +187,60 @@ async function bakeMissionOrderPass(user: ReturnType<typeof userEvent.setup>) {
   needle.driveTo(70);
   await user.click(screen.getByRole("button", { name: "取り出す！" }));
   needle.unstub();
+  await completeCutStepIfPresent(user);
+}
+
+/**
+ * Pizza Cutting 1.0 Phase 2: margherita (the only recipe available from a fresh Dex, and
+ * therefore always this suite's first FREE/Mission order) now carries a CUT-enabled profile
+ * (../data/cookingProfiles.ts) -- CONFIRM_BAKE lands the round on POST_BAKE/CUT instead of
+ * straight to RESULT, and nothing advances further until the player draws the required cut
+ * lines and confirms. This walks that step through 3 real edge-to-edge pointer drags (the same
+ * gesture PizzaStage.tsx's own CUT-mode handling expects, not a synthetic dispatch) and taps
+ * "切り終わる" -- a safe no-op for any other (CUT-free) recipe a repeat Lunch Rush order might
+ * land on (../mission/lunchRush.ts's own repeat-avoidance, see bakeMissionOrderPass's own doc
+ * comment above), since that button only ever renders during CUT.
+ */
+async function completeCutStepIfPresent(user: ReturnType<typeof userEvent.setup>) {
+  if (!screen.queryByRole("button", { name: /切り終わる/ })) return;
+  const dough = document.querySelector<HTMLElement>('[data-pizza-drop-target="true"]');
+  if (!dough) throw new Error("Pizza dough missing");
+  dough.getBoundingClientRect = () =>
+    ({ left: 0, top: 0, width: 300, height: 300, right: 300, bottom: 300, x: 0, y: 0, toJSON: () => {} }) as DOMRect;
+  const center = 150;
+  const radius = 140;
+  for (const angleDeg of [0, 60, 120]) {
+    const angle = (angleDeg * Math.PI) / 180;
+    const dx = Math.cos(angle) * radius;
+    const dy = Math.sin(angle) * radius;
+    const startX = center - dx;
+    const startY = center - dy;
+    const endX = center + dx;
+    const endY = center + dy;
+    const pointerId = Math.floor(Math.random() * 1_000_000);
+    fireEvent.pointerDown(dough, {
+      pointerId,
+      isPrimary: true,
+      pointerType: "touch",
+      clientX: startX,
+      clientY: startY,
+    });
+    fireEvent.pointerMove(dough, {
+      pointerId,
+      isPrimary: true,
+      pointerType: "touch",
+      clientX: endX,
+      clientY: endY,
+    });
+    fireEvent.pointerUp(dough, {
+      pointerId,
+      isPrimary: true,
+      pointerType: "touch",
+      clientX: endX,
+      clientY: endY,
+    });
+  }
+  await user.click(screen.getByRole("button", { name: /切り終わる/ }));
 }
 
 /**
@@ -415,6 +469,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
     await user.click(screen.getByRole("button", { name: /次へ/ }));
     await user.click(screen.getByRole("button", { name: /焼く/ }));
     await user.click(screen.getByRole("button", { name: "取り出す！" }));
+    await completeCutStepIfPresent(user);
 
     // The FAILED variant: reason text visible, no score/stars, no +1 SERVED, but the CTA to
     // move on is still there (the order is consumed, not retried in place).
@@ -450,6 +505,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
       await user.click(screen.getByRole("button", { name: /次へ/ }));
       await user.click(screen.getByRole("button", { name: /焼く/ }));
       await user.click(screen.getByRole("button", { name: "取り出す！" }));
+      await completeCutStepIfPresent(user);
       expect(document.querySelector(".mission-hud__served")?.textContent).toContain("0");
       await user.click(screen.getByRole("button", { name: "次の注文へ" }));
       expect(document.querySelector('[data-pizza-drop-target="true"]')).toBeInTheDocument();
@@ -473,6 +529,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
     await user.click(screen.getByRole("button", { name: /次へ/ }));
     await user.click(screen.getByRole("button", { name: /焼く/ }));
     await user.click(screen.getByRole("button", { name: "取り出す！" }));
+    await completeCutStepIfPresent(user);
     await user.click(screen.getByRole("button", { name: "次の注文へ" }));
 
     completeDoughStep();

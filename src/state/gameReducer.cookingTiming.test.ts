@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createInitialGameState, gameReducer, type GameState } from "./gameReducer";
+import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
 
 /**
  * Cooking Time CT1: `GameState.cookingTiming`, the deterministic FREE-only
@@ -183,6 +184,7 @@ describe("DISCOVERED keeps the same completedMs the round just produced", () => 
     state = gameReducer(state, { type: "CONFIRM_BAKE", value: 70 });
     expect(state.completion?.status).toBe("PASS");
     expect(state.cookingTiming?.completedMs).toBe(15_000);
+    state = walkPostBakeToResult(state);
     state = gameReducer(state, { type: "REGISTER_TO_DEX" });
     expect(state.phase).toBe("DISCOVERED");
     expect(state.cookingTiming?.completedMs).toBe(15_000);

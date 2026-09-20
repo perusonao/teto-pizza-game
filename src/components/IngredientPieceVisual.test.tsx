@@ -6,6 +6,7 @@ import { getRecipe } from "../data/recipes";
 import { createEmptyPizza } from "../state/pizzaState";
 import { IngredientPieceVisual } from "./IngredientPieceVisual";
 import { PizzaStage } from "./PizzaStage";
+import { createCutState } from "../logic/cut/state";
 
 /**
  * Issue #32 Phase 1: pins IngredientPieceVisual's own rendering contract -- a cheese
@@ -85,6 +86,8 @@ describe("Player pizza mozzarella uses the shared IngredientPieceVisual primitiv
         onDispenseCommit={() => {}}
         onDoughStretchProgress={() => {}}
         onDoughStretchCommit={() => {}}
+        cutState={createCutState()}
+        onAddCutLine={() => {}}
       />,
     );
 

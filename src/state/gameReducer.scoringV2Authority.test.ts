@@ -10,6 +10,9 @@ import { findOrderForRecipe } from "../data/orders";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { buildIdealSauceFixture, getReferencePizza } from "../data/referencePizza";
 import { createEmptyPizza, type PizzaState, type SauceDeposit } from "./pizzaState";
+import { getCookingProfile } from "../data/cookingProfiles";
+import { createCutState } from "../logic/cut/state";
+import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
 
 /**
  * A1 Authority Cutover (docs/reports/TETO_SCORING2-A1_AUTHORITY_Result.md): `gameReducer.ts`'s
@@ -131,10 +134,16 @@ function playToResultForRecipe(recipeId: RecipeId, pizza: PizzaState): GameState
   const order = findOrderForRecipe(recipeId);
   if (!recipe || !order) throw new Error(`Unknown recipe ${recipeId}`);
   let state = createInitialGameState(EMPTY_DEX, ALL_INGREDIENT_IDS);
-  state = { ...state, recipe, order, pizza };
+  // Pizza Cutting 1.0 Phase 2: `createInitialGameState` always seeds margherita's own
+  // CUT-enabled profile (../data/orders.ts's `preferFirst`) -- re-resolve `cookingProfile`/
+  // `cutState` for the *actual* `recipeId` under test, same fix as
+  // gameReducer.completionGate.test.ts's own `playToResultForRecipe`.
+  const cookingProfile = getCookingProfile(recipeId);
+  state = { ...state, recipe, order, pizza, cookingProfile, cutState: createCutState(cookingProfile.cutConfig) };
   state = gameReducer(state, { type: "START_BAKE" });
   const { start, end } = state.recipe.bakeTarget;
-  return gameReducer(state, { type: "CONFIRM_BAKE", value: Math.round((start + end) / 2) });
+  state = gameReducer(state, { type: "CONFIRM_BAKE", value: Math.round((start + end) / 2) });
+  return walkPostBakeToResult(state);
 }
 
 describe("A1 Authority Cutover: state.score is Scoring 2.0-derived (gameReducer integration)", () => {
@@ -198,6 +207,7 @@ describe("A1 Authority Cutover: state.score is Scoring 2.0-derived (gameReducer 
     state = gameReducer(state, { type: "START_BAKE" });
     const { start, end } = state.recipe.bakeTarget;
     state = gameReducer(state, { type: "CONFIRM_BAKE", value: Math.round((start + end) / 2) });
+    state = walkPostBakeToResult(state);
 
     expect(state.phase).toBe("RESULT");
     expect(state.score?.total).toBe(state.scoringV2Result?.totalScore);

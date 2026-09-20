@@ -4,6 +4,7 @@ import { EMPTY_DEX } from "./dex";
 import { getRecipe } from "../data/recipes";
 import { calculatePitzReward } from "../logic/pitzReward";
 import { loadSave, persistProgress, type StorageLike } from "./persistence";
+import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
 
 /**
  * Issue #38 E-P1/E-P2: FREE per-pizza Pitz reward, wired into REGISTER_TO_DEX
@@ -44,7 +45,7 @@ function playFreeMargheritaToResult(bakeValue: number, startState?: GameState): 
   state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "basil", x: 35, y: 65 });
   state = gameReducer(state, { type: "START_BAKE" });
   state = gameReducer(state, { type: "CONFIRM_BAKE", value: bakeValue });
-  return state;
+  return walkPostBakeToResult(state);
 }
 
 /** An intentionally minimal/incomplete round (no sauce, no cheese, no topping, baked at the
@@ -60,7 +61,10 @@ function playFreeMargheritaMinimalToResult(): GameState {
   state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // CHEESE -> TOPPING
   state = gameReducer(state, { type: "START_BAKE" });
   state = gameReducer(state, { type: "CONFIRM_BAKE", value: 5 }); // far outside 60-80
-  return state;
+  // Pizza Cutting 1.0 Phase 2: FAILED completion never gates CUT (requiredForCompletion is
+  // false) -- this pizza still walks through POST_BAKE's own CUT step to reach RESULT, same
+  // as a PASSing round.
+  return walkPostBakeToResult(state);
 }
 
 describe("FREE per-pizza Pitz credit (REGISTER_TO_DEX)", () => {
@@ -177,6 +181,7 @@ describe("Lunch Rush isolation -- no per-pizza FREE reward leakage", () => {
     state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "basil", x: 35, y: 65 });
     state = gameReducer(state, { type: "START_BAKE" });
     state = gameReducer(state, { type: "CONFIRM_BAKE", value: 70 });
+    state = walkPostBakeToResult(state);
     expect(state.isMissionRound).toBe(true);
     expect(state.phase).toBe("RESULT");
     return state;

@@ -4,6 +4,7 @@ import { getRecipe } from "../data/recipes";
 import { buildIdealSauceFixture, getReferencePizza } from "../data/referencePizza";
 import { createEmptyPizza, type PizzaState } from "./pizzaState";
 import type { CookingTimingState } from "../logic/cookingTiming";
+import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
 
 /**
  * Cooking Time CT2 x Completion Gate Phase 1 integration (see
@@ -70,6 +71,7 @@ function playToResult(
   let state: GameState = { ...createInitialGameState(), recipe, pizza };
   state = gameReducer(state, { type: "START_BAKE" });
   state = gameReducer(state, { type: "CONFIRM_BAKE", value: pizza.bakeResult ?? recipe.bakeTarget.start });
+  state = walkPostBakeToResult(state);
   state = { ...state, cookingTiming: cookingTimingOf(completedMs) };
   if (scoreOverride !== undefined && state.score) {
     state = { ...state, score: { ...state.score, total: scoreOverride } };
