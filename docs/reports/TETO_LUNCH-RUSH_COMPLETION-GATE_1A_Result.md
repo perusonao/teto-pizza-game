@@ -2,9 +2,10 @@
 
 ## Audited / implementation state
 
-- **Audited main SHA**: `c95036b5543be527ab004d7eb4f6b73dea60931c` (`Full Game Reset 1A (#106)`, latest `origin/main` at the start of this work)
-- **Implementation branch**: `claude/lunch-rush-completion-gate-723h9h`, based on the same commit (fast-forward, no other commits ahead of it were needed)
+- **Audited main SHA**: `c95036b5543be527ab004d7eb4f6b73dea60931c` (`Full Game Reset 1A (#106)`, `origin/main` at the start of this work)
 - **Duplicate PR Gate #1 (before starting)**: `git fetch origin` + `list_pull_requests` (open) + a scan of every `claude/*lunch*`/`*completion*` branch found no open PR and no other in-flight branch covering "Lunch Rush + Completion Gate" together. The closest name, `claude/completion-gate-failed-pizza-xwvfhj`, turned out to be the **already-merged** FREE-only Completion Gate Phase 1 work (`ecb5c8c`, PR #102) — a stale local mirror of history already on `main`, not a duplicate of this task. `claude/lunch-rush-ranking-phase0-cpu5ki` is a docs-only Firebase Online Ranking #87 audit (a different, later scope this task explicitly precedes) and was not touched.
+- **Implementation HEAD**: `3cd5998b148dacf53851f99e2ce33ffa55967fbf` on `claude/lunch-rush-completion-gate-723h9h` — this work's own commit (`46abf5e`) merged forward onto `origin/main` after it advanced mid-session to `65a40c8` (`Visual Polish 1B: localize Lunch Rush Result (#109)`, `Sync Recipe Master with shipped Batch 1A (#108)` — neither overlaps this change's files; a clean merge, no conflicts).
+- **Duplicate PR Gate #2 (immediately before opening the PR)**: re-ran `git fetch origin` + `list_pull_requests` (open) against the post-merge state above — still no open PR or new branch covering this scope.
 
 ## Fresh audit (this session, against the SHA above)
 
