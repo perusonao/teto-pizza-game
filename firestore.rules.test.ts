@@ -6,10 +6,10 @@ import {
   type RulesTestEnvironment,
 } from "@firebase/rules-unit-testing";
 import { readFileSync } from "node:fs";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { deleteDoc, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 
 /**
- * Firebase Ranking 1.0 Phase 1B (Issue #87). Exercises `firestore.rules` against a real
+ * Firebase Ranking 1.0 Phase 1B/2A (Issue #87). Exercises `firestore.rules` against a real
  * Firestore emulator (`@firebase/rules-unit-testing`) -- not a unit test of application code,
  * a verification that the deployed rules actually deny what this task requires them to deny.
  * Deliberately NOT wired into the root `npm test` (see docs/design/
@@ -64,23 +64,71 @@ describe("firestore.rules", () => {
   });
 
   describe("leaderboards/{periodId}/entries/{uid}", () => {
-    it("denies an authenticated client read (Phase 1B ships no ranking UI yet)", async () => {
-      const alice = testEnv.authenticatedContext("alice");
-      await assertFails(getDoc(doc(alice.firestore(), "leaderboards/all_all/entries/alice")));
+    // Firebase Ranking 1.0 Phase 2A (Issue #87): the one loosening this phase makes --
+    // `weekly_*` entries become publicly readable (WeeklyRankingOverlay's read path), while
+    // every write stays denied exactly as Phase 1B left it, and `monthly_*`/`all_all` (no
+    // Phase 2A UI reads them) stay just as read-denied as they were before this phase too.
+    describe("weekly_* (Phase 2A: public read)", () => {
+      it("A. allows an unauthenticated client read", async () => {
+        const anon = testEnv.unauthenticatedContext();
+        await assertSucceeds(getDoc(doc(anon.firestore(), "leaderboards/weekly_2026-W38/entries/alice")));
+      });
+
+      it("B. allows an authenticated client read", async () => {
+        const alice = testEnv.authenticatedContext("alice");
+        await assertSucceeds(getDoc(doc(alice.firestore(), "leaderboards/weekly_2026-W38/entries/alice")));
+      });
+
+      it("C. denies an authenticated client write -- the exact '{ score: 999999 }' attack Issue #87 calls out", async () => {
+        const alice = testEnv.authenticatedContext("alice");
+        await assertFails(
+          setDoc(doc(alice.firestore(), "leaderboards/weekly_2026-W38/entries/alice"), { score: 999_999 }),
+        );
+      });
+
+      it("D. denies a client update to an existing entry", async () => {
+        await testEnv.withSecurityRulesDisabled(async (context) => {
+          await setDoc(doc(context.firestore(), "leaderboards/weekly_2026-W38/entries/alice"), { score: 1 });
+        });
+        const alice = testEnv.authenticatedContext("alice");
+        await assertFails(
+          updateDoc(doc(alice.firestore(), "leaderboards/weekly_2026-W38/entries/alice"), { score: 2 }),
+        );
+      });
+
+      it("E. denies a client delete", async () => {
+        await testEnv.withSecurityRulesDisabled(async (context) => {
+          await setDoc(doc(context.firestore(), "leaderboards/weekly_2026-W38/entries/alice"), { score: 1 });
+        });
+        const alice = testEnv.authenticatedContext("alice");
+        await assertFails(deleteDoc(doc(alice.firestore(), "leaderboards/weekly_2026-W38/entries/alice")));
+      });
+
+      it("denies a client writing to a different uid's entry too (not just its own)", async () => {
+        const alice = testEnv.authenticatedContext("alice");
+        await assertFails(
+          setDoc(doc(alice.firestore(), "leaderboards/weekly_2026-W38/entries/bob"), { score: 1 }),
+        );
+      });
     });
 
-    it("denies an authenticated client write -- the exact '{ score: 999999 }' attack Issue #87 calls out", async () => {
-      const alice = testEnv.authenticatedContext("alice");
-      await assertFails(
-        setDoc(doc(alice.firestore(), "leaderboards/all_all/entries/alice"), { score: 999_999 }),
-      );
-    });
+    describe("monthly_*/all_all (Phase 2A ships no UI for these -- still read-denied)", () => {
+      it("denies an authenticated client read on all_all", async () => {
+        const alice = testEnv.authenticatedContext("alice");
+        await assertFails(getDoc(doc(alice.firestore(), "leaderboards/all_all/entries/alice")));
+      });
 
-    it("denies a client writing to a different uid's entry too (not just its own)", async () => {
-      const alice = testEnv.authenticatedContext("alice");
-      await assertFails(
-        setDoc(doc(alice.firestore(), "leaderboards/all_all/entries/bob"), { score: 1 }),
-      );
+      it("denies an authenticated client read on monthly_2026-09", async () => {
+        const alice = testEnv.authenticatedContext("alice");
+        await assertFails(getDoc(doc(alice.firestore(), "leaderboards/monthly_2026-09/entries/alice")));
+      });
+
+      it("denies an authenticated client write on all_all -- Phase 1B's own guarantee, unweakened", async () => {
+        const alice = testEnv.authenticatedContext("alice");
+        await assertFails(
+          setDoc(doc(alice.firestore(), "leaderboards/all_all/entries/alice"), { score: 999_999 }),
+        );
+      });
     });
   });
 

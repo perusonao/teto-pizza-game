@@ -1,6 +1,7 @@
 import "@testing-library/jest-dom/vitest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { MissionResultOverlay } from "./MissionResultOverlay";
 
 /**
@@ -19,6 +20,7 @@ function baseProps() {
     pitzBalance: 140,
     onRetry: vi.fn(),
     onExit: vi.fn(),
+    onShowRanking: vi.fn(),
   };
 }
 
@@ -64,5 +66,12 @@ describe("MissionResultOverlay", () => {
     expect(screen.getByText("72")).toBeInTheDocument();
     expect(screen.getByText("+40 Pitz")).toBeInTheDocument();
     expect(screen.getByText(/現在残高.*140 Pitz/)).toBeInTheDocument();
+  });
+
+  it("Firebase Ranking Phase 2A: the ranking entry point calls onShowRanking", async () => {
+    const props = baseProps();
+    render(<MissionResultOverlay {...props} />);
+    await userEvent.click(screen.getByRole("button", { name: /ランキングを見る/ }));
+    expect(props.onShowRanking).toHaveBeenCalledTimes(1);
   });
 });

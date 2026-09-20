@@ -11,3 +11,9 @@ export {
   type SubmitLunchRushScoreInput,
   type SubmitLunchRushScoreResult,
 } from "./submitLunchRushScore";
+export {
+  getWeeklyLeaderboard,
+  type GetWeeklyLeaderboardResult,
+  type WeeklyLeaderboardEntry,
+  type WeeklyLeaderboardCurrentUserRank,
+} from "./getWeeklyLeaderboard";

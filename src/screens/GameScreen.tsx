@@ -101,6 +101,10 @@ interface GameScreenProps {
   onMissionStart: () => void;
   onMissionExitToFree: () => void;
   onMissionCloseIntro: () => void;
+  /** Firebase Ranking 1.0 Phase 2A (Issue #87): opens WeeklyRankingOverlay, rendered at
+   *  App.tsx's own top level (mirrors onOpenDex/onOpenShop) rather than inside GameScreen --
+   *  see App.tsx's `isRankingOpen` state. */
+  onShowRanking: () => void;
   onReferencePopoverChange: (isOpen: boolean) => void;
   onDispenseProgress: (deposits: readonly SauceDeposit[]) => void;
   onDispenseCommit: (ingredientId: string, deposits: SauceDeposit[]) => void;
@@ -147,6 +151,7 @@ export function GameScreen({
   onMissionStart,
   onMissionExitToFree,
   onMissionCloseIntro,
+  onShowRanking,
   onReferencePopoverChange,
   onDispenseProgress,
   onDispenseCommit,
@@ -518,6 +523,7 @@ export function GameScreen({
           pitzBalance={state.pitzBalance}
           onRetry={onMissionStart}
           onExit={onMissionExitToFree}
+          onShowRanking={onShowRanking}
         />
       )}
     </div>
