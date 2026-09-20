@@ -30,7 +30,7 @@ export function MissionResultOverlay({
   return (
     <div className="mission-overlay">
       <div className="mission-overlay__panel">
-        <h2 className="mission-overlay__title">LUNCH RUSH RESULT</h2>
+        <h2 className="mission-overlay__title">ランチラッシュ結果</h2>
         <div className="mission-result__stats">
           <p className="mission-result__row">
             {"\u{1F355}"} 提供 <strong>{servedCount}</strong>枚
@@ -39,11 +39,11 @@ export function MissionResultOverlay({
             {"⭐"} 平均 <strong>{Math.round(averageQuality)}</strong>点
           </p>
           <p className="mission-result__row">
-            {"🏆"} BEST <strong>{Math.round(bestQuality)}</strong>点
+            {"🏆"} 最高 <strong>{Math.round(bestQuality)}</strong>点
           </p>
           <p className="mission-result__row mission-result__row--score">
-            {"🎯"} SCORE <strong>{score}</strong>
-            {isNewBest && <span className="mission-result__new-best">NEW BEST!</span>}
+            {"🎯"} スコア <strong>{score}</strong>
+            {isNewBest && <span className="mission-result__new-best">ベスト更新！</span>}
           </p>
           <p className="mission-result__row mission-result__row--pitz">
             {"\u{1FA99}"} <strong>+{pitzReward} Pitz</strong>
