@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { INGREDIENTS, type Ingredient } from "../data/ingredients";
+import {
+  CATEGORY_TAB_LABEL,
+  CATEGORY_TAB_ORDER,
+  INGREDIENTS,
+  type CategoryTab,
+  type Ingredient,
+} from "../data/ingredients";
 import { getRecipe } from "../data/recipes";
 import { ingredientState, recipesUnlockedByIngredient } from "../state/progression";
 import { totalStars } from "../logic/mastery";
@@ -47,6 +53,25 @@ function shopProducts(ownedIngredientIds: readonly string[]): readonly Ingredien
     return true;
   });
 }
+
+/**
+ * Visual Polish 1C (AI UI/UX Visual Review 1.0, P1-3): every ingredient that could *ever* show
+ * up in `shopProducts` above -- i.e. the Shop's eventual full catalog size once every recipe is
+ * unlocked. Used only to size `EARLY_GAME_HINT_THRESHOLD` below; never a gate on what's
+ * purchasable itself.
+ */
+const TOTAL_SHOP_ELIGIBLE_INGREDIENTS = INGREDIENTS.filter((i) => i.unlockCondition).length;
+
+/**
+ * How many *visible* Shop products it takes before the Shop stops reading as "empty/broken" and
+ * the "レシピを解放すると増えます" progression hint (below) retires on its own. Set to half of
+ * `TOTAL_SHOP_ELIGIBLE_INGREDIENTS` rather than a hand-picked constant, so the cutoff scales
+ * automatically as the 18->20->62+ ingredient roadmap lands instead of needing re-tuning per
+ * batch. Against today's data/recipes.ts unlock chain (funghi->marinara->bismarck->genovese->
+ * quattro-formaggi->...), this threshold (8 of 15) covers the first 4 of 11 recipe unlocks --
+ * the hint disappears the moment quattro-formaggi's 4-ingredient grant pushes the count past it.
+ */
+const EARLY_GAME_HINT_THRESHOLD = Math.ceil(TOTAL_SHOP_ELIGIBLE_INGREDIENTS / 2);
 
 /** One shop row's derived, presentation-only state -- never a stored/duplicated flag. */
 function remainingStarsFor(ingredient: Ingredient, stars: number): number {
@@ -109,6 +134,17 @@ export function ShopOverlay({
   const products = shopProducts(ownedIngredientIds);
   const [feedback, setFeedback] = useState<PurchaseFeedback | null>(null);
   const [restockFeedback, setRestockFeedback] = useState<RestockFeedback | null>(null);
+  // Visual Polish 1C: purely a client-side view filter over the already-visible `products` list
+  // (never over raw INGREDIENTS) -- switching tabs can only narrow which already-purchasable
+  // rows render, never reveal a LOCKED/hidden `starterGrantOnly` ingredient, and never touches
+  // ownership/stock/price/onPurchase/onRestock.
+  const [activeTab, setActiveTab] = useState<CategoryTab>("ALL");
+  const visibleProducts =
+    activeTab === "ALL" ? products : products.filter((i) => i.category === activeTab);
+  // Fresh/early-game guidance (P1-3): only meaningful on the unfiltered ALL view -- a specific
+  // category's own empty state (below) covers the filtered case instead, so the two hints never
+  // both show at once.
+  const isEarlyGame = products.length > 0 && products.length < EARLY_GAME_HINT_THRESHOLD;
 
   function handleBuy(ingredient: Ingredient) {
     const unlockedRecipeNames = recipesUnlockedByIngredient(ingredient.id, dex, ownedIngredientIds)
@@ -182,9 +218,42 @@ export function ShopOverlay({
             <p className="shop-overlay__empty">新しい素材は、ピザの腕前が上がると入荷します</p>
           )}
 
+          {products.length > 0 && isEarlyGame && activeTab === "ALL" && (
+            <p className="shop-overlay__hint">レシピを解放すると、買える材料が増えます</p>
+          )}
+
           {products.length > 0 && (
+            <div className="shop-filter-tabs" role="tablist" aria-label="材料カテゴリ">
+              {CATEGORY_TAB_ORDER.map((tab) => (
+                <button
+                  key={tab}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeTab === tab}
+                  className={`shop-filter-tab ${activeTab === tab ? "shop-filter-tab--active" : ""}`}
+                  onClick={() => setActiveTab(tab)}
+                >
+                  {CATEGORY_TAB_LABEL[tab]}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {products.length > 0 && visibleProducts.length === 0 && (
+            <p className="shop-overlay__empty">
+              このカテゴリで買える材料はまだありません
+              {isEarlyGame && (
+                <>
+                  <br />
+                  レシピを解放すると増えます
+                </>
+              )}
+            </p>
+          )}
+
+          {visibleProducts.length > 0 && (
             <div className="shop-overlay__list">
-              {products.map((ingredient) => {
+              {visibleProducts.map((ingredient) => {
                 const state = ingredientState(ingredient, ownedIngredientIds, stars);
                 const unlocksLabel = unlockedRecipeLabel(ingredient.id, dex, ownedIngredientIds);
                 return (

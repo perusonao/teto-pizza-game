@@ -701,3 +701,170 @@ describe("Shop 2.0 restock (Economy & Progression 1.0 EP3)", () => {
     expect(within(shop).queryByText(/在庫/)).not.toBeInTheDocument();
   });
 });
+
+/**
+ * Visual Polish 1C (AI UI/UX Visual Review 1.0, P1-3 / P2-5): fresh/early-game Shop guidance +
+ * category filter. `EARLY_GAME_HINT_THRESHOLD` (ShopOverlay.tsx) is 8 today (half of the 15
+ * shop-eligible ingredients) -- "few" below means fewer than 8 owned finite ingredients, "many"
+ * means 8 or more.
+ */
+describe("Shop Visual Polish 1C: empty state + scalability", () => {
+  const FEW = ["mushroom"]; // funghi's own grant -- 1 shop product, topping category
+  // 8 owned finite ingredients spanning all 3 categories -- at/above EARLY_GAME_HINT_THRESHOLD.
+  const MANY = [
+    "olive-oil",
+    "pesto",
+    "gorgonzola",
+    "parmigiano",
+    "fontina",
+    "garlic",
+    "oregano",
+    "cherry-tomato",
+  ];
+
+  it("A/B. fresh game (0 products) shows only the big empty-shop message, no hint/filter/list", async () => {
+    const user = userEvent.setup();
+    seedSaveV2({ pitzBalance: 0, ownedIngredientIds: [...STARTER_INGREDIENT_IDS] });
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /ショップ/ }));
+    const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
+    expect(within(shop).getByText("新しい素材は、ピザの腕前が上がると入荷します")).toBeInTheDocument();
+    expect(within(shop).queryByText(/レシピを解放すると/)).not.toBeInTheDocument();
+    expect(within(shop).queryByRole("tablist")).not.toBeInTheDocument();
+  });
+
+  it("C. a few-item early Shop shows the progression hint alongside the real row (not instead of it)", async () => {
+    const user = userEvent.setup();
+    seedSaveV2({
+      pitzBalance: 200,
+      ownedIngredientIds: [...STARTER_INGREDIENT_IDS, ...FEW],
+      inventory: { mushroom: 3 },
+    });
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /ショップ/ }));
+    const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
+    expect(within(shop).getByText("レシピを解放すると、買える材料が増えます")).toBeInTheDocument();
+    expect(within(shop).getByText("マッシュルーム")).toBeInTheDocument();
+    expect(within(shop).getByRole("tablist")).toBeInTheDocument();
+  });
+
+  it("D. a progressed Shop (>= threshold products) no longer shows the progression hint", async () => {
+    const user = userEvent.setup();
+    seedSaveV2({
+      pitzBalance: 500,
+      ownedIngredientIds: [...STARTER_INGREDIENT_IDS, ...MANY],
+      inventory: Object.fromEntries(MANY.map((id) => [id, 5])),
+    });
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /ショップ/ }));
+    const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
+    expect(within(shop).queryByText(/レシピを解放すると/)).not.toBeInTheDocument();
+    expect(within(shop).getAllByRole("button", { name: "補充する" }).length).toBe(MANY.length);
+  });
+
+  it("E. category filtering narrows the visible list to that category only", async () => {
+    const user = userEvent.setup();
+    seedSaveV2({
+      pitzBalance: 500,
+      ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "olive-oil", "gorgonzola", "mushroom", "onion"],
+      inventory: { "olive-oil": 3, gorgonzola: 6, mushroom: 9, onion: 12 },
+    });
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /ショップ/ }));
+    const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
+
+    await user.click(within(shop).getByRole("tab", { name: "ソース" }));
+    expect(within(shop).getByText("オリーブオイル")).toBeInTheDocument();
+    expect(within(shop).queryByText("ゴルゴンゾーラ")).not.toBeInTheDocument();
+    expect(within(shop).queryByText("マッシュルーム")).not.toBeInTheDocument();
+
+    await user.click(within(shop).getByRole("tab", { name: "トッピング" }));
+    expect(within(shop).getByText("マッシュルーム")).toBeInTheDocument();
+    expect(within(shop).getByText("たまねぎ")).toBeInTheDocument();
+    expect(within(shop).queryByText("オリーブオイル")).not.toBeInTheDocument();
+
+    await user.click(within(shop).getByRole("tab", { name: "すべて" }));
+    expect(within(shop).getByText("オリーブオイル")).toBeInTheDocument();
+    expect(within(shop).getByText("ゴルゴンゾーラ")).toBeInTheDocument();
+    expect(within(shop).getByText("マッシュルーム")).toBeInTheDocument();
+  });
+
+  it("F. a category with zero purchasable items shows a short empty state, not a broken list", async () => {
+    const user = userEvent.setup();
+    // Owns sauce/cheese products only -- topping is a real, populated category in the game
+    // (garlic/oregano/mushroom/... ) but this player owns none of it yet.
+    seedSaveV2({
+      pitzBalance: 200,
+      ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "olive-oil", "gorgonzola"],
+      inventory: { "olive-oil": 3, gorgonzola: 6 },
+    });
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /ショップ/ }));
+    const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
+
+    await user.click(within(shop).getByRole("tab", { name: "トッピング" }));
+    expect(within(shop).getByText(/このカテゴリで買える材料はまだありません/)).toBeInTheDocument();
+    // Still early game overall (2 < 8) -- the category-empty state may add the same
+    // progression hint, but never a broken-looking blank list.
+    expect(within(shop).queryByText("在庫")).not.toBeInTheDocument();
+  });
+
+  it("G/H. restock still works after filtering, at the exact same price/quantity as unfiltered", async () => {
+    const user = userEvent.setup();
+    seedSaveV2({
+      pitzBalance: 200,
+      ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "onion", "olive-oil"],
+      inventory: { onion: 2, "olive-oil": 3 },
+    });
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /ショップ/ }));
+    const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
+
+    await user.click(within(shop).getByRole("tab", { name: "トッピング" }));
+    expect(within(shop).queryByText("オリーブオイル")).not.toBeInTheDocument();
+    expect(within(shop).getByText(/170 Pitz/)).toBeInTheDocument(); // onion's price, unchanged
+    await user.click(within(shop).getByRole("button", { name: "補充する" }));
+    expect(within(shop).getByText(/在庫 14/)).toBeInTheDocument(); // 2 + 12 (onion's restockQuantity, unchanged)
+    expect(within(shop).getByText(/30 Pitz/)).toBeInTheDocument(); // 200 - 170, unchanged
+  });
+
+  it("I/J. a starterGrantOnly ingredient the player doesn't own stays hidden in every filter tab", async () => {
+    const user = userEvent.setup();
+    // onion not owned -- starterGrantOnly means it must never show as LOCKED/AVAILABLE_TO_BUY,
+    // in any tab, even the "トッピング" category it belongs to.
+    seedSaveV2({
+      pitzBalance: 999,
+      ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "mushroom"],
+      inventory: { mushroom: 9 },
+    });
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /ショップ/ }));
+    const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
+
+    await user.click(within(shop).getByRole("tab", { name: "すべて" }));
+    expect(within(shop).queryByText("たまねぎ")).not.toBeInTheDocument();
+    await user.click(within(shop).getByRole("tab", { name: "トッピング" }));
+    expect(within(shop).queryByText("たまねぎ")).not.toBeInTheDocument();
+    expect(within(shop).getByText("マッシュルーム")).toBeInTheDocument();
+  });
+
+  it("K. switching filter tabs never mutates Pitz balance, stock, or ownership", async () => {
+    const user = userEvent.setup();
+    seedSaveV2({
+      pitzBalance: 321,
+      ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "onion", "olive-oil"],
+      inventory: { onion: 7, "olive-oil": 3 },
+    });
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /ショップ/ }));
+    const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
+
+    await user.click(within(shop).getByRole("tab", { name: "ソース" }));
+    await user.click(within(shop).getByRole("tab", { name: "トッピング" }));
+    await user.click(within(shop).getByRole("tab", { name: "すべて" }));
+
+    expect(screen.getByLabelText("Pitz残高 321")).toBeInTheDocument();
+    expect(within(shop).getByText(/在庫 7/)).toBeInTheDocument();
+    expect(within(shop).getByText(/在庫 3/)).toBeInTheDocument();
+  });
+});
