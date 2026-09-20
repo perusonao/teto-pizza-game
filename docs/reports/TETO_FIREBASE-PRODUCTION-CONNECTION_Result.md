@@ -206,16 +206,33 @@ speculation" instruction.
 
 ### PR Gate Check #2 (Session 2, immediately before finishing)
 
-- `git fetch origin` again: `origin/main` unchanged at `ff591ebaea40095c5a25ea52797be9d3fd2b5538`
-  since the earlier check in this same session -- no new merge landed mid-session.
-- PR #121: still open, head `c88ce5cbe499d9e6e4f2289bd5f4b93c529ba1d5`, base now reads
-  `ff591ebaea40095c5a25ea52797be9d3fd2b5538` (caught up).
-- No new Firebase-scoped PR or branch appeared.
-- `git diff origin/main...HEAD --stat`: unchanged from the check right after the merge --
-  still exactly PR #121's own 6 files.
+First pass: `git fetch origin` -- `origin/main` unchanged at
+`ff591ebaea40095c5a25ea52797be9d3fd2b5538` since the earlier check in this same session; PR #121
+head `c88ce5cbe499d9e6e4f2289bd5f4b93c529ba1d5`, base caught up.
+
+**Second pass** (main moved again mid-session, so this check was re-run rather than trusting the
+first pass): `git fetch origin` -> `origin/main` advanced to
+**`d62d535305dd65bf5f45c847363c38f421a40e23`** -- two new merges, `dc0a66b` ("Recipe Cooking
+Steps 1.0 Phase 1A: Cooking Step Foundation (#124)") and `d62d535` ("Recipe Cooking Steps 1.0
+Phase 1A-T: Step Timing instrumentation (#125)"). Unlike the earlier #122/#123 merges, these are
+**real game-code changes** (`src/data/cookingProfiles.ts`, `src/logic/cookingTiming.ts`,
+`src/state/gameReducer.ts`, `src/components/MakingStepTabs.tsx`, `src/screens/GameScreen.tsx`,
+`src/App.tsx`, and their tests) -- exactly the Cooking Steps work this task's own scope guard
+says not to touch. Confirmed **zero file overlap** with PR #121's 6 files before merging (no
+Cooking Steps file was read for editing), merged `origin/main` in (clean, no conflicts), and
+re-ran the full verification suite (see "Pre-deploy verification" table -- now **1856/1856**
+root tests, up from 1793, reflecting the new Cooking Steps tests; functions 32/32 and rules
+emulator 14/14 unchanged and unaffected). Merge commit created and pushed -- see "Completion
+report" at the very end of this document for the final PR #121 head SHA after this push.
+- No new Firebase-scoped PR or branch appeared in either pass.
+- `git diff origin/main...HEAD --stat` after the second merge: still exactly PR #121's own 6
+  files (`.github/workflows/deploy.yml`, `docs/design/TETO_FIREBASE-RANKING_SETUP.md`, this
+  report, `functions/src/index.ts`, `src/firebase/submitLunchRushScore.ts`, `src/firebase/
+  submitLunchRushScore.test.ts`) -- no scope creep from either merge.
 - No secret value appears anywhere in this diff, this report, or any command output produced in
   this session (only secret *names*, never values, per the Security Gate).
-- No progression/economy/scoring/recipe/save-schema/Cooking-Steps/Pizza-Cutting file changed.
+- No progression/economy/scoring/recipe/save-schema/Cooking-Steps/Pizza-Cutting file was changed
+  by this PR -- both merges only brought that work *in* from `main`, they were never edited.
 
 ### Remaining owner action (single, current)
 
