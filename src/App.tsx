@@ -161,9 +161,14 @@ function App() {
   const [isInventoryOpen, setInventoryOpen] = useState(false);
   const [isSettingsOpen, setSettingsOpen] = useState(false);
   // Firebase Ranking 1.0 Phase 2A (Issue #87): WeeklyRankingOverlay's open/closed state -- same
-  // App-level useState shape as isDexOpen/isShopOpen/isInventoryOpen/isSettingsOpen above, opened
-  // only from Lunch Rush RESULT (MissionResultOverlay's own "ランキングを見る" button, threaded
-  // through GameScreen's onShowRanking prop) rather than from HOME.
+  // App-level useState shape as isDexOpen/isShopOpen/isInventoryOpen/isSettingsOpen above.
+  // Originally opened only from Lunch Rush RESULT (MissionResultOverlay's own "ランキングを見る"
+  // button, threaded through GameScreen's onShowRanking prop); HOME Weekly Ranking route now
+  // opens the exact same state from HomeScreen's onOpenRanking prop too -- one overlay, one
+  // fetch path, two entry points. WeeklyRankingOverlay is rendered once, outside the `screen`
+  // switch below (same pattern as the Dex/Shop/Inventory/Settings overlays), so closing it just
+  // reveals whichever screen (HOME or GAME) was already showing underneath -- no extra
+  // navigation state needed to "return" to the right place.
   const [isRankingOpen, setRankingOpen] = useState(false);
   // Phase 4A-1A (Post-Codex-Fix) MUST FIX 1/9: opening the Reference ("見本") popover must
   // abort any in-progress tomato-sauce dispense session, exactly like BAKE does -- lifted
@@ -727,6 +732,7 @@ function App() {
           onOpenShop={() => setShopOpen(true)}
           onOpenInventory={() => setInventoryOpen(true)}
           onOpenSettings={() => setSettingsOpen(true)}
+          onOpenRanking={() => setRankingOpen(true)}
         />
       )}
 

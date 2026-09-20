@@ -500,11 +500,29 @@ describe("HOME/GAME separation (Issue #24)", () => {
     expect(document.querySelector(".home-screen")).toBeInTheDocument();
   });
 
-  it("renders 実績 (Achievements) disabled instead of fake progress", () => {
+  it("HOME Weekly Ranking route: 実績 is temporarily off HOME's menu, not deleted as a feature", () => {
     render(<App />);
-    const achievements = screen.getByRole("button", { name: /実績/ });
-    expect(achievements).toBeDisabled();
-    expect(achievements).toHaveTextContent("近日公開");
+    // Issue #87 follow-up: 実績 stays a disabled/"近日公開" placeholder feature, just no longer
+    // surfaced in HOME's 2x2 sub-nav grid (swapped for 🏆 ランキング, see HomeScreen.tsx's doc
+    // comment) -- this only asserts it's off the HOME menu, never that the feature is removed.
+    expect(screen.queryByRole("button", { name: /実績/ })).not.toBeInTheDocument();
+  });
+
+  it("HOME Weekly Ranking route: opens WeeklyRankingOverlay from HOME without leaving HOME underneath", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /ランキング/ }));
+    expect(document.querySelector(".ranking-overlay__panel")).toBeInTheDocument();
+    expect(document.querySelector(".home-screen")).toBeInTheDocument();
+  });
+
+  it("HOME Weekly Ranking route: closing the overlay returns to HOME", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /ランキング/ }));
+    await user.click(within(document.querySelector(".ranking-overlay__panel")!).getByRole("button", { name: "閉じる" }));
+    expect(document.querySelector(".ranking-overlay__panel")).not.toBeInTheDocument();
+    expect(document.querySelector(".home-screen")).toBeInTheDocument();
   });
 
   it("navigates GAME -> HOME via the header button when nothing is in progress", async () => {
