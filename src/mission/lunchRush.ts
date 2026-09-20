@@ -1,6 +1,7 @@
 import { getNextOrder, type Order } from "../data/orders";
 import type { RecipeId } from "../data/recipes";
 import { EMPTY_MISSION_METRICS, recordServe, type MissionMetrics } from "../logic/missionScoring";
+import type { LunchRushServeRecord } from "../shared/lunchRushScoring";
 
 /**
  * Lunch Rush mission (Phase 3C-4, see docs/design/PIZZA_GAME_PROGRESSION_SSOT.md section 11
@@ -108,6 +109,15 @@ export interface MissionState {
    *  increasing for the lifetime of the session -- resetting it to 0 on exit would risk a
    *  later run reusing an id an earlier run in the same session already claimed. */
   runId: number;
+  /** Firebase Ranking 1.0 Phase 1B (Issue #87): the serve-by-serve log this run's Mission
+   *  Score submission is built from (../shared/lunchRushScoring.ts's
+   *  `calculateLunchRushMissionScore`) -- appended in the exact same SERVE branch that decides
+   *  `metrics`, so the two can never drift apart (a submission is provably the same score the
+   *  player already saw). Every SERVE this reducer actually accepts (PASS *or* FAILED alike,
+   *  deadline-rejected excluded) appends one entry here; `metrics` alone (PASS-only) stays the
+   *  realtime accumulator every other part of the app already reads. Reset to `[]` on START and
+   *  EXIT_TO_FREE, the same points `metrics` itself resets at. */
+  serves: readonly LunchRushServeRecord[];
 }
 
 export const INITIAL_MISSION_STATE: MissionState = {
@@ -115,6 +125,7 @@ export const INITIAL_MISSION_STATE: MissionState = {
   clock: null,
   metrics: EMPTY_MISSION_METRICS,
   runId: 0,
+  serves: [],
 };
 
 export type MissionRunAction =
@@ -127,7 +138,11 @@ export type MissionRunAction =
    *  case below. Order rotation itself is unaffected here (App.tsx still dispatches
    *  MISSION_NEXT_ORDER/BEGIN_PREPARE against `gameReducer` right after this, PASS or FAILED
    *  alike) -- this reducer only owns the run's own metrics/clock, never order advancement. */
-  | { type: "SERVE"; qualityTotal: number; now: number; completionFailed?: boolean }
+  /** Firebase Ranking 1.0 Phase 1B: `recipeId` (App.tsx's `state.recipe.id`) is what lets this
+   *  SERVE's `LunchRushServeRecord` (../shared/lunchRushScoring.ts) identify which recipe it
+   *  was, alongside the same `qualityTotal`/`completionFailed` the run's own metrics already
+   *  read -- not a new fact this reducer computes, just carried through to the log. */
+  | { type: "SERVE"; qualityTotal: number; now: number; recipeId: string; completionFailed?: boolean }
   | { type: "TICK"; now: number }
   | { type: "EXIT_TO_FREE" };
 
@@ -152,6 +167,7 @@ export function missionRunReducer(state: MissionState, action: MissionRunAction)
         clock: startMissionClock(action.now, action.config),
         metrics: EMPTY_MISSION_METRICS,
         runId: state.runId + 1,
+        serves: [],
       };
 
     // Codex review (PR #18, P2-1): TICK alone is not the source of truth for "is this run
@@ -179,8 +195,26 @@ export function missionRunReducer(state: MissionState, action: MissionRunAction)
       // as they were. The order itself is still consumed and the run still advances to its
       // next order -- that happens unconditionally in App.tsx's handleMissionServeNext, PASS
       // or FAILED alike -- so this is not a retry: the player never gets this same order back.
-      if (action.completionFailed) return state;
-      return { ...state, metrics: recordServe(state.metrics, action.qualityTotal) };
+      //
+      // Firebase Ranking 1.0 Phase 1B: `serves` still appends a FAILED entry (qualityTotal
+      // forced 0, same as `metrics` never counting it) -- deliberately *not* silently dropped
+      // from the log, so the eventual score submission's serves[] lets the server independently
+      // re-derive that this pizza never counted, rather than trusting a client-side count that
+      // simply omitted it.
+      if (action.completionFailed) {
+        return {
+          ...state,
+          serves: [...state.serves, { recipeId: action.recipeId, qualityTotal: 0, completionStatus: "FAILED" }],
+        };
+      }
+      return {
+        ...state,
+        metrics: recordServe(state.metrics, action.qualityTotal),
+        serves: [
+          ...state.serves,
+          { recipeId: action.recipeId, qualityTotal: action.qualityTotal, completionStatus: "PASS" },
+        ],
+      };
     }
 
     // Advances the clock check. A no-op unless we are actually PLAYING *and* time has
@@ -197,7 +231,13 @@ export function missionRunReducer(state: MissionState, action: MissionRunAction)
 
     case "EXIT_TO_FREE":
       // runId is deliberately preserved, not reset -- see the field's own doc comment above.
-      return { mode: "FREE", clock: null, metrics: EMPTY_MISSION_METRICS, runId: state.runId };
+      return {
+        mode: "FREE",
+        clock: null,
+        metrics: EMPTY_MISSION_METRICS,
+        runId: state.runId,
+        serves: [],
+      };
 
     default:
       return state;
