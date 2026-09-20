@@ -6,7 +6,7 @@
  * `SubmitLunchRushScoreError` into the Callable Function's `HttpsError`.
  */
 import { initializeApp } from "firebase-admin/app";
-import { FieldValue, getFirestore } from "firebase-admin/firestore";
+import { FieldValue, getFirestore, Timestamp } from "firebase-admin/firestore";
 import { HttpsError, onCall } from "firebase-functions/v2/https";
 import {
   handleSubmitLunchRushScore,
@@ -14,6 +14,13 @@ import {
   type FirestoreLike,
   type RunDocInput,
 } from "./submitLunchRushScore";
+import {
+  handleSetDisplayName,
+  SetDisplayNameError,
+  type ExistingProfile,
+  type FirestoreLike as ProfileFirestoreLike,
+  type ProfileWrite,
+} from "./setDisplayName";
 
 initializeApp();
 
@@ -67,6 +74,65 @@ export const submitLunchRushScore = onCall({ region: "asia-northeast1" }, async 
     );
   } catch (error) {
     if (error instanceof SubmitLunchRushScoreError) {
+      throw new HttpsError(error.code, error.message);
+    }
+    throw error;
+  }
+});
+
+/**
+ * Player Profile 1.0 Phase 1A (Issue #129). `users/{uid}` is writable only through this
+ * Function -- `firestore.rules`' own `users/{uid}` match denies every direct client write
+ * unconditionally, mirroring `runs`/`leaderboards` above. `db.runTransaction` is what makes
+ * ./setDisplayName.ts's 60-second rename cooldown race-safe: on write-write contention the
+ * Admin SDK re-runs the whole callback (re-reading the document fresh) rather than committing
+ * against stale data, so two concurrent renames from the same uid can never both read the same
+ * pre-write `updatedAt` and both pass the cooldown check.
+ */
+function createProfileFirestoreAdapter(): ProfileFirestoreLike {
+  const db = getFirestore();
+
+  return {
+    async runTransaction<T>(
+      uid: string,
+      mutate: (existing: ExistingProfile | null) => Promise<{ write: ProfileWrite; result: T }>,
+    ): Promise<T> {
+      const ref = db.collection("users").doc(uid);
+      return db.runTransaction(async (tx) => {
+        const snapshot = await tx.get(ref);
+        const data = snapshot.data();
+        const existing: ExistingProfile | null =
+          snapshot.exists && data
+            ? {
+                displayName: typeof data.displayName === "string" ? data.displayName : "",
+                createdAt: data.createdAt,
+                updatedAtMillis: data.updatedAt instanceof Timestamp ? data.updatedAt.toMillis() : 0,
+              }
+            : null;
+        const { write, result } = await mutate(existing);
+        tx.set(ref, write);
+        return result;
+      });
+    },
+  };
+}
+
+// Same region as submitLunchRushScore above, for the same reason -- see that Function's own
+// comment. The client's own getFunctions() call (src/firebase/setDisplayName.ts) must target
+// this same region.
+export const setDisplayName = onCall({ region: "asia-northeast1" }, async (request) => {
+  try {
+    return await handleSetDisplayName(
+      request.data,
+      request.auth ? { uid: request.auth.uid } : null,
+      {
+        firestore: createProfileFirestoreAdapter(),
+        now: () => Date.now(),
+        serverTimestamp: () => FieldValue.serverTimestamp(),
+      },
+    );
+  } catch (error) {
+    if (error instanceof SetDisplayNameError) {
       throw new HttpsError(error.code, error.message);
     }
     throw error;

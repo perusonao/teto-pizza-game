@@ -33,6 +33,19 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Player Profile 1.0 Phase 1A (Issue #129). A player's own displayName/createdAt/updatedAt
+    // -- read is scoped to the document's own owner (no public read, unlike the leaderboard
+    // entries above: a profile is not itself ranking data), and every client write is denied
+    // unconditionally. The only writer is the `setDisplayName` Callable Function's Admin SDK
+    // path (functions/src/index.ts), which bypasses these rules entirely, exactly mirroring
+    // `runs`/`leaderboards` above -- being signed in (even as the document's own owner) is
+    // never treated as "authorized to write" here. See docs/design/
+    // TETO_PLAYER-PROFILE_1.0.md section 8 for the full threat table this backstops.
+    match /users/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+
     // Deny-by-default backstop for any collection not explicitly matched above -- a new
     // collection added later must have its own explicit rule to be reachable at all.
     match /{document=**} {

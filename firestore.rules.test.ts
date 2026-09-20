@@ -132,6 +132,63 @@ describe("firestore.rules", () => {
     });
   });
 
+  describe("users/{uid} (Player Profile 1.0 Phase 1A, Issue #129)", () => {
+    it("allows the authenticated owner to read their own profile", async () => {
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        await setDoc(doc(context.firestore(), "users/alice"), { displayName: "Alice" });
+      });
+      const alice = testEnv.authenticatedContext("alice");
+      await assertSucceeds(getDoc(doc(alice.firestore(), "users/alice")));
+    });
+
+    it("denies an authenticated user reading another user's profile", async () => {
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        await setDoc(doc(context.firestore(), "users/alice"), { displayName: "Alice" });
+      });
+      const bob = testEnv.authenticatedContext("bob");
+      await assertFails(getDoc(doc(bob.firestore(), "users/alice")));
+    });
+
+    it("denies an unauthenticated read", async () => {
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        await setDoc(doc(context.firestore(), "users/alice"), { displayName: "Alice" });
+      });
+      const anon = testEnv.unauthenticatedContext();
+      await assertFails(getDoc(doc(anon.firestore(), "users/alice")));
+    });
+
+    it("denies the owner writing their own profile directly -- setDisplayName is the only writer", async () => {
+      const alice = testEnv.authenticatedContext("alice");
+      await assertFails(setDoc(doc(alice.firestore(), "users/alice"), { displayName: "Alice" }));
+    });
+
+    it("denies the owner updating their own existing profile directly", async () => {
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        await setDoc(doc(context.firestore(), "users/alice"), { displayName: "Alice" });
+      });
+      const alice = testEnv.authenticatedContext("alice");
+      await assertFails(updateDoc(doc(alice.firestore(), "users/alice"), { displayName: "Eve" }));
+    });
+
+    it("denies the owner deleting their own profile directly", async () => {
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        await setDoc(doc(context.firestore(), "users/alice"), { displayName: "Alice" });
+      });
+      const alice = testEnv.authenticatedContext("alice");
+      await assertFails(deleteDoc(doc(alice.firestore(), "users/alice")));
+    });
+
+    it("denies an authenticated user writing to a different uid's profile -- the exact profile-spoofing attack", async () => {
+      const bob = testEnv.authenticatedContext("bob");
+      await assertFails(setDoc(doc(bob.firestore(), "users/alice"), { displayName: "Eve" }));
+    });
+
+    it("denies an unauthenticated write", async () => {
+      const anon = testEnv.unauthenticatedContext();
+      await assertFails(setDoc(doc(anon.firestore(), "users/alice"), { displayName: "Eve" }));
+    });
+  });
+
   describe("deny-by-default backstop", () => {
     it("denies read/write on an entirely unmatched collection", async () => {
       const alice = testEnv.authenticatedContext("alice");
