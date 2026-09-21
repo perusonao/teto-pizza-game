@@ -99,3 +99,69 @@ export async function playFullMargheritaRound(page: Page) {
     await page.getByRole("button", { name: /切り終わる/ }).click();
   }
 }
+
+/**
+ * Gameplay UX Phase 1 (材料選択スクロール解消, docs/reports/TETO_GAMEPLAY-UX_4ITEMS_Fresh-Audit.md
+ * sec.1.2's own "ケースB" fixture): a real, mid-game Save v2 state that owns enough
+ * same-category ingredients to make quattro-formaggi available and to reproduce the "おすすめ +
+ * その他" stacking overflow the Fresh Audit measured (SAUCE: おすすめ1 + その他2; TOPPING: その他6,
+ * exactly MAX_INGREDIENT_PALETTE_SLOTS). Chosen to arise from the game's own real chain-unlock
+ * rule (`isRecipeAvailable`, src/state/progression.ts) rather than an arbitrary owned-id list:
+ * margherita -> funghi -> marinara -> bismarck -> genovese -> quattro-formaggi, each discovered
+ * recipe's own Starter Grant ingredient included in `ownedIngredientIds`/`inventory` (mirrors
+ * what a real player who reached quattro-formaggi organically would own). Written directly to
+ * localStorage (Save v2 schema, see src/state/persistence.ts) rather than played through, since
+ * driving 5 full rounds just to reach this state is unrelated to what this fixture exists to
+ * test (PREPARE layout, not progression).
+ */
+export async function startQuattroFormaggiHeavyInventory(page: Page) {
+  const save = {
+    schemaVersion: 2,
+    dex: ["margherita", "funghi", "marinara", "bismarck", "genovese"].map((recipeId) => ({
+      recipeId,
+      discovered: true,
+      bestScore: 70,
+      bestStars: 3,
+      timesMade: 1,
+    })),
+    pitzBalance: 500,
+    ownedIngredientIds: [
+      "olive-oil",
+      "gorgonzola",
+      "parmigiano",
+      "fontina",
+      "garlic",
+      "oregano",
+      "pesto",
+      "cherry-tomato",
+      "egg",
+      "mushroom",
+    ],
+    missionBest: {},
+    inventory: {
+      "olive-oil": 99,
+      gorgonzola: 99,
+      parmigiano: 99,
+      fontina: 99,
+      garlic: 99,
+      oregano: 99,
+      pesto: 99,
+      "cherry-tomato": 99,
+      egg: 99,
+      mushroom: 99,
+    },
+    starterGrantClaimedRecipeIds: ["margherita", "funghi", "marinara", "bismarck", "genovese"],
+  };
+
+  await page.goto("/");
+  await page.evaluate((rawSave) => {
+    localStorage.clear();
+    localStorage.setItem("teto-pizza-save-v1", JSON.stringify(rawSave));
+  }, save);
+  await page.reload();
+  await page.waitForSelector(".app-frame");
+  await page.getByRole("button", { name: /ピザを作る/ }).click();
+  await page.getByRole("button", { name: /クアトロ/ }).click();
+  await page.getByRole("button", { name: /このピザを作る/ }).click();
+  await page.waitForSelector(".pizza-stage");
+}
