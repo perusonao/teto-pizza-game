@@ -5,6 +5,7 @@ import {
   paintSauceRing,
   physicalDragToDough,
   playFullMargheritaRound,
+  startSalsicciaUnlocked,
   tapDoughPercent,
 } from "./gestures";
 
@@ -186,12 +187,16 @@ test.describe("Sauce lock (Issue #159 P0): no second sauce ever offered once SAU
       inventory: { "olive-oil": 99, pesto: 99 },
       starterGrantClaimedRecipeIds: [],
     };
-    await page.goto("/");
-    await page.evaluate((rawSave) => {
-      localStorage.clear();
+    // Issue #167 PR-C: seed localStorage via an init script (guaranteed to run before any of
+    // the page's own scripts on the very first navigation) rather than goto -> evaluate(setItem)
+    // -> reload -- see startSalsicciaUnlocked's own comment (gestures.ts) for why the old pattern
+    // is not WebKit-safe. This test's own assertions happened to still pass even when that race
+    // silently dropped the injected save (margherita needs no unlock condition, so it renders
+    // regardless) -- fixed here too so it can't quietly stop actually exercising this fixture.
+    await page.addInitScript((rawSave) => {
       localStorage.setItem("teto-pizza-save-v1", JSON.stringify(rawSave));
     }, save);
-    await page.reload();
+    await page.goto("/");
     await page.waitForSelector(".app-frame");
     await page.getByRole("button", { name: /ピザを作る/ }).click();
     await page.getByRole("button", { name: /マルゲリータ、/ }).click();
@@ -228,6 +233,99 @@ test.describe("Reference thumbnail/popover SSOT parity (Issue #159 P0 bullet 5)"
     // margherita's own real Reference is mozzarella x3 + basil x2 = 5, not the old
     // one-dot-per-ingredient-type abbreviation (2) -- pins the actual fix, not just "equal".
     expect(thumbCount).toBe(5);
+  });
+});
+
+/**
+ * Issue #167 PR-C (Verification Hardening) §9 "Reference Truth Regression": PR-B unified the
+ * Reference popover's own renderer/data with PizzaStage, but nothing in this suite previously
+ * asserted the *popover itself* actually fits the viewport, stays readable, or leaves a stable
+ * layout behind on close -- the exact "見本" overlay categories Issue #167 §7 requires. This is
+ * one shared lifecycle helper (open -> fits viewport -> close -> no stale overlay -> layout still
+ * 1-screen) run for both Margherita (this file's existing baseline recipe) and Salsiccia (the
+ * recipe the user originally reported the Reference divergence on, Issue #167 background) --
+ * exactly the two `getReferencePizza`-covered recipes §9 names, without duplicating every PR-B
+ * unit test in E2E.
+ */
+async function assertReferenceModalLifecycle(page: Page, label: string) {
+  const trigger = page.getByRole("button", { name: /見本を拡大表示/ });
+  await expect(trigger, `${label}: mini reference trigger visible before opening`).toBeVisible();
+  await trigger.click();
+
+  const dialog = page.getByRole("dialog");
+  await expect(dialog, `${label}: Reference modal opens`).toBeVisible();
+
+  const vp = page.viewportSize()!;
+  const panelBox = await dialog.boundingBox();
+  expect(panelBox, `${label}: modal panel has a bounding box`).not.toBeNull();
+  expect(panelBox!.x, `${label}: modal panel left edge on-screen`).toBeGreaterThanOrEqual(0);
+  expect(panelBox!.y, `${label}: modal panel top edge on-screen`).toBeGreaterThanOrEqual(0);
+  expect(
+    panelBox!.x + panelBox!.width,
+    `${label}: modal panel right edge inside viewport`,
+  ).toBeLessThanOrEqual(vp.width + 1);
+  expect(
+    panelBox!.y + panelBox!.height,
+    `${label}: modal panel bottom edge inside viewport`,
+  ).toBeLessThanOrEqual(vp.height + 1);
+  // "Readable": a genuinely sized panel, not a collapsed/zero-size box that would technically
+  // satisfy the fits-viewport checks above while showing nothing.
+  expect(panelBox!.width, `${label}: modal panel has a sane, readable width`).toBeGreaterThan(100);
+  expect(panelBox!.height, `${label}: modal panel has a sane, readable height`).toBeGreaterThan(100);
+
+  // Opening the modal must not itself push the document into scroll (the overlay is an
+  // absolutely-positioned overlay within the game screen, not a layout participant).
+  const openState = await page.evaluate(() => ({
+    docScrollWidth: document.documentElement.scrollWidth,
+    docScrollHeight: document.documentElement.scrollHeight,
+    innerWidth: window.innerWidth,
+    innerHeight: window.innerHeight,
+  }));
+  expect(openState.docScrollWidth, `${label}: modal open must not cause horizontal page overflow`).toBeLessThanOrEqual(
+    openState.innerWidth,
+  );
+  expect(openState.docScrollHeight, `${label}: modal open must not cause vertical page overflow`).toBeLessThanOrEqual(
+    openState.innerHeight,
+  );
+
+  const closeBtn = page.getByRole("button", { name: "閉じる" });
+  await expect(closeBtn, `${label}: close button visible`).toBeVisible();
+  const closeBox = await closeBtn.boundingBox();
+  expect(closeBox, `${label}: close button has a bounding box`).not.toBeNull();
+  expect(
+    closeBox!.y + closeBox!.height,
+    `${label}: close button reachable inside viewport`,
+  ).toBeLessThanOrEqual(vp.height + 1);
+
+  await closeBtn.click();
+  await expect(dialog, `${label}: modal closes cleanly, no stale overlay left behind`).toHaveCount(0);
+
+  // Closing restores a stable 1-screen layout -- the same floor every other step in this file
+  // is held to, not just "the modal is gone."
+  await assertOneScreen(page, `${label} after Reference close`);
+  await assertNavFitsViewport(page, `${label} after Reference close`);
+  await expect(trigger, `${label}: mini reference trigger still usable after close`).toBeVisible();
+}
+
+test.describe("Reference modal fit + close (Issue #167 PR-C §9): Margherita and Salsiccia", () => {
+  test("Margherita: Reference modal fits viewport, closes cleanly, layout stays 1-screen", async ({
+    page,
+  }) => {
+    await freshMargheritaAt(page, 390, 844);
+    await assertReferenceModalLifecycle(page, "Margherita 390x844");
+  });
+
+  test("Salsiccia: Reference modal fits viewport, closes cleanly, layout stays 1-screen", async ({
+    page,
+  }) => {
+    await startSalsicciaUnlocked(page);
+    await assertReferenceModalLifecycle(page, "Salsiccia 390x844");
+  });
+
+  test("Salsiccia @ 360x800: Reference modal fits the secondary viewport too", async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 800 });
+    await startSalsicciaUnlocked(page);
+    await assertReferenceModalLifecycle(page, "Salsiccia 360x800");
   });
 });
 

@@ -187,15 +187,74 @@ export async function startQuattroFormaggiHeavyInventory(page: Page) {
     starterGrantClaimedRecipeIds: ["margherita", "funghi", "marinara", "bismarck", "genovese"],
   };
 
-  await page.goto("/");
-  await page.evaluate((rawSave) => {
-    localStorage.clear();
+  // Issue #167 PR-C (Verification Hardening): seed localStorage via an init script rather than
+  // goto -> evaluate(setItem) -> reload. This repo's own new WebKit CI job (added by this PR)
+  // reproducibly showed the old pattern racing against WebKit's own reload/storage-flush timing
+  // -- `loadSave()` (src/state/persistence.ts, plain synchronous localStorage.getItem/JSON.parse,
+  // no browser-conditional code at all) read back a fresh/empty save instead of this fixture's
+  // own data, so quattro-formaggi rendered LOCKED (its own real `unlockCondition` unmet by an
+  // empty dex) and its detail CTA stayed disabled for this test's full 30s timeout. Confirmed
+  // WebKit-only test-harness timing, not a production bug (same deterministic pure-JS card-state
+  // derivation runs identically on every engine once it actually receives this fixture's data) --
+  // out of Issue #167 PR-C §12's own scope guard for recipe-unlock production code either way.
+  // `page.addInitScript` has no such race: Playwright guarantees it runs before any of the page's
+  // own scripts on every navigation this page makes, in every engine, so no `reload()` round trip
+  // (or its own timing) is involved at all. A fresh Playwright browser context already starts
+  // with empty storage, so no explicit `localStorage.clear()` is needed either.
+  await page.addInitScript((rawSave) => {
     localStorage.setItem("teto-pizza-save-v1", JSON.stringify(rawSave));
   }, save);
-  await page.reload();
+  await page.goto("/");
   await page.waitForSelector(".app-frame");
   await page.getByRole("button", { name: /ピザを作る/ }).click();
   await page.getByRole("button", { name: /クアトロ/ }).click();
+  await page.getByRole("button", { name: /このピザを作る/ }).click();
+  await page.waitForSelector(".pizza-stage");
+}
+
+/**
+ * Issue #167 PR-C (Verification Hardening): a synthetic save that satisfies サルシッチャ's own
+ * chain unlock (`unlockCondition: { requiresRecipeId: "fugazza", minTotalStars: 15 }`,
+ * src/data/recipes.ts) directly via localStorage, the same "write the save, don't play 5+ full
+ * rounds to reach it" approach `startQuattroFormaggiHeavyInventory` above already uses. Three
+ * discovered dex entries at bestStars 5 sum to exactly the required 15 totalStars
+ * (src/logic/mastery.ts); `fugazza` itself must be one of them (`isDiscovered` gate). Ownership
+ * is set directly to サルシッチャ's own three `requiredIngredients` (tomato-sauce/mozzarella are
+ * Starter, always owned regardless; sausage is not, so it must be both in `ownedIngredientIds`
+ * and given inventory headroom) -- `isRecipeAvailable` only checks ownership of the *target*
+ * recipe's ingredients, not any ingredient belonging to the unlock-chain recipes.
+ *
+ * Salsiccia matters specifically for Reference Truth (PR-B) regression coverage: it is the
+ * recipe the user originally reported the 見本/PizzaStage divergence on (Issue #167 background),
+ * so PR-C's own WebKit Reference-modal verification must cover it, not just Margherita.
+ *
+ * Seeds localStorage via `page.addInitScript`, not goto -> evaluate(setItem) -> reload -- see
+ * `startQuattroFormaggiHeavyInventory` above's own comment for why the latter is not WebKit-safe.
+ */
+export async function startSalsicciaUnlocked(page: Page) {
+  const save = {
+    schemaVersion: 2,
+    dex: ["margherita", "funghi", "fugazza"].map((recipeId) => ({
+      recipeId,
+      discovered: true,
+      bestScore: 90,
+      bestStars: 5,
+      timesMade: 1,
+    })),
+    pitzBalance: 500,
+    ownedIngredientIds: ["tomato-sauce", "mozzarella", "sausage"],
+    missionBest: {},
+    inventory: { sausage: 99 },
+    starterGrantClaimedRecipeIds: ["margherita", "funghi", "fugazza"],
+  };
+
+  await page.addInitScript((rawSave) => {
+    localStorage.setItem("teto-pizza-save-v1", JSON.stringify(rawSave));
+  }, save);
+  await page.goto("/");
+  await page.waitForSelector(".app-frame");
+  await page.getByRole("button", { name: /ピザを作る/ }).click();
+  await page.getByRole("button", { name: /サルシッチャ、/ }).click();
   await page.getByRole("button", { name: /このピザを作る/ }).click();
   await page.waitForSelector(".pizza-stage");
 }
