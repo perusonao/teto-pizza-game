@@ -35,6 +35,16 @@ async function freshMargheritaAt(page: Page, width: number, height: number) {
   await page.waitForSelector(".pizza-stage");
 }
 
+/* PR-A (Issue #167 §5/§12): Phase 0's own Fresh Audit found several PREPARE steps landing the
+ * fixed bottom CTA bar at *exactly* the viewport height under Chromium -- 0px of margin, both
+ * 390x844/360x800 -- and named that as a structural reason real-device font/toolbar/safe-area
+ * variance (invisible to this Chromium-only suite either way, see playwright.config.ts's own
+ * webkit-* projects) can tip an already-exact-fit step into scroll. `<= viewport` alone would
+ * keep passing right up to that 0px edge; this constant is this PR's own deliberate floor so a
+ * future regression that quietly eats the slack this pass bought back gets caught here, not only
+ * on a real device again. */
+const MIN_SAFETY_MARGIN_PX = 8;
+
 async function assertOneScreen(page: Page, label: string) {
   const s = await page.evaluate(() => ({
     innerWidth: window.innerWidth,
@@ -49,6 +59,28 @@ async function assertOneScreen(page: Page, label: string) {
   expect(gs.scrollHeight, `${label}: .game-screen must not need internal scroll`).toBeLessThanOrEqual(
     gs.clientHeight,
   );
+  // `.game-screen`'s own `scrollHeight`/`clientHeight` pair (above) is spec-clamped to
+  // `scrollHeight >= clientHeight` (https://drafts.csswg.org/cssom-view/#dom-element-scrollheight)
+  // -- it can only ever report "overflowed" or "exactly fits", never "how much room is left", so
+  // it cannot express a positive safety margin at all. The real bottom edge of this step's own
+  // in-flow content is the max `getBoundingClientRect().bottom` among `.game-screen`'s direct
+  // children that are not `position: fixed` (`.prepare-bake-bar`/its own scroll-cue sit outside
+  // normal flow by design, see App.css, and must not be counted as "content that needs room").
+  const flowBottom = await page.evaluate(() => {
+    const gs = document.querySelector(".game-screen")!;
+    let maxBottom = 0;
+    for (const child of Array.from(gs.children)) {
+      if (getComputedStyle(child).position === "fixed") continue;
+      const rect = child.getBoundingClientRect();
+      if (rect.width === 0 && rect.height === 0) continue;
+      maxBottom = Math.max(maxBottom, rect.bottom);
+    }
+    return maxBottom;
+  });
+  expect(
+    s.innerHeight - flowBottom,
+    `${label}: in-flow content must keep >= ${MIN_SAFETY_MARGIN_PX}px vertical safety margin below it, not an exact 0px fit`,
+  ).toBeGreaterThanOrEqual(MIN_SAFETY_MARGIN_PX);
 }
 
 async function assertNavFitsViewport(page: Page, label: string) {
@@ -66,13 +98,24 @@ async function assertNavFitsViewport(page: Page, label: string) {
   // trailing tab off the visible edge even when the strip's own outer box looks fine.
   const tabs = page.locator(".making-step-tabs > *");
   const count = await tabs.count();
+  let lastTabRight = 0;
   for (let i = 0; i < count; i += 1) {
     const box = await tabs.nth(i).boundingBox();
     expect(box, `${label}: tab ${i} must have a bounding box`).not.toBeNull();
     expect(box!.x + box!.width, `${label}: tab ${i} must not overflow the right edge`).toBeLessThanOrEqual(
       vw + 1,
     );
+    lastTabRight = Math.max(lastTabRight, box!.x + box!.width);
   }
+  // PR-A (Issue #167 §4): Phase 0's own Fresh Audit measured only ~12px of real margin here
+  // under Chromium -- thin enough that a real device's own font substitution/emoji metrics
+  // (playwright.config.ts's webkit-* projects, added this PR, cannot fully reproduce this either
+  // -- font *availability* on this machine is still not Apple's) could plausibly consume it. This
+  // pins a floor so that margin is asserted, not just assumed from a one-time manual measurement.
+  expect(
+    vw - lastTabRight,
+    `${label}: trailing tab must keep >= ${MIN_SAFETY_MARGIN_PX}px margin from the right edge, not an exact fit`,
+  ).toBeGreaterThanOrEqual(MIN_SAFETY_MARGIN_PX);
 }
 
 for (const { name, width, height } of VIEWPORTS) {

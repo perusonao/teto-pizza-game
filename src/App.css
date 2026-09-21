@@ -137,8 +137,10 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  margin: 4px 12px 0;
-  padding: 6px 12px;
+  /* PR-A (Issue #167 §5): margin 4px->3px, padding 6px->5px vertical -- part of this pass's
+     deliberate ~10px real-device safety slack, see `.ingredient-tray`'s own comment. */
+  margin: 3px 12px 0;
+  padding: 5px 12px;
   background: #fff8ea;
   border-radius: 14px;
   box-shadow: 0 1px 3px rgba(47, 25, 8, 0.12);
@@ -201,7 +203,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 6px 16px;
+  /* PR-A (Issue #167 §5): 6px->4px vertical -- part of this pass's deliberate ~10px real-device
+     safety slack, see `.ingredient-tray`'s own comment. */
+  padding: 4px 16px;
 }
 
 .pizza-dough {
@@ -239,9 +243,28 @@
    moving anything else. Deliberately scoped to a modifier class, not `.pizza-stage` itself --
    ORDER's small preview and RESULT's own hero (Finding P1-5, out of this pass's scope) keep
    the exact pre-2.0A size. */
+/* PR-A (Issue #167 §7): both modifiers below add a third `min()` term, `calc(100dvh - Npx)`,
+   making the dough's own cap height-aware instead of viewport-*width*-only. `100dvh` is the
+   *dynamic* viewport height -- it already tracks Safari's own address-bar/toolbar show/hide
+   (Phase 0 report §5), so on a real device where the visible height is briefly smaller than this
+   step's usual 844/800px budget (toolbar shown, a taller real-font line wrap, etc.), the dough
+   shrinks a few px to keep everything else on screen instead of the old fixed px cap silently
+   assuming the budget's other regions (header/tabs/order-card/dialogue/bake-overlay/CTA bar)
+   always render at exactly their Chromium-measured height. `Npx` is a fixed, documented reserve
+   for "everything in this step that is not the dough" (calibrated from the Phase 0 report §4's
+   own real measurements, plus this task's own +10px deliberate safety slack, §5) -- CSS has no
+   way to read a sibling's actual rendered height here without JS, so this is a conservative
+   constant, not a live recomputation; it only ever *adds* a shrink path on top of the existing
+   vw/px caps, so neither viewport regresses from its current (already-fits) size -- confirmed by
+   the updated measurements in the Result Report. Interaction math is unaffected: every pointer/
+   gesture calculation already reads the dough's own live `getBoundingClientRect()`, never this
+   CSS formula's literal value (Phase 0 report §6). */
 .pizza-stage--roomy .pizza-dough {
-  width: min(92vw, 380px);
-  height: min(92vw, 380px);
+  /* Reserve = header(56) + tabs(44) + dialogue-area(108, BAKE's own worst case) +
+     bake-overlay(205) + 10px slack = 423px. (POST_BAKE/CUT's own sibling stack is shorter, so
+     this same reserve is conservative -- not tight -- there too.) */
+  width: min(92vw, 380px, calc(100dvh - 423px));
+  height: min(92vw, 380px, calc(100dvh - 423px));
 }
 
 /* Gameplay UX Phase 1: PREPARE-only real-device safety margin, see PizzaStage.tsx's own
@@ -249,8 +272,10 @@
    min(78vw, 300px), still used by ORDER's small preview) so PREPARE keeps a few px of slack
    at 360x800 even if real Safari's font metrics run slightly taller than headless Chromium's. */
 .pizza-stage--compact .pizza-dough {
-  width: min(76vw, 290px);
-  height: min(76vw, 290px);
+  /* Reserve = header(56) + tabs(44) + order-card(80) + ingredient-panel content(175, worst
+     measured category) + prepare-bake-bar(74) + 10px slack = 439px. */
+  width: min(76vw, 290px, calc(100dvh - 439px));
+  height: min(76vw, 290px, calc(100dvh - 439px));
 }
 
 .pizza-dough--interactive {
@@ -788,8 +813,11 @@
      reachable by scrolling; the cue below only makes that fact visible before the player
      scrolls (see the Result Report for why a Recommended row stacking on top of the Other
      grid doesn't defeat this reservation -- it's trailing space at the very end of the
-     document flow either way, the P1 bug was pure discoverability, not unreachability). */
-  --bake-bar-reserve: 78px;
+     document flow either way, the P1 bug was pure discoverability, not unreachability).
+     PR-A (Issue #167 §5): 78px->74px, matching `.prepare-bake-bar`'s own updated real height
+     (70px) plus the same +4px built-in clearance as before -- part of this pass's deliberate
+     ~10px real-device safety slack. */
+  --bake-bar-reserve: 74px;
   padding-bottom: calc(var(--bake-bar-reserve) + env(safe-area-inset-bottom, 0px));
 }
 
@@ -862,8 +890,18 @@
    GameScreen for every PREPARE step, including DOUGH (which had no tab before this). */
 .making-step-tabs {
   display: flex;
-  gap: 4px;
-  padding: 4px 12px 0;
+  /* PR-A (Issue #167 §4): because every tab is `flex: _ 1 0; min-width: 0` (below), the row
+     always renders at exactly this container's own inner (padding-box) width, by flex layout
+     definition -- a wider real-device font/emoji render can only ever shrink/ellipsize an
+     individual tab's own label within its allotted share, never push the row itself past this
+     container. So the right-edge "margin" measured by e2e/making-ui-1screen.spec.ts's own
+     MIN_SAFETY_MARGIN_PX assertion is actually this rule's own right padding, not a font-driven
+     overflow risk -- a *smaller* padding value shrinks that margin, it does not help fit more
+     content (Phase 0's real structural fix was making the old fixed-40px BAKE indicator join
+     this same shrinkable pool, see `.making-step-tab--bake` below). 10px keeps a deliberate,
+     comfortable clearance from the physical screen edge at every viewport this project targets. */
+  gap: 3px;
+  padding: 4px 10px 0;
 }
 
 .making-step-tab {
@@ -940,15 +978,24 @@
 
 /* The BAKE indicator: always a plain, non-focusable `<div>` (never a `<button>`) -- see
    MakingStepTabs.tsx's own header comment for why START_BAKE stays reachable only via the
-   dedicated 「焼く！」 CTA. Deliberately narrower than the four real tabs (`flex: 0 0 auto`) so
-   it reads as a trailing destination marker, not a fifth equal step. */
+   dedicated 「焼く！」 CTA.
+   PR-A (Issue #167 §4): this used to be `flex: 0 0 auto; width: 40px` -- a single non-shrinking
+   box among 5 otherwise-shrinkable (`flex: 1 1 0; min-width: 0`) tabs. Phase 0's own Fresh Audit
+   (§3, point 4) flagged this as the most likely single point where real iPhone Safari's own
+   Apple Color Emoji metrics for "🔥" (which Linux/CI Chromium substitutes with a different emoji
+   font) could push actual rendered width past 40px with nothing left to absorb it -- unlike every
+   other tab, which safely ellipsizes instead of pushing the row wider. Folding this into the same
+   `flex: 1 1 0; min-width: 0` shrink pool as the real tabs (still visually narrower via a smaller
+   `flex-grow`, not a hard px floor) means *any* per-item real-device width variance -- font
+   substitution, font-boosting, emoji metrics, alike -- gets absorbed by proportional shrinking
+   across all 6 items instead of concentrating on the one item that could not give at all. */
 .making-step-tab--bake {
-  flex: 0 0 auto;
-  width: 40px;
+  flex: 0.7 1 0;
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 15px;
+  font-size: 13px;
   opacity: 0.45;
 }
 
@@ -993,7 +1040,13 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-auto-rows: minmax(0, auto);
-  gap: 8px;
+  /* PR-A (Issue #167 §5): 8px -> 6px. Phase 0's own Fresh Audit measured several PREPARE steps
+     landing the fixed bottom CTA bar at *exactly* the viewport height (0px margin, both
+     390x844/360x800) -- this repo-wide compaction pass (this rule, `.ingredient-chip`'s own
+     `min-height` below, `.order-card`'s padding/margin, `.pizza-stage`'s padding) targets a
+     deliberate ~10px of real slack instead, so real-device variance (font metrics, safe-area,
+     Safari's dynamic toolbar -- Phase 0 report §5) has headroom rather than guaranteed overflow. */
+  gap: 6px;
 }
 
 .ingredient-chip {
@@ -1008,8 +1061,10 @@
      remaining PREPARE overflow the PizzaStage/grid-row fixes alone didn't (a category showing
      both "おすすめ" and "その他" at once, e.g. SAUCE with a multi-sauce recipe, still ran a few
      dozen px over 390x844/360x800 with those two fixes alone -- see the Result Report's
-     before/after chip-row measurements). */
-  min-height: 68px;
+     before/after chip-row measurements).
+     PR-A (Issue #167 §5): 68px -> 64px, still >44pt -- part of this pass's deliberate ~10px
+     real-device safety slack, see `.ingredient-tray`'s own updated comment above. */
+  min-height: 64px;
   border-radius: 12px;
   border: 2px solid transparent;
   background: #fff8ea;
@@ -1087,13 +1142,6 @@
   border-color: #e4572e;
 }
 
-.ingredient-chip__drag-hint {
-  font-size: 9px;
-  line-height: 1;
-  color: #a04a27;
-  white-space: nowrap;
-}
-
 .piece-drag-preview {
   position: fixed;
   z-index: 200;
@@ -1164,6 +1212,14 @@
   line-height: 1;
 }
 
+/* PR-A (Issue #167 §9): the "label" branch of `UNLIMITED_STOCK_DISPLAY` (IngredientTray.tsx) --
+   not shipped by default (see that constant's own doc comment), kept real/working for the
+   Result Report's screenshot comparison and any future real-device flip. */
+.ingredient-chip__stock--label {
+  font-size: 8.5px;
+  white-space: nowrap;
+}
+
 /* Issue #86: a stock-0 (or otherwise unplaceable) ingredient -- `canPlaceIngredient`
    (src/state/inventory.ts), the same EP3 Stock Gate the reducer itself uses at placement time.
    `disabled` (see IngredientTray.tsx) already keeps it out of both click and pointer-drag
@@ -1202,7 +1258,10 @@
   width: 100%;
   max-width: 390px;
   margin-top: 0;
-  padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+  /* PR-A (Issue #167 §5): 10px->8px vertical -- part of this pass's deliberate ~10px real-device
+     safety slack; keep in sync with `.ingredient-panel`'s own `--bake-bar-reserve` below (this
+     bar's own real height, currently 70px, plus that variable's built-in +4px clearance = 74px). */
+  padding: 8px 16px calc(8px + env(safe-area-inset-bottom, 0px));
   background: linear-gradient(180deg, rgba(239, 220, 179, 0) 0%, #efdcb3 40%, #efdcb3 100%);
   /* Independent Review P2-B (PR #26, discussion_r4017018615): must stay below every modal
      backdrop (.dex-overlay/.shop-overlay's shared 20, .mission-overlay and

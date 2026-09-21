@@ -28,6 +28,24 @@ export default defineConfig({
       name: "iphone-360x800",
       use: { ...devices["Desktop Chrome"], viewport: { width: 360, height: 800 } },
     },
+    /* PR-A (Issue #167 §13): Phase 0's own Fresh Audit (docs/reports/
+       TETO_COOKING-UI_1SCREEN-2.0_Phase0_Fresh-Audit.md §3/§5) named "both projects above run on
+       Desktop Chrome, never WebKit" as a concrete, verifiable reason this suite can PASS while a
+       real iPhone Safari clips/scrolls. This project is this PR-A's own local verification step,
+       not yet PR-C's full Verification Hardening -- see the Result Report for whether WebKit was
+       actually reachable in this session's environment, and its own results if so. Not run by CI
+       (this file is not wired into `.github/workflows/ci.yml` at all, per the file header above)
+       and not a claim that Playwright WebKit is equivalent to real hardware -- font *availability*
+       on this machine is still not Apple's own (Phase 0 §3.2) -- only that it is structurally
+       closer than Desktop Chrome, and free to add locally regardless. */
+    {
+      name: "webkit-390x844",
+      use: { ...devices["Desktop Safari"], viewport: { width: 390, height: 844 } },
+    },
+    {
+      name: "webkit-360x800",
+      use: { ...devices["Desktop Safari"], viewport: { width: 360, height: 800 } },
+    },
   ],
   webServer: {
     command: "npm run dev -- --port 5183 --strictPort",
