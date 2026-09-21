@@ -38,14 +38,15 @@ function seedBismarckUnlocked(): void {
   });
 }
 
+/** Recipe Select 2.0A: Pizza Select is a sectioned browse grid, not a single-recipe pager --
+ *  reaching a given recipe means tapping its own grid card (opens the focused detail/confirm
+ *  view), then the one shared CTA there. */
 async function selectRecipeInPizzaSelect(
   user: ReturnType<typeof userEvent.setup>,
   recipeId: RecipeId,
 ) {
-  const targetIndex = RECIPES.findIndex((r) => r.id === recipeId);
-  for (let i = 0; i < targetIndex; i += 1) {
-    await user.click(screen.getByRole("button", { name: "次のレシピ" }));
-  }
+  const recipe = RECIPES.find((r) => r.id === recipeId)!;
+  await user.click(screen.getByRole("button", { name: new RegExp(`^${recipe.nameJa}、`) }));
   await user.click(screen.getByRole("button", { name: /このピザを作る/ }));
 }
 

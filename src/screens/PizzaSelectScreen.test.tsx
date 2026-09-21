@@ -39,19 +39,20 @@ const CHAIN_TO_FUGAZZA = [
   "quattro-formaggi",
 ];
 
-/** Full Chapter 1 chain discovered and every ingredient (incl. onion) owned -- every one of
- *  the 7 production recipes renders NEW/COMPLETED, never LOCKED. Used by pager-mechanics tests
- *  that don't care about lock state, so navigation assertions aren't entangled with it. */
+/** Every production recipe discovered at 5 stars (so every `minTotalStars` gate up to
+ *  meat-lovers' own 36 is cleared regardless of discovery order -- `totalStars` is a plain sum
+ *  over the final Dex, not order-sensitive) -- every one of the 15 recipes renders
+ *  NEW/COMPLETED, never LOCKED, once ingredients are also owned. Used by grid/navigation tests
+ *  that don't care about lock state. */
 const ALL_UNLOCKED_DEX = dexDiscovering(
-  [...CHAIN_TO_FUGAZZA, "fugazza"],
-  3 as QualityStars,
+  RECIPES.map((r) => r.id),
+  5 as QualityStars,
 );
 // EP4: 10 of these ingredients are no longer trivially Starter-owned -- own every ingredient
-// explicitly (as production's per-recipe Starter Grants would have by this point) so this
-// pager suite keeps exercising unlock-chain/pager mechanics, not ingredient ownership.
+// explicitly (as production's per-recipe Starter Grants would have by this point).
 const ALL_OWNED_INGREDIENTS = INGREDIENTS.map((i) => i.id);
 
-function renderPager(
+function renderSelect(
   overrides: Partial<{
     dex: DexState;
     ownedIngredientIds: readonly string[];
@@ -74,250 +75,233 @@ function renderPager(
   return { onSelectRecipe, onBack };
 }
 
-function nextButton() {
-  return screen.getByRole("button", { name: "次のレシピ" });
+function gridCard(name: string) {
+  return screen.getByRole("button", { name: new RegExp(`^${name}、`) });
 }
-function prevButton() {
-  return screen.getByRole("button", { name: "前のレシピ" });
+function backButton() {
+  return screen.getByRole("button", { name: "レシピ一覧に戻る" });
+}
+/** The grid stays mounted (only hidden) behind an open detail view (see test 13), so any text
+ *  a locked/NEW card's own hint also shows (e.g. an unlock hint) exists twice in the DOM --
+ *  scope detail-specific assertions to this container instead of the whole `screen`. */
+function detailPanel() {
+  return document.querySelector(".pizza-select-detail") as HTMLElement;
 }
 function ctaButton() {
   return screen.getByRole("button", { name: /このピザを作る/ });
 }
 
-describe("PizzaSelectScreen pager (Issue #88 UX-4)", () => {
-  it("1. shows the first recipe (margherita) on initial render", () => {
-    renderPager();
-    expect(screen.getByText("マルゲリータ")).toBeInTheDocument();
-    expect(screen.getByText("未挑戦")).toBeInTheDocument();
-  });
+function mockRecipes(count: number): Recipe[] {
+  return Array.from({ length: count }, (_, i) => ({
+    ...RECIPES[0],
+    id: `mock-recipe-${i}` as unknown as RecipeId,
+    nameJa: `モック${i}`,
+    unlockCondition: undefined,
+  }));
+}
 
-  it("2. Next advances to the following recipe in RECIPES order", async () => {
-    const user = userEvent.setup();
-    renderPager({ dex: ALL_UNLOCKED_DEX, ownedIngredientIds: ALL_OWNED_INGREDIENTS });
-    await user.click(nextButton());
-    expect(screen.getByText(RECIPES[1].nameJa)).toBeInTheDocument();
-    expect(screen.queryByText(RECIPES[0].nameJa)).not.toBeInTheDocument();
-  });
-
-  it("3. Previous returns to the prior recipe, and is disabled at the start", async () => {
-    const user = userEvent.setup();
-    renderPager({ dex: ALL_UNLOCKED_DEX, ownedIngredientIds: ALL_OWNED_INGREDIENTS });
-    expect(prevButton()).toBeDisabled();
-    await user.click(nextButton());
-    expect(prevButton()).toBeEnabled();
-    await user.click(prevButton());
-    expect(screen.getByText(RECIPES[0].nameJa)).toBeInTheDocument();
-    expect(prevButton()).toBeDisabled();
-  });
-
-  it("4. clamps at the end boundary instead of wrapping around", async () => {
-    const user = userEvent.setup();
-    renderPager({ dex: ALL_UNLOCKED_DEX, ownedIngredientIds: ALL_OWNED_INGREDIENTS });
-    for (let i = 0; i < RECIPES.length - 1; i++) {
-      await user.click(nextButton());
-    }
-    expect(screen.getByText(RECIPES[RECIPES.length - 1].nameJa)).toBeInTheDocument();
-    expect(nextButton()).toBeDisabled();
-    await user.click(nextButton());
-    expect(screen.getByText(RECIPES[RECIPES.length - 1].nameJa)).toBeInTheDocument();
-  });
-
-  it("5. shows a dot-per-recipe position indicator at 7 recipes, advancing with Next", async () => {
-    // Recipe Expansion Batch 1A/1B-A: full production RECIPES is now 13 (> PAGER_DOT_INDICATOR_MAX
-    // 10), which switches to counter mode on its own -- see test 16b below for that. This test
-    // keeps exercising dot mode specifically via a 7-recipe subset, its own original subject.
-    const user = userEvent.setup();
-    const { container } = render(
-      <PizzaSelectScreen
-        dex={ALL_UNLOCKED_DEX}
-        ownedIngredientIds={ALL_OWNED_INGREDIENTS}
-        onSelectRecipe={() => {}}
-        onBack={() => {}}
-        recipes={RECIPES.slice(0, 7)}
-      />,
-    );
-    const dots = container.querySelectorAll(".pizza-select-dot");
-    expect(dots).toHaveLength(7);
-    expect(container.querySelectorAll(".pizza-select-dot--active")).toHaveLength(1);
-    expect(screen.getByLabelText("1 / 7")).toBeInTheDocument();
-    await user.click(nextButton());
-    expect(screen.getByLabelText("2 / 7")).toBeInTheDocument();
-  });
-
-  it("5b. full production RECIPES (14) switches to counter mode, never a 14-dot row (Batch 1A/1B-A/1B-B recipe-count gate)", async () => {
-    const user = userEvent.setup();
-    const { container } = render(
-      <PizzaSelectScreen
-        dex={ALL_UNLOCKED_DEX}
-        ownedIngredientIds={ALL_OWNED_INGREDIENTS}
-        onSelectRecipe={() => {}}
-        onBack={() => {}}
-      />,
-    );
+describe("PizzaSelectScreen grid (Recipe Select 2.0A)", () => {
+  it("1. grid renders every recipe in the collection as a selectable card", () => {
+    renderSelect({ dex: ALL_UNLOCKED_DEX, ownedIngredientIds: ALL_OWNED_INGREDIENTS });
     expect(RECIPES.length).toBe(15);
-    expect(container.querySelectorAll(".pizza-select-dot")).toHaveLength(0);
-    expect(screen.getByLabelText("1 / 15")).toBeInTheDocument();
-    await user.click(nextButton());
-    expect(screen.getByLabelText("2 / 15")).toBeInTheDocument();
+    for (const recipe of RECIPES) {
+      expect(screen.getByText(recipe.nameJa)).toBeInTheDocument();
+    }
+    expect(document.querySelectorAll(".pizza-select-grid-card")).toHaveLength(15);
   });
 
-  it("6. tapping the CTA on the current (unlocked) recipe reports its exact id", async () => {
+  it("2. renders position-based section headers (第1章 / 第2章), not a flat unlabeled list", () => {
+    renderSelect({ dex: ALL_UNLOCKED_DEX, ownedIngredientIds: ALL_OWNED_INGREDIENTS });
+    expect(screen.getByText("第1章")).toBeInTheDocument();
+    expect(screen.getByText("第2章")).toBeInTheDocument();
+    // salsiccia (index 7) is the first Chapter 2 recipe -- must land inside 第2章's own section.
+    const chapter2 = screen.getByText("第2章").closest<HTMLElement>(".pizza-select-section")!;
+    expect(within(chapter2).getByText("サルシッチャ")).toBeInTheDocument();
+  });
+
+  it("3. tapping an unlocked, unplayed (NEW) recipe card opens its focused detail", async () => {
     const user = userEvent.setup();
-    const { onSelectRecipe } = renderPager({
-      dex: ALL_UNLOCKED_DEX,
-      ownedIngredientIds: ALL_OWNED_INGREDIENTS,
-    });
+    renderSelect(); // EMPTY_DEX -- margherita is always-unlocked and NEW
+    await user.click(gridCard("マルゲリータ"));
+    expect(backButton()).toBeInTheDocument();
+    expect(document.querySelectorAll(".pizza-select-card")).toHaveLength(1);
+    expect(within(detailPanel()).getByText("未挑戦")).toBeInTheDocument();
+    expect(ctaButton()).toBeEnabled();
+  });
+
+  it("4. an unlocked NEW recipe's detail CTA starts the game with its exact id", async () => {
+    const user = userEvent.setup();
+    const { onSelectRecipe } = renderSelect();
+    await user.click(gridCard("マルゲリータ"));
     await user.click(ctaButton());
     expect(onSelectRecipe).toHaveBeenCalledTimes(1);
-    expect(onSelectRecipe).toHaveBeenCalledWith(RECIPES[0].id);
+    expect(onSelectRecipe).toHaveBeenCalledWith("margherita");
   });
 
-  it("7. renders an unlocked, unplayed recipe (bismarck) as NEW with a working CTA", async () => {
+  it("5. a chain-locked recipe (funghi) is tappable but its detail shows the real name, an unlock hint, and a disabled/no-op CTA", async () => {
     const user = userEvent.setup();
-    const bismarck = RECIPES.find((r) => r.id === "bismarck")!;
-    const dex = dexDiscovering(CHAIN_TO_BISMARCK, 1 as QualityStars);
-    // EP4: `egg` (bismarck's own non-Starter ingredient) is no longer trivially owned -- own it
-    // explicitly, as production's bismarck Starter Grant would have.
-    const { onSelectRecipe } = renderPager({
-      dex,
-      ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "egg"],
-      recipes: [bismarck],
-    });
-    expect(screen.getByText("ビスマルク")).toBeInTheDocument();
-    expect(screen.getByText("未挑戦")).toBeInTheDocument();
-    await user.click(ctaButton());
-    expect(onSelectRecipe).toHaveBeenCalledWith("bismarck");
-  });
-
-  it("8. renders a chain-locked recipe (funghi) with its real name, an unlock hint, and a disabled/no-op CTA", async () => {
-    const user = userEvent.setup();
-    const funghi = RECIPES.find((r) => r.id === "funghi")!;
-    const { onSelectRecipe } = renderPager({ recipes: [funghi] });
-    expect(screen.getByText("フンギ")).toBeInTheDocument();
-    expect(screen.getByText("マルゲリータを1枚完成させると解禁")).toBeInTheDocument();
+    const { onSelectRecipe } = renderSelect();
+    await user.click(gridCard("フンギ"));
+    expect(within(detailPanel()).getByText("フンギ")).toBeInTheDocument();
+    expect(within(detailPanel()).getByText("マルゲリータを1枚完成させると解禁")).toBeInTheDocument();
     expect(ctaButton()).toBeDisabled();
     await user.click(ctaButton());
     expect(onSelectRecipe).not.toHaveBeenCalled();
   });
 
-  it("9. fugazza stays mystery-locked (？？？) and never leaks its name or ingredient via the pager", async () => {
+  it("6. locked recipes never start the game directly from the grid tap itself (only opens detail)", async () => {
     const user = userEvent.setup();
-    const { onSelectRecipe } = renderPager({
-      dex: ALL_UNLOCKED_DEX,
-      ownedIngredientIds: ALL_OWNED_INGREDIENTS,
-    });
-    // Navigate to fugazza's own card (Batch 1A: no longer the last card -- 4 more recipes now
-    // follow it in RECIPES order) via Next -- exercises the pager's own chrome (position
-    // indicator) at the exact card Issue #88 flags as the leak-risk surface.
-    const fugazzaIndex = RECIPES.findIndex((r) => r.id === "fugazza");
-    for (let i = 0; i < fugazzaIndex; i++) {
-      await user.click(nextButton());
-    }
-    expect(screen.getByText("フガッサ")).toBeInTheDocument(); // unlocked in this dex -> real name
-
-    cleanup();
-    const fugazza = RECIPES.find((r) => r.id === "fugazza")!;
-    renderPager({ recipes: [fugazza] }); // locked (fresh save) -> mystery
-    const card = screen.getByLabelText("？？？、未解放");
-    expect(card).toHaveTextContent("？？？");
-    expect(card).not.toHaveTextContent("フガッサ");
-    expect(card).toHaveTextContent("あと★12で解禁");
-    expect(card).not.toHaveTextContent("たまねぎ");
-    expect(ctaButton()).toBeDisabled();
+    const { onSelectRecipe } = renderSelect();
+    await user.click(gridCard("フンギ"));
     expect(onSelectRecipe).not.toHaveBeenCalled();
   });
 
-  it("10. a recipe whose chain is unlocked but whose ingredients aren't owned still renders LOCKED (never selectable)", async () => {
+  it("7. fugazza stays mystery-locked (？？？) in the grid and in its detail, never leaking its name/ingredient", async () => {
     const user = userEvent.setup();
-    const fugazza = RECIPES.find((r) => r.id === "fugazza")!;
+    renderSelect();
+    const mysteryCard = screen.getByRole("button", { name: "？？？、未解放" });
+    expect(mysteryCard).toHaveTextContent("？？？");
+    expect(mysteryCard).not.toHaveTextContent("フガッサ");
+
+    await user.click(mysteryCard);
+    const detail = document.querySelector(".pizza-select-card")!;
+    expect(detail).toHaveTextContent("？？？");
+    expect(detail).not.toHaveTextContent("フガッサ");
+    expect(detail).toHaveTextContent("あと★12で解禁");
+    expect(detail).not.toHaveTextContent("たまねぎ");
+    expect(ctaButton()).toBeDisabled();
+  });
+
+  it("8. fugazza reveals its real name once genuinely unlocked (chain + totalStars + onion owned)", async () => {
+    const user = userEvent.setup();
+    renderSelect({ dex: ALL_UNLOCKED_DEX, ownedIngredientIds: ALL_OWNED_INGREDIENTS });
+    expect(screen.queryByRole("button", { name: "？？？、未解放" })).not.toBeInTheDocument();
+    await user.click(gridCard("フガッサ"));
+    expect(screen.getAllByText("フガッサ").length).toBeGreaterThan(0);
+  });
+
+  it("9. a recipe whose chain is unlocked but whose ingredients aren't owned still renders LOCKED (never selectable)", async () => {
+    const user = userEvent.setup();
     const dex = dexDiscovering([...CHAIN_TO_FUGAZZA, "fugazza"], 5 as QualityStars);
-    const { onSelectRecipe } = renderPager({
-      dex,
-      ownedIngredientIds: STARTER_INGREDIENT_IDS, // onion NOT owned
-      recipes: [fugazza],
-    });
+    const { onSelectRecipe } = renderSelect({ dex, ownedIngredientIds: STARTER_INGREDIENT_IDS }); // onion NOT owned
+    // Chain + totalStars are satisfied, but ingredient ownership isn't -- still LOCKED, and
+    // `mystery` reflects `recipe.mysteryLock` unconditionally while LOCKED (whichever axis
+    // blocks it), so the card is still the mystery "？？？" card, not a revealed "フガッサ" one.
+    await user.click(screen.getByRole("button", { name: "？？？、未解放" }));
     expect(ctaButton()).toBeDisabled();
     await user.click(ctaButton());
     expect(onSelectRecipe).not.toHaveBeenCalled();
   });
 
-  it("11. preserves RECIPES' own declared order while paging (never re-sorted to unlock-chain order)", async () => {
-    const user = userEvent.setup();
-    renderPager({ dex: ALL_UNLOCKED_DEX, ownedIngredientIds: ALL_OWNED_INGREDIENTS });
-    const seen: string[] = [];
-    seen.push(screen.getByText(RECIPES[0].nameJa).textContent!);
-    for (let i = 1; i < RECIPES.length; i++) {
-      await user.click(nextButton());
-      seen.push(screen.getByText(RECIPES[i].nameJa).textContent!);
-    }
-    expect(seen).toEqual(RECIPES.map((r) => r.nameJa));
+  it("10. renders NEW state with badge + 未挑戦 for an unlocked, unplayed recipe (bismarck)", () => {
+    const dex = dexDiscovering(CHAIN_TO_BISMARCK, 1 as QualityStars);
+    renderSelect({ dex, ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "egg"] });
+    const card = screen.getByRole("button", { name: /^ビスマルク、/ });
+    expect(within(card).getByText("NEW")).toBeInTheDocument();
+    expect(within(card).getByText("未挑戦")).toBeInTheDocument();
   });
 
-  it("12. HOME button calls onBack", async () => {
+  it("11. renders COMPLETED state with BEST star/score for a discovered recipe (bismarck)", () => {
+    const chained = dexDiscovering(CHAIN_TO_BISMARCK, 1 as QualityStars);
+    const dex: DexState = registerScoreToDex(chained, "bismarck", {
+      matchScore: 100,
+      ingredientScore: 100,
+      placementScore: 100,
+      bakeScore: 100,
+      total: 91.5,
+      stars: 5 as QualityStars,
+    }).dex;
+    renderSelect({ dex, ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "egg"] });
+    const card = screen.getByRole("button", { name: /^ビスマルク、/ });
+    expect(within(card).getByText("BEST 92")).toBeInTheDocument();
+  });
+
+  it("12. selecting a card then tapping 戻る returns to the grid with every recipe still present", async () => {
     const user = userEvent.setup();
-    const { onBack } = renderPager();
+    renderSelect({ dex: ALL_UNLOCKED_DEX, ownedIngredientIds: ALL_OWNED_INGREDIENTS });
+    await user.click(gridCard("マルゲリータ"));
+    await user.click(backButton());
+    expect(document.querySelector(".pizza-select-card")).not.toBeInTheDocument();
+    for (const recipe of RECIPES) {
+      expect(screen.getByText(recipe.nameJa)).toBeInTheDocument();
+    }
+  });
+
+  it("13. the grid stays mounted (not unmounted) while a detail view is open, only hidden", async () => {
+    const user = userEvent.setup();
+    renderSelect();
+    const bodyBefore = document.querySelector(".pizza-select-body");
+    expect(bodyBefore).toBeInTheDocument();
+    await user.click(gridCard("マルゲリータ"));
+    const bodyAfter = document.querySelector(".pizza-select-body");
+    expect(bodyAfter).toBe(bodyBefore); // same DOM node, not remounted
+    expect(bodyAfter).toHaveStyle({ display: "none" });
+  });
+
+  it("14. HOME header button calls onBack from the grid", async () => {
+    const user = userEvent.setup();
+    const { onBack } = renderSelect();
     await user.click(screen.getByRole("button", { name: /ホーム/ }));
     expect(onBack).toHaveBeenCalledTimes(1);
   });
 
-  it("13. FREE recipe selection: tapping CTA on a fresh save's first (always-unlocked) recipe selects it", async () => {
-    const user = userEvent.setup();
-    const { onSelectRecipe } = renderPager(); // EMPTY_DEX, starter ingredients only
-    await user.click(ctaButton());
-    expect(onSelectRecipe).toHaveBeenCalledWith("margherita");
-  });
-
-  it("14. Lunch Rush regression: this screen never renders any Lunch Rush affordance", () => {
-    renderPager();
+  it("15. this screen never renders any Lunch Rush affordance", () => {
+    renderSelect();
     expect(screen.queryByText(/ランチラッシュ/)).not.toBeInTheDocument();
   });
 
-  it("15. all 7 production recipes remain reachable forward and back with no errors", async () => {
+  it("16. all 15 production recipes are reachable, and the last one (meat-lovers) is present in the grid without scrolling machinery breaking", async () => {
     const user = userEvent.setup();
-    renderPager({ dex: ALL_UNLOCKED_DEX, ownedIngredientIds: ALL_OWNED_INGREDIENTS });
-    for (let i = 0; i < RECIPES.length - 1; i++) await user.click(nextButton());
-    expect(screen.getByLabelText(`${RECIPES.length} / ${RECIPES.length}`)).toBeInTheDocument();
-    for (let i = 0; i < RECIPES.length - 1; i++) await user.click(prevButton());
-    expect(screen.getByLabelText(`1 / ${RECIPES.length}`)).toBeInTheDocument();
+    renderSelect({ dex: ALL_UNLOCKED_DEX, ownedIngredientIds: ALL_OWNED_INGREDIENTS });
+    const last = RECIPES[RECIPES.length - 1];
+    expect(screen.getByText(last.nameJa)).toBeInTheDocument();
+    await user.click(gridCard(last.nameJa));
+    expect(ctaButton()).toBeEnabled();
+    await user.click(ctaButton());
   });
 
-  it("16. a mocked larger recipe collection (12) switches to a numeric counter and never breaks pager arithmetic", async () => {
-    const user = userEvent.setup();
-    const mockRecipes: Recipe[] = Array.from({ length: 12 }, (_, i) => ({
-      ...RECIPES[0],
-      id: `mock-recipe-${i}` as unknown as RecipeId,
-      nameJa: `モック${i}`,
-      unlockCondition: undefined,
-    }));
-    renderPager({ recipes: mockRecipes });
-
-    // 12 > PAGER_DOT_INDICATOR_MAX (10) -> counter mode, never a 12-dot row.
-    expect(screen.getByLabelText("1 / 12")).toBeInTheDocument();
-    expect(screen.getByText("1 / 12")).toBeInTheDocument();
-    expect(document.querySelectorAll(".pizza-select-dot")).toHaveLength(0);
-
-    for (let i = 0; i < 11; i++) await user.click(nextButton());
-    expect(screen.getByText("モック11")).toBeInTheDocument();
-    expect(nextButton()).toBeDisabled();
-    await user.click(nextButton());
-    expect(screen.getByText("モック11")).toBeInTheDocument(); // still clamped, no crash/wrap
-
-    for (let i = 0; i < 11; i++) await user.click(prevButton());
-    expect(screen.getByText("モック0")).toBeInTheDocument();
-    expect(prevButton()).toBeDisabled();
+  it("preserves RECIPES' own declared order across sections (never re-sorted to unlock-chain order)", () => {
+    renderSelect({ dex: ALL_UNLOCKED_DEX, ownedIngredientIds: ALL_OWNED_INGREDIENTS });
+    const names = Array.from(document.querySelectorAll(".pizza-select-grid-card .pizza-select-card__name, .pizza-select-grid-card .pizza-select-card__lock-label")).map(
+      (el) => el.textContent,
+    );
+    expect(names).toEqual(RECIPES.map((r) => r.nameJa));
   });
 
-  it("renders exactly one recipe card at a time (single-screen pager, not a scrolling list)", () => {
-    renderPager();
-    expect(document.querySelectorAll(".pizza-select-card")).toHaveLength(1);
-    expect(document.querySelector(".pizza-select-grid")).not.toBeInTheDocument();
+  it("no longer exposes a 前へ/次へ pager as the primary navigation", () => {
+    renderSelect();
+    expect(screen.queryByRole("button", { name: "前のレシピ" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "次のレシピ" })).not.toBeInTheDocument();
+  });
+});
+
+describe("PizzaSelectScreen scalability (30-50 recipe fixture, dev-only -- production stays 15)", () => {
+  it("renders a 38-recipe mocked catalog across auto-generated sections with no dropped/duplicated card", () => {
+    const recipes = mockRecipes(38);
+    renderSelect({ recipes });
+    expect(document.querySelectorAll(".pizza-select-grid-card")).toHaveLength(38);
+    expect(screen.getByText("第1章")).toBeInTheDocument();
+    expect(screen.getByText("第5章")).toBeInTheDocument();
   });
 
-  it("the position indicator never renders the current recipe's name (index-only chrome)", async () => {
+  it("the last card of a 38-recipe fixture is present in the DOM (reachable by scrolling) and selectable", async () => {
     const user = userEvent.setup();
-    renderPager({ dex: ALL_UNLOCKED_DEX, ownedIngredientIds: ALL_OWNED_INGREDIENTS });
-    for (let i = 0; i < RECIPES.length - 1; i++) await user.click(nextButton());
-    const indicator = screen.getByLabelText(`${RECIPES.length} / ${RECIPES.length}`);
-    expect(within(indicator).queryByText("フガッサ")).not.toBeInTheDocument();
+    const recipes = mockRecipes(38);
+    const { onSelectRecipe } = renderSelect({ recipes });
+    const last = recipes[recipes.length - 1];
+    const lastCard = screen.getByText(last.nameJa);
+    expect(lastCard).toBeInTheDocument();
+    await user.click(gridCard(last.nameJa));
+    await user.click(ctaButton());
+    expect(onSelectRecipe).toHaveBeenCalledWith(last.id);
+  });
+
+  it("grid column count stays at 2 regardless of catalog size (no per-item layout blowup)", () => {
+    renderSelect({ recipes: mockRecipes(50) });
+    const grids = document.querySelectorAll(".pizza-select-grid");
+    expect(grids.length).toBeGreaterThan(0);
+    for (const grid of grids) {
+      expect(getComputedStyle(grid).display).not.toBe("");
+    }
   });
 });

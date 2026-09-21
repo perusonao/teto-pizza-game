@@ -30,11 +30,11 @@ async function enterFreePlayPrepare() {
   // Issue #39: HOME's CTA now lands on Pizza Select first -- pick Margherita explicitly so
   // this suite's own "マルゲリータ" assertions below still hold (a fresh save's undiscovered,
   // unlocked Margherita renders as a NEW card). Issue #47 Finding C: selecting a recipe now
-  // lands straight at PREPARE -- the old redundant フリープレイ tap is gone. Issue #88: Pizza
-  // Select is a single-recipe pager now, not a grid -- margherita is index 0 (RECIPES' own
-  // declared order, unchanged by Issue #88), so it's already the pager's default card and the
-  // shared CTA can be tapped directly with no Next presses needed.
+  // lands straight at PREPARE -- the old redundant フリープレイ tap is gone. Recipe Select
+  // 2.0A: Pizza Select is a sectioned browse grid, not a pager -- tap margherita's own grid
+  // card to open its focused detail, then the shared CTA there.
   expect(screen.getByLabelText("マルゲリータ、未挑戦")).toBeInTheDocument();
+  await user.click(screen.getByRole("button", { name: "マルゲリータ、未挑戦" }));
   await user.click(screen.getByRole("button", { name: /このピザを作る/ }));
   return user;
 }
