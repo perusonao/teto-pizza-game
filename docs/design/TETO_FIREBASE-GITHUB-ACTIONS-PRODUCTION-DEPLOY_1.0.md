@@ -174,6 +174,20 @@ in `asia-northeast1`, both HTTPS-callable (no Eventarc/Pub-Sub trigger) -- so no
 role granted at the organization/folder level -- every role above is bound to the
 `teto-pizza-game` project only, to this one deploy service account only.
 
+**Update (real production dry-run, Phase 4b, see
+`docs/reports/TETO_FIREBASE-GITHUB-ACTIONS-PRODUCTION-DEPLOY_Phase3_Verification_Result.md`
+Session 6)**: exactly one additional permission was needed beyond the four roles above --
+`firebase.projects.get`, required by `firebase-tools`' own `GET
+.../v1beta1/projects/{project}/adminSdkConfig` call early in `firebase deploy --only functions`
+(confirmed from a real failed run's log, not assumed). No predefined role scopes this narrowly
+(the smallest predefined role containing it, `roles/firebase.viewer`, carries 300+ read
+permissions across every Firebase product, most unrelated to this project). Per this section's
+own "widen only in response to a specific, logged permission-denied error, one role at a time"
+instruction, a **project-scoped custom role** (`projects/teto-pizza-game/roles/firebaseProjectsGetOnly`,
+exactly one included permission) was created and bound instead of adopting a broader predefined
+role -- keeping the deploy service account's total grant at five narrowly-scoped roles, still
+project-bound, still nothing broader than what a real, logged failure proved necessary.
+
 ## 6. Workflow design (future file, not created this phase)
 
 `.github/workflows/firebase-production-deploy.yml` (name TBD at Phase 2):
