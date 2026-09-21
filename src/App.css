@@ -157,12 +157,22 @@
   color: #6b4226;
 }
 
+/* Issue #159 P1 (bullet 1): was `white-space: nowrap` + ellipsis, which silently truncated any
+   hint/instruction longer than one line at 390x844/361x800 -- a real-device Fresh Audit
+   (2026-09-21) found several of `data/hints.ts`'s own recipe hint lines actually did overflow
+   this width. Hints stay short by design (this issue's own "必要なら2行" allowance), so 2 lines
+   is enough headroom without reopening the 1-screen budget `.order-card`'s own compact layout
+   protects -- `-webkit-line-clamp` (supported in every browser this project targets, including
+   Safari/iOS) truncates only past a genuinely unusual 3rd line rather than every line past the
+   first. */
 .order-card__hint {
   font-size: 11.5px;
   color: #a1662f;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 /* ---------- Pizza Cutting 1.0 Phase 2: CUT progress readout ---------- */
@@ -839,34 +849,9 @@
   }
 }
 
-/* ---------- Ingredient Tray Scalability: Recommended / Other (Issue #86) ---------- */
+/* ---------- Ingredient Tray (Issue #159 P0: recipe-required ingredients only) ---------- */
 .ingredient-section {
   margin-bottom: 4px;
-}
-
-.ingredient-section__title {
-  margin: 0 0 2px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #a04a27;
-  letter-spacing: 0.02em;
-}
-
-/* "このピザにおすすめ" -- a recipe's own requiredIngredients count is small, curated data (never
-   more than a handful per category), so a horizontal-scroll row (never wrapping, never paged)
-   is enough to keep it from ever overflowing the viewport even in an unusually
-   ingredient-heavy recipe -- see IngredientTray.tsx's own doc comment. */
-.ingredient-row--recommended {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 0;
-  -webkit-overflow-scrolling: touch;
-}
-
-.ingredient-row--recommended .ingredient-chip {
-  flex: 0 0 auto;
-  width: 84px;
 }
 
 /* ---------- Making Step Tabs (Issue #86 UX-2) ---------- */
@@ -883,6 +868,13 @@
 
 .making-step-tab {
   flex: 1 1 0;
+  /* Issue #159 P0: a flex item's default `min-width: auto` refuses to shrink below its own
+     content's min-content width -- with 6 items in the strip (DOUGH/SAUCE/CHEESE/TOPPING + the
+     BAKE indicator + CUT for a cut-target recipe) at 361-390px, that pushed the row's total
+     content past the viewport and clipped the trailing tabs off the right edge (the real
+     "「焼く」のはみ出し" bug, real-device Fresh Audit 2026-09-21). `min-width: 0` lets each tab
+     actually shrink to its `flex: 1 1 0` share instead. */
+  min-width: 0;
   border: none;
   border-radius: 10px 10px 0 0;
   padding: 8px 2px;
@@ -892,6 +884,8 @@
   color: #6b4226;
   min-height: 40px;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .making-step-tab--active.making-step-tab--dough {
@@ -908,6 +902,13 @@
 }
 .making-step-tab--active.making-step-tab--topping {
   background: #4c9a2a;
+  color: #fff;
+}
+/* Issue #159 P0: CUT's own active color, matching PizzaCutting 1.0's existing CUT-step
+   iconography elsewhere (a distinct cool tone from the four warm PREPARE-step colors above, so
+   POST_BAKE clearly reads as a different phase, not a 5th PREPARE ingredient step). */
+.making-step-tab--active.making-step-tab--cut {
+  background: #3a6ea5;
   color: #fff;
 }
 
@@ -954,6 +955,22 @@
 .making-step-tab--bake-ready {
   opacity: 0.85;
   background: #f6d67a;
+}
+
+/* Issue #159 P0: the same strip now also renders during BAKE/POST_BAKE (see MakingStepTabs.tsx's
+   own `currentPhase`) -- these two modifiers read the BAKE indicator as "currently happening"
+   and "already done", the same visual language `--active`/`--completed` already give every real
+   step tab. */
+.making-step-tab--bake-active {
+  opacity: 1;
+  background: #e4572e;
+  color: #fff;
+}
+
+.making-step-tab--bake.making-step-tab--completed {
+  opacity: 0.85;
+  background: #cdbb95;
+  color: #6b4226;
 }
 
 /* Phase 4A-1B Human Feel Fix 2: a 3-wide grid, never scrollable -- iPhone retesting of Fix 1
@@ -3125,8 +3142,10 @@
 }
 
 /* Single-card focus mode gets a noticeably bigger thumbnail than the old 4-per-row grid did
-   (64px) -- `.pizza-thumbnail`'s own base size (also used unscoped by GameScreen's order
-   preview) stays untouched; only the Pizza Select card scopes it larger. */
+   (64px) -- `.pizza-thumbnail`'s own base size stays untouched; only the Pizza Select card
+   scopes it larger. (GameScreen's own order-card preview uses the separate
+   `.reference-thumbnail`/ReferenceThumbnail.tsx since Issue #159 P0 -- see that rule's own
+   comment.) */
 .pizza-select-card .pizza-thumbnail {
   width: 128px;
   height: 128px;
@@ -3389,6 +3408,28 @@
     sepia(0.18);
 }
 
+/* Issue #159 P1 (olive oil visibility): a purely decorative gloss layer, clipped to the dough
+   circle exactly like `.pizza-sauce-heatmap` (same `--dough-border-width` inset), sitting above
+   it in DOM order so its highlight reads on top of the sauce. A soft diagonal sheen (mirrors a
+   real oiled surface's specular highlight) plus a thin warm ring traced just inside the dough's
+   own edge gives olive oil a distinct "艶" (gloss)/boundary cue that a filter on the sauce's own
+   pixels alone (above) couldn't -- this element carries no sauce data of its own, so it never
+   affects Scoring 2.0 in any way. */
+.pizza-sauce-oil-sheen {
+  position: absolute;
+  inset: calc(-1 * var(--dough-border-width));
+  border-radius: 50%;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 1.5px rgba(255, 248, 225, 0.55), inset 0 0 14px rgba(255, 246, 214, 0.28);
+  background: linear-gradient(
+    115deg,
+    transparent 35%,
+    rgba(255, 250, 230, 0.4) 48%,
+    rgba(255, 250, 230, 0.08) 58%,
+    transparent 70%
+  );
+}
+
 .reference-preview__button {
   border: none;
   background: #f5ecd8;
@@ -3548,11 +3589,49 @@
   border-radius: 999px;
 }
 
+/* ---------- Issue #159 P0 (bullet 5): ReferenceThumbnail ---------- */
+/* Same visual shape as .pizza-thumbnail (Pizza Select cards, ../components/PizzaThumbnail.tsx)
+   but a separate component/class -- see ReferenceThumbnail.tsx's own header comment for why:
+   this one renders the exact `pieceGroups`/sauce data GameScreen's own Reference popover reads,
+   so the mini icon and the popover it opens can never disagree on piece count/composition. */
+.reference-thumbnail {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 4px solid #d9b876;
+  box-shadow: inset 0 0 8px rgba(120, 70, 20, 0.25), 0 1px 3px rgba(107, 66, 38, 0.2);
+  overflow: hidden;
+  --thumb-piece-scale: 0.34;
+}
+
+.reference-thumbnail__base {
+  position: absolute;
+  inset: 6%;
+  border-radius: 50%;
+  opacity: 0.9;
+}
+
+.reference-thumbnail__piece {
+  position: absolute;
+  transform: translate(-50%, -50%) rotate(var(--piece-rotation, 0deg));
+}
+
+.reference-thumbnail__piece .pizza-cheese {
+  transform: scale(var(--thumb-piece-scale));
+}
+
+.reference-thumbnail__piece-emoji {
+  display: block;
+  font-size: calc(28px * var(--thumb-piece-scale) * 1.7);
+  line-height: 1;
+}
+
 /* ---------- Issue #47 Slice B Finding H: persistent mini Reference (order-card) ---------- */
 /* Always visible during PREPARE (every recipe, see GameScreen.tsx's order-card comment) --
-   reuses .pizza-thumbnail (../components/PizzaThumbnail.tsx) at a smaller fixed size than its
-   Pizza Select card usage (64px) so it fits the compact order-card row without crowding the
-   recipe name/hint text or growing tall enough to threaten PizzaStage's own clearance. */
+   a smaller fixed size than ReferenceThumbnail's other context so it fits the compact
+   order-card row without crowding the recipe name/hint text or growing tall enough to threaten
+   PizzaStage's own clearance. */
 .mini-reference {
   display: flex;
   flex-direction: column;
@@ -3565,7 +3644,7 @@
   min-height: 44px;
 }
 
-.mini-reference__thumb .pizza-thumbnail {
+.mini-reference__thumb .reference-thumbnail {
   width: 48px;
   height: 48px;
   --thumb-piece-scale: 0.26;

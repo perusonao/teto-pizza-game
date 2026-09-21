@@ -72,14 +72,14 @@ describe("MakingStepTabs (Issue #86 UX-2)", () => {
 
   it("test 4: tapping the next (TOPPING) tab from CHEESE advances makingStep to TOPPING", () => {
     render(<Harness makingStep="CHEESE" />);
-    fireEvent.click(screen.getByRole("tab", { name: "トッピング" }));
+    fireEvent.click(screen.getByRole("tab", { name: "具材" }));
     expect(screen.getByTestId("making-step").textContent).toBe("TOPPING");
   });
 
   it("test 5: a future step (more than one ahead) can never be jumped to -- its tab is disabled and inert", () => {
     render(<Harness makingStep="DOUGH" />);
     const cheeseTab = screen.getByRole("tab", { name: "チーズ" });
-    const toppingTab = screen.getByRole("tab", { name: "トッピング" });
+    const toppingTab = screen.getByRole("tab", { name: "具材" });
     expect(cheeseTab).toBeDisabled();
     expect(toppingTab).toBeDisabled();
     fireEvent.click(cheeseTab);
@@ -134,7 +134,7 @@ describe("MakingStepTabs (Issue #86 UX-2)", () => {
 
   it("only the immediate next tab ever fires onAdvance -- TOPPING's own tab stays inert (START_BAKE is a separate action)", () => {
     render(<Harness makingStep="TOPPING" />);
-    const toppingTab = screen.getByRole("tab", { name: "トッピング" });
+    const toppingTab = screen.getByRole("tab", { name: "具材" });
     expect(toppingTab).toBeDisabled();
     fireEvent.click(toppingTab);
     expect(screen.getByTestId("making-step").textContent).toBe("TOPPING");
@@ -205,5 +205,102 @@ describe("MakingStepTabs with a future-fixture sequence (Recipe Cooking Steps 1.
       />,
     );
     expect(screen.getByText(/焼く/).className).toContain("making-step-tab--bake-ready");
+  });
+});
+
+/**
+ * Issue #159 P0 (Cooking UI 1-Screen Polish, bullet 4): a real-device Fresh Audit (2026-09-21)
+ * found the strip only ever rendered during PREPARE, so a cut-target recipe's own CUT step
+ * never appeared in this nav at all -- the step sequence a player saw was inconsistent
+ * depending on where they were in the round. `postSteps`/`currentPhase` let GameScreen mount
+ * this same strip during BAKE and POST_BAKE too (see GameScreen.tsx), so the full
+ * 生地→ソース→チーズ→具材→焼く→切る sequence stays visible end to end for a cut-target recipe.
+ */
+describe("MakingStepTabs postSteps/currentPhase (Issue #159 P0)", () => {
+  const PRE_STEPS = ["DOUGH", "SAUCE", "CHEESE", "TOPPING"] as const;
+
+  it("PREPARE: postSteps render as locked (not completed, not active) alongside the current pre-BAKE step", () => {
+    render(
+      <MakingStepTabs
+        steps={PRE_STEPS}
+        postSteps={["CUT"]}
+        currentStep="SAUCE"
+        currentPhase="PREPARE"
+        nextReady
+        onAdvance={() => {}}
+      />,
+    );
+    const cutTab = screen.getByRole("tab", { name: "カット" });
+    expect(cutTab).toBeDisabled();
+    expect(cutTab.className).toContain("making-step-tab--locked");
+    expect(cutTab.className).not.toContain("making-step-tab--completed");
+  });
+
+  it("BAKE: every pre-BAKE step reads completed, the BAKE indicator reads active, CUT stays locked", () => {
+    render(
+      <MakingStepTabs
+        steps={PRE_STEPS}
+        postSteps={["CUT"]}
+        currentStep="TOPPING"
+        currentPhase="BAKE"
+        nextReady
+        onAdvance={() => {}}
+      />,
+    );
+    for (const label of ["生地", "ソース", "チーズ", "具材"]) {
+      const tab = screen.getByRole("tab", { name: new RegExp(`✓ ${label}`) });
+      expect(tab).toBeDisabled();
+      expect(tab.className).toContain("making-step-tab--completed");
+    }
+    expect(screen.getByText(/焼く/).className).toContain("making-step-tab--bake-active");
+    const cutTab = screen.getByRole("tab", { name: "カット" });
+    expect(cutTab).toBeDisabled();
+    expect(cutTab.className).toContain("making-step-tab--locked");
+  });
+
+  it("POST_BAKE: pre-BAKE steps and BAKE both read completed, CUT (the only postStep) reads active", () => {
+    render(
+      <MakingStepTabs
+        steps={PRE_STEPS}
+        postSteps={["CUT"]}
+        currentStep="CUT"
+        currentPhase="POST_BAKE"
+        nextReady
+        onAdvance={() => {}}
+      />,
+    );
+    for (const label of ["生地", "ソース", "チーズ", "具材"]) {
+      expect(screen.getByRole("tab", { name: new RegExp(`✓ ${label}`) })).toBeInTheDocument();
+    }
+    expect(screen.getByText(/焼く/).className).toContain("making-step-tab--completed");
+    const cutTab = screen.getByRole("tab", { name: "カット" });
+    expect(cutTab).toHaveAttribute("aria-selected", "true");
+    expect(cutTab.className).toContain("making-step-tab--active");
+    expect(cutTab).toBeDisabled(); // CUT's own confirm is the dedicated 切り終わる CTA, not this tab
+  });
+
+  it("a recipe with no postSteps (every recipe but margherita) renders no CUT tab at any phase", () => {
+    for (const currentPhase of ["PREPARE", "BAKE"] as const) {
+      cleanup();
+      render(
+        <MakingStepTabs
+          steps={PRE_STEPS}
+          postSteps={[]}
+          currentStep="TOPPING"
+          currentPhase={currentPhase}
+          nextReady
+          onAdvance={() => {}}
+        />,
+      );
+      expect(screen.queryByRole("tab", { name: "カット" })).not.toBeInTheDocument();
+    }
+  });
+
+  it("defaults (no currentPhase/postSteps passed) behave exactly like the pre-#159 PREPARE-only strip", () => {
+    render(
+      <MakingStepTabs steps={PRE_STEPS} currentStep="DOUGH" nextReady onAdvance={() => {}} />,
+    );
+    expect(screen.queryByRole("tab", { name: "カット" })).not.toBeInTheDocument();
+    expect(screen.getAllByRole("tab")).toHaveLength(4);
   });
 });

@@ -28,10 +28,12 @@ interface IngredientTrayProps {
   selectedIngredientId: string | null;
   onSelectIngredient: (ingredient: Ingredient) => void;
   ownedIngredientIds: readonly string[];
-  /** Issue #86: drives the "このピザにおすすめ" grouping below -- the current round's recipe,
-   *  unchanged for both FREE and Lunch Rush (Lunch Rush's own order recipe already flows through
-   *  `state.recipe` exactly like FREE's does, so no mode branching is needed here to make
-   *  "required ingredients surface first" true for Lunch Rush too). */
+  /** Issue #159 P0: the only source of which ingredients this tray offers -- the current
+   *  round's recipe, unchanged for both FREE and Lunch Rush (Lunch Rush's own order recipe
+   *  already flows through `state.recipe` exactly like FREE's does, so no mode branching is
+   *  needed here). Only owned ingredients this recipe's own `requiredIngredients` names are
+   *  ever shown (see this component's own render, "recipe-specified materials are decided
+   *  automatically per step"). */
   recipe: Recipe;
   /** Issue #86: read-only inputs to the EP3 Stock Gate (`canPlaceIngredient`) and EP1/EP3's own
    *  `remainingStock` -- both already-shipped, reducer-shared functions (src/state/inventory.ts),
@@ -93,43 +95,35 @@ export function IngredientTray({
   resetToken,
   makingStepToken,
 }: IngredientTrayProps) {
-  // Issue #86 (Ingredient Tray Scalability): rather than one flat list of every owned ingredient
-  // in the active category (which stopped scaling well past the current ~14-ingredient catalog --
-  // see docs/reports/TETO_INGREDIENT-ECONOMY-UI-SCALABILITY_Fresh-Audit.md), the tray splits owned
-  // ingredients into two groups. "Recommended" is this round's own recipe requirements
-  // (`recipe.requiredIngredients`) that fall in the active category and are actually owned --
-  // deliberately the *same* field for FREE and Lunch Rush (Lunch Rush's `state.recipe` is already
-  // the current order's own recipe, so "surface what this order needs first" falls out of reusing
-  // this one field rather than a Mission-only branch). "Other" is every remaining owned ingredient
-  // in the category, so FREE creativity is never restricted to only the recommended set -- see
-  // this file's own IngredientTrayProps doc comment.
-  const recommendedIds = new Set(
-    recipe.requiredIngredients
-      .map((requirement) => requirement.ingredientId)
-      .filter((id) => ownedIngredientIds.includes(id)),
-  );
-  const recommendedItems = ingredientsByCategory(activeCategory).filter((i) =>
-    recommendedIds.has(i.id),
-  );
-  const otherItems = ingredientsByCategory(activeCategory).filter(
-    (i) => ownedIngredientIds.includes(i.id) && !recommendedIds.has(i.id),
+  // Issue #159 P0 (Cooking UI 1-Screen Polish): the tray previously split owned ingredients into
+  // "Recommended" (this round's own recipe requirements) and "Other" (every remaining owned
+  // ingredient in the category), so FREE play could browse and place ingredients the current
+  // recipe never asked for. A real-device Fresh Audit (2026-09-21) found this was both the
+  // biggest single contributor to PREPARE overflowing 390x844/361x800 and the mechanism that let
+  // a player pick a different (wrong-for-the-recipe) SAUCE mid-step -- see this recipe's own
+  // `requiredIngredients` doc comment. The tray now shows only ingredients this recipe actually
+  // requires, still gated on ownership exactly as before -- "recipe-specified materials are
+  // decided automatically per step" per the issue's own UI policy. This intentionally supersedes
+  // Issue #86's "Other"/FREE-creativity behavior (explicitly permitted by #159's own scope guard:
+  // "Preserve ... ingredient-selection behavior except where #159 explicitly changes ...
+  // locking"); IngredientTray.recommendedOther.test.tsx's old FREE-creativity assertions are
+  // updated accordingly (see that file's own new header comment).
+  const requiredItems = ingredientsByCategory(activeCategory).filter(
+    (i) =>
+      ownedIngredientIds.includes(i.id) &&
+      recipe.requiredIngredients.some((requirement) => requirement.ingredientId === i.id),
   );
 
-  // Phase 4A-1B Human Feel Fix 2: the visible "Other" grid stays a fixed 3x2
-  // (MAX_INGREDIENT_PALETTE_SLOTS in data/ingredients.ts), no scrolling. Independent Review P1
-  // (PR #26, discussion_r4017018587): a 7th owned ingredient in one category was unconditionally
-  // sliced off and could never be selected. Rather than special-casing it, owned "Other"
-  // ingredients are paged MAX_INGREDIENT_PALETTE_SLOTS at a time -- a category with <=6 "Other"
-  // owned (every category today) renders exactly as before with no page control at all; a 7th+
-  // becomes reachable via a small page nav rendered only when it's actually needed. Issue #86:
-  // this is also the mechanism that keeps a 30/62+-ingredient catalog from ever rendering more
-  // than 6 "Other" chips at once, alongside the small, recipe-bounded "Recommended" row above it
-  // (a recipe's own requiredIngredients count is curated, authored data -- never large enough on
-  // its own to need paging; see the Result Report's 30/62-ingredient scalability verification).
+  // Phase 4A-1B Human Feel Fix 2 / Issue #86: the visible grid stays a fixed 3x2
+  // (MAX_INGREDIENT_PALETTE_SLOTS in data/ingredients.ts), no scrolling -- paged
+  // MAX_INGREDIENT_PALETTE_SLOTS at a time. A recipe's own `requiredIngredients` count per
+  // category is curated, authored data (today always <=6, see recipes.ts) so this page nav
+  // renders in practice only as a defensive cap against a future wider recipe, never for any
+  // recipe shipped today.
   const [page, setPage] = useState(0);
-  const pageCount = Math.max(1, Math.ceil(otherItems.length / MAX_INGREDIENT_PALETTE_SLOTS));
+  const pageCount = Math.max(1, Math.ceil(requiredItems.length / MAX_INGREDIENT_PALETTE_SLOTS));
   const currentPage = Math.min(page, pageCount - 1);
-  const items = otherItems.slice(
+  const items = requiredItems.slice(
     currentPage * MAX_INGREDIENT_PALETTE_SLOTS,
     (currentPage + 1) * MAX_INGREDIENT_PALETTE_SLOTS,
   );
@@ -417,32 +411,17 @@ export function IngredientTray({
         )}
         <span className="ingredient-chip__name">{ingredient.nameJa}</span>
         <span className="ingredient-chip__stock">{stock === "UNLIMITED" ? "∞" : `×${stock}`}</span>
-        {isDraggable(ingredient) && <span className="ingredient-chip__drag-hint">上へドラッグ</span>}
+        {isDraggable(ingredient) && <span className="ingredient-chip__drag-hint">ドラッグしてのせる</span>}
       </button>
     );
   }
 
   return (
     <div className="ingredient-panel">
-      {/* Issue #86 (Ingredient Tray Scalability): "このピザにおすすめ" -- this round's own recipe
-          requirements, owned and in the active category. Omitted entirely once empty (a recipe
-          with no requirement in this category, e.g. marinara has no CHEESE requirement at all)
-          rather than showing an empty heading. */}
-      {recommendedItems.length > 0 && (
-        <section className="ingredient-section ingredient-section--recommended">
-          <h3 className="ingredient-section__title">このピザにおすすめ</h3>
-          <div className="ingredient-row ingredient-row--recommended">
-            {recommendedItems.map((ingredient) => renderChip(ingredient))}
-          </div>
-        </section>
-      )}
-
-      {/* "その他" -- every other owned ingredient in the active category, so FREE play is never
-          limited to only the recommended set (see IngredientTrayProps' own doc comment). */}
-      <section className="ingredient-section ingredient-section--other">
-        {recommendedItems.length > 0 && otherItems.length > 0 && (
-          <h3 className="ingredient-section__title">その他</h3>
-        )}
+      {/* Issue #159 P0: no "このピザにおすすめ"/"その他" heading -- this recipe's own required
+          ingredients (owned, active category) are the only thing offered, so there is nothing
+          left to label as a subset. */}
+      <section className="ingredient-section">
         <div className="ingredient-tray">{items.map((ingredient) => renderChip(ingredient))}</div>
       </section>
 
