@@ -25,6 +25,11 @@ import {
   MAX_SERVES_PER_RUN,
   type LunchRushServeRecord,
 } from "../../src/shared/lunchRushScoring";
+import {
+  DisplayNameValidationError,
+  FALLBACK_DISPLAY_NAME,
+  normalizeAndValidateDisplayName,
+} from "../../src/shared/displayNameValidation";
 import { computeLunchRushPeriodIds } from "./periodIds";
 
 const LUNCH_RUSH_MISSION_ID = "lunch-rush";
@@ -105,6 +110,11 @@ export interface FirestoreLike {
    * `false`, so a tied score's `achievedAt` is never overwritten (tie-break `score DESC,
    * achievedAt ASC`, Phase 0 audit §7, stays meaningful: the earliest achiever of a tied score
    * keeps ranking higher). Returns whether this call actually updated the entry.
+   *
+   * Player Profile 1.0 Phase 1B (Issue #129): `displayName` is written onto the entry in the
+   * exact same conditional branch as `score`/`achievedAt`/`sourceRunId` -- a losing/no-op
+   * submission never touches an existing entry's `displayName` either, matching how a rename
+   * alone never retroactively rewrites a past entry (design doc section 4.3).
    */
   upsertLeaderboardEntryIfHigher(
     periodId: string,
@@ -112,7 +122,16 @@ export interface FirestoreLike {
     score: number,
     sourceRunId: string,
     achievedAt: unknown,
+    displayName: string,
   ): Promise<boolean>;
+  /**
+   * Reads the submitting user's own `users/{uid}.displayName` (Admin SDK, bypassing
+   * `firestore.rules` entirely, exactly like every other read/write this module performs) --
+   * `null` when no profile document exists, has no `displayName` field, or the field isn't a
+   * string. `uid` is always `auth.uid` (never a payload-suppliable value), so this can never be
+   * used to read -- or, combined with the write above, denormalize -- another player's name.
+   */
+  getDisplayName(uid: string): Promise<string | null>;
 }
 
 export interface SubmitLunchRushScoreDeps {
@@ -128,6 +147,28 @@ export interface SubmitLunchRushScoreDeps {
 
 function invalid(message: string): never {
   throw new SubmitLunchRushScoreError("invalid-argument", message);
+}
+
+/**
+ * Player Profile 1.0 Phase 1B (Issue #129): resolves the `displayName` snapshot to denormalize
+ * onto this submission's leaderboard entries. `raw` is whatever `deps.firestore.getDisplayName`
+ * returned -- a value that was already validated once, at `setDisplayName` write time (Player
+ * Profile 1.0 Phase 1A), but is re-validated here rather than trusted unconditionally, since it
+ * is read back from Firestore, not received fresh from that trusted write path (design doc
+ * section 3's own contract is the single source of truth for what a "safe" name looks like, and
+ * this reuses it verbatim rather than re-inventing a second, looser check). Any profile that is
+ * missing, empty, or fails that same validation (a legacy/malformed document, however unlikely)
+ * falls back to the fixed constant, exactly like every other display-name reader in this
+ * codebase (Phase 0 design doc section 2.3).
+ */
+function resolveDisplayNameSnapshot(raw: string | null): string {
+  if (raw === null) return FALLBACK_DISPLAY_NAME;
+  try {
+    return normalizeAndValidateDisplayName(raw);
+  } catch (error) {
+    if (error instanceof DisplayNameValidationError) return FALLBACK_DISPLAY_NAME;
+    throw error;
+  }
 }
 
 /**
@@ -221,10 +262,17 @@ export async function handleSubmitLunchRushScore(
   // timestamp -- L. server timestamp authority.
   const periodIds = computeLunchRushPeriodIds(deps.now());
   const achievedAt = deps.serverTimestamp();
+
+  // Player Profile 1.0 Phase 1B (Issue #129): the submitting user's own displayName snapshot,
+  // read once per submission (never per-period) and passed to every upsert call below -- never
+  // read from the client-supplied payload, which has no displayName field to spoof in the first
+  // place (SubmitLunchRushScoreRequestPayload's shape, unchanged by this phase).
+  const displayName = resolveDisplayNameSnapshot(await deps.firestore.getDisplayName(auth.uid));
+
   const [isNewWeeklyBest, isNewMonthlyBest, isNewAllTimeBest] = await Promise.all([
-    deps.firestore.upsertLeaderboardEntryIfHigher(periodIds.weekly, auth.uid, result.score, runId, achievedAt),
-    deps.firestore.upsertLeaderboardEntryIfHigher(periodIds.monthly, auth.uid, result.score, runId, achievedAt),
-    deps.firestore.upsertLeaderboardEntryIfHigher(periodIds.allTime, auth.uid, result.score, runId, achievedAt),
+    deps.firestore.upsertLeaderboardEntryIfHigher(periodIds.weekly, auth.uid, result.score, runId, achievedAt, displayName),
+    deps.firestore.upsertLeaderboardEntryIfHigher(periodIds.monthly, auth.uid, result.score, runId, achievedAt, displayName),
+    deps.firestore.upsertLeaderboardEntryIfHigher(periodIds.allTime, auth.uid, result.score, runId, achievedAt, displayName),
   ]);
 
   return { ...result, isNewWeeklyBest, isNewMonthlyBest, isNewAllTimeBest };

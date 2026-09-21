@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { FALLBACK_DISPLAY_NAME } from "../shared/displayNameValidation";
 
 /**
  * Firebase Ranking 1.0 Phase 2A (Issue #87). `firebase/firestore` is mocked with only the read
@@ -46,6 +47,10 @@ interface FakeEntryDoc {
   id: string;
   score: number;
   achievedAt: FakeTimestamp | null;
+  /** Player Profile 1.0 Phase 1B (Issue #129). Omitted (`undefined`) simulates a legacy entry
+   *  written before this phase shipped -- ./getWeeklyLeaderboard.ts must fall back, not throw or
+   *  render `undefined`. */
+  displayName?: string;
 }
 
 let topDocs: FakeEntryDoc[] = [];
@@ -66,14 +71,15 @@ const getDocs = vi.fn(async (_q: unknown) => {
   return {
     docs: topDocs.map((d) => ({
       id: d.id,
-      data: () => ({ score: d.score, achievedAt: d.achievedAt }),
+      data: () => ({ score: d.score, achievedAt: d.achievedAt, displayName: d.displayName }),
     })),
   };
 });
 
 const getDoc = vi.fn(async (ref: { id: string }) => ({
   exists: () => ownDoc !== null && ownDoc.id === ref.id,
-  data: () => (ownDoc ? { score: ownDoc.score, achievedAt: ownDoc.achievedAt } : undefined),
+  data: () =>
+    ownDoc ? { score: ownDoc.score, achievedAt: ownDoc.achievedAt, displayName: ownDoc.displayName } : undefined,
 }));
 
 const getCountFromServer = vi.fn(async (_q: unknown) => ({
@@ -151,16 +157,16 @@ describe("getWeeklyLeaderboard", () => {
   it("F. marks the signed-in user's own entry within the top 10", async () => {
     getCurrentAuthUser.mockReturnValue({ uid: "bob" });
     topDocs = [
-      { id: "alice", score: 500, achievedAt: new FakeTimestamp(1000) as unknown as null },
-      { id: "bob", score: 400, achievedAt: new FakeTimestamp(2000) as unknown as null },
+      { id: "alice", score: 500, achievedAt: new FakeTimestamp(1000) as unknown as null, displayName: "テトマスター" },
+      { id: "bob", score: 400, achievedAt: new FakeTimestamp(2000) as unknown as null, displayName: "ぺるそなお" },
     ];
     const { getWeeklyLeaderboard } = await import("./getWeeklyLeaderboard");
     const result = await getWeeklyLeaderboard(NOW);
     expect(result.status).toBe("success");
     if (result.status !== "success") throw new Error("unreachable");
     expect(result.top).toEqual([
-      { rank: 1, score: 500, achievedAt: 1000, isCurrentUser: false },
-      { rank: 2, score: 400, achievedAt: 2000, isCurrentUser: true },
+      { rank: 1, score: 500, achievedAt: 1000, isCurrentUser: false, displayName: "テトマスター" },
+      { rank: 2, score: 400, achievedAt: 2000, isCurrentUser: true, displayName: "ぺるそなお" },
     ]);
     expect(result.currentUserOutsideTop).toBeNull();
     expect(getDoc).not.toHaveBeenCalled();
@@ -169,14 +175,18 @@ describe("getWeeklyLeaderboard", () => {
   it("outside-top-10: fetches the own entry and derives an approximate rank via count()", async () => {
     getCurrentAuthUser.mockReturnValue({ uid: "carol" });
     topDocs = [{ id: "alice", score: 500, achievedAt: new FakeTimestamp(1000) as unknown as null }];
-    ownDoc = { id: "carol", score: 100, achievedAt: new FakeTimestamp(3000) as unknown as null };
+    ownDoc = { id: "carol", score: 100, achievedAt: new FakeTimestamp(3000) as unknown as null, displayName: "ななしピザ職人2号" };
     higherScoreCount = 4;
     const { getWeeklyLeaderboard } = await import("./getWeeklyLeaderboard");
     const result = await getWeeklyLeaderboard(NOW);
     expect(result.status).toBe("success");
     if (result.status !== "success") throw new Error("unreachable");
-    expect(result.currentUserOutsideTop).toEqual({ rank: 5, score: 100 });
+    expect(result.currentUserOutsideTop).toEqual({ rank: 5, score: 100, displayName: "ななしピザ職人2号" });
     expect(where).toHaveBeenCalledWith("score", ">", 100);
+    // No extra users/{uid} profile read -- the name rides the already-fetched leaderboard entry
+    // (Option A denormalization); getDoc is only ever called once here, for the leaderboard
+    // entry itself.
+    expect(getDoc).toHaveBeenCalledTimes(1);
   });
 
   it("signed-in user with no entry this week -> currentUserOutsideTop stays null, no count() query", async () => {
@@ -206,5 +216,71 @@ describe("getWeeklyLeaderboard", () => {
     await getWeeklyLeaderboard(NOW);
     await getWeeklyLeaderboard(NOW);
     expect(getFirestore).toHaveBeenCalledTimes(1);
+  });
+
+  // Player Profile 1.0 Phase 1B (Issue #129) -- displayName field mapping.
+  describe("displayName mapping", () => {
+    it("parses a present displayName field through unchanged", async () => {
+      topDocs = [
+        { id: "alice", score: 500, achievedAt: new FakeTimestamp(1000) as unknown as null, displayName: "テトマスター" },
+      ];
+      const { getWeeklyLeaderboard } = await import("./getWeeklyLeaderboard");
+      const result = await getWeeklyLeaderboard(NOW);
+      expect(result.status).toBe("success");
+      if (result.status !== "success") throw new Error("unreachable");
+      expect(result.top[0].displayName).toBe("テトマスター");
+    });
+
+    it("a legacy entry with no displayName field falls back to FALLBACK_DISPLAY_NAME", async () => {
+      topDocs = [{ id: "alice", score: 500, achievedAt: new FakeTimestamp(1000) as unknown as null }];
+      const { getWeeklyLeaderboard } = await import("./getWeeklyLeaderboard");
+      const result = await getWeeklyLeaderboard(NOW);
+      expect(result.status).toBe("success");
+      if (result.status !== "success") throw new Error("unreachable");
+      expect(result.top[0].displayName).toBe(FALLBACK_DISPLAY_NAME);
+    });
+
+    it("a malformed (non-string) displayName field falls back safely instead of throwing", async () => {
+      topDocs = [
+        {
+          id: "alice",
+          score: 500,
+          achievedAt: new FakeTimestamp(1000) as unknown as null,
+          displayName: 12345 as unknown as string,
+        },
+      ];
+      const { getWeeklyLeaderboard } = await import("./getWeeklyLeaderboard");
+      const result = await getWeeklyLeaderboard(NOW);
+      expect(result.status).toBe("success");
+      if (result.status !== "success") throw new Error("unreachable");
+      expect(result.top[0].displayName).toBe(FALLBACK_DISPLAY_NAME);
+    });
+
+    it("an empty-string displayName field falls back rather than rendering blank", async () => {
+      topDocs = [
+        { id: "alice", score: 500, achievedAt: new FakeTimestamp(1000) as unknown as null, displayName: "" },
+      ];
+      const { getWeeklyLeaderboard } = await import("./getWeeklyLeaderboard");
+      const result = await getWeeklyLeaderboard(NOW);
+      expect(result.status).toBe("success");
+      if (result.status !== "success") throw new Error("unreachable");
+      expect(result.top[0].displayName).toBe(FALLBACK_DISPLAY_NAME);
+    });
+
+    it("resolving displayName performs no extra users/{uid} profile read (no N+1)", async () => {
+      topDocs = Array.from({ length: 10 }, (_, i) => ({
+        id: `player-${i}`,
+        score: 100 - i,
+        achievedAt: new FakeTimestamp(1000 + i) as unknown as null,
+        displayName: `Player ${i}`,
+      }));
+      const { getWeeklyLeaderboard } = await import("./getWeeklyLeaderboard");
+      await getWeeklyLeaderboard(NOW);
+      // getDocs is the one call that fetches all 10 rows; getDoc (single-doc profile-style
+      // reads) is reserved for the own-rank-outside-top-10 path only, and is not called here at
+      // all since no signed-in user is set for this test.
+      expect(getDocs).toHaveBeenCalledTimes(1);
+      expect(getDoc).not.toHaveBeenCalled();
+    });
   });
 });

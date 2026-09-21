@@ -40,6 +40,7 @@ function createFirestoreAdapter(): FirestoreLike {
       score: number,
       sourceRunId: string,
       achievedAt: unknown,
+      displayName: string,
     ): Promise<boolean> {
       const ref = db.collection("leaderboards").doc(periodId).collection("entries").doc(uid);
       return db.runTransaction(async (tx) => {
@@ -48,11 +49,26 @@ function createFirestoreAdapter(): FirestoreLike {
         // Strictly greater only -- a tie or a lower score is a no-op, so achievedAt (and
         // therefore the score DESC / achievedAt ASC tie-break) is never disturbed by a
         // resubmission of the same or a worse score. See submitLunchRushScore.ts's own comment
-        // on this interface method.
+        // on this interface method. displayName rides the same conditional branch (Player
+        // Profile 1.0 Phase 1B) -- a losing/no-op submission never touches an existing entry's
+        // name either.
         if (existingScore !== undefined && existingScore >= score) return false;
-        tx.set(ref, { score, achievedAt, sourceRunId });
+        tx.set(ref, { score, achievedAt, sourceRunId, displayName });
         return true;
       });
+    },
+
+    // Player Profile 1.0 Phase 1B (Issue #129). A plain (non-transactional) read is sufficient
+    // here -- unlike setDisplayName's own read-check-write cycle, this has no race to close: it
+    // only ever informs what gets denormalized onto *this* submission's leaderboard entries, is
+    // never itself the source of truth for `users/{uid}`, and a submission racing a concurrent
+    // rename simply snapshots whichever name was current at the moment this read happened
+    // (already-documented "name at time of achievement" behavior, design doc section 4.3).
+    async getDisplayName(uid: string): Promise<string | null> {
+      const snapshot = await db.collection("users").doc(uid).get();
+      const data = snapshot.data();
+      const displayName = data?.displayName;
+      return typeof displayName === "string" ? displayName : null;
     },
   };
 }
