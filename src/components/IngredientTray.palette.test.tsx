@@ -30,13 +30,19 @@ const GENEROUS_INVENTORY = Object.fromEntries(
  * onto the pizza were the same single-finger swipe, so every drag start doubled as a
  * candidate scroll the browser had to arbitrate -- read by hands-on retesting as "still
  * unresponsive" even after Fix 1's threshold/iOS-callout work. This file covers what Fix 2
- * actually changed: the "Other" section of the tray (Issue #86 split it from a single flat
- * list into "Recommended"/"Other" -- see IngredientTray.recommendedOther.test.tsx for that
- * split's own coverage) is a non-scrolling, capped 3x2 grid (`MAX_INGREDIENT_PALETTE_SLOTS`,
+ * actually changed: the tray is a non-scrolling, capped 3x2 grid (`MAX_INGREDIENT_PALETTE_SLOTS`,
  * src/data/ingredients.ts). It intentionally does not repeat
  * IngredientTray.physicalDragReset.test.tsx's own coverage (RESET-mid-drag, outside-drop,
  * pointercancel, lostpointercapture, blur, visibilitychange, multi-touch) -- that file is
  * re-run unmodified alongside this one and still exercises the same IngredientTray component.
+ *
+ * Issue #159 P0 update: the tray no longer splits owned ingredients into "Recommended"/"Other"
+ * (see IngredientTray.tsx / IngredientTray.recommendedOther.test.tsx) -- only this recipe's own
+ * `requiredIngredients` (still owned-gated) render at all. The pagination-boundary tests below
+ * that used to force every fixture ingredient into "Other" via a *zeroed*-requirements recipe
+ * override now use a *widened*-requirements override instead (`allRequiredRecipe`), so the same
+ * boundary fixtures still all render (now because the recipe requires every one of them, not
+ * because pagination used to only apply to "Other").
  */
 
 const DOUGH_RECT = { left: 0, top: 0, width: 300, height: 300 } as DOMRect;
@@ -59,12 +65,11 @@ function Harness({
 }: {
   category: IngredientCategory;
   ownedIngredientIds?: readonly string[];
-  /** Test-only override of the `recipe` prop IngredientTray reads its "Recommended" grouping
+  /** Test-only override of the `recipe` prop IngredientTray reads its offered-ingredient list
    *  from (IngredientTray.tsx never reads `recipe.id`, only `requiredIngredients`) -- lets the
-   *  "Other" grid's own pagination-boundary tests below exercise it against every real,
-   *  production `topping` ingredient (still real data, never a synthetic fixture) rather than
-   *  being capped at 6 by margherita's own real `basil` requirement always claiming one of them
-   *  as Recommended. */
+   *  pagination-boundary tests below exercise it against every real, production `topping`
+   *  ingredient (still real data, never a synthetic fixture) rather than being capped at
+   *  whatever margherita's own real `basil` requirement alone would show. */
   recipeOverride?: Recipe;
 }) {
   const [state, dispatch] = useReducer(gameReducer, undefined, () => {
@@ -128,14 +133,24 @@ function findChip(ingredientId: string): HTMLElement {
   return screen.getByRole("button", { name: new RegExp(ingredient.nameJa) });
 }
 
-/** The "Other" section's own grid -- the one that pages (see IngredientTray.tsx's own doc
- *  comment on why paging only ever applies to "Other", never to the small, recipe-bounded
- *  "Recommended" row above it). Found structurally rather than via any one chip's name, since
- *  a fixture ingredient may legitimately be either Recommended or Other depending on the test. */
-function otherTray(): HTMLElement {
-  const tray = document.querySelector(".ingredient-section--other .ingredient-tray");
-  if (!tray) throw new Error("Other section's ingredient-tray grid not found");
-  return tray as HTMLElement;
+/** The tray's one ingredient grid -- the one that pages (see IngredientTray.tsx's own doc
+ *  comment on paging). */
+function tray(): HTMLElement {
+  const el = document.querySelector(".ingredient-section .ingredient-tray");
+  if (!el) throw new Error("Ingredient tray grid not found");
+  return el as HTMLElement;
+}
+
+/** Builds a Recipe requiring exactly the given ingredient ids (any `minCount`), so every one of
+ *  them is offered by the tray regardless of margherita's own real (much smaller) requirement
+ *  list -- see this file's own header comment. */
+function requireExactly(requiredIds: readonly string[]): Recipe {
+  const margherita = getRecipe("margherita");
+  if (!margherita) throw new Error("margherita fixture missing");
+  return {
+    ...margherita,
+    requiredIngredients: requiredIds.map((ingredientId) => ({ ingredientId, minCount: 1 })),
+  };
 }
 
 function startDrag(chip: HTMLElement, pointerId: number) {
@@ -153,9 +168,9 @@ afterEach(() => {
   cleanup();
 });
 
-describe("Ingredient Palette: fixed 3x2 'Other' grid, no scroll (Human Feel Fix 2)", () => {
-  it("renders every owned ingredient in a category that owns <=6, matching pre-fix behavior", () => {
-    render(<Harness category="topping" />);
+describe("Ingredient Palette: fixed 3x2 grid, no scroll (Human Feel Fix 2)", () => {
+  it("renders every owned-and-required ingredient in a category that has <=6, matching pre-fix behavior", () => {
+    render(<Harness category="topping" recipeOverride={requireExactly(["basil"])} />);
     const owned = ingredientsByCategory("topping").filter((i) =>
       STARTER_INGREDIENT_IDS.includes(i.id),
     );
@@ -165,40 +180,34 @@ describe("Ingredient Palette: fixed 3x2 'Other' grid, no scroll (Human Feel Fix 
     }
   });
 
-  it("caps the 'Other' grid at MAX_INGREDIENT_PALETTE_SLOTS even when more are owned (never falls back to scroll)", () => {
-    // Every topping ingredient owned, including the normally-locked `onion` -- 7 total, one
-    // more than the "Other" grid's 6 slots (margherita's own `basil` requirement keeps `basil`
-    // itself out of "Other", in the small unpaged "Recommended" row instead -- see this file's
-    // own header comment).
+  it("caps the grid at MAX_INGREDIENT_PALETTE_SLOTS even when more are owned+required (never falls back to scroll)", () => {
     const allToppingIds = ingredientsByCategory("topping").map((i) => i.id);
     expect(allToppingIds.length).toBeGreaterThan(MAX_INGREDIENT_PALETTE_SLOTS);
     const owned = [...STARTER_INGREDIENT_IDS, ...allToppingIds];
 
-    render(<Harness category="topping" ownedIngredientIds={owned} />);
+    render(<Harness category="topping" ownedIngredientIds={owned} recipeOverride={requireExactly(allToppingIds)} />);
 
-    const otherChips = within(otherTray()).getAllByRole("button");
-    expect(otherChips).toHaveLength(MAX_INGREDIENT_PALETTE_SLOTS);
-    // basil (margherita's own topping requirement) is Recommended, not "Other".
-    expect(within(otherTray()).queryByRole("button", { name: /バジル/ })).not.toBeInTheDocument();
+    const chips = within(tray()).getAllByRole("button");
+    expect(chips).toHaveLength(MAX_INGREDIENT_PALETTE_SLOTS);
   });
 
-  it("the 'Other' grid container has no horizontal-scroll marker (grid replaces the old scrolling row)", () => {
-    render(<Harness category="cheese" ownedIngredientIds={[...STARTER_INGREDIENT_IDS, "gorgonzola"]} />);
-    const tray = otherTray();
-    expect(tray.className).not.toMatch(/scroll/i);
+  it("the grid container has no horizontal-scroll marker (grid replaces the old scrolling row)", () => {
+    render(
+      <Harness
+        category="cheese"
+        ownedIngredientIds={[...STARTER_INGREDIENT_IDS, "gorgonzola"]}
+        recipeOverride={requireExactly(["mozzarella", "gorgonzola"])}
+      />,
+    );
+    const el = tray();
+    expect(el.className).not.toMatch(/scroll/i);
     // jsdom does not apply the stylesheet, so this only guards against an inline override
     // reintroducing scroll -- the real overflow-x:0 check is the 390x844 browser
     // verification in the Result Report.
-    expect(tray.style.overflowX).toBe("");
+    expect(el.style.overflowX).toBe("");
   });
 
-  // Physical drag itself is identical machinery regardless of which section a chip renders in
-  // (`renderChip` in IngredientTray.tsx attaches the same handlers either way) -- these three
-  // tests exercise it post-split via `mozzarella` (this harness's fixed `draggableIngredientIds`
-  // fixture), which happens to render in "Recommended" for the default margherita recipe;
-  // IngredientTray.physicalDragReset.test.tsx is the dedicated, exhaustive drag-safety-net
-  // coverage, re-run unmodified alongside this file.
-  it("physical drag onto the pizza still works after the Recommended/Other split", () => {
+  it("physical drag onto the pizza still works", () => {
     render(<Harness category="cheese" />);
     const chip = findChip("mozzarella");
 
@@ -217,7 +226,7 @@ describe("Ingredient Palette: fixed 3x2 'Other' grid, no scroll (Human Feel Fix 
     expect(screen.getByTestId("selected-id").textContent).toBe("basil");
   });
 
-  it("RESET_PIZZA mid-drag still discards a stale physical-drag session after the split", () => {
+  it("RESET_PIZZA mid-drag still discards a stale physical-drag session", () => {
     render(<Harness category="cheese" />);
     const chip = findChip("mozzarella");
 
@@ -228,7 +237,7 @@ describe("Ingredient Palette: fixed 3x2 'Other' grid, no scroll (Human Feel Fix 
     expect(toppingCount()).toBe(0);
   });
 
-  it("outside-drop safety net still holds after the split", () => {
+  it("outside-drop safety net still holds", () => {
     render(<Harness category="cheese" />);
     const chip = findChip("mozzarella");
 
@@ -255,52 +264,47 @@ describe("Purchased onion stays reachable via page nav (Independent Review P1, P
     "mushroom",
     "onion",
   ];
-  const margherita = getRecipe("margherita");
-  if (!margherita) throw new Error("margherita fixture missing");
-  // Issue #86: margherita's own real `basil` requirement always claims one of the catalog's 7
-  // real topping ingredients as "Recommended", capping "Other" at 6 (exactly
-  // MAX_INGREDIENT_PALETTE_SLOTS) even with every topping owned -- never enough to actually
-  // reach the pagination boundary this suite exists to pin. This override (still every field
-  // from the real margherita recipe, only `requiredIngredients` zeroed) is what frees all 7 real
-  // topping ingredients into "Other" for that boundary, without inventing synthetic ingredient
-  // data (see the "mocked 30/62 ingredients" scalability coverage in
-  // IngredientTray.scalability.test.tsx for where a synthetic catalog is actually needed).
-  const noRequirementsRecipe = { ...margherita, requiredIngredients: [] };
+  // Issue #159 P0: the tray only ever offers owned ingredients the recipe requires -- this
+  // override requires every one of `sevenOwnedTopping`'s topping ids so the pagination boundary
+  // below is still reachable (the real margherita recipe alone requires only `basil`).
+  const sevenToppingRequirement = ["basil", "garlic", "oregano", "cherry-tomato", "egg", "mushroom", "onion"];
+  const allSevenRequiredRecipe = requireExactly(sevenToppingRequirement);
+  const sixToppingRequirement = ["basil", "garlic", "oregano", "cherry-tomato", "egg", "mushroom"];
+  const sixRequiredRecipe = requireExactly(sixToppingRequirement);
 
-  it("with <=6 owned in a category, no page nav is rendered (unchanged from pre-fix)", () => {
-    render(<Harness category="topping" />);
+  it("with <=6 owned-and-required in a category, no page nav is rendered (unchanged from pre-fix)", () => {
+    render(<Harness category="topping" recipeOverride={requireExactly(["basil"])} />);
     expect(screen.queryByRole("group", { name: "素材ページ切り替え" })).not.toBeInTheDocument();
   });
 
-  it("with exactly 6 'Other' owned, no page nav is rendered", () => {
+  it("with exactly 6 owned-and-required, no page nav is rendered", () => {
     // EP4: only `basil` remains Starter among toppings now (garlic/oregano/cherry-tomato/egg/
     // mushroom all gained their own `unlockCondition`) -- own every pre-Batch-1A topping except
     // `onion` explicitly (as production's Starter Grants would have by this point). Batch 1A
     // added 4 more toppings (sausage/pepperoni/anchovy/tuna) to the catalog, so this boundary
-    // case is now pinned via an explicit list rather than "every topping except onion" (which
-    // would be 10, not 6) -- still the same original 6-topping boundary this test exists to pin.
-    const sixOwnedToppings = ["basil", "garlic", "oregano", "cherry-tomato", "egg", "mushroom"];
-    expect(sixOwnedToppings).toHaveLength(MAX_INGREDIENT_PALETTE_SLOTS);
+    // case is now pinned via an explicit list rather than "every topping" (which would be 13,
+    // not 6) -- still the same original 6-topping boundary this test exists to pin.
+    expect(sixToppingRequirement).toHaveLength(MAX_INGREDIENT_PALETTE_SLOTS);
     render(
       <Harness
         category="topping"
-        ownedIngredientIds={[...STARTER_INGREDIENT_IDS, ...sixOwnedToppings]}
-        recipeOverride={noRequirementsRecipe}
+        ownedIngredientIds={[...STARTER_INGREDIENT_IDS, ...sixToppingRequirement]}
+        recipeOverride={sixRequiredRecipe}
       />,
     );
     expect(screen.queryByRole("group", { name: "素材ページ切り替え" })).not.toBeInTheDocument();
-    expect(within(otherTray()).getAllByRole("button")).toHaveLength(MAX_INGREDIENT_PALETTE_SLOTS);
+    expect(within(tray()).getAllByRole("button")).toHaveLength(MAX_INGREDIENT_PALETTE_SLOTS);
   });
 
-  it("with 7 'Other' owned (onion owned), page 1 shows the original 6 and hides onion", () => {
-    render(<Harness category="topping" ownedIngredientIds={sevenOwnedTopping} recipeOverride={noRequirementsRecipe} />);
+  it("with 7 owned-and-required (onion included), page 1 shows the original 6 and hides onion", () => {
+    render(<Harness category="topping" ownedIngredientIds={sevenOwnedTopping} recipeOverride={allSevenRequiredRecipe} />);
     expect(screen.getByRole("group", { name: "素材ページ切り替え" })).toBeInTheDocument();
     expect(screen.getByText("1 / 2")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /たまねぎ/ })).not.toBeInTheDocument();
   });
 
   it("navigating to page 2 reveals onion, and it can be selected", () => {
-    render(<Harness category="topping" ownedIngredientIds={sevenOwnedTopping} recipeOverride={noRequirementsRecipe} />);
+    render(<Harness category="topping" ownedIngredientIds={sevenOwnedTopping} recipeOverride={allSevenRequiredRecipe} />);
 
     fireEvent.click(screen.getByRole("button", { name: "次のページ" }));
 
@@ -313,7 +317,7 @@ describe("Purchased onion stays reachable via page nav (Independent Review P1, P
   });
 
   it("onion is not in draggableIngredientIds, so it selects via tap like every other non-physical topping", () => {
-    render(<Harness category="topping" ownedIngredientIds={sevenOwnedTopping} recipeOverride={noRequirementsRecipe} />);
+    render(<Harness category="topping" ownedIngredientIds={sevenOwnedTopping} recipeOverride={allSevenRequiredRecipe} />);
     fireEvent.click(screen.getByRole("button", { name: "次のページ" }));
     const onionChip = screen.getByRole("button", { name: /たまねぎ/ });
 
@@ -323,7 +327,7 @@ describe("Purchased onion stays reachable via page nav (Independent Review P1, P
   });
 
   it("the 前のページ button is disabled on page 1 and 次のページ disabled on the last page", () => {
-    render(<Harness category="topping" ownedIngredientIds={sevenOwnedTopping} recipeOverride={noRequirementsRecipe} />);
+    render(<Harness category="topping" ownedIngredientIds={sevenOwnedTopping} recipeOverride={allSevenRequiredRecipe} />);
     expect(screen.getByRole("button", { name: "前のページ" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "次のページ" })).not.toBeDisabled();
 
@@ -334,18 +338,18 @@ describe("Purchased onion stays reachable via page nav (Independent Review P1, P
 
   it("switching category resets back to page 1", () => {
     const { rerender } = render(
-      <Harness category="topping" ownedIngredientIds={sevenOwnedTopping} recipeOverride={noRequirementsRecipe} />,
+      <Harness category="topping" ownedIngredientIds={sevenOwnedTopping} recipeOverride={allSevenRequiredRecipe} />,
     );
     fireEvent.click(screen.getByRole("button", { name: "次のページ" }));
     expect(screen.getByText("2 / 2")).toBeInTheDocument();
 
-    rerender(<Harness category="cheese" ownedIngredientIds={sevenOwnedTopping} recipeOverride={noRequirementsRecipe} />);
-    rerender(<Harness category="topping" ownedIngredientIds={sevenOwnedTopping} recipeOverride={noRequirementsRecipe} />);
+    rerender(<Harness category="cheese" ownedIngredientIds={sevenOwnedTopping} recipeOverride={allSevenRequiredRecipe} />);
+    rerender(<Harness category="topping" ownedIngredientIds={sevenOwnedTopping} recipeOverride={allSevenRequiredRecipe} />);
     expect(screen.getByText("1 / 2")).toBeInTheDocument();
   });
 
   it("switching pages mid-drag aborts the stale session (no commit onto the new page)", () => {
-    render(<Harness category="topping" ownedIngredientIds={sevenOwnedTopping} recipeOverride={noRequirementsRecipe} />);
+    render(<Harness category="topping" ownedIngredientIds={sevenOwnedTopping} recipeOverride={allSevenRequiredRecipe} />);
     const chip = findChip("garlic");
 
     startDrag(chip, 1);
@@ -355,7 +359,7 @@ describe("Purchased onion stays reachable via page nav (Independent Review P1, P
     expect(toppingCount()).toBe(0);
   });
 
-  it("no regression: Basil (Recommended) selection and physical drag on page 1 still work with 7 owned", () => {
+  it("no regression: Basil selection and physical drag on page 1 still work with 7 owned", () => {
     render(<Harness category="topping" ownedIngredientIds={sevenOwnedTopping} />);
     const chip = findChip("basil");
 

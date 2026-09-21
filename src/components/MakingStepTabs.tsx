@@ -25,26 +25,41 @@ import type { MakingStep } from "../state/gameReducer";
  * reducer-side or UI-side completion gate today, so their own "next" tab is always tappable the
  * moment it becomes the immediate next step.
  *
- * BAKE is rendered as a trailing, permanently non-interactive indicator (never a `<button>`) --
- * per Issue #86's own recommendation, leaving `START_BAKE` reachable only through the existing
- * dedicated 「焼く！」 CTA rather than adding a second trigger for leaving PREPARE entirely.
- *
  * Recipe Cooking Steps 1.0 Phase 1A (docs/design/TETO_RECIPE-COOKING-STEPS_1.0.md §9): this
- * component no longer owns its own fixed 4-step array -- the caller (GameScreen.tsx) now passes
- * the active round's own sequence (`preBakeSteps(state.cookingProfile)`,
- * ../data/cookingProfiles.ts), so a recipe-specific sequence can render here without a change to
- * this file. For every one of the 15 shipped recipes that sequence is always exactly
- * `["DOUGH", "SAUCE", "CHEESE", "TOPPING"]` (`DEFAULT_COOKING_PROFILE`), so the tab strip's
- * visible content is unchanged. `STEP_LABEL` below covers every widened `MakingStep` value so
- * this stays a total function ahead of any step's own implementation phase, but no `steps` prop
- * this component is ever handed during normal play includes one of those future values yet.
+ * component no longer owns its own fixed 4-step array -- the caller (GameScreen.tsx) passes the
+ * active round's own pre-BAKE sequence (`steps`, `preBakeSteps(state.cookingProfile)`,
+ * ../data/cookingProfiles.ts). For every one of the 15 shipped recipes that sequence is always
+ * exactly `["DOUGH", "SAUCE", "CHEESE", "TOPPING"]` (`DEFAULT_COOKING_PROFILE`).
+ *
+ * Issue #159 P0 (Cooking UI 1-Screen Polish): a real-device Fresh Audit (2026-09-21) found the
+ * strip only ever rendered during PREPARE, so a cut-target recipe's own CUT step never appeared
+ * in this nav at all (it got a separate, PREPARE-strip-less POST_BAKE screen instead) -- the
+ * step sequence a player saw was inconsistent depending on where they were in the round. This
+ * component now optionally also renders `postSteps` (`postBakeSteps(state.cookingProfile)`,
+ * always `["CUT"]` for margherita today, `[]` for every other recipe -- i.e. still fully
+ * recipe-aware, no new per-recipe logic added here) after the BAKE indicator, and takes an
+ * explicit `currentPhase` so the same strip can render correctly (steps before BAKE showing
+ * completed, BAKE itself showing active, `postSteps` showing locked) once GameScreen mounts it
+ * during BAKE and POST_BAKE too, not just PREPARE -- "一貫表示" (Issue #159's own wording) means
+ * the full 生地→ソース→チーズ→トッピング→焼く→切る sequence is visible and legible at every one
+ * of those phases, not just before BAKE. `currentPhase` defaults to `"PREPARE"` and `postSteps`
+ * defaults to `[]`, so every pre-#159 caller/test that only passed `steps`/`currentStep` keeps
+ * behaving exactly as before.
  */
 
+// Issue #159 P0: TOPPING's tab label is "具材" here, not the "トッピング" this recipe's own
+// hint/inventory copy elsewhere still uses (that copy is untouched -- see this issue's own
+// acceptance criteria wording, "具材/トッピング", which names both). A narrow tab strip fitting
+// six items (DOUGH/SAUCE/CHEESE/TOPPING + the BAKE indicator + CUT for a cut-target recipe)
+// within 361-390px was the actual mechanism behind "「焼く」のはみ出し" -- "トッピング"'s own
+// 5-character width alone pushed the flex row's total content past the viewport, clipping the
+// trailing BAKE/CUT tabs off the right edge (real-device Fresh Audit, 2026-09-21). "具材" is
+// half the width and reads naturally as the same step.
 const STEP_LABEL: Record<MakingStep, string> = {
   DOUGH: "生地",
   SAUCE: "ソース",
   CHEESE: "チーズ",
-  TOPPING: "トッピング",
+  TOPPING: "具材",
   CUT: "カット",
   FOLD: "折りたたみ",
   SEAL: "とじる",
@@ -55,63 +70,124 @@ const STEP_LABEL: Record<MakingStep, string> = {
 interface MakingStepTabsProps {
   /** The active round's own ordered pre-BAKE step sequence (`preBakeSteps(state.cookingProfile)`,
    *  ../data/cookingProfiles.ts) -- always `["DOUGH", "SAUCE", "CHEESE", "TOPPING"]` for every one
-   *  of the 15 shipped recipes today. Replaces this component's own former module-level
-   *  `STEP_ORDER` constant (Recipe Cooking Steps 1.0 Phase 1A, §9). */
+   *  of the 15 shipped recipes today. */
   steps: readonly MakingStep[];
+  /** Issue #159 P0: the active round's own ordered POST_BAKE step sequence
+   *  (`postBakeSteps(state.cookingProfile)`) -- `["CUT"]` for margherita, `[]` (the default) for
+   *  every other recipe today. Rendered after the BAKE indicator so a cut-target recipe's own
+   *  nav reads 生地→ソース→チーズ→トッピング→焼く→切る end to end. */
+  postSteps?: readonly MakingStep[];
   currentStep: MakingStep;
+  /** Issue #159 P0: which of the three phases this round is currently in -- drives whether
+   *  `steps`/the BAKE indicator/`postSteps` read as completed/active/locked. Defaults to
+   *  `"PREPARE"` (this component's only phase before #159), so a caller mounting it only during
+   *  PREPARE never needs to pass this explicitly. */
+  currentPhase?: "PREPARE" | "BAKE" | "POST_BAKE";
   /** Whether the immediate next step's tab may currently be tapped to advance -- the same gate
-   *  driving the 「次へ」 CTA's own `disabled` attribute (see GameScreen.tsx). Ignored for every
-   *  tab that isn't the immediate next one -- those are disabled unconditionally. */
+   *  driving the 「次へ」/「切り終わる」 CTA's own `disabled` attribute (see GameScreen.tsx).
+   *  Ignored for every tab that isn't the immediate next one -- those are disabled
+   *  unconditionally. */
   nextReady: boolean;
-  /** Dispatches the reducer's `CONFIRM_MAKING_STEP` -- identical to the 「次へ」 CTA's own
-   *  handler. Never called for any tab but the immediate next one. */
+  /** Dispatches the reducer's `CONFIRM_MAKING_STEP` -- identical to the 「次へ」/「切り終わる」
+   *  CTA's own handler. Never called for any tab but the immediate next one. */
   onAdvance: () => void;
 }
 
-export function MakingStepTabs({ steps, currentStep, nextReady, onAdvance }: MakingStepTabsProps) {
-  const currentIndex = steps.indexOf(currentStep);
-  const isLastStep = currentIndex === steps.length - 1;
+interface TabVisualState {
+  isCompleted: boolean;
+  isActive: boolean;
+  isNext: boolean;
+}
+
+function tabState(
+  index: number,
+  currentIndex: number,
+  sectionReached: boolean,
+  sectionCurrent: boolean,
+): TabVisualState {
+  if (!sectionCurrent) {
+    // This section (pre-BAKE steps or postSteps) isn't the one the round is currently walking --
+    // either it's already fully done (sectionReached, every tab in it reads as completed) or it
+    // hasn't started yet (every tab locked).
+    return { isCompleted: sectionReached, isActive: false, isNext: false };
+  }
+  return {
+    isCompleted: index < currentIndex,
+    isActive: index === currentIndex,
+    isNext: index === currentIndex + 1,
+  };
+}
+
+export function MakingStepTabs({
+  steps,
+  postSteps = [],
+  currentStep,
+  currentPhase = "PREPARE",
+  nextReady,
+  onAdvance,
+}: MakingStepTabsProps) {
+  const preIndex = steps.indexOf(currentStep);
+  const postIndex = postSteps.indexOf(currentStep);
+  const isPreCurrent = currentPhase === "PREPARE";
+  const isPostCurrent = currentPhase === "POST_BAKE";
+  // Pre-BAKE steps read as fully completed once the round has moved on to BAKE or POST_BAKE --
+  // there is no partial-completion state for this section from either of those phases.
+  const preReached = currentPhase !== "PREPARE";
+  const postReached = false; // postSteps can never be "already done" while this strip is visible
+  // (POST_BAKE's own last step leaving POST_BAKE ends the round -- RESULT renders a different
+  // screen entirely, not this strip).
+
+  const bakeIsActive = currentPhase === "BAKE";
+  const bakeIsCompleted = currentPhase === "POST_BAKE";
+  // Ready to tap 「焼く！」: the pre-BAKE section's own last step is current and tappable-next
+  // territory has been fully walked -- unchanged meaning from pre-#159 (steps' own last index).
+  const bakeReady = isPreCurrent && preIndex === steps.length - 1;
+
+  function renderTab(step: MakingStep, state: TabVisualState) {
+    const { isCompleted, isActive, isNext } = state;
+    const isLocked = !isActive && !isCompleted && !isNext;
+    const tappable = isNext && nextReady;
+    const label = STEP_LABEL[step];
+    return (
+      <button
+        key={step}
+        type="button"
+        role="tab"
+        aria-selected={isActive}
+        aria-current={isActive ? "step" : undefined}
+        className={`making-step-tab making-step-tab--${step.toLowerCase()} ${
+          isActive ? "making-step-tab--active" : ""
+        } ${isCompleted ? "making-step-tab--completed" : ""} ${
+          isNext ? "making-step-tab--next" : ""
+        } ${isLocked ? "making-step-tab--locked" : ""}`}
+        disabled={!tappable}
+        onClick={tappable ? onAdvance : undefined}
+      >
+        {isCompleted ? `✓ ${label}` : label}
+      </button>
+    );
+  }
 
   return (
     <div className="making-step-tabs" role="tablist" aria-label="ピザづくりの工程">
-      {steps.map((step, index) => {
-        const isCompleted = index < currentIndex;
-        const isActive = index === currentIndex;
-        const isNext = index === currentIndex + 1;
-        const isLocked = !isActive && !isCompleted && !isNext;
-        const tappable = isNext && nextReady;
-        const label = STEP_LABEL[step];
-        return (
-          <button
-            key={step}
-            type="button"
-            role="tab"
-            aria-selected={isActive}
-            aria-current={isActive ? "step" : undefined}
-            className={`making-step-tab making-step-tab--${step.toLowerCase()} ${
-              isActive ? "making-step-tab--active" : ""
-            } ${isCompleted ? "making-step-tab--completed" : ""} ${
-              isNext ? "making-step-tab--next" : ""
-            } ${isLocked ? "making-step-tab--locked" : ""}`}
-            disabled={!tappable}
-            onClick={tappable ? onAdvance : undefined}
-          >
-            {isCompleted ? `✓ ${label}` : label}
-          </button>
-        );
-      })}
-      {/* Non-interactive by design -- see this file's own header comment. "Ready" once the
-          active step is the sequence's own last step (was a literal `"TOPPING"` check before
-          Phase 1A generalized `steps` -- `isLastStep` is the same condition, expressed against
-          whatever sequence this round is actually using). */}
+      {steps.map((step, index) =>
+        renderTab(step, tabState(index, preIndex, preReached, isPreCurrent)),
+      )}
+      {/* Non-interactive by design -- see this file's own header comment. START_BAKE stays
+          reachable only through the dedicated 「焼く！」 CTA, never a tap here. */}
       <div
         className={`making-step-tab making-step-tab--bake ${
-          isLastStep ? "making-step-tab--bake-ready" : ""
+          bakeReady ? "making-step-tab--bake-ready" : ""
+        } ${bakeIsActive ? "making-step-tab--bake-active" : ""} ${
+          bakeIsCompleted ? "making-step-tab--completed" : ""
         }`}
         aria-hidden="true"
       >
-        {"\u{1F525}"} 焼く
+        {bakeIsCompleted ? `✓ ${"\u{1F525}"} 焼く` : `${"\u{1F525}"} 焼く`}
       </div>
+      {postSteps.map((step, index) =>
+        renderTab(step, tabState(index, postIndex, postReached, isPostCurrent)),
+      )}
     </div>
   );
 }

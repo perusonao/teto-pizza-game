@@ -250,9 +250,12 @@ describe("SPREAD ingredients have no generic keyboard center-tap activation (PR 
     // Issue #32 Phase 2: category tabs are locked to the current making step (no free
     // switching -- see IngredientTray.tsx), so reaching the topping tray now goes through the
     // real "次へ" step-confirm CTA (SAUCE -> CHEESE -> TOPPING), exactly like a real player.
+    // Issue #159 P0: the tray only ever offers this round's own recipe-required ingredients
+    // (see IngredientTray.tsx) -- this harness's default recipe (margherita) requires basil,
+    // not garlic, as its one topping.
     fireEvent.click(screen.getByRole("button", { name: /次へ/ }));
     fireEvent.click(screen.getByRole("button", { name: /次へ/ }));
-    fireEvent.click(screen.getByRole("button", { name: /にんにく/ }));
+    fireEvent.click(screen.getByRole("button", { name: /バジル/ }));
     expect(getDough().getAttribute("tabindex")).toBe("0");
   });
 

@@ -1172,6 +1172,18 @@ export function PizzaStage({
             aria-hidden="true"
           />
         )}
+        {/* Issue #159 P1 (olive oil visibility): olive oil's own paint color (#e9d9a0,
+            ingredients.ts) is a near-match for the dough's own warm pale gold background, so
+            even with the existing saturate/contrast/drop-shadow filter (Issue #32 Finding 2-A/
+            2-B, above) a real-device Fresh Audit (2026-09-21) still found it hard to read at a
+            glance. This adds a distinct glossy highlight sweep + a soft ring tracing the dough's
+            own edge -- rendering-only (a `pointer-events: none` decorative layer keyed off the
+            same `isOilSauce`/`showSauceHeatmap`/`!isFieldSauceContext` conditions the sauce
+            visuals above already use), never reads or writes
+            `sauceDeposits`/`sauceIds`/anything Scoring 2.0 sees. */}
+        {isOilSauce && (showSauceHeatmap || !isFieldSauceContext) && (
+          <div className="pizza-sauce-oil-sheen" aria-hidden="true" />
+        )}
         {pizza.toppings.map((t) => {
           const ingredient = getIngredient(t.ingredientId);
           if (!ingredient) return null;
