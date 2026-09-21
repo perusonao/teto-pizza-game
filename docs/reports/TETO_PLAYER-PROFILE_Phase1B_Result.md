@@ -513,3 +513,32 @@ score/profile authority remain untouched.
 
 `969b2d966dbe36a9334df11e7c058b16562a2a65` (merge commit, pushed to the same PR #133 branch,
 `claude/ranking-display-name-snapshot-brclvx` -- no new PR opened).
+
+## 18. Fresh Merge Follow-up 3 -- catch-up to main after Pizza Cutting Phase 4 Fresh Audit (#136)
+
+- **Latest `main` SHA**: `fed81948ee9ddca87cb1ca6b4b1522fed34ae0c5` (#136, "Pizza Cutting 1.0
+  Phase 4: Human Feel / Activation Fresh Audit (docs-only)").
+- **#136 is docs/screenshots-only**: `git diff --stat 1b0b764..fed8194` -- 1 new doc
+  (`docs/reports/TETO_PIZZA-CUTTING_Phase4_Human-Feel_Fresh-Audit.md`) + 24 new screenshots
+  under `docs/reports/screenshots/pizza-cutting-phase4-audit/`, 512 insertions, 0 deletions, no
+  production code, no Firebase change, no workflow change, no save schema change -- confirmed
+  directly (not assumed), and zero overlap with this PR's own 17 files.
+- **Conflicts: none** -- clean merge (`git merge origin/main`), nothing to resolve.
+- **Phase 1B production diff unchanged**: `git diff origin/main...HEAD --stat` against the new
+  `main` lists the same 17 files with the exact same per-file line-count deltas as Follow-up 2
+  (section 17) -- `functions/src/index.ts` (20), `submitLunchRushScore.test.ts` (140),
+  `submitLunchRushScore.ts` (54), `App.css` (16), `WeeklyRankingOverlay.test.tsx` (98),
+  `WeeklyRankingOverlay.tsx` (6), `getMyProfile.ts` (8), `getWeeklyLeaderboard.test.ts` (92),
+  `getWeeklyLeaderboard.ts` (25), `displayNameValidation.ts` (10) -- byte-for-byte identical to
+  the prior fully-verified state. `.github/workflows/deploy.yml` and Pizza Cutting Phase 3's own
+  files (`ResultPanel.tsx`/`CutDebugPanel.tsx`/`GameScreen.tsx`) are all empty-diffed against the
+  new `main` (untouched). #136's own doc + 24 screenshots are present, unmodified.
+- Per this follow-up's own minimal scope: root/functions full test suites, the Firestore
+  emulator, and browser smoke were **not** re-run -- #136 introduces no code, so the prior
+  verification (Follow-up 2, section 17: root 109/2045, functions 72/72, build byte-identical)
+  still accurately describes the current state.
+
+### New HEAD
+
+`49aad197ead05371ffbd348442ba194fdb542ffa` (merge commit, pushed to the same PR #133 branch,
+`claude/ranking-display-name-snapshot-brclvx` -- no new PR opened).
