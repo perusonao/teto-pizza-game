@@ -1551,30 +1551,52 @@
    doc §14 Option D). `null`/omitted for every non-CUT recipe and for a round that never
    confirmed CUT, so this block simply never renders then (ResultPanel.tsx's own `cutEvaluation
    &&` guard) -- no empty/zero card ever shows for the other 14 recipes. Mirrors
-   `.pitz-credit-summary`'s own compact card/dl layout so this doesn't stretch RESULT taller
-   than that already-proven pattern at 390x844/360x800. */
+   `.pitz-credit-summary`'s own compact card layout so this doesn't stretch RESULT taller than
+   that already-proven pattern at 390x844/360x800.
+
+   Visual Polish 2.0C P1-5 Option B (Fresh Audit §10): native <details>, default closed, mirroring
+   `.result-panel__details` below -- was the single largest unconditionally-expanded contributor
+   to RESULT's primary CTA sitting below the fold. The CUT score itself stays on the always-
+   visible <summary>; slices/disclaimer/per-metric breakdown collapse into the body. */
 .cut-evaluation-summary {
   width: 100%;
   max-width: 320px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
   background: #eaf1fb;
   border-radius: 14px;
   padding: 12px 16px;
   box-sizing: border-box;
 }
 
-.cut-evaluation-summary__headline {
+.cut-evaluation-summary__summary {
   font-size: 15px;
   color: #2f5590;
   text-align: center;
-  margin: 0;
+  cursor: pointer;
+  list-style: none;
 }
 
-.cut-evaluation-summary__headline strong {
+.cut-evaluation-summary__summary strong {
   font-size: 18px;
   color: #1f3d66;
+}
+
+.cut-evaluation-summary__summary::-webkit-details-marker {
+  display: none;
+}
+
+.cut-evaluation-summary__summary::after {
+  content: " \25BE";
+}
+
+.cut-evaluation-summary[open] .cut-evaluation-summary__summary::after {
+  content: " \25B4";
+}
+
+.cut-evaluation-summary__content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
 }
 
 .cut-evaluation-summary__slices {

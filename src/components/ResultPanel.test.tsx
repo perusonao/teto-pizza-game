@@ -271,6 +271,79 @@ describe("ResultPanel", () => {
     expect(screen.getByText(/目標 6等分/)).toBeInTheDocument();
   });
 
+  // Visual Polish 2.0C P1-5 Option B (Fresh Audit §10): the CUT evaluation block collapses
+  // behind a native <details>, default closed, mirroring the existing
+  // `.result-panel__details`「くわしいスコアを見る」pattern -- was the single largest
+  // unconditionally-expanded content contributor pushing the primary CTA below the fold.
+  it("renders the CUT evaluation as a native <details>, default closed, when a CUT round is present", () => {
+    render(<ResultPanel {...baseProps()} cutEvaluation={baseCutEvaluation()} />);
+    const cutDetails = document.querySelector(".cut-evaluation-summary");
+    expect(cutDetails).toBeInTheDocument();
+    expect(cutDetails?.tagName).toBe("DETAILS");
+    expect(cutDetails).not.toHaveAttribute("open");
+  });
+
+  it("shows the CUT total score on the always-visible summary line", () => {
+    render(<ResultPanel {...baseProps()} cutEvaluation={baseCutEvaluation()} />);
+    const summary = document.querySelector(".cut-evaluation-summary__summary");
+    expect(summary).toBeInTheDocument();
+    expect(summary).toHaveTextContent(/カット/);
+    expect(summary).toHaveTextContent("96点");
+  });
+
+  it("reveals all existing CUT detail rows once opened (real tap on the summary), none dropped", () => {
+    render(<ResultPanel {...baseProps()} cutEvaluation={baseCutEvaluation()} />);
+    const cutDetails = document.querySelector(".cut-evaluation-summary") as HTMLDetailsElement;
+    const summary = document.querySelector(".cut-evaluation-summary__summary") as HTMLElement;
+    fireEvent.click(summary);
+    expect(cutDetails).toHaveAttribute("open");
+    expect(screen.getByText(/6等分/)).toBeInTheDocument();
+    expect(screen.getByText("※総合スコアとは別の評価です")).toBeInTheDocument();
+    expect(screen.getByText("均等さ")).toBeInTheDocument();
+    expect(screen.getByText("93")).toBeInTheDocument();
+    expect(screen.getByText("中心")).toBeInTheDocument();
+    expect(screen.getByText("97")).toBeInTheDocument();
+    expect(screen.getByText("切り分け")).toBeInTheDocument();
+    expect(screen.getByText("100")).toBeInTheDocument();
+  });
+
+  it("passes CUT score/metric values through unchanged -- the disclosure only changes display, not calculation", () => {
+    render(
+      <ResultPanel
+        {...baseProps()}
+        cutEvaluation={baseCutEvaluation({
+          cutScore: 59,
+          uniformity: 0.41,
+          centerAccuracy: 0.62,
+          completeness: 0.75,
+        })}
+      />,
+    );
+    const summary = document.querySelector(".cut-evaluation-summary__summary") as HTMLElement;
+    fireEvent.click(summary);
+    expect(summary).toHaveTextContent("59点");
+    expect(screen.getByText("41")).toBeInTheDocument();
+    expect(screen.getByText("62")).toBeInTheDocument();
+    expect(screen.getByText("75")).toBeInTheDocument();
+  });
+
+  it("keeps the primary retry CTAs present and wired alongside the CUT disclosure (no RESULT retry-flow regression)", () => {
+    const onRetrySameRecipe = vi.fn();
+    const onBackToPizzaSelect = vi.fn();
+    render(
+      <ResultPanel
+        {...baseProps()}
+        cutEvaluation={baseCutEvaluation()}
+        onRetrySameRecipe={onRetrySameRecipe}
+        onBackToPizzaSelect={onBackToPizzaSelect}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "もう一度つくる" }));
+    expect(onRetrySameRecipe).toHaveBeenCalledTimes(1);
+    fireEvent.click(screen.getByRole("button", { name: "別のピザを作る" }));
+    expect(onBackToPizzaSelect).toHaveBeenCalledTimes(1);
+  });
+
   it("omits the CUT evaluation summary for a non-CUT recipe (cutEvaluation null)", () => {
     render(<ResultPanel {...baseProps()} cutEvaluation={null} />);
     expect(document.querySelector(".cut-evaluation-summary")).not.toBeInTheDocument();
