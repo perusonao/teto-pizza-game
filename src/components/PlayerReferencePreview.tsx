@@ -1,8 +1,10 @@
 import type { PlayerPizzaReference } from "../data/playerReference";
+import { buildIdealSauceFixture } from "../data/referencePizza";
 import { getIngredient } from "../data/ingredients";
 import { getRecipe } from "../data/recipes";
-import { IngredientPieceVisual } from "./IngredientPieceVisual";
-import { stablePieceRotation } from "../logic/pieceDrag";
+import { createIdealDoughShape } from "../logic/doughShape";
+import { SauceHeatmapCanvas } from "./SauceHeatmapCanvas";
+import { buildPieceCountLabels, renderPizzaVisualPieces } from "./PizzaVisualPieces";
 
 interface PlayerReferencePreviewProps {
   reference: PlayerPizzaReference;
@@ -13,6 +15,9 @@ interface PlayerReferencePreviewProps {
   renderTrigger?: boolean;
 }
 
+const IDEAL_DOUGH_SHAPE = createIdealDoughShape();
+const IDEAL_SAUCE_FIXTURE = buildIdealSauceFixture();
+
 /**
  * Issue #47 Slice B Finding F: player-facing completed-pizza reference for every recipe that
  * has no Scoring 2.0 Reference fixture (`../data/referencePizza.ts` stays Margherita-only --
@@ -22,6 +27,18 @@ interface PlayerReferencePreviewProps {
  * `ReferencePreview`'s Margherita panel, this one shows no numeric quantity/coverage bars and
  * carries an explicit disclaimer, so a generated placement guide can never read as a real
  * scoring target.
+ *
+ * Issue #167 PR-B (Reference Truth): as of B2's own full 15/15 recipe coverage, every shipped
+ * recipe now has a `getReferencePizza` fixture, so `GameScreen.tsx` never actually falls back to
+ * this component in production today -- it is kept as the deliberate defensive path for any
+ * future recipe added without one (rather than crashing on a null Reference), and is still
+ * fully exercised by this component's own tests. The sauce swatch used to be a flat, ingredient-
+ * color-only circle with no coverage/shape signal at all; it now renders through the same
+ * `SauceHeatmapCanvas` pipeline PizzaStage/`ReferencePreview` share, fed the same generic
+ * `buildIdealSauceFixture()` geometry (ingredient-agnostic "painted evenly, rim left bare" --
+ * see referencePizza.ts's own header comment) -- a real painted-coverage picture instead of an
+ * unrelated flat fill, while the disclaimer below still makes clear this placement itself is
+ * generated, not an exact scoring target.
  */
 export function PlayerReferencePreview({
   reference,
@@ -33,13 +50,7 @@ export function PlayerReferencePreview({
   const recipeName = recipe?.nameJa ?? "";
   const sauceIngredient = reference.sauceIngredientId ? getIngredient(reference.sauceIngredientId) : null;
 
-  const pieceCaption = reference.pieceGroups
-    .map((group) => {
-      const ingredient = getIngredient(group.ingredientId);
-      return ingredient ? `${ingredient.nameJa}${group.positions.length}個` : null;
-    })
-    .filter((text): text is string => text !== null)
-    .join("、");
+  const pieceCaption = buildPieceCountLabels(reference.pieceGroups).join("、");
 
   return (
     <>
@@ -78,26 +89,17 @@ export function PlayerReferencePreview({
             </div>
 
             <div className="player-reference-mini-pizza" aria-hidden="true">
-              <div
-                className="player-reference-mini-pizza__sauce"
-                style={{ backgroundColor: sauceIngredient?.color ?? "#e2b876" }}
-              />
-              {reference.pieceGroups.flatMap((group) => {
-                const ingredient = getIngredient(group.ingredientId);
-                if (!ingredient) return [];
-                return group.positions.map((position, index) => (
-                  <span
-                    key={`${group.ingredientId}-${index}`}
-                    className="player-reference-mini-pizza__piece"
-                    style={{
-                      left: `${position.x}%`,
-                      top: `${position.y}%`,
-                      transform: `translate(-50%, -50%) rotate(${stablePieceRotation(group.ingredientId, position.x, position.y)}deg)`,
-                    }}
-                  >
-                    <IngredientPieceVisual ingredient={ingredient} />
-                  </span>
-                ));
+              {sauceIngredient && (
+                <SauceHeatmapCanvas
+                  deposits={IDEAL_SAUCE_FIXTURE}
+                  doughShape={IDEAL_DOUGH_SHAPE}
+                  color={sauceIngredient.color}
+                  className={`player-reference-mini-pizza__sauce ${sauceIngredient.id === "olive-oil" ? "pizza-sauce-heatmap--oil" : ""}`}
+                />
+              )}
+              {renderPizzaVisualPieces({
+                pieceGroups: reference.pieceGroups,
+                wrapperClassName: () => "player-reference-mini-pizza__piece",
               })}
             </div>
 

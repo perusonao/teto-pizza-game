@@ -1,8 +1,10 @@
 import type { CSSProperties } from "react";
 import type { ReferencePizza } from "../data/referencePizza";
+import { buildIdealSauceFixture } from "../data/referencePizza";
 import { getIngredient } from "../data/ingredients";
-import { IngredientPieceVisual } from "./IngredientPieceVisual";
-import { stablePieceRotation } from "../logic/pieceDrag";
+import { createIdealDoughShape } from "../logic/doughShape";
+import { SauceHeatmapCanvas } from "./SauceHeatmapCanvas";
+import { buildPieceCountLabels, renderPizzaVisualPieces } from "./PizzaVisualPieces";
 import { SAUCE_TARGET_RADIUS } from "../logic/sauceField";
 
 interface ReferencePreviewProps {
@@ -24,6 +26,9 @@ interface ReferencePreviewProps {
   renderTrigger?: boolean;
 }
 
+const IDEAL_DOUGH_SHAPE = createIdealDoughShape();
+const IDEAL_SAUCE_FIXTURE = buildIdealSauceFixture();
+
 /**
  * Phase 4A-1A: "見本" (Reference) button + compact popover. Shown during FREE PREPARE for any
  * recipe with a Scoring 2.0 Reference fixture (see App.tsx's `referenceModeEnabled` gating --
@@ -35,6 +40,16 @@ interface ReferencePreviewProps {
  * while open so a mis-tap can never reach the dough underneath (requirement: "Reference
  * 表示中でも誤操作しないこと"). Opening it also ends any active dispense session outright
  * (see `isOpen`'s doc comment) rather than merely blocking taps on top of a live one.
+ *
+ * Issue #167 PR-B (Reference Truth): the sauce circle used to be a flat color scaled/faded by
+ * `reference.sauce.coverage` alone (`transform: scale(0.55 + coverage*0.4)`) -- a single number
+ * standing in for "how much sauce", with no shape/spread information at all, and visually
+ * nothing like PizzaStage's own real painted heatmap. It now renders the exact same
+ * deterministic `buildIdealSauceFixture()` deposit sequence `reference.sauce.quantity`/
+ * `.coverage` are themselves derived from (see referencePizza.ts's own header comment), through
+ * the same `SauceHeatmapCanvas` pipeline PizzaStage's live gesture uses -- the popover's sauce
+ * patch is now a real "painted this way" picture, not a proxy shape, and can never silently
+ * drift from the numeric bars still shown below it (both read the same fixture/metrics).
  */
 export function ReferencePreview({
   reference,
@@ -44,13 +59,7 @@ export function ReferencePreview({
   renderTrigger = true,
 }: ReferencePreviewProps) {
   const sauceIngredient = getIngredient(reference.sauce.ingredientId);
-  const pieceCaption = reference.pieceGroups
-    .map((group) => {
-      const ingredient = getIngredient(group.ingredientId);
-      return ingredient ? `${ingredient.nameJa}${group.positions.length}個` : null;
-    })
-    .filter((text): text is string => text !== null)
-    .join("と");
+  const pieceCaption = buildPieceCountLabels(reference.pieceGroups).join("と");
 
   return (
     <>
@@ -97,30 +106,18 @@ export function ReferencePreview({
                 className="reference-mini-pizza__target-guide"
                 style={{ "--target-radius": `${SAUCE_TARGET_RADIUS}%` } as CSSProperties}
               />
-              <div
-                className="reference-mini-pizza__sauce"
-                style={{
-                  backgroundColor: sauceIngredient?.color ?? "#c73b2e",
-                  opacity: 0.35 + reference.sauce.coverage * 0.5,
-                  transform: `scale(${0.55 + reference.sauce.coverage * 0.4})`,
-                }}
-              />
-              {reference.pieceGroups.flatMap((group) => {
-                const ingredient = getIngredient(group.ingredientId);
-                if (!ingredient) return [];
-                return group.positions.map((position, index) => (
-                  <span
-                    key={`${group.ingredientId}-${index}`}
-                    className={`reference-mini-pizza__topping reference-mini-pizza__topping--${group.ingredientId}`}
-                    style={{
-                      left: `${position.x}%`,
-                      top: `${position.y}%`,
-                      transform: `translate(-50%, -50%) rotate(${stablePieceRotation(group.ingredientId, position.x, position.y)}deg)`,
-                    }}
-                  >
-                    <IngredientPieceVisual ingredient={ingredient} />
-                  </span>
-                ));
+              {sauceIngredient && (
+                <SauceHeatmapCanvas
+                  deposits={IDEAL_SAUCE_FIXTURE}
+                  doughShape={IDEAL_DOUGH_SHAPE}
+                  color={sauceIngredient.color}
+                  className={`reference-mini-pizza__sauce ${sauceIngredient.id === "olive-oil" ? "pizza-sauce-heatmap--oil" : ""}`}
+                />
+              )}
+              {renderPizzaVisualPieces({
+                pieceGroups: reference.pieceGroups,
+                wrapperClassName: (ingredientId) =>
+                  `reference-mini-pizza__topping reference-mini-pizza__topping--${ingredientId}`,
               })}
             </div>
 

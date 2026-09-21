@@ -1,17 +1,16 @@
-import type { CSSProperties } from "react";
 import { getIngredient } from "../data/ingredients";
-import { IngredientPieceVisual } from "./IngredientPieceVisual";
-import { stablePieceRotation } from "../logic/pieceDrag";
-
-interface ReferenceThumbnailPieceGroup {
-  ingredientId: string;
-  positions: readonly { x: number; y: number }[];
-}
+import { buildIdealSauceFixture } from "../data/referencePizza";
+import { createIdealDoughShape } from "../logic/doughShape";
+import { SauceHeatmapCanvas } from "./SauceHeatmapCanvas";
+import { renderPizzaVisualPieces, type PizzaVisualPieceGroup } from "./PizzaVisualPieces";
 
 interface ReferenceThumbnailProps {
   sauceIngredientId: string | null;
-  pieceGroups: readonly ReferenceThumbnailPieceGroup[];
+  pieceGroups: readonly PizzaVisualPieceGroup[];
 }
+
+const IDEAL_DOUGH_SHAPE = createIdealDoughShape();
+const IDEAL_SAUCE_FIXTURE = buildIdealSauceFixture();
 
 /**
  * Issue #159 P0 (Cooking UI 1-Screen Polish, bullet 5): GameScreen's own small always-visible
@@ -28,45 +27,33 @@ interface ReferenceThumbnailProps {
  * This component takes the exact same `pieceGroups`/sauce data GameScreen already resolves for
  * the popover (`referencePizza ?? getPlayerReferencePizza(state.recipe)`) and renders it at icon
  * size, so the mini thumbnail and the popover it opens are always built from one shared value --
- * not just "structurally similar" data, but literally the same object read twice. Deliberately
- * separate from `PizzaThumbnail` (Pizza Select's own card preview, out of this issue's "調理画面"
- * scope) rather than changing that shared component's own algorithm, which would also change
- * every Pizza Select card's appearance -- unrelated to and riskier than this issue's own fix.
+ * not just "structurally similar" data, but literally the same object read twice.
+ *
+ * Issue #167 PR-B (Reference Truth): the sauce swatch used to be a flat, uncoverage-aware
+ * background rect (`.reference-thumbnail__base`) -- it now renders the same deterministic
+ * `buildIdealSauceFixture()` painted-coverage heatmap the full Reference popover (below) and
+ * PizzaStage's own live gesture heatmap share (`SauceHeatmapCanvas`), so the "何を目指して塗れば
+ * いいのか" the sauce coverage should communicate is consistent from the very first glance a
+ * player gets, not only once they open the modal. Pieces render via the same
+ * `renderPizzaVisualPieces` helper the modal popovers use, not a locally hand-rolled emoji/cheese
+ * ternary (the emoji branch used to bypass `IngredientPieceVisual` entirely here).
  */
 export function ReferenceThumbnail({ sauceIngredientId, pieceGroups }: ReferenceThumbnailProps) {
   const sauceIngredient = sauceIngredientId ? getIngredient(sauceIngredientId) : null;
 
   return (
     <div className="reference-thumbnail" aria-hidden="true">
-      <div
-        className="reference-thumbnail__base"
-        style={{ backgroundColor: sauceIngredient?.color ?? "#f0d9a0" }}
-      />
-      {pieceGroups.flatMap((group) => {
-        const ingredient = getIngredient(group.ingredientId);
-        if (!ingredient) return [];
-        return group.positions.map((position, index) => {
-          const rotation = stablePieceRotation(group.ingredientId, position.x, position.y);
-          return (
-            <span
-              key={`${group.ingredientId}-${index}`}
-              className="reference-thumbnail__piece"
-              style={
-                {
-                  left: `${position.x}%`,
-                  top: `${position.y}%`,
-                  "--piece-rotation": `${rotation}deg`,
-                } as CSSProperties
-              }
-            >
-              {ingredient.category === "cheese" ? (
-                <IngredientPieceVisual ingredient={ingredient} />
-              ) : (
-                <span className="reference-thumbnail__piece-emoji">{ingredient.emoji}</span>
-              )}
-            </span>
-          );
-        });
+      {sauceIngredient && (
+        <SauceHeatmapCanvas
+          deposits={IDEAL_SAUCE_FIXTURE}
+          doughShape={IDEAL_DOUGH_SHAPE}
+          color={sauceIngredient.color}
+          className={`reference-thumbnail__base ${sauceIngredient.id === "olive-oil" ? "pizza-sauce-heatmap--oil" : ""}`}
+        />
+      )}
+      {renderPizzaVisualPieces({
+        pieceGroups,
+        wrapperClassName: () => "reference-thumbnail__piece",
       })}
     </div>
   );
