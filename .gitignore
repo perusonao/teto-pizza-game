@@ -24,6 +24,12 @@ functions/lib
 # committed (large binaries don't belong in this repo's history).
 artifacts/
 
+# Playwright e2e test output (playwright.config.ts, e2e/) -- ephemeral run artifacts, never
+# committed (mirrors artifacts/ above).
+test-results/
+playwright-report/
+blob-report/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
