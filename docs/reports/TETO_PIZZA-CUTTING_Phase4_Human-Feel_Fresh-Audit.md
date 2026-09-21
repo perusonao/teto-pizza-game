@@ -19,6 +19,20 @@ Completion Gate policy, save-schema boundary) — this audit's only job is the H
 design doc's own §16 requires before any further CUT phase, plus the rollout-decision surface
 (§13/§18) that gate feeds into.
 
+**Post-audit merge-forward (factual addendum, added after the audit itself was written):** the
+Fresh Audit above — every code read, every browser walkthrough, every screenshot, every finding
+in §§1–21 — was performed and written entirely against `24cee828…` (PR #132, Phase 3). It was
+**not** re-performed or re-derived against any later SHA. After this report and PR #136 were
+already open, `origin/main` advanced to `1b0b764b0c09d0f74215a04f303095bea577a572` via the
+separately-scoped, **docs-only** PR #135 ("Firebase Production Deploy via GitHub Actions — Phase 0
+Fresh Design", Issue #134: `docs/design/TETO_FIREBASE-GITHUB-ACTIONS-PRODUCTION-DEPLOY_1.0.md` +
+its own Result Report, 2 files, 712 insertions, zero code). This branch was fast-forward-merged
+onto that new tip (`git merge origin/main`, clean, zero conflicts, zero overlap with any file this
+audit touches or cites) purely to keep PR #136 mergeable against a moving `main` — **no finding,
+verdict, weight, screenshot, or claim in §§1–21 below was re-verified or altered by that merge.**
+If a future reader needs the CUT feature's contract re-confirmed against `1b0b764…` or later, that
+is a new Fresh Audit, not an edit to this one.
+
 ---
 
 ## 0. Fresh Sync
