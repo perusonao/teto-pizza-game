@@ -130,6 +130,20 @@ jobs:
         if: ${{ inputs.target == 'functions' || inputs.target == 'all' }}
         run: npx vitest run src/shared
 
+      - name: firestore -- set up JDK 21 (emulator runtime)
+        # The Firestore emulator (bundled inside firebase-tools) is a JVM process --
+        # firebase-tools 15.26.0 (env.FIREBASE_TOOLS_VERSION) refuses to start it below Java 21
+        # ("firebase-tools no longer supports Java version before 21"), and the default `java` on
+        # ubuntu-latest is older than that. `actions/setup-java` is GitHub's own recommended
+        # action for this; Temurin (Eclipse Adoptium) is its default, most broadly used
+        # distribution. Scoped to the same `firestore`/`all` targets as the step below -- the
+        # `functions`/`verify` targets never start an emulator, so they never need a JDK.
+        if: ${{ inputs.target == 'firestore' || inputs.target == 'all' }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
       - name: firestore -- rules emulator test
         # The one gate that actually exercises the rule text before it goes live. Design doc
         # section 7.

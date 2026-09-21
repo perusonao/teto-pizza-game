@@ -2,20 +2,24 @@
 
 Continues `docs/reports/TETO_FIREBASE-GITHUB-ACTIONS-PRODUCTION-DEPLOY_Phase1-2_Result.md`
 (unmodified, kept as-is per this task's own instruction) after PR #140 merged to `main`
-(`f88a653bd74153def3b91e2debf2dcdf774df8d7`). This report covers three sessions. **Session 1**
+(`f88a653bd74153def3b91e2debf2dcdf774df8d7`). This report covers four sessions. **Session 1**
 (below, mostly unchanged) built PR #142 (the `target: verify` addition) but could not dispatch it
 (`workflow_dispatch` requires the workflow file on the default branch). **Session 2** dispatched
 `target: verify` on `main` after PR #142 merged, and the run sat waiting for the `production`
 Environment's required-reviewer approval -- stopped there per this task's own instruction.
-**Session 3 ("Live verification run", near the bottom -- the current, authoritative status)**
-resumed after the owner approved that run, confirmed **WIF VERIFIED** from the run's actual
-logs, and re-audits the production-vs-`main` diff fresh before proposing a Phase 4 plan. See
-"Live verification run" for the current final verdict -- Session 1's own verdict further below
-is superseded on the WIF-result/production-mutation questions specifically (nothing else in
-Session 1 changed).
+**Session 3** resumed after the owner approved that run and confirmed **WIF VERIFIED** from the
+run's actual logs, then re-audited the production-vs-`main` diff and proposed a Phase 4 plan
+(Firestore first, then Functions, `target: all` never used). **Session 4 ("Phase 4a fix:
+Firestore Firestore emulator Java 21 requirement", near the bottom -- the current, authoritative
+status)** covers the real Phase 4a dispatch (`target: firestore`), its failure (Firestore
+emulator's Java version requirement, not WIF/IAM/rules), and the minimal workflow fix. See
+"Session 4" for the current final verdict -- Session 3's own verdict further below still holds
+for the WIF-verification question; only the Phase 4a *execution* attempt and its fix are new.
 
-**No Firebase production deploy has been performed by any session in this report. No `firebase
-deploy`, `gcloud functions deploy`, or Firestore rules/indexes deploy command was run.**
+**No Firebase production deploy has succeeded in any session in this report. Every `firebase
+deploy --only firestore:...` attempt so far either never ran (skipped by design) or failed before
+performing any write (Session 4's Phase 4a attempt) -- Firebase/GCP production state is
+unchanged from Session 3.**
 
 ## Fresh sync (before any change)
 
@@ -432,3 +436,187 @@ unchanged since Session 1 (only `setDisplayName` and the `users/{uid}` Firestore
 undeployed). A Phase 4 plan (Firestore first, then Functions, two separate approved dispatches,
 `target: all` deliberately not used) is proposed above but **not executed** -- this report stops
 here, per this task's explicit instruction not to perform a production deploy this session.
+
+---
+
+## Session 4: Phase 4a fix -- Firestore emulator Java 21 requirement
+
+### Fresh sync (before any change)
+
+- `git fetch origin main` -- `origin/main` unchanged since Session 3, tip
+  `73a27b274666bb9f4586553c1ea9b15707b981ac` (PR #143's own merge commit).
+- `git status --short`: only the pre-existing, untracked, untouched `.worktrees/` -- nothing
+  else pending.
+
+### Phase 4a dispatch (executed, per the owner's explicit instruction in this session's task)
+
+After the same fresh-confirmation checklist as Session 3 (workflow file content re-read in full
+from `origin/main`, `target: firestore`'s reachable-step set re-derived from the YAML's own `if:`
+conditions, `firestore.rules`/`firestore.indexes.json` re-read and confirmed unchanged, current
+production state re-checked read-only, no conflicting open PR or Environment drift found),
+`workflow_dispatch` was fired: `ref: main`, `target: firestore`, `head_sha:
+73a27b274666bb9f4586553c1ea9b15707b981ac`. The run
+(`https://github.com/perusonao/teto-pizza-game/actions/runs/35572662610`) sat waiting for the
+`production` Environment's required-reviewer gate; this session stopped there and reported the
+run URL, dispatch SHA, target, and the steps that would run after approval -- per this task's own
+instruction, the approval itself was left entirely to the human owner.
+
+### Failure (fresh-confirmed from the Jobs API and full run log, not merely trusting the report from the other tool that first flagged it)
+
+The owner approved the run; it completed with `conclusion: failure`. This session independently
+re-fetched `repos/perusonao/teto-pizza-game/actions/runs/35572662610/jobs` and the full log
+(`gh run view --log`) rather than trusting the failure description handed to it:
+
+| Step | Conclusion |
+|---|---|
+| Guard against non-main ref | success |
+| Authenticate to Google Cloud (WIF) | success |
+| Install firebase-tools | success |
+| Project-ID guard (preflight) | success |
+| npm ci (root) | success (two `EBADENGINE` warnings only -- see "Node engine audit" below) |
+| functions -- * (5 steps) | skipped (correct for `target: firestore`) |
+| root -- src/shared scoped test | skipped (correct for `target: firestore`) |
+| **firestore -- rules emulator test** | **failure** |
+| Deploy -- functions | skipped |
+| **Deploy -- firestore (rules + indexes)** | **skipped** (never reached -- the prior step's failure stopped the job before this step could run) |
+
+Exact error, from the step's own log (`npx firebase-tools emulators:exec --only firestore ...`):
+
+```
+Error: firebase-tools no longer supports Java version before 21. Please install a JDK at version 21 or above to get a compatible runtime.
+```
+
+**Root cause: the Firestore emulator (a JVM process bundled inside `firebase-tools`) requires
+Java 21+, and `ubuntu-latest`'s default `java` (not configured by this workflow at all before
+this fix) is older than that.** This is confirmed as the sole cause, not a guess: the error is
+emitted by `firebase-tools` itself immediately as it tries to start the emulator, before the
+wrapped `vitest run --config vitest.rules.config.ts` command ever executes -- **not** a Firestore
+rules-text problem, **not** a WIF/IAM/auth problem (every step through `Project-ID guard
+(preflight)` succeeded), and **not** caused by anything in this session's own Phase 1-3 work
+(the workflow never configured a JDK at all before this fix -- this gap existed from Phase 2's
+original implementation, simply never exercised by `target: verify`, which never reaches the
+Firestore-emulator step).
+
+**Production mutation from this failed run: NONE.** `Deploy -- firestore (rules + indexes)`
+shows `skipped` in the Jobs API response, and the full run log contains no `firebase deploy`
+invocation anywhere -- the job failed and stopped *before* reaching any write-capable step. No
+Firestore rule, index, or Function was touched.
+
+### Node engine audit (informational -- not this failure's cause, not fixed by this session)
+
+The same log also shows two `npm warn EBADENGINE` warnings during `npm ci (root)`:
+
+```
+npm warn EBADENGINE package: '@testing-library/jest-dom@7.0.1', required: { node: '>=22', ... }, current: { node: 'v20.20.2', ... }
+npm warn EBADENGINE package: 'vitest@5.0.0', required: { node: '^22.12.0 || ^24.0.0 || >=26.0.0' }, current: { node: 'v20.20.2', ... }
+```
+
+`actions/setup-node@v4`'s `node-version: 20` resolved to `20.20.2` on this run's runner. These
+are **warnings, not failures** -- `npm ci (root)` itself reports `conclusion: success` -- and are
+unrelated to this run's actual failure (which happened three steps later, inside the Firestore
+emulator's own JVM startup, before `vitest` was ever invoked). **This session's fresh audit of
+existing workflows (`ci.yml`, `deploy.yml`) confirms both already pin `node-version: 20`, with no
+existing Node-22/24 precedent anywhere in this repository's CI.** Per this task's own explicit
+instruction ("不確実ならJava 21修正だけにしてください"), and since nothing in this session's own
+evidence shows Node 20 *causing* a real failure (only an engine-range warning that `npm`
+tolerates), **this session does not change the Node version in this workflow** -- doing so would
+diverge from `ci.yml`/`deploy.yml`'s own established, working convention on a workflow this
+task's own safety rules treat with extra caution, for a problem that isn't actually blocking
+anything today. Left as a documented audit finding for a future, separately-scoped decision, not
+mixed into this Java-only fix.
+
+### Fix design and rationale
+
+**Chosen: `actions/setup-java@v4`, `distribution: temurin`, `java-version: "21"`**, added as a
+new step immediately before "firestore -- rules emulator test", gated with the exact same
+`if: ${{ inputs.target == 'firestore' || inputs.target == 'all' }}` condition as that step (so
+`functions` and `verify` dispatches never pay for or need a JDK setup at all).
+
+- `actions/setup-java` is GitHub's own first-party, officially documented action for this exact
+  purpose (installing a JDK on a runner) -- not a third-party or ad-hoc solution.
+- Temurin (Eclipse Adoptium) is `actions/setup-java`'s own most commonly used distribution
+  (OpenJDK build), and the one most Firebase-emulator CI examples in the wild use -- chosen for
+  being the unsurprising, well-supported default rather than for any project-specific reason.
+- `java-version: "21"` matches the error message's own stated minimum exactly -- not rounded up
+  to a later LTS (e.g. 24) speculatively, since 21 is confirmed sufficient by the error text
+  itself and this task's own instruction is to make the minimal fix, not to future-proof beyond
+  what's known to be needed.
+- Fresh-audited before adding: **no existing `.github/workflows/*.yml` file in this repository
+  uses `actions/setup-java` or any Java toolchain today** (`ci.yml`/`deploy.yml` both confirmed
+  Java-free) -- this is new, not a duplicate of an existing setup, and there was no existing
+  convention to match beyond "use GitHub's own recommended action," which this does.
+- Scoped (not unconditional): placing the `if:` condition on the new step, identical to the
+  existing "firestore -- rules emulator test" step's own condition, keeps `functions` and
+  `verify` dispatches exactly as fast and JDK-free as before -- no wasted download/setup time for
+  targets that never start an emulator.
+
+### Changed files
+
+| File | Change |
+|---|---|
+| `.github/workflows/firebase-production-deploy.yml` | `+14` lines -- one new step (`actions/setup-java@v4`), no existing step modified, no `firebase deploy` command touched |
+| `docs/reports/TETO_FIREBASE-GITHUB-ACTIONS-PRODUCTION-DEPLOY_Phase3_Verification_Result.md` | this section appended (Session 4) |
+
+No `firestore.rules`, `firestore.indexes.json`, `functions/*`, `src/*`, `package.json`,
+`ci.yml`, or `deploy.yml` file was touched. No GCP/GitHub infrastructure (WIF pool/provider,
+service account, IAM bindings, `production` Environment, its variables) was read, written, or
+otherwise touched by this session -- this fix is entirely a `.github/workflows/` YAML change.
+
+### Verification performed
+
+1. **YAML syntax**: re-validated with `python`+`PyYAML` (`yaml.safe_load`) -- parses cleanly,
+   18 steps (was 17; one new step added).
+2. **Target reachability re-derived from the YAML's own conditions, not assumed**:
+   - `verify`: reaches `Guard against non-main ref`, `checkout`, `setup-node`, `Authenticate to
+     Google Cloud (WIF)`, `Install firebase-tools`, `Project-ID guard (preflight)`, `Job summary`
+     only. `npm ci (root)` (`if: target != 'verify'`), the new JDK-setup step and the rules
+     emulator step (both `if: target == 'firestore' || 'all'`), and both `Deploy` steps
+     (`functions`/`all` or `firestore`/`all`) all evaluate `false` for `verify` -- **unchanged
+     from Session 2/3, confirmed again, not merely assumed to still hold.**
+   - `firestore`: reaches everything `verify` reaches, plus `npm ci (root)`, **the new "firestore
+     -- set up JDK 21 (emulator runtime)" step**, `firestore -- rules emulator test`, and `Deploy
+     -- firestore (rules + indexes)`. Every `functions -- *` step and `Deploy -- functions`
+     remain unreachable (`if: target == 'functions' || 'all'`, and `firestore` matches neither).
+   - `functions`: unaffected by this change -- the new JDK step's condition
+     (`firestore`/`all`) never matches `functions`, so it is skipped exactly like the existing
+     Firestore-only steps already were.
+   - `all`: reaches everything, including the new JDK-setup step, positioned before the rules
+     emulator step and well before either `Deploy` step -- ordering confirmed correct by reading
+     the step list top-to-bottom.
+3. **`verify` still production-mutation-`NONE`**: re-confirmed by inspection -- no step reachable
+   under `target: verify` performs a write of any kind; this fix adds no step reachable by
+   `verify` at all (the new step's condition excludes it).
+4. **Java 21+ now active before the rules emulator starts, for `firestore`/`all`**: confirmed by
+   the new step's placement (immediately before "firestore -- rules emulator test") and its own
+   `if:` condition being identical to that step's -- they always run together or not at all,
+   never out of order (GitHub Actions executes steps strictly top-to-bottom within a job).
+5. **Functions/Firestore deploy commands themselves**: `git diff` confirms neither `firebase
+   deploy --only functions ...` nor `firebase deploy --only firestore:rules,firestore:indexes
+   ...` line was touched -- byte-identical to Session 1-3.
+6. **Related tests/static checks**: YAML validation (above) is the applicable static check for a
+   workflow-only change; this repository has no test suite that exercises `.github/workflows/*`
+   files directly (`ci.yml` does not lint or execute `firebase-production-deploy.yml`). Running
+   the actual fixed workflow end-to-end was **not** performed by this session, per the explicit
+   instruction not to `workflow_dispatch` again this session -- the fix is therefore verified
+   statically (YAML validity, condition/ordering correctness, diff scope) but not yet
+   empirically re-run. **Recommended next step after this PR merges: re-dispatch `target:
+   firestore` once, exactly as Phase 4a intended**, to confirm the fix actually resolves the
+   Java error in practice.
+7. **`git diff` / changed files / secret scan**: `git diff` scanned for `private_key`, `BEGIN
+   ... PRIVATE`, `service_account` (as a value), access-token-shaped strings, and Firebase Web
+   API key literal patterns -- none found. Diff is exactly the one new step shown above, nothing
+   else.
+
+### Final verdict (Session 4, current, authoritative)
+
+**Root cause confirmed independently (not merely trusted from the other tool's report): the
+Firestore emulator's own Java-21-minimum requirement, unrelated to WIF/IAM/Firestore-rules-text.
+Production mutation from the failed Phase 4a attempt: NONE.** A minimal, scoped fix (`+14` lines,
+one new `actions/setup-java@v4` step, gated identically to the step it precedes) is proposed in a
+new PR. The Node-engine `EBADENGINE` warnings were fresh-audited and found unrelated to this
+failure and not currently blocking anything -- deliberately left unchanged, matching this task's
+own "if uncertain, Java-only" instruction. **This session does not dispatch the workflow again,
+does not re-run the failed run, and does not touch any Firebase/GCP resource or IAM/WIF
+configuration.** The fix is statically verified (YAML validity, reachability, diff scope) but not
+yet empirically re-run against `teto-pizza-game` -- that re-dispatch is Phase 4a's own next step,
+after this PR is reviewed and merged, and is explicitly not performed by this session.
