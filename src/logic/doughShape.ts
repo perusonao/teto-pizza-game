@@ -86,6 +86,17 @@ export function createInitialDoughShape(): DoughShape {
   return { radii: new Array(DOUGH_SHAPE_POINTS).fill(INITIAL_DOUGH_RADIUS) };
 }
 
+/** Issue #167 PR-B (Reference Truth): the *target/ideal* dough boundary -- a perfect circle at
+ *  the exact same `DOUGH_RADIUS` the DOUGH step's own dashed guide ring and
+ *  `DOUGH_COMPLETION_THRESHOLD` are measured against, never a fabricated shape. Used only by
+ *  the static Reference views (ReferenceThumbnail/ReferencePreview/PlayerReferencePreview) as
+ *  the stand-in "what a well-made dough looks like" -- the player's own `pizza.doughShape` can
+ *  be organically hand-stretched (D3A), but the Reference is showing the completion target, not
+ *  a live gesture, so a uniform ideal circle is the correct (not merely convenient) shape here. */
+export function createIdealDoughShape(): DoughShape {
+  return { radii: new Array(DOUGH_SHAPE_POINTS).fill(DOUGH_RADIUS) };
+}
+
 /** Issue #33 D3A: true bidirectional lerp toward `target` -- replaces the D1/D2-era
  *  `lerpTowardAtLeast`, which special-cased `target = Math.max(current, distance)` so a touch
  *  closer to center than the point's current radius was a guaranteed no-op there. D3A's whole

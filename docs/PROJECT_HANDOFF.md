@@ -157,6 +157,33 @@ MP4/H.264 (re-encoded via a full `apt`-installed `ffmpeg`/`libx264` — see the 
 **Not merged — PR open, pending the user's own review**, per this task's own explicit
 "do not auto-merge" instruction.
 
+**2026-09-21 addendum (Issue #167 Cooking UI 1-Screen 2.0 PR-B: Reference Truth, implementation
+complete, PR OPEN)** — see
+`docs/reports/TETO_COOKING-UI_1SCREEN-2.0_PRB_Reference-Truth_Result.md`, base `main` SHA
+`0d10568175adc486deb729af5d6a8dd0a3257dc6` (PR #158, current HEAD at implementation start).
+Fixes 「見本と、実際に作るPizzaStageが別物に見える」: `ReferenceThumbnail`/`ReferencePreview`/
+`PlayerReferencePreview` used to each render sauce as a flat, opacity/scale-only proxy shape (no
+coverage/shape signal at all) instead of PizzaStage's own real painted heatmap. A new shared
+`SauceHeatmapCanvas` (`src/components/SauceHeatmapCanvas.tsx`) extracts PizzaStage's existing
+`buildSauceField`→`sauceFieldToRgbaPixels` pipeline unchanged, fed by every Reference view via
+the recipe's own deterministic `buildIdealSauceFixture()` deposits and an ideal circular
+`doughShape` (`createIdealDoughShape`, `src/logic/doughShape.ts` — the same `DOUGH_RADIUS` the
+DOUGH step's own guide ring uses); a new shared `renderPizzaVisualPieces`
+(`src/components/PizzaVisualPieces.tsx`) replaces three near-duplicate piece-layout loops (one of
+which, plus PizzaStage's own non-cheese topping branch, previously bypassed
+`IngredientPieceVisual` entirely). Three independently-named piece-scale custom properties are
+now one shared `--piece-scale`. No scoring/economy/Firebase/recipe-data changes (diff-verified);
+`getReferencePizza`/`getPlayerReferencePizza`/`SAUCE_TARGET_RADIUS`/`DOUGH_RADIUS` are read-only
+inputs, untouched. **Finding:** all 15 shipped recipes now have a `getReferencePizza` fixture, so
+`PlayerReferencePreview`'s fallback path is currently unreachable in production (kept as a
+defensive path, still fully tested). 2146/2146 Vitest (54 new) + 40/40 Playwright Chromium pass,
+typecheck/lint/build clean; WebKit blocked by the same network egress policy PR-A's own Result
+Report documented. Screenshots + three Human Verification videos (A: Margherita 390×844, B:
+Salsiccia 390×844 — the recipe the user specifically flagged, C: Quattro Formaggi 360×800
+topping-heavy regression) delivered as MP4/H.264. **Not merged — PR open, pending the user's own
+review**, per this task's own explicit "do not auto-merge" instruction. PR-C (Verification
+Hardening, actually running WebKit) remains the next open step on this Issue #167 track.
+
 > Fresh GitHub/main state always wins if this document becomes stale.
 
 ## Product goal

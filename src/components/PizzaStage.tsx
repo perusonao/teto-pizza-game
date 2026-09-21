@@ -26,15 +26,8 @@ import {
 import { SauceDispenseController } from "../logic/sauceDispenseController";
 import { PointerTimestampNormalizer } from "../logic/pointerTimestampNormalizer";
 import { applyStretchPoint, smoothDoughShapeForDisplay, type DoughShape } from "../logic/doughShape";
-import {
-  buildSauceField,
-  isCellInsideDoughShape,
-  insideDoughShapeFraction,
-  SAUCE_FIELD_SIZE,
-  sauceFieldToRgbaPixels,
-  SAUCE_TARGET_RADIUS,
-  smoothSauceFieldForDisplay,
-} from "../logic/sauceField";
+import { insideDoughShapeFraction, SAUCE_TARGET_RADIUS } from "../logic/sauceField";
+import { SauceHeatmapCanvas } from "./SauceHeatmapCanvas";
 import {
   clampToDough,
   clientPointToDoughPercent,
@@ -55,9 +48,10 @@ const DRAG_THRESHOLD_PX = 10;
 /** How long the freehand paint trail lingers before fading, roughly matching the sauce-spread
  * animation's own duration so the trail reads as "becoming" the sauce rather than vanishing. */
 const TRAIL_FADE_MS = 260;
-/** Internal pixel resolution of the Phase 4A-1A sauce heatmap canvas -- purely a rendering
- * detail, independent of SAUCE_FIELD_SIZE (the 16x16 metrics grid it visualizes). */
-const HEATMAP_CANVAS_PX = 200;
+/** Internal pixel resolution of the overflow-marker canvas -- matches `SauceHeatmapCanvas`'s
+ * own internal resolution (../components/SauceHeatmapCanvas.tsx) purely so the two overlaid
+ * canvases share one rasterization fidelity; independent of SAUCE_FIELD_SIZE. */
+const OVERFLOW_MARKER_CANVAS_PX = 200;
 
 interface PizzaStageProps {
   pizza: PizzaState;
@@ -215,7 +209,7 @@ export function PizzaStage({
 }: PizzaStageProps) {
   const circleRef = useRef<HTMLDivElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
-  const heatmapRef = useRef<HTMLCanvasElement>(null);
+  const overflowCanvasRef = useRef<HTMLCanvasElement>(null);
   const gestureRef = useRef<GestureState>(createGestureState());
   const fadeTimeoutRef = useRef<number | null>(null);
   /** Pizza Cutting 1.0 Phase 2: imperative refs for the in-progress drag preview -- mirrors
@@ -999,74 +993,28 @@ export function PizzaStage({
   const showSauceHeatmap = isFieldSauceContext && effectiveDeposits.length > 0;
   const fieldSauceColor = sauceIngredient?.color ?? activeIngredient?.color ?? "#c73b2e";
 
+  // Issue #167 PR-B (Reference Truth): the field-rasterization pipeline (buildSauceField ->
+  // smoothSauceFieldForDisplay -> sauceFieldToRgbaPixels) that used to live inline here has
+  // moved to `SauceHeatmapCanvas` (../components/SauceHeatmapCanvas.tsx), shared verbatim with
+  // the static Reference views -- see that component's own doc comment. This effect now only
+  // draws the overflow markers, which stay PizzaStage-only: an interactive, in-progress
+  // painting-mistake signal with no meaning for a static target that is correct by
+  // construction. Overlaid in its own canvas, same box as SauceHeatmapCanvas's, drawn after it
+  // in DOM order.
   useEffect(() => {
     if (!showSauceHeatmap) return;
-    const canvas = heatmapRef.current;
+    const canvas = overflowCanvasRef.current;
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Sauce Free Boundary: unlike MUST FIX 5's original fixed-circle split (still exactly what
-    // computeSauceMetrics/Scoring 2.0 read, untouched), the *visible* heatmap now weights each
-    // deposit against the player's actual current D3A dough silhouette (pizza.doughShape) --
-    // so sauce painted anywhere on the real dough (even past the old fixed DOUGH_RADIUS circle,
-    // once D3A has stretched that direction further out) reads as real sauce, not a faint
-    // overflow dot. Scored numbers never read this weighting -- see sauceField.ts's own doc
-    // comment on insideDoughShapeFraction/isCellInsideDoughShape for why this is render-only.
-    const insideWeighted = effectiveDeposits
-      .map((d) => ({ x: d.x, y: d.y, amount: d.amount * insideDoughShapeFraction(pizza.doughShape, d.x, d.y) }))
-      .filter((d) => d.amount > 0);
-    const field = buildSauceField(insideWeighted);
-    // Human Feel Fix 3 (Sauce Visual): Fix 2's overlapping-circle cells (still one shape per
-    // touched cell) improved on a hard-edged grid, but each circle's own crisp edge still
-    // tiled into a visible "flower/stamp" pattern once painted for real -- exactly the
-    // "16x16マスを塗っている" look the brief flags as still-FIX-REQUIRED. `sauceFieldToRgbaPixels`
-    // (sauceField.ts) turns the same field into one RGBA pixel per cell (no shape at all);
-    // writing that 1:1 into a tiny SAUCE_FIELD_SIZE x SAUCE_FIELD_SIZE canvas and drawing it
-    // scaled up here with `imageSmoothingEnabled` on lets the browser's own image upscaler
-    // blend every cell into its neighbors continuously. Still the same 16x16 field, still
-    // Canvas2D only (no WebGL), still one extra small canvas + one drawImage call.
-    //
-    // Phase 4A-1B.1 Fix B: `field` above (and everything metrics reads, computeSauceMetrics
-    // included) is untouched -- `smoothSauceFieldForDisplay` only runs on the *pixel* copy
-    // below, so an isolated dab/short stroke's hard 3x3 block reads as a soft round dab
-    // without changing quantity/coverage/evenness/edge or an already-good broad-coverage look
-    // (see that function's own doc comment in sauceField.ts for why a flat plateau is a no-op).
-    const displayField = smoothSauceFieldForDisplay(field);
-    const fieldCanvas = document.createElement("canvas");
-    fieldCanvas.width = SAUCE_FIELD_SIZE;
-    fieldCanvas.height = SAUCE_FIELD_SIZE;
-    const fieldCtx = fieldCanvas.getContext("2d");
-    if (fieldCtx) {
-      const imageData = fieldCtx.createImageData(SAUCE_FIELD_SIZE, SAUCE_FIELD_SIZE);
-      imageData.data.set(
-        sauceFieldToRgbaPixels(displayField, fieldSauceColor, (row, col) =>
-          isCellInsideDoughShape(row, col, pizza.doughShape),
-        ),
-      );
-      fieldCtx.putImageData(imageData, 0, 0);
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = "high";
-      ctx.drawImage(
-        fieldCanvas,
-        0,
-        0,
-        SAUCE_FIELD_SIZE,
-        SAUCE_FIELD_SIZE,
-        0,
-        0,
-        canvas.width,
-        canvas.height,
-      );
-    }
 
     // Overflow markers where sauce landed off (or straddling) the player's *actual* dough
     // silhouette -- alpha scaled by how much of that deposit actually missed it, so a near-rim
     // dab reads as a faint touch and a fully overflowed one (genuinely off the dough entirely)
     // as a solid mark. Only sauce that misses the real (possibly D3A-distorted) dough shape
     // gets this treatment now; sauce inside it, even past the old fixed DOUGH_RADIUS circle, is
-    // real heatmap paint (above), not a marker dot.
+    // real heatmap paint (SauceHeatmapCanvas), not a marker dot.
     for (const deposit of effectiveDeposits) {
       const overflowFraction = 1 - insideDoughShapeFraction(pizza.doughShape, deposit.x, deposit.y);
       if (overflowFraction <= 0) continue;
@@ -1162,13 +1110,28 @@ export function PizzaStage({
           />
         )}
         {showSauceHeatmap && (
-          <canvas
-            ref={heatmapRef}
+          <SauceHeatmapCanvas
+            deposits={effectiveDeposits}
+            doughShape={pizza.doughShape}
+            color={fieldSauceColor}
             className={`pizza-sauce-heatmap ${isOilSauce ? "pizza-sauce-heatmap--oil" : ""} ${
               bakeState ? `pizza-sauce-heatmap--${bakeState}` : ""
             }`}
-            width={HEATMAP_CANVAS_PX}
-            height={HEATMAP_CANVAS_PX}
+          />
+        )}
+        {/* Issue #167 PR-B (Reference Truth): overflow markers (see the effect above) live in
+            their own overlaid canvas now that the base sauce pixels render via the shared
+            SauceHeatmapCanvas -- same box/filter classes (so the markers keep the exact same
+            blur/bake-state tint the pre-extraction single-canvas version applied to them),
+            drawn after it in DOM order so the markers sit on top. */}
+        {showSauceHeatmap && (
+          <canvas
+            ref={overflowCanvasRef}
+            className={`pizza-sauce-heatmap ${isOilSauce ? "pizza-sauce-heatmap--oil" : ""} ${
+              bakeState ? `pizza-sauce-heatmap--${bakeState}` : ""
+            }`}
+            width={OVERFLOW_MARKER_CANVAS_PX}
+            height={OVERFLOW_MARKER_CANVAS_PX}
             aria-hidden="true"
           />
         )}
@@ -1197,11 +1160,15 @@ export function PizzaStage({
                 "--piece-rotation": `${stablePieceRotation(t.ingredientId, t.x, t.y)}deg`,
               } as CSSProperties}
             >
-              {ingredient.category === "cheese" ? (
-                <IngredientPieceVisual ingredient={ingredient} style={cheeseStyle} />
-              ) : (
-                <span className="pizza-topping__emoji">{ingredient.emoji}</span>
-              )}
+              {/* Issue #167 PR-B (Reference Truth): unified with every Reference view's own
+                  piece rendering (renderPizzaVisualPieces, ../components/PizzaVisualPieces.tsx)
+                  -- both branches now always go through IngredientPieceVisual, instead of a
+                  locally hand-rolled `.pizza-topping__emoji` span bypassing it for non-cheese
+                  ingredients. `cheeseStyle` (bake melt/toast/char) is a no-op for the emoji
+                  branch (IngredientPieceVisual only applies `style` there for forward-compat --
+                  see its own doc comment), so this is a pure consolidation, not a behavior
+                  change for either branch. */}
+              <IngredientPieceVisual ingredient={ingredient} style={cheeseStyle} />
             </span>
           );
         })}
