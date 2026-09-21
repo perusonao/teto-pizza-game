@@ -64,9 +64,12 @@ function bakedMargheritaAtCut(): GameState {
 describe("re-cut after undo computes a fresh evaluation, never a stale one", () => {
   it("undoing a bad line and redrawing the ideal one scores as if the bad line never happened", () => {
     let state = bakedMargheritaAtCut();
-    // Draw two lines clustered tightly together (a bad/uneven cut)...
+    // Draw two lines clustered together (a bad/uneven cut) -- 18deg apart, just outside Phase
+    // 4A's own duplicate-rejection gate (MIN_CUT_ANGULAR_SEPARATION_RADIANS, 15deg,
+    // ../logic/cut/geometry.ts) so this still exercises "uneven, but distinct" rather than
+    // tripping the new "near-duplicate" rejection this phase adds.
     state = gameReducer(state, { type: "ADD_CUT_LINE", line: idealCutLine(0, 3) });
-    state = gameReducer(state, { type: "ADD_CUT_LINE", line: idealCutLine(0.05, 3) });
+    state = gameReducer(state, { type: "ADD_CUT_LINE", line: idealCutLine(0.3, 3) });
     // ...then undo the bad second line and redraw the correct, evenly-spaced one instead.
     state = gameReducer(state, { type: "UNDO_CUT_LINE" });
     expect(state.cutState.lines).toHaveLength(1);
@@ -105,9 +108,14 @@ describe("re-cut after undo computes a fresh evaluation, never a stale one", () 
 describe("uneven / off-center / mismatched-count cuts reach state.cutState.evaluation through the real reducer flow", () => {
   it("an uneven (tightly clustered) 3-line cut confirms with a low uniformity, visible on cutState.evaluation", () => {
     let state = bakedMargheritaAtCut();
+    // 18deg apart (0deg/18deg/36deg) -- clustered well inside one half of the ideal 60deg-per-
+    // wedge spacing (a genuinely uneven cut), but each pair still clears Phase 4A's own 15deg
+    // minimum-angular-separation duplicate gate (../logic/cut/geometry.ts), so this remains a
+    // real, distinct 3-line cut rather than one the new gate would reject before it ever reached
+    // this evaluation.
     state = gameReducer(state, { type: "ADD_CUT_LINE", line: idealCutLine(0, 3) });
-    state = gameReducer(state, { type: "ADD_CUT_LINE", line: idealCutLine(0.05, 3) });
-    state = gameReducer(state, { type: "ADD_CUT_LINE", line: idealCutLine(0.1, 3) });
+    state = gameReducer(state, { type: "ADD_CUT_LINE", line: idealCutLine(0.3, 3) });
+    state = gameReducer(state, { type: "ADD_CUT_LINE", line: idealCutLine(0.6, 3) });
     const confirmed = gameReducer(state, { type: "CONFIRM_MAKING_STEP" });
     expect(confirmed.phase).toBe("RESULT");
     expect(confirmed.cutState.evaluation).not.toBeNull();

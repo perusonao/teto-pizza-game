@@ -45,6 +45,7 @@ import {
 } from "../logic/cut/state";
 import { isEdgeToEdgeCutLine, resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
 import { requiredCutCount } from "../logic/cut/evaluation";
+import { isDuplicateCutLine } from "../logic/cut/geometry";
 import { isValidDoughShape, type DoughShape } from "../logic/doughShape";
 import {
   createEmptyPizza,
@@ -822,6 +823,13 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (!isEdgeToEdgeCutLine(action.line)) return state;
       const limit = requiredCutCount(resolveRequestedSliceCount(state.cutState.config)) + 2;
       if (state.cutState.lines.length >= limit) return state;
+      // Pizza Cutting 1.0 Phase 4A (design doc §2.2/Phase 4 Fresh Audit §5B/§15): the reducer-
+      // level backstop behind the gesture layer's own pre-dispatch check (App.tsx's
+      // `handleAddCutLine`) -- never trusts the UI alone, exactly like the limit check above. A
+      // near-duplicate line is rejected outright (state unchanged, same no-op contract as every
+      // other ADD_CUT_LINE rejection above): it never grows `cutState.lines`, never invalidates
+      // undo history, and leaves `evaluation` exactly as it was.
+      if (isDuplicateCutLine(action.line, state.cutState.lines)) return state;
       return { ...state, cutState: addCutLine(state.cutState, action.line) };
     }
 

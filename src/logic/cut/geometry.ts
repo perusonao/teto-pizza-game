@@ -129,3 +129,64 @@ export function perpendicularDistanceFromCenter(line: CutLine): number {
   );
   return numerator / length;
 }
+
+/**
+ * Pizza Cutting 1.0 Phase 4A (design doc §2.2's own "e.g. 15°" suggestion, docs/reports/
+ * TETO_PIZZA-CUTTING_Phase4_Human-Feel_Fresh-Audit.md §5B/§15/§16): the minimum angular gap, in
+ * radians, a new cut must keep from every already-committed line before it counts as a distinct
+ * cut rather than a near-duplicate of an existing one. Kept well under the narrowest spacing any
+ * shipped `RequestedSliceCount` actually produces (60 deg between adjacent lines in the 6-slice/
+ * 3-line pattern; even 8-slice/4-line's 45 deg comfortably clears it) so a normal, careful cut
+ * pattern is never blocked -- only a genuine redraw of (approximately) the same line is. Named
+ * constant per this phase's own "no magic numbers scattered across call sites" requirement.
+ */
+export const MIN_CUT_ANGULAR_SEPARATION_RADIANS = (15 * Math.PI) / 180;
+
+/**
+ * A cut line's orientation, normalized to `[0, pi)` radians. Every committed `CutLine` is, by
+ * `buildRimToRimCutLine`'s own construction, a full rim-to-rim diameter -- so the *direction* the
+ * player happened to drag in (which endpoint is `start` vs. `end`) carries no meaning, and a line
+ * drawn "backwards" over an existing one must compare as identical to it (the task's own "edge-
+ * to-edge diameter cut ... 0 deg と 180 deg = same orientation" requirement). Reducing modulo `pi`
+ * (rather than `2*pi`) is exactly what collapses a line and its own 180 deg-reversed reading onto
+ * the same value. A degenerate (near-zero-length) line has no reliable direction; `PizzaStage`'s
+ * own drag-threshold gate and `buildRimToRimCutLine`'s `null` return already keep one from ever
+ * reaching real gesture code, so this simply returns `0` rather than dividing by (near-)zero.
+ */
+export function cutLineOrientationRadians(line: CutLine): number {
+  const dx = line.end.x - line.start.x;
+  const dy = line.end.y - line.start.y;
+  if (Math.hypot(dx, dy) <= DEGENERATE_LINE_LENGTH_EPSILON) return 0;
+  const angle = Math.atan2(dy, dx) % Math.PI;
+  return angle < 0 ? angle + Math.PI : angle;
+}
+
+/** The shorter circular distance between two orientations already normalized to `[0, pi)` --
+ *  e.g. an orientation near `0` and one near `pi` are actually close together (both nearly
+ *  horizontal), not far apart, since orientation space wraps at `pi`. */
+function angularSeparationModPi(a: number, b: number): number {
+  const diff = Math.abs(a - b) % Math.PI;
+  return Math.min(diff, Math.PI - diff);
+}
+
+/**
+ * Is `candidate` a near-duplicate of any line already in `existingLines`? Compared purely by
+ * orientation-modulo-pi (center-relative), never by raw endpoint pixel distance -- two edge-to-
+ * edge diameters at (nearly) the same angle are the same cut regardless of exactly where each
+ * one's own clamped endpoints happen to land on the rim. This is the single source of truth both
+ * the reducer's own `ADD_CUT_LINE` backstop and the gesture layer's pre-dispatch check
+ * (`../../App.tsx`'s `handleAddCutLine`) call -- never two independently-maintained copies of the
+ * same rule.
+ */
+export function isDuplicateCutLine(
+  candidate: CutLine,
+  existingLines: readonly CutLine[],
+  minSeparationRadians: number = MIN_CUT_ANGULAR_SEPARATION_RADIANS,
+): boolean {
+  const candidateOrientation = cutLineOrientationRadians(candidate);
+  return existingLines.some(
+    (line) =>
+      angularSeparationModPi(candidateOrientation, cutLineOrientationRadians(line)) <
+      minSeparationRadians,
+  );
+}

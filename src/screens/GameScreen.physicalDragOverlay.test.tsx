@@ -113,6 +113,7 @@ function Harness({ category }: { category: IngredientCategory }) {
         onDoughStretchCommit={() => {}}
         onAddCutLine={() => {}}
         onUndoCutLine={() => {}}
+        cutRejectionMessage={null}
         onDoughElementChange={() => {}}
         resolvePhysicalDrop={resolvePhysicalDrop}
         onPhysicalDrop={handlePhysicalDrop}
