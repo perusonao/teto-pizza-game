@@ -192,13 +192,20 @@ export function GameScreen({
   // SAUCE/CHEESE have no completion gate today, so this is unconditionally true for them.
   const nextStepReady = state.makingStep !== "DOUGH" || doughShapeComplete;
 
-  // Visual Polish 2.0A (Finding P1-1): PREPARE/BAKE/CUT get a larger PizzaStage (see that
-  // prop's own doc comment in PizzaStage.tsx) -- every other phase (ORDER/RESULT/DISCOVERED)
-  // keeps the exact pre-2.0A size, out of this pass's scope.
+  // Gameplay UX Phase 1 (材料選択スクロール解消, see docs/reports/
+  // TETO_GAMEPLAY-UX_4ITEMS_Fresh-Audit.md sec.1.4): PREPARE no longer gets the larger roomy
+  // PizzaStage that Visual Polish 2.0A (Finding P1-1) added -- the Fresh Audit's real-browser
+  // measurements confirmed its ~375px static footprint (versus the pre-2.0A ~300px) was the
+  // single biggest contributor to PREPARE overflowing 390x844/360x800 once a player owns more
+  // than one ingredient per category (recommended reproduction: a multi-cheese/multi-sauce
+  // recipe like quattro-formaggi, see IngredientTray.recommendedOther.test.tsx and
+  // e2e/viewport-1screen.spec.ts's own PREPARE-overflow fixture). BAKE (no ingredient tray at
+  // all, so no overflow risk) and CUT (Pizza Cutting 1.0's own tap-precision/Human-Feel needs,
+  // explicitly called out as a *different* concern from PREPARE's tray-overflow problem) keep
+  // the exact pre-existing roomy size -- this is a pure PREPARE-only reversion, not a new CSS
+  // variant, matching the Fresh Audit's own recommended fix verbatim.
   const roomyStage =
-    state.phase === "PREPARE" ||
-    state.phase === "BAKE" ||
-    (state.phase === "POST_BAKE" && state.makingStep === "CUT");
+    state.phase === "BAKE" || (state.phase === "POST_BAKE" && state.makingStep === "CUT");
 
   // Pizza Cutting 1.0 Phase 2 (design doc §8.4): mirrors `nextStepReady`'s own "UI-only
   // completion gate, reducer never assumes it" role for CUT's own "切り終わる" CTA -- the
@@ -402,6 +409,7 @@ export function GameScreen({
         cutState={state.cutState}
         onAddCutLine={onAddCutLine}
         roomy={roomyStage}
+        compact={state.phase === "PREPARE"}
       />
 
       {/* Pizza Cutting 1.0 Phase 2 (design doc §8.1/§8.4): progress readout + the CUT step's own

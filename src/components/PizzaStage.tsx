@@ -131,10 +131,23 @@ interface PizzaStageProps {
    *  `.pizza-stage` wrapper -- never touches gesture math (pointer coordinates stay
    *  percent-of-rendered-box via `clientPointToDoughPercent`, see pizzaCoordinates.ts, so
    *  they track whatever size CSS actually renders regardless of this flag). `true` for
-   *  PREPARE/BAKE/CUT (App.css's `.pizza-stage--roomy`, a larger static cap on `.pizza-dough`);
-   *  `false` (the default) keeps ORDER's small preview and RESULT's own hero (Finding P1-5,
-   *  out of this pass's scope) at the exact pre-2.0A size. */
+   *  BAKE/CUT (App.css's `.pizza-stage--roomy`, a larger static cap on `.pizza-dough`) --
+   *  Gameplay UX Phase 1 removed PREPARE from this set (see GameScreen.tsx's `roomyStage`
+   *  comment) once the Fresh Audit traced it as the biggest single contributor to PREPARE
+   *  overflowing 390x844/360x800 with more than one owned ingredient per category. `false`
+   *  (the default) keeps ORDER's small preview and RESULT's own hero (Finding P1-5, out of
+   *  this pass's scope) at the exact pre-2.0A size. */
   roomy?: boolean;
+  /** Gameplay UX Phase 1: PREPARE-only, a few percent smaller than the shared `.pizza-dough`
+   *  default ORDER also uses (`.pizza-stage--compact`, App.css) -- purely a real-device safety
+   *  margin on top of `roomy=false` already reverting PREPARE's stage size. The Fresh Audit's
+   *  own 複数材料 regression fixture (quattro-formaggi, SAUCE step) measured exactly 0px of
+   *  headroom left at 360x800 in headless Chromium once every other trim in this pass was
+   *  applied -- real Safari's font metrics can easily differ by a few px, so this buys back
+   *  slack without touching ORDER (a phase with no scroll problem at all, out of this pass's
+   *  scope) by scoping the smaller size to a separate modifier class instead of changing the
+   *  shared default. Never combined with `roomy` (GameScreen.tsx only ever sets one). */
+  compact?: boolean;
 }
 
 interface GestureState {
@@ -198,6 +211,7 @@ export function PizzaStage({
   cutState,
   onAddCutLine,
   roomy = false,
+  compact = false,
 }: PizzaStageProps) {
   const circleRef = useRef<HTMLDivElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
@@ -1068,7 +1082,7 @@ export function PizzaStage({
     }
   }, [showSauceHeatmap, effectiveDeposits, fieldSauceColor, pizza.doughShape]);
 
-  const stageClassName = `pizza-stage ${roomy ? "pizza-stage--roomy" : ""}`;
+  const stageClassName = `pizza-stage ${roomy ? "pizza-stage--roomy" : ""} ${compact ? "pizza-stage--compact" : ""}`;
 
   return (
     <div className={stageClassName}>

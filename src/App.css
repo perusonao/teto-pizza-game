@@ -48,7 +48,7 @@
      (index.html) + `viewport-fit=cover`, which lets content draw under the notch/status
      bar -- without this, the title/Pitz/home button in this fixed-at-the-top header would
      sit right behind it on a notched device. */
-  padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 10px;
+  padding: calc(8px + env(safe-area-inset-top, 0px)) 16px 8px;
   background: #6b4226;
   color: #fff9ec;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
@@ -137,8 +137,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  margin: 6px 12px 0;
-  padding: 8px 12px;
+  margin: 4px 12px 0;
+  padding: 6px 12px;
   background: #fff8ea;
   border-radius: 14px;
   box-shadow: 0 1px 3px rgba(47, 25, 8, 0.12);
@@ -191,7 +191,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 8px 16px;
+  padding: 6px 16px;
 }
 
 .pizza-dough {
@@ -232,6 +232,15 @@
 .pizza-stage--roomy .pizza-dough {
   width: min(92vw, 380px);
   height: min(92vw, 380px);
+}
+
+/* Gameplay UX Phase 1: PREPARE-only real-device safety margin, see PizzaStage.tsx's own
+   `compact` prop doc comment -- a few percent below the shared default (`.pizza-dough`,
+   min(78vw, 300px), still used by ORDER's small preview) so PREPARE keeps a few px of slack
+   at 360x800 even if real Safari's font metrics run slightly taller than headless Chromium's. */
+.pizza-stage--compact .pizza-dough {
+  width: min(76vw, 290px);
+  height: min(76vw, 290px);
 }
 
 .pizza-dough--interactive {
@@ -759,7 +768,7 @@
 
 /* ---------- Ingredient tray ---------- */
 .ingredient-panel {
-  padding: 4px 12px 0;
+  padding: 2px 12px 0;
   /* Human Feel Fix 3: reserves room for .prepare-bake-bar (position: fixed, see its own
      rule below) so the fixed CTA bar can never sit on top of the last Palette row.
      IngredientTray only ever renders during PREPARE (see GameScreen.tsx), so this is safe
@@ -770,7 +779,7 @@
      scrolls (see the Result Report for why a Recommended row stacking on top of the Other
      grid doesn't defeat this reservation -- it's trailing space at the very end of the
      document flow either way, the P1 bug was pure discoverability, not unreachability). */
-  --bake-bar-reserve: 84px;
+  --bake-bar-reserve: 78px;
   padding-bottom: calc(var(--bake-bar-reserve) + env(safe-area-inset-bottom, 0px));
 }
 
@@ -832,11 +841,11 @@
 
 /* ---------- Ingredient Tray Scalability: Recommended / Other (Issue #86) ---------- */
 .ingredient-section {
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .ingredient-section__title {
-  margin: 0 0 4px;
+  margin: 0 0 2px;
   font-size: 11px;
   font-weight: 700;
   color: #a04a27;
@@ -851,7 +860,7 @@
   display: flex;
   gap: 8px;
   overflow-x: auto;
-  padding-bottom: 2px;
+  padding-bottom: 0;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -869,7 +878,7 @@
 .making-step-tabs {
   display: flex;
   gap: 4px;
-  padding: 6px 12px 0;
+  padding: 4px 12px 0;
 }
 
 .making-step-tab {
@@ -947,17 +956,26 @@
   background: #f6d67a;
 }
 
-/* Phase 4A-1B Human Feel Fix 2: a fixed 3x2 grid, never scrollable -- iPhone retesting of
-   Fix 1 (drag threshold + iOS callout suppression) still came back "unresponsive", and the
-   actual cause was this: scrolling the tray and dragging a piece onto the pizza are the same
+/* Phase 4A-1B Human Feel Fix 2: a 3-wide grid, never scrollable -- iPhone retesting of Fix 1
+   (drag threshold + iOS callout suppression) still came back "unresponsive", and the actual
+   cause was this: scrolling the tray and dragging a piece onto the pizza are the same
    single-finger swipe gesture, so every drag attempt was also a scroll attempt the browser
    had to arbitrate. Removing scrolling removes that arbitration entirely instead of tuning
-   it further. `MAX_INGREDIENT_PALETTE_SLOTS` (src/data/ingredients.ts) keeps this a no-op
-   grid.template overflow guard rather than a hard product limit. */
+   it further. `MAX_INGREDIENT_PALETTE_SLOTS` (src/data/ingredients.ts, paged by
+   IngredientTray.tsx) keeps this a no-op grid overflow guard (never more than 2 rows) rather
+   than a hard product limit.
+
+   Gameplay UX Phase 1 (材料選択スクロール解消): `grid-template-rows: repeat(2, 1fr)` used to
+   unconditionally reserve two full 76px chip rows even when this category owned only 1-3
+   "その他" ingredients -- the Fresh Audit's real-browser measurement traced a meaningful share
+   of PREPARE's overflow to this (a 2-item "その他" row costing the same vertical space as a
+   full 6-item one). `grid-auto-rows` instead sizes exactly to however many rows the owned
+   items actually need (1 row for <=3, 2 for 4-6, capped there by the pager) -- purely a CSS
+   change, no effect on the pager/drag logic above. */
 .ingredient-tray {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(2, 1fr);
+  grid-auto-rows: minmax(0, auto);
   gap: 8px;
 }
 
@@ -967,11 +985,18 @@
   align-items: center;
   justify-content: center;
   gap: 4px;
-  min-height: 76px;
+  /* Gameplay UX Phase 1: 76px -> 68px, still comfortably above the ~44pt minimum touch
+     target -- one of several small, additive trims (see `.ingredient-section`'s own
+     margin-bottom, `.order-card`'s padding, `.pizza-stage`'s padding) that together close the
+     remaining PREPARE overflow the PizzaStage/grid-row fixes alone didn't (a category showing
+     both "おすすめ" and "その他" at once, e.g. SAUCE with a multi-sauce recipe, still ran a few
+     dozen px over 390x844/360x800 with those two fixes alone -- see the Result Report's
+     before/after chip-row measurements). */
+  min-height: 68px;
   border-radius: 12px;
   border: 2px solid transparent;
   background: #fff8ea;
-  padding: 8px 6px;
+  padding: 6px 6px;
   transition: transform 0.08s ease, box-shadow 0.08s ease;
   /* iOS Safari fires its own text-selection/callout UI on a touch-and-hold over button
      content (the emoji/text spans below) unless explicitly suppressed -- left unset, that

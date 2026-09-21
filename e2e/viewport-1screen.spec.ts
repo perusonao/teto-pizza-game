@@ -1,5 +1,9 @@
 import { test, expect } from "@playwright/test";
-import { playFullMargheritaRound, startFreshMargherita } from "./gestures";
+import {
+  playFullMargheritaRound,
+  startFreshMargherita,
+  startQuattroFormaggiHeavyInventory,
+} from "./gestures";
 
 /**
  * Viewport 1-screen-completion regression suite (see docs/reports/
@@ -192,6 +196,127 @@ test.describe("Lunch Rush RESULT -> Weekly Ranking stack never scrolls the page"
     const panel = await page.locator(".ranking-overlay__panel").boundingBox();
     expect(panel).not.toBeNull();
     expect(panel!.y + panel!.height).toBeLessThanOrEqual(stackedState.innerHeight + 1);
+  });
+});
+
+async function gameScreenScrollState(page: import("@playwright/test").Page) {
+  return page.evaluate(() => {
+    const el = document.querySelector(".game-screen")!;
+    return { scrollHeight: el.scrollHeight, clientHeight: el.clientHeight };
+  });
+}
+
+async function boundingBoxOf(page: import("@playwright/test").Page, selector: string) {
+  const box = await page.locator(selector).boundingBox();
+  expect(box, `${selector} must be present and visible`).not.toBeNull();
+  return box!;
+}
+
+/**
+ * Gameplay UX Phase 1 (材料選択スクロール解消): the real-machine iPhone report this task exists
+ * for was "スクロールが必要で材料が見づらい" -- PR #152 only turned page/body scroll into
+ * `.game-screen`'s own internal scroll (see the suite above), it never removed the need to
+ * scroll to reach a material during PREPARE. This directly asserts that need is gone: on every
+ * PREPARE step that shows the Ingredient Palette (SAUCE/CHEESE/TOPPING -- DOUGH has none, see
+ * GameScreen.tsx), `.game-screen`'s own scrollHeight must not exceed its clientHeight (Playwright
+ * projects run this at both 390x844 and 360x800, playwright.config.ts). Reverting this task's
+ * CSS (PizzaStage's PREPARE roomy size, `.ingredient-tray`'s row sizing, and the small chrome
+ * trims -- see docs/reports/TETO_GAMEPLAY-UX_Phase1_Ingredient-Selection_Result.md) reproduces a
+ * failure here, which is what confirms this suite actually covers the reported bug rather than
+ * just the fixed code path.
+ */
+test.describe("PREPARE: ingredient selection never needs vertical scroll (Gameplay UX Phase 1)", () => {
+  test("margherita baseline -- one ingredient per category still fits with no overflow", async ({
+    page,
+  }) => {
+    await startFreshMargherita(page);
+    await page.waitForSelector(".pizza-stage");
+
+    for (const step of ["DOUGH", "SAUCE", "CHEESE", "TOPPING"] as const) {
+      const s = await pageScrollState(page);
+      expect(s.docScrollWidth, `${step}: page must never overflow horizontally`).toBeLessThanOrEqual(
+        s.innerWidth,
+      );
+      const gs = await gameScreenScrollState(page);
+      expect(
+        gs.scrollHeight,
+        `${step}: .game-screen must not need internal scroll to reach the ingredient tray`,
+      ).toBeLessThanOrEqual(gs.clientHeight);
+
+      const bar = await boundingBoxOf(page, ".prepare-bake-bar");
+      const vh = page.viewportSize()!.height;
+      expect(bar.y + bar.height, `${step}: bottom action bar must stay on-screen`).toBeLessThanOrEqual(
+        vh + 1,
+      );
+
+      if (step !== "TOPPING") {
+        if (step === "DOUGH") {
+          const box = await page.locator('[data-pizza-drop-target="true"]').boundingBox();
+          const cx = box!.x + box!.width / 2;
+          const cy = box!.y + box!.height / 2;
+          const r = box!.width * 0.46;
+          for (let i = 0; i < 8; i += 1) {
+            const angle = (i / 8) * Math.PI * 2;
+            await page.mouse.move(cx + Math.cos(angle) * r, cy + Math.sin(angle) * r);
+            await page.mouse.down();
+            await page.mouse.up();
+          }
+        }
+        await page.getByRole("button", { name: /次へ/ }).click();
+      }
+    }
+  });
+
+  test("quattro-formaggi heavy inventory -- multi-owned SAUCE/CHEESE/TOPPING all fit with no overflow", async ({
+    page,
+  }) => {
+    test.setTimeout(30_000);
+    await startQuattroFormaggiHeavyInventory(page);
+
+    // DOUGH must be completed before SAUCE/CHEESE/TOPPING are reachable (one-way flow, Issue
+    // #32 Phase 2) -- not itself part of this fixture's reproduction (DOUGH never shows a
+    // multi-item tray), so it's driven through without being asserted on here.
+    const box = await page.locator('[data-pizza-drop-target="true"]').boundingBox();
+    const cx = box!.x + box!.width / 2;
+    const cy = box!.y + box!.height / 2;
+    const r = box!.width * 0.46;
+    for (let i = 0; i < 8; i += 1) {
+      const angle = (i / 8) * Math.PI * 2;
+      await page.mouse.move(cx + Math.cos(angle) * r, cy + Math.sin(angle) * r);
+      await page.mouse.down();
+      await page.mouse.up();
+    }
+    await page.getByRole("button", { name: /次へ/ }).click();
+
+    for (const step of ["SAUCE", "CHEESE", "TOPPING"] as const) {
+      const s = await pageScrollState(page);
+      expect(s.docScrollWidth, `${step}: page must never overflow horizontally`).toBeLessThanOrEqual(
+        s.innerWidth,
+      );
+      const gs = await gameScreenScrollState(page);
+      expect(
+        gs.scrollHeight,
+        `${step}: .game-screen must not need internal scroll to reach every owned ingredient ` +
+          `(this is the exact 複数材料 fixture the Fresh Audit reproduced overflow with)`,
+      ).toBeLessThanOrEqual(gs.clientHeight);
+
+      const bar = await boundingBoxOf(page, ".prepare-bake-bar");
+      const vh = page.viewportSize()!.height;
+      expect(bar.y + bar.height, `${step}: bottom action bar must stay on-screen`).toBeLessThanOrEqual(
+        vh + 1,
+      );
+
+      // The tray must still be genuinely operable, not merely short -- selecting a chip must
+      // still work post-layout-change (Human Feel Gate: a numerically-passing but inert tray
+      // would not be a real fix).
+      const anyChip = page.locator(".ingredient-chip").first();
+      await anyChip.click();
+      await expect(anyChip).toHaveClass(/ingredient-chip--selected/);
+
+      if (step !== "TOPPING") {
+        await page.getByRole("button", { name: /次へ/ }).click();
+      }
+    }
   });
 });
 
