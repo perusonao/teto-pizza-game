@@ -3,12 +3,23 @@
 **Type:** Implementation. UI/UX/gameplay change — Human Verification Policy applies in full
 (`docs/decisions/TETO_HUMAN-VERIFICATION-POLICY.md`).
 
-**Audited main SHA:** `d0085a35c7a5f932deda11ebc5fa74b421ddc86a` (origin/main HEAD at session
-start — `docs: PR #154 Human Verification Videos -- ingredient selection, CUT regression, edge
-case (#156)`).
+**Audited main SHA (original implementation):** `d0085a35c7a5f932deda11ebc5fa74b421ddc86a`
+(origin/main HEAD at the start of the first session — `docs: PR #154 Human Verification Videos
+-- ingredient selection, CUT regression, edge case (#156)`).
+
+**Re-based onto (continuation session):** `f8e461ae4f632c1480e1a71432719817172867c3` — `Issue
+#159: Cooking UI 1-Screen Polish (#160)` merged into `main` after the original implementation.
+Merged (not rebased, to avoid a force-push) with `git merge origin/main` — auto-merged cleanly,
+no conflicts, despite PR #160 also touching `src/App.css`, `src/screens/GameScreen.tsx`, and
+`e2e/viewport-1screen.spec.ts` (all three files this task also touches). Confirmed after the
+merge: `git merge-base HEAD origin/main` == `origin/main`'s HEAD, i.e. this branch is fully
+caught up. PR #160 is Cooking UI scope (`IngredientTray`, `MakingStepTabs`, olive-oil visuals,
+CUT/making-step nav) — independent of and untouched by this Lunch Rush RESULT navigation task;
+nothing from PR #160 was reverted or modified by this branch.
 
 **Issue:** [#157 — Lunch Rush結果画面への🏠ホームへCTA追加（Phase 2）](https://github.com/perusonao/teto-pizza-game/issues/157)
-(new, created this session — Duplicate Gate #1 confirmed no existing open issue/PR covers this).
+(created in the original session — Duplicate Gate #1 confirmed no existing open issue/PR covers
+this; re-confirmed in this continuation session, still the sole open issue/PR for this scope).
 
 **Design basis:** `docs/reports/TETO_GAMEPLAY-UX_4ITEMS_Fresh-Audit.md` §3 / §6 Phase 2. The
 Fresh Audit's own recommendation (2x2-pair フリープレイへ/🏠ホームへ, reuse `handleGoHome`) was
@@ -94,7 +105,9 @@ economy, recipe data, Player Profile. Confirmed by diff review — zero touches 
 - `MissionResultOverlay.test.tsx`: renders `🏠 ホームへ`, calls `onGoHome` exactly once per
   click, does not cross-fire `onExit`/`onRetry`/`onShowRanking`; explicit もう一度/フリープレイへ
   regression (each still fires its own callback exactly once).
-- Full suite (all `src/**/*.test.ts(x)`): **2080/2080 passed**, 111 test files.
+- Full suite (all `src/**/*.test.ts(x)`), re-run after merging PR #160's Cooking UI changes:
+  **2092/2092 passed**, 112 test files (up from 2080/111 pre-merge — the 12 new tests/1 new file
+  are PR #160's own `GameScreen.makingStepNav.test.tsx` etc., unrelated to this task).
 
 ### Playwright e2e (real Chromium, `e2e/viewport-1screen.spec.ts`)
 
@@ -112,8 +125,11 @@ New "Lunch Rush RESULT: four navigation CTAs (Gameplay UX Phase 2)" describe blo
 5. Added to the pre-existing ranking-stack test: closing ランキング returns to an intact RESULT
    panel with 🏠ホームへ still present.
 
-Full Playwright suite (both projects, 28 tests total — this repo's only e2e spec file):
-**28/28 passed.**
+Full Playwright suite, re-run after the merge (both projects, both spec files —
+`viewport-1screen.spec.ts` plus PR #160's new `making-ui-1screen.spec.ts`, 38 tests total, up
+from 28/28 pre-merge): **38/38 passed**, including PR #160's own Cooking UI tests (margherita
+one-screen fit, sauce lock, reference thumbnail/popover parity, full-round regression) — confirms
+the merge introduced no regressions in either direction.
 
 ---
 
@@ -150,14 +166,14 @@ Full Playwright suite (both projects, 28 tests total — this repo's only e2e sp
 
 ## 6. Verification Sequence (in order)
 
-| Step | Result |
-|---|---|
-| Focused tests (`MissionResultOverlay.test.tsx`, `GameScreen.*.test.tsx`) | **PASS** — 32/32 |
-| Full Vitest (`npx vitest run`) | **PASS** — 2080/2080, 111 files |
-| Playwright, both viewport projects (`npx playwright test`) | **PASS** — 28/28 |
-| `tsc --noEmit` | **PASS** — clean |
-| `npm run lint` (oxlint) | **PASS** — clean |
-| `npm run build` (`tsc -b && vite build`) | **PASS** — clean (pre-existing >500kB chunk-size warning only, unrelated to this change) |
+| Step | Result (original session, base `d0085a3`) | Result (continuation session, after merging `f8e461a`) |
+|---|---|---|
+| Focused tests (`MissionResultOverlay.test.tsx`, `GameScreen.*.test.tsx`) | PASS — 32/32 | not re-run standalone; covered by the full suite re-run |
+| Full Vitest (`npx vitest run`) | PASS — 2080/2080, 111 files | **PASS — 2092/2092, 112 files** |
+| Playwright, both viewport projects (`npx playwright test`) | PASS — 28/28 | **PASS — 38/38** (includes PR #160's `making-ui-1screen.spec.ts`) |
+| `tsc --noEmit` | PASS — clean | **PASS — clean** |
+| `npm run lint` (oxlint) | PASS — clean | **PASS — clean** |
+| `npm run build` (`tsc -b && vite build`) | PASS — clean (pre-existing >500kB chunk-size warning only, unrelated to this change) | **PASS — clean** (same pre-existing warning only) |
 
 ---
 
@@ -175,18 +191,24 @@ Before = pre-existing 3-CTA RESULT (origin/main HEAD). After = 4-CTA RESULT with
 
 ## 8. Human Verification Videos
 
+**Re-recorded in the continuation session** against the merged branch (base `f8e461a`, this
+task's own diff on top), so the videos reflect the exact code that will ship, not the
+pre-merge state:
+
 | Video | Viewport | Duration | Size | Codec | Verification |
 |---|---|---:|---:|---|---|
-| A. Home navigation (`390x844-lunch-rush-home-navigation.mp4`) | 390×844 | 34.9s | 332 KB | H.264 | PASS |
-| B. Result regression (`390x844-lunch-rush-result-regression.mp4`) | 390×844 | 29.0s | 368 KB | H.264 | PASS |
-| C. Small viewport (`360x800-lunch-rush-result-layout.mp4`) | 360×800 | 16.6s | 212 KB | H.264 | PASS |
+| A. Home navigation (`390x844-lunch-rush-home-navigation.mp4`) | 390×844 | 34.96s | 324,171 bytes (317 KB) | h264 | PASS |
+| B. Result regression (`390x844-lunch-rush-result-regression.mp4`) | 390×844 | 28.92s | 355,040 bytes (347 KB) | h264 | PASS |
+| C. Small viewport (`360x800-lunch-rush-result-layout.mp4`) | 360×800 | 16.60s | 181,513 bytes (177 KB) | h264 | PASS |
 
 All three recorded with Playwright + real Chromium against the local dev build, converted from
-WebM to MP4/H.264 with ffmpeg (`-c:v libx264 -pix_fmt yuv420p -movflags +faststart`), and
-validated with `ffprobe` (codec/resolution/duration/size all confirmed above) plus a manual
-frame-by-frame visual check (extracted PNG frames reviewed directly, not just ffprobe metadata).
-Human-paced: 2–5s holds on every state that matters, ~0.5–1s after each click, no automated
-high-speed clicking.
+WebM to MP4/H.264 with the full system `ffmpeg` (`apt-get install ffmpeg`, `libx264` available —
+the bundled Playwright ffmpeg is `libvpx`-only and cannot produce H.264; confirmed via
+`ffmpeg -encoders | grep 264`) using `-c:v libx264 -pix_fmt yuv420p -movflags +faststart`, and
+validated with `ffprobe` (`codec_name=h264`, resolution, duration, and size all confirmed above)
+plus a manual frame-by-frame visual check (extracted PNG frames at several timestamps per video,
+reviewed directly — not just ffprobe metadata). Human-paced: 2–5s holds on every state that
+matters, ~0.5–1s after each click, no automated high-speed clicking.
 
 **What each video shows:**
 
@@ -203,10 +225,11 @@ high-speed clicking.
   もう一度, フリープレイへ, and 🏠ホームへ all visible with no button clipping — then tap
   🏠ホームへ and hold on HOME (~3.5s).
 
-**Download:** delivered directly to the user via this interactive session (`SendUserFile`), per
-the Human Verification Policy §16's preferred method. Not committed to the repository —
-`artifacts/` (including the raw/final video working directory used this session) is gitignored,
-per the pre-existing repository rule.
+**Download:** delivered directly to the user via this interactive session (`SendUserFile`), both
+in the original session (pre-merge cut) and again in the continuation session (final, post-merge
+cut against `f8e461a`) — the post-merge cut is the current/authoritative one. Not committed to
+the repository — `artifacts/` (including the raw/final video working directory used both
+sessions) is gitignored, per the pre-existing repository rule.
 
 **Video Verification: PASS** (all three — file exists, size > 0, full duration playable per
 ffprobe, correct viewport resolution recorded end-to-end, target operations visible, Acceptance
@@ -221,6 +244,11 @@ Criteria human-judgeable from the video alone).
 - **Scoring changes: NONE.** No `src/logic/scoringV2/**`, `src/logic/missionScoring.ts`, or
   `src/mission/lunchRush.ts` touched. `servedCount`/score/Pitz reward display values are
   unchanged (same props, same computation, only the new CTA and its layout are new).
+- **PR #160 (Cooking UI 1-Screen Polish) impact: NONE.** Merged into this branch, not reverted or
+  modified — `IngredientTray`, `MakingStepTabs`, `PizzaStage`, `ReferenceThumbnail`, CUT,
+  olive-oil visuals, recipe data are all untouched by this task's own diff, confirmed both by the
+  clean auto-merge and by PR #160's own Playwright suite (`making-ui-1screen.spec.ts`) passing
+  38/38 alongside this task's tests post-merge.
 
 ---
 
