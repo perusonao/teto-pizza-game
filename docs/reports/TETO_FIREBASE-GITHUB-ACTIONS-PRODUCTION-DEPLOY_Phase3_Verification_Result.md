@@ -620,3 +620,189 @@ does not re-run the failed run, and does not touch any Firebase/GCP resource or 
 configuration.** The fix is statically verified (YAML validity, reachability, diff scope) but not
 yet empirically re-run against `teto-pizza-game` -- that re-dispatch is Phase 4a's own next step,
 after this PR is reviewed and merged, and is explicitly not performed by this session.
+
+---
+
+## Session 5: Phase 4a succeeds (real Firestore production deploy) + Phase 4b pre-dispatch gate
+
+### Fresh sync (before any change)
+
+- `git fetch origin main` -- `origin/main` tip: `71ad3b55cfac8b1cf0d535a00127e18b2c774bbc` (PR
+  #144's own squash-merge commit, matching the SHA given in this session's task).
+- `gh pr view 144`: `state: MERGED`, `mergeCommit.oid: 71ad3b55...` -- confirmed, not assumed.
+- `git show origin/main:.github/workflows/firebase-production-deploy.yml` (full file, re-read):
+  confirmed `actions/setup-java@v4` (`distribution: temurin`, `java-version: "21"`) present,
+  positioned immediately before "firestore -- rules emulator test", gated with the identical
+  `if: inputs.target == 'firestore' || inputs.target == 'all'` condition as that step. Re-derived
+  (not assumed) that `target: firestore` reaches only: guard, checkout, setup-node, auth,
+  install-cli, project-ID-guard, `npm ci (root)`, the new JDK-21 step, the rules-emulator test,
+  and `Deploy -- firestore` -- every `functions -- *` step and `Deploy -- functions` remain
+  unreachable (`if: target == 'functions' || 'all'`, never matched by `firestore`). Both
+  `firebase deploy` command lines confirmed byte-identical to Session 1-4 (`git show` diff
+  against the Session 4 commit: none).
+
+### Phase 4a: new dispatch (not the failed run's Re-run), approved, **succeeded**
+
+Per this task's explicit instruction, the previously-failed run
+(`https://github.com/perusonao/teto-pizza-game/actions/runs/35572662610`) was **not** re-run.
+A **new** `workflow_dispatch` was fired in the prior turn of this session (`ref: main, target:
+firestore`), producing a **new** run id
+(`https://github.com/perusonao/teto-pizza-game/actions/runs/35574689393`,
+`head_sha: 71ad3b55cfac8b1cf0d535a00127e18b2c774bbc`) -- reported and left at the `production`
+Environment approval gate, per this task's own stop condition. The owner approved it; this
+session independently re-fetched the Jobs API and full log (not trusting the "Status = Success"
+report alone):
+
+| Step | Conclusion |
+|---|---|
+| Guard against non-main ref | success |
+| Authenticate to Google Cloud (WIF) | success |
+| Install firebase-tools | success |
+| Project-ID guard (preflight) | success |
+| npm ci (root) | success |
+| functions -- * (5 steps) | skipped |
+| root -- src/shared scoped test | skipped |
+| **firestore -- set up JDK 21 (emulator runtime)** | **success** (`JAVA_HOME`: `/opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/21.0.12-1/x64`, confirmed from the next step's own logged env) |
+| **firestore -- rules emulator test** | **success** -- `22 tests passed`, `1 test file passed`, 3.01s duration (the exact same test file that previously never even started, now running to completion under Java 21) |
+| Deploy -- functions | skipped |
+| **Deploy -- firestore (rules + indexes)** | **success** |
+| Job summary | success |
+
+**`firebase deploy` output (from the step's own log, the real Firebase CLI transcript, not
+inferred)**:
+
+```
+=== Deploying to 'teto-pizza-game'...
+
+i  deploying firestore
+i  firestore: ensuring required API firestore.googleapis.com is enabled...
+✔  firestore: required API firestore.googleapis.com is enabled
+i  firestore: reading indexes from firestore.indexes.json...
+i  cloud.firestore: checking firestore.rules for compilation errors...
+✔  cloud.firestore: rules file firestore.rules compiled successfully
+i  firestore: uploading rules firestore.rules...
+i  firestore: deploying indexes...
+✔  firestore: deployed indexes in firestore.indexes.json successfully for (default) database
+✔  firestore: released rules firestore.rules to cloud.firestore
+
+✔  Deploy complete!
+
+Project Console: https://console.firebase.google.com/project/teto-pizza-game/overview
+```
+
+**This is the first Firebase production write performed via GitHub Actions / WIF in this
+project's history.** Firestore rules and indexes are now deployed from `main`'s exact checked-out
+content at `head_sha: 71ad3b55cfac8b1cf0d535a00127e18b2c774bbc` -- which this session already
+confirmed (Session 3/4's own "Fresh sync" sections, and re-confirmed again this session) includes
+the `users/{uid}` rule (Player Profile 1.0 Phase 1A).
+
+- **Secrets/tokens**: full run log scanned for `private_key`, `BEGIN ... PRIVATE`, an
+  `access_token` value, a `ya29.`-prefixed OAuth token, or an `AIza`-prefixed API key literal --
+  none found. Only credential-file *paths* and non-secret env values (`FIREBASE_PROJECT_ID`,
+  `JAVA_HOME`, etc.) appear, consistent with every prior session's run.
+
+### Production read-only re-check (after the Firestore deploy)
+
+- `gcloud firestore indexes composite list --project teto-pizza-game`: still exactly **one**
+  composite index, `state: READY`, same field paths (`score DESC, achievedAt ASC, __name__ ASC`)
+  -- matches `firestore.indexes.json` on `main` exactly, confirming the deploy was an idempotent
+  re-apply of the index (no drift, no new/removed index).
+- `gcloud functions list --project teto-pizza-game --regions=asia-northeast1`: still **exactly
+  one** function live, `submitLunchRushScore`, `updateTime` **unchanged**
+  (`2026-09-20T17:17:40Z`) -- empirically confirms `Deploy -- functions` did not run and nothing
+  Functions-related was touched by this deploy. `setDisplayName` still **not deployed** at this
+  point in the session (Phase 4b, below, changes this).
+- **`users/{uid}` Firestore rule live status**: this session still has no read-only command to
+  dump the live ruleset's text directly (same constraint as Sessions 1-4 -- no raw access token
+  was printed or used). However, this is no longer a pure inference: the `Deploy -- firestore`
+  step's own log (above) is first-party evidence that `firebase deploy` uploaded and released
+  the exact `firestore.rules` file checked out at `head_sha: 71ad3b55...` -- a file this session
+  independently re-read in full and confirmed contains the `users/{uid}` rule (owner-read-only,
+  all-writes-denied). **The `users/{uid}` rule is now live in production**, evidenced by the
+  deploy's own success output, not merely inferred from absence of a prior deploy.
+
+### Phase 4a final verdict
+
+**Succeeded.** Firestore rules (including the previously-undeployed `users/{uid}` rule) and the
+one composite index are now live in `teto-pizza-game`, deployed via GitHub Actions / WIF for the
+first time. Zero Functions were touched. Zero secrets exposed. The Java 21 fix (PR #144) is
+empirically confirmed to have resolved Phase 4a's original blocker -- the rules-emulator test ran
+to completion (22/22 passed) and the deploy step itself succeeded, both impossible before the
+fix.
+
+---
+
+## Phase 4b pre-dispatch fresh gate
+
+Per this task's instruction, `main` was freshly re-audited for Functions-readiness before
+dispatching, not assumed from prior sessions' notes:
+
+- `git show origin/main:functions/src/index.ts`: exports exactly two Callable Functions,
+  `submitLunchRushScore` and `setDisplayName`, both `onCall({ region: "asia-northeast1" }, ...)`
+  -- unchanged from every prior session's own read of this file.
+- `git ls-tree -r origin/main -- functions/src`: `index.ts`, `periodIds.ts`/`.test.ts`,
+  `setDisplayName.ts`/`.test.ts`, `submitLunchRushScore.ts`/`.test.ts` -- `setDisplayName.ts` and
+  its own test file are present and merged (Player Profile 1.0 Phase 1A, PR #131).
+- `git show origin/main:functions/src/submitLunchRushScore.ts`, grepped for `displayName`:
+  confirms the Player Profile 1.0 Phase 1B denormalization logic (Issue #129) is present --
+  `resolveDisplayNameSnapshot`, reading `users/{uid}.displayName` via the Admin SDK, and writing
+  the resolved `displayName` onto each of the three leaderboard-period entries
+  (`weekly`/`monthly`/`allTime`) alongside the score. This is the exact code this deploy is meant
+  to bring live, confirmed present on `main` by direct inspection, not assumed from an issue
+  number alone.
+- Workflow reachability for `target: functions`, re-derived from the YAML (same file re-read for
+  the Phase 4a check above): reaches guard, checkout, setup-node, auth, install-cli,
+  project-ID-guard, `npm ci (root)`, `functions -- npm ci`, `functions -- typecheck`, `functions
+  -- lint`, `functions -- test`, `functions -- build`, `root -- src/shared scoped test`, and
+  `Deploy -- functions`. **Does not reach** the new JDK-21 step, `firestore -- rules emulator
+  test`, or `Deploy -- firestore (rules + indexes)` -- all three gated on `target == 'firestore'
+  || 'all'`, never matched by `functions`. **Firestore is not re-deployed by this dispatch.**
+- New blockers/conflicts: none found. Open PRs (fresh `gh pr list`): #105, #72, #46, #34, #3, all
+  unrelated (none touch `functions/`, `.github/workflows/`, or Firebase/GCP config). `production`
+  Environment re-confirmed unchanged (required reviewer `perusonao`, branch policy restricted to
+  `main`). No other `firebase-production-deploy.yml` run is currently in progress (the two most
+  recent runs, Phase 4a's success and the earlier Java failure, are both `completed`) -- the
+  `concurrency: group: firebase-production-deploy` guard is free.
+
+### Phase 4b: dispatch (new run, `production` approval pending)
+
+`workflow_dispatch` fired: `ref: main`, `target: functions`,
+`head_sha: 71ad3b55cfac8b1cf0d535a00127e18b2c774bbc` (unchanged from Phase 4a's dispatch -- no
+new commit landed on `main` in between). Run:
+**<https://github.com/perusonao/teto-pizza-game/actions/runs/35575747213>**.
+
+`gh api .../pending_deployments` confirms the run is sitting at the `production` Environment's
+required-reviewer gate (`reviewers: [perusonao]`) -- **this session stops here and does not
+self-approve**, per this task's explicit instruction. Steps that will run after approval:
+`functions -- npm ci` -> `typecheck` -> `lint` -> `test` -> `build` -> `root -- src/shared scoped
+test` -> `Deploy -- functions` (`firebase deploy --only functions --project teto-pizza-game
+--non-interactive`) -> Job summary. No Firestore step is reachable for this dispatch.
+
+**Not yet approved, not yet run, no production mutation from Phase 4b at the time of writing this
+report.** Production smoke-testing of `setDisplayName` after this deploy completes is explicitly
+**not** performed by this session either, per this task's own instruction.
+
+## Changed files (Session 5)
+
+| File | Change |
+|---|---|
+| `docs/reports/TETO_FIREBASE-GITHUB-ACTIONS-PRODUCTION-DEPLOY_Phase3_Verification_Result.md` | this section appended (Session 5) |
+
+No workflow, code, Firebase, or GCP *configuration* file was changed by this session -- the only
+"changes" this session made to Firebase/GCP state are the two `workflow_dispatch` runs themselves
+(Phase 4a's real Firestore deploy, and Phase 4b's pending dispatch), both performed exactly as
+instructed and both going through the same `production` Environment approval gate as every prior
+dispatch.
+
+## Final verdict (Session 5, current, authoritative)
+
+**Phase 4a: SUCCEEDED.** Firestore rules (`users/{uid}` now live) and the one composite index are
+deployed to `teto-pizza-game` production via GitHub Actions / WIF, confirmed from the run's own
+Jobs API response and the `firebase deploy` command's own transcript -- not inferred. Zero
+Functions touched, zero secrets exposed. **Phase 4b: dispatched, waiting for `production`
+Environment approval** (run
+<https://github.com/perusonao/teto-pizza-game/actions/runs/35575747213>,
+`head_sha: 71ad3b55cfac8b1cf0d535a00127e18b2c774bbc`, `target: functions`) -- this report stops
+here, self-approval deliberately not performed, per this task's explicit instruction. Firestore is
+not re-deployed by the pending Phase 4b run; only `setDisplayName` and the Phase 1B
+`displayName`-snapshot code path in `submitLunchRushScore` will go live once approved.
