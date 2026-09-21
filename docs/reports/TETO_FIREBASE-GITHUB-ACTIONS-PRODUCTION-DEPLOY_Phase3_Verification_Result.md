@@ -2,24 +2,24 @@
 
 Continues `docs/reports/TETO_FIREBASE-GITHUB-ACTIONS-PRODUCTION-DEPLOY_Phase1-2_Result.md`
 (unmodified, kept as-is per this task's own instruction) after PR #140 merged to `main`
-(`f88a653bd74153def3b91e2debf2dcdf774df8d7`). This report covers four sessions. **Session 1**
-(below, mostly unchanged) built PR #142 (the `target: verify` addition) but could not dispatch it
-(`workflow_dispatch` requires the workflow file on the default branch). **Session 2** dispatched
-`target: verify` on `main` after PR #142 merged, and the run sat waiting for the `production`
-Environment's required-reviewer approval -- stopped there per this task's own instruction.
-**Session 3** resumed after the owner approved that run and confirmed **WIF VERIFIED** from the
-run's actual logs, then re-audited the production-vs-`main` diff and proposed a Phase 4 plan
-(Firestore first, then Functions, `target: all` never used). **Session 4 ("Phase 4a fix:
-Firestore Firestore emulator Java 21 requirement", near the bottom -- the current, authoritative
-status)** covers the real Phase 4a dispatch (`target: firestore`), its failure (Firestore
-emulator's Java version requirement, not WIF/IAM/rules), and the minimal workflow fix. See
-"Session 4" for the current final verdict -- Session 3's own verdict further below still holds
-for the WIF-verification question; only the Phase 4a *execution* attempt and its fix are new.
+(`f88a653bd74153def3b91e2debf2dcdf774df8d7`). This report now covers six sessions; **Session 6
+(bottom of this file) is the current, authoritative status.** Summary of the earlier five, each
+still kept below in full: **Session 1** built PR #142 (`target: verify`) but could not dispatch
+it pre-merge. **Session 2** dispatched `target: verify` and stopped at the `production`
+Environment approval gate. **Session 3** confirmed **WIF VERIFIED** after approval, then proposed
+a Phase 4 plan (Firestore first, then Functions, `target: all` never used). **Session 4** covers
+Phase 4a's first (failed) dispatch -- a Firestore-emulator Java-21 requirement, unrelated to
+WIF/IAM/rules -- and its fix (PR #144). **Session 5** covers Phase 4a's second dispatch, which
+**succeeded** (Firestore rules + indexes live in production for the first time via this
+pipeline), and Phase 4b's first dispatch (`target: functions`), left pending approval. **Session
+6** covers Phase 4b's approval and failure (a second, distinct gap: a missing
+`firebase.projects.get` permission), its investigation, and the IAM fix (a new project-scoped
+custom role) -- see "Session 6" at the bottom for the current state and next step.
 
-**No Firebase production deploy has succeeded in any session in this report. Every `firebase
-deploy --only firestore:...` attempt so far either never ran (skipped by design) or failed before
-performing any write (Session 4's Phase 4a attempt) -- Firebase/GCP production state is
-unchanged from Session 3.**
+**Firebase/GCP production mutation so far, across all sessions: Firestore rules and indexes are
+live (Session 5, Phase 4a). No Cloud Function has been created or updated by this pipeline yet --
+Phase 4b's first attempt (Session 5/6) failed before any Functions-API write, confirmed
+empirically (Session 6), and is not yet re-dispatched.**
 
 ## Fresh sync (before any change)
 
@@ -806,3 +806,155 @@ Environment approval** (run
 here, self-approval deliberately not performed, per this task's explicit instruction. Firestore is
 not re-deployed by the pending Phase 4b run; only `setDisplayName` and the Phase 1B
 `displayName`-snapshot code path in `submitLunchRushScore` will go live once approved.
+
+---
+
+## Session 6: Phase 4b fails (missing `firebase.projects.get`), investigated, fixed via a new custom IAM role
+
+### Phase 4b run result (fresh-confirmed, not trusted from the "Status = Success" report alone)
+
+The owner approved the pending run (`https://github.com/perusonao/teto-pizza-game/actions/runs/35575747213`,
+`head_sha: 71ad3b55cfac8b1cf0d535a00127e18b2c774bbc`, `target: functions`). This session
+independently re-fetched the Jobs API and full log:
+
+| Step | Conclusion |
+|---|---|
+| Guard / WIF auth / Install firebase-tools / Project-ID guard / npm ci (root) | success |
+| `functions -- npm ci` / `typecheck` / `lint` / `test` / `build` | all success |
+| `root -- src/shared scoped test` | success |
+| `firestore -- set up JDK 21` / `firestore -- rules emulator test` | both skipped (correct for `target: functions`) |
+| **`Deploy -- functions`** | **failure** |
+| `Deploy -- firestore (rules + indexes)` | skipped |
+
+### Root cause, pinpointed from the step's own log
+
+```
+i  functions: preparing codebase default for deployment
+i  functions: ensuring required API cloudfunctions.googleapis.com is enabled...
+i  functions: ensuring required API cloudbuild.googleapis.com is enabled...
+i  artifactregistry: ensuring required API artifactregistry.googleapis.com is enabled...
+✔  functions: required API cloudfunctions.googleapis.com is enabled
+✔  functions: required API cloudbuild.googleapis.com is enabled
+✔  artifactregistry: required API artifactregistry.googleapis.com is enabled
+
+Error: Request to https://firebase.googleapis.com/v1beta1/projects/teto-pizza-game/adminSdkConfig had HTTP Error: 403, The caller does not have permission
+```
+
+All three "ensuring required API enabled" checks (Cloud Functions Admin, Cloud Build, Artifact
+Registry) **succeeded** -- the failing call is a distinct, later one: `GET
+https://firebase.googleapis.com/v1beta1/projects/teto-pizza-game/adminSdkConfig`, the Firebase
+Management API's `projects.getAdminSdkConfig` method (confirmed against its own official REST
+reference, <https://firebase.google.com/docs/projects/api/reference/rest/v1beta1/projects/getAdminSdkConfig>),
+which `firebase-tools` calls internally, early in `firebase deploy --only functions`, before any
+Cloud Functions/Cloud Build/Artifact Registry write operation.
+
+**Required permission, confirmed directly from GCP (not from documentation alone)**:
+`firebase.projects.get`. `gcloud iam roles describe roles/firebase.viewer` (the smallest
+*predefined* role containing it) lists it among 300+ included permissions.
+`gcloud projects get-iam-policy teto-pizza-game`, filtered to the `github-actions-deploy` SA and
+cross-checked against `gcloud iam roles describe roles/cloudfunctions.admin`'s own permission
+list, confirmed **zero** `firebase.*` permissions exist across any of the four Phase 1 roles --
+this is a genuine gap in the Phase 0 design's original IAM table (section 5), not an execution
+mistake by this or any prior session. `target: verify`'s own dry run (`firebase projects:list`)
+does not call `adminSdkConfig`, which is why it never surfaced this gap.
+
+### Production mutation -- verified empirically, not assumed from "Run failed"
+
+Per this task's own explicit instruction not to assume NONE just because the run failed, three
+independent read-only checks were run:
+
+| Check | Result |
+|---|---|
+| `gcloud functions describe submitLunchRushScore` | `updateTime` unchanged (`2026-09-20T17:17:40Z`) -- not touched |
+| `gcloud functions describe setDisplayName` | **`404 Not Found`** -- no partial creation |
+| `gcloud builds list --project teto-pizza-game --limit=10` | **`Listed 0 items`** -- no Cloud Build was ever triggered |
+
+**Confirmed: zero production mutation from this failed run.** The failure occurred at a
+read-only Firebase Management API call, before `firebase-tools` reached any Cloud
+Build/Artifact-Registry/Cloud-Functions write step.
+
+### Fix options considered (per this task's explicit request for a comparison)
+
+| Option | Included permissions | Verdict |
+|---|---|---|
+| **A. New project-scoped custom role, `firebase.projects.get` only** | 1 | **Chosen.** Matches design doc section 5's own "widen only in response to a specific, logged permission-denied error, one role at a time" philosophy exactly -- the narrowest possible grant. |
+| B. `roles/firebase.developViewer` | 244 (confirmed via `gcloud iam roles describe`) | Rejected -- a maintained predefined role, but 243 more read permissions than needed (Firestore/Functions/Hosting/Database/Eventarc/Cloud Run reads this deploy pipeline has no other use for). |
+| C. `roles/firebase.viewer` | 300+ (confirmed via `gcloud iam roles describe`) | Rejected -- broadest option; includes unrelated product surfaces (Crashlytics, Analytics, A/B Testing, Growth, ML) this project doesn't use at all. |
+
+No predefined role scoped to exactly `firebase.projects.get` (or a small cluster around it)
+exists in GCP's current predefined-role catalog (confirmed by listing every `roles/firebase*`
+role and inspecting the two closest candidates above) -- a custom role was the only way to stay
+at the same granularity as the four Phase 1 roles.
+
+### Fix implemented (fresh-confirmed before, and read back after)
+
+**Before creating anything**, fresh-confirmed: `origin/main` at
+`00e547056914882ba1c19feafe3b4a2fa7fb6d36` (two unrelated commits ahead of Session 5's SHA --
+PR #145's own merge, and an unrelated Visual Polish UI PR -- confirmed zero overlap with
+Firebase/IAM scope); the `github-actions-deploy` SA's roles re-confirmed as still exactly the
+original four; `gcloud iam roles list --project teto-pizza-game` confirmed **no existing custom
+role** in this project (so no duplicate-purpose role existed to reuse); `gcloud iam
+list-testable-permissions` against the project confirmed `firebase.projects.get` is a valid,
+enabled, custom-role-usable permission for this exact project.
+
+```bash
+gcloud iam roles create firebaseProjectsGetOnly \
+  --project teto-pizza-game \
+  --title "Firebase Projects Get Only" \
+  --description "Minimal custom role: grants only firebase.projects.get, required by
+    firebase-tools functions deploy (GET .../adminSdkConfig). Scoped to teto-pizza-game
+    only." \
+  --permissions="firebase.projects.get" \
+  --stage GA
+
+gcloud projects add-iam-policy-binding teto-pizza-game \
+  --member="serviceAccount:github-actions-deploy@teto-pizza-game.iam.gserviceaccount.com" \
+  --role="projects/teto-pizza-game/roles/firebaseProjectsGetOnly" \
+  --condition=None
+```
+
+**Read back immediately after, both checks passing**:
+
+- `gcloud iam roles describe firebaseProjectsGetOnly --project teto-pizza-game --format="value(includedPermissions)"`
+  → `firebase.projects.get` -- **exactly one permission**, confirmed by counting lines (`1`).
+- `gcloud projects get-iam-policy teto-pizza-game`, filtered to `github-actions-deploy`:
+
+  ```
+  projects/teto-pizza-game/roles/firebaseProjectsGetOnly
+  roles/cloudfunctions.admin
+  roles/datastore.indexAdmin
+  roles/firebaserules.admin
+  roles/iam.serviceAccountUser
+  ```
+
+  **Exactly five roles** -- the original four, unchanged, plus the one new custom role. No
+  `roles/owner`, `roles/editor`, `roles/firebase.admin`, `roles/firebase.viewer`, or
+  `roles/firebase.developViewer` was added. (The full project IAM policy dump also shows
+  `roles/editor` bound to three *other*, GCP-managed service accounts -- the default compute SA,
+  `cloudservices` SA, and the App Engine default SA -- pre-existing, unrelated to and untouched
+  by this change.)
+
+### Changed files (Session 6)
+
+| File | Change |
+|---|---|
+| `docs/design/TETO_FIREBASE-GITHUB-ACTIONS-PRODUCTION-DEPLOY_1.0.md` | short addendum appended to section 5, original text unchanged |
+| `docs/reports/TETO_FIREBASE-GITHUB-ACTIONS-PRODUCTION-DEPLOY_Phase1-2_Result.md` | short "IAM update" note appended after the header, original body unchanged |
+| `docs/reports/TETO_FIREBASE-GITHUB-ACTIONS-PRODUCTION-DEPLOY_Phase3_Verification_Result.md` | this section appended (Session 6), header summary updated to mention all six sessions |
+
+No `.github/workflows/*`, `firestore.rules`, `firestore.indexes.json`, `functions/*`, or `src/*`
+file was touched. GCP changes this session: one new custom IAM role, one new IAM binding on the
+`github-actions-deploy` service account -- nothing else.
+
+### Final verdict (Session 6, current, authoritative)
+
+**Root cause confirmed and fixed at the narrowest possible grant.** The `github-actions-deploy`
+service account now holds exactly five roles: the original four (Phase 1) plus
+`projects/teto-pizza-game/roles/firebaseProjectsGetOnly` (exactly one permission,
+`firebase.projects.get`). Zero production mutation occurred from the failed run (verified via
+three independent read-only checks, not assumed). No broad role (`Owner`/`Editor`/`Firebase
+Admin`/`firebase.viewer`/`firebase.developViewer`) was granted. **This session does not
+re-dispatch the workflow, does not re-run the failed run, does not use `target: all`, and does
+not re-deploy Firestore.** Phase 4b's next step -- a fresh `target: functions` dispatch on
+current `main`, followed by the same `production` Environment approval -- is the recommended
+immediate next action, not performed by this session.

@@ -6,6 +6,14 @@ via #135). **No production Firebase deploy has been performed by this session.**
 covers design-doc Phases 1 and 2 (GCP/GitHub auth foundation, Workload Identity Federation, the
 workflow file) plus as much of Phase 3's verification as is possible without merging to `main`.
 
+**IAM update (Phase 4b, later session)**: the four roles this report documents below turned out
+to be one short -- a real `target: functions` dispatch failed with a 403 on `firebase.projects.get`
+(needed by `firebase-tools` internally for `GET .../adminSdkConfig`). A fifth, project-scoped
+custom role (`firebaseProjectsGetOnly`, exactly one included permission) was added to fix this.
+See `docs/reports/TETO_FIREBASE-GITHUB-ACTIONS-PRODUCTION-DEPLOY_Phase3_Verification_Result.md`
+Session 6 for the investigation and fix; this report's own IAM section below is kept as
+originally written (the historical record of what Phase 1 granted), not edited to match.
+
 ## Fresh sync (before any change)
 
 Per this task's own instruction, all of the following was fresh-audited at session start, not
