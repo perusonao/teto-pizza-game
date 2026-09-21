@@ -570,6 +570,11 @@ Audit's §6.
 
 ## Preferred workflow
 
+The detailed Human Verification requirements this section summarizes (applicability, viewports,
+video/screenshot content and validation, Result Report format, Definition of Done) are formalized
+in `docs/decisions/TETO_HUMAN-VERIFICATION-POLICY.md` — that file is the SSOT; this section stays
+a summary and must not drift from it.
+
 While Codex availability is limited:
 
 `Fresh Audit/design → Claude Code implementation → tests/review → Preview → user iPhone Human Feel`
