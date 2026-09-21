@@ -1,0 +1,78 @@
+name: E2E WebKit (Cooking UI 1-Screen)
+
+# Issue #167 PR-C (Verification Hardening). Phase 0/PR-A found the *only* Playwright coverage
+# this repo had (e2e/*.spec.ts, playwright.config.ts) ran entirely on Desktop Chrome -- a real
+# iPhone Safari user still hit horizontal tab-strip clipping, vertical Cooking UI scroll, and
+# Reference/PizzaStage divergence that Chromium's own layout engine never reproduced. This is a
+# dedicated, WebKit-only job (not folded into ci.yml's fast lint/vitest/build job, and not a
+# blind Chromium+WebKit x every-spec matrix) so a future change that only breaks Safari's own
+# layout/font/emoji metrics -- not Chromium's -- still fails CI before merge, without slowing
+# down every PR's fast feedback loop with a second full browser matrix it doesn't need.
+#
+# Runs on every PR to main, not path-filtered: the whole point of this job (see the Result
+# Report, docs/reports/TETO_COOKING-UI_1SCREEN-2.0_PRC_Verification-Hardening_Result.md, section
+# "CI Runtime") is catching a Safari-only regression introduced by a change that doesn't obviously
+# touch Cooking UI files (e.g. a shared CSS variable, App.css layout primitive, or reducer
+# change) -- a path filter would reopen exactly the "silently broke, nobody noticed" gap Issue
+# #167 exists to close.
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  webkit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Browser binaries are the one large, cacheable artifact this job downloads -- system
+      # package deps (--with-deps, below) are OS-level and not meaningfully cacheable across
+      # runners, so only ~/.cache/ms-playwright is cached, keyed on the exact Playwright version
+      # (package-lock.json) so a Playwright bump always fetches the matching browser build
+      # instead of silently reusing a stale cached one.
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-webkit-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      # Official supported installation path (README/Playwright docs): --with-deps additionally
+      # installs the Ubuntu system libraries WebKit needs to actually launch, not just the
+      # browser binary itself -- a bare `install webkit` on a fresh runner reliably fails to
+      # launch without this.
+      - name: Install WebKit (with system deps)
+        run: npx playwright install --with-deps webkit
+
+      # Evidence for the Result Report's "actual WebKit execution proof" requirement -- a green
+      # job alone doesn't prove WebKit launched (it could have silently no-opped). This prints
+      # the resolved Playwright version and the actual installed WebKit revision directory.
+      - name: Browser installation proof
+        run: |
+          npx playwright --version
+          find ~/.cache/ms-playwright -maxdepth 1 -type d -iname 'webkit-*'
+
+      # Both required viewports (390x844 authority, 360x800 secondary) as their own Playwright
+      # *projects* (playwright.config.ts webkit-390x844/webkit-360x800, both Desktop Safari =
+      # WebKit engine) -- every spec in e2e/, not a hand-picked subset, so this job can never
+      # silently stop covering a new Cooking UI regression test added to either file without a
+      # separate reminder to also update this workflow. The [webkit-390x844]/[webkit-360x800]
+      # project-name prefix on every test line in the job log (reporter: list, playwright.config.ts)
+      # is itself further proof WebKit -- not Chromium -- actually executed each test.
+      - name: Run WebKit e2e (390x844 + 360x800)
+        run: npx playwright test --project=webkit-390x844 --project=webkit-360x800 --reporter=list,html
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-webkit-report
+          path: playwright-report/
+          retention-days: 14

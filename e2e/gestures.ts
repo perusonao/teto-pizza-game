@@ -199,3 +199,49 @@ export async function startQuattroFormaggiHeavyInventory(page: Page) {
   await page.getByRole("button", { name: /このピザを作る/ }).click();
   await page.waitForSelector(".pizza-stage");
 }
+
+/**
+ * Issue #167 PR-C (Verification Hardening): a synthetic save that satisfies サルシッチャ's own
+ * chain unlock (`unlockCondition: { requiresRecipeId: "fugazza", minTotalStars: 15 }`,
+ * src/data/recipes.ts) directly via localStorage, the same "write the save, don't play 5+ full
+ * rounds to reach it" approach `startQuattroFormaggiHeavyInventory` above already uses. Three
+ * discovered dex entries at bestStars 5 sum to exactly the required 15 totalStars
+ * (src/logic/mastery.ts); `fugazza` itself must be one of them (`isDiscovered` gate). Ownership
+ * is set directly to サルシッチャ's own three `requiredIngredients` (tomato-sauce/mozzarella are
+ * Starter, always owned regardless; sausage is not, so it must be both in `ownedIngredientIds`
+ * and given inventory headroom) -- `isRecipeAvailable` only checks ownership of the *target*
+ * recipe's ingredients, not any ingredient belonging to the unlock-chain recipes.
+ *
+ * Salsiccia matters specifically for Reference Truth (PR-B) regression coverage: it is the
+ * recipe the user originally reported the 見本/PizzaStage divergence on (Issue #167 background),
+ * so PR-C's own WebKit Reference-modal verification must cover it, not just Margherita.
+ */
+export async function startSalsicciaUnlocked(page: Page) {
+  const save = {
+    schemaVersion: 2,
+    dex: ["margherita", "funghi", "fugazza"].map((recipeId) => ({
+      recipeId,
+      discovered: true,
+      bestScore: 90,
+      bestStars: 5,
+      timesMade: 1,
+    })),
+    pitzBalance: 500,
+    ownedIngredientIds: ["tomato-sauce", "mozzarella", "sausage"],
+    missionBest: {},
+    inventory: { sausage: 99 },
+    starterGrantClaimedRecipeIds: ["margherita", "funghi", "fugazza"],
+  };
+
+  await page.goto("/");
+  await page.evaluate((rawSave) => {
+    localStorage.clear();
+    localStorage.setItem("teto-pizza-save-v1", JSON.stringify(rawSave));
+  }, save);
+  await page.reload();
+  await page.waitForSelector(".app-frame");
+  await page.getByRole("button", { name: /ピザを作る/ }).click();
+  await page.getByRole("button", { name: /サルシッチャ、/ }).click();
+  await page.getByRole("button", { name: /このピザを作る/ }).click();
+  await page.waitForSelector(".pizza-stage");
+}
