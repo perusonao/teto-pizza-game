@@ -76,6 +76,25 @@ describe("HOME Global Overlay shell sizing (Dex/Shop/Inventory share one rule)",
     expect(panel.querySelector(":scope > .shop-overlay__list")).not.toBeInTheDocument();
   });
 
+  it("Weekly Ranking overlay panel (opened from HOME) uses the same shared shell as Dex/Shop/Inventory", async () => {
+    // Visual Polish 2.0B (Fresh Audit P1-3): WeeklyRankingOverlay used to render its own small
+    // centered `.mission-overlay__panel` dialog card instead of this shared bottom-sheet shell --
+    // see WeeklyRankingOverlay.tsx's own comment for why it now matches its HOME menu siblings.
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /ランキング/ }));
+    const panel = document.querySelector<HTMLElement>(".dex-overlay__panel")!;
+    expect(panel).toBeInTheDocument();
+    expect(panel).toHaveClass("ranking-overlay__panel");
+    expectPanelShellShape(panel);
+    // The overlay backdrop itself must still carry the `ranking-overlay` modifier class --
+    // App.css keys its z-index override (back up to `.mission-overlay`'s own 25) off exactly
+    // this class pairing, so this overlay stays in front when opened over an already-open
+    // MissionResultOverlay from Lunch Rush RESULT's own "ランキングを見る" button.
+    const backdrop = document.querySelector(".dex-overlay.ranking-overlay");
+    expect(backdrop).toBeInTheDocument();
+  });
+
   it("Inventory overlay panel uses the same shared shell as Dex/Shop", async () => {
     const user = userEvent.setup();
     render(<App />);
