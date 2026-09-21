@@ -633,6 +633,7 @@ export function GameScreen({
           onRetry={onMissionStart}
           onExit={onMissionExitToFree}
           onShowRanking={onShowRanking}
+          onGoHome={onGoHome}
         />
       )}
     </div>

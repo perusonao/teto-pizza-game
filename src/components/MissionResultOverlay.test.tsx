@@ -21,6 +21,7 @@ function baseProps() {
     onRetry: vi.fn(),
     onExit: vi.fn(),
     onShowRanking: vi.fn(),
+    onGoHome: vi.fn(),
   };
 }
 
@@ -73,5 +74,40 @@ describe("MissionResultOverlay", () => {
     render(<MissionResultOverlay {...props} />);
     await userEvent.click(screen.getByRole("button", { name: /ランキングを見る/ }));
     expect(props.onShowRanking).toHaveBeenCalledTimes(1);
+  });
+
+  it("still calls onRetry exactly once for もう一度 (regression)", async () => {
+    const props = baseProps();
+    render(<MissionResultOverlay {...props} />);
+    await userEvent.click(screen.getByRole("button", { name: "もう一度" }));
+    expect(props.onRetry).toHaveBeenCalledTimes(1);
+  });
+
+  it("still calls onExit exactly once for フリープレイへ (regression)", async () => {
+    const props = baseProps();
+    render(<MissionResultOverlay {...props} />);
+    await userEvent.click(screen.getByRole("button", { name: "フリープレイへ" }));
+    expect(props.onExit).toHaveBeenCalledTimes(1);
+  });
+
+  /** Gameplay UX Phase 2 (Issue #157): the new 🏠 ホームへ CTA -- present, correctly labeled,
+   *  and calls onGoHome exactly once per click (reuses App.tsx's handleGoHome, no new logic
+   *  here to test beyond the wiring itself). */
+  it("renders a 🏠 ホームへ button that calls onGoHome exactly once", async () => {
+    const props = baseProps();
+    render(<MissionResultOverlay {...props} />);
+    const homeButton = screen.getByRole("button", { name: /ホームへ/ });
+    expect(homeButton).toBeInTheDocument();
+    await userEvent.click(homeButton);
+    expect(props.onGoHome).toHaveBeenCalledTimes(1);
+  });
+
+  it("ホームへ does not trigger onExit/onRetry/onShowRanking (no accidental cross-wiring)", async () => {
+    const props = baseProps();
+    render(<MissionResultOverlay {...props} />);
+    await userEvent.click(screen.getByRole("button", { name: /ホームへ/ }));
+    expect(props.onExit).not.toHaveBeenCalled();
+    expect(props.onRetry).not.toHaveBeenCalled();
+    expect(props.onShowRanking).not.toHaveBeenCalled();
   });
 });

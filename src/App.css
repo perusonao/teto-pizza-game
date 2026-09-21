@@ -2101,6 +2101,27 @@
   width: 100%;
 }
 
+/* Gameplay UX Phase 2 (Issue #157): フリープレイへ/🏠ホームへ paired into one row (mirrors
+   .home-cta-row's flex:1-pair pattern) so the new HOME CTA costs ~0 extra vertical height --
+   keeps the existing 390x844/360x800 "RESULT fits without page scroll" e2e assertions holding. */
+.mission-result__nav-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.mission-result__nav-button {
+  flex: 1;
+  /* Tighter horizontal padding than .secondary-button's shared 14px base -- at ~150px/button
+     (340px panel, 2-up) the base padding wrapped 「フリープレイへ」 onto an orphan second line;
+     this keeps both labels on one line down to 360px width without shrinking the touch target
+     height (still 44px via .secondary-button's min-height). */
+  padding-left: 8px;
+  padding-right: 8px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
 /* ---------- Weekly Ranking (Firebase Ranking 1.0 Phase 2A, Issue #87) ---------- */
 /* Visual Polish 2.0B (Fresh Audit P1-3): shares .dex-overlay/.dex-overlay__panel's bottom-sheet
    shell (see that class's own rules above) -- the same shell Dex/Shop/Inventory/Settings already
