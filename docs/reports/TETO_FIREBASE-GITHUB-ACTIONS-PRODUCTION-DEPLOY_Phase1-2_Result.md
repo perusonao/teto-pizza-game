@@ -329,6 +329,19 @@ both `package.json` changes is minimal (a `^5.0.2` devDependency addition and it
   `firebase: ^12.19.0`).
 - `git diff`/`git status` review of every changed file, three times (once per commit).
 
+**Verified on the real GitHub Actions runner (this PR's own `ci.yml` run, after opening the
+PR)**: the `build` job (`npm ci && npm run lint && npm test && npm run build`, root only, the
+same `node-version: 20` / `actions/setup-node@v4` configuration the new workflow also uses)
+**passed** -- <https://github.com/perusonao/teto-pizza-game/actions/runs/35568703609> (1m13s).
+This directly confirms, on the actual target environment rather than this session's
+version-mismatched local machine, that the `@firebase/rules-unit-testing` devDependency addition
+does not break the existing root lint/test/build pipeline, and that `node-version: 20` resolves
+to a compliant Node release in GitHub's own runner image (closing the local-only gap above for
+everything `ci.yml` itself exercises). It does **not** by itself exercise
+`firebase-production-deploy.yml`'s own functions-specific or Firestore-rules-emulator steps,
+which only run on an actual `workflow_dispatch` of that workflow (see "What was NOT verified"
+below).
+
 ## What was NOT verified (honest limitation, not a gap papered over)
 
 Design doc section 18's own Phase 1 exit criteria is "a manual, harmless dry run ... proving the
