@@ -345,3 +345,95 @@ Phase 1B complete. PR to be opened against `main`, left **OPEN**, no auto-merge,
 production deploy performed. Issue #129 to be updated with this summary. **Remaining Issue #129
 scope** (not started, per the design doc's own phasing): Phase 1C (real-device production smoke),
 Phase 2 (Cloud Save Fresh Audit), Phase 3 (account recovery / device transfer linking).
+
+## 16. Fresh Merge Follow-up -- catch-up to main after Pizza Cutting Phase 3 (#132)
+
+PR #132 ("Pizza Cutting 1.0 Phase 3 evaluation and result feedback") squash-merged to `main`
+while PR #133 (this phase) was open, making PR #133 `mergeable: false` against the new `main`.
+This section documents catching PR #133's branch up to the new `main`, with no scope change to
+either phase.
+
+### Previous / new base
+
+- **Previous base** (this PR's original merge-base): `fbac50da7b3a6da8e31c3399b8986e5d692e2f7b`
+  (Phase 1A merge commit -- see section 0 above).
+- **New `main` SHA** (fetched fresh before starting): `24cee828664e4ac34aa806157f3c8df69c02b8d1`
+  ("feat: Pizza Cutting 1.0 Phase 3 evaluation and result feedback (#132)").
+
+### Conflict audit
+
+`git diff --stat fbac50d..24cee82` (i.e. exactly what #132 added) touched 27 files: Pizza
+Cutting Phase 3's own result report, 18 new screenshots, `src/App.css` (+104 lines), 6 new/
+modified source and test files (`src/App.test.tsx`, `src/components/{CutDebugPanel,
+ResultPanel}.tsx` + their `.test.tsx`, `src/screens/GameScreen.tsx`,
+`src/state/gameReducer.cutResultDisplay.test.ts`). Cross-referenced against this PR's own 10
+changed files (section "Changed files" above): **exactly one file overlaps, `src/App.css`** --
+both phases only ever *appended* new, distinctly-named rule blocks to it (Phase 3's own result-
+panel/cut-debug-panel rules; this phase's own `.ranking-overlay__name` +
+`flex-shrink: 0` additions), never touching the same existing line.
+
+### Resolution
+
+`git merge origin/main -m "Merge origin/main (Pizza Cutting Phase 3, #132) into Player Profile
+Phase 1B"` (merge commit, not a rebase -- this PR's own branch, but a merge keeps the already-
+pushed, already-CI-green PR #133 commit history intact rather than rewriting it, and needs no
+force-push). Git's `ort` merge strategy resolved `src/App.css` automatically with **zero
+conflict markers** (`git diff` confirms the two `"======="`-looking matches in the file are its
+own pre-existing decorative section-divider comments, not `git` conflict markers) -- both
+phases' rule blocks are present in full, byte-identical to each phase's own original addition.
+No other file required any resolution at all (no overlap).
+
+**Conflicted files: none** (auto-merged cleanly; only `src/App.css` was touched by both sides,
+and git's own merge resolved it without any manual edit).
+
+### Verification that neither phase was accidentally deleted
+
+- `git diff origin/main HEAD -- src/components/ResultPanel.tsx src/components/CutDebugPanel.tsx src/screens/GameScreen.tsx` --
+  **empty** (byte-identical to `main`): Pizza Cutting Phase 3's CUT UI / `CutDebugPanel` /
+  Result UI is untouched.
+- `git diff origin/main...HEAD --stat` (i.e. this branch's own changes *on top of* the now-
+  current `main`, three-dot diff) lists **exactly this phase's original 17 files** (10 source/
+  test + 1 result report + 6 screenshots) -- nothing Phase-3-owned appears in that list, and
+  every Phase 1B file (`getWeeklyLeaderboard.ts`, `WeeklyRankingOverlay.tsx`, `App.css`,
+  `submitLunchRushScore.ts`, etc.) is still present with its full diff against the new `main`.
+- Manual read of the merged `src/App.css`: `.ranking-overlay__name` (line ~2054) and
+  `.ranking-overlay__panel` (line ~1989, Phase 2A's own pre-existing rule, unaffected) both
+  present; `.result-panel__*` and `.cut-debug-panel` (Phase 3's own rules) both present.
+
+### Verification -- full re-run after the merge
+
+| Check | Result |
+|---|---|
+| Root `npx vitest run` | **109 test files / 2045 tests passed** (up from this phase's own pre-merge 107/2024 -- the +2 files / +21 tests delta is exactly Phase 3's own new test files (`App.test.tsx`, `CutDebugPanel.test.tsx`, `ResultPanel.test.tsx`, `gameReducer.cutResultDisplay.test.ts`), confirming nothing from either phase was lost) |
+| `functions` `npx vitest run` | **3 test files / 72 tests passed**, unchanged from pre-merge (Phase 3 touches no `functions/` file) |
+| `firestore.rules.test.ts` (real local Firestore emulator) | **22 tests passed**, unchanged (neither phase touches `firestore.rules`) |
+| Root `npm run build` (`tsc -b && vite build`) | succeeded, no type errors |
+| Root `npm run lint` (oxlint) | clean |
+| `functions` `npm run typecheck` | clean |
+| `functions` `npm run lint` (oxlint) | clean |
+
+### Browser re-smoke (390x844 / 360x800)
+
+Since the only conflict was in `App.css` and the merge introduced no change to
+`WeeklyRankingOverlay.tsx`'s own structure, a brief re-smoke (not a full repeat of every
+scenario in section 9) was performed using the same temporary-mock-and-revert method as before
+(section 12): TOP-10 with mixed Japanese/ASCII/20-codepoint/fallback names and the current-user
+あなた highlight, at both required viewports. Rank/name/score/badge layout is pixel-identical to
+the pre-merge screenshots in section 9 -- confirming Phase 3's own additive `App.css` rules did
+not alter the Ranking overlay's cascade. No horizontal overflow (`scrollWidth === clientWidth`,
+`320 === 320`) at either viewport; no console/page errors. The temporary mock was reverted
+before this follow-up commit (`git status` clean; `grep -c "mockRanking"
+src/firebase/getWeeklyLeaderboard.ts` → `0`).
+
+### Scope confirmation
+
+No file outside this phase's original 10 (+2 result-report/screenshots) was modified by this
+merge follow-up. `firestore.rules`, `.github/workflows/deploy.yml`, Lunch Rush scoring, and
+Firebase score/profile authority are all untouched -- the merge commit itself changes nothing
+beyond what `git merge`'s own conflict resolution required (`src/App.css`), and that resolution
+is purely additive (both phases' rule blocks, nothing rewritten).
+
+### New HEAD
+
+`e19be9450ae41aa68d324b3ef919a590713f0398` (merge commit, pushed to the same PR #133 branch,
+`claude/ranking-display-name-snapshot-brclvx` -- no new PR opened).
