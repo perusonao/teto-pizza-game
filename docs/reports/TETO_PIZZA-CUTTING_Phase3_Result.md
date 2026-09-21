@@ -24,15 +24,18 @@ unchanged) into the RESULT screen a player actually sees.
   prior commits beyond that SHA (verified via `git merge-base HEAD origin/main` == `git rev-parse
   origin/main`), so this was a genuinely fresh start, not a continuation of stale prior work.
 - **Gate #2 (immediately before PR creation):** re-ran `git fetch origin main` — `origin/main`
-  had advanced to `fbac50d` (PR #131, "Player Profile 1.0 Phase 1A": Settings/display-name
-  Firebase Functions, `firestore.rules`, `SettingsOverlay`, and (per this task's own explicit
-  instruction not to touch Firebase/Ranking/deploy.yml) a `.github/workflows/deploy.yml` edit).
-  Its diff (`functions/src/*`, `firestore.rules*`, `src/firebase/*`, `src/shared/displayName*`,
-  `src/components/SettingsOverlay.*`, `.github/workflows/deploy.yml`, `src/App.css`) has **zero
-  overlap** with Pizza Cutting/CUT/POST_BAKE/RESULT scope except `src/App.css`, which both this
-  phase and PR #131 append to (different rule blocks) — a clean, conflict-free auto-merge (§9).
-  No open PR or branch of matching Pizza Cutting Phase 3 scope was found. **Verdict: clear to
-  proceed, and clear to merge-forward before opening the PR.**
+  had advanced to `fbac50d`. That range (`4841b61..fbac50d`) contains two distinct pieces of
+  work: **PR #131** ("Player Profile 1.0 Phase 1A": Settings/display-name Firebase Functions,
+  `firestore.rules`, `SettingsOverlay` — confirmed via GitHub's own PR #131 file list, 16 files,
+  `functions/src/*`, `firestore.rules*`, `src/firebase/*`, `src/shared/displayName*`,
+  `src/components/SettingsOverlay.*`, `src/App.css`, and its own Result Report doc — **not**
+  including `.github/workflows/deploy.yml`) and a separate, earlier standalone commit
+  (`9c972e1`, "chore: remove Firebase secret diagnostic") that is the one that actually touched
+  `.github/workflows/deploy.yml` (a 14-line removal). Neither has any overlap with Pizza
+  Cutting/CUT/POST_BAKE/RESULT scope except `src/App.css` (PR #131 only), which both this phase
+  and PR #131 append to (different rule blocks) — a clean, conflict-free auto-merge (§9). No open
+  PR or branch of matching Pizza Cutting Phase 3 scope was found. **Verdict: clear to proceed,
+  and clear to merge-forward before opening the PR.**
 
 ## 2. Fresh code audit (read in full before writing any code)
 
@@ -262,13 +265,16 @@ string is dead-code-eliminated from the production bundle exactly like the exist
 
 ## 9. Fresh Merge Gate follow-up — main catch-up
 
-Performed after `origin/main` advanced to `fbac50d` (PR #131, Player Profile 1.0 Phase 1A) during
-this session:
+Performed after `origin/main` advanced to `fbac50d` (PR #131, Player Profile 1.0 Phase 1A, plus a
+separate standalone commit `9c972e1` unrelated to that PR) during this session:
 
 1. `git fetch origin main` — confirmed `origin/main` at `fbac50da7b3a6da8e31c3399b8986e5d692e2f7b`.
-2. Scope re-check: PR #131's diff (Firebase Functions/`firestore.rules`/`SettingsOverlay`/
-   `.github/workflows/deploy.yml`/`src/App.css`) — zero overlap with Pizza Cutting scope except
-   `src/App.css`, which both branches only *append* new, disjoint rule blocks to.
+2. Scope re-check: PR #131's diff (confirmed via GitHub's own PR #131 file list — Firebase
+   Functions/`firestore.rules`/`SettingsOverlay`/`src/App.css`; **not** `.github/workflows/
+   deploy.yml`, which was never part of PR #131's own 16 changed files) — zero overlap with
+   Pizza Cutting scope except `src/App.css`, which both branches only *append* new, disjoint
+   rule blocks to. The `.github/workflows/deploy.yml` change in this range is from a separate
+   commit (`9c972e1`, "chore: remove Firebase secret diagnostic"), also zero overlap.
 3. `git merge origin/main --no-edit` — clean auto-merge, **zero conflicts** (`Auto-merging
    src/App.css` succeeded without manual resolution).
 4. Confirmed `.github/workflows/deploy.yml` is byte-identical to `origin/main`'s own copy
