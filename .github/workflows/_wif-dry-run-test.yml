@@ -1,0 +1,32 @@
+name: WIF Dry Run Test (temporary, Phase 1 exit criteria)
+
+# Temporary verification workflow -- design doc section 18, Phase 1 exit criteria:
+# "a manual, harmless dry run ... proving the WIF token can actually authenticate against
+# teto-pizza-game". No deploy capability, no environment gate (intentionally, so it can be
+# dispatched from any branch during setup verification) -- read-only `firebase projects:list`
+# only. Removed once verified; not part of the final production-deploy workflow.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Authenticate to Google Cloud (Workload Identity Federation)
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/1030600909020/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
+          service_account: github-actions-deploy@teto-pizza-game.iam.gserviceaccount.com
+          create_credentials_file: true
+          export_environment_variables: true
+
+      - name: Install firebase-tools
+        run: npm install -g firebase-tools@15.26.0
+
+      - name: firebase projects:list (read-only)
+        run: firebase projects:list --project teto-pizza-game
