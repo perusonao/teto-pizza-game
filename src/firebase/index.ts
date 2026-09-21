@@ -17,3 +17,10 @@ export {
   type WeeklyLeaderboardEntry,
   type WeeklyLeaderboardCurrentUserRank,
 } from "./getWeeklyLeaderboard";
+export {
+  getMyProfile,
+  FALLBACK_DISPLAY_NAME,
+  type GetMyProfileResult,
+  type PlayerProfile,
+} from "./getMyProfile";
+export { setDisplayName, type SetDisplayNameInput, type SetDisplayNameResult } from "./setDisplayName";

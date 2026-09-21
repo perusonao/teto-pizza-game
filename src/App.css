@@ -2462,6 +2462,68 @@
   opacity: 0.6;
 }
 
+/* Player Profile 1.0 Phase 1A (Issue #129) -- "プレイヤー名" section, sharing
+   .settings-overlay__section's own card shell. */
+.settings-overlay__profile-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #8a6a45;
+  margin: 0 0 6px;
+}
+
+.settings-overlay__profile-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.settings-overlay__profile-input {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  border: 2px solid #e6d5ae;
+  border-radius: 10px;
+  padding: 0 12px;
+  font-size: 14px;
+  color: #4a2e0a;
+  background: #fffdf7;
+}
+
+.settings-overlay__profile-input:disabled {
+  opacity: 0.6;
+}
+
+.settings-overlay__profile-save {
+  flex-shrink: 0;
+  min-height: 44px;
+  min-width: 72px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffb648, #f08a1e);
+  color: #4a2e0a;
+  font-weight: 700;
+  font-size: 13px;
+  box-shadow: 0 3px 8px rgba(240, 138, 30, 0.35);
+}
+
+.settings-overlay__profile-save:disabled {
+  opacity: 0.6;
+  box-shadow: none;
+}
+
+.settings-overlay__profile-status {
+  font-size: 12px;
+  font-weight: 700;
+  color: #b4432f;
+  margin: 10px 0 0;
+}
+
+.settings-overlay__profile-status--success {
+  color: #3f7a3a;
+}
+
 /* ==========================================================================
    HOME / GAME screens (Issue #24)
    ========================================================================== */
