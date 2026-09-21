@@ -2,24 +2,27 @@
 
 Continues `docs/reports/TETO_FIREBASE-GITHUB-ACTIONS-PRODUCTION-DEPLOY_Phase1-2_Result.md`
 (unmodified, kept as-is per this task's own instruction) after PR #140 merged to `main`
-(`f88a653bd74153def3b91e2debf2dcdf774df8d7`). This report now covers six sessions; **Session 6
-(bottom of this file) is the current, authoritative status.** Summary of the earlier five, each
-still kept below in full: **Session 1** built PR #142 (`target: verify`) but could not dispatch
-it pre-merge. **Session 2** dispatched `target: verify` and stopped at the `production`
-Environment approval gate. **Session 3** confirmed **WIF VERIFIED** after approval, then proposed
-a Phase 4 plan (Firestore first, then Functions, `target: all` never used). **Session 4** covers
-Phase 4a's first (failed) dispatch -- a Firestore-emulator Java-21 requirement, unrelated to
-WIF/IAM/rules -- and its fix (PR #144). **Session 5** covers Phase 4a's second dispatch, which
-**succeeded** (Firestore rules + indexes live in production for the first time via this
-pipeline), and Phase 4b's first dispatch (`target: functions`), left pending approval. **Session
-6** covers Phase 4b's approval and failure (a second, distinct gap: a missing
-`firebase.projects.get` permission), its investigation, and the IAM fix (a new project-scoped
-custom role) -- see "Session 6" at the bottom for the current state and next step.
+(`f88a653bd74153def3b91e2debf2dcdf774df8d7`). This report now covers seven sessions; **Session 7
+(bottom of this file) is the current, authoritative status: Phase 4a and Phase 4b have both
+succeeded.** Summary of the earlier six, each still kept below in full: **Session 1** built PR
+#142 (`target: verify`) but could not dispatch it pre-merge. **Session 2** dispatched `target:
+verify` and stopped at the `production` Environment approval gate. **Session 3** confirmed **WIF
+VERIFIED** after approval, then proposed a Phase 4 plan (Firestore first, then Functions,
+`target: all` never used). **Session 4** covers Phase 4a's first (failed) dispatch -- a
+Firestore-emulator Java-21 requirement, unrelated to WIF/IAM/rules -- and its fix (PR #144).
+**Session 5** covers Phase 4a's second dispatch, which **succeeded** (Firestore rules + indexes
+live in production for the first time via this pipeline), and Phase 4b's first dispatch
+(`target: functions`), left pending approval. **Session 6** covers Phase 4b's approval and
+failure (a second, distinct gap: a missing `firebase.projects.get` permission), its
+investigation, and the IAM fix (a new project-scoped custom role). **Session 7** covers Phase
+4b's second dispatch, which **succeeded** -- both Cloud Functions (`submitLunchRushScore`,
+`setDisplayName`) are now live -- plus read-only production verification and a newly-surfaced,
+separately-scoped Node.js 20 runtime deprecation finding.
 
 **Firebase/GCP production mutation so far, across all sessions: Firestore rules and indexes are
-live (Session 5, Phase 4a). No Cloud Function has been created or updated by this pipeline yet --
-Phase 4b's first attempt (Session 5/6) failed before any Functions-API write, confirmed
-empirically (Session 6), and is not yet re-dispatched.**
+live (Session 5, Phase 4a), and both Cloud Functions are live (Session 7, Phase 4b --
+`submitLunchRushScore` updated, `setDisplayName` created). Phase 4a and Phase 4b, this design's
+two originally-scoped deploy targets, are both now complete.**
 
 ## Fresh sync (before any change)
 
@@ -958,3 +961,123 @@ re-dispatch the workflow, does not re-run the failed run, does not use `target: 
 not re-deploy Firestore.** Phase 4b's next step -- a fresh `target: functions` dispatch on
 current `main`, followed by the same `production` Environment approval -- is the recommended
 immediate next action, not performed by this session.
+
+---
+
+## Session 7: Phase 4b succeeds (real Cloud Functions production deploy)
+
+### Fresh sync (before any change)
+
+- `git fetch origin main` -- `origin/main` tip: `6534c079aaf030f26ccb51658cde2d409ad7bbbd` (PR
+  #148's own squash-merge commit, matching the SHA given in this session's task).
+- `gh pr view 148`: `state: MERGED`, `mergeCommit.oid: 6534c079...` -- confirmed.
+- IAM re-confirmed fresh (`gcloud iam roles describe firebaseProjectsGetOnly` /
+  `gcloud projects get-iam-policy`, filtered to `github-actions-deploy`): the custom role still
+  has exactly one permission (`firebase.projects.get`), the service account still holds exactly
+  five roles (the original four plus the custom role), no broader role present.
+
+### Dispatch (new run, not the failed run's Re-run)
+
+`workflow_dispatch` fired: `ref: main`, `target: functions`, `head_sha:
+6534c079aaf030f26ccb51658cde2d409ad7bbbd`. Run
+(`https://github.com/perusonao/teto-pizza-game/actions/runs/35579767724`) sat at the `production`
+Environment approval gate; reported and left there for the owner, per this task's stop condition.
+
+### Result (fresh-confirmed from the Jobs API and full run log, not trusted from the report alone)
+
+The owner approved; this session independently re-fetched
+`repos/perusonao/teto-pizza-game/actions/runs/35579767724/jobs` and the full log:
+
+| Step | Conclusion |
+|---|---|
+| Guard / WIF auth / Install firebase-tools / Project-ID guard / npm ci (root) | success |
+| `functions -- npm ci` / `typecheck` / `lint` / `test` / `build` | all success |
+| `root -- src/shared scoped test` | success |
+| `firestore -- set up JDK 21` / `firestore -- rules emulator test` | both skipped (correct for `target: functions`) |
+| **`Deploy -- functions`** | **success** |
+| `Deploy -- firestore (rules + indexes)` | skipped |
+
+**`firebase deploy` output (from the step's own log, the real Firebase CLI transcript)**:
+
+```
+i  functions: creating Node.js 20 (2nd Gen) function setDisplayName(asia-northeast1)...
+i  functions: updating Node.js 20 (2nd Gen) function submitLunchRushScore(asia-northeast1)...
+✔  functions[submitLunchRushScore(asia-northeast1)] Successful update operation.
+✔  functions[setDisplayName(asia-northeast1)] Successful create operation.
+
+✔  Deploy complete!
+
+Project Console: https://console.firebase.google.com/project/teto-pizza-game/overview
+```
+
+**This is the first time `setDisplayName` (Player Profile 1.0 Phase 1A, merged via PR #131) has
+ever been live in production**, and the first time `submitLunchRushScore` has been redeployed
+since PR #121's original owner-run deploy -- bringing the Phase 1B `displayName`-snapshot logic
+(PR #133) live as part of the same function's code.
+
+- **Secrets/tokens**: full run log scanned for `private_key`, `BEGIN ... PRIVATE`, an
+  `access_token` value, a `ya29.`-prefixed OAuth token, or an `AIza`-prefixed API key literal --
+  none found, same as every prior session's run.
+
+### Production read-only re-check (after the Functions deploy)
+
+| Check | Result |
+|---|---|
+| `gcloud functions list --project teto-pizza-game --regions=asia-northeast1` | **two** functions, both `ACTIVE` |
+| `submitLunchRushScore` | `ACTIVE`, `GEN_2`, `updateTime: 2026-09-21T08:55:08.902915391Z` |
+| `setDisplayName` | `ACTIVE`, `GEN_2`, `updateTime: 2026-09-21T08:54:59.314456971Z` |
+| `gcloud firestore indexes composite list --project teto-pizza-game` | still exactly **one** composite index, `READY`, unchanged -- confirms `Deploy -- firestore` did not run (matches the Jobs API's own `skipped` conclusion for that step) |
+
+Both `updateTime` values fall inside the `Deploy -- functions` step's own logged window
+(`2026-09-21T08:53:54Z` start -- `2026-09-21T08:55:11Z` "Deploy complete!"), consistent with this
+exact run and no other. Region (`asia-northeast1`) and generation (`GEN_2`) match
+`functions/src/index.ts`'s own `onCall({ region: "asia-northeast1" }, ...)` declarations for
+both functions, confirmed by this session's own prior reads of that file (Session 5/6).
+
+### Node.js 20 deprecation -- noted, explicitly out of this session's scope
+
+The same `Deploy -- functions` log also shows:
+
+```
+⚠  functions: Runtime Node.js 20 was deprecated on 2026-04-30 and will be decommissioned on
+   2026-10-30, after which you will not be able to deploy without upgrading. Consider upgrading
+   now to avoid disruption.
+```
+
+This is the **Cloud Functions runtime** (`functions/package.json`'s `engines.node: "20"`, i.e.
+what the deployed function actually executes as in production) -- a distinct concern from the
+`actions/setup-node@v4 node-version: 20` used by this repository's GitHub Actions workflows
+(`ci.yml`, `deploy.yml`, `firebase-production-deploy.yml`), and also distinct from the root
+`EBADENGINE` warnings already noted in Session 4 (which were about local/CI tooling versions,
+not the Cloud Functions runtime). **Per this task's explicit instruction, this finding is kept
+separate from Phase 4b's own result and not acted on this session.** Recorded here as a
+next-priority, independently-scoped task: migrate the Cloud Functions runtime from Node.js 20 to
+Node.js 22, before the 2026-10-30 decommission date. This should be scoped and planned as its own
+piece of work (a runtime-version bump plus re-verification of `functions/package.json`'s
+`engines`, the `esbuild --target=node20` build flag, and a full redeploy through this same
+`production`-gated pipeline) -- not bundled into any future Firestore/Functions content change.
+
+### Changed files (Session 7)
+
+| File | Change |
+|---|---|
+| `docs/reports/TETO_FIREBASE-GITHUB-ACTIONS-PRODUCTION-DEPLOY_Phase3_Verification_Result.md` | this section appended (Session 7), header summary updated |
+
+No workflow, code, Firebase/GCP configuration, or IAM resource was changed by this session -- the
+only "change" this session made to Firebase/GCP state is the one `workflow_dispatch` run itself
+(Phase 4b's second, successful attempt), performed exactly as instructed through the same
+`production` Environment approval gate as every prior dispatch.
+
+### Final verdict (Session 7, current, authoritative)
+
+**Phase 4b: SUCCEEDED.** Both Cloud Functions (`submitLunchRushScore`, `setDisplayName`) are live
+in `teto-pizza-game` production, `asia-northeast1`, Gen 2, confirmed from the run's own Jobs API
+response, the `firebase deploy` command's own transcript, and independent read-only
+`gcloud functions describe` calls -- not inferred. Firestore was not touched (confirmed:
+`Deploy -- firestore` skipped, composite index count/state unchanged). Zero secrets exposed.
+**With this, both of this design's originally-scoped Phase 4 deploy targets (Firestore in Session
+5, Functions in this session) are live in production via GitHub Actions / WIF -- no long-lived
+credential involved at any point.** A Node.js 20 Cloud Functions runtime deprecation warning
+(decommission 2026-10-30) was surfaced and recorded as a separate, next-priority task, explicitly
+not acted on this session. Phase 5 (an owner-only, iPhone-from-scratch operational smoke test,
+design doc section 18) is the documented next phase -- not performed by this session.
