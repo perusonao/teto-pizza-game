@@ -164,3 +164,28 @@ recommended phased fix.
 - `docs/reports/screenshots/recipe-select-2.0-phase0/*.png` (new, 10 files — 5 states × 2 viewports)
 
 No other file in the repository was modified.
+
+## 11. Post-audit merge-forward
+
+This section documents a later, separate action against this same PR — **not** a re-audit.
+
+- The Recipe Select investigation, findings, verdicts, and screenshots recorded in §1–§10 above
+  were produced against `origin/main` at **`1b0b764b0c09d0f74215a04f303095bea577a572`**, and that
+  remains the SHA this audit's actual content (layout comparison, UX findings, scalability
+  verdict, screenshots) was performed against.
+- After this audit was written and PR #137 opened, `origin/main` advanced to
+  **`5b38304de1bcb0c2c946c37a18d3a130421e800f`** via the merge of **PR #138** ("Pizza Cutting 1.0
+  Phase 4A: duplicate-line gate, Lunch Rush CUT feedback, RESULT clarification").
+- This branch (`claude/teto-recipe-select-2.0-audit-a866hp`) was subsequently **merge-forwarded**
+  to bring that newer `main` in — a routine merge-in of PR #138's already-merged history, with no
+  conflicts. Nothing about Recipe Select, its screens, its data, or its UX was re-investigated,
+  re-tested, or re-screenshotted as part of this merge; §1–§10's findings stand exactly as
+  originally audited.
+- This PR's own diff against `origin/main` (`docs/design/TETO_RECIPE-SELECT_2.0.md`,
+  `docs/reports/TETO_RECIPE-SELECT_2.0_Phase0_Fresh-Audit.md`, and the 10 screenshots under
+  `docs/reports/screenshots/recipe-select-2.0-phase0/`) is unchanged by this merge — still exactly
+  the same 12 files, still docs/screenshots-only, still zero `src/**`/test/Firebase/workflow/
+  save-schema changes.
+- PR #138's own production changes (`src/**`, `functions/**`, its own reports/screenshots) are
+  carried through unmodified by this merge — verified `src/**`/`functions/**` on this branch's new
+  HEAD are byte-identical to `origin/main`.
