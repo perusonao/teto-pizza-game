@@ -156,6 +156,7 @@ function Harness({
         onDoughStretchCommit={() => {}}
         onAddCutLine={() => {}}
         onUndoCutLine={() => {}}
+        cutRejectionMessage={null}
         onDoughElementChange={() => {}}
         resolvePhysicalDrop={resolvePhysicalDrop}
         onPhysicalDrop={handlePhysicalDrop}

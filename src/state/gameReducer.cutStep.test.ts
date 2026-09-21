@@ -5,6 +5,7 @@ import { EMPTY_DEX, registerScoreToDex } from "./dex";
 import { requiredCutCount } from "../logic/cut/evaluation";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
+import { MIN_CUT_ANGULAR_SEPARATION_RADIANS } from "../logic/cut/geometry";
 import { DOUGH_CENTER, DOUGH_RADIUS } from "../logic/pizzaCoordinates";
 import { buildIdealMargheritaSauceFixture, MARGHERITA_REFERENCE } from "../data/referencePizza";
 import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
@@ -149,6 +150,111 @@ describe("10. ADD_CUT_LINE/UNDO_CUT_LINE are no-ops outside POST_BAKE's own CUT 
     const after = gameReducer(state, { type: "ADD_CUT_LINE", line: notEdgeToEdge });
     expect(after).toBe(state);
     expect(after.cutState.lines).toHaveLength(0);
+  });
+});
+
+/** Degrees-based sibling of `idealCutLine` above, used only by the duplicate-rejection tests
+ *  below where an exact angle offset (e.g. "5deg off an existing line") reads more directly than
+ *  a fraction of a full slice count. */
+function cutLineAtAngleDegrees(angleDegrees: number): CutLine {
+  const angleRadians = (angleDegrees * Math.PI) / 180;
+  const dx = Math.cos(angleRadians) * DOUGH_RADIUS;
+  const dy = Math.sin(angleRadians) * DOUGH_RADIUS;
+  return {
+    start: { x: DOUGH_CENTER - dx, y: DOUGH_CENTER - dy },
+    end: { x: DOUGH_CENTER + dx, y: DOUGH_CENTER + dy },
+  };
+}
+
+describe("10c. ADD_CUT_LINE rejects a near-duplicate of an already-committed line (Phase 4A)", () => {
+  it("an exact duplicate (identical start/end) is rejected -- state unchanged, same reference", () => {
+    let state = bakedMargheritaAtCut();
+    state = gameReducer(state, { type: "ADD_CUT_LINE", line: cutLineAtAngleDegrees(0) });
+    const rejected = gameReducer(state, { type: "ADD_CUT_LINE", line: cutLineAtAngleDegrees(0) });
+    expect(rejected).toBe(state);
+    expect(rejected.cutState.lines).toHaveLength(1);
+  });
+
+  it("the same line with reversed start/end is rejected (0deg and 180deg are the same orientation)", () => {
+    let state = bakedMargheritaAtCut();
+    const first = cutLineAtAngleDegrees(0);
+    state = gameReducer(state, { type: "ADD_CUT_LINE", line: first });
+    const reversed: CutLine = { start: first.end, end: first.start };
+    const rejected = gameReducer(state, { type: "ADD_CUT_LINE", line: reversed });
+    expect(rejected).toBe(state);
+    expect(rejected.cutState.lines).toHaveLength(1);
+  });
+
+  it("a near-duplicate a few degrees off an existing line is rejected", () => {
+    let state = bakedMargheritaAtCut();
+    state = gameReducer(state, { type: "ADD_CUT_LINE", line: cutLineAtAngleDegrees(0) });
+    const rejected = gameReducer(state, { type: "ADD_CUT_LINE", line: cutLineAtAngleDegrees(5) });
+    expect(rejected).toBe(state);
+    expect(rejected.cutState.lines).toHaveLength(1);
+  });
+
+  it("a line just outside the minimum angular separation is accepted", () => {
+    let state = bakedMargheritaAtCut();
+    state = gameReducer(state, { type: "ADD_CUT_LINE", line: cutLineAtAngleDegrees(0) });
+    const thresholdDegrees = (MIN_CUT_ANGULAR_SEPARATION_RADIANS * 180) / Math.PI;
+    const accepted = gameReducer(state, {
+      type: "ADD_CUT_LINE",
+      line: cutLineAtAngleDegrees(thresholdDegrees + 1),
+    });
+    expect(accepted).not.toBe(state);
+    expect(accepted.cutState.lines).toHaveLength(2);
+  });
+
+  it("a normal 3-line/6-slice pattern (60deg apart) is entirely unaffected by the duplicate gate", () => {
+    let state = bakedMargheritaAtCut();
+    for (let i = 0; i < 3; i += 1) {
+      state = gameReducer(state, { type: "ADD_CUT_LINE", line: idealCutLine(i, 3) });
+    }
+    expect(state.cutState.lines).toHaveLength(3);
+  });
+
+  it("a rejected duplicate never increments the committed cut count", () => {
+    let state = bakedMargheritaAtCut();
+    state = gameReducer(state, { type: "ADD_CUT_LINE", line: cutLineAtAngleDegrees(0) });
+    for (let i = 0; i < 3; i += 1) {
+      state = gameReducer(state, { type: "ADD_CUT_LINE", line: cutLineAtAngleDegrees(2) });
+    }
+    expect(state.cutState.lines).toHaveLength(1);
+  });
+
+  it("undo after a rejected duplicate attempt still removes exactly the last real line", () => {
+    let state = bakedMargheritaAtCut();
+    state = gameReducer(state, { type: "ADD_CUT_LINE", line: cutLineAtAngleDegrees(0) });
+    const firstLine = state.cutState.lines[0];
+    state = gameReducer(state, { type: "ADD_CUT_LINE", line: cutLineAtAngleDegrees(60) });
+    // A rejected duplicate attempt in between -- must not corrupt undo history.
+    state = gameReducer(state, { type: "ADD_CUT_LINE", line: cutLineAtAngleDegrees(61) });
+    expect(state.cutState.lines).toHaveLength(2);
+    state = gameReducer(state, { type: "UNDO_CUT_LINE" });
+    expect(state.cutState.lines).toHaveLength(1);
+    expect(state.cutState.lines[0]).toEqual(firstLine);
+  });
+
+  it("evaluation is deterministic and identical whether or not rejected duplicate attempts were made in between", () => {
+    let withoutAttempts = bakedMargheritaAtCut();
+    for (let i = 0; i < 3; i += 1) {
+      withoutAttempts = gameReducer(withoutAttempts, { type: "ADD_CUT_LINE", line: idealCutLine(i, 3) });
+    }
+    withoutAttempts = gameReducer(withoutAttempts, { type: "CONFIRM_MAKING_STEP" });
+
+    let withAttempts = bakedMargheritaAtCut();
+    withAttempts = gameReducer(withAttempts, { type: "ADD_CUT_LINE", line: idealCutLine(0, 3) });
+    // A near-duplicate of the just-committed line -- rejected, must not perturb the final result.
+    withAttempts = gameReducer(withAttempts, {
+      type: "ADD_CUT_LINE",
+      line: cutLineAtAngleDegrees(2),
+    });
+    withAttempts = gameReducer(withAttempts, { type: "ADD_CUT_LINE", line: idealCutLine(1, 3) });
+    withAttempts = gameReducer(withAttempts, { type: "ADD_CUT_LINE", line: idealCutLine(2, 3) });
+    withAttempts = gameReducer(withAttempts, { type: "CONFIRM_MAKING_STEP" });
+
+    expect(withAttempts.cutState.lines).toHaveLength(3);
+    expect(withAttempts.cutState.evaluation).toEqual(withoutAttempts.cutState.evaluation);
   });
 });
 
