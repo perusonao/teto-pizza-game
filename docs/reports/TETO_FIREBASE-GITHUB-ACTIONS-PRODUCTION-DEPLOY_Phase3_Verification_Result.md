@@ -2,11 +2,20 @@
 
 Continues `docs/reports/TETO_FIREBASE-GITHUB-ACTIONS-PRODUCTION-DEPLOY_Phase1-2_Result.md`
 (unmodified, kept as-is per this task's own instruction) after PR #140 merged to `main`
-(`f88a653bd74153def3b91e2debf2dcdf774df8d7`). This report covers: a fresh re-audit of everything
-Phase 1-2 created, a small follow-up PR (#142) adding a read-only `verify` dispatch target, and
-the current production-vs-`main` diff. **No Firebase production deploy has been performed by
-this session. No `firebase deploy`, `gcloud functions deploy`, or Firestore rules/indexes deploy
-command was run.**
+(`f88a653bd74153def3b91e2debf2dcdf774df8d7`). This report covers three sessions. **Session 1**
+(below, mostly unchanged) built PR #142 (the `target: verify` addition) but could not dispatch it
+(`workflow_dispatch` requires the workflow file on the default branch). **Session 2** dispatched
+`target: verify` on `main` after PR #142 merged, and the run sat waiting for the `production`
+Environment's required-reviewer approval -- stopped there per this task's own instruction.
+**Session 3 ("Live verification run", near the bottom -- the current, authoritative status)**
+resumed after the owner approved that run, confirmed **WIF VERIFIED** from the run's actual
+logs, and re-audits the production-vs-`main` diff fresh before proposing a Phase 4 plan. See
+"Live verification run" for the current final verdict -- Session 1's own verdict further below
+is superseded on the WIF-result/production-mutation questions specifically (nothing else in
+Session 1 changed).
+
+**No Firebase production deploy has been performed by any session in this report. No `firebase
+deploy`, `gcloud functions deploy`, or Firestore rules/indexes deploy command was run.**
 
 ## Fresh sync (before any change)
 
@@ -213,7 +222,7 @@ design doc's own section 15 already flagged this exact coordination risk).
   empirical read, and is flagged for confirmation at deploy time rather than asserted as settled
   fact.
 
-## Final verdict
+## Final verdict (Session 1 -- superseded on the WIF-result/production-mutation points, see below)
 
 **Infrastructure confirmed intact and unchanged. A minimal, reviewed-diff PR (#142) adds the
 read-only verification path this task asked for, using the smallest possible change to the
@@ -223,3 +232,203 @@ open for review, per this task's explicit instruction not to proceed past PR cre
 Firebase production resource was read via any credential other than the human owner's own
 already-authenticated `gcloud` session (for the read-only production-state diff above); the WIF
 service account itself has not yet been exercised by an actual GitHub Actions run.
+
+---
+
+## Session 2: dispatch, waiting for approval
+
+PR #142 merged to `main` (`d7cc370c627d2d5327b0a140cc749f312b01b883`, confirmed via `gh pr view
+142`: `state: MERGED`). Fresh `git fetch origin main` confirmed `origin/main` at this same SHA;
+`git show origin/main:.github/workflows/firebase-production-deploy.yml` confirmed the `verify`
+choice present on `main`.
+
+Dispatched via `gh workflow run firebase-production-deploy.yml --ref main -f target=verify` ->
+run `https://github.com/perusonao/teto-pizza-game/actions/runs/35570430953`. `gh api
+.../pending_deployments` confirmed the run was sitting at the `production` Environment's
+required-reviewer gate (`reviewers: [perusonao]`, `current_user_can_approve: true` for the
+authenticated `gh` session -- **deliberately not used to self-approve**, per this task's own
+instruction to stop and let the human owner approve). Reported the run URL and the exact
+UI steps needed, then stopped -- no further action taken until the owner confirmed approval.
+
+## Session 3 (current): Live verification run -- **WIF VERIFIED**
+
+The owner approved the run in GitHub's UI (confirmed: run status shown as `Success`). This
+session fetched the run's actual result and per-step logs via `gh api
+repos/perusonao/teto-pizza-game/actions/runs/35570430953` and
+`.../actions/runs/35570430953/jobs` -- not assumed from the UI screenshot alone.
+
+### Run identity
+
+- Run: `https://github.com/perusonao/teto-pizza-game/actions/runs/35570430953`
+- `event`: `workflow_dispatch`
+- `head_branch`: `main`
+- `head_sha`: `d7cc370c627d2d5327b0a140cc749f312b01b883` (the exact `main` tip at dispatch time,
+  matching the SHA PR #142 merged to)
+- `status`: `completed`, `conclusion`: `success`
+
+### Per-step results (fetched via the Jobs API, not inferred from the summary UI)
+
+| Step | Conclusion |
+|---|---|
+| Set up job | success |
+| **Guard against non-main ref** | **success** |
+| Run actions/checkout@v4 | success |
+| Run actions/setup-node@v4 | success |
+| **Authenticate to Google Cloud (Workload Identity Federation)** | **success** |
+| **Install firebase-tools** | **success** |
+| **Project-ID guard (preflight)** | **success** |
+| npm ci (root) | skipped |
+| functions -- npm ci | skipped |
+| functions -- typecheck | skipped |
+| functions -- lint | skipped |
+| functions -- test | skipped |
+| functions -- build | skipped |
+| root -- src/shared scoped test | skipped |
+| firestore -- rules emulator test | skipped |
+| **Deploy -- functions** | **skipped** |
+| **Deploy -- firestore (rules + indexes)** | **skipped** |
+| Job summary | success |
+| Post Authenticate to Google Cloud (WIF) | success |
+| Post Run actions/setup-node@v4 | success |
+| Post Run actions/checkout@v4 | success |
+| Complete job | success |
+
+### Authentication step detail (from the run's own log, `gh run view --log`)
+
+The "Authenticate to Google Cloud (Workload Identity Federation)" step's logged `with:` inputs
+confirm the exact resources this task specified, not placeholders or something else:
+
+```
+workload_identity_provider: projects/1030600909020/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
+service_account: github-actions-deploy@teto-pizza-game.iam.gserviceaccount.com
+create_credentials_file: true
+export_environment_variables: true
+```
+
+followed by `Created credentials file at "/home/runner/.../gha-creds-8974cbd0422c219e.json"` --
+this is a short-lived `external_account` (WIF) credential file the action generates fresh for
+this one run; **only its file path is logged, never its content**, and this report does not
+reproduce its content either.
+
+### `firebase projects:list` output (read-only, from the "Project-ID guard (preflight)" step log)
+
+```
+┌──────────────────────┬───────────────────────────┬────────────────┬──────────────────────┐
+│ Project Display Name │ Project ID                │ Project Number │ Resource Location ID │
+├──────────────────────┼───────────────────────────┼────────────────┼──────────────────────┤
+│ teto-pizza-game      │ teto-pizza-game (current) │ 1030600909020  │ [Not specified]       │
+└──────────────────────┴───────────────────────────┴────────────────┴──────────────────────┘
+1 project(s) total.
+```
+
+Project ID and project number match this repo's GCP audit exactly (`teto-pizza-game` /
+`1030600909020`) -- this is the empirical proof that the WIF-derived credential can
+**authenticate and read**, and only that one project, nothing broader.
+
+### Verification checklist (all nine, all satisfied)
+
+1. ref/SHA confirmed: `main` / `d7cc370c627d2d5327b0a140cc749f312b01b883` -- yes
+2. `Guard against non-main ref` = success -- yes
+3. `Authenticate to Google Cloud (Workload Identity Federation)` = success -- yes
+4. `Install firebase-tools` = success -- yes
+5. `Project-ID guard (preflight)` = success -- yes
+6. `firebase projects:list` succeeded against `teto-pizza-game` -- yes (see output above)
+7. Functions build/test/deploy -- all `skipped` -- yes
+8. Firestore test/deploy -- all `skipped` -- yes
+9. Production mutation -- **NONE**: both `Deploy -- functions` and `Deploy -- firestore (rules +
+   indexes)` steps show `skipped`; the run's own log contains no `firebase deploy` invocation
+   anywhere -- yes
+
+**All nine criteria satisfied. WIF VERIFIED.**
+
+### WIF result (supersedes Session 1's "Not yet performed")
+
+**Confirmed, live, from a real `main`-branch GitHub Actions run.** GitHub OIDC ->
+`token.actions.githubusercontent.com` -> the `github-actions-pool`/`github-actions-provider` WIF
+provider -> `google-github-actions/auth@v2` -> impersonation of
+`github-actions-deploy@teto-pizza-game.iam.gserviceaccount.com` -> `firebase projects:list
+--project teto-pizza-game` all succeeded end-to-end, gated behind the `production` Environment's
+required-reviewer approval exactly as designed.
+
+### Service Account impersonation result (supersedes Session 1)
+
+**Confirmed live** (not just statically re-audited): the credentials file `google-github-actions/auth`
+created was accepted by `firebase-tools` for a real API call, meaning the SA's own IAM roles
+(section 5's four roles) were sufficient for `firebase projects:list` regardless of the raw
+token itself never being inspected by this session -- the functional proof is stronger than the
+static IAM read-back alone.
+
+### Firebase project read result (supersedes Session 1)
+
+**Confirmed live**: `firebase projects:list --project teto-pizza-game` returned exactly the one
+expected project (see output above), using the WIF-derived service-account identity, not the
+human owner's own `gcloud` session this time.
+
+### Production mutation (reaffirms Session 1: still NONE)
+
+**NONE.** Both deploy steps report `skipped` in the run's own Jobs API response; the full run
+log (`gh run view --log`) contains no `firebase deploy` command anywhere. No GCP/Firebase
+resource was created, modified, or deleted by this run.
+
+### Secrets exposed (reaffirms Session 1: still NONE)
+
+**NONE.** The run log shows the WIF credential file's *path* (a per-run temp file on the
+ephemeral GitHub-hosted runner, already deleted when the runner is torn down --
+`cleanup_credentials: true` is `google-github-actions/auth`'s own default) but never its
+contents. No access token, private key, or credential value appears in the run log, this report,
+or any command this session executed.
+
+## Fresh re-audit before Phase 4 planning (Session 3)
+
+Re-run immediately before writing the Phase 4 plan below, not reused from Session 1:
+
+- `git fetch origin main` -- `origin/main` unchanged at `d7cc370c627d2d5327b0a140cc749f312b01b883`
+  since Session 1/2 (no new merge landed in between).
+- `git show origin/main:functions/src/index.ts` -- still exports exactly `submitLunchRushScore`
+  and `setDisplayName`, unchanged.
+- `gcloud functions list --project teto-pizza-game --regions=asia-northeast1`: still **exactly
+  one function live** -- `submitLunchRushScore` (`ACTIVE`, unchanged `updateTime`). `setDisplayName`
+  still **not deployed**.
+- `gcloud firestore indexes composite list --project teto-pizza-game`: still one composite index,
+  `READY`, unchanged, still matching `firestore.indexes.json` on `main`.
+- **Conclusion: the production-vs-`main` diff documented in Session 1's "Remaining production
+  diff" table above is unchanged and still accurate.** No new commit, deploy, or manual change
+  occurred on either side between Session 1 and this fresh re-check.
+
+## Phase 4 plan (proposed only -- NOT executed this session)
+
+Per this task's explicit instruction, the first-candidate order is **Firestore rules/indexes,
+then Functions** -- evaluated against the actual current diff (above) rather than assumed, and
+found to still be the right order for the reason already documented in Session 1's "Remaining
+production diff" summary: `setDisplayName` writes to `users/{uid}` via the Admin SDK (which
+bypasses rules), so deploying the Function before the rule would create a window where the
+Function works but no client can read what it wrote (rules-denied) -- not unsafe, but an
+avoidable inconsistency. Deploying the rule first closes that window before the Function goes
+live. **`target: all` is deliberately not used for either step**, per this task's explicit
+instruction -- each dispatch is its own separate, independently-approved run.
+
+| Step | Dispatch | What it brings live | Pre-existing safety | Verification after |
+|---|---|---|---|---|
+| **4a** | `workflow_dispatch`, `ref: main`, `target: firestore` | The `users/{uid}` rule (Player Profile 1.0 Phase 1A) -- `runs`/`leaderboards` rules are unchanged text, so this is a safe, idempotent re-apply of what's already live plus the one new rule. Also re-applies the one Firestore composite index (already `READY` -- a no-op). | Firestore rules emulator test runs first (design doc section 7 gate) -- this is the one gate that actually exercises the new rule text before it goes live. `firebase deploy --only firestore:rules,firestore:indexes` never touches Functions. | Confirm via Firebase Console (Firestore -> Rules) that `users/{uid}` now appears in the live ruleset -- do not assume from a green run alone, since this session could not independently re-fetch live rule content (Session 1's own disclosed limitation). |
+| **4b** | `workflow_dispatch`, `ref: main`, `target: functions` | `setDisplayName` (now reads/writes `users/{uid}`, rules already live from 4a) and the Phase 1B `displayName` denormalization inside `submitLunchRushScore` (same function redeploy, code already merged to `main`). | `functions` typecheck/lint/test/build gate runs first; `submitLunchRushScore` is redeployed too (unavoidable -- both functions share one `firebase deploy --only functions` call and one `codebase: default`), but its code/behavior is unchanged since its last live deploy, so this is expected to be a no-op redeploy for that function specifically. | Confirm via Firebase Console (Functions) that `setDisplayName` now shows as deployed/`ACTIVE`; a manual or scripted smoke test of `setDisplayName` (out of this report's scope to design) would be the real functional confirmation. |
+
+**Both 4a and 4b require the same `production` Environment approval gate as the `verify` run
+did** -- no different or weaker gate for a real deploy.
+
+**This session does not execute either 4a or 4b.** Per this task's explicit stop condition, this
+report stops at the plan.
+
+## Final verdict (Session 3, current, authoritative)
+
+**WIF VERIFIED.** A real `workflow_dispatch` run on `main`
+(`https://github.com/perusonao/teto-pizza-game/actions/runs/35570430953`,
+`head_sha: d7cc370c627d2d5327b0a140cc749f312b01b883`), approved through the `production`
+Environment's required-reviewer gate by the human owner, proved GitHub OIDC -> Workload Identity
+Federation -> `google-github-actions/auth` -> the `github-actions-deploy` service account can
+authenticate and read `teto-pizza-game` end-to-end, with **zero** build/test/deploy steps
+reachable and **zero** production mutation -- confirmed from the run's own Jobs API response and
+full log, not inferred from the UI's green checkmark alone. The production-vs-`main` diff is
+unchanged since Session 1 (only `setDisplayName` and the `users/{uid}` Firestore rule remain
+undeployed). A Phase 4 plan (Firestore first, then Functions, two separate approved dispatches,
+`target: all` deliberately not used) is proposed above but **not executed** -- this report stops
+here, per this task's explicit instruction not to perform a production deploy this session.
