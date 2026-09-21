@@ -437,3 +437,79 @@ is purely additive (both phases' rule blocks, nothing rewritten).
 
 `e19be9450ae41aa68d324b3ef919a590713f0398` (merge commit, pushed to the same PR #133 branch,
 `claude/ranking-display-name-snapshot-brclvx` -- no new PR opened).
+
+## 17. Fresh Merge Follow-up 2 -- catch-up to main after Firebase GitHub Actions Phase 0 docs (#135)
+
+PR #135 ("Firebase Production Deploy via GitHub Actions -- Phase 0 Fresh Design (Issue #134)")
+merged to `main` while PR #133 was open (again), making it `mergeable: false` against the newer
+`main`. This section documents the second catch-up, with no scope change to either phase.
+
+### Previous / new base
+
+- **Previous base** (this PR's base going into this follow-up): `24cee828664e4ac34aa806157f3c8df69c02b8d1`
+  (Pizza Cutting Phase 3 merge, #132 -- see section 16 above).
+- **New `main` SHA** (fetched fresh before starting): `1b0b764b0c09d0f74215a04f303095bea577a572`
+  ("docs: Firebase Production Deploy via GitHub Actions -- Phase 0 Fresh Design (Issue #134) (#135)").
+
+### Conflict audit
+
+`git diff --stat 24cee82..1b0b764` (exactly what #135 added) touched **2 files, both new,
+both docs-only**: `docs/design/TETO_FIREBASE-GITHUB-ACTIONS-PRODUCTION-DEPLOY_1.0.md` and
+`docs/reports/TETO_FIREBASE-GITHUB-ACTIONS-PRODUCTION-DEPLOY_Phase0_Fresh-Design_Result.md` --
+712 insertions, 0 deletions, no path under this PR's own 17 changed files. **Zero overlap.**
+
+### Resolution
+
+`git merge origin/main -m "Merge origin/main (Firebase GitHub Actions Phase 0 docs, #135) into
+Player Profile Phase 1B"` -- a clean merge with **no conflicts at all** (two brand-new files,
+nothing to resolve).
+
+**Conflicted files: none.**
+
+### Verification that nothing was accidentally broken
+
+- `git diff origin/main HEAD -- src/components/ResultPanel.tsx src/components/CutDebugPanel.tsx src/screens/GameScreen.tsx src/state/gameReducer.cutResultDisplay.test.ts` --
+  **empty**: Pizza Cutting Phase 3 (#132) remains untouched.
+- `docs/design/TETO_FIREBASE-GITHUB-ACTIONS-PRODUCTION-DEPLOY_1.0.md` and its Phase 0 result
+  report are both present on this branch, unmodified from #135's own merge.
+- `git diff origin/main HEAD -- .github/workflows/deploy.yml` -- **empty**: this PR touches no
+  deployment workflow, consistent with this phase's own scope guard and with #135 itself being
+  docs-only (no workflow file changed by #135 either).
+- `git diff origin/main...HEAD --stat` (three-dot diff, this branch's changes *on top of* the
+  now-current `main`) lists **exactly this PR's original 17 files** -- identical file list and
+  line-count deltas to the pre-#135 three-dot diff (section 16), confirming the Phase 1B code
+  itself did not change, only the merge base did.
+
+### Verification -- full re-run after the merge
+
+| Check | Result |
+|---|---|
+| Root `npx vitest run` | **109 test files / 2045 tests passed** -- identical to the post-#132 count (section 16); #135 adds no test |
+| `functions` `npx vitest run` | **3 test files / 72 tests passed**, unchanged |
+| Root `npm run build` (`tsc -b && vite build`) | succeeded; output asset hashes (`index-BRwIqujU.css`, `index-CdMnj1OA.js`) are **byte-identical** to the pre-#135 build, confirming the production bundle is unaffected |
+| Root `npm run lint` (oxlint) | clean |
+| `functions` `npm run typecheck` | clean |
+| `functions` `npm run lint` (oxlint) | clean |
+
+`firestore.rules.test.ts` was not re-run this follow-up -- #135 touches no Firestore rule, no
+Firestore-adjacent code, and no test file; the emulator run from section 16 (22/22) still
+accurately describes the current state, unchanged since.
+
+### Browser re-smoke
+
+**Not performed for this follow-up**, per instruction: the merge introduced zero changes to any
+Phase 1B source file (three-dot diff identical to the prior, fully-verified state; production
+build output byte-identical), so the 390x844/360x800 screenshots already captured in section 16
+(and section 9) remain an accurate, current representation of the Weekly Ranking overlay.
+
+### Scope confirmation
+
+No file outside `docs/reports/TETO_PLAYER-PROFILE_Phase1B_Result.md` (this report) was modified
+by this merge follow-up beyond what `git merge` itself brought in from #135 (two new, untouched
+docs files). `firestore.rules`, `.github/workflows/deploy.yml`, Lunch Rush scoring, and Firebase
+score/profile authority remain untouched.
+
+### New HEAD
+
+`969b2d966dbe36a9334df11e7c058b16562a2a65` (merge commit, pushed to the same PR #133 branch,
+`claude/ranking-display-name-snapshot-brclvx` -- no new PR opened).
