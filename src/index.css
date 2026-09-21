@@ -6,9 +6,26 @@
   box-sizing: border-box;
 }
 
+/* Viewport 1-screen-completion fix: `html`/`body`/`#root` used to be `min-height: 100svh`,
+   which lets the page grow to fit whatever's inside it -- so any screen or modal taller than
+   the viewport just grew the *document*, producing a real page/body scrollbar instead of the
+   internal, per-screen scroll regions (`.app-frame`'s children already define, e.g.
+   `.pizza-select-body`, `.dex-overlay__body`) that were supposed to be the only things that
+   scroll. Locking `html`/`body`/`#root` to a fixed, non-growing viewport height with
+   `overflow: hidden` makes `.app-frame` (App.css, also fixed-height now) the single outer
+   clip boundary -- nothing above it can ever scroll again, so every screen's own internal
+   scroll region (or lack of one, when content fits) is what actually determines the page's
+   behavior, matching this app's own "1画面完結, 必要な領域だけ内部スクロール" design intent. */
+html {
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
   margin: 0;
-  min-height: 100svh;
+  height: 100svh;
+  height: 100dvh;
+  overflow: hidden;
   background: #d9c9a8;
   font-family: "Hiragino Maru Gothic ProN", "Yu Gothic", "Rounded Mplus 1c",
     system-ui, sans-serif;
@@ -18,7 +35,9 @@ body {
 
 #root {
   width: 100%;
-  min-height: 100svh;
+  height: 100svh;
+  height: 100dvh;
+  overflow: hidden;
   display: flex;
   justify-content: center;
 }

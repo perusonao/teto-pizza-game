@@ -16,16 +16,25 @@
   white-space: nowrap;
 }
 
+/* Viewport 1-screen-completion fix: was `min-height: 100svh` (grows with content), which let
+   any screen/modal taller than the viewport inflate this box and the page around it instead
+   of scrolling internally (see index.css's own matching comment on html/body/#root, the outer
+   boundary this pairs with). `height` + `overflow: hidden` makes this frame's box exactly the
+   visible viewport and nothing more -- every child screen is responsible for either fitting in
+   that space or defining its own `overflow-y: auto` region (`.home-screen`/`.pizza-select-
+   screen`/`.game-screen`'s shared rule below does this as a blanket safety net; `.pizza-select-
+   body` and `.dex-overlay__body` already had their own more specific ones). */
 .app-frame {
   width: 100%;
   max-width: 390px;
-  min-height: 100svh;
+  height: 100svh;
+  height: 100dvh;
   background: linear-gradient(180deg, #f7ecd4 0%, #efdcb3 100%);
   display: flex;
   flex-direction: column;
   position: relative;
   box-shadow: 0 0 40px rgba(0, 0, 0, 0.25);
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 /* ---------- Header ---------- */
@@ -1653,14 +1662,16 @@
   z-index: 20;
 }
 
-/* HOME Global Overlay shell (Dex/Shop/Inventory share this): the panel's own height is a fixed
-   viewport-derived rule (80dvh, capped so it never runs under the top safe area), never the
-   content's intrinsic height -- so switching Inventory's category tabs (3 items vs. many) or
-   opening Dex/Shop instead never changes the panel's outer size or top/bottom position. Only
-   `.dex-overlay__body` (the scrollable region below the fixed header) grows/shrinks/scrolls. */
+/* HOME Global Overlay shell (Dex/Shop/Inventory/Settings/Weekly Ranking share this). Viewport
+   1-screen-completion fix: this used to be a fixed `height: 80dvh` regardless of content --
+   fine for Dex/Shop's own usually-long lists, but Weekly Ranking with only 1-2 entries (or any
+   status-only state: loading/error/"準備中") rendered a single line of text inside an ~80%-
+   viewport-tall panel, most of it dead space. `height` is now `auto` (the default, sizing to
+   content) capped by the same `max-height` as before -- a short panel (few ranking rows) stays
+   short, a long one (many Dex/Shop entries) still caps at the same viewport-derived ceiling and
+   scrolls internally via `.dex-overlay__body`'s own `overflow-y: auto`, exactly as before. */
 .dex-overlay__panel {
   width: 100%;
-  height: 80dvh;
   max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 20px);
   background: #fff8ea;
   border-radius: 20px 20px 0 0;
@@ -2638,7 +2649,17 @@
    .action-row's `margin-top:auto` (GAME's action rows) only pushes to the
    bottom of *this* box, and `min-height:0` lets children (the pizza stage,
    the dex list, ...) size/scroll correctly inside a flex column instead of
-   forcing the whole frame to grow. */
+   forcing the whole frame to grow.
+
+   Viewport 1-screen-completion fix: `.app-frame` is now a fixed, `overflow: hidden` box (see
+   its own rule above), so a screen whose content doesn't fit no longer inflates the page --
+   without a scroll region of its own, it would instead just get clipped and become
+   unreachable. `overflow-y: auto` here is the blanket safety net for that: most screens never
+   need it (their content already fits, so nothing visibly scrolls), `.pizza-select-screen`'s
+   own `.pizza-select-body` already defines a more specific internal scroll region for its
+   grid, and `.game-screen`'s PREPARE step already reserves bottom space for its fixed
+   `.prepare-bake-bar` (`--bake-bar-reserve`) assuming *something* above it scrolls -- this is
+   that scroll container, replacing what used to be page-level scroll. */
 .home-screen,
 .pizza-select-screen,
 .game-screen {
@@ -2646,6 +2667,8 @@
   flex-direction: column;
   flex: 1;
   min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* ---------- Issue #39 PS3: warm wood pizzeria treatment ---------- */
