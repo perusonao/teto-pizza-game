@@ -2044,17 +2044,27 @@
 }
 
 /* ---------- Weekly Ranking (Firebase Ranking 1.0 Phase 2A, Issue #87) ---------- */
-/* Shares .mission-overlay/.mission-overlay__panel's card shell (see that class's own rules
-   above) -- only its own list/row content gets new classes here, matching the existing Lunch
-   Rush visual language rather than introducing a second overlay style. */
-.ranking-overlay__panel {
-  max-width: 320px;
+/* Visual Polish 2.0B (Fresh Audit P1-3): shares .dex-overlay/.dex-overlay__panel's bottom-sheet
+   shell (see that class's own rules above) -- the same shell Dex/Shop/Inventory/Settings already
+   share, since HOME's own ranking card opens this overlay as a peer of theirs. Only the z-index
+   is overridden back up to .mission-overlay's own 25 (not a new value): this overlay can still be
+   opened on top of an already-mounted MissionResultOverlay from Lunch Rush RESULT's "ランキング
+   を見る" button and must stay in front of it, above the shared shell's own default 20. */
+.dex-overlay.ranking-overlay {
+  z-index: 25;
+}
+
+/* Matches .shop-overlay__body's own flex-column + gap convention (same shared shell, same
+   spacing rule between a body's stacked children). */
+.ranking-overlay__body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .ranking-overlay__week {
   font-size: 12px;
   color: #8a6a45;
-  margin-top: -6px;
 }
 
 .ranking-overlay__status {
@@ -2075,10 +2085,8 @@
   list-style: none;
   padding: 0;
   margin: 0;
-  /* All 10 rows fit without scrolling on the 390x844 authority viewport (and 360x800) --
-     this cap is only a safety net for a shorter viewport than either of those. */
-  max-height: 440px;
-  overflow-y: auto;
+  /* Visual Polish 2.0B: scrolling is now the shared .dex-overlay__body's own job (same as
+     Dex's own __list), not this list's -- no independent max-height/overflow here anymore. */
 }
 
 .ranking-overlay__row {

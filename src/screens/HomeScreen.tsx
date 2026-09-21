@@ -135,7 +135,7 @@ export function HomeScreen({
         <button type="button" className="home-menu__card" onClick={onOpenRanking}>
           <span className="home-menu__icon">{"\u{1F3C6}"}</span>
           <span className="home-menu__label">ランキング</span>
-          <span className="home-menu__sub">今週のTOP10</span>
+          <span className="home-menu__sub">週間ランキング</span>
         </button>
       </section>
 
