@@ -7,6 +7,49 @@ Migration Phase D/E production deployment result (#166)`)
 Authority for layout judgment per the task's own instruction: **2026-09-22 iPhone Safari real-device
 Human Verification** (screenshots + observation notes supplied to this session), not Playwright.
 
+## Design Reference (Phase 0 Follow-up, ChatGPT Fresh Review)
+
+**Design Reference:** `docs/design/references/cooking-ui-1screen-2.0-target.png` (PNG, 1536×1024,
+~1.97MB) — the "完成イメージ" target mockup supplied for this Phase 0 follow-up, registered into the
+repository at the user's explicit request.
+
+**This image is not a pixel-perfect specification.** When it conflicts with anything else, priority
+is, in order:
+
+1. Issue #167 Acceptance Criteria
+2. iPhone Safari real-device Human Verification
+3. Current game specification / operability / scoring logic
+4. Design Reference image
+
+This report now distinguishes four separate things, never conflated:
+
+- **Current UI** — what `GameScreen.tsx`/`App.css` actually render today on `main`, as measured in
+  §2–§9 below (unchanged from the original Phase 0 audit).
+- **Real-device Evidence** — the 2026-09-22 iPhone Safari screenshots/observations this audit treats
+  as authority (§3–§5's own root-cause analysis is built on this, not on the Design Reference).
+- **Design Reference** — this attached target mockup: an aspirational layout illustration, not a
+  spec. It may contain typos, unnatural Japanese, or ingredient counts/steps/scoring-adjacent text/
+  pizza renderings that differ from the real game — none of that content is adopted.
+- **Implementation Target** — what PR-A should actually build: Issue #167's own Acceptance Criteria
+  plus the current game's real steps/ingredients/scoring, *informed by* (not copied from) the Design
+  Reference's structural layout intent.
+
+Layout intent adopted from the Design Reference (structural only):
+
+- 6-step tabs always visible, no horizontal scroll
+- compact Recipe/Instruction header
+- PizzaStage kept as the visual/central focus of the screen
+- compact Ingredient UI
+- bottom CTA always reachable
+- the overall layout doesn't move dramatically step to step
+- one-screen completion, no scroll
+
+**Explicitly not adopted:** any copy, button, ingredient count, step sequence, or scoring-adjacent
+wording the mockup shows that differs from the real game — per the priority list above, the mockup's
+own captions/material cards/piece counts are illustrative only, never literal UI copy to ship.
+**PR-A must treat this image as a design reference for satisfying Issue #167's Acceptance Criteria,
+not as a literal reproduction target.**
+
 ## 0. Fresh Start / scope confirmation
 
 - `git fetch origin` run; this audit reads `origin/main` at the SHA above.
@@ -303,15 +346,27 @@ the outer px formula vary.
   dominant contributor (that is `min-height:68px` per chip and grid row count, unaffected by this
   text).
 - **`∞`** (`IngredientTray.tsx:413`, `.ingredient-chip__stock`) renders `stock === "UNLIMITED" ?
-  "∞" : "×N"` — **this is real, necessary gameplay information**, not decorative: it is the same
-  `remainingStock`/EP1/EP3 Stock Gate display every finite-stock ingredient already uses (`×4`,
-  `×2`, ...), just for the case where stock has no ceiling (Starter ingredients). Recommendation:
-  **do not delete**; `∞` is the correct, compact symbol for "unlimited" in the same slot a number
-  already occupies for every other ingredient — removing it (rather than say, hiding the badge
-  entirely for unlimited items) would make Starter vs. purchased ingredients visually
-  indistinguishable, a real information loss, not a duplicate-text cleanup. If narrower is desired,
-  omitting the badge entirely for `UNLIMITED` (blank, no `∞`) is a smaller/safer compaction than
-  reinterpreting the symbol.
+  "∞" : "×N"`. **Revised conclusion (Fresh Review follow-up):** the *internal* Stock Gate semantics
+  (`remainingStock`/EP1/EP3, `UNLIMITED` vs. finite) are real and load-bearing — that much is not in
+  question, and is not being revisited. What is genuinely still open is only the **on-screen
+  presentation** of the `UNLIMITED` case specifically: that the underlying data is meaningful does
+  not by itself settle whether `∞`, specifically, is the right *always-visible Cooking UI* rendering
+  of it at 9px on a real 390/360px phone. **Finite stock's `×N` badge is unconditionally kept under
+  every option below — not up for debate.** PR-A should build enough to compare, without Phase 0
+  committing to a final answer:
+  - **A. Keep `∞` as-is** — lowest risk, no copy change; real-device legibility of the glyph at the
+    current 9px size, at both viewports, is unverified by this audit.
+  - **B. Hide the badge entirely when `UNLIMITED`** (blank — no `∞`, no `×N`) — smallest footprint,
+    but removes today's explicit "this is unlimited" signal; a first-time player may not distinguish
+    "no badge" from "a rendering bug".
+  - **C. A different, more legible representation** for the unlimited case (e.g. a short label
+    distinct from a numeric badge) — clearest intent, but adds width/height, working against this
+    issue's own compaction goal, and needs its own real-device legibility check.
+
+  **Phase 0 does not pick a winner among A/B/C.** PR-A should implement this as a single small
+  variation point (e.g. one prop/branch on the existing chip, not three parallel components) so the
+  real-device Human Verification pass (§13) can settle it — consistent with Issue #167's own "iPhone
+  Safari実機をauthorityとする" stance, applied here to a UI decision, not just a layout-fit one.
 - **Recipe header compaction**: `.order-card__hint` already went through exactly this pass under
   Issue #159 P1 (`App.css:160-167`'s own comment) — 2-line clamp, no silent truncation. No further
   Fresh Audit finding here; PR-A should leave it as-is unless a specific hint line is shown to
@@ -380,8 +435,17 @@ slack at both 390×844/360×800 in Chromium, so real-device variance from §5 ha
 guaranteed overflow; height-aware `.pizza-stage` sizing per §6, kept scoped to the existing
 `--compact`/`--roomy` modifier classes so `PizzaStage.*.test.tsx`'s percent-space interaction
 assertions stay untouched; §7's drag-hint copy relocation into `data/hints.ts` for the two
-drag-capable steps; §9's CUT progress-readout copy). Also add `-webkit-text-size-adjust: 100%`
-(`src/index.css`) as a direct, low-risk fix for §3/§5's biggest real-device wildcard.
+drag-capable steps; §7's `∞` A/B/C comparison, implemented as one small variation point, final
+choice deferred to the Human Verification pass, not Phase 0; §9's CUT progress-readout copy). Also
+add `-webkit-text-size-adjust: 100%` (`src/index.css`) as a direct, low-risk fix for §3/§5's biggest
+real-device wildcard.
+
+**Design Reference usage:** PR-A should consult `docs/design/references/cooking-ui-1screen-2.0-
+target.png` for the structural layout intent listed in the "Design Reference" section above
+(always-visible 6 tabs, compact header, PizzaStage as center focus, compact ingredient UI, always-
+reachable bottom CTA, stable layout across steps) — it is a reference for satisfying Issue #167's
+own Acceptance Criteria, never a literal image to reproduce; any mockup text/copy/ingredient/step
+detail that conflicts with the real game's current spec is not implemented.
 
 **Explicitly excluded from PR-A** (deferred to PR-B per Issue #167's own split): any change to
 `ReferenceThumbnail.tsx`/`ReferencePreview.tsx`/`PlayerReferencePreview.tsx`'s own rendering, or to
@@ -462,3 +526,7 @@ audit itself is exempt, docs-only, no production code changed):
 `src/components/ReferencePreview.tsx`, `e2e/viewport-1screen.spec.ts`,
 `e2e/making-ui-1screen.spec.ts`, `playwright.config.ts`, `src/logic/cut/evaluation.ts`, plus GitHub
 state for Issues #167/#159/#157 and PRs #160/#158.
+
+**Phase 0 Follow-up (ChatGPT Fresh Review) also added:** the attached "完成イメージ" Design
+Reference mockup, registered at `docs/design/references/cooking-ui-1screen-2.0-target.png`; this
+follow-up changed no finding from the original audit and added no new code/CSS/test inspection.
