@@ -1510,6 +1510,71 @@
   margin: 0;
 }
 
+/* ---------- CUT evaluation summary (Pizza Cutting 1.0 Phase 3, RESULT only) ----------
+   Standalone display only -- never folded into score.total/the stars headline above (design
+   doc §14 Option D). `null`/omitted for every non-CUT recipe and for a round that never
+   confirmed CUT, so this block simply never renders then (ResultPanel.tsx's own `cutEvaluation
+   &&` guard) -- no empty/zero card ever shows for the other 14 recipes. Mirrors
+   `.pitz-credit-summary`'s own compact card/dl layout so this doesn't stretch RESULT taller
+   than that already-proven pattern at 390x844/360x800. */
+.cut-evaluation-summary {
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #eaf1fb;
+  border-radius: 14px;
+  padding: 12px 16px;
+  box-sizing: border-box;
+}
+
+.cut-evaluation-summary__headline {
+  font-size: 15px;
+  color: #2f5590;
+  text-align: center;
+  margin: 0;
+}
+
+.cut-evaluation-summary__headline strong {
+  font-size: 18px;
+  color: #1f3d66;
+}
+
+.cut-evaluation-summary__slices {
+  font-size: 12px;
+  color: #4a6a94;
+  text-align: center;
+  margin: 0;
+}
+
+.cut-evaluation-summary__details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 4px 0 0;
+}
+
+.cut-evaluation-summary__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cut-evaluation-summary__row dt {
+  font-size: 12px;
+  color: #4a6a94;
+  font-weight: 600;
+}
+
+.cut-evaluation-summary__row dd {
+  font-size: 13px;
+  color: #1f3d66;
+  font-weight: 700;
+  margin: 0;
+}
+
 /* ---------- Dex overlay ---------- */
 .dex-overlay {
   position: absolute;
@@ -3510,4 +3575,43 @@
 .scoring-v2-panel__chip--score {
   font-weight: 700;
   background: #dbe6f5;
+}
+
+/* ---------- CUT debug panel (Pizza Cutting 1.0 Phase 3, Preview-only) ----------
+   Mirrors .scoring-v2-panel above verbatim (same dev-only gating contract,
+   CutDebugPanel.tsx). */
+.cut-debug-panel {
+  margin: 8px 16px 0;
+  background: #eaf1fb;
+  border-radius: 12px;
+  padding: 8px 12px;
+}
+
+.cut-debug-panel__heading {
+  font-size: 11px;
+  font-weight: 700;
+  color: #2f5590;
+  margin: 0 0 4px;
+}
+
+.cut-debug-panel__total {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1f3d66;
+  margin: 0 0 4px;
+}
+
+.cut-debug-panel__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.cut-debug-panel__chip {
+  font-size: 11px;
+  color: #2f5590;
+  background: #ffffff;
+  border-radius: 999px;
+  padding: 4px 8px;
 }
