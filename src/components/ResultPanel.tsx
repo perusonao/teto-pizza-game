@@ -266,39 +266,47 @@ export function ResultPanel({
         </div>
       )}
 
+      {/* Visual Polish 2.0C P1-5 Option B (Fresh Audit §10): collapsed behind native <details>,
+          mirroring `.result-panel__details` below -- previously rendered unconditionally
+          expanded, the single largest content-driven contributor to RESULT's primary CTA
+          sitting below the fold on every CUT round (Fresh Audit §5). The headline (score) stays
+          on the always-visible <summary> so the player's main payoff number needs no tap;
+          slices/disclaimer/per-metric breakdown move into the collapsed body. No score/CUT
+          calculation touched -- display only. */}
       {cutEvaluation && (
-        <div className="cut-evaluation-summary">
-          <p className="cut-evaluation-summary__headline">
+        <details className="cut-evaluation-summary">
+          <summary className="cut-evaluation-summary__summary">
             {"✂️"} カット <strong>{Math.round(cutEvaluation.cutScore)}点</strong>
-          </p>
-          <p className="cut-evaluation-summary__slices">
-            {cutEvaluation.actualPieceCount}等分
-            {cutEvaluation.actualPieceCount !== cutEvaluation.requestedSliceCount
-              ? `（目標 ${cutEvaluation.requestedSliceCount}等分）`
-              : ""}
-          </p>
-          {/* Pizza Cutting 1.0 Phase 4A (Phase 4 Fresh Audit §11): a one-line disclaimer so a
-              high CUT score sitting next to a lower overall score (e.g. "カット100点" beside
-              "総合59点") never reads as a bug -- CUT is still its own standalone evaluation
-              (design doc §14 Option D), not yet folded into `score.total`. Copy-only, no score/
-              star/weight change; kept to one short line so it never pushes RESULT taller at
-              390x844/360x800. */}
-          <p className="cut-evaluation-summary__note">※総合スコアとは別の評価です</p>
-          <dl className="cut-evaluation-summary__details">
-            <div className="cut-evaluation-summary__row">
-              <dt>均等さ</dt>
-              <dd>{Math.round(cutEvaluation.uniformity * 100)}</dd>
-            </div>
-            <div className="cut-evaluation-summary__row">
-              <dt>中心</dt>
-              <dd>{Math.round(cutEvaluation.centerAccuracy * 100)}</dd>
-            </div>
-            <div className="cut-evaluation-summary__row">
-              <dt>切り分け</dt>
-              <dd>{Math.round(cutEvaluation.completeness * 100)}</dd>
-            </div>
-          </dl>
-        </div>
+          </summary>
+          <div className="cut-evaluation-summary__content">
+            <p className="cut-evaluation-summary__slices">
+              {cutEvaluation.actualPieceCount}等分
+              {cutEvaluation.actualPieceCount !== cutEvaluation.requestedSliceCount
+                ? `（目標 ${cutEvaluation.requestedSliceCount}等分）`
+                : ""}
+            </p>
+            {/* Pizza Cutting 1.0 Phase 4A (Phase 4 Fresh Audit §11): a one-line disclaimer so a
+                high CUT score sitting next to a lower overall score (e.g. "カット100点" beside
+                "総合59点") never reads as a bug -- CUT is still its own standalone evaluation
+                (design doc §14 Option D), not yet folded into `score.total`. Copy-only, no
+                score/star/weight change. */}
+            <p className="cut-evaluation-summary__note">※総合スコアとは別の評価です</p>
+            <dl className="cut-evaluation-summary__details">
+              <div className="cut-evaluation-summary__row">
+                <dt>均等さ</dt>
+                <dd>{Math.round(cutEvaluation.uniformity * 100)}</dd>
+              </div>
+              <div className="cut-evaluation-summary__row">
+                <dt>中心</dt>
+                <dd>{Math.round(cutEvaluation.centerAccuracy * 100)}</dd>
+              </div>
+              <div className="cut-evaluation-summary__row">
+                <dt>切り分け</dt>
+                <dd>{Math.round(cutEvaluation.completeness * 100)}</dd>
+              </div>
+            </dl>
+          </div>
+        </details>
       )}
 
       <details className="result-panel__details">
