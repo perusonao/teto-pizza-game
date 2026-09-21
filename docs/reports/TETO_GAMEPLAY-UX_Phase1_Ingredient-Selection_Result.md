@@ -316,6 +316,110 @@ Fresh Audit §1.3の候補E（「材料トレイの横スクロール化」/「�
 
 ---
 
+## 10. Human Verification Videos
+
+**Type:** 追記（PR #154はマージ済み。動画/Result Report追記のみのdocs-only follow-up）。
+`docs/decisions/TETO_HUMAN-VERIFICATION-POLICY.md`（Human Verification Policy SSOT, #155で
+main入り）に準拠。
+
+**Audited SHA:** `a3725ae4f03468a711f19189a85cc9c5cfbd5769`（PR #154 Merge SHA）。実際の撮影・
+本追記は、その後mainへ入った#155（Human Verification Policy SSOT自体、docs-onlyでPREPARE/
+IngredientTray等のgameplayコードには非該当）を取り込んだfresh `origin/main`
+（`git fetch origin`で再確認済み）上で実施。
+
+数値（`npm test`/`npm run test:e2e`）だけでなく、実際に画面を見て「材料選択のための縦スクロールが
+不要になった」ことを確認できるよう、実Chromium + Playwrightで人間が見て自然な速度の操作動画を
+撮影した（撮影スクリプト: `scripts/record-pr154-human-verification.mjs`、production code=
+`src/**`は一切変更していない）。
+
+Fixtureは`e2e/gestures.ts`の`startQuattroFormaggiHeavyInventory`相当（PR #154のFresh Audit
+再現ケース）に、TOPPINGの既存ページング機構（◀/▶）を画面上で実演するため所持トッピングを
+1種（たまねぎ）追加したもの。デバッグパネル（`ScoringV2DebugPanel`/`CutDebugPanel`、
+`VITE_PREVIEW_MODE`限定描画）は通常の`npm run dev`では非表示のため、動画にも一切映っていない。
+録画にはPlaywrightの`recordVideo`を使用し、record時にのみ注入した半透明の赤/緑ドット
+（`page.addInitScript`、production DOMには存在しない撮影専用オーバーレイ）でポインター位置を
+可視化した。WebM（Playwright出力）→ MP4/H.264への変換は`ffmpeg`（本セッションに`apt-get install
+ffmpeg`で導入、`libx264`有効）で実施 -- 変換不可の場合のフォールバック（WebM許容）は今回発生せず。
+
+| Video | Viewport | Duration | Size | Codec | Verification |
+|---|---|---:|---:|---|---|
+| `390x844-ingredient-selection-human-verification.mp4` | 390×844 | 72.8s | 1.2MB | H.264 | SAUCE/CHEESE/TOPPING、縦スクロール一切なし。既存ページング(◀/▶)実演。CTA常時可視 |
+| `390x844-cut-unaffected-regression.mp4` | 390×844 | 47.9s | 1.0MB | H.264 | マルゲリータ全工程→CUT。roomyサイズ維持、実dragで3本カット→切り終わる→RESULT到達 |
+| `360x800-sauce-edge-case.mp4` | 360×800 | 30.3s | 0.55MB | H.264 | Fresh Audit最厳格ケース（quattro-formaggi SAUCE）。360×800でも縦スクロールなし |
+
+合計約2.7MB。**Human Verification Policy §6 / `.gitignore`の既存方針（「動画はrepositoryへ
+commitしない、`artifacts/`はgitignore済み、ユーザーへ直接提出する」）に従い**、動画は
+`artifacts/gameplay-ux-phase1/`（gitignore対象、ローカルのみ）に生成した上で
+**ユーザーへセッション内で直接送付**し、リポジトリへはcommitしていない（サイズの大小に
+関わらず、既存のrepository固有ポリシーを優先。対話セッションが存在するため、GitHub Actions
+Artifactへのアップロードは不要）。再生成が必要な場合は
+`scripts/record-pr154-human-verification.mjs`（本PRでcommit済み、`npm run dev -- --port 5183
+--strictPort`起動後に`node scripts/record-pr154-human-verification.mjs`で同じ3本を再生成可能）
+を参照。
+
+**Download:** セッション内直接提出（`SendUserFile`）。3本とも本メッセージに添付済み。
+
+### Video Validation（§11チェックリスト）
+
+`ffprobe`によるcodec/width/height/duration/file size確認、および全3本を実際に開いて目視確認:
+
+- [x] 黒画面ではない（各動画の複数フレームを`ffmpeg -ss <t> -frames:v 1`で抽出し目視）
+- [x] viewport全体（390×844 / 360×800）が映っている -- `ffprobe`の`width`/`height`が
+      viewportと一致
+- [x] UI文字が読める（レシピ名・材料名・スコア・CTA文言すべて可読）
+- [x] 操作（クリック/ドラッグ/材料切り替え/配置）が確認できる -- 撮影専用ポインタードットで
+      タップ/ドラッグ位置を可視化
+- [x] 最後まで再生可能（3本ともffprobeでduration取得、末尾フレームも正常）
+- [x] SAUCEで縦スクロールしていない（動画内でスクロール操作自体を一切行っていない。同時にJS計測
+      でも`gsScrollHeight === gsClientHeight`を確認、下表参照）
+- [x] CHEESEで縦スクロールしていない（同上）
+- [x] TOPPINGで縦スクロールしていない（同上。加えてページング1/2を実演、横スクロールへの
+      置き換えではないことも画面上で確認可能）
+- [x] CTAが見える（やり直す/次へ or 焼く！/ヒントが全工程で常時フレーム内）
+- [x] CUTがroomyのまま（PREPAREのcompactサイズ`min(76vw,290px)`より明らかに大きい、BAKE/CUTで
+      不変の`min(92vw,380px)`表示を目視確認）
+
+```
+Video Verification: PASS
+```
+
+（3本とも全項目該当）。
+
+### Automated measurement（動画撮影と同時に取得、fresh main = `a3725ae`上で再実測）
+
+| Viewport | Step | gameScreen.scrollHeight | gameScreen.clientHeight | document.scrollHeight | window.innerHeight |
+|---|---|---:|---:|---:|---:|
+| 390×844 | SAUCE | 844 | 844 | 844 | 844 |
+| 390×844 | CHEESE | 844 | 844 | 844 | 844 |
+| 390×844 | TOPPING | 844 | 844 | 844 | 844 |
+| 360×800 | SAUCE | 800 | 800 | 800 | 800 |
+
+いずれも`scrollHeight === clientHeight`（内部スクロール不要）を確認。生データ
+（`_measurements.json`）は動画本体と同じく`artifacts/gameplay-ux-phase1/`に生成し、
+ユーザーへ動画と併せて直接送付済み（commit対象外、上記と同じ方針）。この結果は§3の
+実装当時の実測（PR #154ブランチ上）と、マージ後のfresh `main`上でも変わらず再現している。
+
+### What to check（ユーザー向け視聴ガイド）
+
+動画を再生するだけで、以下が確認できます:
+
+1. **SAUCE工程で画面をスクロールせずに全材料（おすすめ+その他）を確認できる**
+   -- `390x844-ingredient-selection-human-verification.mp4`のSAUCEシーン（DOUGH完了直後、
+   動画中盤の約17〜35秒あたり）。
+2. **ピザと材料を同時に見ながら操作できる**（工程タブ・ピザ・材料トレイ・CTAが常に同一画面）。
+3. **材料を切り替えて、そのままピザへ操作を続けられる**（オリーブオイル→ジェノベーゼソースの
+   切り替え、ゴルゴンゾーラ→パルミジャーノの切り替えをスクロールなしで実演）。
+4. **CHEESE/TOPPINGでも同様にスクロール不要**（TOPPINGは所持材料7種でも既存ページング
+   `◀ 1/2 ▶`により1画面に収まる -- 横スクロールへの置き換えではないことも確認可能）。
+5. **やり直す/次へ（or 焼く！）/ヒントが常時見える**（全工程で固定CTAバーが画面外に出ない）。
+6. **ピザが小さすぎない**（PREPARE compactサイズでも生地の境界線・トッピング配置が明瞭に視認可能）。
+7. **CUTでは従来の大きさ（roomy）が維持される**
+   -- `390x844-cut-unaffected-regression.mp4`で、PREPAREより明らかに大きいピザ表示のまま
+   実際に3本の切断線をドラッグし、「切り終わる」からRESULT（6等分カット、100点）まで到達する
+   様子を確認できる。
+
+---
+
 ## まとめ
 
 - Before: quattro-formaggi相当の複数材料所持状態で、SAUCE工程が390x844で168px、360x800で
@@ -328,3 +432,6 @@ Fresh Audit §1.3の候補E（「材料トレイの横スクロール化」/「�
   **`IngredientTray.tsx`のドラッグ/タップ/ページングロジックは1行も変更していない。**
   Firebase/Functions/CI関連の変更なし。
 - CUT: サイズ・操作感とも無変更（既存e2e CUT roundで確認）。
+- Human Verification: PR #154マージ後の`origin/main`（`a3725ae`）上で3本の動画を撮影し
+  Video Verification PASS（§10）。数値だけでなく、実際の画面操作を見て「材料選択のための
+  縦スクロールが不要になった」ことを確認できる。
