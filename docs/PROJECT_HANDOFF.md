@@ -152,10 +152,10 @@ recipe-aware via the existing `cookingProfiles.ts` SSOT (no new per-recipe branc
 `pieceGroups`/sauce data the popover already reads. No scoring/economy/Firebase/Lunch
 Rush/recipe-data/CI changes (diff-verified). 2088/2088 Vitest + 30/30 Playwright (both
 390×844/360×800 projects, plus new explicit 361×800 checks) pass, typecheck/lint/build clean,
-before/after screenshots + two Review Playthrough videos (390×844/361×800) delivered. **Videos
-are WebM/VP8, not MP4** — this session's sandbox had no available H.264 encoder/mp4 muxer (see
-the Result Report §7 for the documented policy-permitted fallback). **Not merged — PR open,
-pending the user's own review**, per this task's own explicit "do not auto-merge" instruction.
+before/after screenshots + two Review Playthrough videos (390×844/361×800) delivered as
+MP4/H.264 (re-encoded via a full `apt`-installed `ffmpeg`/`libx264` — see the Result Report §7).
+**Not merged — PR open, pending the user's own review**, per this task's own explicit
+"do not auto-merge" instruction.
 
 > Fresh GitHub/main state always wins if this document becomes stale.
 

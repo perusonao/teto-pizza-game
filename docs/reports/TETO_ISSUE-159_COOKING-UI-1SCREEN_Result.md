@@ -163,25 +163,37 @@ gestures, same fresh save:
 
 | Video | Viewport | Duration | Size | Codec | Verification |
 |---|---:|---:|---:|---|---|
-| `TETO_ISSUE-159_Margherita-Review-Playthrough_390x844.webm` | 390×844 | 34.9s | 1.33 MB | VP8/WebM | PASS |
-| `TETO_ISSUE-159_Margherita-Review-Playthrough_361x800.webm` | 361×800 (recorded frame 360×800 — see note) | 22.9s | 886 KB | VP8/WebM | PASS |
+| `390x844-issue159-cooking-ui-human-verification.mp4` | 390×844 | 34.9s | 534 KB | H.264/MP4 (`libx264`, `yuv420p`, `faststart`) | PASS |
+| `361x800-issue159-cooking-ui-human-verification.mp4` | 361×800 (encoded frame 360×800 — see note) | 22.9s | 359 KB | H.264/MP4 (`libx264`, `yuv420p`, `faststart`) | PASS |
 
 Download: delivered directly to the user in this session (`SendUserFile`), not committed —
 `artifacts/`-style large media stays out of the repository per `docs/PROJECT_HANDOFF.md`'s
 existing rule, restated in `docs/decisions/TETO_HUMAN-VERIFICATION-POLICY.md` §6.
 
-**Format note:** this sandbox's only available `ffmpeg` is Playwright's own minimal trace-only
-build (webm/VP8 muxer/encoder only — no `libx264`, no mp4 muxer), and no system `ffmpeg` could
-be installed (no network/package access in this environment). Per
-`TETO_HUMAN-VERIFICATION-POLICY.md` §5's own explicit fallback ("MP4化できない環境ではWebMでも可。
-その場合はResult Reportに理由を明記する"), both videos are delivered as WebM/VP8 with this reason
-recorded here. Both play back fully in a standard browser/video player.
+**Format:** recorded once via Playwright (`recordVideo`, WebM/VP8 — the only format Playwright's
+own trace-capture pipeline can produce directly), then re-encoded to MP4/H.264. The initial
+attempt in this session used only the `ffmpeg` binary Playwright bundles for its own trace
+tooling, which turned out to be a minimal build with no `libx264`/mp4 muxer at all — that was
+wrongly treated as "MP4 unavailable in this environment." It is not: `apt-get update && apt-get
+install -y ffmpeg` succeeds in this sandbox and installs a full build (`ffmpeg version
+6.1.1-3ubuntu5`, `--enable-libx264` confirmed via `ffmpeg -encoders | grep 264` →
+`libx264 H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10 (codec h264)`). Both WebM recordings were
+re-encoded with that build:
+```
+ffmpeg -i in.webm -c:v libx264 -pix_fmt yuv420p -movflags +faststart -an out.mp4
+```
+(no re-recording — same footage as the original delivery). `ffprobe` confirms `codec_name=h264`
+for both files; both were also verified by sampling frames every ~2-3s across their full
+duration (no black/corrupted frames; HOME/DOUGH/SAUCE/CHEESE/具材/BAKE/CUT/RESULT all legible).
+Neither the WebM originals nor the MP4s are committed to the repository, per the Policy's own
+§6 (large media is delivered directly, never committed).
 
-**361×800 recording note:** the *tested/measured* viewport is a true 361px-wide browser context
+**361×800 encoding note:** the *tested/measured* viewport is a true 361px-wide browser context
 (matching the Playwright assertions in `e2e/making-ui-1screen.spec.ts`, which measure real
-361px-wide layout and pass). The *video encoder* (VP8) requires even pixel dimensions, so the
-recorded frame itself is clamped to 360×800 — a recording-only rounding, not a discrepancy in
-what was actually verified.
+361px-wide layout and pass). Playwright's `recordVideo` (backed by VP8, which requires even pixel
+dimensions) clamped the *recorded frame* itself to 360×800 at capture time, before this session's
+MP4 re-encode ever ran — the MP4 inherits that already-360px frame rather than reintroducing it.
+This is a recording-only rounding, not a discrepancy in what was actually verified.
 
 Each video covers: HOME → Pizza Select → margherita → DOUGH (gesture) → SAUCE (paint, only one
 sauce ever offered) → CHEESE → TOPPING (place, tap the 見本 thumbnail to show the popover's
