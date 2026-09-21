@@ -1,0 +1,195 @@
+import { test, expect, type Page } from "@playwright/test";
+import { completeDoughStep, paintSauceRing, playFullMargheritaRound, tapDoughPercent } from "./gestures";
+
+/**
+ * Issue #159 (Cooking UI 1-Screen Polish) regression suite. Complements the existing
+ * e2e/viewport-1screen.spec.ts (which this file does not modify or duplicate) -- that file
+ * already pins PREPARE's own no-internal-scroll requirement at the shared 390x844/360x800
+ * Playwright projects; this file adds coverage specific to #159's own acceptance criteria:
+ *
+ * - one-screen fit through BAKE/CUT too, not just PREPARE, and explicitly at 361x800 (the exact
+ *   secondary viewport this issue names, one px narrower than the shared 360x800 project) --
+ *   driven manually via `page.setViewportSize` rather than a new Playwright project, so it adds
+ *   no extra project runs across every other spec file;
+ * - the making-step nav strip never clips/overflows horizontally, and shows CUT only for a
+ *   cut-target recipe;
+ * - once SAUCE is confirmed (the round has moved to CHEESE/TOPPING), no second sauce option is
+ *   ever offered again;
+ * - the mini 見本 thumbnail and its own popover render the same piece count (same SSOT).
+ */
+
+const VIEWPORTS = [
+  { name: "390x844", width: 390, height: 844 },
+  { name: "361x800", width: 361, height: 800 },
+] as const;
+
+async function freshMargheritaAt(page: Page, width: number, height: number) {
+  await page.setViewportSize({ width, height });
+  await page.goto("/");
+  await page.evaluate(() => localStorage.clear());
+  await page.reload();
+  await page.waitForSelector(".app-frame");
+  await page.getByRole("button", { name: /ピザを作る/ }).click();
+  await page.getByRole("button", { name: /マルゲリータ、/ }).click();
+  await page.getByRole("button", { name: /このピザを作る/ }).click();
+  await page.waitForSelector(".pizza-stage");
+}
+
+async function assertOneScreen(page: Page, label: string) {
+  const s = await page.evaluate(() => ({
+    innerWidth: window.innerWidth,
+    innerHeight: window.innerHeight,
+    docScrollWidth: document.documentElement.scrollWidth,
+  }));
+  expect(s.docScrollWidth, `${label}: no horizontal page overflow`).toBeLessThanOrEqual(s.innerWidth);
+  const gs = await page.evaluate(() => {
+    const el = document.querySelector(".game-screen")!;
+    return { scrollHeight: el.scrollHeight, clientHeight: el.clientHeight };
+  });
+  expect(gs.scrollHeight, `${label}: .game-screen must not need internal scroll`).toBeLessThanOrEqual(
+    gs.clientHeight,
+  );
+}
+
+async function assertNavFitsViewport(page: Page, label: string) {
+  const nav = page.locator(".making-step-tabs");
+  await expect(nav, `${label}: nav strip must be present`).toBeVisible();
+  const navBox = await nav.boundingBox();
+  expect(navBox, `${label}: nav strip must have a bounding box`).not.toBeNull();
+  const vw = page.viewportSize()!.width;
+  expect(navBox!.x, `${label}: nav strip must not start off-screen`).toBeGreaterThanOrEqual(0);
+  expect(navBox!.x + navBox!.width, `${label}: nav strip must not overflow the right edge`).toBeLessThanOrEqual(
+    vw + 1,
+  );
+  // Every tab (real button + the BAKE indicator div) must itself be fully inside the strip --
+  // this is what actually catches a single wide tab (e.g. the old "トッピング" label) pushing a
+  // trailing tab off the visible edge even when the strip's own outer box looks fine.
+  const tabs = page.locator(".making-step-tabs > *");
+  const count = await tabs.count();
+  for (let i = 0; i < count; i += 1) {
+    const box = await tabs.nth(i).boundingBox();
+    expect(box, `${label}: tab ${i} must have a bounding box`).not.toBeNull();
+    expect(box!.x + box!.width, `${label}: tab ${i} must not overflow the right edge`).toBeLessThanOrEqual(
+      vw + 1,
+    );
+  }
+}
+
+for (const { name, width, height } of VIEWPORTS) {
+  test.describe(`Margherita (cut-target) one-screen + nav fit @ ${name}`, () => {
+    test(`DOUGH/SAUCE/CHEESE/TOPPING/BAKE/CUT all fit with no scroll, nav never clips (${name})`, async ({
+      page,
+    }) => {
+      test.setTimeout(30_000);
+      await freshMargheritaAt(page, width, height);
+
+      await assertOneScreen(page, `${name} DOUGH`);
+      await assertNavFitsViewport(page, `${name} DOUGH`);
+      // DOUGH itself has no CUT tab context yet in terms of interaction, but it's already
+      // visible in the strip -- see MakingStepTabs' own postSteps contract.
+      await expect(page.getByRole("tab", { name: "カット" }), `${name} DOUGH: CUT tab visible`).toBeVisible();
+
+      await completeDoughStep(page);
+      await page.getByRole("button", { name: /次へ/ }).click();
+      await assertOneScreen(page, `${name} SAUCE`);
+      await assertNavFitsViewport(page, `${name} SAUCE`);
+
+      await page.getByRole("button", { name: /トマトソース/ }).click();
+      await paintSauceRing(page, 25, 16);
+      await page.getByRole("button", { name: /次へ/ }).click();
+      await assertOneScreen(page, `${name} CHEESE`);
+      await assertNavFitsViewport(page, `${name} CHEESE`);
+
+      await page.getByRole("button", { name: /モッツァレラ/ }).click();
+      await tapDoughPercent(page, 40, 50);
+      await tapDoughPercent(page, 60, 50);
+      await tapDoughPercent(page, 50, 30);
+      await page.getByRole("button", { name: /次へ/ }).click();
+      await assertOneScreen(page, `${name} TOPPING`);
+      await assertNavFitsViewport(page, `${name} TOPPING`);
+
+      await page.getByRole("button", { name: /焼く/ }).click();
+      await assertOneScreen(page, `${name} BAKE`);
+      await assertNavFitsViewport(page, `${name} BAKE`);
+      await expect(page.getByRole("tab", { name: "カット" }), `${name} BAKE: CUT tab still visible`).toBeVisible();
+
+      await page.waitForTimeout(1300);
+      await page.getByRole("button", { name: "取り出す！" }).click();
+      await assertOneScreen(page, `${name} POST_BAKE/CUT`);
+      await assertNavFitsViewport(page, `${name} POST_BAKE/CUT`);
+      const cutTab = page.getByRole("tab", { name: "カット" });
+      await expect(cutTab).toHaveAttribute("aria-selected", "true");
+    });
+  });
+}
+
+test.describe("Sauce lock (Issue #159 P0): no second sauce ever offered once SAUCE is confirmed", () => {
+  test("margherita owns tomato-sauce + olive-oil + pesto but only tomato-sauce (the recipe's own sauce) is ever shown, at every step", async ({
+    page,
+  }) => {
+    const save = {
+      schemaVersion: 2,
+      dex: [],
+      pitzBalance: 500,
+      ownedIngredientIds: ["tomato-sauce", "mozzarella", "basil", "olive-oil", "pesto"],
+      missionBest: {},
+      inventory: { "olive-oil": 99, pesto: 99 },
+      starterGrantClaimedRecipeIds: [],
+    };
+    await page.goto("/");
+    await page.evaluate((rawSave) => {
+      localStorage.clear();
+      localStorage.setItem("teto-pizza-save-v1", JSON.stringify(rawSave));
+    }, save);
+    await page.reload();
+    await page.waitForSelector(".app-frame");
+    await page.getByRole("button", { name: /ピザを作る/ }).click();
+    await page.getByRole("button", { name: /マルゲリータ、/ }).click();
+    await page.getByRole("button", { name: /このピザを作る/ }).click();
+    await completeDoughStep(page);
+    await page.getByRole("button", { name: /次へ/ }).click();
+
+    // SAUCE step: only tomato-sauce is offered, never olive-oil/pesto (owned but not this
+    // recipe's own sauce -- see IngredientTray.tsx's own recipe-required-only filter).
+    await expect(page.getByRole("button", { name: /トマトソース/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /オリーブオイル/ })).not.toBeVisible();
+    await expect(page.getByRole("button", { name: /ジェノベーゼソース|ペスト/ })).not.toBeVisible();
+
+    await page.getByRole("button", { name: /トマトソース/ }).click();
+    await paintSauceRing(page, 25, 16);
+    await page.getByRole("button", { name: /次へ/ }).click();
+
+    // CHEESE step: the sauce tray is gone entirely -- no sauce chip of any kind remains
+    // selectable, so a player can never revisit/switch sauce after confirming it.
+    await expect(page.getByRole("button", { name: /トマトソース/ })).not.toBeVisible();
+    await expect(page.getByRole("button", { name: /オリーブオイル/ })).not.toBeVisible();
+  });
+});
+
+test.describe("Reference thumbnail/popover SSOT parity (Issue #159 P0 bullet 5)", () => {
+  test("margherita: the mini thumbnail and its own popover render the same piece count", async ({ page }) => {
+    await freshMargheritaAt(page, 390, 844);
+    const thumbCount = await page.locator(".mini-reference .reference-thumbnail__piece").count();
+    await page.getByRole("button", { name: /見本を拡大表示/ }).click();
+    const popoverCount = await page.locator(".reference-mini-pizza__topping").count();
+    expect(popoverCount, "popover piece count must match the mini thumbnail's own piece count").toBe(
+      thumbCount,
+    );
+    // margherita's own real Reference is mozzarella x3 + basil x2 = 5, not the old
+    // one-dot-per-ingredient-type abbreviation (2) -- pins the actual fix, not just "equal".
+    expect(thumbCount).toBe(5);
+  });
+});
+
+test.describe("Full round regression (Issue #159): margherita still completes end to end", () => {
+  test("HOME -> PREPARE -> BAKE -> CUT -> RESULT with no console errors", async ({ page }) => {
+    test.setTimeout(30_000);
+    const errors: string[] = [];
+    page.on("pageerror", (err) => errors.push(String(err)));
+    await freshMargheritaAt(page, 390, 844);
+    await playFullMargheritaRound(page);
+    await page.waitForTimeout(200);
+    await expect(page.locator(".result-panel")).toBeVisible();
+    expect(errors, `console errors: ${errors.join(", ")}`).toHaveLength(0);
+  });
+});

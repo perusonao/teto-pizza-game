@@ -426,10 +426,21 @@ test.describe("PREPARE: ingredient selection never needs vertical scroll (Gamepl
 
       // The tray must still be genuinely operable, not merely short -- selecting a chip must
       // still work post-layout-change (Human Feel Gate: a numerically-passing but inert tray
-      // would not be a real fix).
-      const anyChip = page.locator(".ingredient-chip").first();
-      await anyChip.click();
-      await expect(anyChip).toHaveClass(/ingredient-chip--selected/);
+      // would not be a real fix). Issue #159 P0: the tray now only ever offers this recipe's
+      // own required ingredients (IngredientTray.tsx) -- quattro-formaggi requires none in
+      // TOPPING at all, so that step's own tray is legitimately empty here (nothing to place,
+      // 焼く！ is the correct next action) rather than showing this fixture's extra owned-but-
+      // unrequired toppings the old "その他" section used to surface.
+      const chipCount = await page.locator(".ingredient-chip").count();
+      if (chipCount > 0) {
+        const anyChip = page.locator(".ingredient-chip").first();
+        await anyChip.click();
+        await expect(anyChip).toHaveClass(/ingredient-chip--selected/);
+      } else {
+        expect(step, "only TOPPING (quattro-formaggi has no topping requirement) may be empty").toBe(
+          "TOPPING",
+        );
+      }
 
       if (step !== "TOPPING") {
         await page.getByRole("button", { name: /次へ/ }).click();

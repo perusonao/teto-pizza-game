@@ -131,6 +131,32 @@ superseded by merged D1/D2/D3A), **#34** (Issue #32 Phase 1, superseded by merge
 production code changed this session; five implementation slices (one per UX item, each ~30min–2h)
 are specified in the audit report §8, none blocking Economy 1.0's own EP3→EP4→Human-Feel sequence.
 
+**2026-09-21 addendum (Issue #159 Cooking UI 1-Screen Polish: implementation complete, PR
+OPEN)** — see `docs/reports/TETO_ISSUE-159_COOKING-UI-1SCREEN_Result.md`, audited SHA
+`d0085a35c7a5f932deda11ebc5fa74b421ddc86a` (current `main` HEAD at implementation time). A
+real-device Fresh Audit found: (1) the ingredient tray's old「このピザにおすすめ」/「その他」
+split let a player pick a wrong-for-the-recipe sauce mid-SAUCE-step and was the single biggest
+PREPARE overflow contributor; (2) the making-step nav strip only ever rendered during PREPARE,
+so a cut-target recipe's own CUT step never appeared consistently; (3) the TOPPING tab's own
+「トッピング」label was wide enough to push the trailing BAKE/CUT tabs toward the right edge at
+361-390px; (4) `.order-card__hint` clipped several real recipe hints; (5) olive oil was still
+hard to read despite Issue #32's own filter; (6) the mini 見本 thumbnail and its own popover
+built two independent, disagreeing piece lists for the same recipe (margherita: 2 dots vs. the
+popover's real 5). All fixed: `IngredientTray.tsx` now offers only this round's own
+`recipe.requiredIngredients` (owned-gated, no heading) — a deliberate, explicitly-authorized
+supersession of Issue #86's "Other"/FREE-creativity browsing, which also structurally closes the
+sauce-switch gap (nothing else to switch to); `MakingStepTabs.tsx` gained `postSteps`/
+`currentPhase` so the same strip now mounts through PREPARE→BAKE→POST_BAKE/CUT consistently,
+recipe-aware via the existing `cookingProfiles.ts` SSOT (no new per-recipe branching); a new
+`ReferenceThumbnail.tsx` renders the mini thumbnail from the exact same resolved
+`pieceGroups`/sauce data the popover already reads. No scoring/economy/Firebase/Lunch
+Rush/recipe-data/CI changes (diff-verified). 2088/2088 Vitest + 30/30 Playwright (both
+390×844/360×800 projects, plus new explicit 361×800 checks) pass, typecheck/lint/build clean,
+before/after screenshots + two Review Playthrough videos (390×844/361×800) delivered as
+MP4/H.264 (re-encoded via a full `apt`-installed `ffmpeg`/`libx264` — see the Result Report §7).
+**Not merged — PR open, pending the user's own review**, per this task's own explicit
+"do not auto-merge" instruction.
+
 > Fresh GitHub/main state always wins if this document becomes stale.
 
 ## Product goal

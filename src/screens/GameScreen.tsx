@@ -3,7 +3,7 @@ import { DialogueBox } from "../components/DialogueBox";
 import { PizzaStage } from "../components/PizzaStage";
 import { IngredientTray } from "../components/IngredientTray";
 import { MakingStepTabs } from "../components/MakingStepTabs";
-import { preBakeSteps } from "../data/cookingProfiles";
+import { preBakeSteps, postBakeSteps } from "../data/cookingProfiles";
 import { requiredCutCount } from "../logic/cut/evaluation";
 import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
 import { BakeOverlay } from "../components/BakeOverlay";
@@ -14,7 +14,7 @@ import { MissionServePanel } from "../components/MissionServePanel";
 import { MissionResultOverlay } from "../components/MissionResultOverlay";
 import { ReferencePreview } from "../components/ReferencePreview";
 import { PlayerReferencePreview } from "../components/PlayerReferencePreview";
-import { PizzaThumbnail } from "../components/PizzaThumbnail";
+import { ReferenceThumbnail } from "../components/ReferenceThumbnail";
 import { SauceMetricsPanel } from "../components/SauceMetricsPanel";
 import { ScoringV2DebugPanel } from "../components/ScoringV2DebugPanel";
 import { CutDebugPanel } from "../components/CutDebugPanel";
@@ -255,6 +255,11 @@ export function GameScreen({
       ? buildTetoResultLine(state.recipe, state.bakeState, state.pizza.bakeResult).textJa
       : "";
 
+  // Issue #159 P0 (bullet 5): computed once, independent of whether this recipe has a Scoring
+  // 2.0 Reference (`referencePizza`) -- used as the fallback popover/thumbnail data when it
+  // doesn't. Cheap pure function (../data/playerReference.ts), safe to compute unconditionally.
+  const playerReference = getPlayerReferencePizza(state.recipe);
+
   return (
     <div className="game-screen">
       {/* Issue #47 Finding K: Shop/Pizza Dex were reachable from every Making phase
@@ -307,26 +312,42 @@ export function GameScreen({
           live hint text (still sourced from state.hint, just without the portrait/bubble
           chrome), and a persistent mini Reference thumbnail.
 
-          Issue #47 Slice B (Findings F/H): the mini thumbnail (reusing the same deterministic
-          `PizzaThumbnail` Pizza Select's own cards use) is now always shown here, for every
-          recipe -- not gated on `referenceModeEnabled` (Scoring 2.0's own Reference-coverage
-          gate, FREE-only, still unchanged and still driving SauceMetricsPanel/physical drag
-          below). Tapping it opens the same `isReferencePopoverOpen` popover as before: the
-          precise `ReferencePreview` panel (numeric bars, exact target coordinates) for any
-          recipe B2 has a Scoring 2.0 Reference fixture for -- originally Margherita-only, now
-          every recipe B2 has covered -- or the generic `PlayerReferencePreview` panel
-          (../data/playerReference.ts, independent of Scoring 2.0) for any recipe that still
-          has none. */}
+          Issue #47 Slice B (Findings F/H): the mini thumbnail is now always shown here, for
+          every recipe -- not gated on `referenceModeEnabled` (Scoring 2.0's own
+          Reference-coverage gate, FREE-only, still unchanged and still driving
+          SauceMetricsPanel/physical drag below). Tapping it opens the same
+          `isReferencePopoverOpen` popover as before: the precise `ReferencePreview` panel
+          (numeric bars, exact target coordinates) for any recipe B2 has a Scoring 2.0 Reference
+          fixture for -- originally Margherita-only, now every recipe B2 has covered -- or the
+          generic `PlayerReferencePreview` panel (../data/playerReference.ts, independent of
+          Scoring 2.0) for any recipe that still has none.
+
+          Issue #159 P0 (bullet 5): the mini thumbnail (`ReferenceThumbnail`, ../components/
+          ReferenceThumbnail.tsx) renders from `playerReference`/`referencePizza` -- the exact
+          same resolved data the popover below reads, not `PizzaThumbnail`'s own independent
+          recomputation from `recipe.requiredIngredients` (which a real-device Fresh Audit found
+          could show a different piece count than the popover for the same recipe). */}
       {/* Issue #86 (UX-2): the primary making-step navigation, replacing "next-only" CTA
           navigation as the way a player understands which step they're on and which is next.
           Rendered for every PREPARE step, including DOUGH (which had no tab of its own before
           this -- see MakingStepTabs.tsx's own header comment for the full SSOT contract). The
-          pre-existing 「次へ」/「焼く！」 CTA bar below stays as an auxiliary control, unchanged. */}
-      {state.phase === "PREPARE" && (
+          pre-existing 「次へ」/「焼く！」 CTA bar below stays as an auxiliary control, unchanged.
+
+          Issue #159 P0: also rendered during BAKE and POST_BAKE (CUT) now, not just PREPARE, so
+          a cut-target recipe's own nav reads 生地→ソース→チーズ→トッピング→焼く→切る
+          consistently across the whole pre-RESULT flow instead of only showing CUT on a
+          separate POST_BAKE-only screen with no memory of the steps before it. `postSteps` is
+          `["CUT"]` for margherita, `[]` (nothing extra rendered) for every other recipe --
+          still fully recipe-aware via `state.cookingProfile`, no new per-recipe branching. */}
+      {(state.phase === "PREPARE" ||
+        state.phase === "BAKE" ||
+        (state.phase === "POST_BAKE" && state.makingStep === "CUT")) && (
         <MakingStepTabs
           steps={preBakeSteps(state.cookingProfile)}
+          postSteps={postBakeSteps(state.cookingProfile)}
           currentStep={state.makingStep}
-          nextReady={nextStepReady}
+          currentPhase={state.phase === "PREPARE" ? "PREPARE" : state.phase === "BAKE" ? "BAKE" : "POST_BAKE"}
+          nextReady={state.phase === "POST_BAKE" ? cutConfirmReady : nextStepReady}
           onAdvance={onConfirmMakingStep}
         />
       )}
@@ -344,8 +365,17 @@ export function GameScreen({
             aria-haspopup="dialog"
             aria-label={`${state.recipe.nameJa}の見本を拡大表示`}
           >
+            {/* Issue #159 P0 (bullet 5): the mini thumbnail and the popover it opens below both
+                read from `activeReference` -- the exact same resolved value, not two independent
+                recomputations -- so they can never show a different piece count/composition for
+                the same recipe (see ReferenceThumbnail.tsx's own header comment). */}
             <span className="mini-reference__thumb" aria-hidden="true">
-              <PizzaThumbnail recipe={state.recipe} />
+              <ReferenceThumbnail
+                sauceIngredientId={
+                  referencePizza ? referencePizza.sauce.ingredientId : playerReference.sauceIngredientId
+                }
+                pieceGroups={referencePizza ? referencePizza.pieceGroups : playerReference.pieceGroups}
+              />
             </span>
             <span className="mini-reference__label">見本</span>
           </button>
@@ -359,7 +389,7 @@ export function GameScreen({
             />
           ) : (
             <PlayerReferencePreview
-              reference={getPlayerReferencePizza(state.recipe)}
+              reference={playerReference}
               isOpen={isReferencePopoverOpen}
               onOpenChange={onReferencePopoverChange}
               renderTrigger={false}
