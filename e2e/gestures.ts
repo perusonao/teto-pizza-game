@@ -187,12 +187,24 @@ export async function startQuattroFormaggiHeavyInventory(page: Page) {
     starterGrantClaimedRecipeIds: ["margherita", "funghi", "marinara", "bismarck", "genovese"],
   };
 
-  await page.goto("/");
-  await page.evaluate((rawSave) => {
-    localStorage.clear();
+  // Issue #167 PR-C (Verification Hardening): seed localStorage via an init script rather than
+  // goto -> evaluate(setItem) -> reload. This repo's own new WebKit CI job (added by this PR)
+  // reproducibly showed the old pattern racing against WebKit's own reload/storage-flush timing
+  // -- `loadSave()` (src/state/persistence.ts, plain synchronous localStorage.getItem/JSON.parse,
+  // no browser-conditional code at all) read back a fresh/empty save instead of this fixture's
+  // own data, so quattro-formaggi rendered LOCKED (its own real `unlockCondition` unmet by an
+  // empty dex) and its detail CTA stayed disabled for this test's full 30s timeout. Confirmed
+  // WebKit-only test-harness timing, not a production bug (same deterministic pure-JS card-state
+  // derivation runs identically on every engine once it actually receives this fixture's data) --
+  // out of Issue #167 PR-C §12's own scope guard for recipe-unlock production code either way.
+  // `page.addInitScript` has no such race: Playwright guarantees it runs before any of the page's
+  // own scripts on every navigation this page makes, in every engine, so no `reload()` round trip
+  // (or its own timing) is involved at all. A fresh Playwright browser context already starts
+  // with empty storage, so no explicit `localStorage.clear()` is needed either.
+  await page.addInitScript((rawSave) => {
     localStorage.setItem("teto-pizza-save-v1", JSON.stringify(rawSave));
   }, save);
-  await page.reload();
+  await page.goto("/");
   await page.waitForSelector(".app-frame");
   await page.getByRole("button", { name: /ピザを作る/ }).click();
   await page.getByRole("button", { name: /クアトロ/ }).click();
@@ -215,6 +227,9 @@ export async function startQuattroFormaggiHeavyInventory(page: Page) {
  * Salsiccia matters specifically for Reference Truth (PR-B) regression coverage: it is the
  * recipe the user originally reported the 見本/PizzaStage divergence on (Issue #167 background),
  * so PR-C's own WebKit Reference-modal verification must cover it, not just Margherita.
+ *
+ * Seeds localStorage via `page.addInitScript`, not goto -> evaluate(setItem) -> reload -- see
+ * `startQuattroFormaggiHeavyInventory` above's own comment for why the latter is not WebKit-safe.
  */
 export async function startSalsicciaUnlocked(page: Page) {
   const save = {
@@ -233,12 +248,10 @@ export async function startSalsicciaUnlocked(page: Page) {
     starterGrantClaimedRecipeIds: ["margherita", "funghi", "fugazza"],
   };
 
-  await page.goto("/");
-  await page.evaluate((rawSave) => {
-    localStorage.clear();
+  await page.addInitScript((rawSave) => {
     localStorage.setItem("teto-pizza-save-v1", JSON.stringify(rawSave));
   }, save);
-  await page.reload();
+  await page.goto("/");
   await page.waitForSelector(".app-frame");
   await page.getByRole("button", { name: /ピザを作る/ }).click();
   await page.getByRole("button", { name: /サルシッチャ、/ }).click();

@@ -187,12 +187,16 @@ test.describe("Sauce lock (Issue #159 P0): no second sauce ever offered once SAU
       inventory: { "olive-oil": 99, pesto: 99 },
       starterGrantClaimedRecipeIds: [],
     };
-    await page.goto("/");
-    await page.evaluate((rawSave) => {
-      localStorage.clear();
+    // Issue #167 PR-C: seed localStorage via an init script (guaranteed to run before any of
+    // the page's own scripts on the very first navigation) rather than goto -> evaluate(setItem)
+    // -> reload -- see startSalsicciaUnlocked's own comment (gestures.ts) for why the old pattern
+    // is not WebKit-safe. This test's own assertions happened to still pass even when that race
+    // silently dropped the injected save (margherita needs no unlock condition, so it renders
+    // regardless) -- fixed here too so it can't quietly stop actually exercising this fixture.
+    await page.addInitScript((rawSave) => {
       localStorage.setItem("teto-pizza-save-v1", JSON.stringify(rawSave));
     }, save);
-    await page.reload();
+    await page.goto("/");
     await page.waitForSelector(".app-frame");
     await page.getByRole("button", { name: /ピザを作る/ }).click();
     await page.getByRole("button", { name: /マルゲリータ、/ }).click();
