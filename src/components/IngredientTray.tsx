@@ -18,6 +18,21 @@ import type { Recipe } from "../data/recipes";
 import { canPlaceIngredient, remainingStock, type InventoryState } from "../state/inventory";
 import type { PizzaState } from "../state/pizzaState";
 
+/**
+ * PR-A (Issue #167 §9): the Phase 0 Fresh Audit's own follow-up review found the `∞` badge's
+ * *internal* meaning settled (it is the same Stock Gate `remainingStock`/EP1/EP3 display every
+ * finite ingredient's `×N` already uses, for the case where stock has no ceiling -- deleting it
+ * outright would make Starter vs. purchased ingredients indistinguishable, a real information
+ * loss) but left its on-screen *presentation* an open, real-device-verifiable question, not a
+ * Phase 0 decision. This PR ships "symbol" (today's `∞`, lowest risk, no copy change) after
+ * comparing all three in the Result Report's own screenshot set; "hidden"/"label" are kept as
+ * real, working branches here (not deleted after the comparison) so a future real-device finding
+ * against "symbol" is a one-line flip, not a re-implementation. Finite stock's own `×N` renders
+ * unconditionally in every branch -- this constant only ever affects the UNLIMITED case.
+ */
+type UnlimitedStockDisplay = "symbol" | "hidden" | "label";
+const UNLIMITED_STOCK_DISPLAY: UnlimitedStockDisplay = "symbol";
+
 interface IngredientTrayProps {
   activeCategory: IngredientCategory;
   /** Issue #86: the making-step tab strip (MakingStepTabs.tsx, rendered by GameScreen) is now
@@ -410,10 +425,22 @@ export function IngredientTray({
           <span className="ingredient-chip__emoji">{ingredient.emoji}</span>
         )}
         <span className="ingredient-chip__name">{ingredient.nameJa}</span>
-        <span className="ingredient-chip__stock">{stock === "UNLIMITED" ? "∞" : `×${stock}`}</span>
-        {isDraggable(ingredient) && <span className="ingredient-chip__drag-hint">ドラッグしてのせる</span>}
+        {renderStockBadge(stock)}
       </button>
     );
+  }
+
+  // PR-A (Issue #167 §9): see `UNLIMITED_STOCK_DISPLAY`'s own doc comment above. Finite stock
+  // (`×${stock}`) is identical across every branch -- only the UNLIMITED case varies.
+  function renderStockBadge(stock: ReturnType<typeof remainingStock>) {
+    if (stock !== "UNLIMITED") {
+      return <span className="ingredient-chip__stock">{`×${stock}`}</span>;
+    }
+    if (UNLIMITED_STOCK_DISPLAY === "hidden") return null;
+    if (UNLIMITED_STOCK_DISPLAY === "label") {
+      return <span className="ingredient-chip__stock ingredient-chip__stock--label">常備</span>;
+    }
+    return <span className="ingredient-chip__stock">∞</span>;
   }
 
   return (
