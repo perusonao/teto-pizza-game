@@ -277,6 +277,13 @@ export function ResultPanel({
               ? `（目標 ${cutEvaluation.requestedSliceCount}等分）`
               : ""}
           </p>
+          {/* Pizza Cutting 1.0 Phase 4A (Phase 4 Fresh Audit §11): a one-line disclaimer so a
+              high CUT score sitting next to a lower overall score (e.g. "カット100点" beside
+              "総合59点") never reads as a bug -- CUT is still its own standalone evaluation
+              (design doc §14 Option D), not yet folded into `score.total`. Copy-only, no score/
+              star/weight change; kept to one short line so it never pushes RESULT taller at
+              390x844/360x800. */}
+          <p className="cut-evaluation-summary__note">※総合スコアとは別の評価です</p>
           <dl className="cut-evaluation-summary__details">
             <div className="cut-evaluation-summary__row">
               <dt>均等さ</dt>

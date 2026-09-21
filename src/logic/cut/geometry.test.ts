@@ -4,6 +4,9 @@ import { createDiameterCutLine, createIdealSliceFixtureLines } from "./fixtures"
 import {
   CIRCLE_AREA,
   computePieceAreas,
+  cutLineOrientationRadians,
+  isDuplicateCutLine,
+  MIN_CUT_ANGULAR_SEPARATION_RADIANS,
   perpendicularDistanceFromCenter,
   sidesOf,
 } from "./geometry";
@@ -148,6 +151,84 @@ describe("sidesOf", () => {
   it("never crashes for a zero-length line", () => {
     const zeroLength: CutLine = { start: { x: 60, y: 60 }, end: { x: 60, y: 60 } };
     expect(() => sidesOf({ x: 70, y: 70 }, zeroLength)).not.toThrow();
+  });
+});
+
+describe("cutLineOrientationRadians", () => {
+  it("a horizontal (0deg) line has orientation 0", () => {
+    expect(cutLineOrientationRadians(createDiameterCutLine(0))).toBeCloseTo(0, 6);
+  });
+
+  it("a 180deg (reversed-direction) line has the identical orientation to its 0deg counterpart", () => {
+    const zero = cutLineOrientationRadians(createDiameterCutLine(0));
+    const reversed = cutLineOrientationRadians(createDiameterCutLine(180));
+    expect(reversed).toBeCloseTo(zero, 6);
+  });
+
+  it("swapping start/end (the same physical line drawn backwards) does not change orientation", () => {
+    const line = createDiameterCutLine(37);
+    const swapped: CutLine = { start: line.end, end: line.start };
+    expect(cutLineOrientationRadians(swapped)).toBeCloseTo(cutLineOrientationRadians(line), 6);
+  });
+
+  it("a 60deg line has orientation pi/3", () => {
+    expect(cutLineOrientationRadians(createDiameterCutLine(60))).toBeCloseTo(Math.PI / 3, 6);
+  });
+
+  it("a zero-length (degenerate) line returns 0, never NaN", () => {
+    const zeroLength: CutLine = { start: { x: 80, y: 50 }, end: { x: 80, y: 50 } };
+    expect(cutLineOrientationRadians(zeroLength)).toBe(0);
+  });
+});
+
+describe("isDuplicateCutLine", () => {
+  it("an exact duplicate (identical start/end) is rejected", () => {
+    const line = createDiameterCutLine(0);
+    expect(isDuplicateCutLine({ ...line }, [line])).toBe(true);
+  });
+
+  it("the same line with reversed endpoints is rejected", () => {
+    const line = createDiameterCutLine(0);
+    const reversed: CutLine = { start: line.end, end: line.start };
+    expect(isDuplicateCutLine(reversed, [line])).toBe(true);
+  });
+
+  it("a near-duplicate within the threshold (a few degrees off) is rejected", () => {
+    const existing = createDiameterCutLine(0);
+    const nearDuplicate = createDiameterCutLine(5); // well under MIN_CUT_ANGULAR_SEPARATION_RADIANS (15deg)
+    expect(isDuplicateCutLine(nearDuplicate, [existing])).toBe(true);
+  });
+
+  it("a line just outside the threshold is accepted", () => {
+    const existing = createDiameterCutLine(0);
+    const thresholdDegrees = (MIN_CUT_ANGULAR_SEPARATION_RADIANS * 180) / Math.PI;
+    const justOutside = createDiameterCutLine(thresholdDegrees + 1);
+    expect(isDuplicateCutLine(justOutside, [existing])).toBe(false);
+  });
+
+  it("a line just inside the threshold is rejected", () => {
+    const existing = createDiameterCutLine(0);
+    const thresholdDegrees = (MIN_CUT_ANGULAR_SEPARATION_RADIANS * 180) / Math.PI;
+    const justInside = createDiameterCutLine(thresholdDegrees - 1);
+    expect(isDuplicateCutLine(justInside, [existing])).toBe(true);
+  });
+
+  it("a normal 3-line/6-slice pattern (60deg apart) is never flagged as a duplicate of another", () => {
+    const lines = createIdealSliceFixtureLines(6);
+    for (let i = 0; i < lines.length; i++) {
+      const rest = lines.filter((_, index) => index !== i);
+      expect(isDuplicateCutLine(lines[i], rest)).toBe(false);
+    }
+  });
+
+  it("wraps correctly near the 0/pi boundary (e.g. 178deg vs 2deg are close, not far apart)", () => {
+    const nearPi = createDiameterCutLine(178);
+    const nearZero = createDiameterCutLine(2);
+    expect(isDuplicateCutLine(nearPi, [nearZero])).toBe(true);
+  });
+
+  it("an empty existingLines list never flags anything as a duplicate", () => {
+    expect(isDuplicateCutLine(createDiameterCutLine(0), [])).toBe(false);
   });
 });
 

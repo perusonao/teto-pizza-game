@@ -1,6 +1,7 @@
 import type { ScoreBreakdown } from "../logic/scoring";
 import type { PizzaCompletionResult } from "../logic/completionGate";
 import { buildCompletionFailureMessage } from "../data/completionMessages";
+import type { CutEvaluation } from "../logic/cut/types";
 
 interface MissionServePanelProps {
   score: ScoreBreakdown;
@@ -16,6 +17,13 @@ interface MissionServePanelProps {
    *  variant instead of the score/stars/+1 SERVED card -- reusing the exact same reason copy
    *  (../data/completionMessages.ts) FREE shows, never a new independent message. */
   completion: PizzaCompletionResult;
+  /** Pizza Cutting 1.0 Phase 4A (Phase 4 Fresh Audit §5D/§6/§15): `state.cutState.evaluation`,
+   *  the exact same standalone value FREE's own `ResultPanel` already reads -- `null` for every
+   *  non-CUT recipe and for a round that never confirmed CUT, so this panel simply never renders
+   *  a CUT row for them (see the `cutEvaluation &&` guard below). Display only: never folded into
+   *  `score`/`servedCount`/Lunch Rush ranking -- this component has no mechanism to do that even
+   *  if it wanted to (../logic/cut/* has no import into scoringV2/missionScoring). */
+  cutEvaluation: CutEvaluation | null;
   onNext: () => void;
 }
 
@@ -29,7 +37,13 @@ const MAX_STARS = 5;
  * reuses the exact same `ScoreBreakdown` free play scores -- no separate Mission scoring
  * path (see ../logic/scoring.ts) -- just displayed and dismissed faster.
  */
-export function MissionServePanel({ score, servedCount, completion, onNext }: MissionServePanelProps) {
+export function MissionServePanel({
+  score,
+  servedCount,
+  completion,
+  cutEvaluation,
+  onNext,
+}: MissionServePanelProps) {
   // Lunch Rush Completion Gate 1A: a FAILED order gets its own small, distinct card, the same
   // "reuse the RESULT structure, don't build new UI" approach ResultPanel already takes for
   // FREE (see ../components/ResultPanel.tsx) -- never the stars/score/+1 SERVED markup, so a
@@ -64,6 +78,18 @@ export function MissionServePanel({ score, servedCount, completion, onNext }: Mi
         <span className="mission-serve-panel__stars-empty">{emptyStars}</span>
       </div>
       <div className="mission-serve-panel__score">{Math.round(score.total)}点</div>
+      {/* Pizza Cutting 1.0 Phase 4A (Phase 4 Fresh Audit §5D/§6): the one concrete Human Feel
+          gap that audit found -- CUT costs real MissionClock seconds but, until now, this panel
+          showed zero acknowledgement of it. Kept to one compact line (score + slice count only,
+          no uniformity/center breakdown) per this task's own "don't overload Lunch Rush, don't
+          stall tempo" instruction -- FREE's own `.cut-evaluation-summary` already has the full
+          breakdown for a player who wants it. */}
+      {cutEvaluation && (
+        <p className="mission-serve-panel__cut">
+          {"✂️"} カット <strong>{Math.round(cutEvaluation.cutScore)}点</strong>
+          <span className="mission-serve-panel__cut-slices">（{cutEvaluation.actualPieceCount}切れ）</span>
+        </p>
+      )}
       <p className="mission-serve-panel__served">
         {"\u{1F355}"} +1 SERVED{" "}
         <span className="mission-serve-panel__served-count">({servedCount + 1})</span>

@@ -165,6 +165,18 @@
   padding: 2px 12px 4px;
 }
 
+/* ---------- Pizza Cutting 1.0 Phase 4A: duplicate-cut-line rejection feedback ----------
+   Plain text, never color-alone (Phase 4A's own Accessibility/Touch requirement) -- a short
+   reason line, not a color/shake-only cue, so it reads the same with or without color vision. */
+.cut-rejection-feedback {
+  text-align: center;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #b23c2e;
+  margin: 0;
+  padding: 0 12px 4px;
+}
+
 /* ---------- Pizza stage ---------- */
 .pizza-stage {
   display: flex;
@@ -1548,6 +1560,16 @@
   margin: 0;
 }
 
+/* Pizza Cutting 1.0 Phase 4A (Phase 4 Fresh Audit §11): the "not part of your total score"
+   disclaimer -- deliberately smaller/muted vs. the headline/slices lines above, a footnote, not
+   a second headline. */
+.cut-evaluation-summary__note {
+  font-size: 10.5px;
+  color: #6b84a8;
+  text-align: center;
+  margin: 0;
+}
+
 .cut-evaluation-summary__details {
   display: flex;
   flex-direction: column;
@@ -1911,6 +1933,21 @@
   font-size: 20px;
   font-weight: 800;
   color: #6b4226;
+}
+
+/* Pizza Cutting 1.0 Phase 4A (Phase 4 Fresh Audit §5D/§6): compact CUT acknowledgement --
+   sized between `__score` (the headline) and `__served` (a secondary line), matching this
+   panel's own existing visual hierarchy rather than competing with either. */
+.mission-serve-panel__cut {
+  font-size: 13px;
+  font-weight: 700;
+  color: #2f5590;
+  margin: 0;
+}
+
+.mission-serve-panel__cut-slices {
+  font-weight: 600;
+  color: #4a6a94;
 }
 
 .mission-serve-panel__served {
