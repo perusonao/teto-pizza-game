@@ -196,6 +196,124 @@ test.describe("Lunch Rush RESULT -> Weekly Ranking stack never scrolls the page"
     const panel = await page.locator(".ranking-overlay__panel").boundingBox();
     expect(panel).not.toBeNull();
     expect(panel!.y + panel!.height).toBeLessThanOrEqual(stackedState.innerHeight + 1);
+
+    // Regression: closing the ranking overlay returns to a still-intact RESULT panel underneath
+    // (Gameplay UX Phase 2, Issue #157 scenario A).
+    await page.getByRole("button", { name: "閉じる" }).click();
+    await page.waitForTimeout(200);
+    await expect(page.locator(".mission-overlay__panel")).toBeVisible();
+    await expect(page.getByRole("button", { name: /ホームへ/ })).toBeVisible();
+  });
+});
+
+/**
+ * Gameplay UX Phase 2 (Issue #157): 🏠 ホームへ CTA on Lunch Rush RESULT
+ * (docs/reports/TETO_GAMEPLAY-UX_Phase2_Lunch-Rush-Home_Result.md). Covers the four RESULT
+ * navigation CTAs fitting without page scroll at both viewports, HOME navigation itself (no
+ * stale mission/result overlay left behind), and regression for the three pre-existing CTAs
+ * (ランキング covered above; もう一度/フリープレイへ here).
+ */
+async function reachLunchRushResult(page: import("@playwright/test").Page) {
+  await page.goto("/?missionDuration=1");
+  await page.evaluate(() => localStorage.clear());
+  await page.reload();
+  await page.waitForSelector(".app-frame");
+
+  await page.getByRole("button", { name: /ランチラッシュ/ }).click();
+  await page.getByRole("button", { name: "スタート" }).click();
+  await page.waitForSelector(".mission-overlay__panel", { timeout: 8000 });
+}
+
+test.describe("Lunch Rush RESULT: four navigation CTAs (Gameplay UX Phase 2)", () => {
+  test("ランキング / もう一度 / フリープレイへ / 🏠ホームへ all visible with no overflow", async ({
+    page,
+  }) => {
+    await reachLunchRushResult(page);
+
+    const s = await pageScrollState(page);
+    expect(s.docScrollHeight, "RESULT with 4 CTAs must not grow the page").toBeLessThanOrEqual(
+      s.innerHeight,
+    );
+    expect(s.docScrollWidth, "RESULT with 4 CTAs must never overflow horizontally").toBeLessThanOrEqual(
+      s.innerWidth,
+    );
+
+    await expect(page.getByRole("button", { name: /ランキングを見る/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: "もう一度" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "フリープレイへ" })).toBeVisible();
+    const homeButton = page.getByRole("button", { name: /ホームへ/ });
+    await expect(homeButton).toBeVisible();
+
+    // Touch target floor: buttons must not be shrunk so small they become hard to tap (both
+    // paired nav buttons share `.secondary-button`'s 44px min-height).
+    const homeBox = await homeButton.boundingBox();
+    expect(homeBox).not.toBeNull();
+    expect(homeBox!.height).toBeGreaterThanOrEqual(44);
+
+    const freePlayBox = await page.getByRole("button", { name: "フリープレイへ" }).boundingBox();
+    expect(freePlayBox).not.toBeNull();
+    expect(freePlayBox!.height).toBeGreaterThanOrEqual(44);
+
+    // The paired row must stay within the viewport (never clipped off the bottom).
+    expect(homeBox!.y + homeBox!.height).toBeLessThanOrEqual(s.innerHeight + 1);
+  });
+
+  test("🏠 ホームへ navigates to HOME with no stale mission/result overlay", async ({ page }) => {
+    const consoleErrors: string[] = [];
+    page.on("console", (msg) => {
+      if (msg.type() === "error") consoleErrors.push(msg.text());
+    });
+
+    await reachLunchRushResult(page);
+    await page.getByRole("button", { name: /ホームへ/ }).click();
+    await page.waitForTimeout(300);
+
+    // HOME is showing, RESULT/mission overlays are fully gone -- not merely hidden underneath.
+    await expect(page.locator(".home-screen")).toBeVisible();
+    expect(await page.locator(".mission-overlay").count()).toBe(0);
+    expect(await page.locator(".mission-serve-panel").count()).toBe(0);
+
+    const s = await pageScrollState(page);
+    expect(s.docScrollHeight, "HOME after ホームへ must not scroll the page").toBeLessThanOrEqual(
+      s.innerHeight,
+    );
+
+    // HOME's own primary CTA must be genuinely operable post-navigation -- hover it (Human Feel
+    // Gate: a numerically-present but inert button would not be a real fix) and confirm it still
+    // opens Pizza Select on click.
+    const primaryCta = page.getByRole("button", { name: /ピザを作る/ });
+    await expect(primaryCta).toBeVisible();
+    await primaryCta.hover();
+    await primaryCta.click();
+    await expect(page.locator(".pizza-select-body")).toBeVisible();
+
+    expect(consoleErrors, `console errors after ホームへ navigation: ${consoleErrors.join("; ")}`).toEqual(
+      [],
+    );
+  });
+
+  test("もう一度 restarts Lunch Rush (regression)", async ({ page }) => {
+    await reachLunchRushResult(page);
+    await page.getByRole("button", { name: "もう一度" }).click();
+    await page.waitForTimeout(300);
+
+    // A fresh Mission run is PLAYING again (mission-run START, src/mission/lunchRush.ts) --
+    // the old RESULT overlay is gone and the live-run timer HUD (MissionHud, rendered only
+    // while isMissionPlaying) is back.
+    expect(await page.locator(".mission-overlay__panel").count()).toBe(0);
+    await expect(page.locator(".mission-hud")).toBeVisible();
+  });
+
+  test("フリープレイへ enters FREE flow (regression)", async ({ page }) => {
+    await reachLunchRushResult(page);
+    await page.getByRole("button", { name: "フリープレイへ" }).click();
+    await page.waitForTimeout(300);
+
+    expect(await page.locator(".mission-overlay__panel").count()).toBe(0);
+    expect(await page.locator(".mission-serve-panel").count()).toBe(0);
+    // Still on GAME (not bounced to HOME) -- FREE's own PREPARE round.
+    await expect(page.locator(".game-screen")).toBeVisible();
+    await expect(page.locator(".home-screen")).toHaveCount(0);
   });
 });
 

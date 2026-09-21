@@ -20,6 +20,11 @@ interface MissionResultOverlayProps {
    *  submission/read synchronization; a player who wants the very latest can retry from the
    *  ranking overlay itself). */
   onShowRanking: () => void;
+  /** Gameplay UX Phase 2 (Issue #157): reuses App.tsx's own `handleGoHome` -- RESULT means
+   *  `isRoundInProgress()` is already false, so this never shows the leave-confirmation dialog,
+   *  and `handleGoHome`'s own `mission.mode !== "FREE"` branch tidies the Mission state back to
+   *  FREE before navigating HOME. No new navigation/reset logic here. */
+  onGoHome: () => void;
 }
 
 /** Shown once a Lunch Rush run's timer expires (Phase 3C-4 section 11). One screen, no extra
@@ -35,6 +40,7 @@ export function MissionResultOverlay({
   onRetry,
   onExit,
   onShowRanking,
+  onGoHome,
 }: MissionResultOverlayProps) {
   return (
     <div className="mission-overlay">
@@ -68,9 +74,18 @@ export function MissionResultOverlay({
           <button type="button" className="cta-button cta-button--primary" onClick={onRetry}>
             もう一度
           </button>
-          <button type="button" className="secondary-button" onClick={onExit}>
-            フリープレイへ
-          </button>
+          {/* Gameplay UX Phase 2 (Issue #157): フリープレイへ/🏠ホームへ paired side-by-side
+              (`.mission-result__nav-row`, `.home-cta-row`'s own flex:1-pair pattern) instead of
+              stacked, so the 4th CTA adds ~0 vertical height to the RESULT panel and both
+              existing 390x844/360x800 "fits without page scroll" e2e assertions keep holding. */}
+          <div className="mission-result__nav-row">
+            <button type="button" className="secondary-button mission-result__nav-button" onClick={onExit}>
+              フリープレイへ
+            </button>
+            <button type="button" className="secondary-button mission-result__nav-button" onClick={onGoHome}>
+              {"\u{1F3E0}"} ホームへ
+            </button>
+          </div>
         </div>
       </div>
     </div>
