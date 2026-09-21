@@ -7,15 +7,34 @@
 (origin/main HEAD at the start of the first session — `docs: PR #154 Human Verification Videos
 -- ingredient selection, CUT regression, edge case (#156)`).
 
-**Re-based onto (continuation session):** `f8e461ae4f632c1480e1a71432719817172867c3` — `Issue
-#159: Cooking UI 1-Screen Polish (#160)` merged into `main` after the original implementation.
-Merged (not rebased, to avoid a force-push) with `git merge origin/main` — auto-merged cleanly,
-no conflicts, despite PR #160 also touching `src/App.css`, `src/screens/GameScreen.tsx`, and
-`e2e/viewport-1screen.spec.ts` (all three files this task also touches). Confirmed after the
-merge: `git merge-base HEAD origin/main` == `origin/main`'s HEAD, i.e. this branch is fully
-caught up. PR #160 is Cooking UI scope (`IngredientTray`, `MakingStepTabs`, olive-oil visuals,
-CUT/making-step nav) — independent of and untouched by this Lunch Rush RESULT navigation task;
-nothing from PR #160 was reverted or modified by this branch.
+**Re-based onto (2nd continuation session):** `ea9bb48ba4ad23dd18944df98ce9453d5b13c02b` —
+`Cooking UI 1-Screen 2.0 PR-A: Real-device layout (#169)`, merged after ChatGPT Fresh Review,
+plus five further `main`-only commits since the 1st continuation's base (`f8e461a`): #162
+(Node 22 migration Fresh Audit, docs-only), #164/#165/#166 (Node 22 migration Phase A/B-C/D-E),
+#163 (CUT full-recipe expansion Fresh Audit, docs-only), #168 (Cooking UI 1-Screen 2.0 Phase 0
+Fresh Audit, docs-only). Merged (not rebased, to avoid a force-push) with `git merge origin/main`
+— auto-merged cleanly, no conflicts, despite PR #169 also touching `src/App.css` (119 lines) and
+`src/screens/GameScreen.tsx` (10 lines). Confirmed after the merge: `git merge-base HEAD
+origin/main` == `origin/main`'s HEAD. Node version in the verification environment is already
+22.22.2, matching the Node 22 migration.
+
+**Semantic diff review (not just "no git conflict"):** `git diff origin/main HEAD` after the
+merge shows exactly this task's own 10 files (`MissionResultOverlay.tsx/.test.tsx`,
+`GameScreen.tsx` +1 line, `App.css` +21 lines, `e2e/viewport-1screen.spec.ts`, the Result Report,
+4 screenshots) — zero diff against `origin/main` on every PR #169-owned file
+(`e2e/making-ui-1screen.spec.ts`, `playwright.config.ts`, `src/components/IngredientTray.tsx`,
+`src/components/MakingStepTabs.tsx` (untouched by this branch at all), `src/data/hints.ts`,
+`src/index.css`, `functions/package.json`, `.github/workflows/*`). The `App.css`/`GameScreen.tsx`
+diffs against `origin/main` are confirmed to be exactly this task's own `.mission-result__nav-row`/
+`.mission-result__nav-button` addition and the single `onGoHome={onGoHome}` line respectively —
+nothing from PR #169 (6-step tab layout, vertical 1-screen safety margin, PizzaStage
+height-aware sizing, ingredient UI compaction, CUT progress copy, short-height regression,
+WebKit project definitions) was reverted, narrowed, or modified by this branch.
+
+**Original re-base onto `f8e461a` (1st continuation session):** `Issue #159: Cooking UI
+1-Screen Polish (#160)` — superseded by the above, kept here for history. Also a clean
+auto-merge, no conflicts, PR #160 scope (`IngredientTray`, `MakingStepTabs`, olive-oil visuals,
+CUT/making-step nav) fully preserved.
 
 **Issue:** [#157 — Lunch Rush結果画面への🏠ホームへCTA追加（Phase 2）](https://github.com/perusonao/teto-pizza-game/issues/157)
 (created in the original session — Duplicate Gate #1 confirmed no existing open issue/PR covers
@@ -166,14 +185,22 @@ the merge introduced no regressions in either direction.
 
 ## 6. Verification Sequence (in order)
 
-| Step | Result (original session, base `d0085a3`) | Result (continuation session, after merging `f8e461a`) |
-|---|---|---|
-| Focused tests (`MissionResultOverlay.test.tsx`, `GameScreen.*.test.tsx`) | PASS — 32/32 | not re-run standalone; covered by the full suite re-run |
-| Full Vitest (`npx vitest run`) | PASS — 2080/2080, 111 files | **PASS — 2092/2092, 112 files** |
-| Playwright, both viewport projects (`npx playwright test`) | PASS — 28/28 | **PASS — 38/38** (includes PR #160's `making-ui-1screen.spec.ts`) |
-| `tsc --noEmit` | PASS — clean | **PASS — clean** |
-| `npm run lint` (oxlint) | PASS — clean | **PASS — clean** |
-| `npm run build` (`tsc -b && vite build`) | PASS — clean (pre-existing >500kB chunk-size warning only, unrelated to this change) | **PASS — clean** (same pre-existing warning only) |
+| Step | Original session (base `d0085a3`) | 1st continuation (base `f8e461a`) | 2nd continuation (base `ea9bb48`) |
+|---|---|---|---|
+| Focused tests | PASS — 32/32 | covered by full suite | covered by full suite |
+| Full Vitest (`npx vitest run`) | PASS — 2080/2080, 111 files | PASS — 2092/2092, 112 files | **PASS — 2092/2092, 112 files** (unchanged; PR #169 added e2e tests only, no new unit tests) |
+| Playwright, Chromium projects (`npx playwright test --project=iphone-390x844 --project=iphone-360x800`) | PASS — 28/28 | PASS — 38/38 | **PASS — 40/40** (up from 38 — PR #169 added the "PizzaStage height-aware sizing: shrink path" test to `making-ui-1screen.spec.ts`; includes both this task's Lunch Rush RESULT tests and PR #169's Cooking UI tests) |
+| `tsc --noEmit` | PASS — clean | PASS — clean | **PASS — clean** |
+| `npm run lint` (oxlint) | PASS — clean | PASS — clean | **PASS — clean** |
+| `npm run build` (`tsc -b && vite build`) | PASS — clean | PASS — clean | **PASS — clean** (same pre-existing >500kB chunk-size warning only) |
+
+**Playwright WebKit projects:** `playwright.config.ts` gained two WebKit projects
+(`webkit-390x844`/`webkit-360x800`) via PR #169, for real-Safari-closer local verification (see
+that PR's own Result Report). This session's sandbox has only the Chromium browser installed
+(`/opt/pw-browsers` — no WebKit binary), and the task's own instruction (§4) scoped this round's
+verification to "Playwright Chromium full" — so only the two Chromium projects were run here.
+This is an environment limitation, not a test failure; WebKit was never part of this task's own
+scope (Lunch Rush RESULT navigation) or introduced by it.
 
 ---
 
@@ -191,9 +218,23 @@ Before = pre-existing 3-CTA RESULT (origin/main HEAD). After = 4-CTA RESULT with
 
 ## 8. Human Verification Videos
 
-**Re-recorded in the continuation session** against the merged branch (base `f8e461a`, this
-task's own diff on top), so the videos reflect the exact code that will ship, not the
-pre-merge state:
+**Re-recorded in the 1st continuation session** against the merged branch (base `f8e461a`, this
+task's own diff on top), so the videos reflect the exact code that shipped at that point, not
+the pre-merge state.
+
+**Reused (not re-recorded) in the 2nd continuation session** (base `ea9bb48`, after merging PR
+#169): confirmed via a fresh live render (Playwright + real Chromium against the merged code,
+not just diff inspection) that the RESULT panel is pixel-identical to the videos' own content at
+both viewports — same `.mission-overlay__panel` bounding box (479px height at both 390×844 and
+360×800), same `.mission-result__nav-row` position/size, same 🏠ホームへ button geometry, and a
+direct screenshot comparison against the committed `after-result-390x844.png`/
+`after-result-360x800.png` showed no visible difference. `git diff f8e461a ea9bb48 --
+src/App.css` confirms PR #169 touched no `.mission-*`/`.action-row`/`.cta-button`/
+`.secondary-button` rule (only a `.mission-overlay` mention inside an unrelated z-index comment).
+Per the task's own instruction (§5): "既存のpost-f8e461a動画と最新main統合後のRESULT UIが
+pixel/structure上実質同一なら、既存動画を再利用してよい" — none of the re-record triggers (panel
+layout, CTA position, viewport fit, font/wrapping, HOME navigation behavior) changed, so the
+existing MP4s were re-delivered as-is rather than re-recorded.
 
 | Video | Viewport | Duration | Size | Codec | Verification |
 |---|---|---:|---:|---|---|
@@ -225,11 +266,12 @@ matters, ~0.5–1s after each click, no automated high-speed clicking.
   もう一度, フリープレイへ, and 🏠ホームへ all visible with no button clipping — then tap
   🏠ホームへ and hold on HOME (~3.5s).
 
-**Download:** delivered directly to the user via this interactive session (`SendUserFile`), both
-in the original session (pre-merge cut) and again in the continuation session (final, post-merge
-cut against `f8e461a`) — the post-merge cut is the current/authoritative one. Not committed to
-the repository — `artifacts/` (including the raw/final video working directory used both
-sessions) is gitignored, per the pre-existing repository rule.
+**Download:** delivered directly to the user via this interactive session (`SendUserFile`) three
+times: the original session (pre-merge cut), the 1st continuation (post-`f8e461a` re-record),
+and the 2nd continuation (re-delivery of the same post-`f8e461a` files, confirmed still accurate
+against `ea9bb48` per the reuse analysis above). Not committed to the repository — `artifacts/`
+(including the raw/final video working directory and the fresh post-merge verification
+screenshots used to justify reuse) is gitignored, per the pre-existing repository rule.
 
 **Video Verification: PASS** (all three — file exists, size > 0, full duration playable per
 ffprobe, correct viewport resolution recorded end-to-end, target operations visible, Acceptance
@@ -246,9 +288,15 @@ Criteria human-judgeable from the video alone).
   unchanged (same props, same computation, only the new CTA and its layout are new).
 - **PR #160 (Cooking UI 1-Screen Polish) impact: NONE.** Merged into this branch, not reverted or
   modified — `IngredientTray`, `MakingStepTabs`, `PizzaStage`, `ReferenceThumbnail`, CUT,
-  olive-oil visuals, recipe data are all untouched by this task's own diff, confirmed both by the
-  clean auto-merge and by PR #160's own Playwright suite (`making-ui-1screen.spec.ts`) passing
-  38/38 alongside this task's tests post-merge.
+  olive-oil visuals, recipe data are all untouched by this task's own diff.
+- **PR #169 (Cooking UI 1-Screen 2.0 PR-A: Real-device layout) impact: NONE.** Merged into this
+  branch (`ea9bb48`), not reverted or modified — the 6-step tab layout, vertical 1-screen safety
+  margin, `PizzaStage` height-aware sizing, ingredient UI compaction, CUT progress copy, the new
+  short-height regression test, and the new WebKit `playwright.config.ts` project definitions
+  are all confirmed untouched by this task's own diff (`git diff origin/main HEAD` shows zero
+  changes to any PR #169-owned file — see the Semantic diff review above), and PR #169's own
+  Playwright suite (`making-ui-1screen.spec.ts`, including its new PizzaStage height-aware-sizing
+  test) passes 40/40 alongside this task's tests post-merge.
 
 ---
 
