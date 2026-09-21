@@ -1,11 +1,6 @@
 import { describe, expect, it } from "vitest";
-import {
-  clampPagerIndex,
-  pagerIndicatorKind,
-  PAGER_DOT_INDICATOR_MAX,
-  recipeCardState,
-} from "./pizzaSelect";
-import { getRecipe } from "../data/recipes";
+import { buildRecipeSections, recipeCardState } from "./pizzaSelect";
+import { getRecipe, RECIPES, type Recipe, type RecipeId } from "../data/recipes";
 import { EMPTY_DEX, registerScoreToDex, type DexState } from "./dex";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import type { QualityStars } from "../logic/scoring";
@@ -153,47 +148,49 @@ describe("recipeCardState (Issue #39 Pizza Select, extended by Economy & Progres
   });
 });
 
-describe("clampPagerIndex (Issue #88 UX-4 pager)", () => {
-  it("passes through an in-range index unchanged", () => {
-    expect(clampPagerIndex(3, 7)).toBe(3);
-    expect(clampPagerIndex(0, 7)).toBe(0);
-    expect(clampPagerIndex(6, 7)).toBe(6);
+function mockRecipes(count: number): Recipe[] {
+  return Array.from({ length: count }, (_, i) => ({
+    ...RECIPES[0],
+    id: `mock-recipe-${i}` as unknown as RecipeId,
+    nameJa: `モック${i}`,
+    unlockCondition: undefined,
+  }));
+}
+
+describe("buildRecipeSections (Recipe Select 2.0A position-based sections)", () => {
+  it("splits today's 15 production recipes into 第1章 (7) / 第2章 (8), preserving RECIPES' own order", () => {
+    const sections = buildRecipeSections(RECIPES);
+    expect(RECIPES.length).toBe(15);
+    expect(sections.map((s) => s.titleJa)).toEqual(["第1章", "第2章"]);
+    expect(sections[0].recipes.map((r) => r.id)).toEqual(RECIPES.slice(0, 7).map((r) => r.id));
+    expect(sections[1].recipes.map((r) => r.id)).toEqual(RECIPES.slice(7).map((r) => r.id));
   });
 
-  it("clamps below zero up to 0 (never wraps to the last index)", () => {
-    expect(clampPagerIndex(-1, 7)).toBe(0);
-    expect(clampPagerIndex(-100, 7)).toBe(0);
+  it("returns an empty array for an empty collection", () => {
+    expect(buildRecipeSections([])).toEqual([]);
   });
 
-  it("clamps past the end down to the last valid index (never wraps to 0)", () => {
-    expect(clampPagerIndex(7, 7)).toBe(6);
-    expect(clampPagerIndex(999, 7)).toBe(6);
+  it("returns exactly one section for a collection smaller than the first boundary gap", () => {
+    const sections = buildRecipeSections(mockRecipes(3));
+    expect(sections).toHaveLength(1);
+    expect(sections[0].titleJa).toBe("第1章");
+    expect(sections[0].recipes).toHaveLength(3);
   });
 
-  it("degenerately clamps to 0 for an empty collection", () => {
-    expect(clampPagerIndex(0, 0)).toBe(0);
-    expect(clampPagerIndex(5, 0)).toBe(0);
+  it("auto-generates further sections past the last authored boundary for 30-50 recipe scale", () => {
+    const sections = buildRecipeSections(mockRecipes(38));
+    expect(sections.map((s) => s.titleJa)).toEqual(["第1章", "第2章", "第3章", "第4章", "第5章"]);
+    // 0-6 (7), 7-14 (8), 15-22 (8), 23-30 (8), 31-37 (7) -- every recipe accounted for exactly once.
+    expect(sections.reduce((sum, s) => sum + s.recipes.length, 0)).toBe(38);
+    expect(sections.at(-1)!.recipes.at(-1)!.nameJa).toBe("モック37");
   });
 
-  it("scales unchanged to a much larger collection (53/100/160-recipe future)", () => {
-    expect(clampPagerIndex(52, 53)).toBe(52);
-    expect(clampPagerIndex(53, 53)).toBe(52);
-    expect(clampPagerIndex(159, 160)).toBe(159);
-    expect(clampPagerIndex(160, 160)).toBe(159);
-  });
-});
-
-describe("pagerIndicatorKind (Issue #88 UX-4 pager, never a 53-dot row)", () => {
-  it("uses dots at/under the max (today's 7 production recipes included)", () => {
-    expect(pagerIndicatorKind(1)).toBe("dots");
-    expect(pagerIndicatorKind(7)).toBe("dots");
-    expect(pagerIndicatorKind(PAGER_DOT_INDICATOR_MAX)).toBe("dots");
-  });
-
-  it("switches to a numeric counter once past the max -- never a 53-entry dot row", () => {
-    expect(pagerIndicatorKind(PAGER_DOT_INDICATOR_MAX + 1)).toBe("counter");
-    expect(pagerIndicatorKind(53)).toBe("counter");
-    expect(pagerIndicatorKind(100)).toBe("counter");
-    expect(pagerIndicatorKind(160)).toBe("counter");
+  it("never drops or duplicates a recipe across sections at any scale", () => {
+    for (const count of [1, 7, 8, 15, 16, 23, 50]) {
+      const recipes = mockRecipes(count);
+      const sections = buildRecipeSections(recipes);
+      const seen = sections.flatMap((s) => s.recipes.map((r) => r.id));
+      expect(seen).toEqual(recipes.map((r) => r.id));
+    }
   });
 });

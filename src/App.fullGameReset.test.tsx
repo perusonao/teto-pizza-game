@@ -240,15 +240,21 @@ describe("Post-reset fresh state (reload simulated via unmount + remount)", () =
     await resetAndSimulateReload();
     const user = userEvent.setup();
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
-    expect(screen.getByText(/マルゲリータ/)).toBeInTheDocument();
+    const margheritaCard = screen.getByRole("button", { name: /^マルゲリータ、/ });
+    expect(margheritaCard).toBeInTheDocument();
+    await user.click(margheritaCard);
     expect(screen.getByRole("button", { name: /このピザを作る/ })).not.toBeDisabled();
+    await user.click(screen.getByRole("button", { name: "レシピ一覧に戻る" }));
 
     // RECIPES's array order (data/recipes.ts) is not the same as the unlock-chain order (see
     // the Fresh Audit §7 table) -- every recipe other than Margherita must be locked
-    // regardless of which one this lands on next, so this checks the generic "、未解放"
-    // (unlocked) label suffix rather than a specific recipe name.
-    await user.click(screen.getByRole("button", { name: "次のレシピ" }));
-    expect(screen.getByLabelText(/、未解放$/)).toBeInTheDocument();
+    // regardless of which one this lands on, so this picks any locked grid card rather than a
+    // specific recipe name.
+    const lockedCard = document.querySelector<HTMLElement>(".pizza-select-grid-card--locked")!;
+    await user.click(lockedCard);
+    expect(
+      within(document.querySelector(".pizza-select-detail")!).getByLabelText(/、未解放$/),
+    ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /このピザを作る/ })).toBeDisabled();
   });
 
@@ -256,6 +262,7 @@ describe("Post-reset fresh state (reload simulated via unmount + remount)", () =
     await resetAndSimulateReload();
     const user = userEvent.setup();
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
+    await user.click(screen.getByRole("button", { name: /^マルゲリータ、/ }));
     await user.click(screen.getByRole("button", { name: /このピザを作る/ }));
     expect(document.querySelector(".game-screen")).toBeInTheDocument();
     expect(screen.getAllByText(/マルゲリータ/).length).toBeGreaterThan(0);

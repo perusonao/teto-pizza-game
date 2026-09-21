@@ -6,19 +6,16 @@ import { SAVE_STORAGE_KEY, type PersistentSaveV1 } from "./state/persistence";
 import { EARLY_GAME_HINT_THRESHOLD, INGREDIENTS, STARTER_INGREDIENT_IDS } from "./data/ingredients";
 import { RECIPES, type RecipeId } from "./data/recipes";
 
-/** Issue #88 (UX-4): Pizza Select is now a single-recipe pager, not a grid of per-recipe
- *  buttons -- reaching a given recipe means paging Next `RECIPES`-order-index times from the
- *  pager's own index-0 default, then tapping the one shared CTA (never the card itself, which
- *  is no longer a button). Kept as a small per-file helper, matching this file's own existing
- *  `completeDoughStep` convention rather than a shared test-utils module. */
+/** Recipe Select 2.0A: Pizza Select is a sectioned browse grid, not a single-recipe pager --
+ *  reaching a given recipe means tapping its own grid card (opens the focused detail/confirm
+ *  view), then the one shared CTA there. Kept as a small per-file helper, matching this file's
+ *  own existing `completeDoughStep` convention rather than a shared test-utils module. */
 async function selectRecipeInPizzaSelect(
   user: ReturnType<typeof userEvent.setup>,
   recipeId: RecipeId,
 ) {
-  const targetIndex = RECIPES.findIndex((r) => r.id === recipeId);
-  for (let i = 0; i < targetIndex; i += 1) {
-    await user.click(screen.getByRole("button", { name: "次のレシピ" }));
-  }
+  const recipe = RECIPES.find((r) => r.id === recipeId)!;
+  await user.click(screen.getByRole("button", { name: new RegExp(`^${recipe.nameJa}、`) }));
   await user.click(screen.getByRole("button", { name: /このピザを作る/ }));
 }
 
@@ -353,11 +350,10 @@ describe("HOME/GAME separation (Issue #24)", () => {
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
-    const targetIndex = RECIPES.findIndex((r) => r.id === "fugazza");
-    for (let i = 0; i < targetIndex; i += 1) {
-      await user.click(screen.getByRole("button", { name: "次のレシピ" }));
-    }
-    expect(screen.getByLabelText("？？？、未解放")).toBeInTheDocument();
+    // Queried once, before opening its detail -- the grid card stays mounted (only hidden)
+    // behind the detail view, so this same aria-label would otherwise match twice.
+    const mysteryCard = screen.getByLabelText("？？？、未解放");
+    await user.click(mysteryCard);
     const cta = screen.getByRole("button", { name: /このピザを作る/ });
     expect(cta).toBeDisabled();
     await user.click(cta);
