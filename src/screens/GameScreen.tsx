@@ -450,8 +450,18 @@ export function GameScreen({
           -only), which has no meaning once a round has already left PREPARE/BAKE. */}
       {state.phase === "POST_BAKE" && state.makingStep === "CUT" && (
         <>
+          {/* PR-A (Issue #167 §11): both operands were already local consts computed once per
+              render (`cutRequiredCount`/`cutConfirmReady`, `:214-215` above;
+              `state.cutState.lines.length` is read directly) -- no new game state. Phase 0's own
+              Fresh Audit found the disabled 「切り終わる」 CTA alone didn't communicate *what*
+              still had to happen, even though this numeric readout already existed; this adds a
+              short derived completion message next to the same X/Y count rather than replacing
+              it, so both the precise number and the plain-language target are visible together. */}
           <div className="cut-progress-readout">
             {state.cutState.lines.length} / {cutRequiredCount} 本
+            {cutConfirmReady
+              ? "・切り終わったよ！"
+              : `・あと${cutRequiredCount - state.cutState.lines.length}本切ろう`}
           </div>
           {/* Pizza Cutting 1.0 Phase 4A (design doc §2.2/Phase 4 Fresh Audit §5B/§8): plain text,
               never color-only (this task's own Accessibility/Touch requirement) -- `role="status"`

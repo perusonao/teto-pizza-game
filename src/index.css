@@ -16,9 +16,21 @@
    clip boundary -- nothing above it can ever scroll again, so every screen's own internal
    scroll region (or lack of one, when content fits) is what actually determines the page's
    behavior, matching this app's own "1画面完結, 必要な領域だけ内部スクロール" design intent. */
+/* PR-A (Issue #167 §4/§6): iOS Safari's own automatic text-inflation heuristic ("font
+   boosting") can scale *rendered* font size above a literal CSS `font-size` value for narrow
+   columns/flex children, with no equivalent in desktop Chromium -- Phase 0's own Fresh Audit
+   (docs/reports/TETO_COOKING-UI_1SCREEN-2.0_Phase0_Fresh-Audit.md §3/§5) named this absence as
+   one of the concrete, verifiable reasons the 6-step tab strip (and any other tight-width/height
+   layout in this app) can clip on a real iPhone while every Playwright viewport assertion still
+   passes. Setting this to 100% does not disable pinch-to-zoom or any user-initiated accessibility
+   zoom (that is the `<meta name="viewport">` `user-scalable`/`maximum-scale` attributes, both
+   left untouched in index.html) -- it only turns off the browser's own unrequested automatic
+   inflation, which is pure upside for a fixed-chrome app shell like this one. */
 html {
   height: 100%;
   overflow: hidden;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {

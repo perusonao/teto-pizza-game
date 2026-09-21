@@ -25,8 +25,14 @@ export const RECIPE_HINTS: Record<string, RecipeHintSet> = {
     empty: "指でなぞってトマトソースを塗ろう！",
     emptyHint: "ピザを指でなぞると、トマトソースが塗れるよ。ふちの近くまで大胆に広げてみて！",
     missing: {
-      mozzarella: "とろっとしたモッツァレラをたっぷりのせよう！",
-      basil: "仕上げに香り高いバジルをのせたら完成に近いよ！",
+      // PR-A (Issue #167 §9): mozzarella/basil are this recipe's own physically-draggable
+      // ingredients (GameScreen.tsx's `draggableIngredientIds`) -- the tray's own per-chip
+      // "ドラッグしてのせる" hint (`.ingredient-chip__drag-hint`) duplicated this step's own
+      // instruction text and was removed (IngredientTray.tsx); the drag affordance itself is
+      // folded into these two lines instead so a first-time player still learns "drag" is the
+      // gesture here, without a second on-screen line saying it a second time.
+      mozzarella: "とろっとしたモッツァレラをドラッグしてたっぷりのせよう！",
+      basil: "仕上げに香り高いバジルをドラッグしてのせたら完成に近いよ！",
     },
     ready: "いい感じ！「焼く！」を押してみよう。",
   },
