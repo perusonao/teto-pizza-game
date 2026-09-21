@@ -316,6 +316,59 @@ Fresh Audit §1.3の候補E（「材料トレイの横スクロール化」/「�
 
 ---
 
+## Human Verification Videos
+
+`docs/decisions/TETO_HUMAN-VERIFICATION-POLICY.md`（PR #155でSSOT化）に従い、PR #154マージ後
+（audited SHA `37e6199361c98f65975794d9247903701612d79a` = `origin/main` HEAD、PR #155マージ
+コミット）にHuman Verification動画3本を撮影・検証した。生成物は本タスク実装コードを一切変更せず
+（production code差分ゼロ）、既存の`e2e/gestures.ts`と同じfixture（`startQuattroFormaggiHeavyInventory`
+相当、およびmargherita）を実Chromium（Playwright）で操作して撮影。動画はrepositoryへcommitせず
+（`artifacts/review/`はgitignore済み）、セッション内でユーザーへ直接提出した。
+
+| Video | Viewport | Duration | Size | Codec/Resolution | Verification |
+|---|---|---:|---:|---|---|
+| Ingredient Selection (Main) | 390×844 | 48.0s | 762 KB | H.264 / 390×844 | PASS |
+| CUT Regression | 390×844 | 27.0s | 656 KB | H.264 / 390×844 | PASS |
+| SAUCE Edge Case | 360×800 | 21.2s | 412 KB | H.264 / 360×800 | PASS |
+
+Download: セッション内直接提出（ユーザーへ3ファイルを直接送付）。
+
+### Automated Measurement（動画撮影と同じ操作シーケンスで実測）
+
+| 対象 | window.innerHeight/Width | document.documentElement.scrollHeight/Width | `.game-screen` clientHeight/scrollHeight |
+|---|---|---|---|
+| 390×844 SAUCE | 844 / 390 | 844 / 390 | 844 / 844 |
+| 390×844 CHEESE | 844 / 390 | 844 / 390 | 844 / 844 |
+| 390×844 TOPPING | 844 / 390 | 844 / 390 | 844 / 844 |
+| 360×800 SAUCE | 800 / 360 | 800 / 360 | 800 / 800 |
+
+全ケースで`document`スクロールなし、水平overflowなし、`gameScreen.scrollHeight <=
+gameScreen.clientHeight`（PREPARE要件）を満たす。CUT（margherita、`.pizza-stage--roomy`）は
+`.pizza-dough`実測 358×358.8px（390幅の92vw上限相当）で、PREPARE専用`compact`（min(76vw,290px)）
+とは別サイズのまま -- CUTのroomy sizingがPR #154の影響を受けていないことを数値でも確認。
+
+### What to check（この動画で確認できること）
+
+1. SAUCE工程で縦スクロールせずに「このピザにおすすめ」（オリーブオイル）+「その他」（トマト
+   ソース/ジェノベーゼソース）を選択でき、選択直後にピザへ実際に塗布操作できる。
+2. 工程タブ・ピザ・材料トレイ・固定CTAバー（やり直す/次へ/ヒント）が同時に1画面へ収まっている
+   （SAUCE/CHEESE/TOPPINGいずれも）。
+3. CHEESE工程で4種（モッツァレラ/ゴルゴンゾーラ/パルミジャーノ/フォンティーナ）を実際に選択・
+   配置できる。
+4. TOPPING工程で6種（バジル/にんにく/オレガノ/チェリートマト/たまご/マッシュルーム）を実際に
+   選択・配置でき、既存の縦グリッド+ページング方式（新規横スクロール方式ではない）のまま維持
+   されている。
+5. ヒントボタンが実際に動作し、キャプションが変化する。
+6. CUT Regressionでは`.pizza-stage--roomy`の従来サイズ（PREPAREの`compact`より大きい）、切断
+   ガイド（6等分の破線）、中心線、ドラッグによる実際の切断操作、「切り終わる」までの一連の流れ
+   が変更前と同じ見た目・操作感で成立している。
+7. SAUCE Edge Case（360×800）では、Result Report本編で実測した最も厳しいケース（CTA上約13px
+   余白）でも縦スクロールなしに材料選択+ソース操作2セットが完了する。
+
+Video Verification: PASS
+
+---
+
 ## まとめ
 
 - Before: quattro-formaggi相当の複数材料所持状態で、SAUCE工程が390x844で168px、360x800で
