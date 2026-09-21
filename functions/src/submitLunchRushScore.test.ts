@@ -6,17 +6,20 @@ import {
   type RunDocInput,
   type SubmitLunchRushScoreDeps,
 } from "./submitLunchRushScore";
+import { FALLBACK_DISPLAY_NAME } from "../../src/shared/displayNameValidation";
 
 interface LeaderboardEntry {
   score: number;
   achievedAt: unknown;
   sourceRunId: string;
+  displayName: string;
 }
 
 interface UpsertCall {
   periodId: string;
   uid: string;
   score: number;
+  displayName: string;
 }
 
 /** In-memory Firestore fake -- no emulator, no Java dependency. Implements exactly the
@@ -26,6 +29,10 @@ class FakeFirestore implements FirestoreLike {
   readonly runs: RunDocInput[] = [];
   readonly leaderboards = new Map<string, Map<string, LeaderboardEntry>>();
   readonly upsertCalls: UpsertCall[] = [];
+  /** Player Profile 1.0 Phase 1B (Issue #129). `users/{uid}.displayName`, keyed by uid -- a
+   *  missing key means no profile document exists, mirroring the real Admin SDK adapter's own
+   *  "not a string -> null" resolution. */
+  readonly profiles = new Map<string, string>();
   private nextRunId = 1;
 
   async createRun(input: RunDocInput): Promise<string> {
@@ -39,8 +46,9 @@ class FakeFirestore implements FirestoreLike {
     score: number,
     sourceRunId: string,
     achievedAt: unknown,
+    displayName: string,
   ): Promise<boolean> {
-    this.upsertCalls.push({ periodId, uid, score });
+    this.upsertCalls.push({ periodId, uid, score, displayName });
     let period = this.leaderboards.get(periodId);
     if (!period) {
       period = new Map();
@@ -48,8 +56,12 @@ class FakeFirestore implements FirestoreLike {
     }
     const existing = period.get(uid);
     if (existing && existing.score >= score) return false;
-    period.set(uid, { score, achievedAt, sourceRunId });
+    period.set(uid, { score, achievedAt, sourceRunId, displayName });
     return true;
+  }
+
+  async getDisplayName(uid: string): Promise<string | null> {
+    return this.profiles.get(uid) ?? null;
   }
 }
 
@@ -295,5 +307,129 @@ describe("handleSubmitLunchRushScore", () => {
   it("L: submittedAt/achievedAt are always the injected serverTimestamp sentinel, never a client value", async () => {
     await handleSubmitLunchRushScore(validPayload(), { uid: "u1" }, makeDeps(firestore));
     expect(firestore.leaderboards.get("all_all")?.get("u1")?.achievedAt).toMatch(/^server-timestamp-/);
+  });
+
+  // Player Profile 1.0 Phase 1B (Issue #129) -- displayName denormalization onto leaderboard
+  // entries. See docs/design/TETO_PLAYER-PROFILE_1.0.md section 4.2 (Option A) and
+  // docs/reports/TETO_PLAYER-PROFILE_Phase1A_Result.md for the profile write path this reads.
+  describe("Player Profile 1.0 Phase 1B: displayName snapshot", () => {
+    it("M: an existing profile's displayName is denormalized onto every period's leaderboard entry", async () => {
+      firestore.profiles.set("u1", "テトマスター");
+      await handleSubmitLunchRushScore(validPayload(), { uid: "u1" }, makeDeps(firestore));
+      expect(firestore.leaderboards.get("weekly_2026-W38")?.get("u1")?.displayName).toBe("テトマスター");
+      expect(firestore.leaderboards.get("monthly_2026-09")?.get("u1")?.displayName).toBe("テトマスター");
+      expect(firestore.leaderboards.get("all_all")?.get("u1")?.displayName).toBe("テトマスター");
+    });
+
+    it("M: no profile document -> falls back to FALLBACK_DISPLAY_NAME", async () => {
+      await handleSubmitLunchRushScore(validPayload(), { uid: "u1" }, makeDeps(firestore));
+      expect(firestore.leaderboards.get("all_all")?.get("u1")?.displayName).toBe(FALLBACK_DISPLAY_NAME);
+    });
+
+    it("M: an empty-string profile displayName -> falls back to FALLBACK_DISPLAY_NAME", async () => {
+      firestore.profiles.set("u1", "");
+      await handleSubmitLunchRushScore(validPayload(), { uid: "u1" }, makeDeps(firestore));
+      expect(firestore.leaderboards.get("all_all")?.get("u1")?.displayName).toBe(FALLBACK_DISPLAY_NAME);
+    });
+
+    it("M: a malformed/legacy profile displayName (fails re-validation) -> falls back, submission still succeeds", async () => {
+      // A control character could never be written by setDisplayName's own validation -- this
+      // exercises the defensive re-validation on the read-back path only (a legacy/corrupted
+      // document, however unlikely), not a real reachable state via the trusted write path.
+      firestore.profiles.set("u1", "bad\u0000name");
+      const result = await handleSubmitLunchRushScore(validPayload(), { uid: "u1" }, makeDeps(firestore));
+      expect(result.score).toBe(180); // score computation is entirely unaffected
+      expect(firestore.leaderboards.get("all_all")?.get("u1")?.displayName).toBe(FALLBACK_DISPLAY_NAME);
+    });
+
+    it("M: a 21-codepoint (too-long) legacy profile displayName -> falls back rather than rejecting the submission", async () => {
+      firestore.profiles.set("u1", "あ".repeat(21));
+      await handleSubmitLunchRushScore(validPayload(), { uid: "u1" }, makeDeps(firestore));
+      expect(firestore.leaderboards.get("all_all")?.get("u1")?.displayName).toBe(FALLBACK_DISPLAY_NAME);
+    });
+
+    it("M: a client-supplied displayName field in the payload is ignored -- there is nothing on the wire to spoof", async () => {
+      firestore.profiles.set("u1", "本物の名前");
+      await handleSubmitLunchRushScore(
+        validPayload({ displayName: "偽物の名前" }),
+        { uid: "u1" },
+        makeDeps(firestore),
+      );
+      expect(firestore.leaderboards.get("all_all")?.get("u1")?.displayName).toBe("本物の名前");
+    });
+
+    it("M: user A's submission can never denormalize user B's displayName -- getDisplayName is always keyed by auth.uid", async () => {
+      firestore.profiles.set("u1", "プレイヤーA");
+      firestore.profiles.set("u2", "プレイヤーB");
+      await handleSubmitLunchRushScore(validPayload(), { uid: "u1" }, makeDeps(firestore));
+      await handleSubmitLunchRushScore(validPayload(), { uid: "u2" }, makeDeps(firestore));
+      expect(firestore.leaderboards.get("all_all")?.get("u1")?.displayName).toBe("プレイヤーA");
+      expect(firestore.leaderboards.get("all_all")?.get("u2")?.displayName).toBe("プレイヤーB");
+    });
+
+    it("M: a rename alone (no new submission) does not retroactively alter an existing entry's displayName", async () => {
+      firestore.profiles.set("u1", "旧名前");
+      await handleSubmitLunchRushScore(validPayload(), { uid: "u1" }, makeDeps(firestore));
+      expect(firestore.leaderboards.get("all_all")?.get("u1")?.displayName).toBe("旧名前");
+
+      // Simulate a rename (Phase 1A's setDisplayName) with no accompanying score submission.
+      firestore.profiles.set("u1", "新名前");
+      expect(firestore.leaderboards.get("all_all")?.get("u1")?.displayName).toBe("旧名前");
+    });
+
+    it("M: a losing (non-best) submission does not overwrite an existing entry's displayName with a new one", async () => {
+      firestore.profiles.set("u1", "最初の名前");
+      await handleSubmitLunchRushScore(
+        validPayload({ serves: [{ recipeId: "margherita", qualityTotal: 100, completionStatus: "PASS" }] }),
+        { uid: "u1" },
+        makeDeps(firestore),
+      );
+      firestore.profiles.set("u1", "後の名前");
+      const secondResult = await handleSubmitLunchRushScore(
+        validPayload({ serves: [{ recipeId: "margherita", qualityTotal: 20, completionStatus: "PASS" }] }),
+        { uid: "u1" },
+        makeDeps(firestore),
+      );
+      expect(secondResult.isNewAllTimeBest).toBe(false);
+      expect(firestore.leaderboards.get("all_all")?.get("u1")?.displayName).toBe("最初の名前");
+    });
+
+    it("M: a new-best submission after a rename picks up the latest displayName", async () => {
+      firestore.profiles.set("u1", "最初の名前");
+      await handleSubmitLunchRushScore(
+        validPayload({ serves: [{ recipeId: "margherita", qualityTotal: 20, completionStatus: "PASS" }] }),
+        { uid: "u1" },
+        makeDeps(firestore),
+      );
+      firestore.profiles.set("u1", "新しい名前");
+      const secondResult = await handleSubmitLunchRushScore(
+        validPayload({ serves: [{ recipeId: "margherita", qualityTotal: 100, completionStatus: "PASS" }] }),
+        { uid: "u1" },
+        makeDeps(firestore),
+      );
+      expect(secondResult.isNewAllTimeBest).toBe(true);
+      expect(firestore.leaderboards.get("all_all")?.get("u1")?.displayName).toBe("新しい名前");
+    });
+
+    it("M: displayName never influences score, ordering, or personal-best semantics", async () => {
+      firestore.profiles.set("u1", "同じ名前");
+      const first = await handleSubmitLunchRushScore(validPayload(), { uid: "u1" }, makeDeps(firestore));
+      firestore.profiles.set("u1", "違う名前だが同じスコア");
+      const second = await handleSubmitLunchRushScore(validPayload(), { uid: "u1" }, makeDeps(firestore));
+      expect(second.score).toBe(first.score);
+      expect(second.isNewAllTimeBest).toBe(false);
+      expect(firestore.leaderboards.get("all_all")?.get("u1")?.score).toBe(180);
+    });
+
+    it("M: getDisplayName is called exactly once per submission (not once per period)", async () => {
+      let callCount = 0;
+      const originalGetDisplayName = firestore.getDisplayName.bind(firestore);
+      firestore.getDisplayName = async (uid: string) => {
+        callCount += 1;
+        return originalGetDisplayName(uid);
+      };
+      await handleSubmitLunchRushScore(validPayload(), { uid: "u1" }, makeDeps(firestore));
+      expect(callCount).toBe(1);
+    });
   });
 });

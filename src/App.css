@@ -2044,11 +2044,24 @@
 .ranking-overlay__rank {
   font-weight: 800;
   min-width: 36px;
+  flex-shrink: 0;
+}
+
+/* Player Profile 1.0 Phase 1B (Issue #129). flex: 1 + min-width: 0 is what lets a long (up to
+   20-codepoint) name truncate with an ellipsis instead of pushing score/rank off-screen or
+   wrapping the row onto a second line -- score keeps its own fixed, un-shrinkable width via
+   flex-shrink: 0 below, so it is never squeezed illegibly by a long name. */
+.ranking-overlay__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .ranking-overlay__score {
   font-weight: 700;
-  margin-left: auto;
+  flex-shrink: 0;
 }
 
 .ranking-overlay__you-badge {
@@ -2058,6 +2071,7 @@
   background: #fff8ea;
   border-radius: 999px;
   padding: 2px 8px;
+  flex-shrink: 0;
 }
 
 /* ---------- Shop (Phase 3C-5) ---------- */

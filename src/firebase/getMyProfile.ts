@@ -1,6 +1,7 @@
 import { doc, getDoc, getFirestore, type Firestore } from "firebase/firestore";
 import { getFirebaseApp } from "./client";
 import { ensureAnonymousUser } from "./auth";
+import { FALLBACK_DISPLAY_NAME } from "../shared/displayNameValidation";
 
 /**
  * Player Profile 1.0 Phase 1A (Issue #129). The client's one read path for a player's own
@@ -21,8 +22,11 @@ import { ensureAnonymousUser } from "./auth";
 /** Every player who existed before Player Profile 1.0 shipped, and any player who simply never
  *  opens Settings, has no `users/{uid}` document -- this is a first-class, permanently
  *  supported state, not an error. Every reader of a player's name (Settings' own display, and
- *  Phase 1B's future ranking denormalization) falls back to this exact string. */
-export const FALLBACK_DISPLAY_NAME = "ななしピザ職人";
+ *  Phase 1B's ranking denormalization) falls back to this exact string. Re-exported here (defined
+ *  in ../shared/displayNameValidation.ts) so this module's existing public surface
+ *  (`../firebase`'s `FALLBACK_DISPLAY_NAME` export, consumed by SettingsOverlay.tsx today) stays
+ *  unchanged. */
+export { FALLBACK_DISPLAY_NAME };
 
 export interface PlayerProfile {
   displayName: string;

@@ -33,6 +33,13 @@ describe("WeeklyRankingOverlay", () => {
     resolveFetch({ status: "success", periodId: "weekly_2026-W38", weekRange: WEEK_RANGE, top: [], currentUserOutsideTop: null });
   });
 
+  it("Firebase unavailable/error before load: no name/rank/score markup rendered, no crash", async () => {
+    getWeeklyLeaderboard.mockResolvedValue({ status: "unavailable" });
+    await renderOverlay();
+    await waitFor(() => expect(screen.getByText("ランキング機能は準備中です。")).toBeInTheDocument());
+    expect(document.querySelector(".ranking-overlay__name")).toBeNull();
+  });
+
   it("B. empty: shows the no-records message when top is empty", async () => {
     getWeeklyLeaderboard.mockResolvedValue({
       status: "success",
@@ -51,8 +58,8 @@ describe("WeeklyRankingOverlay", () => {
       periodId: "weekly_2026-W38",
       weekRange: WEEK_RANGE,
       top: [
-        { rank: 1, score: 1240, achievedAt: 1000, isCurrentUser: false },
-        { rank: 2, score: 1180, achievedAt: 2000, isCurrentUser: false },
+        { rank: 1, score: 1240, achievedAt: 1000, isCurrentUser: false, displayName: "テトマスター" },
+        { rank: 2, score: 1180, achievedAt: 2000, isCurrentUser: false, displayName: "ぺるそなお" },
       ],
       currentUserOutsideTop: null,
     });
@@ -60,6 +67,8 @@ describe("WeeklyRankingOverlay", () => {
     await waitFor(() => expect(screen.getByText("1,240")).toBeInTheDocument());
     expect(screen.getByText("1,180")).toBeInTheDocument();
     expect(screen.getByText("今週 9/14〜20")).toBeInTheDocument();
+    expect(screen.getByText("テトマスター")).toBeInTheDocument();
+    expect(screen.getByText("ぺるそなお")).toBeInTheDocument();
   });
 
   it("G. current player = あなた: highlights the signed-in player's row within the top list", async () => {
@@ -68,26 +77,28 @@ describe("WeeklyRankingOverlay", () => {
       periodId: "weekly_2026-W38",
       weekRange: WEEK_RANGE,
       top: [
-        { rank: 1, score: 900, achievedAt: 1000, isCurrentUser: false },
-        { rank: 2, score: 850, achievedAt: 2000, isCurrentUser: true },
+        { rank: 1, score: 900, achievedAt: 1000, isCurrentUser: false, displayName: "テトマスター" },
+        { rank: 2, score: 850, achievedAt: 2000, isCurrentUser: true, displayName: "ぺるそなお" },
       ],
       currentUserOutsideTop: null,
     });
     await renderOverlay();
     await waitFor(() => expect(screen.getAllByText("あなた")).toHaveLength(1));
+    expect(screen.getByText("ぺるそなお")).toBeInTheDocument();
   });
 
-  it("current player outside TOP 10: renders a separate own-rank row", async () => {
+  it("current player outside TOP 10: renders a separate own-rank row with name and score", async () => {
     getWeeklyLeaderboard.mockResolvedValue({
       status: "success",
       periodId: "weekly_2026-W38",
       weekRange: WEEK_RANGE,
-      top: [{ rank: 1, score: 900, achievedAt: 1000, isCurrentUser: false }],
-      currentUserOutsideTop: { rank: 42, score: 120 },
+      top: [{ rank: 1, score: 900, achievedAt: 1000, isCurrentUser: false, displayName: "テトマスター" }],
+      currentUserOutsideTop: { rank: 42, score: 120, displayName: "ぺるそなお" },
     });
     await renderOverlay();
     await waitFor(() => expect(screen.getByText("42位")).toBeInTheDocument());
     expect(screen.getByText("120")).toBeInTheDocument();
+    expect(screen.getAllByText("ぺるそなお")).toHaveLength(1);
   });
 
   it("H. long score: formats a large score with thousands separators without overflow markup", async () => {
@@ -95,7 +106,7 @@ describe("WeeklyRankingOverlay", () => {
       status: "success",
       periodId: "weekly_2026-W38",
       weekRange: WEEK_RANGE,
-      top: [{ rank: 1, score: 1234567, achievedAt: 1000, isCurrentUser: false }],
+      top: [{ rank: 1, score: 1234567, achievedAt: 1000, isCurrentUser: false, displayName: "テトマスター" }],
       currentUserOutsideTop: null,
     });
     await renderOverlay();
@@ -137,5 +148,76 @@ describe("WeeklyRankingOverlay", () => {
     const { onClose } = await renderOverlay();
     await userEvent.click(screen.getByText("閉じる"));
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  // Player Profile 1.0 Phase 1B (Issue #129) -- displayName rendering.
+  describe("displayName rendering", () => {
+    it("renders a Japanese displayName", async () => {
+      getWeeklyLeaderboard.mockResolvedValue({
+        status: "success",
+        periodId: "weekly_2026-W38",
+        weekRange: WEEK_RANGE,
+        top: [{ rank: 1, score: 575, achievedAt: 1000, isCurrentUser: false, displayName: "テトマスター" }],
+        currentUserOutsideTop: null,
+      });
+      await renderOverlay();
+      await waitFor(() => expect(screen.getByText("テトマスター")).toBeInTheDocument());
+    });
+
+    it("renders an ASCII displayName", async () => {
+      getWeeklyLeaderboard.mockResolvedValue({
+        status: "success",
+        periodId: "weekly_2026-W38",
+        weekRange: WEEK_RANGE,
+        top: [{ rank: 1, score: 575, achievedAt: 1000, isCurrentUser: false, displayName: "PizzaKing99" }],
+        currentUserOutsideTop: null,
+      });
+      await renderOverlay();
+      await waitFor(() => expect(screen.getByText("PizzaKing99")).toBeInTheDocument());
+    });
+
+    it("renders a 20-codepoint (max-length) name without breaking layout markup", async () => {
+      const longName = "ピ".repeat(20);
+      getWeeklyLeaderboard.mockResolvedValue({
+        status: "success",
+        periodId: "weekly_2026-W38",
+        weekRange: WEEK_RANGE,
+        top: [{ rank: 1, score: 575, achievedAt: 1000, isCurrentUser: false, displayName: longName }],
+        currentUserOutsideTop: null,
+      });
+      await renderOverlay();
+      const nameEl = await waitFor(() => screen.getByText(longName));
+      // The ellipsis/overflow guard is a CSS class, not conditional markup -- the same element
+      // always renders, and App.css's own .ranking-overlay__name rule (flex: 1, min-width: 0,
+      // overflow: hidden, text-overflow: ellipsis) is what keeps rank/score visible regardless
+      // of name length.
+      expect(nameEl).toHaveClass("ranking-overlay__name");
+      expect(screen.getByText("575")).toBeInTheDocument();
+    });
+
+    it("renders the fallback name (ななしピザ職人) for a legacy entry with no name", async () => {
+      getWeeklyLeaderboard.mockResolvedValue({
+        status: "success",
+        periodId: "weekly_2026-W38",
+        weekRange: WEEK_RANGE,
+        top: [{ rank: 1, score: 180, achievedAt: 1000, isCurrentUser: false, displayName: "ななしピザ職人" }],
+        currentUserOutsideTop: null,
+      });
+      await renderOverlay();
+      await waitFor(() => expect(screen.getByText("ななしピザ職人")).toBeInTheDocument());
+    });
+
+    it("renders the own-row displayName alongside the あなた badge, both visible", async () => {
+      getWeeklyLeaderboard.mockResolvedValue({
+        status: "success",
+        periodId: "weekly_2026-W38",
+        weekRange: WEEK_RANGE,
+        top: [{ rank: 2, score: 194, achievedAt: 1000, isCurrentUser: true, displayName: "ぺるそなお" }],
+        currentUserOutsideTop: null,
+      });
+      await renderOverlay();
+      await waitFor(() => expect(screen.getByText("ぺるそなお")).toBeInTheDocument());
+      expect(screen.getByText("あなた")).toBeInTheDocument();
+    });
   });
 });

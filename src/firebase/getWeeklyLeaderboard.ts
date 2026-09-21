@@ -15,6 +15,7 @@ import {
 import { getFirebaseApp } from "./client";
 import { getCurrentAuthUser } from "./auth";
 import { isoWeekId, jstWeekRange, type JstWeekRange } from "../shared/lunchRushPeriodIds";
+import { FALLBACK_DISPLAY_NAME } from "../shared/displayNameValidation";
 
 /**
  * Firebase Ranking 1.0 Phase 2A (Issue #87). The client's one read path for the weekly
@@ -52,6 +53,12 @@ export interface WeeklyLeaderboardEntry {
    *  `serverTimestamp()` sentinel hasn't resolved to a real Timestamp yet when read back. */
   achievedAt: number | null;
   isCurrentUser: boolean;
+  /** Player Profile 1.0 Phase 1B (Issue #129). Always a renderable string -- never missing or
+   *  empty: an entry written before this phase shipped, or with no `displayName` field for any
+   *  other reason, is resolved to `FALLBACK_DISPLAY_NAME` right here, so no caller needs its own
+   *  fallback logic (mirrors this module's own "never fail the caller" contract, just applied to
+   *  a single field instead of the whole result). */
+  displayName: string;
 }
 
 /**
@@ -69,6 +76,8 @@ export interface WeeklyLeaderboardEntry {
 export interface WeeklyLeaderboardCurrentUserRank {
   rank: number;
   score: number;
+  /** Same resolution as WeeklyLeaderboardEntry.displayName -- see that field's own comment. */
+  displayName: string;
 }
 
 export type GetWeeklyLeaderboardResult =
@@ -100,6 +109,15 @@ function toAchievedAtMillis(value: unknown): number | null {
   return value instanceof Timestamp ? value.toMillis() : null;
 }
 
+/** Player Profile 1.0 Phase 1B (Issue #129). An entry's `displayName` field was already
+ *  validated once, at submission time (functions/src/submitLunchRushScore.ts's own
+ *  `resolveDisplayNameSnapshot`) -- this is only a type/presence guard for a legacy entry
+ *  written before this phase shipped (no field at all) or any other unexpected shape, not a
+ *  second content-validation pass. */
+function resolveEntryDisplayName(value: unknown): string {
+  return typeof value === "string" && value.length > 0 ? value : FALLBACK_DISPLAY_NAME;
+}
+
 /**
  * Reads the current week's Lunch Rush leaderboard. `now` is overridable only for tests --
  * production callers always use the default (`Date.now()`), matching every other Phase 1B/2A
@@ -124,6 +142,7 @@ export async function getWeeklyLeaderboard(now: number = Date.now()): Promise<Ge
       score: entrySnapshot.data().score as number,
       achievedAt: toAchievedAtMillis(entrySnapshot.data().achievedAt),
       isCurrentUser: uid !== null && entrySnapshot.id === uid,
+      displayName: resolveEntryDisplayName(entrySnapshot.data().displayName),
     }));
 
     let currentUserOutsideTop: WeeklyLeaderboardCurrentUserRank | null = null;
@@ -132,7 +151,11 @@ export async function getWeeklyLeaderboard(now: number = Date.now()): Promise<Ge
       if (ownSnapshot.exists()) {
         const ownScore = ownSnapshot.data().score as number;
         const higherCount = await getCountFromServer(query(entriesRef, where("score", ">", ownScore)));
-        currentUserOutsideTop = { rank: higherCount.data().count + 1, score: ownScore };
+        currentUserOutsideTop = {
+          rank: higherCount.data().count + 1,
+          score: ownScore,
+          displayName: resolveEntryDisplayName(ownSnapshot.data().displayName),
+        };
       }
     }
 

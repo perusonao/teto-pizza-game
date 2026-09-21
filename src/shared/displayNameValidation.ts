@@ -9,6 +9,16 @@
  * precedent exactly.
  */
 
+/** Player Profile 1.0 Phase 1B (Issue #129). Every reader of a player's name -- Settings' own
+ *  current-name display (Phase 1A) and the weekly ranking's denormalized snapshot (Phase 1B,
+ *  functions/src/submitLunchRushScore.ts + src/firebase/getWeeklyLeaderboard.ts) -- falls back
+ *  to this exact string for a player with no `users/{uid}` document, an empty/missing
+ *  `displayName`, or (defensively, on the ranking read path) a legacy/malformed value that no
+ *  longer passes this file's own validation contract. Lives here (not src/firebase/) so
+ *  functions/src/submitLunchRushScore.ts can import it without pulling in any Firebase SDK, the
+ *  same reason the validation contract itself lives here. */
+export const FALLBACK_DISPLAY_NAME = "ななしピザ職人";
+
 export const DISPLAY_NAME_MIN_CODEPOINTS = 1;
 export const DISPLAY_NAME_MAX_CODEPOINTS = 20;
 /** A cheap bound on the raw, unnormalized input, checked before any other (more expensive)
