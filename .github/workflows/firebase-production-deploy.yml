@@ -15,9 +15,9 @@ on:
   workflow_dispatch:
     inputs:
       target:
-        description: "Deploy target"
+        description: "Deploy target (verify = read-only WIF/auth check, no build/test/deploy step runs at all)"
         type: choice
-        options: [functions, firestore, all]
+        options: [functions, firestore, all, verify]
         default: functions
 
 permissions:
@@ -81,13 +81,20 @@ jobs:
         # before any install/build/deploy step runs. Design doc section 8. `.firebaserc` does
         # not exist in CI (gitignored) and is never relied on -- every `firebase` invocation in
         # this workflow passes `--project "$FIREBASE_PROJECT_ID"` explicitly.
+        #
+        # This step alone is also `target: verify`'s entire purpose: a real, live,
+        # production-safe proof that GitHub OIDC -> Workload Identity Federation ->
+        # google-github-actions/auth -> this exact service account can authenticate and read
+        # (never write) against `teto-pizza-game`, with no build/test/deploy step reachable
+        # afterward for that target value (every step below this one is gated on
+        # `target == 'functions' | 'firestore' | 'all'`, which `verify` never matches).
         run: firebase projects:list --project "$FIREBASE_PROJECT_ID"
 
       - name: npm ci (root)
         # Needed for both branches below: the `src/shared` test (functions/all) and the
         # Firestore rules emulator test's own dependencies (`@firebase/rules-unit-testing`,
-        # vitest.rules.config.ts) (firestore/all) -- every `target` value needs one of these,
-        # so this step is unconditional rather than duplicated per branch.
+        # vitest.rules.config.ts) (firestore/all). Skipped for `verify`, which needs neither.
+        if: ${{ inputs.target != 'verify' }}
         run: npm ci
 
       - name: functions -- npm ci
@@ -157,6 +164,13 @@ jobs:
             echo "| functions | ${{ (inputs.target == 'functions' || inputs.target == 'all') && 'yes' || 'no' }} | ${{ steps.deploy_functions.outcome || 'skipped' }} |"
             echo "| firestore (rules + indexes) | ${{ (inputs.target == 'firestore' || inputs.target == 'all') && 'yes' || 'no' }} | ${{ steps.deploy_firestore.outcome || 'skipped' }} |"
             echo ""
+            if [ "${{ inputs.target }}" = "verify" ]; then
+              echo "**Read-only WIF/auth verification only.** No build, test, or deploy step ran."
+              echo "If the \"Project-ID guard (preflight)\" step above succeeded, GitHub OIDC ->"
+              echo "Workload Identity Federation -> google-github-actions/auth -> the"
+              echo "\`github-actions-deploy\` service account successfully authenticated and read"
+              echo "(never wrote) against \`teto-pizza-game\`."
+            fi
             if [ "${{ inputs.target }}" = "all" ]; then
               echo "\`all\` is explicitly non-atomic: functions and firestore are two independent"
               echo "deploy steps. If functions succeeded and firestore failed (or was skipped due"
