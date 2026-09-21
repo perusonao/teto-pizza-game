@@ -43,6 +43,40 @@ export async function paintSauceRing(page: Page, radiusPercent: number, count: n
   }
 }
 
+/**
+ * PR-A (Issue #167 §7/Merge Gate follow-up): a real physical-drag mouse gesture -- pointerdown
+ * on a tray chip, move past the drag-intent threshold (src/logic/pieceDrag.ts,
+ * PIECE_DRAG_THRESHOLD_PX), then glide to a dough-percent target and release to commit the drop.
+ * Used by the short-viewport regression (e2e/making-ui-1screen.spec.ts) to confirm pointer/drop
+ * coordinates stay correct once PizzaStage's own height-aware `min()` term (App.css) actually
+ * shrinks the dough below its `vw`/px caps, not just at the two shipped 390x844/360x800
+ * viewports where that term never binds.
+ */
+export async function physicalDragToDough(
+  page: Page,
+  chipNameRegex: RegExp,
+  xPercent: number,
+  yPercent: number,
+) {
+  const chip = page.getByRole("button", { name: chipNameRegex });
+  const chipBox = await chip.boundingBox();
+  if (!chipBox) throw new Error("Draggable chip missing");
+  const startX = chipBox.x + chipBox.width / 2;
+  const startY = chipBox.y + chipBox.height / 2;
+  const { box } = await doughBox(page);
+  const targetX = box.x + (xPercent / 100) * box.width;
+  const targetY = box.y + (yPercent / 100) * box.height;
+  await page.mouse.move(startX, startY);
+  await page.mouse.down();
+  await page.mouse.move(startX + 2, startY - 10, { steps: 3 });
+  const steps = 10;
+  for (let i = 1; i <= steps; i += 1) {
+    const t = i / steps;
+    await page.mouse.move(startX + (targetX - startX) * t, startY - 10 + (targetY - (startY - 10)) * t);
+  }
+  await page.mouse.up();
+}
+
 export async function cutThreeLines(page: Page) {
   const { cx, cy, r } = await doughBox(page);
   for (const angleDeg of [0, 60, 120]) {

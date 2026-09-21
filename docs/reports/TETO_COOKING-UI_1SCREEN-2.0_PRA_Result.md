@@ -144,8 +144,8 @@ verdict.
 
 ```css
 .pizza-stage--roomy .pizza-dough {
-  width: min(92vw, 380px, calc(100dvh - 423px));
-  height: min(92vw, 380px, calc(100dvh - 423px));
+  width: min(92vw, 380px, calc(100dvh - 430px));
+  height: min(92vw, 380px, calc(100dvh - 430px));
 }
 .pizza-stage--compact .pizza-dough {
   width: min(76vw, 290px, calc(100dvh - 439px));
@@ -153,8 +153,11 @@ verdict.
 }
 ```
 
+(Roomy's reserve was revised from 423px to 430px during the Merge Gate follow-up, §1.7 below, after
+a short-viewport probe found the real `.bake-overlay` height 4px taller than originally assumed.)
+
 `100dvh` already tracks Safari's own dynamic toolbar (§1.3); the reserve constants (439px compact /
-423px roomy) are fixed, documented budgets for "everything in that step that is not the dough"
+430px roomy) are fixed, documented budgets for "everything in that step that is not the dough"
 (CSS cannot read a sibling's live rendered height without JS) calibrated from this PR's own real
 measurements plus a deliberate margin — see the CSS comments for the exact derivation. At both
 390×844 and 360×800 today, the `vw`/px terms still win (confirmed by measurement, §5 — no visible
@@ -179,18 +182,109 @@ same already-existing local consts (`cutRequiredCount`, `state.cutState.lines.le
 `cutConfirmReady`) the disabled CTA's own `disabled` attribute already used. **No new game state.**
 Confirmed live in the CUT screenshot (§4) and both videos.
 
-## 2. Changed files
+### 1.7 Merge Gate follow-up (WebKit attempt + short-height verification)
+
+**WebKit could not be installed — genuine network-policy block, not a missing-package issue.**
+Per the Merge Gate instructions, this follow-up first confirmed the exact Playwright version
+(`1.56.1`) and its expected WebKit revision (`2215`, from `playwright-core`'s own
+`browsers.json`), then ran `PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers npx playwright install
+webkit` targeting the same path the pre-installed Chromium already lives in. The download itself
+was rejected by this session's own egress proxy, not by Playwright or any package/dependency
+problem:
 
 ```
- e2e/making-ui-1screen.spec.ts                                      |  43 +++++++++
+Error: Download failed: server returned code 403 body 'request blocked: no rule or allowlist
+entry allows host "cdn.playwright.dev"'
+Error: Download failed: server returned code 403 body 'request blocked: no rule or allowlist
+entry allows host "playwright.download.prss.microsoft.com"'
+```
+
+Confirmed via the proxy's own status endpoint (`curl http://127.0.0.1:34975/__agentproxy/status`):
+both hosts are absent from the session's `noProxy` allowlist, and `recentRelayFailures` records
+both as `connect_rejected` / `"gateway answered 403 to CONNECT (policy denial or upstream
+failure)"`. The proxy's own operating instructions (`/root/.ccr/README.md`) are explicit for this
+exact failure class: *"The destination host is not allowed by your organization's egress policy
+for this session. Do not retry or route around it — report the blocked host."* Per that instruction
+and the Merge Gate's own "推測でPASSにせずSTOPして、その具体的制約を報告" clause, this was not
+retried further, worked around, or reported as a PASS. **This is an environment/session-level
+network policy constraint, not a code, config, or Playwright-version problem** — the two WebKit
+projects committed in `playwright.config.ts` are correct and ready to run unmodified in any
+session/environment where these two hosts (or a pre-provisioned WebKit binary) are reachable.
+
+**Short-height shrink-path verification (independent of WebKit, fully executed).** §1.5's own
+height-aware `min()` term was verified directly with a Chromium probe at **390×650** — a viewport
+390px shorter than either shipped target, chosen specifically to make `calc(100dvh - <reserve>)`
+the binding term instead of the `vw`/px caps:
+
+| Step | Dough size (390×650) | vs. shipped 390×844 size | Binding term |
+|---|---:|---:|---|
+| DOUGH/SAUCE/CHEESE/TOPPING (`--compact`) | 211×211px | 290×290px | height (`650 − 439 = 211`) |
+| BAKE/POST_BAKE/CUT (`--roomy`) | 220×220px | 358.8×358.8px | height (`650 − 430 = 220`) |
+
+This is direct, measured proof the shrink path is real, not merely present-but-inert code — the
+dough is genuinely 27%/39% smaller at this height than at the shipped viewports, strictly below
+both `vw`/px ceilings (290px / 358.8px). All Acceptance checks for this verification:
+
+- **PizzaStage actually shrinks**: confirmed above (both a `toBeLessThan` assertion against each
+  step's own `vw`/px ceiling in the new permanent test, and the raw measured values in the table).
+- **No negative/invalid size**: both widths are positive, sane numbers (asserted `> 0` in the new
+  test); no `NaN`/zero/negative dough was ever observed.
+- **No overlap**: `assertOneScreen`/`assertNavFitsViewport` (the same helpers already covering
+  every other viewport in this suite) passed at every one of the 6 steps at 390×650, including the
+  `MIN_SAFETY_MARGIN_PX = 8` floor.
+- **Pointer coordinate remains correct**: a real physical-drag mouse gesture (mozzarella chip →
+  dough, at the shrunk 211px size) placed the piece correctly (`.pizza-topping--mozzarella` count
+  = 1, confirming the drop resolved against the live, smaller rect, not a stale cached size); a
+  3-line CUT drag at the shrunk 220px BAKE/CUT dough produced exactly 3 `.pizza-cut-line` elements
+  at the dragged positions.
+- **CTA accessible**: `.prepare-bake-bar` (PREPARE/CUT steps) and `.bake-overlay`'s own 取り出す！
+  button (BAKE step) both remained on-screen and reachable at every step.
+
+**One real finding, fixed, not just reported:** the first probe run found BAKE's own vertical
+margin at 390×650 was only **2.3px** — under this PR's own 8px floor. Root cause: the roomy
+reserve constant (423px) assumed `.bake-overlay`'s own height at 205px (from the 390×844
+measurement, §1.5's original derivation); the real, measured height at 390×650 is 209px, 4px
+taller. **Fixed** by revising the reserve to 430px (`src/App.css`, §1.5) — re-measured after the
+fix: BAKE's margin at 390×650 is now **9.3px**, above the floor. **Confirmed zero visual effect at
+either shipped viewport** by re-measuring both after the fix: 390×844 BAKE dough is still exactly
+358×358.8px (bottom `570.5`, margin `64.5px` — byte-identical to §4's original table); 360×800 BAKE
+dough is still exactly 328×331.2px (margin `48.1px` — byte-identical to §5's original table). Since
+the shipped/videoed viewports are provably unaffected, **the existing Human Verification videos
+(§8) were reused, not regenerated** — see §8's own updated note.
+
+**Made permanent**: `e2e/making-ui-1screen.spec.ts` gained a new
+`"PizzaStage height-aware sizing: shrink path actually engages below either shipped viewport"`
+test at 390×650, using a new `physicalDragToDough` helper (`e2e/gestures.ts`) for the drag-and-drop
+half of the check. Decision to make this permanent (task explicitly left this to Fresh judgment):
+this code path (the height-aware `min()` term) had **zero** prior test coverage of any kind before
+this follow-up — every other test in this suite runs at 390×844/360×800/361×800, where §1.5's own
+measurement already showed the term never binds — so without this test, a future change that
+silently broke the shrink path (e.g. a typo in the `calc()`, or a reserve constant edited without
+re-deriving it) would have no regression net at all. The test is cheap (~5s) and self-contained.
+
+## 2. Changed files
+
+Original PR-A push:
+
+```
  playwright.config.ts                                                |  18 +++++
  src/App.css                                                         | 113 +++++++++++++++++-----
  src/components/IngredientTray.tsx                                   |  31 ++++++-
  src/data/hints.ts                                                   |  10 +-
  src/index.css                                                       |  12 +++
  src/screens/GameScreen.tsx                                          |  10 ++
+ e2e/making-ui-1screen.spec.ts                                       |  43 +++++++++
  docs/reports/screenshots/cooking-ui-1screen-2.0-pr-a/*.png (10 files, new)
  17 files changed, 206 insertions(+), 31 deletions(-)
+```
+
+Merge Gate follow-up push (this update, §1.7):
+
+```
+ e2e/gestures.ts               |  34 ++++++++++++
+ e2e/making-ui-1screen.spec.ts |  91 ++++++++++++++++++++++++++-
+ src/App.css                   |  14 +++--
+ 3 files changed, 134 insertions(+), 5 deletions(-)
 ```
 
 No changes to `.github/workflows/*`, scoring (`src/logic/scoring*`, `scoringV2/**`), economy,
@@ -206,9 +300,10 @@ only read from).
 | `npm run lint` (oxlint) | clean |
 | Full Vitest (`npm test`) | **2088/2088 passed** (112 files) — unchanged from Phase 0 baseline |
 | `npm run build` | clean (pre-existing >500kB chunk-size warning, unrelated) |
-| Playwright Chromium, both projects (390×844/360×800), full suite | **30/30 passed** |
-| Playwright Chromium, `making-ui-1screen.spec.ts` incl. this PR's new `MIN_SAFETY_MARGIN_PX` assertions, both projects, both 390×844 and 361×800 in-test viewports | **10/10 passed** |
-| Playwright WebKit | see §7 — genuinely unavailable in this session's environment, not skipped/assumed |
+| Playwright Chromium, both projects (390×844/360×800), full suite | **32/32 passed** (30 original + 2 new: the short-height test on each project) |
+| Playwright Chromium, `making-ui-1screen.spec.ts` incl. `MIN_SAFETY_MARGIN_PX` assertions, both projects, both 390×844 and 361×800 in-test viewports | **10/10 passed** |
+| Playwright Chromium, new 390×650 short-height shrink-path test | **PASS** (both projects) — see §1.7 |
+| Playwright WebKit | **Blocked by network egress policy**, confirmed via direct install attempt + proxy status, not skipped/assumed — see §1.7/§7 |
 
 `e2e/making-ui-1screen.spec.ts`'s `assertOneScreen`/`assertNavFitsViewport` were extended with a
 `MIN_SAFETY_MARGIN_PX = 8` floor (§1.1/§1.2's own methodology corrections) so a future regression
@@ -248,22 +343,46 @@ sauce paint, mozzarella tap-placement, CUT gesture, full round completion) plus 
 physical-drag mouse gestures for mozzarella/basil, plus dough stretch/sauce paint/CUT line drag) —
 every gesture landed where dragged, at the new height-aware dough sizes. No `PizzaStage.*.test.tsx`
 (dough-stretch/sauce-parity/cut-gesture/bake-visual/sauce-reset/stage-layout) needed any change.
+**Merge Gate follow-up (§1.7)** additionally confirmed this holds at 390×650, where the height-aware
+term actually binds (unlike every viewport above): both a physical-drag drop and a 3-line CUT drag
+landed correctly against the shrunk, live dough rect.
 
 ## 7. WebKit verification
 
 `playwright.config.ts` gained two WebKit projects (`webkit-390x844`/`webkit-360x800`,
-`devices["Desktop Safari"]`) for this PR's own local verification, per Issue #167 §13. **WebKit is
-not installed in this Claude Code cloud session's environment** — confirmed by directly attempting a
-run (`browserType.launch: Executable doesn't exist at /opt/pw-browsers/webkit-2215/pw_run.sh`), not
-assumed or skipped. Per this environment's own operating rules, `playwright install` may not be run
-here to fetch it. This is reported as a genuine environment limitation, not a PASS — WebKit
-verification remains open for PR-C (or any environment/session with WebKit already available) to
-actually execute; the two projects are committed and ready to run there unmodified.
+`devices["Desktop Safari"]`) for this PR's own local verification, per Issue #167 §13.
+
+**Merge Gate follow-up (§1.7): WebKit installation was attempted and is confirmed blocked by this
+session's own network egress policy, not merely "not installed."** Playwright version `1.56.1`,
+expected WebKit revision `2215` (from `playwright-core/browsers.json`) — `npx playwright install
+webkit` was run targeting the same `PLAYWRIGHT_BROWSERS_PATH` the pre-installed Chromium lives in,
+and failed with `403` responses from the session's egress proxy for both of Playwright's download
+hosts (`cdn.playwright.dev`, `playwright.download.prss.microsoft.com`), confirmed independently via
+the proxy's own status endpoint (`recentRelayFailures`: `connect_rejected` / policy denial for both
+hosts). Per the proxy's own operating instructions ("do not retry or route around it — report the
+blocked host") and the Merge Gate's own "STOP and report the concrete constraint" instruction, this
+was not retried, faked, or silently reported as a PASS. **This is an environment/session network
+policy boundary, not a code or Playwright-version issue** — the committed `webkit-390x844`/
+`webkit-360x800` projects need no further change to run in any environment where these two hosts
+(or a pre-provisioned WebKit binary at the expected path) are reachable; see §12 for the PR-C/
+environment-level handoff.
 
 ## 8. Human Verification
 
 Per `docs/decisions/TETO_HUMAN-VERIFICATION-POLICY.md`. All three delivered directly to the user
 this session (file-transfer, not git) — **never committed to the repository.**
+
+**Merge Gate follow-up (§1.7): reused, not regenerated.** The only production CSS change in this
+follow-up (the roomy reserve constant, `src/App.css`) was re-measured after the change at both
+shipped viewports and found byte-identical to the original PR-A push's own numbers (390×844 BAKE
+dough still exactly 358×358.8px; 360×800 BAKE dough still exactly 328×331.2px — see §1.7's own
+table). Since neither shipped/videoed viewport's rendered output changed at all, the three videos
+below (recorded against the original push) remain an accurate representation of the current HEAD's
+actual on-screen behavior at 390×844/360×800; regenerating them would have re-recorded pixel-
+identical content. The new 390×650 short-height behavior they do *not* cover is instead verified by
+the new permanent Playwright test (§1.7) — a viewport that short has no real-device Human
+Verification requirement of its own (it exists purely to exercise a safety-net code path, not a
+shipped user-facing viewport).
 
 | Video | Viewport | Duration | Resolution | Codec | Size | Scenario |
 |---|---|---:|---|---|---:|---|
@@ -299,14 +418,14 @@ this PR did *not* chase).
 
 ## 10. Known limitations
 
-- **WebKit could not actually be run this session** (§7) — committed and ready, not yet executed.
-- **PizzaStage's height-aware `min()` term never actually engaged at 390×844/360×800** in this
-  session's measurements (the `vw`/px terms still win at both) — it is a real safety net for a
-  shorter real `100dvh` than these viewports provide (Safari toolbar shown, etc.), but that specific
-  path is unverified against an actual shrunk viewport in this session (WebKit unavailable to
-  simulate it, and no `100dvh`-shrinking real device in this environment). A future session could
-  verify it directly by setting a Playwright viewport shorter than either shipped target (e.g.
-  390×700) and confirming the dough shrinks below its `vw`/px cap without breaking interaction.
+- **WebKit could not actually be run in this session — confirmed blocked by network egress policy**
+  (§1.7/§7), not merely "not installed": the download itself is rejected (`403`) by this session's
+  own proxy for both of Playwright's WebKit download hosts. Committed and ready to run unmodified
+  in any environment where those hosts (or a pre-provisioned binary) are reachable.
+- ~~PizzaStage's height-aware `min()` term never actually engaged~~ — **resolved this follow-up**:
+  directly verified via a 390×650 Chromium probe (§1.7) that the term genuinely binds and shrinks
+  the dough, with correct interaction (physical drag + CUT line drag) and margin (≥8px after the
+  roomy reserve fix), now a permanent regression test.
 - **The empty space below the ingredient tray on several steps** (visible in the TOPPING screenshot,
   §9) was not further compacted — Phase 0/this PR's own scope is "no scroll, tabs fit, deliberate
   margin", not eliminating all empty space; `App.css`'s own pre-existing comment
@@ -331,11 +450,15 @@ presentational layer) — it does not need to be redone there.
 
 ## 12. PR-C handoff (Verification Hardening — not built here)
 
-- Actually **run** the WebKit projects this PR added to `playwright.config.ts`, in an environment
-  where WebKit is installed (§7).
-- Consider asserting the height-aware `min()` term's own shrink path directly (§10's second bullet)
-  at a viewport shorter than 390×844/360×800.
+- Actually **run** the WebKit projects this PR added to `playwright.config.ts`, in an
+  environment/session whose egress policy allows `cdn.playwright.dev`/
+  `playwright.download.prss.microsoft.com` (or that has WebKit pre-provisioned) — this is an
+  environment-level prerequisite this PR's own session could not clear (§1.7/§7), not a code gap;
+  no further implementation work is needed on this repository's side once that's true.
 - Wire a CI-safe subset of this margin/overflow verification into `.github/workflows/ci.yml` if
   desired — deliberately not done by this PR (`playwright.config.ts`'s own file header still says
   "Deliberately NOT wired into `npm test` or `.github/workflows/ci.yml`", unchanged; workflow
   changes are explicitly out of this PR's own scope guard).
+
+The short-height shrink-path check (§1.7) is no longer a PR-C item — it shipped as a permanent test
+in this follow-up.

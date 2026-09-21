@@ -1,5 +1,12 @@
 import { test, expect, type Page } from "@playwright/test";
-import { completeDoughStep, paintSauceRing, playFullMargheritaRound, tapDoughPercent } from "./gestures";
+import {
+  completeDoughStep,
+  cutThreeLines,
+  paintSauceRing,
+  physicalDragToDough,
+  playFullMargheritaRound,
+  tapDoughPercent,
+} from "./gestures";
 
 /**
  * Issue #159 (Cooking UI 1-Screen Polish) regression suite. Complements the existing
@@ -234,5 +241,87 @@ test.describe("Full round regression (Issue #159): margherita still completes en
     await page.waitForTimeout(200);
     await expect(page.locator(".result-panel")).toBeVisible();
     expect(errors, `console errors: ${errors.join(", ")}`).toHaveLength(0);
+  });
+});
+
+/**
+ * PR-A (Issue #167 §7) Merge Gate follow-up: PizzaStage's `--compact`/`--roomy` dough sizing
+ * gained a third, height-aware `min()` term (`calc(100dvh - <reserve>)`, App.css) as a safety net
+ * for a shorter real Safari visual viewport (toolbar shown, etc.) -- but at both shipped targets,
+ * 390x844/360x800, the pre-existing `vw`/px terms still win, so that new term never actually
+ * engages in the rest of this suite. This block drives a viewport short enough (390x650, well
+ * below either shipped target) that the height term *does* bind, to directly confirm: the dough
+ * actually shrinks below its `vw`/px cap (not stuck at the old size); the resulting size is
+ * positive/sane, not zero or negative; nothing overlaps; a physical-drag placement and a CUT line
+ * drag both land where dragged at the new, smaller live rect; and the same `MIN_SAFETY_MARGIN_PX`
+ * floor every other viewport in this file is held to still holds here too.
+ */
+test.describe("PizzaStage height-aware sizing: shrink path actually engages below either shipped viewport", () => {
+  test("390x650: dough shrinks via the height term, stays interactive and within safety margin", async ({
+    page,
+  }) => {
+    test.setTimeout(30_000);
+    await freshMargheritaAt(page, 390, 650);
+
+    async function doughSize() {
+      const box = await page.locator(".pizza-dough").boundingBox();
+      expect(box, "dough must have a bounding box").not.toBeNull();
+      expect(box!.width, "dough width must be positive").toBeGreaterThan(0);
+      expect(box!.height, "dough height must be positive").toBeGreaterThan(0);
+      return box!.width;
+    }
+
+    // Compact ceiling at 390px width is min(76vw=296.4, 290) = 290 -- the height term
+    // (650 - 439px reserve = 211) must be strictly smaller, i.e. actually binding, not just
+    // coincidentally equal to the vw/px cap.
+    const doughWidthCompact = await doughSize();
+    expect(
+      doughWidthCompact,
+      "390x650 DOUGH: height-aware term must actually shrink the dough below its vw/px cap (290px)",
+    ).toBeLessThan(290);
+    await assertOneScreen(page, "390x650 DOUGH");
+    await assertNavFitsViewport(page, "390x650 DOUGH");
+
+    await completeDoughStep(page);
+    await page.getByRole("button", { name: /次へ/ }).click();
+    await assertOneScreen(page, "390x650 SAUCE");
+    await page.getByRole("button", { name: /トマトソース/ }).click();
+    await paintSauceRing(page, 25, 16);
+    await page.getByRole("button", { name: /次へ/ }).click();
+    await assertOneScreen(page, "390x650 CHEESE");
+
+    // Physical drag at the shrunk dough size -- the drop must actually land (pointer math reads
+    // the live, smaller rect, not a stale cached size from before the shrink).
+    await physicalDragToDough(page, /モッツァレラ/, 50, 50);
+    await expect(page.locator(".pizza-topping--mozzarella")).toHaveCount(1);
+    await tapDoughPercent(page, 35, 60);
+    await tapDoughPercent(page, 65, 60);
+    await page.getByRole("button", { name: /次へ/ }).click();
+    await assertOneScreen(page, "390x650 TOPPING");
+    if (await page.getByRole("button", { name: /バジル/ }).count()) {
+      await physicalDragToDough(page, /バジル/, 45, 55);
+      await physicalDragToDough(page, /バジル/, 55, 45);
+    }
+
+    await page.getByRole("button", { name: /焼く/ }).click();
+    // Roomy ceiling at 390px width is min(92vw=358.8, 380) = 358.8 -- the height term
+    // (650 - 430px reserve = 220) must again actually bind.
+    const doughWidthRoomy = await doughSize();
+    expect(
+      doughWidthRoomy,
+      "390x650 BAKE: height-aware term must actually shrink the roomy dough below its vw/px cap (358.8px)",
+    ).toBeLessThan(358.8);
+    await assertOneScreen(page, "390x650 BAKE");
+    await assertNavFitsViewport(page, "390x650 BAKE");
+
+    await page.waitForTimeout(1300);
+    await page.getByRole("button", { name: "取り出す！" }).click();
+    await assertOneScreen(page, "390x650 POST_BAKE/CUT");
+    await assertNavFitsViewport(page, "390x650 POST_BAKE/CUT");
+
+    // CUT line drag at the shrunk dough size -- same pointer-accuracy concern as the physical
+    // drag above, for the other gesture family (drag-across rather than drag-and-drop).
+    await cutThreeLines(page);
+    await expect(page.locator(".pizza-cut-line")).toHaveCount(3);
   });
 });

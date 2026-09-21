@@ -261,10 +261,16 @@
    CSS formula's literal value (Phase 0 report §6). */
 .pizza-stage--roomy .pizza-dough {
   /* Reserve = header(56) + tabs(44) + dialogue-area(108, BAKE's own worst case) +
-     bake-overlay(205) + 10px slack = 423px. (POST_BAKE/CUT's own sibling stack is shorter, so
-     this same reserve is conservative -- not tight -- there too.) */
-  width: min(92vw, 380px, calc(100dvh - 423px));
-  height: min(92vw, 380px, calc(100dvh - 423px));
+     bake-overlay(209, PR-A Merge Gate follow-up: measured 209px in practice, 4px over the
+     205px this constant originally assumed) + 12px slack = 429px, rounded up to 430px.
+     (POST_BAKE/CUT's own sibling stack is shorter, so this same reserve is conservative -- not
+     tight -- there too.) Verified via a short-viewport probe (390x650, well below either shipped
+     target) that this reserve keeps >=8px of real vertical margin once the shrink path actually
+     engages, not just at the two shipped viewports where this term never binds in the first
+     place (confirmed unchanged there by the same probe, both x-terms still win at 390x844/
+     360x800 with this reserve). */
+  width: min(92vw, 380px, calc(100dvh - 430px));
+  height: min(92vw, 380px, calc(100dvh - 430px));
 }
 
 /* Gameplay UX Phase 1: PREPARE-only real-device safety margin, see PizzaStage.tsx's own
