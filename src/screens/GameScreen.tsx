@@ -192,6 +192,14 @@ export function GameScreen({
   // SAUCE/CHEESE have no completion gate today, so this is unconditionally true for them.
   const nextStepReady = state.makingStep !== "DOUGH" || doughShapeComplete;
 
+  // Visual Polish 2.0A (Finding P1-1): PREPARE/BAKE/CUT get a larger PizzaStage (see that
+  // prop's own doc comment in PizzaStage.tsx) -- every other phase (ORDER/RESULT/DISCOVERED)
+  // keeps the exact pre-2.0A size, out of this pass's scope.
+  const roomyStage =
+    state.phase === "PREPARE" ||
+    state.phase === "BAKE" ||
+    (state.phase === "POST_BAKE" && state.makingStep === "CUT");
+
   // Pizza Cutting 1.0 Phase 2 (design doc §8.4): mirrors `nextStepReady`'s own "UI-only
   // completion gate, reducer never assumes it" role for CUT's own "切り終わる" CTA -- the
   // reducer's own CONFIRM_MAKING_STEP re-checks this exact threshold independently (the real
@@ -393,6 +401,7 @@ export function GameScreen({
         onDoughStretchCommit={onDoughStretchCommit}
         cutState={state.cutState}
         onAddCutLine={onAddCutLine}
+        roomy={roomyStage}
       />
 
       {/* Pizza Cutting 1.0 Phase 2 (design doc §8.1/§8.4): progress readout + the CUT step's own

@@ -201,6 +201,30 @@
   transition: filter 0.4s ease;
 }
 
+/* ---------- Visual Polish 2.0A (Finding P1-1): roomy PizzaStage ----------
+   PREPARE/BAKE/CUT used to render `.pizza-dough` at a fixed min(78vw, 300px), regardless of
+   how much of `.game-screen` (already a flex column, min-height:0, flex:1 in .app-frame) sat
+   empty below it -- the single most reproducible finding of the Phase 0 audit: 45-55% of the
+   viewport left as flat background on every one of these steps, at both 390x844 and 360x800.
+
+   A flex-grow `.pizza-stage` was tried first (letting it absorb 100% of the leftover column
+   height), but on a phone-width viewport the circle's own diameter is bounded by *width*
+   (78vw is already ~300-340px, well under any of these steps' available height) -- flex-grow
+   just re-centered the same-size circle inside a much taller box, opening an equally large gap
+   *above* it (between `.order-card` and the dough) instead of below it. That reads worse, not
+   better: the pizza now looks like it's floating disconnected from the recipe info above it,
+   breaking exactly the "pizza -> 操作 -> 次のアクション" top-to-bottom reading order this pass
+   is meant to strengthen. Reverted in favor of a plain, larger *static* cap -- `.pizza-stage`
+   keeps its pre-2.0A "hug its own content, right under the order card" flow position, and the
+   circle itself claims meaningfully more of the reclaimed space, at both viewports, without
+   moving anything else. Deliberately scoped to a modifier class, not `.pizza-stage` itself --
+   ORDER's small preview and RESULT's own hero (Finding P1-5, out of this pass's scope) keep
+   the exact pre-2.0A size. */
+.pizza-stage--roomy .pizza-dough {
+  width: min(92vw, 380px);
+  height: min(92vw, 380px);
+}
+
 .pizza-dough--interactive {
   cursor: pointer;
   /* Pointer gestures (tap + sauce-paint drag) are handled by hand, scoped to the dough

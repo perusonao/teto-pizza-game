@@ -127,6 +127,14 @@ interface PizzaStageProps {
    *  (already constructed by `buildRimToRimCutLine` below). Never fired for a cancelled/
    *  discarded gesture or a tap with no real drag. */
   onAddCutLine: (line: CutLine) => void;
+  /** Visual Polish 2.0A (Finding P1-1): purely presentational sizing hint for the outer
+   *  `.pizza-stage` wrapper -- never touches gesture math (pointer coordinates stay
+   *  percent-of-rendered-box via `clientPointToDoughPercent`, see pizzaCoordinates.ts, so
+   *  they track whatever size CSS actually renders regardless of this flag). `true` for
+   *  PREPARE/BAKE/CUT (App.css's `.pizza-stage--roomy`, a larger static cap on `.pizza-dough`);
+   *  `false` (the default) keeps ORDER's small preview and RESULT's own hero (Finding P1-5,
+   *  out of this pass's scope) at the exact pre-2.0A size. */
+  roomy?: boolean;
 }
 
 interface GestureState {
@@ -189,6 +197,7 @@ export function PizzaStage({
   onDispenseCommit,
   cutState,
   onAddCutLine,
+  roomy = false,
 }: PizzaStageProps) {
   const circleRef = useRef<HTMLDivElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
@@ -1059,8 +1068,10 @@ export function PizzaStage({
     }
   }, [showSauceHeatmap, effectiveDeposits, fieldSauceColor, pizza.doughShape]);
 
+  const stageClassName = `pizza-stage ${roomy ? "pizza-stage--roomy" : ""}`;
+
   return (
-    <div className="pizza-stage">
+    <div className={stageClassName}>
       <div
         ref={setDoughElement}
         data-pizza-drop-target="true"
