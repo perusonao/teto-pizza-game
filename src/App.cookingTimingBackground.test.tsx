@@ -115,6 +115,36 @@ async function paintSauceRing(
   }
 }
 
+// Pizza Cutting 1.0 Phase 4B: bismarck is now CUT-eligible (../data/cookingProfiles.ts), so
+// 取り出す！ lands on POST_BAKE/CUT instead of RESULT directly -- these tests only care about
+// Cooking Time's own pause bookkeeping, already finalized by CONFIRM_BAKE/START_BAKE's timing
+// boundary, so completing CUT at the same mocked `now` (zero additional elapsed time) and
+// confirming is enough to reach RESULT without perturbing any of this suite's own assertions.
+// Mirrors App.test.tsx's own `completeCutStepIfPresent` helper.
+async function completeCutStepIfPresent(user: ReturnType<typeof userEvent.setup>) {
+  if (!screen.queryByRole("button", { name: /切り終わる/ })) return;
+  const dough = document.querySelector<HTMLElement>('[data-pizza-drop-target="true"]');
+  if (!dough) throw new Error("Pizza dough missing");
+  dough.getBoundingClientRect = () =>
+    ({ left: 0, top: 0, width: 300, height: 300, right: 300, bottom: 300, x: 0, y: 0, toJSON: () => {} }) as DOMRect;
+  const center = 150;
+  const radius = 140;
+  for (const angleDeg of [0, 60, 120]) {
+    const angle = (angleDeg * Math.PI) / 180;
+    const dx = Math.cos(angle) * radius;
+    const dy = Math.sin(angle) * radius;
+    const startX = center - dx;
+    const startY = center - dy;
+    const endX = center + dx;
+    const endY = center + dy;
+    const pointerId = Math.floor(Math.random() * 1_000_000);
+    fireEvent.pointerDown(dough, { pointerId, isPrimary: true, pointerType: "touch", clientX: startX, clientY: startY });
+    fireEvent.pointerMove(dough, { pointerId, isPrimary: true, pointerType: "touch", clientX: endX, clientY: endY });
+    fireEvent.pointerUp(dough, { pointerId, isPrimary: true, pointerType: "touch", clientX: endX, clientY: endY });
+  }
+  await user.click(screen.getByRole("button", { name: /切り終わる/ }));
+}
+
 /** Drives BakeOverlay's needle to an exact value before confirming -- see App.test.tsx's own
  *  `controlBakeNeedle` doc comment for the full rationale (stubs `requestAnimationFrame`/
  *  `performance.now`, independent of this file's own `Date.now` stub for Cooking Time). */
@@ -199,6 +229,7 @@ describe("Cooking Time CT2: background (visibilitychange/blur) exclusion", () =>
     await user.click(screen.getByRole("button", { name: /焼く/ })); // START_BAKE finalizes at `now`
     needle1.driveTo(65); // bismarck's {55, 75} target zone
     await user.click(screen.getByRole("button", { name: "取り出す！" }));
+    await completeCutStepIfPresent(user);
     needle1.unstub();
 
     // 5s + 3s active = 8s total -- the 30s background span is excluded entirely.
@@ -230,6 +261,7 @@ describe("Cooking Time CT2: background (visibilitychange/blur) exclusion", () =>
     await user.click(screen.getByRole("button", { name: /焼く/ }));
     needle.driveTo(65); // bismarck's {55, 75} target zone
     await user.click(screen.getByRole("button", { name: "取り出す！" }));
+    await completeCutStepIfPresent(user);
     needle.unstub();
 
     // 4s + 6s active = 10s total -- the 20s hidden span is excluded.
@@ -260,6 +292,7 @@ describe("Cooking Time CT2: overlay pause (Reference popover)", () => {
     await user.click(screen.getByRole("button", { name: /焼く/ }));
     needle.driveTo(65); // bismarck's {55, 75} target zone
     await user.click(screen.getByRole("button", { name: "取り出す！" }));
+    await completeCutStepIfPresent(user);
     needle.unstub();
 
     // 2s + 6s active = 8s total -- the 15s Reference-open span is excluded.
@@ -296,6 +329,7 @@ describe("Cooking Time CT2: overlapping pause reasons never resume prematurely",
     await user.click(screen.getByRole("button", { name: /焼く/ }));
     needle.driveTo(65); // bismarck's {55, 75} target zone
     await user.click(screen.getByRole("button", { name: "取り出す！" }));
+    await completeCutStepIfPresent(user);
     needle.unstub();
 
     // 1s (before Reference opened) + 4s (after Reference actually closed) = 5s total. The whole

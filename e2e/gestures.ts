@@ -231,6 +231,99 @@ export async function startQuattroFormaggiHeavyInventory(page: Page) {
  * Seeds localStorage via `page.addInitScript`, not goto -> evaluate(setItem) -> reload -- see
  * `startQuattroFormaggiHeavyInventory` above's own comment for why the latter is not WebKit-safe.
  */
+/**
+ * Pizza Cutting 1.0 Phase 4B (Full Recipe Expansion): a synthetic save satisfying capricciosa's
+ * own deep chain unlock (`unlockCondition: { requiresRecipeId: "breakfast-pizza",
+ * minTotalStars: 33 }`, src/data/recipes.ts) directly via localStorage -- the full
+ * margherita -> funghi -> marinara -> bismarck -> genovese -> quattro-formaggi -> fugazza ->
+ * salsiccia -> pepperoni -> napoletana -> tonno-e-cipolla -> pizza-bianca -> breakfast-pizza
+ * chain (13 recipes), each discovered at bestStars 3 (39 total, clears the 33 floor). Chosen as
+ * the E2E "topping-heavy" scenario fixture (5 non-sauce ingredient types / 8 total pieces,
+ * PIECE_RING_POSITIONS' own shared ceiling, matching quattro-formaggi/meat-lovers) per the
+ * Phase 4B task brief's own suggestion. `ownedIngredientIds`/`inventory` cover exactly
+ * capricciosa's own `requiredIngredients` beyond the two Starter ones (tomato-sauce/mozzarella,
+ * always owned): mushroom/oregano/ham/black-olive.
+ */
+export async function startCapricciosaUnlocked(page: Page) {
+  const chain = [
+    "margherita",
+    "funghi",
+    "marinara",
+    "bismarck",
+    "genovese",
+    "quattro-formaggi",
+    "fugazza",
+    "salsiccia",
+    "pepperoni",
+    "napoletana",
+    "tonno-e-cipolla",
+    "pizza-bianca",
+    "breakfast-pizza",
+  ];
+  const save = {
+    schemaVersion: 2,
+    dex: chain.map((recipeId) => ({
+      recipeId,
+      discovered: true,
+      bestScore: 70,
+      bestStars: 3,
+      timesMade: 1,
+    })),
+    pitzBalance: 500,
+    ownedIngredientIds: ["mushroom", "oregano", "ham", "black-olive"],
+    missionBest: {},
+    inventory: { mushroom: 99, oregano: 99, ham: 99, "black-olive": 99 },
+    starterGrantClaimedRecipeIds: chain,
+  };
+
+  await page.addInitScript((rawSave) => {
+    localStorage.setItem("teto-pizza-save-v1", JSON.stringify(rawSave));
+  }, save);
+  await page.goto("/");
+  await page.waitForSelector(".app-frame");
+  await page.getByRole("button", { name: /ピザを作る/ }).click();
+  await page.getByRole("button", { name: /カプリチョーザ、/ }).click();
+  await page.getByRole("button", { name: /このピザを作る/ }).click();
+  await page.waitForSelector(".pizza-stage");
+}
+
+/** Drives a full capricciosa round (topping-heavy: mozzarella + mushroom/oregano/ham/
+ *  black-olive, 8 total non-sauce pieces) from PREPARE/DOUGH through to RESULT, real UI
+ *  gestures throughout, mirroring `playFullMargheritaRound`'s own shape. */
+export async function playFullCapricciosaRound(page: Page) {
+  await completeDoughStep(page);
+  await page.getByRole("button", { name: /次へ/ }).click();
+
+  await page.getByRole("button", { name: /トマトソース/ }).click();
+  await paintSauceRing(page, 25, 16);
+  await page.getByRole("button", { name: /次へ/ }).click();
+
+  await page.getByRole("button", { name: /モッツァレラ/ }).click();
+  await tapDoughPercent(page, 35, 45);
+  await tapDoughPercent(page, 65, 45);
+  await page.getByRole("button", { name: /次へ/ }).click();
+
+  await page.getByRole("button", { name: /マッシュルーム/ }).click();
+  await tapDoughPercent(page, 30, 60);
+  await tapDoughPercent(page, 70, 60);
+  await page.getByRole("button", { name: /オレガノ/ }).click();
+  await tapDoughPercent(page, 50, 35);
+  await page.getByRole("button", { name: /^.*ハム/ }).click();
+  await tapDoughPercent(page, 50, 65);
+  await page.getByRole("button", { name: /ブラックオリーブ/ }).click();
+  await tapDoughPercent(page, 40, 50);
+  await tapDoughPercent(page, 60, 50);
+
+  await page.getByRole("button", { name: /焼く/ }).click();
+  await page.waitForTimeout(1300);
+  await page.getByRole("button", { name: "取り出す！" }).click();
+
+  if (await page.getByRole("button", { name: /切り終わる/ }).count()) {
+    await cutThreeLines(page);
+    await page.getByRole("button", { name: /切り終わる/ }).click();
+  }
+}
+
 export async function startSalsicciaUnlocked(page: Page) {
   const save = {
     schemaVersion: 2,

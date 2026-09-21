@@ -160,23 +160,34 @@ describe("Making-step nav consistency across phases (Issue #159 P0, margherita =
 });
 
 describe("Non-cut recipes never show a CUT tab, at any phase (regression)", () => {
-  // marinara itself is locked behind progression (requiresRecipeId: "funghi") with a fresh
-  // EMPTY_DEX, so it can't be reached via SELECT_RECIPE from createInitialGameState() the way
-  // the margherita fixtures above do -- this only needs a `recipe`/`cookingProfile` matching a
-  // real non-cut recipe for GameScreen to render against, so it overrides those two fields
-  // directly onto an otherwise-real baked margherita state (mirrors IngredientTray.palette.
-  // test.tsx's own `requireExactly` override pattern) rather than fighting the unlock chain.
+  // Pizza Cutting 1.0 Phase 4B (Full Recipe Expansion): every currently shipped recipe --
+  // including marinara, this test's own original fixture -- is now CUT-eligible
+  // (../data/cookingProfiles.ts's CUT_ELIGIBLE_RECIPE_IDS), so no real RecipeId can stand in
+  // for "a non-CUT recipe" anymore. This uses a synthetic id (a real Recipe's shape, marinara's
+  // own, with only `id` swapped to one deliberately absent from the allowlist) standing in for a
+  // future not-yet-eligible recipe (e.g. a non-round special shape) -- `getCookingProfile`
+  // resolves it to DEFAULT_COOKING_PROFILE exactly like any other absent-allowlist id. Overrides
+  // `recipe`/`cookingProfile` directly onto an otherwise-real baked margherita state (mirrors
+  // IngredientTray.palette.test.tsx's own `requireExactly` override pattern) rather than
+  // fighting the real unlock chain, which this test has no interest in.
   const marinaraFixture = getRecipe("marinara");
   if (!marinaraFixture) throw new Error("marinara fixture missing");
-  const marinara: Recipe = marinaraFixture;
+  const syntheticNonCutRecipe: Recipe = {
+    ...marinaraFixture,
+    id: "synthetic-non-cut-recipe-not-yet-eligible" as Recipe["id"],
+  };
 
-  function bakingMarinara(): GameState {
+  function bakingSyntheticNonCutRecipe(): GameState {
     const state = bakingMargherita();
-    return { ...state, recipe: marinara, cookingProfile: getCookingProfile(marinara.id) };
+    return {
+      ...state,
+      recipe: syntheticNonCutRecipe,
+      cookingProfile: getCookingProfile(syntheticNonCutRecipe.id),
+    };
   }
 
-  it("a non-margherita recipe's own BAKE screen shows the nav strip with no CUT tab (4 tabs only)", () => {
-    const state = bakingMarinara();
+  it("a non-CUT-eligible recipe's own BAKE screen shows the nav strip with no CUT tab (4 tabs only)", () => {
+    const state = bakingSyntheticNonCutRecipe();
     expect(state.phase).toBe("BAKE");
     renderAt(state);
     expect(screen.queryByRole("tab", { name: "カット" })).not.toBeInTheDocument();
@@ -184,7 +195,7 @@ describe("Non-cut recipes never show a CUT tab, at any phase (regression)", () =
   });
 
   it("RESULT: the nav strip is gone entirely (this issue's own scope is the pre-RESULT flow) -- a non-cut recipe reaches RESULT directly from BAKE, with no POST_BAKE screen in between", () => {
-    const state = gameReducer(bakingMarinara(), { type: "CONFIRM_BAKE", value: 70 });
+    const state = gameReducer(bakingSyntheticNonCutRecipe(), { type: "CONFIRM_BAKE", value: 70 });
     expect(state.phase).toBe("RESULT");
     renderAt(state);
     expect(screen.queryByRole("tablist")).not.toBeInTheDocument();

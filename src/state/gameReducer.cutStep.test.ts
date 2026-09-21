@@ -1,14 +1,28 @@
 import { describe, expect, it } from "vitest";
 import { createInitialGameState, gameReducer, type GameState } from "./gameReducer";
-import { getCookingProfile } from "../data/cookingProfiles";
-import { EMPTY_DEX, registerScoreToDex } from "./dex";
+import { DEFAULT_COOKING_PROFILE, getCookingProfile } from "../data/cookingProfiles";
 import { requiredCutCount } from "../logic/cut/evaluation";
-import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
 import { MIN_CUT_ANGULAR_SEPARATION_RADIANS } from "../logic/cut/geometry";
 import { DOUGH_CENTER, DOUGH_RADIUS } from "../logic/pizzaCoordinates";
 import { buildIdealMargheritaSauceFixture, MARGHERITA_REFERENCE } from "../data/referencePizza";
+import { createCutState } from "../logic/cut/state";
+import { getRecipe, type Recipe, type RecipeId } from "../data/recipes";
 import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
+
+/** Pizza Cutting 1.0 Phase 4B (Full Recipe Expansion): every real, shipped `RecipeId` is now
+ *  CUT-eligible (../data/cookingProfiles.ts's `CUT_ELIGIBLE_RECIPE_IDS`), so no real recipe can
+ *  stand in as "a non-CUT recipe" fixture anymore -- this synthetic id (a real Recipe's shape,
+ *  funghi's own, with only `id` swapped) stands in for a future not-yet-eligible recipe instead,
+ *  the same synthetic-fixture pattern ../../screens/GameScreen.makingStepNav.test.tsx and
+ *  ../data/cookingProfiles.test.ts both use for the same reason. `getCookingProfile` resolves it
+ *  to `DEFAULT_COOKING_PROFILE` exactly like any other id absent from the allowlist. */
+const funghiFixture = getRecipe("funghi");
+if (!funghiFixture) throw new Error("funghi fixture missing");
+const SYNTHETIC_NON_CUT_RECIPE: Recipe = {
+  ...funghiFixture,
+  id: "synthetic-non-cut-recipe-not-yet-eligible" as RecipeId,
+};
 
 /**
  * Pizza Cutting 1.0 Phase 2 (docs/design/TETO_PIZZA-CUTTING_1.0.md): reducer-level integration
@@ -72,10 +86,12 @@ describe("1/3. margherita's real production CookingProfile resolves CUT as its p
 });
 
 describe("4/30. non-CUT recipes: BAKE -> RESULT unaffected (regression)", () => {
-  it("every recipe but margherita still resolves DEFAULT_COOKING_PROFILE (no CUT)", () => {
-    // Pinned exhaustively in ../data/cookingProfiles.test.ts -- spot-checked here against the
-    // actual reducer boundary this phase touches.
-    const profile = getCookingProfile("funghi");
+  it("a synthetic id absent from the CUT-eligibility allowlist still resolves DEFAULT_COOKING_PROFILE (no CUT)", () => {
+    // Pizza Cutting 1.0 Phase 4B: every real RecipeId is now CUT-eligible (pinned exhaustively
+    // in ../data/cookingProfiles.test.ts) -- this spot-checks the actual reducer-facing
+    // `getCookingProfile` boundary against a synthetic not-yet-eligible id instead.
+    const profile = getCookingProfile(SYNTHETIC_NON_CUT_RECIPE.id);
+    expect(profile).toBe(DEFAULT_COOKING_PROFILE);
     expect(profile.steps).not.toContain("CUT");
   });
 });
@@ -88,26 +104,32 @@ describe("5. cutState is created fresh every round", () => {
     expect(state.cutState.config.requestedSliceCount).toBe(6);
   });
 
-  it("a non-CUT recipe still gets a defined (inert) cutState -- never undefined/null", () => {
-    // funghi's own unlockCondition requires margherita discovered first -- seed the Dex directly
-    // so SELECT_RECIPE actually succeeds (isRecipeAvailable), rather than silently no-opping.
-    const dexWithMargherita = registerScoreToDex(EMPTY_DEX, "margherita", {
-      matchScore: 80,
-      ingredientScore: 80,
-      placementScore: 80,
-      bakeScore: 80,
-      total: 80,
-      stars: 3,
-    }).dex;
-    let state = createInitialGameState(dexWithMargherita, [...STARTER_INGREDIENT_IDS, "mushroom"]);
-    state = gameReducer(state, { type: "SELECT_RECIPE", recipeId: "funghi" });
+  it("a non-CUT-eligible recipe still gets a defined (inert) cutState -- never undefined/null", () => {
+    // Pizza Cutting 1.0 Phase 4B: no real RecipeId can reach PREPARE via SELECT_RECIPE while
+    // resolving to DEFAULT_COOKING_PROFILE anymore (every one is CUT-eligible) -- this instead
+    // constructs the same PREPARE-phase shape SELECT_RECIPE produces, directly overriding
+    // `recipe`/`cookingProfile`/`cutState` onto a real prepared round the same way
+    // ../../screens/GameScreen.makingStepNav.test.tsx's own synthetic-recipe fixture does.
+    // `buildOrderState`'s own `createCutState(cookingProfile.cutConfig)` call (gameReducer.ts)
+    // is unconditional regardless of which recipe/profile it is given -- this pins that same
+    // "always defined, even when cutConfig is absent" contract directly.
+    let state = preparedMargheritaState();
+    const cookingProfile = getCookingProfile(SYNTHETIC_NON_CUT_RECIPE.id);
+    state = {
+      ...state,
+      recipe: SYNTHETIC_NON_CUT_RECIPE,
+      cookingProfile,
+      cutState: createCutState(cookingProfile.cutConfig),
+    };
     expect(state.phase).toBe("PREPARE");
-    expect(state.recipe.id).toBe("funghi");
+    expect(state.recipe.id).toBe(SYNTHETIC_NON_CUT_RECIPE.id);
+    expect(state.cookingProfile).toBe(DEFAULT_COOKING_PROFILE);
     expect(state.cutState).toBeDefined();
     expect(state.cutState.lines).toEqual([]);
-    // Inert: funghi's own profile never lists "CUT", so this default config is simply never
-    // read by anything -- ADD_CUT_LINE/CONFIRM_MAKING_STEP's own CUT gate is unreachable for
-    // funghi regardless of what this resolves to (see the ADD_CUT_LINE rejection tests below).
+    // Inert: this synthetic recipe's own profile never lists "CUT", so this default config is
+    // simply never read by anything -- ADD_CUT_LINE/CONFIRM_MAKING_STEP's own CUT gate is
+    // unreachable for it regardless of what this resolves to (see the ADD_CUT_LINE rejection
+    // tests below).
     expect(state.cutState.evaluation).toBeNull();
   });
 });
@@ -131,9 +153,21 @@ describe("10. ADD_CUT_LINE/UNDO_CUT_LINE are no-ops outside POST_BAKE's own CUT 
     expect(after).toBe(state);
   });
 
-  it("ADD_CUT_LINE during a non-CUT recipe's PREPARE (no post-BAKE step at all) is rejected", () => {
-    let state = createInitialGameState();
-    state = gameReducer(state, { type: "SELECT_RECIPE", recipeId: "funghi" });
+  it("ADD_CUT_LINE during a non-CUT-eligible recipe's PREPARE (no post-BAKE step at all) is rejected", () => {
+    // Pizza Cutting 1.0 Phase 4B: every real RecipeId SELECT_RECIPE can actually reach is now
+    // CUT-eligible, so this overrides recipe/cookingProfile/cutState directly onto a real
+    // prepared round, the same synthetic-fixture pattern used above -- ADD_CUT_LINE's own
+    // reducer guard (`phase === "POST_BAKE" && makingStep === "CUT"`) rejects this regardless of
+    // profile, but this keeps the fixture itself honestly non-CUT rather than relying on an
+    // unrelated phase/unlock-chain accident.
+    let state = preparedMargheritaState();
+    const cookingProfile = getCookingProfile(SYNTHETIC_NON_CUT_RECIPE.id);
+    state = {
+      ...state,
+      recipe: SYNTHETIC_NON_CUT_RECIPE,
+      cookingProfile,
+      cutState: createCutState(cookingProfile.cutConfig),
+    };
     const after = gameReducer(state, { type: "ADD_CUT_LINE", line: idealCutLine(0, 3) });
     expect(after).toBe(state);
   });

@@ -51,27 +51,81 @@ export const DEFAULT_COOKING_PROFILE: CookingProfile = {
 };
 
 /**
- * Pizza Cutting 1.0 Phase 2 (docs/design/TETO_PIZZA-CUTTING_1.0.md §18/§13): the first, deliberately
- * minimal real activation -- exactly one recipe (`margherita`, the design doc's own first
- * candidate) carries a non-default profile, adding `"CUT"` as its one post-BAKE step with the
- * Phase 1 design's own shipping target (`requestedSliceCount: 6`, §3.2). Every other recipe still
- * resolves to `DEFAULT_COOKING_PROFILE` -- byte-identical `BAKE -> RESULT` for all 14 of them,
- * unchanged by this phase (see gameReducer.cookingSteps.test.ts's own regression pins).
+ * Pizza Cutting 1.0 Phase 4B (Full Recipe Expansion, see
+ * docs/reports/TETO_PIZZA-CUTTING_Phase3_Expansion_Fresh-Audit.md §4 Option C): an explicit,
+ * opt-in CUT-eligibility allowlist. CUT eligibility is a *gameplay-shape* decision (a standard
+ * round, single-piece, single-bake pizza compatible with the existing Pizza Cutting 1.0
+ * ideal-circle geometry, ../logic/cut/geometry.ts's own `DOUGH_CENTER`/`DOUGH_RADIUS`
+ * assumption), never inferred from a recipe's id/name. A recipe added to `RECIPES` (../data/
+ * recipes.ts) with no entry here -- the normal way every recipe has been added so far -- never
+ * inherits CUT; someone must deliberately add its id below after confirming its shape actually
+ * fits. This is the same safety property Phase 2's single-entry `COOKING_PROFILES` Map already
+ * had (opt-in, never a `DEFAULT_COOKING_PROFILE` default), extended to every recipe that is
+ * *actually eligible* rather than hand-authoring one repeated 4-line entry per recipe.
+ *
+ * Fresh Audit result (Phase 4B): all 15 recipes shipped as of this phase are standard round,
+ * single-piece, single-bake pizzas sharing the identical circular-dough contract every DOUGH/
+ * SAUCE/TOPPING gesture already uses (confirmed against ../data/recipes.ts and
+ * ../data/referencePizza.ts) -- none uses `FOLD`/`SEAL`/`EDGE_FILL` (reserved `MakingStep`
+ * members with zero recipe/reducer wiring today). So all 15 are listed here. A future non-round
+ * recipe (calzone, fugazzeta, mezza-e-mezza, siciliana, square pizza) must NOT be added until a
+ * human deliberately re-confirms its shape fits this engine's ideal-circle scoring.
  */
-const COOKING_PROFILES: ReadonlyMap<RecipeId, CookingProfile> = new Map([
-  [
-    "margherita",
-    {
-      steps: ["DOUGH", "SAUCE", "CHEESE", "TOPPING", "CUT"],
-      cutConfig: { requestedSliceCount: 6 },
-    },
-  ],
+const CUT_ELIGIBLE_RECIPE_IDS: ReadonlySet<RecipeId> = new Set<RecipeId>([
+  "margherita",
+  "marinara",
+  "quattro-formaggi",
+  "genovese",
+  "bismarck",
+  "funghi",
+  "fugazza",
+  "salsiccia",
+  "pepperoni",
+  "napoletana",
+  "tonno-e-cipolla",
+  "pizza-bianca",
+  "breakfast-pizza",
+  "capricciosa",
+  "meat-lovers",
 ]);
 
-/** Absent map entry -> `DEFAULT_COOKING_PROFILE`, mirroring `getReferencePizza`'s own
- *  absent-entry contract (../data/referencePizza.ts). */
+/** Every CUT-eligible recipe uses this shared config unless overridden below -- Phase 4B's Fresh
+ *  Audit found no existing authoritative rule for a non-6 slice count on any shipped recipe, so
+ *  inventing per-recipe variety here would not be grounded in anything real. */
+const STANDARD_CUT_CONFIG: CutConfig = { requestedSliceCount: 6 };
+
+function withCut(steps: readonly MakingStep[], cutConfig: CutConfig): CookingProfile {
+  return { steps: [...steps, "CUT"], cutConfig };
+}
+
+/** Reserved per-recipe override point, checked before the allowlist derivation below -- for a
+ *  future CUT-eligible recipe that needs something other than `STANDARD_CUT_CONFIG` (e.g. a
+ *  large-format recipe wanting 8 slices), without hand-duplicating its whole `steps` array the
+ *  way a flat per-recipe Map would require. Empty today: no shipped recipe needs a non-standard
+ *  `CutConfig`. */
+const COOKING_PROFILE_OVERRIDES: ReadonlyMap<RecipeId, CookingProfile> = new Map([]);
+
+/** Test-only re-export of `COOKING_PROFILE_OVERRIDES` (../data/cookingProfiles.test.ts) -- lets
+ *  the override mechanism itself be asserted on without exposing the real map as a general
+ *  production import. */
+export const COOKING_PROFILE_OVERRIDES_TEST_ONLY = COOKING_PROFILE_OVERRIDES;
+
+/** Absent map/allowlist entry -> `DEFAULT_COOKING_PROFILE`, mirroring `getReferencePizza`'s own
+ *  absent-entry contract (../data/referencePizza.ts). `DEFAULT_COOKING_PROFILE` itself is never
+ *  mutated to add CUT -- see the module doc-comment above `CUT_ELIGIBLE_RECIPE_IDS`. */
 export function getCookingProfile(recipeId: RecipeId): CookingProfile {
-  return COOKING_PROFILES.get(recipeId) ?? DEFAULT_COOKING_PROFILE;
+  const override = COOKING_PROFILE_OVERRIDES.get(recipeId);
+  if (override) return override;
+  if (CUT_ELIGIBLE_RECIPE_IDS.has(recipeId)) {
+    return withCut(DEFAULT_COOKING_PROFILE.steps, STANDARD_CUT_CONFIG);
+  }
+  return DEFAULT_COOKING_PROFILE;
+}
+
+/** Exported for exhaustive test coverage only (../data/cookingProfiles.test.ts) -- production
+ *  code should call `getCookingProfile`, never read this set directly. */
+export function isCutEligible(recipeId: RecipeId): boolean {
+  return CUT_ELIGIBLE_RECIPE_IDS.has(recipeId);
 }
 
 /**
