@@ -291,9 +291,19 @@ visible, RESULT/serve visible where required, no obvious clipping/scroll regress
 
 ## Known limitations
 
-- WebKit CI passed on `9628847` (see the WebKit evidence above for both run URLs), but not from a
-  direct in-sandbox run — confirmed via GitHub Actions, the authoritative source per this task's
-  own network-policy constraint.
+- WebKit CI passed on `9628847` **and again on `fe91db8`** (see the WebKit evidence above for
+  both run URLs), but not from a direct in-sandbox run — confirmed via GitHub Actions, the
+  authoritative source per this task's own network-policy constraint, and now two-for-two.
+- `bakeToTarget`'s pause-then-read-remaining-then-runFor approach (`e2e/gestures.ts`) is
+  correct by construction and passed real WebKit CI twice, but a local CDP
+  `Emulation.setCPUThrottlingRate` stress test at an extreme 10x slowdown (far harsher than any
+  real CI runner) still showed ~35% UNDERBAKED failures (20 runs) -- the opposite direction from
+  the OVERBAKED failures the fix actually targets, suggesting a small residual real-round-trip
+  timing sensitivity in the two-step "pause, then read the DOM" measurement itself (each step is
+  its own real CDP round trip). Not chased further this session since it did not reproduce on
+  real CI at any throttle level actually seen there; flagged here so a future session investigates
+  from real CI evidence first if this class of flake ever resurfaces there, rather than re-deriving
+  from scratch.
 - Video D's specific recipe (Marinara) was determined by Lunch Rush's own real random selection,
   not forced — this is by design (the task explicitly allows "smallest legitimate verification
   without changing production recipe selection just for the video"), but means a different session
