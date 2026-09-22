@@ -315,3 +315,146 @@ Committed under `docs/reports/screenshots/lunch-rush-result-phase4/`:
 - Consider a tie-broken exact rank for a current-user entry outside TOP10 sharing an exact score
   with another player (already flagged as a Phase 2B follow-up in `getWeeklyLeaderboard.ts`'s own
   comments, independent of achievedAt display).
+
+---
+
+## Addendum: Main Catch-up (PR #173 merge integration)
+
+PR #173 ("Pizza Cutting Phase 4B: Full Recipe Expansion") squash-merged to `main` while this PR
+was open (merge SHA `d3627a0cf911ab8009bc9cd4f64dd0c535327323`, previous `main` tip
+`4a3e6048de8a784477407a1b4f0ae26b2c36504d`), making this PR's original `mergeable_state: unstable`
+turn into an actual `dirty` (conflicted) state. This addendum documents catching this branch up to
+the new `main` and re-verifying every scope guard from scratch against the exact new head.
+
+### Fresh GitHub state at catch-up start
+
+- `origin/main`: `d3627a0cf911ab8009bc9cd4f64dd0c535327323` (PR #173's own squash-merge commit).
+- PR #173: **MERGED** (`merged: true`, `merged_by: perusonao`), not merely closed.
+- PR #175 (this PR) at catch-up start: HEAD `5ed4b197cf0251d43f4b82851cd5476e0eb45e84`,
+  `mergeable_state: "dirty"`, no reviews, no unresolved threads, one non-actionable bot comment
+  (Codex usage-limit notice, unrelated to code).
+
+### Rebase vs. merge decision
+
+Used **`git rebase origin/main`** (not a merge commit) — this branch (`claude/lunch-rush-phase4-
+results-3pucjd`) was created and is owned solely by this implementation session, never shared
+with or built upon by another contributor, so rewriting its own history carries none of the
+"don't rewrite someone else's branch" risk. A rebase also keeps this PR's diff a clean, linear
+set of commits against the new base rather than an extra merge commit muddying the PR's own
+history — the repo's existing convention (every prior PR on `main`, including PR #173's own,
+is a single squashed/rebased commit, never a merge commit).
+
+### Conflict: `e2e/gestures.ts` (mechanical shape, semantically reviewed)
+
+Exactly one file conflicted: **both PR #173 and PR #175 inserted new, mutually-independent
+helper functions at the identical insertion point** in `e2e/gestures.ts` (immediately before
+`startSalsicciaUnlocked`) — PR #173 added `bakeToTarget`/`startCapricciosaUnlocked`/
+`playFullCapricciosaRound`; PR #175 added `startLunchRushMission`/`failMissionOrderMissingSauce`.
+Git's diff3 conflict rendering additionally merged the two functions' identical trailing `}` line
+into one shared marker, which needed manually splitting back into two separate closing braces
+during resolution (not just accepting one "side").
+
+Resolved by keeping **both sets of helpers in full**, verified line-by-line against each PR's own
+diff (not a blind `git checkout --ours`/`--theirs`) — confirmed post-resolution via `grep -n
+"^export async function" e2e/gestures.ts` showing all 14 exported helpers present (7 pre-existing
++ `bakeToTarget`/`startCapricciosaUnlocked`/`playFullCapricciosaRound` from #173 +
+`startLunchRushMission`/`failMissionOrderMissingSauce` from #175 + `startSalsicciaUnlocked`), and
+that `bakeToTarget`'s own `page.clock` virtual-clock bake control (PR #173's deterministic-needle
+mechanism, its own file header explains at length why three earlier approaches all failed real
+WebKit CI) is byte-identical to PR #173's version — **not touched, not reverted**.
+
+### CUT + Lunch Rush integration: a genuine semantic regression found and fixed
+
+Running the full Chromium suite after the rebase surfaced a real interaction the conflict
+resolution alone couldn't catch: **`e2e/lunch-rush-result-ranking-phase4.spec.ts`'s own FAILED-
+serve scenario broke** (`.mission-serve-panel--failed` never appeared, 5s timeout) on both
+viewports.
+
+Root cause (traced in `src/state/gameReducer.ts`'s `CONFIRM_BAKE` case): the reducer decides
+`POST_BAKE` vs. `RESULT` purely from `postBakeSteps(cookingProfile).length > 0` — it has **never**
+consulted `completion.status`. Before PR #173, CUT (a POST_BAKE step) was margherita-only, so a
+FAILED bake for any of the other 14 recipes skipped POST_BAKE entirely and landed straight on
+RESULT. After PR #173 expanded CUT to all 15 recipes, **every** FAILED bake now also requires a
+real `cutRequiredCount`-line cut + "切り終わる" confirm (gated purely on `cutState.lines.length`,
+also never conditioned on `completion.status` — confirmed by reading `CONFIRM_MAKING_STEP`'s own
+CUT-confirm branch) before `state.phase` can ever reach `"RESULT"`, and therefore before
+`MissionServePanel`'s `--failed` variant can render at all. `e2e/gestures.ts`'s own
+`failMissionOrderMissingSauce` (written against the pre-#173 world) never accounted for this.
+
+This is a **real, current-main production behavior** (a FAILED/incomplete pizza still requires a
+physical CUT confirmation before the run can continue) — not a bug introduced by either PR and
+explicitly **not fixed in production code**, since Completion Gate semantics and CUT scoring are
+both out of this task's scope guard. The fix is entirely in the **E2E test helper**:
+`failMissionOrderMissingSauce` now performs the same `if (切り終わる visible) { cutThreeLines();
+confirm(); }` follow-through `playFullMargheritaRound` already used for a PASS round, so the test
+drives whatever step the real UI now shows. Re-ran the previously-broken spec afterward — green on
+both viewports (26.5s/26.4s, matching the original pre-catch-up timings almost exactly).
+
+### Post-catch-up regression results (fresh, not reused from before)
+
+- **Fresh Vitest total: 2225/2225 pass** (up from the original PR's 2175 — PR #173 alone added
+  2196, and the two PRs' additions are disjoint, so 2225 is the genuinely new, non-overlapping
+  total on the merged base). TypeScript: clean. Lint (oxlint): clean. Build: clean.
+- **Chromium Playwright, both `iphone-390x844`/`iphone-360x800`: 62/62 pass** — the full suite
+  now includes PR #173's own `e2e/pizza-cutting-phase4b.spec.ts` (18 tests, including its own
+  Scenario D "Lunch Rush eligible recipe -> CUT -> serve") alongside this PR's
+  `e2e/lunch-rush-result-ranking-phase4.spec.ts` (4 tests) and the pre-existing suites, with zero
+  regressions in either direction.
+- **WebKit**: not runnable in this sandbox (no browser binary) — GitHub Actions' own run on the
+  final pushed HEAD is authoritative; see the Final Report for the actual run status/URL.
+
+### Human Verification — new video + validity of existing A/B/C
+
+**New Video D (required)**: `video-d-lunch-rush-cut-integration-390x844.mp4` — 390×844, 51.16s,
+H.264/yuv420p (`ffprobe`-confirmed), 606,037 bytes, recorded via Playwright against this exact
+post-catch-up HEAD using a deliberately small 2-recipe fixture (margherita + funghi, mirroring PR
+#173's own Scenario D fixture, retried up to 6 times on a fresh Mission start until the first
+order was genuinely non-Margherita — margherita has no `unlockCondition` and can never be excluded
+from the pool). Shows, in order: HOME → ランチラッシュ → **フンギ** (non-Margherita, CUT-eligible)
+→ real DOUGH→SAUCE→CHEESE→TOPPING→BAKE gestures → **CUT step appears and is completed** (6-slice
+cut) → served (成功, cut-score row visible) → 次の注文へ → a second order (**ビスマルク**) driven
+through the missing-sauce path → **CUT step appears for the FAILED pizza too** (the exact
+integration this addendum's regression section documents) → 注文失敗 shown with the same 6-slice
+cut visible → 次の注文へ → real wall-clock Mission expiry → **RESULT: 2枚挑戦/成功1/失敗1/成功率
+50%/スコア163/+75 Pitz/ベスト更新!** → 🏠ホームへ. Frame-by-frame `ffmpeg` extraction confirmed the
+RESULT overlay is genuinely present in the video (captured at ~t=47s) in addition to a dedicated
+static screenshot taken at the exact same DOM state (this sandbox's Playwright/CDP screencast was
+observed dropping frames under load on two earlier attempts at this exact recording, hence the
+belt-and-suspenders static screenshot — see `result-non-margherita-cut-integration-390x844.png`,
+committed alongside the other three screenshots).
+
+**Existing Videos A/B/C validity**: re-assessed against the post-catch-up HEAD, not assumed valid
+from before.
+- **Video A** (Lunch Rush → PASS+FAILED → RESULT, margherita-pool) and **Video C** (360×800
+  constrained, 0-attempt edge case) both drove their flows through **margherita only** — the one
+  recipe whose CUT eligibility is unchanged by PR #173 (it was already CUT-eligible before). Their
+  underlying gesture sequences (`playFullMargheritaRound`, `reachLunchRushResult`'s
+  `?missionDuration=1` fixture) and the exact UI/stats they exercise are byte-identical to before
+  the catch-up, confirmed by this addendum's own full e2e re-run passing unchanged. **Still fully
+  valid** — no re-recording needed.
+- **Video B** (Weekly Ranking achievedAt) exercises `WeeklyRankingOverlay` with synthetic
+  DOM-injected rows, entirely unrelated to Lunch Rush/CUT gameplay. **Still fully valid.**
+
+### Scope guard (re-verified against the new head, not assumed)
+
+- Firebase leaderboard write schema: **unchanged** (diff-verified against `d3627a0`).
+- Cloud Functions (`functions/src/*`): **untouched** by this catch-up (only `e2e/gestures.ts` was
+  touched, and only to add a follow-through CUT-confirm step to an existing test helper).
+- `submitLunchRushScore` payload: **unchanged**.
+- Score formula / Pitz reward: **unchanged**.
+- Completion Gate semantics: **unchanged** — this catch-up's own fix is entirely test-side; the
+  production `CONFIRM_BAKE`/`CONFIRM_MAKING_STEP` gating this addendum documents is PR #173's own
+  pre-existing, already-merged behavior, not something this catch-up introduced or altered.
+- CUT scoring algorithm / CUT eligibility (`CUT_ELIGIBLE_RECIPE_IDS`): **untouched** — PR #173's
+  own expansion to all 15 recipes is preserved exactly as merged, not rolled back.
+- Recipe data: **untouched**.
+
+### Files changed by this catch-up (beyond the rebase itself)
+
+- `e2e/gestures.ts`: `failMissionOrderMissingSauce` gained a CUT-follow-through branch (test-only).
+- `docs/reports/screenshots/lunch-rush-result-phase4/result-non-margherita-cut-integration-390x844.png`:
+  new committed screenshot.
+- This Result Report: this addendum.
+
+No other file changed relative to the original PR #175 content — the rebase itself is a pure
+history rewrite onto the new base, not a content change to any of the original 18 files.

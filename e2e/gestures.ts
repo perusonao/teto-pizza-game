@@ -423,6 +423,16 @@ export async function startLunchRushMission(page: Page, durationSeconds: number)
  * order. Skips the real bake-timing wait `playFullMargheritaRound` uses for a PASS round --
  * completionGate.ts's own `PRIORITY_ORDER` always ranks a missing-ingredient failure above
  * UNDERBAKED/OVERBAKED, so the exact needle position at "取り出す！" never changes this outcome.
+ *
+ * Pizza Cutting 1.0 Phase 4B (Full Recipe Expansion, PR #173): `CONFIRM_BAKE` (src/state/
+ * gameReducer.ts) decides POST_BAKE vs. RESULT purely from `postBakeSteps(cookingProfile).length
+ * > 0` -- it never consults `completion.status` -- so now that CUT is eligible for all 15
+ * shipped recipes (previously margherita-only), a FAILED bake still lands on POST_BAKE/CUT and
+ * still requires a real `cutRequiredCount`-line cut + "切り終わる" confirm before `state.phase`
+ * ever reaches "RESULT" (and therefore before `MissionServePanel`'s own `--failed` variant can
+ * render) -- exactly the same real gesture `playFullMargheritaRound`'s own trailing CUT branch
+ * already performs for a PASS round. Completion Gate semantics/CUT scoring are untouched by this
+ * -- this only teaches the *test helper* to drive a step the real UI now shows more often.
  */
 export async function failMissionOrderMissingSauce(page: Page) {
   await completeDoughStep(page);
@@ -431,6 +441,11 @@ export async function failMissionOrderMissingSauce(page: Page) {
   await page.getByRole("button", { name: /次へ/ }).click(); // CHEESE -> TOPPING
   await page.getByRole("button", { name: /焼く/ }).click();
   await page.getByRole("button", { name: "取り出す！" }).click();
+
+  if (await page.getByRole("button", { name: /切り終わる/ }).count()) {
+    await cutThreeLines(page);
+    await page.getByRole("button", { name: /切り終わる/ }).click();
+  }
 }
 
 export async function startSalsicciaUnlocked(page: Page) {
