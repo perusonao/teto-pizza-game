@@ -1,7 +1,16 @@
-# Progression 2.0 — Phase 0 Full-Catalog Fresh Audit (Issue #182)
+# Progression 2.0 — Phase 0A Full-Catalog Fresh Audit (Issue #182)
 
-Status: **Phase 0 — audit / design only. No `src/**` change. No production Progression SSOT
+Status: **Phase 0A — audit / design only. No `src/**` change. No production Progression SSOT
 overwrite. No unlock threshold / Pitz price finalized. No merge to `main`.**
+
+**Relabeled Phase 0 → Phase 0A (unchanged content) at the PR #183 follow-up on 2026-09-22**, per
+the repository owner's explicit instruction after an externally-relayed PIZZA DB fetch (see
+`docs/reports/TETO_PROGRESS2_PHASE0B_EXTERNAL-VERIFICATION_HANDOFF.md`) reported a 172-entry
+population, larger than the 51-viable-recipe **existing-repo working population** this document
+analyzes. **Every number, table, and conclusion below is retained exactly as originally written
+and must be read as scoped to that 51-recipe / 62-ingredient existing-repo baseline — none of it
+(including "0 deadlock states" / "0 unreachable") is a claim about the full, owner-reported
+172-entry PIZZA DB population.** See the Phase 0B report for the full-population status.
 
 Audited `origin/main` SHA (via `git fetch origin` at session start): `70d85b4034f3b69f8902cce5e2cf319e9bca274d`
 (latest `main` commit: PR #181, "Gameplay UX PR-D: RESULT 1-Screen 2.0").
@@ -10,6 +19,7 @@ Companion Draft design doc: `docs/design/TETO_RECIPE-DISCOVERY-PROGRESSION_2.0.m
 Companion machine-readable output: `docs/reports/data/TETO_PROGRESS2_PHASE0_analysis-output.json`
 Companion tooling: `tools/progression2_phase0_analysis.py` (docs/data-only, not wired into CI,
 not referenced by `src/**`)
+Companion Phase 0B follow-up: `docs/reports/TETO_PROGRESS2_PHASE0B_EXTERNAL-VERIFICATION_HANDOFF.md`
 
 ---
 

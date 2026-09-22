@@ -1,13 +1,21 @@
-# TETO Recipe Discovery Progression 2.0 — Draft (Issue #182, Phase 0)
+# TETO Recipe Discovery Progression 2.0 — Draft (Issue #182, Phase 0A/0B)
 
 Status: **Draft — comparison/candidate document only. Does NOT overwrite
 `docs/design/PIZZA_GAME_PROGRESSION_SSOT.md`, which remains the current production SSOT.**
 No unlock threshold, no Pitz price, no final ingredient/recipe roster is confirmed by this
 document. Nothing here is implemented in `src/**`.
 
-Companion audit: `docs/reports/TETO_PROGRESS2_PHASE0_FULL-CATALOG_FRESH-AUDIT.md`
-Companion machine-readable data: `docs/reports/data/TETO_PROGRESS2_PHASE0_analysis-output.json`
-Companion tooling: `tools/progression2_phase0_analysis.py`
+**Phase 0B update (2026-09-22)**: §2.1's recipe-identity-collision finding is now corroborated
+by an externally-relayed PIZZA DB sample set — see
+`docs/reports/TETO_PROGRESS2_PHASE0B_EXTERNAL-VERIFICATION_HANDOFF.md` §4 and the new §10 below.
+Everything else in this Draft (§1–§9) was written against the Phase 0A 51-recipe working
+population and is retained unchanged; it is not a full-172-population claim.
+
+Companion audit (Phase 0A): `docs/reports/TETO_PROGRESS2_PHASE0_FULL-CATALOG_FRESH-AUDIT.md`
+Companion audit (Phase 0B): `docs/reports/TETO_PROGRESS2_PHASE0B_EXTERNAL-VERIFICATION_HANDOFF.md`
+Companion machine-readable data: `docs/reports/data/TETO_PROGRESS2_PHASE0_analysis-output.json`,
+`docs/reports/data/TETO_PROGRESS2_PHASE0B_analysis-output.json`
+Companion tooling: `tools/progression2_phase0_analysis.py`, `tools/progression2_phase0b_analysis.py`
 
 ---
 
@@ -169,3 +177,58 @@ rationale and rejected alternatives: audit report §7.
    discipline.
 6. Exact tier boundaries / thresholds / Pitz prices for §6's skeleton — explicitly deferred past
    this Phase 0 per Issue #182.
+
+## 10. Phase 0B: does recipe identity need more than an ingredient set?
+
+**Finding: yes, confirmed by evidence found independently in both Phase 0A and Phase 0B, not
+just a theoretical concern.**
+
+`tools/progression2_phase0b_analysis.py`'s exact-ingredient-set collision check (run over both
+the Phase 0A-only pool and the Phase 0A+0B combined 64-recipe pool — see the Phase 0B report §5)
+found **3 collision groups**, unchanged in count between the two pools (the new Phase 0B sample
+`trenton-tomato-pie-pizzadb` joined an existing group rather than creating a new one):
+
+| Exact ingredient set | Colliding recipes | Real-world distinguishing trait (not ingredient-based) |
+|---|---|---|
+| `{mozzarella, pepperoni, tomato-sauce}` | `pepperoni` (**shipped**), `detroit-style` (candidate) | Pan shape + `layeredReverseOrder`/`specialShapePan` mechanic |
+| `{mozzarella, sausage, tomato-sauce}` | `salsiccia` (**shipped**), `chicago-deep-dish` (candidate) | Pan shape + `layeredReverseOrder`/`specialShapePan` mechanic |
+| `{mozzarella, tomato-sauce}` | `stuffed-crust`, `ny-style`, `greek-style`, `trenton-tomato-pie-pizzadb` | Crust/dough style (NY-style), stuffed ring mechanic (`stuffed-crust`), added `feta`/olive once un-deferred (`greek-style`, per Phase 0B §4), reversed layer order (Trenton) |
+
+Two of these three groups **already include an already-shipped production recipe** colliding
+with a not-yet-shipped candidate's exact ingredient set — this is not a hypothetical future
+risk, it exists in the current 15-recipe production catalog's own candidate pipeline today.
+`margherita` itself has no *live* collision in the current viable pool, but the catalog's own
+`bufalina` entry (already `rejected_duplicate`, §6 of `TETO_RECIPE-MASTER-CATALOG.md`) was
+rejected specifically because it shared Margherita's exact ingredient set with no mechanic/
+identity difference — i.e. this exact failure mode has already been hit and handled once before,
+by rejecting the duplicate outright rather than by extending recipe identity. That approach does
+not scale to `pepperoni`/`detroit-style` or `salsiccia`/`chicago-deep-dish`, where **both**
+recipes are real, distinct, independently-corroborated dishes that deserve to coexist — rejecting
+one as a duplicate would be factually wrong, unlike `bufalina`.
+
+**Conclusion: ingredient set alone cannot be recipe identity once new-mechanic recipes exist in
+the same discoverable pool as baseline recipes sharing their ingredients.** A future
+implementation phase's discovery-matching logic needs to fold in at least:
+
+- **Mechanic dependency** — already modeled per-recipe (`mechanics` field,
+  `gameplay_mechanic_master.json`) and already sufficient to disambiguate all 3 collision groups
+  above (every colliding pair/group differs in mechanic, shape, or dough treatment, never in
+  plain ingredients). This is the cheapest fix: recipe identity = ingredient set **+** the
+  player's actual physical actions (which mechanic/shape/fold they used), which the game already
+  tracks during PREPARE/BAKE — no new authored data needed, only a matching-logic change.
+- **Sauce/dough/bake-profile/finishing-order as identity signals are not yet needed by any
+  currently-catalogued collision** — every one of the 3 groups above is fully disambiguated by
+  mechanic/shape alone. Adding sauce-family or bake-profile to the identity check would be
+  premature complexity until a real collision surfaces that mechanic alone can't resolve (none
+  found in the 64-recipe Phase 0A+0B pool). Recorded here as a **watch-list**, not a requirement:
+  re-check this the next time the pool grows (e.g. once the full 172-population data exists).
+
+**Not decided here**: whether the exact-match discovery rule (§2.1) should be "ingredient set +
+mechanic tag used" or something more granular. This is implementation-phase design work, flagged
+as unresolved decision #7 below.
+
+7. **(Phase 0B, new)** Recipe-identity matching must incorporate at least mechanic/shape, not
+   ingredient set alone — confirmed by 3 real collision groups, 2 of which already involve a
+   shipped production recipe. Sauce/dough/bake-profile/finishing-order are not yet evidenced as
+   necessary and should not be added speculatively. Exact matching-logic design is future
+   implementation-phase work, not decided in this Phase 0.
