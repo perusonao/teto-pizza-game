@@ -2561,20 +2561,41 @@
       "mechanicIdentityNote": "Profile text states the meat is lightly seasoned and stir-fried BEFORE topping (pre-cook/prep step, not a raw topping placed straight onto the dough) -- a pre-cook/prep mechanic-evidence candidate, distinct from the late-topping and post-bake-finishing families already tracked (this happens BEFORE the bake, not during or after). Recorded as evidence only, per the trigger comment's explicit instruction not to prematurely expand gameplay from this single data point.",
       "evidenceGaps": [],
       "taxonomyNote": "焼肉のタレ (yakiniku-sauce) is tagged sauce_not_topping in TAXONOMY_FLAGS (Phase 0B.3) -- kept as-is."
+    },
+    {
+      "id": "pizza-de-lomo-saltado",
+      "nameJa": "ロモ・サルタード・ピザ",
+      "origin": "ペルー / リマ",
+      "doughStyle": "薄めの生地",
+      "sauceFamily": "その他",
+      "ingredientsJa": [
+        "牛肉",
+        "玉ねぎ",
+        "トマト",
+        "フライドポテト",
+        "モッツァレラチーズ"
+      ],
+      "evidenceOrigin": "individual_profile_page",
+      "sourceUrl": "https://pizzadb.jp/pizzas/pizza-de-lomo-saltado/",
+      "verifiedAt": "2026-09-22 (relayed via directly-fetched Japanese profile page, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": true,
+      "mechanicIdentityNote": "TWO distinct evidence findings on one dish: (1) profile text states the beef and vegetables are stir-fried FIRST -- a pre-cook/prep evidence finding, same category as Phase 0B.14's yakiniku-pizza; (2) the fries (フライドポテト) are added just before the bake finishes -- a late-topping/timing evidence finding, same category as Phase 0B.13/0B.14's natto/unagi/tarako findings. Recorded as evidence only, no mechanic implemented.",
+      "evidenceGaps": []
     }
   ],
   "counters": {
-    "uniqueRecipeRowsEvidencedTotal": 153,
-    "uniqueRecipeRowsEvidencedFormula": "25 (Phase 0B original comparison_table_sample) + 113 (later comparison_table_sample batches) + 15 (individual_profile_page) = 153, all deduplicated against each other",
+    "uniqueRecipeRowsEvidencedTotal": 154,
+    "uniqueRecipeRowsEvidencedFormula": "25 (Phase 0B original comparison_table_sample) + 113 (later comparison_table_sample batches) + 16 (individual_profile_page) = 154, all deduplicated against each other",
     "claimedTotalPopulation": 172,
-    "coveragePercent": 89.0,
-    "independentlyFreshVerifiedRows": 15,
+    "coveragePercent": 89.5,
+    "independentlyFreshVerifiedRows": 16,
     "independentlyFreshVerifiedNote": "Rows evidenced via a dedicated individual PIZZA DB profile-page fetch (deeper single-dish evidence: origin/dough/sauce-family/ingredients), as distinct from a row's appearance in the aggregate comparison-table scrape.",
     "relayedOnlyRows": 138,
     "relayedOnlyNote": "Rows evidenced only via the aggregate comparison-table sample (Phase 0B), not (yet) confirmed by a dedicated individual profile-page fetch.",
-    "duplicateCorroborationsCount": 39,
+    "duplicateCorroborationsCount": 40,
     "duplicateCorroborationsNote": "Each entry in the top-level 'corroborations' list is a re-confirmation of an already-evidenced row (new source URL/date), found either by exact id/nameJa match (matchType=automatic_exact_match) or by human ingredient-set review (matchType=manual_review) -- never counted toward uniqueRecipeRowsEvidencedTotal.",
-    "rowsRequiringMechanicIdentityCount": 33,
+    "rowsRequiringMechanicIdentityCount": 34,
     "rowsRequiringMechanicIdentityIds": [
       "pizza-a-caballo",
       "fugazzeta-rellena",
@@ -2608,7 +2629,8 @@
       "natto-pizza",
       "manakish",
       "wasabi-beef-pizza",
-      "yakiniku-pizza"
+      "yakiniku-pizza",
+      "pizza-de-lomo-saltado"
     ],
     "rowsWithEvidenceGapsCount": 2,
     "rowsWithEvidenceGapsIds": [
@@ -2634,8 +2656,8 @@
       "boscaiola-pizzadb-p12"
     ],
     "rowsCorrespondingToExistingCatalogEntryNote": "correspondsToExistingCatalogId is set whether that catalog entry is already SHIPPED (e.g. margherita) or still an unshipped candidate (e.g. hawaiian) -- check each row's own correspondenceNote for which.",
-    "pendingRowCount": 19,
-    "pendingRowNote": "172 - 153 = 19 rows remain with zero evidence."
+    "pendingRowCount": 18,
+    "pendingRowNote": "172 - 154 = 18 rows remain with zero evidence."
   },
   "independentSessionFetchStatus": {
     "lastCheckedThisPhase": "2026-09-22 (Phase 0B.4)",
@@ -2916,6 +2938,13 @@
       "newSourceUrl": "https://pizzadb.jp/pizzas/smores-dessert/",
       "note": "2026-09-22 (relayed re-confirmation via individual profile page, not independently re-fetched by this Claude session). Ingredient set identical to the existing smore-dessert-pizza-pizzadb-p4 evidence (marshmallow, chocolate, graham-cracker). New detail from this individual-profile fetch: the profile distinguishes two separate timings -- marshmallow added just before baking, crushed graham cracker added as a post-bake finish -- a two-stage timing+post-bake-finishing mechanic evidence candidate, the most granular such finding yet.",
       "matchType": "automatic_exact_match"
+    },
+    {
+      "matchedRowId": "breakfast-pizza-pizzadb-p11",
+      "matchedNameJa": "ブレックファーストピザ",
+      "newSourceUrl": "https://pizzadb.jp/en/pizzas/breakfast-pizza/",
+      "note": "EN-SOURCED translation corroboration, per Phase 0B.15's trigger comment control/dedup finding. PIZZA DB's English index lists 'Egg Pizza' at this profile URL with an IDENTICAL ingredient set (egg, bacon, sausage, cheddar, white sauce) to the already-JA-evidenced breakfast-pizza-pizzadb-p11 (Phase 0B.12). Provenance kept explicit as EN-sourced, NOT rewritten as Japanese-page evidence -- does not increment ja-172 unique coverage, per the standing en-160/en-172 population-separation discipline (tools/progression2_evidence_invariants.py's population_tag_no_en160_leak check). Recorded purely as a cross-language name/translation corroboration.",
+      "matchType": "manual_review"
     }
   ]
 }
