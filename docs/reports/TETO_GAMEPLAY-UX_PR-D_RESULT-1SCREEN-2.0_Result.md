@@ -291,10 +291,10 @@ insertions/4 deletions).
 
 **Second push (HEAD `55c529559c6ed72b0137c994d038fe2145aa635f`) — final GitHub Actions result:**
 
-| Check | Conclusion |
-|---|---|
-| `build` (CI) | **SUCCESS** |
-| `webkit` (E2E WebKit, both `webkit-390x844`/`webkit-360x800` projects, 82/82) | **SUCCESS** |
+| Check | Run | Conclusion |
+|---|---|---|
+| `build` (CI) | [#35700124685](https://github.com/perusonao/teto-pizza-game/actions/runs/35700124685) | **SUCCESS** |
+| `webkit` (E2E WebKit, both `webkit-390x844`/`webkit-360x800` projects, 82/82) | [#35700124825](https://github.com/perusonao/teto-pizza-game/actions/runs/35700124825) | **SUCCESS** |
 
 PR `mergeable_state`: `clean` (no conflict) as of this HEAD.
 
@@ -376,8 +376,12 @@ e2e/gestures.ts                                   (WebKit fix: playFullCapriccio
 
 ## Limitations / follow-ups
 
-- WebKit CI is the sole authority for WebKit pass/fail on this exact PR HEAD (unrunnable locally,
-  as documented above and in every prior PR on this repo).
+- WebKit is unrunnable in the implementing sandbox (documented above and in every prior PR on this
+  repo) — GitHub Actions was the authority, and **both `build` and `webkit` are now confirmed
+  SUCCESS** on the current exact HEAD `55c529559c6ed72b0137c994d038fe2145aa635f` (CI run
+  [#35700124685](https://github.com/perusonao/teto-pizza-game/actions/runs/35700124685), WebKit
+  run [#35700124825](https://github.com/perusonao/teto-pizza-game/actions/runs/35700124825)). No
+  outstanding WebKit risk on this PR.
 - Tier 3 (per-step timing detail, Scoring 3.0 detail) is explicitly not implemented here, per the
   task's own scope guard — tracked under PR-C (Timing Transparency) and PR-F (Scoring 3.0).
 - The `--result-action-bar-reserve: 130px` constant is a real-Chromium-measured value (like every
