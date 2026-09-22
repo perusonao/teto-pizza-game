@@ -2392,20 +2392,167 @@
       "correspondsToExistingCatalogId": null,
       "requiresMechanicIdentity": false,
       "evidenceGaps": []
+    },
+    {
+      "id": "natto-pizza",
+      "nameJa": "納豆ピザ",
+      "origin": "日本 / 各地",
+      "doughStyle": "薄めの生地",
+      "sauceFamily": "その他",
+      "ingredientsJa": [
+        "納豆",
+        "モッツァレラチーズ",
+        "オクラ",
+        "青ねぎ",
+        "海苔"
+      ],
+      "evidenceOrigin": "individual_profile_page",
+      "sourceUrl": "https://pizzadb.jp/pizzas/natto-pizza/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": true,
+      "mechanicIdentityNote": "Profile text explicitly states natto is added a few minutes before the bake finishes (late-topping timing), not mixed in from the start -- a TIMING/late-topping mechanic candidate, distinct from the existing postBakeFinishing (fully after bake) mechanic since this is a mid-bake addition. Recorded as evidence, no mechanic implemented.",
+      "evidenceGaps": []
+    },
+    {
+      "id": "peking-duck-pizza",
+      "nameJa": "北京ダックピザ",
+      "origin": "中国 / 北京",
+      "doughStyle": "薄めの生地",
+      "sauceFamily": "甘辛だれ",
+      "ingredientsJa": [
+        "北京ダック",
+        "甜麺醤",
+        "きゅうり",
+        "青ねぎ",
+        "モッツァレラチーズ"
+      ],
+      "evidenceOrigin": "individual_profile_page",
+      "sourceUrl": "https://pizzadb.jp/pizzas/peking-duck/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "taxonomyNote": "北京ダック (peking-duck) is tagged prepared_dish_composite and 甜麺醤 (sweet-bean-sauce) is tagged sauce_not_topping in TAXONOMY_FLAGS (Phase 0B.3) -- both kept as-is per existing discipline, not reclassified."
+    },
+    {
+      "id": "mentaiko-mochi-pizza",
+      "nameJa": "明太子もちピザ",
+      "origin": "日本 / 各地",
+      "doughStyle": "薄めの生地",
+      "sauceFamily": "ホワイトソース",
+      "ingredientsJa": [
+        "明太子",
+        "もち",
+        "マヨネーズ",
+        "海苔",
+        "大葉"
+      ],
+      "evidenceOrigin": "individual_profile_page",
+      "sourceUrl": "https://pizzadb.jp/pizzas/mentaiko-mochi/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "namingAmbiguityNote": "Corroborates mentaiko (Phase 0B.3 genuinely_new, first seen in mentaiko-cream-pizza-pizzadb-p4) reused in a second, differently-composed real dish -- kept as a separate row, not merged."
+    },
+    {
+      "id": "manakish",
+      "nameJa": "マナキーシュ",
+      "origin": "レバノン / 各地",
+      "doughStyle": "ピタパンに似た柔らかいフラットブレッド",
+      "sauceFamily": "オイル",
+      "ingredientsJa": [
+        "ザアタル",
+        "オリーブオイル",
+        "ハロウミチーズ"
+      ],
+      "evidenceOrigin": "individual_profile_page",
+      "sourceUrl": "https://pizzadb.jp/pizzas/manakish/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": true,
+      "mechanicIdentityNote": "Explicit soft pita-like flatbread dough -- another flatbread-family mechanic alongside piadina-romagnola (unleavened, Phase 0B.10) and focaccia-genovese (thick olive-oil flatbread, Phase 0B.11), but distinct from both (soft/pita-like texture, not cracker-thin or thick-focaccia). Not merged into either.",
+      "evidenceGaps": [],
+      "taxonomyNote": "SOURCE INCONSISTENCY preserved, not normalized: PIZZA DB's own profile page header tags this dish's sauceFamily as 'オイル' (oil) while the page's own Q&A prose describes it as 'ノンソース' (no sauce). Recorded here using the header's オイル per the trigger comment's explicit instruction; the contradiction itself is flagged as a source-data inconsistency, not silently resolved in either direction."
+    },
+    {
+      "id": "yuzu-shrimp-pizza",
+      "nameJa": "柚子えびピザ",
+      "origin": "日本 / 各地",
+      "doughStyle": "薄めの生地",
+      "sauceFamily": "その他",
+      "ingredientsJa": [
+        "エビ",
+        "柚子胡椒",
+        "モッツァレラチーズ",
+        "大葉"
+      ],
+      "evidenceOrigin": "individual_profile_page",
+      "sourceUrl": "https://pizzadb.jp/pizzas/yuzu-shrimp/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "taxonomyNote": "柚子胡椒 (yuzu-kosho) is tagged sauce_or_condiment in TAXONOMY_FLAGS (Phase 0B.3) -- kept as-is."
+    },
+    {
+      "id": "wasabi-beef-pizza",
+      "nameJa": "わさび牛ピザ",
+      "origin": "日本 / 各地",
+      "doughStyle": "薄めの生地",
+      "sauceFamily": "その他",
+      "ingredientsJa": [
+        "牛肉",
+        "わさび",
+        "玉ねぎ",
+        "モッツァレラチーズ",
+        "醤油ソース"
+      ],
+      "evidenceOrigin": "individual_profile_page",
+      "sourceUrl": "https://pizzadb.jp/pizzas/wasabi-beef/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": true,
+      "mechanicIdentityNote": "Profile text EXPLICITLY states wasabi is added after the bake finishes (焼き上がり後に添える) -- clean, unambiguous post-bake finishing mechanic evidence, reinforcing the existing postBakeFinishing mechanic family (detroit-style's sauce stripe) with a second, independently-sourced example.",
+      "evidenceGaps": [],
+      "taxonomyNote": "醤油ソース (soy-sauce) is tagged sauce_not_topping in TAXONOMY_FLAGS (Phase 0B.3) -- kept as-is."
+    },
+    {
+      "id": "sichuan-eggplant-pizza",
+      "nameJa": "四川風ナスピザ",
+      "origin": "中国 / 四川",
+      "doughStyle": "薄めの生地",
+      "sauceFamily": "ホットソース",
+      "ingredientsJa": [
+        "ナス",
+        "豆板醤",
+        "にんにく",
+        "青ねぎ",
+        "モッツァレラチーズ"
+      ],
+      "evidenceOrigin": "individual_profile_page",
+      "sourceUrl": "https://pizzadb.jp/pizzas/sichuan-eggplant/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "namingAmbiguityNote": "Naming-adjacent to the existing eggplant-family rows (eggplant-tahini-pizza-pizzadb-p5, eggplant-ricotta-pizza-pizzadb-p5, pizza-alla-norma-pizzadb-p9) -- a fourth, structurally distinct eggplant-based dish (Sichuan doubanjiang-based hot sauce). Kept separate, not merged.",
+      "taxonomyNote": "豆板醤 (doubanjiang) is tagged sauce_not_topping in TAXONOMY_FLAGS (Phase 0B.3) -- kept as-is."
     }
   ],
   "counters": {
-    "uniqueRecipeRowsEvidencedTotal": 145,
-    "uniqueRecipeRowsEvidencedFormula": "25 (Phase 0B original comparison_table_sample) + 113 (later comparison_table_sample batches) + 7 (individual_profile_page) = 145, all deduplicated against each other",
+    "uniqueRecipeRowsEvidencedTotal": 152,
+    "uniqueRecipeRowsEvidencedFormula": "25 (Phase 0B original comparison_table_sample) + 113 (later comparison_table_sample batches) + 14 (individual_profile_page) = 152, all deduplicated against each other",
     "claimedTotalPopulation": 172,
-    "coveragePercent": 84.3,
-    "independentlyFreshVerifiedRows": 7,
+    "coveragePercent": 88.4,
+    "independentlyFreshVerifiedRows": 14,
     "independentlyFreshVerifiedNote": "Rows evidenced via a dedicated individual PIZZA DB profile-page fetch (deeper single-dish evidence: origin/dough/sauce-family/ingredients), as distinct from a row's appearance in the aggregate comparison-table scrape.",
     "relayedOnlyRows": 138,
     "relayedOnlyNote": "Rows evidenced only via the aggregate comparison-table sample (Phase 0B), not (yet) confirmed by a dedicated individual profile-page fetch.",
-    "duplicateCorroborationsCount": 34,
+    "duplicateCorroborationsCount": 35,
     "duplicateCorroborationsNote": "Each entry in the top-level 'corroborations' list is a re-confirmation of an already-evidenced row (new source URL/date), found either by exact id/nameJa match (matchType=automatic_exact_match) or by human ingredient-set review (matchType=manual_review) -- never counted toward uniqueRecipeRowsEvidencedTotal.",
-    "rowsRequiringMechanicIdentityCount": 29,
+    "rowsRequiringMechanicIdentityCount": 32,
     "rowsRequiringMechanicIdentityIds": [
       "pizza-a-caballo",
       "fugazzeta-rellena",
@@ -2435,7 +2582,10 @@
       "fathead-pizza-keto-pizzadb-p9",
       "feteer-meshaltet-pizzadb-p10",
       "focaccia-genovese-pizzadb-p10",
-      "fruit-dessert-pizza-pizzadb-p11"
+      "fruit-dessert-pizza-pizzadb-p11",
+      "natto-pizza",
+      "manakish",
+      "wasabi-beef-pizza"
     ],
     "rowsWithEvidenceGapsCount": 2,
     "rowsWithEvidenceGapsIds": [
@@ -2461,8 +2611,8 @@
       "boscaiola-pizzadb-p12"
     ],
     "rowsCorrespondingToExistingCatalogEntryNote": "correspondsToExistingCatalogId is set whether that catalog entry is already SHIPPED (e.g. margherita) or still an unshipped candidate (e.g. hawaiian) -- check each row's own correspondenceNote for which.",
-    "pendingRowCount": 27,
-    "pendingRowNote": "172 - 145 = 27 rows remain with zero evidence."
+    "pendingRowCount": 20,
+    "pendingRowNote": "172 - 152 = 20 rows remain with zero evidence."
   },
   "independentSessionFetchStatus": {
     "lastCheckedThisPhase": "2026-09-22 (Phase 0B.4)",
@@ -2707,6 +2857,13 @@
       "matchedNameJa": "フガゼッタ・レジェーナ",
       "newSourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/10/",
       "note": "2026-09-22 (relayed re-confirmation, not independently re-fetched by this Claude session)",
+      "matchType": "automatic_exact_match"
+    },
+    {
+      "matchedRowId": "eel-pizza-pizzadb-p1-DUP",
+      "matchedNameJa": "うなぎピザ",
+      "newSourceUrl": "https://pizzadb.jp/pizzas/unagi-pizza/",
+      "note": "2026-09-22 (relayed re-confirmation via individual profile page, not independently re-fetched by this Claude session). Ingredient set identical to the existing eel-pizza-pizzadb-p1 evidence (eel, sansho-pepper, mozzarella, green-onion). New detail from this individual-profile fetch: the profile text explicitly states the eel is added at finishing (late/post-bake topping), not mixed in from the start -- a late-topping mechanic evidence candidate, same class of finding as natto-pizza and wasabi-beef-pizza this Phase.",
       "matchType": "automatic_exact_match"
     }
   ]
