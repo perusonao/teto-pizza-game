@@ -1,0 +1,106 @@
+{
+  "schemaNote": "Phase 0B.4 recipe-row evidence ledger (Issue #182 / PR #183 comment #5775202410). Tracks every individually-evidenced PIZZA DB ja-172 population row (both the 25 comparison-table samples from Phase 0B and any individual-profile-page rows added since), deduplicated by nameJa/id, so 'unique recipe rows evidenced' is always a real, non-inflated count. Read/appended by tools/progression2_recipe_row_ingest.py. No PIZZA DB descriptive prose is copied -- only factual row fields (name, origin, dough style, sauce family, ingredient list) and this session's own evidence-gap/mechanic-identity notes.",
+  "existingRowsFromComparisonTableSamples": {
+    "source": "docs/reports/data/TETO_PROGRESS2_PHASE0B_pizzadb-external-samples.json",
+    "evidenceOrigin": "comparison_table_sample",
+    "count": 25,
+    "note": "Full per-row detail lives in the Phase 0B samples file; this ledger references them by count/origin rather than duplicating their content."
+  },
+  "individualProfilePageRows": [
+    {
+      "id": "margherita-pizzadb-row",
+      "nameJa": "マルゲリータ",
+      "origin": "イタリア / ナポリ",
+      "doughStyle": "ナポリピッツァ生地（薄めで縁が厚い）",
+      "sauceFamily": "トマトソース",
+      "ingredientsJa": ["モッツァレラチーズ", "バジル", "オリーブオイル"],
+      "evidenceOrigin": "individual_profile_page",
+      "sourceUrl": "https://pizzadb.jp/pizzas/margherita/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": "margherita",
+      "correspondenceNote": "Already shipped in src/data/recipes.ts and catalogued verified_internal in the Phase 0A Fresh Recipe Master Catalog. This individual-profile fetch is the first time this specific dish is evidenced as an ITEMIZED ja-172 population row (it was not among the 25 comparison-table samples) -- counted as a newly-evidenced population row, tracked separately from 'genuinely new candidate' rows since it adds zero new game-design content.",
+      "dedupAgainstExisting25": "no match by nameJa or id -- confirmed distinct evidence unit",
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": []
+    },
+    {
+      "id": "pizza-baiana",
+      "nameJa": "ピッツァ・バイアーナ",
+      "origin": "ブラジル / バイーア",
+      "doughStyle": "薄めの生地",
+      "sauceFamily": "トマトソース",
+      "ingredientsJa": ["ソーセージ", "卵", "玉ねぎ", "唐辛子", "モッツァレラチーズ"],
+      "evidenceOrigin": "individual_profile_page",
+      "sourceUrl": "https://pizzadb.jp/pizzas/pizza-baiana/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "correspondenceNote": "New candidate, not in the existing 53-entry catalog or Phase 0B's 13 new candidates under any name.",
+      "dedupAgainstExisting25": "no match by nameJa or id -- confirmed distinct evidence unit",
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": []
+    },
+    {
+      "id": "pizza-a-caballo",
+      "nameJa": "ピッツァ・ア・カバージョ",
+      "origin": "アルゼンチン / ブエノスアイレス",
+      "doughStyle": "厚みのあるふんわりした生地",
+      "sauceFamily": "チーズ",
+      "ingredientsJa": ["モッツァレラチーズ", "オリーブ", "オレガノ"],
+      "evidenceOrigin": "individual_profile_page",
+      "sourceUrl": "https://pizzadb.jp/pizzas/pizza-a-caballo/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "correspondenceNote": "New candidate, not in the existing catalog under any name.",
+      "dedupAgainstExisting25": "no match by nameJa or id -- confirmed distinct evidence unit",
+      "requiresMechanicIdentity": true,
+      "evidenceGaps": [
+        "The relayed profile text states a Fainá (chickpea-flatbread) layer is placed on top of this pizza, but the profile's own published ingredient/topping list does NOT include Fainá. This is a genuine gap IN THE SOURCE EVIDENCE ITSELF, not something this session is filling in -- Fainá is explicitly NOT added as a canonical topping/ingredient for this dish. A future integration must either get a corrected ingredient list or model this as a documented open question, never invent Fainá's inclusion."
+      ],
+      "mechanicIdentityNote": "Concrete real-world example (independent of the Phase 0A/0B exact-ingredient-set collision findings) that ingredient-set-only recipe identity is insufficient -- this dish's identity depends on a layering/mechanic property the ingredient list alone doesn't capture, reinforcing design draft section 10's conclusion from a second, independent source."
+    },
+    {
+      "id": "fugazzeta-rellena",
+      "nameJa": "フガゼッタ・レジェーナ",
+      "origin": "アルゼンチン / ブエノスアイレス",
+      "doughStyle": "厚みのあるふんわりした生地（2枚の生地でチーズ・ハムを挟む）",
+      "sauceFamily": "チーズ",
+      "ingredientsJa": ["モッツァレラチーズ", "ハム", "玉ねぎ", "オレガノ"],
+      "evidenceOrigin": "individual_profile_page",
+      "sourceUrl": "https://pizzadb.jp/pizzas/fugazzeta-rellena/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "relatedExistingCatalogId": "fugazzeta",
+      "correspondenceNote": "The existing Fresh Recipe Master Catalog already has a 'fugazzeta' entry (deferred, single-layer onion-topped, mozzarella/olive-oil/onion/oregano -- no stuffing). 'fugazzeta-rellena' ('stuffed fugazzeta') is a real, distinct variant per general culinary knowledge (a stuffed/double-dough-layer version) -- kept as a SEPARATE candidate id, cross-referenced to but not merged with 'fugazzeta', matching this repo's naming-ambiguity discipline (never silently merge on name similarity alone).",
+      "dedupAgainstExisting25": "no match by nameJa or id -- confirmed distinct evidence unit",
+      "requiresMechanicIdentity": true,
+      "evidenceGaps": [],
+      "mechanicIdentityNote": "Two dough layers enclosing cheese/ham -- requires a stuffed/layered-dough mechanic identity (closely related to the existing stuffedDough/foldDough mechanic family already catalogued for calzone/fugazzeta-family entries) beyond plain ingredient-set matching."
+    }
+  ],
+  "counters": {
+    "uniqueRecipeRowsEvidencedTotal": 29,
+    "uniqueRecipeRowsEvidencedFormula": "25 (comparison_table_sample) + 4 (individual_profile_page, 0 duplicates found against the 25)",
+    "claimedTotalPopulation": 172,
+    "coveragePercent": 16.9,
+    "independentlyFreshVerifiedRows": 4,
+    "independentlyFreshVerifiedNote": "Rows evidenced via a dedicated individual PIZZA DB profile-page fetch (deeper single-dish evidence: origin/dough/sauce-family/ingredients), as distinct from a row's appearance in the aggregate comparison-table scrape.",
+    "relayedOnlyRows": 25,
+    "relayedOnlyNote": "Rows evidenced only via the aggregate comparison-table sample (Phase 0B), not (yet) confirmed by a dedicated individual profile-page fetch.",
+    "duplicateCorroborationsCount": 0,
+    "duplicateCorroborationsNote": "No individual-profile-page row in this batch duplicated (by nameJa/id match) any of the existing 25 comparison-table rows.",
+    "rowsRequiringMechanicIdentityCount": 2,
+    "rowsRequiringMechanicIdentityIds": ["pizza-a-caballo", "fugazzeta-rellena"],
+    "rowsWithEvidenceGapsCount": 1,
+    "rowsWithEvidenceGapsIds": ["pizza-a-caballo"],
+    "rowsCorrespondingToExistingShippedGameRecipe": 1,
+    "rowsCorrespondingToExistingShippedGameRecipeIds": ["margherita-pizzadb-row"],
+    "pendingRowCount": 143,
+    "pendingRowNote": "172 - 29 = 143 rows remain with zero evidence."
+  },
+  "independentSessionFetchStatus": {
+    "lastCheckedThisPhase": "2026-09-22 (Phase 0B.4)",
+    "result": "EGRESS_BLOCKED",
+    "domainTested": "https://pizzadb.jp/pizzas/margherita/",
+    "note": "This Claude Code session still cannot independently fetch any PIZZA DB page, individual-profile or otherwise. 'individual_profile_page' evidenceOrigin above describes the RELAYING agent's fetch method, not this session's own verification depth -- every row in this ledger remains owner-relayed and unverified by this session, regardless of evidenceOrigin."
+  }
+}

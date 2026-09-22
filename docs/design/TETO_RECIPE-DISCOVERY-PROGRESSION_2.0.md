@@ -227,6 +227,16 @@ implementation phase's discovery-matching logic needs to fold in at least:
 mechanic tag used" or something more granular. This is implementation-phase design work, flagged
 as unresolved decision #7 below.
 
+**Phase 0B.4 update**: two individually-evidenced PIZZA DB rows independently reinforce this
+same conclusion from outside the Phase 0A/0B collision analysis. `pizza-a-caballo` (Argentina)
+is described as having a Fainá (chickpea-flatbread) layer that its own published ingredient list
+omits — a real-world case where ingredient-set data alone is *demonstrably incomplete* for
+identity, not just theoretically insufficient (this gap is preserved as an open evidence question,
+not filled in — see `TETO_PROGRESS2_PHASE0B4_recipe-row-evidence.json`). `fugazzeta-rellena`
+(stuffed, two-dough-layer variant of the already-catalogued `fugazzeta`) needs a stuffed/layered-
+dough mechanic tag to be distinguished from its own base dish, reinforcing the "mechanic/shape,
+not ingredient set" conclusion from a second, independent source rather than resolving it further.
+
 7. **(Phase 0B, new)** Recipe-identity matching must incorporate at least mechanic/shape, not
    ingredient set alone — confirmed by 3 real collision groups, 2 of which already involve a
    shipped production recipe. Sauce/dough/bake-profile/finishing-order are not yet evidenced as
