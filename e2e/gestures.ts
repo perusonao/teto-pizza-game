@@ -361,7 +361,17 @@ export async function startCapricciosaUnlocked(page: Page) {
 
 /** Drives a full capricciosa round (topping-heavy: mozzarella + mushroom/oregano/ham/
  *  black-olive, 8 total non-sauce pieces) from PREPARE/DOUGH through to RESULT, real UI
- *  gestures throughout, mirroring `playFullMargheritaRound`'s own shape. */
+ *  gestures throughout, mirroring `playFullMargheritaRound`'s own shape.
+ *
+ *  Gameplay UX PR-D (RESULT 1-Screen 2.0): this used to end BAKE with a fixed
+ *  `waitForTimeout(1300)` instead of `bakeToTarget`'s own virtual-clock approach -- the exact
+ *  fragility `bakeToTarget`'s own doc comment documents in detail (a fixed wait drifts under a
+ *  loaded/throttled CI runner and can land the needle outside the recipe's own bake window,
+ *  producing a genuine UNDERBAKED/OVERBAKED failure instead of the intended clean PASS).
+ *  Confirmed flaky under real WebKit CI load specifically (webkit-360x800, `result-1screen-2.0.
+ *  spec.ts`'s own Scenario B -- a FAILED round never renders `.result-panel__stars`, since
+ *  `ResultPanel.tsx`'s FAILED branch never computes stars/score at all) -- switched to
+ *  `bakeToTarget`, already proven safe for `playFullMargheritaRound` above. */
 export async function playFullCapricciosaRound(page: Page) {
   await completeDoughStep(page);
   await page.getByRole("button", { name: /次へ/ }).click();
@@ -386,9 +396,7 @@ export async function playFullCapricciosaRound(page: Page) {
   await tapDoughPercent(page, 40, 50);
   await tapDoughPercent(page, 60, 50);
 
-  await page.getByRole("button", { name: /焼く/ }).click();
-  await page.waitForTimeout(1300);
-  await page.getByRole("button", { name: "取り出す！" }).click();
+  await bakeToTarget(page, { start: 58, end: 78 }); // capricciosa's own bakeTarget (src/data/recipes.ts)
 
   if (await page.getByRole("button", { name: /切り終わる/ }).count()) {
     await cutThreeLines(page);
