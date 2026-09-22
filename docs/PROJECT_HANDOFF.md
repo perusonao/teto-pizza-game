@@ -184,6 +184,28 @@ topping-heavy regression) delivered as MP4/H.264. **Not merged — PR open, pend
 review**, per this task's own explicit "do not auto-merge" instruction. PR-C (Verification
 Hardening, actually running WebKit) remains the next open step on this Issue #167 track.
 
+**2026-09-22 addendum (Pizza Cutting Phase 4B: Full Recipe Expansion, implementation complete, PR
+OPEN)** — see `docs/reports/TETO_PIZZA-CUTTING_Phase4B_Full-Recipe-Expansion_Result.md` and its own
+Fresh Audit `docs/reports/TETO_PIZZA-CUTTING_Phase3_Expansion_Fresh-Audit.md` (PR #163, docs-only,
+re-verified against `main` SHA `4a3e6048de8a784477407a1b4f0ae26b2c36504d` — the same PR-C SHA
+addendum above). CUT (`src/logic/cut/*`, Pizza Cutting 1.0) is now available on **all 15** shipped
+recipes, not just margherita — `src/data/cookingProfiles.ts` gained an explicit, opt-in
+`CUT_ELIGIBLE_RECIPE_IDS` allowlist (Option C from the Fresh Audit) with a pure derivation
+function, instead of 14 hand-authored profile entries or baking CUT into
+`DEFAULT_COOKING_PROFILE` (the latter rejected outright — it would let a future non-round recipe
+silently inherit CUT). `DEFAULT_COOKING_PROFILE` itself is unchanged and never globally
+CUT-enabled; a future non-round recipe (calzone, fugazzeta, mezza-e-mezza, siciliana, square pizza)
+needs a deliberate allowlist addition after a human re-confirms shape compatibility.
+`requestedSliceCount` stays 6 for every eligible recipe. No Scoring 2.0/Completion Gate/Pitz/
+economy/Reference Truth/Cooking UI 1-Screen change (diff-verified). Every test that used a real
+non-Margherita recipe (funghi/bismarck/marinara) as its "non-CUT" control was migrated to a
+synthetic ineligible fixture rather than deleted. 2196/2196 Vitest + 54/54 Chromium Playwright
+pass, typecheck/lint/build clean; WebKit CI result pending the PR's own Actions run (not runnable
+in the implementing sandbox). Screenshots + four 390×844/360×800 Human Verification videos
+(Margherita regression, Salsiccia newly-CUT-enabled, Capricciosa topping-heavy, Lunch Rush
+order→CUT→serve) delivered as MP4/H.264. Dedicated Issue #172. **Not merged — PR open, pending the
+user's own review**, per this task's own explicit "do not auto-merge" instruction.
+
 > Fresh GitHub/main state always wins if this document becomes stale.
 
 ## Product goal
@@ -261,6 +283,7 @@ Primary device: smartphone vertical. Verification baseline: 390×844.
   tracked as prep work for when P5 becomes active. See P5 below for the recommended
   E0→E1→E2→E3 build order — **E1 (InventoryState) is next on this track.**
 - Issue #39 — HOME/FREE navigation redesign + Pizza Select. PS1/PS2/PS3 **complete** (PR #40, PR #41, both merged into `main`); PS4 iPhone Human Feel **PASS**. Remaining HOME visual polish (see "Parallel / non-blocking" below) is tracked as future polish, not an Issue #39 blocker.
+- **Issue #172 — Pizza Cutting Phase 4B: 全レシピCUT展開.** Implementation complete, PR OPEN. See the 2026-09-22 addendum above and `docs/reports/TETO_PIZZA-CUTTING_Phase4B_Full-Recipe-Expansion_Result.md`.
 
 Scoring 2.0 Shadow has already been implemented and calibrated. It remains non-authoritative pending the A1 authority cutover (see below) — B1 and B2 are both now closed. **Scoring 2.0 Authority Fresh Audit** (original) — see `docs/reports/TETO_SCORING2_AUTHORITY_Fresh-Audit.md` (audited SHA `2da3949de5bd642c709ca6ba343bc57d8101d03d`, verdict at the time: **D. BLOCKED BY ANOTHER SYSTEM**, on two findings: no Bake component at all, and Reference coverage for exactly 1 of 7 recipes). **Both of those blockers are now closed** — see below.
 
