@@ -76,9 +76,10 @@ test.describe("Scenario A: Marinara (no CHEESE step) @390x844", () => {
     const bakeCta = page.getByRole("button", { name: /焼く！/ });
     await expect(bakeCta).toBeVisible();
 
-    await bakeCta.click();
-    await page.waitForTimeout(1300);
-    await page.getByRole("button", { name: "取り出す！" }).click();
+    // Marinara's own bakeTarget (src/data/recipes.ts): { start: 45, end: 65 }. A virtual-clock
+    // bake (bakeToTarget), not a real-time wait -- a fixed wait drifted under WebKit CI's own
+    // slower/loaded runners, landing outside the target window and failing the round.
+    await bakeToTarget(page, { start: 45, end: 65 });
 
     await expect(page.getByRole("button", { name: /切り終わる/ })).toBeVisible();
     await cutThreeLines(page);
@@ -123,9 +124,10 @@ test.describe("Scenario B: Margherita (full-step recipe, regression) @390x844", 
     await expect(page.getByText("焼く", { exact: true })).toBeVisible();
     await expect(page.locator(".making-step-tabs").getByText(/\u{1F525}/u)).toHaveCount(0);
 
-    await page.getByRole("button", { name: /焼く！/ }).click();
-    await page.waitForTimeout(1300);
-    await page.getByRole("button", { name: "取り出す！" }).click();
+    // Margherita's own bakeTarget (src/data/recipes.ts): { start: 60, end: 80 }. Virtual-clock
+    // bake, matching every other spec in this repo -- see Scenario A's own comment for why a
+    // fixed real-time wait is unreliable under WebKit CI.
+    await bakeToTarget(page, { start: 60, end: 80 });
 
     await expect(page.getByRole("button", { name: /切り終わる/ })).toBeVisible();
     await cutThreeLines(page);

@@ -166,8 +166,18 @@ export async function startFreshMargherita(page: Page) {
 }
 
 /** Drives a full margherita round (DOUGH -> SAUCE -> CHEESE -> TOPPING -> BAKE -> CUT) from
- *  PREPARE/DOUGH through to RESULT. Real time bake wait (no RAF stub -- this is a real browser
- *  run, not jsdom), matching BakeOverlay's own ~55%/s needle speed. */
+ *  PREPARE/DOUGH through to RESULT.
+ *
+ * Gameplay UX / Scoring 3.0 PR-A: this used to end BAKE with a fixed `waitForTimeout(1300)` real-
+ * time wait instead of `bakeToTarget`'s own virtual-clock approach -- exactly the same fragility
+ * `bakeToTarget`'s own doc comment already documents in detail (a fixed wait drifts under a
+ * loaded/throttled CI runner and can land the needle outside the recipe's own bake window,
+ * producing a genuine UNDERBAKED/OVERBAKED failure instead of the intended clean PASS). Confirmed
+ * flaky under real WebKit CI load specifically when called from a live Lunch Rush Mission run
+ * (`e2e/lunch-rush-result-ranking-phase4.spec.ts`) -- switched to `bakeToTarget`, already proven
+ * safe inside a live Mission's own real-time clock (`e2e/pizza-cutting-phase4b.spec.ts`'s own
+ * Scenario D uses it the same way; `page.clock.resume()` inside it restores real time flow before
+ * returning, so the Mission's own wall-clock expiry timer is unaffected afterward). */
 export async function playFullMargheritaRound(page: Page) {
   await completeDoughStep(page);
   await page.getByRole("button", { name: /次へ/ }).click();
@@ -188,9 +198,7 @@ export async function playFullMargheritaRound(page: Page) {
     await tapDoughPercent(page, 55, 45);
   }
 
-  await page.getByRole("button", { name: /焼く/ }).click();
-  await page.waitForTimeout(1300);
-  await page.getByRole("button", { name: "取り出す！" }).click();
+  await bakeToTarget(page, { start: 60, end: 80 }); // margherita's own bakeTarget (src/data/recipes.ts)
 
   if (await page.getByRole("button", { name: /切り終わる/ }).count()) {
     await cutThreeLines(page);
