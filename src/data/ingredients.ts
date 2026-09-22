@@ -60,6 +60,14 @@ export interface Ingredient {
    *  `fugazza`'s own unlock) is retired -- Starter Grant is now the only way `onion` is ever
    *  first obtained, exactly like the other 10 EP4-added rows below it. */
   starterGrantOnly?: boolean;
+  /** Gameplay UX PR-E (Finished Pizza Visual 2.0): true for a green herb whose bake-time roast
+   *  tint (../logic/bakeVisual.ts's `toppingVisualFrame`) must stay far gentler than the default
+   *  topping curve, so it reads as a lightly-cooked herb rather than turning the same brown as
+   *  every other topping and becoming unidentifiable (the task's own explicit constraint). Data-
+   *  driven per ingredient, not derived from `color`/`category` (both already mean something
+   *  else) and not a recipe-ID branch -- absent/false on every ingredient whose own color isn't
+   *  green. */
+  bakeRoastResistant?: boolean;
 }
 
 export const INGREDIENTS: Ingredient[] = [
@@ -174,6 +182,7 @@ export const INGREDIENTS: Ingredient[] = [
     color: "#3f7d3a",
     emoji: "\u{1F33F}",
     placement: "scatter",
+    bakeRoastResistant: true,
   },
   {
     id: "garlic",
@@ -198,6 +207,7 @@ export const INGREDIENTS: Ingredient[] = [
     pricePitz: 55,
     restockQuantity: 6,
     starterGrantOnly: true,
+    bakeRoastResistant: true,
   },
   {
     id: "cherry-tomato",
@@ -377,6 +387,7 @@ export const INGREDIENTS: Ingredient[] = [
     pricePitz: 55,
     restockQuantity: 9,
     starterGrantOnly: true,
+    bakeRoastResistant: true,
   },
   {
     id: "bacon",

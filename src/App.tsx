@@ -745,10 +745,16 @@ function App() {
     missionDispatch({ type: "SHOW_INTRO" });
   }
 
+  // Gameplay UX PR-E (Finished Pizza Visual 2.0): POST_BAKE (the CUT step) used to fall through
+  // to `null` here, the same "no bake-derived styling" value PREPARE uses -- so the pizza's own
+  // crust/cheese/topping bake tint visibly reverted to raw the instant BAKE ended, then reappeared
+  // at RESULT. `state.pizza.bakeResult` (the same committed value RESULT already reads) is already
+  // available the whole time POST_BAKE is active, so this closes that gap: the finished pizza now
+  // stays visually baked continuously from the end of BAKE through CUT into RESULT.
   const bakeProgress =
     state.phase === "BAKE"
       ? liveBake
-      : state.phase === "RESULT" || state.phase === "DISCOVERED"
+      : state.phase === "POST_BAKE" || state.phase === "RESULT" || state.phase === "DISCOVERED"
         ? state.pizza.bakeResult
         : null;
 

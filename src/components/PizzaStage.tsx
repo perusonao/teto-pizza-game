@@ -22,6 +22,7 @@ import {
   computeBakeHeat,
   doughVisualColors,
   rawSheenIntensity,
+  toppingVisualFrame,
 } from "../logic/bakeVisual";
 import { SauceDispenseController } from "../logic/sauceDispenseController";
 import { PointerTimestampNormalizer } from "../logic/pointerTimestampNormalizer";
@@ -928,6 +929,20 @@ export function PizzaStage({
         filter: `brightness(${cheeseFrame.brightness.toFixed(3)}) saturate(${cheeseFrame.saturate.toFixed(3)}) sepia(${cheeseFrame.sepia.toFixed(3)})`,
       } as CSSProperties)
     : undefined;
+  // Gameplay UX PR-E (Finished Pizza Visual 2.0): a non-cheese topping's own dedicated,
+  // continuous roast curve (../logic/bakeVisual.ts's own file comment on `toppingVisualFrame`
+  // explains why this replaces reusing `cheeseStyle` for every topping) -- keyed per-ingredient
+  // so a green herb (`bakeRoastResistant`) gets the far-gentler curve. The emoji's own baseline
+  // `drop-shadow` is re-composed into the same `filter` value explicitly (a CSS `filter` is
+  // never additive across a class + inline style on the same element -- the inline value used
+  // to silently drop it) so toppings keep their visual "pop" through every bake stage.
+  const toppingPieceStyle = (ingredient: Ingredient): CSSProperties | undefined => {
+    if (bakeProgress === null) return undefined;
+    const frame = toppingVisualFrame(bakeHeat, ingredient.bakeRoastResistant === true);
+    return {
+      filter: `brightness(${frame.brightness.toFixed(3)}) saturate(${frame.saturate.toFixed(3)}) sepia(${frame.sepia.toFixed(3)}) drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3))`,
+    } as CSSProperties;
+  };
   const bakeCharIntensity = bakeProgress === null ? 0 : charIntensity(bakeHeat);
   const bakeRawSheenIntensity = bakeProgress === null ? 0 : rawSheenIntensity(bakeHeat);
   // sauceOrigin.x/y are dough-local percent, but the clip-path "at X% Y%" on .pizza-sauce-layer
@@ -1176,11 +1191,14 @@ export function PizzaStage({
                   piece rendering (renderPizzaVisualPieces, ../components/PizzaVisualPieces.tsx)
                   -- both branches now always go through IngredientPieceVisual, instead of a
                   locally hand-rolled `.pizza-topping__emoji` span bypassing it for non-cheese
-                  ingredients. `cheeseStyle` (bake melt/toast/char) is a no-op for the emoji
-                  branch (IngredientPieceVisual only applies `style` there for forward-compat --
-                  see its own doc comment), so this is a pure consolidation, not a behavior
-                  change for either branch. */}
-              <IngredientPieceVisual ingredient={ingredient} style={cheeseStyle} />
+                  ingredients. Gameplay UX PR-E: the cheese branch keeps `cheeseStyle` (bake
+                  melt/spread/toast/char); every other ingredient gets its own dedicated
+                  `toppingPieceStyle` curve instead of `cheeseStyle` reused as-is -- see that
+                  variable's own comment above for why. */}
+              <IngredientPieceVisual
+                ingredient={ingredient}
+                style={ingredient.category === "cheese" ? cheeseStyle : toppingPieceStyle(ingredient)}
+              />
             </span>
           );
         })}

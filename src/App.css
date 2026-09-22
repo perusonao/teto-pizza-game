@@ -335,20 +335,15 @@
   transition: filter 0.4s ease, border-color 0.4s ease;
 }
 
-/* Bake state also touches every topping so half-baked/burnt/perfect reads even without
-   the RESULT screen. */
-.pizza-dough--raw .pizza-topping {
-  filter: brightness(1.02) saturate(0.92);
-}
-
-.pizza-dough--perfect .pizza-topping {
-  /* Very light roasted warmth -- not char, just "cooked". */
-  filter: brightness(1.02) saturate(1.06) sepia(0.05);
-}
-
-.pizza-dough--burnt .pizza-topping {
-  filter: brightness(0.62) saturate(0.7) sepia(0.25);
-}
+/* Gameplay UX PR-E (Finished Pizza Visual 2.0): the old discrete 3-bucket wrapper filter that
+   used to live here (`.pizza-dough--raw/--perfect/--burnt .pizza-topping`) snapped at the exact
+   `classifyBake` boundary -- the same "answer reveal" class of bug the M3A Bake Judgment work
+   already eliminated for the dough/cheese/char visuals elsewhere in this file (see
+   ../logic/bakeVisual.ts's own file header) -- and stacked with a second, unintentional filter
+   reuse on each topping's own inline style. Both are replaced by one deliberate, continuous,
+   per-ingredient curve computed in PizzaStage.tsx (`toppingPieceStyle`, reading
+   ../logic/bakeVisual.ts's `toppingVisualFrame`) and applied inline, the same "continuous
+   scalar, no class-swap snap" pattern every other bake visual in this file already uses. */
 
 /* ---------- Issue #33 D1: Dough shape carry-through ---------- */
 /* `.pizza-dough-shape` is the player's actual hand-stretched boundary (PizzaStage clips it
@@ -561,7 +556,6 @@
      once per topping on mount, so auto-nudged toppings still land naturally at their
      final (possibly adjusted) spot. */
   animation: topping-land 220ms linear both;
-  transition: filter 0.3s ease;
 }
 
 .pizza-topping--mozzarella {
@@ -585,6 +579,10 @@
   display: block;
   font-size: calc(28px * var(--piece-scale, 1));
   filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
+  /* Gameplay UX PR-E: PizzaStage's own `toppingPieceStyle` sets this element's `filter` inline
+     during BAKE/RESULT (continuous roast tint, ../logic/bakeVisual.ts's `toppingVisualFrame`) --
+     transition lives on the element the filter actually changes on, not the wrapper. */
+  transition: filter 0.3s ease;
 }
 
 /* ---------- Cheese identity (shape + size + texture differ per cheese) ---------- */

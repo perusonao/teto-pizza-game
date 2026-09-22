@@ -5,6 +5,7 @@ import { PizzaStage } from "./PizzaStage";
 import { RECIPES } from "../data/recipes";
 import { createEmptyPizza, type PizzaState } from "../state/pizzaState";
 import { createCutState } from "../logic/cut/state";
+import type { MakingStep } from "../state/gameReducer";
 
 /**
  * M3A Bake Judgment Phase 6: the pizza's own bake visuals (dough color, cheese melt/toast/char,
@@ -25,22 +26,60 @@ function pizzaWithCheese(): PizzaState {
   };
 }
 
+/** Gameplay UX PR-E: cheese + a normal (roasting) topping + a green herb (roast-resistant)
+ *  topping, so a single render can assert all three curves at once. */
+function pizzaWithMixedToppings(): PizzaState {
+  return {
+    ...createEmptyPizza(),
+    sauceIds: ["tomato-sauce"],
+    toppings: [
+      { id: "t1", ingredientId: "mozzarella", x: 50, y: 50 },
+      { id: "t2", ingredientId: "pepperoni", x: 30, y: 40 },
+      { id: "t3", ingredientId: "basil", x: 70, y: 60 },
+    ],
+  };
+}
+
+/** No-cheese recipe fixture (marinara-shaped, PR-A): only non-cheese toppings placed. */
+function pizzaWithoutCheese(): PizzaState {
+  return {
+    ...createEmptyPizza(),
+    sauceIds: ["tomato-sauce"],
+    toppings: [{ id: "t1", ingredientId: "oregano", x: 50, y: 50 }],
+  };
+}
+
+/** No-topping recipe fixture (quattro-formaggi-shaped, PR-A): only cheese placed. */
+function pizzaCheeseOnly(): PizzaState {
+  return {
+    ...createEmptyPizza(),
+    sauceIds: ["tomato-sauce"],
+    toppings: [
+      { id: "t1", ingredientId: "mozzarella", x: 50, y: 50 },
+      { id: "t2", ingredientId: "gorgonzola", x: 30, y: 40 },
+    ],
+  };
+}
+
 function noop() {}
 
-function renderStage(bakeProgress: number | null) {
+function renderStage(
+  bakeProgress: number | null,
+  options: { pizza?: PizzaState; resultRevealed?: boolean; makingStep?: MakingStep } = {},
+) {
   return render(
     <PizzaStage
-      pizza={pizzaWithCheese()}
+      pizza={options.pizza ?? pizzaWithCheese()}
       recipe={RECIPE}
       interactive={false}
       activeIngredient={null}
       bakeProgress={bakeProgress}
       placement={null}
-      resultRevealed={false}
+      resultRevealed={options.resultRevealed ?? false}
       referenceModeEnabled={false}
       resetToken={0}
       makingStepToken={0}
-      makingStep="TOPPING"
+      makingStep={options.makingStep ?? "TOPPING"}
       showDoughShape
       onTap={noop}
       onDispenseProgress={noop}
@@ -69,6 +108,20 @@ function charSpotsOpacity(): number {
   const el = document.querySelector<HTMLElement>(".pizza-char-spots");
   if (!el) throw new Error(".pizza-char-spots missing");
   return Number(el.style.opacity);
+}
+
+function toppingEmojiFilter(ingredientId: string): string {
+  const wrapper = document.querySelector<HTMLElement>(`.pizza-topping--${ingredientId}`);
+  if (!wrapper) throw new Error(`.pizza-topping--${ingredientId} missing`);
+  const emoji = wrapper.querySelector<HTMLElement>(".ingredient-piece-visual__emoji");
+  if (!emoji) throw new Error(`.ingredient-piece-visual__emoji missing for ${ingredientId}`);
+  return emoji.style.filter;
+}
+
+function cheeseFilter(): string {
+  const el = document.querySelector<HTMLElement>(".pizza-cheese");
+  if (!el) throw new Error(".pizza-cheese missing");
+  return el.style.filter;
 }
 
 beforeEach(() => {
@@ -158,5 +211,88 @@ describe("PizzaStage bake visual continuity", () => {
     expect(nearCharStart).toBeGreaterThanOrEqual(0);
     expect(fullyCharred).toBeGreaterThan(nearCharStart);
     expect(fullyCharred).toBeLessThanOrEqual(1);
+  });
+});
+
+/**
+ * Gameplay UX PR-E (Finished Pizza Visual 2.0): observable-contract tests for the new explicit
+ * per-category topping roast model (../logic/bakeVisual.ts's `toppingVisualFrame`), replacing
+ * the accidental `cheeseVisualFrame` reuse the Fresh Audit found (see PizzaStage.tsx's own
+ * `toppingPieceStyle` comment). Target = margherita's { start: 60, end: 80 } (heat 1 @ 70).
+ */
+describe("PizzaStage topping roast visual (PR-E)", () => {
+  it("applies no bake-derived filter to any topping before BAKE (pre-bake visual state)", () => {
+    renderStage(null, { pizza: pizzaWithMixedToppings() });
+    expect(toppingEmojiFilter("pepperoni")).toBe("");
+    expect(toppingEmojiFilter("basil")).toBe("");
+    expect(cheeseFilter()).toBe("");
+  });
+
+  it("roasts a normal (non-herb) topping at the ideal bake state", () => {
+    renderStage(70, { pizza: pizzaWithMixedToppings() });
+    const filter = toppingEmojiFilter("pepperoni");
+    expect(filter).toContain("brightness(");
+    expect(filter).toContain("saturate(");
+    expect(filter).toContain("sepia(");
+    // The topping's own baseline drop-shadow must survive being merged with the roast filter --
+    // the exact bug the Fresh Audit found (inline style silently dropped it).
+    expect(filter).toContain("drop-shadow(");
+  });
+
+  it("roasts further (darker/more sepia) when overbaked than at the ideal bake state", () => {
+    renderStage(70, { pizza: pizzaWithMixedToppings() });
+    const ideal = toppingEmojiFilter("pepperoni");
+    cleanup();
+    renderStage(100, { pizza: pizzaWithMixedToppings() });
+    const overbaked = toppingEmojiFilter("pepperoni");
+    expect(overbaked).not.toBe(ideal);
+    const sepiaOf = (filter: string) => Number(filter.match(/sepia\(([\d.]+)\)/)?.[1] ?? "0");
+    expect(sepiaOf(overbaked)).toBeGreaterThan(sepiaOf(ideal));
+  });
+
+  it("keeps a green herb topping (basil) visibly greener/lighter than a normal topping at the same overbaked heat", () => {
+    renderStage(100, { pizza: pizzaWithMixedToppings() });
+    const basilFilter = toppingEmojiFilter("basil");
+    const pepperoniFilter = toppingEmojiFilter("pepperoni");
+    const sepiaOf = (filter: string) => Number(filter.match(/sepia\(([\d.]+)\)/)?.[1] ?? "0");
+    const brightnessOf = (filter: string) => Number(filter.match(/brightness\(([\d.]+)\)/)?.[1] ?? "1");
+    expect(sepiaOf(basilFilter)).toBeLessThan(sepiaOf(pepperoniFilter));
+    expect(brightnessOf(basilFilter)).toBeGreaterThan(brightnessOf(pepperoniFilter));
+  });
+
+  it("does not apply the topping curve to cheese (cheese keeps its own melt/toast/char curve)", () => {
+    renderStage(100, { pizza: pizzaWithMixedToppings() });
+    const cheese = cheeseFilter();
+    const pepperoni = toppingEmojiFilter("pepperoni");
+    expect(cheese).not.toContain("drop-shadow");
+    expect(cheese).not.toBe(pepperoni);
+  });
+
+  it("renders correctly for a no-cheese recipe fixture (no .pizza-cheese element)", () => {
+    renderStage(70, { pizza: pizzaWithoutCheese() });
+    expect(document.querySelector(".pizza-cheese")).toBeNull();
+    const filter = toppingEmojiFilter("oregano");
+    expect(filter).toContain("drop-shadow(");
+  });
+
+  it("renders correctly for a no-topping recipe fixture (cheese only, no emoji toppings)", () => {
+    renderStage(70, { pizza: pizzaCheeseOnly() });
+    expect(document.querySelectorAll(".pizza-cheese").length).toBe(2);
+    expect(document.querySelector(".ingredient-piece-visual__emoji")).toBeNull();
+  });
+
+  it("preserves the same topping roast at RESULT as at the end of BAKE (BAKE -> RESULT continuity)", () => {
+    renderStage(70, { pizza: pizzaWithMixedToppings(), resultRevealed: false });
+    const duringBake = toppingEmojiFilter("pepperoni");
+    cleanup();
+    renderStage(70, { pizza: pizzaWithMixedToppings(), resultRevealed: true });
+    const atResult = toppingEmojiFilter("pepperoni");
+    expect(atResult).toBe(duringBake);
+  });
+
+  it("keeps the CUT overlay present alongside the new topping roast styling", () => {
+    renderStage(70, { pizza: pizzaWithMixedToppings(), makingStep: "CUT" });
+    expect(document.querySelector(".pizza-cut-layer")).not.toBeNull();
+    expect(toppingEmojiFilter("pepperoni")).toContain("drop-shadow(");
   });
 });
