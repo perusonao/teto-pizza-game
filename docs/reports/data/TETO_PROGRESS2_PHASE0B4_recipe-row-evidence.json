@@ -1080,20 +1080,450 @@
       "requiresMechanicIdentity": false,
       "evidenceGaps": [],
       "namingAmbiguityNote": "カリフラワー here is used as a TOPPING ingredient (cauliflower florets), distinct from cauliflower-crust-pizza-pizzadb-p2's use of cauliflower as a dough MATERIAL (Phase 0B.8) -- same canonical ingredient id, two structurally different uses, not conflated."
+    },
+    {
+      "id": "baba-ganoush-pizza-pizzadb-p7",
+      "nameJa": "ババガヌーシュピザ",
+      "origin": "レバノン / 各地",
+      "doughStyle": "薄めの生地",
+      "sauceFamily": "その他",
+      "ingredientsJa": [
+        "ナス",
+        "オリーブオイル",
+        "パセリ",
+        "松の実"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/7/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": []
+    },
+    {
+      "id": "jamon-serrano-pizza-pizzadb-p7",
+      "nameJa": "ハモンセラーノピザ",
+      "origin": "スペイン / 各地",
+      "doughStyle": "薄めの生地",
+      "sauceFamily": "トマトソース",
+      "ingredientsJa": [
+        "生ハム",
+        "モッツァレラチーズ",
+        "ルッコラ"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/7/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": []
+    },
+    {
+      "id": "jalapeno-popper-pizza-pizzadb-p7",
+      "nameJa": "ハラペーニョポッパーピザ",
+      "origin": "アメリカ / 各地",
+      "doughStyle": "薄めの生地",
+      "sauceFamily": "チーズ",
+      "ingredientsJa": [
+        "ハラペーニョ",
+        "クリームチーズ",
+        "ベーコン",
+        "モッツァレラチーズ"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/7/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": []
+    },
+    {
+      "id": "palmitos-salsa-golf-pizzadb-p7",
+      "nameJa": "パルミートス・イ・サルサ・ゴルフ",
+      "origin": "アルゼンチン / ブエノスアイレス",
+      "doughStyle": "厚みのあるふんわりした生地",
+      "sauceFamily": "その他",
+      "ingredientsJa": [
+        "ヤシの新芽",
+        "ハム",
+        "モッツァレラチーズ",
+        "オレガノ"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/7/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "namingAmbiguityNote": "Same thick/fluffy Buenos Aires dough style as pizza-a-caballo and pizza-de-cancha (both already evidenced), but a distinctly different topping composition (palm heart + ham + mozzarella + oregano, dressed with 'salsa golf' per the dish name) -- kept as a fully separate dish, not merged."
+    },
+    {
+      "id": "parmigiana-pizza-pizzadb-p7",
+      "nameJa": "パルミジャーナピザ",
+      "origin": "イタリア / 南イタリア",
+      "doughStyle": "ナポリピッツァ生地",
+      "sauceFamily": "トマトソース",
+      "ingredientsJa": [
+        "ナス",
+        "モッツァレラチーズ",
+        "パルミジャーノチーズ",
+        "バジル"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/7/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "namingAmbiguityNote": "Naming-adjacent to the two other already-evidenced eggplant-based Italian pizzas (eggplant-ricotta-pizza-pizzadb-p5: fresh ricotta+mint; the existing 'alla-norma' catalog candidate: ricotta-salata+basil+mozzarella+olive-oil) -- this row's own composition (eggplant+mozzarella+parmigiano+basil, no ricotta at all) is distinct from both. Kept as a fully separate dish, not merged with either."
+    },
+    {
+      "id": "palmito-pizza-pizzadb-p7",
+      "nameJa": "パルミットピザ",
+      "origin": "ブラジル / 各地",
+      "doughStyle": "薄めの生地",
+      "sauceFamily": "チーズ",
+      "ingredientsJa": [
+        "ヤシの新芽",
+        "モッツァレラチーズ",
+        "オリーブ"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/7/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": []
+    },
+    {
+      "id": "bambino-pizzadb-p7",
+      "nameJa": "バンビーノ",
+      "origin": "イタリア / 各地",
+      "doughStyle": "ピッツァ生地",
+      "sauceFamily": "トマトソース",
+      "ingredientsJa": [
+        "モッツァレラチーズ",
+        "ハム",
+        "コーン"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/7/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": []
+    },
+    {
+      "id": "piadina-romagnola-pizzadb-p7",
+      "nameJa": "ピアディーナ・ロマニョーラ",
+      "origin": "イタリア / エミリア＝ロマーニャ州",
+      "doughStyle": "薄い無発酵の平焼き生地",
+      "sauceFamily": "ノンソース",
+      "ingredientsJa": [
+        "生ハム",
+        "ルッコラ",
+        "クリームチーズ"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/7/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": true,
+      "mechanicIdentityNote": "Explicit dough identity evidence: unleavened (無発酵), thin flatbread bake -- a genuinely NEW dough-identity axis, distinct from every prior mechanic-identity row (square pan, thin cracker, deep-dish stacking, double-crust stuffed, cauliflower dough material, boat-shaped dough). Not merged into any existing mechanic family.",
+      "evidenceGaps": []
+    },
+    {
+      "id": "pizza-overload-pizzadb-p7",
+      "nameJa": "ピザオーバーロード",
+      "origin": "フィリピン / 各地",
+      "doughStyle": "薄めの生地",
+      "sauceFamily": "トマトソース",
+      "ingredientsJa": [
+        "ホットドッグ",
+        "ハム",
+        "ベーコン",
+        "モッツァレラチーズ",
+        "パイナップル"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/7/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "taxonomyNote": "ホットドッグ (hot-dog) is tagged prepared_dish_composite in the ingredient canonicalizer's TAXONOMY_FLAGS (Phase 0B.3) -- a prepared dish used as a topping, not a raw ingredient; kept as-is per existing discipline."
+    },
+    {
+      "id": "pizza-salad-pizzadb-p7",
+      "nameJa": "ピザサラダ",
+      "origin": "ドイツ / 各地",
+      "doughStyle": "薄焼きピザ生地",
+      "sauceFamily": "トマトソース",
+      "ingredientsJa": [
+        "モッツァレラチーズ",
+        "レタス",
+        "きゅうり",
+        "コーン",
+        "ヨーグルトソース"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/7/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "taxonomyNote": "ヨーグルトソース (yogurt-sauce) is tagged sauce_or_condiment-adjacent (a dressing, applied as a finishing sauce over raw salad toppings, not a base sauce) -- kept as a distinct ingredient id, not merged with the row's own トマトソース sauceFamily tag."
+    },
+    {
+      "id": "bismarck-pizza-pizzadb-p7",
+      "nameJa": "ビスマルク",
+      "origin": "イタリア / 各地",
+      "doughStyle": "ピッツァ生地",
+      "sauceFamily": "トマトソース",
+      "ingredientsJa": [
+        "モッツァレラチーズ",
+        "ハム",
+        "マッシュルーム",
+        "卵"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/7/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": "bismarck",
+      "correspondenceNote": "Matches the existing game_design_candidate 'bismarck' (ingredients: egg, mozzarella, tomato-sauce) by name and egg-topped identity, but this PIZZA DB row is a fuller composition -- adds ham and mushroom (a 'capricciosa-plus-egg' style) where the existing candidate is a plain egg+mozzarella pizza. Recorded as new evidence for a possible future correction/expansion of the existing candidate's ingredient list; NOT changed here -- new open item for a product decision.",
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": []
+    },
+    {
+      "id": "pizza-alla-crudaiola-pizzadb-p8",
+      "nameJa": "ピッツァ・アッラ・クルダイオーラ",
+      "origin": "イタリア / プーリア州",
+      "doughStyle": "ナポリピッツァ生地",
+      "sauceFamily": "トマトソース",
+      "ingredientsJa": [
+        "モッツァレラチーズ",
+        "トマト",
+        "ルッコラ",
+        "ブラータチーズ",
+        "オリーブオイル"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/8/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "namingAmbiguityNote": "Name means 'raw-style' (crudaiola), naming-adjacent to the page-8 no-sauce raw-topping family below, but this row is baked WITH tomato-sauce (not the sauce=ノンソース pattern) -- kept separate from that mechanic-identity cluster, not flagged as requiring the same finishing-mechanic identity."
+    },
+    {
+      "id": "pizza-asparagi-limone-pizzadb-p8",
+      "nameJa": "ピッツァ・コン・アスパラージ・クルーディ・エ・リモーネ",
+      "origin": "イタリア / ヴェネト州",
+      "doughStyle": "薄焼きピッツァ生地",
+      "sauceFamily": "ノンソース",
+      "ingredientsJa": [
+        "モッツァレラチーズ",
+        "アスパラガス",
+        "パルミジャーノチーズ",
+        "レモン",
+        "オリーブオイル"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/8/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": true,
+      "mechanicIdentityNote": "PAGE-8 NO-SAUCE RAW-TOPPING FAMILY FINDING: this row is one of 8 (pizza-asparagi-limone/pizza-carciofi-salad/pizza-finocchi-salad/pizza-cavolo-carote/pizza-zucchine-menta/pizza-cicoria-limone/pizza-puntarelle/pizza-radicchio-noci, all -pizzadb-p8) sharing a consistent pattern: sauceFamily=ノンソース (no base sauce), a raw ('crudo'/'crudi') vegetable/salad topping, and a lemon+olive-oil dressing as the only 'sauce'-like element. This looks like a genuinely distinct FINISHING mechanic (raw salad topping added post-bake, dressed rather than baked-in) worth a future design-level mechanic candidate -- recorded here as a design FINDING only, per the trigger comment's explicit instruction not to invent gameplay behavior. Not merged into any existing mechanic (postBakeFinishing's drizzle sub-type is the closest analog but was defined for a sauce stripe, not a whole raw-salad topping set).",
+      "evidenceGaps": []
+    },
+    {
+      "id": "pizza-carciofi-salad-pizzadb-p8",
+      "nameJa": "ピッツァ・コン・インサラータ・ディ・カルチョーフィ",
+      "origin": "イタリア / ローマ",
+      "doughStyle": "ローマ風ピッツァ生地",
+      "sauceFamily": "ノンソース",
+      "ingredientsJa": [
+        "モッツァレラチーズ",
+        "アーティチョーク",
+        "セロリ",
+        "パルミジャーノチーズ",
+        "レモン",
+        "オリーブオイル"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/8/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": true,
+      "mechanicIdentityNote": "Part of the page-8 no-sauce raw-topping family (see pizza-asparagi-limone-pizzadb-p8 for the full finding). Additionally naming-adjacent to the existing 'ai-carciofi' catalog candidate (artichoke, garlic, mozzarella, tomato-sauce), but a structurally DIFFERENT dish -- no-sauce raw artichoke salad (celery, parmigiano, lemon, olive-oil, no garlic, no tomato-sauce) vs. a baked garlic/tomato-sauce artichoke pizza. NOT set as correspondsToExistingCatalogId -- kept as a fully separate dish.",
+      "evidenceGaps": []
+    },
+    {
+      "id": "pizza-finocchi-salad-pizzadb-p8",
+      "nameJa": "ピッツァ・コン・インサラータ・ディ・フィノッキ",
+      "origin": "イタリア / シチリア州",
+      "doughStyle": "薄焼きピッツァ生地",
+      "sauceFamily": "ノンソース",
+      "ingredientsJa": [
+        "モッツァレラチーズ",
+        "フェンネル",
+        "オレンジ",
+        "オリーブ",
+        "ミント",
+        "オリーブオイル"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/8/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": true,
+      "mechanicIdentityNote": "Part of the page-8 no-sauce raw-topping family (see pizza-asparagi-limone-pizzadb-p8 for the full finding). Uses lemon-substitute dressing pairing (fennel+orange+mint, no explicit レモン ingredient despite the family pattern) -- still consistent with the ノンソース/raw-topping/olive-oil-dressed cluster.",
+      "evidenceGaps": []
+    },
+    {
+      "id": "pizza-cavolo-carote-pizzadb-p8",
+      "nameJa": "ピッツァ・コン・カーヴォロ・ロッソ・エ・カローテ",
+      "origin": "イタリア / リグーリア州",
+      "doughStyle": "薄焼きピッツァ生地",
+      "sauceFamily": "ノンソース",
+      "ingredientsJa": [
+        "モッツァレラチーズ",
+        "紫キャベツ",
+        "にんじん",
+        "ひまわりの種",
+        "レモン",
+        "オリーブオイル"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/8/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": true,
+      "mechanicIdentityNote": "Part of the page-8 no-sauce raw-topping family (see pizza-asparagi-limone-pizzadb-p8 for the full finding).",
+      "evidenceGaps": []
+    },
+    {
+      "id": "pizza-zucchine-menta-pizzadb-p8",
+      "nameJa": "ピッツァ・コン・ズッキーネ・クルーデ・エ・メンタ",
+      "origin": "イタリア / カンパニア州",
+      "doughStyle": "ナポリピッツァ生地",
+      "sauceFamily": "ノンソース",
+      "ingredientsJa": [
+        "モッツァレラチーズ",
+        "ズッキーニ",
+        "ミント",
+        "レモン",
+        "リコッタチーズ",
+        "オリーブオイル"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/8/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": true,
+      "mechanicIdentityNote": "Part of the page-8 no-sauce raw-topping family (see pizza-asparagi-limone-pizzadb-p8 for the full finding). Naming-adjacent to eggplant-ricotta-pizza-pizzadb-p5 (also mint+ricotta+olive-oil) but a different base vegetable (zucchini vs. eggplant) and no-sauce/raw vs. cheese-sauce style -- kept as a fully separate dish.",
+      "evidenceGaps": []
+    },
+    {
+      "id": "pizza-cicoria-limone-pizzadb-p8",
+      "nameJa": "ピッツァ・コン・チコリア・エ・リモーネ",
+      "origin": "イタリア / ラツィオ州",
+      "doughStyle": "ローマ風ピッツァ生地",
+      "sauceFamily": "ノンソース",
+      "ingredientsJa": [
+        "ペコリーノチーズ",
+        "チコリ",
+        "レモン",
+        "にんにく",
+        "唐辛子",
+        "オリーブオイル"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/8/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": true,
+      "mechanicIdentityNote": "Part of the page-8 no-sauce raw-topping family (see pizza-asparagi-limone-pizzadb-p8 for the full finding). Notably has NO mozzarella (pecorino instead) -- the only row in this family to omit mozzarella entirely.",
+      "evidenceGaps": [],
+      "taxonomyNote": "唐辛子 (plain chili pepper) kept ambiguous per the existing chili/chili-oil group (Phase 0B.9) -- NOT resolved here."
+    },
+    {
+      "id": "pizza-puntarelle-pizzadb-p8",
+      "nameJa": "ピッツァ・コン・プンタレッレ",
+      "origin": "イタリア / ローマ",
+      "doughStyle": "ローマ風ピッツァ生地",
+      "sauceFamily": "ノンソース",
+      "ingredientsJa": [
+        "モッツァレラチーズ",
+        "アンチョビ",
+        "プンタレッレ",
+        "レモン",
+        "オリーブオイル"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/8/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": true,
+      "mechanicIdentityNote": "Part of the page-8 no-sauce raw-topping family (see pizza-asparagi-limone-pizzadb-p8 for the full finding).",
+      "evidenceGaps": []
+    },
+    {
+      "id": "pizza-radicchio-noci-pizzadb-p8",
+      "nameJa": "ピッツァ・コン・ラディッキオ・クルード・エ・ノーチ",
+      "origin": "イタリア / ヴェネト州",
+      "doughStyle": "薄焼きピッツァ生地",
+      "sauceFamily": "ノンソース",
+      "ingredientsJa": [
+        "モッツァレラチーズ",
+        "ラディッキオ",
+        "くるみ",
+        "バルサミコ酢",
+        "オリーブオイル"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/8/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": true,
+      "mechanicIdentityNote": "Part of the page-8 no-sauce raw-topping family (see pizza-asparagi-limone-pizzadb-p8 for the full finding). Uses balsamic vinegar instead of lemon as its acidic dressing element -- the only row in this family to substitute the shared レモン ingredient.",
+      "evidenceGaps": []
+    },
+    {
+      "id": "pizza-chilena-pizzadb-p8",
+      "nameJa": "ピッツァ・チレーナ",
+      "origin": "チリ / サンティアゴ",
+      "doughStyle": "薄めの生地",
+      "sauceFamily": "トマトソース",
+      "ingredientsJa": [
+        "ひき肉",
+        "玉ねぎ",
+        "卵",
+        "オリーブ",
+        "モッツァレラチーズ"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/8/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "namingAmbiguityNote": "Shares only the 'Chilean' origin tag with the already-evidenced chilean-napolitana-pizzadb (fresh-tomato+mozzarella+oregano) -- names and compositions are otherwise unrelated (this row: ground-meat+onion+egg+olive+mozzarella). Not a naming-ambiguity cluster requiring special handling, kept as a fully separate dish.",
+      "taxonomyNote": "ひき肉 (generic ground meat) kept unresolved per the existing ambiguous-entry discipline -- NOT silently mapped to any specific meat."
     }
   ],
   "counters": {
-    "uniqueRecipeRowsEvidencedTotal": 79,
-    "uniqueRecipeRowsEvidencedFormula": "25 (Phase 0B original comparison_table_sample) + 47 (later comparison_table_sample batches) + 7 (individual_profile_page) = 79, all deduplicated against each other",
+    "uniqueRecipeRowsEvidencedTotal": 100,
+    "uniqueRecipeRowsEvidencedFormula": "25 (Phase 0B original comparison_table_sample) + 68 (later comparison_table_sample batches) + 7 (individual_profile_page) = 100, all deduplicated against each other",
     "claimedTotalPopulation": 172,
-    "coveragePercent": 45.9,
+    "coveragePercent": 58.1,
     "independentlyFreshVerifiedRows": 7,
     "independentlyFreshVerifiedNote": "Rows evidenced via a dedicated individual PIZZA DB profile-page fetch (deeper single-dish evidence: origin/dough/sauce-family/ingredients), as distinct from a row's appearance in the aggregate comparison-table scrape.",
-    "relayedOnlyRows": 72,
+    "relayedOnlyRows": 93,
     "relayedOnlyNote": "Rows evidenced only via the aggregate comparison-table sample (Phase 0B), not (yet) confirmed by a dedicated individual profile-page fetch.",
-    "duplicateCorroborationsCount": 28,
+    "duplicateCorroborationsCount": 31,
     "duplicateCorroborationsNote": "Each entry in the top-level 'corroborations' list is a re-confirmation of an already-evidenced row (new source URL/date), found either by exact id/nameJa match (matchType=automatic_exact_match) or by human ingredient-set review (matchType=manual_review) -- never counted toward uniqueRecipeRowsEvidencedTotal.",
-    "rowsRequiringMechanicIdentityCount": 12,
+    "rowsRequiringMechanicIdentityCount": 21,
     "rowsRequiringMechanicIdentityIds": [
       "pizza-a-caballo",
       "fugazzeta-rellena",
@@ -1106,25 +1536,35 @@
       "chicago-stuffed-pizza-pizzadb-p3",
       "detroit-style-pizza-pizzadb-p5",
       "turkish-pide-pizzadb-p5",
-      "new-england-bar-pizza-pizzadb-p6"
+      "new-england-bar-pizza-pizzadb-p6",
+      "piadina-romagnola-pizzadb-p7",
+      "pizza-asparagi-limone-pizzadb-p8",
+      "pizza-carciofi-salad-pizzadb-p8",
+      "pizza-finocchi-salad-pizzadb-p8",
+      "pizza-cavolo-carote-pizzadb-p8",
+      "pizza-zucchine-menta-pizzadb-p8",
+      "pizza-cicoria-limone-pizzadb-p8",
+      "pizza-puntarelle-pizzadb-p8",
+      "pizza-radicchio-noci-pizzadb-p8"
     ],
     "rowsWithEvidenceGapsCount": 2,
     "rowsWithEvidenceGapsIds": [
       "pizza-a-caballo",
       "colorado-mountain-pie-pizzadb-p3"
     ],
-    "rowsCorrespondingToExistingCatalogEntry": 6,
+    "rowsCorrespondingToExistingCatalogEntry": 7,
     "rowsCorrespondingToExistingCatalogEntryIds": [
       "margherita-pizzadb-row",
       "hawaiian-pizzadb-row",
       "speck-e-brie-pizzadb-p4",
       "diavola-pizza-pizzadb-p5",
       "detroit-style-pizza-pizzadb-p5",
-      "nutella-dessert-pizza-pizzadb-p6"
+      "nutella-dessert-pizza-pizzadb-p6",
+      "bismarck-pizza-pizzadb-p7"
     ],
     "rowsCorrespondingToExistingCatalogEntryNote": "correspondsToExistingCatalogId is set whether that catalog entry is already SHIPPED (e.g. margherita) or still an unshipped candidate (e.g. hawaiian) -- check each row's own correspondenceNote for which.",
-    "pendingRowCount": 93,
-    "pendingRowNote": "172 - 79 = 93 rows remain with zero evidence."
+    "pendingRowCount": 72,
+    "pendingRowNote": "172 - 100 = 72 rows remain with zero evidence."
   },
   "independentSessionFetchStatus": {
     "lastCheckedThisPhase": "2026-09-22 (Phase 0B.4)",
@@ -1328,6 +1768,27 @@
       "newSourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/6/",
       "note": "Phase 0B.9 relayed row 'バッファローチキンピザ' (no suffix) with ingredient set {buffalo-sauce,chicken,mozzarella,blue-cheese-dressing} -- exact match to buffalo-chicken-pizzadb. Not caught by automated exact nameJa match due to the suffix convention.",
       "matchType": "manual_review"
+    },
+    {
+      "matchedRowId": "hawaiian-pizza-pizzadb-p7-DUP",
+      "matchedNameJa": "ハワイアンピザ",
+      "newSourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/7/",
+      "note": "2026-09-22 (relayed re-confirmation, not independently re-fetched by this Claude session)",
+      "matchType": "automatic_exact_match"
+    },
+    {
+      "matchedRowId": "pizza-a-caballo-pizzadb-p8-DUP",
+      "matchedNameJa": "ピッツァ・ア・カバージョ",
+      "newSourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/8/",
+      "note": "2026-09-22 (relayed re-confirmation, not independently re-fetched by this Claude session)",
+      "matchType": "automatic_exact_match"
+    },
+    {
+      "matchedRowId": "pizza-de-cancha-pizzadb-p8-DUP",
+      "matchedNameJa": "ピッツァ・デ・カンチャ",
+      "newSourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/8/",
+      "note": "2026-09-22 (relayed re-confirmation, not independently re-fetched by this Claude session)",
+      "matchType": "automatic_exact_match"
     }
   ]
 }

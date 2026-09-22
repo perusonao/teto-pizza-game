@@ -54,6 +54,7 @@ ORTHOGRAPHIC_EQUIVALENTS = {
     # no identity ambiguity, exactly like 玉ねぎ->たまねぎ and リコッタ->リコッタチーズ above.
     "モッツァレラチーズ": "モッツァレラ",  # チーズ suffix variant of existing mozzarella's nameJa モッツァレラ.
     "ナス": "なす",  # ナス -> なす (eggplant): katakana/hiragana variant of the same word.
+    "卵": "たまご",  # 卵 -> たまご (egg): kanji/kana variant of the same word. Phase 0B.10 finding.
 }
 
 # --- Phase 0B introduced 15 new ingredient ids without recording a
@@ -102,6 +103,8 @@ LIKELY_ALIAS_TABLE = {
     "サルサソース": ("salsa", "ソース suffix variant of Phase 0B's salsa (taco-pizza-pizzadb)."),
     "ヘーゼルナッツチョコレートスプレッド": ("nutella-spread", "Word-order variant of existing nutella-spread's nameJa チョコヘーゼルナッツソース -- same chocolate-hazelnut spread concept."),
     "甘めのトマトソース": ("tomato-sauce", "A sweeter variant of the same base tomato-sauce, not treated as a structurally distinct sauce family."),
+    # Phase 0B.10 addition:
+    "パルミジャーノチーズ": ("parmigiano", "チーズ suffix variant of existing parmigiano's nameJa パルミジャーノ."),
 }
 
 # --- Rule 3: curated ambiguity table (ambiguous). Never auto-resolved. Key:
