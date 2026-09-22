@@ -726,6 +726,14 @@ describe("HOME/GAME separation (Issue #24)", () => {
     const cutCard = document.querySelector(".cut-evaluation-summary");
     expect(cutCard).toBeInTheDocument();
     expect(cutCard).toHaveTextContent(/カット/);
+
+    // Gameplay UX PR-D (RESULT 1-Screen 2.0): end-to-end wiring check -- GameScreen's own
+    // `isFreeResultScreen` flag reaches PizzaStage as `resultCompact` once RESULT/DISCOVERED is
+    // actually showing (not just the isolated PizzaStage-level prop test in
+    // PizzaStage.stageLayout.test.tsx), and the primary retry CTA is reachable without any
+    // unit-test-level scroll (jsdom lays out `position: fixed` normally).
+    const stage = document.querySelector(".pizza-stage");
+    expect(stage?.className).toContain("pizza-stage--result");
   });
 
   // Pizza Cutting 1.0 Phase 3 (docs/design/TETO_PIZZA-CUTTING_1.0.md §14 Option D / RESULT UI

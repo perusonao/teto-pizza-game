@@ -459,7 +459,12 @@ test.describe("PREPARE: ingredient selection never needs vertical scroll (Gamepl
 });
 
 test.describe("FREE RESULT: real content overflow scrolls .game-screen, never the page", () => {
-  test("margherita CUT round -- CTA reachable via internal scroll only", async ({ page }) => {
+  // Gameplay UX PR-D (RESULT 1-Screen 2.0, Fresh Audit §6): the CTA row is no longer a plain
+  // `.action-row` that merely happens to be reachable by scrolling -- it is `position: fixed`
+  // (the same `.prepare-bake-bar` contract every MAKING-phase CTA already uses), so it must be
+  // visible and tappable in the *first* viewport, with zero scrolling, regardless of how tall
+  // the collapsed-by-default detail content above it is.
+  test("margherita CUT round -- CTA visible in the first viewport, no scroll required", async ({ page }) => {
     test.setTimeout(60_000);
     await startFreshMargherita(page);
     await playFullMargheritaRound(page);
@@ -470,27 +475,69 @@ test.describe("FREE RESULT: real content overflow scrolls .game-screen, never th
       s.innerHeight,
     );
 
+    const vh = page.viewportSize()!.height;
+    const cta = await page.locator(".result-panel__actions").boundingBox();
+    expect(cta).not.toBeNull();
+    expect(cta!.y).toBeGreaterThanOrEqual(0);
+    expect(cta!.y + cta!.height).toBeLessThanOrEqual(vh + 1);
+
+    // Default-closed details (CUT/score breakdown/Pitz breakdown) fit the first viewport with
+    // zero overflow -- confirmed by real measurement (Result Report), not assumed from CSS.
+    const gs = await page.evaluate(() => {
+      const el = document.querySelector(".game-screen")!;
+      return { scrollHeight: el.scrollHeight, clientHeight: el.clientHeight };
+    });
+    expect(gs.scrollHeight).toBeLessThanOrEqual(gs.clientHeight);
+  });
+
+  test("margherita CUT round, every <details> expanded -- CTA stays fixed/reachable, expanded content scrolls above it", async ({
+    page,
+  }) => {
+    test.setTimeout(60_000);
+    await startFreshMargherita(page);
+    await playFullMargheritaRound(page);
+    await page.waitForTimeout(200);
+
+    await page.evaluate(() => {
+      document.querySelectorAll("details").forEach((d) => ((d as HTMLDetailsElement).open = true));
+    });
+    await page.waitForTimeout(100);
+
     const gs = await page.evaluate(() => {
       const el = document.querySelector(".game-screen")!;
       return { scrollHeight: el.scrollHeight, clientHeight: el.clientHeight, overflowY: getComputedStyle(el).overflowY };
     });
     expect(gs.overflowY).toBe("auto");
+    // With every detail block open, content now legitimately exceeds the viewport -- this is
+    // expected (information is not deleted, just re-homed into <details>), the CTA below must
+    // stay reachable regardless.
+    expect(gs.scrollHeight).toBeGreaterThan(gs.clientHeight);
 
-    // Whatever the content height, the primary retry CTA must be reachable by scrolling
-    // .game-screen to its own bottom -- never permanently clipped by .app-frame's overflow:
-    // hidden (the real risk this task's fix had to avoid).
+    const vh = page.viewportSize()!.height;
+    const ctaBeforeScroll = await page.locator(".result-panel__actions").boundingBox();
+    expect(ctaBeforeScroll).not.toBeNull();
+    expect(ctaBeforeScroll!.y + ctaBeforeScroll!.height).toBeLessThanOrEqual(vh + 1);
+
+    // Scroll .game-screen to its own end: the fixed CTA must not move, and no real content
+    // (the last <details> block) may render underneath/behind it.
     await page.evaluate(() => {
       const el = document.querySelector(".game-screen")!;
       el.scrollTo(0, el.scrollHeight);
     });
     await page.waitForTimeout(100);
-    const cta = await page.locator(".result-panel__actions").boundingBox();
-    expect(cta).not.toBeNull();
-    const vh = page.viewportSize()!.height;
-    expect(cta!.y).toBeGreaterThanOrEqual(0);
-    expect(cta!.y + cta!.height).toBeLessThanOrEqual(vh + 1);
 
-    // And the document itself still never scrolled to get there.
+    const ctaAfterScroll = await page.locator(".result-panel__actions").boundingBox();
+    expect(ctaAfterScroll).not.toBeNull();
+    expect(Math.round(ctaAfterScroll!.y)).toBe(Math.round(ctaBeforeScroll!.y));
+
+    const lastDetailsBottom = await page.evaluate(() => {
+      const details = document.querySelectorAll(".result-panel details");
+      const last = details[details.length - 1];
+      return last.getBoundingClientRect().bottom;
+    });
+    expect(lastDetailsBottom).toBeLessThanOrEqual(ctaAfterScroll!.y + 1);
+
+    // The document itself still never scrolled to get here.
     const finalState = await pageScrollState(page);
     expect(finalState.docScrollHeight).toBeLessThanOrEqual(finalState.innerHeight);
   });

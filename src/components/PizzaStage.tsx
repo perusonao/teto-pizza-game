@@ -129,8 +129,8 @@ interface PizzaStageProps {
    *  Gameplay UX Phase 1 removed PREPARE from this set (see GameScreen.tsx's `roomyStage`
    *  comment) once the Fresh Audit traced it as the biggest single contributor to PREPARE
    *  overflowing 390x844/360x800 with more than one owned ingredient per category. `false`
-   *  (the default) keeps ORDER's small preview and RESULT's own hero (Finding P1-5, out of
-   *  this pass's scope) at the exact pre-2.0A size. */
+   *  (the default) keeps ORDER's small preview at the exact pre-2.0A size; RESULT's own hero
+   *  is Finding P1-5, addressed by `resultCompact` below (Gameplay UX PR-D). */
   roomy?: boolean;
   /** Gameplay UX Phase 1: PREPARE-only, a few percent smaller than the shared `.pizza-dough`
    *  default ORDER also uses (`.pizza-stage--compact`, App.css) -- purely a real-device safety
@@ -142,6 +142,17 @@ interface PizzaStageProps {
    *  scope) by scoping the smaller size to a separate modifier class instead of changing the
    *  shared default. Never combined with `roomy` (GameScreen.tsx only ever sets one). */
   compact?: boolean;
+  /** Gameplay UX PR-D (RESULT 1-Screen 2.0, Fresh Audit §6 Finding P1-5): RESULT-only, a
+   *  further reduction below the shared `.pizza-dough` default (`.pizza-stage--result`,
+   *  App.css) -- real Chromium measurement (see the Result Report) found the still-default-size
+   *  hero was, on its own, ~35% of the height standing between the primary CTA and the fold once
+   *  CUT applies to every recipe. The player's completed pizza stays the visual anchor (still
+   *  rendered above every RESULT panel section, still the same shared `PizzaStage` instance,
+   *  same CUT-line/topping-placement fidelity, just smaller) -- shrunk by real-device
+   *  measurement to the smallest size that keeps CUT lines and topping placement legible, not a
+   *  blind percentage. Never combined with `roomy`/`compact` (GameScreen.tsx only ever sets one
+   *  of the three, gated on FREE's own `isFreeResultScreen`). */
+  resultCompact?: boolean;
 }
 
 interface GestureState {
@@ -206,6 +217,7 @@ export function PizzaStage({
   onAddCutLine,
   roomy = false,
   compact = false,
+  resultCompact = false,
 }: PizzaStageProps) {
   const circleRef = useRef<HTMLDivElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
@@ -1030,7 +1042,7 @@ export function PizzaStage({
     }
   }, [showSauceHeatmap, effectiveDeposits, fieldSauceColor, pizza.doughShape]);
 
-  const stageClassName = `pizza-stage ${roomy ? "pizza-stage--roomy" : ""} ${compact ? "pizza-stage--compact" : ""}`;
+  const stageClassName = `pizza-stage ${roomy ? "pizza-stage--roomy" : ""} ${compact ? "pizza-stage--compact" : ""} ${resultCompact ? "pizza-stage--result" : ""}`;
 
   return (
     <div className={stageClassName}>

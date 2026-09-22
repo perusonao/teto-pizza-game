@@ -284,6 +284,20 @@
   height: min(76vw, 290px, calc(100dvh - 439px));
 }
 
+/* Gameplay UX PR-D (RESULT 1-Screen 2.0, Fresh Audit §6 Finding P1-5): RESULT keeps the
+   player's own completed pizza as the visual anchor, but the shared default cap (`.pizza-dough`,
+   min(78vw, 300px), unchanged since before Visual Polish 2.0A) is oversized for RESULT's own
+   compact summary/CTA budget -- real Chromium measurement (Result Report) found it the single
+   largest first-view height contributor once CUT applies to every recipe (PR #173). ~65% of the
+   default footprint (300px -> 196px) is the smallest size real-device measurement confirmed
+   still keeps CUT lines and topping placement legible at both 390x844 and 360x800 -- not a
+   blind fixed percentage. The px cap dominates at both shipped viewports (58vw is 226px/209px,
+   both above 196px), so this renders identically at 390x844 and 360x800. */
+.pizza-stage--result .pizza-dough {
+  width: min(58vw, 196px);
+  height: min(58vw, 196px);
+}
+
 .pizza-dough--interactive {
   cursor: pointer;
   /* Pointer gestures (tap + sauce-paint drag) are handled by hand, scoped to the dough
@@ -1439,7 +1453,17 @@
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  padding: 0 20px 24px;
+  /* Gameplay UX PR-D (RESULT 1-Screen 2.0): bottom padding reserves space for
+     `.result-panel__actions`'s own `position: fixed` bar below (mirrors `.ingredient-panel`'s
+     `--bake-bar-reserve` pattern for `.prepare-bake-bar`) -- without this, scrolling this panel
+     to its own end would tuck real content (the CUT/details disclosures) behind the fixed bar
+     instead of stopping above it. Reserve = the bar's own real Chromium-measured height (122px:
+     two stacked buttons + 10px gap + the bar's own 16px vertical padding) + 8px real-device
+     safety slack = 130px, verified via the same real-`getBoundingClientRect()` methodology as
+     `.pizza-stage--roomy`'s own reserve comment (scrolled-to-end probe, all `<details>` open,
+     confirmed 0px overlap between the last scrolled content and the fixed bar's own top edge). */
+  --result-action-bar-reserve: 130px;
+  padding: 0 20px calc(var(--result-action-bar-reserve) + env(safe-area-inset-bottom, 0px));
 }
 
 .result-panel__heading {
@@ -1545,12 +1569,29 @@
   margin-top: 6px;
 }
 
-/* Nested inside .result-panel (also a flex column) rather than directly in .game-screen, so
-   the inherited `.action-row` margin-top:auto has no bottom-of-viewport pull here -- the CTAs
-   simply follow the panel's own content in normal flow, which is what keeps them reachable
-   without an oversized gap once the details above are collapsed (the default state). */
+/* Gameplay UX PR-D (RESULT 1-Screen 2.0, Fresh Audit §6): previously followed the panel's own
+   content in normal flow (a plain `.action-row`, `margin-top: auto`) -- exactly the pattern the
+   Fresh Audit traced as RESULT's own root reachability bug: "only pushes to the bottom of
+   content that already fits on screen", no guarantee once content overflows (measured 154-389px
+   overflow depending on scenario, see the Result Report). Given the same `position: fixed`
+   treatment every MAKING-phase CTA (`.prepare-bake-bar`) already uses, so the primary/secondary
+   CTAs stay reachable regardless of how much detail content is open above them, independent of
+   the Tier 1/2 reorganization below. */
 .result-panel__actions {
-  margin-top: 4px;
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  width: 100%;
+  max-width: 390px;
+  margin-top: 0;
+  box-sizing: border-box;
+  /* --result-action-bar-reserve (`.result-panel` above, 130px) is kept in sync with this bar's
+     own real Chromium-measured height (~122px: two stacked buttons + 10px gap + this padding)
+     plus an 8px real-device safety slack. */
+  padding: 8px 20px calc(8px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(180deg, rgba(239, 220, 179, 0) 0%, #efdcb3 40%, #efdcb3 100%);
+  z-index: 10;
 }
 
 .score-bar {
@@ -1636,11 +1677,35 @@
   color: #b8860b;
 }
 
+/* Gameplay UX PR-D (RESULT 1-Screen 2.0): same native <details> arrow-toggle convention as
+   `.result-panel__details-summary`/`.cut-evaluation-summary__summary` elsewhere on this screen
+   -- no new interaction pattern. */
+.pitz-credit-summary__breakdown-summary {
+  font-size: 12px;
+  font-weight: 600;
+  color: #8a6a44;
+  text-align: center;
+  cursor: pointer;
+  list-style: none;
+}
+
+.pitz-credit-summary__breakdown-summary::-webkit-details-marker {
+  display: none;
+}
+
+.pitz-credit-summary__breakdown-summary::after {
+  content: " \25BE";
+}
+
+.pitz-credit-summary__breakdown[open] .pitz-credit-summary__breakdown-summary::after {
+  content: " \25B4";
+}
+
 .pitz-credit-summary__details {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  margin: 0;
+  margin: 6px 0 0;
 }
 
 .pitz-credit-summary__row {
