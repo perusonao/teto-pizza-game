@@ -105,6 +105,12 @@ LIKELY_ALIAS_TABLE = {
     "甘めのトマトソース": ("tomato-sauce", "A sweeter variant of the same base tomato-sauce, not treated as a structurally distinct sauce family."),
     # Phase 0B.10 addition:
     "パルミジャーノチーズ": ("parmigiano", "チーズ suffix variant of existing parmigiano's nameJa パルミジャーノ."),
+    # Phase 0B.18 additions -- PIZZA DB's own comparison-table pages 13-15 relay uses several
+    # abbreviated (チーズ-suffix-dropped) forms not seen in earlier batches:
+    "フェタ": ("feta", "チーズ suffix DROPPED variant of existing feta's registered nameJa フェタチーズ (Phase 0B.3) -- same cheese, shorter common form."),
+    "マヨ": ("mayo", "Short form of existing mayo's nameJa マヨネーズ -- same condiment."),
+    "コティーハ": ("cotija", "チーズ suffix DROPPED variant of existing cotija's registered nameJa コティーハチーズ (Phase 0B.3) -- same cheese, shorter common form."),
+    "グラナパダーノ": ("grana-padano", "チーズ suffix DROPPED variant of existing grana-padano's registered nameJa グラナパダーノチーズ (Phase 0B.3) -- same cheese, shorter common form."),
 }
 
 # --- Rule 3: curated ambiguity table (ambiguous). Never auto-resolved. Key:

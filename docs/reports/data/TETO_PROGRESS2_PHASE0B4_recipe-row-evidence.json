@@ -2604,20 +2604,354 @@
       "mechanicIdentityNote": "Confirms and supersedes the Phase 0B.15 EN-only candidate finding with genuine Japanese-side evidence. A fourth distinct flatbread-family dough (ultra-thin, crispy), alongside piadina-romagnola's unleavened cracker-thin flatbread (Phase 0B.10), focaccia-genovese's thick olive-oil flatbread (Phase 0B.11), and manakish's soft pita-like flatbread (Phase 0B.13) -- all four kept distinct, not merged. Additional identity evidence preserved without inventing gameplay: the ground-meat paste is spread thinly over the dough before baking (spread/paste-topping mechanic); lemon is squeezed on AFTER baking and the dish is eaten rolled with fresh vegetables (post-bake finish + roll-to-eat serving behavior) -- per the trigger's explicit instruction, lemon/fresh vegetables are NOT added to the canonical ingredient list, since the source's own published topping list is exactly the 5 ingredients recorded here; the finishing/serving text is mechanic/context evidence only.",
       "evidenceGaps": [],
       "taxonomyNote": "ひき肉 (generic ground meat) and 唐辛子 (plain chili pepper) both kept ambiguous per the existing tables (Phase 0B.3/0B.9) -- NOT resolved here."
+    },
+    {
+      "id": "porcini-pizza-pizzadb-p13",
+      "nameJa": "ポルチーニ茸のピザ",
+      "origin": "イタリア / 各地",
+      "doughStyle": "ナポリピッツァ生地",
+      "sauceFamily": "チーズ",
+      "ingredientsJa": [
+        "ポルチーニ茸",
+        "モッツァレラ",
+        "にんにく",
+        "パセリ"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/13/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": "ai-funghi-porcini",
+      "correspondenceNote": "Matches the existing game_design_candidate 'ai-funghi-porcini' (mozzarella, porcini, tomato-sauce) by name/dish identity, but this PIZZA DB row adds garlic+parsley and tags sauceFamily as cheese, not tomato-sauce -- a composition variant. Recorded as new evidence only, not merged or used to change the existing candidate.",
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": []
+    },
+    {
+      "id": "marinara-pizza-pizzadb-p13",
+      "nameJa": "マリナーラ",
+      "origin": "イタリア / ナポリ",
+      "doughStyle": "ナポリピッツァ生地",
+      "sauceFamily": "トマトソース",
+      "ingredientsJa": [
+        "にんにく",
+        "オレガノ",
+        "オリーブオイル"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/13/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": "marinara",
+      "correspondenceNote": "MAJOR-CLASS composition variant against the already-SHIPPED production recipe 'marinara' (ingredients: garlic, oregano, tomato-sauce -- with tomato-sauce recorded there as an explicit topping ingredient). This PIZZA DB row lists garlic, oregano, olive-oil (olive-oil, not tomato-sauce, as the third explicit topping ingredient; tomato-sauce appears only via this row's own sauceFamily tag). Recorded as new evidence ONLY; the shipped recipe is NOT modified. New open item for a product decision (out of this session's scope: no src/** or recipe-composition edits) -- same severity class as the Phase 0B.11/0B.12 fugazza/breakfast-pizza/genovese findings.",
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": []
+    },
+    {
+      "id": "meat-lovers-pizza-pizzadb-p13",
+      "nameJa": "ミートラバーズピザ",
+      "origin": "米国 / 各地",
+      "doughStyle": "薄〜中厚",
+      "sauceFamily": "トマトソース",
+      "ingredientsJa": [
+        "ペパロニ",
+        "ソーセージ",
+        "ベーコン",
+        "牛肉",
+        "ハム"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/13/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": "meat-lovers",
+      "correspondenceNote": "Composition variant against the already-SHIPPED production recipe 'meat-lovers' (bacon, ham, mozzarella, pepperoni, sausage, tomato-sauce -- mozzarella and tomato-sauce both recorded as explicit topping ingredients there). This PIZZA DB row adds BEEF (not in the shipped recipe) and omits mozzarella as an explicit ingredient (tomato-sauce only via sauceFamily tag). Recorded as new evidence only; shipped recipe NOT modified. New open item for a product decision.",
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": []
+    },
+    {
+      "id": "moussaka-style-pizza-pizzadb-p13",
+      "nameJa": "ムサカ風ピザ",
+      "origin": "ギリシャ / 各地",
+      "doughStyle": "薄めの生地",
+      "sauceFamily": "ホワイトソース",
+      "ingredientsJa": [
+        "ナス",
+        "ラム肉",
+        "ホワイトソース",
+        "フェタ",
+        "シナモン"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/13/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "namingAmbiguityNote": "Naming-adjacent to the eggplant-family cluster already tracked (eggplant-tahini-pizza-pizzadb-p5, eggplant-ricotta-pizza-pizzadb-p5, pizza-alla-norma-pizzadb-p9, sichuan-eggplant-pizza, melanzane-pizza-pizzadb-p13 this same batch) -- a sixth, structurally distinct eggplant dish (lamb+cinnamon, Greek moussaka-inspired). Kept separate, not merged."
+    },
+    {
+      "id": "mexican-elote-pizza-pizzadb-p13",
+      "nameJa": "メキシカンエロテピザ",
+      "origin": "メキシコ / 各地",
+      "doughStyle": "薄めの生地",
+      "sauceFamily": "ホワイトソース",
+      "ingredientsJa": [
+        "コーン",
+        "マヨ",
+        "コティーハ",
+        "チリパウダー",
+        "ライム"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/13/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": []
+    },
+    {
+      "id": "melanzane-pizza-pizzadb-p13",
+      "nameJa": "メランザーネピザ",
+      "origin": "イタリア / 南部",
+      "doughStyle": "ナポリピッツァ生地",
+      "sauceFamily": "トマトソース",
+      "ingredientsJa": [
+        "ナス",
+        "モッツァレラ",
+        "バジル"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/13/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "namingAmbiguityNote": "Naming-adjacent to the existing 'alla-norma' catalog candidate (basil, eggplant, mozzarella, olive-oil, ricotta-salata) -- 'Melanzane' is simply Italian for 'eggplant' (a generic descriptive name, not the same dish name), and this row's composition (eggplant+mozzarella+basil, no olive-oil, no ricotta-salata) is a subset. Part of the same eggplant-family cluster as moussaka-style-pizza-pizzadb-p13 (this batch). Kept separate, not merged."
+    },
+    {
+      "id": "montreal-style-pizza-pizzadb-p13",
+      "nameJa": "モントリオールスタイルピザ",
+      "origin": "カナダ / モントリオール",
+      "doughStyle": "厚め鍋焼き",
+      "sauceFamily": "トマトソース",
+      "ingredientsJa": [
+        "ペパロニ",
+        "マッシュルーム",
+        "甘めのトマトソース",
+        "モッツァレラ"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/13/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": true,
+      "mechanicIdentityNote": "Explicit thick pan-baked (鍋焼き) dough identity -- reinforces the existing pan-style/square-shape mechanic cluster (Detroit/old-forge/Grandma/St. Louis/Quad Cities family) already documented in the design catalog. Not a new axis.",
+      "evidenceGaps": [],
+      "taxonomyNote": "甘めのトマトソース (sweetened tomato sauce) kept as a likely_alias of tomato-sauce per the existing table (Phase 0B.3) -- not treated as a structurally distinct sauce family."
+    },
+    {
+      "id": "ratatouille-pizza-pizzadb-p13",
+      "nameJa": "ラタトゥイユピザ",
+      "origin": "フランス / プロヴァンス",
+      "doughStyle": "ナポリピッツァ生地",
+      "sauceFamily": "トマトソース",
+      "ingredientsJa": [
+        "ナス",
+        "ズッキーニ",
+        "パプリカ",
+        "オレガノ"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/13/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": []
+    },
+    {
+      "id": "rucola-e-grana-pizzadb-p13",
+      "nameJa": "ルーコラエグラーナピザ",
+      "origin": "イタリア / 各地",
+      "doughStyle": "ナポリピッツァ生地",
+      "sauceFamily": "トマトソース",
+      "ingredientsJa": [
+        "生ハム",
+        "ルッコラ",
+        "グラナパダーノ"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/13/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": []
+    },
+    {
+      "id": "rendang-pizza-pizzadb-p14",
+      "nameJa": "ルンダンピザ",
+      "origin": "インドネシア / 西スマトラ",
+      "doughStyle": "薄めの生地",
+      "sauceFamily": "カレー",
+      "ingredientsJa": [
+        "牛肉",
+        "玉ねぎ",
+        "モッツァレラ"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/14/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": []
+    },
+    {
+      "id": "nduja-pizza-pizzadb-p14",
+      "nameJa": "ンドゥイヤピザ",
+      "origin": "イタリア / カラブリア",
+      "doughStyle": "ナポリピッツァ生地",
+      "sauceFamily": "ホットソース",
+      "ingredientsJa": [
+        "ソーセージ",
+        "モッツァレラ",
+        "蜂蜜"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/14/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "namingAmbiguityNote": "Dish name explicitly means 'Nduja Pizza' (a specific spicy Calabrian sausage), but the source's own published ingredient list uses only the generic term ソーセージ (sausage), not a specific nduja ingredient. Per this repo's never-infer-beyond-what's-given discipline, ソーセージ is kept classified as generic sausage -- NOT silently relabeled as nduja. Also naming-adjacent to the existing 'calabrese' catalog candidate (mozzarella, nduja, tomato-sauce), but this row adds honey and tags sauceFamily as hot, not tomato -- a different, hot-honey-style composition. Not merged with either."
+    },
+    {
+      "id": "tsukimi-pizza-pizzadb-p14",
+      "nameJa": "月見ピザ",
+      "origin": "日本 / 各地",
+      "doughStyle": "薄めの生地",
+      "sauceFamily": "チーズ",
+      "ingredientsJa": [
+        "卵",
+        "ベーコン",
+        "モッツァレラ",
+        "青ねぎ"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/14/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": []
+    },
+    {
+      "id": "black-truffle-pizza-pizzadb-p14",
+      "nameJa": "黒トリュフピザ",
+      "origin": "イタリア / ウンブリア・ピエモンテ",
+      "doughStyle": "ナポリピッツァ生地",
+      "sauceFamily": "チーズ",
+      "ingredientsJa": [
+        "トリュフ",
+        "モッツァレラ",
+        "パルミジャーノ"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/14/",
+      "verifiedAt": "2026-09-22 (relayed via directly-fetched Japanese comparison-table page 14, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": "al-tartufo",
+      "correspondenceNote": "JAPANESE-SIDE CONFIRMATION of the Phase 0B.15 EN-only candidate 'Black Truffle Pizza' -- resolves that unconfirmed candidate with genuine ja-172 evidence. Matches the existing game_design_candidate 'al-tartufo' (fontina, olive-oil, truffle) by name/dish identity, but this PIZZA DB row uses mozzarella+parmigiano instead of fontina+olive-oil -- a composition variant. Recorded as new evidence only, not merged or used to change the existing candidate. New open item for a product decision.",
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": []
+    },
+    {
+      "id": "teriyaki-chicken-pizza-pizzadb-p14",
+      "nameJa": "照り焼きチキンピザ",
+      "origin": "日本 / 各地",
+      "doughStyle": "薄めの生地",
+      "sauceFamily": "甘辛だれ",
+      "ingredientsJa": [
+        "チキン",
+        "玉ねぎ",
+        "マヨ",
+        "海苔"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/14/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": "teriyaki-chicken",
+      "correspondenceNote": "Matches the existing game_design_candidate 'teriyaki-chicken' (chicken, corn, mayo, mozzarella, nori, onion, teriyaki-sauce) by name/dish identity, but this PIZZA DB row's published ingredient list omits corn and mozzarella (a subset of the existing candidate's fuller composition). Recorded as new evidence only, not merged or used to change the existing candidate.",
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": []
+    },
+    {
+      "id": "south-african-boerewors-pizzadb-p14",
+      "nameJa": "南アフリカボアヴォースピザ",
+      "origin": "南アフリカ / 各地",
+      "doughStyle": "薄めの生地",
+      "sauceFamily": "甘辛だれ",
+      "ingredientsJa": [
+        "ソーセージ",
+        "玉ねぎ",
+        "モッツァレラ",
+        "チャツネ"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/14/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "namingAmbiguityNote": "Dish name references boerewors (a specific South African sausage), but the source's own published ingredient list uses only the generic term ソーセージ (sausage) -- kept classified as generic sausage, not relabeled, same discipline applied to nduja-pizza-pizzadb-p14 this same batch."
+    },
+    {
+      "id": "ume-shiso-pizza-pizzadb-p14",
+      "nameJa": "梅しそピザ",
+      "origin": "日本 / 各地",
+      "doughStyle": "薄めの生地",
+      "sauceFamily": "その他",
+      "ingredientsJa": [
+        "梅肉",
+        "大葉",
+        "モッツァレラ",
+        "しらす"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/14/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "taxonomyNote": "梅肉 (umeboshi-paste) is tagged false_friend_not_meat in TAXONOMY_FLAGS (Phase 0B.3) -- contains the 肉 kanji but means plum FLESH, not meat; correctly not grouped with beef/pork/chicken/ground-beef."
+    },
+    {
+      "id": "hokkaido-cheese-pizza-pizzadb-p15",
+      "nameJa": "北海道チーズピザ",
+      "origin": "日本 / 北海道",
+      "doughStyle": "薄めの生地",
+      "sauceFamily": "チーズ",
+      "ingredientsJa": [
+        "チーズ",
+        "じゃがいも",
+        "コーン",
+        "ベーコン"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/15/",
+      "verifiedAt": "2026-09-22 (relayed via directly-fetched Japanese comparison-table page 15, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "namingAmbiguityNote": "JAPANESE-SIDE CONFIRMATION of the Phase 0B.15 EN-only candidate 'Hokkaido Cheese Pizza' -- resolves that unconfirmed candidate with genuine ja-172 evidence.",
+      "taxonomyNote": "チーズ (generic cheese, unspecified variety) kept unresolved per the existing ambiguous-entry discipline (Phase 0B.3) -- NOT silently mapped to mozzarella or any specific cheese, matching the source's own generic listing (the EN profile relayed in Phase 0B.15 specified plain 'Cheese' too)."
     }
   ],
   "counters": {
-    "uniqueRecipeRowsEvidencedTotal": 155,
-    "uniqueRecipeRowsEvidencedFormula": "25 (Phase 0B original comparison_table_sample) + 113 (later comparison_table_sample batches) + 17 (individual_profile_page) = 155, all deduplicated against each other",
+    "uniqueRecipeRowsEvidencedTotal": 172,
+    "uniqueRecipeRowsEvidencedFormula": "25 (Phase 0B original comparison_table_sample) + 130 (later comparison_table_sample batches) + 17 (individual_profile_page) = 172, all deduplicated against each other",
     "claimedTotalPopulation": 172,
-    "coveragePercent": 90.1,
+    "coveragePercent": 100.0,
     "independentlyFreshVerifiedRows": 17,
     "independentlyFreshVerifiedNote": "Rows evidenced via a dedicated individual PIZZA DB profile-page fetch (deeper single-dish evidence: origin/dough/sauce-family/ingredients), as distinct from a row's appearance in the aggregate comparison-table scrape.",
-    "relayedOnlyRows": 138,
+    "relayedOnlyRows": 155,
     "relayedOnlyNote": "Rows evidenced only via the aggregate comparison-table sample (Phase 0B), not (yet) confirmed by a dedicated individual profile-page fetch.",
-    "duplicateCorroborationsCount": 40,
+    "duplicateCorroborationsCount": 51,
     "duplicateCorroborationsNote": "Each entry in the top-level 'corroborations' list is a re-confirmation of an already-evidenced row (new source URL/date), found either by exact id/nameJa match (matchType=automatic_exact_match) or by human ingredient-set review (matchType=manual_review) -- never counted toward uniqueRecipeRowsEvidencedTotal.",
-    "rowsRequiringMechanicIdentityCount": 35,
+    "rowsRequiringMechanicIdentityCount": 36,
     "rowsRequiringMechanicIdentityIds": [
       "pizza-a-caballo",
       "fugazzeta-rellena",
@@ -2653,14 +2987,15 @@
       "wasabi-beef-pizza",
       "yakiniku-pizza",
       "pizza-de-lomo-saltado",
-      "lahmacun"
+      "lahmacun",
+      "montreal-style-pizza-pizzadb-p13"
     ],
     "rowsWithEvidenceGapsCount": 2,
     "rowsWithEvidenceGapsIds": [
       "pizza-a-caballo",
       "colorado-mountain-pie-pizzadb-p3"
     ],
-    "rowsCorrespondingToExistingCatalogEntry": 15,
+    "rowsCorrespondingToExistingCatalogEntry": 20,
     "rowsCorrespondingToExistingCatalogEntryIds": [
       "margherita-pizzadb-row",
       "hawaiian-pizzadb-row",
@@ -2676,11 +3011,16 @@
       "frutti-di-mare-pizzadb-p11",
       "breakfast-pizza-pizzadb-p11",
       "pesto-genovese-pizza-pizzadb-p11",
-      "boscaiola-pizzadb-p12"
+      "boscaiola-pizzadb-p12",
+      "porcini-pizza-pizzadb-p13",
+      "marinara-pizza-pizzadb-p13",
+      "meat-lovers-pizza-pizzadb-p13",
+      "black-truffle-pizza-pizzadb-p14",
+      "teriyaki-chicken-pizza-pizzadb-p14"
     ],
     "rowsCorrespondingToExistingCatalogEntryNote": "correspondsToExistingCatalogId is set whether that catalog entry is already SHIPPED (e.g. margherita) or still an unshipped candidate (e.g. hawaiian) -- check each row's own correspondenceNote for which.",
-    "pendingRowCount": 17,
-    "pendingRowNote": "172 - 155 = 17 rows remain with zero evidence."
+    "pendingRowCount": 0,
+    "pendingRowNote": "172 - 172 = 0 rows remain with zero evidence."
   },
   "independentSessionFetchStatus": {
     "lastCheckedThisPhase": "2026-09-22 (Phase 0B.4)",
@@ -2968,6 +3308,83 @@
       "newSourceUrl": "https://pizzadb.jp/en/pizzas/breakfast-pizza/",
       "note": "EN-SOURCED translation corroboration, per Phase 0B.15's trigger comment control/dedup finding. PIZZA DB's English index lists 'Egg Pizza' at this profile URL with an IDENTICAL ingredient set (egg, bacon, sausage, cheddar, white sauce) to the already-JA-evidenced breakfast-pizza-pizzadb-p11 (Phase 0B.12). Provenance kept explicit as EN-sourced, NOT rewritten as Japanese-page evidence -- does not increment ja-172 unique coverage, per the standing en-160/en-172 population-separation discipline (tools/progression2_evidence_invariants.py's population_tag_no_en160_leak check). Recorded purely as a cross-language name/translation corroboration.",
       "matchType": "manual_review"
+    },
+    {
+      "matchedRowId": "manakish-pizzadb-p13-DUP",
+      "matchedNameJa": "マナキーシュ",
+      "newSourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/13/",
+      "note": "2026-09-22 (relayed re-confirmation, not independently re-fetched by this Claude session)",
+      "matchType": "automatic_exact_match"
+    },
+    {
+      "matchedRowId": "margherita-pizzadb-p13-DUP",
+      "matchedNameJa": "マルゲリータ",
+      "newSourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/13/",
+      "note": "2026-09-22 (relayed re-confirmation, not independently re-fetched by this Claude session)",
+      "matchType": "automatic_exact_match"
+    },
+    {
+      "matchedRowId": "lahmacun-pizzadb-p13-DUP",
+      "matchedNameJa": "ラフマジュン",
+      "newSourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/13/",
+      "note": "2026-09-22 (relayed re-confirmation, not independently re-fetched by this Claude session)",
+      "matchType": "automatic_exact_match"
+    },
+    {
+      "matchedRowId": "lomo-saltado-pizzadb-p14-DUP",
+      "matchedNameJa": "ロモ・サルタード・ピザ",
+      "newSourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/14/",
+      "note": "2026-09-22 (relayed re-confirmation, not independently re-fetched by this Claude session)",
+      "matchType": "automatic_exact_match"
+    },
+    {
+      "matchedRowId": "wasabi-beef-pizzadb-p14-DUP",
+      "matchedNameJa": "わさび牛ピザ",
+      "newSourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/14/",
+      "note": "2026-09-22 (relayed re-confirmation, not independently re-fetched by this Claude session)",
+      "matchType": "automatic_exact_match"
+    },
+    {
+      "matchedRowId": "sichuan-eggplant-pizzadb-p14-DUP",
+      "matchedNameJa": "四川風ナスピザ",
+      "newSourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/14/",
+      "note": "2026-09-22 (relayed re-confirmation, not independently re-fetched by this Claude session)",
+      "matchType": "automatic_exact_match"
+    },
+    {
+      "matchedRowId": "yakiniku-pizzadb-p14-DUP",
+      "matchedNameJa": "焼肉ピザ",
+      "newSourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/14/",
+      "note": "2026-09-22 (relayed re-confirmation, not independently re-fetched by this Claude session)",
+      "matchType": "automatic_exact_match"
+    },
+    {
+      "matchedRowId": "natto-pizzadb-p14-DUP",
+      "matchedNameJa": "納豆ピザ",
+      "newSourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/14/",
+      "note": "2026-09-22 (relayed re-confirmation, not independently re-fetched by this Claude session)",
+      "matchType": "automatic_exact_match"
+    },
+    {
+      "matchedRowId": "peking-duck-pizzadb-p15-DUP",
+      "matchedNameJa": "北京ダックピザ",
+      "newSourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/15/",
+      "note": "2026-09-22 (relayed re-confirmation, not independently re-fetched by this Claude session)",
+      "matchType": "automatic_exact_match"
+    },
+    {
+      "matchedRowId": "mentaiko-mochi-pizzadb-p15-DUP",
+      "matchedNameJa": "明太子もちピザ",
+      "newSourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/15/",
+      "note": "2026-09-22 (relayed re-confirmation, not independently re-fetched by this Claude session)",
+      "matchType": "automatic_exact_match"
+    },
+    {
+      "matchedRowId": "yuzu-shrimp-pizzadb-p15-DUP",
+      "matchedNameJa": "柚子えびピザ",
+      "newSourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/15/",
+      "note": "2026-09-22 (relayed re-confirmation, not independently re-fetched by this Claude session)",
+      "matchType": "automatic_exact_match"
     }
   ]
 }
