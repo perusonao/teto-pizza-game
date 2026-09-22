@@ -1,0 +1,592 @@
+{
+  "schemaNote": "Phase 0B.3 raw input (Issue #182 / PR #183 comment #5774945778). Verbatim ingredient names relayed by the repository owner for PIZZA DB's ja-172 population, occurrence tiers 4/3/2/1. This file is the INPUT to tools/progression2_ingredient_canonicalizer.py --input -- classification results live in TETO_PROGRESS2_PHASE0B3_canonicalization-results.json, not here. No name here was invented; every entry is transcribed from the relayed comment.",
+  "sourceMeta": {
+    "relayedViaPrComment": "https://github.com/perusonao/teto-pizza-game/pull/183#issuecomment-5774945778",
+    "relayedDate": "2026-09-22",
+    "claimedSourceUrl": "https://pizzadb.jp/",
+    "population": "ja-172",
+    "independentlyFetchedByThisClaudeSession": false
+  },
+  "candidates": [
+    {
+      "nameJa": "アーティチョーク",
+      "count": 4
+    },
+    {
+      "nameJa": "アサリ",
+      "count": 4
+    },
+    {
+      "nameJa": "エビ",
+      "count": 4
+    },
+    {
+      "nameJa": "くるみ",
+      "count": 4
+    },
+    {
+      "nameJa": "じゃがいも",
+      "count": 4
+    },
+    {
+      "nameJa": "ズッキーニ",
+      "count": 4
+    },
+    {
+      "nameJa": "ローズマリー",
+      "count": 4
+    },
+    {
+      "nameJa": "海苔",
+      "count": 4
+    },
+    {
+      "nameJa": "ケッパー",
+      "count": 3
+    },
+    {
+      "nameJa": "サーモン",
+      "count": 3
+    },
+    {
+      "nameJa": "チーズ",
+      "count": 3
+    },
+    {
+      "nameJa": "ツナ",
+      "count": 3
+    },
+    {
+      "nameJa": "パイナップル",
+      "count": 3
+    },
+    {
+      "nameJa": "フェタチーズ",
+      "count": 3
+    },
+    {
+      "nameJa": "ブラータチーズ",
+      "count": 3
+    },
+    {
+      "nameJa": "ミント",
+      "count": 3
+    },
+    {
+      "nameJa": "レタス",
+      "count": 3
+    },
+    {
+      "nameJa": "白ごま",
+      "count": 3
+    },
+    {
+      "nameJa": "アボカド",
+      "count": 2
+    },
+    {
+      "nameJa": "カトゥピリチーズ",
+      "count": 2
+    },
+    {
+      "nameJa": "きゅうり",
+      "count": 2
+    },
+    {
+      "nameJa": "ゴルゴンゾーラチーズ",
+      "count": 2
+    },
+    {
+      "nameJa": "サラミ",
+      "count": 2
+    },
+    {
+      "nameJa": "シナモン",
+      "count": 2
+    },
+    {
+      "nameJa": "しらす",
+      "count": 2
+    },
+    {
+      "nameJa": "チェダーチーズ",
+      "count": 2
+    },
+    {
+      "nameJa": "にんじん",
+      "count": 2
+    },
+    {
+      "nameJa": "パプリカパウダー",
+      "count": 2
+    },
+    {
+      "nameJa": "ピクルス",
+      "count": 2
+    },
+    {
+      "nameJa": "フライドポテト",
+      "count": 2
+    },
+    {
+      "nameJa": "ブルーチーズドレッシング",
+      "count": 2
+    },
+    {
+      "nameJa": "ポルチーニ茸",
+      "count": 2
+    },
+    {
+      "nameJa": "ホワイトソース",
+      "count": 2
+    },
+    {
+      "nameJa": "ムール貝",
+      "count": 2
+    },
+    {
+      "nameJa": "ヤシの新芽",
+      "count": 2
+    },
+    {
+      "nameJa": "ラム肉",
+      "count": 2
+    },
+    {
+      "nameJa": "松の実",
+      "count": 2
+    },
+    {
+      "nameJa": "BBQソース",
+      "count": 1
+    },
+    {
+      "nameJa": "アーモンド",
+      "count": 1
+    },
+    {
+      "nameJa": "アスパラガス",
+      "count": 1
+    },
+    {
+      "nameJa": "アヒアマリージョ",
+      "count": 1
+    },
+    {
+      "nameJa": "イカ",
+      "count": 1
+    },
+    {
+      "nameJa": "いくら",
+      "count": 1
+    },
+    {
+      "nameJa": "イチゴ",
+      "count": 1
+    },
+    {
+      "nameJa": "イワシ",
+      "count": 1
+    },
+    {
+      "nameJa": "うなぎ",
+      "count": 1
+    },
+    {
+      "nameJa": "オクラ",
+      "count": 1
+    },
+    {
+      "nameJa": "オレンジ",
+      "count": 1
+    },
+    {
+      "nameJa": "お好みの具材",
+      "count": 1
+    },
+    {
+      "nameJa": "お好み焼きソース",
+      "count": 1
+    },
+    {
+      "nameJa": "カシューナッツチーズ",
+      "count": 1
+    },
+    {
+      "nameJa": "カチョカヴァッロチーズ",
+      "count": 1
+    },
+    {
+      "nameJa": "かつお節",
+      "count": 1
+    },
+    {
+      "nameJa": "カリフラワー",
+      "count": 1
+    },
+    {
+      "nameJa": "カレーケチャップソース",
+      "count": 1
+    },
+    {
+      "nameJa": "カレーソース",
+      "count": 1
+    },
+    {
+      "nameJa": "キウイ",
+      "count": 1
+    },
+    {
+      "nameJa": "キムチ",
+      "count": 1
+    },
+    {
+      "nameJa": "キャベツ",
+      "count": 1
+    },
+    {
+      "nameJa": "クミン",
+      "count": 1
+    },
+    {
+      "nameJa": "グラナパダーノチーズ",
+      "count": 1
+    },
+    {
+      "nameJa": "グラハムクラッカー",
+      "count": 1
+    },
+    {
+      "nameJa": "グレイビーソース",
+      "count": 1
+    },
+    {
+      "nameJa": "ケバブソース",
+      "count": 1
+    },
+    {
+      "nameJa": "コティーハチーズ",
+      "count": 1
+    },
+    {
+      "nameJa": "コンデンスミルク",
+      "count": 1
+    },
+    {
+      "nameJa": "ザアタル",
+      "count": 1
+    },
+    {
+      "nameJa": "ザクロ",
+      "count": 1
+    },
+    {
+      "nameJa": "さつまいも",
+      "count": 1
+    },
+    {
+      "nameJa": "サラミピカンテ",
+      "count": 1
+    },
+    {
+      "nameJa": "サルサソース",
+      "count": 1
+    },
+    {
+      "nameJa": "ザワークラウト",
+      "count": 1
+    },
+    {
+      "nameJa": "サワークリーム",
+      "count": 1
+    },
+    {
+      "nameJa": "スイスチーズ",
+      "count": 1
+    },
+    {
+      "nameJa": "スパイシーソーセージ",
+      "count": 1
+    },
+    {
+      "nameJa": "セロリ",
+      "count": 1
+    },
+    {
+      "nameJa": "タヒニ",
+      "count": 1
+    },
+    {
+      "nameJa": "タラ",
+      "count": 1
+    },
+    {
+      "nameJa": "たらこ",
+      "count": 1
+    },
+    {
+      "nameJa": "チーズカード",
+      "count": 1
+    },
+    {
+      "nameJa": "チーズソース",
+      "count": 1
+    },
+    {
+      "nameJa": "チキンティッカ",
+      "count": 1
+    },
+    {
+      "nameJa": "チコリ",
+      "count": 1
+    },
+    {
+      "nameJa": "チャツネ",
+      "count": 1
+    },
+    {
+      "nameJa": "チョコレート",
+      "count": 1
+    },
+    {
+      "nameJa": "チリパウダー",
+      "count": 1
+    },
+    {
+      "nameJa": "トリュフ",
+      "count": 1
+    },
+    {
+      "nameJa": "トルティーヤチップス",
+      "count": 1
+    },
+    {
+      "nameJa": "ナッツ",
+      "count": 1
+    },
+    {
+      "nameJa": "バッファローソース",
+      "count": 1
+    },
+    {
+      "nameJa": "バナナ",
+      "count": 1
+    },
+    {
+      "nameJa": "パニール",
+      "count": 1
+    },
+    {
+      "nameJa": "ハラペーニョ",
+      "count": 1
+    },
+    {
+      "nameJa": "バルサミコ酢",
+      "count": 1
+    },
+    {
+      "nameJa": "ハロウミチーズ",
+      "count": 1
+    },
+    {
+      "nameJa": "ピーナッツソース",
+      "count": 1
+    },
+    {
+      "nameJa": "ひまわりの種",
+      "count": 1
+    },
+    {
+      "nameJa": "フェンネル",
+      "count": 1
+    },
+    {
+      "nameJa": "フォンティーナチーズ",
+      "count": 1
+    },
+    {
+      "nameJa": "フリアリエッリ",
+      "count": 1
+    },
+    {
+      "nameJa": "ブリーチーズ",
+      "count": 1
+    },
+    {
+      "nameJa": "ブリックチーズ",
+      "count": 1
+    },
+    {
+      "nameJa": "ブルーベリー",
+      "count": 1
+    },
+    {
+      "nameJa": "プロヴェルチーズ",
+      "count": 1
+    },
+    {
+      "nameJa": "フロマージュブラン",
+      "count": 1
+    },
+    {
+      "nameJa": "プンタレッレ",
+      "count": 1
+    },
+    {
+      "nameJa": "ベイクドビーンズ",
+      "count": 1
+    },
+    {
+      "nameJa": "ヘーゼルナッツチョコレートスプレッド",
+      "count": 1
+    },
+    {
+      "nameJa": "ペコリーノチーズ",
+      "count": 1
+    },
+    {
+      "nameJa": "ほうれん草",
+      "count": 1
+    },
+    {
+      "nameJa": "ホットドッグ",
+      "count": 1
+    },
+    {
+      "nameJa": "マシュマロ",
+      "count": 1
+    },
+    {
+      "nameJa": "マスタード",
+      "count": 1
+    },
+    {
+      "nameJa": "もち",
+      "count": 1
+    },
+    {
+      "nameJa": "ヤギのチーズ",
+      "count": 1
+    },
+    {
+      "nameJa": "ヨーグルトソース",
+      "count": 1
+    },
+    {
+      "nameJa": "ライム",
+      "count": 1
+    },
+    {
+      "nameJa": "ラディッキオ",
+      "count": 1
+    },
+    {
+      "nameJa": "リコッタサラータチーズ",
+      "count": 1
+    },
+    {
+      "nameJa": "りんご",
+      "count": 1
+    },
+    {
+      "nameJa": "レバーパテ",
+      "count": 1
+    },
+    {
+      "nameJa": "わさび",
+      "count": 1
+    },
+    {
+      "nameJa": "甘めのトマトソース",
+      "count": 1
+    },
+    {
+      "nameJa": "岩塩",
+      "count": 1
+    },
+    {
+      "nameJa": "鶏肉",
+      "count": 1
+    },
+    {
+      "nameJa": "山椒",
+      "count": 1
+    },
+    {
+      "nameJa": "紫キャベツ",
+      "count": 1
+    },
+    {
+      "nameJa": "焼肉のタレ",
+      "count": 1
+    },
+    {
+      "nameJa": "醤油ソース",
+      "count": 1
+    },
+    {
+      "nameJa": "生クリームソース",
+      "count": 1
+    },
+    {
+      "nameJa": "青のり",
+      "count": 1
+    },
+    {
+      "nameJa": "青唐辛子",
+      "count": 1
+    },
+    {
+      "nameJa": "赤唐辛子",
+      "count": 1
+    },
+    {
+      "nameJa": "大根",
+      "count": 1
+    },
+    {
+      "nameJa": "甜麺醤",
+      "count": 1
+    },
+    {
+      "nameJa": "豆板醤",
+      "count": 1
+    },
+    {
+      "nameJa": "肉",
+      "count": 1
+    },
+    {
+      "nameJa": "納豆",
+      "count": 1
+    },
+    {
+      "nameJa": "梅肉",
+      "count": 1
+    },
+    {
+      "nameJa": "粉砂糖",
+      "count": 1
+    },
+    {
+      "nameJa": "北京ダック",
+      "count": 1
+    },
+    {
+      "nameJa": "味噌だれ",
+      "count": 1
+    },
+    {
+      "nameJa": "明太子",
+      "count": 1
+    },
+    {
+      "nameJa": "柚子胡椒",
+      "count": 1
+    },
+    {
+      "nameJa": "溶かしバター",
+      "count": 1
+    }
+  ]
+}

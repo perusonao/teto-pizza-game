@@ -30,17 +30,37 @@
   },
   "ingredientOccurrenceEvidence": {
     "population": "ja-172",
-    "evidencedSource": "docs/reports/data/TETO_PROGRESS2_PHASE0B1_ingredient-universe-diff.json",
+    "evidencedSource": "docs/reports/data/TETO_PROGRESS2_PHASE0B1_ingredient-universe-diff.json, docs/reports/data/TETO_PROGRESS2_PHASE0B3_longtail-raw-input.json",
     "tiers": [
       {"occurrenceTier": ">=5 (named individually, 117 down to 5)", "status": "evidenced", "namedIngredientCount": 36},
-      {"occurrenceTier": "4", "status": "pending", "namedIngredientCount": 0, "note": "Tier confirmed to exist by the relayed comment; individual names/counts NOT provided -- not invented here."},
-      {"occurrenceTier": "3", "status": "pending", "namedIngredientCount": 0, "note": "Same as tier 4."},
-      {"occurrenceTier": "2", "status": "pending", "namedIngredientCount": 0, "note": "Same as tier 4."},
-      {"occurrenceTier": "1", "status": "pending", "namedIngredientCount": 0, "note": "Same as tier 4."}
+      {"occurrenceTier": "4", "status": "evidenced", "namedIngredientCount": 8, "evidencedInPhase": "0B.3"},
+      {"occurrenceTier": "3", "status": "evidenced", "namedIngredientCount": 10, "evidencedInPhase": "0B.3"},
+      {"occurrenceTier": "2", "status": "evidenced", "namedIngredientCount": 19, "evidencedInPhase": "0B.3"},
+      {"occurrenceTier": "1", "status": "evidenced", "namedIngredientCount": 108, "evidencedInPhase": "0B.3"}
     ],
-    "totalNamedIngredientCount": 36,
-    "fullIngredientUniverseKnown": false,
-    "note": "IMPORTANT: these are INGREDIENT OCCURRENCE COUNTS (how many of the 172 recipes use this ingredient), not a count of recipes and not a substitute for recipeRowEvidence above. tools/progression2_evidence_invariants.py checks the two are never conflated."
+    "totalNamedIngredientCount": 181,
+    "fullIngredientUniverseKnown": "likely, not certain",
+    "corroborationNote": "36 (tier >=5) + 145 (tiers 4/3/2/1) = 181, which matches EXACTLY the historical '160 canonical pizzas / 181 unique ingredients' figure already on record in docs/design/TETO_RECIPE-MASTER-CATALOG.md section 1 (a figure from prior, separate sessions' PIZZA DB research). This is a strong internal-consistency signal that the ingredient-name universe is now fully enumerated down to occurrence=1 -- but it remains an owner-relayed claim, not independently re-fetched by this Claude session (still EGRESS_BLOCKED), so 'likely, not certain' is the honest status rather than 'true'.",
+    "note": "IMPORTANT: these are INGREDIENT OCCURRENCE COUNTS (how many of the 172 recipes use this ingredient), not a count of recipes and not a substitute for recipeRowEvidence above. tools/progression2_evidence_invariants.py checks the two are never conflated. recipeRowEvidence.evidencedCount is UNCHANGED at 25/172 by this ingestion -- ingredient-name completeness does not imply recipe-row completeness."
+  },
+  "canonicalizationResultsPhase0B3": {
+    "resultsSource": "docs/reports/data/TETO_PROGRESS2_PHASE0B3_canonicalization-results.json",
+    "totalClassified": 145,
+    "dispositionCounts": {"exact_alias": 26, "likely_alias": 12, "ambiguous": 11, "genuinely_new": 95, "excluded_non_ingredient": 1},
+    "needsReviewCount": 0,
+    "candidateCanonicalIngredientUniverseSizeRange": {
+      "baselineBeforePhase0B3": 83,
+      "baselineComposition": "62 shipped + 15 Phase 0B new + 6 Phase 0B.1 genuinely_new",
+      "definiteAdditions": 95,
+      "definiteAdditionsNote": "Phase 0B.3's 95 genuinely_new entries -- every likely_alias/exact_alias maps onto an already-counted id, so they add 0.",
+      "uncertainAdditions": 11,
+      "uncertainAdditionsNote": "Phase 0B.3's 11 ambiguous entries -- each could resolve to 0 new ids (merged into its related existing id) or 1 new id (confirmed genuinely distinct), pending a product decision. Never auto-resolved by this ledger.",
+      "min": 178,
+      "max": 189
+    },
+    "taxonomyFlagCounts": {"sauce_not_topping": 16, "sauce_or_condiment": 6, "generic_unspecified": 3, "prepared_dish_composite": 3, "false_friend_not_meat": 1},
+    "excludedNonIngredientCount": 1,
+    "excludedNonIngredientNote": "'お好みの具材' (generic 'toppings of your choice' placeholder) -- not a real ingredient, permanently excluded from the canonical universe, never counted in the size range above."
   },
   "sauceFamilyEvidence": {
     "population": "ja-172",
@@ -63,14 +83,17 @@
     "invariantPasses": true
   },
   "openRequestsForExternalEvidence": [
-    {"item": "Occurrence-tier 4/3/2/1 ingredient names + exact counts", "population": "ja-172", "requiredFormat": "name (Japanese), occurrence count, source URL/page", "invented": false},
-    {"item": "Recipe rows for PIZZA DB compare pages 7-15", "population": "ja-172", "requiredFormat": "dish name, sauce family, main ingredients, source page number", "invented": false},
-    {"item": "Independent re-verification of the 25 already-relayed samples and the 36 already-relayed ingredient names", "population": "ja-172", "requiredFormat": "this Claude Code session re-fetching pizzadb.jp directly, blocked by EGRESS_BLOCKED as of this Phase", "invented": false}
+    {"item": "Recipe rows for PIZZA DB compare pages 7-15", "population": "ja-172", "requiredFormat": "dish name, sauce family, main ingredients, source page number", "invented": false, "status": "still pending as of Phase 0B.3 -- unchanged"},
+    {"item": "Product decision on the 11 Phase 0B.3 ambiguous entries (merge into an existing related id, or mint as a new distinct id)", "population": "ja-172", "requiredFormat": "owner/reviewer judgment call, not an external fetch", "invented": false, "status": "new in Phase 0B.3"},
+    {"item": "Independent re-verification of everything relayed so far (25 recipe samples, 181 ingredient names)", "population": "ja-172", "requiredFormat": "this Claude Code session re-fetching pizzadb.jp directly, blocked by EGRESS_BLOCKED as of this Phase", "invented": false}
+  ],
+  "resolvedInPhase0B3": [
+    {"item": "Occurrence-tier 4/3/2/1 ingredient names + exact counts", "resolution": "Relayed in full via PR #183 comment #5774945778 -- 145 names ingested and classified, see canonicalizationResultsPhase0B3 above."}
   ],
   "thisSessionsOwnFetchStatus": {
-    "lastCheckedThisPhase": "2026-09-22 (Phase 0B.2)",
+    "lastCheckedThisPhase": "2026-09-22 (Phase 0B.3)",
     "result": "EGRESS_BLOCKED",
     "domainsTested": ["pizzadb.jp"],
-    "note": "No new external fetch was attempted or claimed successful in Phase 0B.2. This ledger only organizes evidence already relayed in prior PR #183 comments."
+    "note": "No new external fetch was attempted or claimed successful in Phase 0B.3. This ledger only organizes evidence already relayed in prior PR #183 comments."
   }
 }
