@@ -6,9 +6,10 @@ interface IngredientPieceVisualProps {
   /** Extra class(es) appended to the rendered piece -- e.g. PizzaStage's bake `meltClass`. */
   className?: string;
   /** Extra inline style merged onto the rendered piece -- e.g. PizzaStage's continuous bake
-   *  melt/toast/char transform+filter (see ../logic/bakeVisual.ts). Only meaningful for the
-   *  cheese branch today; the emoji branch accepts it for forward-compat but no caller uses
-   *  it there yet. */
+   *  melt/toast/char transform+filter for cheese, or its dedicated topping roast-tint filter
+   *  for every other ingredient (see ../logic/bakeVisual.ts's `cheeseVisualFrame`/
+   *  `toppingVisualFrame` and PizzaStage.tsx's own `cheeseStyle`/`toppingPieceStyle`). Applied
+   *  as-is on whichever branch below actually renders. */
   style?: CSSProperties;
 }
 

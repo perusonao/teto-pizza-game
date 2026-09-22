@@ -185,3 +185,80 @@ export function cheeseVisualFrame(heat: number): Omit<CheeseVisualFrame, "heat">
   const last = CHEESE_FRAMES[CHEESE_FRAMES.length - 1];
   return { scale: last.scale, brightness: last.brightness, saturate: last.saturate, sepia: last.sepia };
 }
+
+/**
+ * Gameplay UX PR-E (Finished Pizza Visual 2.0).
+ *
+ * Fresh Audit finding (docs/reports/TETO_GAMEPLAY-UX_SCORING-3.0_Fresh-Audit.md section 7):
+ * every non-cheese topping was, until this module, browned through `cheeseVisualFrame` itself --
+ * `PizzaStage` passed the *cheese* melt/toast/char `filter` (and a `--bake-melt-scale` custom
+ * property only `.pizza-cheese` ever reads) straight onto every topping's `IngredientPieceVisual`,
+ * cheese or not. For the emoji branch this `filter` is not a no-op (a CSS `filter` never is): it
+ * silently replaced the emoji's own baseline `drop-shadow`, and it roasted every topping along a
+ * curve tuned for cheese's own melt/spread/char, not a flat glyph. A second, separate, discrete
+ * 3-bucket wrapper filter (the old `.pizza-dough--raw/--perfect/--burnt .pizza-topping` App.css
+ * rules) stacked on top of that, snapping at the same `classifyBake` boundary the rest of this
+ * module already replaced everywhere else with a continuous scalar. Two overlapping, one
+ * unintentional -- exactly the "accidental filter reuse" this PR's task brief asks to fix.
+ *
+ * `toppingVisualFrame` replaces both with one deliberate, continuous, topping-specific curve:
+ * gentler than cheese (no scale/spread -- toppings stay flat glyphs, per the audit's own note
+ * that they "never change shape at any bake stage"), ramping later and capping lower so a
+ * topping visibly roasts without becoming a cheese-brown lump. `roastResistant` (set via
+ * `Ingredient.bakeRoastResistant`, ../data/ingredients.ts) selects a second, far gentler curve
+ * for green herbs (basil/oregano/rosemary) so they read as "lightly cooked" rather than turning
+ * the same brown as every other topping and becoming unidentifiable -- the task's own explicit
+ * constraint ("basil等の緑色具材が全部茶色になって識別不能になるのは禁止").
+ */
+export interface ToppingVisualFrame {
+  brightness: number;
+  saturate: number;
+  sepia: number;
+}
+
+interface ToppingVisualKeyframe extends ToppingVisualFrame {
+  heat: number;
+}
+
+const TOPPING_FRAMES: readonly ToppingVisualKeyframe[] = [
+  { heat: 0, brightness: 1, saturate: 1, sepia: 0 },
+  { heat: 0.8, brightness: 1, saturate: 1, sepia: 0 },
+  { heat: 1.0, brightness: 0.97, saturate: 1.04, sepia: 0.08 },
+  { heat: 1.6, brightness: 0.9, saturate: 0.92, sepia: 0.14 },
+  { heat: 2.0, brightness: 0.78, saturate: 0.8, sepia: 0.2 },
+];
+
+const HERB_FRAMES: readonly ToppingVisualKeyframe[] = [
+  { heat: 0, brightness: 1, saturate: 1, sepia: 0 },
+  { heat: 1.0, brightness: 1, saturate: 1, sepia: 0 },
+  { heat: 1.6, brightness: 0.96, saturate: 1.02, sepia: 0.03 },
+  { heat: 2.0, brightness: 0.9, saturate: 1.0, sepia: 0.06 },
+];
+
+function interpolateToppingFrames(
+  frames: readonly ToppingVisualKeyframe[],
+  heat: number,
+): ToppingVisualFrame {
+  const clamped = Math.min(2, Math.max(0, heat));
+  for (let i = 0; i < frames.length - 1; i += 1) {
+    const from = frames[i];
+    const to = frames[i + 1];
+    if (clamped >= from.heat && clamped <= to.heat) {
+      const span = to.heat - from.heat;
+      const t = span > 0 ? (clamped - from.heat) / span : 0;
+      return {
+        brightness: lerp(from.brightness, to.brightness, t),
+        saturate: lerp(from.saturate, to.saturate, t),
+        sepia: lerp(from.sepia, to.sepia, t),
+      };
+    }
+  }
+  const last = frames[frames.length - 1];
+  return { brightness: last.brightness, saturate: last.saturate, sepia: last.sepia };
+}
+
+/** Continuous, topping-specific roast curve -- see this section's own file comment above for
+ *  why toppings need a dedicated curve instead of reusing `cheeseVisualFrame`. */
+export function toppingVisualFrame(heat: number, roastResistant: boolean): ToppingVisualFrame {
+  return interpolateToppingFrames(roastResistant ? HERB_FRAMES : TOPPING_FRAMES, heat);
+}
