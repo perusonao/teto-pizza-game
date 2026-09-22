@@ -146,6 +146,92 @@ describe("MakingStepTabs (Issue #86 UX-2)", () => {
   });
 });
 
+describe("Dynamic step derivation (Gameplay UX / Scoring 3.0 PR-A): renders exactly the `steps` it is given", () => {
+  it("a marinara-shaped steps array (no CHEESE) renders 3 tabs, no empty CHEESE tab at all", () => {
+    render(
+      <MakingStepTabs steps={["DOUGH", "SAUCE", "TOPPING"]} currentStep="SAUCE" nextReady onAdvance={() => {}} />,
+    );
+    expect(screen.queryByRole("tab", { name: "チーズ" })).not.toBeInTheDocument();
+    expect(screen.getAllByRole("tab")).toHaveLength(3);
+    expect(screen.getByRole("tab", { name: /生地/ })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "ソース" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "具材" })).toBeInTheDocument();
+  });
+
+  it("a quattro-formaggi-shaped steps array (no TOPPING) renders 3 tabs, no empty TOPPING tab at all", () => {
+    render(
+      <MakingStepTabs steps={["DOUGH", "SAUCE", "CHEESE"]} currentStep="CHEESE" nextReady onAdvance={() => {}} />,
+    );
+    expect(screen.queryByRole("tab", { name: "具材" })).not.toBeInTheDocument();
+    expect(screen.getAllByRole("tab")).toHaveLength(3);
+    expect(screen.getByRole("tab", { name: "チーズ" })).toBeInTheDocument();
+  });
+
+  it("tap navigation on a skipped-step strip still only ever fires onAdvance for the immediate next tab", () => {
+    let advanced = false;
+    render(
+      <MakingStepTabs
+        steps={["DOUGH", "SAUCE", "TOPPING"]}
+        currentStep="SAUCE"
+        nextReady
+        onAdvance={() => {
+          advanced = true;
+        }}
+      />,
+    );
+    fireEvent.click(screen.getByRole("tab", { name: "具材" }));
+    expect(advanced).toBe(true);
+  });
+
+  it("completed-step markers remain correct on a skipped-step strip (✓ prefix, disabled)", () => {
+    render(
+      <MakingStepTabs steps={["DOUGH", "SAUCE", "TOPPING"]} currentStep="TOPPING" nextReady onAdvance={() => {}} />,
+    );
+    const sauceTab = screen.getByRole("tab", { name: /✓ ソース/ });
+    expect(sauceTab.className).toContain("making-step-tab--completed");
+    expect(sauceTab).toBeDisabled();
+  });
+
+  it("accessibility labels remain correct on a skipped-step strip (aria-selected/aria-current on the active tab)", () => {
+    render(
+      <MakingStepTabs steps={["DOUGH", "SAUCE", "TOPPING"]} currentStep="TOPPING" nextReady onAdvance={() => {}} />,
+    );
+    const toppingTab = screen.getByRole("tab", { name: "具材" });
+    expect(toppingTab).toHaveAttribute("aria-selected", "true");
+    expect(toppingTab).toHaveAttribute("aria-current", "step");
+  });
+});
+
+describe("Bake tab emoji removal (Gameplay UX / Scoring 3.0 PR-A, Audit G)", () => {
+  it("BAKE label is exactly '焼く' -- no 🔥, whether active or not", () => {
+    render(
+      <MakingStepTabs
+        steps={["DOUGH", "SAUCE", "TOPPING"]}
+        currentStep="TOPPING"
+        currentPhase="PREPARE"
+        nextReady
+        onAdvance={() => {}}
+      />,
+    );
+    expect(screen.getByText("焼く")).toBeInTheDocument();
+    expect(screen.queryByText(/\u{1F525}/u)).not.toBeInTheDocument();
+  });
+
+  it("completed BAKE label is exactly '✓ 焼く' -- no 🔥", () => {
+    render(
+      <MakingStepTabs
+        steps={["DOUGH", "SAUCE", "TOPPING"]}
+        currentStep="TOPPING"
+        currentPhase="POST_BAKE"
+        nextReady
+        onAdvance={() => {}}
+      />,
+    );
+    expect(screen.getByText("✓ 焼く")).toBeInTheDocument();
+    expect(screen.queryByText(/\u{1F525}/u)).not.toBeInTheDocument();
+  });
+});
+
 /**
  * Recipe Cooking Steps 1.0 Phase 1A (docs/design/TETO_RECIPE-COOKING-STEPS_1.0.md §9): this
  * component now takes its sequence from the caller (`steps`) instead of owning a fixed array --

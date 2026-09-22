@@ -220,13 +220,20 @@ test.describe("Scenario D: Lunch Rush eligible recipe -> CUT -> serve", () => {
     }
     await page.getByRole("button", { name: /次へ/ }).click();
 
+    // Gameplay UX / Scoring 3.0 PR-A (Dynamic Cooking Steps): marinara's own derived
+    // CookingProfile has no CHEESE step at all (no required cheese-category ingredient), so its
+    // own SAUCE confirm above already landed directly on TOPPING -- there is no separate CHEESE
+    // "次へ" to click for it. Only click 次へ here when a CHEESE tray genuinely exists (margherita/
+    // funghi both still have one); clicking it unconditionally would either double-advance past
+    // TOPPING for marinara or, once its own last-PREPARE-step CTA reads 焼く！ instead of 次へ
+    // (see GameScreen.tsx's isLastPrepareStep), simply never find a 次へ button to click at all.
     if (await page.getByRole("button", { name: /モッツァレラ/ }).count()) {
       await page.getByRole("button", { name: /モッツァレラ/ }).click();
       await tapDoughPercent(page, 40, 50);
       await tapDoughPercent(page, 60, 50);
       await tapDoughPercent(page, 50, 30);
+      await page.getByRole("button", { name: /次へ/ }).click();
     }
-    await page.getByRole("button", { name: /次へ/ }).click();
 
     // Whatever this order's own remaining TOPPING-step ingredient(s) are (this seed's pool --
     // margherita/funghi/marinara, all CUT-eligible -- includes recipes needing one type at this

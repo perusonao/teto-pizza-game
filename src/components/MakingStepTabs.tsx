@@ -28,8 +28,12 @@ import type { MakingStep } from "../state/gameReducer";
  * Recipe Cooking Steps 1.0 Phase 1A (docs/design/TETO_RECIPE-COOKING-STEPS_1.0.md §9): this
  * component no longer owns its own fixed 4-step array -- the caller (GameScreen.tsx) passes the
  * active round's own pre-BAKE sequence (`steps`, `preBakeSteps(state.cookingProfile)`,
- * ../data/cookingProfiles.ts). For every one of the 15 shipped recipes that sequence is always
- * exactly `["DOUGH", "SAUCE", "CHEESE", "TOPPING"]` (`DEFAULT_COOKING_PROFILE`).
+ * ../data/cookingProfiles.ts). Gameplay UX / Scoring 3.0 PR-A (Dynamic Cooking Steps): that
+ * sequence is now recipe-specific -- always `["DOUGH", ...]` plus whichever of SAUCE/CHEESE/
+ * TOPPING the active recipe actually requires (`getCookingProfile`'s own `deriveCoreSteps`), so a
+ * recipe with no required cheese/topping ingredient renders no CHEESE/TOPPING tab at all rather
+ * than an empty one. This component makes no such decision itself -- it renders exactly whatever
+ * `steps` it is given, same as before.
  *
  * Issue #159 P0 (Cooking UI 1-Screen Polish): a real-device Fresh Audit (2026-09-21) found the
  * strip only ever rendered during PREPARE, so a cut-target recipe's own CUT step never appeared
@@ -183,7 +187,7 @@ export function MakingStepTabs({
         }`}
         aria-hidden="true"
       >
-        {bakeIsCompleted ? `✓ ${"\u{1F525}"} 焼く` : `${"\u{1F525}"} 焼く`}
+        {bakeIsCompleted ? "✓ 焼く" : "焼く"}
       </div>
       {postSteps.map((step, index) =>
         renderTab(step, tabState(index, postIndex, postReached, isPostCurrent)),

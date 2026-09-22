@@ -193,6 +193,23 @@ export function GameScreen({
   // SAUCE/CHEESE have no completion gate today, so this is unconditionally true for them.
   const nextStepReady = state.makingStep !== "DOUGH" || doughShapeComplete;
 
+  // Gameplay UX / Scoring 3.0 PR-A (Dynamic Cooking Steps): the active round's own recipe-specific
+  // pre-BAKE sequence (`../data/cookingProfiles.ts`'s `deriveCoreSteps`, via `getCookingProfile`) --
+  // computed once here and shared by the tab strip below and the 「次へ」/「焼く！」 CTA's own
+  // "is this the last PREPARE step" check, so a recipe that skips CHEESE/TOPPING never has that
+  // check hardcoded to a step it might not have.
+  const activePreBakeSteps = preBakeSteps(state.cookingProfile);
+  const activePostBakeSteps = postBakeSteps(state.cookingProfile);
+  // Was `state.makingStep === "TOPPING"` -- broke for any recipe whose last PREPARE step isn't
+  // TOPPING (e.g. quattro-formaggi, which has no TOPPING step at all): the CTA would keep
+  // rendering "次へ" (a no-op past the last step, see gameReducer.ts's CONFIRM_MAKING_STEP) and
+  // 「焼く！」 would never appear. Generalized to "is the current step this round's own last
+  // PREPARE step", which is TOPPING for every recipe that has one and CHEESE/SAUCE for the few
+  // that don't, exactly matching each recipe's own derived profile.
+  const isLastPrepareStep =
+    activePreBakeSteps.length > 0 &&
+    state.makingStep === activePreBakeSteps[activePreBakeSteps.length - 1];
+
   // Gameplay UX Phase 1 (材料選択スクロール解消, see docs/reports/
   // TETO_GAMEPLAY-UX_4ITEMS_Fresh-Audit.md sec.1.4): PREPARE no longer gets the larger roomy
   // PizzaStage that Visual Polish 2.0A (Finding P1-1) added -- the Fresh Audit's real-browser
@@ -344,8 +361,8 @@ export function GameScreen({
         state.phase === "BAKE" ||
         (state.phase === "POST_BAKE" && state.makingStep === "CUT")) && (
         <MakingStepTabs
-          steps={preBakeSteps(state.cookingProfile)}
-          postSteps={postBakeSteps(state.cookingProfile)}
+          steps={activePreBakeSteps}
+          postSteps={activePostBakeSteps}
           currentStep={state.makingStep}
           currentPhase={state.phase === "PREPARE" ? "PREPARE" : state.phase === "BAKE" ? "BAKE" : "POST_BAKE"}
           nextReady={state.phase === "POST_BAKE" ? cutConfirmReady : nextStepReady}
@@ -555,19 +572,22 @@ export function GameScreen({
               viewport, which is exactly what silently failed once PREPARE grew taller than
               844px (the bug this whole round exists to fix). `.ingredient-panel` reserves
               matching bottom padding so this bar can never cover the Palette above it.
-              Issue #32 Phase 2 / Issue #33 D1: DOUGH/SAUCE/CHEESE each get an explicit "次へ"
-              (next step) CTA that dispatches CONFIRM_MAKING_STEP -- TOPPING's forward action
-              is the existing 焼く！ button, which doubles as TOPPING's own implicit confirm
-              (no separate button needed: 焼く！ already leaves PREPARE entirely via
-              START_BAKE). DOUGH's own 次へ is additionally disabled until
-              `doughShapeComplete` (the task's own "size-only" completion gate) -- the only
-              step whose CTA is ever disabled; SAUCE/CHEESE's has never been (no reducer-side
-              completion gate exists for them either, by design). */}
+              Issue #32 Phase 2 / Issue #33 D1: every step but the round's own last PREPARE step
+              gets an explicit "次へ" (next step) CTA that dispatches CONFIRM_MAKING_STEP -- the
+              last step's forward action is the existing 焼く！ button, which doubles as that
+              step's own implicit confirm (no separate button needed: 焼く！ already leaves
+              PREPARE entirely via START_BAKE). Gameplay UX / Scoring 3.0 PR-A: this used to be
+              hardcoded to `state.makingStep === "TOPPING"`, which broke for any recipe whose
+              derived profile has no TOPPING step (quattro-formaggi's own last PREPARE step is
+              CHEESE) -- generalized to `isLastPrepareStep` above. DOUGH's own 次へ is
+              additionally disabled until `doughShapeComplete` (the task's own "size-only"
+              completion gate) -- the only step whose CTA is ever disabled; SAUCE/CHEESE's has
+              never been (no reducer-side completion gate exists for them either, by design). */}
           <div className="action-row prepare-bake-bar">
             <button type="button" className="secondary-button" onClick={handleResetPizza}>
               やり直す
             </button>
-            {state.makingStep === "TOPPING" ? (
+            {isLastPrepareStep ? (
               <button type="button" className="cta-button cta-button--bake" onClick={onStartBake}>
                 {"\u{1F525}"} 焼く！
               </button>
