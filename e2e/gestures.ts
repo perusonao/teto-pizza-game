@@ -18,37 +18,59 @@ const BAKE_NEEDLE_SPEED_PCT_PER_S = 55;
 
 /**
  * Pizza Cutting 1.0 Phase 4B: clicks 焼く, drives `BakeOverlay`'s needle to the exact center of
- * `target` using Playwright's `page.clock` (fakes `requestAnimationFrame`/`performance.now()`
- * for the whole page -- the same real-browser mechanism `src/App.test.tsx`'s jsdom-only
- * `controlBakeNeedle` helper approximates by stubbing rAF directly), then confirms with 取り出す！
- * and resumes real time before returning.
+ * `target` using Playwright's `page.clock`, then confirms with 取り出す！ and resumes real time
+ * before returning.
  *
- * Two earlier, real-time-based approaches were tried and both failed real WebKit CI: (1) a fixed
- * `waitForTimeout` tuned against one recipe's own midpoint drifted under CI load/parallelism for
- * every other recipe's differently-positioned target; (2) polling the live `.bake-gauge__needle`
- * DOM style for "inside/near-center of the target" and then clicking still failed under simulated
- * CI load (verified locally via CDP `Emulation.setCPUThrottlingRate` + artificial click latency,
- * reproducing the exact same "焦げすぎて提供できません" OVERBAKED failure) -- `BakeOverlay`'s own
- * tick loop computes `dt` from real `performance.now()` deltas between animation frames
- * (`src/components/BakeOverlay.tsx`), so under a throttled/loaded runner a single delayed frame
- * can jump the needle by a large, unpredictable amount, which no amount of polling margin or
- * `{ force: true }` click-latency reduction can reliably outrun. Faking the clock removes the
- * race entirely: `runFor` deterministically fires exactly the tick(s) needed to reach the target
- * duration, regardless of how slow or loaded the real host is.
+ * Three approaches were tried before this one landed; the first two both failed real WebKit CI:
+ * (1) a fixed `waitForTimeout` tuned against one recipe's own midpoint drifted under CI load/
+ * parallelism for every other recipe's differently-positioned target; (2) polling the live
+ * `.bake-gauge__needle` DOM style for "inside/near-center of the target" and then clicking still
+ * failed under simulated CI load (verified locally via CDP `Emulation.setCPUThrottlingRate`),
+ * reproducing the exact same "焦げすぎて提供できません" OVERBAKED failure -- `BakeOverlay`'s own
+ * tick loop computes `dt` from real `performance.now()` deltas between animation frames (`src/
+ * components/BakeOverlay.tsx`), so a single delayed frame under a throttled/loaded runner can
+ * jump the needle by a large, unpredictable amount that no polling margin can reliably outrun.
+ *
+ * A third attempt -- `page.clock.install()` then `runFor(durationMs)` -- *also* failed, still
+ * OVERBAKED, and a direct diagnostic (reading `.bake-gauge__needle`'s own live position before
+ * and after `runFor`) proved why: `install()` alone does not freeze time -- real time keeps
+ * flowing through the faked implementation until the clock is explicitly paused (`page.clock`'s
+ * own doc comment: "Fake timers are used to manually control the flow of time" describes
+ * `pauseAt`/`runFor`/`fastForward`, not `install` by itself). So `runFor(1273)` was adding 1273ms
+ * of virtual advance *on top of* however much real time had already elapsed since `install()` --
+ * confirmed directly: under throttle, the needle was already at 19% (real time, ~350ms elapsed)
+ * before `runFor` even started, then `runFor` itself took several real seconds to execute under
+ * throttle (each faked callback still costs real CPU), landing near 100% by the time it resolved.
+ *
+ * The actual fix has two parts, both confirmed by direct diagnostics (reading
+ * `.bake-gauge__needle`'s own live position at each step under CDP CPU throttling):
+ *
+ * 1. `pauseAt` an exact *current* instant (`Date.now()` read from Node, no extra page round
+ *    trip) doesn't work either -- `pauseAt`'s own Playwright/CDP round trip takes long enough
+ *    (worse under throttle) that by the time it executes, that already-past instant makes the
+ *    clock controller throw ("Cannot fast-forward to the past"). Pausing at a small *future*
+ *    buffer (Node-measured `Date.now() + 150`) avoids that error, but still lets real time flow
+ *    for those extra ~150ms before the pause actually lands.
+ * 2. So the target duration can never be computed up front from a known start (there isn't one,
+ *    real time has already been flowing since the 焼く click) -- instead, once paused, this
+ *    reads the needle's own actual live position and computes the *remaining* virtual duration
+ *    from wherever it really landed to the target center, then `runFor`s exactly that. This is
+ *    adaptive by construction, so it is correct regardless of how much real time the mount +
+ *    pause round trip actually cost on a given run. Confirmed landing within ~1 point of the
+ *    exact target center across repeated runs at 10x CPU throttle.
  */
 export async function bakeToTarget(page: Page, target: { start: number; end: number }) {
   const center = (target.start + target.end) / 2;
-  const durationMs = Math.round((center / BAKE_NEEDLE_SPEED_PCT_PER_S) * 1000);
   await page.clock.install();
   await page.getByRole("button", { name: /焼く/ }).click();
-  // Wait (real time -- BakeOverlay's mount/effect registration is unaffected by the fake clock,
-  // only Date/rAF/performance.now() are faked) for BakeOverlay's own first render before
-  // advancing virtual time -- otherwise a slow/throttled runner could still be mid-mount when
-  // `runFor` fires, so its first `requestAnimationFrame(tick)` registration would only happen
-  // *after* the virtual-time advance already completed, landing the needle back near 0 instead
-  // of at the intended target.
   await page.waitForSelector(".bake-gauge__needle");
-  await page.clock.runFor(durationMs);
+  // A short future buffer -- pausing at an already-past instant throws; this just needs to be
+  // comfortably longer than the pauseAt round trip itself, not a precise duration (see below).
+  await page.clock.pauseAt(Date.now() + 150);
+  const needle = page.locator(".bake-gauge__needle");
+  const currentPosition = await needle.evaluate((el) => Number.parseFloat(el.style.left) || 0);
+  const remainingMs = Math.max(0, Math.round(((center - currentPosition) / BAKE_NEEDLE_SPEED_PCT_PER_S) * 1000));
+  if (remainingMs > 0) await page.clock.runFor(remainingMs);
   await page.getByRole("button", { name: "取り出す！" }).click();
   await page.clock.resume();
 }
