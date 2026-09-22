@@ -2539,20 +2539,42 @@
       "evidenceGaps": [],
       "namingAmbiguityNote": "Naming-adjacent to the existing eggplant-family rows (eggplant-tahini-pizza-pizzadb-p5, eggplant-ricotta-pizza-pizzadb-p5, pizza-alla-norma-pizzadb-p9) -- a fourth, structurally distinct eggplant-based dish (Sichuan doubanjiang-based hot sauce). Kept separate, not merged.",
       "taxonomyNote": "豆板醤 (doubanjiang) is tagged sauce_not_topping in TAXONOMY_FLAGS (Phase 0B.3) -- kept as-is."
+    },
+    {
+      "id": "yakiniku-pizza",
+      "nameJa": "焼肉ピザ",
+      "origin": "日本 / 各地",
+      "doughStyle": "薄めの生地",
+      "sauceFamily": "甘辛だれ",
+      "ingredientsJa": [
+        "牛肉",
+        "焼肉のタレ",
+        "玉ねぎ",
+        "モッツァレラチーズ",
+        "白ごま"
+      ],
+      "evidenceOrigin": "individual_profile_page",
+      "sourceUrl": "https://pizzadb.jp/pizzas/yakiniku-pizza/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": true,
+      "mechanicIdentityNote": "Profile text states the meat is lightly seasoned and stir-fried BEFORE topping (pre-cook/prep step, not a raw topping placed straight onto the dough) -- a pre-cook/prep mechanic-evidence candidate, distinct from the late-topping and post-bake-finishing families already tracked (this happens BEFORE the bake, not during or after). Recorded as evidence only, per the trigger comment's explicit instruction not to prematurely expand gameplay from this single data point.",
+      "evidenceGaps": [],
+      "taxonomyNote": "焼肉のタレ (yakiniku-sauce) is tagged sauce_not_topping in TAXONOMY_FLAGS (Phase 0B.3) -- kept as-is."
     }
   ],
   "counters": {
-    "uniqueRecipeRowsEvidencedTotal": 152,
-    "uniqueRecipeRowsEvidencedFormula": "25 (Phase 0B original comparison_table_sample) + 113 (later comparison_table_sample batches) + 14 (individual_profile_page) = 152, all deduplicated against each other",
+    "uniqueRecipeRowsEvidencedTotal": 153,
+    "uniqueRecipeRowsEvidencedFormula": "25 (Phase 0B original comparison_table_sample) + 113 (later comparison_table_sample batches) + 15 (individual_profile_page) = 153, all deduplicated against each other",
     "claimedTotalPopulation": 172,
-    "coveragePercent": 88.4,
-    "independentlyFreshVerifiedRows": 14,
+    "coveragePercent": 89.0,
+    "independentlyFreshVerifiedRows": 15,
     "independentlyFreshVerifiedNote": "Rows evidenced via a dedicated individual PIZZA DB profile-page fetch (deeper single-dish evidence: origin/dough/sauce-family/ingredients), as distinct from a row's appearance in the aggregate comparison-table scrape.",
     "relayedOnlyRows": 138,
     "relayedOnlyNote": "Rows evidenced only via the aggregate comparison-table sample (Phase 0B), not (yet) confirmed by a dedicated individual profile-page fetch.",
-    "duplicateCorroborationsCount": 35,
+    "duplicateCorroborationsCount": 39,
     "duplicateCorroborationsNote": "Each entry in the top-level 'corroborations' list is a re-confirmation of an already-evidenced row (new source URL/date), found either by exact id/nameJa match (matchType=automatic_exact_match) or by human ingredient-set review (matchType=manual_review) -- never counted toward uniqueRecipeRowsEvidencedTotal.",
-    "rowsRequiringMechanicIdentityCount": 32,
+    "rowsRequiringMechanicIdentityCount": 33,
     "rowsRequiringMechanicIdentityIds": [
       "pizza-a-caballo",
       "fugazzeta-rellena",
@@ -2585,7 +2607,8 @@
       "fruit-dessert-pizza-pizzadb-p11",
       "natto-pizza",
       "manakish",
-      "wasabi-beef-pizza"
+      "wasabi-beef-pizza",
+      "yakiniku-pizza"
     ],
     "rowsWithEvidenceGapsCount": 2,
     "rowsWithEvidenceGapsIds": [
@@ -2611,8 +2634,8 @@
       "boscaiola-pizzadb-p12"
     ],
     "rowsCorrespondingToExistingCatalogEntryNote": "correspondsToExistingCatalogId is set whether that catalog entry is already SHIPPED (e.g. margherita) or still an unshipped candidate (e.g. hawaiian) -- check each row's own correspondenceNote for which.",
-    "pendingRowCount": 20,
-    "pendingRowNote": "172 - 152 = 20 rows remain with zero evidence."
+    "pendingRowCount": 19,
+    "pendingRowNote": "172 - 153 = 19 rows remain with zero evidence."
   },
   "independentSessionFetchStatus": {
     "lastCheckedThisPhase": "2026-09-22 (Phase 0B.4)",
@@ -2864,6 +2887,34 @@
       "matchedNameJa": "うなぎピザ",
       "newSourceUrl": "https://pizzadb.jp/pizzas/unagi-pizza/",
       "note": "2026-09-22 (relayed re-confirmation via individual profile page, not independently re-fetched by this Claude session). Ingredient set identical to the existing eel-pizza-pizzadb-p1 evidence (eel, sansho-pepper, mozzarella, green-onion). New detail from this individual-profile fetch: the profile text explicitly states the eel is added at finishing (late/post-bake topping), not mixed in from the start -- a late-topping mechanic evidence candidate, same class of finding as natto-pizza and wasabi-beef-pizza this Phase.",
+      "matchType": "automatic_exact_match"
+    },
+    {
+      "matchedRowId": "mentaiko-cream-pizza-pizzadb-p4-DUP",
+      "matchedNameJa": "たらこクリームピザ",
+      "newSourceUrl": "https://pizzadb.jp/pizzas/tarako-cream/",
+      "note": "2026-09-22 (relayed re-confirmation via individual profile page, not independently re-fetched by this Claude session). Ingredient set identical to the existing mentaiko-cream-pizza-pizzadb-p4 evidence (cod-roe, fresh-cream-sauce, mozzarella, nori, shiso). New detail from this individual-profile fetch: the profile explicitly states tarako is added in the final few minutes of the bake -- a late-topping/timing mechanic evidence candidate, same class of finding as Phase 0B.13's natto-pizza/unagi-pizza.",
+      "matchType": "automatic_exact_match"
+    },
+    {
+      "matchedRowId": "kimchi-pizza-pizzadb-p2-DUP",
+      "matchedNameJa": "キムチピザ",
+      "newSourceUrl": "https://pizzadb.jp/pizzas/kimchi-pizza/",
+      "note": "2026-09-22 (relayed re-confirmation via individual profile page, not independently re-fetched by this Claude session). Ingredient set identical to the existing kimchi-pizza-pizzadb-p2 evidence (kimchi, pork, mozzarella, green-onion). New detail from this individual-profile fetch: the profile's preparation note says the kimchi is drained/lightly stir-fried before topping -- a pre-cook/prep evidence candidate, recorded as evidence only, not used to add or imply any gameplay mechanic.",
+      "matchType": "automatic_exact_match"
+    },
+    {
+      "matchedRowId": "thai-chicken-pizza-pizzadb-p4-DUP",
+      "matchedNameJa": "タイチキンピザ",
+      "newSourceUrl": "https://pizzadb.jp/pizzas/thai-chicken/",
+      "note": "2026-09-22 (relayed re-confirmation via individual profile page, not independently re-fetched by this Claude session). Ingredient set identical to the existing thai-chicken-pizza-pizzadb-p4 evidence (chicken, peanut-sauce, cilantro, mozzarella, red-chili). New detail from this individual-profile fetch: the profile states the peanut sauce is spread before baking (a base-sauce application detail, consistent with peanut-sauce's role as the dish's own sauceFamily, not a new mechanic).",
+      "matchType": "automatic_exact_match"
+    },
+    {
+      "matchedRowId": "smore-dessert-pizza-pizzadb-p4-DUP",
+      "matchedNameJa": "スモアデザートピザ",
+      "newSourceUrl": "https://pizzadb.jp/pizzas/smores-dessert/",
+      "note": "2026-09-22 (relayed re-confirmation via individual profile page, not independently re-fetched by this Claude session). Ingredient set identical to the existing smore-dessert-pizza-pizzadb-p4 evidence (marshmallow, chocolate, graham-cracker). New detail from this individual-profile fetch: the profile distinguishes two separate timings -- marshmallow added just before baking, crushed graham cracker added as a post-bake finish -- a two-stage timing+post-bake-finishing mechanic evidence candidate, the most granular such finding yet.",
       "matchType": "automatic_exact_match"
     }
   ]
