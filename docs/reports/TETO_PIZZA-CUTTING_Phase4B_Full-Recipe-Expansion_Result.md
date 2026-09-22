@@ -9,7 +9,9 @@ again immediately before push (Duplicate Gate #2), unchanged both times).
 designated branch `claude/pizza-cutting-phase-4b-qcxkvo` was already sitting exactly on latest
 `main` with a clean tree at session start).
 
-**Implementation HEAD:** `793e1641a8ab4f8d796d2a34bf5666d62bc0355a`
+**Implementation HEAD:** `9628847` (full history: `793e164` implementation →
+`ebe00b1`/`e41a79b` docs → `c1f0376`/`0d3f277` E2E bake-timing fix attempts (both still failed
+WebKit CI) → `9628847` the actual fix, WebKit CI green)
 
 ## Duplicate Gate #1 / #2
 
@@ -182,9 +184,27 @@ recipe-name-coupled, so the CUT expansion does not touch it at all.
   including the 4 new Phase 4B scenarios in `e2e/pizza-cutting-phase4b.spec.ts`. Scenario D (Lunch
   Rush) was run 10 additional times locally to exercise its random recipe-selection branches
   (margherita/funghi/marinara) — all passed.
-- **WebKit:** not runnable in this sandboxed session (browser binary not installed, consistent with
-  every prior PR-A/PR-B/PR-C session's own documented network-egress limitation) — **GitHub Actions
-  is the authority**; see the PR for the actual `e2e-webkit.yml` run result once CI completes.
+- **WebKit:** not runnable directly in this sandboxed session (browser binary not installed,
+  consistent with every prior PR-A/PR-B/PR-C session's own documented network-egress limitation)
+  — **GitHub Actions is the authority**. First two `e2e-webkit.yml` runs on this PR (commits
+  `e41a79b`/`c1f0376`/`0d3f277`) failed: the Phase 4B scenarios' own bake-confirm timing (a fixed
+  real-time wait, then a live-position DOM poll, then a naive `page.clock.install()`+`runFor`)
+  each drifted under WebKit CI's real load in a different way, landing the round outside its
+  `bakeTarget` window and FAILING completion — `ResultPanel` correctly never renders a CUT card
+  for a FAILED round (pre-existing, unrelated contract), so the missing card was accurate
+  downstream behavior for an upstream E2E bug, not a production defect. Root-caused via direct
+  diagnostics (CDP `Emulation.setCPUThrottlingRate` + reading `.bake-gauge__needle`'s own live
+  position at each step) rather than guessing: `page.clock.install()` does not freeze time by
+  itself, so a naive `runFor` after it lands on top of whatever real time already flowed. Fixed
+  in `9628847` (`e2e/gestures.ts`'s `bakeToTarget`): pause the clock at a short future buffer,
+  then read the needle's own actual resulting position and `runFor` only the remaining distance
+  to the target center — adaptive regardless of round-trip cost. **`e2e-webkit.yml` run on
+  `9628847`: PASS** —
+  [build](https://github.com/perusonao/teto-pizza-game/actions/runs/35673279331) (CI/lint/vitest),
+  [webkit](https://github.com/perusonao/teto-pizza-game/actions/runs/35673279270) (both
+  390×844/360×800 projects), both green. Also verified locally via repeated CDP-throttled runs
+  (0 failures across 20+ runs at 4x–10x throttle with the final fix, versus 7-8/8 failures for
+  each earlier approach under the same conditions).
 
 ### Migrated "non-CUT recipe" test fixtures
 
@@ -271,8 +291,9 @@ visible, RESULT/serve visible where required, no obvious clipping/scroll regress
 
 ## Known limitations
 
-- WebKit CI result not yet confirmed from this session (sandboxed network policy) — see the PR's
-  own Actions run for the authoritative result.
+- WebKit CI passed on `9628847` (see the WebKit evidence above for both run URLs), but not from a
+  direct in-sandbox run — confirmed via GitHub Actions, the authoritative source per this task's
+  own network-policy constraint.
 - Video D's specific recipe (Marinara) was determined by Lunch Rush's own real random selection,
   not forced — this is by design (the task explicitly allows "smallest legitimate verification
   without changing production recipe selection just for the video"), but means a different session
