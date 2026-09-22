@@ -218,11 +218,96 @@ behavior). No file under `src/logic/**`, `src/state/**` (besides the untouched r
 Not runnable in this implementing sandbox — `/opt/pw-browsers` has no `webkit-*` package installed
 (confirmed: `browserType.launch: Executable doesn't exist at /opt/pw-browsers/webkit-*/pw_run.sh`),
 the same pre-existing network-restricted-sandbox limitation every prior PR on this repo
-(`playwright.config.ts`'s own header comment, PR-A/PR-B/PR-C) has documented. This PR's own GitHub
-Actions `e2e-webkit.yml` run is authoritative for WebKit — not yet available at report-writing
-time (written before push); see the PR itself for the actual CI result.
+(`playwright.config.ts`'s own header comment, PR-A/PR-B/PR-C) has documented. GitHub Actions'
+`e2e-webkit.yml` is authoritative for WebKit.
+
+### First push (HEAD `4f1e243bd23d3e312c4ab91681d9fef0b8d0e3b5`) — WebKit FAILURE, root-caused and fixed
+
+**Failure symptom.** 81/82 WebKit tests passed; exactly one failure:
+
+```
+[webkit-360x800] › e2e/result-1screen-2.0.spec.ts:75:3 › Scenario B: 360x800 -- heavy RESULT
+(Capricciosa, CUT + max toppings) › CTA usable, no horizontal overflow, summary visible,
+details open/close normal
+
+Error: expect(locator).toBeVisible() failed
+Locator: locator('.result-panel__stars')
+Timeout: 5000ms — Error: element(s) not found
+```
+
+**Root cause investigation (not "WebKit needs longer waits").** The identical scenario at
+`webkit-390x844` passed cleanly in the same run (8.5s) — same production code path, same
+viewport-independent component logic (`ResultPanel.tsx`, `.pizza-stage--result`, the fixed CTA,
+the `<details>` disclosures). If any of this PR's actual RESULT layout/CSS changes were broken,
+both viewports would have failed identically; they did not. That ruled out a production/UI
+regression from this PR's own changes (fixed CTA reachability, `resultCompact`, native
+`<details>`, `.game-screen` scroll math, 390×844/360×800 sizing, CUT→RESULT transition) before
+looking anywhere else.
+
+Tracing `.result-panel__stars`'s only render path (`ResultPanel.tsx`) showed it is never rendered
+at all when `completion.status === "FAILED"` — that branch renders "失敗" instead and returns
+early, before stars/score/CUT/Pitz ever compute. So "element not found" (not "hidden" or
+"clipped") is the exact signature of a FAILED round, not a layout bug.
+
+`e2e/gestures.ts`'s `playFullCapricciosaRound` ended its BAKE step with a fixed
+`page.waitForTimeout(1300)` real-time wait, instead of the virtual-clock `bakeToTarget()` helper
+`playFullMargheritaRound`/`playFullMarinaraRound` already use. `bakeToTarget`'s own doc comment
+(written when this exact fragility was found and fixed for Margherita, PR-A) documents precisely
+this failure mode: under real CI load, a fixed wait can let the needle drift past the recipe's own
+bake window before "取り出す！" fires — the same class of flake, never a new one. Confirmed the
+exact mechanism: `completionGate.ts:159` — `if (bakeResult > end + margin) return { reason:
+"OVERBAKED" }` — capricciosa's own `bakeTarget` is `{ start: 58, end: 78 }`
+(`src/data/recipes.ts`), and OVERBAKED is a completion-gate `FAILED` reason (§ real-time drift
+under WebKit's own heavier per-action overhead + 360x800 running after/alongside 390x844 in the
+same 2-worker run, more accumulated load by the time Capricciosa's BAKE fires, is exactly the
+"loaded/throttled CI runner" scenario `bakeToTarget`'s own comment describes). Margherita's
+helper was migrated to `bakeToTarget` specifically to fix this; Capricciosa's was never migrated
+when it was authored later — a pre-existing test-infrastructure gap this PR's own new Scenario B
+was the first test to exercise Capricciosa's full round including BAKE precisely enough to expose.
+
+**This was not treated as a bare "flake" and re-run to make it go away.** The mechanism above was
+established via code reading (`completionGate.ts`, `ResultPanel.tsx`, `bakeToTarget`'s own
+history) before any fix was written, and the fix targets that exact mechanism.
+
+**Fix.** `e2e/gestures.ts`'s `playFullCapricciosaRound` now calls
+`bakeToTarget(page, { start: 58, end: 78 })` (capricciosa's real `bakeTarget`) instead of
+`page.waitForTimeout(1300)`. This *adds* virtual-clock precision, matching and reinforcing PR
+#173's/PR-A's own established stabilization — it does not revert anything to a real-time wait, and
+touches no production file (`git diff --stat` for the fix commit: exactly `e2e/gestures.ts`, 12
+insertions/4 deletions).
+
+**Regression verification after the fix (before push):**
+
+- TypeScript (`tsc -b --noEmit`): clean.
+- Lint (`oxlint`): clean.
+- Full Chromium E2E: **82/82 pass** (both viewports) — including the `result-1screen-2.0.spec.ts`
+  Scenario B this fix targets, and every pre-existing spec that reuses
+  `playFullCapricciosaRound`/`startCapricciosaUnlocked` (`dynamic-cooking-steps.spec.ts` Scenario
+  C).
+- Full Vitest: **2288/2288 pass** (unaffected — the fix touches only an E2E test helper).
+- No Scoring/Pitz/CUT formula, Firebase, or recipe data touched (the fix reads capricciosa's own
+  already-authored `bakeTarget` from `recipes.ts`; it does not add, invent, or change any value
+  there).
+
+**Second push (HEAD `55c529559c6ed72b0137c994d038fe2145aa635f`) — final GitHub Actions result:**
+
+| Check | Conclusion |
+|---|---|
+| `build` (CI) | **SUCCESS** |
+| `webkit` (E2E WebKit, both `webkit-390x844`/`webkit-360x800` projects, 82/82) | **SUCCESS** |
+
+PR `mergeable_state`: `clean` (no conflict) as of this HEAD.
 
 ## Human Verification
+
+**Re-shoot determination (after the WebKit fix, HEAD `4f1e243` → `55c5295`):** not required. The
+fix commit (`55c5295`) touches exactly one file, `e2e/gestures.ts` — a Playwright E2E test helper,
+not shipped application code. `git diff 4f1e243 55c5295 -- src/` is empty; no file under `src/**`
+changed. The 4 videos below were recorded against the real dev server running this PR's actual
+production code (`src/`), which is byte-identical between the HEAD they were recorded at and the
+current HEAD — there is no UI/production behavior difference for a human viewer to see that the
+existing videos wouldn't already show correctly. Re-recording would produce pixel-identical output
+for a strictly test-infrastructure fix.
 
 Per `docs/decisions/TETO_HUMAN-VERIFICATION-POLICY.md`. All 4 videos recorded via real Playwright
 mouse gestures at human pacing (1–3s holds per state, longer holds on RESULT itself), MP4/H.264
@@ -284,6 +369,9 @@ src/components/ResultPanel.tsx                    (Pitz breakdown -> <details>)
 src/components/ResultPanel.test.tsx               (+3 tests)
 src/screens/GameScreen.tsx                        (+1 line: resultCompact={isFreeResultScreen})
 docs/reports/screenshots/gameplay-ux-result-1screen/*.png (new, 4 files)
+e2e/gestures.ts                                   (WebKit fix: playFullCapricciosaRound now uses
+                                                    bakeToTarget instead of a fixed real-time wait
+                                                    -- test infra only, no production file)
 ```
 
 ## Limitations / follow-ups
