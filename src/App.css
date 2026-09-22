@@ -1832,6 +1832,99 @@
   margin: 0;
 }
 
+/* ---------- Cooking timing summary (Gameplay UX PR-C, Timing Transparency, RESULT only) ----------
+   Standalone display only -- never a score/Pitz/scoring input (see ResultPanel.tsx's own file
+   comment for why 調理時間/手際 moved out of `.pitz-credit-summary` entirely, rather than being
+   duplicated in both places). Deliberately neutral/low-emphasis colors (gray-slate, not the
+   quality headline's gold/blue) and no countdown/alarm styling -- per the task's own "quality
+   primary, pacing secondary, never pressure the player toward speed" instruction. A native
+   `<details>` whose own `<summary>` *is* the always-visible headline (one line, no separate
+   header row above a nested `<details>`) -- mirrors `.cut-evaluation-summary`'s exact shape,
+   deliberately more compact than `.pitz-credit-summary`'s two-line headline+nested-breakdown
+   shape, since RESULT 1-Screen 2.0's fixed-CTA first-view budget (Fresh Audit §13) has no spare
+   line here. `--flat` is the plain-paragraph fallback for the (production-unreachable, defensive/
+   test-only) case where there are no per-step rows to disclose at all. */
+.cooking-timing-summary {
+  width: 100%;
+  max-width: 320px;
+  background: #eef0f2;
+  border-radius: 14px;
+  padding: 4px 16px;
+  box-sizing: border-box;
+}
+
+.cooking-timing-summary__summary {
+  font-size: 13px;
+  color: #4a4f57;
+  text-align: center;
+  cursor: pointer;
+  list-style: none;
+}
+
+.cooking-timing-summary--flat {
+  font-size: 13px;
+  color: #4a4f57;
+  text-align: center;
+  margin: 0;
+}
+
+.cooking-timing-summary__summary strong,
+.cooking-timing-summary--flat strong {
+  font-size: 14px;
+  color: #2f333a;
+}
+
+.cooking-timing-summary__tier {
+  font-size: 11.5px;
+  color: #6b7280;
+}
+
+.cooking-timing-summary__summary::-webkit-details-marker {
+  display: none;
+}
+
+.cooking-timing-summary__summary::after {
+  content: " \25BE";
+}
+
+.cooking-timing-summary[open] .cooking-timing-summary__summary::after {
+  content: " \25B4";
+}
+
+.cooking-timing-summary__details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 6px 0 0;
+}
+
+.cooking-timing-summary__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cooking-timing-summary__row dt {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.cooking-timing-summary__row dd {
+  font-size: 13px;
+  color: #2f333a;
+  font-weight: 700;
+  margin: 0;
+}
+
+.cooking-timing-summary__note {
+  font-size: 10.5px;
+  color: #8a8f96;
+  text-align: center;
+  margin: 4px 0 0;
+}
+
 /* ---------- Dex overlay ---------- */
 .dex-overlay {
   position: absolute;

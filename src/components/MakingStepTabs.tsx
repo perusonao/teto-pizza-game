@@ -1,4 +1,5 @@
 import type { MakingStep } from "../state/gameReducer";
+import { STEP_LABEL } from "../data/makingStepLabels";
 
 /**
  * Issue #86 (UX-2): a second, primary-navigation affordance for the PREPARE making flow,
@@ -59,17 +60,9 @@ import type { MakingStep } from "../state/gameReducer";
 // 5-character width alone pushed the flex row's total content past the viewport, clipping the
 // trailing BAKE/CUT tabs off the right edge (real-device Fresh Audit, 2026-09-21). "具材" is
 // half the width and reads naturally as the same step.
-const STEP_LABEL: Record<MakingStep, string> = {
-  DOUGH: "生地",
-  SAUCE: "ソース",
-  CHEESE: "チーズ",
-  TOPPING: "具材",
-  CUT: "カット",
-  FOLD: "折りたたみ",
-  SEAL: "とじる",
-  EDGE_FILL: "ふちづめ",
-  FINISH: "仕上げ",
-};
+// Gameplay UX PR-C (Timing Transparency): moved to ../data/makingStepLabels.ts so ResultPanel.tsx's
+// own Timing Detail table can reuse the exact same recipe-step labels this tab strip uses, without
+// a components file exporting a non-component (oxlint's react-refresh rule flags that).
 
 interface MakingStepTabsProps {
   /** The active round's own ordered pre-BAKE step sequence (`preBakeSteps(state.cookingProfile)`,

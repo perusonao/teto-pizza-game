@@ -4,6 +4,7 @@ import { PizzaStage } from "../components/PizzaStage";
 import { IngredientTray } from "../components/IngredientTray";
 import { MakingStepTabs } from "../components/MakingStepTabs";
 import { preBakeSteps, postBakeSteps } from "../data/cookingProfiles";
+import { stepTimingRows } from "../logic/cookingTimingDisplay";
 import { requiredCutCount } from "../logic/cut/evaluation";
 import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
 import { BakeOverlay } from "../components/BakeOverlay";
@@ -651,6 +652,7 @@ export function GameScreen({
           justGotNewBest={state.justGotNewBest}
           pitzCredit={state.lastPitzCredit}
           efficiencyCredit={state.lastEfficiencyCredit}
+          stepTimingRows={stepTimingRows(state.cookingProfile.steps, state.cookingTiming?.perStepElapsedMs)}
           starterGrantNotice={state.lastStarterGrantNotice}
           cutEvaluation={state.cutState.evaluation}
           onRetrySameRecipe={onRetrySameRecipe}

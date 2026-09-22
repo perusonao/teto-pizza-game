@@ -114,13 +114,16 @@ test.describe("Scenario C: details expanded -- score/CUT/reward detail all prese
     await playFullMargheritaRound(page);
     await page.waitForTimeout(200);
 
-    // Score breakdown detail.
+    // Score breakdown detail. Gameplay UX PR-C added its own "具材" (TOPPING) row inside the
+    // Timing Detail table (`.cooking-timing-summary`), so these queries are now scoped to
+    // `.result-panel__details` specifically to stay unambiguous.
     await page.locator(".result-panel__details-summary").click();
-    await expect(page.locator(".result-panel__details")).toHaveAttribute("open", "");
-    await expect(page.getByText("具材")).toBeVisible();
-    await expect(page.getByText("配置")).toBeVisible();
+    const scoreDetails = page.locator(".result-panel__details");
+    await expect(scoreDetails).toHaveAttribute("open", "");
+    await expect(scoreDetails.getByText("具材")).toBeVisible();
+    await expect(scoreDetails.getByText("配置")).toBeVisible();
     await expect(page.locator(".score-bar__label", { hasText: "焼き" })).toBeVisible();
-    await expect(page.getByText("ソース")).toBeVisible();
+    await expect(scoreDetails.getByText("ソース")).toBeVisible();
 
     // CUT detail.
     await page.locator(".cut-evaluation-summary__summary").click();
