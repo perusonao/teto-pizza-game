@@ -385,14 +385,14 @@ test.describe("PREPARE: ingredient selection never needs vertical scroll (Gamepl
     }
   });
 
-  test("quattro-formaggi heavy inventory -- multi-owned SAUCE/CHEESE/TOPPING all fit with no overflow", async ({
+  test("quattro-formaggi heavy inventory -- multi-owned SAUCE/CHEESE all fit with no overflow", async ({
     page,
   }) => {
     test.setTimeout(30_000);
     await startQuattroFormaggiHeavyInventory(page);
 
-    // DOUGH must be completed before SAUCE/CHEESE/TOPPING are reachable (one-way flow, Issue
-    // #32 Phase 2) -- not itself part of this fixture's reproduction (DOUGH never shows a
+    // DOUGH must be completed before SAUCE/CHEESE are reachable (one-way flow, Issue #32
+    // Phase 2) -- not itself part of this fixture's reproduction (DOUGH never shows a
     // multi-item tray), so it's driven through without being asserted on here.
     const box = await page.locator('[data-pizza-drop-target="true"]').boundingBox();
     const cx = box!.x + box!.width / 2;
@@ -406,7 +406,17 @@ test.describe("PREPARE: ingredient selection never needs vertical scroll (Gamepl
     }
     await page.getByRole("button", { name: /次へ/ }).click();
 
-    for (const step of ["SAUCE", "CHEESE", "TOPPING"] as const) {
+    // Gameplay UX / Scoring 3.0 PR-A (Dynamic Cooking Steps, see
+    // docs/reports/TETO_GAMEPLAY-UX_SCORING-3.0_Fresh-Audit.md Audit F): quattro-formaggi has no
+    // required topping-category ingredient, so its own derived CookingProfile
+    // (../src/data/cookingProfiles.ts's `getCookingProfile`) never includes a TOPPING step at
+    // all any more -- there is no longer an "empty TOPPING tray" to special-case (Issue #159 P0's
+    // old "quattro-formaggi requires none in TOPPING, so that step's own tray is legitimately
+    // empty" comment described the *pre-PR-A* behavior; the step itself doesn't exist now). This
+    // loop only walks SAUCE/CHEESE; CHEESE is this recipe's own last PREPARE step, and its own
+    // CTA already reads 焼く！ there (GameScreen.tsx's `isLastPrepareStep`), not a 次へ that would
+    // go nowhere.
+    for (const step of ["SAUCE", "CHEESE"] as const) {
       const s = await pageScrollState(page);
       expect(s.docScrollWidth, `${step}: page must never overflow horizontally`).toBeLessThanOrEqual(
         s.innerWidth,
@@ -426,24 +436,23 @@ test.describe("PREPARE: ingredient selection never needs vertical scroll (Gamepl
 
       // The tray must still be genuinely operable, not merely short -- selecting a chip must
       // still work post-layout-change (Human Feel Gate: a numerically-passing but inert tray
-      // would not be a real fix). Issue #159 P0: the tray now only ever offers this recipe's
-      // own required ingredients (IngredientTray.tsx) -- quattro-formaggi requires none in
-      // TOPPING at all, so that step's own tray is legitimately empty here (nothing to place,
-      // 焼く！ is the correct next action) rather than showing this fixture's extra owned-but-
-      // unrequired toppings the old "その他" section used to surface.
+      // would not be a real fix). Both SAUCE and CHEESE are genuinely required for
+      // quattro-formaggi, so the tray must never be empty at either step now.
       const chipCount = await page.locator(".ingredient-chip").count();
-      if (chipCount > 0) {
-        const anyChip = page.locator(".ingredient-chip").first();
-        await anyChip.click();
-        await expect(anyChip).toHaveClass(/ingredient-chip--selected/);
-      } else {
-        expect(step, "only TOPPING (quattro-formaggi has no topping requirement) may be empty").toBe(
-          "TOPPING",
-        );
-      }
+      expect(chipCount, `${step}: quattro-formaggi requires ingredients at every remaining step`).toBeGreaterThan(
+        0,
+      );
+      const anyChip = page.locator(".ingredient-chip").first();
+      await anyChip.click();
+      await expect(anyChip).toHaveClass(/ingredient-chip--selected/);
 
-      if (step !== "TOPPING") {
+      if (step !== "CHEESE") {
         await page.getByRole("button", { name: /次へ/ }).click();
+      } else {
+        // Regression coverage for this task's own navigation fix: CHEESE being quattro-formaggi's
+        // own last PREPARE step means the CTA must already read 焼く！, never get stuck on 次へ.
+        await expect(page.getByRole("button", { name: /焼く！/ })).toBeVisible();
+        await expect(page.getByRole("button", { name: "次へ" })).toHaveCount(0);
       }
     }
   });

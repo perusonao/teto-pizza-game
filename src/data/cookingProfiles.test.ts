@@ -10,6 +10,7 @@ import {
   type CookingProfile,
 } from "./cookingProfiles";
 import { RECIPES, type RecipeId } from "./recipes";
+import type { MakingStep } from "../state/gameReducer";
 
 /**
  * Recipe Cooking Steps 1.0 Phase 1A / Pizza Cutting 1.0 Phase 4B (Full Recipe Expansion, see
@@ -43,6 +44,41 @@ const EXPECTED_CUT_ELIGIBLE: readonly RecipeId[] = [
   "capricciosa",
   "meat-lovers",
 ];
+
+/**
+ * Gameplay UX / Scoring 3.0 PR-A (Dynamic Cooking Steps, see
+ * docs/reports/TETO_GAMEPLAY-UX_SCORING-3.0_Fresh-Audit.md Audit F, Fresh-confirmed against
+ * ../data/recipes.ts's `requiredIngredients` and ../data/ingredients.ts's `Ingredient.category`
+ * for every one of the 15 shipped recipes): the exact expected pre-BAKE step sequence per recipe,
+ * derived from which ingredient categories each recipe's `requiredIngredients` actually touch.
+ * Every recipe requires at least one `"sauce"`-category ingredient today (SAUCE is universal, but
+ * deliberately not hardcoded as such -- see `deriveCoreSteps`'s own doc comment), so only CHEESE/
+ * TOPPING ever drop out: marinara/fugazza/pizza-bianca need no cheese-category ingredient (all
+ * three use only `tomato-sauce`/`olive-oil` + topping-category items), quattro-formaggi needs no
+ * topping-category ingredient (its four cheeses are its entire non-sauce composition). This table
+ * pins the exact sequence, not just a step count, per the task's own requirement. */
+const RECIPE_STEP_MATRIX: Record<RecipeId, readonly MakingStep[]> = {
+  margherita: ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  marinara: ["DOUGH", "SAUCE", "TOPPING"],
+  "quattro-formaggi": ["DOUGH", "SAUCE", "CHEESE"],
+  genovese: ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  bismarck: ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  funghi: ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  fugazza: ["DOUGH", "SAUCE", "TOPPING"],
+  salsiccia: ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  pepperoni: ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  napoletana: ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  "tonno-e-cipolla": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  "pizza-bianca": ["DOUGH", "SAUCE", "TOPPING"],
+  "breakfast-pizza": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  capricciosa: ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  "meat-lovers": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+};
+
+/** No-CHEESE recipes (Fresh-confirmed, see `RECIPE_STEP_MATRIX` above). */
+const NO_CHEESE_RECIPES: readonly RecipeId[] = ["marinara", "fugazza", "pizza-bianca"];
+/** No-TOPPING recipes (Fresh-confirmed, see `RECIPE_STEP_MATRIX` above). */
+const NO_TOPPING_RECIPES: readonly RecipeId[] = ["quattro-formaggi"];
 
 describe("CookingProfile lookup (Recipe Cooking Steps 1.0 / Pizza Cutting 1.0 Phase 4B)", () => {
   it("an unknown recipe id resolves to DEFAULT_COOKING_PROFILE", () => {
@@ -78,10 +114,10 @@ describe("CookingProfile lookup (Recipe Cooking Steps 1.0 / Pizza Cutting 1.0 Ph
   });
 
   describe.each(EXPECTED_CUT_ELIGIBLE)("(B) %s: derived profile includes POST_BAKE CUT", (recipeId) => {
-    it("steps end with CUT, appended after the default DOUGH/SAUCE/CHEESE/TOPPING sequence", () => {
+    it("steps are this recipe's own RECIPE_STEP_MATRIX sequence, CUT appended after it", () => {
       const profile = getCookingProfile(recipeId);
       expect(profile).not.toBe(DEFAULT_COOKING_PROFILE);
-      expect(profile.steps).toEqual(["DOUGH", "SAUCE", "CHEESE", "TOPPING", "CUT"]);
+      expect(profile.steps).toEqual([...RECIPE_STEP_MATRIX[recipeId], "CUT"]);
     });
 
     it("(F) requestedSliceCount is 6 (Phase 4B: no authoritative rule for a different count)", () => {
@@ -91,8 +127,85 @@ describe("CookingProfile lookup (Recipe Cooking Steps 1.0 / Pizza Cutting 1.0 Ph
 
     it("preBakeSteps/postBakeSteps split correctly", () => {
       const profile = getCookingProfile(recipeId);
-      expect(preBakeSteps(profile)).toEqual(["DOUGH", "SAUCE", "CHEESE", "TOPPING"]);
+      expect(preBakeSteps(profile)).toEqual(RECIPE_STEP_MATRIX[recipeId]);
       expect(postBakeSteps(profile)).toEqual(["CUT"]);
+    });
+
+    it("has no duplicate steps", () => {
+      const profile = getCookingProfile(recipeId);
+      expect(new Set(profile.steps).size).toBe(profile.steps.length);
+    });
+  });
+
+  describe("(H) dynamic step derivation (Gameplay UX / Scoring 3.0 PR-A)", () => {
+    it("every RECIPES entry's derived profile matches RECIPE_STEP_MATRIX exactly, not just a step count", () => {
+      for (const recipe of RECIPES) {
+        const profile = getCookingProfile(recipe.id);
+        expect(preBakeSteps(profile), recipe.id).toEqual(RECIPE_STEP_MATRIX[recipe.id]);
+      }
+    });
+
+    it.each(NO_CHEESE_RECIPES)("%s: CHEESE is absent (no required cheese-category ingredient)", (recipeId) => {
+      const profile = getCookingProfile(recipeId);
+      expect(profile.steps).not.toContain("CHEESE");
+      expect(preBakeSteps(profile)).not.toContain("CHEESE");
+    });
+
+    it.each(NO_TOPPING_RECIPES)("%s: TOPPING is absent (no required topping-category ingredient)", (recipeId) => {
+      const profile = getCookingProfile(recipeId);
+      expect(profile.steps).not.toContain("TOPPING");
+      expect(preBakeSteps(profile)).not.toContain("TOPPING");
+    });
+
+    it("every recipe with a required cheese-category ingredient keeps its CHEESE step", () => {
+      for (const recipeId of EXPECTED_CUT_ELIGIBLE) {
+        if (NO_CHEESE_RECIPES.includes(recipeId)) continue;
+        expect(preBakeSteps(getCookingProfile(recipeId)), recipeId).toContain("CHEESE");
+      }
+    });
+
+    it("every recipe with a required topping-category ingredient keeps its TOPPING step", () => {
+      for (const recipeId of EXPECTED_CUT_ELIGIBLE) {
+        if (NO_TOPPING_RECIPES.includes(recipeId)) continue;
+        expect(preBakeSteps(getCookingProfile(recipeId)), recipeId).toContain("TOPPING");
+      }
+    });
+
+    it("every recipe keeps DOUGH and SAUCE (universal today, still derived rather than hardcoded)", () => {
+      for (const recipe of RECIPES) {
+        const steps = preBakeSteps(getCookingProfile(recipe.id));
+        expect(steps[0], recipe.id).toBe("DOUGH");
+        expect(steps, recipe.id).toContain("SAUCE");
+      }
+    });
+
+    it("DOUGH is always first, SAUCE (when present) always second, CHEESE before TOPPING when both present", () => {
+      for (const recipe of RECIPES) {
+        const steps = preBakeSteps(getCookingProfile(recipe.id));
+        expect(steps[0]).toBe("DOUGH");
+        const sauceIndex = steps.indexOf("SAUCE");
+        const cheeseIndex = steps.indexOf("CHEESE");
+        const toppingIndex = steps.indexOf("TOPPING");
+        if (sauceIndex >= 0) expect(sauceIndex).toBe(1);
+        if (cheeseIndex >= 0 && toppingIndex >= 0) expect(cheeseIndex).toBeLessThan(toppingIndex);
+      }
+    });
+
+    it("marinara: no meaningless blank CHEESE step -- DOUGH -> SAUCE -> TOPPING -> CUT", () => {
+      const profile = getCookingProfile("marinara" as RecipeId);
+      expect(preBakeSteps(profile)).toEqual(["DOUGH", "SAUCE", "TOPPING"]);
+      expect(postBakeSteps(profile)).toEqual(["CUT"]);
+    });
+
+    it("quattro-formaggi: no meaningless blank TOPPING step -- DOUGH -> SAUCE -> CHEESE -> CUT", () => {
+      const profile = getCookingProfile("quattro-formaggi" as RecipeId);
+      expect(preBakeSteps(profile)).toEqual(["DOUGH", "SAUCE", "CHEESE"]);
+      expect(postBakeSteps(profile)).toEqual(["CUT"]);
+    });
+
+    it("margherita (full-step recipe): CHEESE and TOPPING both remain, regression baseline unchanged", () => {
+      const profile = getCookingProfile("margherita" as RecipeId);
+      expect(preBakeSteps(profile)).toEqual(["DOUGH", "SAUCE", "CHEESE", "TOPPING"]);
     });
   });
 

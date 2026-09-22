@@ -5,14 +5,16 @@
  * (../data/referencePizza.ts's `getReferencePizza` -- absent entry, absent = a defined default,
  * never a special-cased branch at every call site).
  *
- * Zero behavior change is the whole point of this file for Phase 1A: `COOKING_PROFILES` below is
- * an empty Map -- every one of the 15 shipped recipes resolves to `DEFAULT_COOKING_PROFILE`,
- * which is byte-identical to today's fixed DOUGH -> SAUCE -> CHEESE -> TOPPING flow (previously
- * `gameReducer.ts`'s own module-level `MAKING_STEP_ORDER`). Activating a non-default profile on
- * any real recipe is explicitly out of scope for this phase (see that design doc's Phase 1A
- * acceptance criteria, §18) -- this file only makes a recipe-specific sequence *representable*.
+ * Gameplay UX / Scoring 3.0 PR-A (Dynamic Cooking Steps, see
+ * docs/reports/TETO_GAMEPLAY-UX_SCORING-3.0_Fresh-Audit.md Audit F): `getCookingProfile` below now
+ * derives each real recipe's PREPARE-phase `steps` from which ingredient categories its
+ * `requiredIngredients` actually touch (`deriveCoreSteps`) instead of every recipe resolving to
+ * the same literal `DEFAULT_COOKING_PROFILE`. `DEFAULT_COOKING_PROFILE` itself is unchanged and
+ * still used verbatim as the fallback for a `recipeId` with no `RECIPES` entry at all (a synthetic/
+ * future id) -- there is nothing to derive from in that case.
  */
-import type { RecipeId } from "./recipes";
+import { getRecipe, type Recipe, type RecipeId } from "./recipes";
+import { getIngredient, type IngredientCategory } from "./ingredients";
 import type { MakingStep } from "../state/gameReducer";
 import type { CutConfig } from "../logic/cut/types";
 
@@ -98,6 +100,34 @@ function withCut(steps: readonly MakingStep[], cutConfig: CutConfig): CookingPro
   return { steps: [...steps, "CUT"], cutConfig };
 }
 
+/**
+ * Gameplay UX / Scoring 3.0 PR-A (Dynamic Cooking Steps, see
+ * docs/reports/TETO_GAMEPLAY-UX_SCORING-3.0_Fresh-Audit.md Audit F): the one authoritative place
+ * that decides which PREPARE-phase core steps a recipe actually needs. DOUGH is always present
+ * (every recipe shapes its own dough -- current production contract, unchanged). SAUCE/CHEESE/
+ * TOPPING are each included only if `recipe.requiredIngredients` names at least one ingredient of
+ * that category (`../data/ingredients.ts`'s own `Ingredient.category`, never inferred from a
+ * recipe's id/display name) -- so a step with nothing to place, and nothing for the Completion
+ * Gate to ever check, does not get a tab or a forced "次へ" tap. Order is fixed
+ * (DOUGH -> SAUCE -> CHEESE -> TOPPING), matching `DEFAULT_COOKING_PROFILE`'s own order minus
+ * whichever categories this recipe doesn't need -- deliberately data-driven for all three
+ * (including SAUCE, which happens to be required by all 15 shipped recipes today but is not
+ * hardcoded as always-present, so a hypothetical future no-sauce recipe would correctly skip it
+ * too instead of silently inheriting `DEFAULT_COOKING_PROFILE` semantics).
+ */
+function deriveCoreSteps(recipe: Recipe): readonly MakingStep[] {
+  const categories = new Set<IngredientCategory>();
+  for (const requirement of recipe.requiredIngredients) {
+    const ingredient = getIngredient(requirement.ingredientId);
+    if (ingredient) categories.add(ingredient.category);
+  }
+  const steps: MakingStep[] = ["DOUGH"];
+  if (categories.has("sauce")) steps.push("SAUCE");
+  if (categories.has("cheese")) steps.push("CHEESE");
+  if (categories.has("topping")) steps.push("TOPPING");
+  return steps;
+}
+
 /** Reserved per-recipe override point, checked before the allowlist derivation below -- for a
  *  future CUT-eligible recipe that needs something other than `STANDARD_CUT_CONFIG` (e.g. a
  *  large-format recipe wanting 8 slices), without hand-duplicating its whole `steps` array the
@@ -112,14 +142,26 @@ export const COOKING_PROFILE_OVERRIDES_TEST_ONLY = COOKING_PROFILE_OVERRIDES;
 
 /** Absent map/allowlist entry -> `DEFAULT_COOKING_PROFILE`, mirroring `getReferencePizza`'s own
  *  absent-entry contract (../data/referencePizza.ts). `DEFAULT_COOKING_PROFILE` itself is never
- *  mutated to add CUT -- see the module doc-comment above `CUT_ELIGIBLE_RECIPE_IDS`. */
+ *  mutated to add CUT -- see the module doc-comment above `CUT_ELIGIBLE_RECIPE_IDS`.
+ *
+ * PR-A: `steps` for a real (`RECIPES`-listed) recipe are now `deriveCoreSteps(recipe)` -- the
+ * recipe's own required-ingredient-category-derived sequence -- instead of always the literal
+ * `DEFAULT_COOKING_PROFILE.steps`. A `recipeId` absent from `RECIPES` entirely (a synthetic/future
+ * id, exactly this function's pre-existing absent-entry case) still resolves to the literal
+ * `DEFAULT_COOKING_PROFILE` object, unchanged -- there is no `requiredIngredients` to derive from,
+ * and this preserves every existing "unknown id -> DEFAULT_COOKING_PROFILE" reference-identity
+ * test. CUT eligibility itself is completely unaffected by this -- `CUT_ELIGIBLE_RECIPE_IDS` is
+ * still the sole authority for whether `withCut(...)` runs at all (Phase 4B's own allowlist,
+ * untouched), only what it appends CUT *onto* is now recipe-specific. */
 export function getCookingProfile(recipeId: RecipeId): CookingProfile {
   const override = COOKING_PROFILE_OVERRIDES.get(recipeId);
   if (override) return override;
+  const recipe = getRecipe(recipeId);
+  const steps = recipe ? deriveCoreSteps(recipe) : DEFAULT_COOKING_PROFILE.steps;
   if (CUT_ELIGIBLE_RECIPE_IDS.has(recipeId)) {
-    return withCut(DEFAULT_COOKING_PROFILE.steps, STANDARD_CUT_CONFIG);
+    return withCut(steps, STANDARD_CUT_CONFIG);
   }
-  return DEFAULT_COOKING_PROFILE;
+  return recipe ? { steps } : DEFAULT_COOKING_PROFILE;
 }
 
 /** Exported for exhaustive test coverage only (../data/cookingProfiles.test.ts) -- production

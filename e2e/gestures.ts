@@ -433,12 +433,27 @@ export async function startLunchRushMission(page: Page, durationSeconds: number)
  * render) -- exactly the same real gesture `playFullMargheritaRound`'s own trailing CUT branch
  * already performs for a PASS round. Completion Gate semantics/CUT scoring are untouched by this
  * -- this only teaches the *test helper* to drive a step the real UI now shows more often.
+ *
+ * Gameplay UX / Scoring 3.0 PR-A (Dynamic Cooking Steps): this used to click "次へ" exactly 3
+ * times, assuming every recipe's own PREPARE sequence is the fixed DOUGH/SAUCE/CHEESE/TOPPING
+ * 4-step walk. A recipe whose own derived `CookingProfile` (../src/data/cookingProfiles.ts) skips
+ * CHEESE or TOPPING has fewer PREPARE steps than that, so a fixed count either double-advances
+ * past the round's own last step or fails to find a "次へ" button at all once that step's CTA has
+ * already become 焼く！ -- keep tapping "次へ" until the round reaches its own last PREPARE step
+ * instead of assuming a fixed count, so this helper stays correct for whichever recipe Lunch
+ * Rush's own random order draws.
  */
 export async function failMissionOrderMissingSauce(page: Page) {
   await completeDoughStep(page);
   await page.getByRole("button", { name: /次へ/ }).click(); // DOUGH -> SAUCE
-  await page.getByRole("button", { name: /次へ/ }).click(); // SAUCE (skipped) -> CHEESE
-  await page.getByRole("button", { name: /次へ/ }).click(); // CHEESE -> TOPPING
+
+  // SAUCE's own ingredient is deliberately skipped (see this function's own doc comment above) --
+  // walk every remaining PREPARE step generically until 焼く！ appears, rather than assuming
+  // exactly two more "次へ" taps (CHEESE/TOPPING may not both exist for this order's own recipe).
+  while (await page.getByRole("button", { name: /次へ/ }).count()) {
+    await page.getByRole("button", { name: /次へ/ }).click();
+  }
+
   await page.getByRole("button", { name: /焼く/ }).click();
   await page.getByRole("button", { name: "取り出す！" }).click();
 
@@ -474,4 +489,77 @@ export async function startSalsicciaUnlocked(page: Page) {
   await page.getByRole("button", { name: /サルシッチャ、/ }).click();
   await page.getByRole("button", { name: /このピザを作る/ }).click();
   await page.waitForSelector(".pizza-stage");
+}
+
+/**
+ * Gameplay UX / Scoring 3.0 PR-A (Dynamic Cooking Steps): a synthetic save satisfying マリナーラ's
+ * own unlock (`unlockCondition: { requiresRecipeId: "funghi" }`, src/data/recipes.ts -- no
+ * `minTotalStars` floor, the shallowest chain of any non-margherita recipe) directly via
+ * localStorage, the same pattern `startSalsicciaUnlocked`/`startCapricciosaUnlocked` above use.
+ * `ownedIngredientIds`/`inventory` cover marinara's own `requiredIngredients` beyond the one
+ * Starter ingredient it uses (tomato-sauce, always owned): garlic/oregano, both finite
+ * `starterGrantOnly` ingredients (../src/data/ingredients.ts).
+ *
+ * Marinara is this task's own primary "no required CHEESE" fixture (Fresh Audit F,
+ * docs/reports/TETO_GAMEPLAY-UX_SCORING-3.0_Fresh-Audit.md) -- `getCookingProfile("marinara")`
+ * derives `["DOUGH", "SAUCE", "TOPPING"]`, no CHEESE step at all.
+ */
+export async function startMarinaraUnlocked(page: Page) {
+  const save = {
+    schemaVersion: 2,
+    dex: ["margherita", "funghi"].map((recipeId) => ({
+      recipeId,
+      discovered: true,
+      bestScore: 70,
+      bestStars: 3,
+      timesMade: 1,
+    })),
+    pitzBalance: 500,
+    ownedIngredientIds: ["garlic", "oregano"],
+    missionBest: {},
+    inventory: { garlic: 99, oregano: 99 },
+    starterGrantClaimedRecipeIds: ["margherita", "funghi"],
+  };
+
+  await page.addInitScript((rawSave) => {
+    localStorage.setItem("teto-pizza-save-v1", JSON.stringify(rawSave));
+  }, save);
+  await page.goto("/");
+  await page.waitForSelector(".app-frame");
+  await page.getByRole("button", { name: /ピザを作る/ }).click();
+  await page.getByRole("button", { name: /マリナーラ、/ }).click();
+  await page.getByRole("button", { name: /このピザを作る/ }).click();
+  await page.waitForSelector(".pizza-stage");
+}
+
+/** Drives a full marinara round (DOUGH -> SAUCE -> TOPPING -- no CHEESE step, PR-A's own primary
+ *  no-cheese fixture) from PREPARE/DOUGH through to RESULT, real UI gestures throughout, mirroring
+ *  `playFullMargheritaRound`'s own shape. Never taps a CHEESE ingredient -- there is no CHEESE tab
+ *  to advance through for this recipe's own derived `CookingProfile`. */
+export async function playFullMarinaraRound(page: Page) {
+  await completeDoughStep(page);
+  await page.getByRole("button", { name: /次へ/ }).click();
+
+  await page.getByRole("button", { name: /トマトソース/ }).click();
+  await paintSauceRing(page, 25, 16);
+  await page.getByRole("button", { name: /次へ/ }).click();
+
+  // SAUCE's own 次へ lands directly on TOPPING (具材) -- no CHEESE tab/step exists for this
+  // recipe's own derived profile, so there is no モッツァレラ (or any cheese) tap here at all.
+  await page.getByRole("button", { name: /にんにく/ }).click();
+  await tapDoughPercent(page, 35, 45);
+  await tapDoughPercent(page, 65, 45);
+  await tapDoughPercent(page, 50, 65);
+  await page.getByRole("button", { name: /オレガノ/ }).click();
+  await tapDoughPercent(page, 45, 30);
+  await tapDoughPercent(page, 55, 30);
+
+  await page.getByRole("button", { name: /焼く/ }).click();
+  await page.waitForTimeout(1300);
+  await page.getByRole("button", { name: "取り出す！" }).click();
+
+  if (await page.getByRole("button", { name: /切り終わる/ }).count()) {
+    await cutThreeLines(page);
+    await page.getByRole("button", { name: /切り終わる/ }).click();
+  }
 }
