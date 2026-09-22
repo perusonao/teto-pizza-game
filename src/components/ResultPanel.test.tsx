@@ -367,6 +367,44 @@ describe("ResultPanel", () => {
     expect(document.querySelector(".cut-evaluation-summary")).not.toBeInTheDocument();
   });
 
+  // Gameplay UX PR-D (RESULT 1-Screen 2.0, Fresh Audit §6): the Pitz breakdown used to render
+  // unconditionally expanded; it now collapses behind a native <details>, default closed,
+  // mirroring the exact `.result-panel__details`/`.cut-evaluation-summary` convention already
+  // used elsewhere on this screen -- Tier 1 keeps only the headline number.
+  it("renders the Pitz breakdown as a native <details>, default closed, with the headline number always visible", () => {
+    render(<ResultPanel {...baseProps()} pitzCredit={basePitzCredit({ earnedPitz: 42 })} />);
+    expect(screen.getByText(/\+42 Pitz/)).toBeInTheDocument();
+    const breakdown = document.querySelector(".pitz-credit-summary__breakdown");
+    expect(breakdown).toBeInTheDocument();
+    expect(breakdown?.tagName).toBe("DETAILS");
+    expect(breakdown).not.toHaveAttribute("open");
+  });
+
+  it("reveals the full Pitz breakdown (基本報酬/出来栄え倍率/所持Pitz), none dropped, once opened", () => {
+    render(
+      <ResultPanel
+        {...baseProps()}
+        pitzCredit={basePitzCredit({ earnedPitz: 42, baseReward: 100, multiplier: 0.8 })}
+      />,
+    );
+    const breakdown = document.querySelector(".pitz-credit-summary__breakdown") as HTMLDetailsElement;
+    const summary = document.querySelector(
+      ".pitz-credit-summary__breakdown-summary",
+    ) as HTMLElement;
+    fireEvent.click(summary);
+    expect(breakdown).toHaveAttribute("open");
+    expect(screen.getByText("基本報酬")).toBeInTheDocument();
+    expect(screen.getByText("100 Pitz")).toBeInTheDocument();
+    expect(screen.getByText("出来栄え倍率")).toBeInTheDocument();
+    expect(screen.getByText("×0.80")).toBeInTheDocument();
+    expect(screen.getByText("所持Pitz")).toBeInTheDocument();
+  });
+
+  it("keeps the zero-Pitz explanatory note visible in Tier 1, outside the collapsed breakdown", () => {
+    render(<ResultPanel {...baseProps()} pitzCredit={basePitzCredit({ earnedPitz: 0 })} />);
+    expect(screen.getByText(/今回はPitzを獲得できませんでした/)).toBeInTheDocument();
+  });
+
   it("wires the retry-same-recipe and back-to-select CTAs", () => {
     const onRetrySameRecipe = vi.fn();
     const onBackToPizzaSelect = vi.fn();

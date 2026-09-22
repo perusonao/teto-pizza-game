@@ -20,7 +20,7 @@ function preparedState(): GameState {
   return state;
 }
 
-function Harness({ roomy }: { roomy?: boolean }) {
+function Harness({ roomy, resultCompact }: { roomy?: boolean; resultCompact?: boolean }) {
   const [state] = useReducer(gameReducer, undefined, preparedState);
   return (
     <PizzaStage
@@ -44,6 +44,7 @@ function Harness({ roomy }: { roomy?: boolean }) {
       cutState={state.cutState}
       onAddCutLine={() => {}}
       roomy={roomy}
+      resultCompact={resultCompact}
     />
   );
 }
@@ -72,5 +73,27 @@ describe("PizzaStage roomy layout", () => {
   it("still renders the interactive dough drop target either way", () => {
     render(<Harness roomy />);
     expect(document.querySelector('[data-pizza-drop-target="true"]')).toBeInTheDocument();
+  });
+});
+
+/** Gameplay UX PR-D (RESULT 1-Screen 2.0, Fresh Audit §6 Finding P1-5): `resultCompact` is a
+ *  purely presentational className toggle on `.pizza-stage` (App.css's `.pizza-stage--result`),
+ *  same discipline as `roomy` above -- never touches gesture/coordinate math. */
+describe("PizzaStage resultCompact layout", () => {
+  it("omits pizza-stage--result by default", () => {
+    render(<Harness />);
+    expect(stageElement().className).not.toContain("pizza-stage--result");
+  });
+
+  it("adds pizza-stage--result when resultCompact=true (RESULT's smaller hero)", () => {
+    render(<Harness resultCompact />);
+    expect(stageElement().className).toContain("pizza-stage--result");
+  });
+
+  it("never combines pizza-stage--result with pizza-stage--roomy (GameScreen only ever sets one)", () => {
+    render(<Harness roomy={false} resultCompact />);
+    const className = stageElement().className;
+    expect(className).toContain("pizza-stage--result");
+    expect(className).not.toContain("pizza-stage--roomy");
   });
 });

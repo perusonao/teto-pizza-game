@@ -458,6 +458,7 @@ export function GameScreen({
         onAddCutLine={onAddCutLine}
         roomy={roomyStage}
         compact={state.phase === "PREPARE"}
+        resultCompact={isFreeResultScreen}
       />
 
       {/* Pizza Cutting 1.0 Phase 2 (design doc §8.1/§8.4): progress readout + the CUT step's own

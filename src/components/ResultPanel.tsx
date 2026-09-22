@@ -215,49 +215,59 @@ export function ResultPanel({
         </p>
       )}
 
+      {/* Gameplay UX PR-D (RESULT 1-Screen 2.0, Fresh Audit §6): the Pitz breakdown `<dl>` used
+          to render unconditionally expanded -- real Chromium measurement found it RESULT's own
+          largest single always-visible content block (~156px). Tier 1 keeps only the headline
+          number (already the player's main payoff for this card); the itemized breakdown moves
+          into a native `<details>`, mirroring the exact convention `.result-panel__details`/
+          `.cut-evaluation-summary` already use elsewhere on this same screen. No reward
+          calculation touched -- display only. */}
       {pitzCredit && (
         <div className="pitz-credit-summary">
           <p className="pitz-credit-summary__headline">
             今回の獲得{" "}
             <strong>+{pitzCredit.earnedPitz + (efficiencyCredit?.bonusPitz ?? 0)} Pitz</strong>
           </p>
-          <dl className="pitz-credit-summary__details">
-            <div className="pitz-credit-summary__row">
-              <dt>基本報酬</dt>
-              <dd>{pitzCredit.baseReward} Pitz</dd>
-            </div>
-            <div className="pitz-credit-summary__row">
-              <dt>出来栄え倍率</dt>
-              <dd>×{pitzCredit.multiplier.toFixed(2)}</dd>
-            </div>
-            {/* Cooking Time CT2: 調理時間/手際 are display-only rows, deliberately styled
-                identically (and just as small) as 基本報酬/出来栄え倍率 above -- quality's own
-                stars/score headline stays the only visually prominent number on this screen. */}
-            {efficiencyCredit && (
+          <details className="pitz-credit-summary__breakdown">
+            <summary className="pitz-credit-summary__breakdown-summary">内訳を見る</summary>
+            <dl className="pitz-credit-summary__details">
               <div className="pitz-credit-summary__row">
-                <dt>調理時間</dt>
-                <dd>{formatCookingTime(efficiencyCredit.cookingTimeMs)}</dd>
+                <dt>基本報酬</dt>
+                <dd>{pitzCredit.baseReward} Pitz</dd>
               </div>
-            )}
-            {efficiencyCredit && (
               <div className="pitz-credit-summary__row">
-                <dt>手際</dt>
-                <dd>{EFFICIENCY_TIER_LABEL_JA[efficiencyCredit.tier]}</dd>
+                <dt>出来栄え倍率</dt>
+                <dd>×{pitzCredit.multiplier.toFixed(2)}</dd>
               </div>
-            )}
-            {efficiencyCredit && efficiencyCredit.bonusPitz > 0 && (
+              {/* Cooking Time CT2: 調理時間/手際 are display-only rows, deliberately styled
+                  identically (and just as small) as 基本報酬/出来栄え倍率 above -- quality's own
+                  stars/score headline stays the only visually prominent number on this screen. */}
+              {efficiencyCredit && (
+                <div className="pitz-credit-summary__row">
+                  <dt>調理時間</dt>
+                  <dd>{formatCookingTime(efficiencyCredit.cookingTimeMs)}</dd>
+                </div>
+              )}
+              {efficiencyCredit && (
+                <div className="pitz-credit-summary__row">
+                  <dt>手際</dt>
+                  <dd>{EFFICIENCY_TIER_LABEL_JA[efficiencyCredit.tier]}</dd>
+                </div>
+              )}
+              {efficiencyCredit && efficiencyCredit.bonusPitz > 0 && (
+                <div className="pitz-credit-summary__row">
+                  <dt>手際ボーナス</dt>
+                  <dd>+{efficiencyCredit.bonusPitz} Pitz</dd>
+                </div>
+              )}
               <div className="pitz-credit-summary__row">
-                <dt>手際ボーナス</dt>
-                <dd>+{efficiencyCredit.bonusPitz} Pitz</dd>
+                <dt>所持Pitz</dt>
+                <dd>
+                  {pitzCredit.balanceBefore} {"→"} {pitzCredit.balanceAfter + (efficiencyCredit?.bonusPitz ?? 0)}
+                </dd>
               </div>
-            )}
-            <div className="pitz-credit-summary__row">
-              <dt>所持Pitz</dt>
-              <dd>
-                {pitzCredit.balanceBefore} {"→"} {pitzCredit.balanceAfter + (efficiencyCredit?.bonusPitz ?? 0)}
-              </dd>
-            </div>
-          </dl>
+            </dl>
+          </details>
           {pitzCredit.earnedPitz === 0 && (
             <p className="pitz-credit-summary__zero-note">
               出来栄えが基準に届かず、今回はPitzを獲得できませんでした。
