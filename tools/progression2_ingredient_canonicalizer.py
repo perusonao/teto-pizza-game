@@ -45,6 +45,15 @@ ORTHOGRAPHIC_EQUIVALENTS = {
     "リコッタ": "リコッタチーズ",  # リコッタ -> リコッタチーズ (ricotta): common short form.
     "海苔": "のり",  # 海苔 -> のり (nori): kanji/kana variant of the same word.
     "イチゴ": "いちご",  # イチゴ -> いちご (strawberry): katakana/hiragana variant of the same word.
+    "蜂蜜": "はちみつ",  # 蜂蜜 -> はちみつ (honey): kanji/kana variant of the same word. Phase 0B.9 finding (nashville-hot-chicken-pizza-pizzadb-p6).
+    # Phase 0B.9 finding: モッツァレラチーズ/ナス have been used as raw ingredientsJa
+    # strings across ~20+ already-ingested rows since Phase 0B.4 without ever
+    # being run through this classifier -- both are pre-existing needs_review
+    # gaps against the catalog's own stored forms (モッツァレラ / なす). Fixed here
+    # rather than left open, since both are plain suffix/script variants with
+    # no identity ambiguity, exactly like 玉ねぎ->たまねぎ and リコッタ->リコッタチーズ above.
+    "モッツァレラチーズ": "モッツァレラ",  # チーズ suffix variant of existing mozzarella's nameJa モッツァレラ.
+    "ナス": "なす",  # ナス -> なす (eggplant): katakana/hiragana variant of the same word.
 }
 
 # --- Phase 0B introduced 15 new ingredient ids without recording a
@@ -112,6 +121,8 @@ AMBIGUOUS_TABLE = {
     "赤唐辛子": (["chili-oil"], "Red chili variant -- same ambiguity group as 青唐辛子."),
     "青のり": (["nori"], "Aonori is a related but visually/culinarily distinct seaweed condiment from plain nori -- not merged."),
     "プロヴェルチーズ": (["provolone"], "'Provel' is a real, distinct St. Louis-style cheese blend, commonly confused with provolone by name similarity -- explicitly NOT the same cheese, kept separate."),
+    # Phase 0B.9 addition:
+    "唐辛子": (["chili-oil"], "Plain 'chili pepper' (color/type unspecified) -- part of the existing chili/chili-oil naming-ambiguity group (see also チリ/青唐辛子/赤唐辛子), kept distinct from the chili-oil sauce."),
 }
 
 # --- Rule 0 (checked first, before all other rules): known generic-phrase /
