@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import {
+  bakeToTarget,
   completeDoughStep,
   cutThreeLines,
   paintSauceRing,
@@ -7,7 +8,6 @@ import {
   startFreshMargherita,
   startSalsicciaUnlocked,
   tapDoughPercent,
-  waitForBakeTarget,
 } from "./gestures";
 
 // Recipe bakeTarget windows this file drives against (src/data/recipes.ts) -- read here rather
@@ -62,11 +62,8 @@ test.describe("Scenario A: Margherita regression (CUT unchanged)", () => {
       await tapDoughPercent(page, 55, 45);
     }
 
-    await page.getByRole("button", { name: /焼く/ }).click();
-    // A live needle-position poll, not a fixed real-time wait -- a fixed wait tuned against one
-    // target window drifts under CI load/parallelism (see waitForBakeTarget's own doc comment).
-    await waitForBakeTarget(page, BAKE_TARGET.margherita);
-    await page.getByRole("button", { name: "取り出す！" }).click();
+    // A virtual-clock bake, not a real-time wait -- see bakeToTarget's own doc comment for why.
+    await bakeToTarget(page, BAKE_TARGET.margherita);
 
     await expect(page.getByRole("button", { name: /切り終わる/ })).toBeVisible();
     await cutThreeLines(page);
@@ -102,9 +99,7 @@ test.describe("Scenario B: newly CUT-enabled non-margherita recipe (Salsiccia)",
     await tapDoughPercent(page, 65, 45);
     await tapDoughPercent(page, 50, 65);
 
-    await page.getByRole("button", { name: /焼く/ }).click();
-    await waitForBakeTarget(page, BAKE_TARGET.salsiccia);
-    await page.getByRole("button", { name: "取り出す！" }).click();
+    await bakeToTarget(page, BAKE_TARGET.salsiccia);
 
     // Salsiccia is now CUT-eligible -- the same POST_BAKE/CUT step margherita already had.
     await expect(page.getByRole("button", { name: /切り終わる/ })).toBeVisible();
@@ -150,9 +145,7 @@ test.describe("Scenario C: topping-heavy recipe CUT at the secondary 360x800 vie
     await tapDoughPercent(page, 40, 50);
     await tapDoughPercent(page, 60, 50);
 
-    await page.getByRole("button", { name: /焼く/ }).click();
-    await waitForBakeTarget(page, BAKE_TARGET.capricciosa);
-    await page.getByRole("button", { name: "取り出す！" }).click();
+    await bakeToTarget(page, BAKE_TARGET.capricciosa);
 
     await expect(page.getByRole("button", { name: /切り終わる/ })).toBeVisible();
     await cutThreeLines(page);
@@ -250,9 +243,7 @@ test.describe("Scenario D: Lunch Rush eligible recipe -> CUT -> serve", () => {
       await tapDoughPercent(page, 50, 30);
     }
 
-    await page.getByRole("button", { name: /焼く/ }).click();
-    await waitForBakeTarget(page, bakeTarget);
-    await page.getByRole("button", { name: "取り出す！" }).click();
+    await bakeToTarget(page, bakeTarget);
 
     // margherita/funghi/marinara are all CUT-eligible now -- POST_BAKE/CUT must appear.
     await expect(page.getByRole("button", { name: /切り終わる/ })).toBeVisible();

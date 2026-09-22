@@ -11,35 +11,46 @@ import type { Page } from "@playwright/test";
  * does (see docs/reports/TETO_VIEWPORT-1SCREEN_Result.md's own audit notes on this).
  */
 
+/** `BakeOverlay`'s own needle speed (`src/components/BakeOverlay.tsx`'s `SPEED` constant,
+ *  percent per second) -- the one real-time fact `bakeToTarget` below needs to convert a target
+ *  needle position into a virtual-clock duration. */
+const BAKE_NEEDLE_SPEED_PCT_PER_S = 55;
+
 /**
- * Pizza Cutting 1.0 Phase 4B: waits for `BakeOverlay`'s own needle (`.bake-gauge__needle`, `src/
- * components/BakeOverlay.tsx`, `left: ${position}%` inline style -- real, driven by
- * `requestAnimationFrame`/wall-clock time, not a fixed animation-frame count) to land inside a
- * given `bakeTarget` window, polling the live style rather than a fixed `waitForTimeout`. A fixed
- * real-time wait tuned against one recipe's target midpoint (e.g. margherita's ~1300ms) drifts
- * under CI load/parallelism -- confirmed by a real WebKit CI failure where several non-margherita
- * recipes' rounds landed outside their own (differently-positioned) target window and FAILED
- * completion, which `ResultPanel` correctly never shows a CUT card for (its own contract, see
- * `ResultPanel.test.tsx`'s "FAILED never renders the CUT evaluation summary" test) -- so the CUT
- * card being missing was accurate downstream behavior for an upstream E2E timing bug, not a
- * production defect. `marginPercent` keeps the confirm comfortably inside the perfect zone rather
- * than at its exact edge.
+ * Pizza Cutting 1.0 Phase 4B: clicks 焼く, drives `BakeOverlay`'s needle to the exact center of
+ * `target` using Playwright's `page.clock` (fakes `requestAnimationFrame`/`performance.now()`
+ * for the whole page -- the same real-browser mechanism `src/App.test.tsx`'s jsdom-only
+ * `controlBakeNeedle` helper approximates by stubbing rAF directly), then confirms with 取り出す！
+ * and resumes real time before returning.
+ *
+ * Two earlier, real-time-based approaches were tried and both failed real WebKit CI: (1) a fixed
+ * `waitForTimeout` tuned against one recipe's own midpoint drifted under CI load/parallelism for
+ * every other recipe's differently-positioned target; (2) polling the live `.bake-gauge__needle`
+ * DOM style for "inside/near-center of the target" and then clicking still failed under simulated
+ * CI load (verified locally via CDP `Emulation.setCPUThrottlingRate` + artificial click latency,
+ * reproducing the exact same "焦げすぎて提供できません" OVERBAKED failure) -- `BakeOverlay`'s own
+ * tick loop computes `dt` from real `performance.now()` deltas between animation frames
+ * (`src/components/BakeOverlay.tsx`), so under a throttled/loaded runner a single delayed frame
+ * can jump the needle by a large, unpredictable amount, which no amount of polling margin or
+ * `{ force: true }` click-latency reduction can reliably outrun. Faking the clock removes the
+ * race entirely: `runFor` deterministically fires exactly the tick(s) needed to reach the target
+ * duration, regardless of how slow or loaded the real host is.
  */
-export async function waitForBakeTarget(
-  page: Page,
-  target: { start: number; end: number },
-  marginPercent = 3,
-) {
-  await page.waitForFunction(
-    ({ start, end, margin }) => {
-      const el = document.querySelector<HTMLElement>(".bake-gauge__needle");
-      if (!el) return false;
-      const left = Number.parseFloat(el.style.left);
-      return Number.isFinite(left) && left >= start + margin && left <= end - margin;
-    },
-    { start: target.start, end: target.end, margin: marginPercent },
-    { timeout: 8000, polling: 30 },
-  );
+export async function bakeToTarget(page: Page, target: { start: number; end: number }) {
+  const center = (target.start + target.end) / 2;
+  const durationMs = Math.round((center / BAKE_NEEDLE_SPEED_PCT_PER_S) * 1000);
+  await page.clock.install();
+  await page.getByRole("button", { name: /焼く/ }).click();
+  // Wait (real time -- BakeOverlay's mount/effect registration is unaffected by the fake clock,
+  // only Date/rAF/performance.now() are faked) for BakeOverlay's own first render before
+  // advancing virtual time -- otherwise a slow/throttled runner could still be mid-mount when
+  // `runFor` fires, so its first `requestAnimationFrame(tick)` registration would only happen
+  // *after* the virtual-time advance already completed, landing the needle back near 0 instead
+  // of at the intended target.
+  await page.waitForSelector(".bake-gauge__needle");
+  await page.clock.runFor(durationMs);
+  await page.getByRole("button", { name: "取り出す！" }).click();
+  await page.clock.resume();
 }
 
 async function doughBox(page: Page) {
