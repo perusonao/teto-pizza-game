@@ -330,25 +330,167 @@
       "requiresMechanicIdentity": false,
       "evidenceGaps": [],
       "corroborationNote": "Corroborates Phase 0B.3's 'cod-roe' (たらこ) and 'fresh-cream-sauce' (生クリームソース) genuinely_new ids in a real named dish. Introduces a NEW likely_alias finding: '大葉' (ooba, the common culinary name for shiso leaf) vs. Phase 0B.3's already-registered 'しそ' (shiso, the more general/botanical name) -- same plant, different common name, added to the canonicalizer's LIKELY_ALIAS_TABLE this Phase."
+    },
+    {
+      "id": "argentine-napolitana-pizzadb-p1",
+      "nameJa": "アルゼンチン風ナポリターナ",
+      "origin": "アルゼンチン / ブエノスアイレス",
+      "doughStyle": "厚みのあるふんわりした生地",
+      "sauceFamily": "チーズ",
+      "ingredientsJa": [
+        "モッツァレラチーズ",
+        "トマト",
+        "にんにく",
+        "オレガノ",
+        "パルミジャーノチーズ"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "namingAmbiguityNote": "THIRD member of the existing Napoletana/Romana-family naming-ambiguity cluster, none merged: (1) already-SHIPPED 'napoletana' (anchovy+mozzarella+oregano+tomato-sauce); (2) Phase 0B's 'chilean-napolitana-pizzadb' (fresh-tomato+mozzarella+oregano, cheese-family sauce, no anchovy); (3) THIS row 'アルゼンチン風ナポリターナ' (mozzarella+fresh-tomato+garlic+oregano+parmigiano, cheese-family sauce, no anchovy, adds garlic+parmigiano). All three are real, differently-composed 'Napolitana'-named regional dishes -- kept as three distinct ids, none merged.",
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": []
+    },
+    {
+      "id": "ikura-salmon-pizza-pizzadb-p1",
+      "nameJa": "いくらとサーモンのピザ",
+      "origin": "日本 / 各地",
+      "doughStyle": "薄め",
+      "sauceFamily": "チーズ",
+      "ingredientsJa": [
+        "いくら",
+        "サーモン",
+        "クリームチーズ",
+        "大葉"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "corroborationNote": "All 4 ingredients already canonical (salmon-roe, salmon: Phase 0B.3 genuinely_new; cream-cheese: Phase 0B; 大葉->shiso: Phase 0B.6 likely_alias) -- zero new ingredient ids needed."
+    },
+    {
+      "id": "vegan-cashew-cheese-pizza-pizzadb-p1",
+      "nameJa": "ヴィーガンカシューチーズピザ",
+      "origin": "アメリカ / 各地",
+      "doughStyle": "薄め",
+      "sauceFamily": "トマトソース",
+      "ingredientsJa": [
+        "カシューナッツチーズ",
+        "ズッキーニ",
+        "パプリカ"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "corroborationNote": "All 3 ingredients already canonical (cashew-cheese: Phase 0B.3; zucchini: Phase 0A; bell-pepper/パプリカ: existing exact) -- zero new ingredient ids needed."
+    },
+    {
+      "id": "eel-pizza-pizzadb-p1",
+      "nameJa": "うなぎピザ",
+      "origin": "日本 / 各地",
+      "doughStyle": "薄め",
+      "sauceFamily": "甘辛だれ",
+      "ingredientsJa": [
+        "うなぎ",
+        "山椒",
+        "モッツァレラチーズ",
+        "青ねぎ"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "corroborationNote": "All 3 non-mozzarella ingredients already canonical (eel, sansho-pepper, green-onion -- all Phase 0B.3 genuinely_new) -- zero new ingredient ids needed."
+    },
+    {
+      "id": "jerusalem-mixed-grill-pizza-pizzadb-p1",
+      "nameJa": "エルサレムミックスグリルピザ",
+      "origin": "イスラエル / エルサレム",
+      "doughStyle": "薄め",
+      "sauceFamily": "その他",
+      "ingredientsJa": [
+        "鶏肉",
+        "玉ねぎ",
+        "クミン",
+        "パセリ"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "corroborationNote": "Corroborates Phase 0B.6's '鵏肉'(chicken, native word)->chicken likely_alias in a real named dish. cumin (Phase 0B.3), parsley (existing) also already canonical."
+    },
+    {
+      "id": "old-forge-style-pizza-pizzadb-p1",
+      "nameJa": "オールドフォージスタイルピザ",
+      "origin": "アメリカ / オールドフォージ（ペンシルベニア州）",
+      "doughStyle": "四角い天板焼きの中厚生地",
+      "sauceFamily": "トマトソース",
+      "ingredientsJa": [
+        "チーズ",
+        "玉ねぎ"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": true,
+      "mechanicIdentityNote": "Explicit shape/dough identity evidence from the source (square sheet-pan bake, medium-thick) -- akin to the existing specialShapePan mechanic family (Chicago/Detroit/Sicilian).",
+      "evidenceGaps": [],
+      "taxonomyNote": "Ingredient 'チーズ' (cheese, generic) kept unresolved per the existing ambiguous-entry -- NOT silently mapped to mozzarella or any specific cheese."
+    },
+    {
+      "id": "okonomiyaki-style-pizza-pizzadb-p1",
+      "nameJa": "お好み焼き風ピザ",
+      "origin": "日本 / 各地",
+      "doughStyle": "薄め",
+      "sauceFamily": "甘辛だれ",
+      "ingredientsJa": [
+        "キャベツ",
+        "豚肉",
+        "お好み焼きソース",
+        "マヨネーズ",
+        "青のり",
+        "かつお節"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "corroborationNote": "All 6 ingredients already canonical (cabbage, pork, okonomiyaki-sauce, aonori/青のり: Phase 0B.3 genuinely_new/ambiguous; mayo, bonito-flakes: existing) -- zero new ingredient ids needed, strongest single-row corroboration so far."
     }
   ],
   "counters": {
-    "uniqueRecipeRowsEvidencedTotal": 41,
-    "uniqueRecipeRowsEvidencedFormula": "25 (Phase 0B original comparison_table_sample) + 9 (later comparison_table_sample batches) + 7 (individual_profile_page) = 41, all deduplicated against each other",
+    "uniqueRecipeRowsEvidencedTotal": 48,
+    "uniqueRecipeRowsEvidencedFormula": "25 (Phase 0B original comparison_table_sample) + 16 (later comparison_table_sample batches) + 7 (individual_profile_page) = 48, all deduplicated against each other",
     "claimedTotalPopulation": 172,
-    "coveragePercent": 23.8,
+    "coveragePercent": 27.9,
     "independentlyFreshVerifiedRows": 7,
     "independentlyFreshVerifiedNote": "Rows evidenced via a dedicated individual PIZZA DB profile-page fetch (deeper single-dish evidence: origin/dough/sauce-family/ingredients), as distinct from a row's appearance in the aggregate comparison-table scrape.",
-    "relayedOnlyRows": 34,
+    "relayedOnlyRows": 41,
     "relayedOnlyNote": "Rows evidenced only via the aggregate comparison-table sample (Phase 0B), not (yet) confirmed by a dedicated individual profile-page fetch.",
-    "duplicateCorroborationsCount": 6,
+    "duplicateCorroborationsCount": 11,
     "duplicateCorroborationsNote": "Each entry in the top-level 'corroborations' list is a re-confirmation of an already-evidenced row (new source URL/date), found either by exact id/nameJa match (matchType=automatic_exact_match) or by human ingredient-set review (matchType=manual_review) -- never counted toward uniqueRecipeRowsEvidencedTotal.",
-    "rowsRequiringMechanicIdentityCount": 4,
+    "rowsRequiringMechanicIdentityCount": 5,
     "rowsRequiringMechanicIdentityIds": [
       "pizza-a-caballo",
       "fugazzeta-rellena",
       "scacciata-ragusana-pizzadb-p4",
-      "st-louis-style-pizza-pizzadb-p4"
+      "st-louis-style-pizza-pizzadb-p4",
+      "old-forge-style-pizza-pizzadb-p1"
     ],
     "rowsWithEvidenceGapsCount": 1,
     "rowsWithEvidenceGapsIds": [
@@ -361,8 +503,8 @@
       "speck-e-brie-pizzadb-p4"
     ],
     "rowsCorrespondingToExistingCatalogEntryNote": "correspondsToExistingCatalogId is set whether that catalog entry is already SHIPPED (e.g. margherita) or still an unshipped candidate (e.g. hawaiian) -- check each row's own correspondenceNote for which.",
-    "pendingRowCount": 131,
-    "pendingRowNote": "172 - 41 = 131 rows remain with zero evidence."
+    "pendingRowCount": 124,
+    "pendingRowNote": "172 - 48 = 124 rows remain with zero evidence."
   },
   "independentSessionFetchStatus": {
     "lastCheckedThisPhase": "2026-09-22 (Phase 0B.4)",
@@ -410,6 +552,41 @@
       "matchedRowId": "taco-pizza-pizzadb-p4-DUP",
       "matchedNameJa": "タコピザ",
       "newSourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/4/",
+      "note": "2026-09-22 (relayed re-confirmation, not independently re-fetched by this Claude session)",
+      "matchType": "automatic_exact_match"
+    },
+    {
+      "matchedRowId": "bbq-chicken-pizza-pizzadb-p1-DUP",
+      "matchedNameJa": "BBQチキンピザ",
+      "newSourceUrl": "https://pizzadb.jp/compare/world-pizzas/",
+      "note": "2026-09-22 (relayed re-confirmation, not independently re-fetched by this Claude session)",
+      "matchType": "automatic_exact_match"
+    },
+    {
+      "matchedRowId": "apple-cinnamon-pizza-pizzadb-p1-DUP",
+      "matchedNameJa": "アップルシナモンデザートピザ",
+      "newSourceUrl": "https://pizzadb.jp/compare/world-pizzas/",
+      "note": "2026-09-22 (relayed re-confirmation, not independently re-fetched by this Claude session)",
+      "matchType": "automatic_exact_match"
+    },
+    {
+      "matchedRowId": "calabresa-argentina-pizza-pizzadb-p1-DUP",
+      "matchedNameJa": "アルゼンチン風カラブレーサ",
+      "newSourceUrl": "https://pizzadb.jp/compare/world-pizzas/",
+      "note": "2026-09-22 (relayed re-confirmation, not independently re-fetched by this Claude session)",
+      "matchType": "automatic_exact_match"
+    },
+    {
+      "matchedRowId": "vongole-pizza-pizzadb-p1-DUP",
+      "matchedNameJa": "ヴォンゴレピザ",
+      "newSourceUrl": "https://pizzadb.jp/compare/world-pizzas/",
+      "note": "2026-09-22 (relayed re-confirmation, not independently re-fetched by this Claude session)",
+      "matchType": "automatic_exact_match"
+    },
+    {
+      "matchedRowId": "aussie-pizza-pizzadb-p1-DUP",
+      "matchedNameJa": "オージーピザ",
+      "newSourceUrl": "https://pizzadb.jp/compare/world-pizzas/",
       "note": "2026-09-22 (relayed re-confirmation, not independently re-fetched by this Claude session)",
       "matchType": "automatic_exact_match"
     }

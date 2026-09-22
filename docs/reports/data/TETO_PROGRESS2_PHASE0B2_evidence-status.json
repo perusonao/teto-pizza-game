@@ -19,17 +19,17 @@
   "recipeRowEvidence": {
     "population": "ja-172",
     "totalClaimed": 172,
-    "evidencedCount": 41,
-    "evidencedCountNote": "Updated in Phase 0B.6: 25 Phase-0B-original comparison_table_sample rows + 9 later comparison_table_sample rows (page 4 batch) + 7 individual_profile_page rows = 41, all deduplicated against each other. 6 further relayed rows across Phase 0B.5/0B.6 corroborated already-evidenced dishes instead of adding new ones, see corroborationsCount below. Full detail and per-row dedup/mechanic/evidence-gap/naming-ambiguity notes: docs/reports/data/TETO_PROGRESS2_PHASE0B4_recipe-row-evidence.json.",
-    "evidenceOriginBreakdown": {"comparison_table_sample": 34, "individual_profile_page": 7},
-    "corroborationsCount": 6,
-    "corroborationsNote": "6 relayed rows across Phase 0B.5-0B.6 matched an already-evidenced dish: Phase 0B.5 -- calabresa-argentina, pizza-baiana (automatic exact match), chicago-deep-dish (manual review, nameJa-suffix mismatch); Phase 0B.6 -- sfincione, supreme, taco-pizza (automatic exact match, all 3 re-confirming original Phase 0B page-4 samples). Recorded as corroborations (new source URL added to the matched row's evidence trail), never double-counted toward evidencedCount.",
+    "evidencedCount": 48,
+    "evidencedCountNote": "Updated in Phase 0B.7: 25 Phase-0B-original comparison_table_sample rows + 16 later comparison_table_sample rows (page 4 + page 1 batches) + 7 individual_profile_page rows = 48, all deduplicated against each other. 11 relayed rows across Phase 0B.5-0B.7 corroborated already-evidenced dishes instead of adding new ones, see corroborationsCount below. Full detail and per-row dedup/mechanic/evidence-gap/naming-ambiguity notes: docs/reports/data/TETO_PROGRESS2_PHASE0B4_recipe-row-evidence.json.",
+    "evidenceOriginBreakdown": {"comparison_table_sample": 41, "individual_profile_page": 7},
+    "corroborationsCount": 11,
+    "corroborationsNote": "11 relayed rows across Phase 0B.5-0B.7 matched an already-evidenced dish: Phase 0B.5 -- calabresa-argentina, pizza-baiana (automatic exact match), chicago-deep-dish (manual review, nameJa-suffix mismatch); Phase 0B.6 -- sfincione, supreme, taco-pizza (automatic exact match, page-4 re-confirmation); Phase 0B.7 -- bbq-chicken, apple-cinnamon-dessert, calabresa-argentina (again, 2nd re-confirmation), vongole, aussie (all automatic exact match, page-1 re-confirmation). Recorded as corroborations (new source URL added to the matched row's evidence trail), never double-counted toward evidencedCount.",
     "evidencedSource": "docs/reports/data/TETO_PROGRESS2_PHASE0B_pizzadb-external-samples.json, docs/reports/data/TETO_PROGRESS2_PHASE0B4_recipe-row-evidence.json",
     "evidencedPages": [1, 2, 3, 4, 5, 6],
     "pendingPages": [7, 8, 9, 10, 11, 12, 13, 14, 15],
     "individualProfilePageAccessNote": "Phase 0B.4 found that direct pagination URLs (/compare/world-pizzas/page/7 etc.) fail for the relaying agent, but individual /pizzas/<slug>/ profile pages remain fetchable via search -- so the remaining population can be evidenced via accumulated individual profiles, not only via pagination. pendingPages above is retained as a reference to the original access path, not a claim that it is the only viable one going forward.",
     "pendingCountKnown": false,
-    "pendingCountNote": "172 - 41 = 131 recipe rows have zero evidence.",
+    "pendingCountNote": "172 - 48 = 124 recipe rows have zero evidence.",
     "status": "incomplete",
     "requiredForFullDeadlockSimulation": true
   },
@@ -88,12 +88,13 @@
     "invariantPasses": true
   },
   "openRequestsForExternalEvidence": [
-    {"item": "Recipe rows for the remaining 131 of 172 (individual profile pages or further comparison-table pages)", "population": "ja-172", "requiredFormat": "dish name, origin, dough style, sauce family, ingredient list, source URL per row", "invented": false, "status": "still pending as of Phase 0B.6 -- 131 of 172 remain, updated from 140 after Phase 0B.6's 9 new unique rows"},
+    {"item": "Recipe rows for the remaining 124 of 172 (individual profile pages or further comparison-table pages)", "population": "ja-172", "requiredFormat": "dish name, origin, dough style, sauce family, ingredient list, source URL per row", "invented": false, "status": "still pending as of Phase 0B.7 -- 124 of 172 remain, updated from 131 after Phase 0B.7's 7 new unique rows"},
     {"item": "Product decision on the 11 Phase 0B.3 ambiguous entries (merge into an existing related id, or mint as a new distinct id)", "population": "ja-172", "requiredFormat": "owner/reviewer judgment call, not an external fetch", "invented": false, "status": "unresolved since Phase 0B.3"},
     {"item": "Corrected or confirmed ingredient list for pizza-a-caballo (Fainá layer mentioned in profile prose but absent from the published topping list)", "population": "ja-172", "requiredFormat": "clarified source data, not an inference", "invented": false, "status": "unresolved since Phase 0B.4"},
     {"item": "Product decision on the bianca-pizzadb-row three-way naming cluster (pizza-bianca / ricotta-bianca / this row)", "population": "ja-172", "requiredFormat": "owner/reviewer judgment call, not an external fetch", "invented": false, "status": "unresolved since Phase 0B.5"},
-    {"item": "Product decision on the speck-e-brie-pizzadb-p4 composition variant (vs. existing candidate speck-e-brie, same name family, different ingredients)", "population": "ja-172", "requiredFormat": "owner/reviewer judgment call, not an external fetch", "invented": false, "status": "new in Phase 0B.6"},
-    {"item": "Independent re-verification of everything relayed so far (41 recipe rows, 6 corroborations, 181 ingredient names + 1 new alias)", "population": "ja-172", "requiredFormat": "this Claude Code session re-fetching pizzadb.jp directly, blocked by EGRESS_BLOCKED as of this Phase", "invented": false}
+    {"item": "Product decision on the speck-e-brie-pizzadb-p4 composition variant (vs. existing candidate speck-e-brie, same name family, different ingredients)", "population": "ja-172", "requiredFormat": "owner/reviewer judgment call, not an external fetch", "invented": false, "status": "unresolved since Phase 0B.6"},
+    {"item": "Product decision on the argentine-napolitana-pizzadb-p1 three-way Napoletana-family naming cluster (napoletana / chilean-napolitana-pizzadb / this row)", "population": "ja-172", "requiredFormat": "owner/reviewer judgment call, not an external fetch", "invented": false, "status": "new in Phase 0B.7"},
+    {"item": "Independent re-verification of everything relayed so far (48 recipe rows, 11 corroborations, 181 ingredient names + 1 new alias)", "population": "ja-172", "requiredFormat": "this Claude Code session re-fetching pizzadb.jp directly, blocked by EGRESS_BLOCKED as of this Phase", "invented": false}
   ],
   "resolvedInPhase0B3": [
     {"item": "Occurrence-tier 4/3/2/1 ingredient names + exact counts", "resolution": "Relayed in full via PR #183 comment #5774945778 -- 145 names ingested and classified, see canonicalizationResultsPhase0B3 above."}
@@ -107,14 +108,18 @@
     {"item": "Corroboration tracking infrastructure", "resolution": "tools/progression2_recipe_row_ingest.py extended to persist every duplicate finding (automatic exact-match or manual ingredient-set review) as a corroboration record with its new source URL, rather than printing and discarding it -- so re-confirmations are never silently lost. Also caught and manually recorded one case (chicago-deep-dish) that automatic exact-match dedup missed due to this session's own earlier disambiguating-suffix naming convention."}
   ],
   "partiallyAddressedInPhase0B6": [
-    {"item": "Recipe row evidence beyond Phase 0B.5's 32", "resolution": "9 new unique rows ingested from a second comparison-table batch (page 4) -- 41/172 evidenced. 3 of the 12 relayed rows (sfincione, supreme, taco-pizza) turned out to re-confirm Phase 0B's ORIGINAL page-4 samples -- recorded as corroborations, not double-counted. 131 still pending; NOT resolved, only advanced."},
+    {"item": "Recipe row evidence beyond Phase 0B.5's 32", "resolution": "9 new unique rows ingested from a second comparison-table batch (page 4) -- 41/172 evidenced. 3 of the 12 relayed rows (sfincione, supreme, taco-pizza) turned out to re-confirm Phase 0B's ORIGINAL page-4 samples -- recorded as corroborations, not double-counted. NOT resolved, only advanced."},
     {"item": "Counter accuracy fix", "resolution": "tools/progression2_recipe_row_ingest.py's independentlyFreshVerifiedRows/relayedOnlyRows counters were computed assuming every row appended since Phase 0B.4 was individual_profile_page-origin; fixed to split by each row's own evidenceOrigin field before this Phase's comparison_table_sample-origin batch was ingested, so the two counters stay accurate now that both origins coexist in the same array."},
     {"item": "New ingredient alias finding", "resolution": "大葉 (ooba) added to the ingredient canonicalizer's LIKELY_ALIAS_TABLE, pointing to the already-registered genuinely_new 'shiso' (Phase 0B.3) -- same plant, different common name. Self-test re-verified passing."}
   ],
+  "partiallyAddressedInPhase0B7": [
+    {"item": "Recipe row evidence beyond Phase 0B.6's 41", "resolution": "7 new unique rows ingested from a third comparison-table batch (page 1) -- 48/172 evidenced. 5 of the 12 relayed rows (bbq-chicken, apple-cinnamon-dessert, calabresa-argentina, vongole, aussie) turned out to re-confirm Phase 0B's ORIGINAL page-1 samples -- recorded as corroborations, not double-counted (calabresa-argentina is now corroborated twice, Phase 0B.5 and 0B.7). 124 still pending; NOT resolved, only advanced."},
+    {"item": "Ingredient corroboration density", "resolution": "6 of the 7 new rows this Phase needed ZERO new ingredient ids -- every ingredient they use was already canonical from Phase 0B/0B.3/0B.6's own prior work (salmon-roe, salmon, eel, sansho-pepper, green-onion, cashew-cheese, zucchini, cabbage, pork, okonomiyaki-sauce, aonori, bonito-flakes, mayo, cumin, parsley, 鶏肉->chicken, 大葉->shiso, all reused). A strong signal the canonical ingredient set built up across Phase 0B.1-0B.6 is already covering a large share of real recurring PIZZA DB ingredients."}
+  ],
   "thisSessionsOwnFetchStatus": {
-    "lastCheckedThisPhase": "2026-09-22 (Phase 0B.6)",
+    "lastCheckedThisPhase": "2026-09-22 (Phase 0B.7)",
     "result": "EGRESS_BLOCKED",
-    "domainsTested": ["pizzadb.jp", "pizzadb.jp/pizzas/margherita/", "pizzadb.jp/pizzas/bianca/", "pizzadb.jp/compare/world-pizzas/page/4/"],
+    "domainsTested": ["pizzadb.jp", "pizzadb.jp/pizzas/margherita/", "pizzadb.jp/pizzas/bianca/", "pizzadb.jp/compare/world-pizzas/page/4/", "pizzadb.jp/compare/world-pizzas/"],
     "note": "No new external fetch was attempted or claimed successful in Phase 0B.6. This ledger only organizes evidence already relayed in prior PR #183 comments -- the 'individual_profile_page'/'comparison_table_sample' evidenceOrigin fields in TETO_PROGRESS2_PHASE0B4_recipe-row-evidence.json describe the RELAYING agent's fetch method, not this session's own verification depth."
   }
 }
