@@ -1,0 +1,780 @@
+{
+  "schemaNote": "Phase 0B.2 evidence-status ledger (Issue #182 / PR #183 comment #5774835400). This is the single source of truth for 'how much of the owner-reported 172-entry PIZZA DB population does this repo actually have externally-relayed evidence for, and how much is still missing.' No name, count, or recipe row in this file is invented -- every 'pending' entry has zero content, by design, until real evidence is relayed. Read by tools/progression2_evidence_invariants.py, which fails the build if this file's own invariants are violated (see that script's docstring).",
+  "populations": {
+    "ja-172": {
+      "label": "PIZZA DB Japanese canonical population (日本語トップ/比較ページ)",
+      "claimedTotal": 172,
+      "sourceUrls": [
+        "https://pizzadb.jp/",
+        "https://pizzadb.jp/compare/world-pizzas/",
+        "https://pizzadb.jp/recommend/"
+      ],
+      "isCanonicalPopulationForIssue182": true
+    },
+    "en-160": {
+      "label": "PIZZA DB English translated subset (key name 'en-160' kept stable as an identifier -- see sizeHistory; NOT re-fetched every Phase, so treat claimedTotal as this session's last-observed value, not a live count)",
+      "claimedTotal": 172,
+      "sizeHistory": [
+        {
+          "observedAs": 160,
+          "phase": "Phase 0B/0B.1 (original relay)"
+        },
+        {
+          "observedAs": 172,
+          "phase": "Phase 0B.15",
+          "note": "Fresh evidence relayed in the Phase 0B.15 trigger comment: PIZZA DB's English index now itself reports 172 translated pizza profiles, the same SIZE as ja-172. This is a size coincidence, not proof of per-item correspondence -- explicitly NOT treated as evidence that en's membership now equals ja-172's membership. See en172UnconfirmedCandidatesPhase0B15 below for the concrete case this discipline was applied to."
+        }
+      ],
+      "sourceUrls": [
+        "https://pizzadb.jp/en/",
+        "https://pizzadb.jp/en/pizzas/"
+      ],
+      "isCanonicalPopulationForIssue182": false,
+      "usableForJa172Completeness": false,
+      "note": "A translated set intended to mirror ja-172, not a separate or interchangeable population, and not provably identical in MEMBERSHIP even now that it matches in SIZE. No count, name, or ingredient sourced from en-160/en-172 may be used to mark a ja-172 gap as filled without independent Japanese-side confirmation (a fetched Japanese profile page, or an exact ingredient-set match against already-evidenced ja-172 rows). Enforced by tools/progression2_evidence_invariants.py's population-tag check (key name 'en-160' kept as the stable invariant-check target, not renamed to avoid a tooling change outside this Phase's scope)."
+    }
+  },
+  "recipeRowEvidence": {
+    "population": "ja-172",
+    "totalClaimed": 172,
+    "evidencedCount": 172,
+    "evidencedCountNote": "COMPLETE as of Phase 0B.18: 25 Phase-0B-original comparison_table_sample rows + 130 later comparison_table_sample rows (pages 4, 1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 batches) + 17 individual_profile_page rows = 172, all deduplicated against each other. ALL 172 ja-172 recipe rows now have evidence. Phase 0B.18 relayed the previously-inaccessible comparison-table pages 13-15 in full (28 rows), closing the entire remaining gap in one bulk pass: 17 genuinely new rows ingested (including Japanese-side confirmation of both remaining EN-only candidates, Black Truffle and Hokkaido Cheese) plus 11 automatic corroborations of already-evidenced rows. 51 relayed rows across Phase 0B.5-0B.18 corroborated already-evidenced dishes, see corroborationsCount below. Full detail and per-row dedup/mechanic/evidence-gap/naming-ambiguity notes: docs/reports/data/TETO_PROGRESS2_PHASE0B4_recipe-row-evidence.json. Consolidated index: docs/reports/data/TETO_PIZZADB_172_MASTER-EVIDENCE.json.",
+    "evidenceOriginBreakdown": {
+      "comparison_table_sample": 155,
+      "individual_profile_page": 17
+    },
+    "corroborationsCount": 51,
+    "corroborationsNote": "51 relayed rows across Phase 0B.5-0B.18 matched an already-evidenced dish. Phase 0B.18 added 11, all automatic exact-nameJa match, all re-confirming rows already evidenced in earlier individual-profile-page or comparison-table batches (manakish, margherita, lahmacun, pizza-de-lomo-saltado, wasabi-beef-pizza, sichuan-eggplant-pizza, yakiniku-pizza, natto-pizza, peking-duck-pizza, mentaiko-mochi-pizza, yuzu-shrimp-pizza) -- confirming that PIZZA DB's own comparison-table pages 13-15 re-list several dishes whose deepest evidence had already come from individual profile fetches in Phase 0B.13/0B.14/0B.15/0B.16. Full per-batch breakdown in the corroborations array itself. Recorded as corroborations (new source URL added to the matched row's evidence trail), never double-counted toward evidencedCount.",
+    "evidencedSource": "docs/reports/data/TETO_PROGRESS2_PHASE0B_pizzadb-external-samples.json, docs/reports/data/TETO_PROGRESS2_PHASE0B4_recipe-row-evidence.json",
+    "evidencedPages": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "pendingPages": [],
+    "individualProfilePageAccessNote": "Phase 0B.4 found that direct pagination URLs (/compare/world-pizzas/page/7 etc.) fail for THIS SESSION'S RELAYING pattern via individual profile search, but the repository owner's own external tooling (Phase 0B.18) was able to traverse comparison-table pages 13-15 directly, closing the gap those inaccessible pages had left since Phase 0B.4. All 15 comparison-table pages are now represented in evidencedPages.",
+    "pendingCountKnown": true,
+    "pendingCountNote": "172 - 172 = 0 recipe rows have zero evidence. FULL COVERAGE.",
+    "status": "complete",
+    "requiredForFullDeadlockSimulation": false,
+    "fullDeadlockSimulationNote": "UPDATED Phase 0B.18 (second pass, same Phase): the Phase 0B.18 trigger explicitly requested 'If coverage reaches 172/172, run full-population deadlock analysis and report actual result.' Coverage reached 172/172 in this Phase, so tools/progression2_full172_deadlock_analysis.py was written and run. ACTUAL RESULT: 0 deadlock states; all resolvable pool recipes reachable from the Progression 2.0 initial state (owned = tomato-sauce, mozzarella, basil) via greedy marginal-unlock purchasing, in 153 steps. The resolvable pool is 151/172 (87.8%), NOT 172/172 -- 21 rows contain at least one ingredient name that canonicalizes as ambiguous or needs_review (e.g. generic ひき肉/ground-meat, チーズ/generic-cheese, ホワイトソース/white-sauce), so per the standing never-guess-fill discipline they were EXCLUDED from the ingredient-set-based reachability pool rather than assigned a guessed canonical ingredient -- every excluded row and its exact unresolved ingredient(s) is listed in the analysis output's excludedRowsWithAmbiguousIngredients, nothing silently dropped. Mechanic-gating is NOT modeled in this simulation (all pool recipes are treated as reachable once ingredient-complete, matching tools/progression2_phase0b_analysis.py's own combined-pool simplification) -- so 'reachable' here means 'ingredient-complete', not 'actually craftable with the game's current baseline mechanics' for the 41 rows independently known to need a mechanic/dough/cooking-method distinction. The analysis also surfaced 5 exact-ingredient-set collision groups across the full pool (new-england-bar-pizzadb vs fathead-pizza-keto-pizzadb, cauliflower-crust-pizzadb vs pizza-al-taglio-romana-pizzadb, jamon-serrano-pizzadb vs pinsa-romana-pizzadb, ny-style-pizzadb vs trenton-tomato-pie-pizzadb, and the already-known fugazza vs fugazzetta pair) -- in every pair, at least one member is already an independently-flagged mechanic-identity row, consistent with (not contradicting) the existing 'recipe identity needs more than an ingredient set' finding. Full output: docs/reports/data/TETO_PROGRESS2_PHASE0B18_full172-deadlock-analysis.json. This IS a genuine deadlock/reachability simulation result, not merely a permission-gate message -- but it still does NOT constitute converting the 172 rows into formal, production-ready game_design_candidate catalog entries in data/recipes/pizza_master_catalog.json (assigning real ids/mechanics/Pitz prices and resolving the 14 composition conflicts and 7 naming clusters) -- that catalog-conversion task remains separate and out of scope for this evidence-gathering effort."
+  },
+  "ingredientOccurrenceEvidence": {
+    "population": "ja-172",
+    "evidencedSource": "docs/reports/data/TETO_PROGRESS2_PHASE0B1_ingredient-universe-diff.json, docs/reports/data/TETO_PROGRESS2_PHASE0B3_longtail-raw-input.json",
+    "tiers": [
+      {
+        "occurrenceTier": ">=5 (named individually, 117 down to 5)",
+        "status": "evidenced",
+        "namedIngredientCount": 36
+      },
+      {
+        "occurrenceTier": "4",
+        "status": "evidenced",
+        "namedIngredientCount": 8,
+        "evidencedInPhase": "0B.3"
+      },
+      {
+        "occurrenceTier": "3",
+        "status": "evidenced",
+        "namedIngredientCount": 10,
+        "evidencedInPhase": "0B.3"
+      },
+      {
+        "occurrenceTier": "2",
+        "status": "evidenced",
+        "namedIngredientCount": 19,
+        "evidencedInPhase": "0B.3"
+      },
+      {
+        "occurrenceTier": "1",
+        "status": "evidenced",
+        "namedIngredientCount": 108,
+        "evidencedInPhase": "0B.3"
+      }
+    ],
+    "totalNamedIngredientCount": 181,
+    "fullIngredientUniverseKnown": "likely, not certain",
+    "corroborationNote": "36 (tier >=5) + 145 (tiers 4/3/2/1) = 181, which matches EXACTLY the historical '160 canonical pizzas / 181 unique ingredients' figure already on record in docs/design/TETO_RECIPE-MASTER-CATALOG.md section 1 (a figure from prior, separate sessions' PIZZA DB research). This is a strong internal-consistency signal that the ingredient-name universe is now fully enumerated down to occurrence=1 -- but it remains an owner-relayed claim, not independently re-fetched by this Claude session (still EGRESS_BLOCKED), so 'likely, not certain' is the honest status rather than 'true'.",
+    "note": "IMPORTANT: these are INGREDIENT OCCURRENCE COUNTS (how many of the 172 recipes use this ingredient), not a count of recipes and not a substitute for recipeRowEvidence above. tools/progression2_evidence_invariants.py checks the two are never conflated. recipeRowEvidence.evidencedCount is UNCHANGED at 25/172 by this ingestion -- ingredient-name completeness does not imply recipe-row completeness."
+  },
+  "canonicalizationResultsPhase0B3": {
+    "resultsSource": "docs/reports/data/TETO_PROGRESS2_PHASE0B3_canonicalization-results.json",
+    "totalClassified": 145,
+    "dispositionCounts": {
+      "exact_alias": 26,
+      "likely_alias": 12,
+      "ambiguous": 11,
+      "genuinely_new": 95,
+      "excluded_non_ingredient": 1
+    },
+    "needsReviewCount": 0,
+    "candidateCanonicalIngredientUniverseSizeRange": {
+      "baselineBeforePhase0B3": 83,
+      "baselineComposition": "62 shipped + 15 Phase 0B new + 6 Phase 0B.1 genuinely_new",
+      "definiteAdditions": 95,
+      "definiteAdditionsNote": "Phase 0B.3's 95 genuinely_new entries -- every likely_alias/exact_alias maps onto an already-counted id, so they add 0.",
+      "uncertainAdditions": 11,
+      "uncertainAdditionsNote": "Phase 0B.3's 11 ambiguous entries -- each could resolve to 0 new ids (merged into its related existing id) or 1 new id (confirmed genuinely distinct), pending a product decision. Never auto-resolved by this ledger.",
+      "min": 178,
+      "max": 189
+    },
+    "taxonomyFlagCounts": {
+      "sauce_not_topping": 16,
+      "sauce_or_condiment": 6,
+      "generic_unspecified": 3,
+      "prepared_dish_composite": 3,
+      "false_friend_not_meat": 1
+    },
+    "excludedNonIngredientCount": 1,
+    "excludedNonIngredientNote": "'お好みの具材' (generic 'toppings of your choice' placeholder) -- not a real ingredient, permanently excluded from the canonical universe, never counted in the size range above."
+  },
+  "sauceFamilyEvidence": {
+    "population": "ja-172",
+    "evidencedSource": "docs/reports/data/TETO_PROGRESS2_PHASE0B1_ingredient-universe-diff.json",
+    "categories": [
+      {
+        "family": "tomato sauce",
+        "count": 60
+      },
+      {
+        "family": "cheese",
+        "count": 34
+      },
+      {
+        "family": "other",
+        "count": 17
+      },
+      {
+        "family": "basil",
+        "count": 11
+      },
+      {
+        "family": "no sauce",
+        "count": 10
+      },
+      {
+        "family": "sweet-savory",
+        "count": 9
+      },
+      {
+        "family": "hot sauce",
+        "count": 8
+      },
+      {
+        "family": "white sauce",
+        "count": 8
+      },
+      {
+        "family": "curry",
+        "count": 7
+      },
+      {
+        "family": "dessert sauce",
+        "count": 5
+      },
+      {
+        "family": "oil",
+        "count": 3
+      }
+    ],
+    "categoriesSum": 172,
+    "claimedTotal": 172,
+    "invariantPasses": true
+  },
+  "openRequestsForExternalEvidence": [
+    {
+      "item": "Recipe rows for the remaining rows of 172 (individual profile pages or further comparison-table pages)",
+      "population": "ja-172",
+      "requiredFormat": "dish name, origin, dough style, sauce family, ingredient list, source URL per row",
+      "invented": false,
+      "status": "RESOLVED in Phase 0B.18 -- pages 13-15 relayed in full, 172/172 evidenced, 0 remain"
+    },
+    {
+      "item": "Product decision on the 11 Phase 0B.3 ambiguous entries (merge into an existing related id, or mint as a new distinct id)",
+      "population": "ja-172",
+      "requiredFormat": "owner/reviewer judgment call, not an external fetch",
+      "invented": false,
+      "status": "unresolved since Phase 0B.3"
+    },
+    {
+      "item": "Corrected or confirmed ingredient list for pizza-a-caballo (Fainá layer mentioned in profile prose but absent from the published topping list)",
+      "population": "ja-172",
+      "requiredFormat": "clarified source data, not an inference",
+      "invented": false,
+      "status": "unresolved since Phase 0B.4"
+    },
+    {
+      "item": "Product decision on the bianca-pizzadb-row three-way naming cluster (pizza-bianca / ricotta-bianca / this row)",
+      "population": "ja-172",
+      "requiredFormat": "owner/reviewer judgment call, not an external fetch",
+      "invented": false,
+      "status": "unresolved since Phase 0B.5"
+    },
+    {
+      "item": "Product decision on the speck-e-brie-pizzadb-p4 composition variant (vs. existing candidate speck-e-brie, same name family, different ingredients)",
+      "population": "ja-172",
+      "requiredFormat": "owner/reviewer judgment call, not an external fetch",
+      "invented": false,
+      "status": "unresolved since Phase 0B.6"
+    },
+    {
+      "item": "Product decision on the argentine-napolitana-pizzadb-p1 three-way Napoletana-family naming cluster (napoletana / chilean-napolitana-pizzadb / this row)",
+      "population": "ja-172",
+      "requiredFormat": "owner/reviewer judgment call, not an external fetch",
+      "invented": false,
+      "status": "unresolved since Phase 0B.7"
+    },
+    {
+      "item": "Product decision on chicago-stuffed-pizza-pizzadb-p3 vs. chicago-deep-dish-pizzadb (same city, two real distinct styles, near-identical ingredient set)",
+      "population": "ja-172",
+      "requiredFormat": "owner/reviewer judgment call, not an external fetch",
+      "invented": false,
+      "status": "new in Phase 0B.8"
+    },
+    {
+      "item": "Corrected or confirmed topping list for colorado-mountain-pie-pizzadb-p3 (source's own ingredient list includes the excluded placeholder 'お好みの具材')",
+      "population": "ja-172",
+      "requiredFormat": "clarified source data, not an inference",
+      "invented": false,
+      "status": "new in Phase 0B.8"
+    },
+    {
+      "item": "Product decision on detroit-style-pizza-pizzadb-p5 vs. the existing 'detroit-style' game_design_candidate's ingredient list (PIZZA DB explicitly lists brick-cheese, not mozzarella)",
+      "population": "ja-172",
+      "requiredFormat": "owner/reviewer judgment call, not an external fetch",
+      "invented": false,
+      "status": "new in Phase 0B.9"
+    },
+    {
+      "item": "Product decision on nutella-dessert-pizza-pizzadb-p6 composition variant (vs. existing candidate nutella-dessert: banana+nuts here, strawberry there)",
+      "population": "ja-172",
+      "requiredFormat": "owner/reviewer judgment call, not an external fetch",
+      "invented": false,
+      "status": "new in Phase 0B.9"
+    },
+    {
+      "item": "Product decision on bismarck-pizza-pizzadb-p7 composition variant (vs. existing candidate bismarck: ham+mushroom+egg here, plain egg+mozzarella there)",
+      "population": "ja-172",
+      "requiredFormat": "owner/reviewer judgment call, not an external fetch",
+      "invented": false,
+      "status": "new in Phase 0B.10"
+    },
+    {
+      "item": "Design-level finding: page-8 no-sauce raw-topping pizza family (8 rows) may warrant a future finishing-mechanic candidate (raw salad topping + lemon/olive-oil or balsamic dressing, no base sauce) -- NOT implemented, recorded as a design observation only",
+      "population": "ja-172",
+      "requiredFormat": "owner/reviewer design decision, not an external fetch",
+      "invented": false,
+      "status": "new in Phase 0B.10"
+    },
+    {
+      "item": "MAJOR composition conflict: fugazza-pizzadb-p10 vs. the SHIPPED production recipe 'fugazza' (フガッサ: olive-oil+onion+oregano, no cheese) -- PIZZA DB's own row lists mozzarella instead of olive-oil, the opposite of the shipped recipe's defining cheese-less composition",
+      "population": "ja-172",
+      "requiredFormat": "owner/reviewer product decision -- out of this session's scope (no src/** or recipe-composition edits)",
+      "invented": false,
+      "status": "new in Phase 0B.11"
+    },
+    {
+      "item": "UNRESOLVED naming/identity conflict: Fugazza (フガザ) vs. Fugazzetta (フガゼッタ) -- PIZZA DB's own comparison-table data gives both rows the identical ingredient multiset (mozzarella+onion+oregano, reordered), which does not actually encode the traditional cheese-less-vs-cheese-topped distinction between the two dishes; kept as two separate rows per this repo's discipline, but not evidenced apart",
+      "population": "ja-172",
+      "requiredFormat": "clarified/differentiating source data (e.g. individual profile pages per dish), not an inference",
+      "invented": false,
+      "status": "new in Phase 0B.11"
+    },
+    {
+      "item": "Product decision on pizza-romana-pizzadb-p9 composition variant (vs. existing candidate 'romana': adds mozzarella+capers to the plain anchovy+oregano+tomato-sauce base)",
+      "population": "ja-172",
+      "requiredFormat": "owner/reviewer judgment call, not an external fetch",
+      "invented": false,
+      "status": "new in Phase 0B.11"
+    },
+    {
+      "item": "Product decision on focaccia-genovese-pizzadb-p10's scope fit (plain olive-oil/rock-salt/rosemary flatbread, no cheese/sauce topping at all) -- whether it qualifies as a 'pizza' catalog entry or is better modeled separately",
+      "population": "ja-172",
+      "requiredFormat": "owner/reviewer design decision, not an external fetch",
+      "invented": false,
+      "status": "new in Phase 0B.11"
+    },
+    {
+      "item": "MAJOR composition conflict: breakfast-pizza-pizzadb-p11 vs. the SHIPPED production recipe 'breakfast-pizza' (bacon+egg+mozzarella+tomato-sauce) -- PIZZA DB's row adds sausage and swaps mozzarella->cheddar, tomato-sauce->white-sauce",
+      "population": "ja-172",
+      "requiredFormat": "owner/reviewer product decision -- out of this session's scope (no src/** or recipe-composition edits)",
+      "invented": false,
+      "status": "new in Phase 0B.12"
+    },
+    {
+      "item": "Composition variant: frutti-di-mare-pizzadb-p11 vs. existing 'frutti-di-mare' candidate -- PIZZA DB's seafood-medley-only composition is essentially complementary (not overlapping) with the candidate's aromatics-plus-shrimp-only composition",
+      "population": "ja-172",
+      "requiredFormat": "owner/reviewer judgment call, not an external fetch",
+      "invented": false,
+      "status": "new in Phase 0B.12"
+    },
+    {
+      "item": "Composition variant: pesto-genovese-pizza-pizzadb-p11 vs. the SHIPPED 'genovese' recipe (cherry-tomato+mozzarella+pesto) -- PIZZA DB's row substitutes potato+pine-nuts, no cherry-tomato, no pesto-as-ingredient",
+      "population": "ja-172",
+      "requiredFormat": "owner/reviewer product decision, not an external fetch",
+      "invented": false,
+      "status": "new in Phase 0B.12"
+    },
+    {
+      "item": "Composition/sauce-family conflict: boscaiola-pizzadb-p12 vs. existing 'boscaiola' candidate -- PIZZA DB's row uses porcini (not generic mushroom) and tags sauceFamily as cheese, not tomato-sauce",
+      "population": "ja-172",
+      "requiredFormat": "owner/reviewer product decision, not an external fetch",
+      "invented": false,
+      "status": "new in Phase 0B.12"
+    },
+    {
+      "item": "Manakish (manakish) sauceFamily inconsistency: PIZZA DB's own profile page header tags it as 'オイル' (oil) while the page's own Q&A prose describes it as 'ノンソース' (no sauce) -- recorded as-is using the header value, contradiction preserved not resolved",
+      "population": "ja-172",
+      "requiredFormat": "clarified/corrected source data, or an owner/reviewer judgment call on which field to trust; not an inference",
+      "invented": false,
+      "status": "new in Phase 0B.13"
+    },
+    {
+      "item": "Japanese-side confirmation for the EN-172-index candidates NOT counted toward ja-172 (Black Truffle, Hokkaido Cheese)",
+      "population": "ja-172",
+      "requiredFormat": "a directly-fetched Japanese-language profile/comparison-table page per dish",
+      "invented": false,
+      "status": "RESOLVED in Phase 0B.18 -- both confirmed via comparison-table page 14 (黒トリュフピザ) and page 15 (北海道チーズピザ) and ingested"
+    },
+    {
+      "item": "Product decision on marinara-pizza-pizzadb-p13 composition variant vs. the SHIPPED 'marinara' recipe (olive-oil topping vs. tomato-sauce-as-explicit-ingredient)",
+      "population": "ja-172",
+      "requiredFormat": "owner/reviewer product decision -- out of this session's scope (no src/** or recipe-composition edits)",
+      "invented": false,
+      "status": "new in Phase 0B.18"
+    },
+    {
+      "item": "Product decision on meat-lovers-pizza-pizzadb-p13 composition variant vs. the SHIPPED 'meat-lovers' recipe (adds beef, omits explicit mozzarella)",
+      "population": "ja-172",
+      "requiredFormat": "owner/reviewer product decision -- out of this session's scope (no src/** or recipe-composition edits)",
+      "invented": false,
+      "status": "new in Phase 0B.18"
+    },
+    {
+      "item": "Product decision on black-truffle-pizza-pizzadb-p14 composition variant vs. existing candidate 'al-tartufo' (mozzarella+parmigiano vs. fontina+olive-oil)",
+      "population": "ja-172",
+      "requiredFormat": "owner/reviewer judgment call, not an external fetch",
+      "invented": false,
+      "status": "new in Phase 0B.18"
+    },
+    {
+      "item": "Product decision on porcini-pizza-pizzadb-p13 composition variant vs. existing candidate 'ai-funghi-porcini' (adds garlic+parsley, cheese sauceFamily not tomato)",
+      "population": "ja-172",
+      "requiredFormat": "owner/reviewer judgment call, not an external fetch",
+      "invented": false,
+      "status": "new in Phase 0B.18"
+    },
+    {
+      "item": "Product decision on teriyaki-chicken-pizza-pizzadb-p14 composition variant vs. existing candidate 'teriyaki-chicken' (omits corn+mozzarella)",
+      "population": "ja-172",
+      "requiredFormat": "owner/reviewer judgment call, not an external fetch",
+      "invented": false,
+      "status": "new in Phase 0B.18"
+    },
+    {
+      "item": "Naming/ingredient-specificity gap: nduja-pizza-pizzadb-p14 and south-african-boerewors-pizzadb-p14 both use dish names referencing a SPECIFIC sausage (nduja, boerewors) but their own published ingredient lists use only the generic term ソーセージ -- kept as generic sausage, not relabeled, per this repo's never-infer discipline",
+      "population": "ja-172",
+      "requiredFormat": "clarified/corrected source data confirming the specific sausage type, not an inference",
+      "invented": false,
+      "status": "new in Phase 0B.18"
+    },
+    {
+      "item": "MAJOR MILESTONE: full-population EVIDENCE coverage reached (172/172) -- the NEXT distinct task (converting raw evidence into formal game_design_candidate recipe entries and running an actual full-catalog deadlock simulation) is explicitly NOT started here, per the standing src/**-and-SSOT scope guard",
+      "population": "ja-172",
+      "requiredFormat": "owner/reviewer decision on scoping and staffing the design-conversion phase; see docs/reports/TETO_PIZZADB_172_MASTER-REPORT.md for the full consolidated findings this next phase would need to resolve first (9 composition conflicts, 7 naming clusters, 11 ambiguous ingredients, ~22 mechanic findings)",
+      "invented": false,
+      "status": "new in Phase 0B.18"
+    },
+    {
+      "item": "Independent re-verification of everything relayed so far (172 recipe rows, 51 corroborations, 181 ingredient names + 9 new aliases)",
+      "population": "ja-172",
+      "requiredFormat": "this Claude Code session re-fetching pizzadb.jp directly, blocked by EGRESS_BLOCKED as of this Phase",
+      "invented": false
+    }
+  ],
+  "resolvedInPhase0B3": [
+    {
+      "item": "Occurrence-tier 4/3/2/1 ingredient names + exact counts",
+      "resolution": "Relayed in full via PR #183 comment #5774945778 -- 145 names ingested and classified, see canonicalizationResultsPhase0B3 above."
+    }
+  ],
+  "partiallyAddressedInPhase0B4": [
+    {
+      "item": "Recipe row evidence beyond the 25 comparison-table samples",
+      "resolution": "4 new individual-profile-page rows ingested (margherita, pizza-baiana, pizza-a-caballo, fugazzeta-rellena), deduplicated against the existing 25 via tools/progression2_recipe_row_ingest.py -- 29/172 evidenced at that point. NOT resolved, only advanced."
+    },
+    {
+      "item": "Recipe-row access-path constraint",
+      "resolution": "The relaying agent found direct pagination URLs (page/7 etc.) fail, but individual /pizzas/<slug>/ profile pages remain fetchable via search -- recorded as a viable alternate access path for future batches, not a claim that pagination itself now works."
+    }
+  ],
+  "partiallyAddressedInPhase0B5": [
+    {
+      "item": "Recipe row evidence beyond Phase 0B.4's 29",
+      "resolution": "3 new unique rows ingested (bianca-pizzadb-row, pizza-de-cancha, hawaiian-pizzadb-row) -- 32/172 evidenced. 3 further relayed rows (calabresa-argentina, pizza-baiana, chicago-deep-dish) turned out to corroborate already-evidenced dishes rather than add new ones -- recorded as corroborations, not double-counted. NOT resolved, only advanced."
+    },
+    {
+      "item": "Corroboration tracking infrastructure",
+      "resolution": "tools/progression2_recipe_row_ingest.py extended to persist every duplicate finding (automatic exact-match or manual ingredient-set review) as a corroboration record with its new source URL, rather than printing and discarding it -- so re-confirmations are never silently lost. Also caught and manually recorded one case (chicago-deep-dish) that automatic exact-match dedup missed due to this session's own earlier disambiguating-suffix naming convention."
+    }
+  ],
+  "partiallyAddressedInPhase0B6": [
+    {
+      "item": "Recipe row evidence beyond Phase 0B.5's 32",
+      "resolution": "9 new unique rows ingested from a second comparison-table batch (page 4) -- 41/172 evidenced. 3 of the 12 relayed rows (sfincione, supreme, taco-pizza) turned out to re-confirm Phase 0B's ORIGINAL page-4 samples -- recorded as corroborations, not double-counted. NOT resolved, only advanced."
+    },
+    {
+      "item": "Counter accuracy fix",
+      "resolution": "tools/progression2_recipe_row_ingest.py's independentlyFreshVerifiedRows/relayedOnlyRows counters were computed assuming every row appended since Phase 0B.4 was individual_profile_page-origin; fixed to split by each row's own evidenceOrigin field before this Phase's comparison_table_sample-origin batch was ingested, so the two counters stay accurate now that both origins coexist in the same array."
+    },
+    {
+      "item": "New ingredient alias finding",
+      "resolution": "大葉 (ooba) added to the ingredient canonicalizer's LIKELY_ALIAS_TABLE, pointing to the already-registered genuinely_new 'shiso' (Phase 0B.3) -- same plant, different common name. Self-test re-verified passing."
+    }
+  ],
+  "partiallyAddressedInPhase0B7": [
+    {
+      "item": "Recipe row evidence beyond Phase 0B.6's 41",
+      "resolution": "7 new unique rows ingested from a third comparison-table batch (page 1) -- 48/172 evidenced. 5 of the 12 relayed rows (bbq-chicken, apple-cinnamon-dessert, calabresa-argentina, vongole, aussie) turned out to re-confirm Phase 0B's ORIGINAL page-1 samples -- recorded as corroborations, not double-counted (calabresa-argentina is now corroborated twice, Phase 0B.5 and 0B.7). 124 still pending; NOT resolved, only advanced."
+    },
+    {
+      "item": "Ingredient corroboration density",
+      "resolution": "6 of the 7 new rows this Phase needed ZERO new ingredient ids -- every ingredient they use was already canonical from Phase 0B/0B.3/0B.6's own prior work (salmon-roe, salmon, eel, sansho-pepper, green-onion, cashew-cheese, zucchini, cabbage, pork, okonomiyaki-sauce, aonori, bonito-flakes, mayo, cumin, parsley, 鶏肉->chicken, 大葉->shiso, all reused). A strong signal the canonical ingredient set built up across Phase 0B.1-0B.6 is already covering a large share of real recurring PIZZA DB ingredients."
+    }
+  ],
+  "partiallyAddressedInPhase0B8": [
+    {
+      "item": "Recipe row evidence beyond Phase 0B.7's 48",
+      "resolution": "15 new unique rows ingested from a fourth batch spanning comparison-table pages 2-3 -- 63/172 evidenced. 9 of the 17 relayed rows turned out to corroborate already-evidenced dishes: 2 via automatic exact-nameJa match (currywurst-pizza, grandma-pizza) and 7 via MANUAL ingredient-set review (capricciosa, calzone, quattro-stagioni, quattro-formaggi, greek-style, chicago-deep-dish [corroborated a 3rd time], siciliana) -- all 7 manual cases were rows this session's own earlier '（PIZZA DB版）' disambiguating-nameJa-suffix convention would have hidden from the automated exact-match dedup, so every potentially-overlapping row was proactively cross-checked by ingredient set BEFORE ingesting, per the Phase 0B.5 lesson. 109 still pending; NOT resolved, only advanced."
+    },
+    {
+      "item": "New mechanic/dough-material identity axis",
+      "resolution": "cauliflower-crust-pizza-pizzadb-p2 introduces a genuinely NEW identity axis not seen in prior Phases -- dough MATERIAL (cauliflower-based crust) rather than shape/layering mechanic (which Chicago/Detroit/Sicilian/old-forge/scacciata/st-louis entries already covered). Recorded as requiresMechanicIdentity with a note distinguishing the axis; not merged into any existing mechanic family."
+    },
+    {
+      "item": "New naming-ambiguity / product-decision item: Chicago deep-dish vs. Chicago stuffed",
+      "resolution": "chicago-stuffed-pizza-pizzadb-p3 is a near-identical ingredient set to the existing chicago-deep-dish-pizzadb candidate but is a real, distinct Chicago pizza style (double crust with a top dough layer sealing the filling, vs. deep-dish's single thick crust) -- kept as a separate row, NOT merged, new open item added for the repo owner's product decision."
+    },
+    {
+      "item": "New evidence gap: colorado-mountain-pie-pizzadb-p3 placeholder ingredient",
+      "resolution": "The relayed row's own ingredient list includes 'お好みの具材' (the already-identified EXCLUDED non-ingredient placeholder meaning 'toppings of your choice') as its second listed ingredient -- preserved as an explicit evidenceGap rather than guess-filled with a real topping, and a new open item added asking the repo owner to confirm or correct the source's own listing."
+    }
+  ],
+  "partiallyAddressedInPhase0B9": [
+    {
+      "item": "Recipe row evidence beyond Phase 0B.8's 63",
+      "resolution": "16 new unique rows ingested from a fifth batch spanning comparison-table pages 5-6 -- 79/172 evidenced. 8 of the 24 relayed rows turned out to corroborate already-evidenced dishes (all re-confirming Phase 0B's ORIGINAL page-5/6 samples): 5 via automatic exact-nameJa match (flammkuchen/タルトフランベ, chilean-napolitana/チリアンナポリターナ, trenton-tomato-pie/トレントントマトパイ, new-haven-apizza/ニューヘイブンアピッツァ, bacalhau/バカリャウピザ) and 3 via MANUAL ingredient-set review (tonno-e-cipolla, ny-style, buffalo-chicken -- all hidden from automated dedup by this session's own earlier '（PIZZA DB版）' disambiguating-nameJa-suffix convention). Every potentially-overlapping row was proactively cross-checked by ingredient set against ALL prior evidence (not just this batch's own page) before ingesting, per the Phase 0B.5/0B.8 lesson. 93 still pending; NOT resolved, only advanced."
+    },
+    {
+      "item": "Two rows correspond to EXISTING game-design catalog candidates with a composition/ingredient mismatch worth flagging",
+      "resolution": "detroit-style-pizza-pizzadb-p5 explicitly lists brick-cheese (already a registered ingredient id) where the existing 'detroit-style' candidate currently uses mozzarella -- real Detroit-style pizza is historically defined by brick cheese; recorded as new evidence, NOT used to silently change the existing candidate, new open item added. nutella-dessert-pizza-pizzadb-p6 uses banana+nuts where the existing 'nutella-dessert' candidate uses strawberry -- recorded as a composition variant matching the speck-e-brie precedent (Phase 0B.6), not merged, new open item added."
+    },
+    {
+      "item": "New mechanic/shape identity axis: boat-shaped dough",
+      "resolution": "turkish-pide-pizzadb-p5's explicit '舟形' (boat/canoe-shaped) dough is a genuinely NEW shape-identity axis, distinct from every prior mechanic-identity row (square pan, thin cracker, deep-dish stacking, double-crust stuffed, cauliflower dough material). Not merged into any existing mechanic family."
+    },
+    {
+      "item": "Ingredient canonicalization gap found and fixed: モッツァレラチーズ/ナス were never covered by the classifier's exact/orthographic tables",
+      "resolution": "Both terms have been used as raw ingredientsJa strings across ~20+ already-ingested rows since Phase 0B.4, but neither had a table entry against the catalog's own stored forms (モッツァレラ / なす) -- both were needs_review gaps. Fixed by adding both as ORTHOGRAPHIC_EQUIVALENTS entries (suffix/script variants, no identity ambiguity), plus two new Phase 0B.9 findings (蜂蜜->はちみつ orthographic; 唐辛子 added to the existing chili/chili-oil AMBIGUOUS_TABLE group). Self-test re-verified passing (36/36 Phase 0B.1 names still reclassify identically) after each addition."
+    }
+  ],
+  "partiallyAddressedInPhase0B10": [
+    {
+      "item": "Recipe row evidence beyond Phase 0B.9's 79",
+      "resolution": "21 new unique rows ingested from a sixth batch spanning comparison-table pages 7-8 -- 100/172 evidenced (first time crossing the halfway mark). 3 of the 24 relayed rows corroborated already-evidenced dishes, all via automatic exact-nameJa match against Phase 0B's ORIGINAL individual-profile-page rows (hawaiian-pizzadb-row, pizza-a-caballo, pizza-de-cancha) -- no suffix-mismatch cases this Phase. Each of the 3 was independently confirmed to have an identical stored ingredient set to the relayed row before accepting the automatic match (not just a bare nameJa-string trust), per the trigger comment's own explicit caution about these three names. 72 still pending; NOT resolved, only advanced."
+    },
+    {
+      "item": "pizza-a-caballo's Fainá evidence gap explicitly re-confirmed, not filled",
+      "resolution": "The trigger comment explicitly warned not to invent Fainá as a topping from the comparison table's own omission. This Phase's relayed pizza-a-caballo row (モッツァレラチーズ,オリーブ,オレガノ) is ingredient-set-identical to the existing evidence-gap-flagged row from Phase 0B.4 -- recorded as a corroboration only, the evidenceGaps entry (Fainá layer mentioned in prose but absent from the published topping list) is untouched."
+    },
+    {
+      "item": "New composition-mismatch item: bismarck-pizza-pizzadb-p7 vs. existing 'bismarck' catalog candidate",
+      "resolution": "This PIZZA DB row (ham+mushroom+egg+mozzarella) is a fuller composition than the existing bismarck candidate (plain egg+mozzarella+tomato-sauce) -- recorded as new evidence for a possible future correction/expansion, NOT changed here, new open item added for a product decision. Same treatment pattern as the Phase 0B.9 detroit-style/nutella-dessert findings."
+    },
+    {
+      "item": "New mechanic/dough identity axis: unleavened flatbread",
+      "resolution": "piadina-romagnola-pizzadb-p7's explicit unleavened (無発酵), thin flatbread dough is a genuinely NEW dough-identity axis, distinct from every prior mechanic-identity row (pan, cracker, deep-dish stacking, double-crust stuffed, cauliflower material, boat shape). Not merged into any existing mechanic family."
+    },
+    {
+      "item": "New design-level finding: page-8 no-sauce raw-topping pizza family (8 rows)",
+      "resolution": "8 of this Phase's rows (pizza-asparagi-limone/pizza-carciofi-salad/pizza-finocchi-salad/pizza-cavolo-carote/pizza-zucchine-menta/pizza-cicoria-limone/pizza-puntarelle/pizza-radicchio-noci, all -pizzadb-p8) share a consistent pattern: sauceFamily=ノンソース (no base sauce), a raw vegetable/salad topping, and a lemon/balsamic + olive-oil dressing as the only 'sauce'-like element -- distinct from the existing postBakeFinishing drizzle mechanic (defined for a sauce stripe, not a whole raw-salad topping set). Recorded as a DESIGN FINDING only, per the trigger comment's explicit instruction not to invent gameplay behavior -- no mechanic implemented, new open item added. One naming-adjacent row (pizza-carciofi-salad-pizzadb-p8) was checked against the existing 'ai-carciofi' catalog candidate and found structurally different (no-sauce raw salad vs. baked-with-garlic-tomato-sauce) -- not merged."
+    },
+    {
+      "item": "Ingredient canonicalization: 2 new entries found and fixed (パルミジャーノチーズ, 卵)",
+      "resolution": "パルミジャーノチーズ (チーズ suffix variant of existing parmigiano's パルミジャーノ) added to LIKELY_ALIAS_TABLE. 卵 (kanji variant of existing egg's stored hiragana form たまご) added to ORTHOGRAPHIC_EQUIVALENTS. Self-test re-verified passing after each addition; all 49 ingredient names named across this Phase's 24 relayed rows classify with zero needs_review."
+    }
+  ],
+  "partiallyAddressedInPhase0B11": [
+    {
+      "item": "Recipe row evidence beyond Phase 0B.10's 100",
+      "resolution": "21 new unique rows ingested from a seventh batch spanning comparison-table pages 9-10 -- 121/172 evidenced (70.3%). 3 of the 24 relayed rows corroborated already-evidenced dishes, all via automatic exact-nameJa match against Phase 0B's ORIGINAL individual-profile-page rows (pizza-baiana, bianca-pizzadb-row, fugazzeta-rellena) -- each independently re-verified by ingredient-set equality before accepting, per the trigger comment's explicit flag naming all three. No suffix-mismatch cases this Phase. 51 still pending; NOT resolved, only advanced."
+    },
+    {
+      "item": "MAJOR composition conflict found: fugazza-pizzadb-p10 vs. the SHIPPED production recipe 'fugazza'",
+      "resolution": "The shipped 'fugazza' (フガッサ) recipe is olive-oil+onion+oregano with explicitly NO cheese (the traditional Argentine distinction: fugazza=cheese-less, fugazzeta=with cheese). PIZZA DB's フガザ row instead lists mozzarella and omits olive-oil -- the opposite composition. Recorded as new evidence only; the shipped recipe was NOT touched (out of scope: no src/**, no recipe-composition edits). New open item added for a product decision."
+    },
+    {
+      "item": "UNRESOLVED Fugazza-vs-Fugazzetta identity/naming investigation, per the trigger comment's explicit instruction not to collapse on ingredient-set equality alone",
+      "resolution": "フガザ (fugazza-pizzadb-p10: onion,mozzarella,oregano) and フガゼッタ (fugazzetta-pizzadb-p10: mozzarella,onion,oregano) share the IDENTICAL ingredient multiset, just reordered -- PIZZA DB's own comparison-table data does not actually encode the traditional cheese-less-vs-cheese-topped distinction between the two dishes. Kept as two separate rows (never merge on name or set alone), each cross-referenced to its own closest existing catalog entry (fugazza-pizzadb-p10 to the shipped 'fugazza'; fugazzetta-pizzadb-p10 to the deferred 'fugazzeta' candidate, which it matches on 3 of 4 ingredients, missing olive-oil). Flagged as an OPEN, unresolved item requiring further evidence (e.g. individual profile pages per dish) -- not decided or guessed here."
+    },
+    {
+      "item": "New mechanic axis: FRIED cooking method",
+      "resolution": "pizza-fritta-pizzadb-p9's explicit deep-fried (揚げ) preparation is the first row whose identity depends on the COOKING METHOD itself, not dough shape/material/composition -- every prior mechanic-identity row assumed a baked pizza. Genuinely new axis, not merged into any existing mechanic family."
+    },
+    {
+      "item": "Two new dough-composition sub-axes alongside cauliflower-crust's vegetable-material substitution (Phase 0B.8)",
+      "resolution": "pinsa-romana-pizzadb-p9 (multi-grain wheat/rice/soy blended flour, long-fermented) and fathead-pizza-keto-pizzadb-p9 (mozzarella+almond-flour keto dough, no wheat) are two further, distinct dough-composition variants -- three total distinct low-carb/alternative-dough sub-categories now tracked (vegetable-material, grain-blend, cheese+nut-flour), none merged into each other."
+    },
+    {
+      "item": "New lamination/layering mechanic axis, distinct from the existing stuffed/two-layer family",
+      "resolution": "feteer-meshaltet-pizzadb-p10's explicit multi-layer folded pastry dough (層状に折り込んだ多層生地, Egyptian) is a laminated MANY-layer technique (phyllo/puff-pastry-like), genuinely distinct from the existing two-dough-sheet stuffed/enclosure mechanic (calzone/fugazzeta-rellena/chicago-stuffed). New axis, not merged."
+    },
+    {
+      "item": "Product decision item: pizza-romana-pizzadb-p9 composition variant vs. existing 'romana' candidate",
+      "resolution": "This PIZZA DB row (mozzarella+anchovy+capers+oregano) is a fuller composition than the existing 3-ingredient 'romana' candidate (anchovy+oregano+tomato-sauce) -- recorded as new evidence, not merged or used to change the existing candidate, new open item added."
+    },
+    {
+      "item": "Product/scope decision item: focaccia-genovese-pizzadb-p10's fit within the game's pizza catalog",
+      "resolution": "A plain olive-oil/rock-salt/rosemary flatbread with no cheese or sauce topping at all -- flagged as an open question on whether this qualifies as a 'pizza' entry within the game's scope, or is better modeled as a distinct bread item. Not decided here."
+    },
+    {
+      "item": "Ingredient canonicalization: 41 names across this batch, zero new table entries needed",
+      "resolution": "All 41 ingredient names named across this Phase's 24 relayed rows (including フライドポテト->french-fries, ツナ->tuna, and several previously-registered genuinely_new ids like catupiry/baked-beans/cheese-curd/gravy-sauce/condensed-milk/melted-butter/rock-salt) classified deterministically with zero needs_review using the EXISTING tables -- no canonicalizer changes required this Phase, a sign the accumulated canonical set is now covering the large majority of real recurring PIZZA DB ingredients."
+    }
+  ],
+  "partiallyAddressedInPhase0B12": [
+    {
+      "item": "Recipe row evidence beyond Phase 0B.11's 121",
+      "resolution": "24 new unique rows ingested from an eighth batch spanning comparison-table pages 11-12 -- 145/172 evidenced (84.3%). ZERO corroborations this Phase -- all 24 relayed nameJa strings were genuinely new, none matching any of the 121 already-evidenced rows. 27 still pending; NOT resolved, only advanced."
+    },
+    {
+      "item": "Pesto-family discovery/matching stress test, per the trigger comment's explicit instruction",
+      "resolution": "11 of this Phase's 24 rows (pesto-caprese/pesto-gamberi/pesto-salmone/pesto-genovese-pizza/pesto-trapanese/pesto-tonno/pesto-noci/pesto-patate/pesto-burrata/pesto-vegetariana/pesto-pollo, all sharing sauceFamily=バジル and doughStyle=ナポリピッツァ生地) were verified pairwise-distinct by ingredient set BEFORE ingesting -- none collapsed solely because sauce+dough matched. All 11 ingested as separate rows. Stress test passed: the ingest tool's exact id/nameJa dedup logic never risked conflating same-sauce-family dishes, since each pesto row has its own distinct nameJa and ingredient set."
+    },
+    {
+      "item": "MAJOR composition conflict found: breakfast-pizza-pizzadb-p11 vs. the SHIPPED production recipe 'breakfast-pizza'",
+      "resolution": "The shipped 'breakfast-pizza' (ブレックファストピザ) is bacon+egg+mozzarella+tomato-sauce. PIZZA DB's ブレックファーストピザ row (note the differing long-vowel mark, correctly NOT an automatic-dedup match) instead lists egg+bacon+SAUSAGE+CHEDDAR (not mozzarella)+WHITE SAUCE (not tomato-sauce) -- a substantially different composition on 3 of 4 shared dimensions. Recorded as new evidence only; shipped recipe NOT touched. New open item, same severity class as the Phase 0B.11 fugazza finding."
+    },
+    {
+      "item": "Seafood-family cross-reference investigated, per the trigger comment's explicit instruction",
+      "resolution": "frutti-di-mare-pizzadb-p11 (shrimp+squid+mussel+clam, no aromatics) and pescatore-pizzadb-p11 (mozzarella+shrimp+mussel+clam+garlic+parsley+olive-oil, no squid) were reviewed side by side -- genuinely distinct, real Italian seafood-pizza traditions despite overlapping shrimp/mussel/clam. Kept as two separate rows, cross-referenced to each other, not merged. frutti-di-mare-pizzadb-p11 is also a composition variant of the existing 'frutti-di-mare' candidate (garlic+olive-oil+parsley+shrimp only) -- essentially complementary, not overlapping, composition; new open item added."
+    },
+    {
+      "item": "Composition/sauce-family conflict found: boscaiola-pizzadb-p12 vs. existing 'boscaiola' candidate",
+      "resolution": "The existing candidate is mozzarella+mushroom+sausage+tomato-sauce. PIZZA DB's row uses porcini (a specific mushroom variety, not generic) plus olive-oil, and -- most notably -- tags sauceFamily as チーズ (cheese), not トマトソース (tomato-sauce), a sauce-family-level conflict. Recorded as new evidence only, not merged. New open item."
+    },
+    {
+      "item": "Composition variant found: pesto-genovese-pizza-pizzadb-p11 vs. the SHIPPED 'genovese' recipe",
+      "resolution": "The shipped 'genovese' is cherry-tomato+mozzarella+pesto (pesto is the game's own distinct ingredient id, separate from basil). PIZZA DB's row instead lists potato+pine-nuts, no cherry-tomato, and uses バジル only as its sauceFamily tag (not as a 'pesto' ingredient). Naming-adjacent, not merged or used to change the shipped recipe. New open item."
+    },
+    {
+      "item": "New dough-composition sub-axis: cookie dough, per the trigger comment's explicit instruction to keep it as a mechanic candidate",
+      "resolution": "fruit-dessert-pizza-pizzadb-p11's explicit cookie-dough base is a fourth distinct dough-composition sub-axis (alongside cauliflower-crust's vegetable material, pinsa-romana's grain blend, and fathead-pizza-keto's cheese+nut-flour) -- a dessert-oriented sweet dough. Not merged into any existing mechanic family."
+    },
+    {
+      "item": "Ingredient canonicalization: 49 names across this batch, zero new table entries needed",
+      "resolution": "All 49 ingredient names named across this Phase's 24 relayed rows classified deterministically with zero needs_review using the EXISTING tables (including previously-registered ids like kiwi/blueberry/squid/mussel/almond/aji-amarillo/sauerkraut/burrata and likely_alias entries like cheddar/gorgonzola/porcini/cilantro) -- no canonicalizer changes required this Phase, the second consecutive Phase (after Phase 0B.11) where the accumulated canonical set fully covered a new 24-row batch without any table extension."
+    }
+  ],
+  "partiallyAddressedInPhase0B13": [
+    {
+      "item": "Recipe row evidence beyond Phase 0B.12's 145, recovering the inaccessible pages 13-15 gap via individual profile pages instead of pagination",
+      "resolution": "7 new unique rows ingested from a direct ingredient-tag-page -> individual-profile-page batch (8 rows relayed: natto-pizza, peking-duck-pizza, mentaiko-mochi-pizza, manakish, yuzu-shrimp-pizza, wasabi-beef-pizza, sichuan-eggplant-pizza, plus a re-fetch of うなぎピザ) -- 152/172 evidenced (88.4%). うなぎピザ (eel-pizza-pizzadb-p1) confirmed as an automatic exact-nameJa match with an identical ingredient set to the existing Phase 0B.7 evidence, recorded as a corroboration, not double-counted. 20 still pending; NOT resolved, only advanced. individual_profile_page-origin rows now total 14 (was 7), doubling the session's deepest-evidence-tier coverage."
+    },
+    {
+      "item": "3 new late/post-bake topping mechanic findings, reinforcing the existing postBakeFinishing family with independently-sourced evidence",
+      "resolution": "natto-pizza's profile text states natto is added a few minutes before the bake finishes (mid-bake timing, distinct from a fully-post-bake addition); wasabi-beef-pizza's profile text EXPLICITLY states wasabi is added after the bake finishes (clean post-bake finishing, the cleanest single-source confirmation of this mechanic family yet); the re-fetched うなぎピザ corroboration also carried a new detail that eel is added at finishing. All three recorded as evidence/notes, no mechanic implemented or changed."
+    },
+    {
+      "item": "New flatbread-family mechanic axis: manakish's soft pita-like dough",
+      "resolution": "A third distinct flatbread-family dough, alongside piadina-romagnola's unleavened cracker-thin flatbread (Phase 0B.10) and focaccia-genovese's thick olive-oil flatbread (Phase 0B.11) -- this one is a soft, pita-like texture, distinct from both. Not merged into either."
+    },
+    {
+      "item": "Source-data inconsistency preserved, not normalized: manakish's sauceFamily",
+      "resolution": "PIZZA DB's own profile page header tags manakish's sauceFamily as 'オイル' (oil) while the same page's own Q&A prose describes it as 'ノンソース' (no sauce) -- a genuine internal contradiction in the source data itself. Recorded using the header's オイル value per the trigger comment's explicit instruction, with the contradiction flagged as an open item rather than silently resolved in either direction."
+    },
+    {
+      "item": "Ingredient canonicalization: 24 names across this batch, zero new table entries needed",
+      "resolution": "All 24 ingredient names named across this Phase's 8 relayed rows (natto, peking-duck, sweet-bean-sauce, mentaiko, mochi, zaatar, halloumi, yuzu-kosho, wasabi, soy-sauce, doubanjiang, all previously-registered genuinely_new ids; plus 大葉->shiso likely_alias and 海苔 exact via the existing ORTHOGRAPHIC_EQUIVALENTS entry) classified deterministically with zero needs_review using the EXISTING tables -- third consecutive Phase (after 0B.11, 0B.12) where the accumulated canonical set fully covered a new batch without any table extension."
+    }
+  ],
+  "partiallyAddressedInPhase0B14": [
+    {
+      "item": "Recipe row evidence beyond Phase 0B.13's 152, continuing individual-profile recovery of rare-ingredient dishes",
+      "resolution": "1 new unique row ingested (yakiniku-pizza) -- 153/172 evidenced (89.0%). 4 of the 5 relayed rows turned out to be deep-profile re-confirmations of already-evidenced comparison-table rows (mentaiko-cream-pizza-pizzadb-p4/たらこクリームピザ, kimchi-pizza-pizzadb-p2/キムチピザ, thai-chicken-pizza-pizzadb-p4/タイチキンピザ, smore-dessert-pizza-pizzadb-p4/スモアデザートピザ), each independently verified by exact ingredient-set match before accepting -- correctly anticipated by the trigger comment's own explicit warning ('Some of these names likely appeared in earlier comparison-page batches'). All 4 recorded as automatic corroborations with their new profile-only mechanic details folded into the notes, not double-counted. 19 still pending; NOT resolved, only advanced. individual_profile_page-origin rows now total 15 (was 14)."
+    },
+    {
+      "item": "New timing/mechanic details captured on 4 corroborated rows, without inflating unique-row counts",
+      "resolution": "たらこクリームピザ: tarako added in the final few minutes (late-topping/timing, same class as Phase 0B.13's natto/unagi findings). キムチピザ: kimchi drained/lightly stir-fried before topping (pre-cook/prep evidence candidate, recorded as evidence only per the trigger's explicit instruction not to prematurely create a mechanic). タイチキンピザ: peanut sauce spread before baking (base-sauce application detail, consistent with its existing sauceFamily). スモアデザートピザ: TWO distinct timings on one dish -- marshmallow added just before baking, crushed graham cracker added as a post-bake finish -- the most granular timing+finishing finding yet."
+    },
+    {
+      "item": "New pre-cook/prep mechanic-evidence category: yakiniku-pizza's stir-fried meat",
+      "resolution": "yakiniku-pizza's profile states the beef is lightly seasoned and stir-fried BEFORE topping -- a genuinely new pre-cook/prep evidence category, distinct from both the late-topping (during bake) and post-bake-finishing (after bake) families, since this preparation happens BEFORE the bake even starts. Recorded as evidence only, per the trigger comment's explicit instruction not to prematurely expand gameplay from a single data point -- same treatment as キムチピザ's kimchi-prep finding this Phase."
+    },
+    {
+      "item": "Ingredient canonicalization: 5 names across this batch, zero new table entries needed",
+      "resolution": "All 5 ingredient names in yakiniku-pizza (beef, yakiniku-sauce, onion, mozzarella, white-sesame) classified deterministically with zero needs_review using the EXISTING tables -- fourth consecutive Phase (after 0B.11, 0B.12, 0B.13) where the accumulated canonical set fully covered a new batch without any table extension."
+    }
+  ],
+  "partiallyAddressedInPhase0B15": [
+    {
+      "item": "Recipe row evidence beyond Phase 0B.14's 153, using a newly-172-sized EN index as a candidate/difference locator",
+      "resolution": "1 new unique row ingested (pizza-de-lomo-saltado) via a DIRECTLY-FETCHED Japanese profile page -- 154/172 evidenced (89.5%). 3 further EN-only candidates (Black Truffle, Hokkaido Cheese, Lahmacun) were deliberately NOT ingested into the counted ledger -- per the trigger comment's own explicit instruction not to silently treat EN/JA size parity as proof of per-item identity, and the standing population_tag_no_en160_leak invariant, these remain tracked separately (see en172UnconfirmedCandidatesPhase0B15) pending Japanese-side confirmation. 1 further EN-sourced match ('Egg Pizza' vs. the already-evidenced breakfast-pizza-pizzadb-p11) was recorded as a manual corroboration only, provenance kept explicit as EN, not counted as new. 18 still pending; NOT resolved, only advanced. individual_profile_page-origin rows now total 16 (was 15)."
+    },
+    {
+      "item": "PIZZA DB's English index size changed from 160 to 172 -- recorded as a genuine size-history fact, NOT treated as membership equivalence",
+      "resolution": "populations.en-160 updated with claimedTotal=172 and a sizeHistory array documenting the observed change (160 at Phase 0B/0B.1, 172 as of this Phase's Fresh relay). usableForJa172Completeness and isCanonicalPopulationForIssue182 both remain explicitly false, unchanged -- the invariant script's population_tag_no_en160_leak check still passes on the unchanged key name and both flags. The size coincidence is explicitly flagged as NOT sufficient evidence of per-item ja/en correspondence -- concretely demonstrated by the 3 unconfirmed candidates this same Phase, which are en-sourced-only and NOT counted toward ja-172 despite the index now matching ja-172's total size."
+    },
+    {
+      "item": "Two new pre-cook + late-topping mechanic-evidence findings on one dish: pizza-de-lomo-saltado",
+      "resolution": "The directly-fetched Japanese profile states (1) beef and vegetables are stir-fried first (pre-cook/prep, same category as Phase 0B.14's yakiniku-pizza) and (2) the fries are added just before the bake finishes (late-topping/timing, same category as Phase 0B.13/0B.14's natto/unagi/tarako findings). Both recorded as evidence only, no mechanic implemented."
+    },
+    {
+      "item": "Ingredient canonicalization: 5 names for pizza-de-lomo-saltado, zero new table entries needed",
+      "resolution": "All 5 ingredient names (beef, onion, fresh-tomato, french-fries, mozzarella) classified deterministically with zero needs_review using the EXISTING tables -- fifth consecutive Phase (after 0B.11 through 0B.14) where the accumulated canonical set fully covered a new batch without any table extension."
+    }
+  ],
+  "en172UnconfirmedCandidatesPhase0B15": {
+    "schemaNote": "Candidates sourced ONLY from PIZZA DB's English-language profile index, relayed in the Phase 0B.15 trigger comment. Deliberately excluded from recipeRowEvidence.evidencedCount and from the counted ledger (docs/reports/data/TETO_PROGRESS2_PHASE0B4_recipe-row-evidence.json's individualProfilePageRows array) -- per the trigger comment's own explicit instruction and the standing population_tag_no_en160_leak invariant, EN-sourced-only evidence must never be used to mark a ja-172 gap as filled. Each entry below stays here, unconverted, until a directly-fetched Japanese-language profile page (or an exact ingredient-set match against an already-evidenced ja-172 row) confirms it as real ja-172 population evidence. Status as of Phase 0B.18: ALL 3 of 3 RESOLVED (Lahmacun in Phase 0B.16, Black Truffle and Hokkaido Cheese in Phase 0B.18 via comparison-table pages 14/15) -- see each entry's own resolvedInPhase0B16/resolvedInPhase0B18 field.",
+    "candidates": [
+      {
+        "nameEn": "Black Truffle Pizza",
+        "sourceUrl": "https://pizzadb.jp/en/pizzas/black-truffle/",
+        "origin": "Italy / Umbria and Piedmont",
+        "doughStyle": "Neapolitan pizza dough",
+        "sauceFamily": "White sauce",
+        "ingredientsEn": [
+          "truffle",
+          "mozzarella",
+          "Parmigiano Reggiano"
+        ],
+        "mechanicNote": "Profile states the dish is finished with black-truffle shavings -- a post-bake/finish mechanic evidence candidate, same category as the existing postBakeFinishing family. Not implemented, evidence only.",
+        "blocker": "EN-only. No Japanese-language profile page fetched for this dish. Not found by id/name in the counted 154-row ja-172 ledger during direct comparison.",
+        "resolvedInPhase0B18": "Japanese-side confirmation obtained via comparison-table page 14: nameJa 黒トリュフピザ, ingredients トリュフ,モッツァレラ,パルミジャーノ (identical dish concept to the EN profile, matches the existing 'al-tartufo' catalog candidate's dish identity though with a different specific cheese composition -- see the new composition-variant open item). Ingested as id 'black-truffle-pizza-pizzadb-p14' -- contributed to reaching 172/172. This candidate entry is left in place as the audit record; it no longer counts toward the 'unconfirmed' total."
+      },
+      {
+        "nameEn": "Hokkaido Cheese Pizza",
+        "sourceUrl": "https://pizzadb.jp/en/pizzas/hokkaido-cheese/",
+        "origin": "Japan / Hokkaido",
+        "doughStyle": "Thin crust",
+        "sauceFamily": "White sauce",
+        "ingredientsEn": [
+          "Cheese",
+          "potatoes",
+          "corn",
+          "bacon"
+        ],
+        "mechanicNote": "Profile states potatoes are sliced thin and parboiled first -- a pre-cook/prep evidence candidate, same category as yakiniku-pizza (Phase 0B.14) and pizza-de-lomo-saltado (this Phase). Not implemented, evidence only.",
+        "blocker": "EN-only. No Japanese-language profile page fetched for this dish, despite its own Japan/Hokkaido origin -- worth a targeted future Japanese-side search given that origin. Not found by name in the counted 154-row ja-172 ledger.",
+        "resolvedInPhase0B18": "Japanese-side confirmation obtained via comparison-table page 15: nameJa 北海道チーズピザ, ingredients チーズ,じゃがいも,コーン,ベーコン (identical dish concept and ingredient set to the EN profile). Ingested as id 'hokkaido-cheese-pizza-pizzadb-p15' -- contributed to reaching 172/172. This candidate entry is left in place as the audit record; it no longer counts toward the 'unconfirmed' total."
+      },
+      {
+        "nameEn": "Lahmacun",
+        "sourceUrl": "https://pizzadb.jp/en/pizzas/lahmacun/",
+        "origin": "Turkey / Various regions",
+        "doughStyle": "Ultra-thin, crispy flatbread",
+        "sauceFamily": "Tomato",
+        "ingredientsEn": [
+          "ground meat",
+          "tomato",
+          "bell pepper",
+          "parsley",
+          "chili"
+        ],
+        "mechanicNote": "Profile describes a spiced ground-meat paste spread over ultra-thin dough, with lemon/fresh vegetables added after baking and the dish rolled for eating -- a flatbread + base-spread + post-bake-finish + roll-to-eat identity evidence candidate, potentially a new mechanic axis (eating-preparation, not just baking) distinct from every prior finding. Not implemented, evidence only.",
+        "blocker": "EN-only. No Japanese-language profile page fetched for this dish. Not found by name in the counted 154-row ja-172 ledger.",
+        "resolvedInPhase0B16": "Japanese-side confirmation obtained: nameJa ラフマジュン, directly-fetched profile https://pizzadb.jp/pizzas/lahmacun/, also cross-listed on the Japanese ingredient-tag page /toppings/ground-meat/ (one of 6 ひき肉-tagged pizzas). Ingested into recipeRowEvidence as id 'lahmacun' -- 154 -> 155/172. This candidate entry is left in place as the audit record of how it moved from EN-only to genuine ja-172 evidence; it no longer counts toward the 'unconfirmed' total."
+      }
+    ]
+  },
+  "partiallyAddressedInPhase0B16": [
+    {
+      "item": "Japanese-side confirmation of 1 of Phase 0B.15's 3 EN-only candidates: Lahmacun",
+      "resolution": "Fresh Japanese-side evidence obtained: nameJa ラフマジュン, directly-fetched profile https://pizzadb.jp/pizzas/lahmacun/, cross-listed on the Japanese ingredient-tag page /toppings/ground-meat/ (one of 6 ひき肉-tagged pizzas). Checked against all 154 existing rows by name -- confirmed genuinely new -- then ingested as id 'lahmacun': 154 -> 155/172 (90.1%). The en172UnconfirmedCandidatesPhase0B15 entry is left in place with a new resolvedInPhase0B16 field documenting the conversion from EN-only candidate to genuine ja-172 evidence, rather than being deleted -- preserves the audit trail of how the size-parity discipline from Phase 0B.15 played out in practice. 2 of the original 3 candidates (Black Truffle, Hokkaido Cheese) remain unconfirmed. 17 recipe rows still pending; NOT resolved, only advanced."
+    },
+    {
+      "item": "Mechanic/identity evidence preserved without inventing gameplay or canonical ingredients",
+      "resolution": "Lahmacun confirms a FOURTH distinct flatbread-family dough (ultra-thin, crispy), alongside piadina-romagnola (unleavened, Phase 0B.10), focaccia-genovese (thick olive-oil, Phase 0B.11), and manakish (soft pita-like, Phase 0B.13) -- all four kept distinct, none merged. Additional evidence preserved as notes only, per the trigger's explicit instruction: the ground-meat paste is spread over the dough before baking; lemon is squeezed on AFTER baking and the dish is eaten rolled with fresh vegetables. Lemon/fresh vegetables were explicitly NOT added to the canonical ingredient list -- the source's own published topping list is exactly the 5 ingredients recorded (ground-meat, tomato, bell-pepper, parsley, chili), and the finishing/serving text is mechanic/context evidence only, matching the trigger's own explicit caution."
+    },
+    {
+      "item": "Ingredient canonicalization: 5 names for lahmacun, zero new table entries needed",
+      "resolution": "All 5 ingredient names (ひき肉/ground-meat -- already ambiguous, ground-beef group; トマト/fresh-tomato; パプリカ/bell-pepper; パセリ/parsley; 唐辛子/chili -- already ambiguous, chili-oil group) classified deterministically with zero needs_review using the EXISTING tables -- sixth consecutive Phase (0B.11 through 0B.15) where the accumulated canonical set fully covered a new batch without any table extension."
+    },
+    {
+      "item": "Re-confirmed EN evidence still cannot leak into ja-172 coverage, per the trigger's explicit re-check request",
+      "resolution": "tools/progression2_evidence_invariants.py's population_tag_no_en160_leak invariant re-run and still PASSES after this Phase's changes -- the populations.en-160 entry (claimedTotal now 172, per Phase 0B.15) keeps usableForJa172Completeness and isCanonicalPopulationForIssue182 both explicitly false, unchanged. Lahmacun's new evidencedCount increment is traced entirely to its Japanese-language profile fetch, not its earlier EN-only sighting."
+    }
+  ],
+  "partiallyAddressedInPhase0B17": [
+    {
+      "item": "FINAL BULK RECOVERY attempt -- blocked by this session's own EGRESS_BLOCKED status, transparently reported rather than fabricated",
+      "resolution": "The trigger's bulk algorithm (step 3: use Japanese PIZZA DB topping/tag/profile pages as a reverse index, fetching and comparing discovered profiles) requires active browsing/fetching of pizzadb.jp, which this session cannot perform -- EGRESS_BLOCKED, re-verified this Phase and unchanged since Phase 0B. Unlike every prior trigger comment (0B through 0B.16), this Phase's trigger did not itself relay any new PIZZA DB row content -- only a search strategy and a list of candidate ingredient names as hints. Per the standing never-invent/never-guess-fill discipline, no search results were fabricated and no pages were simulated as fetched. Coverage is UNCHANGED this Phase: still 155/172, 0 new rows, 0 corroborations. 17 recipe rows remain completely unevidenced (their names/content are unknown to this session), and 2 EN-only candidates (Black Truffle, Hokkaido Cheese) remain unconfirmed."
+    },
+    {
+      "item": "Completion artifact requirement fulfilled in full",
+      "resolution": "Two new consolidated master artifacts created, per the trigger's explicit requirement: docs/reports/data/TETO_PIZZADB_172_MASTER-EVIDENCE.json (machine-readable index of all 155 evidenced rows, plus population/coverage/mechanic/conflict/EN-candidate summaries, built programmatically from the existing per-phase ledgers -- no new content invented) and docs/reports/TETO_PIZZADB_172_MASTER-REPORT.md (narrative summary: coverage, the Phase 0B.17 blocker, the 17-row gap, the 2 EN-only candidates, ~22 distinct mechanic/identity findings across 17 phases, 9 composition conflicts, 7 naming-ambiguity clusters, 2 preserved evidence gaps, 1 preserved source-data inconsistency, and design implications). Both artifacts consolidate, not replace, the existing per-phase ledgers -- docs/reports/data/TETO_PROGRESS2_PHASE0B4_recipe-row-evidence.json and this file remain the authoritative per-row source of truth."
+    }
+  ],
+  "thisSessionsOwnFetchStatus": {
+    "lastCheckedThisPhase": "2026-09-22 (Phase 0B.18)",
+    "result": "EGRESS_BLOCKED",
+    "domainsTested": [
+      "pizzadb.jp",
+      "pizzadb.jp/pizzas/margherita/",
+      "pizzadb.jp/pizzas/bianca/",
+      "pizzadb.jp/compare/world-pizzas/page/4/",
+      "pizzadb.jp/compare/world-pizzas/",
+      "pizzadb.jp/compare/world-pizzas/page/2/",
+      "pizzadb.jp/compare/world-pizzas/page/5/",
+      "pizzadb.jp/compare/world-pizzas/page/7/",
+      "pizzadb.jp/compare/world-pizzas/page/9/",
+      "pizzadb.jp/compare/world-pizzas/page/11/",
+      "pizzadb.jp/compare/world-pizzas/page/13/",
+      "pizzadb.jp/pizzas/unagi-pizza/",
+      "pizzadb.jp/pizzas/tarako-cream/",
+      "pizzadb.jp/pizzas/pizza-de-lomo-saltado/",
+      "pizzadb.jp/pizzas/lahmacun/",
+      "pizzadb.jp/toppings/truffle/"
+    ],
+    "note": "No new external fetch was attempted or claimed successful in Phase 0B.7 through 0B.18. This ledger only organizes evidence already relayed in prior PR #183 comments -- the 'individual_profile_page'/'comparison_table_sample' evidenceOrigin fields in TETO_PROGRESS2_PHASE0B4_recipe-row-evidence.json describe the RELAYING agent's fetch method, not this session's own verification depth. `WebFetch https://pizzadb.jp/compare/world-pizzas/page/13/` attempted this turn (the page the Phase 0B.18 trigger's 28 rows were relayed from): EGRESS_BLOCKED, unchanged -- this session still cannot independently verify pages 13-15 itself; the 172/172 figure rests entirely on the repository owner's own externally-relayed row content, cross-checked deterministically against all prior evidence, never invented."
+  },
+  "partiallyAddressedInPhase0B18": [
+    {
+      "item": "Bulk-processed pages 13-15 (28 relayed rows) -- 172/172 (100%) ja-172 recipe-row evidence coverage reached",
+      "resolution": "Ran tools/progression2_recipe_row_ingest.py --input against the Phase 0B.18 trigger's 28 relayed rows (comparison-table pages 13-15). Result: 17 genuinely new unique rows ingested, 11 automatic exact-nameJa-match corroborations of already-evidenced rows (manakish, margherita, lahmacun, pizza-de-lomo-saltado, wasabi-beef-pizza, sichuan-eggplant-pizza, yakiniku-pizza, natto-pizza, peking-duck-pizza, mentaiko-mochi-pizza, yuzu-shrimp-pizza). uniqueRecipeRowsEvidencedTotal went from 155 to 172 -- confirmed via --check: coveragePercent 100.0, pendingRowCount 0. This closes the entire remaining gap in a single pass; no recipe row remains unevidenced."
+    },
+    {
+      "item": "Both remaining EN-172-only candidates (Black Truffle Pizza, Hokkaido Cheese Pizza) now have confirmed Japanese-side source rows",
+      "resolution": "Page 14 relayed the Japanese profile row for Black Truffle (al-tartufo family) and page 15 relayed the Japanese profile row for Hokkaido Cheese. Both entries in en172UnconfirmedCandidatesPhase0B15.candidates updated with resolvedInPhase0B18 fields pointing at their new ja-172 row ids; schemaNote updated to 'ALL 3 of 3 RESOLVED' (Lahmacun resolved Phase 0B.16, these two resolved Phase 0B.18). No EN-only-index content was ever used to satisfy ja-172 completeness on its own -- each resolution required an actual relayed Japanese-language row, per the standing population-separation discipline enforced by tools/progression2_evidence_invariants.py's population_tag_no_en160_leak check."
+    },
+    {
+      "item": "4 new ingredient-name aliases added to tools/progression2_ingredient_canonicalizer.py's LIKELY_ALIAS_TABLE",
+      "resolution": "Pages 13-15 introduced several abbreviated (cheese-suffix-dropped) Japanese ingredient forms not seen in earlier batches: フェタ (feta), マヨ (mayo), コティーハ (cotija), グラナパダーノ (grana-padano). All 4 mapped to their existing canonical ingredient ids with a note explaining the suffix-dropped relationship to the already-registered longer nameJa forms. Self-test re-run: all 36 Phase 0B.1 names still reclassify identically after the addition -- determinism preserved."
+    },
+    {
+      "item": "5 new composition conflicts found against existing catalog entries -- preserved unresolved, not auto-corrected",
+      "resolution": "Against SHIPPED recipes: marinara (catalog: garlic+oregano+tomato-sauce) vs relayed マリナーラ (uses olive-oil, not tomato-sauce as a listed ingredient); meat-lovers (catalog: bacon+ham+mozzarella+pepperoni+sausage+tomato-sauce) vs relayed ミートラバーズピザ (adds beef, omits mozzarella). Against unshipped game_design_candidate entries: ai-funghi-porcini vs relayed porcini-pizza-pizzadb-p13, al-tartufo vs relayed black-truffle-pizza-pizzadb-p14, teriyaki-chicken vs relayed teriyaki-chicken-pizza-pizzadb-p14. All 5 recorded in the affected rows' correspondenceNote fields and in openRequestsForExternalEvidence; none auto-resolved -- resolving these requires a future, separate design decision, not this evidence-gathering phase."
+    },
+    {
+      "item": "2 new naming/ingredient-specificity gaps preserved (nduja, boerewors)",
+      "resolution": "Dish names in the pages 13-15 relay imply a specific ingredient (nduja spreadable salami, boerewors sausage) but the source's own published ingredient list for those rows only gives a generic term (ソーセージ). Per the standing never-infer-beyond-source discipline, these rows were ingested with the generic ingredient term as published, NOT relabeled to the more specific implied ingredient. Flagged in evidenceGaps for the affected rows."
+    },
+    {
+      "item": "172/172 evidence-completeness milestone reached AND full-population deadlock analysis run, per the trigger's explicit 'if 172/172, run it and report actual result' instruction",
+      "resolution": "recipeRowEvidence.status flipped to 'complete'. The Phase 0B.18 trigger explicitly said: 'If coverage reaches 172/172, run full-population deadlock analysis and report actual result.' Since coverage did reach 172/172 in this same Phase, a new tool (tools/progression2_full172_deadlock_analysis.py) was written and run, reusing the existing deterministic canonicalizer to resolve each row's ingredient set (never guessing ambiguous ones). ACTUAL RESULT: 0 deadlock states across the resolvable pool (151/172 rows -- 21 excluded because they contain an ambiguous/needs_review ingredient name, per the never-guess-fill discipline; each excluded row and its exact unresolved ingredient is listed in the output, nothing silently dropped). All 151 pool rows are reachable from the initial state in 153 greedy-purchase steps. Mechanic-gating is not modeled (ingredient-completeness only, matching tools/progression2_phase0b_analysis.py's own simplification). Full output: docs/reports/data/TETO_PROGRESS2_PHASE0B18_full172-deadlock-analysis.json. See recipeRowEvidence.fullDeadlockSimulationNote for the complete result narrative including the 5 exact-ingredient-set collision groups this analysis also surfaced. This IS a genuine simulation result -- but it is still distinct from converting the 172 rows into formal, production-ready game_design_candidate catalog entries (assigning real ids/mechanics/Pitz prices, resolving the 14 composition conflicts and 7 naming clusters) -- that remains a separate, out-of-scope design-conversion task."
+    }
+  ]
+}

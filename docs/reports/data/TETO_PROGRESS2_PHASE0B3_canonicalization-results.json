@@ -1,0 +1,1256 @@
+{
+  "schemaNote": "Phase 0B.3 canonicalization results (Issue #182 / PR #183). Output of tools/progression2_ingredient_canonicalizer.py --input TETO_PROGRESS2_PHASE0B3_longtail-raw-input.json, run against the extended tables in that script (see docs/design/TETO_PROGRESS2_INGREDIENT-CANONICALIZATION-RULES.md). Every likely_alias/ambiguous/genuinely_new entry here traces to a justified table entry in the script -- nothing here is an unexplained guess.",
+  "inputSource": "docs/reports/data/TETO_PROGRESS2_PHASE0B3_longtail-raw-input.json",
+  "totalClassified": 145,
+  "results": [
+    {
+      "disposition": "exact_alias",
+      "canonicalId": "artichoke",
+      "rule": "1_exact_nameJa_or_alias",
+      "nameJa": "アーティチョーク",
+      "count": 4,
+      "sourceNote": null
+    },
+    {
+      "disposition": "exact_alias",
+      "canonicalId": "clam",
+      "rule": "1_exact_nameJa_or_alias",
+      "nameJa": "アサリ",
+      "count": 4,
+      "sourceNote": null
+    },
+    {
+      "disposition": "exact_alias",
+      "canonicalId": "shrimp",
+      "rule": "1_exact_nameJa_or_alias",
+      "nameJa": "エビ",
+      "count": 4,
+      "sourceNote": null
+    },
+    {
+      "disposition": "exact_alias",
+      "canonicalId": "walnut",
+      "rule": "1_exact_nameJa_or_alias",
+      "nameJa": "くるみ",
+      "count": 4,
+      "sourceNote": null
+    },
+    {
+      "disposition": "exact_alias",
+      "canonicalId": "potato",
+      "rule": "1_exact_nameJa_or_alias",
+      "nameJa": "じゃがいも",
+      "count": 4,
+      "sourceNote": null
+    },
+    {
+      "disposition": "exact_alias",
+      "canonicalId": "zucchini",
+      "rule": "1_exact_nameJa_or_alias",
+      "nameJa": "ズッキーニ",
+      "count": 4,
+      "sourceNote": null
+    },
+    {
+      "disposition": "exact_alias",
+      "canonicalId": "rosemary",
+      "rule": "1_exact_nameJa_or_alias",
+      "nameJa": "ローズマリー",
+      "count": 4,
+      "sourceNote": null
+    },
+    {
+      "disposition": "exact_alias",
+      "canonicalId": "nori",
+      "rule": "1_exact_nameJa_or_alias",
+      "nameJa": "海苔",
+      "count": 4,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "capers",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "ケッパー",
+      "count": 3,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "salmon",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "サーモン",
+      "count": 3,
+      "sourceNote": null
+    },
+    {
+      "disposition": "ambiguous",
+      "canonicalId": null,
+      "relatedIds": [
+        "mozzarella"
+      ],
+      "rule": "3_curated_ambiguity_table",
+      "justification": "GENERIC 'cheese' with no specific variety named -- cannot be resolved to one canonical cheese id without more context; not defaulted to mozzarella or any other cheese.",
+      "taxonomyFlag": "generic_unspecified",
+      "nameJa": "チーズ",
+      "count": 3,
+      "sourceNote": null
+    },
+    {
+      "disposition": "exact_alias",
+      "canonicalId": "tuna",
+      "rule": "1_exact_nameJa_or_alias",
+      "nameJa": "ツナ",
+      "count": 3,
+      "sourceNote": null
+    },
+    {
+      "disposition": "exact_alias",
+      "canonicalId": "pineapple",
+      "rule": "1_exact_nameJa_or_alias",
+      "nameJa": "パイナップル",
+      "count": 3,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "feta",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "フェタチーズ",
+      "count": 3,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "burrata",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "ブラータチーズ",
+      "count": 3,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "mint",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "ミント",
+      "count": 3,
+      "sourceNote": null
+    },
+    {
+      "disposition": "exact_alias",
+      "canonicalId": "lettuce",
+      "rule": "1_exact_nameJa_or_alias",
+      "nameJa": "レタス",
+      "count": 3,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "white-sesame",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "白ごま",
+      "count": 3,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "avocado",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "アボカド",
+      "count": 2,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "catupiry",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "カトゥピリチーズ",
+      "count": 2,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "cucumber",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "きゅうり",
+      "count": 2,
+      "sourceNote": null
+    },
+    {
+      "disposition": "likely_alias",
+      "canonicalId": "gorgonzola",
+      "rule": "2_curated_synonym_table",
+      "justification": "チーズ suffix variant of existing gorgonzola's nameJa ゴルゴンゾーラ.",
+      "nameJa": "ゴルゴンゾーラチーズ",
+      "count": 2,
+      "sourceNote": null
+    },
+    {
+      "disposition": "exact_alias",
+      "canonicalId": "salami",
+      "rule": "1_exact_nameJa_or_alias",
+      "nameJa": "サラミ",
+      "count": 2,
+      "sourceNote": null
+    },
+    {
+      "disposition": "exact_alias",
+      "canonicalId": "cinnamon",
+      "rule": "1_exact_nameJa_or_alias",
+      "nameJa": "シナモン",
+      "count": 2,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "whitebait",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "しらす",
+      "count": 2,
+      "sourceNote": null
+    },
+    {
+      "disposition": "likely_alias",
+      "canonicalId": "cheddar",
+      "rule": "2_curated_synonym_table",
+      "justification": "First Japanese-name evidence for Phase 0B's already-introduced 'cheddar' id (taco-pizza-pizzadb) -- チーズ suffix variant.",
+      "nameJa": "チェダーチーズ",
+      "count": 2,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "carrot",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "にんじん",
+      "count": 2,
+      "sourceNote": null
+    },
+    {
+      "disposition": "exact_alias",
+      "canonicalId": "paprika-powder",
+      "rule": "1_exact_nameJa_or_alias",
+      "nameJa": "パプリカパウダー",
+      "count": 2,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "pickles",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "ピクルス",
+      "count": 2,
+      "sourceNote": null
+    },
+    {
+      "disposition": "exact_alias",
+      "canonicalId": "french-fries",
+      "rule": "1_exact_nameJa_or_alias",
+      "nameJa": "フライドポテト",
+      "count": 2,
+      "sourceNote": null
+    },
+    {
+      "disposition": "exact_alias",
+      "canonicalId": "blue-cheese-dressing",
+      "rule": "1_exact_nameJa_or_alias",
+      "nameJa": "ブルーチーズドレッシング",
+      "count": 2,
+      "sourceNote": null
+    },
+    {
+      "disposition": "likely_alias",
+      "canonicalId": "porcini",
+      "rule": "2_curated_synonym_table",
+      "justification": "茸(mushroom) suffix variant of existing porcini's nameJa ポルチーニ.",
+      "nameJa": "ポルチーニ茸",
+      "count": 2,
+      "sourceNote": null
+    },
+    {
+      "disposition": "ambiguous",
+      "canonicalId": null,
+      "relatedIds": [
+        "fromage-blanc-sauce"
+      ],
+      "rule": "3_curated_ambiguity_table",
+      "justification": "GENERIC 'white sauce' -- may or may not be the same as the specific fromage-blanc-sauce Phase 0B introduced for flammkuchen; not merged without confirmation.",
+      "taxonomyFlag": "sauce_not_topping",
+      "nameJa": "ホワイトソース",
+      "count": 2,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "mussel",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "ムール貝",
+      "count": 2,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "palm-heart",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "ヤシの新芽",
+      "count": 2,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "lamb",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "ラム肉",
+      "count": 2,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "pine-nuts",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "松の実",
+      "count": 2,
+      "sourceNote": null
+    },
+    {
+      "disposition": "exact_alias",
+      "canonicalId": "bbq-sauce",
+      "rule": "1_exact_nameJa_or_alias",
+      "nameJa": "BBQソース",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "almond",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "アーモンド",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "asparagus",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "アスパラガス",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "aji-amarillo",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "アヒアマリージョ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "squid",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "イカ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "salmon-roe",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "いくら",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "exact_alias",
+      "canonicalId": "strawberry",
+      "rule": "1_exact_nameJa_or_alias",
+      "nameJa": "イチゴ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "sardine",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "イワシ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "eel",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "うなぎ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "okra",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "オクラ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "orange",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "オレンジ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "excluded_non_ingredient",
+      "canonicalId": null,
+      "rule": "0_excluded_non_ingredient",
+      "justification": "Generic placeholder phrase ('toppings of your choice'), not a specific real-world ingredient -- excluded from the canonical ingredient universe entirely.",
+      "nameJa": "お好みの具材",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "okonomiyaki-sauce",
+      "rule": "4_confirmed_new_registry",
+      "taxonomyFlag": "sauce_not_topping",
+      "nameJa": "お好み焼きソース",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "cashew-cheese",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "カシューナッツチーズ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "likely_alias",
+      "canonicalId": "caciocavallo",
+      "rule": "2_curated_synonym_table",
+      "justification": "Suffix (チーズ) + small-tsu transliteration variant of existing caciocavallo's nameJa カチョカヴァロ.",
+      "nameJa": "カチョカヴァッロチーズ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "bonito-flakes",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "かつお節",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "cauliflower",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "カリフラワー",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "likely_alias",
+      "canonicalId": "curry-ketchup",
+      "rule": "2_curated_synonym_table",
+      "justification": "ソース suffix variant of Phase 0B's curry-ketchup (currywurst-pizzadb).",
+      "taxonomyFlag": "sauce_not_topping",
+      "nameJa": "カレーケチャップソース",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "ambiguous",
+      "canonicalId": null,
+      "relatedIds": [
+        "curry-ketchup"
+      ],
+      "rule": "3_curated_ambiguity_table",
+      "justification": "A more generic curry sauce than the specific curry-ketchup Phase 0B introduced for currywurst -- not merged.",
+      "taxonomyFlag": "sauce_not_topping",
+      "nameJa": "カレーソース",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "kiwi",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "キウイ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "kimchi",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "キムチ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "cabbage",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "キャベツ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "cumin",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "クミン",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "grana-padano",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "グラナパダーノチーズ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "graham-cracker",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "グラハムクラッカー",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "gravy-sauce",
+      "rule": "4_confirmed_new_registry",
+      "taxonomyFlag": "sauce_not_topping",
+      "nameJa": "グレイビーソース",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "kebab-sauce",
+      "rule": "4_confirmed_new_registry",
+      "taxonomyFlag": "sauce_not_topping",
+      "nameJa": "ケバブソース",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "cotija",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "コティーハチーズ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "condensed-milk",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "コンデンスミルク",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "zaatar",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "ザアタル",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "pomegranate",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "ザクロ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "sweet-potato",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "さつまいも",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "likely_alias",
+      "canonicalId": "spicy-salami",
+      "rule": "2_curated_synonym_table",
+      "justification": "Italian 'piccante' (spicy) -- matches existing spicy-salami (used by diavola), distinct from plain サラミ/salami.",
+      "nameJa": "サラミピカンテ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "likely_alias",
+      "canonicalId": "salsa",
+      "rule": "2_curated_synonym_table",
+      "justification": "ソース suffix variant of Phase 0B's salsa (taco-pizza-pizzadb).",
+      "taxonomyFlag": "sauce_not_topping",
+      "nameJa": "サルサソース",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "sauerkraut",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "ザワークラウト",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "sour-cream",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "サワークリーム",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "swiss-cheese",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "スイスチーズ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "ambiguous",
+      "canonicalId": null,
+      "relatedIds": [
+        "sausage"
+      ],
+      "rule": "3_curated_ambiguity_table",
+      "justification": "A spicier variant of existing sausage -- not confirmed to be the same game ingredient.",
+      "nameJa": "スパイシーソーセージ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "celery",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "セロリ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "tahini",
+      "rule": "4_confirmed_new_registry",
+      "taxonomyFlag": "sauce_or_condiment",
+      "nameJa": "タヒニ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "exact_alias",
+      "canonicalId": "salt-cod",
+      "rule": "1_exact_nameJa_or_alias",
+      "nameJa": "タラ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "cod-roe",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "たらこ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "cheese-curd",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "チーズカード",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "ambiguous",
+      "canonicalId": null,
+      "relatedIds": [
+        "mozzarella"
+      ],
+      "rule": "3_curated_ambiguity_table",
+      "justification": "TAXONOMY: this is a SAUCE (cheese sauce), not a scatter topping -- flagged, not merged into any cheese topping id.",
+      "taxonomyFlag": "sauce_not_topping",
+      "nameJa": "チーズソース",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "chicken-tikka",
+      "rule": "4_confirmed_new_registry",
+      "taxonomyFlag": "prepared_dish_composite",
+      "nameJa": "チキンティッカ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "chicory",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "チコリ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "chutney",
+      "rule": "4_confirmed_new_registry",
+      "taxonomyFlag": "sauce_or_condiment",
+      "nameJa": "チャツネ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "chocolate",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "チョコレート",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "chili-powder",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "チリパウダー",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "exact_alias",
+      "canonicalId": "truffle",
+      "rule": "1_exact_nameJa_or_alias",
+      "nameJa": "トリュフ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "exact_alias",
+      "canonicalId": "tortilla-chips",
+      "rule": "1_exact_nameJa_or_alias",
+      "nameJa": "トルティーヤチップス",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "ambiguous",
+      "canonicalId": null,
+      "relatedIds": [
+        "walnut"
+      ],
+      "rule": "3_curated_ambiguity_table",
+      "justification": "GENERIC 'nuts' with no specific variety named.",
+      "taxonomyFlag": "generic_unspecified",
+      "nameJa": "ナッツ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "exact_alias",
+      "canonicalId": "buffalo-sauce",
+      "rule": "1_exact_nameJa_or_alias",
+      "nameJa": "バッファローソース",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "banana",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "バナナ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "paneer",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "パニール",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "jalapeno",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "ハラペーニョ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "balsamic-vinegar",
+      "rule": "4_confirmed_new_registry",
+      "taxonomyFlag": "sauce_or_condiment",
+      "nameJa": "バルサミコ酢",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "halloumi",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "ハロウミチーズ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "peanut-sauce",
+      "rule": "4_confirmed_new_registry",
+      "taxonomyFlag": "sauce_not_topping",
+      "nameJa": "ピーナッツソース",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "sunflower-seeds",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "ひまわりの種",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "fennel",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "フェンネル",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "likely_alias",
+      "canonicalId": "fontina",
+      "rule": "2_curated_synonym_table",
+      "justification": "チーズ suffix variant of existing fontina's nameJa フォンティーナ.",
+      "nameJa": "フォンティーナチーズ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "friarielli",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "フリアリエッリ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "exact_alias",
+      "canonicalId": "brie",
+      "rule": "1_exact_nameJa_or_alias",
+      "nameJa": "ブリーチーズ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "brick-cheese",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "ブリックチーズ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "blueberry",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "ブルーベリー",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "ambiguous",
+      "canonicalId": null,
+      "relatedIds": [
+        "provolone"
+      ],
+      "rule": "3_curated_ambiguity_table",
+      "justification": "'Provel' is a real, distinct St. Louis-style cheese blend, commonly confused with provolone by name similarity -- explicitly NOT the same cheese, kept separate.",
+      "nameJa": "プロヴェルチーズ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "exact_alias",
+      "canonicalId": "fromage-blanc-sauce",
+      "rule": "1_exact_nameJa_or_alias",
+      "nameJa": "フロマージュブラン",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "puntarelle",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "プンタレッレ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "baked-beans",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "ベイクドビーンズ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "likely_alias",
+      "canonicalId": "nutella-spread",
+      "rule": "2_curated_synonym_table",
+      "justification": "Word-order variant of existing nutella-spread's nameJa チョコヘーゼルナッツソース -- same chocolate-hazelnut spread concept.",
+      "nameJa": "ヘーゼルナッツチョコレートスプレッド",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "pecorino",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "ペコリーノチーズ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "spinach",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "ほうれん草",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "hot-dog",
+      "rule": "4_confirmed_new_registry",
+      "taxonomyFlag": "prepared_dish_composite",
+      "nameJa": "ホットドッグ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "marshmallow",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "マシュマロ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "mustard",
+      "rule": "4_confirmed_new_registry",
+      "taxonomyFlag": "sauce_or_condiment",
+      "nameJa": "マスタード",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "mochi",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "もち",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "goat-cheese",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "ヤギのチーズ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "yogurt-sauce",
+      "rule": "4_confirmed_new_registry",
+      "taxonomyFlag": "sauce_not_topping",
+      "nameJa": "ヨーグルトソース",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "lime",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "ライム",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "radicchio",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "ラディッキオ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "likely_alias",
+      "canonicalId": "ricotta-salata",
+      "rule": "2_curated_synonym_table",
+      "justification": "チーズ suffix variant of existing ricotta-salata's nameJa リコッタサラータ.",
+      "nameJa": "リコッタサラータチーズ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "exact_alias",
+      "canonicalId": "apple",
+      "rule": "1_exact_nameJa_or_alias",
+      "nameJa": "りんご",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "liver-pate",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "レバーパテ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "wasabi",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "わさび",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "likely_alias",
+      "canonicalId": "tomato-sauce",
+      "rule": "2_curated_synonym_table",
+      "justification": "A sweeter variant of the same base tomato-sauce, not treated as a structurally distinct sauce family.",
+      "nameJa": "甘めのトマトソース",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "rock-salt",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "岩塩",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "likely_alias",
+      "canonicalId": "chicken",
+      "rule": "2_curated_synonym_table",
+      "justification": "Japanese native word for chicken meat vs. existing loanword チキン -- same ingredient, different common name.",
+      "nameJa": "鶏肉",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "sansho-pepper",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "山椒",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "red-cabbage",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "紫キャベツ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "yakiniku-sauce",
+      "rule": "4_confirmed_new_registry",
+      "taxonomyFlag": "sauce_not_topping",
+      "nameJa": "焼肉のタレ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "soy-sauce",
+      "rule": "4_confirmed_new_registry",
+      "taxonomyFlag": "sauce_not_topping",
+      "nameJa": "醤油ソース",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "fresh-cream-sauce",
+      "rule": "4_confirmed_new_registry",
+      "taxonomyFlag": "sauce_not_topping",
+      "nameJa": "生クリームソース",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "ambiguous",
+      "canonicalId": null,
+      "relatedIds": [
+        "nori"
+      ],
+      "rule": "3_curated_ambiguity_table",
+      "justification": "Aonori is a related but visually/culinarily distinct seaweed condiment from plain nori -- not merged.",
+      "nameJa": "青のり",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "ambiguous",
+      "canonicalId": null,
+      "relatedIds": [
+        "chili-oil"
+      ],
+      "rule": "3_curated_ambiguity_table",
+      "justification": "Green chili variant -- part of the existing chili/chili-oil naming-ambiguity group (see also 'チリ' above), kept distinct.",
+      "nameJa": "青唐辛子",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "ambiguous",
+      "canonicalId": null,
+      "relatedIds": [
+        "chili-oil"
+      ],
+      "rule": "3_curated_ambiguity_table",
+      "justification": "Red chili variant -- same ambiguity group as 青唐辛子.",
+      "nameJa": "赤唐辛子",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "daikon",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "大根",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "sweet-bean-sauce",
+      "rule": "4_confirmed_new_registry",
+      "taxonomyFlag": "sauce_not_topping",
+      "nameJa": "甜麺醤",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "doubanjiang",
+      "rule": "4_confirmed_new_registry",
+      "taxonomyFlag": "sauce_not_topping",
+      "nameJa": "豆板醤",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "ambiguous",
+      "canonicalId": null,
+      "relatedIds": [
+        "beef",
+        "pork",
+        "chicken",
+        "ground-beef"
+      ],
+      "rule": "3_curated_ambiguity_table",
+      "justification": "GENERIC 'meat' with no specific variety named -- not defaulted to any one meat id.",
+      "taxonomyFlag": "generic_unspecified",
+      "nameJa": "肉",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "natto",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "納豆",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "umeboshi-paste",
+      "rule": "4_confirmed_new_registry",
+      "taxonomyFlag": "false_friend_not_meat -- contains 肉 kanji but means plum FLESH, not meat; do not group with beef/pork/chicken/ground-beef.",
+      "nameJa": "梅肉",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "exact_alias",
+      "canonicalId": "powdered-sugar",
+      "rule": "1_exact_nameJa_or_alias",
+      "nameJa": "粉砂糖",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "peking-duck",
+      "rule": "4_confirmed_new_registry",
+      "taxonomyFlag": "prepared_dish_composite",
+      "nameJa": "北京ダック",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "miso-sauce",
+      "rule": "4_confirmed_new_registry",
+      "taxonomyFlag": "sauce_not_topping",
+      "nameJa": "味噌だれ",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "mentaiko",
+      "rule": "4_confirmed_new_registry",
+      "nameJa": "明太子",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "yuzu-kosho",
+      "rule": "4_confirmed_new_registry",
+      "taxonomyFlag": "sauce_or_condiment",
+      "nameJa": "柚子胡椒",
+      "count": 1,
+      "sourceNote": null
+    },
+    {
+      "disposition": "genuinely_new",
+      "canonicalId": "melted-butter",
+      "rule": "4_confirmed_new_registry",
+      "taxonomyFlag": "sauce_or_condiment",
+      "nameJa": "溶かしバター",
+      "count": 1,
+      "sourceNote": null
+    }
+  ]
+}

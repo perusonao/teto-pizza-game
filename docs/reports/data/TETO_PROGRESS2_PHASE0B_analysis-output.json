@@ -1,0 +1,1115 @@
+{
+  "generatedBy": "tools/progression2_phase0b_analysis.py",
+  "scopeWarning": "This is a PARTIAL-POOL analysis: 64 recipes (51 Phase 0A + 13 Phase 0B new candidates) out of the owner-reported 172-entry PIZZA DB total (37% coverage). NOT a full-172-population deadlock/reachability result. 108 entries remain entirely unaccounted for (pages 7-15 of the claimed pagination were not sampled in the relayed PR comment).",
+  "sampleClassification": {
+    "totalSamplesInRelayedComment": 25,
+    "confirmationsOfExistingPhase0aEntries": [
+      {
+        "sampleId": "bbq-chicken-pizzadb",
+        "existingCatalogId": "bbq-chicken"
+      },
+      {
+        "sampleId": "quattro-stagioni-pizzadb",
+        "existingCatalogId": "quattro-stagioni"
+      },
+      {
+        "sampleId": "quattro-formaggi-pizzadb",
+        "existingCatalogId": "quattro-formaggi"
+      },
+      {
+        "sampleId": "supreme-pizzadb",
+        "existingCatalogId": "supreme"
+      },
+      {
+        "sampleId": "tonno-e-cipolla-pizzadb",
+        "existingCatalogId": "tonno-e-cipolla"
+      },
+      {
+        "sampleId": "ny-style-pizzadb",
+        "existingCatalogId": "ny-style"
+      }
+    ],
+    "variantsOfExistingPhase0aEntriesNotAdded": [
+      {
+        "sampleId": "capricciosa-pizzadb",
+        "existingCatalogId": "capricciosa"
+      },
+      {
+        "sampleId": "calzone-pizzadb",
+        "existingCatalogId": "calzone"
+      },
+      {
+        "sampleId": "greek-style-pizzadb",
+        "existingCatalogId": "greek-style"
+      },
+      {
+        "sampleId": "chicago-deep-dish-pizzadb",
+        "existingCatalogId": "chicago-deep-dish"
+      },
+      {
+        "sampleId": "siciliana-pizzadb",
+        "existingCatalogId": "siciliana"
+      },
+      {
+        "sampleId": "buffalo-chicken-pizzadb",
+        "existingCatalogId": "buffalo-chicken"
+      }
+    ],
+    "genuinelyNewCandidatesAddedToPool": [
+      "apple-cinnamon-dessert-pizzadb",
+      "calabresa-argentina-pizzadb",
+      "vongole-pizzadb",
+      "aussie-pizzadb",
+      "currywurst-pizzadb",
+      "grandma-pizza-pizzadb",
+      "sfincione-pizzadb",
+      "taco-pizza-pizzadb",
+      "flammkuchen-pizzadb",
+      "chilean-napolitana-pizzadb",
+      "trenton-tomato-pie-pizzadb",
+      "new-haven-apizza-pizzadb",
+      "bacalhau-pizzadb"
+    ]
+  },
+  "combinedPool": {
+    "totalRecipes": 64,
+    "phase0aRecipes": 51,
+    "phase0bNewRecipes": 13,
+    "claimedFullPopulation": 172,
+    "coveragePercent": 37.2,
+    "canonicalIngredientCount": 77
+  },
+  "exactIngredientSetCollisions": {
+    "phase0aOnly": [
+      {
+        "ingredientSet": [
+          "mozzarella",
+          "pepperoni",
+          "tomato-sauce"
+        ],
+        "recipeIds": [
+          "detroit-style",
+          "pepperoni"
+        ]
+      },
+      {
+        "ingredientSet": [
+          "mozzarella",
+          "sausage",
+          "tomato-sauce"
+        ],
+        "recipeIds": [
+          "chicago-deep-dish",
+          "salsiccia"
+        ]
+      },
+      {
+        "ingredientSet": [
+          "mozzarella",
+          "tomato-sauce"
+        ],
+        "recipeIds": [
+          "greek-style",
+          "ny-style",
+          "stuffed-crust"
+        ]
+      }
+    ],
+    "combinedPool": [
+      {
+        "ingredientSet": [
+          "mozzarella",
+          "pepperoni",
+          "tomato-sauce"
+        ],
+        "recipeIds": [
+          "detroit-style",
+          "pepperoni"
+        ]
+      },
+      {
+        "ingredientSet": [
+          "mozzarella",
+          "sausage",
+          "tomato-sauce"
+        ],
+        "recipeIds": [
+          "chicago-deep-dish",
+          "salsiccia"
+        ]
+      },
+      {
+        "ingredientSet": [
+          "mozzarella",
+          "tomato-sauce"
+        ],
+        "recipeIds": [
+          "greek-style",
+          "ny-style",
+          "stuffed-crust",
+          "trenton-tomato-pie-pizzadb"
+        ]
+      }
+    ],
+    "note": "Each group lists recipe ids whose FULL required-ingredient set is byte-identical. These recipes cannot be distinguished by ingredient-set matching alone -- recipe identity would need to also encode mechanic/shape/dough/bake-profile/finishing-order for discovery to disambiguate them (see the Phase 0B report's own discussion)."
+  },
+  "combinedPoolRecipeReach": [
+    {
+      "ingredient": "mozzarella",
+      "recipeReach": 45
+    },
+    {
+      "ingredient": "tomato-sauce",
+      "recipeReach": 36
+    },
+    {
+      "ingredient": "olive-oil",
+      "recipeReach": 16
+    },
+    {
+      "ingredient": "onion",
+      "recipeReach": 13
+    },
+    {
+      "ingredient": "oregano",
+      "recipeReach": 10
+    },
+    {
+      "ingredient": "garlic",
+      "recipeReach": 7
+    },
+    {
+      "ingredient": "mushroom",
+      "recipeReach": 6
+    },
+    {
+      "ingredient": "bacon",
+      "recipeReach": 5
+    },
+    {
+      "ingredient": "black-olive",
+      "recipeReach": 5
+    },
+    {
+      "ingredient": "ham",
+      "recipeReach": 5
+    },
+    {
+      "ingredient": "sausage",
+      "recipeReach": 5
+    },
+    {
+      "ingredient": "anchovy",
+      "recipeReach": 4
+    },
+    {
+      "ingredient": "pepperoni",
+      "recipeReach": 4
+    },
+    {
+      "ingredient": "bell-pepper",
+      "recipeReach": 3
+    },
+    {
+      "ingredient": "chicken",
+      "recipeReach": 3
+    },
+    {
+      "ingredient": "egg",
+      "recipeReach": 3
+    },
+    {
+      "ingredient": "mayo",
+      "recipeReach": 3
+    },
+    {
+      "ingredient": "parmigiano",
+      "recipeReach": 3
+    },
+    {
+      "ingredient": "walnut",
+      "recipeReach": 3
+    },
+    {
+      "ingredient": "artichoke",
+      "recipeReach": 2
+    },
+    {
+      "ingredient": "arugula",
+      "recipeReach": 2
+    },
+    {
+      "ingredient": "basil",
+      "recipeReach": 2
+    },
+    {
+      "ingredient": "breadcrumb",
+      "recipeReach": 2
+    },
+    {
+      "ingredient": "cherry-tomato",
+      "recipeReach": 2
+    },
+    {
+      "ingredient": "clam",
+      "recipeReach": 2
+    },
+    {
+      "ingredient": "corn",
+      "recipeReach": 2
+    },
+    {
+      "ingredient": "fontina",
+      "recipeReach": 2
+    },
+    {
+      "ingredient": "fresh-tomato",
+      "recipeReach": 2
+    },
+    {
+      "ingredient": "gorgonzola",
+      "recipeReach": 2
+    },
+    {
+      "ingredient": "parsley",
+      "recipeReach": 2
+    },
+    {
+      "ingredient": "prosciutto-crudo",
+      "recipeReach": 2
+    },
+    {
+      "ingredient": "ricotta",
+      "recipeReach": 2
+    },
+    {
+      "ingredient": "rosemary",
+      "recipeReach": 2
+    },
+    {
+      "ingredient": "shrimp",
+      "recipeReach": 2
+    },
+    {
+      "ingredient": "wurstel",
+      "recipeReach": 2
+    },
+    {
+      "ingredient": "apple",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "bbq-sauce",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "brie",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "buffalo-sauce",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "caciocavallo",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "cheddar",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "chili-oil",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "cilantro",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "cinnamon",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "cream-cheese",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "curry-ketchup",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "eggplant",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "fig",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "french-fries",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "fromage-blanc-sauce",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "ground-beef",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "honey",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "lettuce",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "mascarpone",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "nduja",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "nori",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "nutella-spread",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "paprika-powder",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "pesto",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "pineapple",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "porcini",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "potato",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "powdered-sugar",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "provolone",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "ricotta-salata",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "salami",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "salsa",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "salt-cod",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "speck",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "spicy-salami",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "steak",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "strawberry",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "teriyaki-sauce",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "tortilla-chips",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "truffle",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "tuna",
+      "recipeReach": 1
+    },
+    {
+      "ingredient": "zucchini",
+      "recipeReach": 1
+    }
+  ],
+  "combinedPoolDeadlockSimulation": {
+    "steps": [
+      {
+        "step": 0,
+        "newlyDiscoveredThisStep": [
+          "margherita",
+          "mezza-e-mezza",
+          "stuffed-crust",
+          "ny-style",
+          "greek-style",
+          "trenton-tomato-pie-pizzadb"
+        ],
+        "stillBlockedRecipeCount": 58,
+        "nextIngredientPurchased": "sausage",
+        "marginalUnlockCount": 2
+      },
+      {
+        "step": 1,
+        "newlyDiscoveredThisStep": [
+          "salsiccia",
+          "chicago-deep-dish"
+        ],
+        "stillBlockedRecipeCount": 56,
+        "nextIngredientPurchased": "pepperoni",
+        "marginalUnlockCount": 2
+      },
+      {
+        "step": 2,
+        "newlyDiscoveredThisStep": [
+          "pepperoni",
+          "detroit-style"
+        ],
+        "stillBlockedRecipeCount": 54,
+        "nextIngredientPurchased": "mushroom",
+        "marginalUnlockCount": 2
+      },
+      {
+        "step": 3,
+        "newlyDiscoveredThisStep": [
+          "funghi",
+          "boscaiola"
+        ],
+        "stillBlockedRecipeCount": 52,
+        "nextIngredientPurchased": "prosciutto-crudo",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 4,
+        "newlyDiscoveredThisStep": [
+          "prosciutto-e-funghi"
+        ],
+        "stillBlockedRecipeCount": 51,
+        "nextIngredientPurchased": "porcini",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 5,
+        "newlyDiscoveredThisStep": [
+          "ai-funghi-porcini"
+        ],
+        "stillBlockedRecipeCount": 50,
+        "nextIngredientPurchased": "nduja",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 6,
+        "newlyDiscoveredThisStep": [
+          "calabrese"
+        ],
+        "stillBlockedRecipeCount": 49,
+        "nextIngredientPurchased": "egg",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 7,
+        "newlyDiscoveredThisStep": [
+          "bismarck"
+        ],
+        "stillBlockedRecipeCount": 48,
+        "nextIngredientPurchased": "bacon",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 8,
+        "newlyDiscoveredThisStep": [
+          "breakfast-pizza"
+        ],
+        "stillBlockedRecipeCount": 47,
+        "nextIngredientPurchased": "onion",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 9,
+        "newlyDiscoveredThisStep": [
+          "aussie-pizzadb"
+        ],
+        "stillBlockedRecipeCount": 46,
+        "nextIngredientPurchased": "tuna",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 10,
+        "newlyDiscoveredThisStep": [
+          "tonno-e-cipolla"
+        ],
+        "stillBlockedRecipeCount": 45,
+        "nextIngredientPurchased": "ham",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 11,
+        "newlyDiscoveredThisStep": [
+          "meat-lovers"
+        ],
+        "stillBlockedRecipeCount": 44,
+        "nextIngredientPurchased": "ricotta",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 12,
+        "newlyDiscoveredThisStep": [
+          "calzone"
+        ],
+        "stillBlockedRecipeCount": 43,
+        "nextIngredientPurchased": "pineapple",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 13,
+        "newlyDiscoveredThisStep": [
+          "hawaiian"
+        ],
+        "stillBlockedRecipeCount": 42,
+        "nextIngredientPurchased": "fromage-blanc-sauce",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 14,
+        "newlyDiscoveredThisStep": [
+          "flammkuchen-pizzadb"
+        ],
+        "stillBlockedRecipeCount": 41,
+        "nextIngredientPurchased": "zucchini",
+        "marginalUnlockCount": 0
+      },
+      {
+        "step": 15,
+        "newlyDiscoveredThisStep": [],
+        "stillBlockedRecipeCount": 41,
+        "nextIngredientPurchased": "wurstel",
+        "marginalUnlockCount": 0
+      },
+      {
+        "step": 16,
+        "newlyDiscoveredThisStep": [],
+        "stillBlockedRecipeCount": 41,
+        "nextIngredientPurchased": "french-fries",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 17,
+        "newlyDiscoveredThisStep": [
+          "wurstel-e-patatine"
+        ],
+        "stillBlockedRecipeCount": 40,
+        "nextIngredientPurchased": "walnut",
+        "marginalUnlockCount": 0
+      },
+      {
+        "step": 18,
+        "newlyDiscoveredThisStep": [],
+        "stillBlockedRecipeCount": 40,
+        "nextIngredientPurchased": "truffle",
+        "marginalUnlockCount": 0
+      },
+      {
+        "step": 19,
+        "newlyDiscoveredThisStep": [],
+        "stillBlockedRecipeCount": 40,
+        "nextIngredientPurchased": "tortilla-chips",
+        "marginalUnlockCount": 0
+      },
+      {
+        "step": 20,
+        "newlyDiscoveredThisStep": [],
+        "stillBlockedRecipeCount": 40,
+        "nextIngredientPurchased": "teriyaki-sauce",
+        "marginalUnlockCount": 0
+      },
+      {
+        "step": 21,
+        "newlyDiscoveredThisStep": [],
+        "stillBlockedRecipeCount": 40,
+        "nextIngredientPurchased": "strawberry",
+        "marginalUnlockCount": 0
+      },
+      {
+        "step": 22,
+        "newlyDiscoveredThisStep": [],
+        "stillBlockedRecipeCount": 40,
+        "nextIngredientPurchased": "steak",
+        "marginalUnlockCount": 0
+      },
+      {
+        "step": 23,
+        "newlyDiscoveredThisStep": [],
+        "stillBlockedRecipeCount": 40,
+        "nextIngredientPurchased": "spicy-salami",
+        "marginalUnlockCount": 0
+      },
+      {
+        "step": 24,
+        "newlyDiscoveredThisStep": [],
+        "stillBlockedRecipeCount": 40,
+        "nextIngredientPurchased": "chili-oil",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 25,
+        "newlyDiscoveredThisStep": [
+          "diavola"
+        ],
+        "stillBlockedRecipeCount": 39,
+        "nextIngredientPurchased": "speck",
+        "marginalUnlockCount": 0
+      },
+      {
+        "step": 26,
+        "newlyDiscoveredThisStep": [],
+        "stillBlockedRecipeCount": 39,
+        "nextIngredientPurchased": "shrimp",
+        "marginalUnlockCount": 0
+      },
+      {
+        "step": 27,
+        "newlyDiscoveredThisStep": [],
+        "stillBlockedRecipeCount": 39,
+        "nextIngredientPurchased": "salt-cod",
+        "marginalUnlockCount": 0
+      },
+      {
+        "step": 28,
+        "newlyDiscoveredThisStep": [],
+        "stillBlockedRecipeCount": 39,
+        "nextIngredientPurchased": "black-olive",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 29,
+        "newlyDiscoveredThisStep": [
+          "bacalhau-pizzadb"
+        ],
+        "stillBlockedRecipeCount": 38,
+        "nextIngredientPurchased": "oregano",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 30,
+        "newlyDiscoveredThisStep": [
+          "capricciosa"
+        ],
+        "stillBlockedRecipeCount": 37,
+        "nextIngredientPurchased": "olive-oil",
+        "marginalUnlockCount": 2
+      },
+      {
+        "step": 31,
+        "newlyDiscoveredThisStep": [
+          "fugazza",
+          "fugazzeta"
+        ],
+        "stillBlockedRecipeCount": 35,
+        "nextIngredientPurchased": "garlic",
+        "marginalUnlockCount": 3
+      },
+      {
+        "step": 32,
+        "newlyDiscoveredThisStep": [
+          "marinara",
+          "ricotta-bianca",
+          "grandma-pizza-pizzadb"
+        ],
+        "stillBlockedRecipeCount": 32,
+        "nextIngredientPurchased": "anchovy",
+        "marginalUnlockCount": 3
+      },
+      {
+        "step": 33,
+        "newlyDiscoveredThisStep": [
+          "napoletana",
+          "romana",
+          "sfincione-pizzadb"
+        ],
+        "stillBlockedRecipeCount": 29,
+        "nextIngredientPurchased": "artichoke",
+        "marginalUnlockCount": 2
+      },
+      {
+        "step": 34,
+        "newlyDiscoveredThisStep": [
+          "quattro-stagioni",
+          "ai-carciofi"
+        ],
+        "stillBlockedRecipeCount": 27,
+        "nextIngredientPurchased": "salami",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 35,
+        "newlyDiscoveredThisStep": [
+          "calabresa-argentina-pizzadb"
+        ],
+        "stillBlockedRecipeCount": 26,
+        "nextIngredientPurchased": "rosemary",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 36,
+        "newlyDiscoveredThisStep": [
+          "pizza-bianca"
+        ],
+        "stillBlockedRecipeCount": 25,
+        "nextIngredientPurchased": "parsley",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 37,
+        "newlyDiscoveredThisStep": [
+          "frutti-di-mare"
+        ],
+        "stillBlockedRecipeCount": 24,
+        "nextIngredientPurchased": "fresh-tomato",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 38,
+        "newlyDiscoveredThisStep": [
+          "chilean-napolitana-pizzadb"
+        ],
+        "stillBlockedRecipeCount": 23,
+        "nextIngredientPurchased": "fontina",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 39,
+        "newlyDiscoveredThisStep": [
+          "al-tartufo"
+        ],
+        "stillBlockedRecipeCount": 22,
+        "nextIngredientPurchased": "clam",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 40,
+        "newlyDiscoveredThisStep": [
+          "vongole-pizzadb"
+        ],
+        "stillBlockedRecipeCount": 21,
+        "nextIngredientPurchased": "parmigiano",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 41,
+        "newlyDiscoveredThisStep": [
+          "new-haven-apizza-pizzadb"
+        ],
+        "stillBlockedRecipeCount": 20,
+        "nextIngredientPurchased": "gorgonzola",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 42,
+        "newlyDiscoveredThisStep": [
+          "quattro-formaggi"
+        ],
+        "stillBlockedRecipeCount": 19,
+        "nextIngredientPurchased": "breadcrumb",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 43,
+        "newlyDiscoveredThisStep": [
+          "pugliese"
+        ],
+        "stillBlockedRecipeCount": 18,
+        "nextIngredientPurchased": "caciocavallo",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 44,
+        "newlyDiscoveredThisStep": [
+          "siciliana"
+        ],
+        "stillBlockedRecipeCount": 17,
+        "nextIngredientPurchased": "bell-pepper",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 45,
+        "newlyDiscoveredThisStep": [
+          "supreme"
+        ],
+        "stillBlockedRecipeCount": 16,
+        "nextIngredientPurchased": "provolone",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 46,
+        "newlyDiscoveredThisStep": [
+          "philly-cheesesteak"
+        ],
+        "stillBlockedRecipeCount": 15,
+        "nextIngredientPurchased": "cherry-tomato",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 47,
+        "newlyDiscoveredThisStep": [
+          "ortolana"
+        ],
+        "stillBlockedRecipeCount": 14,
+        "nextIngredientPurchased": "pesto",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 48,
+        "newlyDiscoveredThisStep": [
+          "genovese"
+        ],
+        "stillBlockedRecipeCount": 13,
+        "nextIngredientPurchased": "arugula",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 49,
+        "newlyDiscoveredThisStep": [
+          "prosciutto"
+        ],
+        "stillBlockedRecipeCount": 12,
+        "nextIngredientPurchased": "brie",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 50,
+        "newlyDiscoveredThisStep": [
+          "speck-e-brie"
+        ],
+        "stillBlockedRecipeCount": 11,
+        "nextIngredientPurchased": "salsa",
+        "marginalUnlockCount": 0
+      },
+      {
+        "step": 51,
+        "newlyDiscoveredThisStep": [],
+        "stillBlockedRecipeCount": 11,
+        "nextIngredientPurchased": "ricotta-salata",
+        "marginalUnlockCount": 0
+      },
+      {
+        "step": 52,
+        "newlyDiscoveredThisStep": [],
+        "stillBlockedRecipeCount": 11,
+        "nextIngredientPurchased": "eggplant",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 53,
+        "newlyDiscoveredThisStep": [
+          "alla-norma"
+        ],
+        "stillBlockedRecipeCount": 10,
+        "nextIngredientPurchased": "powdered-sugar",
+        "marginalUnlockCount": 0
+      },
+      {
+        "step": 54,
+        "newlyDiscoveredThisStep": [],
+        "stillBlockedRecipeCount": 10,
+        "nextIngredientPurchased": "nutella-spread",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 55,
+        "newlyDiscoveredThisStep": [
+          "nutella-dessert"
+        ],
+        "stillBlockedRecipeCount": 9,
+        "nextIngredientPurchased": "potato",
+        "marginalUnlockCount": 0
+      },
+      {
+        "step": 56,
+        "newlyDiscoveredThisStep": [],
+        "stillBlockedRecipeCount": 9,
+        "nextIngredientPurchased": "mayo",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 57,
+        "newlyDiscoveredThisStep": [
+          "potato-bacon"
+        ],
+        "stillBlockedRecipeCount": 8,
+        "nextIngredientPurchased": "corn",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 58,
+        "newlyDiscoveredThisStep": [
+          "shrimp-mayo"
+        ],
+        "stillBlockedRecipeCount": 7,
+        "nextIngredientPurchased": "paprika-powder",
+        "marginalUnlockCount": 0
+      },
+      {
+        "step": 59,
+        "newlyDiscoveredThisStep": [],
+        "stillBlockedRecipeCount": 7,
+        "nextIngredientPurchased": "curry-ketchup",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 60,
+        "newlyDiscoveredThisStep": [
+          "currywurst-pizzadb"
+        ],
+        "stillBlockedRecipeCount": 6,
+        "nextIngredientPurchased": "nori",
+        "marginalUnlockCount": 0
+      },
+      {
+        "step": 61,
+        "newlyDiscoveredThisStep": [],
+        "stillBlockedRecipeCount": 6,
+        "nextIngredientPurchased": "chicken",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 62,
+        "newlyDiscoveredThisStep": [
+          "teriyaki-chicken"
+        ],
+        "stillBlockedRecipeCount": 5,
+        "nextIngredientPurchased": "buffalo-sauce",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 63,
+        "newlyDiscoveredThisStep": [
+          "buffalo-chicken"
+        ],
+        "stillBlockedRecipeCount": 4,
+        "nextIngredientPurchased": "mascarpone",
+        "marginalUnlockCount": 0
+      },
+      {
+        "step": 64,
+        "newlyDiscoveredThisStep": [],
+        "stillBlockedRecipeCount": 4,
+        "nextIngredientPurchased": "lettuce",
+        "marginalUnlockCount": 0
+      },
+      {
+        "step": 65,
+        "newlyDiscoveredThisStep": [],
+        "stillBlockedRecipeCount": 4,
+        "nextIngredientPurchased": "honey",
+        "marginalUnlockCount": 0
+      },
+      {
+        "step": 66,
+        "newlyDiscoveredThisStep": [],
+        "stillBlockedRecipeCount": 4,
+        "nextIngredientPurchased": "fig",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 67,
+        "newlyDiscoveredThisStep": [
+          "honey-fig"
+        ],
+        "stillBlockedRecipeCount": 3,
+        "nextIngredientPurchased": "ground-beef",
+        "marginalUnlockCount": 0
+      },
+      {
+        "step": 68,
+        "newlyDiscoveredThisStep": [],
+        "stillBlockedRecipeCount": 3,
+        "nextIngredientPurchased": "cheddar",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 69,
+        "newlyDiscoveredThisStep": [
+          "taco-pizza-pizzadb"
+        ],
+        "stillBlockedRecipeCount": 2,
+        "nextIngredientPurchased": "cream-cheese",
+        "marginalUnlockCount": 0
+      },
+      {
+        "step": 70,
+        "newlyDiscoveredThisStep": [],
+        "stillBlockedRecipeCount": 2,
+        "nextIngredientPurchased": "cinnamon",
+        "marginalUnlockCount": 0
+      },
+      {
+        "step": 71,
+        "newlyDiscoveredThisStep": [],
+        "stillBlockedRecipeCount": 2,
+        "nextIngredientPurchased": "apple",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 72,
+        "newlyDiscoveredThisStep": [
+          "apple-cinnamon-dessert-pizzadb"
+        ],
+        "stillBlockedRecipeCount": 1,
+        "nextIngredientPurchased": "cilantro",
+        "marginalUnlockCount": 0
+      },
+      {
+        "step": 73,
+        "newlyDiscoveredThisStep": [],
+        "stillBlockedRecipeCount": 1,
+        "nextIngredientPurchased": "bbq-sauce",
+        "marginalUnlockCount": 1
+      },
+      {
+        "step": 74,
+        "newlyDiscoveredThisStep": [
+          "bbq-chicken"
+        ],
+        "stillBlockedRecipeCount": 0,
+        "nextIngredientPurchased": null
+      }
+    ],
+    "deadlockStateCount": 0,
+    "deadlocks": [],
+    "finalDiscoveredCount": 64,
+    "totalPoolSize": 64,
+    "unreachableRecipeCount": 0,
+    "unreachableRecipeIds": [],
+    "unreachableIngredientCount": 0
+  }
+}
