@@ -13,7 +13,11 @@
       "origin": "イタリア / ナポリ",
       "doughStyle": "ナポリピッツァ生地（薄めで縁が厚い）",
       "sauceFamily": "トマトソース",
-      "ingredientsJa": ["モッツァレラチーズ", "バジル", "オリーブオイル"],
+      "ingredientsJa": [
+        "モッツァレラチーズ",
+        "バジル",
+        "オリーブオイル"
+      ],
       "evidenceOrigin": "individual_profile_page",
       "sourceUrl": "https://pizzadb.jp/pizzas/margherita/",
       "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
@@ -29,7 +33,13 @@
       "origin": "ブラジル / バイーア",
       "doughStyle": "薄めの生地",
       "sauceFamily": "トマトソース",
-      "ingredientsJa": ["ソーセージ", "卵", "玉ねぎ", "唐辛子", "モッツァレラチーズ"],
+      "ingredientsJa": [
+        "ソーセージ",
+        "卵",
+        "玉ねぎ",
+        "唐辛子",
+        "モッツァレラチーズ"
+      ],
       "evidenceOrigin": "individual_profile_page",
       "sourceUrl": "https://pizzadb.jp/pizzas/pizza-baiana/",
       "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
@@ -45,7 +55,11 @@
       "origin": "アルゼンチン / ブエノスアイレス",
       "doughStyle": "厚みのあるふんわりした生地",
       "sauceFamily": "チーズ",
-      "ingredientsJa": ["モッツァレラチーズ", "オリーブ", "オレガノ"],
+      "ingredientsJa": [
+        "モッツァレラチーズ",
+        "オリーブ",
+        "オレガノ"
+      ],
       "evidenceOrigin": "individual_profile_page",
       "sourceUrl": "https://pizzadb.jp/pizzas/pizza-a-caballo/",
       "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
@@ -64,7 +78,12 @@
       "origin": "アルゼンチン / ブエノスアイレス",
       "doughStyle": "厚みのあるふんわりした生地（2枚の生地でチーズ・ハムを挟む）",
       "sauceFamily": "チーズ",
-      "ingredientsJa": ["モッツァレラチーズ", "ハム", "玉ねぎ", "オレガノ"],
+      "ingredientsJa": [
+        "モッツァレラチーズ",
+        "ハム",
+        "玉ねぎ",
+        "オレガノ"
+      ],
       "evidenceOrigin": "individual_profile_page",
       "sourceUrl": "https://pizzadb.jp/pizzas/fugazzeta-rellena/",
       "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
@@ -75,32 +94,122 @@
       "requiresMechanicIdentity": true,
       "evidenceGaps": [],
       "mechanicIdentityNote": "Two dough layers enclosing cheese/ham -- requires a stuffed/layered-dough mechanic identity (closely related to the existing stuffedDough/foldDough mechanic family already catalogued for calzone/fugazzeta-family entries) beyond plain ingredient-set matching."
+    },
+    {
+      "id": "bianca-pizzadb-row",
+      "nameJa": "ピッツァビアンカ",
+      "origin": "イタリア / 各地",
+      "doughStyle": "ナポリピッツァ生地",
+      "sauceFamily": "チーズ",
+      "ingredientsJa": [
+        "モッツァレラチーズ",
+        "リコッタチーズ",
+        "オリーブオイル",
+        "ローズマリー"
+      ],
+      "evidenceOrigin": "individual_profile_page",
+      "sourceUrl": "https://pizzadb.jp/pizzas/bianca/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "namingAmbiguityNote": "THREE-WAY naming cluster, none merged: (1) already-SHIPPED 'pizza-bianca' (olive-oil + rosemary only, NO cheese -- Roman sauceless style); (2) existing catalog candidate 'ricotta-bianca' (garlic + mozzarella + olive-oil + ricotta, NO rosemary -- American 'white pizza' style, already disambiguated from (1) in TETO_RECIPE-MASTER-CATALOG.md section 6); (3) THIS row (mozzarella + ricotta + olive-oil + rosemary) combines elements of both (1)'s rosemary and (2)'s cheese-pair) but matches neither exactly. Kept as its own distinct candidate id, cross-referenced to both, per this repo's standing never-merge-on-name-similarity discipline.",
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": []
+    },
+    {
+      "id": "pizza-de-cancha",
+      "nameJa": "ピッツァ・デ・カンチャ",
+      "origin": "アルゼンチン / ブエノスアイレス",
+      "doughStyle": "厚みのあるふんわりした生地",
+      "sauceFamily": "トマトソース",
+      "ingredientsJa": [
+        "にんにく",
+        "オレガノ",
+        "唐辛子",
+        "オリーブオイル"
+      ],
+      "evidenceOrigin": "individual_profile_page",
+      "sourceUrl": "https://pizzadb.jp/pizzas/pizza-de-cancha/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": []
+    },
+    {
+      "id": "hawaiian-pizzadb-row",
+      "nameJa": "ハワイアンピザ",
+      "origin": "カナダ / オンタリオ州",
+      "doughStyle": "薄めの生地",
+      "sauceFamily": "トマトソース",
+      "ingredientsJa": [
+        "モッツァレラチーズ",
+        "パイナップル",
+        "ハム"
+      ],
+      "evidenceOrigin": "individual_profile_page",
+      "sourceUrl": "https://pizzadb.jp/pizzas/hawaiian/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": "hawaiian",
+      "correspondenceNote": "Matches the existing Phase 0A catalog's 'hawaiian' game_design_candidate (ham,mozzarella,pineapple,tomato-sauce) by ingredient set. Not yet shipped in production. This individual-profile fetch is new POPULATION-ROW evidence (not among the 25 comparison-table samples, which used a different nameJa spelling and were never itemized for this dish), so it counts as a newly-evidenced row while adding zero new game-design content.",
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": []
     }
   ],
   "counters": {
-    "uniqueRecipeRowsEvidencedTotal": 29,
-    "uniqueRecipeRowsEvidencedFormula": "25 (comparison_table_sample) + 4 (individual_profile_page, 0 duplicates found against the 25)",
+    "uniqueRecipeRowsEvidencedTotal": 32,
+    "uniqueRecipeRowsEvidencedFormula": "25 (comparison_table_sample) + 7 (individual_profile_page, deduplicated against the 25 + all prior individual-profile rows)",
     "claimedTotalPopulation": 172,
-    "coveragePercent": 16.9,
-    "independentlyFreshVerifiedRows": 4,
+    "coveragePercent": 18.6,
+    "independentlyFreshVerifiedRows": 7,
     "independentlyFreshVerifiedNote": "Rows evidenced via a dedicated individual PIZZA DB profile-page fetch (deeper single-dish evidence: origin/dough/sauce-family/ingredients), as distinct from a row's appearance in the aggregate comparison-table scrape.",
     "relayedOnlyRows": 25,
     "relayedOnlyNote": "Rows evidenced only via the aggregate comparison-table sample (Phase 0B), not (yet) confirmed by a dedicated individual profile-page fetch.",
-    "duplicateCorroborationsCount": 0,
-    "duplicateCorroborationsNote": "No individual-profile-page row in this batch duplicated (by nameJa/id match) any of the existing 25 comparison-table rows.",
+    "duplicateCorroborationsCount": 3,
+    "duplicateCorroborationsNote": "Each entry in the top-level 'corroborations' list is a re-confirmation of an already-evidenced row (new source URL/date), found either by exact id/nameJa match (matchType=automatic_exact_match) or by human ingredient-set review (matchType=manual_review) -- never counted toward uniqueRecipeRowsEvidencedTotal.",
     "rowsRequiringMechanicIdentityCount": 2,
-    "rowsRequiringMechanicIdentityIds": ["pizza-a-caballo", "fugazzeta-rellena"],
+    "rowsRequiringMechanicIdentityIds": [
+      "pizza-a-caballo",
+      "fugazzeta-rellena"
+    ],
     "rowsWithEvidenceGapsCount": 1,
-    "rowsWithEvidenceGapsIds": ["pizza-a-caballo"],
-    "rowsCorrespondingToExistingShippedGameRecipe": 1,
-    "rowsCorrespondingToExistingShippedGameRecipeIds": ["margherita-pizzadb-row"],
-    "pendingRowCount": 143,
-    "pendingRowNote": "172 - 29 = 143 rows remain with zero evidence."
+    "rowsWithEvidenceGapsIds": [
+      "pizza-a-caballo"
+    ],
+    "rowsCorrespondingToExistingCatalogEntry": 2,
+    "rowsCorrespondingToExistingCatalogEntryIds": [
+      "margherita-pizzadb-row",
+      "hawaiian-pizzadb-row"
+    ],
+    "rowsCorrespondingToExistingCatalogEntryNote": "correspondsToExistingCatalogId is set whether that catalog entry is already SHIPPED (e.g. margherita) or still an unshipped candidate (e.g. hawaiian) -- check each row's own correspondenceNote for which.",
+    "pendingRowCount": 140,
+    "pendingRowNote": "172 - 32 = 140 rows remain with zero evidence."
   },
   "independentSessionFetchStatus": {
     "lastCheckedThisPhase": "2026-09-22 (Phase 0B.4)",
     "result": "EGRESS_BLOCKED",
     "domainTested": "https://pizzadb.jp/pizzas/margherita/",
     "note": "This Claude Code session still cannot independently fetch any PIZZA DB page, individual-profile or otherwise. 'individual_profile_page' evidenceOrigin above describes the RELAYING agent's fetch method, not this session's own verification depth -- every row in this ledger remains owner-relayed and unverified by this session, regardless of evidenceOrigin."
-  }
+  },
+  "corroborations": [
+    {
+      "matchedRowId": "pizza-calabresa-argentina",
+      "matchedNameJa": "アルゼンチン風カラブレーサ",
+      "newSourceUrl": "https://pizzadb.jp/pizzas/pizza-calabresa-argentina/",
+      "note": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "matchType": "automatic_exact_match"
+    },
+    {
+      "matchedRowId": "pizza-baiana",
+      "matchedNameJa": "ピッツァ・バイアーナ",
+      "newSourceUrl": "https://pizzadb.jp/pizzas/pizza-baiana/",
+      "note": "2026-09-22 (relayed re-confirmation, not independently re-fetched by this Claude session)",
+      "matchType": "automatic_exact_match"
+    },
+    {
+      "matchedRowId": "chicago-deep-dish-pizzadb",
+      "matchedNameJa": "シカゴディープディッシュ（PIZZA DB版）",
+      "newSourceUrl": "https://pizzadb.jp/pizzas/chicago-deep-dish/",
+      "note": "Phase 0B.5 relayed a new individual-profile row (id 'chicago-deep-dish', nameJa 'シカゴディープディッシュ' -- no parenthetical suffix) whose ingredient set (mozzarella, sausage, pepperoni, tomato-sauce) exactly matches the existing chicago-deep-dish-pizzadb sample from Phase 0B (docs/reports/data/TETO_PROGRESS2_PHASE0B_pizzadb-external-samples.json). NOT caught by the automated id/nameJa exact-match dedup because Phase 0B's own transcription added a disambiguating '(PIZZA DB版)' suffix this new row's nameJa lacks -- found instead by manual ingredient-set review. Adds new mechanic-identity evidence: deep pan/shape, cheese placed before sauce (reverse/layered order), corroborating the existing catalog's layeredReverseOrder/specialShapePan mechanic tags for this dish. Recorded as a corroboration, NOT ingested as a new unique row, to avoid double-counting.",
+      "matchType": "manual_review"
+    }
+  ]
 }

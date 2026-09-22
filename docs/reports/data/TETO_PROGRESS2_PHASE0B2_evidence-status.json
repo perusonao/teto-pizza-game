@@ -19,15 +19,17 @@
   "recipeRowEvidence": {
     "population": "ja-172",
     "totalClaimed": 172,
-    "evidencedCount": 29,
-    "evidencedCountNote": "Updated in Phase 0B.4: 25 comparison_table_sample rows + 4 individual_profile_page rows (0 duplicates). Full detail and per-row dedup/mechanic/evidence-gap notes: docs/reports/data/TETO_PROGRESS2_PHASE0B4_recipe-row-evidence.json.",
-    "evidenceOriginBreakdown": {"comparison_table_sample": 25, "individual_profile_page": 4},
+    "evidencedCount": 32,
+    "evidencedCountNote": "Updated in Phase 0B.5: 25 comparison_table_sample rows + 7 individual_profile_page rows (deduplicated -- 3 additional relayed rows this Phase corroborated already-evidenced dishes instead of adding new ones, see corroborationsCount below). Full detail and per-row dedup/mechanic/evidence-gap/naming-ambiguity notes: docs/reports/data/TETO_PROGRESS2_PHASE0B4_recipe-row-evidence.json.",
+    "evidenceOriginBreakdown": {"comparison_table_sample": 25, "individual_profile_page": 7},
+    "corroborationsCount": 3,
+    "corroborationsNote": "3 relayed rows this Phase matched an already-evidenced dish (2 by automatic exact id/nameJa match: calabresa-argentina, pizza-baiana; 1 by manual ingredient-set review after automatic matching missed a nameJa-suffix mismatch: chicago-deep-dish) -- recorded as corroborations (new source URL added to the matched row's evidence trail), never double-counted toward evidencedCount.",
     "evidencedSource": "docs/reports/data/TETO_PROGRESS2_PHASE0B_pizzadb-external-samples.json, docs/reports/data/TETO_PROGRESS2_PHASE0B4_recipe-row-evidence.json",
     "evidencedPages": [1, 2, 3, 4, 5, 6],
     "pendingPages": [7, 8, 9, 10, 11, 12, 13, 14, 15],
     "individualProfilePageAccessNote": "Phase 0B.4 found that direct pagination URLs (/compare/world-pizzas/page/7 etc.) fail for the relaying agent, but individual /pizzas/<slug>/ profile pages remain fetchable via search -- so the remaining population can be evidenced via accumulated individual profiles, not only via pagination. pendingPages above is retained as a reference to the original access path, not a claim that it is the only viable one going forward.",
     "pendingCountKnown": false,
-    "pendingCountNote": "172 - 29 = 143 recipe rows have zero evidence.",
+    "pendingCountNote": "172 - 32 = 140 recipe rows have zero evidence.",
     "status": "incomplete",
     "requiredForFullDeadlockSimulation": true
   },
@@ -86,22 +88,27 @@
     "invariantPasses": true
   },
   "openRequestsForExternalEvidence": [
-    {"item": "Recipe rows for the remaining 143 of 172 (individual profile pages or further comparison-table pages)", "population": "ja-172", "requiredFormat": "dish name, origin, dough style, sauce family, ingredient list, source URL per row", "invented": false, "status": "still pending as of Phase 0B.4 -- 143 of 172 remain, updated from 147 after Phase 0B.4's 4 new rows"},
+    {"item": "Recipe rows for the remaining 140 of 172 (individual profile pages or further comparison-table pages)", "population": "ja-172", "requiredFormat": "dish name, origin, dough style, sauce family, ingredient list, source URL per row", "invented": false, "status": "still pending as of Phase 0B.5 -- 140 of 172 remain, updated from 143 after Phase 0B.5's 3 new unique rows"},
     {"item": "Product decision on the 11 Phase 0B.3 ambiguous entries (merge into an existing related id, or mint as a new distinct id)", "population": "ja-172", "requiredFormat": "owner/reviewer judgment call, not an external fetch", "invented": false, "status": "unresolved since Phase 0B.3"},
-    {"item": "Corrected or confirmed ingredient list for pizza-a-caballo (Fainá layer mentioned in profile prose but absent from the published topping list)", "population": "ja-172", "requiredFormat": "clarified source data, not an inference", "invented": false, "status": "new in Phase 0B.4"},
-    {"item": "Independent re-verification of everything relayed so far (29 recipe rows, 181 ingredient names)", "population": "ja-172", "requiredFormat": "this Claude Code session re-fetching pizzadb.jp directly, blocked by EGRESS_BLOCKED as of this Phase", "invented": false}
+    {"item": "Corrected or confirmed ingredient list for pizza-a-caballo (Fainá layer mentioned in profile prose but absent from the published topping list)", "population": "ja-172", "requiredFormat": "clarified source data, not an inference", "invented": false, "status": "unresolved since Phase 0B.4"},
+    {"item": "Product decision on the bianca-pizzadb-row three-way naming cluster (pizza-bianca / ricotta-bianca / this row)", "population": "ja-172", "requiredFormat": "owner/reviewer judgment call, not an external fetch", "invented": false, "status": "new in Phase 0B.5"},
+    {"item": "Independent re-verification of everything relayed so far (32 recipe rows, 3 corroborations, 181 ingredient names)", "population": "ja-172", "requiredFormat": "this Claude Code session re-fetching pizzadb.jp directly, blocked by EGRESS_BLOCKED as of this Phase", "invented": false}
   ],
   "resolvedInPhase0B3": [
     {"item": "Occurrence-tier 4/3/2/1 ingredient names + exact counts", "resolution": "Relayed in full via PR #183 comment #5774945778 -- 145 names ingested and classified, see canonicalizationResultsPhase0B3 above."}
   ],
   "partiallyAddressedInPhase0B4": [
-    {"item": "Recipe row evidence beyond the 25 comparison-table samples", "resolution": "4 new individual-profile-page rows ingested (margherita, pizza-baiana, pizza-a-caballo, fugazzeta-rellena), deduplicated against the existing 25 via tools/progression2_recipe_row_ingest.py -- 29/172 now evidenced. 143 still pending; NOT resolved, only advanced."},
+    {"item": "Recipe row evidence beyond the 25 comparison-table samples", "resolution": "4 new individual-profile-page rows ingested (margherita, pizza-baiana, pizza-a-caballo, fugazzeta-rellena), deduplicated against the existing 25 via tools/progression2_recipe_row_ingest.py -- 29/172 evidenced at that point. NOT resolved, only advanced."},
     {"item": "Recipe-row access-path constraint", "resolution": "The relaying agent found direct pagination URLs (page/7 etc.) fail, but individual /pizzas/<slug>/ profile pages remain fetchable via search -- recorded as a viable alternate access path for future batches, not a claim that pagination itself now works."}
   ],
+  "partiallyAddressedInPhase0B5": [
+    {"item": "Recipe row evidence beyond Phase 0B.4's 29", "resolution": "3 new unique rows ingested (bianca-pizzadb-row, pizza-de-cancha, hawaiian-pizzadb-row) -- 32/172 evidenced. 3 further relayed rows (calabresa-argentina, pizza-baiana, chicago-deep-dish) turned out to corroborate already-evidenced dishes rather than add new ones -- recorded as corroborations, not double-counted. 140 still pending; NOT resolved, only advanced."},
+    {"item": "Corroboration tracking infrastructure", "resolution": "tools/progression2_recipe_row_ingest.py extended to persist every duplicate finding (automatic exact-match or manual ingredient-set review) as a corroboration record with its new source URL, rather than printing and discarding it -- so re-confirmations are never silently lost. Also caught and manually recorded one case (chicago-deep-dish) that automatic exact-match dedup missed due to this session's own earlier disambiguating-suffix naming convention."}
+  ],
   "thisSessionsOwnFetchStatus": {
-    "lastCheckedThisPhase": "2026-09-22 (Phase 0B.4)",
+    "lastCheckedThisPhase": "2026-09-22 (Phase 0B.5)",
     "result": "EGRESS_BLOCKED",
-    "domainsTested": ["pizzadb.jp", "pizzadb.jp/pizzas/margherita/"],
-    "note": "No new external fetch was attempted or claimed successful in Phase 0B.4. This ledger only organizes evidence already relayed in prior PR #183 comments -- the 'individual_profile_page' evidenceOrigin in TETO_PROGRESS2_PHASE0B4_recipe-row-evidence.json describes the RELAYING agent's fetch method, not this session's own verification depth."
+    "domainsTested": ["pizzadb.jp", "pizzadb.jp/pizzas/margherita/", "pizzadb.jp/pizzas/bianca/"],
+    "note": "No new external fetch was attempted or claimed successful in Phase 0B.5. This ledger only organizes evidence already relayed in prior PR #183 comments -- the 'individual_profile_page' evidenceOrigin in TETO_PROGRESS2_PHASE0B4_recipe-row-evidence.json describes the RELAYING agent's fetch method, not this session's own verification depth."
   }
 }
