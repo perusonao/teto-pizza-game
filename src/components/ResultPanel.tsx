@@ -2,10 +2,12 @@ import type { ScoreBreakdown } from "../logic/scoring";
 import { BAKE_STATE_LABEL, type BakeState } from "../logic/bake";
 import type { PitzCredit } from "../logic/pitzReward";
 import { EFFICIENCY_TIER_LABEL_JA, formatCookingTime, type CookingEfficiencyCredit } from "../logic/efficiency";
+import type { StepTimingRow } from "../logic/cookingTimingDisplay";
 import type { StarterGrantNotice } from "../state/starterStock";
 import type { PizzaCompletionResult } from "../logic/completionGate";
 import { buildCompletionFailureMessage } from "../data/completionMessages";
 import type { CutEvaluation } from "../logic/cut/types";
+import { STEP_LABEL } from "../data/makingStepLabels";
 
 interface ResultPanelProps {
   /** Completion Gate Phase 1: when this is `{ status: "FAILED" }`, every prop below except
@@ -50,6 +52,16 @@ interface ResultPanelProps {
    *  below the quality-driven headline/`pitzCredit` summary -- quality stays the visual lead,
    *  per the task's own "品質が主役、手際は副評価" instruction. */
   efficiencyCredit?: CookingEfficiencyCredit | null;
+  /** Gameplay UX PR-C (Timing Transparency, see
+   *  docs/reports/TETO_GAMEPLAY-UX_SCORING-3.0_Fresh-Audit.md Audit C): already-derived
+   *  (`../logic/cookingTimingDisplay.ts`'s `stepTimingRows`) per-step elapsed-time rows for the
+   *  RESULT Timing Detail table -- this component stays a presentation-only reader, same
+   *  discipline as `sauceScore`/`cutEvaluation` above. Empty array (the default) or omitted
+   *  renders no Timing Detail `<details>` at all -- never a fabricated empty table. Only ever
+   *  non-empty alongside a non-null `efficiencyCredit` (both come from the same FREE-round
+   *  `cookingTiming`/`cookingProfile` state; Mission rounds have neither and never render this
+   *  component). */
+  stepTimingRows?: readonly StepTimingRow[];
   /** Economy Tuning 1 P1 (`state.lastStarterGrantNotice`): non-null only the instant this
    *  round's REGISTER_TO_DEX actually granted a recipe's Starter Grant -- never shown for
    *  margherita (never granted), an already-claimed recipe, or a reload/replay (transient,
@@ -118,6 +130,7 @@ export function ResultPanel({
   justGotNewBest,
   pitzCredit,
   efficiencyCredit,
+  stepTimingRows = [],
   starterGrantNotice,
   cutEvaluation,
   onRetrySameRecipe,
@@ -239,21 +252,10 @@ export function ResultPanel({
                 <dt>出来栄え倍率</dt>
                 <dd>×{pitzCredit.multiplier.toFixed(2)}</dd>
               </div>
-              {/* Cooking Time CT2: 調理時間/手際 are display-only rows, deliberately styled
-                  identically (and just as small) as 基本報酬/出来栄え倍率 above -- quality's own
-                  stars/score headline stays the only visually prominent number on this screen. */}
-              {efficiencyCredit && (
-                <div className="pitz-credit-summary__row">
-                  <dt>調理時間</dt>
-                  <dd>{formatCookingTime(efficiencyCredit.cookingTimeMs)}</dd>
-                </div>
-              )}
-              {efficiencyCredit && (
-                <div className="pitz-credit-summary__row">
-                  <dt>手際</dt>
-                  <dd>{EFFICIENCY_TIER_LABEL_JA[efficiencyCredit.tier]}</dd>
-                </div>
-              )}
+              {/* Gameplay UX PR-C (Timing Transparency): 調理時間/手際 used to be duplicated here
+                  and in the new `.cooking-timing-summary` block below -- moved out entirely (this
+                  breakdown now only covers Pitz math) to avoid showing the same two facts twice
+                  on one screen. 手際ボーナス (a Pitz amount, not a timing fact) stays here. */}
               {efficiencyCredit && efficiencyCredit.bonusPitz > 0 && (
                 <div className="pitz-credit-summary__row">
                   <dt>手際ボーナス</dt>
@@ -318,6 +320,56 @@ export function ResultPanel({
           </div>
         </details>
       )}
+
+      {/* Gameplay UX PR-C (Timing Transparency, Fresh Audit §5/§6): a short, low-emphasis
+          headline (no countdown/alarm styling, per the task's own anti-speed-pressure
+          instruction), mirroring the exact single-`<summary>`-line CUT/Pitz `<details>`
+          convention above (the headline itself *is* the summary, not a separate line above a
+          nested `<details>` -- RESULT 1-Screen 2.0's fixed vertical budget has no room for a
+          second header line here). `efficiencyCredit`/`stepTimingRows` are both `null`/empty for
+          a Mission round, which never renders this component at all -- FREE-only by
+          construction, not a new gate. No new target/threshold number invented here -- only
+          already-measured elapsed time (`cookingTiming.ts`'s own `completedMs`/
+          `perStepElapsedMs`) and the pre-existing 手際 tier label. `stepTimingRows` is empty only
+          in a defensive/test scenario (a real FREE round with a finalized `efficiencyCredit` --
+          i.e. PREPARE fully completed -- always has at least one finalized step); that case
+          renders a plain, non-interactive line instead of an emptily-expandable `<details>`. */}
+      {efficiencyCredit &&
+        (stepTimingRows.length > 0 ? (
+          <details className="cooking-timing-summary">
+            <summary className="cooking-timing-summary__summary">
+              {"⏱️"} 調理時間 <strong>{formatCookingTime(efficiencyCredit.cookingTimeMs)}</strong>
+              <span className="cooking-timing-summary__tier">
+                （手際: {EFFICIENCY_TIER_LABEL_JA[efficiencyCredit.tier]}）
+              </span>
+            </summary>
+            <dl className="cooking-timing-summary__details">
+              {stepTimingRows.map((row) => (
+                <div key={row.step} className="cooking-timing-summary__row">
+                  <dt>{STEP_LABEL[row.step]}</dt>
+                  <dd>{formatCookingTime(row.elapsedMs)}</dd>
+                </div>
+              ))}
+            </dl>
+            {/* Audit §8: CUT time is measured per-step but deliberately excluded from the
+                whole-round `調理時間` total (cookingTiming.ts's own `completedMs` finalizes at
+                START_BAKE, never re-touched for CUT) -- this note prevents the CUT row here from
+                being misread as already summed into the headline above. Only rendered when a
+                CUT row is actually present (a round with no CUT step never has one at all). */}
+            {stepTimingRows.some((row) => row.step === "CUT") && (
+              <p className="cooking-timing-summary__note">
+                ※「調理時間」にカットの時間は含みません
+              </p>
+            )}
+          </details>
+        ) : (
+          <p className="cooking-timing-summary cooking-timing-summary--flat">
+            {"⏱️"} 調理時間 <strong>{formatCookingTime(efficiencyCredit.cookingTimeMs)}</strong>
+            <span className="cooking-timing-summary__tier">
+              （手際: {EFFICIENCY_TIER_LABEL_JA[efficiencyCredit.tier]}）
+            </span>
+          </p>
+        ))}
 
       <details className="result-panel__details">
         <summary className="result-panel__details-summary">くわしいスコアを見る</summary>

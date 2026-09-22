@@ -405,6 +405,51 @@ export async function playFullCapricciosaRound(page: Page) {
 }
 
 /**
+ * Gameplay UX PR-C (Timing Transparency): drives a full quattro-formaggi round from wherever
+ * `startQuattroFormaggiHeavyInventory` leaves off (PREPARE/DOUGH) through to RESULT. Quattro-
+ * formaggi is this repo's one shipped no-TOPPING recipe (`deriveCoreSteps`,
+ * ../src/data/cookingProfiles.ts -- all four non-sauce `requiredIngredients` are cheese-category,
+ * so its own derived profile omits TOPPING entirely) and is CUT-eligible, making it this PR's own
+ * fixture for "the Timing Detail table must never show a step the round's profile doesn't have."
+ * Places quattro-formaggi's own 4 cheese requirements (2x each of mozzarella/gorgonzola/
+ * parmigiano/fontina, `src/data/recipes.ts`) at the exact same 8-position ring
+ * `playFullCapricciosaRound` above already uses for its own 8 pieces -- a proven, non-overlapping
+ * layout, just reassigned to 4 cheeses instead of Capricciosa's mixed topping set.
+ */
+export async function playFullQuattroFormaggiRound(page: Page) {
+  await completeDoughStep(page);
+  await page.getByRole("button", { name: /次へ/ }).click();
+
+  // SAUCE: quattro-formaggi's own sauce-category ingredient is olive-oil (`placement: "spread"`,
+  // ../src/data/ingredients.ts), painted the same way every other spread-type sauce is.
+  await page.getByRole("button", { name: /オリーブオイル/ }).click();
+  await paintSauceRing(page, 25, 16);
+  await page.getByRole("button", { name: /次へ/ }).click();
+
+  await page.getByRole("button", { name: /モッツァレラ/ }).click();
+  await tapDoughPercent(page, 35, 45);
+  await tapDoughPercent(page, 65, 45);
+  await page.getByRole("button", { name: /ゴルゴンゾーラ/ }).click();
+  await tapDoughPercent(page, 30, 60);
+  await tapDoughPercent(page, 70, 60);
+  await page.getByRole("button", { name: /パルミジャーノ/ }).click();
+  await tapDoughPercent(page, 50, 35);
+  await tapDoughPercent(page, 50, 65);
+  await page.getByRole("button", { name: /フォンティーナ/ }).click();
+  await tapDoughPercent(page, 40, 50);
+  await tapDoughPercent(page, 60, 50);
+
+  // No 次へ tap here -- CHEESE is quattro-formaggi's own last PREPARE step (no TOPPING), so
+  // confirming it should already show 焼く！ directly (PR-A's own `isLastPrepareStep` contract).
+  await bakeToTarget(page, { start: 65, end: 85 }); // quattro-formaggi's own bakeTarget
+
+  if (await page.getByRole("button", { name: /切り終わる/ }).count()) {
+    await cutThreeLines(page);
+    await page.getByRole("button", { name: /切り終わる/ }).click();
+  }
+}
+
+/**
  * Lunch Rush Phase 4 (Result Summary & Ranking achievedAt): starts a *real*, wall-clock Mission
  * run (unlike the `?missionDuration=1` fixtures used elsewhere in this repo's e2e suite, which
  * exist specifically to reach RESULT almost instantly with `servedCount=0`). Drives HOME ->
@@ -570,9 +615,17 @@ export async function playFullMarinaraRound(page: Page) {
   await tapDoughPercent(page, 45, 30);
   await tapDoughPercent(page, 55, 30);
 
-  await page.getByRole("button", { name: /焼く/ }).click();
-  await page.waitForTimeout(1300);
-  await page.getByRole("button", { name: "取り出す！" }).click();
+  // Gameplay UX PR-C (Timing Transparency): was a fixed `waitForTimeout(1300)` real-time wait --
+  // exactly the anti-pattern this repo's own WebKit-safety rule warns against (see
+  // `bakeToTarget`'s own header comment above). Marinara's bakeTarget (`{ start: 45, end: 65 }`,
+  // ../src/data/recipes.ts) sits close enough to 1300ms's own real-time needle position that
+  // under any real CPU contention (multiple parallel bake rounds, a loaded CI runner) the needle
+  // could already be past `end` (burnt) before the fixed wait even finishes -- reproduced
+  // directly via `--repeat-each` under this repo's own 2-worker parallel default. `bakeToTarget`
+  // is virtual-clock and self-correcting regardless of real-time drift, matching every other
+  // round-driving helper in this file (`playFullMargheritaRound`/`playFullCapricciosaRound`/
+  // `playFullQuattroFormaggiRound`).
+  await bakeToTarget(page, { start: 45, end: 65 });
 
   if (await page.getByRole("button", { name: /切り終わる/ }).count()) {
     await cutThreeLines(page);

@@ -178,4 +178,26 @@ describe("formatCookingTime", () => {
     expect(formatCookingTime(-100)).toBe("0:00");
     expect(formatCookingTime(NaN)).toBe("0:00");
   });
+
+  // Gameplay UX PR-C (Timing Transparency §12): exact boundary values around the 1s/60s marks,
+  // since this exact function is now also reused for the RESULT Timing Detail per-step rows.
+  it("floors the sub-second boundary just below 1s to 0:00", () => {
+    expect(formatCookingTime(999)).toBe("0:00");
+  });
+
+  it("rounds 1000ms exactly to 0:01", () => {
+    expect(formatCookingTime(1000)).toBe("0:01");
+  });
+
+  it("floors the sub-minute boundary just below 60s to 0:59", () => {
+    expect(formatCookingTime(59_999)).toBe("0:59");
+  });
+
+  it("rolls 60000ms exactly over to 1:00", () => {
+    expect(formatCookingTime(60_000)).toBe("1:00");
+  });
+
+  it("formats a long duration (10+ minutes) without truncating the minute digits", () => {
+    expect(formatCookingTime(3_723_000)).toBe("62:03");
+  });
 });

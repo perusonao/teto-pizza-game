@@ -162,7 +162,7 @@ describe("ResultPanel", () => {
     };
   }
 
-  it("renders 調理時間/手際 and adds the Efficiency bonus into the total/balance when provided", () => {
+  it("renders the Efficiency bonus (手際ボーナス) into the total/balance when provided, without duplicating 調理時間/手際 (moved to .cooking-timing-summary, Gameplay UX PR-C)", () => {
     render(
       <ResultPanel
         {...baseProps()}
@@ -170,18 +170,18 @@ describe("ResultPanel", () => {
         efficiencyCredit={baseEfficiencyCredit()}
       />,
     );
-    expect(screen.getByText("調理時間")).toBeInTheDocument();
-    expect(screen.getByText("0:42")).toBeInTheDocument();
-    expect(screen.getByText("手際")).toBeInTheDocument();
-    expect(screen.getByText("スムーズ")).toBeInTheDocument();
     expect(screen.getByText("手際ボーナス")).toBeInTheDocument();
     expect(screen.getByText("+6 Pitz")).toBeInTheDocument();
     // Headline total and the balance arrow both include the bonus on top of earnedPitz/balanceAfter.
     expect(screen.getByText(/\+48 Pitz/)).toBeInTheDocument();
     expect(screen.getByText(/148/)).toBeInTheDocument();
+    // 調理時間/手際 no longer appear as their own dt/dd rows inside the Pitz breakdown.
+    const pitzBreakdown = document.querySelector(".pitz-credit-summary__details");
+    expect(pitzBreakdown).not.toHaveTextContent("調理時間");
+    expect(pitzBreakdown?.querySelector("dt")?.textContent).not.toBe("手際");
   });
 
-  it("omits the Efficiency bonus row (but still shows 手際) when bonusPitz is 0", () => {
+  it("omits the Efficiency bonus row when bonusPitz is 0", () => {
     render(
       <ResultPanel
         {...baseProps()}
@@ -189,15 +189,11 @@ describe("ResultPanel", () => {
         efficiencyCredit={baseEfficiencyCredit({ tier: "NORMAL", bonusRate: 0, bonusPitz: 0 })}
       />,
     );
-    expect(screen.getByText("手際")).toBeInTheDocument();
-    expect(screen.getByText("ふつう")).toBeInTheDocument();
     expect(screen.queryByText("手際ボーナス")).not.toBeInTheDocument();
   });
 
-  it("omits every Cooking Time / Efficiency row when efficiencyCredit is null/omitted (Mission round, or no timing data)", () => {
+  it("omits the Efficiency bonus row when efficiencyCredit is null/omitted (Mission round, or no timing data)", () => {
     render(<ResultPanel {...baseProps()} pitzCredit={basePitzCredit()} />);
-    expect(screen.queryByText("調理時間")).not.toBeInTheDocument();
-    expect(screen.queryByText("手際")).not.toBeInTheDocument();
     expect(screen.queryByText("手際ボーナス")).not.toBeInTheDocument();
   });
 
@@ -205,7 +201,7 @@ describe("ResultPanel", () => {
   // even a defensively-passed non-null efficiencyCredit (a stale prop, a future caller bug)
   // must not leak through, since the whole FAILED branch returns before ever reaching the
   // pitzCredit/efficiencyCredit markup (see ResultPanel.tsx's own early return).
-  it("FAILED never renders 調理時間/手際/手際ボーナス, even if efficiencyCredit/pitzCredit are (incorrectly) non-null", () => {
+  it("FAILED never renders 手際ボーナス or the Timing summary, even if efficiencyCredit/pitzCredit are (incorrectly) non-null", () => {
     render(
       <ResultPanel
         {...baseProps()}
@@ -216,11 +212,145 @@ describe("ResultPanel", () => {
     );
     expect(screen.getByText("失敗")).toBeInTheDocument();
     expect(screen.getByText(/\+0 Pitz/)).toBeInTheDocument();
-    expect(screen.queryByText("調理時間")).not.toBeInTheDocument();
-    expect(screen.queryByText("手際")).not.toBeInTheDocument();
     expect(screen.queryByText("手際ボーナス")).not.toBeInTheDocument();
+    expect(document.querySelector(".cooking-timing-summary")).not.toBeInTheDocument();
     expect(screen.queryByText(/\+42 Pitz/)).not.toBeInTheDocument();
     expect(screen.queryByText(/\+10 Pitz/)).not.toBeInTheDocument();
+  });
+
+  // Gameplay UX PR-C (Timing Transparency, Fresh Audit §5/§6): a short, always-visible Tier 1
+  // elapsed-time line plus a Tier 2 native <details> per-step breakdown, standalone from the
+  // Pitz card above (no duplication -- see the tests above).
+  describe("Timing Transparency (.cooking-timing-summary)", () => {
+    it("renders the elapsed-time headline and 手際 tier when efficiencyCredit is provided, as a default-closed <details> when step rows exist", () => {
+      render(
+        <ResultPanel
+          {...baseProps()}
+          efficiencyCredit={baseEfficiencyCredit()}
+          stepTimingRows={[{ step: "DOUGH", elapsedMs: 8_000 }]}
+        />,
+      );
+      const timing = document.querySelector(".cooking-timing-summary");
+      expect(timing).toBeInTheDocument();
+      expect(timing?.tagName).toBe("DETAILS");
+      expect(timing).not.toHaveAttribute("open");
+      expect(timing).toHaveTextContent("調理時間");
+      expect(timing).toHaveTextContent("0:42");
+      expect(timing).toHaveTextContent("手際");
+      expect(timing).toHaveTextContent("スムーズ");
+    });
+
+    it("omits the Timing summary entirely when efficiencyCredit is null/omitted (Mission round)", () => {
+      render(<ResultPanel {...baseProps()} />);
+      expect(document.querySelector(".cooking-timing-summary")).not.toBeInTheDocument();
+    });
+
+    // Defensive/test-only case: a real FREE round with a finalized efficiencyCredit always has
+    // at least one finalized step, but the component must still degrade gracefully (a plain,
+    // non-interactive line, not an emptily-expandable <details>) if it ever happens.
+    it("renders a plain, non-expandable line (not a <details>) when stepTimingRows is empty", () => {
+      render(<ResultPanel {...baseProps()} efficiencyCredit={baseEfficiencyCredit()} stepTimingRows={[]} />);
+      const timing = document.querySelector(".cooking-timing-summary");
+      expect(timing).toBeInTheDocument();
+      expect(timing?.tagName).not.toBe("DETAILS");
+      expect(timing).toHaveTextContent("調理時間");
+      expect(timing).toHaveTextContent("0:42");
+    });
+
+    it("reveals one row per step, in order, once the <details> is opened", () => {
+      render(
+        <ResultPanel
+          {...baseProps()}
+          efficiencyCredit={baseEfficiencyCredit()}
+          stepTimingRows={[
+            { step: "DOUGH", elapsedMs: 8_000 },
+            { step: "SAUCE", elapsedMs: 12_000 },
+            { step: "TOPPING", elapsedMs: 21_000 },
+          ]}
+        />,
+      );
+      const timing = document.querySelector(".cooking-timing-summary") as HTMLDetailsElement;
+      fireEvent.click(document.querySelector(".cooking-timing-summary__summary") as HTMLElement);
+      expect(timing).toHaveAttribute("open");
+      const rows = timing.querySelectorAll(".cooking-timing-summary__row");
+      expect(rows).toHaveLength(3);
+      expect(rows[0]).toHaveTextContent("生地");
+      expect(rows[0]).toHaveTextContent("0:08");
+      expect(rows[1]).toHaveTextContent("ソース");
+      expect(rows[1]).toHaveTextContent("0:12");
+      expect(rows[2]).toHaveTextContent("具材");
+      expect(rows[2]).toHaveTextContent("0:21");
+    });
+
+    // PR-A (Dynamic Cooking Steps): marinara/fugazza/pizza-bianca never have a CHEESE step at
+    // all -- the caller (GameScreen.tsx's `stepTimingRows`) already filters this from the
+    // round's own `cookingProfile.steps`, so this component never receives a CHEESE row for
+    // them. Asserted here at the component level too, since this is the one place a stray
+    // CHEESE row would actually render if ever passed.
+    it("never renders a step row that was not passed in stepTimingRows (e.g. CHEESE for a no-cheese recipe)", () => {
+      render(
+        <ResultPanel
+          {...baseProps()}
+          efficiencyCredit={baseEfficiencyCredit()}
+          stepTimingRows={[
+            { step: "DOUGH", elapsedMs: 8_000 },
+            { step: "SAUCE", elapsedMs: 12_000 },
+            { step: "TOPPING", elapsedMs: 21_000 },
+          ]}
+        />,
+      );
+      fireEvent.click(document.querySelector(".cooking-timing-summary__summary") as HTMLElement);
+      expect(screen.queryByText("チーズ")).not.toBeInTheDocument();
+    });
+
+    // Similarly for quattro-formaggi (no TOPPING step).
+    it("never renders a TOPPING row for a no-topping recipe (e.g. quattro-formaggi)", () => {
+      render(
+        <ResultPanel
+          {...baseProps()}
+          efficiencyCredit={baseEfficiencyCredit()}
+          stepTimingRows={[
+            { step: "DOUGH", elapsedMs: 8_000 },
+            { step: "SAUCE", elapsedMs: 12_000 },
+            { step: "CHEESE", elapsedMs: 9_000 },
+          ]}
+        />,
+      );
+      fireEvent.click(document.querySelector(".cooking-timing-summary__summary") as HTMLElement);
+      const timing = document.querySelector(".cooking-timing-summary");
+      expect(timing?.querySelector(".cooking-timing-summary__details")?.textContent).not.toContain("具材");
+    });
+
+    // Audit §8: CUT time is measured but deliberately excluded from the `調理時間` whole-round
+    // total -- a CUT row must carry a disclaimer so it is never misread as already summed in.
+    it("omits the CUT-time disclaimer note when no CUT row is present", () => {
+      render(
+        <ResultPanel
+          {...baseProps()}
+          efficiencyCredit={baseEfficiencyCredit()}
+          stepTimingRows={[{ step: "DOUGH", elapsedMs: 8_000 }]}
+        />,
+      );
+      fireEvent.click(document.querySelector(".cooking-timing-summary__summary") as HTMLElement);
+      expect(screen.queryByText(/カットの時間は含みません/)).not.toBeInTheDocument();
+    });
+
+    it("shows the CUT-time disclaimer note when a CUT row is present, after opening the breakdown", () => {
+      render(
+        <ResultPanel
+          {...baseProps()}
+          efficiencyCredit={baseEfficiencyCredit()}
+          stepTimingRows={[
+            { step: "DOUGH", elapsedMs: 8_000 },
+            { step: "CUT", elapsedMs: 15_000 },
+          ]}
+        />,
+      );
+      fireEvent.click(document.querySelector(".cooking-timing-summary__summary") as HTMLElement);
+      expect(screen.getByText(/カットの時間は含みません/)).toBeInTheDocument();
+      expect(screen.getByText("カット")).toBeInTheDocument();
+      expect(screen.getByText("0:15")).toBeInTheDocument();
+    });
   });
 
   // Pizza Cutting 1.0 Phase 3 (docs/design/TETO_PIZZA-CUTTING_1.0.md §14 Option D / RESULT UI

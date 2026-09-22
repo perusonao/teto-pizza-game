@@ -189,11 +189,14 @@ async function advanceThroughMakingSteps(user: ReturnType<typeof userEvent.setup
   await selectAndTapPizza(user, "たまご", 50, 65);
 }
 
+// Gameplay UX PR-C (Timing Transparency): 調理時間 moved from `.pitz-credit-summary__row` into
+// its own always-visible `.cooking-timing-summary` headline (a `<details>`'s own `<summary>` when
+// per-step rows exist -- the real-production shape -- see ResultPanel.tsx) -- reads the
+// elapsed-time text out of that headline's own `<strong>`, no dt/dd row anymore.
 function readDisplayedCookingTime(): string {
-  const dt = screen.getByText("調理時間");
-  const row = dt.closest(".pitz-credit-summary__row");
-  if (!row) throw new Error("Cooking Time row missing from RESULT");
-  return row.querySelector("dd")?.textContent ?? "";
+  const timing = document.querySelector(".cooking-timing-summary");
+  if (!timing) throw new Error("Cooking Time summary missing from RESULT");
+  return timing.querySelector("strong")?.textContent ?? "";
 }
 
 beforeEach(() => {
