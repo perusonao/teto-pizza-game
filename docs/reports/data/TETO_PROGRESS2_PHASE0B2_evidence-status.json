@@ -1,0 +1,76 @@
+{
+  "schemaNote": "Phase 0B.2 evidence-status ledger (Issue #182 / PR #183 comment #5774835400). This is the single source of truth for 'how much of the owner-reported 172-entry PIZZA DB population does this repo actually have externally-relayed evidence for, and how much is still missing.' No name, count, or recipe row in this file is invented -- every 'pending' entry has zero content, by design, until real evidence is relayed. Read by tools/progression2_evidence_invariants.py, which fails the build if this file's own invariants are violated (see that script's docstring).",
+  "populations": {
+    "ja-172": {
+      "label": "PIZZA DB Japanese canonical population (日本語トップ/比較ページ)",
+      "claimedTotal": 172,
+      "sourceUrls": ["https://pizzadb.jp/", "https://pizzadb.jp/compare/world-pizzas/", "https://pizzadb.jp/recommend/"],
+      "isCanonicalPopulationForIssue182": true
+    },
+    "en-160": {
+      "label": "PIZZA DB English translated subset",
+      "claimedTotal": 160,
+      "sourceUrls": ["https://pizzadb.jp/en/", "https://pizzadb.jp/en/pizzas/"],
+      "isCanonicalPopulationForIssue182": false,
+      "usableForJa172Completeness": false,
+      "note": "A translated SUBSET of ja-172, not a separate or interchangeable population. No count, name, or ingredient sourced from en-160 may be used to mark a ja-172 gap as filled. Enforced by tools/progression2_evidence_invariants.py's population-tag check."
+    }
+  },
+  "recipeRowEvidence": {
+    "population": "ja-172",
+    "totalClaimed": 172,
+    "evidencedCount": 25,
+    "evidencedSource": "docs/reports/data/TETO_PROGRESS2_PHASE0B_pizzadb-external-samples.json",
+    "evidencedPages": [1, 2, 3, 4, 5, 6],
+    "pendingPages": [7, 8, 9, 10, 11, 12, 13, 14, 15],
+    "pendingCountKnown": false,
+    "pendingCountNote": "172 - 25 = 147 recipe rows have zero evidence. The exact per-page distribution among pages 7-15 is unknown (page density is not uniform -- page 1 had 5 entries, page 4 had only 3).",
+    "status": "incomplete",
+    "requiredForFullDeadlockSimulation": true
+  },
+  "ingredientOccurrenceEvidence": {
+    "population": "ja-172",
+    "evidencedSource": "docs/reports/data/TETO_PROGRESS2_PHASE0B1_ingredient-universe-diff.json",
+    "tiers": [
+      {"occurrenceTier": ">=5 (named individually, 117 down to 5)", "status": "evidenced", "namedIngredientCount": 36},
+      {"occurrenceTier": "4", "status": "pending", "namedIngredientCount": 0, "note": "Tier confirmed to exist by the relayed comment; individual names/counts NOT provided -- not invented here."},
+      {"occurrenceTier": "3", "status": "pending", "namedIngredientCount": 0, "note": "Same as tier 4."},
+      {"occurrenceTier": "2", "status": "pending", "namedIngredientCount": 0, "note": "Same as tier 4."},
+      {"occurrenceTier": "1", "status": "pending", "namedIngredientCount": 0, "note": "Same as tier 4."}
+    ],
+    "totalNamedIngredientCount": 36,
+    "fullIngredientUniverseKnown": false,
+    "note": "IMPORTANT: these are INGREDIENT OCCURRENCE COUNTS (how many of the 172 recipes use this ingredient), not a count of recipes and not a substitute for recipeRowEvidence above. tools/progression2_evidence_invariants.py checks the two are never conflated."
+  },
+  "sauceFamilyEvidence": {
+    "population": "ja-172",
+    "evidencedSource": "docs/reports/data/TETO_PROGRESS2_PHASE0B1_ingredient-universe-diff.json",
+    "categories": [
+      {"family": "tomato sauce", "count": 60},
+      {"family": "cheese", "count": 34},
+      {"family": "other", "count": 17},
+      {"family": "basil", "count": 11},
+      {"family": "no sauce", "count": 10},
+      {"family": "sweet-savory", "count": 9},
+      {"family": "hot sauce", "count": 8},
+      {"family": "white sauce", "count": 8},
+      {"family": "curry", "count": 7},
+      {"family": "dessert sauce", "count": 5},
+      {"family": "oil", "count": 3}
+    ],
+    "categoriesSum": 172,
+    "claimedTotal": 172,
+    "invariantPasses": true
+  },
+  "openRequestsForExternalEvidence": [
+    {"item": "Occurrence-tier 4/3/2/1 ingredient names + exact counts", "population": "ja-172", "requiredFormat": "name (Japanese), occurrence count, source URL/page", "invented": false},
+    {"item": "Recipe rows for PIZZA DB compare pages 7-15", "population": "ja-172", "requiredFormat": "dish name, sauce family, main ingredients, source page number", "invented": false},
+    {"item": "Independent re-verification of the 25 already-relayed samples and the 36 already-relayed ingredient names", "population": "ja-172", "requiredFormat": "this Claude Code session re-fetching pizzadb.jp directly, blocked by EGRESS_BLOCKED as of this Phase", "invented": false}
+  ],
+  "thisSessionsOwnFetchStatus": {
+    "lastCheckedThisPhase": "2026-09-22 (Phase 0B.2)",
+    "result": "EGRESS_BLOCKED",
+    "domainsTested": ["pizzadb.jp"],
+    "note": "No new external fetch was attempted or claimed successful in Phase 0B.2. This ledger only organizes evidence already relayed in prior PR #183 comments."
+  }
+}
