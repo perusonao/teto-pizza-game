@@ -78,14 +78,23 @@ def recompute_counters(ledger):
     gap_ids = [r["id"] for r in rows if r.get("evidenceGaps")]
     catalog_ids = [r["id"] for r in rows if r.get("correspondsToExistingCatalogId")]
     corroborations = ledger.setdefault("corroborations", [])
+    # NOTE: despite the array's historical name (individualProfilePageRows,
+    # from Phase 0B.4 when every appended row WAS an individual-profile
+    # fetch), rows appended since Phase 0B.6 can carry
+    # evidenceOrigin="comparison_table_sample" too (a second, later
+    # comparison-table batch distinct from Phase 0B's original 25). Split by
+    # each row's own evidenceOrigin rather than assuming the array is
+    # homogeneous, so independentlyFreshVerifiedRows never overcounts.
+    appended_individual_profile = [r for r in rows if r.get("evidenceOrigin") == "individual_profile_page"]
+    appended_comparison_table = [r for r in rows if r.get("evidenceOrigin") == "comparison_table_sample"]
     ledger["counters"] = {
         "uniqueRecipeRowsEvidencedTotal": total,
-        "uniqueRecipeRowsEvidencedFormula": f"{comparison_count} (comparison_table_sample) + {len(rows)} (individual_profile_page, deduplicated against the {comparison_count} + all prior individual-profile rows)",
+        "uniqueRecipeRowsEvidencedFormula": f"{comparison_count} (Phase 0B original comparison_table_sample) + {len(appended_comparison_table)} (later comparison_table_sample batches) + {len(appended_individual_profile)} (individual_profile_page) = {total}, all deduplicated against each other",
         "claimedTotalPopulation": CLAIMED_TOTAL_POPULATION,
         "coveragePercent": round(100 * total / CLAIMED_TOTAL_POPULATION, 1),
-        "independentlyFreshVerifiedRows": len(rows),
+        "independentlyFreshVerifiedRows": len(appended_individual_profile),
         "independentlyFreshVerifiedNote": ledger["counters"].get("independentlyFreshVerifiedNote", ""),
-        "relayedOnlyRows": comparison_count,
+        "relayedOnlyRows": comparison_count + len(appended_comparison_table),
         "relayedOnlyNote": ledger["counters"].get("relayedOnlyNote", ""),
         "duplicateCorroborationsCount": len(corroborations),
         "duplicateCorroborationsNote": "Each entry in the top-level 'corroborations' list is a re-confirmation of an already-evidenced row (new source URL/date), found either by exact id/nameJa match (matchType=automatic_exact_match) or by human ingredient-set review (matchType=manual_review) -- never counted toward uniqueRecipeRowsEvidencedTotal.",

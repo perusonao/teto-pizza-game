@@ -79,6 +79,7 @@ PHASE0B_NEW_INGREDIENT_NAMES = {
 LIKELY_ALIAS_TABLE = {
     "オリーブ": ("black-olive", "Existing catalog's only olive-type ingredient; PIZZA DB's plain 'olive' doesn't specify color/variety, so this is a confidence-flagged match, not exact."),
     "コリアンダー": ("cilantro", "Same plant as existing cilantro (nameJa パクチー) -- coriander leaf and cilantro are the same herb under different common names."),
+    "大葉": ("shiso", "Phase 0B.6 finding: 大葉 (ooba) is the common culinary name for shiso leaf, same plant as the already-registered genuinely_new 'shiso' (nameJa しそ, Phase 0B.3) -- different common name, not a new ingredient."),
     # Phase 0B.3 additions:
     "鶏肉": ("chicken", "Japanese native word for chicken meat vs. existing loanword チキン -- same ingredient, different common name."),
     "ゴルゴンゾーラチーズ": ("gorgonzola", "チーズ suffix variant of existing gorgonzola's nameJa ゴルゴンゾーラ."),
