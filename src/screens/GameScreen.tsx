@@ -35,6 +35,7 @@ import type { GameState } from "../state/gameReducer";
 import { discoveredRecipeIds } from "../state/dex";
 import { remainingSeconds, type MissionState } from "../mission/lunchRush";
 import { averageQualityScore, missionScore } from "../logic/missionScoring";
+import { deriveMissionResultStats } from "../logic/missionResultStats";
 import { calculateMissionReward } from "../logic/economy";
 import type { PieceReferenceMetrics } from "../logic/referenceMatching";
 import type { DoughPoint } from "../logic/pizzaCoordinates";
@@ -663,7 +664,7 @@ export function GameScreen({
 
       {mission.mode === "RESULT" && (
         <MissionResultOverlay
-          servedCount={mission.metrics.servedCount}
+          stats={deriveMissionResultStats(mission.serves)}
           averageQuality={averageQualityScore(mission.metrics)}
           bestQuality={mission.metrics.bestQualityScore}
           score={missionScore(mission.metrics)}

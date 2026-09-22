@@ -2168,6 +2168,48 @@
   font-weight: 700;
 }
 
+/* Lunch Rush Phase 4 (Result Summary): attempts/success/failure/rate -- one headline row
+   (`__row--attempts`) plus one row of three compact chips, instead of four separate
+   `.mission-result__row`s, to keep this addition's footprint on a 360x800 viewport small. */
+.mission-result__row--attempts {
+  font-weight: 700;
+}
+
+.mission-result__attempt-grid {
+  display: flex;
+  gap: 6px;
+  width: 100%;
+}
+
+.mission-result__attempt-chip {
+  flex: 1;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #4a2e0a;
+  background: #fff8ea;
+  border-radius: 8px;
+  padding: 4px 2px;
+}
+
+.mission-result__attempt-chip strong {
+  display: block;
+  font-size: 15px;
+  color: #6b4226;
+}
+
+.mission-result__attempt-chip--success strong {
+  color: #4c9a2a;
+}
+
+.mission-result__attempt-chip--failure strong {
+  color: #b3401f;
+}
+
+.mission-result__attempt-chip--rate strong {
+  color: #2f5590;
+}
+
 .mission-result__new-best {
   margin-left: auto;
   font-size: 11px;
@@ -2285,13 +2327,32 @@
   flex-shrink: 0;
 }
 
-/* Player Profile 1.0 Phase 1B (Issue #129). flex: 1 + min-width: 0 is what lets a long (up to
-   20-codepoint) name truncate with an ellipsis instead of pushing score/rank off-screen or
-   wrapping the row onto a second line -- score keeps its own fixed, un-shrinkable width via
-   flex-shrink: 0 below, so it is never squeezed illegibly by a long name. */
-.ranking-overlay__name {
+/* Lunch Rush Phase 4 (Ranking achievedAt display): name + achieved-at stacked in their own
+   column so achievedAt never competes with rank/score/you-badge for horizontal room (task's
+   own "achievedAt must not crowd out player identity/score" requirement) -- flex: 1 +
+   min-width: 0 moved here from .ranking-overlay__name itself, unchanged from before. */
+.ranking-overlay__identity {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+/* Player Profile 1.0 Phase 1B (Issue #129). Truncates with an ellipsis instead of pushing
+   score/rank off-screen or wrapping the row onto a second line -- score keeps its own fixed,
+   un-shrinkable width via flex-shrink: 0 below, so it is never squeezed illegibly by a long
+   name. */
+.ranking-overlay__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ranking-overlay__achieved-at {
+  font-size: 10px;
+  font-weight: 600;
+  color: #8a6a45;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

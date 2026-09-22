@@ -78,6 +78,10 @@ export interface WeeklyLeaderboardCurrentUserRank {
   score: number;
   /** Same resolution as WeeklyLeaderboardEntry.displayName -- see that field's own comment. */
   displayName: string;
+  /** Lunch Rush Phase 4 (Ranking achievedAt display): same field, same `toAchievedAtMillis`
+   *  resolution as `WeeklyLeaderboardEntry.achievedAt` above -- already stored on this document
+   *  (`ownSnapshot`), just not previously read into this result shape. No new Firestore field. */
+  achievedAt: number | null;
 }
 
 export type GetWeeklyLeaderboardResult =
@@ -155,6 +159,7 @@ export async function getWeeklyLeaderboard(now: number = Date.now()): Promise<Ge
           rank: higherCount.data().count + 1,
           score: ownScore,
           displayName: resolveEntryDisplayName(ownSnapshot.data().displayName),
+          achievedAt: toAchievedAtMillis(ownSnapshot.data().achievedAt),
         };
       }
     }

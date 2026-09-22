@@ -388,6 +388,51 @@ export async function playFullCapricciosaRound(page: Page) {
   }
 }
 
+/**
+ * Lunch Rush Phase 4 (Result Summary & Ranking achievedAt): starts a *real*, wall-clock Mission
+ * run (unlike the `?missionDuration=1` fixtures used elsewhere in this repo's e2e suite, which
+ * exist specifically to reach RESULT almost instantly with `servedCount=0`). Drives HOME ->
+ * ランチラッシュ intro -> スタート -> the first order's own "ピザを作る！" tap, landing on
+ * PREPARE/DOUGH for the first order -- from there, `playFullMargheritaRound`/
+ * `failMissionOrderMissingSauce` below drive individual orders.
+ */
+export async function startLunchRushMission(page: Page, durationSeconds: number) {
+  await page.goto(`/?missionDuration=${durationSeconds}`);
+  await page.evaluate(() => localStorage.clear());
+  await page.reload();
+  await page.waitForSelector(".app-frame");
+  await page.getByRole("button", { name: /ランチラッシュ/ }).click();
+  await page.getByRole("button", { name: "スタート" }).click();
+  await page.getByRole("button", { name: "ピザを作る！" }).click();
+  await page.waitForSelector(".pizza-stage");
+}
+
+/**
+ * Lunch Rush Phase 4: produces a genuine `MISSING_REQUIRED_INGREDIENT` Completion Gate failure
+ * (src/logic/completionGate.ts) via the real UI, for a live Mission run's current order --
+ * Mission state (`serves`/PASS-FAILED history) is pure in-memory React state, not part of the
+ * persisted save, so a FAILED serve cannot be pre-seeded via localStorage the way
+ * `startQuattroFormaggiHeavyInventory`/`startSalsicciaUnlocked` above seed ownership/dex state.
+ *
+ * Deliberately skips the SAUCE step's own ingredient entirely (no chip tap, no paint gesture)
+ * -- SAUCE has no completion gate of its own (`nextStepReady`, src/screens/GameScreen.tsx, only
+ * ever gates DOUGH), so "次へ" stays enabled and the round can proceed all the way to BAKE with
+ * zero of the recipe's required sauce ingredient placed. Every shipped recipe requires at least
+ * one sauce ingredient at `minCount >= 1` (src/data/recipes.ts), so this reliably reproduces
+ * `MISSING_REQUIRED_INGREDIENT` regardless of which recipe Lunch Rush happens to serve up this
+ * order. Skips the real bake-timing wait `playFullMargheritaRound` uses for a PASS round --
+ * completionGate.ts's own `PRIORITY_ORDER` always ranks a missing-ingredient failure above
+ * UNDERBAKED/OVERBAKED, so the exact needle position at "取り出す！" never changes this outcome.
+ */
+export async function failMissionOrderMissingSauce(page: Page) {
+  await completeDoughStep(page);
+  await page.getByRole("button", { name: /次へ/ }).click(); // DOUGH -> SAUCE
+  await page.getByRole("button", { name: /次へ/ }).click(); // SAUCE (skipped) -> CHEESE
+  await page.getByRole("button", { name: /次へ/ }).click(); // CHEESE -> TOPPING
+  await page.getByRole("button", { name: /焼く/ }).click();
+  await page.getByRole("button", { name: "取り出す！" }).click();
+}
+
 export async function startSalsicciaUnlocked(page: Page) {
   const save = {
     schemaVersion: 2,
