@@ -94,6 +94,33 @@ function completeDoughStep() {
   }
 }
 
+// Pizza Cutting 1.0 Phase 4B: bismarck is now CUT-eligible (../data/cookingProfiles.ts), so
+// 取り出す！ lands on POST_BAKE/CUT instead of RESULT directly. Mirrors App.test.tsx's own
+// `completeCutStepIfPresent` helper.
+async function completeCutStepIfPresent(user: ReturnType<typeof userEvent.setup>) {
+  if (!screen.queryByRole("button", { name: /切り終わる/ })) return;
+  const dough = document.querySelector<HTMLElement>('[data-pizza-drop-target="true"]');
+  if (!dough) throw new Error("Pizza dough missing");
+  dough.getBoundingClientRect = () =>
+    ({ left: 0, top: 0, width: 300, height: 300, right: 300, bottom: 300, x: 0, y: 0, toJSON: () => {} }) as DOMRect;
+  const center = 150;
+  const radius = 140;
+  for (const angleDeg of [0, 60, 120]) {
+    const angle = (angleDeg * Math.PI) / 180;
+    const dx = Math.cos(angle) * radius;
+    const dy = Math.sin(angle) * radius;
+    const startX = center - dx;
+    const startY = center - dy;
+    const endX = center + dx;
+    const endY = center + dy;
+    const pointerId = Math.floor(Math.random() * 1_000_000);
+    fireEvent.pointerDown(dough, { pointerId, isPrimary: true, pointerType: "touch", clientX: startX, clientY: startY });
+    fireEvent.pointerMove(dough, { pointerId, isPrimary: true, pointerType: "touch", clientX: endX, clientY: endY });
+    fireEvent.pointerUp(dough, { pointerId, isPrimary: true, pointerType: "touch", clientX: endX, clientY: endY });
+  }
+  await user.click(screen.getByRole("button", { name: /切り終わる/ }));
+}
+
 describe("Mini Reference (Margherita, Scoring 2.0 fixture)", () => {
   it("is visible during PREPARE without pressing anything", async () => {
     const user = userEvent.setup();
@@ -172,6 +199,7 @@ describe("Mini Reference (Bismarck, B2 PART C2 -- also a Scoring 2.0 fixture rec
     // RESULT 2.0 Slice 1: REGISTER_TO_DEX now applies automatically at BAKE -> RESULT, so this
     // lands directly on the merged Hero result screen -- no separate registration tap.
     await user.click(screen.getByRole("button", { name: "取り出す！" }));
+    await completeCutStepIfPresent(user);
 
     await user.click(screen.getByRole("button", { name: "もう一度つくる" }));
 

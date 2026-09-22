@@ -634,7 +634,10 @@ describe("HOME/GAME separation (Issue #24)", () => {
     // RESULT 2.0 Slice 1: REGISTER_TO_DEX now applies automatically at BAKE -> RESULT (App.tsx's
     // handleConfirmBake), so this one tap lands directly on the merged Hero result screen --
     // there is no separate "レシピ図鑑に登録する" tap between RESULT and DISCOVERED anymore.
-    await user.click(screen.getByRole("button", { name: "取り出す！" })); // BAKE -> RESULT/DISCOVERED
+    await user.click(screen.getByRole("button", { name: "取り出す！" })); // BAKE -> POST_BAKE/CUT
+    // Pizza Cutting 1.0 Phase 4B: bismarck is now CUT-eligible, so this lands on POST_BAKE/CUT
+    // first -- complete it via the same real-UI gesture margherita's own CUT test uses.
+    await completeCutStepIfPresent(user);
     // Issue #47 Finding D: the old single "もう一度作る" (always a *different* recipe) is
     // replaced by two explicit actions.
     expect(screen.queryByRole("button", { name: "もう一度作る" })).not.toBeInTheDocument();
@@ -691,11 +694,22 @@ describe("HOME/GAME separation (Issue #24)", () => {
 
     // bismarck's bakeTarget is {55, 75} -- 65 sits in the middle of the perfect zone.
     needle.driveTo(65);
-    await user.click(screen.getByRole("button", { name: "取り出す！" }));
+    await user.click(screen.getByRole("button", { name: "取り出す！" })); // BAKE -> POST_BAKE/CUT
     needle.unstub();
 
+    // Pizza Cutting 1.0 Phase 4B: bismarck is now CUT-eligible (../data/cookingProfiles.ts), so
+    // BAKE confirm lands on POST_BAKE/CUT, not RESULT/DISCOVERED directly -- complete it via the
+    // same real-UI gesture margherita's own CUT test uses before the RESULT/DISCOVERED
+    // assertions below. The still-live "a non-CUT recipe never shows a fabricated CUT card"
+    // protection this test used to pin here now lives where it actually belongs -- a pure,
+    // recipe-independent prop test (ResultPanel.test.tsx's "omits the CUT evaluation summary
+    // for a non-CUT recipe (cutEvaluation null)") plus the allowlist/reducer-level synthetic
+    // ineligible-fixture coverage (cookingProfiles.test.ts, gameReducer.cutStep.test.ts).
+    expect(screen.getByRole("button", { name: /切り終わる/ })).toBeInTheDocument();
+    await completeCutStepIfPresent(user);
+
     // No intermediate "score only, tap to register" screen -- the discovery banner, the CTAs,
-    // and the completed pizza are all present on the very first render after confirming BAKE.
+    // and the completed pizza are all present on the very first render after CUT confirms.
     expect(screen.queryByRole("button", { name: "レシピ図鑑に登録する" })).not.toBeInTheDocument();
     expect(screen.getByText(/を発見しました/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "もう一度つくる" })).toBeInTheDocument();
@@ -706,11 +720,12 @@ describe("HOME/GAME separation (Issue #24)", () => {
     const pizzaAfterConfirm = document.querySelector(".pizza-stage .pizza-dough");
     expect(pizzaAfterConfirm).toBe(pizzaBeforeConfirm);
 
-    // Pizza Cutting 1.0 Phase 3: bismarck's own profile never includes CUT (Phase 2 activated
-    // it on margherita only) -- its RESULT must never show a CUT evaluation card, not even an
-    // empty/zero one (the task's own "非CUTレシピでは...0点表示をしない" requirement).
-    expect(document.querySelector(".cut-evaluation-summary")).not.toBeInTheDocument();
-    expect(screen.queryByText(/カット/)).not.toBeInTheDocument();
+    // Pizza Cutting 1.0 Phase 4B: bismarck is now CUT-eligible -- its RESULT now DOES show the
+    // CUT evaluation card (positive case; regression for the "non-CUT recipe" case moved to
+    // ResultPanel.test.tsx/cookingProfiles.test.ts/gameReducer.cutStep.test.ts as noted above).
+    const cutCard = document.querySelector(".cut-evaluation-summary");
+    expect(cutCard).toBeInTheDocument();
+    expect(cutCard).toHaveTextContent(/カット/);
   });
 
   // Pizza Cutting 1.0 Phase 3 (docs/design/TETO_PIZZA-CUTTING_1.0.md §14 Option D / RESULT UI
@@ -782,6 +797,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
     await user.click(screen.getByRole("button", { name: /次へ/ }));
     await user.click(screen.getByRole("button", { name: /焼く/ }));
     await user.click(screen.getByRole("button", { name: "取り出す！" }));
+    await completeCutStepIfPresent(user);
 
     await user.click(screen.getByRole("button", { name: "もう一度つくる" }));
 
@@ -809,6 +825,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
     await user.click(screen.getByRole("button", { name: /次へ/ }));
     await user.click(screen.getByRole("button", { name: /焼く/ }));
     await user.click(screen.getByRole("button", { name: "取り出す！" }));
+    await completeCutStepIfPresent(user);
 
     await user.click(screen.getByRole("button", { name: "別のピザを作る" }));
 
@@ -831,6 +848,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
     await user.click(screen.getByRole("button", { name: /次へ/ }));
     await user.click(screen.getByRole("button", { name: /焼く/ }));
     await user.click(screen.getByRole("button", { name: "取り出す！" }));
+    await completeCutStepIfPresent(user);
 
     const pitzBefore = screen.getByLabelText(/Pitz残高/).textContent;
     await user.click(screen.getByRole("button", { name: "もう一度つくる" }));

@@ -73,9 +73,15 @@ function stateAtFugazzaBake(
 describe("Economy & Progression 1.0 EP2: CONFIRM_BAKE inventory consumption", () => {
   it("consumes exactly the placed piece count on the first CONFIRM_BAKE, not the recipe's minCount", () => {
     const baking = stateAtFugazzaBake(pizzaWithOnions(5), { onion: 20 });
-    const result = gameReducer(baking, { type: "CONFIRM_BAKE", value: 70 });
+    const confirmed = gameReducer(baking, { type: "CONFIRM_BAKE", value: 70 });
+    // Pizza Cutting 1.0 Phase 4B: fugazza is now CUT-eligible, so CONFIRM_BAKE lands on
+    // POST_BAKE/CUT rather than RESULT directly -- inventory consumption itself happens at
+    // CONFIRM_BAKE (unconditional, unaffected by CUT, see ../data/cookingProfiles.ts), so it is
+    // already correct on `confirmed` before CUT is even walked; `walkPostBakeToResult` confirms
+    // it stays unperturbed all the way to RESULT too.
+    expect(confirmed.inventory.onion).toBe(15);
+    const result = walkPostBakeToResult(confirmed);
     expect(result.phase).toBe("RESULT");
-    // fugazza's onion minCount is 4 -- placing 5 must consume 5, not 4.
     expect(result.inventory.onion).toBe(15);
   });
 
