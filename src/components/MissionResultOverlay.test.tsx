@@ -11,7 +11,7 @@ import { MissionResultOverlay } from "./MissionResultOverlay";
  */
 function baseProps() {
   return {
-    servedCount: 5,
+    stats: { attempts: 6, successes: 5, failures: 1, successRatePercent: 83 },
     averageQuality: 72.4,
     bestQuality: 88.9,
     score: 362,
@@ -61,12 +61,68 @@ describe("MissionResultOverlay", () => {
     expect(screen.queryByText("ベスト更新！")).not.toBeInTheDocument();
   });
 
-  it("still renders served count, average quality, and Pitz reward/balance unchanged", () => {
-    render(<MissionResultOverlay {...baseProps()} servedCount={5} averageQuality={72.4} pitzReward={40} pitzBalance={140} />);
-    expect(screen.getByText("5")).toBeInTheDocument();
+  it("still renders average quality and Pitz reward/balance unchanged", () => {
+    render(<MissionResultOverlay {...baseProps()} averageQuality={72.4} pitzReward={40} pitzBalance={140} />);
     expect(screen.getByText("72")).toBeInTheDocument();
     expect(screen.getByText("+40 Pitz")).toBeInTheDocument();
     expect(screen.getByText(/現在残高.*140 Pitz/)).toBeInTheDocument();
+  });
+
+  /** Lunch Rush Phase 4 (Result Summary): attempts/successes/failures/success rate, rendered
+   *  directly from the `stats` prop -- this component trusts the derivation
+   *  (../logic/missionResultStats.ts) rather than recomputing anything itself. */
+  describe("result stats (Phase 4)", () => {
+    it("renders attempts, successes, failures, and success rate from the stats prop", () => {
+      render(
+        <MissionResultOverlay
+          {...baseProps()}
+          stats={{ attempts: 6, successes: 5, failures: 1, successRatePercent: 83 }}
+        />,
+      );
+      expect(screen.getByText("6")).toBeInTheDocument();
+      expect(screen.getByText(/枚挑戦/)).toBeInTheDocument();
+      const grid = document.querySelector(".mission-result__attempt-grid");
+      expect(grid?.textContent).toContain("成功");
+      expect(grid?.textContent).toContain("5");
+      expect(grid?.textContent).toContain("失敗");
+      expect(grid?.textContent).toContain("1");
+      expect(grid?.textContent).toContain("成功率");
+      expect(grid?.textContent).toContain("83%");
+    });
+
+    it("0 attempts renders 0%, never NaN or a crash", () => {
+      render(
+        <MissionResultOverlay
+          {...baseProps()}
+          stats={{ attempts: 0, successes: 0, failures: 0, successRatePercent: 0 }}
+        />,
+      );
+      const grid = document.querySelector(".mission-result__attempt-grid");
+      expect(grid?.textContent).toContain("0%");
+      expect(grid?.textContent).not.toContain("NaN");
+    });
+
+    it("all-successes run shows 0 failures and 100%", () => {
+      render(
+        <MissionResultOverlay
+          {...baseProps()}
+          stats={{ attempts: 4, successes: 4, failures: 0, successRatePercent: 100 }}
+        />,
+      );
+      const grid = document.querySelector(".mission-result__attempt-grid");
+      expect(grid?.textContent).toContain("100%");
+    });
+
+    it("all-failures run shows 0 successes and 0%", () => {
+      render(
+        <MissionResultOverlay
+          {...baseProps()}
+          stats={{ attempts: 3, successes: 0, failures: 3, successRatePercent: 0 }}
+        />,
+      );
+      const grid = document.querySelector(".mission-result__attempt-grid");
+      expect(grid?.textContent).toContain("0%");
+    });
   });
 
   it("Firebase Ranking Phase 2A: the ranking entry point calls onShowRanking", async () => {

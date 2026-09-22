@@ -181,12 +181,34 @@ describe("getWeeklyLeaderboard", () => {
     const result = await getWeeklyLeaderboard(NOW);
     expect(result.status).toBe("success");
     if (result.status !== "success") throw new Error("unreachable");
-    expect(result.currentUserOutsideTop).toEqual({ rank: 5, score: 100, displayName: "ななしピザ職人2号" });
+    expect(result.currentUserOutsideTop).toEqual({
+      rank: 5,
+      score: 100,
+      displayName: "ななしピザ職人2号",
+      achievedAt: 3000,
+    });
     expect(where).toHaveBeenCalledWith("score", ">", 100);
     // No extra users/{uid} profile read -- the name rides the already-fetched leaderboard entry
     // (Option A denormalization); getDoc is only ever called once here, for the leaderboard
     // entry itself.
     expect(getDoc).toHaveBeenCalledTimes(1);
+  });
+
+  it("outside-top-10 with a legacy entry missing achievedAt -> achievedAt is null, never throws", async () => {
+    getCurrentAuthUser.mockReturnValue({ uid: "erin" });
+    topDocs = [{ id: "alice", score: 500, achievedAt: new FakeTimestamp(1000) as unknown as null }];
+    ownDoc = { id: "erin", score: 50, achievedAt: null, displayName: "レガシー勢" };
+    higherScoreCount = 9;
+    const { getWeeklyLeaderboard } = await import("./getWeeklyLeaderboard");
+    const result = await getWeeklyLeaderboard(NOW);
+    expect(result.status).toBe("success");
+    if (result.status !== "success") throw new Error("unreachable");
+    expect(result.currentUserOutsideTop).toEqual({
+      rank: 10,
+      score: 50,
+      displayName: "レガシー勢",
+      achievedAt: null,
+    });
   });
 
   it("signed-in user with no entry this week -> currentUserOutsideTop stays null, no count() query", async () => {

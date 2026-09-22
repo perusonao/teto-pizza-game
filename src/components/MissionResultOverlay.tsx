@@ -1,5 +1,12 @@
+import type { MissionResultStats } from "../logic/missionResultStats";
+
 interface MissionResultOverlayProps {
-  servedCount: number;
+  /** Lunch Rush Phase 4 (Result Summary): `deriveMissionResultStats(mission.serves)` --
+   *  attempts/successes/failures/successRatePercent for this run, PASS-vs-FAILED per the
+   *  Completion Gate (../logic/completionGate.ts). `stats.successes` is what the old standalone
+   *  `servedCount` prop used to carry (both count PASS-only serves from the same run) -- this
+   *  replaces that prop rather than duplicating it alongside. */
+  stats: MissionResultStats;
   averageQuality: number;
   bestQuality: number;
   score: number;
@@ -30,7 +37,7 @@ interface MissionResultOverlayProps {
 /** Shown once a Lunch Rush run's timer expires (Phase 3C-4 section 11). One screen, no extra
  *  navigation -- summarizes the run and offers to go again or head back to free play. */
 export function MissionResultOverlay({
-  servedCount,
+  stats,
   averageQuality,
   bestQuality,
   score,
@@ -47,9 +54,26 @@ export function MissionResultOverlay({
       <div className="mission-overlay__panel">
         <h2 className="mission-overlay__title">ランチラッシュ結果</h2>
         <div className="mission-result__stats">
-          <p className="mission-result__row">
-            {"\u{1F355}"} 提供 <strong>{servedCount}</strong>枚
+          {/* Lunch Rush Phase 4 (Result Summary): attempts/successes/failures/success rate,
+              derived once by ../logic/missionResultStats.ts's `deriveMissionResultStats` from
+              `mission.serves` -- this replaces the old standalone "提供 N枚" row (`successes`
+              carries the exact same value that row used to show). Two lines, not four separate
+              `.mission-result__row`s, to keep this compact on a 360x800 viewport (task's own
+              "don't turn RESULT into a dense dashboard" instruction). */}
+          <p className="mission-result__row mission-result__row--attempts">
+            {"\u{1F355}"} <strong>{stats.attempts}</strong>枚挑戦
           </p>
+          <div className="mission-result__attempt-grid">
+            <span className="mission-result__attempt-chip mission-result__attempt-chip--success">
+              成功 <strong>{stats.successes}</strong>
+            </span>
+            <span className="mission-result__attempt-chip mission-result__attempt-chip--failure">
+              失敗 <strong>{stats.failures}</strong>
+            </span>
+            <span className="mission-result__attempt-chip mission-result__attempt-chip--rate">
+              成功率 <strong>{stats.successRatePercent}%</strong>
+            </span>
+          </div>
           <p className="mission-result__row">
             {"⭐"} 平均 <strong>{Math.round(averageQuality)}</strong>点
           </p>

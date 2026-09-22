@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { getWeeklyLeaderboard, type GetWeeklyLeaderboardResult } from "../firebase";
 import type { JstWeekRange } from "../shared/lunchRushPeriodIds";
+import { formatAchievedAt } from "../shared/formatAchievedAt";
 
 interface WeeklyRankingOverlayProps {
   onClose: () => void;
@@ -136,9 +137,14 @@ export function WeeklyRankingOverlay({ onClose }: WeeklyRankingOverlayProps) {
                   }
                 >
                   <span className="ranking-overlay__rank">{rankLabel(entry.rank)}</span>
-                  <span className="ranking-overlay__name" title={entry.displayName}>
-                    {entry.displayName}
-                  </span>
+                  <div className="ranking-overlay__identity">
+                    <span className="ranking-overlay__name" title={entry.displayName}>
+                      {entry.displayName}
+                    </span>
+                    <span className="ranking-overlay__achieved-at">
+                      {formatAchievedAt(entry.achievedAt)}
+                    </span>
+                  </div>
                   <span className="ranking-overlay__score">{formatScore(entry.score)}</span>
                   {entry.isCurrentUser && <span className="ranking-overlay__you-badge">あなた</span>}
                 </li>
@@ -149,9 +155,14 @@ export function WeeklyRankingOverlay({ onClose }: WeeklyRankingOverlayProps) {
           {result?.status === "success" && result.currentUserOutsideTop && (
             <div className="ranking-overlay__row ranking-overlay__row--you ranking-overlay__row--outside">
               <span className="ranking-overlay__rank">{result.currentUserOutsideTop.rank}位</span>
-              <span className="ranking-overlay__name" title={result.currentUserOutsideTop.displayName}>
-                {result.currentUserOutsideTop.displayName}
-              </span>
+              <div className="ranking-overlay__identity">
+                <span className="ranking-overlay__name" title={result.currentUserOutsideTop.displayName}>
+                  {result.currentUserOutsideTop.displayName}
+                </span>
+                <span className="ranking-overlay__achieved-at">
+                  {formatAchievedAt(result.currentUserOutsideTop.achievedAt)}
+                </span>
+              </div>
               <span className="ranking-overlay__score">
                 {formatScore(result.currentUserOutsideTop.score)}
               </span>
