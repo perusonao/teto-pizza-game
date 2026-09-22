@@ -11,6 +11,37 @@ import type { Page } from "@playwright/test";
  * does (see docs/reports/TETO_VIEWPORT-1SCREEN_Result.md's own audit notes on this).
  */
 
+/**
+ * Pizza Cutting 1.0 Phase 4B: waits for `BakeOverlay`'s own needle (`.bake-gauge__needle`, `src/
+ * components/BakeOverlay.tsx`, `left: ${position}%` inline style -- real, driven by
+ * `requestAnimationFrame`/wall-clock time, not a fixed animation-frame count) to land inside a
+ * given `bakeTarget` window, polling the live style rather than a fixed `waitForTimeout`. A fixed
+ * real-time wait tuned against one recipe's target midpoint (e.g. margherita's ~1300ms) drifts
+ * under CI load/parallelism -- confirmed by a real WebKit CI failure where several non-margherita
+ * recipes' rounds landed outside their own (differently-positioned) target window and FAILED
+ * completion, which `ResultPanel` correctly never shows a CUT card for (its own contract, see
+ * `ResultPanel.test.tsx`'s "FAILED never renders the CUT evaluation summary" test) -- so the CUT
+ * card being missing was accurate downstream behavior for an upstream E2E timing bug, not a
+ * production defect. `marginPercent` keeps the confirm comfortably inside the perfect zone rather
+ * than at its exact edge.
+ */
+export async function waitForBakeTarget(
+  page: Page,
+  target: { start: number; end: number },
+  marginPercent = 3,
+) {
+  await page.waitForFunction(
+    ({ start, end, margin }) => {
+      const el = document.querySelector<HTMLElement>(".bake-gauge__needle");
+      if (!el) return false;
+      const left = Number.parseFloat(el.style.left);
+      return Number.isFinite(left) && left >= start + margin && left <= end - margin;
+    },
+    { start: target.start, end: target.end, margin: marginPercent },
+    { timeout: 8000, polling: 30 },
+  );
+}
+
 async function doughBox(page: Page) {
   const box = await page.locator('[data-pizza-drop-target="true"]').boundingBox();
   if (!box) throw new Error("Pizza dough missing");

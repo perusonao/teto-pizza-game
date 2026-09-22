@@ -3,13 +3,23 @@ import {
   completeDoughStep,
   cutThreeLines,
   paintSauceRing,
-  playFullCapricciosaRound,
-  playFullMargheritaRound,
   startCapricciosaUnlocked,
   startFreshMargherita,
   startSalsicciaUnlocked,
   tapDoughPercent,
+  waitForBakeTarget,
 } from "./gestures";
+
+// Recipe bakeTarget windows this file drives against (src/data/recipes.ts) -- read here rather
+// than imported, since these are just the small subset this spec's own fixtures use, and pairing
+// each id/target here keeps the intent local to the scenario that reads it.
+const BAKE_TARGET = {
+  margherita: { start: 60, end: 80 },
+  salsiccia: { start: 62, end: 82 },
+  capricciosa: { start: 58, end: 78 },
+  funghi: { start: 58, end: 78 },
+  marinara: { start: 45, end: 65 },
+} as const;
 
 /**
  * Pizza Cutting 1.0 Phase 4B (Full Recipe Expansion, see
@@ -32,7 +42,37 @@ test.describe("Scenario A: Margherita regression (CUT unchanged)", () => {
   test("HOME -> FREE -> Margherita -> PREPARE -> BAKE -> POST_BAKE/CUT -> RESULT", async ({ page }) => {
     test.setTimeout(30_000);
     await startFreshMargherita(page);
-    await playFullMargheritaRound(page);
+
+    await completeDoughStep(page);
+    await page.getByRole("button", { name: /次へ/ }).click();
+
+    await page.getByRole("button", { name: /トマトソース/ }).click();
+    await paintSauceRing(page, 25, 16);
+    await page.getByRole("button", { name: /次へ/ }).click();
+
+    await page.getByRole("button", { name: /モッツァレラ/ }).click();
+    await tapDoughPercent(page, 40, 50);
+    await tapDoughPercent(page, 60, 50);
+    await tapDoughPercent(page, 50, 30);
+    await page.getByRole("button", { name: /次へ/ }).click();
+
+    if (await page.getByRole("button", { name: /バジル/ }).count()) {
+      await page.getByRole("button", { name: /バジル/ }).click();
+      await tapDoughPercent(page, 45, 55);
+      await tapDoughPercent(page, 55, 45);
+    }
+
+    await page.getByRole("button", { name: /焼く/ }).click();
+    // A live needle-position poll, not a fixed real-time wait -- a fixed wait tuned against one
+    // target window drifts under CI load/parallelism (see waitForBakeTarget's own doc comment).
+    await waitForBakeTarget(page, BAKE_TARGET.margherita);
+    await page.getByRole("button", { name: "取り出す！" }).click();
+
+    await expect(page.getByRole("button", { name: /切り終わる/ })).toBeVisible();
+    await cutThreeLines(page);
+    await expect(page.locator(".pizza-cut-line")).toHaveCount(3);
+    await page.getByRole("button", { name: /切り終わる/ }).click();
+
     await expect(page.locator(".result-panel")).toBeVisible();
     const cutCard = page.locator(".cut-evaluation-summary");
     await expect(cutCard).toBeVisible();
@@ -63,7 +103,7 @@ test.describe("Scenario B: newly CUT-enabled non-margherita recipe (Salsiccia)",
     await tapDoughPercent(page, 50, 65);
 
     await page.getByRole("button", { name: /焼く/ }).click();
-    await page.waitForTimeout(1300);
+    await waitForBakeTarget(page, BAKE_TARGET.salsiccia);
     await page.getByRole("button", { name: "取り出す！" }).click();
 
     // Salsiccia is now CUT-eligible -- the same POST_BAKE/CUT step margherita already had.
@@ -86,11 +126,41 @@ test.describe("Scenario C: topping-heavy recipe CUT at the secondary 360x800 vie
     test.setTimeout(30_000);
     await page.setViewportSize({ width: 360, height: 800 });
     await startCapricciosaUnlocked(page);
-    await playFullCapricciosaRound(page);
 
-    // No horizontal overflow at any point that mattered (playFullCapricciosaRound already
-    // walked every step) -- re-check at the final RESULT screen, matching
-    // making-ui-1screen.spec.ts's own assertOneScreen contract.
+    await completeDoughStep(page);
+    await page.getByRole("button", { name: /次へ/ }).click();
+
+    await page.getByRole("button", { name: /トマトソース/ }).click();
+    await paintSauceRing(page, 25, 16);
+    await page.getByRole("button", { name: /次へ/ }).click();
+
+    await page.getByRole("button", { name: /モッツァレラ/ }).click();
+    await tapDoughPercent(page, 35, 45);
+    await tapDoughPercent(page, 65, 45);
+    await page.getByRole("button", { name: /次へ/ }).click();
+
+    await page.getByRole("button", { name: /マッシュルーム/ }).click();
+    await tapDoughPercent(page, 30, 60);
+    await tapDoughPercent(page, 70, 60);
+    await page.getByRole("button", { name: /オレガノ/ }).click();
+    await tapDoughPercent(page, 50, 35);
+    await page.getByRole("button", { name: /^.*ハム/ }).click();
+    await tapDoughPercent(page, 50, 65);
+    await page.getByRole("button", { name: /ブラックオリーブ/ }).click();
+    await tapDoughPercent(page, 40, 50);
+    await tapDoughPercent(page, 60, 50);
+
+    await page.getByRole("button", { name: /焼く/ }).click();
+    await waitForBakeTarget(page, BAKE_TARGET.capricciosa);
+    await page.getByRole("button", { name: "取り出す！" }).click();
+
+    await expect(page.getByRole("button", { name: /切り終わる/ })).toBeVisible();
+    await cutThreeLines(page);
+    await expect(page.locator(".pizza-cut-line")).toHaveCount(3);
+    await page.getByRole("button", { name: /切り終わる/ }).click();
+
+    // No horizontal overflow at any point that mattered -- re-check at the final RESULT screen,
+    // matching making-ui-1screen.spec.ts's own assertOneScreen contract.
     const s = await page.evaluate(() => ({
       innerWidth: window.innerWidth,
       docScrollWidth: document.documentElement.scrollWidth,
@@ -136,13 +206,17 @@ test.describe("Scenario D: Lunch Rush eligible recipe -> CUT -> serve", () => {
     await page.getByRole("button", { name: "スタート" }).click();
     await page.getByRole("button", { name: "ピザを作る！" }).click();
 
-    // margherita/funghi/marinara have different bakeTarget windows ({60,80}/{58,78}/{45,65},
-    // src/data/recipes.ts) -- read which order this actually is (all three are reachable: this
-    // seed's own dex discovers margherita+funghi, and marinara's own unlockCondition is
-    // satisfied transitively once funghi is discovered) so the bake wait below lands inside
-    // whichever window applies, rather than assuming margherita/funghi's shared ~70% midpoint.
+    // margherita/funghi/marinara have different bakeTarget windows (BAKE_TARGET above) -- read
+    // which order this actually is (all three are reachable: this seed's own dex discovers
+    // margherita+funghi, and marinara's own unlockCondition is satisfied transitively once
+    // funghi is discovered) so the deterministic needle-position wait below polls the correct
+    // window, rather than assuming margherita/funghi's shared ~70% target.
     const orderText = (await page.locator(".order-card").textContent()) ?? "";
-    const bakeWaitMs = orderText.includes("マリナーラ") ? 1000 : orderText.includes("フンギ") ? 1236 : 1300;
+    const bakeTarget = orderText.includes("マリナーラ")
+      ? BAKE_TARGET.marinara
+      : orderText.includes("フンギ")
+        ? BAKE_TARGET.funghi
+        : BAKE_TARGET.margherita;
 
     await completeDoughStep(page);
     await page.getByRole("button", { name: /次へ/ }).click();
@@ -177,7 +251,7 @@ test.describe("Scenario D: Lunch Rush eligible recipe -> CUT -> serve", () => {
     }
 
     await page.getByRole("button", { name: /焼く/ }).click();
-    await page.waitForTimeout(bakeWaitMs);
+    await waitForBakeTarget(page, bakeTarget);
     await page.getByRole("button", { name: "取り出す！" }).click();
 
     // margherita/funghi/marinara are all CUT-eligible now -- POST_BAKE/CUT must appear.
