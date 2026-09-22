@@ -61,6 +61,8 @@ OUT_JSON = ROOT / "docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX
 OUT_ROWS_MD = ROOT / "docs/design/TETO_RECIPE_172_MECHANIC-MATRIX_ROWS.md"
 
 EXPECTED_ROWS = 172
+# Regression case for excluded placeholders (お好みの具材): see validate().
+PLACEHOLDER_REGRESSION_ROW = "colorado-mountain-pie-pizzadb-p3"
 PHASE0_MERGE_SHA = "5676ae9d2ade0bd3675523be351152a24508c9a5"
 
 # ---------------------------------------------------------------------------
@@ -718,11 +720,18 @@ def build():
             if cap in required:
                 identity_dims.append(dim)
 
+        # A row is ingredient-complete only if every source token resolved AND no token was an
+        # excluded placeholder (e.g. お好みの具材 = "toppings of your choice"): a placeholder means
+        # the real topping set is unspecified, so the resolved remainder must NOT be treated as a
+        # complete identity set (it would enter same-set / collision analysis as a false match).
+        ingredients_complete = not res["unresolved"] and not res["excluded"]
         corr = r["correspondsToExistingCatalogId"]
         relation = None
         if corr:
             if res["unresolved"]:
                 relation = "INDETERMINATE_UNRESOLVED_TOKENS"
+            elif res["excluded"]:
+                relation = "INDETERMINATE_PLACEHOLDER_TOKENS"
             else:
                 relation = relation_of(set(identity), set(cat_by_id[corr]["ingredients"]))
         cid, cid_note = candidate_id(r, catalog_ids, relation, taken_ids)
@@ -741,8 +750,8 @@ def build():
                 "excludedNonIngredientTokens": res["excluded"],
                 "taxonomyFlags": res["flags"],
                 "tokenTrace": res["trace"],
-                "complete": not res["unresolved"] and not res["excluded"],
-                "identityIngredientSet": identity if not res["unresolved"] else None,
+                "complete": ingredients_complete,
+                "identityIngredientSet": identity if ingredients_complete else None,
                 "newContentIngredientIds": sorted(i for i in identity if i not in src_ingredient_ids),
             },
             "sauceBase": bs,
@@ -788,11 +797,12 @@ def build():
                 "catalogId": corr,
                 "catalogStatus": "shipped" if cat["currentGameRecipe"] else f"candidate:{cat['gameDesignStatus']}/{cat['verificationStatus']}",
                 "catalogIngredients": sorted(cat["ingredients"]),
-                "pizzadbIdentitySet": identity if not res["unresolved"] else None,
+                "pizzadbIdentitySet": identity if ingredients_complete else None,
                 "pizzadbUnresolvedTokens": [u["token"] for u in res["unresolved"]],
+                "pizzadbExcludedPlaceholderTokens": res["excluded"],
                 "relation": relation,
-                "addedByPizzaDb": sorted(set(identity) - set(cat["ingredients"])) if not res["unresolved"] else None,
-                "missingFromPizzaDb": sorted(set(cat["ingredients"]) - set(identity)) if not res["unresolved"] else None,
+                "addedByPizzaDb": sorted(set(identity) - set(cat["ingredients"])) if ingredients_complete else None,
+                "missingFromPizzaDb": sorted(set(cat["ingredients"]) - set(identity)) if ingredients_complete else None,
                 "phase0Flagged": corr in PHASE0_CONFLICTS_SHIPPED + PHASE0_CONFLICTS_CANDIDATE,
                 "phase0FlaggedAs": ("shipped" if corr in PHASE0_CONFLICTS_SHIPPED else "candidate") if corr in PHASE0_CONFLICTS_SHIPPED + PHASE0_CONFLICTS_CANDIDATE else None,
             })
@@ -1051,6 +1061,8 @@ def build():
         "rowsWithUnresolvedIngredients": sum(1 for mr in matrix_rows if mr["ingredients"]["unresolvedTokens"]),
         "unresolvedIngredientTokenOccurrences": dict(sorted(unresolved_tokens.items())),
         "rowsWithCompleteIdentityIngredientSet": len(complete),
+        "rowsWithExcludedPlaceholderTokens": sorted(mr["evidenceId"] for mr in matrix_rows
+                                                    if mr["ingredients"]["excludedNonIngredientTokens"]),
         "canonicalIngredientIdsAcrossMatrix": len(all_ids),
         "ingredientIdsNotYetInShippedGame": len(new_content),
         "sauceBaseStatus": dict(sorted(Counter(mr["sauceBase"]["status"] for mr in matrix_rows).items())),
@@ -1171,6 +1183,7 @@ def validate(out):
     deadlock = load(DEADLOCK_PATH)
     mrows = {r["id"]: r for r in master["recipeRows"]}
     rows = out["rows"]
+    by_row = {r["evidenceId"]: r for r in rows}
 
     def check(cond, msg):
         if not cond:
@@ -1213,6 +1226,11 @@ def validate(out):
         if ing["unresolvedTokens"]:
             unresolved_rows.add(r["evidenceId"])
             check(ing["identityIngredientSet"] is None, f"{r['evidenceId']}: identity set present despite unresolved tokens")
+        if ing["excludedNonIngredientTokens"]:
+            check(ing["identityIngredientSet"] is None,
+                  f"{r['evidenceId']}: identity set present despite excluded placeholder token(s) {ing['excludedNonIngredientTokens']}")
+        check((ing["identityIngredientSet"] is not None) == ing["complete"],
+              f"{r['evidenceId']}: identityIngredientSet presence disagrees with the complete flag")
         rep = r["currentFlowRepresentability"]
         req = r["requiredCapabilities"]
         check(rep in ("FULL", "PARTIAL", "NOT_REPRESENTABLE"), f"{r['evidenceId']}: bad representability")
@@ -1229,6 +1247,26 @@ def validate(out):
         check("SERVE_FORM" not in req, f"{r['evidenceId']}: SERVE_FORM must stay candidate-only")
         check(bool(r["blockers"]) == (r["productDecisionStatus"] == "BLOCKED_PRODUCT_DECISION"),
               f"{r['evidenceId']}: status/blocker mismatch")
+    # Regression (Codex review on PR #189): colorado-mountain-pie lists the excluded placeholder
+    # お好みの具材, so its resolved remainder {mozzarella, tomato-sauce} must never be treated as a
+    # complete identity set nor enter the complete-set / same-set / collision analyses.
+    colorado = by_row.get(PLACEHOLDER_REGRESSION_ROW)
+    check(colorado is not None, f"regression row {PLACEHOLDER_REGRESSION_ROW} missing")
+    if colorado is not None:
+        check("お好みの具材" in colorado["ingredients"]["excludedNonIngredientTokens"],
+              f"{PLACEHOLDER_REGRESSION_ROW}: placeholder token no longer recorded as excluded")
+        check(colorado["ingredients"]["complete"] is False, f"{PLACEHOLDER_REGRESSION_ROW}: marked ingredient-complete")
+        check(colorado["ingredients"]["identityIngredientSet"] is None,
+              f"{PLACEHOLDER_REGRESSION_ROW}: placeholder row has a complete identity set")
+        check(all(PLACEHOLDER_REGRESSION_ROW not in e["rowIds"] for e in out["extendedIdentitySetCollisions"]),
+              f"{PLACEHOLDER_REGRESSION_ROW}: placeholder row entered extended identity-set collision analysis")
+        check(all(PLACEHOLDER_REGRESSION_ROW not in g for g in out["summary"]["fullSignatureCollisionGroups"]),
+              f"{PLACEHOLDER_REGRESSION_ROW}: placeholder row entered full-signature collision analysis")
+        check(not any(i["type"] == "SAME_INGREDIENT_SET_AS_CATALOG_RECIPE" for i in colorado["reviewItems"]),
+              f"{PLACEHOLDER_REGRESSION_ROW}: placeholder row got a same-set review item")
+    check(out["summary"]["rowsWithCompleteIdentityIngredientSet"]
+          == sum(1 for r in rows if r["ingredients"]["complete"]),
+          "rowsWithCompleteIdentityIngredientSet does not match the per-row complete flags")
     check(unresolved_rows == excluded_p0,
           f"unresolved-ingredient rows ({len(unresolved_rows)}) do not reconcile with Phase-0 excluded rows ({len(excluded_p0)}): "
           f"{sorted(unresolved_rows ^ excluded_p0)}")

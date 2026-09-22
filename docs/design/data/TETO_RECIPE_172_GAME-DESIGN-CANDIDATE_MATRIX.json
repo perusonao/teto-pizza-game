@@ -636,7 +636,7 @@
       "NAME_SPECIFICITY_GAP": 2,
       "NAMING_CLUSTER": 12,
       "PREPARED_COMPOSITE_INGREDIENT": 3,
-      "SAME_INGREDIENT_SET_AS_CATALOG_RECIPE": 9,
+      "SAME_INGREDIENT_SET_AS_CATALOG_RECIPE": 8,
       "SOURCE_INCONSISTENCY": 1
     },
     "rowsWithUnresolvedIngredients": 21,
@@ -655,7 +655,10 @@
       "青のり": 1,
       "青唐辛子": 1
     },
-    "rowsWithCompleteIdentityIngredientSet": 151,
+    "rowsWithCompleteIdentityIngredientSet": 150,
+    "rowsWithExcludedPlaceholderTokens": [
+      "colorado-mountain-pie-pizzadb-p3"
+    ],
     "canonicalIngredientIdsAcrossMatrix": 169,
     "ingredientIdsNotYetInShippedGame": 148,
     "sauceBaseStatus": {
@@ -1835,7 +1838,6 @@
         "tomato-sauce"
       ],
       "rowIds": [
-        "colorado-mountain-pie-pizzadb-p3",
         "ny-style-pizzadb",
         "trenton-tomato-pie-pizzadb"
       ],
@@ -1872,6 +1874,7 @@
         "onion"
       ],
       "pizzadbUnresolvedTokens": [],
+      "pizzadbExcludedPlaceholderTokens": [],
       "relation": "IDENTICAL",
       "addedByPizzaDb": [],
       "missingFromPizzaDb": [],
@@ -1902,6 +1905,7 @@
         "tomato-sauce"
       ],
       "pizzadbUnresolvedTokens": [],
+      "pizzadbExcludedPlaceholderTokens": [],
       "relation": "DIVERGENT",
       "addedByPizzaDb": [
         "artichoke",
@@ -1939,6 +1943,7 @@
         "tomato-sauce"
       ],
       "pizzadbUnresolvedTokens": [],
+      "pizzadbExcludedPlaceholderTokens": [],
       "relation": "DIVERGENT",
       "addedByPizzaDb": [
         "salami"
@@ -1979,6 +1984,7 @@
         "tomato-sauce"
       ],
       "pizzadbUnresolvedTokens": [],
+      "pizzadbExcludedPlaceholderTokens": [],
       "relation": "IDENTICAL",
       "addedByPizzaDb": [],
       "missingFromPizzaDb": [],
@@ -2005,6 +2011,7 @@
         "parmigiano"
       ],
       "pizzadbUnresolvedTokens": [],
+      "pizzadbExcludedPlaceholderTokens": [],
       "relation": "PIZZADB_SUBSET",
       "addedByPizzaDb": [],
       "missingFromPizzaDb": [
@@ -2037,6 +2044,7 @@
         "tomato-sauce"
       ],
       "pizzadbUnresolvedTokens": [],
+      "pizzadbExcludedPlaceholderTokens": [],
       "relation": "PIZZADB_SUPERSET",
       "addedByPizzaDb": [
         "black-olive",
@@ -2071,6 +2079,7 @@
         "tomato-sauce"
       ],
       "pizzadbUnresolvedTokens": [],
+      "pizzadbExcludedPlaceholderTokens": [],
       "relation": "PIZZADB_SUPERSET",
       "addedByPizzaDb": [
         "pepperoni"
@@ -2105,6 +2114,7 @@
         "tomato-sauce"
       ],
       "pizzadbUnresolvedTokens": [],
+      "pizzadbExcludedPlaceholderTokens": [],
       "relation": "DIVERGENT",
       "addedByPizzaDb": [
         "mozzarella",
@@ -2150,6 +2160,7 @@
         "tomato-sauce"
       ],
       "pizzadbUnresolvedTokens": [],
+      "pizzadbExcludedPlaceholderTokens": [],
       "relation": "PIZZADB_SUBSET",
       "addedByPizzaDb": [],
       "missingFromPizzaDb": [
@@ -2184,6 +2195,7 @@
         "tuna"
       ],
       "pizzadbUnresolvedTokens": [],
+      "pizzadbExcludedPlaceholderTokens": [],
       "relation": "IDENTICAL",
       "addedByPizzaDb": [],
       "missingFromPizzaDb": [],
@@ -2205,6 +2217,7 @@
         "tomato-sauce"
       ],
       "pizzadbUnresolvedTokens": [],
+      "pizzadbExcludedPlaceholderTokens": [],
       "relation": "IDENTICAL",
       "addedByPizzaDb": [],
       "missingFromPizzaDb": [],
@@ -2231,6 +2244,7 @@
         "mozzarella"
       ],
       "pizzadbUnresolvedTokens": [],
+      "pizzadbExcludedPlaceholderTokens": [],
       "relation": "DIVERGENT",
       "addedByPizzaDb": [
         "blue-cheese-dressing"
@@ -2267,6 +2281,7 @@
         "tomato-sauce"
       ],
       "pizzadbUnresolvedTokens": [],
+      "pizzadbExcludedPlaceholderTokens": [],
       "relation": "PIZZADB_SUPERSET",
       "addedByPizzaDb": [
         "olive-oil"
@@ -2301,6 +2316,7 @@
         "tomato-sauce"
       ],
       "pizzadbUnresolvedTokens": [],
+      "pizzadbExcludedPlaceholderTokens": [],
       "relation": "IDENTICAL",
       "addedByPizzaDb": [],
       "missingFromPizzaDb": [],
@@ -2327,6 +2343,7 @@
         "walnut"
       ],
       "pizzadbUnresolvedTokens": [],
+      "pizzadbExcludedPlaceholderTokens": [],
       "relation": "DIVERGENT",
       "addedByPizzaDb": [
         "mozzarella",
@@ -2363,6 +2380,7 @@
       "pizzadbUnresolvedTokens": [
         "唐辛子"
       ],
+      "pizzadbExcludedPlaceholderTokens": [],
       "relation": "INDETERMINATE_UNRESOLVED_TOKENS",
       "addedByPizzaDb": null,
       "missingFromPizzaDb": null,
@@ -2393,6 +2411,7 @@
         "tomato-sauce"
       ],
       "pizzadbUnresolvedTokens": [],
+      "pizzadbExcludedPlaceholderTokens": [],
       "relation": "DIVERGENT",
       "addedByPizzaDb": [
         "brick-cheese"
@@ -2423,6 +2442,7 @@
       "pizzadbUnresolvedTokens": [
         "ナッツ"
       ],
+      "pizzadbExcludedPlaceholderTokens": [],
       "relation": "INDETERMINATE_UNRESOLVED_TOKENS",
       "addedByPizzaDb": null,
       "missingFromPizzaDb": null,
@@ -2453,6 +2473,7 @@
         "tomato-sauce"
       ],
       "pizzadbUnresolvedTokens": [],
+      "pizzadbExcludedPlaceholderTokens": [],
       "relation": "PIZZADB_SUPERSET",
       "addedByPizzaDb": [
         "ham",
@@ -2488,6 +2509,7 @@
         "tomato-sauce"
       ],
       "pizzadbUnresolvedTokens": [],
+      "pizzadbExcludedPlaceholderTokens": [],
       "relation": "PIZZADB_SUPERSET",
       "addedByPizzaDb": [
         "capers",
@@ -2522,6 +2544,7 @@
         "tomato-sauce"
       ],
       "pizzadbUnresolvedTokens": [],
+      "pizzadbExcludedPlaceholderTokens": [],
       "relation": "DIVERGENT",
       "addedByPizzaDb": [
         "tomato-sauce"
@@ -2557,6 +2580,7 @@
         "oregano"
       ],
       "pizzadbUnresolvedTokens": [],
+      "pizzadbExcludedPlaceholderTokens": [],
       "relation": "DIVERGENT",
       "addedByPizzaDb": [
         "mozzarella"
@@ -2590,6 +2614,7 @@
         "oregano"
       ],
       "pizzadbUnresolvedTokens": [],
+      "pizzadbExcludedPlaceholderTokens": [],
       "relation": "PIZZADB_SUBSET",
       "addedByPizzaDb": [],
       "missingFromPizzaDb": [
@@ -2625,6 +2650,7 @@
         "tomato-sauce"
       ],
       "pizzadbUnresolvedTokens": [],
+      "pizzadbExcludedPlaceholderTokens": [],
       "relation": "DIVERGENT",
       "addedByPizzaDb": [
         "clam",
@@ -2661,6 +2687,7 @@
       "pizzadbUnresolvedTokens": [
         "ホワイトソース"
       ],
+      "pizzadbExcludedPlaceholderTokens": [],
       "relation": "INDETERMINATE_UNRESOLVED_TOKENS",
       "addedByPizzaDb": null,
       "missingFromPizzaDb": null,
@@ -2690,6 +2717,7 @@
         "potato"
       ],
       "pizzadbUnresolvedTokens": [],
+      "pizzadbExcludedPlaceholderTokens": [],
       "relation": "DIVERGENT",
       "addedByPizzaDb": [
         "pine-nuts",
@@ -2725,6 +2753,7 @@
         "sausage"
       ],
       "pizzadbUnresolvedTokens": [],
+      "pizzadbExcludedPlaceholderTokens": [],
       "relation": "DIVERGENT",
       "addedByPizzaDb": [
         "olive-oil",
@@ -2760,6 +2789,7 @@
         "porcini"
       ],
       "pizzadbUnresolvedTokens": [],
+      "pizzadbExcludedPlaceholderTokens": [],
       "relation": "DIVERGENT",
       "addedByPizzaDb": [
         "garlic",
@@ -2794,6 +2824,7 @@
         "tomato-sauce"
       ],
       "pizzadbUnresolvedTokens": [],
+      "pizzadbExcludedPlaceholderTokens": [],
       "relation": "PIZZADB_SUPERSET",
       "addedByPizzaDb": [
         "olive-oil"
@@ -2832,6 +2863,7 @@
         "tomato-sauce"
       ],
       "pizzadbUnresolvedTokens": [],
+      "pizzadbExcludedPlaceholderTokens": [],
       "relation": "DIVERGENT",
       "addedByPizzaDb": [
         "beef"
@@ -2864,6 +2896,7 @@
         "truffle"
       ],
       "pizzadbUnresolvedTokens": [],
+      "pizzadbExcludedPlaceholderTokens": [],
       "relation": "DIVERGENT",
       "addedByPizzaDb": [
         "mozzarella",
@@ -2903,6 +2936,7 @@
         "onion"
       ],
       "pizzadbUnresolvedTokens": [],
+      "pizzadbExcludedPlaceholderTokens": [],
       "relation": "PIZZADB_SUBSET",
       "addedByPizzaDb": [],
       "missingFromPizzaDb": [
@@ -10214,10 +10248,7 @@
           }
         ],
         "complete": false,
-        "identityIngredientSet": [
-          "mozzarella",
-          "tomato-sauce"
-        ],
+        "identityIngredientSet": null,
         "newContentIngredientIds": []
       },
       "sauceBase": {
@@ -10295,13 +10326,7 @@
           "detail": "Second listed ingredient is 'お好みの具材' -- the already-identified EXCLUDED non-ingredient placeholder (Phase 0B.3, 'toppings of your choice'), not a specific real topping. This dish's actual topping set is therefore genuinely unspecified by th"
         }
       ],
-      "reviewItems": [
-        {
-          "type": "SAME_INGREDIENT_SET_AS_CATALOG_RECIPE",
-          "ref": "greek-style,stuffed-crust",
-          "detail": "identity ingredient set equals an existing catalog recipe that the row is not declared to correspond to -- distinguishable only by DOUGH_VARIANT"
-        }
-      ],
+      "reviewItems": [],
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION"
     },
     {

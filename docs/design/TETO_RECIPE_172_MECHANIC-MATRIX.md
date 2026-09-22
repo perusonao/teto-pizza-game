@@ -43,7 +43,10 @@ For each of the 172 rows, `tools/progression2_mechanic_matrix.py` does the follo
    `progression2_ingredient_canonicalizer.classify()`. There are no new alias tables.
    - `ambiguous` / `needs_review` tokens stay verbatim in `unresolvedTokens`, and the row gets no
      identity set.
-   - `お好みの具材` is recorded as an excluded non-ingredient.
+   - `お好みの具材` ("toppings of your choice") is recorded as an excluded non-ingredient. A row
+     containing it is **not** ingredient-complete: its real topping set is unspecified, so it gets
+     no identity set and stays out of the complete-set, same-set and collision analyses. Today
+     this affects only `colorado-mountain-pie-pizzadb-p3`.
    - A `tokenTrace` mirrors the source list 1:1.
 2. **Sauce base.** It maps `sauceFamily` through a fixed table.
    - When the family names exactly one existing sauce, that sauce is added to the identity set as
@@ -82,7 +85,7 @@ For each of the 172 rows, `tools/progression2_mechanic_matrix.py` does the follo
 | Rows needing ≥1 required capability | 66 (the other 106 = 101 FULL + 5 PARTIAL rows whose Phase-0 mechanic flag is inference-only) |
 | Phase-0 mechanic-identity rows (41) | none is FULL. 36 have source-backed required capabilities. 5 have only inference-backed ones (taco + 4 page-8 rows), so they are PARTIAL with no required capability. 10 carry a MECHANIC_INTERPRETATION blocker (8 page-8 raw-salad rows, taco, lahmacun). Eel's unresolved timing adds an 11th MECHANIC_INTERPRETATION row that Phase 0 did not flag. |
 | Rows needing a capability that Phase 0 did **not** flag | 30 (mostly extra spread layers, catalog finishing tags, profile-text timing, dough variants from the doughStyle field) |
-| Complete canonical identity set | 151 / 172 (same 21 rows Phase 0 excluded, reconciled exactly) |
+| Complete canonical identity set | **150 / 172**. Excluded: the 21 rows with unresolved tokens (the same set Phase 0 excluded, reconciled exactly) plus `colorado-mountain-pie-pizzadb-p3` (excluded placeholder お好みの具材). Phase 0's deadlock pool (151) still counts Colorado because it drops the placeholder; that Phase-0 artifact is left unchanged. |
 | Canonical ingredient ids across matrix | 169, of which 148 are not yet in shipped `src/data/ingredients.ts` (content work, not mechanics) |
 | Product-decision status | READY 67 · READY_WITH_REVIEW 19 · ALREADY_SHIPPED_CORROBORATED 1 · **BLOCKED_PRODUCT_DECISION 85** |
 | FULL **and** decision-ready | **56 rows**. These are the immediate content-only candidate pool; the list is in `summary.fullAndDecisionReadyRowIds`. |
@@ -222,16 +225,20 @@ separately as `fugazzeta-rellena` (`catalogTagsNotApplied`).
 
 The tool computes a full discovery signature for each row: identity set, dough, shape, form,
 cook/pan, order, zones, late additions, prep, and sauce family. The **only** identical-signature
-group among the 151 complete rows is fugazza/fugazzetta.
+group among the 150 complete rows is fugazza/fugazzetta.
 
-Nine rows have the same identity ingredient set as a catalog recipe they are not declared to
+Eight rows have the same identity ingredient set as a catalog recipe they are not declared to
 correspond to. These are flagged `SAME_INGREDIENT_SET_AS_CATALOG_RECIPE` for review:
 
 - cauliflower-crust = shipped margherita
 - fathead-keto and new-england-bar = shipped pepperoni
 - chicago-stuffed = shipped salsiccia
-- colorado / ny / trenton = {mozzarella, tomato-sauce}, the same set as greek-style and
-  stuffed-crust candidates
+- ny / trenton = {mozzarella, tomato-sauce}, the same set as greek-style and stuffed-crust
+  candidates
+
+Colorado Mountain Pie previously appeared in that last group as {mozzarella, tomato-sauce}. That
+was wrong: its evidence lists the placeholder お好みの具材, so its real toppings are unknown. It is
+now excluded from these analyses and remains blocked only by its EVIDENCE_GAP.
 
 Each of them is separated only by the dough/pan/order capabilities listed. **This means discovery
 matching must key on (ingredient set + dough/pan/form/order), not on ingredients alone.** That is
@@ -258,7 +265,7 @@ Soft review items (`READY_WITH_REVIEW`, not blockers):
 |---|---|
 | naming cluster | 12 |
 | candidate capability | 14 |
-| same set as catalog recipe | 9 |
+| same set as catalog recipe | 8 |
 | prepared-composite ingredient | 3 |
 | name-specificity gap (nduja, boerewors) | 2 |
 | source inconsistency (manakish) | 1 |
@@ -361,6 +368,11 @@ The matrix validator enforces all of the following. Any failure exits non-zero.
 - Each token trace mirrors the source list. Every ambiguous or needs_review token keeps
   `canonicalId=null` and appears in `unresolvedTokens`.
 - The unresolved-row set equals the 21 rows excluded by the Phase-0 deadlock analysis.
+- A row with an unresolved **or excluded-placeholder** token has no identity set, and identity-set
+  presence always equals the `complete` flag. Regression case `colorado-mountain-pie-pizzadb-p3`:
+  it must keep お好みの具材 as excluded, be incomplete, have no identity set, stay out of both
+  collision analyses, and carry no same-set review item. Reverting the fix makes `--check` fail
+  with 7 errors.
 - Every doughStyle and sauceFamily string is classified.
 - Every required capability has required-strength evidence, and SERVE_FORM is never required.
 - The representability rules hold, and no Phase-0 mechanic row is FULL.
