@@ -1,0 +1,2714 @@
+{
+  "generatedBy": "tools/progression2_phase0_analysis.py",
+  "population": {
+    "totalCatalogEntries": 53,
+    "viableEntries": 51,
+    "rejectedDuplicateEntries": 2,
+    "canonicalIngredientCount": 62
+  },
+  "orphanIngredientReferences": [],
+  "crossReferenceExisting53VsProduction": {
+    "productionRecipeCount": 15,
+    "productionRecipeIds": [
+      "bismarck",
+      "breakfast-pizza",
+      "capricciosa",
+      "fugazza",
+      "funghi",
+      "genovese",
+      "margherita",
+      "marinara",
+      "meat-lovers",
+      "napoletana",
+      "pepperoni",
+      "pizza-bianca",
+      "quattro-formaggi",
+      "salsiccia",
+      "tonno-e-cipolla"
+    ],
+    "productionRecipeIdsNotInCatalog": [],
+    "productionIngredientCount": 22,
+    "productionIngredientIdsNotInCatalog": [],
+    "catalogIngredientsNotYetInProduction": [
+      "artichoke",
+      "arugula",
+      "bbq-sauce",
+      "bell-pepper",
+      "breadcrumb",
+      "brie",
+      "buffalo-sauce",
+      "caciocavallo",
+      "chicken",
+      "chili-oil",
+      "cilantro",
+      "corn",
+      "eggplant",
+      "fig",
+      "french-fries",
+      "honey",
+      "mascarpone",
+      "mayo",
+      "nduja",
+      "nori",
+      "nutella-spread",
+      "parsley",
+      "pineapple",
+      "porcini",
+      "potato",
+      "powdered-sugar",
+      "prosciutto-crudo",
+      "provolone",
+      "ricotta",
+      "ricotta-salata",
+      "shrimp",
+      "speck",
+      "spicy-salami",
+      "steak",
+      "strawberry",
+      "teriyaki-sauce",
+      "truffle",
+      "walnut",
+      "wurstel",
+      "zucchini"
+    ],
+    "perRecipeDisposition": [
+      {
+        "id": "margherita",
+        "verificationStatus": "verified_internal",
+        "currentGameRecipe": true,
+        "inProductionRecipesTs": true,
+        "disposition": "existing_in_production"
+      },
+      {
+        "id": "marinara",
+        "verificationStatus": "verified_internal",
+        "currentGameRecipe": true,
+        "inProductionRecipesTs": true,
+        "disposition": "existing_in_production"
+      },
+      {
+        "id": "quattro-formaggi",
+        "verificationStatus": "verified_internal",
+        "currentGameRecipe": true,
+        "inProductionRecipesTs": true,
+        "disposition": "existing_in_production"
+      },
+      {
+        "id": "genovese",
+        "verificationStatus": "verified_internal",
+        "currentGameRecipe": true,
+        "inProductionRecipesTs": true,
+        "disposition": "existing_in_production"
+      },
+      {
+        "id": "bismarck",
+        "verificationStatus": "verified_internal",
+        "currentGameRecipe": true,
+        "inProductionRecipesTs": true,
+        "disposition": "existing_in_production"
+      },
+      {
+        "id": "funghi",
+        "verificationStatus": "verified_internal",
+        "currentGameRecipe": true,
+        "inProductionRecipesTs": true,
+        "disposition": "existing_in_production"
+      },
+      {
+        "id": "fugazza",
+        "verificationStatus": "verified_internal",
+        "currentGameRecipe": true,
+        "inProductionRecipesTs": true,
+        "disposition": "existing_in_production"
+      },
+      {
+        "id": "pepperoni",
+        "verificationStatus": "verified_internal",
+        "currentGameRecipe": true,
+        "inProductionRecipesTs": true,
+        "disposition": "existing_in_production"
+      },
+      {
+        "id": "napoletana",
+        "verificationStatus": "verified_internal",
+        "currentGameRecipe": true,
+        "inProductionRecipesTs": true,
+        "disposition": "existing_in_production"
+      },
+      {
+        "id": "hawaiian",
+        "verificationStatus": "game_design_candidate",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "new_candidate_not_yet_shipped"
+      },
+      {
+        "id": "salsiccia",
+        "verificationStatus": "verified_internal",
+        "currentGameRecipe": true,
+        "inProductionRecipesTs": true,
+        "disposition": "existing_in_production"
+      },
+      {
+        "id": "tonno-e-cipolla",
+        "verificationStatus": "verified_internal",
+        "currentGameRecipe": true,
+        "inProductionRecipesTs": true,
+        "disposition": "existing_in_production"
+      },
+      {
+        "id": "ortolana",
+        "verificationStatus": "game_design_candidate",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "new_candidate_not_yet_shipped"
+      },
+      {
+        "id": "capricciosa",
+        "verificationStatus": "verified_internal",
+        "currentGameRecipe": true,
+        "inProductionRecipesTs": true,
+        "disposition": "existing_in_production"
+      },
+      {
+        "id": "prosciutto",
+        "verificationStatus": "game_design_candidate",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "new_candidate_not_yet_shipped"
+      },
+      {
+        "id": "diavola",
+        "verificationStatus": "game_design_candidate",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "new_candidate_not_yet_shipped"
+      },
+      {
+        "id": "frutti-di-mare",
+        "verificationStatus": "game_design_candidate",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "new_candidate_not_yet_shipped"
+      },
+      {
+        "id": "quattro-stagioni",
+        "verificationStatus": "game_design_candidate",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "new_candidate_not_yet_shipped"
+      },
+      {
+        "id": "mezza-e-mezza",
+        "verificationStatus": "game_design_candidate",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "new_candidate_not_yet_shipped"
+      },
+      {
+        "id": "calzone",
+        "verificationStatus": "game_design_candidate",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "new_candidate_not_yet_shipped"
+      },
+      {
+        "id": "prosciutto-e-funghi",
+        "verificationStatus": "deferred",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "deferred_candidate"
+      },
+      {
+        "id": "romana",
+        "verificationStatus": "deferred",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "deferred_candidate"
+      },
+      {
+        "id": "fugazzeta",
+        "verificationStatus": "deferred",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "deferred_candidate"
+      },
+      {
+        "id": "boscaiola",
+        "verificationStatus": "game_design_candidate",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "new_candidate_not_yet_shipped"
+      },
+      {
+        "id": "pugliese",
+        "verificationStatus": "verification_pending",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "new_candidate_not_yet_shipped"
+      },
+      {
+        "id": "siciliana",
+        "verificationStatus": "verification_pending",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "new_candidate_not_yet_shipped"
+      },
+      {
+        "id": "calabrese",
+        "verificationStatus": "verification_pending",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "new_candidate_not_yet_shipped"
+      },
+      {
+        "id": "ai-carciofi",
+        "verificationStatus": "game_design_candidate",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "new_candidate_not_yet_shipped"
+      },
+      {
+        "id": "alla-norma",
+        "verificationStatus": "verification_pending",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "new_candidate_not_yet_shipped"
+      },
+      {
+        "id": "contadina",
+        "verificationStatus": "rejected_duplicate",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "rejected_duplicate"
+      },
+      {
+        "id": "ai-funghi-porcini",
+        "verificationStatus": "verification_pending",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "new_candidate_not_yet_shipped"
+      },
+      {
+        "id": "al-tartufo",
+        "verificationStatus": "verification_pending",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "new_candidate_not_yet_shipped"
+      },
+      {
+        "id": "speck-e-brie",
+        "verificationStatus": "verification_pending",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "new_candidate_not_yet_shipped"
+      },
+      {
+        "id": "wurstel-e-patatine",
+        "verificationStatus": "verification_pending",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "new_candidate_not_yet_shipped"
+      },
+      {
+        "id": "pizza-bianca",
+        "verificationStatus": "verified_internal",
+        "currentGameRecipe": true,
+        "inProductionRecipesTs": true,
+        "disposition": "existing_in_production"
+      },
+      {
+        "id": "bbq-chicken",
+        "verificationStatus": "verification_pending",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "new_candidate_not_yet_shipped"
+      },
+      {
+        "id": "buffalo-chicken",
+        "verificationStatus": "verification_pending",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "new_candidate_not_yet_shipped"
+      },
+      {
+        "id": "meat-lovers",
+        "verificationStatus": "verified_internal",
+        "currentGameRecipe": true,
+        "inProductionRecipesTs": true,
+        "disposition": "existing_in_production"
+      },
+      {
+        "id": "supreme",
+        "verificationStatus": "game_design_candidate",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "new_candidate_not_yet_shipped"
+      },
+      {
+        "id": "ricotta-bianca",
+        "verificationStatus": "game_design_candidate",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "new_candidate_not_yet_shipped"
+      },
+      {
+        "id": "philly-cheesesteak",
+        "verificationStatus": "verification_pending",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "new_candidate_not_yet_shipped"
+      },
+      {
+        "id": "breakfast-pizza",
+        "verificationStatus": "verified_internal",
+        "currentGameRecipe": true,
+        "inProductionRecipesTs": true,
+        "disposition": "existing_in_production"
+      },
+      {
+        "id": "chicago-deep-dish",
+        "verificationStatus": "verification_pending",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "new_candidate_not_yet_shipped"
+      },
+      {
+        "id": "detroit-style",
+        "verificationStatus": "verification_pending",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "new_candidate_not_yet_shipped"
+      },
+      {
+        "id": "stuffed-crust",
+        "verificationStatus": "game_design_candidate",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "new_candidate_not_yet_shipped"
+      },
+      {
+        "id": "shrimp-mayo",
+        "verificationStatus": "verification_pending",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "new_candidate_not_yet_shipped"
+      },
+      {
+        "id": "teriyaki-chicken",
+        "verificationStatus": "verification_pending",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "new_candidate_not_yet_shipped"
+      },
+      {
+        "id": "potato-bacon",
+        "verificationStatus": "verification_pending",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "new_candidate_not_yet_shipped"
+      },
+      {
+        "id": "nutella-dessert",
+        "verificationStatus": "verification_pending",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "new_candidate_not_yet_shipped"
+      },
+      {
+        "id": "honey-fig",
+        "verificationStatus": "verification_pending",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "new_candidate_not_yet_shipped"
+      },
+      {
+        "id": "bufalina",
+        "verificationStatus": "rejected_duplicate",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "rejected_duplicate"
+      },
+      {
+        "id": "ny-style",
+        "verificationStatus": "deferred",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "deferred_candidate"
+      },
+      {
+        "id": "greek-style",
+        "verificationStatus": "deferred",
+        "currentGameRecipe": false,
+        "inProductionRecipesTs": false,
+        "disposition": "deferred_candidate"
+      }
+    ]
+  },
+  "ingredientRecipeReach": [
+    {
+      "ingredient": "mozzarella",
+      "recipeReach": 38,
+      "existingInGame": true
+    },
+    {
+      "ingredient": "tomato-sauce",
+      "recipeReach": 33,
+      "existingInGame": true
+    },
+    {
+      "ingredient": "olive-oil",
+      "recipeReach": 12,
+      "existingInGame": true
+    },
+    {
+      "ingredient": "onion",
+      "recipeReach": 9,
+      "existingInGame": true
+    },
+    {
+      "ingredient": "oregano",
+      "recipeReach": 7,
+      "existingInGame": true
+    },
+    {
+      "ingredient": "mushroom",
+      "recipeReach": 6,
+      "existingInGame": true
+    },
+    {
+      "ingredient": "ham",
+      "recipeReach": 5,
+      "existingInGame": true
+    },
+    {
+      "ingredient": "sausage",
+      "recipeReach": 5,
+      "existingInGame": true
+    },
+    {
+      "ingredient": "garlic",
+      "recipeReach": 4,
+      "existingInGame": true
+    },
+    {
+      "ingredient": "pepperoni",
+      "recipeReach": 4,
+      "existingInGame": true
+    },
+    {
+      "ingredient": "anchovy",
+      "recipeReach": 3,
+      "existingInGame": true
+    },
+    {
+      "ingredient": "bacon",
+      "recipeReach": 3,
+      "existingInGame": true
+    },
+    {
+      "ingredient": "bell-pepper",
+      "recipeReach": 3,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "black-olive",
+      "recipeReach": 3,
+      "existingInGame": true
+    },
+    {
+      "ingredient": "chicken",
+      "recipeReach": 3,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "mayo",
+      "recipeReach": 3,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "artichoke",
+      "recipeReach": 2,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "arugula",
+      "recipeReach": 2,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "basil",
+      "recipeReach": 2,
+      "existingInGame": true
+    },
+    {
+      "ingredient": "breadcrumb",
+      "recipeReach": 2,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "cherry-tomato",
+      "recipeReach": 2,
+      "existingInGame": true
+    },
+    {
+      "ingredient": "corn",
+      "recipeReach": 2,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "egg",
+      "recipeReach": 2,
+      "existingInGame": true
+    },
+    {
+      "ingredient": "fontina",
+      "recipeReach": 2,
+      "existingInGame": true
+    },
+    {
+      "ingredient": "gorgonzola",
+      "recipeReach": 2,
+      "existingInGame": true
+    },
+    {
+      "ingredient": "parmigiano",
+      "recipeReach": 2,
+      "existingInGame": true
+    },
+    {
+      "ingredient": "prosciutto-crudo",
+      "recipeReach": 2,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "ricotta",
+      "recipeReach": 2,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "rosemary",
+      "recipeReach": 2,
+      "existingInGame": true
+    },
+    {
+      "ingredient": "shrimp",
+      "recipeReach": 2,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "walnut",
+      "recipeReach": 2,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "bbq-sauce",
+      "recipeReach": 1,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "brie",
+      "recipeReach": 1,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "buffalo-sauce",
+      "recipeReach": 1,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "caciocavallo",
+      "recipeReach": 1,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "chili-oil",
+      "recipeReach": 1,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "cilantro",
+      "recipeReach": 1,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "eggplant",
+      "recipeReach": 1,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "fig",
+      "recipeReach": 1,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "french-fries",
+      "recipeReach": 1,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "honey",
+      "recipeReach": 1,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "mascarpone",
+      "recipeReach": 1,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "nduja",
+      "recipeReach": 1,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "nori",
+      "recipeReach": 1,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "nutella-spread",
+      "recipeReach": 1,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "parsley",
+      "recipeReach": 1,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "pesto",
+      "recipeReach": 1,
+      "existingInGame": true
+    },
+    {
+      "ingredient": "pineapple",
+      "recipeReach": 1,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "porcini",
+      "recipeReach": 1,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "potato",
+      "recipeReach": 1,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "powdered-sugar",
+      "recipeReach": 1,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "provolone",
+      "recipeReach": 1,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "ricotta-salata",
+      "recipeReach": 1,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "speck",
+      "recipeReach": 1,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "spicy-salami",
+      "recipeReach": 1,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "steak",
+      "recipeReach": 1,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "strawberry",
+      "recipeReach": 1,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "teriyaki-sauce",
+      "recipeReach": 1,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "truffle",
+      "recipeReach": 1,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "tuna",
+      "recipeReach": 1,
+      "existingInGame": true
+    },
+    {
+      "ingredient": "wurstel",
+      "recipeReach": 1,
+      "existingInGame": false
+    },
+    {
+      "ingredient": "zucchini",
+      "recipeReach": 1,
+      "existingInGame": false
+    }
+  ],
+  "initialState": {
+    "ownedIngredients": [
+      "basil",
+      "mozzarella",
+      "tomato-sauce"
+    ],
+    "discoveredRecipeCount": 0,
+    "immediatelyCraftableRecipes": [
+      "margherita",
+      "mezza-e-mezza",
+      "stuffed-crust",
+      "ny-style",
+      "greek-style"
+    ],
+    "marginalUnlockTable": [
+      {
+        "ingredient": "pepperoni",
+        "marginalUnlockCount": 2,
+        "marginalUnlockCountBaselineMechanicOnly": 1,
+        "unlockedRecipes": [
+          "pepperoni",
+          "detroit-style"
+        ],
+        "recipeReach": 4,
+        "existingInGame": true
+      },
+      {
+        "ingredient": "sausage",
+        "marginalUnlockCount": 2,
+        "marginalUnlockCountBaselineMechanicOnly": 1,
+        "unlockedRecipes": [
+          "salsiccia",
+          "chicago-deep-dish"
+        ],
+        "recipeReach": 5,
+        "existingInGame": true
+      },
+      {
+        "ingredient": "egg",
+        "marginalUnlockCount": 1,
+        "marginalUnlockCountBaselineMechanicOnly": 1,
+        "unlockedRecipes": [
+          "bismarck"
+        ],
+        "recipeReach": 2,
+        "existingInGame": true
+      },
+      {
+        "ingredient": "mushroom",
+        "marginalUnlockCount": 1,
+        "marginalUnlockCountBaselineMechanicOnly": 1,
+        "unlockedRecipes": [
+          "funghi"
+        ],
+        "recipeReach": 6,
+        "existingInGame": true
+      },
+      {
+        "ingredient": "nduja",
+        "marginalUnlockCount": 1,
+        "marginalUnlockCountBaselineMechanicOnly": 1,
+        "unlockedRecipes": [
+          "calabrese"
+        ],
+        "recipeReach": 1,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "porcini",
+        "marginalUnlockCount": 1,
+        "marginalUnlockCountBaselineMechanicOnly": 1,
+        "unlockedRecipes": [
+          "ai-funghi-porcini"
+        ],
+        "recipeReach": 1,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "anchovy",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 3,
+        "existingInGame": true
+      },
+      {
+        "ingredient": "artichoke",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 2,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "arugula",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 2,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "bacon",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 3,
+        "existingInGame": true
+      },
+      {
+        "ingredient": "bbq-sauce",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 1,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "bell-pepper",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 3,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "black-olive",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 3,
+        "existingInGame": true
+      },
+      {
+        "ingredient": "breadcrumb",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 2,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "brie",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 1,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "buffalo-sauce",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 1,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "caciocavallo",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 1,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "cherry-tomato",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 2,
+        "existingInGame": true
+      },
+      {
+        "ingredient": "chicken",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 3,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "chili-oil",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 1,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "cilantro",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 1,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "corn",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 2,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "eggplant",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 1,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "fig",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 1,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "fontina",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 2,
+        "existingInGame": true
+      },
+      {
+        "ingredient": "french-fries",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 1,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "garlic",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 4,
+        "existingInGame": true
+      },
+      {
+        "ingredient": "gorgonzola",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 2,
+        "existingInGame": true
+      },
+      {
+        "ingredient": "ham",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 5,
+        "existingInGame": true
+      },
+      {
+        "ingredient": "honey",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 1,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "mascarpone",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 1,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "mayo",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 3,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "nori",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 1,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "nutella-spread",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 1,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "olive-oil",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 12,
+        "existingInGame": true
+      },
+      {
+        "ingredient": "onion",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 9,
+        "existingInGame": true
+      },
+      {
+        "ingredient": "oregano",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 7,
+        "existingInGame": true
+      },
+      {
+        "ingredient": "parmigiano",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 2,
+        "existingInGame": true
+      },
+      {
+        "ingredient": "parsley",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 1,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "pesto",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 1,
+        "existingInGame": true
+      },
+      {
+        "ingredient": "pineapple",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 1,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "potato",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 1,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "powdered-sugar",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 1,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "prosciutto-crudo",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 2,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "provolone",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 1,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "ricotta",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 2,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "ricotta-salata",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 1,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "rosemary",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 2,
+        "existingInGame": true
+      },
+      {
+        "ingredient": "shrimp",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 2,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "speck",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 1,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "spicy-salami",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 1,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "steak",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 1,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "strawberry",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 1,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "teriyaki-sauce",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 1,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "truffle",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 1,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "tuna",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 1,
+        "existingInGame": true
+      },
+      {
+        "ingredient": "walnut",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 2,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "wurstel",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 1,
+        "existingInGame": false
+      },
+      {
+        "ingredient": "zucchini",
+        "marginalUnlockCount": 0,
+        "marginalUnlockCountBaselineMechanicOnly": 0,
+        "unlockedRecipes": [],
+        "recipeReach": 1,
+        "existingInGame": false
+      }
+    ]
+  },
+  "deadlockSimulation": {
+    "mechanicGatedRecipeIds": [
+      "al-tartufo",
+      "bbq-chicken",
+      "buffalo-chicken",
+      "calzone",
+      "chicago-deep-dish",
+      "detroit-style",
+      "diavola",
+      "frutti-di-mare",
+      "fugazzeta",
+      "greek-style",
+      "honey-fig",
+      "mezza-e-mezza",
+      "nutella-dessert",
+      "potato-bacon",
+      "prosciutto",
+      "prosciutto-e-funghi",
+      "quattro-stagioni",
+      "shrimp-mayo",
+      "siciliana",
+      "speck-e-brie",
+      "stuffed-crust",
+      "teriyaki-chicken",
+      "wurstel-e-patatine"
+    ],
+    "baselineOnlyRecipeIds": [
+      "ai-carciofi",
+      "ai-funghi-porcini",
+      "alla-norma",
+      "bismarck",
+      "boscaiola",
+      "breakfast-pizza",
+      "calabrese",
+      "capricciosa",
+      "fugazza",
+      "funghi",
+      "genovese",
+      "hawaiian",
+      "margherita",
+      "marinara",
+      "meat-lovers",
+      "napoletana",
+      "ny-style",
+      "ortolana",
+      "pepperoni",
+      "philly-cheesesteak",
+      "pizza-bianca",
+      "pugliese",
+      "quattro-formaggi",
+      "ricotta-bianca",
+      "romana",
+      "salsiccia",
+      "supreme",
+      "tonno-e-cipolla"
+    ],
+    "steps": [
+      {
+        "step": 0,
+        "ownedCountBeforePurchase": 3,
+        "newlyDiscoveredThisStep": [
+          "margherita",
+          "ny-style"
+        ],
+        "mechanicGatedIngredientReady": [
+          "mezza-e-mezza",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 46,
+        "nextIngredientPurchased": "egg",
+        "marginalUnlockCount": 1,
+        "marginalUnlockedRecipes": [
+          "bismarck"
+        ]
+      },
+      {
+        "step": 1,
+        "ownedCountBeforePurchase": 4,
+        "newlyDiscoveredThisStep": [
+          "bismarck"
+        ],
+        "mechanicGatedIngredientReady": [
+          "mezza-e-mezza",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 45,
+        "nextIngredientPurchased": "bacon",
+        "marginalUnlockCount": 1,
+        "marginalUnlockedRecipes": [
+          "breakfast-pizza"
+        ]
+      },
+      {
+        "step": 2,
+        "ownedCountBeforePurchase": 5,
+        "newlyDiscoveredThisStep": [
+          "breakfast-pizza"
+        ],
+        "mechanicGatedIngredientReady": [
+          "mezza-e-mezza",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 44,
+        "nextIngredientPurchased": "mushroom",
+        "marginalUnlockCount": 1,
+        "marginalUnlockedRecipes": [
+          "funghi"
+        ]
+      },
+      {
+        "step": 3,
+        "ownedCountBeforePurchase": 6,
+        "newlyDiscoveredThisStep": [
+          "funghi"
+        ],
+        "mechanicGatedIngredientReady": [
+          "mezza-e-mezza",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 43,
+        "nextIngredientPurchased": "sausage",
+        "marginalUnlockCount": 2,
+        "marginalUnlockedRecipes": [
+          "salsiccia",
+          "boscaiola"
+        ]
+      },
+      {
+        "step": 4,
+        "ownedCountBeforePurchase": 7,
+        "newlyDiscoveredThisStep": [
+          "salsiccia",
+          "boscaiola"
+        ],
+        "mechanicGatedIngredientReady": [
+          "mezza-e-mezza",
+          "chicago-deep-dish",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 40,
+        "nextIngredientPurchased": "nduja",
+        "marginalUnlockCount": 1,
+        "marginalUnlockedRecipes": [
+          "calabrese"
+        ]
+      },
+      {
+        "step": 5,
+        "ownedCountBeforePurchase": 8,
+        "newlyDiscoveredThisStep": [
+          "calabrese"
+        ],
+        "mechanicGatedIngredientReady": [
+          "mezza-e-mezza",
+          "chicago-deep-dish",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 39,
+        "nextIngredientPurchased": "pepperoni",
+        "marginalUnlockCount": 1,
+        "marginalUnlockedRecipes": [
+          "pepperoni"
+        ]
+      },
+      {
+        "step": 6,
+        "ownedCountBeforePurchase": 9,
+        "newlyDiscoveredThisStep": [
+          "pepperoni"
+        ],
+        "mechanicGatedIngredientReady": [
+          "mezza-e-mezza",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 37,
+        "nextIngredientPurchased": "ham",
+        "marginalUnlockCount": 1,
+        "marginalUnlockedRecipes": [
+          "meat-lovers"
+        ]
+      },
+      {
+        "step": 7,
+        "ownedCountBeforePurchase": 10,
+        "newlyDiscoveredThisStep": [
+          "meat-lovers"
+        ],
+        "mechanicGatedIngredientReady": [
+          "mezza-e-mezza",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 36,
+        "nextIngredientPurchased": "pineapple",
+        "marginalUnlockCount": 1,
+        "marginalUnlockedRecipes": [
+          "hawaiian"
+        ]
+      },
+      {
+        "step": 8,
+        "ownedCountBeforePurchase": 11,
+        "newlyDiscoveredThisStep": [
+          "hawaiian"
+        ],
+        "mechanicGatedIngredientReady": [
+          "mezza-e-mezza",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 35,
+        "nextIngredientPurchased": "porcini",
+        "marginalUnlockCount": 1,
+        "marginalUnlockedRecipes": [
+          "ai-funghi-porcini"
+        ]
+      },
+      {
+        "step": 9,
+        "ownedCountBeforePurchase": 12,
+        "newlyDiscoveredThisStep": [
+          "ai-funghi-porcini"
+        ],
+        "mechanicGatedIngredientReady": [
+          "mezza-e-mezza",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 34,
+        "nextIngredientPurchased": "anchovy",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 10,
+        "ownedCountBeforePurchase": 13,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "mezza-e-mezza",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 34,
+        "nextIngredientPurchased": "oregano",
+        "marginalUnlockCount": 2,
+        "marginalUnlockedRecipes": [
+          "napoletana",
+          "romana"
+        ]
+      },
+      {
+        "step": 11,
+        "ownedCountBeforePurchase": 14,
+        "newlyDiscoveredThisStep": [
+          "napoletana",
+          "romana"
+        ],
+        "mechanicGatedIngredientReady": [
+          "mezza-e-mezza",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 32,
+        "nextIngredientPurchased": "black-olive",
+        "marginalUnlockCount": 1,
+        "marginalUnlockedRecipes": [
+          "capricciosa"
+        ]
+      },
+      {
+        "step": 12,
+        "ownedCountBeforePurchase": 15,
+        "newlyDiscoveredThisStep": [
+          "capricciosa"
+        ],
+        "mechanicGatedIngredientReady": [
+          "mezza-e-mezza",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 31,
+        "nextIngredientPurchased": "garlic",
+        "marginalUnlockCount": 1,
+        "marginalUnlockedRecipes": [
+          "marinara"
+        ]
+      },
+      {
+        "step": 13,
+        "ownedCountBeforePurchase": 16,
+        "newlyDiscoveredThisStep": [
+          "marinara"
+        ],
+        "mechanicGatedIngredientReady": [
+          "mezza-e-mezza",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 30,
+        "nextIngredientPurchased": "artichoke",
+        "marginalUnlockCount": 1,
+        "marginalUnlockedRecipes": [
+          "ai-carciofi"
+        ]
+      },
+      {
+        "step": 14,
+        "ownedCountBeforePurchase": 17,
+        "newlyDiscoveredThisStep": [
+          "ai-carciofi"
+        ],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 28,
+        "nextIngredientPurchased": "arugula",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 15,
+        "ownedCountBeforePurchase": 18,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 28,
+        "nextIngredientPurchased": "bbq-sauce",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 16,
+        "ownedCountBeforePurchase": 19,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 28,
+        "nextIngredientPurchased": "bell-pepper",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 17,
+        "ownedCountBeforePurchase": 20,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 28,
+        "nextIngredientPurchased": "onion",
+        "marginalUnlockCount": 1,
+        "marginalUnlockedRecipes": [
+          "supreme"
+        ]
+      },
+      {
+        "step": 18,
+        "ownedCountBeforePurchase": 21,
+        "newlyDiscoveredThisStep": [
+          "supreme"
+        ],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 27,
+        "nextIngredientPurchased": "breadcrumb",
+        "marginalUnlockCount": 1,
+        "marginalUnlockedRecipes": [
+          "pugliese"
+        ]
+      },
+      {
+        "step": 19,
+        "ownedCountBeforePurchase": 22,
+        "newlyDiscoveredThisStep": [
+          "pugliese"
+        ],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 26,
+        "nextIngredientPurchased": "olive-oil",
+        "marginalUnlockCount": 1,
+        "marginalUnlockedRecipes": [
+          "fugazza"
+        ]
+      },
+      {
+        "step": 20,
+        "ownedCountBeforePurchase": 23,
+        "newlyDiscoveredThisStep": [
+          "fugazza"
+        ],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "fugazzeta",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 24,
+        "nextIngredientPurchased": "ricotta",
+        "marginalUnlockCount": 1,
+        "marginalUnlockedRecipes": [
+          "ricotta-bianca"
+        ]
+      },
+      {
+        "step": 21,
+        "ownedCountBeforePurchase": 24,
+        "newlyDiscoveredThisStep": [
+          "ricotta-bianca"
+        ],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "fugazzeta",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 22,
+        "nextIngredientPurchased": "rosemary",
+        "marginalUnlockCount": 1,
+        "marginalUnlockedRecipes": [
+          "pizza-bianca"
+        ]
+      },
+      {
+        "step": 22,
+        "ownedCountBeforePurchase": 25,
+        "newlyDiscoveredThisStep": [
+          "pizza-bianca"
+        ],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "fugazzeta",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 21,
+        "nextIngredientPurchased": "tuna",
+        "marginalUnlockCount": 1,
+        "marginalUnlockedRecipes": [
+          "tonno-e-cipolla"
+        ]
+      },
+      {
+        "step": 23,
+        "ownedCountBeforePurchase": 26,
+        "newlyDiscoveredThisStep": [
+          "tonno-e-cipolla"
+        ],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "fugazzeta",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 20,
+        "nextIngredientPurchased": "brie",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 24,
+        "ownedCountBeforePurchase": 27,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "fugazzeta",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 20,
+        "nextIngredientPurchased": "buffalo-sauce",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 25,
+        "ownedCountBeforePurchase": 28,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "fugazzeta",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 20,
+        "nextIngredientPurchased": "caciocavallo",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 26,
+        "ownedCountBeforePurchase": 29,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "fugazzeta",
+          "siciliana",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 19,
+        "nextIngredientPurchased": "cherry-tomato",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 27,
+        "ownedCountBeforePurchase": 30,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "fugazzeta",
+          "siciliana",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 19,
+        "nextIngredientPurchased": "pesto",
+        "marginalUnlockCount": 1,
+        "marginalUnlockedRecipes": [
+          "genovese"
+        ]
+      },
+      {
+        "step": 28,
+        "ownedCountBeforePurchase": 31,
+        "newlyDiscoveredThisStep": [
+          "genovese"
+        ],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "fugazzeta",
+          "siciliana",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 18,
+        "nextIngredientPurchased": "zucchini",
+        "marginalUnlockCount": 1,
+        "marginalUnlockedRecipes": [
+          "ortolana"
+        ]
+      },
+      {
+        "step": 29,
+        "ownedCountBeforePurchase": 32,
+        "newlyDiscoveredThisStep": [
+          "ortolana"
+        ],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "fugazzeta",
+          "siciliana",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 17,
+        "nextIngredientPurchased": "chicken",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 30,
+        "ownedCountBeforePurchase": 33,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "fugazzeta",
+          "siciliana",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 17,
+        "nextIngredientPurchased": "chili-oil",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 31,
+        "ownedCountBeforePurchase": 34,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "fugazzeta",
+          "siciliana",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 17,
+        "nextIngredientPurchased": "cilantro",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 32,
+        "ownedCountBeforePurchase": 35,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "fugazzeta",
+          "siciliana",
+          "bbq-chicken",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 16,
+        "nextIngredientPurchased": "corn",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 33,
+        "ownedCountBeforePurchase": 36,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "fugazzeta",
+          "siciliana",
+          "bbq-chicken",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 16,
+        "nextIngredientPurchased": "eggplant",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 34,
+        "ownedCountBeforePurchase": 37,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "fugazzeta",
+          "siciliana",
+          "bbq-chicken",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 16,
+        "nextIngredientPurchased": "ricotta-salata",
+        "marginalUnlockCount": 1,
+        "marginalUnlockedRecipes": [
+          "alla-norma"
+        ]
+      },
+      {
+        "step": 35,
+        "ownedCountBeforePurchase": 38,
+        "newlyDiscoveredThisStep": [
+          "alla-norma"
+        ],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "fugazzeta",
+          "siciliana",
+          "bbq-chicken",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 15,
+        "nextIngredientPurchased": "fig",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 36,
+        "ownedCountBeforePurchase": 39,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "fugazzeta",
+          "siciliana",
+          "bbq-chicken",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 15,
+        "nextIngredientPurchased": "fontina",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 37,
+        "ownedCountBeforePurchase": 40,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "fugazzeta",
+          "siciliana",
+          "bbq-chicken",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 15,
+        "nextIngredientPurchased": "french-fries",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 38,
+        "ownedCountBeforePurchase": 41,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "fugazzeta",
+          "siciliana",
+          "bbq-chicken",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 15,
+        "nextIngredientPurchased": "gorgonzola",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 39,
+        "ownedCountBeforePurchase": 42,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "fugazzeta",
+          "siciliana",
+          "bbq-chicken",
+          "buffalo-chicken",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 14,
+        "nextIngredientPurchased": "parmigiano",
+        "marginalUnlockCount": 1,
+        "marginalUnlockedRecipes": [
+          "quattro-formaggi"
+        ]
+      },
+      {
+        "step": 40,
+        "ownedCountBeforePurchase": 43,
+        "newlyDiscoveredThisStep": [
+          "quattro-formaggi"
+        ],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "fugazzeta",
+          "siciliana",
+          "bbq-chicken",
+          "buffalo-chicken",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 13,
+        "nextIngredientPurchased": "honey",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 41,
+        "ownedCountBeforePurchase": 44,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "fugazzeta",
+          "siciliana",
+          "bbq-chicken",
+          "buffalo-chicken",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 13,
+        "nextIngredientPurchased": "mascarpone",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 42,
+        "ownedCountBeforePurchase": 45,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "fugazzeta",
+          "siciliana",
+          "bbq-chicken",
+          "buffalo-chicken",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 13,
+        "nextIngredientPurchased": "mayo",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 43,
+        "ownedCountBeforePurchase": 46,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "fugazzeta",
+          "siciliana",
+          "bbq-chicken",
+          "buffalo-chicken",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 13,
+        "nextIngredientPurchased": "nori",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 44,
+        "ownedCountBeforePurchase": 47,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "fugazzeta",
+          "siciliana",
+          "bbq-chicken",
+          "buffalo-chicken",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 13,
+        "nextIngredientPurchased": "nutella-spread",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 45,
+        "ownedCountBeforePurchase": 48,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "fugazzeta",
+          "siciliana",
+          "bbq-chicken",
+          "buffalo-chicken",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 13,
+        "nextIngredientPurchased": "parsley",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 46,
+        "ownedCountBeforePurchase": 49,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "fugazzeta",
+          "siciliana",
+          "bbq-chicken",
+          "buffalo-chicken",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 13,
+        "nextIngredientPurchased": "potato",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 47,
+        "ownedCountBeforePurchase": 50,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "fugazzeta",
+          "siciliana",
+          "bbq-chicken",
+          "buffalo-chicken",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "potato-bacon",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 12,
+        "nextIngredientPurchased": "powdered-sugar",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 48,
+        "ownedCountBeforePurchase": 51,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "fugazzeta",
+          "siciliana",
+          "bbq-chicken",
+          "buffalo-chicken",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "potato-bacon",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 12,
+        "nextIngredientPurchased": "prosciutto-crudo",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 49,
+        "ownedCountBeforePurchase": 52,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "prosciutto",
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "prosciutto-e-funghi",
+          "fugazzeta",
+          "siciliana",
+          "bbq-chicken",
+          "buffalo-chicken",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "potato-bacon",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 10,
+        "nextIngredientPurchased": "provolone",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 50,
+        "ownedCountBeforePurchase": 53,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "prosciutto",
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "prosciutto-e-funghi",
+          "fugazzeta",
+          "siciliana",
+          "bbq-chicken",
+          "buffalo-chicken",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "potato-bacon",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 10,
+        "nextIngredientPurchased": "steak",
+        "marginalUnlockCount": 1,
+        "marginalUnlockedRecipes": [
+          "philly-cheesesteak"
+        ]
+      },
+      {
+        "step": 51,
+        "ownedCountBeforePurchase": 54,
+        "newlyDiscoveredThisStep": [
+          "philly-cheesesteak"
+        ],
+        "mechanicGatedIngredientReady": [
+          "prosciutto",
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "prosciutto-e-funghi",
+          "fugazzeta",
+          "siciliana",
+          "bbq-chicken",
+          "buffalo-chicken",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "potato-bacon",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 9,
+        "nextIngredientPurchased": "shrimp",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 52,
+        "ownedCountBeforePurchase": 55,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "prosciutto",
+          "frutti-di-mare",
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "prosciutto-e-funghi",
+          "fugazzeta",
+          "siciliana",
+          "bbq-chicken",
+          "buffalo-chicken",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "shrimp-mayo",
+          "potato-bacon",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 7,
+        "nextIngredientPurchased": "speck",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 53,
+        "ownedCountBeforePurchase": 56,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "prosciutto",
+          "frutti-di-mare",
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "prosciutto-e-funghi",
+          "fugazzeta",
+          "siciliana",
+          "bbq-chicken",
+          "buffalo-chicken",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "shrimp-mayo",
+          "potato-bacon",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 7,
+        "nextIngredientPurchased": "spicy-salami",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 54,
+        "ownedCountBeforePurchase": 57,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "prosciutto",
+          "diavola",
+          "frutti-di-mare",
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "prosciutto-e-funghi",
+          "fugazzeta",
+          "siciliana",
+          "bbq-chicken",
+          "buffalo-chicken",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "shrimp-mayo",
+          "potato-bacon",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 6,
+        "nextIngredientPurchased": "strawberry",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 55,
+        "ownedCountBeforePurchase": 58,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "prosciutto",
+          "diavola",
+          "frutti-di-mare",
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "prosciutto-e-funghi",
+          "fugazzeta",
+          "siciliana",
+          "bbq-chicken",
+          "buffalo-chicken",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "shrimp-mayo",
+          "potato-bacon",
+          "nutella-dessert",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 5,
+        "nextIngredientPurchased": "teriyaki-sauce",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 56,
+        "ownedCountBeforePurchase": 59,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "prosciutto",
+          "diavola",
+          "frutti-di-mare",
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "prosciutto-e-funghi",
+          "fugazzeta",
+          "siciliana",
+          "bbq-chicken",
+          "buffalo-chicken",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "shrimp-mayo",
+          "teriyaki-chicken",
+          "potato-bacon",
+          "nutella-dessert",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 4,
+        "nextIngredientPurchased": "truffle",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 57,
+        "ownedCountBeforePurchase": 60,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "prosciutto",
+          "diavola",
+          "frutti-di-mare",
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "prosciutto-e-funghi",
+          "fugazzeta",
+          "siciliana",
+          "al-tartufo",
+          "bbq-chicken",
+          "buffalo-chicken",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "shrimp-mayo",
+          "teriyaki-chicken",
+          "potato-bacon",
+          "nutella-dessert",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 3,
+        "nextIngredientPurchased": "walnut",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 58,
+        "ownedCountBeforePurchase": 61,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "prosciutto",
+          "diavola",
+          "frutti-di-mare",
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "prosciutto-e-funghi",
+          "fugazzeta",
+          "siciliana",
+          "al-tartufo",
+          "speck-e-brie",
+          "bbq-chicken",
+          "buffalo-chicken",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "shrimp-mayo",
+          "teriyaki-chicken",
+          "potato-bacon",
+          "nutella-dessert",
+          "honey-fig",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 1,
+        "nextIngredientPurchased": "wurstel",
+        "marginalUnlockCount": 0,
+        "marginalUnlockedRecipes": []
+      },
+      {
+        "step": 59,
+        "ownedCount": 62,
+        "newlyDiscoveredThisStep": [],
+        "mechanicGatedIngredientReady": [
+          "prosciutto",
+          "diavola",
+          "frutti-di-mare",
+          "quattro-stagioni",
+          "mezza-e-mezza",
+          "calzone",
+          "prosciutto-e-funghi",
+          "fugazzeta",
+          "siciliana",
+          "al-tartufo",
+          "speck-e-brie",
+          "wurstel-e-patatine",
+          "bbq-chicken",
+          "buffalo-chicken",
+          "chicago-deep-dish",
+          "detroit-style",
+          "stuffed-crust",
+          "shrimp-mayo",
+          "teriyaki-chicken",
+          "potato-bacon",
+          "nutella-dessert",
+          "honey-fig",
+          "greek-style"
+        ],
+        "stillBlockedRecipeCount": 0,
+        "nextIngredientPurchased": null,
+        "note": "full canonical ingredient set owned; simulation complete"
+      }
+    ],
+    "deadlockStateCount": 0,
+    "deadlocks": [],
+    "finalOwnedIngredientCount": 62,
+    "finalDiscoveredRecipeCount": 28,
+    "unreachableRecipeCount": 23,
+    "unreachableRecipeIds": [
+      "al-tartufo",
+      "bbq-chicken",
+      "buffalo-chicken",
+      "calzone",
+      "chicago-deep-dish",
+      "detroit-style",
+      "diavola",
+      "frutti-di-mare",
+      "fugazzeta",
+      "greek-style",
+      "honey-fig",
+      "mezza-e-mezza",
+      "nutella-dessert",
+      "potato-bacon",
+      "prosciutto",
+      "prosciutto-e-funghi",
+      "quattro-stagioni",
+      "shrimp-mayo",
+      "siciliana",
+      "speck-e-brie",
+      "stuffed-crust",
+      "teriyaki-chicken",
+      "wurstel-e-patatine"
+    ],
+    "unreachableBaselineRecipeIds": [],
+    "unreachableMechanicGatedRecipeIds": [
+      "al-tartufo",
+      "bbq-chicken",
+      "buffalo-chicken",
+      "calzone",
+      "chicago-deep-dish",
+      "detroit-style",
+      "diavola",
+      "frutti-di-mare",
+      "fugazzeta",
+      "greek-style",
+      "honey-fig",
+      "mezza-e-mezza",
+      "nutella-dessert",
+      "potato-bacon",
+      "prosciutto",
+      "prosciutto-e-funghi",
+      "quattro-stagioni",
+      "shrimp-mayo",
+      "siciliana",
+      "speck-e-brie",
+      "stuffed-crust",
+      "teriyaki-chicken",
+      "wurstel-e-patatine"
+    ],
+    "unreachableIngredientCount": 0,
+    "unreachableIngredientIds": []
+  }
+}
