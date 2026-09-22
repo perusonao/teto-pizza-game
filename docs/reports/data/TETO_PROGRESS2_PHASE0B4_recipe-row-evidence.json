@@ -1922,20 +1922,490 @@
       "correspondsToExistingCatalogId": null,
       "requiresMechanicIdentity": false,
       "evidenceGaps": []
+    },
+    {
+      "id": "fruit-dessert-pizza-pizzadb-p11",
+      "nameJa": "フルーツデザートピザ",
+      "origin": "アメリカ / 各地",
+      "doughStyle": "クッキー生地",
+      "sauceFamily": "デザートソース",
+      "ingredientsJa": [
+        "クリームチーズ",
+        "イチゴ",
+        "キウイ",
+        "ブルーベリー"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/11/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": true,
+      "mechanicIdentityNote": "Explicit COOKIE DOUGH base -- a fourth distinct dough-composition sub-axis alongside cauliflower-crust-pizza-pizzadb-p2 (vegetable-material, Phase 0B.8), pinsa-romana-pizzadb-p9 (multi-grain blend, Phase 0B.11), and fathead-pizza-keto-pizzadb-p9 (cheese+almond-flour, Phase 0B.11). This one is a dessert-oriented sweet dough base, per the trigger comment's explicit instruction to keep it as a dough-composition mechanic candidate. Not merged into any existing family.",
+      "evidenceGaps": []
+    },
+    {
+      "id": "bulgogi-pizza-pizzadb-p11",
+      "nameJa": "プルコギピザ",
+      "origin": "韓国 / 各地",
+      "doughStyle": "薄めの生地",
+      "sauceFamily": "甘辛だれ",
+      "ingredientsJa": [
+        "牛肉",
+        "玉ねぎ",
+        "モッツァレラチーズ",
+        "白ごま"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/11/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": []
+    },
+    {
+      "id": "frutti-di-mare-pizzadb-p11",
+      "nameJa": "フルッティディマーレ",
+      "origin": "イタリア / 各地",
+      "doughStyle": "ナポリピッツァ生地",
+      "sauceFamily": "トマトソース",
+      "ingredientsJa": [
+        "エビ",
+        "イカ",
+        "ムール貝",
+        "アサリ"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/11/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": "frutti-di-mare",
+      "correspondenceNote": "Matches the existing game_design_candidate 'frutti-di-mare' (nameJa フルッティ・ディ・マーレ with interpunct, ingredients: garlic, olive-oil, parsley, shrimp) by name and dish identity, but the composition is essentially COMPLEMENTARY, not overlapping: this PIZZA DB row lists the seafood medley itself (shrimp+squid+mussel+clam) with no aromatics at all, while the existing candidate lists only shrimp plus aromatics (garlic/olive-oil/parsley), no squid/mussel/clam. Recorded as new evidence, NOT merged or used to change the existing candidate -- new open item for a product decision on the full ingredient set.",
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "namingAmbiguityNote": "Per the trigger comment's explicit request, reviewed against pescatore-pizzadb-p11 as a distinct overlapping-seafood recipe: Pescatore adds mozzarella+garlic+parsley+olive-oil to a similar shrimp+mussel+clam base but OMITS squid, where this row includes squid and omits all aromatics/cheese. Two genuinely different, real Italian seafood-pizza traditions -- kept separate, not merged, despite the ingredient overlap."
+    },
+    {
+      "id": "breakfast-pizza-pizzadb-p11",
+      "nameJa": "ブレックファーストピザ",
+      "origin": "アメリカ / 各地",
+      "doughStyle": "薄めの生地",
+      "sauceFamily": "ホワイトソース",
+      "ingredientsJa": [
+        "卵",
+        "ベーコン",
+        "ソーセージ",
+        "チェダーチーズ",
+        "ホワイトソース"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/11/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": "breakfast-pizza",
+      "correspondenceNote": "MAJOR COMPOSITION CONFLICT with the already-SHIPPED production recipe 'breakfast-pizza' (nameJa ブレックファストピザ -- note the differing long-vowel mark, ブレックファースト vs ブレックファスト, which is why automated exact-nameJa dedup correctly did NOT match these as the same evidence unit; ingredients: bacon, egg, mozzarella, tomato-sauce). This PIZZA DB row instead lists egg, bacon, SAUSAGE (new), CHEDDAR (not mozzarella), and WHITE SAUCE (not tomato-sauce) -- a substantially different composition on 3 of 4 shared dimensions. Recorded as new evidence ONLY; the shipped recipe is NOT modified. New open item for a product decision (out of this session's scope: no src/** or recipe-composition edits) -- same severity class as the Phase 0B.11 fugazza-vs-shipped-fugazza finding.",
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": []
+    },
+    {
+      "id": "prosciutto-funghi-pizzadb-p11",
+      "nameJa": "プロシュットフンギ",
+      "origin": "イタリア / 各地",
+      "doughStyle": "ナポリピッツァ生地",
+      "sauceFamily": "トマトソース",
+      "ingredientsJa": [
+        "モッツァレラチーズ",
+        "生ハム",
+        "マッシュルーム"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/11/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": []
+    },
+    {
+      "id": "veggie-supreme-pizza-pizzadb-p11",
+      "nameJa": "ベジースプリームピザ",
+      "origin": "アメリカ / 各地",
+      "doughStyle": "薄めから中厚",
+      "sauceFamily": "トマトソース",
+      "ingredientsJa": [
+        "ピーマン",
+        "玉ねぎ",
+        "マッシュルーム",
+        "オリーブ",
+        "トマト",
+        "モッツァレラチーズ"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/11/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "namingAmbiguityNote": "Naming-adjacent to the already-evidenced supreme-pizzadb (Phase 0B: pepperoni+sausage+bell-pepper+onion+mushroom+olive) -- this 'veggie' variant omits the meats (pepperoni/sausage) and adds tomato. Kept as a fully separate dish, not merged."
+    },
+    {
+      "id": "pescatore-pizzadb-p11",
+      "nameJa": "ペスカトーレ",
+      "origin": "イタリア / 各地",
+      "doughStyle": "ナポリピッツァ生地",
+      "sauceFamily": "トマトソース",
+      "ingredientsJa": [
+        "モッツァレラチーズ",
+        "エビ",
+        "ムール貝",
+        "アサリ",
+        "にんにく",
+        "パセリ",
+        "オリーブオイル"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/11/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "namingAmbiguityNote": "See frutti-di-mare-pizzadb-p11 for the paired seafood-recipe cross-reference finding, per the trigger comment's explicit request. This row adds mozzarella+garlic+parsley+olive-oil to a shrimp+mussel+clam base and OMITS squid -- a genuinely distinct, real Italian dish from Frutti di Mare despite the ingredient overlap. Kept separate, not merged."
+    },
+    {
+      "id": "pesto-caprese-pizzadb-p11",
+      "nameJa": "ペストカプレーゼピザ",
+      "origin": "イタリア / 各地",
+      "doughStyle": "ナポリピッツァ生地",
+      "sauceFamily": "バジル",
+      "ingredientsJa": [
+        "モッツァレラチーズ",
+        "トマト",
+        "バジル"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/11/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "namingAmbiguityNote": "PESTO-FAMILY DISCOVERY/MATCHING STRESS TEST (see the batch-level finding in the Phase 0B.12 report): 1 of 11 pesto-sauce rows sharing sauceFamily=バジル and doughStyle=ナポリピッツァ生地. Per the trigger comment's explicit instruction, kept as its own distinct row on ingredient-set grounds -- never collapsed with any other pesto-family row solely because sauce+dough match."
+    },
+    {
+      "id": "pesto-gamberi-pizzadb-p11",
+      "nameJa": "ペストガンベリピザ",
+      "origin": "イタリア / 各地",
+      "doughStyle": "ナポリピッツァ生地",
+      "sauceFamily": "バジル",
+      "ingredientsJa": [
+        "エビ",
+        "トマト",
+        "にんにく"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/11/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "namingAmbiguityNote": "Pesto-family row 2 of 11 (see pesto-caprese-pizzadb-p11) -- distinct ingredient set (shrimp-based), kept separate."
+    },
+    {
+      "id": "pesto-salmone-pizzadb-p11",
+      "nameJa": "ペストサーモンピザ",
+      "origin": "イタリア / 各地",
+      "doughStyle": "ナポリピッツァ生地",
+      "sauceFamily": "バジル",
+      "ingredientsJa": [
+        "サーモン",
+        "クリームチーズ",
+        "レモン"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/11/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "namingAmbiguityNote": "Pesto-family row 3 of 11 (see pesto-caprese-pizzadb-p11) -- distinct ingredient set (salmon-based), kept separate."
+    },
+    {
+      "id": "pesto-genovese-pizza-pizzadb-p11",
+      "nameJa": "ペストジェノヴェーゼピザ",
+      "origin": "イタリア / 各地",
+      "doughStyle": "ナポリピッツァ生地",
+      "sauceFamily": "バジル",
+      "ingredientsJa": [
+        "モッツァレラチーズ",
+        "じゃがいも",
+        "松の実"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/11/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": "genovese",
+      "correspondenceNote": "Naming-adjacent to the already-SHIPPED 'genovese' recipe (nameJa ジェノベーゼ, ingredients: cherry-tomato, mozzarella, pesto -- pesto here is the game's own distinct ingredient id, nameJa ジェノベーゼソース, separate from the basil ingredient). This PIZZA DB row instead lists potato+pine-nuts (no cherry-tomato, no pesto-as-ingredient, using バジル as its sauceFamily tag instead) -- a genuine composition variant, not merged or used to change the shipped recipe. New open item for a product decision.",
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "taxonomyNote": "Pesto-family row 4 of 11 (see pesto-caprese-pizzadb-p11)."
+    },
+    {
+      "id": "pesto-trapanese-pizzadb-p11",
+      "nameJa": "ペストトラパネーゼピザ",
+      "origin": "イタリア / 各地",
+      "doughStyle": "ナポリピッツァ生地",
+      "sauceFamily": "バジル",
+      "ingredientsJa": [
+        "アーモンド",
+        "トマト",
+        "にんにく"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/11/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "namingAmbiguityNote": "Pesto-family row 5 of 11 (see pesto-caprese-pizzadb-p11) -- distinct ingredient set (almond-pesto/pesto alla trapanese style), kept separate."
+    },
+    {
+      "id": "pesto-tonno-pizzadb-p12",
+      "nameJa": "ペストトンノピザ",
+      "origin": "イタリア / 各地",
+      "doughStyle": "ナポリピッツァ生地",
+      "sauceFamily": "バジル",
+      "ingredientsJa": [
+        "ツナ",
+        "オリーブ",
+        "玉ねぎ"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/12/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "namingAmbiguityNote": "Pesto-family row 6 of 11 (see pesto-caprese-pizzadb-p11) -- distinct ingredient set (tuna-based), kept separate."
+    },
+    {
+      "id": "pesto-noci-pizzadb-p12",
+      "nameJa": "ペストノーチピザ",
+      "origin": "イタリア / 各地",
+      "doughStyle": "ナポリピッツァ生地",
+      "sauceFamily": "バジル",
+      "ingredientsJa": [
+        "くるみ",
+        "ゴルゴンゾーラチーズ",
+        "蜂蜜"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/12/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "namingAmbiguityNote": "Pesto-family row 7 of 11 (see pesto-caprese-pizzadb-p11) -- distinct ingredient set (walnut+gorgonzola+honey), kept separate."
+    },
+    {
+      "id": "pesto-patate-pizzadb-p12",
+      "nameJa": "ペストパターテピザ",
+      "origin": "イタリア / 各地",
+      "doughStyle": "ナポリピッツァ生地",
+      "sauceFamily": "バジル",
+      "ingredientsJa": [
+        "じゃがいも",
+        "ベーコン",
+        "モッツァレラチーズ"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/12/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "namingAmbiguityNote": "Pesto-family row 8 of 11 (see pesto-caprese-pizzadb-p11) -- distinct ingredient set (potato+bacon), kept separate."
+    },
+    {
+      "id": "pesto-burrata-pizzadb-p12",
+      "nameJa": "ペストブラータピザ",
+      "origin": "イタリア / 各地",
+      "doughStyle": "ナポリピッツァ生地",
+      "sauceFamily": "バジル",
+      "ingredientsJa": [
+        "ブラータチーズ",
+        "トマト",
+        "オリーブオイル"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/12/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "namingAmbiguityNote": "Pesto-family row 9 of 11 (see pesto-caprese-pizzadb-p11) -- distinct ingredient set (burrata-based, same burrata id already corroborated by burrata-pizza-pizzadb-p10, Phase 0B.11), kept separate."
+    },
+    {
+      "id": "pesto-vegetariana-pizzadb-p12",
+      "nameJa": "ペストベジタリアーナピザ",
+      "origin": "イタリア / 各地",
+      "doughStyle": "ナポリピッツァ生地",
+      "sauceFamily": "バジル",
+      "ingredientsJa": [
+        "ズッキーニ",
+        "パプリカ",
+        "ナス",
+        "モッツァレラチーズ"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/12/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "namingAmbiguityNote": "Pesto-family row 10 of 11 (see pesto-caprese-pizzadb-p11) -- distinct ingredient set (zucchini+bell-pepper+eggplant vegetable mix), kept separate."
+    },
+    {
+      "id": "pesto-pollo-pizzadb-p12",
+      "nameJa": "ペストポッロピザ",
+      "origin": "イタリア / 各地",
+      "doughStyle": "ナポリピッツァ生地",
+      "sauceFamily": "バジル",
+      "ingredientsJa": [
+        "チキン",
+        "トマト",
+        "モッツァレラチーズ"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/12/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "namingAmbiguityNote": "Pesto-family row 11 of 11 (see pesto-caprese-pizzadb-p11) -- distinct ingredient set (chicken-based), kept separate. All 11 pesto-family rows this Phase were verified pairwise-distinct by ingredient set before ingesting -- none collapsed solely because sauceFamily=バジル and doughStyle=ナポリピッツァ生地 matched, per the trigger comment's explicit discovery/matching stress-test instruction."
+    },
+    {
+      "id": "venezuelan-reina-pepiada-pizzadb-p12",
+      "nameJa": "ベネズエラレイナペピアーダピザ",
+      "origin": "ベネズエラ / 各地",
+      "doughStyle": "薄めの生地",
+      "sauceFamily": "ホワイトソース",
+      "ingredientsJa": [
+        "チキン",
+        "アボカド",
+        "マヨネーズ",
+        "モッツァレラチーズ",
+        "コリアンダー"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/12/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": []
+    },
+    {
+      "id": "peruvian-aji-amarillo-pizzadb-p12",
+      "nameJa": "ペルーアヒアマリージョピザ",
+      "origin": "ペルー / 各地",
+      "doughStyle": "薄めの生地",
+      "sauceFamily": "ホットソース",
+      "ingredientsJa": [
+        "アヒアマリージョ",
+        "チキン",
+        "モッツァレラチーズ",
+        "オリーブ"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/12/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": []
+    },
+    {
+      "id": "polish-kielbasa-pizzadb-p12",
+      "nameJa": "ポーリッシュキエルバサピザ",
+      "origin": "ポーランド / 各地",
+      "doughStyle": "薄めの生地",
+      "sauceFamily": "チーズ",
+      "ingredientsJa": [
+        "ソーセージ",
+        "ザワークラウト",
+        "玉ねぎ",
+        "モッツァレラチーズ"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/12/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": []
+    },
+    {
+      "id": "boscaiola-pizzadb-p12",
+      "nameJa": "ボスカイオーラ",
+      "origin": "イタリア / 各地",
+      "doughStyle": "ピッツァ生地",
+      "sauceFamily": "チーズ",
+      "ingredientsJa": [
+        "モッツァレラチーズ",
+        "ポルチーニ茸",
+        "ソーセージ",
+        "オリーブオイル"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/12/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": "boscaiola",
+      "correspondenceNote": "COMPOSITION CONFLICT with the existing game_design_candidate 'boscaiola' (ingredients: mozzarella, mushroom, sausage, tomato-sauce). This PIZZA DB row uses porcini (a SPECIFIC mushroom variety, already a registered likely_alias id) instead of the existing candidate's generic mushroom, adds olive-oil, and -- most notably -- tags sauceFamily as チーズ (cheese) rather than トマトソース (tomato-sauce), a sauce-family-level conflict, not just an ingredient swap. Recorded as new evidence only, NOT used to change the existing candidate. New open item for a product decision.",
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": []
+    },
+    {
+      "id": "hot-honey-pepperoni-pizzadb-p12",
+      "nameJa": "ホットハニーペパロニピザ",
+      "origin": "アメリカ / 各地",
+      "doughStyle": "薄めの生地",
+      "sauceFamily": "トマトソース",
+      "ingredientsJa": [
+        "ペパロニ",
+        "モッツァレラチーズ",
+        "蜂蜜"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/12/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": [],
+      "namingAmbiguityNote": "Same {pepperoni, mozzarella, tomato-sauce}-family base as the shipped 'pepperoni' recipe, plus honey as a post-bake finishing drizzle -- a plausible postBakeFinishing mechanic candidate (same drizzle sub-type family as detroit-style's sauce stripe), not decided or added here, only noted."
+    },
+    {
+      "id": "porchetta-pizza-pizzadb-p12",
+      "nameJa": "ポルケッタピザ",
+      "origin": "イタリア / 各地",
+      "doughStyle": "ナポリピッツァ生地",
+      "sauceFamily": "チーズ",
+      "ingredientsJa": [
+        "豚肉",
+        "モッツァレラチーズ",
+        "ローズマリー"
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/12/",
+      "verifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": false,
+      "evidenceGaps": []
     }
   ],
   "counters": {
-    "uniqueRecipeRowsEvidencedTotal": 121,
-    "uniqueRecipeRowsEvidencedFormula": "25 (Phase 0B original comparison_table_sample) + 89 (later comparison_table_sample batches) + 7 (individual_profile_page) = 121, all deduplicated against each other",
+    "uniqueRecipeRowsEvidencedTotal": 145,
+    "uniqueRecipeRowsEvidencedFormula": "25 (Phase 0B original comparison_table_sample) + 113 (later comparison_table_sample batches) + 7 (individual_profile_page) = 145, all deduplicated against each other",
     "claimedTotalPopulation": 172,
-    "coveragePercent": 70.3,
+    "coveragePercent": 84.3,
     "independentlyFreshVerifiedRows": 7,
     "independentlyFreshVerifiedNote": "Rows evidenced via a dedicated individual PIZZA DB profile-page fetch (deeper single-dish evidence: origin/dough/sauce-family/ingredients), as distinct from a row's appearance in the aggregate comparison-table scrape.",
-    "relayedOnlyRows": 114,
+    "relayedOnlyRows": 138,
     "relayedOnlyNote": "Rows evidenced only via the aggregate comparison-table sample (Phase 0B), not (yet) confirmed by a dedicated individual profile-page fetch.",
     "duplicateCorroborationsCount": 34,
     "duplicateCorroborationsNote": "Each entry in the top-level 'corroborations' list is a re-confirmation of an already-evidenced row (new source URL/date), found either by exact id/nameJa match (matchType=automatic_exact_match) or by human ingredient-set review (matchType=manual_review) -- never counted toward uniqueRecipeRowsEvidencedTotal.",
-    "rowsRequiringMechanicIdentityCount": 28,
+    "rowsRequiringMechanicIdentityCount": 29,
     "rowsRequiringMechanicIdentityIds": [
       "pizza-a-caballo",
       "fugazzeta-rellena",
@@ -1964,14 +2434,15 @@
       "pinsa-romana-pizzadb-p9",
       "fathead-pizza-keto-pizzadb-p9",
       "feteer-meshaltet-pizzadb-p10",
-      "focaccia-genovese-pizzadb-p10"
+      "focaccia-genovese-pizzadb-p10",
+      "fruit-dessert-pizza-pizzadb-p11"
     ],
     "rowsWithEvidenceGapsCount": 2,
     "rowsWithEvidenceGapsIds": [
       "pizza-a-caballo",
       "colorado-mountain-pie-pizzadb-p3"
     ],
-    "rowsCorrespondingToExistingCatalogEntry": 11,
+    "rowsCorrespondingToExistingCatalogEntry": 15,
     "rowsCorrespondingToExistingCatalogEntryIds": [
       "margherita-pizzadb-row",
       "hawaiian-pizzadb-row",
@@ -1983,11 +2454,15 @@
       "pizza-romana-pizzadb-p9",
       "pizza-alla-norma-pizzadb-p9",
       "fugazza-pizzadb-p10",
-      "fugazzetta-pizzadb-p10"
+      "fugazzetta-pizzadb-p10",
+      "frutti-di-mare-pizzadb-p11",
+      "breakfast-pizza-pizzadb-p11",
+      "pesto-genovese-pizza-pizzadb-p11",
+      "boscaiola-pizzadb-p12"
     ],
     "rowsCorrespondingToExistingCatalogEntryNote": "correspondsToExistingCatalogId is set whether that catalog entry is already SHIPPED (e.g. margherita) or still an unshipped candidate (e.g. hawaiian) -- check each row's own correspondenceNote for which.",
-    "pendingRowCount": 51,
-    "pendingRowNote": "172 - 121 = 51 rows remain with zero evidence."
+    "pendingRowCount": 27,
+    "pendingRowNote": "172 - 145 = 27 rows remain with zero evidence."
   },
   "independentSessionFetchStatus": {
     "lastCheckedThisPhase": "2026-09-22 (Phase 0B.4)",
