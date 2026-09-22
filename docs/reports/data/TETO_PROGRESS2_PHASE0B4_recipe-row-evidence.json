@@ -2582,20 +2582,42 @@
       "requiresMechanicIdentity": true,
       "mechanicIdentityNote": "TWO distinct evidence findings on one dish: (1) profile text states the beef and vegetables are stir-fried FIRST -- a pre-cook/prep evidence finding, same category as Phase 0B.14's yakiniku-pizza; (2) the fries (フライドポテト) are added just before the bake finishes -- a late-topping/timing evidence finding, same category as Phase 0B.13/0B.14's natto/unagi/tarako findings. Recorded as evidence only, no mechanic implemented.",
       "evidenceGaps": []
+    },
+    {
+      "id": "lahmacun",
+      "nameJa": "ラフマジュン",
+      "origin": "トルコ / 各地",
+      "doughStyle": "極薄のクリスピーなフラットブレッド",
+      "sauceFamily": "トマトソース",
+      "ingredientsJa": [
+        "ひき肉",
+        "トマト",
+        "パプリカ",
+        "パセリ",
+        "唐辛子"
+      ],
+      "evidenceOrigin": "individual_profile_page",
+      "sourceUrl": "https://pizzadb.jp/pizzas/lahmacun/",
+      "verifiedAt": "2026-09-22 (relayed via directly-fetched Japanese profile page and Japanese ingredient-tag page /toppings/ground-meat/, not independently re-fetched by this Claude session)",
+      "correspondsToExistingCatalogId": null,
+      "requiresMechanicIdentity": true,
+      "mechanicIdentityNote": "Confirms and supersedes the Phase 0B.15 EN-only candidate finding with genuine Japanese-side evidence. A fourth distinct flatbread-family dough (ultra-thin, crispy), alongside piadina-romagnola's unleavened cracker-thin flatbread (Phase 0B.10), focaccia-genovese's thick olive-oil flatbread (Phase 0B.11), and manakish's soft pita-like flatbread (Phase 0B.13) -- all four kept distinct, not merged. Additional identity evidence preserved without inventing gameplay: the ground-meat paste is spread thinly over the dough before baking (spread/paste-topping mechanic); lemon is squeezed on AFTER baking and the dish is eaten rolled with fresh vegetables (post-bake finish + roll-to-eat serving behavior) -- per the trigger's explicit instruction, lemon/fresh vegetables are NOT added to the canonical ingredient list, since the source's own published topping list is exactly the 5 ingredients recorded here; the finishing/serving text is mechanic/context evidence only.",
+      "evidenceGaps": [],
+      "taxonomyNote": "ひき肉 (generic ground meat) and 唐辛子 (plain chili pepper) both kept ambiguous per the existing tables (Phase 0B.3/0B.9) -- NOT resolved here."
     }
   ],
   "counters": {
-    "uniqueRecipeRowsEvidencedTotal": 154,
-    "uniqueRecipeRowsEvidencedFormula": "25 (Phase 0B original comparison_table_sample) + 113 (later comparison_table_sample batches) + 16 (individual_profile_page) = 154, all deduplicated against each other",
+    "uniqueRecipeRowsEvidencedTotal": 155,
+    "uniqueRecipeRowsEvidencedFormula": "25 (Phase 0B original comparison_table_sample) + 113 (later comparison_table_sample batches) + 17 (individual_profile_page) = 155, all deduplicated against each other",
     "claimedTotalPopulation": 172,
-    "coveragePercent": 89.5,
-    "independentlyFreshVerifiedRows": 16,
+    "coveragePercent": 90.1,
+    "independentlyFreshVerifiedRows": 17,
     "independentlyFreshVerifiedNote": "Rows evidenced via a dedicated individual PIZZA DB profile-page fetch (deeper single-dish evidence: origin/dough/sauce-family/ingredients), as distinct from a row's appearance in the aggregate comparison-table scrape.",
     "relayedOnlyRows": 138,
     "relayedOnlyNote": "Rows evidenced only via the aggregate comparison-table sample (Phase 0B), not (yet) confirmed by a dedicated individual profile-page fetch.",
     "duplicateCorroborationsCount": 40,
     "duplicateCorroborationsNote": "Each entry in the top-level 'corroborations' list is a re-confirmation of an already-evidenced row (new source URL/date), found either by exact id/nameJa match (matchType=automatic_exact_match) or by human ingredient-set review (matchType=manual_review) -- never counted toward uniqueRecipeRowsEvidencedTotal.",
-    "rowsRequiringMechanicIdentityCount": 34,
+    "rowsRequiringMechanicIdentityCount": 35,
     "rowsRequiringMechanicIdentityIds": [
       "pizza-a-caballo",
       "fugazzeta-rellena",
@@ -2630,7 +2652,8 @@
       "manakish",
       "wasabi-beef-pizza",
       "yakiniku-pizza",
-      "pizza-de-lomo-saltado"
+      "pizza-de-lomo-saltado",
+      "lahmacun"
     ],
     "rowsWithEvidenceGapsCount": 2,
     "rowsWithEvidenceGapsIds": [
@@ -2656,8 +2679,8 @@
       "boscaiola-pizzadb-p12"
     ],
     "rowsCorrespondingToExistingCatalogEntryNote": "correspondsToExistingCatalogId is set whether that catalog entry is already SHIPPED (e.g. margherita) or still an unshipped candidate (e.g. hawaiian) -- check each row's own correspondenceNote for which.",
-    "pendingRowCount": 18,
-    "pendingRowNote": "172 - 154 = 18 rows remain with zero evidence."
+    "pendingRowCount": 17,
+    "pendingRowNote": "172 - 155 = 17 rows remain with zero evidence."
   },
   "independentSessionFetchStatus": {
     "lastCheckedThisPhase": "2026-09-22 (Phase 0B.4)",
