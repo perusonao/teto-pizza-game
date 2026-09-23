@@ -15,6 +15,7 @@
  * No shipped recipe requires a capability, so every target uses the default dimensions.
  */
 import { DEFAULT_IDENTITY_DIMENSIONS } from "../logic/discovery/signature";
+import { getIngredient } from "./ingredients";
 import type { RecipeDiscoveryTarget } from "../logic/discovery/matcher";
 import { RECIPES, type RecipeId } from "./recipes";
 
@@ -42,6 +43,13 @@ export const RECIPE_DISCOVERY_CATALOG: readonly RecipeDiscoveryTarget[] = RECIPE
   targetId: RECIPE_DISCOVERY_TARGET_IDS[recipe.id],
   recipeId: recipe.id,
   items: [...new Set(recipe.requiredIngredients.map((r) => r.ingredientId))].sort(),
+  sauceBase: [
+    ...new Set(
+      recipe.requiredIngredients
+        .map((r) => r.ingredientId)
+        .filter((id) => getIngredient(id)?.category === "sauce"),
+    ),
+  ].sort(),
   capabilities: [],
   identityDimensions: DEFAULT_IDENTITY_DIMENSIONS,
   eligibility: { status: "ELIGIBLE" },

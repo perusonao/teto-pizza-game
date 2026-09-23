@@ -5,8 +5,9 @@
  * Rules (Phase-2 design §2.3, JSON `discoveryRule`):
  *
  * 1. **Exact match, never ingredients-only.** The ingredient set (base sauce included) must be
- *    equal -- a superset or subset is an original pizza -- AND every identity dimension must
- *    agree. There is no fallback that compares ingredients alone.
+ *    equal -- a superset or subset is an original pizza -- AND the base must be the expected one
+ *    (when the target declares it) AND every identity dimension must agree. There is no fallback
+ *    that compares ingredients alone.
  * 2. **Unsupported mechanic -> no match.** A target that requires a capability the runtime does
  *    not implement is never a candidate, whatever its dimensions say.
  * 3. **Observation rule.** On an `UNAVAILABLE` axis the Phase-2 default is assumed, so only a
@@ -39,6 +40,11 @@ export interface DiscoveryTarget {
   targetId: string;
   /** Sorted identity items, base sauce included (Phase-2 `items`). */
   items: readonly string[];
+  /** Sorted expected sauce/base ids. When present, the pizza's observed base must equal it, so the
+   *  same ingredients in the wrong roles (e.g. tomato sauce as a piece and something else as the
+   *  base) never match. Absent only for Phase-2 JSON targets, whose `items` do not say which item is
+   *  the base; every runtime catalog target sets it. */
+  sauceBase?: readonly string[];
   /** Required capabilities (Phase-2 `capabilities`). */
   capabilities: readonly string[];
   identityDimensions: IdentityDimensions;
@@ -95,6 +101,7 @@ function candidateAssumptions(
 ): IdentityDimensionKey[] | null {
   if (!target.capabilities.every((c) => supported.has(c))) return null;
   if (!sameStringList([...target.items].sort(), signature.ingredientSet.value)) return null;
+  if (target.sauceBase && !sameStringList([...target.sauceBase].sort(), signature.sauceBase.value)) return null;
   return compareDimensions(signature, target);
 }
 

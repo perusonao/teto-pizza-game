@@ -275,7 +275,7 @@ visible UI change:
 - REGISTER_TO_DEX records the outcome in the transient `lastDiscovery`. The selected-recipe Dex
   write is unchanged, and an exact match to another undiscovered recipe is also written.
 
-There is no save schema change. The unit suite is 2375/2375 (51 new) and Chromium E2E is 102/102.
+There is no save schema change. The unit suite is 2377/2377 (53 new) and Chromium E2E is 102/102.
 Phase 3-2 blockers are listed in that report's §6, starting with the still-open A-01…A-05 owner
 decisions and the absence of a free-cook entry point.
 

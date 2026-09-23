@@ -91,6 +91,19 @@ describe("matchDiscovery -- Issue #192 deterministic proof", () => {
     expect(pestoMargherita.kind).toBe("NO_MATCH");
   });
 
+  it("3b. the right ingredients in the wrong roles (wrong base) do not match", () => {
+    // Bismarck's set {egg, mozzarella, tomato-sauce}, but egg as the base and tomato sauce as a piece.
+    const swapped = pizzaOf(["egg"], ["mozzarella", "tomato-sauce"]);
+    expect(signatureOfPizza(swapped).ingredientSet.value).toEqual(["egg", "mozzarella", "tomato-sauce"]);
+    expect(matchDiscovery(signatureOfPizza(swapped), RECIPE_DISCOVERY_CATALOG).kind).toBe("NO_MATCH");
+    // Two bases where one is expected is also not a match.
+    const twoBases = pizzaOf(["tomato-sauce", "egg"], ["mozzarella"]);
+    expect(matchDiscovery(signatureOfPizza(twoBases), RECIPE_DISCOVERY_CATALOG).kind).toBe("NO_MATCH");
+    // The correct roles still match.
+    const bismarck = matchDiscovery(signatureOfPizza(pizzaOf(["tomato-sauce"], ["mozzarella", "egg"])), RECIPE_DISCOVERY_CATALOG);
+    expect(bismarck.kind === "UNIQUE_MATCH" && bismarck.target.recipeId).toBe("bismarck");
+  });
+
   describe("4. known same-ingredient-set collision groups (Phase-2 §2.3) never merge", () => {
     const groups: { pizza: PizzaState; expected: string | null; others: string[] }[] = [
       {

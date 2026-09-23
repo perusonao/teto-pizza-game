@@ -100,7 +100,7 @@ times gives the same identity. `minCount` remains the Completion Gate's question
 
 The rules:
 
-1. Exact ingredient set **and** every dimension. There is no ingredients-only fallback.
+1. Exact ingredient set, **the expected base** (every runtime target declares `sauceBase`, the recipe's sauce-category ingredients) **and** every dimension. There is no ingredients-only fallback.
 2. A target that requires an unsupported capability is never a candidate.
 3. On an UNAVAILABLE axis, only a target whose value is the Phase-2 default can match (the
    observation rule), and the assumption is reported.
@@ -145,7 +145,7 @@ REGISTER_TO_DEX, from a repeated RESULT event or a re-render, returns the identi
 |---|---|---|
 | 1 | Exact single match (Margherita → `shipped:margherita`, assumed dims `zones`, `shape`) | `matcher.test.ts` |
 | 2 | Ingredient-order invariance (3 placement orders plus a reversed catalog) | `matcher.test.ts`, `signature.test.ts` |
-| 3 | Sauce/base distinction: Genovese's toppings on tomato, olive oil or no sauce, and Margherita's toppings on pesto, are all original | `matcher.test.ts` |
+| 3 | Sauce/base distinction: Genovese's toppings on tomato, olive oil or no sauce, and Margherita's toppings on pesto, are all original. The right ingredients in the wrong roles (egg as the base, tomato sauce as a piece) or with two bases do not match either (PR #193 review). | `matcher.test.ts` |
 | 4 | All 5 Phase-2 same-ingredient-set groups: margherita/cauliflower/al-taglio, salsiccia/chicago-stuffed, pepperoni/fathead/new-england-bar, jamón-serrano/pinsa-romana, ny-style/trenton. Each resolves to the capability-free member, or to **original** when every member needs a capability. With every dimension observed, each member matches only itself. | `matcher.test.ts` |
 | 5 | Unavailable mechanic or axis: unsupported capability, non-default value on an UNAVAILABLE axis, non-default value on a FIXED axis, and all 30 capability targets are unmatchable today | `matcher.test.ts` |
 | 6 | Blocked rows: a blocked look-alike alone gives NO_MATCH plus a report, and one sharing a signature gives AMBIGUOUS. None of the 85 blocked rows (fugazza/fugazzetta included) is a target or catalog entry. | `matcher.test.ts` |
@@ -169,8 +169,8 @@ and the existing `persistence.test.ts` suite (v1→v2 migration) passes unmodifi
 
 | Check | Result |
 |---|---|
-| Focused tests (`src/logic/discovery`, `discoveryCatalog`, `gameReducer.discovery`) | 51/51 |
-| Full unit suite | **2375/2375** (baseline at `9c22ef2`: 2324; 51 new; 0 changed or removed) |
+| Focused tests (`src/logic/discovery`, `discoveryCatalog`, `gameReducer.discovery`) | 53/53 |
+| Full unit suite | **2377/2377** (baseline at `9c22ef2`: 2324; 53 new; 0 changed or removed) |
 | `tsc -b` | clean |
 | `oxlint` | clean |
 | `vite build` | OK. The Phase-2 JSON is not in the bundle: only test support imports it. |

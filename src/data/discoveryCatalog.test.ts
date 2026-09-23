@@ -44,6 +44,16 @@ describe("RECIPE_DISCOVERY_CATALOG (P3-1 runtime catalog)", () => {
     expect(tonno?.productDecisionStatus).toBe("ALREADY_SHIPPED_CORROBORATED");
   });
 
+  it("every target declares its base: exactly the recipe's sauce-category ingredients", () => {
+    for (const t of RECIPE_DISCOVERY_CATALOG) {
+      expect(t.sauceBase, t.recipeId).toBeDefined();
+      expect(t.sauceBase!.length, t.recipeId).toBeGreaterThan(0);
+      for (const id of t.sauceBase!) expect(t.items).toContain(id);
+    }
+    expect(RECIPE_DISCOVERY_CATALOG.find((t) => t.recipeId === "quattro-formaggi")?.sauceBase).toEqual(["olive-oil"]);
+    expect(RECIPE_DISCOVERY_CATALOG.find((t) => t.recipeId === "genovese")?.sauceBase).toEqual(["pesto"]);
+  });
+
   it("all runtime signatures are unique", () => {
     const keys = RECIPE_DISCOVERY_CATALOG.map(signatureKey);
     expect(new Set(keys).size).toBe(keys.length);
