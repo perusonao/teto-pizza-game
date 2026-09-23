@@ -50,6 +50,14 @@ interface IngredientTrayProps {
    *  ever shown (see this component's own render, "recipe-specified materials are decided
    *  automatically per step"). */
   recipe: Recipe;
+  /** Progression 2.0 Phase 3-2 (Issue #194): a free-cook round has no recipe to narrow the
+   *  offer to, so the tray lists **every OWNED ingredient** of the active step's category
+   *  instead of `recipe.requiredIngredients` (Phase-2 design sec. 7: "the final tray shows every
+   *  OWNED item, never a recipe subset"). LOCKED/AVAILABLE_TO_BUY ingredients are never listed
+   *  (the same `ownedIngredientIds` filter), and an owned ingredient with 0 stock stays listed
+   *  but disabled with its `×0` badge -- the existing EP3 Stock Gate contract, never hidden.
+   *  Paging (`MAX_INGREDIENT_PALETTE_SLOTS` per page) keeps a large owned set on one screen. */
+  freeCook?: boolean;
   /** Issue #86: read-only inputs to the EP3 Stock Gate (`canPlaceIngredient`) and EP1/EP3's own
    *  `remainingStock` -- both already-shipped, reducer-shared functions (src/state/inventory.ts),
    *  reused here purely for *display* (remaining-count badge, disabled chip). Placement itself is
@@ -101,6 +109,7 @@ export function IngredientTray({
   onSelectIngredient,
   ownedIngredientIds,
   recipe,
+  freeCook = false,
   inventory,
   pizza,
   physicalDragEnabled = false,
@@ -126,7 +135,8 @@ export function IngredientTray({
   const requiredItems = ingredientsByCategory(activeCategory).filter(
     (i) =>
       ownedIngredientIds.includes(i.id) &&
-      recipe.requiredIngredients.some((requirement) => requirement.ingredientId === i.id),
+      (freeCook ||
+        recipe.requiredIngredients.some((requirement) => requirement.ingredientId === i.id)),
   );
 
   // Phase 4A-1B Human Feel Fix 2 / Issue #86: the visible grid stays a fixed 3x2

@@ -724,6 +724,14 @@ function App() {
     setScreen("GAME");
   }
 
+  // Progression 2.0 Phase 3-2 (Issue #194): HOME's フリークッキング -- a fresh FREE round with
+  // no recipe selected (START_FREE_COOK). Like SELECT_RECIPE it lands straight at PREPARE; the
+  // previous round (whatever phase it was left in) is replaced wholesale by the reducer.
+  function handleStartFreeCook() {
+    dispatch({ type: "START_FREE_COOK", now: Date.now() });
+    setScreen("GAME");
+  }
+
   // Pizza Select's own back button. No confirmation needed -- Pizza Select never has an
   // in-progress round of its own to lose (mirrors leaving ORDER/RESULT today), and this must
   // not reuse `handleGoHome`'s Mission-exit branch, which is irrelevant here since Pizza
@@ -820,6 +828,7 @@ function App() {
           ownedIngredientCount={state.ownedIngredientIds.length}
           totalIngredientCount={INGREDIENTS.length}
           onStartFreePlay={handleStartFreePlay}
+          onStartFreeCook={handleStartFreeCook}
           onStartLunchRush={handleStartLunchRush}
           onOpenDex={() => setDexOpen(true)}
           onOpenShop={() => setShopOpen(true)}

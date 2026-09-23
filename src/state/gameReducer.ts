@@ -31,6 +31,8 @@ import { RECIPE_DISCOVERY_CATALOG } from "../data/discoveryCatalog";
 import { evaluateDiscovery, type DiscoveryOutcome } from "../logic/discovery/matcher";
 import { signatureOfPizza } from "../logic/discovery/signature";
 import { registerDiscoveryToDex } from "./discoveryRegistration";
+import { FREE_COOK_ORDER, FREE_COOK_RECIPE } from "../data/freeCook";
+import { resolveFreeCookPizza } from "../logic/discovery/freeCook";
 import { availableRecipeIds, isRecipeAvailable } from "./progression";
 import {
   canPlaceIngredient,
@@ -239,6 +241,14 @@ export interface GameState {
    *  as `lastPitzCredit`), `null` until REGISTER_TO_DEX credits a round, and reset for every fresh
    *  round. Not rendered by any UI in this slice; never persisted. */
   lastDiscovery: DiscoveryOutcome | null;
+  /** Progression 2.0 Phase 3-2 (Issue #194): true for a free-cook round (START_FREE_COOK) -- no
+   *  recipe was selected, the tray offers every OWNED ingredient, and CONFIRM_BAKE decides what
+   *  the pizza is with the Phase 3-1 matcher (../logic/discovery/freeCook.ts). Until CONFIRM_BAKE
+   *  `recipe` is the inert `FREE_COOK_RECIPE` sentinel; a matched pizza then carries the matched
+   *  recipe so scoring/Dex/Pitz run through the unchanged recipe path. Stays true through
+   *  RESULT/DISCOVERED so "もう一度つくる" restarts free cooking. Always false for Lunch Rush and
+   *  recipe-guided rounds (`buildOrderState`); transient, never persisted. */
+  freeCook: boolean;
   /** Pizza Cutting 1.0 Phase 2 (docs/design/TETO_PIZZA-CUTTING_1.0.md §11): the CUT step's own
    *  transient state (../logic/cut/state.ts's `CutState` -- `config`/`lines`/`evaluation`),
    *  reused wholesale rather than split into separate `cutLines`/`cutResult` fields, per Phase
@@ -328,6 +338,9 @@ export type GameAction =
   // PREPARE the same way SELECT_RECIPE does. A no-op if the current recipe somehow has no
   // order (should never happen for a recipe the player just played).
   | { type: "RETRY_SAME_RECIPE"; now?: number }
+  // Progression 2.0 Phase 3-2 (Issue #194): starts a fresh FREE round with no recipe selected
+  // (HOME's フリークッキング). Lands straight at PREPARE like SELECT_RECIPE. Never a Mission round.
+  | { type: "START_FREE_COOK"; now?: number }
   | { type: "SHOW_HINT" }
   // Phase 3C-4 (Lunch Rush): both below reuse this same round machinery (an ORDER phase with
   // a freshly-picked, available recipe) -- there is no separate Mission round state. See
@@ -385,8 +398,13 @@ interface ProgressionCarry {
  *  Mission run id) passes through untouched -- a new round never resets progression.
  *  `isMissionRound` is set explicitly by each caller (never carried) since it describes the
  *  round about to start, not something to preserve from the previous one. */
-function buildOrderState(order: Order, carry: ProgressionCarry, isMissionRound: boolean): GameState {
-  const recipe = getRecipe(order.recipeId);
+function buildOrderState(
+  order: Order,
+  carry: ProgressionCarry,
+  isMissionRound: boolean,
+  freeCook = false,
+): GameState {
+  const recipe = freeCook ? FREE_COOK_RECIPE : getRecipe(order.recipeId);
   if (!recipe) {
     throw new Error(`Unknown recipe for order ${order.id}`);
   }
@@ -423,6 +441,7 @@ function buildOrderState(order: Order, carry: ProgressionCarry, isMissionRound: 
     lastStarterGrantNotice: null,
     lastEfficiencyCredit: null,
     lastDiscovery: null,
+    freeCook,
   };
 }
 
@@ -480,7 +499,17 @@ function startPreparingRecipe(
 ): GameState | null {
   const order = findOrderForRecipe(recipeId);
   if (!order) return null;
-  const orderState = buildOrderState(order, carry, false);
+  return startPreparing(buildOrderState(order, carry, false), now);
+}
+
+/** Progression 2.0 Phase 3-2: the free-cook counterpart of `startPreparingRecipe` -- the same
+ *  fresh round (`buildOrderState` resets pizza/score/lastDiscovery/...), with the inert
+ *  `FREE_COOK_RECIPE` sentinel instead of a selected recipe. */
+function startFreeCook(carry: ProgressionCarry, now?: number): GameState {
+  return startPreparing(buildOrderState(FREE_COOK_ORDER, carry, false, true), now);
+}
+
+function startPreparing(orderState: GameState, now?: number): GameState {
   return {
     ...orderState,
     phase: "PREPARE",
@@ -883,7 +912,25 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         return state;
       }
       const pizza: PizzaState = { ...state.pizza, bakeResult: action.value };
-      const bakeState = classifyBake(action.value, state.recipe.bakeTarget);
+      // Progression 2.0 Phase 3-2: a free-cook pizza is identified here, once, by the Phase 3-1
+      // matcher (../logic/discovery/freeCook.ts). A MATCHED pizza becomes that recipe's round
+      // from this point on (scored, gated and later registered as it); anything else keeps the
+      // sentinel and is either FAILED (not a dish) or an unscored ORIGINAL pizza.
+      const freeCook = state.freeCook ? resolveFreeCookPizza(pizza, state.dex) : null;
+      if (freeCook && freeCook.kind !== "MATCHED") {
+        return {
+          ...state,
+          pizza,
+          score: null,
+          bakeState: classifyBake(action.value, state.recipe.bakeTarget),
+          scoringV2Result: null,
+          completion: freeCook.kind === "FAILED" ? freeCook.completion : { status: "PASS" },
+          inventory: consumePizzaInventory(pizza, state.inventory),
+          phase: "RESULT",
+        };
+      }
+      const recipe = freeCook ? freeCook.recipe : state.recipe;
+      const bakeState = classifyBake(action.value, recipe.bakeTarget);
       // A1 Authority Cutover: Scoring 2.0 (../logic/scoringV2/) is now authoritative for
       // `state.score` -- computed here, from this exact canonical `pizza`, the one and only
       // Scoring 2.0 call site, shared by FREE and Lunch Rush alike (both dispatch this same
@@ -892,8 +939,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // formula-agnostically (see ../logic/scoringV2/toLegacyScoreBreakdown.ts). The legacy
       // `scorePizza` formula (previously ../logic/scoring.ts) was retired in A3b -- Scoring 2.0
       // is the sole scoring authority now.
-      const scoringV2Result = computeScoringV2(state.recipe, pizza);
-      const score = toLegacyScoreBreakdown(scoringV2Result, action.value, state.recipe.bakeTarget);
+      const scoringV2Result = computeScoringV2(recipe, pizza);
+      const score = toLegacyScoreBreakdown(scoringV2Result, action.value, recipe.bakeTarget);
       // Completion Gate Phase 1 / Lunch Rush Completion Gate 1A: computed unconditionally
       // (FREE and Lunch Rush alike), from this exact canonical `pizza`, alongside Scoring 2.0
       // -- the two are independent (see ../logic/completionGate.ts's own file header).
@@ -901,7 +948,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // Rush's own servedCount/quality/missionScore gating reads this same `state.completion`
       // one layer up, in App.tsx's `handleMissionServeNext` (see MISSION_NEXT_ORDER's own
       // comment below for why its Dex/Starter Grant registration itself stays unconditional).
-      const completion = evaluatePizzaCompletion(state.recipe, pizza);
+      const completion = evaluatePizzaCompletion(recipe, pizza);
       // EP2: consumes exactly the finite ingredients this canonical `pizza` actually used
       // (placed-piece count for scatter, 1-per-sauce-id for spread), computed as one pure
       // next-inventory value from `state.inventory` + `pizza` -- see consumePizzaInventory's
@@ -930,6 +977,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           : state.cookingTiming;
       return {
         ...state,
+        recipe,
         pizza,
         score,
         bakeState,
@@ -951,7 +999,22 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // too -- a second dispatch against the post-transition state (phase already DISCOVERED)
       // is rejected here before either Dex or Pitz is touched a second time (Pattern A, see
       // docs/reports/TETO_ISSUE-38_PITZ-REWARD_Fresh-Audit.md sec. 3).
-      if (state.phase !== "RESULT" || !state.score) {
+      if (state.phase !== "RESULT") {
+        return state;
+      }
+      // Progression 2.0 Phase 3-2: an unmatched free-cook pizza (CONFIRM_BAKE left `score` null
+      // and the sentinel recipe in place). A FAILED one stays parked exactly like any FAILED
+      // round. A finished ORIGINAL pizza is a normal result, not a failure: it moves on to
+      // DISCOVERED with its outcome recorded, but has no score, so nothing is written to the
+      // Dex and no Pitz is credited (Phase-2 X-3: scoring and rewards only follow a match; an
+      // original-pizza reward is Phase 3-3 economy work). Same RESULT guard => exactly once.
+      if (state.freeCook && !state.score) {
+        if (state.completion?.status !== "PASS") return state;
+        const resolution = resolveFreeCookPizza(state.pizza, state.dex);
+        if (resolution.kind !== "ORIGINAL") return state;
+        return { ...state, phase: "DISCOVERED", lastDiscovery: resolution.outcome };
+      }
+      if (!state.score) {
         return state;
       }
       // Completion Gate Phase 1: a FAILED pizza never registers -- no Dex discovery/BEST/
@@ -1074,7 +1137,35 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       );
     }
 
+    case "START_FREE_COOK":
+      return startFreeCook(
+        {
+          dex: state.dex,
+          ownedIngredientIds: state.ownedIngredientIds,
+          pitzBalance: state.pitzBalance,
+          lastClaimedMissionRunId: state.lastClaimedMissionRunId,
+          inventory: state.inventory,
+          starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
+        },
+        action.now,
+      );
+
+    // Progression 2.0 Phase 3-2: after a free-cook round (matched or not) "もう一度つくる" means
+    // "cook freely again", never "make the recipe the matcher happened to name".
     case "RETRY_SAME_RECIPE":
+      if (state.freeCook) {
+        return startFreeCook(
+          {
+            dex: state.dex,
+            ownedIngredientIds: state.ownedIngredientIds,
+            pitzBalance: state.pitzBalance,
+            lastClaimedMissionRunId: state.lastClaimedMissionRunId,
+            inventory: state.inventory,
+            starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
+          },
+          action.now,
+        );
+      }
       return (
         startPreparingRecipe(state.recipe.id, {
           dex: state.dex,
