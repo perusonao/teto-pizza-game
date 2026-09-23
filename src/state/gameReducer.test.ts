@@ -576,9 +576,10 @@ describe("Mission order actions (Phase 3C-4)", () => {
 
   it("MISSION_RESET_ORDER never repeats the just-active recipe when another is available", () => {
     const owned = ["tomato-sauce", "mozzarella", "basil", "garlic", "oregano"]; // margherita + marinara
-    // marinara needs funghi discovered first (Economy & Progression 1.0 EP1 chain) --
-    // margherita/funghi discovered so both margherita and marinara are unlocked recipes.
-    const dex = dexDiscovering(["margherita", "funghi"], 1 as QualityStars);
+    // Issue #200: Mission candidates must be BOTH discovered and currently available. Seed the
+    // two recipes this assertion actually expects so repeat avoidance is exercised on a real
+    // two-item Mission pool rather than an available-but-undiscovered recipe.
+    const dex = dexDiscovering(["margherita", "marinara"], 1 as QualityStars);
     let state = createInitialGameState(dex, owned);
     for (let i = 0; i < 30; i++) {
       const before = state.recipe.id;
