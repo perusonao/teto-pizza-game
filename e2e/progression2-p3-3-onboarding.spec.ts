@@ -230,5 +230,9 @@ test.describe("Progression 2.0 Phase 3-3: one-screen at 390x844 / 360x800", () =
       clientHeight: document.querySelector(".home-screen")!.clientHeight,
     }));
     expect(overflow.scrollWidth).toBeLessThanOrEqual(overflow.innerWidth);
+    // Codex review (P2): the Dex-0 フリークッキング CTA row + ランチラッシュ reason line are new
+    // content on this screen -- assert the vertical measurement this test already records, not
+    // just horizontal, or a regression that pushes HOME below the fold would pass silently.
+    expect(overflow.scrollHeight).toBeLessThanOrEqual(overflow.clientHeight);
   });
 });
