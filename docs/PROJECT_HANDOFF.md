@@ -262,6 +262,23 @@ Results:
 No `src/**` change was made. The production Progression SSOT was not touched. **Not merged; the PR
 is open and pending review.**
 
+**2026-09-23 addendum (Issue #192 Progression 2.0 Phase 3-1: runtime signature → discovery
+foundation, PR OPEN)**. Base `main` is `9c22ef2e` (the PR #191 Phase-2 merge). See
+`docs/reports/TETO_PROGRESSION2_P3-1_DISCOVERY-FOUNDATION_Result.md`. Headless foundation, no
+visible UI change:
+
+- `signatureOfPizza` builds a typed runtime signature. Every Phase-2 dimension is tagged
+  OBSERVED, FIXED_BY_FLOW or UNAVAILABLE; shape and zones are UNAVAILABLE.
+- `matchDiscovery`/`evaluateDiscovery` is an exact-match rule with no ingredients-only fallback.
+  It handles blocked rows and 0/1/many matches.
+- `RECIPE_DISCOVERY_CATALOG` holds the 15 production recipes, pinned to the Phase-2 JSON.
+- REGISTER_TO_DEX records the outcome in the transient `lastDiscovery`. The selected-recipe Dex
+  write is unchanged, and an exact match to another undiscovered recipe is also written.
+
+There is no save schema change. The unit suite is 2377/2377 (53 new) and Chromium E2E is 102/102.
+Phase 3-2 blockers are listed in that report's §6, starting with the still-open A-01…A-05 owner
+decisions and the absence of a free-cook entry point.
+
 > Fresh GitHub/main state always wins if this document becomes stale.
 
 ## Product goal

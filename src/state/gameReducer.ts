@@ -27,6 +27,10 @@ import { purchaseIngredient, restockIngredient } from "../logic/economy";
 import { applyPitzCredit, type PitzCredit } from "../logic/pitzReward";
 import { evaluateCookingEfficiency, type CookingEfficiencyCredit } from "../logic/efficiency";
 import { discoveredRecipeIds, registerScoreToDex, EMPTY_DEX, type DexState } from "./dex";
+import { RECIPE_DISCOVERY_CATALOG } from "../data/discoveryCatalog";
+import { evaluateDiscovery, type DiscoveryOutcome } from "../logic/discovery/matcher";
+import { signatureOfPizza } from "../logic/discovery/signature";
+import { registerDiscoveryToDex } from "./discoveryRegistration";
 import { availableRecipeIds, isRecipeAvailable } from "./progression";
 import {
   canPlaceIngredient,
@@ -228,6 +232,13 @@ export interface GameState {
    *  `bonusPitz` on top of `lastPitzCredit.balanceAfter` when crediting `pitzBalance`. Reset to
    *  `null` for every fresh round exactly like `lastPitzCredit`. */
   lastEfficiencyCredit: CookingEfficiencyCredit | null;
+  /** Progression 2.0 Phase 3-1 (Issue #192): what REGISTER_TO_DEX's signature match
+   *  (../logic/discovery/) concluded for this round's pizza -- a new discovery, an already
+   *  discovered recipe, an original pizza (no match), an ambiguous match, or an exact match to
+   *  another recipe whose own Completion Gate failed. FREE only (`null` for a Mission round, same
+   *  as `lastPitzCredit`), `null` until REGISTER_TO_DEX credits a round, and reset for every fresh
+   *  round. Not rendered by any UI in this slice; never persisted. */
+  lastDiscovery: DiscoveryOutcome | null;
   /** Pizza Cutting 1.0 Phase 2 (docs/design/TETO_PIZZA-CUTTING_1.0.md §11): the CUT step's own
    *  transient state (../logic/cut/state.ts's `CutState` -- `config`/`lines`/`evaluation`),
    *  reused wholesale rather than split into separate `cutLines`/`cutResult` fields, per Phase
@@ -411,6 +422,7 @@ function buildOrderState(order: Order, carry: ProgressionCarry, isMissionRound: 
     lastPitzCredit: null,
     lastStarterGrantNotice: null,
     lastEfficiencyCredit: null,
+    lastDiscovery: null,
   };
 }
 
@@ -952,11 +964,24 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (state.completion?.status === "FAILED") {
         return state;
       }
-      const { dex, wasNewDiscovery, isNewBest } = registerScoreToDex(
-        state.dex,
-        state.recipe.id,
-        state.score,
-      );
+      // Progression 2.0 Phase 3-1: classify the pizza by its runtime signature against the Dex
+      // as it was *before* this round (so the selected recipe's own first registration still
+      // reads as NEW_DISCOVERY). FREE only, like the Pitz credit below.
+      const evaluatedDiscovery = state.isMissionRound
+        ? null
+        : evaluateDiscovery(
+            signatureOfPizza(state.pizza),
+            RECIPE_DISCOVERY_CATALOG,
+            discoveredRecipeIds(state.dex),
+          );
+      const selectedRegistration = registerScoreToDex(state.dex, state.recipe.id, state.score);
+      const { wasNewDiscovery, isNewBest } = selectedRegistration;
+      // The selected recipe is registered exactly as before; the discovery writer only adds a
+      // different recipe the pizza is an exact match for (./discoveryRegistration.ts).
+      const discoveryRegistration = evaluatedDiscovery
+        ? registerDiscoveryToDex(selectedRegistration.dex, evaluatedDiscovery, state.recipe.id, state.pizza)
+        : null;
+      const dex = discoveryRegistration ? discoveryRegistration.dex : selectedRegistration.dex;
       // Economy & Progression 1.0 EP4: this is one of the two places `dex` can change (the
       // other is MISSION_NEXT_ORDER below), and `recipeUnlocked` (../state/progression.ts) is
       // purely a function of `dex` -- so this is exactly where a newly-unlocked recipe's own
@@ -1017,6 +1042,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         lastPitzCredit,
         lastEfficiencyCredit,
         lastStarterGrantNotice: buildStarterGrantNotice(grant.grantedRecipeIds),
+        lastDiscovery: discoveryRegistration?.outcome ?? null,
       };
     }
 
