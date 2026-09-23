@@ -42,6 +42,11 @@ interface IngredientTrayProps {
   onChangeCategory?: (category: IngredientCategory) => void;
   selectedIngredientId: string | null;
   onSelectIngredient: (ingredient: Ingredient) => void;
+  /** PR #197 review (P2): called when a page switch is about to hide the currently selected
+   *  chip. A selection the player can no longer see must not stay active -- the next pizza tap
+   *  would otherwise place that invisible ingredient (consuming finite stock / changing what the
+   *  free-cook pizza matches). Optional so callers that never page keep compiling. */
+  onClearSelection?: () => void;
   ownedIngredientIds: readonly string[];
   /** Issue #159 P0: the only source of which ingredients this tray offers -- the current
    *  round's recipe, unchanged for both FREE and Lunch Rush (Lunch Rush's own order recipe
@@ -107,6 +112,7 @@ export function IngredientTray({
   activeCategory,
   selectedIngredientId,
   onSelectIngredient,
+  onClearSelection,
   ownedIngredientIds,
   recipe,
   freeCook = false,
@@ -325,7 +331,21 @@ export function IngredientTray({
   }, [makingStepToken]);
 
   function goToPage(next: number) {
-    setPage(Math.max(0, Math.min(pageCount - 1, next)));
+    const target = Math.max(0, Math.min(pageCount - 1, next));
+    if (target === currentPage) return;
+    const targetItems = requiredItems.slice(
+      target * MAX_INGREDIENT_PALETTE_SLOTS,
+      (target + 1) * MAX_INGREDIENT_PALETTE_SLOTS,
+    );
+    // PR #197 review (P2): never leave the active selection on a page the player just left.
+    if (
+      selectedIngredientId !== null &&
+      requiredItems.some((i) => i.id === selectedIngredientId) &&
+      !targetItems.some((i) => i.id === selectedIngredientId)
+    ) {
+      onClearSelection?.();
+    }
+    setPage(target);
   }
 
   function isDraggable(ingredient: Ingredient): boolean {

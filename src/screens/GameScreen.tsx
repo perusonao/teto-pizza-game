@@ -92,6 +92,8 @@ interface GameScreenProps {
   onShowHint: () => void;
   onChangeCategory: (category: IngredientCategory) => void;
   onSelectIngredient: (ingredient: Ingredient) => void;
+  /** Clears the tray selection (IngredientTray's page switch hides the selected chip). */
+  onClearIngredientSelection?: () => void;
   onTapPizza: (x: number, y: number) => void;
   onBakeTick: (value: number) => void;
   onConfirmBake: (value: number) => void;
@@ -159,6 +161,7 @@ export function GameScreen({
   onShowHint,
   onChangeCategory,
   onSelectIngredient,
+  onClearIngredientSelection,
   onTapPizza,
   onBakeTick,
   onConfirmBake,
@@ -569,6 +572,7 @@ export function GameScreen({
               onChangeCategory={onChangeCategory}
               selectedIngredientId={selectedIngredientId}
               onSelectIngredient={onSelectIngredient}
+              onClearSelection={onClearIngredientSelection}
               ownedIngredientIds={state.ownedIngredientIds}
               recipe={state.recipe}
               freeCook={state.freeCook}

@@ -169,7 +169,7 @@ recipe**, so it does not spoil it.
 | Check | Result |
 |---|---|
 | Focused: `gameReducer.freeCook.test.ts` (18), `FreeCook.ui.test.tsx` (11) | 29/29 |
-| Full unit suite | **2406/2406**. The baseline at `5cf59f9` was 2377. 29 tests are new, and none was changed or removed. |
+| Full unit suite | **2409/2409**. The baseline at `5cf59f9` was 2377. 32 tests are new (3 added by the review fix below), and none was changed or removed. |
 | `tsc -b` | clean |
 | `oxlint` | clean (exit 0) |
 | `npm run build` | OK (only the existing chunk-size warning) |
@@ -232,6 +232,22 @@ per viewport:
 Real-viewport review found one layout bug, which was fixed before the final capture. The first
 HOME build put three CTAs in one row and wrapped 「ピザを作る」, which is the Issue #47 Finding B
 failure mode. フリークッキング now has its own row, and the original pair is byte-identical.
+
+### 5.1 Review fix (PR #197, Codex P2)
+
+A page switch in the tray left a selected chip from the previous page active but hidden. The
+next pizza tap then placed an ingredient the player could no longer see, which consumed finite
+stock and changed what the pizza matched.
+
+- **Fix.** `IngredientTray.goToPage` now calls the new `onClearSelection` when the target page
+  does not contain the selected ingredient. App wires that to `setSelectedIngredientId(null)`.
+  Paging while the selection stays visible, or pressing a disabled nav button, keeps it.
+- **Unchanged.** The drag-session abort on page change and the guided tray are unchanged.
+- **Tests.** `src/App.freeCookTrayPaging.test.tsx` renders the real App and reducer:
+  - select finite garlic on page 1, page away, then tap: nothing is placed;
+  - the same sequence during a full Margherita bake still gives NEW Margherita, and garlic
+    stock stays at 3.
+- **Mutation check.** With the clear call disabled, 2 of these 3 tests fail.
 
 ## 6. Known limitations and remaining risks
 

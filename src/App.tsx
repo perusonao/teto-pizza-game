@@ -875,6 +875,7 @@ function App() {
           onShowHint={() => dispatch({ type: "SHOW_HINT" })}
           onChangeCategory={handleChangeCategory}
           onSelectIngredient={handleSelectIngredient}
+          onClearIngredientSelection={() => setSelectedIngredientId(null)}
           onTapPizza={handleTapPizza}
           onBakeTick={handleBakeTick}
           onConfirmBake={handleConfirmBake}
