@@ -160,10 +160,13 @@ function isValidBestStars(value: unknown): value is QualityStars {
  * alternative (rejecting the whole save on any bad entry) would erase every other recipe's
  * BEST just because of one bad record.
  */
-function sanitizeDexEntry(raw: unknown): DexEntry | null {
+function sanitizeDexEntry(
+  raw: unknown,
+  isAcceptedRecipeId: (value: unknown) => value is string = isKnownRecipeId,
+): DexEntry | null {
   if (typeof raw !== "object" || raw === null) return null;
   const r = raw as Record<string, unknown>;
-  if (!isKnownRecipeId(r.recipeId)) return null;
+  if (!isAcceptedRecipeId(r.recipeId)) return null;
   if (typeof r.discovered !== "boolean") return null;
   if (!isValidBestScore(r.bestScore)) return null;
   if (!isValidBestStars(r.bestStars)) return null;
@@ -366,6 +369,137 @@ function toIntermediateV2(raw: Record<string, unknown>): Record<string, unknown>
 }
 
 /**
+ * Progression 2.0 Phase 3-4B: save forward-compatibility. Every sanitizer above drops an id this
+ * build doesn't know -- correct for what gameplay reads (`loadSave`'s result is unchanged), but on
+ * its own it meant the next write erased whatever a *newer* build had stored: a recipe/ingredient
+ * shipped later (Progression 2.0 content tranches), reached by the player, then a rollback/older
+ * build writes once and the Dex entry, the purchase, the stock and the grant ledger entry are gone
+ * for good, even after upgrading again. The fields below are therefore read straight from raw
+ * storage on every write and carried through verbatim, while never reaching `GameState`:
+ *
+ * - an id this build does not know, *if it is well-formed*, is kept (Dex entry, owned id,
+ *   inventory entry, claimed-ledger id); a known id keeps its existing validation unchanged.
+ * - "well-formed" is the only trust given to data this build can't interpret: the id must look
+ *   like every catalog id does (lowercase kebab/snake, <=64 chars), a Dex entry must pass the
+ *   same field checks a known entry does, and an inventory value must be a non-negative integer.
+ *   Anything else (non-string, empty, NaN, negative, wrong shape) is still dropped as corrupt.
+ * - a top-level key this build does not know is kept as-is (never read), so a field a newer build
+ *   adds without a schema bump -- the EP4 ledger precedent -- also survives an older build's write.
+ *
+ * Only a recognized root (schemaVersion 1 or 2) contributes anything here: an unrecognized root
+ * still falls back to defaults exactly as before (see `toIntermediateV2`).
+ */
+interface ForwardCompatExtras {
+  topLevel: Record<string, unknown>;
+  dex: DexEntry[];
+  ownedIngredientIds: string[];
+  inventory: Record<string, number>;
+  starterGrantClaimedRecipeIds: string[];
+}
+
+const KNOWN_SAVE_KEYS: ReadonlySet<string> = new Set([
+  "schemaVersion",
+  "dex",
+  "pitzBalance",
+  "ownedIngredientIds",
+  "missionBest",
+  "inventory",
+  "starterGrantClaimedRecipeIds",
+]);
+
+const FORWARD_COMPAT_ID_PATTERN = /^[a-z0-9][a-z0-9_-]{0,63}$/;
+
+function isForwardCompatUnknownId(value: unknown, knownIds: readonly string[]): value is string {
+  return (
+    typeof value === "string" && FORWARD_COMPAT_ID_PATTERN.test(value) && !knownIds.includes(value)
+  );
+}
+
+function unknownIdsIn(raw: unknown, knownIds: readonly string[]): string[] {
+  if (!Array.isArray(raw)) return [];
+  const seen = new Set<string>();
+  for (const id of raw) {
+    if (isForwardCompatUnknownId(id, knownIds)) seen.add(id);
+  }
+  return Array.from(seen);
+}
+
+function extractForwardCompatExtras(raw: unknown): ForwardCompatExtras | null {
+  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) return null;
+  const r = raw as Record<string, unknown>;
+  if ((r.schemaVersion !== 1 && r.schemaVersion !== 2) || !Array.isArray(r.dex)) return null;
+
+  const topLevel: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(r)) {
+    if (KNOWN_SAVE_KEYS.has(key) || key === "__proto__") continue;
+    topLevel[key] = value;
+  }
+
+  const dex: DexEntry[] = [];
+  const seenDexIds = new Set<string>();
+  const isUnknownRecipeId = (value: unknown): value is string =>
+    isForwardCompatUnknownId(value, KNOWN_RECIPE_IDS);
+  for (const item of r.dex) {
+    // Same field validation a known entry gets -- only the recipe-id gate differs.
+    const entry = sanitizeDexEntry(item, isUnknownRecipeId);
+    if (!entry || seenDexIds.has(entry.recipeId)) continue;
+    seenDexIds.add(entry.recipeId);
+    dex.push(entry);
+  }
+
+  const inventory: Record<string, number> = {};
+  if (typeof r.inventory === "object" && r.inventory !== null && !Array.isArray(r.inventory)) {
+    for (const [id, value] of Object.entries(r.inventory as Record<string, unknown>)) {
+      if (isForwardCompatUnknownId(id, KNOWN_INGREDIENT_IDS) && isNonNegativeInteger(value)) {
+        inventory[id] = value;
+      }
+    }
+  }
+
+  return {
+    topLevel,
+    dex,
+    ownedIngredientIds: unknownIdsIn(r.ownedIngredientIds, KNOWN_INGREDIENT_IDS),
+    inventory,
+    starterGrantClaimedRecipeIds: unknownIdsIn(r.starterGrantClaimedRecipeIds, KNOWN_RECIPE_IDS),
+  };
+}
+
+/** Merges the forward-compatible extras currently in storage back into `next` (known fields
+ *  always win; extras are only ever appended) and writes it. Every write in this module goes
+ *  through here, so no write path can erase data a newer build stored. */
+function writeSave(storage: StorageLike, next: PersistentSaveV2): void {
+  let extras: ForwardCompatExtras | null = null;
+  try {
+    const raw = storage.getItem(SAVE_STORAGE_KEY);
+    extras = raw === null ? null : extractForwardCompatExtras(JSON.parse(raw));
+  } catch {
+    extras = null;
+  }
+  if (!extras) {
+    storage.setItem(SAVE_STORAGE_KEY, JSON.stringify(next));
+    return;
+  }
+  const nextDexIds = new Set(next.dex.map((e) => e.recipeId));
+  const appendNew = (base: readonly string[], more: readonly string[]) => [
+    ...base,
+    ...more.filter((id) => !base.includes(id)),
+  ];
+  const merged = {
+    ...extras.topLevel,
+    ...next,
+    dex: [...next.dex, ...extras.dex.filter((e) => !nextDexIds.has(e.recipeId))],
+    ownedIngredientIds: appendNew(next.ownedIngredientIds, extras.ownedIngredientIds),
+    inventory: { ...extras.inventory, ...next.inventory },
+    starterGrantClaimedRecipeIds: appendNew(
+      next.starterGrantClaimedRecipeIds,
+      extras.starterGrantClaimedRecipeIds,
+    ),
+  };
+  storage.setItem(SAVE_STORAGE_KEY, JSON.stringify(merged));
+}
+
+/**
  * Validates a raw parsed JSON value against the PersistentSaveV2 root shape, migrating a v1
  * root forward first when recognized. A malformed root (not an object, unrecognized
  * `schemaVersion`, `dex` not an array) discards the whole save and falls back to fresh --
@@ -467,7 +601,7 @@ export function persistDex(
     const current = loadSave(storage);
     if (dexEquals(dex, current.dex)) return;
     const next: PersistentSaveV2 = { ...current, dex: [...dex] };
-    storage.setItem(SAVE_STORAGE_KEY, JSON.stringify(next));
+    writeSave(storage, next);
   } catch {
     // Storage full, disabled, or otherwise unavailable -- gameplay continues unaffected.
   }
@@ -564,7 +698,7 @@ export function persistProgress(
       inventory: nextInventory,
       starterGrantClaimedRecipeIds: nextClaimedRecipeIds,
     };
-    storage.setItem(SAVE_STORAGE_KEY, JSON.stringify(next));
+    writeSave(storage, next);
   } catch {
     // Storage full, disabled, or otherwise unavailable -- gameplay continues unaffected.
   }
@@ -602,7 +736,7 @@ export function persistMissionBest(
       ...current,
       missionBest: { ...current.missionBest, [missionId]: score },
     };
-    storage.setItem(SAVE_STORAGE_KEY, JSON.stringify(next));
+    writeSave(storage, next);
   } catch {
     // Storage full, disabled, or otherwise unavailable -- gameplay continues unaffected.
   }
