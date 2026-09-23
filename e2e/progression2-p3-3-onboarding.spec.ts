@@ -17,10 +17,6 @@ async function openHomeFresh(page: Page) {
   await page.waitForSelector(".app-frame");
 }
 
-async function trayNames(page: Page) {
-  return page.locator(".ingredient-chip__name").allTextContents();
-}
-
 /** One free-cook round with the starter trio; `basil` false makes an unregistered (ORIGINAL)
  *  combination -- used both for the discovery scenario and to drive hint-escalation attempts. */
 async function cookStarterPizza(page: Page, { basil }: { basil: boolean }) {
