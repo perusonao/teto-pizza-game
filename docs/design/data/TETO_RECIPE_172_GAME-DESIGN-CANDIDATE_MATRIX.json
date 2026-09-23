@@ -655,7 +655,12 @@
       "青のり": 1,
       "青唐辛子": 1
     },
-    "rowsWithCompleteIdentityIngredientSet": 150,
+    "rowsWithCompleteIdentityIngredientSet": 120,
+    "rowsIncompleteByReason": {
+      "excluded_placeholder_tokens": 1,
+      "unresolved_tokens": 21,
+      "unspecified_sauce_base": 33
+    },
     "rowsWithExcludedPlaceholderTokens": [
       "colorado-mountain-pie-pizzadb-p3"
     ],
@@ -735,7 +740,8 @@
         "DIVERGENT": 14,
         "IDENTICAL": 5,
         "INDETERMINATE_UNRESOLVED_TOKENS": 3,
-        "PIZZADB_SUBSET": 4,
+        "INDETERMINATE_UNSPECIFIED_SAUCE_BASE": 1,
+        "PIZZADB_SUBSET": 3,
         "PIZZADB_SUPERSET": 6
       },
       "decisionRequired": 27,
@@ -1661,7 +1667,9 @@
       "catalogIdsWithSameSet": [
         "quattro-stagioni"
       ],
-      "catalogIdsNotDeclaredAsCorrespondence": [],
+      "catalogIdsNotDeclaredByRow": {
+        "quattro-stagioni-pizzadb": []
+      },
       "rowsSeparatedByFullSignature": true,
       "rowsWithIdenticalFullSignature": []
     },
@@ -1677,7 +1685,10 @@
         "pinsa-romana-pizzadb-p9"
       ],
       "catalogIdsWithSameSet": [],
-      "catalogIdsNotDeclaredAsCorrespondence": [],
+      "catalogIdsNotDeclaredByRow": {
+        "jamon-serrano-pizza-pizzadb-p7": [],
+        "pinsa-romana-pizzadb-p9": []
+      },
       "rowsSeparatedByFullSignature": true,
       "rowsWithIdenticalFullSignature": []
     },
@@ -1694,9 +1705,14 @@
       "catalogIdsWithSameSet": [
         "margherita"
       ],
-      "catalogIdsNotDeclaredAsCorrespondence": [
-        "margherita"
-      ],
+      "catalogIdsNotDeclaredByRow": {
+        "cauliflower-crust-pizza-pizzadb-p2": [
+          "margherita"
+        ],
+        "pizza-al-taglio-romana-pizzadb-p9": [
+          "margherita"
+        ]
+      },
       "rowsSeparatedByFullSignature": true,
       "rowsWithIdenticalFullSignature": []
     },
@@ -1714,7 +1730,9 @@
       "catalogIdsWithSameSet": [
         "bbq-chicken"
       ],
-      "catalogIdsNotDeclaredAsCorrespondence": [],
+      "catalogIdsNotDeclaredByRow": {
+        "bbq-chicken-pizzadb": []
+      },
       "rowsSeparatedByFullSignature": true,
       "rowsWithIdenticalFullSignature": []
     },
@@ -1731,7 +1749,9 @@
       "catalogIdsWithSameSet": [
         "hawaiian"
       ],
-      "catalogIdsNotDeclaredAsCorrespondence": [],
+      "catalogIdsNotDeclaredByRow": {
+        "hawaiian-pizzadb-row": []
+      },
       "rowsSeparatedByFullSignature": true,
       "rowsWithIdenticalFullSignature": []
     },
@@ -1748,9 +1768,11 @@
       "catalogIdsWithSameSet": [
         "prosciutto-e-funghi"
       ],
-      "catalogIdsNotDeclaredAsCorrespondence": [
-        "prosciutto-e-funghi"
-      ],
+      "catalogIdsNotDeclaredByRow": {
+        "prosciutto-funghi-pizzadb-p11": [
+          "prosciutto-e-funghi"
+        ]
+      },
       "rowsSeparatedByFullSignature": true,
       "rowsWithIdenticalFullSignature": []
     },
@@ -1765,7 +1787,10 @@
         "fugazzetta-pizzadb-p10"
       ],
       "catalogIdsWithSameSet": [],
-      "catalogIdsNotDeclaredAsCorrespondence": [],
+      "catalogIdsNotDeclaredByRow": {
+        "fugazza-pizzadb-p10": [],
+        "fugazzetta-pizzadb-p10": []
+      },
       "rowsSeparatedByFullSignature": false,
       "rowsWithIdenticalFullSignature": [
         [
@@ -1787,7 +1812,9 @@
       "catalogIdsWithSameSet": [
         "tonno-e-cipolla"
       ],
-      "catalogIdsNotDeclaredAsCorrespondence": [],
+      "catalogIdsNotDeclaredByRow": {
+        "tonno-e-cipolla-pizzadb": []
+      },
       "rowsSeparatedByFullSignature": true,
       "rowsWithIdenticalFullSignature": []
     },
@@ -1805,10 +1832,16 @@
         "detroit-style",
         "pepperoni"
       ],
-      "catalogIdsNotDeclaredAsCorrespondence": [
-        "detroit-style",
-        "pepperoni"
-      ],
+      "catalogIdsNotDeclaredByRow": {
+        "fathead-pizza-keto-pizzadb-p9": [
+          "detroit-style",
+          "pepperoni"
+        ],
+        "new-england-bar-pizza-pizzadb-p6": [
+          "detroit-style",
+          "pepperoni"
+        ]
+      },
       "rowsSeparatedByFullSignature": true,
       "rowsWithIdenticalFullSignature": []
     },
@@ -1825,10 +1858,12 @@
         "chicago-deep-dish",
         "salsiccia"
       ],
-      "catalogIdsNotDeclaredAsCorrespondence": [
-        "chicago-deep-dish",
-        "salsiccia"
-      ],
+      "catalogIdsNotDeclaredByRow": {
+        "chicago-stuffed-pizza-pizzadb-p3": [
+          "chicago-deep-dish",
+          "salsiccia"
+        ]
+      },
       "rowsSeparatedByFullSignature": true,
       "rowsWithIdenticalFullSignature": []
     },
@@ -1846,10 +1881,17 @@
         "ny-style",
         "stuffed-crust"
       ],
-      "catalogIdsNotDeclaredAsCorrespondence": [
-        "greek-style",
-        "stuffed-crust"
-      ],
+      "catalogIdsNotDeclaredByRow": {
+        "ny-style-pizzadb": [
+          "greek-style",
+          "stuffed-crust"
+        ],
+        "trenton-tomato-pie-pizzadb": [
+          "greek-style",
+          "ny-style",
+          "stuffed-crust"
+        ]
+      },
       "rowsSeparatedByFullSignature": true,
       "rowsWithIdenticalFullSignature": []
     }
@@ -1875,6 +1917,7 @@
       ],
       "pizzadbUnresolvedTokens": [],
       "pizzadbExcludedPlaceholderTokens": [],
+      "pizzadbSauceBaseStatus": "listed",
       "relation": "IDENTICAL",
       "addedByPizzaDb": [],
       "missingFromPizzaDb": [],
@@ -1906,6 +1949,7 @@
       ],
       "pizzadbUnresolvedTokens": [],
       "pizzadbExcludedPlaceholderTokens": [],
+      "pizzadbSauceBaseStatus": "listed",
       "relation": "DIVERGENT",
       "addedByPizzaDb": [
         "artichoke",
@@ -1944,6 +1988,7 @@
       ],
       "pizzadbUnresolvedTokens": [],
       "pizzadbExcludedPlaceholderTokens": [],
+      "pizzadbSauceBaseStatus": "listed",
       "relation": "DIVERGENT",
       "addedByPizzaDb": [
         "salami"
@@ -1985,6 +2030,7 @@
       ],
       "pizzadbUnresolvedTokens": [],
       "pizzadbExcludedPlaceholderTokens": [],
+      "pizzadbSauceBaseStatus": "listed",
       "relation": "IDENTICAL",
       "addedByPizzaDb": [],
       "missingFromPizzaDb": [],
@@ -2012,6 +2058,7 @@
       ],
       "pizzadbUnresolvedTokens": [],
       "pizzadbExcludedPlaceholderTokens": [],
+      "pizzadbSauceBaseStatus": "none",
       "relation": "PIZZADB_SUBSET",
       "addedByPizzaDb": [],
       "missingFromPizzaDb": [
@@ -2045,6 +2092,7 @@
       ],
       "pizzadbUnresolvedTokens": [],
       "pizzadbExcludedPlaceholderTokens": [],
+      "pizzadbSauceBaseStatus": "listed",
       "relation": "PIZZADB_SUPERSET",
       "addedByPizzaDb": [
         "black-olive",
@@ -2080,6 +2128,7 @@
       ],
       "pizzadbUnresolvedTokens": [],
       "pizzadbExcludedPlaceholderTokens": [],
+      "pizzadbSauceBaseStatus": "listed",
       "relation": "PIZZADB_SUPERSET",
       "addedByPizzaDb": [
         "pepperoni"
@@ -2115,6 +2164,7 @@
       ],
       "pizzadbUnresolvedTokens": [],
       "pizzadbExcludedPlaceholderTokens": [],
+      "pizzadbSauceBaseStatus": "listed",
       "relation": "DIVERGENT",
       "addedByPizzaDb": [
         "mozzarella",
@@ -2161,6 +2211,7 @@
       ],
       "pizzadbUnresolvedTokens": [],
       "pizzadbExcludedPlaceholderTokens": [],
+      "pizzadbSauceBaseStatus": "listed",
       "relation": "PIZZADB_SUBSET",
       "addedByPizzaDb": [],
       "missingFromPizzaDb": [
@@ -2196,6 +2247,7 @@
       ],
       "pizzadbUnresolvedTokens": [],
       "pizzadbExcludedPlaceholderTokens": [],
+      "pizzadbSauceBaseStatus": "listed",
       "relation": "IDENTICAL",
       "addedByPizzaDb": [],
       "missingFromPizzaDb": [],
@@ -2218,6 +2270,7 @@
       ],
       "pizzadbUnresolvedTokens": [],
       "pizzadbExcludedPlaceholderTokens": [],
+      "pizzadbSauceBaseStatus": "listed",
       "relation": "IDENTICAL",
       "addedByPizzaDb": [],
       "missingFromPizzaDb": [],
@@ -2245,6 +2298,7 @@
       ],
       "pizzadbUnresolvedTokens": [],
       "pizzadbExcludedPlaceholderTokens": [],
+      "pizzadbSauceBaseStatus": "listed",
       "relation": "DIVERGENT",
       "addedByPizzaDb": [
         "blue-cheese-dressing"
@@ -2282,6 +2336,7 @@
       ],
       "pizzadbUnresolvedTokens": [],
       "pizzadbExcludedPlaceholderTokens": [],
+      "pizzadbSauceBaseStatus": "family_derived",
       "relation": "PIZZADB_SUPERSET",
       "addedByPizzaDb": [
         "olive-oil"
@@ -2317,6 +2372,7 @@
       ],
       "pizzadbUnresolvedTokens": [],
       "pizzadbExcludedPlaceholderTokens": [],
+      "pizzadbSauceBaseStatus": "family_derived",
       "relation": "IDENTICAL",
       "addedByPizzaDb": [],
       "missingFromPizzaDb": [],
@@ -2344,6 +2400,7 @@
       ],
       "pizzadbUnresolvedTokens": [],
       "pizzadbExcludedPlaceholderTokens": [],
+      "pizzadbSauceBaseStatus": "none",
       "relation": "DIVERGENT",
       "addedByPizzaDb": [
         "mozzarella",
@@ -2381,6 +2438,7 @@
         "唐辛子"
       ],
       "pizzadbExcludedPlaceholderTokens": [],
+      "pizzadbSauceBaseStatus": "family_derived",
       "relation": "INDETERMINATE_UNRESOLVED_TOKENS",
       "addedByPizzaDb": null,
       "missingFromPizzaDb": null,
@@ -2412,6 +2470,7 @@
       ],
       "pizzadbUnresolvedTokens": [],
       "pizzadbExcludedPlaceholderTokens": [],
+      "pizzadbSauceBaseStatus": "family_derived",
       "relation": "DIVERGENT",
       "addedByPizzaDb": [
         "brick-cheese"
@@ -2443,6 +2502,7 @@
         "ナッツ"
       ],
       "pizzadbExcludedPlaceholderTokens": [],
+      "pizzadbSauceBaseStatus": "listed",
       "relation": "INDETERMINATE_UNRESOLVED_TOKENS",
       "addedByPizzaDb": null,
       "missingFromPizzaDb": null,
@@ -2474,6 +2534,7 @@
       ],
       "pizzadbUnresolvedTokens": [],
       "pizzadbExcludedPlaceholderTokens": [],
+      "pizzadbSauceBaseStatus": "family_derived",
       "relation": "PIZZADB_SUPERSET",
       "addedByPizzaDb": [
         "ham",
@@ -2510,6 +2571,7 @@
       ],
       "pizzadbUnresolvedTokens": [],
       "pizzadbExcludedPlaceholderTokens": [],
+      "pizzadbSauceBaseStatus": "family_derived",
       "relation": "PIZZADB_SUPERSET",
       "addedByPizzaDb": [
         "capers",
@@ -2545,6 +2607,7 @@
       ],
       "pizzadbUnresolvedTokens": [],
       "pizzadbExcludedPlaceholderTokens": [],
+      "pizzadbSauceBaseStatus": "family_derived",
       "relation": "DIVERGENT",
       "addedByPizzaDb": [
         "tomato-sauce"
@@ -2581,6 +2644,7 @@
       ],
       "pizzadbUnresolvedTokens": [],
       "pizzadbExcludedPlaceholderTokens": [],
+      "pizzadbSauceBaseStatus": "none",
       "relation": "DIVERGENT",
       "addedByPizzaDb": [
         "mozzarella"
@@ -2615,6 +2679,7 @@
       ],
       "pizzadbUnresolvedTokens": [],
       "pizzadbExcludedPlaceholderTokens": [],
+      "pizzadbSauceBaseStatus": "none",
       "relation": "PIZZADB_SUBSET",
       "addedByPizzaDb": [],
       "missingFromPizzaDb": [
@@ -2651,6 +2716,7 @@
       ],
       "pizzadbUnresolvedTokens": [],
       "pizzadbExcludedPlaceholderTokens": [],
+      "pizzadbSauceBaseStatus": "family_derived",
       "relation": "DIVERGENT",
       "addedByPizzaDb": [
         "clam",
@@ -2688,6 +2754,7 @@
         "ホワイトソース"
       ],
       "pizzadbExcludedPlaceholderTokens": [],
+      "pizzadbSauceBaseStatus": "listed_unresolved",
       "relation": "INDETERMINATE_UNRESOLVED_TOKENS",
       "addedByPizzaDb": null,
       "missingFromPizzaDb": null,
@@ -2718,6 +2785,7 @@
       ],
       "pizzadbUnresolvedTokens": [],
       "pizzadbExcludedPlaceholderTokens": [],
+      "pizzadbSauceBaseStatus": "family_derived",
       "relation": "DIVERGENT",
       "addedByPizzaDb": [
         "pine-nuts",
@@ -2754,6 +2822,7 @@
       ],
       "pizzadbUnresolvedTokens": [],
       "pizzadbExcludedPlaceholderTokens": [],
+      "pizzadbSauceBaseStatus": "none",
       "relation": "DIVERGENT",
       "addedByPizzaDb": [
         "olive-oil",
@@ -2790,6 +2859,7 @@
       ],
       "pizzadbUnresolvedTokens": [],
       "pizzadbExcludedPlaceholderTokens": [],
+      "pizzadbSauceBaseStatus": "none",
       "relation": "DIVERGENT",
       "addedByPizzaDb": [
         "garlic",
@@ -2825,6 +2895,7 @@
       ],
       "pizzadbUnresolvedTokens": [],
       "pizzadbExcludedPlaceholderTokens": [],
+      "pizzadbSauceBaseStatus": "family_derived",
       "relation": "PIZZADB_SUPERSET",
       "addedByPizzaDb": [
         "olive-oil"
@@ -2864,6 +2935,7 @@
       ],
       "pizzadbUnresolvedTokens": [],
       "pizzadbExcludedPlaceholderTokens": [],
+      "pizzadbSauceBaseStatus": "family_derived",
       "relation": "DIVERGENT",
       "addedByPizzaDb": [
         "beef"
@@ -2897,6 +2969,7 @@
       ],
       "pizzadbUnresolvedTokens": [],
       "pizzadbExcludedPlaceholderTokens": [],
+      "pizzadbSauceBaseStatus": "none",
       "relation": "DIVERGENT",
       "addedByPizzaDb": [
         "mozzarella",
@@ -2929,21 +3002,13 @@
         "onion",
         "teriyaki-sauce"
       ],
-      "pizzadbIdentitySet": [
-        "chicken",
-        "mayo",
-        "nori",
-        "onion"
-      ],
+      "pizzadbIdentitySet": null,
       "pizzadbUnresolvedTokens": [],
       "pizzadbExcludedPlaceholderTokens": [],
-      "relation": "PIZZADB_SUBSET",
-      "addedByPizzaDb": [],
-      "missingFromPizzaDb": [
-        "corn",
-        "mozzarella",
-        "teriyaki-sauce"
-      ],
+      "pizzadbSauceBaseStatus": "unspecified",
+      "relation": "INDETERMINATE_UNSPECIFIED_SAUCE_BASE",
+      "addedByPizzaDb": null,
+      "missingFromPizzaDb": null,
       "phase0Flagged": true,
       "phase0FlaggedAs": "candidate",
       "decisionStatus": "PRODUCT_DECISION_REQUIRED",
@@ -3104,6 +3169,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "bbq-sauce",
           "chicken",
@@ -3239,13 +3305,11 @@
             "canonicalId": "walnut"
           }
         ],
-        "complete": true,
-        "identityIngredientSet": [
-          "apple",
-          "cinnamon",
-          "cream-cheese",
-          "walnut"
+        "complete": false,
+        "incompleteReasons": [
+          "unspecified_sauce_base"
         ],
+        "identityIngredientSet": null,
         "newContentIngredientIds": [
           "apple",
           "cinnamon",
@@ -3364,6 +3428,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "black-olive",
           "mozzarella",
@@ -3484,6 +3549,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "clam",
           "garlic",
@@ -3593,6 +3659,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "bacon",
           "egg",
@@ -3713,6 +3780,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "artichoke",
           "black-olive",
@@ -3859,6 +3927,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "curry-ketchup",
           "mozzarella",
@@ -3972,6 +4041,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "mozzarella",
           "ricotta",
@@ -4122,6 +4192,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "artichoke",
           "black-olive",
@@ -4251,6 +4322,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "fontina",
           "gorgonzola",
@@ -4361,6 +4433,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "garlic",
           "mozzarella",
@@ -4483,6 +4556,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "black-olive",
           "feta",
@@ -4629,6 +4703,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "mozzarella",
           "pepperoni",
@@ -4787,6 +4862,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "anchovy",
           "mozzarella",
@@ -4940,6 +5016,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "anchovy",
           "olive-oil",
@@ -5087,6 +5164,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "bell-pepper",
           "black-olive",
@@ -5221,6 +5299,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "cheddar",
           "fresh-tomato",
@@ -5362,6 +5441,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "bacon",
           "fromage-blanc-sauce",
@@ -5466,6 +5546,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "fresh-tomato",
           "mozzarella",
@@ -5565,6 +5646,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "mozzarella",
           "tomato-sauce"
@@ -5645,7 +5727,7 @@
       "reviewItems": [
         {
           "type": "SAME_INGREDIENT_SET_AS_CATALOG_RECIPE",
-          "ref": "greek-style,stuffed-crust",
+          "ref": "greek-style,ny-style,stuffed-crust",
           "detail": "identity ingredient set equals an existing catalog recipe that the row is not declared to correspond to -- distinguishable only by STEP_ORDER"
         }
       ],
@@ -5691,6 +5773,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "mozzarella",
           "onion",
@@ -5800,6 +5883,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "clam",
           "garlic",
@@ -5899,6 +5983,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "mozzarella",
           "tomato-sauce"
@@ -6045,6 +6130,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "black-olive",
           "mozzarella",
@@ -6149,6 +6235,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "blue-cheese-dressing",
           "buffalo-sauce",
@@ -6297,6 +6384,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "basil",
           "mozzarella",
@@ -6438,6 +6526,9 @@
           }
         ],
         "complete": false,
+        "incompleteReasons": [
+          "unresolved_tokens"
+        ],
         "identityIngredientSet": null,
         "newContentIngredientIds": []
       },
@@ -6540,6 +6631,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "black-olive",
           "mozzarella",
@@ -6669,6 +6761,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "ham",
           "mozzarella",
@@ -6791,6 +6884,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "mozzarella",
           "olive-oil",
@@ -6914,6 +7008,9 @@
           }
         ],
         "complete": false,
+        "incompleteReasons": [
+          "unresolved_tokens"
+        ],
         "identityIngredientSet": null,
         "newContentIngredientIds": []
       },
@@ -7038,6 +7135,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "ham",
           "mozzarella",
@@ -7168,6 +7266,10 @@
           }
         ],
         "complete": false,
+        "incompleteReasons": [
+          "unresolved_tokens",
+          "unspecified_sauce_base"
+        ],
         "identityIngredientSet": null,
         "newContentIngredientIds": [
           "kebab-sauce",
@@ -7290,6 +7392,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "caciocavallo",
           "sausage",
@@ -7409,6 +7512,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "bell-pepper",
           "mozzarella",
@@ -7519,6 +7623,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "artichoke",
           "cream-cheese",
@@ -7626,6 +7731,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "brie",
           "mozzarella",
@@ -7740,12 +7846,11 @@
             "canonicalId": "graham-cracker"
           }
         ],
-        "complete": true,
-        "identityIngredientSet": [
-          "chocolate",
-          "graham-cracker",
-          "marshmallow"
+        "complete": false,
+        "incompleteReasons": [
+          "unspecified_sauce_base"
         ],
+        "identityIngredientSet": null,
         "newContentIngredientIds": [
           "chocolate",
           "graham-cracker",
@@ -7874,6 +7979,9 @@
           }
         ],
         "complete": false,
+        "incompleteReasons": [
+          "unresolved_tokens"
+        ],
         "identityIngredientSet": null,
         "newContentIngredientIds": []
       },
@@ -8012,6 +8120,9 @@
           }
         ],
         "complete": false,
+        "incompleteReasons": [
+          "unresolved_tokens"
+        ],
         "identityIngredientSet": null,
         "newContentIngredientIds": [
           "chicken",
@@ -8138,6 +8249,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "cod-roe",
           "fresh-cream-sauce",
@@ -8281,6 +8393,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "fresh-tomato",
           "garlic",
@@ -8405,6 +8518,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "cream-cheese",
           "salmon",
@@ -8506,6 +8620,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "bell-pepper",
           "cashew-cheese",
@@ -8616,13 +8731,11 @@
             "canonicalId": "green-onion"
           }
         ],
-        "complete": true,
-        "identityIngredientSet": [
-          "eel",
-          "green-onion",
-          "mozzarella",
-          "sansho-pepper"
+        "complete": false,
+        "incompleteReasons": [
+          "unspecified_sauce_base"
         ],
+        "identityIngredientSet": null,
         "newContentIngredientIds": [
           "eel",
           "green-onion",
@@ -8760,13 +8873,11 @@
             "canonicalId": "parsley"
           }
         ],
-        "complete": true,
-        "identityIngredientSet": [
-          "chicken",
-          "cumin",
-          "onion",
-          "parsley"
+        "complete": false,
+        "incompleteReasons": [
+          "unspecified_sauce_base"
         ],
+        "identityIngredientSet": null,
         "newContentIngredientIds": [
           "chicken",
           "cumin",
@@ -8879,6 +8990,9 @@
           }
         ],
         "complete": false,
+        "incompleteReasons": [
+          "unresolved_tokens"
+        ],
         "identityIngredientSet": null,
         "newContentIngredientIds": []
       },
@@ -9041,6 +9155,9 @@
           }
         ],
         "complete": false,
+        "incompleteReasons": [
+          "unresolved_tokens"
+        ],
         "identityIngredientSet": null,
         "newContentIngredientIds": [
           "bonito-flakes",
@@ -9169,13 +9286,11 @@
             "canonicalId": "mozzarella"
           }
         ],
-        "complete": true,
-        "identityIngredientSet": [
-          "black-olive",
-          "capers",
-          "eggplant",
-          "mozzarella"
+        "complete": false,
+        "incompleteReasons": [
+          "unspecified_sauce_base"
         ],
+        "identityIngredientSet": null,
         "newContentIngredientIds": [
           "capers",
           "eggplant"
@@ -9286,6 +9401,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "arugula",
           "avocado",
@@ -9381,6 +9497,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "basil",
           "mozzarella",
@@ -9519,6 +9636,9 @@
           }
         ],
         "complete": false,
+        "incompleteReasons": [
+          "unresolved_tokens"
+        ],
         "identityIngredientSet": null,
         "newContentIngredientIds": [
           "chicken"
@@ -9644,6 +9764,10 @@
           }
         ],
         "complete": false,
+        "incompleteReasons": [
+          "unresolved_tokens",
+          "unspecified_sauce_base"
+        ],
         "identityIngredientSet": null,
         "newContentIngredientIds": []
       },
@@ -9761,13 +9885,11 @@
             "canonicalId": "green-onion"
           }
         ],
-        "complete": true,
-        "identityIngredientSet": [
-          "green-onion",
-          "kimchi",
-          "mozzarella",
-          "pork"
+        "complete": false,
+        "incompleteReasons": [
+          "unspecified_sauce_base"
         ],
+        "identityIngredientSet": null,
         "newContentIngredientIds": [
           "green-onion",
           "kimchi",
@@ -9913,6 +10035,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "ham",
           "mustard",
@@ -10023,6 +10146,9 @@
           }
         ],
         "complete": false,
+        "incompleteReasons": [
+          "unresolved_tokens"
+        ],
         "identityIngredientSet": null,
         "newContentIngredientIds": []
       },
@@ -10141,13 +10267,11 @@
             "canonicalId": "sour-cream"
           }
         ],
-        "complete": true,
-        "identityIngredientSet": [
-          "beef",
-          "onion",
-          "paprika-powder",
-          "sour-cream"
+        "complete": false,
+        "incompleteReasons": [
+          "unspecified_sauce_base"
         ],
+        "identityIngredientSet": null,
         "newContentIngredientIds": [
           "beef",
           "paprika-powder",
@@ -10248,6 +10372,9 @@
           }
         ],
         "complete": false,
+        "incompleteReasons": [
+          "excluded_placeholder_tokens"
+        ],
         "identityIngredientSet": null,
         "newContentIngredientIds": []
       },
@@ -10363,6 +10490,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "friarielli",
           "mozzarella",
@@ -10454,6 +10582,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "mozzarella",
           "sausage",
@@ -10598,14 +10727,11 @@
             "canonicalId": "mozzarella"
           }
         ],
-        "complete": true,
-        "identityIngredientSet": [
-          "bacon",
-          "corn",
-          "mayo",
-          "mozzarella",
-          "potato"
+        "complete": false,
+        "incompleteReasons": [
+          "unspecified_sauce_base"
         ],
+        "identityIngredientSet": null,
         "newContentIngredientIds": [
           "corn",
           "mayo",
@@ -10734,13 +10860,11 @@
             "canonicalId": "mozzarella"
           }
         ],
-        "complete": true,
-        "identityIngredientSet": [
-          "chicken",
-          "green-pepper",
-          "mozzarella",
-          "pineapple"
+        "complete": false,
+        "incompleteReasons": [
+          "unspecified_sauce_base"
         ],
+        "identityIngredientSet": null,
         "newContentIngredientIds": [
           "chicken",
           "green-pepper",
@@ -10852,6 +10976,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "lemon",
           "mozzarella",
@@ -10957,13 +11082,11 @@
             "canonicalId": "mozzarella"
           }
         ],
-        "complete": true,
-        "identityIngredientSet": [
-          "green-pepper",
-          "mozzarella",
-          "onion",
-          "paneer"
+        "complete": false,
+        "incompleteReasons": [
+          "unspecified_sauce_base"
         ],
+        "identityIngredientSet": null,
         "newContentIngredientIds": [
           "green-pepper",
           "paneer"
@@ -11085,14 +11208,11 @@
             "canonicalId": "cilantro"
           }
         ],
-        "complete": true,
-        "identityIngredientSet": [
-          "bell-pepper",
-          "chicken-tikka",
-          "cilantro",
-          "mozzarella",
-          "onion"
+        "complete": false,
+        "incompleteReasons": [
+          "unspecified_sauce_base"
         ],
+        "identityIngredientSet": null,
         "newContentIngredientIds": [
           "bell-pepper",
           "chicken-tikka",
@@ -11211,6 +11331,9 @@
           }
         ],
         "complete": false,
+        "incompleteReasons": [
+          "unresolved_tokens"
+        ],
         "identityIngredientSet": null,
         "newContentIngredientIds": [
           "spicy-salami"
@@ -11316,6 +11439,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "brick-cheese",
           "pepperoni",
@@ -11500,6 +11624,9 @@
           }
         ],
         "complete": false,
+        "incompleteReasons": [
+          "unresolved_tokens"
+        ],
         "identityIngredientSet": null,
         "newContentIngredientIds": [
           "fresh-tomato",
@@ -11635,13 +11762,11 @@
             "canonicalId": "mozzarella"
           }
         ],
-        "complete": true,
-        "identityIngredientSet": [
-          "beef",
-          "green-pepper",
-          "mozzarella",
-          "onion"
+        "complete": false,
+        "incompleteReasons": [
+          "unspecified_sauce_base"
         ],
+        "identityIngredientSet": null,
         "newContentIngredientIds": [
           "beef",
           "green-pepper"
@@ -11758,6 +11883,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "eggplant",
           "parsley",
@@ -11872,6 +11998,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "eggplant",
           "mint",
@@ -11988,6 +12115,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "eggplant",
           "miso-sauce",
@@ -12100,13 +12228,11 @@
             "canonicalId": "honey"
           }
         ],
-        "complete": true,
-        "identityIngredientSet": [
-          "chicken",
-          "honey",
-          "mozzarella",
-          "pickles"
+        "complete": false,
+        "incompleteReasons": [
+          "unspecified_sauce_base"
         ],
+        "identityIngredientSet": null,
         "newContentIngredientIds": [
           "chicken",
           "honey",
@@ -12224,6 +12350,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "mozzarella",
           "pepperoni",
@@ -12358,6 +12485,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "lamb",
           "mozzarella",
@@ -12476,6 +12604,9 @@
           }
         ],
         "complete": false,
+        "incompleteReasons": [
+          "unresolved_tokens"
+        ],
         "identityIngredientSet": null,
         "newContentIngredientIds": [
           "banana",
@@ -12624,14 +12755,11 @@
             "canonicalId": "cilantro"
           }
         ],
-        "complete": true,
-        "identityIngredientSet": [
-          "cilantro",
-          "eggplant",
-          "fresh-tomato",
-          "mozzarella",
-          "onion"
+        "complete": false,
+        "incompleteReasons": [
+          "unspecified_sauce_base"
         ],
+        "identityIngredientSet": null,
         "newContentIngredientIds": [
           "cilantro",
           "eggplant",
@@ -12754,15 +12882,11 @@
             "canonicalId": "mozzarella"
           }
         ],
-        "complete": true,
-        "identityIngredientSet": [
-          "carrot",
-          "cilantro",
-          "daikon",
-          "ham",
-          "liver-pate",
-          "mozzarella"
+        "complete": false,
+        "incompleteReasons": [
+          "unspecified_sauce_base"
         ],
+        "identityIngredientSet": null,
         "newContentIngredientIds": [
           "carrot",
           "cilantro",
@@ -12868,12 +12992,11 @@
             "canonicalId": "blue-cheese-dressing"
           }
         ],
-        "complete": true,
-        "identityIngredientSet": [
-          "blue-cheese-dressing",
-          "cauliflower",
-          "mozzarella"
+        "complete": false,
+        "incompleteReasons": [
+          "unspecified_sauce_base"
         ],
+        "identityIngredientSet": null,
         "newContentIngredientIds": [
           "blue-cheese-dressing",
           "cauliflower"
@@ -13002,6 +13125,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "eggplant",
           "olive-oil",
@@ -13109,6 +13233,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "arugula",
           "mozzarella",
@@ -13221,6 +13346,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "bacon",
           "cream-cheese",
@@ -13325,13 +13451,11 @@
             "canonicalId": "oregano"
           }
         ],
-        "complete": true,
-        "identityIngredientSet": [
-          "ham",
-          "mozzarella",
-          "oregano",
-          "palm-heart"
+        "complete": false,
+        "incompleteReasons": [
+          "unspecified_sauce_base"
         ],
+        "identityIngredientSet": null,
         "newContentIngredientIds": [
           "palm-heart"
         ]
@@ -13452,6 +13576,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "basil",
           "eggplant",
@@ -13556,6 +13681,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "black-olive",
           "mozzarella",
@@ -13653,6 +13779,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "corn",
           "ham",
@@ -13756,6 +13883,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "arugula",
           "cream-cheese",
@@ -13884,6 +14012,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "bacon",
           "ham",
@@ -14014,6 +14143,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "corn",
           "cucumber",
@@ -14141,6 +14271,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "egg",
           "ham",
@@ -14287,6 +14418,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "arugula",
           "burrata",
@@ -14419,6 +14551,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "asparagus",
           "lemon",
@@ -14563,6 +14696,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "artichoke",
           "celery",
@@ -14719,6 +14853,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "black-olive",
           "fennel",
@@ -14865,6 +15000,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "carrot",
           "lemon",
@@ -15012,6 +15148,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "lemon",
           "mint",
@@ -15166,6 +15303,9 @@
           }
         ],
         "complete": false,
+        "incompleteReasons": [
+          "unresolved_tokens"
+        ],
         "identityIngredientSet": null,
         "newContentIngredientIds": [
           "chicory",
@@ -15314,6 +15454,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "anchovy",
           "lemon",
@@ -15468,6 +15609,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "balsamic-vinegar",
           "mozzarella",
@@ -15626,6 +15768,9 @@
           }
         ],
         "complete": false,
+        "incompleteReasons": [
+          "unresolved_tokens"
+        ],
         "identityIngredientSet": null,
         "newContentIngredientIds": []
       },
@@ -15740,6 +15885,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "black-olive",
           "egg",
@@ -15849,6 +15995,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "anchovy",
           "capers",
@@ -15972,6 +16119,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "basil",
           "eggplant",
@@ -16078,6 +16226,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "basil",
           "mozzarella",
@@ -16227,6 +16376,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "black-olive",
           "feta",
@@ -16331,6 +16481,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "mozzarella",
           "pork",
@@ -16458,6 +16609,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "mozzarella",
           "onion",
@@ -16558,6 +16710,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "arugula",
           "mozzarella",
@@ -16669,6 +16822,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "mozzarella",
           "pepperoni",
@@ -16807,6 +16961,9 @@
           }
         ],
         "complete": false,
+        "incompleteReasons": [
+          "unresolved_tokens"
+        ],
         "identityIngredientSet": null,
         "newContentIngredientIds": [
           "beef",
@@ -16923,6 +17080,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "cheese-curd",
           "french-fries",
@@ -17060,6 +17218,10 @@
           }
         ],
         "complete": false,
+        "incompleteReasons": [
+          "unresolved_tokens",
+          "unspecified_sauce_base"
+        ],
         "identityIngredientSet": null,
         "newContentIngredientIds": [
           "condensed-milk",
@@ -17200,6 +17362,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "olive-oil",
           "rock-salt",
@@ -17321,6 +17484,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "mozzarella",
           "onion",
@@ -17442,6 +17606,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "mozzarella",
           "onion",
@@ -17569,6 +17734,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "anchovy",
           "black-olive",
@@ -17673,6 +17839,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "basil",
           "burrata",
@@ -17795,6 +17962,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "black-olive",
           "onion",
@@ -17905,6 +18073,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "catupiry",
           "corn",
@@ -18009,6 +18178,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "catupiry",
           "chicken",
@@ -18120,6 +18290,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "bacon",
           "baked-beans",
@@ -18224,13 +18395,11 @@
             "canonicalId": "blueberry"
           }
         ],
-        "complete": true,
-        "identityIngredientSet": [
-          "blueberry",
-          "cream-cheese",
-          "kiwi",
-          "strawberry"
+        "complete": false,
+        "incompleteReasons": [
+          "unspecified_sauce_base"
         ],
+        "identityIngredientSet": null,
         "newContentIngredientIds": [
           "blueberry",
           "cream-cheese",
@@ -18353,13 +18522,11 @@
             "canonicalId": "white-sesame"
           }
         ],
-        "complete": true,
-        "identityIngredientSet": [
-          "beef",
-          "mozzarella",
-          "onion",
-          "white-sesame"
+        "complete": false,
+        "incompleteReasons": [
+          "unspecified_sauce_base"
         ],
+        "identityIngredientSet": null,
         "newContentIngredientIds": [
           "beef",
           "white-sesame"
@@ -18470,6 +18637,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "clam",
           "mussel",
@@ -18617,6 +18785,9 @@
           }
         ],
         "complete": false,
+        "incompleteReasons": [
+          "unresolved_tokens"
+        ],
         "identityIngredientSet": null,
         "newContentIngredientIds": [
           "cheddar"
@@ -18730,6 +18901,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "mozzarella",
           "mushroom",
@@ -18857,6 +19029,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "black-olive",
           "fresh-tomato",
@@ -18988,6 +19161,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "clam",
           "garlic",
@@ -19119,6 +19293,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "basil",
           "fresh-tomato",
@@ -19222,6 +19397,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "fresh-tomato",
           "garlic",
@@ -19326,6 +19502,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "cream-cheese",
           "lemon",
@@ -19431,6 +19608,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "mozzarella",
           "pesto",
@@ -19543,6 +19721,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "almond",
           "fresh-tomato",
@@ -19647,6 +19826,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "black-olive",
           "onion",
@@ -19748,6 +19928,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "gorgonzola",
           "honey",
@@ -19865,6 +20046,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "bacon",
           "mozzarella",
@@ -19968,6 +20150,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "burrata",
           "fresh-tomato",
@@ -20091,6 +20274,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "bell-pepper",
           "eggplant",
@@ -20197,6 +20381,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "chicken",
           "fresh-tomato",
@@ -20312,14 +20497,11 @@
             "canonicalId": "cilantro"
           }
         ],
-        "complete": true,
-        "identityIngredientSet": [
-          "avocado",
-          "chicken",
-          "cilantro",
-          "mayo",
-          "mozzarella"
+        "complete": false,
+        "incompleteReasons": [
+          "unspecified_sauce_base"
         ],
+        "identityIngredientSet": null,
         "newContentIngredientIds": [
           "avocado",
           "chicken",
@@ -20449,13 +20631,11 @@
             "canonicalId": "black-olive"
           }
         ],
-        "complete": true,
-        "identityIngredientSet": [
-          "aji-amarillo",
-          "black-olive",
-          "chicken",
-          "mozzarella"
+        "complete": false,
+        "incompleteReasons": [
+          "unspecified_sauce_base"
         ],
+        "identityIngredientSet": null,
         "newContentIngredientIds": [
           "aji-amarillo",
           "chicken"
@@ -20566,6 +20746,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "mozzarella",
           "onion",
@@ -20670,6 +20851,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "mozzarella",
           "olive-oil",
@@ -20780,6 +20962,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "honey",
           "mozzarella",
@@ -20922,6 +21105,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "mozzarella",
           "pork",
@@ -21030,14 +21214,11 @@
             "canonicalId": "nori"
           }
         ],
-        "complete": true,
-        "identityIngredientSet": [
-          "green-onion",
-          "mozzarella",
-          "natto",
-          "nori",
-          "okra"
+        "complete": false,
+        "incompleteReasons": [
+          "unspecified_sauce_base"
         ],
+        "identityIngredientSet": null,
         "newContentIngredientIds": [
           "green-onion",
           "natto",
@@ -21189,6 +21370,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "cucumber",
           "green-onion",
@@ -21315,14 +21497,11 @@
             "canonicalId": "shiso"
           }
         ],
-        "complete": true,
-        "identityIngredientSet": [
-          "mayo",
-          "mentaiko",
-          "mochi",
-          "nori",
-          "shiso"
+        "complete": false,
+        "incompleteReasons": [
+          "unspecified_sauce_base"
         ],
+        "identityIngredientSet": null,
         "newContentIngredientIds": [
           "mayo",
           "mentaiko",
@@ -21448,6 +21627,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "halloumi",
           "olive-oil",
@@ -21582,6 +21762,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "mozzarella",
           "shiso",
@@ -21707,6 +21888,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "beef",
           "mozzarella",
@@ -21855,6 +22037,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "doubanjiang",
           "eggplant",
@@ -21981,6 +22164,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "beef",
           "mozzarella",
@@ -22122,14 +22306,11 @@
             "canonicalId": "mozzarella"
           }
         ],
-        "complete": true,
-        "identityIngredientSet": [
-          "beef",
-          "french-fries",
-          "fresh-tomato",
-          "mozzarella",
-          "onion"
+        "complete": false,
+        "incompleteReasons": [
+          "unspecified_sauce_base"
         ],
+        "identityIngredientSet": null,
         "newContentIngredientIds": [
           "beef",
           "french-fries",
@@ -22306,6 +22487,9 @@
           }
         ],
         "complete": false,
+        "incompleteReasons": [
+          "unresolved_tokens"
+        ],
         "identityIngredientSet": null,
         "newContentIngredientIds": [
           "bell-pepper",
@@ -22477,6 +22661,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "garlic",
           "mozzarella",
@@ -22584,6 +22769,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "garlic",
           "olive-oil",
@@ -22718,6 +22904,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "bacon",
           "beef",
@@ -22856,6 +23043,9 @@
           }
         ],
         "complete": false,
+        "incompleteReasons": [
+          "unresolved_tokens"
+        ],
         "identityIngredientSet": null,
         "newContentIngredientIds": [
           "cinnamon",
@@ -22976,14 +23166,11 @@
             "canonicalId": "lime"
           }
         ],
-        "complete": true,
-        "identityIngredientSet": [
-          "chili-powder",
-          "corn",
-          "cotija",
-          "lime",
-          "mayo"
+        "complete": false,
+        "incompleteReasons": [
+          "unspecified_sauce_base"
         ],
+        "identityIngredientSet": null,
         "newContentIngredientIds": [
           "chili-powder",
           "corn",
@@ -23109,6 +23296,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "basil",
           "eggplant",
@@ -23218,6 +23406,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "mozzarella",
           "mushroom",
@@ -23347,6 +23536,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "bell-pepper",
           "eggplant",
@@ -23453,6 +23643,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "arugula",
           "grana-padano",
@@ -23557,12 +23748,11 @@
             "canonicalId": "mozzarella"
           }
         ],
-        "complete": true,
-        "identityIngredientSet": [
-          "beef",
-          "mozzarella",
-          "onion"
+        "complete": false,
+        "incompleteReasons": [
+          "unspecified_sauce_base"
         ],
+        "identityIngredientSet": null,
         "newContentIngredientIds": [
           "beef"
         ]
@@ -23665,12 +23855,11 @@
             "canonicalId": "honey"
           }
         ],
-        "complete": true,
-        "identityIngredientSet": [
-          "honey",
-          "mozzarella",
-          "sausage"
+        "complete": false,
+        "incompleteReasons": [
+          "unspecified_sauce_base"
         ],
+        "identityIngredientSet": null,
         "newContentIngredientIds": [
           "honey"
         ]
@@ -23803,6 +23992,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "bacon",
           "egg",
@@ -23901,6 +24091,7 @@
           }
         ],
         "complete": true,
+        "incompleteReasons": [],
         "identityIngredientSet": [
           "mozzarella",
           "parmigiano",
@@ -24033,13 +24224,11 @@
             "canonicalId": "nori"
           }
         ],
-        "complete": true,
-        "identityIngredientSet": [
-          "chicken",
-          "mayo",
-          "nori",
-          "onion"
+        "complete": false,
+        "incompleteReasons": [
+          "unspecified_sauce_base"
         ],
+        "identityIngredientSet": null,
         "newContentIngredientIds": [
           "chicken",
           "mayo",
@@ -24147,7 +24336,7 @@
         {
           "type": "COMPOSITION_CONFLICT_CANDIDATE",
           "ref": "COMP:teriyaki-chicken-pizza-pizzadb-p14->teriyaki-chicken",
-          "detail": "PIZZADB_SUBSET"
+          "detail": "INDETERMINATE_UNSPECIFIED_SAUCE_BASE"
         }
       ],
       "reviewItems": [
@@ -24204,13 +24393,11 @@
             "taxonomyFlag": "sauce_or_condiment"
           }
         ],
-        "complete": true,
-        "identityIngredientSet": [
-          "chutney",
-          "mozzarella",
-          "onion",
-          "sausage"
+        "complete": false,
+        "incompleteReasons": [
+          "unspecified_sauce_base"
         ],
+        "identityIngredientSet": null,
         "newContentIngredientIds": [
           "chutney"
         ]
@@ -24348,13 +24535,11 @@
             "canonicalId": "whitebait"
           }
         ],
-        "complete": true,
-        "identityIngredientSet": [
-          "mozzarella",
-          "shiso",
-          "umeboshi-paste",
-          "whitebait"
+        "complete": false,
+        "incompleteReasons": [
+          "unspecified_sauce_base"
         ],
+        "identityIngredientSet": null,
         "newContentIngredientIds": [
           "shiso",
           "umeboshi-paste",
@@ -24479,6 +24664,9 @@
           }
         ],
         "complete": false,
+        "incompleteReasons": [
+          "unresolved_tokens"
+        ],
         "identityIngredientSet": null,
         "newContentIngredientIds": [
           "corn",

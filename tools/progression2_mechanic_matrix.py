@@ -61,6 +61,11 @@ OUT_JSON = ROOT / "docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX
 OUT_ROWS_MD = ROOT / "docs/design/TETO_RECIPE_172_MECHANIC-MATRIX_ROWS.md"
 
 EXPECTED_ROWS = 172
+# Regression case for an unspecified sauce base (甘辛だれ family, no listed tare): see validate().
+UNSPECIFIED_BASE_REGRESSION_ROW = "teriyaki-chicken-pizza-pizzadb-p14"
+# Regression case for per-row same-set review (both share {mozzarella, tomato-sauce}; only NY
+# declares the 'ny-style' correspondence): see validate().
+SAME_SET_REGRESSION_ROWS = ("trenton-tomato-pie-pizzadb", "ny-style-pizzadb")
 # Regression case for excluded placeholders (お好みの具材): see validate().
 PLACEHOLDER_REGRESSION_ROW = "colorado-mountain-pie-pizzadb-p3"
 PHASE0_MERGE_SHA = "5676ae9d2ade0bd3675523be351152a24508c9a5"
@@ -724,7 +729,18 @@ def build():
         # excluded placeholder (e.g. お好みの具材 = "toppings of your choice"): a placeholder means
         # the real topping set is unspecified, so the resolved remainder must NOT be treated as a
         # complete identity set (it would enter same-set / collision analysis as a false match).
-        ingredients_complete = not res["unresolved"] and not res["excluded"]
+        # Likewise an UNSPECIFIED sauce base (a generic sauceFamily such as 甘辛だれ with no listed
+        # sauce) is an unknown ingredient: the dish has a base the evidence does not name, so the
+        # resolved tokens alone are not its identity set, and an exact composition diff would
+        # wrongly call a catalog sauce "missing" when the unknown base may be exactly that sauce.
+        incomplete_reasons = []
+        if res["unresolved"]:
+            incomplete_reasons.append("unresolved_tokens")
+        if res["excluded"]:
+            incomplete_reasons.append("excluded_placeholder_tokens")
+        if bs["status"] == "unspecified":
+            incomplete_reasons.append("unspecified_sauce_base")
+        ingredients_complete = not incomplete_reasons
         corr = r["correspondsToExistingCatalogId"]
         relation = None
         if corr:
@@ -732,6 +748,8 @@ def build():
                 relation = "INDETERMINATE_UNRESOLVED_TOKENS"
             elif res["excluded"]:
                 relation = "INDETERMINATE_PLACEHOLDER_TOKENS"
+            elif bs["status"] == "unspecified":
+                relation = "INDETERMINATE_UNSPECIFIED_SAUCE_BASE"
             else:
                 relation = relation_of(set(identity), set(cat_by_id[corr]["ingredients"]))
         cid, cid_note = candidate_id(r, catalog_ids, relation, taken_ids)
@@ -751,6 +769,7 @@ def build():
                 "taxonomyFlags": res["flags"],
                 "tokenTrace": res["trace"],
                 "complete": ingredients_complete,
+                "incompleteReasons": incomplete_reasons,
                 "identityIngredientSet": identity if ingredients_complete else None,
                 "newContentIngredientIds": sorted(i for i in identity if i not in src_ingredient_ids),
             },
@@ -800,6 +819,7 @@ def build():
                 "pizzadbIdentitySet": identity if ingredients_complete else None,
                 "pizzadbUnresolvedTokens": [u["token"] for u in res["unresolved"]],
                 "pizzadbExcludedPlaceholderTokens": res["excluded"],
+                "pizzadbSauceBaseStatus": bs["status"],
                 "relation": relation,
                 "addedByPizzaDb": sorted(set(identity) - set(cat["ingredients"])) if ingredients_complete else None,
                 "missingFromPizzaDb": sorted(set(cat["ingredients"]) - set(identity)) if ingredients_complete else None,
@@ -910,15 +930,17 @@ def build():
         cids = sorted(cat_by_set.get(key, []))
         if len(rids) + len(cids) < 2:
             continue
-        declared = {by_id[x]["phase0"]["correspondsToExistingCatalogId"] for x in rids}
-        undeclared_cat = [c for c in cids if c not in declared]
+        # Per ROW, never a group-wide union: one row declaring a catalog correspondence must not
+        # hide that same catalog recipe from a sibling row that declares nothing (Trenton vs NY).
+        undeclared_by_row = {x: [c for c in cids if c != by_id[x]["phase0"]["correspondsToExistingCatalogId"]]
+                             for x in rids}
         sigs = defaultdict(list)
         for x in rids:
             sigs[signature(by_id[x])].append(x)
         sig_groups = [sorted(v) for v in sigs.values() if len(v) > 1]
         extended.append({
             "identityIngredientSet": list(key), "rowIds": rids, "catalogIdsWithSameSet": cids,
-            "catalogIdsNotDeclaredAsCorrespondence": undeclared_cat,
+            "catalogIdsNotDeclaredByRow": undeclared_by_row,
             "rowsSeparatedByFullSignature": not sig_groups,
             "rowsWithIdenticalFullSignature": sig_groups,
         })
@@ -930,12 +952,11 @@ def build():
     # undeclared equality with a catalog recipe's ingredient set: soft review
     for e in extended:
         for rid in e["rowIds"]:
-            if e["catalogIdsNotDeclaredAsCorrespondence"]:
-                mr = by_id[rid]
-                others = [c for c in e["catalogIdsNotDeclaredAsCorrespondence"] if c != mr["phase0"]["correspondsToExistingCatalogId"]]
-                if others:
-                    mr["reviewItems"].append({"type": "SAME_INGREDIENT_SET_AS_CATALOG_RECIPE", "ref": ",".join(others),
-                                              "detail": "identity ingredient set equals an existing catalog recipe that the row is not declared to correspond to -- distinguishable only by " + (", ".join(mr["requiredCapabilities"]) or "nothing evidenced")})
+            mr = by_id[rid]
+            others = e["catalogIdsNotDeclaredByRow"][rid]
+            if others:
+                mr["reviewItems"].append({"type": "SAME_INGREDIENT_SET_AS_CATALOG_RECIPE", "ref": ",".join(others),
+                                          "detail": "identity ingredient set equals an existing catalog recipe that the row is not declared to correspond to -- distinguishable only by " + (", ".join(mr["requiredCapabilities"]) or "nothing evidenced")})
 
     # --- per-row blockers / review items -------------------------------------
     for mr in matrix_rows:
@@ -1061,6 +1082,8 @@ def build():
         "rowsWithUnresolvedIngredients": sum(1 for mr in matrix_rows if mr["ingredients"]["unresolvedTokens"]),
         "unresolvedIngredientTokenOccurrences": dict(sorted(unresolved_tokens.items())),
         "rowsWithCompleteIdentityIngredientSet": len(complete),
+        "rowsIncompleteByReason": dict(sorted(Counter(reason for mr in matrix_rows
+                                                     for reason in mr["ingredients"]["incompleteReasons"]).items())),
         "rowsWithExcludedPlaceholderTokens": sorted(mr["evidenceId"] for mr in matrix_rows
                                                     if mr["ingredients"]["excludedNonIngredientTokens"]),
         "canonicalIngredientIdsAcrossMatrix": len(all_ids),
@@ -1264,6 +1287,55 @@ def validate(out):
               f"{PLACEHOLDER_REGRESSION_ROW}: placeholder row entered full-signature collision analysis")
         check(not any(i["type"] == "SAME_INGREDIENT_SET_AS_CATALOG_RECIPE" for i in colorado["reviewItems"]),
               f"{PLACEHOLDER_REGRESSION_ROW}: placeholder row got a same-set review item")
+    # Every indeterminate input (unresolved token, excluded placeholder, unspecified sauce base)
+    # keeps a row out of the complete identity sets and out of exact composition diffs.
+    for r in rows:
+        ing = r["ingredients"]
+        expected_reasons = ([ "unresolved_tokens"] if ing["unresolvedTokens"] else []) \
+            + (["excluded_placeholder_tokens"] if ing["excludedNonIngredientTokens"] else []) \
+            + (["unspecified_sauce_base"] if r["sauceBase"]["status"] == "unspecified" else [])
+        check(ing["incompleteReasons"] == expected_reasons, f"{r['evidenceId']}: incompleteReasons {ing['incompleteReasons']} != {expected_reasons}")
+        check(ing["complete"] == (not expected_reasons), f"{r['evidenceId']}: complete flag ignores an indeterminate input")
+        if r["sauceBase"]["status"] == "unspecified":
+            check(ing["identityIngredientSet"] is None, f"{r['evidenceId']}: identity set present despite an unspecified sauce base")
+    for c in out["compositionDecisionLedger"]:
+        row = by_row[c["evidenceId"]]
+        if not row["ingredients"]["complete"]:
+            check(c["relation"].startswith("INDETERMINATE_"), f"{c['evidenceId']}: exact composition relation {c['relation']} on an incomplete row")
+            check(c["pizzadbIdentitySet"] is None and c["addedByPizzaDb"] is None and c["missingFromPizzaDb"] is None,
+                  f"{c['evidenceId']}: composition diff asserted on an incomplete row")
+    for e in out["extendedIdentitySetCollisions"]:
+        for rid in e["rowIds"]:
+            check(by_row[rid]["ingredients"]["complete"], f"{rid}: incomplete row entered the extended identity-set analysis")
+    teri = by_row.get(UNSPECIFIED_BASE_REGRESSION_ROW)
+    check(teri is not None, f"regression row {UNSPECIFIED_BASE_REGRESSION_ROW} missing")
+    if teri is not None:
+        check(teri["sauceBase"]["status"] == "unspecified", f"{UNSPECIFIED_BASE_REGRESSION_ROW}: sauce base no longer unspecified (update the regression case)")
+        check(teri["ingredients"]["identityIngredientSet"] is None, f"{UNSPECIFIED_BASE_REGRESSION_ROW}: unspecified-base row has a complete identity set")
+        tc = [c for c in out["compositionDecisionLedger"] if c["evidenceId"] == UNSPECIFIED_BASE_REGRESSION_ROW]
+        check(len(tc) == 1 and tc[0]["relation"] == "INDETERMINATE_UNSPECIFIED_SAUCE_BASE",
+              f"{UNSPECIFIED_BASE_REGRESSION_ROW}: composition relation must be INDETERMINATE_UNSPECIFIED_SAUCE_BASE")
+        check(len(tc) == 1 and tc[0]["missingFromPizzaDb"] is None,
+              f"{UNSPECIFIED_BASE_REGRESSION_ROW}: teriyaki-sauce asserted missing although the base is unknown")
+    # Same-set review is computed per row against that row's OWN declared correspondence.
+    for e in out["extendedIdentitySetCollisions"]:
+        for rid in e["rowIds"]:
+            own = by_row[rid]["phase0"]["correspondsToExistingCatalogId"]
+            exp = [c for c in e["catalogIdsWithSameSet"] if c != own]
+            check(e["catalogIdsNotDeclaredByRow"].get(rid) == exp, f"{rid}: per-row undeclared catalog ids wrong in extended ledger")
+            refs = [i["ref"] for i in by_row[rid]["reviewItems"] if i["type"] == "SAME_INGREDIENT_SET_AS_CATALOG_RECIPE"]
+            check(refs == ([",".join(exp)] if exp else []), f"{rid}: same-set review ref {refs} != own undeclared {exp}")
+    tre, ny = (by_row.get(x) for x in SAME_SET_REGRESSION_ROWS)
+    check(tre is not None and ny is not None, "same-set regression rows missing")
+    if tre is not None and ny is not None:
+        tre_ref = [i["ref"] for i in tre["reviewItems"] if i["type"] == "SAME_INGREDIENT_SET_AS_CATALOG_RECIPE"]
+        ny_ref = [i["ref"] for i in ny["reviewItems"] if i["type"] == "SAME_INGREDIENT_SET_AS_CATALOG_RECIPE"]
+        check(tre["phase0"]["correspondsToExistingCatalogId"] is None and ny["phase0"]["correspondsToExistingCatalogId"] == "ny-style",
+              "same-set regression premise changed (update the regression case)")
+        check(len(tre_ref) == 1 and "ny-style" in tre_ref[0].split(","),
+              "trenton-tomato-pie-pizzadb: 'ny-style' hidden from its same-set review by NY's declaration")
+        check(len(ny_ref) == 1 and "ny-style" not in ny_ref[0].split(","),
+              "ny-style-pizzadb: its own declared correspondence listed as undeclared")
     check(out["summary"]["rowsWithCompleteIdentityIngredientSet"]
           == sum(1 for r in rows if r["ingredients"]["complete"]),
           "rowsWithCompleteIdentityIngredientSet does not match the per-row complete flags")

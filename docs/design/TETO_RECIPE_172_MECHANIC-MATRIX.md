@@ -47,13 +47,18 @@ For each of the 172 rows, `tools/progression2_mechanic_matrix.py` does the follo
      containing it is **not** ingredient-complete: its real topping set is unspecified, so it gets
      no identity set and stays out of the complete-set, same-set and collision analyses. Today
      this affects only `colorado-mountain-pie-pizzadb-p3`.
+   - A row whose sauce base is `unspecified` (step 2) is also **not** ingredient-complete. The
+     dish has a base the evidence does not name, so its resolved tokens are not its identity set,
+     and an exact composition diff would wrongly call a catalog sauce "missing". Every row lists
+     its `incompleteReasons`.
    - A `tokenTrace` mirrors the source list 1:1.
 2. **Sauce base.** It maps `sauceFamily` through a fixed table.
    - When the family names exactly one existing sauce, that sauce is added to the identity set as
      `family_derived`: トマトソース→tomato-sauce, BBQ→bbq-sauce, オイル→olive-oil, サルサ→salsa,
      バジル→pesto (all 11 バジル rows are ペスト dishes).
    - Generic families (カレー, ホットソース, 甘辛だれ, デザート, ホワイト, その他) are satisfied only
-     by a listed sauce item. Otherwise the base is `unspecified`, which is a content blocker.
+     by a listed sauce item. Otherwise the base is `unspecified`. That is a content blocker, and
+     it also makes the row ingredient-incomplete (step 1).
 3. **Dough.** It classifies every distinct `doughStyle` string (38 incl. null) into
    standard / variant / form, plus shape, pan, enclosure, lamination and cook method. The
    validator fails on any unclassified string.
@@ -85,7 +90,7 @@ For each of the 172 rows, `tools/progression2_mechanic_matrix.py` does the follo
 | Rows needing ≥1 required capability | 66 (the other 106 = 101 FULL + 5 PARTIAL rows whose Phase-0 mechanic flag is inference-only) |
 | Phase-0 mechanic-identity rows (41) | none is FULL. 36 have source-backed required capabilities. 5 have only inference-backed ones (taco + 4 page-8 rows), so they are PARTIAL with no required capability. 10 carry a MECHANIC_INTERPRETATION blocker (8 page-8 raw-salad rows, taco, lahmacun). Eel's unresolved timing adds an 11th MECHANIC_INTERPRETATION row that Phase 0 did not flag. |
 | Rows needing a capability that Phase 0 did **not** flag | 30 (mostly extra spread layers, catalog finishing tags, profile-text timing, dough variants from the doughStyle field) |
-| Complete canonical identity set | **150 / 172**. Excluded: the 21 rows with unresolved tokens (the same set Phase 0 excluded, reconciled exactly) plus `colorado-mountain-pie-pizzadb-p3` (excluded placeholder お好みの具材). Phase 0's deadlock pool (151) still counts Colorado because it drops the placeholder; that Phase-0 artifact is left unchanged. |
+| Complete canonical identity set | **120 / 172**. 52 rows are incomplete; a row can have more than one reason: 21 have unresolved tokens (the same set Phase 0 excluded, reconciled exactly), 1 has an excluded placeholder (`colorado-mountain-pie-pizzadb-p3`, お好みの具材), and 33 have an unspecified sauce base (30 of them for that reason alone). Phase 0's deadlock pool (151) is an ingredient-token pool that ignores sauce base and drops the placeholder; that Phase-0 artifact is left unchanged. |
 | Canonical ingredient ids across matrix | 169, of which 148 are not yet in shipped `src/data/ingredients.ts` (content work, not mechanics) |
 | Product-decision status | READY 67 · READY_WITH_REVIEW 19 · ALREADY_SHIPPED_CORROBORATED 1 · **BLOCKED_PRODUCT_DECISION 85** |
 | FULL **and** decision-ready | **56 rows**. These are the immediate content-only candidate pool; the list is in `summary.fullAndDecisionReadyRowIds`. |
@@ -225,16 +230,27 @@ separately as `fugazzeta-rellena` (`catalogTagsNotApplied`).
 
 The tool computes a full discovery signature for each row: identity set, dough, shape, form,
 cook/pan, order, zones, late additions, prep, and sauce family. The **only** identical-signature
-group among the 150 complete rows is fugazza/fugazzetta.
+group among the 120 complete rows is fugazza/fugazzetta.
 
 Eight rows have the same identity ingredient set as a catalog recipe they are not declared to
-correspond to. These are flagged `SAME_INGREDIENT_SET_AS_CATALOG_RECIPE` for review:
+correspond to. These are flagged `SAME_INGREDIENT_SET_AS_CATALOG_RECIPE` for review. The check
+runs per row, against that row's **own** declared correspondence only; one row's declaration
+never hides a catalog match from a sibling row.
 
-- cauliflower-crust = shipped margherita
-- fathead-keto and new-england-bar = shipped pepperoni
-- chicago-stuffed = shipped salsiccia
-- ny / trenton = {mozzarella, tomato-sauce}, the same set as greek-style and stuffed-crust
-  candidates
+| Row | Same set as (undeclared by this row) |
+|---|---|
+| cauliflower-crust | margherita (shipped) |
+| pizza-al-taglio-romana | margherita (shipped) |
+| fathead-keto | pepperoni (shipped), detroit-style |
+| new-england-bar | pepperoni (shipped), detroit-style |
+| chicago-stuffed | salsiccia (shipped), chicago-deep-dish |
+| prosciutto-funghi | prosciutto-e-funghi (the row declares no correspondence) |
+| trenton-tomato-pie | greek-style, **ny-style**, stuffed-crust |
+| ny-style | greek-style, stuffed-crust (its own declared `ny-style` correspondence is excluded) |
+
+Trenton previously omitted `ny-style` because undeclared ids were computed as a group-wide union:
+NY's declaration hid the match from Trenton, which declares nothing. That is fixed, and the
+Trenton/NY pair is now a regression case.
 
 Colorado Mountain Pie previously appeared in that last group as {mozzarella, tomato-sauce}. That
 was wrong: its evidence lists the placeholder お好みの具材, so its real toppings are unknown. It is
@@ -323,6 +339,21 @@ There are 32 correspondence rows:
 (salami vs ham), greek-style, chicago-deep-dish (+pepperoni), siciliana, supreme (−mozzarella),
 buffalo-chicken, speck-e-brie, diavola (indeterminate), alla-norma, and fugazzeta (−olive-oil).
 
+Relations across the 32 correspondences are:
+
+| Relation | Count |
+|---|---|
+| DIVERGENT | 14 |
+| PIZZADB_SUPERSET | 6 |
+| IDENTICAL | 5 |
+| PIZZADB_SUBSET | 3 |
+| INDETERMINATE_UNRESOLVED_TOKENS | 3 |
+| INDETERMINATE_UNSPECIFIED_SAUCE_BASE | 1 |
+
+The one INDETERMINATE_UNSPECIFIED_SAUCE_BASE entry is `teriyaki-chicken`. The row's 甘辛だれ base
+is unnamed, so the ledger no longer asserts that `teriyaki-sauce` (or anything else) is missing.
+Only undetermined relations are reported; the product decision is still required.
+
 The newly surfaced conflicts come from comparing the full identity set (with the family-derived
 base sauce) against every correspondence, not only the ones Phase 0 prose mentioned.
 
@@ -373,6 +404,19 @@ The matrix validator enforces all of the following. Any failure exits non-zero.
   it must keep お好みの具材 as excluded, be incomplete, have no identity set, stay out of both
   collision analyses, and carry no same-set review item. Reverting the fix makes `--check` fail
   with 7 errors.
+- `incompleteReasons` matches the row's unresolved tokens, excluded placeholder and
+  unspecified-sauce-base status exactly, and `complete` is true only when there is no reason.
+  - Every incomplete row stays out of the extended identity-set analysis.
+  - An incomplete row has only an `INDETERMINATE_*` composition relation, with no identity set
+    and no added/missing diff.
+  - Regression case `teriyaki-chicken-pizza-pizzadb-p14`: its relation must be
+    `INDETERMINATE_UNSPECIFIED_SAUCE_BASE`, and `missingFromPizzaDb` must be null.
+  - Reverting this fix makes `--check` fail with 97 errors, 6 of them on Teriyaki.
+- The same-set review is recomputed per row: each row's undeclared catalog ids must equal the
+  group's same-set catalog ids minus that row's **own** declared correspondence, and the review
+  item must match.
+  - Regression case: Trenton lists `ny-style`, and NY does not list its own correspondence.
+  - Reverting to the group-wide union makes `--check` fail with 4 errors.
 - Every doughStyle and sauceFamily string is classified.
 - Every required capability has required-strength evidence, and SERVE_FORM is never required.
 - The representability rules hold, and no Phase-0 mechanic row is FULL.
