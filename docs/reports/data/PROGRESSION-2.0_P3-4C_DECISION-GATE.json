@@ -147,17 +147,16 @@
     ],
     "gateFunctionInput": "stars only (Option A)"
   },
-  "go34C": "NO_GO",
+  "go34C": "NOT_YET (technical gates pending)",
   "blockers": [
-    "owner confirmation: pieces per purchase/refill (portions x k) and k stability",
-    "#205 fix for M4 (A-1..A-10, T-1..T-5) — needs owner permission",
-    "#205/#206 CI green on current main and merged",
-    "#206 deployed before 3-4C"
+    "TG-1",
+    "TG-2",
+    "TG-3",
+    "TG-4",
+    "TG-5"
   ],
-  "ownerQuestions": [
-    "pieces per purchase/refill = 10 x k (heaviest recipe's 10 pizzas)? may k change when recipes are added?"
-  ],
-  "revision": 3,
+  "ownerQuestions": [],
+  "revision": 4,
   "runtimeFacts": {
     "minCountEqualsIdealForAllScatterIngredients": true,
     "idealSource": "referencePizza pieceGroups[].positions.length",
@@ -255,13 +254,13 @@
   },
   "decisions": {
     "D1_OD03": {
-      "status": "DECIDED",
+      "status": "FINAL",
       "option": "A",
       "relock": "impossible by construction",
       "persistedEntitlement": "not needed"
     },
     "D2_inventory": {
-      "status": "DECIDED",
+      "status": "FINAL",
       "option": "M4",
       "unit": "ingredient pieces (spread = 1 per application)",
       "migration": "none",
@@ -277,38 +276,144 @@
       "pr205OnePizzaOneUse": "not adopted"
     },
     "D3_completionScoring": {
-      "status": "SEPARATED",
+      "status": "FINAL_SEPARATED",
       "in34C": "Completion Gate unchanged",
-      "followUp": "new Fresh Audit issue (draft in report section 6)"
-    }
-  },
-  "m4Spec34C": {
-    "finiteCheck": "authority initialOwned (P0-S3)",
-    "purchase": "price -> OWNED -> + purchaseGrantPortions x k pieces",
-    "refill": "ceil(price*0.5) -> + refillPortions x k pieces",
-    "k": "max minCount among shipped recipes using the ingredient; spread = 1",
-    "kValues": {
-      "pepperoni": 4,
-      "onion": 4,
-      "mushroom": 3,
-      "sausage": 3,
-      "bacon": 3,
-      "garlic": 3,
-      "cherry-tomato": 3,
-      "anchovy": 3,
-      "tuna": 3,
-      "rosemary": 3,
-      "oregano": 2,
-      "gorgonzola": 2,
-      "parmigiano": 2,
-      "fontina": 2,
-      "black-olive": 2,
-      "egg": 1,
-      "ham": 1,
-      "olive-oil": 1,
-      "pesto": 1
+      "followUp": "new Fresh Audit issue (draft in report section 6)",
+      "followUpIssue": 215,
+      "followUpUrl": "https://github.com/perusonao/teto-pizza-game/issues/215"
     },
-    "openOwnerConfirmation": "pieces per purchase/refill = portions x k, and whether k may change when recipes are added"
+    "D4_shopQuantity": {
+      "status": "FINAL",
+      "unit": "pieces",
+      "storage": "fixed per-ingredient data (purchaseQuantity, refillQuantity)",
+      "initialValue": "10 x k at 3-4C cutover (k = max minCount of shipped recipes; spread = 1)",
+      "runtimeDerivation": false,
+      "autoAdjustOnRecipeAdd": false,
+      "changePolicy": "explicit balance change only",
+      "prices": "authority (purchase = tier price, refill = ceil(price*0.5))",
+      "table": {
+        "pepperoni": {
+          "k": 4,
+          "purchaseQuantity": 40,
+          "refillQuantity": 40,
+          "currentEP3RestockQuantity": 12
+        },
+        "onion": {
+          "k": 4,
+          "purchaseQuantity": 40,
+          "refillQuantity": 40,
+          "currentEP3RestockQuantity": 12
+        },
+        "mushroom": {
+          "k": 3,
+          "purchaseQuantity": 30,
+          "refillQuantity": 30,
+          "currentEP3RestockQuantity": 9
+        },
+        "sausage": {
+          "k": 3,
+          "purchaseQuantity": 30,
+          "refillQuantity": 30,
+          "currentEP3RestockQuantity": 9
+        },
+        "bacon": {
+          "k": 3,
+          "purchaseQuantity": 30,
+          "refillQuantity": 30,
+          "currentEP3RestockQuantity": 9
+        },
+        "garlic": {
+          "k": 3,
+          "purchaseQuantity": 30,
+          "refillQuantity": 30,
+          "currentEP3RestockQuantity": 9
+        },
+        "cherry-tomato": {
+          "k": 3,
+          "purchaseQuantity": 30,
+          "refillQuantity": 30,
+          "currentEP3RestockQuantity": 9
+        },
+        "anchovy": {
+          "k": 3,
+          "purchaseQuantity": 30,
+          "refillQuantity": 30,
+          "currentEP3RestockQuantity": 9
+        },
+        "tuna": {
+          "k": 3,
+          "purchaseQuantity": 30,
+          "refillQuantity": 30,
+          "currentEP3RestockQuantity": 9
+        },
+        "rosemary": {
+          "k": 3,
+          "purchaseQuantity": 30,
+          "refillQuantity": 30,
+          "currentEP3RestockQuantity": 9
+        },
+        "oregano": {
+          "k": 2,
+          "purchaseQuantity": 20,
+          "refillQuantity": 20,
+          "currentEP3RestockQuantity": 6
+        },
+        "gorgonzola": {
+          "k": 2,
+          "purchaseQuantity": 20,
+          "refillQuantity": 20,
+          "currentEP3RestockQuantity": 6
+        },
+        "parmigiano": {
+          "k": 2,
+          "purchaseQuantity": 20,
+          "refillQuantity": 20,
+          "currentEP3RestockQuantity": 6
+        },
+        "fontina": {
+          "k": 2,
+          "purchaseQuantity": 20,
+          "refillQuantity": 20,
+          "currentEP3RestockQuantity": 6
+        },
+        "black-olive": {
+          "k": 2,
+          "purchaseQuantity": 20,
+          "refillQuantity": 20,
+          "currentEP3RestockQuantity": 6
+        },
+        "egg": {
+          "k": 1,
+          "purchaseQuantity": 10,
+          "refillQuantity": 10,
+          "currentEP3RestockQuantity": 3
+        },
+        "ham": {
+          "k": 1,
+          "purchaseQuantity": 10,
+          "refillQuantity": 10,
+          "currentEP3RestockQuantity": 3
+        },
+        "olive-oil": {
+          "k": 1,
+          "purchaseQuantity": 10,
+          "refillQuantity": 10,
+          "currentEP3RestockQuantity": 3
+        },
+        "pesto": {
+          "k": 1,
+          "purchaseQuantity": 10,
+          "refillQuantity": 10,
+          "currentEP3RestockQuantity": 3
+        }
+      },
+      "noRowFor": [
+        "tomato-sauce",
+        "mozzarella",
+        "basil",
+        "83 authority-only ingredients"
+      ]
+    }
   },
   "pr205": {
     "head": "9035606",
@@ -320,24 +425,39 @@
       "progressionRefillPricePitz",
       "purchase/refill failure reasons"
     ],
-    "apiConflicts": {
-      "A-1": "file header: 1 use = 1 pizza, +10 uses",
-      "A-2": "PROGRESSION_PURCHASE_GRANT_USES -> rename to *_PORTIONS",
-      "A-3": "PROGRESSION_REFILL_USES -> rename to *_PORTIONS",
-      "A-4": "PROGRESSION_USES_PER_PIZZA -> delete",
-      "A-5": "ProgressionStock doc (pizza uses) -> pieces",
-      "A-6": "remainingPizzaUses -> delete or rename remainingPieces",
-      "A-7": "purchaseProgressionIngredient adds +10 -> add portions x k (k supplied by caller)",
-      "A-8": "refillProgressionIngredient adds +10 -> same as A-7",
-      "A-9": "consumePizzaUse / ProgressionUseResult OUT_OF_STOCK -> delete (runtime consumePizzaInventory stays)",
-      "A-10": "sanitizeUses -> rename"
-    },
-    "testConflicts": {
-      "T-1": "progressionEconomy.test.ts purchase block (~62-143): egg values unchanged (k=1), rename + add k>1 case",
-      "T-2": "refill block (~146-206): same",
-      "T-3": "'pizza uses (1 pizza = 1 use)' block (~209-252): delete",
-      "T-4": "audit 5.1 opening (~255-271): values unchanged, wording",
-      "T-5": "progressionUnlocks.test.ts S10_R10 parity (~62-67): keep, update imports"
+    "plan": {
+      "newFile": "src/data/progressionStockQuantities.ts (PROGRESSION_STOCK_QUANTITIES 19 rows, getProgressionStockQuantity; must not import recipes)",
+      "apiChanges": {
+        "A-1": "header -> pieces, fixed quantities, no consumption in this module",
+        "A-2": "PROGRESSION_PURCHASE_GRANT_USES -> PROGRESSION_PURCHASE_GRANT_PORTIONS (parity only)",
+        "A-3": "PROGRESSION_REFILL_USES -> PROGRESSION_REFILL_PORTIONS (parity only)",
+        "A-4": "delete PROGRESSION_USES_PER_PIZZA",
+        "A-5": "ProgressionStock doc -> pieces",
+        "A-6": "delete remainingPizzaUses",
+        "A-7": "purchase adds purchaseQuantity; missing/invalid row -> NOT_FOR_SALE, no charge",
+        "A-8": "refill adds refillQuantity; missing row -> NOT_FOR_SALE",
+        "A-9": "delete consumePizzaUse / ProgressionUseResult",
+        "A-10": "sanitizeUses -> sanitizeCount"
+      },
+      "testChanges": {
+        "T-1": "purchase: rename; egg 10 unchanged; add pepperoni +40; add no-row NOT_FOR_SALE (fresh-tomato)",
+        "T-2": "refill: egg unchanged; add pepperoni 30 Pitz +40; no-row NOT_FOR_SALE",
+        "T-3": "delete '1 pizza = 1 use' block",
+        "T-4": "wording only",
+        "T-5": "S10_R10 parity kept; imports renamed",
+        "T-6": "new progressionStockQuantities.test.ts: 19 rows exactly, literal snapshot, positive integers, invariant quantity >= max minCount (no equality with 10 x max), no recipes import"
+      },
+      "localChecks": [
+        "tsc -b",
+        "lint",
+        "vitest run"
+      ],
+      "unchanged": [
+        "progressionUnlocks.ts",
+        "progressionStars.ts",
+        "progressionIngredientState",
+        "progressionRefillPricePitz"
+      ]
     }
   },
   "pr211Deltas": [
@@ -354,8 +474,50 @@
     "B2 remains a real state; pool excludes it"
   ],
   "completionScoringIssueDraft": {
-    "title": "Completion Gate: 理想量より少ない具材でも完成できるようにする — Fresh Audit",
-    "filed": false,
-    "section": "report section 6"
-  }
+    "filed": true,
+    "number": 215,
+    "url": "https://github.com/perusonao/teto-pizza-game/issues/215"
+  },
+  "spec34C_inventoryShop": {
+    "inventory": "unchanged key/unit/values",
+    "consumption": "consumePizzaInventory (placed pieces)",
+    "stockGate": "canPlaceIngredient",
+    "finiteCheck": "authority initialOwned (P0-S3)",
+    "purchase": "price -> OWNED -> +purchaseQuantity",
+    "refill": "ceil(price*0.5) -> +refillQuantity",
+    "missingQuantityRow": "NOT_FOR_SALE (fail closed)",
+    "ep3RestockQuantity": "not used by Progression 2.0 Shop",
+    "ep4Grant": "removed; ledger saturated (P0-S2)",
+    "lunchRushMakeable": "stock >= minCount",
+    "save": "no migration, schemaVersion 2, no new key"
+  },
+  "decisionGate34C": "SPEC_COMPLETE",
+  "remainingProductDecisions": 0,
+  "technicalGates": [
+    {
+      "id": "TG-1",
+      "gate": "#205 M4 fix (A-1..A-10, T-1..T-6); local typecheck/lint/unit green",
+      "needs": "owner permission to modify #205"
+    },
+    {
+      "id": "TG-2",
+      "gate": "#205 brought up to latest main via merge commit (no rebase); CI green incl. 4-shard WebKit Gate"
+    },
+    {
+      "id": "TG-3",
+      "gate": "#205 merged by owner"
+    },
+    {
+      "id": "TG-4",
+      "gate": "#206 brought up to latest main (incl. #205); CI green incl. WebKit Gate; merged by owner"
+    },
+    {
+      "id": "TG-5",
+      "gate": "#206 deployed to production; main post-merge Full WebKit green"
+    },
+    {
+      "id": "TG-6",
+      "gate": "3-4C implementation Go; issue cut from latest main with spec sections 3 and 5"
+    }
+  ]
 }
