@@ -14,10 +14,10 @@ import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
 const MARGHERITA_DISCOVERED_DEX = registerScoreToDex(EMPTY_DEX, "margherita", {
   total: 80,
   stars: 4,
-  sauce: 20,
-  pieces: 20,
-  recipe: 20,
-  bake: 20,
+  matchScore: 80,
+  ingredientScore: 80,
+  placementScore: 80,
+  bakeScore: 80,
 }).dex;
 
 /** Pizza Cutting 1.0 Phase 4B (Full Recipe Expansion): every real, shipped `RecipeId` is now
