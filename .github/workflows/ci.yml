@@ -22,6 +22,10 @@ jobs:
           cache: npm
 
       - run: npm ci
+      # Issue #207: hermetic tests for the WebKit Gate / classifier / shard-evidence scripts, so a
+      # regression in the gate logic fails fast here instead of only surfacing inside a WebKit run.
+      - name: WebKit CI scripts tests
+        run: bash scripts/ci/test-webkit-ci.sh
       - run: npm run lint
       - run: npm test
       - run: npm run build
