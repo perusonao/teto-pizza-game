@@ -575,11 +575,11 @@ describe("Mission order actions (Phase 3C-4)", () => {
   });
 
   it("MISSION_RESET_ORDER never repeats the just-active recipe when another is available", () => {
-    const owned = ["tomato-sauce", "mozzarella", "basil", "garlic", "oregano"]; // margherita + marinara
-    // Issue #200: Mission candidates must be BOTH discovered and currently available. Seed the
-    // two recipes this assertion actually expects so repeat avoidance is exercised on a real
-    // two-item Mission pool rather than an available-but-undiscovered recipe.
-    const dex = dexDiscovering(["margherita", "marinara"], 1 as QualityStars);
+    const owned = ["tomato-sauce", "mozzarella", "basil", "mushroom"]; // margherita + funghi
+    // Issue #200: Mission candidates must be BOTH discovered and currently available. Funghi
+    // is the direct post-Margherita chain recipe, so discovering both and owning mushroom gives
+    // this assertion a genuine two-item Mission pool without depending on a later chain gate.
+    const dex = dexDiscovering(["margherita", "funghi"], 1 as QualityStars);
     let state = createInitialGameState(dex, owned);
     for (let i = 0; i < 30; i++) {
       const before = state.recipe.id;
