@@ -4,6 +4,25 @@ import { countUsedIngredient } from "../logic/scoring";
 import type { PizzaState } from "../state/pizzaState";
 import type { MakingStep } from "../state/gameReducer";
 import type { DialogueLine } from "./dialogue";
+import { isFreeCookRecipe } from "./freeCook";
+
+/** Progression 2.0 Phase 3-2 (Issue #194): a free-cook round has no recipe, so its hint names
+ *  no target ingredient -- it only explains the current step and that skipping it is allowed. */
+const FREE_COOK_STEP_HINTS: Partial<Record<MakingStep, { text: string; explicit: string }>> = {
+  SAUCE: {
+    text: "好きなソースを選んでぬろう（なしでもOK）",
+    explicit: "ソースを選んで、ピザを指でなぞるとぬれるよ。ぬらずに「次へ」でもOK！",
+  },
+  CHEESE: {
+    text: "好きなチーズをのせよう（なしでもOK）",
+    explicit: "チーズを選んでピザをタップするとのせられるよ。何枚でもOK！",
+  },
+  TOPPING: {
+    text: "好きな具をのせて「焼く！」",
+    explicit: "持っている材料なら何でものせられるよ。組み合わせ次第で新しいピザが見つかるかも！",
+  },
+};
+const FREE_COOK_FALLBACK_HINT = "好きな材料で自由に作ってみよう！";
 
 /** Issue #33 D1/D3A: DOUGH's own hint copy -- concise per the task's own "avoid long tutorial
  *  copy" guidance, distinct from every recipe's sauce copy so it never silently falls
@@ -96,6 +115,15 @@ export function buildHintLine(
       speaker: "mito",
       id: `hint.dough.${recipe.id}`,
       textJa: isExplicitHint ? DOUGH_HINT_EXPLICIT : DOUGH_HINT,
+    };
+  }
+
+  if (isFreeCookRecipe(recipe)) {
+    const stepHint = FREE_COOK_STEP_HINTS[makingStep];
+    return {
+      speaker: "mito",
+      id: `hint.free-cook.${makingStep}`,
+      textJa: stepHint ? (isExplicitHint ? stepHint.explicit : stepHint.text) : FREE_COOK_FALLBACK_HINT,
     };
   }
 

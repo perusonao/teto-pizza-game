@@ -92,6 +92,8 @@ interface GameScreenProps {
   onShowHint: () => void;
   onChangeCategory: (category: IngredientCategory) => void;
   onSelectIngredient: (ingredient: Ingredient) => void;
+  /** Clears the tray selection (IngredientTray's page switch hides the selected chip). */
+  onClearIngredientSelection?: () => void;
   onTapPizza: (x: number, y: number) => void;
   onBakeTick: (value: number) => void;
   onConfirmBake: (value: number) => void;
@@ -127,6 +129,11 @@ interface GameScreenProps {
   onPhysicalDrop: (ingredient: Ingredient, point: DoughPoint) => void;
 }
 
+/** Distinct ingredient ids on the pizza, sauce first, in placement order. */
+function usedIngredientIds(pizza: GameState["pizza"]): string[] {
+  return [...new Set([...pizza.sauceIds, ...pizza.toppings.map((t) => t.ingredientId)])];
+}
+
 export function GameScreen({
   state,
   mission,
@@ -154,6 +161,7 @@ export function GameScreen({
   onShowHint,
   onChangeCategory,
   onSelectIngredient,
+  onClearIngredientSelection,
   onTapPizza,
   onBakeTick,
   onConfirmBake,
@@ -371,7 +379,18 @@ export function GameScreen({
         />
       )}
 
-      {state.phase === "PREPARE" && (
+      {/* Progression 2.0 Phase 3-2 (Issue #194): a free-cook round has no recipe card and no
+          見本 target -- the row only names the mode and carries the step hint. */}
+      {state.phase === "PREPARE" && state.freeCook && (
+        <div className="order-card order-card--free-cook">
+          <div className="order-card__text">
+            <span className="order-card__recipe-name">{"\u{1F3A8}"} フリークッキング</span>
+            <span className="order-card__hint">{state.hint?.textJa ?? state.recipe.description}</span>
+          </div>
+        </div>
+      )}
+
+      {state.phase === "PREPARE" && !state.freeCook && (
         <div className="order-card">
           <div className="order-card__text">
             <span className="order-card__recipe-name">{state.recipe.nameJa}</span>
@@ -553,8 +572,10 @@ export function GameScreen({
               onChangeCategory={onChangeCategory}
               selectedIngredientId={selectedIngredientId}
               onSelectIngredient={onSelectIngredient}
+              onClearSelection={onClearIngredientSelection}
               ownedIngredientIds={state.ownedIngredientIds}
               recipe={state.recipe}
+              freeCook={state.freeCook}
               inventory={state.inventory}
               pizza={state.pizza}
               physicalDragEnabled={
@@ -636,7 +657,7 @@ export function GameScreen({
           (see App.tsx's `handleConfirmBake` and ../state/gameReducer.ts) -- this only merges
           what was already, by the time a player could see it, always-together information
           into one component. Issue #47 Finding D's two retry CTAs are unchanged. */}
-      {isFreeResultScreen && state.score && (
+      {isFreeResultScreen && (state.score || state.freeCook) && (
         <ResultPanel
           completion={state.completion}
           score={state.score}
@@ -655,6 +676,9 @@ export function GameScreen({
           stepTimingRows={stepTimingRows(state.cookingProfile.steps, state.cookingTiming?.perStepElapsedMs)}
           starterGrantNotice={state.lastStarterGrantNotice}
           cutEvaluation={state.cutState.evaluation}
+          freeCook={state.freeCook}
+          discovery={state.lastDiscovery}
+          usedIngredientIds={usedIngredientIds(state.pizza)}
           onRetrySameRecipe={onRetrySameRecipe}
           onBackToPizzaSelect={onBackToPizzaSelect}
         />
