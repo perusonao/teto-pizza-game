@@ -233,6 +233,33 @@ No `src/**` change was made. No ★ threshold or Pitz price was set. The product
 was not touched. **Not merged; the PR is open and pending review.** The next milestone is
 Progression 2.0 progression/economy design against this population.
 
+**2026-09-23 addendum (Issue #190 Progression 2.0 Phase 2: discovery / unlock / economy design,
+docs/data/tooling-only, PR OPEN)**. Base `main` is `2f9f28e9` (the PR #189 Phase-1 merge). The new
+artifacts are:
+
+- `docs/design/TETO_PROGRESSION2_PHASE2_DESIGN.md` (the report and SSOT candidate);
+- `docs/design/data/TETO_PROGRESSION2_PHASE2_UNLOCK-MATRIX.json` (the unlock/progression matrix);
+- `docs/design/TETO_PROGRESSION2_PHASE2_UNLOCK-GRAPH.md` (generated tables);
+- `docs/design/TETO_PROGRESSION2_PHASE2_DECISION-LEDGER.md` (generated A/B/C/D ledger);
+- `tools/progression2_phase2_progression.py` (a deterministic generator, simulator and validator;
+  `--check` validates only).
+
+Results:
+
+- **Population:** 87 evidence-ready rows plus 14 kept shipped recipes gives 101 targets, all
+  reachable. The other 85 rows stay blocked, and none was guess-filled.
+- **Zero-recipe start:** it works only if the shipped Margherita composition is kept (decision
+  A-01). Under strict evidence, the starter trio discovers nothing.
+- **Recommended curve:** Hybrid ⭐ (+2 per discovery, +1 at ★3/4/5), gates at 0.6 × discoverable,
+  tiered prices 60/100/140/180, stock 10 portions with +10 restock, a ★1 Pitz floor plus a +50
+  discovery bonus, Teto hints, and mechanics taught one at a time every 6 discoveries from
+  discovery 14. This configuration has **0 deadlocks across 12 player models**.
+- **Negative controls:** the fixed ⭐ ladder and the current ★1 = ×0 reward both deadlock.
+- **Phase 3:** start with P3-1, the headless free-cook discovery matcher and save v3.
+
+No `src/**` change was made. The production Progression SSOT was not touched. **Not merged; the PR
+is open and pending review.**
+
 > Fresh GitHub/main state always wins if this document becomes stale.
 
 ## Product goal
