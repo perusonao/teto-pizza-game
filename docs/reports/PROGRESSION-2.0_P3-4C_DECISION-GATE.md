@@ -1,24 +1,29 @@
-# Progression 2.0 Phase 3-4C — Decision Gate（OD-03 / inventory migration）
+# Progression 2.0 Phase 3-4C — Decision Gate（OD-03 / inventory 単位）
 
-- 作成日: 2026-09-23
-- 監査対象 `origin/main`: **`dff233c042d2df6ee1c3a92f2d2419830aa05460`**（PR #210 の merge）
-- Branch: `claude/teto-pizza-p3-4c-decision-foc6x9`（docs-only）
+- 初版: 2026-09-23 / **追加監査（Rev.2）: 2026-09-23**
+- 監査対象 `origin/main`: **`dff233c042d2df6ee1c3a92f2d2419830aa05460`**（PR #210 の merge。Rev.2 の開始時にも変わっていないことを確認）
+- Branch: `claude/teto-pizza-p3-4c-decision-foc6x9`（docs-only、PR #214）
 - Machine-readable: `docs/reports/data/PROGRESSION-2.0_P3-4C_DECISION-GATE.json`
-- 参照（すべて読んだだけ。push、merge、rebase はしていない）:
 
-| PR / Issue | 状態（作業開始時） | head | 本書での使い方 |
+| PR / Issue | 状態（Rev.2 開始時） | head | 本書での使い方 |
 |---|---|---|---|
-| #205 Phase 3-4A | OPEN・未マージ | `9035606` | `progressionEconomy.ts` の use 単位の API |
-| #206 Phase 3-4B | OPEN・未マージ | `4c1da87` | `writeSave` の forward-compat（未知の top-level key と未知 id の保持） |
-| #209 OD-03 Decision Brief | OPEN・未マージ | `d719f1d` | A/B/C1/C2 の数値（§3〜§9）をそのまま再利用 |
-| #211 3-4C Integration Preflight | OPEN・未マージ | `27e0916` | P0-S1（在庫の単位）、§7 の変換表、§13 の rollback 表 |
-| #213 3-4F Fresh Audit | OPEN・未マージ | `7ccf5df` | 在庫を mission pool の判定に使う将来仕様（`requiredStockUnits` seam） |
+| #205 Phase 3-4A | OPEN・未マージ | `9035606` | use 単位の API（§4.4 で影響を整理） |
+| #206 Phase 3-4B | OPEN・未マージ | `4c1da87` | save の forward-compat |
+| #209 OD-03 Decision Brief | OPEN・未マージ | `d719f1d` | Option A の数値 |
+| #211 3-4C Integration Preflight | OPEN・未マージ | `27e0916` | P0-S1〜S3、在庫の変換表 |
+| #213 3-4F Fresh Audit | OPEN・未マージ | `7ccf5df` | 在庫つき mission pool の判定 |
 | Issue #212 | OPEN | — | 3-4F の親 Issue |
 
-> **本書は何も決定しない。** OD-03 の Option は採用しない。新しい Option も採用しない。
-> runtime（`src/**`、`e2e/**`、`.github/**`）は変更していない。3-4C には着手していない。
-> 新しい Fresh Audit はしていない（#209/#211/#213 の数値を再利用した）。CI と WebKit は実行していない。
-> 追加で行ったのは、Decision 2 の rollback 挙動を確かめる使い捨ての Python モデル（scratchpad のみ。commit していない）だけ。
+> **Rev.2 の変更点**
+> 1. OD-03 は owner が **Option A** に決めた。本書に反映した（§1）。
+> 2. owner から「理想量と違う個数でも完成できるゲームで、『1 pizza = 1 use』は合っているのか」という指摘があった。
+>    これを受けて、**過去資料の結論を前提にせず、現在の runtime をもう一度確かめた**（§2）。そのうえで 1-use 化そのものを再検証した（§3）。
+>    M4（個数のまま）を加えて比較した（§4）。
+> 3. owner への質問を、ゲームでの挙動がわかる 2 問に絞った（§6）。
+>
+> 本書は M2/M3/M4 のどれも採用しない。runtime（`src/**`、`e2e/**`、`.github/**`）は変更していない。
+> #205/#206/#209/#211/#213 には push していない。merge も rebase もしていない。3-4C には着手していない。CI と WebKit は実行していない。
+> §2.3 の数値は、一時的な vitest ファイル（`src/__tmp__/`、実行後に削除。commit していない）で production のコードを呼んで測った。
 
 ---
 
@@ -26,239 +31,278 @@
 
 | | 内容 |
 |---|---|
-| Decision 1（OD-03） | 既存の A / B / C1 / C2 のうち、**「15 種類すべて発見可能」と「一度買える状態になった材料を将来ロックに戻さない」を同時に満たすものはない**（§1.2）。両方を求めるなら、既存 Option に何かを足した派生案が要る（参考: B + persisted entitlement。§1.3。採用はしない） |
-| Decision 2（在庫 migration） | M1（同じ key の意味を変える）は rollback で**単位が混ざり、二重変換が起きる**ので不適。M2（新しい key + 旧 key の互換書き込み）は、#211 の「key があれば変換済み」という marker だけでは**#206 入り build に rollback したときに、その間の購入・補充を失う**（§2.3）。M3（旧 key を「k 個 = 1 枚分」の固定倍率で使い続ける。新しい key なし）は、同じ保証をより少ない仕組みで満たす（§2.4） |
-| Cross-check | 3-4C の構造が変わるのは「新しい永続 key が何個増えるか（0〜2）」「load 時に書き込みが起きるか」「gate 判定が save の状態を読むか」の 3 点だけ（§3）。3-4F の在庫つき pool 判定とは、どの組み合わせでも矛盾しない。ただし M1 だけは rollback 後に pool の判定が狂う |
-| 3-4C Go/No-Go | **No-Go**（OD-03 と migration 方式が未決定。#205/#206 が未マージ、#206 が未 deploy） |
+| **現在の runtime の事実** | 15 recipe のすべての具材で、**理想量（お手本の個数）= `minCount`**。だから「理想 3 個の具材を 2 個で焼く」と、今のゲームでは **FAILED（完成しない）**になる。スコアも報酬も Dex 登録もない。**理想より多い**（4 個）場合は完成し、1 個多いごとに約 1.6〜2 点（100 点満点）下がる。在庫は**実際に置いた個数**だけ減る |
+| **owner の想定との差** | 「2 個でも低スコアで完成」は**今の仕様ではない**。そうするには、Completion Gate の最低量を理想量より下げる、ゲーム性の変更が必要になる。これは在庫の単位とは別の問題（§2.5） |
+| **1-use 化で変わること** | スコアの付け方は変わらない（個数と配置の評価はそのまま）。変わるのは「在庫のコスト」: 多く載せても在庫の減りは同じになる。在庫が途中で足りなくなる状態がなくなる。共有材料の recipe ごとの消費差（ミートラバーズはペパロニ 1 個、ペパロニピザは 4 個）がなくなる（§3） |
+| **M2/M3/M4** | M3 と M4 は**保存形式が同じ（個数）**。違うのは「1 枚焼いたら何個減るか」だけ。M4 は migration が不要で、今のゲームそのまま。M2 だけが保存形式を変える（§4） |
+| **OD-03** | **決定済み: Option A**。gate は authority の固定値で、後から上げない。⭐（Σmax(2,BEST)）は減らないので、再ロックは**構造的に起きない**。persisted entitlement は不要 |
+| **3-4C Go/No-Go** | **No-Go**（在庫の単位が未決定。#205/#206 が未マージで、#206 は未 deploy）。OD-03 の項目は解消した |
 
 ---
 
-## 1. Decision 1: OD-03（⭐ 入荷ゲート）
+## 1. Decision 1: OD-03 — **決定済み（Option A）**
 
-数値はすべて PR #209 の §3〜§9 から。本書では再計算していない（§1.4 の「T1 で上がる gate の数」だけ #209 §3 の B / B' 列を数え直した）。
+### 1.1 owner の方針
 
-### 1.1 圧縮比較表
+- **Option A** を採る。今の 15 recipe を特別扱いしない
+- authority の固定 ⭐gate を維持する
+- recipe が増えれば、獲得できる ⭐ が自然に増え、後半の材料もそれで解放される
+- gate の値そのものを後から引き上げない
+- したがって、一度購入可能になった材料がロックに戻ることは起きない。persisted entitlement は原則として不要
 
-| 観点 | **A** 承認済みの値のまま | **B** 現在の 15 件で再計算 | **C1** 届かない 3 件だけ上書き | **C2** ★1–2 で届かない 7 件を上書き |
+### 1.2 この決定から導かれること（#209 の数値の再掲。新しい判断はしていない）
+
+| 項目 | Option A での結果 |
+|---|---|
+| 新規プレイヤーが発見できる数 | ★1–2: **10/15**（20⭐ で止まる。次は garlic/parmigiano ⭐28）。★3: **11/15**（anchovy ⭐40）。★5: **13/15**（上限 65⭐。cherry-tomato ⭐76） |
+| 誰も新規には発見できない recipe | **genovese、quattro-formaggi**（recipe が増え、獲得できる ⭐ が 76 / 102 に届くまで） |
+| ★≤3 の skill lock | marinara、napoletana、pizza-bianca。BEST を上げれば届く |
+| 再ロック | **起きない。** gate は固定。⭐ = Σmax(2,BEST) で、BEST は最高記録なので減らない。購入済み（OWNED）は永続 |
+| persisted entitlement | **不要**（本書初版 §1.3 の R1/R1'/R2 は取り下げる） |
+| 既存 save との差 | ある。既存 save は EP4 で cherry-tomato/fontina/gorgonzola を持っているので、Genovese/Quattro Formaggi を作れる（補充もできる）。新規プレイヤーは作れない |
+| 101 件になったとき | authority そのもの（#196 の simulation がそのまま成り立つ） |
+| 3-4C の実装 | `effectiveIngredientGate` は `PROGRESSION_INGREDIENT_UNLOCKS` の値をそのまま返す（#211 §9 の A 列）。gate は ⭐ だけの純関数。追加の永続データはない |
+| 3-4E で必要な案内 | 「今後のアップデートで追加」（hard lock の 2 件）と、「BEST を上げると次の材料が入荷」（★≤3） |
+| 必須テスト | 新規プレイヤーの「届かない recipe」の集合を BEST ごとに固定する（★5 で {genovese, quattro-formaggi}）。既存 save の差（#211 E4）も固定する |
+
+**残りの項目（owner への質問にはしない）:** 3-4E の案内を 3-4C と同時に出すかどうか（#209 Q8、#211 G-2）。3-4C の Issue を切るときに範囲として決めればよい。最小案は、Pizza Select に「今は作れない」を正直に出すことで、これは #211 §9 がすでに A の行で求めている。
+
+---
+
+## 2. 現在の runtime の事実（main `dff233c` が source of truth）
+
+### 2.1 recipe ごとの必要量（`src/data/recipes.ts` の `minCount` と、`src/data/referencePizza.ts` のお手本の個数）
+
+「理想量」は Reference Pizza の `pieceGroups[].positions.length`（Scoring 2.0 の `targetCount`）。
+
+| recipe | 有限の具材（最低量 = 理想量） | 無限の starter |
+|---|---|---|
+| margherita | — | mozzarella 3、basil 2、tomato-sauce |
+| bismarck | egg 1 | mozzarella 3、tomato-sauce |
+| breakfast-pizza | egg 1、bacon 3 | mozzarella 2、tomato-sauce |
+| pepperoni | pepperoni 4 | mozzarella 2、tomato-sauce |
+| salsiccia | sausage 3 | mozzarella 2、tomato-sauce |
+| meat-lovers | bacon 2、ham 1、pepperoni 1、sausage 2 | mozzarella 2、tomato-sauce |
+| funghi | mushroom 3 | mozzarella 2、tomato-sauce |
+| capricciosa | mushroom 2、oregano 1、ham 1、black-olive 2 | mozzarella 2、tomato-sauce |
+| fugazza | onion 4、oregano 1、olive-oil（spread） | — |
+| tonno-e-cipolla | onion 2、tuna 3 | mozzarella 2、tomato-sauce |
+| marinara | garlic 3、oregano 2 | tomato-sauce |
+| napoletana | anchovy 3、oregano 1 | mozzarella 2、tomato-sauce |
+| pizza-bianca | rosemary 3、olive-oil（spread） | — |
+| genovese | cherry-tomato 3、pesto（spread） | mozzarella 2 |
+| quattro-formaggi | gorgonzola 2、parmigiano 2、fontina 2、olive-oil（spread） | mozzarella 2 |
+
+- **すべての scatter 具材で `minCount` = 理想量**（ずれは 0 件）。「最低必要量」と「理想量」は、今のデータでは同じ値
+- **同じ具材でも recipe によって必要量が違う:** pepperoni 4 / 1、onion 4 / 2、oregano 2 / 1、mushroom 3 / 2、sausage 3 / 2、bacon 3 / 2
+- spread（sauce、olive-oil、pesto）は「塗ったかどうか」が完成の条件で、量は sauce の品質（Completion Gate の `INSUFFICIENT_SAUCE` とスコア）として別に評価する
+
+### 2.2 PREPARE（置く操作）と焼く操作
+
+| 項目 | 今の挙動 | 根拠 |
+|---|---|---|
+| 置ける個数 | 上限は (1) 在庫（Stock Gate: 置いた数が残りの在庫を超えない。無限の starter は制限なし）と (2) 生地の空きスペースだけ。**recipe の理想量で止めることはしない** | `gameReducer.ts` `PLACE_TOPPING`、`inventory.ts` `canPlaceIngredient` |
+| 焼くボタン | 具材の数を確認しない。**0 個でも、足りなくても焼ける** | `START_BAKE` には具材の guard がない |
+| 完成の判定（Completion Gate） | 必要な具材ごとに、0 個なら `MISSING_REQUIRED_INGREDIENT`、**1 個以上でも `minCount` 未満なら `INSUFFICIENT_REQUIRED_AMOUNT`** で FAILED。多すぎる場合は判定しない（PASS） | `completionGate.ts:175-181` |
+| FAILED の扱い | 「★1 のピザ」ではなく「ピザではない」: スコアなし、報酬なし、Dex/BEST 登録なし。Lunch Rush では quality 0 の serve。Free Cooking では `INCOMPLETE_MATCH`（発見にならない） | `completionGate.ts` のヘッダー、`freeCook.ts` |
+| スコアの判定（Scoring 2.0） | Completion Gate とは独立。PASS のときだけプレイヤーの結果になる | `CONFIRM_BAKE` |
+
+**完成の判定とスコアの判定は分かれているが、今のデータでは「最低量 = 理想量」なので、理想量より少ないと必ず FAILED になる。**
+
+### 2.3 スコアへの影響（実測。production の `computeScoringV2` / `evaluatePizzaCompletion` / `consumePizzaInventory` を呼んだ）
+
+条件: 他の具材はお手本の位置にちょうど置き、焼き加減は最適、sauce は付けたが塗りの記録はない（sauce の点は全行で同じなので、**差分だけを見る**）。1 個目から理想量までは、お手本の位置に置いた。理想量を超える分は、空いている位置に置いた。
+
+| recipe / 具材（理想） | 置いた数 | 完成 | 合計点の差（理想との差） | その具材の Pieces group の点 | 在庫の減り |
+|---|---:|---|---:|---:|---:|
+| funghi / mushroom（3） | 1 | **FAILED**（不足） | −1.2 | 85 | 1 |
+|  | 2 | **FAILED**（不足） | −0.6 | 92.5 | 2 |
+|  | 3 | PASS | 0 | 100 | 3 |
+|  | 4 | PASS | **−2.0** | 75 | 4 |
+|  | 5 | PASS | −4.0 | 50 | 5 |
+|  | 6 | PASS | −6.0 | 25 | 6 |
+| pepperoni / pepperoni（4） | 3 | **FAILED**（不足） | −0.5 | 94 | 3 |
+|  | 4 | PASS | 0 | 100 | 4 |
+|  | 5 | PASS | −1.6 | 80 | 5 |
+|  | 6 | PASS | −3.2 | 60 | 6 |
+| meat-lovers / pepperoni（1） | 2 | PASS | −1.6 | 50 | 2 |
+|  | 3 以上 | PASS | −3.2（下限） | 0 | 置いた数 |
+
+- 個数の差は、Scoring 2.0 の **Pieces**（重み 16/100）の中の「数」（30%）と「多すぎるときの配置の割引」でだけ評価される。**Recipe の要素（重み 12）は種類があるかどうかしか見ない**
+- **1 個多いと、100 点満点で約 1.6〜2 点下がる。** ★の閾値（90/75/60/40）の近くにいるときだけ、★が 1 つ変わりうる
+- 理想量より少ない場合、スコアの計算上はわずかな減点（−0.5〜−1.2）にすぎない。**しかし Completion Gate が FAILED にするので、そのスコアはプレイヤーに届かない**
+
+### 2.4 在庫の消費と Shop
+
+| 項目 | 今の挙動 | 根拠 |
+|---|---|---|
+| 消費のタイミング | `CONFIRM_BAKE` の 1 か所だけ（phase の guard で 1 回だけ）。PASS でも FAILED でも同じ | `gameReducer.ts:940`、`:1009` |
+| 何を何個 | **実際に置いた個数**（scatter）、sauce id ごとに 1（spread）。`minCount` は使わない | `inventory.ts` `consumePizzaInventory` |
+| 無限の starter 3 件 | 消費しない（`unlockCondition` がない = 無限。#211 P0-S3 の問題箇所） | 同上 |
+| 在庫の単位 | 個数（spread は 1 回分 = 1） | — |
+| 入手 | 有限の 19 件はすべて `starterGrantOnly`。Shop で新しく買うことはできず、recipe の unlock 時の EP4 grant（`minCount × 10` 個。spread は 10）で手に入る | `starterStock.ts` `starterGrantForRecipe` |
+| 補充（Shop） | `restockQuantity` 個を `pricePitz` で。値は**どれも「一番多く使う recipe の 3 枚分」**（例: pepperoni 12、mushroom 9、oregano 6、egg 3、olive-oil 3） | `ingredients.ts`、`economy.ts` `restockIngredient` |
+
+### 2.5 owner の想定と今の runtime の対応
+
+| owner の想定 | 今の runtime | 一致 |
+|---|---|---|
+| 理想 3 個を 2 個で完成できる | **FAILED**（`INSUFFICIENT_REQUIRED_AMOUNT`） | ✗ |
+| 理想 3 個を 4 個で完成できる | PASS（−2 点程度） | ✓ |
+| 個数の差は主にスコアに反映する | 多い場合は反映する（小さい）。少ない場合はスコアの前に失敗になる | 半分 |
+| 理想量と違うだけでは失敗にしない | 少ない場合は失敗にする | ✗ |
+
+**「2 個で低スコア完成」を実現するには、在庫の単位とは関係なく、Completion Gate の最低量（`minCount`）を理想量から切り離す変更が必要になる。** 例: 最低量 1 個（種類があれば完成）、理想量はお手本の個数のまま。これは Completion Gate と Human Feel（「ちゃんとしたピザでないと完成しない」）に関わるゲーム性の変更で、3-4C の範囲外。決める場合は別のタスクで Human Verification の対象になる（policy §2）。
+
+---
+
+## 3. 「1 pizza = 1 use」で失われる挙動・変わる挙動
+
+1-use（#205 `PROGRESSION_USES_PER_PIZZA = 1`。1 枚に 1 個でも置けば、その具材を 1 use 消費する）を今のゲームに当てはめた場合:
+
+| # | 挙動 | 今（個数） | 1-use | 評価 |
 |---|---|---|---|---|
-| 新規プレイヤーが 15 件すべて発見できるか | **できない**（★5 でも 13/15） | できる | ★4–5 ならできる。★1–3 はできない | できる |
-| ★1–2 で発見できる数 | 10/15（20⭐ で停止。次は garlic/parmigiano ⭐28） | 15/15 | 11/15（22⭐ で停止。garlic/parmigiano ⭐28） | 15/15 |
-| ★3 で発見できる数 | 11/15（33⭐ で停止。anchovy ⭐40） | 15/15 | 13/15（39⭐ で停止。anchovy ⭐40 まであと 1⭐） | 15/15 |
-| ★5 で発見できる数 | 13/15（65⭐ が上限。cherry-tomato ⭐76） | 15/15（75⭐） | 15/15 | 15/15 |
-| 誰も発見できない recipe | **genovese、quattro-formaggi**（hard lock。recipe が増えるまで） | なし | なし（★≤3 の skill lock は残る） | なし |
-| 101 件（authority の全量）まで増えたとき | authority そのもの | authority の seq 順に追加すれば authority と完全一致 | 上書き 3 件を解除すれば一致 | 上書き 7 件を解除すれば一致 |
-| 将来 recipe を追加したときの gate の上昇 | **なし** | **毎回ある**。T1（+3 件）だけで 19 件中 16 件の gate が上がる（例: pepperoni 4→6、anchovy 14→18、cherry-tomato 16→20） | 上書きを解除したときだけ（cherry-tomato 16→76、fontina/gorgonzola 18→102） | 上書きを解除したときだけ（7 件。anchovy 14→40、cherry-tomato 16→76 など） |
-| 「買える」になったが未購入の材料がロックに戻るか | **戻らない** | **戻りうる**（追加のたび） | 解除時に戻りうる | 解除時に戻りうる |
-| 購入済み（OWNED）の材料 | 永続（全 Option 共通） | 同左 | 同左 | 同左 |
-| 既存 save との差 | **あり**。既存 save は EP4 で cherry-tomato/fontina/gorgonzola を持っているので Genovese/Quattro Formaggi を作れる。新規プレイヤーは作れない | なし | なし | なし |
-| 既存 save の再ロック（3-4C の切り替え時） | なし（⭐ = Σmax(2,BEST) ≥ ΣBEST） | なし | なし | なし |
-| 承認済み（PR #196）の値の変更 | なし | 16 件 | 3 件 | 7 件 |
-| seq 順の gate の単調性 | 保たれる | 保たれる | 崩れる（Genovese が Marinara より先に開く） | 崩れる（tuna 18 → garlic 12） |
-| 3-4E で必要になる案内 | **必須:**「今後のアップデートで追加」（hard lock 2 件）と「BEST を上げると次の材料が入荷」（★≤3 の skill lock） | 通常は「材料を買う / Pitz を貯める」だけ。**追加のたびに**「入荷条件が変わりました」の説明が要る（再ロックを許す場合） | 「BEST を上げると次の材料が入荷」（★≤3）。解除時の説明 | B と同じ。解除時の説明 |
+| L-1 | 多く載せたときの在庫のコスト | 置いた分だけ減る（4 個なら 4） | 何個でも 1 use | **失われる。** 多く載せても損をしなくなる。スコアの減点（約 2 点/個）だけが残る |
+| L-2 | 在庫が途中で足りなくなる | ある（在庫 2 個で理想 3 の recipe は完成できない。#213 B2: その 2 個も FAILED で消える） | なくなる（1 use あれば何個でも置ける） | **変わる**（soft-lock と浪費がなくなるので、プレイヤーにはむしろ親切） |
+| L-3 | 共有材料の recipe ごとの消費差 | ミートラバーズはペパロニ 1 個、ペパロニピザは 4 個 | どちらも 1 use | **失われる。** 少しだけ使う recipe が相対的に高くつく |
+| L-4 | 具材の種類が多い recipe のコスト | meat-lovers は bacon 2 + ham 1 + pepperoni 1 + sausage 2 = 6 個 | 4 use | 数え方が変わる |
+| L-5 | FAILED のピザ | 置いた個数だけ減る | 置いた種類ごとに 1 use | 1 個だけ置いて失敗しても 1 枚分減る |
+| L-6 | 理想量より少なく載せて在庫を節約する | 今はそもそも完成しない | 節約にならない（1 use は同じ） | **owner の想定（少なく載せて低スコア完成）を採る場合、1-use ではこの選択に在庫面の意味がなくなる** |
+| L-7 | スコアでの腕前の表現（個数と配置） | Pieces で評価 | **変わらない**（スコアは在庫を見ない） | 維持される |
+| L-8 | 既存 save | そのまま | 変換が必要（`ceil(個数 / k)`） | 移行のリスクが生まれる（本書初版 §2） |
 
-### 1.2 「15 件すべて到達可能」かつ「一度到達した材料を将来ロックに戻さない」を同時に満たせるか
-
-| Option | 15 件すべて到達可能 | 将来ロックに戻さない | 両方 |
-|---|:---:|:---:|:---:|
-| A | ✗（hard lock 2 件） | ✓ | **✗** |
-| B | ✓ | ✗（追加のたびに gate が上がる） | **✗** |
-| C1 | ✗（★1–3 では 11〜13 件） | ✗（解除時） | **✗** |
-| C2 | ✓ | ✗（解除時） | **✗** |
-
-**結論: 既存の A/B/C だけでは満たせない。**
-C2 は「上書きを永久に解除しない」とすれば満たせるが、それは「暫定の上書き」という C2 の定義から外れ、authority との永久的なずれになる。つまり別の案であり、既存の C2 とは言えない。
-
-### 1.3 参考案（既存 Option とは別。採用判断はしない）
-
-| 参考案 | 中身 | 満たすか | 代償 |
-|---|---|---|---|
-| **R1: B + persisted entitlement** | 材料が一度でも「買える」（⭐ ≥ gate）になったら、その材料 id を save の新しい top-level key（例: `reachedIngredientIds`）に記録する。状態は OWNED ＞ 記録済みなら AVAILABLE ＞ ⭐ ≥ gate なら AVAILABLE ＞ それ以外は LOCKED | ✓ / ✓ | 新しい永続 key が 1 つ増える（#206 の `KNOWN_SAVE_KEYS`、sanitizer、既定値、未知 id の保持の 4 か所に登録。#211 F-3/F-4）。3-4C の切り替え時に既存 save を backfill（その時点の gate で届く材料をすべて記録）。gate 判定が「⭐ だけの純関数」から「⭐ と save の状態」になる。#206 より前の build に rollback すると key が消えるので、その間に gate が上がると再ロックが起きうる（#206 を先に deploy すれば回避できる） |
-| R1': C2 + persisted entitlement | 同じ仕組みを C2 に足す。解除しても記録済みの材料はロックに戻らない | ✓ / ✓ | R1 と同じ。加えて上書き 7 件の管理 |
-| R2: B + gate の ratchet（save を変えない） | build 時の gate 表を「過去に出荷した値より上げない」（新しい値 = min(前の値, 式の値)）にする | ✓ / ✓ | save は変わらないが、gate が上がらないので **101 件になっても authority に収束しない**（永久にずれる）。表の履歴を repo で管理する必要がある |
-
-### 1.4 補足: B の gate が T1 で上がる件数
-
-#209 §3 の B（15 件）と B'（T1 の 3 件を足した 18 件）を比べると、19 件中 **16 件**で gate が上がる（上がらないのは egg/bacon/onion の 3 件だけ）。#209 §6 は例として 4 件だけを挙げていたので、ここで件数を明記する。
+**まとめ:** 1-use 化で、スコアとしての腕前の表現は失われない。失われるのは「在庫の使い方」という経済的な腕前（多すぎれば損、少なく載せれば節約）と、recipe ごとの消費量の差。一方で、#213 が見つけた「在庫が中途半端に残って作れない」状態は、1-use ではなくなる。
 
 ---
 
-## 2. Decision 2: inventory migration（片数 → 1 枚分 = use）
+## 4. inventory 方式の再比較（M1 は初版で除外済み。rollback で壊れるため）
 
-### 2.1 前提（#211 §7 を再利用）
+### 4.1 定義
 
-- 今の `inventory` は**片数**（scatter）と**1 枚 = 1**（spread）が混ざった単位。3-4C で「1 枚 = 1 use」に統一する（#205 `PROGRESSION_USES_PER_PIZZA = 1`、購入・補充は +10 use）
-- 変換の倍率 k = その材料の「1 枚あたりの最大 minCount」（#211 の M-max）。`src/data/recipes.ts` と照合した値:
+| | 保存（`inventory` の値） | 1 枚焼いたときの消費 | 置ける個数 | 購入・補充 | migration |
+|---|---|---|---|---|---|
+| **M2** | 新しい key `stockUses`（use）+ 旧 `inventory` に `use × k` 個を書き続ける | 置いた種類ごとに 1 use | 1 use あれば何個でも | +10 use | 必要（材料ごとの突き合わせあり。初版 §2.3） |
+| **M3** | 旧 `inventory` に個数（常に `use × k`）。読むときに `ceil(個数/k)` で use に | 置いた種類ごとに 1 use（= k 個） | 1 use あれば何個でも | +10 use（= 10k 個） | 不要（読み込み時の換算だけ） |
+| **M4** | 旧 `inventory` に個数（今のまま） | **置いた個数**（今の EP2 のまま） | 残りの個数まで（今の Stock Gate のまま） | **個数で**（例: 10k 個 = 一番多く使う recipe の 10 枚分） | **不要** |
 
-| k | 材料 |
-|---:|---|
-| 4 | pepperoni、onion |
-| 3 | mushroom、sausage、bacon、garlic、cherry-tomato、anchovy、tuna、rosemary |
-| 2 | oregano、gorgonzola、parmigiano、fontina、black-olive |
-| 1 | egg、ham、olive-oil（spread）、pesto（spread） |
-| — | tomato-sauce、mozzarella、basil（無限の starter。変換しない） |
+k = その具材の「1 枚あたりの最大 minCount」（初版 §2.1 の凍結表: pepperoni/onion 4、mushroom/sausage/bacon/garlic/cherry-tomato/anchovy/tuna/rosemary 3、oregano/gorgonzola/parmigiano/fontina/black-olive 2、egg/ham/olive-oil/pesto 1）。
 
-- **k は 3-4C の時点で定数表として凍結する**（`RECIPES` から毎回計算しない）。後で recipe が増えて「最大 minCount」が変わっても、保存済みの値の意味が変わらないようにするため。凍結しないと、k が変わった瞬間に全 save で実質的な二重変換が起きる
-- 現在の production は #206 **より前**の build。#206 より前の build は、未知の top-level key を書き込み時に**消す**。#206 入りの build は**保持するが更新しない**
+**重要: M3 と M4 は保存形式が同じ（個数）。** 違いは「焼いたときに何個減らすか」と「何個置けるか」という、ゲームのルールだけ。だから M3 か M4 を選んでおけば、あとでもう一方に変えても save の migration は要らない（ルールを差し替えるだけ）。M2 だけが保存形式を変えるので、あとで戻すには逆向きの migration が要る。
 
-### 2.2 比較表
+### 4.2 比較表
 
-| 観点 | **M1** 既存 `inventory` の意味を use に変える（in-place） | **M2** 新しい key（例: `stockUses`）を追加し、旧 `inventory` を互換用に書き続ける | **M3** 旧 `inventory` を「k 個 = 1 use」の固定倍率で使い続ける（新しい key なし） |
+| 観点 | M2（use を新 key に） | M3（個数で保存、use で遊ぶ） | **M4（個数で保存、個数で遊ぶ）** |
 |---|---|---|---|
-| existing save | load 時に 1 回だけ `ceil(片数/k)` に書き換え、marker（例: `inventoryUnit: "use"`）を付ける | load 時に `stockUses = ceil(片数/k)` を作り、1 回だけ書き込む | **変換の書き込みはない。** load のたびに `use = ceil(片数/k)` で GameState に読み込む。次の書き込みで `inventory = use × k` になる |
-| new save | `inventory: {}` + marker | `stockUses: {}` + `inventory: {}` | `inventory: {}` |
-| migration の冪等性 | marker に依存する。marker が消えると再変換 | §2.3 のルールがあれば冪等。marker（key の有無）だけでは不十分 | 変換を保存しないので常に冪等（`ceil(use×k / k) = use`） |
-| rollback（3-4C を revert） | **壊れる。** 古い build が use を片数として読む（pepperoni 3 use → 3 片。pepperoni pizza は 4 片必要なので 0 枚） | 古い build は `inventory`（= use × k 片）をそのまま使える | 古い build は `inventory` をそのまま使える（1 use = 最も多く使う recipe 1 枚分の片数） |
-| roll-forward（再 upgrade） | #206 より前の build が marker を消す → **二重変換**（3 use → ceil(3/4) = 1）。#206 入りの build は marker を残したまま片数を書く → **片数を use として読む**（単位の混在） | §2.3 のルールがあれば、rollback 中の消費・購入・補充をすべて反映して正しく戻る | rollback 中の消費・購入・補充をすべて反映して正しく戻る（`ceil(残りの片数/k)`） |
-| double conversion | **起きる**（上記） | 起きない（§2.3） | 起きない（変換を保存しないので構造上ありえない）。ただし k の凍結が条件 |
-| #206 forward compatibility | marker は未知の top-level key と同じ扱い（#206 入りなら保持される）。値は `inventory` の既存の保持ルールで保持 | `stockUses` を `KNOWN_SAVE_KEYS`、sanitizer、既定値、未知 id の保持の 4 か所に登録する必要がある（#211 F-3/F-4）。忘れると load で失われる | **追加の登録は不要。** `inventory` の未知 id の保持は #206 に既にある |
-| schemaVersion | 2 のまま（上げると古い build で save 全体が既定値に戻る。#211 F-5） | 2 のまま | 2 のまま |
-| storage size | 変わらない（+ marker） | 在庫の map がもう 1 つ（有限 19 件で数百 byte） | 変わらない |
-| implementation complexity | 低いが、正しくするには rollback 対策が別途必要で、結局高くつく | 中〜高: load 時の突き合わせ（§2.3）、二重書き込み、4 か所の登録、1 回だけの書き込み（#211 F-8） | 低: 読み込み時の `ceil(片数/k)` と書き込み時の `use × k` の 2 関数と、凍結した k 表 |
-| testability | rollback の組み合わせが多く、テストしにくい | 純関数でテストできるが、「#206 あり / なしの古い build が書いた save」の fixture が必要 | 純関数 2 つと往復のテストで済む。古い build が書いた save も同じ 2 関数で読める |
-| future cleanup | — | rollback の保証期間が終わったら `inventory` の書き込みをやめ、`stockUses` を唯一の key にする | 保存形式が「k 倍の片数」のまま残る。やめたくなった時点で M2 相当の移行（1 回）をする。k 表は削除できない |
-| 3-4C の #206 e2e（§6.2 of #211）の書き込み契機 | migration の書き込み | migration の書き込み | load では書き込まないので、**Shop での購入を契機にする** |
+| 今のゲームとの整合 | 消費のルールが変わる（§3 の L-1〜L-6） | 同左 | **今と同じ**（EP2 の消費と EP3 の Stock Gate をそのまま使う） |
+| skill expression | スコアは維持。在庫面は失われる | 同左 | **スコアも在庫面も維持**。owner が「少なく載せて低スコア完成」を採る場合は、在庫の節約という選択肢も生まれる |
+| existing save | 変換が 1 回（`stockUses` を作って書き込む） | 読み込み時に換算するだけ。書き込みなし | **何もしない** |
+| rollback / roll-forward | 突き合わせのルールがあれば安全（初版のモデルで不一致 0/2000） | 安全（同 0/2000） | **安全**（どの build も同じ単位と同じルール。変換がないので二重変換もない） |
+| #206 forward compatibility | `stockUses` を 4 か所に登録し、未知 id を保持（#211 F-3/F-4） | 追加の登録は不要 | **追加の登録は不要** |
+| schemaVersion | 2 のまま | 2 のまま | 2 のまま |
+| #205 への影響 | そのまま使える | そのまま使える（読み書きのときに換算する層を足す） | **use 単位の API（購入 +10 use、補充 +10 use、1 枚 1 use、`remainingPizzaUses`、`consumePizzaUse`）が合わない。** 使わないか、個数の単位に直す必要がある（§4.4） |
+| #211 への影響 | §7 のまま（突き合わせを追加） | §7.3 を M3 に差し替え | **P0-S1、§7、T-C8/T-C9 が不要になる。** §10 の 5（「1 片でも置けば 1 use」）、T-C6/T-C7、§12 の Human Replay 2 を今のルールに差し替える |
+| #213 / 3-4F への影響 | seam の中身を use に差し替え（`requiredStockUnits = 1`） | 同左 | **seam は個数のまま（`requiredStockUnits = minCount`）。3-4C での差し替えが不要。** 在庫が中途半端に残る状態（B2）は残り、3-4F の pool が除外する |
+| Shop の UX | 「○枚分」で表示・購入 | 同左 | 「○個」で表示・購入（今と同じ）。「何枚分」は recipe によって違う（ペパロニ 12 個 = ペパロニピザ 3 枚、ミートラバーズ 12 枚）ので、1 つの数では出せない |
+| inventory の UI | 「○枚分」 | 同左 | 「○個」（今と同じ）。必要なら recipe を選んだときに「このピザならあと○枚」を出す（recipe ごとに計算） |
+| テスト | migration、突き合わせ、#206 の登録、seam の差し替え | 換算の往復、k 表の snapshot、seam の差し替え | **最小。** 今の EP2/EP3 のテストがそのまま使える。代わりに購入量（個数）と、authority の経済との整合（§4.3）のテストが要る |
+| 経済（authority の simulation） | そのまま（10 use/購入） | そのまま | 購入 = 10k 個なら、理想量どおりに置く限り 1 回の購入で**10 枚以上**焼ける（k は最大 minCount なので）。authority の simulation は下限として成り立つ。多く載せる人は早く減る |
+| 実装の複雑さ | 高 | 中 | **低**（今のコードの在庫部分を変えない。購入量の定義だけ） |
+| future cleanup | 旧 key の書き込みをいつやめるか | k 表は消せない | k 表は購入量の計算にだけ使う（凍結しなくても save は壊れない） |
 
-**使い捨てモデルでの確認**（scratchpad。commit していない）: 有限 19 件の在庫をランダムに 2000 通り作り、「3-4C の build で読み書き → 古い build（#206 あり / なし）で片数を消費 → 再 upgrade」を行って、期待値（`ceil(残りの片数/k)`）と比べた。
-
-| 方式 | 不一致 |
-|---|---|
-| M1（marker つき in-place） | 1982 / 2000 |
-| M2（§2.3 のルールあり） | 0 / 2000 |
-| M2（#211 の「key があれば変換済み」だけ） | #206 より前の build: 0 / 1003。**#206 入りの build: 994 / 997** |
-| M3 | 0 / 2000 |
-
-### 2.3 M2 の仕様（M2 を選ぶ場合）
+### 4.3 M4 の仕様（M4 を選ぶ場合。採用はしない）
 
 | 項目 | 仕様 |
 |---|---|
-| **migration marker は必要か** | **独立した marker は不要。** ただし「`stockUses` があれば変換済み」だけでは足りない。#206 入りの古い build は `stockUses` を**保持するが更新しない**ので、rollback 中に `inventory` だけが変わり、再 upgrade で古い `stockUses` が勝つ。rollback 中の消費は無視され（プレイヤーに有利）、**購入と補充は失われる**（プレイヤーに不利。Pitz を払ったのに在庫が戻る）。#211 §7.3/§13 は前者だけを想定していた |
-| 突き合わせのルール | load 時に材料ごとに `inventory[id] === stockUses[id] × k` を確かめる。一致すれば `stockUses[id]` を使う。**一致しなければ、古い build が書いたと見なして `ceil(inventory[id] / k)` を使う**（その材料だけ legacy が勝つ）。`stockUses` がなければ全材料を legacy から変換する |
-| source of truth | 通常は `stockUses`。上のルールで不一致の材料だけ `inventory` |
-| old piece key をいつまで更新するか | 3-4C の build を含め、**rollback を保証する期間中はすべての書き込みで** `inventory[id] = use × k` を書く。終わりの条件の例: 「EP 系（3-4C より前）の build に戻す可能性がなくなったと owner が判断した時点」。それまでは書き込みをやめない |
-| rollback した旧 build が書き込んだ後の再 upgrade | #206 より前の build: `stockUses` が消える → 全材料を `inventory` から変換。#206 入りの build: `stockUses` は残るが、変わった材料だけ突き合わせで `inventory` が勝つ |
-| `ceil(pieceCount / maxMinCount)` 変換 | k は §2.1 の凍結表。`ceil` なので 1 片でもあれば 1 use（端数はプレイヤーに有利に丸める。最大 k−1 片分）。EP4 の grant（`minCount × 10`、共有材料は最大値）はちょうど 10 use に戻る |
-| owned だが piece inventory なし | key がない、または 0 → **0 use**（OWNED のまま。補充を案内）。無料で在庫を足さない（R-03） |
-| 無限の starter 3 件 | `stockUses` にも `inventory` にも書かない。既存の save に値があっても読まない（#206 の保持ルールにより書き込み時は残る） |
-| unknown future ingredient IDs | k がわからないので**変換しない**。`inventory` と `stockUses` の両方で、#206 と同じ「形式が正しい未知 id と非負整数の値」を保持する（#211 F-4）。その材料を知っている将来の build が、自分の k 表で扱う |
-| 書き込みの回数 | 変換や突き合わせで値が変わったときだけ 1 回書く。差がなければ書かない（#206 の「mount だけでは書き込まない」テストを守る。#211 F-8） |
+| 正式な単位 | 具材の個数（spread は 1 回分 = 1）。今と同じ |
+| 消費 | `CONFIRM_BAKE` で、置いた個数だけ減らす（EP2 の `consumePizzaInventory` のまま）。無限の starter は減らさない（判定は `initialOwned` に変える。#211 P0-S3） |
+| Stock Gate | 残りの個数までしか置けない（EP3 のまま） |
+| 購入（新規） | authority の「+10 use」を「+10 × k 個」と読み替える案が、数の上ではもっとも近い（一番多く使う recipe で 10 枚分）。価格は authority のまま |
+| 補充 | authority の「半額で +10 use」を「半額で +10 × k 個」と読み替える。今の `restockQuantity`（3 枚分）は Progression 2.0 で置き換わる |
+| Lunch Rush の「作れる」 | discovered ∧ 全材料 OWNED ∧ 有限の具材ごとに `在庫 ≥ 完成に必要な最低量`（今は `minCount`）。#213 の seam そのまま |
+| save | 変更なし。migration なし。新しい key なし |
 
-### 2.4 M3 の仕様（M3 を選ぶ場合）
+### 4.4 Lunch Rush / #213 の「作れる」の定義の再検討
 
-| 項目 | 仕様 |
+3 つの量を分けて考える:
+
+| 量 | 今の値 | 使いみち |
+|---|---|---|
+| 完成に必要な最低量 | `minCount` | Completion Gate |
+| 高スコアのための理想量 | お手本の個数（今は `minCount` と同じ） | Scoring 2.0 の Pieces |
+| 実際に使った量 | 置いた個数 | 在庫の消費 |
+
+**mission pool の「作れる」は「完成に必要な最低量の在庫があるか」で決めるべき**（理想量でも「1 use」でもない）。理由: 最低量があれば、プレイヤーは完成させられる（スコアは腕次第）。最低量がなければ、どう置いても FAILED になるので、注文すると soft-lock になる。
+
+| 方式 × ゲーム性 | 「作れる」の条件（有限の具材ごと） |
 |---|---|
-| 保存形式 | `inventory[id]` = 片数（今と同じ key、同じ意味）。3-4C の build は常に `use × k` を書く |
-| GameState | load 時に `use = ceil(inventory[id] / k)` に変換して持つ。3-4A の `remainingPizzaUses` / `consumePizzaUse` と 3-4F の `requiredStockUnits` はすべて use 単位の GameState を読む |
-| migration marker | **不要**（変換結果を保存しないので、何回読んでも同じ） |
-| source of truth | `inventory` だけ |
-| rollback / 再 upgrade | 古い build は片数をそのまま使う。再 upgrade は同じ式で読むだけ。端数は `ceil` なので、rollback 中に k 片未満だけ使った分はプレイヤーに有利に丸まる（1 材料あたり最大 1 use） |
-| owned だが inventory なし / starter 3 件 / 未知 id | M2 と同じ（0 use、読まない、#206 の既存ルールで保持） |
-| 制約 | k 表は**追加だけ**（既存の値を変えない）。3-4G 以降の新しい材料は、出荷時に k を決めて凍結する（例: 1）。古い build はその材料を知らないので影響しない |
+| M4 × 今のゲーム（最低量 = 理想量） | 在庫 ≥ `minCount` 個（#213 の今の seam と同じ） |
+| M4 × owner の想定（最低量を理想量より下げる） | 在庫 ≥ 新しい最低量（例: 1 個）。理想 3 個の具材が 2 個しかなくても pool に入る |
+| M2/M3 × どちらのゲーム性でも | 在庫 ≥ 1 use（1 use あれば何個でも置けるので、最低量は常に満たせる） |
 
-### 2.5 どれを選んでも共通の条件（#211 §10、§13 を再確認）
-
-- `schemaVersion` は 2 のまま
-- EP4 の ledger（`starterGrantClaimedRecipeIds`）を全 shipped recipe で saturate する（P0-S2。rollback で無料 grant が起きないように）
-- 「有限在庫かどうか」は `unlockCondition` ではなく `initialOwned` で判定する（P0-S3）
-- **#206 を 3-4C より先に production に deploy する**（#211 G-4）。M1 は deploy しても直らない。M2/M3 は #206 がなくても安全（M3 は完全に、M2 は §2.3 のルールがあれば）
+**結論:** `remaining ≥ 1 use` が必要になるのは M2/M3 を選んだ場合だけ。M4 なら「最低量の個数」が正しい条件で、#213 の seam はそれをすでに表現できている。どちらの場合も、#213 の Option B（注文ごとに再評価）と zero-candidate の方針は変わらない。
 
 ---
 
-## 3. Cross-check: OD-03 × migration で 3-4C の実装構造が変わる箇所だけ
+## 5. #205 / #211 / #213 で修正が必要になる前提
 
-OD-03 と migration は大部分が独立している（gate は「買えるか」、migration は「何枚分残っているか」）。構造が変わるのは次の 3 点だけ。
-
-| # | 変わる箇所 | A / B / C1 / C2 | R1 / R1'（entitlement つき参考案） | M1 | M2 | M3 |
-|---|---|---|---|---|---|---|
-| X-1 | **新しい永続 top-level key の数**（#206 の 4 か所への登録、未知 id の保持、rollback で消えるリスク） | 0 | +1（`reachedIngredientIds`） | +1（marker） | +1（`stockUses`） | 0 |
-| X-2 | **load 時の書き込みの有無**（#211 F-8、#206 e2e の書き込み契機 §6.2） | なし | backfill で 1 回 | 変換で 1 回 | 変換・突き合わせで差があるときだけ | **なし**（e2e は購入を契機にする） |
-| X-3 | **gate 判定の入力**（`effectiveIngredientGate` の形。#211 §5.2） | ⭐ だけの純関数（B は runtime の recipe 数も入力） | ⭐ + save の記録（純関数ではなくなる） | 影響なし | 影響なし | 影響なし |
-
-組み合わせで見ると:
-
-| 組み合わせ | 3-4C で増える永続 key | load 時の書き込み | 備考 |
-|---|---:|---|---|
-| A/B/C1/C2 × M3 | 0 | なし | 最小の構造。#206 の登録作業なし |
-| A/B/C1/C2 × M2 | 1 | 差があるときだけ | |
-| R1/R1' × M3 | 1 | backfill の 1 回 | |
-| R1/R1' × M2 | 2 | 1 回（両方をまとめて） | hydration の順序: `loadSave → 在庫の変換・突き合わせ → entitlement の backfill → createInitialGameState`。1 回の `writeSave` にまとめる |
-| 何か × M1 | 1〜2 | 1 回 | rollback で壊れるので、どの組み合わせでも不適 |
-
-**上記以外（Shop の購入・補充、Stock Gate、CONFIRM_BAKE の消費、⭐ の式、Pitz、Lunch Rush の pool）は、OD-03 と migration のどの組み合わせでも同じ実装になる。**
-
-### 3.1 3-4F（在庫を mission pool の判定に使う将来仕様）との整合
-
-#213 §2 と §8 の仕様: `isRecipeMakeable = discovered ∧ 必要な材料がすべて OWNED ∧ 有限の材料はそれぞれ remaining ≥ requiredStockUnits`。単位の差は `requiredStockUnits` / `remainingStockUnits` の seam に閉じ込め、3-4C の後は `requiredStockUnits = 1 use`。
-
-| 確認項目 | 結果 |
-|---|---|
-| OD-03 が pool の判定に入るか | **入らない。** gate は「買えるか」だけを決める。pool は「発見済み ∧ OWNED ∧ 在庫あり」で、gate も entitlement も読まない。A の hard lock の材料は未発見なので、もともと pool に入らない |
-| A の既存 save（hard lock の材料を EP4 で所有） | Genovese/Quattro Formaggi を発見済みで在庫があれば pool に入る。在庫が 0 なら 3-4F が除外する。補充（R10）はどの Option でもできる。矛盾なし |
-| 0 件の pool（#213 E） | Margherita は無限の starter だけで作れるので、発見済みなら pool は 0 にならない。OD-03 の Option によって変わらない |
-| M2 / M3 | GameState の在庫は use 単位の 1 つの map。3-4F の seam は `remaining = GameState.inventory[id]` になる。rollback 後も §2.3 / §2.4 の読み込みで正しい use に戻るので、pool の判定も正しい |
-| M1 | rollback と再 upgrade で単位が混ざると、pool の判定が狂う（例: 片数 12 を use 12 と読み、作れない回数を作れると判定する、またはその逆）。**3-4F と組み合わせると誤判定が表に出る** |
-| 3-4F を 3-4C より先に merge した場合 | seam は片数の単位（scatter は `minCount`）で動く。3-4C は seam の中身を use に差し替える。M3 なら差し替えは `ceil(片数/k) ≥ 1` と同じ意味になり、M2 なら `stockUses` を読む。どちらでも 3-4F のテストは単位の fixture を差し替えるだけ |
-
-**結論: 3-4F の将来仕様と矛盾するのは M1 だけ。** OD-03 のどの Option とも矛盾しない。
-
----
-
-## 4. 未解決のリスク
-
-| ID | リスク | 影響する選択 | 状態 |
+| PR | M2 / M3 を選んだ場合 | M4 を選んだ場合 | owner が「少なく載せて低スコア完成」を採った場合（方式を問わず） |
 |---|---|---|---|
-| U-1 | OD-03 が未決定。A/C1 なら 3-4E の案内を 3-4C と同時に出すかも未決定（#209 Q8） | Decision 1 | owner の回答待ち |
-| U-2 | 「15 件すべて」と「再ロックしない」を両方求める場合、既存 Option では満たせない。参考案（R1/R1'/R2）はどれも新しい仕組みか authority からのずれを伴う | Decision 1 | owner の回答待ち |
-| U-3 | #211 の M2 の marker（key の有無）だけでは、#206 入りの build に rollback すると購入・補充が失われる | Decision 2（M2） | 本書 §2.3 で突き合わせのルールを追加。M2 を選ぶなら 3-4C の必須テストにする |
-| U-4 | k 表を凍結しないと、recipe 追加で k が変わり、実質的な二重変換が起きる | Decision 2（M2/M3） | 3-4C の必須テストにする（k 表の snapshot） |
-| U-5 | #206 が未 deploy。#206 より前の build に rollback すると、新しい top-level key（`stockUses`、`reachedIngredientIds`）は消える | M2、R1/R1' | M3 + A/B/C は影響なし。それ以外は #206 の先行 deploy（#211 G-4）で緩和 |
-| U-6 | `ceil` の端数で、rollback 中に 1 材料あたり最大 1 use がプレイヤーに有利に増える | M2/M3 | 許容範囲と判断（#211 §13 と同じ方向）。owner が不可とするなら `floor` だが、その場合 1〜k−1 片の在庫が 0 use になる |
-| U-7 | #205/#206 の CI は古い base（`d6b6ef9`）で、sharded WebKit を通っていない | 3-4C 全体 | #211 G-3 のまま |
-| U-8 | 本書の数値は #209（main `66abe43`）の再利用。`dff233c` までの差分は CI と #202 の mission pool で、recipe・材料・gate のデータは変わっていない（`src/data/recipes.ts` の minCount を本書で照合済み） | — | 確認済み |
+| **#205**（3-4A） | 変更不要 | `PROGRESSION_PURCHASE_GRANT_USES` / `PROGRESSION_REFILL_USES`（10 use）、`PROGRESSION_USES_PER_PIZZA`（1）、`remainingPizzaUses`、`consumePizzaUse`、それらのテストが個数の単位と合わない。**merge 前に #205 を直すか、3-4C でこれらを使わず、購入・補充の量を個数で定義し直す**。gate、価格、状態遷移（LOCKED→AVAILABLE→OWNED）、⭐ の式はそのまま使える | 影響なし |
+| **#211**（3-4C preflight） | M2: §7.3 に突き合わせのルールを追加（初版 §2.3）。M3: §7.3 を差し替え | P0-S1 と §7（migration）、T-C8/T-C9（migration と dual-write）が**不要**。§10 の 5 と 6、T-C6/T-C7、§11.2 の新規 spec（「在庫が 1 減る」→「置いた個数だけ減る」）、§12 の Human Replay 2 を今のルールに合わせる。#206 e2e の書き込み契機（§6.2）は購入にする。P0-S2（ledger）と P0-S3（`initialOwned`）はそのまま必要 | Completion Gate の変更は 3-4C の範囲外（別タスク） |
+| **#213**（3-4F） | §2 のとおり（3-4C の後、seam は 1 use） | seam は個数のまま。「3-4C の後は use」という記述（§2、§8）が不要になる。B2（在庫が最低量に足りない）は実際に起きる状態として残り、pool が除外する | seam の `requiredStockUnits` を「新しい最低量」にする。B2 の多くは作れる側に移る |
+| **#209**（OD-03） | 影響なし（A に決定） | 影響なし | 影響なし |
 
 ---
 
-## 5. owner に回答してほしい質問（最大 4 問）
+## 6. owner に回答してほしい質問（2 問）
 
-**Q1. 今の 15 種類は、新規プレイヤーでも全部発見できるようにしますか？**
-- (a) はい、★1〜2 しか取れない人でも 15 種類すべて発見できるようにする → B か C2（承認済みの入荷条件の数値を変更する）
-- (b) ★4〜5 を取れる人なら全部、★3 以下は途中で「ベストを上げると次が入荷」で止まってよい → C1
-- (c) いいえ、承認済みの数値を守る。ジェノベーゼとクアトロ・フォルマッジは、レシピが増えるまで新規プレイヤーは発見できない（既存プレイヤーは作れる）。代わりに「今後追加予定」の案内を出す → A
+**Q1. 理想 3 個の具材を 2 個だけ載せたピザは、「完成（スコアは低め）」にしますか？ それとも今と同じく「失敗（スコアなし・報酬なし・図鑑に登録されない）」のままにしますか？**
 
-**Q2.（Q1 で (a) の場合）入荷が早まるのは、後半の 7 材料だけにしますか？ 序盤の材料も含めて全体を早めますか？**
-- 後半だけ: ペパロニやマッシュルームなどの序盤は今の承認値のまま（例: ペパロニは ⭐6）。ガーリック、アンチョビ、ローズマリーなどの 7 材料だけ早く入荷する → C2
-- 全体: 序盤から入荷が早くなる（例: ペパロニ ⭐6 → ⭐4）。15 種類に合わせて全体のテンポをそろえる → B
+- **今の実際の挙動:** 15 種類すべてで「理想の個数 = 完成に必要な最低の個数」。だから 2 個では**失敗**になる（例: キノコ 3 個のフンギを 2 個で焼くと「キノコが足りない」で失敗）。理想より多い 4 個なら完成し、1 個多いごとに 100 点中 約 2 点下がる
+- (a) **今のまま**: 足りなければ失敗。多すぎれば少し減点
+- (b) **変える**: 1 個でも載っていれば完成。理想の個数との差はスコアで評価する（少なくても多くても減点）。ゲームの判定の変更なので、3-4C とは別のタスクで行い、Human Verification の対象になる
 
-**Q3. アップデートでレシピが増えたとき、一度「購入可能」になった材料が、未購入のまま「⭐不足で買えない」に戻ることを許しますか？**
-- 許す: 追加のたびに入荷条件が上がることがある（B なら次の 3 件追加だけで 16 材料の条件が上がる）。そのとき「入荷条件が変わりました」と説明する
-- 許さない: A を選ぶか、B/C2 に「一度買えるようになった材料は記録して、ずっと買えるままにする」仕組み（セーブデータの項目が 1 つ増える）を足す
-- （購入済みの材料は、どの場合でもずっと使える）
+**Q2. 具材の在庫は、「実際に載せた個数だけ減る」今の仕組みのままにしますか？ それとも「ピザ 1 枚につき 1 枚分減る（何個載せても同じ）」に変えますか？**
 
-**Q4. 在庫が「何個」から「何枚分」の表示に変わるとき、既存プレイヤーの在庫はどう保存しますか？**
-- (a) 保存の中身は今の「個数」のまま残し、ゲームの中だけ「一番多く使うピザで何枚焼けるか」に換算する（例: ペパロニ 12 個 → 3 枚分。1 個でも残っていれば 1 枚分）。アップデートを取り消しても、元のゲームは同じ保存データでそのまま遊べる。セーブの項目は増えない → M3
-- (b) 「何枚分」を新しい項目に保存し、元の「個数」も互換のために書き続ける。取り消し後に戻ったときは、どちらが新しいかを材料ごとに見比べて合わせる → M2
-- （保存の中身をそのまま「何枚分」に書き換える方式 M1 は、取り消し時に在庫が減ったり二重に換算されたりするので、選択肢から外すことを提案する）
+- (a) **載せた個数だけ減る（今のまま）**: ペパロニを 6 個載せれば 6 個減る。多く載せると在庫もスコアも損をする。ミートラバーズ（ペパロニ 1 個）とペパロニピザ（4 個）で減り方が違う。在庫が中途半端に残ると（キノコ 2 個など）、足りない recipe は Lunch Rush の注文から外れる。Shop は「○個」で買う。セーブデータの変換はない
+- (b) **1 枚につき 1 枚分**: 何個載せても 1 枚分しか減らない。多く載せてもスコアが少し下がるだけ。在庫は「○枚分」で表示され、中途半端な残りは起きない。既存プレイヤーの在庫は「一番多く使うピザで何枚焼けるか」に換算する（例: ペパロニ 12 個 → 3 枚分）
+- 補足: Q1 で (b) を選ぶ場合、(a) なら「少なく載せて在庫を節約する（スコアは下がる）」という選択肢が生まれる。(b) では節約にならない
+
+（技術名との対応: Q2 の (a) = M4、(b) = M3（保存は個数のまま）。M2 は (b) と同じ遊び方で保存形式だけが違い、利点が少ないので質問からは外した。M3 と M4 は保存形式が同じなので、あとで変えても save の変換は要らない）
 
 ---
 
-## 6. 3-4C Go/No-Go
+## 7. 3-4C Go/No-Go（Rev.2）
 
 **No-Go。**
 
 | # | 条件 | 状態 |
 |---|---|---|
-| 1 | OD-03 の決定（Q1〜Q3）。R1/R1'/R2 のような派生案を採る場合はその定義も | ❌ 未回答 |
-| 2 | 在庫 migration の方式（Q4）。M2 の場合は §2.3 の突き合わせルールを含む | ❌ 未回答 |
-| 3 | #205 / #206 が最新の main で CI green（sharded WebKit を含む）になり、merge されている | ❌ OPEN |
-| 4 | #206 が 3-4C より先に production に deploy されている | ❌ |
-| 5 | #211 §10 の OD-03 に依存しない仕様（ledger の saturation、`initialOwned` での有限判定、`schemaVersion` 2、gate の読み取りを 1 関数に集約） | ⏳ #211 で提案済み。3-4C の着手時に確定 |
+| 1 | OD-03 が決まっている | ✅ **Option A**（2026-09-23、owner） |
+| 2 | 再ロックの方針 | ✅ 起きない設計（A の固定 gate）。entitlement は不要 |
+| 3 | 在庫の単位と消費のルール（Q2） | ❌ 未回答 |
+| 4 | 完成の最低量（Q1） | ❌ 未回答。ただし (b) は 3-4C の範囲外なので、**3-4C の開始を止めるのは Q2 だけ**。Q1 は Q2 の判断材料と、#213 の seam の値に関わる |
+| 5 | Q2 が (a)（M4）の場合、#205 の use 単位の API をどう扱うか（直すか、使わないか） | ❌ Q2 次第 |
+| 6 | #205 / #206 が最新の main で CI green（sharded WebKit を含む）になり、merge されている | ❌ OPEN |
+| 7 | #206 が 3-4C より先に production に deploy されている | ❌（M4 では在庫の rollback 安全性に関係しないが、P0-S2 の ledger と未知 id の保持のために引き続き必要） |
+| 8 | 3-4E の案内を 3-4C と同時に出す範囲（#211 G-2） | ⏳ 3-4C の Issue で決める（最小案: Pizza Select に「今は作れない」） |
+| 9 | #211 §10 の OD-03 に依存しない仕様（ledger の saturation、`initialOwned` での有限判定、`schemaVersion` 2、gate の読み取りを 1 関数に） | ⏳ #211 で提案済み |
 
-Q1〜Q4 に回答があれば、残りは #205/#206 の merge と #206 の deploy だけになる。
+Q2 に回答があれば、残りは #205 の扱いの確定（M4 の場合）、#205/#206 の merge、#206 の deploy になる。
 
 ---
 
-## 7. スコープと検証
+## 付録 A. 初版（Rev.1）からの変更
 
-- 変更したファイル: 本レポートと `docs/reports/data/PROGRESSION-2.0_P3-4C_DECISION-GATE.json` だけ（docs-only）
+- §1: A/B/C1/C2 の比較表と参考案（R1/R1'/R2）を、「Option A に決定」とその帰結に置き換えた。比較は #209 と本書の git 履歴に残っている
+- §2: 新設（現在の runtime の事実）
+- §3: 新設（1-use 化で変わる挙動）
+- §4: M4 を追加。初版の M2 の突き合わせルールと rollback のモデル（M1 1982/2000、M2 0、M2 marker だけ 994/997、M3 0）は結論として引き続き有効。M1 は初版どおり除外
+- §6: 質問を 4 問から 2 問にした。OD-03 の質問は決定済みなので削除した
+
+## 付録 B. スコープと検証
+
+- 変更したファイル: 本レポートと JSON だけ（docs-only）
+- §2.3 の測定: 一時的な vitest ファイルで `computeScoringV2`、`evaluatePizzaCompletion`、`consumePizzaInventory` を production のデータで呼んだ。ファイルは削除した（commit していない）
+- §2.1 の表: `src/data/recipes.ts` の `minCount` と `src/data/referencePizza.ts` の `positions` を突き合わせた（ずれは 0 件）
 - UI/UX/gameplay は変更していないので、Human Verification policy の対象外
-- CI / WebKit は実行していない（docs-only）
-- #205/#206/#209/#211/#213 には push していない。merge も rebase もしていない
