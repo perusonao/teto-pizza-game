@@ -15,8 +15,10 @@ import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
 import { EMPTY_DEX, registerScoreToDex } from "./dex";
 
 const MARGHERITA_DISCOVERED_DEX = registerScoreToDex(EMPTY_DEX, "margherita", {
-  total: 80,
-  stars: 4,
+  // Keep this seed deliberately below every real-round BEST assertion in this authority suite:
+  // its only purpose is making Margherita a legal discovered Mission candidate.
+  total: 20,
+  stars: 1,
   sauce: 20,
   pieces: 20,
   recipe: 20,
