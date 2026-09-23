@@ -474,7 +474,12 @@ function nextOrderState(carry: ProgressionCarry, orderOptions: NextOrderOptions)
  *  way and both mark the round as Mission's identically. */
 function nextMissionOrderState(state: GameState): GameState {
   const ids = availableRecipeIds(state.dex, state.ownedIngredientIds);
-  const order = pickMissionOrder(ids, state.recipe.id);
+  const discoveredIds = discoveredRecipeIds(state.dex) as RecipeId[];
+  const order = pickMissionOrder(ids, discoveredIds, state.recipe.id);
+  // Issue #200: an empty discovered ∩ available pool must fail closed. The HOME gate normally
+  // prevents Mission at Dex 0, but a stray lower-level dispatch must never fall back to an
+  // undiscovered order.
+  if (!order) return state;
   return buildOrderState(
     order,
     {

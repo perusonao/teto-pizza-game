@@ -59,67 +59,55 @@ describe("mission clock", () => {
 });
 
 describe("pickMissionOrder", () => {
-  it("only ever picks a recipe from the available pool", () => {
-    const ids: RecipeId[] = ["margherita", "marinara"];
+  it("uses only the discovered ∩ available pool", () => {
+    const available: RecipeId[] = ["margherita", "funghi"];
+    const discovered: RecipeId[] = ["margherita"];
     for (let i = 0; i < 50; i++) {
-      const order = pickMissionOrder(ids);
-      expect(ids).toContain(order.recipeId);
+      expect(pickMissionOrder(available, discovered)?.recipeId).toBe("margherita");
     }
   });
 
-  it("avoids repeating the excluded (just-served) recipe when the pool has other options", () => {
+  it("avoids repeating the excluded recipe when two discovered+available recipes exist", () => {
     const ids: RecipeId[] = ["margherita", "marinara"];
-    for (let i = 0; i < 50; i++) {
-      const order = pickMissionOrder(ids, "margherita");
-      expect(order.recipeId).toBe("marinara");
-    }
+    const order = pickMissionOrder(ids, ids, "margherita");
+    expect(order?.recipeId).toBe("marinara");
   });
 
-  it("falls back to repeating when the available pool has only one recipe (can't avoid it)", () => {
+  it("allows repeating when the discovered+available pool has only one recipe", () => {
     const ids: RecipeId[] = ["margherita"];
-    const order = pickMissionOrder(ids, "margherita");
-    expect(order.recipeId).toBe("margherita");
+    expect(pickMissionOrder(ids, ids, "margherita")?.recipeId).toBe("margherita");
   });
 
-  it("never crashes and falls back to the full recipe pool when availableRecipeIds is empty", () => {
-    for (let i = 0; i < 20; i++) {
-      const order = pickMissionOrder([]);
-      expect(order).toBeDefined();
-      expect(typeof order.recipeId).toBe("string");
-    }
+  it("excludes a discovered recipe that is not currently available", () => {
+    const available: RecipeId[] = ["margherita"];
+    const discovered: RecipeId[] = ["margherita", "funghi"];
+    expect(pickMissionOrder(available, discovered)?.recipeId).toBe("margherita");
   });
 
-  it("does not force undiscovered-first ordering (every recipe in the pool is reachable)", () => {
+  it("excludes an available recipe that is still undiscovered", () => {
+    const available: RecipeId[] = ["margherita", "funghi"];
+    const discovered: RecipeId[] = ["margherita"];
+    expect(pickMissionOrder(available, discovered)?.recipeId).not.toBe("funghi");
+  });
+
+  it("returns null when no discovered recipe is available instead of falling back to all orders", () => {
+    expect(pickMissionOrder(["margherita", "funghi"], [])).toBeNull();
+    expect(pickMissionOrder([], ["margherita"])).toBeNull();
+  });
+
+  it("keeps every recipe reachable when every available recipe is discovered", () => {
     const ids: RecipeId[] = ["margherita", "marinara", "genovese"];
     const seen = new Set<string>();
     for (let i = 0; i < 200 && seen.size < 3; i++) {
-      seen.add(pickMissionOrder(ids).recipeId);
+      const order = pickMissionOrder(ids, ids);
+      if (order) seen.add(order.recipeId);
     }
     expect(seen.size).toBe(3);
   });
 
-  // Phase 3C-6: Mission reuses the exact same availableRecipeIds() filter as free play (see
-  // this file's top comment) -- no fugazza special-case lives here, so this is really
-  // exercising src/state/progression.ts's availableRecipeIds() through Mission's own call site.
-  it("never picks fugazza when it isn't in the available pool (before purchase)", () => {
-    const starterIds: RecipeId[] = [
-      "margherita",
-      "marinara",
-      "quattro-formaggi",
-      "genovese",
-      "bismarck",
-      "funghi",
-    ];
-    for (let i = 0; i < 50; i++) {
-      const order = pickMissionOrder(starterIds);
-      expect(order.recipeId).not.toBe("fugazza");
-    }
-  });
-
-  it("can pick fugazza once it's included in the available pool (after purchase)", () => {
-    const ids: RecipeId[] = ["fugazza"];
-    const order = pickMissionOrder(ids);
-    expect(order.recipeId).toBe("fugazza");
+  it("can pick fugazza only once it is both discovered and available", () => {
+    expect(pickMissionOrder(["fugazza"], [])).toBeNull();
+    expect(pickMissionOrder(["fugazza"], ["fugazza"])?.recipeId).toBe("fugazza");
   });
 });
 

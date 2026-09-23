@@ -173,7 +173,7 @@ export async function startFreshMargherita(page: Page) {
       "teto-pizza-save-v1",
       JSON.stringify({
         schemaVersion: 1,
-        dex: [{ recipeId: "napoletana", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }],
+        dex: [{ recipeId: "margherita", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }],
         pitzBalance: 0,
         ownedIngredientIds: ["tomato-sauce", "mozzarella", "basil"],
         missionBest: {},
@@ -483,15 +483,15 @@ export async function playFullQuattroFormaggiRound(page: Page) {
  */
 export async function startLunchRushMission(page: Page, durationSeconds: number) {
   // Progression 2.0 Phase 3-3 (Issue #198): Lunch Rush stays locked until the player's first
-  // discovery -- seed one harmless, deeply chain-gated discovery (see startFreshMargherita's own
-  // comment above for why `napoletana` never widens anything else) purely to clear that gate;
-  // every caller here is testing Lunch Rush's own mechanics, not onboarding.
+  // discovery. Issue #200 also requires every Mission order to be discovered, so seed Margherita
+  // itself: these helpers intentionally play a deterministic Margherita Mission round and are
+  // testing Lunch Rush mechanics, not onboarding.
   await page.addInitScript(() => {
     localStorage.setItem(
       "teto-pizza-save-v1",
       JSON.stringify({
         schemaVersion: 1,
-        dex: [{ recipeId: "napoletana", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }],
+        dex: [{ recipeId: "margherita", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }],
         pitzBalance: 0,
         ownedIngredientIds: ["tomato-sauce", "mozzarella", "basil"],
         missionBest: {},

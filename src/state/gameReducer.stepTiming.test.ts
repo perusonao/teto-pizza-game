@@ -1,10 +1,20 @@
 import { describe, expect, it } from "vitest";
 import { createInitialGameState, gameReducer, type GameState } from "./gameReducer";
+import { EMPTY_DEX, registerScoreToDex } from "./dex";
 import { DEFAULT_COOKING_PROFILE, type CookingProfile } from "../data/cookingProfiles";
 import { createDefaultSave } from "./persistence";
 import { requiredCutCount } from "../logic/cut/evaluation";
 import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
 import { DOUGH_CENTER, DOUGH_RADIUS } from "../logic/pizzaCoordinates";
+
+const MARGHERITA_DISCOVERED_DEX = registerScoreToDex(EMPTY_DEX, "margherita", {
+  total: 80,
+  stars: 4,
+  matchScore: 80,
+  ingredientScore: 80,
+  placementScore: 80,
+  bakeScore: 80,
+}).dex;
 
 /** Pizza Cutting 1.0 Phase 2: commits the minimum required ideal cut lines so CUT's own confirm
  *  gate (`requiredCutCount`) is satisfied -- this file is about per-step *timing*, not CUT's
@@ -357,7 +367,7 @@ describe("14. NEXT_ORDER (PLAY_AGAIN): clears timing entirely until the next BEG
 
 describe("15. MISSION_NEXT_ORDER: Lunch Rush never accumulates per-step timing", () => {
   it("cookingTiming (whole-round and per-step alike) stays null across a Mission round's continuous serve loop, even when CONFIRM_MAKING_STEP/CONFIRM_BAKE are dispatched with `now`", () => {
-    let state = createInitialGameState();
+    let state = createInitialGameState(MARGHERITA_DISCOVERED_DEX);
     state = gameReducer(state, { type: "MISSION_RESET_ORDER" });
     expect(state.isMissionRound).toBe(true);
     state = gameReducer(state, { type: "BEGIN_PREPARE", now: 1_000 });
@@ -383,7 +393,7 @@ describe("16. Lunch Rush: MissionClock stays the sole enforced timer, untouched 
     // `completion`/`lastPitzCredit` (all of which MissionServePanel/missionRunReducer read) are
     // computed identically whether or not per-step `now` payloads are supplied, since per-step
     // timing never gates or feeds any of them (§22.4/§22.6).
-    let state = createInitialGameState();
+    let state = createInitialGameState(MARGHERITA_DISCOVERED_DEX);
     state = gameReducer(state, { type: "MISSION_RESET_ORDER" });
     state = gameReducer(state, { type: "BEGIN_PREPARE", now: 1_000 });
     state = confirmAt(state, 2_000);
