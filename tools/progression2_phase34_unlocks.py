@@ -22,6 +22,7 @@ OUT = ROOT / "docs/design/data/TETO_PROGRESSION2_PHASE34_INGREDIENT-UNLOCK-MATRI
 REPORT = ROOT / "docs/design/TETO_PROGRESSION2_PHASE34_UNLOCKS.md"
 LEDGER = ROOT / "docs/design/TETO_PROGRESSION2_PHASE34_OWNER-DECISION-LEDGER.md"
 AUDITED_MAIN_SHA = "08b04f8f1c59b8adb38964d4ec3e08e6acb6cbc2"
+OWNER_DECISION_CONFIRMATION = "Approved by repo owner (perusonao) in PR #196 comment, 2026-09-23."
 STARTERS = {"basil", "mozzarella", "tomato-sauce"}
 TIER_PRICE = {"early": 60, "mid": 100, "late": 140, "endgame": 180}
 STOCK_CONSUMABLE_POLICY = "PURCHASE_GRANT_10_REFILL_10_AT_HALF_PRICE"
@@ -277,12 +278,14 @@ def build():
         "ownerDecisions": [
             {"id": "OD-01", "decision": "Confirm shipped recipe compositions as the 101-target overlay.",
              "recommendation": "Keep SHIPPED_KEEP; it preserves shipped saves/content and the starter-only Margherita loop.",
-             "impactIfRejected": "Use EVIDENCE_STRICT: 87 targets, no starter-only first discovery; regenerate this matrix."},
+             "impactIfRejected": "Use EVIDENCE_STRICT: 87 targets, no starter-only first discovery; regenerate this matrix.",
+             "status": "APPROVED", "confirmation": OWNER_DECISION_CONFIRMATION},
             {"id": "OD-02", "decision": "Approve the Phase-2 reward contract change: PASS ★1 floor 20 and first-discovery bonus 50.",
              "recommendation": "Approve before production Phase 3-4; current ★1=0 deadlocks the low-score path.",
-             "impactIfRejected": "Low-score affordability is not implementable without another guaranteed Pitz source."}
+             "impactIfRejected": "Low-score affordability is not implementable without another guaranteed Pitz source.",
+             "status": "APPROVED", "confirmation": OWNER_DECISION_CONFIRMATION}
         ],
-        "implementationVerdict": "READY_WITH_TWO_OWNER_CONFIRMATIONS"
+        "implementationVerdict": "READY_APPROVED_FOR_PRODUCTION_IMPLEMENTATION"
     }
     return out
 
@@ -291,7 +294,8 @@ def md(out):
     s = out["summary"]
     lines = ["# Progression 2.0 Phase 3-4 — Final ingredient unlock / price design", "",
              f"Audited `origin/main`: `{out['auditedMainSha']}`. Generated from the Phase-2 matrix; JSON is authoritative.", "",
-             "## Verdict", "", "**READY WITH TWO OWNER CONFIRMATIONS.** The matrix is implementation-readable without prose reinterpretation once OD-01/OD-02 are confirmed.", "",
+             "## Verdict", "", "**READY, APPROVED FOR PRODUCTION IMPLEMENTATION.** OD-01 and OD-02 are both APPROVED "
+             f"({OWNER_DECISION_CONFIRMATION}); the matrix is implementation-readable without prose reinterpretation.", "",
              "Stars are monotonic progression and are never spent. Pitz is spendable. Permanent OWNED and consumable stock are separate.", "",
              "## Counts and balance", "", f"- Ingredients: {s['ingredientCount']} (3 initial OWNED, {s['unlockableIngredientCount']} purchasable)",
              f"- All scheduled nodes including dough/pan/capability: {s['allNodeCount']}",
@@ -327,10 +331,11 @@ def md(out):
 
 def ledger(out):
     lines = ["# Progression 2.0 Phase 3-4 — Owner Decision Ledger", "", "Only decisions that change the implementable contract remain.", "",
-             "| Id | Decision | Recommendation | Impact if rejected |", "|---|---|---|---|"]
+             "| Id | Decision | Status | Recommendation | Impact if rejected |", "|---|---|---|---|---|"]
     for d in out["ownerDecisions"]:
-        lines.append(f"| {d['id']} | {d['decision']} | {d['recommendation']} | {d['impactIfRejected']} |")
-    lines += ["", "Display copy, category authoring, and per-row PIZZA DB evidence gaps are not owner decisions for this 101-target implementation slice.", ""]
+        lines.append(f"| {d['id']} | {d['decision']} | {d['status']} | {d['recommendation']} | {d['impactIfRejected']} |")
+    lines += ["", f"Confirmation: {OWNER_DECISION_CONFIRMATION}", "",
+              "Display copy, category authoring, and per-row PIZZA DB evidence gaps are not owner decisions for this 101-target implementation slice.", ""]
     return "\n".join(lines)
 
 

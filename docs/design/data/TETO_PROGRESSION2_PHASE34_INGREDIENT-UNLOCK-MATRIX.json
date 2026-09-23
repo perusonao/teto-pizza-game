@@ -12268,14 +12268,18 @@
       "id": "OD-01",
       "decision": "Confirm shipped recipe compositions as the 101-target overlay.",
       "recommendation": "Keep SHIPPED_KEEP; it preserves shipped saves/content and the starter-only Margherita loop.",
-      "impactIfRejected": "Use EVIDENCE_STRICT: 87 targets, no starter-only first discovery; regenerate this matrix."
+      "impactIfRejected": "Use EVIDENCE_STRICT: 87 targets, no starter-only first discovery; regenerate this matrix.",
+      "status": "APPROVED",
+      "confirmation": "Approved by repo owner (perusonao) in PR #196 comment, 2026-09-23."
     },
     {
       "id": "OD-02",
       "decision": "Approve the Phase-2 reward contract change: PASS ★1 floor 20 and first-discovery bonus 50.",
       "recommendation": "Approve before production Phase 3-4; current ★1=0 deadlocks the low-score path.",
-      "impactIfRejected": "Low-score affordability is not implementable without another guaranteed Pitz source."
+      "impactIfRejected": "Low-score affordability is not implementable without another guaranteed Pitz source.",
+      "status": "APPROVED",
+      "confirmation": "Approved by repo owner (perusonao) in PR #196 comment, 2026-09-23."
     }
   ],
-  "implementationVerdict": "READY_WITH_TWO_OWNER_CONFIRMATIONS"
+  "implementationVerdict": "READY_APPROVED_FOR_PRODUCTION_IMPLEMENTATION"
 }
