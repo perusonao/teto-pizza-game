@@ -1,6 +1,16 @@
 import { describe, expect, it } from "vitest";
 import { createInitialGameState, gameReducer, type GameState } from "./gameReducer";
+import { EMPTY_DEX, registerScoreToDex } from "./dex";
 import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
+
+const MARGHERITA_DISCOVERED_DEX = registerScoreToDex(EMPTY_DEX, "margherita", {
+  total: 80,
+  stars: 4,
+  sauce: 20,
+  pieces: 20,
+  recipe: 20,
+  bake: 20,
+}).dex;
 
 /**
  * Cooking Time CT1: `GameState.cookingTiming`, the deterministic FREE-only
@@ -201,7 +211,7 @@ describe("DISCOVERED keeps the same completedMs the round just produced", () => 
 
 describe("Lunch Rush: Cooking Time never starts for a Mission round", () => {
   it("BEGIN_PREPARE stays null once a round is flagged isMissionRound", () => {
-    let state = createInitialGameState();
+    let state = createInitialGameState(MARGHERITA_DISCOVERED_DEX);
     state = gameReducer(state, { type: "MISSION_RESET_ORDER" });
     expect(state.isMissionRound).toBe(true);
     state = gameReducer(state, { type: "BEGIN_PREPARE", now: 1_000 });
@@ -209,7 +219,7 @@ describe("Lunch Rush: Cooking Time never starts for a Mission round", () => {
   });
 
   it("MISSION_NEXT_ORDER's own round transition never carries a Cooking Time forward", () => {
-    let state = createInitialGameState();
+    let state = createInitialGameState(MARGHERITA_DISCOVERED_DEX);
     state = gameReducer(state, { type: "MISSION_RESET_ORDER" });
     state = gameReducer(state, { type: "BEGIN_PREPARE", now: 1_000 });
     state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" });
@@ -226,7 +236,7 @@ describe("Lunch Rush: Cooking Time never starts for a Mission round", () => {
   });
 
   it("lastPitzCredit stays null for a Mission round -- Cooking Time never touches Pitz/Scoring", () => {
-    let state = createInitialGameState();
+    let state = createInitialGameState(MARGHERITA_DISCOVERED_DEX);
     state = gameReducer(state, { type: "MISSION_RESET_ORDER" });
     state = gameReducer(state, { type: "BEGIN_PREPARE", now: 1_000 });
     state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" });
