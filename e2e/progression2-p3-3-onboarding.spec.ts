@@ -182,11 +182,16 @@ test.describe("Progression 2.0 Phase 3-3 onboarding (Issue #198)", () => {
   });
 
   test("reset (Full Game Reset) returns a played save to true Dex 0", async ({ page }) => {
-    // `page.evaluate` (not `addInitScript`) -- an init script re-runs on every navigation,
-    // including the reload this test's own confirm button triggers, which would silently
-    // re-seed the "already played" save right back after the reset it's supposed to verify.
-    await page.goto("/");
-    await page.evaluate(() => {
+    // `page.goto` -> `page.evaluate(setItem)` -> `page.reload()` is not WebKit-safe (see
+    // e2e/gestures.ts's `startQuattroFormaggiHeavyInventory` own comment for the exact race:
+    // WebKit's reload can read back a fresh/empty save instead of the just-written fixture).
+    // A plain `addInitScript` isn't right either here, since it would re-run -- and re-seed the
+    // "already played" save right back -- on the reset button's own `window.location.reload()`,
+    // defeating the very reset this test verifies. A sessionStorage marker makes it seed exactly
+    // once (sessionStorage survives a same-tab reload, so the second run sees it and skips).
+    await page.addInitScript(() => {
+      if (sessionStorage.getItem("__e2e_seeded_once")) return;
+      sessionStorage.setItem("__e2e_seeded_once", "1");
       localStorage.setItem(
         "teto-pizza-save-v1",
         JSON.stringify({
@@ -198,7 +203,7 @@ test.describe("Progression 2.0 Phase 3-3 onboarding (Issue #198)", () => {
         }),
       );
     });
-    await page.reload();
+    await page.goto("/");
     await page.waitForSelector(".app-frame");
     await expect(page.locator(".app-header__dex-pill")).toHaveText(/1\/15/);
 
