@@ -41,6 +41,7 @@ INGREDIENT_CATALOG_PATH = ROOT / "data/recipes/ingredient_master_catalog.json"
 OUT_JSON = ROOT / "docs/design/data/TETO_PROGRESSION2_PHASE2_UNLOCK-MATRIX.json"
 OUT_GRAPH_MD = ROOT / "docs/design/TETO_PROGRESSION2_PHASE2_UNLOCK-GRAPH.md"
 OUT_LEDGER_MD = ROOT / "docs/design/TETO_PROGRESSION2_PHASE2_DECISION-LEDGER.md"
+DESIGN_MD_PATH = ROOT / "docs/design/TETO_PROGRESSION2_PHASE2_DESIGN.md"
 
 EXPECTED_ROWS = 172
 READY_STATUSES = ("READY", "READY_WITH_REVIEW", "ALREADY_SHIPPED_CORROBORATED")
@@ -126,8 +127,10 @@ SKILLS = {  # deterministic player models: every PASS bake lands on this quality
 }
 # Current production multiplier table (src/logic/pitzReward.ts, read-only) and a floor variant.
 REWARD_TABLES = {
-    "LEGACY": {"labelJa": "現行 pitzReward.ts（★1=×0）", "base": 100, "mult": {1: 0.0, 2: 0.5, 3: 0.8, 4: 1.0, 5: 1.2}},
-    "FLOOR": {"labelJa": "★1 に下限 ×0.2 を追加（PASS した焼成は必ず Pitz>0）", "base": 100, "mult": {1: 0.2, 2: 0.5, 3: 0.8, 4: 1.0, 5: 1.2}},
+    "LEGACY": {"labelJa": "現行 pitzReward.ts（★1=×0）", "base": 100, "mult": {1: 0.0, 2: 0.5, 3: 0.8, 4: 1.0, 5: 1.2},
+               "discoveryBonus": 0},
+    "FLOOR": {"labelJa": "★1 に下限 ×0.2 を追加（PASS した焼成は必ず Pitz>0）", "base": 100, "mult": {1: 0.2, 2: 0.5, 3: 0.8, 4: 1.0, 5: 1.2},
+              "discoveryBonus": 0},
     "FLOOR_DISCOVERY_BONUS": {"labelJa": "FLOOR ＋ 新発見ボーナス +50 Pitz", "base": 100, "mult": {1: 0.2, 2: 0.5, 3: 0.8, 4: 1.0, 5: 1.2},
                               "discoveryBonus": 50},
 }
@@ -158,25 +161,25 @@ GATE_CURVES = {
     },
     "G3_HYBRID_050": {
         "labelJa": "Hybrid ⭐（発見+2、BEST★3/4/5で各+1）f=0.5",
-        "starModel": "HYBRID", "gate": "DERIVED", "fraction": 0.5, "guaranteedStarsPerDiscovery": 2,
+        "starModel": "HYBRID", "discoveryStars": 2, "qualityBonusAtStars": [3, 4, 5], "gate": "DERIVED", "fraction": 0.5, "guaranteedStarsPerDiscovery": 2,
     },
     "G4_HYBRID_060": {
         "labelJa": "Hybrid ⭐ f=0.6",
-        "starModel": "HYBRID", "gate": "DERIVED", "fraction": 0.6, "guaranteedStarsPerDiscovery": 2,
+        "starModel": "HYBRID", "discoveryStars": 2, "qualityBonusAtStars": [3, 4, 5], "gate": "DERIVED", "fraction": 0.6, "guaranteedStarsPerDiscovery": 2,
     },
     "G5_HYBRID_075": {
         "labelJa": "Hybrid ⭐ f=0.75",
-        "starModel": "HYBRID", "gate": "DERIVED", "fraction": 0.75, "guaranteedStarsPerDiscovery": 2,
+        "starModel": "HYBRID", "discoveryStars": 2, "qualityBonusAtStars": [3, 4, 5], "gate": "DERIVED", "fraction": 0.75, "guaranteedStarsPerDiscovery": 2,
     },
     "G6_HYBRID_100": {
         "labelJa": "Hybrid ⭐ f=1.0（到達可能なものを全部発見するまで次へ進めない）",
-        "starModel": "HYBRID", "gate": "DERIVED", "fraction": 1.0, "guaranteedStarsPerDiscovery": 2,
+        "starModel": "HYBRID", "discoveryStars": 2, "qualityBonusAtStars": [3, 4, 5], "gate": "DERIVED", "fraction": 1.0, "guaranteedStarsPerDiscovery": 2,
     },
 }
 PRICE_SCHEDULES = {
-    "PR_FLAT_120": {"labelJa": "全材料 120 Pitz（現行 onion 相当）"},
-    "PR_TIERED": {"labelJa": "tier 別 60/100/140/180", "byTier": {"early": 60, "mid": 100, "late": 140, "endgame": 180}},
-    "PR_IMPACT": {"labelJa": "50 + 25×その解禁で増える発見数（最大4）"},
+    "PR_FLAT_120": {"labelJa": "全材料 120 Pitz（現行 onion 相当）", "kind": "FLAT", "price": 120},
+    "PR_TIERED": {"labelJa": "tier 別 60/100/140/180", "kind": "BY_TIER", "byTier": {"early": 60, "mid": 100, "late": 140, "endgame": 180}},
+    "PR_IMPACT": {"labelJa": "50 + 25×その解禁で増える発見数（最大4）", "kind": "IMPACT", "base": 50, "perNewTarget": 25, "newTargetCap": 4},
 }
 STOCK_POLICIES = {
     "S10_R10": {"labelJa": "購入時 10 回分、補充 +10 回分（価格×0.5）", "grant": 10, "restock": 10, "restockFactor": 0.5},
@@ -206,7 +209,7 @@ DESIGN_DECISIONS = [
     {"id": "A-03", "class": "A", "topic": "Star (⭐) definition",
      "question": "Replace totalStars = sum(Dex BEST) with a guaranteed-per-discovery star model?",
      "whyItBlocks": "With a one-recipe start the legacy ladder (⭐10/20/...) is unreachable; see simulation G0.",
-     "options": list(GATE_CURVES), "modelledAs": "gate curve comparison", "recommendation": "G4_HYBRID_060"},
+     "options": list(GATE_CURVES), "modelledAs": "gate curve comparison", "economyKey": "gate"},
     {"id": "A-04", "class": "A", "topic": "Free-cook discovery instead of recipe selection",
      "question": "Discovery happens by exact runtime-signature match of a free-cooked pizza (no recipe picked first).",
      "whyItBlocks": "Current production is recipe-first (SELECT_RECIPE -> PREPARE); a zero-recipe start cannot begin there.",
@@ -215,11 +218,11 @@ DESIGN_DECISIONS = [
     {"id": "A-05", "class": "A", "topic": "Pitz floor for a PASS ★1 bake",
      "question": "Current reward table pays ×0 at ★1; a player who never exceeds ★1 can never buy anything.",
      "whyItBlocks": "Economic deadlock for the WORST skill model (simulation reward=LEGACY).",
-     "options": list(REWARD_TABLES), "modelledAs": "reward comparison", "recommendation": "FLOOR (★1 = ×0.2)"},
+     "options": list(REWARD_TABLES), "modelledAs": "reward comparison", "economyKey": "reward"},
     {"id": "C-01", "class": "C", "topic": "Starter stock / restock size", "question": "portions granted on purchase and per restock",
-     "options": list(STOCK_POLICIES), "modelledAs": "stock comparison", "recommendation": "S5_R5 (see simulation)"},
+     "options": list(STOCK_POLICIES), "modelledAs": "stock comparison", "economyKey": "stock"},
     {"id": "C-02", "class": "C", "topic": "Ingredient prices", "question": "price schedule", "options": list(PRICE_SCHEDULES),
-     "modelledAs": "price comparison", "recommendation": "PR_TIERED (see simulation)"},
+     "modelledAs": "price comparison", "economyKey": "price"},
     {"id": "C-03", "class": "C", "topic": "Dough / pan item granularity",
      "question": "Every evidenced non-standard dough variant and pan is one item here; merging would need evidence that it keeps all signatures unique.",
      "options": ["one item per evidenced variant (modelled)", "merge after a collision re-check"], "modelledAs": "one item per variant",
@@ -239,6 +242,24 @@ DESIGN_DECISIONS = [
     {"id": "D-02", "class": "D", "topic": "Teto hint copy", "question": "exact hint lines per tier", "options": ["write at implementation"],
      "modelledAs": "hint tiers only", "recommendation": "content polish"},
 ]
+
+ECONOMY_DECISION_IDS = {"A-03": "gate", "A-05": "reward", "C-01": "stock", "C-02": "price"}
+
+
+def resolved_design_decisions():
+    """Economy decisions never carry a literal recommendation: it is derived from
+    RECOMMENDED_ECONOMY, the single source of truth the simulations also run on."""
+    out = []
+    for d in DESIGN_DECISIONS:
+        d = dict(d)
+        key = d.get("economyKey")
+        if key:
+            pid = RECOMMENDED_ECONOMY[key]
+            d["recommendedPolicyId"] = pid
+            d["recommendation"] = f"{pid} (= recommended.economy.{key}; see simulation)"
+        out.append(d)
+    return out
+
 
 BLOCKER_CLASS = {
     # Phase-1 hard blocker type -> ledger class for the ROW (never A: the progression design does
@@ -551,8 +572,8 @@ def capability_impact(targets, schedule, matrix_rows):
 # ---------------------------------------------------------------------------------------------
 # Economy simulation (deterministic agent)
 # ---------------------------------------------------------------------------------------------
-def step_gates(schedule, curve_id):
-    curve = GATE_CURVES[curve_id]
+def step_gates(schedule, curve_id, tables=None):
+    curve = (tables or default_tables())["gateCurves"][curve_id]
     gates = []
     for i, s in enumerate(schedule["steps"]):
         if i == 0:
@@ -570,23 +591,47 @@ def step_gates(schedule, curve_id):
     return gates
 
 
-def node_price(price_id, step, gain):
-    if price_id == "PR_FLAT_120":
-        return 120
-    if price_id == "PR_TIERED":
-        return PRICE_SCHEDULES["PR_TIERED"]["byTier"][step["tier"]]
-    if price_id == "PR_IMPACT":
-        return 50 + 25 * min(4, gain)
-    raise KeyError(price_id)
+def node_price(schedule_cfg, step, gain):
+    kind = schedule_cfg["kind"]
+    if kind == "FLAT":
+        return schedule_cfg["price"]
+    if kind == "BY_TIER":
+        return schedule_cfg["byTier"][step["tier"]]
+    if kind == "IMPACT":
+        return schedule_cfg["base"] + schedule_cfg["perNewTarget"] * min(schedule_cfg["newTargetCap"], gain)
+    raise KeyError(kind)
 
 
-def stars_for_discovery(curve_id, skill_stars):
-    model = GATE_CURVES[curve_id]["starModel"]
+def stars_for_discovery(curve, skill_stars):
+    model = curve["starModel"]
     if model == "SUM_BEST":
         return skill_stars
     if model == "DISCOVERY_COUNT":
         return 1
-    return 2 + sum(1 for q in (3, 4, 5) if skill_stars >= q)
+    return curve["discoveryStars"] + sum(1 for q in curve["qualityBonusAtStars"] if skill_stars >= q)
+
+
+def default_tables():
+    """Every economy/player parameter the simulator reads. `simulate` only ever reads these through
+    a `tables` bundle, so the validator can rebuild the bundle from the serialized JSON and re-run
+    the simulations to prove the JSON alone reconstructs every simulated policy."""
+    return {"gateCurves": GATE_CURVES, "priceSchedules": PRICE_SCHEDULES, "stockPolicies": STOCK_POLICIES,
+            "rewardTables": REWARD_TABLES, "skills": SKILLS, "explorers": EXPLORERS, "hintPolicies": HINT_POLICIES}
+
+
+def serialize_reward_tables(tables):
+    return {k: {"labelJa": v["labelJa"], "base": v["base"], "mult": {str(a): b for a, b in v["mult"].items()},
+                "discoveryBonus": v["discoveryBonus"]} for k, v in tables.items()}
+
+
+def tables_from_json(out):
+    """Rebuild the simulator's parameter bundle purely from the serialized matrix."""
+    return {
+        "gateCurves": out["gateCurves"], "priceSchedules": out["priceSchedules"], "stockPolicies": out["stockPolicies"],
+        "rewardTables": {k: {"labelJa": v["labelJa"], "base": v["base"], "mult": {int(a): b for a, b in v["mult"].items()},
+                             "discoveryBonus": v["discoveryBonus"]} for k, v in out["rewardTables"].items()},
+        "skills": out["skills"], "explorers": out["explorers"], "hintPolicies": out["hintPolicies"],
+    }
 
 
 def found_on_own(target_id, find_rate):
@@ -598,19 +643,22 @@ def found_on_own(target_id, find_rate):
 
 
 def simulate(targets, schedule, curve_id, price_id, stock_id, reward_id, skill_id,
-             explorer_id="COMPLETIONIST", hints_id="HINTS_ON", log_limit=0):
+             explorer_id="COMPLETIONIST", hints_id="HINTS_ON", log_limit=0, tables=None):
     """One deterministic player run. A turn is one PASS bake. Buying, restocking and receiving
     capabilities are free actions between bakes. Every bake is either a discovery bake (the first
     known, owned, in-stock undiscovered target in schedule order) or an income bake of an
     already-discovered target that uses only unlimited starter items."""
-    skill = SKILLS[skill_id]["stars"]
-    rt = REWARD_TABLES[reward_id]
+    tb = tables or default_tables()
+    skill = tb["skills"][skill_id]["stars"]
+    rt = tb["rewardTables"][reward_id]
     bake_reward = round(rt["base"] * rt["mult"][skill])
-    discovery_bonus = rt.get("discoveryBonus", 0)
-    stock_cfg = STOCK_POLICIES[stock_id]
-    find_rate = EXPLORERS[explorer_id]["findRate"]
-    idle_before_hint = HINT_POLICIES[hints_id]["idleBakesBeforeHint"]
-    gates = step_gates(schedule, curve_id)
+    discovery_bonus = rt["discoveryBonus"]
+    stock_cfg = tb["stockPolicies"][stock_id]
+    price_cfg = tb["priceSchedules"][price_id]
+    curve = tb["gateCurves"][curve_id]
+    find_rate = tb["explorers"][explorer_id]["findRate"]
+    idle_before_hint = tb["hintPolicies"][hints_id]["idleBakesBeforeHint"]
+    gates = step_gates(schedule, curve_id, tb)
     by_id = {t["targetId"]: t for t in targets}
     starters = set(STARTER_ITEMS)
 
@@ -623,7 +671,7 @@ def simulate(targets, schedule, curve_id, price_id, stock_id, reward_id, skill_i
             continue
         for nd in st["nodes"]:
             queue.append({"node": nd["id"], "kind": nd["kind"], "step": i, "gate": gates[i],
-                          "price": 0 if nd["kind"] == "capability" else node_price(price_id, st, len(st["newlyDiscoverable"]))})
+                          "price": 0 if nd["kind"] == "capability" else node_price(price_cfg, st, len(st["newlyDiscoverable"]))})
     price_of = {q["node"]: q["price"] for q in queue}
     tutorial = set(schedule["steps"][0]["newlyDiscoverable"])
     known = {t["targetId"] for t in targets if t["targetId"] in tutorial or found_on_own(t["targetId"], find_rate)}
@@ -705,7 +753,7 @@ def simulate(targets, schedule, curve_id, price_id, stock_id, reward_id, skill_i
                 stock[n] -= 1
             discovered.append(t["targetId"])
             discovered_set.add(t["targetId"])
-            stars += stars_for_discovery(curve_id, skill)
+            stars += stars_for_discovery(curve, skill)
             pitz += bake_reward + discovery_bonus
             grind_streak = idle = 0
             if not consumables(t):
@@ -974,7 +1022,7 @@ def build():
         "gateCurves": GATE_CURVES,
         "priceSchedules": PRICE_SCHEDULES,
         "stockPolicies": STOCK_POLICIES,
-        "rewardTables": {k: {"labelJa": v["labelJa"], "base": v["base"], "mult": {str(a): b for a, b in v["mult"].items()}} for k, v in REWARD_TABLES.items()},
+        "rewardTables": serialize_reward_tables(REWARD_TABLES),
         "skills": SKILLS,
         "explorers": EXPLORERS,
         "hintPolicies": HINT_POLICIES,
@@ -995,7 +1043,7 @@ def build():
                         "first10": first["10"], "first20": first["20"], "first50": first["50"],
                         "unlockEventsUntil50": unlock_events},
         "uiSizing": ui,
-        "designDecisions": DESIGN_DECISIONS,
+        "designDecisions": resolved_design_decisions(),
     }
     ni = out["nodeImpact"]
     out["nodeSummary"] = {
@@ -1270,6 +1318,8 @@ def validate(out):
     for s in rob:
         if s["outcome"] != "COMPLETE":
             errors.append(f"recommended economy fails for {s['skill']}/{s['explorer']}: {s['outcome']}")
+    errors.extend(validate_economy_serialization(out))
+    errors.extend(validate_recommendation_consistency(out))
     for k, v in out["noDeadlockProof"].items():
         if not v["holds"]:
             errors.append(f"noDeadlockProof.{k} does not hold")
@@ -1282,6 +1332,90 @@ def validate(out):
         errors.append("EVIDENCE_READY_TARGET count mismatch")
     if sum(cls_count.values()) != EXPECTED_ROWS:
         errors.append("classification total != 172")
+    return errors
+
+
+SIM_COMPARE_FIELDS = ("outcome", "discovered", "turns", "bakesToDiscovery", "grindBakes", "maxGrindStreak", "hintsUsed",
+                      "restocks", "pitzSpentPurchase", "pitzSpentRestock", "finalStars", "finalPitz", "bakeRewardPitz")
+
+
+def validate_economy_serialization(out):
+    """PR #191 review (P2): the JSON must carry every economy parameter the simulator used, so a
+    Phase-3 consumer can rebuild each policy. Checks the serialization against the simulator input,
+    pins the discovery bonus explicitly, then re-runs every recorded simulation from the JSON alone."""
+    errors = []
+    if out.get("rewardTables") != serialize_reward_tables(REWARD_TABLES):
+        errors.append("rewardTables serialization differs from the simulator's REWARD_TABLES input")
+    for tid, t in out.get("rewardTables", {}).items():
+        if not isinstance(t.get("discoveryBonus"), int):
+            errors.append(f"rewardTables.{tid}.discoveryBonus missing or not an integer")
+    expected_bonus = {"FLOOR_DISCOVERY_BONUS": 50, "FLOOR": 0, "LEGACY": 0}
+    for tid, bonus in expected_bonus.items():
+        got = out.get("rewardTables", {}).get(tid, {}).get("discoveryBonus")
+        if got != bonus:
+            errors.append(f"regression: rewardTables.{tid}.discoveryBonus = {got!r}, expected {bonus}")
+    for key, value in (("gateCurves", GATE_CURVES), ("priceSchedules", PRICE_SCHEDULES), ("stockPolicies", STOCK_POLICIES),
+                       ("skills", SKILLS), ("explorers", EXPLORERS), ("hintPolicies", HINT_POLICIES)):
+        if json.loads(json.dumps(out.get(key))) != json.loads(json.dumps(value)):
+            errors.append(f"{key} serialization differs from the simulator input")
+    try:
+        tables = tables_from_json(out)
+        runs = [(s, None) for s in out["simulations"]]
+        wt = out["walkthrough"]["config"]
+        for s, _ in runs + [(dict(wt, comparison="walkthrough"), None)]:
+            res = simulate(out["targets"][s["profile"]], out["unlockSchedules"][s["profile"]][s["mechanicPolicy"]],
+                           s["curve"], s["price"], s["stock"], s["reward"], s["skill"], s["explorer"], s["hints"],
+                           log_limit=50 if s["comparison"] == "walkthrough" else 0, tables=tables)
+            if s["comparison"] == "walkthrough":
+                disc = [e for e in res["events"] if e["event"] == "discover"]
+                rebuilt = [{"n": e["n"], "turn": e["turn"], "targetId": e["target"], "nameJa": e["nameJa"],
+                            "stars": e["stars"], "pitzAfter": e["pitzAfter"]} for e in disc[:50]]
+                if rebuilt != out["walkthrough"]["first50"]:
+                    errors.append("walkthrough is not reproducible from the serialized economy parameters")
+                continue
+            diff = [f for f in SIM_COMPARE_FIELDS if res[f] != s[f]]
+            if diff:
+                errors.append(f"simulation {s['comparison']}/{s['curve']}/{s['price']}/{s['stock']}/{s['reward']}/"
+                              f"{s['skill']}/{s['explorer']}/{s['hints']} not reproducible from JSON: {diff}")
+    except (KeyError, TypeError, ValueError) as exc:
+        errors.append(f"economy policies cannot be reconstructed from the serialized JSON: {exc!r}")
+    return errors
+
+
+def validate_recommendation_consistency(out):
+    """PR #191 review (P2): the ledger's economy recommendations, the recommended economy, the
+    simulations run on it, the generated MDs and the hand-written report must all name the same
+    policy (in particular C-01 starter/refill stock)."""
+    errors = []
+    rec = out["recommended"]["economy"]
+    if rec != RECOMMENDED_ECONOMY:
+        errors.append("recommended.economy differs from RECOMMENDED_ECONOMY")
+    by_id = {d["id"]: d for d in out["designDecisions"]}
+    for did, key in ECONOMY_DECISION_IDS.items():
+        d = by_id.get(did, {})
+        if d.get("recommendedPolicyId") != rec.get(key):
+            errors.append(f"{did} recommends {d.get('recommendedPolicyId')!r} but recommended.economy.{key} is {rec.get(key)!r}")
+        if rec.get(key) not in (d.get("recommendation") or ""):
+            errors.append(f"{did} recommendation text does not name {rec.get(key)!r}")
+    stock_id = rec.get("stock")
+    if stock_id not in out.get("stockPolicies", {}):
+        errors.append(f"recommended stock {stock_id!r} is not a serialized stock policy")
+    if out["walkthrough"]["config"].get("stock") != stock_id:
+        errors.append("walkthrough stock policy differs from the recommended stock policy")
+    for s in out["simulations"]:
+        if s["comparison"] == "recommendedRobustness":
+            for key, field in (("gate", "curve"), ("price", "price"), ("stock", "stock"), ("reward", "reward"), ("hints", "hints")):
+                if s[field] != rec[key]:
+                    errors.append(f"recommendedRobustness {s['skill']}/{s['explorer']} runs {field}={s[field]!r}, not {rec[key]!r}")
+    ledger = render_ledger_md(out)
+    c01 = next((l for l in ledger.splitlines() if l.startswith("| C-01 ")), "")
+    if stock_id not in c01:
+        errors.append("generated ledger C-01 row does not name the recommended stock policy")
+    if f"`{stock_id}`" not in render_graph_md(out):
+        errors.append("generated graph header does not name the recommended stock policy")
+    combo = " + ".join(rec[k] for k in ("gate", "price", "stock", "reward", "hints"))
+    if combo not in DESIGN_MD_PATH.read_text(encoding="utf-8"):
+        errors.append(f"design report does not state the recommended combination '{combo}'")
     return errors
 
 

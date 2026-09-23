@@ -194,6 +194,12 @@
     "G3_HYBRID_050": {
       "labelJa": "Hybrid ⭐（発見+2、BEST★3/4/5で各+1）f=0.5",
       "starModel": "HYBRID",
+      "discoveryStars": 2,
+      "qualityBonusAtStars": [
+        3,
+        4,
+        5
+      ],
       "gate": "DERIVED",
       "fraction": 0.5,
       "guaranteedStarsPerDiscovery": 2
@@ -201,6 +207,12 @@
     "G4_HYBRID_060": {
       "labelJa": "Hybrid ⭐ f=0.6",
       "starModel": "HYBRID",
+      "discoveryStars": 2,
+      "qualityBonusAtStars": [
+        3,
+        4,
+        5
+      ],
       "gate": "DERIVED",
       "fraction": 0.6,
       "guaranteedStarsPerDiscovery": 2
@@ -208,6 +220,12 @@
     "G5_HYBRID_075": {
       "labelJa": "Hybrid ⭐ f=0.75",
       "starModel": "HYBRID",
+      "discoveryStars": 2,
+      "qualityBonusAtStars": [
+        3,
+        4,
+        5
+      ],
       "gate": "DERIVED",
       "fraction": 0.75,
       "guaranteedStarsPerDiscovery": 2
@@ -215,6 +233,12 @@
     "G6_HYBRID_100": {
       "labelJa": "Hybrid ⭐ f=1.0（到達可能なものを全部発見するまで次へ進めない）",
       "starModel": "HYBRID",
+      "discoveryStars": 2,
+      "qualityBonusAtStars": [
+        3,
+        4,
+        5
+      ],
       "gate": "DERIVED",
       "fraction": 1.0,
       "guaranteedStarsPerDiscovery": 2
@@ -222,10 +246,13 @@
   },
   "priceSchedules": {
     "PR_FLAT_120": {
-      "labelJa": "全材料 120 Pitz（現行 onion 相当）"
+      "labelJa": "全材料 120 Pitz（現行 onion 相当）",
+      "kind": "FLAT",
+      "price": 120
     },
     "PR_TIERED": {
       "labelJa": "tier 別 60/100/140/180",
+      "kind": "BY_TIER",
       "byTier": {
         "early": 60,
         "mid": 100,
@@ -234,7 +261,11 @@
       }
     },
     "PR_IMPACT": {
-      "labelJa": "50 + 25×その解禁で増える発見数（最大4）"
+      "labelJa": "50 + 25×その解禁で増える発見数（最大4）",
+      "kind": "IMPACT",
+      "base": 50,
+      "perNewTarget": 25,
+      "newTargetCap": 4
     }
   },
   "stockPolicies": {
@@ -267,7 +298,8 @@
         "3": 0.8,
         "4": 1.0,
         "5": 1.2
-      }
+      },
+      "discoveryBonus": 0
     },
     "FLOOR": {
       "labelJa": "★1 に下限 ×0.2 を追加（PASS した焼成は必ず Pitz>0）",
@@ -278,7 +310,8 @@
         "3": 0.8,
         "4": 1.0,
         "5": 1.2
-      }
+      },
+      "discoveryBonus": 0
     },
     "FLOOR_DISCOVERY_BONUS": {
       "labelJa": "FLOOR ＋ 新発見ボーナス +50 Pitz",
@@ -289,7 +322,8 @@
         "3": 0.8,
         "4": 1.0,
         "5": 1.2
-      }
+      },
+      "discoveryBonus": 50
     }
   },
   "skills": {
@@ -26233,7 +26267,9 @@
         "G6_HYBRID_100"
       ],
       "modelledAs": "gate curve comparison",
-      "recommendation": "G4_HYBRID_060"
+      "economyKey": "gate",
+      "recommendedPolicyId": "G4_HYBRID_060",
+      "recommendation": "G4_HYBRID_060 (= recommended.economy.gate; see simulation)"
     },
     {
       "id": "A-04",
@@ -26260,7 +26296,9 @@
         "FLOOR_DISCOVERY_BONUS"
       ],
       "modelledAs": "reward comparison",
-      "recommendation": "FLOOR (★1 = ×0.2)"
+      "economyKey": "reward",
+      "recommendedPolicyId": "FLOOR_DISCOVERY_BONUS",
+      "recommendation": "FLOOR_DISCOVERY_BONUS (= recommended.economy.reward; see simulation)"
     },
     {
       "id": "C-01",
@@ -26273,7 +26311,9 @@
         "S3_R5"
       ],
       "modelledAs": "stock comparison",
-      "recommendation": "S5_R5 (see simulation)"
+      "economyKey": "stock",
+      "recommendedPolicyId": "S10_R10",
+      "recommendation": "S10_R10 (= recommended.economy.stock; see simulation)"
     },
     {
       "id": "C-02",
@@ -26286,7 +26326,9 @@
         "PR_IMPACT"
       ],
       "modelledAs": "price comparison",
-      "recommendation": "PR_TIERED (see simulation)"
+      "economyKey": "price",
+      "recommendedPolicyId": "PR_TIERED",
+      "recommendation": "PR_TIERED (= recommended.economy.price; see simulation)"
     },
     {
       "id": "C-03",

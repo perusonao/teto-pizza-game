@@ -616,6 +616,23 @@ The validator enforces all of the following. Any failure exits non-zero.
   `noDeadlockProof` claim holds.
 - Two in-process builds are byte-identical, and `--check` fails if any committed output differs
   from a fresh regeneration.
+- **The JSON alone reconstructs every simulated policy** (PR #191 review). Gate curves, price
+  schedules (`kind` plus parameters), stock policies, reward tables (including `discoveryBonus`),
+  skills, explorers and hint policies are serialized in full. The validator does three things:
+  - compares the serialized tables with the simulator input;
+  - pins `FLOOR_DISCOVERY_BONUS.discoveryBonus = 50`, and `FLOOR` / `LEGACY` = 0;
+  - rebuilds the parameter bundle from the JSON and re-runs every recorded simulation and the
+    50-discovery walkthrough, requiring identical results.
+- **One source of truth for the economy recommendation** (PR #191 review). The recommendations for
+  A-03 (gate), A-05 (reward), C-01 (stock) and C-02 (price) are derived from `RECOMMENDED_ECONOMY`,
+  which the simulations run on. There is no literal in the ledger. The validator requires all of
+  these to name the same policies:
+  - the ledger (JSON and generated MD);
+  - `recommended.economy`;
+  - the walkthrough config;
+  - all 12 robustness simulations;
+  - the generated graph header;
+  - the recommended combination stated in this report.
 
 Mutation checks were run by hand while writing the tool. Each of these mutations was caught:
 
