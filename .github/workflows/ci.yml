@@ -4,6 +4,12 @@ on:
   pull_request:
     branches: [main]
 
+# Issue #201: one group per PR -- a new push cancels the superseded commit's run. This workflow
+# only triggers on pull_request, so main and other PRs never share a group.
+concurrency:
+  group: ${{ github.workflow }}-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
