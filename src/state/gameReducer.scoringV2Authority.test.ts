@@ -4,7 +4,6 @@ import {
   gameReducer,
   type GameState,
 } from "./gameReducer";
-import { EMPTY_DEX } from "./dex";
 import { getRecipe, type RecipeId } from "../data/recipes";
 import { findOrderForRecipe } from "../data/orders";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
@@ -13,6 +12,15 @@ import { createEmptyPizza, type PizzaState, type SauceDeposit } from "./pizzaSta
 import { getCookingProfile } from "../data/cookingProfiles";
 import { createCutState } from "../logic/cut/state";
 import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
+
+const MARGHERITA_DISCOVERED_DEX = registerScoreToDex(EMPTY_DEX, "margherita", {
+  total: 80,
+  stars: 4,
+  sauce: 20,
+  pieces: 20,
+  recipe: 20,
+  bake: 20,
+}).dex;
 
 /**
  * A1 Authority Cutover (docs/reports/TETO_SCORING2-A1_AUTHORITY_Result.md): `gameReducer.ts`'s
@@ -133,7 +141,7 @@ function playToResultForRecipe(recipeId: RecipeId, pizza: PizzaState): GameState
   const recipe = getRecipe(recipeId);
   const order = findOrderForRecipe(recipeId);
   if (!recipe || !order) throw new Error(`Unknown recipe ${recipeId}`);
-  let state = createInitialGameState(EMPTY_DEX, ALL_INGREDIENT_IDS);
+  let state = createInitialGameState(MARGHERITA_DISCOVERED_DEX, ALL_INGREDIENT_IDS);
   // Pizza Cutting 1.0 Phase 2: `createInitialGameState` always seeds margherita's own
   // CUT-enabled profile (../data/orders.ts's `preferFirst`) -- re-resolve `cookingProfile`/
   // `cutState` for the *actual* `recipeId` under test, same fix as
@@ -178,7 +186,7 @@ describe("A1 Authority Cutover: state.score is Scoring 2.0-derived (gameReducer 
   );
 
   it("empty pizza never throws and produces a finite, low authoritative score (Bake alone still scores when baked inside the target zone)", () => {
-    let state = createInitialGameState(EMPTY_DEX, ALL_INGREDIENT_IDS);
+    let state = createInitialGameState(MARGHERITA_DISCOVERED_DEX, ALL_INGREDIENT_IDS);
     state = gameReducer(state, { type: "SELECT_RECIPE", recipeId: "margherita" });
     state = gameReducer(state, { type: "START_BAKE" });
     expect(() => gameReducer(state, { type: "CONFIRM_BAKE", value: 70 })).not.toThrow();
@@ -199,7 +207,7 @@ describe("A1 Authority Cutover: state.score is Scoring 2.0-derived (gameReducer 
   });
 
   it("Lunch Rush: MissionServePanel-facing state.score comes from the same authoritative CONFIRM_BAKE path as FREE", () => {
-    let state = createInitialGameState(EMPTY_DEX, ALL_INGREDIENT_IDS);
+    let state = createInitialGameState(MARGHERITA_DISCOVERED_DEX, ALL_INGREDIENT_IDS);
     state = gameReducer(state, { type: "MISSION_RESET_ORDER" });
     expect(state.isMissionRound).toBe(true);
     const recipeId = state.recipe.id;
@@ -263,7 +271,7 @@ describe("A1 Authority Cutover: state.score is Scoring 2.0-derived (gameReducer 
   });
 
   it("malformed pizza (non-array toppings/sauceDeposits) fails closed on Sauce/Pieces/Recipe, never throws", () => {
-    let state = createInitialGameState(EMPTY_DEX, ALL_INGREDIENT_IDS);
+    let state = createInitialGameState(MARGHERITA_DISCOVERED_DEX, ALL_INGREDIENT_IDS);
     state = gameReducer(state, { type: "SELECT_RECIPE", recipeId: "margherita" });
     const malformedPizza = {
       ...createEmptyPizza(),
