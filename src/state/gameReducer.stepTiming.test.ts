@@ -10,10 +10,10 @@ import { DOUGH_CENTER, DOUGH_RADIUS } from "../logic/pizzaCoordinates";
 const MARGHERITA_DISCOVERED_DEX = registerScoreToDex(EMPTY_DEX, "margherita", {
   total: 80,
   stars: 4,
-  sauce: 20,
-  pieces: 20,
-  recipe: 20,
-  bake: 20,
+  matchScore: 80,
+  ingredientScore: 80,
+  placementScore: 80,
+  bakeScore: 80,
 }).dex;
 
 /** Pizza Cutting 1.0 Phase 2: commits the minimum required ideal cut lines so CUT's own confirm
