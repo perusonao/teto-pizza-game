@@ -24,6 +24,24 @@ const FREE_COOK_STEP_HINTS: Partial<Record<MakingStep, { text: string; explicit:
 };
 const FREE_COOK_FALLBACK_HINT = "好きな材料で自由に作ってみよう！";
 
+/** Progression 2.0 Phase 3-3 (Issue #198): pre-first-discovery hint escalation. Reuses the
+ *  existing Free Cooking hint slot (`buildHintLine`'s free-cook branch below) -- no separate
+ *  hint/discovery system. Index 0 is never read (level 0 keeps the untouched
+ *  `FREE_COOK_STEP_HINTS`/`FREE_COOK_FALLBACK_HINT` copy above, so a brand-new player's very
+ *  first free-cook attempt, and any player who has already discovered something, sees exactly
+ *  the pre-existing text). `GameState.preDiscoveryFreeCookAttempts` counts non-matching
+ *  (ORIGINAL/AMBIGUOUS/INCOMPLETE_MATCH/FAILED) free-cook rounds while the Dex is still
+ *  completely empty (../state/gameReducer.ts's CONFIRM_BAKE); `Math.min(attempts, 3)` caps the
+ *  escalation at the most explicit line rather than growing forever. Each level still leaves
+ *  something for the player to do themselves -- level 1/2 never name an ingredient outright,
+ *  and even level 3's concrete steps require the player to actually place them. */
+const FREE_COOK_DISCOVERY_HINT_LEVELS: readonly string[] = [
+  "",
+  "気になる色の材料が3つあるよ…赤・白・緑を探してみよう！",
+  "赤いソース、とろける白いチーズ、香る緑のハーブを合わせてみたら？",
+  "トマトソースを塗って、モッツァレラをのせて、バジルをちらして焼いてみよう！",
+];
+
 /** Issue #33 D1/D3A: DOUGH's own hint copy -- concise per the task's own "avoid long tutorial
  *  copy" guidance, distinct from every recipe's sauce copy so it never silently falls
  *  through to a misleading "塗ろう" (sauce) line before sauce is even reachable. D3A: updated
@@ -109,6 +127,7 @@ export function buildHintLine(
   pizza: PizzaState,
   makingStep: MakingStep,
   isExplicitHint = false,
+  preDiscoveryFreeCookAttempts = 0,
 ): DialogueLine {
   if (makingStep === "DOUGH") {
     return {
@@ -119,6 +138,14 @@ export function buildHintLine(
   }
 
   if (isFreeCookRecipe(recipe)) {
+    const discoveryHintLevel = Math.min(Math.max(preDiscoveryFreeCookAttempts, 0), 3);
+    if (discoveryHintLevel > 0) {
+      return {
+        speaker: "mito",
+        id: `hint.free-cook.discovery-level-${discoveryHintLevel}`,
+        textJa: FREE_COOK_DISCOVERY_HINT_LEVELS[discoveryHintLevel],
+      };
+    }
     const stepHint = FREE_COOK_STEP_HINTS[makingStep];
     return {
       speaker: "mito",

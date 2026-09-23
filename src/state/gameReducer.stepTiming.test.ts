@@ -317,6 +317,13 @@ describe("13. retry / new round via the same recipe (RETRY_SAME_RECIPE / SELECT_
   it("SELECT_RECIPE: fresh activeStep=DOUGH, empty perStepElapsedMs", () => {
     let state = preparedState(0);
     state = confirmAt(state, 5_000);
+    // Progression 2.0 Phase 3-3: SELECT_RECIPE only guided-selects an undiscovered recipe once
+    // something has ever been discovered -- seed a discovered margherita so this stays a pure
+    // per-step-timing-reset check (see gameReducer.selectRecipeDiscoveryGate.test.ts).
+    state = {
+      ...state,
+      dex: [{ recipeId: "margherita", discovered: true, bestScore: 70, bestStars: 3 as const, timesMade: 1 }],
+    };
     const selected = gameReducer(state, {
       type: "SELECT_RECIPE",
       recipeId: "margherita",

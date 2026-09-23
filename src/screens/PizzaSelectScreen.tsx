@@ -36,6 +36,11 @@ interface PizzaSelectScreenProps {
   ownedIngredientIds: readonly string[];
   onSelectRecipe: (recipeId: RecipeId) => void;
   onBack: () => void;
+  /** Progression 2.0 Phase 3-3 (Issue #198): opens Free Cooking directly (App.tsx's
+   *  `handleStartFreeCook`) -- wired to a `preDiscoveryLocked` card's own CTA. Optional so
+   *  existing test call sites that predate this phase keep compiling; a locked card's CTA is
+   *  simply inert (no-op) if this is omitted. */
+  onGoFreeCook?: () => void;
   /** Defaults to the full production catalog; overridable so a future filter (or a test
    *  exercising a larger mocked catalog) can hand the grid a different set without any change
    *  to this component. */
@@ -47,7 +52,7 @@ function cardStatusLabel(card: RecipeCardState): string {
     case "COMPLETED":
       return `最高評価${card.bestStars}つ星、BEST ${Math.round(card.bestScore)}`;
     case "NEW":
-      return "未挑戦";
+      return card.preDiscoveryLocked ? "フリークッキングで発見しよう" : "未挑戦";
     case "LOCKED":
       return "未解放";
   }
@@ -70,7 +75,14 @@ function CardStatusContent({ card }: { card: RecipeCardState }) {
           <span className="pizza-select-card__best">BEST {Math.round(card.bestScore)}</span>
         </div>
       )}
-      {card.kind === "NEW" && <p className="pizza-select-card__status">未挑戦</p>}
+      {card.kind === "NEW" && card.preDiscoveryLocked && (
+        <p className="pizza-select-card__unlock-hint">
+          {"\u{1F3A8}"} フリークッキングで発見しよう
+        </p>
+      )}
+      {card.kind === "NEW" && !card.preDiscoveryLocked && (
+        <p className="pizza-select-card__status">未挑戦</p>
+      )}
       {card.kind === "LOCKED" && card.unlockHint && (
         <p className="pizza-select-card__unlock-hint">{card.unlockHint}</p>
       )}
@@ -89,7 +101,9 @@ function RecipeGridCard({ card, onSelect }: { card: RecipeCardState; onSelect: (
       aria-label={cardAriaLabel(card)}
       onClick={onSelect}
     >
-      {card.kind === "NEW" && <span className="pizza-select-card__badge">NEW</span>}
+      {card.kind === "NEW" && !card.preDiscoveryLocked && (
+        <span className="pizza-select-card__badge">NEW</span>
+      )}
 
       {isLocked ? (
         <span className="pizza-select-card__lock-silhouette" aria-hidden="true">
@@ -157,7 +171,9 @@ function RecipeDetailPanel({ card }: { card: RecipeCardState }) {
       className={`pizza-select-card${isLocked ? " pizza-select-card--locked" : ""}`}
       aria-label={cardAriaLabel(card)}
     >
-      {card.kind === "NEW" && <span className="pizza-select-card__badge">NEW</span>}
+      {card.kind === "NEW" && !card.preDiscoveryLocked && (
+        <span className="pizza-select-card__badge">NEW</span>
+      )}
 
       {isLocked ? (
         <span className="pizza-select-card__lock-silhouette" aria-hidden="true">
@@ -180,12 +196,18 @@ function RecipeDetail({
   card,
   onBackToGrid,
   onSelectRecipe,
+  onGoFreeCook,
 }: {
   card: RecipeCardState;
   onBackToGrid: () => void;
   onSelectRecipe: () => void;
+  /** Progression 2.0 Phase 3-3 (Issue #198): only ever called from a `preDiscoveryLocked` NEW
+   *  card's own CTA (below) -- Free Cooking is where a pre-first-discovery player actually makes
+   *  this pizza. Optional so existing test call sites that predate this phase keep compiling. */
+  onGoFreeCook?: () => void;
 }) {
   const isLocked = card.kind === "LOCKED";
+  const isPreDiscoveryLocked = card.kind === "NEW" && card.preDiscoveryLocked === true;
 
   return (
     <div className="pizza-select-detail">
@@ -200,17 +222,27 @@ function RecipeDetail({
 
       <RecipeDetailPanel card={card} />
 
-      <button
-        type="button"
-        className="cta-button cta-button--primary pizza-select-cta"
-        disabled={isLocked}
-        aria-disabled={isLocked}
-        onClick={() => {
-          if (!isLocked) onSelectRecipe();
-        }}
-      >
-        {"\u{1F355}"} このピザを作る！
-      </button>
+      {isPreDiscoveryLocked ? (
+        <button
+          type="button"
+          className="cta-button cta-button--primary pizza-select-cta"
+          onClick={onGoFreeCook}
+        >
+          {"\u{1F3A8}"} フリークッキングで探す
+        </button>
+      ) : (
+        <button
+          type="button"
+          className="cta-button cta-button--primary pizza-select-cta"
+          disabled={isLocked}
+          aria-disabled={isLocked}
+          onClick={() => {
+            if (!isLocked) onSelectRecipe();
+          }}
+        >
+          {"\u{1F355}"} このピザを作る！
+        </button>
+      )}
     </div>
   );
 }
@@ -220,6 +252,7 @@ export function PizzaSelectScreen({
   ownedIngredientIds,
   onSelectRecipe,
   onBack,
+  onGoFreeCook,
   recipes = RECIPES,
 }: PizzaSelectScreenProps) {
   const [selectedRecipeId, setSelectedRecipeId] = useState<RecipeId | null>(null);
@@ -247,6 +280,7 @@ export function PizzaSelectScreen({
           card={recipeCardState(selectedRecipe, dex, ownedIngredientIds)}
           onBackToGrid={() => setSelectedRecipeId(null)}
           onSelectRecipe={() => onSelectRecipe(selectedRecipe.id)}
+          onGoFreeCook={onGoFreeCook}
         />
       )}
     </div>

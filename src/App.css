@@ -3300,6 +3300,18 @@
   min-height: 48px;
 }
 
+/* Progression 2.0 Phase 3-3 (Issue #198): the "why is ランチラッシュ disabled" reason line --
+   same copy/color family as .pizza-select-card__unlock-hint, so a locked CTA's reason always
+   reads the same way across HOME and Pizza Select. */
+.home-lunch-rush-hint {
+  flex: 1 1 100%;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #a1662f;
+  text-align: center;
+}
+
 /* ---------- HOME sub navigation (ピザ図鑑 / ショップ / 材料 / 実績) ---------- */
 /* Inventory Screen: a 4th card joined this grid, so it wraps to 2x2 (rather than a cramped
    4-across row) to stay legible at 360-390px width -- see the Inventory Screen Result report's

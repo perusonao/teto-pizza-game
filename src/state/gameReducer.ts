@@ -26,7 +26,7 @@ import { totalStars } from "../logic/mastery";
 import { purchaseIngredient, restockIngredient } from "../logic/economy";
 import { applyPitzCredit, type PitzCredit } from "../logic/pitzReward";
 import { evaluateCookingEfficiency, type CookingEfficiencyCredit } from "../logic/efficiency";
-import { discoveredRecipeIds, registerScoreToDex, EMPTY_DEX, type DexState } from "./dex";
+import { discoveredRecipeIds, isDiscovered, registerScoreToDex, EMPTY_DEX, type DexState } from "./dex";
 import { RECIPE_DISCOVERY_CATALOG } from "../data/discoveryCatalog";
 import { evaluateDiscovery, type DiscoveryOutcome } from "../logic/discovery/matcher";
 import { signatureOfPizza } from "../logic/discovery/signature";
@@ -170,6 +170,17 @@ export interface GameState {
    *  MISSION_NEXT_ORDER below, and App.tsx's load-time migration catch-up) -- every other action
    *  carries it through unchanged, exactly like `ownedIngredientIds`/`inventory` themselves. */
   starterGrantClaimedRecipeIds: readonly string[];
+  /** Progression 2.0 Phase 3-3 (Issue #198): how many free-cook rounds in a row have resolved
+   *  to something other than a new match (ORIGINAL/AMBIGUOUS/INCOMPLETE_MATCH/FAILED,
+   *  `CONFIRM_BAKE`'s own `freeCook.kind !== "MATCHED"` branch below) while the Dex is still
+   *  completely empty -- drives `buildHintLine`'s pre-first-discovery hint escalation
+   *  (../data/hints.ts). Carried through every "fresh round" path via `ProgressionCarry` (unlike
+   *  `hint`/`lastPitzCredit`/..., it must survive a retry, not reset each round, or the
+   *  escalation could never advance); frozen the instant any recipe is ever discovered, since
+   *  `CONFIRM_BAKE` only increments it while the Dex has zero discoveries. Transient -- never
+   *  persisted, always starts at 0 for a fresh session load, same as every other `lastX`
+   *  discovery/reward snapshot on this type. */
+  preDiscoveryFreeCookAttempts: number;
   /** Idempotency key for CLAIM_MISSION_REWARD (Phase 3C-5): the Mission run id
    *  (`MissionState.runId`, ../mission/lunchRush.ts) whose Pitz reward has already been
    *  applied to `pitzBalance`. A run's reward is granted at most once no matter how many
@@ -388,6 +399,7 @@ interface ProgressionCarry {
   lastClaimedMissionRunId: number | null;
   inventory: InventoryState;
   starterGrantClaimedRecipeIds: readonly string[];
+  preDiscoveryFreeCookAttempts: number;
 }
 
 /** Builds a fresh ORDER-phase state around an already-picked `order` -- the one place that
@@ -472,6 +484,7 @@ function nextMissionOrderState(state: GameState): GameState {
       lastClaimedMissionRunId: state.lastClaimedMissionRunId,
       inventory: state.inventory,
       starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
+      preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
     },
     true,
   );
@@ -513,7 +526,13 @@ function startPreparing(orderState: GameState, now?: number): GameState {
   return {
     ...orderState,
     phase: "PREPARE",
-    hint: buildHintLine(orderState.recipe, orderState.pizza, orderState.makingStep),
+    hint: buildHintLine(
+      orderState.recipe,
+      orderState.pizza,
+      orderState.makingStep,
+      false,
+      orderState.preDiscoveryFreeCookAttempts,
+    ),
     cookingTiming: now !== undefined ? startCookingTiming(now, orderState.makingStep) : null,
   };
 }
@@ -544,6 +563,7 @@ export function createInitialGameState(
       lastClaimedMissionRunId: null,
       inventory,
       starterGrantClaimedRecipeIds,
+      preDiscoveryFreeCookAttempts: 0,
     },
     { preferFirst: true },
   );
@@ -558,7 +578,13 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return {
         ...state,
         phase: "PREPARE",
-        hint: buildHintLine(state.recipe, state.pizza, state.makingStep),
+        hint: buildHintLine(
+          state.recipe,
+          state.pizza,
+          state.makingStep,
+          false,
+          state.preDiscoveryFreeCookAttempts,
+        ),
         // Cooking Time CT1: FREE only -- this same action also fires for Lunch Rush's
         // continuous per-pizza flow (App.tsx's handleMissionServeNext, right after
         // MISSION_NEXT_ORDER, which already set `isMissionRound: true` before this case ever
@@ -601,7 +627,11 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         // 4A-1A deposits from a since-abandoned dispense session can never linger into it.
         sauceDeposits: [],
       };
-      return { ...state, pizza, hint: buildHintLine(state.recipe, pizza, state.makingStep) };
+      return {
+        ...state,
+        pizza,
+        hint: buildHintLine(state.recipe, pizza, state.makingStep, false, state.preDiscoveryFreeCookAttempts),
+      };
     }
 
     // Phase 4A-1A (Post-Codex-Fix, MUST FIX 2 -- Reducer Scope Guard): commits one complete
@@ -652,7 +682,11 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           ...action.deposits,
         ],
       };
-      return { ...state, pizza, hint: buildHintLine(state.recipe, pizza, state.makingStep) };
+      return {
+        ...state,
+        pizza,
+        hint: buildHintLine(state.recipe, pizza, state.makingStep, false, state.preDiscoveryFreeCookAttempts),
+      };
     }
 
     case "PLACE_TOPPING": {
@@ -723,7 +757,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return {
         ...state,
         pizza,
-        hint: buildHintLine(state.recipe, pizza, state.makingStep),
+        hint: buildHintLine(state.recipe, pizza, state.makingStep, false, state.preDiscoveryFreeCookAttempts),
         placement: {
           status: wasAdjusted ? "adjusted" : "placed",
           x: spot.x,
@@ -750,7 +784,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         pizza,
         makingStep: "DOUGH",
         makingStepToken: state.makingStepToken + 1,
-        hint: buildHintLine(state.recipe, pizza, "DOUGH"),
+        hint: buildHintLine(state.recipe, pizza, "DOUGH", false, state.preDiscoveryFreeCookAttempts),
         placement: null,
         // Cooking Time CT2 (re-decided from CT1's original "fresh timer on reset"):
         // `cookingTiming` is deliberately absent from this returned object, so `...state` above
@@ -842,7 +876,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         makingStep,
         makingStepToken: state.makingStepToken + 1,
         cutState,
-        hint: buildHintLine(state.recipe, state.pizza, makingStep),
+        hint: buildHintLine(state.recipe, state.pizza, makingStep, false, state.preDiscoveryFreeCookAttempts),
         // Phase 1A-T (§22.2): finalizes the outgoing step's elapsed ms and starts the incoming
         // one's window. Same back-compat no-op convention as above.
         cookingTiming:
@@ -918,6 +952,16 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // sentinel and is either FAILED (not a dish) or an unscored ORIGINAL pizza.
       const freeCook = state.freeCook ? resolveFreeCookPizza(pizza, state.dex) : null;
       if (freeCook && freeCook.kind !== "MATCHED") {
+        // Progression 2.0 Phase 3-3 (Issue #198): a free-cook round that didn't match anything
+        // new (ORIGINAL/AMBIGUOUS/INCOMPLETE_MATCH/FAILED, all folded into this one branch)
+        // advances the hint-escalation counter, but only while the Dex is still completely
+        // empty -- once any recipe has ever been discovered, escalation is over for good (the
+        // counter simply stops moving; `buildHintLine` never reads it for a non-free-cook round
+        // anyway).
+        const preDiscoveryFreeCookAttempts =
+          discoveredRecipeIds(state.dex).length === 0
+            ? state.preDiscoveryFreeCookAttempts + 1
+            : state.preDiscoveryFreeCookAttempts;
         return {
           ...state,
           pizza,
@@ -927,6 +971,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           completion: freeCook.kind === "FAILED" ? freeCook.completion : { status: "PASS" },
           inventory: consumePizzaInventory(pizza, state.inventory),
           phase: "RESULT",
+          preDiscoveryFreeCookAttempts,
         };
       }
       const recipe = freeCook ? freeCook.recipe : state.recipe;
@@ -1066,9 +1111,19 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // Pitz twice under two different formulas. Registration UI itself already never renders
       // during a Mission round (ResultPanel is gated on `!isMissionActive`), but this guard is
       // the reducer-level backstop, not just a UI convention.
+      // OD-02 (Progression 2.0 Phase 2, reaffirmed for Phase 3-3): `wasNewDiscovery` also drives
+      // the flat first-discovery Pitz bonus, additive inside `lastPitzCredit.balanceAfter`
+      // itself (../logic/pitzReward.ts) -- unlike CT2's Efficiency bonus below, this one is
+      // folded straight into the credit snapshot, since it is genuinely part of "what this
+      // pizza's registration paid," not a separate cross-cutting system.
       const lastPitzCredit = state.isMissionRound
         ? null
-        : applyPitzCredit(state.recipe.baseRewardPitz, state.score.total, state.pitzBalance);
+        : applyPitzCredit(
+            state.recipe.baseRewardPitz,
+            state.score.total,
+            state.pitzBalance,
+            wasNewDiscovery,
+          );
       // Cooking Time CT2: the additive Efficiency bonus, computed independently of
       // `lastPitzCredit` above and never folded into its own `multiplier`/`earnedPitz`
       // (pitzReward.ts is untouched by CT2 -- see efficiency.ts's own file header). FREE only,
@@ -1118,6 +1173,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           lastClaimedMissionRunId: state.lastClaimedMissionRunId,
           inventory: state.inventory,
           starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
+          preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
         },
         { excludeRecipeId: state.recipe.id },
       );
@@ -1125,6 +1181,20 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case "SELECT_RECIPE": {
       const recipe = getRecipe(action.recipeId);
       if (!recipe || !isRecipeAvailable(recipe, state.dex, state.ownedIngredientIds)) return state;
+      // Progression 2.0 Phase 3-3 (Issue #198): before the player's first-ever discovery, an
+      // available-but-undiscovered recipe is not directly guided-selectable -- Free Cooking
+      // (START_FREE_COOK) is the only discovery path pre-Dex-1, so a stray SELECT_RECIPE
+      // dispatch can never let a fresh player skip it. Margherita is the only recipe unlocked at
+      // Dex 0 (every other recipe's own `unlockCondition.requiresRecipeId` chains from it), so
+      // this only ever gates a brand-new save's very first round; once any recipe has been
+      // discovered (`discoveredRecipeIds(state.dex).length > 0`), guided selection of any other
+      // NEW-but-available recipe is completely unaffected -- unchanged from before this phase.
+      if (
+        !isDiscovered(state.dex, action.recipeId) &&
+        discoveredRecipeIds(state.dex).length === 0
+      ) {
+        return state;
+      }
       return (
         startPreparingRecipe(action.recipeId, {
           dex: state.dex,
@@ -1133,6 +1203,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           lastClaimedMissionRunId: state.lastClaimedMissionRunId,
           inventory: state.inventory,
           starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
+          preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
         }, action.now) ?? state
       );
     }
@@ -1146,6 +1217,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           lastClaimedMissionRunId: state.lastClaimedMissionRunId,
           inventory: state.inventory,
           starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
+          preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
         },
         action.now,
       );
@@ -1162,6 +1234,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             lastClaimedMissionRunId: state.lastClaimedMissionRunId,
             inventory: state.inventory,
             starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
+            preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
           },
           action.now,
         );
@@ -1174,6 +1247,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           lastClaimedMissionRunId: state.lastClaimedMissionRunId,
           inventory: state.inventory,
           starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
+          preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
         }, action.now) ?? state
       );
 
@@ -1221,7 +1295,16 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return nextMissionOrderState(state);
 
     case "SHOW_HINT":
-      return { ...state, hint: buildHintLine(state.recipe, state.pizza, state.makingStep, true) };
+      return {
+        ...state,
+        hint: buildHintLine(
+          state.recipe,
+          state.pizza,
+          state.makingStep,
+          true,
+          state.preDiscoveryFreeCookAttempts,
+        ),
+      };
 
     // Applies one purchase transaction (../logic/economy.ts's `purchaseIngredient`, the only
     // place the LOCKED/AVAILABLE_TO_BUY/OWNED/price rules are evaluated). A failed purchase

@@ -154,8 +154,32 @@ export async function cutThreeLines(page: Page) {
   }
 }
 
-/** Fresh HOME -> Pizza Select -> margherita (the only unlockCondition-free recipe) -> PREPARE. */
+/** Fresh HOME -> Pizza Select -> margherita (the only unlockCondition-free recipe) -> PREPARE.
+ *
+ * Progression 2.0 Phase 3-3 (Issue #198): a truly empty Dex now makes margherita's own NEW card
+ * `preDiscoveryLocked` (its detail CTA routes to Free Cooking instead of guided SELECT_RECIPE,
+ * see src/screens/PizzaSelectScreen.tsx) -- irrelevant to what every caller of this helper across
+ * the suite actually tests (PREPARE/BAKE/RESULT/CUT mechanics, not onboarding), so an
+ * `addInitScript` seeds one harmless, deeply chain-gated discovery (`napoletana` -- its own
+ * unlock chain requires several undiscovered prerequisites, so this never widens
+ * `isRecipeAvailable`/`availableRecipeIds` for anything else) purely to clear the "something has
+ * ever been discovered" gate. `addInitScript` re-runs on every navigation this page makes,
+ * including the `reload()` below, so the seed survives it. Dedicated Phase 3-3 onboarding
+ * coverage (the gate itself, first discovery, Lunch Rush lock) lives in its own spec,
+ * `e2e/progression2-p3-3-onboarding.spec.ts`, which never calls this helper. */
 export async function startFreshMargherita(page: Page) {
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      "teto-pizza-save-v1",
+      JSON.stringify({
+        schemaVersion: 1,
+        dex: [{ recipeId: "napoletana", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }],
+        pitzBalance: 0,
+        ownedIngredientIds: ["tomato-sauce", "mozzarella", "basil"],
+        missionBest: {},
+      }),
+    );
+  });
   await page.goto("/");
   await page.evaluate(() => localStorage.clear());
   await page.reload();
@@ -458,6 +482,22 @@ export async function playFullQuattroFormaggiRound(page: Page) {
  * `failMissionOrderMissingSauce` below drive individual orders.
  */
 export async function startLunchRushMission(page: Page, durationSeconds: number) {
+  // Progression 2.0 Phase 3-3 (Issue #198): Lunch Rush stays locked until the player's first
+  // discovery -- seed one harmless, deeply chain-gated discovery (see startFreshMargherita's own
+  // comment above for why `napoletana` never widens anything else) purely to clear that gate;
+  // every caller here is testing Lunch Rush's own mechanics, not onboarding.
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      "teto-pizza-save-v1",
+      JSON.stringify({
+        schemaVersion: 1,
+        dex: [{ recipeId: "napoletana", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }],
+        pitzBalance: 0,
+        ownedIngredientIds: ["tomato-sauce", "mozzarella", "basil"],
+        missionBest: {},
+      }),
+    );
+  });
   await page.goto(`/?missionDuration=${durationSeconds}`);
   await page.evaluate(() => localStorage.clear());
   await page.reload();

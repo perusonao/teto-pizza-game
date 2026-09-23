@@ -121,8 +121,15 @@ describe("PizzaSelectScreen grid (Recipe Select 2.0A)", () => {
 
   it("3. tapping an unlocked, unplayed (NEW) recipe card opens its focused detail", async () => {
     const user = userEvent.setup();
-    renderSelect(); // EMPTY_DEX -- margherita is always-unlocked and NEW
-    await user.click(gridCard("マルゲリータ"));
+    // Progression 2.0 Phase 3-3: margherita on a truly fresh (EMPTY_DEX) save is now
+    // preDiscoveryLocked -- bismarck (unlocked once its own chain is discovered, same fixture
+    // pizzaSelect.test.ts's own "is NEW when available but not yet discovered" test uses) is a
+    // NEW card that is *not* pre-discovery-locked, so this keeps exercising the original
+    // NEW-card detail shape unchanged for a player past their first discovery. See tests 3b/4b
+    // below for margherita's own new preDiscoveryLocked behavior.
+    const dex = dexDiscovering(CHAIN_TO_BISMARCK, 1 as QualityStars);
+    renderSelect({ dex, ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "egg"] });
+    await user.click(gridCard("ビスマルク"));
     expect(backButton()).toBeInTheDocument();
     expect(document.querySelectorAll(".pizza-select-card")).toHaveLength(1);
     expect(within(detailPanel()).getByText("未挑戦")).toBeInTheDocument();
@@ -131,11 +138,45 @@ describe("PizzaSelectScreen grid (Recipe Select 2.0A)", () => {
 
   it("4. an unlocked NEW recipe's detail CTA starts the game with its exact id", async () => {
     const user = userEvent.setup();
-    const { onSelectRecipe } = renderSelect();
-    await user.click(gridCard("マルゲリータ"));
+    const dex = dexDiscovering(CHAIN_TO_BISMARCK, 1 as QualityStars);
+    const { onSelectRecipe } = renderSelect({
+      dex,
+      ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "egg"],
+    });
+    await user.click(gridCard("ビスマルク"));
     await user.click(ctaButton());
     expect(onSelectRecipe).toHaveBeenCalledTimes(1);
-    expect(onSelectRecipe).toHaveBeenCalledWith("margherita");
+    expect(onSelectRecipe).toHaveBeenCalledWith("bismarck");
+  });
+
+  it("3b. Progression 2.0 Phase 3-3: on a truly fresh save, margherita's NEW card is preDiscoveryLocked -- no NEW badge, an explanatory hint instead of 未挑戦", async () => {
+    const user = userEvent.setup();
+    renderSelect(); // EMPTY_DEX
+    const card = gridCard("マルゲリータ");
+    expect(within(card).queryByText("NEW")).not.toBeInTheDocument();
+    await user.click(card);
+    expect(within(detailPanel()).queryByText("未挑戦")).not.toBeInTheDocument();
+    expect(within(detailPanel()).getByText(/フリークッキングで発見しよう/)).toBeInTheDocument();
+  });
+
+  it("4b. Progression 2.0 Phase 3-3: the preDiscoveryLocked detail CTA opens Free Cooking, never SELECT_RECIPE", async () => {
+    const user = userEvent.setup();
+    const onSelectRecipe = vi.fn();
+    const onGoFreeCook = vi.fn();
+    render(
+      <PizzaSelectScreen
+        dex={EMPTY_DEX}
+        ownedIngredientIds={STARTER_INGREDIENT_IDS}
+        onSelectRecipe={onSelectRecipe}
+        onBack={vi.fn()}
+        onGoFreeCook={onGoFreeCook}
+      />,
+    );
+    await user.click(gridCard("マルゲリータ"));
+    const freeCookCta = screen.getByRole("button", { name: /フリークッキングで探す/ });
+    await user.click(freeCookCta);
+    expect(onGoFreeCook).toHaveBeenCalledTimes(1);
+    expect(onSelectRecipe).not.toHaveBeenCalled();
   });
 
   it("5. a chain-locked recipe (funghi) is tappable but its detail shows the real name, an unlock hint, and a disabled/no-op CTA", async () => {
@@ -287,7 +328,10 @@ describe("PizzaSelectScreen scalability (30-50 recipe fixture, dev-only -- produ
   it("the last card of a 38-recipe fixture is present in the DOM (reachable by scrolling) and selectable", async () => {
     const user = userEvent.setup();
     const recipes = mockRecipes(38);
-    const { onSelectRecipe } = renderSelect({ recipes });
+    // Progression 2.0 Phase 3-3: an empty Dex makes every always-unlocked NEW card
+    // preDiscoveryLocked (its CTA becomes フリークッキングで探す, see PizzaSelectScreen.tsx) --
+    // irrelevant to this scalability test, so seed a real discovery to keep the guided CTA path.
+    const { onSelectRecipe } = renderSelect({ recipes, dex: ALL_UNLOCKED_DEX });
     const last = recipes[recipes.length - 1];
     const lastCard = screen.getByText(last.nameJa);
     expect(lastCard).toBeInTheDocument();

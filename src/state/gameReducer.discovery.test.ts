@@ -169,9 +169,14 @@ describe("REGISTER_TO_DEX discovery integration (P3-1)", () => {
       );
       const legacy = registerScoreToDex(EMPTY_DEX, "bismarck", result.score!).dex;
       expect(after.dex).toEqual(registerScoreToDex(legacy, "breakfast-pizza", breakfastScore).dex);
-      // The selected recipe's own legacy flags and Pitz are unchanged.
+      // The selected recipe's own legacy flags and Pitz are unchanged. OD-02: bismarck itself is
+      // also a first-ever discovery here (dex started empty), so its own credit includes the
+      // first-discovery bonus -- breakfast-pizza's own separate discovery is Dex-only (§ above),
+      // never a second Pitz credit.
       expect(after.justDiscovered).toBe(true);
-      expect(after.lastPitzCredit).toEqual(applyPitzCredit(getRecipe("bismarck")!.baseRewardPitz, result.score!.total, 0));
+      expect(after.lastPitzCredit).toEqual(
+        applyPitzCredit(getRecipe("bismarck")!.baseRewardPitz, result.score!.total, 0, true),
+      );
     });
 
     it("is idempotent: making it again never re-writes that recipe", () => {

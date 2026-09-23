@@ -301,11 +301,14 @@ export function simulateProgression(profile: PlayerProfile): SimulationResult {
       total,
       stars: outcome,
     };
-    const { dex: nextDex } = registerScoreToDex(dex, recipe.id, scoreBreakdown);
+    const { dex: nextDex, wasNewDiscovery } = registerScoreToDex(dex, recipe.id, scoreBreakdown);
     dex = nextDex;
-    const credit = applyPitzCredit(recipe.baseRewardPitz, total, pitzBalance);
+    // Codex review (P2): OD-02's +50 first-discovery bonus (../logic/pitzReward.ts) must be fed
+    // by this same wasNewDiscovery flag, or the simulator silently treats every discovery as a
+    // repeat and under-models pitzBalance/cumulativePitzEarned/shortage-deadlock outcomes.
+    const credit = applyPitzCredit(recipe.baseRewardPitz, total, pitzBalance, wasNewDiscovery);
     pitzBalance = credit.balanceAfter;
-    cumulativePitzEarned += credit.earnedPitz;
+    cumulativePitzEarned += credit.earnedPitz + credit.discoveryBonusPitz;
     applyGrantsAndRecordUnlocks(attemptIndex);
   }
 

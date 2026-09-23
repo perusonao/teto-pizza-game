@@ -207,7 +207,9 @@ describe("Completion Gate Phase 1: PASS regression (existing Scoring 2.0 / rewar
     const after = gameReducer(passed, { type: "REGISTER_TO_DEX" });
     expect(after.lastPitzCredit).not.toBeNull();
     expect(after.lastPitzCredit!.earnedPitz).toBeGreaterThan(0);
-    expect(after.pitzBalance).toBe(after.lastPitzCredit!.earnedPitz);
+    // OD-02: this is margherita's first-ever discovery (a fresh dex), so pitzBalance also
+    // includes the first-discovery bonus folded into lastPitzCredit.balanceAfter.
+    expect(after.pitzBalance).toBe(after.lastPitzCredit!.balanceAfter);
   });
 
   it("26. PASS -> Dex/progression register normally (discovery, BEST, timesMade)", () => {

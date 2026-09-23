@@ -35,6 +35,7 @@ function basePitzCredit(overrides: Partial<PitzCredit> = {}): PitzCredit {
     earnedPitz: 42,
     baseReward: 100,
     multiplier: 0.8,
+    discoveryBonusPitz: 0,
     balanceBefore: 100,
     balanceAfter: 142,
     ...overrides,
