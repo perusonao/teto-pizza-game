@@ -475,7 +475,9 @@ describe("23/24. Lunch Rush: serve exactly once, next order clears CUT state", (
     const next = gameReducer(state, { type: "MISSION_NEXT_ORDER" });
     expect(next.phase).toBe("ORDER");
     const entry = next.dex.find((e) => e.recipeId === "margherita");
-    expect(entry?.timesMade).toBe(1);
+    // The Mission fixture starts with Margherita already discovered/timesMade=1 so Lunch Rush
+    // can legally order it under Issue #200; serving this round registers exactly one more make.
+    expect(entry?.timesMade).toBe(2);
     // The next order's own cutState is fresh -- the previous pizza's committed lines never
     // leak into it, regardless of which recipe the next order happens to be.
     expect(next.cutState.lines).toHaveLength(0);
