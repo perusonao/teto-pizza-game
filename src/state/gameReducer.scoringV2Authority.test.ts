@@ -12,6 +12,7 @@ import { createEmptyPizza, type PizzaState, type SauceDeposit } from "./pizzaSta
 import { getCookingProfile } from "../data/cookingProfiles";
 import { createCutState } from "../logic/cut/state";
 import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
+import { EMPTY_DEX, registerScoreToDex } from "./dex";
 
 const MARGHERITA_DISCOVERED_DEX = registerScoreToDex(EMPTY_DEX, "margherita", {
   total: 80,
