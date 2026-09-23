@@ -758,8 +758,12 @@ Claude Code implementation tasks should generally stay around 2–3 hours where 
 
 - `CI` (`ci.yml`): lint → full Vitest → build on every PR, unchanged. Chromium e2e projects stay
   local/manual.
-- `E2E WebKit` (`e2e-webkit.yml`): `classify` → `webkit` (390×844 + 360×800, every `e2e/*.spec.ts`)
-  → **`WebKit Gate`**. WebKit is skipped only when the change is documentation-only
+- `E2E WebKit` (`e2e-webkit.yml`): `classify` → `webkit` (every `e2e/*.spec.ts` on 390×844 +
+  360×800, as a 4-job matrix: each viewport × `--shard` 1/2, 2/2 — Issue #207 Phase 2A)
+  → **`WebKit Gate`**. The gate passes only if every shard succeeded **and** the shard evidence
+  proves every listed test ran exactly once and passed on both viewports (missing, duplicated,
+  cancelled or skipped shard → FAIL). Full WebKit also runs after every merge to `main`
+  (`push`), on demand (`workflow_dispatch`), and on any PR labelled `webkit-full`. WebKit is skipped only when the change is documentation-only
   (`docs/**`, `**/*.md` outside `src/`/`e2e/`/`public/`/`functions/`/`.github/`), or when only
   such files changed since a previous head whose `WebKit Gate` already succeeded on the same
   base commit (base moved → WebKit runs). Every other or
@@ -769,7 +773,9 @@ Claude Code implementation tasks should generally stay around 2–3 hours where 
   required and did not pass. Both PR workflows cancel superseded runs per PR (`concurrency`).
 - Practical rule: land runtime changes first, let WebKit pass once, then push Result Report /
   screenshot commits — those reuse the passing WebKit result instead of re-running it.
-- Details, verification and rollback: `docs/reports/TETO_DEV-CI_WEBKIT-CONDITIONAL_A1A2_Result.md`.
+- Details, verification and rollback: `docs/reports/TETO_DEV-CI_WEBKIT-CONDITIONAL_A1A2_Result.md`
+  (#201) and `docs/reports/TETO_DEV-CI_WEBKIT-PHASE2A_Result.md` (#207 Phase 2A; the WebKit CI
+  script tests run in `ci.yml` via `bash scripts/ci/test-webkit-ci.sh`).
 
 ### Standard completion rule (Issue #39 PS3 onward)
 
