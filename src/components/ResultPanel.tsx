@@ -309,7 +309,10 @@ export function ResultPanel({
         <div className="pitz-credit-summary">
           <p className="pitz-credit-summary__headline">
             今回の獲得{" "}
-            <strong>+{pitzCredit.earnedPitz + (efficiencyCredit?.bonusPitz ?? 0)} Pitz</strong>
+            <strong>
+              +{pitzCredit.earnedPitz + pitzCredit.discoveryBonusPitz + (efficiencyCredit?.bonusPitz ?? 0)}{" "}
+              Pitz
+            </strong>
           </p>
           <details className="pitz-credit-summary__breakdown">
             <summary className="pitz-credit-summary__breakdown-summary">内訳を見る</summary>
@@ -326,6 +329,12 @@ export function ResultPanel({
                   and in the new `.cooking-timing-summary` block below -- moved out entirely (this
                   breakdown now only covers Pitz math) to avoid showing the same two facts twice
                   on one screen. 手際ボーナス (a Pitz amount, not a timing fact) stays here. */}
+              {pitzCredit.discoveryBonusPitz > 0 && (
+                <div className="pitz-credit-summary__row">
+                  <dt>初回発見ボーナス</dt>
+                  <dd>+{pitzCredit.discoveryBonusPitz} Pitz</dd>
+                </div>
+              )}
               {efficiencyCredit && efficiencyCredit.bonusPitz > 0 && (
                 <div className="pitz-credit-summary__row">
                   <dt>手際ボーナス</dt>

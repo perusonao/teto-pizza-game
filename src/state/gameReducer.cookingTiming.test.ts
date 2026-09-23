@@ -141,7 +141,15 @@ describe("RETRY_SAME_RECIPE / SELECT_RECIPE start a fresh timing (no BEGIN_PREPA
   });
 
   it("SELECT_RECIPE: fresh timing at the given `now`", () => {
-    const discovered = playToDiscovered();
+    // Progression 2.0 Phase 3-3: SELECT_RECIPE only guided-selects an undiscovered recipe once
+    // something has ever been discovered -- `playToDiscovered` bakes an empty/underbaked pizza
+    // (this suite only cares about timing, not completion), so it never actually reaches the
+    // Dex. Seed a discovered margherita directly so this stays a pure timing-reset check (see
+    // gameReducer.selectRecipeDiscoveryGate.test.ts for the gate's own dedicated coverage).
+    const discovered = {
+      ...playToDiscovered(),
+      dex: [{ recipeId: "margherita", discovered: true, bestScore: 70, bestStars: 3 as const, timesMade: 1 }],
+    };
     const selected = gameReducer(discovered, {
       type: "SELECT_RECIPE",
       recipeId: "margherita",

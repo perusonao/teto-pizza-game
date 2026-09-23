@@ -236,14 +236,18 @@ describe("Post-reset fresh state (reload simulated via unmount + remount)", () =
     expect(screen.getByLabelText(/レシピ図鑑 発見数 0 \//)).toBeInTheDocument();
   });
 
-  it("only Margherita is available in Pizza Select; the next recipe is locked", async () => {
+  it("only Margherita is available in Pizza Select; the next recipe is locked, and Margherita itself is preDiscoveryLocked (Progression 2.0 Phase 3-3)", async () => {
     await resetAndSimulateReload();
     const user = userEvent.setup();
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
     const margheritaCard = screen.getByRole("button", { name: /^マルゲリータ、/ });
     expect(margheritaCard).toBeInTheDocument();
     await user.click(margheritaCard);
-    expect(screen.getByRole("button", { name: /このピザを作る/ })).not.toBeDisabled();
+    // Progression 2.0 Phase 3-3 (Issue #198): on a truly fresh save, margherita is available
+    // but not directly guided-selectable -- Free Cooking is the discovery path, so its detail
+    // CTA is フリークッキングで探す, not a disabled/enabled このピザを作る.
+    expect(screen.queryByRole("button", { name: /このピザを作る/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /フリークッキングで探す/ })).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "レシピ一覧に戻る" }));
 
     // RECIPES's array order (data/recipes.ts) is not the same as the unlock-chain order (see
@@ -258,14 +262,15 @@ describe("Post-reset fresh state (reload simulated via unmount + remount)", () =
     expect(screen.getByRole("button", { name: /このピザを作る/ })).toBeDisabled();
   });
 
-  it("Margherita's round reaches PREPARE using only Starter ingredients (no locked stock gate)", async () => {
+  it("Margherita's round reaches PREPARE using only Starter ingredients (no locked stock gate), via Free Cooking (Progression 2.0 Phase 3-3)", async () => {
     await resetAndSimulateReload();
     const user = userEvent.setup();
-    await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
-    await user.click(screen.getByRole("button", { name: /^マルゲリータ、/ }));
-    await user.click(screen.getByRole("button", { name: /このピザを作る/ }));
+    // Progression 2.0 Phase 3-3: a truly fresh save reaches margherita's making flow through
+    // Free Cooking (either HOME's own primary CTA or Pizza Select's routed CTA), never a direct
+    // guided SELECT_RECIPE -- see the preDiscoveryLocked test above for that gate's own coverage.
+    await user.click(screen.getByRole("button", { name: /フリークッキングで探す/ }));
     expect(document.querySelector(".game-screen")).toBeInTheDocument();
-    expect(screen.getAllByText(/マルゲリータ/).length).toBeGreaterThan(0);
+    expect(document.querySelector('[data-pizza-drop-target="true"]')).toBeInTheDocument();
   });
 
   it("Inventory shows only the three Starter ingredients, none else owned", async () => {

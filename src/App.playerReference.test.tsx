@@ -65,8 +65,29 @@ async function selectRecipeInPizzaSelect(
   await user.click(screen.getByRole("button", { name: /このピザを作る/ }));
 }
 
+/** Progression 2.0 Phase 3-3 (Issue #198): a truly fresh save makes margherita's own NEW card
+ *  preDiscoveryLocked (guided selection routes to Free Cooking instead) -- this suite is about
+ *  the mini Reference panel, not onboarding, so seed an (intentionally invalid, test-only)
+ *  already-discovered entry for a different, deeply-chain-gated recipe id, never actually
+ *  reachable via `isRecipeAvailable`, purely to clear the "something has ever been discovered"
+ *  gate without widening anything else. */
+function seedGuidedSelectUnlocked(): void {
+  const save: PersistentSaveV1 = {
+    schemaVersion: 1,
+    dex: [{ recipeId: "napoletana", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }],
+    pitzBalance: 0,
+    ownedIngredientIds: [...STARTER_INGREDIENT_IDS],
+    missionBest: {},
+  };
+  window.localStorage.setItem(SAVE_STORAGE_KEY, JSON.stringify(save));
+}
+
 async function enterMakingWith(user: ReturnType<typeof userEvent.setup>, recipeId: RecipeId) {
-  if (recipeId === "bismarck") seedBismarckUnlocked();
+  if (recipeId === "bismarck") {
+    seedBismarckUnlocked();
+  } else {
+    seedGuidedSelectUnlocked();
+  }
   render(<App />);
   await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
   await selectRecipeInPizzaSelect(user, recipeId);

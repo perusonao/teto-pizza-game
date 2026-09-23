@@ -277,6 +277,19 @@ function seedBismarckUnlocked(): void {
   });
 }
 
+/** Progression 2.0 Phase 3-3 (Issue #198): satisfies the "something has ever been discovered"
+ *  Lunch Rush gate without unlocking anything else -- `napoletana`'s own `unlockCondition`
+ *  chains through several still-undiscovered prerequisites, so seeding it (an intentionally
+ *  invalid save state no normal playthrough could reach) leaves `availableRecipeIds`/
+ *  `pickMissionOrder`'s own candidate pool exactly `{margherita}`, same as a truly fresh save.
+ *  Used by tests that need Lunch Rush unlocked but otherwise depend on that pool staying
+ *  margherita-only (unlike `seedBismarckUnlocked`, which genuinely widens it). */
+function seedLunchRushUnlockedOnly(): void {
+  seedSave({
+    dex: [{ recipeId: "napoletana", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }],
+  });
+}
+
 beforeEach(() => {
   window.localStorage.clear();
 });
@@ -373,6 +386,10 @@ describe("HOME/GAME separation (Issue #24)", () => {
   });
 
   it("navigates HOME -> Lunch Rush straight into the Mission Intro overlay", async () => {
+    // Progression 2.0 Phase 3-3 (Issue #198): Lunch Rush stays locked until the player has
+    // discovered something -- seed the narrow fixture (keeps the order pool margherita-only,
+    // same as a truly fresh save) so this stays a pure Lunch Rush mechanics check.
+    seedLunchRushUnlockedOnly();
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ランチラッシュ/ }));
@@ -385,6 +402,10 @@ describe("HOME/GAME separation (Issue #24)", () => {
   // ORDER-phase round (MISSION_RESET_ORDER) must still show its own "ピザを作る！" ORDER CTA
   // unaffected, never the フリープレイ label or a skip straight to PREPARE.
   it("Lunch Rush's own ORDER screen is unaffected by the Pizza Select FREE-mode change", async () => {
+    // Progression 2.0 Phase 3-3 (Issue #198): Lunch Rush stays locked until the player has
+    // discovered something -- seed the narrow fixture (keeps the order pool margherita-only,
+    // same as a truly fresh save) so this stays a pure Lunch Rush mechanics check.
+    seedLunchRushUnlockedOnly();
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ランチラッシュ/ }));
@@ -398,6 +419,10 @@ describe("HOME/GAME separation (Issue #24)", () => {
   // still lands on MissionServePanel (score + immediate 次の注文へ), never the FREE-only merged
   // Hero result screen, and never applies a stray per-pizza Pitz/Dex credit mid-run.
   it("Lunch Rush: CONFIRM_BAKE still shows MissionServePanel, not FREE's merged RESULT screen", async () => {
+    // Progression 2.0 Phase 3-3 (Issue #198): Lunch Rush stays locked until the player has
+    // discovered something -- seed the narrow fixture (keeps the order pool margherita-only,
+    // same as a truly fresh save) so this stays a pure Lunch Rush mechanics check.
+    seedLunchRushUnlockedOnly();
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ランチラッシュ/ }));
@@ -422,6 +447,11 @@ describe("HOME/GAME separation (Issue #24)", () => {
   // so the next order skips straight to PREPARE -- covers two consecutive pizzas to pin that
   // servedCount/mission HUD keep advancing correctly across the auto-advance, not just once.
   it("Lunch Rush: 次の注文へ skips the redundant ORDER gate and lands straight at PREPARE", async () => {
+    // Progression 2.0 Phase 3-3 (Issue #198): Lunch Rush stays locked until the player has
+    // discovered something. `bakeMissionOrderPass` below depends on the order pool staying
+    // margherita-only (a fresh save's own default) -- `seedBismarckUnlocked` would widen it, so
+    // use the narrower fixture instead.
+    seedLunchRushUnlockedOnly();
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ランチラッシュ/ }));
@@ -454,6 +484,10 @@ describe("HOME/GAME separation (Issue #24)", () => {
   // already shows (buildCompletionFailureMessage, ../data/completionMessages.ts), never the
   // normal stars/score/+1 SERVED card, and must never bump servedCount.
   it("Lunch Rush: a Completion FAILED order shows the failure reason and never counts as served", async () => {
+    // Progression 2.0 Phase 3-3 (Issue #198): Lunch Rush stays locked until the player has
+    // discovered something -- seed the narrow fixture (keeps the order pool margherita-only,
+    // same as a truly fresh save) so this stays a pure Lunch Rush mechanics check.
+    seedLunchRushUnlockedOnly();
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ランチラッシュ/ }));
@@ -488,6 +522,10 @@ describe("HOME/GAME separation (Issue #24)", () => {
   // nor ever manage to sneak servedCount/score up -- "FAILEDだから無限にやり直せる" is explicitly
   // not the semantics here (see the Result Report's Product Rule section).
   it("Lunch Rush: repeated Completion FAILED orders never inflate servedCount or loop the same order", async () => {
+    // Progression 2.0 Phase 3-3 (Issue #198): Lunch Rush stays locked until the player has
+    // discovered something -- seed the narrow fixture (keeps the order pool margherita-only,
+    // same as a truly fresh save) so this stays a pure Lunch Rush mechanics check.
+    seedLunchRushUnlockedOnly();
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ランチラッシュ/ }));
@@ -513,6 +551,11 @@ describe("HOME/GAME separation (Issue #24)", () => {
   // A PASS pizza served right after a FAILED one pins that the two never bleed into each
   // other's counts -- FAILED stays 0/0, and the very next PASS still counts as exactly +1.
   it("Lunch Rush: a PASS order right after a FAILED one still counts as exactly +1 served", async () => {
+    // Progression 2.0 Phase 3-3 (Issue #198): Lunch Rush stays locked until the player has
+    // discovered something. `bakeMissionOrderPass` below depends on the order pool staying
+    // margherita-only (a fresh save's own default) -- `seedBismarckUnlocked` would widen it, so
+    // use the narrower fixture instead.
+    seedLunchRushUnlockedOnly();
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ランチラッシュ/ }));
@@ -744,6 +787,12 @@ describe("HOME/GAME separation (Issue #24)", () => {
   // Japanese labels, never the four raw technical signal names, and never perturbs the
   // existing stars/score/Pitz headline.
   it("Pizza Cutting Phase 3: margherita's RESULT shows the CUT evaluation card after a real CUT walkthrough", async () => {
+    // Progression 2.0 Phase 3-3 (Issue #198): margherita is guided-selectable pre-first-
+    // discovery only once *something* has ever been discovered. Seed an (otherwise-invalid,
+    // test-only) already-discovered entry for a different recipe id -- not margherita itself,
+    // whose own NEW-discovery banner this test still asserts below -- so this stays a pure
+    // CUT-walkthrough check, unrelated to onboarding gating.
+    seedSave({ dex: [{ recipeId: "funghi", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }] });
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));

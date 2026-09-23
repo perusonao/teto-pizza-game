@@ -39,9 +39,9 @@ const CHAIN_TO_FUGAZZA = [
 ];
 
 describe("recipeCardState (Issue #39 Pizza Select, extended by Economy & Progression 1.0 EP1)", () => {
-  it("margherita is NEW on a fresh save (always unlocked, empty Dex)", () => {
+  it("margherita is NEW on a fresh save (always unlocked, empty Dex), but preDiscoveryLocked (Progression 2.0 Phase 3-3)", () => {
     const card = recipeCardState(margherita, EMPTY_DEX, STARTER_INGREDIENT_IDS);
-    expect(card).toEqual({ kind: "NEW", recipe: margherita });
+    expect(card).toEqual({ kind: "NEW", recipe: margherita, preDiscoveryLocked: true });
   });
 
   it("is LOCKED (not mystery) when the recipe's own unlockCondition isn't yet satisfied (funghi, fresh save)", () => {

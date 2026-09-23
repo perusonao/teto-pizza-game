@@ -74,15 +74,18 @@ describe("FREE per-pizza Pitz credit (REGISTER_TO_DEX)", () => {
     expect(typeof totalBefore).toBe("number");
 
     const after = gameReducer(resultState, { type: "REGISTER_TO_DEX" });
-    const expected = calculatePitzReward(getRecipe("margherita")!.baseRewardPitz, totalBefore!);
+    // OD-02: this is margherita's very first-ever discovery (a fresh `createInitialGameState()`
+    // dex), so the credit also includes the first-discovery bonus.
+    const expected = calculatePitzReward(getRecipe("margherita")!.baseRewardPitz, totalBefore!, true);
 
     expect(after.lastPitzCredit).not.toBeNull();
     expect(after.lastPitzCredit?.baseReward).toBe(expected.baseReward);
     expect(after.lastPitzCredit?.multiplier).toBe(expected.multiplier);
     expect(after.lastPitzCredit?.earnedPitz).toBe(expected.earnedPitz);
+    expect(after.lastPitzCredit?.discoveryBonusPitz).toBe(expected.discoveryBonusPitz);
     expect(after.lastPitzCredit?.balanceBefore).toBe(0);
-    expect(after.lastPitzCredit?.balanceAfter).toBe(expected.earnedPitz);
-    expect(after.pitzBalance).toBe(expected.earnedPitz);
+    expect(after.lastPitzCredit?.balanceAfter).toBe(expected.earnedPitz + expected.discoveryBonusPitz);
+    expect(after.pitzBalance).toBe(expected.earnedPitz + expected.discoveryBonusPitz);
   });
 
   it("credits a mid-quality FREE pizza (a real Scoring 2.0 mid-range score, not a fabricated one)", () => {
@@ -91,10 +94,11 @@ describe("FREE per-pizza Pitz credit (REGISTER_TO_DEX)", () => {
     const resultState = playFreeMargheritaToResult(85);
     const totalBefore = resultState.score!.total;
     const after = gameReducer(resultState, { type: "REGISTER_TO_DEX" });
-    const expected = calculatePitzReward(100, totalBefore);
+    // OD-02: also margherita's first-ever discovery in this flow (fresh dex).
+    const expected = calculatePitzReward(100, totalBefore, true);
 
     expect(after.lastPitzCredit?.earnedPitz).toBe(expected.earnedPitz);
-    expect(after.pitzBalance).toBe(expected.earnedPitz);
+    expect(after.pitzBalance).toBe(expected.earnedPitz + expected.discoveryBonusPitz);
   });
 
   it("Completion Gate Phase 1: a FAILED FREE pizza (empty pizza, no sauce/cheese/topping) never credits Pitz at all -- it stays parked at RESULT, unregistered", () => {
@@ -113,7 +117,7 @@ describe("FREE per-pizza Pitz credit (REGISTER_TO_DEX)", () => {
   it("REGISTER_TO_DEX credits Pitz exactly once, even if dispatched twice (double-click/duplicate dispatch)", () => {
     const resultState = playFreeMargheritaToResult(70);
     const afterFirst = gameReducer(resultState, { type: "REGISTER_TO_DEX" });
-    const earnedFirst = afterFirst.lastPitzCredit?.earnedPitz ?? 0;
+    const earnedFirst = afterFirst.pitzBalance;
     expect(earnedFirst).toBeGreaterThan(0);
 
     // Same atomicity guard as Dex registration (phase already DISCOVERED) -- the second

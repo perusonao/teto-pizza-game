@@ -495,7 +495,15 @@ describe("12/13/14. reset / recipe change / retry clear CUT transient state", ()
     // margherita is the only recipe available from a fresh, from-scratch dex/ownedIngredientIds
     // (every other recipe's unlockCondition requires margherita discovered first) -- selecting
     // it again still exercises SELECT_RECIPE's own `startPreparingRecipe` -> `buildOrderState`
-    // path, the one place `cutState` is (re)created.
+    // path, the one place `cutState` is (re)created. Progression 2.0 Phase 3-3: SELECT_RECIPE
+    // additionally requires *something* to have ever been discovered before it will
+    // guided-select an undiscovered recipe (see gameReducer.selectRecipeDiscoveryGate.test.ts)
+    // -- `bakedMargheritaAtCut` never dispatches REGISTER_TO_DEX, so the Dex is still empty here;
+    // seed a discovered margherita directly so this test stays a pure cutState-reset check.
+    state = {
+      ...state,
+      dex: [{ recipeId: "margherita", discovered: true, bestScore: 70, bestStars: 3 as const, timesMade: 1 }],
+    };
     const selected = gameReducer(state, { type: "SELECT_RECIPE", recipeId: "margherita" });
     expect(selected.phase).toBe("PREPARE");
     expect(selected.cutState.lines).toHaveLength(0);

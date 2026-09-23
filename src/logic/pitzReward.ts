@@ -31,29 +31,56 @@ export function qualityMultiplierForScore(total: number): number {
   return band ? band.multiplier : 0;
 }
 
+/** Progression 2.0 Phase 2 design decision OD-02 (see
+ *  docs/design/TETO_PROGRESSION2_PHASE2_DESIGN.md's recommended curve, reaffirmed as existing
+ *  authority for Phase 3-3, Issue #198): every registered round has already cleared the
+ *  Completion Gate, and `scoring.ts`'s `starsFromTotal` never returns fewer than ★1 (there is no
+ *  ★0) -- so a real recipe's reward must never be allowed to round down to 0 Pitz just because
+ *  quality landed in the 0-39 band. `PITZ_QUALITY_FLOOR` is that floor; `PITZ_FIRST_DISCOVERY_BONUS`
+ *  is the flat bonus OD-02 also approves for a recipe's very first-ever discovery (additive, see
+ *  `discoveryBonusPitz` below). Neither number is invented here -- both are copied from the
+ *  already-approved Phase 2 curve, not re-tuned. */
+export const PITZ_QUALITY_FLOOR = 20;
+export const PITZ_FIRST_DISCOVERY_BONUS = 50;
+
 export interface PitzRewardResult {
   /** The recipe's static `baseRewardPitz`, clamped to a safe non-negative number. */
   baseReward: number;
   /** The V1 quality multiplier this `scoreTotal` landed in. */
   multiplier: number;
-  /** `Math.round(baseReward * multiplier)`, floored at 0. Always a non-negative integer. */
+  /** `Math.round(baseReward * multiplier)`, floored at `PITZ_QUALITY_FLOOR` (OD-02) whenever
+   *  `baseReward` is positive -- a malformed/zero `baseRewardPitz` still earns nothing. Always a
+   *  non-negative integer. */
   earnedPitz: number;
+  /** OD-02's first-discovery bonus: `PITZ_FIRST_DISCOVERY_BONUS` when this round's caller says
+   *  this is the recipe's first-ever discovery, otherwise 0. Additive, never folded into
+   *  `earnedPitz`/`multiplier` -- mirrors Cooking Time CT2's `lastEfficiencyCredit.bonusPitz`
+   *  convention (../state/gameReducer.ts), which stays a completely separate bonus. */
+  discoveryBonusPitz: number;
 }
 
 /**
- * The V1 reward formula: `recipeBaseReward x qualityMultiplier = earnedPitz`. Pure and
- * deterministic -- same `(baseRewardPitz, scoreTotal)` in, same result out, every call, no
- * randomness or external state (mirrors `calculateMissionReward`'s own determinism, see
- * ../logic/economy.ts). `Math.round` per the project's existing rounding convention
- * (`missionScore`, `ResultPanel`'s displayed total). Malformed `baseRewardPitz` (negative, NaN,
- * non-finite) clamps to 0 rather than propagating a negative/invalid reward.
+ * The V1 reward formula: `recipeBaseReward x qualityMultiplier = earnedPitz`, plus OD-02's ★1
+ * floor and first-discovery bonus. Pure and deterministic -- same inputs in, same result out,
+ * every call, no randomness or external state (mirrors `calculateMissionReward`'s own
+ * determinism, see ../logic/economy.ts). `Math.round` per the project's existing rounding
+ * convention (`missionScore`, `ResultPanel`'s displayed total). Malformed `baseRewardPitz`
+ * (negative, NaN, non-finite, zero) clamps to 0 rather than propagating a negative/invalid
+ * reward, and -- since there is then no real recipe reward to floor or bonus -- both
+ * `earnedPitz` and `discoveryBonusPitz` stay 0 in that case regardless of `wasNewDiscovery`.
  */
-export function calculatePitzReward(baseRewardPitz: number, scoreTotal: number): PitzRewardResult {
+export function calculatePitzReward(
+  baseRewardPitz: number,
+  scoreTotal: number,
+  wasNewDiscovery = false,
+): PitzRewardResult {
   const safeBaseReward =
     Number.isFinite(baseRewardPitz) && baseRewardPitz > 0 ? baseRewardPitz : 0;
   const multiplier = qualityMultiplierForScore(scoreTotal);
-  const earnedPitz = Math.max(0, Math.round(safeBaseReward * multiplier));
-  return { baseReward: safeBaseReward, multiplier, earnedPitz };
+  const rawEarnedPitz = Math.max(0, Math.round(safeBaseReward * multiplier));
+  const earnedPitz = safeBaseReward > 0 ? Math.max(PITZ_QUALITY_FLOOR, rawEarnedPitz) : 0;
+  const discoveryBonusPitz = safeBaseReward > 0 && wasNewDiscovery ? PITZ_FIRST_DISCOVERY_BONUS : 0;
+  return { baseReward: safeBaseReward, multiplier, earnedPitz, discoveryBonusPitz };
 }
 
 /** Canonical transient RESULT/DISCOVERED display snapshot (`GameState.lastPitzCredit`, see
@@ -76,15 +103,21 @@ export function applyPitzCredit(
   baseRewardPitz: number,
   scoreTotal: number,
   balanceBefore: number,
+  wasNewDiscovery = false,
 ): PitzCredit {
-  const { baseReward, multiplier, earnedPitz } = calculatePitzReward(baseRewardPitz, scoreTotal);
+  const { baseReward, multiplier, earnedPitz, discoveryBonusPitz } = calculatePitzReward(
+    baseRewardPitz,
+    scoreTotal,
+    wasNewDiscovery,
+  );
   const safeBalanceBefore =
     Number.isFinite(balanceBefore) && balanceBefore >= 0 ? balanceBefore : 0;
   return {
     baseReward,
     multiplier,
     earnedPitz,
+    discoveryBonusPitz,
     balanceBefore: safeBalanceBefore,
-    balanceAfter: safeBalanceBefore + earnedPitz,
+    balanceAfter: safeBalanceBefore + earnedPitz + discoveryBonusPitz,
   };
 }

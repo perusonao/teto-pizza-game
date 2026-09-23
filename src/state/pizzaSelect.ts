@@ -1,6 +1,6 @@
 import { getRecipe, type Recipe } from "../data/recipes";
 import type { QualityStars } from "../logic/scoring";
-import { getDexEntry, isDiscovered, type DexState } from "./dex";
+import { discoveredRecipeIds, getDexEntry, isDiscovered, type DexState } from "./dex";
 import { totalStars } from "../logic/mastery";
 import { isRecipeAvailable } from "./progression";
 
@@ -13,7 +13,7 @@ import { isRecipeAvailable } from "./progression";
  */
 export type RecipeCardState =
   | { kind: "COMPLETED"; recipe: Recipe; bestStars: QualityStars; bestScore: number }
-  | { kind: "NEW"; recipe: Recipe }
+  | { kind: "NEW"; recipe: Recipe; preDiscoveryLocked?: boolean }
   | { kind: "LOCKED"; recipe: Recipe; mystery: boolean; unlockHint: string | null };
 
 /**
@@ -63,6 +63,15 @@ export function recipeCardState(
   const entry = getDexEntry(dex, recipe.id);
   if (entry?.discovered) {
     return { kind: "COMPLETED", recipe, bestStars: entry.bestStars, bestScore: entry.bestScore };
+  }
+  // Progression 2.0 Phase 3-3 (Issue #198): before the player's first-ever discovery, an
+  // available-but-undiscovered ("NEW") card is not directly guided-selectable -- Free Cooking
+  // is the discovery path. Margherita is the only recipe unlocked at Dex 0 (every other recipe
+  // chains off a `requiresRecipeId`), so this only ever fires for a brand-new save's first
+  // round; `preDiscoveryLocked` is omitted entirely (not just `false`) once any recipe has ever
+  // been discovered, so an existing player's NEW cards keep their exact pre-Phase-3-3 shape.
+  if (discoveredRecipeIds(dex).length === 0) {
+    return { kind: "NEW", recipe, preDiscoveryLocked: true };
   }
   return { kind: "NEW", recipe };
 }

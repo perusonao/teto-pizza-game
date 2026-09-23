@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { applyPitzCredit, calculatePitzReward, qualityMultiplierForScore } from "./pitzReward";
+import {
+  applyPitzCredit,
+  calculatePitzReward,
+  PITZ_FIRST_DISCOVERY_BONUS,
+  PITZ_QUALITY_FLOOR,
+  qualityMultiplierForScore,
+} from "./pitzReward";
 
 describe("qualityMultiplierForScore -- V1 band boundaries", () => {
   it.each([
@@ -20,7 +26,7 @@ describe("qualityMultiplierForScore -- V1 band boundaries", () => {
 
 describe("calculatePitzReward -- V1 formula (recipeBaseReward x qualityMultiplier)", () => {
   it.each([
-    [39, 0],
+    [39, 20], // OD-02 floor: raw 100*0=0, floored to PITZ_QUALITY_FLOOR
     [40, 50],
     [59, 50],
     [60, 80],
@@ -41,9 +47,22 @@ describe("calculatePitzReward -- V1 formula (recipeBaseReward x qualityMultiplie
     expect(a).toEqual(b);
   });
 
-  it("0-39 band always yields exactly 0 Pitz regardless of baseRewardPitz", () => {
-    expect(calculatePitzReward(500, 0).earnedPitz).toBe(0);
-    expect(calculatePitzReward(500, 39).earnedPitz).toBe(0);
+  it("OD-02: the 0-39 band still floors to PITZ_QUALITY_FLOOR (20) whenever baseRewardPitz is valid, never exactly 0", () => {
+    expect(calculatePitzReward(500, 0).earnedPitz).toBe(PITZ_QUALITY_FLOOR);
+    expect(calculatePitzReward(500, 39).earnedPitz).toBe(PITZ_QUALITY_FLOOR);
+  });
+
+  it("OD-02: the floor never applies when baseRewardPitz itself is invalid (no real recipe reward to floor)", () => {
+    expect(calculatePitzReward(0, 0).earnedPitz).toBe(0);
+    expect(calculatePitzReward(-100, 0).earnedPitz).toBe(0);
+    expect(calculatePitzReward(NaN, 0).earnedPitz).toBe(0);
+  });
+
+  it("OD-02: discoveryBonusPitz is PITZ_FIRST_DISCOVERY_BONUS only when wasNewDiscovery is true and baseRewardPitz is valid", () => {
+    expect(calculatePitzReward(100, 82).discoveryBonusPitz).toBe(0);
+    expect(calculatePitzReward(100, 82, false).discoveryBonusPitz).toBe(0);
+    expect(calculatePitzReward(100, 82, true).discoveryBonusPitz).toBe(PITZ_FIRST_DISCOVERY_BONUS);
+    expect(calculatePitzReward(0, 82, true).discoveryBonusPitz).toBe(0);
   });
 
   it("rounds a non-integer product per Math.round, pinned at a .5 boundary", () => {
@@ -83,11 +102,19 @@ describe("applyPitzCredit -- before/after balance snapshot", () => {
     expect(credit.balanceAfter).toBe(170);
   });
 
-  it("a 0-Pitz credit still snapshots balanceBefore === balanceAfter", () => {
+  it("OD-02: the floor still applies inside applyPitzCredit -- a low-quality credit is never 0", () => {
     const credit = applyPitzCredit(100, 20, 30);
-    expect(credit.earnedPitz).toBe(0);
+    expect(credit.earnedPitz).toBe(PITZ_QUALITY_FLOOR);
     expect(credit.balanceBefore).toBe(30);
-    expect(credit.balanceAfter).toBe(30);
+    expect(credit.balanceAfter).toBe(50);
+  });
+
+  it("OD-02: wasNewDiscovery folds the first-discovery bonus into balanceAfter", () => {
+    const credit = applyPitzCredit(100, 96, 50, true);
+    expect(credit.earnedPitz).toBe(120);
+    expect(credit.discoveryBonusPitz).toBe(PITZ_FIRST_DISCOVERY_BONUS);
+    expect(credit.balanceBefore).toBe(50);
+    expect(credit.balanceAfter).toBe(50 + 120 + PITZ_FIRST_DISCOVERY_BONUS);
   });
 
   it("clamps a malformed starting balance to 0", () => {

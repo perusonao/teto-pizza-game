@@ -159,6 +159,10 @@ function App() {
   // hydration produced -- a resumed ORDER-phase round from a prior session is simply what
   // GAME shows once the player taps into it from HOME.
   const [screen, setScreen] = useState<Screen>("HOME");
+  // Progression 2.0 Phase 3-3 (Issue #198): true once the player has discovered any recipe at
+  // all -- gates Lunch Rush (HOME's own button + handleStartLunchRush below) until the player's
+  // first discovery. Derived, never independently stored, same discipline as `activeCategory`.
+  const hasAnyDiscovery = state.dex.some((entry) => entry.discovered);
   // Issue #32 Phase 2: derived, never independently set -- see makingStepToCategory's doc
   // comment above.
   const activeCategory = makingStepToCategory(state.makingStep);
@@ -748,7 +752,13 @@ function App() {
     setScreen("PIZZA_SELECT");
   }
 
+  // Progression 2.0 Phase 3-3 (Issue #198): Lunch Rush stays closed until the player's very
+  // first discovery -- HOME's own button is disabled (see the `lunchRushLocked` prop below), but
+  // this is the reducer-adjacent backstop so a stray dispatch can never start it early either.
+  // `missionRunReducer` (../mission/lunchRush.ts) has no Dex awareness of its own, so the guard
+  // lives here rather than inside SHOW_INTRO's own case.
   function handleStartLunchRush() {
+    if (!hasAnyDiscovery) return;
     setScreen("GAME");
     missionDispatch({ type: "SHOW_INTRO" });
   }
@@ -830,6 +840,7 @@ function App() {
           onStartFreePlay={handleStartFreePlay}
           onStartFreeCook={handleStartFreeCook}
           onStartLunchRush={handleStartLunchRush}
+          lunchRushLocked={!hasAnyDiscovery}
           onOpenDex={() => setDexOpen(true)}
           onOpenShop={() => setShopOpen(true)}
           onOpenInventory={() => setInventoryOpen(true)}
@@ -844,6 +855,7 @@ function App() {
           ownedIngredientIds={state.ownedIngredientIds}
           onSelectRecipe={handleSelectRecipe}
           onBack={handleBackFromPizzaSelect}
+          onGoFreeCook={handleStartFreeCook}
         />
       )}
 

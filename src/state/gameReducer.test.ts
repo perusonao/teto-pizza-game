@@ -861,7 +861,18 @@ describe("inventory carry-through (Save v2 / Inventory E1)", () => {
   });
 
   it("SELECT_RECIPE carries inventory through unchanged", () => {
-    const state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 0, seededInventory);
+    // Progression 2.0 Phase 3-3: SELECT_RECIPE only guided-selects an undiscovered recipe once
+    // something has ever been discovered (see gameReducer.selectRecipeDiscoveryGate.test.ts) --
+    // seed a discovered margherita so this stays a pure inventory-carry-through check.
+    const dexWithMargherita: DexState = [
+      { recipeId: "margherita", discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 },
+    ];
+    const state = createInitialGameState(
+      dexWithMargherita,
+      STARTER_INGREDIENT_IDS,
+      0,
+      seededInventory,
+    );
     const after = gameReducer(state, { type: "SELECT_RECIPE", recipeId: "margherita" });
     expect(after.phase).toBe("PREPARE");
     expect(after.inventory).toEqual(seededInventory);
