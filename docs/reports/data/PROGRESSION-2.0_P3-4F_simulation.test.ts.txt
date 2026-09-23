@@ -1,0 +1,172 @@
+import { it } from "vitest";
+import { writeFileSync } from "node:fs";
+import { createInitialGameState, gameReducer, type GameState } from "../state/gameReducer";
+import { registerScoreToDex, EMPTY_DEX, discoveredRecipeIds, type DexState } from "../state/dex";
+import type { ScoreBreakdown, QualityStars } from "../logic/scoring";
+import { INGREDIENTS, STARTER_INGREDIENT_IDS, getIngredient } from "../data/ingredients";
+import { RECIPES, getRecipe } from "../data/recipes";
+import { availableRecipeIds } from "../state/progression";
+import { canPlaceIngredient, consumePizzaInventory, type InventoryState } from "../state/inventory";
+import { evaluatePizzaCompletion } from "../logic/completionGate";
+import { applyStarterGrants } from "../state/starterStock";
+import { DOUGH_CENTER } from "../logic/pizzaCoordinates";
+import { pickMissionOrder } from "../mission/lunchRush";
+
+// Audit-only simulation (Phase 3-4F Fresh Audit). Copy to src/ as *.test.ts to run; never committed as code.
+const OUT = process.env.P34F_OUT!;
+const sc = (t: number, s: QualityStars): ScoreBreakdown => ({ matchScore: t, ingredientScore: t, placementScore: t, bakeScore: t, total: t, stars: s });
+function dexOf(ids: string[]): DexState { let d: DexState = EMPTY_DEX; for (const id of ids) d = registerScoreToDex(d, id, sc(60, 3 as QualityStars)).dex; return d; }
+
+/** Audit-only makeability predicate in CURRENT piece units: every finite required ingredient has
+ *  stock >= the pieces/units needed for a PASS (scatter: minCount, spread: 1). */
+function canMakeNow(recipeId: string, s: Pick<GameState, "dex" | "ownedIngredientIds" | "inventory">) {
+  const r = getRecipe(recipeId as never)!;
+  const avail = availableRecipeIds(s.dex, s.ownedIngredientIds).includes(r.id);
+  const disc = discoveredRecipeIds(s.dex).includes(r.id);
+  const short: string[] = [];
+  for (const req of r.requiredIngredients) {
+    const ing = getIngredient(req.ingredientId)!;
+    if (!ing.unlockCondition) continue;
+    const need = ing.placement === "scatter" ? (req.minCount ?? 1) : 1;
+    if ((s.inventory[ing.id] ?? 0) < need) short.push(`${ing.id}:${s.inventory[ing.id] ?? 0}<${need}`);
+  }
+  return { discovered: disc, available: avail, stockOk: short.length === 0, short, makeable: disc && avail && short.length === 0 };
+}
+
+function drawOrders(s0: GameState, n: number) {
+  let s = gameReducer(s0, { type: "MISSION_RESET_ORDER" });
+  const seq: string[] = [];
+  for (let i = 0; i < n; i++) { seq.push(s.recipe.id); s = gameReducer(s, { type: "MISSION_RESET_ORDER" }); }
+  return { first: gameReducer(s0, { type: "MISSION_RESET_ORDER" }), seq };
+}
+function summarize(seq: string[], s: GameState) {
+  const counts: Record<string, number> = {}; seq.forEach((id) => (counts[id] = (counts[id] ?? 0) + 1));
+  const unmakeable = seq.filter((id) => !canMakeNow(id, s).makeable).length;
+  let repeats = 0; for (let i = 1; i < seq.length; i++) if (seq[i] === seq[i - 1]) repeats++;
+  return { draws: seq.length, counts, unmakeableOrders: unmakeable, unmakeableRate: +(unmakeable / seq.length).toFixed(3), immediateRepeats: repeats, head: seq.slice(0, 12) };
+}
+
+/** Play the current mission round to RESULT with the maximum placeable pieces of every required ingredient. */
+function playRound(s: GameState) {
+  let st: GameState = { ...s, phase: "PREPARE", makingStep: "TOPPING" };
+  const r = st.recipe;
+  const rejected: string[] = [];
+  let pizza = { ...st.pizza, sauceIds: [] as string[], sauceDeposits: [] };
+  for (const req of r.requiredIngredients) {
+    const ing = getIngredient(req.ingredientId)!;
+    if (ing.placement === "spread") {
+      if (canPlaceIngredient(ing, st.inventory, { ...st.pizza, ...pizza })) pizza = { ...pizza, sauceIds: [ing.id] };
+      else rejected.push(ing.id);
+      continue;
+    }
+    for (let k = 0; k < (req.minCount ?? 1); k++) {
+      const cur = { ...st.pizza, ...pizza };
+      if (!canPlaceIngredient(ing, st.inventory, cur)) { rejected.push(`${ing.id}#${k}`); continue; }
+      pizza = { ...pizza, toppings: [...cur.toppings, { id: `t${k}${ing.id}`, ingredientId: ing.id, x: DOUGH_CENTER, y: DOUGH_CENTER }] } as never;
+    }
+  }
+  const finalPizza = { ...st.pizza, ...pizza, bakeResult: (r.bakeTarget.start + r.bakeTarget.end) / 2 };
+  const completion = evaluatePizzaCompletion(r, finalPizza as never);
+  const inventoryAfter = consumePizzaInventory(finalPizza as never, st.inventory);
+  return { recipeId: r.id, rejectedPlacements: rejected, completion: completion.status, reason: completion.status === "FAILED" ? completion.reason : null, inventoryBefore: st.inventory, inventoryAfter };
+}
+
+it("P3-4F fresh-audit simulation", () => {
+  const out: Record<string, unknown> = {};
+  out.finiteIngredients = INGREDIENTS.filter((i) => i.unlockCondition).map((i) => ({ id: i.id, placement: i.placement, restockQuantity: i.restockQuantity ?? null, starterGrantOnly: !!i.starterGrantOnly }));
+  out.starterUnlimited = [...STARTER_INGREDIENT_IDS];
+  out.recipes = RECIPES.map((r) => ({
+    id: r.id,
+    unlock: r.unlockCondition ?? null,
+    required: r.requiredIngredients.map((q) => ({ id: q.ingredientId, minCount: q.minCount ?? null, finite: !!getIngredient(q.ingredientId)?.unlockCondition, placement: getIngredient(q.ingredientId)?.placement })),
+    allUnlimited: r.requiredIngredients.every((q) => !getIngredient(q.ingredientId)?.unlockCondition),
+
+  }));
+
+  // A: discovered funghi, mushroom NOT owned
+  { const s = createInitialGameState(dexOf(["margherita", "funghi"]), STARTER_INGREDIENT_IDS);
+    const { seq } = drawOrders(s, 200);
+    out.A = { setup: "dex={margherita,funghi}; owned=starter only (no mushroom)", ...summarize(seq, s), funghiAvailable: availableRecipeIds(s.dex, s.ownedIngredientIds).includes("funghi") }; }
+
+  // B: mushroom owned, inventory 0
+  { const s = createInitialGameState(dexOf(["margherita", "funghi"]), [...STARTER_INGREDIENT_IDS, "mushroom"], 0, { mushroom: 0 }, ["funghi"]);
+    const { seq } = drawOrders(s, 200);
+    let st = gameReducer(s, { type: "MISSION_RESET_ORDER" }); while (st.recipe.id !== "funghi") st = gameReducer(st, { type: "MISSION_RESET_ORDER" });
+    out.B = { setup: "dex={margherita,funghi}; mushroom OWNED, inventory.mushroom=0", ...summarize(seq, s), funghiRound: playRound(st) }; }
+
+  // B2: owned, partial stock (< minCount)
+  { const need = getRecipe("funghi")!.requiredIngredients.find((q) => q.ingredientId === "mushroom")!.minCount ?? 1;
+    const s = createInitialGameState(dexOf(["margherita", "funghi"]), [...STARTER_INGREDIENT_IDS, "mushroom"], 0, { mushroom: need - 1 }, ["funghi"]);
+    let st = gameReducer(s, { type: "MISSION_RESET_ORDER" }); while (st.recipe.id !== "funghi") st = gameReducer(st, { type: "MISSION_RESET_ORDER" });
+    out.B2 = { setup: `mushroom stock=${need - 1} < funghi minCount=${need}`, funghiRound: playRound(st), pieceUnitMakeable: canMakeNow("funghi", s) }; }
+
+  // C: many discovered, mixed stock
+  { const dex = dexOf(["margherita", "funghi", "marinara", "bismarck", "genovese", "quattro-formaggi"]);
+    const g = applyStarterGrants(dex, STARTER_INGREDIENT_IDS, {}, []);
+    const inv: InventoryState = { ...g.inventory, mushroom: 0, egg: 0 };
+    const s = createInitialGameState(dex, g.ownedIngredientIds, 0, inv, g.claimedRecipeIds);
+    const { seq } = drawOrders(s, 600);
+    const pool = availableRecipeIds(s.dex, s.ownedIngredientIds).filter((id) => discoveredRecipeIds(s.dex).includes(id));
+    out.C = { setup: "6 discovered, starter grants applied, then mushroom=0, egg=0", pool, poolMakeability: Object.fromEntries(pool.map((id) => [id, canMakeNow(id, s)])), ...summarize(seq, s) }; }
+
+  // D: exactly one makeable (margherita) + one unmakeable (funghi)
+  { const s = createInitialGameState(dexOf(["margherita", "funghi"]), [...STARTER_INGREDIENT_IDS, "mushroom"], 0, { mushroom: 0 }, ["funghi"]);
+    const { seq } = drawOrders(s, 100);
+    out.D = { setup: "makeable={margherita}; unmakeable={funghi}", ...summarize(seq, s), note: "immediate-repeat avoidance forces funghi after every margherita" };
+    const s1 = createInitialGameState(dexOf(["margherita"]), STARTER_INGREDIENT_IDS);
+    const r1 = drawOrders(s1, 50);
+    out.D_onePool = { setup: "pool={margherita} only (PR #202 one-recipe rule)", ...summarize(r1.seq, s1) }; }
+
+  // E: zero makeable (synthetic reachable-in-3-4C): only funghi discovered, mushroom 0
+  { const dex = dexOf(["funghi"]);
+    const s = createInitialGameState(dex, [...STARTER_INGREDIENT_IDS, "mushroom"], 0, { mushroom: 0 }, ["funghi"]);
+    const recipeUnlockedPool = availableRecipeIds(dex, s.ownedIngredientIds);
+    const { seq, first } = drawOrders(s, 30);
+    const post34c: Record<string, number> = {};
+    for (let i = 0; i < 50; i++) { const o = pickMissionOrder(["funghi"] as never, ["funghi"] as never, "funghi"); post34c[o ? o.recipeId : "null"] = (post34c[o ? o.recipeId : "null"] ?? 0) + 1; }
+    let forced = gameReducer(s, { type: "MISSION_RESET_ORDER" });
+    forced = { ...forced, recipe: getRecipe("funghi")!, isMissionRound: true };
+    out.E = { setup: "dex={funghi} only, mushroom owned stock 0", current_main: { availableRecipeIds: recipeUnlockedPool, missionResetIsNoOp: first === s, firstIsMission: first.isMissionRound, note: "EP1 recipeUnlocked(funghi) needs margherita discovered -> pool empty -> fail-closed no-op" }, post_3_4C_projection: { assumption: "3-4C: available = all required ingredients OWNED (recipeUnlocked removed, #211 §4)", pickMissionOrderDistribution: post34c, funghiRound: playRound(forced), note: "pool non-empty but 0 makeable -> every order FAILED" } };
+    void seq; }
+
+  // E2: empty pool -> MISSION_RESET_ORDER no-op (synthetic: basil not owned so margherita unavailable)
+  { const s = createInitialGameState(dexOf(["margherita"]), ["tomato-sauce", "mozzarella"]);
+    const after = gameReducer(s, { type: "MISSION_RESET_ORDER" });
+    out.E2_emptyPoolReset = { setup: "synthetic: dex={margherita}, basil absent from owned -> pool empty", sameReference: after === s, isMissionRound: after.isMissionRound, phase: after.phase, recipe: after.recipe.id, note: "App START still flips mission to PLAYING (gate is hasAnyDiscovery, not pool non-empty) over a FREE round" }; }
+
+  // E3: empty pool at MISSION_NEXT_ORDER (synthetic): RESULT stays, then App dispatches BEGIN_PREPARE
+  { const s0 = createInitialGameState(dexOf(["margherita"]), STARTER_INGREDIENT_IDS);
+    let st = gameReducer(s0, { type: "MISSION_RESET_ORDER" });
+    st = { ...st, phase: "RESULT", score: sc(70, 3 as QualityStars), pizza: { ...st.pizza, bakeResult: 60 } };
+    const starved = { ...st, ownedIngredientIds: ["tomato-sauce", "mozzarella"] };
+    const afterNext = gameReducer(starved, { type: "MISSION_NEXT_ORDER" });
+    const afterBegin = gameReducer(afterNext, { type: "BEGIN_PREPARE", now: 1 });
+    out.E3_emptyPoolNext = { setup: "synthetic: mission RESULT, then pool empties", afterNextPhase: afterNext.phase, dexTimesMade: afterNext.dex.find((d) => d.recipeId === "margherita")?.timesMade, afterBeginPreparePhase: afterBegin.phase, staleScoreKept: afterBegin.score !== null, staleBakeResultKept: afterBegin.pizza.bakeResult, note: "empty pool mid-run → baked pizza re-enters PREPARE; a 2nd serve would re-register the same pizza" }; }
+
+  // F: only makeable recipe == previous recipe
+  { const s = createInitialGameState(dexOf(["margherita", "funghi"]), [...STARTER_INGREDIENT_IDS, "mushroom"], 0, { mushroom: 0 }, ["funghi"]);
+    let st = gameReducer(s, { type: "MISSION_RESET_ORDER" }); while (st.recipe.id !== "margherita") st = gameReducer(st, { type: "MISSION_RESET_ORDER" });
+    const next: Record<string, number> = {};
+    for (let i = 0; i < 100; i++) { const o = pickMissionOrder(availableRecipeIds(st.dex, st.ownedIngredientIds), discoveredRecipeIds(st.dex) as never, "margherita"); next[o!.recipeId] = (next[o!.recipeId] ?? 0) + 1; }
+    out.F = { setup: "previous=margherita, only makeable=margherita, funghi unmakeable", nextOrderDistribution: next }; }
+
+  // G: consume last use during the run
+  { const need = getRecipe("funghi")!.requiredIngredients.find((q) => q.ingredientId === "mushroom")!.minCount ?? 1;
+    const s = createInitialGameState(dexOf(["margherita", "funghi"]), [...STARTER_INGREDIENT_IDS, "mushroom"], 0, { mushroom: need }, ["funghi"]);
+    let st = gameReducer(s, { type: "MISSION_RESET_ORDER" }); while (st.recipe.id !== "funghi") st = gameReducer(st, { type: "MISSION_RESET_ORDER" });
+    const before = canMakeNow("funghi", st);
+    const round = playRound(st);
+    const after = { ...st, inventory: round.inventoryAfter };
+    const { seq } = drawOrders(after as GameState, 100);
+    out.G = { setup: `mushroom stock=${need} (= exactly one funghi)`, before, round, afterMakeable: canMakeNow("funghi", after), afterDraws: summarize(seq, after as GameState) }; }
+
+  // H: reload = createInitialGameState from the persisted fields (+ load-time applyStarterGrants)
+  { const dex = dexOf(["margherita", "funghi"]);
+    const persisted = { dex, owned: [...STARTER_INGREDIENT_IDS, "mushroom"], inventory: { mushroom: 0 } as InventoryState, claimed: ["funghi"] };
+    const g = applyStarterGrants(persisted.dex, persisted.owned, persisted.inventory, persisted.claimed);
+    const reloaded = createInitialGameState(persisted.dex, g.ownedIngredientIds, 0, g.inventory, g.claimedRecipeIds);
+    const { seq } = drawOrders(reloaded, 100);
+    out.H = { setup: "reload with mushroom=0, funghi grant already claimed", loadGrantRefilled: g.inventory.mushroom, initialFreeRoundRecipe: reloaded.recipe.id, initialIsMission: reloaded.isMissionRound, ...summarize(seq, reloaded), note: "missionRunReducer state is not persisted; reload lands on HOME, mission run lost; pool re-derived from persisted inventory — same soft-lock" }; }
+
+  writeFileSync(OUT, JSON.stringify(out, null, 2));
+});

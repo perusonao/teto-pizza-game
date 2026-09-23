@@ -1,0 +1,1168 @@
+{
+  "schema": "teto.p3-4f.scenario-matrix/v1",
+  "auditedMainSha": "dff233c042d2df6ee1c3a92f2d2419830aa05460",
+  "currentPoolRule": "discovered ∩ availableRecipeIds(dex, owned) [EP1 recipeUnlocked AND all required OWNED]; inventory not consulted; avoidRepeat unless pool size 1; empty -> null (fail-closed)",
+  "proposedPoolRule": "discovered ∩ available ∩ stock-sufficient (remainingStockUnits >= requiredStockUnits for every finite required ingredient); re-evaluated at every order (Option B); makeable filter applied before avoidRepeat",
+  "requiredStockUnits": {
+    "current_piece_unit": {
+      "scatter": "minCount",
+      "spread": 1
+    },
+    "post_3_4C_use_unit": {
+      "any": "PROGRESSION_USES_PER_PIZZA (=1, #205)"
+    }
+  },
+  "zeroCandidatePolicy": {
+    "atStart": "block start (HOME disabled + out-of-stock hint + Shop/Free Cooking CTA; guard in handleStartLunchRush and startMission/retry)",
+    "midRun": "END_EARLY -> Mission RESULT with reason NO_MAKEABLE_ORDER; never BEGIN_PREPARE",
+    "forbidden": "ordering an unmakeable recipe"
+  },
+  "oneRecipePolicy": "makeability over immediate-repeat avoidance (PR #202 one-recipe rule extended to makeable pool)",
+  "scenarios": [
+    {
+      "id": "A",
+      "title": "discovered but required ingredient not owned",
+      "verdict": "reproduced_no_softlock",
+      "currentBehavior": "availability (ingredientsOwned) already excludes it",
+      "expectedAfter3_4F": "same (kept)",
+      "simulation": {
+        "setup": "dex={margherita,funghi}; owned=starter only (no mushroom)",
+        "draws": 200,
+        "counts": {
+          "margherita": 200
+        },
+        "unmakeableOrders": 0,
+        "unmakeableRate": 0,
+        "immediateRepeats": 199,
+        "head": [
+          "margherita",
+          "margherita",
+          "margherita",
+          "margherita",
+          "margherita",
+          "margherita",
+          "margherita",
+          "margherita",
+          "margherita",
+          "margherita",
+          "margherita",
+          "margherita"
+        ],
+        "funghiAvailable": false
+      }
+    },
+    {
+      "id": "B",
+      "title": "owned but inventory=0",
+      "verdict": "softlock_confirmed",
+      "currentBehavior": "50% of orders unmakeable; FAILED MISSING_REQUIRED_INGREDIENT",
+      "expectedAfter3_4F": "0% unmakeable",
+      "simulation": {
+        "setup": "dex={margherita,funghi}; mushroom OWNED, inventory.mushroom=0",
+        "draws": 200,
+        "counts": {
+          "funghi": 100,
+          "margherita": 100
+        },
+        "unmakeableOrders": 100,
+        "unmakeableRate": 0.5,
+        "immediateRepeats": 0,
+        "head": [
+          "funghi",
+          "margherita",
+          "funghi",
+          "margherita",
+          "funghi",
+          "margherita",
+          "funghi",
+          "margherita",
+          "funghi",
+          "margherita",
+          "funghi",
+          "margherita"
+        ],
+        "funghiRound": {
+          "recipeId": "funghi",
+          "rejectedPlacements": [
+            "mushroom#0",
+            "mushroom#1",
+            "mushroom#2"
+          ],
+          "completion": "FAILED",
+          "reason": "MISSING_REQUIRED_INGREDIENT",
+          "inventoryBefore": {
+            "mushroom": 0
+          },
+          "inventoryAfter": {
+            "mushroom": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "B2",
+      "title": "owned but stock < minCount (piece unit)",
+      "verdict": "softlock_confirmed",
+      "currentBehavior": "FAILED INSUFFICIENT_REQUIRED_AMOUNT and remaining stock wasted",
+      "expectedAfter3_4F": "excluded by requiredStockUnits",
+      "simulation": {
+        "setup": "mushroom stock=2 < funghi minCount=3",
+        "funghiRound": {
+          "recipeId": "funghi",
+          "rejectedPlacements": [
+            "mushroom#2"
+          ],
+          "completion": "FAILED",
+          "reason": "INSUFFICIENT_REQUIRED_AMOUNT",
+          "inventoryBefore": {
+            "mushroom": 2
+          },
+          "inventoryAfter": {
+            "mushroom": 0
+          }
+        },
+        "pieceUnitMakeable": {
+          "discovered": true,
+          "available": true,
+          "stockOk": false,
+          "short": [
+            "mushroom:2<3"
+          ],
+          "makeable": false
+        }
+      }
+    },
+    {
+      "id": "C",
+      "title": "multiple recipes, some makeable",
+      "verdict": "softlock_confirmed",
+      "currentBehavior": "33.7% unmakeable orders (600 draws)",
+      "expectedAfter3_4F": "0% unmakeable",
+      "simulation": {
+        "setup": "6 discovered, starter grants applied, then mushroom=0, egg=0",
+        "pool": [
+          "margherita",
+          "marinara",
+          "quattro-formaggi",
+          "genovese",
+          "bismarck",
+          "funghi"
+        ],
+        "poolMakeability": {
+          "margherita": {
+            "discovered": true,
+            "available": true,
+            "stockOk": true,
+            "short": [],
+            "makeable": true
+          },
+          "marinara": {
+            "discovered": true,
+            "available": true,
+            "stockOk": true,
+            "short": [],
+            "makeable": true
+          },
+          "quattro-formaggi": {
+            "discovered": true,
+            "available": true,
+            "stockOk": true,
+            "short": [],
+            "makeable": true
+          },
+          "genovese": {
+            "discovered": true,
+            "available": true,
+            "stockOk": true,
+            "short": [],
+            "makeable": true
+          },
+          "bismarck": {
+            "discovered": true,
+            "available": true,
+            "stockOk": false,
+            "short": [
+              "egg:0<1"
+            ],
+            "makeable": false
+          },
+          "funghi": {
+            "discovered": true,
+            "available": true,
+            "stockOk": false,
+            "short": [
+              "mushroom:0<3"
+            ],
+            "makeable": false
+          }
+        },
+        "draws": 600,
+        "counts": {
+          "funghi": 96,
+          "quattro-formaggi": 92,
+          "bismarck": 97,
+          "genovese": 106,
+          "margherita": 102,
+          "marinara": 107
+        },
+        "unmakeableOrders": 193,
+        "unmakeableRate": 0.322,
+        "immediateRepeats": 0,
+        "head": [
+          "funghi",
+          "quattro-formaggi",
+          "bismarck",
+          "genovese",
+          "margherita",
+          "marinara",
+          "bismarck",
+          "funghi",
+          "bismarck",
+          "quattro-formaggi",
+          "margherita",
+          "bismarck"
+        ]
+      }
+    },
+    {
+      "id": "D",
+      "title": "exactly one makeable recipe",
+      "verdict": "softlock_confirmed",
+      "currentBehavior": "repeat-avoidance alternates into unmakeable recipe (50%)",
+      "expectedAfter3_4F": "makeable recipe repeats",
+      "simulation": {
+        "D": {
+          "setup": "makeable={margherita}; unmakeable={funghi}",
+          "draws": 100,
+          "counts": {
+            "funghi": 50,
+            "margherita": 50
+          },
+          "unmakeableOrders": 50,
+          "unmakeableRate": 0.5,
+          "immediateRepeats": 0,
+          "head": [
+            "funghi",
+            "margherita",
+            "funghi",
+            "margherita",
+            "funghi",
+            "margherita",
+            "funghi",
+            "margherita",
+            "funghi",
+            "margherita",
+            "funghi",
+            "margherita"
+          ],
+          "note": "immediate-repeat avoidance forces funghi after every margherita"
+        },
+        "D_onePool": {
+          "setup": "pool={margherita} only (PR #202 one-recipe rule)",
+          "draws": 50,
+          "counts": {
+            "margherita": 50
+          },
+          "unmakeableOrders": 0,
+          "unmakeableRate": 0,
+          "immediateRepeats": 49,
+          "head": [
+            "margherita",
+            "margherita",
+            "margherita",
+            "margherita",
+            "margherita",
+            "margherita",
+            "margherita",
+            "margherita",
+            "margherita",
+            "margherita",
+            "margherita",
+            "margherita"
+          ]
+        }
+      }
+    },
+    {
+      "id": "E",
+      "title": "zero makeable recipes",
+      "verdict": "unreachable_on_main_latent_after_3-4C",
+      "currentBehavior": "main: pool empty -> MISSION_RESET_ORDER no-op; post-3-4C projection: 100% FAILED orders",
+      "expectedAfter3_4F": "start blocked; mid-run END_EARLY",
+      "simulation": {
+        "setup": "dex={funghi} only, mushroom owned stock 0",
+        "current_main": {
+          "availableRecipeIds": [
+            "margherita"
+          ],
+          "missionResetIsNoOp": true,
+          "firstIsMission": false,
+          "note": "EP1 recipeUnlocked(funghi) needs margherita discovered -> pool empty -> fail-closed no-op"
+        },
+        "post_3_4C_projection": {
+          "assumption": "3-4C: available = all required ingredients OWNED (recipeUnlocked removed, #211 §4)",
+          "pickMissionOrderDistribution": {
+            "funghi": 50
+          },
+          "funghiRound": {
+            "recipeId": "funghi",
+            "rejectedPlacements": [
+              "mushroom#0",
+              "mushroom#1",
+              "mushroom#2"
+            ],
+            "completion": "FAILED",
+            "reason": "MISSING_REQUIRED_INGREDIENT",
+            "inventoryBefore": {
+              "mushroom": 0
+            },
+            "inventoryAfter": {
+              "mushroom": 0
+            }
+          },
+          "note": "pool non-empty but 0 makeable -> every order FAILED"
+        }
+      }
+    },
+    {
+      "id": "E2",
+      "title": "empty pool at start (latent)",
+      "verdict": "latent_bug",
+      "currentBehavior": "App starts PLAYING over a FREE round (guard is hasAnyDiscovery)",
+      "expectedAfter3_4F": "canStartLunchRush guard in App",
+      "simulation": {
+        "setup": "synthetic: dex={margherita}, basil absent from owned -> pool empty",
+        "sameReference": true,
+        "isMissionRound": false,
+        "phase": "ORDER",
+        "recipe": "margherita",
+        "note": "App START still flips mission to PLAYING (gate is hasAnyDiscovery, not pool non-empty) over a FREE round"
+      }
+    },
+    {
+      "id": "E3",
+      "title": "empty pool at next order (latent)",
+      "verdict": "latent_bug",
+      "currentBehavior": "RESULT kept, BEGIN_PREPARE re-opens baked pizza (double register risk)",
+      "expectedAfter3_4F": "no BEGIN_PREPARE; END_EARLY",
+      "simulation": {
+        "setup": "synthetic: mission RESULT, then pool empties",
+        "afterNextPhase": "RESULT",
+        "dexTimesMade": 2,
+        "afterBeginPreparePhase": "PREPARE",
+        "staleScoreKept": true,
+        "staleBakeResultKept": 60,
+        "note": "empty pool mid-run → baked pizza re-enters PREPARE; a 2nd serve would re-register the same pizza"
+      }
+    },
+    {
+      "id": "F",
+      "title": "only makeable == previous recipe",
+      "verdict": "softlock_confirmed",
+      "currentBehavior": "next order 100% unmakeable",
+      "expectedAfter3_4F": "next order 100% makeable (repeat allowed)",
+      "simulation": {
+        "setup": "previous=margherita, only makeable=margherita, funghi unmakeable",
+        "nextOrderDistribution": {
+          "funghi": 100
+        }
+      }
+    },
+    {
+      "id": "G",
+      "title": "last use consumed mid-run",
+      "verdict": "softlock_confirmed",
+      "currentBehavior": "consumed recipe still ordered 50%",
+      "expectedAfter3_4F": "re-evaluated at next order; never ordered",
+      "simulation": {
+        "setup": "mushroom stock=3 (= exactly one funghi)",
+        "before": {
+          "discovered": true,
+          "available": true,
+          "stockOk": true,
+          "short": [],
+          "makeable": true
+        },
+        "round": {
+          "recipeId": "funghi",
+          "rejectedPlacements": [],
+          "completion": "PASS",
+          "reason": null,
+          "inventoryBefore": {
+            "mushroom": 3
+          },
+          "inventoryAfter": {
+            "mushroom": 0
+          }
+        },
+        "afterMakeable": {
+          "discovered": true,
+          "available": true,
+          "stockOk": false,
+          "short": [
+            "mushroom:0<3"
+          ],
+          "makeable": false
+        },
+        "afterDraws": {
+          "draws": 100,
+          "counts": {
+            "margherita": 50,
+            "funghi": 50
+          },
+          "unmakeableOrders": 50,
+          "unmakeableRate": 0.5,
+          "immediateRepeats": 0,
+          "head": [
+            "margherita",
+            "funghi",
+            "margherita",
+            "funghi",
+            "margherita",
+            "funghi",
+            "margherita",
+            "funghi",
+            "margherita",
+            "funghi",
+            "margherita",
+            "funghi"
+          ]
+        }
+      }
+    },
+    {
+      "id": "H",
+      "title": "after reload",
+      "verdict": "softlock_confirmed",
+      "currentBehavior": "same 50% (grant already claimed; run state not persisted)",
+      "expectedAfter3_4F": "same makeable set derived from persisted inventory",
+      "simulation": {
+        "setup": "reload with mushroom=0, funghi grant already claimed",
+        "loadGrantRefilled": 0,
+        "initialFreeRoundRecipe": "margherita",
+        "initialIsMission": false,
+        "draws": 100,
+        "counts": {
+          "funghi": 50,
+          "margherita": 50
+        },
+        "unmakeableOrders": 50,
+        "unmakeableRate": 0.5,
+        "immediateRepeats": 0,
+        "head": [
+          "funghi",
+          "margherita",
+          "funghi",
+          "margherita",
+          "funghi",
+          "margherita",
+          "funghi",
+          "margherita",
+          "funghi",
+          "margherita",
+          "funghi",
+          "margherita"
+        ],
+        "note": "missionRunReducer state is not persisted; reload lands on HOME, mission run lost; pool re-derived from persisted inventory — same soft-lock"
+      }
+    }
+  ],
+  "tests": {
+    "unit": [
+      "U-1 isRecipeMakeable truth table",
+      "U-2 spread vs scatter units",
+      "U-3 unknown ingredient fail-closed",
+      "U-4 requiredStockUnits/remainingStockUnits contract",
+      "U-5 B/C/D/F/G/H as tests: 0 unmakeable orders",
+      "U-6 one-recipe repeat",
+      "U-7 empty makeable pool fail-closed",
+      "U-8 last use consumed -> not ordered",
+      "U-9 END_EARLY one-shot",
+      "U-10 canStartLunchRush",
+      "U-11 reload parity",
+      "U-12 #206 future-data parity",
+      "U-13 consumption path unchanged"
+    ],
+    "component": [
+      "C-1 HOME out-of-stock lock distinct from discovery lock",
+      "C-2 start guard (E2)",
+      "C-3 mid-run zero -> END_EARLY, no BEGIN_PREPARE (E3)",
+      "C-4 retry disabled at zero",
+      "C-5 first order is makeable"
+    ],
+    "chromium": [
+      "E-1 HR-1",
+      "E-2 HR-3",
+      "E-3 HR-4",
+      "E-4 HR-5",
+      "E-5 lunch-rush-result-ranking-phase4 regression"
+    ],
+    "webkit": "Full WebKit 2 viewports x 2 shards (#210) + WebKit Gate green on PR head and post-merge main; shard evidence listed==ran"
+  },
+  "humanReplay": [
+    {
+      "id": "HR-1",
+      "viewport": [
+        "390x844",
+        "360x800"
+      ],
+      "seed": {
+        "dex": [
+          "margherita",
+          "funghi"
+        ],
+        "owned+": [
+          "mushroom"
+        ],
+        "inventory": {
+          "mushroom": 0
+        }
+      },
+      "expect": "only Margherita ordered"
+    },
+    {
+      "id": "HR-2",
+      "viewport": [
+        "390x844"
+      ],
+      "seed": "HR-1",
+      "expect": "Margherita x5 consecutive, all PASS-able"
+    },
+    {
+      "id": "HR-3",
+      "viewport": [
+        "390x844",
+        "360x800"
+      ],
+      "seed": "synthetic zero-makeable",
+      "expect": "Lunch Rush disabled with out-of-stock hint; Shop CTA opens Shop; mission never starts"
+    },
+    {
+      "id": "HR-4",
+      "viewport": [
+        "390x844"
+      ],
+      "seed": {
+        "dex": [
+          "margherita",
+          "funghi"
+        ],
+        "inventory": {
+          "mushroom": 3
+        }
+      },
+      "expect": "after baking Funghi, Funghi never ordered again"
+    },
+    {
+      "id": "HR-5",
+      "viewport": [
+        "390x844"
+      ],
+      "seed": "state after HR-4",
+      "expect": "reload -> same stock, only Margherita ordered"
+    }
+  ],
+  "connections": {
+    "pr205": "use remainingPizzaUses/PROGRESSION_USES_PER_PIZZA only behind the requiredStockUnits/remainingStockUnits seam after 3-4C; 3-4F does not import #205",
+    "pr206": "predicate reads GameState only (known ids); no new save key; unknown ids never enter GameState"
+  },
+  "goNoGo": "GO (conditional): seam for stock unit, E3 fix in same PR, Full WebKit 4-shard + WebKit Gate green, HR-1..5 video",
+  "productionData": {
+    "finiteIngredients": [
+      {
+        "id": "olive-oil",
+        "placement": "spread",
+        "restockQuantity": 3,
+        "starterGrantOnly": true
+      },
+      {
+        "id": "pesto",
+        "placement": "spread",
+        "restockQuantity": 3,
+        "starterGrantOnly": true
+      },
+      {
+        "id": "gorgonzola",
+        "placement": "scatter",
+        "restockQuantity": 6,
+        "starterGrantOnly": true
+      },
+      {
+        "id": "parmigiano",
+        "placement": "scatter",
+        "restockQuantity": 6,
+        "starterGrantOnly": true
+      },
+      {
+        "id": "fontina",
+        "placement": "scatter",
+        "restockQuantity": 6,
+        "starterGrantOnly": true
+      },
+      {
+        "id": "garlic",
+        "placement": "scatter",
+        "restockQuantity": 9,
+        "starterGrantOnly": true
+      },
+      {
+        "id": "oregano",
+        "placement": "scatter",
+        "restockQuantity": 6,
+        "starterGrantOnly": true
+      },
+      {
+        "id": "cherry-tomato",
+        "placement": "scatter",
+        "restockQuantity": 9,
+        "starterGrantOnly": true
+      },
+      {
+        "id": "egg",
+        "placement": "scatter",
+        "restockQuantity": 3,
+        "starterGrantOnly": true
+      },
+      {
+        "id": "mushroom",
+        "placement": "scatter",
+        "restockQuantity": 9,
+        "starterGrantOnly": true
+      },
+      {
+        "id": "onion",
+        "placement": "scatter",
+        "restockQuantity": 12,
+        "starterGrantOnly": true
+      },
+      {
+        "id": "sausage",
+        "placement": "scatter",
+        "restockQuantity": 9,
+        "starterGrantOnly": true
+      },
+      {
+        "id": "pepperoni",
+        "placement": "scatter",
+        "restockQuantity": 12,
+        "starterGrantOnly": true
+      },
+      {
+        "id": "anchovy",
+        "placement": "scatter",
+        "restockQuantity": 9,
+        "starterGrantOnly": true
+      },
+      {
+        "id": "tuna",
+        "placement": "scatter",
+        "restockQuantity": 9,
+        "starterGrantOnly": true
+      },
+      {
+        "id": "rosemary",
+        "placement": "scatter",
+        "restockQuantity": 9,
+        "starterGrantOnly": true
+      },
+      {
+        "id": "bacon",
+        "placement": "scatter",
+        "restockQuantity": 9,
+        "starterGrantOnly": true
+      },
+      {
+        "id": "ham",
+        "placement": "scatter",
+        "restockQuantity": 3,
+        "starterGrantOnly": true
+      },
+      {
+        "id": "black-olive",
+        "placement": "scatter",
+        "restockQuantity": 6,
+        "starterGrantOnly": true
+      }
+    ],
+    "starterUnlimited": [
+      "tomato-sauce",
+      "mozzarella",
+      "basil"
+    ],
+    "recipes": [
+      {
+        "id": "margherita",
+        "unlock": null,
+        "required": [
+          {
+            "id": "tomato-sauce",
+            "minCount": 1,
+            "finite": false,
+            "placement": "spread"
+          },
+          {
+            "id": "mozzarella",
+            "minCount": 3,
+            "finite": false,
+            "placement": "scatter"
+          },
+          {
+            "id": "basil",
+            "minCount": 2,
+            "finite": false,
+            "placement": "scatter"
+          }
+        ],
+        "allUnlimited": true
+      },
+      {
+        "id": "marinara",
+        "unlock": {
+          "requiresRecipeId": "funghi"
+        },
+        "required": [
+          {
+            "id": "tomato-sauce",
+            "minCount": 1,
+            "finite": false,
+            "placement": "spread"
+          },
+          {
+            "id": "garlic",
+            "minCount": 3,
+            "finite": true,
+            "placement": "scatter"
+          },
+          {
+            "id": "oregano",
+            "minCount": 2,
+            "finite": true,
+            "placement": "scatter"
+          }
+        ],
+        "allUnlimited": false
+      },
+      {
+        "id": "quattro-formaggi",
+        "unlock": {
+          "requiresRecipeId": "genovese",
+          "minTotalStars": 8
+        },
+        "required": [
+          {
+            "id": "olive-oil",
+            "minCount": 1,
+            "finite": true,
+            "placement": "spread"
+          },
+          {
+            "id": "mozzarella",
+            "minCount": 2,
+            "finite": false,
+            "placement": "scatter"
+          },
+          {
+            "id": "gorgonzola",
+            "minCount": 2,
+            "finite": true,
+            "placement": "scatter"
+          },
+          {
+            "id": "parmigiano",
+            "minCount": 2,
+            "finite": true,
+            "placement": "scatter"
+          },
+          {
+            "id": "fontina",
+            "minCount": 2,
+            "finite": true,
+            "placement": "scatter"
+          }
+        ],
+        "allUnlimited": false
+      },
+      {
+        "id": "genovese",
+        "unlock": {
+          "requiresRecipeId": "bismarck"
+        },
+        "required": [
+          {
+            "id": "pesto",
+            "minCount": 1,
+            "finite": true,
+            "placement": "spread"
+          },
+          {
+            "id": "mozzarella",
+            "minCount": 2,
+            "finite": false,
+            "placement": "scatter"
+          },
+          {
+            "id": "cherry-tomato",
+            "minCount": 3,
+            "finite": true,
+            "placement": "scatter"
+          }
+        ],
+        "allUnlimited": false
+      },
+      {
+        "id": "bismarck",
+        "unlock": {
+          "requiresRecipeId": "marinara"
+        },
+        "required": [
+          {
+            "id": "tomato-sauce",
+            "minCount": 1,
+            "finite": false,
+            "placement": "spread"
+          },
+          {
+            "id": "mozzarella",
+            "minCount": 3,
+            "finite": false,
+            "placement": "scatter"
+          },
+          {
+            "id": "egg",
+            "minCount": 1,
+            "finite": true,
+            "placement": "scatter"
+          }
+        ],
+        "allUnlimited": false
+      },
+      {
+        "id": "funghi",
+        "unlock": {
+          "requiresRecipeId": "margherita"
+        },
+        "required": [
+          {
+            "id": "tomato-sauce",
+            "minCount": 1,
+            "finite": false,
+            "placement": "spread"
+          },
+          {
+            "id": "mozzarella",
+            "minCount": 2,
+            "finite": false,
+            "placement": "scatter"
+          },
+          {
+            "id": "mushroom",
+            "minCount": 3,
+            "finite": true,
+            "placement": "scatter"
+          }
+        ],
+        "allUnlimited": false
+      },
+      {
+        "id": "fugazza",
+        "unlock": {
+          "requiresRecipeId": "quattro-formaggi",
+          "minTotalStars": 12
+        },
+        "required": [
+          {
+            "id": "olive-oil",
+            "minCount": 1,
+            "finite": true,
+            "placement": "spread"
+          },
+          {
+            "id": "onion",
+            "minCount": 4,
+            "finite": true,
+            "placement": "scatter"
+          },
+          {
+            "id": "oregano",
+            "minCount": 1,
+            "finite": true,
+            "placement": "scatter"
+          }
+        ],
+        "allUnlimited": false
+      },
+      {
+        "id": "salsiccia",
+        "unlock": {
+          "requiresRecipeId": "fugazza",
+          "minTotalStars": 15
+        },
+        "required": [
+          {
+            "id": "tomato-sauce",
+            "minCount": 1,
+            "finite": false,
+            "placement": "spread"
+          },
+          {
+            "id": "mozzarella",
+            "minCount": 2,
+            "finite": false,
+            "placement": "scatter"
+          },
+          {
+            "id": "sausage",
+            "minCount": 3,
+            "finite": true,
+            "placement": "scatter"
+          }
+        ],
+        "allUnlimited": false
+      },
+      {
+        "id": "pepperoni",
+        "unlock": {
+          "requiresRecipeId": "salsiccia",
+          "minTotalStars": 18
+        },
+        "required": [
+          {
+            "id": "tomato-sauce",
+            "minCount": 1,
+            "finite": false,
+            "placement": "spread"
+          },
+          {
+            "id": "mozzarella",
+            "minCount": 2,
+            "finite": false,
+            "placement": "scatter"
+          },
+          {
+            "id": "pepperoni",
+            "minCount": 4,
+            "finite": true,
+            "placement": "scatter"
+          }
+        ],
+        "allUnlimited": false
+      },
+      {
+        "id": "napoletana",
+        "unlock": {
+          "requiresRecipeId": "pepperoni",
+          "minTotalStars": 21
+        },
+        "required": [
+          {
+            "id": "tomato-sauce",
+            "minCount": 1,
+            "finite": false,
+            "placement": "spread"
+          },
+          {
+            "id": "mozzarella",
+            "minCount": 2,
+            "finite": false,
+            "placement": "scatter"
+          },
+          {
+            "id": "anchovy",
+            "minCount": 3,
+            "finite": true,
+            "placement": "scatter"
+          },
+          {
+            "id": "oregano",
+            "minCount": 1,
+            "finite": true,
+            "placement": "scatter"
+          }
+        ],
+        "allUnlimited": false
+      },
+      {
+        "id": "tonno-e-cipolla",
+        "unlock": {
+          "requiresRecipeId": "napoletana",
+          "minTotalStars": 24
+        },
+        "required": [
+          {
+            "id": "tomato-sauce",
+            "minCount": 1,
+            "finite": false,
+            "placement": "spread"
+          },
+          {
+            "id": "mozzarella",
+            "minCount": 2,
+            "finite": false,
+            "placement": "scatter"
+          },
+          {
+            "id": "onion",
+            "minCount": 2,
+            "finite": true,
+            "placement": "scatter"
+          },
+          {
+            "id": "tuna",
+            "minCount": 3,
+            "finite": true,
+            "placement": "scatter"
+          }
+        ],
+        "allUnlimited": false
+      },
+      {
+        "id": "pizza-bianca",
+        "unlock": {
+          "requiresRecipeId": "tonno-e-cipolla",
+          "minTotalStars": 27
+        },
+        "required": [
+          {
+            "id": "olive-oil",
+            "minCount": 1,
+            "finite": true,
+            "placement": "spread"
+          },
+          {
+            "id": "rosemary",
+            "minCount": 3,
+            "finite": true,
+            "placement": "scatter"
+          }
+        ],
+        "allUnlimited": false
+      },
+      {
+        "id": "breakfast-pizza",
+        "unlock": {
+          "requiresRecipeId": "pizza-bianca",
+          "minTotalStars": 30
+        },
+        "required": [
+          {
+            "id": "tomato-sauce",
+            "minCount": 1,
+            "finite": false,
+            "placement": "spread"
+          },
+          {
+            "id": "mozzarella",
+            "minCount": 2,
+            "finite": false,
+            "placement": "scatter"
+          },
+          {
+            "id": "egg",
+            "minCount": 1,
+            "finite": true,
+            "placement": "scatter"
+          },
+          {
+            "id": "bacon",
+            "minCount": 3,
+            "finite": true,
+            "placement": "scatter"
+          }
+        ],
+        "allUnlimited": false
+      },
+      {
+        "id": "capricciosa",
+        "unlock": {
+          "requiresRecipeId": "breakfast-pizza",
+          "minTotalStars": 33
+        },
+        "required": [
+          {
+            "id": "tomato-sauce",
+            "minCount": 1,
+            "finite": false,
+            "placement": "spread"
+          },
+          {
+            "id": "mozzarella",
+            "minCount": 2,
+            "finite": false,
+            "placement": "scatter"
+          },
+          {
+            "id": "mushroom",
+            "minCount": 2,
+            "finite": true,
+            "placement": "scatter"
+          },
+          {
+            "id": "oregano",
+            "minCount": 1,
+            "finite": true,
+            "placement": "scatter"
+          },
+          {
+            "id": "ham",
+            "minCount": 1,
+            "finite": true,
+            "placement": "scatter"
+          },
+          {
+            "id": "black-olive",
+            "minCount": 2,
+            "finite": true,
+            "placement": "scatter"
+          }
+        ],
+        "allUnlimited": false
+      },
+      {
+        "id": "meat-lovers",
+        "unlock": {
+          "requiresRecipeId": "capricciosa",
+          "minTotalStars": 36
+        },
+        "required": [
+          {
+            "id": "tomato-sauce",
+            "minCount": 1,
+            "finite": false,
+            "placement": "spread"
+          },
+          {
+            "id": "mozzarella",
+            "minCount": 2,
+            "finite": false,
+            "placement": "scatter"
+          },
+          {
+            "id": "bacon",
+            "minCount": 2,
+            "finite": true,
+            "placement": "scatter"
+          },
+          {
+            "id": "ham",
+            "minCount": 1,
+            "finite": true,
+            "placement": "scatter"
+          },
+          {
+            "id": "pepperoni",
+            "minCount": 1,
+            "finite": true,
+            "placement": "scatter"
+          },
+          {
+            "id": "sausage",
+            "minCount": 2,
+            "finite": true,
+            "placement": "scatter"
+          }
+        ],
+        "allUnlimited": false
+      }
+    ]
+  }
+}

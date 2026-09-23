@@ -301,6 +301,26 @@ There is no save schema change. The unit suite is 2406/2406 (29 new) and Chromiu
 WebKit is covered by the CI job. Open follow-ups are listed in that report's §6: the ORIGINAL
 Pitz reward belongs to P3-3, and onboarding and hint tiers are also pending.
 
+**2026-09-23 addendum (Progression 2.0 Phase 3-4F: Lunch Rush stock-aware mission pool, Fresh
+Audit, docs-only, PR OPEN)**. Audited `main` is `dff233c0` (the PR #210 merge; PR #202 is merged
+as `66abe43`). See `docs/reports/PROGRESSION-2.0_P3-4F_LUNCH-RUSH-STOCK-AWARE_FRESH-AUDIT.md` and
+`docs/reports/data/PROGRESSION-2.0_P3-4F_SCENARIO-MATRIX.json`.
+
+- **Soft-lock confirmed on production data.** The Mission pool is discovered ∩ available and never
+  reads `inventory`, so an OWNED recipe with 0 (or less than `minCount`) stock is still ordered and
+  always ends FAILED. With 2 recipes and one out of stock, 50% of orders are unmakeable. After the
+  makeable recipe, repeat-avoidance forces the unmakeable one 100% of the time.
+- **Two latent empty-pool bugs:** the start path (the App gate is `hasAnyDiscovery` only) and the
+  next-order path (`BEGIN_PREPARE` re-opens the baked pizza). Both become reachable once the pool is
+  stock-aware or after 3-4C.
+- **Recommendation:** Option B, which re-evaluates a stock-aware makeable pool at every order. The
+  makeable filter is applied before repeat-avoidance. With zero candidates, the start is blocked
+  (with Shop/Free Cooking CTAs); mid-run, the run ends early (`END_EARLY`).
+- **Implementation: GO (conditional).** The stock unit stays behind a
+  `requiredStockUnits`/`remainingStockUnits` seam, so 3-4F does not depend on #205 or OD-03.
+
+No `src/**` change. #205/#206/#209/#211 untouched.
+
 > Fresh GitHub/main state always wins if this document becomes stale.
 
 ## Product goal
