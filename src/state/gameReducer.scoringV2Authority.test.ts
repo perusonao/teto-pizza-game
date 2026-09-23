@@ -238,7 +238,7 @@ describe("A1 Authority Cutover: state.score is Scoring 2.0-derived (gameReducer 
     const entryAfterPoor = afterPoor.dex.find((e) => e.recipeId === "margherita");
     expect(entryAfterPoor?.bestScore).toBe(entryAfterGood?.bestScore);
     expect(entryAfterPoor?.bestStars).toBe(entryAfterGood?.bestStars);
-    expect(entryAfterPoor?.timesMade).toBe(2);
+    expect(entryAfterPoor?.timesMade).toBe(3);
 
     // A better round (perfect pizza) afterward must raise BEST.
     const perfect = playToResultForRecipe("margherita", perfectPizzaForRecipe("margherita"));
