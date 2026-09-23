@@ -491,7 +491,7 @@ export async function startLunchRushMission(page: Page, durationSeconds: number)
       "teto-pizza-save-v1",
       JSON.stringify({
         schemaVersion: 1,
-        dex: [{ recipeId: "napoletana", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }],
+        dex: [{ recipeId: "margherita", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }],
         pitzBalance: 0,
         ownedIngredientIds: ["tomato-sauce", "mozzarella", "basil"],
         missionBest: {},
