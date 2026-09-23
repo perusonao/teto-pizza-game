@@ -185,7 +185,9 @@ def build():
             "profile": prof, "margheritaBest": best, "pitzAfterFirstDiscovery": bal,
             "repeatMargheritaPitz": rew, "hybridStars": stars,
             "availableToBuy": [f"{r['nodeId']}@{r['pricePitz']}" for r in avail],
-            "affordableImmediately": sum(1 for r in avail if r["pricePitz"] <= bal),
+            # Purchases draw on one shared balance: count sorted cumulative prices (PR #204 review).
+            "affordableImmediately": sum(1 for i in range(len(avail))
+                                         if sum(sorted(r["pricePitz"] for r in avail)[:i + 1]) <= bal),
             "bakesToAffordAllAvailable": max(0, math.ceil((sum(r["pricePitz"] for r in avail) - bal) / rew)),
         })
     tier_wait = {tier: {prof: math.ceil(price / reward(b, rt)) for prof, b in PROFILES.items()}
@@ -220,10 +222,26 @@ def build():
                     changed = True
         return sorted(discovered), sorted(set(PROD_RECIPES) - discovered), len(discovered) * star_per_disc
 
+    # Recipes whose gate exceeds even the theoretical max (5 ⭐ per discovery) of the runtime
+    # pool are hard-locked, not skill-locked: no BEST improvement can reach them (PR #204 review).
+    def discoveries_needed(gate, per):
+        return math.ceil(gate / per)
+
+    lock_class = []
+    for p in proj:
+        g = p["authorityStarGate"]
+        lock_class.append({"recipeId": p["recipeId"], "gate": g,
+                           "discoveriesNeededAtMin2": discoveries_needed(g, 2),
+                           "discoveriesNeededAtMax5": discoveries_needed(g, 5)})
     projection = {}
     for label, spd in (("guaranteedMin_2_per_discovery", 2), ("standard_3", 3), ("skilled_4", 4), ("theoreticalMax_5", 5)):
         disc, unreach, stars = projected_reach(spd)
         projection[label] = {"discovered": len(disc), "unreachable": unreach, "finalStars": stars}
+    hard_locked = projection["theoreticalMax_5"]["unreachable"]
+    for c in lock_class:
+        c["class"] = ("HARD_LOCK_UNTIL_MORE_CONTENT" if c["recipeId"] in hard_locked else
+                      "SKILL_LOCK" if c["recipeId"] in projection["guaranteedMin_2_per_discovery"]["unreachable"] else
+                      "REACHABLE")
     prod_ing_rows = []
     for iid, cur in PROD_INGREDIENTS.items():
         r = row[iid]
@@ -328,6 +346,7 @@ def build():
         "currentProductionEP1ChainConstantBest": current,
         "productionProjection": {"recipes": proj, "ingredients": prod_ing_rows,
                                  "reachabilityIfAuthorityGatesAppliedToCurrent15Recipes": projection,
+                                 "lockClassification": lock_class,
                                  "contentTranches": tranche,
                                  "od03OptionA_authorityVerbatimWithT1Pool": option_a,
                                  "od03OptionB_illustrativeSameFormulaGates_NOT_ADOPTED": illustrative},

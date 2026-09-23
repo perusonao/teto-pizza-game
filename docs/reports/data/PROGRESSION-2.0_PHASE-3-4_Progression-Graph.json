@@ -4048,7 +4048,7 @@
      "bacon@60",
      "onion@60"
     ],
-    "affordableImmediately": 3,
+    "affordableImmediately": 1,
     "bakesToAffordAllAvailable": 6
    },
    {
@@ -4062,7 +4062,7 @@
      "bacon@60",
      "onion@60"
     ],
-    "affordableImmediately": 3,
+    "affordableImmediately": 1,
     "bakesToAffordAllAvailable": 2
    },
    {
@@ -4076,7 +4076,7 @@
      "bacon@60",
      "onion@60"
     ],
-    "affordableImmediately": 3,
+    "affordableImmediately": 2,
     "bakesToAffordAllAvailable": 1
    },
    {
@@ -4090,7 +4090,7 @@
      "bacon@60",
      "onion@60"
     ],
-    "affordableImmediately": 3,
+    "affordableImmediately": 2,
     "bakesToAffordAllAvailable": 1
    },
    {
@@ -4104,7 +4104,7 @@
      "bacon@60",
      "onion@60"
     ],
-    "affordableImmediately": 3,
+    "affordableImmediately": 2,
     "bakesToAffordAllAvailable": 1
    }
   ],
@@ -6959,6 +6959,113 @@
     "finalStars": 65
    }
   },
+  "lockClassification": [
+   {
+    "recipeId": "margherita",
+    "gate": 0,
+    "discoveriesNeededAtMin2": 0,
+    "discoveriesNeededAtMax5": 0,
+    "class": "REACHABLE"
+   },
+   {
+    "recipeId": "bismarck",
+    "gate": 2,
+    "discoveriesNeededAtMin2": 1,
+    "discoveriesNeededAtMax5": 1,
+    "class": "REACHABLE"
+   },
+   {
+    "recipeId": "breakfast-pizza",
+    "gate": 2,
+    "discoveriesNeededAtMin2": 1,
+    "discoveriesNeededAtMax5": 1,
+    "class": "REACHABLE"
+   },
+   {
+    "recipeId": "pepperoni",
+    "gate": 6,
+    "discoveriesNeededAtMin2": 3,
+    "discoveriesNeededAtMax5": 2,
+    "class": "REACHABLE"
+   },
+   {
+    "recipeId": "salsiccia",
+    "gate": 6,
+    "discoveriesNeededAtMin2": 3,
+    "discoveriesNeededAtMax5": 2,
+    "class": "REACHABLE"
+   },
+   {
+    "recipeId": "meat-lovers",
+    "gate": 6,
+    "discoveriesNeededAtMin2": 3,
+    "discoveriesNeededAtMax5": 2,
+    "class": "REACHABLE"
+   },
+   {
+    "recipeId": "funghi",
+    "gate": 10,
+    "discoveriesNeededAtMin2": 5,
+    "discoveriesNeededAtMax5": 2,
+    "class": "REACHABLE"
+   },
+   {
+    "recipeId": "capricciosa",
+    "gate": 10,
+    "discoveriesNeededAtMin2": 5,
+    "discoveriesNeededAtMax5": 2,
+    "class": "REACHABLE"
+   },
+   {
+    "recipeId": "fugazza",
+    "gate": 14,
+    "discoveriesNeededAtMin2": 7,
+    "discoveriesNeededAtMax5": 3,
+    "class": "REACHABLE"
+   },
+   {
+    "recipeId": "tonno-e-cipolla",
+    "gate": 18,
+    "discoveriesNeededAtMin2": 9,
+    "discoveriesNeededAtMax5": 4,
+    "class": "REACHABLE"
+   },
+   {
+    "recipeId": "marinara",
+    "gate": 28,
+    "discoveriesNeededAtMin2": 14,
+    "discoveriesNeededAtMax5": 6,
+    "class": "SKILL_LOCK"
+   },
+   {
+    "recipeId": "napoletana",
+    "gate": 40,
+    "discoveriesNeededAtMin2": 20,
+    "discoveriesNeededAtMax5": 8,
+    "class": "SKILL_LOCK"
+   },
+   {
+    "recipeId": "pizza-bianca",
+    "gate": 48,
+    "discoveriesNeededAtMin2": 24,
+    "discoveriesNeededAtMax5": 10,
+    "class": "SKILL_LOCK"
+   },
+   {
+    "recipeId": "genovese",
+    "gate": 76,
+    "discoveriesNeededAtMin2": 38,
+    "discoveriesNeededAtMax5": 16,
+    "class": "HARD_LOCK_UNTIL_MORE_CONTENT"
+   },
+   {
+    "recipeId": "quattro-formaggi",
+    "gate": 102,
+    "discoveriesNeededAtMin2": 51,
+    "discoveriesNeededAtMax5": 21,
+    "class": "HARD_LOCK_UNTIL_MORE_CONTENT"
+   }
+  ],
   "contentTranches": [
    {
     "throughSequence": 9,

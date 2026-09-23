@@ -51,6 +51,8 @@ PR #202 の merge 後に開始する（§7）。
      marinara、napoletana、pizza-bianca、genovese、quattro-formaggi の **5 件に到達できない**
      （garlic ⭐28、anchovy ⭐40、rosemary ⭐48、cherry-tomato ⭐76、gorgonzola/fontina ⭐102 に対し、
      到達できる ⭐ は 20〜26）。authority の gate は 101 件の母集団を前提に作られているため。
+     このうち **genovese と quattro-formaggi は、全発見を ★5 にした理論最大（65⭐）でも届かない
+     hard lock** で、BEST を上げても解消しない。残り 3 件は BEST を上げれば届く skill lock。
      → **owner decision OD-03（content projection policy）が必要。**
    - **R-03:** recipe unlock を撤去して recipe-keyed Starter Grant を残すと、load 時に全 recipe の
      材料が無料配布される。
@@ -238,10 +240,21 @@ T1 tranche（§7 3-4G。新材料 0 で作れる PIZZA DB 3 件: aussie、portug
 | quattro-formaggi | 92 | 102 | fontina, gorgonzola, olive-oil, parmigiano（440） |
 
 → **R-02（P0）**。authority の gate は 101 件の母集団を前提にしている。runtime の content が
-追いつくまで、後半の shipped recipe は「保証最低 ⭐ では届かない」状態になる。これは hard
-deadlock ではない（BEST を上げれば hybrid ⭐ は 1 recipe あたり最大 5 まで伸びる）。ただし ★1 の
-プレイヤーには skill-lock になり、しかも UI がそれを説明しない。**OD-03 の決定と 3-4E の
-end-of-content 表示が必須。**
+追いつくまで、後半の shipped recipe には 2 種類の lock が生じる（`lockClassification`）:
+
+| recipe | ⭐ gate | 必要な発見数（2⭐/発見） | 必要な発見数（5⭐/発見） | 分類 |
+|---|---:|---:|---:|---|
+| marinara | 28 | 14 | 6 | **SKILL_LOCK**（BEST を上げれば届く） |
+| napoletana | 40 | 20 | 8 | **SKILL_LOCK** |
+| pizza-bianca | 48 | 24 | 10 | **SKILL_LOCK** |
+| genovese | 76 | 38 | 16 | **HARD_LOCK**（15 件の pool では理論最大 65⭐ でも届かない） |
+| quattro-formaggi | 102 | 51 | 21 | **HARD_LOCK**（T1 を足した 18 件の pool でも届かない） |
+
+genovese と quattro-formaggi は、現行 production では ★3 以上なら発見できる出荷済み recipe
+である。authority の値を verbatim に入れると、runtime の発見可能数が上表の数に達するまで
+**全プレイヤーにとって発見不能**になる（既存 save で発見済みの Dex は残る）。これは content の
+regression であり、BEST を上げても解消しない。**OD-03 の決定と、3-4E の end-of-content 表示が
+必須。**
 
 ### 4.3 現行 production（Phase 3-4 前）の既存 lock
 
@@ -336,13 +349,15 @@ Bismarck を発見すると、low-score でも +70（20 + 50）が入るので�
 
 | Option | 内容 | 数値の変更 | 評価 |
 |---|---|---|---|
-| **A: AUTHORITY_VERBATIM_CONTENT_TRANCHED（推奨）** | authority の gate と価格をそのまま使い、content を authority の sequence 順に tranche で追加する。後半の shipped 5 件は、BEST を上げるか後の tranche が来るまで、保証最低 ⭐ では届かない。end-of-content の説明 UI（3-4E）を必須にする | なし | 承認済みの数値を守る。tranche を追加するたびに authority の到達性へ近づき、単調に改善する |
+| **A: AUTHORITY_VERBATIM_CONTENT_TRANCHED（条件付き推奨）** | authority の gate と価格をそのまま使い、content を authority の sequence 順に tranche で追加する。marinara、napoletana、pizza-bianca は BEST を上げれば届く（skill lock）。**genovese と quattro-formaggi は、runtime の発見可能数がそれぞれ 16 件以上／21 件以上（全員 ★5 の場合。保証最低では 38／51）になるまで誰も発見できない（hard lock）。** end-of-content の説明 UI（3-4E）を必須にする | なし | 承認済みの数値を守り、tranche ごとに単調に改善する。代償として、出荷済み 2 recipe が新規プレイヤーから一時的に消える |
 | B: PROJECTED_GATES | 同じ G4 式を runtime pool で再計算する（Graph JSON の illustration: garlic 16、anchovy 18、rosemary 18、cherry-tomato 20、gorgonzola/fontina 22 など） | **あり** | 全 15 件に届くが、承認済みの値から外れる。tranche を追加するたびに gate が上がり、AVAILABLE だった材料が LOCKED に戻る |
 | C: CONTENT_FIRST | EP1/EP4 のまま content を sequence 92 まで追加する（capability 6 種以上が必要） | なし | Phase 3-4 の loop 完成が大幅に遅れる |
 
-推奨は A。承認済みの経済値を変更せずに Phase 3-4 の loop を成立させられるから。
-「後半 5 件は今は BEST を上げると届く」という状態を正直に案内し、tranche（T1 以降）で解消していく。
-**本監査は A を実装しない。値の決定は owner に委ねる。**
+A を推奨するのは、**owner が「genovese と quattro-formaggi の一時的な hard lock」を受け入れる
+場合に限る**。承認済みの経済値を変えずに Phase 3-4 の loop を成立させられる。その場合でも
+「今は届かない」ことを UI で正直に案内し、tranche で解消していく。この hard lock を受け入れない
+場合は B（数値の変更を伴う）か、この 2 件だけ例外にする別案が必要になる。どちらにしても owner の
+承認が要る。**本監査は A も B も実装しない。値の決定は owner に委ねる。**
 
 ---
 
@@ -426,7 +441,7 @@ Result report には、ファイル名、viewport、duration、size、codec と�
 | Id | 優先度 | Risk | 対策 |
 |---|---|---|---|
 | R-01 | **P0** | EP1 chain を残したまま gate を入れると Margherita 直後に deadlock | 3-4C を atomic にする |
-| R-02 | **P0** | authority の gate を 15 recipe に適用すると shipped 5 件に届かない | OD-03（推奨 A）、3-4E end-of-content、3-4G T1 |
+| R-02 | **P0** | authority の gate を 15 recipe に適用すると shipped 5 件に届かない（3 件は skill lock、genovese と quattro-formaggi は理論最大でも届かない hard lock） | OD-03（hard lock を受け入れるなら A、受け入れないなら B か例外案）、3-4E end-of-content、3-4G T1 |
 | R-03 | **P0** | recipe unlock を撤去し grant を残すと、load 時に全材料が配布される | 3-4C を atomic にする。「load では何も付与しない」を test で固定 |
 | R-04 | P1 | rollback すると新 id の購入や発見が消える | 3-4B を 3-4G より先に deploy |
 | R-05 | P1 | Lunch Rush が在庫 0 の recipe を注文して stall する | 3-4F |
