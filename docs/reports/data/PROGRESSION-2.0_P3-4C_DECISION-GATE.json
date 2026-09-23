@@ -1,0 +1,189 @@
+{
+  "report": "docs/reports/PROGRESSION-2.0_P3-4C_DECISION-GATE.md",
+  "auditedMainSha": "dff233c042d2df6ee1c3a92f2d2419830aa05460",
+  "sources": {
+    "PR205": "9035606",
+    "PR206": "4c1da87",
+    "PR209": "d719f1d",
+    "PR211": "27e0916",
+    "PR213": "7ccf5df",
+    "issue": 212
+  },
+  "decidesNothing": true,
+  "decision1_OD03": {
+    "options": {
+      "A": {
+        "all15ReachableNewPlayer": false,
+        "reachable": {
+          "star1_2": 10,
+          "star3": 11,
+          "star5": 13
+        },
+        "hardLocked": [
+          "genovese",
+          "quattro-formaggi"
+        ],
+        "authority101": "identical",
+        "gateRiseOnContentAdd": "none",
+        "unpurchasedRelock": false,
+        "existingSaveAsymmetry": true,
+        "authorityGatesChanged": 0,
+        "guidance34E": [
+          "coming-in-future-update (hard lock)",
+          "raise BEST to unlock next ingredient (skill lock)"
+        ]
+      },
+      "B": {
+        "all15ReachableNewPlayer": true,
+        "reachable": {
+          "star1_2": 15,
+          "star3": 15,
+          "star5": 15
+        },
+        "hardLocked": [],
+        "authority101": "converges if content added in authority seq order",
+        "gateRiseOnContentAdd": "every tranche; T1 (+3 recipes) raises 16/19 gates",
+        "unpurchasedRelock": true,
+        "existingSaveAsymmetry": false,
+        "authorityGatesChanged": 16,
+        "guidance34E": [
+          "buy ingredient / save Pitz",
+          "explain gate change after each tranche (if relock allowed)"
+        ]
+      },
+      "C1": {
+        "all15ReachableNewPlayer": "star4-5 only",
+        "reachable": {
+          "star1_2": 11,
+          "star3": 13,
+          "star5": 15
+        },
+        "hardLocked": [],
+        "authority101": "identical after releasing 3 overrides",
+        "gateRiseOnContentAdd": "on release: cherry-tomato 16->76, fontina/gorgonzola 18->102",
+        "unpurchasedRelock": "on release",
+        "existingSaveAsymmetry": false,
+        "authorityGatesChanged": 3,
+        "guidance34E": [
+          "raise BEST (star<=3 skill lock)",
+          "explain release"
+        ]
+      },
+      "C2": {
+        "all15ReachableNewPlayer": true,
+        "reachable": {
+          "star1_2": 15,
+          "star3": 15,
+          "star5": 15
+        },
+        "hardLocked": [],
+        "authority101": "identical after releasing 7 overrides",
+        "gateRiseOnContentAdd": "on release of 7 (e.g. anchovy 14->40, cherry-tomato 16->76)",
+        "unpurchasedRelock": "on release",
+        "existingSaveAsymmetry": false,
+        "authorityGatesChanged": 7,
+        "guidance34E": [
+          "same as B",
+          "explain release"
+        ]
+      }
+    },
+    "all15AndNoRelock": {
+      "A": false,
+      "B": false,
+      "C1": false,
+      "C2": false,
+      "satisfiableByExistingOptions": false
+    },
+    "referenceVariantsNotAdopted": {
+      "R1": "B + persisted entitlement (new top-level key reachedIngredientIds)",
+      "R1prime": "C2 + persisted entitlement",
+      "R2": "B + non-increasing build-time gate ratchet (no save change; never converges to authority)"
+    }
+  },
+  "decision2_inventoryMigration": {
+    "legacyPiecesPerUse_frozen": {
+      "pepperoni": 4,
+      "onion": 4,
+      "mushroom": 3,
+      "sausage": 3,
+      "bacon": 3,
+      "garlic": 3,
+      "cherry-tomato": 3,
+      "anchovy": 3,
+      "tuna": 3,
+      "rosemary": 3,
+      "oregano": 2,
+      "gorgonzola": 2,
+      "parmigiano": 2,
+      "fontina": 2,
+      "black-olive": 2,
+      "egg": 1,
+      "ham": 1,
+      "olive-oil": 1,
+      "pesto": 1
+    },
+    "unlimitedStarters": [
+      "tomato-sauce",
+      "mozzarella",
+      "basil"
+    ],
+    "conversion": "uses = ceil(pieces / k); write pieces = uses * k",
+    "options": {
+      "M1": {
+        "desc": "in-place: inventory key meaning pieces->uses + marker",
+        "rollbackSafe": false,
+        "doubleConversion": true,
+        "newTopLevelKeys": 1,
+        "loadTimeWrite": true,
+        "compatWith34F": false
+      },
+      "M2": {
+        "desc": "new stockUses key + dual-write legacy inventory",
+        "rollbackSafe": "only with per-ingredient reconcile rule",
+        "doubleConversion": false,
+        "newTopLevelKeys": 1,
+        "loadTimeWrite": "only when changed",
+        "reconcileRule": "if inventory[id] != stockUses[id]*k then uses = ceil(inventory[id]/k)",
+        "sourceOfTruth": "stockUses, except diverged ingredients -> legacy",
+        "compatWith34F": true
+      },
+      "M3": {
+        "desc": "keep legacy inventory as k-scaled pieces; convert on read, no new key",
+        "rollbackSafe": true,
+        "doubleConversion": false,
+        "newTopLevelKeys": 0,
+        "loadTimeWrite": false,
+        "constraint": "k table append-only/frozen",
+        "compatWith34F": true
+      }
+    },
+    "throwawayModelMismatches": {
+      "trials": 2000,
+      "M1": 1982,
+      "M2_withReconcile": 0,
+      "M2_markerOnly_pre206Rollback": "0/1003",
+      "M2_markerOnly_post206Rollback": "994/997",
+      "M3": 0
+    }
+  },
+  "crossCheck": {
+    "structuralAxes": [
+      "new persisted top-level keys (0-2)",
+      "load-time write",
+      "gate function input (stars only vs stars+save)"
+    ],
+    "od03AffectsMissionPool": false,
+    "incompatibleWith34FFuture": [
+      "M1"
+    ]
+  },
+  "go34C": "NO_GO",
+  "blockers": [
+    "OD-03 undecided",
+    "migration method undecided",
+    "#205/#206 not merged",
+    "#206 not deployed before 3-4C"
+  ],
+  "ownerQuestions": 4
+}
