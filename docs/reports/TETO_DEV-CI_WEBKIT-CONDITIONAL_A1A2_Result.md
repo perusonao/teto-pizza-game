@@ -137,7 +137,7 @@ observation: at 15:48 UTC on 2026-09-23, PR #202 had **7 WebKit runs in progress
 |---|---|---|---|---|---|---|
 | 1 | `d4b90c1` | workflow + scripts (Case D) | `true` (11 s): "4 of 5 changed file(s) are not documentation-only: .github/workflows/ci.yml, …" | started, then **cancelled** at 16:02:24 by the next push | **failure** ("required but its result is 'cancelled'") | Live proof of concurrency cancellation, and that a cancelled WebKit run never turns the gate green |
 | 2 | `8d5cc28` | scripts + workflow (Case D) | `true` (8 s) | **ran**, 7 m 52 s, `114 passed (7.1m)` on `[webkit-390x844]` + `[webkit-360x800]` | **success**, annotation `tested_base=1e73a7d…` | Codex P1 fix commit |
-| 3 | this report commit | docs-only on top of #2 (Case A, reuse) | see §5.3 | see §5.3 | see §5.3 | |
+| 3 | `a4ac347` | docs-only report on top of #2 (reuse) | `false` (8 s) | **skipped** | **success** 16 s after the run was created | See §5.3 |
 
 Fast CI (`build`: lint + Vitest + build) ran and passed on each head: 77 s on `d4b90c1` and
 72 s on `8d5cc28`.
@@ -150,7 +150,27 @@ log: `24/24 classifier cases passed`) and by the local runs against real history
 
 ### 5.3 Docs-only reuse (live)
 
-_Filled in by the follow-up commit._
+Run [#75](https://github.com/perusonao/teto-pizza-game/actions/runs/35887218647) on `a4ac347`,
+which only added this report:
+
+- classify notice: `webkit_required=false -- only documentation changed since 8d5cc28 (all 1
+  changed file(s) are documentation-only (docs/**, **/*.md)), whose WebKit Gate already succeeded
+  on the same base 1e73a7d -- reusing that WebKit evidence`
+- `webkit`: **skipped** (conclusion `skipped`, 0 s)
+- `WebKit Gate` notice: `PASS -- WebKit safely skipped (not required).
+  tested_base=1e73a7d3e6007e67d1d2ea14e103a47c491bdbd5. only documentation changed since 8d5cc28 …`
+- Timeline: run created 16:13:12, classify done 16:13:24, gate done ~16:13:28. The gate result
+  was ready **~16 s** after the push, compared with 7 m 52 s for the WebKit run it reused. The
+  check never sat at pending/"Expected".
+
+The commit that added this section is also docs-only, so it exercises chained reuse:
+`a4ac347`'s gate succeeded by reuse, so its successor reuses it in turn, still pinned to base
+`1e73a7d`.
+
+Not exercised live: a PR whose **whole** diff is docs-only (rule 1). A PR that changes the
+workflow cannot also be docs-only. Rule 1 goes through the same classifier and the same gate
+`skipped → PASS` path shown above, and it was verified locally against `aa0f74a`. The first
+docs-only PR after merge will show it on GitHub.
 
 ## 6. Before / after
 
