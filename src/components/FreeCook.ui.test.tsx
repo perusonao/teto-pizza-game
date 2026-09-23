@@ -184,5 +184,11 @@ describe("HOME free-cook entry", () => {
     fireEvent.click(screen.getByRole("button", { name: /フリークッキング/ }));
     expect(onStartFreeCook).toHaveBeenCalledTimes(1);
     expect(onStartFreePlay).not.toHaveBeenCalled();
+    // PR #197 review: DOM (focus / reading) order equals the visual rows -- the full-width
+    // フリークッキング row is last, with no CSS `order` reshuffling.
+    const ctaLabels = Array.from(document.querySelectorAll(".home-cta-row button")).map((b) =>
+      b.textContent?.replace(/^\S+\s*/, ""),
+    );
+    expect(ctaLabels).toEqual(["ピザを作る", "ランチラッシュ", "フリークッキング"]);
   });
 });

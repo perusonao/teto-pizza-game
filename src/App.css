@@ -3292,10 +3292,11 @@
 
 /* Progression 2.0 Phase 3-2 (Issue #194): フリークッキング takes its own full-width second row
    (after, and overriding, .cta-button--home-secondary's `flex: 1`), so the existing
-   ピザを作る / ランチラッシュ pair keeps its 1:1 row and never orphan-wraps (Issue #47 Finding B). */
+   ピザを作る / ランチラッシュ pair keeps its 1:1 row and never orphan-wraps (Issue #47 Finding B).
+   It is also last in HomeScreen's DOM, so no CSS `order` is needed and focus/reading order
+   matches the visual order (PR #197 review). */
 .cta-button--free-cook {
   flex: 1 1 100%;
-  order: 1;
   min-height: 48px;
 }
 

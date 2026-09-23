@@ -108,6 +108,14 @@ export function HomeScreen({
         <button type="button" className="cta-button cta-button--primary cta-button--home" onClick={onStartFreePlay}>
           {"\u{1F355}"} ピザを作る
         </button>
+        <button
+          type="button"
+          className="cta-button cta-button--secondary cta-button--home-secondary"
+          onClick={onStartLunchRush}
+        >
+          {"\u{23F1}\u{FE0F}"} ランチラッシュ
+        </button>
+        {/* Last in the DOM so keyboard/screen-reader order matches the visual rows. */}
         {onStartFreeCook && (
           <button
             type="button"
@@ -117,13 +125,6 @@ export function HomeScreen({
             {"\u{1F3A8}"} フリークッキング
           </button>
         )}
-        <button
-          type="button"
-          className="cta-button cta-button--secondary cta-button--home-secondary"
-          onClick={onStartLunchRush}
-        >
-          {"\u{23F1}\u{FE0F}"} ランチラッシュ
-        </button>
       </div>
 
       <section className="home-menu" aria-label="メニュー">
