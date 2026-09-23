@@ -199,16 +199,33 @@ Screenshots are in `docs/reports/screenshots/progression2-p3-3-onboarding/` — 
 
 ## 9. Remaining risks / follow-ups
 
-- **WebKit** could not be run locally (§5) — the PR's own `e2e-webkit.yml` CI job is the
-  authority; its result must be checked before merge.
+- **WebKit**: could not be run locally (§5). CI's `webkit` check is green on the PR's final
+  head (`5700dee`) after fixing one genuine WebKit-only race found along the way (a
+  `goto → evaluate(setItem) → reload` localStorage seed in the Full Game Reset test — not
+  WebKit-safe; switched to a sessionStorage-guarded `addInitScript`).
 - **ORIGINAL free-cook Pitz reward** is still 0, deliberately left unresolved per the Fresh
   Audit §11 scope guard (OD-01/OD-02 give no number for it) — recorded as an explicit follow-up,
   not silently dropped.
-- Codex review requested at the exact PR head; see the PR itself for outcome/status once
-  available.
+- **Lunch Rush's order pool** (`nextMissionOrderState`/`pickMissionOrder`) still draws from
+  `availableRecipeIds`, not `discoveredRecipeIds` — pre-existing behavior, unchanged by this PR.
+  A Codex review raised that this lets Lunch Rush serve an available-but-undiscovered recipe
+  (e.g. Funghi, unlocked the instant Margherita is discovered) once Lunch Rush itself unlocks.
+  Issue #198's own scope only requires Lunch Rush to stay locked until the *first* discovery,
+  which this PR delivers; restricting its order pool to discovered-only recipes for every
+  subsequent recipe would be a separate Mission progression design change (order variety,
+  especially early-game) — tracked as **Issue #200**, not implemented here.
 
-## 10. Codex review status
+## 10. Codex review
 
-See the PR thread for Codex's review at the exact PR head commit. Any P1/P2 findings are
-addressed, re-verified (tests/build), and re-reviewed before this report is considered final for
-merge purposes.
+Two rounds, both on this PR's own exact head at the time:
+
+1. Commit `7696219` — 2 P2 findings, both fixed and re-verified in `5700dee`: the new one-screen
+   E2E test only asserted horizontal overflow (now asserts vertical too); `economySimulation.ts`
+   didn't feed the new `wasNewDiscovery` flag into `applyPitzCredit` (now does, and folds
+   `discoveryBonusPitz` into `cumulativePitzEarned`).
+2. Commit `5700dee` (current head) — 1 P2 finding (the Lunch Rush order-pool question above),
+   addressed with a reply rather than a code change, per the reasoning in §9. The repo owner
+   agreed and opened Issue #200 to track it separately.
+
+Both CI checks (`build`, `webkit`) are green on `5700dee`. All three review threads are
+resolved.
