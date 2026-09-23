@@ -1,0 +1,7218 @@
+{
+ "schemaVersion": 1,
+ "auditedMainSha": "1e73a7d3e6007e67d1d2ea14e103a47c491bdbd5",
+ "generatedBy": "docs/reports/data/PROGRESSION-2.0_PHASE-3-4_audit_graph.py",
+ "inputs": [
+  "docs/design/data/TETO_PROGRESSION2_PHASE34_INGREDIENT-UNLOCK-MATRIX.json",
+  "docs/design/data/TETO_PROGRESSION2_PHASE2_UNLOCK-MATRIX.json"
+ ],
+ "authorityCounts": {
+  "ingredientCount": 105,
+  "initialOwnedIngredientCount": 3,
+  "unlockableIngredientCount": 102,
+  "allNodeCount": 128,
+  "targets": 101,
+  "shippedOverlayTargets": 14,
+  "nodeKinds": {
+   "ingredient": 105,
+   "dough": 10,
+   "pan": 3,
+   "capability": 10
+  }
+ },
+ "productionCounts": {
+  "recipes": 15,
+  "ingredients": 22,
+  "unlimitedStarters": 3
+ },
+ "graphChecks": {
+  "integrityFindings": [],
+  "gatesMonotonicInSequence": true,
+  "missingNodesReferencedByTargets": [],
+  "deadNodes": [],
+  "starDeadlocks": [],
+  "starterOnlyTargets": [
+   "shipped:margherita"
+  ],
+  "prerequisiteCycles": [],
+  "recipeUnlockConditionsInAuthority": 0,
+  "unreachableTargets": [],
+  "pitzCircularity": "none: Pitz is only spent on nodes; Margherita (starter trio, UNLIMITED stock) always pays >= floor"
+ },
+ "starSupplyChecks": [
+  {
+   "nodeId": "egg",
+   "sequence": 4,
+   "gate": 2,
+   "discoverableBefore": 1,
+   "guaranteedStarsBefore": 2,
+   "ok": true
+  },
+  {
+   "nodeId": "bacon",
+   "sequence": 5,
+   "gate": 2,
+   "discoverableBefore": 2,
+   "guaranteedStarsBefore": 4,
+   "ok": true
+  },
+  {
+   "nodeId": "onion",
+   "sequence": 6,
+   "gate": 2,
+   "discoverableBefore": 3,
+   "guaranteedStarsBefore": 6,
+   "ok": true
+  },
+  {
+   "nodeId": "pepperoni",
+   "sequence": 7,
+   "gate": 6,
+   "discoverableBefore": 4,
+   "guaranteedStarsBefore": 8,
+   "ok": true
+  },
+  {
+   "nodeId": "sausage",
+   "sequence": 8,
+   "gate": 6,
+   "discoverableBefore": 5,
+   "guaranteedStarsBefore": 10,
+   "ok": true
+  },
+  {
+   "nodeId": "ham",
+   "sequence": 9,
+   "gate": 6,
+   "discoverableBefore": 6,
+   "guaranteedStarsBefore": 12,
+   "ok": true
+  },
+  {
+   "nodeId": "black-olive",
+   "sequence": 10,
+   "gate": 10,
+   "discoverableBefore": 7,
+   "guaranteedStarsBefore": 14,
+   "ok": true
+  },
+  {
+   "nodeId": "mushroom",
+   "sequence": 11,
+   "gate": 10,
+   "discoverableBefore": 8,
+   "guaranteedStarsBefore": 16,
+   "ok": true
+  },
+  {
+   "nodeId": "oregano",
+   "sequence": 12,
+   "gate": 10,
+   "discoverableBefore": 9,
+   "guaranteedStarsBefore": 18,
+   "ok": true
+  },
+  {
+   "nodeId": "fresh-tomato",
+   "sequence": 13,
+   "gate": 14,
+   "discoverableBefore": 11,
+   "guaranteedStarsBefore": 22,
+   "ok": true
+  },
+  {
+   "nodeId": "olive-oil",
+   "sequence": 14,
+   "gate": 14,
+   "discoverableBefore": 12,
+   "guaranteedStarsBefore": 24,
+   "ok": true
+  },
+  {
+   "nodeId": "feta",
+   "sequence": 15,
+   "gate": 14,
+   "discoverableBefore": 13,
+   "guaranteedStarsBefore": 26,
+   "ok": true
+  },
+  {
+   "nodeId": "DOUGH_VARIANT",
+   "sequence": 16,
+   "gate": 18,
+   "discoverableBefore": 14,
+   "guaranteedStarsBefore": 28,
+   "ok": true
+  },
+  {
+   "nodeId": "dough:material-cauliflower",
+   "sequence": 17,
+   "gate": 18,
+   "discoverableBefore": 14,
+   "guaranteedStarsBefore": 28,
+   "ok": true
+  },
+  {
+   "nodeId": "pesto",
+   "sequence": 18,
+   "gate": 18,
+   "discoverableBefore": 15,
+   "guaranteedStarsBefore": 30,
+   "ok": true
+  },
+  {
+   "nodeId": "tuna",
+   "sequence": 19,
+   "gate": 18,
+   "discoverableBefore": 16,
+   "guaranteedStarsBefore": 32,
+   "ok": true
+  },
+  {
+   "nodeId": "bell-pepper",
+   "sequence": 20,
+   "gate": 22,
+   "discoverableBefore": 18,
+   "guaranteedStarsBefore": 36,
+   "ok": true
+  },
+  {
+   "nodeId": "eggplant",
+   "sequence": 21,
+   "gate": 22,
+   "discoverableBefore": 19,
+   "guaranteedStarsBefore": 38,
+   "ok": true
+  },
+  {
+   "nodeId": "zucchini",
+   "sequence": 22,
+   "gate": 22,
+   "discoverableBefore": 20,
+   "guaranteedStarsBefore": 40,
+   "ok": true
+  },
+  {
+   "nodeId": "STEP_ORDER",
+   "sequence": 23,
+   "gate": 28,
+   "discoverableBefore": 22,
+   "guaranteedStarsBefore": 44,
+   "ok": true
+  },
+  {
+   "nodeId": "garlic",
+   "sequence": 24,
+   "gate": 28,
+   "discoverableBefore": 23,
+   "guaranteedStarsBefore": 46,
+   "ok": true
+  },
+  {
+   "nodeId": "parmigiano",
+   "sequence": 25,
+   "gate": 28,
+   "discoverableBefore": 24,
+   "guaranteedStarsBefore": 48,
+   "ok": true
+  },
+  {
+   "nodeId": "clam",
+   "sequence": 26,
+   "gate": 28,
+   "discoverableBefore": 25,
+   "guaranteedStarsBefore": 50,
+   "ok": true
+  },
+  {
+   "nodeId": "prosciutto-crudo",
+   "sequence": 27,
+   "gate": 32,
+   "discoverableBefore": 26,
+   "guaranteedStarsBefore": 52,
+   "ok": true
+  },
+  {
+   "nodeId": "arugula",
+   "sequence": 28,
+   "gate": 32,
+   "discoverableBefore": 27,
+   "guaranteedStarsBefore": 54,
+   "ok": true
+  },
+  {
+   "nodeId": "dough:material-multigrain-long-ferment",
+   "sequence": 29,
+   "gate": 32,
+   "discoverableBefore": 28,
+   "guaranteedStarsBefore": 56,
+   "ok": true
+  },
+  {
+   "nodeId": "MULTI_SPREAD_LAYER",
+   "sequence": 30,
+   "gate": 36,
+   "discoverableBefore": 29,
+   "guaranteedStarsBefore": 58,
+   "ok": true
+  },
+  {
+   "nodeId": "burrata",
+   "sequence": 31,
+   "gate": 36,
+   "discoverableBefore": 30,
+   "guaranteedStarsBefore": 60,
+   "ok": true
+  },
+  {
+   "nodeId": "anchovy",
+   "sequence": 32,
+   "gate": 40,
+   "discoverableBefore": 33,
+   "guaranteedStarsBefore": 66,
+   "ok": true
+  },
+  {
+   "nodeId": "PAN_BAKE",
+   "sequence": 33,
+   "gate": 42,
+   "discoverableBefore": 35,
+   "guaranteedStarsBefore": 70,
+   "ok": true
+  },
+  {
+   "nodeId": "dough:thick",
+   "sequence": 34,
+   "gate": 42,
+   "discoverableBefore": 35,
+   "guaranteedStarsBefore": 70,
+   "ok": true
+  },
+  {
+   "nodeId": "pan:deep-pan",
+   "sequence": 35,
+   "gate": 42,
+   "discoverableBefore": 35,
+   "guaranteedStarsBefore": 70,
+   "ok": true
+  },
+  {
+   "nodeId": "parsley",
+   "sequence": 36,
+   "gate": 44,
+   "discoverableBefore": 36,
+   "guaranteedStarsBefore": 72,
+   "ok": true
+  },
+  {
+   "nodeId": "shrimp",
+   "sequence": 37,
+   "gate": 44,
+   "discoverableBefore": 37,
+   "guaranteedStarsBefore": 74,
+   "ok": true
+  },
+  {
+   "nodeId": "mussel",
+   "sequence": 38,
+   "gate": 44,
+   "discoverableBefore": 38,
+   "guaranteedStarsBefore": 76,
+   "ok": true
+  },
+  {
+   "nodeId": "rosemary",
+   "sequence": 39,
+   "gate": 48,
+   "discoverableBefore": 39,
+   "guaranteedStarsBefore": 78,
+   "ok": true
+  },
+  {
+   "nodeId": "pork",
+   "sequence": 40,
+   "gate": 48,
+   "discoverableBefore": 40,
+   "guaranteedStarsBefore": 80,
+   "ok": true
+  },
+  {
+   "nodeId": "ZONED_PLACEMENT",
+   "sequence": 41,
+   "gate": 50,
+   "discoverableBefore": 41,
+   "guaranteedStarsBefore": 82,
+   "ok": true
+  },
+  {
+   "nodeId": "artichoke",
+   "sequence": 42,
+   "gate": 50,
+   "discoverableBefore": 41,
+   "guaranteedStarsBefore": 82,
+   "ok": true
+  },
+  {
+   "nodeId": "chicken",
+   "sequence": 43,
+   "gate": 52,
+   "discoverableBefore": 42,
+   "guaranteedStarsBefore": 84,
+   "ok": true
+  },
+  {
+   "nodeId": "catupiry",
+   "sequence": 44,
+   "gate": 52,
+   "discoverableBefore": 43,
+   "guaranteedStarsBefore": 86,
+   "ok": true
+  },
+  {
+   "nodeId": "corn",
+   "sequence": 45,
+   "gate": 54,
+   "discoverableBefore": 44,
+   "guaranteedStarsBefore": 88,
+   "ok": true
+  },
+  {
+   "nodeId": "green-onion",
+   "sequence": 46,
+   "gate": 56,
+   "discoverableBefore": 46,
+   "guaranteedStarsBefore": 92,
+   "ok": true
+  },
+  {
+   "nodeId": "doubanjiang",
+   "sequence": 47,
+   "gate": 56,
+   "discoverableBefore": 47,
+   "guaranteedStarsBefore": 94,
+   "ok": true
+  },
+  {
+   "nodeId": "LATE_ADDITION",
+   "sequence": 48,
+   "gate": 58,
+   "discoverableBefore": 48,
+   "guaranteedStarsBefore": 96,
+   "ok": true
+  },
+  {
+   "nodeId": "bbq-sauce",
+   "sequence": 49,
+   "gate": 58,
+   "discoverableBefore": 48,
+   "guaranteedStarsBefore": 96,
+   "ok": true
+  },
+  {
+   "nodeId": "cilantro",
+   "sequence": 50,
+   "gate": 58,
+   "discoverableBefore": 48,
+   "guaranteedStarsBefore": 96,
+   "ok": true
+  },
+  {
+   "nodeId": "ricotta",
+   "sequence": 51,
+   "gate": 60,
+   "discoverableBefore": 49,
+   "guaranteedStarsBefore": 98,
+   "ok": true
+  },
+  {
+   "nodeId": "mint",
+   "sequence": 52,
+   "gate": 60,
+   "discoverableBefore": 50,
+   "guaranteedStarsBefore": 100,
+   "ok": true
+  },
+  {
+   "nodeId": "pineapple",
+   "sequence": 53,
+   "gate": 62,
+   "discoverableBefore": 51,
+   "guaranteedStarsBefore": 102,
+   "ok": true
+  },
+  {
+   "nodeId": "hot-dog",
+   "sequence": 54,
+   "gate": 62,
+   "discoverableBefore": 52,
+   "guaranteedStarsBefore": 104,
+   "ok": true
+  },
+  {
+   "nodeId": "dough:thick-fluffy",
+   "sequence": 55,
+   "gate": 64,
+   "discoverableBefore": 53,
+   "guaranteedStarsBefore": 106,
+   "ok": true
+  },
+  {
+   "nodeId": "FRY_COOK",
+   "sequence": 56,
+   "gate": 66,
+   "discoverableBefore": 54,
+   "guaranteedStarsBefore": 108,
+   "ok": true
+  },
+  {
+   "nodeId": "honey",
+   "sequence": 57,
+   "gate": 66,
+   "discoverableBefore": 55,
+   "guaranteedStarsBefore": 110,
+   "ok": true
+  },
+  {
+   "nodeId": "almond",
+   "sequence": 58,
+   "gate": 68,
+   "discoverableBefore": 56,
+   "guaranteedStarsBefore": 112,
+   "ok": true
+  },
+  {
+   "nodeId": "baked-beans",
+   "sequence": 59,
+   "gate": 70,
+   "discoverableBefore": 57,
+   "guaranteedStarsBefore": 114,
+   "ok": true
+  },
+  {
+   "nodeId": "capers",
+   "sequence": 60,
+   "gate": 70,
+   "discoverableBefore": 58,
+   "guaranteedStarsBefore": 116,
+   "ok": true
+  },
+  {
+   "nodeId": "cashew-cheese",
+   "sequence": 61,
+   "gate": 72,
+   "discoverableBefore": 59,
+   "guaranteedStarsBefore": 118,
+   "ok": true
+  },
+  {
+   "nodeId": "ENCLOSE",
+   "sequence": 62,
+   "gate": 72,
+   "discoverableBefore": 60,
+   "guaranteedStarsBefore": 120,
+   "ok": true
+  },
+  {
+   "nodeId": "caciocavallo",
+   "sequence": 63,
+   "gate": 72,
+   "discoverableBefore": 62,
+   "guaranteedStarsBefore": 124,
+   "ok": true
+  },
+  {
+   "nodeId": "cherry-tomato",
+   "sequence": 64,
+   "gate": 76,
+   "discoverableBefore": 63,
+   "guaranteedStarsBefore": 126,
+   "ok": true
+  },
+  {
+   "nodeId": "dough:material-keto-mozzarella-almond",
+   "sequence": 65,
+   "gate": 78,
+   "discoverableBefore": 64,
+   "guaranteedStarsBefore": 128,
+   "ok": true
+  },
+  {
+   "nodeId": "dough:thin-large-pliable",
+   "sequence": 66,
+   "gate": 78,
+   "discoverableBefore": 65,
+   "guaranteedStarsBefore": 130,
+   "ok": true
+  },
+  {
+   "nodeId": "DOUGH_SHAPE_TARGET",
+   "sequence": 67,
+   "gate": 80,
+   "discoverableBefore": 66,
+   "guaranteedStarsBefore": 132,
+   "ok": true
+  },
+  {
+   "nodeId": "dough:long-ferment",
+   "sequence": 68,
+   "gate": 80,
+   "discoverableBefore": 66,
+   "guaranteedStarsBefore": 132,
+   "ok": true
+  },
+  {
+   "nodeId": "pan:tray",
+   "sequence": 69,
+   "gate": 80,
+   "discoverableBefore": 66,
+   "guaranteedStarsBefore": 132,
+   "ok": true
+  },
+  {
+   "nodeId": "friarielli",
+   "sequence": 70,
+   "gate": 82,
+   "discoverableBefore": 67,
+   "guaranteedStarsBefore": 134,
+   "ok": true
+  },
+  {
+   "nodeId": "fromage-blanc-sauce",
+   "sequence": 71,
+   "gate": 82,
+   "discoverableBefore": 68,
+   "guaranteedStarsBefore": 136,
+   "ok": true
+  },
+  {
+   "nodeId": "grana-padano",
+   "sequence": 72,
+   "gate": 84,
+   "discoverableBefore": 69,
+   "guaranteedStarsBefore": 138,
+   "ok": true
+  },
+  {
+   "nodeId": "green-pepper",
+   "sequence": 73,
+   "gate": 84,
+   "discoverableBefore": 70,
+   "guaranteedStarsBefore": 140,
+   "ok": true
+  },
+  {
+   "nodeId": "palm-heart",
+   "sequence": 74,
+   "gate": 86,
+   "discoverableBefore": 71,
+   "guaranteedStarsBefore": 142,
+   "ok": true
+  },
+  {
+   "nodeId": "pine-nuts",
+   "sequence": 75,
+   "gate": 88,
+   "discoverableBefore": 72,
+   "guaranteedStarsBefore": 144,
+   "ok": true
+  },
+  {
+   "nodeId": "potato",
+   "sequence": 76,
+   "gate": 88,
+   "discoverableBefore": 73,
+   "guaranteedStarsBefore": 146,
+   "ok": true
+  },
+  {
+   "nodeId": "salami",
+   "sequence": 77,
+   "gate": 90,
+   "discoverableBefore": 74,
+   "guaranteedStarsBefore": 148,
+   "ok": true
+  },
+  {
+   "nodeId": "salt-cod",
+   "sequence": 78,
+   "gate": 90,
+   "discoverableBefore": 75,
+   "guaranteedStarsBefore": 150,
+   "ok": true
+  },
+  {
+   "nodeId": "sauerkraut",
+   "sequence": 79,
+   "gate": 92,
+   "discoverableBefore": 76,
+   "guaranteedStarsBefore": 152,
+   "ok": true
+  },
+  {
+   "nodeId": "cream-cheese",
+   "sequence": 80,
+   "gate": 94,
+   "discoverableBefore": 77,
+   "guaranteedStarsBefore": 154,
+   "ok": true
+  },
+  {
+   "nodeId": "dough:flatbread-unleavened",
+   "sequence": 81,
+   "gate": 94,
+   "discoverableBefore": 77,
+   "guaranteedStarsBefore": 154,
+   "ok": true
+  },
+  {
+   "nodeId": "jalapeno",
+   "sequence": 82,
+   "gate": 94,
+   "discoverableBefore": 78,
+   "guaranteedStarsBefore": 156,
+   "ok": true
+  },
+  {
+   "nodeId": "spinach",
+   "sequence": 83,
+   "gate": 96,
+   "discoverableBefore": 79,
+   "guaranteedStarsBefore": 158,
+   "ok": true
+  },
+  {
+   "nodeId": "lemon",
+   "sequence": 84,
+   "gate": 96,
+   "discoverableBefore": 80,
+   "guaranteedStarsBefore": 160,
+   "ok": true
+  },
+  {
+   "nodeId": "salmon",
+   "sequence": 85,
+   "gate": 96,
+   "discoverableBefore": 80,
+   "guaranteedStarsBefore": 160,
+   "ok": true
+  },
+  {
+   "nodeId": "sardine",
+   "sequence": 86,
+   "gate": 98,
+   "discoverableBefore": 81,
+   "guaranteedStarsBefore": 162,
+   "ok": true
+  },
+  {
+   "nodeId": "salmon-roe",
+   "sequence": 87,
+   "gate": 100,
+   "discoverableBefore": 82,
+   "guaranteedStarsBefore": 164,
+   "ok": true
+  },
+  {
+   "nodeId": "shiso",
+   "sequence": 88,
+   "gate": 100,
+   "discoverableBefore": 82,
+   "guaranteedStarsBefore": 164,
+   "ok": true
+  },
+  {
+   "nodeId": "whitebait",
+   "sequence": 89,
+   "gate": 100,
+   "discoverableBefore": 83,
+   "guaranteedStarsBefore": 166,
+   "ok": true
+  },
+  {
+   "nodeId": "yuzu-kosho",
+   "sequence": 90,
+   "gate": 102,
+   "discoverableBefore": 84,
+   "guaranteedStarsBefore": 168,
+   "ok": true
+  },
+  {
+   "nodeId": "fontina",
+   "sequence": 91,
+   "gate": 102,
+   "discoverableBefore": 85,
+   "guaranteedStarsBefore": 170,
+   "ok": true
+  },
+  {
+   "nodeId": "gorgonzola",
+   "sequence": 92,
+   "gate": 102,
+   "discoverableBefore": 85,
+   "guaranteedStarsBefore": 170,
+   "ok": true
+  },
+  {
+   "nodeId": "walnut",
+   "sequence": 93,
+   "gate": 104,
+   "discoverableBefore": 86,
+   "guaranteedStarsBefore": 172,
+   "ok": true
+  },
+  {
+   "nodeId": "miso-sauce",
+   "sequence": 94,
+   "gate": 106,
+   "discoverableBefore": 87,
+   "guaranteedStarsBefore": 174,
+   "ok": true
+  },
+  {
+   "nodeId": "white-sesame",
+   "sequence": 95,
+   "gate": 106,
+   "discoverableBefore": 87,
+   "guaranteedStarsBefore": 174,
+   "ok": true
+  },
+  {
+   "nodeId": "PREP_STEP",
+   "sequence": 96,
+   "gate": 106,
+   "discoverableBefore": 88,
+   "guaranteedStarsBefore": 176,
+   "ok": true
+  },
+  {
+   "nodeId": "beef",
+   "sequence": 97,
+   "gate": 106,
+   "discoverableBefore": 88,
+   "guaranteedStarsBefore": 176,
+   "ok": true
+  },
+  {
+   "nodeId": "yakiniku-sauce",
+   "sequence": 98,
+   "gate": 106,
+   "discoverableBefore": 88,
+   "guaranteedStarsBefore": 176,
+   "ok": true
+  },
+  {
+   "nodeId": "avocado",
+   "sequence": 99,
+   "gate": 108,
+   "discoverableBefore": 89,
+   "guaranteedStarsBefore": 178,
+   "ok": true
+  },
+  {
+   "nodeId": "goat-cheese",
+   "sequence": 100,
+   "gate": 108,
+   "discoverableBefore": 89,
+   "guaranteedStarsBefore": 178,
+   "ok": true
+  },
+  {
+   "nodeId": "dough:thin-crisp",
+   "sequence": 101,
+   "gate": 108,
+   "discoverableBefore": 90,
+   "guaranteedStarsBefore": 180,
+   "ok": true
+  },
+  {
+   "nodeId": "pan:shallow-pan",
+   "sequence": 102,
+   "gate": 108,
+   "discoverableBefore": 90,
+   "guaranteedStarsBefore": 180,
+   "ok": true
+  },
+  {
+   "nodeId": "lamb",
+   "sequence": 103,
+   "gate": 110,
+   "discoverableBefore": 91,
+   "guaranteedStarsBefore": 182,
+   "ok": true
+  },
+  {
+   "nodeId": "sweet-potato",
+   "sequence": 104,
+   "gate": 110,
+   "discoverableBefore": 91,
+   "guaranteedStarsBefore": 182,
+   "ok": true
+  },
+  {
+   "nodeId": "pomegranate",
+   "sequence": 105,
+   "gate": 112,
+   "discoverableBefore": 92,
+   "guaranteedStarsBefore": 184,
+   "ok": true
+  },
+  {
+   "nodeId": "tahini",
+   "sequence": 106,
+   "gate": 112,
+   "discoverableBefore": 92,
+   "guaranteedStarsBefore": 184,
+   "ok": true
+  },
+  {
+   "nodeId": "soy-sauce",
+   "sequence": 107,
+   "gate": 112,
+   "discoverableBefore": 93,
+   "guaranteedStarsBefore": 186,
+   "ok": true
+  },
+  {
+   "nodeId": "wasabi",
+   "sequence": 108,
+   "gate": 112,
+   "discoverableBefore": 93,
+   "guaranteedStarsBefore": 186,
+   "ok": true
+  },
+  {
+   "nodeId": "cucumber",
+   "sequence": 109,
+   "gate": 114,
+   "discoverableBefore": 94,
+   "guaranteedStarsBefore": 188,
+   "ok": true
+  },
+  {
+   "nodeId": "lettuce",
+   "sequence": 110,
+   "gate": 114,
+   "discoverableBefore": 94,
+   "guaranteedStarsBefore": 188,
+   "ok": true
+  },
+  {
+   "nodeId": "yogurt-sauce",
+   "sequence": 111,
+   "gate": 114,
+   "discoverableBefore": 94,
+   "guaranteedStarsBefore": 188,
+   "ok": true
+  },
+  {
+   "nodeId": "peking-duck",
+   "sequence": 112,
+   "gate": 114,
+   "discoverableBefore": 95,
+   "guaranteedStarsBefore": 190,
+   "ok": true
+  },
+  {
+   "nodeId": "sweet-bean-sauce",
+   "sequence": 113,
+   "gate": 114,
+   "discoverableBefore": 95,
+   "guaranteedStarsBefore": 190,
+   "ok": true
+  },
+  {
+   "nodeId": "cheese-curd",
+   "sequence": 114,
+   "gate": 116,
+   "discoverableBefore": 96,
+   "guaranteedStarsBefore": 192,
+   "ok": true
+  },
+  {
+   "nodeId": "french-fries",
+   "sequence": 115,
+   "gate": 116,
+   "discoverableBefore": 96,
+   "guaranteedStarsBefore": 192,
+   "ok": true
+  },
+  {
+   "nodeId": "gravy-sauce",
+   "sequence": 116,
+   "gate": 116,
+   "discoverableBefore": 96,
+   "guaranteedStarsBefore": 192,
+   "ok": true
+  },
+  {
+   "nodeId": "cod-roe",
+   "sequence": 117,
+   "gate": 118,
+   "discoverableBefore": 97,
+   "guaranteedStarsBefore": 194,
+   "ok": true
+  },
+  {
+   "nodeId": "fresh-cream-sauce",
+   "sequence": 118,
+   "gate": 118,
+   "discoverableBefore": 97,
+   "guaranteedStarsBefore": 194,
+   "ok": true
+  },
+  {
+   "nodeId": "nori",
+   "sequence": 119,
+   "gate": 118,
+   "discoverableBefore": 97,
+   "guaranteedStarsBefore": 194,
+   "ok": true
+  },
+  {
+   "nodeId": "curry-ketchup",
+   "sequence": 120,
+   "gate": 118,
+   "discoverableBefore": 98,
+   "guaranteedStarsBefore": 196,
+   "ok": true
+  },
+  {
+   "nodeId": "paprika-powder",
+   "sequence": 121,
+   "gate": 118,
+   "discoverableBefore": 98,
+   "guaranteedStarsBefore": 196,
+   "ok": true
+  },
+  {
+   "nodeId": "wurstel",
+   "sequence": 122,
+   "gate": 118,
+   "discoverableBefore": 98,
+   "guaranteedStarsBefore": 196,
+   "ok": true
+  },
+  {
+   "nodeId": "dough:flatbread-pita-soft",
+   "sequence": 123,
+   "gate": 120,
+   "discoverableBefore": 99,
+   "guaranteedStarsBefore": 198,
+   "ok": true
+  },
+  {
+   "nodeId": "halloumi",
+   "sequence": 124,
+   "gate": 120,
+   "discoverableBefore": 99,
+   "guaranteedStarsBefore": 198,
+   "ok": true
+  },
+  {
+   "nodeId": "zaatar",
+   "sequence": 125,
+   "gate": 120,
+   "discoverableBefore": 99,
+   "guaranteedStarsBefore": 198,
+   "ok": true
+  },
+  {
+   "nodeId": "mustard",
+   "sequence": 126,
+   "gate": 120,
+   "discoverableBefore": 100,
+   "guaranteedStarsBefore": 200,
+   "ok": true
+  },
+  {
+   "nodeId": "pickles",
+   "sequence": 127,
+   "gate": 120,
+   "discoverableBefore": 100,
+   "guaranteedStarsBefore": 200,
+   "ok": true
+  },
+  {
+   "nodeId": "swiss-cheese",
+   "sequence": 128,
+   "gate": 120,
+   "discoverableBefore": 100,
+   "guaranteedStarsBefore": 200,
+   "ok": true
+  }
+ ],
+ "targetDependencyMatrix": [
+  {
+   "targetId": "shipped:margherita",
+   "nameJa": "マルゲリータ",
+   "inProduction": true,
+   "items": [
+    "basil",
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "basil",
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [],
+   "requiredPurchaseTotalPitz": 0,
+   "starGate": 0,
+   "reachableAtSequence": 3,
+   "starterOnly": true,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "shipped:bismarck",
+   "nameJa": "ビスマルク",
+   "inProduction": true,
+   "items": [
+    "egg",
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "egg",
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "egg"
+   ],
+   "requiredPurchaseTotalPitz": 60,
+   "starGate": 2,
+   "reachableAtSequence": 4,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "shipped:breakfast-pizza",
+   "nameJa": "ブレックファストピザ",
+   "inProduction": true,
+   "items": [
+    "bacon",
+    "egg",
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "bacon",
+    "egg",
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "bacon",
+    "egg"
+   ],
+   "requiredPurchaseTotalPitz": 120,
+   "starGate": 2,
+   "reachableAtSequence": 5,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "aussie-pizzadb",
+   "nameJa": "オージーピザ",
+   "inProduction": false,
+   "items": [
+    "bacon",
+    "egg",
+    "mozzarella",
+    "onion"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "bacon",
+    "egg",
+    "mozzarella",
+    "onion"
+   ],
+   "requiredPurchases": [
+    "bacon",
+    "egg",
+    "onion"
+   ],
+   "requiredPurchaseTotalPitz": 180,
+   "starGate": 2,
+   "reachableAtSequence": 6,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "shipped:pepperoni",
+   "nameJa": "ペパロニ",
+   "inProduction": true,
+   "items": [
+    "mozzarella",
+    "pepperoni",
+    "tomato-sauce"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "mozzarella",
+    "pepperoni",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "pepperoni"
+   ],
+   "requiredPurchaseTotalPitz": 60,
+   "starGate": 6,
+   "reachableAtSequence": 7,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "shipped:salsiccia",
+   "nameJa": "サルシッチャ",
+   "inProduction": true,
+   "items": [
+    "mozzarella",
+    "sausage",
+    "tomato-sauce"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "mozzarella",
+    "sausage",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "sausage"
+   ],
+   "requiredPurchaseTotalPitz": 60,
+   "starGate": 6,
+   "reachableAtSequence": 8,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "shipped:meat-lovers",
+   "nameJa": "ミートラヴァーズ",
+   "inProduction": true,
+   "items": [
+    "bacon",
+    "ham",
+    "mozzarella",
+    "pepperoni",
+    "sausage",
+    "tomato-sauce"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "bacon",
+    "ham",
+    "mozzarella",
+    "pepperoni",
+    "sausage",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "bacon",
+    "ham",
+    "pepperoni",
+    "sausage"
+   ],
+   "requiredPurchaseTotalPitz": 240,
+   "starGate": 6,
+   "reachableAtSequence": 9,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "pizza-portuguesa-pizzadb-p9",
+   "nameJa": "ピッツァ・ポルトゲーザ",
+   "inProduction": false,
+   "items": [
+    "black-olive",
+    "egg",
+    "ham",
+    "mozzarella",
+    "onion",
+    "tomato-sauce"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "black-olive",
+    "egg",
+    "ham",
+    "mozzarella",
+    "onion",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "black-olive",
+    "egg",
+    "ham",
+    "onion"
+   ],
+   "requiredPurchaseTotalPitz": 240,
+   "starGate": 10,
+   "reachableAtSequence": 10,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "shipped:funghi",
+   "nameJa": "フンギ",
+   "inProduction": true,
+   "items": [
+    "mozzarella",
+    "mushroom",
+    "tomato-sauce"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "mozzarella",
+    "mushroom",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "mushroom"
+   ],
+   "requiredPurchaseTotalPitz": 60,
+   "starGate": 10,
+   "reachableAtSequence": 11,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "brazilian-calabresa-pizzadb-p10",
+   "nameJa": "ブラジリアン・カラブレーザ",
+   "inProduction": false,
+   "items": [
+    "black-olive",
+    "onion",
+    "oregano",
+    "sausage",
+    "tomato-sauce"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "black-olive",
+    "onion",
+    "oregano",
+    "sausage",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "black-olive",
+    "onion",
+    "oregano",
+    "sausage"
+   ],
+   "requiredPurchaseTotalPitz": 240,
+   "starGate": 10,
+   "reachableAtSequence": 12,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "shipped:capricciosa",
+   "nameJa": "カプリチョーザ",
+   "inProduction": true,
+   "items": [
+    "black-olive",
+    "ham",
+    "mozzarella",
+    "mushroom",
+    "oregano",
+    "tomato-sauce"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "black-olive",
+    "ham",
+    "mozzarella",
+    "mushroom",
+    "oregano",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "black-olive",
+    "ham",
+    "mushroom",
+    "oregano"
+   ],
+   "requiredPurchaseTotalPitz": 240,
+   "starGate": 10,
+   "reachableAtSequence": 12,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "chilean-napolitana-pizzadb",
+   "nameJa": "チリアンナポリターナ",
+   "inProduction": false,
+   "items": [
+    "fresh-tomato",
+    "mozzarella",
+    "oregano"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "fresh-tomato",
+    "mozzarella",
+    "oregano"
+   ],
+   "requiredPurchases": [
+    "fresh-tomato",
+    "oregano"
+   ],
+   "requiredPurchaseTotalPitz": 120,
+   "starGate": 14,
+   "reachableAtSequence": 13,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "shipped:fugazza",
+   "nameJa": "フガッサ",
+   "inProduction": true,
+   "items": [
+    "olive-oil",
+    "onion",
+    "oregano"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "olive-oil",
+    "onion",
+    "oregano"
+   ],
+   "requiredPurchases": [
+    "olive-oil",
+    "onion",
+    "oregano"
+   ],
+   "requiredPurchaseTotalPitz": 180,
+   "starGate": 14,
+   "reachableAtSequence": 14,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "pizza-feta-eliniki-pizzadb-p9",
+   "nameJa": "ピッツァフェッタエッリニキ",
+   "inProduction": false,
+   "items": [
+    "black-olive",
+    "feta",
+    "fresh-tomato",
+    "olive-oil",
+    "oregano"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "black-olive",
+    "feta",
+    "fresh-tomato",
+    "olive-oil",
+    "oregano"
+   ],
+   "requiredPurchases": [
+    "black-olive",
+    "feta",
+    "fresh-tomato",
+    "olive-oil",
+    "oregano"
+   ],
+   "requiredPurchaseTotalPitz": 300,
+   "starGate": 14,
+   "reachableAtSequence": 15,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "cauliflower-crust-pizza-pizzadb-p2",
+   "nameJa": "カリフラワークラストピザ",
+   "inProduction": false,
+   "items": [
+    "basil",
+    "dough:material-cauliflower",
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "capabilities": [
+    "DOUGH_VARIANT"
+   ],
+   "requiredNodes": [
+    "DOUGH_VARIANT",
+    "basil",
+    "dough:material-cauliflower",
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "dough:material-cauliflower"
+   ],
+   "requiredPurchaseTotalPitz": 60,
+   "starGate": 18,
+   "reachableAtSequence": 17,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "pesto-caprese-pizzadb-p11",
+   "nameJa": "ペストカプレーゼピザ",
+   "inProduction": false,
+   "items": [
+    "basil",
+    "fresh-tomato",
+    "mozzarella",
+    "pesto"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "basil",
+    "fresh-tomato",
+    "mozzarella",
+    "pesto"
+   ],
+   "requiredPurchases": [
+    "fresh-tomato",
+    "pesto"
+   ],
+   "requiredPurchaseTotalPitz": 120,
+   "starGate": 18,
+   "reachableAtSequence": 18,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "pesto-tonno-pizzadb-p12",
+   "nameJa": "ペストトンノピザ",
+   "inProduction": false,
+   "items": [
+    "black-olive",
+    "onion",
+    "pesto",
+    "tuna"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "black-olive",
+    "onion",
+    "pesto",
+    "tuna"
+   ],
+   "requiredPurchases": [
+    "black-olive",
+    "onion",
+    "pesto",
+    "tuna"
+   ],
+   "requiredPurchaseTotalPitz": 240,
+   "starGate": 18,
+   "reachableAtSequence": 19,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "tonno-e-cipolla-pizzadb",
+   "nameJa": "トンノエチポッラ（PIZZA DB版）",
+   "inProduction": true,
+   "items": [
+    "mozzarella",
+    "onion",
+    "tomato-sauce",
+    "tuna"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "mozzarella",
+    "onion",
+    "tomato-sauce",
+    "tuna"
+   ],
+   "requiredPurchases": [
+    "onion",
+    "tuna"
+   ],
+   "requiredPurchaseTotalPitz": 120,
+   "starGate": 18,
+   "reachableAtSequence": 19,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "spanish-chorizo-pizza-pizzadb-p4",
+   "nameJa": "スパニッシュチョリソピザ",
+   "inProduction": false,
+   "items": [
+    "bell-pepper",
+    "mozzarella",
+    "onion",
+    "sausage"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "bell-pepper",
+    "mozzarella",
+    "onion",
+    "sausage"
+   ],
+   "requiredPurchases": [
+    "bell-pepper",
+    "onion",
+    "sausage"
+   ],
+   "requiredPurchaseTotalPitz": 180,
+   "starGate": 22,
+   "reachableAtSequence": 20,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "melanzane-pizza-pizzadb-p13",
+   "nameJa": "メランザーネピザ",
+   "inProduction": false,
+   "items": [
+    "basil",
+    "eggplant",
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "basil",
+    "eggplant",
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "eggplant"
+   ],
+   "requiredPurchaseTotalPitz": 60,
+   "starGate": 22,
+   "reachableAtSequence": 21,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "pesto-vegetariana-pizzadb-p12",
+   "nameJa": "ペストベジタリアーナピザ",
+   "inProduction": false,
+   "items": [
+    "bell-pepper",
+    "eggplant",
+    "mozzarella",
+    "pesto",
+    "zucchini"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "bell-pepper",
+    "eggplant",
+    "mozzarella",
+    "pesto",
+    "zucchini"
+   ],
+   "requiredPurchases": [
+    "bell-pepper",
+    "eggplant",
+    "pesto",
+    "zucchini"
+   ],
+   "requiredPurchaseTotalPitz": 240,
+   "starGate": 22,
+   "reachableAtSequence": 22,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "ratatouille-pizza-pizzadb-p13",
+   "nameJa": "ラタトゥイユピザ",
+   "inProduction": false,
+   "items": [
+    "bell-pepper",
+    "eggplant",
+    "oregano",
+    "tomato-sauce",
+    "zucchini"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "bell-pepper",
+    "eggplant",
+    "oregano",
+    "tomato-sauce",
+    "zucchini"
+   ],
+   "requiredPurchases": [
+    "bell-pepper",
+    "eggplant",
+    "oregano",
+    "zucchini"
+   ],
+   "requiredPurchaseTotalPitz": 240,
+   "starGate": 22,
+   "reachableAtSequence": 22,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "trenton-tomato-pie-pizzadb",
+   "nameJa": "トレントントマトパイ",
+   "inProduction": false,
+   "items": [
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "capabilities": [
+    "STEP_ORDER"
+   ],
+   "requiredNodes": [
+    "STEP_ORDER",
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [],
+   "requiredPurchaseTotalPitz": 0,
+   "starGate": 28,
+   "reachableAtSequence": 23,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "shipped:marinara",
+   "nameJa": "マリナーラ",
+   "inProduction": true,
+   "items": [
+    "garlic",
+    "oregano",
+    "tomato-sauce"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "garlic",
+    "oregano",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "garlic",
+    "oregano"
+   ],
+   "requiredPurchaseTotalPitz": 160,
+   "starGate": 28,
+   "reachableAtSequence": 24,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "parmigiana-pizza-pizzadb-p7",
+   "nameJa": "パルミジャーナピザ",
+   "inProduction": false,
+   "items": [
+    "basil",
+    "eggplant",
+    "mozzarella",
+    "parmigiano",
+    "tomato-sauce"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "basil",
+    "eggplant",
+    "mozzarella",
+    "parmigiano",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "eggplant",
+    "parmigiano"
+   ],
+   "requiredPurchaseTotalPitz": 160,
+   "starGate": 28,
+   "reachableAtSequence": 25,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "new-haven-apizza-pizzadb",
+   "nameJa": "ニューヘイブンアピッツァ",
+   "inProduction": false,
+   "items": [
+    "clam",
+    "garlic",
+    "olive-oil",
+    "parmigiano"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "clam",
+    "garlic",
+    "olive-oil",
+    "parmigiano"
+   ],
+   "requiredPurchases": [
+    "clam",
+    "garlic",
+    "olive-oil",
+    "parmigiano"
+   ],
+   "requiredPurchaseTotalPitz": 360,
+   "starGate": 28,
+   "reachableAtSequence": 26,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "prosciutto-funghi-pizzadb-p11",
+   "nameJa": "プロシュットフンギ",
+   "inProduction": false,
+   "items": [
+    "mozzarella",
+    "mushroom",
+    "prosciutto-crudo",
+    "tomato-sauce"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "mozzarella",
+    "mushroom",
+    "prosciutto-crudo",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "mushroom",
+    "prosciutto-crudo"
+   ],
+   "requiredPurchaseTotalPitz": 160,
+   "starGate": 32,
+   "reachableAtSequence": 27,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "jamon-serrano-pizza-pizzadb-p7",
+   "nameJa": "ハモンセラーノピザ",
+   "inProduction": false,
+   "items": [
+    "arugula",
+    "mozzarella",
+    "prosciutto-crudo",
+    "tomato-sauce"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "arugula",
+    "mozzarella",
+    "prosciutto-crudo",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "arugula",
+    "prosciutto-crudo"
+   ],
+   "requiredPurchaseTotalPitz": 200,
+   "starGate": 32,
+   "reachableAtSequence": 28,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "pinsa-romana-pizzadb-p9",
+   "nameJa": "ピンサロマーナ",
+   "inProduction": false,
+   "items": [
+    "arugula",
+    "dough:material-multigrain-long-ferment",
+    "mozzarella",
+    "prosciutto-crudo",
+    "tomato-sauce"
+   ],
+   "capabilities": [
+    "DOUGH_VARIANT"
+   ],
+   "requiredNodes": [
+    "DOUGH_VARIANT",
+    "arugula",
+    "dough:material-multigrain-long-ferment",
+    "mozzarella",
+    "prosciutto-crudo",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "arugula",
+    "dough:material-multigrain-long-ferment",
+    "prosciutto-crudo"
+   ],
+   "requiredPurchaseTotalPitz": 300,
+   "starGate": 32,
+   "reachableAtSequence": 29,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "grandma-pizza-pizzadb",
+   "nameJa": "グランマピザ",
+   "inProduction": false,
+   "items": [
+    "garlic",
+    "mozzarella",
+    "olive-oil",
+    "tomato-sauce"
+   ],
+   "capabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "requiredNodes": [
+    "MULTI_SPREAD_LAYER",
+    "garlic",
+    "mozzarella",
+    "olive-oil",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "garlic",
+    "olive-oil"
+   ],
+   "requiredPurchaseTotalPitz": 160,
+   "starGate": 36,
+   "reachableAtSequence": 30,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "burrata-pizza-pizzadb-p10",
+   "nameJa": "ブラータピザ",
+   "inProduction": false,
+   "items": [
+    "basil",
+    "burrata",
+    "olive-oil",
+    "tomato-sauce"
+   ],
+   "capabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "requiredNodes": [
+    "MULTI_SPREAD_LAYER",
+    "basil",
+    "burrata",
+    "olive-oil",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "burrata",
+    "olive-oil"
+   ],
+   "requiredPurchaseTotalPitz": 160,
+   "starGate": 36,
+   "reachableAtSequence": 31,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "pesto-burrata-pizzadb-p12",
+   "nameJa": "ペストブラータピザ",
+   "inProduction": false,
+   "items": [
+    "burrata",
+    "fresh-tomato",
+    "olive-oil",
+    "pesto"
+   ],
+   "capabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "requiredNodes": [
+    "MULTI_SPREAD_LAYER",
+    "burrata",
+    "fresh-tomato",
+    "olive-oil",
+    "pesto"
+   ],
+   "requiredPurchases": [
+    "burrata",
+    "fresh-tomato",
+    "olive-oil",
+    "pesto"
+   ],
+   "requiredPurchaseTotalPitz": 280,
+   "starGate": 36,
+   "reachableAtSequence": 31,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "pizza-alla-crudaiola-pizzadb-p8",
+   "nameJa": "ピッツァ・アッラ・クルダイオーラ",
+   "inProduction": false,
+   "items": [
+    "arugula",
+    "burrata",
+    "fresh-tomato",
+    "mozzarella",
+    "olive-oil",
+    "tomato-sauce"
+   ],
+   "capabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "requiredNodes": [
+    "MULTI_SPREAD_LAYER",
+    "arugula",
+    "burrata",
+    "fresh-tomato",
+    "mozzarella",
+    "olive-oil",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "arugula",
+    "burrata",
+    "fresh-tomato",
+    "olive-oil"
+   ],
+   "requiredPurchaseTotalPitz": 320,
+   "starGate": 36,
+   "reachableAtSequence": 31,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "sfincione-pizzadb",
+   "nameJa": "スフィンチョーネ",
+   "inProduction": false,
+   "items": [
+    "anchovy",
+    "olive-oil",
+    "onion",
+    "oregano",
+    "tomato-sauce"
+   ],
+   "capabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "requiredNodes": [
+    "MULTI_SPREAD_LAYER",
+    "anchovy",
+    "olive-oil",
+    "onion",
+    "oregano",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "anchovy",
+    "olive-oil",
+    "onion",
+    "oregano"
+   ],
+   "requiredPurchaseTotalPitz": 280,
+   "starGate": 40,
+   "reachableAtSequence": 32,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "shipped:napoletana",
+   "nameJa": "ナポリ",
+   "inProduction": true,
+   "items": [
+    "anchovy",
+    "mozzarella",
+    "oregano",
+    "tomato-sauce"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "anchovy",
+    "mozzarella",
+    "oregano",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "anchovy",
+    "oregano"
+   ],
+   "requiredPurchaseTotalPitz": 160,
+   "starGate": 40,
+   "reachableAtSequence": 32,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "montreal-style-pizza-pizzadb-p13",
+   "nameJa": "モントリオールスタイルピザ",
+   "inProduction": false,
+   "items": [
+    "dough:thick",
+    "mozzarella",
+    "mushroom",
+    "pan:deep-pan",
+    "pepperoni",
+    "tomato-sauce"
+   ],
+   "capabilities": [
+    "DOUGH_VARIANT",
+    "PAN_BAKE"
+   ],
+   "requiredNodes": [
+    "DOUGH_VARIANT",
+    "PAN_BAKE",
+    "dough:thick",
+    "mozzarella",
+    "mushroom",
+    "pan:deep-pan",
+    "pepperoni",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "dough:thick",
+    "mushroom",
+    "pan:deep-pan",
+    "pepperoni"
+   ],
+   "requiredPurchaseTotalPitz": 320,
+   "starGate": 42,
+   "reachableAtSequence": 35,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "vongole-pizzadb",
+   "nameJa": "ヴォンゴレピザ",
+   "inProduction": false,
+   "items": [
+    "clam",
+    "garlic",
+    "olive-oil",
+    "parsley"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "clam",
+    "garlic",
+    "olive-oil",
+    "parsley"
+   ],
+   "requiredPurchases": [
+    "clam",
+    "garlic",
+    "olive-oil",
+    "parsley"
+   ],
+   "requiredPurchaseTotalPitz": 360,
+   "starGate": 44,
+   "reachableAtSequence": 36,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "pesto-gamberi-pizzadb-p11",
+   "nameJa": "ペストガンベリピザ",
+   "inProduction": false,
+   "items": [
+    "fresh-tomato",
+    "garlic",
+    "pesto",
+    "shrimp"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "fresh-tomato",
+    "garlic",
+    "pesto",
+    "shrimp"
+   ],
+   "requiredPurchases": [
+    "fresh-tomato",
+    "garlic",
+    "pesto",
+    "shrimp"
+   ],
+   "requiredPurchaseTotalPitz": 320,
+   "starGate": 44,
+   "reachableAtSequence": 37,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "pescatore-pizzadb-p11",
+   "nameJa": "ペスカトーレ",
+   "inProduction": false,
+   "items": [
+    "clam",
+    "garlic",
+    "mozzarella",
+    "mussel",
+    "olive-oil",
+    "parsley",
+    "shrimp",
+    "tomato-sauce"
+   ],
+   "capabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "requiredNodes": [
+    "MULTI_SPREAD_LAYER",
+    "clam",
+    "garlic",
+    "mozzarella",
+    "mussel",
+    "olive-oil",
+    "parsley",
+    "shrimp",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "clam",
+    "garlic",
+    "mussel",
+    "olive-oil",
+    "parsley",
+    "shrimp"
+   ],
+   "requiredPurchaseTotalPitz": 560,
+   "starGate": 44,
+   "reachableAtSequence": 38,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "shipped:pizza-bianca",
+   "nameJa": "ピッツァ・ビアンカ",
+   "inProduction": true,
+   "items": [
+    "olive-oil",
+    "rosemary"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "olive-oil",
+    "rosemary"
+   ],
+   "requiredPurchases": [
+    "olive-oil",
+    "rosemary"
+   ],
+   "requiredPurchaseTotalPitz": 160,
+   "starGate": 48,
+   "reachableAtSequence": 39,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "porchetta-pizza-pizzadb-p12",
+   "nameJa": "ポルケッタピザ",
+   "inProduction": false,
+   "items": [
+    "mozzarella",
+    "pork",
+    "rosemary"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "mozzarella",
+    "pork",
+    "rosemary"
+   ],
+   "requiredPurchases": [
+    "pork",
+    "rosemary"
+   ],
+   "requiredPurchaseTotalPitz": 200,
+   "starGate": 48,
+   "reachableAtSequence": 40,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "quattro-stagioni-pizzadb",
+   "nameJa": "クアトロスタジオーニ（PIZZA DB版）",
+   "inProduction": false,
+   "items": [
+    "artichoke",
+    "black-olive",
+    "ham",
+    "mozzarella",
+    "mushroom",
+    "tomato-sauce"
+   ],
+   "capabilities": [
+    "ZONED_PLACEMENT"
+   ],
+   "requiredNodes": [
+    "ZONED_PLACEMENT",
+    "artichoke",
+    "black-olive",
+    "ham",
+    "mozzarella",
+    "mushroom",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "artichoke",
+    "black-olive",
+    "ham",
+    "mushroom"
+   ],
+   "requiredPurchaseTotalPitz": 280,
+   "starGate": 50,
+   "reachableAtSequence": 42,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "pesto-pollo-pizzadb-p12",
+   "nameJa": "ペストポッロピザ",
+   "inProduction": false,
+   "items": [
+    "chicken",
+    "fresh-tomato",
+    "mozzarella",
+    "pesto"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "chicken",
+    "fresh-tomato",
+    "mozzarella",
+    "pesto"
+   ],
+   "requiredPurchases": [
+    "chicken",
+    "fresh-tomato",
+    "pesto"
+   ],
+   "requiredPurchaseTotalPitz": 220,
+   "starGate": 52,
+   "reachableAtSequence": 43,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "frango-catupiry-pizzadb-p10",
+   "nameJa": "フランゴ・コン・カトゥピリ",
+   "inProduction": false,
+   "items": [
+    "catupiry",
+    "chicken",
+    "mozzarella",
+    "oregano"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "catupiry",
+    "chicken",
+    "mozzarella",
+    "oregano"
+   ],
+   "requiredPurchases": [
+    "catupiry",
+    "chicken",
+    "oregano"
+   ],
+   "requiredPurchaseTotalPitz": 260,
+   "starGate": 52,
+   "reachableAtSequence": 44,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "bambino-pizzadb-p7",
+   "nameJa": "バンビーノ",
+   "inProduction": false,
+   "items": [
+    "corn",
+    "ham",
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "corn",
+    "ham",
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "corn",
+    "ham"
+   ],
+   "requiredPurchaseTotalPitz": 160,
+   "starGate": 54,
+   "reachableAtSequence": 45,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "brazilian-catupiry-corn-pizza-pizzadb-p10",
+   "nameJa": "ブラジリアンカトゥピリコーンピザ",
+   "inProduction": false,
+   "items": [
+    "catupiry",
+    "corn",
+    "mozzarella"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "catupiry",
+    "corn",
+    "mozzarella"
+   ],
+   "requiredPurchases": [
+    "catupiry",
+    "corn"
+   ],
+   "requiredPurchaseTotalPitz": 200,
+   "starGate": 54,
+   "reachableAtSequence": 45,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "tsukimi-pizza-pizzadb-p14",
+   "nameJa": "月見ピザ",
+   "inProduction": false,
+   "items": [
+    "bacon",
+    "egg",
+    "green-onion",
+    "mozzarella"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "bacon",
+    "egg",
+    "green-onion",
+    "mozzarella"
+   ],
+   "requiredPurchases": [
+    "bacon",
+    "egg",
+    "green-onion"
+   ],
+   "requiredPurchaseTotalPitz": 220,
+   "starGate": 56,
+   "reachableAtSequence": 46,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "sichuan-eggplant-pizza",
+   "nameJa": "四川風ナスピザ",
+   "inProduction": false,
+   "items": [
+    "doubanjiang",
+    "eggplant",
+    "garlic",
+    "green-onion",
+    "mozzarella"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "doubanjiang",
+    "eggplant",
+    "garlic",
+    "green-onion",
+    "mozzarella"
+   ],
+   "requiredPurchases": [
+    "doubanjiang",
+    "eggplant",
+    "garlic",
+    "green-onion"
+   ],
+   "requiredPurchaseTotalPitz": 360,
+   "starGate": 56,
+   "reachableAtSequence": 47,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "bbq-chicken-pizzadb",
+   "nameJa": "BBQチキンピザ",
+   "inProduction": false,
+   "items": [
+    "bbq-sauce",
+    "chicken",
+    "cilantro",
+    "mozzarella",
+    "onion"
+   ],
+   "capabilities": [
+    "LATE_ADDITION"
+   ],
+   "requiredNodes": [
+    "LATE_ADDITION",
+    "bbq-sauce",
+    "chicken",
+    "cilantro",
+    "mozzarella",
+    "onion"
+   ],
+   "requiredPurchases": [
+    "bbq-sauce",
+    "chicken",
+    "cilantro",
+    "onion"
+   ],
+   "requiredPurchaseTotalPitz": 360,
+   "starGate": 58,
+   "reachableAtSequence": 50,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "bianca-pizzadb-row",
+   "nameJa": "ピッツァビアンカ",
+   "inProduction": false,
+   "items": [
+    "mozzarella",
+    "olive-oil",
+    "ricotta",
+    "rosemary"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "mozzarella",
+    "olive-oil",
+    "ricotta",
+    "rosemary"
+   ],
+   "requiredPurchases": [
+    "olive-oil",
+    "ricotta",
+    "rosemary"
+   ],
+   "requiredPurchaseTotalPitz": 260,
+   "starGate": 60,
+   "reachableAtSequence": 51,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "eggplant-ricotta-pizza-pizzadb-p5",
+   "nameJa": "ナスとリコッタのピザ",
+   "inProduction": false,
+   "items": [
+    "eggplant",
+    "mint",
+    "olive-oil",
+    "ricotta"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "eggplant",
+    "mint",
+    "olive-oil",
+    "ricotta"
+   ],
+   "requiredPurchases": [
+    "eggplant",
+    "mint",
+    "olive-oil",
+    "ricotta"
+   ],
+   "requiredPurchaseTotalPitz": 320,
+   "starGate": 60,
+   "reachableAtSequence": 52,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "hawaiian-pizzadb-row",
+   "nameJa": "ハワイアンピザ",
+   "inProduction": false,
+   "items": [
+    "ham",
+    "mozzarella",
+    "pineapple",
+    "tomato-sauce"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "ham",
+    "mozzarella",
+    "pineapple",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "ham",
+    "pineapple"
+   ],
+   "requiredPurchaseTotalPitz": 160,
+   "starGate": 62,
+   "reachableAtSequence": 53,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "pizza-overload-pizzadb-p7",
+   "nameJa": "ピザオーバーロード",
+   "inProduction": false,
+   "items": [
+    "bacon",
+    "ham",
+    "hot-dog",
+    "mozzarella",
+    "pineapple",
+    "tomato-sauce"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "bacon",
+    "ham",
+    "hot-dog",
+    "mozzarella",
+    "pineapple",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "bacon",
+    "ham",
+    "hot-dog",
+    "pineapple"
+   ],
+   "requiredPurchaseTotalPitz": 320,
+   "starGate": 62,
+   "reachableAtSequence": 54,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "argentine-napolitana-pizzadb-p1",
+   "nameJa": "アルゼンチン風ナポリターナ",
+   "inProduction": false,
+   "items": [
+    "dough:thick-fluffy",
+    "fresh-tomato",
+    "garlic",
+    "mozzarella",
+    "oregano",
+    "parmigiano"
+   ],
+   "capabilities": [
+    "DOUGH_VARIANT"
+   ],
+   "requiredNodes": [
+    "DOUGH_VARIANT",
+    "dough:thick-fluffy",
+    "fresh-tomato",
+    "garlic",
+    "mozzarella",
+    "oregano",
+    "parmigiano"
+   ],
+   "requiredPurchases": [
+    "dough:thick-fluffy",
+    "fresh-tomato",
+    "garlic",
+    "oregano",
+    "parmigiano"
+   ],
+   "requiredPurchaseTotalPitz": 420,
+   "starGate": 64,
+   "reachableAtSequence": 55,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "pizza-fritta-pizzadb-p9",
+   "nameJa": "ピッツァフリッタ",
+   "inProduction": false,
+   "items": [
+    "mozzarella",
+    "pork",
+    "ricotta",
+    "tomato-sauce"
+   ],
+   "capabilities": [
+    "FRY_COOK"
+   ],
+   "requiredNodes": [
+    "FRY_COOK",
+    "mozzarella",
+    "pork",
+    "ricotta",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "pork",
+    "ricotta"
+   ],
+   "requiredPurchaseTotalPitz": 200,
+   "starGate": 66,
+   "reachableAtSequence": 56,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "hot-honey-pepperoni-pizzadb-p12",
+   "nameJa": "ホットハニーペパロニピザ",
+   "inProduction": false,
+   "items": [
+    "honey",
+    "mozzarella",
+    "pepperoni",
+    "tomato-sauce"
+   ],
+   "capabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "requiredNodes": [
+    "MULTI_SPREAD_LAYER",
+    "honey",
+    "mozzarella",
+    "pepperoni",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "honey",
+    "pepperoni"
+   ],
+   "requiredPurchaseTotalPitz": 160,
+   "starGate": 66,
+   "reachableAtSequence": 57,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "pesto-trapanese-pizzadb-p11",
+   "nameJa": "ペストトラパネーゼピザ",
+   "inProduction": false,
+   "items": [
+    "almond",
+    "fresh-tomato",
+    "garlic",
+    "pesto"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "almond",
+    "fresh-tomato",
+    "garlic",
+    "pesto"
+   ],
+   "requiredPurchases": [
+    "almond",
+    "fresh-tomato",
+    "garlic",
+    "pesto"
+   ],
+   "requiredPurchaseTotalPitz": 320,
+   "starGate": 68,
+   "reachableAtSequence": 58,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "full-english-pizza-pizzadb-p10",
+   "nameJa": "フルイングリッシュピザ",
+   "inProduction": false,
+   "items": [
+    "bacon",
+    "baked-beans",
+    "egg",
+    "mozzarella",
+    "sausage"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "bacon",
+    "baked-beans",
+    "egg",
+    "mozzarella",
+    "sausage"
+   ],
+   "requiredPurchases": [
+    "bacon",
+    "baked-beans",
+    "egg",
+    "sausage"
+   ],
+   "requiredPurchaseTotalPitz": 280,
+   "starGate": 70,
+   "reachableAtSequence": 59,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "puttanesca-pizza-pizzadb-p10",
+   "nameJa": "プッタネスカ",
+   "inProduction": false,
+   "items": [
+    "anchovy",
+    "black-olive",
+    "capers",
+    "garlic",
+    "tomato-sauce"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "anchovy",
+    "black-olive",
+    "capers",
+    "garlic",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "anchovy",
+    "black-olive",
+    "capers",
+    "garlic"
+   ],
+   "requiredPurchaseTotalPitz": 360,
+   "starGate": 70,
+   "reachableAtSequence": 60,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "vegan-cashew-cheese-pizza-pizzadb-p1",
+   "nameJa": "ヴィーガンカシューチーズピザ",
+   "inProduction": false,
+   "items": [
+    "bell-pepper",
+    "cashew-cheese",
+    "tomato-sauce",
+    "zucchini"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "bell-pepper",
+    "cashew-cheese",
+    "tomato-sauce",
+    "zucchini"
+   ],
+   "requiredPurchases": [
+    "bell-pepper",
+    "cashew-cheese",
+    "zucchini"
+   ],
+   "requiredPurchaseTotalPitz": 220,
+   "starGate": 72,
+   "reachableAtSequence": 61,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "chicago-stuffed-pizza-pizzadb-p3",
+   "nameJa": "シカゴスタッフドピザ",
+   "inProduction": false,
+   "items": [
+    "dough:thick",
+    "mozzarella",
+    "sausage",
+    "tomato-sauce"
+   ],
+   "capabilities": [
+    "DOUGH_VARIANT",
+    "ENCLOSE"
+   ],
+   "requiredNodes": [
+    "DOUGH_VARIANT",
+    "ENCLOSE",
+    "dough:thick",
+    "mozzarella",
+    "sausage",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "dough:thick",
+    "sausage"
+   ],
+   "requiredPurchaseTotalPitz": 160,
+   "starGate": 72,
+   "reachableAtSequence": 62,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "fugazzeta-rellena",
+   "nameJa": "フガゼッタ・レジェーナ",
+   "inProduction": false,
+   "items": [
+    "dough:thick-fluffy",
+    "ham",
+    "mozzarella",
+    "onion",
+    "oregano"
+   ],
+   "capabilities": [
+    "DOUGH_VARIANT",
+    "ENCLOSE"
+   ],
+   "requiredNodes": [
+    "DOUGH_VARIANT",
+    "ENCLOSE",
+    "dough:thick-fluffy",
+    "ham",
+    "mozzarella",
+    "onion",
+    "oregano"
+   ],
+   "requiredPurchases": [
+    "dough:thick-fluffy",
+    "ham",
+    "onion",
+    "oregano"
+   ],
+   "requiredPurchaseTotalPitz": 280,
+   "starGate": 72,
+   "reachableAtSequence": 62,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "scacciata-ragusana-pizzadb-p4",
+   "nameJa": "スカッチャラグザーナ",
+   "inProduction": false,
+   "items": [
+    "caciocavallo",
+    "sausage",
+    "tomato-sauce"
+   ],
+   "capabilities": [
+    "ENCLOSE"
+   ],
+   "requiredNodes": [
+    "ENCLOSE",
+    "caciocavallo",
+    "sausage",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "caciocavallo",
+    "sausage"
+   ],
+   "requiredPurchaseTotalPitz": 200,
+   "starGate": 72,
+   "reachableAtSequence": 63,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "shipped:genovese",
+   "nameJa": "ジェノベーゼ",
+   "inProduction": true,
+   "items": [
+    "cherry-tomato",
+    "mozzarella",
+    "pesto"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "cherry-tomato",
+    "mozzarella",
+    "pesto"
+   ],
+   "requiredPurchases": [
+    "cherry-tomato",
+    "pesto"
+   ],
+   "requiredPurchaseTotalPitz": 200,
+   "starGate": 76,
+   "reachableAtSequence": 64,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "fathead-pizza-keto-pizzadb-p9",
+   "nameJa": "ファットヘッドピザ（ケト風）",
+   "inProduction": false,
+   "items": [
+    "dough:material-keto-mozzarella-almond",
+    "mozzarella",
+    "pepperoni",
+    "tomato-sauce"
+   ],
+   "capabilities": [
+    "DOUGH_VARIANT"
+   ],
+   "requiredNodes": [
+    "DOUGH_VARIANT",
+    "dough:material-keto-mozzarella-almond",
+    "mozzarella",
+    "pepperoni",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "dough:material-keto-mozzarella-almond",
+    "pepperoni"
+   ],
+   "requiredPurchaseTotalPitz": 200,
+   "starGate": 78,
+   "reachableAtSequence": 65,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "ny-style-pizzadb",
+   "nameJa": "ニューヨークスタイルピザ（PIZZA DB版）",
+   "inProduction": false,
+   "items": [
+    "dough:thin-large-pliable",
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "capabilities": [
+    "DOUGH_VARIANT"
+   ],
+   "requiredNodes": [
+    "DOUGH_VARIANT",
+    "dough:thin-large-pliable",
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "dough:thin-large-pliable"
+   ],
+   "requiredPurchaseTotalPitz": 140,
+   "starGate": 78,
+   "reachableAtSequence": 66,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "pizza-al-taglio-romana-pizzadb-p9",
+   "nameJa": "ピッツァアルタリオローマーナ",
+   "inProduction": false,
+   "items": [
+    "basil",
+    "dough:long-ferment",
+    "mozzarella",
+    "pan:tray",
+    "tomato-sauce"
+   ],
+   "capabilities": [
+    "DOUGH_SHAPE_TARGET",
+    "DOUGH_VARIANT",
+    "PAN_BAKE"
+   ],
+   "requiredNodes": [
+    "DOUGH_SHAPE_TARGET",
+    "DOUGH_VARIANT",
+    "PAN_BAKE",
+    "basil",
+    "dough:long-ferment",
+    "mozzarella",
+    "pan:tray",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "dough:long-ferment",
+    "pan:tray"
+   ],
+   "requiredPurchaseTotalPitz": 280,
+   "starGate": 80,
+   "reachableAtSequence": 69,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "salsiccia-e-friarielli-pizzadb-p3",
+   "nameJa": "サルシッチャエフリアリエッリ",
+   "inProduction": false,
+   "items": [
+    "friarielli",
+    "mozzarella",
+    "sausage"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "friarielli",
+    "mozzarella",
+    "sausage"
+   ],
+   "requiredPurchases": [
+    "friarielli",
+    "sausage"
+   ],
+   "requiredPurchaseTotalPitz": 200,
+   "starGate": 82,
+   "reachableAtSequence": 70,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "flammkuchen-pizzadb",
+   "nameJa": "タルトフランベ",
+   "inProduction": false,
+   "items": [
+    "bacon",
+    "fromage-blanc-sauce",
+    "onion"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "bacon",
+    "fromage-blanc-sauce",
+    "onion"
+   ],
+   "requiredPurchases": [
+    "bacon",
+    "fromage-blanc-sauce",
+    "onion"
+   ],
+   "requiredPurchaseTotalPitz": 260,
+   "starGate": 82,
+   "reachableAtSequence": 71,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "rucola-e-grana-pizzadb-p13",
+   "nameJa": "ルーコラエグラーナピザ",
+   "inProduction": false,
+   "items": [
+    "arugula",
+    "grana-padano",
+    "prosciutto-crudo",
+    "tomato-sauce"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "arugula",
+    "grana-padano",
+    "prosciutto-crudo",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "arugula",
+    "grana-padano",
+    "prosciutto-crudo"
+   ],
+   "requiredPurchaseTotalPitz": 340,
+   "starGate": 84,
+   "reachableAtSequence": 72,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "veggie-supreme-pizza-pizzadb-p11",
+   "nameJa": "ベジースプリームピザ",
+   "inProduction": false,
+   "items": [
+    "black-olive",
+    "fresh-tomato",
+    "green-pepper",
+    "mozzarella",
+    "mushroom",
+    "onion",
+    "tomato-sauce"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "black-olive",
+    "fresh-tomato",
+    "green-pepper",
+    "mozzarella",
+    "mushroom",
+    "onion",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "black-olive",
+    "fresh-tomato",
+    "green-pepper",
+    "mushroom",
+    "onion"
+   ],
+   "requiredPurchaseTotalPitz": 380,
+   "starGate": 84,
+   "reachableAtSequence": 73,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "palmito-pizza-pizzadb-p7",
+   "nameJa": "パルミットピザ",
+   "inProduction": false,
+   "items": [
+    "black-olive",
+    "mozzarella",
+    "palm-heart"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "black-olive",
+    "mozzarella",
+    "palm-heart"
+   ],
+   "requiredPurchases": [
+    "black-olive",
+    "palm-heart"
+   ],
+   "requiredPurchaseTotalPitz": 200,
+   "starGate": 86,
+   "reachableAtSequence": 74,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "baba-ganoush-pizza-pizzadb-p7",
+   "nameJa": "ババガヌーシュピザ",
+   "inProduction": false,
+   "items": [
+    "eggplant",
+    "olive-oil",
+    "parsley",
+    "pine-nuts"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "eggplant",
+    "olive-oil",
+    "parsley",
+    "pine-nuts"
+   ],
+   "requiredPurchases": [
+    "eggplant",
+    "olive-oil",
+    "parsley",
+    "pine-nuts"
+   ],
+   "requiredPurchaseTotalPitz": 360,
+   "starGate": 88,
+   "reachableAtSequence": 75,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "pesto-patate-pizzadb-p12",
+   "nameJa": "ペストパターテピザ",
+   "inProduction": false,
+   "items": [
+    "bacon",
+    "mozzarella",
+    "pesto",
+    "potato"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "bacon",
+    "mozzarella",
+    "pesto",
+    "potato"
+   ],
+   "requiredPurchases": [
+    "bacon",
+    "pesto",
+    "potato"
+   ],
+   "requiredPurchaseTotalPitz": 260,
+   "starGate": 88,
+   "reachableAtSequence": 76,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "calabresa-argentina-pizzadb",
+   "nameJa": "アルゼンチン風カラブレーサ",
+   "inProduction": false,
+   "items": [
+    "black-olive",
+    "mozzarella",
+    "oregano",
+    "salami",
+    "tomato-sauce"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "black-olive",
+    "mozzarella",
+    "oregano",
+    "salami",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "black-olive",
+    "oregano",
+    "salami"
+   ],
+   "requiredPurchaseTotalPitz": 260,
+   "starGate": 90,
+   "reachableAtSequence": 77,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "bacalhau-pizzadb",
+   "nameJa": "バカリャウピザ",
+   "inProduction": false,
+   "items": [
+    "black-olive",
+    "mozzarella",
+    "onion",
+    "salt-cod"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "black-olive",
+    "mozzarella",
+    "onion",
+    "salt-cod"
+   ],
+   "requiredPurchases": [
+    "black-olive",
+    "onion",
+    "salt-cod"
+   ],
+   "requiredPurchaseTotalPitz": 260,
+   "starGate": 90,
+   "reachableAtSequence": 78,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "polish-kielbasa-pizzadb-p12",
+   "nameJa": "ポーリッシュキエルバサピザ",
+   "inProduction": false,
+   "items": [
+    "mozzarella",
+    "onion",
+    "sauerkraut",
+    "sausage"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "mozzarella",
+    "onion",
+    "sauerkraut",
+    "sausage"
+   ],
+   "requiredPurchases": [
+    "onion",
+    "sauerkraut",
+    "sausage"
+   ],
+   "requiredPurchaseTotalPitz": 260,
+   "starGate": 92,
+   "reachableAtSequence": 79,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "piadina-romagnola-pizzadb-p7",
+   "nameJa": "ピアディーナ・ロマニョーラ",
+   "inProduction": false,
+   "items": [
+    "arugula",
+    "cream-cheese",
+    "dough:flatbread-unleavened",
+    "prosciutto-crudo"
+   ],
+   "capabilities": [
+    "DOUGH_VARIANT"
+   ],
+   "requiredNodes": [
+    "DOUGH_VARIANT",
+    "arugula",
+    "cream-cheese",
+    "dough:flatbread-unleavened",
+    "prosciutto-crudo"
+   ],
+   "requiredPurchases": [
+    "arugula",
+    "cream-cheese",
+    "dough:flatbread-unleavened",
+    "prosciutto-crudo"
+   ],
+   "requiredPurchaseTotalPitz": 480,
+   "starGate": 94,
+   "reachableAtSequence": 81,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "jalapeno-popper-pizza-pizzadb-p7",
+   "nameJa": "ハラペーニョポッパーピザ",
+   "inProduction": false,
+   "items": [
+    "bacon",
+    "cream-cheese",
+    "jalapeno",
+    "mozzarella"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "bacon",
+    "cream-cheese",
+    "jalapeno",
+    "mozzarella"
+   ],
+   "requiredPurchases": [
+    "bacon",
+    "cream-cheese",
+    "jalapeno"
+   ],
+   "requiredPurchaseTotalPitz": 340,
+   "starGate": 94,
+   "reachableAtSequence": 82,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "spinach-artichoke-pizza-pizzadb-p4",
+   "nameJa": "スピナッチアーティチョークピザ",
+   "inProduction": false,
+   "items": [
+    "artichoke",
+    "cream-cheese",
+    "mozzarella",
+    "parmigiano",
+    "spinach"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "artichoke",
+    "cream-cheese",
+    "mozzarella",
+    "parmigiano",
+    "spinach"
+   ],
+   "requiredPurchases": [
+    "artichoke",
+    "cream-cheese",
+    "parmigiano",
+    "spinach"
+   ],
+   "requiredPurchaseTotalPitz": 480,
+   "starGate": 96,
+   "reachableAtSequence": 83,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "pesto-salmone-pizzadb-p11",
+   "nameJa": "ペストサーモンピザ",
+   "inProduction": false,
+   "items": [
+    "cream-cheese",
+    "lemon",
+    "pesto",
+    "salmon"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "cream-cheese",
+    "lemon",
+    "pesto",
+    "salmon"
+   ],
+   "requiredPurchases": [
+    "cream-cheese",
+    "lemon",
+    "pesto",
+    "salmon"
+   ],
+   "requiredPurchaseTotalPitz": 480,
+   "starGate": 96,
+   "reachableAtSequence": 85,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "pizza-moscow-pizzadb-p9",
+   "nameJa": "ピッツァモスクワ",
+   "inProduction": false,
+   "items": [
+    "mozzarella",
+    "onion",
+    "salmon",
+    "sardine",
+    "tuna"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "mozzarella",
+    "onion",
+    "salmon",
+    "sardine",
+    "tuna"
+   ],
+   "requiredPurchases": [
+    "onion",
+    "salmon",
+    "sardine",
+    "tuna"
+   ],
+   "requiredPurchaseTotalPitz": 400,
+   "starGate": 98,
+   "reachableAtSequence": 86,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "ikura-salmon-pizza-pizzadb-p1",
+   "nameJa": "いくらとサーモンのピザ",
+   "inProduction": false,
+   "items": [
+    "cream-cheese",
+    "salmon",
+    "salmon-roe",
+    "shiso"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "cream-cheese",
+    "salmon",
+    "salmon-roe",
+    "shiso"
+   ],
+   "requiredPurchases": [
+    "cream-cheese",
+    "salmon",
+    "salmon-roe",
+    "shiso"
+   ],
+   "requiredPurchaseTotalPitz": 560,
+   "starGate": 100,
+   "reachableAtSequence": 88,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "shirasu-pizza-pizzadb-p3",
+   "nameJa": "しらすピザ",
+   "inProduction": false,
+   "items": [
+    "lemon",
+    "mozzarella",
+    "shiso",
+    "whitebait"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "lemon",
+    "mozzarella",
+    "shiso",
+    "whitebait"
+   ],
+   "requiredPurchases": [
+    "lemon",
+    "shiso",
+    "whitebait"
+   ],
+   "requiredPurchaseTotalPitz": 420,
+   "starGate": 100,
+   "reachableAtSequence": 89,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "yuzu-shrimp-pizza",
+   "nameJa": "柚子えびピザ",
+   "inProduction": false,
+   "items": [
+    "mozzarella",
+    "shiso",
+    "shrimp",
+    "yuzu-kosho"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "mozzarella",
+    "shiso",
+    "shrimp",
+    "yuzu-kosho"
+   ],
+   "requiredPurchases": [
+    "shiso",
+    "shrimp",
+    "yuzu-kosho"
+   ],
+   "requiredPurchaseTotalPitz": 380,
+   "starGate": 102,
+   "reachableAtSequence": 90,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "shipped:quattro-formaggi",
+   "nameJa": "クアトロ フォルマッジ",
+   "inProduction": true,
+   "items": [
+    "fontina",
+    "gorgonzola",
+    "mozzarella",
+    "olive-oil",
+    "parmigiano"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "fontina",
+    "gorgonzola",
+    "mozzarella",
+    "olive-oil",
+    "parmigiano"
+   ],
+   "requiredPurchases": [
+    "fontina",
+    "gorgonzola",
+    "olive-oil",
+    "parmigiano"
+   ],
+   "requiredPurchaseTotalPitz": 440,
+   "starGate": 102,
+   "reachableAtSequence": 92,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "pesto-noci-pizzadb-p12",
+   "nameJa": "ペストノーチピザ",
+   "inProduction": false,
+   "items": [
+    "gorgonzola",
+    "honey",
+    "pesto",
+    "walnut"
+   ],
+   "capabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "requiredNodes": [
+    "MULTI_SPREAD_LAYER",
+    "gorgonzola",
+    "honey",
+    "pesto",
+    "walnut"
+   ],
+   "requiredPurchases": [
+    "gorgonzola",
+    "honey",
+    "pesto",
+    "walnut"
+   ],
+   "requiredPurchaseTotalPitz": 440,
+   "starGate": 104,
+   "reachableAtSequence": 93,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "eggplant-dengaku-pizza-pizzadb-p6",
+   "nameJa": "ナス田楽ピザ",
+   "inProduction": false,
+   "items": [
+    "eggplant",
+    "miso-sauce",
+    "mozzarella",
+    "white-sesame"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "eggplant",
+    "miso-sauce",
+    "mozzarella",
+    "white-sesame"
+   ],
+   "requiredPurchases": [
+    "eggplant",
+    "miso-sauce",
+    "white-sesame"
+   ],
+   "requiredPurchaseTotalPitz": 340,
+   "starGate": 106,
+   "reachableAtSequence": 95,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "yakiniku-pizza",
+   "nameJa": "焼肉ピザ",
+   "inProduction": false,
+   "items": [
+    "beef",
+    "mozzarella",
+    "onion",
+    "white-sesame",
+    "yakiniku-sauce"
+   ],
+   "capabilities": [
+    "PREP_STEP"
+   ],
+   "requiredNodes": [
+    "PREP_STEP",
+    "beef",
+    "mozzarella",
+    "onion",
+    "white-sesame",
+    "yakiniku-sauce"
+   ],
+   "requiredPurchases": [
+    "beef",
+    "onion",
+    "white-sesame",
+    "yakiniku-sauce"
+   ],
+   "requiredPurchaseTotalPitz": 480,
+   "starGate": 106,
+   "reachableAtSequence": 98,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "california-style-pizza-pizzadb-p2",
+   "nameJa": "カリフォルニアスタイルピザ",
+   "inProduction": false,
+   "items": [
+    "arugula",
+    "avocado",
+    "fresh-tomato",
+    "goat-cheese"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "arugula",
+    "avocado",
+    "fresh-tomato",
+    "goat-cheese"
+   ],
+   "requiredPurchases": [
+    "arugula",
+    "avocado",
+    "fresh-tomato",
+    "goat-cheese"
+   ],
+   "requiredPurchaseTotalPitz": 440,
+   "starGate": 108,
+   "reachableAtSequence": 100,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "new-england-bar-pizza-pizzadb-p6",
+   "nameJa": "ニューイングランドバーピザ",
+   "inProduction": false,
+   "items": [
+    "dough:thin-crisp",
+    "mozzarella",
+    "pan:shallow-pan",
+    "pepperoni",
+    "tomato-sauce"
+   ],
+   "capabilities": [
+    "DOUGH_VARIANT",
+    "PAN_BAKE"
+   ],
+   "requiredNodes": [
+    "DOUGH_VARIANT",
+    "PAN_BAKE",
+    "dough:thin-crisp",
+    "mozzarella",
+    "pan:shallow-pan",
+    "pepperoni",
+    "tomato-sauce"
+   ],
+   "requiredPurchases": [
+    "dough:thin-crisp",
+    "pan:shallow-pan",
+    "pepperoni"
+   ],
+   "requiredPurchaseTotalPitz": 420,
+   "starGate": 108,
+   "reachableAtSequence": 102,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "new-zealand-lamb-pizza-pizzadb-p6",
+   "nameJa": "ニュージーランドラムピザ",
+   "inProduction": false,
+   "items": [
+    "lamb",
+    "mozzarella",
+    "rosemary",
+    "sweet-potato"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "lamb",
+    "mozzarella",
+    "rosemary",
+    "sweet-potato"
+   ],
+   "requiredPurchases": [
+    "lamb",
+    "rosemary",
+    "sweet-potato"
+   ],
+   "requiredPurchaseTotalPitz": 460,
+   "starGate": 110,
+   "reachableAtSequence": 104,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "eggplant-tahini-pizza-pizzadb-p5",
+   "nameJa": "ナスとタヒニのピザ",
+   "inProduction": false,
+   "items": [
+    "eggplant",
+    "parsley",
+    "pomegranate",
+    "tahini"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "eggplant",
+    "parsley",
+    "pomegranate",
+    "tahini"
+   ],
+   "requiredPurchases": [
+    "eggplant",
+    "parsley",
+    "pomegranate",
+    "tahini"
+   ],
+   "requiredPurchaseTotalPitz": 520,
+   "starGate": 112,
+   "reachableAtSequence": 106,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "wasabi-beef-pizza",
+   "nameJa": "わさび牛ピザ",
+   "inProduction": false,
+   "items": [
+    "beef",
+    "mozzarella",
+    "onion",
+    "soy-sauce",
+    "wasabi"
+   ],
+   "capabilities": [
+    "LATE_ADDITION"
+   ],
+   "requiredNodes": [
+    "LATE_ADDITION",
+    "beef",
+    "mozzarella",
+    "onion",
+    "soy-sauce",
+    "wasabi"
+   ],
+   "requiredPurchases": [
+    "beef",
+    "onion",
+    "soy-sauce",
+    "wasabi"
+   ],
+   "requiredPurchaseTotalPitz": 560,
+   "starGate": 112,
+   "reachableAtSequence": 108,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "pizza-salad-pizzadb-p7",
+   "nameJa": "ピザサラダ",
+   "inProduction": false,
+   "items": [
+    "corn",
+    "cucumber",
+    "lettuce",
+    "mozzarella",
+    "tomato-sauce",
+    "yogurt-sauce"
+   ],
+   "capabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "requiredNodes": [
+    "MULTI_SPREAD_LAYER",
+    "corn",
+    "cucumber",
+    "lettuce",
+    "mozzarella",
+    "tomato-sauce",
+    "yogurt-sauce"
+   ],
+   "requiredPurchases": [
+    "corn",
+    "cucumber",
+    "lettuce",
+    "yogurt-sauce"
+   ],
+   "requiredPurchaseTotalPitz": 640,
+   "starGate": 114,
+   "reachableAtSequence": 111,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "peking-duck-pizza",
+   "nameJa": "北京ダックピザ",
+   "inProduction": false,
+   "items": [
+    "cucumber",
+    "green-onion",
+    "mozzarella",
+    "peking-duck",
+    "sweet-bean-sauce"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "cucumber",
+    "green-onion",
+    "mozzarella",
+    "peking-duck",
+    "sweet-bean-sauce"
+   ],
+   "requiredPurchases": [
+    "cucumber",
+    "green-onion",
+    "peking-duck",
+    "sweet-bean-sauce"
+   ],
+   "requiredPurchaseTotalPitz": 640,
+   "starGate": 114,
+   "reachableAtSequence": 113,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "poutine-pizza-pizzadb-p10",
+   "nameJa": "プーティンピザ",
+   "inProduction": false,
+   "items": [
+    "cheese-curd",
+    "dough:thick",
+    "french-fries",
+    "gravy-sauce",
+    "mozzarella"
+   ],
+   "capabilities": [
+    "DOUGH_VARIANT"
+   ],
+   "requiredNodes": [
+    "DOUGH_VARIANT",
+    "cheese-curd",
+    "dough:thick",
+    "french-fries",
+    "gravy-sauce",
+    "mozzarella"
+   ],
+   "requiredPurchases": [
+    "cheese-curd",
+    "dough:thick",
+    "french-fries",
+    "gravy-sauce"
+   ],
+   "requiredPurchaseTotalPitz": 640,
+   "starGate": 116,
+   "reachableAtSequence": 116,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "mentaiko-cream-pizza-pizzadb-p4",
+   "nameJa": "たらこクリームピザ",
+   "inProduction": false,
+   "items": [
+    "cod-roe",
+    "fresh-cream-sauce",
+    "mozzarella",
+    "nori",
+    "shiso"
+   ],
+   "capabilities": [
+    "LATE_ADDITION"
+   ],
+   "requiredNodes": [
+    "LATE_ADDITION",
+    "cod-roe",
+    "fresh-cream-sauce",
+    "mozzarella",
+    "nori",
+    "shiso"
+   ],
+   "requiredPurchases": [
+    "cod-roe",
+    "fresh-cream-sauce",
+    "nori",
+    "shiso"
+   ],
+   "requiredPurchaseTotalPitz": 680,
+   "starGate": 118,
+   "reachableAtSequence": 119,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "currywurst-pizzadb",
+   "nameJa": "カリーヴルストピザ",
+   "inProduction": false,
+   "items": [
+    "curry-ketchup",
+    "mozzarella",
+    "paprika-powder",
+    "wurstel"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "curry-ketchup",
+    "mozzarella",
+    "paprika-powder",
+    "wurstel"
+   ],
+   "requiredPurchases": [
+    "curry-ketchup",
+    "paprika-powder",
+    "wurstel"
+   ],
+   "requiredPurchaseTotalPitz": 540,
+   "starGate": 118,
+   "reachableAtSequence": 122,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "manakish",
+   "nameJa": "マナキーシュ",
+   "inProduction": false,
+   "items": [
+    "dough:flatbread-pita-soft",
+    "halloumi",
+    "olive-oil",
+    "zaatar"
+   ],
+   "capabilities": [
+    "DOUGH_VARIANT"
+   ],
+   "requiredNodes": [
+    "DOUGH_VARIANT",
+    "dough:flatbread-pita-soft",
+    "halloumi",
+    "olive-oil",
+    "zaatar"
+   ],
+   "requiredPurchases": [
+    "dough:flatbread-pita-soft",
+    "halloumi",
+    "olive-oil",
+    "zaatar"
+   ],
+   "requiredPurchaseTotalPitz": 600,
+   "starGate": 120,
+   "reachableAtSequence": 125,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  },
+  {
+   "targetId": "cuban-pizza-pizzadb-p2",
+   "nameJa": "キューバンピザ",
+   "inProduction": false,
+   "items": [
+    "ham",
+    "mustard",
+    "pickles",
+    "pork",
+    "swiss-cheese"
+   ],
+   "capabilities": [],
+   "requiredNodes": [
+    "ham",
+    "mustard",
+    "pickles",
+    "pork",
+    "swiss-cheese"
+   ],
+   "requiredPurchases": [
+    "ham",
+    "mustard",
+    "pickles",
+    "pork",
+    "swiss-cheese"
+   ],
+   "requiredPurchaseTotalPitz": 700,
+   "starGate": 120,
+   "reachableAtSequence": 128,
+   "starterOnly": false,
+   "recipeUnlockCondition": null
+  }
+ ],
+ "economy": {
+  "afterFirstMargherita": [
+   {
+    "profile": "low-score",
+    "margheritaBest": 1,
+    "pitzAfterFirstDiscovery": 70.0,
+    "repeatMargheritaPitz": 20.0,
+    "hybridStars": 2,
+    "availableToBuy": [
+     "egg@60",
+     "bacon@60",
+     "onion@60"
+    ],
+    "affordableImmediately": 3,
+    "bakesToAffordAllAvailable": 6
+   },
+   {
+    "profile": "beginner",
+    "margheritaBest": 2,
+    "pitzAfterFirstDiscovery": 100.0,
+    "repeatMargheritaPitz": 50.0,
+    "hybridStars": 2,
+    "availableToBuy": [
+     "egg@60",
+     "bacon@60",
+     "onion@60"
+    ],
+    "affordableImmediately": 3,
+    "bakesToAffordAllAvailable": 2
+   },
+   {
+    "profile": "standard",
+    "margheritaBest": 3,
+    "pitzAfterFirstDiscovery": 130.0,
+    "repeatMargheritaPitz": 80.0,
+    "hybridStars": 3,
+    "availableToBuy": [
+     "egg@60",
+     "bacon@60",
+     "onion@60"
+    ],
+    "affordableImmediately": 3,
+    "bakesToAffordAllAvailable": 1
+   },
+   {
+    "profile": "skilled",
+    "margheritaBest": 4,
+    "pitzAfterFirstDiscovery": 150.0,
+    "repeatMargheritaPitz": 100.0,
+    "hybridStars": 4,
+    "availableToBuy": [
+     "egg@60",
+     "bacon@60",
+     "onion@60"
+    ],
+    "affordableImmediately": 3,
+    "bakesToAffordAllAvailable": 1
+   },
+   {
+    "profile": "perfect",
+    "margheritaBest": 5,
+    "pitzAfterFirstDiscovery": 170.0,
+    "repeatMargheritaPitz": 120.0,
+    "hybridStars": 5,
+    "availableToBuy": [
+     "egg@60",
+     "bacon@60",
+     "onion@60"
+    ],
+    "affordableImmediately": 3,
+    "bakesToAffordAllAvailable": 1
+   }
+  ],
+  "bakesToAffordOneItemByTier": {
+   "early": {
+    "low-score": 3,
+    "beginner": 2,
+    "standard": 1,
+    "skilled": 1,
+    "perfect": 1
+   },
+   "mid": {
+    "low-score": 5,
+    "beginner": 2,
+    "standard": 2,
+    "skilled": 1,
+    "perfect": 1
+   },
+   "late": {
+    "low-score": 7,
+    "beginner": 3,
+    "standard": 2,
+    "skilled": 2,
+    "perfect": 2
+   },
+   "endgame": {
+    "low-score": 9,
+    "beginner": 4,
+    "standard": 3,
+    "skilled": 2,
+    "perfect": 2
+   }
+  },
+  "authoritySimulationPaths": {
+   "low-score": {
+    "repeatBakeRewardPitz": 20.0,
+    "firstDiscoveryRewardPitz": 70.0,
+    "hybridStarsPerDiscovery": 2,
+    "first30Events": [
+     {
+      "sequence": 0,
+      "node": "shipped:margherita",
+      "price": 0,
+      "starGate": 0,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:margherita"
+      ],
+      "discoveredTotal": 1,
+      "bakesTotal": 1,
+      "pitzAfter": 70.0
+     },
+     {
+      "sequence": 4,
+      "node": "egg",
+      "price": 60,
+      "starGate": 2,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:bismarck"
+      ],
+      "discoveredTotal": 2,
+      "bakesTotal": 2,
+      "pitzAfter": 80.0
+     },
+     {
+      "sequence": 5,
+      "node": "bacon",
+      "price": 60,
+      "starGate": 2,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:breakfast-pizza"
+      ],
+      "discoveredTotal": 3,
+      "bakesTotal": 3,
+      "pitzAfter": 90.0
+     },
+     {
+      "sequence": 6,
+      "node": "onion",
+      "price": 60,
+      "starGate": 2,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "aussie-pizzadb"
+      ],
+      "discoveredTotal": 4,
+      "bakesTotal": 4,
+      "pitzAfter": 100.0
+     },
+     {
+      "sequence": 7,
+      "node": "pepperoni",
+      "price": 60,
+      "starGate": 6,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:pepperoni"
+      ],
+      "discoveredTotal": 5,
+      "bakesTotal": 5,
+      "pitzAfter": 110.0
+     },
+     {
+      "sequence": 8,
+      "node": "sausage",
+      "price": 60,
+      "starGate": 6,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:salsiccia"
+      ],
+      "discoveredTotal": 6,
+      "bakesTotal": 6,
+      "pitzAfter": 120.0
+     },
+     {
+      "sequence": 9,
+      "node": "ham",
+      "price": 60,
+      "starGate": 6,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:meat-lovers"
+      ],
+      "discoveredTotal": 7,
+      "bakesTotal": 7,
+      "pitzAfter": 130.0
+     },
+     {
+      "sequence": 10,
+      "node": "black-olive",
+      "price": 60,
+      "starGate": 10,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "pizza-portuguesa-pizzadb-p9"
+      ],
+      "discoveredTotal": 8,
+      "bakesTotal": 8,
+      "pitzAfter": 140.0
+     },
+     {
+      "sequence": 11,
+      "node": "mushroom",
+      "price": 60,
+      "starGate": 10,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:funghi"
+      ],
+      "discoveredTotal": 9,
+      "bakesTotal": 9,
+      "pitzAfter": 150.0
+     },
+     {
+      "sequence": 12,
+      "node": "oregano",
+      "price": 60,
+      "starGate": 10,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "brazilian-calabresa-pizzadb-p10",
+       "shipped:capricciosa"
+      ],
+      "discoveredTotal": 11,
+      "bakesTotal": 11,
+      "pitzAfter": 230.0
+     },
+     {
+      "sequence": 13,
+      "node": "fresh-tomato",
+      "price": 60,
+      "starGate": 14,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "chilean-napolitana-pizzadb"
+      ],
+      "discoveredTotal": 12,
+      "bakesTotal": 12,
+      "pitzAfter": 240.0
+     },
+     {
+      "sequence": 14,
+      "node": "olive-oil",
+      "price": 60,
+      "starGate": 14,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:fugazza"
+      ],
+      "discoveredTotal": 13,
+      "bakesTotal": 13,
+      "pitzAfter": 250.0
+     },
+     {
+      "sequence": 15,
+      "node": "feta",
+      "price": 60,
+      "starGate": 14,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "pizza-feta-eliniki-pizzadb-p9"
+      ],
+      "discoveredTotal": 14,
+      "bakesTotal": 14,
+      "pitzAfter": 260.0
+     },
+     {
+      "sequence": 16,
+      "node": "DOUGH_VARIANT",
+      "price": 0,
+      "starGate": 18,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [],
+      "discoveredTotal": 14,
+      "bakesTotal": 14,
+      "pitzAfter": 260.0
+     },
+     {
+      "sequence": 17,
+      "node": "dough:material-cauliflower",
+      "price": 60,
+      "starGate": 18,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "cauliflower-crust-pizza-pizzadb-p2"
+      ],
+      "discoveredTotal": 15,
+      "bakesTotal": 15,
+      "pitzAfter": 270.0
+     },
+     {
+      "sequence": 18,
+      "node": "pesto",
+      "price": 60,
+      "starGate": 18,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "pesto-caprese-pizzadb-p11"
+      ],
+      "discoveredTotal": 16,
+      "bakesTotal": 16,
+      "pitzAfter": 280.0
+     },
+     {
+      "sequence": 19,
+      "node": "tuna",
+      "price": 60,
+      "starGate": 18,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "pesto-tonno-pizzadb-p12",
+       "tonno-e-cipolla-pizzadb"
+      ],
+      "discoveredTotal": 18,
+      "bakesTotal": 18,
+      "pitzAfter": 360.0
+     },
+     {
+      "sequence": 20,
+      "node": "bell-pepper",
+      "price": 60,
+      "starGate": 22,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "spanish-chorizo-pizza-pizzadb-p4"
+      ],
+      "discoveredTotal": 19,
+      "bakesTotal": 19,
+      "pitzAfter": 370.0
+     },
+     {
+      "sequence": 21,
+      "node": "eggplant",
+      "price": 60,
+      "starGate": 22,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "melanzane-pizza-pizzadb-p13"
+      ],
+      "discoveredTotal": 20,
+      "bakesTotal": 20,
+      "pitzAfter": 380.0
+     },
+     {
+      "sequence": 22,
+      "node": "zucchini",
+      "price": 60,
+      "starGate": 22,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "pesto-vegetariana-pizzadb-p12",
+       "ratatouille-pizza-pizzadb-p13"
+      ],
+      "discoveredTotal": 22,
+      "bakesTotal": 22,
+      "pitzAfter": 460.0
+     },
+     {
+      "sequence": 23,
+      "node": "STEP_ORDER",
+      "price": 0,
+      "starGate": 28,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "trenton-tomato-pie-pizzadb"
+      ],
+      "discoveredTotal": 23,
+      "bakesTotal": 23,
+      "pitzAfter": 530.0
+     },
+     {
+      "sequence": 24,
+      "node": "garlic",
+      "price": 100,
+      "starGate": 28,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:marinara"
+      ],
+      "discoveredTotal": 24,
+      "bakesTotal": 24,
+      "pitzAfter": 500.0
+     },
+     {
+      "sequence": 25,
+      "node": "parmigiano",
+      "price": 100,
+      "starGate": 28,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "parmigiana-pizza-pizzadb-p7"
+      ],
+      "discoveredTotal": 25,
+      "bakesTotal": 25,
+      "pitzAfter": 470.0
+     },
+     {
+      "sequence": 26,
+      "node": "clam",
+      "price": 100,
+      "starGate": 28,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "new-haven-apizza-pizzadb"
+      ],
+      "discoveredTotal": 26,
+      "bakesTotal": 26,
+      "pitzAfter": 440.0
+     },
+     {
+      "sequence": 27,
+      "node": "prosciutto-crudo",
+      "price": 100,
+      "starGate": 32,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "prosciutto-funghi-pizzadb-p11"
+      ],
+      "discoveredTotal": 27,
+      "bakesTotal": 27,
+      "pitzAfter": 410.0
+     },
+     {
+      "sequence": 28,
+      "node": "arugula",
+      "price": 100,
+      "starGate": 32,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "jamon-serrano-pizza-pizzadb-p7"
+      ],
+      "discoveredTotal": 28,
+      "bakesTotal": 28,
+      "pitzAfter": 380.0
+     },
+     {
+      "sequence": 29,
+      "node": "dough:material-multigrain-long-ferment",
+      "price": 100,
+      "starGate": 32,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "pinsa-romana-pizzadb-p9"
+      ],
+      "discoveredTotal": 29,
+      "bakesTotal": 29,
+      "pitzAfter": 350.0
+     },
+     {
+      "sequence": 30,
+      "node": "MULTI_SPREAD_LAYER",
+      "price": 0,
+      "starGate": 36,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "grandma-pizza-pizzadb"
+      ],
+      "discoveredTotal": 30,
+      "bakesTotal": 30,
+      "pitzAfter": 420.0
+     },
+     {
+      "sequence": 31,
+      "node": "burrata",
+      "price": 100,
+      "starGate": 36,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "burrata-pizza-pizzadb-p10",
+       "pesto-burrata-pizzadb-p12",
+       "pizza-alla-crudaiola-pizzadb-p8"
+      ],
+      "discoveredTotal": 33,
+      "bakesTotal": 33,
+      "pitzAfter": 530.0
+     },
+     {
+      "sequence": 32,
+      "node": "anchovy",
+      "price": 100,
+      "starGate": 40,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "sfincione-pizzadb",
+       "shipped:napoletana"
+      ],
+      "discoveredTotal": 35,
+      "bakesTotal": 35,
+      "pitzAfter": 570.0
+     }
+    ],
+    "worstNoDiscoveryStretch": {
+     "gap": 25,
+     "beforeNode": "nori",
+     "atDiscoveredTotal": 97
+    },
+    "top5PurchaseWaits": [
+     {
+      "node": "pan:shallow-pan",
+      "wait": 9
+     },
+     {
+      "node": "sweet-potato",
+      "wait": 9
+     },
+     {
+      "node": "tahini",
+      "wait": 9
+     },
+     {
+      "node": "wasabi",
+      "wait": 9
+     },
+     {
+      "node": "lettuce",
+      "wait": 9
+     }
+    ],
+    "totalBakes": 483,
+    "grindBakes": 382,
+    "grindShare": 0.791
+   },
+   "beginner": {
+    "repeatBakeRewardPitz": 50.0,
+    "firstDiscoveryRewardPitz": 100.0,
+    "hybridStarsPerDiscovery": 2,
+    "first30Events": [
+     {
+      "sequence": 0,
+      "node": "shipped:margherita",
+      "price": 0,
+      "starGate": 0,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:margherita"
+      ],
+      "discoveredTotal": 1,
+      "bakesTotal": 1,
+      "pitzAfter": 100.0
+     },
+     {
+      "sequence": 4,
+      "node": "egg",
+      "price": 60,
+      "starGate": 2,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:bismarck"
+      ],
+      "discoveredTotal": 2,
+      "bakesTotal": 2,
+      "pitzAfter": 140.0
+     },
+     {
+      "sequence": 5,
+      "node": "bacon",
+      "price": 60,
+      "starGate": 2,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:breakfast-pizza"
+      ],
+      "discoveredTotal": 3,
+      "bakesTotal": 3,
+      "pitzAfter": 180.0
+     },
+     {
+      "sequence": 6,
+      "node": "onion",
+      "price": 60,
+      "starGate": 2,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "aussie-pizzadb"
+      ],
+      "discoveredTotal": 4,
+      "bakesTotal": 4,
+      "pitzAfter": 220.0
+     },
+     {
+      "sequence": 7,
+      "node": "pepperoni",
+      "price": 60,
+      "starGate": 6,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:pepperoni"
+      ],
+      "discoveredTotal": 5,
+      "bakesTotal": 5,
+      "pitzAfter": 260.0
+     },
+     {
+      "sequence": 8,
+      "node": "sausage",
+      "price": 60,
+      "starGate": 6,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:salsiccia"
+      ],
+      "discoveredTotal": 6,
+      "bakesTotal": 6,
+      "pitzAfter": 300.0
+     },
+     {
+      "sequence": 9,
+      "node": "ham",
+      "price": 60,
+      "starGate": 6,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:meat-lovers"
+      ],
+      "discoveredTotal": 7,
+      "bakesTotal": 7,
+      "pitzAfter": 340.0
+     },
+     {
+      "sequence": 10,
+      "node": "black-olive",
+      "price": 60,
+      "starGate": 10,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "pizza-portuguesa-pizzadb-p9"
+      ],
+      "discoveredTotal": 8,
+      "bakesTotal": 8,
+      "pitzAfter": 380.0
+     },
+     {
+      "sequence": 11,
+      "node": "mushroom",
+      "price": 60,
+      "starGate": 10,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:funghi"
+      ],
+      "discoveredTotal": 9,
+      "bakesTotal": 9,
+      "pitzAfter": 420.0
+     },
+     {
+      "sequence": 12,
+      "node": "oregano",
+      "price": 60,
+      "starGate": 10,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "brazilian-calabresa-pizzadb-p10",
+       "shipped:capricciosa"
+      ],
+      "discoveredTotal": 11,
+      "bakesTotal": 11,
+      "pitzAfter": 560.0
+     },
+     {
+      "sequence": 13,
+      "node": "fresh-tomato",
+      "price": 60,
+      "starGate": 14,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "chilean-napolitana-pizzadb"
+      ],
+      "discoveredTotal": 12,
+      "bakesTotal": 12,
+      "pitzAfter": 600.0
+     },
+     {
+      "sequence": 14,
+      "node": "olive-oil",
+      "price": 60,
+      "starGate": 14,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:fugazza"
+      ],
+      "discoveredTotal": 13,
+      "bakesTotal": 13,
+      "pitzAfter": 640.0
+     },
+     {
+      "sequence": 15,
+      "node": "feta",
+      "price": 60,
+      "starGate": 14,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "pizza-feta-eliniki-pizzadb-p9"
+      ],
+      "discoveredTotal": 14,
+      "bakesTotal": 14,
+      "pitzAfter": 680.0
+     },
+     {
+      "sequence": 16,
+      "node": "DOUGH_VARIANT",
+      "price": 0,
+      "starGate": 18,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [],
+      "discoveredTotal": 14,
+      "bakesTotal": 14,
+      "pitzAfter": 680.0
+     },
+     {
+      "sequence": 17,
+      "node": "dough:material-cauliflower",
+      "price": 60,
+      "starGate": 18,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "cauliflower-crust-pizza-pizzadb-p2"
+      ],
+      "discoveredTotal": 15,
+      "bakesTotal": 15,
+      "pitzAfter": 720.0
+     },
+     {
+      "sequence": 18,
+      "node": "pesto",
+      "price": 60,
+      "starGate": 18,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "pesto-caprese-pizzadb-p11"
+      ],
+      "discoveredTotal": 16,
+      "bakesTotal": 16,
+      "pitzAfter": 760.0
+     },
+     {
+      "sequence": 19,
+      "node": "tuna",
+      "price": 60,
+      "starGate": 18,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "pesto-tonno-pizzadb-p12",
+       "tonno-e-cipolla-pizzadb"
+      ],
+      "discoveredTotal": 18,
+      "bakesTotal": 18,
+      "pitzAfter": 900.0
+     },
+     {
+      "sequence": 20,
+      "node": "bell-pepper",
+      "price": 60,
+      "starGate": 22,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "spanish-chorizo-pizza-pizzadb-p4"
+      ],
+      "discoveredTotal": 19,
+      "bakesTotal": 19,
+      "pitzAfter": 940.0
+     },
+     {
+      "sequence": 21,
+      "node": "eggplant",
+      "price": 60,
+      "starGate": 22,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "melanzane-pizza-pizzadb-p13"
+      ],
+      "discoveredTotal": 20,
+      "bakesTotal": 20,
+      "pitzAfter": 980.0
+     },
+     {
+      "sequence": 22,
+      "node": "zucchini",
+      "price": 60,
+      "starGate": 22,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "pesto-vegetariana-pizzadb-p12",
+       "ratatouille-pizza-pizzadb-p13"
+      ],
+      "discoveredTotal": 22,
+      "bakesTotal": 22,
+      "pitzAfter": 1120.0
+     },
+     {
+      "sequence": 23,
+      "node": "STEP_ORDER",
+      "price": 0,
+      "starGate": 28,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "trenton-tomato-pie-pizzadb"
+      ],
+      "discoveredTotal": 23,
+      "bakesTotal": 23,
+      "pitzAfter": 1220.0
+     },
+     {
+      "sequence": 24,
+      "node": "garlic",
+      "price": 100,
+      "starGate": 28,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:marinara"
+      ],
+      "discoveredTotal": 24,
+      "bakesTotal": 24,
+      "pitzAfter": 1220.0
+     },
+     {
+      "sequence": 25,
+      "node": "parmigiano",
+      "price": 100,
+      "starGate": 28,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "parmigiana-pizza-pizzadb-p7"
+      ],
+      "discoveredTotal": 25,
+      "bakesTotal": 25,
+      "pitzAfter": 1220.0
+     },
+     {
+      "sequence": 26,
+      "node": "clam",
+      "price": 100,
+      "starGate": 28,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "new-haven-apizza-pizzadb"
+      ],
+      "discoveredTotal": 26,
+      "bakesTotal": 26,
+      "pitzAfter": 1220.0
+     },
+     {
+      "sequence": 27,
+      "node": "prosciutto-crudo",
+      "price": 100,
+      "starGate": 32,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "prosciutto-funghi-pizzadb-p11"
+      ],
+      "discoveredTotal": 27,
+      "bakesTotal": 27,
+      "pitzAfter": 1220.0
+     },
+     {
+      "sequence": 28,
+      "node": "arugula",
+      "price": 100,
+      "starGate": 32,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "jamon-serrano-pizza-pizzadb-p7"
+      ],
+      "discoveredTotal": 28,
+      "bakesTotal": 28,
+      "pitzAfter": 1220.0
+     },
+     {
+      "sequence": 29,
+      "node": "dough:material-multigrain-long-ferment",
+      "price": 100,
+      "starGate": 32,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "pinsa-romana-pizzadb-p9"
+      ],
+      "discoveredTotal": 29,
+      "bakesTotal": 29,
+      "pitzAfter": 1220.0
+     },
+     {
+      "sequence": 30,
+      "node": "MULTI_SPREAD_LAYER",
+      "price": 0,
+      "starGate": 36,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "grandma-pizza-pizzadb"
+      ],
+      "discoveredTotal": 30,
+      "bakesTotal": 30,
+      "pitzAfter": 1320.0
+     },
+     {
+      "sequence": 31,
+      "node": "burrata",
+      "price": 100,
+      "starGate": 36,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "burrata-pizza-pizzadb-p10",
+       "pesto-burrata-pizzadb-p12",
+       "pizza-alla-crudaiola-pizzadb-p8"
+      ],
+      "discoveredTotal": 33,
+      "bakesTotal": 33,
+      "pitzAfter": 1520.0
+     },
+     {
+      "sequence": 32,
+      "node": "anchovy",
+      "price": 100,
+      "starGate": 40,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "sfincione-pizzadb",
+       "shipped:napoletana"
+      ],
+      "discoveredTotal": 35,
+      "bakesTotal": 35,
+      "pitzAfter": 1620.0
+     }
+    ],
+    "worstNoDiscoveryStretch": {
+     "gap": 10,
+     "beforeNode": "yogurt-sauce",
+     "atDiscoveredTotal": 94
+    },
+    "top5PurchaseWaits": [
+     {
+      "node": "pan:shallow-pan",
+      "wait": 4
+     },
+     {
+      "node": "sweet-potato",
+      "wait": 4
+     },
+     {
+      "node": "tahini",
+      "wait": 4
+     },
+     {
+      "node": "yogurt-sauce",
+      "wait": 4
+     },
+     {
+      "node": "gravy-sauce",
+      "wait": 4
+     }
+    ],
+    "totalBakes": 194,
+    "grindBakes": 93,
+    "grindShare": 0.479
+   },
+   "standard": {
+    "repeatBakeRewardPitz": 80.0,
+    "firstDiscoveryRewardPitz": 130.0,
+    "hybridStarsPerDiscovery": 3,
+    "first30Events": [
+     {
+      "sequence": 0,
+      "node": "shipped:margherita",
+      "price": 0,
+      "starGate": 0,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:margherita"
+      ],
+      "discoveredTotal": 1,
+      "bakesTotal": 1,
+      "pitzAfter": 130.0
+     },
+     {
+      "sequence": 4,
+      "node": "egg",
+      "price": 60,
+      "starGate": 2,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:bismarck"
+      ],
+      "discoveredTotal": 2,
+      "bakesTotal": 2,
+      "pitzAfter": 200.0
+     },
+     {
+      "sequence": 5,
+      "node": "bacon",
+      "price": 60,
+      "starGate": 2,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:breakfast-pizza"
+      ],
+      "discoveredTotal": 3,
+      "bakesTotal": 3,
+      "pitzAfter": 270.0
+     },
+     {
+      "sequence": 6,
+      "node": "onion",
+      "price": 60,
+      "starGate": 2,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "aussie-pizzadb"
+      ],
+      "discoveredTotal": 4,
+      "bakesTotal": 4,
+      "pitzAfter": 340.0
+     },
+     {
+      "sequence": 7,
+      "node": "pepperoni",
+      "price": 60,
+      "starGate": 6,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:pepperoni"
+      ],
+      "discoveredTotal": 5,
+      "bakesTotal": 5,
+      "pitzAfter": 410.0
+     },
+     {
+      "sequence": 8,
+      "node": "sausage",
+      "price": 60,
+      "starGate": 6,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:salsiccia"
+      ],
+      "discoveredTotal": 6,
+      "bakesTotal": 6,
+      "pitzAfter": 480.0
+     },
+     {
+      "sequence": 9,
+      "node": "ham",
+      "price": 60,
+      "starGate": 6,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:meat-lovers"
+      ],
+      "discoveredTotal": 7,
+      "bakesTotal": 7,
+      "pitzAfter": 550.0
+     },
+     {
+      "sequence": 10,
+      "node": "black-olive",
+      "price": 60,
+      "starGate": 10,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "pizza-portuguesa-pizzadb-p9"
+      ],
+      "discoveredTotal": 8,
+      "bakesTotal": 8,
+      "pitzAfter": 620.0
+     },
+     {
+      "sequence": 11,
+      "node": "mushroom",
+      "price": 60,
+      "starGate": 10,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:funghi"
+      ],
+      "discoveredTotal": 9,
+      "bakesTotal": 9,
+      "pitzAfter": 690.0
+     },
+     {
+      "sequence": 12,
+      "node": "oregano",
+      "price": 60,
+      "starGate": 10,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "brazilian-calabresa-pizzadb-p10",
+       "shipped:capricciosa"
+      ],
+      "discoveredTotal": 11,
+      "bakesTotal": 11,
+      "pitzAfter": 890.0
+     },
+     {
+      "sequence": 13,
+      "node": "fresh-tomato",
+      "price": 60,
+      "starGate": 14,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "chilean-napolitana-pizzadb"
+      ],
+      "discoveredTotal": 12,
+      "bakesTotal": 12,
+      "pitzAfter": 960.0
+     },
+     {
+      "sequence": 14,
+      "node": "olive-oil",
+      "price": 60,
+      "starGate": 14,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:fugazza"
+      ],
+      "discoveredTotal": 13,
+      "bakesTotal": 13,
+      "pitzAfter": 1030.0
+     },
+     {
+      "sequence": 15,
+      "node": "feta",
+      "price": 60,
+      "starGate": 14,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "pizza-feta-eliniki-pizzadb-p9"
+      ],
+      "discoveredTotal": 14,
+      "bakesTotal": 14,
+      "pitzAfter": 1100.0
+     },
+     {
+      "sequence": 16,
+      "node": "DOUGH_VARIANT",
+      "price": 0,
+      "starGate": 18,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [],
+      "discoveredTotal": 14,
+      "bakesTotal": 14,
+      "pitzAfter": 1100.0
+     },
+     {
+      "sequence": 17,
+      "node": "dough:material-cauliflower",
+      "price": 60,
+      "starGate": 18,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "cauliflower-crust-pizza-pizzadb-p2"
+      ],
+      "discoveredTotal": 15,
+      "bakesTotal": 15,
+      "pitzAfter": 1170.0
+     },
+     {
+      "sequence": 18,
+      "node": "pesto",
+      "price": 60,
+      "starGate": 18,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "pesto-caprese-pizzadb-p11"
+      ],
+      "discoveredTotal": 16,
+      "bakesTotal": 16,
+      "pitzAfter": 1240.0
+     },
+     {
+      "sequence": 19,
+      "node": "tuna",
+      "price": 60,
+      "starGate": 18,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "pesto-tonno-pizzadb-p12",
+       "tonno-e-cipolla-pizzadb"
+      ],
+      "discoveredTotal": 18,
+      "bakesTotal": 18,
+      "pitzAfter": 1440.0
+     },
+     {
+      "sequence": 20,
+      "node": "bell-pepper",
+      "price": 60,
+      "starGate": 22,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "spanish-chorizo-pizza-pizzadb-p4"
+      ],
+      "discoveredTotal": 19,
+      "bakesTotal": 19,
+      "pitzAfter": 1510.0
+     },
+     {
+      "sequence": 21,
+      "node": "eggplant",
+      "price": 60,
+      "starGate": 22,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "melanzane-pizza-pizzadb-p13"
+      ],
+      "discoveredTotal": 20,
+      "bakesTotal": 20,
+      "pitzAfter": 1580.0
+     },
+     {
+      "sequence": 22,
+      "node": "zucchini",
+      "price": 60,
+      "starGate": 22,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "pesto-vegetariana-pizzadb-p12",
+       "ratatouille-pizza-pizzadb-p13"
+      ],
+      "discoveredTotal": 22,
+      "bakesTotal": 22,
+      "pitzAfter": 1780.0
+     },
+     {
+      "sequence": 23,
+      "node": "STEP_ORDER",
+      "price": 0,
+      "starGate": 28,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "trenton-tomato-pie-pizzadb"
+      ],
+      "discoveredTotal": 23,
+      "bakesTotal": 23,
+      "pitzAfter": 1910.0
+     },
+     {
+      "sequence": 24,
+      "node": "garlic",
+      "price": 100,
+      "starGate": 28,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:marinara"
+      ],
+      "discoveredTotal": 24,
+      "bakesTotal": 24,
+      "pitzAfter": 1940.0
+     },
+     {
+      "sequence": 25,
+      "node": "parmigiano",
+      "price": 100,
+      "starGate": 28,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "parmigiana-pizza-pizzadb-p7"
+      ],
+      "discoveredTotal": 25,
+      "bakesTotal": 25,
+      "pitzAfter": 1970.0
+     },
+     {
+      "sequence": 26,
+      "node": "clam",
+      "price": 100,
+      "starGate": 28,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "new-haven-apizza-pizzadb"
+      ],
+      "discoveredTotal": 26,
+      "bakesTotal": 26,
+      "pitzAfter": 2000.0
+     },
+     {
+      "sequence": 27,
+      "node": "prosciutto-crudo",
+      "price": 100,
+      "starGate": 32,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "prosciutto-funghi-pizzadb-p11"
+      ],
+      "discoveredTotal": 27,
+      "bakesTotal": 27,
+      "pitzAfter": 2030.0
+     },
+     {
+      "sequence": 28,
+      "node": "arugula",
+      "price": 100,
+      "starGate": 32,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "jamon-serrano-pizza-pizzadb-p7"
+      ],
+      "discoveredTotal": 28,
+      "bakesTotal": 28,
+      "pitzAfter": 2060.0
+     },
+     {
+      "sequence": 29,
+      "node": "dough:material-multigrain-long-ferment",
+      "price": 100,
+      "starGate": 32,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "pinsa-romana-pizzadb-p9"
+      ],
+      "discoveredTotal": 29,
+      "bakesTotal": 29,
+      "pitzAfter": 2090.0
+     },
+     {
+      "sequence": 30,
+      "node": "MULTI_SPREAD_LAYER",
+      "price": 0,
+      "starGate": 36,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "grandma-pizza-pizzadb"
+      ],
+      "discoveredTotal": 30,
+      "bakesTotal": 30,
+      "pitzAfter": 2220.0
+     },
+     {
+      "sequence": 31,
+      "node": "burrata",
+      "price": 100,
+      "starGate": 36,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "burrata-pizza-pizzadb-p10",
+       "pesto-burrata-pizzadb-p12",
+       "pizza-alla-crudaiola-pizzadb-p8"
+      ],
+      "discoveredTotal": 33,
+      "bakesTotal": 33,
+      "pitzAfter": 2510.0
+     },
+     {
+      "sequence": 32,
+      "node": "anchovy",
+      "price": 100,
+      "starGate": 40,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "sfincione-pizzadb",
+       "shipped:napoletana"
+      ],
+      "discoveredTotal": 35,
+      "bakesTotal": 35,
+      "pitzAfter": 2670.0
+     }
+    ],
+    "worstNoDiscoveryStretch": {
+     "gap": 7,
+     "beforeNode": "nori",
+     "atDiscoveredTotal": 97
+    },
+    "top5PurchaseWaits": [
+     {
+      "node": "nori",
+      "wait": 3
+     },
+     {
+      "node": "wurstel",
+      "wait": 3
+     },
+     {
+      "node": "halloumi",
+      "wait": 3
+     },
+     {
+      "node": "pickles",
+      "wait": 3
+     },
+     {
+      "node": "fresh-cream-sauce",
+      "wait": 2
+     }
+    ],
+    "totalBakes": 122,
+    "grindBakes": 21,
+    "grindShare": 0.172
+   },
+   "skilled": {
+    "repeatBakeRewardPitz": 100.0,
+    "firstDiscoveryRewardPitz": 150.0,
+    "hybridStarsPerDiscovery": 4,
+    "first30Events": [
+     {
+      "sequence": 0,
+      "node": "shipped:margherita",
+      "price": 0,
+      "starGate": 0,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:margherita"
+      ],
+      "discoveredTotal": 1,
+      "bakesTotal": 1,
+      "pitzAfter": 150.0
+     },
+     {
+      "sequence": 4,
+      "node": "egg",
+      "price": 60,
+      "starGate": 2,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:bismarck"
+      ],
+      "discoveredTotal": 2,
+      "bakesTotal": 2,
+      "pitzAfter": 240.0
+     },
+     {
+      "sequence": 5,
+      "node": "bacon",
+      "price": 60,
+      "starGate": 2,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:breakfast-pizza"
+      ],
+      "discoveredTotal": 3,
+      "bakesTotal": 3,
+      "pitzAfter": 330.0
+     },
+     {
+      "sequence": 6,
+      "node": "onion",
+      "price": 60,
+      "starGate": 2,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "aussie-pizzadb"
+      ],
+      "discoveredTotal": 4,
+      "bakesTotal": 4,
+      "pitzAfter": 420.0
+     },
+     {
+      "sequence": 7,
+      "node": "pepperoni",
+      "price": 60,
+      "starGate": 6,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:pepperoni"
+      ],
+      "discoveredTotal": 5,
+      "bakesTotal": 5,
+      "pitzAfter": 510.0
+     },
+     {
+      "sequence": 8,
+      "node": "sausage",
+      "price": 60,
+      "starGate": 6,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:salsiccia"
+      ],
+      "discoveredTotal": 6,
+      "bakesTotal": 6,
+      "pitzAfter": 600.0
+     },
+     {
+      "sequence": 9,
+      "node": "ham",
+      "price": 60,
+      "starGate": 6,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:meat-lovers"
+      ],
+      "discoveredTotal": 7,
+      "bakesTotal": 7,
+      "pitzAfter": 690.0
+     },
+     {
+      "sequence": 10,
+      "node": "black-olive",
+      "price": 60,
+      "starGate": 10,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "pizza-portuguesa-pizzadb-p9"
+      ],
+      "discoveredTotal": 8,
+      "bakesTotal": 8,
+      "pitzAfter": 780.0
+     },
+     {
+      "sequence": 11,
+      "node": "mushroom",
+      "price": 60,
+      "starGate": 10,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:funghi"
+      ],
+      "discoveredTotal": 9,
+      "bakesTotal": 9,
+      "pitzAfter": 870.0
+     },
+     {
+      "sequence": 12,
+      "node": "oregano",
+      "price": 60,
+      "starGate": 10,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "brazilian-calabresa-pizzadb-p10",
+       "shipped:capricciosa"
+      ],
+      "discoveredTotal": 11,
+      "bakesTotal": 11,
+      "pitzAfter": 1110.0
+     },
+     {
+      "sequence": 13,
+      "node": "fresh-tomato",
+      "price": 60,
+      "starGate": 14,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "chilean-napolitana-pizzadb"
+      ],
+      "discoveredTotal": 12,
+      "bakesTotal": 12,
+      "pitzAfter": 1200.0
+     },
+     {
+      "sequence": 14,
+      "node": "olive-oil",
+      "price": 60,
+      "starGate": 14,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:fugazza"
+      ],
+      "discoveredTotal": 13,
+      "bakesTotal": 13,
+      "pitzAfter": 1290.0
+     },
+     {
+      "sequence": 15,
+      "node": "feta",
+      "price": 60,
+      "starGate": 14,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "pizza-feta-eliniki-pizzadb-p9"
+      ],
+      "discoveredTotal": 14,
+      "bakesTotal": 14,
+      "pitzAfter": 1380.0
+     },
+     {
+      "sequence": 16,
+      "node": "DOUGH_VARIANT",
+      "price": 0,
+      "starGate": 18,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [],
+      "discoveredTotal": 14,
+      "bakesTotal": 14,
+      "pitzAfter": 1380.0
+     },
+     {
+      "sequence": 17,
+      "node": "dough:material-cauliflower",
+      "price": 60,
+      "starGate": 18,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "cauliflower-crust-pizza-pizzadb-p2"
+      ],
+      "discoveredTotal": 15,
+      "bakesTotal": 15,
+      "pitzAfter": 1470.0
+     },
+     {
+      "sequence": 18,
+      "node": "pesto",
+      "price": 60,
+      "starGate": 18,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "pesto-caprese-pizzadb-p11"
+      ],
+      "discoveredTotal": 16,
+      "bakesTotal": 16,
+      "pitzAfter": 1560.0
+     },
+     {
+      "sequence": 19,
+      "node": "tuna",
+      "price": 60,
+      "starGate": 18,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "pesto-tonno-pizzadb-p12",
+       "tonno-e-cipolla-pizzadb"
+      ],
+      "discoveredTotal": 18,
+      "bakesTotal": 18,
+      "pitzAfter": 1800.0
+     },
+     {
+      "sequence": 20,
+      "node": "bell-pepper",
+      "price": 60,
+      "starGate": 22,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "spanish-chorizo-pizza-pizzadb-p4"
+      ],
+      "discoveredTotal": 19,
+      "bakesTotal": 19,
+      "pitzAfter": 1890.0
+     },
+     {
+      "sequence": 21,
+      "node": "eggplant",
+      "price": 60,
+      "starGate": 22,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "melanzane-pizza-pizzadb-p13"
+      ],
+      "discoveredTotal": 20,
+      "bakesTotal": 20,
+      "pitzAfter": 1980.0
+     },
+     {
+      "sequence": 22,
+      "node": "zucchini",
+      "price": 60,
+      "starGate": 22,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "pesto-vegetariana-pizzadb-p12",
+       "ratatouille-pizza-pizzadb-p13"
+      ],
+      "discoveredTotal": 22,
+      "bakesTotal": 22,
+      "pitzAfter": 2220.0
+     },
+     {
+      "sequence": 23,
+      "node": "STEP_ORDER",
+      "price": 0,
+      "starGate": 28,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "trenton-tomato-pie-pizzadb"
+      ],
+      "discoveredTotal": 23,
+      "bakesTotal": 23,
+      "pitzAfter": 2370.0
+     },
+     {
+      "sequence": 24,
+      "node": "garlic",
+      "price": 100,
+      "starGate": 28,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:marinara"
+      ],
+      "discoveredTotal": 24,
+      "bakesTotal": 24,
+      "pitzAfter": 2420.0
+     },
+     {
+      "sequence": 25,
+      "node": "parmigiano",
+      "price": 100,
+      "starGate": 28,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "parmigiana-pizza-pizzadb-p7"
+      ],
+      "discoveredTotal": 25,
+      "bakesTotal": 25,
+      "pitzAfter": 2470.0
+     },
+     {
+      "sequence": 26,
+      "node": "clam",
+      "price": 100,
+      "starGate": 28,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "new-haven-apizza-pizzadb"
+      ],
+      "discoveredTotal": 26,
+      "bakesTotal": 26,
+      "pitzAfter": 2520.0
+     },
+     {
+      "sequence": 27,
+      "node": "prosciutto-crudo",
+      "price": 100,
+      "starGate": 32,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "prosciutto-funghi-pizzadb-p11"
+      ],
+      "discoveredTotal": 27,
+      "bakesTotal": 27,
+      "pitzAfter": 2570.0
+     },
+     {
+      "sequence": 28,
+      "node": "arugula",
+      "price": 100,
+      "starGate": 32,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "jamon-serrano-pizza-pizzadb-p7"
+      ],
+      "discoveredTotal": 28,
+      "bakesTotal": 28,
+      "pitzAfter": 2620.0
+     },
+     {
+      "sequence": 29,
+      "node": "dough:material-multigrain-long-ferment",
+      "price": 100,
+      "starGate": 32,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "pinsa-romana-pizzadb-p9"
+      ],
+      "discoveredTotal": 29,
+      "bakesTotal": 29,
+      "pitzAfter": 2670.0
+     },
+     {
+      "sequence": 30,
+      "node": "MULTI_SPREAD_LAYER",
+      "price": 0,
+      "starGate": 36,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "grandma-pizza-pizzadb"
+      ],
+      "discoveredTotal": 30,
+      "bakesTotal": 30,
+      "pitzAfter": 2820.0
+     },
+     {
+      "sequence": 31,
+      "node": "burrata",
+      "price": 100,
+      "starGate": 36,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "burrata-pizza-pizzadb-p10",
+       "pesto-burrata-pizzadb-p12",
+       "pizza-alla-crudaiola-pizzadb-p8"
+      ],
+      "discoveredTotal": 33,
+      "bakesTotal": 33,
+      "pitzAfter": 3170.0
+     },
+     {
+      "sequence": 32,
+      "node": "anchovy",
+      "price": 100,
+      "starGate": 40,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "sfincione-pizzadb",
+       "shipped:napoletana"
+      ],
+      "discoveredTotal": 35,
+      "bakesTotal": 35,
+      "pitzAfter": 3370.0
+     }
+    ],
+    "worstNoDiscoveryStretch": {
+     "gap": 1,
+     "beforeNode": "shipped:margherita",
+     "atDiscoveredTotal": 0
+    },
+    "top5PurchaseWaits": [
+     {
+      "node": "shipped:margherita",
+      "wait": 0
+     },
+     {
+      "node": "egg",
+      "wait": 0
+     },
+     {
+      "node": "bacon",
+      "wait": 0
+     },
+     {
+      "node": "onion",
+      "wait": 0
+     },
+     {
+      "node": "pepperoni",
+      "wait": 0
+     }
+    ],
+    "totalBakes": 101,
+    "grindBakes": 0,
+    "grindShare": 0.0
+   },
+   "pitz-constrained": {
+    "repeatBakeRewardPitz": 20.0,
+    "firstDiscoveryRewardPitz": 70.0,
+    "hybridStarsPerDiscovery": 2,
+    "first30Events": [
+     {
+      "sequence": 0,
+      "node": "shipped:margherita",
+      "price": 0,
+      "starGate": 0,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:margherita"
+      ],
+      "discoveredTotal": 1,
+      "bakesTotal": 1,
+      "pitzAfter": 70.0
+     },
+     {
+      "sequence": 4,
+      "node": "egg",
+      "price": 60,
+      "starGate": 2,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:bismarck"
+      ],
+      "discoveredTotal": 2,
+      "bakesTotal": 2,
+      "pitzAfter": 80.0
+     },
+     {
+      "sequence": 5,
+      "node": "bacon",
+      "price": 60,
+      "starGate": 2,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:breakfast-pizza"
+      ],
+      "discoveredTotal": 3,
+      "bakesTotal": 3,
+      "pitzAfter": 90.0
+     },
+     {
+      "sequence": 6,
+      "node": "onion",
+      "price": 60,
+      "starGate": 2,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "aussie-pizzadb"
+      ],
+      "discoveredTotal": 4,
+      "bakesTotal": 4,
+      "pitzAfter": 100.0
+     },
+     {
+      "sequence": 7,
+      "node": "pepperoni",
+      "price": 60,
+      "starGate": 6,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:pepperoni"
+      ],
+      "discoveredTotal": 5,
+      "bakesTotal": 5,
+      "pitzAfter": 110.0
+     },
+     {
+      "sequence": 8,
+      "node": "sausage",
+      "price": 60,
+      "starGate": 6,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:salsiccia"
+      ],
+      "discoveredTotal": 6,
+      "bakesTotal": 6,
+      "pitzAfter": 120.0
+     },
+     {
+      "sequence": 9,
+      "node": "ham",
+      "price": 60,
+      "starGate": 6,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:meat-lovers"
+      ],
+      "discoveredTotal": 7,
+      "bakesTotal": 7,
+      "pitzAfter": 130.0
+     },
+     {
+      "sequence": 10,
+      "node": "black-olive",
+      "price": 60,
+      "starGate": 10,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "pizza-portuguesa-pizzadb-p9"
+      ],
+      "discoveredTotal": 8,
+      "bakesTotal": 8,
+      "pitzAfter": 140.0
+     },
+     {
+      "sequence": 11,
+      "node": "mushroom",
+      "price": 60,
+      "starGate": 10,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:funghi"
+      ],
+      "discoveredTotal": 9,
+      "bakesTotal": 9,
+      "pitzAfter": 150.0
+     },
+     {
+      "sequence": 12,
+      "node": "oregano",
+      "price": 60,
+      "starGate": 10,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "brazilian-calabresa-pizzadb-p10",
+       "shipped:capricciosa"
+      ],
+      "discoveredTotal": 11,
+      "bakesTotal": 11,
+      "pitzAfter": 230.0
+     },
+     {
+      "sequence": 13,
+      "node": "fresh-tomato",
+      "price": 60,
+      "starGate": 14,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "chilean-napolitana-pizzadb"
+      ],
+      "discoveredTotal": 12,
+      "bakesTotal": 12,
+      "pitzAfter": 240.0
+     },
+     {
+      "sequence": 14,
+      "node": "olive-oil",
+      "price": 60,
+      "starGate": 14,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:fugazza"
+      ],
+      "discoveredTotal": 13,
+      "bakesTotal": 13,
+      "pitzAfter": 250.0
+     },
+     {
+      "sequence": 15,
+      "node": "feta",
+      "price": 60,
+      "starGate": 14,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "pizza-feta-eliniki-pizzadb-p9"
+      ],
+      "discoveredTotal": 14,
+      "bakesTotal": 14,
+      "pitzAfter": 260.0
+     },
+     {
+      "sequence": 16,
+      "node": "DOUGH_VARIANT",
+      "price": 0,
+      "starGate": 18,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [],
+      "discoveredTotal": 14,
+      "bakesTotal": 14,
+      "pitzAfter": 260.0
+     },
+     {
+      "sequence": 17,
+      "node": "dough:material-cauliflower",
+      "price": 60,
+      "starGate": 18,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "cauliflower-crust-pizza-pizzadb-p2"
+      ],
+      "discoveredTotal": 15,
+      "bakesTotal": 15,
+      "pitzAfter": 270.0
+     },
+     {
+      "sequence": 18,
+      "node": "pesto",
+      "price": 60,
+      "starGate": 18,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "pesto-caprese-pizzadb-p11"
+      ],
+      "discoveredTotal": 16,
+      "bakesTotal": 16,
+      "pitzAfter": 280.0
+     },
+     {
+      "sequence": 19,
+      "node": "tuna",
+      "price": 60,
+      "starGate": 18,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "pesto-tonno-pizzadb-p12",
+       "tonno-e-cipolla-pizzadb"
+      ],
+      "discoveredTotal": 18,
+      "bakesTotal": 18,
+      "pitzAfter": 360.0
+     },
+     {
+      "sequence": 20,
+      "node": "bell-pepper",
+      "price": 60,
+      "starGate": 22,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "spanish-chorizo-pizza-pizzadb-p4"
+      ],
+      "discoveredTotal": 19,
+      "bakesTotal": 19,
+      "pitzAfter": 370.0
+     },
+     {
+      "sequence": 21,
+      "node": "eggplant",
+      "price": 60,
+      "starGate": 22,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "melanzane-pizza-pizzadb-p13"
+      ],
+      "discoveredTotal": 20,
+      "bakesTotal": 20,
+      "pitzAfter": 380.0
+     },
+     {
+      "sequence": 22,
+      "node": "zucchini",
+      "price": 60,
+      "starGate": 22,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "pesto-vegetariana-pizzadb-p12",
+       "ratatouille-pizza-pizzadb-p13"
+      ],
+      "discoveredTotal": 22,
+      "bakesTotal": 22,
+      "pitzAfter": 460.0
+     },
+     {
+      "sequence": 23,
+      "node": "STEP_ORDER",
+      "price": 0,
+      "starGate": 28,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "trenton-tomato-pie-pizzadb"
+      ],
+      "discoveredTotal": 23,
+      "bakesTotal": 23,
+      "pitzAfter": 530.0
+     },
+     {
+      "sequence": 24,
+      "node": "garlic",
+      "price": 100,
+      "starGate": 28,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "shipped:marinara"
+      ],
+      "discoveredTotal": 24,
+      "bakesTotal": 24,
+      "pitzAfter": 500.0
+     },
+     {
+      "sequence": 25,
+      "node": "parmigiano",
+      "price": 100,
+      "starGate": 28,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "parmigiana-pizza-pizzadb-p7"
+      ],
+      "discoveredTotal": 25,
+      "bakesTotal": 25,
+      "pitzAfter": 470.0
+     },
+     {
+      "sequence": 26,
+      "node": "clam",
+      "price": 100,
+      "starGate": 28,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "new-haven-apizza-pizzadb"
+      ],
+      "discoveredTotal": 26,
+      "bakesTotal": 26,
+      "pitzAfter": 440.0
+     },
+     {
+      "sequence": 27,
+      "node": "prosciutto-crudo",
+      "price": 100,
+      "starGate": 32,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "prosciutto-funghi-pizzadb-p11"
+      ],
+      "discoveredTotal": 27,
+      "bakesTotal": 27,
+      "pitzAfter": 410.0
+     },
+     {
+      "sequence": 28,
+      "node": "arugula",
+      "price": 100,
+      "starGate": 32,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "jamon-serrano-pizza-pizzadb-p7"
+      ],
+      "discoveredTotal": 28,
+      "bakesTotal": 28,
+      "pitzAfter": 380.0
+     },
+     {
+      "sequence": 29,
+      "node": "dough:material-multigrain-long-ferment",
+      "price": 100,
+      "starGate": 32,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "pinsa-romana-pizzadb-p9"
+      ],
+      "discoveredTotal": 29,
+      "bakesTotal": 29,
+      "pitzAfter": 350.0
+     },
+     {
+      "sequence": 30,
+      "node": "MULTI_SPREAD_LAYER",
+      "price": 0,
+      "starGate": 36,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "grandma-pizza-pizzadb"
+      ],
+      "discoveredTotal": 30,
+      "bakesTotal": 30,
+      "pitzAfter": 420.0
+     },
+     {
+      "sequence": 31,
+      "node": "burrata",
+      "price": 100,
+      "starGate": 36,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "burrata-pizza-pizzadb-p10",
+       "pesto-burrata-pizzadb-p12",
+       "pizza-alla-crudaiola-pizzadb-p8"
+      ],
+      "discoveredTotal": 33,
+      "bakesTotal": 33,
+      "pitzAfter": 530.0
+     },
+     {
+      "sequence": 32,
+      "node": "anchovy",
+      "price": 100,
+      "starGate": 40,
+      "grindBakesBeforePurchase": 0,
+      "newlyDiscovered": [
+       "sfincione-pizzadb",
+       "shipped:napoletana"
+      ],
+      "discoveredTotal": 35,
+      "bakesTotal": 35,
+      "pitzAfter": 570.0
+     }
+    ],
+    "worstNoDiscoveryStretch": {
+     "gap": 25,
+     "beforeNode": "nori",
+     "atDiscoveredTotal": 97
+    },
+    "top5PurchaseWaits": [
+     {
+      "node": "pan:shallow-pan",
+      "wait": 9
+     },
+     {
+      "node": "sweet-potato",
+      "wait": 9
+     },
+     {
+      "node": "tahini",
+      "wait": 9
+     },
+     {
+      "node": "wasabi",
+      "wait": 9
+     },
+     {
+      "node": "lettuce",
+      "wait": 9
+     }
+    ],
+    "totalBakes": 483,
+    "grindBakes": 382,
+    "grindShare": 0.791
+   }
+  }
+ },
+ "currentProductionEP1ChainConstantBest": {
+  "low-score": {
+   "discovered": 5,
+   "order": [
+    "margherita",
+    "funghi",
+    "marinara",
+    "bismarck",
+    "genovese"
+   ],
+   "stuckAt": [
+    "quattro-formaggi"
+   ],
+   "blockedBy": {
+    "recipe": "quattro-formaggi",
+    "requiresRecipeId": "genovese",
+    "minTotalStars": 8,
+    "starsHeld": 5
+   }
+  },
+  "beginner": {
+   "discovered": 7,
+   "order": [
+    "margherita",
+    "funghi",
+    "marinara",
+    "bismarck",
+    "genovese",
+    "quattro-formaggi",
+    "fugazza"
+   ],
+   "stuckAt": [
+    "salsiccia"
+   ],
+   "blockedBy": {
+    "recipe": "salsiccia",
+    "requiresRecipeId": "fugazza",
+    "minTotalStars": 15,
+    "starsHeld": 14
+   }
+  },
+  "standard": {
+   "discovered": 15,
+   "order": [
+    "margherita",
+    "funghi",
+    "marinara",
+    "bismarck",
+    "genovese",
+    "quattro-formaggi",
+    "fugazza",
+    "salsiccia",
+    "pepperoni",
+    "napoletana",
+    "tonno-e-cipolla",
+    "pizza-bianca",
+    "breakfast-pizza",
+    "capricciosa",
+    "meat-lovers"
+   ],
+   "stuckAt": [],
+   "blockedBy": null
+  },
+  "skilled": {
+   "discovered": 15,
+   "order": [
+    "margherita",
+    "funghi",
+    "marinara",
+    "bismarck",
+    "genovese",
+    "quattro-formaggi",
+    "fugazza",
+    "salsiccia",
+    "pepperoni",
+    "napoletana",
+    "tonno-e-cipolla",
+    "pizza-bianca",
+    "breakfast-pizza",
+    "capricciosa",
+    "meat-lovers"
+   ],
+   "stuckAt": [],
+   "blockedBy": null
+  },
+  "perfect": {
+   "discovered": 15,
+   "order": [
+    "margherita",
+    "funghi",
+    "marinara",
+    "bismarck",
+    "genovese",
+    "quattro-formaggi",
+    "fugazza",
+    "salsiccia",
+    "pepperoni",
+    "napoletana",
+    "tonno-e-cipolla",
+    "pizza-bianca",
+    "breakfast-pizza",
+    "capricciosa",
+    "meat-lovers"
+   ],
+   "stuckAt": [],
+   "blockedBy": null
+  }
+ },
+ "productionProjection": {
+  "recipes": [
+   {
+    "recipeId": "margherita",
+    "targetId": "shipped:margherita",
+    "authorityStarGate": 0,
+    "authorityReachableAtSequence": 3,
+    "authorityPurchases": [],
+    "authorityPurchaseTotalPitz": 0,
+    "currentEP1Chain": {
+     "requiresRecipeId": null,
+     "minTotalStars": null
+    }
+   },
+   {
+    "recipeId": "bismarck",
+    "targetId": "shipped:bismarck",
+    "authorityStarGate": 2,
+    "authorityReachableAtSequence": 4,
+    "authorityPurchases": [
+     "egg"
+    ],
+    "authorityPurchaseTotalPitz": 60,
+    "currentEP1Chain": {
+     "requiresRecipeId": "marinara",
+     "minTotalStars": null
+    }
+   },
+   {
+    "recipeId": "breakfast-pizza",
+    "targetId": "shipped:breakfast-pizza",
+    "authorityStarGate": 2,
+    "authorityReachableAtSequence": 5,
+    "authorityPurchases": [
+     "bacon",
+     "egg"
+    ],
+    "authorityPurchaseTotalPitz": 120,
+    "currentEP1Chain": {
+     "requiresRecipeId": "pizza-bianca",
+     "minTotalStars": 30
+    }
+   },
+   {
+    "recipeId": "pepperoni",
+    "targetId": "shipped:pepperoni",
+    "authorityStarGate": 6,
+    "authorityReachableAtSequence": 7,
+    "authorityPurchases": [
+     "pepperoni"
+    ],
+    "authorityPurchaseTotalPitz": 60,
+    "currentEP1Chain": {
+     "requiresRecipeId": "salsiccia",
+     "minTotalStars": 18
+    }
+   },
+   {
+    "recipeId": "salsiccia",
+    "targetId": "shipped:salsiccia",
+    "authorityStarGate": 6,
+    "authorityReachableAtSequence": 8,
+    "authorityPurchases": [
+     "sausage"
+    ],
+    "authorityPurchaseTotalPitz": 60,
+    "currentEP1Chain": {
+     "requiresRecipeId": "fugazza",
+     "minTotalStars": 15
+    }
+   },
+   {
+    "recipeId": "meat-lovers",
+    "targetId": "shipped:meat-lovers",
+    "authorityStarGate": 6,
+    "authorityReachableAtSequence": 9,
+    "authorityPurchases": [
+     "bacon",
+     "ham",
+     "pepperoni",
+     "sausage"
+    ],
+    "authorityPurchaseTotalPitz": 240,
+    "currentEP1Chain": {
+     "requiresRecipeId": "capricciosa",
+     "minTotalStars": 36
+    }
+   },
+   {
+    "recipeId": "funghi",
+    "targetId": "shipped:funghi",
+    "authorityStarGate": 10,
+    "authorityReachableAtSequence": 11,
+    "authorityPurchases": [
+     "mushroom"
+    ],
+    "authorityPurchaseTotalPitz": 60,
+    "currentEP1Chain": {
+     "requiresRecipeId": "margherita",
+     "minTotalStars": null
+    }
+   },
+   {
+    "recipeId": "capricciosa",
+    "targetId": "shipped:capricciosa",
+    "authorityStarGate": 10,
+    "authorityReachableAtSequence": 12,
+    "authorityPurchases": [
+     "black-olive",
+     "ham",
+     "mushroom",
+     "oregano"
+    ],
+    "authorityPurchaseTotalPitz": 240,
+    "currentEP1Chain": {
+     "requiresRecipeId": "breakfast-pizza",
+     "minTotalStars": 33
+    }
+   },
+   {
+    "recipeId": "fugazza",
+    "targetId": "shipped:fugazza",
+    "authorityStarGate": 14,
+    "authorityReachableAtSequence": 14,
+    "authorityPurchases": [
+     "olive-oil",
+     "onion",
+     "oregano"
+    ],
+    "authorityPurchaseTotalPitz": 180,
+    "currentEP1Chain": {
+     "requiresRecipeId": "quattro-formaggi",
+     "minTotalStars": 12
+    }
+   },
+   {
+    "recipeId": "tonno-e-cipolla",
+    "targetId": "tonno-e-cipolla-pizzadb",
+    "authorityStarGate": 18,
+    "authorityReachableAtSequence": 19,
+    "authorityPurchases": [
+     "onion",
+     "tuna"
+    ],
+    "authorityPurchaseTotalPitz": 120,
+    "currentEP1Chain": {
+     "requiresRecipeId": "napoletana",
+     "minTotalStars": 24
+    }
+   },
+   {
+    "recipeId": "marinara",
+    "targetId": "shipped:marinara",
+    "authorityStarGate": 28,
+    "authorityReachableAtSequence": 24,
+    "authorityPurchases": [
+     "garlic",
+     "oregano"
+    ],
+    "authorityPurchaseTotalPitz": 160,
+    "currentEP1Chain": {
+     "requiresRecipeId": "funghi",
+     "minTotalStars": null
+    }
+   },
+   {
+    "recipeId": "napoletana",
+    "targetId": "shipped:napoletana",
+    "authorityStarGate": 40,
+    "authorityReachableAtSequence": 32,
+    "authorityPurchases": [
+     "anchovy",
+     "oregano"
+    ],
+    "authorityPurchaseTotalPitz": 160,
+    "currentEP1Chain": {
+     "requiresRecipeId": "pepperoni",
+     "minTotalStars": 21
+    }
+   },
+   {
+    "recipeId": "pizza-bianca",
+    "targetId": "shipped:pizza-bianca",
+    "authorityStarGate": 48,
+    "authorityReachableAtSequence": 39,
+    "authorityPurchases": [
+     "olive-oil",
+     "rosemary"
+    ],
+    "authorityPurchaseTotalPitz": 160,
+    "currentEP1Chain": {
+     "requiresRecipeId": "tonno-e-cipolla",
+     "minTotalStars": 27
+    }
+   },
+   {
+    "recipeId": "genovese",
+    "targetId": "shipped:genovese",
+    "authorityStarGate": 76,
+    "authorityReachableAtSequence": 64,
+    "authorityPurchases": [
+     "cherry-tomato",
+     "pesto"
+    ],
+    "authorityPurchaseTotalPitz": 200,
+    "currentEP1Chain": {
+     "requiresRecipeId": "bismarck",
+     "minTotalStars": null
+    }
+   },
+   {
+    "recipeId": "quattro-formaggi",
+    "targetId": "shipped:quattro-formaggi",
+    "authorityStarGate": 102,
+    "authorityReachableAtSequence": 92,
+    "authorityPurchases": [
+     "fontina",
+     "gorgonzola",
+     "olive-oil",
+     "parmigiano"
+    ],
+    "authorityPurchaseTotalPitz": 440,
+    "currentEP1Chain": {
+     "requiresRecipeId": "genovese",
+     "minTotalStars": 8
+    }
+   }
+  ],
+  "ingredients": [
+   {
+    "ingredientId": "basil",
+    "authoritySequence": 1,
+    "authorityTier": "early",
+    "authorityStarGate": 0,
+    "authorityPrice": 0,
+    "authorityRefillPrice": 0,
+    "authorityStock": "UNLIMITED",
+    "currentPrice": null,
+    "currentRestockQty": null,
+    "currentMinTotalStars": null,
+    "currentStarterGrantOnly": null
+   },
+   {
+    "ingredientId": "mozzarella",
+    "authoritySequence": 2,
+    "authorityTier": "early",
+    "authorityStarGate": 0,
+    "authorityPrice": 0,
+    "authorityRefillPrice": 0,
+    "authorityStock": "UNLIMITED",
+    "currentPrice": null,
+    "currentRestockQty": null,
+    "currentMinTotalStars": null,
+    "currentStarterGrantOnly": null
+   },
+   {
+    "ingredientId": "tomato-sauce",
+    "authoritySequence": 3,
+    "authorityTier": "early",
+    "authorityStarGate": 0,
+    "authorityPrice": 0,
+    "authorityRefillPrice": 0,
+    "authorityStock": "UNLIMITED",
+    "currentPrice": null,
+    "currentRestockQty": null,
+    "currentMinTotalStars": null,
+    "currentStarterGrantOnly": null
+   },
+   {
+    "ingredientId": "egg",
+    "authoritySequence": 4,
+    "authorityTier": "early",
+    "authorityStarGate": 2,
+    "authorityPrice": 60,
+    "authorityRefillPrice": 30,
+    "authorityStock": "PURCHASE_GRANT_10_REFILL_10_AT_HALF_PRICE",
+    "currentPrice": 105,
+    "currentRestockQty": 3,
+    "currentMinTotalStars": 0,
+    "currentStarterGrantOnly": true
+   },
+   {
+    "ingredientId": "bacon",
+    "authoritySequence": 5,
+    "authorityTier": "early",
+    "authorityStarGate": 2,
+    "authorityPrice": 60,
+    "authorityRefillPrice": 30,
+    "authorityStock": "PURCHASE_GRANT_10_REFILL_10_AT_HALF_PRICE",
+    "currentPrice": 140,
+    "currentRestockQty": 9,
+    "currentMinTotalStars": 0,
+    "currentStarterGrantOnly": true
+   },
+   {
+    "ingredientId": "onion",
+    "authoritySequence": 6,
+    "authorityTier": "early",
+    "authorityStarGate": 2,
+    "authorityPrice": 60,
+    "authorityRefillPrice": 30,
+    "authorityStock": "PURCHASE_GRANT_10_REFILL_10_AT_HALF_PRICE",
+    "currentPrice": 170,
+    "currentRestockQty": 12,
+    "currentMinTotalStars": 12,
+    "currentStarterGrantOnly": true
+   },
+   {
+    "ingredientId": "pepperoni",
+    "authoritySequence": 7,
+    "authorityTier": "early",
+    "authorityStarGate": 6,
+    "authorityPrice": 60,
+    "authorityRefillPrice": 30,
+    "authorityStock": "PURCHASE_GRANT_10_REFILL_10_AT_HALF_PRICE",
+    "currentPrice": 130,
+    "currentRestockQty": 12,
+    "currentMinTotalStars": 0,
+    "currentStarterGrantOnly": true
+   },
+   {
+    "ingredientId": "sausage",
+    "authoritySequence": 8,
+    "authorityTier": "early",
+    "authorityStarGate": 6,
+    "authorityPrice": 60,
+    "authorityRefillPrice": 30,
+    "authorityStock": "PURCHASE_GRANT_10_REFILL_10_AT_HALF_PRICE",
+    "currentPrice": 140,
+    "currentRestockQty": 9,
+    "currentMinTotalStars": 0,
+    "currentStarterGrantOnly": true
+   },
+   {
+    "ingredientId": "ham",
+    "authoritySequence": 9,
+    "authorityTier": "early",
+    "authorityStarGate": 6,
+    "authorityPrice": 60,
+    "authorityRefillPrice": 30,
+    "authorityStock": "PURCHASE_GRANT_10_REFILL_10_AT_HALF_PRICE",
+    "currentPrice": 140,
+    "currentRestockQty": 3,
+    "currentMinTotalStars": 0,
+    "currentStarterGrantOnly": true
+   },
+   {
+    "ingredientId": "black-olive",
+    "authoritySequence": 10,
+    "authorityTier": "early",
+    "authorityStarGate": 10,
+    "authorityPrice": 60,
+    "authorityRefillPrice": 30,
+    "authorityStock": "PURCHASE_GRANT_10_REFILL_10_AT_HALF_PRICE",
+    "currentPrice": 90,
+    "currentRestockQty": 6,
+    "currentMinTotalStars": 0,
+    "currentStarterGrantOnly": true
+   },
+   {
+    "ingredientId": "mushroom",
+    "authoritySequence": 11,
+    "authorityTier": "early",
+    "authorityStarGate": 10,
+    "authorityPrice": 60,
+    "authorityRefillPrice": 30,
+    "authorityStock": "PURCHASE_GRANT_10_REFILL_10_AT_HALF_PRICE",
+    "currentPrice": 150,
+    "currentRestockQty": 9,
+    "currentMinTotalStars": 0,
+    "currentStarterGrantOnly": true
+   },
+   {
+    "ingredientId": "oregano",
+    "authoritySequence": 12,
+    "authorityTier": "early",
+    "authorityStarGate": 10,
+    "authorityPrice": 60,
+    "authorityRefillPrice": 30,
+    "authorityStock": "PURCHASE_GRANT_10_REFILL_10_AT_HALF_PRICE",
+    "currentPrice": 55,
+    "currentRestockQty": 6,
+    "currentMinTotalStars": 0,
+    "currentStarterGrantOnly": true
+   },
+   {
+    "ingredientId": "olive-oil",
+    "authoritySequence": 14,
+    "authorityTier": "early",
+    "authorityStarGate": 14,
+    "authorityPrice": 60,
+    "authorityRefillPrice": 30,
+    "authorityStock": "PURCHASE_GRANT_10_REFILL_10_AT_HALF_PRICE",
+    "currentPrice": 65,
+    "currentRestockQty": 3,
+    "currentMinTotalStars": 0,
+    "currentStarterGrantOnly": true
+   },
+   {
+    "ingredientId": "pesto",
+    "authoritySequence": 18,
+    "authorityTier": "early",
+    "authorityStarGate": 18,
+    "authorityPrice": 60,
+    "authorityRefillPrice": 30,
+    "authorityStock": "PURCHASE_GRANT_10_REFILL_10_AT_HALF_PRICE",
+    "currentPrice": 90,
+    "currentRestockQty": 3,
+    "currentMinTotalStars": 0,
+    "currentStarterGrantOnly": true
+   },
+   {
+    "ingredientId": "tuna",
+    "authoritySequence": 19,
+    "authorityTier": "early",
+    "authorityStarGate": 18,
+    "authorityPrice": 60,
+    "authorityRefillPrice": 30,
+    "authorityStock": "PURCHASE_GRANT_10_REFILL_10_AT_HALF_PRICE",
+    "currentPrice": 120,
+    "currentRestockQty": 9,
+    "currentMinTotalStars": 0,
+    "currentStarterGrantOnly": true
+   },
+   {
+    "ingredientId": "garlic",
+    "authoritySequence": 24,
+    "authorityTier": "mid",
+    "authorityStarGate": 28,
+    "authorityPrice": 100,
+    "authorityRefillPrice": 50,
+    "authorityStock": "PURCHASE_GRANT_10_REFILL_10_AT_HALF_PRICE",
+    "currentPrice": 90,
+    "currentRestockQty": 9,
+    "currentMinTotalStars": 0,
+    "currentStarterGrantOnly": true
+   },
+   {
+    "ingredientId": "parmigiano",
+    "authoritySequence": 25,
+    "authorityTier": "mid",
+    "authorityStarGate": 28,
+    "authorityPrice": 100,
+    "authorityRefillPrice": 50,
+    "authorityStock": "PURCHASE_GRANT_10_REFILL_10_AT_HALF_PRICE",
+    "currentPrice": 90,
+    "currentRestockQty": 6,
+    "currentMinTotalStars": 0,
+    "currentStarterGrantOnly": true
+   },
+   {
+    "ingredientId": "anchovy",
+    "authoritySequence": 32,
+    "authorityTier": "mid",
+    "authorityStarGate": 40,
+    "authorityPrice": 100,
+    "authorityRefillPrice": 50,
+    "authorityStock": "PURCHASE_GRANT_10_REFILL_10_AT_HALF_PRICE",
+    "currentPrice": 110,
+    "currentRestockQty": 9,
+    "currentMinTotalStars": 0,
+    "currentStarterGrantOnly": true
+   },
+   {
+    "ingredientId": "rosemary",
+    "authoritySequence": 39,
+    "authorityTier": "mid",
+    "authorityStarGate": 48,
+    "authorityPrice": 100,
+    "authorityRefillPrice": 50,
+    "authorityStock": "PURCHASE_GRANT_10_REFILL_10_AT_HALF_PRICE",
+    "currentPrice": 55,
+    "currentRestockQty": 9,
+    "currentMinTotalStars": 0,
+    "currentStarterGrantOnly": true
+   },
+   {
+    "ingredientId": "cherry-tomato",
+    "authoritySequence": 64,
+    "authorityTier": "late",
+    "authorityStarGate": 76,
+    "authorityPrice": 140,
+    "authorityRefillPrice": 70,
+    "authorityStock": "PURCHASE_GRANT_10_REFILL_10_AT_HALF_PRICE",
+    "currentPrice": 55,
+    "currentRestockQty": 9,
+    "currentMinTotalStars": 0,
+    "currentStarterGrantOnly": true
+   },
+   {
+    "ingredientId": "fontina",
+    "authoritySequence": 91,
+    "authorityTier": "late",
+    "authorityStarGate": 102,
+    "authorityPrice": 140,
+    "authorityRefillPrice": 70,
+    "authorityStock": "PURCHASE_GRANT_10_REFILL_10_AT_HALF_PRICE",
+    "currentPrice": 90,
+    "currentRestockQty": 6,
+    "currentMinTotalStars": 0,
+    "currentStarterGrantOnly": true
+   },
+   {
+    "ingredientId": "gorgonzola",
+    "authoritySequence": 92,
+    "authorityTier": "late",
+    "authorityStarGate": 102,
+    "authorityPrice": 140,
+    "authorityRefillPrice": 70,
+    "authorityStock": "PURCHASE_GRANT_10_REFILL_10_AT_HALF_PRICE",
+    "currentPrice": 90,
+    "currentRestockQty": 6,
+    "currentMinTotalStars": 0,
+    "currentStarterGrantOnly": true
+   }
+  ],
+  "reachabilityIfAuthorityGatesAppliedToCurrent15Recipes": {
+   "guaranteedMin_2_per_discovery": {
+    "discovered": 10,
+    "unreachable": [
+     "genovese",
+     "marinara",
+     "napoletana",
+     "pizza-bianca",
+     "quattro-formaggi"
+    ],
+    "finalStars": 20
+   },
+   "standard_3": {
+    "discovered": 11,
+    "unreachable": [
+     "genovese",
+     "napoletana",
+     "pizza-bianca",
+     "quattro-formaggi"
+    ],
+    "finalStars": 33
+   },
+   "skilled_4": {
+    "discovered": 13,
+    "unreachable": [
+     "genovese",
+     "quattro-formaggi"
+    ],
+    "finalStars": 52
+   },
+   "theoreticalMax_5": {
+    "discovered": 13,
+    "unreachable": [
+     "genovese",
+     "quattro-formaggi"
+    ],
+    "finalStars": 65
+   }
+  },
+  "contentTranches": [
+   {
+    "throughSequence": 9,
+    "lastNode": "ham",
+    "targets": 7,
+    "productionTargets": 6,
+    "newRecipesNeeded": [
+     "aussie-pizzadb"
+    ],
+    "newNodesNeeded": [],
+    "capabilitiesNeeded": []
+   },
+   {
+    "throughSequence": 12,
+    "lastNode": "oregano",
+    "targets": 11,
+    "productionTargets": 8,
+    "newRecipesNeeded": [
+     "aussie-pizzadb",
+     "brazilian-calabresa-pizzadb-p10",
+     "pizza-portuguesa-pizzadb-p9"
+    ],
+    "newNodesNeeded": [],
+    "capabilitiesNeeded": []
+   },
+   {
+    "throughSequence": 15,
+    "lastNode": "feta",
+    "targets": 14,
+    "productionTargets": 9,
+    "newRecipesNeeded": [
+     "aussie-pizzadb",
+     "brazilian-calabresa-pizzadb-p10",
+     "chilean-napolitana-pizzadb",
+     "pizza-feta-eliniki-pizzadb-p9",
+     "pizza-portuguesa-pizzadb-p9"
+    ],
+    "newNodesNeeded": [
+     "feta",
+     "fresh-tomato"
+    ],
+    "capabilitiesNeeded": []
+   },
+   {
+    "throughSequence": 19,
+    "lastNode": "tuna",
+    "targets": 18,
+    "productionTargets": 10,
+    "newRecipesNeeded": [
+     "aussie-pizzadb",
+     "brazilian-calabresa-pizzadb-p10",
+     "cauliflower-crust-pizza-pizzadb-p2",
+     "chilean-napolitana-pizzadb",
+     "pesto-caprese-pizzadb-p11",
+     "pesto-tonno-pizzadb-p12",
+     "pizza-feta-eliniki-pizzadb-p9",
+     "pizza-portuguesa-pizzadb-p9"
+    ],
+    "newNodesNeeded": [
+     "DOUGH_VARIANT",
+     "dough:material-cauliflower",
+     "feta",
+     "fresh-tomato"
+    ],
+    "capabilitiesNeeded": [
+     "DOUGH_VARIANT",
+     "dough:material-cauliflower"
+    ]
+   },
+   {
+    "throughSequence": 23,
+    "lastNode": "STEP_ORDER",
+    "targets": 23,
+    "productionTargets": 10,
+    "newRecipesNeeded": [
+     "aussie-pizzadb",
+     "brazilian-calabresa-pizzadb-p10",
+     "cauliflower-crust-pizza-pizzadb-p2",
+     "chilean-napolitana-pizzadb",
+     "melanzane-pizza-pizzadb-p13",
+     "pesto-caprese-pizzadb-p11",
+     "pesto-tonno-pizzadb-p12",
+     "pesto-vegetariana-pizzadb-p12",
+     "pizza-feta-eliniki-pizzadb-p9",
+     "pizza-portuguesa-pizzadb-p9",
+     "ratatouille-pizza-pizzadb-p13",
+     "spanish-chorizo-pizza-pizzadb-p4",
+     "trenton-tomato-pie-pizzadb"
+    ],
+    "newNodesNeeded": [
+     "DOUGH_VARIANT",
+     "STEP_ORDER",
+     "bell-pepper",
+     "dough:material-cauliflower",
+     "eggplant",
+     "feta",
+     "fresh-tomato",
+     "zucchini"
+    ],
+    "capabilitiesNeeded": [
+     "DOUGH_VARIANT",
+     "STEP_ORDER",
+     "dough:material-cauliflower"
+    ]
+   }
+  ],
+  "od03OptionA_authorityVerbatimWithT1Pool": {
+   "2_stars_per_discovery": {
+    "discovered": 13,
+    "notReachable": [
+     "shipped:genovese",
+     "shipped:marinara",
+     "shipped:napoletana",
+     "shipped:pizza-bianca",
+     "shipped:quattro-formaggi"
+    ]
+   },
+   "3_stars_per_discovery": {
+    "discovered": 15,
+    "notReachable": [
+     "shipped:genovese",
+     "shipped:pizza-bianca",
+     "shipped:quattro-formaggi"
+    ]
+   },
+   "4_stars_per_discovery": {
+    "discovered": 16,
+    "notReachable": [
+     "shipped:genovese",
+     "shipped:quattro-formaggi"
+    ]
+   },
+   "5_stars_per_discovery": {
+    "discovered": 17,
+    "notReachable": [
+     "shipped:quattro-formaggi"
+    ]
+   }
+  },
+  "od03OptionB_illustrativeSameFormulaGates_NOT_ADOPTED": [
+   {
+    "nodeId": "egg",
+    "authorityGate": 2,
+    "sameFormulaOverRuntimePool": 2,
+    "price": 60
+   },
+   {
+    "nodeId": "bacon",
+    "authorityGate": 2,
+    "sameFormulaOverRuntimePool": 4,
+    "price": 60
+   },
+   {
+    "nodeId": "onion",
+    "authorityGate": 2,
+    "sameFormulaOverRuntimePool": 4,
+    "price": 60
+   },
+   {
+    "nodeId": "pepperoni",
+    "authorityGate": 6,
+    "sameFormulaOverRuntimePool": 6,
+    "price": 60
+   },
+   {
+    "nodeId": "sausage",
+    "authorityGate": 6,
+    "sameFormulaOverRuntimePool": 6,
+    "price": 60
+   },
+   {
+    "nodeId": "ham",
+    "authorityGate": 6,
+    "sameFormulaOverRuntimePool": 8,
+    "price": 60
+   },
+   {
+    "nodeId": "black-olive",
+    "authorityGate": 10,
+    "sameFormulaOverRuntimePool": 10,
+    "price": 60
+   },
+   {
+    "nodeId": "mushroom",
+    "authorityGate": 10,
+    "sameFormulaOverRuntimePool": 10,
+    "price": 60
+   },
+   {
+    "nodeId": "oregano",
+    "authorityGate": 10,
+    "sameFormulaOverRuntimePool": 12,
+    "price": 60
+   },
+   {
+    "nodeId": "olive-oil",
+    "authorityGate": 14,
+    "sameFormulaOverRuntimePool": 14,
+    "price": 60
+   },
+   {
+    "nodeId": "pesto",
+    "authorityGate": 18,
+    "sameFormulaOverRuntimePool": 16,
+    "price": 60
+   },
+   {
+    "nodeId": "tuna",
+    "authorityGate": 18,
+    "sameFormulaOverRuntimePool": 16,
+    "price": 60
+   },
+   {
+    "nodeId": "garlic",
+    "authorityGate": 28,
+    "sameFormulaOverRuntimePool": 16,
+    "price": 100
+   },
+   {
+    "nodeId": "parmigiano",
+    "authorityGate": 28,
+    "sameFormulaOverRuntimePool": 18,
+    "price": 100
+   },
+   {
+    "nodeId": "anchovy",
+    "authorityGate": 40,
+    "sameFormulaOverRuntimePool": 18,
+    "price": 100
+   },
+   {
+    "nodeId": "rosemary",
+    "authorityGate": 48,
+    "sameFormulaOverRuntimePool": 18,
+    "price": 100
+   },
+   {
+    "nodeId": "cherry-tomato",
+    "authorityGate": 76,
+    "sameFormulaOverRuntimePool": 20,
+    "price": 140
+   },
+   {
+    "nodeId": "fontina",
+    "authorityGate": 102,
+    "sameFormulaOverRuntimePool": 22,
+    "price": 140
+   },
+   {
+    "nodeId": "gorgonzola",
+    "authorityGate": 102,
+    "sameFormulaOverRuntimePool": 22,
+    "price": 140
+   }
+  ]
+ }
+}
