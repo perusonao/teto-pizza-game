@@ -1,0 +1,8627 @@
+{
+ "schemaVersion": 1,
+ "generatedBy": "docs/reports/data/PROGRESSION-2.0_OD-03_option_model.py",
+ "decision": "OD-03 / R-02 -- NOT DECIDED. Options are not ranked.",
+ "inputs": {
+  "authority": "docs/design/data/TETO_PROGRESSION2_PHASE34_INGREDIENT-UNLOCK-MATRIX.json",
+  "authorityAuditedMainSha": "08b04f8f1c59b8adb38964d4ec3e08e6acb6cbc2",
+  "rewardTable": "docs/design/data/TETO_PROGRESSION2_PHASE2_UNLOCK-MATRIX.json",
+  "production": [
+   "src/data/recipes.ts",
+   "src/data/ingredients.ts",
+   "src/data/discoveryCatalog.ts"
+  ]
+ },
+ "starRule": "Σ over discovered recipes of max(BEST, 2) (Phase 3-4A, PR #205 unmerged)",
+ "rewardRule": {
+  "perBakeByBest": {
+   "1": 20.0,
+   "2": 50.0,
+   "3": 80.0,
+   "4": 100.0,
+   "5": 120.0
+  },
+  "firstDiscoveryBonus": 50
+ },
+ "counts": {
+  "productionRecipes": 15,
+  "productionIngredients": 22,
+  "ingredientsUsedByProductionRecipes": 22,
+  "authorityTargets": 101,
+  "authorityIngredients": 105,
+  "authorityNodes": 128
+ },
+ "starCeilings": {
+  "all15AtStar5": 75,
+  "optionA_fixedPointAtStar5": 65,
+  "all15AtGuaranteedMin2": 30
+ },
+ "formulaCheck": {
+  "formula": "gate(step) = 2 * ceil(0.6 * #targets reachable at earlier Phase-2 steps)",
+  "reproducesAllAuthorityGatesOver101": true
+ },
+ "productionRecipes": {
+  "margherita": {
+   "targetId": "shipped:margherita",
+   "ingredients": [
+    "tomato-sauce",
+    "mozzarella",
+    "basil"
+   ],
+   "authorityReachSequence": 3,
+   "authorityGate": 0
+  },
+  "bismarck": {
+   "targetId": "shipped:bismarck",
+   "ingredients": [
+    "tomato-sauce",
+    "mozzarella",
+    "egg"
+   ],
+   "authorityReachSequence": 4,
+   "authorityGate": 2
+  },
+  "breakfast-pizza": {
+   "targetId": "shipped:breakfast-pizza",
+   "ingredients": [
+    "tomato-sauce",
+    "mozzarella",
+    "egg",
+    "bacon"
+   ],
+   "authorityReachSequence": 5,
+   "authorityGate": 2
+  },
+  "pepperoni": {
+   "targetId": "shipped:pepperoni",
+   "ingredients": [
+    "tomato-sauce",
+    "mozzarella",
+    "pepperoni"
+   ],
+   "authorityReachSequence": 7,
+   "authorityGate": 6
+  },
+  "salsiccia": {
+   "targetId": "shipped:salsiccia",
+   "ingredients": [
+    "tomato-sauce",
+    "mozzarella",
+    "sausage"
+   ],
+   "authorityReachSequence": 8,
+   "authorityGate": 6
+  },
+  "meat-lovers": {
+   "targetId": "shipped:meat-lovers",
+   "ingredients": [
+    "tomato-sauce",
+    "mozzarella",
+    "bacon",
+    "ham",
+    "pepperoni",
+    "sausage"
+   ],
+   "authorityReachSequence": 9,
+   "authorityGate": 6
+  },
+  "funghi": {
+   "targetId": "shipped:funghi",
+   "ingredients": [
+    "tomato-sauce",
+    "mozzarella",
+    "mushroom"
+   ],
+   "authorityReachSequence": 11,
+   "authorityGate": 10
+  },
+  "capricciosa": {
+   "targetId": "shipped:capricciosa",
+   "ingredients": [
+    "tomato-sauce",
+    "mozzarella",
+    "mushroom",
+    "oregano",
+    "ham",
+    "black-olive"
+   ],
+   "authorityReachSequence": 12,
+   "authorityGate": 10
+  },
+  "fugazza": {
+   "targetId": "shipped:fugazza",
+   "ingredients": [
+    "olive-oil",
+    "onion",
+    "oregano"
+   ],
+   "authorityReachSequence": 14,
+   "authorityGate": 14
+  },
+  "tonno-e-cipolla": {
+   "targetId": "tonno-e-cipolla-pizzadb",
+   "ingredients": [
+    "tomato-sauce",
+    "mozzarella",
+    "onion",
+    "tuna"
+   ],
+   "authorityReachSequence": 19,
+   "authorityGate": 18
+  },
+  "marinara": {
+   "targetId": "shipped:marinara",
+   "ingredients": [
+    "tomato-sauce",
+    "garlic",
+    "oregano"
+   ],
+   "authorityReachSequence": 24,
+   "authorityGate": 28
+  },
+  "napoletana": {
+   "targetId": "shipped:napoletana",
+   "ingredients": [
+    "tomato-sauce",
+    "mozzarella",
+    "anchovy",
+    "oregano"
+   ],
+   "authorityReachSequence": 32,
+   "authorityGate": 40
+  },
+  "pizza-bianca": {
+   "targetId": "shipped:pizza-bianca",
+   "ingredients": [
+    "olive-oil",
+    "rosemary"
+   ],
+   "authorityReachSequence": 39,
+   "authorityGate": 48
+  },
+  "genovese": {
+   "targetId": "shipped:genovese",
+   "ingredients": [
+    "pesto",
+    "mozzarella",
+    "cherry-tomato"
+   ],
+   "authorityReachSequence": 64,
+   "authorityGate": 76
+  },
+  "quattro-formaggi": {
+   "targetId": "shipped:quattro-formaggi",
+   "ingredients": [
+    "olive-oil",
+    "mozzarella",
+    "gorgonzola",
+    "parmigiano",
+    "fontina"
+   ],
+   "authorityReachSequence": 92,
+   "authorityGate": 102
+  }
+ },
+ "gateTable": [
+  {
+   "ingredientId": "basil",
+   "authoritySequence": 1,
+   "pool15": 0,
+   "pool18_T1": 0,
+   "pool101_authority": 0,
+   "C1": 0,
+   "C2": 0,
+   "shippedRecipesUsing": [
+    "margherita"
+   ]
+  },
+  {
+   "ingredientId": "mozzarella",
+   "authoritySequence": 2,
+   "pool15": 0,
+   "pool18_T1": 0,
+   "pool101_authority": 0,
+   "C1": 0,
+   "C2": 0,
+   "shippedRecipesUsing": [
+    "bismarck",
+    "breakfast-pizza",
+    "capricciosa",
+    "funghi",
+    "genovese",
+    "margherita",
+    "meat-lovers",
+    "napoletana",
+    "pepperoni",
+    "quattro-formaggi",
+    "salsiccia",
+    "tonno-e-cipolla"
+   ]
+  },
+  {
+   "ingredientId": "tomato-sauce",
+   "authoritySequence": 3,
+   "pool15": 0,
+   "pool18_T1": 0,
+   "pool101_authority": 0,
+   "C1": 0,
+   "C2": 0,
+   "shippedRecipesUsing": [
+    "bismarck",
+    "breakfast-pizza",
+    "capricciosa",
+    "funghi",
+    "margherita",
+    "marinara",
+    "meat-lovers",
+    "napoletana",
+    "pepperoni",
+    "salsiccia",
+    "tonno-e-cipolla"
+   ]
+  },
+  {
+   "ingredientId": "egg",
+   "authoritySequence": 4,
+   "pool15": 2,
+   "pool18_T1": 2,
+   "pool101_authority": 2,
+   "C1": 2,
+   "C2": 2,
+   "shippedRecipesUsing": [
+    "bismarck",
+    "breakfast-pizza"
+   ]
+  },
+  {
+   "ingredientId": "bacon",
+   "authoritySequence": 5,
+   "pool15": 2,
+   "pool18_T1": 2,
+   "pool101_authority": 2,
+   "C1": 2,
+   "C2": 2,
+   "shippedRecipesUsing": [
+    "breakfast-pizza",
+    "meat-lovers"
+   ]
+  },
+  {
+   "ingredientId": "onion",
+   "authoritySequence": 6,
+   "pool15": 2,
+   "pool18_T1": 2,
+   "pool101_authority": 2,
+   "C1": 2,
+   "C2": 2,
+   "shippedRecipesUsing": [
+    "fugazza",
+    "tonno-e-cipolla"
+   ]
+  },
+  {
+   "ingredientId": "pepperoni",
+   "authoritySequence": 7,
+   "pool15": 4,
+   "pool18_T1": 6,
+   "pool101_authority": 6,
+   "C1": 6,
+   "C2": 6,
+   "shippedRecipesUsing": [
+    "meat-lovers",
+    "pepperoni"
+   ]
+  },
+  {
+   "ingredientId": "sausage",
+   "authoritySequence": 8,
+   "pool15": 4,
+   "pool18_T1": 6,
+   "pool101_authority": 6,
+   "C1": 6,
+   "C2": 6,
+   "shippedRecipesUsing": [
+    "meat-lovers",
+    "salsiccia"
+   ]
+  },
+  {
+   "ingredientId": "ham",
+   "authoritySequence": 9,
+   "pool15": 4,
+   "pool18_T1": 6,
+   "pool101_authority": 6,
+   "C1": 6,
+   "C2": 6,
+   "shippedRecipesUsing": [
+    "capricciosa",
+    "meat-lovers"
+   ]
+  },
+  {
+   "ingredientId": "black-olive",
+   "authoritySequence": 10,
+   "pool15": 8,
+   "pool18_T1": 10,
+   "pool101_authority": 10,
+   "C1": 10,
+   "C2": 10,
+   "shippedRecipesUsing": [
+    "capricciosa"
+   ]
+  },
+  {
+   "ingredientId": "mushroom",
+   "authoritySequence": 11,
+   "pool15": 8,
+   "pool18_T1": 10,
+   "pool101_authority": 10,
+   "C1": 10,
+   "C2": 10,
+   "shippedRecipesUsing": [
+    "capricciosa",
+    "funghi"
+   ]
+  },
+  {
+   "ingredientId": "oregano",
+   "authoritySequence": 12,
+   "pool15": 8,
+   "pool18_T1": 10,
+   "pool101_authority": 10,
+   "C1": 10,
+   "C2": 10,
+   "shippedRecipesUsing": [
+    "capricciosa",
+    "fugazza",
+    "marinara",
+    "napoletana"
+   ]
+  },
+  {
+   "ingredientId": "olive-oil",
+   "authoritySequence": 14,
+   "pool15": 10,
+   "pool18_T1": 14,
+   "pool101_authority": 14,
+   "C1": 14,
+   "C2": 14,
+   "shippedRecipesUsing": [
+    "fugazza",
+    "pizza-bianca",
+    "quattro-formaggi"
+   ]
+  },
+  {
+   "ingredientId": "pesto",
+   "authoritySequence": 18,
+   "pool15": 12,
+   "pool18_T1": 16,
+   "pool101_authority": 18,
+   "C1": 18,
+   "C2": 18,
+   "shippedRecipesUsing": [
+    "genovese"
+   ]
+  },
+  {
+   "ingredientId": "tuna",
+   "authoritySequence": 19,
+   "pool15": 12,
+   "pool18_T1": 16,
+   "pool101_authority": 18,
+   "C1": 18,
+   "C2": 18,
+   "shippedRecipesUsing": [
+    "tonno-e-cipolla"
+   ]
+  },
+  {
+   "ingredientId": "garlic",
+   "authoritySequence": 24,
+   "pool15": 12,
+   "pool18_T1": 16,
+   "pool101_authority": 28,
+   "C1": 28,
+   "C2": 12,
+   "shippedRecipesUsing": [
+    "marinara"
+   ]
+  },
+  {
+   "ingredientId": "parmigiano",
+   "authoritySequence": 25,
+   "pool15": 12,
+   "pool18_T1": 16,
+   "pool101_authority": 28,
+   "C1": 28,
+   "C2": 12,
+   "shippedRecipesUsing": [
+    "quattro-formaggi"
+   ]
+  },
+  {
+   "ingredientId": "anchovy",
+   "authoritySequence": 32,
+   "pool15": 14,
+   "pool18_T1": 18,
+   "pool101_authority": 40,
+   "C1": 40,
+   "C2": 14,
+   "shippedRecipesUsing": [
+    "napoletana"
+   ]
+  },
+  {
+   "ingredientId": "rosemary",
+   "authoritySequence": 39,
+   "pool15": 16,
+   "pool18_T1": 18,
+   "pool101_authority": 48,
+   "C1": 48,
+   "C2": 16,
+   "shippedRecipesUsing": [
+    "pizza-bianca"
+   ]
+  },
+  {
+   "ingredientId": "cherry-tomato",
+   "authoritySequence": 64,
+   "pool15": 16,
+   "pool18_T1": 20,
+   "pool101_authority": 76,
+   "C1": 16,
+   "C2": 16,
+   "shippedRecipesUsing": [
+    "genovese"
+   ]
+  },
+  {
+   "ingredientId": "fontina",
+   "authoritySequence": 91,
+   "pool15": 18,
+   "pool18_T1": 22,
+   "pool101_authority": 102,
+   "C1": 18,
+   "C2": 18,
+   "shippedRecipesUsing": [
+    "quattro-formaggi"
+   ]
+  },
+  {
+   "ingredientId": "gorgonzola",
+   "authoritySequence": 92,
+   "pool15": 18,
+   "pool18_T1": 22,
+   "pool101_authority": 102,
+   "C1": 18,
+   "C2": 18,
+   "shippedRecipesUsing": [
+    "quattro-formaggi"
+   ]
+  }
+ ],
+ "optionCSpecialCaseSets": {
+  "C1_special_case_hard_locks_only": [
+   "cherry-tomato",
+   "fontina",
+   "gorgonzola"
+  ],
+  "C2_special_case_all_min_path_locks": [
+   "anchovy",
+   "cherry-tomato",
+   "fontina",
+   "garlic",
+   "gorgonzola",
+   "parmigiano",
+   "rosemary"
+  ],
+  "capValueNote": "ILLUSTRATIVE: Option B pool-15 formula value. The actual cap value is an owner decision."
+ },
+ "reachability": {
+  "A_authority_verbatim": {
+   "lowScore_1": {
+    "discovered": 10,
+    "finalStars": 20,
+    "order": [
+     "margherita",
+     "bismarck",
+     "breakfast-pizza",
+     "pepperoni",
+     "salsiccia",
+     "meat-lovers",
+     "funghi",
+     "capricciosa",
+     "fugazza",
+     "tonno-e-cipolla"
+    ],
+    "notReachable": [
+     "marinara",
+     "napoletana",
+     "pizza-bianca",
+     "genovese",
+     "quattro-formaggi"
+    ],
+    "firstBlockingGate": {
+     "ingredientId": "garlic",
+     "gate": 28
+    },
+    "blockingGates": [
+     {
+      "ingredientId": "garlic",
+      "gate": 28
+     },
+     {
+      "ingredientId": "parmigiano",
+      "gate": 28
+     },
+     {
+      "ingredientId": "anchovy",
+      "gate": 40
+     },
+     {
+      "ingredientId": "rosemary",
+      "gate": 48
+     },
+     {
+      "ingredientId": "cherry-tomato",
+      "gate": 76
+     },
+     {
+      "ingredientId": "fontina",
+      "gate": 102
+     },
+     {
+      "ingredientId": "gorgonzola",
+      "gate": 102
+     }
+    ]
+   },
+   "beginner_2": {
+    "discovered": 10,
+    "finalStars": 20,
+    "order": [
+     "margherita",
+     "bismarck",
+     "breakfast-pizza",
+     "pepperoni",
+     "salsiccia",
+     "meat-lovers",
+     "funghi",
+     "capricciosa",
+     "fugazza",
+     "tonno-e-cipolla"
+    ],
+    "notReachable": [
+     "marinara",
+     "napoletana",
+     "pizza-bianca",
+     "genovese",
+     "quattro-formaggi"
+    ],
+    "firstBlockingGate": {
+     "ingredientId": "garlic",
+     "gate": 28
+    },
+    "blockingGates": [
+     {
+      "ingredientId": "garlic",
+      "gate": 28
+     },
+     {
+      "ingredientId": "parmigiano",
+      "gate": 28
+     },
+     {
+      "ingredientId": "anchovy",
+      "gate": 40
+     },
+     {
+      "ingredientId": "rosemary",
+      "gate": 48
+     },
+     {
+      "ingredientId": "cherry-tomato",
+      "gate": 76
+     },
+     {
+      "ingredientId": "fontina",
+      "gate": 102
+     },
+     {
+      "ingredientId": "gorgonzola",
+      "gate": 102
+     }
+    ]
+   },
+   "standard_3": {
+    "discovered": 11,
+    "finalStars": 33,
+    "order": [
+     "margherita",
+     "bismarck",
+     "breakfast-pizza",
+     "pepperoni",
+     "salsiccia",
+     "meat-lovers",
+     "funghi",
+     "capricciosa",
+     "fugazza",
+     "tonno-e-cipolla",
+     "marinara"
+    ],
+    "notReachable": [
+     "napoletana",
+     "pizza-bianca",
+     "genovese",
+     "quattro-formaggi"
+    ],
+    "firstBlockingGate": {
+     "ingredientId": "anchovy",
+     "gate": 40
+    },
+    "blockingGates": [
+     {
+      "ingredientId": "anchovy",
+      "gate": 40
+     },
+     {
+      "ingredientId": "rosemary",
+      "gate": 48
+     },
+     {
+      "ingredientId": "cherry-tomato",
+      "gate": 76
+     },
+     {
+      "ingredientId": "fontina",
+      "gate": 102
+     },
+     {
+      "ingredientId": "gorgonzola",
+      "gate": 102
+     }
+    ]
+   },
+   "skilled_4": {
+    "discovered": 13,
+    "finalStars": 52,
+    "order": [
+     "margherita",
+     "bismarck",
+     "breakfast-pizza",
+     "pepperoni",
+     "salsiccia",
+     "meat-lovers",
+     "funghi",
+     "capricciosa",
+     "fugazza",
+     "tonno-e-cipolla",
+     "marinara",
+     "napoletana",
+     "pizza-bianca"
+    ],
+    "notReachable": [
+     "genovese",
+     "quattro-formaggi"
+    ],
+    "firstBlockingGate": {
+     "ingredientId": "cherry-tomato",
+     "gate": 76
+    },
+    "blockingGates": [
+     {
+      "ingredientId": "cherry-tomato",
+      "gate": 76
+     },
+     {
+      "ingredientId": "fontina",
+      "gate": 102
+     },
+     {
+      "ingredientId": "gorgonzola",
+      "gate": 102
+     }
+    ]
+   },
+   "perfect_5": {
+    "discovered": 13,
+    "finalStars": 65,
+    "order": [
+     "margherita",
+     "bismarck",
+     "breakfast-pizza",
+     "pepperoni",
+     "salsiccia",
+     "meat-lovers",
+     "funghi",
+     "capricciosa",
+     "fugazza",
+     "tonno-e-cipolla",
+     "marinara",
+     "napoletana",
+     "pizza-bianca"
+    ],
+    "notReachable": [
+     "genovese",
+     "quattro-formaggi"
+    ],
+    "firstBlockingGate": {
+     "ingredientId": "cherry-tomato",
+     "gate": 76
+    },
+    "blockingGates": [
+     {
+      "ingredientId": "cherry-tomato",
+      "gate": 76
+     },
+     {
+      "ingredientId": "fontina",
+      "gate": 102
+     },
+     {
+      "ingredientId": "gorgonzola",
+      "gate": 102
+     }
+    ]
+   }
+  },
+  "B_recomputed_for_15": {
+   "lowScore_1": {
+    "discovered": 15,
+    "finalStars": 30,
+    "order": [
+     "margherita",
+     "bismarck",
+     "breakfast-pizza",
+     "pepperoni",
+     "salsiccia",
+     "meat-lovers",
+     "funghi",
+     "capricciosa",
+     "fugazza",
+     "tonno-e-cipolla",
+     "marinara",
+     "napoletana",
+     "pizza-bianca",
+     "genovese",
+     "quattro-formaggi"
+    ],
+    "notReachable": [],
+    "firstBlockingGate": null,
+    "blockingGates": []
+   },
+   "beginner_2": {
+    "discovered": 15,
+    "finalStars": 30,
+    "order": [
+     "margherita",
+     "bismarck",
+     "breakfast-pizza",
+     "pepperoni",
+     "salsiccia",
+     "meat-lovers",
+     "funghi",
+     "capricciosa",
+     "fugazza",
+     "tonno-e-cipolla",
+     "marinara",
+     "napoletana",
+     "pizza-bianca",
+     "genovese",
+     "quattro-formaggi"
+    ],
+    "notReachable": [],
+    "firstBlockingGate": null,
+    "blockingGates": []
+   },
+   "standard_3": {
+    "discovered": 15,
+    "finalStars": 45,
+    "order": [
+     "margherita",
+     "bismarck",
+     "breakfast-pizza",
+     "pepperoni",
+     "salsiccia",
+     "meat-lovers",
+     "funghi",
+     "capricciosa",
+     "fugazza",
+     "tonno-e-cipolla",
+     "marinara",
+     "napoletana",
+     "pizza-bianca",
+     "genovese",
+     "quattro-formaggi"
+    ],
+    "notReachable": [],
+    "firstBlockingGate": null,
+    "blockingGates": []
+   },
+   "skilled_4": {
+    "discovered": 15,
+    "finalStars": 60,
+    "order": [
+     "margherita",
+     "bismarck",
+     "breakfast-pizza",
+     "pepperoni",
+     "salsiccia",
+     "meat-lovers",
+     "funghi",
+     "capricciosa",
+     "fugazza",
+     "tonno-e-cipolla",
+     "marinara",
+     "napoletana",
+     "pizza-bianca",
+     "genovese",
+     "quattro-formaggi"
+    ],
+    "notReachable": [],
+    "firstBlockingGate": null,
+    "blockingGates": []
+   },
+   "perfect_5": {
+    "discovered": 15,
+    "finalStars": 75,
+    "order": [
+     "margherita",
+     "bismarck",
+     "breakfast-pizza",
+     "pepperoni",
+     "salsiccia",
+     "meat-lovers",
+     "funghi",
+     "capricciosa",
+     "fugazza",
+     "tonno-e-cipolla",
+     "marinara",
+     "napoletana",
+     "pizza-bianca",
+     "genovese",
+     "quattro-formaggi"
+    ],
+    "notReachable": [],
+    "firstBlockingGate": null,
+    "blockingGates": []
+   }
+  },
+  "C1_special_case_hard_locks_only": {
+   "lowScore_1": {
+    "discovered": 11,
+    "finalStars": 22,
+    "order": [
+     "margherita",
+     "bismarck",
+     "breakfast-pizza",
+     "pepperoni",
+     "salsiccia",
+     "meat-lovers",
+     "funghi",
+     "capricciosa",
+     "fugazza",
+     "tonno-e-cipolla",
+     "genovese"
+    ],
+    "notReachable": [
+     "marinara",
+     "napoletana",
+     "pizza-bianca",
+     "quattro-formaggi"
+    ],
+    "firstBlockingGate": {
+     "ingredientId": "garlic",
+     "gate": 28
+    },
+    "blockingGates": [
+     {
+      "ingredientId": "garlic",
+      "gate": 28
+     },
+     {
+      "ingredientId": "parmigiano",
+      "gate": 28
+     },
+     {
+      "ingredientId": "anchovy",
+      "gate": 40
+     },
+     {
+      "ingredientId": "rosemary",
+      "gate": 48
+     }
+    ]
+   },
+   "beginner_2": {
+    "discovered": 11,
+    "finalStars": 22,
+    "order": [
+     "margherita",
+     "bismarck",
+     "breakfast-pizza",
+     "pepperoni",
+     "salsiccia",
+     "meat-lovers",
+     "funghi",
+     "capricciosa",
+     "fugazza",
+     "tonno-e-cipolla",
+     "genovese"
+    ],
+    "notReachable": [
+     "marinara",
+     "napoletana",
+     "pizza-bianca",
+     "quattro-formaggi"
+    ],
+    "firstBlockingGate": {
+     "ingredientId": "garlic",
+     "gate": 28
+    },
+    "blockingGates": [
+     {
+      "ingredientId": "garlic",
+      "gate": 28
+     },
+     {
+      "ingredientId": "parmigiano",
+      "gate": 28
+     },
+     {
+      "ingredientId": "anchovy",
+      "gate": 40
+     },
+     {
+      "ingredientId": "rosemary",
+      "gate": 48
+     }
+    ]
+   },
+   "standard_3": {
+    "discovered": 13,
+    "finalStars": 39,
+    "order": [
+     "margherita",
+     "bismarck",
+     "breakfast-pizza",
+     "pepperoni",
+     "salsiccia",
+     "meat-lovers",
+     "funghi",
+     "capricciosa",
+     "fugazza",
+     "tonno-e-cipolla",
+     "genovese",
+     "marinara",
+     "quattro-formaggi"
+    ],
+    "notReachable": [
+     "napoletana",
+     "pizza-bianca"
+    ],
+    "firstBlockingGate": {
+     "ingredientId": "anchovy",
+     "gate": 40
+    },
+    "blockingGates": [
+     {
+      "ingredientId": "anchovy",
+      "gate": 40
+     },
+     {
+      "ingredientId": "rosemary",
+      "gate": 48
+     }
+    ]
+   },
+   "skilled_4": {
+    "discovered": 15,
+    "finalStars": 60,
+    "order": [
+     "margherita",
+     "bismarck",
+     "breakfast-pizza",
+     "pepperoni",
+     "salsiccia",
+     "meat-lovers",
+     "funghi",
+     "capricciosa",
+     "fugazza",
+     "tonno-e-cipolla",
+     "marinara",
+     "genovese",
+     "quattro-formaggi",
+     "napoletana",
+     "pizza-bianca"
+    ],
+    "notReachable": [],
+    "firstBlockingGate": null,
+    "blockingGates": []
+   },
+   "perfect_5": {
+    "discovered": 15,
+    "finalStars": 75,
+    "order": [
+     "margherita",
+     "bismarck",
+     "breakfast-pizza",
+     "pepperoni",
+     "salsiccia",
+     "meat-lovers",
+     "funghi",
+     "capricciosa",
+     "fugazza",
+     "tonno-e-cipolla",
+     "marinara",
+     "napoletana",
+     "genovese",
+     "quattro-formaggi",
+     "pizza-bianca"
+    ],
+    "notReachable": [],
+    "firstBlockingGate": null,
+    "blockingGates": []
+   }
+  },
+  "C2_special_case_all_min_path_locks": {
+   "lowScore_1": {
+    "discovered": 15,
+    "finalStars": 30,
+    "order": [
+     "margherita",
+     "bismarck",
+     "breakfast-pizza",
+     "pepperoni",
+     "salsiccia",
+     "meat-lovers",
+     "funghi",
+     "capricciosa",
+     "marinara",
+     "fugazza",
+     "tonno-e-cipolla",
+     "napoletana",
+     "pizza-bianca",
+     "genovese",
+     "quattro-formaggi"
+    ],
+    "notReachable": [],
+    "firstBlockingGate": null,
+    "blockingGates": []
+   },
+   "beginner_2": {
+    "discovered": 15,
+    "finalStars": 30,
+    "order": [
+     "margherita",
+     "bismarck",
+     "breakfast-pizza",
+     "pepperoni",
+     "salsiccia",
+     "meat-lovers",
+     "funghi",
+     "capricciosa",
+     "marinara",
+     "fugazza",
+     "tonno-e-cipolla",
+     "napoletana",
+     "pizza-bianca",
+     "genovese",
+     "quattro-formaggi"
+    ],
+    "notReachable": [],
+    "firstBlockingGate": null,
+    "blockingGates": []
+   },
+   "standard_3": {
+    "discovered": 15,
+    "finalStars": 45,
+    "order": [
+     "margherita",
+     "bismarck",
+     "breakfast-pizza",
+     "pepperoni",
+     "salsiccia",
+     "meat-lovers",
+     "funghi",
+     "capricciosa",
+     "fugazza",
+     "tonno-e-cipolla",
+     "marinara",
+     "napoletana",
+     "pizza-bianca",
+     "genovese",
+     "quattro-formaggi"
+    ],
+    "notReachable": [],
+    "firstBlockingGate": null,
+    "blockingGates": []
+   },
+   "skilled_4": {
+    "discovered": 15,
+    "finalStars": 60,
+    "order": [
+     "margherita",
+     "bismarck",
+     "breakfast-pizza",
+     "pepperoni",
+     "salsiccia",
+     "meat-lovers",
+     "funghi",
+     "capricciosa",
+     "marinara",
+     "fugazza",
+     "tonno-e-cipolla",
+     "napoletana",
+     "pizza-bianca",
+     "genovese",
+     "quattro-formaggi"
+    ],
+    "notReachable": [],
+    "firstBlockingGate": null,
+    "blockingGates": []
+   },
+   "perfect_5": {
+    "discovered": 15,
+    "finalStars": 75,
+    "order": [
+     "margherita",
+     "bismarck",
+     "breakfast-pizza",
+     "pepperoni",
+     "salsiccia",
+     "meat-lovers",
+     "funghi",
+     "capricciosa",
+     "fugazza",
+     "marinara",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "genovese",
+     "quattro-formaggi"
+    ],
+    "notReachable": [],
+    "firstBlockingGate": null,
+    "blockingGates": []
+   }
+  }
+ },
+ "optionA_contentNeededForLateShipped": {
+  "marinara": {
+   "min2": {
+    "gate": 28,
+    "authorityTargetsBeforeGateStep": 23,
+    "discoveriesNeeded": 14,
+    "reachableWithCurrent15AtThisRate": false
+   },
+   "max5": {
+    "gate": 28,
+    "authorityTargetsBeforeGateStep": 23,
+    "discoveriesNeeded": 6,
+    "reachableWithCurrent15AtThisRate": true
+   }
+  },
+  "napoletana": {
+   "min2": {
+    "gate": 40,
+    "authorityTargetsBeforeGateStep": 33,
+    "discoveriesNeeded": 20,
+    "reachableWithCurrent15AtThisRate": false
+   },
+   "max5": {
+    "gate": 40,
+    "authorityTargetsBeforeGateStep": 33,
+    "discoveriesNeeded": 8,
+    "reachableWithCurrent15AtThisRate": true
+   }
+  },
+  "pizza-bianca": {
+   "min2": {
+    "gate": 48,
+    "authorityTargetsBeforeGateStep": 39,
+    "discoveriesNeeded": 24,
+    "reachableWithCurrent15AtThisRate": false
+   },
+   "max5": {
+    "gate": 48,
+    "authorityTargetsBeforeGateStep": 39,
+    "discoveriesNeeded": 10,
+    "reachableWithCurrent15AtThisRate": true
+   }
+  },
+  "genovese": {
+   "min2": {
+    "gate": 76,
+    "authorityTargetsBeforeGateStep": 63,
+    "discoveriesNeeded": 38,
+    "reachableWithCurrent15AtThisRate": false
+   },
+   "max5": {
+    "gate": 76,
+    "authorityTargetsBeforeGateStep": 63,
+    "discoveriesNeeded": 16,
+    "reachableWithCurrent15AtThisRate": false
+   }
+  },
+  "quattro-formaggi": {
+   "min2": {
+    "gate": 102,
+    "authorityTargetsBeforeGateStep": 85,
+    "discoveriesNeeded": 51,
+    "reachableWithCurrent15AtThisRate": false
+   },
+   "max5": {
+    "gate": 102,
+    "authorityTargetsBeforeGateStep": 85,
+    "discoveriesNeeded": 21,
+    "reachableWithCurrent15AtThisRate": false
+   }
+  }
+ },
+ "walkthroughs": {
+  "A_authority_verbatim": {
+   "lowScore_1": {
+    "best": 1,
+    "starsPerDiscovery": 2,
+    "discovered": 10,
+    "finalStars": 20,
+    "totalBakes": 12,
+    "grindBakes": 2,
+    "milestonesReached": [
+     2,
+     6,
+     10,
+     14,
+     18
+    ],
+    "milestonesNotReached": [
+     22,
+     28,
+     32,
+     40,
+     44,
+     48,
+     56,
+     65,
+     76,
+     102
+    ],
+    "events": [
+     {
+      "kind": "START",
+      "stars": 0,
+      "pitz": 0,
+      "bakes": 0
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 2,
+      "pitz": 70.0,
+      "bakes": 1,
+      "recipeId": "margherita",
+      "newlyBuyable": [
+       "bacon",
+       "egg",
+       "onion"
+      ],
+      "milestonesCrossed": [
+       2
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 2,
+      "pitz": 10.0,
+      "bakes": 1,
+      "ingredientId": "egg",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 4,
+      "pitz": 80.0,
+      "bakes": 2,
+      "recipeId": "bismarck",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 4,
+      "pitz": 20.0,
+      "bakes": 2,
+      "ingredientId": "bacon",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 6,
+      "pitz": 90.0,
+      "bakes": 3,
+      "recipeId": "breakfast-pizza",
+      "newlyBuyable": [
+       "ham",
+       "pepperoni",
+       "sausage"
+      ],
+      "milestonesCrossed": [
+       6
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 6,
+      "pitz": 30.0,
+      "bakes": 3,
+      "ingredientId": "pepperoni",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 8,
+      "pitz": 100.0,
+      "bakes": 4,
+      "recipeId": "pepperoni",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 8,
+      "pitz": 40.0,
+      "bakes": 4,
+      "ingredientId": "sausage",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 10,
+      "pitz": 110.0,
+      "bakes": 5,
+      "recipeId": "salsiccia",
+      "newlyBuyable": [
+       "black-olive",
+       "mushroom",
+       "oregano"
+      ],
+      "milestonesCrossed": [
+       10
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 10,
+      "pitz": 50.0,
+      "bakes": 5,
+      "ingredientId": "ham",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 12,
+      "pitz": 120.0,
+      "bakes": 6,
+      "recipeId": "meat-lovers",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 12,
+      "pitz": 60.0,
+      "bakes": 6,
+      "ingredientId": "mushroom",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 14,
+      "pitz": 130.0,
+      "bakes": 7,
+      "recipeId": "funghi",
+      "newlyBuyable": [
+       "olive-oil"
+      ],
+      "milestonesCrossed": [
+       14
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 14,
+      "pitz": 70.0,
+      "bakes": 7,
+      "ingredientId": "black-olive",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "BUY",
+      "stars": 14,
+      "pitz": 10.0,
+      "bakes": 7,
+      "ingredientId": "oregano",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 16,
+      "pitz": 80.0,
+      "bakes": 8,
+      "recipeId": "capricciosa",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 16,
+      "pitz": 20.0,
+      "bakes": 8,
+      "ingredientId": "onion",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "GRIND_MARGHERITA",
+      "stars": 16,
+      "pitz": 60.0,
+      "bakes": 10,
+      "bakesAdded": 2
+     },
+     {
+      "kind": "BUY",
+      "stars": 16,
+      "pitz": 0.0,
+      "bakes": 10,
+      "ingredientId": "olive-oil",
+      "pricePitz": 60,
+      "gate": 14
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 18,
+      "pitz": 70.0,
+      "bakes": 11,
+      "recipeId": "fugazza",
+      "newlyBuyable": [
+       "pesto",
+       "tuna"
+      ],
+      "milestonesCrossed": [
+       18
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 18,
+      "pitz": 10.0,
+      "bakes": 11,
+      "ingredientId": "tuna",
+      "pricePitz": 60,
+      "gate": 18
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 20,
+      "pitz": 80.0,
+      "bakes": 12,
+      "recipeId": "tonno-e-cipolla",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "STOP",
+      "stars": 20,
+      "pitz": 80.0,
+      "bakes": 12,
+      "notReachable": [
+       "marinara",
+       "napoletana",
+       "pizza-bianca",
+       "genovese",
+       "quattro-formaggi"
+      ],
+      "nextGate": {
+       "ingredientId": "garlic",
+       "gate": 28,
+       "starsShort": 8
+      }
+     }
+    ]
+   },
+   "beginner_2": {
+    "best": 2,
+    "starsPerDiscovery": 2,
+    "discovered": 10,
+    "finalStars": 20,
+    "totalBakes": 10,
+    "grindBakes": 0,
+    "milestonesReached": [
+     2,
+     6,
+     10,
+     14,
+     18
+    ],
+    "milestonesNotReached": [
+     22,
+     28,
+     32,
+     40,
+     44,
+     48,
+     56,
+     65,
+     76,
+     102
+    ],
+    "events": [
+     {
+      "kind": "START",
+      "stars": 0,
+      "pitz": 0,
+      "bakes": 0
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 2,
+      "pitz": 100.0,
+      "bakes": 1,
+      "recipeId": "margherita",
+      "newlyBuyable": [
+       "bacon",
+       "egg",
+       "onion"
+      ],
+      "milestonesCrossed": [
+       2
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 2,
+      "pitz": 40.0,
+      "bakes": 1,
+      "ingredientId": "egg",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 4,
+      "pitz": 140.0,
+      "bakes": 2,
+      "recipeId": "bismarck",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 4,
+      "pitz": 80.0,
+      "bakes": 2,
+      "ingredientId": "bacon",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 6,
+      "pitz": 180.0,
+      "bakes": 3,
+      "recipeId": "breakfast-pizza",
+      "newlyBuyable": [
+       "ham",
+       "pepperoni",
+       "sausage"
+      ],
+      "milestonesCrossed": [
+       6
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 6,
+      "pitz": 120.0,
+      "bakes": 3,
+      "ingredientId": "pepperoni",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 8,
+      "pitz": 220.0,
+      "bakes": 4,
+      "recipeId": "pepperoni",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 8,
+      "pitz": 160.0,
+      "bakes": 4,
+      "ingredientId": "sausage",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 10,
+      "pitz": 260.0,
+      "bakes": 5,
+      "recipeId": "salsiccia",
+      "newlyBuyable": [
+       "black-olive",
+       "mushroom",
+       "oregano"
+      ],
+      "milestonesCrossed": [
+       10
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 10,
+      "pitz": 200.0,
+      "bakes": 5,
+      "ingredientId": "ham",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 12,
+      "pitz": 300.0,
+      "bakes": 6,
+      "recipeId": "meat-lovers",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 12,
+      "pitz": 240.0,
+      "bakes": 6,
+      "ingredientId": "mushroom",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 14,
+      "pitz": 340.0,
+      "bakes": 7,
+      "recipeId": "funghi",
+      "newlyBuyable": [
+       "olive-oil"
+      ],
+      "milestonesCrossed": [
+       14
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 14,
+      "pitz": 280.0,
+      "bakes": 7,
+      "ingredientId": "black-olive",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "BUY",
+      "stars": 14,
+      "pitz": 220.0,
+      "bakes": 7,
+      "ingredientId": "oregano",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 16,
+      "pitz": 320.0,
+      "bakes": 8,
+      "recipeId": "capricciosa",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 16,
+      "pitz": 260.0,
+      "bakes": 8,
+      "ingredientId": "onion",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "BUY",
+      "stars": 16,
+      "pitz": 200.0,
+      "bakes": 8,
+      "ingredientId": "olive-oil",
+      "pricePitz": 60,
+      "gate": 14
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 18,
+      "pitz": 300.0,
+      "bakes": 9,
+      "recipeId": "fugazza",
+      "newlyBuyable": [
+       "pesto",
+       "tuna"
+      ],
+      "milestonesCrossed": [
+       18
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 18,
+      "pitz": 240.0,
+      "bakes": 9,
+      "ingredientId": "tuna",
+      "pricePitz": 60,
+      "gate": 18
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 20,
+      "pitz": 340.0,
+      "bakes": 10,
+      "recipeId": "tonno-e-cipolla",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "STOP",
+      "stars": 20,
+      "pitz": 340.0,
+      "bakes": 10,
+      "notReachable": [
+       "marinara",
+       "napoletana",
+       "pizza-bianca",
+       "genovese",
+       "quattro-formaggi"
+      ],
+      "nextGate": {
+       "ingredientId": "garlic",
+       "gate": 28,
+       "starsShort": 8
+      }
+     }
+    ]
+   },
+   "standard_3": {
+    "best": 3,
+    "starsPerDiscovery": 3,
+    "discovered": 11,
+    "finalStars": 33,
+    "totalBakes": 11,
+    "grindBakes": 0,
+    "milestonesReached": [
+     2,
+     6,
+     10,
+     14,
+     18,
+     22,
+     28,
+     32
+    ],
+    "milestonesNotReached": [
+     40,
+     44,
+     48,
+     56,
+     65,
+     76,
+     102
+    ],
+    "events": [
+     {
+      "kind": "START",
+      "stars": 0,
+      "pitz": 0,
+      "bakes": 0
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 3,
+      "pitz": 130.0,
+      "bakes": 1,
+      "recipeId": "margherita",
+      "newlyBuyable": [
+       "bacon",
+       "egg",
+       "onion"
+      ],
+      "milestonesCrossed": [
+       2
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 3,
+      "pitz": 70.0,
+      "bakes": 1,
+      "ingredientId": "egg",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 6,
+      "pitz": 200.0,
+      "bakes": 2,
+      "recipeId": "bismarck",
+      "newlyBuyable": [
+       "ham",
+       "pepperoni",
+       "sausage"
+      ],
+      "milestonesCrossed": [
+       6
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 6,
+      "pitz": 140.0,
+      "bakes": 2,
+      "ingredientId": "bacon",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 9,
+      "pitz": 270.0,
+      "bakes": 3,
+      "recipeId": "breakfast-pizza",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 9,
+      "pitz": 210.0,
+      "bakes": 3,
+      "ingredientId": "pepperoni",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 12,
+      "pitz": 340.0,
+      "bakes": 4,
+      "recipeId": "pepperoni",
+      "newlyBuyable": [
+       "black-olive",
+       "mushroom",
+       "oregano"
+      ],
+      "milestonesCrossed": [
+       10
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 12,
+      "pitz": 280.0,
+      "bakes": 4,
+      "ingredientId": "sausage",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 15,
+      "pitz": 410.0,
+      "bakes": 5,
+      "recipeId": "salsiccia",
+      "newlyBuyable": [
+       "olive-oil"
+      ],
+      "milestonesCrossed": [
+       14
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 15,
+      "pitz": 350.0,
+      "bakes": 5,
+      "ingredientId": "ham",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 18,
+      "pitz": 480.0,
+      "bakes": 6,
+      "recipeId": "meat-lovers",
+      "newlyBuyable": [
+       "pesto",
+       "tuna"
+      ],
+      "milestonesCrossed": [
+       18
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 18,
+      "pitz": 420.0,
+      "bakes": 6,
+      "ingredientId": "mushroom",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 21,
+      "pitz": 550.0,
+      "bakes": 7,
+      "recipeId": "funghi",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 21,
+      "pitz": 490.0,
+      "bakes": 7,
+      "ingredientId": "black-olive",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "BUY",
+      "stars": 21,
+      "pitz": 430.0,
+      "bakes": 7,
+      "ingredientId": "oregano",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 24,
+      "pitz": 560.0,
+      "bakes": 8,
+      "recipeId": "capricciosa",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       22
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 24,
+      "pitz": 500.0,
+      "bakes": 8,
+      "ingredientId": "onion",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "BUY",
+      "stars": 24,
+      "pitz": 440.0,
+      "bakes": 8,
+      "ingredientId": "olive-oil",
+      "pricePitz": 60,
+      "gate": 14
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 27,
+      "pitz": 570.0,
+      "bakes": 9,
+      "recipeId": "fugazza",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 27,
+      "pitz": 510.0,
+      "bakes": 9,
+      "ingredientId": "tuna",
+      "pricePitz": 60,
+      "gate": 18
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 30,
+      "pitz": 640.0,
+      "bakes": 10,
+      "recipeId": "tonno-e-cipolla",
+      "newlyBuyable": [
+       "garlic",
+       "parmigiano"
+      ],
+      "milestonesCrossed": [
+       28
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 30,
+      "pitz": 540.0,
+      "bakes": 10,
+      "ingredientId": "garlic",
+      "pricePitz": 100,
+      "gate": 28
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 33,
+      "pitz": 670.0,
+      "bakes": 11,
+      "recipeId": "marinara",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       32
+      ]
+     },
+     {
+      "kind": "STOP",
+      "stars": 33,
+      "pitz": 670.0,
+      "bakes": 11,
+      "notReachable": [
+       "napoletana",
+       "pizza-bianca",
+       "genovese",
+       "quattro-formaggi"
+      ],
+      "nextGate": {
+       "ingredientId": "anchovy",
+       "gate": 40,
+       "starsShort": 7
+      }
+     }
+    ]
+   },
+   "skilled_4": {
+    "best": 4,
+    "starsPerDiscovery": 4,
+    "discovered": 13,
+    "finalStars": 52,
+    "totalBakes": 13,
+    "grindBakes": 0,
+    "milestonesReached": [
+     2,
+     6,
+     10,
+     14,
+     18,
+     22,
+     28,
+     32,
+     40,
+     44,
+     48
+    ],
+    "milestonesNotReached": [
+     56,
+     65,
+     76,
+     102
+    ],
+    "events": [
+     {
+      "kind": "START",
+      "stars": 0,
+      "pitz": 0,
+      "bakes": 0
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 4,
+      "pitz": 150.0,
+      "bakes": 1,
+      "recipeId": "margherita",
+      "newlyBuyable": [
+       "bacon",
+       "egg",
+       "onion"
+      ],
+      "milestonesCrossed": [
+       2
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 4,
+      "pitz": 90.0,
+      "bakes": 1,
+      "ingredientId": "egg",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 8,
+      "pitz": 240.0,
+      "bakes": 2,
+      "recipeId": "bismarck",
+      "newlyBuyable": [
+       "ham",
+       "pepperoni",
+       "sausage"
+      ],
+      "milestonesCrossed": [
+       6
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 8,
+      "pitz": 180.0,
+      "bakes": 2,
+      "ingredientId": "bacon",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 12,
+      "pitz": 330.0,
+      "bakes": 3,
+      "recipeId": "breakfast-pizza",
+      "newlyBuyable": [
+       "black-olive",
+       "mushroom",
+       "oregano"
+      ],
+      "milestonesCrossed": [
+       10
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 12,
+      "pitz": 270.0,
+      "bakes": 3,
+      "ingredientId": "pepperoni",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 16,
+      "pitz": 420.0,
+      "bakes": 4,
+      "recipeId": "pepperoni",
+      "newlyBuyable": [
+       "olive-oil"
+      ],
+      "milestonesCrossed": [
+       14
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 16,
+      "pitz": 360.0,
+      "bakes": 4,
+      "ingredientId": "sausage",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 20,
+      "pitz": 510.0,
+      "bakes": 5,
+      "recipeId": "salsiccia",
+      "newlyBuyable": [
+       "pesto",
+       "tuna"
+      ],
+      "milestonesCrossed": [
+       18
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 20,
+      "pitz": 450.0,
+      "bakes": 5,
+      "ingredientId": "ham",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 24,
+      "pitz": 600.0,
+      "bakes": 6,
+      "recipeId": "meat-lovers",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       22
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 24,
+      "pitz": 540.0,
+      "bakes": 6,
+      "ingredientId": "mushroom",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 28,
+      "pitz": 690.0,
+      "bakes": 7,
+      "recipeId": "funghi",
+      "newlyBuyable": [
+       "garlic",
+       "parmigiano"
+      ],
+      "milestonesCrossed": [
+       28
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 28,
+      "pitz": 630.0,
+      "bakes": 7,
+      "ingredientId": "black-olive",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "BUY",
+      "stars": 28,
+      "pitz": 570.0,
+      "bakes": 7,
+      "ingredientId": "oregano",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 32,
+      "pitz": 720.0,
+      "bakes": 8,
+      "recipeId": "capricciosa",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       32
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 32,
+      "pitz": 660.0,
+      "bakes": 8,
+      "ingredientId": "onion",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "BUY",
+      "stars": 32,
+      "pitz": 600.0,
+      "bakes": 8,
+      "ingredientId": "olive-oil",
+      "pricePitz": 60,
+      "gate": 14
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 36,
+      "pitz": 750.0,
+      "bakes": 9,
+      "recipeId": "fugazza",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 36,
+      "pitz": 690.0,
+      "bakes": 9,
+      "ingredientId": "tuna",
+      "pricePitz": 60,
+      "gate": 18
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 40,
+      "pitz": 840.0,
+      "bakes": 10,
+      "recipeId": "tonno-e-cipolla",
+      "newlyBuyable": [
+       "anchovy"
+      ],
+      "milestonesCrossed": [
+       40
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 40,
+      "pitz": 740.0,
+      "bakes": 10,
+      "ingredientId": "garlic",
+      "pricePitz": 100,
+      "gate": 28
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 44,
+      "pitz": 890.0,
+      "bakes": 11,
+      "recipeId": "marinara",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       44
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 44,
+      "pitz": 790.0,
+      "bakes": 11,
+      "ingredientId": "anchovy",
+      "pricePitz": 100,
+      "gate": 40
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 48,
+      "pitz": 940.0,
+      "bakes": 12,
+      "recipeId": "napoletana",
+      "newlyBuyable": [
+       "rosemary"
+      ],
+      "milestonesCrossed": [
+       48
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 48,
+      "pitz": 840.0,
+      "bakes": 12,
+      "ingredientId": "rosemary",
+      "pricePitz": 100,
+      "gate": 48
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 52,
+      "pitz": 990.0,
+      "bakes": 13,
+      "recipeId": "pizza-bianca",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "STOP",
+      "stars": 52,
+      "pitz": 990.0,
+      "bakes": 13,
+      "notReachable": [
+       "genovese",
+       "quattro-formaggi"
+      ],
+      "nextGate": {
+       "ingredientId": "cherry-tomato",
+       "gate": 76,
+       "starsShort": 24
+      }
+     }
+    ]
+   },
+   "perfect_5": {
+    "best": 5,
+    "starsPerDiscovery": 5,
+    "discovered": 13,
+    "finalStars": 65,
+    "totalBakes": 13,
+    "grindBakes": 0,
+    "milestonesReached": [
+     2,
+     6,
+     10,
+     14,
+     18,
+     22,
+     28,
+     32,
+     40,
+     44,
+     48,
+     56,
+     65
+    ],
+    "milestonesNotReached": [
+     76,
+     102
+    ],
+    "events": [
+     {
+      "kind": "START",
+      "stars": 0,
+      "pitz": 0,
+      "bakes": 0
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 5,
+      "pitz": 170.0,
+      "bakes": 1,
+      "recipeId": "margherita",
+      "newlyBuyable": [
+       "bacon",
+       "egg",
+       "onion"
+      ],
+      "milestonesCrossed": [
+       2
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 5,
+      "pitz": 110.0,
+      "bakes": 1,
+      "ingredientId": "egg",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 10,
+      "pitz": 280.0,
+      "bakes": 2,
+      "recipeId": "bismarck",
+      "newlyBuyable": [
+       "black-olive",
+       "ham",
+       "mushroom",
+       "oregano",
+       "pepperoni",
+       "sausage"
+      ],
+      "milestonesCrossed": [
+       6,
+       10
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 10,
+      "pitz": 220.0,
+      "bakes": 2,
+      "ingredientId": "bacon",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 15,
+      "pitz": 390.0,
+      "bakes": 3,
+      "recipeId": "breakfast-pizza",
+      "newlyBuyable": [
+       "olive-oil"
+      ],
+      "milestonesCrossed": [
+       14
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 15,
+      "pitz": 330.0,
+      "bakes": 3,
+      "ingredientId": "pepperoni",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 20,
+      "pitz": 500.0,
+      "bakes": 4,
+      "recipeId": "pepperoni",
+      "newlyBuyable": [
+       "pesto",
+       "tuna"
+      ],
+      "milestonesCrossed": [
+       18
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 20,
+      "pitz": 440.0,
+      "bakes": 4,
+      "ingredientId": "sausage",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 25,
+      "pitz": 610.0,
+      "bakes": 5,
+      "recipeId": "salsiccia",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       22
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 25,
+      "pitz": 550.0,
+      "bakes": 5,
+      "ingredientId": "ham",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 30,
+      "pitz": 720.0,
+      "bakes": 6,
+      "recipeId": "meat-lovers",
+      "newlyBuyable": [
+       "garlic",
+       "parmigiano"
+      ],
+      "milestonesCrossed": [
+       28
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 30,
+      "pitz": 660.0,
+      "bakes": 6,
+      "ingredientId": "mushroom",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 35,
+      "pitz": 830.0,
+      "bakes": 7,
+      "recipeId": "funghi",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       32
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 35,
+      "pitz": 770.0,
+      "bakes": 7,
+      "ingredientId": "black-olive",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "BUY",
+      "stars": 35,
+      "pitz": 710.0,
+      "bakes": 7,
+      "ingredientId": "oregano",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 40,
+      "pitz": 880.0,
+      "bakes": 8,
+      "recipeId": "capricciosa",
+      "newlyBuyable": [
+       "anchovy"
+      ],
+      "milestonesCrossed": [
+       40
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 40,
+      "pitz": 820.0,
+      "bakes": 8,
+      "ingredientId": "onion",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "BUY",
+      "stars": 40,
+      "pitz": 760.0,
+      "bakes": 8,
+      "ingredientId": "olive-oil",
+      "pricePitz": 60,
+      "gate": 14
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 45,
+      "pitz": 930.0,
+      "bakes": 9,
+      "recipeId": "fugazza",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       44
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 45,
+      "pitz": 870.0,
+      "bakes": 9,
+      "ingredientId": "tuna",
+      "pricePitz": 60,
+      "gate": 18
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 50,
+      "pitz": 1040.0,
+      "bakes": 10,
+      "recipeId": "tonno-e-cipolla",
+      "newlyBuyable": [
+       "rosemary"
+      ],
+      "milestonesCrossed": [
+       48
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 50,
+      "pitz": 940.0,
+      "bakes": 10,
+      "ingredientId": "garlic",
+      "pricePitz": 100,
+      "gate": 28
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 55,
+      "pitz": 1110.0,
+      "bakes": 11,
+      "recipeId": "marinara",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 55,
+      "pitz": 1010.0,
+      "bakes": 11,
+      "ingredientId": "anchovy",
+      "pricePitz": 100,
+      "gate": 40
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 60,
+      "pitz": 1180.0,
+      "bakes": 12,
+      "recipeId": "napoletana",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       56
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 60,
+      "pitz": 1080.0,
+      "bakes": 12,
+      "ingredientId": "rosemary",
+      "pricePitz": 100,
+      "gate": 48
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 65,
+      "pitz": 1250.0,
+      "bakes": 13,
+      "recipeId": "pizza-bianca",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       65
+      ]
+     },
+     {
+      "kind": "STOP",
+      "stars": 65,
+      "pitz": 1250.0,
+      "bakes": 13,
+      "notReachable": [
+       "genovese",
+       "quattro-formaggi"
+      ],
+      "nextGate": {
+       "ingredientId": "cherry-tomato",
+       "gate": 76,
+       "starsShort": 11
+      }
+     }
+    ]
+   }
+  },
+  "B_recomputed_for_15": {
+   "lowScore_1": {
+    "best": 1,
+    "starsPerDiscovery": 2,
+    "discovered": 15,
+    "finalStars": 30,
+    "totalBakes": 43,
+    "grindBakes": 28,
+    "milestonesReached": [
+     2,
+     6,
+     10,
+     14,
+     18,
+     22,
+     28
+    ],
+    "milestonesNotReached": [
+     32,
+     40,
+     44,
+     48,
+     56,
+     65,
+     76,
+     102
+    ],
+    "events": [
+     {
+      "kind": "START",
+      "stars": 0,
+      "pitz": 0,
+      "bakes": 0
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 2,
+      "pitz": 70.0,
+      "bakes": 1,
+      "recipeId": "margherita",
+      "newlyBuyable": [
+       "bacon",
+       "egg",
+       "onion"
+      ],
+      "milestonesCrossed": [
+       2
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 2,
+      "pitz": 10.0,
+      "bakes": 1,
+      "ingredientId": "egg",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 4,
+      "pitz": 80.0,
+      "bakes": 2,
+      "recipeId": "bismarck",
+      "newlyBuyable": [
+       "ham",
+       "pepperoni",
+       "sausage"
+      ],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 4,
+      "pitz": 20.0,
+      "bakes": 2,
+      "ingredientId": "bacon",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 6,
+      "pitz": 90.0,
+      "bakes": 3,
+      "recipeId": "breakfast-pizza",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       6
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 6,
+      "pitz": 30.0,
+      "bakes": 3,
+      "ingredientId": "pepperoni",
+      "pricePitz": 60,
+      "gate": 4
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 8,
+      "pitz": 100.0,
+      "bakes": 4,
+      "recipeId": "pepperoni",
+      "newlyBuyable": [
+       "black-olive",
+       "mushroom",
+       "oregano"
+      ],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 8,
+      "pitz": 40.0,
+      "bakes": 4,
+      "ingredientId": "sausage",
+      "pricePitz": 60,
+      "gate": 4
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 10,
+      "pitz": 110.0,
+      "bakes": 5,
+      "recipeId": "salsiccia",
+      "newlyBuyable": [
+       "olive-oil"
+      ],
+      "milestonesCrossed": [
+       10
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 10,
+      "pitz": 50.0,
+      "bakes": 5,
+      "ingredientId": "ham",
+      "pricePitz": 60,
+      "gate": 4
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 12,
+      "pitz": 120.0,
+      "bakes": 6,
+      "recipeId": "meat-lovers",
+      "newlyBuyable": [
+       "garlic",
+       "parmigiano",
+       "pesto",
+       "tuna"
+      ],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 12,
+      "pitz": 60.0,
+      "bakes": 6,
+      "ingredientId": "mushroom",
+      "pricePitz": 60,
+      "gate": 8
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 14,
+      "pitz": 130.0,
+      "bakes": 7,
+      "recipeId": "funghi",
+      "newlyBuyable": [
+       "anchovy"
+      ],
+      "milestonesCrossed": [
+       14
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 14,
+      "pitz": 70.0,
+      "bakes": 7,
+      "ingredientId": "black-olive",
+      "pricePitz": 60,
+      "gate": 8
+     },
+     {
+      "kind": "BUY",
+      "stars": 14,
+      "pitz": 10.0,
+      "bakes": 7,
+      "ingredientId": "oregano",
+      "pricePitz": 60,
+      "gate": 8
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 16,
+      "pitz": 80.0,
+      "bakes": 8,
+      "recipeId": "capricciosa",
+      "newlyBuyable": [
+       "cherry-tomato",
+       "rosemary"
+      ],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 16,
+      "pitz": 20.0,
+      "bakes": 8,
+      "ingredientId": "onion",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "GRIND_MARGHERITA",
+      "stars": 16,
+      "pitz": 60.0,
+      "bakes": 10,
+      "bakesAdded": 2
+     },
+     {
+      "kind": "BUY",
+      "stars": 16,
+      "pitz": 0.0,
+      "bakes": 10,
+      "ingredientId": "olive-oil",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 18,
+      "pitz": 70.0,
+      "bakes": 11,
+      "recipeId": "fugazza",
+      "newlyBuyable": [
+       "fontina",
+       "gorgonzola"
+      ],
+      "milestonesCrossed": [
+       18
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 18,
+      "pitz": 10.0,
+      "bakes": 11,
+      "ingredientId": "tuna",
+      "pricePitz": 60,
+      "gate": 12
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 20,
+      "pitz": 80.0,
+      "bakes": 12,
+      "recipeId": "tonno-e-cipolla",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "GRIND_MARGHERITA",
+      "stars": 20,
+      "pitz": 100.0,
+      "bakes": 13,
+      "bakesAdded": 1
+     },
+     {
+      "kind": "BUY",
+      "stars": 20,
+      "pitz": 0.0,
+      "bakes": 13,
+      "ingredientId": "garlic",
+      "pricePitz": 100,
+      "gate": 12
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 22,
+      "pitz": 70.0,
+      "bakes": 14,
+      "recipeId": "marinara",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       22
+      ]
+     },
+     {
+      "kind": "GRIND_MARGHERITA",
+      "stars": 22,
+      "pitz": 110.0,
+      "bakes": 16,
+      "bakesAdded": 2
+     },
+     {
+      "kind": "BUY",
+      "stars": 22,
+      "pitz": 10.0,
+      "bakes": 16,
+      "ingredientId": "anchovy",
+      "pricePitz": 100,
+      "gate": 14
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 24,
+      "pitz": 80.0,
+      "bakes": 17,
+      "recipeId": "napoletana",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "GRIND_MARGHERITA",
+      "stars": 24,
+      "pitz": 100.0,
+      "bakes": 18,
+      "bakesAdded": 1
+     },
+     {
+      "kind": "BUY",
+      "stars": 24,
+      "pitz": 0.0,
+      "bakes": 18,
+      "ingredientId": "rosemary",
+      "pricePitz": 100,
+      "gate": 16
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 26,
+      "pitz": 70.0,
+      "bakes": 19,
+      "recipeId": "pizza-bianca",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 26,
+      "pitz": 10.0,
+      "bakes": 19,
+      "ingredientId": "pesto",
+      "pricePitz": 60,
+      "gate": 12
+     },
+     {
+      "kind": "GRIND_MARGHERITA",
+      "stars": 26,
+      "pitz": 150.0,
+      "bakes": 26,
+      "bakesAdded": 7
+     },
+     {
+      "kind": "BUY",
+      "stars": 26,
+      "pitz": 10.0,
+      "bakes": 26,
+      "ingredientId": "cherry-tomato",
+      "pricePitz": 140,
+      "gate": 16
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 28,
+      "pitz": 80.0,
+      "bakes": 27,
+      "recipeId": "genovese",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       28
+      ]
+     },
+     {
+      "kind": "GRIND_MARGHERITA",
+      "stars": 28,
+      "pitz": 100.0,
+      "bakes": 28,
+      "bakesAdded": 1
+     },
+     {
+      "kind": "BUY",
+      "stars": 28,
+      "pitz": 0.0,
+      "bakes": 28,
+      "ingredientId": "parmigiano",
+      "pricePitz": 100,
+      "gate": 12
+     },
+     {
+      "kind": "GRIND_MARGHERITA",
+      "stars": 28,
+      "pitz": 140.0,
+      "bakes": 35,
+      "bakesAdded": 7
+     },
+     {
+      "kind": "BUY",
+      "stars": 28,
+      "pitz": 0.0,
+      "bakes": 35,
+      "ingredientId": "fontina",
+      "pricePitz": 140,
+      "gate": 18
+     },
+     {
+      "kind": "GRIND_MARGHERITA",
+      "stars": 28,
+      "pitz": 140.0,
+      "bakes": 42,
+      "bakesAdded": 7
+     },
+     {
+      "kind": "BUY",
+      "stars": 28,
+      "pitz": 0.0,
+      "bakes": 42,
+      "ingredientId": "gorgonzola",
+      "pricePitz": 140,
+      "gate": 18
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 30,
+      "pitz": 70.0,
+      "bakes": 43,
+      "recipeId": "quattro-formaggi",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "STOP",
+      "stars": 30,
+      "pitz": 70.0,
+      "bakes": 43,
+      "notReachable": [],
+      "nextGate": null
+     }
+    ]
+   },
+   "beginner_2": {
+    "best": 2,
+    "starsPerDiscovery": 2,
+    "discovered": 15,
+    "finalStars": 30,
+    "totalBakes": 18,
+    "grindBakes": 3,
+    "milestonesReached": [
+     2,
+     6,
+     10,
+     14,
+     18,
+     22,
+     28
+    ],
+    "milestonesNotReached": [
+     32,
+     40,
+     44,
+     48,
+     56,
+     65,
+     76,
+     102
+    ],
+    "events": [
+     {
+      "kind": "START",
+      "stars": 0,
+      "pitz": 0,
+      "bakes": 0
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 2,
+      "pitz": 100.0,
+      "bakes": 1,
+      "recipeId": "margherita",
+      "newlyBuyable": [
+       "bacon",
+       "egg",
+       "onion"
+      ],
+      "milestonesCrossed": [
+       2
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 2,
+      "pitz": 40.0,
+      "bakes": 1,
+      "ingredientId": "egg",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 4,
+      "pitz": 140.0,
+      "bakes": 2,
+      "recipeId": "bismarck",
+      "newlyBuyable": [
+       "ham",
+       "pepperoni",
+       "sausage"
+      ],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 4,
+      "pitz": 80.0,
+      "bakes": 2,
+      "ingredientId": "bacon",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 6,
+      "pitz": 180.0,
+      "bakes": 3,
+      "recipeId": "breakfast-pizza",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       6
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 6,
+      "pitz": 120.0,
+      "bakes": 3,
+      "ingredientId": "pepperoni",
+      "pricePitz": 60,
+      "gate": 4
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 8,
+      "pitz": 220.0,
+      "bakes": 4,
+      "recipeId": "pepperoni",
+      "newlyBuyable": [
+       "black-olive",
+       "mushroom",
+       "oregano"
+      ],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 8,
+      "pitz": 160.0,
+      "bakes": 4,
+      "ingredientId": "sausage",
+      "pricePitz": 60,
+      "gate": 4
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 10,
+      "pitz": 260.0,
+      "bakes": 5,
+      "recipeId": "salsiccia",
+      "newlyBuyable": [
+       "olive-oil"
+      ],
+      "milestonesCrossed": [
+       10
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 10,
+      "pitz": 200.0,
+      "bakes": 5,
+      "ingredientId": "ham",
+      "pricePitz": 60,
+      "gate": 4
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 12,
+      "pitz": 300.0,
+      "bakes": 6,
+      "recipeId": "meat-lovers",
+      "newlyBuyable": [
+       "garlic",
+       "parmigiano",
+       "pesto",
+       "tuna"
+      ],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 12,
+      "pitz": 240.0,
+      "bakes": 6,
+      "ingredientId": "mushroom",
+      "pricePitz": 60,
+      "gate": 8
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 14,
+      "pitz": 340.0,
+      "bakes": 7,
+      "recipeId": "funghi",
+      "newlyBuyable": [
+       "anchovy"
+      ],
+      "milestonesCrossed": [
+       14
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 14,
+      "pitz": 280.0,
+      "bakes": 7,
+      "ingredientId": "black-olive",
+      "pricePitz": 60,
+      "gate": 8
+     },
+     {
+      "kind": "BUY",
+      "stars": 14,
+      "pitz": 220.0,
+      "bakes": 7,
+      "ingredientId": "oregano",
+      "pricePitz": 60,
+      "gate": 8
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 16,
+      "pitz": 320.0,
+      "bakes": 8,
+      "recipeId": "capricciosa",
+      "newlyBuyable": [
+       "cherry-tomato",
+       "rosemary"
+      ],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 16,
+      "pitz": 260.0,
+      "bakes": 8,
+      "ingredientId": "onion",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "BUY",
+      "stars": 16,
+      "pitz": 200.0,
+      "bakes": 8,
+      "ingredientId": "olive-oil",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 18,
+      "pitz": 300.0,
+      "bakes": 9,
+      "recipeId": "fugazza",
+      "newlyBuyable": [
+       "fontina",
+       "gorgonzola"
+      ],
+      "milestonesCrossed": [
+       18
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 18,
+      "pitz": 240.0,
+      "bakes": 9,
+      "ingredientId": "tuna",
+      "pricePitz": 60,
+      "gate": 12
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 20,
+      "pitz": 340.0,
+      "bakes": 10,
+      "recipeId": "tonno-e-cipolla",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 20,
+      "pitz": 240.0,
+      "bakes": 10,
+      "ingredientId": "garlic",
+      "pricePitz": 100,
+      "gate": 12
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 22,
+      "pitz": 340.0,
+      "bakes": 11,
+      "recipeId": "marinara",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       22
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 22,
+      "pitz": 240.0,
+      "bakes": 11,
+      "ingredientId": "anchovy",
+      "pricePitz": 100,
+      "gate": 14
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 24,
+      "pitz": 340.0,
+      "bakes": 12,
+      "recipeId": "napoletana",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 24,
+      "pitz": 240.0,
+      "bakes": 12,
+      "ingredientId": "rosemary",
+      "pricePitz": 100,
+      "gate": 16
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 26,
+      "pitz": 340.0,
+      "bakes": 13,
+      "recipeId": "pizza-bianca",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 26,
+      "pitz": 280.0,
+      "bakes": 13,
+      "ingredientId": "pesto",
+      "pricePitz": 60,
+      "gate": 12
+     },
+     {
+      "kind": "BUY",
+      "stars": 26,
+      "pitz": 140.0,
+      "bakes": 13,
+      "ingredientId": "cherry-tomato",
+      "pricePitz": 140,
+      "gate": 16
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 28,
+      "pitz": 240.0,
+      "bakes": 14,
+      "recipeId": "genovese",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       28
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 28,
+      "pitz": 140.0,
+      "bakes": 14,
+      "ingredientId": "parmigiano",
+      "pricePitz": 100,
+      "gate": 12
+     },
+     {
+      "kind": "BUY",
+      "stars": 28,
+      "pitz": 0.0,
+      "bakes": 14,
+      "ingredientId": "fontina",
+      "pricePitz": 140,
+      "gate": 18
+     },
+     {
+      "kind": "GRIND_MARGHERITA",
+      "stars": 28,
+      "pitz": 150.0,
+      "bakes": 17,
+      "bakesAdded": 3
+     },
+     {
+      "kind": "BUY",
+      "stars": 28,
+      "pitz": 10.0,
+      "bakes": 17,
+      "ingredientId": "gorgonzola",
+      "pricePitz": 140,
+      "gate": 18
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 30,
+      "pitz": 110.0,
+      "bakes": 18,
+      "recipeId": "quattro-formaggi",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "STOP",
+      "stars": 30,
+      "pitz": 110.0,
+      "bakes": 18,
+      "notReachable": [],
+      "nextGate": null
+     }
+    ]
+   },
+   "standard_3": {
+    "best": 3,
+    "starsPerDiscovery": 3,
+    "discovered": 15,
+    "finalStars": 45,
+    "totalBakes": 15,
+    "grindBakes": 0,
+    "milestonesReached": [
+     2,
+     6,
+     10,
+     14,
+     18,
+     22,
+     28,
+     32,
+     40,
+     44
+    ],
+    "milestonesNotReached": [
+     48,
+     56,
+     65,
+     76,
+     102
+    ],
+    "events": [
+     {
+      "kind": "START",
+      "stars": 0,
+      "pitz": 0,
+      "bakes": 0
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 3,
+      "pitz": 130.0,
+      "bakes": 1,
+      "recipeId": "margherita",
+      "newlyBuyable": [
+       "bacon",
+       "egg",
+       "onion"
+      ],
+      "milestonesCrossed": [
+       2
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 3,
+      "pitz": 70.0,
+      "bakes": 1,
+      "ingredientId": "egg",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 6,
+      "pitz": 200.0,
+      "bakes": 2,
+      "recipeId": "bismarck",
+      "newlyBuyable": [
+       "ham",
+       "pepperoni",
+       "sausage"
+      ],
+      "milestonesCrossed": [
+       6
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 6,
+      "pitz": 140.0,
+      "bakes": 2,
+      "ingredientId": "bacon",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 9,
+      "pitz": 270.0,
+      "bakes": 3,
+      "recipeId": "breakfast-pizza",
+      "newlyBuyable": [
+       "black-olive",
+       "mushroom",
+       "oregano"
+      ],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 9,
+      "pitz": 210.0,
+      "bakes": 3,
+      "ingredientId": "pepperoni",
+      "pricePitz": 60,
+      "gate": 4
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 12,
+      "pitz": 340.0,
+      "bakes": 4,
+      "recipeId": "pepperoni",
+      "newlyBuyable": [
+       "garlic",
+       "olive-oil",
+       "parmigiano",
+       "pesto",
+       "tuna"
+      ],
+      "milestonesCrossed": [
+       10
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 12,
+      "pitz": 280.0,
+      "bakes": 4,
+      "ingredientId": "sausage",
+      "pricePitz": 60,
+      "gate": 4
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 15,
+      "pitz": 410.0,
+      "bakes": 5,
+      "recipeId": "salsiccia",
+      "newlyBuyable": [
+       "anchovy"
+      ],
+      "milestonesCrossed": [
+       14
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 15,
+      "pitz": 350.0,
+      "bakes": 5,
+      "ingredientId": "ham",
+      "pricePitz": 60,
+      "gate": 4
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 18,
+      "pitz": 480.0,
+      "bakes": 6,
+      "recipeId": "meat-lovers",
+      "newlyBuyable": [
+       "cherry-tomato",
+       "fontina",
+       "gorgonzola",
+       "rosemary"
+      ],
+      "milestonesCrossed": [
+       18
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 18,
+      "pitz": 420.0,
+      "bakes": 6,
+      "ingredientId": "mushroom",
+      "pricePitz": 60,
+      "gate": 8
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 21,
+      "pitz": 550.0,
+      "bakes": 7,
+      "recipeId": "funghi",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 21,
+      "pitz": 490.0,
+      "bakes": 7,
+      "ingredientId": "black-olive",
+      "pricePitz": 60,
+      "gate": 8
+     },
+     {
+      "kind": "BUY",
+      "stars": 21,
+      "pitz": 430.0,
+      "bakes": 7,
+      "ingredientId": "oregano",
+      "pricePitz": 60,
+      "gate": 8
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 24,
+      "pitz": 560.0,
+      "bakes": 8,
+      "recipeId": "capricciosa",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       22
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 24,
+      "pitz": 500.0,
+      "bakes": 8,
+      "ingredientId": "onion",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "BUY",
+      "stars": 24,
+      "pitz": 440.0,
+      "bakes": 8,
+      "ingredientId": "olive-oil",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 27,
+      "pitz": 570.0,
+      "bakes": 9,
+      "recipeId": "fugazza",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 27,
+      "pitz": 510.0,
+      "bakes": 9,
+      "ingredientId": "tuna",
+      "pricePitz": 60,
+      "gate": 12
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 30,
+      "pitz": 640.0,
+      "bakes": 10,
+      "recipeId": "tonno-e-cipolla",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       28
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 30,
+      "pitz": 540.0,
+      "bakes": 10,
+      "ingredientId": "garlic",
+      "pricePitz": 100,
+      "gate": 12
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 33,
+      "pitz": 670.0,
+      "bakes": 11,
+      "recipeId": "marinara",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       32
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 33,
+      "pitz": 570.0,
+      "bakes": 11,
+      "ingredientId": "anchovy",
+      "pricePitz": 100,
+      "gate": 14
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 36,
+      "pitz": 700.0,
+      "bakes": 12,
+      "recipeId": "napoletana",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 36,
+      "pitz": 600.0,
+      "bakes": 12,
+      "ingredientId": "rosemary",
+      "pricePitz": 100,
+      "gate": 16
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 39,
+      "pitz": 730.0,
+      "bakes": 13,
+      "recipeId": "pizza-bianca",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 39,
+      "pitz": 670.0,
+      "bakes": 13,
+      "ingredientId": "pesto",
+      "pricePitz": 60,
+      "gate": 12
+     },
+     {
+      "kind": "BUY",
+      "stars": 39,
+      "pitz": 530.0,
+      "bakes": 13,
+      "ingredientId": "cherry-tomato",
+      "pricePitz": 140,
+      "gate": 16
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 42,
+      "pitz": 660.0,
+      "bakes": 14,
+      "recipeId": "genovese",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       40
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 42,
+      "pitz": 560.0,
+      "bakes": 14,
+      "ingredientId": "parmigiano",
+      "pricePitz": 100,
+      "gate": 12
+     },
+     {
+      "kind": "BUY",
+      "stars": 42,
+      "pitz": 420.0,
+      "bakes": 14,
+      "ingredientId": "fontina",
+      "pricePitz": 140,
+      "gate": 18
+     },
+     {
+      "kind": "BUY",
+      "stars": 42,
+      "pitz": 280.0,
+      "bakes": 14,
+      "ingredientId": "gorgonzola",
+      "pricePitz": 140,
+      "gate": 18
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 45,
+      "pitz": 410.0,
+      "bakes": 15,
+      "recipeId": "quattro-formaggi",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       44
+      ]
+     },
+     {
+      "kind": "STOP",
+      "stars": 45,
+      "pitz": 410.0,
+      "bakes": 15,
+      "notReachable": [],
+      "nextGate": null
+     }
+    ]
+   },
+   "skilled_4": {
+    "best": 4,
+    "starsPerDiscovery": 4,
+    "discovered": 15,
+    "finalStars": 60,
+    "totalBakes": 15,
+    "grindBakes": 0,
+    "milestonesReached": [
+     2,
+     6,
+     10,
+     14,
+     18,
+     22,
+     28,
+     32,
+     40,
+     44,
+     48,
+     56
+    ],
+    "milestonesNotReached": [
+     65,
+     76,
+     102
+    ],
+    "events": [
+     {
+      "kind": "START",
+      "stars": 0,
+      "pitz": 0,
+      "bakes": 0
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 4,
+      "pitz": 150.0,
+      "bakes": 1,
+      "recipeId": "margherita",
+      "newlyBuyable": [
+       "bacon",
+       "egg",
+       "ham",
+       "onion",
+       "pepperoni",
+       "sausage"
+      ],
+      "milestonesCrossed": [
+       2
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 4,
+      "pitz": 90.0,
+      "bakes": 1,
+      "ingredientId": "egg",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 8,
+      "pitz": 240.0,
+      "bakes": 2,
+      "recipeId": "bismarck",
+      "newlyBuyable": [
+       "black-olive",
+       "mushroom",
+       "oregano"
+      ],
+      "milestonesCrossed": [
+       6
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 8,
+      "pitz": 180.0,
+      "bakes": 2,
+      "ingredientId": "bacon",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 12,
+      "pitz": 330.0,
+      "bakes": 3,
+      "recipeId": "breakfast-pizza",
+      "newlyBuyable": [
+       "garlic",
+       "olive-oil",
+       "parmigiano",
+       "pesto",
+       "tuna"
+      ],
+      "milestonesCrossed": [
+       10
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 12,
+      "pitz": 270.0,
+      "bakes": 3,
+      "ingredientId": "pepperoni",
+      "pricePitz": 60,
+      "gate": 4
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 16,
+      "pitz": 420.0,
+      "bakes": 4,
+      "recipeId": "pepperoni",
+      "newlyBuyable": [
+       "anchovy",
+       "cherry-tomato",
+       "rosemary"
+      ],
+      "milestonesCrossed": [
+       14
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 16,
+      "pitz": 360.0,
+      "bakes": 4,
+      "ingredientId": "sausage",
+      "pricePitz": 60,
+      "gate": 4
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 20,
+      "pitz": 510.0,
+      "bakes": 5,
+      "recipeId": "salsiccia",
+      "newlyBuyable": [
+       "fontina",
+       "gorgonzola"
+      ],
+      "milestonesCrossed": [
+       18
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 20,
+      "pitz": 450.0,
+      "bakes": 5,
+      "ingredientId": "ham",
+      "pricePitz": 60,
+      "gate": 4
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 24,
+      "pitz": 600.0,
+      "bakes": 6,
+      "recipeId": "meat-lovers",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       22
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 24,
+      "pitz": 540.0,
+      "bakes": 6,
+      "ingredientId": "mushroom",
+      "pricePitz": 60,
+      "gate": 8
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 28,
+      "pitz": 690.0,
+      "bakes": 7,
+      "recipeId": "funghi",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       28
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 28,
+      "pitz": 630.0,
+      "bakes": 7,
+      "ingredientId": "black-olive",
+      "pricePitz": 60,
+      "gate": 8
+     },
+     {
+      "kind": "BUY",
+      "stars": 28,
+      "pitz": 570.0,
+      "bakes": 7,
+      "ingredientId": "oregano",
+      "pricePitz": 60,
+      "gate": 8
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 32,
+      "pitz": 720.0,
+      "bakes": 8,
+      "recipeId": "capricciosa",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       32
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 32,
+      "pitz": 660.0,
+      "bakes": 8,
+      "ingredientId": "onion",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "BUY",
+      "stars": 32,
+      "pitz": 600.0,
+      "bakes": 8,
+      "ingredientId": "olive-oil",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 36,
+      "pitz": 750.0,
+      "bakes": 9,
+      "recipeId": "fugazza",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 36,
+      "pitz": 690.0,
+      "bakes": 9,
+      "ingredientId": "tuna",
+      "pricePitz": 60,
+      "gate": 12
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 40,
+      "pitz": 840.0,
+      "bakes": 10,
+      "recipeId": "tonno-e-cipolla",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       40
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 40,
+      "pitz": 740.0,
+      "bakes": 10,
+      "ingredientId": "garlic",
+      "pricePitz": 100,
+      "gate": 12
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 44,
+      "pitz": 890.0,
+      "bakes": 11,
+      "recipeId": "marinara",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       44
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 44,
+      "pitz": 790.0,
+      "bakes": 11,
+      "ingredientId": "anchovy",
+      "pricePitz": 100,
+      "gate": 14
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 48,
+      "pitz": 940.0,
+      "bakes": 12,
+      "recipeId": "napoletana",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       48
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 48,
+      "pitz": 840.0,
+      "bakes": 12,
+      "ingredientId": "rosemary",
+      "pricePitz": 100,
+      "gate": 16
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 52,
+      "pitz": 990.0,
+      "bakes": 13,
+      "recipeId": "pizza-bianca",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 52,
+      "pitz": 930.0,
+      "bakes": 13,
+      "ingredientId": "pesto",
+      "pricePitz": 60,
+      "gate": 12
+     },
+     {
+      "kind": "BUY",
+      "stars": 52,
+      "pitz": 790.0,
+      "bakes": 13,
+      "ingredientId": "cherry-tomato",
+      "pricePitz": 140,
+      "gate": 16
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 56,
+      "pitz": 940.0,
+      "bakes": 14,
+      "recipeId": "genovese",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       56
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 56,
+      "pitz": 840.0,
+      "bakes": 14,
+      "ingredientId": "parmigiano",
+      "pricePitz": 100,
+      "gate": 12
+     },
+     {
+      "kind": "BUY",
+      "stars": 56,
+      "pitz": 700.0,
+      "bakes": 14,
+      "ingredientId": "fontina",
+      "pricePitz": 140,
+      "gate": 18
+     },
+     {
+      "kind": "BUY",
+      "stars": 56,
+      "pitz": 560.0,
+      "bakes": 14,
+      "ingredientId": "gorgonzola",
+      "pricePitz": 140,
+      "gate": 18
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 60,
+      "pitz": 710.0,
+      "bakes": 15,
+      "recipeId": "quattro-formaggi",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "STOP",
+      "stars": 60,
+      "pitz": 710.0,
+      "bakes": 15,
+      "notReachable": [],
+      "nextGate": null
+     }
+    ]
+   },
+   "perfect_5": {
+    "best": 5,
+    "starsPerDiscovery": 5,
+    "discovered": 15,
+    "finalStars": 75,
+    "totalBakes": 15,
+    "grindBakes": 0,
+    "milestonesReached": [
+     2,
+     6,
+     10,
+     14,
+     18,
+     22,
+     28,
+     32,
+     40,
+     44,
+     48,
+     56,
+     65
+    ],
+    "milestonesNotReached": [
+     76,
+     102
+    ],
+    "events": [
+     {
+      "kind": "START",
+      "stars": 0,
+      "pitz": 0,
+      "bakes": 0
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 5,
+      "pitz": 170.0,
+      "bakes": 1,
+      "recipeId": "margherita",
+      "newlyBuyable": [
+       "bacon",
+       "egg",
+       "ham",
+       "onion",
+       "pepperoni",
+       "sausage"
+      ],
+      "milestonesCrossed": [
+       2
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 5,
+      "pitz": 110.0,
+      "bakes": 1,
+      "ingredientId": "egg",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 10,
+      "pitz": 280.0,
+      "bakes": 2,
+      "recipeId": "bismarck",
+      "newlyBuyable": [
+       "black-olive",
+       "mushroom",
+       "olive-oil",
+       "oregano"
+      ],
+      "milestonesCrossed": [
+       6,
+       10
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 10,
+      "pitz": 220.0,
+      "bakes": 2,
+      "ingredientId": "bacon",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 15,
+      "pitz": 390.0,
+      "bakes": 3,
+      "recipeId": "breakfast-pizza",
+      "newlyBuyable": [
+       "anchovy",
+       "garlic",
+       "parmigiano",
+       "pesto",
+       "tuna"
+      ],
+      "milestonesCrossed": [
+       14
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 15,
+      "pitz": 330.0,
+      "bakes": 3,
+      "ingredientId": "pepperoni",
+      "pricePitz": 60,
+      "gate": 4
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 20,
+      "pitz": 500.0,
+      "bakes": 4,
+      "recipeId": "pepperoni",
+      "newlyBuyable": [
+       "cherry-tomato",
+       "fontina",
+       "gorgonzola",
+       "rosemary"
+      ],
+      "milestonesCrossed": [
+       18
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 20,
+      "pitz": 440.0,
+      "bakes": 4,
+      "ingredientId": "sausage",
+      "pricePitz": 60,
+      "gate": 4
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 25,
+      "pitz": 610.0,
+      "bakes": 5,
+      "recipeId": "salsiccia",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       22
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 25,
+      "pitz": 550.0,
+      "bakes": 5,
+      "ingredientId": "ham",
+      "pricePitz": 60,
+      "gate": 4
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 30,
+      "pitz": 720.0,
+      "bakes": 6,
+      "recipeId": "meat-lovers",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       28
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 30,
+      "pitz": 660.0,
+      "bakes": 6,
+      "ingredientId": "mushroom",
+      "pricePitz": 60,
+      "gate": 8
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 35,
+      "pitz": 830.0,
+      "bakes": 7,
+      "recipeId": "funghi",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       32
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 35,
+      "pitz": 770.0,
+      "bakes": 7,
+      "ingredientId": "black-olive",
+      "pricePitz": 60,
+      "gate": 8
+     },
+     {
+      "kind": "BUY",
+      "stars": 35,
+      "pitz": 710.0,
+      "bakes": 7,
+      "ingredientId": "oregano",
+      "pricePitz": 60,
+      "gate": 8
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 40,
+      "pitz": 880.0,
+      "bakes": 8,
+      "recipeId": "capricciosa",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       40
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 40,
+      "pitz": 820.0,
+      "bakes": 8,
+      "ingredientId": "onion",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "BUY",
+      "stars": 40,
+      "pitz": 760.0,
+      "bakes": 8,
+      "ingredientId": "olive-oil",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 45,
+      "pitz": 930.0,
+      "bakes": 9,
+      "recipeId": "fugazza",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       44
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 45,
+      "pitz": 870.0,
+      "bakes": 9,
+      "ingredientId": "tuna",
+      "pricePitz": 60,
+      "gate": 12
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 50,
+      "pitz": 1040.0,
+      "bakes": 10,
+      "recipeId": "tonno-e-cipolla",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       48
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 50,
+      "pitz": 940.0,
+      "bakes": 10,
+      "ingredientId": "garlic",
+      "pricePitz": 100,
+      "gate": 12
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 55,
+      "pitz": 1110.0,
+      "bakes": 11,
+      "recipeId": "marinara",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 55,
+      "pitz": 1010.0,
+      "bakes": 11,
+      "ingredientId": "anchovy",
+      "pricePitz": 100,
+      "gate": 14
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 60,
+      "pitz": 1180.0,
+      "bakes": 12,
+      "recipeId": "napoletana",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       56
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 60,
+      "pitz": 1080.0,
+      "bakes": 12,
+      "ingredientId": "rosemary",
+      "pricePitz": 100,
+      "gate": 16
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 65,
+      "pitz": 1250.0,
+      "bakes": 13,
+      "recipeId": "pizza-bianca",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       65
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 65,
+      "pitz": 1190.0,
+      "bakes": 13,
+      "ingredientId": "pesto",
+      "pricePitz": 60,
+      "gate": 12
+     },
+     {
+      "kind": "BUY",
+      "stars": 65,
+      "pitz": 1050.0,
+      "bakes": 13,
+      "ingredientId": "cherry-tomato",
+      "pricePitz": 140,
+      "gate": 16
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 70,
+      "pitz": 1220.0,
+      "bakes": 14,
+      "recipeId": "genovese",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 70,
+      "pitz": 1120.0,
+      "bakes": 14,
+      "ingredientId": "parmigiano",
+      "pricePitz": 100,
+      "gate": 12
+     },
+     {
+      "kind": "BUY",
+      "stars": 70,
+      "pitz": 980.0,
+      "bakes": 14,
+      "ingredientId": "fontina",
+      "pricePitz": 140,
+      "gate": 18
+     },
+     {
+      "kind": "BUY",
+      "stars": 70,
+      "pitz": 840.0,
+      "bakes": 14,
+      "ingredientId": "gorgonzola",
+      "pricePitz": 140,
+      "gate": 18
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 75,
+      "pitz": 1010.0,
+      "bakes": 15,
+      "recipeId": "quattro-formaggi",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "STOP",
+      "stars": 75,
+      "pitz": 1010.0,
+      "bakes": 15,
+      "notReachable": [],
+      "nextGate": null
+     }
+    ]
+   }
+  },
+  "C1_special_case_hard_locks_only": {
+   "lowScore_1": {
+    "best": 1,
+    "starsPerDiscovery": 2,
+    "discovered": 11,
+    "finalStars": 22,
+    "totalBakes": 19,
+    "grindBakes": 8,
+    "milestonesReached": [
+     2,
+     6,
+     10,
+     14,
+     18,
+     22
+    ],
+    "milestonesNotReached": [
+     28,
+     32,
+     40,
+     44,
+     48,
+     56,
+     65,
+     76,
+     102
+    ],
+    "events": [
+     {
+      "kind": "START",
+      "stars": 0,
+      "pitz": 0,
+      "bakes": 0
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 2,
+      "pitz": 70.0,
+      "bakes": 1,
+      "recipeId": "margherita",
+      "newlyBuyable": [
+       "bacon",
+       "egg",
+       "onion"
+      ],
+      "milestonesCrossed": [
+       2
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 2,
+      "pitz": 10.0,
+      "bakes": 1,
+      "ingredientId": "egg",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 4,
+      "pitz": 80.0,
+      "bakes": 2,
+      "recipeId": "bismarck",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 4,
+      "pitz": 20.0,
+      "bakes": 2,
+      "ingredientId": "bacon",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 6,
+      "pitz": 90.0,
+      "bakes": 3,
+      "recipeId": "breakfast-pizza",
+      "newlyBuyable": [
+       "ham",
+       "pepperoni",
+       "sausage"
+      ],
+      "milestonesCrossed": [
+       6
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 6,
+      "pitz": 30.0,
+      "bakes": 3,
+      "ingredientId": "pepperoni",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 8,
+      "pitz": 100.0,
+      "bakes": 4,
+      "recipeId": "pepperoni",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 8,
+      "pitz": 40.0,
+      "bakes": 4,
+      "ingredientId": "sausage",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 10,
+      "pitz": 110.0,
+      "bakes": 5,
+      "recipeId": "salsiccia",
+      "newlyBuyable": [
+       "black-olive",
+       "mushroom",
+       "oregano"
+      ],
+      "milestonesCrossed": [
+       10
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 10,
+      "pitz": 50.0,
+      "bakes": 5,
+      "ingredientId": "ham",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 12,
+      "pitz": 120.0,
+      "bakes": 6,
+      "recipeId": "meat-lovers",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 12,
+      "pitz": 60.0,
+      "bakes": 6,
+      "ingredientId": "mushroom",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 14,
+      "pitz": 130.0,
+      "bakes": 7,
+      "recipeId": "funghi",
+      "newlyBuyable": [
+       "olive-oil"
+      ],
+      "milestonesCrossed": [
+       14
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 14,
+      "pitz": 70.0,
+      "bakes": 7,
+      "ingredientId": "black-olive",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "BUY",
+      "stars": 14,
+      "pitz": 10.0,
+      "bakes": 7,
+      "ingredientId": "oregano",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 16,
+      "pitz": 80.0,
+      "bakes": 8,
+      "recipeId": "capricciosa",
+      "newlyBuyable": [
+       "cherry-tomato"
+      ],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 16,
+      "pitz": 20.0,
+      "bakes": 8,
+      "ingredientId": "onion",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "GRIND_MARGHERITA",
+      "stars": 16,
+      "pitz": 60.0,
+      "bakes": 10,
+      "bakesAdded": 2
+     },
+     {
+      "kind": "BUY",
+      "stars": 16,
+      "pitz": 0.0,
+      "bakes": 10,
+      "ingredientId": "olive-oil",
+      "pricePitz": 60,
+      "gate": 14
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 18,
+      "pitz": 70.0,
+      "bakes": 11,
+      "recipeId": "fugazza",
+      "newlyBuyable": [
+       "fontina",
+       "gorgonzola",
+       "pesto",
+       "tuna"
+      ],
+      "milestonesCrossed": [
+       18
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 18,
+      "pitz": 10.0,
+      "bakes": 11,
+      "ingredientId": "tuna",
+      "pricePitz": 60,
+      "gate": 18
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 20,
+      "pitz": 80.0,
+      "bakes": 12,
+      "recipeId": "tonno-e-cipolla",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 20,
+      "pitz": 20.0,
+      "bakes": 12,
+      "ingredientId": "pesto",
+      "pricePitz": 60,
+      "gate": 18
+     },
+     {
+      "kind": "GRIND_MARGHERITA",
+      "stars": 20,
+      "pitz": 140.0,
+      "bakes": 18,
+      "bakesAdded": 6
+     },
+     {
+      "kind": "BUY",
+      "stars": 20,
+      "pitz": 0.0,
+      "bakes": 18,
+      "ingredientId": "cherry-tomato",
+      "pricePitz": 140,
+      "gate": 16
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 22,
+      "pitz": 70.0,
+      "bakes": 19,
+      "recipeId": "genovese",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       22
+      ]
+     },
+     {
+      "kind": "STOP",
+      "stars": 22,
+      "pitz": 70.0,
+      "bakes": 19,
+      "notReachable": [
+       "marinara",
+       "napoletana",
+       "pizza-bianca",
+       "quattro-formaggi"
+      ],
+      "nextGate": {
+       "ingredientId": "garlic",
+       "gate": 28,
+       "starsShort": 6
+      }
+     }
+    ]
+   },
+   "beginner_2": {
+    "best": 2,
+    "starsPerDiscovery": 2,
+    "discovered": 11,
+    "finalStars": 22,
+    "totalBakes": 11,
+    "grindBakes": 0,
+    "milestonesReached": [
+     2,
+     6,
+     10,
+     14,
+     18,
+     22
+    ],
+    "milestonesNotReached": [
+     28,
+     32,
+     40,
+     44,
+     48,
+     56,
+     65,
+     76,
+     102
+    ],
+    "events": [
+     {
+      "kind": "START",
+      "stars": 0,
+      "pitz": 0,
+      "bakes": 0
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 2,
+      "pitz": 100.0,
+      "bakes": 1,
+      "recipeId": "margherita",
+      "newlyBuyable": [
+       "bacon",
+       "egg",
+       "onion"
+      ],
+      "milestonesCrossed": [
+       2
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 2,
+      "pitz": 40.0,
+      "bakes": 1,
+      "ingredientId": "egg",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 4,
+      "pitz": 140.0,
+      "bakes": 2,
+      "recipeId": "bismarck",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 4,
+      "pitz": 80.0,
+      "bakes": 2,
+      "ingredientId": "bacon",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 6,
+      "pitz": 180.0,
+      "bakes": 3,
+      "recipeId": "breakfast-pizza",
+      "newlyBuyable": [
+       "ham",
+       "pepperoni",
+       "sausage"
+      ],
+      "milestonesCrossed": [
+       6
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 6,
+      "pitz": 120.0,
+      "bakes": 3,
+      "ingredientId": "pepperoni",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 8,
+      "pitz": 220.0,
+      "bakes": 4,
+      "recipeId": "pepperoni",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 8,
+      "pitz": 160.0,
+      "bakes": 4,
+      "ingredientId": "sausage",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 10,
+      "pitz": 260.0,
+      "bakes": 5,
+      "recipeId": "salsiccia",
+      "newlyBuyable": [
+       "black-olive",
+       "mushroom",
+       "oregano"
+      ],
+      "milestonesCrossed": [
+       10
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 10,
+      "pitz": 200.0,
+      "bakes": 5,
+      "ingredientId": "ham",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 12,
+      "pitz": 300.0,
+      "bakes": 6,
+      "recipeId": "meat-lovers",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 12,
+      "pitz": 240.0,
+      "bakes": 6,
+      "ingredientId": "mushroom",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 14,
+      "pitz": 340.0,
+      "bakes": 7,
+      "recipeId": "funghi",
+      "newlyBuyable": [
+       "olive-oil"
+      ],
+      "milestonesCrossed": [
+       14
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 14,
+      "pitz": 280.0,
+      "bakes": 7,
+      "ingredientId": "black-olive",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "BUY",
+      "stars": 14,
+      "pitz": 220.0,
+      "bakes": 7,
+      "ingredientId": "oregano",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 16,
+      "pitz": 320.0,
+      "bakes": 8,
+      "recipeId": "capricciosa",
+      "newlyBuyable": [
+       "cherry-tomato"
+      ],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 16,
+      "pitz": 260.0,
+      "bakes": 8,
+      "ingredientId": "onion",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "BUY",
+      "stars": 16,
+      "pitz": 200.0,
+      "bakes": 8,
+      "ingredientId": "olive-oil",
+      "pricePitz": 60,
+      "gate": 14
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 18,
+      "pitz": 300.0,
+      "bakes": 9,
+      "recipeId": "fugazza",
+      "newlyBuyable": [
+       "fontina",
+       "gorgonzola",
+       "pesto",
+       "tuna"
+      ],
+      "milestonesCrossed": [
+       18
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 18,
+      "pitz": 240.0,
+      "bakes": 9,
+      "ingredientId": "tuna",
+      "pricePitz": 60,
+      "gate": 18
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 20,
+      "pitz": 340.0,
+      "bakes": 10,
+      "recipeId": "tonno-e-cipolla",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 20,
+      "pitz": 280.0,
+      "bakes": 10,
+      "ingredientId": "pesto",
+      "pricePitz": 60,
+      "gate": 18
+     },
+     {
+      "kind": "BUY",
+      "stars": 20,
+      "pitz": 140.0,
+      "bakes": 10,
+      "ingredientId": "cherry-tomato",
+      "pricePitz": 140,
+      "gate": 16
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 22,
+      "pitz": 240.0,
+      "bakes": 11,
+      "recipeId": "genovese",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       22
+      ]
+     },
+     {
+      "kind": "STOP",
+      "stars": 22,
+      "pitz": 240.0,
+      "bakes": 11,
+      "notReachable": [
+       "marinara",
+       "napoletana",
+       "pizza-bianca",
+       "quattro-formaggi"
+      ],
+      "nextGate": {
+       "ingredientId": "garlic",
+       "gate": 28,
+       "starsShort": 6
+      }
+     }
+    ]
+   },
+   "standard_3": {
+    "best": 3,
+    "starsPerDiscovery": 3,
+    "discovered": 13,
+    "finalStars": 39,
+    "totalBakes": 13,
+    "grindBakes": 0,
+    "milestonesReached": [
+     2,
+     6,
+     10,
+     14,
+     18,
+     22,
+     28,
+     32
+    ],
+    "milestonesNotReached": [
+     40,
+     44,
+     48,
+     56,
+     65,
+     76,
+     102
+    ],
+    "events": [
+     {
+      "kind": "START",
+      "stars": 0,
+      "pitz": 0,
+      "bakes": 0
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 3,
+      "pitz": 130.0,
+      "bakes": 1,
+      "recipeId": "margherita",
+      "newlyBuyable": [
+       "bacon",
+       "egg",
+       "onion"
+      ],
+      "milestonesCrossed": [
+       2
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 3,
+      "pitz": 70.0,
+      "bakes": 1,
+      "ingredientId": "egg",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 6,
+      "pitz": 200.0,
+      "bakes": 2,
+      "recipeId": "bismarck",
+      "newlyBuyable": [
+       "ham",
+       "pepperoni",
+       "sausage"
+      ],
+      "milestonesCrossed": [
+       6
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 6,
+      "pitz": 140.0,
+      "bakes": 2,
+      "ingredientId": "bacon",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 9,
+      "pitz": 270.0,
+      "bakes": 3,
+      "recipeId": "breakfast-pizza",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 9,
+      "pitz": 210.0,
+      "bakes": 3,
+      "ingredientId": "pepperoni",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 12,
+      "pitz": 340.0,
+      "bakes": 4,
+      "recipeId": "pepperoni",
+      "newlyBuyable": [
+       "black-olive",
+       "mushroom",
+       "oregano"
+      ],
+      "milestonesCrossed": [
+       10
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 12,
+      "pitz": 280.0,
+      "bakes": 4,
+      "ingredientId": "sausage",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 15,
+      "pitz": 410.0,
+      "bakes": 5,
+      "recipeId": "salsiccia",
+      "newlyBuyable": [
+       "olive-oil"
+      ],
+      "milestonesCrossed": [
+       14
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 15,
+      "pitz": 350.0,
+      "bakes": 5,
+      "ingredientId": "ham",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 18,
+      "pitz": 480.0,
+      "bakes": 6,
+      "recipeId": "meat-lovers",
+      "newlyBuyable": [
+       "cherry-tomato",
+       "fontina",
+       "gorgonzola",
+       "pesto",
+       "tuna"
+      ],
+      "milestonesCrossed": [
+       18
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 18,
+      "pitz": 420.0,
+      "bakes": 6,
+      "ingredientId": "mushroom",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 21,
+      "pitz": 550.0,
+      "bakes": 7,
+      "recipeId": "funghi",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 21,
+      "pitz": 490.0,
+      "bakes": 7,
+      "ingredientId": "black-olive",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "BUY",
+      "stars": 21,
+      "pitz": 430.0,
+      "bakes": 7,
+      "ingredientId": "oregano",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 24,
+      "pitz": 560.0,
+      "bakes": 8,
+      "recipeId": "capricciosa",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       22
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 24,
+      "pitz": 500.0,
+      "bakes": 8,
+      "ingredientId": "onion",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "BUY",
+      "stars": 24,
+      "pitz": 440.0,
+      "bakes": 8,
+      "ingredientId": "olive-oil",
+      "pricePitz": 60,
+      "gate": 14
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 27,
+      "pitz": 570.0,
+      "bakes": 9,
+      "recipeId": "fugazza",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 27,
+      "pitz": 510.0,
+      "bakes": 9,
+      "ingredientId": "tuna",
+      "pricePitz": 60,
+      "gate": 18
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 30,
+      "pitz": 640.0,
+      "bakes": 10,
+      "recipeId": "tonno-e-cipolla",
+      "newlyBuyable": [
+       "garlic",
+       "parmigiano"
+      ],
+      "milestonesCrossed": [
+       28
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 30,
+      "pitz": 540.0,
+      "bakes": 10,
+      "ingredientId": "garlic",
+      "pricePitz": 100,
+      "gate": 28
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 33,
+      "pitz": 670.0,
+      "bakes": 11,
+      "recipeId": "marinara",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       32
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 33,
+      "pitz": 610.0,
+      "bakes": 11,
+      "ingredientId": "pesto",
+      "pricePitz": 60,
+      "gate": 18
+     },
+     {
+      "kind": "BUY",
+      "stars": 33,
+      "pitz": 470.0,
+      "bakes": 11,
+      "ingredientId": "cherry-tomato",
+      "pricePitz": 140,
+      "gate": 16
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 36,
+      "pitz": 600.0,
+      "bakes": 12,
+      "recipeId": "genovese",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 36,
+      "pitz": 500.0,
+      "bakes": 12,
+      "ingredientId": "parmigiano",
+      "pricePitz": 100,
+      "gate": 28
+     },
+     {
+      "kind": "BUY",
+      "stars": 36,
+      "pitz": 360.0,
+      "bakes": 12,
+      "ingredientId": "fontina",
+      "pricePitz": 140,
+      "gate": 18
+     },
+     {
+      "kind": "BUY",
+      "stars": 36,
+      "pitz": 220.0,
+      "bakes": 12,
+      "ingredientId": "gorgonzola",
+      "pricePitz": 140,
+      "gate": 18
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 39,
+      "pitz": 350.0,
+      "bakes": 13,
+      "recipeId": "quattro-formaggi",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "STOP",
+      "stars": 39,
+      "pitz": 350.0,
+      "bakes": 13,
+      "notReachable": [
+       "napoletana",
+       "pizza-bianca"
+      ],
+      "nextGate": {
+       "ingredientId": "anchovy",
+       "gate": 40,
+       "starsShort": 1
+      }
+     }
+    ]
+   },
+   "skilled_4": {
+    "best": 4,
+    "starsPerDiscovery": 4,
+    "discovered": 15,
+    "finalStars": 60,
+    "totalBakes": 15,
+    "grindBakes": 0,
+    "milestonesReached": [
+     2,
+     6,
+     10,
+     14,
+     18,
+     22,
+     28,
+     32,
+     40,
+     44,
+     48,
+     56
+    ],
+    "milestonesNotReached": [
+     65,
+     76,
+     102
+    ],
+    "events": [
+     {
+      "kind": "START",
+      "stars": 0,
+      "pitz": 0,
+      "bakes": 0
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 4,
+      "pitz": 150.0,
+      "bakes": 1,
+      "recipeId": "margherita",
+      "newlyBuyable": [
+       "bacon",
+       "egg",
+       "onion"
+      ],
+      "milestonesCrossed": [
+       2
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 4,
+      "pitz": 90.0,
+      "bakes": 1,
+      "ingredientId": "egg",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 8,
+      "pitz": 240.0,
+      "bakes": 2,
+      "recipeId": "bismarck",
+      "newlyBuyable": [
+       "ham",
+       "pepperoni",
+       "sausage"
+      ],
+      "milestonesCrossed": [
+       6
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 8,
+      "pitz": 180.0,
+      "bakes": 2,
+      "ingredientId": "bacon",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 12,
+      "pitz": 330.0,
+      "bakes": 3,
+      "recipeId": "breakfast-pizza",
+      "newlyBuyable": [
+       "black-olive",
+       "mushroom",
+       "oregano"
+      ],
+      "milestonesCrossed": [
+       10
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 12,
+      "pitz": 270.0,
+      "bakes": 3,
+      "ingredientId": "pepperoni",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 16,
+      "pitz": 420.0,
+      "bakes": 4,
+      "recipeId": "pepperoni",
+      "newlyBuyable": [
+       "cherry-tomato",
+       "olive-oil"
+      ],
+      "milestonesCrossed": [
+       14
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 16,
+      "pitz": 360.0,
+      "bakes": 4,
+      "ingredientId": "sausage",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 20,
+      "pitz": 510.0,
+      "bakes": 5,
+      "recipeId": "salsiccia",
+      "newlyBuyable": [
+       "fontina",
+       "gorgonzola",
+       "pesto",
+       "tuna"
+      ],
+      "milestonesCrossed": [
+       18
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 20,
+      "pitz": 450.0,
+      "bakes": 5,
+      "ingredientId": "ham",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 24,
+      "pitz": 600.0,
+      "bakes": 6,
+      "recipeId": "meat-lovers",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       22
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 24,
+      "pitz": 540.0,
+      "bakes": 6,
+      "ingredientId": "mushroom",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 28,
+      "pitz": 690.0,
+      "bakes": 7,
+      "recipeId": "funghi",
+      "newlyBuyable": [
+       "garlic",
+       "parmigiano"
+      ],
+      "milestonesCrossed": [
+       28
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 28,
+      "pitz": 630.0,
+      "bakes": 7,
+      "ingredientId": "black-olive",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "BUY",
+      "stars": 28,
+      "pitz": 570.0,
+      "bakes": 7,
+      "ingredientId": "oregano",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 32,
+      "pitz": 720.0,
+      "bakes": 8,
+      "recipeId": "capricciosa",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       32
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 32,
+      "pitz": 660.0,
+      "bakes": 8,
+      "ingredientId": "onion",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "BUY",
+      "stars": 32,
+      "pitz": 600.0,
+      "bakes": 8,
+      "ingredientId": "olive-oil",
+      "pricePitz": 60,
+      "gate": 14
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 36,
+      "pitz": 750.0,
+      "bakes": 9,
+      "recipeId": "fugazza",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 36,
+      "pitz": 690.0,
+      "bakes": 9,
+      "ingredientId": "tuna",
+      "pricePitz": 60,
+      "gate": 18
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 40,
+      "pitz": 840.0,
+      "bakes": 10,
+      "recipeId": "tonno-e-cipolla",
+      "newlyBuyable": [
+       "anchovy"
+      ],
+      "milestonesCrossed": [
+       40
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 40,
+      "pitz": 740.0,
+      "bakes": 10,
+      "ingredientId": "garlic",
+      "pricePitz": 100,
+      "gate": 28
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 44,
+      "pitz": 890.0,
+      "bakes": 11,
+      "recipeId": "marinara",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       44
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 44,
+      "pitz": 790.0,
+      "bakes": 11,
+      "ingredientId": "anchovy",
+      "pricePitz": 100,
+      "gate": 40
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 48,
+      "pitz": 940.0,
+      "bakes": 12,
+      "recipeId": "napoletana",
+      "newlyBuyable": [
+       "rosemary"
+      ],
+      "milestonesCrossed": [
+       48
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 48,
+      "pitz": 840.0,
+      "bakes": 12,
+      "ingredientId": "rosemary",
+      "pricePitz": 100,
+      "gate": 48
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 52,
+      "pitz": 990.0,
+      "bakes": 13,
+      "recipeId": "pizza-bianca",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 52,
+      "pitz": 930.0,
+      "bakes": 13,
+      "ingredientId": "pesto",
+      "pricePitz": 60,
+      "gate": 18
+     },
+     {
+      "kind": "BUY",
+      "stars": 52,
+      "pitz": 790.0,
+      "bakes": 13,
+      "ingredientId": "cherry-tomato",
+      "pricePitz": 140,
+      "gate": 16
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 56,
+      "pitz": 940.0,
+      "bakes": 14,
+      "recipeId": "genovese",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       56
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 56,
+      "pitz": 840.0,
+      "bakes": 14,
+      "ingredientId": "parmigiano",
+      "pricePitz": 100,
+      "gate": 28
+     },
+     {
+      "kind": "BUY",
+      "stars": 56,
+      "pitz": 700.0,
+      "bakes": 14,
+      "ingredientId": "fontina",
+      "pricePitz": 140,
+      "gate": 18
+     },
+     {
+      "kind": "BUY",
+      "stars": 56,
+      "pitz": 560.0,
+      "bakes": 14,
+      "ingredientId": "gorgonzola",
+      "pricePitz": 140,
+      "gate": 18
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 60,
+      "pitz": 710.0,
+      "bakes": 15,
+      "recipeId": "quattro-formaggi",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "STOP",
+      "stars": 60,
+      "pitz": 710.0,
+      "bakes": 15,
+      "notReachable": [],
+      "nextGate": null
+     }
+    ]
+   },
+   "perfect_5": {
+    "best": 5,
+    "starsPerDiscovery": 5,
+    "discovered": 15,
+    "finalStars": 75,
+    "totalBakes": 15,
+    "grindBakes": 0,
+    "milestonesReached": [
+     2,
+     6,
+     10,
+     14,
+     18,
+     22,
+     28,
+     32,
+     40,
+     44,
+     48,
+     56,
+     65
+    ],
+    "milestonesNotReached": [
+     76,
+     102
+    ],
+    "events": [
+     {
+      "kind": "START",
+      "stars": 0,
+      "pitz": 0,
+      "bakes": 0
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 5,
+      "pitz": 170.0,
+      "bakes": 1,
+      "recipeId": "margherita",
+      "newlyBuyable": [
+       "bacon",
+       "egg",
+       "onion"
+      ],
+      "milestonesCrossed": [
+       2
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 5,
+      "pitz": 110.0,
+      "bakes": 1,
+      "ingredientId": "egg",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 10,
+      "pitz": 280.0,
+      "bakes": 2,
+      "recipeId": "bismarck",
+      "newlyBuyable": [
+       "black-olive",
+       "ham",
+       "mushroom",
+       "oregano",
+       "pepperoni",
+       "sausage"
+      ],
+      "milestonesCrossed": [
+       6,
+       10
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 10,
+      "pitz": 220.0,
+      "bakes": 2,
+      "ingredientId": "bacon",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 15,
+      "pitz": 390.0,
+      "bakes": 3,
+      "recipeId": "breakfast-pizza",
+      "newlyBuyable": [
+       "olive-oil"
+      ],
+      "milestonesCrossed": [
+       14
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 15,
+      "pitz": 330.0,
+      "bakes": 3,
+      "ingredientId": "pepperoni",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 20,
+      "pitz": 500.0,
+      "bakes": 4,
+      "recipeId": "pepperoni",
+      "newlyBuyable": [
+       "cherry-tomato",
+       "fontina",
+       "gorgonzola",
+       "pesto",
+       "tuna"
+      ],
+      "milestonesCrossed": [
+       18
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 20,
+      "pitz": 440.0,
+      "bakes": 4,
+      "ingredientId": "sausage",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 25,
+      "pitz": 610.0,
+      "bakes": 5,
+      "recipeId": "salsiccia",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       22
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 25,
+      "pitz": 550.0,
+      "bakes": 5,
+      "ingredientId": "ham",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 30,
+      "pitz": 720.0,
+      "bakes": 6,
+      "recipeId": "meat-lovers",
+      "newlyBuyable": [
+       "garlic",
+       "parmigiano"
+      ],
+      "milestonesCrossed": [
+       28
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 30,
+      "pitz": 660.0,
+      "bakes": 6,
+      "ingredientId": "mushroom",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 35,
+      "pitz": 830.0,
+      "bakes": 7,
+      "recipeId": "funghi",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       32
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 35,
+      "pitz": 770.0,
+      "bakes": 7,
+      "ingredientId": "black-olive",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "BUY",
+      "stars": 35,
+      "pitz": 710.0,
+      "bakes": 7,
+      "ingredientId": "oregano",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 40,
+      "pitz": 880.0,
+      "bakes": 8,
+      "recipeId": "capricciosa",
+      "newlyBuyable": [
+       "anchovy"
+      ],
+      "milestonesCrossed": [
+       40
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 40,
+      "pitz": 820.0,
+      "bakes": 8,
+      "ingredientId": "onion",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "BUY",
+      "stars": 40,
+      "pitz": 760.0,
+      "bakes": 8,
+      "ingredientId": "olive-oil",
+      "pricePitz": 60,
+      "gate": 14
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 45,
+      "pitz": 930.0,
+      "bakes": 9,
+      "recipeId": "fugazza",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       44
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 45,
+      "pitz": 870.0,
+      "bakes": 9,
+      "ingredientId": "tuna",
+      "pricePitz": 60,
+      "gate": 18
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 50,
+      "pitz": 1040.0,
+      "bakes": 10,
+      "recipeId": "tonno-e-cipolla",
+      "newlyBuyable": [
+       "rosemary"
+      ],
+      "milestonesCrossed": [
+       48
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 50,
+      "pitz": 940.0,
+      "bakes": 10,
+      "ingredientId": "garlic",
+      "pricePitz": 100,
+      "gate": 28
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 55,
+      "pitz": 1110.0,
+      "bakes": 11,
+      "recipeId": "marinara",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 55,
+      "pitz": 1010.0,
+      "bakes": 11,
+      "ingredientId": "anchovy",
+      "pricePitz": 100,
+      "gate": 40
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 60,
+      "pitz": 1180.0,
+      "bakes": 12,
+      "recipeId": "napoletana",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       56
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 60,
+      "pitz": 1080.0,
+      "bakes": 12,
+      "ingredientId": "rosemary",
+      "pricePitz": 100,
+      "gate": 48
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 65,
+      "pitz": 1250.0,
+      "bakes": 13,
+      "recipeId": "pizza-bianca",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       65
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 65,
+      "pitz": 1190.0,
+      "bakes": 13,
+      "ingredientId": "pesto",
+      "pricePitz": 60,
+      "gate": 18
+     },
+     {
+      "kind": "BUY",
+      "stars": 65,
+      "pitz": 1050.0,
+      "bakes": 13,
+      "ingredientId": "cherry-tomato",
+      "pricePitz": 140,
+      "gate": 16
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 70,
+      "pitz": 1220.0,
+      "bakes": 14,
+      "recipeId": "genovese",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 70,
+      "pitz": 1120.0,
+      "bakes": 14,
+      "ingredientId": "parmigiano",
+      "pricePitz": 100,
+      "gate": 28
+     },
+     {
+      "kind": "BUY",
+      "stars": 70,
+      "pitz": 980.0,
+      "bakes": 14,
+      "ingredientId": "fontina",
+      "pricePitz": 140,
+      "gate": 18
+     },
+     {
+      "kind": "BUY",
+      "stars": 70,
+      "pitz": 840.0,
+      "bakes": 14,
+      "ingredientId": "gorgonzola",
+      "pricePitz": 140,
+      "gate": 18
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 75,
+      "pitz": 1010.0,
+      "bakes": 15,
+      "recipeId": "quattro-formaggi",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "STOP",
+      "stars": 75,
+      "pitz": 1010.0,
+      "bakes": 15,
+      "notReachable": [],
+      "nextGate": null
+     }
+    ]
+   }
+  },
+  "C2_special_case_all_min_path_locks": {
+   "lowScore_1": {
+    "best": 1,
+    "starsPerDiscovery": 2,
+    "discovered": 15,
+    "finalStars": 30,
+    "totalBakes": 43,
+    "grindBakes": 28,
+    "milestonesReached": [
+     2,
+     6,
+     10,
+     14,
+     18,
+     22,
+     28
+    ],
+    "milestonesNotReached": [
+     32,
+     40,
+     44,
+     48,
+     56,
+     65,
+     76,
+     102
+    ],
+    "events": [
+     {
+      "kind": "START",
+      "stars": 0,
+      "pitz": 0,
+      "bakes": 0
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 2,
+      "pitz": 70.0,
+      "bakes": 1,
+      "recipeId": "margherita",
+      "newlyBuyable": [
+       "bacon",
+       "egg",
+       "onion"
+      ],
+      "milestonesCrossed": [
+       2
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 2,
+      "pitz": 10.0,
+      "bakes": 1,
+      "ingredientId": "egg",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 4,
+      "pitz": 80.0,
+      "bakes": 2,
+      "recipeId": "bismarck",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 4,
+      "pitz": 20.0,
+      "bakes": 2,
+      "ingredientId": "bacon",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 6,
+      "pitz": 90.0,
+      "bakes": 3,
+      "recipeId": "breakfast-pizza",
+      "newlyBuyable": [
+       "ham",
+       "pepperoni",
+       "sausage"
+      ],
+      "milestonesCrossed": [
+       6
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 6,
+      "pitz": 30.0,
+      "bakes": 3,
+      "ingredientId": "pepperoni",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 8,
+      "pitz": 100.0,
+      "bakes": 4,
+      "recipeId": "pepperoni",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 8,
+      "pitz": 40.0,
+      "bakes": 4,
+      "ingredientId": "sausage",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 10,
+      "pitz": 110.0,
+      "bakes": 5,
+      "recipeId": "salsiccia",
+      "newlyBuyable": [
+       "black-olive",
+       "mushroom",
+       "oregano"
+      ],
+      "milestonesCrossed": [
+       10
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 10,
+      "pitz": 50.0,
+      "bakes": 5,
+      "ingredientId": "ham",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 12,
+      "pitz": 120.0,
+      "bakes": 6,
+      "recipeId": "meat-lovers",
+      "newlyBuyable": [
+       "garlic",
+       "parmigiano"
+      ],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 12,
+      "pitz": 60.0,
+      "bakes": 6,
+      "ingredientId": "mushroom",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 14,
+      "pitz": 130.0,
+      "bakes": 7,
+      "recipeId": "funghi",
+      "newlyBuyable": [
+       "anchovy",
+       "olive-oil"
+      ],
+      "milestonesCrossed": [
+       14
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 14,
+      "pitz": 70.0,
+      "bakes": 7,
+      "ingredientId": "black-olive",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "BUY",
+      "stars": 14,
+      "pitz": 10.0,
+      "bakes": 7,
+      "ingredientId": "oregano",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 16,
+      "pitz": 80.0,
+      "bakes": 8,
+      "recipeId": "capricciosa",
+      "newlyBuyable": [
+       "cherry-tomato",
+       "rosemary"
+      ],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 16,
+      "pitz": 20.0,
+      "bakes": 8,
+      "ingredientId": "onion",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "GRIND_MARGHERITA",
+      "stars": 16,
+      "pitz": 60.0,
+      "bakes": 10,
+      "bakesAdded": 2
+     },
+     {
+      "kind": "BUY",
+      "stars": 16,
+      "pitz": 0.0,
+      "bakes": 10,
+      "ingredientId": "olive-oil",
+      "pricePitz": 60,
+      "gate": 14
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 18,
+      "pitz": 70.0,
+      "bakes": 11,
+      "recipeId": "fugazza",
+      "newlyBuyable": [
+       "fontina",
+       "gorgonzola",
+       "pesto",
+       "tuna"
+      ],
+      "milestonesCrossed": [
+       18
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 18,
+      "pitz": 10.0,
+      "bakes": 11,
+      "ingredientId": "tuna",
+      "pricePitz": 60,
+      "gate": 18
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 20,
+      "pitz": 80.0,
+      "bakes": 12,
+      "recipeId": "tonno-e-cipolla",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "GRIND_MARGHERITA",
+      "stars": 20,
+      "pitz": 100.0,
+      "bakes": 13,
+      "bakesAdded": 1
+     },
+     {
+      "kind": "BUY",
+      "stars": 20,
+      "pitz": 0.0,
+      "bakes": 13,
+      "ingredientId": "garlic",
+      "pricePitz": 100,
+      "gate": 12
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 22,
+      "pitz": 70.0,
+      "bakes": 14,
+      "recipeId": "marinara",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       22
+      ]
+     },
+     {
+      "kind": "GRIND_MARGHERITA",
+      "stars": 22,
+      "pitz": 110.0,
+      "bakes": 16,
+      "bakesAdded": 2
+     },
+     {
+      "kind": "BUY",
+      "stars": 22,
+      "pitz": 10.0,
+      "bakes": 16,
+      "ingredientId": "anchovy",
+      "pricePitz": 100,
+      "gate": 14
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 24,
+      "pitz": 80.0,
+      "bakes": 17,
+      "recipeId": "napoletana",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "GRIND_MARGHERITA",
+      "stars": 24,
+      "pitz": 100.0,
+      "bakes": 18,
+      "bakesAdded": 1
+     },
+     {
+      "kind": "BUY",
+      "stars": 24,
+      "pitz": 0.0,
+      "bakes": 18,
+      "ingredientId": "rosemary",
+      "pricePitz": 100,
+      "gate": 16
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 26,
+      "pitz": 70.0,
+      "bakes": 19,
+      "recipeId": "pizza-bianca",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 26,
+      "pitz": 10.0,
+      "bakes": 19,
+      "ingredientId": "pesto",
+      "pricePitz": 60,
+      "gate": 18
+     },
+     {
+      "kind": "GRIND_MARGHERITA",
+      "stars": 26,
+      "pitz": 150.0,
+      "bakes": 26,
+      "bakesAdded": 7
+     },
+     {
+      "kind": "BUY",
+      "stars": 26,
+      "pitz": 10.0,
+      "bakes": 26,
+      "ingredientId": "cherry-tomato",
+      "pricePitz": 140,
+      "gate": 16
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 28,
+      "pitz": 80.0,
+      "bakes": 27,
+      "recipeId": "genovese",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       28
+      ]
+     },
+     {
+      "kind": "GRIND_MARGHERITA",
+      "stars": 28,
+      "pitz": 100.0,
+      "bakes": 28,
+      "bakesAdded": 1
+     },
+     {
+      "kind": "BUY",
+      "stars": 28,
+      "pitz": 0.0,
+      "bakes": 28,
+      "ingredientId": "parmigiano",
+      "pricePitz": 100,
+      "gate": 12
+     },
+     {
+      "kind": "GRIND_MARGHERITA",
+      "stars": 28,
+      "pitz": 140.0,
+      "bakes": 35,
+      "bakesAdded": 7
+     },
+     {
+      "kind": "BUY",
+      "stars": 28,
+      "pitz": 0.0,
+      "bakes": 35,
+      "ingredientId": "fontina",
+      "pricePitz": 140,
+      "gate": 18
+     },
+     {
+      "kind": "GRIND_MARGHERITA",
+      "stars": 28,
+      "pitz": 140.0,
+      "bakes": 42,
+      "bakesAdded": 7
+     },
+     {
+      "kind": "BUY",
+      "stars": 28,
+      "pitz": 0.0,
+      "bakes": 42,
+      "ingredientId": "gorgonzola",
+      "pricePitz": 140,
+      "gate": 18
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 30,
+      "pitz": 70.0,
+      "bakes": 43,
+      "recipeId": "quattro-formaggi",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "STOP",
+      "stars": 30,
+      "pitz": 70.0,
+      "bakes": 43,
+      "notReachable": [],
+      "nextGate": null
+     }
+    ]
+   },
+   "beginner_2": {
+    "best": 2,
+    "starsPerDiscovery": 2,
+    "discovered": 15,
+    "finalStars": 30,
+    "totalBakes": 18,
+    "grindBakes": 3,
+    "milestonesReached": [
+     2,
+     6,
+     10,
+     14,
+     18,
+     22,
+     28
+    ],
+    "milestonesNotReached": [
+     32,
+     40,
+     44,
+     48,
+     56,
+     65,
+     76,
+     102
+    ],
+    "events": [
+     {
+      "kind": "START",
+      "stars": 0,
+      "pitz": 0,
+      "bakes": 0
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 2,
+      "pitz": 100.0,
+      "bakes": 1,
+      "recipeId": "margherita",
+      "newlyBuyable": [
+       "bacon",
+       "egg",
+       "onion"
+      ],
+      "milestonesCrossed": [
+       2
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 2,
+      "pitz": 40.0,
+      "bakes": 1,
+      "ingredientId": "egg",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 4,
+      "pitz": 140.0,
+      "bakes": 2,
+      "recipeId": "bismarck",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 4,
+      "pitz": 80.0,
+      "bakes": 2,
+      "ingredientId": "bacon",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 6,
+      "pitz": 180.0,
+      "bakes": 3,
+      "recipeId": "breakfast-pizza",
+      "newlyBuyable": [
+       "ham",
+       "pepperoni",
+       "sausage"
+      ],
+      "milestonesCrossed": [
+       6
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 6,
+      "pitz": 120.0,
+      "bakes": 3,
+      "ingredientId": "pepperoni",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 8,
+      "pitz": 220.0,
+      "bakes": 4,
+      "recipeId": "pepperoni",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 8,
+      "pitz": 160.0,
+      "bakes": 4,
+      "ingredientId": "sausage",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 10,
+      "pitz": 260.0,
+      "bakes": 5,
+      "recipeId": "salsiccia",
+      "newlyBuyable": [
+       "black-olive",
+       "mushroom",
+       "oregano"
+      ],
+      "milestonesCrossed": [
+       10
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 10,
+      "pitz": 200.0,
+      "bakes": 5,
+      "ingredientId": "ham",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 12,
+      "pitz": 300.0,
+      "bakes": 6,
+      "recipeId": "meat-lovers",
+      "newlyBuyable": [
+       "garlic",
+       "parmigiano"
+      ],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 12,
+      "pitz": 240.0,
+      "bakes": 6,
+      "ingredientId": "mushroom",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 14,
+      "pitz": 340.0,
+      "bakes": 7,
+      "recipeId": "funghi",
+      "newlyBuyable": [
+       "anchovy",
+       "olive-oil"
+      ],
+      "milestonesCrossed": [
+       14
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 14,
+      "pitz": 280.0,
+      "bakes": 7,
+      "ingredientId": "black-olive",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "BUY",
+      "stars": 14,
+      "pitz": 220.0,
+      "bakes": 7,
+      "ingredientId": "oregano",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 16,
+      "pitz": 320.0,
+      "bakes": 8,
+      "recipeId": "capricciosa",
+      "newlyBuyable": [
+       "cherry-tomato",
+       "rosemary"
+      ],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 16,
+      "pitz": 260.0,
+      "bakes": 8,
+      "ingredientId": "onion",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "BUY",
+      "stars": 16,
+      "pitz": 200.0,
+      "bakes": 8,
+      "ingredientId": "olive-oil",
+      "pricePitz": 60,
+      "gate": 14
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 18,
+      "pitz": 300.0,
+      "bakes": 9,
+      "recipeId": "fugazza",
+      "newlyBuyable": [
+       "fontina",
+       "gorgonzola",
+       "pesto",
+       "tuna"
+      ],
+      "milestonesCrossed": [
+       18
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 18,
+      "pitz": 240.0,
+      "bakes": 9,
+      "ingredientId": "tuna",
+      "pricePitz": 60,
+      "gate": 18
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 20,
+      "pitz": 340.0,
+      "bakes": 10,
+      "recipeId": "tonno-e-cipolla",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 20,
+      "pitz": 240.0,
+      "bakes": 10,
+      "ingredientId": "garlic",
+      "pricePitz": 100,
+      "gate": 12
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 22,
+      "pitz": 340.0,
+      "bakes": 11,
+      "recipeId": "marinara",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       22
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 22,
+      "pitz": 240.0,
+      "bakes": 11,
+      "ingredientId": "anchovy",
+      "pricePitz": 100,
+      "gate": 14
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 24,
+      "pitz": 340.0,
+      "bakes": 12,
+      "recipeId": "napoletana",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 24,
+      "pitz": 240.0,
+      "bakes": 12,
+      "ingredientId": "rosemary",
+      "pricePitz": 100,
+      "gate": 16
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 26,
+      "pitz": 340.0,
+      "bakes": 13,
+      "recipeId": "pizza-bianca",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 26,
+      "pitz": 280.0,
+      "bakes": 13,
+      "ingredientId": "pesto",
+      "pricePitz": 60,
+      "gate": 18
+     },
+     {
+      "kind": "BUY",
+      "stars": 26,
+      "pitz": 140.0,
+      "bakes": 13,
+      "ingredientId": "cherry-tomato",
+      "pricePitz": 140,
+      "gate": 16
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 28,
+      "pitz": 240.0,
+      "bakes": 14,
+      "recipeId": "genovese",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       28
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 28,
+      "pitz": 140.0,
+      "bakes": 14,
+      "ingredientId": "parmigiano",
+      "pricePitz": 100,
+      "gate": 12
+     },
+     {
+      "kind": "BUY",
+      "stars": 28,
+      "pitz": 0.0,
+      "bakes": 14,
+      "ingredientId": "fontina",
+      "pricePitz": 140,
+      "gate": 18
+     },
+     {
+      "kind": "GRIND_MARGHERITA",
+      "stars": 28,
+      "pitz": 150.0,
+      "bakes": 17,
+      "bakesAdded": 3
+     },
+     {
+      "kind": "BUY",
+      "stars": 28,
+      "pitz": 10.0,
+      "bakes": 17,
+      "ingredientId": "gorgonzola",
+      "pricePitz": 140,
+      "gate": 18
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 30,
+      "pitz": 110.0,
+      "bakes": 18,
+      "recipeId": "quattro-formaggi",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "STOP",
+      "stars": 30,
+      "pitz": 110.0,
+      "bakes": 18,
+      "notReachable": [],
+      "nextGate": null
+     }
+    ]
+   },
+   "standard_3": {
+    "best": 3,
+    "starsPerDiscovery": 3,
+    "discovered": 15,
+    "finalStars": 45,
+    "totalBakes": 15,
+    "grindBakes": 0,
+    "milestonesReached": [
+     2,
+     6,
+     10,
+     14,
+     18,
+     22,
+     28,
+     32,
+     40,
+     44
+    ],
+    "milestonesNotReached": [
+     48,
+     56,
+     65,
+     76,
+     102
+    ],
+    "events": [
+     {
+      "kind": "START",
+      "stars": 0,
+      "pitz": 0,
+      "bakes": 0
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 3,
+      "pitz": 130.0,
+      "bakes": 1,
+      "recipeId": "margherita",
+      "newlyBuyable": [
+       "bacon",
+       "egg",
+       "onion"
+      ],
+      "milestonesCrossed": [
+       2
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 3,
+      "pitz": 70.0,
+      "bakes": 1,
+      "ingredientId": "egg",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 6,
+      "pitz": 200.0,
+      "bakes": 2,
+      "recipeId": "bismarck",
+      "newlyBuyable": [
+       "ham",
+       "pepperoni",
+       "sausage"
+      ],
+      "milestonesCrossed": [
+       6
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 6,
+      "pitz": 140.0,
+      "bakes": 2,
+      "ingredientId": "bacon",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 9,
+      "pitz": 270.0,
+      "bakes": 3,
+      "recipeId": "breakfast-pizza",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 9,
+      "pitz": 210.0,
+      "bakes": 3,
+      "ingredientId": "pepperoni",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 12,
+      "pitz": 340.0,
+      "bakes": 4,
+      "recipeId": "pepperoni",
+      "newlyBuyable": [
+       "black-olive",
+       "garlic",
+       "mushroom",
+       "oregano",
+       "parmigiano"
+      ],
+      "milestonesCrossed": [
+       10
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 12,
+      "pitz": 280.0,
+      "bakes": 4,
+      "ingredientId": "sausage",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 15,
+      "pitz": 410.0,
+      "bakes": 5,
+      "recipeId": "salsiccia",
+      "newlyBuyable": [
+       "anchovy",
+       "olive-oil"
+      ],
+      "milestonesCrossed": [
+       14
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 15,
+      "pitz": 350.0,
+      "bakes": 5,
+      "ingredientId": "ham",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 18,
+      "pitz": 480.0,
+      "bakes": 6,
+      "recipeId": "meat-lovers",
+      "newlyBuyable": [
+       "cherry-tomato",
+       "fontina",
+       "gorgonzola",
+       "pesto",
+       "rosemary",
+       "tuna"
+      ],
+      "milestonesCrossed": [
+       18
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 18,
+      "pitz": 420.0,
+      "bakes": 6,
+      "ingredientId": "mushroom",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 21,
+      "pitz": 550.0,
+      "bakes": 7,
+      "recipeId": "funghi",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 21,
+      "pitz": 490.0,
+      "bakes": 7,
+      "ingredientId": "black-olive",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "BUY",
+      "stars": 21,
+      "pitz": 430.0,
+      "bakes": 7,
+      "ingredientId": "oregano",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 24,
+      "pitz": 560.0,
+      "bakes": 8,
+      "recipeId": "capricciosa",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       22
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 24,
+      "pitz": 500.0,
+      "bakes": 8,
+      "ingredientId": "onion",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "BUY",
+      "stars": 24,
+      "pitz": 440.0,
+      "bakes": 8,
+      "ingredientId": "olive-oil",
+      "pricePitz": 60,
+      "gate": 14
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 27,
+      "pitz": 570.0,
+      "bakes": 9,
+      "recipeId": "fugazza",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 27,
+      "pitz": 510.0,
+      "bakes": 9,
+      "ingredientId": "tuna",
+      "pricePitz": 60,
+      "gate": 18
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 30,
+      "pitz": 640.0,
+      "bakes": 10,
+      "recipeId": "tonno-e-cipolla",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       28
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 30,
+      "pitz": 540.0,
+      "bakes": 10,
+      "ingredientId": "garlic",
+      "pricePitz": 100,
+      "gate": 12
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 33,
+      "pitz": 670.0,
+      "bakes": 11,
+      "recipeId": "marinara",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       32
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 33,
+      "pitz": 570.0,
+      "bakes": 11,
+      "ingredientId": "anchovy",
+      "pricePitz": 100,
+      "gate": 14
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 36,
+      "pitz": 700.0,
+      "bakes": 12,
+      "recipeId": "napoletana",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 36,
+      "pitz": 600.0,
+      "bakes": 12,
+      "ingredientId": "rosemary",
+      "pricePitz": 100,
+      "gate": 16
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 39,
+      "pitz": 730.0,
+      "bakes": 13,
+      "recipeId": "pizza-bianca",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 39,
+      "pitz": 670.0,
+      "bakes": 13,
+      "ingredientId": "pesto",
+      "pricePitz": 60,
+      "gate": 18
+     },
+     {
+      "kind": "BUY",
+      "stars": 39,
+      "pitz": 530.0,
+      "bakes": 13,
+      "ingredientId": "cherry-tomato",
+      "pricePitz": 140,
+      "gate": 16
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 42,
+      "pitz": 660.0,
+      "bakes": 14,
+      "recipeId": "genovese",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       40
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 42,
+      "pitz": 560.0,
+      "bakes": 14,
+      "ingredientId": "parmigiano",
+      "pricePitz": 100,
+      "gate": 12
+     },
+     {
+      "kind": "BUY",
+      "stars": 42,
+      "pitz": 420.0,
+      "bakes": 14,
+      "ingredientId": "fontina",
+      "pricePitz": 140,
+      "gate": 18
+     },
+     {
+      "kind": "BUY",
+      "stars": 42,
+      "pitz": 280.0,
+      "bakes": 14,
+      "ingredientId": "gorgonzola",
+      "pricePitz": 140,
+      "gate": 18
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 45,
+      "pitz": 410.0,
+      "bakes": 15,
+      "recipeId": "quattro-formaggi",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       44
+      ]
+     },
+     {
+      "kind": "STOP",
+      "stars": 45,
+      "pitz": 410.0,
+      "bakes": 15,
+      "notReachable": [],
+      "nextGate": null
+     }
+    ]
+   },
+   "skilled_4": {
+    "best": 4,
+    "starsPerDiscovery": 4,
+    "discovered": 15,
+    "finalStars": 60,
+    "totalBakes": 15,
+    "grindBakes": 0,
+    "milestonesReached": [
+     2,
+     6,
+     10,
+     14,
+     18,
+     22,
+     28,
+     32,
+     40,
+     44,
+     48,
+     56
+    ],
+    "milestonesNotReached": [
+     65,
+     76,
+     102
+    ],
+    "events": [
+     {
+      "kind": "START",
+      "stars": 0,
+      "pitz": 0,
+      "bakes": 0
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 4,
+      "pitz": 150.0,
+      "bakes": 1,
+      "recipeId": "margherita",
+      "newlyBuyable": [
+       "bacon",
+       "egg",
+       "onion"
+      ],
+      "milestonesCrossed": [
+       2
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 4,
+      "pitz": 90.0,
+      "bakes": 1,
+      "ingredientId": "egg",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 8,
+      "pitz": 240.0,
+      "bakes": 2,
+      "recipeId": "bismarck",
+      "newlyBuyable": [
+       "ham",
+       "pepperoni",
+       "sausage"
+      ],
+      "milestonesCrossed": [
+       6
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 8,
+      "pitz": 180.0,
+      "bakes": 2,
+      "ingredientId": "bacon",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 12,
+      "pitz": 330.0,
+      "bakes": 3,
+      "recipeId": "breakfast-pizza",
+      "newlyBuyable": [
+       "black-olive",
+       "garlic",
+       "mushroom",
+       "oregano",
+       "parmigiano"
+      ],
+      "milestonesCrossed": [
+       10
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 12,
+      "pitz": 270.0,
+      "bakes": 3,
+      "ingredientId": "pepperoni",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 16,
+      "pitz": 420.0,
+      "bakes": 4,
+      "recipeId": "pepperoni",
+      "newlyBuyable": [
+       "anchovy",
+       "cherry-tomato",
+       "olive-oil",
+       "rosemary"
+      ],
+      "milestonesCrossed": [
+       14
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 16,
+      "pitz": 360.0,
+      "bakes": 4,
+      "ingredientId": "sausage",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 20,
+      "pitz": 510.0,
+      "bakes": 5,
+      "recipeId": "salsiccia",
+      "newlyBuyable": [
+       "fontina",
+       "gorgonzola",
+       "pesto",
+       "tuna"
+      ],
+      "milestonesCrossed": [
+       18
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 20,
+      "pitz": 450.0,
+      "bakes": 5,
+      "ingredientId": "ham",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 24,
+      "pitz": 600.0,
+      "bakes": 6,
+      "recipeId": "meat-lovers",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       22
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 24,
+      "pitz": 540.0,
+      "bakes": 6,
+      "ingredientId": "mushroom",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 28,
+      "pitz": 690.0,
+      "bakes": 7,
+      "recipeId": "funghi",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       28
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 28,
+      "pitz": 630.0,
+      "bakes": 7,
+      "ingredientId": "black-olive",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "BUY",
+      "stars": 28,
+      "pitz": 570.0,
+      "bakes": 7,
+      "ingredientId": "oregano",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 32,
+      "pitz": 720.0,
+      "bakes": 8,
+      "recipeId": "capricciosa",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       32
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 32,
+      "pitz": 660.0,
+      "bakes": 8,
+      "ingredientId": "onion",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "BUY",
+      "stars": 32,
+      "pitz": 600.0,
+      "bakes": 8,
+      "ingredientId": "olive-oil",
+      "pricePitz": 60,
+      "gate": 14
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 36,
+      "pitz": 750.0,
+      "bakes": 9,
+      "recipeId": "fugazza",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 36,
+      "pitz": 690.0,
+      "bakes": 9,
+      "ingredientId": "tuna",
+      "pricePitz": 60,
+      "gate": 18
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 40,
+      "pitz": 840.0,
+      "bakes": 10,
+      "recipeId": "tonno-e-cipolla",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       40
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 40,
+      "pitz": 740.0,
+      "bakes": 10,
+      "ingredientId": "garlic",
+      "pricePitz": 100,
+      "gate": 12
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 44,
+      "pitz": 890.0,
+      "bakes": 11,
+      "recipeId": "marinara",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       44
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 44,
+      "pitz": 790.0,
+      "bakes": 11,
+      "ingredientId": "anchovy",
+      "pricePitz": 100,
+      "gate": 14
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 48,
+      "pitz": 940.0,
+      "bakes": 12,
+      "recipeId": "napoletana",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       48
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 48,
+      "pitz": 840.0,
+      "bakes": 12,
+      "ingredientId": "rosemary",
+      "pricePitz": 100,
+      "gate": 16
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 52,
+      "pitz": 990.0,
+      "bakes": 13,
+      "recipeId": "pizza-bianca",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 52,
+      "pitz": 930.0,
+      "bakes": 13,
+      "ingredientId": "pesto",
+      "pricePitz": 60,
+      "gate": 18
+     },
+     {
+      "kind": "BUY",
+      "stars": 52,
+      "pitz": 790.0,
+      "bakes": 13,
+      "ingredientId": "cherry-tomato",
+      "pricePitz": 140,
+      "gate": 16
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 56,
+      "pitz": 940.0,
+      "bakes": 14,
+      "recipeId": "genovese",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       56
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 56,
+      "pitz": 840.0,
+      "bakes": 14,
+      "ingredientId": "parmigiano",
+      "pricePitz": 100,
+      "gate": 12
+     },
+     {
+      "kind": "BUY",
+      "stars": 56,
+      "pitz": 700.0,
+      "bakes": 14,
+      "ingredientId": "fontina",
+      "pricePitz": 140,
+      "gate": 18
+     },
+     {
+      "kind": "BUY",
+      "stars": 56,
+      "pitz": 560.0,
+      "bakes": 14,
+      "ingredientId": "gorgonzola",
+      "pricePitz": 140,
+      "gate": 18
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 60,
+      "pitz": 710.0,
+      "bakes": 15,
+      "recipeId": "quattro-formaggi",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "STOP",
+      "stars": 60,
+      "pitz": 710.0,
+      "bakes": 15,
+      "notReachable": [],
+      "nextGate": null
+     }
+    ]
+   },
+   "perfect_5": {
+    "best": 5,
+    "starsPerDiscovery": 5,
+    "discovered": 15,
+    "finalStars": 75,
+    "totalBakes": 15,
+    "grindBakes": 0,
+    "milestonesReached": [
+     2,
+     6,
+     10,
+     14,
+     18,
+     22,
+     28,
+     32,
+     40,
+     44,
+     48,
+     56,
+     65
+    ],
+    "milestonesNotReached": [
+     76,
+     102
+    ],
+    "events": [
+     {
+      "kind": "START",
+      "stars": 0,
+      "pitz": 0,
+      "bakes": 0
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 5,
+      "pitz": 170.0,
+      "bakes": 1,
+      "recipeId": "margherita",
+      "newlyBuyable": [
+       "bacon",
+       "egg",
+       "onion"
+      ],
+      "milestonesCrossed": [
+       2
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 5,
+      "pitz": 110.0,
+      "bakes": 1,
+      "ingredientId": "egg",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 10,
+      "pitz": 280.0,
+      "bakes": 2,
+      "recipeId": "bismarck",
+      "newlyBuyable": [
+       "black-olive",
+       "ham",
+       "mushroom",
+       "oregano",
+       "pepperoni",
+       "sausage"
+      ],
+      "milestonesCrossed": [
+       6,
+       10
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 10,
+      "pitz": 220.0,
+      "bakes": 2,
+      "ingredientId": "bacon",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 15,
+      "pitz": 390.0,
+      "bakes": 3,
+      "recipeId": "breakfast-pizza",
+      "newlyBuyable": [
+       "anchovy",
+       "garlic",
+       "olive-oil",
+       "parmigiano"
+      ],
+      "milestonesCrossed": [
+       14
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 15,
+      "pitz": 330.0,
+      "bakes": 3,
+      "ingredientId": "pepperoni",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 20,
+      "pitz": 500.0,
+      "bakes": 4,
+      "recipeId": "pepperoni",
+      "newlyBuyable": [
+       "cherry-tomato",
+       "fontina",
+       "gorgonzola",
+       "pesto",
+       "rosemary",
+       "tuna"
+      ],
+      "milestonesCrossed": [
+       18
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 20,
+      "pitz": 440.0,
+      "bakes": 4,
+      "ingredientId": "sausage",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 25,
+      "pitz": 610.0,
+      "bakes": 5,
+      "recipeId": "salsiccia",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       22
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 25,
+      "pitz": 550.0,
+      "bakes": 5,
+      "ingredientId": "ham",
+      "pricePitz": 60,
+      "gate": 6
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 30,
+      "pitz": 720.0,
+      "bakes": 6,
+      "recipeId": "meat-lovers",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       28
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 30,
+      "pitz": 660.0,
+      "bakes": 6,
+      "ingredientId": "mushroom",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 35,
+      "pitz": 830.0,
+      "bakes": 7,
+      "recipeId": "funghi",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       32
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 35,
+      "pitz": 770.0,
+      "bakes": 7,
+      "ingredientId": "black-olive",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "BUY",
+      "stars": 35,
+      "pitz": 710.0,
+      "bakes": 7,
+      "ingredientId": "oregano",
+      "pricePitz": 60,
+      "gate": 10
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 40,
+      "pitz": 880.0,
+      "bakes": 8,
+      "recipeId": "capricciosa",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       40
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 40,
+      "pitz": 820.0,
+      "bakes": 8,
+      "ingredientId": "onion",
+      "pricePitz": 60,
+      "gate": 2
+     },
+     {
+      "kind": "BUY",
+      "stars": 40,
+      "pitz": 760.0,
+      "bakes": 8,
+      "ingredientId": "olive-oil",
+      "pricePitz": 60,
+      "gate": 14
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 45,
+      "pitz": 930.0,
+      "bakes": 9,
+      "recipeId": "fugazza",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       44
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 45,
+      "pitz": 870.0,
+      "bakes": 9,
+      "ingredientId": "tuna",
+      "pricePitz": 60,
+      "gate": 18
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 50,
+      "pitz": 1040.0,
+      "bakes": 10,
+      "recipeId": "tonno-e-cipolla",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       48
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 50,
+      "pitz": 940.0,
+      "bakes": 10,
+      "ingredientId": "garlic",
+      "pricePitz": 100,
+      "gate": 12
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 55,
+      "pitz": 1110.0,
+      "bakes": 11,
+      "recipeId": "marinara",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 55,
+      "pitz": 1010.0,
+      "bakes": 11,
+      "ingredientId": "anchovy",
+      "pricePitz": 100,
+      "gate": 14
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 60,
+      "pitz": 1180.0,
+      "bakes": 12,
+      "recipeId": "napoletana",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       56
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 60,
+      "pitz": 1080.0,
+      "bakes": 12,
+      "ingredientId": "rosemary",
+      "pricePitz": 100,
+      "gate": 16
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 65,
+      "pitz": 1250.0,
+      "bakes": 13,
+      "recipeId": "pizza-bianca",
+      "newlyBuyable": [],
+      "milestonesCrossed": [
+       65
+      ]
+     },
+     {
+      "kind": "BUY",
+      "stars": 65,
+      "pitz": 1190.0,
+      "bakes": 13,
+      "ingredientId": "pesto",
+      "pricePitz": 60,
+      "gate": 18
+     },
+     {
+      "kind": "BUY",
+      "stars": 65,
+      "pitz": 1050.0,
+      "bakes": 13,
+      "ingredientId": "cherry-tomato",
+      "pricePitz": 140,
+      "gate": 16
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 70,
+      "pitz": 1220.0,
+      "bakes": 14,
+      "recipeId": "genovese",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "BUY",
+      "stars": 70,
+      "pitz": 1120.0,
+      "bakes": 14,
+      "ingredientId": "parmigiano",
+      "pricePitz": 100,
+      "gate": 12
+     },
+     {
+      "kind": "BUY",
+      "stars": 70,
+      "pitz": 980.0,
+      "bakes": 14,
+      "ingredientId": "fontina",
+      "pricePitz": 140,
+      "gate": 18
+     },
+     {
+      "kind": "BUY",
+      "stars": 70,
+      "pitz": 840.0,
+      "bakes": 14,
+      "ingredientId": "gorgonzola",
+      "pricePitz": 140,
+      "gate": 18
+     },
+     {
+      "kind": "DISCOVER",
+      "stars": 75,
+      "pitz": 1010.0,
+      "bakes": 15,
+      "recipeId": "quattro-formaggi",
+      "newlyBuyable": [],
+      "milestonesCrossed": []
+     },
+     {
+      "kind": "STOP",
+      "stars": 75,
+      "pitz": 1010.0,
+      "bakes": 15,
+      "notReachable": [],
+      "nextGate": null
+     }
+    ]
+   }
+  }
+ }
+}
