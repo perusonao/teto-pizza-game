@@ -155,11 +155,27 @@ evidence and duplicating shard 1 over shard 2 both FAIL with named missing tests
   included PR #206's extra spec).
 - `CI` (run 35915926208): success, including the new harness step.
 
+### Real GitHub Actions: docs-only push on top of it (head `82ce74f`, run 35916624031)
+
+Evidence reuse from #203 still works with the new gate:
+- `classify`: "only documentation changed since 0d5e2f9 …, whose WebKit Gate already succeeded
+  on the same base 66abe43 -- reusing that WebKit evidence", so `webkit_required=false`.
+- The shard matrix was skipped.
+- `WebKit Gate`: **PASS — WebKit safely skipped (not required)**, notice
+  `tested_base=66abe43… level=none`.
+- Run created → gate done: **25s**.
+
+Cosmetic: when the whole matrix is skipped, GitHub shows **one** skipped check with the
+unexpanded name `webkit ${{ matrix.project }} shard …` instead of four. This is standard GitHub
+behaviour for a matrix job skipped by `if:`. It is harmless: skipped counts as neutral and the
+gate decides. It is another reason not to require the per-shard checks.
+
 ## 4. Before / after wall-clock
 
 | | Before (#203, 1 runner × 2 workers) | After (Phase 2A, 4 runners × 2 workers) |
 |---|---|---|
 | Workflow wall-clock (run created → gate done) | **7m25s – 8m47s** (5 runs, audit §2.1) | **4m30s** (run 35915926205) |
+| Docs-only push after a green head (reuse) | ~25s (#203) | **25s** (run 35916624031) — unchanged |
 | WebKit test step | 5m44s – 7m07s (one job) | longest shard **2m31s** (shards: 2m31s / 1m40s / 2m21s / 1m37s) |
 | Setup per job | 39 – 71s | 55 – 90s (4 concurrent apt installs on a cold cache) |
 | Runner-minutes (webkit jobs) | ~7.5 – 8.5 | ~13.5 (sum of the 4 jobs) |
