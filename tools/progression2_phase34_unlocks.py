@@ -106,12 +106,10 @@ def simulate_profile(targets, target_by_id, rows, row_by_id, reward, quality_bon
     bonus) to actually discover it, and the next unlock gate is only evaluated once those
     bakes have happened."""
     grant, restock, restock_factor = stock_policy["grant"], stock_policy["restock"], stock_policy["restockFactor"]
-    sim = {"owned": set(STARTERS), "discovered": set(reachable(targets, set(STARTERS))),
-           "stars": 0, "pitz": 0, "stock": {}, "bakes": 1, "discoveryBakes": 0, "grindBakes": 0,
-           "refills": 0, "maxGap": 0, "lastDiscoveryBake": 1, "maxBurst": 0, "purchaseWait": 0,
+    sim = {"owned": set(STARTERS), "discovered": set(),
+           "stars": 0, "pitz": 0, "stock": {}, "bakes": 0, "discoveryBakes": 0, "grindBakes": 0,
+           "refills": 0, "maxGap": 0, "lastDiscoveryBake": 0, "maxBurst": 0, "purchaseWait": 0,
            "events": []}
-    sim["stars"] = len(sim["discovered"]) * stars_per_discovery
-    sim["maxBurst"] = len(sim["discovered"])
 
     def bake_discovery(target_id):
         for item in target_by_id[target_id]["items"]:
@@ -137,9 +135,27 @@ def simulate_profile(targets, target_by_id, rows, row_by_id, reward, quality_bon
         sim["maxGap"] = max(sim["maxGap"], sim["bakes"] - sim["lastDiscoveryBake"])
         sim["lastDiscoveryBake"] = sim["bakes"]
 
+    def process_pending(sequence, node_id, wait):
+        pending = sorted(reachable(targets, sim["owned"]) - sim["discovered"])
+        for target_id in pending:
+            bake_discovery(target_id)
+        sim["maxBurst"] = max(sim["maxBurst"], len(pending))
+        sim["events"].append({"sequence": sequence, "nodeId": node_id, "waitBakes": wait,
+                              "newlyDiscovered": pending, "discoveryBakes": len(pending),
+                              "discoveredTotal": len(sim["discovered"]), "bakesTotal": sim["bakes"],
+                              "stockRefillsTotal": sim["refills"], "pitzAfter": sim["pitz"]})
+
+    # The starter trio's own PASS bake (Margherita) is not a purchase; credit its reward,
+    # discovery bonus and stars like any other discovery bake before any row is processed.
+    process_pending(0, "shipped:margherita", 0)
+
     for row in rows:
-        if row["lifecycle"] == "OWNED" or row["kind"] == "capability":
+        if row["lifecycle"] == "OWNED":
             sim["owned"].add(row["nodeId"])
+            continue
+        if row["kind"] == "capability":
+            sim["owned"].add(row["nodeId"])
+            process_pending(row["sequence"], row["nodeId"], 0)
             continue
         if not condition_met(row["unlockCondition"], sim):
             raise AssertionError(f"condition deadlock: {row['nodeId']}")
@@ -153,14 +169,7 @@ def simulate_profile(targets, target_by_id, rows, row_by_id, reward, quality_bon
         sim["owned"].add(row["nodeId"])
         if row["kind"] == "ingredient" and row["stockPolicy"] == STOCK_CONSUMABLE_POLICY:
             sim["stock"][row["nodeId"]] = grant
-        pending = sorted(reachable(targets, sim["owned"]) - sim["discovered"])
-        for target_id in pending:
-            bake_discovery(target_id)
-        sim["maxBurst"] = max(sim["maxBurst"], len(pending))
-        sim["events"].append({"sequence": row["sequence"], "nodeId": row["nodeId"], "waitBakes": wait,
-                              "newlyDiscovered": pending, "discoveryBakes": len(pending),
-                              "discoveredTotal": len(sim["discovered"]), "bakesTotal": sim["bakes"],
-                              "stockRefillsTotal": sim["refills"], "pitzAfter": sim["pitz"]})
+        process_pending(row["sequence"], row["nodeId"], wait)
     return sim
 
 
@@ -217,7 +226,10 @@ def build():
     simulations = []
     for skill, quality_star in SKILL_QUALITY_STAR.items():
         reward = reward_table["base"] * reward_table["mult"][str(quality_star)]
-        quality_bonus_stars = 1 if quality_star in gate_quality_bonus_stars else 0
+        # Matches tools/progression2_phase2_progression.py stars_for_discovery(): one bonus
+        # star per qualityBonusAtStars threshold reached, not just membership (a SKILLED
+        # quality_star=4 bake reaches both the 3-star and 4-star thresholds).
+        quality_bonus_stars = sum(1 for q in gate_quality_bonus_stars if quality_star >= q)
         sim = simulate_profile(targets, target_by_id, rows, row_by_id, reward, quality_bonus_stars,
                                 gate_stars_per_discovery, reward_table["discoveryBonus"], stock_policy)
         simulations.append({

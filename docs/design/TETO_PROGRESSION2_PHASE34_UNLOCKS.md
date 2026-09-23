@@ -21,11 +21,11 @@ Discovery is only granted after a simulated PASS free-cook bake (base reward + f
 
 | Profile | Result | Reach | Total bakes | Discovery bakes | Grind bakes | Stock refills | Max opportunity gap (bakes) | Max burst (recipes) | Max purchase wait (bakes) |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| low-score | COMPLETE | 101/101 | 487 | 100 | 386 | 6 | 25 | 4 | 9 |
-| beginner | COMPLETE | 101/101 | 196 | 100 | 95 | 6 | 10 | 4 | 4 |
-| standard | COMPLETE | 101/101 | 124 | 100 | 23 | 6 | 7 | 4 | 3 |
-| skilled | COMPLETE | 101/101 | 102 | 100 | 1 | 6 | 2 | 4 | 1 |
-| pitz-constrained | COMPLETE | 101/101 | 487 | 100 | 386 | 6 | 25 | 4 | 9 |
+| low-score | COMPLETE | 101/101 | 483 | 101 | 382 | 6 | 25 | 3 | 9 |
+| beginner | COMPLETE | 101/101 | 194 | 101 | 93 | 6 | 10 | 3 | 4 |
+| standard | COMPLETE | 101/101 | 122 | 101 | 21 | 6 | 7 | 3 | 3 |
+| skilled | COMPLETE | 101/101 | 101 | 101 | 0 | 6 | 1 | 3 | 0 |
+| pitz-constrained | COMPLETE | 101/101 | 483 | 101 | 382 | 6 | 25 | 3 | 9 |
 
 ## First 10 purchasable unlocks
 
