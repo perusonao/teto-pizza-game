@@ -55,6 +55,7 @@ jobs:
     outputs:
       webkit_required: ${{ steps.classify.outputs.webkit_required }}
       reason: ${{ steps.classify.outputs.reason }}
+      tested_base: ${{ steps.classify.outputs.tested_base }}
     steps:
       # Full history (for merge-base and the previous head) but no file contents beyond what the
       # checkout itself needs -- `git diff --name-only` only reads trees.
@@ -72,6 +73,7 @@ jobs:
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          MERGE_SHA: ${{ github.sha }}
           BEFORE_SHA: ${{ github.event.action == 'synchronize' && github.event.before || '' }}
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
@@ -153,6 +155,7 @@ jobs:
           WEBKIT_REQUIRED: ${{ needs.classify.outputs.webkit_required }}
           REASON: ${{ needs.classify.outputs.reason }}
           WEBKIT_RESULT: ${{ needs.webkit.result }}
+          TESTED_BASE: ${{ needs.classify.outputs.tested_base }}
         run: |
           if [ "$CLASSIFY_RESULT" = "success" ] && [ "$WEBKIT_REQUIRED" = "false" ]; then
             required=false
@@ -188,7 +191,9 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
           if [ "$status" -eq 0 ]; then
-            echo "::notice title=WebKit Gate::$verdict. $REASON"
+            # tested_base is read back by the next push's classify job (evidence reuse is only
+            # allowed when the base is unchanged) -- keep the `tested_base=<sha>` token intact.
+            echo "::notice title=WebKit Gate::$verdict. tested_base=${TESTED_BASE:-unknown}. $REASON"
           else
             echo "::error title=WebKit Gate::$verdict. $REASON"
           fi

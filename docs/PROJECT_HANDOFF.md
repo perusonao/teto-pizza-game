@@ -761,7 +761,8 @@ Claude Code implementation tasks should generally stay around 2–3 hours where 
 - `E2E WebKit` (`e2e-webkit.yml`): `classify` → `webkit` (390×844 + 360×800, every `e2e/*.spec.ts`)
   → **`WebKit Gate`**. WebKit is skipped only when the change is documentation-only
   (`docs/**`, `**/*.md` outside `src/`/`e2e/`/`public/`/`functions/`/`.github/`), or when only
-  such files changed since a previous head whose `WebKit Gate` already succeeded. Every other or
+  such files changed since a previous head whose `WebKit Gate` already succeeded on the same
+  base commit (base moved → WebKit runs). Every other or
   unknown path, and any classifier error, runs WebKit. The reason is shown as a notice and in the
   job summary.
 - `WebKit Gate` always reports a result and is the check to require; it fails if WebKit was
