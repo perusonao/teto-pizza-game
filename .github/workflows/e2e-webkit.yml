@@ -9,18 +9,81 @@ name: E2E WebKit (Cooking UI 1-Screen)
 # layout/font/emoji metrics -- not Chromium's -- still fails CI before merge, without slowing
 # down every PR's fast feedback loop with a second full browser matrix it doesn't need.
 #
-# Runs on every PR to main, not path-filtered: the whole point of this job (see the Result
-# Report, docs/reports/TETO_COOKING-UI_1SCREEN-2.0_PRC_Verification-Hardening_Result.md, section
-# "CI Runtime") is catching a Safari-only regression introduced by a change that doesn't obviously
-# touch Cooking UI files (e.g. a shared CSS variable, App.css layout primitive, or reducer
-# change) -- a path filter would reopen exactly the "silently broke, nobody noticed" gap Issue
-# #167 exists to close.
+# Issue #201 (A1/A2): the workflow still TRIGGERS on every PR to main -- never a top-level
+# `paths:` filter, which would leave a required check with no result at all ("Expected -- Waiting
+# for status") on a docs-only PR. Instead, three jobs:
+#
+#   classify     -- lightweight (no npm ci): diffs the PR and outputs webkit_required=true|false
+#                   plus a human-readable reason (scripts/ci/classify-webkit-pr.sh). Only
+#                   documentation paths (docs/**, **/*.md outside runtime trees) may skip; every
+#                   other/unknown path, and every classifier error, resolves to true (fail-safe).
+#   webkit       -- the heavy WebKit E2E job below, unchanged in what it tests (every e2e spec,
+#                   390x844 + 360x800). Runs unless classify explicitly succeeded with "false".
+#   webkit-gate  -- "WebKit Gate", always runs and always reports a conclusion. This is the check
+#                   to mark as required in branch protection / rulesets. It fails when WebKit was
+#                   required and did not succeed (failed, cancelled, timed out, or skipped).
+#
+# The original rationale above still holds for runtime changes: a shared CSS variable, App.css
+# primitive, or reducer change is NOT documentation, so it always runs WebKit. Only changes that
+# cannot reach the browser (Markdown/docs, report screenshots under docs/) skip it.
+#
+# Rollback: `git revert` the Issue #201 commit(s) restores the unconditional single-job workflow;
+# if WebKit Gate was made a required check, switch the requirement back to `webkit` at the same
+# time. See docs/reports/TETO_DEV-CI_WEBKIT-CONDITIONAL_A1A2_Result.md.
+
 on:
   pull_request:
     branches: [main]
 
+# One group per PR (this workflow only triggers on pull_request, so main/push runs and other PRs
+# are never in the same group): a new push cancels the superseded commit's still-running 6-15
+# minute WebKit job instead of letting it finish for a SHA nobody will merge.
+concurrency:
+  group: ${{ github.workflow }}-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
+  classify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      checks: read # look up the previous head's WebKit Gate result (evidence reuse)
+    outputs:
+      webkit_required: ${{ steps.classify.outputs.webkit_required }}
+      reason: ${{ steps.classify.outputs.reason }}
+      tested_base: ${{ steps.classify.outputs.tested_base }}
+    steps:
+      # Full history (for merge-base and the previous head) but no file contents beyond what the
+      # checkout itself needs -- `git diff --name-only` only reads trees.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          filter: blob:none
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Classify changed files
+        id: classify
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          MERGE_SHA: ${{ github.sha }}
+          BEFORE_SHA: ${{ github.event.action == 'synchronize' && github.event.before || '' }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: bash scripts/ci/classify-webkit-pr.sh
+
   webkit:
+    needs: classify
+    # `!cancelled()` (not the default success()) so a FAILED classify still runs WebKit: only an
+    # explicit, successful "false" skips it.
+    if: ${{ !cancelled() && (needs.classify.result != 'success' || needs.classify.outputs.webkit_required != 'false') }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -76,3 +139,62 @@ jobs:
           name: playwright-webkit-report
           path: playwright-report/
           retention-days: 14
+
+  webkit-gate:
+    name: WebKit Gate
+    needs: [classify, webkit]
+    # always(): the gate must report a conclusion in every case, including when `webkit` was
+    # skipped, failed, or cancelled -- a skipped gate would read as "success" to branch protection.
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Evaluate WebKit requirement
+        env:
+          CLASSIFY_RESULT: ${{ needs.classify.result }}
+          WEBKIT_REQUIRED: ${{ needs.classify.outputs.webkit_required }}
+          REASON: ${{ needs.classify.outputs.reason }}
+          WEBKIT_RESULT: ${{ needs.webkit.result }}
+          TESTED_BASE: ${{ needs.classify.outputs.tested_base }}
+        run: |
+          if [ "$CLASSIFY_RESULT" = "success" ] && [ "$WEBKIT_REQUIRED" = "false" ]; then
+            required=false
+          else
+            required=true
+            if [ "$CLASSIFY_RESULT" != "success" ] || [ "$WEBKIT_REQUIRED" != "true" ]; then
+              REASON="fail-safe: classify result=$CLASSIFY_RESULT, webkit_required='$WEBKIT_REQUIRED'"
+            fi
+          fi
+
+          if [ "$required" = "true" ]; then
+            if [ "$WEBKIT_RESULT" = "success" ]; then
+              verdict="PASS -- WebKit required and passed"; status=0
+            else
+              verdict="FAIL -- WebKit required but its result is '$WEBKIT_RESULT'"; status=1
+            fi
+          else
+            case "$WEBKIT_RESULT" in
+              skipped) verdict="PASS -- WebKit safely skipped (not required)"; status=0 ;;
+              success) verdict="PASS -- WebKit not required, ran and passed anyway"; status=0 ;;
+              *) verdict="FAIL -- WebKit not required but ran with result '$WEBKIT_RESULT'"; status=1 ;;
+            esac
+          fi
+
+          {
+            echo "## WebKit Gate"
+            echo ""
+            echo "| classify | webkit_required | webkit job | gate |"
+            echo "|---|---|---|---|"
+            echo "| $CLASSIFY_RESULT | $required | $WEBKIT_RESULT | $verdict |"
+            echo ""
+            echo "Reason: $REASON"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$status" -eq 0 ]; then
+            # tested_base is read back by the next push's classify job (evidence reuse is only
+            # allowed when the base is unchanged) -- keep the `tested_base=<sha>` token intact.
+            echo "::notice title=WebKit Gate::$verdict. tested_base=${TESTED_BASE:-unknown}. $REASON"
+          else
+            echo "::error title=WebKit Gate::$verdict. $REASON"
+          fi
+          exit "$status"
