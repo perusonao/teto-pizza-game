@@ -8,6 +8,8 @@ import type { PizzaCompletionResult } from "../logic/completionGate";
 import { buildCompletionFailureMessage } from "../data/completionMessages";
 import type { CutEvaluation } from "../logic/cut/types";
 import { STEP_LABEL } from "../data/makingStepLabels";
+import type { DiscoveryOutcome } from "../logic/discovery/matcher";
+import { getIngredient } from "../data/ingredients";
 
 interface ResultPanelProps {
   /** Completion Gate Phase 1: when this is `{ status: "FAILED" }`, every prop below except
@@ -16,7 +18,9 @@ interface ResultPanelProps {
    *  Result Report's RESULT UI section). `null` only for a Mission round (which never renders
    *  this component -- GameScreen's own `!isMissionActive` gate), same as `pitzCredit`. */
   completion: PizzaCompletionResult | null;
-  score: ScoreBreakdown;
+  /** `null` only for an unmatched free-cook pizza (Progression 2.0 Phase 3-2): an ORIGINAL pizza
+   *  is never scored, so it renders the original-pizza card instead of stars/score. */
+  score: ScoreBreakdown | null;
   bakeState: BakeState | null;
   /** A1 Authority Cutover: Scoring 2.0's Sauce component score (0-100), Scoring 2.0's single
    *  heaviest component (52/100) and the one dimension `ScoreBreakdown` itself has no field
@@ -77,6 +81,15 @@ interface ResultPanelProps {
    *  `efficiencyCredit`. Never folded into `score.total` -- standalone display only, per the
    *  design doc's own explicit non-goal for CUT Phase 1-3. */
   cutEvaluation?: CutEvaluation | null;
+  /** Progression 2.0 Phase 3-2 (Issue #194): set for a free-cook round. Changes the CTA copy
+   *  (retry = cook freely again) and, together with `discovery`, what the card says the pizza
+   *  turned out to be: NEW (first match of a registered recipe), KNOWN (already discovered) or
+   *  ORIGINAL (no registered recipe; `score` is null). */
+  freeCook?: boolean;
+  /** `state.lastDiscovery` -- read only when `freeCook` is set. */
+  discovery?: DiscoveryOutcome | null;
+  /** Distinct ingredient ids on the finished pizza (sauce first), shown on the ORIGINAL card. */
+  usedIngredientIds?: readonly string[];
   /** Issue #47 Finding D: retries this exact recipe (RETRY_SAME_RECIPE). */
   onRetrySameRecipe: () => void;
   /** Issue #47 Finding D: returns to Pizza Select so the player can choose a different recipe. */
@@ -133,9 +146,23 @@ export function ResultPanel({
   stepTimingRows = [],
   starterGrantNotice,
   cutEvaluation,
+  freeCook = false,
+  discovery = null,
+  usedIngredientIds = [],
   onRetrySameRecipe,
   onBackToPizzaSelect,
 }: ResultPanelProps) {
+  const actions = (
+    <div className="action-row action-row--column result-panel__actions">
+      <button type="button" className="cta-button cta-button--primary" onClick={onRetrySameRecipe}>
+        {freeCook ? "もう一度じゆうに作る" : "もう一度つくる"}
+      </button>
+      <button type="button" className="cta-button cta-button--secondary" onClick={onBackToPizzaSelect}>
+        {freeCook ? "レシピを選んで作る" : "別のピザを作る"}
+      </button>
+    </div>
+  );
+
   // Completion Gate Phase 1: a FAILED round gets its own small, distinct card -- reusing the
   // same outer structure/CTAs as the PASS branch below (per the Result Report's RESULT UI
   // section: "reuse the RESULT structure, don't build new UI"), but never the stars/score/
@@ -165,25 +192,57 @@ export function ResultPanel({
           </p>
         </div>
 
-        <div className="action-row action-row--column result-panel__actions">
-          <button
-            type="button"
-            className="cta-button cta-button--primary"
-            onClick={onRetrySameRecipe}
-          >
-            もう一度つくる
-          </button>
-          <button
-            type="button"
-            className="cta-button cta-button--secondary"
-            onClick={onBackToPizzaSelect}
-          >
-            別のピザを作る
-          </button>
-        </div>
+        {actions}
       </div>
     );
   }
+
+  // Progression 2.0 Phase 3-2: an unmatched free-cook pizza. A finished, normal result -- never
+  // styled or worded as a failure -- with no stars/score (nothing to score it against) and no
+  // Dex/Pitz change.
+  if (!score) {
+    const nearMiss = discovery?.kind === "INCOMPLETE_MATCH";
+    return (
+      <div className="result-panel result-panel--original">
+        <p className="result-panel__heading result-panel__heading--original">
+          {"\u{1F3A8}"} オリジナルピザ完成！
+        </p>
+        <div className="result-panel__headline">
+          <p className="original-pizza__lead">
+            {nearMiss
+              ? "図鑑のピザまであと少し…！材料の数や焼き加減を変えてみよう。"
+              : "図鑑にはない、あなただけのピザ！"}
+          </p>
+          {usedIngredientIds.length > 0 && (
+            <ul className="original-pizza__ingredients" aria-label="使った材料">
+              {usedIngredientIds.map((id) => {
+                const ingredient = getIngredient(id);
+                return (
+                  <li key={id} className="original-pizza__ingredient">
+                    {ingredient ? `${ingredient.emoji} ${ingredient.nameJa}` : id}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+          {bakeState && (
+            <p className={`result-panel__bake-badge result-panel__bake-badge--${bakeState}`}>
+              {BAKE_STATE_ICON[bakeState]} 焼き加減: {BAKE_STATE_LABEL[bakeState]}
+            </p>
+          )}
+        </div>
+        <p className="original-pizza__note">
+          図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。
+        </p>
+        {actions}
+      </div>
+    );
+  }
+
+  const freeCookMatch =
+    freeCook && (discovery?.kind === "NEW_DISCOVERY" || discovery?.kind === "ALREADY_DISCOVERED")
+      ? discovery.kind
+      : null;
 
   const filledStars = "★".repeat(score.stars);
   const emptyStars = "☆".repeat(MAX_STARS - score.stars);
@@ -211,7 +270,18 @@ export function ResultPanel({
         )}
       </div>
 
-      {(justDiscovered || justGotNewBest) && (
+      {freeCookMatch === "NEW_DISCOVERY" && (
+        <p className="discovered-banner discovered-banner--new-pizza" aria-live="polite">
+          NEW PIZZA! {"✨"} {recipeNameJa}を発見しました！
+        </p>
+      )}
+      {freeCookMatch === "ALREADY_DISCOVERED" && (
+        <p className="free-cook-known" aria-live="polite">
+          {"\u{1F4D6}"} {recipeNameJa}ができた！（発見済み）
+        </p>
+      )}
+
+      {freeCookMatch !== "NEW_DISCOVERY" && (justDiscovered || justGotNewBest) && (
         <p
           className={`discovered-banner${justGotNewBest ? " discovered-banner--best" : ""}`}
           aria-live="polite"
@@ -398,22 +468,7 @@ export function ResultPanel({
         </div>
       </details>
 
-      <div className="action-row action-row--column result-panel__actions">
-        <button
-          type="button"
-          className="cta-button cta-button--primary"
-          onClick={onRetrySameRecipe}
-        >
-          もう一度つくる
-        </button>
-        <button
-          type="button"
-          className="cta-button cta-button--secondary"
-          onClick={onBackToPizzaSelect}
-        >
-          別のピザを作る
-        </button>
-      </div>
+      {actions}
     </div>
   );
 }

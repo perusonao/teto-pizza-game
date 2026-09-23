@@ -279,6 +279,28 @@ There is no save schema change. The unit suite is 2377/2377 (53 new) and Chromiu
 Phase 3-2 blockers are listed in that report's §6, starting with the still-open A-01…A-05 owner
 decisions and the absence of a free-cook entry point.
 
+**2026-09-23 addendum (Issue #194 Progression 2.0 Phase 3-2: Free Cooking / owned-ingredient
+selection, PR OPEN)**. Base `main` is `5cf59f94` (the PR #193 Phase-3-1 merge). See
+`docs/reports/TETO_PROGRESSION2_P3-2_FREE-COOKING_Result.md`.
+
+- HOME's new 「🎨 フリークッキング」 opens `START_FREE_COOK`, a FREE round with no recipe. It uses
+  the inert `FREE_COOK_RECIPE` sentinel, has a transient `GameState.freeCook` flag, and gets the
+  default 4-step profile.
+- The tray lists every OWNED ingredient in the step's category, paged 6 at a time. Owned
+  ingredients with 0 stock stay listed but disabled, following the existing EP3 contract. The
+  recipe-guided tray is unchanged.
+- `CONFIRM_BAKE` resolves the pizza. The recipe-free completion rule uses at least one item and a
+  generic bake window of 58–78 (the median of the recipe windows). The pizza then goes through
+  the Phase 3-1 matcher and the matched recipe's own gate:
+  - a MATCHED pizza becomes that recipe's round, and the unchanged REGISTER_TO_DEX path handles
+    NEW (exactly once) or KNOWN;
+  - anything else is an unscored ORIGINAL result, which is not a failure and writes nothing to
+    the Dex or Pitz.
+
+There is no save schema change. The unit suite is 2406/2406 (29 new) and Chromium E2E is 106/106.
+WebKit is covered by the CI job. Open follow-ups are listed in that report's §6: the ORIGINAL
+Pitz reward belongs to P3-3, and onboarding and hint tiers are also pending.
+
 > Fresh GitHub/main state always wins if this document becomes stale.
 
 ## Product goal

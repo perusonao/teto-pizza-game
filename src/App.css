@@ -1636,6 +1636,62 @@
   color: #b8860b;
 }
 
+/* ---------- Progression 2.0 Phase 3-2: free-cook result (Issue #194) ---------- */
+/* NEW: the first match of a registered recipe -- same banner, a touch louder. */
+.discovered-banner--new-pizza {
+  font-size: 15px;
+  color: #c0392b;
+}
+
+/* KNOWN: an already-discovered recipe -- informative, calm. */
+.free-cook-known {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #5a4632;
+}
+
+/* ORIGINAL: a normal, finished result -- deliberately warm, never the FAILED palette. */
+.result-panel__heading--original {
+  font-size: 17px;
+  color: #6b3fa0;
+}
+
+.original-pizza__lead {
+  width: 100%;
+  margin: 0;
+  font-size: 13px;
+  text-align: center;
+  color: #3a2a1a;
+}
+
+.original-pizza__ingredients {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.original-pizza__ingredient {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #f3ecff;
+  font-size: 12px;
+  color: #4a2f73;
+}
+
+.original-pizza__note {
+  width: 100%;
+  max-width: 320px;
+  margin: 0;
+  font-size: 12px;
+  text-align: center;
+  color: #6b5a48;
+}
+
 /* ---------- Starter Grant notice (Economy Tuning 1 P1, DISCOVERED only) ---------- */
 .starter-grant-notice {
   width: 100%;
@@ -3202,6 +3258,8 @@
 /* ---------- HOME primary + secondary CTA ---------- */
 .home-cta-row {
   display: flex;
+  /* Progression 2.0 Phase 3-2: the フリークッキング CTA takes its own full-width row. */
+  flex-wrap: wrap;
   gap: 8px;
   padding: 12px 16px 0;
 }
@@ -3230,6 +3288,16 @@
      "⏱️ ランチラッシュ" more breathing room without shrinking the font. */
   padding-left: 12px;
   padding-right: 12px;
+}
+
+/* Progression 2.0 Phase 3-2 (Issue #194): フリークッキング takes its own full-width second row
+   (after, and overriding, .cta-button--home-secondary's `flex: 1`), so the existing
+   ピザを作る / ランチラッシュ pair keeps its 1:1 row and never orphan-wraps (Issue #47 Finding B).
+   It is also last in HomeScreen's DOM, so no CSS `order` is needed and focus/reading order
+   matches the visual order (PR #197 review). */
+.cta-button--free-cook {
+  flex: 1 1 100%;
+  min-height: 48px;
 }
 
 /* ---------- HOME sub navigation (ピザ図鑑 / ショップ / 材料 / 実績) ---------- */

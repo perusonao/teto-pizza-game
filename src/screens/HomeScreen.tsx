@@ -36,6 +36,10 @@ interface HomeScreenProps {
   ownedIngredientCount: number;
   totalIngredientCount: number;
   onStartFreePlay: () => void;
+  /** Progression 2.0 Phase 3-2 (Issue #194): starts a free-cook round directly -- no recipe
+   *  selection, every OWNED ingredient offered. Optional so existing test call sites compile; the
+   *  button only renders when it is wired. */
+  onStartFreeCook?: () => void;
   onStartLunchRush: () => void;
   onOpenDex: () => void;
   onOpenShop: () => void;
@@ -54,6 +58,7 @@ export function HomeScreen({
   ownedIngredientCount,
   totalIngredientCount,
   onStartFreePlay,
+  onStartFreeCook,
   onStartLunchRush,
   onOpenDex,
   onOpenShop,
@@ -110,6 +115,16 @@ export function HomeScreen({
         >
           {"\u{23F1}\u{FE0F}"} ランチラッシュ
         </button>
+        {/* Last in the DOM so keyboard/screen-reader order matches the visual rows. */}
+        {onStartFreeCook && (
+          <button
+            type="button"
+            className="cta-button cta-button--secondary cta-button--home-secondary cta-button--free-cook"
+            onClick={onStartFreeCook}
+          >
+            {"\u{1F3A8}"} フリークッキング
+          </button>
+        )}
       </div>
 
       <section className="home-menu" aria-label="メニュー">
