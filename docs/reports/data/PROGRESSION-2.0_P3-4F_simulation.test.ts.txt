@@ -1,4 +1,4 @@
-import { it } from "vitest";
+import { it, vi } from "vitest";
 import { writeFileSync } from "node:fs";
 import { createInitialGameState, gameReducer, type GameState } from "../state/gameReducer";
 import { registerScoreToDex, EMPTY_DEX, discoveredRecipeIds, type DexState } from "../state/dex";
@@ -12,8 +12,23 @@ import { applyStarterGrants } from "../state/starterStock";
 import { DOUGH_CENTER } from "../logic/pizzaCoordinates";
 import { pickMissionOrder } from "../mission/lunchRush";
 
-// Audit-only simulation (Phase 3-4F Fresh Audit). Copy to src/ as *.test.ts to run; never committed as code.
+// Audit-only simulation (Phase 3-4F Fresh Audit, Issue #212). Copy to src/<subdir>/*.test.ts to run
+// (imports are ../state/... relative); never committed as code.
+//   P34F_OUT=<path> [P34F_SEED=<uint32>] npx vitest run <file>
+// Math.random (the only randomness in order selection: orders.ts pickRandom) is replaced by a seeded
+// mulberry32 PRNG, so the same seed on the same main SHA always yields byte-identical output.
 const OUT = process.env.P34F_OUT!;
+const SEED = Number(process.env.P34F_SEED ?? 212);
+function mulberry32(seed: number) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
 const sc = (t: number, s: QualityStars): ScoreBreakdown => ({ matchScore: t, ingredientScore: t, placementScore: t, bakeScore: t, total: t, stars: s });
 function dexOf(ids: string[]): DexState { let d: DexState = EMPTY_DEX; for (const id of ids) d = registerScoreToDex(d, id, sc(60, 3 as QualityStars)).dex; return d; }
 
@@ -72,7 +87,8 @@ function playRound(s: GameState) {
 }
 
 it("P3-4F fresh-audit simulation", () => {
-  const out: Record<string, unknown> = {};
+  vi.spyOn(Math, "random").mockImplementation(mulberry32(SEED));
+  const out: Record<string, unknown> = { seed: SEED, rng: "mulberry32 via vi.spyOn(Math, \"random\")" };
   out.finiteIngredients = INGREDIENTS.filter((i) => i.unlockCondition).map((i) => ({ id: i.id, placement: i.placement, restockQuantity: i.restockQuantity ?? null, starterGrantOnly: !!i.starterGrantOnly }));
   out.starterUnlimited = [...STARTER_INGREDIENT_IDS];
   out.recipes = RECIPES.map((r) => ({
@@ -169,4 +185,5 @@ it("P3-4F fresh-audit simulation", () => {
     out.H = { setup: "reload with mushroom=0, funghi grant already claimed", loadGrantRefilled: g.inventory.mushroom, initialFreeRoundRecipe: reloaded.recipe.id, initialIsMission: reloaded.isMissionRound, ...summarize(seq, reloaded), note: "missionRunReducer state is not persisted; reload lands on HOME, mission run lost; pool re-derived from persisted inventory — same soft-lock" }; }
 
   writeFileSync(OUT, JSON.stringify(out, null, 2));
+  vi.restoreAllMocks();
 });

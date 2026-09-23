@@ -2,6 +2,14 @@
   "issue": 212,
   "schema": "teto.p3-4f.scenario-matrix/v1",
   "auditedMainSha": "dff233c042d2df6ee1c3a92f2d2419830aa05460",
+  "evidence": {
+    "auditedMainSha": "dff233c042d2df6ee1c3a92f2d2419830aa05460",
+    "seed": 212,
+    "rng": "mulberry32 via vi.spyOn(Math, \"random\")",
+    "script": "docs/reports/data/PROGRESSION-2.0_P3-4F_simulation.test.ts.txt",
+    "command": "cp <script> src/__tmp__/sim.test.ts && P34F_OUT=<out.json> P34F_SEED=212 npx vitest run src/__tmp__",
+    "determinism": "two consecutive runs with seed 212 produced byte-identical output; every scenario.simulation block and productionData below is copied verbatim from that single run"
+  },
   "currentPoolRule": "discovered ∩ availableRecipeIds(dex, owned) [EP1 recipeUnlocked AND all required OWNED]; inventory not consulted; avoidRepeat unless pool size 1; empty -> null (fail-closed)",
   "proposedPoolRule": "discovered ∩ available ∩ stock-sufficient (remainingStockUnits >= requiredStockUnits for every finite required ingredient); re-evaluated at every order (Option B); makeable filter applied before avoidRepeat",
   "requiredStockUnits": {
@@ -137,7 +145,7 @@
       "id": "C",
       "title": "multiple recipes, some makeable",
       "verdict": "softlock_confirmed",
-      "currentBehavior": "33.7% unmakeable orders (600 draws)",
+      "currentBehavior": "33.2% unmakeable orders (199/600 draws, seed 212)",
       "expectedAfter3_4F": "0% unmakeable",
       "simulation": {
         "setup": "6 discovered, starter grants applied, then mushroom=0, egg=0",
@@ -199,29 +207,29 @@
         },
         "draws": 600,
         "counts": {
-          "funghi": 96,
-          "quattro-formaggi": 92,
-          "bismarck": 97,
-          "genovese": 106,
-          "margherita": 102,
-          "marinara": 107
+          "bismarck": 91,
+          "funghi": 108,
+          "margherita": 96,
+          "marinara": 105,
+          "quattro-formaggi": 100,
+          "genovese": 100
         },
-        "unmakeableOrders": 193,
-        "unmakeableRate": 0.322,
+        "unmakeableOrders": 199,
+        "unmakeableRate": 0.332,
         "immediateRepeats": 0,
         "head": [
-          "funghi",
-          "quattro-formaggi",
           "bismarck",
-          "genovese",
+          "funghi",
+          "bismarck",
           "margherita",
           "marinara",
-          "bismarck",
-          "funghi",
-          "bismarck",
           "quattro-formaggi",
           "margherita",
-          "bismarck"
+          "genovese",
+          "quattro-formaggi",
+          "genovese",
+          "bismarck",
+          "margherita"
         ]
       }
     },

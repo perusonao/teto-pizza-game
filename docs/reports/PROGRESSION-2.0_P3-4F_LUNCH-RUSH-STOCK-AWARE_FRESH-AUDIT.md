@@ -6,7 +6,7 @@
 - **種別:** Fresh Audit と実装前設計。**production runtime の変更はなし。**
 - **触っていない PR:** #205（3-4A）、#206（3-4B）、#209（OD-03 brief）、#211（3-4C preflight）。どれも読んだだけ。3-4C の実装や OD-03 の決定はしていない。
 - **Machine-readable 版:** `docs/reports/data/PROGRESSION-2.0_P3-4F_SCENARIO-MATRIX.json`（シナリオ matrix、テスト matrix、Human Replay、シミュレーションの生の結果）
-- **シミュレーションの再現:** `docs/reports/data/PROGRESSION-2.0_P3-4F_simulation.test.ts.txt`。一時的に `src/` の直下のサブディレクトリ（例: `src/__tmp__/sim.test.ts`。import が `../state/...` の相対パスのため）へコピーし、`P34F_OUT=<path> npx vitest run <file>` で実行する。production の reducer とデータをそのまま使う。コミットされた `src/**` はない。
+- **シミュレーションの再現:** `docs/reports/data/PROGRESSION-2.0_P3-4F_simulation.test.ts.txt`。一時的に `src/` の直下のサブディレクトリ（例: `src/__tmp__/sim.test.ts`。import が `../state/...` の相対パスのため）へコピーし、`P34F_OUT=<path> P34F_SEED=212 npx vitest run <file>` で実行する。production の reducer とデータをそのまま使う。`Math.random` を seed 付きの mulberry32 に差し替えているので、同じ seed と同じ main SHA なら出力は完全に同じになる（2 回実行して byte 単位で一致することを確認した）。§3 の数値と JSON の `scenarios[].simulation` は、すべて seed 212 の同じ 1 回の実行結果から取っている。コミットされた `src/**` はない。
 
 GitHub の状態（2026-09-23、`list_pull_requests` と `git log origin/main` で確認）:
 
@@ -26,7 +26,7 @@ GitHub の状態（2026-09-23、`list_pull_requests` と `git log origin/main` �
 1. **現在の pool rule:** `pickMissionOrder(availableRecipeIds(dex, owned), discovered, prevRecipeId)`。候補は discovered ∩ available（EP1 の `recipeUnlocked` AND 必要な材料がすべて OWNED）で、**在庫（`inventory`）は一切見ていない。**
 2. **soft-lock は production のデータで再現した。** OWNED だが在庫が 0（または minCount に足りない）の発見済み recipe が、普通に注文される。その注文は Stock Gate のせいで材料を置けず、Completion Gate で必ず **FAILED** になる（0 点の serve）。skip の手段はなく、Mission 中は Shop も開けない。
    - 2 recipe のうち 1 つが作れない場合: 注文の **50%** が作れない。直前と同じ recipe を避ける仕組みのせいで、作れる方の次は**必ず**作れない方になる（確率 100/100）。
-   - 6 recipe のうち 2 つが作れない場合: 注文の **33.7%** が作れない（600 回引いた結果）。
+   - 6 recipe のうち 2 つが作れない場合: 注文の **33.2%** が作れない（600 回中 199 回、seed 212）。
 3. **作れる recipe が 0 件（E）の状況は、今の main では到達できない。** 発見済みの Margherita は starter の無限在庫で必ず作れるからだ。ただし 3-4C（`recipeUnlocked` の撤去）と A-01/OD-03 の結果によっては到達可能になる。そのときに備えて、pool が空のときの処理にある**潜在的なバグを 2 つ**確認した（§3 の E2/E3）。
 4. **推奨:** **Option B（注文を作るたびに、在庫を考慮した pool を評価し直す）と、Zero-candidate policy「開始をブロック / 途中なら run を早めに終える」の組み合わせ。** Option C（注文の差し替えや skip）は 3-4F には入れない。
 5. **3-4F の実装: Go（条件付き）。** 在庫の単位（片数から use へ）は、`requiredStockUnits` という 1 か所の seam の裏に閉じ込める。こうすれば 3-4C より前でも後でも merge できる。OD-03 の決定は待たなくてよい。
@@ -127,7 +127,7 @@ finite の材料は 19 種類、無限（starter）は 3 種類（tomato-sauce�
 | A | 発見済みだが、必要な材料を買っていない | dex={margherita, funghi}、mushroom を所持していない | funghi は `available` に入らない。200 回すべて margherita | **soft-lock しない**（OWNED の判定がすでに防いでいる）。ただし今の EP4 では、発見済みで未所持の状態自体がまず起きない |
 | B | OWNED だが在庫 0 | mushroom は OWNED、在庫 0 | 200 回中 funghi が 100 回（**50%**）。mushroom は 3 片とも Stock Gate で拒否され、**FAILED（MISSING_REQUIRED_INGREDIENT）** | **soft-lock を確認** |
 | B2 | OWNED だが在庫が minCount に足りない | mushroom 2 < funghi の minCount 3 | 2 片は置けるが 3 片目で拒否され、**FAILED（INSUFFICIENT_REQUIRED_AMOUNT）**。**しかも残りの 2 片を消費して在庫が 0 になる** | **soft-lock を確認**。在庫の浪費もある |
-| C | 複数の recipe のうち、一部だけ作れる | 6 件発見、starter grant の後で mushroom=0、egg=0 | pool 6 件のうち 2 件が作れない。600 回中 202 回（**33.7%**）が作れない注文 | **soft-lock を確認** |
+| C | 複数の recipe のうち、一部だけ作れる | 6 件発見、starter grant の後で mushroom=0、egg=0 | pool 6 件のうち 2 件が作れない。600 回中 199 回（**33.2%**、seed 212）が作れない注文 | **soft-lock を確認** |
 | D | 作れる recipe が 1 件だけ | 作れる = {margherita}、作れない = {funghi} | funghi と margherita が交互に出る。注文の **50%** が必ず FAILED | **soft-lock を確認** |
 | D' | pool 自体が 1 件（#202 の one-recipe 仕様） | pool = {margherita} | 50 回すべて margherita。同じ recipe の連続は 49 回 | 正常（#202 のとおり） |
 | E | 作れる recipe が 0 件 | dex={funghi} だけ、mushroom の在庫 0 | **今の main:** EP1 の `recipeUnlocked(funghi)` には margherita の発見が必要なので、pool は空になり `MISSION_RESET_ORDER` は no-op。**3-4C 後の予測:**（available = 全材料 OWNED）では pool={funghi} で 50/50 回 funghi、毎回 FAILED | 今の main では到達しない。**3-4C の後、A-01/OD-03 によっては到達しうる** |
