@@ -132,7 +132,8 @@
       "M3": 0
     },
     "M3andM4ShareSaveFormat": true,
-    "M1": "excluded (Rev.1)"
+    "M1": "excluded (Rev.1)",
+    "decided": "M4"
   },
   "crossCheck": {
     "structuralAxes": [
@@ -148,16 +149,15 @@
   },
   "go34C": "NO_GO",
   "blockers": [
-    "inventory consumption rule undecided (owner Q2)",
-    "if M4: #205 use-based API handling",
-    "#205/#206 not merged",
-    "#206 not deployed before 3-4C"
+    "owner confirmation: pieces per purchase/refill (portions x k) and k stability",
+    "#205 fix for M4 (A-1..A-10, T-1..T-5) — needs owner permission",
+    "#205/#206 CI green on current main and merged",
+    "#206 deployed before 3-4C"
   ],
   "ownerQuestions": [
-    "Q1: keep 'below ideal count = FAILED' or allow completion with lower score (separate task, outside 3-4C)",
-    "Q2: consume actual placed pieces (current) or 1 pizza-portion per pizza regardless of pieces"
+    "pieces per purchase/refill = 10 x k (heaviest recipe's 10 pizzas)? may k change when recipes are added?"
   ],
-  "revision": 2,
+  "revision": 3,
   "runtimeFacts": {
     "minCountEqualsIdealForAllScatterIngredients": true,
     "idealSource": "referencePizza pieceGroups[].positions.length",
@@ -252,5 +252,110 @@
     "M4_currentGameplay": "stock >= minCount pieces",
     "M4_relaxedMinimum": "stock >= new minimum (e.g. 1)",
     "M2_M3": "stock >= 1 use"
+  },
+  "decisions": {
+    "D1_OD03": {
+      "status": "DECIDED",
+      "option": "A",
+      "relock": "impossible by construction",
+      "persistedEntitlement": "not needed"
+    },
+    "D2_inventory": {
+      "status": "DECIDED",
+      "option": "M4",
+      "unit": "ingredient pieces (spread = 1 per application)",
+      "migration": "none",
+      "consumption": "actual placed pieces at CONFIRM_BAKE (EP2 unchanged)",
+      "stockGate": "up to remaining pieces (EP3 unchanged)",
+      "shop": "pieces",
+      "lunchRushMakeable": "stock >= minCount per finite ingredient (Completion Gate unchanged in 3-4C)",
+      "rejected": {
+        "M1": "rollback unit mixing / double conversion",
+        "M2": "1 pizza = 1 use gameplay not adopted; migration + reconcile + #206 registration",
+        "M3": "1 pizza = 1 use gameplay not adopted"
+      },
+      "pr205OnePizzaOneUse": "not adopted"
+    },
+    "D3_completionScoring": {
+      "status": "SEPARATED",
+      "in34C": "Completion Gate unchanged",
+      "followUp": "new Fresh Audit issue (draft in report section 6)"
+    }
+  },
+  "m4Spec34C": {
+    "finiteCheck": "authority initialOwned (P0-S3)",
+    "purchase": "price -> OWNED -> + purchaseGrantPortions x k pieces",
+    "refill": "ceil(price*0.5) -> + refillPortions x k pieces",
+    "k": "max minCount among shipped recipes using the ingredient; spread = 1",
+    "kValues": {
+      "pepperoni": 4,
+      "onion": 4,
+      "mushroom": 3,
+      "sausage": 3,
+      "bacon": 3,
+      "garlic": 3,
+      "cherry-tomato": 3,
+      "anchovy": 3,
+      "tuna": 3,
+      "rosemary": 3,
+      "oregano": 2,
+      "gorgonzola": 2,
+      "parmigiano": 2,
+      "fontina": 2,
+      "black-olive": 2,
+      "egg": 1,
+      "ham": 1,
+      "olive-oil": 1,
+      "pesto": 1
+    },
+    "openOwnerConfirmation": "pieces per purchase/refill = portions x k, and whether k may change when recipes are added"
+  },
+  "pr205": {
+    "head": "9035606",
+    "verdict": "FIX_BEFORE_MERGE",
+    "compatible": [
+      "progressionUnlocks.ts",
+      "progressionStars.ts",
+      "progressionIngredientState",
+      "progressionRefillPricePitz",
+      "purchase/refill failure reasons"
+    ],
+    "apiConflicts": {
+      "A-1": "file header: 1 use = 1 pizza, +10 uses",
+      "A-2": "PROGRESSION_PURCHASE_GRANT_USES -> rename to *_PORTIONS",
+      "A-3": "PROGRESSION_REFILL_USES -> rename to *_PORTIONS",
+      "A-4": "PROGRESSION_USES_PER_PIZZA -> delete",
+      "A-5": "ProgressionStock doc (pizza uses) -> pieces",
+      "A-6": "remainingPizzaUses -> delete or rename remainingPieces",
+      "A-7": "purchaseProgressionIngredient adds +10 -> add portions x k (k supplied by caller)",
+      "A-8": "refillProgressionIngredient adds +10 -> same as A-7",
+      "A-9": "consumePizzaUse / ProgressionUseResult OUT_OF_STOCK -> delete (runtime consumePizzaInventory stays)",
+      "A-10": "sanitizeUses -> rename"
+    },
+    "testConflicts": {
+      "T-1": "progressionEconomy.test.ts purchase block (~62-143): egg values unchanged (k=1), rename + add k>1 case",
+      "T-2": "refill block (~146-206): same",
+      "T-3": "'pizza uses (1 pizza = 1 use)' block (~209-252): delete",
+      "T-4": "audit 5.1 opening (~255-271): values unchanged, wording",
+      "T-5": "progressionUnlocks.test.ts S10_R10 parity (~62-67): keep, update imports"
+    }
+  },
+  "pr211Deltas": [
+    "P0-S1 not needed",
+    "section 7 and 13 inventory rows not needed",
+    "5.1 table: keep consumePizzaInventory/canPlaceIngredient; purchase/refill = portions x k",
+    "10.5 rewritten, 10.6 removed",
+    "T-C6/T-C7 rewritten, T-C8/T-C9 removed, T-C4/T-C5 portions x k",
+    "6.2 write trigger = purchase",
+    "P0-S2, P0-S3, F-1..F-8, schemaVersion 2 still required"
+  ],
+  "pr213Deltas": [
+    "requiredStockUnits stays pieces (minCount); no 3-4C swap",
+    "B2 remains a real state; pool excludes it"
+  ],
+  "completionScoringIssueDraft": {
+    "title": "Completion Gate: 理想量より少ない具材でも完成できるようにする — Fresh Audit",
+    "filed": false,
+    "section": "report section 6"
   }
 }
