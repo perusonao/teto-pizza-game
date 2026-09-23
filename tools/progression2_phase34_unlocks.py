@@ -21,11 +21,15 @@ CATALOG = ROOT / "data/recipes/ingredient_master_catalog.json"
 OUT = ROOT / "docs/design/data/TETO_PROGRESSION2_PHASE34_INGREDIENT-UNLOCK-MATRIX.json"
 REPORT = ROOT / "docs/design/TETO_PROGRESSION2_PHASE34_UNLOCKS.md"
 LEDGER = ROOT / "docs/design/TETO_PROGRESSION2_PHASE34_OWNER-DECISION-LEDGER.md"
-AUDITED_MAIN_SHA = "5cf59f94309288ebcf9c02f0310f1f47ef6c74f2"
+AUDITED_MAIN_SHA = "08b04f8f1c59b8adb38964d4ec3e08e6acb6cbc2"
 STARTERS = {"basil", "mozzarella", "tomato-sauce"}
 TIER_PRICE = {"early": 60, "mid": 100, "late": 140, "endgame": 180}
-SKILLS = {"low-score": 20, "beginner": 50, "standard": 80, "skilled": 100,
-          "pitz-constrained": 20}
+STOCK_CONSUMABLE_POLICY = "PURCHASE_GRANT_10_REFILL_10_AT_HALF_PRICE"
+# Quality-star rating each reference profile bakes at (matches Phase-2 skills.* labels
+# WORST=1/BEGINNER=2/STANDARD=3/SKILLED=4); pitz-constrained models a worst-quality,
+# income-starved player and is kept at the WORST quality star.
+SKILL_QUALITY_STAR = {"low-score": 1, "beginner": 2, "standard": 3, "skilled": 4,
+                       "pitz-constrained": 1}
 
 
 def load(path):
@@ -65,17 +69,16 @@ def ordered_nodes(nodes, targets, owned):
     return result
 
 
-def condition_for(step, before, node):
+def condition_for(step, before, node, gate_fraction, gate_stars_per_discovery):
+    """Every non-initial step derives its gate from the selected Phase-2 hybrid-star
+    curve (G4_HYBRID_060): minimum = guaranteedStarsPerDiscovery * ceil(before * fraction).
+    This matches p2['recommendedGates'] for this exact schedule byte-for-byte (see
+    --check), so no step-ordinal (step % 3) special-casing is used."""
     if step == 0:
         return {"type": "INITIAL_OWNED", "all": []}
-    needed = max(1, math.ceil(before * 0.60))
-    if step == 1:
-        primary = {"type": "SPECIFIC_DISCOVERY", "targetId": "shipped:margherita"}
-    elif step % 3 == 0:
-        primary = {"type": "CUMULATIVE_STARS", "minimum": needed * 2,
-                   "starModel": "HYBRID_MINIMUM_2_PER_DISCOVERY"}
-    else:
-        primary = {"type": "DISCOVERED_RECIPE_COUNT", "minimum": needed}
+    needed = max(1, math.ceil(before * gate_fraction))
+    primary = {"type": "CUMULATIVE_STARS", "minimum": needed * gate_stars_per_discovery,
+               "starModel": "HYBRID_MINIMUM_2_PER_DISCOVERY"}
     clauses = [primary]
     prereq_raw = node.get("prerequisite")
     prereq = next(iter(prereq_raw.values())) if isinstance(prereq_raw, dict) else prereq_raw
@@ -95,6 +98,72 @@ def condition_met(condition, state):
     raise ValueError(typ)
 
 
+def simulate_profile(targets, target_by_id, rows, row_by_id, reward, quality_bonus_stars,
+                      stars_per_discovery, discovery_bonus, stock_policy):
+    """Model the real AVAILABLE -> purchase -> OWNED -> free-cook -> PASS bake -> discovery
+    loop for one reference skill profile: a purchase only makes a recipe reachable; it still
+    takes a PASS free-cook bake (with its own stock cost, base reward and first-discovery
+    bonus) to actually discover it, and the next unlock gate is only evaluated once those
+    bakes have happened."""
+    grant, restock, restock_factor = stock_policy["grant"], stock_policy["restock"], stock_policy["restockFactor"]
+    sim = {"owned": set(STARTERS), "discovered": set(reachable(targets, set(STARTERS))),
+           "stars": 0, "pitz": 0, "stock": {}, "bakes": 1, "discoveryBakes": 0, "grindBakes": 0,
+           "refills": 0, "maxGap": 0, "lastDiscoveryBake": 1, "maxBurst": 0, "purchaseWait": 0,
+           "events": []}
+    sim["stars"] = len(sim["discovered"]) * stars_per_discovery
+    sim["maxBurst"] = len(sim["discovered"])
+
+    def bake_discovery(target_id):
+        for item in target_by_id[target_id]["items"]:
+            item_row = row_by_id.get(item)
+            if not item_row or item_row["stockPolicy"] != STOCK_CONSUMABLE_POLICY:
+                continue
+            if sim["stock"].get(item, 0) <= 0:
+                refill_cost = item_row["pricePitz"] * restock_factor
+                if sim["pitz"] < refill_cost:
+                    grind = math.ceil((refill_cost - sim["pitz"]) / reward)
+                    sim["pitz"] += grind * reward
+                    sim["bakes"] += grind
+                    sim["grindBakes"] += grind
+                sim["pitz"] -= refill_cost
+                sim["stock"][item] = sim["stock"].get(item, 0) + restock
+                sim["refills"] += 1
+            sim["stock"][item] -= 1
+        sim["bakes"] += 1
+        sim["discoveryBakes"] += 1
+        sim["pitz"] += reward + discovery_bonus
+        sim["discovered"].add(target_id)
+        sim["stars"] += stars_per_discovery + quality_bonus_stars
+        sim["maxGap"] = max(sim["maxGap"], sim["bakes"] - sim["lastDiscoveryBake"])
+        sim["lastDiscoveryBake"] = sim["bakes"]
+
+    for row in rows:
+        if row["lifecycle"] == "OWNED" or row["kind"] == "capability":
+            sim["owned"].add(row["nodeId"])
+            continue
+        if not condition_met(row["unlockCondition"], sim):
+            raise AssertionError(f"condition deadlock: {row['nodeId']}")
+        price = row["pricePitz"]
+        wait = max(0, math.ceil((price - sim["pitz"]) / reward))
+        sim["pitz"] += wait * reward
+        sim["bakes"] += wait
+        sim["grindBakes"] += wait
+        sim["purchaseWait"] = max(sim["purchaseWait"], wait)
+        sim["pitz"] -= price
+        sim["owned"].add(row["nodeId"])
+        if row["kind"] == "ingredient" and row["stockPolicy"] == STOCK_CONSUMABLE_POLICY:
+            sim["stock"][row["nodeId"]] = grant
+        pending = sorted(reachable(targets, sim["owned"]) - sim["discovered"])
+        for target_id in pending:
+            bake_discovery(target_id)
+        sim["maxBurst"] = max(sim["maxBurst"], len(pending))
+        sim["events"].append({"sequence": row["sequence"], "nodeId": row["nodeId"], "waitBakes": wait,
+                              "newlyDiscovered": pending, "discoveryBakes": len(pending),
+                              "discoveredTotal": len(sim["discovered"]), "bakesTotal": sim["bakes"],
+                              "stockRefillsTotal": sim["refills"], "pitzAfter": sim["pitz"]})
+    return sim
+
+
 def build():
     p2 = load(P2)
     targets = p2["targets"]["SHIPPED_KEEP"]
@@ -102,6 +171,15 @@ def build():
     schedule = p2["unlockSchedules"]["SHIPPED_KEEP"]["M2_TUTORIAL_WEIGHTED"]["steps"]
     impact = {x["node"]: x for x in p2["nodeImpact"]}
     names = display_names()
+    gate_curve_name = p2["recommended"]["economy"]["gate"]
+    gate_curve = p2["gateCurves"][gate_curve_name]
+    gate_fraction = gate_curve["fraction"]
+    gate_stars_per_discovery = gate_curve["guaranteedStarsPerDiscovery"]
+    gate_quality_bonus_stars = set(gate_curve.get("qualityBonusAtStars", []))
+    reward_table_name = p2["recommended"]["economy"]["reward"]
+    reward_table = p2["rewardTables"][reward_table_name]
+    stock_policy_name = p2["recommended"]["economy"]["stock"]
+    stock_policy = p2["stockPolicies"][stock_policy_name]
     owned = set()
     discovered = set()
     rows = []
@@ -119,13 +197,14 @@ def build():
             kind = node["kind"]
             price = 0 if step["step"] == 0 or kind == "capability" else TIER_PRICE[step["tier"]]
             sequence += 1
-            cond = condition_for(step["step"], imp["cumulativeDiscoverableBefore"], imp)
+            cond = condition_for(step["step"], imp["cumulativeDiscoverableBefore"], imp,
+                                  gate_fraction, gate_stars_per_discovery)
             rows.append({
                 "sequence": sequence, "nodeId": node_id, "ingredientId": node_id if kind == "ingredient" else None,
                 "displayName": names.get(node_id, node_id.replace(":", " / ").replace("-", " ").title()),
                 "kind": kind, "tier": step["tier"], "lifecycle": "OWNED" if step["step"] == 0 else "LOCKED_TO_AVAILABLE_TO_BUY_TO_OWNED",
                 "unlockCondition": cond, "conditionType": "INITIAL_OWNED" if step["step"] == 0 else cond["all"][0]["type"],
-                "pricePitz": price, "stockPolicy": "UNLIMITED" if node_id in STARTERS else ("NON_CONSUMABLE" if kind != "ingredient" else "PURCHASE_GRANT_10_REFILL_10_AT_HALF_PRICE"),
+                "pricePitz": price, "stockPolicy": "UNLIMITED" if node_id in STARTERS else ("NON_CONSUMABLE" if kind != "ingredient" else STOCK_CONSUMABLE_POLICY),
                 "prerequisite": (next(iter(imp["prerequisite"].values())) if isinstance(imp["prerequisite"], dict) else imp["prerequisite"]),
                 "recipeReuseCount": imp["totalTargetsUsingNode"],
                 "newlyReachableRecipeIds": new, "newlyReachableRecipes": len(new),
@@ -134,58 +213,42 @@ def build():
                 "blockedDeferredReason": None,
             })
     # The ordering helper mutates owned; recompute final proof from the matrix rows.
+    row_by_id = {r["nodeId"]: r for r in rows}
     simulations = []
-    for skill, reward in SKILLS.items():
-        state = {"owned": set(STARTERS), "discovered": reachable(targets, set(STARTERS)), "stars": 0, "pitz": 0}
-        state["stars"] = len(state["discovered"]) * 2
-        bakes = 1
-        max_gap = 1
-        max_burst = len(state["discovered"])
-        purchase_wait = 0
-        events = []
-        for row in rows:
-            waits = 0
-            if row["lifecycle"] == "OWNED" or row["kind"] == "capability":
-                state["owned"].add(row["nodeId"])
-            else:
-                if not condition_met(row["unlockCondition"], state):
-                    # Discover all currently reachable targets: deterministic completionist path.
-                    state["discovered"] |= reachable(targets, state["owned"])
-                    state["stars"] = len(state["discovered"]) * 2
-                if not condition_met(row["unlockCondition"], state):
-                    raise AssertionError(f"condition deadlock: {skill}/{row['nodeId']}")
-                waits = max(0, math.ceil((row["pricePitz"] - state["pitz"]) / reward))
-                state["pitz"] += waits * reward
-                bakes += waits
-                purchase_wait = max(purchase_wait, waits)
-                state["pitz"] -= row["pricePitz"]
-                state["owned"].add(row["nodeId"])
-            new = reachable(targets, state["owned"]) - state["discovered"]
-            if new:
-                state["discovered"] |= new
-                state["stars"] = len(state["discovered"]) * 2
-                state["pitz"] += len(new) * 50
-                max_burst = max(max_burst, len(new))
-            events.append({"sequence": row["sequence"], "nodeId": row["nodeId"], "waitBakes": waits if row["pricePitz"] else 0,
-                           "newlyDiscovered": sorted(new), "discoveredTotal": len(state["discovered"]), "pitzAfter": state["pitz"]})
-        simulations.append({"profile": skill, "outcome": "COMPLETE" if len(state["discovered"]) == 101 else "DEADLOCK",
-                            "reachableTargets": len(state["discovered"]), "targetCount": 101, "totalIncomeBakes": bakes,
-                            "maxPurchaseWaitBakes": purchase_wait, "maxUnlockOpportunityGapBakes": max_gap + purchase_wait,
-                            "maxUnlockBurstRecipes": max_burst, "finalPitz": state["pitz"], "events": events})
+    for skill, quality_star in SKILL_QUALITY_STAR.items():
+        reward = reward_table["base"] * reward_table["mult"][str(quality_star)]
+        quality_bonus_stars = 1 if quality_star in gate_quality_bonus_stars else 0
+        sim = simulate_profile(targets, target_by_id, rows, row_by_id, reward, quality_bonus_stars,
+                                gate_stars_per_discovery, reward_table["discoveryBonus"], stock_policy)
+        simulations.append({
+            "profile": skill, "outcome": "COMPLETE" if len(sim["discovered"]) == 101 else "DEADLOCK",
+            "reachableTargets": len(sim["discovered"]), "targetCount": 101,
+            "totalIncomeBakes": sim["bakes"], "discoveryBakes": sim["discoveryBakes"],
+            "grindBakes": sim["grindBakes"], "stockRefills": sim["refills"],
+            "maxPurchaseWaitBakes": sim["purchaseWait"], "maxUnlockOpportunityGapBakes": sim["maxGap"],
+            "maxUnlockBurstRecipes": sim["maxBurst"], "finalPitz": sim["pitz"], "events": sim["events"],
+        })
     ingredient_rows = [r for r in rows if r["kind"] == "ingredient"]
     first10 = [r for r in rows if r["lifecycle"] != "OWNED" and r["kind"] != "capability"][:10]
     early_owned = STARTERS | {r["nodeId"] for r in first10}
     early_reachable = len(reachable(targets, early_owned))
     step_bursts = Counter(impact[r["nodeId"]]["step"] for r in rows if r["lifecycle"] != "OWNED")
     blockers = Counter(e["phase2Class"] for e in p2["rowClassification"] if e["phase2Class"] != "EVIDENCE_READY_TARGET")
+    phase2_worst_completionist = next(s for s in p2["recommendedSimulationBySkill"]
+                                       if s["skill"] == "WORST" and s["explorer"] == "COMPLETIONIST")
     out = {
         "schemaVersion": 1, "issue": 195, "auditedMainSha": AUDITED_MAIN_SHA,
         "generatedBy": "tools/progression2_phase34_unlocks.py", "phase2InputSha256": hashlib.sha256(P2.read_bytes()).hexdigest(),
         "semantics": {"stars": "monotonic progression/achievement; never spent", "pitz": "spendable purchase/refill currency",
                       "ownership": "permanent", "stock": "consumable and separate from ownership"},
-        "policy": {"profile": "SHIPPED_KEEP", "mechanicPolicy": "M2_TUTORIAL_WEIGHTED", "gateFraction": 0.60,
-                   "pricesByTier": TIER_PRICE, "firstDiscoveryBonusPitz": 50, "purchaseGrantPortions": 10,
-                   "refillPortions": 10, "refillPriceFactor": 0.5},
+        "policy": {"profile": "SHIPPED_KEEP", "mechanicPolicy": "M2_TUTORIAL_WEIGHTED",
+                   "gateCurve": gate_curve_name, "gateFraction": gate_fraction,
+                   "gateStarsPerDiscovery": gate_stars_per_discovery,
+                   "gateQualityBonusAtStars": sorted(gate_quality_bonus_stars),
+                   "pricesByTier": TIER_PRICE, "rewardTable": reward_table_name,
+                   "firstDiscoveryBonusPitz": reward_table["discoveryBonus"],
+                   "stockPolicy": stock_policy_name, "purchaseGrantPortions": stock_policy["grant"],
+                   "refillPortions": stock_policy["restock"], "refillPriceFactor": stock_policy["restockFactor"]},
         "summary": {"ingredientCount": len(ingredient_rows), "initialOwnedIngredientCount": 3,
                     "unlockableIngredientCount": len(ingredient_rows)-3, "allNodeCount": len(rows),
                     "conditionTypes": dict(sorted(Counter(r["conditionType"] for r in rows).items())),
@@ -194,7 +257,8 @@ def build():
                     "highReuseIngredients": [{"ingredientId": r["nodeId"], "recipeReuseCount": r["recipeReuseCount"]}
                                              for r in sorted(ingredient_rows, key=lambda x: (-x["recipeReuseCount"], x["nodeId"]))[:10]],
                     "earlyGameReachableRecipeCountAfter10Purchases": early_reachable,
-                    "maxUnlockBurstNodes": max(step_bursts.values()), "phase2WorstCaseMaxGrindStreakBakes": 24,
+                    "maxUnlockBurstNodes": max(step_bursts.values()),
+                    "phase2WorstCaseMaxGrindStreakBakes": phase2_worst_completionist["maxGrindStreak"],
                     "mechanicBlockers": blockers["BLOCKED_MECHANIC_INTERPRETATION"],
                     "evidenceBlockers": blockers["BLOCKED_EVIDENCE"], "phase2BlockedClasses": dict(sorted(blockers.items()))},
         "rows": rows, "first10Unlocks": first10, "simulations": simulations,
@@ -222,9 +286,12 @@ def md(out):
              f"- Early reachable recipes after the first 10 purchases: {s['earlyGameReachableRecipeCountAfter10Purchases']}",
              f"- Maximum availability burst: {s['maxUnlockBurstNodes']} nodes; full Phase-2 worst-case grind streak: {s['phase2WorstCaseMaxGrindStreakBakes']} bakes",
              f"- One-recipe ingredients: {len(s['oneRecipeIngredients'])}", f"- Evidence/mechanic blockers outside the 101 pool: {s['evidenceBlockers']} / {s['mechanicBlockers']}", "",
-             "| Profile | Result | Reach | Max opportunity gap (bakes) | Max burst (recipes) | Max purchase wait (bakes) |", "|---|---:|---:|---:|---:|---:|"]
+             "Discovery is only granted after a simulated PASS free-cook bake (base reward + first-discovery bonus, "
+             "ingredient stock consumption and refills included); reachability alone never marks a recipe discovered.", "",
+             "| Profile | Result | Reach | Total bakes | Discovery bakes | Grind bakes | Stock refills | Max opportunity gap (bakes) | Max burst (recipes) | Max purchase wait (bakes) |",
+             "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|"]
     for x in out["simulations"]:
-        lines.append(f"| {x['profile']} | {x['outcome']} | {x['reachableTargets']}/{x['targetCount']} | {x['maxUnlockOpportunityGapBakes']} | {x['maxUnlockBurstRecipes']} | {x['maxPurchaseWaitBakes']} |")
+        lines.append(f"| {x['profile']} | {x['outcome']} | {x['reachableTargets']}/{x['targetCount']} | {x['totalIncomeBakes']} | {x['discoveryBakes']} | {x['grindBakes']} | {x['stockRefills']} | {x['maxUnlockOpportunityGapBakes']} | {x['maxUnlockBurstRecipes']} | {x['maxPurchaseWaitBakes']} |")
     lines += ["", "## First 10 purchasable unlocks", "", "| # | Action / condition | Available item | Price | Newly reachable pizzas |", "|---:|---|---|---:|---|"]
     for i, r in enumerate(out["first10Unlocks"], 1):
         lines.append(f"| {i} | `{json.dumps(r['unlockCondition'], ensure_ascii=False, separators=(',', ':'))}` | {r['displayName']} (`{r['nodeId']}`) | {r['pricePitz']} | {', '.join(r['newlyReachableRecipeIds']) or '0 at this individual purchase; completes a Phase-2 set'} |")
@@ -233,7 +300,9 @@ def md(out):
         lines.append(f"| `{r['nodeId']}` | {r['displayName']} | {r['kind']} | {r['tier']} | {r['conditionType']} | {r['pricePitz']} | {r['prerequisite'] or ''} | {r['recipeReuseCount']} | {r['newlyReachableRecipes']} | {r['rationale']} | {r['blockedDeferredReason'] or ''} |")
     lines += ["", "## Phase 2 differences", "", "- Converts group/step candidates into deterministic per-node conditions and a stable purchase order.",
               "- Freezes tier prices at 60/100/140/180 Pitz and preserves Phase-2 S10/R10 stock policy.",
-              "- Keeps the mixed, derived 60% gate; it does not restore the rejected fixed ★10 ladder.",
+              f"- Every non-initial step derives its gate from the selected `{out['policy']['gateCurve']}` hybrid-star curve "
+              f"(minimum = {out['policy']['gateStarsPerDiscovery']} x ceil(before x {out['policy']['gateFraction']})); "
+              "it does not restore the rejected fixed ★10 ladder and does not alternate with a discovery-count gate.",
               "- Reduces the decision ledger to the two confirmations that genuinely change production behavior.", "",
               "## Fresh-audit findings", "", f"- Phase-2 input: 172 rows; recommended pool 101 targets (87 evidence-ready + 14 shipped overlay). Input SHA-256 `{out['phase2InputSha256']}`.",
               "- Phase-1 mechanic matrix remains the evidence authority: 53 evidence blockers, 22 product-decision blockers, 8 mechanic-interpretation blockers, and 2 discovery-rule blockers stay outside this matrix.",
