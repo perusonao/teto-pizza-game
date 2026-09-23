@@ -22,7 +22,7 @@ JSON wins.
 
 | # | Question | Answer (data) |
 |---|---|---|
-| 1 | Can a player always move from 0 recipes to the next discovery? | **Yes, under the recommended profile.** With 0 recipes and the starters tomato-sauce, mozzarella and basil, exactly one target is discoverable: Margherita. After that, every unlock step opens at least 1 new target; the validator fails on any dead step. **Under EVIDENCE_STRICT it is impossible.** The starter trio completes zero evidence-ready rows, because the PIZZA DB Margherita adds olive oil and needs MULTI_SPREAD_LAYER. That makes decision A-01 a real progression blocker (§4, §5). |
+| 1 | Can a player always move from 0 recipes to the next discovery? | **Yes, under the recommended profile.** With 0 recipes and the starters tomato-sauce, mozzarella and basil, exactly one target is discoverable: Margherita. After that, every unlock step opens at least 1 new target; the validator fails on any dead step. **Under EVIDENCE_STRICT there is no deadlock, but there is no first-bake discovery either.** The starter trio completes zero evidence-ready rows, because the PIZZA DB Margherita adds olive oil and needs MULTI_SPREAD_LAYER. The player must first bake 1–8 "original pizzas" for Pitz and buy eggplant; the first discovery is then Melanzane, at bake 2–4. So A-01 decides whether the first Fun is a Margherita discovery. It is not a deadlock condition (§4). |
 | 2 | How are ⭐ and Pitz earned without a circular dependency? | ⭐ is non-spendable and comes **only from discoveries**: +2 per new discovery, plus +1 each for BEST ★3/★4/★5. Pitz is spendable and comes **from any PASS bake**. Margherita uses only unlimited starter items, so it can always be baked, and with the ★1 floor every PASS bake pays more than 0. Gates only ask for ⭐ that already-discoverable targets can supply, and a Teto hint surfaces a target the player has not found yet. No state exists where ⭐ needs Pitz and Pitz needs ⭐ (§8, §10). |
 | 3 | How many recipes does each ingredient / mechanic unlock add? | Per node: `nodeImpact` in the JSON, and §5 of the generated graph. Per capability: §6 below, where DOUGH_VARIANT adds +8 and MULTI_SPREAD_LAYER +9 among ready targets. Per step: §2 of the graph. |
 | 4 | Is every evidence-ready recipe eventually reachable? | **Yes. 87/87 evidence-ready rows** are reachable, plus 14 kept shipped recipes: 101/101 targets. This holds for both decision profiles and all three mechanic policies, and is validator-enforced. |
@@ -212,15 +212,19 @@ yet owned.
 
 | Profile | Assumes | Targets | Discoverable at start | Reachable | Result |
 |---|---|---|---|---|---|
-| `EVIDENCE_STRICT` | nothing | 87 (all evidence-ready rows) | **0** | 87/87 | **START_DEADLOCK for every skill.** The first discovery needs an unlock, and the player has 0 Pitz and 0 ⭐. |
+| `EVIDENCE_STRICT` | nothing | 87 (all evidence-ready rows) | **0** | 87/87 | **COMPLETE for every skill, but with no first-bake discovery.** The first bakes are original pizzas (SKILLED and STANDARD 1, BEGINNER 2, WORST 8), which pay Pitz. The step-1 gate is 0⭐, so the player buys eggplant and discovers **Melanzane** at bake 2 (STANDARD/SKILLED), 3 (BEGINNER) or 4 (WORST). Negative control: if original pizzas paid 0 Pitz, the result would be START_DEADLOCK. |
 | `SHIPPED_KEEP` (recommended) | A-01 and A-02, option 1: keep the shipped compositions as separate `shipped:<id>` targets | 101 (87 + 14) | 1 (Margherita) | 101/101 | No deadlock (§10). |
 
 `SHIPPED_KEEP` does **not** change a single 172 row. The 9 PIZZA DB rows that conflict with a
 shipped recipe stay BLOCKED. The 14 shipped recipes (all except `tonno-e-cipolla`, which the
 PIZZA DB row corroborates) enter from `src/data/recipes.ts` as they are.
 
-If the owner prefers the PIZZA DB composition for Margherita, the starter set must change. Under
-EVIDENCE_STRICT, these no-capability rows have ≤ 3 ingredients and could be a first discovery
+A-01 therefore decides the **shape of the first Fun**, not whether the game can start. An earlier
+revision of this report said EVIDENCE_STRICT START_DEADLOCKs. That was wrong: its simulator did not
+model original-pizza income (PR #191 review). If the owner prefers the PIZZA DB composition for
+Margherita, there are two ways to keep a starter-only first discovery. Either change the starter
+set, or accept a first discovery that needs a purchase (Melanzane). These no-capability rows have
+≤ 3 ingredients and could be a starter-only first discovery under EVIDENCE_STRICT
 (`alternativeFirstDiscoveriesEvidenceStrict`):
 
 - brazilian-catupiry-corn {catupiry, corn, mozzarella}
@@ -409,7 +413,9 @@ bottom sheet:
   monotone. f is the curve's fraction.
 - Outcomes:
   - COMPLETE;
-  - START_DEADLOCK;
+  - START_DEADLOCK: nothing is discovered and there is no income. Original pizzas (PASS free cooks
+    of the unlimited starters that match no target) pay Pitz whenever the reward table has
+    `originalPizzaPays`, so this happens only in the negative control;
   - STAR_DEADLOCK (a gate is unmet and nothing can be discovered);
   - PITZ_DEADLOCK_ZERO_REWARD;
   - PLATEAU_UNFOUND (everything is bought, but the rest is never found without hints).
@@ -617,7 +623,11 @@ The validator enforces all of the following. Any failure exits non-zero.
 - For every profile × policy: no dead step, no node twice, prerequisites respected, all targets
   reachable, no dead node, and newlyDiscoverable partitions the targets.
 - The findings the report relies on still hold:
-  - EVIDENCE_STRICT has no starter-only discovery and START_DEADLOCKs for all skills;
+  - EVIDENCE_STRICT has no starter-only discovery;
+  - with original-pizza income it COMPLETEs for all skills, but only after at least 1 original-pizza
+    bake, with the first discovery at bake 2 or later;
+  - the negative control, where original pizzas pay 0, START_DEADLOCKs;
+  - the recommended profile never needs original-pizza income;
   - G0 deadlocks;
   - LEGACY reward deadlocks WORST.
 - The recommended configuration completes for all 12 skill × explorer models, and every

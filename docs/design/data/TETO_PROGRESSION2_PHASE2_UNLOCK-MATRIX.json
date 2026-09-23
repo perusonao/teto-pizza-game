@@ -299,7 +299,8 @@
         "4": 1.0,
         "5": 1.2
       },
-      "discoveryBonus": 0
+      "discoveryBonus": 0,
+      "originalPizzaPays": true
     },
     "FLOOR": {
       "labelJa": "★1 に下限 ×0.2 を追加（PASS した焼成は必ず Pitz>0）",
@@ -311,7 +312,8 @@
         "4": 1.0,
         "5": 1.2
       },
-      "discoveryBonus": 0
+      "discoveryBonus": 0,
+      "originalPizzaPays": true
     },
     "FLOOR_DISCOVERY_BONUS": {
       "labelJa": "FLOOR ＋ 新発見ボーナス +50 Pitz",
@@ -323,7 +325,21 @@
         "4": 1.0,
         "5": 1.2
       },
-      "discoveryBonus": 50
+      "discoveryBonus": 50,
+      "originalPizzaPays": true
+    },
+    "FLOOR_DISCOVERY_BONUS_NO_ORIGINAL_PITZ": {
+      "labelJa": "負の対照: オリジナルピザ（不一致の完成品）は Pitz 0",
+      "base": 100,
+      "mult": {
+        "1": 0.2,
+        "2": 0.5,
+        "3": 0.8,
+        "4": 1.0,
+        "5": 1.2
+      },
+      "discoveryBonus": 50,
+      "originalPizzaPays": false
     }
   },
   "skills": {
@@ -19863,24 +19879,56 @@
       "skill": "BEGINNER",
       "explorer": "COMPLETIONIST",
       "hints": "HINTS_ON",
-      "outcome": "START_DEADLOCK",
-      "deadlock": true,
-      "discovered": 0,
+      "outcome": "COMPLETE",
+      "deadlock": false,
+      "discovered": 87,
       "targets": 87,
-      "turns": 0,
-      "bakesToDiscovery": {},
-      "grindBakes": 0,
-      "grindShare": null,
-      "maxGrindStreak": 0,
-      "maxGrindStreakAt": null,
+      "turns": 196,
+      "bakesToDiscovery": {
+        "1": 3,
+        "10": 12,
+        "20": 22,
+        "50": 52,
+        "all": 196
+      },
+      "grindBakes": 109,
+      "grindShare": 0.556,
+      "maxGrindStreak": 9,
+      "maxGrindStreakAt": {
+        "afterDiscoveries": 80,
+        "waitingOn": "purchase",
+        "nextNode": "yogurt-sauce"
+      },
       "hintsUsed": 0,
-      "restocks": 0,
-      "pitzSpentPurchase": 0,
-      "pitzSpentRestock": 0,
-      "finalStars": 0,
-      "finalPitz": 0,
+      "originalPizzaBakes": 2,
+      "restocks": 3,
+      "pitzSpentPurchase": 13940,
+      "pitzSpentRestock": 110,
+      "finalStars": 174,
+      "finalPitz": 100,
       "bakeRewardPitz": 50,
-      "topBottlenecks": [],
+      "topBottlenecks": [
+        {
+          "key": "step61:purchase",
+          "grindBakes": 9
+        },
+        {
+          "key": "step63:purchase",
+          "grindBakes": 9
+        },
+        {
+          "key": "step64:purchase",
+          "grindBakes": 9
+        },
+        {
+          "key": "step65:purchase",
+          "grindBakes": 9
+        },
+        {
+          "key": "step66:purchase",
+          "grindBakes": 9
+        }
+      ],
       "profile": "EVIDENCE_STRICT",
       "mechanicPolicy": "M2_TUTORIAL_WEIGHTED",
       "comparison": "decisionProfile"
@@ -19893,24 +19941,52 @@
       "skill": "SKILLED",
       "explorer": "COMPLETIONIST",
       "hints": "HINTS_ON",
-      "outcome": "START_DEADLOCK",
-      "deadlock": true,
-      "discovered": 0,
+      "outcome": "COMPLETE",
+      "deadlock": false,
+      "discovered": 87,
       "targets": 87,
-      "turns": 0,
-      "bakesToDiscovery": {},
-      "grindBakes": 0,
-      "grindShare": null,
-      "maxGrindStreak": 0,
-      "maxGrindStreakAt": null,
+      "turns": 99,
+      "bakesToDiscovery": {
+        "1": 2,
+        "10": 11,
+        "20": 21,
+        "50": 51,
+        "all": 99
+      },
+      "grindBakes": 12,
+      "grindShare": 0.121,
+      "maxGrindStreak": 4,
+      "maxGrindStreakAt": {
+        "afterDiscoveries": 85,
+        "waitingOn": "purchase",
+        "nextNode": "zaatar"
+      },
       "hintsUsed": 0,
-      "restocks": 0,
-      "pitzSpentPurchase": 0,
-      "pitzSpentRestock": 0,
-      "finalStars": 0,
-      "finalPitz": 0,
+      "originalPizzaBakes": 1,
+      "restocks": 3,
+      "pitzSpentPurchase": 13940,
+      "pitzSpentRestock": 110,
+      "finalStars": 348,
+      "finalPitz": 200,
       "bakeRewardPitz": 100,
-      "topBottlenecks": [],
+      "topBottlenecks": [
+        {
+          "key": "step66:purchase",
+          "grindBakes": 4
+        },
+        {
+          "key": "step67:purchase",
+          "grindBakes": 4
+        },
+        {
+          "key": "step65:purchase",
+          "grindBakes": 3
+        },
+        {
+          "key": "step1:purchase",
+          "grindBakes": 1
+        }
+      ],
       "profile": "EVIDENCE_STRICT",
       "mechanicPolicy": "M2_TUTORIAL_WEIGHTED",
       "comparison": "decisionProfile"
@@ -19923,24 +19999,56 @@
       "skill": "STANDARD",
       "explorer": "COMPLETIONIST",
       "hints": "HINTS_ON",
-      "outcome": "START_DEADLOCK",
-      "deadlock": true,
-      "discovered": 0,
+      "outcome": "COMPLETE",
+      "deadlock": false,
+      "discovered": 87,
       "targets": 87,
-      "turns": 0,
-      "bakesToDiscovery": {},
-      "grindBakes": 0,
-      "grindShare": null,
-      "maxGrindStreak": 0,
-      "maxGrindStreakAt": null,
+      "turns": 123,
+      "bakesToDiscovery": {
+        "1": 2,
+        "10": 11,
+        "20": 21,
+        "50": 51,
+        "all": 123
+      },
+      "grindBakes": 36,
+      "grindShare": 0.293,
+      "maxGrindStreak": 5,
+      "maxGrindStreakAt": {
+        "afterDiscoveries": 80,
+        "waitingOn": "purchase",
+        "nextNode": "yogurt-sauce"
+      },
       "hintsUsed": 0,
-      "restocks": 0,
-      "pitzSpentPurchase": 0,
-      "pitzSpentRestock": 0,
-      "finalStars": 0,
-      "finalPitz": 0,
+      "originalPizzaBakes": 1,
+      "restocks": 3,
+      "pitzSpentPurchase": 13940,
+      "pitzSpentRestock": 110,
+      "finalStars": 261,
+      "finalPitz": 140,
       "bakeRewardPitz": 80,
-      "topBottlenecks": [],
+      "topBottlenecks": [
+        {
+          "key": "step61:purchase",
+          "grindBakes": 5
+        },
+        {
+          "key": "step63:purchase",
+          "grindBakes": 5
+        },
+        {
+          "key": "step64:purchase",
+          "grindBakes": 5
+        },
+        {
+          "key": "step65:purchase",
+          "grindBakes": 5
+        },
+        {
+          "key": "step66:purchase",
+          "grindBakes": 5
+        }
+      ],
       "profile": "EVIDENCE_STRICT",
       "mechanicPolicy": "M2_TUTORIAL_WEIGHTED",
       "comparison": "decisionProfile"
@@ -19953,6 +20061,68 @@
       "skill": "WORST",
       "explorer": "COMPLETIONIST",
       "hints": "HINTS_ON",
+      "outcome": "COMPLETE",
+      "deadlock": false,
+      "discovered": 87,
+      "targets": 87,
+      "turns": 489,
+      "bakesToDiscovery": {
+        "1": 4,
+        "10": 18,
+        "20": 28,
+        "50": 96,
+        "all": 489
+      },
+      "grindBakes": 402,
+      "grindShare": 0.822,
+      "maxGrindStreak": 24,
+      "maxGrindStreakAt": {
+        "afterDiscoveries": 80,
+        "waitingOn": "purchase",
+        "nextNode": "yogurt-sauce"
+      },
+      "hintsUsed": 0,
+      "originalPizzaBakes": 8,
+      "restocks": 3,
+      "pitzSpentPurchase": 13940,
+      "pitzSpentRestock": 110,
+      "finalStars": 174,
+      "finalPitz": 80,
+      "bakeRewardPitz": 20,
+      "topBottlenecks": [
+        {
+          "key": "step61:purchase",
+          "grindBakes": 24
+        },
+        {
+          "key": "step63:purchase",
+          "grindBakes": 24
+        },
+        {
+          "key": "step65:purchase",
+          "grindBakes": 24
+        },
+        {
+          "key": "step67:purchase",
+          "grindBakes": 24
+        },
+        {
+          "key": "step64:purchase",
+          "grindBakes": 23
+        }
+      ],
+      "profile": "EVIDENCE_STRICT",
+      "mechanicPolicy": "M2_TUTORIAL_WEIGHTED",
+      "comparison": "decisionProfile"
+    },
+    {
+      "curve": "G4_HYBRID_060",
+      "price": "PR_TIERED",
+      "stock": "S10_R10",
+      "reward": "FLOOR_DISCOVERY_BONUS_NO_ORIGINAL_PITZ",
+      "skill": "STANDARD",
+      "explorer": "COMPLETIONIST",
+      "hints": "HINTS_ON",
       "outcome": "START_DEADLOCK",
       "deadlock": true,
       "discovered": 0,
@@ -19964,16 +20134,17 @@
       "maxGrindStreak": 0,
       "maxGrindStreakAt": null,
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 0,
       "pitzSpentPurchase": 0,
       "pitzSpentRestock": 0,
       "finalStars": 0,
       "finalPitz": 0,
-      "bakeRewardPitz": 20,
+      "bakeRewardPitz": 80,
       "topBottlenecks": [],
       "profile": "EVIDENCE_STRICT",
       "mechanicPolicy": "M2_TUTORIAL_WEIGHTED",
-      "comparison": "decisionProfile"
+      "comparison": "decisionProfileNoOriginalPitz"
     },
     {
       "curve": "G0_LEGACY_LADDER_10",
@@ -19996,6 +20167,7 @@
       "maxGrindStreak": 0,
       "maxGrindStreakAt": null,
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 0,
       "pitzSpentPurchase": 0,
       "pitzSpentRestock": 0,
@@ -20028,6 +20200,7 @@
       "maxGrindStreak": 0,
       "maxGrindStreakAt": null,
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 0,
       "pitzSpentPurchase": 0,
       "pitzSpentRestock": 0,
@@ -20060,6 +20233,7 @@
       "maxGrindStreak": 0,
       "maxGrindStreakAt": null,
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 0,
       "pitzSpentPurchase": 0,
       "pitzSpentRestock": 0,
@@ -20092,6 +20266,7 @@
       "maxGrindStreak": 0,
       "maxGrindStreakAt": null,
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 0,
       "pitzSpentPurchase": 0,
       "pitzSpentRestock": 0,
@@ -20124,6 +20299,7 @@
       "maxGrindStreak": 0,
       "maxGrindStreakAt": null,
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 0,
       "pitzSpentPurchase": 0,
       "pitzSpentRestock": 0,
@@ -20156,6 +20332,7 @@
       "maxGrindStreak": 0,
       "maxGrindStreakAt": null,
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 0,
       "pitzSpentPurchase": 0,
       "pitzSpentRestock": 0,
@@ -20196,6 +20373,7 @@
         "nextNode": "nori"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -20257,6 +20435,7 @@
         "nextNode": "nori"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -20316,6 +20495,7 @@
         "nextNode": "wurstel"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 0,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 0,
@@ -20377,6 +20557,7 @@
         "nextNode": "ham"
       },
       "hintsUsed": 55,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -20437,6 +20618,7 @@
         "nextNode": "wurstel"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 2,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 60,
@@ -20498,6 +20680,7 @@
         "nextNode": "spinach"
       },
       "hintsUsed": 34,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -20559,6 +20742,7 @@
         "nextNode": "nori"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -20620,6 +20804,7 @@
         "nextNode": "nori"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -20677,6 +20862,7 @@
         "nextNode": "onion"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 0,
       "pitzSpentPurchase": 180,
       "pitzSpentRestock": 0,
@@ -20722,6 +20908,7 @@
         "nextNode": "ham"
       },
       "hintsUsed": 55,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -20779,6 +20966,7 @@
         "nextNode": "onion"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 0,
       "pitzSpentPurchase": 180,
       "pitzSpentRestock": 0,
@@ -20824,6 +21012,7 @@
         "nextNode": "ham"
       },
       "hintsUsed": 34,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -20885,6 +21074,7 @@
         "nextNode": "nori"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -20946,6 +21136,7 @@
         "nextNode": "nori"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -21003,6 +21194,7 @@
         "nextNode": "onion"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 0,
       "pitzSpentPurchase": 180,
       "pitzSpentRestock": 0,
@@ -21048,6 +21240,7 @@
         "nextNode": "ham"
       },
       "hintsUsed": 55,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -21108,6 +21301,7 @@
         "nextNode": "wurstel"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 2,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 60,
@@ -21169,6 +21363,7 @@
         "nextNode": "spinach"
       },
       "hintsUsed": 34,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -21230,6 +21425,7 @@
         "nextNode": "nori"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -21291,6 +21487,7 @@
         "nextNode": "nori"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -21348,6 +21545,7 @@
         "nextNode": "onion"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 0,
       "pitzSpentPurchase": 180,
       "pitzSpentRestock": 0,
@@ -21393,6 +21591,7 @@
         "nextNode": "ham"
       },
       "hintsUsed": 55,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -21453,6 +21652,7 @@
         "nextNode": "wurstel"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 2,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 60,
@@ -21514,6 +21714,7 @@
         "nextNode": "spinach"
       },
       "hintsUsed": 34,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -21575,6 +21776,7 @@
         "nextNode": "nori"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -21636,6 +21838,7 @@
         "nextNode": "nori"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -21693,6 +21896,7 @@
         "nextNode": "onion"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 0,
       "pitzSpentPurchase": 180,
       "pitzSpentRestock": 0,
@@ -21738,6 +21942,7 @@
         "nextNode": "ham"
       },
       "hintsUsed": 55,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -21798,6 +22003,7 @@
         "nextNode": "wurstel"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 2,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 60,
@@ -21859,6 +22065,7 @@
         "nextNode": "spinach"
       },
       "hintsUsed": 34,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -21920,6 +22127,7 @@
         "nextNode": "nori"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -21981,6 +22189,7 @@
         "nextNode": "nori"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -22038,6 +22247,7 @@
         "nextNode": "onion"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 0,
       "pitzSpentPurchase": 180,
       "pitzSpentRestock": 0,
@@ -22083,6 +22293,7 @@
         "nextNode": "ham"
       },
       "hintsUsed": 55,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -22140,6 +22351,7 @@
         "nextNode": "onion"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 0,
       "pitzSpentPurchase": 180,
       "pitzSpentRestock": 0,
@@ -22185,6 +22397,7 @@
         "nextNode": "ham"
       },
       "hintsUsed": 34,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -22246,6 +22459,7 @@
         "nextNode": "nori"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14540,
       "pitzSpentRestock": 180,
@@ -22307,6 +22521,7 @@
         "nextNode": "nori"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -22368,6 +22583,7 @@
         "nextNode": "nori"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 13700,
       "pitzSpentRestock": 180,
@@ -22425,6 +22641,7 @@
         "nextNode": "swiss-cheese"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 13800,
       "pitzSpentRestock": 360,
@@ -22486,6 +22703,7 @@
         "nextNode": "wurstel"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 13800,
       "pitzSpentRestock": 360,
@@ -22547,6 +22765,7 @@
         "nextNode": "nori"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 35,
       "pitzSpentPurchase": 13800,
       "pitzSpentRestock": 1260,
@@ -22608,6 +22827,7 @@
         "nextNode": "nori"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 35,
       "pitzSpentPurchase": 13800,
       "pitzSpentRestock": 1260,
@@ -22669,6 +22889,7 @@
         "nextNode": "yogurt-sauce"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 23,
       "pitzSpentPurchase": 13800,
       "pitzSpentRestock": 828,
@@ -22730,6 +22951,7 @@
         "nextNode": "gravy-sauce"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 23,
       "pitzSpentPurchase": 13800,
       "pitzSpentRestock": 828,
@@ -22791,6 +23013,7 @@
         "nextNode": "swiss-cheese"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 10500,
       "pitzSpentRestock": 402,
@@ -22852,6 +23075,7 @@
         "nextNode": "egg"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 10500,
       "pitzSpentRestock": 402,
@@ -22897,6 +23121,7 @@
         "nextNode": "nori"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 35,
       "pitzSpentPurchase": 10500,
       "pitzSpentRestock": 1348,
@@ -22958,6 +23183,7 @@
         "nextNode": "tahini"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 35,
       "pitzSpentPurchase": 10500,
       "pitzSpentRestock": 1348,
@@ -23019,6 +23245,7 @@
         "nextNode": "nori"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 23,
       "pitzSpentPurchase": 10500,
       "pitzSpentRestock": 916,
@@ -23080,6 +23307,7 @@
         "nextNode": "dough:flatbread-unleavened"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 23,
       "pitzSpentPurchase": 10500,
       "pitzSpentRestock": 916,
@@ -23141,6 +23369,7 @@
         "nextNode": "yogurt-sauce"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -23202,6 +23431,7 @@
         "nextNode": "nori"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -23263,6 +23493,7 @@
         "nextNode": "yogurt-sauce"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 35,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 762,
@@ -23324,6 +23555,7 @@
         "nextNode": "curry-ketchup"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 35,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 762,
@@ -23385,6 +23617,7 @@
         "nextNode": "mustard"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 23,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 438,
@@ -23446,6 +23679,7 @@
         "nextNode": "nori"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 23,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 438,
@@ -23507,6 +23741,7 @@
         "nextNode": "yogurt-sauce"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -23568,6 +23803,7 @@
         "nextNode": "shiso"
       },
       "hintsUsed": 55,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -23629,6 +23865,7 @@
         "nextNode": "swiss-cheese"
       },
       "hintsUsed": 34,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -23686,6 +23923,7 @@
       "maxGrindStreak": 0,
       "maxGrindStreakAt": null,
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -23726,6 +23964,7 @@
         "nextNode": "wurstel"
       },
       "hintsUsed": 55,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -23787,6 +24026,7 @@
         "nextNode": "beef"
       },
       "hintsUsed": 34,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -23848,6 +24088,7 @@
         "nextNode": "nori"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -23909,6 +24150,7 @@
         "nextNode": "ham"
       },
       "hintsUsed": 55,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -23970,6 +24212,7 @@
         "nextNode": "spinach"
       },
       "hintsUsed": 34,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -24031,6 +24274,7 @@
         "nextNode": "nori"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -24092,6 +24336,7 @@
         "nextNode": "nori"
       },
       "hintsUsed": 55,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -24153,6 +24398,7 @@
         "nextNode": "nori"
       },
       "hintsUsed": 34,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -24214,6 +24460,7 @@
         "nextNode": "yogurt-sauce"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -24275,6 +24522,7 @@
         "nextNode": "yogurt-sauce"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -24336,6 +24584,7 @@
         "nextNode": "yogurt-sauce"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -24397,6 +24646,7 @@
         "nextNode": "yogurt-sauce"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -24458,6 +24708,7 @@
         "nextNode": "nori"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -24519,6 +24770,7 @@
         "nextNode": "nori"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -24580,6 +24832,7 @@
         "nextNode": "yogurt-sauce"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -24641,6 +24894,7 @@
         "nextNode": "yogurt-sauce"
       },
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 6,
       "pitzSpentPurchase": 14460,
       "pitzSpentRestock": 180,
@@ -24694,6 +24948,7 @@
       "maxGrindStreak": 0,
       "maxGrindStreakAt": null,
       "hintsUsed": 0,
+      "originalPizzaBakes": 0,
       "restocks": 0,
       "pitzSpentPurchase": 0,
       "pitzSpentRestock": 0,
@@ -26515,7 +26770,7 @@
       "class": "A",
       "topic": "Margherita composition (first discovery)",
       "question": "shipped margherita {tomato-sauce, mozzarella, basil} vs PIZZA DB row (+olive-oil, needs MULTI_SPREAD_LAYER)",
-      "whyItBlocks": "Under EVIDENCE_STRICT the three starter ingredients complete ZERO evidence-ready targets; the zero-recipe start has no first discovery without this decision.",
+      "whyItBlocks": "Under EVIDENCE_STRICT the three starter ingredients complete ZERO evidence-ready targets. The start is not a deadlock (original-pizza Pitz buys the first ingredient), but the first bake can never be a discovery and the first discovery is Melanzane, not Margherita -- the issue's 'first Margherita discovery' Fun needs this decision.",
       "options": [
         "keep shipped composition (modelled by SHIPPED_KEEP)",
         "adopt PIZZA DB composition and change the starter set (see alternativeFirstDiscoveries)",
@@ -26580,7 +26835,8 @@
       "options": [
         "LEGACY",
         "FLOOR",
-        "FLOOR_DISCOVERY_BONUS"
+        "FLOOR_DISCOVERY_BONUS",
+        "FLOOR_DISCOVERY_BONUS_NO_ORIGINAL_PITZ"
       ],
       "modelledAs": "reward comparison",
       "economyKey": "reward",

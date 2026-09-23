@@ -128,12 +128,18 @@ SKILLS = {  # deterministic player models: every PASS bake lands on this quality
 # Current production multiplier table (src/logic/pitzReward.ts, read-only) and a floor variant.
 REWARD_TABLES = {
     "LEGACY": {"labelJa": "現行 pitzReward.ts（★1=×0）", "base": 100, "mult": {1: 0.0, 2: 0.5, 3: 0.8, 4: 1.0, 5: 1.2},
-               "discoveryBonus": 0},
+               "discoveryBonus": 0, "originalPizzaPays": True},
     "FLOOR": {"labelJa": "★1 に下限 ×0.2 を追加（PASS した焼成は必ず Pitz>0）", "base": 100, "mult": {1: 0.2, 2: 0.5, 3: 0.8, 4: 1.0, 5: 1.2},
-              "discoveryBonus": 0},
+              "discoveryBonus": 0, "originalPizzaPays": True},
     "FLOOR_DISCOVERY_BONUS": {"labelJa": "FLOOR ＋ 新発見ボーナス +50 Pitz", "base": 100, "mult": {1: 0.2, 2: 0.5, 3: 0.8, 4: 1.0, 5: 1.2},
-                              "discoveryBonus": 50},
+                              "discoveryBonus": 50, "originalPizzaPays": True},
+    # Negative control only (never recommended): a non-matching "original pizza" pays nothing, so a
+    # player with no discovered recipe has no Pitz income at all.
+    "FLOOR_DISCOVERY_BONUS_NO_ORIGINAL_PITZ": {"labelJa": "負の対照: オリジナルピザ（不一致の完成品）は Pitz 0", "base": 100,
+                                               "mult": {1: 0.2, 2: 0.5, 3: 0.8, 4: 1.0, 5: 1.2},
+                                               "discoveryBonus": 50, "originalPizzaPays": False},
 }
+REWARD_COMPARISON = ("LEGACY", "FLOOR", "FLOOR_DISCOVERY_BONUS")
 # Deterministic explorer models. `findRate` = share of targets the player finds on their own by free
 # experimentation (a stable per-target hash decides which); the rest need a Teto hint. The tutorial
 # target (the starter-only discovery) is always found.
@@ -198,7 +204,7 @@ TIER_BANDS = (("early", 0.25), ("mid", 0.60), ("late", 0.90), ("endgame", 1.01))
 DESIGN_DECISIONS = [
     {"id": "A-01", "class": "A", "topic": "Margherita composition (first discovery)",
      "question": "shipped margherita {tomato-sauce, mozzarella, basil} vs PIZZA DB row (+olive-oil, needs MULTI_SPREAD_LAYER)",
-     "whyItBlocks": "Under EVIDENCE_STRICT the three starter ingredients complete ZERO evidence-ready targets; the zero-recipe start has no first discovery without this decision.",
+     "whyItBlocks": "Under EVIDENCE_STRICT the three starter ingredients complete ZERO evidence-ready targets. The start is not a deadlock (original-pizza Pitz buys the first ingredient), but the first bake can never be a discovery and the first discovery is Melanzane, not Margherita -- the issue's 'first Margherita discovery' Fun needs this decision.",
      "options": ["keep shipped composition (modelled by SHIPPED_KEEP)", "adopt PIZZA DB composition and change the starter set (see alternativeFirstDiscoveries)", "ship both as distinct dishes"],
      "modelledAs": "SHIPPED_KEEP profile", "recommendation": "keep shipped composition; PIZZA DB row stays a separate blocked candidate until MULTI_SPREAD_LAYER exists"},
     {"id": "A-02", "class": "A", "topic": "Shipped recipes without a 172 row, and shipped composition conflicts",
@@ -621,7 +627,7 @@ def default_tables():
 
 def serialize_reward_tables(tables):
     return {k: {"labelJa": v["labelJa"], "base": v["base"], "mult": {str(a): b for a, b in v["mult"].items()},
-                "discoveryBonus": v["discoveryBonus"]} for k, v in tables.items()}
+                "discoveryBonus": v["discoveryBonus"], "originalPizzaPays": v["originalPizzaPays"]} for k, v in tables.items()}
 
 
 def tables_from_json(out):
@@ -629,7 +635,8 @@ def tables_from_json(out):
     return {
         "gateCurves": out["gateCurves"], "priceSchedules": out["priceSchedules"], "stockPolicies": out["stockPolicies"],
         "rewardTables": {k: {"labelJa": v["labelJa"], "base": v["base"], "mult": {int(a): b for a, b in v["mult"].items()},
-                             "discoveryBonus": v["discoveryBonus"]} for k, v in out["rewardTables"].items()},
+                             "discoveryBonus": v["discoveryBonus"], "originalPizzaPays": v["originalPizzaPays"]}
+                         for k, v in out["rewardTables"].items()},
         "skills": out["skills"], "explorers": out["explorers"], "hintPolicies": out["hintPolicies"],
     }
 
@@ -653,6 +660,7 @@ def simulate(targets, schedule, curve_id, price_id, stock_id, reward_id, skill_i
     rt = tb["rewardTables"][reward_id]
     bake_reward = round(rt["base"] * rt["mult"][skill])
     discovery_bonus = rt["discoveryBonus"]
+    original_pays = rt["originalPizzaPays"]
     stock_cfg = tb["stockPolicies"][stock_id]
     price_cfg = tb["priceSchedules"][price_id]
     curve = tb["gateCurves"][curve_id]
@@ -678,7 +686,7 @@ def simulate(targets, schedule, curve_id, price_id, stock_id, reward_id, skill_i
     owned = set(STARTER_ITEMS)
     stock = defaultdict(int)
     discovered, discovered_set, unlimited_discovered = [], set(), []
-    stars = pitz = turns = grind_turns = restocks = hints_used = 0
+    stars = pitz = turns = grind_turns = restocks = hints_used = original_bakes = 0
     spent_purchase = spent_restock = 0
     grind_streak = max_grind_streak = idle = 0
     max_grind_at = None
@@ -784,8 +792,12 @@ def simulate(targets, schedule, curve_id, price_id, stock_id, reward_id, skill_i
             outcome = "PLATEAU_UNFOUND"  # everything bought, the rest is never found without hints
             break
         if not unlimited_discovered:
-            outcome = "START_DEADLOCK" if not discovered else "PITZ_DEADLOCK_NO_UNLIMITED_RECIPE"
-            break
+            # No discovered starter-only recipe yet. The only income is an "original pizza" -- a
+            # PASS free cook from the unlimited starters that matches no target (design sec. 2).
+            if not original_pays:
+                outcome = "START_DEADLOCK" if not discovered else "PITZ_DEADLOCK_NO_UNLIMITED_RECIPE"
+                break
+            original_bakes += 1
         if bake_reward <= 0:
             outcome = "PITZ_DEADLOCK_ZERO_REWARD"
             break
@@ -811,6 +823,7 @@ def simulate(targets, schedule, curve_id, price_id, stock_id, reward_id, skill_i
         "bakesToDiscovery": milestones, "grindBakes": grind_turns,
         "grindShare": round(grind_turns / turns, 3) if turns else None,
         "maxGrindStreak": max_grind_streak, "maxGrindStreakAt": max_grind_at, "hintsUsed": hints_used,
+        "originalPizzaBakes": original_bakes,
         "restocks": restocks, "pitzSpentPurchase": spent_purchase, "pitzSpentRestock": spent_restock,
         "finalStars": stars, "finalPitz": pitz, "bakeRewardPitz": bake_reward,
         "topBottlenecks": [{"key": k, "grindBakes": v} for k, v in sorted(bottleneck_counter.items(), key=lambda kv: (-kv[1], kv[0]))[:5]],
@@ -938,13 +951,15 @@ def build():
         for stock in STOCK_POLICIES:
             for skill in ("BEGINNER", "STANDARD"):
                 sims.append(run(R, M, "priceStock", price=price, stock=stock, skill=skill))
-    for reward in REWARD_TABLES:
+    for reward in REWARD_COMPARISON:
         for skill in ("WORST", "BEGINNER", "STANDARD"):
             sims.append(run(R, M, "reward", reward=reward, skill=skill))
     for policy in MECHANIC_POLICIES:
         sims.append(run(R, policy, "mechanicPolicy"))
     for skill in SKILLS:
         sims.append(run("EVIDENCE_STRICT", M, "decisionProfile", skill=skill))
+    # negative control: if original pizzas paid nothing, the strict start would be a hard deadlock
+    sims.append(run("EVIDENCE_STRICT", M, "decisionProfileNoOriginalPitz", reward="FLOOR_DISCOVERY_BONUS_NO_ORIGINAL_PITZ"))
     for s_ in sims:
         s_.pop("events")
         s_.pop("ownedSnapshots")
@@ -1315,8 +1330,18 @@ def validate(out):
     if strict["discoverableAtStart"]:
         errors.append("EVIDENCE_STRICT unexpectedly has a starter-only discovery; report section on A-01 is stale")
     for s in out["simulations"]:
-        if s["comparison"] == "decisionProfile" and s["outcome"] != "START_DEADLOCK":
-            errors.append(f"EVIDENCE_STRICT simulation {s['skill']} outcome {s['outcome']} != START_DEADLOCK")
+        # PR #191 review (P2): original pizzas pay Pitz, so the strict start is NOT a deadlock --
+        # but its first discovery needs original-pizza income plus a purchase (no first-bake Fun).
+        if s["comparison"] == "decisionProfile":
+            if s["outcome"] != "COMPLETE":
+                errors.append(f"EVIDENCE_STRICT simulation {s['skill']} outcome {s['outcome']} != COMPLETE")
+            if not (s["originalPizzaBakes"] > 0 and s["bakesToDiscovery"].get("1", 0) > 1):
+                errors.append(f"EVIDENCE_STRICT {s['skill']}: expected original-pizza bakes before the first discovery")
+        if s["comparison"] == "decisionProfileNoOriginalPitz" and s["outcome"] != "START_DEADLOCK":
+            errors.append(f"negative control (original pizzas pay 0) outcome {s['outcome']} != START_DEADLOCK")
+        if (s["profile"] == RECOMMENDED_PROFILE and s["comparison"] == "recommendedRobustness"
+                and s["originalPizzaBakes"] != 0):
+            errors.append(f"recommended profile needed original-pizza income for {s['skill']}/{s['explorer']}")
         if s["comparison"] == "gateCurve" and s["curve"] == "G0_LEGACY_LADDER_10" and not s["deadlock"]:
             errors.append(f"negative control G0 {s['skill']} did not deadlock")
         if s["comparison"] == "reward" and s["reward"] == "LEGACY" and s["skill"] == "WORST" and s["outcome"] != "PITZ_DEADLOCK_ZERO_REWARD":
@@ -1345,6 +1370,7 @@ def validate(out):
 
 
 SIM_COMPARE_FIELDS = ("outcome", "discovered", "turns", "bakesToDiscovery", "grindBakes", "maxGrindStreak", "hintsUsed",
+                      "originalPizzaBakes",
                       "restocks", "pitzSpentPurchase", "pitzSpentRestock", "finalStars", "finalPitz", "bakeRewardPitz")
 
 
@@ -1359,6 +1385,9 @@ def validate_economy_serialization(out):
         if not isinstance(t.get("discoveryBonus"), int):
             errors.append(f"rewardTables.{tid}.discoveryBonus missing or not an integer")
     expected_bonus = {"FLOOR_DISCOVERY_BONUS": 50, "FLOOR": 0, "LEGACY": 0}
+    for tid in REWARD_COMPARISON:
+        if out.get("rewardTables", {}).get(tid, {}).get("originalPizzaPays") is not True:
+            errors.append(f"rewardTables.{tid}.originalPizzaPays must be true (design sec. 2: original pizzas pay Pitz)")
     for tid, bonus in expected_bonus.items():
         got = out.get("rewardTables", {}).get(tid, {}).get("discoveryBonus")
         if got != bonus:

@@ -248,8 +248,10 @@ Results:
 
 - **Population:** 87 evidence-ready rows plus 14 kept shipped recipes gives 101 targets, all
   reachable. The other 85 rows stay blocked, and none was guess-filled.
-- **Zero-recipe start:** it works only if the shipped Margherita composition is kept (decision
-  A-01). Under strict evidence, the starter trio discovers nothing.
+- **Zero-recipe start:** the first bake is a Margherita discovery only if the shipped Margherita
+  composition is kept (decision A-01). Under strict evidence there is no deadlock, but the starter
+  trio discovers nothing. The first bakes are Pitz-paying "original pizzas", and the first discovery
+  (Melanzane) needs a purchase.
 - **Recommended curve:** Hybrid ⭐ (+2 per discovery, +1 at ★3/4/5), gates at 0.6 × discoverable,
   tiered prices 60/100/140/180, stock 10 portions with +10 restock, a ★1 Pitz floor plus a +50
   discovery bonus, Teto hints, and mechanics taught one at a time every 6 discoveries from
