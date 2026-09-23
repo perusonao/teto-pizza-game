@@ -206,6 +206,33 @@ in the implementing sandbox). Screenshots + four 390×844/360×800 Human Verific
 order→CUT→serve) delivered as MP4/H.264. Dedicated Issue #172. **Not merged — PR open, pending the
 user's own review**, per this task's own explicit "do not auto-merge" instruction.
 
+**2026-09-22 addendum (Issue #188 Progression 2.0 Phase 1: 172-recipe Mechanic Matrix,
+docs/data/tooling-only, PR OPEN)**. Base `main` is `5676ae9d` (the PR #183 Phase-0 merge). The
+new artifacts are:
+
+- `docs/design/TETO_RECIPE_172_MECHANIC-MATRIX.md` (the report);
+- `docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json` (the matrix);
+- `docs/design/TETO_RECIPE_172_MECHANIC-MATRIX_ROWS.md` (a generated per-row table);
+- `tools/progression2_mechanic_matrix.py` (a deterministic generator and validator; `--check`
+  validates only).
+
+Results:
+
+- **Coverage:** 172/172 rows. Under the current `DOUGH → SAUCE → CHEESE/TOPPING → BAKE → CUT`
+  flow, 101 are FULL, 55 PARTIAL and 16 NOT_REPRESENTABLE.
+- **Capabilities:** the minimum reusable set is 11. The recommended coverage order starts with
+  DOUGH_VARIANT, then MULTI_SPREAD_LAYER, then LATE_ADDITION; those three reach 151/172.
+- **Collisions:** of the 5 Phase-0 exact-set collision groups, 4 are distinguished by evidenced
+  dough/pan/order dimensions. Fugazza/fugazzetta remains a discovery-rule blocker.
+- **Decisions:** 27 composition decisions are listed, 9 of them against SHIPPED recipes (nothing
+  rewritten). 21 ambiguous-ingredient rows are preserved, not guess-filled.
+- **Status:** 85 rows are blocked on a product decision. 56 rows are FULL and decision-ready, the
+  content-only pool.
+
+No `src/**` change was made. No ★ threshold or Pitz price was set. The production Progression SSOT
+was not touched. **Not merged; the PR is open and pending review.** The next milestone is
+Progression 2.0 progression/economy design against this population.
+
 > Fresh GitHub/main state always wins if this document becomes stale.
 
 ## Product goal
