@@ -86,9 +86,18 @@ export function isMissionExpired(now: number, clock: MissionClock): boolean {
  */
 export function pickMissionOrder(
   availableRecipeIds: readonly RecipeId[],
+  discoveredRecipeIds: readonly RecipeId[],
   excludeRecipeId?: string,
-): Order {
-  return getNextOrder({ availableRecipeIds: [...availableRecipeIds], excludeRecipeId });
+): Order | null {
+  // Progression 2.0 follow-up (Issue #200): Lunch Rush is a mastery/speed mode for pizzas
+  // the player has already discovered. Availability still remains the canonical makeability
+  // gate; Mission narrows it further to the intersection with the Dex. Deliberately return
+  // null for an empty intersection instead of calling getNextOrder([]), whose free-play-safe
+  // fallback is the full order catalog and would bypass discovery progression.
+  const discovered = new Set<RecipeId>(discoveredRecipeIds);
+  const missionRecipeIds = availableRecipeIds.filter((id) => discovered.has(id));
+  if (missionRecipeIds.length === 0) return null;
+  return getNextOrder({ availableRecipeIds: [...missionRecipeIds], excludeRecipeId });
 }
 
 /** Which screen the Mission wrapper is showing. "FREE" means Mission is not engaged at all --
