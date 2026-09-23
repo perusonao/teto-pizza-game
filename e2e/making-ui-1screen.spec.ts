@@ -200,7 +200,13 @@ test.describe("Sauce lock (Issue #159 P0): no second sauce ever offered once SAU
   }) => {
     const save = {
       schemaVersion: 2,
-      dex: [],
+      // Progression 2.0 Phase 3-3 (Issue #198): an empty Dex makes margherita's own NEW card
+      // preDiscoveryLocked (guided selection routes to Free Cooking instead) -- this test is
+      // about the SAUCE tray filter, not onboarding, so seed one harmless, deeply chain-gated
+      // discovery (napoletana; its own unlock chain requires several other undiscovered
+      // recipes, so this never widens ownership/availability of anything real this test cares
+      // about) purely to clear that gate.
+      dex: [{ recipeId: "napoletana", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }],
       pitzBalance: 500,
       ownedIngredientIds: ["tomato-sauce", "mozzarella", "basil", "olive-oil", "pesto"],
       missionBest: {},
