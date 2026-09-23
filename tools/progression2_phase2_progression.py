@@ -687,6 +687,7 @@ def simulate(targets, schedule, curve_id, price_id, stock_id, reward_id, skill_i
     stock = defaultdict(int)
     discovered, discovered_set, unlimited_discovered = [], set(), []
     stars = pitz = turns = grind_turns = restocks = hints_used = original_bakes = 0
+    original_bakes_before_first = None  # frozen at the first discovery
     spent_purchase = spent_restock = 0
     grind_streak = max_grind_streak = idle = 0
     max_grind_at = None
@@ -762,6 +763,8 @@ def simulate(targets, schedule, curve_id, price_id, stock_id, reward_id, skill_i
                 stock[n] -= 1
             discovered.append(t["targetId"])
             discovered_set.add(t["targetId"])
+            if original_bakes_before_first is None:
+                original_bakes_before_first = original_bakes
             stars += stars_for_discovery(curve, skill)
             pitz += bake_reward + discovery_bonus
             grind_streak = idle = 0
@@ -824,6 +827,8 @@ def simulate(targets, schedule, curve_id, price_id, stock_id, reward_id, skill_i
         "grindShare": round(grind_turns / turns, 3) if turns else None,
         "maxGrindStreak": max_grind_streak, "maxGrindStreakAt": max_grind_at, "hintsUsed": hints_used,
         "originalPizzaBakes": original_bakes,
+        # lifetime count above vs. the originals baked before the first discovery (PR #191 review)
+        "originalPizzaBakesBeforeFirstDiscovery": original_bakes_before_first if original_bakes_before_first is not None else original_bakes,
         "restocks": restocks, "pitzSpentPurchase": spent_purchase, "pitzSpentRestock": spent_restock,
         "finalStars": stars, "finalPitz": pitz, "bakeRewardPitz": bake_reward,
         "topBottlenecks": [{"key": k, "grindBakes": v} for k, v in sorted(bottleneck_counter.items(), key=lambda kv: (-kv[1], kv[0]))[:5]],
@@ -1335,8 +1340,15 @@ def validate(out):
         if s["comparison"] == "decisionProfile":
             if s["outcome"] != "COMPLETE":
                 errors.append(f"EVIDENCE_STRICT simulation {s['skill']} outcome {s['outcome']} != COMPLETE")
-            if not (s["originalPizzaBakes"] > 0 and s["bakesToDiscovery"].get("1", 0) > 1):
+            pre = s["originalPizzaBakesBeforeFirstDiscovery"]
+            if not (pre > 0 and s["bakesToDiscovery"].get("1", 0) > 1):
                 errors.append(f"EVIDENCE_STRICT {s['skill']}: expected original-pizza bakes before the first discovery")
+            # every bake before the first discovery is an original pizza, so the two must agree
+            if pre != s["bakesToDiscovery"].get("1", 0) - 1:
+                errors.append(f"EVIDENCE_STRICT {s['skill']}: originalPizzaBakesBeforeFirstDiscovery={pre} but first discovery at bake "
+                              f"{s['bakesToDiscovery'].get('1')}")
+            if pre > s["originalPizzaBakes"]:
+                errors.append(f"EVIDENCE_STRICT {s['skill']}: pre-discovery original bakes exceed the lifetime count")
         if s["comparison"] == "decisionProfileNoOriginalPitz" and s["outcome"] != "START_DEADLOCK":
             errors.append(f"negative control (original pizzas pay 0) outcome {s['outcome']} != START_DEADLOCK")
         if (s["profile"] == RECOMMENDED_PROFILE and s["comparison"] == "recommendedRobustness"
@@ -1370,7 +1382,7 @@ def validate(out):
 
 
 SIM_COMPARE_FIELDS = ("outcome", "discovered", "turns", "bakesToDiscovery", "grindBakes", "maxGrindStreak", "hintsUsed",
-                      "originalPizzaBakes",
+                      "originalPizzaBakes", "originalPizzaBakesBeforeFirstDiscovery",
                       "restocks", "pitzSpentPurchase", "pitzSpentRestock", "finalStars", "finalPitz", "bakeRewardPitz")
 
 
