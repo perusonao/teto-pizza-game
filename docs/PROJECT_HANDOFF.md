@@ -301,8 +301,8 @@ There is no save schema change. The unit suite is 2406/2406 (29 new) and Chromiu
 WebKit is covered by the CI job. Open follow-ups are listed in that report's §6: the ORIGINAL
 Pitz reward belongs to P3-3, and onboarding and hint tiers are also pending.
 
-**2026-09-23 addendum (Progression 2.0 Phase 3-4F: Lunch Rush stock-aware mission pool, Fresh
-Audit, docs-only, PR OPEN)**. Audited `main` is `dff233c0` (the PR #210 merge; PR #202 is merged
+**2026-09-23 addendum (Issue #212 Progression 2.0 Phase 3-4F: Lunch Rush stock-aware mission
+pool, Fresh Audit, docs-only, PR #213 OPEN)**. Audited `main` is `dff233c0` (the PR #210 merge; PR #202 is merged
 as `66abe43`). See `docs/reports/PROGRESSION-2.0_P3-4F_LUNCH-RUSH-STOCK-AWARE_FRESH-AUDIT.md` and
 `docs/reports/data/PROGRESSION-2.0_P3-4F_SCENARIO-MATRIX.json`.
 

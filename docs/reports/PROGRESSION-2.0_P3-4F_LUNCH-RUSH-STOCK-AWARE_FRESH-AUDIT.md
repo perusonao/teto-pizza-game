@@ -1,5 +1,6 @@
 # Progression 2.0 Phase 3-4F — Lunch Rush Stock-Aware Mission Pool: Fresh Audit / Pre-Implementation Design
 
+- **Issue:** #212（Progression 2.0 Phase 3-4F: Lunch Rush stock-aware mission pool）。Issue の Required scenarios 1〜5 は、§11 の HR-1〜HR-5 に対応する
 - **Audited main SHA:** `dff233c042d2df6ee1c3a92f2d2419830aa05460`（PR #210 のマージ。その 1 つ前が PR #202 のマージ `66abe43`）
 - **Branch:** `claude/lunch-rush-stock-audit-4gd20m`（docs のみ）
 - **種別:** Fresh Audit と実装前設計。**production runtime の変更はなし。**

@@ -1,4 +1,5 @@
 {
+  "issue": 212,
   "schema": "teto.p3-4f.scenario-matrix/v1",
   "auditedMainSha": "dff233c042d2df6ee1c3a92f2d2419830aa05460",
   "currentPoolRule": "discovered ∩ availableRecipeIds(dex, owned) [EP1 recipeUnlocked AND all required OWNED]; inventory not consulted; avoidRepeat unless pool size 1; empty -> null (fail-closed)",
