@@ -684,6 +684,7 @@ def simulate(targets, schedule, curve_id, price_id, stock_id, reward_id, skill_i
     max_grind_at = None
     qi = 0
     milestones, events = {}, []
+    owned_snapshots = {"start": sorted(owned)}
     outcome = None
     bottleneck_counter = Counter()
     target_order = [tid for st in schedule["steps"] for tid in st["newlyDiscoverable"]]
@@ -761,9 +762,13 @@ def simulate(targets, schedule, curve_id, price_id, stock_id, reward_id, skill_i
             n_disc = len(discovered)
             if n_disc in (1, 10, 20, 50):
                 milestones[str(n_disc)] = turns
+                # ownership actually held when this milestone discovery was baked (purchases run
+                # ahead of discoveries because gates open at a fraction of what is discoverable)
+                owned_snapshots[str(n_disc)] = sorted(owned)
             log("discover", target=t["targetId"], nameJa=t["nameJa"], n=n_disc, stars=stars, pitzAfter=pitz)
             if n_disc == len(targets):
                 milestones["all"] = turns
+                owned_snapshots["all"] = sorted(owned)
                 outcome = "COMPLETE"
                 break
             continue
@@ -810,6 +815,7 @@ def simulate(targets, schedule, curve_id, price_id, stock_id, reward_id, skill_i
         "finalStars": stars, "finalPitz": pitz, "bakeRewardPitz": bake_reward,
         "topBottlenecks": [{"key": k, "grindBakes": v} for k, v in sorted(bottleneck_counter.items(), key=lambda kv: (-kv[1], kv[0]))[:5]],
         "events": events if log_limit else None,
+        "ownedSnapshots": owned_snapshots if log_limit else None,
     }
 
 
@@ -941,8 +947,10 @@ def build():
         sims.append(run("EVIDENCE_STRICT", M, "decisionProfile", skill=skill))
     for s_ in sims:
         s_.pop("events")
+        s_.pop("ownedSnapshots")
     walkthrough = run(R, M, "walkthrough", log_limit=50)
     events = walkthrough.pop("events")
+    owned_snapshots = walkthrough.pop("ownedSnapshots")
     first = {}
     disc = [e for e in events if e["event"] == "discover"]
     for n in (10, 20, 50):
@@ -951,29 +959,9 @@ def build():
     unlock_events = [e for e in events if e["event"] in ("buy", "unlock_capability", "teto_hint")]
 
     # --- UI sizing ------------------------------------------------------------------------------
-    spread_ids = set(matrix["spreadLayerIngredientIds"])
-    def owned_after(n_disc):
-        owned = set(STARTER_ITEMS)
-        count = 0
-        for s in rec_schedule["steps"][1:]:
-            if count >= n_disc:
-                break
-            owned |= {x["id"] for x in s["nodes"]}
-            count = s["cumulativeDiscoverable"]
-        return owned
-    ui = []
-    all_nodes = set()
-    for t in rec_targets:
-        all_nodes |= set(t["items"])
-    for label, n in (("start", 0), ("10", 10), ("20", 20), ("50", 50), ("all", len(rec_targets))):
-        owned = owned_after(n) if label != "all" else all_nodes | set(STARTER_ITEMS)
-        ings = sorted(x for x in owned if node_kind(x) == "ingredient")
-        cats = Counter(src_categories.get(i) or catalog_category.get(i) or ("sauce(spread)" if i in spread_ids else "uncategorized") for i in ings)
-        ui.append({"atDiscoveries": label, "ownedIngredients": len(ings),
-                   "ownedDoughVariants": sum(1 for x in owned if node_kind(x) == "dough"),
-                   "ownedPans": sum(1 for x in owned if node_kind(x) == "pan"),
-                   "byKnownCategory": dict(sorted(cats.items())),
-                   "freeCookCombinationSpaceLog2": len(ings)})
+    # PR #191 review (P2): derived from what the walkthrough player actually OWNS when it bakes
+    # discovery 10/20/50 (and at start / completion), never from schedule coverage.
+    ui = ui_sizing(owned_snapshots, matrix, src_categories, catalog_category)
 
     # --- summaries ------------------------------------------------------------------------------
     def sim_key(s):
@@ -1041,8 +1029,10 @@ def build():
         "recommendedSimulationBySkill": [{k: s[k] for k in ("skill", "explorer", "outcome", "turns", "bakesToDiscovery", "grindBakes", "maxGrindStreak", "hintsUsed", "restocks")} for s in rec_sims],
         "walkthrough": {"config": {k: walkthrough[k] for k in ("profile", "mechanicPolicy", "curve", "price", "stock", "reward", "skill", "explorer", "hints")},
                         "first10": first["10"], "first20": first["20"], "first50": first["50"],
+                        "ownedAtDiscovery": owned_snapshots,
                         "unlockEventsUntil50": unlock_events},
         "uiSizing": ui,
+        "uiSizingBasis": "walkthrough player's actual owned items at the moment it bakes each milestone discovery (see walkthrough.config)",
         "designDecisions": resolved_design_decisions(),
     }
     ni = out["nodeImpact"]
@@ -1057,6 +1047,25 @@ def build():
     }
     out["noDeadlockProof"] = build_proof(out)
     return out
+
+
+UI_SNAPSHOT_LABELS = ("start", "10", "20", "50", "all")
+
+
+def ui_sizing(owned_snapshots, matrix, src_categories, catalog_category):
+    spread_ids = set(matrix["spreadLayerIngredientIds"])
+    ui = []
+    for label in UI_SNAPSHOT_LABELS:
+        owned = owned_snapshots[label]
+        ings = sorted(x for x in owned if node_kind(x) == "ingredient")
+        cats = Counter(src_categories.get(i) or catalog_category.get(i) or ("sauce(spread)" if i in spread_ids else "uncategorized")
+                       for i in ings)
+        ui.append({"atDiscoveries": label, "ownedIngredients": len(ings),
+                   "ownedDoughVariants": sum(1 for x in owned if node_kind(x) == "dough"),
+                   "ownedPans": sum(1 for x in owned if node_kind(x) == "pan"),
+                   "byKnownCategory": dict(sorted(cats.items())),
+                   "freeCookCombinationSpaceLog2": len(ings)})
+    return ui
 
 
 def build_proof(out):
@@ -1372,6 +1381,12 @@ def validate_economy_serialization(out):
                             "stars": e["stars"], "pitzAfter": e["pitzAfter"]} for e in disc[:50]]
                 if rebuilt != out["walkthrough"]["first50"]:
                     errors.append("walkthrough is not reproducible from the serialized economy parameters")
+                if res["ownedSnapshots"] != out["walkthrough"]["ownedAtDiscovery"]:
+                    errors.append("walkthrough.ownedAtDiscovery is not reproducible from the serialized economy parameters")
+                matrix = load(MATRIX_PATH)
+                cat = {i["id"]: i["category"] for i in load(INGREDIENT_CATALOG_PATH)["ingredients"]}
+                if ui_sizing(res["ownedSnapshots"], matrix, parse_src_ingredient_categories(), cat) != out["uiSizing"]:
+                    errors.append("uiSizing does not match the walkthrough player's actual ownership at each milestone")
                 continue
             diff = [f for f in SIM_COMPARE_FIELDS if res[f] != s[f]]
             if diff:

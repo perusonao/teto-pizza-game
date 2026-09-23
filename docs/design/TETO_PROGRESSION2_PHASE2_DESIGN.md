@@ -351,32 +351,40 @@ Readings:
 
 ## 7. Mobile free-cook ingredient selection (design only, no UI implemented)
 
-The final tray shows **every OWNED item**, never a recipe subset. Owned counts over the
-recommended run (`uiSizing`):
+The final tray shows **every OWNED item**, never a recipe subset. The counts below come from JSON
+`uiSizing`. Each is what the walkthrough player (recommended configuration, STANDARD skill)
+**actually owns** when it bakes that discovery; the snapshots are in
+`walkthrough.ownedAtDiscovery`. Gates open at 0.6 × discoverable, so purchases run well ahead of
+discoveries. An earlier revision derived these counts from schedule coverage and understated them
+(PR #191 review).
 
 | Moment | Owned ingredients | Dough variants | Pans | Categorised by existing data |
 |---|---|---|---|---|
 | start | 3 | 0 | 0 | 3/3 |
-| 10 discoveries | 12 | 0 | 0 | 12/12 |
-| 20 | 20 | 1 | 0 | 18/20 |
-| 50 | 42 | 3 | 1 | 33/42 |
+| 10 discoveries | 20 | 1 | 0 | 18/20 |
+| 20 | 30 | 3 | 1 | 25/30 |
+| 50 | 59 | 7 | 2 | 39/59 |
 | all | 105 | 10 | 3 | 56/105 (49 need a category; C-05) |
+
+In the same run, more than 16 ingredients are owned from discovery 8, and more than 40 from
+discovery 28.
 
 The design for 390×844 and 360×800 keeps the current one-screen cooking layout, with the tray as the
 bottom sheet:
 
 1. **Category tabs, always visible**, in one row of 5–6 short labels: ソース / チーズ / 肉・魚 /
-   野菜 / ハーブ・仕上げ / ★よく使う. Up to about 20 owned items the current 3×2 grid is enough;
-   there are 12 at 10 discoveries.
+   野菜 / ハーブ・仕上げ / ★よく使う. The current 3×2 grid alone is enough only for the first few
+   discoveries: the player already owns 20 ingredients at discovery 10. Tabs are therefore
+   needed from P3-4 onward, not later.
 2. **Paged grid within a tab.** 4×2 = 8 chips fit at 360 px, with 72 px chips and 16 px gutters.
    Paging uses the existing ◀ ▶ page switch, never scrolling, which avoids the drag/scroll conflict
    that `MAX_INGREDIENT_PALETTE_SLOTS` was created for.
-3. **Recent / favourites strip** of 6 chips above the tabs. It appears after 20 discoveries, when
-   more than 16 items are owned.
+3. **Recent / favourites strip** of 6 chips above the tabs. It appears once more than 16
+   ingredients are owned, which is around discovery 8 in the recommended run.
 4. **Search** is a magnifier button that opens an overlay reusing the Shop/Inventory overlay
    pattern (Japanese kana prefix match). Introduce it once more than about 40 ingredients are
-   owned (about 50 discoveries in the recommended run). Below that, tabs plus 1–2 pages per tab are
-   enough.
+   owned, which is around discovery 28 in the recommended run. Below that, tabs plus 1–2 pages per
+   tab are enough.
 5. Each chip shows stock: ∞ for starters, a number for others, and greyed with a restock "+" at 0.
    A chip is never hidden because it lacks stock.
 6. Dough and pan are **not** in the tray. They are a card picker on the DOUGH step and a pan picker
@@ -574,7 +582,7 @@ video and screenshots per `docs/decisions/TETO_HUMAN-VERIFICATION-POLICY.md`.
 | **P3-1** Discovery core (headless) | A `DiscoveryTarget` data type generated from this JSON (read-only import of 101 targets). A runtime `signatureOf(pizza, ownedCapabilities)` with the observation rule, and `matchDiscovery`. A recipe-free completion rule. Save schema v3: discovered set, ⭐ ledger, owned items and stock. Grandfather migration (C-04). Unit tests reuse this tool's collision cases. | P3-0 | All 101 signatures unique in TS as well (a parity test against the JSON). |
 | **P3-2** Zero-recipe onboarding | A free-cook round with no recipe card; the starter trio; Margherita discovery ceremony; Teto hint tiers 1–3; "original pizza" result. Lunch Rush locked until discovery 1, with the pool fix for X-5. | P3-1 | Human Verification at 390×844 and 360×800. |
 | **P3-3** ⭐ / Pitz / gates / shop for the early tier | Hybrid ⭐, derived gates (f=0.6), FLOOR reward and discovery bonus, PR_TIERED prices, S10_R10 grant and restock, AVAILABLE_TO_BUY in the shop, and the idle-hint fallback. Content: steps 1–8 (23 targets, existing ingredient art first). | P3-2 | A simulation parity test: the TS economy reproduces `walkthrough.first20`. |
-| **P3-4** All-owned tray | Category tabs, the 4×2 paged grid, the recent strip, and stock badges (§7). Search deferred until more than 40 items are owned. | P3-2 | Human Verification. |
+| **P3-4** All-owned tray | Category tabs, the 4×2 paged grid, the recent strip, and stock badges (§7). Search deferred until more than 40 ingredients are owned (about discovery 28). | P3-2 | Human Verification. |
 | **P3-5** DOUGH_VARIANT + mid-tier content | Dough card picker (the first technique tutorial), then steps 9–29. | P3-3, P3-4 | — |
 | **P3-6+** One capability per slice, in M2 order | STEP_ORDER → MULTI_SPREAD_LAYER → PAN_BAKE → ZONED_PLACEMENT → LATE_ADDITION → FRY_COOK → ENCLOSE → DOUGH_SHAPE_TARGET → PREP_STEP, each with its ready targets. | previous | Re-run this tool if any class-B row was resolved in between. |
 
@@ -633,6 +641,10 @@ The validator enforces all of the following. Any failure exits non-zero.
   - all 12 robustness simulations;
   - the generated graph header;
   - the recommended combination stated in this report.
+- **Tray sizing comes from the actual ownership state** (PR #191 review). `uiSizing` is derived
+  from `walkthrough.ownedAtDiscovery`: the walkthrough player's owned items at the start, at
+  discoveries 10, 20 and 50, and at completion. The validator re-runs the walkthrough from the
+  JSON-only economy parameters and requires both the snapshots and `uiSizing` to match.
 
 Mutation checks were run by hand while writing the tool. Each of these mutations was caught:
 
