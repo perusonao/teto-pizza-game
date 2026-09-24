@@ -43,6 +43,7 @@ SOURCE_SSOT = [
     {"kind": "repo_data", "ref": str(PIZZA_CATALOG_PATH.relative_to(ROOT)).replace("\\", "/")},
     {"kind": "production_data", "ref": "src/data/recipes.ts"},
     {"kind": "production_data", "ref": "src/data/ingredients.ts"},
+    {"kind": "production_data", "ref": "src/data/recipeSauceProfiles.ts"},
 ]
 
 FUTURE_FILES = {
@@ -60,6 +61,21 @@ def read_json(path: Path):
 
 def ts_ids(path: Path) -> set[str]:
     return set(re.findall(r'^\s{4}id: "([^"]+)",$', path.read_text(encoding="utf-8"), re.MULTILINE))
+
+
+def production_recipe_ingredient_sets(path: Path) -> dict[str, set[str]]:
+    """Read each production recipe's requiredIngredients ingredientIds from src/data/recipes.ts."""
+    text = path.read_text(encoding="utf-8")
+    body = text[text.index("export const RECIPES"):]
+    result: dict[str, set[str]] = {}
+    for block in re.split(r'^\s{4}id: "', body, flags=re.MULTILINE)[1:]:
+        recipe_id = block[:block.index('"')]
+        required = re.search(r"requiredIngredients: \[(.*?)\n\s{4}\],", block, re.DOTALL)
+        assert required, f"requiredIngredients not found for {recipe_id}"
+        ids = re.findall(r'ingredientId: "([^"]+)"', required.group(1))
+        assert ids and recipe_id not in result, recipe_id
+        result[recipe_id] = set(ids)
+    return result
 
 
 def overlap(candidate: set[str] | None, production: dict[str, set[str]]) -> dict:
@@ -162,10 +178,14 @@ def build() -> tuple[dict, str, dict, str]:
     matrix = read_json(MATRIX_PATH)
     pizzas = read_json(PIZZA_CATALOG_PATH)["recipes"]
     ingredient_catalog = read_json(INGREDIENT_CATALOG_PATH)["ingredients"]
-    # Production catalog ingredient sets are complete recipe identity sets: required toppings plus
-    # the required sauce. This is symmetric with matrix `identityIngredientSet`, which also adds a
-    # family-derived sauce that may be absent from the raw source tokens.
-    production = {item["id"]: set(item["ingredients"]) for item in pizzas if item.get("currentGameRecipe")}
+    # Production ingredient sets come from the runtime source (RECIPES[*].requiredIngredients):
+    # required toppings plus the required sauce. This is symmetric with matrix
+    # `identityIngredientSet`, which also adds a family-derived sauce that may be absent from the
+    # raw source tokens. The research catalog must agree, so a src-only change fails --check.
+    production = production_recipe_ingredient_sets(RECIPES_TS_PATH)
+    catalog_production = {item["id"]: set(item["ingredients"]) for item in pizzas if item.get("currentGameRecipe")}
+    drift = sorted(recipe_id for recipe_id in production.keys() | catalog_production.keys() if production.get(recipe_id) != catalog_production.get(recipe_id))
+    assert not drift, f"pizza_master_catalog.json composition differs from src/data/recipes.ts: {drift}"
     production_ids = set(production)
     production_ingredients = {item["id"] for item in ingredient_catalog if item["existingInGame"]}
 
@@ -174,7 +194,7 @@ def build() -> tuple[dict, str, dict, str]:
     assert len(production) == 15
     assert len(production_ingredients) == 22
     assert production_ids == set(matrix["shippedRecipeIdsInSrc"])
-    assert production_ids <= ts_ids(RECIPES_TS_PATH)
+    assert production_ids == ts_ids(RECIPES_TS_PATH)
     assert production_ingredients <= ts_ids(INGREDIENTS_TS_PATH)
     sauce_contract = SAUCE_PROFILES_TS_PATH.read_text(encoding="utf-8")
     sauce_contract_test = SAUCE_PROFILES_TEST_PATH.read_text(encoding="utf-8")
@@ -304,8 +324,9 @@ def build() -> tuple[dict, str, dict, str]:
             mechanics = sorted(set().union(*(set(row["requiredCapabilities"]) | set(row["runtimeContractDependencies"]) for row in selected))) if selected else []
             evidence = dict(sorted(Counter(row["productDecisionStatus"] for row in selected).items()))
             risks = dict(sorted(Counter(row["collisionRisk"] for row in selected).items()))
-            needs_sauce_contract = any(row["runtimeContractDependencies"] for row in selected)
-            files = sorted(set(FUTURE_FILES["recipe"] + FUTURE_FILES["discovery"] + (FUTURE_FILES["ingredient"] if new_ids else []) + (FUTURE_FILES["sauce"] if needs_sauce_contract or any(i.endswith("sauce") or i in {"olive-oil", "pesto"} for i in new_ids) else [])))
+            # RECIPE_SAUCE_PROFILES is an exhaustive Record<RecipeId, RecipeSauceProfile>, so every
+            # recipe added to RECIPES needs a sauce-profile entry even with a supported sauce.
+            files = sorted(set(FUTURE_FILES["recipe"] + FUTURE_FILES["discovery"] + FUTURE_FILES["sauce"] + (FUTURE_FILES["ingredient"] if new_ids else [])))
         title, rule = wave_meta[wave_id]
         wave_summaries.append({
             "wave": wave_id,
@@ -319,6 +340,10 @@ def build() -> tuple[dict, str, dict, str]:
             "evidenceStatusCounts": evidence,
             "futureImplementationFiles": files,
         })
+
+    for wave in wave_summaries:
+        if wave["wave"] not in {"W0", "W0_CORRESPONDENCE"}:
+            assert set(FUTURE_FILES["sauce"]) <= set(wave["futureImplementationFiles"]), wave["wave"]
 
     w1 = [row for row in rows if row["wave"] == "W1" and row["collisionRisk"] == "LOW"]
     best = None
@@ -493,7 +518,7 @@ def render_report(output: dict, unresolved: dict) -> str:
 | PR #191 | MERGED (`9c22ef2e...`); progression candidate design。数値は final ではない。 |
 | PR #217 | OPEN / unmerged / clean; base = audited main。価格、unlock fee、star/non-star gates は owner decision のまま。 |
 | Matrix | `docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json` |
-| Production | `src/data/recipes.ts`, `src/data/ingredients.ts`（catalog と ID set を照合） |
+| Production | `src/data/recipes.ts`（`requiredIngredients` から recipe composition を導出し catalog と完全一致を検証）, `src/data/ingredients.ts`, `src/data/recipeSauceProfiles.ts` |
 
 ## 2. 分類方法
 
@@ -528,6 +553,7 @@ Wave counts are implementation buckets, not unlock order. Pitz price, unlock fee
 {chr(10).join(f'- `{path}`' for path in files)}
 
 - Recipe data only: production 既存 ingredient だけを使い、現 runtime contract に適合する W1 rows。
+- Sauce profile: `RECIPE_SAUCE_PROFILES` は exhaustive `Record<RecipeId, RecipeSauceProfile>` のため、supported sauce を使う W1/W2 でも recipe 追加ごとに profile entry と test 更新が必要（全 addition wave の change map に含める）。
 - New ingredient data only: current `spread` / `scatter` と `color` / `emoji` で成立する W1/W2。
 - Asset addition: dedicated bitmap は不要。新 ingredient の visual fields は content authoring 対象。
 - Evidence/content review: W3 と unresolved ledger を先に解消する。

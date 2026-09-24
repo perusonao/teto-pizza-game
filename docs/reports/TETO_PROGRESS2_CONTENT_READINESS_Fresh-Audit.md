@@ -20,7 +20,7 @@
 | PR #191 | MERGED (`9c22ef2e...`); progression candidate design。数値は final ではない。 |
 | PR #217 | OPEN / unmerged / clean; base = audited main。価格、unlock fee、star/non-star gates は owner decision のまま。 |
 | Matrix | `docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json` |
-| Production | `src/data/recipes.ts`, `src/data/ingredients.ts`（catalog と ID set を照合） |
+| Production | `src/data/recipes.ts`（`requiredIngredients` から recipe composition を導出し catalog と完全一致を検証）, `src/data/ingredients.ts`, `src/data/recipeSauceProfiles.ts` |
 
 ## 2. 分類方法
 
@@ -77,6 +77,7 @@ Wave counts are implementation buckets, not unlock order. Pitz price, unlock fee
 - `src/logic/discovery/*.test.ts`
 
 - Recipe data only: production 既存 ingredient だけを使い、現 runtime contract に適合する W1 rows。
+- Sauce profile: `RECIPE_SAUCE_PROFILES` は exhaustive `Record<RecipeId, RecipeSauceProfile>` のため、supported sauce を使う W1/W2 でも recipe 追加ごとに profile entry と test 更新が必要（全 addition wave の change map に含める）。
 - New ingredient data only: current `spread` / `scatter` と `color` / `emoji` で成立する W1/W2。
 - Asset addition: dedicated bitmap は不要。新 ingredient の visual fields は content authoring 対象。
 - Evidence/content review: W3 と unresolved ledger を先に解消する。

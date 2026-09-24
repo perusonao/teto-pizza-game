@@ -47,6 +47,10 @@
     {
       "kind": "production_data",
       "ref": "src/data/ingredients.ts"
+    },
+    {
+      "kind": "production_data",
+      "ref": "src/data/recipeSauceProfiles.ts"
     }
   ],
   "scope": {
@@ -322,6 +326,8 @@
       "futureImplementationFiles": [
         "src/data/ingredients.test.ts",
         "src/data/ingredients.ts",
+        "src/data/recipeSauceProfiles.test.ts",
+        "src/data/recipeSauceProfiles.ts",
         "src/data/recipes.test.ts",
         "src/data/recipes.ts",
         "src/logic/discovery/*",
@@ -353,6 +359,8 @@
       "futureImplementationFiles": [
         "src/data/ingredients.test.ts",
         "src/data/ingredients.ts",
+        "src/data/recipeSauceProfiles.test.ts",
+        "src/data/recipeSauceProfiles.ts",
         "src/data/recipes.test.ts",
         "src/data/recipes.ts",
         "src/logic/discovery/*",
@@ -395,6 +403,8 @@
       "futureImplementationFiles": [
         "src/data/ingredients.test.ts",
         "src/data/ingredients.ts",
+        "src/data/recipeSauceProfiles.test.ts",
+        "src/data/recipeSauceProfiles.ts",
         "src/data/recipes.test.ts",
         "src/data/recipes.ts",
         "src/logic/discovery/*",
