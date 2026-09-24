@@ -46,6 +46,8 @@ BEST and Lunch Rush conditions are valid only with a proven fallback path; they 
 
 Recommended decision shape (not final): B for foundational DOUGH_VARIANT/PAN_BAKE prerequisites; C for interaction-heavy mechanics; do not apply A to all 11. LAMINATE remains dormant because it covers 0 of the 101 target pool.
 
+C is simulated from target encounters, not schedule rows. In C, STEP_ORDER is taught from `trenton-tomato-pie-pizzadb` in the starter state (before any bake), while DOUGH_VARIANT waits until `dough:material-cauliflower` is owned. B instead unlocks those capabilities at scheduled rows 23 and 16. The matrix records per-trigger bakes/discoveries/stars/Pitz and a per-node timeline; equal final totals in some rows are a consequence of the linear reward/spend totals, not identical execution.
+
 | Capability | 172 rows | 101 targets | Incremental gain | Prerequisite |
 |---|---:|---:|---:|---|
 | DOUGH_VARIANT | 33 | 13 | 8 | none |

@@ -29,6 +29,17 @@ All prices and gates are comparison inputs. Unknown future `k` is simulated symb
 | F3_HEAVY | C_TUTORIAL | ★1 | COMPLETE | 101/101 | 1121 | 1020 | 12760 | 12760 | 1700 | 180 | False |
 | F3_HEAVY | C_TUTORIAL | ★3 | COMPLETE | 101/101 | 281 | 180 | 12760 | 12760 | 1700 | 180 | False |
 
+## B_AUTO vs C_TUTORIAL trigger timing (F2, ★1)
+
+| Policy | Capability | Trigger target/node | Sequence | Bakes before | Discoveries before | Stars before | Pitz before |
+|---|---|---|---:|---:|---:|---:|---:|
+| B_AUTO | DOUGH_VARIANT | DOUGH_VARIANT | 16 | 23 | 14 | 28 | 80 |
+| B_AUTO | STEP_ORDER | STEP_ORDER | 23 | 32 | 22 | 44 | 150 |
+| C_TUTORIAL | STEP_ORDER | trenton-tomato-pie-pizzadb | 0 | 0 | 0 | 0 | 0 |
+| C_TUTORIAL | DOUGH_VARIANT | cauliflower-crust-pizza-pizzadb-p2 | 17 | 21 | 15 | 30 | 30 |
+
+C's starter timeline discovers Margherita and Trenton Tomato Pie in the first two bakes; B discovers only Margherita before following its schedule. Full per-node timelines are serialized in the matrix.
+
 ## Machine checks
 
 - Scenarios: 24

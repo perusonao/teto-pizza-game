@@ -49,6 +49,11 @@ CAPABILITY_POLICIES = {
     "B_AUTO": "condition met -> automatic permanent unlock",
     "C_TUTORIAL": "first eligible target/tutorial encounter -> automatic permanent unlock",
 }
+EXPECTED_INPUT_SHA256 = {
+    "docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json": "9f736aa31e4810668c80e29f28198f0ac0c5f1d783b746748a662bbeff15aefa",
+    "docs/design/data/TETO_PROGRESSION2_PHASE2_UNLOCK-MATRIX.json": "1ee8bb0900d365ec927862525e5cc2f02bf71d3ec172e8876ff1d5a072d165a3",
+    "docs/design/data/TETO_PROGRESSION2_PHASE34_INGREDIENT-UNLOCK-MATRIX.json": "2b74b0f8a7154df1bec07de2e2de1becb58ba1cbb78cef5d4d77d96090a166c6",
+}
 
 
 def load(path: Path):
@@ -56,7 +61,11 @@ def load(path: Path):
 
 
 def sha(path: Path):
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    # Hash the repository representation, not platform checkout newlines.  Git
+    # stores these JSON inputs with LF; Windows core.autocrlf may materialize
+    # CRLF in a clean checkout.  Text-mode read normalizes both to LF.
+    canonical = path.read_text(encoding="utf-8").replace("\r\n", "\n")
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
 def requirements(target):
@@ -166,7 +175,7 @@ def simulate(rows, targets, fee_curve_name, capability_policy, quality=1):
              "discovered": set(), "stars": 0, "pitz": 0, "earned": 0,
              "completed": 0, "stock": {}, "bakes": 0, "grind": 0,
              "unlockFeesPaid": 0, "purchasesPaid": 0, "equipmentPaid": 0, "refillsPaid": 0,
-             "events": [], "deadlock": None, "relocked": False}
+             "events": [], "capabilityTriggers": [], "deadlock": None, "relocked": False}
     reward = {1: 20, 2: 50, 3: 80, 4: 100}.get(quality, 20)
 
     def earn_bake(discovery=False):
@@ -180,7 +189,39 @@ def simulate(rows, targets, fee_curve_name, capability_policy, quality=1):
             earn_bake(False); state["grind"] += 1
         state["pitz"] -= amount; state[bucket] += amount
 
-    def discover_pending():
+    def trigger_tutorial_encounters(after_node, sequence):
+        """Unlock C capabilities at their actual first target encounter.
+
+        A target is encounter-eligible once all of its item/dough/pan nodes are
+        owned.  Its still-locked capabilities are then introduced immediately,
+        before matching/discovery.  Repeating to a fixed point handles a target
+        that teaches more than one capability without consulting schedule rows.
+        """
+        if capability_policy != "C_TUTORIAL": return
+        while True:
+            candidates = []
+            for target in targets:
+                if target["targetId"] in state["discovered"]: continue
+                if not set(target["items"]) <= state["owned"]: continue
+                missing = sorted(set(target["capabilities"]) - state["capabilities"])
+                if missing:
+                    candidates.append((target["targetId"], missing))
+            if not candidates: return
+            target_id, missing = sorted(candidates)[0]
+            changed = False
+            for capability in missing:
+                if capability not in CAPABILITIES or capability == "LAMINATE": continue
+                state["capabilities"].add(capability); changed = True
+                state["capabilityTriggers"].append({
+                    "capability": capability, "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+                    "targetId": target_id, "afterNodeId": after_node, "afterSequence": sequence,
+                    "bakesBefore": state["bakes"], "discoveriesBefore": len(state["discovered"]),
+                    "starsBefore": state["stars"], "pitzBefore": state["pitz"],
+                })
+            if not changed: return
+
+    def discover_pending(after_node, sequence):
+        trigger_tutorial_encounters(after_node, sequence)
         pending = sorted(reachable(targets, state["owned"], state["capabilities"]) - state["discovered"])
         for target_id in pending:
             target = target_by_id[target_id]
@@ -199,11 +240,18 @@ def simulate(rows, targets, fee_curve_name, capability_policy, quality=1):
             state["stars"] += 2 + sum(1 for q in (3, 4, 5) if quality >= q)
         return pending
 
-    discover_pending()  # starter Margherita
+    starter_new = discover_pending("STARTER_STATE", 0)  # starter Margherita plus any tutorial encounter
+    state["events"].append({"nodeId": "STARTER_STATE", "sequence": 0, "newRecipes": starter_new,
+                            "discoveriesAfter": len(state["discovered"]), "starsAfter": state["stars"],
+                            "pitzAfter": state["pitz"], "bakesAfter": state["bakes"]})
     for row in rows:
         node = row["nodeId"]
         if node in STARTERS: continue
         if row["kind"] == "capability":
+            if capability_policy == "C_TUTORIAL":
+                # Policy C ignores the schedule row.  The capability is granted
+                # only by trigger_tutorial_encounters when a target's items exist.
+                continue
             if capability_policy == "A_PAID":
                 if not condition_met(row["simulationEligibility"], state):
                     state["deadlock"] = f"capability condition {node}"; break
@@ -212,19 +260,31 @@ def simulate(rows, targets, fee_curve_name, capability_policy, quality=1):
             elif capability_policy == "B_AUTO":
                 if not condition_met(row["simulationEligibility"], state):
                     state["deadlock"] = f"capability condition {node}"; break
-            # C is the scheduled proxy for the first eligible tutorial encounter.
             state["capabilities"].add(node)
-            new = discover_pending()
+            state["capabilityTriggers"].append({
+                "capability": node,
+                "trigger": "SCHEDULED_PAID" if capability_policy == "A_PAID" else "SCHEDULED_AUTO",
+                "targetId": None, "afterNodeId": node, "afterSequence": row["sequence"],
+                "bakesBefore": state["bakes"], "discoveriesBefore": len(state["discovered"]),
+                "starsBefore": state["stars"], "pitzBefore": state["pitz"],
+            })
+            new = discover_pending(node, row["sequence"])
             state["events"].append({"nodeId": node, "transition": capability_policy, "newRecipes": new})
+            state["events"][-1].update({"sequence": row["sequence"], "discoveriesAfter": len(state["discovered"]),
+                                        "starsAfter": state["stars"], "pitzAfter": state["pitz"],
+                                        "bakesAfter": state["bakes"]})
             continue
         if row["kind"] != "ingredient":
             if not condition_met(row["simulationEligibility"], state):
                 state["deadlock"] = f"eligibility {node}"; break
             pay(row["pricePitz"], "equipmentPaid")
             state["owned"].add(node)
-            new = discover_pending()
+            new = discover_pending(node, row["sequence"])
             state["events"].append({"nodeId": node, "transition": "AVAILABLE_TO_BUY>OWNED",
                                     "purchasePrice": row["pricePitz"], "newRecipes": new})
+            state["events"][-1].update({"sequence": row["sequence"], "discoveriesAfter": len(state["discovered"]),
+                                        "starsAfter": state["stars"], "pitzAfter": state["pitz"],
+                                        "bakesAfter": state["bakes"]})
             continue
         if not condition_met(row["simulationEligibility"], state):
             state["deadlock"] = f"eligibility {node}"; break
@@ -236,9 +296,12 @@ def simulate(rows, targets, fee_curve_name, capability_policy, quality=1):
         state["owned"].add(node)
         k = row["economy"]["kMaxMinCountAtCutover"] or 1
         state["stock"][node] = 10 * k
-        new = discover_pending()
+        new = discover_pending(node, row["sequence"])
         state["events"].append({"nodeId": node, "transition": "LOCKED>AVAILABLE_TO_UNLOCK>AVAILABLE_TO_BUY>OWNED",
                                 "unlockFee": unlock_fee, "purchasePrice": row["pricePitz"], "newRecipes": new})
+        state["events"][-1].update({"sequence": row["sequence"], "discoveriesAfter": len(state["discovered"]),
+                                    "starsAfter": state["stars"], "pitzAfter": state["pitz"],
+                                    "bakesAfter": state["bakes"]})
     return {
         "feeCurve": fee_curve_name, "capabilityPolicy": capability_policy, "quality": quality,
         "outcome": "COMPLETE" if not state["deadlock"] and len(state["discovered"]) == len(targets) else "DEADLOCK",
@@ -249,6 +312,7 @@ def simulate(rows, targets, fee_curve_name, capability_policy, quality=1):
         "unlockFeesPaid": state["unlockFeesPaid"], "firstStockPurchasesPaid": state["purchasesPaid"],
         "equipmentPurchasesPaid": state["equipmentPaid"], "refillsPaid": state["refillsPaid"],
         "finalPitz": state["pitz"], "relocked": state["relocked"],
+        "capabilityTriggers": state["capabilityTriggers"], "timeline": state["events"],
     }
 
 
@@ -345,6 +409,7 @@ def report_md(out):
              "| B — condition then auto | 0 | predictable and simplest persistence | teaching moment can be weak |",
              "| C — first eligible target/tutorial | 0 | strongest contextual teaching | trigger must occur before target matching to avoid circularity |", "",
              "Recommended decision shape (not final): B for foundational DOUGH_VARIANT/PAN_BAKE prerequisites; C for interaction-heavy mechanics; do not apply A to all 11. LAMINATE remains dormant because it covers 0 of the 101 target pool.", "",
+             "C is simulated from target encounters, not schedule rows. In C, STEP_ORDER is taught from `trenton-tomato-pie-pizzadb` in the starter state (before any bake), while DOUGH_VARIANT waits until `dough:material-cauliflower` is owned. B instead unlocks those capabilities at scheduled rows 23 and 16. The matrix records per-trigger bakes/discoveries/stars/Pitz and a per-node timeline; equal final totals in some rows are a consequence of the linear reward/spend totals, not identical execution.", "",
              "| Capability | 172 rows | 101 targets | Incremental gain | Prerequisite |", "|---|---:|---:|---:|---|"]
     for c in out["capabilities"]:
         lines.append(f"| {c['capability']} | {c['coverageAcross172']} | {c['coverageIn101Targets']} | {c['incrementalCoverage']} | {c['prerequisite'] or 'none'} |")
@@ -365,7 +430,17 @@ def sim_md(out):
              "|---|---|---:|---|---:|---:|---:|---:|---:|---:|---:|---|"]
     for s in out["simulations"]:
         lines.append(f"| {s['feeCurve']} | {s['capabilityPolicy']} | ★{s['quality']} | {s['outcome']} | {s['reachableTargets']}/{s['targetCount']} | {s['bakes']} | {s['grindBakes']} | {s['unlockFeesPaid']} | {s['firstStockPurchasesPaid']} | {s['equipmentPurchasesPaid']} | {s['refillsPaid']} | {s['relocked']} |")
-    lines += ["", "## Machine checks", "", f"- Scenarios: {out['summary']['simulations']}", f"- Deadlocks: {out['summary']['deadlocks']}", f"- Re-locks: {out['summary']['relocks']}", "- Unreachable targets: 0 in every scenario", "- Capability coverage: all 11 represented; LAMINATE intentionally has 0 current target gain", "- Full Chromium/WebKit: not run (docs/data/tooling only)", ""]
+    b = next(s for s in out["simulations"] if s["feeCurve"] == "F2_BALANCED" and s["capabilityPolicy"] == "B_AUTO" and s["quality"] == 1)
+    c = next(s for s in out["simulations"] if s["feeCurve"] == "F2_BALANCED" and s["capabilityPolicy"] == "C_TUTORIAL" and s["quality"] == 1)
+    lines += ["", "## B_AUTO vs C_TUTORIAL trigger timing (F2, ★1)", "",
+              "| Policy | Capability | Trigger target/node | Sequence | Bakes before | Discoveries before | Stars before | Pitz before |",
+              "|---|---|---|---:|---:|---:|---:|---:|"]
+    for sim in (b, c):
+        for trigger in sim["capabilityTriggers"]:
+            if trigger["capability"] in ("STEP_ORDER", "DOUGH_VARIANT"):
+                lines.append(f"| {sim['capabilityPolicy']} | {trigger['capability']} | {trigger['targetId'] or trigger['afterNodeId']} | {trigger['afterSequence']} | {trigger['bakesBefore']} | {trigger['discoveriesBefore']} | {trigger['starsBefore']} | {trigger['pitzBefore']} |")
+    lines += ["", "C's starter timeline discovers Margherita and Trenton Tomato Pie in the first two bakes; B discovers only Margherita before following its schedule. Full per-node timelines are serialized in the matrix.", "",
+              "## Machine checks", "", f"- Scenarios: {out['summary']['simulations']}", f"- Deadlocks: {out['summary']['deadlocks']}", f"- Re-locks: {out['summary']['relocks']}", "- Unreachable targets: 0 in every scenario", "- Capability coverage: all 11 represented; LAMINATE intentionally has 0 current target gain", "- Full Chromium/WebKit: not run (docs/data/tooling only)", ""]
     return "\n".join(lines)
 
 
@@ -384,6 +459,8 @@ def validate(out):
     if len(out["rows"]) != 128: errors.append("expected 128 inherited nodes")
     if len([r for r in out["rows"] if r["kind"] == "ingredient"]) != 105: errors.append("expected 105 ingredients")
     if [c["capability"] for c in out["capabilities"]] != CAPABILITIES: errors.append("capability order/count drift")
+    actual_hashes = {path: meta["sha256"] for path, meta in out["inputs"].items()}
+    if actual_hashes != EXPECTED_INPUT_SHA256: errors.append(f"input provenance SHA drift: {actual_hashes}")
     for r in out["rows"]:
         if r["kind"] == "ingredient" and r["nodeId"] not in STARTERS:
             if r["stateMachine"] != ["LOCKED", "AVAILABLE_TO_UNLOCK", "AVAILABLE_TO_BUY", "OWNED", "REFILL"]: errors.append(f"state order {r['nodeId']}")
@@ -393,6 +470,21 @@ def validate(out):
     for s in out["simulations"]:
         if s["outcome"] != "COMPLETE" or s["reachableTargets"] != 101: errors.append(f"deadlock {s['feeCurve']} {s['capabilityPolicy']} q{s['quality']}")
         if s["relocked"]: errors.append(f"relock {s['feeCurve']} {s['capabilityPolicy']}")
+    c_sims = [s for s in out["simulations"] if s["capabilityPolicy"] == "C_TUTORIAL"]
+    for s in c_sims:
+        triggers = {x["capability"]: x for x in s["capabilityTriggers"]}
+        step = triggers.get("STEP_ORDER", {})
+        dough = triggers.get("DOUGH_VARIANT", {})
+        if (step.get("targetId"), step.get("afterNodeId"), step.get("afterSequence")) != ("trenton-tomato-pie-pizzadb", "STARTER_STATE", 0):
+            errors.append(f"C STEP_ORDER trigger drift {s['feeCurve']} q{s['quality']}: {step}")
+        if (dough.get("targetId"), dough.get("afterNodeId"), dough.get("afterSequence")) != ("cauliflower-crust-pizza-pizzadb-p2", "dough:material-cauliflower", 17):
+            errors.append(f"C DOUGH_VARIANT trigger drift {s['feeCurve']} q{s['quality']}: {dough}")
+        starter = s["timeline"][0]
+        if starter["newRecipes"] != ["shipped:margherita", "trenton-tomato-pie-pizzadb"]:
+            errors.append(f"C starter discoveries drift {s['feeCurve']} q{s['quality']}: {starter['newRecipes']}")
+    b_sample = next(s for s in out["simulations"] if s["feeCurve"] == "F2_BALANCED" and s["capabilityPolicy"] == "B_AUTO" and s["quality"] == 1)
+    c_sample = next(s for s in out["simulations"] if s["feeCurve"] == "F2_BALANCED" and s["capabilityPolicy"] == "C_TUTORIAL" and s["quality"] == 1)
+    if b_sample["timeline"] == c_sample["timeline"]: errors.append("B and C timelines are identical")
     if out["summary"]["deadlocks"] or out["summary"]["relocks"]: errors.append("summary failure")
     return errors
 
