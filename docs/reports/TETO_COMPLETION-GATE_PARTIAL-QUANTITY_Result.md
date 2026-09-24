@@ -84,7 +84,7 @@ Audit の `idealThreeReplayRows`（99.5 / 82.5 / 65.6 / FAILED / 92.7 / 86.0）�
 | typecheck + build（`npm run build` = `tsc -b && vite build`） | PASS（chunk size の警告は前からある） |
 | lint（`oxlint`） | 0 warnings / 0 errors |
 | Chromium E2E（全 spec、`iphone-390x844` + `iphone-360x800`） | 120 / 120 PASS（新しい spec `e2e/completion-gate-partial-quantity.spec.ts` の 6 件を含む） |
-| WebKit E2E | この sandbox には WebKit の browser がない（`/opt/pw-browsers` は Chromium のみ）。PR の CI（`e2e-webkit.yml`、#210 の 4-way shard + WebKit Gate）を Final Gate とする |
+| WebKit E2E（CI、Final Gate） | PASS: `webkit-390x844` shard 1/2・2/2、`webkit-360x800` shard 1/2・2/2、`WebKit Gate` がすべて success（HEAD `9abe481`、Actions run 36020835471）。この sandbox には WebKit の browser がない（`/opt/pw-browsers` は Chromium のみ）ので、CI を正とする |
 
 期待値を変えた既存の test（意図した挙動の変更）:
 
@@ -128,8 +128,20 @@ Video Verification: PASS（ffprobe で codec/解像度/長さを確認。最後�
 
 ## 7. 残っていること / 注意
 
-- **WebKit:** CI の結果を待つ（上記）。
 - **Dex BEST:** 今までの BEST は再計算しない（grandfather）。過剰でつけた昔の BEST は、新しいルールより高いことがある（audit §5.4）。
-- **Lunch Rush の ruleset:** OD-4 どおり `lunch-rush-v1` のまま。OD-4b で、過剰の pizza の quality は前より少し下がる（例: 98 → 93）。ちょうどの量の run は変わらない。
 - **Pieces の中の「数」（30%）:** Q と少し二重になる（−0.6〜−1.4 点）。audit の推奨どおり、今回はそのまま残した。
 - **Human Feel:** Teto の見出しの 1 行（「完璧に焼けた！」など）は焼き加減から作られるので、★3 の少ない pizza でも褒める文になる。前からある挙動で、この PR の範囲外。
+
+## 8. Known Limitation — Lunch Rush ranking の score が混在する（OD-LR-RANKING）
+
+- **Owner Decision（2026-09-24、#215 に記録）:** OD-LR-RANKING = **KEEP_V1_WITH_KNOWN_MIXED_SCORING_LIMITATION**
+- **指摘（valid）:** PR #222 の Codex P1（https://github.com/perusonao/teto-pizza-game/pull/222#discussion_r4095777968）。誤検知ではない。
+- **内容:**
+  - OD-4b により、Lunch Rush で過剰の pizza の quality は前の式より下がる（例: 98 → 93、× 0.95）。
+  - それでも ranking の ruleset は `lunch-rush-v1` のまま。
+  - `leaderboards/{periodId}/entries/{uid}` の periodId には ruleset が入っていないので、前の式の score と新しい式の score が同じ weekly/monthly/all-time の leaderboard に並ぶ。
+  - 過剰の pizza を含んでいた前の entry には、小さな有利が残る。
+- **影響の範囲:** 注文どおりの量だけの run（factor = 1）は、前の式と bit 単位で同じ score になり、完全に互換。差が出るのは過剰の pizza を含む run だけ。不足は LR-A で提供失敗（0 点）になるので、前と同じ。
+- **維持するもの:** OD-4（LR-A）、OD-4b（0.15）、`lunch-rush-v1`、Cloud Function、leaderboard の schema。いずれもこの PR では変更しない。
+- **将来:** ruleset ごとの leaderboard と migration は #224（Lunch Rush Ranking / Ruleset 2.0）で扱う。
+
