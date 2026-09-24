@@ -116,7 +116,10 @@ export function classify(rawPaths, { guards = NO_SCAN } = {}) {
 const CODE_FILE = /\.(?:[cm]?[jt]sx?)$/;
 // Every text file is scanned, whatever its extension (.sh, Makefile, .py, ...): an allow-list of
 // extensions would leave wrappers unscanned. Only binaries (a NUL byte) are skipped.
-const SCAN_SKIP_DIRS = new Set(["node_modules", ".git", "docs", "dist", "playwright-report", "test-results", "coverage"]);
+// Skipped only at the repository root (a `src/docs/` or `src/coverage/` is runtime code). node_modules
+// and .git are skipped at any depth.
+const SCAN_SKIP_ROOT_DIRS = new Set(["docs", "dist", "playwright-report", "test-results", "coverage"]);
+const SCAN_SKIP_ANY_DIRS = new Set(["node_modules", ".git"]);
 // scripts/ci/** classifies and verifies WebKit runs; it is never loaded by Vite or Playwright (and
 // changing it is itself a Full-WebKit change). Vitest-only configs never run under Vite/Playwright.
 const SCAN_SKIP_FILE = /^(?:scripts\/ci\/|vitest(?:\.[\w-]+)?\.config\.[cm]?[jt]s$)/;
@@ -136,7 +139,7 @@ const LOCAL_IMPORT = new RegExp(String.raw`(?:\bfrom|\bimport|\brequire)${GAP}\(
 
 function walk(root, dir, out) {
   for (const entry of readdirSync(join(root, dir))) {
-    if (SCAN_SKIP_DIRS.has(entry)) continue;
+    if (SCAN_SKIP_ANY_DIRS.has(entry) || (!dir && SCAN_SKIP_ROOT_DIRS.has(entry))) continue;
     const rel = dir ? `${dir}/${entry}` : entry;
     if (statSync(join(root, rel)).isDirectory()) walk(root, rel, out);
     else out.push(rel);
@@ -235,10 +238,10 @@ export function scanGuards(root, paths = []) {
     }
     // No config -> Playwright's testDir is the repo root and its default testMatch runs *.test.ts.
     if (playwrightConfigs !== 1) both(`${playwrightConfigs} playwright.config file(s) (need exactly one)`);
-    // An alternative config (vite --config / playwright -c) would bypass the checks above.
-    for (const file of ["package.json", ".github/workflows/e2e-webkit.yml"]) {
-      const text = texts.get(file) ?? "";
-      if (/--config\b|\s-c\s/.test(text)) both(`${file} (selects a non-default config)`);
+    // An alternative config (vite --config / playwright -c) would bypass the checks above --
+    // wherever the command lives (package.json, the workflow, or any wrapper script).
+    for (const [file, text] of texts) {
+      if (/\b(?:playwright|vite)\b[^\n]*(?:--config\b|\s-c\b)/.test(text)) both(`${file} (runs playwright/vite with a non-default config)`);
     }
     for (const [file, text] of texts) {
       if (/\bpython[0-9.]*\b/.test(text)) blocked.tools.push(`${file} (runs python)`);
@@ -248,7 +251,12 @@ export function scanGuards(root, paths = []) {
     // job disables the tools skip: code in src/, e2e/ or the repo root, or any file another
     // scanned file names (package.json scripts, the workflow, helpers). An unnamed script under
     // e.g. scripts/ cannot be run by the job.
-    const SPAWN = /child_process|\b(?:execSync|execFileSync|execFile|spawnSync|spawn|fork|execa)\b|\bzx\b/;
+    // Any process-launching module (child_process, execa, tinyexec, cross-spawn, shelljs, zx, ...) --
+    // matched by its specifier, not an API allow-list -- or a Bun/Deno spawn API.
+    const SPAWN = new RegExp(
+      String.raw`(?:\bfrom|\bimport|\brequire)${GAP}\(?${GAP}["'\x60][^"'\x60\n]*(?:exec|spawn|shell|child_process|\bzx\b|\bprocess\b)[^"'\x60\n]*["'\x60]` +
+        String.raw`|\bBun${GAP}\.${GAP}(?:spawn|\$)|\bDeno${GAP}\.${GAP}(?:Command|run)\b|\bexecSync\b|\bspawnSync\b`,
+    );
     for (const [file, text] of texts) {
       if (!SPAWN.test(text)) continue;
       const stem = file.split("/").pop().replace(/\.[^.]+$/, "");
@@ -437,6 +445,11 @@ const SCAN_CASES = [
   ["root config spawns a process", { "playwright.config.ts": 'import { execSync } from "node:child_process";\nexport default { testDir: "./e2e" };\n' }, { ...T, tools: false }],
   ["an unnamed script that spawns cannot run in the job", { "scripts/record.mjs": 'import { spawnSync } from "node:child_process";\nspawnSync("ffmpeg");\n' }, T],
   ["a named script that spawns can run in the job", { "scripts/record.mjs": 'import { spawnSync } from "node:child_process";\nspawnSync("x");\n', "package.json": '{"scripts":{"prep":"node scripts/record.mjs"}}' }, { ...T, tools: false }],
+  ["a src/docs/ helper is scanned (root-only dir skips)", { "src/App.tsx": 'import "./docs/helper";\n', "src/docs/helper.ts": 'import "../logic/a.test";\n' }, { ...T, "unit-test": false }],
+  ["tinyexec launches a runner", { "e2e/gestures.ts": 'import { exec } from "tinyexec";\nawait exec("./tools/runner.py");\n' }, { ...T, tools: false }],
+  ["cross-spawn via require", { "e2e/gestures.ts": 'const spawn = require("cross-spawn");\n' }, { ...T, tools: false }],
+  ["RegExp.exec in runtime code is not a process launch", { "src/App.tsx": 'const m = /a/.exec("abc");\n' }, T],
+  ["a wrapper runs playwright with another config", { "package.json": '{"scripts":{"e2e":"sh scripts/e2e.sh"}}', "scripts/e2e.sh": "#!/bin/sh\nnpx playwright test --config config/pw.ts\n" }, { tools: false, "unit-test": false }],
   ["binary files are skipped", { "public/icon.png": "\u0000PNG a.test tools/gen.py python" }, T],
   ["concatenated fetch argument", { "src/App.tsx": 'fetch("/src/logic/" + name);\n' }, { tools: false, "unit-test": false }],
   ["concatenated import argument", { "src/App.tsx": 'import("./logic/" + moduleName);\n' }, { tools: false, "unit-test": false }],

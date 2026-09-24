@@ -150,7 +150,7 @@ and (c) evidence that a meaningful share of PRs would land in L1/L2.
 
 | File | Change |
 |---|---|
-| `scripts/ci/classify-webkit.mjs` | Skip allow-list = docs + `tools/**/*.py` + `src/**/*.test.ts(x)` + `src/test/**`. The two new categories require `--repo` scan guards. Self-test grows from 24 to 121 cases (path table + raw-scan fixtures). |
+| `scripts/ci/classify-webkit.mjs` | Skip allow-list = docs + `tools/**/*.py` + `src/**/*.test.ts(x)` + `src/test/**`. The two new categories require `--repo` scan guards. Self-test grows from 24 to 126 cases (path table + raw-scan fixtures). |
 | `scripts/ci/classify-webkit-pr.sh` | Passes `--repo <toplevel>` (the merge-ref checkout). Reason wording changes to "cannot reach the browser". Decision order, forcing rules, `tested_base` reuse and fail-safes are unchanged. |
 | `scripts/ci/test-webkit-ci.sh` | 40 → 48 cases: tools-only / unit-test-only / unit+runtime / guard-violation PRs in a throwaway repo, plus classification against **this repository's own tree** (tools-only → skip, unit-test-only → skip, persistence → run). |
 | `.github/workflows/e2e-webkit.yml` | Header comment only. Matrix, steps, triggers, concurrency, evidence and gate are identical to Phase 2A. |
@@ -269,7 +269,16 @@ Round 8 (on `edd040c`) found two more gaps:
     skip: code in `src/`, `e2e/`, the repo root, or a file whose name another scanned file
     mentions.
 
-Self-test: 121 cases, and a mutation of each rule fails it.
+Round 9 (on `a00778c`) found three more gaps:
+- Directory skips such as `docs` and `coverage` applied at every depth. They now apply at the
+  repository root only.
+- Spawning was detected from a short list of API names. It is now detected by importing any
+  process-launching module (`tinyexec`, `execa`, `cross-spawn`, `shelljs` and so on), or by
+  a Bun/Deno spawn call.
+- `--config` / `-c` was checked in `package.json` and the workflow only. It is now checked in
+  any scanned file that runs `playwright` or `vite`.
+
+Self-test: 126 cases, and a mutation of each rule fails it.
 
 ### 5.2 Duration-balanced shards: implemented, measured, removed
 
