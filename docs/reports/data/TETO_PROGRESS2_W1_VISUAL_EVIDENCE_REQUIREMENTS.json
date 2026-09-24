@@ -6,7 +6,7 @@
   "explicitFocus": {
     "fresh-tomato": {
       "verdict": "HUMAN_VERIFICATION_REQUIRED",
-      "check": "🍅 collision: identical glyph to production cherry-tomato (placed piece) and tomato-sauce (tray chip). Verify a player can tell fresh-tomato from cherry-tomato on tray and pizza; a cherry-tomato Pesto Caprese renders identically but discovers nothing (see sameGlyphSubstitutionOutcomes)."
+      "check": "🍅 collision: identical glyph to production cherry-tomato (placed piece) and tomato-sauce (tray chip). OD-TOMATO-REPRESENTATION = TEMPORARY_SHARED_GLYPH allows the shared 🍅 in Preview only; fresh-tomato stays its own id (no cherry-tomato alias). Verify a player can tell fresh-tomato from cherry-tomato on tray and pizza; a cherry-tomato Pesto Caprese renders identically but discovers nothing (see sameGlyphSubstitutionOutcomes). FAIL -> dedicated visual/runtime work."
     },
     "eggplant": {
       "verdict": "HUMAN_VERIFICATION_REQUIRED",
@@ -14,7 +14,7 @@
     },
     "clam": {
       "verdict": "HUMAN_VERIFICATION_REQUIRED",
-      "check": "clam visibility: pale shell glyph (🦪 candidate / 🐚 in brief) on olive-oil base with parmigiano and garlic 🧄 (also pale); verify it reads as shellfish, not as garlic or cheese."
+      "check": "clam visibility: pale shell glyph (🦪 candidate / 🐚 in brief; OD-CLAM-GLYPH = DEFER_TO_VISUAL_GATE, neither chosen) on olive-oil base with parmigiano and garlic 🧄 (also pale); verify both glyphs read as shellfish, not as garlic or cheese."
     },
     "capers": {
       "verdict": "HUMAN_VERIFICATION_REQUIRED",
@@ -128,7 +128,13 @@
         "note": "Neither glyph is a clam: PR #221 proposes OYSTER, the brief names SPIRAL SHELL. Which glyph is authored is an Owner Decision; both need the device check."
       },
       "verdict": "HUMAN_VERIFICATION_REQUIRED",
-      "verdictNote": "Static analysis cannot show device rendering (iOS emoji font, 390x844 scale, bake tint). Not PASS."
+      "verdictNote": "Static analysis cannot show device rendering (iOS emoji font, 390x844 scale, bake tint). Not PASS.",
+      "ownerDecision": {
+        "id": "OD-CLAM-GLYPH",
+        "value": "DEFER_TO_VISUAL_GATE",
+        "chosenGlyph": null,
+        "gateInstruction": "Preview Visual Gate で 🦪 と 🐚 を並べて確認し、どちらを採るか（または別表現）を Owner が決める。"
+      }
     },
     {
       "ledgerId": "ING-08",
@@ -281,7 +287,20 @@
         "plainCircleGlyphFamily": []
       },
       "verdict": "HUMAN_VERIFICATION_REQUIRED",
-      "verdictNote": "Static analysis cannot show device rendering (iOS emoji font, 390x844 scale, bake tint). Not PASS."
+      "verdictNote": "Static analysis cannot show device rendering (iOS emoji font, 390x844 scale, bake tint). Not PASS.",
+      "ownerDecision": {
+        "id": "OD-TOMATO-REPRESENTATION",
+        "value": "TEMPORARY_SHARED_GLYPH",
+        "ingredientIdKept": "fresh-tomato",
+        "aliasTo": null,
+        "forbiddenAliases": [
+          "cherry-tomato"
+        ],
+        "previewGlyph": "🍅",
+        "previewGlyphStatus": "TEMPORARY (Preview only)",
+        "deviceVisualGate": "REQUIRED",
+        "onFail": "識別性 FAIL なら専用 visual / runtime 対応へ移行する（新しい runtime dependency として登録）。"
+      }
     },
     {
       "ledgerId": "ING-10",
@@ -361,5 +380,28 @@
       "verdict": "HUMAN_VERIFICATION_REQUIRED",
       "verdictNote": "Static analysis cannot show device rendering (iOS emoji font, 390x844 scale, bake tint). Not PASS."
     }
-  ]
+  ],
+  "previewVisualGateHandoff": {
+    "gate": "Preview Visual Gate (390x844 iPhone Safari, docs/decisions/TETO_HUMAN-VERIFICATION-POLICY.md)",
+    "ingredients": [
+      "capers",
+      "clam",
+      "corn",
+      "eggplant",
+      "fresh-tomato",
+      "pineapple",
+      "potato"
+    ],
+    "mandatoryFocus": [
+      "capers",
+      "clam",
+      "eggplant",
+      "fresh-tomato"
+    ],
+    "ownerDecisionsCarried": {
+      "clam": "OD-CLAM-GLYPH = DEFER_TO_VISUAL_GATE (show 🦪 and 🐚)",
+      "fresh-tomato": "OD-TOMATO-REPRESENTATION = TEMPORARY_SHARED_GLYPH (shared 🍅, FAIL -> dedicated visual/runtime)"
+    },
+    "verdictUntilGate": "HUMAN_VERIFICATION_REQUIRED"
+  }
 }

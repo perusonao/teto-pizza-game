@@ -69,3 +69,19 @@ decides its disposition, the resolution must be added to the appropriate table
 `tools/progression2_ingredient_canonicalizer.py` **with a justification comment**, so the next
 run of the script reflects the decision — the tables are the durable record, not this document's
 prose alone.
+
+## Game normalization decisions (Owner Decision layer, 2026-09-24)
+
+The tables above record **PIZZA DB evidence dispositions**. How the *game* represents a
+`likely_alias` token is a separate, owner-decided layer and is **not** written back into these
+tables: the token keeps its `likely_alias` disposition, and no new PIZZA DB fact is recorded.
+
+| rule | token | game canonical id | owner decision | evidence disposition (unchanged) |
+|---|---|---|---|---|
+| GCR-OLIVE-01 | `オリーブ` (exact token; not `オリーブオイル`, not a colour-specified olive) | `black-olive` | OD-OLIVE = BLACK_OLIVE_CANONICAL | `likely_alias` — PIZZA DB states no olive colour |
+| GCR-PARM-01 | `パルミジャーノチーズ` | `parmigiano` | OD-PARM = PARMIGIANO_CANONICAL | `likely_alias` — not promoted to `ORTHOGRAPHIC_EQUIVALENTS` |
+
+Machine record and invariants: `docs/reports/data/TETO_PROGRESS2_W1_OWNER_DECISIONS.json`,
+generated and validated by `tools/progression2_w1_evidence_resolution.py` (`--check`,
+`--self-test`). A rule may only map a token to the id the canonicalizer already proposes, and must
+leave the canonicalizer's disposition as `likely_alias`.

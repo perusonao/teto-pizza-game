@@ -16,17 +16,28 @@ Evidence classes are kept separate on purpose:
   PRODUCTION_DATA      -- src/** (imported read-only through tools/w1_discovery_regression_probe.mjs)
   PR_221_CANDIDATE     -- authoring candidates in PR #221 (not evidence, not production)
 
-Nothing here promotes a likely_alias to canonical, edits recipe quantities, touches src/**, e2e/**
-or any PR branch, or marks a visual item PASS. Device-level visual checks are always
+Owner Decisions (2026-09-24) are applied as a separate GAME_NORMALIZATION_DECISION layer:
+  OD-OLIVE = BLACK_OLIVE_CANONICAL          -> resolves REC-06 / REC-07 / REC-09
+  OD-PARM = PARMIGIANO_CANONICAL            -> resolves REC-10
+  OD-CLAM-GLYPH = DEFER_TO_VISUAL_GATE      -> ING-07 stays HUMAN_VERIFICATION_REQUIRED
+  OD-TOMATO-REPRESENTATION = TEMPORARY_SHARED_GLYPH -> ING-09 stays HUMAN_VERIFICATION_REQUIRED
+The PIZZA DB evidence (token, likely_alias disposition) and the merged canonicalizer tables are
+not rewritten: a game normalization rule is recorded next to the evidence, never as a PIZZA DB fact.
+
+Nothing here edits recipe quantities, touches src/**, e2e/** or any PR branch, resolves RT-01 or
+REC-01..04, or marks a visual item PASS. Device-level visual checks are always
 HUMAN_VERIFICATION_REQUIRED.
 
 Usage:
-  python3 tools/progression2_w1_evidence_resolution.py          # regenerate outputs
-  python3 tools/progression2_w1_evidence_resolution.py --check  # regenerate in memory, diff, exit 1 on drift
+  python3 tools/progression2_w1_evidence_resolution.py              # regenerate outputs
+  python3 tools/progression2_w1_evidence_resolution.py --check      # regenerate in memory, diff, exit 1 on drift
+  python3 tools/progression2_w1_evidence_resolution.py --self-test  # mutation self-test of the validator
 """
 import argparse
+import copy
 import hashlib
 import json
+import re
 import subprocess
 import sys
 import unicodedata
@@ -44,11 +55,13 @@ PR220_WAVES = "docs/reports/data/TETO_PROGRESS2_CONTENT_READINESS_WAVES.json"
 PR221_RECIPES = "docs/reports/data/TETO_PROGRESS2_W1_RECIPE_AUTHORING_MATRIX.json"
 PR221_INGREDIENTS = "docs/reports/data/TETO_PROGRESS2_W1_INGREDIENT_AUTHORING_MATRIX.json"
 PR221_LEDGER = "docs/reports/data/TETO_PROGRESS2_W1_UNRESOLVED_EVIDENCE_LEDGER.json"
+SOURCE_MATRIX = "docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json"
 MASTER_EVIDENCE = "docs/reports/data/TETO_PIZZADB_172_MASTER-EVIDENCE.json"
 INGREDIENT_CATALOG = "data/recipes/ingredient_master_catalog.json"
 # Files read from the working tree; they must be byte-identical to MAIN_SHA or the run fails.
 MAIN_PINNED_PATHS = [
     MASTER_EVIDENCE,
+    SOURCE_MATRIX,
     INGREDIENT_CATALOG,
     "tools/progression2_ingredient_canonicalizer.py",
     "src/data/ingredients.ts",
@@ -65,6 +78,7 @@ OUT_LEDGER = "TETO_PROGRESS2_W1_EVIDENCE_RESOLUTION_LEDGER.json"
 OUT_PROVENANCE = "TETO_PROGRESS2_W1_TOKEN_PROVENANCE.json"
 OUT_DISCOVERY = "TETO_PROGRESS2_W1_DISCOVERY_REGRESSION_FIXTURES.json"
 OUT_VISUAL = "TETO_PROGRESS2_W1_VISUAL_EVIDENCE_REQUIREMENTS.json"
+OUT_DECISIONS = "TETO_PROGRESS2_W1_OWNER_DECISIONS.json"
 
 EXPECTED_W1 = [
     "new-haven-apizza", "hawaiian", "parmigiana-pizza", "bambino", "pizza-portuguesa",
@@ -79,6 +93,81 @@ VISUAL_LEDGER = {
 # Glyph the task brief refers to for clam; recorded next to PR #221's candidate, never chosen here.
 BRIEF_CLAM_GLYPH = "\U0001F41A"
 STRICT_GLYPH_ITEMS = {"fresh-tomato", "eggplant", "clam", "capers"}
+GLOBAL_LEDGER = ["REC-01", "REC-02", "REC-03", "REC-04"]
+SUPPORTED_SAUCES = {"tomato-sauce", "pesto", "olive-oil"}  # Sauce OD-S1 = A (RecipeSauceProfile union)
+
+# ---------------------------------------------------------------- owner decisions (2026-09-24)
+# Recorded verbatim from the owner. These are GAME decisions: none of them adds or changes a
+# PIZZA DB fact, and none of them edits the merged canonicalizer tables.
+OWNER_DECISIONS = {
+    "OD-OLIVE": {
+        "value": "BLACK_OLIVE_CANONICAL",
+        "kind": "GAME_NORMALIZATION_DECISION",
+        "decision": "色指定なし「オリーブ」を既存 ingredient black-olive へ正規化する（ゲーム側 canonicalization policy）。",
+        "notAClaimThat": "PIZZA DB の「オリーブ」に色指定がある、または黒オリーブと記載されている。",
+        "resolves": ["REC-06", "REC-07", "REC-09"],
+        "descriptionAlignment": "関連 description candidate は black-olive（ブラックオリーブ）と整合させる。",
+    },
+    "OD-PARM": {
+        "value": "PARMIGIANO_CANONICAL",
+        "kind": "GAME_NORMALIZATION_DECISION",
+        "decision": "「パルミジャーノチーズ」を既存 ingredient parmigiano への game-side canonical alias として扱う。",
+        "notAClaimThat": "PIZZA DB の新しい事実（exact alias / 表記の確定）。canonicalizer の disposition は likely_alias のまま。",
+        "resolves": ["REC-10"],
+    },
+    "OD-CLAM-GLYPH": {
+        "value": "DEFER_TO_VISUAL_GATE",
+        "kind": "VISUAL_DECISION_DEFERRED",
+        "decision": "🦪 / 🐚 のどちらにも確定しない。Preview Visual Gate で判断する。",
+        "resolves": [],
+        "keepsOpen": ["ING-07"],
+        "chosenGlyph": None,
+    },
+    "OD-TOMATO-REPRESENTATION": {
+        "value": "TEMPORARY_SHARED_GLYPH",
+        "kind": "VISUAL_DECISION_PROVISIONAL",
+        "decision": "fresh-tomato は独立 ingredient ID のまま維持し cherry-tomato へ alias しない。🍅 共有は Preview 用の暫定 visual として許可。",
+        "resolves": [],
+        "keepsOpen": ["ING-09"],
+        "ingredientIdKept": "fresh-tomato",
+        "aliasTo": None,
+        "forbiddenAliases": ["cherry-tomato"],
+        "previewGlyph": "\U0001F345",
+        "deviceVisualGate": "REQUIRED",
+        "onFail": "識別性 FAIL なら専用 visual / runtime 対応へ移行する（新しい runtime dependency として登録）。",
+    },
+}
+DECISION_DATE = "2026-09-24"
+
+# Game canonicalization rule table (GAME_NORMALIZATION_DECISION layer). Keyed by the exact PIZZA DB
+# token; evidenceDisposition must equal what the merged canonicalizer still returns.
+GAME_CANONICALIZATION_RULES = [
+    {
+        "ruleId": "GCR-OLIVE-01",
+        "token": "オリーブ",
+        "match": "exact token only (not オリーブオイル, not any colour/variety-specified olive token)",
+        "canonicalId": "black-olive",
+        "ownerDecision": "OD-OLIVE",
+        "evidenceDisposition": "likely_alias",
+        "pizzaDbFact": "PIZZA DB lists plain オリーブ with no colour/variety; colour is NOT a PIZZA DB fact",
+        "gameRationale": "black-olive is the existing catalog's only olive-type topping; the game normalizes uncoloured olive to it by owner decision.",
+    },
+    {
+        "ruleId": "GCR-PARM-01",
+        "token": "パルミジャーノチーズ",
+        "match": "exact token only",
+        "canonicalId": "parmigiano",
+        "ownerDecision": "OD-PARM",
+        "evidenceDisposition": "likely_alias",
+        "pizzaDbFact": "PIZZA DB lists パルミジャーノチーズ; this is not recorded as a new PIZZA DB fact",
+        "gameRationale": "game-side canonical alias to the existing parmigiano (nameJa パルミジャーノ).",
+    },
+]
+# Words a description candidate uses for an ingredient, and olive wording the game must not assert.
+DESCRIPTION_TERMS = {"black-olive": "ブラックオリーブ", "parmigiano": "パルミジャーノ"}
+FORBIDDEN_OLIVE = re.compile(r"(?<!ブラック)オリーブ(?!オイル)")
+FRESH_TOMATO_TERM = re.compile(r"トマト(?!ソース)")
+CHERRY_TOMATO_TERMS = ("チェリートマト", "ミニトマト")
 
 
 def fail(msg):
@@ -120,6 +209,7 @@ def load_inputs():
     ledger, ledger_hash = blob(PR221_SHA, PR221_LEDGER)
     master = json.loads((ROOT / MASTER_EVIDENCE).read_text(encoding="utf-8"))
     catalog = json.loads((ROOT / INGREDIENT_CATALOG).read_text(encoding="utf-8"))
+    source_matrix = json.loads((ROOT / SOURCE_MATRIX).read_text(encoding="utf-8"))
 
     w1_rows = [r for r in waves["rows"] if r.get("wave") == "W1"]
     w1_wave = next(w for w in waves["waves"] if w["wave"] == "W1")
@@ -145,7 +235,7 @@ def load_inputs():
         },
         "main": {"sha": MAIN_SHA, "files": {p: sha256_file(p) for p in MAIN_PINNED_PATHS}},
     }
-    return w1_rows, recipes, ingredients, ledger, master, catalog, inputs
+    return w1_rows, recipes, ingredients, ledger, master, catalog, source_matrix, inputs
 
 
 def run_probe(payload):
@@ -386,12 +476,22 @@ def build_visual(ingredients, discovery, recipes):
             ]
             item["staticFindings"]["note"] = ("Neither glyph is a clam: PR #221 proposes OYSTER, the brief names SPIRAL SHELL. "
                                               "Which glyph is authored is an Owner Decision; both need the device check.")
+            od = OWNER_DECISIONS["OD-CLAM-GLYPH"]
+            item["ownerDecision"] = {"id": "OD-CLAM-GLYPH", "value": od["value"], "chosenGlyph": od["chosenGlyph"],
+                                     "gateInstruction": "Preview Visual Gate で 🦪 と 🐚 を並べて確認し、どちらを採るか（または別表現）を Owner が決める。"}
+        if ing == "fresh-tomato":
+            od = OWNER_DECISIONS["OD-TOMATO-REPRESENTATION"]
+            item["ownerDecision"] = {"id": "OD-TOMATO-REPRESENTATION", "value": od["value"],
+                                     "ingredientIdKept": od["ingredientIdKept"], "aliasTo": od["aliasTo"],
+                                     "forbiddenAliases": od["forbiddenAliases"], "previewGlyph": od["previewGlyph"],
+                                     "previewGlyphStatus": "TEMPORARY (Preview only)", "deviceVisualGate": od["deviceVisualGate"],
+                                     "onFail": od["onFail"]}
         out.append(item)
 
     focus = {
-        "fresh-tomato": "🍅 collision: identical glyph to production cherry-tomato (placed piece) and tomato-sauce (tray chip). Verify a player can tell fresh-tomato from cherry-tomato on tray and pizza; a cherry-tomato Pesto Caprese renders identically but discovers nothing (see sameGlyphSubstitutionOutcomes).",
+        "fresh-tomato": "🍅 collision: identical glyph to production cherry-tomato (placed piece) and tomato-sauce (tray chip). OD-TOMATO-REPRESENTATION = TEMPORARY_SHARED_GLYPH allows the shared 🍅 in Preview only; fresh-tomato stays its own id (no cherry-tomato alias). Verify a player can tell fresh-tomato from cherry-tomato on tray and pizza; a cherry-tomato Pesto Caprese renders identically but discovers nothing (see sameGlyphSubstitutionOutcomes). FAIL -> dedicated visual/runtime work.",
         "eggplant": "🍆 visibility: dark-purple glyph on tomato-sauce red and after bake roast tint; verify it stays identifiable at piece size on 390x844 and in reference/thumbnail.",
-        "clam": "clam visibility: pale shell glyph (🦪 candidate / 🐚 in brief) on olive-oil base with parmigiano and garlic 🧄 (also pale); verify it reads as shellfish, not as garlic or cheese.",
+        "clam": "clam visibility: pale shell glyph (🦪 candidate / 🐚 in brief; OD-CLAM-GLYPH = DEFER_TO_VISUAL_GATE, neither chosen) on olive-oil base with parmigiano and garlic 🧄 (also pale); verify both glyphs read as shellfish, not as garlic or cheese.",
         "capers": "🟢 distinguishability: plain LARGE GREEN CIRCLE beside ⚫ black-olive in Puttanesca and 🔴 pepperoni in the tray -- hue is the only cue (red/green colour-vision risk); verify on device, including a greyscale/CVD pass.",
     }
     return {
@@ -409,45 +509,143 @@ def build_visual(ingredients, discovery, recipes):
             "Side-by-side with every sameGlyph / coPlaced ingredient listed for it",
         ],
         "ingredients": out,
+        "previewVisualGateHandoff": {
+            "gate": "Preview Visual Gate (390x844 iPhone Safari, docs/decisions/TETO_HUMAN-VERIFICATION-POLICY.md)",
+            "ingredients": [i["ingredientId"] for i in out],
+            "mandatoryFocus": sorted(focus),
+            "ownerDecisionsCarried": {"clam": "OD-CLAM-GLYPH = DEFER_TO_VISUAL_GATE (show 🦪 and 🐚)",
+                                      "fresh-tomato": "OD-TOMATO-REPRESENTATION = TEMPORARY_SHARED_GLYPH (shared 🍅, FAIL -> dedicated visual/runtime)"},
+            "verdictUntilGate": "HUMAN_VERIFICATION_REQUIRED",
+        },
+    }
+
+
+# ---------------------------------------------------------------- owner decisions / game canonicalization
+
+def likely_alias_occurrences(provenance, source_matrix, w1_rows):
+    """(recipe, token, canonicalId) for every W1 likely_alias token, read from the PIZZA DB evidence
+    (re-classified here) and from the merged matrix tokenTrace; the two must agree."""
+    from_evidence = {(p["recipeIdCandidate"], t["token"], t["canonicalId"])
+                     for p in provenance["recipes"] for t in p.get("tokens", []) if t["disposition"] == "likely_alias"}
+    ev_to_recipe = {r["evidenceId"]: r["canonicalCandidateId"] for r in w1_rows}
+    from_matrix = set()
+    for r in source_matrix["rows"]:
+        rid = ev_to_recipe.get(r.get("evidenceId", r.get("id")))
+        if rid:
+            from_matrix |= {(rid, t["token"], t["canonicalId"]) for t in r["ingredients"]["tokenTrace"]
+                            if t["disposition"] == "likely_alias"}
+    if from_evidence != from_matrix:
+        fail(f"likely_alias occurrences differ: evidence-only {sorted(from_evidence - from_matrix)}, "
+             f"matrix-only {sorted(from_matrix - from_evidence)}")
+    return from_evidence
+
+
+def description_consistency(recipes):
+    out = []
+    for r in sorted(recipes["rows"], key=lambda x: EXPECTED_W1.index(x["recipeIdCandidate"])):
+        req = {x["ingredientId"] for x in r["requiredIngredients"]}
+        d = r["descriptionCandidate"]
+        checks = {f"{ing} named iff required": (term in d) == (ing in req) for ing, term in DESCRIPTION_TERMS.items()}
+        checks["no uncoloured / other-colour olive wording"] = not FORBIDDEN_OLIVE.search(d)
+        checks["fresh-tomato named iff required"] = bool(FRESH_TOMATO_TERM.search(d)) == ("fresh-tomato" in req)
+        checks["no cherry-tomato wording or id for fresh-tomato"] = not (
+            "fresh-tomato" in req and ("cherry-tomato" in req or any(t in d for t in CHERRY_TOMATO_TERMS)))
+        related = sorted({od for od, ing in (("OD-OLIVE", "black-olive"), ("OD-PARM", "parmigiano"),
+                                             ("OD-TOMATO-REPRESENTATION", "fresh-tomato"), ("OD-CLAM-GLYPH", "clam"))
+                          if ing in req})
+        out.append({"recipeIdCandidate": r["recipeIdCandidate"], "descriptionCandidate": d, "relatedOwnerDecisions": related,
+                    "checks": checks, "status": "CONSISTENT" if all(checks.values()) else "INCONSISTENT"})
+    return out
+
+
+def build_decisions(ledger, recipes, provenance, occurrences, w1_rows):
+    exact_names = canon.load_canonical_names()
+    w1_evidence = {r["evidenceId"] for r in w1_rows}
+    outside_w1 = {
+        "オリーブ": sorted(set(provenance["oliveCensus"]["pizzaDbRowsWithPlainOliveTokenIds"]) - w1_evidence),
+        "パルミジャーノチーズ": sorted(set(provenance["parmigianoCensus"]["pizzaDbRowsWithToken"]) - w1_evidence),
+    }
+    rules = []
+    for rule in GAME_CANONICALIZATION_RULES:
+        c = canon.classify(rule["token"], exact_names)
+        rules.append({
+            **rule,
+            "layer": "GAME_NORMALIZATION_DECISION",
+            "canonicalizerNow": {"disposition": c["disposition"], "canonicalId": c.get("canonicalId"), "rule": c.get("rule")},
+            "canonicalizerTableModified": False,
+            "w1Applications": sorted(rid for rid, tok, _ in occurrences if tok == rule["token"]),
+            "resolvesLedgerIds": sorted(r["id"] for r in ledger["rows"] if (r.get("aliasEvidence") or {}).get("token") == rule["token"]),
+            "pizzaDbRowsOutsideW1WithToken": outside_w1[rule["token"]],
+            "outsideW1Note": "Token-wide game policy; rows outside W1 are normalized when their wave is authored (not processed here).",
+        })
+    return {
+        "schemaVersion": 1,
+        "kind": "w1_owner_decisions",
+        "decisionDate": DECISION_DATE,
+        "layers": {
+            "PIZZA_DB_EVIDENCE": f"{MASTER_EVIDENCE} tokens and the merged canonicalizer dispositions -- unchanged (TOKEN_PROVENANCE is regenerated byte-identically)",
+            "GAME_NORMALIZATION_DECISION": "gameCanonicalizationRules below -- owner decisions about how the game represents a token; never a PIZZA DB fact",
+        },
+        "ownerDecisions": OWNER_DECISIONS,
+        "gameCanonicalizationRules": rules,
+        "descriptionConsistency": description_consistency(recipes),
+        "heldConstraints": {
+            "sauce": "OD-S1 = A (maintained)",
+            "quantities": "authored minCounts unchanged",
+            "runtime": "RT-01 not resolved",
+            "globals": "REC-01..04 not resolved",
+            "visual": "no ING item PASS",
+            "pr221": f"{PR221_SHA} read-only, not modified",
+        },
     }
 
 
 # ---------------------------------------------------------------- resolution ledger
 
-def build_ledger(ledger, recipes, provenance, discovery, visual, inputs):
+def build_ledger(ledger, recipes, provenance, discovery, decisions, inputs):
     olive = provenance["oliveCensus"]
+    rule_by_token = {r["token"]: r for r in decisions["gameCanonicalizationRules"]}
+    consistency = {c["recipeIdCandidate"]: c["status"] for c in decisions["descriptionConsistency"]}
     rows = []
     for row in ledger["rows"]:
         rid = row["id"]
         entry = {"id": rid, "scope": row["scope"], "pr221Status": row["status"], "field": row["field"]}
         if rid in ("REC-06", "REC-07", "REC-09"):
             recipe = ALIAS_LEDGER[rid]
-            desc = next(r["descriptionCandidate"] for r in recipes["rows"] if r["recipeIdCandidate"] == recipe)
+            rule = rule_by_token["オリーブ"]
             entry.update({
-                "resolution": "UNRESOLVED",
-                "resolutionStatus": "EVIDENCE_EXHAUSTED_OWNER_DECISION_REQUIRED",
-                "evidence": {
+                "resolution": "RESOLVED",
+                "resolutionStatus": "RESOLVED_BY_OWNER_DECISION_GAME_NORMALIZATION",
+                "evidenceFact": {
                     "PIZZA_DB_EVIDENCE": f"token オリーブ (plain); {olive['pizzaDbRowsWithPlainOliveToken']} PIZZA DB rows use the plain token, {len(olive['pizzaDbColorSpecifiedOliveTokens'])} use a colour-specified olive token",
-                    "EXISTING_CATALOG": f"likely_alias -> black-olive (LIKELY_ALIAS_TABLE); catalog olive ids = {olive['existingCatalogOliveIds']}",
-                    "PRODUCTION_DATA": "black-olive shipped (nameJa ブラックオリーブ, ⚫)",
-                    "PR_221_CANDIDATE": f"description asserts ブラックオリーブ: {'ブラックオリーブ' in desc}",
+                    "disposition": rule["canonicalizerNow"]["disposition"],
+                    "EXISTING_CATALOG": f"likely_alias -> black-olive (LIKELY_ALIAS_TABLE, unchanged); catalog olive ids = {olive['existingCatalogOliveIds']}",
+                    "colourIsPizzaDbFact": False,
                 },
-                "whyNotResolved": "Olive colour/variety is not stated by PIZZA DB and pizzadb.jp is unreachable from this environment; mapping to black-olive is a catalog convenience, not evidence.",
-                "ownerDecision": "OD-OLIVE (shared by REC-06/07/09)",
-                "stillOpen": True,
+                "gameNormalization": {"ownerDecision": "OD-OLIVE = BLACK_OLIVE_CANONICAL", "rule": rule["ruleId"],
+                                      "token": "オリーブ", "canonicalId": rule["canonicalId"]},
+                "gameCanonicalizationRule": rule["ruleId"],
+                "descriptionCandidate": {"recipe": recipe, "status": consistency[recipe],
+                                         "note": "PR #221 candidate already names ブラックオリーブ; no wording change needed (and #221 is not edited)."},
+                "stillOpen": False,
             })
         elif rid == "REC-10":
+            rule = rule_by_token["パルミジャーノチーズ"]
             entry.update({
-                "resolution": "UNRESOLVED",
-                "resolutionStatus": "EVIDENCE_SUPPORTS_IDENTITY_RECLASSIFICATION_REVIEW_REQUIRED",
-                "evidence": {
+                "resolution": "RESOLVED",
+                "resolutionStatus": "RESOLVED_BY_OWNER_DECISION_GAME_NORMALIZATION",
+                "evidenceFact": {
                     "PIZZA_DB_EVIDENCE": f"token パルミジャーノチーズ in {provenance['parmigianoCensus']['pizzaDbRowsWithToken']}",
-                    "EXISTING_CATALOG": "parmigiano nameJa パルミジャーノ; LIKELY_ALIAS_TABLE entry justified as 'チーズ suffix variant'; same pattern for モッツァレラチーズ is ORTHOGRAPHIC (exact)",
-                    "PRODUCTION_DATA": "parmigiano shipped (cheese, dedicated .pizza-cheese--parmigiano)",
+                    "disposition": rule["canonicalizerNow"]["disposition"],
+                    "EXISTING_CATALOG": "parmigiano nameJa パルミジャーノ; LIKELY_ALIAS_TABLE entry unchanged (not moved to ORTHOGRAPHIC_EQUIVALENTS)",
+                    "newPizzaDbFactRecorded": False,
                 },
-                "whyNotResolved": "The canonicalizer still classifies the token likely_alias; promoting it would be a canonicalizer-table change that this task must not make unilaterally.",
-                "ownerDecision": "OD-PARM (canonicalizer table review: keep likely_alias or move to ORTHOGRAPHIC_EQUIVALENTS)",
-                "stillOpen": True,
+                "gameNormalization": {"ownerDecision": "OD-PARM = PARMIGIANO_CANONICAL", "rule": rule["ruleId"],
+                                      "token": "パルミジャーノチーズ", "canonicalId": rule["canonicalId"]},
+                "gameCanonicalizationRule": rule["ruleId"],
+                "descriptionCandidate": {"recipe": "parmigiana-pizza", "status": consistency["parmigiana-pizza"],
+                                         "note": "PR #221 candidate names パルミジャーノ (the catalog nameJa); no wording change needed."},
+                "stillOpen": False,
             })
         elif rid == "REC-08":
             eg = discovery["rec08EggplantFamily"]
@@ -470,8 +668,8 @@ def build_ledger(ledger, recipes, provenance, discovery, visual, inputs):
                 "ingredientId": ing,
                 "explicitFocus": ing in STRICT_GLYPH_ITEMS,
                 "requirementsFile": f"docs/reports/data/{OUT_VISUAL}",
-                "ownerDecision": {"clam": "OD-CLAM-GLYPH (🦪 per PR #221 vs 🐚 per brief vs other)",
-                                  "fresh-tomato": "OD-TOMATO-REPRESENTATION (accept shared 🍅 or require a distinguishing representation; a non-emoji representation would be a new runtime dependency)"}.get(ing),
+                "ownerDecision": {"clam": "OD-CLAM-GLYPH = DEFER_TO_VISUAL_GATE (🦪 / 🐚 not chosen)",
+                                  "fresh-tomato": "OD-TOMATO-REPRESENTATION = TEMPORARY_SHARED_GLYPH (own id kept, no cherry-tomato alias, 🍅 Preview-only, device gate required)"}.get(ing),
                 "stillOpen": True,
             })
         elif rid == "RT-01":
@@ -487,40 +685,233 @@ def build_ledger(ledger, recipes, provenance, discovery, visual, inputs):
         rows.append(entry)
 
     open_ids = {r["id"] for r in rows if r["stillOpen"]}
-    globals_open = sorted(r["id"] for r in rows if r["id"] in ("REC-01", "REC-02", "REC-03", "REC-04") and r["stillOpen"])
+    globals_open = [x for x in GLOBAL_LEDGER if x in open_ids]
     per_recipe = []
     for r in sorted(recipes["rows"], key=lambda x: EXPECTED_W1.index(x["recipeIdCandidate"])):
         specific = [x for x in r["unresolvedRefs"] if x in open_ids]
-        resolved_here = [x for x in r["unresolvedRefs"] if x not in open_ids]
+        effective = specific + globals_open
+        req = {x["ingredientId"] for x in r["requiredIngredients"]}
         per_recipe.append({
             "recipeIdCandidate": r["recipeIdCandidate"],
-            "resolvedByThisAudit": resolved_here,
+            "resolvedByThisAudit": [x for x in r["unresolvedRefs"] if x not in open_ids],
             "remainingRecipeSpecific": specific,
             "remainingByKind": {
-                "ownerDecision": [x for x in specific if x in ("REC-06", "REC-07", "REC-09", "REC-10")],
+                "ownerDecision": [x for x in specific if x in ALIAS_LEDGER],
                 "humanVerification": [x for x in specific if x in VISUAL_LEDGER],
                 "runtime": [x for x in specific if x == "RT-01"],
             },
+            "relatedOwnerDecisions": sorted({od for od, ing in (("OD-OLIVE", "black-olive"), ("OD-PARM", "parmigiano"),
+                                                                ("OD-TOMATO-REPRESENTATION", "fresh-tomato"), ("OD-CLAM-GLYPH", "clam"))
+                                             if ing in req}),
             "inheritedGlobalOpen": globals_open,
-            "readiness": "REVIEW",
-            "readyNow": False,
+            "effectiveOpenRefs": effective,
+            "recipeSpecificClear": not specific,
+            "authoredMinCounts": {x["ingredientId"]: x["minCountCandidate"] for x in r["requiredIngredients"]},
+            "sauce": r["sauce"],
+            "readiness": derived_readiness(effective),
         })
+    totals = {k: sum(p["readiness"] == k for p in per_recipe) for k in ("READY", "REVIEW", "BLOCKED")}
     return {
         "schemaVersion": 1,
         "kind": "w1_evidence_resolution_ledger",
         "inputs": inputs,
+        "ownerDecisions": {k: f"{k} = {v['value']}" for k, v in OWNER_DECISIONS.items()},
+        "ownerDecisionsFile": f"docs/reports/data/{OUT_DECISIONS}",
         "ownerDecisionsHeld": {"sauce": "OD-S1 = A (maintained)", "quantities": "authored minCounts unchanged; not trimmed to the 8-slot ring",
                                "completionGate": "#215 production untouched"},
+        "readinessRule": "READY only when no recipe-specific ref and no inherited global ref is open (PR #221 derived_readiness); BLOCKED = not safely representable by evidence/current mechanic.",
         "rows": rows,
         "resolvedIds": sorted(r["id"] for r in rows if r["resolution"] == "RESOLVED"),
         "unresolvedIds": sorted(r["id"] for r in rows if r["resolution"] == "UNRESOLVED"),
         "unchangedIds": sorted(r["id"] for r in rows if r["resolution"] == "UNCHANGED"),
         "recipes": per_recipe,
-        "summary": {"READY": 0, "REVIEW": len(per_recipe), "BLOCKED": 0,
-                    "readyNowRecipes": [],
+        "summary": {**totals,
+                    "readyNowRecipes": [p["recipeIdCandidate"] for p in per_recipe if p["readiness"] == "READY"],
+                    "recipeSpecificClearRecipes": [p["recipeIdCandidate"] for p in per_recipe if p["recipeSpecificClear"]],
                     "noNewIngredientRecipes": sorted(r["recipeIdCandidate"] for r in recipes["rows"]
                                                      if not set(x["ingredientId"] for x in r["requiredIngredients"]) & set(EXPECTED_NEW_INGREDIENTS))},
     }
+
+
+def derived_readiness(refs):
+    """Same rule as PR #221: READY only when nothing (own or inherited) is open."""
+    return "READY" if not refs else "REVIEW"
+
+
+# ---------------------------------------------------------------- validator (bidirectional invariants)
+
+EXPECTED_OWNER_DECISIONS = {"OD-OLIVE": "BLACK_OLIVE_CANONICAL", "OD-PARM": "PARMIGIANO_CANONICAL",
+                            "OD-CLAM-GLYPH": "DEFER_TO_VISUAL_GATE", "OD-TOMATO-REPRESENTATION": "TEMPORARY_SHARED_GLYPH"}
+
+
+def check(cond, msg):
+    if not cond:
+        raise AssertionError(msg)
+
+
+def ledger_scope_recipes(row, recipes):
+    """Recipes a PR #221 ledger row applies to (recipe-scoped or ingredient-scoped); None for globals."""
+    ids = {r["recipeIdCandidate"] for r in recipes["rows"]}
+    tokens = {t.strip() for t in row["scope"].split(",")}
+    if tokens <= ids:
+        return tokens
+    if len(tokens) == 1 and row["id"] in VISUAL_LEDGER:
+        return {r["recipeIdCandidate"] for r in recipes["rows"] if row["scope"] in {x["ingredientId"] for x in r["requiredIngredients"]}}
+    return None
+
+
+def validate(state, ctx):
+    led, dec, vis = state[OUT_LEDGER], state[OUT_DECISIONS], state[OUT_VISUAL]
+    recipes, ledger221, occurrences = ctx["recipes"], ctx["ledger221"], ctx["occurrences"]
+    rows = {r["id"]: r for r in led["rows"]}
+    per = {p["recipeIdCandidate"]: p for p in led["recipes"]}
+    src = {r["recipeIdCandidate"]: r for r in recipes["rows"]}
+
+    # Owner decisions are recorded exactly as given.
+    check({k: v["value"] for k, v in dec["ownerDecisions"].items()} == EXPECTED_OWNER_DECISIONS, "owner decision values drifted")
+
+    # Evidence vs game decision: every W1 likely_alias occurrence <-> exactly one rule application <-> #221 alias row.
+    rules = dec["gameCanonicalizationRules"]
+    applied = {(rid, r["token"], r["canonicalId"]) for r in rules for rid in r["w1Applications"]}
+    check(applied == occurrences, f"rule applications != likely_alias evidence: missing {sorted(occurrences - applied)}, stale {sorted(applied - occurrences)}")
+    alias221 = {(row["scope"], row["aliasEvidence"]["token"], row["aliasEvidence"]["canonicalId"]) for row in ledger221["rows"] if row.get("aliasEvidence")}
+    check(alias221 == occurrences, f"#221 alias ledger != likely_alias evidence: {sorted(alias221 ^ occurrences)}")
+    for r in rules:
+        check(r["layer"] == "GAME_NORMALIZATION_DECISION", f"{r['ruleId']} not in the game-decision layer")
+        check(r["evidenceDisposition"] == r["canonicalizerNow"]["disposition"] == "likely_alias",
+              f"{r['ruleId']} rewrites the evidence disposition ({r['evidenceDisposition']}) -- a game decision is not a PIZZA DB fact")
+        check(r["canonicalizerNow"]["canonicalId"] == r["canonicalId"], f"{r['ruleId']} redirects {r['token']} away from the evidence candidate")
+        check(r["canonicalizerTableModified"] is False, f"{r['ruleId']} claims a canonicalizer table change")
+        od = dec["ownerDecisions"].get(r["ownerDecision"])
+        check(od is not None and od["kind"] == "GAME_NORMALIZATION_DECISION", f"{r['ruleId']} lacks a game-normalization owner decision")
+        check(sorted(od["resolves"]) == r["resolvesLedgerIds"], f"{r['ruleId']} resolves {r['resolvesLedgerIds']} != {r['ownerDecision']} {od['resolves']}")
+
+    # Ledger rows <-> rules <-> owner decisions (both ways).
+    rule_by_id = {r["ruleId"]: r for r in rules}
+    od_resolves = {x: k for k, v in dec["ownerDecisions"].items() for x in v["resolves"]}
+    for row in ledger221["rows"]:
+        e = rows[row["id"]]
+        if row.get("aliasEvidence"):
+            rule = rule_by_id.get(e.get("gameCanonicalizationRule"))
+            check(e["resolution"] == "RESOLVED" and not e["stillOpen"], f"{row['id']} alias row not resolved")
+            check(rule is not None and row["id"] in rule["resolvesLedgerIds"] and rule["token"] == row["aliasEvidence"]["token"],
+                  f"{row['id']} resolved without a matching game canonicalization rule")
+            check(od_resolves.get(row["id"]) == rule["ownerDecision"], f"{row['id']} not resolved by its owner decision")
+            check(e["evidenceFact"]["disposition"] == "likely_alias", f"{row['id']} evidence fact rewritten")
+    check(set(led["resolvedIds"]) == {"REC-08"} | set(od_resolves), f"resolved set {led['resolvedIds']} != REC-08 + owner-decision set")
+    for rid in led["resolvedIds"]:
+        check(rows[rid]["resolution"] == "RESOLVED" and not rows[rid]["stillOpen"], f"{rid} listed resolved but open")
+
+    # Held constraints.
+    for g in GLOBAL_LEDGER:
+        check(rows[g]["stillOpen"] and rows[g]["resolution"] == "UNCHANGED", f"global {g} must stay open")
+    check(rows["RT-01"]["stillOpen"] and rows["RT-01"]["resolutionStatus"] == "RUNTIME_DEPENDENCY_REQUIRED", "RT-01 must stay open")
+    over = {rid for rid, r in src.items() if not r["referenceCapacity"]["fits"]}
+    check(ledger_scope_recipes(rows["RT-01"], recipes) == over, "RT-01 scope != over-capacity recipes")
+    check({rid for rid, p in per.items() if "RT-01" in p["remainingByKind"]["runtime"]} == over, "RT-01 carriers != over-capacity recipes")
+    check(rows["REC-11"]["resolutionStatus"] == "OWNER_DECISION_RECORDED" and led["ownerDecisionsHeld"]["sauce"].startswith("OD-S1 = A"),
+          "Sauce OD-S1 = A not held")
+    for rid, p in per.items():
+        check(p["sauce"] == src[rid]["sauce"] in SUPPORTED_SAUCES, f"{rid} sauce outside OD-S1 = A")
+        check(p["authoredMinCounts"] == {x["ingredientId"]: x["minCountCandidate"] for x in src[rid]["requiredIngredients"]},
+              f"{rid} authored quantities changed")
+
+    # Visual: every new ingredient stays HUMAN_VERIFICATION_REQUIRED; decisions do not pick a glyph or alias.
+    for lid, ing in VISUAL_LEDGER.items():
+        check(rows[lid]["stillOpen"] and rows[lid]["resolutionStatus"] == "HUMAN_VERIFICATION_REQUIRED", f"{lid} must stay HVR")
+    for item in vis["ingredients"]:
+        check(item["verdict"] == "HUMAN_VERIFICATION_REQUIRED", f"{item['ingredientId']} visual verdict {item['verdict']}")
+    check(all(v["verdict"] == "HUMAN_VERIFICATION_REQUIRED" for v in vis["explicitFocus"].values()), "explicit focus item not HVR")
+    check(sorted(vis["previewVisualGateHandoff"]["ingredients"]) == EXPECTED_NEW_INGREDIENTS, "visual gate handoff != 7 new ingredients")
+    vis_by = {i["ingredientId"]: i for i in vis["ingredients"]}
+    check(vis_by["clam"]["ownerDecision"]["chosenGlyph"] is None and dec["ownerDecisions"]["OD-CLAM-GLYPH"]["chosenGlyph"] is None,
+          "clam glyph must stay undecided (DEFER_TO_VISUAL_GATE)")
+    tom = dec["ownerDecisions"]["OD-TOMATO-REPRESENTATION"]
+    check(tom["aliasTo"] is None and vis_by["fresh-tomato"]["ownerDecision"]["aliasTo"] is None and tom["ingredientIdKept"] == "fresh-tomato",
+          "fresh-tomato must keep its own id (no alias)")
+    check(tom["deviceVisualGate"] == "REQUIRED", "fresh-tomato device visual gate must stay required")
+    for rid, p in per.items():
+        if "fresh-tomato" in p["authoredMinCounts"]:
+            check("cherry-tomato" not in p["authoredMinCounts"], f"{rid} substitutes cherry-tomato for fresh-tomato")
+
+    # Description candidates agree with the decisions (recomputed from the #221 input, not trusted).
+    recomputed = description_consistency(recipes)
+    bad = [(c["recipeIdCandidate"], [k for k, v in c["checks"].items() if not v]) for c in recomputed if c["status"] != "CONSISTENT"]
+    check(not bad, f"description candidates inconsistent with owner decisions: {bad}")
+    check(recomputed == dec["descriptionConsistency"], "description consistency record is stale")
+
+    # Recipe <-> ledger links (both ways) and readiness.
+    for row in ledger221["rows"]:
+        scope = ledger_scope_recipes(row, recipes)
+        if scope is None:
+            continue
+        e = rows[row["id"]]
+        field = "remainingRecipeSpecific" if e["stillOpen"] else "resolvedByThisAudit"
+        other = "resolvedByThisAudit" if e["stillOpen"] else "remainingRecipeSpecific"
+        carriers = {rid for rid, p in per.items() if row["id"] in p[field]}
+        check(carriers == scope, f"{row['id']} link mismatch: orphaned from {sorted(scope - carriers)}, out of scope {sorted(carriers - scope)}")
+        check(not any(row["id"] in p[other] for p in per.values()), f"{row['id']} listed on the wrong side")
+    for rid, p in per.items():
+        check(sorted(p["resolvedByThisAudit"] + p["remainingRecipeSpecific"]) == sorted(src[rid]["unresolvedRefs"]), f"{rid} refs not partitioned")
+        check(p["inheritedGlobalOpen"] == GLOBAL_LEDGER, f"{rid} does not inherit REC-01..04")
+        check(p["effectiveOpenRefs"] == p["remainingRecipeSpecific"] + p["inheritedGlobalOpen"], f"{rid} effective refs drift")
+        check(p["readiness"] == derived_readiness(p["effectiveOpenRefs"]), f"{rid} readiness {p['readiness']} not derived")
+        check(p["recipeSpecificClear"] == (not p["remainingRecipeSpecific"]), f"{rid} recipeSpecificClear drift")
+    totals = {k: sum(p["readiness"] == k for p in per.values()) for k in ("READY", "REVIEW", "BLOCKED")}
+    check({k: led["summary"][k] for k in totals} == totals, "summary totals drift")
+    check(led["summary"]["readyNowRecipes"] == [rid for rid in EXPECTED_W1 if per[rid]["readiness"] == "READY"], "readyNow drift")
+
+
+MUTATIONS = [
+    ("OD-OLIVE value flipped", lambda s, c: s[OUT_DECISIONS]["ownerDecisions"]["OD-OLIVE"].update(value="GENERIC_OLIVE")),
+    ("olive rule removed", lambda s, c: s[OUT_DECISIONS]["gameCanonicalizationRules"].pop(0)),
+    ("rule records a PIZZA DB fact (exact_alias)", lambda s, c: s[OUT_DECISIONS]["gameCanonicalizationRules"][0].update(evidenceDisposition="exact_alias")),
+    ("rule redirects olive to another id", lambda s, c: s[OUT_DECISIONS]["gameCanonicalizationRules"][0].update(canonicalId="green-olive")),
+    ("rule claims canonicalizer table edit", lambda s, c: s[OUT_DECISIONS]["gameCanonicalizationRules"][1].update(canonicalizerTableModified=True)),
+    ("REC-07 resolved without rule", lambda s, c: next(r for r in s[OUT_LEDGER]["rows"] if r["id"] == "REC-07").update(gameCanonicalizationRule=None)),
+    ("REC-10 reopened but not carried", lambda s, c: next(r for r in s[OUT_LEDGER]["rows"] if r["id"] == "REC-10").update(stillOpen=True, resolution="UNRESOLVED")),
+    ("evidence fact rewritten", lambda s, c: next(r for r in s[OUT_LEDGER]["rows"] if r["id"] == "REC-06")["evidenceFact"].update(disposition="exact_alias")),
+    ("uncovered likely_alias occurrence", lambda s, c: c["occurrences"].add(("hawaiian", "パイン", "pineapple"))),
+    ("RT-01 resolved", lambda s, c: next(r for r in s[OUT_LEDGER]["rows"] if r["id"] == "RT-01").update(stillOpen=False, resolution="RESOLVED")),
+    ("RT-01 dropped from portuguesa", lambda s, c: next(p for p in s[OUT_LEDGER]["recipes"] if p["recipeIdCandidate"] == "pizza-portuguesa")["remainingByKind"].update(runtime=[])),
+    ("REC-01 resolved", lambda s, c: next(r for r in s[OUT_LEDGER]["rows"] if r["id"] == "REC-01").update(stillOpen=False)),
+    ("ING-09 row closed", lambda s, c: next(r for r in s[OUT_LEDGER]["rows"] if r["id"] == "ING-09").update(stillOpen=False)),
+    ("capers visual PASS", lambda s, c: next(i for i in s[OUT_VISUAL]["ingredients"] if i["ingredientId"] == "capers").update(verdict="PASS")),
+    ("clam glyph chosen", lambda s, c: s[OUT_DECISIONS]["ownerDecisions"]["OD-CLAM-GLYPH"].update(chosenGlyph="\U0001F9AA")),
+    ("fresh-tomato aliased to cherry-tomato", lambda s, c: s[OUT_DECISIONS]["ownerDecisions"]["OD-TOMATO-REPRESENTATION"].update(aliasTo="cherry-tomato")),
+    ("fresh-tomato device gate waived", lambda s, c: s[OUT_DECISIONS]["ownerDecisions"]["OD-TOMATO-REPRESENTATION"].update(deviceVisualGate="WAIVED")),
+    ("visual gate handoff drops eggplant", lambda s, c: s[OUT_VISUAL]["previewVisualGateHandoff"]["ingredients"].remove("eggplant")),
+    ("quantity changed", lambda s, c: next(p for p in s[OUT_LEDGER]["recipes"] if p["recipeIdCandidate"] == "puttanesca-pizza")["authoredMinCounts"].update({"black-olive": 1})),
+    ("sauce OD changed", lambda s, c: s[OUT_LEDGER]["ownerDecisionsHeld"].update(sauce="OD-S1 = B")),
+    ("description says plain オリーブ", lambda s, c: next(r for r in c["recipes"]["rows"] if r["recipeIdCandidate"] == "pesto-tonno").update(
+        descriptionCandidate=next(r for r in c["recipes"]["rows"] if r["recipeIdCandidate"] == "pesto-tonno")["descriptionCandidate"].replace("ブラックオリーブ", "オリーブ"))),
+    ("description says グリーンオリーブ", lambda s, c: next(r for r in c["recipes"]["rows"] if r["recipeIdCandidate"] == "puttanesca-pizza").update(
+        descriptionCandidate=next(r for r in c["recipes"]["rows"] if r["recipeIdCandidate"] == "puttanesca-pizza")["descriptionCandidate"].replace("ブラックオリーブ", "グリーンオリーブ"))),
+    ("description says チェリートマト", lambda s, c: next(r for r in c["recipes"]["rows"] if r["recipeIdCandidate"] == "pesto-caprese").update(
+        descriptionCandidate=next(r for r in c["recipes"]["rows"] if r["recipeIdCandidate"] == "pesto-caprese")["descriptionCandidate"].replace("トマト、", "チェリートマト、"))),
+    ("pesto-tonno forced READY", lambda s, c: next(p for p in s[OUT_LEDGER]["recipes"] if p["recipeIdCandidate"] == "pesto-tonno").update(readiness="READY")),
+    ("melanzane drops ING-03 (orphan)", lambda s, c: next(p for p in s[OUT_LEDGER]["recipes"] if p["recipeIdCandidate"] == "melanzane-pizza")["remainingRecipeSpecific"].remove("ING-03")),
+    ("resolved REC-10 still carried", lambda s, c: next(p for p in s[OUT_LEDGER]["recipes"] if p["recipeIdCandidate"] == "parmigiana-pizza")["remainingRecipeSpecific"].append("REC-10")),
+    ("summary totals edited", lambda s, c: s[OUT_LEDGER]["summary"].update(READY=1, REVIEW=9)),
+]
+
+
+def self_test(state, ctx):
+    validate(state, ctx)
+    missed = []
+    for name, mutate in MUTATIONS:
+        s, c = copy.deepcopy(state), copy.deepcopy(ctx)
+        mutate(s, c)
+        try:
+            validate(s, c)
+        except AssertionError as exc:
+            print(f"  caught  {name}: {exc}")
+            continue
+        missed.append(name)
+        print(f"  MISSED  {name}")
+    if missed:
+        fail(f"validator missed {len(missed)} mutation(s): {missed}")
+    print(f"PASS: mutation self-test {len(MUTATIONS)}/{len(MUTATIONS)} caught (baseline valid)")
 
 
 def dump(obj):
@@ -530,28 +921,42 @@ def dump(obj):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", action="store_true")
+    ap.add_argument("--self-test", action="store_true")
     args = ap.parse_args()
 
     verify_pins()
-    w1_rows, recipes, ingredients, ledger, master, catalog, inputs = load_inputs()
+    w1_rows, recipes, ingredients, ledger, master, catalog, source_matrix, inputs = load_inputs()
     provenance = build_provenance(w1_rows, recipes, master, catalog)
     if provenance["w1LikelyAliasTokens"] != sorted(["オリーブ->black-olive", "パルミジャーノチーズ->parmigiano"]):
         fail(f"unexpected W1 likely_alias token set: {provenance['w1LikelyAliasTokens']}")
+    occurrences = likely_alias_occurrences(provenance, source_matrix, w1_rows)
     discovery = build_discovery(recipes, ingredients)
     visual = build_visual(ingredients, discovery, recipes)
-    resolution = build_ledger(ledger, recipes, provenance, discovery, visual, inputs)
+    decisions = build_decisions(ledger, recipes, provenance, occurrences, w1_rows)
+    resolution = build_ledger(ledger, recipes, provenance, discovery, decisions, inputs)
 
-    outputs = {OUT_LEDGER: resolution, OUT_PROVENANCE: provenance, OUT_DISCOVERY: discovery, OUT_VISUAL: visual}
+    outputs = {OUT_LEDGER: resolution, OUT_PROVENANCE: provenance, OUT_DISCOVERY: discovery, OUT_VISUAL: visual,
+               OUT_DECISIONS: decisions}
+    ctx = {"recipes": recipes, "ledger221": ledger, "occurrences": occurrences}
+    try:
+        validate(outputs, ctx)
+    except AssertionError as exc:
+        fail(f"invariant violated: {exc}")
+    if args.self_test:
+        self_test(outputs, ctx)
+        return
+    s = resolution["summary"]
+    summary = (f"resolved={resolution['resolvedIds']}, unresolved={resolution['unresolvedIds']}, "
+               f"READY={s['READY']}, REVIEW={s['REVIEW']}, BLOCKED={s['BLOCKED']}")
     if args.check:
         drift = [n for n, o in outputs.items() if not (OUT_DIR / n).exists() or (OUT_DIR / n).read_text(encoding="utf-8") != dump(o)]
         if drift:
             fail(f"generated output differs from committed file(s): {drift}")
-        print(f"PASS: W1 evidence resolution reproducible (resolved={resolution['resolvedIds']}, "
-              f"unresolved={resolution['unresolvedIds']}, READY=0, REVIEW=10)")
+        print(f"PASS: W1 evidence resolution reproducible and invariants hold ({summary})")
         return
     for name, obj in outputs.items():
         (OUT_DIR / name).write_text(dump(obj), encoding="utf-8")
-    print(f"wrote {len(outputs)} files; resolved={resolution['resolvedIds']} unresolved={resolution['unresolvedIds']}")
+    print(f"wrote {len(outputs)} files; {summary}")
 
 
 if __name__ == "__main__":

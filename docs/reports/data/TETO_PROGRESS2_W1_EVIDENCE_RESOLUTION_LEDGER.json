@@ -20,6 +20,7 @@
       "sha": "dff233c042d2df6ee1c3a92f2d2419830aa05460",
       "files": {
         "docs/reports/data/TETO_PIZZADB_172_MASTER-EVIDENCE.json": "2ab2d2e8fae267ef7c7e1b740d25b22f16514195ed446c3351ee7339a2c05adf",
+        "docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json": "9f736aa31e4810668c80e29f28198f0ac0c5f1d783b746748a662bbeff15aefa",
         "data/recipes/ingredient_master_catalog.json": "287e391fed307acfece0308627316ad1ca9a46042ae61d2519b0b18e90cbc4c1",
         "tools/progression2_ingredient_canonicalizer.py": "c50429ba1f982539f4ab5b698e2dc7972af36bae6dd80f25e2ae5e588406e1fb",
         "src/data/ingredients.ts": "e2f086ab71391394404da98bd6fe4e473ef9432f9ded294a18bcec1382c32e66",
@@ -32,11 +33,19 @@
       }
     }
   },
+  "ownerDecisions": {
+    "OD-OLIVE": "OD-OLIVE = BLACK_OLIVE_CANONICAL",
+    "OD-PARM": "OD-PARM = PARMIGIANO_CANONICAL",
+    "OD-CLAM-GLYPH": "OD-CLAM-GLYPH = DEFER_TO_VISUAL_GATE",
+    "OD-TOMATO-REPRESENTATION": "OD-TOMATO-REPRESENTATION = TEMPORARY_SHARED_GLYPH"
+  },
+  "ownerDecisionsFile": "docs/reports/data/TETO_PROGRESS2_W1_OWNER_DECISIONS.json",
   "ownerDecisionsHeld": {
     "sauce": "OD-S1 = A (maintained)",
     "quantities": "authored minCounts unchanged; not trimmed to the 8-slot ring",
     "completionGate": "#215 production untouched"
   },
+  "readinessRule": "READY only when no recipe-specific ref and no inherited global ref is open (PR #221 derived_readiness); BLOCKED = not safely representable by evidence/current mechanic.",
   "rows": [
     {
       "id": "REC-01",
@@ -83,34 +92,54 @@
       "scope": "pizza-portuguesa",
       "pr221Status": "EVIDENCE_REQUIRED",
       "field": "black-olive alias",
-      "resolution": "UNRESOLVED",
-      "resolutionStatus": "EVIDENCE_EXHAUSTED_OWNER_DECISION_REQUIRED",
-      "evidence": {
+      "resolution": "RESOLVED",
+      "resolutionStatus": "RESOLVED_BY_OWNER_DECISION_GAME_NORMALIZATION",
+      "evidenceFact": {
         "PIZZA_DB_EVIDENCE": "token オリーブ (plain); 12 PIZZA DB rows use the plain token, 0 use a colour-specified olive token",
-        "EXISTING_CATALOG": "likely_alias -> black-olive (LIKELY_ALIAS_TABLE); catalog olive ids = ['black-olive', 'olive-oil']",
-        "PRODUCTION_DATA": "black-olive shipped (nameJa ブラックオリーブ, ⚫)",
-        "PR_221_CANDIDATE": "description asserts ブラックオリーブ: True"
+        "disposition": "likely_alias",
+        "EXISTING_CATALOG": "likely_alias -> black-olive (LIKELY_ALIAS_TABLE, unchanged); catalog olive ids = ['black-olive', 'olive-oil']",
+        "colourIsPizzaDbFact": false
       },
-      "whyNotResolved": "Olive colour/variety is not stated by PIZZA DB and pizzadb.jp is unreachable from this environment; mapping to black-olive is a catalog convenience, not evidence.",
-      "ownerDecision": "OD-OLIVE (shared by REC-06/07/09)",
-      "stillOpen": true
+      "gameNormalization": {
+        "ownerDecision": "OD-OLIVE = BLACK_OLIVE_CANONICAL",
+        "rule": "GCR-OLIVE-01",
+        "token": "オリーブ",
+        "canonicalId": "black-olive"
+      },
+      "gameCanonicalizationRule": "GCR-OLIVE-01",
+      "descriptionCandidate": {
+        "recipe": "pizza-portuguesa",
+        "status": "CONSISTENT",
+        "note": "PR #221 candidate already names ブラックオリーブ; no wording change needed (and #221 is not edited)."
+      },
+      "stillOpen": false
     },
     {
       "id": "REC-07",
       "scope": "puttanesca-pizza",
       "pr221Status": "EVIDENCE_REQUIRED",
       "field": "black-olive alias",
-      "resolution": "UNRESOLVED",
-      "resolutionStatus": "EVIDENCE_EXHAUSTED_OWNER_DECISION_REQUIRED",
-      "evidence": {
+      "resolution": "RESOLVED",
+      "resolutionStatus": "RESOLVED_BY_OWNER_DECISION_GAME_NORMALIZATION",
+      "evidenceFact": {
         "PIZZA_DB_EVIDENCE": "token オリーブ (plain); 12 PIZZA DB rows use the plain token, 0 use a colour-specified olive token",
-        "EXISTING_CATALOG": "likely_alias -> black-olive (LIKELY_ALIAS_TABLE); catalog olive ids = ['black-olive', 'olive-oil']",
-        "PRODUCTION_DATA": "black-olive shipped (nameJa ブラックオリーブ, ⚫)",
-        "PR_221_CANDIDATE": "description asserts ブラックオリーブ: True"
+        "disposition": "likely_alias",
+        "EXISTING_CATALOG": "likely_alias -> black-olive (LIKELY_ALIAS_TABLE, unchanged); catalog olive ids = ['black-olive', 'olive-oil']",
+        "colourIsPizzaDbFact": false
       },
-      "whyNotResolved": "Olive colour/variety is not stated by PIZZA DB and pizzadb.jp is unreachable from this environment; mapping to black-olive is a catalog convenience, not evidence.",
-      "ownerDecision": "OD-OLIVE (shared by REC-06/07/09)",
-      "stillOpen": true
+      "gameNormalization": {
+        "ownerDecision": "OD-OLIVE = BLACK_OLIVE_CANONICAL",
+        "rule": "GCR-OLIVE-01",
+        "token": "オリーブ",
+        "canonicalId": "black-olive"
+      },
+      "gameCanonicalizationRule": "GCR-OLIVE-01",
+      "descriptionCandidate": {
+        "recipe": "puttanesca-pizza",
+        "status": "CONSISTENT",
+        "note": "PR #221 candidate already names ブラックオリーブ; no wording change needed (and #221 is not edited)."
+      },
+      "stillOpen": false
     },
     {
       "id": "REC-08",
@@ -132,33 +161,54 @@
       "scope": "pesto-tonno",
       "pr221Status": "EVIDENCE_REQUIRED",
       "field": "black-olive alias",
-      "resolution": "UNRESOLVED",
-      "resolutionStatus": "EVIDENCE_EXHAUSTED_OWNER_DECISION_REQUIRED",
-      "evidence": {
+      "resolution": "RESOLVED",
+      "resolutionStatus": "RESOLVED_BY_OWNER_DECISION_GAME_NORMALIZATION",
+      "evidenceFact": {
         "PIZZA_DB_EVIDENCE": "token オリーブ (plain); 12 PIZZA DB rows use the plain token, 0 use a colour-specified olive token",
-        "EXISTING_CATALOG": "likely_alias -> black-olive (LIKELY_ALIAS_TABLE); catalog olive ids = ['black-olive', 'olive-oil']",
-        "PRODUCTION_DATA": "black-olive shipped (nameJa ブラックオリーブ, ⚫)",
-        "PR_221_CANDIDATE": "description asserts ブラックオリーブ: True"
+        "disposition": "likely_alias",
+        "EXISTING_CATALOG": "likely_alias -> black-olive (LIKELY_ALIAS_TABLE, unchanged); catalog olive ids = ['black-olive', 'olive-oil']",
+        "colourIsPizzaDbFact": false
       },
-      "whyNotResolved": "Olive colour/variety is not stated by PIZZA DB and pizzadb.jp is unreachable from this environment; mapping to black-olive is a catalog convenience, not evidence.",
-      "ownerDecision": "OD-OLIVE (shared by REC-06/07/09)",
-      "stillOpen": true
+      "gameNormalization": {
+        "ownerDecision": "OD-OLIVE = BLACK_OLIVE_CANONICAL",
+        "rule": "GCR-OLIVE-01",
+        "token": "オリーブ",
+        "canonicalId": "black-olive"
+      },
+      "gameCanonicalizationRule": "GCR-OLIVE-01",
+      "descriptionCandidate": {
+        "recipe": "pesto-tonno",
+        "status": "CONSISTENT",
+        "note": "PR #221 candidate already names ブラックオリーブ; no wording change needed (and #221 is not edited)."
+      },
+      "stillOpen": false
     },
     {
       "id": "REC-10",
       "scope": "parmigiana-pizza",
       "pr221Status": "EVIDENCE_REQUIRED",
       "field": "parmigiano alias",
-      "resolution": "UNRESOLVED",
-      "resolutionStatus": "EVIDENCE_SUPPORTS_IDENTITY_RECLASSIFICATION_REVIEW_REQUIRED",
-      "evidence": {
+      "resolution": "RESOLVED",
+      "resolutionStatus": "RESOLVED_BY_OWNER_DECISION_GAME_NORMALIZATION",
+      "evidenceFact": {
         "PIZZA_DB_EVIDENCE": "token パルミジャーノチーズ in ['spinach-artichoke-pizza-pizzadb-p4', 'argentine-napolitana-pizzadb-p1', 'parmigiana-pizza-pizzadb-p7', 'pizza-asparagi-limone-pizzadb-p8', 'pizza-carciofi-salad-pizzadb-p8']",
-        "EXISTING_CATALOG": "parmigiano nameJa パルミジャーノ; LIKELY_ALIAS_TABLE entry justified as 'チーズ suffix variant'; same pattern for モッツァレラチーズ is ORTHOGRAPHIC (exact)",
-        "PRODUCTION_DATA": "parmigiano shipped (cheese, dedicated .pizza-cheese--parmigiano)"
+        "disposition": "likely_alias",
+        "EXISTING_CATALOG": "parmigiano nameJa パルミジャーノ; LIKELY_ALIAS_TABLE entry unchanged (not moved to ORTHOGRAPHIC_EQUIVALENTS)",
+        "newPizzaDbFactRecorded": false
       },
-      "whyNotResolved": "The canonicalizer still classifies the token likely_alias; promoting it would be a canonicalizer-table change that this task must not make unilaterally.",
-      "ownerDecision": "OD-PARM (canonicalizer table review: keep likely_alias or move to ORTHOGRAPHIC_EQUIVALENTS)",
-      "stillOpen": true
+      "gameNormalization": {
+        "ownerDecision": "OD-PARM = PARMIGIANO_CANONICAL",
+        "rule": "GCR-PARM-01",
+        "token": "パルミジャーノチーズ",
+        "canonicalId": "parmigiano"
+      },
+      "gameCanonicalizationRule": "GCR-PARM-01",
+      "descriptionCandidate": {
+        "recipe": "parmigiana-pizza",
+        "status": "CONSISTENT",
+        "note": "PR #221 candidate names パルミジャーノ (the catalog nameJa); no wording change needed."
+      },
+      "stillOpen": false
     },
     {
       "id": "REC-11",
@@ -216,7 +266,7 @@
       "ingredientId": "clam",
       "explicitFocus": true,
       "requirementsFile": "docs/reports/data/TETO_PROGRESS2_W1_VISUAL_EVIDENCE_REQUIREMENTS.json",
-      "ownerDecision": "OD-CLAM-GLYPH (🦪 per PR #221 vs 🐚 per brief vs other)",
+      "ownerDecision": "OD-CLAM-GLYPH = DEFER_TO_VISUAL_GATE (🦪 / 🐚 not chosen)",
       "stillOpen": true
     },
     {
@@ -242,7 +292,7 @@
       "ingredientId": "fresh-tomato",
       "explicitFocus": true,
       "requirementsFile": "docs/reports/data/TETO_PROGRESS2_W1_VISUAL_EVIDENCE_REQUIREMENTS.json",
-      "ownerDecision": "OD-TOMATO-REPRESENTATION (accept shared 🍅 or require a distinguishing representation; a non-emoji representation would be a new runtime dependency)",
+      "ownerDecision": "OD-TOMATO-REPRESENTATION = TEMPORARY_SHARED_GLYPH (own id kept, no cherry-tomato alias, 🍅 Preview-only, device gate required)",
       "stillOpen": true
     },
     {
@@ -273,7 +323,11 @@
     }
   ],
   "resolvedIds": [
-    "REC-08"
+    "REC-06",
+    "REC-07",
+    "REC-08",
+    "REC-09",
+    "REC-10"
   ],
   "unresolvedIds": [
     "ING-02",
@@ -282,11 +336,7 @@
     "ING-08",
     "ING-09",
     "ING-10",
-    "ING-11",
-    "REC-06",
-    "REC-07",
-    "REC-09",
-    "REC-10"
+    "ING-11"
   ],
   "unchangedIds": [
     "REC-01",
@@ -310,14 +360,32 @@
         ],
         "runtime": []
       },
+      "relatedOwnerDecisions": [
+        "OD-CLAM-GLYPH",
+        "OD-PARM"
+      ],
       "inheritedGlobalOpen": [
         "REC-01",
         "REC-02",
         "REC-03",
         "REC-04"
       ],
-      "readiness": "REVIEW",
-      "readyNow": false
+      "effectiveOpenRefs": [
+        "ING-07",
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "recipeSpecificClear": false,
+      "authoredMinCounts": {
+        "olive-oil": 1,
+        "parmigiano": 2,
+        "clam": 3,
+        "garlic": 2
+      },
+      "sauce": "olive-oil",
+      "readiness": "REVIEW"
     },
     {
       "recipeIdCandidate": "hawaiian",
@@ -332,29 +400,42 @@
         ],
         "runtime": []
       },
+      "relatedOwnerDecisions": [],
       "inheritedGlobalOpen": [
         "REC-01",
         "REC-02",
         "REC-03",
         "REC-04"
       ],
-      "readiness": "REVIEW",
-      "readyNow": false
+      "effectiveOpenRefs": [
+        "ING-10",
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "recipeSpecificClear": false,
+      "authoredMinCounts": {
+        "tomato-sauce": 1,
+        "mozzarella": 2,
+        "ham": 2,
+        "pineapple": 3
+      },
+      "sauce": "tomato-sauce",
+      "readiness": "REVIEW"
     },
     {
       "recipeIdCandidate": "parmigiana-pizza",
       "resolvedByThisAudit": [
-        "REC-08"
+        "REC-08",
+        "REC-10"
       ],
       "remainingRecipeSpecific": [
         "ING-03",
-        "REC-10",
         "RT-01"
       ],
       "remainingByKind": {
-        "ownerDecision": [
-          "REC-10"
-        ],
+        "ownerDecision": [],
         "humanVerification": [
           "ING-03"
         ],
@@ -362,14 +443,33 @@
           "RT-01"
         ]
       },
+      "relatedOwnerDecisions": [
+        "OD-PARM"
+      ],
       "inheritedGlobalOpen": [
         "REC-01",
         "REC-02",
         "REC-03",
         "REC-04"
       ],
-      "readiness": "REVIEW",
-      "readyNow": false
+      "effectiveOpenRefs": [
+        "ING-03",
+        "RT-01",
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "recipeSpecificClear": false,
+      "authoredMinCounts": {
+        "tomato-sauce": 1,
+        "mozzarella": 2,
+        "eggplant": 3,
+        "parmigiano": 2,
+        "basil": 2
+      },
+      "sauce": "tomato-sauce",
+      "readiness": "REVIEW"
     },
     {
       "recipeIdCandidate": "bambino",
@@ -384,52 +484,84 @@
         ],
         "runtime": []
       },
+      "relatedOwnerDecisions": [],
       "inheritedGlobalOpen": [
         "REC-01",
         "REC-02",
         "REC-03",
         "REC-04"
       ],
-      "readiness": "REVIEW",
-      "readyNow": false
+      "effectiveOpenRefs": [
+        "ING-08",
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "recipeSpecificClear": false,
+      "authoredMinCounts": {
+        "tomato-sauce": 1,
+        "mozzarella": 2,
+        "ham": 2,
+        "corn": 3
+      },
+      "sauce": "tomato-sauce",
+      "readiness": "REVIEW"
     },
     {
       "recipeIdCandidate": "pizza-portuguesa",
-      "resolvedByThisAudit": [],
+      "resolvedByThisAudit": [
+        "REC-06"
+      ],
       "remainingRecipeSpecific": [
-        "REC-06",
         "RT-01"
       ],
       "remainingByKind": {
-        "ownerDecision": [
-          "REC-06"
-        ],
+        "ownerDecision": [],
         "humanVerification": [],
         "runtime": [
           "RT-01"
         ]
       },
+      "relatedOwnerDecisions": [
+        "OD-OLIVE"
+      ],
       "inheritedGlobalOpen": [
         "REC-01",
         "REC-02",
         "REC-03",
         "REC-04"
       ],
-      "readiness": "REVIEW",
-      "readyNow": false
+      "effectiveOpenRefs": [
+        "RT-01",
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "recipeSpecificClear": false,
+      "authoredMinCounts": {
+        "tomato-sauce": 1,
+        "mozzarella": 2,
+        "ham": 3,
+        "egg": 1,
+        "onion": 2,
+        "black-olive": 2
+      },
+      "sauce": "tomato-sauce",
+      "readiness": "REVIEW"
     },
     {
       "recipeIdCandidate": "puttanesca-pizza",
-      "resolvedByThisAudit": [],
+      "resolvedByThisAudit": [
+        "REC-07"
+      ],
       "remainingRecipeSpecific": [
         "ING-02",
-        "REC-07",
         "RT-01"
       ],
       "remainingByKind": {
-        "ownerDecision": [
-          "REC-07"
-        ],
+        "ownerDecision": [],
         "humanVerification": [
           "ING-02"
         ],
@@ -437,14 +569,33 @@
           "RT-01"
         ]
       },
+      "relatedOwnerDecisions": [
+        "OD-OLIVE"
+      ],
       "inheritedGlobalOpen": [
         "REC-01",
         "REC-02",
         "REC-03",
         "REC-04"
       ],
-      "readiness": "REVIEW",
-      "readyNow": false
+      "effectiveOpenRefs": [
+        "ING-02",
+        "RT-01",
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "recipeSpecificClear": false,
+      "authoredMinCounts": {
+        "tomato-sauce": 1,
+        "anchovy": 3,
+        "black-olive": 2,
+        "capers": 2,
+        "garlic": 2
+      },
+      "sauce": "tomato-sauce",
+      "readiness": "REVIEW"
     },
     {
       "recipeIdCandidate": "pesto-caprese",
@@ -459,36 +610,67 @@
         ],
         "runtime": []
       },
+      "relatedOwnerDecisions": [
+        "OD-TOMATO-REPRESENTATION"
+      ],
       "inheritedGlobalOpen": [
         "REC-01",
         "REC-02",
         "REC-03",
         "REC-04"
       ],
-      "readiness": "REVIEW",
-      "readyNow": false
+      "effectiveOpenRefs": [
+        "ING-09",
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "recipeSpecificClear": false,
+      "authoredMinCounts": {
+        "pesto": 1,
+        "mozzarella": 2,
+        "fresh-tomato": 3,
+        "basil": 2
+      },
+      "sauce": "pesto",
+      "readiness": "REVIEW"
     },
     {
       "recipeIdCandidate": "pesto-tonno",
-      "resolvedByThisAudit": [],
-      "remainingRecipeSpecific": [
+      "resolvedByThisAudit": [
         "REC-09"
       ],
+      "remainingRecipeSpecific": [],
       "remainingByKind": {
-        "ownerDecision": [
-          "REC-09"
-        ],
+        "ownerDecision": [],
         "humanVerification": [],
         "runtime": []
       },
+      "relatedOwnerDecisions": [
+        "OD-OLIVE"
+      ],
       "inheritedGlobalOpen": [
         "REC-01",
         "REC-02",
         "REC-03",
         "REC-04"
       ],
-      "readiness": "REVIEW",
-      "readyNow": false
+      "effectiveOpenRefs": [
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "recipeSpecificClear": true,
+      "authoredMinCounts": {
+        "pesto": 1,
+        "tuna": 3,
+        "black-olive": 2,
+        "onion": 2
+      },
+      "sauce": "pesto",
+      "readiness": "REVIEW"
     },
     {
       "recipeIdCandidate": "pesto-patate",
@@ -503,14 +685,29 @@
         ],
         "runtime": []
       },
+      "relatedOwnerDecisions": [],
       "inheritedGlobalOpen": [
         "REC-01",
         "REC-02",
         "REC-03",
         "REC-04"
       ],
-      "readiness": "REVIEW",
-      "readyNow": false
+      "effectiveOpenRefs": [
+        "ING-11",
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "recipeSpecificClear": false,
+      "authoredMinCounts": {
+        "pesto": 1,
+        "mozzarella": 2,
+        "potato": 3,
+        "bacon": 2
+      },
+      "sauce": "pesto",
+      "readiness": "REVIEW"
     },
     {
       "recipeIdCandidate": "melanzane-pizza",
@@ -527,14 +724,29 @@
         ],
         "runtime": []
       },
+      "relatedOwnerDecisions": [],
       "inheritedGlobalOpen": [
         "REC-01",
         "REC-02",
         "REC-03",
         "REC-04"
       ],
-      "readiness": "REVIEW",
-      "readyNow": false
+      "effectiveOpenRefs": [
+        "ING-03",
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "recipeSpecificClear": false,
+      "authoredMinCounts": {
+        "tomato-sauce": 1,
+        "mozzarella": 2,
+        "eggplant": 3,
+        "basil": 2
+      },
+      "sauce": "tomato-sauce",
+      "readiness": "REVIEW"
     }
   ],
   "summary": {
@@ -542,6 +754,9 @@
     "REVIEW": 10,
     "BLOCKED": 0,
     "readyNowRecipes": [],
+    "recipeSpecificClearRecipes": [
+      "pesto-tonno"
+    ],
     "noNewIngredientRecipes": [
       "pesto-tonno",
       "pizza-portuguesa"
