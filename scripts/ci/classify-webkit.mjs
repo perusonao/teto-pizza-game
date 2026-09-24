@@ -102,8 +102,13 @@ export function classify(rawPaths, { guards = NO_SCAN } = {}) {
 const CODE_FILE = /\.(?:[cm]?[jt]sx?)$/;
 // import x from "s" / import "s" / export ... from "s" / import("s") / require("s") / new URL("s", ...)
 const SPECIFIER = /(?:\bfrom\s*|\bimport\s*\(\s*|\bimport\s+|\brequire\s*\(\s*|\bnew\s+URL\s*\(\s*)(["'`])([^"'`\n]+)\1/g;
-// Root files the browser build, the dev server, Playwright or the WebKit workflow read directly.
-const ROOT_FILES = ["index.html", "package.json", "vite.config.ts", "playwright.config.ts", ".github/workflows/e2e-webkit.yml"];
+// Non-code root files the dev server, npm or the WebKit workflow read directly (raw-text check).
+const ROOT_TEXT_FILES = ["index.html", "package.json", ".github/workflows/e2e-webkit.yml"];
+// Root-level code files that are NOT traversal roots: Vitest-only configs and test files. Every
+// other root code file (vite.config.*, playwright.config.*, postcss.config.*, ...) may be loaded
+// by the dev server or Playwright, so it is a root.
+const NON_ROOT_CODE = /^(?:vitest(?:\.[\w-]+)?\.config\.[cm]?[jt]s|.+\.test\.[cm]?[jt]sx?)$/;
+const RESOLVE_SUFFIXES = ["", ".ts", ".tsx", ".mts", ".cts", ".js", ".jsx", ".mjs", ".cjs", "/index.ts", "/index.tsx", "/index.js", "/index.mjs"];
 
 function walk(root, dir, out) {
   const abs = join(root, dir);
@@ -132,9 +137,25 @@ export function specifiersOf(text) {
   return [...text.matchAll(SPECIFIER)].map((m) => m[2].replace(/[?#].*$/, ""));
 }
 
+/** Resolves a relative or root-absolute specifier from `from` (repo-relative) to a repo file. */
+function resolveSpecifier(root, from, spec) {
+  const base = spec.startsWith("/") ? spec.slice(1) : join(dirname(from), spec);
+  if (base.startsWith("..")) return null; // escapes the repository
+  for (const suffix of RESOLVE_SUFFIXES) {
+    const candidate = `${base}${suffix}`;
+    const abs = join(root, candidate);
+    if (existsSync(abs) && statSync(abs).isFile()) return candidate;
+  }
+  return null;
+}
+
 /**
- * Scans the checkout at `root`. A guarded category is enabled only if nothing the browser or the
- * E2E suite loads can name its files.
+ * Scans the checkout at `root`. A guarded category is enabled only if nothing the browser, the
+ * Vite dev server or the E2E suite can load reaches its files. Starting from every root-level
+ * config (vite/playwright/...) and every non-test `src/**` and `e2e/**` code file, it follows
+ * relative imports transitively (Codex review on #219: a config importing a helper that imports a
+ * test module must count). It fails closed: an unresolvable relative import, `import.meta.glob`,
+ * or a Vite `alias` (bare specifiers it cannot follow) disables both categories.
  * @returns {Record<string, { ok: boolean, reason: string }>}
  */
 export function scanGuards(root) {
@@ -142,23 +163,51 @@ export function scanGuards(root) {
     for (const need of ["src", "e2e", "index.html", "package.json"]) {
       if (!existsSync(join(root, need))) throw new Error(`${need} not found under ${root}`);
     }
-    const graph = [];
-    walk(root, "src", graph);
-    walk(root, "e2e", graph);
-    const loaded = graph.filter((p) => CODE_FILE.test(p) && skipCategory(p)?.category !== "unit-test");
+    const tree = [];
+    walk(root, "src", tree);
+    walk(root, "e2e", tree);
+    const rootCode = readdirSync(root).filter(
+      (f) => CODE_FILE.test(f) && !NON_ROOT_CODE.test(f) && statSync(join(root, f)).isFile(),
+    );
     const refs = { tools: [], "unit-test": [] };
-    for (const file of loaded) {
-      const text = readFileSync(join(root, file), "utf8");
-      if (/import\.meta\.glob/.test(text)) {
-        refs["unit-test"].push(`${file} (import.meta.glob)`);
-        refs.tools.push(`${file} (import.meta.glob)`);
+    const both = (why) => {
+      refs.tools.push(why);
+      refs["unit-test"].push(why);
+    };
+    const flag = (from, target) => {
+      const cat = skipCategory(target)?.category;
+      if (cat === "unit-test") refs["unit-test"].push(`${from} -> ${target}`);
+      if (target.startsWith("tools/")) refs.tools.push(`${from} -> ${target}`);
+    };
+    const queue = [...rootCode, ...tree.filter((p) => CODE_FILE.test(p) && skipCategory(p)?.category !== "unit-test")];
+    const seen = new Set(queue);
+    for (let i = 0; i < queue.length; i++) {
+      const file = queue[i];
+      const raw = readFileSync(join(root, file), "utf8");
+      const text = rootCode.includes(file) ? stripComments(file, raw) : raw;
+      if (/import\.meta\.glob/.test(text)) both(`${file} (import.meta.glob)`);
+      if (rootCode.includes(file)) {
+        if (/\balias\b/.test(text)) both(`${file} (resolve alias: cannot follow)`);
+        if (/tools\//.test(text)) refs.tools.push(file);
+        if (/\.test\b|src\/test\b/.test(text)) refs["unit-test"].push(file);
       }
       for (const s of specifiersOf(text)) {
         if (/\.test(?:\.[cm]?[jt]sx?)?$/.test(s) || /(?:^|\/)test\//.test(s)) refs["unit-test"].push(`${file} -> ${s}`);
         if (/(?:^|\/)tools\//.test(s)) refs.tools.push(`${file} -> ${s}`);
+        if (!s.startsWith(".") && !s.startsWith("/")) continue; // package import
+        const target = resolveSpecifier(root, file, s);
+        if (target === null) {
+          both(`${file} -> ${s} (unresolved)`);
+          continue;
+        }
+        flag(file, target);
+        if (CODE_FILE.test(target) && !seen.has(target)) {
+          seen.add(target);
+          queue.push(target);
+        }
       }
     }
-    for (const file of ROOT_FILES) {
+    for (const file of ROOT_TEXT_FILES) {
       if (!existsSync(join(root, file))) continue;
       const text = stripComments(file, readFileSync(join(root, file), "utf8"));
       if (/tools\//.test(text)) refs.tools.push(file);
@@ -168,7 +217,7 @@ export function scanGuards(root) {
       GUARDED.map((c) => [
         c,
         refs[c].length === 0
-          ? { ok: true, reason: `no reference from ${loaded.length} browser/E2E source file(s)` }
+          ? { ok: true, reason: `no reference from ${queue.length} browser/E2E/config source file(s)` }
           : { ok: false, reason: `referenced by ${refs[c].slice(0, 3).join(", ")}${refs[c].length > 3 ? ", ..." : ""}` },
       ]),
     );
@@ -265,8 +314,9 @@ const SCAN_CASES = [
       "index.html": '<script type="module" src="/src/main.tsx"></script>',
       "package.json": '{"scripts":{"test":"vitest run"}}',
       "src/main.tsx": 'import "./App.css";\nimport { App } from "./App";\n// see tools/x.py and App.test.tsx\n',
+      "src/App.css": "body {}\n",
       "src/App.tsx": 'import { render } from "@testing-library/react";\nexport const App = 1;\n',
-      "src/App.test.tsx": 'import { App } from "./App";\nimport "../test/setup";\n',
+      "src/App.test.tsx": 'import { App } from "./App";\nimport "./test/setup";\n',
       "src/test/setup.ts": 'import "@testing-library/jest-dom";\n',
       "e2e/a.spec.ts": 'import { go } from "./gestures";\n',
       "e2e/gestures.ts": "export const go = 1;\n",
@@ -275,10 +325,10 @@ const SCAN_CASES = [
   ],
   ["runtime imports a test module", { "src/App.tsx": 'import { x } from "./App.test";\n' }, { tools: true, "unit-test": false }],
   ["runtime imports test/setup", { "src/App.tsx": 'import "./test/setup";\n' }, { tools: true, "unit-test": false }],
-  ["dynamic import of a .test.tsx", { "src/App.tsx": 'const m = import("./x.test.tsx");\n' }, { tools: true, "unit-test": false }],
+  ["dynamic import of a .test.tsx", { "src/App.tsx": 'const m = import("./x.test.tsx");\n', "src/x.test.tsx": "export {};\n" }, { tools: true, "unit-test": false }],
   ["import.meta.glob anywhere", { "src/App.tsx": 'const all = import.meta.glob("./**/*.ts");\n' }, { tools: false, "unit-test": false }],
-  ["e2e imports a unit test helper", { "e2e/gestures.ts": 'import { x } from "../src/logic/a.test";\n' }, { tools: true, "unit-test": false }],
-  ["runtime imports tools output", { "src/App.tsx": 'import data from "../tools/out.json?raw";\n' }, { tools: false, "unit-test": true }],
+  ["e2e imports a unit test helper", { "e2e/gestures.ts": 'import { x } from "../src/logic/a.test";\n', "src/logic/a.test.ts": "export const x = 1;\n" }, { tools: true, "unit-test": false }],
+  ["runtime imports tools output", { "src/App.tsx": 'import data from "../tools/out.json?raw";\n', "tools/out.json": "{}\n" }, { tools: false, "unit-test": true }],
   ["package.json runs a tools script", { "package.json": '{"scripts":{"postinstall":"python tools/gen.py"}}' }, { tools: false, "unit-test": true }],
   ["workflow references tools", { ".github/workflows/e2e-webkit.yml": "run: python tools/gen.py" }, { tools: false, "unit-test": true }],
   ["workflow run line with a trailing comment", { ".github/workflows/e2e-webkit.yml": "  run: python tools/gen.py # regen" }, { tools: false, "unit-test": true }],
@@ -292,6 +342,22 @@ const SCAN_CASES = [
     { tools: true, "unit-test": true },
   ],
   ["config code that references tools", { "vite.config.ts": 'const x = "tools/gen.py"; // generator\n' }, { tools: false, "unit-test": true }],
+  // Codex review on #219 (0b3fc42): root configs and helpers outside src/ are traversed.
+  ["vite.config imports a test module, extensionless", { "vite.config.ts": 'import p from "./src/plugin.test";\nexport default { plugins: [p] };\n', "src/plugin.test.ts": "export default {};\n" }, { tools: true, "unit-test": false }],
+  [
+    "vite.config -> config helper -> test module (transitive)",
+    { "vite.config.ts": 'import p from "./config/plugin";\nexport default { plugins: [p] };\n', "config/plugin.ts": 'import x from "../lib/wrap";\nexport default x;\n', "lib/wrap.ts": 'export { default } from "../src/helper.test";\n', "src/helper.test.ts": "export default {};\n" },
+    { tools: true, "unit-test": false },
+  ],
+  [
+    "src -> helper outside src -> test module (transitive)",
+    { "src/App.tsx": 'import { h } from "../lib/h";\nexport const App = h;\n', "lib/h.ts": 'export { h } from "../src/logic/h.test";\n', "src/logic/h.test.ts": "export const h = 1;\n" },
+    { tools: true, "unit-test": false },
+  ],
+  ["playwright.config spawns a tools script", { "playwright.config.ts": 'export default { webServer: { command: "python tools/serve.py" } };\n' }, { tools: false, "unit-test": true }],
+  ["unresolvable relative import fails closed", { "src/App.tsx": 'import { x } from "./does-not-exist";\n' }, { tools: false, "unit-test": false }],
+  ["vite resolve.alias fails closed", { "vite.config.ts": 'export default { resolve: { alias: { "@": "/src" } } };\n' }, { tools: false, "unit-test": false }],
+  ["vitest.config referencing src/test is not a root", { "vitest.config.ts": 'export default { test: { setupFiles: ["./src/test/setup.ts"] } };\n' }, { tools: true, "unit-test": true }],
 ];
 
 function scanFixture(overrides) {

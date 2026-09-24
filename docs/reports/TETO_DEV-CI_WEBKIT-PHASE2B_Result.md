@@ -159,15 +159,22 @@ and (c) evidence that a meaningful share of PRs would land in L1/L2.
 
 ### 5.1 Non-browser skip (tools / unit tests)
 
-A file is loaded by the browser only if an import specifier reachable from `index.html` names it.
-Vite (dev server and build) has no other loader except `import.meta.glob`. The classify job
-therefore scans the checked-out merge ref:
-- every non-test `src/**` and `e2e/**` code file, for import / `import()` / `require` /
-  `new URL` specifiers naming a `.test` module, a `test/` directory or `tools/`, and for any
-  `import.meta.glob`;
-- `index.html`, `package.json`, `vite.config.ts`, `playwright.config.ts` and
-  `e2e-webkit.yml`, **with comments stripped**, for `tools/`, `.test.`, `src/test` or
-  `import.meta.glob`.
+A file is loaded by the browser, the Vite dev server or Playwright only if something they load
+reaches it through imports. The classify job therefore **traverses** the checked-out merge ref:
+- Roots:
+  - every root-level config code file (`vite.config.*`, `playwright.config.*`, and any other
+    root `*.ts/js` except `vitest*.config.*` and `*.test.*`);
+  - every non-test `src/**` and `e2e/**` code file.
+- It follows every relative / root-absolute import (`import`, `export … from`, `import()`,
+  `require`, `new URL`) transitively, including into files outside `src/`.
+- A reached `*.test.ts(x)`, `src/test/**` or `tools/**` file is a reference. So is a specifier
+  naming one, including extensionless forms such as `./x.test`.
+- It fails closed on:
+  - an unresolvable relative import;
+  - any `import.meta.glob`;
+  - a Vite `alias` in a root config (bare specifiers it cannot follow).
+- Root text files (`index.html`, `package.json`, `e2e-webkit.yml`) and root configs are also
+  checked with comments stripped, for `tools/`, `.test`, `src/test` or `import.meta.glob`.
 
 Any hit, a missing tree, or a scan error disables that category, and the paths run WebKit.
 
@@ -190,6 +197,12 @@ Codex review on #219 caught a real bug in the first version. The raw-text check 
 workflow's own header comment (which mentions the `tools` glob), so the `tools` skip could never
 fire. This was fail-safe, but the rule was dead. Fixed in `10d2081`: comments are now stripped,
 and the harness classifies against this repository's own tree.
+
+The Final Merge Gate Codex review of `0b3fc42` found a second gap: root configs got a substring
+check only, and imports were not traversed. A `vite.config.ts` → helper → `*.test.ts` chain, or
+an extensionless `./x.test` import, would have been missed. Fixed by the transitive traversal
+above, with 7 new scan fixtures (84 classifier cases). On this repository the traversal covers
+123 files, and every relative import resolves.
 
 ### 5.2 Duration-balanced shards: implemented, measured, removed
 
