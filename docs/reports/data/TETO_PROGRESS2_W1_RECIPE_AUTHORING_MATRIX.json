@@ -104,7 +104,19 @@
         "starGate": "TBD",
         "nonStarUnlockCondition": "OWNER_DECISION_REQUIRED"
       },
-      "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION"
+      "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION",
+      "inheritedRefs": [
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "referenceCapacity": {
+        "nonSaucePieceCount": 7,
+        "ringSlots": 8,
+        "fits": true,
+        "runtimeDependency": null
+      }
     },
     {
       "evidenceId": "hawaiian-pizzadb-row",
@@ -193,7 +205,19 @@
         "starGate": "TBD",
         "nonStarUnlockCondition": "OWNER_DECISION_REQUIRED"
       },
-      "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION"
+      "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION",
+      "inheritedRefs": [
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "referenceCapacity": {
+        "nonSaucePieceCount": 7,
+        "ringSlots": 8,
+        "fits": true,
+        "runtimeDependency": null
+      }
     },
     {
       "evidenceId": "parmigiana-pizza-pizzadb-p7",
@@ -275,7 +299,8 @@
       "unresolvedRefs": [
         "ING-03",
         "REC-08",
-        "REC-10"
+        "REC-10",
+        "RT-01"
       ],
       "currentMechanicRepresentability": "FULL",
       "mechanicDependencies": [],
@@ -291,7 +316,19 @@
         "starGate": "TBD",
         "nonStarUnlockCondition": "OWNER_DECISION_REQUIRED"
       },
-      "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION"
+      "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION",
+      "inheritedRefs": [
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "referenceCapacity": {
+        "nonSaucePieceCount": 9,
+        "ringSlots": 8,
+        "fits": false,
+        "runtimeDependency": "REFERENCE_RING_CAPACITY"
+      }
     },
     {
       "evidenceId": "bambino-pizzadb-p7",
@@ -380,7 +417,19 @@
         "starGate": "TBD",
         "nonStarUnlockCondition": "OWNER_DECISION_REQUIRED"
       },
-      "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION"
+      "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION",
+      "inheritedRefs": [
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "referenceCapacity": {
+        "nonSaucePieceCount": 7,
+        "ringSlots": 8,
+        "fits": true,
+        "runtimeDependency": null
+      }
     },
     {
       "evidenceId": "pizza-portuguesa-pizzadb-p9",
@@ -467,7 +516,8 @@
       },
       "readiness": "REVIEW",
       "unresolvedRefs": [
-        "REC-06"
+        "REC-06",
+        "RT-01"
       ],
       "currentMechanicRepresentability": "FULL",
       "mechanicDependencies": [],
@@ -483,7 +533,19 @@
         "starGate": "TBD",
         "nonStarUnlockCondition": "OWNER_DECISION_REQUIRED"
       },
-      "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION"
+      "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION",
+      "inheritedRefs": [
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "referenceCapacity": {
+        "nonSaucePieceCount": 10,
+        "ringSlots": 8,
+        "fits": false,
+        "runtimeDependency": "REFERENCE_RING_CAPACITY"
+      }
     },
     {
       "evidenceId": "puttanesca-pizza-pizzadb-p10",
@@ -563,7 +625,8 @@
       "readiness": "REVIEW",
       "unresolvedRefs": [
         "ING-02",
-        "REC-07"
+        "REC-07",
+        "RT-01"
       ],
       "currentMechanicRepresentability": "FULL",
       "mechanicDependencies": [],
@@ -579,7 +642,19 @@
         "starGate": "TBD",
         "nonStarUnlockCondition": "OWNER_DECISION_REQUIRED"
       },
-      "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION"
+      "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION",
+      "inheritedRefs": [
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "referenceCapacity": {
+        "nonSaucePieceCount": 9,
+        "ringSlots": 8,
+        "fits": false,
+        "runtimeDependency": "REFERENCE_RING_CAPACITY"
+      }
     },
     {
       "evidenceId": "pesto-caprese-pizzadb-p11",
@@ -668,7 +743,19 @@
         "starGate": "TBD",
         "nonStarUnlockCondition": "OWNER_DECISION_REQUIRED"
       },
-      "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION"
+      "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION",
+      "inheritedRefs": [
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "referenceCapacity": {
+        "nonSaucePieceCount": 7,
+        "ringSlots": 8,
+        "fits": true,
+        "runtimeDependency": null
+      }
     },
     {
       "evidenceId": "pesto-tonno-pizzadb-p12",
@@ -756,7 +843,19 @@
         "starGate": "TBD",
         "nonStarUnlockCondition": "OWNER_DECISION_REQUIRED"
       },
-      "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION"
+      "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION",
+      "inheritedRefs": [
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "referenceCapacity": {
+        "nonSaucePieceCount": 7,
+        "ringSlots": 8,
+        "fits": true,
+        "runtimeDependency": null
+      }
     },
     {
       "evidenceId": "pesto-patate-pizzadb-p12",
@@ -845,7 +944,19 @@
         "starGate": "TBD",
         "nonStarUnlockCondition": "OWNER_DECISION_REQUIRED"
       },
-      "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION"
+      "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION",
+      "inheritedRefs": [
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "referenceCapacity": {
+        "nonSaucePieceCount": 7,
+        "ringSlots": 8,
+        "fits": true,
+        "runtimeDependency": null
+      }
     },
     {
       "evidenceId": "melanzane-pizza-pizzadb-p13",
@@ -935,7 +1046,19 @@
         "starGate": "TBD",
         "nonStarUnlockCondition": "OWNER_DECISION_REQUIRED"
       },
-      "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION"
+      "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION",
+      "inheritedRefs": [
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "referenceCapacity": {
+        "nonSaucePieceCount": 7,
+        "ringSlots": 8,
+        "fits": true,
+        "runtimeDependency": null
+      }
     }
   ]
 }

@@ -33,6 +33,7 @@ SOURCE_MATRIX = ROOT / "docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_M
 SOURCE_EVIDENCE = ROOT / "docs/reports/data/TETO_PIZZADB_172_MASTER-EVIDENCE.json"
 PRODUCTION_RECIPES = ROOT / "src/data/recipes.ts"
 PRODUCTION_INGREDIENTS = ROOT / "src/data/ingredients.ts"
+REFERENCE_LAYOUT = ROOT / "src/logic/pizzaReferenceLayout.ts"
 
 # --- W1 authority pin (PR #220) --------------------------------------------
 AUTHORITY_PR = 220
@@ -54,6 +55,7 @@ PREVIOUS_W1_REMOVED = [
     "aussie-pizzadb", "bacalhau-pizzadb", "full-english-pizza-pizzadb-p10",
     "polish-kielbasa-pizzadb-p12", "tsukimi-pizza-pizzadb-p14",
 ]
+GLOBAL_LEDGER_SCOPES = {"all recipes"}
 SUPPORTED_SAUCE_IDS = {"tomato-sauce", "pesto", "olive-oil"}
 CHEESE_IDS = {"mozzarella", "gorgonzola", "parmigiano", "fontina"}
 
@@ -141,7 +143,7 @@ RECIPES = [
             req("eggplant", 3, "primary topping"), req("parmigiano", 2, "secondary cheese"), req("basil", 2, "herb baseline")],
            "tomato-sauce", ["mozzarella", "parmigiano"], ["eggplant", "basil"], 58, 78, "margherita",
            "Eggplant family is compositionally distinct from Melanzane and alla Norma.", "REVIEW",
-           ["ING-03", "REC-08", "REC-10"]),
+           ["ING-03", "REC-08", "REC-10", "RT-01"]),
     recipe("bambino-pizzadb-p7", "bambino", "バンビーノ",
            "トマトソースにハム、コーン、モッツァレラをのせた、やさしい甘みで親しみやすい一枚。",
            [req("tomato-sauce", 1, "one spread use"), req("mozzarella", 2, "existing cheese-density baseline"),
@@ -155,13 +157,13 @@ RECIPES = [
             req("ham", 3, "capricciosa analogue"), req("egg", 1, "single center-piece convention"),
             req("onion", 2, "supporting topping"), req("black-olive", 2, "supporting topping")],
            "tomato-sauce", ["mozzarella"], ["ham", "egg", "onion", "black-olive"], 58, 78, "capricciosa",
-           "Adds egg/onion and omits mushroom; exact-set collision absent.", "REVIEW", ["REC-06"]),
+           "Adds egg/onion and omits mushroom; exact-set collision absent.", "REVIEW", ["REC-06", "RT-01"]),
     recipe("puttanesca-pizza-pizzadb-p10", "puttanesca-pizza", "プッタネスカ",
            "トマトソースにアンチョビ、ブラックオリーブ、ケッパー、にんにくを効かせた、塩味と香りの強い一枚。",
            [req("tomato-sauce", 1, "one spread use"), req("anchovy", 3, "napoletana analogue"),
             req("black-olive", 2, "supporting topping"), req("capers", 2, "accent topping"), req("garlic", 2, "marinara analogue")],
            "tomato-sauce", [], ["anchovy", "black-olive", "capers", "garlic"], 50, 70, "marinara",
-           "Cheese-free identity remains distinct; exact-set collision absent.", "REVIEW", ["ING-02", "REC-07"]),
+           "Cheese-free identity remains distinct; exact-set collision absent.", "REVIEW", ["ING-02", "REC-07", "RT-01"]),
     recipe("pesto-caprese-pizzadb-p11", "pesto-caprese", "ペストカプレーゼピザ",
            "ジェノベーゼソースにトマト、モッツァレラ、バジルを重ねた、カプレーゼ仕立ての爽やかな一枚。",
            [req("pesto", 1, "one spread use"), req("mozzarella", 2, "existing cheese-density baseline"),
@@ -219,16 +221,17 @@ INGREDIENTS = [
 
 
 LEDGER = [
-    {"id": "REC-01", "scope": "all recipes", "status": "AUTHORING_REQUIRED", "field": "description/minCount/bakeTarget", "detail": "Values are original game-authoring candidates, not claims from external evidence. Human content sign-off remains required before production."},
-    {"id": "REC-02", "scope": "all recipes", "status": "AUTHORING_REQUIRED", "field": "cutRequirement", "detail": "All ten fit the current round-six-slice mechanic, but future production must explicitly opt each ID into the allowlist."},
-    {"id": "REC-03", "scope": "all recipes", "status": "OWNER_DECISION_REQUIRED", "field": "completionGate", "detail": "Record compatibility only. Do not decide whether CUT/minCount/bake thresholds gate completion before #218."},
-    {"id": "REC-04", "scope": "all recipes", "status": "OWNER_DECISION_REQUIRED", "field": "progression", "detail": "Pitz price, unlock fee, star gate, and non-star condition stay TBD pending Progression 2.0."},
+    {"id": "REC-01", "scope": "all recipes", "inheritedByEveryRecipe": True, "status": "AUTHORING_REQUIRED", "field": "description/minCount/bakeTarget", "detail": "Values are original game-authoring candidates, not claims from external evidence. Human content sign-off remains required before production."},
+    {"id": "REC-02", "scope": "all recipes", "inheritedByEveryRecipe": True, "status": "AUTHORING_REQUIRED", "field": "cutRequirement", "detail": "All ten fit the current round-six-slice mechanic, but future production must explicitly opt each ID into the allowlist."},
+    {"id": "REC-03", "scope": "all recipes", "inheritedByEveryRecipe": True, "status": "OWNER_DECISION_REQUIRED", "field": "completionGate", "detail": "Record compatibility only. Do not decide whether CUT/minCount/bake thresholds gate completion before #218."},
+    {"id": "REC-04", "scope": "all recipes", "inheritedByEveryRecipe": True, "status": "OWNER_DECISION_REQUIRED", "field": "progression", "detail": "Pitz price, unlock fee, star gate, and non-star condition stay TBD pending Progression 2.0."},
     {"id": "REC-06", "scope": "pizza-portuguesa", "status": "EVIDENCE_REQUIRED", "field": "black-olive alias", "aliasEvidence": {"token": "オリーブ", "canonicalId": "black-olive"}, "detail": "Source token オリーブ is a likely alias to black-olive, not an exact lexical alias; merged canonicalization is usable but provenance must remain visible."},
     {"id": "REC-07", "scope": "puttanesca-pizza", "status": "EVIDENCE_REQUIRED", "field": "black-olive alias", "aliasEvidence": {"token": "オリーブ", "canonicalId": "black-olive"}, "detail": "Source token オリーブ is a likely alias to black-olive; do not claim a more specific variety."},
     {"id": "REC-08", "scope": "parmigiana-pizza,melanzane-pizza", "status": "AUTHORING_REQUIRED", "field": "discovery regression", "detail": "Both are eggplant-family recipes. Keep exact ingredient signatures distinct and add collision regression coverage."},
     {"id": "REC-09", "scope": "pesto-tonno", "status": "EVIDENCE_REQUIRED", "field": "black-olive alias", "aliasEvidence": {"token": "オリーブ", "canonicalId": "black-olive"}, "detail": "Source token オリーブ is a likely alias to black-olive, not an exact lexical alias; preserve the merged canonicalization but do not treat the provenance as settled."},
     {"id": "REC-10", "scope": "parmigiana-pizza", "status": "EVIDENCE_REQUIRED", "field": "parmigiano alias", "aliasEvidence": {"token": "パルミジャーノチーズ", "canonicalId": "parmigiano"}, "detail": "Source token パルミジャーノチーズ is classified likely_alias to parmigiano by the merged canonicalizer; keep the provenance visible until confirmed."},
-    {"id": "REC-11", "scope": "all recipes", "status": "OWNER_DECISION_RECORDED", "field": "sauce contract", "detail": "Sauce OD-S1 = A: every W1 recipe uses a sauce inside the current RecipeSauceProfile union (tomato-sauce | pesto | olive-oil). Sauceless rows (Aussie, Bacalhau, Full English, Polish Kielbasa, Tsukimi) stay W4; Sauce Contract 2.0 is out of scope."},
+    {"id": "REC-11", "scope": "all recipes", "inheritedByEveryRecipe": False, "status": "OWNER_DECISION_RECORDED", "field": "sauce contract", "detail": "Sauce OD-S1 = A: every W1 recipe uses a sauce inside the current RecipeSauceProfile union (tomato-sauce | pesto | olive-oil). Sauceless rows (Aussie, Bacalhau, Full English, Polish Kielbasa, Tsukimi) stay W4; Sauce Contract 2.0 is out of scope."},
+    {"id": "RT-01", "scope": "parmigiana-pizza,pizza-portuguesa,puttanesca-pizza", "status": "RUNTIME_DEPENDENCY_REQUIRED", "field": "reference capacity", "runtimeDependency": "REFERENCE_RING_CAPACITY", "detail": "Authored non-sauce piece counts (Parmigiana 9, Pizza Portuguesa 10, Puttanesca 9) exceed the fixed 8-slot PIECE_RING_POSITIONS ring; getPlayerReferencePizza() assigns slots modulo 8, so reference pieces would overlap. The counts are kept as authored and not trimmed to fit the UI; the reference-capacity / 8-slot limit must be resolved by future runtime work (slice E) before these recipes can be READY."},
     {"id": "ING-02", "scope": "capers", "status": "AUTHORING_REQUIRED", "field": "visual", "detail": "No exact emoji; approve or replace generic green-circle representation."},
     {"id": "ING-03", "scope": "eggplant", "status": "AUTHORING_REQUIRED", "field": "visual", "detail": "Approve whole-eggplant glyph as the abstraction for slices."},
     {"id": "ING-07", "scope": "clam", "status": "AUTHORING_REQUIRED", "field": "visual", "detail": "Approve the oyster glyph as a bivalve abstraction or choose a distinct representation."},
@@ -251,24 +254,54 @@ RETIRED_LEDGER_IDS = {
 CHANGE_MAP = {
     "scope": "FUTURE_ONLY_NO_RUNTIME_CHANGE_IN_THIS_AUDIT",
     "slices": [
-        {"id": "A", "title": "Existing-ingredient recipes with likely-alias evidence review", "recipes": ["pizza-portuguesa", "pesto-tonno"], "dependsOn": ["REC-06 evidence resolution", "REC-09 evidence resolution", "Progression 2.0 owner decisions"], "likelyFiles": ["src/data/recipes.ts", "src/data/recipes.test.ts", "src/data/recipeSauceProfiles.ts", "src/data/recipeSauceProfiles.test.ts", "src/data/cookingProfiles.ts", "src/data/cookingProfiles.test.ts", "src/logic/discovery/*"]},
+        {"id": "A", "title": "Existing-ingredient recipes with likely-alias evidence review", "recipes": ["pizza-portuguesa", "pesto-tonno"], "dependsOn": ["REC-01 content sign-off", "REC-02 CUT allowlist review", "REC-03 completion-gate decision", "REC-04 Progression 2.0 owner decisions", "REC-06 evidence resolution", "REC-09 evidence resolution", "RT-01 reference-capacity resolution via slice E"], "likelyFiles": ["src/data/recipes.ts", "src/data/recipes.test.ts", "src/data/recipeSauceProfiles.ts", "src/data/recipeSauceProfiles.test.ts", "src/data/cookingProfiles.ts", "src/data/cookingProfiles.test.ts", "src/logic/discovery/*"]},
         {"id": "B", "title": "Seven new ingredient records", "ingredients": [i["id"] for i in INGREDIENTS], "dependsOn": ["visual authoring approval", "Progression 2.0 owner decisions"], "likelyFiles": ["src/data/ingredients.ts", "src/data/ingredients.test.ts", "src/components/IngredientPieceVisual.test.tsx"]},
-        {"id": "C", "title": "Recipes using approved new ingredients", "recipes": ["new-haven-apizza", "hawaiian", "parmigiana-pizza", "bambino", "puttanesca-pizza", "pesto-caprese", "pesto-patate", "melanzane-pizza"], "dependsOn": ["slice B", "REC-07 evidence resolution", "REC-08 discovery regression coverage", "REC-10 evidence resolution", "Progression 2.0 owner decisions"], "likelyFiles": ["src/data/recipes.ts", "src/data/recipes.test.ts", "src/data/recipeSauceProfiles.ts", "src/data/recipeSauceProfiles.test.ts", "src/data/cookingProfiles.ts", "src/logic/discovery/*"]},
-        {"id": "D", "title": "Completion Gate integration", "dependsOn": ["#218 owner decision"], "likelyFiles": ["src/logic/completionGate.ts", "src/state/gameReducer.completionGate.test.ts"], "guard": "Do not implement or decide in this audit."}
+        {"id": "C", "title": "Recipes using approved new ingredients", "recipes": ["new-haven-apizza", "hawaiian", "parmigiana-pizza", "bambino", "puttanesca-pizza", "pesto-caprese", "pesto-patate", "melanzane-pizza"], "dependsOn": ["slice B", "REC-01 content sign-off", "REC-02 CUT allowlist review", "REC-03 completion-gate decision", "REC-04 Progression 2.0 owner decisions", "REC-07 evidence resolution", "REC-08 discovery regression coverage", "REC-10 evidence resolution", "RT-01 reference-capacity resolution via slice E"], "likelyFiles": ["src/data/recipes.ts", "src/data/recipes.test.ts", "src/data/recipeSauceProfiles.ts", "src/data/recipeSauceProfiles.test.ts", "src/data/cookingProfiles.ts", "src/logic/discovery/*"]},
+        {"id": "D", "title": "Completion Gate integration", "dependsOn": ["#218 owner decision"], "likelyFiles": ["src/logic/completionGate.ts", "src/state/gameReducer.completionGate.test.ts"], "guard": "Do not implement or decide in this audit."},
+        {"id": "E", "title": "Reference ring capacity beyond 8 non-sauce pieces", "resolves": ["RT-01"], "blocksRecipes": ["parmigiana-pizza", "pizza-portuguesa", "puttanesca-pizza"], "dependsOn": ["reference-layout redesign owner approval"], "likelyFiles": ["src/logic/pizzaReferenceLayout.ts", "src/data/playerReference.ts", "src/components/PizzaThumbnail.tsx"], "guard": "Runtime change; not implemented in this audit. Do not trim authored minCounts to fit the ring."}
     ]
 }
+
+
+def reference_ring_slots() -> int:
+    """Slot count of the shared reference ring (read-only view of src/)."""
+    text = REFERENCE_LAYOUT.read_text(encoding="utf-8")
+    body = re.search(r"PIECE_RING_POSITIONS = \[(.*?)\] as const", text, re.S)
+    assert body, "PIECE_RING_POSITIONS not found"
+    return len(re.findall(r"\{\s*x:", body.group(1)))
+
+
+def non_sauce_piece_count(row: dict) -> int:
+    return sum(x["minCountCandidate"] for x in row["requiredIngredients"] if x["ingredientId"] != row["sauce"])
+
+
+def open_global_ledger_ids() -> list[str]:
+    """Global requirements every recipe inherits until they are resolved."""
+    return [item["id"] for item in LEDGER
+            if item["scope"] in GLOBAL_LEDGER_SCOPES and item.get("inheritedByEveryRecipe")]
+
+
+RING_SLOTS = reference_ring_slots()
+for _row in RECIPES:
+    _pieces = non_sauce_piece_count(_row)
+    _row["inheritedRefs"] = open_global_ledger_ids()
+    _row["referenceCapacity"] = {
+        "nonSaucePieceCount": _pieces,
+        "ringSlots": RING_SLOTS,
+        "fits": _pieces <= RING_SLOTS,
+        "runtimeDependency": None if _pieces <= RING_SLOTS else "REFERENCE_RING_CAPACITY",
+    }
 
 
 for _section in CHANGE_MAP["slices"]:
     if "recipes" in _section:
         _section["recipeDependencies"] = {
-            recipe_id: next(r["unresolvedRefs"] for r in RECIPES if r["recipeIdCandidate"] == recipe_id)
+            recipe_id: next(r["unresolvedRefs"] + r["inheritedRefs"] for r in RECIPES if r["recipeIdCandidate"] == recipe_id)
             for recipe_id in _section["recipes"]
         }
 
 
-GLOBAL_LEDGER_SCOPES = {"all recipes"}
-LEDGER_REF_PREFIXES = ("REC-", "ING-")
+LEDGER_REF_PREFIXES = ("REC-", "ING-", "RT-")
 EXPECTED_TOTALS = {"READY": 0, "REVIEW": 10, "BLOCKED": 0}
 
 
@@ -424,13 +457,18 @@ def production_ingredient_ids() -> set[str]:
 
 # --- ledger links (bidirectional; preserved from 279b6b1) -------------------
 
+def effective_refs(row: dict) -> list[str]:
+    """Recipe-specific open refs plus the open global requirements it inherits."""
+    return row["unresolvedRefs"] + row["inheritedRefs"]
+
+
 def derived_readiness(refs) -> str:
-    """READY only when no ledger entry is left open for the recipe."""
+    """READY only when no ledger entry (own or inherited) is left open for the recipe."""
     return "READY" if not refs else "REVIEW"
 
 
 def readiness_after_resolving(row: dict, resolved_ids) -> str:
-    return derived_readiness([ref for ref in row["unresolvedRefs"] if ref not in set(resolved_ids)])
+    return derived_readiness([ref for ref in effective_refs(row) if ref not in set(resolved_ids)])
 
 
 def ledger_scope_kind(item: dict, recipe_ids: set, ingredient_ids: set) -> str:
@@ -473,6 +511,18 @@ def validate_ledger_links(recipes, ingredients, ledger, change_map) -> None:
         assert referencing[item_id] == expected, (
             f"ledger link mismatch for {item_id}: orphaned from {sorted(expected - referencing[item_id])}, "
             f"out-of-scope refs from {sorted(referencing[item_id] - expected)}")
+    # Global requirements are inherited, never listed per recipe: every open global
+    # entry must reach every recipe (and every recipe slice, below) via inheritedRefs.
+    open_globals = [item["id"] for item in ledger
+                    if ledger_scope_kind(item, recipe_ids, ingredient_ids) == "global" and item.get("inheritedByEveryRecipe")]
+    for item in ledger:
+        if ledger_scope_kind(item, recipe_ids, ingredient_ids) == "global":
+            assert isinstance(item.get("inheritedByEveryRecipe"), bool), f"global {item['id']} must declare inheritedByEveryRecipe"
+            if item["status"] in {"AUTHORING_REQUIRED", "OWNER_DECISION_REQUIRED", "EVIDENCE_REQUIRED", "RUNTIME_DEPENDENCY_REQUIRED"}:
+                assert item["inheritedByEveryRecipe"], f"open global requirement {item['id']} is not inherited by recipes"
+    for row in recipes:
+        assert row["inheritedRefs"] == open_globals, (
+            f"{row['recipeIdCandidate']} inheritedRefs {row['inheritedRefs']} != open globals {open_globals}")
     ingredient_entries = [i for i in ledger if ledger_scope_kind(i, recipe_ids, ingredient_ids) == "ingredient"]
     assert sorted(i["scope"] for i in ingredient_entries) == sorted(ingredient_ids), (
         "every new ingredient needs exactly one ingredient-scoped ledger entry")
@@ -484,10 +534,17 @@ def validate_ledger_links(recipes, ingredients, ledger, change_map) -> None:
         assert mentioned <= set(ledger_by_id), f"slice {section['id']} depends on unknown ledger ids {mentioned - set(ledger_by_id)}"
         for recipe_id in section.get("recipes", []):
             row = rows_by_id[recipe_id]
-            assert section["recipeDependencies"][recipe_id] == row["unresolvedRefs"], (section["id"], recipe_id)
+            assert section["recipeDependencies"][recipe_id] == effective_refs(row), (section["id"], recipe_id)
+            for ref in row["inheritedRefs"]:
+                assert ref in mentioned, f"slice {section['id']} drops inherited global requirement {ref} for {recipe_id}"
             for ref in row["unresolvedRefs"]:
                 if ledger_scope_kind(ledger_by_id[ref], recipe_ids, ingredient_ids) == "recipe":
                     assert ref in mentioned, f"slice {section['id']} drops {recipe_id} dependency {ref}"
+                    runtime = ledger_by_id[ref].get("runtimeDependency")
+                    if runtime:
+                        resolver = [sid for sid, other in slices.items() if ref in other.get("resolves", [])]
+                        assert len(resolver) == 1 and f"slice {resolver[0]}" in " ".join(section["dependsOn"]), (
+                            f"slice {section['id']} drops runtime slice for {recipe_id} dependency {ref}")
                 else:
                     ingredient_slice = next(sid for sid, other in slices.items()
                                             if ledger_by_id[ref]["scope"] in other.get("ingredients", []))
@@ -497,6 +554,30 @@ def validate_ledger_links(recipes, ingredients, ledger, change_map) -> None:
             if ledger_scope_kind(ledger_by_id[ref], recipe_ids, ingredient_ids) == "recipe":
                 scoped = {token.strip() for token in ledger_by_id[ref]["scope"].split(",")}
                 assert scoped & set(section.get("recipes", [])), f"slice {section['id']} depends on {ref} without carrying its recipes"
+        for ref in section.get("resolves", []):
+            scoped = sorted(token.strip() for token in ledger_by_id[ref]["scope"].split(","))
+            assert sorted(section["blocksRecipes"]) == scoped, f"slice {section['id']} blocksRecipes != {ref} scope"
+
+
+def validate_reference_capacity(recipes, ledger) -> None:
+    """Recipes over the reference ring capacity must carry the runtime dependency, and only they."""
+    over = {r["recipeIdCandidate"] for r in recipes if non_sauce_piece_count(r) > RING_SLOTS}
+    for row in recipes:
+        cap = row["referenceCapacity"]
+        assert cap["nonSaucePieceCount"] == non_sauce_piece_count(row) and cap["ringSlots"] == RING_SLOTS, row["recipeIdCandidate"]
+        assert cap["fits"] == (row["recipeIdCandidate"] not in over), row["recipeIdCandidate"]
+    capacity_entries = [item for item in ledger if item.get("runtimeDependency") == "REFERENCE_RING_CAPACITY"]
+    assert len(capacity_entries) == 1, "exactly one reference-capacity ledger entry expected"
+    entry = capacity_entries[0]
+    assert entry["status"] == "RUNTIME_DEPENDENCY_REQUIRED", entry["id"]
+    scoped = {token.strip() for token in entry["scope"].split(",")}
+    assert scoped == over, f"{entry['id']} scope {sorted(scoped)} != over-capacity recipes {sorted(over)}"
+    for row in recipes:
+        assert (entry["id"] in row["unresolvedRefs"]) == (row["recipeIdCandidate"] in over), row["recipeIdCandidate"]
+        if row["recipeIdCandidate"] in over:
+            # Resolving every evidence/visual/global ref must still leave the runtime dependency open.
+            others = [ref for ref in effective_refs(row) if ref != entry["id"]]
+            assert readiness_after_resolving(row, others) != "READY", row["recipeIdCandidate"]
 
 
 def validate_authority_alignment(snapshot: dict) -> None:
@@ -594,6 +675,7 @@ def validate_sources(snapshot: dict) -> None:
     recipe_ids = {r["recipeIdCandidate"] for r in RECIPES}
     assert all(set(r["unresolvedRefs"]) <= set(ledger_by_id) for r in RECIPES)
     validate_ledger_links(RECIPES, INGREDIENTS, LEDGER, CHANGE_MAP)
+    validate_reference_capacity(RECIPES, LEDGER)
     assert all(set(i["recipesUsingItInCandidateSet"]) <= recipe_ids and i["recipesUsingItInCandidateSet"] for i in INGREDIENTS)
     mapped_recipe_ids = [recipe_id for section in CHANGE_MAP["slices"] for recipe_id in section.get("recipes", [])]
     assert sorted(mapped_recipe_ids) == sorted(recipe_ids), (recipe_ids - set(mapped_recipe_ids), set(mapped_recipe_ids) - recipe_ids)
@@ -602,7 +684,10 @@ def validate_sources(snapshot: dict) -> None:
         if "EVIDENCE_REQUIRED" in unresolved_statuses:
             assert row["readiness"] != "READY", row["recipeIdCandidate"]
         if row["readiness"] != "BLOCKED":
-            assert row["readiness"] == derived_readiness(row["unresolvedRefs"]), row["recipeIdCandidate"]
+            assert row["readiness"] == derived_readiness(effective_refs(row)), row["recipeIdCandidate"]
+        # Resolving every recipe-specific ref must still leave inherited global requirements open.
+        if row["inheritedRefs"]:
+            assert readiness_after_resolving(row, row["unresolvedRefs"]) != "READY", row["recipeIdCandidate"]
         # Approving new-ingredient visuals alone must never make a recipe with
         # recipe-specific evidence/authoring refs implementation-ready.
         visual_only = [ref for ref in row["unresolvedRefs"] if ref.startswith("ING-")]
@@ -635,7 +720,7 @@ def report() -> str:
         "# Progression 2.0 W1 Content Authoring — Fresh Audit", "",
         "## 結論", "",
         f"監査基準は最新 `main` `{AUDITED_MAIN_SHA}`。W1 authority は PR #{AUTHORITY_PR} exact HEAD `{AUTHORITY_HEAD_SHA}` の `{AUTHORITY_WAVES_PATH}`（Owner Decision **Sauce OD-S1 = A**: #220 の W1 を正とし、sauceless recipes は W4 のまま、Sauce Contract 2.0 は実装しない）。既存172件調査は再実施していない。", "",
-        f"判定は **READY {ready} / REVIEW {review} / BLOCKED {blocked}**。旧 #221 の W1（Aussie READY を含む）は stale authority に基づいていたため同期で置き換えた。10件すべてに新 ingredient の visual approval、likely-alias provenance、または discovery regression のいずれかが残るため、Progression 2.0 確定後すぐ content data 実装へ直行できる recipe は現時点で0件。READY を維持するための調整はしていない。", "",
+        f"判定は **READY {ready} / REVIEW {review} / BLOCKED {blocked}**。旧 #221 の W1（Aussie READY を含む）は stale authority に基づいていたため同期で置き換えた。10件すべてに global requirement（REC-01〜04、全 recipe が継承）と、新 ingredient の visual approval、likely-alias provenance、discovery regression、reference-capacity runtime dependency のいずれかが残るため、Progression 2.0 確定後すぐ content data 実装へ直行できる recipe は現時点で0件。READY を維持するための調整はしていない。", "",
         "## Authority sync", "",
         f"- authority: PR #{AUTHORITY_PR} `{AUTHORITY_HEAD_SHA}`、waves blob `{AUTHORITY_WAVES_BLOB_SHA}`、W1 snapshot sha256 `{AUTHORITY_W1_SNAPSHOT_SHA256}`（`{AUTHORITY_OUT.relative_to(ROOT).as_posix()}`）。",
         "- W1 から外した（#220 では W4 / `SAUCELESS_RECIPE_CONTRACT`）: Aussie, Bacalhau, Full English, Polish Kielbasa, Tsukimi。",
@@ -643,16 +728,19 @@ def report() -> str:
         "- 維持: Parmigiana Pizza, Pizza Portuguesa, Puttanesca, Pesto Tonno, Melanzane Pizza。",
         f"- retired ledger ids（再利用禁止）: {', '.join(f'`{k}`' for k in RETIRED_LEDGER_IDS)}。",
         "- drift 検出: generator と `--check` はどちらも #220 waves artifact から W1 snapshot を再計算し、pin した sha256 と一致しなければ FAIL。git object / 明示ファイルから読む場合は blob 全体の sha256 も照合する。ローカルに見えている #220 branch tip が pin と異なる場合、または authority を読めない場合も FAIL（silent pass なし）。", "",
+        "## Reference capacity / global requirements", "",
+        f"- 現行 reference ring は `PIECE_RING_POSITIONS` の {RING_SLOTS} slot 固定で、`getPlayerReferencePizza()` は slot を modulo 割り当てする。authored non-sauce piece 数が {RING_SLOTS} を超える Parmigiana（9）/ Pizza Portuguesa（10）/ Puttanesca（9）は `RT-01`（`REFERENCE_RING_CAPACITY`, `RUNTIME_DEPENDENCY_REQUIRED`）を参照し、runtime slice E が解消するまで READY にならない。minCount は UI 制約に合わせて削らない。",
+        "- global ledger entry は `inheritedByEveryRecipe` を持ち、open な REC-01 / REC-02 / REC-03 / REC-04 は全 recipe の `inheritedRefs` に継承される。readiness と change-map の `recipeDependencies` は `unresolvedRefs + inheritedRefs` から導出し、recipe を運ぶ slice の `dependsOn` も継承 global を明記する。REC-11（OD-S1 記録）は解決済み決定のため継承しない。", "",
         "## 判定基準", "",
-        "- `READY`: composition evidence、独自 description/minCount/bakeTarget candidate、現行 ingredient visual が揃い、recipe に open ledger ref がない。",
-        "- `REVIEW`: recipe data は準備済みだが、新 ingredient の visual、likely-alias provenance、または discovery regression を human review する。",
+        "- `READY`: composition evidence、独自 description/minCount/bakeTarget candidate、現行 ingredient visual、reference capacity が揃い、recipe 固有 ref と継承 global ref のどちらも open でない。",
+        "- `REVIEW`: recipe data は準備済みだが、継承 global requirement、新 ingredient の visual、likely-alias provenance、discovery regression、または reference-capacity runtime dependency が open。",
         "- `BLOCKED`: evidence または現行 mechanic で安全に表現できない。今回0件。", "",
         "## Recipe authoring summary", "",
-        "| recipe | sauce | cheese | toppings | bake | CUT | collision | open refs | status |", "|---|---|---|---|---|---|---|---|---|"
+        "| recipe | sauce | cheese | toppings | pieces / ring | bake | CUT | collision | open refs (+ inherited) | status |", "|---|---|---|---|---|---|---|---|---|---|"
     ]
     for r in RECIPES:
         ingredients = ", ".join(f"{x['ingredientId']}×{x['minCountCandidate']}" for x in r["requiredIngredients"])
-        lines.append(f"| `{r['recipeIdCandidate']}`<br>{ingredients} | {r['sauce'] or 'none'} | {', '.join(r['cheese']) or 'none'} | {', '.join(r['toppings']) or 'none'} | {r['bakeTargetCandidate']['start']}–{r['bakeTargetCandidate']['end']} | 6-slice candidate; Gate TBD | {r['collisionRisk']['level']} (near `{r['collisionRisk']['nearestProductionRecipeId']}`) | {', '.join(r['unresolvedRefs'])} | **{r['readiness']}** |")
+        lines.append(f"| `{r['recipeIdCandidate']}`<br>{ingredients} | {r['sauce'] or 'none'} | {', '.join(r['cheese']) or 'none'} | {', '.join(r['toppings']) or 'none'} | {r['referenceCapacity']['nonSaucePieceCount']} / {r['referenceCapacity']['ringSlots']}{'' if r['referenceCapacity']['fits'] else ' ⚠'} | {r['bakeTargetCandidate']['start']}–{r['bakeTargetCandidate']['end']} | 6-slice candidate; Gate TBD | {r['collisionRisk']['level']} (near `{r['collisionRisk']['nearestProductionRecipeId']}`) | {', '.join(r['unresolvedRefs'])} (+ {', '.join(r['inheritedRefs'])}) | **{r['readiness']}** |")
     lines += ["", "Descriptions、minCount、bakeTarget は外部事実ではなく独自 game-authoring candidate。production投入前の content sign-off を `AUTHORING_REQUIRED` として ledger に残した。全10件の sauce は現行 `RecipeSauceProfile` union（tomato-sauce / pesto / olive-oil）内。", "",
               "## Ingredient authoring summary", "", "| id | displayName | emoji | color | category / placement | recipes | status | uncertainty |", "|---|---|---|---|---|---|---|---|"]
     for i in INGREDIENTS:
@@ -665,10 +753,11 @@ def report() -> str:
               "## Collision / evidence", "",
               "10件とも exact production ingredient-set collision は0（`src/data/recipes.ts` を read-only で照合）。近傍 recipe は #220 authority の `nearestProductionRecipeId` と一致させ、regression target として記録した。Pizza Portuguesa / Puttanesca / Pesto Tonno の「オリーブ→black-olive」と Parmigiana の「パルミジャーノチーズ→parmigiano」は merged canonicalizer の likely alias であり、ledger（REC-06 / REC-07 / REC-09 / REC-10）と source trace を双方向照合する。Parmigiana / Melanzane は eggplant family として別 signature を固定する（REC-08）。Hawaiian / Bambino は1 ingredient 差、Pesto Caprese は Genovese と tomato glyph を共有するため visual 区別が必要（ING-09）。", "",
               "## Progression確定後すぐ実装可能な範囲", "",
-              "- 即時: なし（READY 0）。",
-              "- alias evidence確認後: slice A（Pizza Portuguesa / Pesto Tonno）。",
-              "- visual approval後: slice B（7 ingredients）→ slice C（残り8 recipes）。slice C の Puttanesca は REC-07、Parmigiana は REC-08 / REC-10、Melanzane は REC-08 も dependency として保持する（`recipeDependencies`）。",
-              "- #218後: slice D（Completion Gate integration）。", "",
+              "- 即時: なし（READY 0）。全 recipe slice は REC-01〜04 を継承する。",
+              "- alias evidence確認後: slice A（Pizza Portuguesa / Pesto Tonno）。Pizza Portuguesa は RT-01（slice E）も必要。",
+              "- visual approval後: slice B（7 ingredients）→ slice C（残り8 recipes）。slice C の Puttanesca は REC-07 / RT-01、Parmigiana は REC-08 / REC-10 / RT-01、Melanzane は REC-08 も dependency として保持する（`recipeDependencies`）。",
+              "- #218後: slice D（Completion Gate integration）。",
+              "- reference-layout redesign 承認後: slice E（8-slot reference ring の capacity 拡張、runtime）。RT-01 を解消する。", "",
               "## Deliverables", "",
               "- `docs/reports/data/TETO_PROGRESS2_W1_RECIPE_AUTHORING_MATRIX.json`",
               "- `docs/reports/data/TETO_PROGRESS2_W1_INGREDIENT_AUTHORING_MATRIX.json`",
@@ -678,7 +767,8 @@ def report() -> str:
               "- `tools/progression2_w1_authoring_audit.py --check`", "",
               "## Validation", "",
               "- W1 authority checker: recipe / ingredient evidence を #220 W1 snapshot（evidenceId、canonicalCandidateId、identity ingredients、sauce、newIngredientIds、nearest recipe、runtimeContractDependencies）と照合。authority drift で FAIL。",
-              "- W1 ledger link checker: recipe ↔ ledger ↔ change-map を双方向検証（recipe-specific / ingredient-specific ledger entry の orphan、scope外参照、change-map dependency 欠落、likely-alias の未ledger化を検出）。",
+              "- W1 ledger link checker: recipe ↔ ledger ↔ change-map を双方向検証（recipe-specific / ingredient-specific ledger entry の orphan、scope外参照、change-map dependency 欠落、likely-alias の未ledger化、global requirement の継承漏れを検出）。",
+              "- reference-capacity checker: `src/logic/pizzaReferenceLayout.ts` の slot 数を read-only で数え、超過 recipe 集合 = RT-01 scope を双方向照合。RT-01 以外を全解決しても超過 recipe は READY にならない。",
               "- canonicalCandidateId checker: 全 recipeIdCandidate を governing matrix と #220 authority の canonicalCandidateId と照合。",
               f"- W1 generator/checker: PASS（10 recipes / {len(INGREDIENTS)} ingredients / READY {ready} / REVIEW {review} / BLOCKED {blocked}）。",
               "- `validate_recipe_catalog.py`: PASS（53 / 62 / 11）。",

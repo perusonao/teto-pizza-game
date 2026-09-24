@@ -17,9 +17,13 @@
         "pesto-tonno"
       ],
       "dependsOn": [
+        "REC-01 content sign-off",
+        "REC-02 CUT allowlist review",
+        "REC-03 completion-gate decision",
+        "REC-04 Progression 2.0 owner decisions",
         "REC-06 evidence resolution",
         "REC-09 evidence resolution",
-        "Progression 2.0 owner decisions"
+        "RT-01 reference-capacity resolution via slice E"
       ],
       "likelyFiles": [
         "src/data/recipes.ts",
@@ -32,10 +36,19 @@
       ],
       "recipeDependencies": {
         "pizza-portuguesa": [
-          "REC-06"
+          "REC-06",
+          "RT-01",
+          "REC-01",
+          "REC-02",
+          "REC-03",
+          "REC-04"
         ],
         "pesto-tonno": [
-          "REC-09"
+          "REC-09",
+          "REC-01",
+          "REC-02",
+          "REC-03",
+          "REC-04"
         ]
       }
     },
@@ -76,10 +89,14 @@
       ],
       "dependsOn": [
         "slice B",
+        "REC-01 content sign-off",
+        "REC-02 CUT allowlist review",
+        "REC-03 completion-gate decision",
+        "REC-04 Progression 2.0 owner decisions",
         "REC-07 evidence resolution",
         "REC-08 discovery regression coverage",
         "REC-10 evidence resolution",
-        "Progression 2.0 owner decisions"
+        "RT-01 reference-capacity resolution via slice E"
       ],
       "likelyFiles": [
         "src/data/recipes.ts",
@@ -91,32 +108,66 @@
       ],
       "recipeDependencies": {
         "new-haven-apizza": [
-          "ING-07"
+          "ING-07",
+          "REC-01",
+          "REC-02",
+          "REC-03",
+          "REC-04"
         ],
         "hawaiian": [
-          "ING-10"
+          "ING-10",
+          "REC-01",
+          "REC-02",
+          "REC-03",
+          "REC-04"
         ],
         "parmigiana-pizza": [
           "ING-03",
           "REC-08",
-          "REC-10"
+          "REC-10",
+          "RT-01",
+          "REC-01",
+          "REC-02",
+          "REC-03",
+          "REC-04"
         ],
         "bambino": [
-          "ING-08"
+          "ING-08",
+          "REC-01",
+          "REC-02",
+          "REC-03",
+          "REC-04"
         ],
         "puttanesca-pizza": [
           "ING-02",
-          "REC-07"
+          "REC-07",
+          "RT-01",
+          "REC-01",
+          "REC-02",
+          "REC-03",
+          "REC-04"
         ],
         "pesto-caprese": [
-          "ING-09"
+          "ING-09",
+          "REC-01",
+          "REC-02",
+          "REC-03",
+          "REC-04"
         ],
         "pesto-patate": [
-          "ING-11"
+          "ING-11",
+          "REC-01",
+          "REC-02",
+          "REC-03",
+          "REC-04"
         ],
         "melanzane-pizza": [
           "ING-03",
-          "REC-08"
+          "REC-08",
+          "REC-01",
+          "REC-02",
+          "REC-03",
+          "REC-04"
         ]
       }
     },
@@ -131,6 +182,27 @@
         "src/state/gameReducer.completionGate.test.ts"
       ],
       "guard": "Do not implement or decide in this audit."
+    },
+    {
+      "id": "E",
+      "title": "Reference ring capacity beyond 8 non-sauce pieces",
+      "resolves": [
+        "RT-01"
+      ],
+      "blocksRecipes": [
+        "parmigiana-pizza",
+        "pizza-portuguesa",
+        "puttanesca-pizza"
+      ],
+      "dependsOn": [
+        "reference-layout redesign owner approval"
+      ],
+      "likelyFiles": [
+        "src/logic/pizzaReferenceLayout.ts",
+        "src/data/playerReference.ts",
+        "src/components/PizzaThumbnail.tsx"
+      ],
+      "guard": "Runtime change; not implemented in this audit. Do not trim authored minCounts to fit the ring."
     }
   ]
 }

@@ -20,6 +20,7 @@
     {
       "id": "REC-01",
       "scope": "all recipes",
+      "inheritedByEveryRecipe": true,
       "status": "AUTHORING_REQUIRED",
       "field": "description/minCount/bakeTarget",
       "detail": "Values are original game-authoring candidates, not claims from external evidence. Human content sign-off remains required before production."
@@ -27,6 +28,7 @@
     {
       "id": "REC-02",
       "scope": "all recipes",
+      "inheritedByEveryRecipe": true,
       "status": "AUTHORING_REQUIRED",
       "field": "cutRequirement",
       "detail": "All ten fit the current round-six-slice mechanic, but future production must explicitly opt each ID into the allowlist."
@@ -34,6 +36,7 @@
     {
       "id": "REC-03",
       "scope": "all recipes",
+      "inheritedByEveryRecipe": true,
       "status": "OWNER_DECISION_REQUIRED",
       "field": "completionGate",
       "detail": "Record compatibility only. Do not decide whether CUT/minCount/bake thresholds gate completion before #218."
@@ -41,6 +44,7 @@
     {
       "id": "REC-04",
       "scope": "all recipes",
+      "inheritedByEveryRecipe": true,
       "status": "OWNER_DECISION_REQUIRED",
       "field": "progression",
       "detail": "Pitz price, unlock fee, star gate, and non-star condition stay TBD pending Progression 2.0."
@@ -99,9 +103,18 @@
     {
       "id": "REC-11",
       "scope": "all recipes",
+      "inheritedByEveryRecipe": false,
       "status": "OWNER_DECISION_RECORDED",
       "field": "sauce contract",
       "detail": "Sauce OD-S1 = A: every W1 recipe uses a sauce inside the current RecipeSauceProfile union (tomato-sauce | pesto | olive-oil). Sauceless rows (Aussie, Bacalhau, Full English, Polish Kielbasa, Tsukimi) stay W4; Sauce Contract 2.0 is out of scope."
+    },
+    {
+      "id": "RT-01",
+      "scope": "parmigiana-pizza,pizza-portuguesa,puttanesca-pizza",
+      "status": "RUNTIME_DEPENDENCY_REQUIRED",
+      "field": "reference capacity",
+      "runtimeDependency": "REFERENCE_RING_CAPACITY",
+      "detail": "Authored non-sauce piece counts (Parmigiana 9, Pizza Portuguesa 10, Puttanesca 9) exceed the fixed 8-slot PIECE_RING_POSITIONS ring; getPlayerReferencePizza() assigns slots modulo 8, so reference pieces would overlap. The counts are kept as authored and not trimmed to fit the UI; the reference-capacity / 8-slot limit must be resolved by future runtime work (slice E) before these recipes can be READY."
     },
     {
       "id": "ING-02",
