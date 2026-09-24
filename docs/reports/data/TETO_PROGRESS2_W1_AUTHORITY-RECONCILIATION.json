@@ -1,0 +1,2014 @@
+{
+  "schemaVersion": 1,
+  "kind": "w1_authority_reconciliation_fresh_audit",
+  "status": "DOCS_DATA_ONLY_NO_DECISION",
+  "auditedHeads": {
+    "PR220": "e49dab96bd9b26dc0f520349cf09d1160c3519f5",
+    "PR221": "279b6b17188ed3572b27c1ba91b2c4983723ddc0",
+    "visualAuthoringGuide": "0b285be04c2fd2b972a2526a8a038171230a62a7",
+    "main": "dff233c042d2df6ee1c3a92f2d2419830aa05460"
+  },
+  "reproduction": {
+    "PR220_check": "python3 tools/progression2_content_readiness_audit.py --check @ e49dab9 -> OK (172 rows, 15 production recipes)",
+    "PR221_check": "python3 tools/progression2_w1_authoring_audit.py --check @ 279b6b1 -> PASS (10 recipes, 6 ingredients, READY 1 / REVIEW 9 / BLOCKED 0)"
+  },
+  "pr220CommitTimeline": [
+    {
+      "sha": "d3a2c8f61d3766bfb6ab2c6c26e82cc9bb5ede98",
+      "committedAtUtc": "2026-09-24T08:21:28Z",
+      "W1Count": 20,
+      "first10NewIngredients": [
+        "baked-beans",
+        "capers",
+        "eggplant",
+        "green-onion",
+        "salt-cod",
+        "sauerkraut"
+      ],
+      "first10": [
+        "aussie",
+        "bacalhau",
+        "full-english-pizza",
+        "melanzane-pizza",
+        "parmigiana-pizza",
+        "pesto-tonno",
+        "pizza-portuguesa",
+        "polish-kielbasa",
+        "puttanesca-pizza",
+        "tsukimi-pizza"
+      ],
+      "note": "PR #220 opened 08:22:07Z with this head."
+    },
+    {
+      "sha": "4b777fe21a6bfa5248526fcdfda1de498cd3426c",
+      "committedAtUtc": "2026-09-24T08:36:07Z",
+      "W1Count": 11,
+      "first10NewIngredients": [
+        "capers",
+        "clam",
+        "corn",
+        "eggplant",
+        "fresh-tomato",
+        "pineapple",
+        "potato"
+      ],
+      "first10": [
+        "bambino",
+        "hawaiian",
+        "melanzane-pizza",
+        "new-haven-apizza",
+        "parmigiana-pizza",
+        "pesto-caprese",
+        "pesto-patate",
+        "pesto-tonno",
+        "pizza-portuguesa",
+        "puttanesca-pizza"
+      ],
+      "note": "DIVERGENCE COMMIT. Identity-set overlap + SAUCELESS_RECIPE_CONTRACT. Pushed 2m31s after #221's first commit."
+    },
+    {
+      "sha": "d31521169b1839f98adc67dcaf3c3fd4b4e3bf55",
+      "committedAtUtc": "2026-09-24T10:03:48Z",
+      "W1Count": 10,
+      "first10Changed": false,
+      "note": "UNSUPPORTED_SAUCE_ID_CONTRACT; flammkuchen W1->W4 (it was already outside the first-10). W1 == first-10 from here."
+    },
+    {
+      "sha": "e49dab96bd9b26dc0f520349cf09d1160c3519f5",
+      "committedAtUtc": "2026-09-24T10:16:19Z",
+      "W1Count": 10,
+      "first10Changed": false,
+      "note": "Production composition from src; sauce-profile files in every addition wave's change map. Waves / first-10 / unresolved unchanged."
+    }
+  ],
+  "pr221CommitTimeline": [
+    {
+      "sha": "1f53c169f701ef71a3d40aa5e24f59479cb73701",
+      "committedAtUtc": "2026-09-24T08:33:36Z",
+      "note": "Hardcodes the 10 recipes = PR #220 d3a2c8f first10CandidateSet (the only #220 head that existed). PR #221 opened 08:33:56Z."
+    },
+    {
+      "sha": "18e2451e9ba9f2b2f8fdacc22a366513aa90ba53",
+      "committedAtUtc": "2026-09-24T09:13Z",
+      "note": "Review fixes (REC-09, polish-kielbasa ID). W1 set not re-synced although 4b777fe had existed for ~37 min."
+    },
+    {
+      "sha": "279b6b17188ed3572b27c1ba91b2c4983723ddc0",
+      "committedAtUtc": "2026-09-24T10:37:06Z",
+      "note": "REC-07 link + ledger checker. W1 set not re-synced."
+    }
+  ],
+  "pr221ReferencedPR220Commit": {
+    "sha": "d3a2c8f61d3766bfb6ab2c6c26e82cc9bb5ede98",
+    "basis": [
+      "#221 recipe set is set-equal to d3a2c8f first10CandidateSet (asserted by this audit)",
+      "#221 6 new ingredients == d3a2c8f distinctNewIngredientIds",
+      "1f53c16 (08:33:36Z) predates 4b777fe (08:36:07Z); d3a2c8f was the only #220 head at that time",
+      "#221 branch base is main dff233c; it does not contain any #220 commit"
+    ],
+    "pinnedInPR221Artifacts": false
+  },
+  "generatorCheckerInputAuthority": {
+    "PR220": {
+      "inputs": [
+        "docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json",
+        "data/recipes/pizza_master_catalog.json",
+        "data/recipes/ingredient_master_catalog.json",
+        "src/data/recipes.ts (composition parsed since e49dab9)",
+        "src/data/ingredients.ts",
+        "src/data/recipeSauceProfiles.ts (since 4b777fe; union parsed since d315211)",
+        "src/data/recipeSauceProfiles.test.ts (since 4b777fe)"
+      ],
+      "W1Derivation": "computed: FULL + READY + no runtimeContractDependencies + <=1 new ingredient; first-10 = exhaustive combination search"
+    },
+    "PR221": {
+      "inputs": [
+        "docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json (evidenceId + canonicalCandidateId existence/drift only)",
+        "docs/reports/data/TETO_PIZZADB_172_MASTER-EVIDENCE.json (evidenceId existence only)"
+      ],
+      "W1Derivation": "HARDCODED RECIPES list (10 rows) in tools/progression2_w1_authoring_audit.py; does not read #220 WAVES.json, first10CandidateSet, sauceBase, or recipeSauceProfiles.ts",
+      "sourceRefsPin": "envelope sourceRefs: 'PR #220 (OPEN)' without a SHA; only auditedMainSha is pinned",
+      "driftDetection": "none: --check stays PASS whatever #220 does"
+    }
+  },
+  "pr221FixedAuthority": {
+    "W1": [
+      "aussie",
+      "bacalhau",
+      "full-english-pizza",
+      "melanzane-pizza",
+      "parmigiana-pizza",
+      "pesto-tonno",
+      "pizza-portuguesa",
+      "polish-kielbasa",
+      "puttanesca-pizza",
+      "tsukimi-pizza"
+    ],
+    "equals": "PR #220 d3a2c8f first10CandidateSet",
+    "hardAssertions": [
+      "len(RECIPES)==10",
+      "len(INGREDIENTS)==6",
+      "READY==1",
+      "REVIEW==9",
+      "len(LEDGER)==15",
+      "pesto-tonno refs==['REC-09']",
+      "pizza-portuguesa refs==['REC-06']",
+      "puttanesca refs==['ING-02','REC-07']"
+    ],
+    "sauceModel": "sauce=None rows carry productionSchemaFit.sauceProfileRequired=false (contradicts exhaustive RECIPE_SAUCE_PROFILES at main)"
+  },
+  "first10InvariantReportsConsistency": [
+    {
+      "where": "PR #220 thread PRRT_kwDOUYyRwc6lf559 reply (08:36:31Z, 4b777fe)",
+      "claim": "first-10 now includes hawaiian/bambino and excludes polish-kielbasa/tsukimi",
+      "verdict": "TRUE but INCOMPLETE: 5 in / 5 out; aussie, bacalhau, full-english-pizza out and new-haven-apizza, pesto-caprese, pesto-patate in were not named"
+    },
+    {
+      "where": "PR #220 thread PRRT_kwDOUYyRwc6lgMED reply (10:04Z, d315211)",
+      "claim": "The first-10 set is unchanged (7 new ingredients)",
+      "verdict": "TRUE relative to 4b777fe (verified identical). NOT a claim of invariance since d3a2c8f"
+    },
+    {
+      "where": "PR #220 issue comment 5812219116 (10:16Z, e49dab9)",
+      "claim": "Wave counts, the first-10 set and the unresolved ledger are unchanged",
+      "verdict": "TRUE relative to d315211 (e49dab9 WAVES.json diff adds only sourceSSOT/futureImplementationFiles; UNRESOLVED.json untouched)"
+    },
+    {
+      "where": "0b285be guide §1.2",
+      "claim": "#221 likely referenced W1 from before d315211/e49dab9 (runtime-contract W4 move)",
+      "verdict": "INACCURATE commit attribution: the sauceless W4 move and all 5/5 first-10 swaps happened at 4b777fe; d315211 and e49dab9 changed no first-10 member"
+    }
+  ],
+  "counterfactualAttribution": {
+    "pool": "d3a2c8f W1 (20 rows, LOW collision)",
+    "S0_baseline": [
+      "aussie",
+      "bacalhau",
+      "full-english-pizza",
+      "melanzane-pizza",
+      "parmigiana-pizza",
+      "pesto-tonno",
+      "pizza-portuguesa",
+      "polish-kielbasa",
+      "puttanesca-pizza",
+      "tsukimi-pizza"
+    ],
+    "S1_saucelessExclusionOnly": [
+      "bambino",
+      "flammkuchen",
+      "hawaiian",
+      "melanzane-pizza",
+      "new-haven-apizza",
+      "parmigiana-pizza",
+      "pesto-caprese",
+      "pesto-tonno",
+      "pizza-portuguesa",
+      "puttanesca-pizza"
+    ],
+    "S2_identityOverlapOnly": [
+      "aussie",
+      "bacalhau",
+      "bambino",
+      "full-english-pizza",
+      "hawaiian",
+      "melanzane-pizza",
+      "parmigiana-pizza",
+      "pesto-tonno",
+      "pizza-portuguesa",
+      "puttanesca-pizza"
+    ],
+    "S3_both_actual4b777fe": [
+      "bambino",
+      "hawaiian",
+      "melanzane-pizza",
+      "new-haven-apizza",
+      "parmigiana-pizza",
+      "pesto-caprese",
+      "pesto-patate",
+      "pesto-tonno",
+      "pizza-portuguesa",
+      "puttanesca-pizza"
+    ]
+  },
+  "recipes": [
+    {
+      "canonicalCandidateId": "aussie",
+      "evidenceId": "aussie-pizzadb",
+      "nameJa": "オージーピザ",
+      "oldW1_d3a2c8f": true,
+      "currentW1_e49dab9": false,
+      "waveChange": "W1 -> W4",
+      "historyBy220Commit": {
+        "d3a2c8f": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": null,
+          "overlapRatio": 1.0,
+          "implementationType": "RECIPE_DATA_ONLY"
+        },
+        "4b777fe": {
+          "wave": "W4",
+          "inFirst10": false,
+          "runtimeContractDependencies": [
+            "SAUCELESS_RECIPE_CONTRACT"
+          ],
+          "overlapRatio": 1.0,
+          "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED"
+        },
+        "d315211": {
+          "wave": "W4",
+          "inFirst10": false,
+          "runtimeContractDependencies": [
+            "SAUCELESS_RECIPE_CONTRACT"
+          ],
+          "overlapRatio": 1.0,
+          "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED"
+        },
+        "e49dab9": {
+          "wave": "W4",
+          "inFirst10": false,
+          "runtimeContractDependencies": [
+            "SAUCELESS_RECIPE_CONTRACT"
+          ],
+          "overlapRatio": 1.0,
+          "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED"
+        }
+      },
+      "sauceBase": {
+        "status": "none",
+        "baseIngredientId": null,
+        "family": "チーズ（トマトソースなし）",
+        "matrixRule": "cheese base without tomato sauce"
+      },
+      "identityIngredientIds": [
+        "bacon",
+        "egg",
+        "mozzarella",
+        "onion"
+      ],
+      "newIngredientIds": [],
+      "likelyAliasTokens": [],
+      "evidenceOrigin": "comparison_table_sample",
+      "firstTenMembershipChange": "OUT",
+      "reason": "SAUCELESS_RECIPE_CONTRACT only: sauceBase.status=none -> W4 at 4b777fe. Identity-overlap fix alone (S2) keeps it in the first-10.",
+      "governingEvidence": {
+        "matrix": "docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json (merged #189) rows[].sauceBase / ingredients.identityIngredientSet",
+        "runtimeContract": "src/data/recipeSauceProfiles.ts RECIPE_SAUCE_PROFILES: Readonly<Record<RecipeId, RecipeSauceProfile>>; ingredientId: \"tomato-sauce\" | \"pesto\" | \"olive-oil\"; recipeSauceProfiles.test.ts requires profile.ingredientId == recipe's required sauce ingredient",
+        "classifierCommit": "4b777fe",
+        "reviewThread": "PR #220 threads PRRT_kwDOUYyRwc6lf559 (identity-set overlap) and PRRT_kwDOUYyRwc6lf56A (sauce-less recipes), both fixed in 4b777fe"
+      },
+      "pr221": {
+        "readiness": "READY",
+        "unresolvedRefs": [],
+        "sauce": null,
+        "sauceProfileRequired": false,
+        "bakeTargetCandidate": [
+          56,
+          76
+        ],
+        "minCounts": {
+          "mozzarella": 2,
+          "bacon": 3,
+          "egg": 1,
+          "onion": 3
+        }
+      }
+    },
+    {
+      "canonicalCandidateId": "bacalhau",
+      "evidenceId": "bacalhau-pizzadb",
+      "nameJa": "バカリャウピザ",
+      "oldW1_d3a2c8f": true,
+      "currentW1_e49dab9": false,
+      "waveChange": "W1 -> W4",
+      "historyBy220Commit": {
+        "d3a2c8f": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": null,
+          "overlapRatio": 0.75,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        },
+        "4b777fe": {
+          "wave": "W4",
+          "inFirst10": false,
+          "runtimeContractDependencies": [
+            "SAUCELESS_RECIPE_CONTRACT"
+          ],
+          "overlapRatio": 0.75,
+          "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED"
+        },
+        "d315211": {
+          "wave": "W4",
+          "inFirst10": false,
+          "runtimeContractDependencies": [
+            "SAUCELESS_RECIPE_CONTRACT"
+          ],
+          "overlapRatio": 0.75,
+          "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED"
+        },
+        "e49dab9": {
+          "wave": "W4",
+          "inFirst10": false,
+          "runtimeContractDependencies": [
+            "SAUCELESS_RECIPE_CONTRACT"
+          ],
+          "overlapRatio": 0.75,
+          "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED"
+        }
+      },
+      "sauceBase": {
+        "status": "none",
+        "baseIngredientId": null,
+        "family": "チーズ",
+        "matrixRule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+      },
+      "identityIngredientIds": [
+        "black-olive",
+        "mozzarella",
+        "onion",
+        "salt-cod"
+      ],
+      "newIngredientIds": [
+        "salt-cod"
+      ],
+      "likelyAliasTokens": [],
+      "evidenceOrigin": "comparison_table_sample",
+      "firstTenMembershipChange": "OUT",
+      "reason": "SAUCELESS_RECIPE_CONTRACT only: sauceBase.status=none -> W4 at 4b777fe. S2 alone keeps it.",
+      "governingEvidence": {
+        "matrix": "docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json (merged #189) rows[].sauceBase / ingredients.identityIngredientSet",
+        "runtimeContract": "src/data/recipeSauceProfiles.ts RECIPE_SAUCE_PROFILES: Readonly<Record<RecipeId, RecipeSauceProfile>>; ingredientId: \"tomato-sauce\" | \"pesto\" | \"olive-oil\"; recipeSauceProfiles.test.ts requires profile.ingredientId == recipe's required sauce ingredient",
+        "classifierCommit": "4b777fe",
+        "reviewThread": "PR #220 threads PRRT_kwDOUYyRwc6lf559 (identity-set overlap) and PRRT_kwDOUYyRwc6lf56A (sauce-less recipes), both fixed in 4b777fe"
+      },
+      "pr221": {
+        "readiness": "REVIEW",
+        "unresolvedRefs": [
+          "ING-05"
+        ],
+        "sauce": null,
+        "sauceProfileRequired": false,
+        "bakeTargetCandidate": [
+          58,
+          78
+        ],
+        "minCounts": {
+          "mozzarella": 2,
+          "salt-cod": 3,
+          "onion": 2,
+          "black-olive": 2
+        }
+      }
+    },
+    {
+      "canonicalCandidateId": "parmigiana-pizza",
+      "evidenceId": "parmigiana-pizza-pizzadb-p7",
+      "nameJa": "パルミジャーナピザ",
+      "oldW1_d3a2c8f": true,
+      "currentW1_e49dab9": true,
+      "waveChange": "W1 -> W1",
+      "historyBy220Commit": {
+        "d3a2c8f": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": null,
+          "overlapRatio": 0.75,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        },
+        "4b777fe": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": [],
+          "overlapRatio": 0.8,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        },
+        "d315211": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": [],
+          "overlapRatio": 0.8,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        },
+        "e49dab9": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": [],
+          "overlapRatio": 0.8,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        }
+      },
+      "sauceBase": {
+        "status": "family_derived",
+        "baseIngredientId": "tomato-sauce",
+        "family": "トマトソース",
+        "matrixRule": "family label names the existing tomato-sauce"
+      },
+      "identityIngredientIds": [
+        "basil",
+        "eggplant",
+        "mozzarella",
+        "parmigiano",
+        "tomato-sauce"
+      ],
+      "newIngredientIds": [
+        "eggplant"
+      ],
+      "likelyAliasTokens": [
+        {
+          "token": "パルミジャーノチーズ",
+          "canonicalId": "parmigiano"
+        }
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "firstTenMembershipChange": "UNCHANGED",
+      "reason": "Stayed W1 and in first-10 at all four #220 commits; 4b777fe only raised its identity overlap by counting the family-derived sauce.",
+      "governingEvidence": {
+        "matrix": "docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json (merged #189) rows[].sauceBase / ingredients.identityIngredientSet",
+        "runtimeContract": "src/data/recipeSauceProfiles.ts RECIPE_SAUCE_PROFILES: Readonly<Record<RecipeId, RecipeSauceProfile>>; ingredientId: \"tomato-sauce\" | \"pesto\" | \"olive-oil\"; recipeSauceProfiles.test.ts requires profile.ingredientId == recipe's required sauce ingredient",
+        "classifierCommit": null,
+        "reviewThread": null
+      },
+      "pr221": {
+        "readiness": "REVIEW",
+        "unresolvedRefs": [
+          "ING-03",
+          "REC-08"
+        ],
+        "sauce": "tomato-sauce",
+        "sauceProfileRequired": true,
+        "bakeTargetCandidate": [
+          58,
+          78
+        ],
+        "minCounts": {
+          "tomato-sauce": 1,
+          "mozzarella": 2,
+          "eggplant": 3,
+          "parmigiano": 2,
+          "basil": 2
+        }
+      }
+    },
+    {
+      "canonicalCandidateId": "pizza-portuguesa",
+      "evidenceId": "pizza-portuguesa-pizzadb-p9",
+      "nameJa": "ピッツァ・ポルトゲーザ",
+      "oldW1_d3a2c8f": true,
+      "currentW1_e49dab9": true,
+      "waveChange": "W1 -> W1",
+      "historyBy220Commit": {
+        "d3a2c8f": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": null,
+          "overlapRatio": 1.0,
+          "implementationType": "RECIPE_DATA_ONLY"
+        },
+        "4b777fe": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": [],
+          "overlapRatio": 1.0,
+          "implementationType": "RECIPE_DATA_ONLY"
+        },
+        "d315211": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": [],
+          "overlapRatio": 1.0,
+          "implementationType": "RECIPE_DATA_ONLY"
+        },
+        "e49dab9": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": [],
+          "overlapRatio": 1.0,
+          "implementationType": "RECIPE_DATA_ONLY"
+        }
+      },
+      "sauceBase": {
+        "status": "family_derived",
+        "baseIngredientId": "tomato-sauce",
+        "family": "トマトソース",
+        "matrixRule": "family label names the existing tomato-sauce"
+      },
+      "identityIngredientIds": [
+        "black-olive",
+        "egg",
+        "ham",
+        "mozzarella",
+        "onion",
+        "tomato-sauce"
+      ],
+      "newIngredientIds": [],
+      "likelyAliasTokens": [
+        {
+          "token": "オリーブ",
+          "canonicalId": "black-olive"
+        }
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "firstTenMembershipChange": "UNCHANGED",
+      "reason": "Stayed W1 and in first-10 at all four #220 commits; 4b777fe only raised its identity overlap by counting the family-derived sauce.",
+      "governingEvidence": {
+        "matrix": "docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json (merged #189) rows[].sauceBase / ingredients.identityIngredientSet",
+        "runtimeContract": "src/data/recipeSauceProfiles.ts RECIPE_SAUCE_PROFILES: Readonly<Record<RecipeId, RecipeSauceProfile>>; ingredientId: \"tomato-sauce\" | \"pesto\" | \"olive-oil\"; recipeSauceProfiles.test.ts requires profile.ingredientId == recipe's required sauce ingredient",
+        "classifierCommit": null,
+        "reviewThread": null
+      },
+      "pr221": {
+        "readiness": "REVIEW",
+        "unresolvedRefs": [
+          "REC-06"
+        ],
+        "sauce": "tomato-sauce",
+        "sauceProfileRequired": true,
+        "bakeTargetCandidate": [
+          58,
+          78
+        ],
+        "minCounts": {
+          "tomato-sauce": 1,
+          "mozzarella": 2,
+          "ham": 3,
+          "egg": 1,
+          "onion": 2,
+          "black-olive": 2
+        }
+      }
+    },
+    {
+      "canonicalCandidateId": "puttanesca-pizza",
+      "evidenceId": "puttanesca-pizza-pizzadb-p10",
+      "nameJa": "プッタネスカ",
+      "oldW1_d3a2c8f": true,
+      "currentW1_e49dab9": true,
+      "waveChange": "W1 -> W1",
+      "historyBy220Commit": {
+        "d3a2c8f": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": null,
+          "overlapRatio": 0.75,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        },
+        "4b777fe": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": [],
+          "overlapRatio": 0.8,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        },
+        "d315211": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": [],
+          "overlapRatio": 0.8,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        },
+        "e49dab9": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": [],
+          "overlapRatio": 0.8,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        }
+      },
+      "sauceBase": {
+        "status": "family_derived",
+        "baseIngredientId": "tomato-sauce",
+        "family": "トマトソース",
+        "matrixRule": "family label names the existing tomato-sauce"
+      },
+      "identityIngredientIds": [
+        "anchovy",
+        "black-olive",
+        "capers",
+        "garlic",
+        "tomato-sauce"
+      ],
+      "newIngredientIds": [
+        "capers"
+      ],
+      "likelyAliasTokens": [
+        {
+          "token": "オリーブ",
+          "canonicalId": "black-olive"
+        }
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "firstTenMembershipChange": "UNCHANGED",
+      "reason": "Stayed W1 and in first-10 at all four #220 commits; 4b777fe only raised its identity overlap by counting the family-derived sauce.",
+      "governingEvidence": {
+        "matrix": "docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json (merged #189) rows[].sauceBase / ingredients.identityIngredientSet",
+        "runtimeContract": "src/data/recipeSauceProfiles.ts RECIPE_SAUCE_PROFILES: Readonly<Record<RecipeId, RecipeSauceProfile>>; ingredientId: \"tomato-sauce\" | \"pesto\" | \"olive-oil\"; recipeSauceProfiles.test.ts requires profile.ingredientId == recipe's required sauce ingredient",
+        "classifierCommit": null,
+        "reviewThread": null
+      },
+      "pr221": {
+        "readiness": "REVIEW",
+        "unresolvedRefs": [
+          "ING-02",
+          "REC-07"
+        ],
+        "sauce": "tomato-sauce",
+        "sauceProfileRequired": true,
+        "bakeTargetCandidate": [
+          50,
+          70
+        ],
+        "minCounts": {
+          "tomato-sauce": 1,
+          "anchovy": 3,
+          "black-olive": 2,
+          "capers": 2,
+          "garlic": 2
+        }
+      }
+    },
+    {
+      "canonicalCandidateId": "full-english-pizza",
+      "evidenceId": "full-english-pizza-pizzadb-p10",
+      "nameJa": "フルイングリッシュピザ",
+      "oldW1_d3a2c8f": true,
+      "currentW1_e49dab9": false,
+      "waveChange": "W1 -> W4",
+      "historyBy220Commit": {
+        "d3a2c8f": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": null,
+          "overlapRatio": 0.8,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        },
+        "4b777fe": {
+          "wave": "W4",
+          "inFirst10": false,
+          "runtimeContractDependencies": [
+            "SAUCELESS_RECIPE_CONTRACT"
+          ],
+          "overlapRatio": 0.8,
+          "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED"
+        },
+        "d315211": {
+          "wave": "W4",
+          "inFirst10": false,
+          "runtimeContractDependencies": [
+            "SAUCELESS_RECIPE_CONTRACT"
+          ],
+          "overlapRatio": 0.8,
+          "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED"
+        },
+        "e49dab9": {
+          "wave": "W4",
+          "inFirst10": false,
+          "runtimeContractDependencies": [
+            "SAUCELESS_RECIPE_CONTRACT"
+          ],
+          "overlapRatio": 0.8,
+          "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED"
+        }
+      },
+      "sauceBase": {
+        "status": "none",
+        "baseIngredientId": null,
+        "family": "チーズ",
+        "matrixRule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+      },
+      "identityIngredientIds": [
+        "bacon",
+        "baked-beans",
+        "egg",
+        "mozzarella",
+        "sausage"
+      ],
+      "newIngredientIds": [
+        "baked-beans"
+      ],
+      "likelyAliasTokens": [],
+      "evidenceOrigin": "comparison_table_sample",
+      "firstTenMembershipChange": "OUT",
+      "reason": "SAUCELESS_RECIPE_CONTRACT only: sauceBase.status=none -> W4 at 4b777fe. S2 alone keeps it.",
+      "governingEvidence": {
+        "matrix": "docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json (merged #189) rows[].sauceBase / ingredients.identityIngredientSet",
+        "runtimeContract": "src/data/recipeSauceProfiles.ts RECIPE_SAUCE_PROFILES: Readonly<Record<RecipeId, RecipeSauceProfile>>; ingredientId: \"tomato-sauce\" | \"pesto\" | \"olive-oil\"; recipeSauceProfiles.test.ts requires profile.ingredientId == recipe's required sauce ingredient",
+        "classifierCommit": "4b777fe",
+        "reviewThread": "PR #220 threads PRRT_kwDOUYyRwc6lf559 (identity-set overlap) and PRRT_kwDOUYyRwc6lf56A (sauce-less recipes), both fixed in 4b777fe"
+      },
+      "pr221": {
+        "readiness": "REVIEW",
+        "unresolvedRefs": [
+          "ING-01"
+        ],
+        "sauce": null,
+        "sauceProfileRequired": false,
+        "bakeTargetCandidate": [
+          60,
+          80
+        ],
+        "minCounts": {
+          "mozzarella": 2,
+          "bacon": 2,
+          "sausage": 2,
+          "egg": 1,
+          "baked-beans": 3
+        }
+      }
+    },
+    {
+      "canonicalCandidateId": "pesto-tonno",
+      "evidenceId": "pesto-tonno-pizzadb-p12",
+      "nameJa": "ペストトンノピザ",
+      "oldW1_d3a2c8f": true,
+      "currentW1_e49dab9": true,
+      "waveChange": "W1 -> W1",
+      "historyBy220Commit": {
+        "d3a2c8f": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": null,
+          "overlapRatio": 1.0,
+          "implementationType": "RECIPE_DATA_ONLY"
+        },
+        "4b777fe": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": [],
+          "overlapRatio": 1.0,
+          "implementationType": "RECIPE_DATA_ONLY"
+        },
+        "d315211": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": [],
+          "overlapRatio": 1.0,
+          "implementationType": "RECIPE_DATA_ONLY"
+        },
+        "e49dab9": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": [],
+          "overlapRatio": 1.0,
+          "implementationType": "RECIPE_DATA_ONLY"
+        }
+      },
+      "sauceBase": {
+        "status": "family_derived",
+        "baseIngredientId": "pesto",
+        "family": "バジル",
+        "matrixRule": "all 11 バジル-family rows are ペスト-named dishes; the existing basil sauce is pesto (ジェノベーゼソース). pesto-trapanese is a pesto variant -- flagged as a content note, not a separate sauce id"
+      },
+      "identityIngredientIds": [
+        "black-olive",
+        "onion",
+        "pesto",
+        "tuna"
+      ],
+      "newIngredientIds": [],
+      "likelyAliasTokens": [
+        {
+          "token": "オリーブ",
+          "canonicalId": "black-olive"
+        }
+      ],
+      "evidenceOrigin": "comparison_table_sample",
+      "firstTenMembershipChange": "UNCHANGED",
+      "reason": "Stayed W1 and in first-10 at all four #220 commits; 4b777fe only raised its identity overlap by counting the family-derived sauce.",
+      "governingEvidence": {
+        "matrix": "docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json (merged #189) rows[].sauceBase / ingredients.identityIngredientSet",
+        "runtimeContract": "src/data/recipeSauceProfiles.ts RECIPE_SAUCE_PROFILES: Readonly<Record<RecipeId, RecipeSauceProfile>>; ingredientId: \"tomato-sauce\" | \"pesto\" | \"olive-oil\"; recipeSauceProfiles.test.ts requires profile.ingredientId == recipe's required sauce ingredient",
+        "classifierCommit": null,
+        "reviewThread": null
+      },
+      "pr221": {
+        "readiness": "REVIEW",
+        "unresolvedRefs": [
+          "REC-09"
+        ],
+        "sauce": "pesto",
+        "sauceProfileRequired": true,
+        "bakeTargetCandidate": [
+          50,
+          70
+        ],
+        "minCounts": {
+          "pesto": 1,
+          "tuna": 3,
+          "black-olive": 2,
+          "onion": 2
+        }
+      }
+    },
+    {
+      "canonicalCandidateId": "polish-kielbasa",
+      "evidenceId": "polish-kielbasa-pizzadb-p12",
+      "nameJa": "ポーリッシュキエルバサピザ",
+      "oldW1_d3a2c8f": true,
+      "currentW1_e49dab9": false,
+      "waveChange": "W1 -> W4",
+      "historyBy220Commit": {
+        "d3a2c8f": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": null,
+          "overlapRatio": 0.75,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        },
+        "4b777fe": {
+          "wave": "W4",
+          "inFirst10": false,
+          "runtimeContractDependencies": [
+            "SAUCELESS_RECIPE_CONTRACT"
+          ],
+          "overlapRatio": 0.75,
+          "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED"
+        },
+        "d315211": {
+          "wave": "W4",
+          "inFirst10": false,
+          "runtimeContractDependencies": [
+            "SAUCELESS_RECIPE_CONTRACT"
+          ],
+          "overlapRatio": 0.75,
+          "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED"
+        },
+        "e49dab9": {
+          "wave": "W4",
+          "inFirst10": false,
+          "runtimeContractDependencies": [
+            "SAUCELESS_RECIPE_CONTRACT"
+          ],
+          "overlapRatio": 0.75,
+          "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED"
+        }
+      },
+      "sauceBase": {
+        "status": "none",
+        "baseIngredientId": null,
+        "family": "チーズ",
+        "matrixRule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+      },
+      "identityIngredientIds": [
+        "mozzarella",
+        "onion",
+        "sauerkraut",
+        "sausage"
+      ],
+      "newIngredientIds": [
+        "sauerkraut"
+      ],
+      "likelyAliasTokens": [],
+      "evidenceOrigin": "comparison_table_sample",
+      "firstTenMembershipChange": "OUT",
+      "reason": "Both 4b777fe changes independently remove it: identity-overlap fix (S2) displaces it by hawaiian/bambino, and SAUCELESS_RECIPE_CONTRACT moves it to W4.",
+      "governingEvidence": {
+        "matrix": "docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json (merged #189) rows[].sauceBase / ingredients.identityIngredientSet",
+        "runtimeContract": "src/data/recipeSauceProfiles.ts RECIPE_SAUCE_PROFILES: Readonly<Record<RecipeId, RecipeSauceProfile>>; ingredientId: \"tomato-sauce\" | \"pesto\" | \"olive-oil\"; recipeSauceProfiles.test.ts requires profile.ingredientId == recipe's required sauce ingredient",
+        "classifierCommit": "4b777fe",
+        "reviewThread": "PR #220 threads PRRT_kwDOUYyRwc6lf559 (identity-set overlap) and PRRT_kwDOUYyRwc6lf56A (sauce-less recipes), both fixed in 4b777fe"
+      },
+      "pr221": {
+        "readiness": "REVIEW",
+        "unresolvedRefs": [
+          "ING-06"
+        ],
+        "sauce": null,
+        "sauceProfileRequired": false,
+        "bakeTargetCandidate": [
+          60,
+          80
+        ],
+        "minCounts": {
+          "mozzarella": 2,
+          "sausage": 3,
+          "sauerkraut": 3,
+          "onion": 2
+        }
+      }
+    },
+    {
+      "canonicalCandidateId": "melanzane-pizza",
+      "evidenceId": "melanzane-pizza-pizzadb-p13",
+      "nameJa": "メランザーネピザ",
+      "oldW1_d3a2c8f": true,
+      "currentW1_e49dab9": true,
+      "waveChange": "W1 -> W1",
+      "historyBy220Commit": {
+        "d3a2c8f": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": null,
+          "overlapRatio": 0.6667,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        },
+        "4b777fe": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": [],
+          "overlapRatio": 0.75,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        },
+        "d315211": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": [],
+          "overlapRatio": 0.75,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        },
+        "e49dab9": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": [],
+          "overlapRatio": 0.75,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        }
+      },
+      "sauceBase": {
+        "status": "family_derived",
+        "baseIngredientId": "tomato-sauce",
+        "family": "トマトソース",
+        "matrixRule": "family label names the existing tomato-sauce"
+      },
+      "identityIngredientIds": [
+        "basil",
+        "eggplant",
+        "mozzarella",
+        "tomato-sauce"
+      ],
+      "newIngredientIds": [
+        "eggplant"
+      ],
+      "likelyAliasTokens": [],
+      "evidenceOrigin": "comparison_table_sample",
+      "firstTenMembershipChange": "UNCHANGED",
+      "reason": "Stayed W1 and in first-10 at all four #220 commits; 4b777fe only raised its identity overlap by counting the family-derived sauce.",
+      "governingEvidence": {
+        "matrix": "docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json (merged #189) rows[].sauceBase / ingredients.identityIngredientSet",
+        "runtimeContract": "src/data/recipeSauceProfiles.ts RECIPE_SAUCE_PROFILES: Readonly<Record<RecipeId, RecipeSauceProfile>>; ingredientId: \"tomato-sauce\" | \"pesto\" | \"olive-oil\"; recipeSauceProfiles.test.ts requires profile.ingredientId == recipe's required sauce ingredient",
+        "classifierCommit": null,
+        "reviewThread": null
+      },
+      "pr221": {
+        "readiness": "REVIEW",
+        "unresolvedRefs": [
+          "ING-03",
+          "REC-08"
+        ],
+        "sauce": "tomato-sauce",
+        "sauceProfileRequired": true,
+        "bakeTargetCandidate": [
+          58,
+          78
+        ],
+        "minCounts": {
+          "tomato-sauce": 1,
+          "mozzarella": 2,
+          "eggplant": 3,
+          "basil": 2
+        }
+      }
+    },
+    {
+      "canonicalCandidateId": "tsukimi-pizza",
+      "evidenceId": "tsukimi-pizza-pizzadb-p14",
+      "nameJa": "月見ピザ",
+      "oldW1_d3a2c8f": true,
+      "currentW1_e49dab9": false,
+      "waveChange": "W1 -> W4",
+      "historyBy220Commit": {
+        "d3a2c8f": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": null,
+          "overlapRatio": 0.75,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        },
+        "4b777fe": {
+          "wave": "W4",
+          "inFirst10": false,
+          "runtimeContractDependencies": [
+            "SAUCELESS_RECIPE_CONTRACT"
+          ],
+          "overlapRatio": 0.75,
+          "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED"
+        },
+        "d315211": {
+          "wave": "W4",
+          "inFirst10": false,
+          "runtimeContractDependencies": [
+            "SAUCELESS_RECIPE_CONTRACT"
+          ],
+          "overlapRatio": 0.75,
+          "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED"
+        },
+        "e49dab9": {
+          "wave": "W4",
+          "inFirst10": false,
+          "runtimeContractDependencies": [
+            "SAUCELESS_RECIPE_CONTRACT"
+          ],
+          "overlapRatio": 0.75,
+          "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED"
+        }
+      },
+      "sauceBase": {
+        "status": "none",
+        "baseIngredientId": null,
+        "family": "チーズ",
+        "matrixRule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+      },
+      "identityIngredientIds": [
+        "bacon",
+        "egg",
+        "green-onion",
+        "mozzarella"
+      ],
+      "newIngredientIds": [
+        "green-onion"
+      ],
+      "likelyAliasTokens": [],
+      "evidenceOrigin": "comparison_table_sample",
+      "firstTenMembershipChange": "OUT",
+      "reason": "Both 4b777fe changes independently remove it: identity-overlap fix (S2) displaces it by hawaiian/bambino, and SAUCELESS_RECIPE_CONTRACT moves it to W4.",
+      "governingEvidence": {
+        "matrix": "docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json (merged #189) rows[].sauceBase / ingredients.identityIngredientSet",
+        "runtimeContract": "src/data/recipeSauceProfiles.ts RECIPE_SAUCE_PROFILES: Readonly<Record<RecipeId, RecipeSauceProfile>>; ingredientId: \"tomato-sauce\" | \"pesto\" | \"olive-oil\"; recipeSauceProfiles.test.ts requires profile.ingredientId == recipe's required sauce ingredient",
+        "classifierCommit": "4b777fe",
+        "reviewThread": "PR #220 threads PRRT_kwDOUYyRwc6lf559 (identity-set overlap) and PRRT_kwDOUYyRwc6lf56A (sauce-less recipes), both fixed in 4b777fe"
+      },
+      "pr221": {
+        "readiness": "REVIEW",
+        "unresolvedRefs": [
+          "ING-04"
+        ],
+        "sauce": null,
+        "sauceProfileRequired": false,
+        "bakeTargetCandidate": [
+          56,
+          76
+        ],
+        "minCounts": {
+          "mozzarella": 2,
+          "egg": 1,
+          "bacon": 3,
+          "green-onion": 2
+        }
+      }
+    },
+    {
+      "canonicalCandidateId": "new-haven-apizza",
+      "evidenceId": "new-haven-apizza-pizzadb",
+      "nameJa": "ニューヘイブンアピッツァ",
+      "oldW1_d3a2c8f": false,
+      "currentW1_e49dab9": true,
+      "waveChange": "W1 -> W1",
+      "historyBy220Commit": {
+        "d3a2c8f": {
+          "wave": "W1",
+          "inFirst10": false,
+          "runtimeContractDependencies": null,
+          "overlapRatio": 0.75,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        },
+        "4b777fe": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": [],
+          "overlapRatio": 0.75,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        },
+        "d315211": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": [],
+          "overlapRatio": 0.75,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        },
+        "e49dab9": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": [],
+          "overlapRatio": 0.75,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        }
+      },
+      "sauceBase": {
+        "status": "listed",
+        "baseIngredientId": "olive-oil",
+        "family": "オイル",
+        "matrixRule": "family label 'oil'; the only oil sauce in the catalogs is olive-oil"
+      },
+      "identityIngredientIds": [
+        "clam",
+        "garlic",
+        "olive-oil",
+        "parmigiano"
+      ],
+      "newIngredientIds": [
+        "clam"
+      ],
+      "likelyAliasTokens": [],
+      "evidenceOrigin": "comparison_table_sample",
+      "firstTenMembershipChange": "IN",
+      "reason": "Only the SAUCELESS removal brings it in (freed slots; overlap unchanged 0.75 because olive-oil was already a listed canonical token).",
+      "governingEvidence": {
+        "matrix": "docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json (merged #189) rows[].sauceBase / ingredients.identityIngredientSet",
+        "runtimeContract": "src/data/recipeSauceProfiles.ts RECIPE_SAUCE_PROFILES: Readonly<Record<RecipeId, RecipeSauceProfile>>; ingredientId: \"tomato-sauce\" | \"pesto\" | \"olive-oil\"; recipeSauceProfiles.test.ts requires profile.ingredientId == recipe's required sauce ingredient",
+        "classifierCommit": "4b777fe",
+        "reviewThread": "PR #220 threads PRRT_kwDOUYyRwc6lf559 (identity-set overlap) and PRRT_kwDOUYyRwc6lf56A (sauce-less recipes), both fixed in 4b777fe"
+      }
+    },
+    {
+      "canonicalCandidateId": "hawaiian",
+      "evidenceId": "hawaiian-pizzadb-row",
+      "nameJa": "ハワイアンピザ",
+      "oldW1_d3a2c8f": false,
+      "currentW1_e49dab9": true,
+      "waveChange": "W1 -> W1",
+      "historyBy220Commit": {
+        "d3a2c8f": {
+          "wave": "W1",
+          "inFirst10": false,
+          "runtimeContractDependencies": null,
+          "overlapRatio": 0.6667,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        },
+        "4b777fe": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": [],
+          "overlapRatio": 0.75,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        },
+        "d315211": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": [],
+          "overlapRatio": 0.75,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        },
+        "e49dab9": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": [],
+          "overlapRatio": 0.75,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        }
+      },
+      "sauceBase": {
+        "status": "family_derived",
+        "baseIngredientId": "tomato-sauce",
+        "family": "トマトソース",
+        "matrixRule": "family label names the existing tomato-sauce"
+      },
+      "identityIngredientIds": [
+        "ham",
+        "mozzarella",
+        "pineapple",
+        "tomato-sauce"
+      ],
+      "newIngredientIds": [
+        "pineapple"
+      ],
+      "likelyAliasTokens": [],
+      "evidenceOrigin": "individual_profile_page",
+      "firstTenMembershipChange": "IN",
+      "reason": "Either 4b777fe change alone brings it in: identity overlap 0.6667->0.75 (family-derived tomato-sauce counted) and freed sauceless slots.",
+      "governingEvidence": {
+        "matrix": "docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json (merged #189) rows[].sauceBase / ingredients.identityIngredientSet",
+        "runtimeContract": "src/data/recipeSauceProfiles.ts RECIPE_SAUCE_PROFILES: Readonly<Record<RecipeId, RecipeSauceProfile>>; ingredientId: \"tomato-sauce\" | \"pesto\" | \"olive-oil\"; recipeSauceProfiles.test.ts requires profile.ingredientId == recipe's required sauce ingredient",
+        "classifierCommit": "4b777fe",
+        "reviewThread": "PR #220 threads PRRT_kwDOUYyRwc6lf559 (identity-set overlap) and PRRT_kwDOUYyRwc6lf56A (sauce-less recipes), both fixed in 4b777fe"
+      }
+    },
+    {
+      "canonicalCandidateId": "bambino",
+      "evidenceId": "bambino-pizzadb-p7",
+      "nameJa": "バンビーノ",
+      "oldW1_d3a2c8f": false,
+      "currentW1_e49dab9": true,
+      "waveChange": "W1 -> W1",
+      "historyBy220Commit": {
+        "d3a2c8f": {
+          "wave": "W1",
+          "inFirst10": false,
+          "runtimeContractDependencies": null,
+          "overlapRatio": 0.6667,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        },
+        "4b777fe": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": [],
+          "overlapRatio": 0.75,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        },
+        "d315211": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": [],
+          "overlapRatio": 0.75,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        },
+        "e49dab9": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": [],
+          "overlapRatio": 0.75,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        }
+      },
+      "sauceBase": {
+        "status": "family_derived",
+        "baseIngredientId": "tomato-sauce",
+        "family": "トマトソース",
+        "matrixRule": "family label names the existing tomato-sauce"
+      },
+      "identityIngredientIds": [
+        "corn",
+        "ham",
+        "mozzarella",
+        "tomato-sauce"
+      ],
+      "newIngredientIds": [
+        "corn"
+      ],
+      "likelyAliasTokens": [],
+      "evidenceOrigin": "comparison_table_sample",
+      "firstTenMembershipChange": "IN",
+      "reason": "Either 4b777fe change alone brings it in: identity overlap 0.6667->0.75 (family-derived tomato-sauce counted) and freed sauceless slots.",
+      "governingEvidence": {
+        "matrix": "docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json (merged #189) rows[].sauceBase / ingredients.identityIngredientSet",
+        "runtimeContract": "src/data/recipeSauceProfiles.ts RECIPE_SAUCE_PROFILES: Readonly<Record<RecipeId, RecipeSauceProfile>>; ingredientId: \"tomato-sauce\" | \"pesto\" | \"olive-oil\"; recipeSauceProfiles.test.ts requires profile.ingredientId == recipe's required sauce ingredient",
+        "classifierCommit": "4b777fe",
+        "reviewThread": "PR #220 threads PRRT_kwDOUYyRwc6lf559 (identity-set overlap) and PRRT_kwDOUYyRwc6lf56A (sauce-less recipes), both fixed in 4b777fe"
+      }
+    },
+    {
+      "canonicalCandidateId": "pesto-caprese",
+      "evidenceId": "pesto-caprese-pizzadb-p11",
+      "nameJa": "ペストカプレーゼピザ",
+      "oldW1_d3a2c8f": false,
+      "currentW1_e49dab9": true,
+      "waveChange": "W1 -> W1",
+      "historyBy220Commit": {
+        "d3a2c8f": {
+          "wave": "W1",
+          "inFirst10": false,
+          "runtimeContractDependencies": null,
+          "overlapRatio": 0.6667,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        },
+        "4b777fe": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": [],
+          "overlapRatio": 0.75,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        },
+        "d315211": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": [],
+          "overlapRatio": 0.75,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        },
+        "e49dab9": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": [],
+          "overlapRatio": 0.75,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        }
+      },
+      "sauceBase": {
+        "status": "family_derived",
+        "baseIngredientId": "pesto",
+        "family": "バジル",
+        "matrixRule": "all 11 バジル-family rows are ペスト-named dishes; the existing basil sauce is pesto (ジェノベーゼソース). pesto-trapanese is a pesto variant -- flagged as a content note, not a separate sauce id"
+      },
+      "identityIngredientIds": [
+        "basil",
+        "fresh-tomato",
+        "mozzarella",
+        "pesto"
+      ],
+      "newIngredientIds": [
+        "fresh-tomato"
+      ],
+      "likelyAliasTokens": [],
+      "evidenceOrigin": "comparison_table_sample",
+      "firstTenMembershipChange": "IN",
+      "reason": "Only the SAUCELESS removal brings it in (S1). Overlap also 0.6667->0.75 but S2 alone does not select it.",
+      "governingEvidence": {
+        "matrix": "docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json (merged #189) rows[].sauceBase / ingredients.identityIngredientSet",
+        "runtimeContract": "src/data/recipeSauceProfiles.ts RECIPE_SAUCE_PROFILES: Readonly<Record<RecipeId, RecipeSauceProfile>>; ingredientId: \"tomato-sauce\" | \"pesto\" | \"olive-oil\"; recipeSauceProfiles.test.ts requires profile.ingredientId == recipe's required sauce ingredient",
+        "classifierCommit": "4b777fe",
+        "reviewThread": "PR #220 threads PRRT_kwDOUYyRwc6lf559 (identity-set overlap) and PRRT_kwDOUYyRwc6lf56A (sauce-less recipes), both fixed in 4b777fe"
+      }
+    },
+    {
+      "canonicalCandidateId": "pesto-patate",
+      "evidenceId": "pesto-patate-pizzadb-p12",
+      "nameJa": "ペストパターテピザ",
+      "oldW1_d3a2c8f": false,
+      "currentW1_e49dab9": true,
+      "waveChange": "W1 -> W1",
+      "historyBy220Commit": {
+        "d3a2c8f": {
+          "wave": "W1",
+          "inFirst10": false,
+          "runtimeContractDependencies": null,
+          "overlapRatio": 0.6667,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        },
+        "4b777fe": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": [],
+          "overlapRatio": 0.75,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        },
+        "d315211": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": [],
+          "overlapRatio": 0.75,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        },
+        "e49dab9": {
+          "wave": "W1",
+          "inFirst10": true,
+          "runtimeContractDependencies": [],
+          "overlapRatio": 0.75,
+          "implementationType": "NEW_INGREDIENT_DATA_ONLY"
+        }
+      },
+      "sauceBase": {
+        "status": "family_derived",
+        "baseIngredientId": "pesto",
+        "family": "バジル",
+        "matrixRule": "all 11 バジル-family rows are ペスト-named dishes; the existing basil sauce is pesto (ジェノベーゼソース). pesto-trapanese is a pesto variant -- flagged as a content note, not a separate sauce id"
+      },
+      "identityIngredientIds": [
+        "bacon",
+        "mozzarella",
+        "pesto",
+        "potato"
+      ],
+      "newIngredientIds": [
+        "potato"
+      ],
+      "likelyAliasTokens": [],
+      "evidenceOrigin": "comparison_table_sample",
+      "firstTenMembershipChange": "IN",
+      "reason": "Needs both 4b777fe changes: under S1 alone flammkuchen (0.6667) takes the 10th slot; the overlap fix (0.6667->0.75 via pesto) ranks pesto-patate above flammkuchen.",
+      "governingEvidence": {
+        "matrix": "docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json (merged #189) rows[].sauceBase / ingredients.identityIngredientSet",
+        "runtimeContract": "src/data/recipeSauceProfiles.ts RECIPE_SAUCE_PROFILES: Readonly<Record<RecipeId, RecipeSauceProfile>>; ingredientId: \"tomato-sauce\" | \"pesto\" | \"olive-oil\"; recipeSauceProfiles.test.ts requires profile.ingredientId == recipe's required sauce ingredient",
+        "classifierCommit": "4b777fe",
+        "reviewThread": "PR #220 threads PRRT_kwDOUYyRwc6lf559 (identity-set overlap) and PRRT_kwDOUYyRwc6lf56A (sauce-less recipes), both fixed in 4b777fe"
+      }
+    }
+  ],
+  "dryRun": {
+    "scenario": "Regenerate #221 content-authoring audit on PR #220 e49dab9 first10CandidateSet using #221's own readiness/ledger rules. Nothing in #221 is modified.",
+    "recipes": [
+      {
+        "recipeIdCandidate": "new-haven-apizza",
+        "evidenceId": "new-haven-apizza-pizzadb",
+        "nameJa": "ニューヘイブンアピッツァ",
+        "sauce": "olive-oil",
+        "identityIngredientIds": [
+          "clam",
+          "garlic",
+          "olive-oil",
+          "parmigiano"
+        ],
+        "newIngredientIds": [
+          "clam"
+        ],
+        "carriedFromPR221": false,
+        "authoredContentAvailable": false,
+        "unresolvedRefs_strictPR221Rules": [
+          "DRY-ING-07"
+        ],
+        "readiness_strictPR221Rules": "REVIEW",
+        "candidateAdditionalRefs_ifRulesAppliedConsistently": [],
+        "readiness_withCandidateRefs": "REVIEW",
+        "sauceProfileRequired": true,
+        "sauceInteraction": "PAINT_TEMPORARY"
+      },
+      {
+        "recipeIdCandidate": "hawaiian",
+        "evidenceId": "hawaiian-pizzadb-row",
+        "nameJa": "ハワイアンピザ",
+        "sauce": "tomato-sauce",
+        "identityIngredientIds": [
+          "ham",
+          "mozzarella",
+          "pineapple",
+          "tomato-sauce"
+        ],
+        "newIngredientIds": [
+          "pineapple"
+        ],
+        "carriedFromPR221": false,
+        "authoredContentAvailable": false,
+        "unresolvedRefs_strictPR221Rules": [
+          "DRY-ING-09"
+        ],
+        "readiness_strictPR221Rules": "REVIEW",
+        "candidateAdditionalRefs_ifRulesAppliedConsistently": [
+          "DRY-REC-11 (hawaiian/bambino sibling proximity, Jaccard 0.6)"
+        ],
+        "readiness_withCandidateRefs": "REVIEW",
+        "sauceProfileRequired": true,
+        "sauceInteraction": "PAINT"
+      },
+      {
+        "recipeIdCandidate": "parmigiana-pizza",
+        "evidenceId": "parmigiana-pizza-pizzadb-p7",
+        "nameJa": "パルミジャーナピザ",
+        "sauce": "tomato-sauce",
+        "identityIngredientIds": [
+          "basil",
+          "eggplant",
+          "mozzarella",
+          "parmigiano",
+          "tomato-sauce"
+        ],
+        "newIngredientIds": [
+          "eggplant"
+        ],
+        "carriedFromPR221": true,
+        "authoredContentAvailable": true,
+        "unresolvedRefs_strictPR221Rules": [
+          "ING-03",
+          "REC-08"
+        ],
+        "readiness_strictPR221Rules": "REVIEW",
+        "candidateAdditionalRefs_ifRulesAppliedConsistently": [
+          "DRY-REC-14 (parmigiano likely_alias; also missed at #221 HEAD)"
+        ],
+        "readiness_withCandidateRefs": "REVIEW",
+        "sauceProfileRequired": true,
+        "sauceInteraction": "PAINT"
+      },
+      {
+        "recipeIdCandidate": "bambino",
+        "evidenceId": "bambino-pizzadb-p7",
+        "nameJa": "バンビーノ",
+        "sauce": "tomato-sauce",
+        "identityIngredientIds": [
+          "corn",
+          "ham",
+          "mozzarella",
+          "tomato-sauce"
+        ],
+        "newIngredientIds": [
+          "corn"
+        ],
+        "carriedFromPR221": false,
+        "authoredContentAvailable": false,
+        "unresolvedRefs_strictPR221Rules": [
+          "DRY-ING-08"
+        ],
+        "readiness_strictPR221Rules": "REVIEW",
+        "candidateAdditionalRefs_ifRulesAppliedConsistently": [
+          "DRY-REC-11 (hawaiian/bambino sibling proximity, Jaccard 0.6)"
+        ],
+        "readiness_withCandidateRefs": "REVIEW",
+        "sauceProfileRequired": true,
+        "sauceInteraction": "PAINT"
+      },
+      {
+        "recipeIdCandidate": "pizza-portuguesa",
+        "evidenceId": "pizza-portuguesa-pizzadb-p9",
+        "nameJa": "ピッツァ・ポルトゲーザ",
+        "sauce": "tomato-sauce",
+        "identityIngredientIds": [
+          "black-olive",
+          "egg",
+          "ham",
+          "mozzarella",
+          "onion",
+          "tomato-sauce"
+        ],
+        "newIngredientIds": [],
+        "carriedFromPR221": true,
+        "authoredContentAvailable": true,
+        "unresolvedRefs_strictPR221Rules": [
+          "REC-06"
+        ],
+        "readiness_strictPR221Rules": "REVIEW",
+        "candidateAdditionalRefs_ifRulesAppliedConsistently": [],
+        "readiness_withCandidateRefs": "REVIEW",
+        "sauceProfileRequired": true,
+        "sauceInteraction": "PAINT"
+      },
+      {
+        "recipeIdCandidate": "puttanesca-pizza",
+        "evidenceId": "puttanesca-pizza-pizzadb-p10",
+        "nameJa": "プッタネスカ",
+        "sauce": "tomato-sauce",
+        "identityIngredientIds": [
+          "anchovy",
+          "black-olive",
+          "capers",
+          "garlic",
+          "tomato-sauce"
+        ],
+        "newIngredientIds": [
+          "capers"
+        ],
+        "carriedFromPR221": true,
+        "authoredContentAvailable": true,
+        "unresolvedRefs_strictPR221Rules": [
+          "ING-02",
+          "REC-07"
+        ],
+        "readiness_strictPR221Rules": "REVIEW",
+        "candidateAdditionalRefs_ifRulesAppliedConsistently": [],
+        "readiness_withCandidateRefs": "REVIEW",
+        "sauceProfileRequired": true,
+        "sauceInteraction": "PAINT"
+      },
+      {
+        "recipeIdCandidate": "pesto-caprese",
+        "evidenceId": "pesto-caprese-pizzadb-p11",
+        "nameJa": "ペストカプレーゼピザ",
+        "sauce": "pesto",
+        "identityIngredientIds": [
+          "basil",
+          "fresh-tomato",
+          "mozzarella",
+          "pesto"
+        ],
+        "newIngredientIds": [
+          "fresh-tomato"
+        ],
+        "carriedFromPR221": false,
+        "authoredContentAvailable": false,
+        "unresolvedRefs_strictPR221Rules": [
+          "DRY-ING-10"
+        ],
+        "readiness_strictPR221Rules": "REVIEW",
+        "candidateAdditionalRefs_ifRulesAppliedConsistently": [
+          "DRY-REC-12 (fresh-tomato vs cherry-tomato / genovese proximity)",
+          "DRY-REC-13 (pesto-family discovery regression)"
+        ],
+        "readiness_withCandidateRefs": "REVIEW",
+        "sauceProfileRequired": true,
+        "sauceInteraction": "PAINT"
+      },
+      {
+        "recipeIdCandidate": "pesto-tonno",
+        "evidenceId": "pesto-tonno-pizzadb-p12",
+        "nameJa": "ペストトンノピザ",
+        "sauce": "pesto",
+        "identityIngredientIds": [
+          "black-olive",
+          "onion",
+          "pesto",
+          "tuna"
+        ],
+        "newIngredientIds": [],
+        "carriedFromPR221": true,
+        "authoredContentAvailable": true,
+        "unresolvedRefs_strictPR221Rules": [
+          "REC-09"
+        ],
+        "readiness_strictPR221Rules": "REVIEW",
+        "candidateAdditionalRefs_ifRulesAppliedConsistently": [
+          "DRY-REC-13 (pesto-family discovery regression)"
+        ],
+        "readiness_withCandidateRefs": "REVIEW",
+        "sauceProfileRequired": true,
+        "sauceInteraction": "PAINT"
+      },
+      {
+        "recipeIdCandidate": "pesto-patate",
+        "evidenceId": "pesto-patate-pizzadb-p12",
+        "nameJa": "ペストパターテピザ",
+        "sauce": "pesto",
+        "identityIngredientIds": [
+          "bacon",
+          "mozzarella",
+          "pesto",
+          "potato"
+        ],
+        "newIngredientIds": [
+          "potato"
+        ],
+        "carriedFromPR221": false,
+        "authoredContentAvailable": false,
+        "unresolvedRefs_strictPR221Rules": [
+          "DRY-ING-11"
+        ],
+        "readiness_strictPR221Rules": "REVIEW",
+        "candidateAdditionalRefs_ifRulesAppliedConsistently": [
+          "DRY-REC-13 (pesto-family discovery regression)"
+        ],
+        "readiness_withCandidateRefs": "REVIEW",
+        "sauceProfileRequired": true,
+        "sauceInteraction": "PAINT"
+      },
+      {
+        "recipeIdCandidate": "melanzane-pizza",
+        "evidenceId": "melanzane-pizza-pizzadb-p13",
+        "nameJa": "メランザーネピザ",
+        "sauce": "tomato-sauce",
+        "identityIngredientIds": [
+          "basil",
+          "eggplant",
+          "mozzarella",
+          "tomato-sauce"
+        ],
+        "newIngredientIds": [
+          "eggplant"
+        ],
+        "carriedFromPR221": true,
+        "authoredContentAvailable": true,
+        "unresolvedRefs_strictPR221Rules": [
+          "ING-03",
+          "REC-08"
+        ],
+        "readiness_strictPR221Rules": "REVIEW",
+        "candidateAdditionalRefs_ifRulesAppliedConsistently": [],
+        "readiness_withCandidateRefs": "REVIEW",
+        "sauceProfileRequired": true,
+        "sauceInteraction": "PAINT"
+      }
+    ],
+    "readinessCounts_strictPR221Rules": {
+      "READY": 0,
+      "REVIEW": 10,
+      "BLOCKED": 0
+    },
+    "readinessCounts_withCandidateRefs": {
+      "READY": 0,
+      "REVIEW": 10,
+      "BLOCKED": 0
+    },
+    "readinessCounts_PR221HEAD": {
+      "READY": 1,
+      "REVIEW": 9,
+      "BLOCKED": 0
+    },
+    "ingredientSet": {
+      "PR221HEAD": [
+        "baked-beans",
+        "capers",
+        "eggplant",
+        "green-onion",
+        "salt-cod",
+        "sauerkraut"
+      ],
+      "dryRun": [
+        "capers",
+        "clam",
+        "corn",
+        "eggplant",
+        "fresh-tomato",
+        "pineapple",
+        "potato"
+      ],
+      "kept": [
+        "capers",
+        "eggplant"
+      ],
+      "removed": [
+        "baked-beans",
+        "green-onion",
+        "salt-cod",
+        "sauerkraut"
+      ],
+      "added": [
+        "clam",
+        "corn",
+        "fresh-tomato",
+        "pineapple",
+        "potato"
+      ]
+    },
+    "ledger": {
+      "PR221HEADCount": 15,
+      "kept": [
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04",
+        "REC-06",
+        "REC-07",
+        "REC-08",
+        "REC-09",
+        "ING-02",
+        "ING-03"
+      ],
+      "keptButInapplicable": [
+        {
+          "id": "REC-05",
+          "why": "scope 'cheese-family recipes' (no spread base); dry-run W1 has 0 sauce-less recipes"
+        }
+      ],
+      "removed_orphaned": [
+        "ING-01 baked-beans",
+        "ING-04 green-onion",
+        "ING-05 salt-cod",
+        "ING-06 sauerkraut"
+      ],
+      "added_provisional": [
+        {
+          "id": "DRY-ING-07",
+          "scope": "clam",
+          "status": "AUTHORING_REQUIRED",
+          "field": "visual"
+        },
+        {
+          "id": "DRY-ING-08",
+          "scope": "corn",
+          "status": "AUTHORING_REQUIRED",
+          "field": "visual"
+        },
+        {
+          "id": "DRY-ING-09",
+          "scope": "pineapple",
+          "status": "AUTHORING_REQUIRED",
+          "field": "visual"
+        },
+        {
+          "id": "DRY-ING-10",
+          "scope": "fresh-tomato",
+          "status": "AUTHORING_REQUIRED",
+          "field": "visual"
+        },
+        {
+          "id": "DRY-ING-11",
+          "scope": "potato",
+          "status": "AUTHORING_REQUIRED",
+          "field": "visual"
+        }
+      ],
+      "candidate_newEvidenceRequirements": [
+        {
+          "id": "DRY-REC-10",
+          "scope": "new-haven-apizza,hawaiian,bambino,pesto-caprese,pesto-patate",
+          "status": "AUTHORING_REQUIRED",
+          "detail": "No description/minCount/bakeTarget candidate exists for these 5 (they were never in #221). REC-01 covers sign-off but the values must be authored from scratch."
+        },
+        {
+          "id": "DRY-REC-11",
+          "scope": "hawaiian,bambino",
+          "status": "AUTHORING_REQUIRED (candidate)",
+          "detail": "Sibling pair differing only by pineapple vs corn (Jaccard 0.6). #221 applied REC-08 to the eggplant pair (0.8); it did not flag aussie/tsukimi (0.6) in the old set, so applying this is a rule-consistency choice."
+        },
+        {
+          "id": "DRY-REC-12",
+          "scope": "pesto-caprese",
+          "status": "EVIDENCE_REQUIRED (candidate)",
+          "detail": "source トマト -> fresh-tomato (exact_alias) while shipped genovese uses cherry-tomato on the same pesto base; 🍅 U+1F345 already used by tomato-sauce and cherry-tomato (0b285be preflight R1 violation)."
+        },
+        {
+          "id": "DRY-REC-13",
+          "scope": "pesto-caprese,pesto-tonno,pesto-patate",
+          "status": "AUTHORING_REQUIRED (candidate)",
+          "detail": "3 pesto-family rows + shipped genovese; master evidence marks pesto family as a DISCOVERY/MATCHING STRESS TEST."
+        },
+        {
+          "id": "DRY-REC-14",
+          "scope": "parmigiana-pizza",
+          "status": "EVIDENCE_REQUIRED (candidate)",
+          "detail": "matrix tokenTrace パルミジャーノチーズ -> parmigiano is likely_alias; #221 flags likely_alias for オリーブ (REC-06/07/09) but not this one. Applies under BOTH authorities."
+        }
+      ],
+      "aliasEvidence": {
+        "likelyAliasRows_dryRun": {
+          "parmigiana-pizza": [
+            {
+              "token": "パルミジャーノチーズ",
+              "canonicalId": "parmigiano"
+            }
+          ],
+          "pizza-portuguesa": [
+            {
+              "token": "オリーブ",
+              "canonicalId": "black-olive"
+            }
+          ],
+          "puttanesca-pizza": [
+            {
+              "token": "オリーブ",
+              "canonicalId": "black-olive"
+            }
+          ],
+          "pesto-tonno": [
+            {
+              "token": "オリーブ",
+              "canonicalId": "black-olive"
+            }
+          ]
+        },
+        "likelyAliasRows_PR221HEAD": {
+          "parmigiana-pizza": [
+            {
+              "token": "パルミジャーノチーズ",
+              "canonicalId": "parmigiano"
+            }
+          ],
+          "pizza-portuguesa": [
+            {
+              "token": "オリーブ",
+              "canonicalId": "black-olive"
+            }
+          ],
+          "puttanesca-pizza": [
+            {
+              "token": "オリーブ",
+              "canonicalId": "black-olive"
+            }
+          ],
+          "pesto-tonno": [
+            {
+              "token": "オリーブ",
+              "canonicalId": "black-olive"
+            }
+          ]
+        },
+        "note": "All 5 newly entering recipes have exact_alias or phase0b_sample_canonical tokens only; no new オリーブ-type alias entries. Removed recipes had no likely_alias either."
+      }
+    },
+    "visualAuthoringTargets": {
+      "dryRun": [
+        "capers",
+        "clam",
+        "corn",
+        "eggplant",
+        "fresh-tomato",
+        "pineapple",
+        "potato"
+      ],
+      "coveredBy0b285be": true,
+      "preflightCollisions_dryRun": {
+        "fresh-tomato": [
+          "cherry-tomato"
+        ]
+      },
+      "preflightCollisions_leavingScope": {
+        "salt-cod": [
+          "anchovy"
+        ],
+        "green-onion": [
+          "rosemary"
+        ]
+      },
+      "emojiBaselineIssueLeavingScope": "baked-beans 🫘 Emoji 14.0 (VD-04)",
+      "minCountStatusIn0b285be": {
+        "capers": "authored in #221",
+        "clam": "minCount not authored",
+        "corn": "minCount not authored",
+        "eggplant": "authored in #221",
+        "fresh-tomato": "minCount not authored",
+        "pineapple": "minCount not authored",
+        "potato": "minCount not authored"
+      },
+      "sauceBackgrounds": [
+        "olive-oil",
+        "pesto",
+        "tomato-sauce"
+      ]
+    },
+    "futureImplementationChangeMap": {
+      "A_existingIngredientNoRefs": {
+        "PR221HEAD": [
+          "aussie"
+        ],
+        "dryRun": []
+      },
+      "B_existingIngredientAliasReview": {
+        "PR221HEAD": [
+          "pizza-portuguesa",
+          "pesto-tonno"
+        ],
+        "dryRun": [
+          "pizza-portuguesa",
+          "pesto-tonno"
+        ]
+      },
+      "C_newIngredients": {
+        "PR221HEAD": [
+          "baked-beans",
+          "capers",
+          "eggplant",
+          "green-onion",
+          "salt-cod",
+          "sauerkraut"
+        ],
+        "dryRun": [
+          "capers",
+          "clam",
+          "corn",
+          "eggplant",
+          "fresh-tomato",
+          "pineapple",
+          "potato"
+        ]
+      },
+      "D_recipesUsingNewIngredients": {
+        "PR221HEAD": [
+          "bacalhau",
+          "parmigiana-pizza",
+          "puttanesca-pizza",
+          "full-english-pizza",
+          "polish-kielbasa",
+          "melanzane-pizza",
+          "tsukimi-pizza"
+        ],
+        "dryRun": [
+          "parmigiana-pizza",
+          "puttanesca-pizza",
+          "melanzane-pizza",
+          "new-haven-apizza",
+          "hawaiian",
+          "bambino",
+          "pesto-caprese",
+          "pesto-patate"
+        ]
+      },
+      "E_completionGate": "unchanged (#218)",
+      "likelyFilesDelta": [
+        "src/data/recipeSauceProfiles.ts + .test.ts required for EVERY recipe slice (e49dab9 rule); #221 slice A omits them",
+        "test 'covers all fifteen recipes' toHaveLength(15) must be updated for any addition (both authorities)",
+        "olive-oil PAINT_TEMPORARY profile (new-haven-apizza) = first W1 recipe on olive-oil"
+      ],
+      "runtimeContractSliceNeeded": {
+        "dryRun": false,
+        "PR221HEAD_under_e49dab9_contract": "YES: 5 sauce-less recipes (aussie, bacalhau, full-english-pizza, polish-kielbasa, tsukimi-pizza) need SAUCELESS_RECIPE_CONTRACT (RecipeSauceProfile optional/none + test contract) — not data-only"
+      }
+    },
+    "pr221CheckerAssertionsThatWouldFail": [
+      "sum READY == 1 (dry-run 0)",
+      "sum REVIEW == 9 (dry-run 10)",
+      "len(INGREDIENTS) == 6 (dry-run 7)",
+      "len(LEDGER) == 15 (dry-run differs)",
+      "validate_ledger_links: ING-01/04/05/06 orphaned if left in ledger",
+      "report text: 'Aussie のみ READY', '新 ingredient 6種', slice A = aussie"
+    ]
+  },
+  "ownerDecisionItems_VD01": [
+    "Which W1 authority governs #221: #220 e49dab9 computed W1 (current) or #220 d3a2c8f first-10 (what #221 hardcodes).",
+    "Whether SAUCELESS_RECIPE_CONTRACT (sauce-less recipes are not data-only under exhaustive RECIPE_SAUCE_PROFILES) is accepted as a W1 exclusion rule; this single rule is what removes aussie/bacalhau/full-english (and one of two causes for polish-kielbasa/tsukimi).",
+    "Whether identity-set overlap (counting family-derived sauce) is the ranking basis; this alone swaps polish-kielbasa/tsukimi for hawaiian/bambino.",
+    "Whether #221 must pin a #220 SHA and read WAVES.json instead of a hardcoded list (drift guard).",
+    "Disposition of the 4 ingredients only in #221 (baked-beans, green-onion, salt-cod, sauerkraut) and their visual work in 0b285be (keep for later waves or drop from W1 scope).",
+    "Whether the candidate evidence items (DRY-REC-11..14) are adopted; DRY-REC-14 applies regardless of the W1 choice."
+  ],
+  "notDecided": [
+    "correct W1",
+    "wave authority",
+    "any Owner Decision",
+    "Progression price/gates",
+    "Completion Gate (#218)"
+  ]
+}
