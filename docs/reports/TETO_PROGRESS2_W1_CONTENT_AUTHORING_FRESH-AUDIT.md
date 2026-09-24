@@ -2,45 +2,55 @@
 
 ## 結論
 
-監査基準は最新 `main` `dff233c042d2df6ee1c3a92f2d2419830aa05460`。Issue #182、merged PR #189/#191、open PR #217/#220 を確認し、#220 の unordered first-10 candidate set だけを content authoring 面で再監査した。既存172件調査は再実施していない。
+監査基準は最新 `main` `dff233c042d2df6ee1c3a92f2d2419830aa05460`。W1 authority は PR #220 exact HEAD `e49dab96bd9b26dc0f520349cf09d1160c3519f5` の `docs/reports/data/TETO_PROGRESS2_CONTENT_READINESS_WAVES.json`（Owner Decision **Sauce OD-S1 = A**: #220 の W1 を正とし、sauceless recipes は W4 のまま、Sauce Contract 2.0 は実装しない）。既存172件調査は再実施していない。
 
-判定は **READY 1 / REVIEW 9 / BLOCKED 0**。根拠未確定値を READY に含めないため、Progression 2.0 確定後に content data 実装へ直行できるのは Aussie のみ。Pizza Portuguesa / Pesto Tonno は `オリーブ` → `black-olive` の likely-alias provenance review（REC-06 / REC-09）、残る7件は新 ingredient 6種の visual authoring approvalを要する。Puttanesca は capers visual（ING-02）に加えて同じ likely-alias provenance（REC-07）も未解決のため、capers 承認だけでは READY にならない。
+判定は **READY 0 / REVIEW 10 / BLOCKED 0**。旧 #221 の W1（Aussie READY を含む）は stale authority に基づいていたため同期で置き換えた。10件すべてに新 ingredient の visual approval、likely-alias provenance、または discovery regression のいずれかが残るため、Progression 2.0 確定後すぐ content data 実装へ直行できる recipe は現時点で0件。READY を維持するための調整はしていない。
+
+## Authority sync
+
+- authority: PR #220 `e49dab96bd9b26dc0f520349cf09d1160c3519f5`、waves blob `af5b5689fc5c86bd47b31d79c5d11750ec89b7b8`、W1 snapshot sha256 `88422a13baff67a3ad65eb8df9f7c116d2d2d8db73ba04034cf7b7bdb375e746`（`docs/reports/data/TETO_PROGRESS2_W1_AUTHORITY_REFERENCE.json`）。
+- W1 から外した（#220 では W4 / `SAUCELESS_RECIPE_CONTRACT`）: Aussie, Bacalhau, Full English, Polish Kielbasa, Tsukimi。
+- W1 に加えた: New Haven Apizza, Hawaiian, Bambino, Pesto Caprese, Pesto Patate。
+- 維持: Parmigiana Pizza, Pizza Portuguesa, Puttanesca, Pesto Tonno, Melanzane Pizza。
+- retired ledger ids（再利用禁止）: `REC-05`, `ING-01`, `ING-04`, `ING-05`, `ING-06`。
+- drift 検出: generator と `--check` はどちらも #220 waves artifact から W1 snapshot を再計算し、pin した sha256 と一致しなければ FAIL。git object / 明示ファイルから読む場合は blob 全体の sha256 も照合する。ローカルに見えている #220 branch tip が pin と異なる場合、または authority を読めない場合も FAIL（silent pass なし）。
 
 ## 判定基準
 
-- `READY`: composition evidence、独自 description/minCount/bakeTarget candidate、現行 ingredient visual が揃う。
-- `REVIEW`: recipe data は準備済みだが、新 ingredient の emoji/color/piece abstraction を human review する。
+- `READY`: composition evidence、独自 description/minCount/bakeTarget candidate、現行 ingredient visual が揃い、recipe に open ledger ref がない。
+- `REVIEW`: recipe data は準備済みだが、新 ingredient の visual、likely-alias provenance、または discovery regression を human review する。
 - `BLOCKED`: evidence または現行 mechanic で安全に表現できない。今回0件。
 
 ## Recipe authoring summary
 
-| recipe | sauce | cheese | toppings | bake | CUT | collision | evidence | status |
+| recipe | sauce | cheese | toppings | bake | CUT | collision | open refs | status |
 |---|---|---|---|---|---|---|---|---|
-| `aussie`<br>mozzarella×2, bacon×3, egg×1, onion×3 | none | mozzarella | bacon, egg, onion | 56–76 | 6-slice candidate; Gate TBD | LOW | EVIDENCE_READY | **READY** |
-| `bacalhau`<br>mozzarella×2, salt-cod×3, onion×2, black-olive×2 | none | mozzarella | salt-cod, onion, black-olive | 58–78 | 6-slice candidate; Gate TBD | LOW | EVIDENCE_READY | **REVIEW** |
-| `parmigiana-pizza`<br>tomato-sauce×1, mozzarella×2, eggplant×3, parmigiano×2, basil×2 | tomato-sauce | mozzarella, parmigiano | eggplant, basil | 58–78 | 6-slice candidate; Gate TBD | LOW | EVIDENCE_READY | **REVIEW** |
-| `pizza-portuguesa`<br>tomato-sauce×1, mozzarella×2, ham×3, egg×1, onion×2, black-olive×2 | tomato-sauce | mozzarella | ham, egg, onion, black-olive | 58–78 | 6-slice candidate; Gate TBD | LOW | EVIDENCE_READY | **REVIEW** |
-| `puttanesca-pizza`<br>tomato-sauce×1, anchovy×3, black-olive×2, capers×2, garlic×2 | tomato-sauce | none | anchovy, black-olive, capers, garlic | 50–70 | 6-slice candidate; Gate TBD | LOW | EVIDENCE_READY | **REVIEW** |
-| `full-english-pizza`<br>mozzarella×2, bacon×2, sausage×2, egg×1, baked-beans×3 | none | mozzarella | bacon, sausage, egg, baked-beans | 60–80 | 6-slice candidate; Gate TBD | LOW | EVIDENCE_READY | **REVIEW** |
-| `pesto-tonno`<br>pesto×1, tuna×3, black-olive×2, onion×2 | pesto | none | tuna, black-olive, onion | 50–70 | 6-slice candidate; Gate TBD | LOW | EVIDENCE_READY | **REVIEW** |
-| `polish-kielbasa`<br>mozzarella×2, sausage×3, sauerkraut×3, onion×2 | none | mozzarella | sausage, sauerkraut, onion | 60–80 | 6-slice candidate; Gate TBD | LOW | EVIDENCE_READY | **REVIEW** |
-| `melanzane-pizza`<br>tomato-sauce×1, mozzarella×2, eggplant×3, basil×2 | tomato-sauce | mozzarella | eggplant, basil | 58–78 | 6-slice candidate; Gate TBD | LOW | EVIDENCE_READY | **REVIEW** |
-| `tsukimi-pizza`<br>mozzarella×2, egg×1, bacon×3, green-onion×2 | none | mozzarella | egg, bacon, green-onion | 56–76 | 6-slice candidate; Gate TBD | LOW | EVIDENCE_READY | **REVIEW** |
+| `new-haven-apizza`<br>olive-oil×1, parmigiano×2, clam×3, garlic×2 | olive-oil | parmigiano | clam, garlic | 62–82 | 6-slice candidate; Gate TBD | LOW (near `quattro-formaggi`) | ING-07 | **REVIEW** |
+| `hawaiian`<br>tomato-sauce×1, mozzarella×2, ham×2, pineapple×3 | tomato-sauce | mozzarella | ham, pineapple | 58–78 | 6-slice candidate; Gate TBD | LOW (near `meat-lovers`) | ING-10 | **REVIEW** |
+| `parmigiana-pizza`<br>tomato-sauce×1, mozzarella×2, eggplant×3, parmigiano×2, basil×2 | tomato-sauce | mozzarella, parmigiano | eggplant, basil | 58–78 | 6-slice candidate; Gate TBD | LOW (near `margherita`) | ING-03, REC-08, REC-10 | **REVIEW** |
+| `bambino`<br>tomato-sauce×1, mozzarella×2, ham×2, corn×3 | tomato-sauce | mozzarella | ham, corn | 56–76 | 6-slice candidate; Gate TBD | LOW (near `meat-lovers`) | ING-08 | **REVIEW** |
+| `pizza-portuguesa`<br>tomato-sauce×1, mozzarella×2, ham×3, egg×1, onion×2, black-olive×2 | tomato-sauce | mozzarella | ham, egg, onion, black-olive | 58–78 | 6-slice candidate; Gate TBD | LOW (near `capricciosa`) | REC-06 | **REVIEW** |
+| `puttanesca-pizza`<br>tomato-sauce×1, anchovy×3, black-olive×2, capers×2, garlic×2 | tomato-sauce | none | anchovy, black-olive, capers, garlic | 50–70 | 6-slice candidate; Gate TBD | LOW (near `marinara`) | ING-02, REC-07 | **REVIEW** |
+| `pesto-caprese`<br>pesto×1, mozzarella×2, fresh-tomato×3, basil×2 | pesto | mozzarella | fresh-tomato, basil | 50–70 | 6-slice candidate; Gate TBD | LOW (near `margherita`) | ING-09 | **REVIEW** |
+| `pesto-tonno`<br>pesto×1, tuna×3, black-olive×2, onion×2 | pesto | none | tuna, black-olive, onion | 50–70 | 6-slice candidate; Gate TBD | LOW (near `tonno-e-cipolla`) | REC-09 | **REVIEW** |
+| `pesto-patate`<br>pesto×1, mozzarella×2, potato×3, bacon×2 | pesto | mozzarella | potato, bacon | 58–78 | 6-slice candidate; Gate TBD | LOW (near `genovese`) | ING-11 | **REVIEW** |
+| `melanzane-pizza`<br>tomato-sauce×1, mozzarella×2, eggplant×3, basil×2 | tomato-sauce | mozzarella | eggplant, basil | 58–78 | 6-slice candidate; Gate TBD | LOW (near `margherita`) | ING-03, REC-08 | **REVIEW** |
 
-Descriptions、minCount、bakeTarget は外部事実ではなく独自 game-authoring candidate。production投入前の content sign-off を `AUTHORING_REQUIRED` として ledger に残した。
+Descriptions、minCount、bakeTarget は外部事実ではなく独自 game-authoring candidate。production投入前の content sign-off を `AUTHORING_REQUIRED` として ledger に残した。全10件の sauce は現行 `RecipeSauceProfile` union（tomato-sauce / pesto / olive-oil）内。
 
 ## Ingredient authoring summary
 
 | id | displayName | emoji | color | category / placement | recipes | status | uncertainty |
 |---|---|---|---|---|---|---|---|
-| `baked-beans` | ベイクドビーンズ | 🫘 | `#a94f35` | topping / scatter | full-english-pizza | **REVIEW** | Emoji appearance varies by platform; verify legibility at tray and baked-piece sizes. |
 | `capers` | ケッパー | 🟢 | `#6f7f35` | topping / scatter | puttanesca-pizza | **REVIEW** | No dedicated caper emoji; generic green-circle glyph needs visual differentiation review. |
-| `eggplant` | ナス | 🍆 | `#62407b` | topping / scatter | parmigiana-pizza, melanzane-pizza | **REVIEW** | Whole-eggplant glyph represents a slice abstractly; verify visual density and tone after bake. |
-| `green-onion` | 青ねぎ | 🌱 | `#4f8a3c` | topping / scatter | tsukimi-pizza | **REVIEW** | No exact green-onion emoji; sprout glyph can be confused with basil/herbs. |
-| `salt-cod` | 塩だら | 🐟 | `#d8c9aa` | topping / scatter | bacalhau | **REVIEW** | Generic fish glyph does not encode salted cod; description/name must carry specificity. |
-| `sauerkraut` | ザワークラウト | 🥬 | `#d8d59a` | topping / scatter | polish-kielbasa | **REVIEW** | Leafy-green glyph represents shredded fermented cabbage abstractly; verify contrast on cheese. |
+| `clam` | あさり | 🦪 | `#c9b89a` | topping / scatter | new-haven-apizza | **REVIEW** | No clam emoji; the oyster glyph stands in for a bivalve and must not read as a different shellfish recipe. |
+| `corn` | コーン | 🌽 | `#f5cf3a` | topping / scatter | bambino | **REVIEW** | Whole-cob glyph represents loose kernels abstractly; yellow tone must stay distinguishable from egg on cheese. |
+| `eggplant` | ナス | 🍆 | `#62407b` | topping / scatter | melanzane-pizza, parmigiana-pizza | **REVIEW** | Whole-eggplant glyph represents a slice abstractly; verify visual density and tone after bake. |
+| `fresh-tomato` | トマト | 🍅 | `#d9432f` | topping / scatter | pesto-caprese | **REVIEW** | Same glyph as production tomato-sauce and cherry-tomato; needs a distinguishing representation so Pesto Caprese is not confused with Genovese. |
+| `pineapple` | パイナップル | 🍍 | `#f3c623` | topping / scatter | hawaiian | **REVIEW** | Whole-fruit glyph represents chunks abstractly; verify contrast on mozzarella after bake. |
+| `potato` | じゃがいも | 🥔 | `#d9b77e` | topping / scatter | pesto-patate | **REVIEW** | Whole-potato glyph represents slices abstractly; beige tone may blend with cheese/crust after bake. |
 
-全6種は current `Ingredient` schema と `IngredientPieceVisual` の emoji branch で表現可能。専用bitmapは不要だが、絵文字のOS差・抽象表現・焼成後コントラストを authoring review する。
+全7種は current `Ingredient` schema と `IngredientPieceVisual` の emoji branch で表現可能で、#220 W1 の newIngredientIds と一致する。専用bitmapは不要だが、絵文字のOS差・抽象表現・焼成後コントラストを authoring review する。
 
 ## Completion Gate / Progression 接点
 
@@ -50,14 +60,14 @@ Descriptions、minCount、bakeTarget は外部事実ではなく独自 game-auth
 
 ## Collision / evidence
 
-10件とも exact production ingredient-set collision は0。近傍 recipe は regression target として記録した。Pizza Portuguesa / Puttanesca / Pesto Tonno の「オリーブ→black-olive」は merged canonicalization の likely alias であり、より具体的な品種は主張しない。Parmigiana / Melanzane は eggplant family として別 signature を固定する。Polish Kielbasa は governing matrix と同じ canonical ID `polish-kielbasa` を使用する。
+10件とも exact production ingredient-set collision は0（`src/data/recipes.ts` を read-only で照合）。近傍 recipe は #220 authority の `nearestProductionRecipeId` と一致させ、regression target として記録した。Pizza Portuguesa / Puttanesca / Pesto Tonno の「オリーブ→black-olive」と Parmigiana の「パルミジャーノチーズ→parmigiano」は merged canonicalizer の likely alias であり、ledger（REC-06 / REC-07 / REC-09 / REC-10）と source trace を双方向照合する。Parmigiana / Melanzane は eggplant family として別 signature を固定する（REC-08）。Hawaiian / Bambino は1 ingredient 差、Pesto Caprese は Genovese と tomato glyph を共有するため visual 区別が必要（ING-09）。
 
 ## Progression確定後すぐ実装可能な範囲
 
-- 即時: slice A（Aussie）の recipe data、CUT opt-in review、discovery collision tests。
-- alias evidence確認後: slice B（Pizza Portuguesa / Pesto Tonno）。
-- visual approval後: slice C（6 ingredients）→ slice D（残り7 recipes）。slice D の Puttanesca は REC-07、Parmigiana / Melanzane は REC-08 も dependency として保持する（`recipeDependencies`）。
-- #218後: slice E（Completion Gate integration）。
+- 即時: なし（READY 0）。
+- alias evidence確認後: slice A（Pizza Portuguesa / Pesto Tonno）。
+- visual approval後: slice B（7 ingredients）→ slice C（残り8 recipes）。slice C の Puttanesca は REC-07、Parmigiana は REC-08 / REC-10、Melanzane は REC-08 も dependency として保持する（`recipeDependencies`）。
+- #218後: slice D（Completion Gate integration）。
 
 ## Deliverables
 
@@ -65,15 +75,17 @@ Descriptions、minCount、bakeTarget は外部事実ではなく独自 game-auth
 - `docs/reports/data/TETO_PROGRESS2_W1_INGREDIENT_AUTHORING_MATRIX.json`
 - `docs/reports/data/TETO_PROGRESS2_W1_UNRESOLVED_EVIDENCE_LEDGER.json`
 - `docs/reports/data/TETO_PROGRESS2_W1_FUTURE_IMPLEMENTATION_CHANGE_MAP.json`
+- `docs/reports/data/TETO_PROGRESS2_W1_AUTHORITY_REFERENCE.json`
 - `tools/progression2_w1_authoring_audit.py --check`
 
 ## Validation
 
-- W1 ledger link checker: recipe ↔ ledger ↔ change-map を双方向検証（recipe-specific / ingredient-specific ledger entry の orphan、scope外参照、change-map dependency 欠落を検出）。
-- W1 generator/checker: PASS（10 recipes / 6 ingredients / READY 1 / REVIEW 9 / BLOCKED 0）。
+- W1 authority checker: recipe / ingredient evidence を #220 W1 snapshot（evidenceId、canonicalCandidateId、identity ingredients、sauce、newIngredientIds、nearest recipe、runtimeContractDependencies）と照合。authority drift で FAIL。
+- W1 ledger link checker: recipe ↔ ledger ↔ change-map を双方向検証（recipe-specific / ingredient-specific ledger entry の orphan、scope外参照、change-map dependency 欠落、likely-alias の未ledger化を検出）。
+- canonicalCandidateId checker: 全 recipeIdCandidate を governing matrix と #220 authority の canonicalCandidateId と照合。
+- W1 generator/checker: PASS（10 recipes / 7 ingredients / READY 0 / REVIEW 10 / BLOCKED 0）。
 - `validate_recipe_catalog.py`: PASS（53 / 62 / 11）。
 - `progression2_evidence_invariants.py`: PASS 4/4。
-- PR #189 matrix semantic validation: 172 unique rows、counts/capabilities/ledgers PASS。既存 `--check` の byte comparison だけは Windows path separator（`docs\...` vs `docs/...`）差で FAIL。source matrix は変更していない。
 
 ## Issue management
 

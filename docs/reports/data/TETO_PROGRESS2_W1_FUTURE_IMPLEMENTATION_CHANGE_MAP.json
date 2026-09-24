@@ -1,30 +1,16 @@
 {
   "schemaVersion": 1,
   "auditedMainSha": "dff233c042d2df6ee1c3a92f2d2419830aa05460",
+  "authorityRef": {
+    "pr": 220,
+    "headSha": "e49dab96bd9b26dc0f520349cf09d1160c3519f5",
+    "w1SnapshotSha256": "88422a13baff67a3ad65eb8df9f7c116d2d2d8db73ba04034cf7b7bdb375e746",
+    "referenceFile": "docs/reports/data/TETO_PROGRESS2_W1_AUTHORITY_REFERENCE.json"
+  },
   "scope": "FUTURE_ONLY_NO_RUNTIME_CHANGE_IN_THIS_AUDIT",
   "slices": [
     {
       "id": "A",
-      "title": "Evidence-clean existing-ingredient recipe data",
-      "recipes": [
-        "aussie"
-      ],
-      "dependsOn": [
-        "Progression 2.0 owner decisions"
-      ],
-      "likelyFiles": [
-        "src/data/recipes.ts",
-        "src/data/recipes.test.ts",
-        "src/data/cookingProfiles.ts",
-        "src/data/cookingProfiles.test.ts",
-        "src/logic/discovery/*"
-      ],
-      "recipeDependencies": {
-        "aussie": []
-      }
-    },
-    {
-      "id": "B",
       "title": "Existing-ingredient recipes with likely-alias evidence review",
       "recipes": [
         "pizza-portuguesa",
@@ -54,15 +40,16 @@
       }
     },
     {
-      "id": "C",
-      "title": "Six new ingredient records",
+      "id": "B",
+      "title": "Seven new ingredient records",
       "ingredients": [
-        "baked-beans",
         "capers",
+        "clam",
+        "corn",
         "eggplant",
-        "green-onion",
-        "salt-cod",
-        "sauerkraut"
+        "fresh-tomato",
+        "pineapple",
+        "potato"
       ],
       "dependsOn": [
         "visual authoring approval",
@@ -75,59 +62,66 @@
       ]
     },
     {
-      "id": "D",
+      "id": "C",
       "title": "Recipes using approved new ingredients",
       "recipes": [
-        "bacalhau",
+        "new-haven-apizza",
+        "hawaiian",
         "parmigiana-pizza",
+        "bambino",
         "puttanesca-pizza",
-        "full-english-pizza",
-        "polish-kielbasa",
-        "melanzane-pizza",
-        "tsukimi-pizza"
+        "pesto-caprese",
+        "pesto-patate",
+        "melanzane-pizza"
       ],
       "dependsOn": [
-        "slice C",
+        "slice B",
         "REC-07 evidence resolution",
         "REC-08 discovery regression coverage",
+        "REC-10 evidence resolution",
         "Progression 2.0 owner decisions"
       ],
       "likelyFiles": [
         "src/data/recipes.ts",
         "src/data/recipes.test.ts",
         "src/data/recipeSauceProfiles.ts",
+        "src/data/recipeSauceProfiles.test.ts",
         "src/data/cookingProfiles.ts",
         "src/logic/discovery/*"
       ],
       "recipeDependencies": {
-        "bacalhau": [
-          "ING-05"
+        "new-haven-apizza": [
+          "ING-07"
+        ],
+        "hawaiian": [
+          "ING-10"
         ],
         "parmigiana-pizza": [
           "ING-03",
-          "REC-08"
+          "REC-08",
+          "REC-10"
+        ],
+        "bambino": [
+          "ING-08"
         ],
         "puttanesca-pizza": [
           "ING-02",
           "REC-07"
         ],
-        "full-english-pizza": [
-          "ING-01"
+        "pesto-caprese": [
+          "ING-09"
         ],
-        "polish-kielbasa": [
-          "ING-06"
+        "pesto-patate": [
+          "ING-11"
         ],
         "melanzane-pizza": [
           "ING-03",
           "REC-08"
-        ],
-        "tsukimi-pizza": [
-          "ING-04"
         ]
       }
     },
     {
-      "id": "E",
+      "id": "D",
       "title": "Completion Gate integration",
       "dependsOn": [
         "#218 owner decision"

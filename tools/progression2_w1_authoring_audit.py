@@ -3,12 +3,21 @@
 
 Docs/data/tooling only.  The script deliberately does not emit production-ready
 TypeScript and carries no progression price/gate decisions.
+
+W1 authority: PR #220 exact HEAD ``AUTHORITY_HEAD_SHA`` (Owner Decision Sauce
+OD-S1 = A: the #220 W1 is authoritative, sauceless recipes stay W4, Sauce
+Contract 2.0 is not implemented here).  The W1 slice of the #220 waves artifact
+is pinned by digest; any drift in that slice, in the #220 head, or in the
+authority blob makes both generation and ``--check`` fail.
 """
 
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
+import re
+import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -17,10 +26,36 @@ RECIPE_OUT = ROOT / "docs/reports/data/TETO_PROGRESS2_W1_RECIPE_AUTHORING_MATRIX
 INGREDIENT_OUT = ROOT / "docs/reports/data/TETO_PROGRESS2_W1_INGREDIENT_AUTHORING_MATRIX.json"
 LEDGER_OUT = ROOT / "docs/reports/data/TETO_PROGRESS2_W1_UNRESOLVED_EVIDENCE_LEDGER.json"
 CHANGE_MAP_OUT = ROOT / "docs/reports/data/TETO_PROGRESS2_W1_FUTURE_IMPLEMENTATION_CHANGE_MAP.json"
+AUTHORITY_OUT = ROOT / "docs/reports/data/TETO_PROGRESS2_W1_AUTHORITY_REFERENCE.json"
 REPORT_OUT = ROOT / "docs/reports/TETO_PROGRESS2_W1_CONTENT_AUTHORING_FRESH-AUDIT.md"
 
 SOURCE_MATRIX = ROOT / "docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json"
 SOURCE_EVIDENCE = ROOT / "docs/reports/data/TETO_PIZZADB_172_MASTER-EVIDENCE.json"
+PRODUCTION_RECIPES = ROOT / "src/data/recipes.ts"
+PRODUCTION_INGREDIENTS = ROOT / "src/data/ingredients.ts"
+
+# --- W1 authority pin (PR #220) --------------------------------------------
+AUTHORITY_PR = 220
+AUTHORITY_BRANCH = "codex/content-readiness-fresh-audit"
+AUTHORITY_HEAD_SHA = "e49dab96bd9b26dc0f520349cf09d1160c3519f5"
+AUTHORITY_WAVES_PATH = "docs/reports/data/TETO_PROGRESS2_CONTENT_READINESS_WAVES.json"
+AUTHORITY_WAVES_BLOB_SHA = "af5b5689fc5c86bd47b31d79c5d11750ec89b7b8"
+AUTHORITY_WAVES_SHA256 = "3db316e3b656462384708ef7f5a78cdef03a7e6765f047ce249e23dc8915b2be"
+# sha256 of the canonical JSON of authority_snapshot(); pinned so drift fails.
+AUTHORITY_W1_SNAPSHOT_SHA256 = "88422a13baff67a3ad65eb8df9f7c116d2d2d8db73ba04034cf7b7bdb375e746"
+OWNER_DECISION = {
+    "id": "Sauce OD-S1",
+    "choice": "A",
+    "meaning": "PR #220 W1 is authoritative; sauceless recipes stay W4; Sauce Contract 2.0 is not implemented in this audit.",
+    "recordedAt": "PR #221 owner comment 2026-09-24",
+}
+# Rows that were W1 in the stale #221 authoring and are removed by this sync.
+PREVIOUS_W1_REMOVED = [
+    "aussie-pizzadb", "bacalhau-pizzadb", "full-english-pizza-pizzadb-p10",
+    "polish-kielbasa-pizzadb-p12", "tsukimi-pizza-pizzadb-p14",
+]
+SUPPORTED_SAUCE_IDS = {"tomato-sauce", "pesto", "olive-oil"}
+CHEESE_IDS = {"mozzarella", "gorgonzola", "parmigiano", "fontina"}
 
 
 def req(ingredient_id: str, count: int, rationale: str) -> dict:
@@ -31,6 +66,7 @@ def req(ingredient_id: str, count: int, rationale: str) -> dict:
 COMMON = {
     "currentMechanicRepresentability": "FULL",
     "mechanicDependencies": [],
+    "runtimeContractDependencies": [],
     "cutRequirement": {
         "eligibilityCandidate": "STANDARD_ROUND_6_SLICES",
         "completionGateEffect": "OWNER_DECISION_REQUIRED_ISSUE_218",
@@ -72,7 +108,7 @@ def recipe(evidence_id, recipe_id, name, description, ingredients, sauce, cheese
         },
         "evidenceStatus": {
             "composition": "EVIDENCE_READY",
-            "sourceAuthority": "MERGED_PR_189_MATRIX_AND_MASTER_EVIDENCE",
+            "sourceAuthority": f"PR_{AUTHORITY_PR}_W1_{AUTHORITY_HEAD_SHA[:7]}+MERGED_PR_189_MATRIX_AND_MASTER_EVIDENCE",
             "description": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
             "minCounts": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
             "bakeTarget": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE"
@@ -85,24 +121,34 @@ def recipe(evidence_id, recipe_id, name, description, ingredients, sauce, cheese
 
 
 RECIPES = [
-    recipe("aussie-pizzadb", "aussie", "オージーピザ",
-           "モッツァレラにベーコン、卵、たまねぎを重ねた、コクのあるオーストラリア風ピザ。",
-           [req("mozzarella", 2, "existing cheese-density baseline"), req("bacon", 3, "breakfast-pizza analogue"),
-            req("egg", 1, "single center-piece convention"), req("onion", 3, "scatter-density baseline")],
-           None, ["mozzarella"], ["bacon", "egg", "onion"], 56, 76, "breakfast-pizza",
-           "Near-neighbor only: no tomato sauce and adds onion; exact-set collision absent.", "READY"),
-    recipe("bacalhau-pizzadb", "bacalhau", "バカリャウピザ",
-           "塩だらの旨みを、モッツァレラ、たまねぎ、ブラックオリーブと焼き上げるポルトガル風ピザ。",
-           [req("mozzarella", 2, "existing cheese-density baseline"), req("salt-cod", 3, "primary topping"),
-            req("onion", 2, "supporting topping"), req("black-olive", 2, "supporting topping")],
-           None, ["mozzarella"], ["salt-cod", "onion", "black-olive"], 58, 78, "tonno-e-cipolla",
-           "Distinct protein and no tomato sauce; exact-set collision absent.", "REVIEW", ["ING-05"]),
+    recipe("new-haven-apizza-pizzadb", "new-haven-apizza", "ニューヘイブンアピッツァ",
+           "オリーブオイルを塗った生地に、あさり、にんにく、パルミジャーノをのせて香ばしく焼き上げたアメリカ・ニューヘイブン風の一枚。",
+           [req("olive-oil", 1, "one spread use"), req("parmigiano", 2, "existing cheese-density baseline"),
+            req("clam", 3, "primary topping"), req("garlic", 2, "supporting topping")],
+           "olive-oil", ["parmigiano"], ["clam", "garlic"], 62, 82, "quattro-formaggi",
+           "Shares only olive-oil/parmigiano with Quattro Formaggi; clam+garlic identity is distinct; exact-set collision absent.",
+           "REVIEW", ["ING-07"]),
+    recipe("hawaiian-pizzadb-row", "hawaiian", "ハワイアンピザ",
+           "トマトソースにハムとパイナップル、モッツァレラを合わせた、甘みと塩気のバランスが楽しい一枚。",
+           [req("tomato-sauce", 1, "one spread use"), req("mozzarella", 2, "existing cheese-density baseline"),
+            req("ham", 2, "supporting meat"), req("pineapple", 3, "primary topping")],
+           "tomato-sauce", ["mozzarella"], ["ham", "pineapple"], 58, 78, "meat-lovers",
+           "Ham+pineapple is distinct from Meat Lovers' mixed meats; one-ingredient neighbour of Bambino (pineapple vs corn); exact-set collision absent.",
+           "REVIEW", ["ING-10"]),
     recipe("parmigiana-pizza-pizzadb-p7", "parmigiana-pizza", "パルミジャーナピザ",
            "トマトソースにナス、モッツァレラ、パルミジャーノ、バジルを合わせた南イタリア風の一枚。",
            [req("tomato-sauce", 1, "one spread use"), req("mozzarella", 2, "existing cheese-density baseline"),
             req("eggplant", 3, "primary topping"), req("parmigiano", 2, "secondary cheese"), req("basil", 2, "herb baseline")],
            "tomato-sauce", ["mozzarella", "parmigiano"], ["eggplant", "basil"], 58, 78, "margherita",
-           "Eggplant family is compositionally distinct from Melanzane and alla Norma.", "REVIEW", ["ING-03", "REC-08"]),
+           "Eggplant family is compositionally distinct from Melanzane and alla Norma.", "REVIEW",
+           ["ING-03", "REC-08", "REC-10"]),
+    recipe("bambino-pizzadb-p7", "bambino", "バンビーノ",
+           "トマトソースにハム、コーン、モッツァレラをのせた、やさしい甘みで親しみやすい一枚。",
+           [req("tomato-sauce", 1, "one spread use"), req("mozzarella", 2, "existing cheese-density baseline"),
+            req("ham", 2, "supporting meat"), req("corn", 3, "primary topping")],
+           "tomato-sauce", ["mozzarella"], ["ham", "corn"], 56, 76, "meat-lovers",
+           "Ham+corn is distinct from Meat Lovers; one-ingredient neighbour of Hawaiian (corn vs pineapple); exact-set collision absent.",
+           "REVIEW", ["ING-08"]),
     recipe("pizza-portuguesa-pizzadb-p9", "pizza-portuguesa", "ピッツァ・ポルトゲーザ",
            "トマトソースにハム、卵、たまねぎ、ブラックオリーブ、モッツァレラを重ねたブラジル定番の一枚。",
            [req("tomato-sauce", 1, "one spread use"), req("mozzarella", 2, "existing cheese-density baseline"),
@@ -116,25 +162,26 @@ RECIPES = [
             req("black-olive", 2, "supporting topping"), req("capers", 2, "accent topping"), req("garlic", 2, "marinara analogue")],
            "tomato-sauce", [], ["anchovy", "black-olive", "capers", "garlic"], 50, 70, "marinara",
            "Cheese-free identity remains distinct; exact-set collision absent.", "REVIEW", ["ING-02", "REC-07"]),
-    recipe("full-english-pizza-pizzadb-p10", "full-english-pizza", "フルイングリッシュピザ",
-           "ベーコン、ソーセージ、卵、ベイクドビーンズをモッツァレラと焼き上げた、朝食仕立ての一枚。",
-           [req("mozzarella", 2, "existing cheese-density baseline"), req("bacon", 2, "supporting meat"),
-            req("sausage", 2, "supporting meat"), req("egg", 1, "single center-piece convention"),
-            req("baked-beans", 3, "primary topping")],
-           None, ["mozzarella"], ["bacon", "sausage", "egg", "baked-beans"], 60, 80, "breakfast-pizza",
-           "No tomato sauce and adds sausage/beans; exact-set collision absent.", "REVIEW", ["ING-01"]),
+    recipe("pesto-caprese-pizzadb-p11", "pesto-caprese", "ペストカプレーゼピザ",
+           "ジェノベーゼソースにトマト、モッツァレラ、バジルを重ねた、カプレーゼ仕立ての爽やかな一枚。",
+           [req("pesto", 1, "one spread use"), req("mozzarella", 2, "existing cheese-density baseline"),
+            req("fresh-tomato", 3, "primary topping"), req("basil", 2, "herb baseline")],
+           "pesto", ["mozzarella"], ["fresh-tomato", "basil"], 50, 70, "margherita",
+           "Pesto base separates it from Margherita; fresh-tomato vs Genovese's cherry-tomato must stay visually distinct; exact-set collision absent.",
+           "REVIEW", ["ING-09"]),
     recipe("pesto-tonno-pizzadb-p12", "pesto-tonno", "ペストトンノピザ",
            "香り高いジェノベーゼソースに、ツナ、ブラックオリーブ、たまねぎを合わせた爽やかな一枚。",
            [req("pesto", 1, "one spread use"), req("tuna", 3, "tonno-e-cipolla analogue"),
             req("black-olive", 2, "supporting topping"), req("onion", 2, "supporting topping")],
            "pesto", [], ["tuna", "black-olive", "onion"], 50, 70, "tonno-e-cipolla",
            "Pesto base distinguishes it from shipped Tonno e cipolla; exact-set collision absent.", "REVIEW", ["REC-09"]),
-    recipe("polish-kielbasa-pizzadb-p12", "polish-kielbasa", "ポーリッシュキエルバサピザ",
-           "ソーセージ、ザワークラウト、たまねぎをモッツァレラと焼き上げた、酸味と旨みのある一枚。",
-           [req("mozzarella", 2, "existing cheese-density baseline"), req("sausage", 3, "salsiccia analogue"),
-            req("sauerkraut", 3, "primary topping"), req("onion", 2, "supporting topping")],
-           None, ["mozzarella"], ["sausage", "sauerkraut", "onion"], 60, 80, "salsiccia",
-           "Adds sauerkraut/onion and omits tomato sauce; exact-set collision absent.", "REVIEW", ["ING-06"]),
+    recipe("pesto-patate-pizzadb-p12", "pesto-patate", "ペストパターテピザ",
+           "ジェノベーゼソースにじゃがいも、ベーコン、モッツァレラを合わせた、ほくほくと香ばしい一枚。",
+           [req("pesto", 1, "one spread use"), req("mozzarella", 2, "existing cheese-density baseline"),
+            req("potato", 3, "primary topping"), req("bacon", 2, "supporting meat")],
+           "pesto", ["mozzarella"], ["potato", "bacon"], 58, 78, "genovese",
+           "Shares pesto/mozzarella with Genovese but swaps cherry-tomato for potato+bacon; exact-set collision absent.",
+           "REVIEW", ["ING-11"]),
     recipe("melanzane-pizza-pizzadb-p13", "melanzane-pizza", "メランザーネピザ",
            "トマトソースにナス、モッツァレラ、バジルを合わせた、素朴で香り豊かな南イタリア風ピザ。",
            [req("tomato-sauce", 1, "one spread use"), req("mozzarella", 2, "existing cheese-density baseline"),
@@ -142,22 +189,32 @@ RECIPES = [
            "tomato-sauce", ["mozzarella"], ["eggplant", "basil"], 58, 78, "margherita",
            "Superset of Margherita by eggplant; exact-set collision absent but family proximity requires regression coverage.",
            "REVIEW", ["ING-03", "REC-08"]),
-    recipe("tsukimi-pizza-pizzadb-p14", "tsukimi-pizza", "月見ピザ",
-           "卵を月に見立て、ベーコン、青ねぎ、モッツァレラを合わせた和風の一枚。",
-           [req("mozzarella", 2, "existing cheese-density baseline"), req("egg", 1, "single center-piece convention"),
-            req("bacon", 3, "breakfast-pizza analogue"), req("green-onion", 2, "herb-like accent")],
-           None, ["mozzarella"], ["egg", "bacon", "green-onion"], 56, 76, "breakfast-pizza",
-           "Green onion replaces tomato sauce; exact-set collision absent.", "REVIEW", ["ING-04"]),
 ]
 
 
+def _ingredient(ingredient_id, name, emoji, color, piece, uncertainty):
+    return {"id": ingredient_id, "displayName": name, "emojiCandidate": emoji, "colorCandidate": color,
+            "categoryCandidate": "topping", "placementCandidate": "scatter", "pieceRepresentation": piece,
+            "recipesUsingItInCandidateSet": sorted(r["recipeIdCandidate"] for r in RECIPES
+                                                   if ingredient_id in {x["ingredientId"] for x in r["requiredIngredients"]}),
+            "authoringStatus": "REVIEW", "authoringUncertainty": uncertainty}
+
+
 INGREDIENTS = [
-    {"id": "baked-beans", "displayName": "ベイクドビーンズ", "emojiCandidate": "🫘", "colorCandidate": "#a94f35", "categoryCandidate": "topping", "placementCandidate": "scatter", "pieceRepresentation": "emoji piece; one tap places one bean-cluster token", "recipesUsingItInCandidateSet": ["full-english-pizza"], "authoringStatus": "REVIEW", "authoringUncertainty": ["Emoji appearance varies by platform; verify legibility at tray and baked-piece sizes."]},
-    {"id": "capers", "displayName": "ケッパー", "emojiCandidate": "🟢", "colorCandidate": "#6f7f35", "categoryCandidate": "topping", "placementCandidate": "scatter", "pieceRepresentation": "emoji dot piece; one tap places one caper token", "recipesUsingItInCandidateSet": ["puttanesca-pizza"], "authoringStatus": "REVIEW", "authoringUncertainty": ["No dedicated caper emoji; generic green-circle glyph needs visual differentiation review."]},
-    {"id": "eggplant", "displayName": "ナス", "emojiCandidate": "🍆", "colorCandidate": "#62407b", "categoryCandidate": "topping", "placementCandidate": "scatter", "pieceRepresentation": "emoji piece; one tap represents one eggplant slice", "recipesUsingItInCandidateSet": ["parmigiana-pizza", "melanzane-pizza"], "authoringStatus": "REVIEW", "authoringUncertainty": ["Whole-eggplant glyph represents a slice abstractly; verify visual density and tone after bake."]},
-    {"id": "green-onion", "displayName": "青ねぎ", "emojiCandidate": "🌱", "colorCandidate": "#4f8a3c", "categoryCandidate": "topping", "placementCandidate": "scatter", "pieceRepresentation": "emoji herb piece; one tap represents a small chopped-onion cluster", "recipesUsingItInCandidateSet": ["tsukimi-pizza"], "authoringStatus": "REVIEW", "authoringUncertainty": ["No exact green-onion emoji; sprout glyph can be confused with basil/herbs."]},
-    {"id": "salt-cod", "displayName": "塩だら", "emojiCandidate": "🐟", "colorCandidate": "#d8c9aa", "categoryCandidate": "topping", "placementCandidate": "scatter", "pieceRepresentation": "emoji piece; one tap represents one flaked-cod portion", "recipesUsingItInCandidateSet": ["bacalhau"], "authoringStatus": "REVIEW", "authoringUncertainty": ["Generic fish glyph does not encode salted cod; description/name must carry specificity."]},
-    {"id": "sauerkraut", "displayName": "ザワークラウト", "emojiCandidate": "🥬", "colorCandidate": "#d8d59a", "categoryCandidate": "topping", "placementCandidate": "scatter", "pieceRepresentation": "emoji piece; one tap represents one shredded-cabbage cluster", "recipesUsingItInCandidateSet": ["polish-kielbasa"], "authoringStatus": "REVIEW", "authoringUncertainty": ["Leafy-green glyph represents shredded fermented cabbage abstractly; verify contrast on cheese."]},
+    _ingredient("capers", "ケッパー", "🟢", "#6f7f35", "emoji dot piece; one tap places one caper token",
+                ["No dedicated caper emoji; generic green-circle glyph needs visual differentiation review."]),
+    _ingredient("clam", "あさり", "🦪", "#c9b89a", "emoji piece; one tap represents one shucked-clam portion",
+                ["No clam emoji; the oyster glyph stands in for a bivalve and must not read as a different shellfish recipe."]),
+    _ingredient("corn", "コーン", "🌽", "#f5cf3a", "emoji piece; one tap represents a small kernel cluster",
+                ["Whole-cob glyph represents loose kernels abstractly; yellow tone must stay distinguishable from egg on cheese."]),
+    _ingredient("eggplant", "ナス", "🍆", "#62407b", "emoji piece; one tap represents one eggplant slice",
+                ["Whole-eggplant glyph represents a slice abstractly; verify visual density and tone after bake."]),
+    _ingredient("fresh-tomato", "トマト", "🍅", "#d9432f", "emoji piece; one tap represents one fresh-tomato slice",
+                ["Same glyph as production tomato-sauce and cherry-tomato; needs a distinguishing representation so Pesto Caprese is not confused with Genovese."]),
+    _ingredient("pineapple", "パイナップル", "🍍", "#f3c623", "emoji piece; one tap represents one pineapple chunk",
+                ["Whole-fruit glyph represents chunks abstractly; verify contrast on mozzarella after bake."]),
+    _ingredient("potato", "じゃがいも", "🥔", "#d9b77e", "emoji piece; one tap represents one potato slice",
+                ["Whole-potato glyph represents slices abstractly; beige tone may blend with cheese/crust after bake."]),
 ]
 
 
@@ -166,28 +223,38 @@ LEDGER = [
     {"id": "REC-02", "scope": "all recipes", "status": "AUTHORING_REQUIRED", "field": "cutRequirement", "detail": "All ten fit the current round-six-slice mechanic, but future production must explicitly opt each ID into the allowlist."},
     {"id": "REC-03", "scope": "all recipes", "status": "OWNER_DECISION_REQUIRED", "field": "completionGate", "detail": "Record compatibility only. Do not decide whether CUT/minCount/bake thresholds gate completion before #218."},
     {"id": "REC-04", "scope": "all recipes", "status": "OWNER_DECISION_REQUIRED", "field": "progression", "detail": "Pitz price, unlock fee, star gate, and non-star condition stay TBD pending Progression 2.0."},
-    {"id": "REC-05", "scope": "cheese-family recipes", "status": "EVIDENCE_READY", "field": "sauce", "detail": "Merged #189 matrix interprets チーズ family as no spread base; preserve that evidence-derived choice."},
-    {"id": "REC-06", "scope": "pizza-portuguesa", "status": "EVIDENCE_REQUIRED", "field": "black-olive alias", "detail": "Source token オリーブ is a likely alias to black-olive, not an exact lexical alias; merged canonicalization is usable but provenance must remain visible."},
-    {"id": "REC-07", "scope": "puttanesca-pizza", "status": "EVIDENCE_REQUIRED", "field": "black-olive alias", "detail": "Source token オリーブ is a likely alias to black-olive; do not claim a more specific variety."},
+    {"id": "REC-06", "scope": "pizza-portuguesa", "status": "EVIDENCE_REQUIRED", "field": "black-olive alias", "aliasEvidence": {"token": "オリーブ", "canonicalId": "black-olive"}, "detail": "Source token オリーブ is a likely alias to black-olive, not an exact lexical alias; merged canonicalization is usable but provenance must remain visible."},
+    {"id": "REC-07", "scope": "puttanesca-pizza", "status": "EVIDENCE_REQUIRED", "field": "black-olive alias", "aliasEvidence": {"token": "オリーブ", "canonicalId": "black-olive"}, "detail": "Source token オリーブ is a likely alias to black-olive; do not claim a more specific variety."},
     {"id": "REC-08", "scope": "parmigiana-pizza,melanzane-pizza", "status": "AUTHORING_REQUIRED", "field": "discovery regression", "detail": "Both are eggplant-family recipes. Keep exact ingredient signatures distinct and add collision regression coverage."},
-    {"id": "REC-09", "scope": "pesto-tonno", "status": "EVIDENCE_REQUIRED", "field": "black-olive alias", "detail": "Source token オリーブ is a likely alias to black-olive, not an exact lexical alias; preserve the merged canonicalization but do not treat the provenance as settled."},
-    {"id": "ING-01", "scope": "baked-beans", "status": "AUTHORING_REQUIRED", "field": "visual", "detail": "Confirm emoji legibility and color after bake."},
+    {"id": "REC-09", "scope": "pesto-tonno", "status": "EVIDENCE_REQUIRED", "field": "black-olive alias", "aliasEvidence": {"token": "オリーブ", "canonicalId": "black-olive"}, "detail": "Source token オリーブ is a likely alias to black-olive, not an exact lexical alias; preserve the merged canonicalization but do not treat the provenance as settled."},
+    {"id": "REC-10", "scope": "parmigiana-pizza", "status": "EVIDENCE_REQUIRED", "field": "parmigiano alias", "aliasEvidence": {"token": "パルミジャーノチーズ", "canonicalId": "parmigiano"}, "detail": "Source token パルミジャーノチーズ is classified likely_alias to parmigiano by the merged canonicalizer; keep the provenance visible until confirmed."},
+    {"id": "REC-11", "scope": "all recipes", "status": "OWNER_DECISION_RECORDED", "field": "sauce contract", "detail": "Sauce OD-S1 = A: every W1 recipe uses a sauce inside the current RecipeSauceProfile union (tomato-sauce | pesto | olive-oil). Sauceless rows (Aussie, Bacalhau, Full English, Polish Kielbasa, Tsukimi) stay W4; Sauce Contract 2.0 is out of scope."},
     {"id": "ING-02", "scope": "capers", "status": "AUTHORING_REQUIRED", "field": "visual", "detail": "No exact emoji; approve or replace generic green-circle representation."},
     {"id": "ING-03", "scope": "eggplant", "status": "AUTHORING_REQUIRED", "field": "visual", "detail": "Approve whole-eggplant glyph as the abstraction for slices."},
-    {"id": "ING-04", "scope": "green-onion", "status": "AUTHORING_REQUIRED", "field": "visual", "detail": "Approve sprout fallback or choose a distinct glyph."},
-    {"id": "ING-05", "scope": "salt-cod", "status": "AUTHORING_REQUIRED", "field": "visual", "detail": "Approve generic fish glyph; specificity is textual."},
-    {"id": "ING-06", "scope": "sauerkraut", "status": "AUTHORING_REQUIRED", "field": "visual", "detail": "Approve leafy-green abstraction and cheese-background contrast."},
+    {"id": "ING-07", "scope": "clam", "status": "AUTHORING_REQUIRED", "field": "visual", "detail": "Approve the oyster glyph as a bivalve abstraction or choose a distinct representation."},
+    {"id": "ING-08", "scope": "corn", "status": "AUTHORING_REQUIRED", "field": "visual", "detail": "Approve whole-cob glyph for kernels and confirm contrast against egg/cheese."},
+    {"id": "ING-09", "scope": "fresh-tomato", "status": "AUTHORING_REQUIRED", "field": "visual", "detail": "Tomato glyph is already used by tomato-sauce and cherry-tomato; approve a distinguishing representation."},
+    {"id": "ING-10", "scope": "pineapple", "status": "AUTHORING_REQUIRED", "field": "visual", "detail": "Approve whole-fruit glyph for chunks and post-bake contrast."},
+    {"id": "ING-11", "scope": "potato", "status": "AUTHORING_REQUIRED", "field": "visual", "detail": "Approve whole-potato glyph for slices and post-bake contrast against cheese/crust."},
 ]
+
+# Ledger ids from the stale W1 authoring that must never be reused with a new meaning.
+RETIRED_LEDGER_IDS = {
+    "REC-05": "cheese-family sauceless base; no W1 recipe is sauceless after the #220 sync (OD-S1 = A)",
+    "ING-01": "baked-beans left W1 with full-english-pizza",
+    "ING-04": "green-onion left W1 with tsukimi-pizza",
+    "ING-05": "salt-cod left W1 with bacalhau",
+    "ING-06": "sauerkraut left W1 with polish-kielbasa",
+}
 
 
 CHANGE_MAP = {
     "scope": "FUTURE_ONLY_NO_RUNTIME_CHANGE_IN_THIS_AUDIT",
     "slices": [
-        {"id": "A", "title": "Evidence-clean existing-ingredient recipe data", "recipes": ["aussie"], "dependsOn": ["Progression 2.0 owner decisions"], "likelyFiles": ["src/data/recipes.ts", "src/data/recipes.test.ts", "src/data/cookingProfiles.ts", "src/data/cookingProfiles.test.ts", "src/logic/discovery/*"]},
-        {"id": "B", "title": "Existing-ingredient recipes with likely-alias evidence review", "recipes": ["pizza-portuguesa", "pesto-tonno"], "dependsOn": ["REC-06 evidence resolution", "REC-09 evidence resolution", "Progression 2.0 owner decisions"], "likelyFiles": ["src/data/recipes.ts", "src/data/recipes.test.ts", "src/data/recipeSauceProfiles.ts", "src/data/recipeSauceProfiles.test.ts", "src/data/cookingProfiles.ts", "src/data/cookingProfiles.test.ts", "src/logic/discovery/*"]},
-        {"id": "C", "title": "Six new ingredient records", "ingredients": [i["id"] for i in INGREDIENTS], "dependsOn": ["visual authoring approval", "Progression 2.0 owner decisions"], "likelyFiles": ["src/data/ingredients.ts", "src/data/ingredients.test.ts", "src/components/IngredientPieceVisual.test.tsx"]},
-        {"id": "D", "title": "Recipes using approved new ingredients", "recipes": ["bacalhau", "parmigiana-pizza", "puttanesca-pizza", "full-english-pizza", "polish-kielbasa", "melanzane-pizza", "tsukimi-pizza"], "dependsOn": ["slice C", "REC-07 evidence resolution", "REC-08 discovery regression coverage", "Progression 2.0 owner decisions"], "likelyFiles": ["src/data/recipes.ts", "src/data/recipes.test.ts", "src/data/recipeSauceProfiles.ts", "src/data/cookingProfiles.ts", "src/logic/discovery/*"]},
-        {"id": "E", "title": "Completion Gate integration", "dependsOn": ["#218 owner decision"], "likelyFiles": ["src/logic/completionGate.ts", "src/state/gameReducer.completionGate.test.ts"], "guard": "Do not implement or decide in this audit."}
+        {"id": "A", "title": "Existing-ingredient recipes with likely-alias evidence review", "recipes": ["pizza-portuguesa", "pesto-tonno"], "dependsOn": ["REC-06 evidence resolution", "REC-09 evidence resolution", "Progression 2.0 owner decisions"], "likelyFiles": ["src/data/recipes.ts", "src/data/recipes.test.ts", "src/data/recipeSauceProfiles.ts", "src/data/recipeSauceProfiles.test.ts", "src/data/cookingProfiles.ts", "src/data/cookingProfiles.test.ts", "src/logic/discovery/*"]},
+        {"id": "B", "title": "Seven new ingredient records", "ingredients": [i["id"] for i in INGREDIENTS], "dependsOn": ["visual authoring approval", "Progression 2.0 owner decisions"], "likelyFiles": ["src/data/ingredients.ts", "src/data/ingredients.test.ts", "src/components/IngredientPieceVisual.test.tsx"]},
+        {"id": "C", "title": "Recipes using approved new ingredients", "recipes": ["new-haven-apizza", "hawaiian", "parmigiana-pizza", "bambino", "puttanesca-pizza", "pesto-caprese", "pesto-patate", "melanzane-pizza"], "dependsOn": ["slice B", "REC-07 evidence resolution", "REC-08 discovery regression coverage", "REC-10 evidence resolution", "Progression 2.0 owner decisions"], "likelyFiles": ["src/data/recipes.ts", "src/data/recipes.test.ts", "src/data/recipeSauceProfiles.ts", "src/data/recipeSauceProfiles.test.ts", "src/data/cookingProfiles.ts", "src/logic/discovery/*"]},
+        {"id": "D", "title": "Completion Gate integration", "dependsOn": ["#218 owner decision"], "likelyFiles": ["src/logic/completionGate.ts", "src/state/gameReducer.completionGate.test.ts"], "guard": "Do not implement or decide in this audit."}
     ]
 }
 
@@ -200,9 +267,162 @@ for _section in CHANGE_MAP["slices"]:
         }
 
 
-GLOBAL_LEDGER_SCOPES = {"all recipes", "cheese-family recipes"}
+GLOBAL_LEDGER_SCOPES = {"all recipes"}
 LEDGER_REF_PREFIXES = ("REC-", "ING-")
+EXPECTED_TOTALS = {"READY": 0, "REVIEW": 10, "BLOCKED": 0}
 
+
+# --- authority --------------------------------------------------------------
+
+def _git(*args: str) -> str | None:
+    try:
+        result = subprocess.run(["git", *args], cwd=ROOT, capture_output=True, check=False)
+    except OSError:
+        return None
+    return result.stdout.decode("utf-8") if result.returncode == 0 else None
+
+
+def canonical_digest(value) -> str:
+    text = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def authority_snapshot(waves: dict) -> dict:
+    """The W1 slice of the #220 waves artifact that this audit depends on."""
+    rows = {r["evidenceId"]: r for r in waves["rows"]}
+    w1_wave = next(w for w in waves["waves"] if w["wave"] == "W1")
+    first10 = waves["first10CandidateSet"]
+    w1_rows = sorted((r for r in waves["rows"] if r["wave"] == "W1"), key=lambda r: r["evidenceId"])
+    return {
+        "auditedMainSha": waves["auditedMainSha"],
+        "supportedSauceIngredientIds": sorted(waves["runtimeContractPolicy"]["supportedSauceIngredientIds"]),
+        "w1Wave": {k: w1_wave[k] for k in ("recipeCount", "newIngredientCount", "newIngredientIds",
+                                           "mechanicDependencies", "collisionRiskCounts", "evidenceStatusCounts")},
+        "first10CandidateSet": {
+            "recipeCount": first10["recipeCount"],
+            "distinctNewIngredientIds": first10["distinctNewIngredientIds"],
+            "evidenceIds": sorted(r["evidenceId"] for r in first10["recipes"]),
+        },
+        "w1Rows": [{
+            "evidenceId": r["evidenceId"],
+            "canonicalCandidateId": r["canonicalCandidateId"],
+            "nameJa": r["nameJa"],
+            "canonicalIngredientIds": r["canonicalIngredientIds"],
+            "newIngredientIds": r["newIngredientIds"],
+            "sauceBaseStatus": r["sauceBaseStatus"],
+            "sauceBaseIngredientId": r["sauceBaseIngredientId"],
+            "runtimeContractDependencies": r["runtimeContractDependencies"],
+            "currentFlowRepresentability": r["currentFlowRepresentability"],
+            "productDecisionStatus": r["productDecisionStatus"],
+            "nearestProductionRecipeId": r["ingredientOverlap"]["nearestProductionRecipeId"],
+            "collisionRisk": r["collisionRisk"],
+            "blockers": r["blockers"],
+        } for r in w1_rows],
+        "previousW1Removed": [{
+            "evidenceId": evidence_id,
+            "canonicalCandidateId": rows[evidence_id]["canonicalCandidateId"],
+            "wave": rows[evidence_id]["wave"],
+            "runtimeContractDependencies": rows[evidence_id]["runtimeContractDependencies"],
+        } for evidence_id in PREVIOUS_W1_REMOVED],
+    }
+
+
+def load_authority(explicit: Path | None) -> tuple[dict, str]:
+    """Load the #220 waves artifact and fail on any authority drift.
+
+    Sources, in order: --authority-waves PATH; the working-tree copy (present
+    once #220 is merged into the base); the git object at AUTHORITY_HEAD_SHA.
+    A byte-exact blob is required unless the source is the working tree, where
+    only the pinned W1 slice must match.  If the locally known #220 branch tip
+    has moved away from AUTHORITY_HEAD_SHA the check fails as well.
+    """
+    problems = []
+    tip = None
+    for ref in (f"refs/remotes/origin/{AUTHORITY_BRANCH}", f"refs/heads/{AUTHORITY_BRANCH}"):
+        tip = (_git("rev-parse", "--verify", "--quiet", ref) or "").strip() or None
+        if tip:
+            break
+    if tip and tip != AUTHORITY_HEAD_SHA:
+        problems.append(f"PR #{AUTHORITY_PR} head moved: {AUTHORITY_BRANCH} is {tip}, pinned {AUTHORITY_HEAD_SHA}")
+
+    worktree = ROOT / AUTHORITY_WAVES_PATH
+    if explicit is not None:
+        raw, source = explicit.read_bytes(), f"explicit:{explicit}"
+    elif worktree.exists():
+        raw, source = worktree.read_bytes(), "working-tree"
+    else:
+        blob = _git("rev-parse", "--verify", "--quiet", f"{AUTHORITY_HEAD_SHA}:{AUTHORITY_WAVES_PATH}")
+        if not blob:
+            raise SystemExit(
+                f"FAIL: W1 authority unavailable. Fetch PR #{AUTHORITY_PR} head first: "
+                f"git fetch origin {AUTHORITY_BRANCH}  (pinned {AUTHORITY_HEAD_SHA})")
+        if blob.strip() != AUTHORITY_WAVES_BLOB_SHA:
+            problems.append(f"authority blob drift: {blob.strip()} != pinned {AUTHORITY_WAVES_BLOB_SHA}")
+        raw = subprocess.run(["git", "cat-file", "blob", blob.strip()], cwd=ROOT,
+                             capture_output=True, check=True).stdout
+        source = f"git:{AUTHORITY_HEAD_SHA[:7]}"
+    if source != "working-tree" and hashlib.sha256(raw).hexdigest() != AUTHORITY_WAVES_SHA256:
+        problems.append(f"authority waves sha256 drift ({source})")
+
+    snapshot = authority_snapshot(json.loads(raw.decode("utf-8")))
+    digest = canonical_digest(snapshot)
+    if digest != AUTHORITY_W1_SNAPSHOT_SHA256:
+        problems.append(f"W1 authority snapshot drift ({source}): {digest} != pinned {AUTHORITY_W1_SNAPSHOT_SHA256}")
+    if problems:
+        raise SystemExit("FAIL: W1 authority drift -- re-sync PR #221 to the new #220 authority.\n  - "
+                         + "\n  - ".join(problems))
+    return snapshot, source
+
+
+def authority_reference(snapshot: dict) -> dict:
+    return {
+        "schemaVersion": 1,
+        "kind": "w1_authority_reference",
+        "auditedMainSha": AUDITED_MAIN_SHA,
+        "authority": {
+            "pr": AUTHORITY_PR,
+            "branch": AUTHORITY_BRANCH,
+            "headSha": AUTHORITY_HEAD_SHA,
+            "wavesPath": AUTHORITY_WAVES_PATH,
+            "wavesBlobSha": AUTHORITY_WAVES_BLOB_SHA,
+            "wavesSha256": AUTHORITY_WAVES_SHA256,
+            "w1SnapshotSha256": AUTHORITY_W1_SNAPSHOT_SHA256,
+        },
+        "ownerDecision": OWNER_DECISION,
+        "driftPolicy": [
+            "The generator and --check both recompute the W1 snapshot from the #220 waves artifact and fail if its sha256 differs from w1SnapshotSha256.",
+            "When read from git or an explicit file the whole waves blob must match wavesBlobSha/wavesSha256.",
+            "If the locally known #220 branch tip differs from headSha the check fails (fetch before --check).",
+            "If the authority cannot be loaded at all the check fails; there is no silent pass.",
+        ],
+        "snapshot": snapshot,
+    }
+
+
+def authority_ref() -> dict:
+    return {"pr": AUTHORITY_PR, "headSha": AUTHORITY_HEAD_SHA, "w1SnapshotSha256": AUTHORITY_W1_SNAPSHOT_SHA256,
+            "referenceFile": str(AUTHORITY_OUT.relative_to(ROOT)).replace("\\", "/")}
+
+
+# --- production baseline (read-only) --------------------------------------
+
+def production_recipe_sets() -> dict[str, frozenset]:
+    text = PRODUCTION_RECIPES.read_text(encoding="utf-8")
+    sets = {}
+    for match in re.finditer(r'id: "([^"]+)"(.*?)bakeTarget:', text, re.S):
+        ids = re.findall(r'ingredientId: "([^"]+)"', match.group(2))
+        if ids:
+            sets[match.group(1)] = frozenset(ids)
+    assert len(sets) == 15, f"unexpected production recipe count {len(sets)}"
+    return sets
+
+
+def production_ingredient_ids() -> set[str]:
+    text = PRODUCTION_INGREDIENTS.read_text(encoding="utf-8")
+    return set(re.findall(r'^\s+id: "([^"]+)",', text, re.M))
+
+
+# --- ledger links (bidirectional; preserved from 279b6b1) -------------------
 
 def derived_readiness(refs) -> str:
     """READY only when no ledger entry is left open for the recipe."""
@@ -253,6 +473,9 @@ def validate_ledger_links(recipes, ingredients, ledger, change_map) -> None:
         assert referencing[item_id] == expected, (
             f"ledger link mismatch for {item_id}: orphaned from {sorted(expected - referencing[item_id])}, "
             f"out-of-scope refs from {sorted(referencing[item_id] - expected)}")
+    ingredient_entries = [i for i in ledger if ledger_scope_kind(i, recipe_ids, ingredient_ids) == "ingredient"]
+    assert sorted(i["scope"] for i in ingredient_entries) == sorted(ingredient_ids), (
+        "every new ingredient needs exactly one ingredient-scoped ledger entry")
     rows_by_id = {r["recipeIdCandidate"]: r for r in recipes}
     slices = {section["id"]: section for section in change_map["slices"]}
     for section in change_map["slices"]:
@@ -276,74 +499,46 @@ def validate_ledger_links(recipes, ingredients, ledger, change_map) -> None:
                 assert scoped & set(section.get("recipes", [])), f"slice {section['id']} depends on {ref} without carrying its recipes"
 
 
-def envelope(kind: str, rows) -> dict:
-    return {"schemaVersion": 1, "kind": kind, "auditedMainSha": AUDITED_MAIN_SHA,
-            "sourceRefs": ["Issue #182", "PR #189 (MERGED)", "PR #191 (MERGED)",
-                           "PR #217 (OPEN)", "PR #220 (OPEN)"], "rows": rows}
+def validate_authority_alignment(snapshot: dict) -> None:
+    """Recipe/ingredient evidence must equal the pinned #220 W1 slice."""
+    auth_rows = {r["evidenceId"]: r for r in snapshot["w1Rows"]}
+    assert set(auth_rows) == {r["evidenceId"] for r in RECIPES}, (
+        "W1 recipe set differs from #220 authority",
+        sorted(set(auth_rows) - {r["evidenceId"] for r in RECIPES}),
+        sorted({r["evidenceId"] for r in RECIPES} - set(auth_rows)))
+    assert set(snapshot["first10CandidateSet"]["evidenceIds"]) == set(auth_rows)
+    assert snapshot["auditedMainSha"] == AUDITED_MAIN_SHA
+    supported = set(snapshot["supportedSauceIngredientIds"])
+    assert supported == SUPPORTED_SAUCE_IDS, supported
+    for row in RECIPES:
+        auth = auth_rows[row["evidenceId"]]
+        required = {x["ingredientId"] for x in row["requiredIngredients"]}
+        rid = row["recipeIdCandidate"]
+        assert rid == auth["canonicalCandidateId"], (rid, auth["canonicalCandidateId"])
+        assert row["nameJa"] == auth["nameJa"], rid
+        assert required == set(auth["canonicalIngredientIds"]) | {auth["sauceBaseIngredientId"]}, rid
+        assert row["sauce"] == auth["sauceBaseIngredientId"] and row["sauce"] in supported, rid
+        assert auth["runtimeContractDependencies"] == [] and row["runtimeContractDependencies"] == [], rid
+        assert auth["currentFlowRepresentability"] == row["currentMechanicRepresentability"] == "FULL", rid
+        assert auth["blockers"] == [] and auth["productDecisionStatus"] == "READY", rid
+        assert row["collisionRisk"]["nearestProductionRecipeId"] == auth["nearestProductionRecipeId"], rid
+        assert row["collisionRisk"]["level"] == auth["collisionRisk"], rid
+        assert set(row["cheese"]) == required & CHEESE_IDS, rid
+        assert set(row["toppings"]) == required - CHEESE_IDS - {row["sauce"]}, rid
+        ing_refs = {ref for ref in row["unresolvedRefs"] if ref.startswith("ING-")}
+        ledger_scopes = {item["id"]: item["scope"] for item in LEDGER}
+        assert {ledger_scopes[ref] for ref in ing_refs} == set(auth["newIngredientIds"]), rid
+    new_ids = sorted(i["id"] for i in INGREDIENTS)
+    assert new_ids == sorted(snapshot["w1Wave"]["newIngredientIds"]), new_ids
+    assert new_ids == sorted(snapshot["first10CandidateSet"]["distinctNewIngredientIds"])
+    assert snapshot["w1Wave"]["recipeCount"] == len(RECIPES) == 10
+    for removed in snapshot["previousW1Removed"]:
+        assert removed["wave"] != "W1", removed
+        assert "SAUCELESS_RECIPE_CONTRACT" in removed["runtimeContractDependencies"], removed
+        assert removed["canonicalCandidateId"] not in {r["recipeIdCandidate"] for r in RECIPES}
 
 
-def report() -> str:
-    ready = sum(r["readiness"] == "READY" for r in RECIPES)
-    review = sum(r["readiness"] == "REVIEW" for r in RECIPES)
-    blocked = sum(r["readiness"] == "BLOCKED" for r in RECIPES)
-    lines = [
-        "# Progression 2.0 W1 Content Authoring — Fresh Audit", "",
-        "## 結論", "",
-        f"監査基準は最新 `main` `{AUDITED_MAIN_SHA}`。Issue #182、merged PR #189/#191、open PR #217/#220 を確認し、#220 の unordered first-10 candidate set だけを content authoring 面で再監査した。既存172件調査は再実施していない。", "",
-        f"判定は **READY {ready} / REVIEW {review} / BLOCKED {blocked}**。根拠未確定値を READY に含めないため、Progression 2.0 確定後に content data 実装へ直行できるのは Aussie のみ。Pizza Portuguesa / Pesto Tonno は `オリーブ` → `black-olive` の likely-alias provenance review（REC-06 / REC-09）、残る7件は新 ingredient 6種の visual authoring approvalを要する。Puttanesca は capers visual（ING-02）に加えて同じ likely-alias provenance（REC-07）も未解決のため、capers 承認だけでは READY にならない。", "",
-        "## 判定基準", "",
-        "- `READY`: composition evidence、独自 description/minCount/bakeTarget candidate、現行 ingredient visual が揃う。", 
-        "- `REVIEW`: recipe data は準備済みだが、新 ingredient の emoji/color/piece abstraction を human review する。", 
-        "- `BLOCKED`: evidence または現行 mechanic で安全に表現できない。今回0件。", "",
-        "## Recipe authoring summary", "",
-        "| recipe | sauce | cheese | toppings | bake | CUT | collision | evidence | status |", "|---|---|---|---|---|---|---|---|---|"
-    ]
-    for r in RECIPES:
-        ingredients = ", ".join(f"{x['ingredientId']}×{x['minCountCandidate']}" for x in r["requiredIngredients"])
-        lines.append(f"| `{r['recipeIdCandidate']}`<br>{ingredients} | {r['sauce'] or 'none'} | {', '.join(r['cheese']) or 'none'} | {', '.join(r['toppings']) or 'none'} | {r['bakeTargetCandidate']['start']}–{r['bakeTargetCandidate']['end']} | 6-slice candidate; Gate TBD | {r['collisionRisk']['level']} | {r['evidenceStatus']['composition']} | **{r['readiness']}** |")
-    lines += ["", "Descriptions、minCount、bakeTarget は外部事実ではなく独自 game-authoring candidate。production投入前の content sign-off を `AUTHORING_REQUIRED` として ledger に残した。", "",
-              "## Ingredient authoring summary", "", "| id | displayName | emoji | color | category / placement | recipes | status | uncertainty |", "|---|---|---|---|---|---|---|---|"]
-    for i in INGREDIENTS:
-        lines.append(f"| `{i['id']}` | {i['displayName']} | {i['emojiCandidate']} | `{i['colorCandidate']}` | {i['categoryCandidate']} / {i['placementCandidate']} | {', '.join(i['recipesUsingItInCandidateSet'])} | **{i['authoringStatus']}** | {' '.join(i['authoringUncertainty'])} |")
-    lines += ["", "全6種は current `Ingredient` schema と `IngredientPieceVisual` の emoji branch で表現可能。専用bitmapは不要だが、絵文字のOS差・抽象表現・焼成後コントラストを authoring review する。", "",
-              "## Completion Gate / Progression 接点", "",
-              "- 現行 Completion Gate が読む `requiredIngredients[].minCount` と `bakeTarget` の候補は用意した。ただし #218 の requiredForCompletion、CUT採否、許容幅を決めない。", 
-              "- `pitzPrice`, `unlockFee`, `starGate`, `nonStarUnlockCondition`, `baseRewardPitz` は未決定。PR #217 の owner decision を先取りしない。", 
-              "- wave は実装順候補であり unlock order ではない。", "",
-              "## Collision / evidence", "",
-              "10件とも exact production ingredient-set collision は0。近傍 recipe は regression target として記録した。Pizza Portuguesa / Puttanesca / Pesto Tonno の「オリーブ→black-olive」は merged canonicalization の likely alias であり、より具体的な品種は主張しない。Parmigiana / Melanzane は eggplant family として別 signature を固定する。Polish Kielbasa は governing matrix と同じ canonical ID `polish-kielbasa` を使用する。", "",
-              "## Progression確定後すぐ実装可能な範囲", "",
-              "- 即時: slice A（Aussie）の recipe data、CUT opt-in review、discovery collision tests。",
-              "- alias evidence確認後: slice B（Pizza Portuguesa / Pesto Tonno）。",
-              "- visual approval後: slice C（6 ingredients）→ slice D（残り7 recipes）。slice D の Puttanesca は REC-07、Parmigiana / Melanzane は REC-08 も dependency として保持する（`recipeDependencies`）。",
-              "- #218後: slice E（Completion Gate integration）。", "",
-              "## Deliverables", "",
-              "- `docs/reports/data/TETO_PROGRESS2_W1_RECIPE_AUTHORING_MATRIX.json`", 
-              "- `docs/reports/data/TETO_PROGRESS2_W1_INGREDIENT_AUTHORING_MATRIX.json`", 
-              "- `docs/reports/data/TETO_PROGRESS2_W1_UNRESOLVED_EVIDENCE_LEDGER.json`", 
-              "- `docs/reports/data/TETO_PROGRESS2_W1_FUTURE_IMPLEMENTATION_CHANGE_MAP.json`", 
-              "- `tools/progression2_w1_authoring_audit.py --check`", "",
-              "## Validation", "",
-              "- W1 ledger link checker: recipe ↔ ledger ↔ change-map を双方向検証（recipe-specific / ingredient-specific ledger entry の orphan、scope外参照、change-map dependency 欠落を検出）。",
-              f"- W1 generator/checker: PASS（10 recipes / 6 ingredients / READY {ready} / REVIEW {review} / BLOCKED {blocked}）。",
-              "- `validate_recipe_catalog.py`: PASS（53 / 62 / 11）。", 
-              "- `progression2_evidence_invariants.py`: PASS 4/4。", 
-              "- PR #189 matrix semantic validation: 172 unique rows、counts/capabilities/ledgers PASS。既存 `--check` の byte comparison だけは Windows path separator（`docs\\...` vs `docs/...`）差で FAIL。source matrix は変更していない。", "",
-              "## Issue management", "", "Issue #182 が既に content inventory / ingredient canonicalization / implementation split を管理しているため、新Issueは作らない。", ""]
-    return "\n".join(lines)
-
-
-def outputs() -> dict[Path, str]:
-    return {
-        RECIPE_OUT: json.dumps(envelope("recipe_authoring_matrix", RECIPES), ensure_ascii=False, indent=2) + "\n",
-        INGREDIENT_OUT: json.dumps(envelope("ingredient_authoring_matrix", INGREDIENTS), ensure_ascii=False, indent=2) + "\n",
-        LEDGER_OUT: json.dumps(envelope("unresolved_evidence_ledger", LEDGER), ensure_ascii=False, indent=2) + "\n",
-        CHANGE_MAP_OUT: json.dumps({"schemaVersion": 1, "auditedMainSha": AUDITED_MAIN_SHA, **CHANGE_MAP}, ensure_ascii=False, indent=2) + "\n",
-        REPORT_OUT: report(),
-    }
-
-
-def validate_sources() -> None:
+def validate_sources(snapshot: dict) -> None:
     matrix = json.loads(SOURCE_MATRIX.read_text(encoding="utf-8"))
     evidence = json.loads(SOURCE_EVIDENCE.read_text(encoding="utf-8"))
     matrix_rows = {r.get("evidenceId", r.get("id")): r for r in matrix["rows"]}
@@ -359,17 +554,49 @@ def validate_sources() -> None:
     }
     assert not canonical_drift, f"canonicalCandidateId drift: {canonical_drift}"
     assert len(RECIPES) == 10 and len({r["recipeIdCandidate"] for r in RECIPES}) == 10
-    assert len(INGREDIENTS) == 6 and len({i["id"] for i in INGREDIENTS}) == 6
-    recipe_ids = {r["recipeIdCandidate"] for r in RECIPES}
+    assert len(INGREDIENTS) == 7 and len({i["id"] for i in INGREDIENTS}) == 7
+    validate_authority_alignment(snapshot)
+
+    # Composition equals the governing matrix identity set; likely aliases are ledgered both ways.
     ledger_by_id = {item["id"]: item for item in LEDGER}
     assert len(ledger_by_id) == len(LEDGER)
+    assert not set(ledger_by_id) & set(RETIRED_LEDGER_IDS), f"retired ledger ids reused: {sorted(set(ledger_by_id) & set(RETIRED_LEDGER_IDS))}"
+    source_aliases, ledger_aliases = set(), set()
+    for row in RECIPES:
+        m = matrix_rows[row["evidenceId"]]
+        assert {x["ingredientId"] for x in row["requiredIngredients"]} == set(m["ingredients"]["identityIngredientSet"]), row["recipeIdCandidate"]
+        assert m["ingredients"]["complete"] and not m["ingredients"]["unresolvedTokens"], row["recipeIdCandidate"]
+        for trace in m["ingredients"]["tokenTrace"]:
+            if trace["disposition"] == "likely_alias":
+                source_aliases.add((row["recipeIdCandidate"], trace["token"], trace["canonicalId"]))
+        for ref in row["unresolvedRefs"]:
+            alias = ledger_by_id[ref].get("aliasEvidence")
+            if alias:
+                assert ledger_by_id[ref]["status"] == "EVIDENCE_REQUIRED", ref
+                ledger_aliases.add((row["recipeIdCandidate"], alias["token"], alias["canonicalId"]))
+    assert source_aliases == ledger_aliases, (
+        f"likely_alias provenance not ledgered: missing {sorted(source_aliases - ledger_aliases)}, "
+        f"stale {sorted(ledger_aliases - source_aliases)}")
+
+    # Production baseline: no exact ingredient-set collision; new ingredients are really new.
+    production_sets = production_recipe_sets()
+    for row in RECIPES:
+        required = frozenset(x["ingredientId"] for x in row["requiredIngredients"])
+        assert required not in production_sets.values(), f"exact collision: {row['recipeIdCandidate']}"
+        assert row["collisionRisk"]["exactIngredientSetCollision"] is False
+        assert row["collisionRisk"]["nearestProductionRecipeId"] in production_sets
+    production_ingredients = production_ingredient_ids()
+    assert not {i["id"] for i in INGREDIENTS} & production_ingredients
+    for row in RECIPES:
+        unknown = {x["ingredientId"] for x in row["requiredIngredients"]} - production_ingredients - {i["id"] for i in INGREDIENTS}
+        assert not unknown, (row["recipeIdCandidate"], unknown)
+
+    recipe_ids = {r["recipeIdCandidate"] for r in RECIPES}
     assert all(set(r["unresolvedRefs"]) <= set(ledger_by_id) for r in RECIPES)
     validate_ledger_links(RECIPES, INGREDIENTS, LEDGER, CHANGE_MAP)
-    assert all(set(i["recipesUsingItInCandidateSet"]) <= recipe_ids for i in INGREDIENTS)
-    mapped_recipe_ids = {
-        recipe_id for section in CHANGE_MAP["slices"] for recipe_id in section.get("recipes", [])
-    }
-    assert mapped_recipe_ids == recipe_ids, (recipe_ids - mapped_recipe_ids, mapped_recipe_ids - recipe_ids)
+    assert all(set(i["recipesUsingItInCandidateSet"]) <= recipe_ids and i["recipesUsingItInCandidateSet"] for i in INGREDIENTS)
+    mapped_recipe_ids = [recipe_id for section in CHANGE_MAP["slices"] for recipe_id in section.get("recipes", [])]
+    assert sorted(mapped_recipe_ids) == sorted(recipe_ids), (recipe_ids - set(mapped_recipe_ids), set(mapped_recipe_ids) - recipe_ids)
     for row in RECIPES:
         unresolved_statuses = {ledger_by_id[ref]["status"] for ref in row["unresolvedRefs"]}
         if "EVIDENCE_REQUIRED" in unresolved_statuses:
@@ -381,37 +608,133 @@ def validate_sources() -> None:
         visual_only = [ref for ref in row["unresolvedRefs"] if ref.startswith("ING-")]
         if any(ref.startswith("REC-") for ref in row["unresolvedRefs"]):
             assert readiness_after_resolving(row, visual_only) != "READY", row["recipeIdCandidate"]
-    assert {r["readiness"] for r in RECIPES} <= {"READY", "REVIEW", "BLOCKED"}
-    assert sum(r["readiness"] == "READY" for r in RECIPES) == 1
-    assert sum(r["readiness"] == "REVIEW" for r in RECIPES) == 9
-    assert len(LEDGER) == 15
-    assert next(r for r in RECIPES if r["recipeIdCandidate"] == "pesto-tonno")["unresolvedRefs"] == ["REC-09"]
-    assert next(r for r in RECIPES if r["recipeIdCandidate"] == "pizza-portuguesa")["unresolvedRefs"] == ["REC-06"]
+    assert {r["readiness"] for r in RECIPES} <= set(EXPECTED_TOTALS)
+    assert totals() == EXPECTED_TOTALS, totals()
     puttanesca = next(r for r in RECIPES if r["recipeIdCandidate"] == "puttanesca-pizza")
-    assert puttanesca["unresolvedRefs"] == ["ING-02", "REC-07"]
     assert readiness_after_resolving(puttanesca, ["ING-02"]) == "REVIEW"
     assert not any(k in json.dumps(RECIPES) for k in ['"pitzPrice": 0', '"unlockFee": 0', '"starGate": 0'])
-    assert all(r["currentMechanicRepresentability"] == "FULL" for r in RECIPES)
     assert all(0 < r["bakeTargetCandidate"]["start"] < r["bakeTargetCandidate"]["end"] < 100 for r in RECIPES)
+
+
+def totals() -> dict:
+    return {status: sum(r["readiness"] == status for r in RECIPES) for status in EXPECTED_TOTALS}
+
+
+def envelope(kind: str, rows) -> dict:
+    return {"schemaVersion": 1, "kind": kind, "auditedMainSha": AUDITED_MAIN_SHA,
+            "authorityRef": authority_ref(),
+            "sourceRefs": ["Issue #182", "PR #189 (MERGED)", "PR #191 (MERGED)",
+                           "PR #217 (OPEN)", f"PR #220 (OPEN) @ {AUTHORITY_HEAD_SHA} -- W1 authority",
+                           "Owner Decision Sauce OD-S1 = A"], "rows": rows}
+
+
+def report() -> str:
+    t = totals()
+    ready, review, blocked = t["READY"], t["REVIEW"], t["BLOCKED"]
+    lines = [
+        "# Progression 2.0 W1 Content Authoring — Fresh Audit", "",
+        "## 結論", "",
+        f"監査基準は最新 `main` `{AUDITED_MAIN_SHA}`。W1 authority は PR #{AUTHORITY_PR} exact HEAD `{AUTHORITY_HEAD_SHA}` の `{AUTHORITY_WAVES_PATH}`（Owner Decision **Sauce OD-S1 = A**: #220 の W1 を正とし、sauceless recipes は W4 のまま、Sauce Contract 2.0 は実装しない）。既存172件調査は再実施していない。", "",
+        f"判定は **READY {ready} / REVIEW {review} / BLOCKED {blocked}**。旧 #221 の W1（Aussie READY を含む）は stale authority に基づいていたため同期で置き換えた。10件すべてに新 ingredient の visual approval、likely-alias provenance、または discovery regression のいずれかが残るため、Progression 2.0 確定後すぐ content data 実装へ直行できる recipe は現時点で0件。READY を維持するための調整はしていない。", "",
+        "## Authority sync", "",
+        f"- authority: PR #{AUTHORITY_PR} `{AUTHORITY_HEAD_SHA}`、waves blob `{AUTHORITY_WAVES_BLOB_SHA}`、W1 snapshot sha256 `{AUTHORITY_W1_SNAPSHOT_SHA256}`（`{AUTHORITY_OUT.relative_to(ROOT).as_posix()}`）。",
+        "- W1 から外した（#220 では W4 / `SAUCELESS_RECIPE_CONTRACT`）: Aussie, Bacalhau, Full English, Polish Kielbasa, Tsukimi。",
+        "- W1 に加えた: New Haven Apizza, Hawaiian, Bambino, Pesto Caprese, Pesto Patate。",
+        "- 維持: Parmigiana Pizza, Pizza Portuguesa, Puttanesca, Pesto Tonno, Melanzane Pizza。",
+        f"- retired ledger ids（再利用禁止）: {', '.join(f'`{k}`' for k in RETIRED_LEDGER_IDS)}。",
+        "- drift 検出: generator と `--check` はどちらも #220 waves artifact から W1 snapshot を再計算し、pin した sha256 と一致しなければ FAIL。git object / 明示ファイルから読む場合は blob 全体の sha256 も照合する。ローカルに見えている #220 branch tip が pin と異なる場合、または authority を読めない場合も FAIL（silent pass なし）。", "",
+        "## 判定基準", "",
+        "- `READY`: composition evidence、独自 description/minCount/bakeTarget candidate、現行 ingredient visual が揃い、recipe に open ledger ref がない。",
+        "- `REVIEW`: recipe data は準備済みだが、新 ingredient の visual、likely-alias provenance、または discovery regression を human review する。",
+        "- `BLOCKED`: evidence または現行 mechanic で安全に表現できない。今回0件。", "",
+        "## Recipe authoring summary", "",
+        "| recipe | sauce | cheese | toppings | bake | CUT | collision | open refs | status |", "|---|---|---|---|---|---|---|---|---|"
+    ]
+    for r in RECIPES:
+        ingredients = ", ".join(f"{x['ingredientId']}×{x['minCountCandidate']}" for x in r["requiredIngredients"])
+        lines.append(f"| `{r['recipeIdCandidate']}`<br>{ingredients} | {r['sauce'] or 'none'} | {', '.join(r['cheese']) or 'none'} | {', '.join(r['toppings']) or 'none'} | {r['bakeTargetCandidate']['start']}–{r['bakeTargetCandidate']['end']} | 6-slice candidate; Gate TBD | {r['collisionRisk']['level']} (near `{r['collisionRisk']['nearestProductionRecipeId']}`) | {', '.join(r['unresolvedRefs'])} | **{r['readiness']}** |")
+    lines += ["", "Descriptions、minCount、bakeTarget は外部事実ではなく独自 game-authoring candidate。production投入前の content sign-off を `AUTHORING_REQUIRED` として ledger に残した。全10件の sauce は現行 `RecipeSauceProfile` union（tomato-sauce / pesto / olive-oil）内。", "",
+              "## Ingredient authoring summary", "", "| id | displayName | emoji | color | category / placement | recipes | status | uncertainty |", "|---|---|---|---|---|---|---|---|"]
+    for i in INGREDIENTS:
+        lines.append(f"| `{i['id']}` | {i['displayName']} | {i['emojiCandidate']} | `{i['colorCandidate']}` | {i['categoryCandidate']} / {i['placementCandidate']} | {', '.join(i['recipesUsingItInCandidateSet'])} | **{i['authoringStatus']}** | {' '.join(i['authoringUncertainty'])} |")
+    lines += ["", f"全{len(INGREDIENTS)}種は current `Ingredient` schema と `IngredientPieceVisual` の emoji branch で表現可能で、#220 W1 の newIngredientIds と一致する。専用bitmapは不要だが、絵文字のOS差・抽象表現・焼成後コントラストを authoring review する。", "",
+              "## Completion Gate / Progression 接点", "",
+              "- 現行 Completion Gate が読む `requiredIngredients[].minCount` と `bakeTarget` の候補は用意した。ただし #218 の requiredForCompletion、CUT採否、許容幅を決めない。",
+              "- `pitzPrice`, `unlockFee`, `starGate`, `nonStarUnlockCondition`, `baseRewardPitz` は未決定。PR #217 の owner decision を先取りしない。",
+              "- wave は実装順候補であり unlock order ではない。", "",
+              "## Collision / evidence", "",
+              "10件とも exact production ingredient-set collision は0（`src/data/recipes.ts` を read-only で照合）。近傍 recipe は #220 authority の `nearestProductionRecipeId` と一致させ、regression target として記録した。Pizza Portuguesa / Puttanesca / Pesto Tonno の「オリーブ→black-olive」と Parmigiana の「パルミジャーノチーズ→parmigiano」は merged canonicalizer の likely alias であり、ledger（REC-06 / REC-07 / REC-09 / REC-10）と source trace を双方向照合する。Parmigiana / Melanzane は eggplant family として別 signature を固定する（REC-08）。Hawaiian / Bambino は1 ingredient 差、Pesto Caprese は Genovese と tomato glyph を共有するため visual 区別が必要（ING-09）。", "",
+              "## Progression確定後すぐ実装可能な範囲", "",
+              "- 即時: なし（READY 0）。",
+              "- alias evidence確認後: slice A（Pizza Portuguesa / Pesto Tonno）。",
+              "- visual approval後: slice B（7 ingredients）→ slice C（残り8 recipes）。slice C の Puttanesca は REC-07、Parmigiana は REC-08 / REC-10、Melanzane は REC-08 も dependency として保持する（`recipeDependencies`）。",
+              "- #218後: slice D（Completion Gate integration）。", "",
+              "## Deliverables", "",
+              "- `docs/reports/data/TETO_PROGRESS2_W1_RECIPE_AUTHORING_MATRIX.json`",
+              "- `docs/reports/data/TETO_PROGRESS2_W1_INGREDIENT_AUTHORING_MATRIX.json`",
+              "- `docs/reports/data/TETO_PROGRESS2_W1_UNRESOLVED_EVIDENCE_LEDGER.json`",
+              "- `docs/reports/data/TETO_PROGRESS2_W1_FUTURE_IMPLEMENTATION_CHANGE_MAP.json`",
+              "- `docs/reports/data/TETO_PROGRESS2_W1_AUTHORITY_REFERENCE.json`",
+              "- `tools/progression2_w1_authoring_audit.py --check`", "",
+              "## Validation", "",
+              "- W1 authority checker: recipe / ingredient evidence を #220 W1 snapshot（evidenceId、canonicalCandidateId、identity ingredients、sauce、newIngredientIds、nearest recipe、runtimeContractDependencies）と照合。authority drift で FAIL。",
+              "- W1 ledger link checker: recipe ↔ ledger ↔ change-map を双方向検証（recipe-specific / ingredient-specific ledger entry の orphan、scope外参照、change-map dependency 欠落、likely-alias の未ledger化を検出）。",
+              "- canonicalCandidateId checker: 全 recipeIdCandidate を governing matrix と #220 authority の canonicalCandidateId と照合。",
+              f"- W1 generator/checker: PASS（10 recipes / {len(INGREDIENTS)} ingredients / READY {ready} / REVIEW {review} / BLOCKED {blocked}）。",
+              "- `validate_recipe_catalog.py`: PASS（53 / 62 / 11）。",
+              "- `progression2_evidence_invariants.py`: PASS 4/4。", "",
+              "## Issue management", "", "Issue #182 が既に content inventory / ingredient canonicalization / implementation split を管理しているため、新Issueは作らない。", ""]
+    return "\n".join(lines)
+
+
+def outputs(snapshot: dict) -> dict[Path, str]:
+    return {
+        RECIPE_OUT: json.dumps(envelope("recipe_authoring_matrix", RECIPES), ensure_ascii=False, indent=2) + "\n",
+        INGREDIENT_OUT: json.dumps(envelope("ingredient_authoring_matrix", INGREDIENTS), ensure_ascii=False, indent=2) + "\n",
+        LEDGER_OUT: json.dumps({**envelope("unresolved_evidence_ledger", LEDGER), "retiredIds": RETIRED_LEDGER_IDS}, ensure_ascii=False, indent=2) + "\n",
+        CHANGE_MAP_OUT: json.dumps({"schemaVersion": 1, "auditedMainSha": AUDITED_MAIN_SHA, "authorityRef": authority_ref(), **CHANGE_MAP}, ensure_ascii=False, indent=2) + "\n",
+        AUTHORITY_OUT: json.dumps(authority_reference(snapshot), ensure_ascii=False, indent=2) + "\n",
+        REPORT_OUT: report(),
+    }
+
+
+def validate_committed_authority_refs() -> None:
+    """Every committed artifact must carry the same authority reference."""
+    expected = authority_ref()
+    for path in (RECIPE_OUT, INGREDIENT_OUT, LEDGER_OUT, CHANGE_MAP_OUT):
+        if path.exists():
+            found = json.loads(path.read_text(encoding="utf-8")).get("authorityRef")
+            assert found == expected, f"{path.relative_to(ROOT).as_posix()} authorityRef {found} != {expected}"
+    if AUTHORITY_OUT.exists():
+        found = json.loads(AUTHORITY_OUT.read_text(encoding="utf-8"))["authority"]
+        assert found["headSha"] == AUTHORITY_HEAD_SHA and found["w1SnapshotSha256"] == AUTHORITY_W1_SNAPSHOT_SHA256, found
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--check", action="store_true")
+    parser.add_argument("--authority-waves", type=Path, default=None,
+                        help="explicit copy of the #220 waves artifact (default: working tree, then git object)")
     args = parser.parse_args()
-    validate_sources()
-    generated = outputs()
+    snapshot, source = load_authority(args.authority_waves)
+    validate_sources(snapshot)
+    generated = outputs(snapshot)
+    t = totals()
     if args.check:
-        mismatches = [str(path.relative_to(ROOT)) for path, text in generated.items()
+        validate_committed_authority_refs()
+        mismatches = [path.relative_to(ROOT).as_posix() for path, text in generated.items()
                       if not path.exists() or path.read_text(encoding="utf-8") != text]
         if mismatches:
             raise SystemExit("generated outputs differ: " + ", ".join(mismatches))
-        print("PASS: W1 authoring audit is source-valid and byte-identical (10 recipes, 6 ingredients, READY 1 / REVIEW 9 / BLOCKED 0; canonicalCandidateId drift 0; ledger orphans 0).")
+        print(f"PASS: W1 authoring audit is source-valid and byte-identical (authority PR #{AUTHORITY_PR} "
+              f"{AUTHORITY_HEAD_SHA[:7]} via {source}; 10 recipes, {len(INGREDIENTS)} ingredients, "
+              f"READY {t['READY']} / REVIEW {t['REVIEW']} / BLOCKED {t['BLOCKED']}; "
+              "authority drift 0; canonicalCandidateId drift 0; ledger orphans 0).")
         return 0
     for path, text in generated.items():
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(text, encoding="utf-8", newline="\n")
-    print("Generated W1 authoring audit outputs.")
+    print(f"Generated W1 authoring audit outputs (authority via {source}).")
     return 0
 
 

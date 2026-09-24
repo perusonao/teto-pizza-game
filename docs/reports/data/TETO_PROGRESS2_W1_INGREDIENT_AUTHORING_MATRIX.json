@@ -2,30 +2,21 @@
   "schemaVersion": 1,
   "kind": "ingredient_authoring_matrix",
   "auditedMainSha": "dff233c042d2df6ee1c3a92f2d2419830aa05460",
+  "authorityRef": {
+    "pr": 220,
+    "headSha": "e49dab96bd9b26dc0f520349cf09d1160c3519f5",
+    "w1SnapshotSha256": "88422a13baff67a3ad65eb8df9f7c116d2d2d8db73ba04034cf7b7bdb375e746",
+    "referenceFile": "docs/reports/data/TETO_PROGRESS2_W1_AUTHORITY_REFERENCE.json"
+  },
   "sourceRefs": [
     "Issue #182",
     "PR #189 (MERGED)",
     "PR #191 (MERGED)",
     "PR #217 (OPEN)",
-    "PR #220 (OPEN)"
+    "PR #220 (OPEN) @ e49dab96bd9b26dc0f520349cf09d1160c3519f5 -- W1 authority",
+    "Owner Decision Sauce OD-S1 = A"
   ],
   "rows": [
-    {
-      "id": "baked-beans",
-      "displayName": "ベイクドビーンズ",
-      "emojiCandidate": "🫘",
-      "colorCandidate": "#a94f35",
-      "categoryCandidate": "topping",
-      "placementCandidate": "scatter",
-      "pieceRepresentation": "emoji piece; one tap places one bean-cluster token",
-      "recipesUsingItInCandidateSet": [
-        "full-english-pizza"
-      ],
-      "authoringStatus": "REVIEW",
-      "authoringUncertainty": [
-        "Emoji appearance varies by platform; verify legibility at tray and baked-piece sizes."
-      ]
-    },
     {
       "id": "capers",
       "displayName": "ケッパー",
@@ -43,6 +34,38 @@
       ]
     },
     {
+      "id": "clam",
+      "displayName": "あさり",
+      "emojiCandidate": "🦪",
+      "colorCandidate": "#c9b89a",
+      "categoryCandidate": "topping",
+      "placementCandidate": "scatter",
+      "pieceRepresentation": "emoji piece; one tap represents one shucked-clam portion",
+      "recipesUsingItInCandidateSet": [
+        "new-haven-apizza"
+      ],
+      "authoringStatus": "REVIEW",
+      "authoringUncertainty": [
+        "No clam emoji; the oyster glyph stands in for a bivalve and must not read as a different shellfish recipe."
+      ]
+    },
+    {
+      "id": "corn",
+      "displayName": "コーン",
+      "emojiCandidate": "🌽",
+      "colorCandidate": "#f5cf3a",
+      "categoryCandidate": "topping",
+      "placementCandidate": "scatter",
+      "pieceRepresentation": "emoji piece; one tap represents a small kernel cluster",
+      "recipesUsingItInCandidateSet": [
+        "bambino"
+      ],
+      "authoringStatus": "REVIEW",
+      "authoringUncertainty": [
+        "Whole-cob glyph represents loose kernels abstractly; yellow tone must stay distinguishable from egg on cheese."
+      ]
+    },
+    {
       "id": "eggplant",
       "displayName": "ナス",
       "emojiCandidate": "🍆",
@@ -51,8 +74,8 @@
       "placementCandidate": "scatter",
       "pieceRepresentation": "emoji piece; one tap represents one eggplant slice",
       "recipesUsingItInCandidateSet": [
-        "parmigiana-pizza",
-        "melanzane-pizza"
+        "melanzane-pizza",
+        "parmigiana-pizza"
       ],
       "authoringStatus": "REVIEW",
       "authoringUncertainty": [
@@ -60,51 +83,51 @@
       ]
     },
     {
-      "id": "green-onion",
-      "displayName": "青ねぎ",
-      "emojiCandidate": "🌱",
-      "colorCandidate": "#4f8a3c",
+      "id": "fresh-tomato",
+      "displayName": "トマト",
+      "emojiCandidate": "🍅",
+      "colorCandidate": "#d9432f",
       "categoryCandidate": "topping",
       "placementCandidate": "scatter",
-      "pieceRepresentation": "emoji herb piece; one tap represents a small chopped-onion cluster",
+      "pieceRepresentation": "emoji piece; one tap represents one fresh-tomato slice",
       "recipesUsingItInCandidateSet": [
-        "tsukimi-pizza"
+        "pesto-caprese"
       ],
       "authoringStatus": "REVIEW",
       "authoringUncertainty": [
-        "No exact green-onion emoji; sprout glyph can be confused with basil/herbs."
+        "Same glyph as production tomato-sauce and cherry-tomato; needs a distinguishing representation so Pesto Caprese is not confused with Genovese."
       ]
     },
     {
-      "id": "salt-cod",
-      "displayName": "塩だら",
-      "emojiCandidate": "🐟",
-      "colorCandidate": "#d8c9aa",
+      "id": "pineapple",
+      "displayName": "パイナップル",
+      "emojiCandidate": "🍍",
+      "colorCandidate": "#f3c623",
       "categoryCandidate": "topping",
       "placementCandidate": "scatter",
-      "pieceRepresentation": "emoji piece; one tap represents one flaked-cod portion",
+      "pieceRepresentation": "emoji piece; one tap represents one pineapple chunk",
       "recipesUsingItInCandidateSet": [
-        "bacalhau"
+        "hawaiian"
       ],
       "authoringStatus": "REVIEW",
       "authoringUncertainty": [
-        "Generic fish glyph does not encode salted cod; description/name must carry specificity."
+        "Whole-fruit glyph represents chunks abstractly; verify contrast on mozzarella after bake."
       ]
     },
     {
-      "id": "sauerkraut",
-      "displayName": "ザワークラウト",
-      "emojiCandidate": "🥬",
-      "colorCandidate": "#d8d59a",
+      "id": "potato",
+      "displayName": "じゃがいも",
+      "emojiCandidate": "🥔",
+      "colorCandidate": "#d9b77e",
       "categoryCandidate": "topping",
       "placementCandidate": "scatter",
-      "pieceRepresentation": "emoji piece; one tap represents one shredded-cabbage cluster",
+      "pieceRepresentation": "emoji piece; one tap represents one potato slice",
       "recipesUsingItInCandidateSet": [
-        "polish-kielbasa"
+        "pesto-patate"
       ],
       "authoringStatus": "REVIEW",
       "authoringUncertainty": [
-        "Leafy-green glyph represents shredded fermented cabbage abstractly; verify contrast on cheese."
+        "Whole-potato glyph represents slices abstractly; beige tone may blend with cheese/crust after bake."
       ]
     }
   ]

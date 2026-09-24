@@ -1,0 +1,333 @@
+{
+  "schemaVersion": 1,
+  "kind": "w1_authority_reference",
+  "auditedMainSha": "dff233c042d2df6ee1c3a92f2d2419830aa05460",
+  "authority": {
+    "pr": 220,
+    "branch": "codex/content-readiness-fresh-audit",
+    "headSha": "e49dab96bd9b26dc0f520349cf09d1160c3519f5",
+    "wavesPath": "docs/reports/data/TETO_PROGRESS2_CONTENT_READINESS_WAVES.json",
+    "wavesBlobSha": "af5b5689fc5c86bd47b31d79c5d11750ec89b7b8",
+    "wavesSha256": "3db316e3b656462384708ef7f5a78cdef03a7e6765f047ce249e23dc8915b2be",
+    "w1SnapshotSha256": "88422a13baff67a3ad65eb8df9f7c116d2d2d8db73ba04034cf7b7bdb375e746"
+  },
+  "ownerDecision": {
+    "id": "Sauce OD-S1",
+    "choice": "A",
+    "meaning": "PR #220 W1 is authoritative; sauceless recipes stay W4; Sauce Contract 2.0 is not implemented in this audit.",
+    "recordedAt": "PR #221 owner comment 2026-09-24"
+  },
+  "driftPolicy": [
+    "The generator and --check both recompute the W1 snapshot from the #220 waves artifact and fail if its sha256 differs from w1SnapshotSha256.",
+    "When read from git or an explicit file the whole waves blob must match wavesBlobSha/wavesSha256.",
+    "If the locally known #220 branch tip differs from headSha the check fails (fetch before --check).",
+    "If the authority cannot be loaded at all the check fails; there is no silent pass."
+  ],
+  "snapshot": {
+    "auditedMainSha": "dff233c042d2df6ee1c3a92f2d2419830aa05460",
+    "supportedSauceIngredientIds": [
+      "olive-oil",
+      "pesto",
+      "tomato-sauce"
+    ],
+    "w1Wave": {
+      "recipeCount": 10,
+      "newIngredientCount": 7,
+      "newIngredientIds": [
+        "capers",
+        "clam",
+        "corn",
+        "eggplant",
+        "fresh-tomato",
+        "pineapple",
+        "potato"
+      ],
+      "mechanicDependencies": [],
+      "collisionRiskCounts": {
+        "LOW": 10
+      },
+      "evidenceStatusCounts": {
+        "READY": 10
+      }
+    },
+    "first10CandidateSet": {
+      "recipeCount": 10,
+      "distinctNewIngredientIds": [
+        "capers",
+        "clam",
+        "corn",
+        "eggplant",
+        "fresh-tomato",
+        "pineapple",
+        "potato"
+      ],
+      "evidenceIds": [
+        "bambino-pizzadb-p7",
+        "hawaiian-pizzadb-row",
+        "melanzane-pizza-pizzadb-p13",
+        "new-haven-apizza-pizzadb",
+        "parmigiana-pizza-pizzadb-p7",
+        "pesto-caprese-pizzadb-p11",
+        "pesto-patate-pizzadb-p12",
+        "pesto-tonno-pizzadb-p12",
+        "pizza-portuguesa-pizzadb-p9",
+        "puttanesca-pizza-pizzadb-p10"
+      ]
+    },
+    "w1Rows": [
+      {
+        "evidenceId": "bambino-pizzadb-p7",
+        "canonicalCandidateId": "bambino",
+        "nameJa": "バンビーノ",
+        "canonicalIngredientIds": [
+          "corn",
+          "ham",
+          "mozzarella"
+        ],
+        "newIngredientIds": [
+          "corn"
+        ],
+        "sauceBaseStatus": "family_derived",
+        "sauceBaseIngredientId": "tomato-sauce",
+        "runtimeContractDependencies": [],
+        "currentFlowRepresentability": "FULL",
+        "productDecisionStatus": "READY",
+        "nearestProductionRecipeId": "meat-lovers",
+        "collisionRisk": "LOW",
+        "blockers": []
+      },
+      {
+        "evidenceId": "hawaiian-pizzadb-row",
+        "canonicalCandidateId": "hawaiian",
+        "nameJa": "ハワイアンピザ",
+        "canonicalIngredientIds": [
+          "ham",
+          "mozzarella",
+          "pineapple"
+        ],
+        "newIngredientIds": [
+          "pineapple"
+        ],
+        "sauceBaseStatus": "family_derived",
+        "sauceBaseIngredientId": "tomato-sauce",
+        "runtimeContractDependencies": [],
+        "currentFlowRepresentability": "FULL",
+        "productDecisionStatus": "READY",
+        "nearestProductionRecipeId": "meat-lovers",
+        "collisionRisk": "LOW",
+        "blockers": []
+      },
+      {
+        "evidenceId": "melanzane-pizza-pizzadb-p13",
+        "canonicalCandidateId": "melanzane-pizza",
+        "nameJa": "メランザーネピザ",
+        "canonicalIngredientIds": [
+          "basil",
+          "eggplant",
+          "mozzarella"
+        ],
+        "newIngredientIds": [
+          "eggplant"
+        ],
+        "sauceBaseStatus": "family_derived",
+        "sauceBaseIngredientId": "tomato-sauce",
+        "runtimeContractDependencies": [],
+        "currentFlowRepresentability": "FULL",
+        "productDecisionStatus": "READY",
+        "nearestProductionRecipeId": "margherita",
+        "collisionRisk": "LOW",
+        "blockers": []
+      },
+      {
+        "evidenceId": "new-haven-apizza-pizzadb",
+        "canonicalCandidateId": "new-haven-apizza",
+        "nameJa": "ニューヘイブンアピッツァ",
+        "canonicalIngredientIds": [
+          "clam",
+          "garlic",
+          "olive-oil",
+          "parmigiano"
+        ],
+        "newIngredientIds": [
+          "clam"
+        ],
+        "sauceBaseStatus": "listed",
+        "sauceBaseIngredientId": "olive-oil",
+        "runtimeContractDependencies": [],
+        "currentFlowRepresentability": "FULL",
+        "productDecisionStatus": "READY",
+        "nearestProductionRecipeId": "quattro-formaggi",
+        "collisionRisk": "LOW",
+        "blockers": []
+      },
+      {
+        "evidenceId": "parmigiana-pizza-pizzadb-p7",
+        "canonicalCandidateId": "parmigiana-pizza",
+        "nameJa": "パルミジャーナピザ",
+        "canonicalIngredientIds": [
+          "basil",
+          "eggplant",
+          "mozzarella",
+          "parmigiano"
+        ],
+        "newIngredientIds": [
+          "eggplant"
+        ],
+        "sauceBaseStatus": "family_derived",
+        "sauceBaseIngredientId": "tomato-sauce",
+        "runtimeContractDependencies": [],
+        "currentFlowRepresentability": "FULL",
+        "productDecisionStatus": "READY",
+        "nearestProductionRecipeId": "margherita",
+        "collisionRisk": "LOW",
+        "blockers": []
+      },
+      {
+        "evidenceId": "pesto-caprese-pizzadb-p11",
+        "canonicalCandidateId": "pesto-caprese",
+        "nameJa": "ペストカプレーゼピザ",
+        "canonicalIngredientIds": [
+          "basil",
+          "fresh-tomato",
+          "mozzarella"
+        ],
+        "newIngredientIds": [
+          "fresh-tomato"
+        ],
+        "sauceBaseStatus": "family_derived",
+        "sauceBaseIngredientId": "pesto",
+        "runtimeContractDependencies": [],
+        "currentFlowRepresentability": "FULL",
+        "productDecisionStatus": "READY",
+        "nearestProductionRecipeId": "margherita",
+        "collisionRisk": "LOW",
+        "blockers": []
+      },
+      {
+        "evidenceId": "pesto-patate-pizzadb-p12",
+        "canonicalCandidateId": "pesto-patate",
+        "nameJa": "ペストパターテピザ",
+        "canonicalIngredientIds": [
+          "bacon",
+          "mozzarella",
+          "potato"
+        ],
+        "newIngredientIds": [
+          "potato"
+        ],
+        "sauceBaseStatus": "family_derived",
+        "sauceBaseIngredientId": "pesto",
+        "runtimeContractDependencies": [],
+        "currentFlowRepresentability": "FULL",
+        "productDecisionStatus": "READY",
+        "nearestProductionRecipeId": "genovese",
+        "collisionRisk": "LOW",
+        "blockers": []
+      },
+      {
+        "evidenceId": "pesto-tonno-pizzadb-p12",
+        "canonicalCandidateId": "pesto-tonno",
+        "nameJa": "ペストトンノピザ",
+        "canonicalIngredientIds": [
+          "black-olive",
+          "onion",
+          "tuna"
+        ],
+        "newIngredientIds": [],
+        "sauceBaseStatus": "family_derived",
+        "sauceBaseIngredientId": "pesto",
+        "runtimeContractDependencies": [],
+        "currentFlowRepresentability": "FULL",
+        "productDecisionStatus": "READY",
+        "nearestProductionRecipeId": "tonno-e-cipolla",
+        "collisionRisk": "LOW",
+        "blockers": []
+      },
+      {
+        "evidenceId": "pizza-portuguesa-pizzadb-p9",
+        "canonicalCandidateId": "pizza-portuguesa",
+        "nameJa": "ピッツァ・ポルトゲーザ",
+        "canonicalIngredientIds": [
+          "black-olive",
+          "egg",
+          "ham",
+          "mozzarella",
+          "onion"
+        ],
+        "newIngredientIds": [],
+        "sauceBaseStatus": "family_derived",
+        "sauceBaseIngredientId": "tomato-sauce",
+        "runtimeContractDependencies": [],
+        "currentFlowRepresentability": "FULL",
+        "productDecisionStatus": "READY",
+        "nearestProductionRecipeId": "capricciosa",
+        "collisionRisk": "LOW",
+        "blockers": []
+      },
+      {
+        "evidenceId": "puttanesca-pizza-pizzadb-p10",
+        "canonicalCandidateId": "puttanesca-pizza",
+        "nameJa": "プッタネスカ",
+        "canonicalIngredientIds": [
+          "anchovy",
+          "black-olive",
+          "capers",
+          "garlic"
+        ],
+        "newIngredientIds": [
+          "capers"
+        ],
+        "sauceBaseStatus": "family_derived",
+        "sauceBaseIngredientId": "tomato-sauce",
+        "runtimeContractDependencies": [],
+        "currentFlowRepresentability": "FULL",
+        "productDecisionStatus": "READY",
+        "nearestProductionRecipeId": "marinara",
+        "collisionRisk": "LOW",
+        "blockers": []
+      }
+    ],
+    "previousW1Removed": [
+      {
+        "evidenceId": "aussie-pizzadb",
+        "canonicalCandidateId": "aussie",
+        "wave": "W4",
+        "runtimeContractDependencies": [
+          "SAUCELESS_RECIPE_CONTRACT"
+        ]
+      },
+      {
+        "evidenceId": "bacalhau-pizzadb",
+        "canonicalCandidateId": "bacalhau",
+        "wave": "W4",
+        "runtimeContractDependencies": [
+          "SAUCELESS_RECIPE_CONTRACT"
+        ]
+      },
+      {
+        "evidenceId": "full-english-pizza-pizzadb-p10",
+        "canonicalCandidateId": "full-english-pizza",
+        "wave": "W4",
+        "runtimeContractDependencies": [
+          "SAUCELESS_RECIPE_CONTRACT"
+        ]
+      },
+      {
+        "evidenceId": "polish-kielbasa-pizzadb-p12",
+        "canonicalCandidateId": "polish-kielbasa",
+        "wave": "W4",
+        "runtimeContractDependencies": [
+          "SAUCELESS_RECIPE_CONTRACT"
+        ]
+      },
+      {
+        "evidenceId": "tsukimi-pizza-pizzadb-p14",
+        "canonicalCandidateId": "tsukimi-pizza",
+        "wave": "W4",
+        "runtimeContractDependencies": [
+          "SAUCELESS_RECIPE_CONTRACT"
+        ]
+      }
+    ]
+  }
+}

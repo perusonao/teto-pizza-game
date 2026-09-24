@@ -2,58 +2,64 @@
   "schemaVersion": 1,
   "kind": "recipe_authoring_matrix",
   "auditedMainSha": "dff233c042d2df6ee1c3a92f2d2419830aa05460",
+  "authorityRef": {
+    "pr": 220,
+    "headSha": "e49dab96bd9b26dc0f520349cf09d1160c3519f5",
+    "w1SnapshotSha256": "88422a13baff67a3ad65eb8df9f7c116d2d2d8db73ba04034cf7b7bdb375e746",
+    "referenceFile": "docs/reports/data/TETO_PROGRESS2_W1_AUTHORITY_REFERENCE.json"
+  },
   "sourceRefs": [
     "Issue #182",
     "PR #189 (MERGED)",
     "PR #191 (MERGED)",
     "PR #217 (OPEN)",
-    "PR #220 (OPEN)"
+    "PR #220 (OPEN) @ e49dab96bd9b26dc0f520349cf09d1160c3519f5 -- W1 authority",
+    "Owner Decision Sauce OD-S1 = A"
   ],
   "rows": [
     {
-      "evidenceId": "aussie-pizzadb",
-      "recipeIdCandidate": "aussie",
-      "nameJa": "オージーピザ",
-      "descriptionCandidate": "モッツァレラにベーコン、卵、たまねぎを重ねた、コクのあるオーストラリア風ピザ。",
+      "evidenceId": "new-haven-apizza-pizzadb",
+      "recipeIdCandidate": "new-haven-apizza",
+      "nameJa": "ニューヘイブンアピッツァ",
+      "descriptionCandidate": "オリーブオイルを塗った生地に、あさり、にんにく、パルミジャーノをのせて香ばしく焼き上げたアメリカ・ニューヘイブン風の一枚。",
       "descriptionStatus": "AUTHORING_CANDIDATE",
       "requiredIngredients": [
         {
-          "ingredientId": "mozzarella",
+          "ingredientId": "olive-oil",
+          "minCountCandidate": 1,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "one spread use"
+        },
+        {
+          "ingredientId": "parmigiano",
           "minCountCandidate": 2,
           "status": "AUTHORING_CANDIDATE",
           "rationale": "existing cheese-density baseline"
         },
         {
-          "ingredientId": "bacon",
+          "ingredientId": "clam",
           "minCountCandidate": 3,
           "status": "AUTHORING_CANDIDATE",
-          "rationale": "breakfast-pizza analogue"
+          "rationale": "primary topping"
         },
         {
-          "ingredientId": "egg",
-          "minCountCandidate": 1,
+          "ingredientId": "garlic",
+          "minCountCandidate": 2,
           "status": "AUTHORING_CANDIDATE",
-          "rationale": "single center-piece convention"
-        },
-        {
-          "ingredientId": "onion",
-          "minCountCandidate": 3,
-          "status": "AUTHORING_CANDIDATE",
-          "rationale": "scatter-density baseline"
+          "rationale": "supporting topping"
         }
       ],
-      "sauce": null,
+      "sauce": "olive-oil",
       "cheese": [
-        "mozzarella"
+        "parmigiano"
       ],
       "toppings": [
-        "bacon",
-        "egg",
-        "onion"
+        "clam",
+        "garlic"
       ],
       "bakeTargetCandidate": {
-        "start": 56,
-        "end": 76,
+        "start": 62,
+        "end": 82,
         "status": "AUTHORING_CANDIDATE"
       },
       "productionSchemaFit": {
@@ -64,26 +70,29 @@
           "requiredIngredients",
           "bakeTarget"
         ],
-        "sauceProfileRequired": false,
+        "sauceProfileRequired": true,
         "cookingProfile": "derived core steps + explicit CUT allowlist review"
       },
       "collisionRisk": {
         "level": "LOW",
-        "nearestProductionRecipeId": "breakfast-pizza",
+        "nearestProductionRecipeId": "quattro-formaggi",
         "exactIngredientSetCollision": false,
-        "note": "Near-neighbor only: no tomato sauce and adds onion; exact-set collision absent."
+        "note": "Shares only olive-oil/parmigiano with Quattro Formaggi; clam+garlic identity is distinct; exact-set collision absent."
       },
       "evidenceStatus": {
         "composition": "EVIDENCE_READY",
-        "sourceAuthority": "MERGED_PR_189_MATRIX_AND_MASTER_EVIDENCE",
+        "sourceAuthority": "PR_220_W1_e49dab9+MERGED_PR_189_MATRIX_AND_MASTER_EVIDENCE",
         "description": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
         "minCounts": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
         "bakeTarget": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE"
       },
-      "readiness": "READY",
-      "unresolvedRefs": [],
+      "readiness": "REVIEW",
+      "unresolvedRefs": [
+        "ING-07"
+      ],
       "currentMechanicRepresentability": "FULL",
       "mechanicDependencies": [],
+      "runtimeContractDependencies": [],
       "cutRequirement": {
         "eligibilityCandidate": "STANDARD_ROUND_6_SLICES",
         "completionGateEffect": "OWNER_DECISION_REQUIRED_ISSUE_218",
@@ -98,12 +107,18 @@
       "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION"
     },
     {
-      "evidenceId": "bacalhau-pizzadb",
-      "recipeIdCandidate": "bacalhau",
-      "nameJa": "バカリャウピザ",
-      "descriptionCandidate": "塩だらの旨みを、モッツァレラ、たまねぎ、ブラックオリーブと焼き上げるポルトガル風ピザ。",
+      "evidenceId": "hawaiian-pizzadb-row",
+      "recipeIdCandidate": "hawaiian",
+      "nameJa": "ハワイアンピザ",
+      "descriptionCandidate": "トマトソースにハムとパイナップル、モッツァレラを合わせた、甘みと塩気のバランスが楽しい一枚。",
       "descriptionStatus": "AUTHORING_CANDIDATE",
       "requiredIngredients": [
+        {
+          "ingredientId": "tomato-sauce",
+          "minCountCandidate": 1,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "one spread use"
+        },
         {
           "ingredientId": "mozzarella",
           "minCountCandidate": 2,
@@ -111,32 +126,25 @@
           "rationale": "existing cheese-density baseline"
         },
         {
-          "ingredientId": "salt-cod",
+          "ingredientId": "ham",
+          "minCountCandidate": 2,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "supporting meat"
+        },
+        {
+          "ingredientId": "pineapple",
           "minCountCandidate": 3,
           "status": "AUTHORING_CANDIDATE",
           "rationale": "primary topping"
-        },
-        {
-          "ingredientId": "onion",
-          "minCountCandidate": 2,
-          "status": "AUTHORING_CANDIDATE",
-          "rationale": "supporting topping"
-        },
-        {
-          "ingredientId": "black-olive",
-          "minCountCandidate": 2,
-          "status": "AUTHORING_CANDIDATE",
-          "rationale": "supporting topping"
         }
       ],
-      "sauce": null,
+      "sauce": "tomato-sauce",
       "cheese": [
         "mozzarella"
       ],
       "toppings": [
-        "salt-cod",
-        "onion",
-        "black-olive"
+        "ham",
+        "pineapple"
       ],
       "bakeTargetCandidate": {
         "start": 58,
@@ -151,28 +159,29 @@
           "requiredIngredients",
           "bakeTarget"
         ],
-        "sauceProfileRequired": false,
+        "sauceProfileRequired": true,
         "cookingProfile": "derived core steps + explicit CUT allowlist review"
       },
       "collisionRisk": {
         "level": "LOW",
-        "nearestProductionRecipeId": "tonno-e-cipolla",
+        "nearestProductionRecipeId": "meat-lovers",
         "exactIngredientSetCollision": false,
-        "note": "Distinct protein and no tomato sauce; exact-set collision absent."
+        "note": "Ham+pineapple is distinct from Meat Lovers' mixed meats; one-ingredient neighbour of Bambino (pineapple vs corn); exact-set collision absent."
       },
       "evidenceStatus": {
         "composition": "EVIDENCE_READY",
-        "sourceAuthority": "MERGED_PR_189_MATRIX_AND_MASTER_EVIDENCE",
+        "sourceAuthority": "PR_220_W1_e49dab9+MERGED_PR_189_MATRIX_AND_MASTER_EVIDENCE",
         "description": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
         "minCounts": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
         "bakeTarget": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE"
       },
       "readiness": "REVIEW",
       "unresolvedRefs": [
-        "ING-05"
+        "ING-10"
       ],
       "currentMechanicRepresentability": "FULL",
       "mechanicDependencies": [],
+      "runtimeContractDependencies": [],
       "cutRequirement": {
         "eligibilityCandidate": "STANDARD_ROUND_6_SLICES",
         "completionGateEffect": "OWNER_DECISION_REQUIRED_ISSUE_218",
@@ -257,7 +266,7 @@
       },
       "evidenceStatus": {
         "composition": "EVIDENCE_READY",
-        "sourceAuthority": "MERGED_PR_189_MATRIX_AND_MASTER_EVIDENCE",
+        "sourceAuthority": "PR_220_W1_e49dab9+MERGED_PR_189_MATRIX_AND_MASTER_EVIDENCE",
         "description": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
         "minCounts": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
         "bakeTarget": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE"
@@ -265,10 +274,101 @@
       "readiness": "REVIEW",
       "unresolvedRefs": [
         "ING-03",
-        "REC-08"
+        "REC-08",
+        "REC-10"
       ],
       "currentMechanicRepresentability": "FULL",
       "mechanicDependencies": [],
+      "runtimeContractDependencies": [],
+      "cutRequirement": {
+        "eligibilityCandidate": "STANDARD_ROUND_6_SLICES",
+        "completionGateEffect": "OWNER_DECISION_REQUIRED_ISSUE_218",
+        "status": "AUTHORING_CANDIDATE"
+      },
+      "progression": {
+        "pitzPrice": "TBD",
+        "unlockFee": "TBD",
+        "starGate": "TBD",
+        "nonStarUnlockCondition": "OWNER_DECISION_REQUIRED"
+      },
+      "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION"
+    },
+    {
+      "evidenceId": "bambino-pizzadb-p7",
+      "recipeIdCandidate": "bambino",
+      "nameJa": "バンビーノ",
+      "descriptionCandidate": "トマトソースにハム、コーン、モッツァレラをのせた、やさしい甘みで親しみやすい一枚。",
+      "descriptionStatus": "AUTHORING_CANDIDATE",
+      "requiredIngredients": [
+        {
+          "ingredientId": "tomato-sauce",
+          "minCountCandidate": 1,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "one spread use"
+        },
+        {
+          "ingredientId": "mozzarella",
+          "minCountCandidate": 2,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "existing cheese-density baseline"
+        },
+        {
+          "ingredientId": "ham",
+          "minCountCandidate": 2,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "supporting meat"
+        },
+        {
+          "ingredientId": "corn",
+          "minCountCandidate": 3,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "primary topping"
+        }
+      ],
+      "sauce": "tomato-sauce",
+      "cheese": [
+        "mozzarella"
+      ],
+      "toppings": [
+        "ham",
+        "corn"
+      ],
+      "bakeTargetCandidate": {
+        "start": 56,
+        "end": 76,
+        "status": "AUTHORING_CANDIDATE"
+      },
+      "productionSchemaFit": {
+        "recipeFields": [
+          "id",
+          "nameJa",
+          "description",
+          "requiredIngredients",
+          "bakeTarget"
+        ],
+        "sauceProfileRequired": true,
+        "cookingProfile": "derived core steps + explicit CUT allowlist review"
+      },
+      "collisionRisk": {
+        "level": "LOW",
+        "nearestProductionRecipeId": "meat-lovers",
+        "exactIngredientSetCollision": false,
+        "note": "Ham+corn is distinct from Meat Lovers; one-ingredient neighbour of Hawaiian (corn vs pineapple); exact-set collision absent."
+      },
+      "evidenceStatus": {
+        "composition": "EVIDENCE_READY",
+        "sourceAuthority": "PR_220_W1_e49dab9+MERGED_PR_189_MATRIX_AND_MASTER_EVIDENCE",
+        "description": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
+        "minCounts": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
+        "bakeTarget": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE"
+      },
+      "readiness": "REVIEW",
+      "unresolvedRefs": [
+        "ING-08"
+      ],
+      "currentMechanicRepresentability": "FULL",
+      "mechanicDependencies": [],
+      "runtimeContractDependencies": [],
       "cutRequirement": {
         "eligibilityCandidate": "STANDARD_ROUND_6_SLICES",
         "completionGateEffect": "OWNER_DECISION_REQUIRED_ISSUE_218",
@@ -360,7 +460,7 @@
       },
       "evidenceStatus": {
         "composition": "EVIDENCE_READY",
-        "sourceAuthority": "MERGED_PR_189_MATRIX_AND_MASTER_EVIDENCE",
+        "sourceAuthority": "PR_220_W1_e49dab9+MERGED_PR_189_MATRIX_AND_MASTER_EVIDENCE",
         "description": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
         "minCounts": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
         "bakeTarget": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE"
@@ -371,6 +471,7 @@
       ],
       "currentMechanicRepresentability": "FULL",
       "mechanicDependencies": [],
+      "runtimeContractDependencies": [],
       "cutRequirement": {
         "eligibilityCandidate": "STANDARD_ROUND_6_SLICES",
         "completionGateEffect": "OWNER_DECISION_REQUIRED_ISSUE_218",
@@ -454,7 +555,7 @@
       },
       "evidenceStatus": {
         "composition": "EVIDENCE_READY",
-        "sourceAuthority": "MERGED_PR_189_MATRIX_AND_MASTER_EVIDENCE",
+        "sourceAuthority": "PR_220_W1_e49dab9+MERGED_PR_189_MATRIX_AND_MASTER_EVIDENCE",
         "description": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
         "minCounts": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
         "bakeTarget": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE"
@@ -466,6 +567,7 @@
       ],
       "currentMechanicRepresentability": "FULL",
       "mechanicDependencies": [],
+      "runtimeContractDependencies": [],
       "cutRequirement": {
         "eligibilityCandidate": "STANDARD_ROUND_6_SLICES",
         "completionGateEffect": "OWNER_DECISION_REQUIRED_ISSUE_218",
@@ -480,12 +582,18 @@
       "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION"
     },
     {
-      "evidenceId": "full-english-pizza-pizzadb-p10",
-      "recipeIdCandidate": "full-english-pizza",
-      "nameJa": "フルイングリッシュピザ",
-      "descriptionCandidate": "ベーコン、ソーセージ、卵、ベイクドビーンズをモッツァレラと焼き上げた、朝食仕立ての一枚。",
+      "evidenceId": "pesto-caprese-pizzadb-p11",
+      "recipeIdCandidate": "pesto-caprese",
+      "nameJa": "ペストカプレーゼピザ",
+      "descriptionCandidate": "ジェノベーゼソースにトマト、モッツァレラ、バジルを重ねた、カプレーゼ仕立ての爽やかな一枚。",
       "descriptionStatus": "AUTHORING_CANDIDATE",
       "requiredIngredients": [
+        {
+          "ingredientId": "pesto",
+          "minCountCandidate": 1,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "one spread use"
+        },
         {
           "ingredientId": "mozzarella",
           "minCountCandidate": 2,
@@ -493,43 +601,29 @@
           "rationale": "existing cheese-density baseline"
         },
         {
-          "ingredientId": "bacon",
-          "minCountCandidate": 2,
-          "status": "AUTHORING_CANDIDATE",
-          "rationale": "supporting meat"
-        },
-        {
-          "ingredientId": "sausage",
-          "minCountCandidate": 2,
-          "status": "AUTHORING_CANDIDATE",
-          "rationale": "supporting meat"
-        },
-        {
-          "ingredientId": "egg",
-          "minCountCandidate": 1,
-          "status": "AUTHORING_CANDIDATE",
-          "rationale": "single center-piece convention"
-        },
-        {
-          "ingredientId": "baked-beans",
+          "ingredientId": "fresh-tomato",
           "minCountCandidate": 3,
           "status": "AUTHORING_CANDIDATE",
           "rationale": "primary topping"
+        },
+        {
+          "ingredientId": "basil",
+          "minCountCandidate": 2,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "herb baseline"
         }
       ],
-      "sauce": null,
+      "sauce": "pesto",
       "cheese": [
         "mozzarella"
       ],
       "toppings": [
-        "bacon",
-        "sausage",
-        "egg",
-        "baked-beans"
+        "fresh-tomato",
+        "basil"
       ],
       "bakeTargetCandidate": {
-        "start": 60,
-        "end": 80,
+        "start": 50,
+        "end": 70,
         "status": "AUTHORING_CANDIDATE"
       },
       "productionSchemaFit": {
@@ -540,28 +634,29 @@
           "requiredIngredients",
           "bakeTarget"
         ],
-        "sauceProfileRequired": false,
+        "sauceProfileRequired": true,
         "cookingProfile": "derived core steps + explicit CUT allowlist review"
       },
       "collisionRisk": {
         "level": "LOW",
-        "nearestProductionRecipeId": "breakfast-pizza",
+        "nearestProductionRecipeId": "margherita",
         "exactIngredientSetCollision": false,
-        "note": "No tomato sauce and adds sausage/beans; exact-set collision absent."
+        "note": "Pesto base separates it from Margherita; fresh-tomato vs Genovese's cherry-tomato must stay visually distinct; exact-set collision absent."
       },
       "evidenceStatus": {
         "composition": "EVIDENCE_READY",
-        "sourceAuthority": "MERGED_PR_189_MATRIX_AND_MASTER_EVIDENCE",
+        "sourceAuthority": "PR_220_W1_e49dab9+MERGED_PR_189_MATRIX_AND_MASTER_EVIDENCE",
         "description": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
         "minCounts": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
         "bakeTarget": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE"
       },
       "readiness": "REVIEW",
       "unresolvedRefs": [
-        "ING-01"
+        "ING-09"
       ],
       "currentMechanicRepresentability": "FULL",
       "mechanicDependencies": [],
+      "runtimeContractDependencies": [],
       "cutRequirement": {
         "eligibilityCandidate": "STANDARD_ROUND_6_SLICES",
         "completionGateEffect": "OWNER_DECISION_REQUIRED_ISSUE_218",
@@ -638,7 +733,7 @@
       },
       "evidenceStatus": {
         "composition": "EVIDENCE_READY",
-        "sourceAuthority": "MERGED_PR_189_MATRIX_AND_MASTER_EVIDENCE",
+        "sourceAuthority": "PR_220_W1_e49dab9+MERGED_PR_189_MATRIX_AND_MASTER_EVIDENCE",
         "description": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
         "minCounts": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
         "bakeTarget": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE"
@@ -649,6 +744,7 @@
       ],
       "currentMechanicRepresentability": "FULL",
       "mechanicDependencies": [],
+      "runtimeContractDependencies": [],
       "cutRequirement": {
         "eligibilityCandidate": "STANDARD_ROUND_6_SLICES",
         "completionGateEffect": "OWNER_DECISION_REQUIRED_ISSUE_218",
@@ -663,12 +759,18 @@
       "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION"
     },
     {
-      "evidenceId": "polish-kielbasa-pizzadb-p12",
-      "recipeIdCandidate": "polish-kielbasa",
-      "nameJa": "ポーリッシュキエルバサピザ",
-      "descriptionCandidate": "ソーセージ、ザワークラウト、たまねぎをモッツァレラと焼き上げた、酸味と旨みのある一枚。",
+      "evidenceId": "pesto-patate-pizzadb-p12",
+      "recipeIdCandidate": "pesto-patate",
+      "nameJa": "ペストパターテピザ",
+      "descriptionCandidate": "ジェノベーゼソースにじゃがいも、ベーコン、モッツァレラを合わせた、ほくほくと香ばしい一枚。",
       "descriptionStatus": "AUTHORING_CANDIDATE",
       "requiredIngredients": [
+        {
+          "ingredientId": "pesto",
+          "minCountCandidate": 1,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "one spread use"
+        },
         {
           "ingredientId": "mozzarella",
           "minCountCandidate": 2,
@@ -676,36 +778,29 @@
           "rationale": "existing cheese-density baseline"
         },
         {
-          "ingredientId": "sausage",
-          "minCountCandidate": 3,
-          "status": "AUTHORING_CANDIDATE",
-          "rationale": "salsiccia analogue"
-        },
-        {
-          "ingredientId": "sauerkraut",
+          "ingredientId": "potato",
           "minCountCandidate": 3,
           "status": "AUTHORING_CANDIDATE",
           "rationale": "primary topping"
         },
         {
-          "ingredientId": "onion",
+          "ingredientId": "bacon",
           "minCountCandidate": 2,
           "status": "AUTHORING_CANDIDATE",
-          "rationale": "supporting topping"
+          "rationale": "supporting meat"
         }
       ],
-      "sauce": null,
+      "sauce": "pesto",
       "cheese": [
         "mozzarella"
       ],
       "toppings": [
-        "sausage",
-        "sauerkraut",
-        "onion"
+        "potato",
+        "bacon"
       ],
       "bakeTargetCandidate": {
-        "start": 60,
-        "end": 80,
+        "start": 58,
+        "end": 78,
         "status": "AUTHORING_CANDIDATE"
       },
       "productionSchemaFit": {
@@ -716,28 +811,29 @@
           "requiredIngredients",
           "bakeTarget"
         ],
-        "sauceProfileRequired": false,
+        "sauceProfileRequired": true,
         "cookingProfile": "derived core steps + explicit CUT allowlist review"
       },
       "collisionRisk": {
         "level": "LOW",
-        "nearestProductionRecipeId": "salsiccia",
+        "nearestProductionRecipeId": "genovese",
         "exactIngredientSetCollision": false,
-        "note": "Adds sauerkraut/onion and omits tomato sauce; exact-set collision absent."
+        "note": "Shares pesto/mozzarella with Genovese but swaps cherry-tomato for potato+bacon; exact-set collision absent."
       },
       "evidenceStatus": {
         "composition": "EVIDENCE_READY",
-        "sourceAuthority": "MERGED_PR_189_MATRIX_AND_MASTER_EVIDENCE",
+        "sourceAuthority": "PR_220_W1_e49dab9+MERGED_PR_189_MATRIX_AND_MASTER_EVIDENCE",
         "description": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
         "minCounts": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
         "bakeTarget": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE"
       },
       "readiness": "REVIEW",
       "unresolvedRefs": [
-        "ING-06"
+        "ING-11"
       ],
       "currentMechanicRepresentability": "FULL",
       "mechanicDependencies": [],
+      "runtimeContractDependencies": [],
       "cutRequirement": {
         "eligibilityCandidate": "STANDARD_ROUND_6_SLICES",
         "completionGateEffect": "OWNER_DECISION_REQUIRED_ISSUE_218",
@@ -815,7 +911,7 @@
       },
       "evidenceStatus": {
         "composition": "EVIDENCE_READY",
-        "sourceAuthority": "MERGED_PR_189_MATRIX_AND_MASTER_EVIDENCE",
+        "sourceAuthority": "PR_220_W1_e49dab9+MERGED_PR_189_MATRIX_AND_MASTER_EVIDENCE",
         "description": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
         "minCounts": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
         "bakeTarget": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE"
@@ -827,95 +923,7 @@
       ],
       "currentMechanicRepresentability": "FULL",
       "mechanicDependencies": [],
-      "cutRequirement": {
-        "eligibilityCandidate": "STANDARD_ROUND_6_SLICES",
-        "completionGateEffect": "OWNER_DECISION_REQUIRED_ISSUE_218",
-        "status": "AUTHORING_CANDIDATE"
-      },
-      "progression": {
-        "pitzPrice": "TBD",
-        "unlockFee": "TBD",
-        "starGate": "TBD",
-        "nonStarUnlockCondition": "OWNER_DECISION_REQUIRED"
-      },
-      "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION"
-    },
-    {
-      "evidenceId": "tsukimi-pizza-pizzadb-p14",
-      "recipeIdCandidate": "tsukimi-pizza",
-      "nameJa": "月見ピザ",
-      "descriptionCandidate": "卵を月に見立て、ベーコン、青ねぎ、モッツァレラを合わせた和風の一枚。",
-      "descriptionStatus": "AUTHORING_CANDIDATE",
-      "requiredIngredients": [
-        {
-          "ingredientId": "mozzarella",
-          "minCountCandidate": 2,
-          "status": "AUTHORING_CANDIDATE",
-          "rationale": "existing cheese-density baseline"
-        },
-        {
-          "ingredientId": "egg",
-          "minCountCandidate": 1,
-          "status": "AUTHORING_CANDIDATE",
-          "rationale": "single center-piece convention"
-        },
-        {
-          "ingredientId": "bacon",
-          "minCountCandidate": 3,
-          "status": "AUTHORING_CANDIDATE",
-          "rationale": "breakfast-pizza analogue"
-        },
-        {
-          "ingredientId": "green-onion",
-          "minCountCandidate": 2,
-          "status": "AUTHORING_CANDIDATE",
-          "rationale": "herb-like accent"
-        }
-      ],
-      "sauce": null,
-      "cheese": [
-        "mozzarella"
-      ],
-      "toppings": [
-        "egg",
-        "bacon",
-        "green-onion"
-      ],
-      "bakeTargetCandidate": {
-        "start": 56,
-        "end": 76,
-        "status": "AUTHORING_CANDIDATE"
-      },
-      "productionSchemaFit": {
-        "recipeFields": [
-          "id",
-          "nameJa",
-          "description",
-          "requiredIngredients",
-          "bakeTarget"
-        ],
-        "sauceProfileRequired": false,
-        "cookingProfile": "derived core steps + explicit CUT allowlist review"
-      },
-      "collisionRisk": {
-        "level": "LOW",
-        "nearestProductionRecipeId": "breakfast-pizza",
-        "exactIngredientSetCollision": false,
-        "note": "Green onion replaces tomato sauce; exact-set collision absent."
-      },
-      "evidenceStatus": {
-        "composition": "EVIDENCE_READY",
-        "sourceAuthority": "MERGED_PR_189_MATRIX_AND_MASTER_EVIDENCE",
-        "description": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
-        "minCounts": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
-        "bakeTarget": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE"
-      },
-      "readiness": "REVIEW",
-      "unresolvedRefs": [
-        "ING-04"
-      ],
-      "currentMechanicRepresentability": "FULL",
-      "mechanicDependencies": [],
+      "runtimeContractDependencies": [],
       "cutRequirement": {
         "eligibilityCandidate": "STANDARD_ROUND_6_SLICES",
         "completionGateEffect": "OWNER_DECISION_REQUIRED_ISSUE_218",
