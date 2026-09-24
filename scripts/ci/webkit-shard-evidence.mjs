@@ -8,15 +8,23 @@
 //
 //   collect  -- in each shard job: reads the `--list` JSON of the project's FULL planned selection
 //               (no --shard) and the JSON reporter output of the shard's own run, and writes one
-//               evidence file { project, shard, total, listed[], executed{} }.
+//               evidence file { project, shard, total, runAttempt, listed[], executed{} }.
 //   verify   -- in WebKit Gate: reads every evidence file and FAILS unless, for exactly the
 //               required projects: shard indices are exactly 1..N (no missing/duplicate shard),
 //               every shard saw the same listed set, every listed test ran in exactly one shard,
 //               nothing unlisted ran, no test failed/flaked or was skipped unintentionally, and
 //               every project listed the same tests (every spec runs at every viewport).
 //
+// Re-runs: "Re-run failed jobs" re-runs only the failed shards; the other shards' evidence stays
+// from the earlier attempt, and the earlier attempt's evidence of a re-run shard is NOT removed.
+// Artifact names therefore carry the attempt (webkit-evidence-<project>-shard<i>-attempt<n>) and
+// verify keeps, per (project, shard), only the evidence of the highest runAttempt -- the attempt
+// whose job result `needs.webkit.result` reflects. Superseded evidence is reported, never counted.
+// (Before this, both attempts uploaded the same artifact name and download-artifact kept an
+// arbitrary one of the two -- on PR #221 run 36019302842 the stale failed attempt-1 evidence.)
+//
 // Usage:
-//   node scripts/ci/webkit-shard-evidence.mjs collect --project P --shard I --total N \
+//   node scripts/ci/webkit-shard-evidence.mjs collect --project P --shard I --total N --attempt A \
 //        --list list.json --results results.json --out evidence.json
 //   node scripts/ci/webkit-shard-evidence.mjs verify --dir DIR --projects "P1 P2"
 //   node scripts/ci/webkit-shard-evidence.mjs --self-test
@@ -24,7 +32,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
-const SCHEMA = "webkit-shard-evidence/v1";
+const SCHEMA = "webkit-shard-evidence/v2"; // v2: + runAttempt
 
 /** Flattens a Playwright JSON report into [{ key, name, status, expectedStatus }] for `project`. */
 export function testsOf(report, project) {
@@ -72,7 +80,7 @@ function readJson(path) {
   }
 }
 
-export function collect({ project, shard, total, listReport, resultsReport, errors = [] }) {
+export function collect({ project, shard, total, runAttempt, listReport, resultsReport, errors = [] }) {
   const listed = listReport ? testsOf(listReport, project) : [];
   const executed = {};
   const names = {};
@@ -90,11 +98,31 @@ export function collect({ project, shard, total, listReport, resultsReport, erro
     project,
     shard: Number(shard),
     total: Number(total),
+    runAttempt: Number(runAttempt),
     listed: listed.map((t) => t.key).sort(),
     executed,
     names,
     errors,
   };
+}
+
+/**
+ * Keeps, per (project, shard), only the evidence of the highest runAttempt. Evidence of the same
+ * shard from the SAME attempt is kept in full, so a genuinely duplicated shard still fails verify.
+ * @returns {{ selected: object[], superseded: object[] }}
+ */
+export function selectLatestAttempt(evidences) {
+  const latest = new Map();
+  for (const ev of evidences) {
+    const key = `${ev.project}\u0000${ev.shard}`;
+    latest.set(key, Math.max(latest.get(key) ?? -Infinity, ev.runAttempt));
+  }
+  const selected = [];
+  const superseded = [];
+  for (const ev of evidences) {
+    (ev.runAttempt === latest.get(`${ev.project}\u0000${ev.shard}`) ? selected : superseded).push(ev);
+  }
+  return { selected, superseded };
 }
 
 /**
@@ -109,11 +137,20 @@ export function verify(evidences, requiredProjects) {
   const byProject = new Map();
 
   if (requiredProjects.length === 0) problems.push("no required projects given");
+  const valid = [];
   for (const ev of evidences) {
     if (ev?.schema !== SCHEMA) {
       problems.push(`evidence with unknown schema: ${JSON.stringify(ev?.schema)}`);
       continue;
     }
+    if (!Number.isInteger(ev.runAttempt) || ev.runAttempt < 1) {
+      problems.push(`${ev.project} shard ${ev.shard}: invalid runAttempt ${JSON.stringify(ev.runAttempt)}`);
+      continue;
+    }
+    valid.push(ev);
+  }
+  const { selected, superseded } = selectLatestAttempt(valid);
+  for (const ev of selected) {
     for (const e of ev.errors ?? []) problems.push(`${ev.project} shard ${ev.shard}: ${e}`);
     if (!requiredProjects.includes(ev.project)) {
       problems.push(`evidence for unexpected project '${ev.project}'`);
@@ -177,7 +214,7 @@ export function verify(evidences, requiredProjects) {
           problems.push(`${project} shard ${s.shard}: ${label} -> ${r.status}`);
         }
       }
-      rows.push({ project, shard: s.shard, total: s.total, listed: s.listed.length, executed: Object.keys(s.executed).length, passed, intentionallySkipped, bad });
+      rows.push({ project, shard: s.shard, total: s.total, runAttempt: s.runAttempt, listed: s.listed.length, executed: Object.keys(s.executed).length, passed, intentionallySkipped, bad });
     }
     for (const key of listed) {
       const where = ranIn.get(key) ?? [];
@@ -192,20 +229,29 @@ export function verify(evidences, requiredProjects) {
     totals[project] = executedTotal;
   }
   rows.sort((a, b) => requiredProjects.indexOf(a.project) - requiredProjects.indexOf(b.project) || a.shard - b.shard);
-  return { ok: problems.length === 0, problems, rows, totals };
+  const supersededRows = superseded
+    .map((s) => ({ project: s.project, shard: s.shard, total: s.total, runAttempt: s.runAttempt }))
+    .sort((a, b) => String(a.project).localeCompare(String(b.project)) || a.shard - b.shard || a.runAttempt - b.runAttempt);
+  return { ok: problems.length === 0, problems, rows, totals, superseded: supersededRows };
 }
 
-export function formatSummary({ ok, problems, rows, totals }) {
+export function formatSummary({ ok, problems, rows, totals, superseded = [] }) {
   const lines = [
-    "| project | shard | listed (full selection) | executed | passed | intentionally skipped | failed/flaky/not run |",
-    "|---|---|---|---|---|---|---|",
-    ...rows.map((r) => `| ${r.project} | ${r.shard}/${r.total} | ${r.listed} | ${r.executed} | ${r.passed} | ${r.intentionallySkipped} | ${r.bad} |`),
+    "| project | shard | attempt | listed (full selection) | executed | passed | intentionally skipped | failed/flaky/not run |",
+    "|---|---|---|---|---|---|---|---|",
+    ...rows.map((r) => `| ${r.project} | ${r.shard}/${r.total} | ${r.runAttempt} | ${r.listed} | ${r.executed} | ${r.passed} | ${r.intentionallySkipped} | ${r.bad} |`),
     "",
     `Executed per project: ${Object.entries(totals).map(([p, n]) => `${p}=${n}`).join(", ") || "none"}; ` +
       `grand total ${Object.values(totals).reduce((a, b) => a + b, 0)}.`,
     "",
     ok ? "Coverage verification: **OK** -- every listed test ran exactly once and passed." : "Coverage verification: **FAILED**",
   ];
+  if (superseded.length > 0) {
+    lines.push(
+      "",
+      `Superseded by a later re-run attempt (ignored): ${superseded.map((r) => `${r.project} shard ${r.shard}/${r.total} attempt ${r.runAttempt}`).join(", ")}.`,
+    );
+  }
   if (!ok) lines.push("", ...problems.slice(0, 50).map((p) => `- ${p}`), problems.length > 50 ? `- ... (+${problems.length - 50} more)` : "");
   return lines.join("\n");
 }
@@ -249,18 +295,38 @@ function fakeReport(project, entries) {
   };
 }
 
-function fullSuite(ids, projects = ["p390", "p360"], total = 2, mutate = () => {}) {
+function fullSuite(ids, projects = ["p390", "p360"], total = 2, mutate = () => {}, runAttempt = 1) {
   const evidences = [];
   for (const project of projects) {
     const listReport = fakeReport(project, ids.map((id) => [id, "skipped"]));
     for (let shard = 1; shard <= total; shard++) {
       const mine = ids.filter((_, i) => i % total === shard - 1);
       const resultsReport = fakeReport(project, mine.map((id) => [id, "expected"]));
-      evidences.push(collect({ project, shard, total, listReport, resultsReport }));
+      evidences.push(collect({ project, shard, total, runAttempt, listReport, resultsReport }));
     }
   }
   mutate(evidences);
   return evidences;
+}
+
+/** One shard's evidence at `runAttempt`, optionally with its first test failed. */
+function shardEvidence(project, shard, runAttempt, { failFirst = false } = {}, ids = IDS, total = 2) {
+  const mine = ids.filter((_, i) => i % total === shard - 1);
+  return collect({
+    project,
+    shard,
+    total,
+    runAttempt,
+    listReport: fakeReport(project, ids.map((id) => [id, "skipped"])),
+    resultsReport: fakeReport(project, mine.map((id, i) => [id, failFirst && i === 0 ? "unexpected" : "expected"])),
+  });
+}
+
+/** "Re-run failed jobs": attempt 1 of p390 shard 1 failed; only that shard ran again as `rerun`. */
+function rerun(rerunOpts, extra = []) {
+  const e = fullSuite(IDS);
+  e[0] = shardEvidence("p390", 1, 1, { failFirst: true });
+  return [...e, shardEvidence("p390", 1, 2, rerunOpts), ...extra];
 }
 
 const IDS = ["t1", "t2", "t3", "t4", "t5"];
@@ -288,6 +354,16 @@ const SELF_TEST_CASES = [
   ["collect-time error recorded", () => fullSuite(IDS, P, 2, (e) => { e[0].errors = ["results.json: missing"]; }), false],
   ["no evidence at all", () => [], false],
   ["three shards, complete", () => fullSuite(IDS, P, 3), true],
+  // Re-run evidence (PR #221 run 36019302842): the stale failed attempt must never be adopted.
+  ["rerun: failed attempt 1 superseded by passing attempt 2", () => rerun({}), true],
+  ["rerun: stale failed attempt listed AFTER the passing one", () => { const e = rerun({}); return [e.pop(), ...e]; }, true],
+  ["rerun: the re-run attempt failed again", () => rerun({ failFirst: true }), false],
+  ["rerun: newer attempt failed, older passed (never fall back)", () => { const e = fullSuite(IDS); return [...e, shardEvidence("p390", 1, 2, { failFirst: true })]; }, false],
+  ["rerun: shard duplicated within the latest attempt", () => rerun({}, [shardEvidence("p390", 1, 2)]), false],
+  ["rerun: second rerun (attempt 3) passes after attempt 2 failed", () => rerun({ failFirst: true }, [shardEvidence("p390", 1, 3)]), true],
+  ["re-run all jobs: every shard at attempt 2 over a failed attempt 1", () => [...rerun({}).slice(0, 4), ...fullSuite(IDS, P, 2, () => {}, 2)], true],
+  ["missing runAttempt", () => fullSuite(IDS, P, 2, (e) => { delete e[0].runAttempt; }), false],
+  ["runAttempt 0", () => fullSuite(IDS, P, 2, () => {}, 0), false],
 ];
 
 function selfTest() {
@@ -303,6 +379,7 @@ function selfTest() {
     project: "p390",
     shard: 1,
     total: 1,
+    runAttempt: 1,
     listReport: fakeReport("p390", [["t1", "skipped"]]),
     resultsReport: { suites: [...fakeReport("p390", [["t1", "expected"]]).suites, ...fakeReport("p360", [["t1", "expected"]]).suites] },
   });
@@ -339,12 +416,21 @@ if (isMain) {
     };
     const listReport = load(arg("list"), "list");
     const resultsReport = load(arg("results"), "results");
-    const evidence = collect({ project: arg("project"), shard: arg("shard"), total: arg("total"), listReport, resultsReport, errors });
+    if (!arg("attempt")) errors.push("no --attempt given");
+    const evidence = collect({
+      project: arg("project"),
+      shard: arg("shard"),
+      total: arg("total"),
+      runAttempt: arg("attempt"),
+      listReport,
+      resultsReport,
+      errors,
+    });
     const out = arg("out");
     mkdirSync(dirname(out), { recursive: true });
     writeFileSync(out, `${JSON.stringify(evidence, null, 2)}\n`);
     console.log(
-      `${evidence.project} shard ${evidence.shard}/${evidence.total}: listed ${evidence.listed.length}, ` +
+      `${evidence.project} shard ${evidence.shard}/${evidence.total} attempt ${evidence.runAttempt}: listed ${evidence.listed.length}, ` +
         `executed ${Object.keys(evidence.executed).length}${errors.length ? `, errors: ${errors.join("; ")}` : ""}`,
     );
   } else if (mode === "verify") {
