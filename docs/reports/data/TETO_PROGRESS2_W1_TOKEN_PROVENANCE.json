@@ -1,0 +1,667 @@
+{
+  "schemaVersion": 1,
+  "kind": "w1_token_provenance",
+  "evidenceClasses": {
+    "PIZZA_DB_EVIDENCE": "docs/reports/data/TETO_PIZZADB_172_MASTER-EVIDENCE.json",
+    "EXISTING_CATALOG": [
+      "data/recipes/ingredient_master_catalog.json",
+      "tools/progression2_ingredient_canonicalizer.py"
+    ],
+    "PRODUCTION_DATA": "src/** (read-only)",
+    "PR_221_CANDIDATE": "docs/reports/data/TETO_PROGRESS2_W1_RECIPE_AUTHORING_MATRIX.json"
+  },
+  "externalFetchThisSession": "EGRESS_BLOCKED (pizzadb.jp CONNECT 403 via environment network policy, 2026-09-24); no new PIZZA DB evidence added",
+  "recipes": [
+    {
+      "recipeIdCandidate": "new-haven-apizza",
+      "evidenceId": "new-haven-apizza-pizzadb",
+      "pizzaDbSourceUrl": "https://pizzadb.jp/compare/world-pizzas/ (original Phase 0B sample batch, page 6)",
+      "pizzaDbSauceFamily": "オイル",
+      "pizzaDbEvidenceOrigin": "comparison_table_sample",
+      "pizzaDbVerifiedAt": "2026-09-22 (Phase 0B original relay)",
+      "tokenSource": "ingredientsCanonical_only",
+      "note": "Phase 0B original relay recorded canonical ids only (no Japanese token); nothing to re-classify.",
+      "canonicalIds": [
+        "clam",
+        "olive-oil",
+        "garlic",
+        "parmigiano"
+      ],
+      "likelyAliasTokens": [],
+      "nonExactNonLikelyTokens": [],
+      "pr221IdentityIngredients": [
+        "olive-oil",
+        "parmigiano",
+        "clam",
+        "garlic"
+      ],
+      "pr221DescriptionCandidate": "オリーブオイルを塗った生地に、あさり、にんにく、パルミジャーノをのせて香ばしく焼き上げたアメリカ・ニューヘイブン風の一枚。"
+    },
+    {
+      "recipeIdCandidate": "hawaiian",
+      "evidenceId": "hawaiian-pizzadb-row",
+      "pizzaDbSourceUrl": "https://pizzadb.jp/pizzas/hawaiian/",
+      "pizzaDbSauceFamily": "トマトソース",
+      "pizzaDbEvidenceOrigin": "individual_profile_page",
+      "pizzaDbVerifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "tokenSource": "ingredientsJa",
+      "tokens": [
+        {
+          "token": "モッツァレラチーズ",
+          "disposition": "exact_alias",
+          "canonicalId": "mozzarella",
+          "rule": "1_exact_nameJa_or_alias"
+        },
+        {
+          "token": "パイナップル",
+          "disposition": "exact_alias",
+          "canonicalId": "pineapple",
+          "rule": "1_exact_nameJa_or_alias"
+        },
+        {
+          "token": "ハム",
+          "disposition": "exact_alias",
+          "canonicalId": "ham",
+          "rule": "1_exact_nameJa_or_alias"
+        }
+      ],
+      "likelyAliasTokens": [],
+      "nonExactNonLikelyTokens": [],
+      "pr221IdentityIngredients": [
+        "tomato-sauce",
+        "mozzarella",
+        "ham",
+        "pineapple"
+      ],
+      "pr221DescriptionCandidate": "トマトソースにハムとパイナップル、モッツァレラを合わせた、甘みと塩気のバランスが楽しい一枚。"
+    },
+    {
+      "recipeIdCandidate": "parmigiana-pizza",
+      "evidenceId": "parmigiana-pizza-pizzadb-p7",
+      "pizzaDbSourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/7/",
+      "pizzaDbSauceFamily": "トマトソース",
+      "pizzaDbEvidenceOrigin": "comparison_table_sample",
+      "pizzaDbVerifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "tokenSource": "ingredientsJa",
+      "tokens": [
+        {
+          "token": "ナス",
+          "disposition": "exact_alias",
+          "canonicalId": "eggplant",
+          "rule": "1_exact_nameJa_or_alias"
+        },
+        {
+          "token": "モッツァレラチーズ",
+          "disposition": "exact_alias",
+          "canonicalId": "mozzarella",
+          "rule": "1_exact_nameJa_or_alias"
+        },
+        {
+          "token": "パルミジャーノチーズ",
+          "disposition": "likely_alias",
+          "canonicalId": "parmigiano",
+          "rule": "2_curated_synonym_table"
+        },
+        {
+          "token": "バジル",
+          "disposition": "exact_alias",
+          "canonicalId": "basil",
+          "rule": "1_exact_nameJa_or_alias"
+        }
+      ],
+      "likelyAliasTokens": [
+        "パルミジャーノチーズ->parmigiano"
+      ],
+      "nonExactNonLikelyTokens": [],
+      "pr221IdentityIngredients": [
+        "tomato-sauce",
+        "mozzarella",
+        "eggplant",
+        "parmigiano",
+        "basil"
+      ],
+      "pr221DescriptionCandidate": "トマトソースにナス、モッツァレラ、パルミジャーノ、バジルを合わせた南イタリア風の一枚。"
+    },
+    {
+      "recipeIdCandidate": "bambino",
+      "evidenceId": "bambino-pizzadb-p7",
+      "pizzaDbSourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/7/",
+      "pizzaDbSauceFamily": "トマトソース",
+      "pizzaDbEvidenceOrigin": "comparison_table_sample",
+      "pizzaDbVerifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "tokenSource": "ingredientsJa",
+      "tokens": [
+        {
+          "token": "モッツァレラチーズ",
+          "disposition": "exact_alias",
+          "canonicalId": "mozzarella",
+          "rule": "1_exact_nameJa_or_alias"
+        },
+        {
+          "token": "ハム",
+          "disposition": "exact_alias",
+          "canonicalId": "ham",
+          "rule": "1_exact_nameJa_or_alias"
+        },
+        {
+          "token": "コーン",
+          "disposition": "exact_alias",
+          "canonicalId": "corn",
+          "rule": "1_exact_nameJa_or_alias"
+        }
+      ],
+      "likelyAliasTokens": [],
+      "nonExactNonLikelyTokens": [],
+      "pr221IdentityIngredients": [
+        "tomato-sauce",
+        "mozzarella",
+        "ham",
+        "corn"
+      ],
+      "pr221DescriptionCandidate": "トマトソースにハム、コーン、モッツァレラをのせた、やさしい甘みで親しみやすい一枚。"
+    },
+    {
+      "recipeIdCandidate": "pizza-portuguesa",
+      "evidenceId": "pizza-portuguesa-pizzadb-p9",
+      "pizzaDbSourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/9/",
+      "pizzaDbSauceFamily": "トマトソース",
+      "pizzaDbEvidenceOrigin": "comparison_table_sample",
+      "pizzaDbVerifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "tokenSource": "ingredientsJa",
+      "tokens": [
+        {
+          "token": "ハム",
+          "disposition": "exact_alias",
+          "canonicalId": "ham",
+          "rule": "1_exact_nameJa_or_alias"
+        },
+        {
+          "token": "卵",
+          "disposition": "exact_alias",
+          "canonicalId": "egg",
+          "rule": "1_exact_nameJa_or_alias"
+        },
+        {
+          "token": "玉ねぎ",
+          "disposition": "exact_alias",
+          "canonicalId": "onion",
+          "rule": "1_exact_nameJa_or_alias"
+        },
+        {
+          "token": "オリーブ",
+          "disposition": "likely_alias",
+          "canonicalId": "black-olive",
+          "rule": "2_curated_synonym_table"
+        },
+        {
+          "token": "モッツァレラチーズ",
+          "disposition": "exact_alias",
+          "canonicalId": "mozzarella",
+          "rule": "1_exact_nameJa_or_alias"
+        }
+      ],
+      "likelyAliasTokens": [
+        "オリーブ->black-olive"
+      ],
+      "nonExactNonLikelyTokens": [],
+      "pr221IdentityIngredients": [
+        "tomato-sauce",
+        "mozzarella",
+        "ham",
+        "egg",
+        "onion",
+        "black-olive"
+      ],
+      "pr221DescriptionCandidate": "トマトソースにハム、卵、たまねぎ、ブラックオリーブ、モッツァレラを重ねたブラジル定番の一枚。"
+    },
+    {
+      "recipeIdCandidate": "puttanesca-pizza",
+      "evidenceId": "puttanesca-pizza-pizzadb-p10",
+      "pizzaDbSourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/10/",
+      "pizzaDbSauceFamily": "トマトソース",
+      "pizzaDbEvidenceOrigin": "comparison_table_sample",
+      "pizzaDbVerifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "tokenSource": "ingredientsJa",
+      "tokens": [
+        {
+          "token": "アンチョビ",
+          "disposition": "exact_alias",
+          "canonicalId": "anchovy",
+          "rule": "1_exact_nameJa_or_alias"
+        },
+        {
+          "token": "オリーブ",
+          "disposition": "likely_alias",
+          "canonicalId": "black-olive",
+          "rule": "2_curated_synonym_table"
+        },
+        {
+          "token": "ケッパー",
+          "disposition": "genuinely_new",
+          "canonicalId": "capers",
+          "rule": "4_confirmed_new_registry"
+        },
+        {
+          "token": "にんにく",
+          "disposition": "exact_alias",
+          "canonicalId": "garlic",
+          "rule": "1_exact_nameJa_or_alias"
+        }
+      ],
+      "likelyAliasTokens": [
+        "オリーブ->black-olive"
+      ],
+      "nonExactNonLikelyTokens": [],
+      "pr221IdentityIngredients": [
+        "tomato-sauce",
+        "anchovy",
+        "black-olive",
+        "capers",
+        "garlic"
+      ],
+      "pr221DescriptionCandidate": "トマトソースにアンチョビ、ブラックオリーブ、ケッパー、にんにくを効かせた、塩味と香りの強い一枚。"
+    },
+    {
+      "recipeIdCandidate": "pesto-caprese",
+      "evidenceId": "pesto-caprese-pizzadb-p11",
+      "pizzaDbSourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/11/",
+      "pizzaDbSauceFamily": "バジル",
+      "pizzaDbEvidenceOrigin": "comparison_table_sample",
+      "pizzaDbVerifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "tokenSource": "ingredientsJa",
+      "tokens": [
+        {
+          "token": "モッツァレラチーズ",
+          "disposition": "exact_alias",
+          "canonicalId": "mozzarella",
+          "rule": "1_exact_nameJa_or_alias"
+        },
+        {
+          "token": "トマト",
+          "disposition": "exact_alias",
+          "canonicalId": "fresh-tomato",
+          "rule": "1_exact_nameJa_or_alias"
+        },
+        {
+          "token": "バジル",
+          "disposition": "exact_alias",
+          "canonicalId": "basil",
+          "rule": "1_exact_nameJa_or_alias"
+        }
+      ],
+      "likelyAliasTokens": [],
+      "nonExactNonLikelyTokens": [],
+      "pr221IdentityIngredients": [
+        "pesto",
+        "mozzarella",
+        "fresh-tomato",
+        "basil"
+      ],
+      "pr221DescriptionCandidate": "ジェノベーゼソースにトマト、モッツァレラ、バジルを重ねた、カプレーゼ仕立ての爽やかな一枚。"
+    },
+    {
+      "recipeIdCandidate": "pesto-tonno",
+      "evidenceId": "pesto-tonno-pizzadb-p12",
+      "pizzaDbSourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/12/",
+      "pizzaDbSauceFamily": "バジル",
+      "pizzaDbEvidenceOrigin": "comparison_table_sample",
+      "pizzaDbVerifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "tokenSource": "ingredientsJa",
+      "tokens": [
+        {
+          "token": "ツナ",
+          "disposition": "exact_alias",
+          "canonicalId": "tuna",
+          "rule": "1_exact_nameJa_or_alias"
+        },
+        {
+          "token": "オリーブ",
+          "disposition": "likely_alias",
+          "canonicalId": "black-olive",
+          "rule": "2_curated_synonym_table"
+        },
+        {
+          "token": "玉ねぎ",
+          "disposition": "exact_alias",
+          "canonicalId": "onion",
+          "rule": "1_exact_nameJa_or_alias"
+        }
+      ],
+      "likelyAliasTokens": [
+        "オリーブ->black-olive"
+      ],
+      "nonExactNonLikelyTokens": [],
+      "pr221IdentityIngredients": [
+        "pesto",
+        "tuna",
+        "black-olive",
+        "onion"
+      ],
+      "pr221DescriptionCandidate": "香り高いジェノベーゼソースに、ツナ、ブラックオリーブ、たまねぎを合わせた爽やかな一枚。"
+    },
+    {
+      "recipeIdCandidate": "pesto-patate",
+      "evidenceId": "pesto-patate-pizzadb-p12",
+      "pizzaDbSourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/12/",
+      "pizzaDbSauceFamily": "バジル",
+      "pizzaDbEvidenceOrigin": "comparison_table_sample",
+      "pizzaDbVerifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "tokenSource": "ingredientsJa",
+      "tokens": [
+        {
+          "token": "じゃがいも",
+          "disposition": "exact_alias",
+          "canonicalId": "potato",
+          "rule": "1_exact_nameJa_or_alias"
+        },
+        {
+          "token": "ベーコン",
+          "disposition": "exact_alias",
+          "canonicalId": "bacon",
+          "rule": "1_exact_nameJa_or_alias"
+        },
+        {
+          "token": "モッツァレラチーズ",
+          "disposition": "exact_alias",
+          "canonicalId": "mozzarella",
+          "rule": "1_exact_nameJa_or_alias"
+        }
+      ],
+      "likelyAliasTokens": [],
+      "nonExactNonLikelyTokens": [],
+      "pr221IdentityIngredients": [
+        "pesto",
+        "mozzarella",
+        "potato",
+        "bacon"
+      ],
+      "pr221DescriptionCandidate": "ジェノベーゼソースにじゃがいも、ベーコン、モッツァレラを合わせた、ほくほくと香ばしい一枚。"
+    },
+    {
+      "recipeIdCandidate": "melanzane-pizza",
+      "evidenceId": "melanzane-pizza-pizzadb-p13",
+      "pizzaDbSourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/13/",
+      "pizzaDbSauceFamily": "トマトソース",
+      "pizzaDbEvidenceOrigin": "comparison_table_sample",
+      "pizzaDbVerifiedAt": "2026-09-22 (relayed, not independently re-fetched by this Claude session)",
+      "tokenSource": "ingredientsJa",
+      "tokens": [
+        {
+          "token": "ナス",
+          "disposition": "exact_alias",
+          "canonicalId": "eggplant",
+          "rule": "1_exact_nameJa_or_alias"
+        },
+        {
+          "token": "モッツァレラ",
+          "disposition": "exact_alias",
+          "canonicalId": "mozzarella",
+          "rule": "1_exact_nameJa_or_alias"
+        },
+        {
+          "token": "バジル",
+          "disposition": "exact_alias",
+          "canonicalId": "basil",
+          "rule": "1_exact_nameJa_or_alias"
+        }
+      ],
+      "likelyAliasTokens": [],
+      "nonExactNonLikelyTokens": [],
+      "pr221IdentityIngredients": [
+        "tomato-sauce",
+        "mozzarella",
+        "eggplant",
+        "basil"
+      ],
+      "pr221DescriptionCandidate": "トマトソースにナス、モッツァレラ、バジルを合わせた、素朴で香り豊かな南イタリア風ピザ。"
+    }
+  ],
+  "w1LikelyAliasTokens": [
+    "オリーブ->black-olive",
+    "パルミジャーノチーズ->parmigiano"
+  ],
+  "newIngredientIdentityEvidence": {
+    "capers": [
+      "ケッパー:genuinely_new:4_confirmed_new_registry"
+    ],
+    "clam": [
+      "(canonical-at-relay):new-haven-apizza-pizzadb"
+    ],
+    "corn": [
+      "コーン:exact_alias:1_exact_nameJa_or_alias"
+    ],
+    "eggplant": [
+      "ナス:exact_alias:1_exact_nameJa_or_alias"
+    ],
+    "fresh-tomato": [
+      "トマト:exact_alias:1_exact_nameJa_or_alias"
+    ],
+    "pineapple": [
+      "パイナップル:exact_alias:1_exact_nameJa_or_alias"
+    ],
+    "potato": [
+      "じゃがいも:exact_alias:1_exact_nameJa_or_alias"
+    ]
+  },
+  "oliveCensus": {
+    "pizzaDbRowsWithPlainOliveToken": 12,
+    "pizzaDbRowsWithPlainOliveTokenIds": [
+      "brazilian-calabresa-pizzadb-p10",
+      "caponata-pizza-pizzadb-p2",
+      "palmito-pizza-pizzadb-p7",
+      "peruvian-aji-amarillo-pizzadb-p12",
+      "pesto-tonno-pizzadb-p12",
+      "pizza-a-caballo",
+      "pizza-chilena-pizzadb-p8",
+      "pizza-feta-eliniki-pizzadb-p9",
+      "pizza-finocchi-salad-pizzadb-p8",
+      "pizza-portuguesa-pizzadb-p9",
+      "puttanesca-pizza-pizzadb-p10",
+      "veggie-supreme-pizza-pizzadb-p11"
+    ],
+    "pizzaDbColorSpecifiedOliveTokens": [],
+    "pizzaDbRowsCanonicalBlackOliveWithoutJaToken": [
+      "calabresa-argentina-pizzadb",
+      "capricciosa-pizzadb",
+      "quattro-stagioni-pizzadb",
+      "greek-style-pizzadb",
+      "supreme-pizzadb",
+      "bacalhau-pizzadb"
+    ],
+    "existingCatalogOliveIds": [
+      "black-olive",
+      "olive-oil"
+    ],
+    "finding": "PIZZA DB ingredient columns use a single plain token オリーブ (distinct from オリーブオイル) and never a color/variety-specified olive token; the Phase 0B rows that carry canonical black-olive recorded no Japanese token, so they cannot show how the source spelled it. Olive colour is therefore not determinable from PIZZA DB evidence. black-olive is the existing catalog's only olive-type topping (EXISTING_CATALOG), not a PIZZA DB fact."
+  },
+  "parmigianoCensus": {
+    "pizzaDbRowsWithToken": [
+      "spinach-artichoke-pizza-pizzadb-p4",
+      "argentine-napolitana-pizzadb-p1",
+      "parmigiana-pizza-pizzadb-p7",
+      "pizza-asparagi-limone-pizzadb-p8",
+      "pizza-carciofi-salad-pizzadb-p8"
+    ],
+    "existingCatalogParmigiano": {
+      "id": "parmigiano",
+      "nameJa": "パルミジャーノ",
+      "nameOriginal": "Parmigiano Reggiano",
+      "aliases": [],
+      "existingInGame": true
+    },
+    "catalogHardCheeseIds": [
+      "parmigiano"
+    ],
+    "canonicalizerChiizuSuffixAsOrthographicExact": {
+      "モッツァレラチーズ": "モッツァレラ"
+    },
+    "canonicalizerChiizuSuffixAsLikelyAlias": {
+      "ゴルゴンゾーラチーズ": "gorgonzola",
+      "チェダーチーズ": "cheddar",
+      "カチョカヴァッロチーズ": "caciocavallo",
+      "フォンティーナチーズ": "fontina",
+      "リコッタサラータチーズ": "ricotta-salata",
+      "パルミジャーノチーズ": "parmigiano"
+    },
+    "finding": "Token = the catalog nameJa パルミジャーノ + the generic suffix チーズ; no other catalog id has a competing claim (grana-padano / pecorino are separate names). The merged canonicalizer treats the same pattern as orthographic exact for モッツァレラチーズ but as likely_alias for パルミジャーノチーズ and other cheeses, so the likely_alias label reflects table placement, not a competing identity. Moving it is a canonicalizer-table review decision and is NOT applied here."
+  },
+  "eggplantFamilyCensus": [
+    {
+      "rowId": "caponata-pizza-pizzadb-p2",
+      "nameJa": "カポナータピザ",
+      "sauceFamily": "その他",
+      "tokenIds": [
+        "black-olive",
+        "capers",
+        "eggplant",
+        "mozzarella"
+      ],
+      "inW1": false
+    },
+    {
+      "rowId": "eggplant-tahini-pizza-pizzadb-p5",
+      "nameJa": "ナスとタヒニのピザ",
+      "sauceFamily": "その他",
+      "tokenIds": [
+        "eggplant",
+        "parsley",
+        "pomegranate",
+        "tahini"
+      ],
+      "inW1": false
+    },
+    {
+      "rowId": "eggplant-ricotta-pizza-pizzadb-p5",
+      "nameJa": "ナスとリコッタのピザ",
+      "sauceFamily": "チーズ",
+      "tokenIds": [
+        "eggplant",
+        "mint",
+        "olive-oil",
+        "ricotta"
+      ],
+      "inW1": false
+    },
+    {
+      "rowId": "eggplant-dengaku-pizza-pizzadb-p6",
+      "nameJa": "ナス田楽ピザ",
+      "sauceFamily": "甘辛だれ",
+      "tokenIds": [
+        "eggplant",
+        "miso-sauce",
+        "mozzarella",
+        "white-sesame"
+      ],
+      "inW1": false
+    },
+    {
+      "rowId": "baingan-bharta-pizza-pizzadb-p6",
+      "nameJa": "バインガンバルタピザ",
+      "sauceFamily": "カレー",
+      "tokenIds": [
+        "cilantro",
+        "eggplant",
+        "fresh-tomato",
+        "mozzarella",
+        "onion"
+      ],
+      "inW1": false
+    },
+    {
+      "rowId": "baba-ganoush-pizza-pizzadb-p7",
+      "nameJa": "ババガヌーシュピザ",
+      "sauceFamily": "その他",
+      "tokenIds": [
+        "eggplant",
+        "olive-oil",
+        "parsley",
+        "pine-nuts"
+      ],
+      "inW1": false
+    },
+    {
+      "rowId": "parmigiana-pizza-pizzadb-p7",
+      "nameJa": "パルミジャーナピザ",
+      "sauceFamily": "トマトソース",
+      "tokenIds": [
+        "basil",
+        "eggplant",
+        "mozzarella",
+        "parmigiano"
+      ],
+      "inW1": true
+    },
+    {
+      "rowId": "pizza-alla-norma-pizzadb-p9",
+      "nameJa": "ピッツァアッラノルマ",
+      "sauceFamily": "トマトソース",
+      "tokenIds": [
+        "basil",
+        "eggplant",
+        "ricotta-salata"
+      ],
+      "inW1": false
+    },
+    {
+      "rowId": "pesto-vegetariana-pizzadb-p12",
+      "nameJa": "ペストベジタリアーナピザ",
+      "sauceFamily": "バジル",
+      "tokenIds": [
+        "bell-pepper",
+        "eggplant",
+        "mozzarella",
+        "zucchini"
+      ],
+      "inW1": false
+    },
+    {
+      "rowId": "sichuan-eggplant-pizza",
+      "nameJa": "四川風ナスピザ",
+      "sauceFamily": "ホットソース",
+      "tokenIds": [
+        "doubanjiang",
+        "eggplant",
+        "garlic",
+        "green-onion",
+        "mozzarella"
+      ],
+      "inW1": false
+    },
+    {
+      "rowId": "moussaka-style-pizza-pizzadb-p13",
+      "nameJa": "ムサカ風ピザ",
+      "sauceFamily": "ホワイトソース",
+      "tokenIds": [
+        "UNRESOLVED:ホワイトソース",
+        "cinnamon",
+        "eggplant",
+        "feta",
+        "lamb"
+      ],
+      "inW1": false
+    },
+    {
+      "rowId": "melanzane-pizza-pizzadb-p13",
+      "nameJa": "メランザーネピザ",
+      "sauceFamily": "トマトソース",
+      "tokenIds": [
+        "basil",
+        "eggplant",
+        "mozzarella"
+      ],
+      "inW1": true
+    },
+    {
+      "rowId": "ratatouille-pizza-pizzadb-p13",
+      "nameJa": "ラタトゥイユピザ",
+      "sauceFamily": "トマトソース",
+      "tokenIds": [
+        "bell-pepper",
+        "eggplant",
+        "oregano",
+        "zucchini"
+      ],
+      "inW1": false
+    }
+  ]
+}

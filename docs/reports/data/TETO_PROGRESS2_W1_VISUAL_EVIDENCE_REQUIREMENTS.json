@@ -1,0 +1,365 @@
+{
+  "schemaVersion": 1,
+  "kind": "w1_visual_evidence_requirements",
+  "policy": "docs/decisions/TETO_HUMAN-VERIFICATION-POLICY.md (390x844 authority viewport, video delivered directly, never committed)",
+  "prerequisite": "A Preview build that actually contains the candidate ingredient rows (future slice B). Device verification cannot be performed from docs; no verdict here is PASS.",
+  "explicitFocus": {
+    "fresh-tomato": {
+      "verdict": "HUMAN_VERIFICATION_REQUIRED",
+      "check": "🍅 collision: identical glyph to production cherry-tomato (placed piece) and tomato-sauce (tray chip). Verify a player can tell fresh-tomato from cherry-tomato on tray and pizza; a cherry-tomato Pesto Caprese renders identically but discovers nothing (see sameGlyphSubstitutionOutcomes)."
+    },
+    "eggplant": {
+      "verdict": "HUMAN_VERIFICATION_REQUIRED",
+      "check": "🍆 visibility: dark-purple glyph on tomato-sauce red and after bake roast tint; verify it stays identifiable at piece size on 390x844 and in reference/thumbnail."
+    },
+    "clam": {
+      "verdict": "HUMAN_VERIFICATION_REQUIRED",
+      "check": "clam visibility: pale shell glyph (🦪 candidate / 🐚 in brief) on olive-oil base with parmigiano and garlic 🧄 (also pale); verify it reads as shellfish, not as garlic or cheese."
+    },
+    "capers": {
+      "verdict": "HUMAN_VERIFICATION_REQUIRED",
+      "check": "🟢 distinguishability: plain LARGE GREEN CIRCLE beside ⚫ black-olive in Puttanesca and 🔴 pepperoni in the tray -- hue is the only cue (red/green colour-vision risk); verify on device, including a greyscale/CVD pass."
+    }
+  },
+  "checkContextsPerIngredient": [
+    "Ingredient tray chip (390x844, iPhone Safari)",
+    "Placed piece on the recipe's sauce + cheese before bake",
+    "Same piece after bake (toppingVisualFrame roast tint)",
+    "Reference ring / ReferenceThumbnail",
+    "RESULT / Dex thumbnail",
+    "Side-by-side with every sameGlyph / coPlaced ingredient listed for it"
+  ],
+  "ingredients": [
+    {
+      "ledgerId": "ING-02",
+      "ingredientId": "capers",
+      "pr221Candidate": {
+        "displayName": "ケッパー",
+        "emoji": "🟢",
+        "unicodeName": "LARGE GREEN CIRCLE",
+        "color": "#6f7f35",
+        "category": "topping"
+      },
+      "recipes": [
+        "puttanesca-pizza"
+      ],
+      "renderPath": "IngredientPieceVisual emoji branch (non-cheese): the glyph alone identifies the piece on the pizza, tray, reference and thumbnails; `color` is not drawn for the piece",
+      "staticFindings": {
+        "sameGlyphIngredients": [],
+        "sameGlyphSubstitutionOutcomes": [],
+        "coPlacedIngredients": [
+          {
+            "id": "anchovy",
+            "emoji": "🐟",
+            "category": "topping"
+          },
+          {
+            "id": "black-olive",
+            "emoji": "⚫",
+            "category": "topping"
+          },
+          {
+            "id": "garlic",
+            "emoji": "🧄",
+            "category": "topping"
+          },
+          {
+            "id": "tomato-sauce",
+            "emoji": "🍅",
+            "category": "sauce"
+          }
+        ],
+        "plainCircleGlyphFamily": [
+          "black-olive",
+          "capers",
+          "pepperoni"
+        ]
+      },
+      "verdict": "HUMAN_VERIFICATION_REQUIRED",
+      "verdictNote": "Static analysis cannot show device rendering (iOS emoji font, 390x844 scale, bake tint). Not PASS."
+    },
+    {
+      "ledgerId": "ING-07",
+      "ingredientId": "clam",
+      "pr221Candidate": {
+        "displayName": "あさり",
+        "emoji": "🦪",
+        "unicodeName": "OYSTER",
+        "color": "#c9b89a",
+        "category": "topping"
+      },
+      "recipes": [
+        "new-haven-apizza"
+      ],
+      "renderPath": "IngredientPieceVisual emoji branch (non-cheese): the glyph alone identifies the piece on the pizza, tray, reference and thumbnails; `color` is not drawn for the piece",
+      "staticFindings": {
+        "sameGlyphIngredients": [],
+        "sameGlyphSubstitutionOutcomes": [],
+        "coPlacedIngredients": [
+          {
+            "id": "garlic",
+            "emoji": "🧄",
+            "category": "topping"
+          },
+          {
+            "id": "olive-oil",
+            "emoji": "🫒",
+            "category": "sauce"
+          },
+          {
+            "id": "parmigiano",
+            "emoji": "🧀",
+            "category": "cheese"
+          }
+        ],
+        "plainCircleGlyphFamily": [],
+        "glyphCandidatesOnRecord": [
+          {
+            "emoji": "🦪",
+            "unicodeName": "OYSTER",
+            "source": "PR #221 ingredient matrix emojiCandidate"
+          },
+          {
+            "emoji": "🐚",
+            "unicodeName": "SPIRAL SHELL",
+            "source": "W1 evidence-resolution task brief (clam 🐚 visibility)"
+          }
+        ],
+        "note": "Neither glyph is a clam: PR #221 proposes OYSTER, the brief names SPIRAL SHELL. Which glyph is authored is an Owner Decision; both need the device check."
+      },
+      "verdict": "HUMAN_VERIFICATION_REQUIRED",
+      "verdictNote": "Static analysis cannot show device rendering (iOS emoji font, 390x844 scale, bake tint). Not PASS."
+    },
+    {
+      "ledgerId": "ING-08",
+      "ingredientId": "corn",
+      "pr221Candidate": {
+        "displayName": "コーン",
+        "emoji": "🌽",
+        "unicodeName": "EAR OF MAIZE",
+        "color": "#f5cf3a",
+        "category": "topping"
+      },
+      "recipes": [
+        "bambino"
+      ],
+      "renderPath": "IngredientPieceVisual emoji branch (non-cheese): the glyph alone identifies the piece on the pizza, tray, reference and thumbnails; `color` is not drawn for the piece",
+      "staticFindings": {
+        "sameGlyphIngredients": [],
+        "sameGlyphSubstitutionOutcomes": [],
+        "coPlacedIngredients": [
+          {
+            "id": "ham",
+            "emoji": "🍖",
+            "category": "topping"
+          },
+          {
+            "id": "mozzarella",
+            "emoji": "🧀",
+            "category": "cheese"
+          },
+          {
+            "id": "tomato-sauce",
+            "emoji": "🍅",
+            "category": "sauce"
+          }
+        ],
+        "plainCircleGlyphFamily": []
+      },
+      "verdict": "HUMAN_VERIFICATION_REQUIRED",
+      "verdictNote": "Static analysis cannot show device rendering (iOS emoji font, 390x844 scale, bake tint). Not PASS."
+    },
+    {
+      "ledgerId": "ING-03",
+      "ingredientId": "eggplant",
+      "pr221Candidate": {
+        "displayName": "ナス",
+        "emoji": "🍆",
+        "unicodeName": "AUBERGINE",
+        "color": "#62407b",
+        "category": "topping"
+      },
+      "recipes": [
+        "melanzane-pizza",
+        "parmigiana-pizza"
+      ],
+      "renderPath": "IngredientPieceVisual emoji branch (non-cheese): the glyph alone identifies the piece on the pizza, tray, reference and thumbnails; `color` is not drawn for the piece",
+      "staticFindings": {
+        "sameGlyphIngredients": [],
+        "sameGlyphSubstitutionOutcomes": [],
+        "coPlacedIngredients": [
+          {
+            "id": "basil",
+            "emoji": "🌿",
+            "category": "topping"
+          },
+          {
+            "id": "mozzarella",
+            "emoji": "🧀",
+            "category": "cheese"
+          },
+          {
+            "id": "parmigiano",
+            "emoji": "🧀",
+            "category": "cheese"
+          },
+          {
+            "id": "tomato-sauce",
+            "emoji": "🍅",
+            "category": "sauce"
+          }
+        ],
+        "plainCircleGlyphFamily": []
+      },
+      "verdict": "HUMAN_VERIFICATION_REQUIRED",
+      "verdictNote": "Static analysis cannot show device rendering (iOS emoji font, 390x844 scale, bake tint). Not PASS."
+    },
+    {
+      "ledgerId": "ING-09",
+      "ingredientId": "fresh-tomato",
+      "pr221Candidate": {
+        "displayName": "トマト",
+        "emoji": "🍅",
+        "unicodeName": "TOMATO",
+        "color": "#d9432f",
+        "category": "topping"
+      },
+      "recipes": [
+        "pesto-caprese"
+      ],
+      "renderPath": "IngredientPieceVisual emoji branch (non-cheese): the glyph alone identifies the piece on the pizza, tray, reference and thumbnails; `color` is not drawn for the piece",
+      "staticFindings": {
+        "sameGlyphIngredients": [
+          {
+            "id": "cherry-tomato",
+            "category": "topping",
+            "source": "PRODUCTION_DATA"
+          },
+          {
+            "id": "tomato-sauce",
+            "category": "sauce",
+            "source": "PRODUCTION_DATA"
+          }
+        ],
+        "sameGlyphSubstitutionOutcomes": [
+          {
+            "id": "pesto-caprese:fresh-tomato->cherry-tomato",
+            "recipe": "pesto-caprese",
+            "swap": [
+              "fresh-tomato",
+              "cherry-tomato"
+            ],
+            "glyph": "🍅",
+            "ingredients": [
+              "pesto",
+              "mozzarella",
+              "cherry-tomato",
+              "basil"
+            ],
+            "outcome": {
+              "kind": "NO_MATCH"
+            }
+          }
+        ],
+        "coPlacedIngredients": [
+          {
+            "id": "basil",
+            "emoji": "🌿",
+            "category": "topping"
+          },
+          {
+            "id": "mozzarella",
+            "emoji": "🧀",
+            "category": "cheese"
+          },
+          {
+            "id": "pesto",
+            "emoji": "🌿",
+            "category": "sauce"
+          }
+        ],
+        "plainCircleGlyphFamily": []
+      },
+      "verdict": "HUMAN_VERIFICATION_REQUIRED",
+      "verdictNote": "Static analysis cannot show device rendering (iOS emoji font, 390x844 scale, bake tint). Not PASS."
+    },
+    {
+      "ledgerId": "ING-10",
+      "ingredientId": "pineapple",
+      "pr221Candidate": {
+        "displayName": "パイナップル",
+        "emoji": "🍍",
+        "unicodeName": "PINEAPPLE",
+        "color": "#f3c623",
+        "category": "topping"
+      },
+      "recipes": [
+        "hawaiian"
+      ],
+      "renderPath": "IngredientPieceVisual emoji branch (non-cheese): the glyph alone identifies the piece on the pizza, tray, reference and thumbnails; `color` is not drawn for the piece",
+      "staticFindings": {
+        "sameGlyphIngredients": [],
+        "sameGlyphSubstitutionOutcomes": [],
+        "coPlacedIngredients": [
+          {
+            "id": "ham",
+            "emoji": "🍖",
+            "category": "topping"
+          },
+          {
+            "id": "mozzarella",
+            "emoji": "🧀",
+            "category": "cheese"
+          },
+          {
+            "id": "tomato-sauce",
+            "emoji": "🍅",
+            "category": "sauce"
+          }
+        ],
+        "plainCircleGlyphFamily": []
+      },
+      "verdict": "HUMAN_VERIFICATION_REQUIRED",
+      "verdictNote": "Static analysis cannot show device rendering (iOS emoji font, 390x844 scale, bake tint). Not PASS."
+    },
+    {
+      "ledgerId": "ING-11",
+      "ingredientId": "potato",
+      "pr221Candidate": {
+        "displayName": "じゃがいも",
+        "emoji": "🥔",
+        "unicodeName": "POTATO",
+        "color": "#d9b77e",
+        "category": "topping"
+      },
+      "recipes": [
+        "pesto-patate"
+      ],
+      "renderPath": "IngredientPieceVisual emoji branch (non-cheese): the glyph alone identifies the piece on the pizza, tray, reference and thumbnails; `color` is not drawn for the piece",
+      "staticFindings": {
+        "sameGlyphIngredients": [],
+        "sameGlyphSubstitutionOutcomes": [],
+        "coPlacedIngredients": [
+          {
+            "id": "bacon",
+            "emoji": "🥓",
+            "category": "topping"
+          },
+          {
+            "id": "mozzarella",
+            "emoji": "🧀",
+            "category": "cheese"
+          },
+          {
+            "id": "pesto",
+            "emoji": "🌿",
+            "category": "sauce"
+          }
+        ],
+        "plainCircleGlyphFamily": []
+      },
+      "verdict": "HUMAN_VERIFICATION_REQUIRED",
+      "verdictNote": "Static analysis cannot show device rendering (iOS emoji font, 390x844 scale, bake tint). Not PASS."
+    }
+  ]
+}

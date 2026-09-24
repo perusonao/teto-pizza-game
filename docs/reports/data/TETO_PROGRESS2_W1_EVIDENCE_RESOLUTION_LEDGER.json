@@ -1,0 +1,550 @@
+{
+  "schemaVersion": 1,
+  "kind": "w1_evidence_resolution_ledger",
+  "inputs": {
+    "pr220": {
+      "headSha": "e49dab96bd9b26dc0f520349cf09d1160c3519f5",
+      "path": "docs/reports/data/TETO_PROGRESS2_CONTENT_READINESS_WAVES.json",
+      "blobSha256": "3db316e3b656462384708ef7f5a78cdef03a7e6765f047ce249e23dc8915b2be"
+    },
+    "pr221": {
+      "headSha": "d028844e3a848ebf53cbc45d745784b7695dedf2",
+      "state": "OPEN (Final Gate) -- read-only input, not modified",
+      "files": {
+        "docs/reports/data/TETO_PROGRESS2_W1_RECIPE_AUTHORING_MATRIX.json": "4069b4b0b4a8a8ee5c0c863faace958f66ece7c1da6e558342eb632cca116e21",
+        "docs/reports/data/TETO_PROGRESS2_W1_INGREDIENT_AUTHORING_MATRIX.json": "6b4d787f2301defd6a9bffa670fb1e4b4586cac7d078c343992cc29fc41c6ea5",
+        "docs/reports/data/TETO_PROGRESS2_W1_UNRESOLVED_EVIDENCE_LEDGER.json": "93c668492e2f4157efdc11cee5625335545989f92e82c2a5c6a357c5fc4bc670"
+      }
+    },
+    "main": {
+      "sha": "dff233c042d2df6ee1c3a92f2d2419830aa05460",
+      "files": {
+        "docs/reports/data/TETO_PIZZADB_172_MASTER-EVIDENCE.json": "2ab2d2e8fae267ef7c7e1b740d25b22f16514195ed446c3351ee7339a2c05adf",
+        "data/recipes/ingredient_master_catalog.json": "287e391fed307acfece0308627316ad1ca9a46042ae61d2519b0b18e90cbc4c1",
+        "tools/progression2_ingredient_canonicalizer.py": "c50429ba1f982539f4ab5b698e2dc7972af36bae6dd80f25e2ae5e588406e1fb",
+        "src/data/ingredients.ts": "e2f086ab71391394404da98bd6fe4e473ef9432f9ded294a18bcec1382c32e66",
+        "src/data/recipes.ts": "1d5afc1f3bc3d224bd23bc505951e23f0c3732b96a77384ed8ce13753d63c576",
+        "src/data/discoveryCatalog.ts": "1b012542151475064c66c4c95c9966454957dc58d8717fe222ad2232e364545b",
+        "src/logic/discovery/matcher.ts": "0722ce700ad0c0f6b0a50edf43a33a3047d1ce524a99840252f6b29ebab8c337",
+        "src/logic/discovery/signature.ts": "95168165bc3b79bab56b5abca7e178037e505f30100c19424d1d69fc7fb62dfc",
+        "src/components/IngredientPieceVisual.tsx": "72c89063d6fda43bcf52a92c1875cbf52fbefbc5266a8341e8166b3d71e81998",
+        "src/logic/pizzaReferenceLayout.ts": "c271fc6a98faa4aa5f3b12ff3ce17ccab5a6817eeee1eb23c6c10291161f295d"
+      }
+    }
+  },
+  "ownerDecisionsHeld": {
+    "sauce": "OD-S1 = A (maintained)",
+    "quantities": "authored minCounts unchanged; not trimmed to the 8-slot ring",
+    "completionGate": "#215 production untouched"
+  },
+  "rows": [
+    {
+      "id": "REC-01",
+      "scope": "all recipes",
+      "pr221Status": "AUTHORING_REQUIRED",
+      "field": "description/minCount/bakeTarget",
+      "resolution": "UNCHANGED",
+      "resolutionStatus": "AUTHORING_REQUIRED",
+      "note": "Global requirement inherited by every recipe; out of this task's scope (#215/#217/#218 owner tracks).",
+      "stillOpen": true
+    },
+    {
+      "id": "REC-02",
+      "scope": "all recipes",
+      "pr221Status": "AUTHORING_REQUIRED",
+      "field": "cutRequirement",
+      "resolution": "UNCHANGED",
+      "resolutionStatus": "AUTHORING_REQUIRED",
+      "note": "Global requirement inherited by every recipe; out of this task's scope (#215/#217/#218 owner tracks).",
+      "stillOpen": true
+    },
+    {
+      "id": "REC-03",
+      "scope": "all recipes",
+      "pr221Status": "OWNER_DECISION_REQUIRED",
+      "field": "completionGate",
+      "resolution": "UNCHANGED",
+      "resolutionStatus": "OWNER_DECISION_REQUIRED",
+      "note": "Global requirement inherited by every recipe; out of this task's scope (#215/#217/#218 owner tracks).",
+      "stillOpen": true
+    },
+    {
+      "id": "REC-04",
+      "scope": "all recipes",
+      "pr221Status": "OWNER_DECISION_REQUIRED",
+      "field": "progression",
+      "resolution": "UNCHANGED",
+      "resolutionStatus": "OWNER_DECISION_REQUIRED",
+      "note": "Global requirement inherited by every recipe; out of this task's scope (#215/#217/#218 owner tracks).",
+      "stillOpen": true
+    },
+    {
+      "id": "REC-06",
+      "scope": "pizza-portuguesa",
+      "pr221Status": "EVIDENCE_REQUIRED",
+      "field": "black-olive alias",
+      "resolution": "UNRESOLVED",
+      "resolutionStatus": "EVIDENCE_EXHAUSTED_OWNER_DECISION_REQUIRED",
+      "evidence": {
+        "PIZZA_DB_EVIDENCE": "token オリーブ (plain); 12 PIZZA DB rows use the plain token, 0 use a colour-specified olive token",
+        "EXISTING_CATALOG": "likely_alias -> black-olive (LIKELY_ALIAS_TABLE); catalog olive ids = ['black-olive', 'olive-oil']",
+        "PRODUCTION_DATA": "black-olive shipped (nameJa ブラックオリーブ, ⚫)",
+        "PR_221_CANDIDATE": "description asserts ブラックオリーブ: True"
+      },
+      "whyNotResolved": "Olive colour/variety is not stated by PIZZA DB and pizzadb.jp is unreachable from this environment; mapping to black-olive is a catalog convenience, not evidence.",
+      "ownerDecision": "OD-OLIVE (shared by REC-06/07/09)",
+      "stillOpen": true
+    },
+    {
+      "id": "REC-07",
+      "scope": "puttanesca-pizza",
+      "pr221Status": "EVIDENCE_REQUIRED",
+      "field": "black-olive alias",
+      "resolution": "UNRESOLVED",
+      "resolutionStatus": "EVIDENCE_EXHAUSTED_OWNER_DECISION_REQUIRED",
+      "evidence": {
+        "PIZZA_DB_EVIDENCE": "token オリーブ (plain); 12 PIZZA DB rows use the plain token, 0 use a colour-specified olive token",
+        "EXISTING_CATALOG": "likely_alias -> black-olive (LIKELY_ALIAS_TABLE); catalog olive ids = ['black-olive', 'olive-oil']",
+        "PRODUCTION_DATA": "black-olive shipped (nameJa ブラックオリーブ, ⚫)",
+        "PR_221_CANDIDATE": "description asserts ブラックオリーブ: True"
+      },
+      "whyNotResolved": "Olive colour/variety is not stated by PIZZA DB and pizzadb.jp is unreachable from this environment; mapping to black-olive is a catalog convenience, not evidence.",
+      "ownerDecision": "OD-OLIVE (shared by REC-06/07/09)",
+      "stillOpen": true
+    },
+    {
+      "id": "REC-08",
+      "scope": "parmigiana-pizza,melanzane-pizza",
+      "pr221Status": "AUTHORING_REQUIRED",
+      "field": "discovery regression",
+      "resolution": "RESOLVED",
+      "resolutionStatus": "RESOLVED_BY_PRODUCTION_MATCHER_EVIDENCE",
+      "evidence": {
+        "PRODUCTION_DATA": "production matchDiscovery over 25 targets: 0 signature collisions; both recipes UNIQUE_MATCH themselves",
+        "PIZZA_DB_EVIDENCE": "eggplant-family census recorded (TOKEN_PROVENANCE eggplantFamilyCensus); only the two W1 rows are in scope",
+        "relation": "melanzane-pizza is a strict subset of parmigiana-pizza (differs by parmigiano only); signatures are distinct under exact matching"
+      },
+      "carryForward": "Port rec08EggplantFamily.portableTestCases into src/logic/discovery tests in the recipe-data implementation slice (src/** out of scope here). Production's existing 'all runtime signatures are unique' test covers distinctness automatically once the recipes land.",
+      "stillOpen": false
+    },
+    {
+      "id": "REC-09",
+      "scope": "pesto-tonno",
+      "pr221Status": "EVIDENCE_REQUIRED",
+      "field": "black-olive alias",
+      "resolution": "UNRESOLVED",
+      "resolutionStatus": "EVIDENCE_EXHAUSTED_OWNER_DECISION_REQUIRED",
+      "evidence": {
+        "PIZZA_DB_EVIDENCE": "token オリーブ (plain); 12 PIZZA DB rows use the plain token, 0 use a colour-specified olive token",
+        "EXISTING_CATALOG": "likely_alias -> black-olive (LIKELY_ALIAS_TABLE); catalog olive ids = ['black-olive', 'olive-oil']",
+        "PRODUCTION_DATA": "black-olive shipped (nameJa ブラックオリーブ, ⚫)",
+        "PR_221_CANDIDATE": "description asserts ブラックオリーブ: True"
+      },
+      "whyNotResolved": "Olive colour/variety is not stated by PIZZA DB and pizzadb.jp is unreachable from this environment; mapping to black-olive is a catalog convenience, not evidence.",
+      "ownerDecision": "OD-OLIVE (shared by REC-06/07/09)",
+      "stillOpen": true
+    },
+    {
+      "id": "REC-10",
+      "scope": "parmigiana-pizza",
+      "pr221Status": "EVIDENCE_REQUIRED",
+      "field": "parmigiano alias",
+      "resolution": "UNRESOLVED",
+      "resolutionStatus": "EVIDENCE_SUPPORTS_IDENTITY_RECLASSIFICATION_REVIEW_REQUIRED",
+      "evidence": {
+        "PIZZA_DB_EVIDENCE": "token パルミジャーノチーズ in ['spinach-artichoke-pizza-pizzadb-p4', 'argentine-napolitana-pizzadb-p1', 'parmigiana-pizza-pizzadb-p7', 'pizza-asparagi-limone-pizzadb-p8', 'pizza-carciofi-salad-pizzadb-p8']",
+        "EXISTING_CATALOG": "parmigiano nameJa パルミジャーノ; LIKELY_ALIAS_TABLE entry justified as 'チーズ suffix variant'; same pattern for モッツァレラチーズ is ORTHOGRAPHIC (exact)",
+        "PRODUCTION_DATA": "parmigiano shipped (cheese, dedicated .pizza-cheese--parmigiano)"
+      },
+      "whyNotResolved": "The canonicalizer still classifies the token likely_alias; promoting it would be a canonicalizer-table change that this task must not make unilaterally.",
+      "ownerDecision": "OD-PARM (canonicalizer table review: keep likely_alias or move to ORTHOGRAPHIC_EQUIVALENTS)",
+      "stillOpen": true
+    },
+    {
+      "id": "REC-11",
+      "scope": "all recipes",
+      "pr221Status": "OWNER_DECISION_RECORDED",
+      "field": "sauce contract",
+      "resolution": "UNCHANGED",
+      "resolutionStatus": "OWNER_DECISION_RECORDED",
+      "note": "Sauce OD-S1 = A maintained.",
+      "stillOpen": false
+    },
+    {
+      "id": "RT-01",
+      "scope": "parmigiana-pizza,pizza-portuguesa,puttanesca-pizza",
+      "pr221Status": "RUNTIME_DEPENDENCY_REQUIRED",
+      "field": "reference capacity",
+      "resolution": "UNCHANGED",
+      "resolutionStatus": "RUNTIME_DEPENDENCY_REQUIRED",
+      "note": "Kept as a separate runtime dependency (reference ring capacity). Quantities not trimmed.",
+      "stillOpen": true
+    },
+    {
+      "id": "ING-02",
+      "scope": "capers",
+      "pr221Status": "AUTHORING_REQUIRED",
+      "field": "visual",
+      "resolution": "UNRESOLVED",
+      "resolutionStatus": "HUMAN_VERIFICATION_REQUIRED",
+      "ingredientId": "capers",
+      "explicitFocus": true,
+      "requirementsFile": "docs/reports/data/TETO_PROGRESS2_W1_VISUAL_EVIDENCE_REQUIREMENTS.json",
+      "ownerDecision": null,
+      "stillOpen": true
+    },
+    {
+      "id": "ING-03",
+      "scope": "eggplant",
+      "pr221Status": "AUTHORING_REQUIRED",
+      "field": "visual",
+      "resolution": "UNRESOLVED",
+      "resolutionStatus": "HUMAN_VERIFICATION_REQUIRED",
+      "ingredientId": "eggplant",
+      "explicitFocus": true,
+      "requirementsFile": "docs/reports/data/TETO_PROGRESS2_W1_VISUAL_EVIDENCE_REQUIREMENTS.json",
+      "ownerDecision": null,
+      "stillOpen": true
+    },
+    {
+      "id": "ING-07",
+      "scope": "clam",
+      "pr221Status": "AUTHORING_REQUIRED",
+      "field": "visual",
+      "resolution": "UNRESOLVED",
+      "resolutionStatus": "HUMAN_VERIFICATION_REQUIRED",
+      "ingredientId": "clam",
+      "explicitFocus": true,
+      "requirementsFile": "docs/reports/data/TETO_PROGRESS2_W1_VISUAL_EVIDENCE_REQUIREMENTS.json",
+      "ownerDecision": "OD-CLAM-GLYPH (🦪 per PR #221 vs 🐚 per brief vs other)",
+      "stillOpen": true
+    },
+    {
+      "id": "ING-08",
+      "scope": "corn",
+      "pr221Status": "AUTHORING_REQUIRED",
+      "field": "visual",
+      "resolution": "UNRESOLVED",
+      "resolutionStatus": "HUMAN_VERIFICATION_REQUIRED",
+      "ingredientId": "corn",
+      "explicitFocus": false,
+      "requirementsFile": "docs/reports/data/TETO_PROGRESS2_W1_VISUAL_EVIDENCE_REQUIREMENTS.json",
+      "ownerDecision": null,
+      "stillOpen": true
+    },
+    {
+      "id": "ING-09",
+      "scope": "fresh-tomato",
+      "pr221Status": "AUTHORING_REQUIRED",
+      "field": "visual",
+      "resolution": "UNRESOLVED",
+      "resolutionStatus": "HUMAN_VERIFICATION_REQUIRED",
+      "ingredientId": "fresh-tomato",
+      "explicitFocus": true,
+      "requirementsFile": "docs/reports/data/TETO_PROGRESS2_W1_VISUAL_EVIDENCE_REQUIREMENTS.json",
+      "ownerDecision": "OD-TOMATO-REPRESENTATION (accept shared 🍅 or require a distinguishing representation; a non-emoji representation would be a new runtime dependency)",
+      "stillOpen": true
+    },
+    {
+      "id": "ING-10",
+      "scope": "pineapple",
+      "pr221Status": "AUTHORING_REQUIRED",
+      "field": "visual",
+      "resolution": "UNRESOLVED",
+      "resolutionStatus": "HUMAN_VERIFICATION_REQUIRED",
+      "ingredientId": "pineapple",
+      "explicitFocus": false,
+      "requirementsFile": "docs/reports/data/TETO_PROGRESS2_W1_VISUAL_EVIDENCE_REQUIREMENTS.json",
+      "ownerDecision": null,
+      "stillOpen": true
+    },
+    {
+      "id": "ING-11",
+      "scope": "potato",
+      "pr221Status": "AUTHORING_REQUIRED",
+      "field": "visual",
+      "resolution": "UNRESOLVED",
+      "resolutionStatus": "HUMAN_VERIFICATION_REQUIRED",
+      "ingredientId": "potato",
+      "explicitFocus": false,
+      "requirementsFile": "docs/reports/data/TETO_PROGRESS2_W1_VISUAL_EVIDENCE_REQUIREMENTS.json",
+      "ownerDecision": null,
+      "stillOpen": true
+    }
+  ],
+  "resolvedIds": [
+    "REC-08"
+  ],
+  "unresolvedIds": [
+    "ING-02",
+    "ING-03",
+    "ING-07",
+    "ING-08",
+    "ING-09",
+    "ING-10",
+    "ING-11",
+    "REC-06",
+    "REC-07",
+    "REC-09",
+    "REC-10"
+  ],
+  "unchangedIds": [
+    "REC-01",
+    "REC-02",
+    "REC-03",
+    "REC-04",
+    "REC-11",
+    "RT-01"
+  ],
+  "recipes": [
+    {
+      "recipeIdCandidate": "new-haven-apizza",
+      "resolvedByThisAudit": [],
+      "remainingRecipeSpecific": [
+        "ING-07"
+      ],
+      "remainingByKind": {
+        "ownerDecision": [],
+        "humanVerification": [
+          "ING-07"
+        ],
+        "runtime": []
+      },
+      "inheritedGlobalOpen": [
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "readiness": "REVIEW",
+      "readyNow": false
+    },
+    {
+      "recipeIdCandidate": "hawaiian",
+      "resolvedByThisAudit": [],
+      "remainingRecipeSpecific": [
+        "ING-10"
+      ],
+      "remainingByKind": {
+        "ownerDecision": [],
+        "humanVerification": [
+          "ING-10"
+        ],
+        "runtime": []
+      },
+      "inheritedGlobalOpen": [
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "readiness": "REVIEW",
+      "readyNow": false
+    },
+    {
+      "recipeIdCandidate": "parmigiana-pizza",
+      "resolvedByThisAudit": [
+        "REC-08"
+      ],
+      "remainingRecipeSpecific": [
+        "ING-03",
+        "REC-10",
+        "RT-01"
+      ],
+      "remainingByKind": {
+        "ownerDecision": [
+          "REC-10"
+        ],
+        "humanVerification": [
+          "ING-03"
+        ],
+        "runtime": [
+          "RT-01"
+        ]
+      },
+      "inheritedGlobalOpen": [
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "readiness": "REVIEW",
+      "readyNow": false
+    },
+    {
+      "recipeIdCandidate": "bambino",
+      "resolvedByThisAudit": [],
+      "remainingRecipeSpecific": [
+        "ING-08"
+      ],
+      "remainingByKind": {
+        "ownerDecision": [],
+        "humanVerification": [
+          "ING-08"
+        ],
+        "runtime": []
+      },
+      "inheritedGlobalOpen": [
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "readiness": "REVIEW",
+      "readyNow": false
+    },
+    {
+      "recipeIdCandidate": "pizza-portuguesa",
+      "resolvedByThisAudit": [],
+      "remainingRecipeSpecific": [
+        "REC-06",
+        "RT-01"
+      ],
+      "remainingByKind": {
+        "ownerDecision": [
+          "REC-06"
+        ],
+        "humanVerification": [],
+        "runtime": [
+          "RT-01"
+        ]
+      },
+      "inheritedGlobalOpen": [
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "readiness": "REVIEW",
+      "readyNow": false
+    },
+    {
+      "recipeIdCandidate": "puttanesca-pizza",
+      "resolvedByThisAudit": [],
+      "remainingRecipeSpecific": [
+        "ING-02",
+        "REC-07",
+        "RT-01"
+      ],
+      "remainingByKind": {
+        "ownerDecision": [
+          "REC-07"
+        ],
+        "humanVerification": [
+          "ING-02"
+        ],
+        "runtime": [
+          "RT-01"
+        ]
+      },
+      "inheritedGlobalOpen": [
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "readiness": "REVIEW",
+      "readyNow": false
+    },
+    {
+      "recipeIdCandidate": "pesto-caprese",
+      "resolvedByThisAudit": [],
+      "remainingRecipeSpecific": [
+        "ING-09"
+      ],
+      "remainingByKind": {
+        "ownerDecision": [],
+        "humanVerification": [
+          "ING-09"
+        ],
+        "runtime": []
+      },
+      "inheritedGlobalOpen": [
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "readiness": "REVIEW",
+      "readyNow": false
+    },
+    {
+      "recipeIdCandidate": "pesto-tonno",
+      "resolvedByThisAudit": [],
+      "remainingRecipeSpecific": [
+        "REC-09"
+      ],
+      "remainingByKind": {
+        "ownerDecision": [
+          "REC-09"
+        ],
+        "humanVerification": [],
+        "runtime": []
+      },
+      "inheritedGlobalOpen": [
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "readiness": "REVIEW",
+      "readyNow": false
+    },
+    {
+      "recipeIdCandidate": "pesto-patate",
+      "resolvedByThisAudit": [],
+      "remainingRecipeSpecific": [
+        "ING-11"
+      ],
+      "remainingByKind": {
+        "ownerDecision": [],
+        "humanVerification": [
+          "ING-11"
+        ],
+        "runtime": []
+      },
+      "inheritedGlobalOpen": [
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "readiness": "REVIEW",
+      "readyNow": false
+    },
+    {
+      "recipeIdCandidate": "melanzane-pizza",
+      "resolvedByThisAudit": [
+        "REC-08"
+      ],
+      "remainingRecipeSpecific": [
+        "ING-03"
+      ],
+      "remainingByKind": {
+        "ownerDecision": [],
+        "humanVerification": [
+          "ING-03"
+        ],
+        "runtime": []
+      },
+      "inheritedGlobalOpen": [
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "readiness": "REVIEW",
+      "readyNow": false
+    }
+  ],
+  "summary": {
+    "READY": 0,
+    "REVIEW": 10,
+    "BLOCKED": 0,
+    "readyNowRecipes": [],
+    "noNewIngredientRecipes": [
+      "pesto-tonno",
+      "pizza-portuguesa"
+    ]
+  }
+}

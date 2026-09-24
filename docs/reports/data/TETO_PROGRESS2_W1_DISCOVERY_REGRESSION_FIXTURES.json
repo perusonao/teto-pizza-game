@@ -1,0 +1,388 @@
+{
+  "schemaVersion": 1,
+  "kind": "w1_discovery_regression_fixtures",
+  "evidenceClass": "PRODUCTION_DATA (matcher executed read-only) + PR_221_CANDIDATE (W1 ingredient sets)",
+  "matcher": "src/logic/discovery/matcher.ts matchDiscovery (exact ingredient set + sauce base + identity dimensions)",
+  "catalog": "RECIPE_DISCOVERY_CATALOG (15 production) + 10 W1 candidate targets built the same way as src/data/discoveryCatalog.ts",
+  "checks": {
+    "catalogSize": 25,
+    "signatureCollisionCount": 0,
+    "allW1ExactUniqueSelfMatch": true,
+    "ambiguousOutcomesInOneEditNeighbourhood": []
+  },
+  "exactMatches": [
+    {
+      "targetId": "w1:new-haven-apizza",
+      "items": [
+        "clam",
+        "garlic",
+        "olive-oil",
+        "parmigiano"
+      ],
+      "outcome": {
+        "kind": "UNIQUE_MATCH",
+        "targetId": "w1:new-haven-apizza"
+      }
+    },
+    {
+      "targetId": "w1:hawaiian",
+      "items": [
+        "ham",
+        "mozzarella",
+        "pineapple",
+        "tomato-sauce"
+      ],
+      "outcome": {
+        "kind": "UNIQUE_MATCH",
+        "targetId": "w1:hawaiian"
+      }
+    },
+    {
+      "targetId": "w1:parmigiana-pizza",
+      "items": [
+        "basil",
+        "eggplant",
+        "mozzarella",
+        "parmigiano",
+        "tomato-sauce"
+      ],
+      "outcome": {
+        "kind": "UNIQUE_MATCH",
+        "targetId": "w1:parmigiana-pizza"
+      }
+    },
+    {
+      "targetId": "w1:bambino",
+      "items": [
+        "corn",
+        "ham",
+        "mozzarella",
+        "tomato-sauce"
+      ],
+      "outcome": {
+        "kind": "UNIQUE_MATCH",
+        "targetId": "w1:bambino"
+      }
+    },
+    {
+      "targetId": "w1:pizza-portuguesa",
+      "items": [
+        "black-olive",
+        "egg",
+        "ham",
+        "mozzarella",
+        "onion",
+        "tomato-sauce"
+      ],
+      "outcome": {
+        "kind": "UNIQUE_MATCH",
+        "targetId": "w1:pizza-portuguesa"
+      }
+    },
+    {
+      "targetId": "w1:puttanesca-pizza",
+      "items": [
+        "anchovy",
+        "black-olive",
+        "capers",
+        "garlic",
+        "tomato-sauce"
+      ],
+      "outcome": {
+        "kind": "UNIQUE_MATCH",
+        "targetId": "w1:puttanesca-pizza"
+      }
+    },
+    {
+      "targetId": "w1:pesto-caprese",
+      "items": [
+        "basil",
+        "fresh-tomato",
+        "mozzarella",
+        "pesto"
+      ],
+      "outcome": {
+        "kind": "UNIQUE_MATCH",
+        "targetId": "w1:pesto-caprese"
+      }
+    },
+    {
+      "targetId": "w1:pesto-tonno",
+      "items": [
+        "black-olive",
+        "onion",
+        "pesto",
+        "tuna"
+      ],
+      "outcome": {
+        "kind": "UNIQUE_MATCH",
+        "targetId": "w1:pesto-tonno"
+      }
+    },
+    {
+      "targetId": "w1:pesto-patate",
+      "items": [
+        "bacon",
+        "mozzarella",
+        "pesto",
+        "potato"
+      ],
+      "outcome": {
+        "kind": "UNIQUE_MATCH",
+        "targetId": "w1:pesto-patate"
+      }
+    },
+    {
+      "targetId": "w1:melanzane-pizza",
+      "items": [
+        "basil",
+        "eggplant",
+        "mozzarella",
+        "tomato-sauce"
+      ],
+      "outcome": {
+        "kind": "UNIQUE_MATCH",
+        "targetId": "w1:melanzane-pizza"
+      }
+    }
+  ],
+  "rec08EggplantFamily": {
+    "parmigianaItems": [
+      "basil",
+      "eggplant",
+      "mozzarella",
+      "parmigiano",
+      "tomato-sauce"
+    ],
+    "melanzaneItems": [
+      "basil",
+      "eggplant",
+      "mozzarella",
+      "tomato-sauce"
+    ],
+    "relation": "melanzane-pizza is a strict subset of parmigiana-pizza (differs by parmigiano only); signatures are distinct under exact matching",
+    "oneEditAdjacency": [
+      {
+        "from": "w1:parmigiana-pizza",
+        "edit": "-parmigiano",
+        "ingredients": [
+          "basil",
+          "eggplant",
+          "mozzarella",
+          "tomato-sauce"
+        ],
+        "outcome": {
+          "kind": "UNIQUE_MATCH",
+          "targetId": "w1:melanzane-pizza"
+        }
+      },
+      {
+        "from": "w1:melanzane-pizza",
+        "edit": "-eggplant",
+        "ingredients": [
+          "basil",
+          "mozzarella",
+          "tomato-sauce"
+        ],
+        "outcome": {
+          "kind": "UNIQUE_MATCH",
+          "targetId": "shipped:margherita"
+        }
+      },
+      {
+        "from": "w1:melanzane-pizza",
+        "edit": "+parmigiano",
+        "ingredients": [
+          "basil",
+          "eggplant",
+          "mozzarella",
+          "parmigiano",
+          "tomato-sauce"
+        ],
+        "outcome": {
+          "kind": "UNIQUE_MATCH",
+          "targetId": "w1:parmigiana-pizza"
+        }
+      }
+    ],
+    "reverseAdjacencyFromProduction": [
+      {
+        "from": "shipped:margherita",
+        "edit": "+eggplant",
+        "ingredients": [
+          "basil",
+          "eggplant",
+          "mozzarella",
+          "tomato-sauce"
+        ],
+        "outcome": {
+          "kind": "UNIQUE_MATCH",
+          "targetId": "w1:melanzane-pizza"
+        }
+      }
+    ],
+    "portableTestCases": [
+      {
+        "pizza": [
+          "basil",
+          "eggplant",
+          "mozzarella",
+          "parmigiano",
+          "tomato-sauce"
+        ],
+        "expect": {
+          "kind": "UNIQUE_MATCH",
+          "targetId": "w1:parmigiana-pizza"
+        }
+      },
+      {
+        "pizza": [
+          "basil",
+          "eggplant",
+          "mozzarella",
+          "tomato-sauce"
+        ],
+        "expect": {
+          "kind": "UNIQUE_MATCH",
+          "targetId": "w1:melanzane-pizza"
+        }
+      },
+      {
+        "pizza": [
+          "basil",
+          "eggplant",
+          "mozzarella",
+          "tomato-sauce"
+        ],
+        "from": "w1:parmigiana-pizza",
+        "edit": "-parmigiano",
+        "expect": {
+          "kind": "UNIQUE_MATCH",
+          "targetId": "w1:melanzane-pizza"
+        }
+      },
+      {
+        "pizza": [
+          "basil",
+          "mozzarella",
+          "tomato-sauce"
+        ],
+        "from": "w1:melanzane-pizza",
+        "edit": "-eggplant",
+        "expect": {
+          "kind": "UNIQUE_MATCH",
+          "targetId": "shipped:margherita"
+        }
+      },
+      {
+        "pizza": [
+          "basil",
+          "eggplant",
+          "mozzarella",
+          "parmigiano",
+          "tomato-sauce"
+        ],
+        "from": "w1:melanzane-pizza",
+        "edit": "+parmigiano",
+        "expect": {
+          "kind": "UNIQUE_MATCH",
+          "targetId": "w1:parmigiana-pizza"
+        }
+      },
+      {
+        "pizza": [
+          "basil",
+          "eggplant",
+          "mozzarella",
+          "tomato-sauce"
+        ],
+        "from": "shipped:margherita",
+        "edit": "+eggplant",
+        "expect": {
+          "kind": "UNIQUE_MATCH",
+          "targetId": "w1:melanzane-pizza"
+        }
+      }
+    ]
+  },
+  "oneEditAdjacencyAllW1": [
+    {
+      "from": "w1:parmigiana-pizza",
+      "edit": "-parmigiano",
+      "ingredients": [
+        "basil",
+        "eggplant",
+        "mozzarella",
+        "tomato-sauce"
+      ],
+      "outcome": {
+        "kind": "UNIQUE_MATCH",
+        "targetId": "w1:melanzane-pizza"
+      }
+    },
+    {
+      "from": "w1:melanzane-pizza",
+      "edit": "-eggplant",
+      "ingredients": [
+        "basil",
+        "mozzarella",
+        "tomato-sauce"
+      ],
+      "outcome": {
+        "kind": "UNIQUE_MATCH",
+        "targetId": "shipped:margherita"
+      }
+    },
+    {
+      "from": "w1:melanzane-pizza",
+      "edit": "+parmigiano",
+      "ingredients": [
+        "basil",
+        "eggplant",
+        "mozzarella",
+        "parmigiano",
+        "tomato-sauce"
+      ],
+      "outcome": {
+        "kind": "UNIQUE_MATCH",
+        "targetId": "w1:parmigiana-pizza"
+      }
+    }
+  ],
+  "reverseAdjacencyAllW1": [
+    {
+      "from": "shipped:margherita",
+      "edit": "+eggplant",
+      "ingredients": [
+        "basil",
+        "eggplant",
+        "mozzarella",
+        "tomato-sauce"
+      ],
+      "outcome": {
+        "kind": "UNIQUE_MATCH",
+        "targetId": "w1:melanzane-pizza"
+      }
+    }
+  ],
+  "sameGlyphSubstitutionScenarios": [
+    {
+      "id": "pesto-caprese:fresh-tomato->cherry-tomato",
+      "recipe": "pesto-caprese",
+      "swap": [
+        "fresh-tomato",
+        "cherry-tomato"
+      ],
+      "glyph": "🍅",
+      "ingredients": [
+        "pesto",
+        "mozzarella",
+        "cherry-tomato",
+        "basil"
+      ],
+      "outcome": {
+        "kind": "NO_MATCH"
+      }
+    }
+  ]
+}
