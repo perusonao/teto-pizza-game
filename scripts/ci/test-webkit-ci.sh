@@ -4,7 +4,8 @@
 #
 #   1. classify-webkit.mjs --self-test          (path classifier, #201)
 #   2. webkit-shard-evidence.mjs --self-test    (shard coverage verifier, #207)
-#   3. webkit-shard-evidence.mjs collect/verify CLI round trip on Playwright-shaped JSON
+#   3. webkit-shard-evidence.mjs collect/verify CLI round trip on Playwright-shaped JSON, including
+#      "Re-run failed jobs" (stale earlier-attempt evidence present next to the re-run's)
 #   4. webkit-gate.sh truth table               (every classify x webkit x evidence combination)
 #   5. classify-webkit-pr.sh decisions in a throwaway git repo (docs-only, runtime, push /
 #      workflow_dispatch events, `webkit-full` label, fail-safe, no-reuse-without-evidence)
@@ -59,17 +60,21 @@ for (const project of ["webkit-390x844", "webkit-360x800"]) {
   }
 }
 EOF
-make_evidence() { # dir [fail=P-S] [drop=P-S] [omit=P-S]
-  local dir="$1" omit=""
+make_evidence() { # dir [fail=P-S] [drop=P-S] [omit=P-S] [only=P-S] [attempt=N]
+  local dir="$1" omit="" only="" attempt=1
   shift
-  for a in "$@"; do case "$a" in omit=*) omit="${a#omit=}" ;; esac; done
+  for a in "$@"; do
+    case "$a" in omit=*) omit="${a#omit=}" ;; only=*) only="${a#only=}" ;; attempt=*) attempt="${a#attempt=}" ;; esac
+  done
   node "$work/mk.mjs" "$dir/raw" "$@"
   for p in webkit-390x844 webkit-360x800; do
     for s in 1 2; do
       [ "$omit" = "$p-$s" ] && continue
-      node "$here/webkit-shard-evidence.mjs" collect --project "$p" --shard "$s" --total 2 \
+      [ -n "$only" ] && [ "$only" != "$p-$s" ] && continue
+      # Same layout as the gate's download-artifact (one directory per artifact name).
+      node "$here/webkit-shard-evidence.mjs" collect --project "$p" --shard "$s" --total 2 --attempt "$attempt" \
         --list "$dir/raw/list-$p.json" --results "$dir/raw/res-$p-$s.json" \
-        --out "$dir/ev/webkit-evidence-$p-shard$s/evidence.json" > /dev/null
+        --out "$dir/ev/webkit-evidence-$p-shard$s-attempt$attempt/evidence.json" > /dev/null
     done
   done
 }
@@ -80,9 +85,27 @@ make_evidence "$work/missing" omit=webkit-360x800-1
 mkdir -p "$work/empty/ev"
 # a shard whose results file never got written (e.g. the run step crashed before the reporter)
 make_evidence "$work/nores"
-node "$here/webkit-shard-evidence.mjs" collect --project webkit-390x844 --shard 2 --total 2 \
+node "$here/webkit-shard-evidence.mjs" collect --project webkit-390x844 --shard 2 --total 2 --attempt 1 \
   --list "$work/nores/raw/list-webkit-390x844.json" --results "$work/nores/raw/does-not-exist.json" \
-  --out "$work/nores/ev/webkit-evidence-webkit-390x844-shard2/evidence.json" > /dev/null
+  --out "$work/nores/ev/webkit-evidence-webkit-390x844-shard2-attempt1/evidence.json" > /dev/null
+# "Re-run failed jobs" (PR #221 run 36019302842): attempt 1 fails 390x844 shard 1/2, only that shard
+# re-runs as attempt 2. Both attempts' artifacts are downloaded; the stale failure must be ignored.
+make_evidence "$work/rerun" fail=webkit-390x844-1
+make_evidence "$work/rerun2" only=webkit-390x844-1 attempt=2
+cp -r "$work/rerun2/ev/." "$work/rerun/ev/"
+# ... and the same, but the re-run fails again (360x800 shard 2/2 this time).
+make_evidence "$work/rerunfail" fail=webkit-360x800-2
+make_evidence "$work/rerunfail2" fail=webkit-360x800-2 only=webkit-360x800-2 attempt=2
+cp -r "$work/rerunfail2/ev/." "$work/rerunfail/ev/"
+# ... and an older passing attempt must never rescue a newer failing one.
+make_evidence "$work/regress"
+make_evidence "$work/regress2" fail=webkit-390x844-2 only=webkit-390x844-2 attempt=2
+cp -r "$work/regress2/ev/." "$work/regress/ev/"
+# collect without --attempt records an error (-> the gate fails)
+make_evidence "$work/noattempt"
+node "$here/webkit-shard-evidence.mjs" collect --project webkit-360x800 --shard 1 --total 2 \
+  --list "$work/noattempt/raw/list-webkit-360x800.json" --results "$work/noattempt/raw/res-webkit-360x800-1.json" \
+  --out "$work/noattempt/ev/webkit-evidence-webkit-360x800-shard1-attempt1/evidence.json" > /dev/null
 
 verify() { node "$here/webkit-shard-evidence.mjs" verify --dir "$1" --projects "webkit-390x844 webkit-360x800" > /dev/null 2>&1; echo $?; }
 check "verify: 2 projects x 2 shards, all passed" 0 "$(verify "$work/good/ev")"
@@ -92,6 +115,13 @@ check "verify: shard evidence missing" 1 "$(verify "$work/missing/ev")"
 check "verify: no evidence" 1 "$(verify "$work/empty/ev")"
 check "verify: results file missing" 1 "$(verify "$work/nores/ev")"
 check "verify: nonexistent dir" 1 "$(verify "$work/nope")"
+check "verify: rerun -- stale failed attempt 1 superseded by passing attempt 2" 0 "$(verify "$work/rerun/ev")"
+node "$here/webkit-shard-evidence.mjs" verify --dir "$work/rerun/ev" --projects "webkit-390x844 webkit-360x800" \
+  | grep -q 'Superseded by a later re-run attempt (ignored): webkit-390x844 shard 1/2 attempt 1'
+check "verify: rerun summary names the superseded attempt" 0 $?
+check "verify: rerun that failed again" 1 "$(verify "$work/rerunfail/ev")"
+check "verify: newer failed attempt is not rescued by an older pass" 1 "$(verify "$work/regress/ev")"
+check "verify: collect without --attempt" 1 "$(verify "$work/noattempt/ev")"
 check "verify: only one project required but two present" 1 \
   "$(node "$here/webkit-shard-evidence.mjs" verify --dir "$work/good/ev" --projects "webkit-390x844" > /dev/null 2>&1; echo $?)"
 
@@ -114,6 +144,9 @@ check "gate: required, success but no evidence -> FAIL" 1 "$(gate success true s
 check "gate: required, success but a shard's evidence missing -> FAIL" 1 "$(gate success true success "$work/missing/ev")"
 check "gate: required, success but a test never ran -> FAIL" 1 "$(gate success true success "$work/dropped/ev")"
 check "gate: required, success but evidence shows a failure -> FAIL" 1 "$(gate success true success "$work/failed/ev")"
+check "gate: rerun failed jobs, shard now passes -> PASS (stale evidence ignored)" 0 "$(gate success true success "$work/rerun/ev")"
+check "gate: rerun failed jobs, shard failed again -> FAIL" 1 "$(gate success true failure "$work/rerunfail/ev")"
+check "gate: rerun evidence failed even though matrix says success -> FAIL" 1 "$(gate success true success "$work/rerunfail/ev")"
 check "gate: required, shard failure -> FAIL" 1 "$(gate success true failure "$G")"
 check "gate: required, shard cancelled -> FAIL" 1 "$(gate success true cancelled "$G")"
 check "gate: required, shards skipped -> FAIL" 1 "$(gate success true skipped "$G")"
