@@ -49,7 +49,7 @@ describe("buildCompletionFailureMessage", () => {
     );
   });
 
-  it("every other FAILED reason's copy is unchanged by this tuning pass", () => {
+  it("every other FAILED reason's copy is unchanged by this tuning pass (INSUFFICIENT_REQUIRED_AMOUNT reworded for Issue #215)", () => {
     expect(
       buildCompletionFailureMessage(
         failed({ reason: "MISSING_REQUIRED_INGREDIENT", ingredientId: "mushroom" }),
@@ -59,7 +59,7 @@ describe("buildCompletionFailureMessage", () => {
       buildCompletionFailureMessage(
         failed({ reason: "INSUFFICIENT_REQUIRED_AMOUNT", ingredientId: "mozzarella" }),
       ),
-    ).toBe("モッツァレラが足りませんでした");
+    ).toBe("注文のモッツァレラの数が足りません"); // Issue #215: Lunch Rush "order" policy only
     expect(buildCompletionFailureMessage(failed({ reason: "UNDERBAKED" }))).toBe(
       "生焼けで提供できません",
     );

@@ -20,7 +20,9 @@ export function buildCompletionFailureMessage(failed: PizzaCompletionFailed): st
     case "MISSING_REQUIRED_INGREDIENT":
       return `${ingredientNameJa(failed.ingredientId)}が入っていません`;
     case "INSUFFICIENT_REQUIRED_AMOUNT":
-      return `${ingredientNameJa(failed.ingredientId)}が足りませんでした`;
+      // Issue #215 (OD-4 = LR-A): only the Lunch Rush "order" policy can still produce this
+      // reason (recipe mode completes with one piece), so the copy names the order itself.
+      return `注文の${ingredientNameJa(failed.ingredientId)}の数が足りません`;
     case "INSUFFICIENT_SAUCE":
       // Human Feel Tuning 1A (P1 follow-up to the 11 Recipe Human Feel Audit,
       // docs/reports/TETO_11-RECIPE_HUMAN-FEEL_Post-Completion-CT2_Audit.md section 12): the

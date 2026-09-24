@@ -198,8 +198,10 @@ describe("A1 Authority Cutover: state.score is Scoring 2.0-derived (gameReducer 
     expect(Number.isFinite(result.score?.total)).toBe(true);
     // Sauce/Pieces/Recipe are all 0 for a genuinely empty pizza -- only Bake (20/100 weight,
     // needs no pizza content, just `bakeResult` vs. `recipe.bakeTarget`) contributes, since 70
-    // falls inside Margherita's own 60-80 perfect zone.
-    expect(result.score?.total).toBe(20);
+    // falls inside Margherita's own 60-80 perfect zone. Issue #215: every piece group is
+    // missing (shortage ratio 1), so the quantity factor is 1 - 0.5 = 0.5 -> 20 * 0.5 = 10.
+    // (The Completion Gate FAILs this pizza anyway; this only pins that scoring stays total.)
+    expect(result.score?.total).toBe(10);
     expect(result.score?.stars).toBe(1);
   });
 
@@ -288,7 +290,8 @@ describe("A1 Authority Cutover: state.score is Scoring 2.0-derived (gameReducer 
     expect(Number.isFinite(result.score?.total)).toBe(true);
     // Same reasoning as the empty-pizza case above: malformed toppings/sauceDeposits are
     // sanitized to empty by Scoring 2.0's own boundary (../logic/scoringV2/boundary.ts), so
-    // Sauce/Pieces/Recipe all read 0 -- only Bake (needs no pizza content) still contributes.
-    expect(result.score?.total).toBe(20);
+    // Sauce/Pieces/Recipe all read 0 -- only Bake (needs no pizza content) still contributes,
+    // halved by Issue #215's quantity factor (every group missing -> factor 0.5).
+    expect(result.score?.total).toBe(10);
   });
 });

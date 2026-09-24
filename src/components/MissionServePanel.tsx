@@ -24,6 +24,10 @@ interface MissionServePanelProps {
    *  `score`/`servedCount`/Lunch Rush ranking -- this component has no mechanism to do that even
    *  if it wanted to (../logic/cut/* has no import into scoringV2/missionScoring). */
   cutEvaluation: CutEvaluation | null;
+  /** Issue #215 (OD-4b): the same quantity line FREE's ResultPanel shows. In Lunch Rush only
+   *  excess can reach a PASS pizza (shortage fails the "order" policy), so this is the
+   *  visible reason for the excess quality penalty. Omitted/null renders nothing. */
+  quantityNoteJa?: string | null;
   onNext: () => void;
 }
 
@@ -42,6 +46,7 @@ export function MissionServePanel({
   servedCount,
   completion,
   cutEvaluation,
+  quantityNoteJa = null,
   onNext,
 }: MissionServePanelProps) {
   // Lunch Rush Completion Gate 1A: a FAILED order gets its own small, distinct card, the same
@@ -78,6 +83,7 @@ export function MissionServePanel({
         <span className="mission-serve-panel__stars-empty">{emptyStars}</span>
       </div>
       <div className="mission-serve-panel__score">{Math.round(score.total)}点</div>
+      {quantityNoteJa && <p className="mission-serve-panel__quantity-note">{quantityNoteJa}</p>}
       {/* Pizza Cutting 1.0 Phase 4A (Phase 4 Fresh Audit §5D/§6): the one concrete Human Feel
           gap that audit found -- CUT costs real MissionClock seconds but, until now, this panel
           showed zero acknowledgement of it. Kept to one compact line (score + slice count only,

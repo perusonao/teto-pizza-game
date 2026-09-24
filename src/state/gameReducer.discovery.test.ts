@@ -190,18 +190,27 @@ describe("REGISTER_TO_DEX discovery integration (P3-1)", () => {
       expect(getDexEntry(second.dex, "breakfast-pizza")).toEqual(getDexEntry(first.dex, "breakfast-pizza"));
     });
 
-    it("is not written when the pizza fails that recipe's own Completion Gate (INCOMPLETE_MATCH)", () => {
-      // 1 bacon: the signature is Breakfast Pizza's, but Breakfast needs 3 bacon.
+    it("Issue #215 OD-5: is written even with an under-ideal quantity of that recipe's ingredient", () => {
+      // 1 bacon: the signature is Breakfast Pizza's; Breakfast's ideal is 3 bacon, but the
+      // "recipe" Completion Gate policy only needs one, so it is discovered -- scored (with the
+      // quantity factor) as Breakfast Pizza.
       const result = playToResult("bismarck", withExtraPieces(idealPizzaFor("bismarck"), "bacon", 1));
       expect(result.completion?.status).toBe("PASS");
       const after = register(result);
       expect(after.lastDiscovery).toEqual({
-        kind: "INCOMPLETE_MATCH",
+        kind: "NEW_DISCOVERY",
         recipeId: "breakfast-pizza",
         targetId: "shipped:breakfast-pizza",
       });
-      expect(getDexEntry(after.dex, "breakfast-pizza")).toBeUndefined();
-      expect(after.dex).toEqual(registerScoreToDex(EMPTY_DEX, "bismarck", result.score!).dex);
+      const breakfast = getRecipe("breakfast-pizza")!;
+      const breakfastResult = computeScoringV2(breakfast, result.pizza);
+      expect(breakfastResult.components.quantity).toMatchObject({
+        available: true,
+        shortage: { ingredientId: "bacon", playerCount: 1, targetCount: 3 },
+      });
+      const breakfastScore = toLegacyScoreBreakdown(breakfastResult, result.pizza.bakeResult, breakfast.bakeTarget);
+      const legacy = registerScoreToDex(EMPTY_DEX, "bismarck", result.score!).dex;
+      expect(after.dex).toEqual(registerScoreToDex(legacy, "breakfast-pizza", breakfastScore).dex);
     });
   });
 

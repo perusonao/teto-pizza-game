@@ -22,11 +22,14 @@ import { scoreBakeComponentV2 } from "./bakeComponent";
 import { sanitizeSauceDeposits } from "./boundary";
 import { scoreSauceComponentV2 } from "./sauceComponent";
 import { scorePiecesComponentV2 } from "./piecesComponent";
+import { scoreQuantityComponentV2 } from "./quantityComponent";
 import { scoreRecipeComponentV2 } from "./recipeComponent";
 import { safeUnit } from "./tolerance";
 import type { ScoringV2Result } from "./types";
 
-export const SCORING_V2_RULESET_VERSION = "phase-4a-2-shadow-3";
+/** Issue #215: bumped from `phase-4a-2-shadow-3` for the quantity factor Q (./quantityComponent.ts).
+ *  Existing Dex BEST values are kept as-is (BEST only ever goes up; never recomputed). */
+export const SCORING_V2_RULESET_VERSION = "phase-4a-2-shadow-4-quantity";
 
 const REFERENCE_UNAVAILABLE_REASON =
   "この料理はまだ Reference Pizza（お手本データ）がありません。Phase 4A-2時点ではマルゲリータのみ対応しています。";
@@ -76,6 +79,7 @@ export function computeScoringV2(recipe: Recipe, pizza: PizzaState): ScoringV2Re
         pieces: { available: false, reason: REFERENCE_UNAVAILABLE_REASON },
         recipe: { available: false, reason: REFERENCE_UNAVAILABLE_REASON },
         bake,
+        quantity: { available: false, reason: REFERENCE_UNAVAILABLE_REASON },
       },
     };
   }
@@ -96,6 +100,9 @@ export function computeScoringV2(recipe: Recipe, pizza: PizzaState): ScoringV2Re
   const sauce = scoreSauceComponentV2(sauceMetrics, reference.sauce);
   const pieces = scorePiecesComponentV2(safePizza.toppings, reference.pieceGroups);
   const recipeComponent = scoreRecipeComponentV2(recipe, safePizza);
+  const quantity = pieces.available
+    ? scoreQuantityComponentV2(pieces.groups)
+    : ({ available: false, reason: pieces.reason } as const);
 
   // Codex P1 blocker fix, Round 2: `pieces`/`recipeComponent` can now themselves be
   // `{ available: false }` -- ./piecesComponent.ts's and ./recipeComponent.ts's own strict
@@ -112,7 +119,7 @@ export function computeScoringV2(recipe: Recipe, pizza: PizzaState): ScoringV2Re
       available: false,
       unavailableReason: pieces.reason,
       totalScore: null,
-      components: { sauce, pieces, recipe: recipeComponent, bake },
+      components: { sauce, pieces, recipe: recipeComponent, bake, quantity },
     };
   }
   if (!recipeComponent.available) {
@@ -122,7 +129,7 @@ export function computeScoringV2(recipe: Recipe, pizza: PizzaState): ScoringV2Re
       available: false,
       unavailableReason: recipeComponent.reason,
       totalScore: null,
-      components: { sauce, pieces, recipe: recipeComponent, bake },
+      components: { sauce, pieces, recipe: recipeComponent, bake, quantity },
     };
   }
   // B1: `bake` can only be unavailable here if `recipe.bakeTarget` itself is malformed (see
@@ -136,19 +143,25 @@ export function computeScoringV2(recipe: Recipe, pizza: PizzaState): ScoringV2Re
       available: false,
       unavailableReason: bake.reason,
       totalScore: null,
-      components: { sauce, pieces, recipe: recipeComponent, bake },
+      components: { sauce, pieces, recipe: recipeComponent, bake, quantity },
     };
   }
 
-  const totalScore =
-    safeUnit(
-      (sauce.score * SAUCE_WEIGHT +
-        pieces.score * PIECES_WEIGHT +
-        recipeComponent.score * RECIPE_WEIGHT +
-        bake.score * BAKE_WEIGHT) /
-        100 /
-        100,
-    ) * 100;
+  const weightedUnit = safeUnit(
+    (sauce.score * SAUCE_WEIGHT +
+      pieces.score * PIECES_WEIGHT +
+      recipeComponent.score * RECIPE_WEIGHT +
+      bake.score * BAKE_WEIGHT) /
+      100 /
+      100,
+  );
+  // Issue #215: the quantity factor multiplies the whole weighted total (never rounded here --
+  // stars, the Pitz band and Lunch Rush quality all read this unrounded value; only the final
+  // display / `missionScore` round). `quantity.available` is guaranteed by the `pieces` gate
+  // above; the fallback keeps the expression total. factor === 1 for an ideal-quantity pizza,
+  // so its total is bit-identical to the pre-#215 formula.
+  const quantityFactor = quantity.available ? quantity.factor : 1;
+  const totalScore = safeUnit(weightedUnit * quantityFactor) * 100;
 
   return {
     rulesetVersion: SCORING_V2_RULESET_VERSION,
@@ -156,7 +169,7 @@ export function computeScoringV2(recipe: Recipe, pizza: PizzaState): ScoringV2Re
     available: true,
     unavailableReason: null,
     totalScore,
-    components: { sauce, pieces, recipe: recipeComponent, bake },
+    components: { sauce, pieces, recipe: recipeComponent, bake, quantity },
   };
 }
 
@@ -170,6 +183,8 @@ export type {
   RecipeComponentV2,
   BakeComponentV2,
   BakeComponentV2Available,
+  QuantityComponentV2,
+  QuantityGroupDeviation,
 } from "./types";
 
 export { toLegacyScoreBreakdown } from "./toLegacyScoreBreakdown";

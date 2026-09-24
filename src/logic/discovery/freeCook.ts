@@ -10,8 +10,11 @@
  *    empty) -- never "original".
  * 2. **Signature match** with the Phase 3-1 matcher against the Dex as it was before this round.
  *    NEW_DISCOVERY / ALREADY_DISCOVERED name one real recipe.
- * 3. **The matched recipe's own Completion Gate** (its `minCount`s, sauce amount and bake window),
- *    the same rule Phase 3-1's cross-recipe discovery applies. PASS -> MATCHED: the round is then
+ * 3. **The matched recipe's own Completion Gate** under the `"recipe"` policy (at least one piece
+ *    of each required ingredient -- Issue #215 OD-5: quantity is never recipe identity, so an
+ *    under-ideal pizza is still a discovery and pays for it in Scoring 2.0's quantity factor --
+ *    plus sauce amount and bake window), the same rule Phase 3-1's cross-recipe discovery
+ *    applies. PASS -> MATCHED: the round is then
  *    scored, registered and paid as that recipe by the unchanged REGISTER_TO_DEX path.
  *    FAILED -> INCOMPLETE_MATCH, shown as an original pizza with a near-miss note.
  *
@@ -76,7 +79,7 @@ export function resolveFreeCookPizza(pizza: PizzaState, dex: DexState): FreeCook
     return { kind: "ORIGINAL", outcome };
   }
   const recipe = getRecipe(outcome.recipeId);
-  if (!recipe || evaluatePizzaCompletion(recipe, pizza).status !== "PASS") {
+  if (!recipe || evaluatePizzaCompletion(recipe, pizza, "recipe").status !== "PASS") {
     return {
       kind: "ORIGINAL",
       outcome: { kind: "INCOMPLETE_MATCH", recipeId: outcome.recipeId, targetId: outcome.targetId },

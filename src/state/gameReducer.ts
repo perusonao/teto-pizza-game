@@ -998,7 +998,14 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // Rush's own servedCount/quality/missionScore gating reads this same `state.completion`
       // one layer up, in App.tsx's `handleMissionServeNext` (see MISSION_NEXT_ORDER's own
       // comment below for why its Dex/Starter Grant registration itself stays unconditional).
-      const completion = evaluatePizzaCompletion(recipe, pizza);
+      // Issue #215 (OD-1 = G1 / OD-4 = LR-A): a Lunch Rush round still needs the ordered
+      // quantity ("order"); every other round completes with one piece of each required
+      // ingredient ("recipe") and pays for any shortage in Scoring 2.0's quantity factor.
+      const completion = evaluatePizzaCompletion(
+        recipe,
+        pizza,
+        state.isMissionRound ? "order" : "recipe",
+      );
       // EP2: consumes exactly the finite ingredients this canonical `pizza` actually used
       // (placed-piece count for scatter, 1-per-sauce-id for spread), computed as one pure
       // next-inventory value from `state.inventory` + `pizza` -- see consumePizzaInventory's

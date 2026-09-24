@@ -127,11 +127,40 @@ export interface BakeComponentV2Available {
  *  the same reason every other component here is. */
 export type BakeComponentV2 = BakeComponentV2Available | ScoringV2Unavailable;
 
+/** Issue #215: the piece group behind a quantity deviation, for the Result line. */
+export interface QuantityGroupDeviation {
+  ingredientId: string;
+  playerCount: number;
+  targetCount: number;
+}
+
+/**
+ * Issue #215 (OD-2/OD-3/OD-4b): the quantity factor Q multiplied onto the whole total -- see
+ * ./quantityComponent.ts for the formula. Not a weighted 0-100 component like the four above;
+ * `factor` is 1 exactly when every piece group matches its Reference quantity, so an ideal
+ * pizza's total is unchanged.
+ */
+export interface QuantityComponentV2 {
+  available: true;
+  /** 0-1, worst group's (target - placed) / target; 0 when no group is short. */
+  shortageRatio: number;
+  /** 0-1, worst group's min(1, (placed - target) / target); 0 when no group is over. */
+  excessRatio: number;
+  /** The group that set `shortageRatio`, or null when nothing is short. */
+  shortage: QuantityGroupDeviation | null;
+  /** The group that set `excessRatio`, or null when nothing is over. */
+  excess: QuantityGroupDeviation | null;
+  /** 0-1 multiplier applied to the weighted total. */
+  factor: number;
+}
+
 export interface ScoringV2Components {
   sauce: SauceComponentV2 | ScoringV2Unavailable;
   pieces: PiecesComponentV2 | ScoringV2Unavailable;
   recipe: RecipeComponentV2 | ScoringV2Unavailable;
   bake: BakeComponentV2;
+  /** Issue #215: unavailable exactly when `pieces` is (it is derived from `pieces.groups`). */
+  quantity: QuantityComponentV2 | ScoringV2Unavailable;
 }
 
 export interface ScoringV2Result {

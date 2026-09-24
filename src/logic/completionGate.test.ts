@@ -69,7 +69,7 @@ describe("evaluatePizzaCompletion", () => {
     expect(result.status === "FAILED" && result.ingredientId).toBe("basil");
   });
 
-  it("3. minCount - 1 (2 of 3 required mozzarella) -> FAILED INSUFFICIENT_REQUIRED_AMOUNT", () => {
+  it("3. minCount - 1 (2 of 3 required mozzarella) -> PASS under the default recipe policy (Issue #215 G1)", () => {
     const pizza = idealMargherita(70);
     const mozzarella = pizza.toppings.filter((t) => t.ingredientId === "mozzarella");
     expect(mozzarella.length).toBe(3); // margherita's own minCount
@@ -77,7 +77,18 @@ describe("evaluatePizzaCompletion", () => {
       ...pizza,
       toppings: pizza.toppings.filter((t) => t.id !== mozzarella[0].id),
     };
-    const result = evaluatePizzaCompletion(getRecipe("margherita")!, oneShort);
+    expect(evaluatePizzaCompletion(getRecipe("margherita")!, oneShort).status).toBe("PASS");
+    expect(evaluatePizzaCompletion(getRecipe("margherita")!, oneShort, "recipe").status).toBe("PASS");
+  });
+
+  it("3b. minCount - 1 under the Lunch Rush order policy -> FAILED INSUFFICIENT_REQUIRED_AMOUNT (Issue #215 LR-A)", () => {
+    const pizza = idealMargherita(70);
+    const mozzarella = pizza.toppings.filter((t) => t.ingredientId === "mozzarella");
+    const oneShort = {
+      ...pizza,
+      toppings: pizza.toppings.filter((t) => t.id !== mozzarella[0].id),
+    };
+    const result = evaluatePizzaCompletion(getRecipe("margherita")!, oneShort, "order");
     expect(result.status).toBe("FAILED");
     expect(result.status === "FAILED" && result.reason).toBe("INSUFFICIENT_REQUIRED_AMOUNT");
     expect(result.status === "FAILED" && result.ingredientId).toBe("mozzarella");
