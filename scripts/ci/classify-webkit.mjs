@@ -15,8 +15,8 @@
 // `tools` and `unit-test` additionally require a repository scan (--repo) of the checked-out tree.
 // Design (after four Codex review rounds on PR #219 found gaps in a regex import *parser*): the
 // scan never parses or strips anything, so it cannot lose evidence -- every heuristic can only
-// err towards running WebKit. Over the RAW text of every scannable repo file (all code/markup/
-// data except docs/**, scripts/ci/** and the guarded files themselves):
+// err towards running WebKit. Over the RAW text of every text file in the repo (any extension;
+// binaries, docs/**, scripts/ci/** and the guarded files themselves excluded):
 //   1. a changed guarded file whose name stem (e.g. `scoring.test`, `test/setup`, a tools script
 //      stem) appears anywhere -- import, fs path, command, even a comment -- runs WebKit; guarded
 //      files named that way (transitively) are themselves scanned like runtime code;
@@ -114,23 +114,25 @@ export function classify(rawPaths, { guards = NO_SCAN } = {}) {
 // Repository scan for the guarded categories.
 
 const CODE_FILE = /\.(?:[cm]?[jt]sx?)$/;
-// Text files the scan reads raw (binary assets cannot name or load anything).
-const SCAN_EXT = /\.(?:[cm]?[jt]sx?|html?|json|ya?ml|css|scss|svg|webmanifest)$/;
+// Every text file is scanned, whatever its extension (.sh, Makefile, .py, ...): an allow-list of
+// extensions would leave wrappers unscanned. Only binaries (a NUL byte) are skipped.
 const SCAN_SKIP_DIRS = new Set(["node_modules", ".git", "docs", "dist", "playwright-report", "test-results", "coverage"]);
 // scripts/ci/** classifies and verifies WebKit runs; it is never loaded by Vite or Playwright (and
 // changing it is itself a Full-WebKit change). Vitest-only configs never run under Vite/Playwright.
 const SCAN_SKIP_FILE = /^(?:scripts\/ci\/|vitest(?:\.[\w-]+)?\.config\.[cm]?[jt]s$)/;
-// Calls that take a path/URL/specifier: fine with a plain string literal, fail closed otherwise.
-// Whitespace and comments may sit between the keyword and `(` (`import /* x */ (p)`).
+// Whitespace and comments may sit wherever JS allows (`import /* x */ (p)`, `from /* x */ "./y"`).
 const GAP = String.raw`(?:\s|\/\*[\s\S]*?\*\/|\/\/[^\n]*\n)*`;
+// Calls that take a path/URL/specifier: fine with a plain string literal, fail closed otherwise.
 const LOADER_CALL = new RegExp(
   String.raw`\b(?:import|require|fetch|importScripts|readFileSync|readFile|createReadStream)${GAP}\(|\bnew${GAP}(?:URL|Worker|SharedWorker)${GAP}\(`,
   "g",
 );
 // Constructs that load by pattern or by code: always fail closed.
-const ALWAYS_DYNAMIC = /import\.meta\.glob|\b(?:readdirSync|readdir|opendirSync|opendir|globSync|glob)\s*\(|\beval\s*\(|\bnew\s+Function\s*\(/;
+const ALWAYS_DYNAMIC = new RegExp(
+  String.raw`import${GAP}\.${GAP}meta${GAP}\.${GAP}glob|\b(?:readdirSync|readdir|opendirSync|opendir|globSync|glob|eval)${GAP}\(|\bnew${GAP}Function${GAP}\(`,
+);
 const CONFIG_KEY = /\b(?:testMatch|testIgnore|rollupOptions|optimizeDeps|publicDir|alias|mergeConfig|loadConfigFromFile)\b|\b(?:root|input)\s*:/;
-const LOCAL_IMPORT = /(?:\bfrom\s*|\bimport\s*\(?\s*|\brequire\s*\(\s*)["'`]\.{0,2}\//;
+const LOCAL_IMPORT = new RegExp(String.raw`(?:\bfrom|\bimport|\brequire)${GAP}\(?${GAP}["'\x60]\.{0,2}\/`);
 
 function walk(root, dir, out) {
   for (const entry of readdirSync(join(root, dir))) {
@@ -177,20 +179,28 @@ export function scanGuards(root, paths = []) {
     }
     const all = [];
     walk(root, "", all);
-    const scannable = all.filter((f) => SCAN_EXT.test(f) && !SCAN_SKIP_FILE.test(f));
+    const raw = new Map();
+    for (const f of all) {
+      if (SCAN_SKIP_FILE.test(f)) continue;
+      const buf = readFileSync(join(root, f));
+      if (!buf.includes(0)) raw.set(f, buf.toString("utf8"));
+    }
     const isGuarded = (f) => GUARDED.includes(skipCategory(f)?.category);
-    const guardedFiles = scannable.filter(isGuarded);
-    const files = scannable.filter((f) => !isGuarded(f));
-    const read = (f) => readFileSync(join(root, f), "utf8");
+    const guardedFiles = [...raw.keys()].filter(isGuarded);
+    const files = [...raw.keys()].filter((f) => !isGuarded(f));
+    const read = (f) => raw.get(f);
     const texts = new Map(files.map((f) => [f, read(f)]));
     // Guarded files can load each other (runtime -> a.test -> b.test). A guarded file counts as
     // reachable if a non-guarded file or an already-reachable guarded file names it; reachable
     // guarded files then take part in every check below, exactly like runtime code.
-    const guardedText = new Map(guardedFiles.map((f) => [f, read(f)]));
+    // Only guarded JS/TS modules can load further modules when they are loaded (a tools/*.py file
+    // only runs under python, and any python invocation is caught by the python rule below).
+    const guardedModules = guardedFiles.filter((f) => CODE_FILE.test(f));
+    const guardedText = new Map(guardedModules.map((f) => [f, read(f)]));
     const reachable = new Set();
     for (let grew = true; grew; ) {
       grew = false;
-      for (const g of guardedFiles) {
+      for (const g of guardedModules) {
         if (reachable.has(g)) continue;
         const stem = nameStem(g);
         const namedBy = [...texts.values(), ...[...reachable].map((r) => guardedText.get(r))].some((t) => t.includes(stem));
@@ -397,6 +407,14 @@ const SCAN_CASES = [
     { ...T, "unit-test": false },
     ["src/test/helper/index.ts"],
   ],
+  ["comment between eval and its parenthesis", { "src/App.tsx": "eval /* instrumentation */ (source);\n" }, { tools: false, "unit-test": false }],
+  ["comment between new and Function", { "src/App.tsx": "new /* note */ Function(source);\n" }, { tools: false, "unit-test": false }],
+  ["comment between glob and its parenthesis", { "e2e/gestures.ts": "glob /* note */ (pattern);\n" }, { tools: false, "unit-test": false }],
+  ["playwright.config imports a local helper after a comment", { "playwright.config.ts": 'import { base } from /* note */ "./pw-base";\nexport default { ...base, testDir: "./e2e" };\n', "pw-base.ts": 'export const base = { testMatch: "src/**/*.test.ts" };\n' }, { tools: false, "unit-test": false }],
+  ["a shell wrapper runs python (any extension is scanned)", { "e2e/gestures.ts": 'import { execSync } from "node:child_process";\nexecSync("sh scripts/prepare.sh");\n', "scripts/prepare.sh": "#!/bin/sh\npython tools/gen.py\n" }, { ...T, tools: false }],
+  ["an extensionless script naming the changed test", { "Makefile": "check:\n\tnode src/logic/a.test.ts\n" }, { ...T, "unit-test": false }],
+  ["a named tools script is not itself a python runner", { "src/App.tsx": "// derived from tools/other.py\n", "tools/other.py": "#!/usr/bin/env python3\nimport subprocess\n" }, T],
+  ["binary files are skipped", { "public/icon.png": "\u0000PNG a.test tools/gen.py python" }, T],
   ["concatenated fetch argument", { "src/App.tsx": 'fetch("/src/logic/" + name);\n' }, { tools: false, "unit-test": false }],
   ["concatenated import argument", { "src/App.tsx": 'import("./logic/" + moduleName);\n' }, { tools: false, "unit-test": false }],
   ["literal followed by a second argument is fine", { "src/App.tsx": 'new URL("./App.css", import.meta.url);\nfetch("/api", { method: "GET" });\n' }, T],

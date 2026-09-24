@@ -150,7 +150,7 @@ and (c) evidence that a meaningful share of PRs would land in L1/L2.
 
 | File | Change |
 |---|---|
-| `scripts/ci/classify-webkit.mjs` | Skip allow-list = docs + `tools/**/*.py` + `src/**/*.test.ts(x)` + `src/test/**`. The two new categories require `--repo` scan guards. Self-test grows from 24 to 108 cases (path table + raw-scan fixtures). |
+| `scripts/ci/classify-webkit.mjs` | Skip allow-list = docs + `tools/**/*.py` + `src/**/*.test.ts(x)` + `src/test/**`. The two new categories require `--repo` scan guards. Self-test grows from 24 to 116 cases (path table + raw-scan fixtures). |
 | `scripts/ci/classify-webkit-pr.sh` | Passes `--repo <toplevel>` (the merge-ref checkout). Reason wording changes to "cannot reach the browser". Decision order, forcing rules, `tested_base` reuse and fail-safes are unchanged. |
 | `scripts/ci/test-webkit-ci.sh` | 40 → 48 cases: tools-only / unit-test-only / unit+runtime / guard-violation PRs in a throwaway repo, plus classification against **this repository's own tree** (tools-only → skip, unit-test-only → skip, persistence → run). |
 | `.github/workflows/e2e-webkit.yml` | Header comment only. Matrix, steps, triggers, concurrency, evidence and gate are identical to Phase 2A. |
@@ -159,9 +159,9 @@ and (c) evidence that a meaningful share of PRs would land in L1/L2.
 
 ### 5.1 Non-browser skip (tools / unit tests)
 
-The guard **never parses and never strips anything**. It reads the raw text of every scannable
-file in the checked-out merge ref: all code, markup and data outside `docs/**`, excluding
-`scripts/ci/**`, Vitest-only configs and the guarded files themselves. Because nothing is removed,
+The guard **never parses and never strips anything**. It reads the raw text of every text file
+in the checked-out merge ref, whatever its extension. Binaries, `docs/**`, `scripts/ci/**`,
+Vitest-only configs and the guarded files themselves are excluded. Because nothing is removed,
 no heuristic can hide evidence. Each rule can only push a PR toward Full WebKit.
 
 1. **Name mention.** A changed guarded file runs WebKit if its name stem (`scoring.test`,
@@ -250,7 +250,16 @@ Round 6 (on `1a682a1`) found two narrower gaps:
 - a directory-index module imported by its directory, as in `./test/helper` →
   `test/helper/index.ts`.
 
-Both are fixed. Self-test: 108 cases, and a mutation of each rule fails it.
+Both are fixed.
+
+Round 7 (on `5aadd17`) found three more gaps of the same kind:
+- comments before `(` in `eval` / `new Function` / `glob`;
+- a comment before the path in a config import;
+- an unscanned file type: a `.sh` wrapper that runs python.
+
+The fix for the last one closes the whole class: **every text file is now scanned, whatever
+its extension.** Only binaries are skipped. Self-test: 116 cases, and a mutation of each rule
+fails it.
 
 ### 5.2 Duration-balanced shards: implemented, measured, removed
 
