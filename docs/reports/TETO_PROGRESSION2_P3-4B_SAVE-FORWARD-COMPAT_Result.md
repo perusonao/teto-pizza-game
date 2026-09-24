@@ -57,12 +57,16 @@ Save compatibility policy:
 
 ## 3. Tests
 
-- `src/state/persistence.forwardCompat.test.ts` (14): current save round-trip, unknown recipe/Dex,
+- `src/state/persistence.forwardCompat.test.ts` (19): current save round-trip, unknown recipe/Dex,
   ingredient, inventory, ledger, top-level preservation through all three write paths, repeated
   downgrade → save → reload round-trips (no duplicates), no-op mount write, malformed/negative/NaN/
   invalid-shape handling, `__proto__`, v1 migration, unrecognized schema fallback, reset, fresh
   player shape, and **runtime hydration (`loadSave` → `applyStarterGrants` →
   `createInitialGameState`) identical with or without future data**.
+  - B-2 (Final Preflight, 5 tests): the future entitlement field PR #217 names,
+    `unlockedForShopIngredientIds`, survives `persistDex`, `persistProgress`, `persistMissionBest`
+    and a downgrade → mount grant (EP4) → play → mission → reload → write sequence verbatim, and
+    `loadSave` never exposes it. 4 of these 5 fail against main's `persistence.ts`.
 - `e2e/save-forward-compat-3-4b.spec.ts` (Chromium 390×844 / 360×800): future-data save loads with
   Dex pill `1/15`, the real mount-time write (EP4 catch-up grant) keeps the future data, and it
   survives a reload.
@@ -77,3 +81,29 @@ Save compatibility policy:
 - An unknown owned id migrated from v1 gets no inventory backfill (economy for it is unknown here).
 - A future `schemaVersion` bump would still be erased by an older build's write — keep "no bump" or
   design a read-only policy first.
+
+## 5. Deploy constraints (Final Preflight)
+
+### Rollback floor
+
+- **Before any Progression 2.0 build has shipped:** rolling back from this build to main
+  (`dff233c` or earlier) is safe. For a save without future data (empty, default, full v2, v1,
+  corrupt JSON, v3 root) main and this build write byte-identical saves on every write path.
+- **After a Progression 2.0 build has shipped even once:** the floor is **this build** (any build
+  containing `writeSave`). Rolling back below it (main, a revert of this PR, or a `workflow_dispatch`
+  of an older SHA) erases the future data on the first write, and upgrading again does not restore it.
+- So this PR has to ship on its own and soak **before** Progression 2.0. After that, keep it as the
+  rollback floor.
+
+### Old-tab limitation (not fixed here; pre-existing)
+
+- A tab still open from **before this deploy** runs the old code and acts like a rollback. Its first
+  write erases future data. There is no service worker or forced reload, so these tabs only go away
+  with time (soak).
+- A tab of **this build** left open while a newer build writes keeps the unknown data. For **known**
+  fields, though, the last tab to write wins. That tab can undo a newer build's `pitzBalance` change
+  (e.g. give back an unlock fee while the entitlement stays) or roll back Dex BEST/timesMade.
+  Resolving that is Progression 2.0 work (cross-tab coordination / fee ledger), not this PR's.
+- Extra fields inside a Dex entry, ids outside `^[a-z0-9][a-z0-9_-]{0,63}$`, non-integer values, a changed
+  meaning of an existing field, and a `schemaVersion` bump are **not** preserved. Progression 2.0
+  must add new data as new top-level keys on schemaVersion 2.

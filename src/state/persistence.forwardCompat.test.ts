@@ -371,3 +371,94 @@ describe("save forward-compat (Phase 3-4B)", () => {
     expect(Object.keys(raw).sort()).toEqual(Object.keys(createDefaultSave()).sort());
   });
 });
+
+/**
+ * B-2 (PR #206 Final Preflight): PR #217 names `unlockedForShopIngredientIds` as the permanent
+ * shop-unlock entitlement set a Progression 2.0 build adds at top level (schemaVersion 2, no bump).
+ * This build doesn't know the key, so it must never read it and never erase it: every write path
+ * carries it through verbatim, and a downgrade -> write -> reload round-trip gives it back intact.
+ */
+describe("save forward-compat: future entitlement field `unlockedForShopIngredientIds` (B-2)", () => {
+  const ENTITLEMENT_KEY = "unlockedForShopIngredientIds";
+  // A known purchasable id plus unknown well-formed ids: the set is kept as a whole, order included.
+  const ENTITLEMENT = [PURCHASABLE, "future-ingredient-a", "future-ingredient-b"];
+
+  function entitlementSave(): Record<string, unknown> {
+    return { ...futureSave(), [ENTITLEMENT_KEY]: [...ENTITLEMENT] };
+  }
+
+  function expectEntitlementKept(storage: ReturnType<typeof fakeStorage>): void {
+    const raw = storage.raw() as Record<string, unknown>;
+    expect(raw.schemaVersion).toBe(2);
+    expect(raw[ENTITLEMENT_KEY]).toEqual(ENTITLEMENT);
+  }
+
+  it("this build does not know the key (it stays a forward-compat field)", () => {
+    expect(Object.keys(createDefaultSave())).not.toContain(ENTITLEMENT_KEY);
+    const save = loadSave(fakeStorage({ [SAVE_STORAGE_KEY]: JSON.stringify(entitlementSave()) }));
+    expect(save).not.toHaveProperty(ENTITLEMENT_KEY);
+  });
+
+  it("persistDex keeps it", () => {
+    const storage = fakeStorage({ [SAVE_STORAGE_KEY]: JSON.stringify(entitlementSave()) });
+    const { dex } = registerScoreToDex(loadSave(storage).dex, "marinara", score(60, 3));
+    persistDex(dex, storage);
+    expectEntitlementKept(storage);
+  });
+
+  it("persistProgress keeps it", () => {
+    const storage = fakeStorage({ [SAVE_STORAGE_KEY]: JSON.stringify(entitlementSave()) });
+    playOneRound(storage);
+    expectEntitlementKept(storage);
+  });
+
+  it("persistMissionBest keeps it", () => {
+    const storage = fakeStorage({ [SAVE_STORAGE_KEY]: JSON.stringify(entitlementSave()) });
+    persistMissionBest(LUNCH_RUSH_MISSION_ID, 900, storage);
+    expectEntitlementKept(storage);
+    expect((storage.raw() as PersistentSaveV2).missionBest[LUNCH_RUSH_MISSION_ID]).toBe(900);
+  });
+
+  it("downgrade -> mount grant -> play -> mission -> reload -> write again keeps it verbatim", () => {
+    const storage = fakeStorage({ [SAVE_STORAGE_KEY]: JSON.stringify(entitlementSave()) });
+
+    // Mount: the same loadSave -> applyStarterGrants -> persistProgress sequence App.tsx runs.
+    const onMount = loadSave(storage);
+    const grant = applyStarterGrants(
+      onMount.dex,
+      onMount.ownedIngredientIds,
+      onMount.inventory,
+      onMount.starterGrantClaimedRecipeIds,
+    );
+    persistProgress(
+      {
+        dex: onMount.dex,
+        pitzBalance: onMount.pitzBalance,
+        ownedIngredientIds: grant.ownedIngredientIds,
+        inventory: grant.inventory,
+        starterGrantClaimedRecipeIds: grant.claimedRecipeIds,
+      },
+      storage,
+    );
+    // The fixture's 5-star margherita unlocks new recipes, so this mount really writes (EP4).
+    expect(grant.claimedRecipeIds.length).toBeGreaterThan(
+      onMount.starterGrantClaimedRecipeIds.length,
+    );
+    expect((storage.raw() as PersistentSaveV2).starterGrantClaimedRecipeIds).toEqual([
+      ...grant.claimedRecipeIds,
+      FUTURE_RECIPE,
+    ]);
+    expectEntitlementKept(storage);
+
+    const { dex } = registerScoreToDex(loadSave(storage).dex, "marinara", score(60, 3));
+    persistDex(dex, storage);
+    playOneRound(storage);
+    persistMissionBest(LUNCH_RUSH_MISSION_ID, 900, storage);
+    expectEntitlementKept(storage);
+
+    // Reload: gameplay still never sees the key, and the next write still keeps it.
+    expect(loadSave(storage)).not.toHaveProperty(ENTITLEMENT_KEY);
+    playOneRound(storage);
+    expectEntitlementKept(storage);
+  });
+});
