@@ -4423,20 +4423,106 @@
  "lunchRushBreakEvenShortCoefficient": {
   "1.5s_per_item": {
    "minShortCoefficient": 0.602,
-   "bindingCase": "quattro-formaggi:allMinusOne"
+   "binding": {
+    "case": "quattro-formaggi:allMinusOne",
+    "worstShortRatio": 0.5,
+    "underfillSeconds": 32.5,
+    "idealSeconds": 38.5,
+    "idealPointsPerSecond": 5.182,
+    "breakEvenQuality": 68.4,
+    "retainedQualityFactorAtMinCoefficient": 0.699,
+    "zeroQualityPointsPerSecond": 3.077
+   },
+   "compatibleWithRecipeModeStar4AtTwoThirds": true,
+   "zeroQualityUnderfillBeatsIdeal": "0/45",
+   "zeroQualityBestRatioToIdeal": 0.603
   },
   "2.0s_per_item": {
    "minShortCoefficient": 0.726,
-   "bindingCase": "quattro-formaggi:allMinusOne"
+   "binding": {
+    "case": "quattro-formaggi:allMinusOne",
+    "worstShortRatio": 0.5,
+    "underfillSeconds": 35.0,
+    "idealSeconds": 43.0,
+    "idealPointsPerSecond": 4.64,
+    "breakEvenQuality": 62.4,
+    "retainedQualityFactorAtMinCoefficient": 0.637,
+    "zeroQualityPointsPerSecond": 2.857
+   },
+   "compatibleWithRecipeModeStar4AtTwoThirds": false,
+   "zeroQualityUnderfillBeatsIdeal": "0/45",
+   "zeroQualityBestRatioToIdeal": 0.631
+  },
+  "2.5s_per_item": {
+   "minShortCoefficient": 0.825,
+   "binding": {
+    "case": "quattro-formaggi:allMinusOne",
+    "worstShortRatio": 0.5,
+    "underfillSeconds": 37.5,
+    "idealSeconds": 47.5,
+    "idealPointsPerSecond": 4.2,
+    "breakEvenQuality": 57.5,
+    "retainedQualityFactorAtMinCoefficient": 0.587,
+    "zeroQualityPointsPerSecond": 2.667
+   },
+   "compatibleWithRecipeModeStar4AtTwoThirds": false,
+   "zeroQualityUnderfillBeatsIdeal": "0/45",
+   "zeroQualityBestRatioToIdeal": 0.655
   },
   "3.0s_per_item": {
    "minShortCoefficient": 0.908,
-   "bindingCase": "quattro-formaggi:allMinusOne"
+   "binding": {
+    "case": "quattro-formaggi:allMinusOne",
+    "worstShortRatio": 0.5,
+    "underfillSeconds": 40.0,
+    "idealSeconds": 52.0,
+    "idealPointsPerSecond": 3.837,
+    "breakEvenQuality": 53.5,
+    "retainedQualityFactorAtMinCoefficient": 0.546,
+    "zeroQualityPointsPerSecond": 2.5
+   },
+   "compatibleWithRecipeModeStar4AtTwoThirds": false,
+   "zeroQualityUnderfillBeatsIdeal": "0/45",
+   "zeroQualityBestRatioToIdeal": 0.678
   },
   "4.0s_per_item": {
    "minShortCoefficient": 1.036,
-   "bindingCase": "quattro-formaggi:allMinusOne"
+   "binding": {
+    "case": "quattro-formaggi:allMinusOne",
+    "worstShortRatio": 0.5,
+    "underfillSeconds": 45.0,
+    "idealSeconds": 61.0,
+    "idealPointsPerSecond": 3.27,
+    "breakEvenQuality": 47.2,
+    "retainedQualityFactorAtMinCoefficient": 0.482,
+    "zeroQualityPointsPerSecond": 2.222
+   },
+   "compatibleWithRecipeModeStar4AtTwoThirds": false,
+   "zeroQualityUnderfillBeatsIdeal": "0/45",
+   "zeroQualityBestRatioToIdeal": 0.718
+  },
+  "6.0s_per_item": {
+   "minShortCoefficient": 1.205,
+   "binding": {
+    "case": "quattro-formaggi:allMinusOne",
+    "worstShortRatio": 0.5,
+    "underfillSeconds": 55.0,
+    "idealSeconds": 79.0,
+    "idealPointsPerSecond": 2.525,
+    "breakEvenQuality": 38.9,
+    "retainedQualityFactorAtMinCoefficient": 0.397,
+    "zeroQualityPointsPerSecond": 1.818
+   },
+   "compatibleWithRecipeModeStar4AtTwoThirds": false,
+   "zeroQualityUnderfillBeatsIdeal": "0/45",
+   "zeroQualityBestRatioToIdeal": 0.781
   }
+ },
+ "lunchRushBreakEvenMeta": {
+  "recipeModeMaxShortCoefficientForStar4AtTwoThirds": 0.711,
+  "singleCoefficientCompatibleUpToSecondsPerItem": 1.94,
+  "recipeModeBindingCase": "pizza-bianca:rosemary:2/3",
+  "note": "a multiplies the worst shortage ratio; a > 1 is still a partial-quality serve (retainedQualityFactorAtMinCoefficient), not zero quality. zeroQuality* fields are the actual 0-quality comparison. MODEL ONLY: per-item seconds are assumptions, not measurements."
  },
  "lunchRushModel": {
   "secondsPerPizza": "25.0 + 3.0 * items (items = pieces + spreads)",
