@@ -241,7 +241,8 @@ export function scanGuards(root, paths = []) {
     // An alternative config (vite --config / playwright -c) would bypass the checks above --
     // wherever the command lives (package.json, the workflow, or any wrapper script).
     for (const [file, text] of texts) {
-      if (/\b(?:playwright|vite)\b[^\n]*(?:--config\b|\s-c\b)/.test(text)) both(`${file} (runs playwright/vite with a non-default config)`);
+      const joined = text.replace(/\\\r?\n/g, " "); // shell line continuations
+      if (/\b(?:playwright|vite)\b[^\n]*(?:--config\b|\s-c\b)/.test(joined)) both(`${file} (runs playwright/vite with a non-default config)`);
     }
     for (const [file, text] of texts) {
       if (/\bpython[0-9.]*\b/.test(text)) blocked.tools.push(`${file} (runs python)`);
@@ -257,8 +258,10 @@ export function scanGuards(root, paths = []) {
       String.raw`(?:\bfrom|\bimport|\brequire)${GAP}\(?${GAP}["'\x60][^"'\x60\n]*(?:exec|spawn|shell|child_process|\bzx\b|\bprocess\b)[^"'\x60\n]*["'\x60]` +
         String.raw`|\bBun${GAP}\.${GAP}(?:spawn|\$)|\bDeno${GAP}\.${GAP}(?:Command|run)\b|\bexecSync\b|\bspawnSync\b`,
     );
+    // A shell script launches processes by itself (no module import needed).
+    const isShell = (file, text) => /\.(?:sh|bash|zsh)$/.test(file) || /^#!.*\b(?:sh|bash|zsh|dash)\b/.test(text);
     for (const [file, text] of texts) {
-      if (!SPAWN.test(text)) continue;
+      if (!SPAWN.test(text) && !isShell(file, text)) continue;
       const stem = file.split("/").pop().replace(/\.[^.]+$/, "");
       const runnable = /^(?:src|e2e)\//.test(file) || !file.includes("/") || [...texts].some(([f, t]) => f !== file && t.includes(stem));
       if (runnable) blocked.tools.push(`${file} (spawns processes)`);
@@ -450,6 +453,10 @@ const SCAN_CASES = [
   ["cross-spawn via require", { "e2e/gestures.ts": 'const spawn = require("cross-spawn");\n' }, { ...T, tools: false }],
   ["RegExp.exec in runtime code is not a process launch", { "src/App.tsx": 'const m = /a/.exec("abc");\n' }, T],
   ["a wrapper runs playwright with another config", { "package.json": '{"scripts":{"e2e":"sh scripts/e2e.sh"}}', "scripts/e2e.sh": "#!/bin/sh\nnpx playwright test --config config/pw.ts\n" }, { tools: false, "unit-test": false }],
+  ["a named shell wrapper runs a shebang tool (no python word)", { "package.json": '{"scripts":{"e2e":"sh scripts/e2e.sh"}}', "scripts/e2e.sh": "#!/bin/sh\n./tools/runner.py\n" }, { ...T, tools: false }],
+  ["an extensionless sh-shebang wrapper that is named", { "package.json": '{"scripts":{"prep":"bin/prep"}}', "bin/prep": "#!/usr/bin/env bash\n./tools/runner.py\n" }, { ...T, tools: false }],
+  ["an unnamed shell script cannot run in the job", { "scripts/local.sh": "#!/bin/sh\n./tools/runner.py\n" }, T],
+  ["--config after a shell line continuation", { "scripts/e2e.sh": "#!/bin/sh\nnpx playwright test \\\n  --config config/pw.ts\n" }, { tools: false, "unit-test": false }],
   ["binary files are skipped", { "public/icon.png": "\u0000PNG a.test tools/gen.py python" }, T],
   ["concatenated fetch argument", { "src/App.tsx": 'fetch("/src/logic/" + name);\n' }, { tools: false, "unit-test": false }],
   ["concatenated import argument", { "src/App.tsx": 'import("./logic/" + moduleName);\n' }, { tools: false, "unit-test": false }],
