@@ -1,0 +1,457 @@
+{
+  "schemaVersion": 1,
+  "kind": "w1_ingredient_visual_gate_result",
+  "gate": "W1 Ingredient Visual Preview Gate (Visual Evidence Gate, not production authoring)",
+  "authority": {
+    "evidenceOwnerDecisionCommit": "abb0a3d",
+    "w1AuthorityPr": {
+      "pr": 220,
+      "headSha": "e49dab96bd9b26dc0f520349cf09d1160c3519f5"
+    },
+    "contentAuthoringPr": {
+      "pr": 221,
+      "headSha": "d028844e3a848ebf53cbc45d745784b7695dedf2",
+      "use": "read-only candidate rows"
+    },
+    "pinnedInputs": {
+      "docs/reports/data/TETO_PROGRESS2_W1_EVIDENCE_RESOLUTION_LEDGER.json": "6835257bfd9244a6d259bcf10639a9f78a4c294f6b7de06ec3ea8de65b07f599",
+      "docs/reports/data/TETO_PROGRESS2_W1_VISUAL_EVIDENCE_REQUIREMENTS.json": "56a01272b373051c01d77b6cd9e9e710c79064038c783397e19e8a1b5fe51441",
+      "docs/reports/data/TETO_PROGRESS2_W1_OWNER_DECISIONS.json": "f35c16e61030253235761dd2906360aca2bf66e1adf1eda6c11980256092eb6c"
+    },
+    "ownerDecisions": {
+      "OD-S1": "A",
+      "OD-OLIVE": "BLACK_OLIVE_CANONICAL",
+      "OD-PARM": "PARMIGIANO_CANONICAL",
+      "OD-CLAM-GLYPH": "DEFER_TO_VISUAL_GATE",
+      "OD-TOMATO-REPRESENTATION": "TEMPORARY_SHARED_GLYPH"
+    }
+  },
+  "method": {
+    "preview": "visual-gate/w1 (separate Vite root; injects PR #221 candidate rows into the real game at runtime; src/** unchanged; not part of npm run build)",
+    "inGameScenarios": [
+      "tomato",
+      "capers",
+      "eggplant",
+      "clam-oyster",
+      "clam-spiral",
+      "yellow",
+      "full-tray"
+    ],
+    "qaBoard": "visual-gate/w1/board.html (production IngredientPieceVisual / IngredientTray / toppingVisualFrame; heat 0 / 1.0 / 1.6; 28px and 16px; grayscale + deuteranopia/protanopia simulation)",
+    "bakeCapture": "virtual clock paused with the needle at the free-cook target center (heat = 1.0), then RESULT",
+    "renderer": "Playwright Chromium with Noto Color Emoji -- NOT Apple Color Emoji; every visual verdict below is AI observation of this renderer, never a Human device PASS",
+    "automatedLayoutChecks": [
+      "no horizontal overflow (PREPARE, RESULT, QA board)",
+      ".game-screen needs no vertical scroll at TOPPING (tray + placed pieces)",
+      "bottom bar (焼く!) stays on-screen",
+      "3-page topping tray (15 owned toppings) pages without overflow",
+      "RESULT reached, not burnt, no page errors",
+      "placed pieces keep their own ingredient id (fresh-tomato x3 + cherry-tomato x3 counted separately)"
+    ],
+    "webkit": "Not run locally (WebKit executable not installed in this environment). Not required as Final Gate: src/** and e2e/** are unchanged, no Safari runtime path is affected."
+  },
+  "ingredients": [
+    {
+      "ledgerId": "ING-02",
+      "ingredientId": "capers",
+      "focus": true,
+      "candidateVisual": {
+        "emoji": "🟢",
+        "unicodeName": "LARGE GREEN CIRCLE"
+      },
+      "comparedAgainst": [
+        "black-olive ⚫",
+        "pepperoni 🔴",
+        "garlic 🧄",
+        "anchovy 🐟 (co-placed in Puttanesca)"
+      ],
+      "rawResult": "AI_OBSERVED: visible on tomato sauce; identical plain-circle silhouette to 🔴 pepperoni; ⚫ black-olive differs by size + darkness",
+      "bakedResult": "AI_OBSERVED: still visible at heat 1.0 / 1.6; roast tint pulls 🟢 and 🔴 toward the same muddy tone",
+      "cvdResult": "AI_OBSERVED (simulated): grayscale -> 🟢 and 🔴 are two mid-grey discs of the same shape; deuteranopia sim -> both khaki, near-identical; protanopia sim -> luminance-only difference. No shape cue exists.",
+      "viewport390x844": {
+        "layout": "AUTOMATED_CHECKS_PASSED",
+        "visual": "DEDICATED_VISUAL_REQUIRED"
+      },
+      "viewport360x800": {
+        "layout": "AUTOMATED_CHECKS_PASSED",
+        "visual": "DEDICATED_VISUAL_REQUIRED"
+      },
+      "status": "DEDICATED_VISUAL_REQUIRED",
+      "reason": "Colour is the only identification cue: 🟢 and 🔴 are the same plain-circle glyph shape, so capers vs pepperoni fails under grayscale / red-green CVD simulation, and 🟢 does not read as a caper. This is a property of the glyph pair, not of one device.",
+      "requiredFollowUp": "Dedicated caper piece visual with a non-circle silhouette (e.g. a cluster of 2-3 small olive-green buds with a lighter tip, drawn like the cheese branch's physical CSS pieces) across every emoji render site; then device Human Verification including a grayscale pass.",
+      "screenshots": {
+        "390x844": [
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/capers-1-tray.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/capers-2-raw.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/capers-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/capers-3-baked.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/capers-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/capers-4-result.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/board-capers.png"
+        ],
+        "360x800": [
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/capers-1-tray.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/capers-2-raw.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/capers-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/capers-3-baked.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/capers-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/capers-4-result.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/board-capers.png"
+        ]
+      }
+    },
+    {
+      "ledgerId": "ING-07",
+      "ingredientId": "clam",
+      "focus": true,
+      "candidateVisual": {
+        "emoji": null,
+        "compared": [
+          {
+            "emoji": "🦪",
+            "unicodeName": "OYSTER",
+            "gateFinding": "PREFERRED_CANDIDATE",
+            "note": "Reads as a bivalve/shellfish on olive oil + parmigiano; dark shell outline keeps it separate from 🧄 garlic and parmigiano slivers raw and baked, and still readable at 16px thumbnail size. Semantically an oyster (牡蠣), not あさり."
+          },
+          {
+            "emoji": "🐚",
+            "unicodeName": "SPIRAL SHELL",
+            "gateFinding": "FAIL",
+            "note": "Reads as a sea snail / conch, not a clam; pale white-pink body sits in the same value range as 🧄 garlic and parmigiano on the oil base, and at 16px it is the easiest of the four pieces to confuse with garlic."
+          }
+        ]
+      },
+      "comparedAgainst": [
+        "garlic 🧄",
+        "parmigiano (physical piece)",
+        "olive-oil base",
+        "mushroom 🍄"
+      ],
+      "rawResult": "AI_OBSERVED: 🦪 distinct; 🐚 low contrast against garlic/parmigiano",
+      "bakedResult": "AI_OBSERVED: same ranking after roast tint (heat 1.0 / 1.6)",
+      "viewport390x844": {
+        "layout": "AUTOMATED_CHECKS_PASSED",
+        "visual": "HUMAN_VERIFICATION_REQUIRED"
+      },
+      "viewport360x800": {
+        "layout": "AUTOMATED_CHECKS_PASSED",
+        "visual": "HUMAN_VERIFICATION_REQUIRED"
+      },
+      "status": "HUMAN_VERIFICATION_REQUIRED",
+      "reason": "Among the two standard glyphs only 🦪 is usable (🐚 FAIL). 🦪 is legible and not confused with co-placed pieces, but whether an oyster glyph is acceptable for あさり is an Owner/Human call and the iOS Apple glyph differs from the Noto rendering captured here. Not PASS.",
+      "requiredFollowUp": "Owner picks between 🦪 (keep, label carries あさり) and a dedicated clam visual; device check on iPhone Safari 390x844. If 🦪 is rejected -> DEDICATED_VISUAL_REQUIRED. OD-CLAM-GLYPH stays DEFER_TO_VISUAL_GATE until then (no glyph chosen here).",
+      "screenshots": {
+        "390x844": [
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/clam-oyster-1-tray.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/clam-oyster-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/clam-oyster-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/clam-oyster-4-result.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/clam-spiral-1-tray.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/clam-spiral-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/clam-spiral-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/clam-spiral-4-result.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/board-clam.png"
+        ],
+        "360x800": [
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/clam-oyster-1-tray.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/clam-oyster-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/clam-oyster-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/clam-oyster-4-result.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/clam-spiral-1-tray.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/clam-spiral-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/clam-spiral-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/clam-spiral-4-result.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/board-clam.png"
+        ]
+      }
+    },
+    {
+      "ledgerId": "ING-08",
+      "ingredientId": "corn",
+      "focus": false,
+      "candidateVisual": {
+        "emoji": "🌽",
+        "unicodeName": "EAR OF MAIZE"
+      },
+      "comparedAgainst": [
+        "egg 🥚",
+        "ham 🍖",
+        "mozzarella",
+        "pineapple 🍍"
+      ],
+      "rawResult": "AI_OBSERVED: high contrast on mozzarella and sauce; green husk separates it from 🥚 egg",
+      "bakedResult": "AI_OBSERVED: identifiable at heat 1.0 / 1.6 and at 16px",
+      "viewport390x844": {
+        "layout": "AUTOMATED_CHECKS_PASSED",
+        "visual": "HUMAN_VERIFICATION_REQUIRED"
+      },
+      "viewport360x800": {
+        "layout": "AUTOMATED_CHECKS_PASSED",
+        "visual": "HUMAN_VERIFICATION_REQUIRED"
+      },
+      "status": "HUMAN_VERIFICATION_REQUIRED",
+      "reason": "No collision or contrast issue found in the preview; device (Apple glyph) confirmation still required. Not PASS.",
+      "requiredFollowUp": "Device Human Verification (390x844 iPhone Safari).",
+      "screenshots": {
+        "390x844": [
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/yellow-1-tray.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/yellow-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/yellow-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/yellow-4-result.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/board-yellow.png"
+        ],
+        "360x800": [
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/yellow-1-tray.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/yellow-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/yellow-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/yellow-4-result.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/board-yellow.png"
+        ]
+      }
+    },
+    {
+      "ledgerId": "ING-03",
+      "ingredientId": "eggplant",
+      "focus": true,
+      "candidateVisual": {
+        "emoji": "🍆",
+        "unicodeName": "AUBERGINE"
+      },
+      "comparedAgainst": [
+        "tomato-sauce base",
+        "mozzarella",
+        "basil 🌿",
+        "parmigiano"
+      ],
+      "rawResult": "AI_OBSERVED: purple body + green cap stays clear on red sauce and on mozzarella; does not sink into the sauce",
+      "bakedResult": "AI_OBSERVED: heat 1.0 unchanged in practice; heat 1.6 dims the purple slightly but the silhouette and cap stay readable, including at 16px",
+      "viewport390x844": {
+        "layout": "AUTOMATED_CHECKS_PASSED",
+        "visual": "HUMAN_VERIFICATION_REQUIRED"
+      },
+      "viewport360x800": {
+        "layout": "AUTOMATED_CHECKS_PASSED",
+        "visual": "HUMAN_VERIFICATION_REQUIRED"
+      },
+      "status": "HUMAN_VERIFICATION_REQUIRED",
+      "reason": "Preview shows no sinking on sauce or cheese, raw or baked, but the Apple 🍆 is a darker purple than Noto's, which is exactly the risk flagged; device check required. Not PASS.",
+      "requiredFollowUp": "Device Human Verification on red sauce after bake (heat ~1.0-1.6), 390x844 iPhone Safari.",
+      "screenshots": {
+        "390x844": [
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/eggplant-1-tray.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/eggplant-2-raw.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/eggplant-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/eggplant-3-baked.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/eggplant-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/eggplant-4-result.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/board-eggplant.png"
+        ],
+        "360x800": [
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/eggplant-1-tray.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/eggplant-2-raw.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/eggplant-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/eggplant-3-baked.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/eggplant-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/eggplant-4-result.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/board-eggplant.png"
+        ]
+      }
+    },
+    {
+      "ledgerId": "ING-09",
+      "ingredientId": "fresh-tomato",
+      "focus": true,
+      "candidateVisual": {
+        "emoji": "🍅",
+        "unicodeName": "TOMATO",
+        "sharedWith": [
+          "cherry-tomato",
+          "tomato-sauce"
+        ],
+        "ownerDecision": "OD-TOMATO-REPRESENTATION = TEMPORARY_SHARED_GLYPH"
+      },
+      "identity": {
+        "ingredientId": "fresh-tomato",
+        "aliasOf": null,
+        "distinctFrom": "cherry-tomato"
+      },
+      "comparedAgainst": [
+        "cherry-tomato 🍅",
+        "tomato-sauce 🍅 (sauce tray chip / RESULT list)"
+      ],
+      "rawResult": "AI_OBSERVED: fresh-tomato and cherry-tomato pieces are pixel-identical on the pizza (same codepoint); only the tray label text differs",
+      "bakedResult": "AI_OBSERVED: still pixel-identical after bake (same topping roast curve, no bakeRoastResistant difference)",
+      "trayResult": "Distinguishable only by label (トマト vs チェリートマト); with a full owned set they land on different tray pages (cherry-tomato page 1, fresh-tomato page 3). RESULT ingredient list shows 🍅 トマトソース next to 🍅 トマト.",
+      "recipeMisreadRisk": "HIGH: Pesto Caprese built with cherry-tomato looks identical and is NO_MATCH (production matcher, W1 discovery regression fixtures).",
+      "viewport390x844": {
+        "layout": "AUTOMATED_CHECKS_PASSED",
+        "visual": "DEDICATED_VISUAL_REQUIRED"
+      },
+      "viewport360x800": {
+        "layout": "AUTOMATED_CHECKS_PASSED",
+        "visual": "DEDICATED_VISUAL_REQUIRED"
+      },
+      "status": "DEDICATED_VISUAL_REQUIRED",
+      "reason": "A shared codepoint renders identically on every device, so the pizza, bake and thumbnail views carry zero distinguishing cue between fresh-tomato and cherry-tomato; the player cannot tell which one produced a NO_MATCH. The shared 🍅 is acceptable only as the temporary preview glyph OD-TOMATO-REPRESENTATION allowed.",
+      "requiredFollowUp": "Dedicated fresh-tomato visual (e.g. a red round slice with lighter seed chambers, distinct from the whole 🍅 cherry-tomato) across every emoji render site; register it as a new runtime dependency (proposed, not registered here). fresh-tomato keeps its own id throughout.",
+      "screenshots": {
+        "390x844": [
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/tomato-1-tray.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/tomato-2-raw.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/tomato-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/tomato-3-baked.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/tomato-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/tomato-4-result.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/full-tray-1-tray.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/full-tray-1-tray-page3.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/board-tomato.png"
+        ],
+        "360x800": [
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/tomato-1-tray.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/tomato-2-raw.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/tomato-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/tomato-3-baked.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/tomato-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/tomato-4-result.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/full-tray-1-tray.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/full-tray-1-tray-page3.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/board-tomato.png"
+        ]
+      }
+    },
+    {
+      "ledgerId": "ING-10",
+      "ingredientId": "pineapple",
+      "focus": false,
+      "candidateVisual": {
+        "emoji": "🍍",
+        "unicodeName": "PINEAPPLE"
+      },
+      "comparedAgainst": [
+        "ham 🍖",
+        "mozzarella",
+        "corn 🌽"
+      ],
+      "rawResult": "AI_OBSERVED: yellow body + green crown clear on mozzarella; smaller glyph footprint than 🌽",
+      "bakedResult": "AI_OBSERVED: identifiable at heat 1.0 / 1.6 and 16px",
+      "viewport390x844": {
+        "layout": "AUTOMATED_CHECKS_PASSED",
+        "visual": "HUMAN_VERIFICATION_REQUIRED"
+      },
+      "viewport360x800": {
+        "layout": "AUTOMATED_CHECKS_PASSED",
+        "visual": "HUMAN_VERIFICATION_REQUIRED"
+      },
+      "status": "HUMAN_VERIFICATION_REQUIRED",
+      "reason": "No collision or contrast issue found in the preview; device confirmation still required. Not PASS.",
+      "requiredFollowUp": "Device Human Verification (390x844 iPhone Safari).",
+      "screenshots": {
+        "390x844": [
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/yellow-1-tray.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/yellow-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/yellow-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/yellow-4-result.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/board-yellow.png"
+        ],
+        "360x800": [
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/yellow-1-tray.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/yellow-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/yellow-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/yellow-4-result.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/board-yellow.png"
+        ]
+      }
+    },
+    {
+      "ledgerId": "ING-11",
+      "ingredientId": "potato",
+      "focus": false,
+      "candidateVisual": {
+        "emoji": "🥔",
+        "unicodeName": "POTATO"
+      },
+      "comparedAgainst": [
+        "pesto base",
+        "mozzarella",
+        "baked crust"
+      ],
+      "rawResult": "AI_OBSERVED: brown body clear on pesto and mozzarella",
+      "bakedResult": "AI_OBSERVED: readable at heat 1.0; at heat 1.6 over bare crust the brown potato is the lowest-contrast of the 7 (still readable on cheese/pesto)",
+      "viewport390x844": {
+        "layout": "AUTOMATED_CHECKS_PASSED",
+        "visual": "HUMAN_VERIFICATION_REQUIRED"
+      },
+      "viewport360x800": {
+        "layout": "AUTOMATED_CHECKS_PASSED",
+        "visual": "HUMAN_VERIFICATION_REQUIRED"
+      },
+      "status": "HUMAN_VERIFICATION_REQUIRED",
+      "reason": "Readable in the preview; deep-bake contrast against crust is the one watch item for the device check. Not PASS.",
+      "requiredFollowUp": "Device Human Verification, including a deep-bake (heat ~1.6) Pesto Patate.",
+      "screenshots": {
+        "390x844": [
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/full-tray-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/full-tray-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/full-tray-4-result.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/board-yellow.png"
+        ],
+        "360x800": [
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/full-tray-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/full-tray-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/full-tray-4-result.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/board-yellow.png"
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "PASS": [],
+    "FAIL": [],
+    "HUMAN_VERIFICATION_REQUIRED": [
+      "clam",
+      "corn",
+      "eggplant",
+      "pineapple",
+      "potato"
+    ],
+    "DEDICATED_VISUAL_REQUIRED": [
+      "capers",
+      "fresh-tomato"
+    ],
+    "glyphLevelFindings": {
+      "clam:🐚": "FAIL",
+      "clam:🦪": "HUMAN_VERIFICATION_REQUIRED (preferred candidate)"
+    },
+    "readiness": {
+      "READY": 0,
+      "REVIEW": 10,
+      "BLOCKED": 0
+    },
+    "readinessImpact": "None: READY 0 / REVIEW 10 / BLOCKED 0 unchanged. puttanesca-pizza (ING-02) and pesto-caprese (ING-09) now wait on a dedicated visual instead of a device check; still REVIEW (implementable, not BLOCKED).",
+    "ledgerReflectable": {
+      "statusChangeCandidates": {
+        "ING-02": "DEDICATED_VISUAL_REQUIRED",
+        "ING-09": "DEDICATED_VISUAL_REQUIRED"
+      },
+      "evidenceAttachOnly": [
+        "ING-03",
+        "ING-07",
+        "ING-08",
+        "ING-10",
+        "ING-11"
+      ],
+      "resolvable": [],
+      "note": "Nothing is resolvable: no Human device verification yet. The evidence ledger itself is not edited by this gate."
+    },
+    "untouched": [
+      "REC-01",
+      "REC-02",
+      "REC-03",
+      "REC-04",
+      "RT-01",
+      "recipe quantities",
+      "OD-S1 = A",
+      "ingredient identities"
+    ]
+  }
+}
