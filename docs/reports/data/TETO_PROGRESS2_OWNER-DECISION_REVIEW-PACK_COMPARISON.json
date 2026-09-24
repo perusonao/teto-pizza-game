@@ -1,0 +1,2471 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Owner Decision Review Pack comparison view (derived, read-only). Not a decision.",
+  "source": {
+    "pr": 217,
+    "headSha": "a39932d6b750cd0dd16b63e8635ac40c53a9fb70",
+    "file": "docs/design/data/TETO_PROGRESSION2_ISSUE216_FRESH-DESIGN-MATRIX.json",
+    "sha256": "e0750a8cda03cf20a8edf116e8069e157f5b25cd3f7c5e88afd52e8df7d1d91c"
+  },
+  "metricDefinitions": {
+    "bakesToNDiscoveries": "total bakes (incl. repeat bakes for Pitz) when the Nth recipe is discovered",
+    "grindBakes": "repeat bakes of already-known recipes needed only to afford a fee/purchase",
+    "longestDrySpellBakes": "max bakes between two consecutive new discoveries",
+    "capabilityFeesPaid": "A_PAID only: unlockFeesPaid(A) - unlockFeesPaid(B) for the same curve/quality"
+  },
+  "simulationCaveats": [
+    "All 24 scenarios use one fixed gate profile (sequence%4 rotation of star/discovery/completed/earned-Pitz); gate policy itself is not varied.",
+    "In the model, progress gates never bind (thresholds <= 60% of prior discoveries); only Pitz binds, so speed differences come from fees/prices.",
+    "Discovery is instant once a recipe is reachable (perfect-knowledge player); real search time is not modelled.",
+    "Quality ★1 = 20 Pitz/bake + 50 discovery bonus, 2 stars/discovery; ★3 = 80 Pitz/bake, 3 stars/discovery.",
+    "Unknown k is symbolic (k=1), so refill totals are not a balance claim."
+  ],
+  "scenarios": [
+    {
+      "feeCurve": "F0_NO_FEE_CONTROL",
+      "capabilityPolicy": "A_PAID",
+      "quality": 1,
+      "outcome": "COMPLETE",
+      "reach": "101/101",
+      "relocked": false,
+      "bakes": 483,
+      "grindBakes": 382,
+      "grindShare": 0.791,
+      "bakesToNDiscoveries": {
+        "10": 11,
+        "25": 25,
+        "50": 54,
+        "75": 138,
+        "101": 483
+      },
+      "longestDrySpellBakes": 25,
+      "ingredientUnlockFeesPaid": 0,
+      "capabilityFeesPaid": 0,
+      "firstStockPaid": 12760,
+      "doughPanPaid": 1700,
+      "capabilityTimeline": [
+        {
+          "capability": "DOUGH_VARIANT",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 14,
+          "discoveriesBefore": 14
+        },
+        {
+          "capability": "STEP_ORDER",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 22,
+          "discoveriesBefore": 22
+        },
+        {
+          "capability": "MULTI_SPREAD_LAYER",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 29,
+          "discoveriesBefore": 29
+        },
+        {
+          "capability": "PAN_BAKE",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 35,
+          "discoveriesBefore": 35
+        },
+        {
+          "capability": "ZONED_PLACEMENT",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 41,
+          "discoveriesBefore": 41
+        },
+        {
+          "capability": "LATE_ADDITION",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 48,
+          "discoveriesBefore": 48
+        },
+        {
+          "capability": "FRY_COOK",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 66,
+          "discoveriesBefore": 54
+        },
+        {
+          "capability": "ENCLOSE",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 76,
+          "discoveriesBefore": 60
+        },
+        {
+          "capability": "DOUGH_SHAPE_TARGET",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 89,
+          "discoveriesBefore": 66
+        },
+        {
+          "capability": "PREP_STEP",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 234,
+          "discoveriesBefore": 88
+        }
+      ]
+    },
+    {
+      "feeCurve": "F0_NO_FEE_CONTROL",
+      "capabilityPolicy": "A_PAID",
+      "quality": 3,
+      "outcome": "COMPLETE",
+      "reach": "101/101",
+      "relocked": false,
+      "bakes": 122,
+      "grindBakes": 21,
+      "grindShare": 0.172,
+      "bakesToNDiscoveries": {
+        "10": 11,
+        "25": 25,
+        "50": 50,
+        "75": 75,
+        "101": 122
+      },
+      "longestDrySpellBakes": 7,
+      "ingredientUnlockFeesPaid": 0,
+      "capabilityFeesPaid": 0,
+      "firstStockPaid": 12760,
+      "doughPanPaid": 1700,
+      "capabilityTimeline": [
+        {
+          "capability": "DOUGH_VARIANT",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 14,
+          "discoveriesBefore": 14
+        },
+        {
+          "capability": "STEP_ORDER",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 22,
+          "discoveriesBefore": 22
+        },
+        {
+          "capability": "MULTI_SPREAD_LAYER",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 29,
+          "discoveriesBefore": 29
+        },
+        {
+          "capability": "PAN_BAKE",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 35,
+          "discoveriesBefore": 35
+        },
+        {
+          "capability": "ZONED_PLACEMENT",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 41,
+          "discoveriesBefore": 41
+        },
+        {
+          "capability": "LATE_ADDITION",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 48,
+          "discoveriesBefore": 48
+        },
+        {
+          "capability": "FRY_COOK",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 54,
+          "discoveriesBefore": 54
+        },
+        {
+          "capability": "ENCLOSE",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 60,
+          "discoveriesBefore": 60
+        },
+        {
+          "capability": "DOUGH_SHAPE_TARGET",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 66,
+          "discoveriesBefore": 66
+        },
+        {
+          "capability": "PREP_STEP",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 88,
+          "discoveriesBefore": 88
+        }
+      ]
+    },
+    {
+      "feeCurve": "F0_NO_FEE_CONTROL",
+      "capabilityPolicy": "B_AUTO",
+      "quality": 1,
+      "outcome": "COMPLETE",
+      "reach": "101/101",
+      "relocked": false,
+      "bakes": 483,
+      "grindBakes": 382,
+      "grindShare": 0.791,
+      "bakesToNDiscoveries": {
+        "10": 11,
+        "25": 25,
+        "50": 54,
+        "75": 138,
+        "101": 483
+      },
+      "longestDrySpellBakes": 25,
+      "ingredientUnlockFeesPaid": 0,
+      "capabilityFeesPaid": 0,
+      "firstStockPaid": 12760,
+      "doughPanPaid": 1700,
+      "capabilityTimeline": [
+        {
+          "capability": "DOUGH_VARIANT",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 14,
+          "discoveriesBefore": 14
+        },
+        {
+          "capability": "STEP_ORDER",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 22,
+          "discoveriesBefore": 22
+        },
+        {
+          "capability": "MULTI_SPREAD_LAYER",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 29,
+          "discoveriesBefore": 29
+        },
+        {
+          "capability": "PAN_BAKE",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 35,
+          "discoveriesBefore": 35
+        },
+        {
+          "capability": "ZONED_PLACEMENT",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 41,
+          "discoveriesBefore": 41
+        },
+        {
+          "capability": "LATE_ADDITION",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 48,
+          "discoveriesBefore": 48
+        },
+        {
+          "capability": "FRY_COOK",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 66,
+          "discoveriesBefore": 54
+        },
+        {
+          "capability": "ENCLOSE",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 76,
+          "discoveriesBefore": 60
+        },
+        {
+          "capability": "DOUGH_SHAPE_TARGET",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 89,
+          "discoveriesBefore": 66
+        },
+        {
+          "capability": "PREP_STEP",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 234,
+          "discoveriesBefore": 88
+        }
+      ]
+    },
+    {
+      "feeCurve": "F0_NO_FEE_CONTROL",
+      "capabilityPolicy": "B_AUTO",
+      "quality": 3,
+      "outcome": "COMPLETE",
+      "reach": "101/101",
+      "relocked": false,
+      "bakes": 122,
+      "grindBakes": 21,
+      "grindShare": 0.172,
+      "bakesToNDiscoveries": {
+        "10": 11,
+        "25": 25,
+        "50": 50,
+        "75": 75,
+        "101": 122
+      },
+      "longestDrySpellBakes": 7,
+      "ingredientUnlockFeesPaid": 0,
+      "capabilityFeesPaid": 0,
+      "firstStockPaid": 12760,
+      "doughPanPaid": 1700,
+      "capabilityTimeline": [
+        {
+          "capability": "DOUGH_VARIANT",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 14,
+          "discoveriesBefore": 14
+        },
+        {
+          "capability": "STEP_ORDER",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 22,
+          "discoveriesBefore": 22
+        },
+        {
+          "capability": "MULTI_SPREAD_LAYER",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 29,
+          "discoveriesBefore": 29
+        },
+        {
+          "capability": "PAN_BAKE",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 35,
+          "discoveriesBefore": 35
+        },
+        {
+          "capability": "ZONED_PLACEMENT",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 41,
+          "discoveriesBefore": 41
+        },
+        {
+          "capability": "LATE_ADDITION",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 48,
+          "discoveriesBefore": 48
+        },
+        {
+          "capability": "FRY_COOK",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 54,
+          "discoveriesBefore": 54
+        },
+        {
+          "capability": "ENCLOSE",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 60,
+          "discoveriesBefore": 60
+        },
+        {
+          "capability": "DOUGH_SHAPE_TARGET",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 66,
+          "discoveriesBefore": 66
+        },
+        {
+          "capability": "PREP_STEP",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 88,
+          "discoveriesBefore": 88
+        }
+      ]
+    },
+    {
+      "feeCurve": "F0_NO_FEE_CONTROL",
+      "capabilityPolicy": "C_TUTORIAL",
+      "quality": 1,
+      "outcome": "COMPLETE",
+      "reach": "101/101",
+      "relocked": false,
+      "bakes": 483,
+      "grindBakes": 382,
+      "grindShare": 0.791,
+      "bakesToNDiscoveries": {
+        "10": 10,
+        "25": 25,
+        "50": 50,
+        "75": 138,
+        "101": 483
+      },
+      "longestDrySpellBakes": 25,
+      "ingredientUnlockFeesPaid": 0,
+      "capabilityFeesPaid": 0,
+      "firstStockPaid": 12760,
+      "doughPanPaid": 1700,
+      "capabilityTimeline": [
+        {
+          "capability": "STEP_ORDER",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "trenton-tomato-pie-pizzadb",
+          "bakesBefore": 0,
+          "discoveriesBefore": 0
+        },
+        {
+          "capability": "DOUGH_VARIANT",
+          "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
+          "targetId": "cauliflower-crust-pizza-pizzadb-p2",
+          "bakesBefore": 15,
+          "discoveriesBefore": 15
+        },
+        {
+          "capability": "MULTI_SPREAD_LAYER",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "grandma-pizza-pizzadb",
+          "bakesBefore": 23,
+          "discoveriesBefore": 23
+        },
+        {
+          "capability": "ENCLOSE",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "chicago-stuffed-pizza-pizzadb-p3",
+          "bakesBefore": 35,
+          "discoveriesBefore": 35
+        },
+        {
+          "capability": "PAN_BAKE",
+          "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
+          "targetId": "montreal-style-pizza-pizzadb-p13",
+          "bakesBefore": 36,
+          "discoveriesBefore": 36
+        },
+        {
+          "capability": "ZONED_PLACEMENT",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "quattro-stagioni-pizzadb",
+          "bakesBefore": 42,
+          "discoveriesBefore": 42
+        },
+        {
+          "capability": "LATE_ADDITION",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "bbq-chicken-pizzadb",
+          "bakesBefore": 49,
+          "discoveriesBefore": 49
+        },
+        {
+          "capability": "FRY_COOK",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "pizza-fritta-pizzadb-p9",
+          "bakesBefore": 51,
+          "discoveriesBefore": 50
+        },
+        {
+          "capability": "DOUGH_SHAPE_TARGET",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "pizza-al-taglio-romana-pizzadb-p9",
+          "bakesBefore": 99,
+          "discoveriesBefore": 66
+        },
+        {
+          "capability": "PREP_STEP",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "yakiniku-pizza",
+          "bakesBefore": 245,
+          "discoveriesBefore": 88
+        }
+      ]
+    },
+    {
+      "feeCurve": "F0_NO_FEE_CONTROL",
+      "capabilityPolicy": "C_TUTORIAL",
+      "quality": 3,
+      "outcome": "COMPLETE",
+      "reach": "101/101",
+      "relocked": false,
+      "bakes": 122,
+      "grindBakes": 21,
+      "grindShare": 0.172,
+      "bakesToNDiscoveries": {
+        "10": 10,
+        "25": 25,
+        "50": 50,
+        "75": 75,
+        "101": 122
+      },
+      "longestDrySpellBakes": 7,
+      "ingredientUnlockFeesPaid": 0,
+      "capabilityFeesPaid": 0,
+      "firstStockPaid": 12760,
+      "doughPanPaid": 1700,
+      "capabilityTimeline": [
+        {
+          "capability": "STEP_ORDER",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "trenton-tomato-pie-pizzadb",
+          "bakesBefore": 0,
+          "discoveriesBefore": 0
+        },
+        {
+          "capability": "DOUGH_VARIANT",
+          "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
+          "targetId": "cauliflower-crust-pizza-pizzadb-p2",
+          "bakesBefore": 15,
+          "discoveriesBefore": 15
+        },
+        {
+          "capability": "MULTI_SPREAD_LAYER",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "grandma-pizza-pizzadb",
+          "bakesBefore": 23,
+          "discoveriesBefore": 23
+        },
+        {
+          "capability": "ENCLOSE",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "chicago-stuffed-pizza-pizzadb-p3",
+          "bakesBefore": 35,
+          "discoveriesBefore": 35
+        },
+        {
+          "capability": "PAN_BAKE",
+          "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
+          "targetId": "montreal-style-pizza-pizzadb-p13",
+          "bakesBefore": 36,
+          "discoveriesBefore": 36
+        },
+        {
+          "capability": "ZONED_PLACEMENT",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "quattro-stagioni-pizzadb",
+          "bakesBefore": 42,
+          "discoveriesBefore": 42
+        },
+        {
+          "capability": "LATE_ADDITION",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "bbq-chicken-pizzadb",
+          "bakesBefore": 49,
+          "discoveriesBefore": 49
+        },
+        {
+          "capability": "FRY_COOK",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "pizza-fritta-pizzadb-p9",
+          "bakesBefore": 50,
+          "discoveriesBefore": 50
+        },
+        {
+          "capability": "DOUGH_SHAPE_TARGET",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "pizza-al-taglio-romana-pizzadb-p9",
+          "bakesBefore": 66,
+          "discoveriesBefore": 66
+        },
+        {
+          "capability": "PREP_STEP",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "yakiniku-pizza",
+          "bakesBefore": 88,
+          "discoveriesBefore": 88
+        }
+      ]
+    },
+    {
+      "feeCurve": "F1_LIGHT",
+      "capabilityPolicy": "A_PAID",
+      "quality": 1,
+      "outcome": "COMPLETE",
+      "reach": "101/101",
+      "relocked": false,
+      "bakes": 684,
+      "grindBakes": 583,
+      "grindShare": 0.852,
+      "bakesToNDiscoveries": {
+        "10": 16,
+        "25": 30,
+        "50": 111,
+        "75": 232,
+        "101": 684
+      },
+      "longestDrySpellBakes": 32,
+      "ingredientUnlockFeesPaid": 3700,
+      "capabilityFeesPaid": 310,
+      "firstStockPaid": 12760,
+      "doughPanPaid": 1700,
+      "capabilityTimeline": [
+        {
+          "capability": "DOUGH_VARIANT",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 19,
+          "discoveriesBefore": 14
+        },
+        {
+          "capability": "STEP_ORDER",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 27,
+          "discoveriesBefore": 22
+        },
+        {
+          "capability": "MULTI_SPREAD_LAYER",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 42,
+          "discoveriesBefore": 29
+        },
+        {
+          "capability": "PAN_BAKE",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 49,
+          "discoveriesBefore": 35
+        },
+        {
+          "capability": "ZONED_PLACEMENT",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 72,
+          "discoveriesBefore": 41
+        },
+        {
+          "capability": "LATE_ADDITION",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 95,
+          "discoveriesBefore": 48
+        },
+        {
+          "capability": "FRY_COOK",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 127,
+          "discoveriesBefore": 54
+        },
+        {
+          "capability": "ENCLOSE",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 146,
+          "discoveriesBefore": 60
+        },
+        {
+          "capability": "DOUGH_SHAPE_TARGET",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 165,
+          "discoveriesBefore": 66
+        },
+        {
+          "capability": "PREP_STEP",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 362,
+          "discoveriesBefore": 88
+        }
+      ]
+    },
+    {
+      "feeCurve": "F1_LIGHT",
+      "capabilityPolicy": "A_PAID",
+      "quality": 3,
+      "outcome": "COMPLETE",
+      "reach": "101/101",
+      "relocked": false,
+      "bakes": 172,
+      "grindBakes": 71,
+      "grindShare": 0.413,
+      "bakesToNDiscoveries": {
+        "10": 11,
+        "25": 25,
+        "50": 50,
+        "75": 75,
+        "101": 172
+      },
+      "longestDrySpellBakes": 8,
+      "ingredientUnlockFeesPaid": 3700,
+      "capabilityFeesPaid": 310,
+      "firstStockPaid": 12760,
+      "doughPanPaid": 1700,
+      "capabilityTimeline": [
+        {
+          "capability": "DOUGH_VARIANT",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 14,
+          "discoveriesBefore": 14
+        },
+        {
+          "capability": "STEP_ORDER",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 22,
+          "discoveriesBefore": 22
+        },
+        {
+          "capability": "MULTI_SPREAD_LAYER",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 29,
+          "discoveriesBefore": 29
+        },
+        {
+          "capability": "PAN_BAKE",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 35,
+          "discoveriesBefore": 35
+        },
+        {
+          "capability": "ZONED_PLACEMENT",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 41,
+          "discoveriesBefore": 41
+        },
+        {
+          "capability": "LATE_ADDITION",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 48,
+          "discoveriesBefore": 48
+        },
+        {
+          "capability": "FRY_COOK",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 54,
+          "discoveriesBefore": 54
+        },
+        {
+          "capability": "ENCLOSE",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 60,
+          "discoveriesBefore": 60
+        },
+        {
+          "capability": "DOUGH_SHAPE_TARGET",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 66,
+          "discoveriesBefore": 66
+        },
+        {
+          "capability": "PREP_STEP",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 92,
+          "discoveriesBefore": 88
+        }
+      ]
+    },
+    {
+      "feeCurve": "F1_LIGHT",
+      "capabilityPolicy": "B_AUTO",
+      "quality": 1,
+      "outcome": "COMPLETE",
+      "reach": "101/101",
+      "relocked": false,
+      "bakes": 668,
+      "grindBakes": 567,
+      "grindShare": 0.849,
+      "bakesToNDiscoveries": {
+        "10": 16,
+        "25": 30,
+        "50": 103,
+        "75": 218,
+        "101": 668
+      },
+      "longestDrySpellBakes": 32,
+      "ingredientUnlockFeesPaid": 3700,
+      "capabilityFeesPaid": 0,
+      "firstStockPaid": 12760,
+      "doughPanPaid": 1700,
+      "capabilityTimeline": [
+        {
+          "capability": "DOUGH_VARIANT",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 19,
+          "discoveriesBefore": 14
+        },
+        {
+          "capability": "STEP_ORDER",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 27,
+          "discoveriesBefore": 22
+        },
+        {
+          "capability": "MULTI_SPREAD_LAYER",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 40,
+          "discoveriesBefore": 29
+        },
+        {
+          "capability": "PAN_BAKE",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 46,
+          "discoveriesBefore": 35
+        },
+        {
+          "capability": "ZONED_PLACEMENT",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 67,
+          "discoveriesBefore": 41
+        },
+        {
+          "capability": "LATE_ADDITION",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 88,
+          "discoveriesBefore": 48
+        },
+        {
+          "capability": "FRY_COOK",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 119,
+          "discoveriesBefore": 54
+        },
+        {
+          "capability": "ENCLOSE",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 136,
+          "discoveriesBefore": 60
+        },
+        {
+          "capability": "DOUGH_SHAPE_TARGET",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 153,
+          "discoveriesBefore": 66
+        },
+        {
+          "capability": "PREP_STEP",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 349,
+          "discoveriesBefore": 88
+        }
+      ]
+    },
+    {
+      "feeCurve": "F1_LIGHT",
+      "capabilityPolicy": "B_AUTO",
+      "quality": 3,
+      "outcome": "COMPLETE",
+      "reach": "101/101",
+      "relocked": false,
+      "bakes": 168,
+      "grindBakes": 67,
+      "grindShare": 0.399,
+      "bakesToNDiscoveries": {
+        "10": 11,
+        "25": 25,
+        "50": 50,
+        "75": 75,
+        "101": 168
+      },
+      "longestDrySpellBakes": 8,
+      "ingredientUnlockFeesPaid": 3700,
+      "capabilityFeesPaid": 0,
+      "firstStockPaid": 12760,
+      "doughPanPaid": 1700,
+      "capabilityTimeline": [
+        {
+          "capability": "DOUGH_VARIANT",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 14,
+          "discoveriesBefore": 14
+        },
+        {
+          "capability": "STEP_ORDER",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 22,
+          "discoveriesBefore": 22
+        },
+        {
+          "capability": "MULTI_SPREAD_LAYER",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 29,
+          "discoveriesBefore": 29
+        },
+        {
+          "capability": "PAN_BAKE",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 35,
+          "discoveriesBefore": 35
+        },
+        {
+          "capability": "ZONED_PLACEMENT",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 41,
+          "discoveriesBefore": 41
+        },
+        {
+          "capability": "LATE_ADDITION",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 48,
+          "discoveriesBefore": 48
+        },
+        {
+          "capability": "FRY_COOK",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 54,
+          "discoveriesBefore": 54
+        },
+        {
+          "capability": "ENCLOSE",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 60,
+          "discoveriesBefore": 60
+        },
+        {
+          "capability": "DOUGH_SHAPE_TARGET",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 66,
+          "discoveriesBefore": 66
+        },
+        {
+          "capability": "PREP_STEP",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 88,
+          "discoveriesBefore": 88
+        }
+      ]
+    },
+    {
+      "feeCurve": "F1_LIGHT",
+      "capabilityPolicy": "C_TUTORIAL",
+      "quality": 1,
+      "outcome": "COMPLETE",
+      "reach": "101/101",
+      "relocked": false,
+      "bakes": 668,
+      "grindBakes": 567,
+      "grindShare": 0.849,
+      "bakesToNDiscoveries": {
+        "10": 11,
+        "25": 26,
+        "50": 96,
+        "75": 218,
+        "101": 668
+      },
+      "longestDrySpellBakes": 32,
+      "ingredientUnlockFeesPaid": 3700,
+      "capabilityFeesPaid": 0,
+      "firstStockPaid": 12760,
+      "doughPanPaid": 1700,
+      "capabilityTimeline": [
+        {
+          "capability": "STEP_ORDER",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "trenton-tomato-pie-pizzadb",
+          "bakesBefore": 0,
+          "discoveriesBefore": 0
+        },
+        {
+          "capability": "DOUGH_VARIANT",
+          "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
+          "targetId": "cauliflower-crust-pizza-pizzadb-p2",
+          "bakesBefore": 16,
+          "discoveriesBefore": 15
+        },
+        {
+          "capability": "MULTI_SPREAD_LAYER",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "grandma-pizza-pizzadb",
+          "bakesBefore": 24,
+          "discoveriesBefore": 23
+        },
+        {
+          "capability": "ENCLOSE",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "chicago-stuffed-pizza-pizzadb-p3",
+          "bakesBefore": 45,
+          "discoveriesBefore": 35
+        },
+        {
+          "capability": "PAN_BAKE",
+          "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
+          "targetId": "montreal-style-pizza-pizzadb-p13",
+          "bakesBefore": 46,
+          "discoveriesBefore": 36
+        },
+        {
+          "capability": "ZONED_PLACEMENT",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "quattro-stagioni-pizzadb",
+          "bakesBefore": 67,
+          "discoveriesBefore": 42
+        },
+        {
+          "capability": "LATE_ADDITION",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "bbq-chicken-pizzadb",
+          "bakesBefore": 95,
+          "discoveriesBefore": 49
+        },
+        {
+          "capability": "FRY_COOK",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "pizza-fritta-pizzadb-p9",
+          "bakesBefore": 99,
+          "discoveriesBefore": 50
+        },
+        {
+          "capability": "DOUGH_SHAPE_TARGET",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "pizza-al-taglio-romana-pizzadb-p9",
+          "bakesBefore": 164,
+          "discoveriesBefore": 66
+        },
+        {
+          "capability": "PREP_STEP",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "yakiniku-pizza",
+          "bakesBefore": 363,
+          "discoveriesBefore": 88
+        }
+      ]
+    },
+    {
+      "feeCurve": "F1_LIGHT",
+      "capabilityPolicy": "C_TUTORIAL",
+      "quality": 3,
+      "outcome": "COMPLETE",
+      "reach": "101/101",
+      "relocked": false,
+      "bakes": 168,
+      "grindBakes": 67,
+      "grindShare": 0.399,
+      "bakesToNDiscoveries": {
+        "10": 10,
+        "25": 25,
+        "50": 50,
+        "75": 75,
+        "101": 168
+      },
+      "longestDrySpellBakes": 8,
+      "ingredientUnlockFeesPaid": 3700,
+      "capabilityFeesPaid": 0,
+      "firstStockPaid": 12760,
+      "doughPanPaid": 1700,
+      "capabilityTimeline": [
+        {
+          "capability": "STEP_ORDER",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "trenton-tomato-pie-pizzadb",
+          "bakesBefore": 0,
+          "discoveriesBefore": 0
+        },
+        {
+          "capability": "DOUGH_VARIANT",
+          "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
+          "targetId": "cauliflower-crust-pizza-pizzadb-p2",
+          "bakesBefore": 15,
+          "discoveriesBefore": 15
+        },
+        {
+          "capability": "MULTI_SPREAD_LAYER",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "grandma-pizza-pizzadb",
+          "bakesBefore": 23,
+          "discoveriesBefore": 23
+        },
+        {
+          "capability": "ENCLOSE",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "chicago-stuffed-pizza-pizzadb-p3",
+          "bakesBefore": 35,
+          "discoveriesBefore": 35
+        },
+        {
+          "capability": "PAN_BAKE",
+          "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
+          "targetId": "montreal-style-pizza-pizzadb-p13",
+          "bakesBefore": 36,
+          "discoveriesBefore": 36
+        },
+        {
+          "capability": "ZONED_PLACEMENT",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "quattro-stagioni-pizzadb",
+          "bakesBefore": 42,
+          "discoveriesBefore": 42
+        },
+        {
+          "capability": "LATE_ADDITION",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "bbq-chicken-pizzadb",
+          "bakesBefore": 49,
+          "discoveriesBefore": 49
+        },
+        {
+          "capability": "FRY_COOK",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "pizza-fritta-pizzadb-p9",
+          "bakesBefore": 50,
+          "discoveriesBefore": 50
+        },
+        {
+          "capability": "DOUGH_SHAPE_TARGET",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "pizza-al-taglio-romana-pizzadb-p9",
+          "bakesBefore": 66,
+          "discoveriesBefore": 66
+        },
+        {
+          "capability": "PREP_STEP",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "yakiniku-pizza",
+          "bakesBefore": 91,
+          "discoveriesBefore": 88
+        }
+      ]
+    },
+    {
+      "feeCurve": "F2_BALANCED",
+      "capabilityPolicy": "A_PAID",
+      "quality": 1,
+      "outcome": "COMPLETE",
+      "reach": "101/101",
+      "relocked": false,
+      "bakes": 828,
+      "grindBakes": 727,
+      "grindShare": 0.878,
+      "bakesToNDiscoveries": {
+        "10": 20,
+        "25": 39,
+        "50": 145,
+        "75": 293,
+        "101": 828
+      },
+      "longestDrySpellBakes": 38,
+      "ingredientUnlockFeesPaid": 6380,
+      "capabilityFeesPaid": 520,
+      "firstStockPaid": 12760,
+      "doughPanPaid": 1700,
+      "capabilityTimeline": [
+        {
+          "capability": "DOUGH_VARIANT",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 23,
+          "discoveriesBefore": 14
+        },
+        {
+          "capability": "STEP_ORDER",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 34,
+          "discoveriesBefore": 22
+        },
+        {
+          "capability": "MULTI_SPREAD_LAYER",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 56,
+          "discoveriesBefore": 29
+        },
+        {
+          "capability": "PAN_BAKE",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 65,
+          "discoveriesBefore": 35
+        },
+        {
+          "capability": "ZONED_PLACEMENT",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 95,
+          "discoveriesBefore": 41
+        },
+        {
+          "capability": "LATE_ADDITION",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 125,
+          "discoveriesBefore": 48
+        },
+        {
+          "capability": "FRY_COOK",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 164,
+          "discoveriesBefore": 54
+        },
+        {
+          "capability": "ENCLOSE",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 189,
+          "discoveriesBefore": 60
+        },
+        {
+          "capability": "DOUGH_SHAPE_TARGET",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 213,
+          "discoveriesBefore": 66
+        },
+        {
+          "capability": "PREP_STEP",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 449,
+          "discoveriesBefore": 88
+        }
+      ]
+    },
+    {
+      "feeCurve": "F2_BALANCED",
+      "capabilityPolicy": "A_PAID",
+      "quality": 3,
+      "outcome": "COMPLETE",
+      "reach": "101/101",
+      "relocked": false,
+      "bakes": 208,
+      "grindBakes": 107,
+      "grindShare": 0.514,
+      "bakesToNDiscoveries": {
+        "10": 11,
+        "25": 25,
+        "50": 50,
+        "75": 75,
+        "101": 208
+      },
+      "longestDrySpellBakes": 10,
+      "ingredientUnlockFeesPaid": 6380,
+      "capabilityFeesPaid": 520,
+      "firstStockPaid": 12760,
+      "doughPanPaid": 1700,
+      "capabilityTimeline": [
+        {
+          "capability": "DOUGH_VARIANT",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 14,
+          "discoveriesBefore": 14
+        },
+        {
+          "capability": "STEP_ORDER",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 22,
+          "discoveriesBefore": 22
+        },
+        {
+          "capability": "MULTI_SPREAD_LAYER",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 29,
+          "discoveriesBefore": 29
+        },
+        {
+          "capability": "PAN_BAKE",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 35,
+          "discoveriesBefore": 35
+        },
+        {
+          "capability": "ZONED_PLACEMENT",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 41,
+          "discoveriesBefore": 41
+        },
+        {
+          "capability": "LATE_ADDITION",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 48,
+          "discoveriesBefore": 48
+        },
+        {
+          "capability": "FRY_COOK",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 54,
+          "discoveriesBefore": 54
+        },
+        {
+          "capability": "ENCLOSE",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 60,
+          "discoveriesBefore": 60
+        },
+        {
+          "capability": "DOUGH_SHAPE_TARGET",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 66,
+          "discoveriesBefore": 66
+        },
+        {
+          "capability": "PREP_STEP",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 113,
+          "discoveriesBefore": 88
+        }
+      ]
+    },
+    {
+      "feeCurve": "F2_BALANCED",
+      "capabilityPolicy": "B_AUTO",
+      "quality": 1,
+      "outcome": "COMPLETE",
+      "reach": "101/101",
+      "relocked": false,
+      "bakes": 802,
+      "grindBakes": 701,
+      "grindShare": 0.874,
+      "bakesToNDiscoveries": {
+        "10": 20,
+        "25": 36,
+        "50": 132,
+        "75": 271,
+        "101": 802
+      },
+      "longestDrySpellBakes": 38,
+      "ingredientUnlockFeesPaid": 6380,
+      "capabilityFeesPaid": 0,
+      "firstStockPaid": 12760,
+      "doughPanPaid": 1700,
+      "capabilityTimeline": [
+        {
+          "capability": "DOUGH_VARIANT",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 23,
+          "discoveriesBefore": 14
+        },
+        {
+          "capability": "STEP_ORDER",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 32,
+          "discoveriesBefore": 22
+        },
+        {
+          "capability": "MULTI_SPREAD_LAYER",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 53,
+          "discoveriesBefore": 29
+        },
+        {
+          "capability": "PAN_BAKE",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 60,
+          "discoveriesBefore": 35
+        },
+        {
+          "capability": "ZONED_PLACEMENT",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 87,
+          "discoveriesBefore": 41
+        },
+        {
+          "capability": "LATE_ADDITION",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 115,
+          "discoveriesBefore": 48
+        },
+        {
+          "capability": "FRY_COOK",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 151,
+          "discoveriesBefore": 54
+        },
+        {
+          "capability": "ENCLOSE",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 174,
+          "discoveriesBefore": 60
+        },
+        {
+          "capability": "DOUGH_SHAPE_TARGET",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 194,
+          "discoveriesBefore": 66
+        },
+        {
+          "capability": "PREP_STEP",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 427,
+          "discoveriesBefore": 88
+        }
+      ]
+    },
+    {
+      "feeCurve": "F2_BALANCED",
+      "capabilityPolicy": "B_AUTO",
+      "quality": 3,
+      "outcome": "COMPLETE",
+      "reach": "101/101",
+      "relocked": false,
+      "bakes": 202,
+      "grindBakes": 101,
+      "grindShare": 0.5,
+      "bakesToNDiscoveries": {
+        "10": 11,
+        "25": 25,
+        "50": 50,
+        "75": 75,
+        "101": 202
+      },
+      "longestDrySpellBakes": 10,
+      "ingredientUnlockFeesPaid": 6380,
+      "capabilityFeesPaid": 0,
+      "firstStockPaid": 12760,
+      "doughPanPaid": 1700,
+      "capabilityTimeline": [
+        {
+          "capability": "DOUGH_VARIANT",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 14,
+          "discoveriesBefore": 14
+        },
+        {
+          "capability": "STEP_ORDER",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 22,
+          "discoveriesBefore": 22
+        },
+        {
+          "capability": "MULTI_SPREAD_LAYER",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 29,
+          "discoveriesBefore": 29
+        },
+        {
+          "capability": "PAN_BAKE",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 35,
+          "discoveriesBefore": 35
+        },
+        {
+          "capability": "ZONED_PLACEMENT",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 41,
+          "discoveriesBefore": 41
+        },
+        {
+          "capability": "LATE_ADDITION",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 48,
+          "discoveriesBefore": 48
+        },
+        {
+          "capability": "FRY_COOK",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 54,
+          "discoveriesBefore": 54
+        },
+        {
+          "capability": "ENCLOSE",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 60,
+          "discoveriesBefore": 60
+        },
+        {
+          "capability": "DOUGH_SHAPE_TARGET",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 66,
+          "discoveriesBefore": 66
+        },
+        {
+          "capability": "PREP_STEP",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 108,
+          "discoveriesBefore": 88
+        }
+      ]
+    },
+    {
+      "feeCurve": "F2_BALANCED",
+      "capabilityPolicy": "C_TUTORIAL",
+      "quality": 1,
+      "outcome": "COMPLETE",
+      "reach": "101/101",
+      "relocked": false,
+      "bakes": 802,
+      "grindBakes": 701,
+      "grindShare": 0.874,
+      "bakesToNDiscoveries": {
+        "10": 15,
+        "25": 32,
+        "50": 125,
+        "75": 271,
+        "101": 802
+      },
+      "longestDrySpellBakes": 38,
+      "ingredientUnlockFeesPaid": 6380,
+      "capabilityFeesPaid": 0,
+      "firstStockPaid": 12760,
+      "doughPanPaid": 1700,
+      "capabilityTimeline": [
+        {
+          "capability": "STEP_ORDER",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "trenton-tomato-pie-pizzadb",
+          "bakesBefore": 0,
+          "discoveriesBefore": 0
+        },
+        {
+          "capability": "DOUGH_VARIANT",
+          "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
+          "targetId": "cauliflower-crust-pizza-pizzadb-p2",
+          "bakesBefore": 21,
+          "discoveriesBefore": 15
+        },
+        {
+          "capability": "MULTI_SPREAD_LAYER",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "grandma-pizza-pizzadb",
+          "bakesBefore": 30,
+          "discoveriesBefore": 23
+        },
+        {
+          "capability": "ENCLOSE",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "chicago-stuffed-pizza-pizzadb-p3",
+          "bakesBefore": 60,
+          "discoveriesBefore": 35
+        },
+        {
+          "capability": "PAN_BAKE",
+          "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
+          "targetId": "montreal-style-pizza-pizzadb-p13",
+          "bakesBefore": 61,
+          "discoveriesBefore": 36
+        },
+        {
+          "capability": "ZONED_PLACEMENT",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "quattro-stagioni-pizzadb",
+          "bakesBefore": 89,
+          "discoveriesBefore": 42
+        },
+        {
+          "capability": "LATE_ADDITION",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "bbq-chicken-pizzadb",
+          "bakesBefore": 124,
+          "discoveriesBefore": 49
+        },
+        {
+          "capability": "FRY_COOK",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "pizza-fritta-pizzadb-p9",
+          "bakesBefore": 129,
+          "discoveriesBefore": 50
+        },
+        {
+          "capability": "DOUGH_SHAPE_TARGET",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "pizza-al-taglio-romana-pizzadb-p9",
+          "bakesBefore": 204,
+          "discoveriesBefore": 66
+        },
+        {
+          "capability": "PREP_STEP",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "yakiniku-pizza",
+          "bakesBefore": 444,
+          "discoveriesBefore": 88
+        }
+      ]
+    },
+    {
+      "feeCurve": "F2_BALANCED",
+      "capabilityPolicy": "C_TUTORIAL",
+      "quality": 3,
+      "outcome": "COMPLETE",
+      "reach": "101/101",
+      "relocked": false,
+      "bakes": 202,
+      "grindBakes": 101,
+      "grindShare": 0.5,
+      "bakesToNDiscoveries": {
+        "10": 10,
+        "25": 25,
+        "50": 50,
+        "75": 75,
+        "101": 202
+      },
+      "longestDrySpellBakes": 10,
+      "ingredientUnlockFeesPaid": 6380,
+      "capabilityFeesPaid": 0,
+      "firstStockPaid": 12760,
+      "doughPanPaid": 1700,
+      "capabilityTimeline": [
+        {
+          "capability": "STEP_ORDER",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "trenton-tomato-pie-pizzadb",
+          "bakesBefore": 0,
+          "discoveriesBefore": 0
+        },
+        {
+          "capability": "DOUGH_VARIANT",
+          "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
+          "targetId": "cauliflower-crust-pizza-pizzadb-p2",
+          "bakesBefore": 15,
+          "discoveriesBefore": 15
+        },
+        {
+          "capability": "MULTI_SPREAD_LAYER",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "grandma-pizza-pizzadb",
+          "bakesBefore": 23,
+          "discoveriesBefore": 23
+        },
+        {
+          "capability": "ENCLOSE",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "chicago-stuffed-pizza-pizzadb-p3",
+          "bakesBefore": 35,
+          "discoveriesBefore": 35
+        },
+        {
+          "capability": "PAN_BAKE",
+          "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
+          "targetId": "montreal-style-pizza-pizzadb-p13",
+          "bakesBefore": 36,
+          "discoveriesBefore": 36
+        },
+        {
+          "capability": "ZONED_PLACEMENT",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "quattro-stagioni-pizzadb",
+          "bakesBefore": 42,
+          "discoveriesBefore": 42
+        },
+        {
+          "capability": "LATE_ADDITION",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "bbq-chicken-pizzadb",
+          "bakesBefore": 49,
+          "discoveriesBefore": 49
+        },
+        {
+          "capability": "FRY_COOK",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "pizza-fritta-pizzadb-p9",
+          "bakesBefore": 50,
+          "discoveriesBefore": 50
+        },
+        {
+          "capability": "DOUGH_SHAPE_TARGET",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "pizza-al-taglio-romana-pizzadb-p9",
+          "bakesBefore": 66,
+          "discoveriesBefore": 66
+        },
+        {
+          "capability": "PREP_STEP",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "yakiniku-pizza",
+          "bakesBefore": 111,
+          "discoveriesBefore": 88
+        }
+      ]
+    },
+    {
+      "feeCurve": "F3_HEAVY",
+      "capabilityPolicy": "A_PAID",
+      "quality": 1,
+      "outcome": "COMPLETE",
+      "reach": "101/101",
+      "relocked": false,
+      "bakes": 1173,
+      "grindBakes": 1072,
+      "grindShare": 0.914,
+      "bakesToNDiscoveries": {
+        "10": 34,
+        "25": 72,
+        "50": 236,
+        "75": 449,
+        "101": 1173
+      },
+      "longestDrySpellBakes": 52,
+      "ingredientUnlockFeesPaid": 12760,
+      "capabilityFeesPaid": 1040,
+      "firstStockPaid": 12760,
+      "doughPanPaid": 1700,
+      "capabilityTimeline": [
+        {
+          "capability": "DOUGH_VARIANT",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 41,
+          "discoveriesBefore": 14
+        },
+        {
+          "capability": "STEP_ORDER",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 60,
+          "discoveriesBefore": 22
+        },
+        {
+          "capability": "MULTI_SPREAD_LAYER",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 99,
+          "discoveriesBefore": 29
+        },
+        {
+          "capability": "PAN_BAKE",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 111,
+          "discoveriesBefore": 35
+        },
+        {
+          "capability": "ZONED_PLACEMENT",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 160,
+          "discoveriesBefore": 41
+        },
+        {
+          "capability": "LATE_ADDITION",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 208,
+          "discoveriesBefore": 48
+        },
+        {
+          "capability": "FRY_COOK",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 264,
+          "discoveriesBefore": 54
+        },
+        {
+          "capability": "ENCLOSE",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 306,
+          "discoveriesBefore": 60
+        },
+        {
+          "capability": "DOUGH_SHAPE_TARGET",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 340,
+          "discoveriesBefore": 66
+        },
+        {
+          "capability": "PREP_STEP",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 668,
+          "discoveriesBefore": 88
+        }
+      ]
+    },
+    {
+      "feeCurve": "F3_HEAVY",
+      "capabilityPolicy": "A_PAID",
+      "quality": 3,
+      "outcome": "COMPLETE",
+      "reach": "101/101",
+      "relocked": false,
+      "bakes": 294,
+      "grindBakes": 193,
+      "grindShare": 0.656,
+      "bakesToNDiscoveries": {
+        "10": 11,
+        "25": 25,
+        "50": 60,
+        "75": 113,
+        "101": 294
+      },
+      "longestDrySpellBakes": 13,
+      "ingredientUnlockFeesPaid": 12760,
+      "capabilityFeesPaid": 1040,
+      "firstStockPaid": 12760,
+      "doughPanPaid": 1700,
+      "capabilityTimeline": [
+        {
+          "capability": "DOUGH_VARIANT",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 14,
+          "discoveriesBefore": 14
+        },
+        {
+          "capability": "STEP_ORDER",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 22,
+          "discoveriesBefore": 22
+        },
+        {
+          "capability": "MULTI_SPREAD_LAYER",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 29,
+          "discoveriesBefore": 29
+        },
+        {
+          "capability": "PAN_BAKE",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 35,
+          "discoveriesBefore": 35
+        },
+        {
+          "capability": "ZONED_PLACEMENT",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 41,
+          "discoveriesBefore": 41
+        },
+        {
+          "capability": "LATE_ADDITION",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 53,
+          "discoveriesBefore": 48
+        },
+        {
+          "capability": "FRY_COOK",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 67,
+          "discoveriesBefore": 54
+        },
+        {
+          "capability": "ENCLOSE",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 77,
+          "discoveriesBefore": 60
+        },
+        {
+          "capability": "DOUGH_SHAPE_TARGET",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 85,
+          "discoveriesBefore": 66
+        },
+        {
+          "capability": "PREP_STEP",
+          "trigger": "SCHEDULED_PAID",
+          "targetId": null,
+          "bakesBefore": 167,
+          "discoveriesBefore": 88
+        }
+      ]
+    },
+    {
+      "feeCurve": "F3_HEAVY",
+      "capabilityPolicy": "B_AUTO",
+      "quality": 1,
+      "outcome": "COMPLETE",
+      "reach": "101/101",
+      "relocked": false,
+      "bakes": 1121,
+      "grindBakes": 1020,
+      "grindShare": 0.91,
+      "bakesToNDiscoveries": {
+        "10": 34,
+        "25": 66,
+        "50": 210,
+        "75": 404,
+        "101": 1121
+      },
+      "longestDrySpellBakes": 52,
+      "ingredientUnlockFeesPaid": 12760,
+      "capabilityFeesPaid": 0,
+      "firstStockPaid": 12760,
+      "doughPanPaid": 1700,
+      "capabilityTimeline": [
+        {
+          "capability": "DOUGH_VARIANT",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 41,
+          "discoveriesBefore": 14
+        },
+        {
+          "capability": "STEP_ORDER",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 57,
+          "discoveriesBefore": 22
+        },
+        {
+          "capability": "MULTI_SPREAD_LAYER",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 91,
+          "discoveriesBefore": 29
+        },
+        {
+          "capability": "PAN_BAKE",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 100,
+          "discoveriesBefore": 35
+        },
+        {
+          "capability": "ZONED_PLACEMENT",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 143,
+          "discoveriesBefore": 41
+        },
+        {
+          "capability": "LATE_ADDITION",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 185,
+          "discoveriesBefore": 48
+        },
+        {
+          "capability": "FRY_COOK",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 237,
+          "discoveriesBefore": 54
+        },
+        {
+          "capability": "ENCLOSE",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 272,
+          "discoveriesBefore": 60
+        },
+        {
+          "capability": "DOUGH_SHAPE_TARGET",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 299,
+          "discoveriesBefore": 66
+        },
+        {
+          "capability": "PREP_STEP",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 619,
+          "discoveriesBefore": 88
+        }
+      ]
+    },
+    {
+      "feeCurve": "F3_HEAVY",
+      "capabilityPolicy": "B_AUTO",
+      "quality": 3,
+      "outcome": "COMPLETE",
+      "reach": "101/101",
+      "relocked": false,
+      "bakes": 281,
+      "grindBakes": 180,
+      "grindShare": 0.641,
+      "bakesToNDiscoveries": {
+        "10": 11,
+        "25": 25,
+        "50": 54,
+        "75": 102,
+        "101": 281
+      },
+      "longestDrySpellBakes": 13,
+      "ingredientUnlockFeesPaid": 12760,
+      "capabilityFeesPaid": 0,
+      "firstStockPaid": 12760,
+      "doughPanPaid": 1700,
+      "capabilityTimeline": [
+        {
+          "capability": "DOUGH_VARIANT",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 14,
+          "discoveriesBefore": 14
+        },
+        {
+          "capability": "STEP_ORDER",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 22,
+          "discoveriesBefore": 22
+        },
+        {
+          "capability": "MULTI_SPREAD_LAYER",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 29,
+          "discoveriesBefore": 29
+        },
+        {
+          "capability": "PAN_BAKE",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 35,
+          "discoveriesBefore": 35
+        },
+        {
+          "capability": "ZONED_PLACEMENT",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 41,
+          "discoveriesBefore": 41
+        },
+        {
+          "capability": "LATE_ADDITION",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 48,
+          "discoveriesBefore": 48
+        },
+        {
+          "capability": "FRY_COOK",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 60,
+          "discoveriesBefore": 54
+        },
+        {
+          "capability": "ENCLOSE",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 69,
+          "discoveriesBefore": 60
+        },
+        {
+          "capability": "DOUGH_SHAPE_TARGET",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 76,
+          "discoveriesBefore": 66
+        },
+        {
+          "capability": "PREP_STEP",
+          "trigger": "SCHEDULED_AUTO",
+          "targetId": null,
+          "bakesBefore": 156,
+          "discoveriesBefore": 88
+        }
+      ]
+    },
+    {
+      "feeCurve": "F3_HEAVY",
+      "capabilityPolicy": "C_TUTORIAL",
+      "quality": 1,
+      "outcome": "COMPLETE",
+      "reach": "101/101",
+      "relocked": false,
+      "bakes": 1121,
+      "grindBakes": 1020,
+      "grindShare": 0.91,
+      "bakesToNDiscoveries": {
+        "10": 27,
+        "25": 60,
+        "50": 200,
+        "75": 404,
+        "101": 1121
+      },
+      "longestDrySpellBakes": 52,
+      "ingredientUnlockFeesPaid": 12760,
+      "capabilityFeesPaid": 0,
+      "firstStockPaid": 12760,
+      "doughPanPaid": 1700,
+      "capabilityTimeline": [
+        {
+          "capability": "STEP_ORDER",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "trenton-tomato-pie-pizzadb",
+          "bakesBefore": 0,
+          "discoveriesBefore": 0
+        },
+        {
+          "capability": "DOUGH_VARIANT",
+          "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
+          "targetId": "cauliflower-crust-pizza-pizzadb-p2",
+          "bakesBefore": 38,
+          "discoveriesBefore": 15
+        },
+        {
+          "capability": "MULTI_SPREAD_LAYER",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "grandma-pizza-pizzadb",
+          "bakesBefore": 58,
+          "discoveriesBefore": 23
+        },
+        {
+          "capability": "ENCLOSE",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "chicago-stuffed-pizza-pizzadb-p3",
+          "bakesBefore": 100,
+          "discoveriesBefore": 35
+        },
+        {
+          "capability": "PAN_BAKE",
+          "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
+          "targetId": "montreal-style-pizza-pizzadb-p13",
+          "bakesBefore": 101,
+          "discoveriesBefore": 36
+        },
+        {
+          "capability": "ZONED_PLACEMENT",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "quattro-stagioni-pizzadb",
+          "bakesBefore": 147,
+          "discoveriesBefore": 42
+        },
+        {
+          "capability": "LATE_ADDITION",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "bbq-chicken-pizzadb",
+          "bakesBefore": 199,
+          "discoveriesBefore": 49
+        },
+        {
+          "capability": "FRY_COOK",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "pizza-fritta-pizzadb-p9",
+          "bakesBefore": 207,
+          "discoveriesBefore": 50
+        },
+        {
+          "capability": "DOUGH_SHAPE_TARGET",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "pizza-al-taglio-romana-pizzadb-p9",
+          "bakesBefore": 309,
+          "discoveriesBefore": 66
+        },
+        {
+          "capability": "PREP_STEP",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "yakiniku-pizza",
+          "bakesBefore": 644,
+          "discoveriesBefore": 88
+        }
+      ]
+    },
+    {
+      "feeCurve": "F3_HEAVY",
+      "capabilityPolicy": "C_TUTORIAL",
+      "quality": 3,
+      "outcome": "COMPLETE",
+      "reach": "101/101",
+      "relocked": false,
+      "bakes": 281,
+      "grindBakes": 180,
+      "grindShare": 0.641,
+      "bakesToNDiscoveries": {
+        "10": 10,
+        "25": 25,
+        "50": 51,
+        "75": 102,
+        "101": 281
+      },
+      "longestDrySpellBakes": 13,
+      "ingredientUnlockFeesPaid": 12760,
+      "capabilityFeesPaid": 0,
+      "firstStockPaid": 12760,
+      "doughPanPaid": 1700,
+      "capabilityTimeline": [
+        {
+          "capability": "STEP_ORDER",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "trenton-tomato-pie-pizzadb",
+          "bakesBefore": 0,
+          "discoveriesBefore": 0
+        },
+        {
+          "capability": "DOUGH_VARIANT",
+          "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
+          "targetId": "cauliflower-crust-pizza-pizzadb-p2",
+          "bakesBefore": 15,
+          "discoveriesBefore": 15
+        },
+        {
+          "capability": "MULTI_SPREAD_LAYER",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "grandma-pizza-pizzadb",
+          "bakesBefore": 23,
+          "discoveriesBefore": 23
+        },
+        {
+          "capability": "ENCLOSE",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "chicago-stuffed-pizza-pizzadb-p3",
+          "bakesBefore": 35,
+          "discoveriesBefore": 35
+        },
+        {
+          "capability": "PAN_BAKE",
+          "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
+          "targetId": "montreal-style-pizza-pizzadb-p13",
+          "bakesBefore": 36,
+          "discoveriesBefore": 36
+        },
+        {
+          "capability": "ZONED_PLACEMENT",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "quattro-stagioni-pizzadb",
+          "bakesBefore": 42,
+          "discoveriesBefore": 42
+        },
+        {
+          "capability": "LATE_ADDITION",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "bbq-chicken-pizzadb",
+          "bakesBefore": 50,
+          "discoveriesBefore": 49
+        },
+        {
+          "capability": "FRY_COOK",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "pizza-fritta-pizzadb-p9",
+          "bakesBefore": 52,
+          "discoveriesBefore": 50
+        },
+        {
+          "capability": "DOUGH_SHAPE_TARGET",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "pizza-al-taglio-romana-pizzadb-p9",
+          "bakesBefore": 78,
+          "discoveriesBefore": 66
+        },
+        {
+          "capability": "PREP_STEP",
+          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "targetId": "yakiniku-pizza",
+          "bakesBefore": 161,
+          "discoveriesBefore": 88
+        }
+      ]
+    }
+  ],
+  "earlyIngredientExample": [
+    {
+      "ingredientId": "egg",
+      "tier": "early",
+      "authorityStarGate": {
+        "type": "ALL",
+        "all": [
+          {
+            "type": "CUMULATIVE_STARS",
+            "minimum": 2,
+            "starModel": "HYBRID_MINIMUM_2_PER_DISCOVERY"
+          }
+        ]
+      },
+      "testedMixedGate": {
+        "type": "ALL",
+        "all": [
+          {
+            "type": "CUMULATIVE_STARS",
+            "minimum": 2,
+            "starModel": "HYBRID_MINIMUM_2_PER_DISCOVERY"
+          }
+        ]
+      },
+      "unlockFeeCandidates": {
+        "F0_NO_FEE_CONTROL": 0,
+        "F1_LIGHT": 20,
+        "F2_BALANCED": 30,
+        "F3_HEAVY": 60
+      },
+      "firstStockPricePitz": 60,
+      "refillPricePitz": 30,
+      "kKnown": 1,
+      "newlyReachableRecipeIds": [
+        "shipped:bismarck"
+      ]
+    },
+    {
+      "ingredientId": "bacon",
+      "tier": "early",
+      "authorityStarGate": {
+        "type": "ALL",
+        "all": [
+          {
+            "type": "CUMULATIVE_STARS",
+            "minimum": 2,
+            "starModel": "HYBRID_MINIMUM_2_PER_DISCOVERY"
+          }
+        ]
+      },
+      "testedMixedGate": {
+        "type": "DISCOVERED_RECIPE_COUNT",
+        "minimum": 1
+      },
+      "unlockFeeCandidates": {
+        "F0_NO_FEE_CONTROL": 0,
+        "F1_LIGHT": 20,
+        "F2_BALANCED": 30,
+        "F3_HEAVY": 60
+      },
+      "firstStockPricePitz": 60,
+      "refillPricePitz": 30,
+      "kKnown": 3,
+      "newlyReachableRecipeIds": [
+        "shipped:breakfast-pizza"
+      ]
+    },
+    {
+      "ingredientId": "pepperoni",
+      "tier": "early",
+      "authorityStarGate": {
+        "type": "ALL",
+        "all": [
+          {
+            "type": "CUMULATIVE_STARS",
+            "minimum": 6,
+            "starModel": "HYBRID_MINIMUM_2_PER_DISCOVERY"
+          }
+        ]
+      },
+      "testedMixedGate": {
+        "type": "CUMULATIVE_PITZ_EARNED",
+        "minimum": 60
+      },
+      "unlockFeeCandidates": {
+        "F0_NO_FEE_CONTROL": 0,
+        "F1_LIGHT": 20,
+        "F2_BALANCED": 30,
+        "F3_HEAVY": 60
+      },
+      "firstStockPricePitz": 60,
+      "refillPricePitz": 30,
+      "kKnown": 4,
+      "newlyReachableRecipeIds": [
+        "shipped:pepperoni"
+      ]
+    },
+    {
+      "ingredientId": "garlic",
+      "tier": "mid",
+      "authorityStarGate": {
+        "type": "ALL",
+        "all": [
+          {
+            "type": "CUMULATIVE_STARS",
+            "minimum": 28,
+            "starModel": "HYBRID_MINIMUM_2_PER_DISCOVERY"
+          }
+        ]
+      },
+      "testedMixedGate": {
+        "type": "ALL",
+        "all": [
+          {
+            "type": "CUMULATIVE_STARS",
+            "minimum": 28,
+            "starModel": "HYBRID_MINIMUM_2_PER_DISCOVERY"
+          }
+        ]
+      },
+      "unlockFeeCandidates": {
+        "F0_NO_FEE_CONTROL": 0,
+        "F1_LIGHT": 30,
+        "F2_BALANCED": 50,
+        "F3_HEAVY": 100
+      },
+      "firstStockPricePitz": 100,
+      "refillPricePitz": 50,
+      "kKnown": 3,
+      "newlyReachableRecipeIds": [
+        "shipped:marinara"
+      ]
+    },
+    {
+      "ingredientId": "burrata",
+      "tier": "mid",
+      "authorityStarGate": {
+        "type": "ALL",
+        "all": [
+          {
+            "type": "CUMULATIVE_STARS",
+            "minimum": 36,
+            "starModel": "HYBRID_MINIMUM_2_PER_DISCOVERY"
+          }
+        ]
+      },
+      "testedMixedGate": {
+        "type": "CUMULATIVE_PITZ_EARNED",
+        "minimum": 360
+      },
+      "unlockFeeCandidates": {
+        "F0_NO_FEE_CONTROL": 0,
+        "F1_LIGHT": 30,
+        "F2_BALANCED": 50,
+        "F3_HEAVY": 100
+      },
+      "firstStockPricePitz": 100,
+      "refillPricePitz": 50,
+      "kKnown": null,
+      "newlyReachableRecipeIds": [
+        "burrata-pizza-pizzadb-p10",
+        "pesto-burrata-pizzadb-p12",
+        "pizza-alla-crudaiola-pizzadb-p8"
+      ]
+    }
+  ]
+}
