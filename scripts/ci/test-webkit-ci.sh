@@ -190,6 +190,16 @@ out="$work/gh_output"; : > "$out"
 grep -q '^reason=event .push. always runs Full WebKit' "$out"
 check "push reason is explicit (not a fail-safe message)" 0 $?
 
+# THIS repository's own tree must keep both guarded categories enabled -- otherwise the skip
+# silently never fires (e.g. a comment mentioning tools/** in e2e-webkit.yml disabled it once).
+repo_root="$(cd "$here/../.." && pwd)"
+check "this repo: tools/**/*.py-only change -> skip" false \
+  "$(printf 'tools/progression2_phase34_unlocks.py\n' | node "$here/classify-webkit.mjs" --repo "$repo_root" 2>/dev/null | sed -n 's/^webkit_required=//p')"
+check "this repo: unit-test-only change -> skip" false \
+  "$(printf 'src/logic/scoring.test.ts\nsrc/test/setup.ts\n' | node "$here/classify-webkit.mjs" --repo "$repo_root" 2>/dev/null | sed -n 's/^webkit_required=//p')"
+check "this repo: persistence change -> run" true \
+  "$(printf 'src/state/persistence.ts\n' | node "$here/classify-webkit.mjs" --repo "$repo_root" 2>/dev/null | sed -n 's/^webkit_required=//p')"
+
 echo "== 6. shard plan (balanced Full shards)"
 node "$here/webkit-shard-plan.mjs" --self-test > "$work/plan.txt" 2>&1
 check "webkit-shard-plan.mjs --self-test" 0 $?

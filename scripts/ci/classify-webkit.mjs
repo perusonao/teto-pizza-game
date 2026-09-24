@@ -115,6 +115,18 @@ function walk(root, dir, out) {
   }
 }
 
+/**
+ * Drops comments from a root file before the raw-text reference check, so prose that merely
+ * mentions a path (e.g. this workflow's own header describing tools/**) is not a reference.
+ * Executable text (a `run:` line, a script, an HTML attribute) is kept.
+ */
+export function stripComments(file, text) {
+  if (/\.ya?ml$/.test(file)) return text.replace(/(^|\s)#.*$/gm, "$1");
+  if (/\.html?$/.test(file)) return text.replace(/<!--[\s\S]*?-->/g, "");
+  if (CODE_FILE.test(file)) return text.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`\\])\/\/.*$/gm, "$1");
+  return text;
+}
+
 /** Import specifiers in a source text (query suffixes like `?raw` stripped). */
 export function specifiersOf(text) {
   return [...text.matchAll(SPECIFIER)].map((m) => m[2].replace(/[?#].*$/, ""));
@@ -148,7 +160,7 @@ export function scanGuards(root) {
     }
     for (const file of ROOT_FILES) {
       if (!existsSync(join(root, file))) continue;
-      const text = readFileSync(join(root, file), "utf8");
+      const text = stripComments(file, readFileSync(join(root, file), "utf8"));
       if (/tools\//.test(text)) refs.tools.push(file);
       if (/\.test\.|src\/test\b|import\.meta\.glob/.test(text)) refs["unit-test"].push(file);
     }
@@ -269,6 +281,17 @@ const SCAN_CASES = [
   ["runtime imports tools output", { "src/App.tsx": 'import data from "../tools/out.json?raw";\n' }, { tools: false, "unit-test": true }],
   ["package.json runs a tools script", { "package.json": '{"scripts":{"postinstall":"python tools/gen.py"}}' }, { tools: false, "unit-test": true }],
   ["workflow references tools", { ".github/workflows/e2e-webkit.yml": "run: python tools/gen.py" }, { tools: false, "unit-test": true }],
+  ["workflow run line with a trailing comment", { ".github/workflows/e2e-webkit.yml": "  run: python tools/gen.py # regen" }, { tools: false, "unit-test": true }],
+  [
+    "comments that only mention tools/ and .test. are not references",
+    {
+      ".github/workflows/e2e-webkit.yml": "# skips tools/**/*.py and src/**/*.test.ts(x)\n  run: npx playwright test # not tools/x.py\n",
+      "playwright.config.ts": '// see tools/x.py and a.test.ts\n/* tools/y.py */\nexport default { baseURL: "http://localhost/" };\n',
+      "index.html": '<!-- tools/x.py a.test.ts --><script type="module" src="/src/main.tsx"></script>',
+    },
+    { tools: true, "unit-test": true },
+  ],
+  ["config code that references tools", { "vite.config.ts": 'const x = "tools/gen.py"; // generator\n' }, { tools: false, "unit-test": true }],
 ];
 
 function scanFixture(overrides) {
