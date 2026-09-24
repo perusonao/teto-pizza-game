@@ -1,0 +1,88 @@
+{
+  "schema": "teto-pr206-forward-compat-simulation/1",
+  "audit": "PR #206 Forward-Compatibility Deployment Readiness Fresh Re-Audit",
+  "report": "docs/reports/TETO_PR206_FORWARD-COMPAT_DEPLOYMENT-READINESS_FRESH-AUDIT.md",
+  "baselines": {
+    "main": "dff233c042d2df6ee1c3a92f2d2419830aa05460",
+    "pr206Head": "4c1da8703bb22a2be7cad911f92ec33cb0f0485d",
+    "pr206Base": "d6b6ef90097617e1efb4096ec6415b8f134caa93",
+    "pr206MergeIntoMain": "clean (git merge-tree tree 438f7294cbab192a3de6bf65d13e20bd21204a83); main d6b6ef9..dff233c touches no persistence code",
+    "pr217Head": "a39932d6b750cd0dd16b63e8635ac40c53a9fb70",
+    "saveMigrationAuditBranch": "claude/teto-pizza-save-audit-7krsua",
+    "saveMigrationAuditCommit": "9eaf3ea"
+  },
+  "builds": {
+    "A": "current main dff233c",
+    "B": "main dff233c + PR #206 4c1da87 (local merge only, never pushed)",
+    "C": "future Progression 2.0 -- fixture only (tools/pr206-forward-compat-sim/fixtures.ts), no production field implemented"
+  },
+  "fieldPreservation": {
+    "legend": "value after C save -> one write by the build -> raw read; identical for persistDex, persistProgress, persistMissionBest",
+    "rows": [
+      {"probe": "unknown top-level: unlockedForShopIngredientIds", "A": "DROPPED", "B": "KEPT (verbatim)"},
+      {"probe": "unknown top-level: lifetimePitzEarned (counter)", "A": "DROPPED", "B": "KEPT (verbatim, not updated by B)"},
+      {"probe": "unknown top-level: futureMeta (nested object)", "A": "DROPPED", "B": "KEPT (verbatim)"},
+      {"probe": "dex: unknown recipe id, valid entry", "A": "DROPPED", "B": "KEPT"},
+      {"probe": "dex: extra field inside an entry (unknown or known recipe)", "A": "DROPPED", "B": "DROPPED"},
+      {"probe": "ownedIngredientIds: unknown id matching ^[a-z0-9][a-z0-9_-]{0,63}$", "A": "DROPPED", "B": "KEPT"},
+      {"probe": "ownedIngredientIds: unknown id not matching pattern (e.g. uppercase, ':')", "A": "DROPPED", "B": "DROPPED"},
+      {"probe": "inventory: unknown id, non-negative integer", "A": "DROPPED", "B": "KEPT"},
+      {"probe": "inventory: unknown id, fractional", "A": "DROPPED", "B": "DROPPED"},
+      {"probe": "inventory: known id, fractional (semantic change of existing field)", "A": "DROPPED", "B": "DROPPED"},
+      {"probe": "missionBest: unknown mission key, integer", "A": "KEPT", "B": "KEPT"},
+      {"probe": "missionBest: unknown mission key, non-integer", "A": "DROPPED", "B": "DROPPED"},
+      {"probe": "starterGrantClaimedRecipeIds: unknown recipe id", "A": "DROPPED", "B": "KEPT"},
+      {"probe": "schemaVersion 3 root", "A": "no write on boot; first real write replaces the whole save with defaults", "B": "same as A"}
+    ]
+  },
+  "pr217IdCompatibility": {
+    "ingredientIds": "105/105 match the #206 id pattern",
+    "futureRecipeIds": "101/101 match (the 'shipped:' prefix is a matrix label, not a save id)",
+    "capabilityDoughPanNodeIds": "23 do not match (uppercase or ':'), e.g. 'pan:tray', 'ZONED_PLACEMENT' -- safe only in a new top-level field, dropped if placed in ownedIngredientIds/inventory/ledger"
+  },
+  "p0Matrix": [
+    {"id": "P0-1", "verdict": "PARTIALLY_RESOLVES", "why": "Code cause fixed in B (every write path keeps unknown top-level + well-formed unknown ids; proven unit + Chromium). Remaining parts are deploy operations the diff cannot do: merge, a separate deploy before C, a soak so A tabs age out, and the rollback-floor rule."},
+    {"id": "P0-2", "verdict": "DOES_NOT_RESOLVE", "why": "The T1-vs-T2 loss happens inside C once C registers the key as known. #206 ships reusable helpers (unknownIdsIn, appendNew, KNOWN_SAVE_KEYS), but C must extend them. While the key is unknown to B, B keeps the whole array verbatim, so the risk does not exist between B and C."},
+    {"id": "P0-3", "verdict": "DOES_NOT_RESOLVE", "why": "#206 keeps schemaVersion 2 and does not bump. A v3 root is still erased by B on the first real write (S4). 'No bump' remains a constraint on C."},
+    {"id": "P0-4", "verdict": "DOES_NOT_RESOLVE", "why": "OWNED => UNLOCKED grandfathering is C logic. B's Shop can still buy known ingredients without a fee during a rollback window, which makes I-1 in C more necessary."},
+    {"id": "P0-5", "verdict": "DOES_NOT_RESOLVE", "why": "Single-key/single-setItem is kept by writeSave, but a stale B tab can revert C's fee payment (pitzBalance) while keeping the entitlement (S3b)."},
+    {"id": "P0-6", "verdict": "PARTIALLY_RESOLVES", "why": "B keeps unknown-recipe ledger ids, so a ledger C saturates with future ids survives a B write. Known-id ledger ids are already kept by A. Saturation itself (3-4C) is not in #206."},
+    {"id": "P0-7", "verdict": "DOES_NOT_RESOLVE", "why": "3-state vs 5-state cutover is an Owner Decision (OD-SM-1). Save-layer code cannot settle it."}
+  ],
+  "rollbackFloor": {
+    "beforeAnyCDeploy": "A (main dff233c) is a safe target from B: for a save with no unknown data B writes byte-for-byte what A writes (S6: identical bytes after boot, pizza, Shop and Lunch Rush writes; 2430/2430 vitest pass on the merged tree).",
+    "afterCDeployed": "B (a build containing #206's writeSave) is the floor. Any build without it (A, a revert of #206, or a workflow_dispatch of an older SHA) erases C data on its first write, including the EP4 boot write. B cannot restore it afterwards (S3d).",
+    "staleTabs": "A tabs opened before B's deploy behave like a rollback to A (S3e). The app has no service worker or forced-reload mechanism, so only time (soak) reduces this."
+  },
+  "deploymentGates": {
+    "A_asIs": {
+      "holdsIf": [
+        "C keeps schemaVersion 2 (no bump)",
+        "C adds new data only as new top-level keys (e.g. unlockedForShopIngredientIds, counters, capability sets)",
+        "C adds no fields inside existing dex entries or other existing map values",
+        "ids C puts into dex/ownedIngredientIds/inventory/starterGrantClaimedRecipeIds match ^[a-z0-9][a-z0-9_-]{0,63}$ (true for all #217 ingredient and recipe ids; capability/dough/pan node ids must stay out of those arrays)",
+        "C does not change the meaning or value range of existing fields (inventory stays M4 integer pieces; missionBest stays integer)",
+        "multi-tab last-writer-wins on known fields (Pitz refund with entitlement kept, BEST/timesMade regression) is accepted or handled in C",
+        "#206 is deployed as its own release before C, with a soak, and B is the rollback floor from C onwards",
+        "the Owner accepts this harness as the 'downgrade/write/reload entitlement survival' evidence #217 asks of #206 (#206's own tests use a generic 'futureLedger' key)"
+      ]
+    },
+    "B_smallFix": {
+      "candidates": [
+        "B-1 keep unknown sub-fields inside dex entries (known and unknown recipes)",
+        "B-2 add a named unlockedForShopIngredientIds downgrade/write/reload test (test-only)",
+        "B-3 widen the id pattern (e.g. allow ':') only if C wants namespaced ids in existing arrays",
+        "B-4 in writeSave, union monotonic known sets (ownedIngredientIds, ledger) with the raw save to limit stale-tab regression (does not help pitzBalance)"
+      ],
+      "holdsIf": "the fix stays in persistence.ts (+tests), loadSave output stays identical, no schema bump, #206's 14 tests plus this harness still pass; all other A conditions still apply except the one the fix removes"
+    },
+    "C_redesign": {
+      "neededIf": [
+        "Progression 2.0 needs a schemaVersion bump",
+        "Progression 2.0 changes the meaning of existing fields (e.g. inventory portion units, fractional values)",
+        "paid unlocks must be safe across concurrently open tabs (no fee refund via a stale tab) -- needs cross-tab coordination (storage event re-hydration, a fee ledger, or a monotonic merge), which is outside #206's opaque-preservation model",
+        "an older build must enforce entitlements rather than only preserve them"
+      ]
+    }
+  }
+}
