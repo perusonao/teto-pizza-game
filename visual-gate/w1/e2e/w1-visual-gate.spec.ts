@@ -2,6 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { completeDoughStep, paintSauceRing, tapDoughPercent } from "../../../e2e/gestures";
+import { W1_GATE_SAVE_KEY, w1GateSeedSave } from "../candidates";
 
 /**
  * W1 Ingredient Visual Preview Gate (preview-only). Drives real Free Cooking rounds in the real
@@ -17,7 +18,7 @@ const SHOTS = process.env.W1_GATE_SCREENSHOTS === "1";
 /** Human-speed holds for the Human Verification video (W1_GATE_VIDEO=1); 0 otherwise. */
 const HOLD_MS = process.env.W1_GATE_VIDEO === "1" ? 1800 : 0;
 const SHOT_ROOT = fileURLToPath(
-  new URL("../../../docs/reports/screenshots/w1-ingredient-visual-gate/", import.meta.url),
+  new URL("../../../docs/reports/screenshots/w1-ingredient-visual-gate-2/", import.meta.url),
 );
 
 const W1_IDS = ["capers", "clam", "corn", "eggplant", "fresh-tomato", "pineapple", "potato"];
@@ -29,7 +30,7 @@ interface Placement {
 
 interface Scenario {
   key: string;
-  clam?: "oyster" | "spiral";
+  clam?: "oyster" | "dedicated";
   owned: string[];
   sauce: string;
   cheese: { name: string; at: ReadonlyArray<readonly [number, number]> } | null;
@@ -79,7 +80,7 @@ const SCENARIOS: Scenario[] = [
     ],
   },
   {
-    key: "clam-oyster",
+    key: "clam-a-oyster",
     clam: "oyster",
     owned: ["clam", "olive-oil", "parmigiano", "garlic", "mushroom"],
     sauce: "オリーブオイル",
@@ -91,8 +92,8 @@ const SCENARIOS: Scenario[] = [
     ],
   },
   {
-    key: "clam-spiral",
-    clam: "spiral",
+    key: "clam-b-dedicated",
+    clam: "dedicated",
     owned: ["clam", "olive-oil", "parmigiano", "garlic", "mushroom"],
     sauce: "オリーブオイル",
     cheese: { name: "パルミジャーノ", at: MOZZ_AT },
@@ -140,20 +141,28 @@ const SCENARIOS: Scenario[] = [
       { name: "じゃがいも", at: [[65, 72]] },
     ],
   },
+  {
+    // Crowded pizza: every look-alike pair on one pizza, 22 pieces.
+    key: "busy",
+    owned: [...W1_IDS, "cherry-tomato", "black-olive", "pepperoni", "garlic", "ham"],
+    sauce: "トマトソース",
+    cheese: { name: "モッツァレラ", at: [[40, 40], [60, 60], [60, 40], [40, 60]] },
+    toppings: [
+      { name: "トマト", at: [[26, 30], [74, 70]] },
+      { name: "チェリートマト", at: [[74, 30], [26, 70]] },
+      { name: "ケッパー", at: [[38, 22], [62, 78]] },
+      { name: "ブラックオリーブ", at: [[62, 22], [38, 78]] },
+      { name: "ペパロニ", at: [[22, 50], [78, 50]] },
+      { name: "あさり", at: [[50, 18]] },
+      { name: "にんにく", at: [[50, 82]] },
+      { name: "ナス", at: [[50, 50]] },
+      { name: "コーン", at: [[33, 50]] },
+      { name: "パイナップル", at: [[67, 50]] },
+      { name: "じゃがいも", at: [[50, 34]] },
+      { name: "ハム", at: [[50, 66]] },
+    ],
+  },
 ];
-
-function seedSave(owned: readonly string[]) {
-  const ids = ["olive-oil", ...owned.filter((id) => id !== "olive-oil")];
-  return {
-    schemaVersion: 2,
-    dex: [{ recipeId: "margherita", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }],
-    pitzBalance: 0,
-    ownedIngredientIds: ["tomato-sauce", "mozzarella", "basil", ...ids],
-    missionBest: {},
-    inventory: Object.fromEntries(ids.map((id) => [id, 30])),
-    starterGrantClaimedRecipeIds: ["margherita"],
-  };
-}
 
 function viewportKey(page: Page) {
   const size = page.viewportSize()!;
@@ -215,13 +224,30 @@ async function pieceCounts(page: Page) {
   });
 }
 
+/** Dedicated visuals are drawn per id, never per glyph: fresh-tomato -> slice, cherry-tomato
+ *  stays 🍅 text; capers -> bud cluster; clam -> asari only on the B page. */
+async function expectDedicatedVisuals(page: Page, scenario: Scenario, counts: Record<string, number>) {
+  const stage = page.locator(".pizza-stage");
+  const n = (visual: string) => stage.locator(`[data-w1-visual="${visual}"]`).count();
+  expect(await n("tomato-slice"), "fresh-tomato slice pieces").toBe(counts["fresh-tomato"] ?? 0);
+  expect(await n("caper-cluster"), "caper cluster pieces").toBe(counts.capers ?? 0);
+  expect(await n("asari-valve"), "asari pieces").toBe(scenario.clam === "dedicated" ? (counts.clam ?? 0) : 0);
+  const cherryTexts = await stage.locator(".pizza-topping--cherry-tomato").allTextContents();
+  expect(cherryTexts.every((text) => text === "\u{1F345}"), "cherry-tomato stays 🍅").toBe(true);
+  const freshTexts = await stage.locator(".pizza-topping--fresh-tomato").allTextContents();
+  expect(freshTexts.every((text) => text === ""), "fresh-tomato draws no 🍅 text").toBe(true);
+}
+
 for (const scenario of SCENARIOS) {
   test(`W1 gate in-game: ${scenario.key}`, async ({ page }, testInfo) => {
     test.setTimeout(120_000);
     const errors: string[] = [];
     page.on("pageerror", (error) => errors.push(error.message));
-    await page.addInitScript((raw) => localStorage.setItem("teto-pizza-save-v1", JSON.stringify(raw)), seedSave(scenario.owned));
-    await page.goto(scenario.clam ? `./?clam=${scenario.clam}` : "./");
+    await page.addInitScript(
+      ([key, raw]) => localStorage.setItem(key, JSON.stringify(raw)),
+      [W1_GATE_SAVE_KEY, w1GateSeedSave(scenario.owned)] as const,
+    );
+    await page.goto(scenario.clam ? `./game.html?clam=${scenario.clam}` : "./game.html");
     await page.waitForSelector(".app-frame");
     await expect(page.getByTestId("w1-preview-ribbon")).toBeVisible();
     await page.getByRole("button", { name: /フリークッキング/ }).click();
@@ -276,6 +302,7 @@ for (const scenario of SCENARIOS) {
       expect(counts["cherry-tomato"]).toBe(3);
     }
     if (scenario.key.startsWith("clam")) expect(counts.clam).toBe(4);
+    await expectDedicatedVisuals(page, scenario, counts);
     if (scenario.key === "full-tray") for (const id of W1_IDS) expect(counts[id], id).toBe(1);
 
     // BAKE: pause the virtual clock with the needle at the free-cook target center and capture
@@ -314,6 +341,15 @@ for (const scenario of SCENARIOS) {
     // No W1 candidate-only pizza is a registered recipe in this preview -> ORIGINAL, never a
     // discovery of an existing recipe (cherry-tomato recipes are not matched by fresh-tomato).
     await expect(page.locator(".discovered-banner--new-pizza")).toHaveCount(0);
+    // RESULT ingredient list draws the same dedicated visual (never the old 🍅 / 🟢 text).
+    const usedList = page.getByRole("list", { name: "使った材料" });
+    if (counts["fresh-tomato"]) await expect(usedList.locator('[data-w1-visual="tomato-slice"]')).toHaveCount(1);
+    if (counts.capers) await expect(usedList.locator('[data-w1-visual="caper-cluster"]')).toHaveCount(1);
+    // Save isolation: the gate only ever writes its own key, never production's / the PR preview's.
+    const keys = await page.evaluate(() => Object.keys(localStorage));
+    expect(keys).toContain(W1_GATE_SAVE_KEY);
+    expect(keys).not.toContain("teto-pizza-save-v1");
+    expect(keys).not.toContain("teto-pizza-preview-save-v1");
     expect(errors, "no page errors").toEqual([]);
   });
 }
@@ -336,4 +372,22 @@ test("W1 gate QA board", async ({ page }, testInfo) => {
       await page.getByTestId(`section-${id}`).screenshot({ path: `${dir}board-${id}.png` });
     }
   }
+});
+
+test("W1 gate Human Verification hub -> seeded game", async ({ page }, testInfo) => {
+  await page.goto("./");
+  await expect(page.getByTestId("w1-hub-sha")).toContainText(/source: [0-9a-f]{7,}/);
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(overflow, "hub: no horizontal overflow").toBeLessThanOrEqual(0);
+  await shot(page, testInfo, "hub");
+  await page.getByRole("link", { name: /あさり B/ }).click();
+  await page.waitForSelector(".app-frame");
+  expect(new URL(page.url()).searchParams.get("seed"), "seed param dropped after seeding").toBeNull();
+  await expect(page.getByTestId("w1-preview-ribbon")).toContainText("B: dedicated asari");
+  await page.getByRole("button", { name: /フリークッキング/ }).click();
+  await completeDoughStep(page);
+  for (let i = 0; i < 3; i += 1) await page.getByRole("button", { name: /次へ/ }).click();
+  await expect(page.locator(".ingredient-page-nav")).toBeVisible();
+  const keys = await page.evaluate(() => Object.keys(localStorage));
+  expect(keys).toEqual(["teto-pizza-w1-visual-gate-save-v1"]);
 });

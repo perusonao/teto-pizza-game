@@ -1,9 +1,13 @@
-import { CLAM_GLYPH_CANDIDATES, clamVariantFromLocation } from "./candidates";
+import { CLAM_VARIANT_LABEL, clamVariantFromLocation } from "./candidates";
 
-/** Tiny fixed label so every screenshot/video frame is self-identifying as the W1 gate preview
- *  (never production) and names the clam glyph variant in use. Pointer-events off. */
+declare const __W1_GATE_SHA__: string;
+
+/** Fixed label so every screenshot/video frame and every iPhone session is self-identifying as
+ *  the W1 gate preview (never production): exact source SHA + the clam variant in use. */
 export function PreviewRibbon() {
-  const clam = CLAM_GLYPH_CANDIDATES[clamVariantFromLocation(window.location.search)];
+  const search = window.location.search;
+  const clam = CLAM_VARIANT_LABEL[clamVariantFromLocation(search)];
+  const legacy = new URLSearchParams(search).get("w1visual") === "emoji" ? " · 🍅/🟢 legacy" : "";
   return (
     <div
       data-testid="w1-preview-ribbon"
@@ -19,7 +23,8 @@ export function PreviewRibbon() {
         zIndex: 99999,
       }}
     >
-      W1 VISUAL GATE PREVIEW · clam={clam.emoji} {clam.unicodeName}
+      W1 VISUAL GATE PREVIEW · {__W1_GATE_SHA__} · clam {clam}
+      {legacy}
     </div>
   );
 }

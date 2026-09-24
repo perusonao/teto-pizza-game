@@ -1,0 +1,8 @@
+/* Preview-only: sizing for W1Glyph's dedicated SVG pieces (1em box, sits where the emoji did). */
+.w1-glyph {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.125em;
+  overflow: visible;
+}

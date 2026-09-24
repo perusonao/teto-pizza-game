@@ -11,7 +11,8 @@ import { IngredientPieceVisual } from "../../src/components/IngredientPieceVisua
 import { IngredientTray } from "../../src/components/IngredientTray";
 import { cheeseVisualFrame, doughVisualColors, toppingVisualFrame } from "../../src/logic/bakeVisual";
 import { createEmptyPizza } from "../../src/state/pizzaState";
-import { CLAM_GLYPH_CANDIDATES, type ClamGlyphVariant } from "./candidates";
+import { W1VisualOverride } from "./visualOverride";
+import type { DedicatedVisualKey } from "./candidates";
 
 /** heat 0 = unbaked (PREPARE, no filter); heat 1 = the bake window's own center (the "good"
  *  RESULT look); heat 1.6 = the edge of browningDeep (worst still-servable roast). */
@@ -112,8 +113,26 @@ function Patch({
   );
 }
 
-function PatchRow({ label, base, pieces, pieceScale, testId }: { label: string; base: BaseKey; pieces: readonly Ingredient[]; pieceScale?: number; testId: string }) {
+type VisualOverride = Partial<Record<string, DedicatedVisualKey | null>>;
+
+function PatchRow({
+  label,
+  base,
+  pieces,
+  pieceScale,
+  testId,
+  visual,
+}: {
+  label: string;
+  base: BaseKey;
+  pieces: readonly Ingredient[];
+  pieceScale?: number;
+  testId: string;
+  /** Per-row W1Glyph override (A/B, before/after); omitted = the page-level default. */
+  visual?: VisualOverride;
+}) {
   return (
+    <W1VisualOverride.Provider value={visual ?? {}}>
     <div className="w1-row" data-testid={testId}>
       <div className="w1-row__label">
         {label}
@@ -131,6 +150,7 @@ function PatchRow({ label, base, pieces, pieceScale, testId }: { label: string; 
         ))}
       </div>
     </div>
+    </W1VisualOverride.Provider>
   );
 }
 
@@ -169,9 +189,9 @@ function Section({ id, title, children }: { id: string; title: string; children:
   );
 }
 
-function clamVariant(variant: ClamGlyphVariant): Ingredient {
-  return { ...need("clam"), emoji: CLAM_GLYPH_CANDIDATES[variant].emoji };
-}
+const CLAM_A: VisualOverride = { clam: null };
+const CLAM_B: VisualOverride = { clam: "asari-valve" };
+const LEGACY: VisualOverride = { "fresh-tomato": null, capers: null };
 
 export function Board() {
   const fresh = need("fresh-tomato");
@@ -187,8 +207,7 @@ export function Board() {
   const potato = need("potato");
   const egg = need("egg");
   const ham = need("ham");
-  const oyster = clamVariant("oyster");
-  const spiral = clamVariant("spiral");
+  const clam = need("clam");
   const mushroom = need("mushroom");
 
   return (
@@ -207,29 +226,54 @@ export function Board() {
         <p>PREVIEW ONLY · production IngredientPieceVisual / IngredientTray / bake curves · device check still required</p>
       </header>
 
-      <Section id="all" title="7 candidates · tray + pizza (sauce + cheese)">
+      <Section id="all" title="7 candidates · tray + pizza (dedicated fresh-tomato / capers, clam A 🦪)">
         <Tray category="topping" ids={["capers", "clam", "corn", "eggplant", "fresh-tomato", "pineapple", "potato"]} testId="tray-all-candidates" />
-        <PatchRow label="capers | clam🦪 | corn | eggplant" base="cheese" pieces={[capers, oyster, corn, eggplant]} testId="row-all-cheese-a" />
+        <PatchRow label="capers | clam A | corn | eggplant" base="cheese" pieces={[capers, clam, corn, eggplant]} testId="row-all-cheese-a" />
         <PatchRow label="fresh-tomato | pineapple | potato" base="cheese" pieces={[fresh, pineapple, potato]} testId="row-all-cheese-b" />
-        <PatchRow label="capers | clam🦪 | corn | eggplant · thumbnail size" base="sauce" pieces={[capers, oyster, corn, eggplant]} pieceScale={0.58} testId="row-all-small-a" />
+        <PatchRow label="capers | clam A | corn | eggplant · thumbnail size" base="sauce" pieces={[capers, clam, corn, eggplant]} pieceScale={0.58} testId="row-all-small-a" />
         <PatchRow label="fresh-tomato | pineapple | potato · thumbnail size" base="sauce" pieces={[fresh, pineapple, potato]} pieceScale={0.58} testId="row-all-small-b" />
       </Section>
 
-      <Section id="tomato" title="fresh-tomato vs cherry-tomato vs tomato-sauce (🍅 shared)">
+      <Section id="tomato" title="fresh-tomato (slice) vs cherry-tomato 🍅 vs tomato-sauce">
         <Tray category="topping" ids={["basil", "cherry-tomato", "fresh-tomato"]} testId="tray-tomato-topping" />
         <Tray category="sauce" ids={["tomato-sauce", "pesto"]} testId="tray-tomato-sauce" />
         <PatchRow label="fresh-tomato ×3" base="pesto" pieces={[fresh, fresh, fresh]} testId="row-fresh-pesto" />
         <PatchRow label="cherry-tomato ×3" base="pesto" pieces={[cherry, cherry, cherry]} testId="row-cherry-pesto" />
-        <PatchRow label="fresh | cherry | fresh | cherry" base="sauce" pieces={[fresh, cherry, fresh, cherry]} testId="row-tomato-mixed-sauce" />
+        <PatchRow label="fresh | cherry | cherry | fresh" base="sauce" pieces={[fresh, cherry, cherry, fresh]} testId="row-tomato-mixed-sauce" />
+        <PatchRow label="fresh | cherry | cherry | fresh" base="cheese" pieces={[fresh, cherry, cherry, fresh]} testId="row-tomato-mixed-cheese" />
+        <PatchRow label="fresh | cherry · thumbnail size" base="sauce" pieces={[fresh, cherry, cherry, fresh]} pieceScale={0.58} testId="row-tomato-small" />
+        <div style={{ filter: "grayscale(1)" }} data-testid="tomato-gray">
+          <PatchRow label="fresh | cherry — grayscale" base="sauce" pieces={[fresh, cherry, cherry, fresh]} testId="row-tomato-gray" />
+        </div>
+        <PatchRow label="BEFORE (slice 1): shared 🍅" base="sauce" pieces={[fresh, cherry, cherry, fresh]} visual={LEGACY} testId="row-tomato-before" />
       </Section>
 
-      <Section id="capers" title="capers 🟢 vs black-olive ⚫ vs pepperoni 🔴 (colour-vision sims)">
+      <Section id="capers" title="capers (bud cluster) vs black-olive ⚫ vs pepperoni 🔴 (colour-vision sims)">
         <Tray category="topping" ids={["capers", "pepperoni", "black-olive", "garlic"]} testId="tray-circles" />
         {CVD_FILTERS.map((cvd) => (
           <div key={cvd.key} style={{ filter: cvd.filter }} data-testid={`cvd-${cvd.key}`}>
             <PatchRow label={`capers | olive | pepperoni — ${cvd.label}`} base="sauce" pieces={[capers, olive, pepperoni, capers]} testId={`row-circles-${cvd.key}`} />
           </div>
         ))}
+        <PatchRow label="capers | olive | pepperoni" base="cheese" pieces={[capers, olive, pepperoni, capers]} testId="row-circles-cheese" />
+        <PatchRow label="capers | olive | pepperoni · thumbnail size" base="sauce" pieces={[capers, olive, pepperoni, capers]} pieceScale={0.58} testId="row-circles-small" />
+        <div style={{ filter: "grayscale(1)" }} data-testid="capers-before-gray">
+          <PatchRow label="BEFORE (slice 1): 🟢 — grayscale" base="sauce" pieces={[capers, olive, pepperoni, capers]} visual={LEGACY} testId="row-circles-before-gray" />
+        </div>
+      </Section>
+
+      <Section id="clam" title="clam: A 🦪 OYSTER vs B dedicated asari (same conditions)">
+        <PatchRow label="A 🦪 ×3" base="oil" pieces={[clam, clam, clam]} visual={CLAM_A} testId="row-clam-a" />
+        <PatchRow label="B asari ×3" base="oil" pieces={[clam, clam, clam]} visual={CLAM_B} testId="row-clam-b" />
+        <PatchRow label="A 🦪 + garlic (New Haven)" base="oil" pieces={[clam, garlic, garlic, clam]} visual={CLAM_A} testId="row-clam-a-garlic" />
+        <PatchRow label="B asari + garlic (New Haven)" base="oil" pieces={[clam, garlic, garlic, clam]} visual={CLAM_B} testId="row-clam-b-garlic" />
+        <PatchRow label="A 🦪 | 🧄 | 🍄 · thumbnail size" base="oil" pieces={[clam, garlic, mushroom, clam]} pieceScale={0.58} visual={CLAM_A} testId="row-clam-a-small" />
+        <PatchRow label="B asari | 🧄 | 🍄 · thumbnail size" base="oil" pieces={[clam, garlic, mushroom, clam]} pieceScale={0.58} visual={CLAM_B} testId="row-clam-b-small" />
+        <PatchRow label="B asari on tomato sauce" base="sauce" pieces={[clam, garlic, garlic, clam]} visual={CLAM_B} testId="row-clam-b-sauce" />
+        <div style={{ filter: "grayscale(1)" }} data-testid="clam-gray">
+          <PatchRow label="A 🦪 + garlic — grayscale" base="oil" pieces={[clam, garlic, garlic, clam]} visual={CLAM_A} testId="row-clam-a-gray" />
+          <PatchRow label="B asari + garlic — grayscale" base="oil" pieces={[clam, garlic, garlic, clam]} visual={CLAM_B} testId="row-clam-b-gray" />
+        </div>
       </Section>
 
       <Section id="eggplant" title="eggplant 🍆 on sauce / cheese">
@@ -239,13 +283,6 @@ export function Board() {
         <PatchRow label="eggplant · thumbnail size" base="sauce" pieces={[eggplant, eggplant, eggplant]} pieceScale={0.58} testId="row-eggplant-small" />
       </Section>
 
-      <Section id="clam" title="clam: 🦪 OYSTER vs 🐚 SPIRAL SHELL (same conditions)">
-        <PatchRow label="🦪 ×3" base="oil" pieces={[oyster, oyster, oyster]} testId="row-clam-oyster" />
-        <PatchRow label="🐚 ×3" base="oil" pieces={[spiral, spiral, spiral]} testId="row-clam-spiral" />
-        <PatchRow label="🦪 + garlic (New Haven)" base="oil" pieces={[oyster, garlic, oyster, garlic]} testId="row-clam-oyster-garlic" />
-        <PatchRow label="🐚 + garlic (New Haven)" base="oil" pieces={[spiral, garlic, spiral, garlic]} testId="row-clam-spiral-garlic" />
-        <PatchRow label="🦪 | 🐚 | 🧄 | 🍄 · thumbnail size" base="oil" pieces={[oyster, spiral, garlic, mushroom]} pieceScale={0.58} testId="row-clam-small" />
-      </Section>
 
       <Section id="yellow" title="corn 🌽 / pineapple 🍍 / potato 🥔 on cheese">
         <PatchRow label="corn | egg | corn | ham (Bambino)" base="cheese" pieces={[corn, egg, corn, ham]} testId="row-corn" />
