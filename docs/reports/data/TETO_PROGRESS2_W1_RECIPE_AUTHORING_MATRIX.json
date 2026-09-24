@@ -365,8 +365,10 @@
         "minCounts": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
         "bakeTarget": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE"
       },
-      "readiness": "READY",
-      "unresolvedRefs": [],
+      "readiness": "REVIEW",
+      "unresolvedRefs": [
+        "REC-06"
+      ],
       "currentMechanicRepresentability": "FULL",
       "mechanicDependencies": [],
       "cutRequirement": {
@@ -640,8 +642,10 @@
         "minCounts": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
         "bakeTarget": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE"
       },
-      "readiness": "READY",
-      "unresolvedRefs": [],
+      "readiness": "REVIEW",
+      "unresolvedRefs": [
+        "REC-09"
+      ],
       "currentMechanicRepresentability": "FULL",
       "mechanicDependencies": [],
       "cutRequirement": {
@@ -659,7 +663,7 @@
     },
     {
       "evidenceId": "polish-kielbasa-pizzadb-p12",
-      "recipeIdCandidate": "polish-kielbasa-pizza",
+      "recipeIdCandidate": "polish-kielbasa",
       "nameJa": "ポーリッシュキエルバサピザ",
       "descriptionCandidate": "ソーセージ、ザワークラウト、たまねぎをモッツァレラと焼き上げた、酸味と旨みのある一枚。",
       "descriptionStatus": "AUTHORING_CANDIDATE",

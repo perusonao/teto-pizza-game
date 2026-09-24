@@ -67,6 +67,13 @@
       "detail": "Both are eggplant-family recipes. Keep exact ingredient signatures distinct and add collision regression coverage."
     },
     {
+      "id": "REC-09",
+      "scope": "pesto-tonno",
+      "status": "EVIDENCE_REQUIRED",
+      "field": "black-olive alias",
+      "detail": "Source token オリーブ is a likely alias to black-olive, not an exact lexical alias; preserve the merged canonicalization but do not treat the provenance as settled."
+    },
+    {
       "id": "ING-01",
       "scope": "baked-beans",
       "status": "AUTHORING_REQUIRED",

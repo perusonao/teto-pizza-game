@@ -5,13 +5,30 @@
   "slices": [
     {
       "id": "A",
-      "title": "Existing-ingredient recipe data",
+      "title": "Evidence-clean existing-ingredient recipe data",
       "recipes": [
-        "aussie",
+        "aussie"
+      ],
+      "dependsOn": [
+        "Progression 2.0 owner decisions"
+      ],
+      "likelyFiles": [
+        "src/data/recipes.ts",
+        "src/data/recipes.test.ts",
+        "src/data/cookingProfiles.ts",
+        "src/data/cookingProfiles.test.ts",
+        "src/logic/discovery/*"
+      ]
+    },
+    {
+      "id": "B",
+      "title": "Existing-ingredient recipes with likely-alias evidence review",
+      "recipes": [
         "pizza-portuguesa",
         "pesto-tonno"
       ],
       "dependsOn": [
+        "REC-06/REC-09 evidence resolution",
         "Progression 2.0 owner decisions"
       ],
       "likelyFiles": [
@@ -25,7 +42,7 @@
       ]
     },
     {
-      "id": "B",
+      "id": "C",
       "title": "Six new ingredient records",
       "ingredients": [
         "baked-beans",
@@ -46,19 +63,19 @@
       ]
     },
     {
-      "id": "C",
+      "id": "D",
       "title": "Recipes using approved new ingredients",
       "recipes": [
         "bacalhau",
         "parmigiana-pizza",
         "puttanesca-pizza",
         "full-english-pizza",
-        "polish-kielbasa-pizza",
+        "polish-kielbasa",
         "melanzane-pizza",
         "tsukimi-pizza"
       ],
       "dependsOn": [
-        "slice B",
+        "slice C",
         "Progression 2.0 owner decisions"
       ],
       "likelyFiles": [
@@ -70,7 +87,7 @@
       ]
     },
     {
-      "id": "D",
+      "id": "E",
       "title": "Completion Gate integration",
       "dependsOn": [
         "#218 owner decision"
