@@ -1,0 +1,447 @@
+{
+  "meta": {
+    "auditedMainSha": "dff233c042d2df6ee1c3a92f2d2419830aa05460",
+    "inputs": {
+      "issue216": "OPEN",
+      "pr217": "a39932d6b750cd0dd16b63e8635ac40c53a9fb70",
+      "pr206": "4c1da8703bb22a2be7cad911f92ec33cb0f0485d (base d6b6ef9, unmerged)"
+    },
+    "storage": {
+      "key": "teto-pizza-save-v1",
+      "previewKey": "teto-pizza-preview-save-v1",
+      "backend": "localStorage single JSON value",
+      "schemaVersion": 2,
+      "serviceWorker": false
+    },
+    "report": "docs/reports/TETO_PROGRESS2_SAVE-MIGRATION_FRESH-AUDIT.md",
+    "ownerDecisionsFinalized": false
+  },
+  "lifecycle": [
+    {
+      "state": "LOCKED",
+      "persist": "derived",
+      "rule": "!OWNED && !UNLOCKED && !eligible"
+    },
+    {
+      "state": "AVAILABLE_TO_UNLOCK",
+      "persist": "derived",
+      "rule": "!OWNED && !UNLOCKED && eligible(persisted monotonic facts)",
+      "caveat": "unpaid eligibility may revert if thresholds/star formula change (OD-SM-2)"
+    },
+    {
+      "state": "AVAILABLE_TO_BUY",
+      "persist": "persisted (unlockedForShopIngredientIds)",
+      "rule": "UNLOCKED && !OWNED",
+      "why": "fee payment is an event, not derivable; permanent; curve-independent; rollback double-charge"
+    },
+    {
+      "state": "OWNED",
+      "persist": "persisted (ownedIngredientIds)",
+      "rule": "id in owned || starter",
+      "invariant": "OWNED => UNLOCKED"
+    },
+    {
+      "state": "REFILL",
+      "persist": "persisted (inventory)",
+      "rule": "OWNED && finite && inventory[id] (absent=0)",
+      "invariant": "stock 0 stays OWNED; never back to AVAILABLE_TO_BUY"
+    }
+  ],
+  "invariants": {
+    "I-1": "OWNED => UNLOCKED (derive via union; grandfather EP4-owned)",
+    "I-2": "UNLOCKED and OWNED never shrink",
+    "I-3": "starter ids never stored in unlocked set",
+    "I-4": "fee debit + entitlement in one reducer transition and one setItem on one key; idempotent",
+    "I-5": "OWNED with stock 0 routes to REFILL",
+    "I-6": "no load-only write (materialize grandfather on next natural write)"
+  },
+  "fields": [
+    {
+      "field": "schemaVersion",
+      "status": "existing",
+      "persistence": "persisted",
+      "default": 2,
+      "migrationSource": "v1 -> migrateV1toV2 -> 2; keep 2 (no bump)",
+      "rollback": {
+        "R1_pre206_main_dff233c": "reads v2; bump => whole save reset",
+        "R2_with206_unaware": "reads v2; bump => whole save reset"
+      },
+      "corruption": "unknown version => whole save default"
+    },
+    {
+      "field": "dex",
+      "status": "existing",
+      "persistence": "persisted",
+      "default": [],
+      "migrationSource": "carry verbatim",
+      "rollback": {
+        "R1_pre206_main_dff233c": "unknown recipe entries erased on first write",
+        "R2_with206_unaware": "unknown entries preserved (valid shape)"
+      },
+      "corruption": "per-entry drop; non-array => whole save default"
+    },
+    {
+      "field": "pitzBalance",
+      "status": "existing",
+      "persistence": "persisted",
+      "default": 0,
+      "migrationSource": "carry verbatim",
+      "rollback": {
+        "R1_pre206_main_dff233c": "overwritten by old build value",
+        "R2_with206_unaware": "overwritten by old build value"
+      },
+      "corruption": "non-finite/negative => 0 (fractional currently accepted, P2-1)"
+    },
+    {
+      "field": "ownedIngredientIds",
+      "status": "existing",
+      "persistence": "persisted",
+      "default": [
+        "tomato-sauce",
+        "mozzarella",
+        "basil"
+      ],
+      "migrationSource": "carry verbatim; starter backfilled",
+      "rollback": {
+        "R1_pre206_main_dff233c": "unknown ids erased",
+        "R2_with206_unaware": "unknown well-formed ids preserved"
+      },
+      "corruption": "per-entry; starters always re-added"
+    },
+    {
+      "field": "inventory",
+      "status": "existing",
+      "persistence": "persisted",
+      "default": {},
+      "migrationSource": "carry verbatim (M4 pieces, no unit migration per #214 D-2)",
+      "rollback": {
+        "R1_pre206_main_dff233c": "unknown ids erased",
+        "R2_with206_unaware": "unknown ids preserved (non-negative int)"
+      },
+      "corruption": "per-key; starter keys stripped"
+    },
+    {
+      "field": "missionBest",
+      "status": "existing",
+      "persistence": "persisted",
+      "default": {},
+      "migrationSource": "carry verbatim",
+      "rollback": {
+        "R1_pre206_main_dff233c": "preserved (keys not id-checked)",
+        "R2_with206_unaware": "preserved"
+      },
+      "corruption": "per-key non-negative int"
+    },
+    {
+      "field": "starterGrantClaimedRecipeIds",
+      "status": "existing",
+      "persistence": "persisted",
+      "default": [],
+      "migrationSource": "carry verbatim; 3-4C must saturate with all shipped recipe ids (#211 P0-S2)",
+      "rollback": {
+        "R1_pre206_main_dff233c": "unknown ids erased",
+        "R2_with206_unaware": "unknown ids preserved"
+      },
+      "corruption": "per-entry",
+      "notes": "must NOT be removed from schema after EP4 retirement (#211 F-1)"
+    },
+    {
+      "field": "unlockedForShopIngredientIds",
+      "status": "NEW_REQUIRED",
+      "persistence": "persisted",
+      "default": [],
+      "migrationSource": "absent => []; effective = persisted ∪ (owned ∖ starter) (grandfather, invariant I-1); no load-time write",
+      "rollback": {
+        "R1_pre206_main_dff233c": "ERASED on first write (incl. mount-time EP4 catch-up) => paid-not-bought entitlements lost => double fee on roll-forward (P0-1)",
+        "R2_with206_unaware": "preserved verbatim as unknown top-level key"
+      },
+      "corruption": "non-array => []; per-entry drop; starter ids stripped; unknown well-formed ids preserved (P0-2)",
+      "notes": "Permanent entitlement: fee paid. Required under every fee curve incl. F0. Shape A (string[]) recommended."
+    },
+    {
+      "field": "lifetimePitzEarned",
+      "status": "CANDIDATE_IF_OD216-2_USES_IT",
+      "persistence": "persisted",
+      "default": 0,
+      "migrationSource": "lower bound = pitzBalance (spend history not persisted; EP4 grants were free)",
+      "rollback": {
+        "R1_pre206_main_dff233c": "erased",
+        "R2_with206_unaware": "preserved"
+      },
+      "corruption": "non-int/negative => 0; max-merge"
+    },
+    {
+      "field": "lifetimeLunchRushServes",
+      "status": "CANDIDATE_IF_OD216-2_USES_IT",
+      "persistence": "persisted",
+      "default": 0,
+      "migrationSource": "0 (run state never persisted)",
+      "rollback": {
+        "R1_pre206_main_dff233c": "erased",
+        "R2_with206_unaware": "preserved"
+      },
+      "corruption": "non-int/negative => 0; max-merge"
+    },
+    {
+      "field": "lifetimeCompletedPizzas",
+      "status": "CANDIDATE_ONLY_IF_DEFINITION_INCLUDES_ORIGINAL",
+      "persistence": "persisted",
+      "default": 0,
+      "migrationSource": "lower bound = Σ dex[].timesMade (timesMade counts matched PASS only)",
+      "rollback": {
+        "R1_pre206_main_dff233c": "erased",
+        "R2_with206_unaware": "preserved"
+      },
+      "corruption": "non-int/negative => 0; max-merge"
+    },
+    {
+      "field": "unlockedCapabilityIds",
+      "status": "CANDIDATE_IF_OD216-3_A",
+      "persistence": "persisted",
+      "default": [],
+      "migrationSource": "[]",
+      "rollback": {
+        "R1_pre206_main_dff233c": "erased",
+        "R2_with206_unaware": "preserved"
+      },
+      "corruption": "per-entry"
+    },
+    {
+      "field": "completedTutorialIds",
+      "status": "CANDIDATE_IF_OD216-3_C",
+      "persistence": "persisted",
+      "default": [],
+      "migrationSource": "[]",
+      "rollback": {
+        "R1_pre206_main_dff233c": "erased",
+        "R2_with206_unaware": "preserved"
+      },
+      "corruption": "per-entry"
+    }
+  ],
+  "derivedFacts": [
+    {
+      "concept": "totalStars / progressionStars",
+      "persistence": "derived",
+      "source": "dex BEST (monotonic)"
+    },
+    {
+      "concept": "discoveredRecipeCount / specific discovery / Dex count",
+      "persistence": "derived",
+      "source": "dex[].discovered"
+    },
+    {
+      "concept": "specific recipe BEST reached",
+      "persistence": "derived",
+      "source": "dex bestStars/bestScore"
+    },
+    {
+      "concept": "completed pizzas (matched PASS only)",
+      "persistence": "derived",
+      "source": "Σ dex[].timesMade"
+    },
+    {
+      "concept": "cumulative Pitz earned",
+      "persistence": "NOT_DERIVABLE",
+      "source": "none (balance only)"
+    },
+    {
+      "concept": "cumulative Lunch Rush serves",
+      "persistence": "NOT_DERIVABLE",
+      "source": "none (run in memory only)"
+    },
+    {
+      "concept": "recipeUnlocked (EP1)",
+      "persistence": "derived",
+      "source": "dex"
+    }
+  ],
+  "loadScenarios": [
+    {
+      "id": "L0",
+      "input": "no save / after reset",
+      "result": "default; unlocked []; starters owned",
+      "write": "none on mount"
+    },
+    {
+      "id": "L1",
+      "input": "v1",
+      "result": "migrateV1toV2; unlocked [] ; owned non-starter => UNLOCKED via I-1",
+      "write": "only if diff"
+    },
+    {
+      "id": "L2",
+      "input": "v2 pre-EP4 (no ledger)",
+      "result": "per 3-4C rules (#211 §8 E3)",
+      "write": "per 3-4C"
+    },
+    {
+      "id": "L3",
+      "input": "v2 current prod (EP4-owned)",
+      "result": "unlocked []; EP4-owned grandfathered; stock unchanged (M4)",
+      "write": "only if diff"
+    },
+    {
+      "id": "L4",
+      "input": "v2 from 3-state 3-4C build with AVAILABLE_TO_BUY not bought",
+      "result": "regresses to AVAILABLE_TO_UNLOCK unless cutover grandfather",
+      "write": "one-time with marker if grandfathered",
+      "blocker": "P0-7"
+    },
+    {
+      "id": "L5",
+      "input": "v2 + unknown ids (#206 extras)",
+      "result": "hidden from GameState; preserved on write"
+    },
+    {
+      "id": "L6",
+      "input": "unlocked field malformed",
+      "result": "[]; OWNED rescued via I-1; paid-not-bought lost (P1-2)"
+    },
+    {
+      "id": "L7",
+      "input": "bad JSON / unknown schemaVersion / dex non-array",
+      "result": "whole save default (unchanged policy)"
+    }
+  ],
+  "rollbackScenarios": [
+    {
+      "id": "R1",
+      "build": "main dff233c (no #206)",
+      "result": "unlocked set + counters + unknown ids erased on first write (mount write possible via EP4 catch-up)",
+      "blocker": "P0-1"
+    },
+    {
+      "id": "R2",
+      "build": "#206 build unaware of field",
+      "result": "unknown top-level key preserved verbatim; known fields updated"
+    },
+    {
+      "id": "R3",
+      "build": "3-state 3-4C build",
+      "result": "first purchase possible without fee during rollback; grandfathered on roll-forward (P1-4, accept)"
+    },
+    {
+      "id": "R4",
+      "build": "EP4 build with unsaturated ledger",
+      "result": "free grant => OWNED => permanent UNLOCKED without fee",
+      "blocker": "P0-6"
+    },
+    {
+      "id": "R5",
+      "build": "stale open tab from before deploy",
+      "result": "behaves like its build (R1/R2/R3); occurs on every deploy, not only rollbacks",
+      "mitigation": "ship #206 in an earlier deploy than the entitlement"
+    }
+  ],
+  "p0Blockers": [
+    {
+      "id": "P0-1",
+      "title": "#206 unmerged; main erases unknown keys/ids on every write",
+      "fix": "merge+deploy #206 in an earlier deploy; rollback floor = #206 SHA"
+    },
+    {
+      "id": "P0-2",
+      "title": "T1 build knowing the key drops T2 ids inside the set",
+      "fix": "register key in KNOWN_SAVE_KEYS/sanitizeSave/createDefaultSave/ProgressionSnapshot and preserve unknown ids in extras (#211 F-3/F-4)"
+    },
+    {
+      "id": "P0-3",
+      "title": "schemaVersion bump resets whole save on all current builds",
+      "fix": "stay at 2"
+    },
+    {
+      "id": "P0-4",
+      "title": "no OWNED=>UNLOCKED grandfather",
+      "fix": "derive union (I-1)"
+    },
+    {
+      "id": "P0-5",
+      "title": "fee and entitlement written separately",
+      "fix": "one transition, one setItem, one key (I-4)"
+    },
+    {
+      "id": "P0-6",
+      "title": "EP4 ledger not saturated before EP4 retirement",
+      "fix": "#211 P0-S2 saturation; keep field"
+    },
+    {
+      "id": "P0-7",
+      "title": "#214 D-1 'entitlement not needed' conflicts with #216 paid unlock; 3-state-first regresses AVAILABLE_TO_BUY users",
+      "fix": "Owner decision OD-SM-1 (not decided here)"
+    }
+  ],
+  "changeMap": [
+    {
+      "id": "C-1",
+      "file": "src/state/persistence.ts",
+      "change": "add unlockedForShopIngredientIds to PersistentSaveV2, createDefaultSave, sanitizer"
+    },
+    {
+      "id": "C-2",
+      "file": "src/state/persistence.ts (#206 part)",
+      "change": "KNOWN_SAVE_KEYS + extractForwardCompatExtras + writeSave appendNew"
+    },
+    {
+      "id": "C-3",
+      "file": "src/state/persistence.ts",
+      "change": "ProgressionSnapshot + persistProgress change detection (sameStringSet)"
+    },
+    {
+      "id": "C-4",
+      "file": "src/state/progression.ts or #205 progressionEconomy.ts",
+      "change": "AVAILABLE_TO_UNLOCK state; effectiveUnlocked union"
+    },
+    {
+      "id": "C-5",
+      "file": "src/logic/economy.ts",
+      "change": "unlockIngredient (fee); purchase gated on UNLOCKED && !OWNED"
+    },
+    {
+      "id": "C-6",
+      "file": "src/state/gameReducer.ts",
+      "change": "GameState field + UNLOCK_INGREDIENT action (atomic, idempotent)"
+    },
+    {
+      "id": "C-7",
+      "file": "src/App.tsx",
+      "change": "hydration + persistProgress deps"
+    },
+    {
+      "id": "C-8",
+      "file": "src/components/ShopOverlay.tsx",
+      "change": "AVAILABLE_TO_UNLOCK row/button (Human Verification applies)"
+    },
+    {
+      "id": "C-9",
+      "file": "e2e/gestures.ts, e2e/save-forward-compat-3-4b.spec.ts",
+      "change": "seed field; entitlement survives real write+reload; write trigger not EP4"
+    },
+    {
+      "id": "C-10",
+      "file": "persistence/gameReducer/App (conditional)",
+      "change": "lifetime counters if OD216-2 selects them"
+    },
+    {
+      "id": "C-11",
+      "file": "(conditional)",
+      "change": "capability/tutorial sets if OD216-3 = A/C"
+    },
+    {
+      "id": "C-12",
+      "file": "unit fixtures",
+      "change": "R1/R2 rollback simulation of entitlement; R1 loss asserted as known constraint"
+    }
+  ],
+  "deployOrder": [
+    "#206 alone (soak)",
+    "3-4C incl. ledger saturation + 5-state (per OD-SM-1)",
+    "content tranche T2 ids"
+  ],
+  "ownerDecisionCandidates": [
+    "OD-SM-1",
+    "OD-SM-2",
+    "OD-SM-3",
+    "OD-SM-4"
+  ]
+}
