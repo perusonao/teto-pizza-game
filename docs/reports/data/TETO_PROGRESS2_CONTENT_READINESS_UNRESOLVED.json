@@ -24,6 +24,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "unspecified",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "BASE_SAUCE_UNSPECIFIED",
@@ -39,6 +42,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "READY_WITH_REVIEW",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "listed",
+      "runtimeContractDependencies": [],
       "blockers": [],
       "reviewItems": [
         {
@@ -54,6 +60,9 @@
       "wave": "W0_CORRESPONDENCE",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "listed",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "COMPOSITION_CONFLICT_SHIPPED",
@@ -75,6 +84,9 @@
       "wave": "W5",
       "currentFlowRepresentability": "NOT_REPRESENTABLE",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "listed",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "COMPOSITION_CONFLICT_CANDIDATE",
@@ -90,6 +102,9 @@
       "wave": "W0_CORRESPONDENCE",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "none",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "COMPOSITION_CONFLICT_SHIPPED",
@@ -105,6 +120,9 @@
       "wave": "W5",
       "currentFlowRepresentability": "NOT_REPRESENTABLE",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "listed",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "COMPOSITION_CONFLICT_CANDIDATE",
@@ -120,6 +138,9 @@
       "wave": "W5",
       "currentFlowRepresentability": "NOT_REPRESENTABLE",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "listed",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "COMPOSITION_CONFLICT_CANDIDATE",
@@ -141,6 +162,9 @@
       "wave": "W5",
       "currentFlowRepresentability": "NOT_REPRESENTABLE",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "listed",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "COMPOSITION_CONFLICT_CANDIDATE",
@@ -162,6 +186,9 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "READY_WITH_REVIEW",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "family_derived",
+      "runtimeContractDependencies": [],
       "blockers": [],
       "reviewItems": [
         {
@@ -177,6 +204,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "listed",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "COMPOSITION_CONFLICT_CANDIDATE",
@@ -192,6 +222,9 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "listed",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "MECHANIC_INTERPRETATION",
@@ -207,6 +240,11 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "READY_WITH_REVIEW",
+      "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED",
+      "sauceBaseStatus": "none",
+      "runtimeContractDependencies": [
+        "SAUCELESS_RECIPE_CONTRACT"
+      ],
       "blockers": [],
       "reviewItems": [
         {
@@ -222,6 +260,9 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "READY_WITH_REVIEW",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "listed",
+      "runtimeContractDependencies": [],
       "blockers": [],
       "reviewItems": [
         {
@@ -237,6 +278,9 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "READY_WITH_REVIEW",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "listed",
+      "runtimeContractDependencies": [],
       "blockers": [],
       "reviewItems": [
         {
@@ -257,6 +301,9 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "listed",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "COMPOSITION_CONFLICT_CANDIDATE",
@@ -272,6 +319,9 @@
       "wave": "W0_CORRESPONDENCE",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "family_derived",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "COMPOSITION_CONFLICT_SHIPPED",
@@ -287,6 +337,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "family_derived",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "UNRESOLVED_INGREDIENT",
@@ -302,6 +355,11 @@
       "wave": "W5",
       "currentFlowRepresentability": "NOT_REPRESENTABLE",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_AND_RUNTIME_CONTRACT_REQUIRED",
+      "sauceBaseStatus": "none",
+      "runtimeContractDependencies": [
+        "SAUCELESS_RECIPE_CONTRACT"
+      ],
       "blockers": [
         {
           "type": "EVIDENCE_GAP",
@@ -317,6 +375,11 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "READY_WITH_REVIEW",
+      "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED",
+      "sauceBaseStatus": "none",
+      "runtimeContractDependencies": [
+        "SAUCELESS_RECIPE_CONTRACT"
+      ],
       "blockers": [],
       "reviewItems": [
         {
@@ -332,6 +395,9 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "family_derived",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "UNRESOLVED_INGREDIENT",
@@ -347,6 +413,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "unspecified",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "BASE_SAUCE_UNSPECIFIED",
@@ -373,6 +442,11 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED",
+      "sauceBaseStatus": "none",
+      "runtimeContractDependencies": [
+        "SAUCELESS_RECIPE_CONTRACT"
+      ],
       "blockers": [
         {
           "type": "COMPOSITION_CONFLICT_CANDIDATE",
@@ -394,6 +468,9 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "unspecified",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "BASE_SAUCE_UNSPECIFIED",
@@ -409,6 +486,9 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "family_derived",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "UNRESOLVED_INGREDIENT",
@@ -424,6 +504,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "listed",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "UNRESOLVED_INGREDIENT",
@@ -439,6 +522,11 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "READY_WITH_REVIEW",
+      "implementationType": "NEW_MECHANIC_AND_RUNTIME_CONTRACT_REQUIRED",
+      "sauceBaseStatus": "none",
+      "runtimeContractDependencies": [
+        "SAUCELESS_RECIPE_CONTRACT"
+      ],
       "blockers": [],
       "reviewItems": [
         {
@@ -454,6 +542,9 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "unspecified",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "BASE_SAUCE_UNSPECIFIED",
@@ -474,6 +565,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "unspecified",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "BASE_SAUCE_UNSPECIFIED",
@@ -489,6 +583,9 @@
       "wave": "W5",
       "currentFlowRepresentability": "NOT_REPRESENTABLE",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "family_derived",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "UNRESOLVED_INGREDIENT",
@@ -504,6 +601,9 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "listed",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "UNRESOLVED_INGREDIENT",
@@ -519,6 +619,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "unspecified",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "BASE_SAUCE_UNSPECIFIED",
@@ -534,6 +637,9 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "READY_WITH_REVIEW",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "family_derived",
+      "runtimeContractDependencies": [],
       "blockers": [],
       "reviewItems": [
         {
@@ -549,6 +655,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "listed_unresolved",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "UNRESOLVED_INGREDIENT",
@@ -564,6 +673,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "unspecified",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "BASE_SAUCE_UNSPECIFIED",
@@ -589,6 +701,9 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "unspecified",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "BASE_SAUCE_UNSPECIFIED",
@@ -604,6 +719,9 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "family_derived",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "UNRESOLVED_INGREDIENT",
@@ -619,6 +737,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "unspecified",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "BASE_SAUCE_UNSPECIFIED",
@@ -634,6 +755,9 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "family_derived",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "EVIDENCE_GAP",
@@ -649,6 +773,9 @@
       "wave": "W5",
       "currentFlowRepresentability": "NOT_REPRESENTABLE",
       "productDecisionStatus": "READY_WITH_REVIEW",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "family_derived",
+      "runtimeContractDependencies": [],
       "blockers": [],
       "reviewItems": [
         {
@@ -669,6 +796,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "unspecified",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "BASE_SAUCE_UNSPECIFIED",
@@ -690,6 +820,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "unspecified",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "BASE_SAUCE_UNSPECIFIED",
@@ -705,6 +838,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "unspecified",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "BASE_SAUCE_UNSPECIFIED",
@@ -720,6 +856,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "unspecified",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "BASE_SAUCE_UNSPECIFIED",
@@ -741,6 +880,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "family_derived",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "COMPOSITION_CONFLICT_CANDIDATE",
@@ -761,6 +903,9 @@
       "wave": "W5",
       "currentFlowRepresentability": "NOT_REPRESENTABLE",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "family_derived",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "COMPOSITION_CONFLICT_CANDIDATE",
@@ -776,6 +921,9 @@
       "wave": "W5",
       "currentFlowRepresentability": "NOT_REPRESENTABLE",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "family_derived",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "UNRESOLVED_INGREDIENT",
@@ -796,6 +944,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "unspecified",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "BASE_SAUCE_UNSPECIFIED",
@@ -811,6 +962,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "unspecified",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "BASE_SAUCE_UNSPECIFIED",
@@ -832,6 +986,9 @@
       "wave": "W5",
       "currentFlowRepresentability": "NOT_REPRESENTABLE",
       "productDecisionStatus": "READY_WITH_REVIEW",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "family_derived",
+      "runtimeContractDependencies": [],
       "blockers": [],
       "reviewItems": [
         {
@@ -847,6 +1004,9 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "listed",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "COMPOSITION_CONFLICT_CANDIDATE",
@@ -867,6 +1027,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "unspecified",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "BASE_SAUCE_UNSPECIFIED",
@@ -882,6 +1045,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "unspecified",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "BASE_SAUCE_UNSPECIFIED",
@@ -897,6 +1063,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "unspecified",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "BASE_SAUCE_UNSPECIFIED",
@@ -918,6 +1087,9 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "unspecified",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "BASE_SAUCE_UNSPECIFIED",
@@ -933,6 +1105,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "READY_WITH_REVIEW",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "family_derived",
+      "runtimeContractDependencies": [],
       "blockers": [],
       "reviewItems": [
         {
@@ -948,6 +1123,9 @@
       "wave": "W0_CORRESPONDENCE",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "family_derived",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "COMPOSITION_CONFLICT_SHIPPED",
@@ -969,6 +1147,11 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED",
+      "sauceBaseStatus": "none",
+      "runtimeContractDependencies": [
+        "SAUCELESS_RECIPE_CONTRACT"
+      ],
       "blockers": [
         {
           "type": "MECHANIC_INTERPRETATION",
@@ -984,6 +1167,11 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_AND_RUNTIME_CONTRACT_REQUIRED",
+      "sauceBaseStatus": "none",
+      "runtimeContractDependencies": [
+        "SAUCELESS_RECIPE_CONTRACT"
+      ],
       "blockers": [
         {
           "type": "MECHANIC_INTERPRETATION",
@@ -999,6 +1187,11 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED",
+      "sauceBaseStatus": "none",
+      "runtimeContractDependencies": [
+        "SAUCELESS_RECIPE_CONTRACT"
+      ],
       "blockers": [
         {
           "type": "MECHANIC_INTERPRETATION",
@@ -1014,6 +1207,11 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED",
+      "sauceBaseStatus": "none",
+      "runtimeContractDependencies": [
+        "SAUCELESS_RECIPE_CONTRACT"
+      ],
       "blockers": [
         {
           "type": "MECHANIC_INTERPRETATION",
@@ -1029,6 +1227,11 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED",
+      "sauceBaseStatus": "none",
+      "runtimeContractDependencies": [
+        "SAUCELESS_RECIPE_CONTRACT"
+      ],
       "blockers": [
         {
           "type": "MECHANIC_INTERPRETATION",
@@ -1044,6 +1247,11 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_AND_RUNTIME_CONTRACT_REQUIRED",
+      "sauceBaseStatus": "none",
+      "runtimeContractDependencies": [
+        "SAUCELESS_RECIPE_CONTRACT"
+      ],
       "blockers": [
         {
           "type": "MECHANIC_INTERPRETATION",
@@ -1064,6 +1272,11 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_AND_RUNTIME_CONTRACT_REQUIRED",
+      "sauceBaseStatus": "none",
+      "runtimeContractDependencies": [
+        "SAUCELESS_RECIPE_CONTRACT"
+      ],
       "blockers": [
         {
           "type": "MECHANIC_INTERPRETATION",
@@ -1079,6 +1292,11 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_AND_RUNTIME_CONTRACT_REQUIRED",
+      "sauceBaseStatus": "none",
+      "runtimeContractDependencies": [
+        "SAUCELESS_RECIPE_CONTRACT"
+      ],
       "blockers": [
         {
           "type": "MECHANIC_INTERPRETATION",
@@ -1094,6 +1312,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "family_derived",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "UNRESOLVED_INGREDIENT",
@@ -1109,6 +1330,9 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "family_derived",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "COMPOSITION_CONFLICT_CANDIDATE",
@@ -1124,6 +1348,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "family_derived",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "COMPOSITION_CONFLICT_CANDIDATE",
@@ -1139,6 +1366,9 @@
       "wave": "W5",
       "currentFlowRepresentability": "NOT_REPRESENTABLE",
       "productDecisionStatus": "READY_WITH_REVIEW",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "family_derived",
+      "runtimeContractDependencies": [],
       "blockers": [],
       "reviewItems": [
         {
@@ -1154,6 +1384,9 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "READY_WITH_REVIEW",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "family_derived",
+      "runtimeContractDependencies": [],
       "blockers": [],
       "reviewItems": [
         {
@@ -1169,6 +1402,11 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED",
+      "sauceBaseStatus": "none",
+      "runtimeContractDependencies": [
+        "SAUCELESS_RECIPE_CONTRACT"
+      ],
       "blockers": [
         {
           "type": "UNRESOLVED_INGREDIENT",
@@ -1184,6 +1422,9 @@
       "wave": "W5",
       "currentFlowRepresentability": "NOT_REPRESENTABLE",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "unspecified",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "BASE_SAUCE_UNSPECIFIED",
@@ -1209,6 +1450,9 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "listed",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "SCOPE_QUESTION",
@@ -1224,6 +1468,9 @@
       "wave": "W0_CORRESPONDENCE",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "none",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "COMPOSITION_CONFLICT_SHIPPED",
@@ -1244,6 +1491,11 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_AND_RUNTIME_CONTRACT_REQUIRED",
+      "sauceBaseStatus": "none",
+      "runtimeContractDependencies": [
+        "SAUCELESS_RECIPE_CONTRACT"
+      ],
       "blockers": [
         {
           "type": "COMPOSITION_CONFLICT_CANDIDATE",
@@ -1264,6 +1516,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "READY_WITH_REVIEW",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "family_derived",
+      "runtimeContractDependencies": [],
       "blockers": [],
       "reviewItems": [
         {
@@ -1279,6 +1534,9 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "unspecified",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "BASE_SAUCE_UNSPECIFIED",
@@ -1294,6 +1552,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "unspecified",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "BASE_SAUCE_UNSPECIFIED",
@@ -1309,6 +1570,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "family_derived",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "COMPOSITION_CONFLICT_CANDIDATE",
@@ -1330,6 +1594,9 @@
       "wave": "W0_CORRESPONDENCE",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "listed_unresolved",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "COMPOSITION_CONFLICT_SHIPPED",
@@ -1350,6 +1617,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "READY_WITH_REVIEW",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "family_derived",
+      "runtimeContractDependencies": [],
       "blockers": [],
       "reviewItems": [
         {
@@ -1365,6 +1635,9 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "READY_WITH_REVIEW",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "family_derived",
+      "runtimeContractDependencies": [],
       "blockers": [],
       "reviewItems": [
         {
@@ -1380,6 +1653,9 @@
       "wave": "W0_CORRESPONDENCE",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "family_derived",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "COMPOSITION_CONFLICT_SHIPPED",
@@ -1395,6 +1671,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "unspecified",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "BASE_SAUCE_UNSPECIFIED",
@@ -1416,6 +1695,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "unspecified",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "BASE_SAUCE_UNSPECIFIED",
@@ -1431,6 +1713,11 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED",
+      "sauceBaseStatus": "none",
+      "runtimeContractDependencies": [
+        "SAUCELESS_RECIPE_CONTRACT"
+      ],
       "blockers": [
         {
           "type": "COMPOSITION_CONFLICT_CANDIDATE",
@@ -1446,6 +1733,9 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "READY_WITH_REVIEW",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "family_derived",
+      "runtimeContractDependencies": [],
       "blockers": [],
       "reviewItems": [
         {
@@ -1461,6 +1751,9 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "unspecified",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "BASE_SAUCE_UNSPECIFIED",
@@ -1476,6 +1769,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "READY_WITH_REVIEW",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "listed",
+      "runtimeContractDependencies": [],
       "blockers": [],
       "reviewItems": [
         {
@@ -1491,6 +1787,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "unspecified",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "BASE_SAUCE_UNSPECIFIED",
@@ -1512,6 +1811,9 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "READY_WITH_REVIEW",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "listed",
+      "runtimeContractDependencies": [],
       "blockers": [],
       "reviewItems": [
         {
@@ -1527,6 +1829,9 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "unspecified",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "BASE_SAUCE_UNSPECIFIED",
@@ -1542,6 +1847,9 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "family_derived",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "MECHANIC_INTERPRETATION",
@@ -1567,6 +1875,11 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED",
+      "sauceBaseStatus": "none",
+      "runtimeContractDependencies": [
+        "SAUCELESS_RECIPE_CONTRACT"
+      ],
       "blockers": [
         {
           "type": "COMPOSITION_CONFLICT_CANDIDATE",
@@ -1582,6 +1895,9 @@
       "wave": "W0_CORRESPONDENCE",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "family_derived",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "COMPOSITION_CONFLICT_SHIPPED",
@@ -1597,6 +1913,9 @@
       "wave": "W0_CORRESPONDENCE",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "family_derived",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "COMPOSITION_CONFLICT_SHIPPED",
@@ -1612,6 +1931,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "listed_unresolved",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "UNRESOLVED_INGREDIENT",
@@ -1627,6 +1949,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "unspecified",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "BASE_SAUCE_UNSPECIFIED",
@@ -1648,6 +1973,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "unspecified",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "BASE_SAUCE_UNSPECIFIED",
@@ -1663,6 +1991,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "unspecified",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "BASE_SAUCE_UNSPECIFIED",
@@ -1689,6 +2020,11 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_AND_RUNTIME_CONTRACT_REQUIRED",
+      "sauceBaseStatus": "none",
+      "runtimeContractDependencies": [
+        "SAUCELESS_RECIPE_CONTRACT"
+      ],
       "blockers": [
         {
           "type": "COMPOSITION_CONFLICT_CANDIDATE",
@@ -1704,6 +2040,9 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "sauceBaseStatus": "unspecified",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "BASE_SAUCE_UNSPECIFIED",
@@ -1730,6 +2069,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "unspecified",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "BASE_SAUCE_UNSPECIFIED",
@@ -1756,6 +2098,9 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "sauceBaseStatus": "unspecified",
+      "runtimeContractDependencies": [],
       "blockers": [
         {
           "type": "BASE_SAUCE_UNSPECIFIED",
@@ -1771,6 +2116,11 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED",
+      "sauceBaseStatus": "none",
+      "runtimeContractDependencies": [
+        "SAUCELESS_RECIPE_CONTRACT"
+      ],
       "blockers": [
         {
           "type": "UNRESOLVED_INGREDIENT",

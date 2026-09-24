@@ -7,8 +7,8 @@
 - production は **15 recipes / 22 ingredients**。
 - matrix は **172 rows: FULL 101 / PARTIAL 55 / NOT_REPRESENTABLE 16** のまま。
 - production 15 件のうち 10 件に matrix correspondence があり、5 件（`funghi`, `napoletana`, `pepperoni`, `pizza-bianca`, `salsiccia`）は対応 row がない。これは欠落ではなく、172 evidence と production overlay の集合差である。
-- 追加候補から production correspondence 10 row を除くと、最小差分 Wave は **W1 20件**、複数材料 Wave は **W2 29件**。
-- 最初の 10 件候補は W1 内の同順位集合で、**新 ingredient 6種**に抑えられる。
+- 追加候補から production correspondence 10 row を除くと、最小差分 Wave は **W1 11件**、複数材料 Wave は **W2 17件**、runtime-contract / 非構造 mechanic Wave は **W4 73件**。
+- 最初の 10 件候補は W1 内の同順位集合で、**新 ingredient 7種**に抑えられる。
 - current renderer は ingredient の `color` + `emoji` を data から描画するため、専用 bitmap asset が必須の候補は **0**。ただし visual content authoring/review は新 ingredient ごとに必要。
 
 ## 1. SSOT / GitHub 実状態
@@ -25,9 +25,9 @@
 ## 2. 分類方法
 
 1. matrix の canonical ingredient IDs と production 22 ingredient IDs を差分化。
-2. ingredient overlap は候補 ingredient のうち production 既存材料が占める割合。併せて production 15 recipes との最大 Jaccard と exact-set collision を記録。
-3. `FULL + READY` のみを即時 content wave に入れる。0–1 新材料を W1、2+ を W2 とした。
-4. `FULL` でも review/blocker があれば W3。`PARTIAL` は W4、`NOT_REPRESENTABLE` は W5。
+2. ingredient overlap は matrix の完全な `identityIngredientSet`（family-derived sauce を含む）と、同じく sauce を含む production の完全 recipe ingredient set を対称比較する。identity set が incomplete の行は Jaccard / exact-set を算出しない。
+3. `FULL + READY` のうち production runtime contract でも表現可能な行だけを即時 content wave に入れる。0–1 新材料を W1、2+ を W2 とした。
+4. `FULL` でも review/blocker があれば W3。`PARTIAL` または `SAUCELESS_RECIPE_CONTRACT` 依存は W4、`NOT_REPRESENTABLE` は W5。
 5. production correspondence は W0 reference とし、追加候補に二重計上しない。
 
 ## 3. Proposed implementation waves
@@ -35,12 +35,12 @@
 | Wave | Meaning | recipes | distinct new ingredients | mechanic dependency | collision risk | evidence status |
 |---|---|---:|---:|---|---|---|
 | W0 | Current production baseline | 15 | 0 | none | {"PRODUCTION_BASELINE": 15} | {"SHIPPED": 15} |
-| W0_CORRESPONDENCE | Matrix-to-production correspondence | 10 | 5 | DOUGH_VARIANT, MULTI_SPREAD_LAYER | {"HIGH": 2, "LOW": 5, "MEDIUM": 3} | {"ALREADY_SHIPPED_CORROBORATED": 1, "BLOCKED_PRODUCT_DECISION": 9} |
-| W1 | Minimal current-mechanic additions | 20 | 16 | none | {"LOW": 20} | {"READY": 20} |
-| W2 | Multi-ingredient current-mechanic additions | 29 | 48 | none | {"HIGH": 1, "LOW": 28} | {"READY": 29} |
-| W3 | Content/evidence decision queue | 45 | 63 | none | {"HIGH": 1, "LOW": 26, "MEDIUM": 18} | {"BLOCKED_PRODUCT_DECISION": 38, "READY_WITH_REVIEW": 7} |
-| W4 | Non-structural mechanic queue | 52 | 80 | DOUGH_VARIANT, LATE_ADDITION, MULTI_SPREAD_LAYER, PREP_STEP, STEP_ORDER, ZONED_PLACEMENT | {"HIGH": 6, "LOW": 40, "MEDIUM": 6} | {"BLOCKED_PRODUCT_DECISION": 29, "READY": 14, "READY_WITH_REVIEW": 9} |
-| W5 | Structural mechanic queue | 16 | 11 | DOUGH_SHAPE_TARGET, DOUGH_VARIANT, ENCLOSE, FRY_COOK, LAMINATE, LATE_ADDITION, MULTI_SPREAD_LAYER, PAN_BAKE, STEP_ORDER | {"HIGH": 3, "LOW": 11, "MEDIUM": 2} | {"BLOCKED_PRODUCT_DECISION": 9, "READY": 4, "READY_WITH_REVIEW": 3} |
+| W0_CORRESPONDENCE | Matrix-to-production correspondence | 10 | 5 | DOUGH_VARIANT, MULTI_SPREAD_LAYER | {"HIGH": 2, "LOW": 4, "MEDIUM": 3, "UNKNOWN": 1} | {"ALREADY_SHIPPED_CORROBORATED": 1, "BLOCKED_PRODUCT_DECISION": 9} |
+| W1 | Minimal current-mechanic additions | 11 | 8 | none | {"LOW": 11} | {"READY": 11} |
+| W2 | Multi-ingredient current-mechanic additions | 17 | 32 | none | {"HIGH": 1, "LOW": 16} | {"READY": 17} |
+| W3 | Content/evidence decision queue | 45 | 63 | SAUCELESS_RECIPE_CONTRACT | {"HIGH": 1, "LOW": 4, "MEDIUM": 8, "UNKNOWN": 32} | {"BLOCKED_PRODUCT_DECISION": 38, "READY_WITH_REVIEW": 7} |
+| W4 | Runtime-contract / non-structural mechanic queue | 73 | 97 | DOUGH_VARIANT, LATE_ADDITION, MULTI_SPREAD_LAYER, PREP_STEP, SAUCELESS_RECIPE_CONTRACT, STEP_ORDER, ZONED_PLACEMENT | {"HIGH": 6, "LOW": 45, "MEDIUM": 6, "UNKNOWN": 16} | {"BLOCKED_PRODUCT_DECISION": 29, "READY": 35, "READY_WITH_REVIEW": 9} |
+| W5 | Structural mechanic queue | 16 | 11 | DOUGH_SHAPE_TARGET, DOUGH_VARIANT, ENCLOSE, FRY_COOK, LAMINATE, LATE_ADDITION, MULTI_SPREAD_LAYER, PAN_BAKE, SAUCELESS_RECIPE_CONTRACT, STEP_ORDER | {"HIGH": 3, "LOW": 8, "MEDIUM": 2, "UNKNOWN": 3} | {"BLOCKED_PRODUCT_DECISION": 9, "READY": 4, "READY_WITH_REVIEW": 3} |
 
 Wave counts are implementation buckets, not unlock order. Pitz price, unlock fee, star gate, non-star condition, and Completion Gate are all `TBD` / `OWNER_DECISION_REQUIRED`.
 
@@ -50,18 +50,18 @@ Wave counts are implementation buckets, not unlock order. Pitz price, unlock fee
 
 | evidence id | recipe | new ingredient | existing overlap | nearest production recipe |
 |---|---|---|---:|---|
-| `aussie-pizzadb` | オージーピザ | none | 100% | `breakfast-pizza` |
-| `bacalhau-pizzadb` | バカリャウピザ | `salt-cod` | 75% | `tonno-e-cipolla` |
-| `parmigiana-pizza-pizzadb-p7` | パルミジャーナピザ | `eggplant` | 75% | `margherita` |
+| `new-haven-apizza-pizzadb` | ニューヘイブンアピッツァ | `clam` | 75% | `quattro-formaggi` |
+| `hawaiian-pizzadb-row` | ハワイアンピザ | `pineapple` | 75% | `meat-lovers` |
+| `parmigiana-pizza-pizzadb-p7` | パルミジャーナピザ | `eggplant` | 80% | `margherita` |
+| `bambino-pizzadb-p7` | バンビーノ | `corn` | 75% | `meat-lovers` |
 | `pizza-portuguesa-pizzadb-p9` | ピッツァ・ポルトゲーザ | none | 100% | `capricciosa` |
-| `puttanesca-pizza-pizzadb-p10` | プッタネスカ | `capers` | 75% | `marinara` |
-| `full-english-pizza-pizzadb-p10` | フルイングリッシュピザ | `baked-beans` | 80% | `breakfast-pizza` |
+| `puttanesca-pizza-pizzadb-p10` | プッタネスカ | `capers` | 80% | `marinara` |
+| `pesto-caprese-pizzadb-p11` | ペストカプレーゼピザ | `fresh-tomato` | 75% | `margherita` |
 | `pesto-tonno-pizzadb-p12` | ペストトンノピザ | none | 100% | `tonno-e-cipolla` |
-| `polish-kielbasa-pizzadb-p12` | ポーリッシュキエルバサピザ | `sauerkraut` | 75% | `salsiccia` |
-| `melanzane-pizza-pizzadb-p13` | メランザーネピザ | `eggplant` | 67% | `margherita` |
-| `tsukimi-pizza-pizzadb-p14` | 月見ピザ | `green-onion` | 75% | `breakfast-pizza` |
+| `pesto-patate-pizzadb-p12` | ペストパターテピザ | `potato` | 75% | `genovese` |
+| `melanzane-pizza-pizzadb-p13` | メランザーネピザ | `eggplant` | 75% | `margherita` |
 
-必要な新材料は **6種**: `baked-beans`, `capers`, `eggplant`, `green-onion`, `salt-cod`, `sauerkraut`。
+必要な新材料は **7種**: `capers`, `clam`, `corn`, `eggplant`, `fresh-tomato`, `pineapple`, `potato`。
 
 ## 5. Change map（将来実装。今回変更なし）
 
@@ -76,11 +76,12 @@ Wave counts are implementation buckets, not unlock order. Pitz price, unlock fee
 - `src/logic/discovery/*`
 - `src/logic/discovery/*.test.ts`
 
-- Recipe data only: production 既存 ingredient だけを使う W1 の3件。
+- Recipe data only: production 既存 ingredient だけを使い、現 runtime contract に適合する W1 rows。
 - New ingredient data only: current `spread` / `scatter` と `color` / `emoji` で成立する W1/W2。
 - Asset addition: dedicated bitmap は不要。新 ingredient の visual fields は content authoring 対象。
 - Evidence/content review: W3 と unresolved ledger を先に解消する。
-- New mechanic: W4/W5。PR #189 の capability IDs をそのまま参照し、再分類しない。
+- Runtime contract: `sauceBase.status == none` は exhaustive `RECIPE_SAUCE_PROFILES` とその test contract の変更が必要なため `SAUCELESS_RECIPE_CONTRACT` として W4 に置く。
+- New mechanic: W4/W5。PR #189 の capability IDs はそのまま参照し、172 mechanic分類を再作成しない。
 
 ## 6. Unresolved / content-authoring
 
