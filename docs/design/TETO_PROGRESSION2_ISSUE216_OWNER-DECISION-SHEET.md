@@ -6,7 +6,7 @@ Only choices that must be made before changing #205 are listed.
 |---|---|---|---|---|
 | OD216-1 | unlock-fee curve | F0_NO_FEE_CONTROL, F1_LIGHT, F2_BALANCED, F3_HEAVY | F2_BALANCED | OWNER_REQUIRED |
 | OD216-2 | non-star eligibility assignment policy | STAR_AUTHORITY, MIXED_MONOTONIC, PER_ROW_AUTHORED | PER_ROW_AUTHORED using MIXED_MONOTONIC as tested baseline | OWNER_REQUIRED |
-| OD216-3 | capability unlock policy | A_PAID, B_AUTO, C_TUTORIAL | B_AUTO for foundational; C_TUTORIAL for interaction-heavy; reject blanket A_PAID | OWNER_REQUIRED |
+| OD216-3 | capability unlock policy | A_PAID, B_AUTO, C_TUTORIAL | B_AUTO for foundational; prerequisite-safe gateway C_TUTORIAL for interaction-heavy; reject blanket A_PAID | OWNER_REQUIRED |
 | OD216-4 | author k=max minCount for 83 authority-only ingredients before they are saleable | AUTHOR_WITH_RECIPE_DATA, KEEP_NOT_FOR_SALE | KEEP_NOT_FOR_SALE until authored | CONTENT_AUTHORING_REQUIRED |
 
 ## Explicitly not a decision here

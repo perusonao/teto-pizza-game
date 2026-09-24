@@ -36,7 +36,7 @@ All prices and gates are comparison inputs. Unknown future `k` is simulated symb
 | B_AUTO | DOUGH_VARIANT | DOUGH_VARIANT | 16 | 23 | 14 | 28 | 80 |
 | B_AUTO | STEP_ORDER | STEP_ORDER | 23 | 32 | 22 | 44 | 150 |
 | C_TUTORIAL | STEP_ORDER | trenton-tomato-pie-pizzadb | 0 | 0 | 0 | 0 | 0 |
-| C_TUTORIAL | DOUGH_VARIANT | cauliflower-crust-pizza-pizzadb-p2 | 17 | 21 | 15 | 30 | 30 |
+| C_TUTORIAL | DOUGH_VARIANT | cauliflower-crust-pizza-pizzadb-p2 | 17 | 21 | 15 | 30 | 90 |
 
 C's starter timeline discovers Margherita and Trenton Tomato Pie in the first two bakes; B discovers only Margherita before following its schedule. Full per-node timelines are serialized in the matrix.
 
@@ -45,6 +45,9 @@ C's starter timeline discovers Margherita and Trenton Tomato Pie in the first tw
 - Scenarios: 24
 - Deadlocks: 0
 - Re-locks: 0
+- Tutorial dependency cycles: 0
+- Prerequisite conjuncts preserved for every selected/candidate non-star gate
+- Gateway capability tutorials occur before, never after, ownership of their gated item
 - Unreachable targets: 0 in every scenario
 - Capability coverage: all 11 represented; LAMINATE intentionally has 0 current target gain
 - Full Chromium/WebKit: not run (docs/data/tooling only)

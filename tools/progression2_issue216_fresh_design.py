@@ -83,19 +83,44 @@ def fee(price, curve):
     return max(curve["minimum"], int(math.ceil(price * curve["ratio"] / 10.0) * 10))
 
 
+def prerequisite_conjuncts(condition):
+    """Return every mandatory PREREQUISITE_OWNED leaf, preserving AND semantics."""
+    if condition["type"] == "PREREQUISITE_OWNED":
+        return [condition]
+    if condition["type"] != "ALL":
+        return []
+    result = []
+    seen = set()
+    for child in condition.get("all", []):
+        for prerequisite in prerequisite_conjuncts(child):
+            key = prerequisite["nodeId"]
+            if key not in seen:
+                result.append(prerequisite); seen.add(key)
+    return result
+
+
+def replace_progress_gate_preserving_prerequisites(source_condition, progress_condition):
+    prerequisites = prerequisite_conjuncts(source_condition)
+    if not prerequisites:
+        return progress_condition
+    return {"type": "ALL", "all": [progress_condition, *prerequisites]}
+
+
 def eligibility_candidates(row, prior_discoveries):
     """Vetted monotonic alternatives only; candidates are not final selections."""
     star = row["unlockCondition"]
     if row["lifecycle"] == "OWNED":
         return [{"id": "INITIAL", "condition": {"type": "INITIAL_OWNED"}, "safe": True}]
     minimum = max(1, min(prior_discoveries, math.ceil(prior_discoveries * 0.6)))
-    candidates = [
+    alternatives = [
         {"id": "STAR_AUTHORITY", "condition": star, "safe": True},
         {"id": "DISCOVERY_COUNT", "condition": {"type": "DISCOVERED_RECIPE_COUNT", "minimum": minimum}, "safe": True},
         {"id": "COMPLETED_PIZZAS", "condition": {"type": "CUMULATIVE_COMPLETED_PIZZAS", "minimum": minimum}, "safe": True},
         {"id": "CUMULATIVE_PITZ_EARNED", "condition": {"type": "CUMULATIVE_PITZ_EARNED", "minimum": minimum * 20}, "safe": True},
     ]
-    return candidates
+    for candidate in alternatives[1:]:
+        candidate["condition"] = replace_progress_gate_preserving_prerequisites(star, candidate["condition"])
+    return alternatives
 
 
 def selected_condition(row, prior_discoveries):
@@ -112,10 +137,12 @@ def selected_condition(row, prior_discoveries):
     if choice == 0:
         return row["unlockCondition"]
     if choice == 1:
-        return {"type": "DISCOVERED_RECIPE_COUNT", "minimum": minimum}
-    if choice == 2:
-        return {"type": "CUMULATIVE_COMPLETED_PIZZAS", "minimum": minimum}
-    return {"type": "CUMULATIVE_PITZ_EARNED", "minimum": minimum * 20}
+        replacement = {"type": "DISCOVERED_RECIPE_COUNT", "minimum": minimum}
+    elif choice == 2:
+        replacement = {"type": "CUMULATIVE_COMPLETED_PIZZAS", "minimum": minimum}
+    else:
+        replacement = {"type": "CUMULATIVE_PITZ_EARNED", "minimum": minimum * 20}
+    return replace_progress_gate_preserving_prerequisites(row["unlockCondition"], replacement)
 
 
 def condition_met(cond, state):
@@ -129,6 +156,12 @@ def condition_met(cond, state):
     if typ == "SPECIFIC_DISCOVERY": return cond["targetId"] in state["discovered"]
     if typ == "PREREQUISITE_OWNED": return cond["nodeId"] in state["owned"] | state["capabilities"]
     raise ValueError(typ)
+
+
+def condition_met_ignoring_prerequisites(cond, state):
+    if cond["type"] == "PREREQUISITE_OWNED": return True
+    if cond["type"] == "ALL": return all(condition_met_ignoring_prerequisites(c, state) for c in cond.get("all", []))
+    return condition_met(cond, state)
 
 
 def build_rows(p34, p2):
@@ -220,6 +253,38 @@ def simulate(rows, targets, fee_curve_name, capability_policy, quality=1):
                 })
             if not changed: return
 
+    def trigger_gateway_item_tutorial(row):
+        """Teach C before buying an item gated by the capability it demonstrates.
+
+        This breaks the invalid item-owned -> capability tutorial inversion while
+        preserving the item's PREREQUISITE_OWNED conjunct.  The gateway is valid
+        only when its non-prerequisite progress gate and every other target item
+        are already satisfied.
+        """
+        if capability_policy != "C_TUTORIAL": return
+        unmet = sorted({p["nodeId"] for p in prerequisite_conjuncts(row["simulationEligibility"])
+                        if p["nodeId"] not in state["owned"] | state["capabilities"]})
+        if not unmet or not condition_met_ignoring_prerequisites(row["simulationEligibility"], state): return
+        candidates = []
+        for target in targets:
+            if target["targetId"] in state["discovered"] or row["nodeId"] not in target["items"]: continue
+            if not (set(target["items"]) - {row["nodeId"]}) <= state["owned"]: continue
+            missing_caps = set(target["capabilities"]) - state["capabilities"]
+            if missing_caps and missing_caps <= set(unmet):
+                candidates.append((target["targetId"], sorted(missing_caps)))
+        if not candidates: return
+        target_id, capabilities = sorted(candidates)[0]
+        for capability in capabilities:
+            state["capabilities"].add(capability)
+            state["capabilityTriggers"].append({
+                "capability": capability, "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
+                "targetId": target_id, "afterNodeId": f"BEFORE:{row['nodeId']}",
+                "afterSequence": row["sequence"], "bakesBefore": state["bakes"],
+                "discoveriesBefore": len(state["discovered"]), "starsBefore": state["stars"],
+                "pitzBefore": state["pitz"],
+                "gatewayItemOwnedBefore": row["nodeId"] in state["owned"],
+            })
+
     def discover_pending(after_node, sequence):
         trigger_tutorial_encounters(after_node, sequence)
         pending = sorted(reachable(targets, state["owned"], state["capabilities"]) - state["discovered"])
@@ -247,6 +312,8 @@ def simulate(rows, targets, fee_curve_name, capability_policy, quality=1):
     for row in rows:
         node = row["nodeId"]
         if node in STARTERS: continue
+        if row["kind"] != "capability":
+            trigger_gateway_item_tutorial(row)
         if row["kind"] == "capability":
             if capability_policy == "C_TUTORIAL":
                 # Policy C ignores the schedule row.  The capability is granted
@@ -321,6 +388,8 @@ def build():
     targets = p2["targets"]["SHIPPED_KEEP"]
     rows = build_rows(p34, p2)
     sims = [simulate(rows, targets, f, c, q) for f in FEE_CURVES for c in CAPABILITY_POLICIES for q in (1, 3)]
+    tutorial_reference = next(s for s in sims if s["feeCurve"] == "F2_BALANCED" and s["capabilityPolicy"] == "C_TUTORIAL" and s["quality"] == 1)
+    gateway_triggers = [x for x in tutorial_reference["capabilityTriggers"] if x["trigger"] == "PREREQUISITE_GATEWAY_ITEM_TUTORIAL"]
     cap_impact = {x["capability"]: x for x in p2["capabilityImpact"]}
     capability_rows = []
     for cap in CAPABILITIES:
@@ -348,6 +417,13 @@ def build():
                          "persistentEntitlement": "unlockedForShopIngredientIds",
                          "invariant": "once present, never removed; stock=0 does not change ownership or entitlement"},
         "feeCurves": FEE_CURVES, "capabilityPolicies": CAPABILITY_POLICIES,
+        "tutorialDependencyAudit": {
+            "rule": "preserve PREREQUISITE_OWNED; when the prerequisite capability is the only blocker, teach it before purchasing the gateway item",
+            "prerequisiteGatedRows": len([r for r in rows if prerequisite_conjuncts(r["unlockCondition"])]),
+            "gatewayTriggersInReferenceScenario": gateway_triggers,
+            "gatewayItemsOwnedBeforeTutorial": len([x for x in gateway_triggers if x["gatewayItemOwnedBefore"]]),
+            "dependencyCycles": 0 if tutorial_reference["outcome"] == "COMPLETE" else 1,
+        },
         "rows": rows, "capabilities": capability_rows, "simulations": sims,
         "summary": {"phase1Rows": len(p1["rows"]), "full": p1["summary"]["currentFlowRepresentability"]["FULL"],
                     "partial": p1["summary"]["currentFlowRepresentability"]["PARTIAL"], "notRepresentable": p1["summary"]["currentFlowRepresentability"]["NOT_REPRESENTABLE"],
@@ -355,7 +431,7 @@ def build():
                     "knownM4Quantities": len(KNOWN_K),
                     "quantityAuthoringRequired": len([r for r in rows if r["kind"] == "ingredient" and r["nodeId"] not in STARTERS and r["economy"]["quantityStatus"] != "PR214_VERIFIED"]),
                     "simulations": len(sims), "deadlocks": len([s for s in sims if s["outcome"] != "COMPLETE"]),
-                    "relocks": len([s for s in sims if s["relocked"]]),
+                    "relocks": len([s for s in sims if s["relocked"]]), "tutorialDependencyCycles": 0,
                     "allTargetsReachable": all(s["reachableTargets"] == len(targets) for s in sims)},
         "requiredChangeMap": {
             "PR205": ["add AVAILABLE_TO_UNLOCK and permanent unlockedForShopIngredientIds input/output",
@@ -373,7 +449,7 @@ def build():
         "ownerDecisions": [
             {"id": "OD216-1", "decision": "unlock-fee curve", "options": list(FEE_CURVES), "recommendedForNextPrototype": "F2_BALANCED", "status": "OWNER_REQUIRED"},
             {"id": "OD216-2", "decision": "non-star eligibility assignment policy", "options": ["STAR_AUTHORITY", "MIXED_MONOTONIC", "PER_ROW_AUTHORED"], "recommendedForNextPrototype": "PER_ROW_AUTHORED using MIXED_MONOTONIC as tested baseline", "status": "OWNER_REQUIRED"},
-            {"id": "OD216-3", "decision": "capability unlock policy", "options": list(CAPABILITY_POLICIES), "recommendedForNextPrototype": "B_AUTO for foundational; C_TUTORIAL for interaction-heavy; reject blanket A_PAID", "status": "OWNER_REQUIRED"},
+            {"id": "OD216-3", "decision": "capability unlock policy", "options": list(CAPABILITY_POLICIES), "recommendedForNextPrototype": "B_AUTO for foundational; prerequisite-safe gateway C_TUTORIAL for interaction-heavy; reject blanket A_PAID", "status": "OWNER_REQUIRED"},
             {"id": "OD216-4", "decision": "author k=max minCount for 83 authority-only ingredients before they are saleable", "options": ["AUTHOR_WITH_RECIPE_DATA", "KEEP_NOT_FOR_SALE"], "recommendedForNextPrototype": "KEEP_NOT_FOR_SALE until authored", "status": "CONTENT_AUTHORING_REQUIRED"},
         ],
     }
@@ -398,6 +474,7 @@ def report_md(out):
              "## Non-star achievement candidates", "",
              "Allowed facts are monotonic: discovered count, a specific prior discovery, cumulative completed pizzas, recipe BEST reached, Dex count, cumulative Lunch Rush serves, and cumulative Pitz earned. The generated comparison profile uses discovered count, completed count and earned Pitz alongside the authority star gates. Each threshold is bounded by supply reachable before its row, so the validator rejects circular gates.", "",
              "BEST and Lunch Rush conditions are valid only with a proven fallback path; they are retained as per-row authoring options, not blanket gates. Spending, current balance, stock, mission streaks and capability-dependent future recipes are forbidden eligibility facts.", "",
+             "When a non-star gate replaces the authority star gate, every `PREREQUISITE_OWNED` conjunct is retained. The validator checks every selected condition and every candidate condition against its source prerequisites.", "",
              "## Three-layer economy", "",
              "- Unlock fee: one-time, candidate curves F0/F1/F2/F3 = 0%/25%/50%/100% of first-stock price (rounded to 10 with candidate minima). No value is final.",
              "- First stock purchase: inherited tier price 60/100/140/180 Pitz.",
@@ -409,7 +486,7 @@ def report_md(out):
              "| B — condition then auto | 0 | predictable and simplest persistence | teaching moment can be weak |",
              "| C — first eligible target/tutorial | 0 | strongest contextual teaching | trigger must occur before target matching to avoid circularity |", "",
              "Recommended decision shape (not final): B for foundational DOUGH_VARIANT/PAN_BAKE prerequisites; C for interaction-heavy mechanics; do not apply A to all 11. LAMINATE remains dormant because it covers 0 of the 101 target pool.", "",
-             "C is simulated from target encounters, not schedule rows. In C, STEP_ORDER is taught from `trenton-tomato-pie-pizzadb` in the starter state (before any bake), while DOUGH_VARIANT waits until `dough:material-cauliflower` is owned. B instead unlocks those capabilities at scheduled rows 23 and 16. The matrix records per-trigger bakes/discoveries/stars/Pitz and a per-node timeline; equal final totals in some rows are a consequence of the linear reward/spend totals, not identical execution.", "",
+             "C is simulated from target/tutorial encounters, not schedule rows. In C, STEP_ORDER is taught from `trenton-tomato-pie-pizzadb` in the starter state (before any bake). DOUGH_VARIANT is taught at the `dough:material-cauliflower` gateway only after the row's non-prerequisite gate and every other cauliflower target item are available, but before buying the prerequisite-gated dough. B instead unlocks those capabilities at scheduled rows 23 and 16. The matrix records per-trigger bakes/discoveries/stars/Pitz and a per-node timeline; equal final totals in some rows are a consequence of the linear reward/spend totals, not identical execution.", "",
              "| Capability | 172 rows | 101 targets | Incremental gain | Prerequisite |", "|---|---:|---:|---:|---|"]
     for c in out["capabilities"]:
         lines.append(f"| {c['capability']} | {c['coverageAcross172']} | {c['coverageIn101Targets']} | {c['incrementalCoverage']} | {c['prerequisite'] or 'none'} |")
@@ -440,7 +517,7 @@ def sim_md(out):
             if trigger["capability"] in ("STEP_ORDER", "DOUGH_VARIANT"):
                 lines.append(f"| {sim['capabilityPolicy']} | {trigger['capability']} | {trigger['targetId'] or trigger['afterNodeId']} | {trigger['afterSequence']} | {trigger['bakesBefore']} | {trigger['discoveriesBefore']} | {trigger['starsBefore']} | {trigger['pitzBefore']} |")
     lines += ["", "C's starter timeline discovers Margherita and Trenton Tomato Pie in the first two bakes; B discovers only Margherita before following its schedule. Full per-node timelines are serialized in the matrix.", "",
-              "## Machine checks", "", f"- Scenarios: {out['summary']['simulations']}", f"- Deadlocks: {out['summary']['deadlocks']}", f"- Re-locks: {out['summary']['relocks']}", "- Unreachable targets: 0 in every scenario", "- Capability coverage: all 11 represented; LAMINATE intentionally has 0 current target gain", "- Full Chromium/WebKit: not run (docs/data/tooling only)", ""]
+              "## Machine checks", "", f"- Scenarios: {out['summary']['simulations']}", f"- Deadlocks: {out['summary']['deadlocks']}", f"- Re-locks: {out['summary']['relocks']}", f"- Tutorial dependency cycles: {out['summary']['tutorialDependencyCycles']}", "- Prerequisite conjuncts preserved for every selected/candidate non-star gate", "- Gateway capability tutorials occur before, never after, ownership of their gated item", "- Unreachable targets: 0 in every scenario", "- Capability coverage: all 11 represented; LAMINATE intentionally has 0 current target gain", "- Full Chromium/WebKit: not run (docs/data/tooling only)", ""]
     return "\n".join(lines)
 
 
@@ -477,14 +554,31 @@ def validate(out):
         dough = triggers.get("DOUGH_VARIANT", {})
         if (step.get("targetId"), step.get("afterNodeId"), step.get("afterSequence")) != ("trenton-tomato-pie-pizzadb", "STARTER_STATE", 0):
             errors.append(f"C STEP_ORDER trigger drift {s['feeCurve']} q{s['quality']}: {step}")
-        if (dough.get("targetId"), dough.get("afterNodeId"), dough.get("afterSequence")) != ("cauliflower-crust-pizza-pizzadb-p2", "dough:material-cauliflower", 17):
+        if (dough.get("targetId"), dough.get("afterNodeId"), dough.get("afterSequence"), dough.get("trigger")) != ("cauliflower-crust-pizza-pizzadb-p2", "BEFORE:dough:material-cauliflower", 17, "PREREQUISITE_GATEWAY_ITEM_TUTORIAL"):
             errors.append(f"C DOUGH_VARIANT trigger drift {s['feeCurve']} q{s['quality']}: {dough}")
         starter = s["timeline"][0]
         if starter["newRecipes"] != ["shipped:margherita", "trenton-tomato-pie-pizzadb"]:
             errors.append(f"C starter discoveries drift {s['feeCurve']} q{s['quality']}: {starter['newRecipes']}")
+        for trigger in s["capabilityTriggers"]:
+            if trigger["trigger"] == "PREREQUISITE_GATEWAY_ITEM_TUTORIAL" and trigger.get("gatewayItemOwnedBefore") is not False:
+                errors.append(f"C gateway item owned before tutorial {s['feeCurve']} q{s['quality']}: {trigger}")
     b_sample = next(s for s in out["simulations"] if s["feeCurve"] == "F2_BALANCED" and s["capabilityPolicy"] == "B_AUTO" and s["quality"] == 1)
     c_sample = next(s for s in out["simulations"] if s["feeCurve"] == "F2_BALANCED" and s["capabilityPolicy"] == "C_TUTORIAL" and s["quality"] == 1)
     if b_sample["timeline"] == c_sample["timeline"]: errors.append("B and C timelines are identical")
+    for row in out["rows"]:
+        required = {p["nodeId"] for p in prerequisite_conjuncts(row["unlockCondition"])}
+        selected = {p["nodeId"] for p in prerequisite_conjuncts(row["simulationEligibility"])}
+        if not required <= selected:
+            errors.append(f"simulation eligibility dropped prerequisites for {row['nodeId']}: {sorted(required - selected)}")
+        for candidate in row["eligibilityCandidates"]:
+            present = {p["nodeId"] for p in prerequisite_conjuncts(candidate["condition"])}
+            if not required <= present:
+                errors.append(f"candidate {candidate['id']} dropped prerequisites for {row['nodeId']}: {sorted(required - present)}")
+    cauliflower = next(r for r in out["rows"] if r["nodeId"] == "dough:material-cauliflower")
+    if {p["nodeId"] for p in prerequisite_conjuncts(cauliflower["simulationEligibility"])} != {"DOUGH_VARIANT"}:
+        errors.append("cauliflower regression: DOUGH_VARIANT prerequisite not preserved")
+    if out["tutorialDependencyAudit"]["dependencyCycles"] != 0 or out["tutorialDependencyAudit"]["gatewayItemsOwnedBeforeTutorial"] != 0:
+        errors.append(f"tutorial dependency audit failed: {out['tutorialDependencyAudit']}")
     if out["summary"]["deadlocks"] or out["summary"]["relocks"]: errors.append("summary failure")
     return errors
 

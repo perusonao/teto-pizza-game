@@ -29,6 +29,8 @@ Allowed facts are monotonic: discovered count, a specific prior discovery, cumul
 
 BEST and Lunch Rush conditions are valid only with a proven fallback path; they are retained as per-row authoring options, not blanket gates. Spending, current balance, stock, mission streaks and capability-dependent future recipes are forbidden eligibility facts.
 
+When a non-star gate replaces the authority star gate, every `PREREQUISITE_OWNED` conjunct is retained. The validator checks every selected condition and every candidate condition against its source prerequisites.
+
 ## Three-layer economy
 
 - Unlock fee: one-time, candidate curves F0/F1/F2/F3 = 0%/25%/50%/100% of first-stock price (rounded to 10 with candidate minima). No value is final.
@@ -46,7 +48,7 @@ BEST and Lunch Rush conditions are valid only with a proven fallback path; they 
 
 Recommended decision shape (not final): B for foundational DOUGH_VARIANT/PAN_BAKE prerequisites; C for interaction-heavy mechanics; do not apply A to all 11. LAMINATE remains dormant because it covers 0 of the 101 target pool.
 
-C is simulated from target encounters, not schedule rows. In C, STEP_ORDER is taught from `trenton-tomato-pie-pizzadb` in the starter state (before any bake), while DOUGH_VARIANT waits until `dough:material-cauliflower` is owned. B instead unlocks those capabilities at scheduled rows 23 and 16. The matrix records per-trigger bakes/discoveries/stars/Pitz and a per-node timeline; equal final totals in some rows are a consequence of the linear reward/spend totals, not identical execution.
+C is simulated from target/tutorial encounters, not schedule rows. In C, STEP_ORDER is taught from `trenton-tomato-pie-pizzadb` in the starter state (before any bake). DOUGH_VARIANT is taught at the `dough:material-cauliflower` gateway only after the row's non-prerequisite gate and every other cauliflower target item are available, but before buying the prerequisite-gated dough. B instead unlocks those capabilities at scheduled rows 23 and 16. The matrix records per-trigger bakes/discoveries/stars/Pitz and a per-node timeline; equal final totals in some rows are a consequence of the linear reward/spend totals, not identical execution.
 
 | Capability | 172 rows | 101 targets | Incremental gain | Prerequisite |
 |---|---:|---:|---:|---|

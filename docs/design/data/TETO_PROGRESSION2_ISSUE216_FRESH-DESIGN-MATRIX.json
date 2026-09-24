@@ -62,6 +62,38 @@
     "B_AUTO": "condition met -> automatic permanent unlock",
     "C_TUTORIAL": "first eligible target/tutorial encounter -> automatic permanent unlock"
   },
+  "tutorialDependencyAudit": {
+    "rule": "preserve PREREQUISITE_OWNED; when the prerequisite capability is the only blocker, teach it before purchasing the gateway item",
+    "prerequisiteGatedRows": 13,
+    "gatewayTriggersInReferenceScenario": [
+      {
+        "capability": "DOUGH_VARIANT",
+        "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
+        "targetId": "cauliflower-crust-pizza-pizzadb-p2",
+        "afterNodeId": "BEFORE:dough:material-cauliflower",
+        "afterSequence": 17,
+        "bakesBefore": 21,
+        "discoveriesBefore": 15,
+        "starsBefore": 30,
+        "pitzBefore": 90,
+        "gatewayItemOwnedBefore": false
+      },
+      {
+        "capability": "PAN_BAKE",
+        "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
+        "targetId": "montreal-style-pizza-pizzadb-p13",
+        "afterNodeId": "BEFORE:pan:deep-pan",
+        "afterSequence": 35,
+        "bakesBefore": 61,
+        "discoveriesBefore": 36,
+        "starsBefore": 72,
+        "pitzBefore": 180,
+        "gatewayItemOwnedBefore": false
+      }
+    ],
+    "gatewayItemsOwnedBeforeTutorial": 0,
+    "dependencyCycles": 0
+  },
   "rows": [
     {
       "sequence": 1,
@@ -1582,31 +1614,67 @@
         {
           "id": "DISCOVERY_COUNT",
           "condition": {
-            "type": "DISCOVERED_RECIPE_COUNT",
-            "minimum": 9
+            "type": "ALL",
+            "all": [
+              {
+                "type": "DISCOVERED_RECIPE_COUNT",
+                "minimum": 9
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "DOUGH_VARIANT"
+              }
+            ]
           },
           "safe": true
         },
         {
           "id": "COMPLETED_PIZZAS",
           "condition": {
-            "type": "CUMULATIVE_COMPLETED_PIZZAS",
-            "minimum": 9
+            "type": "ALL",
+            "all": [
+              {
+                "type": "CUMULATIVE_COMPLETED_PIZZAS",
+                "minimum": 9
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "DOUGH_VARIANT"
+              }
+            ]
           },
           "safe": true
         },
         {
           "id": "CUMULATIVE_PITZ_EARNED",
           "condition": {
-            "type": "CUMULATIVE_PITZ_EARNED",
-            "minimum": 180
+            "type": "ALL",
+            "all": [
+              {
+                "type": "CUMULATIVE_PITZ_EARNED",
+                "minimum": 180
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "DOUGH_VARIANT"
+              }
+            ]
           },
           "safe": true
         }
       ],
       "simulationEligibility": {
-        "type": "DISCOVERED_RECIPE_COUNT",
-        "minimum": 9
+        "type": "ALL",
+        "all": [
+          {
+            "type": "DISCOVERED_RECIPE_COUNT",
+            "minimum": 9
+          },
+          {
+            "type": "PREREQUISITE_OWNED",
+            "nodeId": "DOUGH_VARIANT"
+          }
+        ]
       }
     },
     {
@@ -2761,31 +2829,67 @@
         {
           "id": "DISCOVERY_COUNT",
           "condition": {
-            "type": "DISCOVERED_RECIPE_COUNT",
-            "minimum": 16
+            "type": "ALL",
+            "all": [
+              {
+                "type": "DISCOVERED_RECIPE_COUNT",
+                "minimum": 16
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "DOUGH_VARIANT"
+              }
+            ]
           },
           "safe": true
         },
         {
           "id": "COMPLETED_PIZZAS",
           "condition": {
-            "type": "CUMULATIVE_COMPLETED_PIZZAS",
-            "minimum": 16
+            "type": "ALL",
+            "all": [
+              {
+                "type": "CUMULATIVE_COMPLETED_PIZZAS",
+                "minimum": 16
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "DOUGH_VARIANT"
+              }
+            ]
           },
           "safe": true
         },
         {
           "id": "CUMULATIVE_PITZ_EARNED",
           "condition": {
-            "type": "CUMULATIVE_PITZ_EARNED",
-            "minimum": 320
+            "type": "ALL",
+            "all": [
+              {
+                "type": "CUMULATIVE_PITZ_EARNED",
+                "minimum": 320
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "DOUGH_VARIANT"
+              }
+            ]
           },
           "safe": true
         }
       ],
       "simulationEligibility": {
-        "type": "DISCOVERED_RECIPE_COUNT",
-        "minimum": 16
+        "type": "ALL",
+        "all": [
+          {
+            "type": "DISCOVERED_RECIPE_COUNT",
+            "minimum": 16
+          },
+          {
+            "type": "PREREQUISITE_OWNED",
+            "nodeId": "DOUGH_VARIANT"
+          }
+        ]
       }
     },
     {
@@ -3251,31 +3355,67 @@
         {
           "id": "DISCOVERY_COUNT",
           "condition": {
-            "type": "DISCOVERED_RECIPE_COUNT",
-            "minimum": 21
+            "type": "ALL",
+            "all": [
+              {
+                "type": "DISCOVERED_RECIPE_COUNT",
+                "minimum": 21
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "DOUGH_VARIANT"
+              }
+            ]
           },
           "safe": true
         },
         {
           "id": "COMPLETED_PIZZAS",
           "condition": {
-            "type": "CUMULATIVE_COMPLETED_PIZZAS",
-            "minimum": 21
+            "type": "ALL",
+            "all": [
+              {
+                "type": "CUMULATIVE_COMPLETED_PIZZAS",
+                "minimum": 21
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "DOUGH_VARIANT"
+              }
+            ]
           },
           "safe": true
         },
         {
           "id": "CUMULATIVE_PITZ_EARNED",
           "condition": {
-            "type": "CUMULATIVE_PITZ_EARNED",
-            "minimum": 420
+            "type": "ALL",
+            "all": [
+              {
+                "type": "CUMULATIVE_PITZ_EARNED",
+                "minimum": 420
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "DOUGH_VARIANT"
+              }
+            ]
           },
           "safe": true
         }
       ],
       "simulationEligibility": {
-        "type": "CUMULATIVE_COMPLETED_PIZZAS",
-        "minimum": 21
+        "type": "ALL",
+        "all": [
+          {
+            "type": "CUMULATIVE_COMPLETED_PIZZAS",
+            "minimum": 21
+          },
+          {
+            "type": "PREREQUISITE_OWNED",
+            "nodeId": "DOUGH_VARIANT"
+          }
+        ]
       }
     },
     {
@@ -3338,31 +3478,67 @@
         {
           "id": "DISCOVERY_COUNT",
           "condition": {
-            "type": "DISCOVERED_RECIPE_COUNT",
-            "minimum": 21
+            "type": "ALL",
+            "all": [
+              {
+                "type": "DISCOVERED_RECIPE_COUNT",
+                "minimum": 21
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "PAN_BAKE"
+              }
+            ]
           },
           "safe": true
         },
         {
           "id": "COMPLETED_PIZZAS",
           "condition": {
-            "type": "CUMULATIVE_COMPLETED_PIZZAS",
-            "minimum": 21
+            "type": "ALL",
+            "all": [
+              {
+                "type": "CUMULATIVE_COMPLETED_PIZZAS",
+                "minimum": 21
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "PAN_BAKE"
+              }
+            ]
           },
           "safe": true
         },
         {
           "id": "CUMULATIVE_PITZ_EARNED",
           "condition": {
-            "type": "CUMULATIVE_PITZ_EARNED",
-            "minimum": 420
+            "type": "ALL",
+            "all": [
+              {
+                "type": "CUMULATIVE_PITZ_EARNED",
+                "minimum": 420
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "PAN_BAKE"
+              }
+            ]
           },
           "safe": true
         }
       ],
       "simulationEligibility": {
-        "type": "CUMULATIVE_PITZ_EARNED",
-        "minimum": 420
+        "type": "ALL",
+        "all": [
+          {
+            "type": "CUMULATIVE_PITZ_EARNED",
+            "minimum": 420
+          },
+          {
+            "type": "PREREQUISITE_OWNED",
+            "nodeId": "PAN_BAKE"
+          }
+        ]
       }
     },
     {
@@ -5309,31 +5485,67 @@
         {
           "id": "DISCOVERY_COUNT",
           "condition": {
-            "type": "DISCOVERED_RECIPE_COUNT",
-            "minimum": 32
+            "type": "ALL",
+            "all": [
+              {
+                "type": "DISCOVERED_RECIPE_COUNT",
+                "minimum": 32
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "DOUGH_VARIANT"
+              }
+            ]
           },
           "safe": true
         },
         {
           "id": "COMPLETED_PIZZAS",
           "condition": {
-            "type": "CUMULATIVE_COMPLETED_PIZZAS",
-            "minimum": 32
+            "type": "ALL",
+            "all": [
+              {
+                "type": "CUMULATIVE_COMPLETED_PIZZAS",
+                "minimum": 32
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "DOUGH_VARIANT"
+              }
+            ]
           },
           "safe": true
         },
         {
           "id": "CUMULATIVE_PITZ_EARNED",
           "condition": {
-            "type": "CUMULATIVE_PITZ_EARNED",
-            "minimum": 640
+            "type": "ALL",
+            "all": [
+              {
+                "type": "CUMULATIVE_PITZ_EARNED",
+                "minimum": 640
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "DOUGH_VARIANT"
+              }
+            ]
           },
           "safe": true
         }
       ],
       "simulationEligibility": {
-        "type": "CUMULATIVE_PITZ_EARNED",
-        "minimum": 640
+        "type": "ALL",
+        "all": [
+          {
+            "type": "CUMULATIVE_PITZ_EARNED",
+            "minimum": 640
+          },
+          {
+            "type": "PREREQUISITE_OWNED",
+            "nodeId": "DOUGH_VARIANT"
+          }
+        ]
       }
     },
     {
@@ -6304,31 +6516,67 @@
         {
           "id": "DISCOVERY_COUNT",
           "condition": {
-            "type": "DISCOVERED_RECIPE_COUNT",
-            "minimum": 39
+            "type": "ALL",
+            "all": [
+              {
+                "type": "DISCOVERED_RECIPE_COUNT",
+                "minimum": 39
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "DOUGH_VARIANT"
+              }
+            ]
           },
           "safe": true
         },
         {
           "id": "COMPLETED_PIZZAS",
           "condition": {
-            "type": "CUMULATIVE_COMPLETED_PIZZAS",
-            "minimum": 39
+            "type": "ALL",
+            "all": [
+              {
+                "type": "CUMULATIVE_COMPLETED_PIZZAS",
+                "minimum": 39
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "DOUGH_VARIANT"
+              }
+            ]
           },
           "safe": true
         },
         {
           "id": "CUMULATIVE_PITZ_EARNED",
           "condition": {
-            "type": "CUMULATIVE_PITZ_EARNED",
-            "minimum": 780
+            "type": "ALL",
+            "all": [
+              {
+                "type": "CUMULATIVE_PITZ_EARNED",
+                "minimum": 780
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "DOUGH_VARIANT"
+              }
+            ]
           },
           "safe": true
         }
       ],
       "simulationEligibility": {
-        "type": "DISCOVERED_RECIPE_COUNT",
-        "minimum": 39
+        "type": "ALL",
+        "all": [
+          {
+            "type": "DISCOVERED_RECIPE_COUNT",
+            "minimum": 39
+          },
+          {
+            "type": "PREREQUISITE_OWNED",
+            "nodeId": "DOUGH_VARIANT"
+          }
+        ]
       }
     },
     {
@@ -6391,31 +6639,67 @@
         {
           "id": "DISCOVERY_COUNT",
           "condition": {
-            "type": "DISCOVERED_RECIPE_COUNT",
-            "minimum": 39
+            "type": "ALL",
+            "all": [
+              {
+                "type": "DISCOVERED_RECIPE_COUNT",
+                "minimum": 39
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "DOUGH_VARIANT"
+              }
+            ]
           },
           "safe": true
         },
         {
           "id": "COMPLETED_PIZZAS",
           "condition": {
-            "type": "CUMULATIVE_COMPLETED_PIZZAS",
-            "minimum": 39
+            "type": "ALL",
+            "all": [
+              {
+                "type": "CUMULATIVE_COMPLETED_PIZZAS",
+                "minimum": 39
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "DOUGH_VARIANT"
+              }
+            ]
           },
           "safe": true
         },
         {
           "id": "CUMULATIVE_PITZ_EARNED",
           "condition": {
-            "type": "CUMULATIVE_PITZ_EARNED",
-            "minimum": 780
+            "type": "ALL",
+            "all": [
+              {
+                "type": "CUMULATIVE_PITZ_EARNED",
+                "minimum": 780
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "DOUGH_VARIANT"
+              }
+            ]
           },
           "safe": true
         }
       ],
       "simulationEligibility": {
-        "type": "CUMULATIVE_COMPLETED_PIZZAS",
-        "minimum": 39
+        "type": "ALL",
+        "all": [
+          {
+            "type": "CUMULATIVE_COMPLETED_PIZZAS",
+            "minimum": 39
+          },
+          {
+            "type": "PREREQUISITE_OWNED",
+            "nodeId": "DOUGH_VARIANT"
+          }
+        ]
       }
     },
     {
@@ -6576,24 +6860,51 @@
         {
           "id": "DISCOVERY_COUNT",
           "condition": {
-            "type": "DISCOVERED_RECIPE_COUNT",
-            "minimum": 40
+            "type": "ALL",
+            "all": [
+              {
+                "type": "DISCOVERED_RECIPE_COUNT",
+                "minimum": 40
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "DOUGH_VARIANT"
+              }
+            ]
           },
           "safe": true
         },
         {
           "id": "COMPLETED_PIZZAS",
           "condition": {
-            "type": "CUMULATIVE_COMPLETED_PIZZAS",
-            "minimum": 40
+            "type": "ALL",
+            "all": [
+              {
+                "type": "CUMULATIVE_COMPLETED_PIZZAS",
+                "minimum": 40
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "DOUGH_VARIANT"
+              }
+            ]
           },
           "safe": true
         },
         {
           "id": "CUMULATIVE_PITZ_EARNED",
           "condition": {
-            "type": "CUMULATIVE_PITZ_EARNED",
-            "minimum": 800
+            "type": "ALL",
+            "all": [
+              {
+                "type": "CUMULATIVE_PITZ_EARNED",
+                "minimum": 800
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "DOUGH_VARIANT"
+              }
+            ]
           },
           "safe": true
         }
@@ -6673,31 +6984,67 @@
         {
           "id": "DISCOVERY_COUNT",
           "condition": {
-            "type": "DISCOVERED_RECIPE_COUNT",
-            "minimum": 40
+            "type": "ALL",
+            "all": [
+              {
+                "type": "DISCOVERED_RECIPE_COUNT",
+                "minimum": 40
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "PAN_BAKE"
+              }
+            ]
           },
           "safe": true
         },
         {
           "id": "COMPLETED_PIZZAS",
           "condition": {
-            "type": "CUMULATIVE_COMPLETED_PIZZAS",
-            "minimum": 40
+            "type": "ALL",
+            "all": [
+              {
+                "type": "CUMULATIVE_COMPLETED_PIZZAS",
+                "minimum": 40
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "PAN_BAKE"
+              }
+            ]
           },
           "safe": true
         },
         {
           "id": "CUMULATIVE_PITZ_EARNED",
           "condition": {
-            "type": "CUMULATIVE_PITZ_EARNED",
-            "minimum": 800
+            "type": "ALL",
+            "all": [
+              {
+                "type": "CUMULATIVE_PITZ_EARNED",
+                "minimum": 800
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "PAN_BAKE"
+              }
+            ]
           },
           "safe": true
         }
       ],
       "simulationEligibility": {
-        "type": "DISCOVERED_RECIPE_COUNT",
-        "minimum": 40
+        "type": "ALL",
+        "all": [
+          {
+            "type": "DISCOVERED_RECIPE_COUNT",
+            "minimum": 40
+          },
+          {
+            "type": "PREREQUISITE_OWNED",
+            "nodeId": "PAN_BAKE"
+          }
+        ]
       }
     },
     {
@@ -7843,31 +8190,67 @@
         {
           "id": "DISCOVERY_COUNT",
           "condition": {
-            "type": "DISCOVERED_RECIPE_COUNT",
-            "minimum": 47
+            "type": "ALL",
+            "all": [
+              {
+                "type": "DISCOVERED_RECIPE_COUNT",
+                "minimum": 47
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "DOUGH_VARIANT"
+              }
+            ]
           },
           "safe": true
         },
         {
           "id": "COMPLETED_PIZZAS",
           "condition": {
-            "type": "CUMULATIVE_COMPLETED_PIZZAS",
-            "minimum": 47
+            "type": "ALL",
+            "all": [
+              {
+                "type": "CUMULATIVE_COMPLETED_PIZZAS",
+                "minimum": 47
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "DOUGH_VARIANT"
+              }
+            ]
           },
           "safe": true
         },
         {
           "id": "CUMULATIVE_PITZ_EARNED",
           "condition": {
-            "type": "CUMULATIVE_PITZ_EARNED",
-            "minimum": 940
+            "type": "ALL",
+            "all": [
+              {
+                "type": "CUMULATIVE_PITZ_EARNED",
+                "minimum": 940
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "DOUGH_VARIANT"
+              }
+            ]
           },
           "safe": true
         }
       ],
       "simulationEligibility": {
-        "type": "DISCOVERED_RECIPE_COUNT",
-        "minimum": 47
+        "type": "ALL",
+        "all": [
+          {
+            "type": "DISCOVERED_RECIPE_COUNT",
+            "minimum": 47
+          },
+          {
+            "type": "PREREQUISITE_OWNED",
+            "nodeId": "DOUGH_VARIANT"
+          }
+        ]
       }
     },
     {
@@ -9798,31 +10181,67 @@
         {
           "id": "DISCOVERY_COUNT",
           "condition": {
-            "type": "DISCOVERED_RECIPE_COUNT",
-            "minimum": 54
+            "type": "ALL",
+            "all": [
+              {
+                "type": "DISCOVERED_RECIPE_COUNT",
+                "minimum": 54
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "DOUGH_VARIANT"
+              }
+            ]
           },
           "safe": true
         },
         {
           "id": "COMPLETED_PIZZAS",
           "condition": {
-            "type": "CUMULATIVE_COMPLETED_PIZZAS",
-            "minimum": 54
+            "type": "ALL",
+            "all": [
+              {
+                "type": "CUMULATIVE_COMPLETED_PIZZAS",
+                "minimum": 54
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "DOUGH_VARIANT"
+              }
+            ]
           },
           "safe": true
         },
         {
           "id": "CUMULATIVE_PITZ_EARNED",
           "condition": {
-            "type": "CUMULATIVE_PITZ_EARNED",
-            "minimum": 1080
+            "type": "ALL",
+            "all": [
+              {
+                "type": "CUMULATIVE_PITZ_EARNED",
+                "minimum": 1080
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "DOUGH_VARIANT"
+              }
+            ]
           },
           "safe": true
         }
       ],
       "simulationEligibility": {
-        "type": "DISCOVERED_RECIPE_COUNT",
-        "minimum": 54
+        "type": "ALL",
+        "all": [
+          {
+            "type": "DISCOVERED_RECIPE_COUNT",
+            "minimum": 54
+          },
+          {
+            "type": "PREREQUISITE_OWNED",
+            "nodeId": "DOUGH_VARIANT"
+          }
+        ]
       }
     },
     {
@@ -9885,31 +10304,67 @@
         {
           "id": "DISCOVERY_COUNT",
           "condition": {
-            "type": "DISCOVERED_RECIPE_COUNT",
-            "minimum": 54
+            "type": "ALL",
+            "all": [
+              {
+                "type": "DISCOVERED_RECIPE_COUNT",
+                "minimum": 54
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "PAN_BAKE"
+              }
+            ]
           },
           "safe": true
         },
         {
           "id": "COMPLETED_PIZZAS",
           "condition": {
-            "type": "CUMULATIVE_COMPLETED_PIZZAS",
-            "minimum": 54
+            "type": "ALL",
+            "all": [
+              {
+                "type": "CUMULATIVE_COMPLETED_PIZZAS",
+                "minimum": 54
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "PAN_BAKE"
+              }
+            ]
           },
           "safe": true
         },
         {
           "id": "CUMULATIVE_PITZ_EARNED",
           "condition": {
-            "type": "CUMULATIVE_PITZ_EARNED",
-            "minimum": 1080
+            "type": "ALL",
+            "all": [
+              {
+                "type": "CUMULATIVE_PITZ_EARNED",
+                "minimum": 1080
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "PAN_BAKE"
+              }
+            ]
           },
           "safe": true
         }
       ],
       "simulationEligibility": {
-        "type": "CUMULATIVE_COMPLETED_PIZZAS",
-        "minimum": 54
+        "type": "ALL",
+        "all": [
+          {
+            "type": "CUMULATIVE_COMPLETED_PIZZAS",
+            "minimum": 54
+          },
+          {
+            "type": "PREREQUISITE_OWNED",
+            "nodeId": "PAN_BAKE"
+          }
+        ]
       }
     },
     {
@@ -11916,31 +12371,67 @@
         {
           "id": "DISCOVERY_COUNT",
           "condition": {
-            "type": "DISCOVERED_RECIPE_COUNT",
-            "minimum": 60
+            "type": "ALL",
+            "all": [
+              {
+                "type": "DISCOVERED_RECIPE_COUNT",
+                "minimum": 60
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "DOUGH_VARIANT"
+              }
+            ]
           },
           "safe": true
         },
         {
           "id": "COMPLETED_PIZZAS",
           "condition": {
-            "type": "CUMULATIVE_COMPLETED_PIZZAS",
-            "minimum": 60
+            "type": "ALL",
+            "all": [
+              {
+                "type": "CUMULATIVE_COMPLETED_PIZZAS",
+                "minimum": 60
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "DOUGH_VARIANT"
+              }
+            ]
           },
           "safe": true
         },
         {
           "id": "CUMULATIVE_PITZ_EARNED",
           "condition": {
-            "type": "CUMULATIVE_PITZ_EARNED",
-            "minimum": 1200
+            "type": "ALL",
+            "all": [
+              {
+                "type": "CUMULATIVE_PITZ_EARNED",
+                "minimum": 1200
+              },
+              {
+                "type": "PREREQUISITE_OWNED",
+                "nodeId": "DOUGH_VARIANT"
+              }
+            ]
           },
           "safe": true
         }
       ],
       "simulationEligibility": {
-        "type": "CUMULATIVE_PITZ_EARNED",
-        "minimum": 1200
+        "type": "ALL",
+        "all": [
+          {
+            "type": "CUMULATIVE_PITZ_EARNED",
+            "minimum": 1200
+          },
+          {
+            "type": "PREREQUISITE_OWNED",
+            "nodeId": "DOUGH_VARIANT"
+          }
+        ]
       }
     },
     {
@@ -20065,14 +20556,15 @@
         },
         {
           "capability": "DOUGH_VARIANT",
-          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
           "targetId": "cauliflower-crust-pizza-pizzadb-p2",
-          "afterNodeId": "dough:material-cauliflower",
+          "afterNodeId": "BEFORE:dough:material-cauliflower",
           "afterSequence": 17,
           "bakesBefore": 15,
           "discoveriesBefore": 15,
           "starsBefore": 30,
-          "pitzBefore": 270
+          "pitzBefore": 330,
+          "gatewayItemOwnedBefore": false
         },
         {
           "capability": "MULTI_SPREAD_LAYER",
@@ -20098,14 +20590,15 @@
         },
         {
           "capability": "PAN_BAKE",
-          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
           "targetId": "montreal-style-pizza-pizzadb-p13",
-          "afterNodeId": "pan:deep-pan",
+          "afterNodeId": "BEFORE:pan:deep-pan",
           "afterSequence": 35,
           "bakesBefore": 36,
           "discoveriesBefore": 36,
           "starsBefore": 72,
-          "pitzBefore": 440
+          "pitzBefore": 540,
+          "gatewayItemOwnedBefore": false
         },
         {
           "capability": "ZONED_PLACEMENT",
@@ -21767,14 +22260,15 @@
         },
         {
           "capability": "DOUGH_VARIANT",
-          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
           "targetId": "cauliflower-crust-pizza-pizzadb-p2",
-          "afterNodeId": "dough:material-cauliflower",
+          "afterNodeId": "BEFORE:dough:material-cauliflower",
           "afterSequence": 17,
           "bakesBefore": 15,
           "discoveriesBefore": 15,
           "starsBefore": 45,
-          "pitzBefore": 1170
+          "pitzBefore": 1230,
+          "gatewayItemOwnedBefore": false
         },
         {
           "capability": "MULTI_SPREAD_LAYER",
@@ -21800,14 +22294,15 @@
         },
         {
           "capability": "PAN_BAKE",
-          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
           "targetId": "montreal-style-pizza-pizzadb-p13",
-          "afterNodeId": "pan:deep-pan",
+          "afterNodeId": "BEFORE:pan:deep-pan",
           "afterSequence": 35,
           "bakesBefore": 36,
           "discoveriesBefore": 36,
           "starsBefore": 108,
-          "pitzBefore": 2600
+          "pitzBefore": 2700,
+          "gatewayItemOwnedBefore": false
         },
         {
           "capability": "ZONED_PLACEMENT",
@@ -30689,14 +31184,15 @@
         },
         {
           "capability": "DOUGH_VARIANT",
-          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
           "targetId": "cauliflower-crust-pizza-pizzadb-p2",
-          "afterNodeId": "dough:material-cauliflower",
+          "afterNodeId": "BEFORE:dough:material-cauliflower",
           "afterSequence": 17,
           "bakesBefore": 16,
           "discoveriesBefore": 15,
           "starsBefore": 30,
-          "pitzBefore": 50
+          "pitzBefore": 110,
+          "gatewayItemOwnedBefore": false
         },
         {
           "capability": "MULTI_SPREAD_LAYER",
@@ -30722,14 +31218,15 @@
         },
         {
           "capability": "PAN_BAKE",
-          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
           "targetId": "montreal-style-pizza-pizzadb-p13",
-          "afterNodeId": "pan:deep-pan",
+          "afterNodeId": "BEFORE:pan:deep-pan",
           "afterSequence": 35,
           "bakesBefore": 46,
           "discoveriesBefore": 36,
           "starsBefore": 72,
-          "pitzBefore": 90
+          "pitzBefore": 190,
+          "gatewayItemOwnedBefore": false
         },
         {
           "capability": "ZONED_PLACEMENT",
@@ -32391,14 +32888,15 @@
         },
         {
           "capability": "DOUGH_VARIANT",
-          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
           "targetId": "cauliflower-crust-pizza-pizzadb-p2",
-          "afterNodeId": "dough:material-cauliflower",
+          "afterNodeId": "BEFORE:dough:material-cauliflower",
           "afterSequence": 17,
           "bakesBefore": 15,
           "discoveriesBefore": 15,
           "starsBefore": 45,
-          "pitzBefore": 930
+          "pitzBefore": 990,
+          "gatewayItemOwnedBefore": false
         },
         {
           "capability": "MULTI_SPREAD_LAYER",
@@ -32424,14 +32922,15 @@
         },
         {
           "capability": "PAN_BAKE",
-          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
           "targetId": "montreal-style-pizza-pizzadb-p13",
-          "afterNodeId": "pan:deep-pan",
+          "afterNodeId": "BEFORE:pan:deep-pan",
           "afterSequence": 35,
           "bakesBefore": 36,
           "discoveriesBefore": 36,
           "starsBefore": 108,
-          "pitzBefore": 2050
+          "pitzBefore": 2150,
+          "gatewayItemOwnedBefore": false
         },
         {
           "capability": "ZONED_PLACEMENT",
@@ -41313,14 +41812,15 @@
         },
         {
           "capability": "DOUGH_VARIANT",
-          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
           "targetId": "cauliflower-crust-pizza-pizzadb-p2",
-          "afterNodeId": "dough:material-cauliflower",
+          "afterNodeId": "BEFORE:dough:material-cauliflower",
           "afterSequence": 17,
           "bakesBefore": 21,
           "discoveriesBefore": 15,
           "starsBefore": 30,
-          "pitzBefore": 30
+          "pitzBefore": 90,
+          "gatewayItemOwnedBefore": false
         },
         {
           "capability": "MULTI_SPREAD_LAYER",
@@ -41346,14 +41846,15 @@
         },
         {
           "capability": "PAN_BAKE",
-          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
           "targetId": "montreal-style-pizza-pizzadb-p13",
-          "afterNodeId": "pan:deep-pan",
+          "afterNodeId": "BEFORE:pan:deep-pan",
           "afterSequence": 35,
           "bakesBefore": 61,
           "discoveriesBefore": 36,
           "starsBefore": 72,
-          "pitzBefore": 80
+          "pitzBefore": 180,
+          "gatewayItemOwnedBefore": false
         },
         {
           "capability": "ZONED_PLACEMENT",
@@ -43015,14 +43516,15 @@
         },
         {
           "capability": "DOUGH_VARIANT",
-          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
           "targetId": "cauliflower-crust-pizza-pizzadb-p2",
-          "afterNodeId": "dough:material-cauliflower",
+          "afterNodeId": "BEFORE:dough:material-cauliflower",
           "afterSequence": 17,
           "bakesBefore": 15,
           "discoveriesBefore": 15,
           "starsBefore": 45,
-          "pitzBefore": 810
+          "pitzBefore": 870,
+          "gatewayItemOwnedBefore": false
         },
         {
           "capability": "MULTI_SPREAD_LAYER",
@@ -43048,14 +43550,15 @@
         },
         {
           "capability": "PAN_BAKE",
-          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
           "targetId": "montreal-style-pizza-pizzadb-p13",
-          "afterNodeId": "pan:deep-pan",
+          "afterNodeId": "BEFORE:pan:deep-pan",
           "afterSequence": 35,
           "bakesBefore": 36,
           "discoveriesBefore": 36,
           "starsBefore": 108,
-          "pitzBefore": 1740
+          "pitzBefore": 1840,
+          "gatewayItemOwnedBefore": false
         },
         {
           "capability": "ZONED_PLACEMENT",
@@ -51937,14 +52440,15 @@
         },
         {
           "capability": "DOUGH_VARIANT",
-          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
           "targetId": "cauliflower-crust-pizza-pizzadb-p2",
-          "afterNodeId": "dough:material-cauliflower",
+          "afterNodeId": "BEFORE:dough:material-cauliflower",
           "afterSequence": 17,
           "bakesBefore": 38,
           "discoveriesBefore": 15,
           "starsBefore": 30,
-          "pitzBefore": 10
+          "pitzBefore": 70,
+          "gatewayItemOwnedBefore": false
         },
         {
           "capability": "MULTI_SPREAD_LAYER",
@@ -51970,14 +52474,15 @@
         },
         {
           "capability": "PAN_BAKE",
-          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
           "targetId": "montreal-style-pizza-pizzadb-p13",
-          "afterNodeId": "pan:deep-pan",
+          "afterNodeId": "BEFORE:pan:deep-pan",
           "afterSequence": 35,
           "bakesBefore": 101,
           "discoveriesBefore": 36,
           "starsBefore": 72,
-          "pitzBefore": 20
+          "pitzBefore": 120,
+          "gatewayItemOwnedBefore": false
         },
         {
           "capability": "ZONED_PLACEMENT",
@@ -53639,14 +54144,15 @@
         },
         {
           "capability": "DOUGH_VARIANT",
-          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
           "targetId": "cauliflower-crust-pizza-pizzadb-p2",
-          "afterNodeId": "dough:material-cauliflower",
+          "afterNodeId": "BEFORE:dough:material-cauliflower",
           "afterSequence": 17,
           "bakesBefore": 15,
           "discoveriesBefore": 15,
           "starsBefore": 45,
-          "pitzBefore": 450
+          "pitzBefore": 510,
+          "gatewayItemOwnedBefore": false
         },
         {
           "capability": "MULTI_SPREAD_LAYER",
@@ -53672,14 +54178,15 @@
         },
         {
           "capability": "PAN_BAKE",
-          "trigger": "FIRST_ELIGIBLE_TARGET_TUTORIAL",
+          "trigger": "PREREQUISITE_GATEWAY_ITEM_TUTORIAL",
           "targetId": "montreal-style-pizza-pizzadb-p13",
-          "afterNodeId": "pan:deep-pan",
+          "afterNodeId": "BEFORE:pan:deep-pan",
           "afterSequence": 35,
           "bakesBefore": 36,
           "discoveriesBefore": 36,
           "starsBefore": 108,
-          "pitzBefore": 880
+          "pitzBefore": 980,
+          "gatewayItemOwnedBefore": false
         },
         {
           "capability": "ZONED_PLACEMENT",
@@ -55319,6 +55826,7 @@
     "simulations": 24,
     "deadlocks": 0,
     "relocks": 0,
+    "tutorialDependencyCycles": 0,
     "allTargetsReachable": true
   },
   "requiredChangeMap": {
@@ -55374,7 +55882,7 @@
         "B_AUTO",
         "C_TUTORIAL"
       ],
-      "recommendedForNextPrototype": "B_AUTO for foundational; C_TUTORIAL for interaction-heavy; reject blanket A_PAID",
+      "recommendedForNextPrototype": "B_AUTO for foundational; prerequisite-safe gateway C_TUTORIAL for interaction-heavy; reject blanket A_PAID",
       "status": "OWNER_REQUIRED"
     },
     {
