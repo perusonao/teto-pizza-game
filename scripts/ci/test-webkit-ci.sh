@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Issue #207 Phase 2A/2B: hermetic tests for the WebKit CI scripts (no network, no browser, no
-# repo history needed -- runs in ci.yml's shallow checkout, after npm ci, and locally).
+# repo history needed -- runs in ci.yml's shallow checkout and locally).
 #
 #   1. classify-webkit.mjs --self-test          (path classifier + repository scan, #201/#207)
 #   2. webkit-shard-evidence.mjs --self-test    (shard coverage verifier, #207)
@@ -9,8 +9,6 @@
 #   5. classify-webkit-pr.sh decisions in a throwaway git repo (docs-only, tools-only, unit-test-
 #      only, guard violation, runtime, push / workflow_dispatch events, `webkit-full` label,
 #      fail-safe, no-reuse-without-evidence)
-#   6. webkit-shard-plan.mjs --self-test, plus the real `playwright test --list` of both WebKit
-#      projects split by the plan: union == full selection, no overlap (no browser needed)
 #
 # Usage: bash scripts/ci/test-webkit-ci.sh   (exit 0 = all passed)
 set -uo pipefail
@@ -199,32 +197,6 @@ check "this repo: unit-test-only change -> skip" false \
   "$(printf 'src/logic/scoring.test.ts\nsrc/test/setup.ts\n' | node "$here/classify-webkit.mjs" --repo "$repo_root" 2>/dev/null | sed -n 's/^webkit_required=//p')"
 check "this repo: persistence change -> run" true \
   "$(printf 'src/state/persistence.ts\n' | node "$here/classify-webkit.mjs" --repo "$repo_root" 2>/dev/null | sed -n 's/^webkit_required=//p')"
-
-echo "== 6. shard plan (balanced Full shards)"
-node "$here/webkit-shard-plan.mjs" --self-test > "$work/plan.txt" 2>&1
-check "webkit-shard-plan.mjs --self-test" 0 $?
-root="$(cd "$here/../.." && pwd)"
-if [ -x "$root/node_modules/.bin/playwright" ]; then
-  for p in webkit-390x844 webkit-360x800; do
-    (cd "$root" && PLAYWRIGHT_JSON_OUTPUT_NAME="$work/list-$p.json" npx playwright test --list --project="$p" --reporter=json > /dev/null 2>&1)
-    (cd "$root" && npx playwright test --list --project="$p") | grep ' › ' | sed 's/^ *//' | sort > "$work/full-$p.txt"
-    : > "$work/union-$p.txt"
-    for s in 1 2; do
-      node "$here/webkit-shard-plan.mjs" --list "$work/list-$p.json" --project "$p" --shard "$s" --total 2 \
-        --weights "$here/webkit-spec-weights.json" --out "$work/args-$p-$s.txt" > /dev/null
-      mapfile -t filters < "$work/args-$p-$s.txt"
-      (cd "$root" && npx playwright test --list --project="$p" "${filters[@]}") | grep ' › ' | sed 's/^ *//' | sort > "$work/sel-$p-$s.txt"
-      cat "$work/sel-$p-$s.txt" >> "$work/union-$p.txt"
-    done
-    sort "$work/union-$p.txt" -o "$work/union-$p.txt"
-    check "plan $p: 2 shards list exactly the full selection ($(wc -l < "$work/full-$p.txt") tests)" 0 \
-      "$([ -s "$work/full-$p.txt" ] && cmp -s "$work/union-$p.txt" "$work/full-$p.txt"; echo $?)"
-    check "plan $p: no test in both shards" 0 "$(comm -12 "$work/sel-$p-1.txt" "$work/sel-$p-2.txt" | wc -l | tr -d ' ')"
-  done
-else
-  echo "FAIL node_modules/.bin/playwright missing -- run npm ci first"
-  cases=$((cases + 1)); failures=$((failures + 1))
-fi
 
 echo ""
 echo "$((cases - failures))/$cases WebKit CI script cases passed"

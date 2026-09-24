@@ -759,9 +759,7 @@ Claude Code implementation tasks should generally stay around 2–3 hours where 
 - `CI` (`ci.yml`): lint → full Vitest → build on every PR, unchanged. Chromium e2e projects stay
   local/manual.
 - `E2E WebKit` (`e2e-webkit.yml`): `classify` → `webkit` (every `e2e/*.spec.ts` on 390×844 +
-  360×800, as a 4-job matrix: each viewport × shard 1/2, 2/2 — Issue #207 Phase 2A; since
-  Phase 2B each shard runs whole spec files balanced by measured duration,
-  `scripts/ci/webkit-shard-plan.mjs` + `webkit-spec-weights.json`)
+  360×800, as a 4-job matrix: each viewport × `--shard` 1/2, 2/2 — Issue #207 Phase 2A)
   → **`WebKit Gate`**. The gate passes only if every shard succeeded **and** the shard evidence
   proves every listed test ran exactly once and passed on both viewports (missing, duplicated,
   cancelled or skipped shard → FAIL). Full WebKit also runs after every merge to `main`
@@ -780,8 +778,8 @@ Claude Code implementation tasks should generally stay around 2–3 hours where 
   re-running it.
 - Details, verification and rollback: `docs/reports/TETO_DEV-CI_WEBKIT-CONDITIONAL_A1A2_Result.md`
   (#201), `docs/reports/TETO_DEV-CI_WEBKIT-PHASE2A_Result.md` (#207 Phase 2A) and
-  `docs/reports/TETO_DEV-CI_WEBKIT-PHASE2B_Result.md` (#207 Phase 2B; why affected-spec and
-  single-viewport selection were not adopted). The WebKit CI script tests run in `ci.yml` via
+  `docs/reports/TETO_DEV-CI_WEBKIT-PHASE2B_Result.md` (#207 Phase 2B; why affected-spec,
+  single-viewport selection and duration-balanced shards were not adopted). The WebKit CI script tests run in `ci.yml` via
   `bash scripts/ci/test-webkit-ci.sh`.
 
 ### Standard completion rule (Issue #39 PS3 onward)
