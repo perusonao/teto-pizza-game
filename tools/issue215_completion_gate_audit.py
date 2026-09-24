@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import json
 import math
+import random
 import sys
 from collections import Counter, OrderedDict
 from pathlib import Path
@@ -32,7 +33,29 @@ AUDITED_MAIN = "dff233c042d2df6ee1c3a92f2d2419830aa05460"
 # src/logic/efficiency.ts's own authored "comfortable" constants as the only in-repo time proxy.
 LR_BASE_S = 25.0
 LR_PER_ITEM_S = 3.0
-LR_DURATION_S = 180.0
+LR_DURATION_S = 180.0  # src/mission/lunchRush.ts DEFAULT_MISSION_DURATION_SECONDS
+
+# Discrete serve rule (Rev.3). src/mission/lunchRush.ts: SERVE is recorded only while
+# `now < endsAt` (`isMissionExpired` is `now >= endsAt`), and App.tsx's handleMissionServeNext
+# mirrors that check; a pizza still in progress at the deadline never scores. Pizzas are served
+# back-to-back, so serve k lands at k * T and counts iff k * T < 180 s (strict).
+LR_DURATION_MS = int(LR_DURATION_S * 1000)
+LR_PER_ITEM_GRID = [round(0.5 + 0.1 * i, 1) for i in range(56)]  # 0.5 .. 6.0 s
+LR_DISPLAY_PER_ITEM = (1.5, 2.0, 2.5, 3.0, 4.0, 6.0)
+# Order-stream simulation: production pickMissionOrder -> getNextOrder without `dex`, i.e. a
+# uniform pick over the pool that avoids repeating the previous recipe (orders.ts avoidRepeat).
+LR_STREAM_RUNS = 2000
+LR_STREAM_SEED = 215
+LR_PLANS = ("allMinusOne", "allHalf", "allOne")
+
+
+def pizza_ms(per_item: float, items: int) -> int:
+    return int(round((LR_BASE_S + per_item * items) * 1000))
+
+
+def completed_serves(t_ms: int) -> int:
+    """Serves completed strictly before the 180 s deadline when each takes t_ms."""
+    return (LR_DURATION_MS - 1) // t_ms
 
 # D-4 (PR #214) purchase quantity: 10 x k pieces, k = max minCount of that ingredient at cutover.
 D4_MULTIPLIER = 10
@@ -165,7 +188,8 @@ def main() -> int:
             pieces = sum(counts.values())
             items = pieces + len(rec.get("spreads", []))
             seconds = LR_BASE_S + LR_PER_ITEM_S * items
-            entry = OrderedDict(pieces=pieces, lrModelSecondsPerPizza=seconds)
+            serves = completed_serves(pizza_ms(LR_PER_ITEM_S, items))
+            entry = OrderedDict(pieces=pieces, lrModelSecondsPerPizza=seconds, lrCompletedServes=serves)
             entry["costD4"] = round(pizza_cost(rec, counts, "D4"), 2)
             entry["costEP3"] = round(pizza_cost(rec, counts, "EP3"), 2)
             for model_key, extractor, pitz_key, gate in (
@@ -191,7 +215,7 @@ def main() -> int:
                     pitz=pitz if passed else 0,
                     netPitzD4=round((pitz if passed else 0) - entry["costD4"], 1),
                     netPitzEP3=round((pitz if passed else 0) - entry["costEP3"], 1),
-                    lrPointsPerRunModel=round(per_pizza_lr * LR_DURATION_S / seconds, 1),
+                    lrPointsPerRunModel=round(per_pizza_lr * serves, 1),
                 )
             out[name] = entry
         strategies[rec["recipeId"]] = out
@@ -218,24 +242,31 @@ def main() -> int:
             underfillBeatsIdealLunchRushModel=beats_lr,
         )
 
-    # Lunch Rush break-even (MODEL): for each assumed per-item time, the smallest Q shortage
-    # coefficient a (total x (1 - a*worstShort), excess ignored) for which NO whole-pizza under-fill
-    # plan out-scores ideal per second. `a` multiplies the shortage ratio, so a > 1 does NOT mean a
-    # zero-quality serve wins: the binding plan keeps (1 - a*short) of its quality. The zero-quality
-    # comparison (100 / t_underfill vs (100 + ideal) / t_ideal) is reported separately below.
+    # ------------------------------------------------------------------------------------------
+    # Lunch Rush, discrete serves (Rev.3). Q model for an under-fill plan: quality =
+    # max(0, S0 * (1 - a * worstShort)); `a` multiplies the shortage ratio. Ideal quality = S0 ideal.
+    # A plan "beats" ideal only when its completed-serve score is strictly greater.
+    # ------------------------------------------------------------------------------------------
     def worst_short(rec: dict, counts: dict[str, int]) -> float:
         return max(((s["n"] - counts[s["id"]]) / s["n"] for s in rec["scatter"]), default=0.0)
 
     def plan_counts(rec: dict, name: str) -> dict[str, int]:
         return {
+            "ideal": {s["id"]: s["n"] for s in rec["scatter"]},
             "allMinusOne": {s["id"]: max(1, s["n"] - 1) for s in rec["scatter"]},
             "allHalf": {s["id"]: math.ceil(s["n"] / 2) for s in rec["scatter"]},
             "allOne": {s["id"]: 1 for s in rec["scatter"]},
         }[name]
 
+    def plan_items(rec: dict, name: str) -> int:
+        return sum(plan_counts(rec, name).values()) + len(rec.get("spreads", []))
+
+    def q_quality(s0: float, short: float, a: float) -> float:
+        return max(0.0, s0 * (1 - a * short))
+
     # Recipe-mode ceiling: the largest a that still keeps every single-group "kept >= 2/3" shortage
     # (e.g. ideal 3 -> 2, ideal 4 -> 3) at >= 75 (star 4) under best placement -- the design intent
-    # the report recommends for OD-2.
+    # the report recommends for OD-2. Independent of Lunch Rush timing.
     recipe_mode_ceiling = None
     recipe_mode_ceiling_case = None
     for r in rows:
@@ -247,84 +278,195 @@ def main() -> int:
                 recipe_mode_ceiling = a_max
                 recipe_mode_ceiling_case = f"{r['recipeId']}:{r['ingredientId']}:{c}/{n}"
 
-    lr_break_even = OrderedDict()
-    for per_item in (1.5, 2.0, 2.5, 3.0, 4.0, 6.0):
+    # --- (1) per-recipe repeated run: every order is the same recipe --------------------------
+    def repeated(per_item: float) -> OrderedDict:
         worst_a = 0.0
         binding = None
-        zero_quality_wins = 0
-        zero_quality_best_ratio = 0.0
+        zero_wins = []
         plan_count = 0
         for rec in recipes:
-            spreads = len(rec.get("spreads", []))
-            ideal_items = sum(s["n"] for s in rec["scatter"]) + spreads
-            t_ideal = LR_BASE_S + per_item * ideal_items
-            ideal_rate = (100 + rec["idealTotal"]["S0"]) / t_ideal
-            for name in ("allMinusOne", "allHalf", "allOne"):
-                res = rec[name]
-                counts = plan_counts(rec, name)
-                short = worst_short(rec, counts)
+            ideal_serves = completed_serves(pizza_ms(per_item, plan_items(rec, "ideal")))
+            ideal_score = ideal_serves * (100 + rec["idealTotal"]["S0"])
+            for name in LR_PLANS:
+                short = worst_short(rec, plan_counts(rec, name))
                 if short == 0:
                     continue
                 plan_count += 1
-                t = LR_BASE_S + per_item * (sum(counts.values()) + spreads)
-                zero_rate = 100 / t
-                zero_quality_wins += zero_rate > ideal_rate
-                zero_quality_best_ratio = max(zero_quality_best_ratio, zero_rate / ideal_rate)
-                # need (100 + S0*(1 - a*short)) / t <= ideal_rate
-                need_total = ideal_rate * t - 100
-                a = (1 - need_total / res["S0"]) / short if res["S0"] > 0 else 0.0
+                serves = completed_serves(pizza_ms(per_item, plan_items(rec, name)))
+                s0 = rec[name]["S0"]
+                if serves * 100 > ideal_score:
+                    zero_wins.append(
+                        OrderedDict(
+                            case=f"{rec['recipeId']}:{name}",
+                            idealServes=ideal_serves,
+                            idealScore=round(ideal_score, 1),
+                            underfillServes=serves,
+                            zeroQualityScore=serves * 100,
+                        )
+                    )
+                    continue  # no coefficient can deter this plan
+                if serves == 0 or serves * (100 + s0) <= ideal_score:
+                    continue  # already deterred at a = 0
+                need_q = ideal_score / serves - 100
+                a = (1 - need_q / s0) / short
                 if a > worst_a:
                     worst_a = a
                     binding = OrderedDict(
                         case=f"{rec['recipeId']}:{name}",
                         worstShortRatio=round(short, 3),
-                        underfillSeconds=t,
-                        idealSeconds=t_ideal,
-                        idealPointsPerSecond=round(ideal_rate, 3),
-                        breakEvenQuality=round(need_total, 1),
+                        idealServes=ideal_serves,
+                        idealScore=round(ideal_score, 1),
+                        underfillServes=serves,
+                        breakEvenQuality=round(need_q, 1),
                         retainedQualityFactorAtMinCoefficient=round(1 - a * short, 3),
-                        zeroQualityPointsPerSecond=round(zero_rate, 3),
                     )
-        lr_break_even[f"{per_item}s_per_item"] = OrderedDict(
-            minShortCoefficient=round(worst_a, 3),
-            binding=binding,
-            compatibleWithRecipeModeStar4AtTwoThirds=worst_a <= recipe_mode_ceiling,
-            zeroQualityUnderfillBeatsIdeal=f"{zero_quality_wins}/{plan_count}",
-            zeroQualityBestRatioToIdeal=round(zero_quality_best_ratio, 3),
+        attainable = not zero_wins
+        return OrderedDict(
+            minShortCoefficient=round(worst_a, 3) if attainable else None,
+            binding=binding if attainable else None,
+            zeroQualityUnderfillBeatsIdeal=f"{len(zero_wins)}/{plan_count}",
+            zeroQualityWinningCases=zero_wins,
+            compatibleWithRecipeModeStar4AtTwoThirds=attainable and worst_a <= recipe_mode_ceiling,
         )
-    def min_short_coefficient(per_item: float) -> float:
-        worst = 0.0
-        for rec in recipes:
-            spreads = len(rec.get("spreads", []))
-            t_ideal = LR_BASE_S + per_item * (sum(s["n"] for s in rec["scatter"]) + spreads)
-            ideal_rate = (100 + rec["idealTotal"]["S0"]) / t_ideal
-            for name in ("allMinusOne", "allHalf", "allOne"):
-                counts = plan_counts(rec, name)
-                short = worst_short(rec, counts)
-                if short == 0 or rec[name]["S0"] <= 0:
-                    continue
-                t = LR_BASE_S + per_item * (sum(counts.values()) + spreads)
-                worst = max(worst, (1 - (ideal_rate * t - 100) / rec[name]["S0"]) / short)
-        return worst
 
-    # Per-item seconds above which no single coefficient satisfies both the recipe-mode star-4
-    # intent and Lunch Rush deterrence (bisection; min_short_coefficient is increasing here).
-    lo, hi = 0.5, 6.0
-    for _ in range(60):
-        mid = (lo + hi) / 2
-        if min_short_coefficient(mid) <= recipe_mode_ceiling:
-            lo = mid
-        else:
-            hi = mid
+    # --- (2) order stream: production order-selection rule, all 15 recipes discovered ----------
+    recipe_ids = [rec["recipeId"] for rec in recipes]
+    by_id = {rec["recipeId"]: rec for rec in recipes}
 
-    lr_break_even_meta = OrderedDict(
+    def stream_mean_counts(per_item: float, plan: str) -> dict[str, float]:
+        """Mean completed serves per recipe over LR_STREAM_RUNS seeded runs, same order sequence
+        for every plan (the sequence depends only on the RNG, never on the plan)."""
+        totals = Counter()
+        t_ms = {rid: pizza_ms(per_item, plan_items(by_id[rid], plan)) for rid in recipe_ids}
+        for run in range(LR_STREAM_RUNS):
+            rng = random.Random(LR_STREAM_SEED * 100003 + run)
+            elapsed = 0
+            prev = None
+            while True:
+                pool = [rid for rid in recipe_ids if rid != prev] or recipe_ids
+                rid = pool[rng.randrange(len(pool))]
+                elapsed += t_ms[rid]
+                if elapsed >= LR_DURATION_MS:
+                    break  # strict deadline: this pizza never scores
+                totals[rid] += 1
+                prev = rid
+        return {rid: totals[rid] / LR_STREAM_RUNS for rid in recipe_ids}
+
+    def stream(per_item: float) -> OrderedDict:
+        ideal_counts = stream_mean_counts(per_item, "ideal")
+        ideal_mean = sum(c * (100 + by_id[rid]["idealTotal"]["S0"]) for rid, c in ideal_counts.items())
+        plans = OrderedDict()
+        worst_a = 0.0
+        attainable = True
+        for name in LR_PLANS:
+            counts = stream_mean_counts(per_item, name)
+            shorts = {rid: worst_short(by_id[rid], plan_counts(by_id[rid], name)) for rid in recipe_ids}
+
+            def mean_at(a: float) -> float:
+                return sum(
+                    c * (100 + q_quality(by_id[rid][name]["S0"], shorts[rid], a)) for rid, c in counts.items()
+                )
+
+            zero_mean = sum(c * 100 for c in counts.values())
+            if zero_mean > ideal_mean:
+                a_need = None
+                attainable = False
+            elif mean_at(0.0) <= ideal_mean:
+                a_need = 0.0
+            else:
+                lo, hi = 0.0, 1.0 / min(v for v in shorts.values() if v > 0)
+                for _ in range(60):
+                    mid = (lo + hi) / 2
+                    if mean_at(mid) <= ideal_mean:
+                        hi = mid
+                    else:
+                        lo = mid
+                a_need = hi
+                worst_a = max(worst_a, a_need)
+            plans[name] = OrderedDict(
+                meanServes=round(sum(counts.values()), 3),
+                meanScoreAtQ05=round(mean_at(0.5), 1),
+                meanScoreZeroQuality=round(zero_mean, 1),
+                zeroQualityBeatsIdeal=zero_mean > ideal_mean,
+                breakEvenShortCoefficient=None if a_need is None else round(a_need, 3),
+            )
+        return OrderedDict(
+            idealMeanServes=round(sum(ideal_counts.values()), 3),
+            idealMeanScore=round(ideal_mean, 1),
+            plans=plans,
+            minShortCoefficient=round(worst_a, 3) if attainable else None,
+            compatibleWithRecipeModeStar4AtTwoThirds=attainable and worst_a <= recipe_mode_ceiling,
+        )
+
+    repeated_grid = OrderedDict((f"{x}s", repeated(x)) for x in LR_PER_ITEM_GRID)
+    stream_grid = OrderedDict((f"{x}s", stream(x)) for x in LR_PER_ITEM_GRID)
+
+    def compact(grid: OrderedDict) -> OrderedDict:
+        return OrderedDict(
+            (
+                key,
+                OrderedDict(
+                    minShortCoefficient=v["minShortCoefficient"],
+                    zeroQuality=v.get("zeroQualityUnderfillBeatsIdeal")
+                    or ("wins" if any(p["zeroQualityBeatsIdeal"] for p in v["plans"].values()) else "loses"),
+                    compatible=v["compatibleWithRecipeModeStar4AtTwoThirds"],
+                ),
+            )
+            for key, v in grid.items()
+        )
+
+    # Regression (Codex review on 1c46f2c): 6 s/item, Margherita. Ideal = 61 s -> 2 completed
+    # serves -> 399; allOne = 43 s -> 4 completed serves -> 400 even at zero quality. Plus the strict
+    # deadline boundary: a 45 s pizza completes 3 serves (the 4th would land exactly at 180 s).
+    marg = by_id["margherita"]
+    reg_ideal_ms = pizza_ms(6.0, plan_items(marg, "ideal"))
+    reg_one_ms = pizza_ms(6.0, plan_items(marg, "allOne"))
+    regression = OrderedDict(
+        margheritaIdeal6s=OrderedDict(
+            seconds=reg_ideal_ms / 1000,
+            serves=completed_serves(reg_ideal_ms),
+            score=round(completed_serves(reg_ideal_ms) * (100 + marg["idealTotal"]["S0"]), 1),
+        ),
+        margheritaAllOne6sZeroQuality=OrderedDict(
+            seconds=reg_one_ms / 1000,
+            serves=completed_serves(reg_one_ms),
+            score=completed_serves(reg_one_ms) * 100,
+        ),
+        strictDeadline45s=OrderedDict(seconds=45.0, serves=completed_serves(45000)),
+    )
+    assert regression["margheritaIdeal6s"] == OrderedDict(seconds=61.0, serves=2, score=399.0), regression
+    assert regression["margheritaAllOne6sZeroQuality"] == OrderedDict(seconds=43.0, serves=4, score=400), regression
+    assert regression["strictDeadline45s"]["serves"] == 3, regression
+    assert "margherita:allOne" in [
+        c["case"] for c in repeated_grid["6.0s"]["zeroQualityWinningCases"]
+    ], "the Codex 6 s Margherita case must be reported as a zero-quality win"
+
+    lunch_rush_discrete = OrderedDict(
+        rule=OrderedDict(
+            deadline="serve k at k*T counts iff k*T < 180 s (src/mission/lunchRush.ts isMissionExpired: now >= endsAt)",
+            servesFormula="(180000 - 1) // T_ms",
+            secondsPerPizza=f"{LR_BASE_S} + perItem * items (items = pieces + spreads); MODEL, not measured",
+            qualityModel="under-fill quality = max(0, S0 * (1 - a * worstShortRatio)); ideal = S0",
+            orderStream=(
+                f"{LR_STREAM_RUNS} runs, random.Random(seed={LR_STREAM_SEED}*100003+run), pool = all 15 recipes, "
+                "uniform pick avoiding the previous recipe (orders.ts getNextOrder/avoidRepeat); same order "
+                "sequence for every plan; a pizza that would finish at or after 180 s never scores"
+            ),
+        ),
+        regressionChecks=regression,
         recipeModeMaxShortCoefficientForStar4AtTwoThirds=round(recipe_mode_ceiling, 3),
-        singleCoefficientCompatibleUpToSecondsPerItem=round(lo, 2),
         recipeModeBindingCase=recipe_mode_ceiling_case,
+        perRecipeRepeated=OrderedDict((f"{x}s", repeated_grid[f"{x}s"]) for x in LR_DISPLAY_PER_ITEM),
+        orderStream=OrderedDict((f"{x}s", stream_grid[f"{x}s"]) for x in LR_DISPLAY_PER_ITEM),
+        gridPerRecipeRepeated=compact(repeated_grid),
+        gridOrderStream=compact(stream_grid),
+        compatibleSecondsPerItem=OrderedDict(
+            perRecipeRepeated=[x for x in LR_PER_ITEM_GRID if repeated_grid[f"{x}s"]["compatibleWithRecipeModeStar4AtTwoThirds"]],
+            orderStream=[x for x in LR_PER_ITEM_GRID if stream_grid[f"{x}s"]["compatibleWithRecipeModeStar4AtTwoThirds"]],
+        ),
         note=(
-            "a multiplies the worst shortage ratio; a > 1 is still a partial-quality serve "
-            "(retainedQualityFactorAtMinCoefficient), not zero quality. zeroQuality* fields are the "
-            "actual 0-quality comparison. MODEL ONLY: per-item seconds are assumptions, not measurements."
+            "Rev.3 replaces the Rev.2 points-per-second model, which awarded fractional serves. "
+            "`a` multiplies the worst shortage ratio. MODEL ONLY: per-item seconds are assumptions."
         ),
     )
 
@@ -347,12 +489,12 @@ def main() -> int:
         idealThreeReplayRows=replay,
         wholePizzaStrategies=strategies,
         underfillDominance=dominance,
-        lunchRushBreakEvenShortCoefficient=lr_break_even,
-        lunchRushBreakEvenMeta=lr_break_even_meta,
+        lunchRushDiscrete=lunch_rush_discrete,
         lunchRushModel=OrderedDict(
             secondsPerPizza=f"{LR_BASE_S} + {LR_PER_ITEM_S} * items (items = pieces + spreads)",
             runSeconds=LR_DURATION_S,
             pointsPerServe="100 + qualityTotal (PASS only), shared/lunchRushScoring.ts",
+            servesCounted="completed serves only, strictly before 180 s (see lunchRushDiscrete.rule)",
             caveat="MODEL ONLY -- not measured; real per-piece time is higher on a phone (drag+drop).",
         ),
     )
