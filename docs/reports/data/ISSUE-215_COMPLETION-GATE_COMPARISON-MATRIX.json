@@ -1,0 +1,4447 @@
+{
+ "schema": "issue215-completion-gate-comparison/v1",
+ "auditedMain": "dff233c042d2df6ee1c3a92f2d2419830aa05460",
+ "source": "docs/reports/data/ISSUE-215_COMPLETION-GATE_sim-raw.json",
+ "models": {
+  "S0_current": "production Scoring 2.0 (phase-4a-2-shadow-3)",
+  "S1_placement_coverage": "Pieces placement x c/n when c<n (missing Reference slots score 0)",
+  "S2_coverage_plus_steeper_qty": "S1 + shortage quantity similarity 1-(n-c)/n",
+  "Q_short0.5_excessX": "S0 total x (1 - 0.5*worstShortRatio - X*min(1,worstExcessRatio)), X in {0,0.15,0.25}",
+  "S4_star_cap_bands": "S0 total capped by worst kept ratio: <1 ->89.9, <2/3 ->74.9, <1/2 ->59.9"
+ },
+ "gates": [
+  "G0_current_min_eq_ideal",
+  "G1_zero_only",
+  "G2_ratio_50pct",
+  "G2b_ratio_67pct"
+ ],
+ "kPerIngredient": {
+  "anchovy": 3,
+  "bacon": 3,
+  "basil": 2,
+  "black-olive": 2,
+  "cherry-tomato": 3,
+  "egg": 1,
+  "fontina": 2,
+  "garlic": 3,
+  "gorgonzola": 2,
+  "ham": 1,
+  "mozzarella": 3,
+  "mushroom": 3,
+  "onion": 4,
+  "oregano": 2,
+  "parmigiano": 2,
+  "pepperoni": 4,
+  "rosemary": 3,
+  "sausage": 3,
+  "tuna": 3
+ },
+ "singleGroupStarDistribution": {
+  "G0_current_min_eq_ideal|S0_current": {
+   "0_zero": {
+    "FAILED": 40
+   },
+   "1_short_ge_2of3": {
+    "FAILED": 12
+   },
+   "2_short_ge_half": {
+    "FAILED": 22
+   },
+   "3_short_lt_half": {
+    "FAILED": 12
+   },
+   "4_ideal": {
+    "star5": 40
+   },
+   "5_excess_1": {
+    "star5": 40
+   },
+   "6_excess_2plus": {
+    "star5": 40
+   }
+  },
+  "G0_current_min_eq_ideal|S1_placement_coverage": {
+   "0_zero": {
+    "FAILED": 40
+   },
+   "1_short_ge_2of3": {
+    "FAILED": 12
+   },
+   "2_short_ge_half": {
+    "FAILED": 22
+   },
+   "3_short_lt_half": {
+    "FAILED": 12
+   },
+   "4_ideal": {
+    "star5": 40
+   },
+   "5_excess_1": {
+    "star5": 40
+   },
+   "6_excess_2plus": {
+    "star5": 40
+   }
+  },
+  "G0_current_min_eq_ideal|S2_coverage_plus_steeper_qty": {
+   "0_zero": {
+    "FAILED": 40
+   },
+   "1_short_ge_2of3": {
+    "FAILED": 12
+   },
+   "2_short_ge_half": {
+    "FAILED": 22
+   },
+   "3_short_lt_half": {
+    "FAILED": 12
+   },
+   "4_ideal": {
+    "star5": 40
+   },
+   "5_excess_1": {
+    "star5": 40
+   },
+   "6_excess_2plus": {
+    "star5": 40
+   }
+  },
+  "G0_current_min_eq_ideal|Q_short0.5_excess0": {
+   "0_zero": {
+    "FAILED": 40
+   },
+   "1_short_ge_2of3": {
+    "FAILED": 12
+   },
+   "2_short_ge_half": {
+    "FAILED": 22
+   },
+   "3_short_lt_half": {
+    "FAILED": 12
+   },
+   "4_ideal": {
+    "star5": 40
+   },
+   "5_excess_1": {
+    "star5": 40
+   },
+   "6_excess_2plus": {
+    "star5": 40
+   }
+  },
+  "G0_current_min_eq_ideal|Q_short0.5_excess0.15": {
+   "0_zero": {
+    "FAILED": 40
+   },
+   "1_short_ge_2of3": {
+    "FAILED": 12
+   },
+   "2_short_ge_half": {
+    "FAILED": 22
+   },
+   "3_short_lt_half": {
+    "FAILED": 12
+   },
+   "4_ideal": {
+    "star5": 40
+   },
+   "5_excess_1": {
+    "star4": 14,
+    "star5": 26
+   },
+   "6_excess_2plus": {
+    "star4": 40
+   }
+  },
+  "G0_current_min_eq_ideal|Q_short0.5_excess0.25": {
+   "0_zero": {
+    "FAILED": 40
+   },
+   "1_short_ge_2of3": {
+    "FAILED": 12
+   },
+   "2_short_ge_half": {
+    "FAILED": 22
+   },
+   "3_short_lt_half": {
+    "FAILED": 12
+   },
+   "4_ideal": {
+    "star5": 40
+   },
+   "5_excess_1": {
+    "star3": 8,
+    "star4": 27,
+    "star5": 5
+   },
+   "6_excess_2plus": {
+    "star3": 28,
+    "star4": 12
+   }
+  },
+  "G0_current_min_eq_ideal|S4_star_cap_bands": {
+   "0_zero": {
+    "FAILED": 40
+   },
+   "1_short_ge_2of3": {
+    "FAILED": 12
+   },
+   "2_short_ge_half": {
+    "FAILED": 22
+   },
+   "3_short_lt_half": {
+    "FAILED": 12
+   },
+   "4_ideal": {
+    "star5": 40
+   },
+   "5_excess_1": {
+    "star5": 40
+   },
+   "6_excess_2plus": {
+    "star5": 40
+   }
+  },
+  "G1_zero_only|S0_current": {
+   "0_zero": {
+    "FAILED": 40
+   },
+   "1_short_ge_2of3": {
+    "star5": 12
+   },
+   "2_short_ge_half": {
+    "star5": 22
+   },
+   "3_short_lt_half": {
+    "star5": 12
+   },
+   "4_ideal": {
+    "star5": 40
+   },
+   "5_excess_1": {
+    "star5": 40
+   },
+   "6_excess_2plus": {
+    "star5": 40
+   }
+  },
+  "G1_zero_only|S1_placement_coverage": {
+   "0_zero": {
+    "FAILED": 40
+   },
+   "1_short_ge_2of3": {
+    "star5": 12
+   },
+   "2_short_ge_half": {
+    "star5": 22
+   },
+   "3_short_lt_half": {
+    "star4": 1,
+    "star5": 11
+   },
+   "4_ideal": {
+    "star5": 40
+   },
+   "5_excess_1": {
+    "star5": 40
+   },
+   "6_excess_2plus": {
+    "star5": 40
+   }
+  },
+  "G1_zero_only|S2_coverage_plus_steeper_qty": {
+   "0_zero": {
+    "FAILED": 40
+   },
+   "1_short_ge_2of3": {
+    "star5": 12
+   },
+   "2_short_ge_half": {
+    "star5": 22
+   },
+   "3_short_lt_half": {
+    "star4": 1,
+    "star5": 11
+   },
+   "4_ideal": {
+    "star5": 40
+   },
+   "5_excess_1": {
+    "star5": 40
+   },
+   "6_excess_2plus": {
+    "star5": 40
+   }
+  },
+  "G1_zero_only|Q_short0.5_excess0": {
+   "0_zero": {
+    "FAILED": 40
+   },
+   "1_short_ge_2of3": {
+    "star4": 12
+   },
+   "2_short_ge_half": {
+    "star3": 22
+   },
+   "3_short_lt_half": {
+    "star3": 12
+   },
+   "4_ideal": {
+    "star5": 40
+   },
+   "5_excess_1": {
+    "star5": 40
+   },
+   "6_excess_2plus": {
+    "star5": 40
+   }
+  },
+  "G1_zero_only|Q_short0.5_excess0.15": {
+   "0_zero": {
+    "FAILED": 40
+   },
+   "1_short_ge_2of3": {
+    "star4": 12
+   },
+   "2_short_ge_half": {
+    "star3": 22
+   },
+   "3_short_lt_half": {
+    "star3": 12
+   },
+   "4_ideal": {
+    "star5": 40
+   },
+   "5_excess_1": {
+    "star4": 14,
+    "star5": 26
+   },
+   "6_excess_2plus": {
+    "star4": 40
+   }
+  },
+  "G1_zero_only|Q_short0.5_excess0.25": {
+   "0_zero": {
+    "FAILED": 40
+   },
+   "1_short_ge_2of3": {
+    "star4": 12
+   },
+   "2_short_ge_half": {
+    "star3": 22
+   },
+   "3_short_lt_half": {
+    "star3": 12
+   },
+   "4_ideal": {
+    "star5": 40
+   },
+   "5_excess_1": {
+    "star3": 8,
+    "star4": 27,
+    "star5": 5
+   },
+   "6_excess_2plus": {
+    "star3": 28,
+    "star4": 12
+   }
+  },
+  "G1_zero_only|S4_star_cap_bands": {
+   "0_zero": {
+    "FAILED": 40
+   },
+   "1_short_ge_2of3": {
+    "star4": 12
+   },
+   "2_short_ge_half": {
+    "star3": 22
+   },
+   "3_short_lt_half": {
+    "star2": 12
+   },
+   "4_ideal": {
+    "star5": 40
+   },
+   "5_excess_1": {
+    "star5": 40
+   },
+   "6_excess_2plus": {
+    "star5": 40
+   }
+  },
+  "G2_ratio_50pct|S0_current": {
+   "0_zero": {
+    "FAILED": 40
+   },
+   "1_short_ge_2of3": {
+    "star5": 12
+   },
+   "2_short_ge_half": {
+    "star5": 22
+   },
+   "3_short_lt_half": {
+    "FAILED": 12
+   },
+   "4_ideal": {
+    "star5": 40
+   },
+   "5_excess_1": {
+    "star5": 40
+   },
+   "6_excess_2plus": {
+    "star5": 40
+   }
+  },
+  "G2_ratio_50pct|S1_placement_coverage": {
+   "0_zero": {
+    "FAILED": 40
+   },
+   "1_short_ge_2of3": {
+    "star5": 12
+   },
+   "2_short_ge_half": {
+    "star5": 22
+   },
+   "3_short_lt_half": {
+    "FAILED": 12
+   },
+   "4_ideal": {
+    "star5": 40
+   },
+   "5_excess_1": {
+    "star5": 40
+   },
+   "6_excess_2plus": {
+    "star5": 40
+   }
+  },
+  "G2_ratio_50pct|S2_coverage_plus_steeper_qty": {
+   "0_zero": {
+    "FAILED": 40
+   },
+   "1_short_ge_2of3": {
+    "star5": 12
+   },
+   "2_short_ge_half": {
+    "star5": 22
+   },
+   "3_short_lt_half": {
+    "FAILED": 12
+   },
+   "4_ideal": {
+    "star5": 40
+   },
+   "5_excess_1": {
+    "star5": 40
+   },
+   "6_excess_2plus": {
+    "star5": 40
+   }
+  },
+  "G2_ratio_50pct|Q_short0.5_excess0": {
+   "0_zero": {
+    "FAILED": 40
+   },
+   "1_short_ge_2of3": {
+    "star4": 12
+   },
+   "2_short_ge_half": {
+    "star3": 22
+   },
+   "3_short_lt_half": {
+    "FAILED": 12
+   },
+   "4_ideal": {
+    "star5": 40
+   },
+   "5_excess_1": {
+    "star5": 40
+   },
+   "6_excess_2plus": {
+    "star5": 40
+   }
+  },
+  "G2_ratio_50pct|Q_short0.5_excess0.15": {
+   "0_zero": {
+    "FAILED": 40
+   },
+   "1_short_ge_2of3": {
+    "star4": 12
+   },
+   "2_short_ge_half": {
+    "star3": 22
+   },
+   "3_short_lt_half": {
+    "FAILED": 12
+   },
+   "4_ideal": {
+    "star5": 40
+   },
+   "5_excess_1": {
+    "star4": 14,
+    "star5": 26
+   },
+   "6_excess_2plus": {
+    "star4": 40
+   }
+  },
+  "G2_ratio_50pct|Q_short0.5_excess0.25": {
+   "0_zero": {
+    "FAILED": 40
+   },
+   "1_short_ge_2of3": {
+    "star4": 12
+   },
+   "2_short_ge_half": {
+    "star3": 22
+   },
+   "3_short_lt_half": {
+    "FAILED": 12
+   },
+   "4_ideal": {
+    "star5": 40
+   },
+   "5_excess_1": {
+    "star3": 8,
+    "star4": 27,
+    "star5": 5
+   },
+   "6_excess_2plus": {
+    "star3": 28,
+    "star4": 12
+   }
+  },
+  "G2_ratio_50pct|S4_star_cap_bands": {
+   "0_zero": {
+    "FAILED": 40
+   },
+   "1_short_ge_2of3": {
+    "star4": 12
+   },
+   "2_short_ge_half": {
+    "star3": 22
+   },
+   "3_short_lt_half": {
+    "FAILED": 12
+   },
+   "4_ideal": {
+    "star5": 40
+   },
+   "5_excess_1": {
+    "star5": 40
+   },
+   "6_excess_2plus": {
+    "star5": 40
+   }
+  },
+  "G2b_ratio_67pct|S0_current": {
+   "0_zero": {
+    "FAILED": 40
+   },
+   "1_short_ge_2of3": {
+    "star5": 12
+   },
+   "2_short_ge_half": {
+    "FAILED": 22
+   },
+   "3_short_lt_half": {
+    "FAILED": 12
+   },
+   "4_ideal": {
+    "star5": 40
+   },
+   "5_excess_1": {
+    "star5": 40
+   },
+   "6_excess_2plus": {
+    "star5": 40
+   }
+  },
+  "G2b_ratio_67pct|S1_placement_coverage": {
+   "0_zero": {
+    "FAILED": 40
+   },
+   "1_short_ge_2of3": {
+    "star5": 12
+   },
+   "2_short_ge_half": {
+    "FAILED": 22
+   },
+   "3_short_lt_half": {
+    "FAILED": 12
+   },
+   "4_ideal": {
+    "star5": 40
+   },
+   "5_excess_1": {
+    "star5": 40
+   },
+   "6_excess_2plus": {
+    "star5": 40
+   }
+  },
+  "G2b_ratio_67pct|S2_coverage_plus_steeper_qty": {
+   "0_zero": {
+    "FAILED": 40
+   },
+   "1_short_ge_2of3": {
+    "star5": 12
+   },
+   "2_short_ge_half": {
+    "FAILED": 22
+   },
+   "3_short_lt_half": {
+    "FAILED": 12
+   },
+   "4_ideal": {
+    "star5": 40
+   },
+   "5_excess_1": {
+    "star5": 40
+   },
+   "6_excess_2plus": {
+    "star5": 40
+   }
+  },
+  "G2b_ratio_67pct|Q_short0.5_excess0": {
+   "0_zero": {
+    "FAILED": 40
+   },
+   "1_short_ge_2of3": {
+    "star4": 12
+   },
+   "2_short_ge_half": {
+    "FAILED": 22
+   },
+   "3_short_lt_half": {
+    "FAILED": 12
+   },
+   "4_ideal": {
+    "star5": 40
+   },
+   "5_excess_1": {
+    "star5": 40
+   },
+   "6_excess_2plus": {
+    "star5": 40
+   }
+  },
+  "G2b_ratio_67pct|Q_short0.5_excess0.15": {
+   "0_zero": {
+    "FAILED": 40
+   },
+   "1_short_ge_2of3": {
+    "star4": 12
+   },
+   "2_short_ge_half": {
+    "FAILED": 22
+   },
+   "3_short_lt_half": {
+    "FAILED": 12
+   },
+   "4_ideal": {
+    "star5": 40
+   },
+   "5_excess_1": {
+    "star4": 14,
+    "star5": 26
+   },
+   "6_excess_2plus": {
+    "star4": 40
+   }
+  },
+  "G2b_ratio_67pct|Q_short0.5_excess0.25": {
+   "0_zero": {
+    "FAILED": 40
+   },
+   "1_short_ge_2of3": {
+    "star4": 12
+   },
+   "2_short_ge_half": {
+    "FAILED": 22
+   },
+   "3_short_lt_half": {
+    "FAILED": 12
+   },
+   "4_ideal": {
+    "star5": 40
+   },
+   "5_excess_1": {
+    "star3": 8,
+    "star4": 27,
+    "star5": 5
+   },
+   "6_excess_2plus": {
+    "star3": 28,
+    "star4": 12
+   }
+  },
+  "G2b_ratio_67pct|S4_star_cap_bands": {
+   "0_zero": {
+    "FAILED": 40
+   },
+   "1_short_ge_2of3": {
+    "star4": 12
+   },
+   "2_short_ge_half": {
+    "FAILED": 22
+   },
+   "3_short_lt_half": {
+    "FAILED": 12
+   },
+   "4_ideal": {
+    "star5": 40
+   },
+   "5_excess_1": {
+    "star5": 40
+   },
+   "6_excess_2plus": {
+    "star5": 40
+   }
+  }
+ },
+ "idealThreeReplayRows": [
+  {
+   "recipeId": "margherita",
+   "ingredientId": "mozzarella",
+   "count": 0,
+   "currentGate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 87.5,
+   "S0stars": 4,
+   "S1": 87.5,
+   "Q015": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   }
+  },
+  {
+   "recipeId": "margherita",
+   "ingredientId": "mozzarella",
+   "count": 1,
+   "currentGate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.3,
+   "S0stars": 5,
+   "S1": 94.6,
+   "Q015": {
+    "total": 65.6,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 59.9,
+    "stars": 2,
+    "pitz": 50
+   }
+  },
+  {
+   "recipeId": "margherita",
+   "ingredientId": "mozzarella",
+   "count": 2,
+   "currentGate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.9,
+   "S0stars": 5,
+   "S1": 97.1,
+   "Q015": {
+    "total": 82.5,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 89.9,
+    "stars": 4,
+    "pitz": 100
+   }
+  },
+  {
+   "recipeId": "margherita",
+   "ingredientId": "mozzarella",
+   "count": 3,
+   "currentGate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S1": 99.5,
+   "Q015": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   }
+  },
+  {
+   "recipeId": "margherita",
+   "ingredientId": "mozzarella",
+   "count": 4,
+   "currentGate": "PASS",
+   "S0": 97.5,
+   "S0stars": 5,
+   "S1": 97.5,
+   "Q015": {
+    "total": 92.7,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 97.5,
+    "stars": 5,
+    "pitz": 120
+   }
+  },
+  {
+   "recipeId": "margherita",
+   "ingredientId": "mozzarella",
+   "count": 5,
+   "currentGate": "PASS",
+   "S0": 95.5,
+   "S0stars": 5,
+   "S1": 95.5,
+   "Q015": {
+    "total": 86,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 95.5,
+    "stars": 5,
+    "pitz": 120
+   }
+  },
+  {
+   "recipeId": "marinara",
+   "ingredientId": "garlic",
+   "count": 0,
+   "currentGate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 87.5,
+   "S0stars": 4,
+   "S1": 87.5,
+   "Q015": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   }
+  },
+  {
+   "recipeId": "marinara",
+   "ingredientId": "garlic",
+   "count": 1,
+   "currentGate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.3,
+   "S0stars": 5,
+   "S1": 94.6,
+   "Q015": {
+    "total": 65.6,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 59.9,
+    "stars": 2,
+    "pitz": 50
+   }
+  },
+  {
+   "recipeId": "marinara",
+   "ingredientId": "garlic",
+   "count": 2,
+   "currentGate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.9,
+   "S0stars": 5,
+   "S1": 97.1,
+   "Q015": {
+    "total": 82.5,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 89.9,
+    "stars": 4,
+    "pitz": 100
+   }
+  },
+  {
+   "recipeId": "marinara",
+   "ingredientId": "garlic",
+   "count": 3,
+   "currentGate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S1": 99.5,
+   "Q015": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   }
+  },
+  {
+   "recipeId": "marinara",
+   "ingredientId": "garlic",
+   "count": 4,
+   "currentGate": "PASS",
+   "S0": 97.5,
+   "S0stars": 5,
+   "S1": 97.5,
+   "Q015": {
+    "total": 92.7,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 97.5,
+    "stars": 5,
+    "pitz": 120
+   }
+  },
+  {
+   "recipeId": "marinara",
+   "ingredientId": "garlic",
+   "count": 5,
+   "currentGate": "PASS",
+   "S0": 95.5,
+   "S0stars": 5,
+   "S1": 95.5,
+   "Q015": {
+    "total": 86,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 95.5,
+    "stars": 5,
+    "pitz": 120
+   }
+  },
+  {
+   "recipeId": "genovese",
+   "ingredientId": "cherry-tomato",
+   "count": 0,
+   "currentGate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 87.5,
+   "S0stars": 4,
+   "S1": 87.5,
+   "Q015": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   }
+  },
+  {
+   "recipeId": "genovese",
+   "ingredientId": "cherry-tomato",
+   "count": 1,
+   "currentGate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.3,
+   "S0stars": 5,
+   "S1": 94.6,
+   "Q015": {
+    "total": 65.6,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 59.9,
+    "stars": 2,
+    "pitz": 50
+   }
+  },
+  {
+   "recipeId": "genovese",
+   "ingredientId": "cherry-tomato",
+   "count": 2,
+   "currentGate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.9,
+   "S0stars": 5,
+   "S1": 97.1,
+   "Q015": {
+    "total": 82.5,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 89.9,
+    "stars": 4,
+    "pitz": 100
+   }
+  },
+  {
+   "recipeId": "genovese",
+   "ingredientId": "cherry-tomato",
+   "count": 3,
+   "currentGate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S1": 99.5,
+   "Q015": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   }
+  },
+  {
+   "recipeId": "genovese",
+   "ingredientId": "cherry-tomato",
+   "count": 4,
+   "currentGate": "PASS",
+   "S0": 97.5,
+   "S0stars": 5,
+   "S1": 97.5,
+   "Q015": {
+    "total": 92.7,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 97.5,
+    "stars": 5,
+    "pitz": 120
+   }
+  },
+  {
+   "recipeId": "genovese",
+   "ingredientId": "cherry-tomato",
+   "count": 5,
+   "currentGate": "PASS",
+   "S0": 95.5,
+   "S0stars": 5,
+   "S1": 95.5,
+   "Q015": {
+    "total": 86,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 95.5,
+    "stars": 5,
+    "pitz": 120
+   }
+  },
+  {
+   "recipeId": "bismarck",
+   "ingredientId": "mozzarella",
+   "count": 0,
+   "currentGate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 87.5,
+   "S0stars": 4,
+   "S1": 87.5,
+   "Q015": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   }
+  },
+  {
+   "recipeId": "bismarck",
+   "ingredientId": "mozzarella",
+   "count": 1,
+   "currentGate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.3,
+   "S0stars": 5,
+   "S1": 94.6,
+   "Q015": {
+    "total": 65.6,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 59.9,
+    "stars": 2,
+    "pitz": 50
+   }
+  },
+  {
+   "recipeId": "bismarck",
+   "ingredientId": "mozzarella",
+   "count": 2,
+   "currentGate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.9,
+   "S0stars": 5,
+   "S1": 97.1,
+   "Q015": {
+    "total": 82.5,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 89.9,
+    "stars": 4,
+    "pitz": 100
+   }
+  },
+  {
+   "recipeId": "bismarck",
+   "ingredientId": "mozzarella",
+   "count": 3,
+   "currentGate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S1": 99.5,
+   "Q015": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   }
+  },
+  {
+   "recipeId": "bismarck",
+   "ingredientId": "mozzarella",
+   "count": 4,
+   "currentGate": "PASS",
+   "S0": 97.5,
+   "S0stars": 5,
+   "S1": 97.5,
+   "Q015": {
+    "total": 92.7,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 97.5,
+    "stars": 5,
+    "pitz": 120
+   }
+  },
+  {
+   "recipeId": "bismarck",
+   "ingredientId": "mozzarella",
+   "count": 5,
+   "currentGate": "PASS",
+   "S0": 95.5,
+   "S0stars": 5,
+   "S1": 95.5,
+   "Q015": {
+    "total": 86,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 95.5,
+    "stars": 5,
+    "pitz": 120
+   }
+  },
+  {
+   "recipeId": "funghi",
+   "ingredientId": "mushroom",
+   "count": 0,
+   "currentGate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 87.5,
+   "S0stars": 4,
+   "S1": 87.5,
+   "Q015": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   }
+  },
+  {
+   "recipeId": "funghi",
+   "ingredientId": "mushroom",
+   "count": 1,
+   "currentGate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.3,
+   "S0stars": 5,
+   "S1": 94.6,
+   "Q015": {
+    "total": 65.6,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 59.9,
+    "stars": 2,
+    "pitz": 50
+   }
+  },
+  {
+   "recipeId": "funghi",
+   "ingredientId": "mushroom",
+   "count": 2,
+   "currentGate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.9,
+   "S0stars": 5,
+   "S1": 97.1,
+   "Q015": {
+    "total": 82.5,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 89.9,
+    "stars": 4,
+    "pitz": 100
+   }
+  },
+  {
+   "recipeId": "funghi",
+   "ingredientId": "mushroom",
+   "count": 3,
+   "currentGate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S1": 99.5,
+   "Q015": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   }
+  },
+  {
+   "recipeId": "funghi",
+   "ingredientId": "mushroom",
+   "count": 4,
+   "currentGate": "PASS",
+   "S0": 97.5,
+   "S0stars": 5,
+   "S1": 97.5,
+   "Q015": {
+    "total": 92.7,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 97.5,
+    "stars": 5,
+    "pitz": 120
+   }
+  },
+  {
+   "recipeId": "funghi",
+   "ingredientId": "mushroom",
+   "count": 5,
+   "currentGate": "PASS",
+   "S0": 95.5,
+   "S0stars": 5,
+   "S1": 95.5,
+   "Q015": {
+    "total": 86,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 95.5,
+    "stars": 5,
+    "pitz": 120
+   }
+  },
+  {
+   "recipeId": "salsiccia",
+   "ingredientId": "sausage",
+   "count": 0,
+   "currentGate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 87.5,
+   "S0stars": 4,
+   "S1": 87.5,
+   "Q015": {
+    "total": 43.8,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   }
+  },
+  {
+   "recipeId": "salsiccia",
+   "ingredientId": "sausage",
+   "count": 1,
+   "currentGate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.3,
+   "S0stars": 5,
+   "S1": 94.6,
+   "Q015": {
+    "total": 65.6,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 59.9,
+    "stars": 2,
+    "pitz": 50
+   }
+  },
+  {
+   "recipeId": "salsiccia",
+   "ingredientId": "sausage",
+   "count": 2,
+   "currentGate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.9,
+   "S0stars": 5,
+   "S1": 97.1,
+   "Q015": {
+    "total": 82.5,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 89.9,
+    "stars": 4,
+    "pitz": 100
+   }
+  },
+  {
+   "recipeId": "salsiccia",
+   "ingredientId": "sausage",
+   "count": 3,
+   "currentGate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S1": 99.5,
+   "Q015": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   }
+  },
+  {
+   "recipeId": "salsiccia",
+   "ingredientId": "sausage",
+   "count": 4,
+   "currentGate": "PASS",
+   "S0": 97.5,
+   "S0stars": 5,
+   "S1": 97.5,
+   "Q015": {
+    "total": 92.7,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 97.5,
+    "stars": 5,
+    "pitz": 120
+   }
+  },
+  {
+   "recipeId": "salsiccia",
+   "ingredientId": "sausage",
+   "count": 5,
+   "currentGate": "PASS",
+   "S0": 95.5,
+   "S0stars": 5,
+   "S1": 95.5,
+   "Q015": {
+    "total": 86,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 95.5,
+    "stars": 5,
+    "pitz": 120
+   }
+  },
+  {
+   "recipeId": "napoletana",
+   "ingredientId": "anchovy",
+   "count": 0,
+   "currentGate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 91.2,
+   "S0stars": 5,
+   "S1": 91.2,
+   "Q015": {
+    "total": 45.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   }
+  },
+  {
+   "recipeId": "napoletana",
+   "ingredientId": "anchovy",
+   "count": 1,
+   "currentGate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.7,
+   "S0stars": 5,
+   "S1": 96.3,
+   "Q015": {
+    "total": 65.8,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 59.9,
+    "stars": 2,
+    "pitz": 50
+   }
+  },
+  {
+   "recipeId": "napoletana",
+   "ingredientId": "anchovy",
+   "count": 2,
+   "currentGate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 99.1,
+   "S0stars": 5,
+   "S1": 97.9,
+   "Q015": {
+    "total": 82.6,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 89.9,
+    "stars": 4,
+    "pitz": 100
+   }
+  },
+  {
+   "recipeId": "napoletana",
+   "ingredientId": "anchovy",
+   "count": 3,
+   "currentGate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S1": 99.5,
+   "Q015": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   }
+  },
+  {
+   "recipeId": "napoletana",
+   "ingredientId": "anchovy",
+   "count": 4,
+   "currentGate": "PASS",
+   "S0": 98.2,
+   "S0stars": 5,
+   "S1": 98.2,
+   "Q015": {
+    "total": 93.3,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 98.2,
+    "stars": 5,
+    "pitz": 120
+   }
+  },
+  {
+   "recipeId": "napoletana",
+   "ingredientId": "anchovy",
+   "count": 5,
+   "currentGate": "PASS",
+   "S0": 96.9,
+   "S0stars": 5,
+   "S1": 96.9,
+   "Q015": {
+    "total": 87.2,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 96.9,
+    "stars": 5,
+    "pitz": 120
+   }
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "ingredientId": "tuna",
+   "count": 0,
+   "currentGate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 91.2,
+   "S0stars": 5,
+   "S1": 91.2,
+   "Q015": {
+    "total": 45.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   }
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "ingredientId": "tuna",
+   "count": 1,
+   "currentGate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.7,
+   "S0stars": 5,
+   "S1": 96.3,
+   "Q015": {
+    "total": 65.8,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 59.9,
+    "stars": 2,
+    "pitz": 50
+   }
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "ingredientId": "tuna",
+   "count": 2,
+   "currentGate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 99.1,
+   "S0stars": 5,
+   "S1": 97.9,
+   "Q015": {
+    "total": 82.6,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 89.9,
+    "stars": 4,
+    "pitz": 100
+   }
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "ingredientId": "tuna",
+   "count": 3,
+   "currentGate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S1": 99.5,
+   "Q015": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   }
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "ingredientId": "tuna",
+   "count": 4,
+   "currentGate": "PASS",
+   "S0": 98.2,
+   "S0stars": 5,
+   "S1": 98.2,
+   "Q015": {
+    "total": 93.3,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 98.2,
+    "stars": 5,
+    "pitz": 120
+   }
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "ingredientId": "tuna",
+   "count": 5,
+   "currentGate": "PASS",
+   "S0": 96.9,
+   "S0stars": 5,
+   "S1": 96.9,
+   "Q015": {
+    "total": 87.2,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 96.9,
+    "stars": 5,
+    "pitz": 120
+   }
+  },
+  {
+   "recipeId": "pizza-bianca",
+   "ingredientId": "rosemary",
+   "count": 0,
+   "currentGate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 77.5,
+   "S0stars": 4,
+   "S1": 77.5,
+   "Q015": {
+    "total": 38.8,
+    "stars": 1,
+    "pitz": 20
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   }
+  },
+  {
+   "recipeId": "pizza-bianca",
+   "ingredientId": "rosemary",
+   "count": 1,
+   "currentGate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 97.1,
+   "S0stars": 5,
+   "S1": 89.7,
+   "Q015": {
+    "total": 64.8,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 59.9,
+    "stars": 2,
+    "pitz": 50
+   }
+  },
+  {
+   "recipeId": "pizza-bianca",
+   "ingredientId": "rosemary",
+   "count": 2,
+   "currentGate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.3,
+   "S0stars": 5,
+   "S1": 94.6,
+   "Q015": {
+    "total": 82,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 89.9,
+    "stars": 4,
+    "pitz": 100
+   }
+  },
+  {
+   "recipeId": "pizza-bianca",
+   "ingredientId": "rosemary",
+   "count": 3,
+   "currentGate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S1": 99.5,
+   "Q015": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   }
+  },
+  {
+   "recipeId": "pizza-bianca",
+   "ingredientId": "rosemary",
+   "count": 4,
+   "currentGate": "PASS",
+   "S0": 95.5,
+   "S0stars": 5,
+   "S1": 95.5,
+   "Q015": {
+    "total": 90.8,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 95.5,
+    "stars": 5,
+    "pitz": 120
+   }
+  },
+  {
+   "recipeId": "pizza-bianca",
+   "ingredientId": "rosemary",
+   "count": 5,
+   "currentGate": "PASS",
+   "S0": 91.5,
+   "S0stars": 5,
+   "S1": 91.5,
+   "Q015": {
+    "total": 82.4,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 91.5,
+    "stars": 5,
+    "pitz": 120
+   }
+  },
+  {
+   "recipeId": "breakfast-pizza",
+   "ingredientId": "bacon",
+   "count": 0,
+   "currentGate": "MISSING_REQUIRED_INGREDIENT",
+   "S0": 91.2,
+   "S0stars": 5,
+   "S1": 91.2,
+   "Q015": {
+    "total": 45.6,
+    "stars": 2,
+    "pitz": 50
+   },
+   "S4cap": {
+    "total": 39.9,
+    "stars": 1,
+    "pitz": 20
+   }
+  },
+  {
+   "recipeId": "breakfast-pizza",
+   "ingredientId": "bacon",
+   "count": 1,
+   "currentGate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 98.7,
+   "S0stars": 5,
+   "S1": 96.3,
+   "Q015": {
+    "total": 65.8,
+    "stars": 3,
+    "pitz": 80
+   },
+   "S4cap": {
+    "total": 59.9,
+    "stars": 2,
+    "pitz": 50
+   }
+  },
+  {
+   "recipeId": "breakfast-pizza",
+   "ingredientId": "bacon",
+   "count": 2,
+   "currentGate": "INSUFFICIENT_REQUIRED_AMOUNT",
+   "S0": 99.1,
+   "S0stars": 5,
+   "S1": 97.9,
+   "Q015": {
+    "total": 82.6,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 89.9,
+    "stars": 4,
+    "pitz": 100
+   }
+  },
+  {
+   "recipeId": "breakfast-pizza",
+   "ingredientId": "bacon",
+   "count": 3,
+   "currentGate": "PASS",
+   "S0": 99.5,
+   "S0stars": 5,
+   "S1": 99.5,
+   "Q015": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 99.5,
+    "stars": 5,
+    "pitz": 120
+   }
+  },
+  {
+   "recipeId": "breakfast-pizza",
+   "ingredientId": "bacon",
+   "count": 4,
+   "currentGate": "PASS",
+   "S0": 98.2,
+   "S0stars": 5,
+   "S1": 98.2,
+   "Q015": {
+    "total": 93.3,
+    "stars": 5,
+    "pitz": 120
+   },
+   "S4cap": {
+    "total": 98.2,
+    "stars": 5,
+    "pitz": 120
+   }
+  },
+  {
+   "recipeId": "breakfast-pizza",
+   "ingredientId": "bacon",
+   "count": 5,
+   "currentGate": "PASS",
+   "S0": 96.9,
+   "S0stars": 5,
+   "S1": 96.9,
+   "Q015": {
+    "total": 87.2,
+    "stars": 4,
+    "pitz": 100
+   },
+   "S4cap": {
+    "total": 96.9,
+    "stars": 5,
+    "pitz": 120
+   }
+  }
+ ],
+ "wholePizzaStrategies": {
+  "margherita": {
+   "ideal": {
+    "pieces": 5,
+    "lrModelSecondsPerPizza": 43.0,
+    "costD4": 0.0,
+    "costEP3": 0.0,
+    "current": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 120.0,
+     "netPitzEP3": 120.0,
+     "lrPointsPerRunModel": 835.1
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 120.0,
+     "netPitzEP3": 120.0,
+     "lrPointsPerRunModel": 835.1
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 120.0,
+     "netPitzEP3": 120.0,
+     "lrPointsPerRunModel": 835.1
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 120.0,
+     "netPitzEP3": 120.0,
+     "lrPointsPerRunModel": 835.1
+    }
+   },
+   "allMinusOne": {
+    "pieces": 3,
+    "lrModelSecondsPerPizza": 37.0,
+    "costD4": 0.0,
+    "costEP3": 0.0,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": 0.0,
+     "netPitzEP3": 0.0,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 98.1,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 120.0,
+     "netPitzEP3": 120.0,
+     "lrPointsPerRunModel": 963.7
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 80.0,
+     "netPitzEP3": 80.0,
+     "lrPointsPerRunModel": 844.5
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 80.0,
+     "netPitzEP3": 80.0,
+     "lrPointsPerRunModel": 850.9
+    }
+   },
+   "allHalf": {
+    "pieces": 3,
+    "lrModelSecondsPerPizza": 37.0,
+    "costD4": 0.0,
+    "costEP3": 0.0,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": 0.0,
+     "netPitzEP3": 0.0,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 98.1,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 120.0,
+     "netPitzEP3": 120.0,
+     "lrPointsPerRunModel": 963.7
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 80.0,
+     "netPitzEP3": 80.0,
+     "lrPointsPerRunModel": 844.5
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 80.0,
+     "netPitzEP3": 80.0,
+     "lrPointsPerRunModel": 850.9
+    }
+   },
+   "allOne": {
+    "pieces": 2,
+    "lrModelSecondsPerPizza": 34.0,
+    "costD4": 0.0,
+    "costEP3": 0.0,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": 0.0,
+     "netPitzEP3": 0.0,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 97.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 120.0,
+     "netPitzEP3": 120.0,
+     "lrPointsPerRunModel": 1045.6
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 65,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 80.0,
+     "netPitzEP3": 80.0,
+     "lrPointsPerRunModel": 873.5
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 59.9,
+     "stars": 2,
+     "pitz": 50,
+     "netPitzD4": 50.0,
+     "netPitzEP3": 50.0,
+     "lrPointsPerRunModel": 846.5
+    }
+   }
+  },
+  "marinara": {
+   "ideal": {
+    "pieces": 5,
+    "lrModelSecondsPerPizza": 43.0,
+    "costD4": 14.5,
+    "costEP3": 48.33,
+    "current": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 105.5,
+     "netPitzEP3": 71.7,
+     "lrPointsPerRunModel": 835.1
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 105.5,
+     "netPitzEP3": 71.7,
+     "lrPointsPerRunModel": 835.1
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 105.5,
+     "netPitzEP3": 71.7,
+     "lrPointsPerRunModel": 835.1
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 105.5,
+     "netPitzEP3": 71.7,
+     "lrPointsPerRunModel": 835.1
+    }
+   },
+   "allMinusOne": {
+    "pieces": 3,
+    "lrModelSecondsPerPizza": 37.0,
+    "costD4": 8.75,
+    "costEP3": 29.17,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -8.8,
+     "netPitzEP3": -29.2,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 98.1,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 111.2,
+     "netPitzEP3": 90.8,
+     "lrPointsPerRunModel": 963.7
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 71.2,
+     "netPitzEP3": 50.8,
+     "lrPointsPerRunModel": 844.5
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 71.2,
+     "netPitzEP3": 50.8,
+     "lrPointsPerRunModel": 850.9
+    }
+   },
+   "allHalf": {
+    "pieces": 3,
+    "lrModelSecondsPerPizza": 37.0,
+    "costD4": 8.75,
+    "costEP3": 29.17,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -8.8,
+     "netPitzEP3": -29.2,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 98.1,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 111.2,
+     "netPitzEP3": 90.8,
+     "lrPointsPerRunModel": 963.7
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 71.2,
+     "netPitzEP3": 50.8,
+     "lrPointsPerRunModel": 844.5
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 71.2,
+     "netPitzEP3": 50.8,
+     "lrPointsPerRunModel": 850.9
+    }
+   },
+   "allOne": {
+    "pieces": 2,
+    "lrModelSecondsPerPizza": 34.0,
+    "costD4": 5.75,
+    "costEP3": 19.17,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -5.8,
+     "netPitzEP3": -19.2,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 97.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 114.2,
+     "netPitzEP3": 100.8,
+     "lrPointsPerRunModel": 1045.6
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 65,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 74.2,
+     "netPitzEP3": 60.8,
+     "lrPointsPerRunModel": 873.5
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 59.9,
+     "stars": 2,
+     "pitz": 50,
+     "netPitzD4": 44.2,
+     "netPitzEP3": 30.8,
+     "lrPointsPerRunModel": 846.5
+    }
+   }
+  },
+  "quattro-formaggi": {
+   "ideal": {
+    "pieces": 8,
+    "lrModelSecondsPerPizza": 52.0,
+    "costD4": 33.5,
+    "costEP3": 111.67,
+    "current": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 86.5,
+     "netPitzEP3": 8.3,
+     "lrPointsPerRunModel": 690.6
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 86.5,
+     "netPitzEP3": 8.3,
+     "lrPointsPerRunModel": 690.6
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 86.5,
+     "netPitzEP3": 8.3,
+     "lrPointsPerRunModel": 690.6
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 86.5,
+     "netPitzEP3": 8.3,
+     "lrPointsPerRunModel": 690.6
+    }
+   },
+   "allMinusOne": {
+    "pieces": 4,
+    "lrModelSecondsPerPizza": 40.0,
+    "costD4": 20.0,
+    "costEP3": 66.67,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -20.0,
+     "netPitzEP3": -66.7,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 97.9,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 100.0,
+     "netPitzEP3": 53.3,
+     "lrPointsPerRunModel": 890.5
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 73.5,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 60.0,
+     "netPitzEP3": 13.3,
+     "lrPointsPerRunModel": 780.8
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 60.0,
+     "netPitzEP3": 13.3,
+     "lrPointsPerRunModel": 787.0
+    }
+   },
+   "allHalf": {
+    "pieces": 4,
+    "lrModelSecondsPerPizza": 40.0,
+    "costD4": 20.0,
+    "costEP3": 66.67,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -20.0,
+     "netPitzEP3": -66.7,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 97.9,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 100.0,
+     "netPitzEP3": 53.3,
+     "lrPointsPerRunModel": 890.5
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 73.5,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 60.0,
+     "netPitzEP3": 13.3,
+     "lrPointsPerRunModel": 780.8
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 60.0,
+     "netPitzEP3": 13.3,
+     "lrPointsPerRunModel": 787.0
+    }
+   },
+   "allOne": {
+    "pieces": 4,
+    "lrModelSecondsPerPizza": 40.0,
+    "costD4": 20.0,
+    "costEP3": 66.67,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -20.0,
+     "netPitzEP3": -66.7,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 97.9,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 100.0,
+     "netPitzEP3": 53.3,
+     "lrPointsPerRunModel": 890.5
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 73.5,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 60.0,
+     "netPitzEP3": 13.3,
+     "lrPointsPerRunModel": 780.8
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 60.0,
+     "netPitzEP3": 13.3,
+     "lrPointsPerRunModel": 787.0
+    }
+   }
+  },
+  "genovese": {
+   "ideal": {
+    "pieces": 5,
+    "lrModelSecondsPerPizza": 43.0,
+    "costD4": 14.5,
+    "costEP3": 48.33,
+    "current": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 105.5,
+     "netPitzEP3": 71.7,
+     "lrPointsPerRunModel": 835.1
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 105.5,
+     "netPitzEP3": 71.7,
+     "lrPointsPerRunModel": 835.1
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 105.5,
+     "netPitzEP3": 71.7,
+     "lrPointsPerRunModel": 835.1
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 105.5,
+     "netPitzEP3": 71.7,
+     "lrPointsPerRunModel": 835.1
+    }
+   },
+   "allMinusOne": {
+    "pieces": 3,
+    "lrModelSecondsPerPizza": 37.0,
+    "costD4": 12.67,
+    "costEP3": 42.22,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -12.7,
+     "netPitzEP3": -42.2,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 98.1,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 107.3,
+     "netPitzEP3": 77.8,
+     "lrPointsPerRunModel": 963.7
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 67.3,
+     "netPitzEP3": 37.8,
+     "lrPointsPerRunModel": 844.5
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 67.3,
+     "netPitzEP3": 37.8,
+     "lrPointsPerRunModel": 850.9
+    }
+   },
+   "allHalf": {
+    "pieces": 3,
+    "lrModelSecondsPerPizza": 37.0,
+    "costD4": 12.67,
+    "costEP3": 42.22,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -12.7,
+     "netPitzEP3": -42.2,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 98.1,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 107.3,
+     "netPitzEP3": 77.8,
+     "lrPointsPerRunModel": 963.7
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 67.3,
+     "netPitzEP3": 37.8,
+     "lrPointsPerRunModel": 844.5
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 67.3,
+     "netPitzEP3": 37.8,
+     "lrPointsPerRunModel": 850.9
+    }
+   },
+   "allOne": {
+    "pieces": 2,
+    "lrModelSecondsPerPizza": 34.0,
+    "costD4": 10.83,
+    "costEP3": 36.11,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -10.8,
+     "netPitzEP3": -36.1,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 97.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 109.2,
+     "netPitzEP3": 83.9,
+     "lrPointsPerRunModel": 1045.6
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 65,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 69.2,
+     "netPitzEP3": 43.9,
+     "lrPointsPerRunModel": 873.5
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 59.9,
+     "stars": 2,
+     "pitz": 50,
+     "netPitzD4": 39.2,
+     "netPitzEP3": 13.9,
+     "lrPointsPerRunModel": 846.5
+    }
+   }
+  },
+  "bismarck": {
+   "ideal": {
+    "pieces": 4,
+    "lrModelSecondsPerPizza": 40.0,
+    "costD4": 10.5,
+    "costEP3": 35.0,
+    "current": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 109.5,
+     "netPitzEP3": 85.0,
+     "lrPointsPerRunModel": 897.8
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 109.5,
+     "netPitzEP3": 85.0,
+     "lrPointsPerRunModel": 897.8
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 109.5,
+     "netPitzEP3": 85.0,
+     "lrPointsPerRunModel": 897.8
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 109.5,
+     "netPitzEP3": 85.0,
+     "lrPointsPerRunModel": 897.8
+    }
+   },
+   "allMinusOne": {
+    "pieces": 3,
+    "lrModelSecondsPerPizza": 37.0,
+    "costD4": 10.5,
+    "costEP3": 35.0,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -10.5,
+     "netPitzEP3": -35.0,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 98.9,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 109.5,
+     "netPitzEP3": 85.0,
+     "lrPointsPerRunModel": 967.6
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 82.5,
+     "stars": 4,
+     "pitz": 100,
+     "netPitzD4": 89.5,
+     "netPitzEP3": 65.0,
+     "lrPointsPerRunModel": 887.8
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 89.9,
+     "stars": 4,
+     "pitz": 100,
+     "netPitzD4": 89.5,
+     "netPitzEP3": 65.0,
+     "lrPointsPerRunModel": 923.8
+    }
+   },
+   "allHalf": {
+    "pieces": 3,
+    "lrModelSecondsPerPizza": 37.0,
+    "costD4": 10.5,
+    "costEP3": 35.0,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -10.5,
+     "netPitzEP3": -35.0,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 98.9,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 109.5,
+     "netPitzEP3": 85.0,
+     "lrPointsPerRunModel": 967.6
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 82.5,
+     "stars": 4,
+     "pitz": 100,
+     "netPitzD4": 89.5,
+     "netPitzEP3": 65.0,
+     "lrPointsPerRunModel": 887.8
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 89.9,
+     "stars": 4,
+     "pitz": 100,
+     "netPitzD4": 89.5,
+     "netPitzEP3": 65.0,
+     "lrPointsPerRunModel": 923.8
+    }
+   },
+   "allOne": {
+    "pieces": 2,
+    "lrModelSecondsPerPizza": 34.0,
+    "costD4": 10.5,
+    "costEP3": 35.0,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -10.5,
+     "netPitzEP3": -35.0,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 98.3,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 109.5,
+     "netPitzEP3": 85.0,
+     "lrPointsPerRunModel": 1049.8
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 65.6,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 69.5,
+     "netPitzEP3": 45.0,
+     "lrPointsPerRunModel": 876.7
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 59.9,
+     "stars": 2,
+     "pitz": 50,
+     "netPitzD4": 39.5,
+     "netPitzEP3": 15.0,
+     "lrPointsPerRunModel": 846.5
+    }
+   }
+  },
+  "funghi": {
+   "ideal": {
+    "pieces": 5,
+    "lrModelSecondsPerPizza": 43.0,
+    "costD4": 15.0,
+    "costEP3": 50.0,
+    "current": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 105.0,
+     "netPitzEP3": 70.0,
+     "lrPointsPerRunModel": 835.1
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 105.0,
+     "netPitzEP3": 70.0,
+     "lrPointsPerRunModel": 835.1
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 105.0,
+     "netPitzEP3": 70.0,
+     "lrPointsPerRunModel": 835.1
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 105.0,
+     "netPitzEP3": 70.0,
+     "lrPointsPerRunModel": 835.1
+    }
+   },
+   "allMinusOne": {
+    "pieces": 3,
+    "lrModelSecondsPerPizza": 37.0,
+    "costD4": 10.0,
+    "costEP3": 33.33,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -10.0,
+     "netPitzEP3": -33.3,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 98.1,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 110.0,
+     "netPitzEP3": 86.7,
+     "lrPointsPerRunModel": 963.7
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 70.0,
+     "netPitzEP3": 46.7,
+     "lrPointsPerRunModel": 844.5
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 70.0,
+     "netPitzEP3": 46.7,
+     "lrPointsPerRunModel": 850.9
+    }
+   },
+   "allHalf": {
+    "pieces": 3,
+    "lrModelSecondsPerPizza": 37.0,
+    "costD4": 10.0,
+    "costEP3": 33.33,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -10.0,
+     "netPitzEP3": -33.3,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 98.1,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 110.0,
+     "netPitzEP3": 86.7,
+     "lrPointsPerRunModel": 963.7
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 70.0,
+     "netPitzEP3": 46.7,
+     "lrPointsPerRunModel": 844.5
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 70.0,
+     "netPitzEP3": 46.7,
+     "lrPointsPerRunModel": 850.9
+    }
+   },
+   "allOne": {
+    "pieces": 2,
+    "lrModelSecondsPerPizza": 34.0,
+    "costD4": 5.0,
+    "costEP3": 16.67,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -5.0,
+     "netPitzEP3": -16.7,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 97.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 115.0,
+     "netPitzEP3": 103.3,
+     "lrPointsPerRunModel": 1045.6
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 65,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 75.0,
+     "netPitzEP3": 63.3,
+     "lrPointsPerRunModel": 873.5
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 59.9,
+     "stars": 2,
+     "pitz": 50,
+     "netPitzD4": 45.0,
+     "netPitzEP3": 33.3,
+     "lrPointsPerRunModel": 846.5
+    }
+   }
+  },
+  "fugazza": {
+   "ideal": {
+    "pieces": 5,
+    "lrModelSecondsPerPizza": 43.0,
+    "costD4": 26.25,
+    "costEP3": 87.5,
+    "current": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 93.8,
+     "netPitzEP3": 32.5,
+     "lrPointsPerRunModel": 835.1
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 93.8,
+     "netPitzEP3": 32.5,
+     "lrPointsPerRunModel": 835.1
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 93.8,
+     "netPitzEP3": 32.5,
+     "lrPointsPerRunModel": 835.1
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 93.8,
+     "netPitzEP3": 32.5,
+     "lrPointsPerRunModel": 835.1
+    }
+   },
+   "allMinusOne": {
+    "pieces": 4,
+    "lrModelSecondsPerPizza": 40.0,
+    "costD4": 22.0,
+    "costEP3": 73.33,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -22.0,
+     "netPitzEP3": -73.3,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 99.1,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 98.0,
+     "netPitzEP3": 46.7,
+     "lrPointsPerRunModel": 896.0
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 86.7,
+     "stars": 4,
+     "pitz": 100,
+     "netPitzD4": 78.0,
+     "netPitzEP3": 26.7,
+     "lrPointsPerRunModel": 840.1
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 89.9,
+     "stars": 4,
+     "pitz": 100,
+     "netPitzD4": 78.0,
+     "netPitzEP3": 26.7,
+     "lrPointsPerRunModel": 854.5
+    }
+   },
+   "allHalf": {
+    "pieces": 3,
+    "lrModelSecondsPerPizza": 37.0,
+    "costD4": 17.75,
+    "costEP3": 59.17,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -17.8,
+     "netPitzEP3": -59.2,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 98.6,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 102.2,
+     "netPitzEP3": 60.8,
+     "lrPointsPerRunModel": 966.2
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 73.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 62.2,
+     "netPitzEP3": 20.8,
+     "lrPointsPerRunModel": 846.0
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 62.2,
+     "netPitzEP3": 20.8,
+     "lrPointsPerRunModel": 850.9
+    }
+   },
+   "allOne": {
+    "pieces": 2,
+    "lrModelSecondsPerPizza": 34.0,
+    "costD4": 13.5,
+    "costEP3": 45.0,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -13.5,
+     "netPitzEP3": -45.0,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 98.1,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 106.5,
+     "netPitzEP3": 75.0,
+     "lrPointsPerRunModel": 1048.8
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 61.3,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 66.5,
+     "netPitzEP3": 35.0,
+     "lrPointsPerRunModel": 853.9
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 59.9,
+     "stars": 2,
+     "pitz": 50,
+     "netPitzD4": 36.5,
+     "netPitzEP3": 5.0,
+     "lrPointsPerRunModel": 846.5
+    }
+   }
+  },
+  "salsiccia": {
+   "ideal": {
+    "pieces": 5,
+    "lrModelSecondsPerPizza": 43.0,
+    "costD4": 14.0,
+    "costEP3": 46.67,
+    "current": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 106.0,
+     "netPitzEP3": 73.3,
+     "lrPointsPerRunModel": 835.1
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 106.0,
+     "netPitzEP3": 73.3,
+     "lrPointsPerRunModel": 835.1
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 106.0,
+     "netPitzEP3": 73.3,
+     "lrPointsPerRunModel": 835.1
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 106.0,
+     "netPitzEP3": 73.3,
+     "lrPointsPerRunModel": 835.1
+    }
+   },
+   "allMinusOne": {
+    "pieces": 3,
+    "lrModelSecondsPerPizza": 37.0,
+    "costD4": 9.33,
+    "costEP3": 31.11,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -9.3,
+     "netPitzEP3": -31.1,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 98.1,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 110.7,
+     "netPitzEP3": 88.9,
+     "lrPointsPerRunModel": 963.7
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 70.7,
+     "netPitzEP3": 48.9,
+     "lrPointsPerRunModel": 844.5
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 70.7,
+     "netPitzEP3": 48.9,
+     "lrPointsPerRunModel": 850.9
+    }
+   },
+   "allHalf": {
+    "pieces": 3,
+    "lrModelSecondsPerPizza": 37.0,
+    "costD4": 9.33,
+    "costEP3": 31.11,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -9.3,
+     "netPitzEP3": -31.1,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 98.1,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 110.7,
+     "netPitzEP3": 88.9,
+     "lrPointsPerRunModel": 963.7
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 70.7,
+     "netPitzEP3": 48.9,
+     "lrPointsPerRunModel": 844.5
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 70.7,
+     "netPitzEP3": 48.9,
+     "lrPointsPerRunModel": 850.9
+    }
+   },
+   "allOne": {
+    "pieces": 2,
+    "lrModelSecondsPerPizza": 34.0,
+    "costD4": 4.67,
+    "costEP3": 15.56,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -4.7,
+     "netPitzEP3": -15.6,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 97.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 115.3,
+     "netPitzEP3": 104.4,
+     "lrPointsPerRunModel": 1045.6
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 65,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 75.3,
+     "netPitzEP3": 64.4,
+     "lrPointsPerRunModel": 873.5
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 59.9,
+     "stars": 2,
+     "pitz": 50,
+     "netPitzD4": 45.3,
+     "netPitzEP3": 34.4,
+     "lrPointsPerRunModel": 846.5
+    }
+   }
+  },
+  "pepperoni": {
+   "ideal": {
+    "pieces": 6,
+    "lrModelSecondsPerPizza": 46.0,
+    "costD4": 13.0,
+    "costEP3": 43.33,
+    "current": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 107.0,
+     "netPitzEP3": 76.7,
+     "lrPointsPerRunModel": 780.7
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 107.0,
+     "netPitzEP3": 76.7,
+     "lrPointsPerRunModel": 780.7
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 107.0,
+     "netPitzEP3": 76.7,
+     "lrPointsPerRunModel": 780.7
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 107.0,
+     "netPitzEP3": 76.7,
+     "lrPointsPerRunModel": 780.7
+    }
+   },
+   "allMinusOne": {
+    "pieces": 4,
+    "lrModelSecondsPerPizza": 40.0,
+    "costD4": 9.75,
+    "costEP3": 32.5,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -9.8,
+     "netPitzEP3": -32.5,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 98.3,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 110.2,
+     "netPitzEP3": 87.5,
+     "lrPointsPerRunModel": 892.4
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 73.7,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 70.2,
+     "netPitzEP3": 47.5,
+     "lrPointsPerRunModel": 781.6
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 70.2,
+     "netPitzEP3": 47.5,
+     "lrPointsPerRunModel": 787.0
+    }
+   },
+   "allHalf": {
+    "pieces": 3,
+    "lrModelSecondsPerPizza": 37.0,
+    "costD4": 6.5,
+    "costEP3": 21.67,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -6.5,
+     "netPitzEP3": -21.7,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 97.8,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 113.5,
+     "netPitzEP3": 98.3,
+     "lrPointsPerRunModel": 962.3
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 73.3,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 73.5,
+     "netPitzEP3": 58.3,
+     "lrPointsPerRunModel": 843.1
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 73.5,
+     "netPitzEP3": 58.3,
+     "lrPointsPerRunModel": 850.9
+    }
+   },
+   "allOne": {
+    "pieces": 2,
+    "lrModelSecondsPerPizza": 34.0,
+    "costD4": 3.25,
+    "costEP3": 10.83,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -3.2,
+     "netPitzEP3": -10.8,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 97.3,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 116.8,
+     "netPitzEP3": 109.2,
+     "lrPointsPerRunModel": 1044.5
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 60.8,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 76.8,
+     "netPitzEP3": 69.2,
+     "lrPointsPerRunModel": 851.3
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 59.9,
+     "stars": 2,
+     "pitz": 50,
+     "netPitzD4": 46.8,
+     "netPitzEP3": 39.2,
+     "lrPointsPerRunModel": 846.5
+    }
+   }
+  },
+  "napoletana": {
+   "ideal": {
+    "pieces": 6,
+    "lrModelSecondsPerPizza": 46.0,
+    "costD4": 13.75,
+    "costEP3": 45.83,
+    "current": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 106.2,
+     "netPitzEP3": 74.2,
+     "lrPointsPerRunModel": 780.7
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 106.2,
+     "netPitzEP3": 74.2,
+     "lrPointsPerRunModel": 780.7
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 106.2,
+     "netPitzEP3": 74.2,
+     "lrPointsPerRunModel": 780.7
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 106.2,
+     "netPitzEP3": 74.2,
+     "lrPointsPerRunModel": 780.7
+    }
+   },
+   "allMinusOne": {
+    "pieces": 4,
+    "lrModelSecondsPerPizza": 40.0,
+    "costD4": 10.08,
+    "costEP3": 33.61,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -10.1,
+     "netPitzEP3": -33.6,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 98.6,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 109.9,
+     "netPitzEP3": 86.4,
+     "lrPointsPerRunModel": 893.7
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 74,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 69.9,
+     "netPitzEP3": 46.4,
+     "lrPointsPerRunModel": 783.0
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 69.9,
+     "netPitzEP3": 46.4,
+     "lrPointsPerRunModel": 787.0
+    }
+   },
+   "allHalf": {
+    "pieces": 4,
+    "lrModelSecondsPerPizza": 40.0,
+    "costD4": 10.08,
+    "costEP3": 33.61,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -10.1,
+     "netPitzEP3": -33.6,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 98.6,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 109.9,
+     "netPitzEP3": 86.4,
+     "lrPointsPerRunModel": 893.7
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 74,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 69.9,
+     "netPitzEP3": 46.4,
+     "lrPointsPerRunModel": 783.0
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 69.9,
+     "netPitzEP3": 46.4,
+     "lrPointsPerRunModel": 787.0
+    }
+   },
+   "allOne": {
+    "pieces": 3,
+    "lrModelSecondsPerPizza": 37.0,
+    "costD4": 6.42,
+    "costEP3": 21.39,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -6.4,
+     "netPitzEP3": -21.4,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 98.2,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 113.6,
+     "netPitzEP3": 98.6,
+     "lrPointsPerRunModel": 964.2
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 65.5,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 73.6,
+     "netPitzEP3": 58.6,
+     "lrPointsPerRunModel": 805.1
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 59.9,
+     "stars": 2,
+     "pitz": 50,
+     "netPitzD4": 43.6,
+     "netPitzEP3": 28.6,
+     "lrPointsPerRunModel": 777.9
+    }
+   }
+  },
+  "tonno-e-cipolla": {
+   "ideal": {
+    "pieces": 7,
+    "lrModelSecondsPerPizza": 49.0,
+    "costD4": 20.5,
+    "costEP3": 68.33,
+    "current": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 99.5,
+     "netPitzEP3": 51.7,
+     "lrPointsPerRunModel": 732.9
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 99.5,
+     "netPitzEP3": 51.7,
+     "lrPointsPerRunModel": 732.9
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 99.5,
+     "netPitzEP3": 51.7,
+     "lrPointsPerRunModel": 732.9
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 99.5,
+     "netPitzEP3": 51.7,
+     "lrPointsPerRunModel": 732.9
+    }
+   },
+   "allMinusOne": {
+    "pieces": 4,
+    "lrModelSecondsPerPizza": 40.0,
+    "costD4": 12.25,
+    "costEP3": 40.83,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -12.2,
+     "netPitzEP3": -40.8,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 98.1,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 107.8,
+     "netPitzEP3": 79.2,
+     "lrPointsPerRunModel": 891.5
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 67.8,
+     "netPitzEP3": 39.2,
+     "lrPointsPerRunModel": 781.2
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 67.8,
+     "netPitzEP3": 39.2,
+     "lrPointsPerRunModel": 787.0
+    }
+   },
+   "allHalf": {
+    "pieces": 4,
+    "lrModelSecondsPerPizza": 40.0,
+    "costD4": 12.25,
+    "costEP3": 40.83,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -12.2,
+     "netPitzEP3": -40.8,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 98.1,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 107.8,
+     "netPitzEP3": 79.2,
+     "lrPointsPerRunModel": 891.5
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 73.6,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 67.8,
+     "netPitzEP3": 39.2,
+     "lrPointsPerRunModel": 781.2
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 67.8,
+     "netPitzEP3": 39.2,
+     "lrPointsPerRunModel": 787.0
+    }
+   },
+   "allOne": {
+    "pieces": 3,
+    "lrModelSecondsPerPizza": 37.0,
+    "costD4": 8.25,
+    "costEP3": 27.5,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -8.2,
+     "netPitzEP3": -27.5,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 97.7,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 111.8,
+     "netPitzEP3": 92.5,
+     "lrPointsPerRunModel": 961.8
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 65.1,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 71.8,
+     "netPitzEP3": 52.5,
+     "lrPointsPerRunModel": 803.2
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 59.9,
+     "stars": 2,
+     "pitz": 50,
+     "netPitzD4": 41.8,
+     "netPitzEP3": 22.5,
+     "lrPointsPerRunModel": 777.9
+    }
+   }
+  },
+  "pizza-bianca": {
+   "ideal": {
+    "pieces": 3,
+    "lrModelSecondsPerPizza": 37.0,
+    "costD4": 12.0,
+    "costEP3": 40.0,
+    "current": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 108.0,
+     "netPitzEP3": 80.0,
+     "lrPointsPerRunModel": 970.5
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 108.0,
+     "netPitzEP3": 80.0,
+     "lrPointsPerRunModel": 970.5
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 108.0,
+     "netPitzEP3": 80.0,
+     "lrPointsPerRunModel": 970.5
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 108.0,
+     "netPitzEP3": 80.0,
+     "lrPointsPerRunModel": 970.5
+    }
+   },
+   "allMinusOne": {
+    "pieces": 2,
+    "lrModelSecondsPerPizza": 34.0,
+    "costD4": 10.17,
+    "costEP3": 33.89,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -10.2,
+     "netPitzEP3": -33.9,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 98.3,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 109.8,
+     "netPitzEP3": 86.1,
+     "lrPointsPerRunModel": 1049.8
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 82,
+     "stars": 4,
+     "pitz": 100,
+     "netPitzD4": 89.8,
+     "netPitzEP3": 66.1,
+     "lrPointsPerRunModel": 963.5
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 89.9,
+     "stars": 4,
+     "pitz": 100,
+     "netPitzD4": 89.8,
+     "netPitzEP3": 66.1,
+     "lrPointsPerRunModel": 1005.4
+    }
+   },
+   "allHalf": {
+    "pieces": 2,
+    "lrModelSecondsPerPizza": 34.0,
+    "costD4": 10.17,
+    "costEP3": 33.89,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -10.2,
+     "netPitzEP3": -33.9,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 98.3,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 109.8,
+     "netPitzEP3": 86.1,
+     "lrPointsPerRunModel": 1049.8
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 82,
+     "stars": 4,
+     "pitz": 100,
+     "netPitzD4": 89.8,
+     "netPitzEP3": 66.1,
+     "lrPointsPerRunModel": 963.5
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 89.9,
+     "stars": 4,
+     "pitz": 100,
+     "netPitzD4": 89.8,
+     "netPitzEP3": 66.1,
+     "lrPointsPerRunModel": 1005.4
+    }
+   },
+   "allOne": {
+    "pieces": 1,
+    "lrModelSecondsPerPizza": 31.0,
+    "costD4": 8.33,
+    "costEP3": 27.78,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -8.3,
+     "netPitzEP3": -27.8,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 97.1,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 111.7,
+     "netPitzEP3": 92.2,
+     "lrPointsPerRunModel": 1144.5
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 64.8,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 71.7,
+     "netPitzEP3": 52.2,
+     "lrPointsPerRunModel": 956.9
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 59.9,
+     "stars": 2,
+     "pitz": 50,
+     "netPitzD4": 41.7,
+     "netPitzEP3": 22.2,
+     "lrPointsPerRunModel": 928.5
+    }
+   }
+  },
+  "breakfast-pizza": {
+   "ideal": {
+    "pieces": 6,
+    "lrModelSecondsPerPizza": 46.0,
+    "costD4": 24.5,
+    "costEP3": 81.67,
+    "current": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 95.5,
+     "netPitzEP3": 38.3,
+     "lrPointsPerRunModel": 780.7
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 95.5,
+     "netPitzEP3": 38.3,
+     "lrPointsPerRunModel": 780.7
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 95.5,
+     "netPitzEP3": 38.3,
+     "lrPointsPerRunModel": 780.7
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 95.5,
+     "netPitzEP3": 38.3,
+     "lrPointsPerRunModel": 780.7
+    }
+   },
+   "allMinusOne": {
+    "pieces": 4,
+    "lrModelSecondsPerPizza": 40.0,
+    "costD4": 19.83,
+    "costEP3": 66.11,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -19.8,
+     "netPitzEP3": -66.1,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 98.6,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 100.2,
+     "netPitzEP3": 53.9,
+     "lrPointsPerRunModel": 893.7
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 74,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 60.2,
+     "netPitzEP3": 13.9,
+     "lrPointsPerRunModel": 783.0
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 60.2,
+     "netPitzEP3": 13.9,
+     "lrPointsPerRunModel": 787.0
+    }
+   },
+   "allHalf": {
+    "pieces": 4,
+    "lrModelSecondsPerPizza": 40.0,
+    "costD4": 19.83,
+    "costEP3": 66.11,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -19.8,
+     "netPitzEP3": -66.1,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 98.6,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 100.2,
+     "netPitzEP3": 53.9,
+     "lrPointsPerRunModel": 893.7
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 74,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 60.2,
+     "netPitzEP3": 13.9,
+     "lrPointsPerRunModel": 783.0
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 60.2,
+     "netPitzEP3": 13.9,
+     "lrPointsPerRunModel": 787.0
+    }
+   },
+   "allOne": {
+    "pieces": 3,
+    "lrModelSecondsPerPizza": 37.0,
+    "costD4": 15.17,
+    "costEP3": 50.56,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -15.2,
+     "netPitzEP3": -50.6,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 98.2,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 104.8,
+     "netPitzEP3": 69.4,
+     "lrPointsPerRunModel": 964.2
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 65.5,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 64.8,
+     "netPitzEP3": 29.4,
+     "lrPointsPerRunModel": 805.1
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 59.9,
+     "stars": 2,
+     "pitz": 50,
+     "netPitzD4": 34.8,
+     "netPitzEP3": -0.6,
+     "lrPointsPerRunModel": 777.9
+    }
+   }
+  },
+  "capricciosa": {
+   "ideal": {
+    "pieces": 8,
+    "lrModelSecondsPerPizza": 52.0,
+    "costD4": 35.75,
+    "costEP3": 119.17,
+    "current": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 84.2,
+     "netPitzEP3": 0.8,
+     "lrPointsPerRunModel": 690.6
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 84.2,
+     "netPitzEP3": 0.8,
+     "lrPointsPerRunModel": 690.6
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 84.2,
+     "netPitzEP3": 0.8,
+     "lrPointsPerRunModel": 690.6
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 84.2,
+     "netPitzEP3": 0.8,
+     "lrPointsPerRunModel": 690.6
+    }
+   },
+   "allMinusOne": {
+    "pieces": 5,
+    "lrModelSecondsPerPizza": 43.0,
+    "costD4": 26.25,
+    "costEP3": 87.5,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -26.2,
+     "netPitzEP3": -87.5,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 98.6,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 93.8,
+     "netPitzEP3": 32.5,
+     "lrPointsPerRunModel": 831.3
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 73.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 53.8,
+     "netPitzEP3": -7.5,
+     "lrPointsPerRunModel": 728.0
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 53.8,
+     "netPitzEP3": -7.5,
+     "lrPointsPerRunModel": 732.1
+    }
+   },
+   "allHalf": {
+    "pieces": 5,
+    "lrModelSecondsPerPizza": 43.0,
+    "costD4": 26.25,
+    "costEP3": 87.5,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -26.2,
+     "netPitzEP3": -87.5,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 98.6,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 93.8,
+     "netPitzEP3": 32.5,
+     "lrPointsPerRunModel": 831.3
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 73.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 53.8,
+     "netPitzEP3": -7.5,
+     "lrPointsPerRunModel": 728.0
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 53.8,
+     "netPitzEP3": -7.5,
+     "lrPointsPerRunModel": 732.1
+    }
+   },
+   "allOne": {
+    "pieces": 5,
+    "lrModelSecondsPerPizza": 43.0,
+    "costD4": 26.25,
+    "costEP3": 87.5,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -26.2,
+     "netPitzEP3": -87.5,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 98.6,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 93.8,
+     "netPitzEP3": 32.5,
+     "lrPointsPerRunModel": 831.3
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 73.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 53.8,
+     "netPitzEP3": -7.5,
+     "lrPointsPerRunModel": 728.0
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 53.8,
+     "netPitzEP3": -7.5,
+     "lrPointsPerRunModel": 732.1
+    }
+   }
+  },
+  "meat-lovers": {
+   "ideal": {
+    "pieces": 8,
+    "lrModelSecondsPerPizza": 52.0,
+    "costD4": 35.92,
+    "costEP3": 119.72,
+    "current": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 84.1,
+     "netPitzEP3": 0.3,
+     "lrPointsPerRunModel": 690.6
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 84.1,
+     "netPitzEP3": 0.3,
+     "lrPointsPerRunModel": 690.6
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 84.1,
+     "netPitzEP3": 0.3,
+     "lrPointsPerRunModel": 690.6
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 99.5,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 84.1,
+     "netPitzEP3": 0.3,
+     "lrPointsPerRunModel": 690.6
+    }
+   },
+   "allMinusOne": {
+    "pieces": 5,
+    "lrModelSecondsPerPizza": 43.0,
+    "costD4": 26.58,
+    "costEP3": 88.61,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -26.6,
+     "netPitzEP3": -88.6,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 98.6,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 93.4,
+     "netPitzEP3": 31.4,
+     "lrPointsPerRunModel": 831.3
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 73.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 53.4,
+     "netPitzEP3": -8.6,
+     "lrPointsPerRunModel": 728.0
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 53.4,
+     "netPitzEP3": -8.6,
+     "lrPointsPerRunModel": 732.1
+    }
+   },
+   "allHalf": {
+    "pieces": 5,
+    "lrModelSecondsPerPizza": 43.0,
+    "costD4": 26.58,
+    "costEP3": 88.61,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -26.6,
+     "netPitzEP3": -88.6,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 98.6,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 93.4,
+     "netPitzEP3": 31.4,
+     "lrPointsPerRunModel": 831.3
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 73.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 53.4,
+     "netPitzEP3": -8.6,
+     "lrPointsPerRunModel": 728.0
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 53.4,
+     "netPitzEP3": -8.6,
+     "lrPointsPerRunModel": 732.1
+    }
+   },
+   "allOne": {
+    "pieces": 5,
+    "lrModelSecondsPerPizza": 43.0,
+    "costD4": 26.58,
+    "costEP3": 88.61,
+    "current": {
+     "passed": false,
+     "total": null,
+     "stars": null,
+     "pitz": 0,
+     "netPitzD4": -26.6,
+     "netPitzEP3": -88.6,
+     "lrPointsPerRunModel": 0.0
+    },
+    "G1+S0": {
+     "passed": true,
+     "total": 98.6,
+     "stars": 5,
+     "pitz": 120,
+     "netPitzD4": 93.4,
+     "netPitzEP3": 31.4,
+     "lrPointsPerRunModel": 831.3
+    },
+    "G1+Q0.15": {
+     "passed": true,
+     "total": 73.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 53.4,
+     "netPitzEP3": -8.6,
+     "lrPointsPerRunModel": 728.0
+    },
+    "G1+S4cap": {
+     "passed": true,
+     "total": 74.9,
+     "stars": 3,
+     "pitz": 80,
+     "netPitzD4": 53.4,
+     "netPitzEP3": -8.6,
+     "lrPointsPerRunModel": 732.1
+    }
+   }
+  }
+ },
+ "underfillDominance": {
+  "current": {
+   "cases": 45,
+   "underfillBeatsIdealNetPitzD4": 0,
+   "underfillBeatsIdealNetPitzEP3": 0,
+   "underfillBeatsIdealLunchRushModel": 0
+  },
+  "G1+S0": {
+   "cases": 45,
+   "underfillBeatsIdealNetPitzD4": 39,
+   "underfillBeatsIdealNetPitzEP3": 39,
+   "underfillBeatsIdealLunchRushModel": 45
+  },
+  "G1+Q0.15": {
+   "cases": 45,
+   "underfillBeatsIdealNetPitzD4": 0,
+   "underfillBeatsIdealNetPitzEP3": 5,
+   "underfillBeatsIdealLunchRushModel": 39
+  },
+  "G1+S4cap": {
+   "cases": 45,
+   "underfillBeatsIdealNetPitzD4": 0,
+   "underfillBeatsIdealNetPitzEP3": 3,
+   "underfillBeatsIdealLunchRushModel": 41
+  }
+ },
+ "lunchRushBreakEvenShortCoefficient": {
+  "1.5s_per_item": {
+   "minShortCoefficient": 0.602,
+   "bindingCase": "quattro-formaggi:allMinusOne"
+  },
+  "2.0s_per_item": {
+   "minShortCoefficient": 0.726,
+   "bindingCase": "quattro-formaggi:allMinusOne"
+  },
+  "3.0s_per_item": {
+   "minShortCoefficient": 0.908,
+   "bindingCase": "quattro-formaggi:allMinusOne"
+  },
+  "4.0s_per_item": {
+   "minShortCoefficient": 1.036,
+   "bindingCase": "quattro-formaggi:allMinusOne"
+  }
+ },
+ "lunchRushModel": {
+  "secondsPerPizza": "25.0 + 3.0 * items (items = pieces + spreads)",
+  "runSeconds": 180.0,
+  "pointsPerServe": "100 + qualityTotal (PASS only), shared/lunchRushScoring.ts",
+  "caveat": "MODEL ONLY -- not measured; real per-piece time is higher on a phone (drag+drop)."
+ }
+}
