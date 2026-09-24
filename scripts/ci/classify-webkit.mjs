@@ -18,10 +18,11 @@
 // err towards running WebKit. Over the RAW text of every scannable repo file (all code/markup/
 // data except docs/**, scripts/ci/** and the guarded files themselves):
 //   1. a changed guarded file whose name stem (e.g. `scoring.test`, `test/setup`, a tools script
-//      stem) appears anywhere -- import, fs path, command, even a comment -- runs WebKit;
+//      stem) appears anywhere -- import, fs path, command, even a comment -- runs WebKit; guarded
+//      files named that way (transitively) are themselves scanned like runtime code;
 //   2. any construct that could load a file by a computed path fails the category closed:
-//      import()/require()/fetch()/new URL()/new Worker()/fs reads whose argument is not a plain
-//      string literal (a template with ${} is not), readdir/glob, import.meta.glob, eval,
+//      import()/require()/fetch()/new URL()/new Worker()/fs reads whose whole first argument is
+//      not one plain string literal ("a" + b, `${x}`, a comment are not), readdir/glob, import.meta.glob, eval,
 //      new Function, a `python` invocation (tools);
 //   3. config that could widen what Vite serves or Playwright runs fails closed: vite/playwright
 //      configs importing any local module (so their settings can only live in those two files),
@@ -140,13 +141,11 @@ export function dynamicLoad(text) {
   const always = text.match(ALWAYS_DYNAMIC);
   if (always) return always[0];
   for (const m of text.matchAll(LOADER_CALL)) {
-    const rest = text.slice(m.index + m[0].length).replace(/^\s+/, "");
-    if (rest[0] === '"' || rest[0] === "'") continue;
-    if (rest[0] === "`") {
-      const end = rest.indexOf("`", 1);
-      if (end > 0 && !rest.slice(0, end).includes("${")) continue;
-    }
-    return `${m[0]}${rest.slice(0, 24).replace(/\s+/g, " ")}`;
+    const rest = text.slice(m.index + m[0].length);
+    // The WHOLE first argument must be one plain literal: closed, then `,` or `)` -- so
+    // "a" + name, `./${x}`, a leading comment or any other expression fails closed.
+    if (/^\s*(?:"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'|`[^`$\\]*`)\s*[,)]/.test(rest)) continue;
+    return `${m[0]}${rest.replace(/^\s+/, "").slice(0, 24).replace(/\s+/g, " ")}`;
   }
   return null;
 }
@@ -170,8 +169,30 @@ export function scanGuards(root, paths = []) {
     }
     const all = [];
     walk(root, "", all);
-    const files = all.filter((f) => SCAN_EXT.test(f) && !SCAN_SKIP_FILE.test(f) && !GUARDED.includes(skipCategory(f)?.category));
-    const texts = new Map(files.map((f) => [f, readFileSync(join(root, f), "utf8")]));
+    const scannable = all.filter((f) => SCAN_EXT.test(f) && !SCAN_SKIP_FILE.test(f));
+    const isGuarded = (f) => GUARDED.includes(skipCategory(f)?.category);
+    const guardedFiles = scannable.filter(isGuarded);
+    const files = scannable.filter((f) => !isGuarded(f));
+    const read = (f) => readFileSync(join(root, f), "utf8");
+    const texts = new Map(files.map((f) => [f, read(f)]));
+    // Guarded files can load each other (runtime -> a.test -> b.test). A guarded file counts as
+    // reachable if a non-guarded file or an already-reachable guarded file names it; reachable
+    // guarded files then take part in every check below, exactly like runtime code.
+    const guardedText = new Map(guardedFiles.map((f) => [f, read(f)]));
+    const reachable = new Set();
+    for (let grew = true; grew; ) {
+      grew = false;
+      for (const g of guardedFiles) {
+        if (reachable.has(g)) continue;
+        const stem = nameStem(g);
+        const namedBy = [...texts.values(), ...[...reachable].map((r) => guardedText.get(r))].some((t) => t.includes(stem));
+        if (namedBy) {
+          reachable.add(g);
+          grew = true;
+        }
+      }
+    }
+    for (const g of reachable) texts.set(g, guardedText.get(g));
     const blocked = { tools: [], "unit-test": [] };
     const both = (why) => {
       blocked.tools.push(why);
@@ -209,7 +230,7 @@ export function scanGuards(root, paths = []) {
       if (!GUARDED.includes(cat)) continue;
       const stem = nameStem(path);
       for (const [file, text] of texts) {
-        if (text.includes(stem)) blocked[cat].push(`${file} names '${stem}'`);
+        if (file !== path && text.includes(stem)) blocked[cat].push(`${file} names '${stem}'`);
       }
     }
     return Object.fromEntries(
@@ -359,6 +380,12 @@ const SCAN_CASES = [
   ["package.json runs the changed tools script", { "package.json": '{"scripts":{"gen":"node x && tools/gen.py"}}' }, { ...T, tools: false }],
   ["anything invoking python (tools)", { ".github/workflows/e2e-webkit.yml": "  run: python3 -m runner\n" }, { ...T, tools: false }],
   ["runtime imports tools output", { "src/App.tsx": 'import d from "../tools/gen.py?raw";\n' }, { ...T, tools: false }],
+  ["concatenated fetch argument", { "src/App.tsx": 'fetch("/src/logic/" + name);\n' }, { tools: false, "unit-test": false }],
+  ["concatenated import argument", { "src/App.tsx": 'import("./logic/" + moduleName);\n' }, { tools: false, "unit-test": false }],
+  ["literal followed by a second argument is fine", { "src/App.tsx": 'new URL("./App.css", import.meta.url);\nfetch("/api", { method: "GET" });\n' }, T],
+  ["runtime -> other.test -> changed a.test (guarded chain)", { "src/App.tsx": 'import "./logic/other.test";\n', "src/logic/other.test.ts": 'import "./a.test";\n' }, { ...T, "unit-test": false }],
+  ["reachable guarded file with a dynamic import", { "src/App.tsx": 'import "./logic/other.test";\n', "src/logic/other.test.ts": "import(name);\n" }, { tools: false, "unit-test": false }],
+  ["unreachable test files may name each other", { "src/logic/other.test.ts": 'import "./a.test";\nimport(name);\n' }, T],
   ["functions/ `input:` params are not config keys", { "functions/src/index.ts": "export function f(input: X) { return { input: input }; }\n" }, T],
 ];
 

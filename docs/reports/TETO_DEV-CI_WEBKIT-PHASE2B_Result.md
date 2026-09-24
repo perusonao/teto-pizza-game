@@ -150,7 +150,7 @@ and (c) evidence that a meaningful share of PRs would land in L1/L2.
 
 | File | Change |
 |---|---|
-| `scripts/ci/classify-webkit.mjs` | Skip allow-list = docs + `tools/**/*.py` + `src/**/*.test.ts(x)` + `src/test/**`. The two new categories require `--repo` scan guards. Self-test grows from 24 to 98 cases (path table + raw-scan fixtures). |
+| `scripts/ci/classify-webkit.mjs` | Skip allow-list = docs + `tools/**/*.py` + `src/**/*.test.ts(x)` + `src/test/**`. The two new categories require `--repo` scan guards. Self-test grows from 24 to 104 cases (path table + raw-scan fixtures). |
 | `scripts/ci/classify-webkit-pr.sh` | Passes `--repo <toplevel>` (the merge-ref checkout). Reason wording changes to "cannot reach the browser". Decision order, forcing rules, `tested_base` reuse and fail-safes are unchanged. |
 | `scripts/ci/test-webkit-ci.sh` | 40 → 48 cases: tools-only / unit-test-only / unit+runtime / guard-violation PRs in a throwaway repo, plus classification against **this repository's own tree** (tools-only → skip, unit-test-only → skip, persistence → run). |
 | `.github/workflows/e2e-webkit.yml` | Header comment only. Matrix, steps, triggers, concurrency, evidence and gate are identical to Phase 2A. |
@@ -167,11 +167,14 @@ no heuristic can hide evidence. Each rule can only push a PR toward Full WebKit.
 1. **Name mention.** A changed guarded file runs WebKit if its name stem (`scoring.test`,
    `test/setup`, a tools script stem) appears anywhere, including in a comment. This covers any
    import syntax, `fs` paths, commands, HTML entries and config helpers, without having to
-   understand any of them.
+   understand any of them. Guarded files can load each other (runtime → `a.test` → `b.test`).
+   So every guarded file named by scanned code is itself scanned like runtime code, and this is
+   applied transitively.
 2. **Dynamic loading.** If any file uses a path-taking call whose argument is not a plain
    string literal, both categories are disabled. The calls are `import()` / `require()` /
-   `fetch()` / `new URL()` / `new Worker()` / `fs` reads. A template with `${}` does not count
-   as a literal, and neither does a comment before the argument. `readdir`/`glob`,
+   `fetch()` / `new URL()` / `new Worker()` / `fs` reads. The **whole** first argument must be
+   one plain literal. `"a" + name`, a template with `${}` and a comment before the argument
+   all fail. `readdir`/`glob`,
    `import.meta.glob`, `eval` and `new Function` also disable both. Any `python` invocation
    disables `tools`.
 3. **Config.**
@@ -187,9 +190,11 @@ no heuristic can hide evidence. Each rule can only push a PR toward Full WebKit.
 The post-merge Full WebKit run on `main` and the `webkit-full` label are the backstops.
 
 On this repository:
-- 108 of 117 unit-test files and every `tools` script that no file names can skip.
-- The 9 unit-test files named in source comments run Full (e.g. `scoringV2.test`). So does
-  `tools/progression2_phase2_progression.py`, which a source comment names.
+- 96 of the 128 guarded files (unit tests, `src/test`, `tools/*.py`) can skip. The other 32
+  are named by runtime code or by a reachable test, often only in a comment, so they
+  conservatively run Full.
+- For example, `scoringV2.test` and `tools/progression2_phase2_progression.py` are both named
+  in source comments, so both run Full.
 - #217's `tools/progression2_issue216_fresh_design.py` skips.
 
 Any hit, a missing tree, or a scan error disables that category, and the paths run WebKit.
@@ -229,10 +234,16 @@ the same place: a regex-based import **parser** with comment stripping. Examples
 - `index.html` entries not followed;
 - config set through imported helpers.
 
-Patching each instance kept producing new ones, so the scanner was replaced (commit after
-`970f9b3`) by the raw-text, never-strip design above. That removes the whole class. Each
-rule has a mutation that fails the self-test (98 cases). All four round-4 examples were
-reproduced through the real PR classifier on git history and now run Full.
+Patching each instance kept producing new ones, so `694764e` replaced the scanner with the
+raw-text, never-strip design above. That removes the whole class. All four round-4 examples
+were reproduced through the real PR classifier on git history and now run Full.
+
+Round 5 (on `694764e`) found two gaps in rules of the new design, not in the design itself:
+- a concatenated argument that starts with a quote was treated as a literal;
+- test-to-test chains were missed, because guarded files were not scanned at all.
+
+Both are fixed: the argument must be one whole literal, and reachable guarded files are
+scanned transitively. Self-test: 104 cases, and a mutation of each rule fails it.
 
 ### 5.2 Duration-balanced shards: implemented, measured, removed
 
