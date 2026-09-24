@@ -258,6 +258,20 @@ export function scanGuards(root, paths = []) {
       String.raw`(?:\bfrom|\bimport|\brequire)${GAP}\(?${GAP}["'\x60][^"'\x60\n]*(?:exec|spawn|shell|child_process|\bzx\b|\bprocess\b)[^"'\x60\n]*["'\x60]` +
         String.raw`|\bBun${GAP}\.${GAP}(?:spawn|\$)|\bDeno${GAP}\.${GAP}(?:Command|run)\b|\bexecSync\b|\bspawnSync\b`,
     );
+    // npm itself is a shell launcher in this job: `npm ci` runs the install lifecycle scripts and
+    // Playwright's webServer runs `npm run dev` (with predev/postdev). Anything but a plain
+    // `vite ...` dev command, or any such lifecycle script, can launch a tools script.
+    try {
+      const scripts = JSON.parse(texts.get("package.json") ?? "{}").scripts ?? {};
+      for (const name of ["preinstall", "install", "postinstall", "preprepare", "prepare", "postprepare", "predev", "postdev"]) {
+        if (name in scripts) blocked.tools.push(`package.json (npm runs the "${name}" script in this job)`);
+      }
+      if ("dev" in scripts && !/^vite(?:\s+[^&|;`$<>()]*)?$/.test(String(scripts.dev).trim())) {
+        blocked.tools.push(`package.json (dev script is not a plain vite command)`);
+      }
+    } catch {
+      blocked.tools.push("package.json (unparseable scripts)");
+    }
     // A shell script launches processes by itself (no module import needed).
     const isShell = (file, text) => /\.(?:sh|bash|zsh)$/.test(file) || /^#!.*\b(?:sh|bash|zsh|dash)\b/.test(text);
     for (const [file, text] of texts) {
@@ -457,6 +471,11 @@ const SCAN_CASES = [
   ["an extensionless sh-shebang wrapper that is named", { "package.json": '{"scripts":{"prep":"bin/prep"}}', "bin/prep": "#!/usr/bin/env bash\n./tools/runner.py\n" }, { ...T, tools: false }],
   ["an unnamed shell script cannot run in the job", { "scripts/local.sh": "#!/bin/sh\n./tools/runner.py\n" }, T],
   ["--config after a shell line continuation", { "scripts/e2e.sh": "#!/bin/sh\nnpx playwright test \\\n  --config config/pw.ts\n" }, { tools: false, "unit-test": false }],
+  ["npm prepare lifecycle runs a tools script (npm ci)", { "package.json": '{"scripts":{"prepare":"./tools/runner.py"}}' }, { ...T, tools: false }],
+  ["npm postinstall lifecycle", { "package.json": '{"scripts":{"postinstall":"node x.js"}}' }, { ...T, tools: false }],
+  ["predev runs before the webServer's npm run dev", { "package.json": '{"scripts":{"dev":"vite","predev":"sh x"}}' }, { ...T, tools: false }],
+  ["dev script chains another command", { "package.json": '{"scripts":{"dev":"vite && ./tools/runner.py"}}' }, { ...T, tools: false }],
+  ["plain vite dev script with flags is fine", { "package.json": '{"scripts":{"dev":"vite --port 5183","test":"vitest run"}}' }, T],
   ["binary files are skipped", { "public/icon.png": "\u0000PNG a.test tools/gen.py python" }, T],
   ["concatenated fetch argument", { "src/App.tsx": 'fetch("/src/logic/" + name);\n' }, { tools: false, "unit-test": false }],
   ["concatenated import argument", { "src/App.tsx": 'import("./logic/" + moduleName);\n' }, { tools: false, "unit-test": false }],
