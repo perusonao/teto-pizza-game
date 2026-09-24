@@ -7,7 +7,7 @@
 - production は **15 recipes / 22 ingredients**。
 - matrix は **172 rows: FULL 101 / PARTIAL 55 / NOT_REPRESENTABLE 16** のまま。
 - production 15 件のうち 10 件に matrix correspondence があり、5 件（`funghi`, `napoletana`, `pepperoni`, `pizza-bianca`, `salsiccia`）は対応 row がない。これは欠落ではなく、172 evidence と production overlay の集合差である。
-- 追加候補から production correspondence 10 row を除くと、最小差分 Wave は **W1 11件**、複数材料 Wave は **W2 17件**、runtime-contract / 非構造 mechanic Wave は **W4 73件**。
+- 追加候補から production correspondence 10 row を除くと、最小差分 Wave は **W1 10件**、複数材料 Wave は **W2 11件**、runtime-contract / 非構造 mechanic Wave は **W4 80件**。
 - 最初の 10 件候補は W1 内の同順位集合で、**新 ingredient 7種**に抑えられる。
 - current renderer は ingredient の `color` + `emoji` を data から描画するため、専用 bitmap asset が必須の候補は **0**。ただし visual content authoring/review は新 ingredient ごとに必要。
 
@@ -27,7 +27,7 @@
 1. matrix の canonical ingredient IDs と production 22 ingredient IDs を差分化。
 2. ingredient overlap は matrix の完全な `identityIngredientSet`（family-derived sauce を含む）と、同じく sauce を含む production の完全 recipe ingredient set を対称比較する。identity set が incomplete の行は Jaccard / exact-set を算出しない。
 3. `FULL + READY` のうち production runtime contract でも表現可能な行だけを即時 content wave に入れる。0–1 新材料を W1、2+ を W2 とした。
-4. `FULL` でも review/blocker があれば W3。`PARTIAL` または `SAUCELESS_RECIPE_CONTRACT` 依存は W4、`NOT_REPRESENTABLE` は W5。
+4. `FULL` でも review/blocker があれば W3。`PARTIAL`、または `SAUCELESS_RECIPE_CONTRACT` / `UNSUPPORTED_SAUCE_ID_CONTRACT` 依存は W4、`NOT_REPRESENTABLE` は W5。
 5. production correspondence は W0 reference とし、追加候補に二重計上しない。
 
 ## 3. Proposed implementation waves
@@ -36,10 +36,10 @@
 |---|---|---:|---:|---|---|---|
 | W0 | Current production baseline | 15 | 0 | none | {"PRODUCTION_BASELINE": 15} | {"SHIPPED": 15} |
 | W0_CORRESPONDENCE | Matrix-to-production correspondence | 10 | 5 | DOUGH_VARIANT, MULTI_SPREAD_LAYER | {"HIGH": 2, "LOW": 4, "MEDIUM": 3, "UNKNOWN": 1} | {"ALREADY_SHIPPED_CORROBORATED": 1, "BLOCKED_PRODUCT_DECISION": 9} |
-| W1 | Minimal current-mechanic additions | 11 | 8 | none | {"LOW": 11} | {"READY": 11} |
-| W2 | Multi-ingredient current-mechanic additions | 17 | 32 | none | {"HIGH": 1, "LOW": 16} | {"READY": 17} |
-| W3 | Content/evidence decision queue | 45 | 63 | SAUCELESS_RECIPE_CONTRACT | {"HIGH": 1, "LOW": 4, "MEDIUM": 8, "UNKNOWN": 32} | {"BLOCKED_PRODUCT_DECISION": 38, "READY_WITH_REVIEW": 7} |
-| W4 | Runtime-contract / non-structural mechanic queue | 73 | 97 | DOUGH_VARIANT, LATE_ADDITION, MULTI_SPREAD_LAYER, PREP_STEP, SAUCELESS_RECIPE_CONTRACT, STEP_ORDER, ZONED_PLACEMENT | {"HIGH": 6, "LOW": 45, "MEDIUM": 6, "UNKNOWN": 16} | {"BLOCKED_PRODUCT_DECISION": 29, "READY": 35, "READY_WITH_REVIEW": 9} |
+| W1 | Minimal current-mechanic additions | 10 | 7 | none | {"LOW": 10} | {"READY": 10} |
+| W2 | Multi-ingredient current-mechanic additions | 11 | 17 | none | {"HIGH": 1, "LOW": 10} | {"READY": 11} |
+| W3 | Content/evidence decision queue | 45 | 63 | SAUCELESS_RECIPE_CONTRACT, UNSUPPORTED_SAUCE_ID_CONTRACT | {"HIGH": 1, "LOW": 4, "MEDIUM": 8, "UNKNOWN": 32} | {"BLOCKED_PRODUCT_DECISION": 38, "READY_WITH_REVIEW": 7} |
+| W4 | Runtime-contract / non-structural mechanic queue | 80 | 109 | DOUGH_VARIANT, LATE_ADDITION, MULTI_SPREAD_LAYER, PREP_STEP, SAUCELESS_RECIPE_CONTRACT, STEP_ORDER, UNSUPPORTED_SAUCE_ID_CONTRACT, ZONED_PLACEMENT | {"HIGH": 6, "LOW": 52, "MEDIUM": 6, "UNKNOWN": 16} | {"BLOCKED_PRODUCT_DECISION": 29, "READY": 42, "READY_WITH_REVIEW": 9} |
 | W5 | Structural mechanic queue | 16 | 11 | DOUGH_SHAPE_TARGET, DOUGH_VARIANT, ENCLOSE, FRY_COOK, LAMINATE, LATE_ADDITION, MULTI_SPREAD_LAYER, PAN_BAKE, SAUCELESS_RECIPE_CONTRACT, STEP_ORDER | {"HIGH": 3, "LOW": 8, "MEDIUM": 2, "UNKNOWN": 3} | {"BLOCKED_PRODUCT_DECISION": 9, "READY": 4, "READY_WITH_REVIEW": 3} |
 
 Wave counts are implementation buckets, not unlock order. Pitz price, unlock fee, star gate, non-star condition, and Completion Gate are all `TBD` / `OWNER_DECISION_REQUIRED`.
@@ -81,6 +81,7 @@ Wave counts are implementation buckets, not unlock order. Pitz price, unlock fee
 - Asset addition: dedicated bitmap は不要。新 ingredient の visual fields は content authoring 対象。
 - Evidence/content review: W3 と unresolved ledger を先に解消する。
 - Runtime contract: `sauceBase.status == none` は exhaustive `RECIPE_SAUCE_PROFILES` とその test contract の変更が必要なため `SAUCELESS_RECIPE_CONTRACT` として W4 に置く。
+- Runtime contract: `RecipeSauceProfile.ingredientId` は `olive-oil` | `pesto` | `tomato-sauce` の closed union。これ以外の `sauceBase.baseIngredientId`（18 rows: 例 `fromage-blanc-sauce`, `curry-ketchup`, `mustard`, `miso-sauce`）は union 拡張が必要なため `UNSUPPORTED_SAUCE_ID_CONTRACT` とし、W1/W2 に入れない（decision-ready FULL は W4、evidence-blocked は W3 のまま）。
 - New mechanic: W4/W5。PR #189 の capability IDs はそのまま参照し、172 mechanic分類を再作成しない。
 
 ## 6. Unresolved / content-authoring

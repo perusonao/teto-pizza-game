@@ -26,6 +26,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "unspecified",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -44,6 +45,7 @@
       "productDecisionStatus": "READY_WITH_REVIEW",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "listed",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [],
       "reviewItems": [
@@ -62,6 +64,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "listed",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -86,6 +89,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "listed",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -104,6 +108,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "none",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -122,6 +127,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "listed",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -140,6 +146,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "listed",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -164,6 +171,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "listed",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -188,6 +196,7 @@
       "productDecisionStatus": "READY_WITH_REVIEW",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "family_derived",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [],
       "reviewItems": [
@@ -206,6 +215,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "listed",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -222,9 +232,12 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
-      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED",
       "sauceBaseStatus": "listed",
-      "runtimeContractDependencies": [],
+      "sauceBaseIngredientId": "salsa",
+      "runtimeContractDependencies": [
+        "UNSUPPORTED_SAUCE_ID_CONTRACT"
+      ],
       "blockers": [
         {
           "type": "MECHANIC_INTERPRETATION",
@@ -242,6 +255,7 @@
       "productDecisionStatus": "READY_WITH_REVIEW",
       "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED",
       "sauceBaseStatus": "none",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [
         "SAUCELESS_RECIPE_CONTRACT"
       ],
@@ -262,6 +276,7 @@
       "productDecisionStatus": "READY_WITH_REVIEW",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "listed",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [],
       "reviewItems": [
@@ -280,6 +295,7 @@
       "productDecisionStatus": "READY_WITH_REVIEW",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "listed",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [],
       "reviewItems": [
@@ -301,9 +317,12 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
-      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "implementationType": "NEW_MECHANIC_AND_RUNTIME_CONTRACT_REQUIRED",
       "sauceBaseStatus": "listed",
-      "runtimeContractDependencies": [],
+      "sauceBaseIngredientId": "buffalo-sauce",
+      "runtimeContractDependencies": [
+        "UNSUPPORTED_SAUCE_ID_CONTRACT"
+      ],
       "blockers": [
         {
           "type": "COMPOSITION_CONFLICT_CANDIDATE",
@@ -321,6 +340,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "family_derived",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -339,6 +359,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "family_derived",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -357,6 +378,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "NEW_MECHANIC_AND_RUNTIME_CONTRACT_REQUIRED",
       "sauceBaseStatus": "none",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [
         "SAUCELESS_RECIPE_CONTRACT"
       ],
@@ -377,6 +399,7 @@
       "productDecisionStatus": "READY_WITH_REVIEW",
       "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED",
       "sauceBaseStatus": "none",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [
         "SAUCELESS_RECIPE_CONTRACT"
       ],
@@ -397,6 +420,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "family_derived",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -415,6 +439,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "unspecified",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -444,6 +469,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED",
       "sauceBaseStatus": "none",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [
         "SAUCELESS_RECIPE_CONTRACT"
       ],
@@ -470,6 +496,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "unspecified",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -488,6 +515,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "family_derived",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -504,9 +532,12 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
-      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED",
       "sauceBaseStatus": "listed",
-      "runtimeContractDependencies": [],
+      "sauceBaseIngredientId": "peanut-sauce",
+      "runtimeContractDependencies": [
+        "UNSUPPORTED_SAUCE_ID_CONTRACT"
+      ],
       "blockers": [
         {
           "type": "UNRESOLVED_INGREDIENT",
@@ -524,6 +555,7 @@
       "productDecisionStatus": "READY_WITH_REVIEW",
       "implementationType": "NEW_MECHANIC_AND_RUNTIME_CONTRACT_REQUIRED",
       "sauceBaseStatus": "none",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [
         "SAUCELESS_RECIPE_CONTRACT"
       ],
@@ -544,6 +576,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "unspecified",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -567,6 +600,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "unspecified",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -585,6 +619,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "family_derived",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -601,9 +636,12 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
-      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "implementationType": "NEW_MECHANIC_AND_RUNTIME_CONTRACT_REQUIRED",
       "sauceBaseStatus": "listed",
-      "runtimeContractDependencies": [],
+      "sauceBaseIngredientId": "okonomiyaki-sauce",
+      "runtimeContractDependencies": [
+        "UNSUPPORTED_SAUCE_ID_CONTRACT"
+      ],
       "blockers": [
         {
           "type": "UNRESOLVED_INGREDIENT",
@@ -621,6 +659,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "unspecified",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -639,6 +678,7 @@
       "productDecisionStatus": "READY_WITH_REVIEW",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "family_derived",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [],
       "reviewItems": [
@@ -657,6 +697,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "listed_unresolved",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -675,6 +716,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "unspecified",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -703,6 +745,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "unspecified",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -721,6 +764,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "family_derived",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -739,6 +783,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "unspecified",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -757,6 +802,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "family_derived",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -775,6 +821,7 @@
       "productDecisionStatus": "READY_WITH_REVIEW",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "family_derived",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [],
       "reviewItems": [
@@ -798,6 +845,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "unspecified",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -822,6 +870,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "unspecified",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -840,6 +889,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "unspecified",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -858,6 +908,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "unspecified",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -882,6 +933,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "family_derived",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -905,6 +957,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "family_derived",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -923,6 +976,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "family_derived",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -946,6 +1000,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "unspecified",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -964,6 +1019,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "unspecified",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -988,6 +1044,7 @@
       "productDecisionStatus": "READY_WITH_REVIEW",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "family_derived",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [],
       "reviewItems": [
@@ -1004,9 +1061,12 @@
       "wave": "W4",
       "currentFlowRepresentability": "PARTIAL",
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
-      "implementationType": "NEW_MECHANIC_REQUIRED",
+      "implementationType": "NEW_MECHANIC_AND_RUNTIME_CONTRACT_REQUIRED",
       "sauceBaseStatus": "listed",
-      "runtimeContractDependencies": [],
+      "sauceBaseIngredientId": "nutella-spread",
+      "runtimeContractDependencies": [
+        "UNSUPPORTED_SAUCE_ID_CONTRACT"
+      ],
       "blockers": [
         {
           "type": "COMPOSITION_CONFLICT_CANDIDATE",
@@ -1029,6 +1089,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "unspecified",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -1047,6 +1108,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "unspecified",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -1065,6 +1127,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "unspecified",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -1089,6 +1152,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "unspecified",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -1107,6 +1171,7 @@
       "productDecisionStatus": "READY_WITH_REVIEW",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "family_derived",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [],
       "reviewItems": [
@@ -1125,6 +1190,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "family_derived",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -1149,6 +1215,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED",
       "sauceBaseStatus": "none",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [
         "SAUCELESS_RECIPE_CONTRACT"
       ],
@@ -1169,6 +1236,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "NEW_MECHANIC_AND_RUNTIME_CONTRACT_REQUIRED",
       "sauceBaseStatus": "none",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [
         "SAUCELESS_RECIPE_CONTRACT"
       ],
@@ -1189,6 +1257,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED",
       "sauceBaseStatus": "none",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [
         "SAUCELESS_RECIPE_CONTRACT"
       ],
@@ -1209,6 +1278,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED",
       "sauceBaseStatus": "none",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [
         "SAUCELESS_RECIPE_CONTRACT"
       ],
@@ -1229,6 +1299,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED",
       "sauceBaseStatus": "none",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [
         "SAUCELESS_RECIPE_CONTRACT"
       ],
@@ -1249,6 +1320,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "NEW_MECHANIC_AND_RUNTIME_CONTRACT_REQUIRED",
       "sauceBaseStatus": "none",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [
         "SAUCELESS_RECIPE_CONTRACT"
       ],
@@ -1274,6 +1346,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "NEW_MECHANIC_AND_RUNTIME_CONTRACT_REQUIRED",
       "sauceBaseStatus": "none",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [
         "SAUCELESS_RECIPE_CONTRACT"
       ],
@@ -1294,6 +1367,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "NEW_MECHANIC_AND_RUNTIME_CONTRACT_REQUIRED",
       "sauceBaseStatus": "none",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [
         "SAUCELESS_RECIPE_CONTRACT"
       ],
@@ -1314,6 +1388,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "family_derived",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -1332,6 +1407,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "family_derived",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -1350,6 +1426,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "family_derived",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -1368,6 +1445,7 @@
       "productDecisionStatus": "READY_WITH_REVIEW",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "family_derived",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [],
       "reviewItems": [
@@ -1386,6 +1464,7 @@
       "productDecisionStatus": "READY_WITH_REVIEW",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "family_derived",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [],
       "reviewItems": [
@@ -1404,6 +1483,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED",
       "sauceBaseStatus": "none",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [
         "SAUCELESS_RECIPE_CONTRACT"
       ],
@@ -1424,6 +1504,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "unspecified",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -1452,6 +1533,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "listed",
+      "sauceBaseIngredientId": "olive-oil",
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -1470,6 +1552,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "none",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -1493,6 +1576,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "NEW_MECHANIC_AND_RUNTIME_CONTRACT_REQUIRED",
       "sauceBaseStatus": "none",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [
         "SAUCELESS_RECIPE_CONTRACT"
       ],
@@ -1518,6 +1602,7 @@
       "productDecisionStatus": "READY_WITH_REVIEW",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "family_derived",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [],
       "reviewItems": [
@@ -1536,6 +1621,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "unspecified",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -1554,6 +1640,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "unspecified",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -1572,6 +1659,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "family_derived",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -1596,6 +1684,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "listed_unresolved",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -1619,6 +1708,7 @@
       "productDecisionStatus": "READY_WITH_REVIEW",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "family_derived",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [],
       "reviewItems": [
@@ -1637,6 +1727,7 @@
       "productDecisionStatus": "READY_WITH_REVIEW",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "family_derived",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [],
       "reviewItems": [
@@ -1655,6 +1746,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "family_derived",
+      "sauceBaseIngredientId": "pesto",
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -1673,6 +1765,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "unspecified",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -1697,6 +1790,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "unspecified",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -1715,6 +1809,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED",
       "sauceBaseStatus": "none",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [
         "SAUCELESS_RECIPE_CONTRACT"
       ],
@@ -1735,6 +1830,7 @@
       "productDecisionStatus": "READY_WITH_REVIEW",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "family_derived",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [],
       "reviewItems": [
@@ -1753,6 +1849,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "unspecified",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -1769,9 +1866,12 @@
       "wave": "W3",
       "currentFlowRepresentability": "FULL",
       "productDecisionStatus": "READY_WITH_REVIEW",
-      "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
+      "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED",
       "sauceBaseStatus": "listed",
-      "runtimeContractDependencies": [],
+      "sauceBaseIngredientId": "sweet-bean-sauce",
+      "runtimeContractDependencies": [
+        "UNSUPPORTED_SAUCE_ID_CONTRACT"
+      ],
       "blockers": [],
       "reviewItems": [
         {
@@ -1789,6 +1889,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "unspecified",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -1813,6 +1914,7 @@
       "productDecisionStatus": "READY_WITH_REVIEW",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "listed",
+      "sauceBaseIngredientId": "olive-oil",
       "runtimeContractDependencies": [],
       "blockers": [],
       "reviewItems": [
@@ -1831,6 +1933,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "unspecified",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -1849,6 +1952,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "family_derived",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -1877,6 +1981,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED",
       "sauceBaseStatus": "none",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [
         "SAUCELESS_RECIPE_CONTRACT"
       ],
@@ -1897,6 +2002,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "family_derived",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -1915,6 +2021,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "family_derived",
+      "sauceBaseIngredientId": "tomato-sauce",
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -1933,6 +2040,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "listed_unresolved",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -1951,6 +2059,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "unspecified",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -1975,6 +2084,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "unspecified",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -1993,6 +2103,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "unspecified",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -2022,6 +2133,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "NEW_MECHANIC_AND_RUNTIME_CONTRACT_REQUIRED",
       "sauceBaseStatus": "none",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [
         "SAUCELESS_RECIPE_CONTRACT"
       ],
@@ -2042,6 +2154,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "NEW_MECHANIC_REQUIRED",
       "sauceBaseStatus": "unspecified",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -2071,6 +2184,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "unspecified",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -2100,6 +2214,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "EVIDENCE_OR_CONTENT_REVIEW_REQUIRED",
       "sauceBaseStatus": "unspecified",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [],
       "blockers": [
         {
@@ -2118,6 +2233,7 @@
       "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
       "implementationType": "RUNTIME_CONTRACT_CHANGE_REQUIRED",
       "sauceBaseStatus": "none",
+      "sauceBaseIngredientId": null,
       "runtimeContractDependencies": [
         "SAUCELESS_RECIPE_CONTRACT"
       ],

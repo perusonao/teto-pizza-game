@@ -92,6 +92,28 @@ def overlap(candidate: set[str] | None, production: dict[str, set[str]]) -> dict
     }
 
 
+def supported_sauce_ids(sauce_contract: str) -> set[str]:
+    """Read the RecipeSauceProfile.ingredientId string-literal union from production source."""
+    match = re.search(r"interface RecipeSauceProfile \{[^}]*?ingredientId:\s*([^;]+);", sauce_contract, re.DOTALL)
+    assert match, "RecipeSauceProfile.ingredientId union not found"
+    ids = re.findall(r'"([^"]+)"', match.group(1))
+    assert ids and match.group(1).replace(" ", "").replace("\n", "") == "|".join(f'"{i}"' for i in ids), "ingredientId must be a string-literal union"
+    return set(ids)
+
+
+def runtime_contract_dependencies_for(sauce_base: dict, production_match: list[str], supported_sauces: set[str]) -> list[str]:
+    """Production runtime contracts a non-shipped row would have to widen (not data-only)."""
+    if production_match:
+        return []
+    dependencies = []
+    if sauce_base["status"] == "none":
+        dependencies.append("SAUCELESS_RECIPE_CONTRACT")
+    base_id = sauce_base.get("baseIngredientId")
+    if base_id is not None and base_id not in supported_sauces:
+        dependencies.append("UNSUPPORTED_SAUCE_ID_CONTRACT")
+    return dependencies
+
+
 def mapped_production_ids(row: dict, production_ids: set[str]) -> list[str]:
     values = {row.get("canonicalCandidateId"), row["phase0"].get("correspondsToExistingCatalogId")}
     return sorted(production_ids & {value for value in values if value})
@@ -158,6 +180,15 @@ def build() -> tuple[dict, str, dict, str]:
     sauce_contract_test = SAUCE_PROFILES_TEST_PATH.read_text(encoding="utf-8")
     assert "Readonly<Record<RecipeId, RecipeSauceProfile>>" in sauce_contract
     assert "points at each recipe's required sauce" in sauce_contract_test
+    supported_sauces = supported_sauce_ids(sauce_contract)
+    assert supported_sauces == {"tomato-sauce", "pesto", "olive-oil"}, sorted(supported_sauces)
+    # Regression fixtures for the classifier itself (independent of matrix contents).
+    assert runtime_contract_dependencies_for({"status": "listed", "baseIngredientId": "fromage-blanc-sauce"}, [], supported_sauces) == ["UNSUPPORTED_SAUCE_ID_CONTRACT"]
+    assert runtime_contract_dependencies_for({"status": "family_derived", "baseIngredientId": "miso-sauce"}, [], supported_sauces) == ["UNSUPPORTED_SAUCE_ID_CONTRACT"]
+    assert runtime_contract_dependencies_for({"status": "none", "baseIngredientId": None}, [], supported_sauces) == ["SAUCELESS_RECIPE_CONTRACT"]
+    for sauce_id in sorted(supported_sauces):
+        assert runtime_contract_dependencies_for({"status": "listed", "baseIngredientId": sauce_id}, [], supported_sauces) == []
+    assert runtime_contract_dependencies_for({"status": "listed", "baseIngredientId": "curry-ketchup"}, ["margherita"], supported_sauces) == []
 
     rows = []
     for row in matrix["rows"]:
@@ -169,9 +200,7 @@ def build() -> tuple[dict, str, dict, str]:
         production_match = mapped_production_ids(row, production_ids)
         ov = overlap(identity_ingredients, production)
         risk, risk_reasons = collision_risk(row, ov)
-        runtime_contract_dependencies = []
-        if row["sauceBase"]["status"] == "none" and not production_match:
-            runtime_contract_dependencies.append("SAUCELESS_RECIPE_CONTRACT")
+        runtime_contract_dependencies = runtime_contract_dependencies_for(row["sauceBase"], production_match, supported_sauces)
         wave, rationale = classify(row, production_match, len(new_ids), runtime_contract_dependencies)
         if runtime_contract_dependencies and row["requiredCapabilities"]:
             implementation_type = "NEW_MECHANIC_AND_RUNTIME_CONTRACT_REQUIRED"
@@ -205,6 +234,7 @@ def build() -> tuple[dict, str, dict, str]:
             "candidateCapabilities": row["candidateCapabilities"],
             "runtimeContractDependencies": runtime_contract_dependencies,
             "sauceBaseStatus": row["sauceBase"]["status"],
+            "sauceBaseIngredientId": row["sauceBase"].get("baseIngredientId"),
             "collisionRisk": risk,
             "collisionRiskReasons": risk_reasons,
             "evidenceComplete": row["ingredients"]["complete"],
@@ -227,6 +257,26 @@ def build() -> tuple[dict, str, dict, str]:
         for row in rows
         if row["sauceBaseStatus"] == "none" and row["productDecisionStatus"] == "READY" and not row["productionRecipeIds"]
     )
+    # Unsupported sauce IDs: never data-only, never W1/W2.
+    unsupported_rows = [
+        row for row in rows
+        if not row["productionRecipeIds"] and row["sauceBaseIngredientId"] is not None and row["sauceBaseIngredientId"] not in supported_sauces
+    ]
+    assert unsupported_rows
+    for row in unsupported_rows:
+        assert "UNSUPPORTED_SAUCE_ID_CONTRACT" in row["runtimeContractDependencies"], row["evidenceId"]
+        assert row["wave"] not in {"W1", "W2"}, row["evidenceId"]
+        assert "RUNTIME_CONTRACT" in row["implementationType"], row["evidenceId"]
+    # Fail closed: every W1/W2 row must name a sauce the current RecipeSauceProfile union accepts.
+    for row in rows:
+        if row["wave"] in {"W1", "W2"}:
+            assert row["sauceBaseStatus"] in {"listed", "family_derived"}, row["evidenceId"]
+            assert row["sauceBaseIngredientId"] in supported_sauces, row["evidenceId"]
+            assert row["implementationType"] in {"RECIPE_DATA_ONLY", "NEW_INGREDIENT_DATA_ONLY"}, row["evidenceId"]
+    by_id = {row["evidenceId"]: row for row in rows}
+    for evidence_id in ("flammkuchen-pizzadb", "currywurst-pizzadb", "cuban-pizza-pizzadb-p2", "eggplant-dengaku-pizza-pizzadb-p6"):
+        assert by_id[evidence_id]["wave"] not in {"W1", "W2"}, evidence_id
+        assert "UNSUPPORTED_SAUCE_ID_CONTRACT" in by_id[evidence_id]["runtimeContractDependencies"], evidence_id
 
     wave_meta = {
         "W0": ("Current production baseline", "15 shipped recipes; not an implementation wave."),
@@ -234,7 +284,7 @@ def build() -> tuple[dict, str, dict, str]:
         "W1": ("Minimal current-mechanic additions", "FULL + READY; zero or one new ingredient."),
         "W2": ("Multi-ingredient current-mechanic additions", "FULL + READY; two or more new ingredients."),
         "W3": ("Content/evidence decision queue", "FULL, but review or product decision remains."),
-        "W4": ("Runtime-contract / non-structural mechanic queue", "PARTIAL under the matrix flow, or blocked by a current production runtime contract such as mandatory sauce profiles."),
+        "W4": ("Runtime-contract / non-structural mechanic queue", "PARTIAL under the matrix flow, or blocked by a current production runtime contract (mandatory sauce profile / supported sauce-ID union)."),
         "W5": ("Structural mechanic queue", "NOT_REPRESENTABLE under current flow."),
     }
     wave_summaries = []
@@ -343,9 +393,12 @@ def build() -> tuple[dict, str, dict, str]:
         },
         "runtimeContractPolicy": {
             "sauceLessDependency": "SAUCELESS_RECIPE_CONTRACT",
+            "unsupportedSauceIdDependency": "UNSUPPORTED_SAUCE_ID_CONTRACT",
+            "supportedSauceIngredientIds": sorted(supported_sauces),
             "source": "src/data/recipeSauceProfiles.ts + src/data/recipeSauceProfiles.test.ts",
-            "currentContract": "RECIPE_SAUCE_PROFILES is an exhaustive Record<RecipeId, RecipeSauceProfile>; every profile must point to a sauce-category required ingredient.",
-            "classification": "A non-production row with sauceBase.status == none cannot be RECIPE_DATA_ONLY or NEW_INGREDIENT_DATA_ONLY. A decision-ready FULL row moves to W4; a row with an evidence/content blocker remains W3 until that blocker is resolved.",
+            "currentContract": "RECIPE_SAUCE_PROFILES is an exhaustive Record<RecipeId, RecipeSauceProfile>; every profile must point to a sauce-category required ingredient, and RecipeSauceProfile.ingredientId is the closed union " + " | ".join(sorted(supported_sauces)) + ".",
+            "classification": "A non-production row with sauceBase.status == none (SAUCELESS_RECIPE_CONTRACT) or with a sauceBase.baseIngredientId outside the supported union (UNSUPPORTED_SAUCE_ID_CONTRACT) cannot be RECIPE_DATA_ONLY or NEW_INGREDIENT_DATA_ONLY. A decision-ready FULL row moves to W4; a row with an evidence/content blocker remains W3 until that blocker is resolved. Rows whose sauce base is unspecified/unresolved are already evidence-blocked and are asserted never to reach W1/W2.",
+            "unsupportedSauceIdRows": sorted(row["evidenceId"] for row in unsupported_rows),
         },
         "progressionDecisions": {"pitzPrice": "TBD", "unlockFee": "TBD", "starGate": "TBD", "nonStarCondition": "OWNER_DECISION_REQUIRED", "completionGate": "OWNER_DECISION_REQUIRED"},
         "waves": wave_summaries,
@@ -360,7 +413,7 @@ def build() -> tuple[dict, str, dict, str]:
         "typeCounts": dict(sorted(Counter(item["type"] for row in unresolved_rows for item in row["blockers"] + row["reviewItems"]).items())),
         "rows": [{key: row[key] for key in (
             "evidenceId", "nameJa", "wave", "currentFlowRepresentability", "productDecisionStatus",
-            "implementationType", "sauceBaseStatus", "runtimeContractDependencies", "blockers", "reviewItems",
+            "implementationType", "sauceBaseStatus", "sauceBaseIngredientId", "runtimeContractDependencies", "blockers", "reviewItems",
         )} for row in unresolved_rows],
         "ownerDecisions": output["progressionDecisions"],
     }
@@ -372,7 +425,7 @@ def build() -> tuple[dict, str, dict, str]:
         "existing_ingredient_count", "new_ingredient_count", "new_ingredient_ids",
         "overlap_ratio", "nearest_production_recipe_id", "nearest_jaccard", "collision_risk",
         "collision_risk_reasons", "required_capabilities", "candidate_capabilities",
-        "runtime_contract_dependencies", "sauce_base_status", "evidence_complete", "blocker_types", "review_item_types", "dedicated_asset_required",
+        "runtime_contract_dependencies", "sauce_base_status", "sauce_base_ingredient_id", "evidence_complete", "blocker_types", "review_item_types", "dedicated_asset_required",
         "pitz_price", "unlock_fee", "star_gate", "non_star_condition", "completion_gate",
     ], lineterminator="\n")
     writer.writeheader()
@@ -393,7 +446,7 @@ def build() -> tuple[dict, str, dict, str]:
             "required_capabilities": "|".join(row["requiredCapabilities"]),
             "candidate_capabilities": "|".join(row["candidateCapabilities"]),
             "runtime_contract_dependencies": "|".join(row["runtimeContractDependencies"]),
-            "sauce_base_status": row["sauceBaseStatus"], "evidence_complete": row["evidenceComplete"],
+            "sauce_base_status": row["sauceBaseStatus"], "sauce_base_ingredient_id": row["sauceBaseIngredientId"] or "", "evidence_complete": row["evidenceComplete"],
             "blocker_types": "|".join(item["type"] for item in row["blockers"]),
             "review_item_types": "|".join(item["type"] for item in row["reviewItems"]),
             "dedicated_asset_required": False, "pitz_price": "TBD", "unlock_fee": "TBD",
@@ -447,7 +500,7 @@ def render_report(output: dict, unresolved: dict) -> str:
 1. matrix の canonical ingredient IDs と production 22 ingredient IDs を差分化。
 2. ingredient overlap は matrix の完全な `identityIngredientSet`（family-derived sauce を含む）と、同じく sauce を含む production の完全 recipe ingredient set を対称比較する。identity set が incomplete の行は Jaccard / exact-set を算出しない。
 3. `FULL + READY` のうち production runtime contract でも表現可能な行だけを即時 content wave に入れる。0–1 新材料を W1、2+ を W2 とした。
-4. `FULL` でも review/blocker があれば W3。`PARTIAL` または `SAUCELESS_RECIPE_CONTRACT` 依存は W4、`NOT_REPRESENTABLE` は W5。
+4. `FULL` でも review/blocker があれば W3。`PARTIAL`、または `SAUCELESS_RECIPE_CONTRACT` / `UNSUPPORTED_SAUCE_ID_CONTRACT` 依存は W4、`NOT_REPRESENTABLE` は W5。
 5. production correspondence は W0 reference とし、追加候補に二重計上しない。
 
 ## 3. Proposed implementation waves
@@ -479,6 +532,7 @@ Wave counts are implementation buckets, not unlock order. Pitz price, unlock fee
 - Asset addition: dedicated bitmap は不要。新 ingredient の visual fields は content authoring 対象。
 - Evidence/content review: W3 と unresolved ledger を先に解消する。
 - Runtime contract: `sauceBase.status == none` は exhaustive `RECIPE_SAUCE_PROFILES` とその test contract の変更が必要なため `SAUCELESS_RECIPE_CONTRACT` として W4 に置く。
+- Runtime contract: `RecipeSauceProfile.ingredientId` は {' | '.join(f'`{x}`' for x in output['runtimeContractPolicy']['supportedSauceIngredientIds'])} の closed union。これ以外の `sauceBase.baseIngredientId`（{len(output['runtimeContractPolicy']['unsupportedSauceIdRows'])} rows: 例 `fromage-blanc-sauce`, `curry-ketchup`, `mustard`, `miso-sauce`）は union 拡張が必要なため `UNSUPPORTED_SAUCE_ID_CONTRACT` とし、W1/W2 に入れない（decision-ready FULL は W4、evidence-blocked は W3 のまま）。
 - New mechanic: W4/W5。PR #189 の capability IDs はそのまま参照し、172 mechanic分類を再作成しない。
 
 ## 6. Unresolved / content-authoring
