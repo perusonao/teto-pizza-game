@@ -121,7 +121,12 @@ const SCAN_SKIP_DIRS = new Set(["node_modules", ".git", "docs", "dist", "playwri
 // changing it is itself a Full-WebKit change). Vitest-only configs never run under Vite/Playwright.
 const SCAN_SKIP_FILE = /^(?:scripts\/ci\/|vitest(?:\.[\w-]+)?\.config\.[cm]?[jt]s$)/;
 // Calls that take a path/URL/specifier: fine with a plain string literal, fail closed otherwise.
-const LOADER_CALL = /\b(?:import|require|fetch|importScripts|readFileSync|readFile|createReadStream)\s*\(|\bnew\s+(?:URL|Worker|SharedWorker)\s*\(/g;
+// Whitespace and comments may sit between the keyword and `(` (`import /* x */ (p)`).
+const GAP = String.raw`(?:\s|\/\*[\s\S]*?\*\/|\/\/[^\n]*\n)*`;
+const LOADER_CALL = new RegExp(
+  String.raw`\b(?:import|require|fetch|importScripts|readFileSync|readFile|createReadStream)${GAP}\(|\bnew${GAP}(?:URL|Worker|SharedWorker)${GAP}\(`,
+  "g",
+);
 // Constructs that load by pattern or by code: always fail closed.
 const ALWAYS_DYNAMIC = /import\.meta\.glob|\b(?:readdirSync|readdir|opendirSync|opendir|globSync|glob)\s*\(|\beval\s*\(|\bnew\s+Function\s*\(/;
 const CONFIG_KEY = /\b(?:testMatch|testIgnore|rollupOptions|optimizeDeps|publicDir|alias|mergeConfig|loadConfigFromFile)\b|\b(?:root|input)\s*:/;
@@ -153,7 +158,10 @@ export function dynamicLoad(text) {
 /** The text by which a guarded file would have to be named to be loaded or run. */
 export function nameStem(path) {
   if (path.startsWith("tools/")) return path.split("/").pop().replace(/\.py$/, "");
-  if (/^src\/test\//.test(path)) return path.slice("src/".length).replace(/\.[^./]+$/, "");
+  if (/^src\/test\//.test(path)) {
+    // A directory index is imported by its directory (`./test/helper` -> test/helper/index.ts).
+    return path.slice("src/".length).replace(/\.[^./]+$/, "").replace(/\/index$/, "");
+  }
   return path.split("/").pop().replace(/\.[cm]?[jt]sx?$/, "");
 }
 
@@ -348,7 +356,7 @@ const BASE_TREE = {
 };
 const CHANGED = ["src/logic/a.test.ts", "tools/gen.py"];
 const T = { tools: true, "unit-test": true };
-// [name, file overrides, expected { tools, "unit-test" } for CHANGED]
+// [name, file overrides, expected { tools, "unit-test" }, changed paths (default CHANGED)]
 const SCAN_CASES = [
   ["clean tree (vitest config, CI scripts and docs are not scanned)", {}, T],
   ["an HTML comment naming the test counts (never strip)", { "index.html": '<!-- a.test --><script type="module" src="/src/main.tsx"></script>' }, { ...T, "unit-test": false }],
@@ -380,6 +388,15 @@ const SCAN_CASES = [
   ["package.json runs the changed tools script", { "package.json": '{"scripts":{"gen":"node x && tools/gen.py"}}' }, { ...T, tools: false }],
   ["anything invoking python (tools)", { ".github/workflows/e2e-webkit.yml": "  run: python3 -m runner\n" }, { ...T, tools: false }],
   ["runtime imports tools output", { "src/App.tsx": 'import d from "../tools/gen.py?raw";\n' }, { ...T, tools: false }],
+  ["comment between import and its parenthesis", { "src/App.tsx": "const m = import /* webpackIgnore: true */ (path);\n" }, { tools: false, "unit-test": false }],
+  ["comment between new and URL", { "src/App.tsx": "new /* x */ URL(p, import.meta.url);\n" }, { tools: false, "unit-test": false }],
+  ["static import with a comment is not a loader call", { "src/App.tsx": 'import /* types */ { x } from "./x";\n', "src/x.ts": "export const x = 1;\n" }, T],
+  [
+    "directory-index import names a guarded index module",
+    { "src/App.tsx": 'import { h } from "./test/helper";\n', "src/test/helper/index.ts": "export const h = 1;\n" },
+    { ...T, "unit-test": false },
+    ["src/test/helper/index.ts"],
+  ],
   ["concatenated fetch argument", { "src/App.tsx": 'fetch("/src/logic/" + name);\n' }, { tools: false, "unit-test": false }],
   ["concatenated import argument", { "src/App.tsx": 'import("./logic/" + moduleName);\n' }, { tools: false, "unit-test": false }],
   ["literal followed by a second argument is fine", { "src/App.tsx": 'new URL("./App.css", import.meta.url);\nfetch("/api", { method: "GET" });\n' }, T],
@@ -413,9 +430,9 @@ function selfTest() {
     if (!ok) failed++;
     console.log(`${ok ? "PASS" : "FAIL"} [${files.join(", ")}] -> ${webkitRequired} (${reason})`);
   }
-  for (const [name, files, expected] of SCAN_CASES) {
+  for (const [name, files, expected, changed] of SCAN_CASES) {
     count++;
-    const guards = scanFixture(files);
+    const guards = scanFixture(files, changed);
     const got = { tools: guards.tools.ok, "unit-test": guards["unit-test"].ok };
     const ok = JSON.stringify(got) === JSON.stringify(expected);
     if (!ok) failed++;
