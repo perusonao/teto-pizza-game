@@ -1,0 +1,1273 @@
+{
+  "schemaVersion": 1,
+  "kind": "w1_ingredient_visual_authoring_checklist",
+  "guide": "docs/reports/TETO_PROGRESS2_W1_INGREDIENT_VISUAL-AUTHORING-GUIDE.md",
+  "auditedMainSha": "dff233c042d2df6ee1c3a92f2d2419830aa05460",
+  "sourceRefs": {
+    "PR220": {
+      "state": "OPEN",
+      "headSha": "e49dab96bd9b26dc0f520349cf09d1160c3519f5"
+    },
+    "PR221": {
+      "state": "OPEN",
+      "headSha": "279b6b17188ed3572b27c1ba91b2c4983723ddc0"
+    }
+  },
+  "scopeNote": "Union of PR #220 HEAD W1 new ingredients (7) and PR #221 HEAD W1 new ingredients (6) = 11. Which set is authoritative is owner decision VD-01. This file does not change any PR #220/#221 status.",
+  "passRule": {
+    "criteria": [
+      {
+        "code": "C1",
+        "label": "raw状態で識別可能"
+      },
+      {
+        "code": "C2",
+        "label": "baked後も識別可能"
+      },
+      {
+        "code": "C3",
+        "label": "mozzarella等と混同しない"
+      },
+      {
+        "code": "C4",
+        "label": "background/sauce上で消えない"
+      },
+      {
+        "code": "C5",
+        "label": "タップ対象として認識可能"
+      },
+      {
+        "code": "C6",
+        "label": "OS差で意味が変わらない"
+      }
+    ],
+    "resultValues": [
+      "PASS",
+      "FAIL",
+      "NOT_TESTED"
+    ],
+    "approvedWhen": "All C1-C6 and all ingredientSpecific checks are PASS with evidence; NOT_TESTED is never PASS.",
+    "requiredEvidence": [
+      "approver",
+      "date",
+      "device + OS version + browser",
+      "previewUrl + commitSha (real renderer)",
+      "screenshots under docs/reports/screenshots/<task-name>/: raw 390x844, overbake 390x844, raw 360x800, tray chip, 7.3px reference, colour-vision emulation"
+    ],
+    "notEvidence": [
+      "Linux CI / headless Chromium screenshots for C6",
+      "Emoji rendered outside the game renderer"
+    ],
+    "blockerRule": "preflight.level == BLOCKER must be resolved (candidate change or recorded owner waiver) before the checklist starts."
+  },
+  "deviceMatrix": [
+    {
+      "id": "D1",
+      "env": "iPhone Safari real device, 390x844 (authority)",
+      "required": true
+    },
+    {
+      "id": "D2",
+      "env": "Android Chrome real device (Google Noto Color Emoji)",
+      "required": true
+    },
+    {
+      "id": "D3",
+      "env": "360x800 (layout/density)",
+      "required": true
+    },
+    {
+      "id": "D4",
+      "env": "Samsung device",
+      "required": false
+    },
+    {
+      "id": "D5",
+      "env": "Windows 10/11 Chrome",
+      "required": "only for emoji newer than Emoji 13.0 (baked-beans)"
+    }
+  ],
+  "rules": {
+    "R1": "Scatter-topping emoji must be unique among emoji-rendered scatter toppings (cross spread/scatter sharing has precedent).",
+    "R2": "Do not substitute a glyph that denotes a different food.",
+    "R3": "Geometric glyphs must stay distinguishable from existing ones under colour-vision deficiency.",
+    "R4": "Emoji newer than production baseline Emoji 13.0 (🫒) needs owner approval.",
+    "R5": "Readable on the recipe's actual base and cheese, raw and at heat 2.0.",
+    "R6": "Pale fallbacks must not share mozzarella/parmigiano hue without shape difference.",
+    "R7": "Non-emoji CSS piece for toppings is a future src change outside W1 slice C."
+  },
+  "ownerDecisions": [
+    "VD-01 W1 set reconciliation (#220 HEAD vs #221)",
+    "VD-02 R1 violations: fresh-tomato, green-onion, salt-cod",
+    "VD-03 non-emoji topping piece",
+    "VD-04 Emoji 14.0 baseline",
+    "VD-05 approval Preview form",
+    "VD-06 eggplant display name / tone",
+    "VD-07 green-onion bakeRoastResistant"
+  ],
+  "ingredients": [
+    {
+      "id": "capers",
+      "source": [
+        "PR220_W1",
+        "PR221_W1"
+      ],
+      "pr221Ledger": "ING-02",
+      "displayNameCandidate": "ケッパー",
+      "emojiCandidate": {
+        "glyph": "🟢",
+        "codepoint": "U+1F7E2",
+        "emojiVersion": "Emoji 12.0",
+        "conflictsWith": null
+      },
+      "fallback": "No emoji alternative (🫒 taken by olive-oil). If rejected: small olive-green CSS piece with dark outline (future renderer change, R7).",
+      "category": "topping",
+      "placement": "scatter",
+      "rawAppearance": "Flat green disk 28px; abstract vs real small buds",
+      "bakedAppearance": "heat1.0 ~unchanged; heat2.0 darker olive-green (sepia .2)",
+      "bakeRoastResistantRecommendation": false,
+      "recommendedSize": "default 28px (no per-ingredient scale field; do not add for W1)",
+      "recipes": [
+        {
+          "id": "puttanesca-pizza",
+          "pieces": "anchovy×3, black-olive×2, capers×2, garlic×2",
+          "base": "tomato-sauce",
+          "cheese": null
+        }
+      ],
+      "backgrounds": [
+        "tomato-sauce #c73b2e"
+      ],
+      "preflight": {
+        "level": "RISK_MEDIUM",
+        "reasons": [
+          "R3: red-green colour-vision proximity to pepperoni 🔴",
+          "Same silhouette as black-olive ⚫",
+          "C4 on tomato for deuteranopia/protanopia"
+        ],
+        "note": "Preflight risk only, not an approval status."
+      },
+      "humanApproval": {
+        "status": "NOT_STARTED",
+        "criteria": [
+          {
+            "code": "C1",
+            "label": "raw状態で識別可能",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C2",
+            "label": "baked後も識別可能",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C3",
+            "label": "mozzarella等と混同しない",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C4",
+            "label": "background/sauce上で消えない",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C5",
+            "label": "タップ対象として認識可能",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C6",
+            "label": "OS差で意味が変わらない",
+            "result": "NOT_TESTED",
+            "evidence": []
+          }
+        ],
+        "ingredientSpecific": [
+          {
+            "check": "Visible on tomato under deuteranopia/protanopia emulation",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "check": "⚫ and 🟢 distinguishable when overlapping",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "check": "Distinguishable from ⚫ at 7.3px thumbnail",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "check": "Reads as food (with name), not a status symbol",
+            "result": "NOT_TESTED",
+            "evidence": []
+          }
+        ],
+        "approver": null,
+        "date": null,
+        "previewUrl": null,
+        "commitSha": null,
+        "devices": []
+      },
+      "notes": null
+    },
+    {
+      "id": "eggplant",
+      "source": [
+        "PR220_W1",
+        "PR221_W1"
+      ],
+      "pr221Ledger": "ING-03",
+      "displayNameCandidate": "ナス (#221) / なす (catalog) — owner choice",
+      "emojiCandidate": {
+        "glyph": "🍆",
+        "codepoint": "U+1F346",
+        "emojiVersion": "Unicode 6.0",
+        "conflictsWith": null
+      },
+      "fallback": "Support fallback not needed. If rejected for tone: sliced CSS piece (future, R7).",
+      "category": "topping",
+      "placement": "scatter",
+      "rawAppearance": "Whole purple eggplant with green calyx; abstraction of slices",
+      "bakedAppearance": "Dark purple darkens further; near black-purple at heat 2.0",
+      "bakeRoastResistantRecommendation": null,
+      "recommendedSize": "default 28px (no per-ingredient scale field; do not add for W1)",
+      "recipes": [
+        {
+          "id": "parmigiana-pizza",
+          "pieces": "eggplant×3, basil×2, mozzarella×2, parmigiano×2",
+          "base": "tomato-sauce",
+          "cheese": "mozzarella, parmigiano"
+        },
+        {
+          "id": "melanzane-pizza",
+          "pieces": "eggplant×3, basil×2, mozzarella×2",
+          "base": "tomato-sauce",
+          "cheese": "mozzarella"
+        }
+      ],
+      "backgrounds": [
+        "tomato-sauce #c73b2e",
+        "mozzarella piece"
+      ],
+      "preflight": {
+        "level": "RISK_HIGH",
+        "reasons": [
+          "C4: low luminance contrast dark purple on dark red",
+          "C2: sinks further at overbake"
+        ],
+        "note": "Preflight risk only, not an approval status."
+      },
+      "humanApproval": {
+        "status": "NOT_STARTED",
+        "criteria": [
+          {
+            "code": "C1",
+            "label": "raw状態で識別可能",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C2",
+            "label": "baked後も識別可能",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C3",
+            "label": "mozzarella等と混同しない",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C4",
+            "label": "background/sauce上で消えない",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C5",
+            "label": "タップ対象として認識可能",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C6",
+            "label": "OS差で意味が変わらない",
+            "result": "NOT_TESTED",
+            "evidence": []
+          }
+        ],
+        "ingredientSpecific": [
+          {
+            "check": "Outline readable on densest tomato area at overbake",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "check": "Distinguishable from basil 🌿 at 9.5px/7.3px",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "check": "Whole-glyph-as-slice abstraction approved (ING-03)",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "check": "Tone (slang connotation) accepted by owner",
+            "result": "NOT_TESTED",
+            "evidence": []
+          }
+        ],
+        "approver": null,
+        "date": null,
+        "previewUrl": null,
+        "commitSha": null,
+        "devices": []
+      },
+      "notes": null
+    },
+    {
+      "id": "clam",
+      "source": [
+        "PR220_W1"
+      ],
+      "pr221Ledger": null,
+      "displayNameCandidate": "アサリ",
+      "emojiCandidate": {
+        "glyph": "🐚",
+        "codepoint": "U+1F41A",
+        "emojiVersion": "Unicode 6.0",
+        "conflictsWith": null
+      },
+      "fallback": "No exact emoji. 🦪 oyster rejected (R2). If 🐚 rejected: shell/meat CSS piece (future, R7).",
+      "category": "topping",
+      "placement": "scatter",
+      "rawAppearance": "Pale cream/pink spiral shell; far from chopped clam meat",
+      "bakedAppearance": "Pale tones shift sepia; dough also browns",
+      "bakeRoastResistantRecommendation": null,
+      "recommendedSize": "default 28px (no per-ingredient scale field; do not add for W1)",
+      "recipes": [
+        {
+          "id": "new-haven-apizza",
+          "pieces": "clam, garlic, parmigiano (minCount not authored)",
+          "base": "olive-oil",
+          "cheese": "parmigiano"
+        }
+      ],
+      "backgrounds": [
+        "olive-oil #e9d9a0",
+        "dough #f3d9a4→#e2b876"
+      ],
+      "preflight": {
+        "level": "RISK_HIGH",
+        "reasons": [
+          "C3: pale neighbours (garlic 🧄, parmigiano sliver)",
+          "C4: pale glyph on pale base",
+          "R2 boundary: spiral shell ≠ clam"
+        ],
+        "note": "Preflight risk only, not an approval status."
+      },
+      "humanApproval": {
+        "status": "NOT_STARTED",
+        "criteria": [
+          {
+            "code": "C1",
+            "label": "raw状態で識別可能",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C2",
+            "label": "baked後も識別可能",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C3",
+            "label": "mozzarella等と混同しない",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C4",
+            "label": "background/sauce上で消えない",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C5",
+            "label": "タップ対象として認識可能",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C6",
+            "label": "OS差で意味が変わらない",
+            "result": "NOT_TESTED",
+            "evidence": []
+          }
+        ],
+        "ingredientSpecific": [
+          {
+            "check": "Outline readable on olive-oil base raw/overbake",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "check": "Not confused with parmigiano sliver or 🧄",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "check": "Owner accepts spiral shell as アサリ",
+            "result": "NOT_TESTED",
+            "evidence": []
+          }
+        ],
+        "approver": null,
+        "date": null,
+        "previewUrl": null,
+        "commitSha": null,
+        "devices": []
+      },
+      "notes": null
+    },
+    {
+      "id": "corn",
+      "source": [
+        "PR220_W1"
+      ],
+      "pr221Ledger": null,
+      "displayNameCandidate": "コーン",
+      "emojiCandidate": {
+        "glyph": "🌽",
+        "codepoint": "U+1F33D",
+        "emojiVersion": "Unicode 6.0",
+        "conflictsWith": null
+      },
+      "fallback": "Not expected to be needed.",
+      "category": "topping",
+      "placement": "scatter",
+      "rawAppearance": "Yellow ear with green husk; abstraction of kernels",
+      "bakedAppearance": "Yellow → golden; approaches toasted-mozzarella hue",
+      "bakeRoastResistantRecommendation": null,
+      "recommendedSize": "default 28px (no per-ingredient scale field; do not add for W1)",
+      "recipes": [
+        {
+          "id": "bambino",
+          "pieces": "corn, ham, mozzarella (minCount not authored)",
+          "base": "tomato-sauce",
+          "cheese": "mozzarella"
+        }
+      ],
+      "backgrounds": [
+        "tomato-sauce #c73b2e",
+        "mozzarella piece"
+      ],
+      "preflight": {
+        "level": "RISK_LOW",
+        "reasons": [],
+        "note": "Preflight risk only, not an approval status."
+      },
+      "humanApproval": {
+        "status": "NOT_STARTED",
+        "criteria": [
+          {
+            "code": "C1",
+            "label": "raw状態で識別可能",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C2",
+            "label": "baked後も識別可能",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C3",
+            "label": "mozzarella等と混同しない",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C4",
+            "label": "background/sauce上で消えない",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C5",
+            "label": "タップ対象として認識可能",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C6",
+            "label": "OS差で意味が変わらない",
+            "result": "NOT_TESTED",
+            "evidence": []
+          }
+        ],
+        "ingredientSpecific": [
+          {
+            "check": "Distinguishable from overbaked (toasted) mozzarella",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "check": "Whole-ear abstraction approved",
+            "result": "NOT_TESTED",
+            "evidence": []
+          }
+        ],
+        "approver": null,
+        "date": null,
+        "previewUrl": null,
+        "commitSha": null,
+        "devices": []
+      },
+      "notes": null
+    },
+    {
+      "id": "pineapple",
+      "source": [
+        "PR220_W1"
+      ],
+      "pr221Ledger": null,
+      "displayNameCandidate": "パイナップル",
+      "emojiCandidate": {
+        "glyph": "🍍",
+        "codepoint": "U+1F34D",
+        "emojiVersion": "Unicode 6.0",
+        "conflictsWith": null
+      },
+      "fallback": "Not expected to be needed.",
+      "category": "topping",
+      "placement": "scatter",
+      "rawAppearance": "Whole fruit with green crown; abstraction of chunks",
+      "bakedAppearance": "Yellow darkens/sepia; crown keeps identity",
+      "bakeRoastResistantRecommendation": null,
+      "recommendedSize": "default 28px (no per-ingredient scale field; do not add for W1)",
+      "recipes": [
+        {
+          "id": "hawaiian",
+          "pieces": "ham, pineapple, mozzarella (minCount not authored)",
+          "base": "tomato-sauce",
+          "cheese": "mozzarella"
+        }
+      ],
+      "backgrounds": [
+        "tomato-sauce #c73b2e",
+        "mozzarella piece"
+      ],
+      "preflight": {
+        "level": "RISK_LOW",
+        "reasons": [],
+        "note": "Preflight risk only, not an approval status."
+      },
+      "humanApproval": {
+        "status": "NOT_STARTED",
+        "criteria": [
+          {
+            "code": "C1",
+            "label": "raw状態で識別可能",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C2",
+            "label": "baked後も識別可能",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C3",
+            "label": "mozzarella等と混同しない",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C4",
+            "label": "background/sauce上で消えない",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C5",
+            "label": "タップ対象として認識可能",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C6",
+            "label": "OS差で意味が変わらない",
+            "result": "NOT_TESTED",
+            "evidence": []
+          }
+        ],
+        "ingredientSpecific": [
+          {
+            "check": "Not confused with 🌽 corn at 7.3px",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "check": "Whole-fruit abstraction approved",
+            "result": "NOT_TESTED",
+            "evidence": []
+          }
+        ],
+        "approver": null,
+        "date": null,
+        "previewUrl": null,
+        "commitSha": null,
+        "devices": []
+      },
+      "notes": null
+    },
+    {
+      "id": "fresh-tomato",
+      "source": [
+        "PR220_W1"
+      ],
+      "pr221Ledger": null,
+      "displayNameCandidate": "トマト",
+      "emojiCandidate": {
+        "glyph": "🍅",
+        "codepoint": "U+1F345",
+        "emojiVersion": "Unicode 6.0",
+        "conflictsWith": [
+          "cherry-tomato"
+        ]
+      },
+      "fallback": "Options: (a) sliced CSS piece (future, R7); (b) owner waiver sharing 🍅; (c) canonical merge with cherry-tomato is an evidence/canonicalization decision outside this guide.",
+      "category": "topping",
+      "placement": "scatter",
+      "rawAppearance": "Whole red tomato; indistinguishable from cherry-tomato",
+      "bakedAppearance": "Red darkens",
+      "bakeRoastResistantRecommendation": null,
+      "recommendedSize": "default 28px (no per-ingredient scale field; do not add for W1)",
+      "recipes": [
+        {
+          "id": "pesto-caprese",
+          "pieces": "basil, fresh-tomato, mozzarella (minCount not authored)",
+          "base": "pesto",
+          "cheese": "mozzarella"
+        }
+      ],
+      "backgrounds": [
+        "pesto #6b8e3d",
+        "mozzarella piece"
+      ],
+      "preflight": {
+        "level": "BLOCKER",
+        "reasons": [
+          "R1: identical emoji to production scatter topping cherry-tomato",
+          "C4: red on green pesto under red-green colour-vision deficiency"
+        ],
+        "note": "Preflight risk only, not an approval status."
+      },
+      "humanApproval": {
+        "status": "BLOCKED_BY_PREFLIGHT",
+        "criteria": [
+          {
+            "code": "C1",
+            "label": "raw状態で識別可能",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C2",
+            "label": "baked後も識別可能",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C3",
+            "label": "mozzarella等と混同しない",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C4",
+            "label": "background/sauce上で消えない",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C5",
+            "label": "タップ対象として認識可能",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C6",
+            "label": "OS差で意味が変わらない",
+            "result": "NOT_TESTED",
+            "evidence": []
+          }
+        ],
+        "ingredientSpecific": [
+          {
+            "check": "R1 resolution chosen and recorded by owner",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "check": "Visible on pesto under colour-vision emulation",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "check": "Distinguishable from cherry-tomato in tray/inventory",
+            "result": "NOT_TESTED",
+            "evidence": []
+          }
+        ],
+        "approver": null,
+        "date": null,
+        "previewUrl": null,
+        "commitSha": null,
+        "devices": []
+      },
+      "notes": null
+    },
+    {
+      "id": "potato",
+      "source": [
+        "PR220_W1"
+      ],
+      "pr221Ledger": null,
+      "displayNameCandidate": "じゃがいも",
+      "emojiCandidate": {
+        "glyph": "🥔",
+        "codepoint": "U+1F954",
+        "emojiVersion": "Emoji 3.0",
+        "conflictsWith": null
+      },
+      "fallback": "Not expected to be needed.",
+      "category": "topping",
+      "placement": "scatter",
+      "rawAppearance": "Whole brown potato; abstraction of pale slices",
+      "bakedAppearance": "Brown darkens (brightness .78 at heat 2.0)",
+      "bakeRoastResistantRecommendation": null,
+      "recommendedSize": "default 28px (no per-ingredient scale field; do not add for W1)",
+      "recipes": [
+        {
+          "id": "pesto-patate",
+          "pieces": "bacon, potato, mozzarella (minCount not authored)",
+          "base": "pesto",
+          "cheese": "mozzarella"
+        }
+      ],
+      "backgrounds": [
+        "pesto #6b8e3d",
+        "mozzarella piece"
+      ],
+      "preflight": {
+        "level": "RISK_MEDIUM",
+        "reasons": [
+          "C2/C4: brown on pesto loses contrast at overbake"
+        ],
+        "note": "Preflight risk only, not an approval status."
+      },
+      "humanApproval": {
+        "status": "NOT_STARTED",
+        "criteria": [
+          {
+            "code": "C1",
+            "label": "raw状態で識別可能",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C2",
+            "label": "baked後も識別可能",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C3",
+            "label": "mozzarella等と混同しない",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C4",
+            "label": "background/sauce上で消えない",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C5",
+            "label": "タップ対象として認識可能",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C6",
+            "label": "OS差で意味が変わらない",
+            "result": "NOT_TESTED",
+            "evidence": []
+          }
+        ],
+        "ingredientSpecific": [
+          {
+            "check": "Outline readable on pesto at overbake",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "check": "Not confused with 🍄 mushroom in tray/inventory",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "check": "Whole-glyph abstraction approved",
+            "result": "NOT_TESTED",
+            "evidence": []
+          }
+        ],
+        "approver": null,
+        "date": null,
+        "previewUrl": null,
+        "commitSha": null,
+        "devices": []
+      },
+      "notes": null
+    },
+    {
+      "id": "baked-beans",
+      "source": [
+        "PR221_W1"
+      ],
+      "pr221Ledger": "ING-01",
+      "displayNameCandidate": "ベイクドビーンズ",
+      "emojiCandidate": {
+        "glyph": "🫘",
+        "codepoint": "U+1FAD8",
+        "emojiVersion": "Emoji 14.0",
+        "conflictsWith": null
+      },
+      "fallback": "🥫 canned food is an R2 boundary (not recommended). To avoid tofu on unsupported OS: CSS piece (future, R7).",
+      "category": "topping",
+      "placement": "scatter",
+      "rawAppearance": "Red-brown beans",
+      "bakedAppearance": "Red-brown darkens/sepia",
+      "bakeRoastResistantRecommendation": null,
+      "recommendedSize": "default 28px (no per-ingredient scale field; do not add for W1)",
+      "recipes": [
+        {
+          "id": "full-english-pizza",
+          "pieces": "bacon×2, sausage×2, egg×1, baked-beans×3, mozzarella×2",
+          "base": "none (dough)",
+          "cheese": "mozzarella"
+        }
+      ],
+      "backgrounds": [
+        "dough",
+        "mozzarella piece"
+      ],
+      "preflight": {
+        "level": "RISK_MEDIUM",
+        "reasons": [
+          "R4: raises emoji baseline from 13.0 (🫒) to 14.0",
+          "C6: likely tofu on Windows 10 / fonts without Emoji 14 (verify on device)",
+          "Same red-brown family as 🥓/🌭"
+        ],
+        "note": "Preflight risk only, not an approval status."
+      },
+      "humanApproval": {
+        "status": "NOT_STARTED",
+        "criteria": [
+          {
+            "code": "C1",
+            "label": "raw状態で識別可能",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C2",
+            "label": "baked後も識別可能",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C3",
+            "label": "mozzarella等と混同しない",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C4",
+            "label": "background/sauce上で消えない",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C5",
+            "label": "タップ対象として認識可能",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C6",
+            "label": "OS差で意味が変わらない",
+            "result": "NOT_TESTED",
+            "evidence": []
+          }
+        ],
+        "ingredientSpecific": [
+          {
+            "check": "Renders (not tofu) on Windows (D5), or owner records minimum supported OS",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "check": "Identifiable when overlapping 🥓/🌭",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "check": "Colour/legibility kept after bake (ING-01)",
+            "result": "NOT_TESTED",
+            "evidence": []
+          }
+        ],
+        "approver": null,
+        "date": null,
+        "previewUrl": null,
+        "commitSha": null,
+        "devices": []
+      },
+      "notes": "At PR #220 HEAD e49dab9 this ingredient's recipe is wave W4 (SAUCELESS_RECIPE_CONTRACT)."
+    },
+    {
+      "id": "green-onion",
+      "source": [
+        "PR221_W1"
+      ],
+      "pr221Ledger": "ING-04",
+      "displayNameCandidate": "青ねぎ",
+      "emojiCandidate": {
+        "glyph": "🌱",
+        "codepoint": "U+1F331",
+        "emojiVersion": "Unicode 6.0",
+        "conflictsWith": [
+          "rosemary"
+        ]
+      },
+      "fallback": "All emoji alternatives violate R2 (🥒/🥦/☘️/🎋). Options: (a) green-ring CSS piece (future, R7); (b) owner waiver sharing 🌱.",
+      "category": "topping",
+      "placement": "scatter",
+      "rawAppearance": "Seedling sprout; far from sliced green-onion rings",
+      "bakedAppearance": "Recommend bakeRoastResistant (herb precedent)",
+      "bakeRoastResistantRecommendation": true,
+      "recommendedSize": "default 28px (no per-ingredient scale field; do not add for W1)",
+      "recipes": [
+        {
+          "id": "tsukimi-pizza",
+          "pieces": "egg×1, bacon×3, green-onion×2, mozzarella×2",
+          "base": "none (dough)",
+          "cheese": "mozzarella"
+        }
+      ],
+      "backgrounds": [
+        "dough",
+        "mozzarella piece"
+      ],
+      "preflight": {
+        "level": "BLOCKER",
+        "reasons": [
+          "R1: identical emoji to production scatter topping rosemary"
+        ],
+        "note": "Preflight risk only, not an approval status."
+      },
+      "humanApproval": {
+        "status": "BLOCKED_BY_PREFLIGHT",
+        "criteria": [
+          {
+            "code": "C1",
+            "label": "raw状態で識別可能",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C2",
+            "label": "baked後も識別可能",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C3",
+            "label": "mozzarella等と混同しない",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C4",
+            "label": "background/sauce上で消えない",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C5",
+            "label": "タップ対象として認識可能",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C6",
+            "label": "OS差で意味が変わらない",
+            "result": "NOT_TESTED",
+            "evidence": []
+          }
+        ],
+        "ingredientSpecific": [
+          {
+            "check": "R1 resolution chosen and recorded by owner (ING-04 'choose a distinct glyph')",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "check": "Distinguishable from rosemary/basil/oregano in tray/inventory",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "check": "bakeRoastResistant decision recorded",
+            "result": "NOT_TESTED",
+            "evidence": []
+          }
+        ],
+        "approver": null,
+        "date": null,
+        "previewUrl": null,
+        "commitSha": null,
+        "devices": []
+      },
+      "notes": "At PR #220 HEAD e49dab9 this ingredient's recipe is wave W4 (SAUCELESS_RECIPE_CONTRACT)."
+    },
+    {
+      "id": "salt-cod",
+      "source": [
+        "PR221_W1"
+      ],
+      "pr221Ledger": "ING-05",
+      "displayNameCandidate": "塩だら",
+      "emojiCandidate": {
+        "glyph": "🐟",
+        "codepoint": "U+1F41F",
+        "emojiVersion": "Unicode 6.0",
+        "conflictsWith": [
+          "anchovy"
+        ]
+      },
+      "fallback": "Emoji alternatives violate R2 (🐡/🍥/🦈); 🐠 taken by tuna. Options: (a) flaked CSS piece with stripes/dark outline — plain #d8c9aa fill is forbidden (R6, mozzarella hue); (b) owner waiver sharing 🐟.",
+      "category": "topping",
+      "placement": "scatter",
+      "rawAppearance": "Blue whole fish; far from white flaked cod",
+      "bakedAppearance": "Blue darkens",
+      "bakeRoastResistantRecommendation": null,
+      "recommendedSize": "default 28px (no per-ingredient scale field; do not add for W1)",
+      "recipes": [
+        {
+          "id": "bacalhau",
+          "pieces": "mozzarella×2, salt-cod×3, onion×2, black-olive×2",
+          "base": "none (dough)",
+          "cheese": "mozzarella"
+        }
+      ],
+      "backgrounds": [
+        "dough",
+        "mozzarella piece"
+      ],
+      "preflight": {
+        "level": "BLOCKER",
+        "reasons": [
+          "R1: identical emoji to production scatter topping anchovy",
+          "Any pale fallback is HIGH risk for C3"
+        ],
+        "note": "Preflight risk only, not an approval status."
+      },
+      "humanApproval": {
+        "status": "BLOCKED_BY_PREFLIGHT",
+        "criteria": [
+          {
+            "code": "C1",
+            "label": "raw状態で識別可能",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C2",
+            "label": "baked後も識別可能",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C3",
+            "label": "mozzarella等と混同しない",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C4",
+            "label": "background/sauce上で消えない",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C5",
+            "label": "タップ対象として認識可能",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C6",
+            "label": "OS差で意味が変わらない",
+            "result": "NOT_TESTED",
+            "evidence": []
+          }
+        ],
+        "ingredientSpecific": [
+          {
+            "check": "R1 resolution chosen and recorded by owner",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "check": "Distinguishable from anchovy and tuna in tray/inventory/Dex",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "check": "Fallback not confused with raw or toasted mozzarella",
+            "result": "NOT_TESTED",
+            "evidence": []
+          }
+        ],
+        "approver": null,
+        "date": null,
+        "previewUrl": null,
+        "commitSha": null,
+        "devices": []
+      },
+      "notes": "At PR #220 HEAD e49dab9 this ingredient's recipe is wave W4 (SAUCELESS_RECIPE_CONTRACT)."
+    },
+    {
+      "id": "sauerkraut",
+      "source": [
+        "PR221_W1"
+      ],
+      "pr221Ledger": "ING-06",
+      "displayNameCandidate": "ザワークラウト",
+      "emojiCandidate": {
+        "glyph": "🥬",
+        "codepoint": "U+1F96C",
+        "emojiVersion": "Emoji 11.0",
+        "conflictsWith": null
+      },
+      "fallback": "🥗 salad violates R2. If rejected: pale shredded CSS piece (future, R7) — plain #d8d59a fill forbidden (R6).",
+      "category": "topping",
+      "placement": "scatter",
+      "rawAppearance": "Bright green leafy vegetable; real sauerkraut is pale yellow shreds",
+      "bakedAppearance": "Green shifts toward olive",
+      "bakeRoastResistantRecommendation": false,
+      "recommendedSize": "default 28px (no per-ingredient scale field; do not add for W1)",
+      "recipes": [
+        {
+          "id": "polish-kielbasa",
+          "pieces": "mozzarella×2, sausage×3, sauerkraut×3, onion×2",
+          "base": "none (dough)",
+          "cheese": "mozzarella"
+        }
+      ],
+      "backgrounds": [
+        "dough",
+        "mozzarella piece"
+      ],
+      "preflight": {
+        "level": "RISK_MEDIUM",
+        "reasons": [
+          "R2 boundary: leafy green ≠ fermented cabbage",
+          "Possible herb confusion"
+        ],
+        "note": "Preflight risk only, not an approval status."
+      },
+      "humanApproval": {
+        "status": "NOT_STARTED",
+        "criteria": [
+          {
+            "code": "C1",
+            "label": "raw状態で識別可能",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C2",
+            "label": "baked後も識別可能",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C3",
+            "label": "mozzarella等と混同しない",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C4",
+            "label": "background/sauce上で消えない",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C5",
+            "label": "タップ対象として認識可能",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "code": "C6",
+            "label": "OS差で意味が変わらない",
+            "result": "NOT_TESTED",
+            "evidence": []
+          }
+        ],
+        "ingredientSpecific": [
+          {
+            "check": "Leafy-green abstraction approved (ING-06)",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "check": "Distinguishable from 🌿/🍃/🌱 in tray/inventory",
+            "result": "NOT_TESTED",
+            "evidence": []
+          },
+          {
+            "check": "Does not read as burnt herb at overbake",
+            "result": "NOT_TESTED",
+            "evidence": []
+          }
+        ],
+        "approver": null,
+        "date": null,
+        "previewUrl": null,
+        "commitSha": null,
+        "devices": []
+      },
+      "notes": "At PR #220 HEAD e49dab9 this ingredient's recipe is wave W4 (SAUCELESS_RECIPE_CONTRACT)."
+    }
+  ]
+}
