@@ -161,8 +161,9 @@ export function dynamicLoad(text) {
 export function nameStem(path) {
   if (path.startsWith("tools/")) return path.split("/").pop().replace(/\.py$/, "");
   if (/^src\/test\//.test(path)) {
-    // A directory index is imported by its directory (`./test/helper` -> test/helper/index.ts).
-    return path.slice("src/".length).replace(/\.[^./]+$/, "").replace(/\/index$/, "");
+    // Relative imports inside src/test/ use only the basename (`./util`), and a directory index
+    // is imported by its directory (`./helper` -> helper/index.ts): match on that last segment.
+    return path.replace(/\.[^./]+$/, "").replace(/\/index$/, "").split("/").pop();
   }
   return path.split("/").pop().replace(/\.[cm]?[jt]sx?$/, "");
 }
@@ -241,6 +242,18 @@ export function scanGuards(root, paths = []) {
     }
     for (const [file, text] of texts) {
       if (/\bpython[0-9.]*\b/.test(text)) blocked.tools.push(`${file} (runs python)`);
+    }
+    // A tools/*.py file can never run in the browser; under Node it needs a spawned process (a
+    // shebang script needs no `python` word). Any process spawning that can run during the WebKit
+    // job disables the tools skip: code in src/, e2e/ or the repo root, or any file another
+    // scanned file names (package.json scripts, the workflow, helpers). An unnamed script under
+    // e.g. scripts/ cannot be run by the job.
+    const SPAWN = /child_process|\b(?:execSync|execFileSync|execFile|spawnSync|spawn|fork|execa)\b|\bzx\b/;
+    for (const [file, text] of texts) {
+      if (!SPAWN.test(text)) continue;
+      const stem = file.split("/").pop().replace(/\.[^.]+$/, "");
+      const runnable = /^(?:src|e2e)\//.test(file) || !file.includes("/") || [...texts].some(([f, t]) => f !== file && t.includes(stem));
+      if (runnable) blocked.tools.push(`${file} (spawns processes)`);
     }
 
     for (const path of paths) {
@@ -414,6 +427,16 @@ const SCAN_CASES = [
   ["a shell wrapper runs python (any extension is scanned)", { "e2e/gestures.ts": 'import { execSync } from "node:child_process";\nexecSync("sh scripts/prepare.sh");\n', "scripts/prepare.sh": "#!/bin/sh\npython tools/gen.py\n" }, { ...T, tools: false }],
   ["an extensionless script naming the changed test", { "Makefile": "check:\n\tnode src/logic/a.test.ts\n" }, { ...T, "unit-test": false }],
   ["a named tools script is not itself a python runner", { "src/App.tsx": "// derived from tools/other.py\n", "tools/other.py": "#!/usr/bin/env python3\nimport subprocess\n" }, T],
+  [
+    "relative import inside src/test (./util)",
+    { "src/App.tsx": 'import { h } from "./test/helper";\n', "src/test/helper.ts": 'export { u as h } from "./util";\n', "src/test/util.ts": "export const u = 1;\n" },
+    { ...T, "unit-test": false },
+    ["src/test/util.ts"],
+  ],
+  ["e2e spawns a process (shebang tools runner)", { "e2e/gestures.ts": 'import { execFileSync } from "node:child_process";\nexecFileSync("./tools/runner.py");\n', "tools/runner.py": "#!/usr/bin/env python3\nimport gen\n" }, { ...T, tools: false }],
+  ["root config spawns a process", { "playwright.config.ts": 'import { execSync } from "node:child_process";\nexport default { testDir: "./e2e" };\n' }, { ...T, tools: false }],
+  ["an unnamed script that spawns cannot run in the job", { "scripts/record.mjs": 'import { spawnSync } from "node:child_process";\nspawnSync("ffmpeg");\n' }, T],
+  ["a named script that spawns can run in the job", { "scripts/record.mjs": 'import { spawnSync } from "node:child_process";\nspawnSync("x");\n', "package.json": '{"scripts":{"prep":"node scripts/record.mjs"}}' }, { ...T, tools: false }],
   ["binary files are skipped", { "public/icon.png": "\u0000PNG a.test tools/gen.py python" }, T],
   ["concatenated fetch argument", { "src/App.tsx": 'fetch("/src/logic/" + name);\n' }, { tools: false, "unit-test": false }],
   ["concatenated import argument", { "src/App.tsx": 'import("./logic/" + moduleName);\n' }, { tools: false, "unit-test": false }],

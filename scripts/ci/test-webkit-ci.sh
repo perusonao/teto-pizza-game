@@ -195,7 +195,7 @@ repo_root="$(cd "$here/../.." && pwd)"
 check "this repo: tools/**/*.py-only change -> skip" false \
   "$(printf 'tools/progression2_phase34_unlocks.py\n' | node "$here/classify-webkit.mjs" --repo "$repo_root" 2>/dev/null | sed -n 's/^webkit_required=//p')"
 check "this repo: unit-test-only change -> skip" false \
-  "$(printf 'src/logic/scoring.test.ts\nsrc/test/setup.ts\n' | node "$here/classify-webkit.mjs" --repo "$repo_root" 2>/dev/null | sed -n 's/^webkit_required=//p')"
+  "$(printf 'src/logic/scoring.test.ts\n' | node "$here/classify-webkit.mjs" --repo "$repo_root" 2>/dev/null | sed -n 's/^webkit_required=//p')"
 check "this repo: persistence change -> run" true \
   "$(printf 'src/state/persistence.ts\n' | node "$here/classify-webkit.mjs" --repo "$repo_root" 2>/dev/null | sed -n 's/^webkit_required=//p')"
 

@@ -150,7 +150,7 @@ and (c) evidence that a meaningful share of PRs would land in L1/L2.
 
 | File | Change |
 |---|---|
-| `scripts/ci/classify-webkit.mjs` | Skip allow-list = docs + `tools/**/*.py` + `src/**/*.test.ts(x)` + `src/test/**`. The two new categories require `--repo` scan guards. Self-test grows from 24 to 116 cases (path table + raw-scan fixtures). |
+| `scripts/ci/classify-webkit.mjs` | Skip allow-list = docs + `tools/**/*.py` + `src/**/*.test.ts(x)` + `src/test/**`. The two new categories require `--repo` scan guards. Self-test grows from 24 to 121 cases (path table + raw-scan fixtures). |
 | `scripts/ci/classify-webkit-pr.sh` | Passes `--repo <toplevel>` (the merge-ref checkout). Reason wording changes to "cannot reach the browser". Decision order, forcing rules, `tested_base` reuse and fail-safes are unchanged. |
 | `scripts/ci/test-webkit-ci.sh` | 40 → 48 cases: tools-only / unit-test-only / unit+runtime / guard-violation PRs in a throwaway repo, plus classification against **this repository's own tree** (tools-only → skip, unit-test-only → skip, persistence → run). |
 | `.github/workflows/e2e-webkit.yml` | Header comment only. Matrix, steps, triggers, concurrency, evidence and gate are identical to Phase 2A. |
@@ -190,7 +190,7 @@ no heuristic can hide evidence. Each rule can only push a PR toward Full WebKit.
 The post-merge Full WebKit run on `main` and the `webkit-full` label are the backstops.
 
 On this repository:
-- 96 of the 128 guarded files (unit tests, `src/test`, `tools/*.py`) can skip. The other 32
+- 95 of the 128 guarded files (unit tests, `src/test`, `tools/*.py`) can skip. The other 32
   are named by runtime code or by a reachable test, often only in a comment, so they
   conservatively run Full.
 - For example, `scoringV2.test` and `tools/progression2_phase2_progression.py` are both named
@@ -258,8 +258,18 @@ Round 7 (on `5aadd17`) found three more gaps of the same kind:
 - an unscanned file type: a `.sh` wrapper that runs python.
 
 The fix for the last one closes the whole class: **every text file is now scanned, whatever
-its extension.** Only binaries are skipped. Self-test: 116 cases, and a mutation of each rule
-fails it.
+its extension.** Only binaries are skipped.
+
+Round 8 (on `edd040c`) found two more gaps:
+- **Relative imports inside `src/test/`** (`./util`). `src/test/**` name stems are now the
+  basename only. This is conservative: e.g. `setup` now runs Full.
+- **A tools script run directly by its shebang,** without the word "python".
+  - A `.py` file can never run in the browser, and under Node it needs a spawned process.
+  - So any process spawning that can run during the WebKit job now disables the tools
+    skip: code in `src/`, `e2e/`, the repo root, or a file whose name another scanned file
+    mentions.
+
+Self-test: 121 cases, and a mutation of each rule fails it.
 
 ### 5.2 Duration-balanced shards: implemented, measured, removed
 
