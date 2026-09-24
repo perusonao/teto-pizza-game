@@ -4642,7 +4642,7 @@
   },
   "orderStream": {
    "1.5s": {
-    "idealMeanServes": 4.833,
+    "idealMeanServes": 4.832,
     "idealMeanScore": 964.1,
     "plans": {
      "allMinusOne": {
@@ -4704,7 +4704,7 @@
     "idealMeanScore": 788.8,
     "plans": {
      "allMinusOne": {
-      "meanServes": 4.187,
+      "meanServes": 4.188,
       "meanScoreAtQ05": 735.9,
       "meanScoreZeroQuality": 418.8,
       "zeroQualityBeatsIdeal": false,
@@ -4733,9 +4733,9 @@
     "idealMeanScore": 686.3,
     "plans": {
      "allMinusOne": {
-      "meanServes": 4.003,
+      "meanServes": 4.002,
       "meanScoreAtQ05": 703.2,
-      "meanScoreZeroQuality": 400.3,
+      "meanScoreZeroQuality": 400.2,
       "zeroQualityBeatsIdeal": false,
       "breakEvenShortCoefficient": 0.593
      },
@@ -4787,7 +4787,7 @@
     "compatibleWithRecipeModeStar4AtTwoThirds": false
    },
    "6.0s": {
-    "idealMeanServes": 2.135,
+    "idealMeanServes": 2.134,
     "idealMeanScore": 425.8,
     "plans": {
      "allMinusOne": {
