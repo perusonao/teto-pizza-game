@@ -115,7 +115,7 @@ RECIPES = [
            [req("tomato-sauce", 1, "one spread use"), req("anchovy", 3, "napoletana analogue"),
             req("black-olive", 2, "supporting topping"), req("capers", 2, "accent topping"), req("garlic", 2, "marinara analogue")],
            "tomato-sauce", [], ["anchovy", "black-olive", "capers", "garlic"], 50, 70, "marinara",
-           "Cheese-free identity remains distinct; exact-set collision absent.", "REVIEW", ["ING-02"]),
+           "Cheese-free identity remains distinct; exact-set collision absent.", "REVIEW", ["ING-02", "REC-07"]),
     recipe("full-english-pizza-pizzadb-p10", "full-english-pizza", "フルイングリッシュピザ",
            "ベーコン、ソーセージ、卵、ベイクドビーンズをモッツァレラと焼き上げた、朝食仕立ての一枚。",
            [req("mozzarella", 2, "existing cheese-density baseline"), req("bacon", 2, "supporting meat"),
@@ -184,12 +184,96 @@ CHANGE_MAP = {
     "scope": "FUTURE_ONLY_NO_RUNTIME_CHANGE_IN_THIS_AUDIT",
     "slices": [
         {"id": "A", "title": "Evidence-clean existing-ingredient recipe data", "recipes": ["aussie"], "dependsOn": ["Progression 2.0 owner decisions"], "likelyFiles": ["src/data/recipes.ts", "src/data/recipes.test.ts", "src/data/cookingProfiles.ts", "src/data/cookingProfiles.test.ts", "src/logic/discovery/*"]},
-        {"id": "B", "title": "Existing-ingredient recipes with likely-alias evidence review", "recipes": ["pizza-portuguesa", "pesto-tonno"], "dependsOn": ["REC-06/REC-09 evidence resolution", "Progression 2.0 owner decisions"], "likelyFiles": ["src/data/recipes.ts", "src/data/recipes.test.ts", "src/data/recipeSauceProfiles.ts", "src/data/recipeSauceProfiles.test.ts", "src/data/cookingProfiles.ts", "src/data/cookingProfiles.test.ts", "src/logic/discovery/*"]},
+        {"id": "B", "title": "Existing-ingredient recipes with likely-alias evidence review", "recipes": ["pizza-portuguesa", "pesto-tonno"], "dependsOn": ["REC-06 evidence resolution", "REC-09 evidence resolution", "Progression 2.0 owner decisions"], "likelyFiles": ["src/data/recipes.ts", "src/data/recipes.test.ts", "src/data/recipeSauceProfiles.ts", "src/data/recipeSauceProfiles.test.ts", "src/data/cookingProfiles.ts", "src/data/cookingProfiles.test.ts", "src/logic/discovery/*"]},
         {"id": "C", "title": "Six new ingredient records", "ingredients": [i["id"] for i in INGREDIENTS], "dependsOn": ["visual authoring approval", "Progression 2.0 owner decisions"], "likelyFiles": ["src/data/ingredients.ts", "src/data/ingredients.test.ts", "src/components/IngredientPieceVisual.test.tsx"]},
-        {"id": "D", "title": "Recipes using approved new ingredients", "recipes": ["bacalhau", "parmigiana-pizza", "puttanesca-pizza", "full-english-pizza", "polish-kielbasa", "melanzane-pizza", "tsukimi-pizza"], "dependsOn": ["slice C", "Progression 2.0 owner decisions"], "likelyFiles": ["src/data/recipes.ts", "src/data/recipes.test.ts", "src/data/recipeSauceProfiles.ts", "src/data/cookingProfiles.ts", "src/logic/discovery/*"]},
+        {"id": "D", "title": "Recipes using approved new ingredients", "recipes": ["bacalhau", "parmigiana-pizza", "puttanesca-pizza", "full-english-pizza", "polish-kielbasa", "melanzane-pizza", "tsukimi-pizza"], "dependsOn": ["slice C", "REC-07 evidence resolution", "REC-08 discovery regression coverage", "Progression 2.0 owner decisions"], "likelyFiles": ["src/data/recipes.ts", "src/data/recipes.test.ts", "src/data/recipeSauceProfiles.ts", "src/data/cookingProfiles.ts", "src/logic/discovery/*"]},
         {"id": "E", "title": "Completion Gate integration", "dependsOn": ["#218 owner decision"], "likelyFiles": ["src/logic/completionGate.ts", "src/state/gameReducer.completionGate.test.ts"], "guard": "Do not implement or decide in this audit."}
     ]
 }
+
+
+for _section in CHANGE_MAP["slices"]:
+    if "recipes" in _section:
+        _section["recipeDependencies"] = {
+            recipe_id: next(r["unresolvedRefs"] for r in RECIPES if r["recipeIdCandidate"] == recipe_id)
+            for recipe_id in _section["recipes"]
+        }
+
+
+GLOBAL_LEDGER_SCOPES = {"all recipes", "cheese-family recipes"}
+LEDGER_REF_PREFIXES = ("REC-", "ING-")
+
+
+def derived_readiness(refs) -> str:
+    """READY only when no ledger entry is left open for the recipe."""
+    return "READY" if not refs else "REVIEW"
+
+
+def readiness_after_resolving(row: dict, resolved_ids) -> str:
+    return derived_readiness([ref for ref in row["unresolvedRefs"] if ref not in set(resolved_ids)])
+
+
+def ledger_scope_kind(item: dict, recipe_ids: set, ingredient_ids: set) -> str:
+    scope = item["scope"]
+    if scope in GLOBAL_LEDGER_SCOPES:
+        return "global"
+    tokens = {token.strip() for token in scope.split(",")}
+    if tokens <= recipe_ids:
+        return "recipe"
+    if tokens <= ingredient_ids and len(tokens) == 1:
+        return "ingredient"
+    raise AssertionError(f"ledger scope is neither global, recipe-specific nor ingredient-specific: {item['id']} {scope!r}")
+
+
+def validate_ledger_links(recipes, ingredients, ledger, change_map) -> None:
+    """Bidirectional recipe <-> ledger <-> change-map consistency.
+
+    Fails when a recipe-specific or ingredient-specific ledger entry is orphaned
+    (its scope names a recipe that does not reference it), when a recipe
+    references an entry outside that entry's scope, or when the future
+    implementation change-map drops a recipe's ledger dependency.
+    """
+    recipe_ids = {r["recipeIdCandidate"] for r in recipes}
+    ingredient_ids = {i["id"] for i in ingredients}
+    ledger_by_id = {item["id"]: item for item in ledger}
+    referencing = {item_id: set() for item_id in ledger_by_id}
+    for row in recipes:
+        for ref in row["unresolvedRefs"]:
+            assert ref in ledger_by_id, f"{row['recipeIdCandidate']} references unknown ledger id {ref}"
+            referencing[ref].add(row["recipeIdCandidate"])
+    for item_id, item in ledger_by_id.items():
+        kind = ledger_scope_kind(item, recipe_ids, ingredient_ids)
+        if kind == "global":
+            expected = set()
+        elif kind == "recipe":
+            expected = {token.strip() for token in item["scope"].split(",")}
+        else:
+            expected = {r["recipeIdCandidate"] for r in recipes
+                        if item["scope"] in {x["ingredientId"] for x in r["requiredIngredients"]}}
+        assert referencing[item_id] == expected, (
+            f"ledger link mismatch for {item_id}: orphaned from {sorted(expected - referencing[item_id])}, "
+            f"out-of-scope refs from {sorted(referencing[item_id] - expected)}")
+    rows_by_id = {r["recipeIdCandidate"]: r for r in recipes}
+    slices = {section["id"]: section for section in change_map["slices"]}
+    for section in change_map["slices"]:
+        mentioned = {token for token in " ".join(section["dependsOn"]).replace("/", " ").split()
+                     if token.startswith(LEDGER_REF_PREFIXES)}
+        assert mentioned <= set(ledger_by_id), f"slice {section['id']} depends on unknown ledger ids {mentioned - set(ledger_by_id)}"
+        for recipe_id in section.get("recipes", []):
+            row = rows_by_id[recipe_id]
+            assert section["recipeDependencies"][recipe_id] == row["unresolvedRefs"], (section["id"], recipe_id)
+            for ref in row["unresolvedRefs"]:
+                if ledger_scope_kind(ledger_by_id[ref], recipe_ids, ingredient_ids) == "recipe":
+                    assert ref in mentioned, f"slice {section['id']} drops {recipe_id} dependency {ref}"
+                else:
+                    ingredient_slice = next(sid for sid, other in slices.items()
+                                            if ledger_by_id[ref]["scope"] in other.get("ingredients", []))
+                    assert f"slice {ingredient_slice}" in section["dependsOn"], (
+                        f"slice {section['id']} drops {recipe_id} dependency {ref} via slice {ingredient_slice}")
+        for ref in mentioned:
+            if ledger_scope_kind(ledger_by_id[ref], recipe_ids, ingredient_ids) == "recipe":
+                scoped = {token.strip() for token in ledger_by_id[ref]["scope"].split(",")}
+                assert scoped & set(section.get("recipes", [])), f"slice {section['id']} depends on {ref} without carrying its recipes"
 
 
 def envelope(kind: str, rows) -> dict:
@@ -206,7 +290,7 @@ def report() -> str:
         "# Progression 2.0 W1 Content Authoring — Fresh Audit", "",
         "## 結論", "",
         f"監査基準は最新 `main` `{AUDITED_MAIN_SHA}`。Issue #182、merged PR #189/#191、open PR #217/#220 を確認し、#220 の unordered first-10 candidate set だけを content authoring 面で再監査した。既存172件調査は再実施していない。", "",
-        f"判定は **READY {ready} / REVIEW {review} / BLOCKED {blocked}**。根拠未確定値を READY に含めないため、Progression 2.0 確定後に content data 実装へ直行できるのは Aussie のみ。Pizza Portuguesa / Pesto Tonno は `オリーブ` → `black-olive` の likely-alias provenance review、残る7件は新 ingredient 6種の visual authoring approvalを要する。", "",
+        f"判定は **READY {ready} / REVIEW {review} / BLOCKED {blocked}**。根拠未確定値を READY に含めないため、Progression 2.0 確定後に content data 実装へ直行できるのは Aussie のみ。Pizza Portuguesa / Pesto Tonno は `オリーブ` → `black-olive` の likely-alias provenance review（REC-06 / REC-09）、残る7件は新 ingredient 6種の visual authoring approvalを要する。Puttanesca は capers visual（ING-02）に加えて同じ likely-alias provenance（REC-07）も未解決のため、capers 承認だけでは READY にならない。", "",
         "## 判定基準", "",
         "- `READY`: composition evidence、独自 description/minCount/bakeTarget candidate、現行 ingredient visual が揃う。", 
         "- `REVIEW`: recipe data は準備済みだが、新 ingredient の emoji/color/piece abstraction を human review する。", 
@@ -231,7 +315,7 @@ def report() -> str:
               "## Progression確定後すぐ実装可能な範囲", "",
               "- 即時: slice A（Aussie）の recipe data、CUT opt-in review、discovery collision tests。",
               "- alias evidence確認後: slice B（Pizza Portuguesa / Pesto Tonno）。",
-              "- visual approval後: slice C（6 ingredients）→ slice D（残り7 recipes）。",
+              "- visual approval後: slice C（6 ingredients）→ slice D（残り7 recipes）。slice D の Puttanesca は REC-07、Parmigiana / Melanzane は REC-08 も dependency として保持する（`recipeDependencies`）。",
               "- #218後: slice E（Completion Gate integration）。", "",
               "## Deliverables", "",
               "- `docs/reports/data/TETO_PROGRESS2_W1_RECIPE_AUTHORING_MATRIX.json`", 
@@ -240,6 +324,7 @@ def report() -> str:
               "- `docs/reports/data/TETO_PROGRESS2_W1_FUTURE_IMPLEMENTATION_CHANGE_MAP.json`", 
               "- `tools/progression2_w1_authoring_audit.py --check`", "",
               "## Validation", "",
+              "- W1 ledger link checker: recipe ↔ ledger ↔ change-map を双方向検証（recipe-specific / ingredient-specific ledger entry の orphan、scope外参照、change-map dependency 欠落を検出）。",
               f"- W1 generator/checker: PASS（10 recipes / 6 ingredients / READY {ready} / REVIEW {review} / BLOCKED {blocked}）。",
               "- `validate_recipe_catalog.py`: PASS（53 / 62 / 11）。", 
               "- `progression2_evidence_invariants.py`: PASS 4/4。", 
@@ -279,6 +364,7 @@ def validate_sources() -> None:
     ledger_by_id = {item["id"]: item for item in LEDGER}
     assert len(ledger_by_id) == len(LEDGER)
     assert all(set(r["unresolvedRefs"]) <= set(ledger_by_id) for r in RECIPES)
+    validate_ledger_links(RECIPES, INGREDIENTS, LEDGER, CHANGE_MAP)
     assert all(set(i["recipesUsingItInCandidateSet"]) <= recipe_ids for i in INGREDIENTS)
     mapped_recipe_ids = {
         recipe_id for section in CHANGE_MAP["slices"] for recipe_id in section.get("recipes", [])
@@ -288,11 +374,22 @@ def validate_sources() -> None:
         unresolved_statuses = {ledger_by_id[ref]["status"] for ref in row["unresolvedRefs"]}
         if "EVIDENCE_REQUIRED" in unresolved_statuses:
             assert row["readiness"] != "READY", row["recipeIdCandidate"]
+        if row["readiness"] != "BLOCKED":
+            assert row["readiness"] == derived_readiness(row["unresolvedRefs"]), row["recipeIdCandidate"]
+        # Approving new-ingredient visuals alone must never make a recipe with
+        # recipe-specific evidence/authoring refs implementation-ready.
+        visual_only = [ref for ref in row["unresolvedRefs"] if ref.startswith("ING-")]
+        if any(ref.startswith("REC-") for ref in row["unresolvedRefs"]):
+            assert readiness_after_resolving(row, visual_only) != "READY", row["recipeIdCandidate"]
     assert {r["readiness"] for r in RECIPES} <= {"READY", "REVIEW", "BLOCKED"}
     assert sum(r["readiness"] == "READY" for r in RECIPES) == 1
     assert sum(r["readiness"] == "REVIEW" for r in RECIPES) == 9
     assert len(LEDGER) == 15
     assert next(r for r in RECIPES if r["recipeIdCandidate"] == "pesto-tonno")["unresolvedRefs"] == ["REC-09"]
+    assert next(r for r in RECIPES if r["recipeIdCandidate"] == "pizza-portuguesa")["unresolvedRefs"] == ["REC-06"]
+    puttanesca = next(r for r in RECIPES if r["recipeIdCandidate"] == "puttanesca-pizza")
+    assert puttanesca["unresolvedRefs"] == ["ING-02", "REC-07"]
+    assert readiness_after_resolving(puttanesca, ["ING-02"]) == "REVIEW"
     assert not any(k in json.dumps(RECIPES) for k in ['"pitzPrice": 0', '"unlockFee": 0', '"starGate": 0'])
     assert all(r["currentMechanicRepresentability"] == "FULL" for r in RECIPES)
     assert all(0 < r["bakeTargetCandidate"]["start"] < r["bakeTargetCandidate"]["end"] < 100 for r in RECIPES)
@@ -309,7 +406,7 @@ def main() -> int:
                       if not path.exists() or path.read_text(encoding="utf-8") != text]
         if mismatches:
             raise SystemExit("generated outputs differ: " + ", ".join(mismatches))
-        print("PASS: W1 authoring audit is source-valid and byte-identical (10 recipes, 6 ingredients, READY 1 / REVIEW 9 / BLOCKED 0; canonicalCandidateId drift 0).")
+        print("PASS: W1 authoring audit is source-valid and byte-identical (10 recipes, 6 ingredients, READY 1 / REVIEW 9 / BLOCKED 0; canonicalCandidateId drift 0; ledger orphans 0).")
         return 0
     for path, text in generated.items():
         path.parent.mkdir(parents=True, exist_ok=True)

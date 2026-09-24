@@ -18,7 +18,10 @@
         "src/data/cookingProfiles.ts",
         "src/data/cookingProfiles.test.ts",
         "src/logic/discovery/*"
-      ]
+      ],
+      "recipeDependencies": {
+        "aussie": []
+      }
     },
     {
       "id": "B",
@@ -28,7 +31,8 @@
         "pesto-tonno"
       ],
       "dependsOn": [
-        "REC-06/REC-09 evidence resolution",
+        "REC-06 evidence resolution",
+        "REC-09 evidence resolution",
         "Progression 2.0 owner decisions"
       ],
       "likelyFiles": [
@@ -39,7 +43,15 @@
         "src/data/cookingProfiles.ts",
         "src/data/cookingProfiles.test.ts",
         "src/logic/discovery/*"
-      ]
+      ],
+      "recipeDependencies": {
+        "pizza-portuguesa": [
+          "REC-06"
+        ],
+        "pesto-tonno": [
+          "REC-09"
+        ]
+      }
     },
     {
       "id": "C",
@@ -76,6 +88,8 @@
       ],
       "dependsOn": [
         "slice C",
+        "REC-07 evidence resolution",
+        "REC-08 discovery regression coverage",
         "Progression 2.0 owner decisions"
       ],
       "likelyFiles": [
@@ -84,7 +98,33 @@
         "src/data/recipeSauceProfiles.ts",
         "src/data/cookingProfiles.ts",
         "src/logic/discovery/*"
-      ]
+      ],
+      "recipeDependencies": {
+        "bacalhau": [
+          "ING-05"
+        ],
+        "parmigiana-pizza": [
+          "ING-03",
+          "REC-08"
+        ],
+        "puttanesca-pizza": [
+          "ING-02",
+          "REC-07"
+        ],
+        "full-english-pizza": [
+          "ING-01"
+        ],
+        "polish-kielbasa": [
+          "ING-06"
+        ],
+        "melanzane-pizza": [
+          "ING-03",
+          "REC-08"
+        ],
+        "tsukimi-pizza": [
+          "ING-04"
+        ]
+      }
     },
     {
       "id": "E",

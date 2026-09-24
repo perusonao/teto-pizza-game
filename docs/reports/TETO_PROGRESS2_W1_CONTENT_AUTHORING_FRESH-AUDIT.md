@@ -4,7 +4,7 @@
 
 監査基準は最新 `main` `dff233c042d2df6ee1c3a92f2d2419830aa05460`。Issue #182、merged PR #189/#191、open PR #217/#220 を確認し、#220 の unordered first-10 candidate set だけを content authoring 面で再監査した。既存172件調査は再実施していない。
 
-判定は **READY 1 / REVIEW 9 / BLOCKED 0**。根拠未確定値を READY に含めないため、Progression 2.0 確定後に content data 実装へ直行できるのは Aussie のみ。Pizza Portuguesa / Pesto Tonno は `オリーブ` → `black-olive` の likely-alias provenance review、残る7件は新 ingredient 6種の visual authoring approvalを要する。
+判定は **READY 1 / REVIEW 9 / BLOCKED 0**。根拠未確定値を READY に含めないため、Progression 2.0 確定後に content data 実装へ直行できるのは Aussie のみ。Pizza Portuguesa / Pesto Tonno は `オリーブ` → `black-olive` の likely-alias provenance review（REC-06 / REC-09）、残る7件は新 ingredient 6種の visual authoring approvalを要する。Puttanesca は capers visual（ING-02）に加えて同じ likely-alias provenance（REC-07）も未解決のため、capers 承認だけでは READY にならない。
 
 ## 判定基準
 
@@ -56,7 +56,7 @@ Descriptions、minCount、bakeTarget は外部事実ではなく独自 game-auth
 
 - 即時: slice A（Aussie）の recipe data、CUT opt-in review、discovery collision tests。
 - alias evidence確認後: slice B（Pizza Portuguesa / Pesto Tonno）。
-- visual approval後: slice C（6 ingredients）→ slice D（残り7 recipes）。
+- visual approval後: slice C（6 ingredients）→ slice D（残り7 recipes）。slice D の Puttanesca は REC-07、Parmigiana / Melanzane は REC-08 も dependency として保持する（`recipeDependencies`）。
 - #218後: slice E（Completion Gate integration）。
 
 ## Deliverables
@@ -69,6 +69,7 @@ Descriptions、minCount、bakeTarget は外部事実ではなく独自 game-auth
 
 ## Validation
 
+- W1 ledger link checker: recipe ↔ ledger ↔ change-map を双方向検証（recipe-specific / ingredient-specific ledger entry の orphan、scope外参照、change-map dependency 欠落を検出）。
 - W1 generator/checker: PASS（10 recipes / 6 ingredients / READY 1 / REVIEW 9 / BLOCKED 0）。
 - `validate_recipe_catalog.py`: PASS（53 / 62 / 11）。
 - `progression2_evidence_invariants.py`: PASS 4/4。

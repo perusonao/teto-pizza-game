@@ -461,7 +461,8 @@
       },
       "readiness": "REVIEW",
       "unresolvedRefs": [
-        "ING-02"
+        "ING-02",
+        "REC-07"
       ],
       "currentMechanicRepresentability": "FULL",
       "mechanicDependencies": [],
