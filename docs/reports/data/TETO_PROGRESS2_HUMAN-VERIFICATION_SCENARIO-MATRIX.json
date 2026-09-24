@@ -1,0 +1,2195 @@
+{
+  "schemaVersion": 1,
+  "kind": "progression2_human_verification_scenario_matrix",
+  "status": "PLAN_ONLY (not executed; no implementation exists yet)",
+  "auditedMainSha": "dff233c042d2df6ee1c3a92f2d2419830aa05460",
+  "sourceHeads": {
+    "PR #217": "a39932d6b750cd0dd16b63e8635ac40c53a9fb70",
+    "PR #218": "5105771d37577ad353e869ea35295a4ea18bbce9",
+    "PR #220": "e49dab96bd9b26dc0f520349cf09d1160c3519f5",
+    "PR #221": "279b6b17188ed3572b27c1ba91b2c4983723ddc0"
+  },
+  "policy": "docs/decisions/TETO_HUMAN-VERIFICATION-POLICY.md",
+  "enums": {
+    "automation": {
+      "E2E_CANDIDATE": "Chromium emulation で状態を決定的に assert できる（将来 e2e 化候補）",
+      "DEVICE_REQUIRED": "実機でしか判定できない（touch/連打/OS emoji/background/Human Feel）",
+      "HYBRID": "状態は E2E で assert、見え方・操作感は実機で確認"
+    },
+    "evidence": {
+      "VIDEO": "MP4 H.264。repo へ commit しない（policy §6）",
+      "SCREENSHOT": "docs/reports/screenshots/<task-name>/ に commit",
+      "SAVE_DUMP": "localStorage の save JSON（iPhone は Mac Safari Web Inspector、または E2E で取得）",
+      "PITZ_LEDGER": "各取引の前後残高と表示価格の手記録表",
+      "NETWORK": "ranking submit の payload（Preview + Web Inspector / E2E route capture）"
+    }
+  },
+  "seeds": {
+    "S0": "新規 save",
+    "S1": "X LOCKED、解放条件まであと 1",
+    "S2": "X AVAILABLE_TO_UNLOCK、残高 ≥ fee + 初回価格×2",
+    "S3": "X AVAILABLE_TO_UNLOCK、残高 < fee",
+    "S4": "X OWNED、stock 0",
+    "S5": "現 production の schemaVersion 2 save（set なし、既存購入あり）",
+    "S6": "funghi 選択可、mushroom stock ≥ 5",
+    "S7": "Lunch Rush 開始可、注文 recipe の在庫十分"
+  },
+  "counts": {
+    "total": 86,
+    "P0": 22,
+    "P1": 48,
+    "P2": 16,
+    "byAutomation": {
+      "HYBRID": 33,
+      "DEVICE_REQUIRED": 27,
+      "E2E_CANDIDATE": 26
+    },
+    "byArea": {
+      "UNLOCK": 13,
+      "PERMANENT": 10,
+      "PITZ": 12,
+      "COMPLETION_GATE": 11,
+      "LUNCH_RUSH": 12,
+      "DISCOVERY": 9,
+      "CAPABILITY": 8,
+      "W1_VISUAL": 11
+    }
+  },
+  "p0SmokeFlow": [
+    "UNL-01",
+    "UNL-02",
+    "UNL-03",
+    "PITZ-02",
+    "PERM-01",
+    "UNL-04",
+    "UNL-05",
+    "DISC-01",
+    "UNL-06",
+    "UNL-07",
+    "PITZ-05",
+    "CG-02",
+    "CG-00",
+    "LR-02",
+    "LR-01",
+    "PERM-09"
+  ],
+  "scenarios": [
+    {
+      "id": "UNL-01",
+      "area": "UNLOCK",
+      "priority": "P0",
+      "title": "LOCKED 表示",
+      "preconditions": "Seed S1（条件未達。X=eggplant が LOCKED）",
+      "steps": "HOME → Shop を開く → X の行をタップ",
+      "expected": "X は LOCKED 表示。購入/解放 CTA は無い（または disabled）。解放条件の文言と進捗（例: ⭐/発見数/完成数/獲得Pitz のうち採用された条件）が読める。タップしても Pitz・state は変わらない。save: unlockedForShopIngredientIds に X が無い",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SCREENSHOT",
+        "SAVE_DUMP"
+      ],
+      "automation": "HYBRID",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [
+        "OD216-2"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "UNL-02",
+      "area": "UNLOCK",
+      "priority": "P0",
+      "title": "条件達成 → AVAILABLE_TO_UNLOCK",
+      "preconditions": "Seed S1（条件まであと 1 回の bake/発見）",
+      "steps": "条件を満たす 1 枚を焼く → RESULT → HOME → Shop",
+      "expected": "RESULT または HOME/Shop に『解放できる』通知が 1 回出る。Shop の X は AVAILABLE_TO_UNLOCK で、unlock fee と『解放』CTA が見える。save: Pitz 変化は報酬分だけ、set にはまだ X が無い（fee 未払い）",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SCREENSHOT",
+        "SAVE_DUMP",
+        "PITZ_LEDGER"
+      ],
+      "automation": "HYBRID",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [
+        "OD216-2",
+        "OD216-1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "UNL-03",
+      "area": "UNLOCK",
+      "priority": "P0",
+      "title": "unlock fee 支払い → AVAILABLE_TO_BUY",
+      "preconditions": "Seed S2（AVAILABLE_TO_UNLOCK、残高 ≥ fee + 初回価格）",
+      "steps": "Shop → X の『解放』→ 確認 UI があれば確定",
+      "expected": "Pitz が fee ちょうど 1 回分減る。X は AVAILABLE_TO_BUY になり、初回 stock 価格と数量（10×k 個）が表示される。stock はまだ 0 / Inventory に X は無い。save: set に X が追加、Pitz と set が同時に書かれている。F0 の場合は fee 0 の扱い（自動遷移 or 0 Pitz 確認）が仕様どおり",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SCREENSHOT",
+        "SAVE_DUMP",
+        "PITZ_LEDGER"
+      ],
+      "automation": "HYBRID",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [
+        "OD216-1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "UNL-04",
+      "area": "UNLOCK",
+      "priority": "P0",
+      "title": "初回 stock 購入 → OWNED",
+      "preconditions": "UNL-03 の直後（AVAILABLE_TO_BUY、残高 ≥ 初回価格）",
+      "steps": "Shop → X の『購入』",
+      "expected": "Pitz が初回価格だけ減る（fee は再請求されない）。X は OWNED、stock = 10×k 個。Inventory に X が出る。save: inventory の X 数量 = 10×k、set に X が残る",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SCREENSHOT",
+        "SAVE_DUMP",
+        "PITZ_LEDGER"
+      ],
+      "automation": "HYBRID",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [
+        "OD216-4"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "UNL-05",
+      "area": "UNLOCK",
+      "priority": "P0",
+      "title": "OWNED 材料を調理で使う（M4 消費）",
+      "preconditions": "UNL-04 の直後",
+      "steps": "HOME → Free Cooking → tray で X を探して 2 個置く → 焼く → RESULT",
+      "expected": "tray に X が出る（360×800 では paging 後も到達可能）。stock が置いた個数（2）だけ減る。LOCKED 材料は tray に出ない",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SCREENSHOT",
+        "SAVE_DUMP"
+      ],
+      "automation": "HYBRID",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "UNL-06",
+      "area": "UNLOCK",
+      "priority": "P0",
+      "title": "stock 0 でも OWNED のまま → REFILL",
+      "preconditions": "Seed S4（X OWNED、stock 0）",
+      "steps": "Shop と Inventory を開く",
+      "expected": "X は OWNED のまま『補充』行になり、補充価格 = ceil(初回価格×0.5)。unlock fee や LOCKED 表示に戻らない。Free Cooking の tray で X は在庫 0 表示（置けない）",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SCREENSHOT",
+        "SAVE_DUMP"
+      ],
+      "automation": "HYBRID",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "UNL-07",
+      "area": "UNLOCK",
+      "priority": "P0",
+      "title": "REFILL 購入",
+      "preconditions": "UNL-06 の状態、残高 ≥ 補充価格",
+      "steps": "Shop → X の『補充』",
+      "expected": "Pitz が補充価格だけ減り、stock が 10×k 個増える。『補充しました』系の feedback。state は OWNED のまま",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SAVE_DUMP",
+        "PITZ_LEDGER"
+      ],
+      "automation": "HYBRID",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [
+        "OD216-4"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "UNL-08",
+      "area": "UNLOCK",
+      "priority": "P1",
+      "title": "複数の材料が同時に AVAILABLE_TO_UNLOCK",
+      "preconditions": "Seed S2+（X と Y が AVAILABLE_TO_UNLOCK、Z が LOCKED）",
+      "steps": "Shop をスクロールして 3 行を確認",
+      "expected": "5 状態の行が見た目で区別できる。並び順が仕様どおり。360×800 で CTA が切れない・誤タップしない",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SCREENSHOT"
+      ],
+      "automation": "DEVICE_REQUIRED",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "UNL-09",
+      "area": "UNLOCK",
+      "priority": "P1",
+      "title": "非⭐条件の文言と進捗",
+      "preconditions": "OD216-2 で採用された条件種別ごとに 1 材料ずつ LOCKED",
+      "steps": "Shop で各 LOCKED 行を読む",
+      "expected": "条件（発見数 / 特定 recipe の発見 / 累計完成数 / 累計獲得 Pitz / ⭐）がプレイヤーに分かる言葉で出て、進捗 N/M が正しい。残高や消費額を条件にしていない",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "SCREENSHOT"
+      ],
+      "automation": "HYBRID",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [
+        "OD216-2"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "UNL-10",
+      "area": "UNLOCK",
+      "priority": "P2",
+      "title": "PREREQUISITE_OWNED 付き材料",
+      "preconditions": "前提材料 P が未所有、X の他条件は達成",
+      "steps": "Shop で X を確認 → P を所有 → 再確認",
+      "expected": "P 未所有の間 X は LOCKED で、前提 P が表示される。P 所有後に AVAILABLE_TO_UNLOCK",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "SCREENSHOT",
+        "SAVE_DUMP"
+      ],
+      "automation": "E2E_CANDIDATE",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [
+        "OD216-2"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "UNL-11",
+      "area": "UNLOCK",
+      "priority": "P2",
+      "title": "NOT_FOR_SALE（k 未 authoring）材料",
+      "preconditions": "k 未 authoring の材料が catalog に存在",
+      "steps": "Shop / Inventory / tray を確認",
+      "expected": "購入 CTA が出ない（非表示 or 準備中）。fail-closed で Pitz を受け取らない",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "SCREENSHOT"
+      ],
+      "automation": "E2E_CANDIDATE",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [
+        "OD216-4"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "UNL-12",
+      "area": "UNLOCK",
+      "priority": "P1",
+      "title": "fee 確認 UI のキャンセル",
+      "preconditions": "Seed S2",
+      "steps": "『解放』→ 確認 UI で『やめる』/ 外側タップ",
+      "expected": "Pitz・state・save が変わらない。もう一度開くと同じ AVAILABLE_TO_UNLOCK",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SAVE_DUMP"
+      ],
+      "automation": "HYBRID",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "UNL-13",
+      "area": "UNLOCK",
+      "priority": "P2",
+      "title": "解放通知は 1 回だけ",
+      "preconditions": "UNL-02 の後",
+      "steps": "HOME ↔ Shop を 3 往復、アプリ再起動",
+      "expected": "『解放できる』通知/バッジが毎回出ない（仕様で既読管理する場合）。バッジは fee 支払い後に消える",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "VIDEO"
+      ],
+      "automation": "HYBRID",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "PERM-01",
+      "area": "PERMANENT",
+      "priority": "P0",
+      "title": "fee 支払い後に再起動",
+      "preconditions": "UNL-03 直後（AVAILABLE_TO_BUY、未購入）",
+      "steps": "アプリを完全終了（Safari タブを閉じる / ホーム画面アプリを swipe で終了）→ 再度開く → Shop",
+      "expected": "X は AVAILABLE_TO_BUY のまま。fee の再請求なし。Pitz も同じ",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SAVE_DUMP"
+      ],
+      "automation": "DEVICE_REQUIRED",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "PERM-02",
+      "area": "PERMANENT",
+      "priority": "P0",
+      "title": "OWNED・stock 0 で再起動",
+      "preconditions": "Seed S4",
+      "steps": "完全終了 → 再起動 → Shop / Inventory / Free Cooking tray",
+      "expected": "X は OWNED（補充行）。LOCKED / AVAILABLE_TO_UNLOCK に戻らない",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SAVE_DUMP"
+      ],
+      "automation": "DEVICE_REQUIRED",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "PERM-03",
+      "area": "PERMANENT",
+      "priority": "P1",
+      "title": "HOME へ戻る（調理途中 / RESULT 後）",
+      "preconditions": "X OWNED",
+      "steps": "Free Cooking の TOPPING 途中で HOME へ戻る → Shop。RESULT から HOME → Shop",
+      "expected": "どちらでも X の state は変わらない。途中離脱で在庫の扱いが既存仕様どおり",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "VIDEO"
+      ],
+      "automation": "HYBRID",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "PERM-04",
+      "area": "PERMANENT",
+      "priority": "P0",
+      "title": "残高が減っても再 LOCK されない",
+      "preconditions": "X は AVAILABLE_TO_BUY か OWNED。残高が解放条件の Pitz 値を上回っている",
+      "steps": "他の材料の購入で残高をほぼ 0 にする → Shop",
+      "expected": "X は再 LOCK されない（残高・消費は eligibility に使わない）。『解放済み』のまま",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SAVE_DUMP",
+        "PITZ_LEDGER"
+      ],
+      "automation": "HYBRID",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "PERM-05",
+      "area": "PERMANENT",
+      "priority": "P1",
+      "title": "Free Cooking / Lunch Rush をまたいでも state 維持",
+      "preconditions": "X OWNED",
+      "steps": "Free Cooking 1 枚 → HOME → Lunch Rush 1 run → HOME → Shop",
+      "expected": "X は OWNED。Lunch Rush で X を使えば stock が減るだけで state は変わらない",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SAVE_DUMP"
+      ],
+      "automation": "HYBRID",
+      "related": [
+        "Issue #216",
+        "PR #217",
+        "Issue #215",
+        "PR #218"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "PERM-06",
+      "area": "PERMANENT",
+      "priority": "P1",
+      "title": "購入直後に background / 画面ロック",
+      "preconditions": "Seed S2",
+      "steps": "『解放』を確定した直後にホームボタン/画面ロック → 10 秒後に復帰",
+      "expected": "fee と state が両方反映されているか、両方未反映か（中途半端な状態が無い）。再タップで二重課金しない",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SAVE_DUMP",
+        "PITZ_LEDGER"
+      ],
+      "automation": "DEVICE_REQUIRED",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "PERM-07",
+      "area": "PERMANENT",
+      "priority": "P1",
+      "title": "save の forward-compat（旧 build → 新 build）",
+      "preconditions": "新 build で X を解放済みの save",
+      "steps": "旧 build（set を知らない）Preview で開いて 1 枚焼いて保存 → 新 build で開く",
+      "expected": "新 build で X は解放済みのまま（旧 build が set を消さない。PR #206 パターン）",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "SAVE_DUMP"
+      ],
+      "automation": "E2E_CANDIDATE",
+      "related": [
+        "Issue #216",
+        "PR #217",
+        "PR #206"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "PERM-08",
+      "area": "PERMANENT",
+      "priority": "P2",
+      "title": "Full Game Reset は意図どおり全て戻す",
+      "preconditions": "X OWNED",
+      "steps": "設定 → Full Game Reset → Shop",
+      "expected": "Reset は明示的な例外として X を LOCKED に戻す（仕様確認）。通常フローでは戻らない",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SAVE_DUMP"
+      ],
+      "automation": "E2E_CANDIDATE",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "PERM-09",
+      "area": "PERMANENT",
+      "priority": "P0",
+      "title": "既存プレイヤーの save（set が無い）",
+      "preconditions": "Seed S5（現 production の schemaVersion 2 save。onion など既存購入あり）",
+      "steps": "新 build で開く → HOME → Shop → Inventory",
+      "expected": "クラッシュしない。set は空で開始、starter と既存所有材料は OWNED のまま。既存の在庫数・Pitz・Dex・BEST が変わらない",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SAVE_DUMP",
+        "SCREENSHOT"
+      ],
+      "automation": "HYBRID",
+      "related": [
+        "Issue #216",
+        "PR #217",
+        "PR #206"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "PERM-10",
+      "area": "PERMANENT",
+      "priority": "P2",
+      "title": "localStorage が使えない環境",
+      "preconditions": "iOS Safari プライベートブラウズ（または storage 無効）",
+      "steps": "起動 → 1 枚焼く → Shop",
+      "expected": "既存の fallback どおり動き、解放操作で例外が出ない。再起動で失われることが UI 上破綻しない",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "VIDEO"
+      ],
+      "automation": "DEVICE_REQUIRED",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "PITZ-01",
+      "area": "PITZ",
+      "priority": "P0",
+      "title": "3 取引が別々に記録される",
+      "preconditions": "Seed S2。開始残高を記録",
+      "steps": "unlock fee → 初回 stock 購入 → 在庫を使い切る → 補充。各操作の前後で HOME/Shop の残高を記録",
+      "expected": "残高の減り方が fee / 初回価格 / 補充価格の 3 回で、それぞれ表示価格と一致。fee は 1 回だけ。合算された謎の減算が無い",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "VIDEO",
+        "PITZ_LEDGER",
+        "SAVE_DUMP"
+      ],
+      "automation": "HYBRID",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [
+        "OD216-1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "PITZ-02",
+      "area": "PITZ",
+      "priority": "P0",
+      "title": "unlock fee CTA の連打",
+      "preconditions": "Seed S2",
+      "steps": "『解放』（確認 UI があれば確定ボタン）を指 2 本 / 高速で 5 回タップ",
+      "expected": "fee は 1 回だけ引かれる。CTA は処理中に disabled か、2 回目以降は no-op",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "VIDEO",
+        "PITZ_LEDGER",
+        "SAVE_DUMP"
+      ],
+      "automation": "DEVICE_REQUIRED",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "PITZ-03",
+      "area": "PITZ",
+      "priority": "P0",
+      "title": "初回購入 CTA の連打",
+      "preconditions": "AVAILABLE_TO_BUY、残高 ≥ 初回価格×2",
+      "steps": "『購入』を高速で 5 回タップ",
+      "expected": "初回購入は 1 回だけ。2 回目以降が補充として勝手に課金されない（初回→補充への遷移が連打で起きない）",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "VIDEO",
+        "PITZ_LEDGER",
+        "SAVE_DUMP"
+      ],
+      "automation": "DEVICE_REQUIRED",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "PITZ-04",
+      "area": "PITZ",
+      "priority": "P1",
+      "title": "補充 CTA の連打",
+      "preconditions": "OWNED、残高 ≥ 補充価格×3",
+      "steps": "『補充』を高速で 5 回タップ",
+      "expected": "仕様（1 タップ 1 補充 / 確認 UI あり）どおり。表示された回数と課金回数と在庫増加が一致",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "VIDEO",
+        "PITZ_LEDGER"
+      ],
+      "automation": "DEVICE_REQUIRED",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "PITZ-05",
+      "area": "PITZ",
+      "priority": "P0",
+      "title": "残高不足で unlock fee",
+      "preconditions": "Seed S3（AVAILABLE_TO_UNLOCK、残高 < fee）",
+      "steps": "Shop → X の『解放』をタップ",
+      "expected": "CTA は disabled か不足表示（あと N Pitz）。Pitz / state / save 不変",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "SCREENSHOT",
+        "SAVE_DUMP"
+      ],
+      "automation": "HYBRID",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [
+        "OD216-1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "PITZ-06",
+      "area": "PITZ",
+      "priority": "P0",
+      "title": "fee 支払い後、初回購入の残高が足りない",
+      "preconditions": "fee 支払い後の残高 < 初回価格",
+      "steps": "Shop → X の『購入』→ HOME → starter recipe を焼いて Pitz を稼ぐ → 再度購入",
+      "expected": "購入できない間も X は AVAILABLE_TO_BUY のまま（fee 再請求なし）。稼いだ後に購入できる（deadlock しない）",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "VIDEO",
+        "PITZ_LEDGER"
+      ],
+      "automation": "HYBRID",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "PITZ-07",
+      "area": "PITZ",
+      "priority": "P1",
+      "title": "残高不足で補充",
+      "preconditions": "OWNED stock 0、残高 < 補充価格",
+      "steps": "Shop → 補充",
+      "expected": "不足表示。stock 0 でも OWNED のまま、LOCKED に戻らない",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "SCREENSHOT"
+      ],
+      "automation": "E2E_CANDIDATE",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "PITZ-08",
+      "area": "PITZ",
+      "priority": "P1",
+      "title": "残高 = 価格ちょうど",
+      "preconditions": "残高 = fee（別ケースで = 初回価格、= 補充価格）",
+      "steps": "それぞれ実行",
+      "expected": "実行でき、残高 0。負の残高にならない",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "PITZ_LEDGER",
+        "SAVE_DUMP"
+      ],
+      "automation": "E2E_CANDIDATE",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "PITZ-09",
+      "area": "PITZ",
+      "priority": "P1",
+      "title": "fee と初回購入を 1 画面で続けて行う UI の場合",
+      "preconditions": "UI が『解放して購入』を 1 導線にする設計の場合のみ",
+      "steps": "導線を実行",
+      "expected": "合計額の表示が fee + 初回価格と一致し、内訳が見える。save には 2 取引として残る。途中キャンセルで fee だけ引かれた場合も AVAILABLE_TO_BUY として整合",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "VIDEO",
+        "PITZ_LEDGER"
+      ],
+      "automation": "HYBRID",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [
+        "OD216-1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "PITZ-10",
+      "area": "PITZ",
+      "priority": "P1",
+      "title": "取引直後のアプリ強制終了（atomicity）",
+      "preconditions": "Seed S2",
+      "steps": "『解放』確定の直後に App Switcher から強制終了 → 再起動",
+      "expected": "fee と set が両方反映 or 両方未反映。fee だけ引かれて LOCKED、は起きない",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SAVE_DUMP"
+      ],
+      "automation": "DEVICE_REQUIRED",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "PITZ-11",
+      "area": "PITZ",
+      "priority": "P2",
+      "title": "残高表示の一致",
+      "preconditions": "PITZ-01 後",
+      "steps": "HOME / Shop / RESULT / Inventory の残高を見比べる",
+      "expected": "全画面で同じ値。取引直後に古い値が残らない",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "SCREENSHOT"
+      ],
+      "automation": "E2E_CANDIDATE",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "PITZ-12",
+      "area": "PITZ",
+      "priority": "P2",
+      "title": "capability A_PAID の fee が ingredient fee と別",
+      "preconditions": "OD216-3 = A_PAID の場合のみ。capability 購入可、ingredient も AVAILABLE_TO_UNLOCK",
+      "steps": "capability を購入 → ingredient を解放",
+      "expected": "2 つの fee が別取引・別表示。二重に同じ fee を取らない",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "PITZ_LEDGER"
+      ],
+      "automation": "HYBRID",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [
+        "OD216-3"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "CG-00",
+      "area": "COMPLETION_GATE",
+      "priority": "P0",
+      "title": "理想 3 の mushroom を 0 個（funghi, recipe mode）",
+      "preconditions": "Seed S6（funghi 選択可、mushroom stock ≥ 5、他材料十分）。recipe mode",
+      "steps": "funghi を選ぶ → sauce/cheese はお手本どおり → mushroom を 0 個だけ置く → 焼く（適正）→ RESULT",
+      "expected": "全分岐で FAILED『マッシュルームが入っていません』。報酬 0、Dex/BEST 変化なし、stock は置いた分（0）だけ減る",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SCREENSHOT",
+        "SAVE_DUMP"
+      ],
+      "automation": "HYBRID",
+      "related": [
+        "Issue #215",
+        "PR #218"
+      ],
+      "ownerDecisionBranch": [
+        "OD-1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "CG-01",
+      "area": "COMPLETION_GATE",
+      "priority": "P1",
+      "title": "理想 3 の mushroom を 1 個（funghi, recipe mode）",
+      "preconditions": "Seed S6（funghi 選択可、mushroom stock ≥ 5、他材料十分）。recipe mode",
+      "steps": "funghi を選ぶ → sauce/cheese はお手本どおり → mushroom を 1 個だけ置く → 焼く（適正）→ RESULT",
+      "expected": "§5 の分岐表どおり（G0/G2/G2b: FAILED『数が足りない』系 / G1: PASS・Q で★3・約65点・80 Pitz / S4 で★2）。PASS の場合は RESULT に『少なめ（1/3）』。stock −1",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SCREENSHOT",
+        "SAVE_DUMP"
+      ],
+      "automation": "E2E_CANDIDATE",
+      "related": [
+        "Issue #215",
+        "PR #218"
+      ],
+      "ownerDecisionBranch": [
+        "OD-1",
+        "OD-2",
+        "OD-3"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "CG-02",
+      "area": "COMPLETION_GATE",
+      "priority": "P0",
+      "title": "理想 3 の mushroom を 2 個（funghi, recipe mode）",
+      "preconditions": "Seed S6（funghi 選択可、mushroom stock ≥ 5、他材料十分）。recipe mode",
+      "steps": "funghi を選ぶ → sauce/cheese はお手本どおり → mushroom を 2 個だけ置く → 焼く（適正）→ RESULT",
+      "expected": "§5 の分岐表どおり（G0: FAILED / G1・G2・G2b: PASS・Q で★4・約82点・100 Pitz）。PASS の場合『少なめ（2/3）』が 1 目で分かる。stock −2",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SCREENSHOT",
+        "SAVE_DUMP"
+      ],
+      "automation": "HYBRID",
+      "related": [
+        "Issue #215",
+        "PR #218"
+      ],
+      "ownerDecisionBranch": [
+        "OD-1",
+        "OD-2",
+        "OD-3"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "CG-03",
+      "area": "COMPLETION_GATE",
+      "priority": "P0",
+      "title": "理想 3 の mushroom を 3 個（funghi, recipe mode）",
+      "preconditions": "Seed S6（funghi 選択可、mushroom stock ≥ 5、他材料十分）。recipe mode",
+      "steps": "funghi を選ぶ → sauce/cheese はお手本どおり → mushroom を 3 個だけ置く → 焼く（適正）→ RESULT",
+      "expected": "全分岐で PASS ★5（約99.5）・120 Pitz。『少なめ/多め』表示なし（回帰）。stock −3",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SCREENSHOT",
+        "SAVE_DUMP"
+      ],
+      "automation": "HYBRID",
+      "related": [
+        "Issue #215",
+        "PR #218"
+      ],
+      "ownerDecisionBranch": [
+        "OD-1",
+        "OD-2",
+        "OD-3"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "CG-04",
+      "area": "COMPLETION_GATE",
+      "priority": "P1",
+      "title": "理想 3 の mushroom を 4 個（funghi, recipe mode）",
+      "preconditions": "Seed S6（funghi 選択可、mushroom stock ≥ 5、他材料十分）。recipe mode",
+      "steps": "funghi を選ぶ → sauce/cheese はお手本どおり → mushroom を 4 個だけ置く → 焼く（適正）→ RESULT",
+      "expected": "全分岐で PASS。OD-3=0: ★5 / 0.15: ★5（約93-94）/ 0.25: ★5（約91）。『多め（4/3）』表示。stock −4",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SCREENSHOT",
+        "SAVE_DUMP"
+      ],
+      "automation": "E2E_CANDIDATE",
+      "related": [
+        "Issue #215",
+        "PR #218"
+      ],
+      "ownerDecisionBranch": [
+        "OD-1",
+        "OD-2",
+        "OD-3"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "CG-05",
+      "area": "COMPLETION_GATE",
+      "priority": "P1",
+      "title": "理想 3 の mushroom を 5 個（funghi, recipe mode）",
+      "preconditions": "Seed S6（funghi 選択可、mushroom stock ≥ 5、他材料十分）。recipe mode",
+      "steps": "funghi を選ぶ → sauce/cheese はお手本どおり → mushroom を 5 個だけ置く → 焼く（適正）→ RESULT",
+      "expected": "全分岐で PASS。OD-3=0: ★5 / 0.15: ★4（約86）/ 0.25: ★4（約83）。『多め（5/3）』表示。stock −5",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SCREENSHOT",
+        "SAVE_DUMP"
+      ],
+      "automation": "E2E_CANDIDATE",
+      "related": [
+        "Issue #215",
+        "PR #218"
+      ],
+      "ownerDecisionBranch": [
+        "OD-1",
+        "OD-2",
+        "OD-3"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "CG-06",
+      "area": "COMPLETION_GATE",
+      "priority": "P1",
+      "title": "不足/過剰メッセージの可読性",
+      "preconditions": "CG-02 / CG-05 の RESULT",
+      "steps": "RESULT を 360×800 で表示",
+      "expected": "『少なめ（2/3）』『多め（5/3）』が折り返しで欠けない。★・点数・Pitz と矛盾しない（★4 なのに ★5 の Pitz、が無い）",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "SCREENSHOT"
+      ],
+      "automation": "HYBRID",
+      "related": [
+        "Issue #215",
+        "PR #218"
+      ],
+      "ownerDecisionBranch": [
+        "OD-2"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "CG-07",
+      "area": "COMPLETION_GATE",
+      "priority": "P1",
+      "title": "在庫が理想量未満での recipe 開始",
+      "preconditions": "mushroom stock = 2（理想 3）",
+      "steps": "Recipe Select で funghi を選ぶ",
+      "expected": "G0: 選べない/警告（現行 EP3 Stock Gate）。G1: 選べて 2 個で完成できる（soft-lock 解消）。G2/G2b: ideal 3 に 2 個は PASS なので G1 と同じ",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SCREENSHOT"
+      ],
+      "automation": "E2E_CANDIDATE",
+      "related": [
+        "Issue #215",
+        "PR #218",
+        "PR #213"
+      ],
+      "ownerDecisionBranch": [
+        "OD-1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "CG-08",
+      "area": "COMPLETION_GATE",
+      "priority": "P1",
+      "title": "Free Cooking で同じ数量パターン",
+      "preconditions": "Free Cooking、funghi 未発見 / 発見済みの 2 状態",
+      "steps": "mushroom を 0/1/2/3/5 個で funghi の組み合わせを焼く",
+      "expected": "discovery の扱いは OD-5 の分岐表（DISC-03）どおり。0 個は funghi にならない（オリジナル/別 recipe）",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "VIDEO"
+      ],
+      "automation": "E2E_CANDIDATE",
+      "related": [
+        "Issue #215",
+        "PR #218"
+      ],
+      "ownerDecisionBranch": [
+        "OD-1",
+        "OD-5"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "CG-09",
+      "area": "COMPLETION_GATE",
+      "priority": "P2",
+      "title": "既存 Dex BEST は下がらない（grandfather）",
+      "preconditions": "過剰で ★5 を取った旧 BEST を持つ save",
+      "steps": "新 build で同じ過剰量を焼く → Dex",
+      "expected": "BEST は旧値のまま。新しい結果が低くても上書きしない",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "SCREENSHOT",
+        "SAVE_DUMP"
+      ],
+      "automation": "E2E_CANDIDATE",
+      "related": [
+        "Issue #215",
+        "PR #218"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "CG-10",
+      "area": "COMPLETION_GATE",
+      "priority": "P2",
+      "title": "複数具材が同時に不足（worst-group）",
+      "preconditions": "Seed S6",
+      "steps": "funghi で mozzarella 2→1 と mushroom 3→2 を同時に",
+      "expected": "★ は最も足りない具材（1/2）で決まる（Q なら★3）。メッセージは両方 or worst を仕様どおり表示",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "SCREENSHOT"
+      ],
+      "automation": "E2E_CANDIDATE",
+      "related": [
+        "Issue #215",
+        "PR #218"
+      ],
+      "ownerDecisionBranch": [
+        "OD-2"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "LR-01",
+      "area": "LUNCH_RUSH",
+      "priority": "P0",
+      "title": "注文どおりの数で提供（exact）",
+      "preconditions": "Seed S7（Lunch Rush 開始可、注文 recipe の在庫十分）",
+      "steps": "HOME → Lunch Rush → 1 枚目を注文どおりに作って提供",
+      "expected": "全分岐で PASS。100 + quality。HUD の served +1。stock は置いた分だけ減る",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SCREENSHOT"
+      ],
+      "automation": "HYBRID",
+      "related": [
+        "Issue #215",
+        "PR #218",
+        "PR #213"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "LR-02",
+      "area": "LUNCH_RUSH",
+      "priority": "P0",
+      "title": "under-fill（理想 3 に 2 個）で提供",
+      "preconditions": "Seed S7（funghi 注文が出る状態）",
+      "steps": "mushroom を 2 個だけ置いて提供",
+      "expected": "LR-A: FAILED『注文のマッシュルームの数が足りません』0 点、時間は消費、stock −2。LR-C: PASS、基本点 = 100×(2/3) + quality。LR-D: PASS 100 + quality（少なく載せる方が得になり得る）。LR-E: PASS、品質に強い不足係数",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SCREENSHOT"
+      ],
+      "automation": "HYBRID",
+      "related": [
+        "Issue #215",
+        "PR #218",
+        "PR #213"
+      ],
+      "ownerDecisionBranch": [
+        "OD-4"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "LR-03",
+      "area": "LUNCH_RUSH",
+      "priority": "P1",
+      "title": "注文具材 0 個で提供",
+      "preconditions": "Seed S7",
+      "steps": "注文の主役具材を置かずに提供",
+      "expected": "全分岐で FAILED『○○が入っていません』0 点",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "VIDEO"
+      ],
+      "automation": "E2E_CANDIDATE",
+      "related": [
+        "Issue #215",
+        "PR #218"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "LR-04",
+      "area": "LUNCH_RUSH",
+      "priority": "P1",
+      "title": "over-fill（理想 3 に 5 個）で提供",
+      "preconditions": "Seed S7",
+      "steps": "mushroom を 5 個置いて提供",
+      "expected": "全分岐で PASS。quality に過剰罰（OD-3）。stock −5。多めに置いても served は 1",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "VIDEO"
+      ],
+      "automation": "E2E_CANDIDATE",
+      "related": [
+        "Issue #215",
+        "PR #218"
+      ],
+      "ownerDecisionBranch": [
+        "OD-3",
+        "OD-4"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "LR-05",
+      "area": "LUNCH_RUSH",
+      "priority": "P1",
+      "title": "180 秒境界",
+      "preconditions": "Seed S7。残り 10 秒前後まで進める",
+      "steps": "(a) 残り 1〜2 秒で提供 (b) 0 秒到達後に提供ボタンを押す (c) 作りかけのまま 0 秒",
+      "expected": "(a) は served に数える。(b)(c) は数えない（now ≥ endsAt は拒否）。終了 overlay の served / 点数が HUD と一致。作りかけの pizza は点にならない",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SCREENSHOT"
+      ],
+      "automation": "HYBRID",
+      "related": [
+        "Issue #215",
+        "PR #218"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "LR-06",
+      "area": "LUNCH_RUSH",
+      "priority": "P1",
+      "title": "Lunch Rush 中の background",
+      "preconditions": "Lunch Rush 開始直後",
+      "steps": "30 秒 background → 復帰、200 秒 background → 復帰",
+      "expected": "残り時間は wall clock 基準（endsAt − now）。200 秒後の復帰では run が終了済み、背景中の提供は無い",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "VIDEO"
+      ],
+      "automation": "DEVICE_REQUIRED",
+      "related": [
+        "Issue #215",
+        "PR #218"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "LR-07",
+      "area": "LUNCH_RUSH",
+      "priority": "P1",
+      "title": "mission score の丸め",
+      "preconditions": "quality の小数が .5 になる seed（または E2E の clock/品質固定）",
+      "steps": "run を終える → 結果 overlay → ranking 送信",
+      "expected": "表示点 = Math.round(served×100 + Σquality)（.5 切り上げ）。結果 overlay・HOME の BEST・ranking の値が同じ整数",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "SCREENSHOT",
+        "NETWORK"
+      ],
+      "automation": "E2E_CANDIDATE",
+      "related": [
+        "Issue #215",
+        "PR #218"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "LR-08",
+      "area": "LUNCH_RUSH",
+      "priority": "P1",
+      "title": "ranking payload の ruleset version",
+      "preconditions": "Firebase Preview 接続",
+      "steps": "run 終了 → submit",
+      "expected": "LR-A: lunch-rush-v1 のまま。LR-C/D/E: v2 に bump、週間 ranking の区切りが仕様どおり",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "NETWORK",
+        "SCREENSHOT"
+      ],
+      "automation": "HYBRID",
+      "related": [
+        "Issue #215",
+        "PR #218"
+      ],
+      "ownerDecisionBranch": [
+        "OD-4"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "LR-09",
+      "area": "LUNCH_RUSH",
+      "priority": "P1",
+      "title": "在庫による注文 pool（#213 seam）",
+      "preconditions": "mushroom stock = 2（理想 3）、他は十分",
+      "steps": "Lunch Rush を 3 回開始して注文を観察",
+      "expected": "LR-A: funghi は注文に出ない（在庫 < minCount）。LR-C/D: 在庫 ≥ 1 なので出る",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "VIDEO"
+      ],
+      "automation": "E2E_CANDIDATE",
+      "related": [
+        "Issue #215",
+        "PR #218",
+        "PR #213"
+      ],
+      "ownerDecisionBranch": [
+        "OD-4"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "LR-10",
+      "area": "LUNCH_RUSH",
+      "priority": "P2",
+      "title": "新 recipe は DISCOVERED 後にだけ注文に出る",
+      "preconditions": "W1 recipe を所有材料で作れるが未発見",
+      "steps": "Lunch Rush 開始 → 発見 → 再度開始",
+      "expected": "未発見の間は注文に出ない（#200 の discovered pool）。発見後は出うる",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "VIDEO"
+      ],
+      "automation": "E2E_CANDIDATE",
+      "related": [
+        "Issue #215",
+        "PR #218",
+        "PR #220",
+        "PR #221"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "LR-11",
+      "area": "LUNCH_RUSH",
+      "priority": "P1",
+      "title": "提供ボタンの連打",
+      "preconditions": "Seed S7",
+      "steps": "完成直後に『提供』を高速 5 回",
+      "expected": "served は 1 回だけ増える。次の注文が飛ばされない",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "VIDEO"
+      ],
+      "automation": "DEVICE_REQUIRED",
+      "related": [
+        "Issue #215",
+        "PR #218"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "LR-12",
+      "area": "LUNCH_RUSH",
+      "priority": "P1",
+      "title": "mode 差の納得感（LR-A 採用時）",
+      "preconditions": "LR-A 採用。CG-02（recipe mode で 2 個 PASS）を体験した直後",
+      "steps": "Lunch Rush で同じ 2 個を提供",
+      "expected": "FAILED の文言が『注文』を強調し、理不尽に感じないか（Human Feel）。LR-C 採用時は代わりに減点の理由が見えるか",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "VIDEO"
+      ],
+      "automation": "DEVICE_REQUIRED",
+      "related": [
+        "Issue #215",
+        "PR #218"
+      ],
+      "ownerDecisionBranch": [
+        "OD-4"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "DISC-01",
+      "area": "DISCOVERY",
+      "priority": "P0",
+      "title": "所有 → Free Cooking → match → DISCOVERED → Dex/BEST/⭐",
+      "preconditions": "X（eggplant）OWNED、melanzane 未発見。⭐ 合計を記録",
+      "steps": "Free Cooking → tomato-sauce / mozzarella / eggplant / basil を理想量で置く → 焼く → RESULT → Dex",
+      "expected": "RESULT で新発見の演出と recipe 名。Dex に melanzane が BEST ★ 付きで出る。⭐ 合計が max(2, BEST) だけ増える。save: discovered に追加、BEST 記録",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SCREENSHOT",
+        "SAVE_DUMP"
+      ],
+      "automation": "HYBRID",
+      "related": [
+        "PR #220",
+        "PR #221",
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "DISC-02",
+      "area": "DISCOVERY",
+      "priority": "P1",
+      "title": "Dex の新 recipe 詳細",
+      "preconditions": "DISC-01 後",
+      "steps": "Dex → melanzane を開く",
+      "expected": "名前・説明・材料と理想量（お手本）が読める。新材料の emoji が他と区別できる。未発見 recipe は伏せ字",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "SCREENSHOT"
+      ],
+      "automation": "HYBRID",
+      "related": [
+        "PR #220",
+        "PR #221"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "DISC-03",
+      "area": "DISCOVERY",
+      "priority": "P1",
+      "title": "少ない量での discovery（OD-5）",
+      "preconditions": "X OWNED、parmigiana 未発見",
+      "steps": "Free Cooking で parmigiana の種類を 1 個ずつ置いて焼く",
+      "expected": "D-A: 発見、BEST ★3 程度、発見 bonus。D-B: INCOMPLETE_MATCH（オリジナル）と、個数を示す hint 文言",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SCREENSHOT"
+      ],
+      "automation": "HYBRID",
+      "related": [
+        "Issue #215",
+        "PR #218",
+        "PR #220",
+        "PR #221"
+      ],
+      "ownerDecisionBranch": [
+        "OD-5",
+        "OD-1"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "DISC-04",
+      "area": "DISCOVERY",
+      "priority": "P1",
+      "title": "近傍 recipe との衝突",
+      "preconditions": "eggplant OWNED、margherita 発見済み",
+      "steps": "(a) margherita の組み合わせ (b) + eggplant（melanzane）(c) + eggplant + parmigiano（parmigiana）を順に焼く",
+      "expected": "それぞれ正しい recipe に match。melanzane と parmigiana を取り違えない。margherita の BEST は (b)(c) で更新されない",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SCREENSHOT"
+      ],
+      "automation": "E2E_CANDIDATE",
+      "related": [
+        "PR #220",
+        "PR #221"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "DISC-05",
+      "area": "DISCOVERY",
+      "priority": "P1",
+      "title": "発見後に recipe mode で選べる",
+      "preconditions": "DISC-01 後",
+      "steps": "HOME → recipe 選択",
+      "expected": "melanzane が選べる（在庫条件つき）。お手本に eggplant が正しく出る",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "SCREENSHOT"
+      ],
+      "automation": "E2E_CANDIDATE",
+      "related": [
+        "PR #220",
+        "PR #221"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "DISC-06",
+      "area": "DISCOVERY",
+      "priority": "P1",
+      "title": "⭐/発見数が次の解放条件を進める（chain）",
+      "preconditions": "次の材料 Y の条件が『⭐ N』または『発見数 N』で、あと 1",
+      "steps": "DISC-01 を実行 → Shop",
+      "expected": "Y が AVAILABLE_TO_UNLOCK になる（UNL-02 と同じ表示）",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "VIDEO"
+      ],
+      "automation": "HYBRID",
+      "related": [
+        "PR #220",
+        "PR #221",
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [
+        "OD216-2"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "DISC-07",
+      "area": "DISCOVERY",
+      "priority": "P2",
+      "title": "BEST 更新は上方向のみ",
+      "preconditions": "melanzane BEST ★3",
+      "steps": "★5 で焼く → ★2 で焼く",
+      "expected": "★5 で BEST 更新・⭐ 増加、★2 では変化なし",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "SCREENSHOT"
+      ],
+      "automation": "E2E_CANDIDATE",
+      "related": [
+        "PR #220",
+        "PR #221"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "DISC-08",
+      "area": "DISCOVERY",
+      "priority": "P1",
+      "title": "発見の永続化",
+      "preconditions": "DISC-01 直後",
+      "steps": "完全終了 → 再起動 → Dex",
+      "expected": "melanzane は発見済み、BEST と ⭐ が同じ",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SAVE_DUMP"
+      ],
+      "automation": "DEVICE_REQUIRED",
+      "related": [
+        "PR #220",
+        "PR #221"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "DISC-09",
+      "area": "DISCOVERY",
+      "priority": "P1",
+      "title": "未所有材料では発見できない",
+      "preconditions": "eggplant LOCKED",
+      "steps": "Free Cooking の tray を全ページ確認",
+      "expected": "eggplant は tray に無い（または locked 表示で置けない）。melanzane を偶然発見できない",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "SCREENSHOT"
+      ],
+      "automation": "E2E_CANDIDATE",
+      "related": [
+        "PR #220",
+        "PR #221",
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "CAP-B-01",
+      "area": "CAPABILITY",
+      "priority": "P1",
+      "title": "B_AUTO: 条件達成で自動解放",
+      "preconditions": "OD216-3=B（foundational: DOUGH_VARIANT / PAN_BAKE など）。条件まであと 1",
+      "steps": "条件を満たす bake → RESULT → HOME",
+      "expected": "Pitz を使わずに解放。通知が 1 回。関連する材料/recipe が以後の Shop/tray に出る",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SAVE_DUMP",
+        "PITZ_LEDGER"
+      ],
+      "automation": "HYBRID",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [
+        "OD216-3"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "CAP-B-02",
+      "area": "CAPABILITY",
+      "priority": "P1",
+      "title": "B_AUTO: 初回使用の分かりやすさ",
+      "preconditions": "CAP-B-01 後",
+      "steps": "新工程を含む pizza を初めて作る",
+      "expected": "説明なしでも新しい step/UI が理解できる（Human Feel）。分からない場合は C への切替材料として記録",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "VIDEO"
+      ],
+      "automation": "DEVICE_REQUIRED",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [
+        "OD216-3"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "CAP-C-01",
+      "area": "CAPABILITY",
+      "priority": "P1",
+      "title": "C_TUTORIAL: 初回 target で tutorial",
+      "preconditions": "OD216-3=C（interaction-heavy。例: STEP_ORDER を starter の trenton-tomato-pie で）",
+      "steps": "その target を初めて作る",
+      "expected": "tutorial は target の matching より前に出る（循環しない）。完了後に通常フローへ戻る。skip しても壊れた状態にならない",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SCREENSHOT"
+      ],
+      "automation": "DEVICE_REQUIRED",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [
+        "OD216-3"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "CAP-C-02",
+      "area": "CAPABILITY",
+      "priority": "P1",
+      "title": "C_TUTORIAL: 再起動後に再表示しない",
+      "preconditions": "CAP-C-01 完了",
+      "steps": "完全終了 → 再起動 → 同じ target",
+      "expected": "tutorial は出ない。capability は解放済み",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SAVE_DUMP"
+      ],
+      "automation": "DEVICE_REQUIRED",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [
+        "OD216-3"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "CAP-C-03",
+      "area": "CAPABILITY",
+      "priority": "P1",
+      "title": "C_TUTORIAL: overlay の収まり",
+      "preconditions": "CAP-C-01",
+      "steps": "tutorial の全ページを 390/360 で表示",
+      "expected": "CTA が画面内、scroll trap なし、背面操作が漏れない",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "SCREENSHOT",
+        "VIDEO"
+      ],
+      "automation": "DEVICE_REQUIRED",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [
+        "OD216-3"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "CAP-A-01",
+      "area": "CAPABILITY",
+      "priority": "P2",
+      "title": "A_PAID: capability 購入（採用時のみ）",
+      "preconditions": "OD216-3=A の capability がある",
+      "steps": "購入 / 残高不足 / 連打 / キャンセルを PITZ-02,05,12 と同じ手順で",
+      "expected": "1 回だけ課金、不足時は不変、ingredient fee と別取引",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "VIDEO",
+        "PITZ_LEDGER"
+      ],
+      "automation": "DEVICE_REQUIRED",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [
+        "OD216-3"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "CAP-X-01",
+      "area": "CAPABILITY",
+      "priority": "P1",
+      "title": "capability 前提の材料が deadlock しない",
+      "preconditions": "cauliflower dough（DOUGH_VARIANT 前提）が見える段階",
+      "steps": "Shop で確認 → capability 解放 → 再確認",
+      "expected": "capability 未解放の間は購入できず理由が出る。B/C どちらでも fee を払った材料が使えない状態にならない",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "SCREENSHOT",
+        "SAVE_DUMP"
+      ],
+      "automation": "E2E_CANDIDATE",
+      "related": [
+        "Issue #216",
+        "PR #217"
+      ],
+      "ownerDecisionBranch": [
+        "OD216-3"
+      ],
+      "blockedBy": []
+    },
+    {
+      "id": "CAP-X-02",
+      "area": "CAPABILITY",
+      "priority": "P2",
+      "title": "新工程の gesture 感（mechanic 実装時）",
+      "preconditions": "PAN_BAKE / ENCLOSE / LATE_ADDITION / MULTI_SPREAD_LAYER の各実装後",
+      "steps": "各工程を実機で 3 回",
+      "expected": "指で操作でき、誤操作が少ない。W1 のスコープ外（W4/W5）",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "VIDEO"
+      ],
+      "automation": "DEVICE_REQUIRED",
+      "related": [
+        "Issue #216",
+        "PR #217",
+        "PR #220"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": [
+        "mechanic 実装（W4/W5）"
+      ]
+    },
+    {
+      "id": "VIS-01",
+      "area": "W1_VISUAL",
+      "priority": "P1",
+      "title": "emoji の OS 差",
+      "preconditions": "W1 新材料（#220 head: capers, clam, corn, eggplant, fresh-tomato, pineapple, potato / #221: baked-beans, capers, eggplant, green-onion, salt-cod, sauerkraut） をすべて OWNED",
+      "steps": "iPhone（iOS）と Android 実機で tray / pizza 上 / Shop / Inventory / Dex を撮る",
+      "expected": "どの OS でも材料が判別できる。☐（tofu）にならない。特に 🫘（Emoji 14.0: iOS 15.4+ / Android 12L+ 目安）。最低 OS を下回る端末の扱いを記録",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "SCREENSHOT"
+      ],
+      "automation": "DEVICE_REQUIRED",
+      "related": [
+        "PR #220",
+        "PR #221"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "VIS-02",
+      "area": "W1_VISUAL",
+      "priority": "P1",
+      "title": "既存材料と同じ/似た glyph",
+      "preconditions": "該当材料を OWNED",
+      "steps": "tray と pizza 上で並べる: salt-cod 🐟 vs anchovy 🐟 / green-onion 🌱 vs rosemary 🌱 / capers 🟢 vs black-olive ⚫・pepperoni 🔴 / fresh-tomato vs cherry-tomato 🍅 / sauerkraut 🥬 vs basil 🌿",
+      "expected": "同一 emoji の組は color/label だけで区別できるか判定。できなければ authoring へ差し戻し（REVIEW のまま）",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "SCREENSHOT"
+      ],
+      "automation": "DEVICE_REQUIRED",
+      "related": [
+        "PR #220",
+        "PR #221"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "VIS-03",
+      "area": "W1_VISUAL",
+      "priority": "P1",
+      "title": "焼成前後の視認性",
+      "preconditions": "各 W1 recipe を理想量で作れる",
+      "steps": "焼く前 / 焼いた後（適正・焼きすぎ）を同じ位置で撮る",
+      "expected": "焼成の色変化後も新材料が見える。低コントラスト候補（salt-cod #d8c9aa, sauerkraut #d8d59a, potato 等の淡色）が mozzarella 上で消えない",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "SCREENSHOT"
+      ],
+      "automation": "DEVICE_REQUIRED",
+      "related": [
+        "PR #220",
+        "PR #221"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "VIS-04",
+      "area": "W1_VISUAL",
+      "priority": "P1",
+      "title": "ingredient overlap",
+      "preconditions": "材料数が多い recipe（pizza-portuguesa: 6 種 11 片 など）",
+      "steps": "理想量を置く → 重なった piece を 1 つ選んで動かす/外す",
+      "expected": "重なっても種類と数が読める。狙った piece を指でつかめる（390/360）。上に来る piece の順が自然",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SCREENSHOT"
+      ],
+      "automation": "DEVICE_REQUIRED",
+      "related": [
+        "PR #220",
+        "PR #221"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "VIS-05",
+      "area": "W1_VISUAL",
+      "priority": "P1",
+      "title": "sauce ごとの見え方",
+      "preconditions": "tomato-sauce 系（melanzane, parmigiana, puttanesca, portuguesa）と pesto 系（pesto-tonno, #220 の pesto-caprese / pesto-patate）",
+      "steps": "sauce を塗った上に新材料を置いて焼く",
+      "expected": "pesto の緑の上で緑系（capers 🟢, green-onion 🌱）が消えない。tomato の赤の上で赤系が消えない",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "SCREENSHOT"
+      ],
+      "automation": "DEVICE_REQUIRED",
+      "related": [
+        "PR #220",
+        "PR #221"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "VIS-06",
+      "area": "W1_VISUAL",
+      "priority": "P1",
+      "title": "tray の到達性と tap target（360×800）",
+      "preconditions": "全 W1 材料 OWNED（合計材料数が増えた状態）",
+      "steps": "Free Cooking / recipe mode の tray を全ページめくって各材料を 1 つずつ置く",
+      "expected": "全材料に到達でき、paging が分かる。tap target が小さすぎない。誤って隣の材料を取らない",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "VIDEO"
+      ],
+      "automation": "DEVICE_REQUIRED",
+      "related": [
+        "PR #220",
+        "PR #221"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "VIS-07",
+      "area": "W1_VISUAL",
+      "priority": "P1",
+      "title": "Shop / Inventory の行（長い名前）",
+      "preconditions": "W1 材料が各 state に 1 つ以上",
+      "steps": "Shop / Inventory を 360×800 で表示",
+      "expected": "ベイクドビーンズ / ザワークラウト / フレッシュトマト 等が CTA や価格と重ならない",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "SCREENSHOT"
+      ],
+      "automation": "E2E_CANDIDATE",
+      "related": [
+        "PR #220",
+        "PR #221"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "VIS-08",
+      "area": "W1_VISUAL",
+      "priority": "P1",
+      "title": "お手本 / RESULT の完成 pizza 表示",
+      "preconditions": "各 W1 recipe",
+      "steps": "recipe mode のお手本 → 作る → RESULT",
+      "expected": "お手本と RESULT の finished pizza で新材料の見え方が一致（Reference visual の統一ルール）",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "SCREENSHOT"
+      ],
+      "automation": "HYBRID",
+      "related": [
+        "PR #220",
+        "PR #221"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "VIS-09",
+      "area": "W1_VISUAL",
+      "priority": "P2",
+      "title": "長い recipe 名",
+      "preconditions": "W1 recipe 発見済み",
+      "steps": "Recipe Select / Dex / RESULT / Lunch Rush 注文 を 360×800 で",
+      "expected": "ピッツァ・ポルトゲーザ / ペストカプレーゼピザ 等が切れない・2 行で崩れない",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "SCREENSHOT"
+      ],
+      "automation": "E2E_CANDIDATE",
+      "related": [
+        "PR #220",
+        "PR #221"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": []
+    },
+    {
+      "id": "VIS-10",
+      "area": "W1_VISUAL",
+      "priority": "P2",
+      "title": "CUT（6-slice 候補）",
+      "preconditions": "CUT を opt-in した W1 recipe",
+      "steps": "CUT で切る",
+      "expected": "emoji piece の上でも切り線が見え、分割後も材料が読める",
+      "viewports": [
+        "390x844"
+      ],
+      "evidence": [
+        "VIDEO"
+      ],
+      "automation": "DEVICE_REQUIRED",
+      "related": [
+        "PR #220",
+        "PR #221"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": [
+        "CUT 採否（#221 Gate TBD）"
+      ]
+    },
+    {
+      "id": "VIS-11",
+      "area": "W1_VISUAL",
+      "priority": "P2",
+      "title": "sauceless recipe（#221 slice A 等）",
+      "preconditions": "SAUCELESS_RECIPE_CONTRACT 実装後のみ（aussie, bacalhau, full-english, polish-kielbasa, tsukimi）",
+      "steps": "SAUCE step の有無を確認して作る",
+      "expected": "SAUCE step が出ない/任意で、生地の上に直接置いた材料が見える",
+      "viewports": [
+        "390x844",
+        "360x800"
+      ],
+      "evidence": [
+        "VIDEO",
+        "SCREENSHOT"
+      ],
+      "automation": "DEVICE_REQUIRED",
+      "related": [
+        "PR #220",
+        "PR #221"
+      ],
+      "ownerDecisionBranch": [],
+      "blockedBy": [
+        "#220 head で W4（SAUCELESS_RECIPE_CONTRACT）"
+      ]
+    }
+  ]
+}
