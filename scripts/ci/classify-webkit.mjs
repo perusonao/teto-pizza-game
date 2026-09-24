@@ -10,7 +10,7 @@
 // Skip categories (a PR/increment skips WebKit only if EVERY changed path is in one of them):
 //   docs        docs/**, **/*.md outside runtime trees                        (#201, unchanged)
 //   tools       tools/**/*.py -- offline analysis scripts, never imported     (#207 Phase 2B)
-//   unit-test   src/**/*.test.ts(x), src/test/** -- Vitest-only files         (#207 Phase 2B)
+//   unit-test   src/**/*.test.ts(x), src/test/** code -- Vitest-only files    (#207 Phase 2B)
 //
 // `tools` and `unit-test` additionally require a repository scan (--repo) proving nothing the
 // browser or the E2E suite loads can reach those files: Vite (dev server and build) only loads
@@ -36,7 +36,7 @@ import { dirname, join, relative } from "node:path";
 const RUNTIME_ROOTS = ["src/", "e2e/", "public/", "functions/", ".github/"];
 
 const UNIT_TEST_FILE = /^src\/(?:.+\/)?[^/]+\.test\.tsx?$/;
-const UNIT_TEST_SETUP = /^src\/test\/[^/]+(?:\/[^/]+)*$/;
+const UNIT_TEST_SETUP = /^src\/test\/(?:[^/]+\/)*[^/]+\.[cm]?[jt]sx?$/;
 const TOOLS_SCRIPT = /^tools\/(?:.+\/)?[^/]+\.py$/;
 
 /** @returns {{ category: string, label: string } | null} */
@@ -47,7 +47,7 @@ function skipCategory(path) {
   }
   if (TOOLS_SCRIPT.test(path)) return { category: "tools", label: "tools/**/*.py" };
   if (UNIT_TEST_FILE.test(path) || UNIT_TEST_SETUP.test(path)) {
-    return { category: "unit-test", label: "src/**/*.test.ts(x), src/test/**" };
+    return { category: "unit-test", label: "src/**/*.test.ts(x), src/test/**/*.{ts,tsx,js}" };
   }
   return null;
 }
@@ -102,8 +102,6 @@ export function classify(rawPaths, { guards = NO_SCAN } = {}) {
 const CODE_FILE = /\.(?:[cm]?[jt]sx?)$/;
 // import x from "s" / import "s" / export ... from "s" / import("s") / require("s") / new URL("s", ...)
 const SPECIFIER = /(?:\bfrom\s*|\bimport\s*\(\s*|\bimport\s+|\brequire\s*\(\s*|\bnew\s+URL\s*\(\s*)(["'`])([^"'`\n]+)\1/g;
-// Non-code root files the dev server, npm or the WebKit workflow read directly (raw-text check).
-const ROOT_TEXT_FILES = ["index.html", "package.json", ".github/workflows/e2e-webkit.yml"];
 // Root-level code files that are NOT traversal roots: Vitest-only configs and test files. Every
 // other root code file (vite.config.*, playwright.config.*, postcss.config.*, ...) may be loaded
 // by the dev server or Playwright, so it is a root.
@@ -149,13 +147,26 @@ function resolveSpecifier(root, from, spec) {
   return null;
 }
 
+/** Code-level references to guarded files that a comment-stripped text contains as plain strings. */
+function textRefs(text) {
+  return { tools: /tools\//.test(text), "unit-test": /\.test\b|(?:^|[^\w-])src\/test\b/.test(text) };
+}
+
+// Vite settings that change what the dev server loads in ways the traversal cannot follow.
+const VITE_UNFOLLOWABLE = /\b(?:alias|rollupOptions|optimizeDeps|publicDir)\b|\broot\s*:/;
+
 /**
  * Scans the checkout at `root`. A guarded category is enabled only if nothing the browser, the
- * Vite dev server or the E2E suite can load reaches its files. Starting from every root-level
- * config (vite/playwright/...) and every non-test `src/**` and `e2e/**` code file, it follows
- * relative imports transitively (Codex review on #219: a config importing a helper that imports a
- * test module must count). It fails closed: an unresolvable relative import, `import.meta.glob`,
- * or a Vite `alias` (bare specifiers it cannot follow) disables both categories.
+ * Vite dev server or the E2E suite can load reaches its files. It traverses imports from:
+ *   - `index.html`'s script entries (src/href) and inline scripts,
+ *   - every root-level config code file (all root *.ts/js except vitest*.config.* and *.test.*),
+ *   - every non-test `src/**` and `e2e/**` code file,
+ * following relative / root-absolute specifiers transitively (Codex reviews on #219). Comments
+ * are stripped from every file first. It FAILS CLOSED (disables both categories) on anything it
+ * cannot follow: an unresolvable relative import or HTML entry, a dynamic `import()` / `require()`
+ * / `new URL()` whose argument is not a string literal, `import.meta.glob`, Vite settings that
+ * redirect loading (alias, rollupOptions, optimizeDeps, publicDir, root), or a Playwright config
+ * whose testDir is not `e2e` (Playwright would then run src/** test files itself).
  * @returns {Record<string, { ok: boolean, reason: string }>}
  */
 export function scanGuards(root) {
@@ -174,40 +185,71 @@ export function scanGuards(root) {
       refs.tools.push(why);
       refs["unit-test"].push(why);
     };
-    const flag = (from, target) => {
-      const cat = skipCategory(target)?.category;
-      if (cat === "unit-test") refs["unit-test"].push(`${from} -> ${target}`);
-      if (target.startsWith("tools/")) refs.tools.push(`${from} -> ${target}`);
+    const seen = new Set();
+    const queue = [];
+    const enqueue = (file) => {
+      if (!seen.has(file)) {
+        seen.add(file);
+        queue.push(file);
+      }
     };
-    const queue = [...rootCode, ...tree.filter((p) => CODE_FILE.test(p) && skipCategory(p)?.category !== "unit-test")];
-    const seen = new Set(queue);
+    const follow = (from, spec) => {
+      if (/\.test(?:\.[cm]?[jt]sx?)?$/.test(spec) || /(?:^|\/)test\//.test(spec)) refs["unit-test"].push(`${from} -> ${spec}`);
+      if (/(?:^|\/)tools\//.test(spec)) refs.tools.push(`${from} -> ${spec}`);
+      if (!spec.startsWith(".") && !spec.startsWith("/")) return; // package import
+      const target = resolveSpecifier(root, from, spec);
+      if (target === null) return both(`${from} -> ${spec} (unresolved)`);
+      if (skipCategory(target)?.category === "unit-test") refs["unit-test"].push(`${from} -> ${target}`);
+      if (target.startsWith("tools/")) refs.tools.push(`${from} -> ${target}`);
+      if (CODE_FILE.test(target)) enqueue(target);
+    };
+    const scanCode = (file, text) => {
+      if (/import\.meta\.glob/.test(text)) both(`${file} (import.meta.glob)`);
+      for (const call of ["\\bimport\\s*\\(", "\\brequire\\s*\\(", "\\bnew\\s+URL\\s*\\("]) {
+        const all = text.match(new RegExp(call, "g"))?.length ?? 0;
+        const literal = text.match(new RegExp(`${call}\\s*["'\`]`, "g"))?.length ?? 0;
+        if (all !== literal) both(`${file} (${call.replace(/\\[bs]|\\/g, "").replace("*", "")} with a non-literal argument)`);
+      }
+      for (const spec of specifiersOf(text)) follow(file, spec);
+    };
+
+    // index.html: module entries and inline scripts are traversal roots.
+    const html = stripComments("index.html", readFileSync(join(root, "index.html"), "utf8"));
+    for (const [, attr] of html.matchAll(/<script\b[^>]*\bsrc\s*=\s*["']([^"']+)["']/gi)) {
+      if (/^(?:[a-z]+:)?\/\//i.test(attr)) continue; // external URL
+      const spec = attr.replace(/[?#].*$/, "");
+      const target =
+        resolveSpecifier(root, "index.html", spec) ?? (spec.startsWith("/") ? resolveSpecifier(root, "public/x", spec.slice(1)) : null);
+      if (target === null) both(`index.html -> ${attr} (unresolved script entry)`);
+      else follow("index.html", spec.startsWith("/") || spec.startsWith(".") ? spec : `./${spec}`);
+    }
+    for (const [, body] of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)) scanCode("index.html <script>", body);
+    const htmlText = textRefs(html);
+    if (htmlText.tools) refs.tools.push("index.html");
+    if (htmlText["unit-test"] || /import\.meta\.glob/.test(html)) refs["unit-test"].push("index.html");
+
+    for (const f of rootCode) enqueue(f);
+    for (const f of tree) if (CODE_FILE.test(f) && skipCategory(f)?.category !== "unit-test") enqueue(f);
     for (let i = 0; i < queue.length; i++) {
       const file = queue[i];
-      const raw = readFileSync(join(root, file), "utf8");
-      const text = rootCode.includes(file) ? stripComments(file, raw) : raw;
-      if (/import\.meta\.glob/.test(text)) both(`${file} (import.meta.glob)`);
-      if (rootCode.includes(file)) {
-        if (/\balias\b/.test(text)) both(`${file} (resolve alias: cannot follow)`);
-        if (/tools\//.test(text)) refs.tools.push(file);
-        if (/\.test\b|src\/test\b/.test(text)) refs["unit-test"].push(file);
-      }
-      for (const s of specifiersOf(text)) {
-        if (/\.test(?:\.[cm]?[jt]sx?)?$/.test(s) || /(?:^|\/)test\//.test(s)) refs["unit-test"].push(`${file} -> ${s}`);
-        if (/(?:^|\/)tools\//.test(s)) refs.tools.push(`${file} -> ${s}`);
-        if (!s.startsWith(".") && !s.startsWith("/")) continue; // package import
-        const target = resolveSpecifier(root, file, s);
-        if (target === null) {
-          both(`${file} -> ${s} (unresolved)`);
-          continue;
-        }
-        flag(file, target);
-        if (CODE_FILE.test(target) && !seen.has(target)) {
-          seen.add(target);
-          queue.push(target);
+      const text = stripComments(file, readFileSync(join(root, file), "utf8"));
+      scanCode(file, text);
+      // Config-side code (anything outside src/ and e2e/) may reach files without an import
+      // specifier (fs reads, require.resolve, spawned commands): check its strings too.
+      if (!file.startsWith("src/") && !file.startsWith("e2e/")) {
+        const t = textRefs(text);
+        if (t.tools) refs.tools.push(file);
+        if (t["unit-test"]) refs["unit-test"].push(file);
+        if (/^vite\.config\./.test(file) && VITE_UNFOLLOWABLE.test(text)) both(`${file} (Vite setting the scan cannot follow)`);
+        if (/^playwright\.config\./.test(file)) {
+          const dirs = [...text.matchAll(/\btestDir\s*:\s*["'`]([^"'`]+)["'`]/g)].map((m) => m[1].replace(/^\.\//, "").replace(/\/+$/, ""));
+          if (dirs.length === 0 || dirs.some((d) => d !== "e2e") || /\btestMatch\b/.test(text)) {
+            both(`${file} (Playwright testDir is not e2e only: ${dirs.join(", ") || "default"})`);
+          }
         }
       }
     }
-    for (const file of ROOT_TEXT_FILES) {
+    for (const file of ["package.json", ".github/workflows/e2e-webkit.yml"]) {
       if (!existsSync(join(root, file))) continue;
       const text = stripComments(file, readFileSync(join(root, file), "utf8"));
       if (/tools\//.test(text)) refs.tools.push(file);
@@ -245,6 +287,8 @@ const SELF_TEST_CASES = [
   [["src/state/persistence.forwardCompat.test.ts", "src/logic/scoring.test.ts"], false],
   [["src/components/PizzaStage.sauceParity.test.tsx"], false],
   [["src/test/setup.ts"], false],
+  [["src/test/styles.css"], true],
+  [["src/test/fixture.json"], true],
   [["tools/x.py"], true, NO_SCAN],
   [["src/logic/scoring.test.ts"], true, NO_SCAN],
   [["src/logic/scoring.test.ts"], true, { ...OK, "unit-test": { ok: false, reason: "referenced" } }],
@@ -336,7 +380,7 @@ const SCAN_CASES = [
     "comments that only mention tools/ and .test. are not references",
     {
       ".github/workflows/e2e-webkit.yml": "# skips tools/**/*.py and src/**/*.test.ts(x)\n  run: npx playwright test # not tools/x.py\n",
-      "playwright.config.ts": '// see tools/x.py and a.test.ts\n/* tools/y.py */\nexport default { baseURL: "http://localhost/" };\n',
+      "playwright.config.ts": '// see tools/x.py and a.test.ts\n/* tools/y.py */\nexport default { testDir: "./e2e", baseURL: "http://localhost/" };\n',
       "index.html": '<!-- tools/x.py a.test.ts --><script type="module" src="/src/main.tsx"></script>',
     },
     { tools: true, "unit-test": true },
@@ -354,7 +398,28 @@ const SCAN_CASES = [
     { "src/App.tsx": 'import { h } from "../lib/h";\nexport const App = h;\n', "lib/h.ts": 'export { h } from "../src/logic/h.test";\n', "src/logic/h.test.ts": "export const h = 1;\n" },
     { tools: true, "unit-test": false },
   ],
-  ["playwright.config spawns a tools script", { "playwright.config.ts": 'export default { webServer: { command: "python tools/serve.py" } };\n' }, { tools: false, "unit-test": true }],
+  ["playwright.config spawns a tools script", { "playwright.config.ts": 'export default { testDir: "./e2e", webServer: { command: "python tools/serve.py" } };\n' }, { tools: false, "unit-test": true }],
+  // Codex re-review on #219 (27ce019) + hardening of the same class.
+  ["dynamic import with an inline comment", { "src/App.tsx": 'const m = import(/* @vite-ignore */ "./lazy.test.ts");\n', "src/lazy.test.ts": "export {};\n" }, { tools: true, "unit-test": false }],
+  ["dynamic import with a non-literal argument fails closed", { "src/App.tsx": 'const name = "./x";\nconst m = import(name);\n' }, { tools: false, "unit-test": false }],
+  ["new URL with a non-literal argument fails closed", { "src/App.tsx": 'const u = new URL(path, import.meta.url);\n' }, { tools: false, "unit-test": false }],
+  [
+    "commented-out import in a traversed config helper is not a reference",
+    { "vite.config.ts": 'import p from "./config/plugin";\nexport default { plugins: [p] };\n', "config/plugin.ts": '// import "../src/old.test";\n/* tools/x.py */\nexport default {};\n' },
+    { tools: true, "unit-test": true },
+  ],
+  ["config helper reads a test file by path (no import)", { "vite.config.ts": 'import p from "./config/plugin";\nexport default { plugins: [p] };\n', "config/plugin.ts": 'import { readFileSync } from "node:fs";\nexport default readFileSync("src/x.test.ts", "utf8");\n' }, { tools: true, "unit-test": false }],
+  [
+    "index.html module entry outside src -> test module",
+    { "index.html": '<script type="module" src="/client/main.ts"></script>', "client/main.ts": 'import "../src/lazy.test";\n', "src/lazy.test.ts": "export {};\n" },
+    { tools: true, "unit-test": false },
+  ],
+  ["index.html entry that does not resolve fails closed", { "index.html": '<script type="module" src="/client/missing.ts"></script>' }, { tools: false, "unit-test": false }],
+  ["index.html inline module script imports tools output", { "index.html": '<script type="module">import d from "/tools/out.json";</script>', "tools/out.json": "{}\n" }, { tools: false, "unit-test": true }],
+  ["Playwright testDir widened to the repo fails closed", { "playwright.config.ts": 'export default { testDir: "." };\n' }, { tools: false, "unit-test": false }],
+  ["Playwright config without testDir fails closed", { "playwright.config.ts": "export default {};\n" }, { tools: false, "unit-test": false }],
+  ["Playwright testMatch fails closed", { "playwright.config.ts": 'export default { testDir: "./e2e", testMatch: "**/*.test.ts" };\n' }, { tools: false, "unit-test": false }],
+  ["Vite rollupOptions input fails closed", { "vite.config.ts": 'export default { build: { rollupOptions: { input: "admin.html" } } };\n' }, { tools: false, "unit-test": false }],
   ["unresolvable relative import fails closed", { "src/App.tsx": 'import { x } from "./does-not-exist";\n' }, { tools: false, "unit-test": false }],
   ["vite resolve.alias fails closed", { "vite.config.ts": 'export default { resolve: { alias: { "@": "/src" } } };\n' }, { tools: false, "unit-test": false }],
   ["vitest.config referencing src/test is not a root", { "vitest.config.ts": 'export default { test: { setupFiles: ["./src/test/setup.ts"] } };\n' }, { tools: true, "unit-test": true }],

@@ -101,7 +101,7 @@ Every run of a partial tier must include the **Safari smoke set**:
 |---|---|---|---|
 | docs | `docs/**`, `**/*.md` outside runtime trees | **skip** (unchanged) | — |
 | offline tools | `tools/**/*.py` | **skip** (implemented, scan-guarded) | — |
-| unit tests only | `src/**/*.test.ts(x)`, `src/test/**` | **skip** (implemented, scan-guarded) | — |
+| unit tests only | `src/**/*.test.ts(x)`, `src/test/**` code files | **skip** (implemented, scan-guarded) | — |
 | storage / persistence | `src/state/{persistence,dex,inventory,progression,starterStock,discoveryRegistration}.ts`, `src/firebase/**` | L1 (390) — **never skip** | free-cooking-phase3-2, lunch-rush-result-ranking-phase4 (firebase) |
 | pure logic (non-input) | `src/logic/{economy,efficiency,mastery,pitzReward,completionGate,cookingTiming*,missionResultStats}.ts` | L1 (390) | result-1screen-2.0, timing-transparency |
 | scoring | `src/logic/{scoring,scoringV2/**,sauceEvaluation,referenceScoring,referenceMatching}.ts` | L1 (390) | result-1screen-2.0, timing-transparency, finished-pizza-visual-2.0 |
@@ -150,7 +150,7 @@ and (c) evidence that a meaningful share of PRs would land in L1/L2.
 
 | File | Change |
 |---|---|
-| `scripts/ci/classify-webkit.mjs` | Skip allow-list = docs + `tools/**/*.py` + `src/**/*.test.ts(x)` + `src/test/**`. The two new categories require `--repo` scan guards. Self-test grows from 24 to 77 cases (path table + scan fixtures). |
+| `scripts/ci/classify-webkit.mjs` | Skip allow-list = docs + `tools/**/*.py` + `src/**/*.test.ts(x)` + `src/test/**`. The two new categories require `--repo` scan guards. Self-test grows from 24 to 98 cases (path table + scan fixtures). |
 | `scripts/ci/classify-webkit-pr.sh` | Passes `--repo <toplevel>` (the merge-ref checkout). Reason wording changes to "cannot reach the browser". Decision order, forcing rules, `tested_base` reuse and fail-safes are unchanged. |
 | `scripts/ci/test-webkit-ci.sh` | 40 → 48 cases: tools-only / unit-test-only / unit+runtime / guard-violation PRs in a throwaway repo, plus classification against **this repository's own tree** (tools-only → skip, unit-test-only → skip, persistence → run). |
 | `.github/workflows/e2e-webkit.yml` | Header comment only. Matrix, steps, triggers, concurrency, evidence and gate are identical to Phase 2A. |
@@ -160,21 +160,28 @@ and (c) evidence that a meaningful share of PRs would land in L1/L2.
 ### 5.1 Non-browser skip (tools / unit tests)
 
 A file is loaded by the browser, the Vite dev server or Playwright only if something they load
-reaches it through imports. The classify job therefore **traverses** the checked-out merge ref:
+reaches it. The classify job therefore **traverses** the checked-out merge ref, with comments
+stripped from every file first.
 - Roots:
-  - every root-level config code file (`vite.config.*`, `playwright.config.*`, and any other
-    root `*.ts/js` except `vitest*.config.*` and `*.test.*`);
+  - `index.html` script entries (`src`) and inline scripts;
+  - every root-level config code file (all root `*.ts/js` except `vitest*.config.*` and
+    `*.test.*`);
   - every non-test `src/**` and `e2e/**` code file.
 - It follows every relative / root-absolute import (`import`, `export … from`, `import()`,
   `require`, `new URL`) transitively, including into files outside `src/`.
-- A reached `*.test.ts(x)`, `src/test/**` or `tools/**` file is a reference. So is a specifier
-  naming one, including extensionless forms such as `./x.test`.
-- It fails closed on:
-  - an unresolvable relative import;
-  - any `import.meta.glob`;
-  - a Vite `alias` in a root config (bare specifiers it cannot follow).
-- Root text files (`index.html`, `package.json`, `e2e-webkit.yml`) and root configs are also
-  checked with comments stripped, for `tools/`, `.test`, `src/test` or `import.meta.glob`.
+- A reached `*.test.ts(x)`, `src/test/**` code or `tools/**` file is a reference. So is a
+  specifier naming one, including extensionless `./x.test`.
+- Config-side files (anything outside `src/`/`e2e/`) are also checked for such paths as plain
+  strings (`fs` reads, `require.resolve`, spawned commands).
+- It **fails closed** (disables both skips) on anything it cannot follow:
+  - an unresolvable relative import or HTML script entry;
+  - an `import()` / `require()` / `new URL()` whose argument is not a string literal;
+  - `import.meta.glob`;
+  - Vite `alias` / `rollupOptions` / `optimizeDeps` / `publicDir` / `root`;
+  - a Playwright config whose `testDir` is not `e2e`, or that sets `testMatch`. Otherwise
+    Playwright could run `src/**` test files itself.
+- `package.json` and `e2e-webkit.yml` are checked as text for `tools/`, `.test.`, `src/test`
+  and `import.meta.glob`.
 
 Any hit, a missing tree, or a scan error disables that category, and the paths run WebKit.
 
@@ -203,6 +210,20 @@ check only, and imports were not traversed. A `vite.config.ts` → helper → `*
 an extensionless `./x.test` import, would have been missed. Fixed by the transitive traversal
 above, with 7 new scan fixtures (84 classifier cases). On this repository the traversal covers
 123 files, and every relative import resolves.
+
+The Codex re-review of `27ce019` found three more gaps of the same class:
+- a comment inside `import(/* @vite-ignore */ "…")` hid the specifier;
+- traversed helpers were not comment-stripped;
+- `index.html` script entries were not traversed.
+
+This time the whole class was closed, not just the three instances. Every file is now
+comment-stripped, anything not followable fails closed, and HTML entries seed the traversal. Two
+further gaps I found myself are also closed:
+- **Playwright `testDir` guard.** If `testDir` ever widened, Playwright could run `src` test
+  files while unit-test-only changes skipped WebKit.
+- **More Vite settings** (beyond `alias`) that redirect loading now fail closed.
+
+Classifier cases: 98. A mutation of each new rule is caught.
 
 ### 5.2 Duration-balanced shards: implemented, measured, removed
 
