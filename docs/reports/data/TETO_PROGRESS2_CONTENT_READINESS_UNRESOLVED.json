@@ -1,0 +1,1791 @@
+{
+  "auditedMainSha": "dff233c042d2df6ee1c3a92f2d2419830aa05460",
+  "count": 104,
+  "typeCounts": {
+    "BASE_SAUCE_UNSPECIFIED": 33,
+    "CANDIDATE_CAPABILITY": 14,
+    "COMPOSITION_CONFLICT_CANDIDATE": 18,
+    "COMPOSITION_CONFLICT_SHIPPED": 9,
+    "DISCOVERY_COLLISION": 2,
+    "EVIDENCE_GAP": 2,
+    "MECHANIC_INTERPRETATION": 11,
+    "NAME_SPECIFICITY_GAP": 2,
+    "NAMING_CLUSTER": 12,
+    "PREPARED_COMPOSITE_INGREDIENT": 3,
+    "SAME_INGREDIENT_SET_AS_CATALOG_RECIPE": 8,
+    "SCOPE_QUESTION": 2,
+    "SOURCE_INCONSISTENCY": 1,
+    "UNRESOLVED_INGREDIENT": 24
+  },
+  "rows": [
+    {
+      "evidenceId": "apple-cinnamon-dessert-pizzadb",
+      "nameJa": "アップルシナモンデザートピザ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "BASE_SAUCE_UNSPECIFIED",
+          "ref": "デザートソース",
+          "detail": "sauceFamily implies a spread base but no specific sauce ingredient is evidenced; a sauce id must be chosen (product/content decision)"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "calabresa-argentina-pizzadb",
+      "nameJa": "アルゼンチン風カラブレーサ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "READY_WITH_REVIEW",
+      "blockers": [],
+      "reviewItems": [
+        {
+          "type": "NAMING_CLUSTER",
+          "ref": "NC-4-calabresa",
+          "detail": "Calabresa family (2-way)"
+        }
+      ]
+    },
+    {
+      "evidenceId": "capricciosa-pizzadb",
+      "nameJa": "カプリチョーザ（PIZZA DB版）",
+      "wave": "W0_CORRESPONDENCE",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "COMPOSITION_CONFLICT_SHIPPED",
+          "ref": "COMP:capricciosa-pizzadb->capricciosa",
+          "detail": "DIVERGENT"
+        }
+      ],
+      "reviewItems": [
+        {
+          "type": "CANDIDATE_CAPABILITY",
+          "ref": "ZONED_PLACEMENT",
+          "detail": "repo-inference / context-only mechanic evidence -- confirm or drop"
+        }
+      ]
+    },
+    {
+      "evidenceId": "calzone-pizzadb",
+      "nameJa": "カルツォーネ（PIZZA DB版）",
+      "wave": "W5",
+      "currentFlowRepresentability": "NOT_REPRESENTABLE",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "COMPOSITION_CONFLICT_CANDIDATE",
+          "ref": "COMP:calzone-pizzadb->calzone",
+          "detail": "DIVERGENT"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "quattro-formaggi-pizzadb",
+      "nameJa": "クアトロフォルマッジ（PIZZA DB版）",
+      "wave": "W0_CORRESPONDENCE",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "COMPOSITION_CONFLICT_SHIPPED",
+          "ref": "COMP:quattro-formaggi-pizzadb->quattro-formaggi",
+          "detail": "PIZZADB_SUBSET"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "greek-style-pizzadb",
+      "nameJa": "グリークスタイルピザ（PIZZA DB版）",
+      "wave": "W5",
+      "currentFlowRepresentability": "NOT_REPRESENTABLE",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "COMPOSITION_CONFLICT_CANDIDATE",
+          "ref": "COMP:greek-style-pizzadb->greek-style",
+          "detail": "PIZZADB_SUPERSET"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "chicago-deep-dish-pizzadb",
+      "nameJa": "シカゴディープディッシュ（PIZZA DB版）",
+      "wave": "W5",
+      "currentFlowRepresentability": "NOT_REPRESENTABLE",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "COMPOSITION_CONFLICT_CANDIDATE",
+          "ref": "COMP:chicago-deep-dish-pizzadb->chicago-deep-dish",
+          "detail": "PIZZADB_SUPERSET"
+        }
+      ],
+      "reviewItems": [
+        {
+          "type": "NAMING_CLUSTER",
+          "ref": "NC-7-chicago",
+          "detail": "Chicago Deep-Dish vs Chicago Stuffed (two real styles)"
+        }
+      ]
+    },
+    {
+      "evidenceId": "siciliana-pizzadb",
+      "nameJa": "シチリアンピザ（PIZZA DB版）",
+      "wave": "W5",
+      "currentFlowRepresentability": "NOT_REPRESENTABLE",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "COMPOSITION_CONFLICT_CANDIDATE",
+          "ref": "COMP:siciliana-pizzadb->siciliana",
+          "detail": "DIVERGENT"
+        }
+      ],
+      "reviewItems": [
+        {
+          "type": "NAMING_CLUSTER",
+          "ref": "NC-3-sicilian",
+          "detail": "Sicilian family (3-way)"
+        }
+      ]
+    },
+    {
+      "evidenceId": "sfincione-pizzadb",
+      "nameJa": "スフィンチョーネ",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "READY_WITH_REVIEW",
+      "blockers": [],
+      "reviewItems": [
+        {
+          "type": "NAMING_CLUSTER",
+          "ref": "NC-3-sicilian",
+          "detail": "Sicilian family (3-way)"
+        }
+      ]
+    },
+    {
+      "evidenceId": "supreme-pizzadb",
+      "nameJa": "スプリームピザ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "COMPOSITION_CONFLICT_CANDIDATE",
+          "ref": "COMP:supreme-pizzadb->supreme",
+          "detail": "PIZZADB_SUBSET"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "taco-pizza-pizzadb",
+      "nameJa": "タコピザ",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "MECHANIC_INTERPRETATION",
+          "ref": "LATE_ADDITION",
+          "detail": "Phase 0 flagged a mechanic identity that is supported only by repo inference or context-only text; the capability must be confirmed or rejected"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "chilean-napolitana-pizzadb",
+      "nameJa": "チリアンナポリターナ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "READY_WITH_REVIEW",
+      "blockers": [],
+      "reviewItems": [
+        {
+          "type": "NAMING_CLUSTER",
+          "ref": "NC-1-napoletana",
+          "detail": "Napoletana family (3-way)"
+        }
+      ]
+    },
+    {
+      "evidenceId": "trenton-tomato-pie-pizzadb",
+      "nameJa": "トレントントマトパイ",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "READY_WITH_REVIEW",
+      "blockers": [],
+      "reviewItems": [
+        {
+          "type": "SAME_INGREDIENT_SET_AS_CATALOG_RECIPE",
+          "ref": "greek-style,ny-style,stuffed-crust",
+          "detail": "identity ingredient set equals an existing catalog recipe that the row is not declared to correspond to -- distinguishable only by STEP_ORDER"
+        }
+      ]
+    },
+    {
+      "evidenceId": "ny-style-pizzadb",
+      "nameJa": "ニューヨークスタイルピザ（PIZZA DB版）",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "READY_WITH_REVIEW",
+      "blockers": [],
+      "reviewItems": [
+        {
+          "type": "CANDIDATE_CAPABILITY",
+          "ref": "SERVE_FORM",
+          "detail": "repo-inference / context-only mechanic evidence -- confirm or drop"
+        },
+        {
+          "type": "SAME_INGREDIENT_SET_AS_CATALOG_RECIPE",
+          "ref": "greek-style,stuffed-crust",
+          "detail": "identity ingredient set equals an existing catalog recipe that the row is not declared to correspond to -- distinguishable only by DOUGH_VARIANT"
+        }
+      ]
+    },
+    {
+      "evidenceId": "buffalo-chicken-pizzadb",
+      "nameJa": "バッファローチキンピザ（PIZZA DB版）",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "COMPOSITION_CONFLICT_CANDIDATE",
+          "ref": "COMP:buffalo-chicken-pizzadb->buffalo-chicken",
+          "detail": "DIVERGENT"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "margherita-pizzadb-row",
+      "nameJa": "マルゲリータ",
+      "wave": "W0_CORRESPONDENCE",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "COMPOSITION_CONFLICT_SHIPPED",
+          "ref": "COMP:margherita-pizzadb-row->margherita",
+          "detail": "PIZZADB_SUPERSET"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "pizza-baiana",
+      "nameJa": "ピッツァ・バイアーナ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "UNRESOLVED_INGREDIENT",
+          "ref": "唐辛子",
+          "detail": "ambiguous; related ids ['chili-oil'] -- preserved, not canonicalized"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "pizza-a-caballo",
+      "nameJa": "ピッツァ・ア・カバージョ",
+      "wave": "W5",
+      "currentFlowRepresentability": "NOT_REPRESENTABLE",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "EVIDENCE_GAP",
+          "ref": "pizza-a-caballo",
+          "detail": "The relayed profile text states a Fainá (chickpea-flatbread) layer is placed on top of this pizza, but the profile's own published ingredient/topping list does NOT include Fainá. This is a genuine gap IN THE SOURCE EVIDENCE ITSELF, not some"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "bianca-pizzadb-row",
+      "nameJa": "ピッツァビアンカ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "READY_WITH_REVIEW",
+      "blockers": [],
+      "reviewItems": [
+        {
+          "type": "NAMING_CLUSTER",
+          "ref": "NC-2-bianca",
+          "detail": "Bianca family (3-way)"
+        }
+      ]
+    },
+    {
+      "evidenceId": "pizza-de-cancha",
+      "nameJa": "ピッツァ・デ・カンチャ",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "UNRESOLVED_INGREDIENT",
+          "ref": "唐辛子",
+          "detail": "ambiguous; related ids ['chili-oil'] -- preserved, not canonicalized"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "swedish-kebab-pizza-pizzadb-p4",
+      "nameJa": "スウェディッシュケバブピザ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "BASE_SAUCE_UNSPECIFIED",
+          "ref": "ホットソース",
+          "detail": "sauceFamily implies a spread base but no specific sauce ingredient is evidenced; a sauce id must be chosen (product/content decision)"
+        },
+        {
+          "type": "UNRESOLVED_INGREDIENT",
+          "ref": "肉",
+          "detail": "ambiguous; related ids ['beef', 'pork', 'chicken', 'ground-beef'] -- preserved, not canonicalized"
+        }
+      ],
+      "reviewItems": [
+        {
+          "type": "CANDIDATE_CAPABILITY",
+          "ref": "MULTI_SPREAD_LAYER",
+          "detail": "repo-inference / context-only mechanic evidence -- confirm or drop"
+        }
+      ]
+    },
+    {
+      "evidenceId": "speck-e-brie-pizzadb-p4",
+      "nameJa": "スペックエブリー",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "COMPOSITION_CONFLICT_CANDIDATE",
+          "ref": "COMP:speck-e-brie-pizzadb-p4->speck-e-brie",
+          "detail": "DIVERGENT"
+        }
+      ],
+      "reviewItems": [
+        {
+          "type": "NAMING_CLUSTER",
+          "ref": "NC-5-speck-e-brie",
+          "detail": "speck-e-brie candidate vs differently-composed PIZZA DB row"
+        }
+      ]
+    },
+    {
+      "evidenceId": "smore-dessert-pizza-pizzadb-p4",
+      "nameJa": "スモアデザートピザ",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "BASE_SAUCE_UNSPECIFIED",
+          "ref": "デザートソース",
+          "detail": "sauceFamily implies a spread base but no specific sauce ingredient is evidenced; a sauce id must be chosen (product/content decision)"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "st-louis-style-pizza-pizzadb-p4",
+      "nameJa": "セントルイススタイルピザ",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "UNRESOLVED_INGREDIENT",
+          "ref": "プロヴェルチーズ",
+          "detail": "ambiguous; related ids ['provolone'] -- preserved, not canonicalized"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "thai-chicken-pizza-pizzadb-p4",
+      "nameJa": "タイチキンピザ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "UNRESOLVED_INGREDIENT",
+          "ref": "赤唐辛子",
+          "detail": "ambiguous; related ids ['chili-oil'] -- preserved, not canonicalized"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "argentine-napolitana-pizzadb-p1",
+      "nameJa": "アルゼンチン風ナポリターナ",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "READY_WITH_REVIEW",
+      "blockers": [],
+      "reviewItems": [
+        {
+          "type": "NAMING_CLUSTER",
+          "ref": "NC-1-napoletana",
+          "detail": "Napoletana family (3-way)"
+        }
+      ]
+    },
+    {
+      "evidenceId": "eel-pizza-pizzadb-p1",
+      "nameJa": "うなぎピザ",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "BASE_SAUCE_UNSPECIFIED",
+          "ref": "甘辛だれ",
+          "detail": "sauceFamily implies a spread base but no specific sauce ingredient is evidenced; a sauce id must be chosen (product/content decision)"
+        },
+        {
+          "type": "MECHANIC_INTERPRETATION",
+          "ref": "LATE_ADDITION",
+          "detail": "timing mode unresolved (unresolved:mid_bake|post_bake)"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "jerusalem-mixed-grill-pizza-pizzadb-p1",
+      "nameJa": "エルサレムミックスグリルピザ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "BASE_SAUCE_UNSPECIFIED",
+          "ref": "その他",
+          "detail": "sauceFamily implies a spread base but no specific sauce ingredient is evidenced; a sauce id must be chosen (product/content decision)"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "old-forge-style-pizza-pizzadb-p1",
+      "nameJa": "オールドフォージスタイルピザ",
+      "wave": "W5",
+      "currentFlowRepresentability": "NOT_REPRESENTABLE",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "UNRESOLVED_INGREDIENT",
+          "ref": "チーズ",
+          "detail": "ambiguous; related ids ['mozzarella'] -- preserved, not canonicalized"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "okonomiyaki-style-pizza-pizzadb-p1",
+      "nameJa": "お好み焼き風ピザ",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "UNRESOLVED_INGREDIENT",
+          "ref": "青のり",
+          "detail": "ambiguous; related ids ['nori'] -- preserved, not canonicalized"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "caponata-pizza-pizzadb-p2",
+      "nameJa": "カポナータピザ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "BASE_SAUCE_UNSPECIFIED",
+          "ref": "その他",
+          "detail": "sauceFamily implies a spread base but no specific sauce ingredient is evidenced; a sauce id must be chosen (product/content decision)"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "cauliflower-crust-pizza-pizzadb-p2",
+      "nameJa": "カリフラワークラストピザ",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "READY_WITH_REVIEW",
+      "blockers": [],
+      "reviewItems": [
+        {
+          "type": "SAME_INGREDIENT_SET_AS_CATALOG_RECIPE",
+          "ref": "margherita",
+          "detail": "identity ingredient set equals an existing catalog recipe that the row is not declared to correspond to -- distinguishable only by DOUGH_VARIANT"
+        }
+      ]
+    },
+    {
+      "evidenceId": "curry-pizza-japan-pizzadb-p2",
+      "nameJa": "カレーピザ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "UNRESOLVED_INGREDIENT",
+          "ref": "カレーソース",
+          "detail": "ambiguous; related ids ['curry-ketchup'] -- preserved, not canonicalized"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "keema-pizza-pizzadb-p2",
+      "nameJa": "キーマピザ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "BASE_SAUCE_UNSPECIFIED",
+          "ref": "カレー",
+          "detail": "sauceFamily implies a spread base but no specific sauce ingredient is evidenced; a sauce id must be chosen (product/content decision)"
+        },
+        {
+          "type": "UNRESOLVED_INGREDIENT",
+          "ref": "ひき肉",
+          "detail": "ambiguous; related ids ['ground-beef'] -- preserved, not canonicalized"
+        },
+        {
+          "type": "UNRESOLVED_INGREDIENT",
+          "ref": "青唐辛子",
+          "detail": "ambiguous; related ids ['chili-oil'] -- preserved, not canonicalized"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "kimchi-pizza-pizzadb-p2",
+      "nameJa": "キムチピザ",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "BASE_SAUCE_UNSPECIFIED",
+          "ref": "ホットソース",
+          "detail": "sauceFamily implies a spread base but no specific sauce ingredient is evidenced; a sauce id must be chosen (product/content decision)"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "quad-cities-style-pizza-pizzadb-p2",
+      "nameJa": "クアッドシティーズスタイルピザ",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "UNRESOLVED_INGREDIENT",
+          "ref": "スパイシーソーセージ",
+          "detail": "ambiguous; related ids ['sausage'] -- preserved, not canonicalized"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "goulash-pizza-pizzadb-p3",
+      "nameJa": "グヤーシュピザ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "BASE_SAUCE_UNSPECIFIED",
+          "ref": "その他",
+          "detail": "sauceFamily implies a spread base but no specific sauce ingredient is evidenced; a sauce id must be chosen (product/content decision)"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "colorado-mountain-pie-pizzadb-p3",
+      "nameJa": "コロラドマウンテンパイ",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "EVIDENCE_GAP",
+          "ref": "colorado-mountain-pie-pizzadb-p3",
+          "detail": "Second listed ingredient is 'お好みの具材' -- the already-identified EXCLUDED non-ingredient placeholder (Phase 0B.3, 'toppings of your choice'), not a specific real topping. This dish's actual topping set is therefore genuinely unspecified by th"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "chicago-stuffed-pizza-pizzadb-p3",
+      "nameJa": "シカゴスタッフドピザ",
+      "wave": "W5",
+      "currentFlowRepresentability": "NOT_REPRESENTABLE",
+      "productDecisionStatus": "READY_WITH_REVIEW",
+      "blockers": [],
+      "reviewItems": [
+        {
+          "type": "NAMING_CLUSTER",
+          "ref": "NC-7-chicago",
+          "detail": "Chicago Deep-Dish vs Chicago Stuffed (two real styles)"
+        },
+        {
+          "type": "SAME_INGREDIENT_SET_AS_CATALOG_RECIPE",
+          "ref": "chicago-deep-dish,salsiccia",
+          "detail": "identity ingredient set equals an existing catalog recipe that the row is not declared to correspond to -- distinguishable only by DOUGH_VARIANT, ENCLOSE"
+        }
+      ]
+    },
+    {
+      "evidenceId": "potato-mayo-pizza-pizzadb-p3",
+      "nameJa": "じゃがマヨピザ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "BASE_SAUCE_UNSPECIFIED",
+          "ref": "ホワイトソース",
+          "detail": "sauceFamily implies a spread base but no specific sauce ingredient is evidenced; a sauce id must be chosen (product/content decision)"
+        }
+      ],
+      "reviewItems": [
+        {
+          "type": "CANDIDATE_CAPABILITY",
+          "ref": "MULTI_SPREAD_LAYER",
+          "detail": "repo-inference / context-only mechanic evidence -- confirm or drop"
+        }
+      ]
+    },
+    {
+      "evidenceId": "jamaican-jerk-chicken-pizza-pizzadb-p3",
+      "nameJa": "ジャマイカンジャークチキンピザ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "BASE_SAUCE_UNSPECIFIED",
+          "ref": "その他",
+          "detail": "sauceFamily implies a spread base but no specific sauce ingredient is evidenced; a sauce id must be chosen (product/content decision)"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "tandoori-paneer-pizza-pizzadb-p5",
+      "nameJa": "タンドリーパニールピザ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "BASE_SAUCE_UNSPECIFIED",
+          "ref": "カレー",
+          "detail": "sauceFamily implies a spread base but no specific sauce ingredient is evidenced; a sauce id must be chosen (product/content decision)"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "chicken-tikka-pizza-pizzadb-p5",
+      "nameJa": "チキンティッカピザ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "BASE_SAUCE_UNSPECIFIED",
+          "ref": "カレー",
+          "detail": "sauceFamily implies a spread base but no specific sauce ingredient is evidenced; a sauce id must be chosen (product/content decision)"
+        }
+      ],
+      "reviewItems": [
+        {
+          "type": "PREPARED_COMPOSITE_INGREDIENT",
+          "ref": "チキンティッカ",
+          "detail": "prepared dish used as a topping (canonicalizer taxonomy flag)"
+        }
+      ]
+    },
+    {
+      "evidenceId": "diavola-pizza-pizzadb-p5",
+      "nameJa": "ディアボラ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "COMPOSITION_CONFLICT_CANDIDATE",
+          "ref": "COMP:diavola-pizza-pizzadb-p5->diavola",
+          "detail": "INDETERMINATE_UNRESOLVED_TOKENS"
+        },
+        {
+          "type": "UNRESOLVED_INGREDIENT",
+          "ref": "唐辛子",
+          "detail": "ambiguous; related ids ['chili-oil'] -- preserved, not canonicalized"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "detroit-style-pizza-pizzadb-p5",
+      "nameJa": "デトロイトスタイルピザ",
+      "wave": "W5",
+      "currentFlowRepresentability": "NOT_REPRESENTABLE",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "COMPOSITION_CONFLICT_CANDIDATE",
+          "ref": "COMP:detroit-style-pizza-pizzadb-p5->detroit-style",
+          "detail": "DIVERGENT"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "turkish-pide-pizzadb-p5",
+      "nameJa": "トルコピデ",
+      "wave": "W5",
+      "currentFlowRepresentability": "NOT_REPRESENTABLE",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "UNRESOLVED_INGREDIENT",
+          "ref": "ひき肉",
+          "detail": "ambiguous; related ids ['ground-beef'] -- preserved, not canonicalized"
+        },
+        {
+          "type": "UNRESOLVED_INGREDIENT",
+          "ref": "チーズ",
+          "detail": "ambiguous; related ids ['mozzarella'] -- preserved, not canonicalized"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "nigerian-suya-pizza-pizzadb-p5",
+      "nameJa": "ナイジェリアンスヤピザ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "BASE_SAUCE_UNSPECIFIED",
+          "ref": "その他",
+          "detail": "sauceFamily implies a spread base but no specific sauce ingredient is evidenced; a sauce id must be chosen (product/content decision)"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "nashville-hot-chicken-pizza-pizzadb-p6",
+      "nameJa": "ナッシュビルホットチキンピザ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "BASE_SAUCE_UNSPECIFIED",
+          "ref": "ホットソース",
+          "detail": "sauceFamily implies a spread base but no specific sauce ingredient is evidenced; a sauce id must be chosen (product/content decision)"
+        }
+      ],
+      "reviewItems": [
+        {
+          "type": "CANDIDATE_CAPABILITY",
+          "ref": "MULTI_SPREAD_LAYER",
+          "detail": "repo-inference / context-only mechanic evidence -- confirm or drop"
+        }
+      ]
+    },
+    {
+      "evidenceId": "new-england-bar-pizza-pizzadb-p6",
+      "nameJa": "ニューイングランドバーピザ",
+      "wave": "W5",
+      "currentFlowRepresentability": "NOT_REPRESENTABLE",
+      "productDecisionStatus": "READY_WITH_REVIEW",
+      "blockers": [],
+      "reviewItems": [
+        {
+          "type": "SAME_INGREDIENT_SET_AS_CATALOG_RECIPE",
+          "ref": "detroit-style,pepperoni",
+          "detail": "identity ingredient set equals an existing catalog recipe that the row is not declared to correspond to -- distinguishable only by DOUGH_VARIANT, PAN_BAKE"
+        }
+      ]
+    },
+    {
+      "evidenceId": "nutella-dessert-pizza-pizzadb-p6",
+      "nameJa": "ヌテラデザートピザ",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "COMPOSITION_CONFLICT_CANDIDATE",
+          "ref": "COMP:nutella-dessert-pizza-pizzadb-p6->nutella-dessert",
+          "detail": "INDETERMINATE_UNRESOLVED_TOKENS"
+        },
+        {
+          "type": "UNRESOLVED_INGREDIENT",
+          "ref": "ナッツ",
+          "detail": "ambiguous; related ids ['walnut'] -- preserved, not canonicalized"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "baingan-bharta-pizza-pizzadb-p6",
+      "nameJa": "バインガンバルタピザ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "BASE_SAUCE_UNSPECIFIED",
+          "ref": "カレー",
+          "detail": "sauceFamily implies a spread base but no specific sauce ingredient is evidenced; a sauce id must be chosen (product/content decision)"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "banh-mi-pizza-pizzadb-p6",
+      "nameJa": "バインミーピザ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "BASE_SAUCE_UNSPECIFIED",
+          "ref": "その他",
+          "detail": "sauceFamily implies a spread base but no specific sauce ingredient is evidenced; a sauce id must be chosen (product/content decision)"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "buffalo-cauliflower-pizza-pizzadb-p6",
+      "nameJa": "バッファローカリフラワーピザ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "BASE_SAUCE_UNSPECIFIED",
+          "ref": "ホットソース",
+          "detail": "sauceFamily implies a spread base but no specific sauce ingredient is evidenced; a sauce id must be chosen (product/content decision)"
+        }
+      ],
+      "reviewItems": [
+        {
+          "type": "CANDIDATE_CAPABILITY",
+          "ref": "MULTI_SPREAD_LAYER",
+          "detail": "repo-inference / context-only mechanic evidence -- confirm or drop"
+        }
+      ]
+    },
+    {
+      "evidenceId": "palmitos-salsa-golf-pizzadb-p7",
+      "nameJa": "パルミートス・イ・サルサ・ゴルフ",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "BASE_SAUCE_UNSPECIFIED",
+          "ref": "その他",
+          "detail": "sauceFamily implies a spread base but no specific sauce ingredient is evidenced; a sauce id must be chosen (product/content decision)"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "pizza-overload-pizzadb-p7",
+      "nameJa": "ピザオーバーロード",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "READY_WITH_REVIEW",
+      "blockers": [],
+      "reviewItems": [
+        {
+          "type": "PREPARED_COMPOSITE_INGREDIENT",
+          "ref": "ホットドッグ",
+          "detail": "prepared dish used as a topping (canonicalizer taxonomy flag)"
+        }
+      ]
+    },
+    {
+      "evidenceId": "bismarck-pizza-pizzadb-p7",
+      "nameJa": "ビスマルク",
+      "wave": "W0_CORRESPONDENCE",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "COMPOSITION_CONFLICT_SHIPPED",
+          "ref": "COMP:bismarck-pizza-pizzadb-p7->bismarck",
+          "detail": "PIZZADB_SUPERSET"
+        }
+      ],
+      "reviewItems": [
+        {
+          "type": "CANDIDATE_CAPABILITY",
+          "ref": "ZONED_PLACEMENT",
+          "detail": "repo-inference / context-only mechanic evidence -- confirm or drop"
+        }
+      ]
+    },
+    {
+      "evidenceId": "pizza-asparagi-limone-pizzadb-p8",
+      "nameJa": "ピッツァ・コン・アスパラージ・クルーディ・エ・リモーネ",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "MECHANIC_INTERPRETATION",
+          "ref": "LATE_ADDITION",
+          "detail": "Phase 0 flagged a mechanic identity that is supported only by repo inference or context-only text; the capability must be confirmed or rejected"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "pizza-carciofi-salad-pizzadb-p8",
+      "nameJa": "ピッツァ・コン・インサラータ・ディ・カルチョーフィ",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "MECHANIC_INTERPRETATION",
+          "ref": "LATE_ADDITION",
+          "detail": "Phase 0 flagged a mechanic identity that is supported only by repo inference or context-only text; the capability must be confirmed or rejected"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "pizza-finocchi-salad-pizzadb-p8",
+      "nameJa": "ピッツァ・コン・インサラータ・ディ・フィノッキ",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "MECHANIC_INTERPRETATION",
+          "ref": "LATE_ADDITION",
+          "detail": "Phase 0 flagged a mechanic identity that is supported only by repo inference or context-only text; the capability must be confirmed or rejected"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "pizza-cavolo-carote-pizzadb-p8",
+      "nameJa": "ピッツァ・コン・カーヴォロ・ロッソ・エ・カローテ",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "MECHANIC_INTERPRETATION",
+          "ref": "LATE_ADDITION",
+          "detail": "Phase 0 flagged a mechanic identity that is supported only by repo inference or context-only text; the capability must be confirmed or rejected"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "pizza-zucchine-menta-pizzadb-p8",
+      "nameJa": "ピッツァ・コン・ズッキーネ・クルーデ・エ・メンタ",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "MECHANIC_INTERPRETATION",
+          "ref": "LATE_ADDITION",
+          "detail": "Phase 0 flagged a mechanic identity that is supported only by repo inference or context-only text; the capability must be confirmed or rejected"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "pizza-cicoria-limone-pizzadb-p8",
+      "nameJa": "ピッツァ・コン・チコリア・エ・リモーネ",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "MECHANIC_INTERPRETATION",
+          "ref": "LATE_ADDITION",
+          "detail": "Phase 0 flagged a mechanic identity that is supported only by repo inference or context-only text; the capability must be confirmed or rejected"
+        },
+        {
+          "type": "UNRESOLVED_INGREDIENT",
+          "ref": "唐辛子",
+          "detail": "ambiguous; related ids ['chili-oil'] -- preserved, not canonicalized"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "pizza-puntarelle-pizzadb-p8",
+      "nameJa": "ピッツァ・コン・プンタレッレ",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "MECHANIC_INTERPRETATION",
+          "ref": "LATE_ADDITION",
+          "detail": "Phase 0 flagged a mechanic identity that is supported only by repo inference or context-only text; the capability must be confirmed or rejected"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "pizza-radicchio-noci-pizzadb-p8",
+      "nameJa": "ピッツァ・コン・ラディッキオ・クルード・エ・ノーチ",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "MECHANIC_INTERPRETATION",
+          "ref": "LATE_ADDITION",
+          "detail": "Phase 0 flagged a mechanic identity that is supported only by repo inference or context-only text; the capability must be confirmed or rejected"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "pizza-chilena-pizzadb-p8",
+      "nameJa": "ピッツァ・チレーナ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "UNRESOLVED_INGREDIENT",
+          "ref": "ひき肉",
+          "detail": "ambiguous; related ids ['ground-beef'] -- preserved, not canonicalized"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "pizza-romana-pizzadb-p9",
+      "nameJa": "ピッツァ・ロマーナ",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "COMPOSITION_CONFLICT_CANDIDATE",
+          "ref": "COMP:pizza-romana-pizzadb-p9->romana",
+          "detail": "PIZZADB_SUPERSET"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "pizza-alla-norma-pizzadb-p9",
+      "nameJa": "ピッツァアッラノルマ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "COMPOSITION_CONFLICT_CANDIDATE",
+          "ref": "COMP:pizza-alla-norma-pizzadb-p9->alla-norma",
+          "detail": "DIVERGENT"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "pizza-al-taglio-romana-pizzadb-p9",
+      "nameJa": "ピッツァアルタリオローマーナ",
+      "wave": "W5",
+      "currentFlowRepresentability": "NOT_REPRESENTABLE",
+      "productDecisionStatus": "READY_WITH_REVIEW",
+      "blockers": [],
+      "reviewItems": [
+        {
+          "type": "SAME_INGREDIENT_SET_AS_CATALOG_RECIPE",
+          "ref": "margherita",
+          "detail": "identity ingredient set equals an existing catalog recipe that the row is not declared to correspond to -- distinguishable only by DOUGH_VARIANT, PAN_BAKE, DOUGH_SHAPE_TARGET"
+        }
+      ]
+    },
+    {
+      "evidenceId": "fathead-pizza-keto-pizzadb-p9",
+      "nameJa": "ファットヘッドピザ（ケト風）",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "READY_WITH_REVIEW",
+      "blockers": [],
+      "reviewItems": [
+        {
+          "type": "SAME_INGREDIENT_SET_AS_CATALOG_RECIPE",
+          "ref": "detroit-style,pepperoni",
+          "detail": "identity ingredient set equals an existing catalog recipe that the row is not declared to correspond to -- distinguishable only by DOUGH_VARIANT"
+        }
+      ]
+    },
+    {
+      "evidenceId": "philly-cheesesteak-pizza-pizzadb-p9",
+      "nameJa": "フィリーチーズステーキピザ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "UNRESOLVED_INGREDIENT",
+          "ref": "チーズソース",
+          "detail": "ambiguous; related ids ['mozzarella'] -- preserved, not canonicalized"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "feteer-meshaltet-pizzadb-p10",
+      "nameJa": "フェテイールメシャルテル",
+      "wave": "W5",
+      "currentFlowRepresentability": "NOT_REPRESENTABLE",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "BASE_SAUCE_UNSPECIFIED",
+          "ref": "デザートソース",
+          "detail": "sauceFamily implies a spread base but no specific sauce ingredient is evidenced; a sauce id must be chosen (product/content decision)"
+        },
+        {
+          "type": "SCOPE_QUESTION",
+          "ref": "feteer-meshaltet-pizzadb-p10",
+          "detail": "Laminated pastry whose single ingredient list spans dessert (honey, condensed milk) and savory (ground meat) -- Phase 0 flagged the unusual composition; not split or resolved here."
+        },
+        {
+          "type": "UNRESOLVED_INGREDIENT",
+          "ref": "ひき肉",
+          "detail": "ambiguous; related ids ['ground-beef'] -- preserved, not canonicalized"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "focaccia-genovese-pizzadb-p10",
+      "nameJa": "フォカッチャジェノヴェーゼ",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "SCOPE_QUESTION",
+          "ref": "focaccia-genovese-pizzadb-p10",
+          "detail": "Plain focaccia bread with no cheese/topping beyond oil/salt/rosemary -- Phase 0 flagged whether it qualifies as a 'pizza' entry at all."
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "fugazza-pizzadb-p10",
+      "nameJa": "フガザ",
+      "wave": "W0_CORRESPONDENCE",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "COMPOSITION_CONFLICT_SHIPPED",
+          "ref": "COMP:fugazza-pizzadb-p10->fugazza",
+          "detail": "DIVERGENT"
+        },
+        {
+          "type": "DISCOVERY_COLLISION",
+          "ref": "P0-COLL-5",
+          "detail": "identical ingredient set and no distinguishing evidenced dimension"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "fugazzetta-pizzadb-p10",
+      "nameJa": "フガゼッタ",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "COMPOSITION_CONFLICT_CANDIDATE",
+          "ref": "COMP:fugazzetta-pizzadb-p10->fugazzeta",
+          "detail": "PIZZADB_SUBSET"
+        },
+        {
+          "type": "DISCOVERY_COLLISION",
+          "ref": "P0-COLL-5",
+          "detail": "identical ingredient set and no distinguishing evidenced dimension"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "brazilian-calabresa-pizzadb-p10",
+      "nameJa": "ブラジリアン・カラブレーザ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "READY_WITH_REVIEW",
+      "blockers": [],
+      "reviewItems": [
+        {
+          "type": "NAMING_CLUSTER",
+          "ref": "NC-4-calabresa",
+          "detail": "Calabresa family (2-way)"
+        }
+      ]
+    },
+    {
+      "evidenceId": "fruit-dessert-pizza-pizzadb-p11",
+      "nameJa": "フルーツデザートピザ",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "BASE_SAUCE_UNSPECIFIED",
+          "ref": "デザートソース",
+          "detail": "sauceFamily implies a spread base but no specific sauce ingredient is evidenced; a sauce id must be chosen (product/content decision)"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "bulgogi-pizza-pizzadb-p11",
+      "nameJa": "プルコギピザ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "BASE_SAUCE_UNSPECIFIED",
+          "ref": "甘辛だれ",
+          "detail": "sauceFamily implies a spread base but no specific sauce ingredient is evidenced; a sauce id must be chosen (product/content decision)"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "frutti-di-mare-pizzadb-p11",
+      "nameJa": "フルッティディマーレ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "COMPOSITION_CONFLICT_CANDIDATE",
+          "ref": "COMP:frutti-di-mare-pizzadb-p11->frutti-di-mare",
+          "detail": "DIVERGENT"
+        }
+      ],
+      "reviewItems": [
+        {
+          "type": "NAMING_CLUSTER",
+          "ref": "NC-6-frutti-pescatore",
+          "detail": "Frutti di Mare vs Pescatore (cross-referenced, kept separate)"
+        }
+      ]
+    },
+    {
+      "evidenceId": "breakfast-pizza-pizzadb-p11",
+      "nameJa": "ブレックファーストピザ",
+      "wave": "W0_CORRESPONDENCE",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "COMPOSITION_CONFLICT_SHIPPED",
+          "ref": "COMP:breakfast-pizza-pizzadb-p11->breakfast-pizza",
+          "detail": "INDETERMINATE_UNRESOLVED_TOKENS"
+        },
+        {
+          "type": "UNRESOLVED_INGREDIENT",
+          "ref": "ホワイトソース",
+          "detail": "ambiguous; related ids ['fromage-blanc-sauce'] -- preserved, not canonicalized"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "prosciutto-funghi-pizzadb-p11",
+      "nameJa": "プロシュットフンギ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "READY_WITH_REVIEW",
+      "blockers": [],
+      "reviewItems": [
+        {
+          "type": "SAME_INGREDIENT_SET_AS_CATALOG_RECIPE",
+          "ref": "prosciutto-e-funghi",
+          "detail": "identity ingredient set equals an existing catalog recipe that the row is not declared to correspond to -- distinguishable only by nothing evidenced"
+        }
+      ]
+    },
+    {
+      "evidenceId": "pescatore-pizzadb-p11",
+      "nameJa": "ペスカトーレ",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "READY_WITH_REVIEW",
+      "blockers": [],
+      "reviewItems": [
+        {
+          "type": "NAMING_CLUSTER",
+          "ref": "NC-6-frutti-pescatore",
+          "detail": "Frutti di Mare vs Pescatore (cross-referenced, kept separate)"
+        }
+      ]
+    },
+    {
+      "evidenceId": "pesto-genovese-pizza-pizzadb-p11",
+      "nameJa": "ペストジェノヴェーゼピザ",
+      "wave": "W0_CORRESPONDENCE",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "COMPOSITION_CONFLICT_SHIPPED",
+          "ref": "COMP:pesto-genovese-pizza-pizzadb-p11->genovese",
+          "detail": "DIVERGENT"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "venezuelan-reina-pepiada-pizzadb-p12",
+      "nameJa": "ベネズエラレイナペピアーダピザ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "BASE_SAUCE_UNSPECIFIED",
+          "ref": "ホワイトソース",
+          "detail": "sauceFamily implies a spread base but no specific sauce ingredient is evidenced; a sauce id must be chosen (product/content decision)"
+        }
+      ],
+      "reviewItems": [
+        {
+          "type": "CANDIDATE_CAPABILITY",
+          "ref": "MULTI_SPREAD_LAYER",
+          "detail": "repo-inference / context-only mechanic evidence -- confirm or drop"
+        }
+      ]
+    },
+    {
+      "evidenceId": "peruvian-aji-amarillo-pizzadb-p12",
+      "nameJa": "ペルーアヒアマリージョピザ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "BASE_SAUCE_UNSPECIFIED",
+          "ref": "ホットソース",
+          "detail": "sauceFamily implies a spread base but no specific sauce ingredient is evidenced; a sauce id must be chosen (product/content decision)"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "boscaiola-pizzadb-p12",
+      "nameJa": "ボスカイオーラ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "COMPOSITION_CONFLICT_CANDIDATE",
+          "ref": "COMP:boscaiola-pizzadb-p12->boscaiola",
+          "detail": "DIVERGENT"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "hot-honey-pepperoni-pizzadb-p12",
+      "nameJa": "ホットハニーペパロニピザ",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "READY_WITH_REVIEW",
+      "blockers": [],
+      "reviewItems": [
+        {
+          "type": "CANDIDATE_CAPABILITY",
+          "ref": "LATE_ADDITION",
+          "detail": "repo-inference / context-only mechanic evidence -- confirm or drop"
+        }
+      ]
+    },
+    {
+      "evidenceId": "natto-pizza",
+      "nameJa": "納豆ピザ",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "BASE_SAUCE_UNSPECIFIED",
+          "ref": "その他",
+          "detail": "sauceFamily implies a spread base but no specific sauce ingredient is evidenced; a sauce id must be chosen (product/content decision)"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "peking-duck-pizza",
+      "nameJa": "北京ダックピザ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "READY_WITH_REVIEW",
+      "blockers": [],
+      "reviewItems": [
+        {
+          "type": "PREPARED_COMPOSITE_INGREDIENT",
+          "ref": "北京ダック",
+          "detail": "prepared dish used as a topping (canonicalizer taxonomy flag)"
+        }
+      ]
+    },
+    {
+      "evidenceId": "mentaiko-mochi-pizza",
+      "nameJa": "明太子もちピザ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "BASE_SAUCE_UNSPECIFIED",
+          "ref": "ホワイトソース",
+          "detail": "sauceFamily implies a spread base but no specific sauce ingredient is evidenced; a sauce id must be chosen (product/content decision)"
+        }
+      ],
+      "reviewItems": [
+        {
+          "type": "CANDIDATE_CAPABILITY",
+          "ref": "MULTI_SPREAD_LAYER",
+          "detail": "repo-inference / context-only mechanic evidence -- confirm or drop"
+        }
+      ]
+    },
+    {
+      "evidenceId": "manakish",
+      "nameJa": "マナキーシュ",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "READY_WITH_REVIEW",
+      "blockers": [],
+      "reviewItems": [
+        {
+          "type": "SOURCE_INCONSISTENCY",
+          "ref": "manakish",
+          "detail": "PIZZA DB header tags sauceFamily オイル while its own Q&A says ノンソース -- preserved as-is (header value used)."
+        }
+      ]
+    },
+    {
+      "evidenceId": "pizza-de-lomo-saltado",
+      "nameJa": "ロモ・サルタード・ピザ",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "BASE_SAUCE_UNSPECIFIED",
+          "ref": "その他",
+          "detail": "sauceFamily implies a spread base but no specific sauce ingredient is evidenced; a sauce id must be chosen (product/content decision)"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "lahmacun",
+      "nameJa": "ラフマジュン",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "MECHANIC_INTERPRETATION",
+          "ref": "LATE_ADDITION,SERVE_FORM",
+          "detail": "Phase 0 flagged a mechanic identity that is supported only by repo inference or context-only text; the capability must be confirmed or rejected"
+        },
+        {
+          "type": "UNRESOLVED_INGREDIENT",
+          "ref": "ひき肉",
+          "detail": "ambiguous; related ids ['ground-beef'] -- preserved, not canonicalized"
+        },
+        {
+          "type": "UNRESOLVED_INGREDIENT",
+          "ref": "唐辛子",
+          "detail": "ambiguous; related ids ['chili-oil'] -- preserved, not canonicalized"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "porcini-pizza-pizzadb-p13",
+      "nameJa": "ポルチーニ茸のピザ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "COMPOSITION_CONFLICT_CANDIDATE",
+          "ref": "COMP:porcini-pizza-pizzadb-p13->ai-funghi-porcini",
+          "detail": "DIVERGENT"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "marinara-pizza-pizzadb-p13",
+      "nameJa": "マリナーラ",
+      "wave": "W0_CORRESPONDENCE",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "COMPOSITION_CONFLICT_SHIPPED",
+          "ref": "COMP:marinara-pizza-pizzadb-p13->marinara",
+          "detail": "PIZZADB_SUPERSET"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "meat-lovers-pizza-pizzadb-p13",
+      "nameJa": "ミートラバーズピザ",
+      "wave": "W0_CORRESPONDENCE",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "COMPOSITION_CONFLICT_SHIPPED",
+          "ref": "COMP:meat-lovers-pizza-pizzadb-p13->meat-lovers",
+          "detail": "DIVERGENT"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "moussaka-style-pizza-pizzadb-p13",
+      "nameJa": "ムサカ風ピザ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "UNRESOLVED_INGREDIENT",
+          "ref": "ホワイトソース",
+          "detail": "ambiguous; related ids ['fromage-blanc-sauce'] -- preserved, not canonicalized"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "mexican-elote-pizza-pizzadb-p13",
+      "nameJa": "メキシカンエロテピザ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "BASE_SAUCE_UNSPECIFIED",
+          "ref": "ホワイトソース",
+          "detail": "sauceFamily implies a spread base but no specific sauce ingredient is evidenced; a sauce id must be chosen (product/content decision)"
+        }
+      ],
+      "reviewItems": [
+        {
+          "type": "CANDIDATE_CAPABILITY",
+          "ref": "MULTI_SPREAD_LAYER",
+          "detail": "repo-inference / context-only mechanic evidence -- confirm or drop"
+        }
+      ]
+    },
+    {
+      "evidenceId": "rendang-pizza-pizzadb-p14",
+      "nameJa": "ルンダンピザ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "BASE_SAUCE_UNSPECIFIED",
+          "ref": "カレー",
+          "detail": "sauceFamily implies a spread base but no specific sauce ingredient is evidenced; a sauce id must be chosen (product/content decision)"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "nduja-pizza-pizzadb-p14",
+      "nameJa": "ンドゥイヤピザ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "BASE_SAUCE_UNSPECIFIED",
+          "ref": "ホットソース",
+          "detail": "sauceFamily implies a spread base but no specific sauce ingredient is evidenced; a sauce id must be chosen (product/content decision)"
+        }
+      ],
+      "reviewItems": [
+        {
+          "type": "CANDIDATE_CAPABILITY",
+          "ref": "MULTI_SPREAD_LAYER",
+          "detail": "repo-inference / context-only mechanic evidence -- confirm or drop"
+        },
+        {
+          "type": "NAME_SPECIFICITY_GAP",
+          "ref": "nduja-pizza-pizzadb-p14",
+          "detail": "Name implies nduja (spreadable salami; catalog has 'nduja' as a spread topping) but the source lists only generic ソーセージ -- kept generic."
+        }
+      ]
+    },
+    {
+      "evidenceId": "black-truffle-pizza-pizzadb-p14",
+      "nameJa": "黒トリュフピザ",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "COMPOSITION_CONFLICT_CANDIDATE",
+          "ref": "COMP:black-truffle-pizza-pizzadb-p14->al-tartufo",
+          "detail": "DIVERGENT"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "teriyaki-chicken-pizza-pizzadb-p14",
+      "nameJa": "照り焼きチキンピザ",
+      "wave": "W4",
+      "currentFlowRepresentability": "PARTIAL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "BASE_SAUCE_UNSPECIFIED",
+          "ref": "甘辛だれ",
+          "detail": "sauceFamily implies a spread base but no specific sauce ingredient is evidenced; a sauce id must be chosen (product/content decision)"
+        },
+        {
+          "type": "COMPOSITION_CONFLICT_CANDIDATE",
+          "ref": "COMP:teriyaki-chicken-pizza-pizzadb-p14->teriyaki-chicken",
+          "detail": "INDETERMINATE_UNSPECIFIED_SAUCE_BASE"
+        }
+      ],
+      "reviewItems": [
+        {
+          "type": "CANDIDATE_CAPABILITY",
+          "ref": "MULTI_SPREAD_LAYER",
+          "detail": "repo-inference / context-only mechanic evidence -- confirm or drop"
+        }
+      ]
+    },
+    {
+      "evidenceId": "south-african-boerewors-pizzadb-p14",
+      "nameJa": "南アフリカボアヴォースピザ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "BASE_SAUCE_UNSPECIFIED",
+          "ref": "甘辛だれ",
+          "detail": "sauceFamily implies a spread base but no specific sauce ingredient is evidenced; a sauce id must be chosen (product/content decision)"
+        }
+      ],
+      "reviewItems": [
+        {
+          "type": "CANDIDATE_CAPABILITY",
+          "ref": "MULTI_SPREAD_LAYER",
+          "detail": "repo-inference / context-only mechanic evidence -- confirm or drop"
+        },
+        {
+          "type": "NAME_SPECIFICITY_GAP",
+          "ref": "south-african-boerewors-pizzadb-p14",
+          "detail": "Name implies boerewors sausage but the source lists only generic ソーセージ -- kept generic."
+        }
+      ]
+    },
+    {
+      "evidenceId": "ume-shiso-pizza-pizzadb-p14",
+      "nameJa": "梅しそピザ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "BASE_SAUCE_UNSPECIFIED",
+          "ref": "その他",
+          "detail": "sauceFamily implies a spread base but no specific sauce ingredient is evidenced; a sauce id must be chosen (product/content decision)"
+        }
+      ],
+      "reviewItems": []
+    },
+    {
+      "evidenceId": "hokkaido-cheese-pizza-pizzadb-p15",
+      "nameJa": "北海道チーズピザ",
+      "wave": "W3",
+      "currentFlowRepresentability": "FULL",
+      "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+      "blockers": [
+        {
+          "type": "UNRESOLVED_INGREDIENT",
+          "ref": "チーズ",
+          "detail": "ambiguous; related ids ['mozzarella'] -- preserved, not canonicalized"
+        }
+      ],
+      "reviewItems": []
+    }
+  ],
+  "ownerDecisions": {
+    "pitzPrice": "TBD",
+    "unlockFee": "TBD",
+    "starGate": "TBD",
+    "nonStarCondition": "OWNER_DECISION_REQUIRED",
+    "completionGate": "OWNER_DECISION_REQUIRED"
+  }
+}
