@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "kind": "unresolved_evidence_ledger",
+  "auditedMainSha": "dff233c042d2df6ee1c3a92f2d2419830aa05460",
+  "sourceRefs": [
+    "Issue #182",
+    "PR #189 (MERGED)",
+    "PR #191 (MERGED)",
+    "PR #217 (OPEN)",
+    "PR #220 (OPEN)"
+  ],
+  "rows": [
+    {
+      "id": "REC-01",
+      "scope": "all recipes",
+      "status": "AUTHORING_REQUIRED",
+      "field": "description/minCount/bakeTarget",
+      "detail": "Values are original game-authoring candidates, not claims from external evidence. Human content sign-off remains required before production."
+    },
+    {
+      "id": "REC-02",
+      "scope": "all recipes",
+      "status": "AUTHORING_REQUIRED",
+      "field": "cutRequirement",
+      "detail": "All ten fit the current round-six-slice mechanic, but future production must explicitly opt each ID into the allowlist."
+    },
+    {
+      "id": "REC-03",
+      "scope": "all recipes",
+      "status": "OWNER_DECISION_REQUIRED",
+      "field": "completionGate",
+      "detail": "Record compatibility only. Do not decide whether CUT/minCount/bake thresholds gate completion before #218."
+    },
+    {
+      "id": "REC-04",
+      "scope": "all recipes",
+      "status": "OWNER_DECISION_REQUIRED",
+      "field": "progression",
+      "detail": "Pitz price, unlock fee, star gate, and non-star condition stay TBD pending Progression 2.0."
+    },
+    {
+      "id": "REC-05",
+      "scope": "cheese-family recipes",
+      "status": "EVIDENCE_READY",
+      "field": "sauce",
+      "detail": "Merged #189 matrix interprets チーズ family as no spread base; preserve that evidence-derived choice."
+    },
+    {
+      "id": "REC-06",
+      "scope": "pizza-portuguesa",
+      "status": "EVIDENCE_REQUIRED",
+      "field": "black-olive alias",
+      "detail": "Source token オリーブ is a likely alias to black-olive, not an exact lexical alias; merged canonicalization is usable but provenance must remain visible."
+    },
+    {
+      "id": "REC-07",
+      "scope": "puttanesca-pizza",
+      "status": "EVIDENCE_REQUIRED",
+      "field": "black-olive alias",
+      "detail": "Source token オリーブ is a likely alias to black-olive; do not claim a more specific variety."
+    },
+    {
+      "id": "REC-08",
+      "scope": "parmigiana-pizza,melanzane-pizza",
+      "status": "AUTHORING_REQUIRED",
+      "field": "discovery regression",
+      "detail": "Both are eggplant-family recipes. Keep exact ingredient signatures distinct and add collision regression coverage."
+    },
+    {
+      "id": "ING-01",
+      "scope": "baked-beans",
+      "status": "AUTHORING_REQUIRED",
+      "field": "visual",
+      "detail": "Confirm emoji legibility and color after bake."
+    },
+    {
+      "id": "ING-02",
+      "scope": "capers",
+      "status": "AUTHORING_REQUIRED",
+      "field": "visual",
+      "detail": "No exact emoji; approve or replace generic green-circle representation."
+    },
+    {
+      "id": "ING-03",
+      "scope": "eggplant",
+      "status": "AUTHORING_REQUIRED",
+      "field": "visual",
+      "detail": "Approve whole-eggplant glyph as the abstraction for slices."
+    },
+    {
+      "id": "ING-04",
+      "scope": "green-onion",
+      "status": "AUTHORING_REQUIRED",
+      "field": "visual",
+      "detail": "Approve sprout fallback or choose a distinct glyph."
+    },
+    {
+      "id": "ING-05",
+      "scope": "salt-cod",
+      "status": "AUTHORING_REQUIRED",
+      "field": "visual",
+      "detail": "Approve generic fish glyph; specificity is textual."
+    },
+    {
+      "id": "ING-06",
+      "scope": "sauerkraut",
+      "status": "AUTHORING_REQUIRED",
+      "field": "visual",
+      "detail": "Approve leafy-green abstraction and cheese-background contrast."
+    }
+  ]
+}

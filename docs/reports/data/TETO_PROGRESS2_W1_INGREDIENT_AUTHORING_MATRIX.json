@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "kind": "ingredient_authoring_matrix",
+  "auditedMainSha": "dff233c042d2df6ee1c3a92f2d2419830aa05460",
+  "sourceRefs": [
+    "Issue #182",
+    "PR #189 (MERGED)",
+    "PR #191 (MERGED)",
+    "PR #217 (OPEN)",
+    "PR #220 (OPEN)"
+  ],
+  "rows": [
+    {
+      "id": "baked-beans",
+      "displayName": "ベイクドビーンズ",
+      "emojiCandidate": "🫘",
+      "colorCandidate": "#a94f35",
+      "categoryCandidate": "topping",
+      "placementCandidate": "scatter",
+      "pieceRepresentation": "emoji piece; one tap places one bean-cluster token",
+      "recipesUsingItInCandidateSet": [
+        "full-english-pizza"
+      ],
+      "authoringStatus": "REVIEW",
+      "authoringUncertainty": [
+        "Emoji appearance varies by platform; verify legibility at tray and baked-piece sizes."
+      ]
+    },
+    {
+      "id": "capers",
+      "displayName": "ケッパー",
+      "emojiCandidate": "🟢",
+      "colorCandidate": "#6f7f35",
+      "categoryCandidate": "topping",
+      "placementCandidate": "scatter",
+      "pieceRepresentation": "emoji dot piece; one tap places one caper token",
+      "recipesUsingItInCandidateSet": [
+        "puttanesca-pizza"
+      ],
+      "authoringStatus": "REVIEW",
+      "authoringUncertainty": [
+        "No dedicated caper emoji; generic green-circle glyph needs visual differentiation review."
+      ]
+    },
+    {
+      "id": "eggplant",
+      "displayName": "ナス",
+      "emojiCandidate": "🍆",
+      "colorCandidate": "#62407b",
+      "categoryCandidate": "topping",
+      "placementCandidate": "scatter",
+      "pieceRepresentation": "emoji piece; one tap represents one eggplant slice",
+      "recipesUsingItInCandidateSet": [
+        "parmigiana-pizza",
+        "melanzane-pizza"
+      ],
+      "authoringStatus": "REVIEW",
+      "authoringUncertainty": [
+        "Whole-eggplant glyph represents a slice abstractly; verify visual density and tone after bake."
+      ]
+    },
+    {
+      "id": "green-onion",
+      "displayName": "青ねぎ",
+      "emojiCandidate": "🌱",
+      "colorCandidate": "#4f8a3c",
+      "categoryCandidate": "topping",
+      "placementCandidate": "scatter",
+      "pieceRepresentation": "emoji herb piece; one tap represents a small chopped-onion cluster",
+      "recipesUsingItInCandidateSet": [
+        "tsukimi-pizza"
+      ],
+      "authoringStatus": "REVIEW",
+      "authoringUncertainty": [
+        "No exact green-onion emoji; sprout glyph can be confused with basil/herbs."
+      ]
+    },
+    {
+      "id": "salt-cod",
+      "displayName": "塩だら",
+      "emojiCandidate": "🐟",
+      "colorCandidate": "#d8c9aa",
+      "categoryCandidate": "topping",
+      "placementCandidate": "scatter",
+      "pieceRepresentation": "emoji piece; one tap represents one flaked-cod portion",
+      "recipesUsingItInCandidateSet": [
+        "bacalhau"
+      ],
+      "authoringStatus": "REVIEW",
+      "authoringUncertainty": [
+        "Generic fish glyph does not encode salted cod; description/name must carry specificity."
+      ]
+    },
+    {
+      "id": "sauerkraut",
+      "displayName": "ザワークラウト",
+      "emojiCandidate": "🥬",
+      "colorCandidate": "#d8d59a",
+      "categoryCandidate": "topping",
+      "placementCandidate": "scatter",
+      "pieceRepresentation": "emoji piece; one tap represents one shredded-cabbage cluster",
+      "recipesUsingItInCandidateSet": [
+        "polish-kielbasa-pizza"
+      ],
+      "authoringStatus": "REVIEW",
+      "authoringUncertainty": [
+        "Leafy-green glyph represents shredded fermented cabbage abstractly; verify contrast on cheese."
+      ]
+    }
+  ]
+}

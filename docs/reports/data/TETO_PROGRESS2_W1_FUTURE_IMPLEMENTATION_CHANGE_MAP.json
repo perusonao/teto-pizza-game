@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "auditedMainSha": "dff233c042d2df6ee1c3a92f2d2419830aa05460",
+  "scope": "FUTURE_ONLY_NO_RUNTIME_CHANGE_IN_THIS_AUDIT",
+  "slices": [
+    {
+      "id": "A",
+      "title": "Existing-ingredient recipe data",
+      "recipes": [
+        "aussie",
+        "pizza-portuguesa",
+        "pesto-tonno"
+      ],
+      "dependsOn": [
+        "Progression 2.0 owner decisions"
+      ],
+      "likelyFiles": [
+        "src/data/recipes.ts",
+        "src/data/recipes.test.ts",
+        "src/data/recipeSauceProfiles.ts",
+        "src/data/recipeSauceProfiles.test.ts",
+        "src/data/cookingProfiles.ts",
+        "src/data/cookingProfiles.test.ts",
+        "src/logic/discovery/*"
+      ]
+    },
+    {
+      "id": "B",
+      "title": "Six new ingredient records",
+      "ingredients": [
+        "baked-beans",
+        "capers",
+        "eggplant",
+        "green-onion",
+        "salt-cod",
+        "sauerkraut"
+      ],
+      "dependsOn": [
+        "visual authoring approval",
+        "Progression 2.0 owner decisions"
+      ],
+      "likelyFiles": [
+        "src/data/ingredients.ts",
+        "src/data/ingredients.test.ts",
+        "src/components/IngredientPieceVisual.test.tsx"
+      ]
+    },
+    {
+      "id": "C",
+      "title": "Recipes using approved new ingredients",
+      "recipes": [
+        "bacalhau",
+        "parmigiana-pizza",
+        "puttanesca-pizza",
+        "full-english-pizza",
+        "polish-kielbasa-pizza",
+        "melanzane-pizza",
+        "tsukimi-pizza"
+      ],
+      "dependsOn": [
+        "slice B",
+        "Progression 2.0 owner decisions"
+      ],
+      "likelyFiles": [
+        "src/data/recipes.ts",
+        "src/data/recipes.test.ts",
+        "src/data/recipeSauceProfiles.ts",
+        "src/data/cookingProfiles.ts",
+        "src/logic/discovery/*"
+      ]
+    },
+    {
+      "id": "D",
+      "title": "Completion Gate integration",
+      "dependsOn": [
+        "#218 owner decision"
+      ],
+      "likelyFiles": [
+        "src/logic/completionGate.ts",
+        "src/state/gameReducer.completionGate.test.ts"
+      ],
+      "guard": "Do not implement or decide in this audit."
+    }
+  ]
+}
