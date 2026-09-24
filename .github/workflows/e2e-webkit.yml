@@ -38,6 +38,19 @@ name: E2E WebKit (Cooking UI 1-Screen)
 # All three events share the same classify -> webkit -> WebKit Gate jobs; only classify's
 # decision differs.
 #
+# Issue #207 Phase 2B (coverage unchanged, wall-clock + skip precision):
+#   - Balanced shards: Phase 2A's `--shard i/2` split by test COUNT, leaving ~65% of the
+#     test-seconds in shard 1/2 (it set the wall-clock). Each shard now runs whole spec files
+#     assigned by measured duration (scripts/ci/webkit-shard-plan.mjs + webkit-spec-weights.json).
+#     The shard still lists the project's FULL selection and WebKit Gate's evidence check is
+#     unchanged, so a wrong plan can only turn the gate red, never green.
+#   - Non-browser skip: besides docs, PRs/increments touching only offline tools/**/*.py scripts
+#     or src/** Vitest files skip WebKit, but only when classify-webkit.mjs's repository scan
+#     proves nothing the browser/E2E suite loads references them (else: Full, fail-safe).
+#   - Not in Phase 2B: affected-spec / single-viewport selection. With 4 parallel shards neither
+#     shortens the wall-clock enough to justify the coverage risk; see
+#     docs/reports/TETO_DEV-CI_WEBKIT-PHASE2B_Result.md.
+#
 # The original rationale above still holds for runtime changes: a shared CSS variable, App.css
 # primitive, or reducer change is NOT documentation, so it always runs WebKit. Only changes that
 # cannot reach the browser (Markdown/docs, report screenshots under docs/) skip it.
@@ -118,6 +131,7 @@ jobs:
       fail-fast: false
       # Static on purpose -- see the header. `total` must equal the number of `shard` values;
       # WebKit Gate's evidence check fails if any shard 1..total is missing or duplicated.
+      # (Since Phase 2B `shard`/`total` feed webkit-shard-plan.mjs, not Playwright's --shard.)
       matrix:
         project: [webkit-390x844, webkit-360x800]
         shard: [1, 2]
@@ -125,6 +139,7 @@ jobs:
     env:
       LIST_JSON: ${{ github.workspace }}/../webkit-list.json
       RESULTS_JSON: ${{ github.workspace }}/../webkit-results.json
+      PLAN_ARGS: ${{ github.workspace }}/../webkit-shard-args.txt
     steps:
       - uses: actions/checkout@v4
 
@@ -171,6 +186,15 @@ jobs:
           npx playwright test --list --project=${{ matrix.project }} --reporter=json > /dev/null
           npx playwright test --list --project=${{ matrix.project }} | tail -n 1
 
+      # Issue #207 Phase 2B: this shard's spec files, balanced by measured duration over the full
+      # selection just listed. Every job computes the same deterministic plan; an empty shard is
+      # an error (Playwright without a file filter would run the whole suite).
+      - name: Plan shard (${{ matrix.project }}, ${{ matrix.shard }}/${{ matrix.total }})
+        run: >-
+          node scripts/ci/webkit-shard-plan.mjs --list "$LIST_JSON" --project ${{ matrix.project }}
+          --shard ${{ matrix.shard }} --total ${{ matrix.total }}
+          --weights scripts/ci/webkit-spec-weights.json --out "$PLAN_ARGS"
+
       # One project per job, one shard of it: every spec in e2e/ is still covered by the 2 shards
       # of each of the 2 projects (playwright.config.ts webkit-390x844 / webkit-360x800, both
       # Desktop Safari = WebKit). The [webkit-...] prefix on every test line of the `list`
@@ -178,7 +202,12 @@ jobs:
       - name: Run WebKit e2e (${{ matrix.project }}, shard ${{ matrix.shard }}/${{ matrix.total }})
         env:
           PLAYWRIGHT_JSON_OUTPUT_NAME: ${{ env.RESULTS_JSON }}
-        run: npx playwright test --project=${{ matrix.project }} --shard=${{ matrix.shard }}/${{ matrix.total }} --reporter=list,html,json
+        run: |
+          mapfile -t spec_filters < "$PLAN_ARGS"
+          if [ "${#spec_filters[@]}" -eq 0 ]; then
+            echo "::error::empty shard plan -- refusing to run without a file filter"; exit 1
+          fi
+          npx playwright test --project=${{ matrix.project }} --reporter=list,html,json "${spec_filters[@]}"
 
       # always(): a failed/partial run still records what did (not) run. A missing file is
       # recorded as an error inside the evidence, which fails WebKit Gate.

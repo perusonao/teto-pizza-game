@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
-# Issue #207 Phase 2A: hermetic tests for the WebKit CI scripts (no network, no browser, no repo
-# history needed -- runs in ci.yml's shallow checkout and locally).
+# Issue #207 Phase 2A/2B: hermetic tests for the WebKit CI scripts (no network, no browser, no
+# repo history needed -- runs in ci.yml's shallow checkout, after npm ci, and locally).
 #
-#   1. classify-webkit.mjs --self-test          (path classifier, #201)
+#   1. classify-webkit.mjs --self-test          (path classifier + repository scan, #201/#207)
 #   2. webkit-shard-evidence.mjs --self-test    (shard coverage verifier, #207)
 #   3. webkit-shard-evidence.mjs collect/verify CLI round trip on Playwright-shaped JSON
 #   4. webkit-gate.sh truth table               (every classify x webkit x evidence combination)
-#   5. classify-webkit-pr.sh decisions in a throwaway git repo (docs-only, runtime, push /
-#      workflow_dispatch events, `webkit-full` label, fail-safe, no-reuse-without-evidence)
+#   5. classify-webkit-pr.sh decisions in a throwaway git repo (docs-only, tools-only, unit-test-
+#      only, guard violation, runtime, push / workflow_dispatch events, `webkit-full` label,
+#      fail-safe, no-reuse-without-evidence)
+#   6. webkit-shard-plan.mjs --self-test, plus the real `playwright test --list` of both WebKit
+#      projects split by the plan: union == full selection, no overlap (no browser needed)
 #
 # Usage: bash scripts/ci/test-webkit-ci.sh   (exit 0 = all passed)
 set -uo pipefail
@@ -128,12 +131,25 @@ echo "== 5. classify-webkit-pr.sh decisions (throwaway repo)"
 repo="$work/repo"
 git init -q "$repo"
 g() { git -C "$repo" -c user.name=t -c user.email=t@example.invalid "$@"; }
-mkdir -p "$repo/src" "$repo/docs"
+mkdir -p "$repo/src" "$repo/docs" "$repo/e2e" "$repo/tools"
 echo "x" > "$repo/src/a.ts"; echo "r" > "$repo/README.md"
+echo 'import { x } from "./a";' > "$repo/src/a.test.ts"
+echo 'import { test } from "@playwright/test";' > "$repo/e2e/a.spec.ts"
+echo '<script type="module" src="/src/a.ts"></script>' > "$repo/index.html"
+echo '{"scripts":{"test":"vitest run"}}' > "$repo/package.json"
+echo "print(1)" > "$repo/tools/t.py"
 g add -A; g commit -q -m base; base="$(g rev-parse HEAD)"
 echo "d" > "$repo/docs/x.md"; g add -A; g commit -q -m docs; docs_head="$(g rev-parse HEAD)"
 echo "y" > "$repo/src/a.ts"; g add -A; g commit -q -m src; src_head="$(g rev-parse HEAD)"
 echo "e" >> "$repo/docs/x.md"; g add -A; g commit -q -m docs2; docs_on_src="$(g rev-parse HEAD)"
+g checkout -q -b tools "$base"
+echo "print(2)" > "$repo/tools/t.py"; mkdir -p "$repo/docs"; echo "n" > "$repo/docs/t.md"; g add -A; g commit -q -m tools; tools_head="$(g rev-parse HEAD)"
+g checkout -q -b unit "$base"
+echo 'import { x } from "./a"; // more' > "$repo/src/a.test.ts"; g add -A; g commit -q -m unit; unit_head="$(g rev-parse HEAD)"
+echo 'export const y = 1;' > "$repo/src/b.ts"; g add -A; g commit -q -m unit-plus-runtime; unit_runtime_head="$(g rev-parse HEAD)"
+g checkout -q -b guard "$base"
+echo 'import "./a.test";' > "$repo/src/a.ts"; g add -A; g commit -q -m wire-test; guard_base="$(g rev-parse HEAD)"
+echo 'import { x } from "./a"; // changed' > "$repo/src/a.test.ts"; g add -A; g commit -q -m unit2; guard_head="$(g rev-parse HEAD)"
 
 classify() { # KEY=VALUE... ; prints webkit_required
   local out="$work/gh_output"
@@ -143,6 +159,21 @@ classify() { # KEY=VALUE... ; prints webkit_required
   sed -n 's/^webkit_required=//p' "$out"
 }
 check "pr: docs-only PR -> skip" false "$(classify BASE_SHA="$base" HEAD_SHA="$docs_head")"
+# classify-webkit-pr.sh scans the CHECKED-OUT tree (in CI: the merge ref), so check out each head.
+co() { g checkout -q "$1"; }
+co "$tools_head"
+check "pr: tools/**/*.py + docs PR -> skip" false "$(classify BASE_SHA="$base" HEAD_SHA="$tools_head")"
+co "$unit_head"
+check "pr: src/**/*.test.ts-only PR -> skip" false "$(classify BASE_SHA="$base" HEAD_SHA="$unit_head")"
+co "$unit_runtime_head"
+check "pr: unit test + runtime file -> run" true "$(classify BASE_SHA="$base" HEAD_SHA="$unit_runtime_head")"
+co "$guard_head"
+check "pr: test-only change, but runtime imports a test module -> run" true \
+  "$(classify BASE_SHA="$guard_base" HEAD_SHA="$guard_head")"
+co "$src_head"
+check "pr: unit-test-only increment on a runtime PR without gate evidence -> run" true \
+  "$(classify BASE_SHA="$base" HEAD_SHA="$docs_on_src" BEFORE_SHA="$src_head")"
+co "$docs_on_src"
 check "pr: runtime PR -> run" true "$(classify BASE_SHA="$base" HEAD_SHA="$src_head")"
 check "pr: explicit pull_request event, docs-only -> skip" false "$(classify EVENT_NAME=pull_request BASE_SHA="$base" HEAD_SHA="$docs_head")"
 check "push to main -> Full" true "$(classify EVENT_NAME=push)"
@@ -158,6 +189,32 @@ out="$work/gh_output"; : > "$out"
 (cd "$repo" && env -u GH_TOKEN GITHUB_OUTPUT="$out" EVENT_NAME=push bash "$here/classify-webkit-pr.sh" > /dev/null 2>&1)
 grep -q '^reason=event .push. always runs Full WebKit' "$out"
 check "push reason is explicit (not a fail-safe message)" 0 $?
+
+echo "== 6. shard plan (balanced Full shards)"
+node "$here/webkit-shard-plan.mjs" --self-test > "$work/plan.txt" 2>&1
+check "webkit-shard-plan.mjs --self-test" 0 $?
+root="$(cd "$here/../.." && pwd)"
+if [ -x "$root/node_modules/.bin/playwright" ]; then
+  for p in webkit-390x844 webkit-360x800; do
+    (cd "$root" && PLAYWRIGHT_JSON_OUTPUT_NAME="$work/list-$p.json" npx playwright test --list --project="$p" --reporter=json > /dev/null 2>&1)
+    (cd "$root" && npx playwright test --list --project="$p") | grep ' › ' | sed 's/^ *//' | sort > "$work/full-$p.txt"
+    : > "$work/union-$p.txt"
+    for s in 1 2; do
+      node "$here/webkit-shard-plan.mjs" --list "$work/list-$p.json" --project "$p" --shard "$s" --total 2 \
+        --weights "$here/webkit-spec-weights.json" --out "$work/args-$p-$s.txt" > /dev/null
+      mapfile -t filters < "$work/args-$p-$s.txt"
+      (cd "$root" && npx playwright test --list --project="$p" "${filters[@]}") | grep ' › ' | sed 's/^ *//' | sort > "$work/sel-$p-$s.txt"
+      cat "$work/sel-$p-$s.txt" >> "$work/union-$p.txt"
+    done
+    sort "$work/union-$p.txt" -o "$work/union-$p.txt"
+    check "plan $p: 2 shards list exactly the full selection ($(wc -l < "$work/full-$p.txt") tests)" 0 \
+      "$([ -s "$work/full-$p.txt" ] && cmp -s "$work/union-$p.txt" "$work/full-$p.txt"; echo $?)"
+    check "plan $p: no test in both shards" 0 "$(comm -12 "$work/sel-$p-1.txt" "$work/sel-$p-2.txt" | wc -l | tr -d ' ')"
+  done
+else
+  echo "FAIL node_modules/.bin/playwright missing -- run npm ci first"
+  cases=$((cases + 1)); failures=$((failures + 1))
+fi
 
 echo ""
 echo "$((cases - failures))/$cases WebKit CI script cases passed"
