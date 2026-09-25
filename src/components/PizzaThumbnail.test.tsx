@@ -65,4 +65,23 @@ describe("PizzaThumbnail", () => {
     const { container } = render(<PizzaThumbnail recipe={funghi} />);
     expect(container.querySelector(".pizza-thumbnail")).toHaveAttribute("aria-hidden", "true");
   });
+
+  it("RT-01b: a recipe with 9 non-sauce ingredient types gives every type its own position", () => {
+    const margherita = getRecipe("margherita");
+    if (!margherita) throw new Error("Missing margherita fixture");
+    const types = ["mozzarella", "basil", "garlic", "oregano", "mushroom", "onion", "ham", "bacon", "black-olive"];
+    const synthetic = {
+      ...margherita,
+      requiredIngredients: [
+        { ingredientId: "tomato-sauce", minCount: 1 },
+        ...types.map((ingredientId) => ({ ingredientId, minCount: 1 })),
+      ],
+    };
+    const { container } = render(<PizzaThumbnail recipe={synthetic} />);
+    const pieces = Array.from(container.querySelectorAll<HTMLElement>(".pizza-thumbnail__piece"));
+    expect(pieces).toHaveLength(9);
+    const keys = pieces.map((p) => `${p.style.left},${p.style.top}`);
+    expect(new Set(keys).size).toBe(9);
+  });
 });
+

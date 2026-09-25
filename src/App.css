@@ -585,6 +585,26 @@
   transition: filter 0.3s ease;
 }
 
+/* Production Visual P1: a dedicated (non-emoji) ingredient glyph from IngredientGlyph.tsx. It sits
+   exactly where the emoji text did, sized 1em so each context's own font-size and the piece's bake
+   `filter` apply unchanged. No current ingredient uses it (every one still renders its emoji), so
+   these rules match nothing until a dedicated visual is registered. */
+.ingredient-glyph {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.125em;
+  overflow: visible;
+}
+
+/* The Human-approved fresh-tomato slice matches the visual size of neighbouring emoji (which
+   overfill their 1em box); negative margins keep its layout box at 1em. */
+.ingredient-glyph--tomato-slice {
+  width: 1.15em;
+  height: 1.15em;
+  margin: -0.075em;
+}
+
 /* ---------- Cheese identity (shape + size + texture differ per cheese) ---------- */
 /* Generic fallback so a new cheese ingredient is still visible before it gets a
    dedicated .pizza-cheese--<id> rule below. Each dedicated rule sets its own

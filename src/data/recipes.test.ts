@@ -191,7 +191,7 @@ describe("RECIPES (Phase 3C-6: fugazza is Recipe #7; Batch 1A adds #8-#11; Batch
       );
     });
 
-    it("has exactly 8 total non-sauce pieces (fits the player-reference ring's 8-slot ceiling)", () => {
+    it("has exactly 8 total non-sauce pieces (shipped composition; RT-01 removed the 8-slot ceiling but not this content)", () => {
       const nonSauceCount = recipe!.requiredIngredients
         .filter((r) => r.ingredientId !== "tomato-sauce")
         .reduce((sum, r) => sum + r.minCount, 0);
@@ -231,7 +231,7 @@ describe("RECIPES (Phase 3C-6: fugazza is Recipe #7; Batch 1A adds #8-#11; Batch
       );
     });
 
-    it("has exactly 8 total non-sauce pieces (fits the player-reference ring's 8-slot ceiling)", () => {
+    it("has exactly 8 total non-sauce pieces (shipped composition; RT-01 removed the 8-slot ceiling but not this content)", () => {
       const nonSauceCount = recipe!.requiredIngredients
         .filter((r) => r.ingredientId !== "tomato-sauce")
         .reduce((sum, r) => sum + r.minCount, 0);
