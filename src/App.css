@@ -1737,31 +1737,35 @@
   background: #fff3c9;
   border: 2px solid #f2b705;
   border-radius: 14px;
-  padding: 10px 14px;
+  padding: 6px 10px;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 6px;
-  text-align: center;
+  justify-content: space-between;
+  gap: 8px;
+  text-align: left;
 }
 
 .material-unlock-notice__message {
   margin: 0;
-  font-size: 13px;
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 12px;
   font-weight: 700;
-  line-height: 1.5;
+  line-height: 1.4;
   color: #6b4226;
 }
 
 .material-unlock-notice__cta {
+  flex: 0 0 auto;
   border: none;
   background: #f2b705;
   color: #4a2e0a;
   font-weight: 800;
-  font-size: 13px;
+  font-size: 12px;
   border-radius: 999px;
-  padding: 8px 18px;
-  min-height: 40px;
+  padding: 6px 12px;
+  min-height: 36px;
+  white-space: nowrap;
 }
 
 /* ---------- Pitz credit summary (Issue #38 E-P1/E-P2, DISCOVERED only) ---------- */

@@ -58,7 +58,9 @@ export function resolveShopEntitlement(
 export interface MaterialUnlockNotice {
   /** Newly unlocked material ids, in ladder order -- never empty. */
   ingredientIds: readonly string[];
-  /** Ready-to-render copy, e.g. `🆕 新しい材料「たまご」が入荷！ショップで仕入れよう`. */
+  /** Ready-to-render copy, e.g. `🆕 新しい材料「たまご」が入荷！` -- the "where to buy it" half is
+   *  the notice's own Shop CTA (ResultPanel), kept out of the text so the notice stays one line on
+   *  RESULT 1-Screen 2.0's height budget. */
   messageJa: string;
 }
 
@@ -69,6 +71,6 @@ export function buildMaterialUnlockNotice(
   const namesJa = newlyUnlockedMaterialIds.map((id) => getIngredient(id)?.nameJa ?? id).join("・");
   return {
     ingredientIds: newlyUnlockedMaterialIds,
-    messageJa: `\u{1F195} 新しい材料「${namesJa}」が入荷！ショップで仕入れよう`,
+    messageJa: `\u{1F195} 新しい材料「${namesJa}」が入荷！`,
   };
 }

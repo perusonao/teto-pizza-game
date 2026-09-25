@@ -314,7 +314,7 @@ export function ResultPanel({
           <p className="material-unlock-notice__message">{materialUnlockNotice.messageJa}</p>
           {onOpenShop && (
             <button type="button" className="material-unlock-notice__cta" onClick={onOpenShop}>
-              {"\u{1F6D2}"} ショップへ
+              {"\u{1F6D2}"} ショップで仕入れる
             </button>
           )}
         </div>
