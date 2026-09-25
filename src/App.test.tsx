@@ -5,6 +5,7 @@ import App from "./App";
 import { SAVE_STORAGE_KEY, type PersistentSaveV1 } from "./state/persistence";
 import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "./data/ingredients";
 import { RECIPES, type RecipeId } from "./data/recipes";
+import { materialOffer } from "./logic/materialShop";
 
 /** Recipe Select 2.0A: Pizza Select is a sectioned browse grid, not a single-recipe pager --
  *  reaching a given recipe means tapping its own grid card (opens the focused detail/confirm
@@ -1041,8 +1042,10 @@ describe("Shop 2.0 restock (Economy & Progression 1.0 EP3)", () => {
  */
 describe("Shop Visual Polish 1C: empty state + scalability", () => {
   const FEW = ["mushroom"]; // funghi's own grant -- 1 shop product, topping category
-  // Every shop-eligible (finite) ingredient id, in catalog order.
-  const MANY = INGREDIENTS.filter((i) => i.unlockCondition).map((i) => i.id);
+  // Every shop-eligible ingredient id (finite with a material offer), in catalog order.
+  const MANY = INGREDIENTS.filter((i) => materialOffer(i) !== null).map((i) => i.id);
+  // Progression 2.0 I5a: finite catalog materials with no offer yet (the W1 materials).
+  const UNOFFERED = INGREDIENTS.filter((i) => i.unlockCondition && materialOffer(i) === null).map((i) => i.id);
 
   it("A/B. fresh game (0 products) shows only the big empty-shop message, no hint/filter/list", async () => {
     const user = userEvent.setup();
@@ -1076,14 +1079,17 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
     seedSaveV2({
       dex: RECIPES.map((r) => ({ recipeId: r.id, discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 })),
       pitzBalance: 500,
-      ownedIngredientIds: [...STARTER_INGREDIENT_IDS, ...MANY],
-      inventory: Object.fromEntries(MANY.map((id) => [id, 5])),
+      ownedIngredientIds: [...STARTER_INGREDIENT_IDS, ...MANY, ...UNOFFERED],
+      inventory: Object.fromEntries([...MANY, ...UNOFFERED].map((id) => [id, 5])),
     });
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ショップ/ }));
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
     expect(within(shop).queryByText(/発見で新しい材料が入荷/)).not.toBeInTheDocument();
     expect(within(shop).getAllByRole("button", { name: "補充する" }).length).toBe(MANY.length);
+    // Owned W1 materials have no offer yet, so they are never Shop rows.
+    expect(UNOFFERED).toHaveLength(7);
+    for (const id of UNOFFERED) expect(shop.querySelector(`.shop-item[data-ingredient-id="${id}"]`)).toBeNull();
   });
 
   it("E. category filtering narrows the visible list to that category only", async () => {

@@ -196,7 +196,7 @@ describe("InventoryOverlay (read-only stock view)", () => {
         onClose={() => {}}
       />,
     );
-    expect(screen.getByText(/所持 3\/22種/)).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(`所持 3/${INGREDIENTS.length}種`))).toBeInTheDocument();
   });
 
   it("test 14: reflects a Starter Grant landing (e.g. onion +40) exactly like remainingStock would", () => {
@@ -229,13 +229,13 @@ describe("InventoryOverlay (read-only stock view)", () => {
     expect(within(card).getByText("×8")).toBeInTheDocument();
   });
 
-  it("test 16 (current ~22 ingredients): renders every real, owned ingredient across every category without crashing", () => {
+  it("test 16 (current 29 ingredients): renders every real, owned ingredient across every category without crashing", () => {
     const allOwned = INGREDIENTS.map((i) => i.id);
     render(
       <InventoryOverlay ownedIngredientIds={allOwned} inventory={EMPTY_INVENTORY} onClose={() => {}} />,
     );
-    expect(INGREDIENTS.length).toBe(22);
-    expect(screen.getByText(/所持 22\/22種/)).toBeInTheDocument();
+    expect(INGREDIENTS.length).toBe(29);
+    expect(screen.getByText(/所持 29\/29種/)).toBeInTheDocument();
     for (const ingredient of INGREDIENTS) {
       expect(screen.getByText(ingredient.nameJa)).toBeInTheDocument();
     }

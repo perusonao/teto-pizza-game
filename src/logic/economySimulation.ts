@@ -427,9 +427,10 @@ export function simulateProgression(profile: PlayerProfile): SimulationResult {
   };
 }
 
-/** All ingredients with a Shop price/restock batch, for the Economy Table report (§2). */
+/** All ingredients with a Shop price/restock batch, for the Economy Table report (§2). The W1
+ *  materials (Progression 2.0 I5a) carry no legacy price fields and are not part of this table. */
 export function financeIngredientTable() {
-  return INGREDIENTS.filter((i) => i.unlockCondition).map((i) => ({
+  return INGREDIENTS.filter((i) => i.unlockCondition && i.pricePitz !== undefined).map((i) => ({
     id: i.id,
     pricePitz: i.pricePitz,
     restockQuantity: i.restockQuantity,

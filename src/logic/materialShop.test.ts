@@ -133,12 +133,12 @@ describe("materialOffer: every shipped material (exhaustive)", () => {
     expect(materialLadderStep(id)).toBe(step);
   });
 
-  it("covers exactly the ladder materials, and every finite ingredient is for sale", () => {
+  it("covers exactly the ladder materials, and every finite ingredient a shipped recipe uses is for sale", () => {
     expect(EXPECTED_OFFERS.map(([id]) => id).sort()).toEqual(
       [...materialIdsOfSteps(DISCOVERY_LADDER.steps)].sort(),
     );
-    const finite = INGREDIENTS.filter((i) => i.unlockCondition).map((i) => i.id).sort();
-    expect(EXPECTED_OFFERS.map(([id]) => id).sort()).toEqual(finite);
+    const finiteUsed = INGREDIENTS.filter((i) => i.unlockCondition && materialK(i.id) > 0).map((i) => i.id).sort();
+    expect(EXPECTED_OFFERS.map(([id]) => id).sort()).toEqual(finiteUsed);
   });
 
   it("starters are never for sale", () => {
