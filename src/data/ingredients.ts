@@ -13,6 +13,14 @@ export interface IngredientUnlockCondition {
   minTotalStars: number;
 }
 
+/**
+ * Production Visual P1 (docs/reports/TETO_PROGRESS2_W1_VISUAL_PRODUCTION_PLAN.md): the only
+ * dedicated (non-emoji) piece drawings the game knows, each one Human-approved by the W1
+ * Ingredient Visual Gate (docs/reports/data/TETO_PROGRESS2_W1_HUMAN_VISUAL_VERIFICATION.json:
+ * fresh-tomato B / capers / clam B). Drawn by ../components/IngredientGlyph.tsx.
+ */
+export type DedicatedIngredientVisual = "tomato-slice" | "caper-cluster" | "clam-valve";
+
 export interface Ingredient {
   id: string;
   category: IngredientCategory;
@@ -68,6 +76,12 @@ export interface Ingredient {
    *  else) and not a recipe-ID branch -- absent/false on every ingredient whose own color isn't
    *  green. */
   bakeRoastResistant?: boolean;
+  /** Production Visual P1: draw this ingredient's non-cheese piece with a dedicated inline
+   *  visual instead of `emoji` (../components/IngredientGlyph.tsx). Absent = the emoji, exactly as
+   *  before -- every current ingredient leaves it unset. Presentation only: never part of identity
+   *  (discovery matches ids), never serialized into the save (persistence stores ids and stock),
+   *  and `emoji` stays required as the text fallback. */
+  pieceVisual?: DedicatedIngredientVisual;
 }
 
 export const INGREDIENTS: Ingredient[] = [

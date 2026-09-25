@@ -4,6 +4,7 @@ import { getIngredient } from "../data/ingredients";
 import { IngredientPieceVisual } from "./IngredientPieceVisual";
 import { stablePieceRotation } from "../logic/pieceDrag";
 import { getReferenceSlots } from "../logic/pizzaReferenceLayout";
+import { IngredientGlyph } from "./IngredientGlyph";
 
 interface PizzaThumbnailProps {
   recipe: Recipe;
@@ -64,7 +65,9 @@ export function PizzaThumbnail({ recipe }: PizzaThumbnailProps) {
             {ingredient.category === "cheese" ? (
               <IngredientPieceVisual ingredient={ingredient} />
             ) : (
-              <span className="pizza-thumbnail__piece-emoji">{ingredient.emoji}</span>
+              <span className="pizza-thumbnail__piece-emoji">
+                <IngredientGlyph ingredient={ingredient} />
+              </span>
             )}
           </span>
         );

@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import type { Ingredient } from "../data/ingredients";
+import { IngredientGlyph } from "./IngredientGlyph";
 
 interface IngredientPieceVisualProps {
   ingredient: Ingredient;
@@ -38,7 +39,7 @@ export function IngredientPieceVisual({ ingredient, className, style }: Ingredie
       className={["ingredient-piece-visual__emoji", className].filter(Boolean).join(" ")}
       style={style}
     >
-      {ingredient.emoji}
+      <IngredientGlyph ingredient={ingredient} />
     </span>
   );
 }

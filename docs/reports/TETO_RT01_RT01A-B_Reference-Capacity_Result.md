@@ -230,7 +230,7 @@ Final state:
 
 ## W1 Integration I2: Final Merge Gate (2026-09-25)
 
-Audited main `46513b1` (PR #206 / I0 merged). The integration branch is
+Audited main `46513b1` (PR #206 / I0 merged), then `e6bece1` (I3 merged, see below). The integration branch is
 `claude/teto-pizza-w1-integration-i2-69mp0s` (PR #226).
 
 **Method.** The RT-01 branch head `63d3acf` is merged as-is with merge commit `1aeea03`
