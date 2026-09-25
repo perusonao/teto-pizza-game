@@ -34,6 +34,14 @@ afterEach(() => cleanup());
 
 const DEDICATED: readonly DedicatedIngredientVisual[] = ["tomato-slice", "caper-cluster", "clam-valve"];
 const W1_NEW_IDS = ["capers", "clam", "corn", "eggplant", "fresh-tomato", "pineapple", "potato"];
+/** Progression 2.0 I5a: the W1 Human Visual Gate authority for the 3 dedicated-visual materials. */
+const W1_DEDICATED: Record<string, DedicatedIngredientVisual> = {
+  capers: "caper-cluster",
+  clam: "clam-valve",
+  "fresh-tomato": "tomato-slice",
+};
+/** Every production row that draws its emoji (no dedicated visual). */
+const EMOJI_ROWS = INGREDIENTS.filter((i) => i.pieceVisual === undefined);
 
 /** The pre-P1 rendering of a glyph: the emoji as a bare text node. */
 const oldMarkup = (ingredient: Ingredient) => renderToStaticMarkup(<span>{ingredient.emoji}</span>);
@@ -56,13 +64,16 @@ function fixture(overrides: Partial<Ingredient>): Ingredient {
   };
 }
 
-describe("IngredientGlyph: default emoji path (every current production ingredient)", () => {
-  it("production still has exactly the 22 pre-P1 ingredients and none declares a dedicated visual", () => {
-    expect(INGREDIENTS).toHaveLength(22);
-    expect(INGREDIENTS.filter((i) => i.pieceVisual !== undefined).map((i) => i.id)).toEqual([]);
+describe("IngredientGlyph: default emoji path (every production ingredient without a dedicated visual)", () => {
+  it("production has 29 ingredients and only capers / clam / fresh-tomato declare a dedicated visual (I5a)", () => {
+    expect(INGREDIENTS).toHaveLength(29);
+    expect(
+      Object.fromEntries(INGREDIENTS.filter((i) => i.pieceVisual !== undefined).map((i) => [i.id, i.pieceVisual])),
+    ).toEqual(W1_DEDICATED);
+    expect(EMOJI_ROWS).toHaveLength(26);
   });
 
-  it.each(INGREDIENTS.map((i) => [i.id, i] as const))("%s renders the identical emoji DOM", (_id, ingredient) => {
+  it.each(EMOJI_ROWS.map((i) => [i.id, i] as const))("%s renders the identical emoji DOM", (_id, ingredient) => {
     expect(newMarkup(ingredient)).toBe(oldMarkup(ingredient));
   });
 
@@ -118,9 +129,78 @@ describe("IngredientGlyph: dedicated visual path (fixtures only -- no production
   });
 });
 
-describe("P1 scope guard: identity / catalog / save untouched", () => {
-  it("does not register any of the 7 W1 ingredients", () => {
-    for (const id of W1_NEW_IDS) expect(getIngredient(id)).toBeUndefined();
+/**
+ * Progression 2.0 I5a: the 3 W1 materials with a Human-approved dedicated visual draw that SVG
+ * everywhere, and their required `emoji` text fallback is never drawn.
+ */
+describe("I5a: W1 dedicated-visual materials never draw their emoji fallback", () => {
+  it.each(Object.entries(W1_DEDICATED))("%s -> %s", (id, visual) => {
+    const ingredient = getIngredient(id)!;
+    expect(ingredient.emoji.length).toBeGreaterThan(0); // the fallback still exists as data
+
+    const glyph = render(<IngredientGlyph ingredient={ingredient} />);
+    expect(glyph.container.querySelector(`svg[data-ingredient-visual="${visual}"]`)).not.toBeNull();
+    expect(glyph.container.textContent).toBe("");
+    expect(glyph.container.innerHTML).not.toContain(ingredient.emoji);
+    glyph.unmount();
+
+    const piece = render(<IngredientPieceVisual ingredient={ingredient} />);
+    const pieceSpan = piece.container.querySelector(".ingredient-piece-visual__emoji")!;
+    expect(pieceSpan.querySelector(`svg[data-ingredient-visual="${visual}"]`)).not.toBeNull();
+    expect(pieceSpan.textContent).toBe("");
+    piece.unmount();
+
+    const tray = render(
+      <IngredientTray
+        activeCategory="topping"
+        selectedIngredientId={null}
+        onSelectIngredient={() => {}}
+        ownedIngredientIds={[id]}
+        recipe={FREE_COOK_RECIPE}
+        freeCook
+        inventory={{ [id]: 3 }}
+        pizza={createEmptyPizza()}
+      />,
+    );
+    const chip = tray.container.querySelector(".ingredient-chip__emoji")!;
+    expect(chip.querySelector(`svg[data-ingredient-visual="${visual}"]`)).not.toBeNull();
+    expect(chip.textContent).toBe("");
+    expect(tray.getByRole("button", { name: new RegExp(ingredient.nameJa) })).toBeInTheDocument();
+    tray.unmount();
+
+    const inventory = render(<InventoryOverlay ownedIngredientIds={[id]} inventory={{ [id]: 1 }} onClose={() => {}} />);
+    const card = inventory.container.querySelector(".inventory-card__emoji")!;
+    expect(card.querySelector(`svg[data-ingredient-visual="${visual}"]`)).not.toBeNull();
+    expect(card.textContent).toBe("");
+    inventory.unmount();
+  });
+
+  it("corn / eggplant / pineapple / potato draw their approved emoji", () => {
+    const expected: Record<string, string> = {
+      corn: "\u{1F33D}",
+      eggplant: "\u{1F346}",
+      pineapple: "\u{1F34D}",
+      potato: "\u{1F954}",
+    };
+    for (const [id, emoji] of Object.entries(expected)) {
+      const ingredient = getIngredient(id)!;
+      expect(ingredient.emoji).toBe(emoji);
+      expect(ingredient.pieceVisual).toBeUndefined();
+      expect(renderToStaticMarkup(<IngredientGlyph ingredient={ingredient} />)).toBe(emoji);
+    }
+  });
+});
+
+describe("P1 / I5a scope guard: identity / save untouched", () => {
+  it("registers all 7 W1 ingredients (I5a)", () => {
+    for (const id of W1_NEW_IDS) expect(getIngredient(id)).toBeDefined();
+  });
+
+  it("fresh-tomato is its own id, not an alias of cherry-tomato or tomato-sauce", () => {
+    const fresh = getIngredient("fresh-tomato")!;
+    expect(fresh.id).toBe("fresh-tomato");
+    expect(fresh.nameJa).not.toBe(getIngredient("cherry-tomato")!.nameJa);
+    expect(fresh.nameJa).not.toBe(getIngredient("tomato-sauce")!.nameJa);
   });
 
   it("cherry-tomato keeps its own id and its 🍅 emoji path", () => {
@@ -185,17 +265,18 @@ describe("render-site checker", () => {
 });
 
 /**
- * Site-level: every audited context shows exactly the old glyph text for all 22 ingredients, and
+ * Site-level: every audited context shows exactly the old glyph text for every emoji-path ingredient, and
  * the dedicated SVG when an ingredient declares one (a fixture row is appended to INGREDIENTS for
  * this block only, then removed).
  */
 describe("render sites with every current ingredient (emoji path)", () => {
-  const nonCheese = INGREDIENTS.filter((i) => i.category !== "cheese");
+  const nonCheese = EMOJI_ROWS.filter((i) => i.category !== "cheese");
   const allIds = INGREDIENTS.map((i) => i.id);
+  const emojiIds = EMOJI_ROWS.map((i) => i.id);
 
   it("tray chips show each ingredient's emoji text", () => {
     for (const category of ["sauce", "topping"] as IngredientCategory[]) {
-      const ids = INGREDIENTS.filter((i) => i.category === category).map((i) => i.id);
+      const ids = EMOJI_ROWS.filter((i) => i.category === category).map((i) => i.id);
       for (let page = 0; page * 6 < ids.length; page += 1) {
         const owned = ids.slice(page * 6, page * 6 + 6);
         const { container, unmount } = render(
@@ -225,7 +306,7 @@ describe("render sites with every current ingredient (emoji path)", () => {
     }
   });
 
-  it("RESULT ingredient list keeps the exact `${emoji} ${nameJa}` text for all 22", () => {
+  it("RESULT ingredient list keeps the exact `${emoji} ${nameJa}` text (dedicated rows: SVG + name)", () => {
     const { getByRole } = render(
       <ResultPanel
         completion={{ status: "PASS" }}
@@ -245,13 +326,17 @@ describe("render sites with every current ingredient (emoji path)", () => {
       />,
     );
     const items = within(getByRole("list", { name: "使った材料" })).getAllByRole("listitem");
-    expect(items.map((li) => li.textContent)).toEqual(INGREDIENTS.map((i) => `${i.emoji} ${i.nameJa}`));
-    expect(getByRole("list", { name: "使った材料" }).querySelector("svg")).toBeNull();
+    expect(items.map((li) => li.textContent)).toEqual(
+      INGREDIENTS.map((i) => (i.pieceVisual ? ` ${i.nameJa}` : `${i.emoji} ${i.nameJa}`)),
+    );
+    expect(getByRole("list", { name: "使った材料" }).querySelectorAll("svg")).toHaveLength(
+      Object.keys(W1_DEDICATED).length,
+    );
   });
 
   it("Inventory shows each owned non-cheese emoji text", () => {
     const { container } = render(
-      <InventoryOverlay ownedIngredientIds={allIds} inventory={Object.fromEntries(allIds.map((id) => [id, 5]))} onClose={() => {}} />,
+      <InventoryOverlay ownedIngredientIds={emojiIds} inventory={Object.fromEntries(emojiIds.map((id) => [id, 5]))} onClose={() => {}} />,
     );
     const texts = Array.from(container.querySelectorAll(".inventory-card__emoji")).map((e) => e.innerHTML);
     expect(texts.sort()).toEqual(nonCheese.map((i) => i.emoji).sort());

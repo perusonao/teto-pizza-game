@@ -2,6 +2,7 @@ import { useState } from "react";
 import { CATEGORY_LABEL, CATEGORY_ORDER, INGREDIENTS, type IngredientCategory } from "../data/ingredients";
 import { IngredientPieceVisual } from "./IngredientPieceVisual";
 import { remainingStock, type InventoryState } from "../state/inventory";
+import { ingredientCollectionCount } from "../state/materialEntitlement";
 import { IngredientGlyph } from "./IngredientGlyph";
 
 /**
@@ -40,6 +41,7 @@ export function InventoryOverlay({ ownedIngredientIds, inventory, onClose }: Inv
   const [activeTab, setActiveTab] = useState<CategoryTab>("ALL");
 
   const owned = INGREDIENTS.filter((ingredient) => ownedIngredientIds.includes(ingredient.id));
+  const collection = ingredientCollectionCount(ownedIngredientIds);
   const visible =
     activeTab === "ALL" ? owned : owned.filter((ingredient) => ingredient.category === activeTab);
 
@@ -55,7 +57,7 @@ export function InventoryOverlay({ ownedIngredientIds, inventory, onClose }: Inv
 
         <div className="dex-overlay__body">
           <p className="inventory-overlay__summary">
-            所持 {owned.length}/{INGREDIENTS.length}種
+            所持 {collection.owned}/{collection.total}種
           </p>
 
           <div className="inventory-tabs" role="tablist" aria-label="材料カテゴリ">

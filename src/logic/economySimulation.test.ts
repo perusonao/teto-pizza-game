@@ -23,14 +23,24 @@ import {
  * ceiling stress case" below for the before/after gate table and the fixed hard-cap plateau).
  */
 
+/** Progression 2.0 I5a: catalog-only W1 materials, priced by the REC-04 material Shop instead. */
+const W1_MATERIAL_IDS = ["capers", "clam", "corn", "eggplant", "fresh-tomato", "pineapple", "potato"];
+
 // A. current economy table consistency ---------------------------------------------------
 
 describe("economy table consistency (A)", () => {
   const table = financeIngredientTable();
 
-  it("has exactly 22 ingredients, 19 of them finite/Shop-priced", () => {
-    expect(INGREDIENTS.length).toBe(22);
+  it("has exactly 29 ingredients, 19 of them legacy-priced (the 7 W1 materials carry no legacy price)", () => {
+    expect(INGREDIENTS.length).toBe(29);
     expect(table.length).toBe(19);
+    const finiteUnpriced = INGREDIENTS.filter((i) => i.unlockCondition && !i.starterGrantOnly).map((i) => i.id);
+    expect(finiteUnpriced.sort()).toEqual(W1_MATERIAL_IDS);
+    for (const id of W1_MATERIAL_IDS) {
+      const ingredient = INGREDIENTS.find((i) => i.id === id)!;
+      expect(ingredient.pricePitz).toBeUndefined();
+      expect(ingredient.restockQuantity).toBeUndefined();
+    }
   });
 
   it("has exactly 15 recipes", () => {
@@ -47,9 +57,9 @@ describe("economy table consistency (A)", () => {
 // B. all finite ingredient prices > 0 -----------------------------------------------------
 
 describe("finite ingredient prices (B)", () => {
-  it("every finite ingredient has a positive integer pricePitz", () => {
+  it("every legacy-priced finite ingredient has a positive integer pricePitz", () => {
     for (const ingredient of INGREDIENTS) {
-      if (!ingredient.unlockCondition) continue;
+      if (!ingredient.unlockCondition || W1_MATERIAL_IDS.includes(ingredient.id)) continue;
       expect(ingredient.pricePitz).toBeGreaterThan(0);
       expect(Number.isInteger(ingredient.pricePitz)).toBe(true);
     }
@@ -59,9 +69,9 @@ describe("finite ingredient prices (B)", () => {
 // C. all restock quantities > 0 -----------------------------------------------------------
 
 describe("restock quantities (C)", () => {
-  it("every finite ingredient has a positive integer restockQuantity", () => {
+  it("every legacy-priced finite ingredient has a positive integer restockQuantity", () => {
     for (const ingredient of INGREDIENTS) {
-      if (!ingredient.unlockCondition) continue;
+      if (!ingredient.unlockCondition || W1_MATERIAL_IDS.includes(ingredient.id)) continue;
       expect(ingredient.restockQuantity).toBeGreaterThan(0);
       expect(Number.isInteger(ingredient.restockQuantity)).toBe(true);
     }

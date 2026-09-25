@@ -149,7 +149,56 @@ describe("Starter Set (EP4: shrunk to Margherita's own 3 permanently-unlimited i
     );
   });
 
-  it("total production ingredient count is now 22 (3 Starter + 10 EP4 Starter-Grant + onion + Batch 1A's 4 + Batch 1B-A's 2 + Batch 1B-B's 2)", () => {
-    expect(INGREDIENTS).toHaveLength(22);
+  it("total production ingredient count is now 29 (3 Starter + 10 EP4 Starter-Grant + onion + Batch 1A's 4 + Batch 1B-A's 2 + Batch 1B-B's 2 + W1's 7)", () => {
+    expect(INGREDIENTS).toHaveLength(29);
+  });
+});
+
+/**
+ * Progression 2.0 W1 Integration I5a: the 7 W1 materials, registered in the catalog only (no
+ * recipe, no Discovery Ladder step yet). Visuals are the W1 Human Visual Gate authority.
+ */
+const W1_MATERIALS: readonly {
+  id: string;
+  nameJa: string;
+  emoji: string;
+  pieceVisual?: string;
+}[] = [
+  { id: "capers", nameJa: "ケッパー", emoji: "\u{1F7E2}", pieceVisual: "caper-cluster" },
+  { id: "clam", nameJa: "あさり", emoji: "\u{1F9AA}", pieceVisual: "clam-valve" },
+  { id: "corn", nameJa: "コーン", emoji: "\u{1F33D}" },
+  { id: "eggplant", nameJa: "ナス", emoji: "\u{1F346}" },
+  { id: "fresh-tomato", nameJa: "トマト", emoji: "\u{1F345}", pieceVisual: "tomato-slice" },
+  { id: "pineapple", nameJa: "パイナップル", emoji: "\u{1F34D}" },
+  { id: "potato", nameJa: "じゃがいも", emoji: "\u{1F954}" },
+];
+
+describe("W1 materials (Progression 2.0 I5a)", () => {
+  it("are the last 7 catalog rows, in this order (existing tray order untouched)", () => {
+    expect(INGREDIENTS.slice(-7).map((i) => i.id)).toEqual(W1_MATERIALS.map((m) => m.id));
+  });
+
+  it.each(W1_MATERIALS)("$id: $nameJa, finite scatter topping with the approved visual", (m) => {
+    const ingredient = getIngredient(m.id)!;
+    expect(ingredient).toBeDefined();
+    expect(ingredient.nameJa).toBe(m.nameJa);
+    expect(ingredient.category).toBe("topping");
+    expect(ingredient.placement).toBe("scatter");
+    expect(ingredient.unlockCondition).toEqual({ minTotalStars: 0 });
+    expect(ingredient.emoji).toBe(m.emoji);
+    expect(ingredient.pieceVisual).toBe(m.pieceVisual);
+    expect(STARTER_INGREDIENT_IDS).not.toContain(m.id);
+  });
+
+  it.each(W1_MATERIALS)("$id carries none of the legacy EP3/EP4 Shop fields", (m) => {
+    const ingredient = getIngredient(m.id)!;
+    expect(ingredient.pricePitz).toBeUndefined();
+    expect(ingredient.restockQuantity).toBeUndefined();
+    expect(ingredient.starterGrantOnly).toBeUndefined();
+  });
+
+  it("ids and display names stay unique across the whole catalog", () => {
+    expect(new Set(INGREDIENTS.map((i) => i.id)).size).toBe(INGREDIENTS.length);
+    expect(new Set(INGREDIENTS.map((i) => i.nameJa)).size).toBe(INGREDIENTS.length);
   });
 });

@@ -461,6 +461,89 @@ export const INGREDIENTS: Ingredient[] = [
     restockQuantity: 6,
     starterGrantOnly: true,
   },
+  /**
+   * Progression 2.0 W1 Integration I5a (docs/reports/TETO_PROGRESS2_W1_I5A_Result.md): the 7 W1
+   * materials, registered in the catalog only. Appended last so the existing tray order and paging
+   * are untouched.
+   *
+   * - Finite materials (`unlockCondition` present, so never an unlimited starter), sold only by
+   *   the REC-04 material Shop (../logic/materialShop.ts). No legacy `pricePitz`/`restockQuantity`/
+   *   `starterGrantOnly`: prices and packs come from the Discovery Ladder tier and k, never from
+   *   these rows.
+   * - Not obtainable yet: no shipped recipe uses them (k = 0) and the current Discovery Ladder
+   *   does not contain them, so `materialOffer` is null -- no Shop row, no unlock notice, no
+   *   entitlement. They become reachable when the W1 recipes and their ladder ship together.
+   * - Visuals are the W1 Human Visual Gate authority (7/7 HUMAN_PASS): capers / clam /
+   *   fresh-tomato draw their dedicated `pieceVisual` (their `emoji` is only the required text
+   *   fallback and is never drawn); corn / eggplant / pineapple / potato use their emoji.
+   * - `fresh-tomato` is its own id (a slice), never an alias of `cherry-tomato` or `tomato-sauce`.
+   */
+  {
+    id: "capers",
+    category: "topping",
+    nameJa: "ケッパー",
+    color: "#6f7f35",
+    emoji: "\u{1F7E2}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    pieceVisual: "caper-cluster",
+  },
+  {
+    id: "clam",
+    category: "topping",
+    nameJa: "あさり",
+    color: "#c9b89a",
+    emoji: "\u{1F9AA}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    pieceVisual: "clam-valve",
+  },
+  {
+    id: "corn",
+    category: "topping",
+    nameJa: "コーン",
+    color: "#f5cf3a",
+    emoji: "\u{1F33D}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  {
+    id: "eggplant",
+    category: "topping",
+    nameJa: "ナス",
+    color: "#62407b",
+    emoji: "\u{1F346}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  {
+    id: "fresh-tomato",
+    category: "topping",
+    nameJa: "トマト",
+    color: "#d9432f",
+    emoji: "\u{1F345}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    pieceVisual: "tomato-slice",
+  },
+  {
+    id: "pineapple",
+    category: "topping",
+    nameJa: "パイナップル",
+    color: "#f3c623",
+    emoji: "\u{1F34D}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  {
+    id: "potato",
+    category: "topping",
+    nameJa: "じゃがいも",
+    color: "#d9b77e",
+    emoji: "\u{1F954}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
 ];
 
 export const CATEGORY_ORDER: IngredientCategory[] = ["sauce", "cheese", "topping"];

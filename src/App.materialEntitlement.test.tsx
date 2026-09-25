@@ -228,3 +228,39 @@ describe("A2 in the real Pizza Select: a Free-Cooking discovery is re-selectable
     expect(screen.getByRole("button", { name: /^マリナーラ、/ }).getAttribute("aria-label")).toMatch(/未解放/);
   });
 });
+
+describe("I5a-3: Home and Inventory read '所持 N/M種' from the obtainable-ingredient SSOT", () => {
+  function homeSummary(): string {
+    const card = screen.getByRole("button", { name: /材料/ });
+    return card.querySelector(".home-menu__sub")!.textContent ?? "";
+  }
+
+  it("a fresh save reads 3/22 on Home and in Inventory (not 3/29)", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    expect(homeSummary()).toBe("所持 3/22種");
+    await user.click(screen.getByRole("button", { name: /材料/ }));
+    expect(document.querySelector(".inventory-overlay__summary")!.textContent).toBe("所持 3/22種");
+  });
+
+  it("a future save owning W1 materials still reads within 22 on both, and lists them in Inventory", async () => {
+    window.localStorage.setItem(
+      SAVE_STORAGE_KEY,
+      JSON.stringify({
+        ...createDefaultSave(),
+        dex: [{ recipeId: "margherita", discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 }],
+        ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "egg", "clam", "corn"],
+        inventory: { egg: 4, clam: 6, corn: 2 },
+        unlockedForShopIngredientIds: ["egg"],
+      }),
+    );
+    const user = userEvent.setup();
+    render(<App />);
+    expect(homeSummary()).toBe("所持 4/22種");
+    await user.click(screen.getByRole("button", { name: /材料/ }));
+    const inventory = document.querySelector<HTMLElement>(".dex-overlay")!;
+    expect(inventory.querySelector(".inventory-overlay__summary")!.textContent).toBe("所持 4/22種");
+    expect(within(inventory).getByText("あさり")).toBeInTheDocument();
+    expect(within(inventory).getByText("コーン")).toBeInTheDocument();
+  });
+});
