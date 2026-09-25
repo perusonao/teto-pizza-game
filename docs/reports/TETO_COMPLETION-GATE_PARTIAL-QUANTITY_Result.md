@@ -145,3 +145,34 @@ Video Verification: PASS（ffprobe で codec/解像度/長さを確認。最後�
 - **維持するもの:** OD-4（LR-A）、OD-4b（0.15）、`lunch-rush-v1`、Cloud Function、leaderboard の schema。いずれもこの PR では変更しない。
 - **将来:** ruleset ごとの leaderboard と migration は #224（Lunch Rush Ranking / Ruleset 2.0）で扱う。
 
+
+## 9. I1 Final Merge Gate（2026-09-25）
+
+Audited main `46513b1`（PR #206 I0 save forward compat の merge 後）。PR head `81a850c` に main を merge commit `23d9220` で取り込んだ（rebase・force-push なし）。PR の変更ファイルと `dff233c..46513b1` の変更ファイルは重ならない（textual conflict 0 件）。
+
+| # | Check | Result |
+|---|---|---|
+| 1 | Owner Decision | #215 の OD-1 G1 / OD-2 0.5 / OD-3 0.15 / OD-4 LR-A / OD-4b 0.15 / OD-5 D-A / OD-LR-RANKING（案 A）と実装が一致。新しい仕様判断なし |
+| 2 | Semantic conflict | main 側の変更は `persistence.ts` / その test / e2e 1 本 / WebKit CI script のみ。この PR は `persistence.ts` に触れない。`ScoringV2Result`・`completion` は `GameState` の一部で、save には書かれない |
+| 3 | #206 save forward compat | 維持。`persistence.forwardCompat.test.ts` と `save-forward-compat-3-4b.spec.ts` は merge 後の tree で PASS。save schema・Dex entry の形は変わらない（Dex BEST の値の意味だけが新しい ruleset になる。§7 の grandfather のとおり） |
+| 4 | 不足量で完成 | recipe / Free Cooking は 1 個以上で PASS（`"recipe"`）、0 個は `MISSING_REQUIRED_INGREDIENT`。Lunch Rush は `"order"` で注文数が必要 |
+| 5 | quantity scoring | factor は `safeUnit` の後に掛け、丸めない。理想量は factor 1 で前と bit 単位で同じ |
+| 6 | 在庫の負数禁止 | `consumePizzaInventory` は置いた個数だけ `Math.max(0, …)` で減らす（変更なし）。merge 後の tree で scratch test（commit しない）: funghi mushroom 2/3、在庫 2 / 1 / 0 → PASS、在庫は 0 / 0 / 0、負数なし、CONFIRM_BAKE を繰り返しても二重消費なし |
+| 7 | bake / cut / result | 同じ scratch test で RESULT まで到達、Scoring 2.0 available、total 82.x。既存の bake / cut / result の unit・E2E はすべて PASS |
+
+検証（merge 後の tree `23d9220`）:
+
+- Local: `vitest` 130 files / 2517 tests PASS（PR の 2498 + #206 の 19）。`oxlint` clean、`tsc -b` と `npm run build` PASS。
+- Chromium（local、全 spec × `iphone-390x844` / `iphone-360x800`）: 122 / 122 PASS（PR の 120 + #206 の `save-forward-compat-3-4b` 2 件）。
+- WebKit: この sandbox に WebKit の browser がないので CI の `WebKit Gate` を正とする（PR #222 の checks、この commit の後の HEAD）。
+
+### Human Verification / Human PASS の記録
+
+- **記録場所の確認:** #215 と PR #222 の comment / review には、owner による「Human PASS」の独立した記録はない。記録は、この Result Report の「Human Verification Videos」（Video Verification: PASS）と Screenshots だけだった。
+- **既存の検証結果の確認:**
+  - Video: `issue215-hv-after-390x844.mp4`（authority viewport）と `issue215-hv-after-360x800.mp4`。H.264、decode 最後まで OK、Policy §4 のシナリオ（recipe 3/2/1/0/4、Free Cooking 1 個の発見、Lunch Rush 2/3/4）をカバー。実装セッション（`session_01WsUT7UH9CZwhHk1X2LUS97`）でユーザーに直接提出済み（repo には commit しない）。
+  - Screenshots: `docs/reports/screenshots/completion-gate-partial-quantity/` の 36 枚（9 シナリオ × before/after × 2 viewport）がそろっている。after の 2/3（「少なめ（2個／お手本3個）」★4 82 点）と Lunch Rush 2/3（「注文のモッツァレラの数が足りません」注文失敗）を目で確認し、仕様と一致。
+  - HV の後の runtime の変更: なし。`9abe481` → `81a850c` は docs のみ。main の merge で入った変更も、この PR の画面と gameplay に関係しない（save と CI のみ）。そのため HV の結果は merge 後の HEAD にもそのまま当てはまる。
+- **Human PASS authority:** `docs/decisions/TETO_HUMAN-VERIFICATION-POLICY.md` §12 の Definition of Done（Automated tests PASS / screenshots / video / Video validation PASS / 提出済み / Result Report 更新）を満たすことを、I1 で確認した。owner の I1 指示（2026-09-25、「Human PASS が正式記録されていなければ、既存の検証結果を確認した上で docs-only で記録する」）に従い、ここに **Human Verification: PASS** として記録する。owner が動画を見て別に判定した記録ではない。
+
+Verdict: CI（`WebKit Gate` を含む）が上の HEAD で green なら **PASS**、merge commit で main に merge する。
