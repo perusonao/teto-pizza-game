@@ -1,5 +1,7 @@
 # Progression 2.0 W1 — Content Evidence Resolution
 
+> **2026-09-25 更新（Human Visual Verification を同期）**: このレポートの「ING-02/03/07/08/09/10/11」の節と、recipe 別の表にある HVR の列、OD-CLAM-GLYPH（DEFER_TO_VISUAL_GATE）と OD-TOMATO-REPRESENTATION（TEMPORARY_SHARED_GLYPH）は、その後の W1 Ingredient Visual Gate の結果で**確定した**。7 材料すべて HUMAN_PASS。OD-CLAM-GLYPH は DEDICATED_CLAM_B、OD-TOMATO-REPRESENTATION は DEDICATED_FRESH_TOMATO_B、新たに OD-CAPERS-VISUAL を DEDICATED_CAPER_CLUSTER とした。現在の状態は `docs/reports/TETO_PROGRESS2_W1_HUMAN_VISUAL_VERIFICATION_SYNC.md` と、生成物（ledger、owner decisions、visual requirements、`TETO_PROGRESS2_W1_HUMAN_VISUAL_VERIFICATION.json`）を参照すること。以下の本文は 2026-09-24 時点の記録として残してある。
+
 ## 結論
 
 - 基準: `main` `dff233c042d2df6ee1c3a92f2d2419830aa05460`（2026-09-24 GitHubで最新と確認）、W1 authority PR #220 `e49dab96bd9b26dc0f520349cf09d1160c3519f5`（OPEN）、入力 PR #221 `d028844e3a848ebf53cbc45d745784b7695dedf2`（OPEN / Final Gate）。PR #221 は read-only input として読むだけで、変更していない。

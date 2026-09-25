@@ -8,8 +8,10 @@
       "blobSha256": "3db316e3b656462384708ef7f5a78cdef03a7e6765f047ce249e23dc8915b2be"
     },
     "pr221": {
-      "headSha": "d028844e3a848ebf53cbc45d745784b7695dedf2",
-      "state": "OPEN (Final Gate) -- read-only input, not modified",
+      "headSha": "070afc0827f382bec8bc813d62e7fafe663a0991",
+      "state": "OPEN, Final Codex Gate PASS -- read-only input, not modified",
+      "previousHeadSha": "d028844e3a848ebf53cbc45d745784b7695dedf2",
+      "w1InputsIdenticalToPreviousHead": true,
       "files": {
         "docs/reports/data/TETO_PROGRESS2_W1_RECIPE_AUTHORING_MATRIX.json": "4069b4b0b4a8a8ee5c0c863faace958f66ece7c1da6e558342eb632cca116e21",
         "docs/reports/data/TETO_PROGRESS2_W1_INGREDIENT_AUTHORING_MATRIX.json": "6b4d787f2301defd6a9bffa670fb1e4b4586cac7d078c343992cc29fc41c6ea5",
@@ -17,7 +19,9 @@
       }
     },
     "main": {
-      "sha": "dff233c042d2df6ee1c3a92f2d2419830aa05460",
+      "sha": "1e53baa88f390bf6d8f52647e7c65cc279eb2567",
+      "previousSha": "dff233c042d2df6ee1c3a92f2d2419830aa05460",
+      "changeSincePrevious": "CI-only (#223: .github/workflows/e2e-webkit.yml, scripts/ci/*); pinned paths identical",
       "files": {
         "docs/reports/data/TETO_PIZZADB_172_MASTER-EVIDENCE.json": "2ab2d2e8fae267ef7c7e1b740d25b22f16514195ed446c3351ee7339a2c05adf",
         "docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json": "9f736aa31e4810668c80e29f28198f0ac0c5f1d783b746748a662bbeff15aefa",
@@ -36,16 +40,18 @@
   "ownerDecisions": {
     "OD-OLIVE": "OD-OLIVE = BLACK_OLIVE_CANONICAL",
     "OD-PARM": "OD-PARM = PARMIGIANO_CANONICAL",
-    "OD-CLAM-GLYPH": "OD-CLAM-GLYPH = DEFER_TO_VISUAL_GATE",
-    "OD-TOMATO-REPRESENTATION": "OD-TOMATO-REPRESENTATION = TEMPORARY_SHARED_GLYPH"
+    "OD-CLAM-GLYPH": "OD-CLAM-GLYPH = DEDICATED_CLAM_B",
+    "OD-TOMATO-REPRESENTATION": "OD-TOMATO-REPRESENTATION = DEDICATED_FRESH_TOMATO_B",
+    "OD-CAPERS-VISUAL": "OD-CAPERS-VISUAL = DEDICATED_CAPER_CLUSTER"
   },
+  "humanVisualVerificationFile": "docs/reports/data/TETO_PROGRESS2_W1_HUMAN_VISUAL_VERIFICATION.json",
   "ownerDecisionsFile": "docs/reports/data/TETO_PROGRESS2_W1_OWNER_DECISIONS.json",
   "ownerDecisionsHeld": {
     "sauce": "OD-S1 = A (maintained)",
     "quantities": "authored minCounts unchanged; not trimmed to the 8-slot ring",
     "completionGate": "#215 production untouched"
   },
-  "readinessRule": "READY only when no recipe-specific ref and no inherited global ref is open (PR #221 derived_readiness); BLOCKED = not safely representable by evidence/current mechanic.",
+  "readinessRule": "READY only when no recipe-specific ref and no inherited global ref is open (PR #221 derived_readiness); BLOCKED = not safely representable by evidence/current mechanic. Re-derived from every open dependency; implementationPrerequisites never feed it.",
   "rows": [
     {
       "id": "REC-01",
@@ -235,109 +241,213 @@
       "scope": "capers",
       "pr221Status": "AUTHORING_REQUIRED",
       "field": "visual",
-      "resolution": "UNRESOLVED",
-      "resolutionStatus": "HUMAN_VERIFICATION_REQUIRED",
+      "resolution": "RESOLVED",
+      "resolutionStatus": "RESOLVED_BY_HUMAN_VISUAL_VERIFICATION",
       "ingredientId": "capers",
       "explicitFocus": true,
       "requirementsFile": "docs/reports/data/TETO_PROGRESS2_W1_VISUAL_EVIDENCE_REQUIREMENTS.json",
-      "ownerDecision": null,
-      "stillOpen": true
+      "evidence": {
+        "HUMAN_VISUAL_VERIFICATION": {
+          "verificationResult": "HUMAN_PASS",
+          "deviceClass": "iPhone Safari",
+          "previewSourceSha": "ea8ae74b898698b7550bc8cf6ddd7f9382bc044b",
+          "previewRepoSha": "a0f34c150d45d1b8ba0e374619f56c2b816a47ee",
+          "previewUrl": "https://perusonao.github.io/teto-pizza-game-preview/w1-visual-gate/",
+          "session": "HVG-1"
+        }
+      },
+      "approvedVisual": {
+        "kind": "DEDICATED_VISUAL",
+        "key": "caper-cluster"
+      },
+      "ownerDecision": "OD-CAPERS-VISUAL = DEDICATED_CAPER_CLUSTER",
+      "carryForward": "Production needs a dedicated-visual render path for this id (implementation prerequisite, not an evidence gap).",
+      "stillOpen": false
     },
     {
       "id": "ING-03",
       "scope": "eggplant",
       "pr221Status": "AUTHORING_REQUIRED",
       "field": "visual",
-      "resolution": "UNRESOLVED",
-      "resolutionStatus": "HUMAN_VERIFICATION_REQUIRED",
+      "resolution": "RESOLVED",
+      "resolutionStatus": "RESOLVED_BY_HUMAN_VISUAL_VERIFICATION",
       "ingredientId": "eggplant",
       "explicitFocus": true,
       "requirementsFile": "docs/reports/data/TETO_PROGRESS2_W1_VISUAL_EVIDENCE_REQUIREMENTS.json",
+      "evidence": {
+        "HUMAN_VISUAL_VERIFICATION": {
+          "verificationResult": "HUMAN_PASS",
+          "deviceClass": "iPhone Safari",
+          "previewSourceSha": "ea8ae74b898698b7550bc8cf6ddd7f9382bc044b",
+          "previewRepoSha": "a0f34c150d45d1b8ba0e374619f56c2b816a47ee",
+          "previewUrl": "https://perusonao.github.io/teto-pizza-game-preview/w1-visual-gate/",
+          "session": "HVG-1"
+        }
+      },
+      "approvedVisual": {
+        "kind": "EMOJI",
+        "glyph": "🍆"
+      },
       "ownerDecision": null,
-      "stillOpen": true
+      "carryForward": "Production registers the id with its existing emoji (implementation, not evidence).",
+      "stillOpen": false
     },
     {
       "id": "ING-07",
       "scope": "clam",
       "pr221Status": "AUTHORING_REQUIRED",
       "field": "visual",
-      "resolution": "UNRESOLVED",
-      "resolutionStatus": "HUMAN_VERIFICATION_REQUIRED",
+      "resolution": "RESOLVED",
+      "resolutionStatus": "RESOLVED_BY_HUMAN_VISUAL_VERIFICATION",
       "ingredientId": "clam",
       "explicitFocus": true,
       "requirementsFile": "docs/reports/data/TETO_PROGRESS2_W1_VISUAL_EVIDENCE_REQUIREMENTS.json",
-      "ownerDecision": "OD-CLAM-GLYPH = DEFER_TO_VISUAL_GATE (🦪 / 🐚 not chosen)",
-      "stillOpen": true
+      "evidence": {
+        "HUMAN_VISUAL_VERIFICATION": {
+          "verificationResult": "HUMAN_PASS",
+          "deviceClass": "iPhone Safari",
+          "previewSourceSha": "ea8ae74b898698b7550bc8cf6ddd7f9382bc044b",
+          "previewRepoSha": "a0f34c150d45d1b8ba0e374619f56c2b816a47ee",
+          "previewUrl": "https://perusonao.github.io/teto-pizza-game-preview/w1-visual-gate/",
+          "session": "HVG-1"
+        }
+      },
+      "approvedVisual": {
+        "kind": "DEDICATED_VISUAL",
+        "key": "asari-valve"
+      },
+      "ownerDecision": "OD-CLAM-GLYPH = DEDICATED_CLAM_B",
+      "carryForward": "Production needs a dedicated-visual render path for this id (implementation prerequisite, not an evidence gap).",
+      "stillOpen": false
     },
     {
       "id": "ING-08",
       "scope": "corn",
       "pr221Status": "AUTHORING_REQUIRED",
       "field": "visual",
-      "resolution": "UNRESOLVED",
-      "resolutionStatus": "HUMAN_VERIFICATION_REQUIRED",
+      "resolution": "RESOLVED",
+      "resolutionStatus": "RESOLVED_BY_HUMAN_VISUAL_VERIFICATION",
       "ingredientId": "corn",
       "explicitFocus": false,
       "requirementsFile": "docs/reports/data/TETO_PROGRESS2_W1_VISUAL_EVIDENCE_REQUIREMENTS.json",
+      "evidence": {
+        "HUMAN_VISUAL_VERIFICATION": {
+          "verificationResult": "HUMAN_PASS",
+          "deviceClass": "iPhone Safari",
+          "previewSourceSha": "ea8ae74b898698b7550bc8cf6ddd7f9382bc044b",
+          "previewRepoSha": "a0f34c150d45d1b8ba0e374619f56c2b816a47ee",
+          "previewUrl": "https://perusonao.github.io/teto-pizza-game-preview/w1-visual-gate/",
+          "session": "HVG-1"
+        }
+      },
+      "approvedVisual": {
+        "kind": "EMOJI",
+        "glyph": "🌽"
+      },
       "ownerDecision": null,
-      "stillOpen": true
+      "carryForward": "Production registers the id with its existing emoji (implementation, not evidence).",
+      "stillOpen": false
     },
     {
       "id": "ING-09",
       "scope": "fresh-tomato",
       "pr221Status": "AUTHORING_REQUIRED",
       "field": "visual",
-      "resolution": "UNRESOLVED",
-      "resolutionStatus": "HUMAN_VERIFICATION_REQUIRED",
+      "resolution": "RESOLVED",
+      "resolutionStatus": "RESOLVED_BY_HUMAN_VISUAL_VERIFICATION",
       "ingredientId": "fresh-tomato",
       "explicitFocus": true,
       "requirementsFile": "docs/reports/data/TETO_PROGRESS2_W1_VISUAL_EVIDENCE_REQUIREMENTS.json",
-      "ownerDecision": "OD-TOMATO-REPRESENTATION = TEMPORARY_SHARED_GLYPH (own id kept, no cherry-tomato alias, 🍅 Preview-only, device gate required)",
-      "stillOpen": true
+      "evidence": {
+        "HUMAN_VISUAL_VERIFICATION": {
+          "verificationResult": "HUMAN_PASS",
+          "deviceClass": "iPhone Safari",
+          "previewSourceSha": "fe80e3c2ee4f0d7d3967cbe35780d819e7f842e7",
+          "previewRepoSha": "0e1e6028ad3a0f89949a8be5c15fe2bf6c215097",
+          "previewUrl": "https://perusonao.github.io/teto-pizza-game-preview/w1-visual-gate/",
+          "session": "HVG-2"
+        }
+      },
+      "approvedVisual": {
+        "kind": "DEDICATED_VISUAL",
+        "key": "tomato-slice-final"
+      },
+      "ownerDecision": "OD-TOMATO-REPRESENTATION = DEDICATED_FRESH_TOMATO_B",
+      "carryForward": "Production needs a dedicated-visual render path for this id (implementation prerequisite, not an evidence gap).",
+      "stillOpen": false
     },
     {
       "id": "ING-10",
       "scope": "pineapple",
       "pr221Status": "AUTHORING_REQUIRED",
       "field": "visual",
-      "resolution": "UNRESOLVED",
-      "resolutionStatus": "HUMAN_VERIFICATION_REQUIRED",
+      "resolution": "RESOLVED",
+      "resolutionStatus": "RESOLVED_BY_HUMAN_VISUAL_VERIFICATION",
       "ingredientId": "pineapple",
       "explicitFocus": false,
       "requirementsFile": "docs/reports/data/TETO_PROGRESS2_W1_VISUAL_EVIDENCE_REQUIREMENTS.json",
+      "evidence": {
+        "HUMAN_VISUAL_VERIFICATION": {
+          "verificationResult": "HUMAN_PASS",
+          "deviceClass": "iPhone Safari",
+          "previewSourceSha": "ea8ae74b898698b7550bc8cf6ddd7f9382bc044b",
+          "previewRepoSha": "a0f34c150d45d1b8ba0e374619f56c2b816a47ee",
+          "previewUrl": "https://perusonao.github.io/teto-pizza-game-preview/w1-visual-gate/",
+          "session": "HVG-1"
+        }
+      },
+      "approvedVisual": {
+        "kind": "EMOJI",
+        "glyph": "🍍"
+      },
       "ownerDecision": null,
-      "stillOpen": true
+      "carryForward": "Production registers the id with its existing emoji (implementation, not evidence).",
+      "stillOpen": false
     },
     {
       "id": "ING-11",
       "scope": "potato",
       "pr221Status": "AUTHORING_REQUIRED",
       "field": "visual",
-      "resolution": "UNRESOLVED",
-      "resolutionStatus": "HUMAN_VERIFICATION_REQUIRED",
+      "resolution": "RESOLVED",
+      "resolutionStatus": "RESOLVED_BY_HUMAN_VISUAL_VERIFICATION",
       "ingredientId": "potato",
       "explicitFocus": false,
       "requirementsFile": "docs/reports/data/TETO_PROGRESS2_W1_VISUAL_EVIDENCE_REQUIREMENTS.json",
+      "evidence": {
+        "HUMAN_VISUAL_VERIFICATION": {
+          "verificationResult": "HUMAN_PASS",
+          "deviceClass": "iPhone Safari",
+          "previewSourceSha": "ea8ae74b898698b7550bc8cf6ddd7f9382bc044b",
+          "previewRepoSha": "a0f34c150d45d1b8ba0e374619f56c2b816a47ee",
+          "previewUrl": "https://perusonao.github.io/teto-pizza-game-preview/w1-visual-gate/",
+          "session": "HVG-1"
+        }
+      },
+      "approvedVisual": {
+        "kind": "EMOJI",
+        "glyph": "🥔"
+      },
       "ownerDecision": null,
-      "stillOpen": true
+      "carryForward": "Production registers the id with its existing emoji (implementation, not evidence).",
+      "stillOpen": false
     }
   ],
   "resolvedIds": [
-    "REC-06",
-    "REC-07",
-    "REC-08",
-    "REC-09",
-    "REC-10"
-  ],
-  "unresolvedIds": [
     "ING-02",
     "ING-03",
     "ING-07",
     "ING-08",
     "ING-09",
     "ING-10",
-    "ING-11"
+    "ING-11",
+    "REC-06",
+    "REC-07",
+    "REC-08",
+    "REC-09",
+    "REC-10"
   ],
+  "unresolvedIds": [],
   "unchangedIds": [
     "REC-01",
     "REC-02",
@@ -349,20 +459,21 @@
   "recipes": [
     {
       "recipeIdCandidate": "new-haven-apizza",
-      "resolvedByThisAudit": [],
-      "remainingRecipeSpecific": [
+      "resolvedByThisAudit": [
         "ING-07"
       ],
+      "remainingRecipeSpecific": [],
       "remainingByKind": {
         "ownerDecision": [],
-        "humanVerification": [
-          "ING-07"
-        ],
+        "humanVerification": [],
         "runtime": []
       },
       "relatedOwnerDecisions": [
         "OD-CLAM-GLYPH",
         "OD-PARM"
+      ],
+      "implementationPrerequisites": [
+        "dedicated visual: clam (asari-valve)"
       ],
       "inheritedGlobalOpen": [
         "REC-01",
@@ -371,13 +482,12 @@
         "REC-04"
       ],
       "effectiveOpenRefs": [
-        "ING-07",
         "REC-01",
         "REC-02",
         "REC-03",
         "REC-04"
       ],
-      "recipeSpecificClear": false,
+      "recipeSpecificClear": true,
       "authoredMinCounts": {
         "olive-oil": 1,
         "parmigiano": 2,
@@ -389,18 +499,17 @@
     },
     {
       "recipeIdCandidate": "hawaiian",
-      "resolvedByThisAudit": [],
-      "remainingRecipeSpecific": [
+      "resolvedByThisAudit": [
         "ING-10"
       ],
+      "remainingRecipeSpecific": [],
       "remainingByKind": {
         "ownerDecision": [],
-        "humanVerification": [
-          "ING-10"
-        ],
+        "humanVerification": [],
         "runtime": []
       },
       "relatedOwnerDecisions": [],
+      "implementationPrerequisites": [],
       "inheritedGlobalOpen": [
         "REC-01",
         "REC-02",
@@ -408,13 +517,12 @@
         "REC-04"
       ],
       "effectiveOpenRefs": [
-        "ING-10",
         "REC-01",
         "REC-02",
         "REC-03",
         "REC-04"
       ],
-      "recipeSpecificClear": false,
+      "recipeSpecificClear": true,
       "authoredMinCounts": {
         "tomato-sauce": 1,
         "mozzarella": 2,
@@ -427,18 +535,16 @@
     {
       "recipeIdCandidate": "parmigiana-pizza",
       "resolvedByThisAudit": [
+        "ING-03",
         "REC-08",
         "REC-10"
       ],
       "remainingRecipeSpecific": [
-        "ING-03",
         "RT-01"
       ],
       "remainingByKind": {
         "ownerDecision": [],
-        "humanVerification": [
-          "ING-03"
-        ],
+        "humanVerification": [],
         "runtime": [
           "RT-01"
         ]
@@ -446,6 +552,7 @@
       "relatedOwnerDecisions": [
         "OD-PARM"
       ],
+      "implementationPrerequisites": [],
       "inheritedGlobalOpen": [
         "REC-01",
         "REC-02",
@@ -453,7 +560,6 @@
         "REC-04"
       ],
       "effectiveOpenRefs": [
-        "ING-03",
         "RT-01",
         "REC-01",
         "REC-02",
@@ -473,18 +579,17 @@
     },
     {
       "recipeIdCandidate": "bambino",
-      "resolvedByThisAudit": [],
-      "remainingRecipeSpecific": [
+      "resolvedByThisAudit": [
         "ING-08"
       ],
+      "remainingRecipeSpecific": [],
       "remainingByKind": {
         "ownerDecision": [],
-        "humanVerification": [
-          "ING-08"
-        ],
+        "humanVerification": [],
         "runtime": []
       },
       "relatedOwnerDecisions": [],
+      "implementationPrerequisites": [],
       "inheritedGlobalOpen": [
         "REC-01",
         "REC-02",
@@ -492,13 +597,12 @@
         "REC-04"
       ],
       "effectiveOpenRefs": [
-        "ING-08",
         "REC-01",
         "REC-02",
         "REC-03",
         "REC-04"
       ],
-      "recipeSpecificClear": false,
+      "recipeSpecificClear": true,
       "authoredMinCounts": {
         "tomato-sauce": 1,
         "mozzarella": 2,
@@ -526,6 +630,7 @@
       "relatedOwnerDecisions": [
         "OD-OLIVE"
       ],
+      "implementationPrerequisites": [],
       "inheritedGlobalOpen": [
         "REC-01",
         "REC-02",
@@ -554,23 +659,25 @@
     {
       "recipeIdCandidate": "puttanesca-pizza",
       "resolvedByThisAudit": [
+        "ING-02",
         "REC-07"
       ],
       "remainingRecipeSpecific": [
-        "ING-02",
         "RT-01"
       ],
       "remainingByKind": {
         "ownerDecision": [],
-        "humanVerification": [
-          "ING-02"
-        ],
+        "humanVerification": [],
         "runtime": [
           "RT-01"
         ]
       },
       "relatedOwnerDecisions": [
+        "OD-CAPERS-VISUAL",
         "OD-OLIVE"
+      ],
+      "implementationPrerequisites": [
+        "dedicated visual: capers (caper-cluster)"
       ],
       "inheritedGlobalOpen": [
         "REC-01",
@@ -579,7 +686,6 @@
         "REC-04"
       ],
       "effectiveOpenRefs": [
-        "ING-02",
         "RT-01",
         "REC-01",
         "REC-02",
@@ -599,19 +705,20 @@
     },
     {
       "recipeIdCandidate": "pesto-caprese",
-      "resolvedByThisAudit": [],
-      "remainingRecipeSpecific": [
+      "resolvedByThisAudit": [
         "ING-09"
       ],
+      "remainingRecipeSpecific": [],
       "remainingByKind": {
         "ownerDecision": [],
-        "humanVerification": [
-          "ING-09"
-        ],
+        "humanVerification": [],
         "runtime": []
       },
       "relatedOwnerDecisions": [
         "OD-TOMATO-REPRESENTATION"
+      ],
+      "implementationPrerequisites": [
+        "dedicated visual: fresh-tomato (tomato-slice-final)"
       ],
       "inheritedGlobalOpen": [
         "REC-01",
@@ -620,13 +727,12 @@
         "REC-04"
       ],
       "effectiveOpenRefs": [
-        "ING-09",
         "REC-01",
         "REC-02",
         "REC-03",
         "REC-04"
       ],
-      "recipeSpecificClear": false,
+      "recipeSpecificClear": true,
       "authoredMinCounts": {
         "pesto": 1,
         "mozzarella": 2,
@@ -650,6 +756,7 @@
       "relatedOwnerDecisions": [
         "OD-OLIVE"
       ],
+      "implementationPrerequisites": [],
       "inheritedGlobalOpen": [
         "REC-01",
         "REC-02",
@@ -674,18 +781,17 @@
     },
     {
       "recipeIdCandidate": "pesto-patate",
-      "resolvedByThisAudit": [],
-      "remainingRecipeSpecific": [
+      "resolvedByThisAudit": [
         "ING-11"
       ],
+      "remainingRecipeSpecific": [],
       "remainingByKind": {
         "ownerDecision": [],
-        "humanVerification": [
-          "ING-11"
-        ],
+        "humanVerification": [],
         "runtime": []
       },
       "relatedOwnerDecisions": [],
+      "implementationPrerequisites": [],
       "inheritedGlobalOpen": [
         "REC-01",
         "REC-02",
@@ -693,13 +799,12 @@
         "REC-04"
       ],
       "effectiveOpenRefs": [
-        "ING-11",
         "REC-01",
         "REC-02",
         "REC-03",
         "REC-04"
       ],
-      "recipeSpecificClear": false,
+      "recipeSpecificClear": true,
       "authoredMinCounts": {
         "pesto": 1,
         "mozzarella": 2,
@@ -712,19 +817,17 @@
     {
       "recipeIdCandidate": "melanzane-pizza",
       "resolvedByThisAudit": [
+        "ING-03",
         "REC-08"
       ],
-      "remainingRecipeSpecific": [
-        "ING-03"
-      ],
+      "remainingRecipeSpecific": [],
       "remainingByKind": {
         "ownerDecision": [],
-        "humanVerification": [
-          "ING-03"
-        ],
+        "humanVerification": [],
         "runtime": []
       },
       "relatedOwnerDecisions": [],
+      "implementationPrerequisites": [],
       "inheritedGlobalOpen": [
         "REC-01",
         "REC-02",
@@ -732,13 +835,12 @@
         "REC-04"
       ],
       "effectiveOpenRefs": [
-        "ING-03",
         "REC-01",
         "REC-02",
         "REC-03",
         "REC-04"
       ],
-      "recipeSpecificClear": false,
+      "recipeSpecificClear": true,
       "authoredMinCounts": {
         "tomato-sauce": 1,
         "mozzarella": 2,
@@ -755,7 +857,13 @@
     "BLOCKED": 0,
     "readyNowRecipes": [],
     "recipeSpecificClearRecipes": [
-      "pesto-tonno"
+      "new-haven-apizza",
+      "hawaiian",
+      "bambino",
+      "pesto-caprese",
+      "pesto-tonno",
+      "pesto-patate",
+      "melanzane-pizza"
     ],
     "noNewIngredientRecipes": [
       "pesto-tonno",

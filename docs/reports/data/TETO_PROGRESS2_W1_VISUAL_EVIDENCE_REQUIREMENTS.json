@@ -2,22 +2,38 @@
   "schemaVersion": 1,
   "kind": "w1_visual_evidence_requirements",
   "policy": "docs/decisions/TETO_HUMAN-VERIFICATION-POLICY.md (390x844 authority viewport, video delivered directly, never committed)",
-  "prerequisite": "A Preview build that actually contains the candidate ingredient rows (future slice B). Device verification cannot be performed from docs; no verdict here is PASS.",
+  "prerequisite": "Satisfied: the preview-only visual-gate build (visual-gate/w1) carried the candidate rows; verdicts come from the owner-relayed iPhone Safari Human Gate.",
   "explicitFocus": {
     "fresh-tomato": {
-      "verdict": "HUMAN_VERIFICATION_REQUIRED",
+      "verdict": "HUMAN_PASS",
+      "approvedVisual": {
+        "kind": "DEDICATED_VISUAL",
+        "key": "tomato-slice-final"
+      },
       "check": "🍅 collision: identical glyph to production cherry-tomato (placed piece) and tomato-sauce (tray chip). OD-TOMATO-REPRESENTATION = TEMPORARY_SHARED_GLYPH allows the shared 🍅 in Preview only; fresh-tomato stays its own id (no cherry-tomato alias). Verify a player can tell fresh-tomato from cherry-tomato on tray and pizza; a cherry-tomato Pesto Caprese renders identically but discovers nothing (see sameGlyphSubstitutionOutcomes). FAIL -> dedicated visual/runtime work."
     },
     "eggplant": {
-      "verdict": "HUMAN_VERIFICATION_REQUIRED",
+      "verdict": "HUMAN_PASS",
+      "approvedVisual": {
+        "kind": "EMOJI",
+        "glyph": "🍆"
+      },
       "check": "🍆 visibility: dark-purple glyph on tomato-sauce red and after bake roast tint; verify it stays identifiable at piece size on 390x844 and in reference/thumbnail."
     },
     "clam": {
-      "verdict": "HUMAN_VERIFICATION_REQUIRED",
+      "verdict": "HUMAN_PASS",
+      "approvedVisual": {
+        "kind": "DEDICATED_VISUAL",
+        "key": "asari-valve"
+      },
       "check": "clam visibility: pale shell glyph (🦪 candidate / 🐚 in brief; OD-CLAM-GLYPH = DEFER_TO_VISUAL_GATE, neither chosen) on olive-oil base with parmigiano and garlic 🧄 (also pale); verify both glyphs read as shellfish, not as garlic or cheese."
     },
     "capers": {
-      "verdict": "HUMAN_VERIFICATION_REQUIRED",
+      "verdict": "HUMAN_PASS",
+      "approvedVisual": {
+        "kind": "DEDICATED_VISUAL",
+        "key": "caper-cluster"
+      },
       "check": "🟢 distinguishability: plain LARGE GREEN CIRCLE beside ⚫ black-olive in Puttanesca and 🔴 pepperoni in the tray -- hue is the only cue (red/green colour-vision risk); verify on device, including a greyscale/CVD pass."
     }
   },
@@ -75,8 +91,27 @@
           "pepperoni"
         ]
       },
-      "verdict": "HUMAN_VERIFICATION_REQUIRED",
-      "verdictNote": "Static analysis cannot show device rendering (iOS emoji font, 390x844 scale, bake tint). Not PASS."
+      "verdict": "HUMAN_PASS",
+      "verdictEvidenceClass": "HUMAN_VISUAL_VERIFICATION",
+      "verdictNote": "Static findings above are the pre-gate analysis. The verdict comes only from the owner-relayed iPhone Safari Human Gate (see docs/reports/data/TETO_PROGRESS2_W1_HUMAN_VISUAL_VERIFICATION.json).",
+      "approvedVisual": {
+        "kind": "DEDICATED_VISUAL",
+        "key": "caper-cluster"
+      },
+      "humanSession": "HVG-1",
+      "productionRenderRequirement": "dedicated (non-emoji) piece visual -- needs a production visual abstraction; the preview-only Vite transform is not production code",
+      "ownerDecision": {
+        "id": "OD-CAPERS-VISUAL",
+        "value": "DEDICATED_CAPER_CLUSTER",
+        "chosenVisual": {
+          "kind": "DEDICATED_VISUAL",
+          "key": "caper-cluster",
+          "label": "dedicated capers (irregular 3-bud cluster)"
+        },
+        "rejected": [
+          "🟢 LARGE GREEN CIRCLE"
+        ]
+      }
     },
     {
       "ledgerId": "ING-07",
@@ -127,13 +162,28 @@
         ],
         "note": "Neither glyph is a clam: PR #221 proposes OYSTER, the brief names SPIRAL SHELL. Which glyph is authored is an Owner Decision; both need the device check."
       },
-      "verdict": "HUMAN_VERIFICATION_REQUIRED",
-      "verdictNote": "Static analysis cannot show device rendering (iOS emoji font, 390x844 scale, bake tint). Not PASS.",
+      "verdict": "HUMAN_PASS",
+      "verdictEvidenceClass": "HUMAN_VISUAL_VERIFICATION",
+      "verdictNote": "Static findings above are the pre-gate analysis. The verdict comes only from the owner-relayed iPhone Safari Human Gate (see docs/reports/data/TETO_PROGRESS2_W1_HUMAN_VISUAL_VERIFICATION.json).",
+      "approvedVisual": {
+        "kind": "DEDICATED_VISUAL",
+        "key": "asari-valve"
+      },
+      "humanSession": "HVG-1",
+      "productionRenderRequirement": "dedicated (non-emoji) piece visual -- needs a production visual abstraction; the preview-only Vite transform is not production code",
       "ownerDecision": {
         "id": "OD-CLAM-GLYPH",
-        "value": "DEFER_TO_VISUAL_GATE",
-        "chosenGlyph": null,
-        "gateInstruction": "Preview Visual Gate で 🦪 と 🐚 を並べて確認し、どちらを採るか（または別表現）を Owner が決める。"
+        "value": "DEDICATED_CLAM_B",
+        "chosenVisual": {
+          "kind": "DEDICATED_VISUAL",
+          "key": "asari-valve",
+          "label": "dedicated clam B (closed asari valve)"
+        },
+        "rejected": [
+          "🦪 OYSTER",
+          "🐚 SPIRAL SHELL"
+        ],
+        "supersedes": "DEFER_TO_VISUAL_GATE"
       }
     },
     {
@@ -172,8 +222,15 @@
         ],
         "plainCircleGlyphFamily": []
       },
-      "verdict": "HUMAN_VERIFICATION_REQUIRED",
-      "verdictNote": "Static analysis cannot show device rendering (iOS emoji font, 390x844 scale, bake tint). Not PASS."
+      "verdict": "HUMAN_PASS",
+      "verdictEvidenceClass": "HUMAN_VISUAL_VERIFICATION",
+      "verdictNote": "Static findings above are the pre-gate analysis. The verdict comes only from the owner-relayed iPhone Safari Human Gate (see docs/reports/data/TETO_PROGRESS2_W1_HUMAN_VISUAL_VERIFICATION.json).",
+      "approvedVisual": {
+        "kind": "EMOJI",
+        "glyph": "🌽"
+      },
+      "humanSession": "HVG-1",
+      "productionRenderRequirement": "existing emoji render path (IngredientPieceVisual emoji branch)"
     },
     {
       "ledgerId": "ING-03",
@@ -217,8 +274,15 @@
         ],
         "plainCircleGlyphFamily": []
       },
-      "verdict": "HUMAN_VERIFICATION_REQUIRED",
-      "verdictNote": "Static analysis cannot show device rendering (iOS emoji font, 390x844 scale, bake tint). Not PASS."
+      "verdict": "HUMAN_PASS",
+      "verdictEvidenceClass": "HUMAN_VISUAL_VERIFICATION",
+      "verdictNote": "Static findings above are the pre-gate analysis. The verdict comes only from the owner-relayed iPhone Safari Human Gate (see docs/reports/data/TETO_PROGRESS2_W1_HUMAN_VISUAL_VERIFICATION.json).",
+      "approvedVisual": {
+        "kind": "EMOJI",
+        "glyph": "🍆"
+      },
+      "humanSession": "HVG-1",
+      "productionRenderRequirement": "existing emoji render path (IngredientPieceVisual emoji branch)"
     },
     {
       "ledgerId": "ING-09",
@@ -286,20 +350,34 @@
         ],
         "plainCircleGlyphFamily": []
       },
-      "verdict": "HUMAN_VERIFICATION_REQUIRED",
-      "verdictNote": "Static analysis cannot show device rendering (iOS emoji font, 390x844 scale, bake tint). Not PASS.",
+      "verdict": "HUMAN_PASS",
+      "verdictEvidenceClass": "HUMAN_VISUAL_VERIFICATION",
+      "verdictNote": "Static findings above are the pre-gate analysis. The verdict comes only from the owner-relayed iPhone Safari Human Gate (see docs/reports/data/TETO_PROGRESS2_W1_HUMAN_VISUAL_VERIFICATION.json).",
+      "approvedVisual": {
+        "kind": "DEDICATED_VISUAL",
+        "key": "tomato-slice-final"
+      },
+      "humanSession": "HVG-2",
+      "productionRenderRequirement": "dedicated (non-emoji) piece visual -- needs a production visual abstraction; the preview-only Vite transform is not production code",
       "ownerDecision": {
         "id": "OD-TOMATO-REPRESENTATION",
-        "value": "TEMPORARY_SHARED_GLYPH",
+        "value": "DEDICATED_FRESH_TOMATO_B",
+        "chosenVisual": {
+          "kind": "DEDICATED_VISUAL",
+          "key": "tomato-slice-final",
+          "label": "dedicated fresh-tomato B (irregular cross-section slice)"
+        },
+        "rejected": [
+          "🍅 shared representation (with cherry-tomato / tomato-sauce)",
+          "dedicated candidate A (tomato-slice: read as salami / pepperoni)"
+        ],
+        "supersedes": "TEMPORARY_SHARED_GLYPH",
         "ingredientIdKept": "fresh-tomato",
         "aliasTo": null,
         "forbiddenAliases": [
           "cherry-tomato"
         ],
-        "previewGlyph": "🍅",
-        "previewGlyphStatus": "TEMPORARY (Preview only)",
-        "deviceVisualGate": "REQUIRED",
-        "onFail": "識別性 FAIL なら専用 visual / runtime 対応へ移行する（新しい runtime dependency として登録）。"
+        "deviceVisualGate": "HUMAN_PASS"
       }
     },
     {
@@ -338,8 +416,15 @@
         ],
         "plainCircleGlyphFamily": []
       },
-      "verdict": "HUMAN_VERIFICATION_REQUIRED",
-      "verdictNote": "Static analysis cannot show device rendering (iOS emoji font, 390x844 scale, bake tint). Not PASS."
+      "verdict": "HUMAN_PASS",
+      "verdictEvidenceClass": "HUMAN_VISUAL_VERIFICATION",
+      "verdictNote": "Static findings above are the pre-gate analysis. The verdict comes only from the owner-relayed iPhone Safari Human Gate (see docs/reports/data/TETO_PROGRESS2_W1_HUMAN_VISUAL_VERIFICATION.json).",
+      "approvedVisual": {
+        "kind": "EMOJI",
+        "glyph": "🍍"
+      },
+      "humanSession": "HVG-1",
+      "productionRenderRequirement": "existing emoji render path (IngredientPieceVisual emoji branch)"
     },
     {
       "ledgerId": "ING-11",
@@ -377,8 +462,15 @@
         ],
         "plainCircleGlyphFamily": []
       },
-      "verdict": "HUMAN_VERIFICATION_REQUIRED",
-      "verdictNote": "Static analysis cannot show device rendering (iOS emoji font, 390x844 scale, bake tint). Not PASS."
+      "verdict": "HUMAN_PASS",
+      "verdictEvidenceClass": "HUMAN_VISUAL_VERIFICATION",
+      "verdictNote": "Static findings above are the pre-gate analysis. The verdict comes only from the owner-relayed iPhone Safari Human Gate (see docs/reports/data/TETO_PROGRESS2_W1_HUMAN_VISUAL_VERIFICATION.json).",
+      "approvedVisual": {
+        "kind": "EMOJI",
+        "glyph": "🥔"
+      },
+      "humanSession": "HVG-1",
+      "productionRenderRequirement": "existing emoji render path (IngredientPieceVisual emoji branch)"
     }
   ],
   "previewVisualGateHandoff": {
@@ -398,10 +490,13 @@
       "eggplant",
       "fresh-tomato"
     ],
-    "ownerDecisionsCarried": {
-      "clam": "OD-CLAM-GLYPH = DEFER_TO_VISUAL_GATE (show 🦪 and 🐚)",
-      "fresh-tomato": "OD-TOMATO-REPRESENTATION = TEMPORARY_SHARED_GLYPH (shared 🍅, FAIL -> dedicated visual/runtime)"
-    },
-    "verdictUntilGate": "HUMAN_VERIFICATION_REQUIRED"
+    "status": "COMPLETED",
+    "result": "7/7 HUMAN_PASS",
+    "humanVerificationFile": "docs/reports/data/TETO_PROGRESS2_W1_HUMAN_VISUAL_VERIFICATION.json",
+    "ownerDecisionsFinal": {
+      "clam": "OD-CLAM-GLYPH = DEDICATED_CLAM_B (🦪 / 🐚 rejected)",
+      "fresh-tomato": "OD-TOMATO-REPRESENTATION = DEDICATED_FRESH_TOMATO_B (shared 🍅 and candidate A rejected; own id kept)",
+      "capers": "OD-CAPERS-VISUAL = DEDICATED_CAPER_CLUSTER (🟢 rejected)"
+    }
   }
 }

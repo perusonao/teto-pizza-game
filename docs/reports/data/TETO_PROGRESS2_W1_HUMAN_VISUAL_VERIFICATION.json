@@ -1,0 +1,272 @@
+{
+  "schemaVersion": 1,
+  "kind": "w1_human_visual_verification",
+  "evidenceClass": "HUMAN_VISUAL_VERIFICATION",
+  "evidenceClassNote": "Owner-relayed human judgement of rendered visuals on a preview-only build. Not PIZZA_DB_EVIDENCE, not EXISTING_CATALOG, not a GAME_NORMALIZATION_DECISION; it says nothing about recipe identity, tokens or quantities.",
+  "verifiedAt": "2026-09-25",
+  "previewUrl": "https://perusonao.github.io/teto-pizza-game-preview/w1-visual-gate/",
+  "previewBranch": "claude/w1-ingredient-visual-preview-mt4uxw (visual-gate/w1, preview-only; src/** unchanged)",
+  "sessions": {
+    "HVG-1": {
+      "previewSourceSha": "ea8ae74b898698b7550bc8cf6ddd7f9382bc044b",
+      "previewRepoSha": "a0f34c150d45d1b8ba0e374619f56c2b816a47ee",
+      "gateReport": "docs/reports/TETO_PROGRESS2_W1_INGREDIENT_VISUAL_GATE_2.md",
+      "gateResult": "docs/reports/data/TETO_PROGRESS2_W1_VISUAL_GATE_2_RESULT.json",
+      "evidence": [
+        "iPhone Safari real-device Human Visual Gate (owner-relayed)"
+      ]
+    },
+    "HVG-2": {
+      "previewSourceSha": "fe80e3c2ee4f0d7d3967cbe35780d819e7f842e7",
+      "previewRepoSha": "0e1e6028ad3a0f89949a8be5c15fe2bf6c215097",
+      "gateReport": "docs/reports/TETO_PROGRESS2_W1_INGREDIENT_VISUAL_GATE_3.md",
+      "gateResult": "docs/reports/data/TETO_PROGRESS2_W1_VISUAL_GATE_3_RESULT.json",
+      "evidence": [
+        "iPhone Safari real-device Human Visual Gate (owner-relayed)",
+        "Human Verification MP4 w1-fresh-tomato-B-human-verification-390x844.mp4 (390x844 H.264 63.97 s, sha256 bf545dcebca7abda84b991cd520580b3595b60c7c928a089abc71aee7d1734a0; delivered in-session, not committed)"
+      ]
+    }
+  },
+  "videoPolicy": "Human Verification videos are delivered in-session and never committed (docs/decisions/TETO_HUMAN-VERIFICATION-POLICY.md).",
+  "ingredients": [
+    {
+      "ledgerId": "ING-02",
+      "ingredientId": "capers",
+      "evidenceClass": "HUMAN_VISUAL_VERIFICATION",
+      "verificationResult": "HUMAN_PASS",
+      "deviceClass": "iPhone Safari",
+      "viewportAuthority": "390x844",
+      "previewUrl": "https://perusonao.github.io/teto-pizza-game-preview/w1-visual-gate/",
+      "previewSourceSha": "ea8ae74b898698b7550bc8cf6ddd7f9382bc044b",
+      "previewRepoSha": "a0f34c150d45d1b8ba0e374619f56c2b816a47ee",
+      "session": "HVG-1",
+      "approvedVisual": {
+        "kind": "DEDICATED_VISUAL",
+        "key": "caper-cluster"
+      },
+      "ownerDecision": "OD-CAPERS-VISUAL",
+      "comparedAgainst": [
+        "black-olive",
+        "pepperoni",
+        "garlic"
+      ],
+      "verifiedContexts": [
+        "tray",
+        "pizza raw",
+        "pizza baked",
+        "16px",
+        "grayscale",
+        "red/green colour simulation"
+      ],
+      "evidence": [
+        "iPhone Safari real-device Human Visual Gate (owner-relayed)"
+      ]
+    },
+    {
+      "ledgerId": "ING-07",
+      "ingredientId": "clam",
+      "evidenceClass": "HUMAN_VISUAL_VERIFICATION",
+      "verificationResult": "HUMAN_PASS",
+      "deviceClass": "iPhone Safari",
+      "viewportAuthority": "390x844",
+      "previewUrl": "https://perusonao.github.io/teto-pizza-game-preview/w1-visual-gate/",
+      "previewSourceSha": "ea8ae74b898698b7550bc8cf6ddd7f9382bc044b",
+      "previewRepoSha": "a0f34c150d45d1b8ba0e374619f56c2b816a47ee",
+      "session": "HVG-1",
+      "approvedVisual": {
+        "kind": "DEDICATED_VISUAL",
+        "key": "asari-valve"
+      },
+      "ownerDecision": "OD-CLAM-GLYPH",
+      "comparedAgainst": [
+        "🦪 oyster (A)",
+        "garlic",
+        "parmigiano",
+        "olive-oil base"
+      ],
+      "verifiedContexts": [
+        "tray",
+        "pizza raw",
+        "pizza baked",
+        "16px",
+        "grayscale"
+      ],
+      "evidence": [
+        "iPhone Safari real-device Human Visual Gate (owner-relayed)"
+      ]
+    },
+    {
+      "ledgerId": "ING-08",
+      "ingredientId": "corn",
+      "evidenceClass": "HUMAN_VISUAL_VERIFICATION",
+      "verificationResult": "HUMAN_PASS",
+      "deviceClass": "iPhone Safari",
+      "viewportAuthority": "390x844",
+      "previewUrl": "https://perusonao.github.io/teto-pizza-game-preview/w1-visual-gate/",
+      "previewSourceSha": "ea8ae74b898698b7550bc8cf6ddd7f9382bc044b",
+      "previewRepoSha": "a0f34c150d45d1b8ba0e374619f56c2b816a47ee",
+      "session": "HVG-1",
+      "approvedVisual": {
+        "kind": "EMOJI",
+        "glyph": "🌽"
+      },
+      "ownerDecision": null,
+      "comparedAgainst": [
+        "egg",
+        "ham",
+        "mozzarella"
+      ],
+      "verifiedContexts": [
+        "tray",
+        "pizza raw",
+        "pizza baked",
+        "16px"
+      ],
+      "evidence": [
+        "iPhone Safari real-device Human Visual Gate (owner-relayed)"
+      ]
+    },
+    {
+      "ledgerId": "ING-03",
+      "ingredientId": "eggplant",
+      "evidenceClass": "HUMAN_VISUAL_VERIFICATION",
+      "verificationResult": "HUMAN_PASS",
+      "deviceClass": "iPhone Safari",
+      "viewportAuthority": "390x844",
+      "previewUrl": "https://perusonao.github.io/teto-pizza-game-preview/w1-visual-gate/",
+      "previewSourceSha": "ea8ae74b898698b7550bc8cf6ddd7f9382bc044b",
+      "previewRepoSha": "a0f34c150d45d1b8ba0e374619f56c2b816a47ee",
+      "session": "HVG-1",
+      "approvedVisual": {
+        "kind": "EMOJI",
+        "glyph": "🍆"
+      },
+      "ownerDecision": null,
+      "comparedAgainst": [
+        "tomato-sauce base",
+        "mozzarella",
+        "basil"
+      ],
+      "verifiedContexts": [
+        "tray",
+        "pizza raw",
+        "pizza baked",
+        "16px"
+      ],
+      "evidence": [
+        "iPhone Safari real-device Human Visual Gate (owner-relayed)"
+      ]
+    },
+    {
+      "ledgerId": "ING-09",
+      "ingredientId": "fresh-tomato",
+      "evidenceClass": "HUMAN_VISUAL_VERIFICATION",
+      "verificationResult": "HUMAN_PASS",
+      "deviceClass": "iPhone Safari",
+      "viewportAuthority": "390x844",
+      "previewUrl": "https://perusonao.github.io/teto-pizza-game-preview/w1-visual-gate/",
+      "previewSourceSha": "fe80e3c2ee4f0d7d3967cbe35780d819e7f842e7",
+      "previewRepoSha": "0e1e6028ad3a0f89949a8be5c15fe2bf6c215097",
+      "session": "HVG-2",
+      "approvedVisual": {
+        "kind": "DEDICATED_VISUAL",
+        "key": "tomato-slice-final"
+      },
+      "ownerDecision": "OD-TOMATO-REPRESENTATION",
+      "comparedAgainst": [
+        "cherry-tomato",
+        "pepperoni",
+        "tomato-sauce",
+        "dedicated candidate A"
+      ],
+      "verifiedContexts": [
+        "tray",
+        "pizza raw",
+        "pizza baked",
+        "deep bake",
+        "RESULT icons",
+        "16px",
+        "grayscale",
+        "red/green colour simulation"
+      ],
+      "evidence": [
+        "iPhone Safari real-device Human Visual Gate (owner-relayed)",
+        "Human Verification MP4 w1-fresh-tomato-B-human-verification-390x844.mp4 (390x844 H.264 63.97 s, sha256 bf545dcebca7abda84b991cd520580b3595b60c7c928a089abc71aee7d1734a0; delivered in-session, not committed)"
+      ]
+    },
+    {
+      "ledgerId": "ING-10",
+      "ingredientId": "pineapple",
+      "evidenceClass": "HUMAN_VISUAL_VERIFICATION",
+      "verificationResult": "HUMAN_PASS",
+      "deviceClass": "iPhone Safari",
+      "viewportAuthority": "390x844",
+      "previewUrl": "https://perusonao.github.io/teto-pizza-game-preview/w1-visual-gate/",
+      "previewSourceSha": "ea8ae74b898698b7550bc8cf6ddd7f9382bc044b",
+      "previewRepoSha": "a0f34c150d45d1b8ba0e374619f56c2b816a47ee",
+      "session": "HVG-1",
+      "approvedVisual": {
+        "kind": "EMOJI",
+        "glyph": "🍍"
+      },
+      "ownerDecision": null,
+      "comparedAgainst": [
+        "ham",
+        "corn",
+        "mozzarella"
+      ],
+      "verifiedContexts": [
+        "tray",
+        "pizza raw",
+        "pizza baked",
+        "16px"
+      ],
+      "evidence": [
+        "iPhone Safari real-device Human Visual Gate (owner-relayed)"
+      ]
+    },
+    {
+      "ledgerId": "ING-11",
+      "ingredientId": "potato",
+      "evidenceClass": "HUMAN_VISUAL_VERIFICATION",
+      "verificationResult": "HUMAN_PASS",
+      "deviceClass": "iPhone Safari",
+      "viewportAuthority": "390x844",
+      "previewUrl": "https://perusonao.github.io/teto-pizza-game-preview/w1-visual-gate/",
+      "previewSourceSha": "ea8ae74b898698b7550bc8cf6ddd7f9382bc044b",
+      "previewRepoSha": "a0f34c150d45d1b8ba0e374619f56c2b816a47ee",
+      "session": "HVG-1",
+      "approvedVisual": {
+        "kind": "EMOJI",
+        "glyph": "🥔"
+      },
+      "ownerDecision": null,
+      "comparedAgainst": [
+        "pesto base",
+        "mozzarella",
+        "baked crust"
+      ],
+      "verifiedContexts": [
+        "tray",
+        "pizza raw",
+        "pizza baked",
+        "16px"
+      ],
+      "evidence": [
+        "iPhone Safari real-device Human Visual Gate (owner-relayed)"
+      ]
+    }
+  ],
+  "summary": {
+    "HUMAN_PASS": [
+      "capers",
+      "clam",
+      "corn",
+      "eggplant",
+      "fresh-tomato",
+      "pineapple",
+      "potato"
+    ],
+    "result": "7/7 HUMAN_PASS"
+  }
+}

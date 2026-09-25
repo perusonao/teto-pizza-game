@@ -22,6 +22,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -176,12 +177,30 @@ INGREDIENTS = [
 ]
 
 
+# Historical snapshot: this gate ran against the evidence branch state abb0a3d (before the
+# 2026-09-25 Human Visual Verification sync resolved the ING rows). Evidence files are therefore
+# read from that commit, not the working tree, so this record stays reproducible as history.
+GATE_EVIDENCE_COMMIT = "abb0a3df29043238c1079e5cad78f0ec4f16875a"
+EVIDENCE_FILES_AT_GATE = {
+    "docs/reports/data/TETO_PROGRESS2_W1_EVIDENCE_RESOLUTION_LEDGER.json",
+    "docs/reports/data/TETO_PROGRESS2_W1_VISUAL_EVIDENCE_REQUIREMENTS.json",
+    "docs/reports/data/TETO_PROGRESS2_W1_OWNER_DECISIONS.json",
+    "docs/reports/data/TETO_PROGRESS2_W1_DISCOVERY_REGRESSION_FIXTURES.json",
+}
+
+
+def _read_bytes(rel: str) -> bytes:
+    if rel in EVIDENCE_FILES_AT_GATE:
+        return subprocess.run(["git", "show", f"{GATE_EVIDENCE_COMMIT}:{rel}"], cwd=ROOT, check=True, capture_output=True).stdout
+    return (ROOT / rel).read_bytes()
+
+
 def sha256(rel: str) -> str:
-    return hashlib.sha256((ROOT / rel).read_bytes()).hexdigest()
+    return hashlib.sha256(_read_bytes(rel)).hexdigest()
 
 
 def build() -> dict:
-    ledger = json.loads((ROOT / LEDGER).read_text())
+    ledger = json.loads(_read_bytes(LEDGER))
     return {
         "schemaVersion": 1,
         "kind": "w1_ingredient_visual_gate_result",
@@ -264,7 +283,7 @@ def validate(doc: dict) -> list[str]:
     if doc["authority"]["ownerDecisions"]["OD-S1"] != "A":
         errors.append("OD-S1 changed")
     # Authority ledger state must be what this gate was run against.
-    ledger = json.loads((ROOT / LEDGER).read_text())
+    ledger = json.loads(_read_bytes(LEDGER))
     counts = {k: ledger["summary"][k] for k in ("READY", "REVIEW", "BLOCKED")}
     if counts != {"READY": 0, "REVIEW": 10, "BLOCKED": 0} or doc["summary"]["readiness"] != counts:
         errors.append(f"readiness drift: ledger {counts}, result {doc['summary']['readiness']}")

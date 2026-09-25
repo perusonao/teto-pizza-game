@@ -16,17 +16,23 @@ Evidence classes are kept separate on purpose:
   PRODUCTION_DATA      -- src/** (imported read-only through tools/w1_discovery_regression_probe.mjs)
   PR_221_CANDIDATE     -- authoring candidates in PR #221 (not evidence, not production)
 
-Owner Decisions (2026-09-24) are applied as a separate GAME_NORMALIZATION_DECISION layer:
-  OD-OLIVE = BLACK_OLIVE_CANONICAL          -> resolves REC-06 / REC-07 / REC-09
-  OD-PARM = PARMIGIANO_CANONICAL            -> resolves REC-10
-  OD-CLAM-GLYPH = DEFER_TO_VISUAL_GATE      -> ING-07 stays HUMAN_VERIFICATION_REQUIRED
-  OD-TOMATO-REPRESENTATION = TEMPORARY_SHARED_GLYPH -> ING-09 stays HUMAN_VERIFICATION_REQUIRED
+Owner Decisions are applied as separate layers:
+  GAME_NORMALIZATION_DECISION (2026-09-24)
+    OD-OLIVE = BLACK_OLIVE_CANONICAL          -> resolves REC-06 / REC-07 / REC-09
+    OD-PARM = PARMIGIANO_CANONICAL            -> resolves REC-10
+  VISUAL_DECISION_FINAL (2026-09-25, after the W1 Ingredient Visual Gate)
+    OD-CLAM-GLYPH = DEDICATED_CLAM_B          (supersedes DEFER_TO_VISUAL_GATE)
+    OD-TOMATO-REPRESENTATION = DEDICATED_FRESH_TOMATO_B (supersedes TEMPORARY_SHARED_GLYPH)
+    OD-CAPERS-VISUAL = DEDICATED_CAPER_CLUSTER
 The PIZZA DB evidence (token, likely_alias disposition) and the merged canonicalizer tables are
 not rewritten: a game normalization rule is recorded next to the evidence, never as a PIZZA DB fact.
 
-Nothing here edits recipe quantities, touches src/**, e2e/** or any PR branch, resolves RT-01 or
-REC-01..04, or marks a visual item PASS. Device-level visual checks are always
-HUMAN_VERIFICATION_REQUIRED.
+HUMAN_VISUAL_VERIFICATION is a third, separate evidence class (owner-relayed iPhone Safari Human
+Gate + Human Verification MP4 on the visual-gate Preview): it resolves ING-02/03/07/08/09/10/11
+and nothing else. It is never recorded as PIZZA DB evidence or as a game normalization rule.
+
+Nothing here edits recipe quantities, touches src/**, e2e/** or any PR branch, or resolves RT-01
+or REC-01..04. Readiness is re-derived from every open dependency, never set by hand.
 
 Usage:
   python3 tools/progression2_w1_evidence_resolution.py              # regenerate outputs
@@ -47,9 +53,12 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 import progression2_ingredient_canonicalizer as canon  # noqa: E402  (merged tool, read-only use)
 
-MAIN_SHA = "dff233c042d2df6ee1c3a92f2d2419830aa05460"
+MAIN_SHA = "1e53baa88f390bf6d8f52647e7c65cc279eb2567"
 PR220_SHA = "e49dab96bd9b26dc0f520349cf09d1160c3519f5"
-PR221_SHA = "d028844e3a848ebf53cbc45d745784b7695dedf2"
+PR221_SHA = "070afc0827f382bec8bc813d62e7fafe663a0991"
+# Earlier pins (Content Evidence Resolution, abb0a3d). The #221 W1 inputs must stay byte-identical
+# across both #221 heads (070afc0 only merged main's CI-only #223), or the run fails.
+PREVIOUS_PINS = {"main": "dff233c042d2df6ee1c3a92f2d2419830aa05460", "pr221": "d028844e3a848ebf53cbc45d745784b7695dedf2"}
 
 PR220_WAVES = "docs/reports/data/TETO_PROGRESS2_CONTENT_READINESS_WAVES.json"
 PR221_RECIPES = "docs/reports/data/TETO_PROGRESS2_W1_RECIPE_AUTHORING_MATRIX.json"
@@ -79,6 +88,7 @@ OUT_PROVENANCE = "TETO_PROGRESS2_W1_TOKEN_PROVENANCE.json"
 OUT_DISCOVERY = "TETO_PROGRESS2_W1_DISCOVERY_REGRESSION_FIXTURES.json"
 OUT_VISUAL = "TETO_PROGRESS2_W1_VISUAL_EVIDENCE_REQUIREMENTS.json"
 OUT_DECISIONS = "TETO_PROGRESS2_W1_OWNER_DECISIONS.json"
+OUT_HUMAN = "TETO_PROGRESS2_W1_HUMAN_VISUAL_VERIFICATION.json"
 
 EXPECTED_W1 = [
     "new-haven-apizza", "hawaiian", "parmigiana-pizza", "bambino", "pizza-portuguesa",
@@ -116,28 +126,96 @@ OWNER_DECISIONS = {
         "resolves": ["REC-10"],
     },
     "OD-CLAM-GLYPH": {
-        "value": "DEFER_TO_VISUAL_GATE",
-        "kind": "VISUAL_DECISION_DEFERRED",
-        "decision": "🦪 / 🐚 のどちらにも確定しない。Preview Visual Gate で判断する。",
+        "value": "DEDICATED_CLAM_B",
+        "kind": "VISUAL_DECISION_FINAL",
+        "decidedAt": "2026-09-25",
+        "decision": "clam は Preview で Human PASS した専用 visual B（閉じたあさりの二枚貝）を採用する。",
+        "supersedes": {"value": "DEFER_TO_VISUAL_GATE", "decidedAt": "2026-09-24",
+                       "note": "Visual Gate へ持ち越した判断を、Gate の結果で確定した（矛盾ではなく予定どおりの確定）。"},
+        "chosenVisual": {"kind": "DEDICATED_VISUAL", "key": "asari-valve", "label": "dedicated clam B (closed asari valve)"},
+        "rejected": ["\U0001F9AA OYSTER", "\U0001F41A SPIRAL SHELL"],
+        "ingredientIdKept": "clam",
         "resolves": [],
-        "keepsOpen": ["ING-07"],
-        "chosenGlyph": None,
+        "supportsHumanVisualResolution": ["ING-07"],
     },
     "OD-TOMATO-REPRESENTATION": {
-        "value": "TEMPORARY_SHARED_GLYPH",
-        "kind": "VISUAL_DECISION_PROVISIONAL",
-        "decision": "fresh-tomato は独立 ingredient ID のまま維持し cherry-tomato へ alias しない。🍅 共有は Preview 用の暫定 visual として許可。",
+        "value": "DEDICATED_FRESH_TOMATO_B",
+        "kind": "VISUAL_DECISION_FINAL",
+        "decidedAt": "2026-09-25",
+        "decision": "fresh-tomato は Human PASS した専用 visual B（トマトの輪切り断面）を採用する。ingredient ID は fresh-tomato のまま、cherry-tomato への alias は禁止。",
+        "supersedes": {"value": "TEMPORARY_SHARED_GLYPH", "decidedAt": "2026-09-24",
+                       "note": "🍅 共有は Preview 用の暫定 visual だった。Gate で識別性 FAIL（DEDICATED_VISUAL_REQUIRED）→ 専用 visual B が Human PASS。"},
+        "chosenVisual": {"kind": "DEDICATED_VISUAL", "key": "tomato-slice-final", "label": "dedicated fresh-tomato B (irregular cross-section slice)"},
+        "rejected": ["\U0001F345 shared representation (with cherry-tomato / tomato-sauce)", "dedicated candidate A (tomato-slice: read as salami / pepperoni)"],
         "resolves": [],
-        "keepsOpen": ["ING-09"],
+        "supportsHumanVisualResolution": ["ING-09"],
         "ingredientIdKept": "fresh-tomato",
         "aliasTo": None,
         "forbiddenAliases": ["cherry-tomato"],
-        "previewGlyph": "\U0001F345",
-        "deviceVisualGate": "REQUIRED",
-        "onFail": "識別性 FAIL なら専用 visual / runtime 対応へ移行する（新しい runtime dependency として登録）。",
+        "deviceVisualGate": "HUMAN_PASS",
+    },
+    "OD-CAPERS-VISUAL": {
+        "value": "DEDICATED_CAPER_CLUSTER",
+        "kind": "VISUAL_DECISION_FINAL",
+        "decidedAt": "2026-09-25",
+        "decision": "capers は Human PASS した専用 visual（小さな蕾の不規則な塊）を採用する。",
+        "chosenVisual": {"kind": "DEDICATED_VISUAL", "key": "caper-cluster", "label": "dedicated capers (irregular 3-bud cluster)"},
+        "rejected": ["\U0001F7E2 LARGE GREEN CIRCLE"],
+        "ingredientIdKept": "capers",
+        "resolves": [],
+        "supportsHumanVisualResolution": ["ING-02"],
     },
 }
 DECISION_DATE = "2026-09-24"
+VISUAL_DECISION_DATE = "2026-09-25"
+
+# ---------------------------------------------------------------- human visual verification (2026-09-25)
+# HUMAN_VISUAL_VERIFICATION evidence class: owner-relayed result of the W1 Ingredient Visual Gate on
+# the preview-only visual-gate build (branch claude/w1-ingredient-visual-preview-mt4uxw). Kept apart
+# from PIZZA_DB_EVIDENCE and from GAME_NORMALIZATION_DECISION. The MP4 is never committed.
+PREVIEW_URL = "https://perusonao.github.io/teto-pizza-game-preview/w1-visual-gate/"
+HUMAN_SESSIONS = {
+    "HVG-1": {
+        "previewSourceSha": "ea8ae74b898698b7550bc8cf6ddd7f9382bc044b",
+        "previewRepoSha": "a0f34c150d45d1b8ba0e374619f56c2b816a47ee",
+        "gateReport": "docs/reports/TETO_PROGRESS2_W1_INGREDIENT_VISUAL_GATE_2.md",
+        "gateResult": "docs/reports/data/TETO_PROGRESS2_W1_VISUAL_GATE_2_RESULT.json",
+        "evidence": ["iPhone Safari real-device Human Visual Gate (owner-relayed)"],
+    },
+    "HVG-2": {
+        "previewSourceSha": "fe80e3c2ee4f0d7d3967cbe35780d819e7f842e7",
+        "previewRepoSha": "0e1e6028ad3a0f89949a8be5c15fe2bf6c215097",
+        "gateReport": "docs/reports/TETO_PROGRESS2_W1_INGREDIENT_VISUAL_GATE_3.md",
+        "gateResult": "docs/reports/data/TETO_PROGRESS2_W1_VISUAL_GATE_3_RESULT.json",
+        "evidence": [
+            "iPhone Safari real-device Human Visual Gate (owner-relayed)",
+            "Human Verification MP4 w1-fresh-tomato-B-human-verification-390x844.mp4 (390x844 H.264 63.97 s, sha256 bf545dcebca7abda84b991cd520580b3595b60c7c928a089abc71aee7d1734a0; delivered in-session, not committed)",
+        ],
+    },
+}
+HUMAN_VERIFIED_VISUALS = {
+    "fresh-tomato": {"session": "HVG-2", "approvedVisual": {"kind": "DEDICATED_VISUAL", "key": "tomato-slice-final"},
+                     "ownerDecision": "OD-TOMATO-REPRESENTATION",
+                     "comparedAgainst": ["cherry-tomato", "pepperoni", "tomato-sauce", "dedicated candidate A"],
+                     "contexts": ["tray", "pizza raw", "pizza baked", "deep bake", "RESULT icons", "16px", "grayscale", "red/green colour simulation"]},
+    "capers": {"session": "HVG-1", "approvedVisual": {"kind": "DEDICATED_VISUAL", "key": "caper-cluster"},
+               "ownerDecision": "OD-CAPERS-VISUAL",
+               "comparedAgainst": ["black-olive", "pepperoni", "garlic"],
+               "contexts": ["tray", "pizza raw", "pizza baked", "16px", "grayscale", "red/green colour simulation"]},
+    "clam": {"session": "HVG-1", "approvedVisual": {"kind": "DEDICATED_VISUAL", "key": "asari-valve"},
+             "ownerDecision": "OD-CLAM-GLYPH",
+             "comparedAgainst": ["\U0001F9AA oyster (A)", "garlic", "parmigiano", "olive-oil base"],
+             "contexts": ["tray", "pizza raw", "pizza baked", "16px", "grayscale"]},
+    "eggplant": {"session": "HVG-1", "approvedVisual": {"kind": "EMOJI", "glyph": "\U0001F346"}, "ownerDecision": None,
+                 "comparedAgainst": ["tomato-sauce base", "mozzarella", "basil"], "contexts": ["tray", "pizza raw", "pizza baked", "16px"]},
+    "corn": {"session": "HVG-1", "approvedVisual": {"kind": "EMOJI", "glyph": "\U0001F33D"}, "ownerDecision": None,
+             "comparedAgainst": ["egg", "ham", "mozzarella"], "contexts": ["tray", "pizza raw", "pizza baked", "16px"]},
+    "pineapple": {"session": "HVG-1", "approvedVisual": {"kind": "EMOJI", "glyph": "\U0001F34D"}, "ownerDecision": None,
+                  "comparedAgainst": ["ham", "corn", "mozzarella"], "contexts": ["tray", "pizza raw", "pizza baked", "16px"]},
+    "potato": {"session": "HVG-1", "approvedVisual": {"kind": "EMOJI", "glyph": "\U0001F954"}, "ownerDecision": None,
+               "comparedAgainst": ["pesto base", "mozzarella", "baked crust"], "contexts": ["tray", "pizza raw", "pizza baked", "16px"]},
+}
+DEDICATED_VISUAL_KEYS = {"fresh-tomato": "tomato-slice-final", "capers": "caper-cluster", "clam": "asari-valve"}
 
 # Game canonicalization rule table (GAME_NORMALIZATION_DECISION layer). Keyed by the exact PIZZA DB
 # token; evidenceDisposition must equal what the merged canonicalizer still returns.
@@ -192,7 +270,7 @@ def sha256_file(path):
 
 
 def verify_pins():
-    for sha in (MAIN_SHA, PR220_SHA, PR221_SHA):
+    for sha in (MAIN_SHA, PR220_SHA, PR221_SHA, *PREVIOUS_PINS.values()):
         if subprocess.run(["git", "cat-file", "-e", f"{sha}^{{commit}}"], cwd=ROOT).returncode != 0:
             fail(f"commit {sha} not available locally; fetch main and refs/pull/220/head, refs/pull/221/head")
     for path in MAIN_PINNED_PATHS:
@@ -200,6 +278,11 @@ def verify_pins():
             fail(f"{path} differs from pinned main {MAIN_SHA[:7]}; re-audit instead of silently passing")
         if git("ls-tree", MAIN_SHA, "--", path).strip() == "":
             fail(f"{path} missing at {MAIN_SHA[:7]}")
+        if git("diff", "--name-only", PREVIOUS_PINS["main"], MAIN_SHA, "--", path).strip():
+            fail(f"{path} changed between previous main {PREVIOUS_PINS['main'][:7]} and {MAIN_SHA[:7]}: W1 authority meaning may have moved")
+    for path in (PR221_RECIPES, PR221_INGREDIENTS, PR221_LEDGER):
+        if git("diff", "--name-only", PREVIOUS_PINS["pr221"], PR221_SHA, "--", path).strip():
+            fail(f"{path} differs between #221 {PREVIOUS_PINS['pr221'][:7]} and {PR221_SHA[:7]}: re-audit the W1 authoring inputs")
 
 
 def load_inputs():
@@ -230,10 +313,14 @@ def load_inputs():
         "pr220": {"headSha": PR220_SHA, "path": PR220_WAVES, "blobSha256": waves_hash},
         "pr221": {
             "headSha": PR221_SHA,
-            "state": "OPEN (Final Gate) -- read-only input, not modified",
+            "state": "OPEN, Final Codex Gate PASS -- read-only input, not modified",
+            "previousHeadSha": PREVIOUS_PINS["pr221"],
+            "w1InputsIdenticalToPreviousHead": True,
             "files": {PR221_RECIPES: recipes_hash, PR221_INGREDIENTS: ingredients_hash, PR221_LEDGER: ledger_hash},
         },
-        "main": {"sha": MAIN_SHA, "files": {p: sha256_file(p) for p in MAIN_PINNED_PATHS}},
+        "main": {"sha": MAIN_SHA, "previousSha": PREVIOUS_PINS["main"],
+                 "changeSincePrevious": "CI-only (#223: .github/workflows/e2e-webkit.yml, scripts/ci/*); pinned paths identical",
+                 "files": {p: sha256_file(p) for p in MAIN_PINNED_PATHS}},
     }
     return w1_rows, recipes, ingredients, ledger, master, catalog, source_matrix, inputs
 
@@ -466,8 +553,13 @@ def build_visual(ingredients, discovery, recipes):
                 "coPlacedIngredients": [{"id": o, "emoji": emoji.get(o), "category": category.get(o)} for o in cohabit],
                 "plainCircleGlyphFamily": circle_family if ing in circle_family or "CIRCLE" in glyph_name(glyph) else [],
             },
-            "verdict": "HUMAN_VERIFICATION_REQUIRED",
-            "verdictNote": "Static analysis cannot show device rendering (iOS emoji font, 390x844 scale, bake tint). Not PASS.",
+            "verdict": "HUMAN_PASS",
+            "verdictEvidenceClass": "HUMAN_VISUAL_VERIFICATION",
+            "verdictNote": "Static findings above are the pre-gate analysis. The verdict comes only from the owner-relayed iPhone Safari Human Gate (see docs/reports/data/" + OUT_HUMAN + ").",
+            "approvedVisual": HUMAN_VERIFIED_VISUALS[ing]["approvedVisual"],
+            "humanSession": HUMAN_VERIFIED_VISUALS[ing]["session"],
+            "productionRenderRequirement": ("dedicated (non-emoji) piece visual -- needs a production visual abstraction; the preview-only Vite transform is not production code"
+                                            if ing in DEDICATED_VISUAL_KEYS else "existing emoji render path (IngredientPieceVisual emoji branch)"),
         }
         if ing == "clam":
             item["staticFindings"]["glyphCandidatesOnRecord"] = [
@@ -477,15 +569,18 @@ def build_visual(ingredients, discovery, recipes):
             item["staticFindings"]["note"] = ("Neither glyph is a clam: PR #221 proposes OYSTER, the brief names SPIRAL SHELL. "
                                               "Which glyph is authored is an Owner Decision; both need the device check.")
             od = OWNER_DECISIONS["OD-CLAM-GLYPH"]
-            item["ownerDecision"] = {"id": "OD-CLAM-GLYPH", "value": od["value"], "chosenGlyph": od["chosenGlyph"],
-                                     "gateInstruction": "Preview Visual Gate で 🦪 と 🐚 を並べて確認し、どちらを採るか（または別表現）を Owner が決める。"}
+            item["ownerDecision"] = {"id": "OD-CLAM-GLYPH", "value": od["value"], "chosenVisual": od["chosenVisual"],
+                                     "rejected": od["rejected"], "supersedes": od["supersedes"]["value"]}
         if ing == "fresh-tomato":
             od = OWNER_DECISIONS["OD-TOMATO-REPRESENTATION"]
-            item["ownerDecision"] = {"id": "OD-TOMATO-REPRESENTATION", "value": od["value"],
+            item["ownerDecision"] = {"id": "OD-TOMATO-REPRESENTATION", "value": od["value"], "chosenVisual": od["chosenVisual"],
+                                     "rejected": od["rejected"], "supersedes": od["supersedes"]["value"],
                                      "ingredientIdKept": od["ingredientIdKept"], "aliasTo": od["aliasTo"],
-                                     "forbiddenAliases": od["forbiddenAliases"], "previewGlyph": od["previewGlyph"],
-                                     "previewGlyphStatus": "TEMPORARY (Preview only)", "deviceVisualGate": od["deviceVisualGate"],
-                                     "onFail": od["onFail"]}
+                                     "forbiddenAliases": od["forbiddenAliases"], "deviceVisualGate": od["deviceVisualGate"]}
+        if ing == "capers":
+            od = OWNER_DECISIONS["OD-CAPERS-VISUAL"]
+            item["ownerDecision"] = {"id": "OD-CAPERS-VISUAL", "value": od["value"], "chosenVisual": od["chosenVisual"],
+                                     "rejected": od["rejected"]}
         out.append(item)
 
     focus = {
@@ -498,8 +593,8 @@ def build_visual(ingredients, discovery, recipes):
         "schemaVersion": 1,
         "kind": "w1_visual_evidence_requirements",
         "policy": "docs/decisions/TETO_HUMAN-VERIFICATION-POLICY.md (390x844 authority viewport, video delivered directly, never committed)",
-        "prerequisite": "A Preview build that actually contains the candidate ingredient rows (future slice B). Device verification cannot be performed from docs; no verdict here is PASS.",
-        "explicitFocus": {k: {"verdict": "HUMAN_VERIFICATION_REQUIRED", "check": v} for k, v in focus.items()},
+        "prerequisite": "Satisfied: the preview-only visual-gate build (visual-gate/w1) carried the candidate rows; verdicts come from the owner-relayed iPhone Safari Human Gate.",
+        "explicitFocus": {k: {"verdict": "HUMAN_PASS", "approvedVisual": HUMAN_VERIFIED_VISUALS[k]["approvedVisual"], "check": v} for k, v in focus.items()},
         "checkContextsPerIngredient": [
             "Ingredient tray chip (390x844, iPhone Safari)",
             "Placed piece on the recipe's sauce + cheese before bake",
@@ -513,10 +608,52 @@ def build_visual(ingredients, discovery, recipes):
             "gate": "Preview Visual Gate (390x844 iPhone Safari, docs/decisions/TETO_HUMAN-VERIFICATION-POLICY.md)",
             "ingredients": [i["ingredientId"] for i in out],
             "mandatoryFocus": sorted(focus),
-            "ownerDecisionsCarried": {"clam": "OD-CLAM-GLYPH = DEFER_TO_VISUAL_GATE (show 🦪 and 🐚)",
-                                      "fresh-tomato": "OD-TOMATO-REPRESENTATION = TEMPORARY_SHARED_GLYPH (shared 🍅, FAIL -> dedicated visual/runtime)"},
-            "verdictUntilGate": "HUMAN_VERIFICATION_REQUIRED",
+            "status": "COMPLETED",
+            "result": "7/7 HUMAN_PASS",
+            "humanVerificationFile": f"docs/reports/data/{OUT_HUMAN}",
+            "ownerDecisionsFinal": {"clam": "OD-CLAM-GLYPH = DEDICATED_CLAM_B (🦪 / 🐚 rejected)",
+                                    "fresh-tomato": "OD-TOMATO-REPRESENTATION = DEDICATED_FRESH_TOMATO_B (shared 🍅 and candidate A rejected; own id kept)",
+                                    "capers": "OD-CAPERS-VISUAL = DEDICATED_CAPER_CLUSTER (🟢 rejected)"},
         },
+    }
+
+
+# ---------------------------------------------------------------- human visual verification
+
+def build_human():
+    rows = []
+    for lid, ing in sorted(VISUAL_LEDGER.items(), key=lambda kv: kv[1]):
+        v = HUMAN_VERIFIED_VISUALS[ing]
+        sess = HUMAN_SESSIONS[v["session"]]
+        rows.append({
+            "ledgerId": lid,
+            "ingredientId": ing,
+            "evidenceClass": "HUMAN_VISUAL_VERIFICATION",
+            "verificationResult": "HUMAN_PASS",
+            "deviceClass": "iPhone Safari",
+            "viewportAuthority": "390x844",
+            "previewUrl": PREVIEW_URL,
+            "previewSourceSha": sess["previewSourceSha"],
+            "previewRepoSha": sess["previewRepoSha"],
+            "session": v["session"],
+            "approvedVisual": v["approvedVisual"],
+            "ownerDecision": v["ownerDecision"],
+            "comparedAgainst": v["comparedAgainst"],
+            "verifiedContexts": v["contexts"],
+            "evidence": sess["evidence"],
+        })
+    return {
+        "schemaVersion": 1,
+        "kind": "w1_human_visual_verification",
+        "evidenceClass": "HUMAN_VISUAL_VERIFICATION",
+        "evidenceClassNote": "Owner-relayed human judgement of rendered visuals on a preview-only build. Not PIZZA_DB_EVIDENCE, not EXISTING_CATALOG, not a GAME_NORMALIZATION_DECISION; it says nothing about recipe identity, tokens or quantities.",
+        "verifiedAt": VISUAL_DECISION_DATE,
+        "previewUrl": PREVIEW_URL,
+        "previewBranch": "claude/w1-ingredient-visual-preview-mt4uxw (visual-gate/w1, preview-only; src/** unchanged)",
+        "sessions": HUMAN_SESSIONS,
+        "videoPolicy": "Human Verification videos are delivered in-session and never committed (docs/decisions/TETO_HUMAN-VERIFICATION-POLICY.md).",
+        "ingredients": rows,
+        "summary": {"HUMAN_PASS": sorted(r["ingredientId"] for r in rows), "result": f"{len(rows)}/{len(rows)} HUMAN_PASS"},
     }
 
 
@@ -540,6 +677,10 @@ def likely_alias_occurrences(provenance, source_matrix, w1_rows):
     return from_evidence
 
 
+OD_INGREDIENT = (("OD-OLIVE", "black-olive"), ("OD-PARM", "parmigiano"), ("OD-TOMATO-REPRESENTATION", "fresh-tomato"),
+                 ("OD-CLAM-GLYPH", "clam"), ("OD-CAPERS-VISUAL", "capers"))
+
+
 def description_consistency(recipes):
     out = []
     for r in sorted(recipes["rows"], key=lambda x: EXPECTED_W1.index(x["recipeIdCandidate"])):
@@ -550,9 +691,7 @@ def description_consistency(recipes):
         checks["fresh-tomato named iff required"] = bool(FRESH_TOMATO_TERM.search(d)) == ("fresh-tomato" in req)
         checks["no cherry-tomato wording or id for fresh-tomato"] = not (
             "fresh-tomato" in req and ("cherry-tomato" in req or any(t in d for t in CHERRY_TOMATO_TERMS)))
-        related = sorted({od for od, ing in (("OD-OLIVE", "black-olive"), ("OD-PARM", "parmigiano"),
-                                             ("OD-TOMATO-REPRESENTATION", "fresh-tomato"), ("OD-CLAM-GLYPH", "clam"))
-                          if ing in req})
+        related = sorted({od for od, ing in OD_INGREDIENT if ing in req})
         out.append({"recipeIdCandidate": r["recipeIdCandidate"], "descriptionCandidate": d, "relatedOwnerDecisions": related,
                     "checks": checks, "status": "CONSISTENT" if all(checks.values()) else "INCONSISTENT"})
     return out
@@ -585,7 +724,10 @@ def build_decisions(ledger, recipes, provenance, occurrences, w1_rows):
         "layers": {
             "PIZZA_DB_EVIDENCE": f"{MASTER_EVIDENCE} tokens and the merged canonicalizer dispositions -- unchanged (TOKEN_PROVENANCE is regenerated byte-identically)",
             "GAME_NORMALIZATION_DECISION": "gameCanonicalizationRules below -- owner decisions about how the game represents a token; never a PIZZA DB fact",
+            "VISUAL_DECISION_FINAL": "OD-CLAM-GLYPH / OD-TOMATO-REPRESENTATION / OD-CAPERS-VISUAL -- how an ingredient is drawn; never identity, tokens or quantities",
+            "HUMAN_VISUAL_VERIFICATION": f"docs/reports/data/{OUT_HUMAN} -- the human evidence the visual decisions rest on",
         },
+        "visualDecisionDate": VISUAL_DECISION_DATE,
         "ownerDecisions": OWNER_DECISIONS,
         "gameCanonicalizationRules": rules,
         "descriptionConsistency": description_consistency(recipes),
@@ -594,7 +736,7 @@ def build_decisions(ledger, recipes, provenance, occurrences, w1_rows):
             "quantities": "authored minCounts unchanged",
             "runtime": "RT-01 not resolved",
             "globals": "REC-01..04 not resolved",
-            "visual": "no ING item PASS",
+            "visual": "ING-02/03/07/08/09/10/11 resolved only by HUMAN_VISUAL_VERIFICATION (7/7 HUMAN_PASS); identities unchanged",
             "pr221": f"{PR221_SHA} read-only, not modified",
         },
     }
@@ -602,7 +744,7 @@ def build_decisions(ledger, recipes, provenance, occurrences, w1_rows):
 
 # ---------------------------------------------------------------- resolution ledger
 
-def build_ledger(ledger, recipes, provenance, discovery, decisions, inputs):
+def build_ledger(ledger, recipes, provenance, discovery, decisions, inputs, human):
     olive = provenance["oliveCensus"]
     rule_by_token = {r["token"]: r for r in decisions["gameCanonicalizationRules"]}
     consistency = {c["recipeIdCandidate"]: c["status"] for c in decisions["descriptionConsistency"]}
@@ -662,15 +804,20 @@ def build_ledger(ledger, recipes, provenance, discovery, decisions, inputs):
             })
         elif rid in VISUAL_LEDGER:
             ing = VISUAL_LEDGER[rid]
+            hv = next(h for h in human["ingredients"] if h["ledgerId"] == rid)
+            od_id = HUMAN_VERIFIED_VISUALS[ing]["ownerDecision"]
             entry.update({
-                "resolution": "UNRESOLVED",
-                "resolutionStatus": "HUMAN_VERIFICATION_REQUIRED",
+                "resolution": "RESOLVED",
+                "resolutionStatus": "RESOLVED_BY_HUMAN_VISUAL_VERIFICATION",
                 "ingredientId": ing,
                 "explicitFocus": ing in STRICT_GLYPH_ITEMS,
                 "requirementsFile": f"docs/reports/data/{OUT_VISUAL}",
-                "ownerDecision": {"clam": "OD-CLAM-GLYPH = DEFER_TO_VISUAL_GATE (🦪 / 🐚 not chosen)",
-                                  "fresh-tomato": "OD-TOMATO-REPRESENTATION = TEMPORARY_SHARED_GLYPH (own id kept, no cherry-tomato alias, 🍅 Preview-only, device gate required)"}.get(ing),
-                "stillOpen": True,
+                "evidence": {"HUMAN_VISUAL_VERIFICATION": {k: hv[k] for k in ("verificationResult", "deviceClass", "previewSourceSha", "previewRepoSha", "previewUrl", "session")}},
+                "approvedVisual": hv["approvedVisual"],
+                "ownerDecision": f"{od_id} = {OWNER_DECISIONS[od_id]['value']}" if od_id else None,
+                "carryForward": ("Production needs a dedicated-visual render path for this id (implementation prerequisite, not an evidence gap)."
+                                 if ing in DEDICATED_VISUAL_KEYS else "Production registers the id with its existing emoji (implementation, not evidence)."),
+                "stillOpen": False,
             })
         elif rid == "RT-01":
             entry.update({"resolution": "UNCHANGED", "resolutionStatus": "RUNTIME_DEPENDENCY_REQUIRED",
@@ -700,9 +847,9 @@ def build_ledger(ledger, recipes, provenance, discovery, decisions, inputs):
                 "humanVerification": [x for x in specific if x in VISUAL_LEDGER],
                 "runtime": [x for x in specific if x == "RT-01"],
             },
-            "relatedOwnerDecisions": sorted({od for od, ing in (("OD-OLIVE", "black-olive"), ("OD-PARM", "parmigiano"),
-                                                                ("OD-TOMATO-REPRESENTATION", "fresh-tomato"), ("OD-CLAM-GLYPH", "clam"))
-                                             if ing in req}),
+            "relatedOwnerDecisions": sorted({od for od, ing in OD_INGREDIENT if ing in req}),
+            # Implementation prerequisites are production work, not open evidence: they never feed readiness.
+            "implementationPrerequisites": sorted(f"dedicated visual: {ing} ({DEDICATED_VISUAL_KEYS[ing]})" for ing in req if ing in DEDICATED_VISUAL_KEYS),
             "inheritedGlobalOpen": globals_open,
             "effectiveOpenRefs": effective,
             "recipeSpecificClear": not specific,
@@ -716,10 +863,11 @@ def build_ledger(ledger, recipes, provenance, discovery, decisions, inputs):
         "kind": "w1_evidence_resolution_ledger",
         "inputs": inputs,
         "ownerDecisions": {k: f"{k} = {v['value']}" for k, v in OWNER_DECISIONS.items()},
+        "humanVisualVerificationFile": f"docs/reports/data/{OUT_HUMAN}",
         "ownerDecisionsFile": f"docs/reports/data/{OUT_DECISIONS}",
         "ownerDecisionsHeld": {"sauce": "OD-S1 = A (maintained)", "quantities": "authored minCounts unchanged; not trimmed to the 8-slot ring",
                                "completionGate": "#215 production untouched"},
-        "readinessRule": "READY only when no recipe-specific ref and no inherited global ref is open (PR #221 derived_readiness); BLOCKED = not safely representable by evidence/current mechanic.",
+        "readinessRule": "READY only when no recipe-specific ref and no inherited global ref is open (PR #221 derived_readiness); BLOCKED = not safely representable by evidence/current mechanic. Re-derived from every open dependency; implementationPrerequisites never feed it.",
         "rows": rows,
         "resolvedIds": sorted(r["id"] for r in rows if r["resolution"] == "RESOLVED"),
         "unresolvedIds": sorted(r["id"] for r in rows if r["resolution"] == "UNRESOLVED"),
@@ -741,7 +889,9 @@ def derived_readiness(refs):
 # ---------------------------------------------------------------- validator (bidirectional invariants)
 
 EXPECTED_OWNER_DECISIONS = {"OD-OLIVE": "BLACK_OLIVE_CANONICAL", "OD-PARM": "PARMIGIANO_CANONICAL",
-                            "OD-CLAM-GLYPH": "DEFER_TO_VISUAL_GATE", "OD-TOMATO-REPRESENTATION": "TEMPORARY_SHARED_GLYPH"}
+                            "OD-CLAM-GLYPH": "DEDICATED_CLAM_B", "OD-TOMATO-REPRESENTATION": "DEDICATED_FRESH_TOMATO_B",
+                            "OD-CAPERS-VISUAL": "DEDICATED_CAPER_CLUSTER"}
+EXPECTED_SUPERSEDED = {"OD-CLAM-GLYPH": "DEFER_TO_VISUAL_GATE", "OD-TOMATO-REPRESENTATION": "TEMPORARY_SHARED_GLYPH"}
 
 
 def check(cond, msg):
@@ -761,7 +911,7 @@ def ledger_scope_recipes(row, recipes):
 
 
 def validate(state, ctx):
-    led, dec, vis = state[OUT_LEDGER], state[OUT_DECISIONS], state[OUT_VISUAL]
+    led, dec, vis, hum = state[OUT_LEDGER], state[OUT_DECISIONS], state[OUT_VISUAL], state[OUT_HUMAN]
     recipes, ledger221, occurrences = ctx["recipes"], ctx["ledger221"], ctx["occurrences"]
     rows = {r["id"]: r for r in led["rows"]}
     per = {p["recipeIdCandidate"]: p for p in led["recipes"]}
@@ -798,7 +948,8 @@ def validate(state, ctx):
                   f"{row['id']} resolved without a matching game canonicalization rule")
             check(od_resolves.get(row["id"]) == rule["ownerDecision"], f"{row['id']} not resolved by its owner decision")
             check(e["evidenceFact"]["disposition"] == "likely_alias", f"{row['id']} evidence fact rewritten")
-    check(set(led["resolvedIds"]) == {"REC-08"} | set(od_resolves), f"resolved set {led['resolvedIds']} != REC-08 + owner-decision set")
+    check(set(led["resolvedIds"]) == {"REC-08"} | set(od_resolves) | set(VISUAL_LEDGER),
+          f"resolved set {led['resolvedIds']} != REC-08 + owner-decision set + human-verified visual set")
     for rid in led["resolvedIds"]:
         check(rows[rid]["resolution"] == "RESOLVED" and not rows[rid]["stillOpen"], f"{rid} listed resolved but open")
 
@@ -816,23 +967,49 @@ def validate(state, ctx):
         check(p["authoredMinCounts"] == {x["ingredientId"]: x["minCountCandidate"] for x in src[rid]["requiredIngredients"]},
               f"{rid} authored quantities changed")
 
-    # Visual: every new ingredient stays HUMAN_VERIFICATION_REQUIRED; decisions do not pick a glyph or alias.
-    for lid, ing in VISUAL_LEDGER.items():
-        check(rows[lid]["stillOpen"] and rows[lid]["resolutionStatus"] == "HUMAN_VERIFICATION_REQUIRED", f"{lid} must stay HVR")
-    for item in vis["ingredients"]:
-        check(item["verdict"] == "HUMAN_VERIFICATION_REQUIRED", f"{item['ingredientId']} visual verdict {item['verdict']}")
-    check(all(v["verdict"] == "HUMAN_VERIFICATION_REQUIRED" for v in vis["explicitFocus"].values()), "explicit focus item not HVR")
-    check(sorted(vis["previewVisualGateHandoff"]["ingredients"]) == EXPECTED_NEW_INGREDIENTS, "visual gate handoff != 7 new ingredients")
+    # Visual: each ING row is resolved only by HUMAN_VISUAL_VERIFICATION; decisions are final, keep ids, never alias.
+    check(hum["evidenceClass"] == "HUMAN_VISUAL_VERIFICATION", "human evidence class drifted")
+    hum_by = {h["ingredientId"]: h for h in hum["ingredients"]}
+    check(sorted(hum_by) == EXPECTED_NEW_INGREDIENTS, "human verification != the 7 new ingredients")
     vis_by = {i["ingredientId"]: i for i in vis["ingredients"]}
-    check(vis_by["clam"]["ownerDecision"]["chosenGlyph"] is None and dec["ownerDecisions"]["OD-CLAM-GLYPH"]["chosenGlyph"] is None,
-          "clam glyph must stay undecided (DEFER_TO_VISUAL_GATE)")
+    for lid, ing in VISUAL_LEDGER.items():
+        row, h, v = rows[lid], hum_by[ing], vis_by[ing]
+        check(not row["stillOpen"] and row["resolution"] == "RESOLVED" and row["resolutionStatus"] == "RESOLVED_BY_HUMAN_VISUAL_VERIFICATION",
+              f"{lid} must be resolved by human visual verification")
+        check(set(row["evidence"]) == {"HUMAN_VISUAL_VERIFICATION"}, f"{lid} human result recorded under another evidence class {sorted(row['evidence'])}")
+        check(h["evidenceClass"] == "HUMAN_VISUAL_VERIFICATION" and h["verificationResult"] == "HUMAN_PASS" and h["deviceClass"] == "iPhone Safari",
+              f"{ing} human verification incomplete")
+        check(re.fullmatch(r"[0-9a-f]{40}", h["previewSourceSha"] or "") and re.fullmatch(r"[0-9a-f]{40}", h["previewRepoSha"] or "")
+              and h["previewUrl"] == PREVIEW_URL, f"{ing} human verification lacks exact preview provenance")
+        check(v["verdict"] == "HUMAN_PASS" and v["verdictEvidenceClass"] == "HUMAN_VISUAL_VERIFICATION", f"{ing} visual verdict {v['verdict']}")
+        check(v["approvedVisual"] == h["approvedVisual"] == row["approvedVisual"], f"{ing} approved visual disagrees across files")
+        dedicated = DEDICATED_VISUAL_KEYS.get(ing)
+        check((h["approvedVisual"].get("key") == dedicated) if dedicated else h["approvedVisual"]["kind"] == "EMOJI",
+              f"{ing} approved visual {h['approvedVisual']} != human-passed candidate")
+    check(all(v["verdict"] == "HUMAN_PASS" for v in vis["explicitFocus"].values()), "explicit focus item not HUMAN_PASS")
+    check(sorted(vis["previewVisualGateHandoff"]["ingredients"]) == EXPECTED_NEW_INGREDIENTS, "visual gate handoff != 7 new ingredients")
+    for od_id, old in EXPECTED_SUPERSEDED.items():
+        check(dec["ownerDecisions"][od_id]["supersedes"]["value"] == old, f"{od_id} history lost (must record it supersedes {old})")
+    for od_id, ing in (("OD-CLAM-GLYPH", "clam"), ("OD-TOMATO-REPRESENTATION", "fresh-tomato"), ("OD-CAPERS-VISUAL", "capers")):
+        od = dec["ownerDecisions"][od_id]
+        check(od["kind"] == "VISUAL_DECISION_FINAL" and od["resolves"] == [], f"{od_id} must be a visual decision that resolves no evidence row by itself")
+        check(od["chosenVisual"]["key"] == DEDICATED_VISUAL_KEYS[ing] == vis_by[ing]["ownerDecision"]["chosenVisual"]["key"], f"{od_id} chosen visual drift")
+        check(od["ingredientIdKept"] == ing, f"{od_id} changes the ingredient id")
+    check(any("OYSTER" in x for x in dec["ownerDecisions"]["OD-CLAM-GLYPH"]["rejected"]) and any("SPIRAL" in x for x in dec["ownerDecisions"]["OD-CLAM-GLYPH"]["rejected"]),
+          "clam must reject 🦪 and 🐚")
     tom = dec["ownerDecisions"]["OD-TOMATO-REPRESENTATION"]
-    check(tom["aliasTo"] is None and vis_by["fresh-tomato"]["ownerDecision"]["aliasTo"] is None and tom["ingredientIdKept"] == "fresh-tomato",
-          "fresh-tomato must keep its own id (no alias)")
-    check(tom["deviceVisualGate"] == "REQUIRED", "fresh-tomato device visual gate must stay required")
+    check(tom["aliasTo"] is None and vis_by["fresh-tomato"]["ownerDecision"]["aliasTo"] is None and tom["ingredientIdKept"] == "fresh-tomato"
+          and tom["forbiddenAliases"] == ["cherry-tomato"], "fresh-tomato must keep its own id (no alias)")
+    check(tom["deviceVisualGate"] == "HUMAN_PASS" and hum_by["fresh-tomato"]["previewSourceSha"] == HUMAN_SESSIONS["HVG-2"]["previewSourceSha"],
+          "fresh-tomato B must rest on the HVG-2 (fe80e3c) human pass")
+    check(any("\U0001F345" in x for x in tom["rejected"]) and any("candidate A" in x for x in tom["rejected"]), "fresh-tomato must reject shared 🍅 and candidate A")
+    check(any("\U0001F7E2" in x for x in dec["ownerDecisions"]["OD-CAPERS-VISUAL"]["rejected"]), "capers must reject 🟢")
     for rid, p in per.items():
         if "fresh-tomato" in p["authoredMinCounts"]:
             check("cherry-tomato" not in p["authoredMinCounts"], f"{rid} substitutes cherry-tomato for fresh-tomato")
+        req = set(p["authoredMinCounts"])
+        check(p["implementationPrerequisites"] == sorted(f"dedicated visual: {i} ({DEDICATED_VISUAL_KEYS[i]})" for i in req if i in DEDICATED_VISUAL_KEYS),
+              f"{rid} implementation prerequisites drift")
 
     # Description candidates agree with the decisions (recomputed from the #221 input, not trusted).
     recomputed = description_consistency(recipes)
@@ -875,11 +1052,22 @@ MUTATIONS = [
     ("RT-01 resolved", lambda s, c: next(r for r in s[OUT_LEDGER]["rows"] if r["id"] == "RT-01").update(stillOpen=False, resolution="RESOLVED")),
     ("RT-01 dropped from portuguesa", lambda s, c: next(p for p in s[OUT_LEDGER]["recipes"] if p["recipeIdCandidate"] == "pizza-portuguesa")["remainingByKind"].update(runtime=[])),
     ("REC-01 resolved", lambda s, c: next(r for r in s[OUT_LEDGER]["rows"] if r["id"] == "REC-01").update(stillOpen=False)),
-    ("ING-09 row closed", lambda s, c: next(r for r in s[OUT_LEDGER]["rows"] if r["id"] == "ING-09").update(stillOpen=False)),
-    ("capers visual PASS", lambda s, c: next(i for i in s[OUT_VISUAL]["ingredients"] if i["ingredientId"] == "capers").update(verdict="PASS")),
-    ("clam glyph chosen", lambda s, c: s[OUT_DECISIONS]["ownerDecisions"]["OD-CLAM-GLYPH"].update(chosenGlyph="\U0001F9AA")),
+    ("ING-09 reopened while listed resolved", lambda s, c: next(r for r in s[OUT_LEDGER]["rows"] if r["id"] == "ING-09").update(stillOpen=True)),
+    ("capers verdict reverted to HVR", lambda s, c: next(i for i in s[OUT_VISUAL]["ingredients"] if i["ingredientId"] == "capers").update(verdict="HUMAN_VERIFICATION_REQUIRED")),
+    ("clam decision reverted to DEFER", lambda s, c: s[OUT_DECISIONS]["ownerDecisions"]["OD-CLAM-GLYPH"].update(value="DEFER_TO_VISUAL_GATE")),
+    ("clam 🦪 un-rejected", lambda s, c: s[OUT_DECISIONS]["ownerDecisions"]["OD-CLAM-GLYPH"]["rejected"].pop(0)),
+    ("clam chosen visual = oyster", lambda s, c: s[OUT_DECISIONS]["ownerDecisions"]["OD-CLAM-GLYPH"]["chosenVisual"].update(key="oyster")),
     ("fresh-tomato aliased to cherry-tomato", lambda s, c: s[OUT_DECISIONS]["ownerDecisions"]["OD-TOMATO-REPRESENTATION"].update(aliasTo="cherry-tomato")),
-    ("fresh-tomato device gate waived", lambda s, c: s[OUT_DECISIONS]["ownerDecisions"]["OD-TOMATO-REPRESENTATION"].update(deviceVisualGate="WAIVED")),
+    ("fresh-tomato approved visual = shared 🍅", lambda s, c: next(h for h in s[OUT_HUMAN]["ingredients"] if h["ingredientId"] == "fresh-tomato").update(approvedVisual={"kind": "EMOJI", "glyph": "\U0001F345"})),
+    ("fresh-tomato approved = candidate A", lambda s, c: [x["approvedVisual"].update(key="tomato-slice") for x in (next(h for h in s[OUT_HUMAN]["ingredients"] if h["ingredientId"] == "fresh-tomato"), next(i for i in s[OUT_VISUAL]["ingredients"] if i["ingredientId"] == "fresh-tomato"), next(r for r in s[OUT_LEDGER]["rows"] if r["id"] == "ING-09"))]),
+    ("fresh-tomato pass rests on HVG-1", lambda s, c: next(h for h in s[OUT_HUMAN]["ingredients"] if h["ingredientId"] == "fresh-tomato").update(previewSourceSha=HUMAN_SESSIONS["HVG-1"]["previewSourceSha"])),
+    ("tomato decision history dropped", lambda s, c: s[OUT_DECISIONS]["ownerDecisions"]["OD-TOMATO-REPRESENTATION"]["supersedes"].update(value=None)),
+    ("human pass recorded as PIZZA DB evidence", lambda s, c: next(r for r in s[OUT_LEDGER]["rows"] if r["id"] == "ING-08")["evidence"].update(PIZZA_DB_EVIDENCE="corn verified")),
+    ("human pass without device class", lambda s, c: next(h for h in s[OUT_HUMAN]["ingredients"] if h["ingredientId"] == "potato").update(deviceClass=None)),
+    ("human pass without exact preview SHA", lambda s, c: next(h for h in s[OUT_HUMAN]["ingredients"] if h["ingredientId"] == "corn").update(previewSourceSha="fe80e3c")),
+    ("capers 🟢 un-rejected", lambda s, c: s[OUT_DECISIONS]["ownerDecisions"]["OD-CAPERS-VISUAL"].update(rejected=[])),
+    ("visual OD resolves an evidence row by itself", lambda s, c: s[OUT_DECISIONS]["ownerDecisions"]["OD-CLAM-GLYPH"].update(resolves=["ING-07"])),
+    ("implementation prerequisite dropped", lambda s, c: next(p for p in s[OUT_LEDGER]["recipes"] if p["recipeIdCandidate"] == "pesto-caprese").update(implementationPrerequisites=[])),
     ("visual gate handoff drops eggplant", lambda s, c: s[OUT_VISUAL]["previewVisualGateHandoff"]["ingredients"].remove("eggplant")),
     ("quantity changed", lambda s, c: next(p for p in s[OUT_LEDGER]["recipes"] if p["recipeIdCandidate"] == "puttanesca-pizza")["authoredMinCounts"].update({"black-olive": 1})),
     ("sauce OD changed", lambda s, c: s[OUT_LEDGER]["ownerDecisionsHeld"].update(sauce="OD-S1 = B")),
@@ -890,7 +1078,9 @@ MUTATIONS = [
     ("description says チェリートマト", lambda s, c: next(r for r in c["recipes"]["rows"] if r["recipeIdCandidate"] == "pesto-caprese").update(
         descriptionCandidate=next(r for r in c["recipes"]["rows"] if r["recipeIdCandidate"] == "pesto-caprese")["descriptionCandidate"].replace("トマト、", "チェリートマト、"))),
     ("pesto-tonno forced READY", lambda s, c: next(p for p in s[OUT_LEDGER]["recipes"] if p["recipeIdCandidate"] == "pesto-tonno").update(readiness="READY")),
-    ("melanzane drops ING-03 (orphan)", lambda s, c: next(p for p in s[OUT_LEDGER]["recipes"] if p["recipeIdCandidate"] == "melanzane-pizza")["remainingRecipeSpecific"].remove("ING-03")),
+    ("hawaiian forced READY on visual pass alone", lambda s, c: next(p for p in s[OUT_LEDGER]["recipes"] if p["recipeIdCandidate"] == "hawaiian").update(readiness="READY")),
+    ("melanzane drops resolved ING-03 (orphan)", lambda s, c: next(p for p in s[OUT_LEDGER]["recipes"] if p["recipeIdCandidate"] == "melanzane-pizza")["resolvedByThisAudit"].remove("ING-03")),
+    ("parmigiana drops RT-01 while ING-03 resolved", lambda s, c: next(p for p in s[OUT_LEDGER]["recipes"] if p["recipeIdCandidate"] == "parmigiana-pizza")["remainingRecipeSpecific"].remove("RT-01")),
     ("resolved REC-10 still carried", lambda s, c: next(p for p in s[OUT_LEDGER]["recipes"] if p["recipeIdCandidate"] == "parmigiana-pizza")["remainingRecipeSpecific"].append("REC-10")),
     ("summary totals edited", lambda s, c: s[OUT_LEDGER]["summary"].update(READY=1, REVIEW=9)),
 ]
@@ -933,10 +1123,11 @@ def main():
     discovery = build_discovery(recipes, ingredients)
     visual = build_visual(ingredients, discovery, recipes)
     decisions = build_decisions(ledger, recipes, provenance, occurrences, w1_rows)
-    resolution = build_ledger(ledger, recipes, provenance, discovery, decisions, inputs)
+    human = build_human()
+    resolution = build_ledger(ledger, recipes, provenance, discovery, decisions, inputs, human)
 
     outputs = {OUT_LEDGER: resolution, OUT_PROVENANCE: provenance, OUT_DISCOVERY: discovery, OUT_VISUAL: visual,
-               OUT_DECISIONS: decisions}
+               OUT_DECISIONS: decisions, OUT_HUMAN: human}
     ctx = {"recipes": recipes, "ledger221": ledger, "occurrences": occurrences}
     try:
         validate(outputs, ctx)
