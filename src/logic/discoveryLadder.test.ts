@@ -396,7 +396,7 @@ describe("validateDiscoveryLadder", () => {
   });
 });
 
-describe("production behavior unchanged (I4a is not wired)", () => {
+describe("production behavior unchanged (the pure layer is not wired)", () => {
   // Raw source of every non-test module under src/. `import.meta.glob` is resolved by Vite at
   // transform time, so this sees exactly the files the app build would.
   const sources = import.meta.glob<string>(["../**/*.{ts,tsx}", "!../**/*.test.{ts,tsx}"], {
@@ -405,15 +405,17 @@ describe("production behavior unchanged (I4a is not wired)", () => {
     eager: true,
   });
 
-  it("no production module imports the Discovery Ladder data or logic", () => {
-    const allowed = new Set([
+  it("no production module imports the Discovery Ladder or material Shop pure layer", () => {
+    // I4a (ladder) + I4b-1 (material Shop): these may import each other, nothing else may import them.
+    const pureLayer = new Set([
       "../data/discoveryLadder.ts",
       "./discoveryLadder.ts",
+      "./materialShop.ts",
       "./testSupport/discoveryLadderRule.ts",
     ]);
     const importers = Object.entries(sources)
-      .filter(([path]) => !allowed.has(path))
-      .filter(([, text]) => /from\s+["'][^"']*discoveryLadder(Rule)?["']/.test(text))
+      .filter(([path]) => !pureLayer.has(path))
+      .filter(([, text]) => /from\s+["'][^"']*(discoveryLadder(Rule)?|materialShop)["']/.test(text))
       .map(([path]) => path);
     expect(Object.keys(sources).length).toBeGreaterThan(50);
     expect(importers).toEqual([]);
