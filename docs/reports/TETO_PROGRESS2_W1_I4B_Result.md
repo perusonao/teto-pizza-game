@@ -21,6 +21,7 @@
 | I4b-4 fix | `0500bc8` | 通知の中で材料名が途中改行しないようにした（Human Verification で発見） |
 | docs | `7eaa57e` | Result Report と Human Verification の screenshots |
 | WebKit fix | `8184298` | 通知が WebKit 360×800 でも RESULT 1-Screen の高さ予算内に収まるように修正（§4 を参照） |
+| review fix | `ed7bc26` | PR #227 の review（Codex P2）: Shop の進捗表示（「あとN つ発見で…」）が、解放済みの材料だけの step を飛ばすように修正（下記参照） |
 
 ## 2. UI の変更一覧
 
@@ -134,6 +135,15 @@ Human Verification で見つけて直したもの:
 - 未所持の ladder 材料は NEW、在庫 0 になる。
 - schemaVersion は 2 のまま。未知の id は I0 の仕組みで保持する（unit test と e2e で確認）。
 - Full Game Reset は save を丸ごと削除する（e2e で確認）。
+
+## 5b. PR #227 review の対応（`ed7bc26`）
+
+- 指摘: 移行した EP4 save では、ladder の後ろの step の材料をすでに所持していることがある。たとえばマルゲリータとフンギを発見済みで、step 3 のマッシュルームを所持しているケース。このとき「あと1つ発見で新しい材料が入荷」と表示されるが、次の発見では何も入荷しない。
+- 修正: `nextMaterialHint` に解放済みの材料の一覧を渡すようにした。発見数より先の step のうち、まだ解放されていない材料を含む最初の step を返す。該当する step がなければ表示しない。
+- 検証:
+  - unit / component / App test を追加した。指摘されたケースは「あと2つ」（step 4）と表示される。修正前は失敗し、修正後は通ることを確認した。
+  - Vitest 2834 / 2834、Chromium 140 / 140。
+- UI への影響: 移行 save の Shop にある進捗の1行の数字だけ。新規 save の表示は変わらない（新規 save では、解放済みの材料が発見数と一致するため）。
 
 ## 6. 残っている課題
 
