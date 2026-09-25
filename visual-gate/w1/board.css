@@ -19,3 +19,4 @@ body { margin: 0; background: #fbf5ea; }
 .w1-patch__pieces { position: absolute; inset: 0; display: grid; place-content: center; place-items: center; gap: 2px 6px; }
 .w1-patch__piece { line-height: 1; }
 .w1-tray { position: relative; } .w1-tray .ingredient-scroll-cue { display: none; }
+.w1-subhead { font-size: 10px; font-weight: 700; margin: 6px 0 2px; color: #7a0078; }

@@ -15,10 +15,12 @@ import { W1_GATE_SAVE_KEY, w1GateSeedSave } from "../candidates";
 const FREE_COOK_BAKE_TARGET = { start: 58, end: 78 };
 const BAKE_NEEDLE_SPEED_PCT_PER_S = 55;
 const SHOTS = process.env.W1_GATE_SCREENSHOTS === "1";
+/** Optional comma list of screenshot-name prefixes to keep (slice 3 only re-evidences fresh-tomato). */
+const SHOT_ONLY = process.env.W1_GATE_SHOT_ONLY?.split(",").filter(Boolean);
 /** Human-speed holds for the Human Verification video (W1_GATE_VIDEO=1); 0 otherwise. */
 const HOLD_MS = process.env.W1_GATE_VIDEO === "1" ? 1800 : 0;
 const SHOT_ROOT = fileURLToPath(
-  new URL("../../../docs/reports/screenshots/w1-ingredient-visual-gate-2/", import.meta.url),
+  new URL("../../../docs/reports/screenshots/w1-ingredient-visual-gate-3/", import.meta.url),
 );
 
 const W1_IDS = ["capers", "clam", "corn", "eggplant", "fresh-tomato", "pineapple", "potato"];
@@ -31,6 +33,8 @@ interface Placement {
 interface Scenario {
   key: string;
   clam?: "oyster" | "dedicated";
+  /** fresh-tomato drawing: "a" = slice 2 candidate, default = Final candidate (B). */
+  tomato?: "a";
   owned: string[];
   sauce: string;
   cheese: { name: string; at: ReadonlyArray<readonly [number, number]> } | null;
@@ -46,14 +50,30 @@ const MOZZ_AT = [
 
 const SCENARIOS: Scenario[] = [
   {
-    key: "tomato",
-    owned: ["cherry-tomato", "fresh-tomato"],
+    // fresh-tomato (left column) vs cherry-tomato 🍅 (right) vs pepperoni 🔴 (middle) on
+    // tomato sauce + mozzarella: the Final comparison set on one real pizza.
+    key: "tomato-b-final",
+    owned: ["cherry-tomato", "fresh-tomato", "pepperoni"],
     sauce: "トマトソース",
-    cheese: { name: "モッツァレラ", at: MOZZ_AT },
+    cheese: { name: "モッツァレラ", at: [[40, 40], [60, 60]] },
     toppings: [
-      { name: "トマト", at: [[30, 30], [30, 50], [30, 70]] },
-      { name: "チェリートマト", at: [[70, 30], [70, 50], [70, 70]] },
-      { name: "バジル", at: [[50, 24], [50, 76]] },
+      { name: "トマト", at: [[28, 30], [28, 52], [28, 74]] },
+      { name: "チェリートマト", at: [[72, 30], [72, 52], [72, 74]] },
+      { name: "ペパロニ", at: [[50, 24], [50, 78]] },
+    ],
+  },
+  {
+    // fresh-tomato (left column) vs cherry-tomato 🍅 (right) vs pepperoni 🔴 (middle) on
+    // tomato sauce + mozzarella: the Final comparison set on one real pizza.
+    key: "tomato-a-slice2",
+    tomato: "a",
+    owned: ["cherry-tomato", "fresh-tomato", "pepperoni"],
+    sauce: "トマトソース",
+    cheese: { name: "モッツァレラ", at: [[40, 40], [60, 60]] },
+    toppings: [
+      { name: "トマト", at: [[28, 30], [28, 52], [28, 74]] },
+      { name: "チェリートマト", at: [[72, 30], [72, 52], [72, 74]] },
+      { name: "ペパロニ", at: [[50, 24], [50, 78]] },
     ],
   },
   {
@@ -77,18 +97,6 @@ const SCENARIOS: Scenario[] = [
       // left column on bare sauce, right column on/near the mozzarella pieces
       { name: "ナス", at: [[30, 32], [30, 52], [30, 72], [62, 38], [62, 62]] },
       { name: "バジル", at: [[48, 26], [48, 76]] },
-    ],
-  },
-  {
-    key: "clam-a-oyster",
-    clam: "oyster",
-    owned: ["clam", "olive-oil", "parmigiano", "garlic", "mushroom"],
-    sauce: "オリーブオイル",
-    cheese: { name: "パルミジャーノ", at: MOZZ_AT },
-    toppings: [
-      { name: "あさり", at: [[30, 30], [50, 25], [70, 30], [28, 55]] },
-      { name: "にんにく", at: [[72, 55], [50, 75]] },
-      { name: "マッシュルーム", at: [[50, 50]] },
     ],
   },
   {
@@ -172,6 +180,7 @@ function viewportKey(page: Page) {
 async function shot(page: Page, testInfo: { project: { name: string } }, name: string) {
   if (HOLD_MS) await page.waitForTimeout(HOLD_MS);
   if (!SHOTS || !testInfo.project.name.startsWith("chromium")) return;
+  if (SHOT_ONLY && !SHOT_ONLY.some((prefix) => name.startsWith(prefix))) return;
   const dir = `${SHOT_ROOT}${viewportKey(page)}/`;
   mkdirSync(dir, { recursive: true });
   await page.screenshot({ path: `${dir}${name}.png` });
@@ -229,7 +238,12 @@ async function pieceCounts(page: Page) {
 async function expectDedicatedVisuals(page: Page, scenario: Scenario, counts: Record<string, number>) {
   const stage = page.locator(".pizza-stage");
   const n = (visual: string) => stage.locator(`[data-w1-visual="${visual}"]`).count();
-  expect(await n("tomato-slice"), "fresh-tomato slice pieces").toBe(counts["fresh-tomato"] ?? 0);
+  const tomatoVisual = scenario.tomato === "a" ? "tomato-slice" : "tomato-slice-final";
+  const otherTomato = scenario.tomato === "a" ? "tomato-slice-final" : "tomato-slice";
+  expect(await n(tomatoVisual), "fresh-tomato slice pieces").toBe(counts["fresh-tomato"] ?? 0);
+  expect(await n(otherTomato), "only the selected tomato candidate is drawn").toBe(0);
+  const pepperoniTexts = await stage.locator(".pizza-topping--pepperoni").allTextContents();
+  expect(pepperoniTexts.every((text) => text === "\u{1F534}"), "pepperoni stays 🔴").toBe(true);
   expect(await n("caper-cluster"), "caper cluster pieces").toBe(counts.capers ?? 0);
   expect(await n("asari-valve"), "asari pieces").toBe(scenario.clam === "dedicated" ? (counts.clam ?? 0) : 0);
   const cherryTexts = await stage.locator(".pizza-topping--cherry-tomato").allTextContents();
@@ -247,7 +261,10 @@ for (const scenario of SCENARIOS) {
       ([key, raw]) => localStorage.setItem(key, JSON.stringify(raw)),
       [W1_GATE_SAVE_KEY, w1GateSeedSave(scenario.owned)] as const,
     );
-    await page.goto(scenario.clam ? `./game.html?clam=${scenario.clam}` : "./game.html");
+    const query = new URLSearchParams();
+    if (scenario.clam) query.set("clam", scenario.clam);
+    if (scenario.tomato) query.set("tomato", scenario.tomato);
+    await page.goto(`./game.html${query.size ? `?${query}` : ""}`);
     await page.waitForSelector(".app-frame");
     await expect(page.getByTestId("w1-preview-ribbon")).toBeVisible();
     await page.getByRole("button", { name: /フリークッキング/ }).click();
@@ -297,7 +314,7 @@ for (const scenario of SCENARIOS) {
     // Identity: every candidate piece keeps its own id on the pizza (fresh-tomato is never
     // turned into cherry-tomato, clam stays clam whatever its glyph).
     const counts = await pieceCounts(page);
-    if (scenario.key === "tomato") {
+    if (scenario.key.startsWith("tomato")) {
       expect(counts["fresh-tomato"]).toBe(3);
       expect(counts["cherry-tomato"]).toBe(3);
     }
@@ -343,7 +360,10 @@ for (const scenario of SCENARIOS) {
     await expect(page.locator(".discovered-banner--new-pizza")).toHaveCount(0);
     // RESULT ingredient list draws the same dedicated visual (never the old 🍅 / 🟢 text).
     const usedList = page.getByRole("list", { name: "使った材料" });
-    if (counts["fresh-tomato"]) await expect(usedList.locator('[data-w1-visual="tomato-slice"]')).toHaveCount(1);
+    if (counts["fresh-tomato"]) {
+      const listVisual = scenario.tomato === "a" ? "tomato-slice" : "tomato-slice-final";
+      await expect(usedList.locator(`[data-w1-visual="${listVisual}"]`)).toHaveCount(1);
+    }
     if (counts.capers) await expect(usedList.locator('[data-w1-visual="caper-cluster"]')).toHaveCount(1);
     // Save isolation: the gate only ever writes its own key, never production's / the PR preview's.
     const keys = await page.evaluate(() => Object.keys(localStorage));
@@ -369,6 +389,7 @@ test("W1 gate QA board", async ({ page }, testInfo) => {
     const dir = `${SHOT_ROOT}${viewportKey(page)}/`;
     mkdirSync(dir, { recursive: true });
     for (const id of ["all", "tomato", "capers", "eggplant", "clam", "yellow"]) {
+      if (SHOT_ONLY && !SHOT_ONLY.some((prefix) => `board-${id}`.startsWith(prefix))) continue;
       await page.getByTestId(`section-${id}`).screenshot({ path: `${dir}board-${id}.png` });
     }
   }
@@ -380,9 +401,10 @@ test("W1 gate Human Verification hub -> seeded game", async ({ page }, testInfo)
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow, "hub: no horizontal overflow").toBeLessThanOrEqual(0);
   await shot(page, testInfo, "hub");
-  await page.getByRole("link", { name: /あさり B/ }).click();
+  await page.getByRole("link", { name: /トマト B/ }).click();
   await page.waitForSelector(".app-frame");
   expect(new URL(page.url()).searchParams.get("seed"), "seed param dropped after seeding").toBeNull();
+  await expect(page.getByTestId("w1-preview-ribbon")).toContainText("tomato B (Final)");
   await expect(page.getByTestId("w1-preview-ribbon")).toContainText("B: dedicated asari");
   await page.getByRole("button", { name: /フリークッキング/ }).click();
   await completeDoughStep(page);

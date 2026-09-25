@@ -192,6 +192,10 @@ function Section({ id, title, children }: { id: string; title: string; children:
 const CLAM_A: VisualOverride = { clam: null };
 const CLAM_B: VisualOverride = { clam: "asari-valve" };
 const LEGACY: VisualOverride = { "fresh-tomato": null, capers: null };
+const TOMATO: Record<"a" | "b", VisualOverride> = {
+  a: { "fresh-tomato": "tomato-slice" },
+  b: { "fresh-tomato": "tomato-slice-final" },
+};
 
 export function Board() {
   const fresh = need("fresh-tomato");
@@ -234,17 +238,28 @@ export function Board() {
         <PatchRow label="fresh-tomato | pineapple | potato · thumbnail size" base="sauce" pieces={[fresh, pineapple, potato]} pieceScale={0.58} testId="row-all-small-b" />
       </Section>
 
-      <Section id="tomato" title="fresh-tomato (slice) vs cherry-tomato 🍅 vs tomato-sauce">
-        <Tray category="topping" ids={["basil", "cherry-tomato", "fresh-tomato"]} testId="tray-tomato-topping" />
+      <Section id="tomato" title="fresh-tomato A (slice 2) vs B (Final) · cherry-tomato 🍅 · pepperoni 🔴 · tomato-sauce">
+        {(["a", "b"] as const).map((variant) => (
+          <W1VisualOverride.Provider key={variant} value={TOMATO[variant]}>
+            <p className="w1-subhead">{variant === "a" ? "A: slice 2 candidate" : "B: Final candidate"} — tray</p>
+            <Tray category="topping" ids={["cherry-tomato", "fresh-tomato", "pepperoni"]} testId={`tray-tomato-${variant}`} />
+          </W1VisualOverride.Provider>
+        ))}
         <Tray category="sauce" ids={["tomato-sauce", "pesto"]} testId="tray-tomato-sauce" />
-        <PatchRow label="fresh-tomato ×3" base="pesto" pieces={[fresh, fresh, fresh]} testId="row-fresh-pesto" />
-        <PatchRow label="cherry-tomato ×3" base="pesto" pieces={[cherry, cherry, cherry]} testId="row-cherry-pesto" />
-        <PatchRow label="fresh | cherry | cherry | fresh" base="sauce" pieces={[fresh, cherry, cherry, fresh]} testId="row-tomato-mixed-sauce" />
-        <PatchRow label="fresh | cherry | cherry | fresh" base="cheese" pieces={[fresh, cherry, cherry, fresh]} testId="row-tomato-mixed-cheese" />
-        <PatchRow label="fresh | cherry · thumbnail size" base="sauce" pieces={[fresh, cherry, cherry, fresh]} pieceScale={0.58} testId="row-tomato-small" />
-        <div style={{ filter: "grayscale(1)" }} data-testid="tomato-gray">
-          <PatchRow label="fresh | cherry — grayscale" base="sauce" pieces={[fresh, cherry, cherry, fresh]} testId="row-tomato-gray" />
-        </div>
+        {(["a", "b"] as const).map((variant) => (
+          <div key={variant} data-testid={`tomato-rows-${variant}`}>
+            <p className="w1-subhead">{variant === "a" ? "A: slice 2 candidate" : "B: Final candidate"}</p>
+            <PatchRow label={`${variant.toUpperCase()} fresh | cherry | pepperoni | fresh`} base="sauce" pieces={[fresh, cherry, pepperoni, fresh]} visual={TOMATO[variant]} testId={`row-tomato-${variant}-sauce`} />
+            <PatchRow label={`${variant.toUpperCase()} fresh | cherry | pepperoni | fresh`} base="cheese" pieces={[fresh, cherry, pepperoni, fresh]} visual={TOMATO[variant]} testId={`row-tomato-${variant}-cheese`} />
+            <PatchRow label={`${variant.toUpperCase()} fresh ×3 on pesto (Pesto Caprese)`} base="pesto" pieces={[fresh, fresh, fresh]} visual={TOMATO[variant]} testId={`row-tomato-${variant}-pesto`} />
+            <PatchRow label={`${variant.toUpperCase()} · thumbnail size`} base="sauce" pieces={[fresh, cherry, pepperoni, fresh]} pieceScale={0.58} visual={TOMATO[variant]} testId={`row-tomato-${variant}-small`} />
+            {CVD_FILTERS.filter((cvd) => cvd.key !== "normal").map((cvd) => (
+              <div key={cvd.key} style={{ filter: cvd.filter }} data-testid={`tomato-${variant}-${cvd.key}`}>
+                <PatchRow label={`${variant.toUpperCase()} — ${cvd.label}`} base="sauce" pieces={[fresh, cherry, pepperoni, fresh]} visual={TOMATO[variant]} testId={`row-tomato-${variant}-${cvd.key}`} />
+              </div>
+            ))}
+          </div>
+        ))}
         <PatchRow label="BEFORE (slice 1): shared 🍅" base="sauce" pieces={[fresh, cherry, cherry, fresh]} visual={LEGACY} testId="row-tomato-before" />
       </Section>
 

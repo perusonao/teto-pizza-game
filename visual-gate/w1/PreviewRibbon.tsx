@@ -1,4 +1,4 @@
-import { CLAM_VARIANT_LABEL, clamVariantFromLocation } from "./candidates";
+import { CLAM_VARIANT_LABEL, TOMATO_VARIANT_LABEL, clamVariantFromLocation, tomatoVariantFromLocation } from "./candidates";
 
 declare const __W1_GATE_SHA__: string;
 
@@ -23,7 +23,7 @@ export function PreviewRibbon() {
         zIndex: 99999,
       }}
     >
-      W1 VISUAL GATE PREVIEW · {__W1_GATE_SHA__} · clam {clam}
+      W1 VISUAL GATE PREVIEW · {__W1_GATE_SHA__} · {TOMATO_VARIANT_LABEL[tomatoVariantFromLocation(search)]} · clam {clam}
       {legacy}
     </div>
   );

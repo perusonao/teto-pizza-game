@@ -4,21 +4,22 @@
  */
 declare const __W1_GATE_SHA__: string;
 
+/** Slice 3: only fresh-tomato is still open. clam B / capers / eggplant / corn / pineapple /
+ *  potato are Human PASS (clam Owner Decision = DEDICATED_CLAM_B), so every link uses clam B. */
 const LINKS = [
-  { href: "./game.html?seed=all", label: "① ゲーム：全材料・あさり A 🦪", note: "フリークッキングで7材料＋比較対象を自由に配置 → 焼く → RESULT" },
-  { href: "./game.html?seed=all&clam=dedicated", label: "② ゲーム：全材料・あさり B（専用絵）", note: "①と同じ条件で、あさりだけ専用絵" },
-  { href: "./board.html", label: "③ 比較ボード", note: "焼く前/焼いた後・16px・色覚シミュレーションを1ページで比較" },
-  { href: "./game.html?seed=all&w1visual=emoji", label: "（参考）前回版：トマト🍅・ケッパー🟢", note: "専用絵の前の状態" },
+  { href: "./game.html?seed=all&clam=dedicated", label: "① ゲーム：トマト B（Final候補）", note: "フリークッキングでトマト・チェリートマト・ペパロニ・トマトソースを同じピザに → 焼く → RESULT" },
+  { href: "./game.html?seed=all&clam=dedicated&tomato=a", label: "② ゲーム：トマト A（前回候補）", note: "①と同じ条件で、トマトだけ前回の絵（サラミ風に見えた方）" },
+  { href: "./board.html", label: "③ 比較ボード（トマト A / B）", note: "トレイ・焼く前/焼いた後/深焼き・16px・グレースケール・色覚シミュレーション" },
 ];
 
 const CHECKS = [
-  "トマト（専用・輪切り）とチェリートマト🍅を、トレイ / ピザ上 / 焼いた後 / RESULTで見分けられるか",
-  "トマトソース（塗り）とトマト（輪切り）を取り違えないか",
-  "ケッパー（小さな蕾の塊）を、ブラックオリーブ⚫・ペパロニ🔴と形で見分けられるか",
-  "あさり A 🦪 と B（専用絵）：貝として読めるか / 牡蠣に見えすぎないか / にんにく・パルミジャーノと混同しないか",
-  "ナス🍆がトマトソースの上・焼いた後に沈まないか",
-  "コーン🌽・パイナップル🍍・じゃがいも🥔がチーズの上・焼いた後に読めるか",
-  "材料が多い状態（トレイ3ページ）でも画面が崩れず、RESULTまで行けるか",
+  "トマト B が「トマトの輪切り」に見えるか（サラミ・ペパロニに見えないか）",
+  "トマト B とペパロニ🔴を、ピザ上で形で見分けられるか",
+  "トマト B とチェリートマト🍅を、トレイ / ピザ上 / 焼いた後 / RESULTで見分けられるか",
+  "トマトソース（塗り）とトマト B を取り違えないか",
+  "焼いた後・深く焼いた後・小さい表示（RESULTの材料リスト）でも読めるか",
+  "iOSのカラーフィルタ（グレイスケール）でもトマト B とペパロニを見分けられるか",
+  "A と B を見比べて、B の方が良いか",
 ];
 
 export function Hub() {

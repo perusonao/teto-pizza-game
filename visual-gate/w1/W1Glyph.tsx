@@ -10,7 +10,12 @@
  * wrapping span apply unchanged.
  *
  * Shape-first designs (each must stay identifiable in grayscale):
- * - fresh-tomato: a flat cross-section slice -- dark skin ring, pale core and 4 pale seed
+ * - fresh-tomato Final (slice 3, `tomato-slice-final`): an irregular, softly lobed outline with a
+ *   thin skin, a pale star-shaped core with 6 radial walls, and 6 yellow jelly chambers each
+ *   holding teardrop seeds pointing at the core -- the radial "wheel + jelly + seeds" structure
+ *   and the wavy outline are what separate it from a round, evenly spotted salami / pepperoni
+ *   slice even in grayscale. Fills the 1em box (size parity with neighbouring emoji).
+ * - fresh-tomato A (slice 2, `tomato-slice`): a flat cross-section slice -- dark skin ring, pale core and 4 pale seed
  *   chambers ("wheel"), no calyx. cherry-tomato keeps the whole 🍅 (glossy, green calyx);
  *   tomato-sauce is a spread (only its tray chip / RESULT list use 🍅).
  * - capers: an irregular cluster of 3 small pointed buds of different sizes -- never a single
@@ -45,6 +50,7 @@ export function DedicatedGlyph({ visual }: { visual: DedicatedVisualKey }) {
       focusable="false"
     >
       {visual === "tomato-slice" && <TomatoSlice />}
+      {visual === "tomato-slice-final" && <TomatoSliceFinal />}
       {visual === "caper-cluster" && <CaperCluster />}
       {visual === "asari-valve" && <AsariValve />}
     </svg>
@@ -125,6 +131,89 @@ function AsariValve() {
       <path d="M8.5 18.6 l1.6 -1.9 l1.6 1.9 l1.6 -1.9 M18.8 18.6 l1.6 -1.9 l1.6 1.9 l1.6 -1.9" stroke="#4d3924" strokeWidth="0.9" fill="none" strokeLinejoin="round" />
       {/* hinge / umbo */}
       <path d="M12.6 5.9 C 14 3.6, 18 3.6, 19.4 5.9 C 18 7.2, 14 7.2, 12.6 5.9 Z" fill="#6e5236" stroke="#3f2f1e" strokeWidth="0.8" />
+    </g>
+  );
+}
+
+/* ---------- fresh-tomato Final candidate (slice 3) ---------- */
+
+const C = 16;
+const LOCULES = 6;
+
+function polar(r: number, deg: number): [number, number] {
+  const rad = (deg * Math.PI) / 180;
+  return [C + r * Math.cos(rad), C + r * Math.sin(rad)];
+}
+
+function fmt([x, y]: [number, number]): string {
+  return `${x.toFixed(2)} ${y.toFixed(2)}`;
+}
+
+/** Closed path through `radius(deg)` sampled every 4 degrees. */
+function radialPath(radius: (deg: number) => number): string {
+  const points: string[] = [];
+  for (let deg = 0; deg < 360; deg += 4) points.push(fmt(polar(radius(deg), deg - 90)));
+  return `M${points.join(" L")} Z`;
+}
+
+// Softly lobed, slightly lopsided outline: a real slice is never a perfect circle.
+function outline(base: number): (deg: number) => number {
+  const rad = Math.PI / 180;
+  return (deg) =>
+    base +
+    0.32 * Math.cos((deg + 8) * LOCULES * rad) +
+    0.45 * Math.cos((deg - 40) * rad) +
+    0.22 * Math.cos((deg * 3 + 20) * rad);
+}
+
+const OUTER = radialPath(outline(15.1));
+const FLESH = radialPath(outline(13.3));
+
+/** One jelly chamber: a rounded wedge between two radial walls, from the core to the outer wall. */
+function loculePath(centerDeg: number): string {
+  const half = 20;
+  const inner = 4.4;
+  const outer = 11.2;
+  const a = polar(inner, centerDeg - half * 0.55 - 90);
+  const b = polar(outer, centerDeg - half - 90);
+  const tip = polar(outer + 1.4, centerDeg - 90);
+  const c = polar(outer, centerDeg + half - 90);
+  const d = polar(inner, centerDeg + half * 0.55 - 90);
+  const coreCtl = polar(inner - 0.8, centerDeg - 90);
+  return `M${fmt(a)} L${fmt(b)} Q${fmt(tip)} ${fmt(c)} L${fmt(d)} Q${fmt(coreCtl)} ${fmt(a)} Z`;
+}
+
+/** Teardrop seed at `r`/`deg`, pointing at the core. */
+function seedPath(r: number, deg: number): string {
+  const [x, y] = polar(r, deg - 90);
+  const [px, py] = polar(r - 2.1, deg - 90);
+  const nx = (y - C) / r;
+  const ny = -(x - C) / r;
+  const w = 0.95;
+  return `M${fmt([px, py])} Q${fmt([x + nx * w * 1.6, y + ny * w * 1.6])} ${fmt([x + (x - px) * 0.25, y + (y - py) * 0.25])} Q${fmt([x - nx * w * 1.6, y - ny * w * 1.6])} ${fmt([px, py])} Z`;
+}
+
+const CHAMBERS = Array.from({ length: LOCULES }, (_, i) => i * (360 / LOCULES) + 8);
+
+function TomatoSliceFinal() {
+  return (
+    <g>
+      <path d={OUTER} fill="#d8261b" stroke="#861810" strokeWidth="0.9" strokeLinejoin="round" />
+      <path d={FLESH} fill="#f0543a" />
+      {CHAMBERS.map((deg) => (
+        <g key={deg}>
+          <path d={loculePath(deg)} fill="#f6c24a" stroke="#f79a78" strokeWidth="0.8" strokeLinejoin="round" />
+          <path d={seedPath(8.3, deg - 7)} fill="#fff4c4" stroke="#b07f1a" strokeWidth="0.35" />
+          <path d={seedPath(8.3, deg + 7)} fill="#fff4c4" stroke="#b07f1a" strokeWidth="0.35" />
+          <path d={seedPath(10.6, deg)} fill="#fff4c4" stroke="#b07f1a" strokeWidth="0.35" />
+        </g>
+      ))}
+      {/* pale star-shaped core: the radial walls meet here */}
+      <path
+        d={radialPath((deg) => 3.4 + 1.1 * Math.cos(((deg + 8 - 30) * LOCULES * Math.PI) / 180))}
+        fill="#ffc9b1"
+      />
+      <path d="M6.2 10.2 A11.8 11.8 0 0 1 11.2 5.6" stroke="#ffe3d6" strokeWidth="1.1" strokeLinecap="round" fill="none" opacity="0.85" />
     </g>
   );
 }

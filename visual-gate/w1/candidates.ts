@@ -32,7 +32,21 @@ export const CLAM_VARIANT_LABEL: Record<ClamGlyphVariant, string> = {
   dedicated: "B: dedicated asari",
 };
 
-export type DedicatedVisualKey = "tomato-slice" | "caper-cluster" | "asari-valve";
+/** "tomato-slice" = slice 2 candidate (A, read as salami/pepperoni on iPhone);
+ *  "tomato-slice-final" = slice 3 Final candidate (B). */
+export type DedicatedVisualKey = "tomato-slice" | "tomato-slice-final" | "caper-cluster" | "asari-valve";
+
+export type TomatoVariant = "a" | "b";
+
+/** `?tomato=a` shows the slice 2 candidate; default (or `?tomato=b`) the Final candidate. */
+export function tomatoVariantFromLocation(search: string): TomatoVariant {
+  return new URLSearchParams(search).get("tomato") === "a" ? "a" : "b";
+}
+
+export const TOMATO_VARIANT_LABEL: Record<TomatoVariant, string> = {
+  a: "tomato A (slice 2)",
+  b: "tomato B (Final)",
+};
 
 /** Which ingredient ids render a dedicated (non-emoji) visual in this preview page load.
  *  `?w1visual=emoji` restores slice 1's shared 🍅 / 🟢 for before/after comparison;
@@ -41,7 +55,7 @@ export function activeDedicatedVisuals(search: string): Partial<Record<string, D
   const params = new URLSearchParams(search);
   const active: Partial<Record<string, DedicatedVisualKey>> = {};
   if (params.get("w1visual") !== "emoji") {
-    active["fresh-tomato"] = "tomato-slice";
+    active["fresh-tomato"] = tomatoVariantFromLocation(search) === "a" ? "tomato-slice" : "tomato-slice-final";
     active.capers = "caper-cluster";
   }
   if (clamVariantFromLocation(search) === "dedicated") active.clam = "asari-valve";
