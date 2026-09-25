@@ -1,0 +1,489 @@
+{
+  "id": "TETO_PROGRESS2_W1_I5B5_VERIFICATION_MATRIX",
+  "report": "docs/reports/TETO_PROGRESS2_W1_I5B5_VERIFICATION_FRESH-DESIGN.md",
+  "auditedMain": "12a09de2c4da8ed7e92f1ff9f47dd7bdf824a6e5",
+  "status": "design-only (not implemented)",
+  "profiles": [
+    {
+      "id": "N390",
+      "width": 390,
+      "height": 844,
+      "insetTop": 0,
+      "insetBottom": 0,
+      "engines": [
+        "chromium",
+        "webkit"
+      ],
+      "scope": "all specs (existing project)"
+    },
+    {
+      "id": "N360",
+      "width": 360,
+      "height": 800,
+      "insetTop": 0,
+      "insetBottom": 0,
+      "engines": [
+        "chromium",
+        "webkit"
+      ],
+      "scope": "all specs (existing project)"
+    },
+    {
+      "id": "S390",
+      "width": 390,
+      "height": 664,
+      "insetTop": 0,
+      "insetBottom": 0,
+      "engines": [
+        "chromium",
+        "webkit"
+      ],
+      "scope": "layout-contract sweep"
+    },
+    {
+      "id": "S360",
+      "width": 360,
+      "height": 640,
+      "insetTop": 0,
+      "insetBottom": 0,
+      "engines": [
+        "chromium",
+        "webkit"
+      ],
+      "scope": "layout-contract sweep"
+    },
+    {
+      "id": "P390i",
+      "width": 390,
+      "height": 844,
+      "insetTop": 47,
+      "insetBottom": 34,
+      "engines": [
+        "chromium"
+      ],
+      "insetMethod": "CDP Emulation.setSafeAreaInsetsOverride",
+      "scope": "layout-contract sweep"
+    },
+    {
+      "id": "E390i",
+      "width": 390,
+      "height": 664,
+      "insetTop": 47,
+      "insetBottom": 34,
+      "engines": [
+        "chromium"
+      ],
+      "insetMethod": "CDP Emulation.setSafeAreaInsetsOverride",
+      "scope": "layout-contract sweep (envelope)"
+    },
+    {
+      "id": "E360i",
+      "width": 360,
+      "height": 640,
+      "insetTop": 47,
+      "insetBottom": 34,
+      "engines": [
+        "chromium"
+      ],
+      "insetMethod": "CDP Emulation.setSafeAreaInsetsOverride",
+      "scope": "layout-contract sweep (envelope, worst)"
+    }
+  ],
+  "invariants": [
+    {
+      "id": "L-A",
+      "priority": "P0",
+      "rule": "primaryCta.bottom <= vh - sab; primaryCta.top >= header.bottom; elementFromPoint(center) hits CTA"
+    },
+    {
+      "id": "L-B",
+      "priority": "P0",
+      "rule": "pager.bottom + 8 <= ctaBar.top"
+    },
+    {
+      "id": "L-C",
+      "priority": "P0",
+      "rule": "every visible chip.bottom <= min(pager.top, ctaBar.top); chip/pager button centers hit themselves"
+    },
+    {
+      "id": "L-D",
+      "priority": "P0",
+      "rule": "documentElement.scrollWidth <= vw; visible .app-frame descendants right <= vw"
+    },
+    {
+      "id": "L-E",
+      "priority": "P0",
+      "rule": "cooking: scrollingElement.scrollHeight <= vh; .game-screen sh <= ch; scrollY stays 0 after scrollBy; no scrollable ancestor of CTA"
+    },
+    {
+      "id": "L-F",
+      "priority": "P0",
+      "rule": "BAKE 取り出す！ satisfies L-A at BAKE entry and after guide fade (~7.2s)"
+    },
+    {
+      "id": "L-G",
+      "priority": "P0",
+      "rule": "Lunch Rush: L-A/L-B/L-E/L-F with HUD; hud.bottom <= tabs.top"
+    },
+    {
+      "id": "L-H",
+      "priority": "P1",
+      "webkitRequired": true,
+      "rule": "HOME CTA label lines <= 2 (Range client rects); height <= 64; width/height >= 1.6"
+    },
+    {
+      "id": "L-I",
+      "priority": "P1",
+      "rule": "first interactive in header top >= sat; bottom-bar interactives bottom <= vh - sab"
+    },
+    {
+      "id": "L-J",
+      "priority": "P1",
+      "webkitRequired": true,
+      "rule": "tabs inside width, no ellipsis, tabs.top constant across steps (±1px)"
+    },
+    {
+      "id": "L-K",
+      "priority": "P1",
+      "rule": "slot stack monotonic: header<=tabs<=orderCard<=stage<=tray<=pager(+8)<=ctaBar"
+    },
+    {
+      "id": "L-L",
+      "priority": "P1",
+      "webkitRequired": true,
+      "rule": "recipe name lines <= 2 and inside card (Pizza Select / RESULT / Dex)"
+    },
+    {
+      "id": "L-M",
+      "priority": "P1",
+      "rule": "CTA / chip / pager buttons >= 44x44"
+    },
+    {
+      "id": "L-N",
+      "priority": "advisory",
+      "rule": "dough diameter >= floor (OD-V-4)"
+    },
+    {
+      "id": "L-O",
+      "priority": "P1",
+      "rule": "HOME Dex0 vs Dex1: same 2+1 row structure, primaryCta.top equal (±1px)"
+    }
+  ],
+  "layoutContractTests": [
+    {
+      "id": "LC-0",
+      "name": "harness self-check",
+      "asserts": "CDP inset probe reads 47/34; innerHeight matches profile after resize"
+    },
+    {
+      "id": "LC-1",
+      "name": "FREE (22 toppings owned)",
+      "mountProfile": "S360",
+      "states": [
+        "TOPPING p1",
+        "hint expanded",
+        "p2",
+        "last page",
+        "BAKE entry",
+        "BAKE after guide fade"
+      ],
+      "invariants": [
+        "L-A",
+        "L-B",
+        "L-C",
+        "L-D",
+        "L-E",
+        "L-F",
+        "L-J",
+        "L-K",
+        "L-M",
+        "L-N"
+      ]
+    },
+    {
+      "id": "LC-2",
+      "name": "guided high-piece (Portuguesa; Capricciosa pre-I5b-3)",
+      "mountProfile": "N390",
+      "states": [
+        "TOPPING",
+        "BAKE",
+        "CUT",
+        "RESULT"
+      ],
+      "invariants": [
+        "L-A",
+        "L-B",
+        "L-C",
+        "L-E",
+        "L-F",
+        "L-J",
+        "L-K"
+      ]
+    },
+    {
+      "id": "LC-3",
+      "name": "Lunch Rush",
+      "mountProfile": "S360",
+      "states": [
+        "PREPARE TOPPING",
+        "BAKE entry",
+        "BAKE after fade",
+        "CUT",
+        "RESULT"
+      ],
+      "invariants": [
+        "L-G",
+        "L-A",
+        "L-B",
+        "L-C",
+        "L-E",
+        "L-F"
+      ]
+    },
+    {
+      "id": "LC-4",
+      "name": "HOME Dex0 -> Dex1",
+      "mountProfile": "each",
+      "states": [
+        "Dex0",
+        "Dex1"
+      ],
+      "invariants": [
+        "L-A",
+        "L-D",
+        "L-H",
+        "L-I",
+        "L-O"
+      ]
+    },
+    {
+      "id": "LC-5",
+      "name": "Pizza Select + Shop",
+      "mountProfile": "N390",
+      "states": [
+        "long-name cards",
+        "detail sheet CTA",
+        "Shop last row"
+      ],
+      "invariants": [
+        "L-A",
+        "L-D",
+        "L-I",
+        "L-L"
+      ]
+    }
+  ],
+  "engineAssignment": {
+    "chromium": {
+      "profiles": [
+        "N390",
+        "N360",
+        "S390",
+        "S360",
+        "P390i",
+        "E390i",
+        "E360i"
+      ],
+      "runsIn": "new 'Layout Contract' CI job (OD-V-1) + local Full Chromium"
+    },
+    "webkit": {
+      "profiles": [
+        "N390",
+        "N360",
+        "S390",
+        "S360"
+      ],
+      "runsIn": "existing WebKit Gate; LC only in webkit-390x844, intentional test.skip in webkit-360x800"
+    }
+  },
+  "recipeChecks": [
+    {
+      "id": "R-01",
+      "check": "RECIPES = 25 (15 + W1 10 exact ids)",
+      "layers": [
+        "vitest"
+      ]
+    },
+    {
+      "id": "R-02",
+      "check": "obtainable ingredients = 29; UI 所持 N/29種, レシピ N/25",
+      "layers": [
+        "vitest",
+        "e2e"
+      ]
+    },
+    {
+      "id": "R-03",
+      "check": "DISCOVERY_LADDER = 24 steps = W1_25 fixture; 2-material steps 11 and 24 only; Dex 25 unlocks nothing",
+      "layers": [
+        "vitest"
+      ]
+    },
+    {
+      "id": "R-04",
+      "check": "exact progression ordering from fresh save; deadlock 0",
+      "layers": [
+        "vitest"
+      ]
+    },
+    {
+      "id": "R-05",
+      "check": "each W1 recipe discoverable via Free Cooking matcher; Melanzane e2e",
+      "layers": [
+        "vitest",
+        "e2e"
+      ]
+    },
+    {
+      "id": "R-06",
+      "check": "new7 Shop activation steps eggplant 4, corn 9, pineapple 10, clam 19, fresh-tomato 20, potato 21, capers 23; tier/price/pack",
+      "layers": [
+        "vitest",
+        "e2e"
+      ]
+    },
+    {
+      "id": "R-07",
+      "check": "REFERENCE_PIZZAS for all 25; piece counts 9/10/9 else 7; placing fixture -> Pieces 100",
+      "layers": [
+        "vitest"
+      ]
+    },
+    {
+      "id": "R-08",
+      "check": "high-piece popover/mini no stacking with real recipes; LC-2; Video B",
+      "layers": [
+        "e2e",
+        "human"
+      ]
+    },
+    {
+      "id": "R-09",
+      "check": "CUT_ELIGIBLE = 24 (15 + W1 9); new-haven-apizza excluded",
+      "layers": [
+        "vitest"
+      ]
+    },
+    {
+      "id": "R-10",
+      "check": "New Haven: no CUT tab, no POST_BAKE, no CUT summary / timing row (FREE + Lunch Rush)",
+      "layers": [
+        "vitest",
+        "e2e"
+      ]
+    },
+    {
+      "id": "R-11",
+      "check": "save roundtrip with W1 ids; migration A-G; unknown ids preserved",
+      "layers": [
+        "vitest",
+        "e2e"
+      ]
+    },
+    {
+      "id": "R-12",
+      "check": "Lunch Rush candidates = discovered ∩ makeable; stock-blind limitation pinned; approved order lines",
+      "layers": [
+        "vitest"
+      ]
+    },
+    {
+      "id": "R-13",
+      "check": "replace step-14 3-material notice e2e with step 11/24 2-material; 3-material layout in component test",
+      "layers": [
+        "e2e",
+        "vitest"
+      ]
+    },
+    {
+      "id": "R-14",
+      "check": "Pizza Select 25 cards: chapter boundary per OD-PS-4; long names <= 2 lines",
+      "layers": [
+        "vitest",
+        "e2e"
+      ]
+    },
+    {
+      "id": "R-15",
+      "check": "economy visibility at step 4 (Pitz/price)",
+      "layers": [
+        "human"
+      ]
+    }
+  ],
+  "visualGate": [
+    {
+      "item": "sausage",
+      "evidence": "screenshot",
+      "condition": "only if OD-VIS-1 implemented in I5b scope"
+    },
+    {
+      "item": "new7 ingredient visuals",
+      "evidence": "screenshot"
+    },
+    {
+      "item": "high-piece pizza",
+      "evidence": "video",
+      "video": "B"
+    },
+    {
+      "item": "long recipe names",
+      "evidence": "screenshot"
+    },
+    {
+      "item": "pager",
+      "evidence": "video",
+      "video": "B"
+    },
+    {
+      "item": "HOME",
+      "evidence": "screenshot"
+    },
+    {
+      "item": "Pizza Select",
+      "evidence": "screenshot"
+    },
+    {
+      "item": "BAKE",
+      "evidence": "video",
+      "video": "B/C"
+    },
+    {
+      "item": "CUT",
+      "evidence": "video",
+      "video": "B"
+    },
+    {
+      "item": "New Haven no-CUT",
+      "evidence": "video",
+      "video": "C"
+    }
+  ],
+  "videos": [
+    {
+      "id": "A",
+      "viewport": "390x844",
+      "save": "fresh",
+      "flow": "HOME Dex0 -> FREE Margherita discovery -> NEW MATERIAL egg -> Shop buy -> FREE Bismarck discovery -> HOME Dex2"
+    },
+    {
+      "id": "B",
+      "viewport": "390x844",
+      "save": "Dex ~12 seeded",
+      "flow": "Pizza Select -> Portuguesa (10 pieces) -> pager + hint -> BAKE -> CUT -> RESULT"
+    },
+    {
+      "id": "C",
+      "viewport": "390x844",
+      "save": "Dex >= 19 seeded",
+      "flow": "New Haven olive-oil -> clam -> BAKE -> no CUT -> RESULT -> Lunch Rush 1 order -> serve -> RESULT"
+    }
+  ],
+  "gates": {
+    "fast": "ci.yml build: CI script tests, lint, vitest, build (unchanged)",
+    "layoutContractChromium": "new, conditional via classifier, parallel to WebKit, ~2-3 min wall (OD-V-1)",
+    "fullChromium": "local pre-PR, recorded in Result Report",
+    "conditionalWebKit": "existing WebKit Gate + LC at S390/S360 in webkit-390x844; dedupe forced-viewport tests (OD-V-6)",
+    "human": "Videos A/B/C + screenshots + Owner iPhone checklist, once per UI PR"
+  }
+}
