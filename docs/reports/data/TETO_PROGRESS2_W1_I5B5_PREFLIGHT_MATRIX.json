@@ -1,0 +1,639 @@
+{
+  "id": "TETO_PROGRESS2_W1_I5B5_PREFLIGHT_MATRIX",
+  "report": "docs/reports/TETO_PROGRESS2_W1_I5B5_VERIFICATION_PREFLIGHT.md",
+  "status": "preflight (docs-only, not implemented)",
+  "auditedMain": "12a09de2c4da8ed7e92f1ff9f47dd7bdf824a6e5",
+  "verificationDesign": "d4f96d0227830d387ea8813995bd8954eb1d1ce0",
+  "i5b3": "5204a26",
+  "i5b4": "not complete",
+  "ownerDecisions": {
+    "OD-V-1": "add Chromium Layout Contract CI job",
+    "OD-V-2": "E-profile CTA/overlap invariants hard; dough advisory",
+    "OD-V-3": "one real iPhone; 360 by automation",
+    "OD-V-4": "dough floor deferred to post-I5b-4 E360i measurement",
+    "OD-V-5": "PWA Human only if owner plays that way",
+    "OD-V-6": "forced-viewport duplicates to one project",
+    "OD-V-7": "sausage in Visual Gate only if OD-VIS-1 implemented in I5b"
+  },
+  "files": [
+    {
+      "path": "e2e/layout-contract.spec.ts",
+      "kind": "new",
+      "role": "LC-0..LC-5"
+    },
+    {
+      "path": "e2e/support/layoutProfiles.ts",
+      "kind": "new",
+      "role": "PROFILES, applyProfile, setSafeArea (CDP), profilesFor(testInfo)"
+    },
+    {
+      "path": "e2e/support/layoutMeasure.ts",
+      "kind": "new",
+      "role": "slot selector map, single-evaluate measurement, elementFromPoint probes"
+    },
+    {
+      "path": "e2e/support/layoutInvariants.ts",
+      "kind": "new",
+      "role": "pure L-A..L-O judgements"
+    },
+    {
+      "path": "e2e/support/layoutEvidence.ts",
+      "kind": "new",
+      "role": "evidence JSON attach, annotated failure screenshot"
+    },
+    {
+      "path": "e2e/support/seeds.ts",
+      "kind": "new",
+      "role": "W1 seed saves (Dex 3/12/19/23, Lunch Rush unlocked, migration D)"
+    },
+    {
+      "path": "e2e/support/projectGuard.ts",
+      "kind": "new",
+      "role": "runOnlyOnWidth (OD-V-6)"
+    },
+    {
+      "path": "e2e/gestures.ts",
+      "kind": "change",
+      "role": "split bakeToTarget into enterBakePaused + landNeedleAndTakeOut (direction-aware); bakeToTarget behaviour unchanged"
+    },
+    {
+      "path": "playwright.config.ts",
+      "kind": "change",
+      "role": "layout-chromium project; iphone-* testIgnore layout-contract; screenshot only-on-failure; trace retain-on-failure (WebKit conditional)"
+    },
+    {
+      "path": ".github/workflows/e2e-webkit.yml",
+      "kind": "change",
+      "role": "layout-chromium job + Layout Contract Gate job, shared classify"
+    },
+    {
+      "path": "scripts/ci/layout-gate.sh",
+      "kind": "new",
+      "role": "gate truth table, reuses webkit-shard-evidence.mjs verify"
+    },
+    {
+      "path": "scripts/ci/layout-summary.mjs",
+      "kind": "new",
+      "role": "$GITHUB_STEP_SUMMARY table from evidence JSON"
+    },
+    {
+      "path": "scripts/ci/test-webkit-ci.sh",
+      "kind": "change",
+      "role": "layout gate/summary cases"
+    },
+    {
+      "path": "src/components/ResultPanel.test.tsx",
+      "kind": "change",
+      "role": "R-13 three-material notice structure test"
+    }
+  ],
+  "projects": [
+    {
+      "name": "iphone-390x844",
+      "engine": "chromium",
+      "ci": false,
+      "layoutProfiles": [],
+      "note": "testIgnore layout-contract"
+    },
+    {
+      "name": "iphone-360x800",
+      "engine": "chromium",
+      "ci": false,
+      "layoutProfiles": [],
+      "note": "testIgnore layout-contract"
+    },
+    {
+      "name": "layout-chromium",
+      "engine": "chromium",
+      "ci": true,
+      "layoutProfiles": [
+        "N390",
+        "N360",
+        "S390",
+        "S360",
+        "P390i",
+        "E390i",
+        "E360i"
+      ],
+      "note": "testMatch layout-contract only"
+    },
+    {
+      "name": "webkit-390x844",
+      "engine": "webkit",
+      "ci": true,
+      "layoutProfiles": [
+        "N390",
+        "S390"
+      ]
+    },
+    {
+      "name": "webkit-360x800",
+      "engine": "webkit",
+      "ci": true,
+      "layoutProfiles": [
+        "N360",
+        "S360"
+      ]
+    }
+  ],
+  "profiles": [
+    {
+      "id": "N390",
+      "width": 390,
+      "height": 844,
+      "inset": null,
+      "gate": "hard"
+    },
+    {
+      "id": "N360",
+      "width": 360,
+      "height": 800,
+      "inset": null,
+      "gate": "hard"
+    },
+    {
+      "id": "S390",
+      "width": 390,
+      "height": 664,
+      "inset": null,
+      "gate": "hard"
+    },
+    {
+      "id": "S360",
+      "width": 360,
+      "height": 640,
+      "inset": null,
+      "gate": "hard"
+    },
+    {
+      "id": "P390i",
+      "width": 390,
+      "height": 844,
+      "inset": {
+        "top": 47,
+        "bottom": 34
+      },
+      "gate": "hard",
+      "engines": [
+        "chromium"
+      ]
+    },
+    {
+      "id": "E390i",
+      "width": 390,
+      "height": 664,
+      "inset": {
+        "top": 47,
+        "bottom": 34
+      },
+      "gate": "hard (CTA/overlap); dough advisory",
+      "engines": [
+        "chromium"
+      ]
+    },
+    {
+      "id": "E360i",
+      "width": 360,
+      "height": 640,
+      "inset": {
+        "top": 47,
+        "bottom": 34
+      },
+      "gate": "hard (CTA/overlap); dough advisory, floor null (OD-V-4)",
+      "engines": [
+        "chromium"
+      ]
+    }
+  ],
+  "cdpSafeAreaProbe": {
+    "playwright": "1.56.1",
+    "chromium": "141.0.7390.37",
+    "method": "Emulation.setSafeAreaInsetsOverride",
+    "clear": "insets: {}",
+    "results": {
+      "default": "0/0",
+      "override": "47/34",
+      "afterResize": "47/34 (persists)",
+      "afterNavigation": "47/34 (persists)",
+      "cleared": "0/0"
+    },
+    "consequence": "applyProfile must clear on every N/S profile"
+  },
+  "layoutContractTests": [
+    {
+      "id": "LC-0",
+      "mount": "/ (no seed)",
+      "states": [
+        "per-profile apply self-check"
+      ],
+      "hard": [
+        "viewport match",
+        "chromium: probe 47/34 and 0/0 after clear",
+        "webkit: no inset profile selected, probe 0/0"
+      ],
+      "estSeconds": [
+        5,
+        10
+      ]
+    },
+    {
+      "id": "LC-1",
+      "name": "FREE",
+      "mount": "S360 (webkit: own-width S)",
+      "seed": "W1 Dex 23, 22 toppings owned",
+      "states": [
+        "DOUGH",
+        "SAUCE",
+        "CHEESE",
+        "TOPPING p1",
+        "hint open",
+        "p2",
+        "last page",
+        "BAKE entry (clock paused)",
+        "BAKE after guide fade (+7.3s virtual)",
+        "RESULT"
+      ],
+      "hard": [
+        "L-A",
+        "L-B",
+        "L-C",
+        "L-D",
+        "L-E",
+        "L-F"
+      ],
+      "p1": [
+        "L-I",
+        "L-J",
+        "L-K",
+        "L-M"
+      ],
+      "advisory": [
+        "L-N"
+      ],
+      "estSeconds": [
+        40,
+        60
+      ]
+    },
+    {
+      "id": "LC-2",
+      "name": "guided high-piece (Portuguesa)",
+      "mount": "N390, shrink per state",
+      "seed": "W1 Dex 12, Portuguesa discovered, ham/egg/onion/black-olive owned",
+      "states": [
+        "TOPPING (10 pieces)",
+        "BAKE entry",
+        "CUT",
+        "RESULT"
+      ],
+      "hard": [
+        "L-A",
+        "L-B",
+        "L-D",
+        "L-E",
+        "L-F"
+      ],
+      "p1": [
+        "L-J",
+        "L-K"
+      ],
+      "advisory": [
+        "L-N"
+      ],
+      "estSeconds": [
+        40,
+        60
+      ]
+    },
+    {
+      "id": "LC-3",
+      "name": "Lunch Rush",
+      "mount": "S360",
+      "seed": "Lunch Rush unlocked, order ingredients owned",
+      "states": [
+        "PREPARE TOPPING",
+        "BAKE entry",
+        "BAKE after fade",
+        "CUT",
+        "serve",
+        "mission RESULT"
+      ],
+      "hard": [
+        "L-A",
+        "L-B",
+        "L-C",
+        "L-E",
+        "L-F",
+        "L-G"
+      ],
+      "p1": [
+        "L-J",
+        "L-K"
+      ],
+      "estSeconds": [
+        50,
+        70
+      ]
+    },
+    {
+      "id": "LC-4",
+      "name": "HOME",
+      "mount": "re-mount per profile",
+      "states": [
+        "Dex 0",
+        "Dex 1"
+      ],
+      "hard": [
+        "L-A",
+        "L-D"
+      ],
+      "p1": [
+        "L-H",
+        "L-I",
+        "L-M",
+        "L-O"
+      ],
+      "estSeconds": [
+        20,
+        30
+      ]
+    },
+    {
+      "id": "LC-5",
+      "name": "Pizza Select + Shop",
+      "mount": "N390",
+      "seed": "W1 Dex 23",
+      "states": [
+        "long-name card",
+        "detail sheet CTA",
+        "Shop last row"
+      ],
+      "hard": [
+        "L-A",
+        "L-D"
+      ],
+      "p1": [
+        "L-L",
+        "L-I",
+        "L-M"
+      ],
+      "estSeconds": [
+        20,
+        30
+      ]
+    }
+  ],
+  "thresholdPolicy": {
+    "source": "Design d4f96d0 constants only (TOL 1px, L-B 8px, L-H h<=64 & w/h>=1.6, L-M 44px)",
+    "fitToCurrentMain": false,
+    "testFail": false,
+    "skipP0": false,
+    "doughFloorPx": null
+  },
+  "artifacts": {
+    "evidenceJson": "per test, attached always, schema teto-layout-evidence/1",
+    "annotatedScreenshot": "LC failing samples only",
+    "screenshot": "only-on-failure",
+    "trace": "retain-on-failure (layout-chromium required; webkit off if >10% shard time)",
+    "video": "off",
+    "ciUpload": [
+      "layout-evidence-layout-chromium-shard1-attempt<n>",
+      "playwright-report/ + test-results/ (14d)"
+    ],
+    "summary": "scripts/ci/layout-summary.mjs -> $GITHUB_STEP_SUMMARY"
+  },
+  "ci": {
+    "newJobs": [
+      {
+        "name": "layout-chromium",
+        "needs": "classify",
+        "timeoutMinutes": 10
+      },
+      {
+        "name": "Layout Contract Gate",
+        "needs": [
+          "classify",
+          "layout-chromium"
+        ],
+        "if": "always()"
+      }
+    ],
+    "workflow": ".github/workflows/e2e-webkit.yml (name unchanged)",
+    "requiredCheck": "owner ruleset action (IN-8)",
+    "relatedOpenPR": 219
+  },
+  "expectedTime": {
+    "fastGate": "unchanged + seconds",
+    "layoutChromiumWallMin": [
+      3,
+      4
+    ],
+    "criticalPath": "unchanged (parallel with WebKit ~4.5 min)",
+    "webkitPerShardDeltaSec": "~0 (+30..45 LC, -30..60 OD-V-6)",
+    "localFullChromiumMeasuredSecAtI5b3": 267,
+    "localFullChromiumAfterMin": [
+      5,
+      6
+    ]
+  },
+  "odV6Guard": [
+    {
+      "spec": "e2e/dynamic-cooking-steps.spec.ts",
+      "test": "Scenario A Marinara @390x844",
+      "runOn": "*-390x844"
+    },
+    {
+      "spec": "e2e/dynamic-cooking-steps.spec.ts",
+      "test": "Scenario B Margherita @390x844",
+      "runOn": "*-390x844"
+    },
+    {
+      "spec": "e2e/dynamic-cooking-steps.spec.ts",
+      "test": "Scenario C 360x800 Capricciosa",
+      "runOn": "*-360x800"
+    },
+    {
+      "spec": "e2e/making-ui-1screen.spec.ts",
+      "test": "Margherita one-screen + nav fit @ 390x844",
+      "runOn": "*-390x844"
+    },
+    {
+      "spec": "e2e/making-ui-1screen.spec.ts",
+      "test": "Margherita one-screen + nav fit @ 361x800",
+      "runOn": "*-360x800"
+    },
+    {
+      "spec": "e2e/making-ui-1screen.spec.ts",
+      "test": "Salsiccia @ 360x800 Reference modal",
+      "runOn": "*-360x800"
+    },
+    {
+      "spec": "e2e/making-ui-1screen.spec.ts",
+      "test": "390x650 dough shrink",
+      "runOn": "*-390x844"
+    },
+    {
+      "spec": "e2e/pizza-cutting-phase4b.spec.ts",
+      "test": "Scenario C Capricciosa 360x800",
+      "runOn": "*-360x800"
+    }
+  ],
+  "i5b3ChromiumRun": {
+    "sha": "5204a26",
+    "projects": [
+      "iphone-390x844",
+      "iphone-360x800"
+    ],
+    "tests": 142,
+    "workers": 2,
+    "seconds": 267,
+    "expected": 130,
+    "unexpected": 12,
+    "flaky": 0,
+    "skipped": 0
+  },
+  "staleE2E": [
+    {
+      "id": "S-1",
+      "spec": "e2e/progression2-p3-3-onboarding.spec.ts",
+      "line": 46,
+      "failure": "dex pill /0\\/15/ vs 'レシピ 0/25'",
+      "update": "/0\\/25/ and /1\\/25/ (lines 54,172)"
+    },
+    {
+      "id": "S-2",
+      "spec": "e2e/progression2-p3-3-onboarding.spec.ts",
+      "line": 153,
+      "failure": "/1\\/15/ vs 1/25",
+      "update": "/1\\/25/ (line 208)"
+    },
+    {
+      "id": "S-3",
+      "spec": "e2e/progression2-p3-3-onboarding.spec.ts",
+      "line": 184,
+      "failure": "/1\\/15/ vs 1/25",
+      "update": "/1\\/25/, /0\\/25/ (line 218)"
+    },
+    {
+      "id": "S-4",
+      "spec": "e2e/save-forward-compat-3-4b.spec.ts",
+      "line": 30,
+      "failure": "/1\\/15/ vs 1/25",
+      "update": "/1\\/25/ (lines 43,64); calabresa stays future"
+    },
+    {
+      "id": "S-5",
+      "spec": "e2e/rt01-reference-capacity.spec.ts",
+      "line": 42,
+      "failure": ".rt01-case count 15 vs 25",
+      "update": "count/loop 25; hidden: total<=8 must become <=10 (Parmigiana 9, Portuguesa 10, Puttanesca 9)"
+    },
+    {
+      "id": "S-6",
+      "spec": "e2e/progression2-discovery-ladder.spec.ts",
+      "line": 188,
+      "failure": "step-14 notice 'フォンティーナ・ゴルゴンゾーラ・パルミジャーノ' vs 'にんにく'",
+      "update": "replace scenario: 23 discovered (all but quattro-formaggi, bismarck) + egg -> Bismarck is 24th -> 'フォンティーナ・ゴルゴンゾーラ', nameLines [1,1]; 3-material layout -> ResultPanel component test (R-13)"
+    }
+  ],
+  "newE2E": [
+    {
+      "id": "E-1",
+      "spec": "e2e/progression2-w1-materials.spec.ts",
+      "what": "Dex 3 -> Funghi (4th) -> eggplant NEW -> buy -> OWNED -> Melanzane (5th) -> 5/25",
+      "checks": [
+        "R-05",
+        "R-06"
+      ]
+    },
+    {
+      "id": "E-2",
+      "spec": "e2e/progression2-w1-materials.spec.ts",
+      "what": "Dex 23: new 7 in Shop/Inventory N/29/tray",
+      "checks": [
+        "R-02",
+        "R-06"
+      ]
+    },
+    {
+      "id": "E-3",
+      "spec": "e2e/progression2-w1-new-haven.spec.ts",
+      "what": "New Haven BAKE -> RESULT, no CUT tab/summary/timing row",
+      "checks": [
+        "R-10"
+      ]
+    },
+    {
+      "id": "E-4",
+      "spec": "e2e/progression2-w1-new-haven.spec.ts",
+      "what": "Lunch Rush New Haven order served without CUT",
+      "checks": [
+        "R-10",
+        "R-12"
+      ]
+    },
+    {
+      "id": "E-5",
+      "spec": "e2e/progression2-w1-migration.spec.ts",
+      "what": "migration D: Dex 15 save -> eggplant/corn/pineapple NEW at 0, nothing lost, no load notice -> buy eggplant -> Melanzane -> 16/25",
+      "checks": [
+        "R-11"
+      ]
+    },
+    {
+      "id": "E-6",
+      "spec": "e2e/save-forward-compat-3-4b.spec.ts",
+      "what": "W1-id save round-trip across real write + reload",
+      "checks": [
+        "R-11"
+      ]
+    },
+    {
+      "id": "E-7",
+      "spec": "(existing specs)",
+      "what": "S-1..S-6",
+      "checks": [
+        "R-02",
+        "R-07",
+        "R-13"
+      ]
+    },
+    {
+      "id": "E-8",
+      "spec": "e2e/layout-contract.spec.ts (LC-5)",
+      "what": "Pizza Select 25, long names <= 2 lines",
+      "checks": [
+        "R-14"
+      ]
+    },
+    {
+      "id": "E-9",
+      "spec": "e2e/rt01-reference-capacity.spec.ts",
+      "what": "real 9/10/9-piece recipes no stacking",
+      "checks": [
+        "R-08"
+      ]
+    }
+  ],
+  "inputsAfterI5b4": [
+    "IN-1 main SHA with I5b-3+I5b-4",
+    "IN-2 final slot selectors",
+    "IN-3 I5b-4 measured geometry (verify, do not fit)",
+    "IN-4 E360i dough diameter (OD-V-4)",
+    "IN-5 OD-VIS-1 implemented?",
+    "IN-6 OD-PS-4 chapter boundary",
+    "IN-7 owner device/iOS/Safari-or-PWA",
+    "IN-8 ruleset: Layout Contract Gate required",
+    "IN-9 PR #219 state",
+    "IN-10 seed JSONs"
+  ],
+  "blockers": [
+    "B-1 I5b-3 not on main",
+    "B-2 I5b-4 incomplete",
+    "B-3 WebKit not runnable in sandbox (use Actions workflow_dispatch)"
+  ],
+  "verdict": {
+    "preflight": "READY",
+    "i5b5Implementation": "NOT STARTABLE until B-1, B-2 and IN-1..IN-4"
+  }
+}
