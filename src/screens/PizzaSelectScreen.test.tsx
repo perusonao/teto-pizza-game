@@ -103,11 +103,11 @@ function mockRecipes(count: number): Recipe[] {
 describe("PizzaSelectScreen grid (Recipe Select 2.0A)", () => {
   it("1. grid renders every recipe in the collection as a selectable card", () => {
     renderSelect({ dex: ALL_UNLOCKED_DEX, ownedIngredientIds: ALL_OWNED_INGREDIENTS });
-    expect(RECIPES.length).toBe(15);
+    expect(RECIPES.length).toBe(25);
     for (const recipe of RECIPES) {
       expect(screen.getByText(recipe.nameJa)).toBeInTheDocument();
     }
-    expect(document.querySelectorAll(".pizza-select-grid-card")).toHaveLength(15);
+    expect(document.querySelectorAll(".pizza-select-grid-card")).toHaveLength(25);
   });
 
   it("2. renders position-based section headers (第1章 / 第2章), not a flat unlabeled list", () => {
@@ -291,7 +291,7 @@ describe("PizzaSelectScreen grid (Recipe Select 2.0A)", () => {
     expect(screen.queryByText(/ランチラッシュ/)).not.toBeInTheDocument();
   });
 
-  it("16. all 15 production recipes are reachable, and the last one (meat-lovers) is present in the grid without scrolling machinery breaking", async () => {
+  it("16. all 25 production recipes are reachable, and the last one (puttanesca-pizza since W1 I5b-3) is present in the grid without scrolling machinery breaking", async () => {
     const user = userEvent.setup();
     renderSelect({ dex: ALL_UNLOCKED_DEX, ownedIngredientIds: ALL_OWNED_INGREDIENTS });
     const last = RECIPES[RECIPES.length - 1];

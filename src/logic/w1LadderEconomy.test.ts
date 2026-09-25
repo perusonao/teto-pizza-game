@@ -5,7 +5,7 @@ import {
   W1_25_DISCOVERY_LADDER,
 } from "../data/discoveryLadder";
 import { INGREDIENTS, STARTER_INGREDIENT_IDS, getIngredient } from "../data/ingredients";
-import { RECIPES } from "../data/recipes";
+import { RECIPES, type Recipe } from "../data/recipes";
 import { materialIdsOfSteps, validateDiscoveryLadder } from "./discoveryLadder";
 import {
   MATERIAL_PRICE_TIERS,
@@ -26,14 +26,17 @@ import { ingredientCollectionCount, obtainableIngredientIds, resolveShopEntitlem
 import type { DexEntry, DexState } from "../state/dex";
 
 /**
- * Progression 2.0 W1 I5b-1 (docs/reports/TETO_PROGRESS2_W1_I5B_FRESH-AUDIT.md §3-§6): the 25-recipe
- * Discovery Ladder and its material economy, pinned as a pure, disconnected foundation. The
- * runtime still ships the 15-recipe ladder; the W1 recipes' requirements come from test-support
- * data only (they join `RECIPES` in I5b-3).
+ * Progression 2.0 W1 I5b-1 / I5b-3 (docs/reports/TETO_PROGRESS2_W1_I5B_FRESH-AUDIT.md §3-§6): the
+ * 25-recipe Discovery Ladder and its material economy. Pinned as a pure foundation in I5b-1 and
+ * active in production since I5b-3 (the 10 W1 recipes joined `RECIPES`, `DISCOVERY_LADDER` became
+ * the W1 ladder). "Old" below = the shipped-15 ladder with the 15 pre-W1 recipes.
  */
 
-const W1_POPULATION = [...RECIPES, ...W1_RECIPE_REQUIREMENTS_FIXTURE];
-const W1_OPTIONS = { ladder: W1_25_DISCOVERY_LADDER, recipes: W1_POPULATION };
+const PRE_W1_RECIPES = (RECIPES as readonly Recipe[]).filter((r) => r.id === "margherita" || r.unlockCondition);
+const OLD_OPTIONS = { ladder: SHIPPED_15_DISCOVERY_LADDER, recipes: PRE_W1_RECIPES };
+/** Production defaults (the W1 ladder + all 25 recipes), spelled out. */
+const W1_OPTIONS = { ladder: W1_25_DISCOVERY_LADDER, recipes: RECIPES };
+const W1_POPULATION = RECIPES;
 const W1_NEW_MATERIALS = ["capers", "clam", "corn", "eggplant", "fresh-tomato", "pineapple", "potato"];
 
 function offer(id: string, options = {}): MaterialOffer | null {
@@ -80,15 +83,15 @@ describe("W1_25_DISCOVERY_LADDER: the exact 24-step authority", () => {
     expect(W1_25_DISCOVERY_LADDER.steps).toEqual(REC04_W1_25_LADDER_FIXTURE.steps);
   });
 
-  it("is what the REC-04 key-recipe rule derives for production RECIPES + the W1 10", () => {
-    const population = [
-      ...RECIPES.map((r) => ({ id: r.id, ingredientIds: r.requiredIngredients.map((q) => q.ingredientId) })),
-      ...W1_RECIPE_POPULATION_FIXTURE,
-    ];
+  it("is what the REC-04 key-recipe rule derives for the production RECIPES (15 + W1 10)", () => {
+    const population = RECIPES.map((r) => ({ id: r.id, ingredientIds: r.requiredIngredients.map((q) => q.ingredientId) }));
     expect(toMaterialLadder("w1-25", buildKeyRecipeLadder(population))).toEqual(W1_25_DISCOVERY_LADDER);
   });
 
-  it("the two W1 test-support fixtures describe the same ingredient sets", () => {
+  it("the W1 test-support fixtures describe exactly the production W1 recipes", () => {
+    for (const w1 of W1_RECIPE_REQUIREMENTS_FIXTURE) {
+      expect(RECIPES.find((r) => r.id === w1.id)?.requiredIngredients).toEqual(w1.requiredIngredients);
+    }
     const fromRequirements = W1_RECIPE_REQUIREMENTS_FIXTURE.map((r) => [
       r.id,
       r.requiredIngredients.map((q) => q.ingredientId).sort(),
@@ -197,15 +200,16 @@ describe("old (shipped-15) -> new (W1-25) regression table", () => {
   ];
 
   it.each(CHANGES)("%s: step %i -> %i, %s -> %s", (id, oldStep, newStep, oldTier, newTier, oldPrices, newPrices) => {
-    const before = offer(id)!;
-    const after = offer(id, W1_OPTIONS)!;
+    const before = offer(id, OLD_OPTIONS)!;
+    const after = offer(id)!;
+    expect(after).toEqual(offer(id, W1_OPTIONS));
     expect([before.step, before.tier, before.packPrice, before.refillPrice]).toEqual([oldStep, oldTier, ...oldPrices]);
     expect([after.step, after.tier, after.packPrice, after.refillPrice]).toEqual([newStep, newTier, ...newPrices]);
   });
 
   it("exactly 10 materials change price (1 cheaper, 9 dearer); everything else keeps its prices", () => {
-    const changed = INGREDIENTS.filter((i) => materialOffer(i) !== null)
-      .map((i) => [i.id, materialOffer(i)!, materialOffer(i, W1_OPTIONS)!] as const)
+    const changed = INGREDIENTS.filter((i) => materialOffer(i, OLD_OPTIONS) !== null)
+      .map((i) => [i.id, materialOffer(i, OLD_OPTIONS)!, materialOffer(i)!] as const)
       .filter(([, a, b]) => a.packPrice !== b.packPrice || a.refillPrice !== b.refillPrice);
     expect(changed.map(([id]) => id).sort()).toEqual(
       ["anchovy", "cherry-tomato", "fontina", "gorgonzola", "parmigiano", "pepperoni", "pesto", "rosemary", "sausage", "tuna"],
@@ -216,10 +220,10 @@ describe("old (shipped-15) -> new (W1-25) regression table", () => {
 
 describe("k / pack foundation", () => {
   it("ham: k 1 -> 3, pack 10 -> 30 (pizza-portuguesa ham x3); the only existing material whose k changes", () => {
-    expect(offer("ham")).toMatchObject({ k: 1, packQuantity: 10 });
-    expect(offer("ham", W1_OPTIONS)).toMatchObject({ k: 3, packQuantity: 30 });
-    const kChanged = INGREDIENTS.filter((i) => materialOffer(i) !== null)
-      .filter((i) => materialK(i.id) !== materialK(i.id, W1_POPULATION))
+    expect(offer("ham", OLD_OPTIONS)).toMatchObject({ k: 1, packQuantity: 10 });
+    expect(offer("ham")).toMatchObject({ k: 3, packQuantity: 30 });
+    const kChanged = INGREDIENTS.filter((i) => materialOffer(i, OLD_OPTIONS) !== null)
+      .filter((i) => materialK(i.id, PRE_W1_RECIPES) !== materialK(i.id, W1_POPULATION))
       .map((i) => i.id);
     expect(kChanged).toEqual(["ham"]);
   });
@@ -232,52 +236,38 @@ describe("k / pack foundation", () => {
     ["fresh-tomato", 3, 30],
     ["potato", 3, 30],
     ["capers", 2, 20],
-  ] as const)("%s: k %i, pack %i with the W1 population (k 0 and no offer today)", (id, k, pack) => {
-    expect(materialK(id)).toBe(0);
-    expect(offer(id)).toBeNull();
-    expect(materialK(id, W1_POPULATION)).toBe(k);
-    expect(offer(id, W1_OPTIONS)).toMatchObject({ k, packQuantity: pack });
+  ] as const)("%s: k %i, pack %i in production (k 0 and no offer before W1)", (id, k, pack) => {
+    expect(materialK(id, PRE_W1_RECIPES)).toBe(0);
+    expect(offer(id, OLD_OPTIONS)).toBeNull();
+    expect(materialK(id)).toBe(k);
+    expect(offer(id)).toMatchObject({ k, packQuantity: pack });
   });
 });
 
-describe("I5b-1 no-runtime-change guard", () => {
-  function discovered(count: number): DexState {
-    return RECIPES.slice(0, count).map(
-      (r): DexEntry => ({ recipeId: r.id, discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }),
-    );
-  }
-
-  it("the runtime still ships 15 recipes, the 14-step ladder, 29 catalog rows and 22 obtainable", () => {
-    expect(RECIPES).toHaveLength(15);
-    expect(DISCOVERY_LADDER).toBe(SHIPPED_15_DISCOVERY_LADDER);
-    expect(DISCOVERY_LADDER.steps).toHaveLength(14);
+describe("I5b-3 activation: production runs the 25-recipe ladder", () => {
+  it("RECIPES 25, the 24-step W1 ladder, 29 catalog rows, 29 obtainable (3/29 on a fresh save)", () => {
+    expect(RECIPES).toHaveLength(25);
+    expect(DISCOVERY_LADDER).toBe(W1_25_DISCOVERY_LADDER);
+    expect(DISCOVERY_LADDER.steps).toHaveLength(24);
     expect(INGREDIENTS).toHaveLength(29);
-    expect(obtainableIngredientIds()).toHaveLength(22);
-    expect(ingredientCollectionCount([...STARTER_INGREDIENT_IDS])).toEqual({ owned: 3, total: 22 });
+    expect(obtainableIngredientIds()).toHaveLength(29);
+    expect(ingredientCollectionCount([...STARTER_INGREDIENT_IDS])).toEqual({ owned: 3, total: 29 });
   });
 
-  it("the new 7 stay unobtainable: no offer, never entitled or announced by any discovery count", () => {
-    for (const id of W1_NEW_MATERIALS) expect(offer(id)).toBeNull();
+  it("each new material is entitled and announced exactly when the discovery count reaches its step", () => {
+    const stepOf = new Map(DISCOVERY_LADDER.steps.flatMap((s) => s.ingredientIds.map((id) => [id, s.step] as const)));
+    let ledger: readonly string[] = [];
     for (let count = 0; count <= RECIPES.length; count += 1) {
-      const r = resolveShopEntitlement(discovered(count), [...STARTER_INGREDIENT_IDS], []);
+      const dex: DexState = RECIPES.slice(0, count).map(
+        (r): DexEntry => ({ recipeId: r.id, discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }),
+      );
+      const r = resolveShopEntitlement(dex, [...STARTER_INGREDIENT_IDS], ledger);
       for (const id of W1_NEW_MATERIALS) {
-        expect(r.unlockedForShopIngredientIds).not.toContain(id);
-        expect(r.newlyUnlockedMaterialIds).not.toContain(id);
+        const step = stepOf.get(id)!;
+        expect(r.unlockedForShopIngredientIds.includes(id), `${id} at count ${count}`).toBe(count >= step);
+        expect(r.newlyUnlockedMaterialIds.includes(id), `${id} announced at count ${count}`).toBe(count === step);
       }
+      ledger = r.unlockedForShopIngredientIds;
     }
-  });
-
-  it("no production module reads W1_25_DISCOVERY_LADDER or the W1 test-support fixtures", () => {
-    const sources = import.meta.glob<string>(["../**/*.{ts,tsx}", "!../**/*.test.{ts,tsx}", "!../**/testSupport/**"], {
-      query: "?raw",
-      import: "default",
-      eager: true,
-    });
-    expect(Object.keys(sources).length).toBeGreaterThan(50);
-    const readers = Object.entries(sources)
-      .filter(([path]) => !path.endsWith("/data/discoveryLadder.ts"))
-      .filter(([, text]) => /W1_25_DISCOVERY_LADDER|W1_RECIPE_REQUIREMENTS_FIXTURE/.test(text))
-      .map(([path]) => path);
-    expect(readers).toEqual([]);
   });
 });

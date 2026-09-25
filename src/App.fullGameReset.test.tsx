@@ -289,7 +289,7 @@ describe("Post-reset fresh state (reload simulated via unmount + remount)", () =
     const user = userEvent.setup();
     await user.click(screen.getByRole("button", { name: /ピザ図鑑/ }));
     const overlay = document.querySelector<HTMLElement>(".dex-overlay")!;
-    expect(within(overlay).getByText(/発見 0\s*\/\s*15/)).toBeInTheDocument();
+    expect(within(overlay).getByText(/発見 0\s*\/\s*25/)).toBeInTheDocument();
   });
 
   it("stays fresh across a second reload (no resurrection of the cleared save)", async () => {

@@ -98,6 +98,68 @@ export const ORDERS: Order[] = [
     requestedBy: "mito",
     lineJa: "お肉たっぷりのミートラヴァーズが食べたいな！ベーコンもハムもペパロニもソーセージも全部のせて！",
   },
+  // Progression 2.0 W1 I5b-3: the 10 W1 orders. `lineJa` is OD-I5B-1's owner-approved copy,
+  // verbatim (docs/reports/TETO_PROGRESS2_W1_I5B_FRESH-AUDIT.md §17).
+  {
+    id: "order-melanzane-pizza",
+    recipeId: "melanzane-pizza",
+    requestedBy: "mito",
+    lineJa: "ナスがのったメランザーネピザが食べたいな！バジルの香りもお願いね！",
+  },
+  {
+    id: "order-parmigiana-pizza",
+    recipeId: "parmigiana-pizza",
+    requestedBy: "mito",
+    lineJa: "ナスとパルミジャーノのパルミジャーナピザ、南イタリア風で気になるな！作ってみて！",
+  },
+  {
+    id: "order-bambino",
+    recipeId: "bambino",
+    requestedBy: "mito",
+    lineJa: "ハムとコーンのバンビーノ、やさしい甘さで食べやすそう！食べてみたいな！",
+  },
+  {
+    id: "order-hawaiian",
+    recipeId: "hawaiian",
+    requestedBy: "mito",
+    lineJa: "パイナップルがのったハワイアンピザ、甘じょっぱくて気になるな！作ってみて！",
+  },
+  {
+    id: "order-pizza-portuguesa",
+    recipeId: "pizza-portuguesa",
+    requestedBy: "mito",
+    lineJa: "ブラジル定番のピッツァ・ポルトゲーザが食べたいな！ハムも卵ものせてね！",
+  },
+  {
+    id: "order-pesto-tonno",
+    recipeId: "pesto-tonno",
+    requestedBy: "mito",
+    lineJa: "ジェノベーゼソースとツナのペストトンノピザ、さわやかそう！食べてみたいな！",
+  },
+  {
+    id: "order-new-haven-apizza",
+    recipeId: "new-haven-apizza",
+    requestedBy: "mito",
+    lineJa: "あさりとにんにくのニューヘイブン風ピザが食べたいな！香ばしく焼いてね！",
+  },
+  {
+    id: "order-pesto-caprese",
+    recipeId: "pesto-caprese",
+    requestedBy: "mito",
+    lineJa: "ジェノベーゼソースにトマトをのせたペストカプレーゼピザ、さわやかで気になるな！",
+  },
+  {
+    id: "order-pesto-patate",
+    recipeId: "pesto-patate",
+    requestedBy: "mito",
+    lineJa: "じゃがいもとベーコンのペストパターテピザ、ほくほくで食べてみたいな！",
+  },
+  {
+    id: "order-puttanesca-pizza",
+    recipeId: "puttanesca-pizza",
+    requestedBy: "mito",
+    lineJa: "アンチョビとケッパーがきいたプッタネスカ、塩味と香りが強いんだって！作ってみて！",
+  },
 ];
 
 /** Looks up the one Order for an explicit recipe id (Issue #39 Pizza Select: every recipe in

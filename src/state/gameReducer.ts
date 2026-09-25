@@ -1202,9 +1202,11 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // Progression 2.0 Phase 3-3 (Issue #198): before the player's first-ever discovery, an
       // available-but-undiscovered recipe is not directly guided-selectable -- Free Cooking
       // (START_FREE_COOK) is the only discovery path pre-Dex-1, so a stray SELECT_RECIPE
-      // dispatch can never let a fresh player skip it. Margherita is the only recipe unlocked at
-      // Dex 0 (every other recipe's own `unlockCondition.requiresRecipeId` chains from it), so
-      // this only ever gates a brand-new save's very first round; once any recipe has been
+      // dispatch can never let a fresh player skip it. Margherita is the only recipe *available*
+      // at Dex 0: the shipped-15 recipes chain from it (`unlockCondition.requiresRecipeId`), and the
+      // W1 recipes (no unlockCondition, OD-I5B-2) need Shop materials a Dex-0 player cannot own --
+      // and even if a save owned them, this guard still blocks them. It only ever gates a
+      // brand-new save's very first round; once any recipe has been
       // discovered (`discoveredRecipeIds(state.dex).length > 0`), guided selection of any other
       // NEW-but-available recipe is completely unaffected -- unchanged from before this phase.
       if (

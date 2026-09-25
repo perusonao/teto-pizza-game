@@ -930,8 +930,8 @@ describe("HOME/GAME separation (Issue #24)", () => {
     expect(screen.getByLabelText("Pitz残高 250")).toBeInTheDocument();
     // 15 total recipes (src/data/recipes.ts, Recipe Expansion Batch 1A + Batch 1B-A + Batch
     // 1B-B + Batch 1B-C) -- 1 discovered from the seeded save.
-    expect(screen.getByLabelText(/レシピ図鑑 発見数 1 \/ 15/)).toBeInTheDocument();
-    expect(screen.getByText(/発見 1\/15/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/レシピ図鑑 発見数 1 \/ 25/)).toBeInTheDocument();
+    expect(screen.getByText(/発見 1\/25/)).toBeInTheDocument();
   });
 
   it("still shows HOME first after a reload, with persisted progression intact", () => {
@@ -1074,7 +1074,7 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
     expect(within(shop).getByRole("tablist")).toBeInTheDocument();
   });
 
-  it("D. once every ladder step is reached (all 15 recipes discovered) the progress hint is gone", async () => {
+  it("D. once every ladder step is reached (all 25 recipes discovered) the progress hint is gone", async () => {
     const user = userEvent.setup();
     seedSaveV2({
       dex: RECIPES.map((r) => ({ recipeId: r.id, discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 })),
@@ -1087,9 +1087,10 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
     expect(within(shop).queryByText(/発見で新しい材料が入荷/)).not.toBeInTheDocument();
     expect(within(shop).getAllByRole("button", { name: "補充する" }).length).toBe(MANY.length);
-    // Owned W1 materials have no offer yet, so they are never Shop rows.
-    expect(UNOFFERED).toHaveLength(7);
-    for (const id of UNOFFERED) expect(shop.querySelector(`.shop-item[data-ingredient-id="${id}"]`)).toBeNull();
+    // Since the 25-recipe ladder (W1 I5b-3) every finite material has an offer, so every owned one
+    // is a refill row.
+    expect(UNOFFERED).toEqual([]);
+    expect(MANY).toHaveLength(26);
   });
 
   it("E. category filtering narrows the visible list to that category only", async () => {

@@ -121,6 +121,10 @@ export function applyStarterGrants(
 
   for (const recipe of RECIPES) {
     if (recipe.id === STARTER_GRANT_EXEMPT_RECIPE_ID) continue;
+    // Progression 2.0 W1 I5b-3: only the EP1-chained (EP-era) recipes ever had a Starter Grant.
+    // The W1 recipes have no `unlockCondition` (OD-I5B-2) and never grant stock (REC-04
+    // OD-REC04-2: materials come from the Discovery Ladder + Shop, stock 0 at unlock).
+    if (!(recipe as Recipe).unlockCondition) continue;
     if (claimedSet.has(recipe.id)) continue;
     if (!recipeUnlocked(recipe, dex)) continue;
 

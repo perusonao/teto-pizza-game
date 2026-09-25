@@ -387,6 +387,162 @@ export const RECIPES = [
     baseRewardPitz: 100,
     unlockCondition: { requiresRecipeId: "capricciosa", minTotalStars: 36 },
   },
+  /**
+   * Progression 2.0 W1 I5b-3 (docs/reports/TETO_PROGRESS2_W1_I5B_FRESH-AUDIT.md §1): the 10 W1
+   * recipes. nameJa / description / requiredIngredients / bakeTarget are the #221 authored values
+   * approved by REC-01..03 (commit 35bc937): Hawaiian's bake target is the catalog's 60-80 and New
+   * Haven's description drops 「アメリカ・」. Quantities keep the authored counts (Parmigiana 9 /
+   * Portuguesa 10 / Puttanesca 9 non-sauce pieces; RT-01 Candidate B lays them out).
+   *
+   * OD-I5B-2: no `unlockCondition` -- no star gate and no EP1 recipe chain. W1 progression is the
+   * Discovery Ladder: a discovery unlocks materials, the Shop sells them, Free Cooking discovers the
+   * next pizza. Ordered by the ladder step that makes each one makeable. `baseRewardPitz: 100`
+   * matches every recipe (Issue #38 V1).
+   */
+  {
+    id: "melanzane-pizza",
+    nameJa: "メランザーネピザ",
+    description:
+      "トマトソースにナス、モッツァレラ、バジルを合わせた、素朴で香り豊かな南イタリア風ピザ。",
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "eggplant", minCount: 3 },
+      { ingredientId: "basil", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+  },
+  {
+    id: "parmigiana-pizza",
+    nameJa: "パルミジャーナピザ",
+    description:
+      "トマトソースにナス、モッツァレラ、パルミジャーノ、バジルを合わせた南イタリア風の一枚。",
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "eggplant", minCount: 3 },
+      { ingredientId: "parmigiano", minCount: 2 },
+      { ingredientId: "basil", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+  },
+  {
+    id: "bambino",
+    nameJa: "バンビーノ",
+    description:
+      "トマトソースにハム、コーン、モッツァレラをのせた、やさしい甘みで親しみやすい一枚。",
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "ham", minCount: 2 },
+      { ingredientId: "corn", minCount: 3 },
+    ],
+    bakeTarget: { start: 56, end: 76 },
+    baseRewardPitz: 100,
+  },
+  {
+    id: "hawaiian",
+    nameJa: "ハワイアンピザ",
+    description:
+      "トマトソースにハムとパイナップル、モッツァレラを合わせた、甘みと塩気のバランスが楽しい一枚。",
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "ham", minCount: 2 },
+      { ingredientId: "pineapple", minCount: 3 },
+    ],
+    bakeTarget: { start: 60, end: 80 },
+    baseRewardPitz: 100,
+  },
+  {
+    id: "pizza-portuguesa",
+    nameJa: "ピッツァ・ポルトゲーザ",
+    description:
+      "トマトソースにハム、卵、たまねぎ、ブラックオリーブ、モッツァレラを重ねたブラジル定番の一枚。",
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "ham", minCount: 3 },
+      { ingredientId: "egg", minCount: 1 },
+      { ingredientId: "onion", minCount: 2 },
+      { ingredientId: "black-olive", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+  },
+  {
+    id: "pesto-tonno",
+    nameJa: "ペストトンノピザ",
+    description:
+      "香り高いジェノベーゼソースに、ツナ、ブラックオリーブ、たまねぎを合わせた爽やかな一枚。",
+    requiredIngredients: [
+      { ingredientId: "pesto", minCount: 1 },
+      { ingredientId: "tuna", minCount: 3 },
+      { ingredientId: "black-olive", minCount: 2 },
+      { ingredientId: "onion", minCount: 2 },
+    ],
+    bakeTarget: { start: 50, end: 70 },
+    baseRewardPitz: 100,
+  },
+  {
+    id: "new-haven-apizza",
+    nameJa: "ニューヘイブンアピッツァ",
+    description:
+      "オリーブオイルを塗った生地に、あさり、にんにく、パルミジャーノをのせて香ばしく焼き上げたニューヘイブン風の一枚。",
+    requiredIngredients: [
+      { ingredientId: "olive-oil", minCount: 1 },
+      { ingredientId: "parmigiano", minCount: 2 },
+      { ingredientId: "clam", minCount: 3 },
+      { ingredientId: "garlic", minCount: 2 },
+    ],
+    bakeTarget: { start: 62, end: 82 },
+    baseRewardPitz: 100,
+  },
+  {
+    id: "pesto-caprese",
+    nameJa: "ペストカプレーゼピザ",
+    description:
+      "ジェノベーゼソースにトマト、モッツァレラ、バジルを重ねた、カプレーゼ仕立ての爽やかな一枚。",
+    requiredIngredients: [
+      { ingredientId: "pesto", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "fresh-tomato", minCount: 3 },
+      { ingredientId: "basil", minCount: 2 },
+    ],
+    bakeTarget: { start: 50, end: 70 },
+    baseRewardPitz: 100,
+  },
+  {
+    id: "pesto-patate",
+    nameJa: "ペストパターテピザ",
+    description:
+      "ジェノベーゼソースにじゃがいも、ベーコン、モッツァレラを合わせた、ほくほくと香ばしい一枚。",
+    requiredIngredients: [
+      { ingredientId: "pesto", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "potato", minCount: 3 },
+      { ingredientId: "bacon", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+  },
+  {
+    id: "puttanesca-pizza",
+    nameJa: "プッタネスカ",
+    description:
+      "トマトソースにアンチョビ、ブラックオリーブ、ケッパー、にんにくを効かせた、塩味と香りの強い一枚。",
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "anchovy", minCount: 3 },
+      { ingredientId: "black-olive", minCount: 2 },
+      { ingredientId: "capers", minCount: 2 },
+      { ingredientId: "garlic", minCount: 2 },
+    ],
+    bakeTarget: { start: 50, end: 70 },
+    baseRewardPitz: 100,
+  },
 ] as const;
 
 /** Derived from RECIPES above so this union can never drift out of sync with

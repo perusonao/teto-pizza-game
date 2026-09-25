@@ -25,8 +25,9 @@
  * The onboarding starters (tomato-sauce / mozzarella / basil) are not ladder steps: they keep the
  * existing onboarding starter authority (REC-04 `onboardingStarters`, CONFIRMED).
  *
- * **Not wired yet.** Nothing in the runtime imports this module; App/GameState/Shop/save wiring,
- * pack prices and first-stock handling are I4b.
+ * Wiring: the Shop entitlement (../state/materialEntitlement.ts), the material Shop
+ * (../logic/materialShop.ts) and the reducer read `DISCOVERY_LADDER` below (I4b); the 25-recipe
+ * W1 ladder became `DISCOVERY_LADDER` in I5b-3.
  */
 
 /** What a progression step unlocks. W1 only ever uses `MATERIAL`; later waves may extend this
@@ -88,9 +89,8 @@ export const SHIPPED_15_DISCOVERY_LADDER: DiscoveryLadder = {
  * simulated (`REC04_W1_25_LADDER_FIXTURE` in the ladder test-support module; pinned equal by
  * ../logic/w1LadderEconomy.test.ts).
  *
- * **Not wired yet.** `DISCOVERY_LADDER` below stays `SHIPPED_15_DISCOVERY_LADDER` until the 10 W1
- * recipes join `RECIPES` in the same change (I5b-3) -- switching earlier would unlock materials no
- * shipped recipe uses.
+ * Wired as `DISCOVERY_LADDER` since I5b-3, in the same change that added the 10 W1 recipes to
+ * `RECIPES` (switching earlier would have unlocked materials no shipped recipe used).
  */
 export const W1_25_DISCOVERY_LADDER: DiscoveryLadder = {
   populationId: "w1-25",
@@ -122,6 +122,8 @@ export const W1_25_DISCOVERY_LADDER: DiscoveryLadder = {
   ],
 };
 
-/** The ladder for the content currently shipped. I4b reads this; a later wave swaps it for that
- *  wave's regenerated ladder (W1: `W1_25_DISCOVERY_LADDER`, in I5b-3). */
-export const DISCOVERY_LADDER: DiscoveryLadder = SHIPPED_15_DISCOVERY_LADDER;
+/** The ladder for the content currently shipped. I4b read `SHIPPED_15_DISCOVERY_LADDER`; since
+ *  Progression 2.0 W1 I5b-3 (the 10 W1 recipes joined `RECIPES` in the same change) it is the
+ *  25-recipe `W1_25_DISCOVERY_LADDER`. Entitlements already granted by the 15-recipe ladder are
+ *  kept: the Shop ledger is a union and never re-locks (../state/materialEntitlement.ts). */
+export const DISCOVERY_LADDER: DiscoveryLadder = W1_25_DISCOVERY_LADDER;

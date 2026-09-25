@@ -69,7 +69,8 @@ export const DEFAULT_COOKING_PROFILE: CookingProfile = {
  * single-piece, single-bake pizzas sharing the identical circular-dough contract every DOUGH/
  * SAUCE/TOPPING gesture already uses (confirmed against ../data/recipes.ts and
  * ../data/referencePizza.ts) -- none uses `FOLD`/`SEAL`/`EDGE_FILL` (reserved `MakingStep`
- * members with zero recipe/reducer wiring today). So all 15 are listed here. A future non-round
+ * members with zero recipe/reducer wiring today). So all 15 are listed here. Progression 2.0 W1
+ * I5b-3 adds 9 of the 10 W1 recipes (REC-02); New Haven Apizza has no CUT. A future non-round
  * recipe (calzone, fugazzeta, mezza-e-mezza, siciliana, square pizza) must NOT be added until a
  * human deliberately re-confirms its shape fits this engine's ideal-circle scoring.
  */
@@ -89,6 +90,18 @@ const CUT_ELIGIBLE_RECIPE_IDS: ReadonlySet<RecipeId> = new Set<RecipeId>([
   "breakfast-pizza",
   "capricciosa",
   "meat-lovers",
+  // Progression 2.0 W1 I5b-3 (REC-02 / 35bc937 Q3): the 9 W1 recipes with PIZZA DB evidence of a
+  // standard round dough. `new-haven-apizza` is deliberately absent -- its dough has no evidence, and
+  // a default round is not evidence -- so its round ends at BAKE (no POST_BAKE CUT step).
+  "melanzane-pizza",
+  "parmigiana-pizza",
+  "bambino",
+  "hawaiian",
+  "pizza-portuguesa",
+  "pesto-tonno",
+  "pesto-caprese",
+  "pesto-patate",
+  "puttanesca-pizza",
 ]);
 
 /** Every CUT-eligible recipe uses this shared config unless overridden below -- Phase 4B's Fresh

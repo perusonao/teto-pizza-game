@@ -940,6 +940,586 @@ export const MEAT_LOVERS_REFERENCE: ReferencePizza = {
   ],
 };
 
+/**
+ * Progression 2.0 W1 I5b-3 (docs/reports/TETO_PROGRESS2_W1_I5B_FRESH-AUDIT.md §7-§8, MD-01 +
+ * RT-01c): the 10 W1 recipes' Reference Truth, authored and reviewed as unwired fixtures in I5b-2
+ * and registered here unchanged.
+ *
+ * - positions are literals: the RT-01 reference layout for each recipe's own non-sauce
+ *   `requiredIngredients` (in order, `minCount` each) -- the legacy ring filled consecutively for
+ *   7 pieces (the `MEAT_LOVERS_REFERENCE` precedent), the approved Candidate B multi-ring,
+ *   interleaved, for 9-10 (RT-01-OD-1). This file still never imports the layout code;
+ *   referencePizza.w1.test.ts pins literal == generator output and == the player reference.
+ * - sauce is the mechanical derivation for the recipe's own sauce profile.
+ * - landing / tolerance follow production: LIGHT_LEAF for basil (the leafy herb), HEAVY_SQUASH
+ *   otherwise; 8/22, except egg's 14/30.
+ */
+export const MELANZANE_PIZZA_REFERENCE: ReferencePizza = {
+  recipeId: "melanzane-pizza",
+  sauce: computeMechanicalSauceReference("melanzane-pizza"),
+  pieceGroups: [
+    {
+      ingredientId: "mozzarella",
+      positions: [
+        { x: 50, y: 24 },
+        { x: 73, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "eggplant",
+      positions: [
+        { x: 76, y: 63 },
+        { x: 58, y: 79 },
+        { x: 38, y: 79 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "basil",
+      positions: [
+        { x: 22, y: 63 },
+        { x: 25, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "LIGHT_LEAF",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
+/**
+ * RT-01c: 9 pieces -> the approved Candidate B multi-ring layout, ingredients interleaved (min gap
+ * 21.43, max radius 28).
+ */
+export const PARMIGIANA_PIZZA_REFERENCE: ReferencePizza = {
+  recipeId: "parmigiana-pizza",
+  sauce: computeMechanicalSauceReference("parmigiana-pizza"),
+  pieceGroups: [
+    {
+      ingredientId: "mozzarella",
+      positions: [
+        { x: 50, y: 22 },
+        { x: 50, y: 78 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "eggplant",
+      positions: [
+        { x: 69.8, y: 30.2 },
+        { x: 30.2, y: 69.8 },
+        { x: 50, y: 50 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "parmigiano",
+      positions: [
+        { x: 78, y: 50 },
+        { x: 22, y: 50 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "basil",
+      positions: [
+        { x: 69.8, y: 69.8 },
+        { x: 30.2, y: 30.2 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "LIGHT_LEAF",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
+export const BAMBINO_REFERENCE: ReferencePizza = {
+  recipeId: "bambino",
+  sauce: computeMechanicalSauceReference("bambino"),
+  pieceGroups: [
+    {
+      ingredientId: "mozzarella",
+      positions: [
+        { x: 50, y: 24 },
+        { x: 73, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "ham",
+      positions: [
+        { x: 76, y: 63 },
+        { x: 58, y: 79 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "corn",
+      positions: [
+        { x: 38, y: 79 },
+        { x: 22, y: 63 },
+        { x: 25, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
+export const HAWAIIAN_REFERENCE: ReferencePizza = {
+  recipeId: "hawaiian",
+  sauce: computeMechanicalSauceReference("hawaiian"),
+  pieceGroups: [
+    {
+      ingredientId: "mozzarella",
+      positions: [
+        { x: 50, y: 24 },
+        { x: 73, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "ham",
+      positions: [
+        { x: 76, y: 63 },
+        { x: 58, y: 79 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "pineapple",
+      positions: [
+        { x: 38, y: 79 },
+        { x: 22, y: 63 },
+        { x: 25, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
+/**
+ * RT-01c: 10 pieces -> the approved Candidate B multi-ring layout, ingredients interleaved (min gap
+ * 19.15, max radius 28). egg keeps 14/30 (OD-I5B-3: the Bismarck / Breakfast Pizza egg precedent;
+ * RT-01's standard 8/22 means the multi-ring layout changes no tolerance).
+ */
+export const PIZZA_PORTUGUESA_REFERENCE: ReferencePizza = {
+  recipeId: "pizza-portuguesa",
+  sauce: computeMechanicalSauceReference("pizza-portuguesa"),
+  pieceGroups: [
+    {
+      ingredientId: "mozzarella",
+      positions: [
+        { x: 50, y: 22 },
+        { x: 40.42, y: 76.31 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "ham",
+      positions: [
+        { x: 68, y: 28.55 },
+        { x: 25.75, y: 64 },
+        { x: 50, y: 50 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "egg",
+      positions: [{ x: 77.57, y: 45.14 }],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 14, zeroCreditRadius: 30 },
+    },
+    {
+      ingredientId: "onion",
+      positions: [
+        { x: 74.25, y: 64 },
+        { x: 32, y: 28.55 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "black-olive",
+      positions: [
+        { x: 59.58, y: 76.31 },
+        { x: 22.43, y: 45.14 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
+export const PESTO_TONNO_REFERENCE: ReferencePizza = {
+  recipeId: "pesto-tonno",
+  sauce: computeMechanicalSauceReference("pesto-tonno"),
+  pieceGroups: [
+    {
+      ingredientId: "tuna",
+      positions: [
+        { x: 50, y: 24 },
+        { x: 73, y: 36 },
+        { x: 76, y: 63 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "black-olive",
+      positions: [
+        { x: 58, y: 79 },
+        { x: 38, y: 79 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "onion",
+      positions: [
+        { x: 22, y: 63 },
+        { x: 25, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
+export const NEW_HAVEN_APIZZA_REFERENCE: ReferencePizza = {
+  recipeId: "new-haven-apizza",
+  sauce: computeMechanicalSauceReference("new-haven-apizza"),
+  pieceGroups: [
+    {
+      ingredientId: "parmigiano",
+      positions: [
+        { x: 50, y: 24 },
+        { x: 73, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "clam",
+      positions: [
+        { x: 76, y: 63 },
+        { x: 58, y: 79 },
+        { x: 38, y: 79 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "garlic",
+      positions: [
+        { x: 22, y: 63 },
+        { x: 25, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
+export const PESTO_CAPRESE_REFERENCE: ReferencePizza = {
+  recipeId: "pesto-caprese",
+  sauce: computeMechanicalSauceReference("pesto-caprese"),
+  pieceGroups: [
+    {
+      ingredientId: "mozzarella",
+      positions: [
+        { x: 50, y: 24 },
+        { x: 73, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "fresh-tomato",
+      positions: [
+        { x: 76, y: 63 },
+        { x: 58, y: 79 },
+        { x: 38, y: 79 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "basil",
+      positions: [
+        { x: 22, y: 63 },
+        { x: 25, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "LIGHT_LEAF",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
+export const PESTO_PATATE_REFERENCE: ReferencePizza = {
+  recipeId: "pesto-patate",
+  sauce: computeMechanicalSauceReference("pesto-patate"),
+  pieceGroups: [
+    {
+      ingredientId: "mozzarella",
+      positions: [
+        { x: 50, y: 24 },
+        { x: 73, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "potato",
+      positions: [
+        { x: 76, y: 63 },
+        { x: 58, y: 79 },
+        { x: 38, y: 79 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "bacon",
+      positions: [
+        { x: 22, y: 63 },
+        { x: 25, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
+/**
+ * RT-01c: 9 pieces -> the approved Candidate B multi-ring layout, ingredients interleaved (min gap
+ * 21.43, max radius 28).
+ */
+export const PUTTANESCA_PIZZA_REFERENCE: ReferencePizza = {
+  recipeId: "puttanesca-pizza",
+  sauce: computeMechanicalSauceReference("puttanesca-pizza"),
+  pieceGroups: [
+    {
+      ingredientId: "anchovy",
+      positions: [
+        { x: 50, y: 22 },
+        { x: 50, y: 78 },
+        { x: 50, y: 50 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "black-olive",
+      positions: [
+        { x: 69.8, y: 30.2 },
+        { x: 30.2, y: 69.8 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "capers",
+      positions: [
+        { x: 78, y: 50 },
+        { x: 22, y: 50 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "garlic",
+      positions: [
+        { x: 69.8, y: 69.8 },
+        { x: 30.2, y: 30.2 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
 const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [MARGHERITA_REFERENCE.recipeId, MARGHERITA_REFERENCE],
   [MARINARA_REFERENCE.recipeId, MARINARA_REFERENCE],
@@ -956,6 +1536,16 @@ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [BREAKFAST_PIZZA_REFERENCE.recipeId, BREAKFAST_PIZZA_REFERENCE],
   [CAPRICCIOSA_REFERENCE.recipeId, CAPRICCIOSA_REFERENCE],
   [MEAT_LOVERS_REFERENCE.recipeId, MEAT_LOVERS_REFERENCE],
+  [MELANZANE_PIZZA_REFERENCE.recipeId, MELANZANE_PIZZA_REFERENCE],
+  [PARMIGIANA_PIZZA_REFERENCE.recipeId, PARMIGIANA_PIZZA_REFERENCE],
+  [BAMBINO_REFERENCE.recipeId, BAMBINO_REFERENCE],
+  [HAWAIIAN_REFERENCE.recipeId, HAWAIIAN_REFERENCE],
+  [PIZZA_PORTUGUESA_REFERENCE.recipeId, PIZZA_PORTUGUESA_REFERENCE],
+  [PESTO_TONNO_REFERENCE.recipeId, PESTO_TONNO_REFERENCE],
+  [NEW_HAVEN_APIZZA_REFERENCE.recipeId, NEW_HAVEN_APIZZA_REFERENCE],
+  [PESTO_CAPRESE_REFERENCE.recipeId, PESTO_CAPRESE_REFERENCE],
+  [PESTO_PATATE_REFERENCE.recipeId, PESTO_PATATE_REFERENCE],
+  [PUTTANESCA_PIZZA_REFERENCE.recipeId, PUTTANESCA_PIZZA_REFERENCE],
 ]);
 
 /**

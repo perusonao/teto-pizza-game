@@ -24,6 +24,16 @@ import type { QualityStars } from "./scoring";
  * this module.
  */
 
+/**
+ * The recipe population this legacy EP-era model simulates: margherita plus the EP1 unlock chain
+ * (the shipped 15). The 10 W1 recipes (Progression 2.0 I5b-3) have no EP1 gate and progress
+ * through the Discovery Ladder + material Shop instead (REC-04), which this EP4-grant model does
+ * not model -- REC-04's own simulation and the I5b Fresh Audit cover them.
+ */
+export const EP_ERA_RECIPES: readonly Recipe[] = (RECIPES as readonly Recipe[]).filter(
+  (r) => r.id === "margherita" || r.unlockCondition !== undefined,
+);
+
 export type RoundOutcome = QualityStars | "FAILED";
 
 /** One representative round outcome cycle per player archetype (§3 of the task). Indices
@@ -315,7 +325,7 @@ export function simulateProgression(profile: PlayerProfile): SimulationResult {
   let attemptIndex = 0;
   // Every recipe id, used only for the final "did every recipe get discovered" check --
   // membership, not order, is all that's read from this.
-  const allRecipeIds: RecipeId[] = RECIPES.map((r) => r.id);
+  const allRecipeIds: RecipeId[] = EP_ERA_RECIPES.map((r) => r.id);
   const isDiscovered = (id: RecipeId) => dex.some((e) => e.recipeId === id && e.discovered);
   const bestStarsOf = (id: RecipeId) => dex.find((e) => e.recipeId === id)?.bestStars ?? 0;
 
@@ -338,7 +348,7 @@ export function simulateProgression(profile: PlayerProfile): SimulationResult {
     if (allDiscovered) break;
     if (stalledSweeps >= MAX_STALLED_SWEEPS) break; // Genuine ceiling reached -- BLOCKED.
 
-    const available = RECIPES.filter((r) => isAvailable(r));
+    const available = EP_ERA_RECIPES.filter((r) => isAvailable(r));
     if (available.length === 0) break; // Should never happen (margherita is always available).
 
     // Phase 1 (discover): any available recipe never yet baked to a PASS takes priority over

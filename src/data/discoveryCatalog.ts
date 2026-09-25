@@ -37,6 +37,18 @@ export const RECIPE_DISCOVERY_TARGET_IDS: Readonly<Record<RecipeId, string>> = {
   "breakfast-pizza": "shipped:breakfast-pizza",
   capricciosa: "shipped:capricciosa",
   "meat-lovers": "shipped:meat-lovers",
+  // Progression 2.0 W1 I5b-3: PIZZA DB evidence ids from the W1 authoring matrix (#221 `evidenceId`,
+  // read as reference; docs/reports/TETO_PROGRESS2_W1_I5B_FRESH-AUDIT.md §1).
+  "melanzane-pizza": "melanzane-pizza-pizzadb-p13",
+  "parmigiana-pizza": "parmigiana-pizza-pizzadb-p7",
+  bambino: "bambino-pizzadb-p7",
+  hawaiian: "hawaiian-pizzadb-row",
+  "pizza-portuguesa": "pizza-portuguesa-pizzadb-p9",
+  "pesto-tonno": "pesto-tonno-pizzadb-p12",
+  "new-haven-apizza": "new-haven-apizza-pizzadb",
+  "pesto-caprese": "pesto-caprese-pizzadb-p11",
+  "pesto-patate": "pesto-patate-pizzadb-p12",
+  "puttanesca-pizza": "puttanesca-pizza-pizzadb-p10",
 };
 
 export const RECIPE_DISCOVERY_CATALOG: readonly RecipeDiscoveryTarget[] = RECIPES.map((recipe) => ({

@@ -78,8 +78,8 @@ describe("discoveredRecipeCount", () => {
     expect(discoveredRecipeCount(high)).toBe(5);
   });
 
-  it("is 15 once every shipped recipe is discovered", () => {
-    expect(discoveredRecipeCount(RECIPES.map((r) => dexEntry(r.id)))).toBe(15);
+  it("is 25 once every shipped recipe is discovered (W1 I5b-3)", () => {
+    expect(discoveredRecipeCount(RECIPES.map((r) => dexEntry(r.id)))).toBe(25);
   });
 });
 
@@ -144,8 +144,9 @@ describe("Discovery Ladder: Dex discovered count >= step number (exhaustive, shi
   it("never deadlocks: at every count the reachable recipes let the player discover the next one", () => {
     // After `count` discoveries the player owns starters + the reached materials. There must be
     // at least `count + 1` makeable recipes (i.e. one not yet discovered) until all are found.
+    // The production pairing: RECIPES (25 since I5b-3) with the production ladder.
     for (let count = 0; count < RECIPES.length; count += 1) {
-      const owned = new Set([...REC04_STARTERS, ...ladderUnlockedMaterialIds(LADDER, count)]);
+      const owned = new Set([...REC04_STARTERS, ...ladderUnlockedMaterialIds(DISCOVERY_LADDER, count)]);
       const makeable = RECIPES.filter((r) =>
         r.requiredIngredients.every((q) => owned.has(q.ingredientId)),
       );

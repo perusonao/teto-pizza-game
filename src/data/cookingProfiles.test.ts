@@ -43,7 +43,21 @@ const EXPECTED_CUT_ELIGIBLE: readonly RecipeId[] = [
   "breakfast-pizza",
   "capricciosa",
   "meat-lovers",
+  // Progression 2.0 W1 I5b-3 (REC-02 / 35bc937 Q3): the 9 W1 recipes with standard round dough.
+  "melanzane-pizza",
+  "parmigiana-pizza",
+  "bambino",
+  "hawaiian",
+  "pizza-portuguesa",
+  "pesto-tonno",
+  "pesto-caprese",
+  "pesto-patate",
+  "puttanesca-pizza",
 ];
+
+/** REC-02: a production recipe that deliberately has no CUT (no dough evidence; a default round is
+ *  not evidence). */
+const EXPECTED_NOT_CUT_ELIGIBLE: readonly RecipeId[] = ["new-haven-apizza"];
 
 /**
  * Gameplay UX / Scoring 3.0 PR-A (Dynamic Cooking Steps, see
@@ -73,10 +87,20 @@ const RECIPE_STEP_MATRIX: Record<RecipeId, readonly MakingStep[]> = {
   "breakfast-pizza": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
   capricciosa: ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
   "meat-lovers": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  "melanzane-pizza": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  "parmigiana-pizza": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  bambino: ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  hawaiian: ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  "pizza-portuguesa": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  "pesto-tonno": ["DOUGH", "SAUCE", "TOPPING"],
+  "new-haven-apizza": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  "pesto-caprese": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  "pesto-patate": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  "puttanesca-pizza": ["DOUGH", "SAUCE", "TOPPING"],
 };
 
 /** No-CHEESE recipes (Fresh-confirmed, see `RECIPE_STEP_MATRIX` above). */
-const NO_CHEESE_RECIPES: readonly RecipeId[] = ["marinara", "fugazza", "pizza-bianca"];
+const NO_CHEESE_RECIPES: readonly RecipeId[] = ["marinara", "fugazza", "pizza-bianca", "pesto-tonno", "puttanesca-pizza"];
 /** No-TOPPING recipes (Fresh-confirmed, see `RECIPE_STEP_MATRIX` above). */
 const NO_TOPPING_RECIPES: readonly RecipeId[] = ["quattro-formaggi"];
 
@@ -90,7 +114,7 @@ describe("CookingProfile lookup (Recipe Cooking Steps 1.0 / Pizza Cutting 1.0 Ph
     // RECIPES ⊆ EXPECTED_CUT_ELIGIBLE ∪ (nothing else) -- every real recipe id is accounted for
     // by this test file, not silently skipped.
     const recipeIds = RECIPES.map((r) => r.id);
-    expect(new Set(recipeIds)).toEqual(new Set(EXPECTED_CUT_ELIGIBLE));
+    expect(new Set(recipeIds)).toEqual(new Set([...EXPECTED_CUT_ELIGIBLE, ...EXPECTED_NOT_CUT_ELIGIBLE]));
     for (const recipeId of recipeIds) {
       // Calling isCutEligible/getCookingProfile must not throw and must return a defined,
       // deterministic boolean/profile for every one -- "explicit decision" means every id
@@ -107,9 +131,24 @@ describe("CookingProfile lookup (Recipe Cooking Steps 1.0 / Pizza Cutting 1.0 Ph
     }
   });
 
-  it("every RECIPES entry is CUT-eligible in this phase (Phase 4B Fresh Audit finding)", () => {
+  it("every RECIPES entry is CUT-eligible except the REC-02 no-CUT recipe (New Haven Apizza)", () => {
     for (const recipe of RECIPES) {
-      expect(isCutEligible(recipe.id), `${recipe.id} must be CUT-eligible`).toBe(true);
+      const expected = !EXPECTED_NOT_CUT_ELIGIBLE.includes(recipe.id);
+      expect(isCutEligible(recipe.id), `${recipe.id} CUT eligibility`).toBe(expected);
+    }
+  });
+
+  it("New Haven Apizza: its own core steps, no CUT, no cutConfig -- the round ends at BAKE", () => {
+    const profile = getCookingProfile("new-haven-apizza");
+    expect(profile.steps).toEqual(RECIPE_STEP_MATRIX["new-haven-apizza"]);
+    expect(profile.steps).not.toContain("CUT");
+    expect(profile.cutConfig).toBeUndefined();
+    expect(postBakeSteps(profile)).toEqual([]);
+  });
+
+  it("the 9 W1 CUT recipes use the standard 6-slice config", () => {
+    for (const id of EXPECTED_CUT_ELIGIBLE.slice(15)) {
+      expect(getCookingProfile(id).cutConfig).toEqual({ requestedSliceCount: 6 });
     }
   });
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { RECIPES } from "../data/recipes";
+import { RECIPES, type Recipe } from "../data/recipes";
 import { INGREDIENTS } from "../data/ingredients";
 import {
   GOOD_PLAYER,
@@ -7,6 +7,7 @@ import {
   STRUGGLING_PLAYER,
   STRUGGLING_HARD_CAP_PLAYER,
   simulateProgression,
+  EP_ERA_RECIPES,
   financeIngredientTable,
   STARTER_STOCK_PLAYS_CHAPTER_1,
 } from "./economySimulation";
@@ -43,8 +44,10 @@ describe("economy table consistency (A)", () => {
     }
   });
 
-  it("has exactly 15 recipes", () => {
-    expect(RECIPES.length).toBe(15);
+  it("simulates the 15 EP-era recipes; the 10 W1 recipes (no EP1 gate) are outside this EP4 model", () => {
+    expect(RECIPES.length).toBe(25);
+    expect(EP_ERA_RECIPES).toHaveLength(15);
+    expect((RECIPES as readonly Recipe[]).filter((r) => !EP_ERA_RECIPES.includes(r)).every((r) => !r.unlockCondition)).toBe(true);
   });
 
   it("every finite ingredient is starterGrantOnly (no direct-purchase-only row exists today)", () => {
@@ -134,7 +137,7 @@ describe("representative progression simulation (F, G)", () => {
       const result = simulateProgression(profile);
       const order = result.unlockEvents.map((e) => e.recipeId);
       expect(new Set(order).size).toBe(order.length); // no duplicate unlock events
-      expect(order.every((id) => RECIPES.some((r) => r.id === id))).toBe(true);
+      expect(order.every((id) => EP_ERA_RECIPES.some((r) => r.id === id))).toBe(true);
     }
   });
 
@@ -143,10 +146,10 @@ describe("representative progression simulation (F, G)", () => {
     // (../data/recipes.ts), not `RECIPES`' own declaration order (which lists
     // marinara/quattro-formaggi/genovese/bismarck/funghi before their real chain positions).
     const chainOrder: string[] = ["margherita"];
-    const remaining = new Set(RECIPES.map((r) => r.id));
+    const remaining = new Set(EP_ERA_RECIPES.map((r) => r.id));
     remaining.delete("margherita");
     while (remaining.size > 0) {
-      const next = RECIPES.find(
+      const next = EP_ERA_RECIPES.find(
         (r) =>
           remaining.has(r.id) &&
           chainOrder.includes(
@@ -158,7 +161,7 @@ describe("representative progression simulation (F, G)", () => {
       chainOrder.push(next.id);
       remaining.delete(next.id);
     }
-    expect(chainOrder).toHaveLength(RECIPES.length);
+    expect(chainOrder).toHaveLength(EP_ERA_RECIPES.length);
 
     for (const profile of [GOOD_PLAYER, NORMAL_PLAYER, STRUGGLING_PLAYER, STRUGGLING_HARD_CAP_PLAYER]) {
       const result = simulateProgression(profile);
