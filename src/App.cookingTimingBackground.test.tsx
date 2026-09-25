@@ -35,6 +35,9 @@ function seedBismarckUnlocked(): void {
       { recipeId: "funghi", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 },
       { recipeId: "marinara", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 },
     ],
+    // Progression 2.0 I4b-3: EP4's load-time Starter Grant is retired, so the materials these
+    // recipes need are seeded as already bought (the v1 -> v2 migration backfills their stock).
+    ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "mushroom", "garlic", "oregano", "egg"],
   });
 }
 

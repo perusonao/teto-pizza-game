@@ -33,7 +33,7 @@ import {
   persistMissionBest,
   resetSave,
 } from "./state/persistence";
-import { applyStarterGrants } from "./state/starterStock";
+import { resolveShopEntitlement } from "./state/materialEntitlement";
 import { ensureAnonymousUser, isFirebaseAvailable, submitLunchRushScore } from "./firebase";
 import {
   DEFAULT_MISSION_CONFIG,
@@ -129,30 +129,26 @@ function App() {
   // hydrate the initial state with them.
   const [state, dispatch] = useReducer(gameReducer, undefined, () => {
     const save = loadSave();
-    // Economy & Progression 1.0 EP4 migration catch-up: `recipeUnlocked` (src/state/
-    // progression.ts) is purely a function of `dex`, so an existing player's save can already
-    // show one or more Chapter 1 recipes unlocked (from play before this build ever shipped)
-    // with no Starter Grant ever recorded for them (`starterGrantClaimedRecipeIds` reads back
-    // empty for any pre-EP4 save -- see persistence.ts's own doc comment on that field). Running
-    // `applyStarterGrants` once here, before `createInitialGameState`, backfills exactly those
-    // recipes' Starter Stock so an existing player is never left holding an unlocked recipe they
-    // still can't make even once -- and is a complete no-op (same reference back) for a save that
-    // already has every currently-unlocked recipe's grant claimed, so it's safe to run
-    // unconditionally on every load, not just an existing player's very first post-EP4 load.
-    // `createInitialGameState` itself deliberately never does this (see its own doc comment) --
-    // this load path is the one explicit call site.
-    const grant = applyStarterGrants(
+    // Progression 2.0 W1 Integration I4b-3 (REC-04; replaces EP4's load-time Starter Grant
+    // catch-up, which is retired): resolve the Discovery Ladder once on load, before
+    // `createInitialGameState`. For an existing save this is the migration -- the Shop
+    // entitlement becomes the stored ledger + every finite material already OWNED (EP4-granted
+    // ones included, stock untouched) + the ladder materials reached at the Dex discovered count;
+    // anything newly entitled starts at stock 0. Nothing is granted and
+    // `starterGrantClaimedRecipeIds` is carried through unchanged (so a rollback to a pre-I4b
+    // build never re-grants a claimed recipe). A complete no-op for an up-to-date save.
+    const entitlement = resolveShopEntitlement(
       save.dex,
       save.ownedIngredientIds,
-      save.inventory,
-      save.starterGrantClaimedRecipeIds,
+      save.unlockedForShopIngredientIds,
     );
     return createInitialGameState(
       save.dex,
-      grant.ownedIngredientIds,
+      save.ownedIngredientIds,
       save.pitzBalance,
-      grant.inventory,
-      grant.claimedRecipeIds,
+      save.inventory,
+      save.starterGrantClaimedRecipeIds,
+      entitlement.unlockedForShopIngredientIds,
     );
   });
   // HOME is always the first screen shown (Issue #24 requirement) regardless of what round
@@ -300,6 +296,7 @@ function App() {
       ownedIngredientIds: state.ownedIngredientIds,
       inventory: state.inventory,
       starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
+      unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
     });
   }, [
     state.dex,
@@ -307,6 +304,7 @@ function App() {
     state.ownedIngredientIds,
     state.inventory,
     state.starterGrantClaimedRecipeIds,
+    state.unlockedForShopIngredientIds,
   ]);
 
   // Firebase Ranking 1.0 Phase 1A (Issue #87): establishes an anonymous Firebase identity in
@@ -694,7 +692,7 @@ function App() {
   // Full Game Reset (Issue #89): the reload itself is the reset mechanism (Fresh Audit §13
   // Option B), not a new fresh-state construction here -- clearing the one save key means the
   // very next mount's `useReducer` lazy initializer above (`loadSave()` -> `createDefaultSave()`
-  // -> `applyStarterGrants` -> `createInitialGameState`) runs exactly as it does for a genuine
+  // -> `resolveShopEntitlement` -> `createInitialGameState`) runs exactly as it does for a genuine
   // first launch, and the reload also discards every one of this component's other ~13
   // useState/useReducer hooks (screen, overlay flags, mission state, ...) for free, with no
   // per-field enumeration to keep in sync. `resetSave` (persistence.ts) verifies the key is

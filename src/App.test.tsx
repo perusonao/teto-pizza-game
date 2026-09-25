@@ -274,6 +274,9 @@ function seedBismarckUnlocked(): void {
       { recipeId: "funghi", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 },
       { recipeId: "marinara", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 },
     ],
+    // Progression 2.0 I4b-3: EP4's load-time Starter Grant is retired, so the materials these
+    // recipes need are seeded as already bought (the v1 -> v2 migration backfills their stock).
+    ownedIngredientIds: [...STARTER_INGREDIENT_IDS, "mushroom", "garlic", "oregano", "egg"],
   });
 }
 
@@ -987,16 +990,19 @@ describe("Shop 2.0 restock (Economy & Progression 1.0 EP3)", () => {
     expect(within(shop).queryByText("購入済み")).not.toBeInTheDocument();
   });
 
-  it("補充する credits inventory by +12 and debits Pitz by 170 in one atomic tap", async () => {
+  // I4b-3 (REC-04 OD-REC04-3): the refill transaction is now the Discovery Ladder Shop's -- onion
+  // is ladder step 10 (T2), so a refill is -40 Pitz and +40 stock (10 x k, k = 4). The row's price
+  // label is I4b-4 UI and still shows the legacy number until then.
+  it("補充する credits inventory by +40 (10 x k) and debits Pitz by 40 (T2 refill) in one atomic tap", async () => {
     const user = userEvent.setup();
     seedSaveV2({ pitzBalance: 200, ownedIngredientIds: ownedWithOnion, inventory: { onion: 2 } });
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ショップ/ }));
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
     await user.click(within(shop).getByRole("button", { name: "補充する" }));
-    expect(within(shop).getByText(/在庫 14/)).toBeInTheDocument(); // 2 + 12
+    expect(within(shop).getByText(/在庫 42/)).toBeInTheDocument(); // 2 + 40
     expect(within(shop).getByText(/補充しました/)).toBeInTheDocument();
-    expect(within(shop).getByText(/30 Pitz/)).toBeInTheDocument(); // 200 - 170
+    expect(within(shop).getByText(/160 Pitz/)).toBeInTheDocument(); // 200 - 40
   });
 
   it("disables 補充する when Pitz balance is insufficient for the restock price", async () => {
@@ -1145,8 +1151,9 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
     expect(within(shop).queryByText("オリーブオイル")).not.toBeInTheDocument();
     expect(within(shop).getByText(/170 Pitz/)).toBeInTheDocument(); // onion's price, unchanged
     await user.click(within(shop).getByRole("button", { name: "補充する" }));
-    expect(within(shop).getByText(/在庫 14/)).toBeInTheDocument(); // 2 + 12 (onion's restockQuantity, unchanged)
-    expect(within(shop).getByText(/30 Pitz/)).toBeInTheDocument(); // 200 - 170, unchanged
+    // I4b-3: the same REC-04 refill as unfiltered (T2 onion: +40 stock, -40 Pitz).
+    expect(within(shop).getByText(/在庫 42/)).toBeInTheDocument(); // 2 + 40
+    expect(within(shop).getByText(/160 Pitz/)).toBeInTheDocument(); // 200 - 40
   });
 
   it("I/J. a starterGrantOnly ingredient the player doesn't own stays hidden in every filter tab", async () => {

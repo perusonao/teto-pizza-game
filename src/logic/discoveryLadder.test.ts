@@ -396,7 +396,7 @@ describe("validateDiscoveryLadder", () => {
   });
 });
 
-describe("production behavior unchanged (the pure layer is not wired)", () => {
+describe("runtime wiring boundary (I4b-3)", () => {
   // Raw source of every non-test module under src/. `import.meta.glob` is resolved by Vite at
   // transform time, so this sees exactly the files the app build would.
   const sources = import.meta.glob<string>(["../**/*.{ts,tsx}", "!../**/*.test.{ts,tsx}"], {
@@ -405,19 +405,47 @@ describe("production behavior unchanged (the pure layer is not wired)", () => {
     eager: true,
   });
 
-  it("no production module imports the Discovery Ladder or material Shop pure layer", () => {
-    // I4a (ladder) + I4b-1 (material Shop): these may import each other, nothing else may import them.
+  it("the Discovery Ladder / material Shop pure layer is reached only through its intended bridges", () => {
+    // I4a (ladder) + I4b-1 (material Shop) may import each other. From I4b-3 the runtime reaches
+    // them only via ../state/materialEntitlement.ts (ladder -> Shop entitlement) and
+    // ../state/gameReducer.ts (first pack / refill transactions) -- never from UI code directly.
     const pureLayer = new Set([
       "../data/discoveryLadder.ts",
       "./discoveryLadder.ts",
       "./materialShop.ts",
       "./testSupport/discoveryLadderRule.ts",
     ]);
+    const bridges = ["../state/gameReducer.ts", "../state/materialEntitlement.ts"];
     const importers = Object.entries(sources)
       .filter(([path]) => !pureLayer.has(path))
       .filter(([, text]) => /from\s+["'][^"']*(discoveryLadder(Rule)?|materialShop)["']/.test(text))
-      .map(([path]) => path);
+      .map(([path]) => path)
+      .sort();
     expect(Object.keys(sources).length).toBeGreaterThan(50);
+    expect(importers).toEqual(bridges);
+  });
+
+  it("nothing in production imports the test-only ladder rule port", () => {
+    const importers = Object.entries(sources)
+      .filter(([path]) => !path.includes("/testSupport/"))
+      .filter(([, text]) => /discoveryLadderRule/.test(text))
+      .map(([path]) => path);
     expect(importers).toEqual([]);
+  });
+
+  it("the retired EP4 Starter Grant is no longer called by any production module", () => {
+    // ./economySimulation.ts is the legacy EP-era economy analysis model: only its own test
+    // imports it (asserted below), so it is not part of the runtime bundle.
+    const analysisOnly = ["../state/starterStock.ts", "./economySimulation.ts"];
+    expect(
+      Object.entries(sources)
+        .filter(([, text]) => /from\s+["'][^"']*economySimulation["']/.test(text))
+        .map(([path]) => path),
+    ).toEqual([]);
+    const callers = Object.entries(sources)
+      .filter(([path]) => !analysisOnly.includes(path))
+      .filter(([, text]) => /applyStarterGrants\s*\(|buildStarterGrantNotice\s*\(/.test(text))
+      .map(([path]) => path);
+    expect(callers).toEqual([]);
   });
 });

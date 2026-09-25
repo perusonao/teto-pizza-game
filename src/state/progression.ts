@@ -46,8 +46,16 @@ export function ingredientState(
  * Dex state -- independent of ingredient ownership. Absent `unlockCondition` (margherita only)
  * is always unlocked. Both sub-conditions, when present, are AND'd: a recipe chained to a
  * discovery *and* a totalStars floor (quattro-formaggi, fugazza) needs both.
+ *
+ * Progression 2.0 W1 Integration I4b-3, implementation default A2 (REC-04 applied to the current
+ * UI; docs/reports/TETO_PROGRESS2_W1_I4B_Fresh-Audit.md §1/§5): a **discovered** recipe is always
+ * unlocked. Free Cooking discovers recipes in Discovery Ladder order without looking at this
+ * chain, so without this a discovered pizza could stay LOCKED in Pizza Select and out of the Lunch
+ * Rush pool (up to 9 recipes for a ★1 player). The EP1 chain is kept only for recipes not
+ * discovered yet. Purely additive: it never locks anything that was unlocked before.
  */
 export function recipeUnlocked(recipe: Recipe, dex: DexState): boolean {
+  if (isDiscovered(dex, recipe.id)) return true;
   const condition = recipe.unlockCondition;
   if (!condition) return true;
   if (condition.requiresRecipeId && !isDiscovered(dex, condition.requiresRecipeId)) return false;

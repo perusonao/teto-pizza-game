@@ -114,8 +114,8 @@ describe("Inventory Screen (read-only stock view)", () => {
     await user.click(screen.getByRole("button", { name: /材料/ }));
     const inventory = document.querySelector<HTMLElement>(".dex-overlay")!;
     const card = within(inventory).getByText("たまねぎ").closest(".inventory-card") as HTMLElement;
-    // onion's restockQuantity is 12 (see data/ingredients.ts) -- 2 + 12 = 14.
-    expect(within(card).getByText("×14")).toBeInTheDocument();
+    // I4b-3 (REC-04): a refill adds one pack, 10 x k = 40 for onion (k = 4) -- 2 + 40 = 42.
+    expect(within(card).getByText("×42")).toBeInTheDocument();
   });
 
   it("reflects an already-landed Starter Grant (e.g. onion +40) exactly as persisted", async () => {
