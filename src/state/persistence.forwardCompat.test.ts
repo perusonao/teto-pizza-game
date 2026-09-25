@@ -373,10 +373,12 @@ describe("save forward-compat (Phase 3-4B)", () => {
 });
 
 /**
- * B-2 (PR #206 Final Preflight): PR #217 names `unlockedForShopIngredientIds` as the permanent
- * shop-unlock entitlement set a Progression 2.0 build adds at top level (schemaVersion 2, no bump).
- * This build doesn't know the key, so it must never read it and never erase it: every write path
- * carries it through verbatim, and a downgrade -> write -> reload round-trip gives it back intact.
+ * B-2 (PR #206 Final Preflight) -> I4b-2: `unlockedForShopIngredientIds` is the permanent Shop
+ * entitlement set (top level, schemaVersion 2, no bump). Before I4b-2 this build did not know the
+ * key and carried it through verbatim; from I4b-2 it reads the known ids into gameplay, while the
+ * ids it does not know still stay in storage only. Every write path must keep the whole list --
+ * known and unknown ids, order included -- and a downgrade -> write -> reload round-trip gives it
+ * back intact.
  */
 describe("save forward-compat: future entitlement field `unlockedForShopIngredientIds` (B-2)", () => {
   const ENTITLEMENT_KEY = "unlockedForShopIngredientIds";
@@ -393,10 +395,10 @@ describe("save forward-compat: future entitlement field `unlockedForShopIngredie
     expect(raw[ENTITLEMENT_KEY]).toEqual(ENTITLEMENT);
   }
 
-  it("this build does not know the key (it stays a forward-compat field)", () => {
-    expect(Object.keys(createDefaultSave())).not.toContain(ENTITLEMENT_KEY);
+  it("this build reads only the known ids; the unknown ones never reach gameplay", () => {
+    expect(createDefaultSave()[ENTITLEMENT_KEY]).toEqual([]);
     const save = loadSave(fakeStorage({ [SAVE_STORAGE_KEY]: JSON.stringify(entitlementSave()) }));
-    expect(save).not.toHaveProperty(ENTITLEMENT_KEY);
+    expect(save[ENTITLEMENT_KEY]).toEqual([PURCHASABLE]);
   });
 
   it("persistDex keeps it", () => {
@@ -456,8 +458,8 @@ describe("save forward-compat: future entitlement field `unlockedForShopIngredie
     persistMissionBest(LUNCH_RUSH_MISSION_ID, 900, storage);
     expectEntitlementKept(storage);
 
-    // Reload: gameplay still never sees the key, and the next write still keeps it.
-    expect(loadSave(storage)).not.toHaveProperty(ENTITLEMENT_KEY);
+    // Reload: gameplay still sees only the known id, and the next write still keeps them all.
+    expect(loadSave(storage)[ENTITLEMENT_KEY]).toEqual([PURCHASABLE]);
     playOneRound(storage);
     expectEntitlementKept(storage);
   });

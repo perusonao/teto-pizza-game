@@ -735,6 +735,7 @@ describe("loadSave: v2 sanitize/pass-through (Save v2 / Inventory E0)", () => {
       missionBest: { [LUNCH_RUSH_MISSION_ID]: 500 },
       inventory: { onion: 7 },
       starterGrantClaimedRecipeIds: ["funghi"],
+      unlockedForShopIngredientIds: ["egg", "onion"],
     };
     const storage = fakeStorage({ [SAVE_STORAGE_KEY]: JSON.stringify(v2) });
     expect(loadSave(storage)).toEqual(v2);
@@ -993,6 +994,8 @@ describe("Save schema unaffected by Scoring 2.0 Shadow (Phase 4A-2 scope guard)"
         "pitzBalance",
         "schemaVersion",
         "starterGrantClaimedRecipeIds",
+        // I4b-2: the Discovery Ladder Shop entitlement ledger (REC-04), not a scoring field.
+        "unlockedForShopIngredientIds",
       ].sort(),
     );
   });
@@ -1042,6 +1045,7 @@ describe("Save compatibility across the A1 Authority Cutover (pre-cutover save s
       missionBest: { [LUNCH_RUSH_MISSION_ID]: 88 },
       inventory: {},
       starterGrantClaimedRecipeIds: [],
+      unlockedForShopIngredientIds: [],
     };
     const storage = fakeStorage({ [SAVE_STORAGE_KEY]: JSON.stringify(preCutoverSave) });
     const loaded = loadSave(storage);

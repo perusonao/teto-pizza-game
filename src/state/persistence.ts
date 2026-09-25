@@ -132,6 +132,18 @@ export interface PersistentSaveV2 {
    *  backfill Starter Stock for an existing player's already-unlocked recipes exactly once, the
    *  first time this build loads their save (see the EP4 Result report's migration section). */
   starterGrantClaimedRecipeIds: string[];
+  /** Progression 2.0 W1 Integration I4b-2 (REC-04 OD-REC04-1, see
+   *  docs/reports/TETO_PROGRESS2_W1_I4B_Fresh-Audit.md §3 H): every material the Discovery Ladder
+   *  (../logic/discoveryLadder.ts) has ever unlocked for the Shop. An entitlement ledger -- an id,
+   *  once written, is never removed, so a later wave that regenerates the ladder can never
+   *  re-lock a material (`resolveMaterialUnlocks` unions this list). Unlocking grants no stock:
+   *  `inventory` and `ownedIngredientIds` are untouched by it (OD-REC04-2). Added to v2 without a
+   *  schema bump, exactly like `starterGrantClaimedRecipeIds`: an absent/malformed value (every
+   *  save written before this field existed, a migrated v1 save) reads back as `[]`, and the
+   *  load-time ladder resolution re-derives it from Dex. Known ids are validated here (known,
+   *  non-starter ingredient); a well-formed id this build does not know is kept in storage by the
+   *  I0 forward-compat merge (`writeSave`), never dropped. */
+  unlockedForShopIngredientIds: string[];
 }
 
 const KNOWN_RECIPE_IDS: readonly string[] = RECIPES.map((r) => r.id);
@@ -260,6 +272,23 @@ function sanitizeStarterGrantClaimedRecipeIds(raw: unknown): string[] {
   return Array.from(seen);
 }
 
+/**
+ * I4b-2: the Shop entitlement ledger (`unlockedForShopIngredientIds`). Keeps each known,
+ * non-starter ingredient id once, in first-seen order -- the order material unlocks happened in.
+ * A starter is never listed (always unlimited, never for sale); an unknown id is not returned
+ * here but survives in storage through `extractForwardCompatExtras`/`writeSave`.
+ */
+function sanitizeUnlockedForShopIngredientIds(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return [];
+  const seen = new Set<string>();
+  for (const id of raw) {
+    if (typeof id !== "string" || !KNOWN_INGREDIENT_IDS.includes(id)) continue;
+    if (STARTER_INGREDIENT_ID_SET.has(id)) continue;
+    seen.add(id);
+  }
+  return Array.from(seen);
+}
+
 function sanitizeInventory(raw: unknown): Record<string, number> {
   if (typeof raw !== "object" || raw === null || Array.isArray(raw)) return {};
   const result: Record<string, number> = {};
@@ -319,6 +348,9 @@ export function migrateV1toV2(v1: PersistentSaveV1): PersistentSaveV2 {
     // pre-EP4 v2 save with the field absent: App.tsx's load-time `applyStarterGrants` catch-up is
     // what backfills it correctly on first load, not this migration step.
     starterGrantClaimedRecipeIds: [],
+    // I4b-2: the Shop entitlement ledger did not exist in v1 either; the load-time ladder
+    // resolution derives it from the migrated Dex.
+    unlockedForShopIngredientIds: [],
   };
 }
 
@@ -331,6 +363,7 @@ export function createDefaultSave(): PersistentSaveV2 {
     missionBest: {},
     inventory: {},
     starterGrantClaimedRecipeIds: [],
+    unlockedForShopIngredientIds: [],
   };
 }
 
@@ -395,6 +428,7 @@ interface ForwardCompatExtras {
   ownedIngredientIds: string[];
   inventory: Record<string, number>;
   starterGrantClaimedRecipeIds: string[];
+  unlockedForShopIngredientIds: string[];
 }
 
 const KNOWN_SAVE_KEYS: ReadonlySet<string> = new Set([
@@ -405,6 +439,7 @@ const KNOWN_SAVE_KEYS: ReadonlySet<string> = new Set([
   "missionBest",
   "inventory",
   "starterGrantClaimedRecipeIds",
+  "unlockedForShopIngredientIds",
 ]);
 
 const FORWARD_COMPAT_ID_PATTERN = /^[a-z0-9][a-z0-9_-]{0,63}$/;
@@ -462,6 +497,7 @@ function extractForwardCompatExtras(raw: unknown): ForwardCompatExtras | null {
     ownedIngredientIds: unknownIdsIn(r.ownedIngredientIds, KNOWN_INGREDIENT_IDS),
     inventory,
     starterGrantClaimedRecipeIds: unknownIdsIn(r.starterGrantClaimedRecipeIds, KNOWN_RECIPE_IDS),
+    unlockedForShopIngredientIds: unknownIdsIn(r.unlockedForShopIngredientIds, KNOWN_INGREDIENT_IDS),
   };
 }
 
@@ -495,6 +531,10 @@ function writeSave(storage: StorageLike, next: PersistentSaveV2): void {
       next.starterGrantClaimedRecipeIds,
       extras.starterGrantClaimedRecipeIds,
     ),
+    unlockedForShopIngredientIds: appendNew(
+      next.unlockedForShopIngredientIds,
+      extras.unlockedForShopIngredientIds,
+    ),
   };
   storage.setItem(SAVE_STORAGE_KEY, JSON.stringify(merged));
 }
@@ -522,6 +562,9 @@ function sanitizeSave(raw: unknown): PersistentSaveV2 | null {
     inventory: sanitizeInventory(intermediate.inventory),
     starterGrantClaimedRecipeIds: sanitizeStarterGrantClaimedRecipeIds(
       intermediate.starterGrantClaimedRecipeIds,
+    ),
+    unlockedForShopIngredientIds: sanitizeUnlockedForShopIngredientIds(
+      intermediate.unlockedForShopIngredientIds,
     ),
   };
 }
@@ -644,6 +687,10 @@ export interface ProgressionSnapshot {
    *  reload exactly like the `ownedIngredientIds`/`inventory` it credited in the same
    *  transition. */
   starterGrantClaimedRecipeIds: readonly string[];
+  /** I4b-2: the Shop entitlement ledger. Optional so a caller that does not track it yet leaves
+   *  the stored list exactly as it is; when given, its ids are appended to the stored ones
+   *  (sanitized, never removed). */
+  unlockedForShopIngredientIds?: readonly string[];
 }
 
 /**
@@ -686,7 +733,27 @@ export function persistProgress(
       nextClaimedRecipeIds,
       current.starterGrantClaimedRecipeIds,
     );
-    if (dexUnchanged && pitzUnchanged && ownedUnchanged && inventoryUnchanged && claimedUnchanged) {
+    // A ledger, not a replaceable value: the stored ids always stay and the snapshot's are
+    // appended, so no write can re-lock a material. Only `resetSave` (Full Game Reset) clears it.
+    const nextUnlockedForShop =
+      snapshot.unlockedForShopIngredientIds === undefined
+        ? current.unlockedForShopIngredientIds
+        : sanitizeUnlockedForShopIngredientIds([
+            ...current.unlockedForShopIngredientIds,
+            ...snapshot.unlockedForShopIngredientIds,
+          ]);
+    const unlockedForShopUnchanged = sameStringSet(
+      nextUnlockedForShop,
+      current.unlockedForShopIngredientIds,
+    );
+    if (
+      dexUnchanged &&
+      pitzUnchanged &&
+      ownedUnchanged &&
+      inventoryUnchanged &&
+      claimedUnchanged &&
+      unlockedForShopUnchanged
+    ) {
       return;
     }
 
@@ -697,6 +764,7 @@ export function persistProgress(
       ownedIngredientIds: nextOwnedIngredientIds,
       inventory: nextInventory,
       starterGrantClaimedRecipeIds: nextClaimedRecipeIds,
+      unlockedForShopIngredientIds: nextUnlockedForShop,
     };
     writeSave(storage, next);
   } catch {

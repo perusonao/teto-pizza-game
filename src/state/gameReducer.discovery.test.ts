@@ -277,7 +277,10 @@ describe("11. existing save compatibility (no schema change)", () => {
       storage,
     );
     const raw = JSON.parse(storage.dump()[SAVE_STORAGE_KEY]);
-    expect(Object.keys(raw).sort()).toEqual(Object.keys(V2_SAVE).sort());
+    // Still v2; the only key a write adds is I4b-2's Shop entitlement ledger (read back as []).
+    expect(Object.keys(raw).sort()).toEqual(
+      [...Object.keys(V2_SAVE), "unlockedForShopIngredientIds"].sort(),
+    );
     expect(raw.schemaVersion).toBe(2);
     expect(raw.missionBest).toEqual(V2_SAVE.missionBest);
     expect(loadSave(storage).dex).toEqual(first.dex);
