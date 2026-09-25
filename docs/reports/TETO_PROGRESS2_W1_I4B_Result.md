@@ -19,6 +19,8 @@
 | I4b-4 | `3ad1791` | UI: Shop の NEW / OWNED、進捗の1行、NEW MATERIAL 通知と Shop への CTA、EP4 のプレゼント文言を削除 |
 | I4b-5 | `332d200` | E2E（新規 save の一連の流れほか）。NEW MATERIAL 通知を1行化（RESULT 1-Screen の高さ予算を守るため） |
 | I4b-4 fix | `0500bc8` | 通知の中で材料名が途中改行しないようにした（Human Verification で発見） |
+| docs | `7eaa57e` | Result Report と Human Verification の screenshots |
+| WebKit fix | `8184298` | 通知が WebKit 360×800 でも RESULT 1-Screen の高さ予算内に収まるように修正（§4 を参照） |
 
 ## 2. UI の変更一覧
 
@@ -36,7 +38,43 @@
 
 ## 3. Human Verification
 
-**Human Verification status: AGENT-VERIFIED（Playwright Chromium で録画）。owner による Human PASS はまだない。**
+**Human Verification status: PASS（repo owner の Human PASS、2026-09-25）**
+
+owner が次の3本の動画（UI は `0500bc8` 時点。`7eaa57e` で提出）を確認し、Human Verification PASS とした。
+
+- `I4b_HV_390x844_new-save-full-loop.mp4`
+- `I4b_HV_390x844_ep4-migration-refill-shortfall.mp4`
+- `I4b_HV_360x800_layout-smoke.mp4`
+
+owner が確認した内容:
+
+- マルゲリータの発見 → NEW MATERIAL → Shop
+- たまごが NEW / 在庫 0
+- 60 Pitz での初回パック購入。表示価格と実際の Pitz の減り方が一致
+- たまごの在庫への反映
+- ビスマルクの発見と、次の材料の解放
+- 既存 EP4 save の移行
+- 補充の表示
+- Pizza Select
+- 390×844 / 360×800 の layout
+- CTA が見えていること
+- 材料名の改行の修正
+
+致命的な overflow、CTA の見切れ、価格表示と runtime の減算の不一致は見つからなかった。
+
+**PASS 後の差分（agent が検証。owner の再確認を推奨）**
+
+- 状況: PASS の対象 HEAD `7eaa57e` の Full WebKit（run 36125278188）が失敗した。webkit-360x800 で result-1screen-2.0 Scenario E が 4px 超過した。
+- 原因: `0500bc8` の `word-break: keep-all` によって、材料 3 つの通知が WebKit では Chromium より 1 行多く描画されていた。
+- 修正（`8184298`）:
+  - 通知の文言を `🆕 新しい材料「たまご」が入荷！` から `🆕 新しい材料が入荷：たまご` に変更した。
+  - 材料名ごとに `white-space: nowrap` をかけた（名前は分割されない）。
+  - これで通知は最大 2 行、Chromium で 52px。Full WebKit を通過した `332d200` のレイアウトより 14px 低い。
+- 影響の範囲: 通知の文言と折り返しだけ。CTA「🛒 ショップへ」、Shop、価格、runtime の挙動は変わっていない。
+- 差分の証拠:
+  - `after/*/05`・`after/*/10` の screenshots を撮り直した。
+  - 動画 `v2/I4b_HV_390x844_new-save-full-loop_v2.mp4`（45.00s、796,623 B）と `v2/I4b_HV_360x800_layout-smoke_v2.mp4`（35.28s、699,433 B）。どちらも H.264 で、最後まで decode できることを確認した。
+  - Full WebKit run 36126133936 = success。
 
 ### Human Verification Videos
 
@@ -82,12 +120,12 @@ Human Verification で見つけて直したもの:
 
 | gate | 結果 |
 |---|---|
-| full Vitest | **2827 / 2827**（140 files） |
+| full Vitest | **2827 / 2827**（140 files、`8184298`） |
 | typecheck（`tsc -b`） | PASS |
 | lint（oxlint） | PASS |
 | build | PASS |
-| Chromium 390×844 + 360×800 | **140 / 140**（新規 `e2e/progression2-discovery-ladder.spec.ts` を含む） |
-| Full WebKit（CI、workflow_dispatch） | `332d200`: run 36123838674 = success。最終 HEAD の run は報告に記載 |
+| Chromium 390×844 + 360×800 | **140 / 140**（新規 `e2e/progression2-discovery-ladder.spec.ts` を含む、`8184298`） |
+| Full WebKit（CI、workflow_dispatch） | `332d200`: run 36123838674 = success / `7eaa57e`: run 36125278188 = **failure**（上記の 4px。修正済み）/ **`8184298`: run 36126133936 = success** |
 
 ## 5. save 移行の結果
 
@@ -99,7 +137,7 @@ Human Verification で見つけて直したもの:
 
 ## 6. 残っている課題
 
-- owner による Human PASS はまだ記録していない（上の §3 は agent による録画検証）。
+- owner の Human PASS は §3 のとおり記録した。`8184298` の通知の文言・折り返しの差分は agent による検証なので、owner の再確認を推奨する。
 - W1 に持ち越すもの（今回の blocker ではない）:
   - 25 recipe で tier が変わる件
   - ham の k=3
