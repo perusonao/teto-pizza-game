@@ -1,5 +1,8 @@
 # RT-01a / RT-01b — Reference Pizza piece capacity: Result Report
 
+**Status: RT-01a PASS / RT-01b HUMAN PASS / FINAL PASS (2026-09-25). RT-01c: WAITING FOR W1
+INTEGRATION.**
+
 Branch: `claude/rt-01-pizza-piece-capacity-1ncicd` (base main `1e53baa`). No PR and no merge.
 RT-01c (the W1 fixtures) has **not** been started.
 
@@ -179,3 +182,48 @@ AFTER side calls the live production function.
 - The 7 new ingredients.
 - The W1 recipes.
 - PR and merge.
+
+## Human Verification result (owner, 2026-09-25)
+
+**Human Verification = PASS**, confirmed from both videos:
+
+- `rt01b-human-verification-390x844.mp4`
+- `rt01b-human-verification-360x800.mp4`
+
+Findings:
+
+- 1–8 pieces: the existing layout has no regression.
+- 9 pieces: overlap resolved.
+- 10 pieces: overlap resolved.
+- 12 pieces: the multi-ring display looks good.
+- 15 pieces: the multi-ring display is acceptable.
+- Pieces of the same ingredient are well dispersed.
+- The 48px mini reference is legible.
+- The BEFORE `slot % 8` problem is resolved in AFTER.
+
+Owner approvals recorded:
+
+1. The refined interleave is approved. It is turn-based and deterministic: each later piece
+   takes the free slot farthest from its own ingredient's earlier pieces. The owner treats it as
+   an improvement within RT-01-OD-1 item 3 ("9 pieces以上ではingredientを交互・分散配置する").
+   **No new Owner Decision is required.**
+2. 15 pieces / 7 ingredient types / 48px mini reference: dense but legible. For now nothing is
+   added: no piece omission, no piece shrinking, no reduction of ingredient types, and no
+   special thumbnail mode.
+
+Evidence retained:
+
+| Item | Value |
+|---|---|
+| RT-01a (implementation) | `e708dd2`, PASS |
+| RT-01b (implementation) | `afcce51`, HUMAN PASS / FINAL PASS |
+| Chromium E2E | 124/124 PASS |
+| WebKit | run 36102834454, PASS |
+
+Final state:
+
+- **RT-01 generic infrastructure: FINAL PASS**
+- **RT-01c: WAITING FOR W1 INTEGRATION**. The W1 fixtures (Parmigiana, Portuguesa and
+  Puttanesca) join the REC-01..04 authority first. No W1 recipe, fixture or ingredient has been
+  added.
+

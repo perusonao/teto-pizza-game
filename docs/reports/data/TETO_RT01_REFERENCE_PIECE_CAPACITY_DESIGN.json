@@ -5126,5 +5126,44 @@
    "RT-01c W1 fixtures (Parmigiana/Portuguesa/Puttanesca) -- joins REC-01..04 authority first"
   ]
  },
- "verdict": "IMPLEMENTATION_READY"
+ "verdict": "IMPLEMENTATION_READY",
+ "implementation": {
+  "RT-01a": {
+   "sha": "e708dd2",
+   "status": "PASS"
+  },
+  "RT-01b": {
+   "sha": "afcce51",
+   "status": "HUMAN_PASS / FINAL_PASS"
+  },
+  "chromiumE2E": "124/124 PASS (iphone-390x844 + iphone-360x800 @ afcce51)",
+  "webkit": "run 36102834454 PASS (Full WebKit 4 shards + WebKit Gate @ afcce51)",
+  "resultReport": "docs/reports/TETO_RT01_RT01A-B_Reference-Capacity_Result.md"
+ },
+ "humanVerification": {
+  "status": "PASS",
+  "recordedOn": "2026-09-25",
+  "videos": [
+   "rt01b-human-verification-390x844.mp4",
+   "rt01b-human-verification-360x800.mp4"
+  ],
+  "findings": [
+   "1-8 existing layout: no regression",
+   "9 pieces: overlap resolved",
+   "10 pieces: overlap resolved",
+   "12 pieces: multi-ring display good",
+   "15 pieces: multi-ring display acceptable",
+   "same-ingredient dispersion good",
+   "48px mini reference legible",
+   "BEFORE slot % 8 problem resolved in AFTER"
+  ],
+  "ownerApprovals": [
+   "Refined interleave (turn-based, farthest free slot from the ingredient's own earlier pieces, deterministic) is within RT-01-OD-1 item 3; no new Owner Decision required",
+   "15 pieces / 7 types / 48px mini reference: dense but legible; no piece omission, piece shrinking, type reduction or special thumbnail mode added"
+  ]
+ },
+ "finalState": {
+  "RT-01 generic infrastructure": "FINAL_PASS",
+  "RT-01c": "WAITING_FOR_W1_INTEGRATION"
+ }
 }
