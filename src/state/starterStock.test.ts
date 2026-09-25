@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyStarterGrants, buildStarterGrantNotice, STARTER_STOCK_PLAYS_CHAPTER_1 } from "./starterStock";
+import { applyStarterGrants, STARTER_STOCK_PLAYS_CHAPTER_1 } from "./starterStock";
 import { registerScoreToDex, EMPTY_DEX, type DexState } from "./dex";
 import { getIngredient, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { hasStock, remainingStock, EMPTY_INVENTORY, type InventoryState } from "./inventory";
@@ -327,16 +327,6 @@ describe("applyStarterGrants: Batch 1A recipe grant amounts (#8-#11)", () => {
     },
   );
 
-  it.each([
-    ["salsiccia", "サルシッチャ"],
-    ["pepperoni", "ペパロニ"],
-    ["napoletana", "ナポリ"],
-    ["tonno-e-cipolla", "トンノ・エ・チポッラ"],
-  ])("buildStarterGrantNotice for %s reads '🎁「%s」の材料を最初の10回分プレゼントしました！'", (recipeId, nameJa) => {
-    const notice = buildStarterGrantNotice([recipeId as never]);
-    expect(notice).not.toBeNull();
-    expect(notice!.messageJa).toBe(`🎁「${nameJa}」の材料を最初の10回分プレゼントしました！`);
-  });
 });
 
 describe("applyStarterGrants: Batch 1B-B recipe grant amounts (#14, capricciosa)", () => {
@@ -405,11 +395,6 @@ describe("applyStarterGrants: Batch 1B-B recipe grant amounts (#14, capricciosa)
     expect(result.claimedRecipeIds).toBe(alreadyClaimedWithCapricciosa);
   });
 
-  it("buildStarterGrantNotice for capricciosa reads '🎁「カプリチョーザ」の材料を最初の10回分プレゼントしました！'", () => {
-    const notice = buildStarterGrantNotice(["capricciosa" as never]);
-    expect(notice).not.toBeNull();
-    expect(notice!.messageJa).toBe("🎁「カプリチョーザ」の材料を最初の10回分プレゼントしました！");
-  });
 });
 
 describe("applyStarterGrants: scatter vs spread/sauce derivation", () => {
@@ -617,8 +602,11 @@ describe("applyStarterGrants: future Achievement Reset compatibility", () => {
 
 describe("Starter Grant integration via the reducer (REGISTER_TO_DEX / MISSION_NEXT_ORDER)", () => {
   /** Plays margherita through PREPARE -> BAKE -> RESULT, scoring inside its perfect zone. */
-  function playMargheritaToResult(isMissionRound = false): GameState {
-    let state = createInitialGameState();
+  function playMargheritaToResult(
+    isMissionRound = false,
+    initial: GameState = createInitialGameState(),
+  ): GameState {
+    let state = initial;
     if (isMissionRound) state = gameReducer(state, { type: "MISSION_RESET_ORDER" });
     state = gameReducer(state, { type: "BEGIN_PREPARE" });
     state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // DOUGH -> SAUCE
@@ -635,140 +623,61 @@ describe("Starter Grant integration via the reducer (REGISTER_TO_DEX / MISSION_N
     return walkPostBakeToResult(state);
   }
 
-  it("FREE: REGISTER_TO_DEX grants funghi's Starter Stock the instant margherita's own discovery unlocks it", () => {
+  // Progression 2.0 W1 Integration I4b-3 (REC-04 OD-REC04-2): EP4 is retired. `applyStarterGrants`
+  // stays as a pure module (covered above) but no runtime path calls it: a discovery unlocks the
+  // next Discovery Ladder material for the Shop at stock 0 instead of granting free stock.
+  it("FREE: REGISTER_TO_DEX grants nothing -- margherita's discovery unlocks egg for the Shop at stock 0", () => {
     const discovered = gameReducer(playMargheritaToResult(), { type: "REGISTER_TO_DEX" });
     expect(discovered.phase).toBe("DISCOVERED");
-    expect(discovered.starterGrantClaimedRecipeIds).toEqual(["funghi"]);
-    expect(discovered.inventory).toEqual({ mushroom: 30 });
-    expect(discovered.ownedIngredientIds).toContain("mushroom");
+    expect(discovered.starterGrantClaimedRecipeIds).toEqual([]);
+    expect(discovered.inventory).toEqual({});
+    expect(discovered.ownedIngredientIds).toEqual(STARTER_INGREDIENT_IDS);
+    expect(discovered.unlockedForShopIngredientIds).toEqual(["egg"]);
+    expect(discovered.lastMaterialUnlockNotice?.ingredientIds).toEqual(["egg"]);
   });
 
-  it("Lunch Rush: MISSION_NEXT_ORDER grants the same way REGISTER_TO_DEX does", () => {
+  it("Lunch Rush: MISSION_NEXT_ORDER grants nothing either", () => {
     const next = gameReducer(playMargheritaToResult(true), { type: "MISSION_NEXT_ORDER" });
     expect(next.phase).toBe("ORDER");
-    expect(next.starterGrantClaimedRecipeIds).toEqual(["funghi"]);
-    expect(next.inventory).toEqual({ mushroom: 30 });
+    expect(next.starterGrantClaimedRecipeIds).toEqual([]);
+    expect(next.inventory).toEqual({});
+    expect(next.ownedIngredientIds).toEqual(STARTER_INGREDIENT_IDS);
   });
 
-  it("PLAY_AGAIN/RETRY_SAME_RECIPE/SELECT_RECIPE/HOME round-trip/mode switches never re-grant after REGISTER_TO_DEX already did", () => {
-    const discovered = gameReducer(playMargheritaToResult(), { type: "REGISTER_TO_DEX" });
-    const claimedAfterFirstGrant = discovered.starterGrantClaimedRecipeIds;
-    const inventoryAfterFirstGrant = discovered.inventory;
-
-    let state = gameReducer(discovered, { type: "PLAY_AGAIN" });
-    expect(state.starterGrantClaimedRecipeIds).toBe(claimedAfterFirstGrant);
-    expect(state.inventory).toBe(inventoryAfterFirstGrant);
-
-    state = gameReducer(state, { type: "RETRY_SAME_RECIPE" });
-    expect(state.inventory).toBe(inventoryAfterFirstGrant);
-
-    state = gameReducer(state, { type: "SELECT_RECIPE", recipeId: "margherita" });
-    expect(state.inventory).toBe(inventoryAfterFirstGrant);
-
-    // "HOME往復": App.tsx never dispatches a GameAction just from navigating screens, so a
-    // round-trip is represented here by simply re-reading the same state -- there is no action
-    // to dispatch that would change anything.
-    expect(state.starterGrantClaimedRecipeIds).toBe(claimedAfterFirstGrant);
-
-    // Mode switch (FREE <-> Lunch Rush).
-    state = gameReducer(state, { type: "MISSION_RESET_ORDER" });
-    expect(state.inventory).toBe(inventoryAfterFirstGrant);
-    state = gameReducer(state, { type: "MISSION_RESET_ORDER" }); // back to FREE-equivalent pool
-    expect(state.inventory).toBe(inventoryAfterFirstGrant);
+  it("an existing claimed ledger and its granted stock are carried through untouched (never re-granted, never removed)", () => {
+    const legacyDex = [
+      { recipeId: "margherita", discovered: true, bestScore: 80, bestStars: 4 as const, timesMade: 3 },
+    ];
+    const initial = createInitialGameState(
+      legacyDex,
+      [...STARTER_INGREDIENT_IDS, "mushroom"],
+      0,
+      { mushroom: 12 },
+      ["funghi"],
+    );
+    const claimed = initial.starterGrantClaimedRecipeIds;
+    let state = gameReducer(playMargheritaToResult(false, initial), { type: "REGISTER_TO_DEX" });
+    expect(state.starterGrantClaimedRecipeIds).toBe(claimed);
+    expect(state.ownedIngredientIds).toContain("mushroom");
+    for (const action of [
+      { type: "PLAY_AGAIN" } as const,
+      { type: "RETRY_SAME_RECIPE" } as const,
+      { type: "MISSION_RESET_ORDER" } as const,
+      { type: "PURCHASE_INGREDIENT", ingredientId: "mushroom" } as const,
+      { type: "RESTOCK_INGREDIENT", ingredientId: "mushroom" } as const,
+    ]) {
+      expect(gameReducer(state, action).starterGrantClaimedRecipeIds).toBe(claimed);
+    }
   });
 
-  it("Shop open/close (PURCHASE_INGREDIENT/RESTOCK_INGREDIENT dispatches) never touches the claimed ledger", () => {
-    const discovered = gameReducer(playMargheritaToResult(), { type: "REGISTER_TO_DEX" });
-    const claimed = discovered.starterGrantClaimedRecipeIds;
-
-    // A purchase attempt always rejects here (mushroom is already OWNED via its own Starter
-    // Grant, and is `starterGrantOnly` besides) -- opening/using Shop must never mutate the
-    // ledger either way.
-    const afterPurchaseAttempt = gameReducer(discovered, {
-      type: "PURCHASE_INGREDIENT",
-      ingredientId: "mushroom",
-    });
-    expect(afterPurchaseAttempt.starterGrantClaimedRecipeIds).toBe(claimed);
-
-    const afterRestock = gameReducer(discovered, {
-      type: "RESTOCK_INGREDIENT",
-      ingredientId: "mushroom",
-    });
-    expect(afterRestock.starterGrantClaimedRecipeIds).toBe(claimed);
-  });
-
-  it("a granted ingredient still respects the Stock Gate once its 10-play stock is exhausted (no infinite Starter Stock)", () => {
-    const discovered = gameReducer(playMargheritaToResult(), { type: "REGISTER_TO_DEX" });
-    expect(discovered.inventory.mushroom).toBe(30);
-    const mushroom = getIngredient("mushroom")!;
-    // Exactly 30 placed pieces (10 plays x 3/pizza) still have stock; the 31st does not.
-    expect(hasStock(mushroom, discovered.inventory, 29)).toBe(true);
-    expect(hasStock(mushroom, discovered.inventory, 30)).toBe(false);
-  });
-
-  describe("Economy Tuning 1 P1: Starter Grant notice (state.lastStarterGrantNotice)", () => {
-    it("REGISTER_TO_DEX sets a notice naming the newly granted recipe, with the '10回分' copy and the gift emoji", () => {
-      const discovered = gameReducer(playMargheritaToResult(), { type: "REGISTER_TO_DEX" });
-      expect(discovered.lastStarterGrantNotice).not.toBeNull();
-      expect(discovered.lastStarterGrantNotice?.recipeIds).toEqual(["funghi"]);
-      expect(discovered.lastStarterGrantNotice?.messageJa).toContain("フンギ");
-      expect(discovered.lastStarterGrantNotice?.messageJa).toContain("10回分");
-      expect(discovered.lastStarterGrantNotice?.messageJa).toContain("\u{1F381}"); // 🎁
-    });
-
-    it("never set for margherita itself -- margherita is never in grantedRecipeIds", () => {
-      // The very first REGISTER_TO_DEX in the game discovers margherita but grants funghi's
-      // Starter Stock (margherita is exempt, see STARTER_GRANT_EXEMPT_RECIPE_ID) -- the notice
-      // must name funghi, never margherita, and never fire for a round that doesn't unlock
-      // anything at all.
-      const discovered = gameReducer(playMargheritaToResult(), { type: "REGISTER_TO_DEX" });
-      expect(discovered.lastStarterGrantNotice?.messageJa).not.toContain("マルゲリータ");
-    });
-
-    it("is null when the round's REGISTER_TO_DEX grants nothing new (already claimed)", () => {
-      const first = gameReducer(playMargheritaToResult(), { type: "REGISTER_TO_DEX" });
-      expect(first.lastStarterGrantNotice).not.toBeNull();
-      // A second margherita round after funghi is already claimed: nothing new to grant.
-      const retried = gameReducer(first, { type: "RETRY_SAME_RECIPE" });
-      const secondResult = gameReducer(retried, { type: "START_BAKE" });
-      const secondBaked = walkPostBakeToResult(
-        gameReducer(secondResult, { type: "CONFIRM_BAKE", value: 70 }),
-      );
-      const secondDiscovered = gameReducer(secondBaked, { type: "REGISTER_TO_DEX" });
-      expect(secondDiscovered.lastStarterGrantNotice).toBeNull();
-    });
-
-    it("never set by MISSION_NEXT_ORDER -- Lunch Rush skips DISCOVERED entirely, so there is no notice to show", () => {
-      const next = gameReducer(playMargheritaToResult(true), { type: "MISSION_NEXT_ORDER" });
-      expect(next.lastStarterGrantNotice).toBeNull();
-      // The grant itself still happened (existing coverage above) -- only the notice is absent.
-      expect(next.starterGrantClaimedRecipeIds).toEqual(["funghi"]);
-    });
-
-    it("resets to null on PLAY_AGAIN/RETRY_SAME_RECIPE/SELECT_RECIPE -- never re-shown after leaving DISCOVERED (no reload/replay re-display)", () => {
-      const discovered = gameReducer(playMargheritaToResult(), { type: "REGISTER_TO_DEX" });
-      expect(discovered.lastStarterGrantNotice).not.toBeNull();
-
-      expect(gameReducer(discovered, { type: "PLAY_AGAIN" }).lastStarterGrantNotice).toBeNull();
-      expect(gameReducer(discovered, { type: "RETRY_SAME_RECIPE" }).lastStarterGrantNotice).toBeNull();
-      expect(
-        gameReducer(discovered, { type: "SELECT_RECIPE", recipeId: "margherita" }).lastStarterGrantNotice,
-      ).toBeNull();
-    });
-
-    it("buildStarterGrantNotice is a pure function: null for an empty grant, a single-recipe message otherwise", () => {
-      expect(buildStarterGrantNotice([])).toBeNull();
-      const notice = buildStarterGrantNotice(["marinara"]);
-      expect(notice?.recipeIds).toEqual(["marinara"]);
-      expect(notice?.messageJa).toBe(
-        `\u{1F381}「${getRecipe("marinara")!.nameJa}」の材料を最初の${STARTER_STOCK_PLAYS_CHAPTER_1}回分プレゼントしました！`,
-      );
-    });
-
-    it("joins multiple simultaneous grants into one message rather than dropping any", () => {
-      const notice = buildStarterGrantNotice(["marinara", "bismarck"]);
-      expect(notice?.messageJa).toContain(getRecipe("marinara")!.nameJa);
-      expect(notice?.messageJa).toContain(getRecipe("bismarck")!.nameJa);
-    });
+  it("the next margherita round unlocks nothing new: no NEW MATERIAL notice either", () => {
+    const first = gameReducer(playMargheritaToResult(), { type: "REGISTER_TO_DEX" });
+    const retried = gameReducer(first, { type: "RETRY_SAME_RECIPE" });
+    const secondBaked = walkPostBakeToResult(
+      gameReducer(gameReducer(retried, { type: "START_BAKE" }), { type: "CONFIRM_BAKE", value: 70 }),
+    );
+    const second = gameReducer(secondBaked, { type: "REGISTER_TO_DEX" });
+    expect(second.lastMaterialUnlockNotice).toBeNull();
+    expect(second.inventory).toEqual({});
   });
 });

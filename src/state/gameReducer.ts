@@ -6,7 +6,11 @@ import {
   preBakeSteps,
   type CookingProfile,
 } from "../data/cookingProfiles";
-import { applyStarterGrants, buildStarterGrantNotice, type StarterGrantNotice } from "./starterStock";
+import {
+  buildMaterialUnlockNotice,
+  resolveShopEntitlement,
+  type MaterialUnlockNotice,
+} from "./materialEntitlement";
 import { buildHintLine } from "../data/hints";
 import { getIngredient, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import type { DialogueLine } from "../data/dialogue";
@@ -22,8 +26,7 @@ import {
 } from "../logic/cookingTiming";
 import { computeScoringV2, toLegacyScoreBreakdown, type ScoringV2Result } from "../logic/scoringV2";
 import { evaluatePizzaCompletion, type PizzaCompletionResult } from "../logic/completionGate";
-import { totalStars } from "../logic/mastery";
-import { purchaseIngredient, restockIngredient } from "../logic/economy";
+import { purchaseFirstPack, refillPack } from "../logic/materialShop";
 import { applyPitzCredit, type PitzCredit } from "../logic/pitzReward";
 import { evaluateCookingEfficiency, type CookingEfficiencyCredit } from "../logic/efficiency";
 import { discoveredRecipeIds, isDiscovered, registerScoreToDex, EMPTY_DEX, type DexState } from "./dex";
@@ -166,10 +169,16 @@ export interface GameState {
    *  discovery/unlock state -- "is this recipe currently unlocked" and "has its Starter Grant
    *  ever been claimed" must never be conflated, or a future Dex reset would either re-grant
    *  (if conflated one way) or permanently softlock the recipe after a reset (if conflated the
-   *  other way). Mutated only by `applyStarterGrants`'s own callers (REGISTER_TO_DEX,
-   *  MISSION_NEXT_ORDER below, and App.tsx's load-time migration catch-up) -- every other action
-   *  carries it through unchanged, exactly like `ownedIngredientIds`/`inventory` themselves. */
+   *  other way). Progression 2.0 I4b-3 retired EP4: nothing mutates this any more; every action
+   *  carries it through unchanged and it stays persisted, so a rollback to a pre-I4b build can
+   *  never re-grant a recipe that was already claimed. */
   starterGrantClaimedRecipeIds: readonly string[];
+  /** Progression 2.0 W1 Integration I4b-3 (REC-04 OD-REC04-1): every material the Discovery
+   *  Ladder has unlocked for the Shop (./materialEntitlement.ts's `resolveShopEntitlement`). A
+   *  ledger -- only ever grows. Unlocking grants no stock; `purchaseFirstPack` is what makes a
+   *  material OWNED. Resolved at the same places EP4 used to grant (REGISTER_TO_DEX,
+   *  MISSION_NEXT_ORDER, App.tsx's load path); carried through every other action unchanged. */
+  unlockedForShopIngredientIds: readonly string[];
   /** Progression 2.0 Phase 3-3 (Issue #198): how many free-cook rounds in a row have resolved
    *  to something other than a new match (ORIGINAL/AMBIGUOUS/INCOMPLETE_MATCH/FAILED,
    *  `CONFIRM_BAKE`'s own `freeCook.kind !== "MATCHED"` branch below) while the Dex is still
@@ -209,14 +218,12 @@ export interface GameState {
    *  every fresh round (`buildOrderState` below) so a stale previous round's credit can never
    *  leak into a new one. Never persisted -- transient exactly like `score`/`scoringV2Result`. */
   lastPitzCredit: PitzCredit | null;
-  /** Economy Tuning 1 P1: canonical transient DISCOVERED display snapshot for the Starter Grant
-   *  `REGISTER_TO_DEX` just applied (../state/starterStock.ts's `buildStarterGrantNotice`) --
-   *  `null` on every call that granted nothing (already-claimed, margherita, or no newly-unlocked
-   *  recipe), and reset to `null` for every fresh round (`buildOrderState` below), exactly like
-   *  `lastPitzCredit` above. Never persisted, never set by `MISSION_NEXT_ORDER` (Lunch Rush skips
-   *  DISCOVERED entirely, so there is nowhere to show it -- the reset above still clears any stale
-   *  value before the next order). */
-  lastStarterGrantNotice: StarterGrantNotice | null;
+  /** Progression 2.0 I4b-3/4: transient NEW MATERIAL notice for the materials REGISTER_TO_DEX's
+   *  ladder resolution just unlocked for the Shop (./materialEntitlement.ts), rendered by
+   *  ResultPanel with a Shop CTA. `null` when nothing new was unlocked; reset to `null` every
+   *  fresh round (`buildOrderState` below) like `lastPitzCredit`; never persisted. It replaces
+   *  EP4's retired Starter Grant notice (`lastStarterGrantNotice`, removed). */
+  lastMaterialUnlockNotice: MaterialUnlockNotice | null;
   /** Cooking Time CT1/CT2: deterministic FREE-only "active making" timing (../logic/
    *  cookingTiming.ts), spanning `BEGIN_PREPARE`/an equivalent fresh-PREPARE entry (SELECT_RECIPE,
    *  RETRY_SAME_RECIPE) through `START_BAKE` -- BAKE's own needle-tap minigame is deliberately
@@ -358,13 +365,15 @@ export type GameAction =
   // src/mission/lunchRush.ts's top comment for the canonical/derived boundary this keeps.
   | { type: "MISSION_NEXT_ORDER" }
   | { type: "MISSION_RESET_ORDER" }
-  // Phase 3C-5 (Pitz + Shop): both reuse the pure economy rules in ../logic/economy.ts --
-  // this reducer only applies their result, it never computes a price or a reward itself.
+  // Phase 3C-5 (Pitz + Shop), repriced by I4b-3: the reducer only applies the result of a pure
+  // rule, it never computes a price or a reward itself. PURCHASE_INGREDIENT is the REC-04 first
+  // pack (../logic/materialShop.ts's `purchaseFirstPack`); CLAIM_MISSION_REWARD uses
+  // ../logic/economy.ts's `calculateMissionReward` amount.
   | { type: "PURCHASE_INGREDIENT"; ingredientId: string }
   | { type: "CLAIM_MISSION_REWARD"; runId: number; amount: number }
-  // Economy & Progression 1.0 EP3 (Shop 2.0 restock): a *separate* transaction from
-  // PURCHASE_INGREDIENT above -- see ../logic/economy.ts's `restockIngredient` doc comment for
-  // why the two are never merged. Repeatable, unlike PURCHASE_INGREDIENT's exactly-once grant.
+  // Economy & Progression 1.0 EP3 (Shop 2.0 restock), repriced by I4b-3: the REC-04 refill
+  // (`refillPack`), a *separate* transaction from PURCHASE_INGREDIENT above. Repeatable, unlike
+  // PURCHASE_INGREDIENT's exactly-once first pack.
   | { type: "RESTOCK_INGREDIENT"; ingredientId: string }
   // Cooking Time CT1: the only minimal pause boundary this slice implements -- driven by
   // App.tsx from the exact same `isReferencePopoverOpen`/`isGlobalOverlayOpen` signals that
@@ -399,6 +408,7 @@ interface ProgressionCarry {
   lastClaimedMissionRunId: number | null;
   inventory: InventoryState;
   starterGrantClaimedRecipeIds: readonly string[];
+  unlockedForShopIngredientIds: readonly string[];
   preDiscoveryFreeCookAttempts: number;
 }
 
@@ -450,7 +460,7 @@ function buildOrderState(
     hint: null,
     placement: null,
     lastPitzCredit: null,
-    lastStarterGrantNotice: null,
+    lastMaterialUnlockNotice: null,
     lastEfficiencyCredit: null,
     lastDiscovery: null,
     freeCook,
@@ -489,6 +499,7 @@ function nextMissionOrderState(state: GameState): GameState {
       lastClaimedMissionRunId: state.lastClaimedMissionRunId,
       inventory: state.inventory,
       starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
+      unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
       preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
     },
     true,
@@ -544,21 +555,20 @@ function startPreparing(orderState: GameState, now?: number): GameState {
 
 /** `dex` defaults to empty, `ownedIngredientIds` defaults to the Starter Set, and
  *  `pitzBalance` defaults to 0 for existing call sites (tests, a from-scratch player);
- *  App.tsx passes all four (plus EP4's `starterGrantClaimedRecipeIds`) in from persistence.ts so
- *  a reload hydrates BEST/timesMade/ownership/Pitz/the Starter Grant ledger while everything
- *  else (the round in progress) starts fresh at ORDER regardless. Deliberately a pure
- *  passthrough -- this never itself calls `applyStarterGrants` (../state/starterStock.ts),
- *  unlike REGISTER_TO_DEX/MISSION_NEXT_ORDER below, so a caller that hands it an already-unlocked
- *  `dex` alongside a deliberately smaller `ownedIngredientIds` (as many existing tests do, to
- *  exercise `isRecipeAvailable`'s ingredient-ownership axis in isolation) keeps getting back
- *  exactly the state it asked for. App.tsx's own load path is the one place that runs the EP4
- *  migration catch-up explicitly, before calling this. */
+ *  App.tsx passes them all in from persistence.ts (plus the retired EP4 ledger
+ *  `starterGrantClaimedRecipeIds`, carried through untouched, and I4b's Shop entitlement
+ *  `unlockedForShopIngredientIds`) so a reload hydrates progression while the round in progress
+ *  starts fresh at ORDER regardless. Deliberately a pure passthrough -- this never itself resolves
+ *  the Discovery Ladder (./materialEntitlement.ts), unlike REGISTER_TO_DEX/MISSION_NEXT_ORDER
+ *  below, so a caller keeps getting back exactly the state it asked for. App.tsx's load path is
+ *  the one place that resolves the entitlement explicitly, before calling this. */
 export function createInitialGameState(
   dex: DexState = EMPTY_DEX,
   ownedIngredientIds: readonly string[] = STARTER_INGREDIENT_IDS,
   pitzBalance = 0,
   inventory: InventoryState = EMPTY_INVENTORY,
   starterGrantClaimedRecipeIds: readonly string[] = [],
+  unlockedForShopIngredientIds: readonly string[] = [],
 ): GameState {
   return nextOrderState(
     {
@@ -568,6 +578,7 @@ export function createInitialGameState(
       lastClaimedMissionRunId: null,
       inventory,
       starterGrantClaimedRecipeIds,
+      unlockedForShopIngredientIds,
       preDiscoveryFreeCookAttempts: 0,
     },
     { preferFirst: true },
@@ -1078,7 +1089,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // timesMade update, no Starter Grant, no Pitz credit (see ../logic/completionGate.ts and
       // the Result Report's FAILED semantics section for the full rationale). `state` is
       // returned completely unchanged, so the round stays parked at "RESULT" with
-      // `lastPitzCredit`/`lastStarterGrantNotice` still at their fresh-round `null` -- the
+      // `lastPitzCredit`/`lastMaterialUnlockNotice` still at their fresh-round `null` -- the
       // FAILED RESULT UI reads `state.completion` directly instead of any of the fields this
       // case would otherwise set.
       if (state.completion?.status === "FAILED") {
@@ -1102,20 +1113,16 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         ? registerDiscoveryToDex(selectedRegistration.dex, evaluatedDiscovery, state.recipe.id, state.pizza)
         : null;
       const dex = discoveryRegistration ? discoveryRegistration.dex : selectedRegistration.dex;
-      // Economy & Progression 1.0 EP4: this is one of the two places `dex` can change (the
-      // other is MISSION_NEXT_ORDER below), and `recipeUnlocked` (../state/progression.ts) is
-      // purely a function of `dex` -- so this is exactly where a newly-unlocked recipe's own
-      // Starter Grant must be applied, atomically in the same transition, so `ownedIngredientIds`
-      // reflects it before any later action (SELECT_RECIPE/PLAY_AGAIN's own `isRecipeAvailable`/
-      // `availableRecipeIds` checks) ever reads it. `applyStarterGrants` is idempotent against
-      // `starterGrantClaimedRecipeIds`, so calling it on every registration (not just ones that
-      // happen to newly unlock something) is always safe and a no-op when nothing is newly
-      // eligible (see its own doc comment, ../state/starterStock.ts).
-      const grant = applyStarterGrants(
+      // Progression 2.0 W1 Integration I4b-3 (REC-04): this is one of the two places `dex` can
+      // change (the other is MISSION_NEXT_ORDER below), so it is where the Discovery Ladder is
+      // resolved -- atomically with the Dex update, exactly where EP4's Starter Grant used to be
+      // applied. EP4 is retired: nothing is granted, `ownedIngredientIds`/`inventory`/
+      // `starterGrantClaimedRecipeIds` are carried through untouched, and a newly unlocked
+      // material starts at stock 0 (OD-REC04-2) until its first pack is bought.
+      const entitlement = resolveShopEntitlement(
         dex,
         state.ownedIngredientIds,
-        state.inventory,
-        state.starterGrantClaimedRecipeIds,
+        state.unlockedForShopIngredientIds,
       );
       // FREE only: Lunch Rush keeps its existing, unchanged per-run reward
       // (calculateMissionReward via CLAIM_MISSION_REWARD/MISSION_NEXT_ORDER) -- this per-pizza
@@ -1157,9 +1164,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return {
         ...state,
         dex,
-        ownedIngredientIds: grant.ownedIngredientIds,
-        inventory: grant.inventory,
-        starterGrantClaimedRecipeIds: grant.claimedRecipeIds,
+        unlockedForShopIngredientIds: entitlement.unlockedForShopIngredientIds,
         justDiscovered: wasNewDiscovery,
         justGotNewBest: isNewBest,
         phase: "DISCOVERED",
@@ -1171,7 +1176,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         pitzBalance: pitzBalanceAfterQuality + (lastEfficiencyCredit?.bonusPitz ?? 0),
         lastPitzCredit,
         lastEfficiencyCredit,
-        lastStarterGrantNotice: buildStarterGrantNotice(grant.grantedRecipeIds),
+        lastMaterialUnlockNotice: buildMaterialUnlockNotice(entitlement.newlyUnlockedMaterialIds),
         lastDiscovery: discoveryRegistration?.outcome ?? null,
       };
     }
@@ -1185,6 +1190,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           lastClaimedMissionRunId: state.lastClaimedMissionRunId,
           inventory: state.inventory,
           starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
+          unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
           preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
         },
         { excludeRecipeId: state.recipe.id },
@@ -1215,6 +1221,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           lastClaimedMissionRunId: state.lastClaimedMissionRunId,
           inventory: state.inventory,
           starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
+          unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
           preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
         }, action.now) ?? state
       );
@@ -1229,6 +1236,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           lastClaimedMissionRunId: state.lastClaimedMissionRunId,
           inventory: state.inventory,
           starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
+          unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
           preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
         },
         action.now,
@@ -1246,6 +1254,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             lastClaimedMissionRunId: state.lastClaimedMissionRunId,
             inventory: state.inventory,
             starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
+            unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
             preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
           },
           action.now,
@@ -1259,6 +1268,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           lastClaimedMissionRunId: state.lastClaimedMissionRunId,
           inventory: state.inventory,
           starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
+          unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
           preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
         }, action.now) ?? state
       );
@@ -1282,21 +1292,18 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // on `state.completion`, same as before this phase): FREE-only completion gating on Dex
       // itself (REGISTER_TO_DEX above) is untouched scope, not an oversight.
       const { dex } = registerScoreToDex(state.dex, state.recipe.id, state.score);
-      // EP4: the second (and last) place `dex` changes -- see REGISTER_TO_DEX's own comment
-      // above for why this exact spot, atomically with the `dex` update, is where a Lunch Rush
-      // round's registration must also apply any newly-eligible Starter Grant.
-      const grant = applyStarterGrants(
+      // I4b-3: the second (and last) place `dex` changes -- resolved here too for symmetry with
+      // REGISTER_TO_DEX. Lunch Rush only serves discovered recipes, so in practice the count
+      // does not move here; nothing is granted either way (EP4 retired).
+      const entitlement = resolveShopEntitlement(
         dex,
         state.ownedIngredientIds,
-        state.inventory,
-        state.starterGrantClaimedRecipeIds,
+        state.unlockedForShopIngredientIds,
       );
       return nextMissionOrderState({
         ...state,
         dex,
-        ownedIngredientIds: grant.ownedIngredientIds,
-        inventory: grant.inventory,
-        starterGrantClaimedRecipeIds: grant.claimedRecipeIds,
+        unlockedForShopIngredientIds: entitlement.unlockedForShopIngredientIds,
       });
     }
 
@@ -1318,32 +1325,35 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         ),
       };
 
-    // Applies one purchase transaction (../logic/economy.ts's `purchaseIngredient`, the only
-    // place the LOCKED/AVAILABLE_TO_BUY/OWNED/price rules are evaluated). A failed purchase
-    // (locked, already owned, insufficient funds, not for sale) returns `state` completely
-    // unchanged -- there is no partial-failure state to represent. A successful purchase
-    // updates `ownedIngredientIds` and `pitzBalance` together in the same step, so the two can
-    // never drift out of sync (a charge without an unlock, or vice versa).
+    // I4b-3 (REC-04 OD-REC04-2/3): the first-pack purchase of a NEW (ladder-unlocked, not yet
+    // owned) material -- ../logic/materialShop.ts's `purchaseFirstPack`, the only place the
+    // LOCKED/NEW/OWNED, tier price and `10 x k` pack rules are evaluated. A failed purchase
+    // (locked, already owned, starter, not for sale, insufficient Pitz) returns `state` unchanged.
+    // A successful one updates `ownedIngredientIds`, `inventory` and `pitzBalance` together in
+    // this one step, so a charge can never land without its stock, or vice versa. A second
+    // dispatch sees the material OWNED and is rejected (ALREADY_OWNED): no double purchase.
     case "PURCHASE_INGREDIENT": {
       const ingredient = getIngredient(action.ingredientId);
       if (!ingredient) return state;
-      const result = purchaseIngredient({
+      const result = purchaseFirstPack({
         ingredient,
         ownedIngredientIds: state.ownedIngredientIds,
-        totalStars: totalStars(state.dex),
+        unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
+        inventory: state.inventory,
         pitzBalance: state.pitzBalance,
       });
       if (!result.success) return state;
       return {
         ...state,
         ownedIngredientIds: result.nextOwnedIngredientIds,
+        inventory: result.nextInventory,
         pitzBalance: result.nextPitzBalance,
       };
     }
 
-    // Economy & Progression 1.0 EP3: applies one restock transaction (../logic/economy.ts's
-    // `restockIngredient`, the only place NOT_OWNED/UNLIMITED/NOT_FOR_SALE/INSUFFICIENT_FUNDS
-    // are evaluated). A failed restock (not owned, unlimited/Starter, not for sale, insufficient
+    // Economy & Progression 1.0 EP3, repriced by I4b-3: applies one refill transaction
+    // (../logic/materialShop.ts's `refillPack`: tier refill price, `+10 x k` stock -- the only
+    // place NOT_OWNED/UNLIMITED/NOT_FOR_SALE/INSUFFICIENT_FUNDS are evaluated). A failed restock (not owned, unlimited/Starter, not for sale, insufficient
     // funds) returns `state` completely unchanged -- same "no partial-failure state" contract as
     // PURCHASE_INGREDIENT. A successful restock updates `pitzBalance` and `inventory` together in
     // the same step, so a charge can never land without its matching stock credit, or vice versa.
@@ -1356,7 +1366,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case "RESTOCK_INGREDIENT": {
       const ingredient = getIngredient(action.ingredientId);
       if (!ingredient) return state;
-      const result = restockIngredient({
+      const result = refillPack({
         ingredient,
         ownedIngredientIds: state.ownedIngredientIds,
         inventory: state.inventory,

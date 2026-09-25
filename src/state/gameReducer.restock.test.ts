@@ -64,18 +64,20 @@ function stateAtFugazzaBake(
 const OWNED_WITH_ONION = [...STARTER_INGREDIENT_IDS, "onion"];
 
 describe("RESTOCK_INGREDIENT (Economy & Progression 1.0 EP3)", () => {
-  it("restocks onion: inventory increases by exactly its restockQuantity (12), pitzBalance decreases by exactly its pricePitz (170)", () => {
+  // I4b-3 (REC-04 OD-REC04-3): a refill is one pack, 10 x k (onion k = 4 -> 40), at the tier
+  // refill price of the material's ladder step (onion: step 10, T2 -> 40 Pitz).
+  it("restocks onion: inventory increases by one pack (10 x k = 40), pitzBalance decreases by the T2 refill price (40)", () => {
     const state = createInitialGameState(EMPTY_DEX, OWNED_WITH_ONION, 200, { onion: 3 });
     const after = gameReducer(state, { type: "RESTOCK_INGREDIENT", ingredientId: "onion" });
-    expect(after.inventory).toEqual({ onion: 15 }); // 3 + 12
-    expect(after.pitzBalance).toBe(30); // 200 - 170
+    expect(after.inventory).toEqual({ onion: 43 }); // 3 + 40
+    expect(after.pitzBalance).toBe(160); // 200 - 40
   });
 
   it("rejects atomically when Pitz is insufficient -- neither pitzBalance nor inventory changes", () => {
-    const state = createInitialGameState(EMPTY_DEX, OWNED_WITH_ONION, 100, { onion: 3 });
+    const state = createInitialGameState(EMPTY_DEX, OWNED_WITH_ONION, 39, { onion: 3 });
     const after = gameReducer(state, { type: "RESTOCK_INGREDIENT", ingredientId: "onion" });
     expect(after).toBe(state);
-    expect(after.pitzBalance).toBe(100);
+    expect(after.pitzBalance).toBe(39);
     expect(after.inventory).toEqual({ onion: 3 });
   });
 
@@ -103,11 +105,11 @@ describe("RESTOCK_INGREDIENT (Economy & Progression 1.0 EP3)", () => {
   it("is repeatable (unlike PURCHASE_INGREDIENT): two sequential dispatches both apply, no double-charge from either alone", () => {
     let state = createInitialGameState(EMPTY_DEX, OWNED_WITH_ONION, 500, { onion: 0 });
     state = gameReducer(state, { type: "RESTOCK_INGREDIENT", ingredientId: "onion" });
-    expect(state.inventory).toEqual({ onion: 12 });
-    expect(state.pitzBalance).toBe(330);
+    expect(state.inventory).toEqual({ onion: 40 });
+    expect(state.pitzBalance).toBe(460);
     state = gameReducer(state, { type: "RESTOCK_INGREDIENT", ingredientId: "onion" });
-    expect(state.inventory).toEqual({ onion: 24 });
-    expect(state.pitzBalance).toBe(160);
+    expect(state.inventory).toEqual({ onion: 80 });
+    expect(state.pitzBalance).toBe(420);
   });
 
   it("ownedIngredientIds is never touched by a restock -- restock is inventory/Pitz only", () => {
@@ -120,19 +122,19 @@ describe("RESTOCK_INGREDIENT (Economy & Progression 1.0 EP3)", () => {
     let state = createInitialGameState(EMPTY_DEX, OWNED_WITH_ONION, 200, { onion: 0 });
     state = { ...state, recipe: getRecipe("fugazza")!, order: findOrderForRecipe("fugazza")! };
     state = gameReducer(state, { type: "RESTOCK_INGREDIENT", ingredientId: "onion" });
-    expect(state.inventory).toEqual({ onion: 12 });
+    expect(state.inventory).toEqual({ onion: 40 });
     const retried = gameReducer(state, { type: "RETRY_SAME_RECIPE" });
-    expect(retried.inventory).toEqual({ onion: 12 });
-    expect(retried.pitzBalance).toBe(30);
+    expect(retried.inventory).toEqual({ onion: 40 });
+    expect(retried.pitzBalance).toBe(160);
   });
 
   it("survives PLAY_AGAIN: restocked inventory carries into the next round", () => {
     let state = createInitialGameState(EMPTY_DEX, OWNED_WITH_ONION, 200, { onion: 0 });
     state = gameReducer(state, { type: "RESTOCK_INGREDIENT", ingredientId: "onion" });
-    expect(state.inventory).toEqual({ onion: 12 });
+    expect(state.inventory).toEqual({ onion: 40 });
     const again = gameReducer(state, { type: "PLAY_AGAIN" });
-    expect(again.inventory).toEqual({ onion: 12 });
-    expect(again.pitzBalance).toBe(30);
+    expect(again.inventory).toEqual({ onion: 40 });
+    expect(again.pitzBalance).toBe(160);
   });
 
   it("restock works identically for a Lunch Rush (Mission) round as for FREE -- the Shop transaction is not mode-gated", () => {
@@ -140,8 +142,8 @@ describe("RESTOCK_INGREDIENT (Economy & Progression 1.0 EP3)", () => {
     const mission = { ...free, isMissionRound: true };
     const freeAfter = gameReducer(free, { type: "RESTOCK_INGREDIENT", ingredientId: "onion" });
     const missionAfter = gameReducer(mission, { type: "RESTOCK_INGREDIENT", ingredientId: "onion" });
-    expect(freeAfter.inventory).toEqual({ onion: 12 });
-    expect(missionAfter.inventory).toEqual({ onion: 12 });
+    expect(freeAfter.inventory).toEqual({ onion: 40 });
+    expect(missionAfter.inventory).toEqual({ onion: 40 });
     expect(missionAfter.isMissionRound).toBe(true);
   });
 });
@@ -228,7 +230,7 @@ describe("EP2 -> EP3 integration: consume -> low/out of stock -> Shop restock ->
       amount: 200,
     });
     restocked = gameReducer(restocked, { type: "RESTOCK_INGREDIENT", ingredientId: "onion" });
-    expect(restocked.inventory).toEqual({ onion: 12, "olive-oil": 0 });
+    expect(restocked.inventory).toEqual({ onion: 40, "olive-oil": 0 });
 
     // Play again: onion is now placeable, and a fresh bake consumes from the restocked stock.
     const placed = gameReducer(restocked, { type: "PLACE_TOPPING", ingredientId: "onion", x: 50, y: 50 });
@@ -237,6 +239,6 @@ describe("EP2 -> EP3 integration: consume -> low/out of stock -> Shop restock ->
 
     const baking = { ...placed, phase: "BAKE" as const, pizza: pizzaWithOnions(4) };
     const finalState = gameReducer(baking, { type: "CONFIRM_BAKE", value: 70 });
-    expect(finalState.inventory).toEqual({ onion: 8, "olive-oil": 0 }); // 12 - 4
+    expect(finalState.inventory).toEqual({ onion: 36, "olive-oil": 0 }); // 40 - 4
   });
 });

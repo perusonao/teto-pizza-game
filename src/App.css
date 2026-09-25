@@ -1726,19 +1726,53 @@
   color: #6b5a48;
 }
 
-/* ---------- Starter Grant notice (Economy Tuning 1 P1, DISCOVERED only) ---------- */
-.starter-grant-notice {
+/* ---------- NEW MATERIAL notice (Progression 2.0 I4b-4, DISCOVERED only) ----------
+   Replaces EP4's Starter Grant notice (retired): a material is now *unlocked for the Shop*, not
+   given for free, so the notice says so and offers the way there. */
+.material-unlock-notice {
   width: 100%;
   max-width: 320px;
   box-sizing: border-box;
   margin: 0;
-  background: #eaf5e4;
+  background: #fff3c9;
+  border: 2px solid #f2b705;
   border-radius: 14px;
-  padding: 10px 16px;
-  font-size: 13px;
-  line-height: 1.5;
-  color: #3f6b2a;
-  text-align: center;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  text-align: left;
+}
+
+.material-unlock-notice__message {
+  margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #6b4226;
+}
+
+/* One material name never splits across lines ("ベーコ/ン"): each name is a non-breaking run
+   and lines break only between names. (`word-break: keep-all` on the whole message rendered an
+   extra line in WebKit at 360x800 and overran RESULT 1-Screen 2.0's height budget.) */
+.material-unlock-notice__name {
+  white-space: nowrap;
+}
+
+.material-unlock-notice__cta {
+  flex: 0 0 auto;
+  border: none;
+  background: #f2b705;
+  color: #4a2e0a;
+  font-weight: 800;
+  font-size: 12px;
+  border-radius: 999px;
+  padding: 6px 12px;
+  min-height: 36px;
+  white-space: nowrap;
 }
 
 /* ---------- Pitz credit summary (Issue #38 E-P1/E-P2, DISCOVERED only) ---------- */
@@ -2821,6 +2855,48 @@
   background: #e0d0ac;
   color: #a1662f;
   opacity: 0.7;
+}
+
+/* ---------- Progression 2.0 I4b-4: Discovery Ladder Shop (REC-04) ---------- */
+/* A NEW (unlocked, not yet bought) row: same card, a warm outline so it reads as "the next
+   thing to do" without changing the list's shape. */
+.shop-item--new {
+  box-shadow: 0 0 0 2px #f2b705, 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.shop-item__badge {
+  font-size: 10px;
+  font-weight: 800;
+  color: #4a2e0a;
+  background: #f2b705;
+  border-radius: 999px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
+.shop-item__pack {
+  font-size: 12px;
+  font-weight: 700;
+  color: #6b4226;
+  white-space: nowrap;
+}
+
+.shop-item__shortfall {
+  margin: 0;
+  font-size: 11px;
+  color: #a1662f;
+  text-align: right;
+}
+
+.shop-overlay__progress {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #6b4226;
+  background: #fff3c9;
+  border-radius: 10px;
+  padding: 8px 12px;
+  line-height: 1.4;
 }
 
 /* ---------- Inventory Screen (read-only stock view) ---------- */

@@ -140,9 +140,15 @@ describe("Completion Gate Phase 1: FAILED semantics", () => {
     // CONFIRM_BAKE's own unconditional consumption (see test 23 below) clamps the placed
     // mushroom usage against a starting stock of 0, it is never topped up by a grant.
     expect(after.inventory.mushroom ?? 0).toBe(0);
+    // I4b-3: nor does a FAILED round advance the Discovery Ladder.
+    expect(after.unlockedForShopIngredientIds).toEqual([]);
+    expect(after.lastMaterialUnlockNotice).toBeNull();
   });
 
-  it("22b (contrast): the same funghi round, PASSing, DOES grant the Starter Grant", () => {
+  // Progression 2.0 I4b-3: EP4 is retired, so the PASS contrast no longer grants anything -- it
+  // advances the Discovery Ladder instead (Dex count 2 -> egg + bacon unlocked for the Shop at
+  // stock 0), which a FAILED round (22 above) never does.
+  it("22b (contrast): the same funghi round, PASSing, advances the Discovery Ladder but grants nothing", () => {
     const dexWithMargherita: DexState = [
       { recipeId: "margherita", discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 },
     ];
@@ -153,9 +159,9 @@ describe("Completion Gate Phase 1: FAILED semantics", () => {
     );
     expect(passedFunghi.completion?.status).toBe("PASS");
     const after = gameReducer(passedFunghi, { type: "REGISTER_TO_DEX" });
-    expect(after.starterGrantClaimedRecipeIds).toContain("funghi");
-    expect(after.ownedIngredientIds).toContain("mushroom");
-    expect(after.inventory.mushroom).toBeGreaterThan(0);
+    expect(after.starterGrantClaimedRecipeIds).toEqual([]);
+    expect(after.unlockedForShopIngredientIds).toEqual(["egg", "bacon"]);
+    expect(after.lastMaterialUnlockNotice?.ingredientIds).toEqual(["egg", "bacon"]);
   });
 
   it("23. FAILED -> a finite ingredient placed on the pizza is still consumed, not refunded", () => {

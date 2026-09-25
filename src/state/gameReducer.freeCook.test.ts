@@ -156,7 +156,7 @@ describe("free cook -> NEW / KNOWN / ORIGINAL", () => {
     expect(retry.lastDiscovery).toBeNull();
     expect(retry.justDiscovered).toBe(false);
     expect(retry.lastPitzCredit).toBeNull();
-    expect(retry.lastStarterGrantNotice).toBeNull();
+    expect(retry.lastMaterialUnlockNotice).toBeNull();
 
     const second = register(cook(retry, MARGHERITA));
     expect(second.lastDiscovery).toEqual({
@@ -165,7 +165,7 @@ describe("free cook -> NEW / KNOWN / ORIGINAL", () => {
       targetId: "shipped:margherita",
     });
     expect(second.justDiscovered).toBe(false);
-    expect(second.lastStarterGrantNotice).toBeNull();
+    expect(second.lastMaterialUnlockNotice).toBeNull();
     expect(second.starterGrantClaimedRecipeIds).toEqual(first.starterGrantClaimedRecipeIds);
     expect(getDexEntry(second.dex, "margherita")?.timesMade).toBe(2);
     expect(second.dex.filter((e) => e.discovered)).toHaveLength(1);

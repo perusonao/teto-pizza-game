@@ -2,167 +2,156 @@ import { useState } from "react";
 import {
   CATEGORY_TAB_LABEL,
   CATEGORY_TAB_ORDER,
-  EARLY_GAME_HINT_THRESHOLD,
   INGREDIENTS,
   type CategoryTab,
   type Ingredient,
 } from "../data/ingredients";
 import { getRecipe } from "../data/recipes";
-import { ingredientState, recipesUnlockedByIngredient } from "../state/progression";
-import { totalStars } from "../logic/mastery";
+import { recipesUnlockedByIngredient } from "../state/progression";
 import type { DexState } from "../state/dex";
 import { remainingStock, type InventoryState } from "../state/inventory";
+import { discoveredRecipeCount } from "../logic/discoveryLadder";
+import {
+  MATERIAL_PACK_PIZZAS,
+  materialOffer,
+  materialShopState,
+  nextMaterialHint,
+  type MaterialOffer,
+} from "../logic/materialShop";
 import { IngredientGlyph } from "./IngredientGlyph";
 
 interface ShopOverlayProps {
   dex: DexState;
   ownedIngredientIds: readonly string[];
+  /** Progression 2.0 I4b-4: the Discovery Ladder Shop entitlement (`GameState.
+   *  unlockedForShopIngredientIds`). A material listed here but not owned is a NEW row. */
+  unlockedForShopIngredientIds: readonly string[];
   pitzBalance: number;
-  /** Economy & Progression 1.0 EP3: read-only, for the OWNED-row restock display (current
-   *  stock/CTA affordability) -- ShopOverlay never mutates this itself. */
+  /** Read-only, for the OWNED-row stock display -- ShopOverlay never mutates this itself. */
   inventory: InventoryState;
+  /** PURCHASE_INGREDIENT: the first pack of a NEW material. */
   onPurchase: (ingredientId: string) => void;
-  /** EP3: dispatches RESTOCK_INGREDIENT, a *separate* transaction from `onPurchase`
-   *  (PURCHASE_INGREDIENT) -- see gameReducer.ts's RESTOCK_INGREDIENT case / economy.ts's
-   *  `restockIngredient` doc comment for why the two are never merged into one handler. */
+  /** RESTOCK_INGREDIENT: one refill pack of an OWNED material -- a *separate* transaction from
+   *  `onPurchase` (see gameReducer.ts's RESTOCK_INGREDIENT case). */
   onRestock: (ingredientId: string) => void;
   onClose: () => void;
 }
 
 /**
- * Shop products (Phase 3C-5, see docs/design/PIZZA_GAME_PROGRESSION_SSOT.md section 9): every
- * ingredient with a Mastery gate (`unlockCondition`). Starter Set ingredients (see
- * src/data/ingredients.ts's `STARTER_INGREDIENT_IDS`) never appear here -- they're always
- * OWNED and never for sale.
+ * Progression 2.0 W1 Integration I4b-4: the material Shop under REC-04 (docs/reports/
+ * TETO_PROGRESS2_W1_I4B_Fresh-Audit.md §3 G, implementation default "LOCKED rows are not listed").
  *
- * Economy & Progression 1.0 EP4: a `starterGrantOnly` ingredient (mushroom/garlic/oregano/egg/
- * pesto/cherry-tomato/olive-oil/gorgonzola/parmigiano/fontina/onion -- every non-Starter
- * ingredient in the game, see src/data/ingredients.ts) is additionally hidden entirely -- no
- * LOCKED/AVAILABLE_TO_BUY row at all -- until it is already OWNED. Its first unit is always
- * free via its governing recipe's Starter Grant (../state/starterStock.ts), never a manual
- * purchase, so a Shop row offering to buy it before that would be a transaction that doesn't
- * actually exist (`purchaseIngredient` rejects it, see ../logic/economy.ts). Once OWNED, it
- * appears as a restock-only row. `onion`'s old Phase 3C-6 LOCKED/AVAILABLE_TO_BUY manual-
- * purchase lifecycle (buyable once `totalStars` alone reached 12) is retired -- it now sets
- * `starterGrantOnly` too, so this filter treats it identically to every other finite ingredient.
- * Needs `ownedIngredientIds` (unlike the old module-level constant), so this is now computed
- * per render rather than once at module load.
+ * - NEW: unlocked by the Discovery Ladder, not bought yet, stock 0 -- offers the first pack.
+ * - OWNED: bought (or granted by the retired EP4) -- shows stock and offers a refill.
+ * - LOCKED materials are never listed; one progress line says how many more discoveries bring
+ *   the next material, without naming it. The onboarding starters are never listed.
+ *
+ * Every price and quantity comes from ../logic/materialShop.ts's `materialOffer`, the same pure
+ * function the reducer's purchase/refill transactions use -- nothing is hard-coded here.
  */
-function shopProducts(ownedIngredientIds: readonly string[]): readonly Ingredient[] {
-  return INGREDIENTS.filter((i) => {
-    if (!i.unlockCondition) return false;
-    if (i.starterGrantOnly && !ownedIngredientIds.includes(i.id)) return false;
-    return true;
-  });
+interface ShopRow {
+  ingredient: Ingredient;
+  state: "NEW" | "OWNED";
+  offer: MaterialOffer;
 }
 
-/** One shop row's derived, presentation-only state -- never a stored/duplicated flag. */
-function remainingStarsFor(ingredient: Ingredient, stars: number): number {
-  return Math.max(0, (ingredient.unlockCondition?.minTotalStars ?? 0) - stars);
+function shopRows(
+  ownedIngredientIds: readonly string[],
+  unlockedForShopIngredientIds: readonly string[],
+): ShopRow[] {
+  const rows: ShopRow[] = [];
+  for (const ingredient of INGREDIENTS) {
+    const state = materialShopState(ingredient, ownedIngredientIds, unlockedForShopIngredientIds);
+    if (state !== "NEW" && state !== "OWNED") continue;
+    const offer = materialOffer(ingredient);
+    if (!offer) continue;
+    rows.push({ ingredient, state, offer });
+  }
+  // NEW first (the next thing to do), then OWNED; catalog order within each group.
+  return [...rows.filter((r) => r.state === "NEW"), ...rows.filter((r) => r.state === "OWNED")];
 }
 
-/** "解放: 🍕 フガッサ" style label listing the recipe name(s) this ingredient unlocks --
- *  derived purely for display (see `recipesUnlockedByIngredient`'s own doc comment). Empty
- *  when this ingredient doesn't complete any recipe on its own (not expected in production
- *  today, but never crashes if a future ingredient doesn't gate a recipe). */
-function unlockedRecipeLabel(
+/** "10ピザ分（30個）" -- a scatter pack also names its piece count; a spread (sauce) pack is
+ *  simply 10 pizzas' worth (1 use per pizza). */
+function packLabelJa(ingredient: Ingredient, offer: MaterialOffer): string {
+  return ingredient.placement === "scatter"
+    ? `${MATERIAL_PACK_PIZZAS}ピザ分（${offer.packQuantity}個）`
+    : `${MATERIAL_PACK_PIZZAS}ピザ分`;
+}
+
+/** "何を買うと何ができるか" preview (SSOT section 8), unchanged: only recipes whose own unlock
+ *  already holds and that this ingredient alone would complete. */
+function unlockedRecipeNames(
   ingredientId: string,
   dex: DexState,
   ownedIngredientIds: readonly string[],
-): string {
+): string[] {
   return recipesUnlockedByIngredient(ingredientId, dex, ownedIngredientIds)
     .map((id) => getRecipe(id)?.nameJa)
-    .filter((name): name is string => !!name)
-    .join("、");
+    .filter((name): name is string => !!name);
 }
 
-/** Local, purely-presentational purchase feedback (Phase 3C-6, SSOT section 7-8): "たまねぎを
- *  仕入れました！" + which recipe it just unlocked. Captured at the moment "購入" is clicked
- *  (before `ownedIngredientIds` actually updates) so the unlocked-recipe list reflects what
- *  the purchase *did*, not the post-purchase state where it would already read as owned/empty.
- *  Deliberately component-local state, not a GameState field -- Shop is the only place this
- *  feedback needs to live, so there's no reason to add another transient reducer flag
- *  alongside `justDiscovered`/`justGotNewBest` for it. */
-interface PurchaseFeedback {
+/** Local, presentational purchase/refill feedback. Captured when the button is tapped and shown
+ *  only once the reducer's result has actually landed (owned / stock increased), so a rejected
+ *  tap never shows a false success message. */
+interface ShopFeedback {
+  kind: "PURCHASE" | "REFILL";
   ingredientId: string;
   ingredientNameJa: string;
-  unlockedRecipeNames: string[];
-}
-
-/** EP3: local, purely-presentational restock feedback ("たまねぎを補充しました！") -- mirrors
- *  `PurchaseFeedback`'s own component-local pattern exactly, kept as a separate type/state
- *  rather than merged into it, since restock has no "unlocked recipe" concept to report and is
- *  a structurally different transaction (see RestockIngredientResult in ../logic/economy.ts). */
-interface RestockFeedback {
-  ingredientId: string;
-  ingredientNameJa: string;
-  quantity: number;
-  /** Stock immediately before this restock's own dispatch -- lets `showRestockFeedback` below
-   *  confirm the credit actually landed (mirrors `showFeedback`'s own "landed in
-   *  ownedIngredientIds" gate), so a rejected tap (e.g. insufficient funds slipping through a
-   *  stale disabled-button render) never shows a false "補充しました" message. */
+  quantityLabelJa: string;
   stockBefore: number;
+  unlockedRecipeNames: string[];
 }
 
 export function ShopOverlay({
   dex,
   ownedIngredientIds,
+  unlockedForShopIngredientIds,
   pitzBalance,
   inventory,
   onPurchase,
   onRestock,
   onClose,
 }: ShopOverlayProps) {
-  const stars = totalStars(dex);
-  const products = shopProducts(ownedIngredientIds);
-  const [feedback, setFeedback] = useState<PurchaseFeedback | null>(null);
-  const [restockFeedback, setRestockFeedback] = useState<RestockFeedback | null>(null);
-  // Visual Polish 1C: purely a client-side view filter over the already-visible `products` list
-  // (never over raw INGREDIENTS) -- switching tabs can only narrow which already-purchasable
-  // rows render, never reveal a LOCKED/hidden `starterGrantOnly` ingredient, and never touches
-  // ownership/stock/price/onPurchase/onRestock.
+  const rows = shopRows(ownedIngredientIds, unlockedForShopIngredientIds);
+  const progress = nextMaterialHint(discoveredRecipeCount(dex), unlockedForShopIngredientIds);
+  const [feedback, setFeedback] = useState<ShopFeedback | null>(null);
+  // Visual Polish 1C: a client-side view filter over the already-visible rows only -- it can
+  // never reveal a LOCKED material.
   const [activeTab, setActiveTab] = useState<CategoryTab>("ALL");
-  const visibleProducts =
-    activeTab === "ALL" ? products : products.filter((i) => i.category === activeTab);
-  // Fresh/early-game guidance (P1-3): only meaningful on the unfiltered ALL view -- a specific
-  // category's own empty state (below) covers the filtered case instead, so the two hints never
-  // both show at once.
-  const isEarlyGame = products.length > 0 && products.length < EARLY_GAME_HINT_THRESHOLD;
+  const visibleRows = activeTab === "ALL" ? rows : rows.filter((r) => r.ingredient.category === activeTab);
 
-  function handleBuy(ingredient: Ingredient) {
-    const unlockedRecipeNames = recipesUnlockedByIngredient(ingredient.id, dex, ownedIngredientIds)
-      .map((id) => getRecipe(id)?.nameJa)
-      .filter((name): name is string => !!name);
-    onPurchase(ingredient.id);
-    setFeedback({ ingredientId: ingredient.id, ingredientNameJa: ingredient.nameJa, unlockedRecipeNames });
-    setRestockFeedback(null);
-  }
-
-  // EP3: captured before dispatch, same "describe what the action just did" timing as
-  // handleBuy above -- restockIngredient's own atomicity means a failed restock (insufficient
-  // funds) never changes `inventory`, so `showRestockFeedback` below (gated on the stock
-  // actually having grown) never shows a false "補充しました" message for a rejected tap.
-  function handleRestock(ingredient: Ingredient) {
-    const stockBefore = inventory[ingredient.id] ?? 0;
-    onRestock(ingredient.id);
-    setRestockFeedback({
+  function handleBuy(row: ShopRow) {
+    const { ingredient, offer } = row;
+    setFeedback({
+      kind: "PURCHASE",
       ingredientId: ingredient.id,
       ingredientNameJa: ingredient.nameJa,
-      quantity: ingredient.restockQuantity ?? 0,
-      stockBefore,
+      quantityLabelJa: packLabelJa(ingredient, offer),
+      stockBefore: inventory[ingredient.id] ?? 0,
+      unlockedRecipeNames: unlockedRecipeNames(ingredient.id, dex, ownedIngredientIds),
     });
-    setFeedback(null);
+    onPurchase(ingredient.id);
   }
 
-  // Only shows once the purchase this feedback describes has actually landed in
-  // `ownedIngredientIds` -- a disabled/failed buy tap (e.g. insufficient funds slipping through
-  // a stale render) never shows a false "仕入れました" message, since that id simply won't be
-  // owned yet on the next render.
-  const showFeedback = feedback && ownedIngredientIds.includes(feedback.ingredientId);
-  // EP3: mirrors showFeedback's own landed-check -- only true once `inventory` actually grew
-  // past what it was immediately before this restock's dispatch.
-  const showRestockFeedback =
-    restockFeedback && (inventory[restockFeedback.ingredientId] ?? 0) > restockFeedback.stockBefore;
+  function handleRefill(row: ShopRow) {
+    const { ingredient, offer } = row;
+    setFeedback({
+      kind: "REFILL",
+      ingredientId: ingredient.id,
+      ingredientNameJa: ingredient.nameJa,
+      quantityLabelJa: packLabelJa(ingredient, offer),
+      stockBefore: inventory[ingredient.id] ?? 0,
+      unlockedRecipeNames: [],
+    });
+    onRestock(ingredient.id);
+  }
+
+  const feedbackLanded =
+    feedback !== null &&
+    (feedback.kind === "PURCHASE"
+      ? ownedIngredientIds.includes(feedback.ingredientId)
+      : (inventory[feedback.ingredientId] ?? 0) > feedback.stockBefore);
 
   return (
     <div className="dex-overlay">
@@ -179,33 +168,39 @@ export function ShopOverlay({
             {"\u{1FA99}"} {pitzBalance} Pitz
           </p>
 
-          {showFeedback && (
-            <p className="shop-overlay__feedback">
-              {"\u{1F355}"} {feedback.ingredientNameJa}を仕入れました！
-              {feedback.unlockedRecipeNames.length > 0 && (
+          {feedback && feedbackLanded && (
+            <p className="shop-overlay__feedback" aria-live="polite">
+              {feedback.kind === "PURCHASE" ? (
                 <>
+                  {"\u{1F4E6}"} {feedback.ingredientNameJa}を仕入れました！（{feedback.quantityLabelJa}）
                   <br />
-                  {"\u{1F355}"} 新しいピザが作れます！「{feedback.unlockedRecipeNames.join("、")}」
+                  {"\u{1F373}"} フリークッキングで使ってみよう
+                  {feedback.unlockedRecipeNames.length > 0 && (
+                    <>
+                      <br />
+                      {"\u{1F355}"} 新しいピザが作れます！「{feedback.unlockedRecipeNames.join("、")}」
+                    </>
+                  )}
+                </>
+              ) : (
+                <>
+                  {"\u{1F4E6}"} {feedback.ingredientNameJa}を補充しました！（{feedback.quantityLabelJa}）
                 </>
               )}
             </p>
           )}
 
-          {showRestockFeedback && (
-            <p className="shop-overlay__feedback">
-              {"\u{1F4E6}"} {restockFeedback.ingredientNameJa}を{restockFeedback.quantity}補充しました！
+          {progress && (
+            <p className="shop-overlay__progress">
+              {"\u{1F51C}"} あと{progress.discoveriesNeeded}つ発見で新しい材料が入荷
             </p>
           )}
 
-          {products.length === 0 && (
-            <p className="shop-overlay__empty">新しい素材は、ピザの腕前が上がると入荷します</p>
+          {rows.length === 0 && (
+            <p className="shop-overlay__empty">新しいピザを発見すると、材料が入荷します</p>
           )}
 
-          {products.length > 0 && isEarlyGame && activeTab === "ALL" && (
-            <p className="shop-overlay__hint">レシピを解放すると、買える材料が増えます</p>
-          )}
-
-          {products.length > 0 && (
+          {rows.length > 0 && (
             <div className="shop-filter-tabs" role="tablist" aria-label="材料カテゴリ">
               {CATEGORY_TAB_ORDER.map((tab) => (
                 <button
@@ -222,85 +217,70 @@ export function ShopOverlay({
             </div>
           )}
 
-          {products.length > 0 && visibleProducts.length === 0 && (
-            <p className="shop-overlay__empty">
-              このカテゴリで買える材料はまだありません
-              {isEarlyGame && (
-                <>
-                  <br />
-                  レシピを解放すると増えます
-                </>
-              )}
-            </p>
+          {rows.length > 0 && visibleRows.length === 0 && (
+            <p className="shop-overlay__empty">このカテゴリで買える材料はまだありません</p>
           )}
 
-          {visibleProducts.length > 0 && (
+          {visibleRows.length > 0 && (
             <div className="shop-overlay__list">
-              {visibleProducts.map((ingredient) => {
-                const state = ingredientState(ingredient, ownedIngredientIds, stars);
-                const unlocksLabel = unlockedRecipeLabel(ingredient.id, dex, ownedIngredientIds);
+              {visibleRows.map((row) => {
+                const { ingredient, state, offer } = row;
+                const price = state === "NEW" ? offer.packPrice : offer.refillPrice;
+                const shortfall = Math.max(0, price - pitzBalance);
+                const unlocksLabel =
+                  state === "NEW" ? unlockedRecipeNames(ingredient.id, dex, ownedIngredientIds).join("、") : "";
                 return (
-                  <div key={ingredient.id} className="shop-item">
+                  <div
+                    key={ingredient.id}
+                    className={`shop-item${state === "NEW" ? " shop-item--new" : ""}`}
+                    data-ingredient-id={ingredient.id}
+                    data-shop-state={state}
+                  >
                     <div className="shop-item__row">
                       <div className="shop-item__info">
                         <span className="shop-item__emoji">
                           <IngredientGlyph ingredient={ingredient} />
                         </span>
                         <span className="shop-item__name">{ingredient.nameJa}</span>
+                        {state === "NEW" && <span className="shop-item__badge">NEW 入荷</span>}
                       </div>
-
-                      {state === "LOCKED" && (
-                        <span className="shop-item__status shop-item__status--locked">
-                          {"\u{1F512}"} あと★{remainingStarsFor(ingredient, stars)}
+                      <span className="shop-item__stock">在庫 {remainingStock(ingredient, inventory)}</span>
+                    </div>
+                    <div className="shop-item__row">
+                      <span className="shop-item__pack">
+                        {state === "NEW" ? "" : "+"}
+                        {"\u{1F355}"}
+                        {packLabelJa(ingredient, offer)}
+                      </span>
+                      <div className="shop-item__buy">
+                        <span className="shop-item__price">
+                          {state === "NEW" ? "初回" : "補充"} {"\u{1FA99}"} {price} Pitz
                         </span>
-                      )}
-
-                      {state === "AVAILABLE_TO_BUY" && (
-                        <div className="shop-item__buy">
-                          <span className="shop-item__price">
-                            {"\u{1FA99}"} {ingredient.pricePitz} Pitz
-                          </span>
+                        {state === "NEW" ? (
                           <button
                             type="button"
                             className="shop-item__buy-button"
-                            disabled={pitzBalance < (ingredient.pricePitz ?? Infinity)}
-                            onClick={() => handleBuy(ingredient)}
+                            disabled={shortfall > 0}
+                            onClick={() => handleBuy(row)}
                           >
-                            購入
+                            仕入れる
                           </button>
-                        </div>
-                      )}
-
-                      {/* EP3: every `products` entry has `unlockCondition` by construction (the
-                          list's own filter above), so an OWNED row here is always a genuinely
-                          finite ingredient -- restock, never a plain "✓ 購入済み" checkmark, is the
-                          only OWNED presentation this list ever needs (unlike a hypothetical
-                          Starter/unlimited ingredient, which this list structurally never lists at
-                          all -- see the "Unlimited" scope note in the EP3 Result report). */}
-                      {state === "OWNED" && (
-                        <div className="shop-item__restock">
-                          <span className="shop-item__stock">
-                            在庫 {remainingStock(ingredient, inventory)}
-                          </span>
-                          <span className="shop-item__restock-qty">+{ingredient.restockQuantity}</span>
-                          <span className="shop-item__price">
-                            {"\u{1FA99}"} {ingredient.pricePitz} Pitz
-                          </span>
+                        ) : (
                           <button
                             type="button"
                             className="shop-item__restock-button"
-                            disabled={pitzBalance < (ingredient.pricePitz ?? Infinity)}
-                            onClick={() => handleRestock(ingredient)}
+                            disabled={shortfall > 0}
+                            onClick={() => handleRefill(row)}
                           >
                             補充する
                           </button>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
-                    {/* "何を買うと何ができるか" preview (SSOT section 8): shown before purchase
-                        (LOCKED/AVAILABLE_TO_BUY) so the player can see the payoff up front --
-                        never for OWNED, where the recipe is simply already available. */}
-                    {state !== "OWNED" && unlocksLabel && (
+                    {shortfall > 0 && (
+                      <p className="shop-item__shortfall">あと {shortfall} Pitz たりません</p>
+                    )}
+                    {unlocksLabel && (
                       <p className="shop-item__unlocks">
                         これを買うと: {"\u{1F355}"} {unlocksLabel}
                       </p>

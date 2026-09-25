@@ -3,7 +3,7 @@ import { BAKE_STATE_LABEL, type BakeState } from "../logic/bake";
 import type { PitzCredit } from "../logic/pitzReward";
 import { EFFICIENCY_TIER_LABEL_JA, formatCookingTime, type CookingEfficiencyCredit } from "../logic/efficiency";
 import type { StepTimingRow } from "../logic/cookingTimingDisplay";
-import type { StarterGrantNotice } from "../state/starterStock";
+import { MATERIAL_UNLOCK_NOTICE_LEAD_JA, type MaterialUnlockNotice } from "../state/materialEntitlement";
 import type { PizzaCompletionResult } from "../logic/completionGate";
 import { buildCompletionFailureMessage } from "../data/completionMessages";
 import type { CutEvaluation } from "../logic/cut/types";
@@ -67,11 +67,14 @@ interface ResultPanelProps {
    *  `cookingTiming`/`cookingProfile` state; Mission rounds have neither and never render this
    *  component). */
   stepTimingRows?: readonly StepTimingRow[];
-  /** Economy Tuning 1 P1 (`state.lastStarterGrantNotice`): non-null only the instant this
-   *  round's REGISTER_TO_DEX actually granted a recipe's Starter Grant -- never shown for
-   *  margherita (never granted), an already-claimed recipe, or a reload/replay (transient,
-   *  reset every fresh round, see ../state/gameReducer.ts's own doc comment for the field). */
-  starterGrantNotice: StarterGrantNotice | null;
+  /** Progression 2.0 I4b-4 (`state.lastMaterialUnlockNotice`, REC-04 OD-REC04-2): non-null only
+   *  the instant this round's REGISTER_TO_DEX unlocked new Discovery Ladder materials for the
+   *  Shop. Transient (reset every fresh round), never re-shown on reload/replay. Replaces EP4's
+   *  retired Starter Grant notice: nothing is given for free -- the material is now buyable. */
+  materialUnlockNotice?: MaterialUnlockNotice | null;
+  /** Opens the Shop overlay from the NEW MATERIAL notice (App.tsx's own `setShopOpen`, the same
+   *  global overlay HOME opens). The notice renders no CTA when this is absent. */
+  onOpenShop?: () => void;
   /** Pizza Cutting 1.0 Phase 3 (docs/design/TETO_PIZZA-CUTTING_1.0.md §14 Option D): the CUT
    *  step's own standalone evaluation preview, read directly from `state.cutState.evaluation`
    *  (GameScreen.tsx). `null`/`undefined` for every one of the 14 recipes whose profile never
@@ -149,7 +152,8 @@ export function ResultPanel({
   pitzCredit,
   efficiencyCredit,
   stepTimingRows = [],
-  starterGrantNotice,
+  materialUnlockNotice = null,
+  onOpenShop,
   cutEvaluation,
   freeCook = false,
   discovery = null,
@@ -305,10 +309,26 @@ export function ResultPanel({
         </p>
       )}
 
-      {starterGrantNotice && (
-        <p className="starter-grant-notice" aria-live="polite">
-          {starterGrantNotice.messageJa}
-        </p>
+      {materialUnlockNotice && (
+        <div className="material-unlock-notice" aria-live="polite">
+          {/* Each name is its own non-breaking run, so lines break only between names. The "・"
+              separator ends the *previous* run: a line may break after "・" but never before it
+              (UAX #14), so a leading separator would glue every name into one unbreakable run. */}
+          <p className="material-unlock-notice__message">
+            {MATERIAL_UNLOCK_NOTICE_LEAD_JA}
+            {materialUnlockNotice.namesJa.map((name, i) => (
+              <span key={materialUnlockNotice.ingredientIds[i]} className="material-unlock-notice__name">
+                {name}
+                {i < materialUnlockNotice.namesJa.length - 1 ? "・" : ""}
+              </span>
+            ))}
+          </p>
+          {onOpenShop && (
+            <button type="button" className="material-unlock-notice__cta" onClick={onOpenShop}>
+              {"\u{1F6D2}"} ショップへ
+            </button>
+          )}
+        </div>
       )}
 
       {/* Gameplay UX PR-D (RESULT 1-Screen 2.0, Fresh Audit §6): the Pitz breakdown `<dl>` used

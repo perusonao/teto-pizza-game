@@ -43,6 +43,8 @@ describe("Regression: Phase 4A-1B remains shadow-only", () => {
       "pitzBalance",
       "schemaVersion",
       "starterGrantClaimedRecipeIds",
+      // I4b-2: the Discovery Ladder Shop entitlement ledger (REC-04), not a Reference field.
+      "unlockedForShopIngredientIds",
     ]);
   });
 });

@@ -4,9 +4,12 @@ import { test, expect } from "@playwright/test";
  * Progression 2.0 Phase 3-4B: save forward-compat, in a real browser. A save written by a newer
  * build (a future recipe/ingredient, stock, ledger entry and top-level field) is loaded by this
  * build: gameplay must not see the unknown data (Dex pill still counts only this build's recipes),
- * and the real write that happens on mount (EP4's load-time Starter Grant catch-up grants
- * `funghi`, unlocked by the seeded margherita discovery) must carry the unknown data through,
- * across a reload.
+ * and the real write that happens on mount must carry the unknown data through, across a reload.
+ *
+ * Progression 2.0 W1 Integration I4b-3: EP4's load-time Starter Grant is retired, so the mount
+ * write is now the Discovery Ladder's -- the seeded margherita discovery (Dex count 1; the unknown
+ * recipe never reaches gameplay) unlocks `egg` for the Shop, which is persisted to
+ * `unlockedForShopIngredientIds` next to the future `calabresa` entitlement.
  */
 
 const FUTURE_SAVE = {
@@ -20,6 +23,7 @@ const FUTURE_SAVE = {
   missionBest: {},
   inventory: { calabresa: 10 },
   starterGrantClaimedRecipeIds: ["brazilian-calabresa"],
+  unlockedForShopIngredientIds: ["calabresa"],
   futureLedger: { purchased: ["calabresa"] },
 };
 
@@ -42,9 +46,13 @@ test("a save carrying future recipe/ingredient data loads unchanged and survives
   const readSave = () =>
     page.evaluate(() => JSON.parse(localStorage.getItem("teto-pizza-save-v1") ?? "null"));
 
-  // The mount-time write happened (claimed ledger gained funghi) and kept the future data.
-  await expect.poll(async () => (await readSave()).starterGrantClaimedRecipeIds).toContain("funghi");
+  // The mount-time write happened (the ladder unlocked egg) and kept the future data.
+  await expect.poll(async () => (await readSave()).unlockedForShopIngredientIds).toContain("egg");
   const written = await readSave();
+  expect(written.unlockedForShopIngredientIds).toEqual(["egg", "calabresa"]);
+  // Nothing was granted: the retired EP4 ledger is carried through as it was.
+  expect(written.starterGrantClaimedRecipeIds).toEqual(["brazilian-calabresa"]);
+  expect(written.inventory).toEqual({ calabresa: 10 });
   expect(written.dex).toContainEqual(FUTURE_SAVE.dex[1]);
   expect(written.ownedIngredientIds).toContain("calabresa");
   expect(written.inventory).toMatchObject({ calabresa: 10 });
@@ -59,4 +67,5 @@ test("a save carrying future recipe/ingredient data loads unchanged and survives
   expect(reloaded.ownedIngredientIds).toContain("calabresa");
   expect(reloaded.inventory).toMatchObject({ calabresa: 10 });
   expect(reloaded.futureLedger).toEqual(FUTURE_SAVE.futureLedger);
+  expect(reloaded.unlockedForShopIngredientIds).toEqual(["egg", "calabresa"]);
 });

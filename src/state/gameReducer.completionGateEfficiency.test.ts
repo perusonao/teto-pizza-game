@@ -148,7 +148,7 @@ describe("Completion Gate FAILED x Efficiency: lastEfficiencyCredit is null for 
     expect(after.dex).toEqual(result.dex); // untouched
     expect(after.justDiscovered).toBe(false);
     expect(after.justGotNewBest).toBe(false);
-    expect(after.lastStarterGrantNotice).toBeNull();
+    expect(after.lastMaterialUnlockNotice).toBeNull();
     expect(after).toBe(result); // REGISTER_TO_DEX is a complete no-op -- same object identity
   });
 });
