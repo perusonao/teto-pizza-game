@@ -64,7 +64,7 @@ owner が確認した内容:
 
 致命的な overflow、CTA の見切れ、価格表示と runtime の減算の不一致は見つからなかった。
 
-**PASS 後の差分（agent が検証。owner の再確認を推奨）**
+**PASS 後の差分（owner が post-fix Human delta として PASS。下記参照）**
 
 - 状況: PASS の対象 HEAD `7eaa57e` の Full WebKit（run 36125278188）が失敗した。webkit-360x800 で result-1screen-2.0 Scenario E が 4px 超過した。
 - 原因: `0500bc8` の `word-break: keep-all` によって、Scenario E（マリナーラの発見）の通知が WebKit では Chromium より 1 行多く描画されていた。
@@ -89,7 +89,19 @@ owner が確認した内容:
   - `390x844-three-materials-step14.png` / `360x800-three-materials-step14.png`
   - `390x844-single-marinara-mushroom.png` / `360x800-single-marinara-mushroom.png`
 
-**post-fix Human delta の確認結果（agent）**
+**post-fix Human delta: PASS（repo owner が 2026-09-25 に承認）**
+
+owner が承認した対象（実際のアプリの `post-fix-delta/` screenshots と、agent による下表の測定結果に基づく）:
+
+- NEW MATERIAL 通知「🆕 新しい材料が入荷：…」
+- 材料 1 つの表示 / 材料 3 つの表示、390×844 / 360×800
+- 材料名を途中で分割しない、複数の材料の折り返し、文字が Shop CTA の下に潜り込まない
+- 「🛒 ショップへ」が完全に見える、RESULT 1-Screen の予算内、無料プレゼントと誤解する表現がない
+- Codex P2 への対応（`ed7bc26`、§5b）: すでに解放済みの step を Shop の進捗表示で飛ばす修正も、owner が承認した
+
+Shop / economy / gameplay の一連の流れは、この文言・レイアウトの修正では挙動が変わらないため、既存の Human PASS をそのまま有効とする（全面的な再検証はしていない）。
+
+agent による測定（Chromium 実機。WebKit は PR CI の e2e で同じ条件を検証）:
 
 | 確認項目 | 390×844 | 360×800 |
 |---|---|---|
@@ -169,7 +181,7 @@ Human Verification で見つけて直したもの:
 
 ## 6. 残っている課題
 
-- owner の Human PASS は §3 のとおり記録した。`8184298` の通知の文言・折り返しの差分は agent による検証なので、owner の再確認を推奨する。
+- Human Verification: owner の PASS（§3）。post-fix Human delta（通知の文言・折り返し、`8184298` と `fc1b885`）と Codex P2 への対応（`ed7bc26`）も owner が PASS / 承認した。
 - W1 に持ち越すもの（今回の blocker ではない）:
   - 25 recipe で tier が変わる件
   - ham の k=3
