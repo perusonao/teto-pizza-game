@@ -5,7 +5,7 @@
 - **P1 の SHA: `39ce35cc80b17574ed85e60c71f989acb1b41237`**（`src/**` だけを変更した独立した commit）。
 - production に ingredient visual の抽象化（`Ingredient.pieceVisual` と `IngredientGlyph`）を入れた。**既存 22 材料の見た目と挙動は変わっていない**。BEFORE（main）と AFTER（P1）の production build を画素単位で比べ、22 capture × 2 viewport のすべてで、チャンネルあたり 2 を超えて変化した画素は 0 だった。
 - 7 つの新材料は登録していない。W1 recipe、REC-04、価格・unlock・star gate、scoring、save も変えていない。
-- 判定: **Production Visual P1 READY**（WebKit の Final Gate は下の表を参照）。
+- 判定: **Production Visual P1 = READY、Human Verification = PASS → FINAL PASS**（2026-09-25、ユーザーが Human Verification 動画を確認して確定）。WebKit の Final Gate は run 36099775804 で PASS。
 
 ## Authority（作業開始時）
 
@@ -127,11 +127,11 @@ Video Verification: PASS（ffmpeg で最後まで decode してエラー 0。390
 ## before / after の判定
 
 - 自動判定: **差なし**（unit の markup が一致、Chromium の画素比較で 0、既存 E2E が全 PASS）。
-- Human の判定: 動画をユーザーが確認してから確定する。
+- Human の判定: **HUMAN PASS**（2026-09-25、ユーザーが確定。下の「Human Verification の記録」を参照）。
 
 ## READY / NOT READY
 
-**Production Visual P1: READY**
+**Production Visual P1: READY / Human Verification: PASS → FINAL PASS**
 
 - 既存 22 材料の見た目は変わっていない（画素で証明した）。
 - 8 つの render site は IngredientGlyph にまとまった（checker で保証）。
@@ -140,3 +140,18 @@ Video Verification: PASS（ffmpeg で最後まで decode してエラー 0。390
 - Chromium は PASS。WebKit の結果は上の表のとおり。
 
 次の P2（7 材料の登録）は、引き続き REC-04（価格・unlock・star gate）が決まるまで NOT READY。
+
+## Human Verification の記録（2026-09-25）
+
+| 項目 | 値 |
+|---|---|
+| 対象 | Production Visual P1（IngredientGlyph の抽象化） |
+| P1 の実装 SHA | `39ce35cc80b17574ed85e60c71f989acb1b41237`（この記録でも変更していない） |
+| 確認した動画 | `p1-ingredient-glyph-human-verification-390x844.mp4`（390×844、H.264、1:05.3、sha256 `cdfebc943b3a63fd07a989c0ee52a96adc09b0a1e2b59588acf5d1ca678e7f40`。repo には commit していない） |
+| 確認した範囲 | HOME → Free Cooking → tray → raw → bake → RESULT → Inventory → Shop → Dex、および BEFORE / AFTER の比較 |
+| Human の所見 | 既存材料の表示崩れなし。BEFORE / AFTER の比較に問題なし。自動の画素比較（22 capture × 2 viewport で変化 0）の結果とも整合する |
+| Human の判定 | **HUMAN PASS**（ユーザーが確定） |
+| 自動の gate | Chromium: unit 2465/2465、e2e 114/114、画素比較 PASS。WebKit の Final Gate: run [36099775804](https://github.com/perusonao/teto-pizza-game/actions/runs/36099775804) PASS（4 shard と WebKit Gate） |
+| 最終判定 | **Production Visual P1 = READY / Human Verification = PASS → FINAL PASS** |
+
+範囲外であり、この記録でも決めていないこと: 7 新材料の登録（P2）、REC-04、W1 recipe、価格・unlock・star gate。P2 は REC-04 が決まるまで NOT READY のまま。
