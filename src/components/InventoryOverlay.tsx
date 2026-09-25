@@ -2,6 +2,7 @@ import { useState } from "react";
 import { CATEGORY_LABEL, CATEGORY_ORDER, INGREDIENTS, type IngredientCategory } from "../data/ingredients";
 import { IngredientPieceVisual } from "./IngredientPieceVisual";
 import { remainingStock, type InventoryState } from "../state/inventory";
+import { IngredientGlyph } from "./IngredientGlyph";
 
 /**
  * Inventory Screen (next phase after Issue #86 UX-2): a READ-ONLY view of "what do I currently
@@ -87,7 +88,9 @@ export function InventoryOverlay({ ownedIngredientIds, inventory, onClose }: Inv
                         <IngredientPieceVisual ingredient={ingredient} />
                       </span>
                     ) : (
-                      <span className="inventory-card__emoji">{ingredient.emoji}</span>
+                      <span className="inventory-card__emoji">
+                        <IngredientGlyph ingredient={ingredient} />
+                      </span>
                     )}
                     <span className="inventory-card__name">{ingredient.nameJa}</span>
                     <span className="inventory-card__category">{CATEGORY_LABEL[ingredient.category]}</span>
