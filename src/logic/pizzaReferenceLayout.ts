@@ -4,9 +4,9 @@
  * `requiredIngredients` order -- originally authored for `../components/PizzaThumbnail.tsx`
  * (Pizza Select's card preview) and reused as-is by `../data/playerReference.ts` (Issue #47
  * Finding F/H's player-facing Making reference) so both consumers draw from one canonical
- * generated layout table instead of two independently hand-tuned coordinate schemes. Every
- * current recipe's total non-sauce piece count (4-8, see `../data/recipes.ts`) fits within
- * this 8-slot ring with no wraparound collision.
+ * generated layout table instead of two independently hand-tuned coordinate schemes. Both now
+ * read it through `getReferenceSlots(n)` below (RT-01b), which is exact for n <= 8 and never
+ * wraps for larger n.
  *
  * RT-01 (docs/reports/TETO_RT01_REFERENCE-PIECE-CAPACITY_Fresh-Design.md, Owner Decision
  * RT-01-OD-1): this table stays byte-identical and is still the exact layout for 1-8 pieces --
@@ -234,8 +234,9 @@ export interface ReferenceSlotGroup {
  * RT-01 (Owner Decision RT-01-OD-1): assigns `getReferenceSlots(total)` to ingredient groups.
  * total <= 8 keeps the existing consecutive rule (group 1 takes the first `count` slots, and so
  * on -- exactly what `../data/playerReference.ts` has always done). total >= 9 interleaves: slots
- * are ordered outer ring first, clockwise from 12 o'clock, centre last, and groups take them
- * round-robin in their given order, so no ingredient clusters in one area.
+ * are ordered outer ring first, clockwise from 12 o'clock, centre last; groups take turns in their
+ * given order, and each group's next piece takes the free slot farthest from its own earlier
+ * pieces, so no ingredient clusters in one area.
  */
 export function assignReferenceSlots(
   groups: readonly ReferenceSlotGroup[],
@@ -265,15 +266,30 @@ export function assignReferenceSlots(
     .map((slot, index) => ({ slot, key: sortKey(slot), index }))
     .sort((a, b) => a.key[0] - b.key[0] || a.key[1] - b.key[1] || a.key[2] - b.key[2] || a.index - b.index);
 
+  // Groups take turns in their given order. A group's first piece takes the first free slot in
+  // that order; each later piece takes the free slot farthest from the group's own earlier
+  // pieces (earliest in order on a tie), so no ingredient ends up clustered.
+  const free = ordered.map((entry) => entry.slot);
   const remaining = groups.map((group) => Math.max(0, group.count));
-  let next = 0;
   while (remaining.some((c) => c > 0)) {
     remaining.forEach((count, g) => {
-      if (count > 0) {
-        result[g].positions.push(ordered[next].slot);
-        next += 1;
-        remaining[g] -= 1;
+      if (count <= 0) return;
+      const own = result[g].positions;
+      let pick = 0;
+      if (own.length > 0) {
+        let bestDistance = -1;
+        free.forEach((slot, index) => {
+          const nearest = Math.min(...own.map((p) => Math.hypot(p.x - slot.x, p.y - slot.y)));
+          const rounded = Math.round(nearest * 1e6) / 1e6;
+          if (rounded > bestDistance) {
+            bestDistance = rounded;
+            pick = index;
+          }
+        });
       }
+      own.push(free[pick]);
+      free.splice(pick, 1);
+      remaining[g] -= 1;
     });
   }
   return result;

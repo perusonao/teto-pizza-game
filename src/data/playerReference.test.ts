@@ -3,6 +3,8 @@ import { getPlayerReferencePizza } from "./playerReference";
 import { RECIPES } from "./recipes";
 import { getIngredient } from "./ingredients";
 import { getReferencePizza } from "./referencePizza";
+import { REFERENCE_SLOT_MIN_GAP, getReferenceSlots, minimumSlotGap } from "../logic/pizzaReferenceLayout";
+import type { Recipe, RecipeId } from "./recipes";
 
 /**
  * Issue #47 Slice B (Findings F/H): pins the player-facing reference generator's own
@@ -96,5 +98,66 @@ describe("Scoring 2.0 Reference fixtures unchanged (scope guard)", () => {
       // file's own header comment/imports; re-confirmed here by simply calling it too.
       expect(getPlayerReferencePizza(recipe)).toBeTruthy();
     }
+  });
+});
+
+/**
+ * RT-01b (Owner Decision RT-01-OD-1): recipes with 9+ non-sauce pieces never wrap onto used
+ * slots. Synthetic, unregistered recipes built from shipped ingredients only -- no new recipe or
+ * ingredient is added to production data.
+ */
+describe("getPlayerReferencePizza beyond 8 pieces (RT-01b)", () => {
+  function synthetic(groups: [string, number][]): Recipe {
+    return {
+      ...RECIPES[0],
+      id: "rt01-synthetic" as RecipeId,
+      requiredIngredients: [
+        { ingredientId: "tomato-sauce", minCount: 1 },
+        ...groups.map(([ingredientId, minCount]) => ({ ingredientId, minCount })),
+      ],
+    };
+  }
+
+  const CASES: [number, [string, number][]][] = [
+    [9, [["mozzarella", 2], ["mushroom", 3], ["parmigiano", 2], ["basil", 2]]],
+    [10, [["mozzarella", 2], ["ham", 3], ["egg", 1], ["onion", 2], ["black-olive", 2]]],
+    [12, [["mozzarella", 2], ["mushroom", 3], ["ham", 2], ["black-olive", 2], ["onion", 2], ["basil", 1]]],
+    [15, [["mozzarella", 2], ["pepperoni", 3], ["mushroom", 2], ["onion", 2], ["black-olive", 2], ["bacon", 2], ["basil", 2]]],
+  ];
+
+  it.each(CASES)("%i pieces: every piece gets its own getReferenceSlots slot, counts preserved", (total, groups) => {
+    const reference = getPlayerReferencePizza(synthetic(groups));
+    expect(reference.pieceGroups.map((g) => [g.ingredientId, g.positions.length])).toEqual(groups);
+    const all = reference.pieceGroups.flatMap((g) => g.positions);
+    expect(all).toHaveLength(total);
+    expect(new Set(all.map((p) => `${p.x},${p.y}`)).size).toBe(total);
+    expect(new Set(all.map((p) => `${p.x},${p.y}`))).toEqual(
+      new Set(getReferenceSlots(total).map((p) => `${p.x},${p.y}`)),
+    );
+    expect(minimumSlotGap(all)).toBeGreaterThanOrEqual(REFERENCE_SLOT_MIN_GAP);
+  });
+
+  it.each(CASES)("%i pieces: same-ingredient pieces are interleaved, not clustered", (total, groups) => {
+    const reference = getPlayerReferencePizza(synthetic(groups));
+    const slots = getReferenceSlots(total);
+    // Consecutive (legacy-style) assignment for comparison: group i takes the next minCount slots.
+    let cursor = 0;
+    const consecutive = groups.map(([, count]) => {
+      const positions = slots.slice(cursor, cursor + count);
+      cursor += count;
+      return positions;
+    });
+    const layoutGap = minimumSlotGap(slots);
+    reference.pieceGroups.forEach((group, i) => {
+      if (group.positions.length < 2) return;
+      expect(minimumSlotGap(group.positions)).toBeGreaterThanOrEqual(minimumSlotGap(consecutive[i]) - 1e-9);
+      // No two pieces of one ingredient are nearest neighbours in the layout.
+      expect(minimumSlotGap(group.positions)).toBeGreaterThanOrEqual(layoutGap * 1.25);
+    });
+  });
+
+  it("is deterministic for a 10-piece recipe", () => {
+    const recipe = synthetic(CASES[1][1]);
+    expect(getPlayerReferencePizza(recipe)).toEqual(getPlayerReferencePizza(recipe));
   });
 });

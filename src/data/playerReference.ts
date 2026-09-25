@@ -13,10 +13,17 @@
  * itself reads), reusing the exact same `PIECE_RING_POSITIONS` slot table
  * `../components/PizzaThumbnail.tsx` already uses for Pizza Select's card preview -- never a
  * claim about the real dish's researched appearance, and never hand-authored per recipe.
+ *
+ * RT-01b (docs/reports/TETO_RT01_REFERENCE-PIECE-CAPACITY_Fresh-Design.md, Owner Decision
+ * RT-01-OD-1): slots now come from `getReferenceSlots`/`assignReferenceSlots`
+ * (../logic/pizzaReferenceLayout.ts) instead of `PIECE_RING_POSITIONS[slot % 8]`. For 1-8 total
+ * pieces that is byte-identical to before (same table, same consecutive assignment); 9+ pieces
+ * get the approved multi-ring layout with ingredients interleaved, instead of wrapping onto
+ * already-used slots.
  */
 import { getIngredient, type Ingredient } from "./ingredients";
 import type { Recipe, RecipeId } from "./recipes";
-import { PIECE_RING_POSITIONS } from "../logic/pizzaReferenceLayout";
+import { assignReferenceSlots } from "../logic/pizzaReferenceLayout";
 
 export interface PlayerReferencePieceGroup {
   ingredientId: string;
@@ -30,30 +37,24 @@ export interface PlayerPizzaReference {
 }
 
 /**
- * Deterministic per-recipe layout: every non-sauce required ingredient is assigned
- * `minCount` consecutive slots from `PIECE_RING_POSITIONS`, walked in
- * `requiredIngredients` order so a given recipe always produces the same groups in the
- * same order. Every current recipe's total non-sauce piece count (4-8, see
- * `./recipes.ts`) fits within the 8-slot ring with no two pieces of the same recipe ever
- * colliding on the same slot.
+ * Deterministic per-recipe layout: every non-sauce required ingredient contributes `minCount`
+ * pieces, in `requiredIngredients` order, placed by `assignReferenceSlots` -- consecutive slots
+ * for up to 8 total pieces (the original behaviour), interleaved multi-ring slots for 9+. A given
+ * recipe always produces the same groups in the same order, and no two pieces ever share a slot
+ * regardless of the total.
  */
 export function getPlayerReferencePizza(recipe: Recipe): PlayerPizzaReference {
   const sauceIngredient = recipe.requiredIngredients
     .map((req) => getIngredient(req.ingredientId))
     .find((ingredient): ingredient is Ingredient => ingredient?.category === "sauce");
 
-  let slot = 0;
-  const pieceGroups: PlayerReferencePieceGroup[] = [];
+  const groups: { ingredientId: string; count: number }[] = [];
   for (const req of recipe.requiredIngredients) {
     const ingredient = getIngredient(req.ingredientId);
     if (!ingredient || ingredient.category === "sauce") continue;
-    const positions: { x: number; y: number }[] = [];
-    for (let i = 0; i < req.minCount; i += 1) {
-      positions.push(PIECE_RING_POSITIONS[slot % PIECE_RING_POSITIONS.length]);
-      slot += 1;
-    }
-    pieceGroups.push({ ingredientId: ingredient.id, positions });
+    groups.push({ ingredientId: ingredient.id, count: req.minCount });
   }
+  const pieceGroups: PlayerReferencePieceGroup[] = assignReferenceSlots(groups);
 
   return {
     recipeId: recipe.id,
