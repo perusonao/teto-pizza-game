@@ -365,6 +365,13 @@ Still out of scope:
 
 ---
 
+Implementation note (RT-01b): the interleave for n ≥ 9 is implemented as a turn-based
+farthest-slot assignment. Groups still alternate turns, and each later piece takes the free
+slot farthest from its own group's earlier pieces. This is the same approved "interleaved" rule,
+refined over plain round-robin: at 12 pieces the minimum same-ingredient distance rises from 19.2
+to 34.2, and at 15 pieces from 20.2 to 34.9. The prototype tool uses the same rule. Results:
+`docs/reports/TETO_RT01_RT01A-B_Reference-Capacity_Result.md`.
+
 Verdict before the decision: OWNER DECISION REQUIRED.
 
 **Current verdict: RT-01 IMPLEMENTATION READY** (Owner Decision RT-01-OD-1 approved).

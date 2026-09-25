@@ -325,8 +325,8 @@ def overlapping_pairs(pts, footprint: float) -> int:
 
 
 def assign_groups(pts, groups, mode: str) -> list[dict]:
-    """consecutive = legacy playerReference behaviour; interleaved = round-robin over
-    angle-sorted slots so every ingredient spreads around the pizza."""
+    """consecutive = legacy playerReference behaviour; interleaved = turn-based farthest-slot
+    assignment over angle-sorted slots so every ingredient spreads around the pizza."""
     if mode == "consecutive":
         order = list(range(len(pts)))
         seq = [g["ingredientId"] for g in groups for _ in range(g["minCount"])]
@@ -338,13 +338,30 @@ def assign_groups(pts, groups, mode: str) -> list[dict]:
             return (0, -round(math.dist((x, y), (CENTER, CENTER)), 1),
                     (math.atan2(y - CENTER, x - CENTER) + math.pi / 2) % (2 * math.pi))
         order = sorted(range(len(pts)), key=ang)
-        remaining = [[g["ingredientId"], g["minCount"]] for g in groups]
-        seq = []
-        while any(c > 0 for _, c in remaining):
-            for item in remaining:
-                if item[1] > 0:
-                    seq.append(item[0])
-                    item[1] -= 1
+        # Turn-based interleave (RT-01b): each group's first piece takes the first free slot in
+        # angle order; every later piece takes the free slot farthest from its own group's
+        # earlier pieces (earliest on a tie). Mirrors src/logic/pizzaReferenceLayout.ts.
+        free = list(order)
+        remaining = [g["minCount"] for g in groups]
+        placed: list[list[int]] = [[] for _ in groups]
+        while any(c > 0 for c in remaining):
+            for gi in range(len(groups)):
+                if remaining[gi] <= 0:
+                    continue
+                pick = 0
+                if placed[gi]:
+                    best = -1.0
+                    for idx, s2 in enumerate(free):
+                        d = round(min(math.dist(pts[s2], pts[p]) for p in placed[gi]), 6)
+                        if d > best:
+                            best, pick = d, idx
+                placed[gi].append(free.pop(pick))
+                remaining[gi] -= 1
+        result = []
+        for g, slots in zip(groups, placed):
+            result.append({"ingredientId": g["ingredientId"],
+                           "positions": [{"x": pts[i][0], "y": pts[i][1]} for i in slots]})
+        return result
     out: dict[str, list] = {}
     for slot, ing in zip(order, seq):
         out.setdefault(ing, []).append({"x": pts[slot][0], "y": pts[slot][1]})

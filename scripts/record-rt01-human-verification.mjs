@@ -108,7 +108,8 @@ async function record(vp) {
 
   // Scene 2: Making -- Meat Lovers (8 pieces) mini 見本 + popover.
   await page.getByRole("button", { name: /ミートラヴァーズ、/ }).first().click();
-  await hold(page, 1200);
+  await caption(page, "② ミートラヴァーズ（8個）を選択 → 調理へ");
+  await hold(page, 1500);
   await page.getByRole("button", { name: /このピザを作る/ }).click();
   await page.waitForSelector(".mini-reference");
   await caption(page, "② 調理画面: ミートラヴァーズ（8個）のミニ見本（変化なし）");
