@@ -10,6 +10,7 @@ import type { CutEvaluation } from "../logic/cut/types";
 import { STEP_LABEL } from "../data/makingStepLabels";
 import type { DiscoveryOutcome } from "../logic/discovery/matcher";
 import { getIngredient } from "../data/ingredients";
+import { IngredientGlyph } from "./IngredientGlyph";
 
 interface ResultPanelProps {
   /** Completion Gate Phase 1: when this is `{ status: "FAILED" }`, every prop below except
@@ -219,7 +220,13 @@ export function ResultPanel({
                 const ingredient = getIngredient(id);
                 return (
                   <li key={id} className="original-pizza__ingredient">
-                    {ingredient ? `${ingredient.emoji} ${ingredient.nameJa}` : id}
+                    {ingredient ? (
+                      <>
+                        <IngredientGlyph ingredient={ingredient} /> {ingredient.nameJa}
+                      </>
+                    ) : (
+                      id
+                    )}
                   </li>
                 );
               })}

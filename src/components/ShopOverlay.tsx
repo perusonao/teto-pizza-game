@@ -12,6 +12,7 @@ import { ingredientState, recipesUnlockedByIngredient } from "../state/progressi
 import { totalStars } from "../logic/mastery";
 import type { DexState } from "../state/dex";
 import { remainingStock, type InventoryState } from "../state/inventory";
+import { IngredientGlyph } from "./IngredientGlyph";
 
 interface ShopOverlayProps {
   dex: DexState;
@@ -242,7 +243,9 @@ export function ShopOverlay({
                   <div key={ingredient.id} className="shop-item">
                     <div className="shop-item__row">
                       <div className="shop-item__info">
-                        <span className="shop-item__emoji">{ingredient.emoji}</span>
+                        <span className="shop-item__emoji">
+                          <IngredientGlyph ingredient={ingredient} />
+                        </span>
                         <span className="shop-item__name">{ingredient.nameJa}</span>
                       </div>
 

@@ -17,6 +17,7 @@ import { hasPieceDragIntent } from "../logic/pieceDrag";
 import type { Recipe } from "../data/recipes";
 import { canPlaceIngredient, remainingStock, type InventoryState } from "../state/inventory";
 import type { PizzaState } from "../state/pizzaState";
+import { IngredientGlyph } from "./IngredientGlyph";
 
 /**
  * PR-A (Issue #167 §9): the Phase 0 Fresh Audit's own follow-up review found the `∞` badge's
@@ -452,7 +453,9 @@ export function IngredientTray({
             <IngredientPieceVisual ingredient={ingredient} />
           </span>
         ) : (
-          <span className="ingredient-chip__emoji">{ingredient.emoji}</span>
+          <span className="ingredient-chip__emoji">
+            <IngredientGlyph ingredient={ingredient} />
+          </span>
         )}
         <span className="ingredient-chip__name">{ingredient.nameJa}</span>
         {renderStockBadge(stock)}
@@ -535,7 +538,9 @@ export function IngredientTray({
           {preview.ingredient.category === "cheese" ? (
             <IngredientPieceVisual ingredient={preview.ingredient} />
           ) : (
-            <span className="piece-drag-preview__emoji">{preview.ingredient.emoji}</span>
+            <span className="piece-drag-preview__emoji">
+              <IngredientGlyph ingredient={preview.ingredient} />
+            </span>
           )}
         </div>
       )}

@@ -3,6 +3,7 @@ import { getIngredient } from "../data/ingredients";
 import type { DexState } from "../state/dex";
 import { totalStars } from "../logic/mastery";
 import { starLabel } from "../logic/scoring";
+import { IngredientGlyph } from "./IngredientGlyph";
 
 interface DexOverlayProps {
   dex: DexState;
@@ -71,7 +72,7 @@ export function DexOverlay({ dex, newlyDiscoveredId, newBestRecipeId, onClose }:
                       const ingredient = getIngredient(req.ingredientId);
                       return (
                         <span key={req.ingredientId} className="dex-card__ingredient">
-                          {ingredient?.emoji} {ingredient?.nameJa}
+                          {ingredient ? <IngredientGlyph ingredient={ingredient} /> : null} {ingredient?.nameJa}
                         </span>
                       );
                     })}

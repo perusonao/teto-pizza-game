@@ -1,0 +1,115 @@
+{
+  "captures": 22,
+  "report": [
+    {
+      "name": "01-home",
+      "differingPixels": 0,
+      "exactChangedPixels": 0
+    },
+    {
+      "name": "02-pizza-select-0",
+      "differingPixels": 0,
+      "exactChangedPixels": 0
+    },
+    {
+      "name": "02-pizza-select-1",
+      "differingPixels": 0,
+      "exactChangedPixels": 0
+    },
+    {
+      "name": "02-pizza-select-2",
+      "differingPixels": 0,
+      "exactChangedPixels": 0
+    },
+    {
+      "name": "03-tray-sauce-p1",
+      "differingPixels": 0,
+      "exactChangedPixels": 0
+    },
+    {
+      "name": "04-tray-cheese-p1",
+      "differingPixels": 0,
+      "exactChangedPixels": 0
+    },
+    {
+      "name": "05-tray-topping-p1",
+      "differingPixels": 0,
+      "exactChangedPixels": 0
+    },
+    {
+      "name": "05-tray-topping-p2",
+      "differingPixels": 0,
+      "exactChangedPixels": 0
+    },
+    {
+      "name": "05-tray-topping-p3",
+      "differingPixels": 0,
+      "exactChangedPixels": 0
+    },
+    {
+      "name": "06-pizza-raw",
+      "differingPixels": 0,
+      "exactChangedPixels": 0
+    },
+    {
+      "name": "07-bake",
+      "differingPixels": 0,
+      "exactChangedPixels": 0
+    },
+    {
+      "name": "08-result-0",
+      "differingPixels": 0,
+      "exactChangedPixels": 0
+    },
+    {
+      "name": "09-inventory-0",
+      "differingPixels": 0,
+      "exactChangedPixels": 0
+    },
+    {
+      "name": "09-inventory-1",
+      "differingPixels": 0,
+      "exactChangedPixels": 0
+    },
+    {
+      "name": "10-shop-0",
+      "differingPixels": 0,
+      "exactChangedPixels": 0
+    },
+    {
+      "name": "10-shop-1",
+      "differingPixels": 0,
+      "exactChangedPixels": 0
+    },
+    {
+      "name": "10-shop-2",
+      "differingPixels": 0,
+      "exactChangedPixels": 0
+    },
+    {
+      "name": "11-dex-0",
+      "differingPixels": 0,
+      "exactChangedPixels": 0
+    },
+    {
+      "name": "11-dex-1",
+      "differingPixels": 0,
+      "exactChangedPixels": 0
+    },
+    {
+      "name": "11-dex-2",
+      "differingPixels": 0,
+      "exactChangedPixels": 0
+    },
+    {
+      "name": "11-dex-3",
+      "differingPixels": 0,
+      "exactChangedPixels": 0
+    },
+    {
+      "name": "11-dex-4",
+      "differingPixels": 0,
+      "exactChangedPixels": 0
+    }
+  ]
+}
