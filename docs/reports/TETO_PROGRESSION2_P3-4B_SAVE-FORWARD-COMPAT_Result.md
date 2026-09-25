@@ -107,3 +107,34 @@ Save compatibility policy:
 - Extra fields inside a Dex entry, ids outside `^[a-z0-9][a-z0-9_-]{0,63}$`, non-integer values, a changed
   meaning of an existing field, and a `schemaVersion` bump are **not** preserved. Progression 2.0
   must add new data as new top-level keys on schemaVersion 2.
+
+## 6. I0 Final Merge Gate (2026-09-25)
+
+Audited main `1e53baa`. PR head `edfca8b` was brought up to date with main via merge commit
+`1672d95` (tree identical to a local `edfca8b` + `1e53baa` merge). `persistence.ts` is unchanged
+on main since this PR's base `d6b6ef9`.
+
+| # | Check | Result |
+|---|---|---|
+| 1 | Diff scope | 4 files: `persistence.ts`, its unit test, one e2e spec, this report. No content/UI/economy change. |
+| 2 | Migration semantics | v1 → v2 unchanged; unrecognized `schemaVersion` still falls back to defaults and contributes no extras. |
+| 3 | Unknown id preservation | Dex / owned / inventory / claimed-ledger unknown ids kept (well-formed only). |
+| 4 | Known-id behavior | `loadSave` output unchanged; known ids validated as before and win on merge. |
+| 5 | Malformed data | Bad ids, NaN, negative/fractional, wrong shapes, `__proto__` dropped. |
+| 6 | Rollback | Floor as in §5; a save without future data is written byte-identically. |
+| 7 | Starter grant ledger | Unknown claimed ids appended after known ones, deduplicated. |
+| 8 | `unlockedForShopIngredientIds` | Kept verbatim through all three write paths; never exposed by `loadSave`. |
+| 9 | Unknown top-level fields | Kept as-is; known keys always overwrite. |
+| 10 | Write paths | `persistDex` / `persistProgress` / `persistMissionBest` all go through `writeSave`; the only other storage op is reset's `removeItem`. |
+
+Verification on `1672d95`'s tree:
+
+- Local: `vitest` 126 files / 2435 tests pass (persistence: 104). `oxlint`, `tsc -b` and `npm run build` pass.
+- Chromium (local): `save-forward-compat-3-4b` passes at 390×844 and 360×800; the full Chromium e2e suite passes (116/116).
+- WebKit (CI run 36107402994): Full WebKit, 2 projects × 2 shards all pass, and WebKit Gate PASS with coverage verified, `tested_base=1e53baa`.
+
+Verdict: **PASS**, so the PR merges to main.
+
+Deploy: `deploy.yml` automatically publishes GitHub Pages (production) on every push to `main`.
+This save protection must reach production, and soak, before any build carrying new
+recipe/ingredient ids (I5a/I5b) ships.
