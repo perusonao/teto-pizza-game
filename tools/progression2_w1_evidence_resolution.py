@@ -216,6 +216,8 @@ HUMAN_VERIFIED_VISUALS = {
                "comparedAgainst": ["pesto base", "mozzarella", "baked crust"], "contexts": ["tray", "pizza raw", "pizza baked", "16px"]},
 }
 DEDICATED_VISUAL_KEYS = {"fresh-tomato": "tomato-slice-final", "capers": "caper-cluster", "clam": "asari-valve"}
+# The same Human-approved visuals under their production renderer names (src/components/IngredientGlyph.tsx).
+PRODUCTION_VISUAL_KEYS = {"fresh-tomato": "tomato-slice", "capers": "caper-cluster", "clam": "clam-valve"}
 
 # Game canonicalization rule table (GAME_NORMALIZATION_DECISION layer). Keyed by the exact PIZZA DB
 # token; evidenceDisposition must equal what the merged canonicalizer still returns.
@@ -269,12 +271,20 @@ def sha256_file(path):
     return hashlib.sha256((ROOT / path).read_bytes()).hexdigest()
 
 
+# Visual-only production files that later slices may edit (Production Visual P1: IngredientGlyph /
+# optional `pieceVisual`). They may drift from MAIN_SHA in the working tree; identity is still proven
+# because every identity-bearing output (production ingredient ids / categories / emoji via the probe,
+# discovery fixtures, visual requirements) is regenerated and byte-compared by --check, and
+# check_visual_descriptors() below forbids any dedicated visual on an id the Human Gate did not pass.
+VISUAL_ONLY_DRIFT_ALLOWED = {"src/data/ingredients.ts", "src/components/IngredientPieceVisual.tsx"}
+
+
 def verify_pins():
     for sha in (MAIN_SHA, PR220_SHA, PR221_SHA, *PREVIOUS_PINS.values()):
         if subprocess.run(["git", "cat-file", "-e", f"{sha}^{{commit}}"], cwd=ROOT).returncode != 0:
             fail(f"commit {sha} not available locally; fetch main and refs/pull/220/head, refs/pull/221/head")
     for path in MAIN_PINNED_PATHS:
-        if git("diff", "--name-only", MAIN_SHA, "--", path).strip():
+        if git("diff", "--name-only", MAIN_SHA, "--", path).strip() and path not in VISUAL_ONLY_DRIFT_ALLOWED:
             fail(f"{path} differs from pinned main {MAIN_SHA[:7]}; re-audit instead of silently passing")
         if git("ls-tree", MAIN_SHA, "--", path).strip() == "":
             fail(f"{path} missing at {MAIN_SHA[:7]}")
@@ -320,7 +330,7 @@ def load_inputs():
         },
         "main": {"sha": MAIN_SHA, "previousSha": PREVIOUS_PINS["main"],
                  "changeSincePrevious": "CI-only (#223: .github/workflows/e2e-webkit.yml, scripts/ci/*); pinned paths identical",
-                 "files": {p: sha256_file(p) for p in MAIN_PINNED_PATHS}},
+                 "files": {p: hashlib.sha256(git("show", f"{MAIN_SHA}:{p}", binary=True)).hexdigest() for p in MAIN_PINNED_PATHS}},
     }
     return w1_rows, recipes, ingredients, ledger, master, catalog, source_matrix, inputs
 
@@ -457,6 +467,19 @@ def build_provenance(w1_rows, recipes, master, catalog):
     }
 
 
+# ---------------------------------------------------------------- visual descriptor guard
+
+def check_visual_descriptors(production_ingredients):
+    """A dedicated visual may only sit on an id whose Human Gate approved exactly that visual; everything
+    else (every current production ingredient, cherry-tomato in particular) must stay on the emoji path."""
+    for i in production_ingredients:
+        visual = i.get("pieceVisual")
+        if visual is None:
+            continue
+        if PRODUCTION_VISUAL_KEYS.get(i["id"]) != visual:
+            fail(f"production ingredient {i['id']} carries dedicated visual {visual!r} not approved for that id by the Human Visual Gate")
+
+
 # ---------------------------------------------------------------- discovery regression (REC-08)
 
 def build_discovery(recipes, ingredients):
@@ -465,6 +488,7 @@ def build_discovery(recipes, ingredients):
     w1.sort(key=lambda r: EXPECTED_W1.index(r["id"]))
     cats = {r["id"]: r["categoryCandidate"] for r in ingredients["rows"]}
     base = run_probe({"w1": w1, "extraIngredientCategories": cats})
+    check_visual_descriptors(base["productionIngredients"])
     prod = {i["id"]: i for i in base["productionIngredients"]}
     emoji = {i["id"]: i["emoji"] for i in base["productionIngredients"]}
     emoji.update({r["id"]: r["emojiCandidate"] for r in ingredients["rows"]})

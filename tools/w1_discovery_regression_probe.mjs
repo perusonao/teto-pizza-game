@@ -96,7 +96,7 @@ const extraScenarios = (input.extraScenarios ?? []).map((s) => ({ ...s, outcome:
 process.stdout.write(
   JSON.stringify(
     {
-      productionIngredients: INGREDIENTS.map((i) => ({ id: i.id, category: i.category, emoji: i.emoji, color: i.color, nameJa: i.nameJa })),
+      productionIngredients: INGREDIENTS.map((i) => ({ id: i.id, category: i.category, emoji: i.emoji, color: i.color, nameJa: i.nameJa, pieceVisual: i.pieceVisual ?? null })),
       productionTargets: RECIPE_DISCOVERY_CATALOG.map((t) => ({ targetId: t.targetId, items: t.items, sauceBase: t.sauceBase })),
       catalogSize: catalog.length,
       signatureCollisions,
