@@ -27,7 +27,8 @@ import {
  * - **sauce** is the existing mechanical derivation (`computeMechanicalSauceReference`'s ideal
  *   fixture metrics) for the recipe's own sauce -- no new sauce numbers.
  * - **landing / tolerance** follow production: LIGHT_LEAF for the leafy herb (basil),
- *   HEAVY_SQUASH for every other piece; 8/22 everywhere except egg's 14/30.
+ *   HEAVY_SQUASH for every other piece; 8/22 everywhere except egg's 14/30 (OD-I5B-3: the Bismarck / Breakfast
+ *   Pizza egg precedent; RT-01's standard 8/22 does not override it).
  */
 
 export const W1_RECIPE_IDS = [

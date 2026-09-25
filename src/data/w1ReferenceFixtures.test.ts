@@ -154,6 +154,9 @@ describe("landing style / tolerance: production precedent", () => {
     expect(styles.get("basil")).toBe("LIGHT_LEAF");
   });
 
+  // OD-I5B-3 (owner, 2026-09-25): Pizza Portuguesa's egg keeps 14/30 like Bismarck / Breakfast
+  // Pizza. RT-01's "standard 8/22" means the multi-ring layout changes no tolerance; it does not
+  // override egg's own precedent.
   it("8/22 everywhere except egg, which keeps the shipped egg groups' 14/30", () => {
     const shippedEgg = [getReferencePizza("bismarck")!, getReferencePizza("breakfast-pizza")!]
       .flatMap((r) => r.pieceGroups)

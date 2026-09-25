@@ -195,6 +195,7 @@ fixture は見本（mini 見本 / popover）の表示と、score の目標を兼
 | sauce | `computeMechanicalSauceReference` で導出する（機械的な導出で、数値は作らない） |
 | pieceGroups | 7 件は従来の ring（最小間隔 20.0、最大半径 31.4）。3 件は §7 の multi-ring。どちらもリテラルで固定する |
 | landing | basil は LIGHT_LEAF、それ以外は HEAVY_SQUASH |
+| tolerance | 8/22。**egg だけは 14/30**（OD-I5B-3。bismarck / breakfast-pizza と同じ） |
 | sauceProfile | tomato-sauce / pesto は PAINT。New Haven の olive-oil は既存 3 件と同じ PAINT_TEMPORARY |
 | 依存するもの | Completion Gate の `checkSauceQuantity`、#222 の Q factor（minCount = `positions.length`）、bake target、RESULT の score / ★ |
 
@@ -337,6 +338,13 @@ Dex 0 → Free Cooking → Margherita → step 1（egg）という流れも同�
 | **I5b-5** | e2e の更新・追加、Chromium 390/360、Full WebKit、before / after、Human 動画 | `e2e/*`、docs | I5b-4 | docs / e2e |
 
 ## 17. Owner Decisions
+
+### OD-I5B-3 — RESOLVED（owner、2026-09-25。Pizza Portuguesa の egg tolerance）
+
+Pizza Portuguesa の egg の matching tolerance は **14/30 を維持する**。既存の egg の precedent（Bismarck / Breakfast Pizza）と同じ扱い。
+
+- RT-01 の「standard 8/22」は、「multi-ring 化によって tolerance を変えない」という意味として扱う。egg 固有の 14/30 を上書きするものではない。
+- 固定している test: `src/data/w1ReferenceFixtures.test.ts`（「8/22 everywhere except egg」）と、I5b-3 以降の production lookup 経由の test。
 
 ### OD-I5B-2 — RESOLVED（owner、2026-09-25）
 
