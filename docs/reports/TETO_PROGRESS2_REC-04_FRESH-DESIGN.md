@@ -14,14 +14,65 @@
 | `CONFIRMED` | main にあり、owner が承認済み（例: PR #196 の OD-01/OD-02） |
 | `MERGED_DESIGN_BASELINE` | merge 済みの設計文書（#191/#196）の値。owner decision ではない |
 | `RECORDED_IN_OPEN_PR` | 未 merge の PR（#214/#217）で「決定」と記録されている。main の authority ではない |
-| `PROPOSED` | REC-04 の候補値 |
+| `CONFIRMED_OWNER_DECISION` | REC-04 の Owner Decision（OD-REC04-1〜3、2026-09-25）で承認された値 |
+| `DERIVED_FROM_CONFIRMED_RULES` | 承認済みのルールから tool が生成した値（ladder の具体的な順番など）。wave ごとに再生成する |
+| `PROPOSED` | REC-04 の候補値（未承認） |
 | `OWNER_DECISION_REQUIRED` | 実装前に owner が選ぶもの |
 
-## 結論（先に）
+## Owner Decision record（2026-09-25）
 
-**REC-04: READY FOR OWNER DECISION**
+**REC-04 = APPROVED → 再計算の結果 REC-04 = RESOLVED**
 
-推奨は **Candidate A「Discovery Ladder + 無料解放 + 入荷パック購入」**。
+出典: repo owner（perusonao）の REC-04 session での決定（2026-09-25）。
+
+| ID | 決定 | status |
+|---|---|---|
+| **OD-REC04-1 Material Unlock** | **Discovery Ladder を採用。** 新しい pizza を1つ発見するたびに、次の **ordered progression step** を1段階進める（Dex 発見数 ≥ step 番号）。⭐ は material の解放条件に使わない。authority は「1発見 = 任意の材料1個」ではなく、順番付きの step として持つ。各 step は `kind` を持ち、将来は材料以外の解放も扱える。W1 では全 step が `MATERIAL` | `CONFIRMED_OWNER_DECISION` |
+| **OD-REC04-2 First Stock** | 解放直後の在庫は 0。無料の starter stock は付与しない。導線は **NEW MATERIAL → Shop へ移動 → 最初のパックを購入 → Free Cooking**。「解放したが、どこで買えばよいか分からない」状態は禁止。基本材料（tomato sauce / mozzarella / basil）は既存の onboarding starter authority のまま（無限）で、このルールでは上書きしない | `CONFIRMED_OWNER_DECISION` |
+| **OD-REC04-3 Pack / Price** | Shop で1回買うと、ピザ 10 枚分の在庫が増える。パックの在庫量 = **10 × k**（k はその材料の最大 minCount）。価格 tier は **60 / 80 / 100 / 120 Pitz**、補充は各 tier の 50% で **30 / 40 / 50 / 60 Pitz** | `CONFIRMED_OWNER_DECISION` |
+
+⭐ の役割:
+
+- ⭐ を material 解放の通貨にはしない。
+- ⭐ 自体は廃止しない。skill / quality の progression、achievement、今後の capability / content の gate、Lunch Rush などで使える。
+- REC-04 が外すのは、material の入手と ⭐ の直接の依存だけ。
+
+保存単位と表示単位（OD-REC04-3 の確認事項）:
+
+| 項目 | 内容 |
+|---|---|
+| 保存単位 | main のまま。scatter は個数、spread は回数。save の key、値、`schemaVersion` 2 は変えない |
+| 表示単位 | 「ピザ○枚分」。例: 「🍕ピザ10枚分（30個）」 |
+| 保存単位でのパック量 | 10 × k。scatter は個数、spread は k = 1 なので 10 回分 |
+| migration authority | piece / portion の migration は main で未決定。#214 D-2（M4）は `RECORDED_IN_OPEN_PR`、#205 の use モデルは未 merge。REC-04 は save schema を変更しない |
+
+Economy safety の記録（authority record）:
+
+- **W1:** 4つの player profile すべてで、到達 25/25、deadlock 0、unreachable 0、circular prerequisite 0。
+- **101 recipe stress:** 全 profile が完走。
+- **W2+ ECONOMY TUNING ITEM:** 101 規模の ★1 相当では、通貨のための replay（Margherita の焼き直し）が最大 **15 回連続**する。対策の候補は、複数材料の step への束割引、T4 の上限、Lunch Rush の収入。**W1 実装の blocker にはしない。**
+
+再計算した readiness（`--check` が毎回計算する。JSON の `readiness`）:
+
+| 確認項目 | 結果 |
+|---|---|
+| W1 の deadlock 0（4 profile 完走）、25/25 発見 | PASS |
+| unreachable recipe 0 / circular prerequisite 0 / 無意味な解放 0 | PASS |
+| affordability（通貨不足・解放済みなのに使えない・在庫不足の finding が 0） | PASS |
+| 決定性（2回ビルドしてバイト単位で同じ）/ authority pin | PASS |
+| negative control 6/6 | PASS |
+| W1 の7材料 matrix が揃っている / W1 の10 recipe の到達性が揃っている | PASS |
+| 101 規模で全 profile 完走 / onboarding（starter だけで作れるのは Margherita のみ） | PASS |
+
+さらに `--check` は、simulation が使った設定（Dex ladder、解放料 0、初回在庫 0、パック 10、価格 60 / 80 / 100 / 120、補充 30 / 40 / 50 / 60）が承認済みの決定と一致しない場合、W1 matrix の行が「パック = 10 × k、初回在庫 0、解放料 0」に反する場合にも FAIL する。
+
+以下 §「結論」〜§20 は、Owner Decision 前の Fresh Design 本文。記録として残す。§19 の選択肢は上の決定で閉じた。
+
+## 結論（先に・Owner Decision 前の記述）
+
+**REC-04: READY FOR OWNER DECISION**（→ 上の record により **RESOLVED**）
+
+推奨は **Candidate A「Discovery Ladder + 無料解放 + 入荷パック購入」**（→ 採用された）。
 
 1. **解放条件:** 新しいピザを1つ発見するたびに、材料の「入荷ステップ」が1つ進む（Dex 発見数 ≥ step 番号）。
 2. **ステップの作り方:** 各ステップは「新しいレシピを最低1つ完成させる、最小の材料セット」とする。材料ごとの手入力はせず、ルールで生成する。
@@ -388,7 +439,9 @@ negative control:
 | UI | DISCOVERED 画面の「🆕○○が入荷！」通知と、購入への直接導線。Shop の「NEW 入荷」行と「🍕ピザ10枚分（30個） 🪙60」表示 |
 | Lunch Rush | #213 の在庫つき mission pool は、個数のままで接続できる |
 
-## 19. 未解決の Owner Decision（3つだけ）
+## 19. Owner Decision（→ 2026-09-25 に全件決定済み。冒頭の record を参照）
+
+決定: OD-REC04-1 = ①、OD-REC04-2 = ①、OD-REC04-3 = ①。以下は決定前に提示した選択肢。
 
 | ID | 決めること | 選択肢 | 推奨 |
 |---|---|---|---|
@@ -403,15 +456,25 @@ REC-04 では決めないもの（他の issue / PR が持つ）:
 - W1 の description、minCount、bakeTarget（#221 REC-01 / REC-02）
 - ingredient の visual（Production Visual P1）
 
-## 20. 次の実装 slice の案（OD が決まった後）
+## 20. 次の実装 slice の案
 
-1. **S0 決定の記録（docs）:** OD1–3 の結果を JSON の status に反映し（→ `CONFIRMED`）、`--check` を更新する。
+1. **S0 決定の記録（docs）:** 完了。OD の結果を JSON の status に反映し（→ `CONFIRMED_OWNER_DECISION`）、`--check` で readiness を再計算する。
 2. **S1 headless の ladder と economy（src/logic、src/data）:** 生成済み ladder の data、`ladderUnlockedSteps`、購入・補充の純関数、unit test。#205 はこの上に置き直す。
 3. **S2 save の entitlement と forward-compat:** #206 を基に `unlockedForShopIngredientIds` を追加。rollback の test も入れる。
 4. **S3 Shop と解放通知の UI:** NEW 入荷の行、パック表示、DISCOVERED 画面の通知と購入導線。UI 変更なので Human Verification（390×844 の動画と before / after）が必要。
 5. **S4 EP4 grant の引退:** Progression 2.0 の新規 save だけ。既存 save の在庫は保持する。
-6. **S5 W1 content の data:** #221 の REVIEW 項目と P1 visual が解消した後。ham の k の変更（10 → 30 個）も同じ slice で行う。
+6. **S5 W1 content の data:** #221 の REVIEW 項目が解消した後。ham の k の変更（10 → 30 個）も同じ slice で行う。Production Visual P1 は FINAL PASS（実装 `39ce35c`、Human PASS の記録 `802b023`）。この session では P1 branch を変更せず、P2 にも進まない。
 7. **S6 human-feel と balance の確認:** 実機で low と standard 相当の2周をプレイし、W2 に向けた tuning 項目（§16）を判断する。
+
+## 残っている実装の依存関係
+
+- #205 を Discovery Ladder の上に作り直す。material の解放に ⭐ の式の変更は不要になった。
+- #206: unknown ingredient id と `unlockedForShopIngredientIds` の forward-preserve。main の `sanitizeInventory` は、知らない id の在庫を捨てる。
+- #221: REC-01〜03 の content sign-off と、RT-01（Parmigiana / Portuguesa / Puttanesca の reference ring の容量）。
+- #218 / #222: Completion Gate の部分量。REC-04 の数値は下限として成立する。
+- #217 OD216-3: capability の解放方式。W1 では不要。
+- piece / portion の migration authority。REC-04 は schema を変えない。
+- Production Visual P1 は FINAL PASS 済み（依存は解消）。W1 の7材料の production 登録は、まだしていない。
 
 ## 検証
 
