@@ -1,0 +1,1435 @@
+{
+ "_meta": {
+  "kind": "W1 Discovery Integration Gate matrix (docs-only; NOT a runtime authority)",
+  "auditedMain": "12a09de2c4da8ed7e92f1ff9f47dd7bdf824a6e5",
+  "i5b3": "5204a269a813bd4951720737ab9799949bca0f0f (branch claude/teto-pizza-w1-i4a-j46ph0, no PR, no CI run on this SHA)",
+  "discoveryDesign": "a8ef4d9ea954f0c72a4e71936bf2ef66c28774de (branch claude/discovery-recipe-dex-fresh-design-2pp4xn)",
+  "i5b4Branch": "does not exist at audit time",
+  "report": "docs/reports/TETO_PROGRESS2_W1_DISCOVERY_INTEGRATION-GATE.md",
+  "lineNumbersAt": "5204a26"
+ },
+ "stateDerivation": {
+  "inputs": [
+   "dex",
+   "ownedIngredientIds",
+   "unlockedForShopIngredientIds",
+   "inventory"
+  ],
+  "notInputs": [
+   "Recipe.unlockCondition",
+   "Recipe.mysteryLock",
+   "totalStars",
+   "starterGrantClaimedRecipeIds",
+   "preDiscoveryFreeCookAttempts"
+  ],
+  "rules": {
+   "DISCOVERED": "dex entry discovered",
+   "DISCOVERABLE": "not DISCOVERED and every required ingredient is a starter, or OWNED with inventory >= 1 (Issue #215 OD-5: one piece of each discovers)",
+   "KNOWN_BUT_MISSING_MATERIAL": "not above and every finite required ingredient is entitled (ledger or OWNED) -- i.e. NOT_BOUGHT or OUT_OF_STOCK",
+   "UNKNOWN": "otherwise (some finite required ingredient not entitled yet)"
+  },
+  "precedence": [
+   "DISCOVERED",
+   "DISCOVERABLE",
+   "KNOWN_BUT_MISSING_MATERIAL",
+   "UNKNOWN"
+  ],
+  "transient": {
+   "NEWLY_DISCOVERED": "state.justDiscovered && state.recipe.id (existing, never persisted)"
+  },
+  "saveSchemaChange": false,
+  "matcherConsistency": "RECIPE_DISCOVERY_CATALOG items == set(requiredIngredients) for all 25 (discoveryCatalog.ts:53), all ELIGIBLE, 0 duplicate signatures -> DISCOVERABLE <=> a Free Cooking exact-set bake can discover it",
+  "probe": {
+   "method": "scratch vitest probe against 5204a26 runtime modules (not committed)",
+   "result": "fresh save: DISCOVERABLE <= 1 and KBMM <= 1 at every Dex 0..25; the DISCOVERABLE/KBMM recipe is always the next ladder key recipe; Dex 25 all DISCOVERED",
+   "legacyDex15": {
+    "entitledNotOwned": [
+     "eggplant",
+     "corn",
+     "pineapple"
+    ],
+    "states": {
+     "DISCOVERED": [
+      "margherita",
+      "marinara",
+      "quattro-formaggi",
+      "genovese",
+      "bismarck",
+      "funghi",
+      "fugazza",
+      "salsiccia",
+      "pepperoni",
+      "napoletana",
+      "tonno-e-cipolla",
+      "pizza-bianca",
+      "breakfast-pizza",
+      "capricciosa",
+      "meat-lovers"
+     ],
+     "KNOWN_BUT_MISSING_MATERIAL": [
+      "melanzane-pizza",
+      "parmigiana-pizza",
+      "bambino",
+      "hawaiian"
+     ],
+     "DISCOVERABLE": [
+      "pizza-portuguesa",
+      "pesto-tonno"
+     ],
+     "UNKNOWN": [
+      "new-haven-apizza",
+      "pesto-caprese",
+      "pesto-patate",
+      "puttanesca-pizza"
+     ]
+    },
+    "psNewUndiscovered": [
+     "pizza-portuguesa",
+     "pesto-tonno"
+    ]
+   }
+  },
+  "freshLadderWalk": [
+   {
+    "dexCount": 0,
+    "phase": "A_unlocked",
+    "counts": {
+     "DISCOVERABLE": 1,
+     "UNKNOWN": 24
+    },
+    "discoverable": [
+     "margherita"
+    ],
+    "knownButMissingMaterial": [],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [],
+     "pizzaSelectPreDiscoveryLocked_L4": [
+      "margherita"
+     ],
+     "pizzaSelectLockedNamedCount_L2": 23,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 0,
+    "phase": "B_bought",
+    "counts": {
+     "DISCOVERABLE": 1,
+     "UNKNOWN": 24
+    },
+    "discoverable": [
+     "margherita"
+    ],
+    "knownButMissingMaterial": [],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [],
+     "pizzaSelectPreDiscoveryLocked_L4": [
+      "margherita"
+     ],
+     "pizzaSelectLockedNamedCount_L2": 23,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 1,
+    "phase": "A_unlocked",
+    "counts": {
+     "DISCOVERED": 1,
+     "UNKNOWN": 23,
+     "KNOWN_BUT_MISSING_MATERIAL": 1
+    },
+    "discoverable": [],
+    "knownButMissingMaterial": [
+     "bismarck"
+    ],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 23,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 1,
+    "phase": "B_bought",
+    "counts": {
+     "DISCOVERED": 1,
+     "UNKNOWN": 23,
+     "DISCOVERABLE": 1
+    },
+    "discoverable": [
+     "bismarck"
+    ],
+    "knownButMissingMaterial": [],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 23,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 2,
+    "phase": "A_unlocked",
+    "counts": {
+     "DISCOVERED": 2,
+     "UNKNOWN": 22,
+     "KNOWN_BUT_MISSING_MATERIAL": 1
+    },
+    "discoverable": [],
+    "knownButMissingMaterial": [
+     "breakfast-pizza"
+    ],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 22,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 2,
+    "phase": "B_bought",
+    "counts": {
+     "DISCOVERED": 2,
+     "UNKNOWN": 22,
+     "DISCOVERABLE": 1
+    },
+    "discoverable": [
+     "breakfast-pizza"
+    ],
+    "knownButMissingMaterial": [],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 22,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 3,
+    "phase": "A_unlocked",
+    "counts": {
+     "DISCOVERED": 3,
+     "UNKNOWN": 21,
+     "KNOWN_BUT_MISSING_MATERIAL": 1
+    },
+    "discoverable": [],
+    "knownButMissingMaterial": [
+     "funghi"
+    ],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 21,
+     "shopBuyToMake_L2L3": [
+      "mushroom->funghi"
+     ]
+    }
+   },
+   {
+    "dexCount": 3,
+    "phase": "B_bought",
+    "counts": {
+     "DISCOVERED": 3,
+     "UNKNOWN": 21,
+     "DISCOVERABLE": 1
+    },
+    "discoverable": [
+     "funghi"
+    ],
+    "knownButMissingMaterial": [],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [
+      "funghi"
+     ],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 20,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 4,
+    "phase": "A_unlocked",
+    "counts": {
+     "DISCOVERED": 4,
+     "UNKNOWN": 20,
+     "KNOWN_BUT_MISSING_MATERIAL": 1
+    },
+    "discoverable": [],
+    "knownButMissingMaterial": [
+     "melanzane-pizza"
+    ],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 20,
+     "shopBuyToMake_L2L3": [
+      "eggplant->melanzane-pizza"
+     ]
+    }
+   },
+   {
+    "dexCount": 4,
+    "phase": "B_bought",
+    "counts": {
+     "DISCOVERED": 4,
+     "UNKNOWN": 20,
+     "DISCOVERABLE": 1
+    },
+    "discoverable": [
+     "melanzane-pizza"
+    ],
+    "knownButMissingMaterial": [],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [
+      "melanzane-pizza"
+     ],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 19,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 5,
+    "phase": "A_unlocked",
+    "counts": {
+     "DISCOVERED": 5,
+     "UNKNOWN": 19,
+     "KNOWN_BUT_MISSING_MATERIAL": 1
+    },
+    "discoverable": [],
+    "knownButMissingMaterial": [
+     "parmigiana-pizza"
+    ],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 19,
+     "shopBuyToMake_L2L3": [
+      "parmigiano->parmigiana-pizza"
+     ]
+    }
+   },
+   {
+    "dexCount": 5,
+    "phase": "B_bought",
+    "counts": {
+     "DISCOVERED": 5,
+     "UNKNOWN": 19,
+     "DISCOVERABLE": 1
+    },
+    "discoverable": [
+     "parmigiana-pizza"
+    ],
+    "knownButMissingMaterial": [],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [
+      "parmigiana-pizza"
+     ],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 18,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 6,
+    "phase": "A_unlocked",
+    "counts": {
+     "DISCOVERED": 6,
+     "UNKNOWN": 18,
+     "KNOWN_BUT_MISSING_MATERIAL": 1
+    },
+    "discoverable": [],
+    "knownButMissingMaterial": [
+     "pepperoni"
+    ],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 18,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 6,
+    "phase": "B_bought",
+    "counts": {
+     "DISCOVERED": 6,
+     "UNKNOWN": 18,
+     "DISCOVERABLE": 1
+    },
+    "discoverable": [
+     "pepperoni"
+    ],
+    "knownButMissingMaterial": [],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 18,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 7,
+    "phase": "A_unlocked",
+    "counts": {
+     "DISCOVERED": 7,
+     "UNKNOWN": 17,
+     "KNOWN_BUT_MISSING_MATERIAL": 1
+    },
+    "discoverable": [],
+    "knownButMissingMaterial": [
+     "salsiccia"
+    ],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 17,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 7,
+    "phase": "B_bought",
+    "counts": {
+     "DISCOVERED": 7,
+     "UNKNOWN": 17,
+     "DISCOVERABLE": 1
+    },
+    "discoverable": [
+     "salsiccia"
+    ],
+    "knownButMissingMaterial": [],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 17,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 8,
+    "phase": "A_unlocked",
+    "counts": {
+     "DISCOVERED": 8,
+     "UNKNOWN": 16,
+     "KNOWN_BUT_MISSING_MATERIAL": 1
+    },
+    "discoverable": [],
+    "knownButMissingMaterial": [
+     "meat-lovers"
+    ],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 16,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 8,
+    "phase": "B_bought",
+    "counts": {
+     "DISCOVERED": 8,
+     "UNKNOWN": 16,
+     "DISCOVERABLE": 1
+    },
+    "discoverable": [
+     "meat-lovers"
+    ],
+    "knownButMissingMaterial": [],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 16,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 9,
+    "phase": "A_unlocked",
+    "counts": {
+     "DISCOVERED": 9,
+     "UNKNOWN": 15,
+     "KNOWN_BUT_MISSING_MATERIAL": 1
+    },
+    "discoverable": [],
+    "knownButMissingMaterial": [
+     "bambino"
+    ],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 15,
+     "shopBuyToMake_L2L3": [
+      "corn->bambino"
+     ]
+    }
+   },
+   {
+    "dexCount": 9,
+    "phase": "B_bought",
+    "counts": {
+     "DISCOVERED": 9,
+     "UNKNOWN": 15,
+     "DISCOVERABLE": 1
+    },
+    "discoverable": [
+     "bambino"
+    ],
+    "knownButMissingMaterial": [],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [
+      "bambino"
+     ],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 14,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 10,
+    "phase": "A_unlocked",
+    "counts": {
+     "DISCOVERED": 10,
+     "UNKNOWN": 14,
+     "KNOWN_BUT_MISSING_MATERIAL": 1
+    },
+    "discoverable": [],
+    "knownButMissingMaterial": [
+     "hawaiian"
+    ],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 14,
+     "shopBuyToMake_L2L3": [
+      "pineapple->hawaiian"
+     ]
+    }
+   },
+   {
+    "dexCount": 10,
+    "phase": "B_bought",
+    "counts": {
+     "DISCOVERED": 10,
+     "UNKNOWN": 14,
+     "DISCOVERABLE": 1
+    },
+    "discoverable": [
+     "hawaiian"
+    ],
+    "knownButMissingMaterial": [],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [
+      "hawaiian"
+     ],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 13,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 11,
+    "phase": "A_unlocked",
+    "counts": {
+     "DISCOVERED": 11,
+     "UNKNOWN": 13,
+     "KNOWN_BUT_MISSING_MATERIAL": 1
+    },
+    "discoverable": [],
+    "knownButMissingMaterial": [
+     "capricciosa"
+    ],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 13,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 11,
+    "phase": "B_bought",
+    "counts": {
+     "DISCOVERED": 11,
+     "UNKNOWN": 13,
+     "DISCOVERABLE": 1
+    },
+    "discoverable": [
+     "capricciosa"
+    ],
+    "knownButMissingMaterial": [],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [
+      "capricciosa"
+     ],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 12,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 12,
+    "phase": "A_unlocked",
+    "counts": {
+     "DISCOVERED": 12,
+     "UNKNOWN": 12,
+     "KNOWN_BUT_MISSING_MATERIAL": 1
+    },
+    "discoverable": [],
+    "knownButMissingMaterial": [
+     "pizza-portuguesa"
+    ],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 12,
+     "shopBuyToMake_L2L3": [
+      "onion->pizza-portuguesa"
+     ]
+    }
+   },
+   {
+    "dexCount": 12,
+    "phase": "B_bought",
+    "counts": {
+     "DISCOVERED": 12,
+     "UNKNOWN": 12,
+     "DISCOVERABLE": 1
+    },
+    "discoverable": [
+     "pizza-portuguesa"
+    ],
+    "knownButMissingMaterial": [],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [
+      "pizza-portuguesa"
+     ],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 11,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 13,
+    "phase": "A_unlocked",
+    "counts": {
+     "DISCOVERED": 13,
+     "UNKNOWN": 11,
+     "KNOWN_BUT_MISSING_MATERIAL": 1
+    },
+    "discoverable": [],
+    "knownButMissingMaterial": [
+     "fugazza"
+    ],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 11,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 13,
+    "phase": "B_bought",
+    "counts": {
+     "DISCOVERED": 13,
+     "UNKNOWN": 11,
+     "DISCOVERABLE": 1
+    },
+    "discoverable": [
+     "fugazza"
+    ],
+    "knownButMissingMaterial": [],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 11,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 14,
+    "phase": "A_unlocked",
+    "counts": {
+     "DISCOVERED": 14,
+     "KNOWN_BUT_MISSING_MATERIAL": 1,
+     "UNKNOWN": 10
+    },
+    "discoverable": [],
+    "knownButMissingMaterial": [
+     "marinara"
+    ],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 11,
+     "shopBuyToMake_L2L3": [
+      "garlic->marinara"
+     ]
+    }
+   },
+   {
+    "dexCount": 14,
+    "phase": "B_bought",
+    "counts": {
+     "DISCOVERED": 14,
+     "DISCOVERABLE": 1,
+     "UNKNOWN": 10
+    },
+    "discoverable": [
+     "marinara"
+    ],
+    "knownButMissingMaterial": [],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [
+      "marinara"
+     ],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 10,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 15,
+    "phase": "A_unlocked",
+    "counts": {
+     "DISCOVERED": 15,
+     "UNKNOWN": 9,
+     "KNOWN_BUT_MISSING_MATERIAL": 1
+    },
+    "discoverable": [],
+    "knownButMissingMaterial": [
+     "napoletana"
+    ],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 10,
+     "shopBuyToMake_L2L3": [
+      "anchovy->napoletana"
+     ]
+    }
+   },
+   {
+    "dexCount": 15,
+    "phase": "B_bought",
+    "counts": {
+     "DISCOVERED": 15,
+     "UNKNOWN": 9,
+     "DISCOVERABLE": 1
+    },
+    "discoverable": [
+     "napoletana"
+    ],
+    "knownButMissingMaterial": [],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [
+      "napoletana"
+     ],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 9,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 16,
+    "phase": "A_unlocked",
+    "counts": {
+     "DISCOVERED": 16,
+     "UNKNOWN": 8,
+     "KNOWN_BUT_MISSING_MATERIAL": 1
+    },
+    "discoverable": [],
+    "knownButMissingMaterial": [
+     "tonno-e-cipolla"
+    ],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 9,
+     "shopBuyToMake_L2L3": [
+      "tuna->tonno-e-cipolla"
+     ]
+    }
+   },
+   {
+    "dexCount": 16,
+    "phase": "B_bought",
+    "counts": {
+     "DISCOVERED": 16,
+     "UNKNOWN": 8,
+     "DISCOVERABLE": 1
+    },
+    "discoverable": [
+     "tonno-e-cipolla"
+    ],
+    "knownButMissingMaterial": [],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [
+      "tonno-e-cipolla"
+     ],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 8,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 17,
+    "phase": "A_unlocked",
+    "counts": {
+     "DISCOVERED": 17,
+     "UNKNOWN": 7,
+     "KNOWN_BUT_MISSING_MATERIAL": 1
+    },
+    "discoverable": [],
+    "knownButMissingMaterial": [
+     "pesto-tonno"
+    ],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 8,
+     "shopBuyToMake_L2L3": [
+      "pesto->pesto-tonno"
+     ]
+    }
+   },
+   {
+    "dexCount": 17,
+    "phase": "B_bought",
+    "counts": {
+     "DISCOVERED": 17,
+     "UNKNOWN": 7,
+     "DISCOVERABLE": 1
+    },
+    "discoverable": [
+     "pesto-tonno"
+    ],
+    "knownButMissingMaterial": [],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [
+      "pesto-tonno"
+     ],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 7,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 18,
+    "phase": "A_unlocked",
+    "counts": {
+     "DISCOVERED": 18,
+     "UNKNOWN": 6,
+     "KNOWN_BUT_MISSING_MATERIAL": 1
+    },
+    "discoverable": [],
+    "knownButMissingMaterial": [
+     "genovese"
+    ],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 7,
+     "shopBuyToMake_L2L3": [
+      "cherry-tomato->genovese"
+     ]
+    }
+   },
+   {
+    "dexCount": 18,
+    "phase": "B_bought",
+    "counts": {
+     "DISCOVERED": 18,
+     "UNKNOWN": 6,
+     "DISCOVERABLE": 1
+    },
+    "discoverable": [
+     "genovese"
+    ],
+    "knownButMissingMaterial": [],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [
+      "genovese"
+     ],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 6,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 19,
+    "phase": "A_unlocked",
+    "counts": {
+     "DISCOVERED": 19,
+     "UNKNOWN": 5,
+     "KNOWN_BUT_MISSING_MATERIAL": 1
+    },
+    "discoverable": [],
+    "knownButMissingMaterial": [
+     "new-haven-apizza"
+    ],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 6,
+     "shopBuyToMake_L2L3": [
+      "clam->new-haven-apizza"
+     ]
+    }
+   },
+   {
+    "dexCount": 19,
+    "phase": "B_bought",
+    "counts": {
+     "DISCOVERED": 19,
+     "UNKNOWN": 5,
+     "DISCOVERABLE": 1
+    },
+    "discoverable": [
+     "new-haven-apizza"
+    ],
+    "knownButMissingMaterial": [],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [
+      "new-haven-apizza"
+     ],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 5,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 20,
+    "phase": "A_unlocked",
+    "counts": {
+     "DISCOVERED": 20,
+     "UNKNOWN": 4,
+     "KNOWN_BUT_MISSING_MATERIAL": 1
+    },
+    "discoverable": [],
+    "knownButMissingMaterial": [
+     "pesto-caprese"
+    ],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 5,
+     "shopBuyToMake_L2L3": [
+      "fresh-tomato->pesto-caprese"
+     ]
+    }
+   },
+   {
+    "dexCount": 20,
+    "phase": "B_bought",
+    "counts": {
+     "DISCOVERED": 20,
+     "UNKNOWN": 4,
+     "DISCOVERABLE": 1
+    },
+    "discoverable": [
+     "pesto-caprese"
+    ],
+    "knownButMissingMaterial": [],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [
+      "pesto-caprese"
+     ],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 4,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 21,
+    "phase": "A_unlocked",
+    "counts": {
+     "DISCOVERED": 21,
+     "UNKNOWN": 3,
+     "KNOWN_BUT_MISSING_MATERIAL": 1
+    },
+    "discoverable": [],
+    "knownButMissingMaterial": [
+     "pesto-patate"
+    ],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 4,
+     "shopBuyToMake_L2L3": [
+      "potato->pesto-patate"
+     ]
+    }
+   },
+   {
+    "dexCount": 21,
+    "phase": "B_bought",
+    "counts": {
+     "DISCOVERED": 21,
+     "UNKNOWN": 3,
+     "DISCOVERABLE": 1
+    },
+    "discoverable": [
+     "pesto-patate"
+    ],
+    "knownButMissingMaterial": [],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [
+      "pesto-patate"
+     ],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 3,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 22,
+    "phase": "A_unlocked",
+    "counts": {
+     "DISCOVERED": 22,
+     "UNKNOWN": 2,
+     "KNOWN_BUT_MISSING_MATERIAL": 1
+    },
+    "discoverable": [],
+    "knownButMissingMaterial": [
+     "pizza-bianca"
+    ],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 3,
+     "shopBuyToMake_L2L3": [
+      "rosemary->pizza-bianca"
+     ]
+    }
+   },
+   {
+    "dexCount": 22,
+    "phase": "B_bought",
+    "counts": {
+     "DISCOVERED": 22,
+     "UNKNOWN": 2,
+     "DISCOVERABLE": 1
+    },
+    "discoverable": [
+     "pizza-bianca"
+    ],
+    "knownButMissingMaterial": [],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [
+      "pizza-bianca"
+     ],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 2,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 23,
+    "phase": "A_unlocked",
+    "counts": {
+     "DISCOVERED": 23,
+     "UNKNOWN": 1,
+     "KNOWN_BUT_MISSING_MATERIAL": 1
+    },
+    "discoverable": [],
+    "knownButMissingMaterial": [
+     "puttanesca-pizza"
+    ],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 2,
+     "shopBuyToMake_L2L3": [
+      "capers->puttanesca-pizza"
+     ]
+    }
+   },
+   {
+    "dexCount": 23,
+    "phase": "B_bought",
+    "counts": {
+     "DISCOVERED": 23,
+     "UNKNOWN": 1,
+     "DISCOVERABLE": 1
+    },
+    "discoverable": [
+     "puttanesca-pizza"
+    ],
+    "knownButMissingMaterial": [],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [
+      "puttanesca-pizza"
+     ],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 1,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 24,
+    "phase": "A_unlocked",
+    "counts": {
+     "DISCOVERED": 24,
+     "KNOWN_BUT_MISSING_MATERIAL": 1
+    },
+    "discoverable": [],
+    "knownButMissingMaterial": [
+     "quattro-formaggi"
+    ],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 1,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 24,
+    "phase": "B_bought",
+    "counts": {
+     "DISCOVERED": 24,
+     "DISCOVERABLE": 1
+    },
+    "discoverable": [
+     "quattro-formaggi"
+    ],
+    "knownButMissingMaterial": [],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [
+      "quattro-formaggi"
+     ],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 0,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 25,
+    "phase": "A_unlocked",
+    "counts": {
+     "DISCOVERED": 25
+    },
+    "discoverable": [],
+    "knownButMissingMaterial": [],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 0,
+     "shopBuyToMake_L2L3": []
+    }
+   },
+   {
+    "dexCount": 25,
+    "phase": "B_bought",
+    "counts": {
+     "DISCOVERED": 25
+    },
+    "discoverable": [],
+    "knownButMissingMaterial": [],
+    "currentLeaks": {
+     "pizzaSelectNewUndiscovered_L4": [],
+     "pizzaSelectPreDiscoveryLocked_L4": [],
+     "pizzaSelectLockedNamedCount_L2": 0,
+     "shopBuyToMake_L2L3": []
+    }
+   }
+  ]
+ },
+ "leakInventoryAt5204a26": [
+  {
+   "id": "LK-1",
+   "where": "Pizza Select NEW card (PizzaSelectScreen.tsx:113/183 PizzaThumbnail + name)",
+   "probeCount": "18 of 24 key recipes become NEW while undiscovered on the ★3 ladder walk"
+  },
+  {
+   "id": "LK-2",
+   "where": "guided round from NEW card: ReferencePreview + RECIPE_HINTS; REGISTER_TO_DEX registers the selected recipe via registerScoreToDex (gameReducer.ts:1108) -> recipe-first discovery"
+  },
+  {
+   "id": "LK-3",
+   "where": "Pizza Select LOCKED card name (non-mystery) + EP1 unlockHintFor text",
+   "probeCount": "23 named LOCKED cards at Dex 0 (all but margherita and fugazza); W1 LOCKED cards show a name and no hint"
+  },
+  {
+   "id": "LK-4",
+   "where": "Dex-0 margherita preDiscoveryLocked card shows name + thumbnail"
+  },
+  {
+   "id": "LK-5",
+   "where": "Shop NEW row 'これを買うと' (ShopOverlay.tsx:285) + post-purchase '新しいピザが作れます！' (ShopOverlay.tsx:181)",
+   "probeCount": "16 of 24 NEW material rows name the key recipe"
+  },
+  {
+   "id": "LK-7",
+   "where": "W1 10 recipes have no unlockCondition -> LK-1/2/3/5 unconditionally",
+   "status": "CONFIRMED at 5204a26"
+  },
+  {
+   "id": "LK-8",
+   "where": "NEW (not in design a8ef4d9): nextOrderState/getNextOrder prefers UNDISCOVERED available recipes (orders.ts:214). Reachable via Lunch Rush RESULT 'フリープレイへ' (exitMissionToFree -> PLAY_AGAIN) -> GAME ORDER phase naming the recipe (buildTetoOrderLine) -> 'フリープレイ' (BEGIN_PREPARE) -> guided round with reference -> discovery",
+   "status": "code-read confirmed; not runtime-reproduced"
+  },
+  {
+   "id": "LK-8b",
+   "where": "handleGoHome from PREPARE/BAKE dispatches PLAY_AGAIN (parks an undiscovered ORDER); Lunch Rush intro '閉じる' then shows that parked ORDER in GAME",
+   "status": "code-read; plausible"
+  }
+ ],
+ "w1": {
+  "W1-a": {
+   "title": "state model + Pizza Select A′",
+   "optional": false,
+   "items": [
+    {
+     "file": "src/state/recipeDiscoveryState.ts (new)",
+     "function": "recipeDiscoveryState / recipeDiscoveryStates / discoveryCounts",
+     "currentBehavior": "absent",
+     "requiredBehavior": "pure derivation per stateDerivation",
+     "dataDependency": "dex, owned, ledger, inventory, RECIPES",
+     "saveImpact": "none",
+     "migrationImpact": "none",
+     "testImpact": "new unit: 25 x Dex 0/1/5/15/24/25 x A/B phases, legacy Dex15, out-of-stock, EP1 fields mutated -> identical result",
+     "i5b4Conflict": "low (new file)"
+    },
+    {
+     "file": "src/state/pizzaSelect.ts:50",
+     "function": "recipeCardState",
+     "currentBehavior": "COMPLETED/NEW/LOCKED from isRecipeAvailable (EP1 + ownership)",
+     "requiredBehavior": "DISCOVERED -> card; undiscovered -> not a card; add derived promptCard (DISCOVERABLE>=1 -> Free Cooking, else KBMM>=1 -> Shop, else none)",
+     "dataDependency": "state model",
+     "saveImpact": "none",
+     "migrationImpact": "none",
+     "testImpact": "pizzaSelect.test.ts NEW/LOCKED/preDiscoveryLocked cases rewritten",
+     "i5b4Conflict": "HIGH: same file as I5b-4c/4d"
+    },
+    {
+     "file": "src/screens/PizzaSelectScreen.tsx:93-288",
+     "function": "RecipeGridCard / RecipeDetail / PizzaSelectScreen",
+     "currentBehavior": "renders all RECIPES incl. locked names + NEW thumbnails; props dex+owned only",
+     "requiredBehavior": "render DISCOVERED only + anonymous prompt card; chapter headers 'n/m'; Dex-0 empty state; new props ledger+inventory+onOpenShop",
+     "dataDependency": "App.tsx:854 props",
+     "saveImpact": "none",
+     "migrationImpact": "none",
+     "testImpact": "PizzaSelectScreen.test.tsx majority rewritten; e2e p3-3-onboarding margherita-card steps rewritten",
+     "i5b4Conflict": "HIGH: I5b-4c"
+    },
+    {
+     "file": "src/state/gameReducer.ts:1199-1215",
+     "function": "SELECT_RECIPE",
+     "currentBehavior": "undiscovered available recipe is guided-selectable once Dex>=1",
+     "requiredBehavior": "reject unless isDiscovered(dex, recipeId) for every Dex count (backstop for A′)",
+     "dataDependency": "dex",
+     "saveImpact": "none",
+     "migrationImpact": "none",
+     "testImpact": "w1Activation.test.tsx:110/154 and gameReducer.*.test.ts fixtures that SELECT an undiscovered recipe must seed it discovered",
+     "i5b4Conflict": "MED: reducer shared"
+    },
+    {
+     "file": "src/state/gameReducer.ts:472 + src/data/orders.ts:206",
+     "function": "nextOrderState / getNextOrder",
+     "currentBehavior": "prefers undiscovered available recipe for FREE ORDER rounds (LK-8)",
+     "requiredBehavior": "FREE pool = discovered ∩ available (same rule as pickMissionOrder); Dex 0 fallback must not produce a guided undiscovered round (keep ORDER unreachable or margherita preDiscovery gate)",
+     "dataDependency": "dex, availableRecipeIds",
+     "saveImpact": "none",
+     "migrationImpact": "none",
+     "testImpact": "orders.test.ts undiscovered-priority tests change meaning; gameReducer tests relying on PLAY_AGAIN picking a new recipe",
+     "i5b4Conflict": "MED"
+    },
+    {
+     "file": "src/state/gameReducer.ts:593",
+     "function": "BEGIN_PREPARE",
+     "currentBehavior": "no discovery guard",
+     "requiredBehavior": "FREE (non-mission) BEGIN_PREPARE on an undiscovered recipe must not start a guided round (belt-and-braces for LK-8b)",
+     "dataDependency": "dex",
+     "saveImpact": "none",
+     "migrationImpact": "none",
+     "testImpact": "new reducer test",
+     "i5b4Conflict": "LOW"
+    }
+   ]
+  },
+  "W1-b": {
+   "title": "Shop: remove undiscovered recipe names",
+   "optional": false,
+   "items": [
+    {
+     "file": "src/components/ShopOverlay.tsx:84,132,181,231,285",
+     "function": "unlockedRecipeNames / handleBuy feedback / row unlocksLabel",
+     "currentBehavior": "names recipes via recipesUnlockedByIngredient (L2+L3)",
+     "requiredBehavior": "remove names; NEW row -> '🎨 新しいピザのヒントになるかも' only when buying raises DISCOVERABLE count; post-purchase -> '📦 ○○を仕入れました！ 🎨 フリークッキングで使ってみよう'",
+     "dataDependency": "state model (hypothetical owned+inventory)",
+     "saveImpact": "none",
+     "migrationImpact": "none",
+     "testImpact": "ShopOverlay.test.tsx additions; progression.test.ts keeps recipesUnlockedByIngredient (legacy) tests",
+     "i5b4Conflict": "LOW (I5b-4 does not touch Shop)"
+    }
+   ]
+  },
+  "W1-c": {
+   "title": "EP1 out of display/gate, legacy data kept",
+   "optional": false,
+   "items": [
+    {
+     "file": "src/state/pizzaSelect.ts:29",
+     "function": "unlockHintFor",
+     "currentBehavior": "EP1 text on LOCKED cards",
+     "requiredBehavior": "no longer called by UI (dead or deleted with its tests)",
+     "dataDependency": "Recipe.unlockCondition",
+     "saveImpact": "none",
+     "migrationImpact": "none",
+     "testImpact": "pizzaSelect.test.ts / PizzaSelectScreen.test.tsx '解禁' assertions removed/replaced by 0-count assertions",
+     "i5b4Conflict": "HIGH: I5b-4c F-2a edits the same text"
+    },
+    {
+     "file": "src/state/progression.ts:57,106",
+     "function": "recipeUnlocked / recipesUnlockedByIngredient",
+     "currentBehavior": "gate Pizza Select + Shop",
+     "requiredBehavior": "kept for Lunch Rush availability + legacy tests; not used by Pizza Select/Shop",
+     "dataDependency": "EP1 data",
+     "saveImpact": "none (EP1 never persisted)",
+     "migrationImpact": "none",
+     "testImpact": "progression.test.ts unchanged",
+     "i5b4Conflict": "LOW"
+    },
+    {
+     "file": "src/data/recipes.ts",
+     "function": "unlockCondition / mysteryLock fields",
+     "currentBehavior": "data on 14 + fugazza",
+     "requiredBehavior": "UNCHANGED (Post-W1 cleanup)",
+     "dataDependency": "-",
+     "saveImpact": "none",
+     "migrationImpact": "none",
+     "testImpact": "none",
+     "i5b4Conflict": "none"
+    },
+    {
+     "file": "src/state/starterStock.ts:124 / src/logic/economySimulation.ts EP_ERA_RECIPES",
+     "function": "legacy EP4/EP sim",
+     "currentBehavior": "reads unlockCondition",
+     "requiredBehavior": "UNCHANGED",
+     "dataDependency": "-",
+     "saveImpact": "none",
+     "migrationImpact": "none",
+     "testImpact": "none",
+     "i5b4Conflict": "none"
+    }
+   ]
+  },
+  "W1-d": {
+   "title": "Discovery Result hierarchy",
+   "optional": false,
+   "items": [
+    {
+     "file": "src/components/ResultPanel.tsx:258-330",
+     "function": "ResultPanel (score branch)",
+     "currentBehavior": "stars/score first; 1-line NEW PIZZA banner below; notice + 'ショップへ'",
+     "requiredBehavior": "NEW_DISCOVERY variant: stamp -> name (2-line clamp) -> '📖 図鑑に登録！ No.k（章 n/m）' -> 1-line ★/score/Pitz(+50) -> notice (max 2 names + ほかN種) -> primary Shop CTA when notice, else もう一度じゆうに作る; secondary 図鑑を見る / 別のピザを作る",
+     "dataDependency": "lastDiscovery, justDiscovered, lastMaterialUnlockNotice, chapter fn",
+     "saveImpact": "none (all transient)",
+     "migrationImpact": "none",
+     "testImpact": "ResultPanel.test.tsx; e2e result-1screen-2.0 + progression2-discovery-ladder notice assertions; HV required",
+     "i5b4Conflict": "MED: I5b-4b layout contract (CTA bar in-flow)"
+    },
+    {
+     "file": "src/screens/GameScreen.tsx:668 / App.tsx",
+     "function": "ResultPanel wiring",
+     "currentBehavior": "no onOpenDex from RESULT",
+     "requiredBehavior": "add onOpenDex(scrollTo NEW) prop",
+     "dataDependency": "App state",
+     "saveImpact": "none",
+     "migrationImpact": "none",
+     "testImpact": "GameScreen tests",
+     "i5b4Conflict": "MED"
+    }
+   ]
+  },
+  "W1-e": {
+   "title": "HOME skeleton + derived badges",
+   "optional": false,
+   "items": [
+    {
+     "file": "src/screens/HomeScreen.tsx:105,126-175,180-190",
+     "function": "HomeScreen",
+     "currentBehavior": "Dex-0 CTA order swap; bubble 2 texts; Shop card shows Pitz only; no badges",
+     "requiredBehavior": "2+1 skeleton (I5b-4a); Shop card 'NEW n' = count(entitled && !owned); Dex card 'NEW' while justDiscovered; bubble priority Dex0 > NEW material unbought > DISCOVERABLE>=1 > default; unify 'ピザ図鑑'",
+     "dataDependency": "ledger, owned, inventory, justDiscovered (new props from App.tsx:836)",
+     "saveImpact": "none",
+     "migrationImpact": "load-time ladder migration is surfaced via derived badge automatically",
+     "testImpact": "HomeScreen tests + e2e onboarding bubble/CTA assertions; HV",
+     "i5b4Conflict": "HIGH: I5b-4a owns the skeleton"
+    }
+   ]
+  },
+  "W1-f": {
+   "title": "Dex slots / state tags / chapters",
+   "optional": false,
+   "items": [
+    {
+     "file": "src/components/DexOverlay.tsx:47-60",
+     "function": "DexOverlay",
+     "currentBehavior": "25 slots in RECIPES order; locked '🔒 ？？？ まだ見ぬピザ'",
+     "requiredBehavior": "chapter groups 6/9/10 (OD-DISC-9) with 'n/m'; undiscovered '？？？' + 🎨 (DISCOVERABLE) / 🏪 (KBMM) tag + small CTA; No. fixed per chapter; scroll to NEW",
+     "dataDependency": "state model, chapter fn, new props owned/ledger/inventory/onGoFreeCook/onOpenShop",
+     "saveImpact": "none",
+     "migrationImpact": "none",
+     "testImpact": "new DexOverlay test (none exists today)",
+     "i5b4Conflict": "MED"
+    },
+    {
+     "file": "src/state/pizzaSelect.ts:102-150",
+     "function": "RECIPE_SECTION_BOUNDARIES / buildRecipeSections",
+     "currentBehavior": "position-based 7/8/8/2",
+     "requiredBehavior": "derived chapter = price tier of the latest ladder step among the recipe's materials (T1/T2/T3) -> 6/9/10; shared by Pizza Select + Dex",
+     "dataDependency": "DISCOVERY_LADDER + MATERIAL_PRICE_TIERS",
+     "saveImpact": "none",
+     "migrationImpact": "none",
+     "testImpact": "pizzaSelect.test.ts section tests rewritten",
+     "i5b4Conflict": "HIGH: I5b-4d"
+    }
+   ]
+  },
+  "W1-g": {
+   "title": "first-time moments (OPTIONAL)",
+   "optional": true,
+   "items": [
+    {
+     "file": "ResultPanel / ShopOverlay / HomeScreen",
+     "function": "Teto line on Dex 1, egg coach mark, Lunch Rush unlock toast",
+     "currentBehavior": "absent",
+     "requiredBehavior": "derive from discovered count == 1 and transient UI state only",
+     "dataDependency": "dex count",
+     "saveImpact": "MUST be none (no seen flags)",
+     "migrationImpact": "none",
+     "testImpact": "component tests; HV",
+     "i5b4Conflict": "LOW; can slip to I6"
+    }
+   ]
+  }
+ },
+ "i5b4Order": [
+  "W1-0 prerequisites: merge I5b-3; decide OD-DISC-1/3/5/9 (+6/7 for later slices)",
+  "W1-a1 state model (pure, new file) + unit",
+  "W1-a2 reducer backstops (SELECT_RECIPE, FREE order pool, BEGIN_PREPARE) + fixture updates",
+  "W1-b Shop copy",
+  "W1-a3 + W1-c Pizza Select A′ (merged with I5b-4c) + chapters (W1-f chapter fn, merged with I5b-4d)",
+  "W1-e HOME (on top of I5b-4a skeleton)",
+  "W1-f Dex slots/tags",
+  "W1-d Discovery Result variant (after I5b-4b layout contract)",
+  "W1-g optional",
+  "I5b-5 verification"
+ ],
+ "blockers": {
+  "hard": [],
+  "gating": [
+   "I5b-3 not merged / no CI on 5204a26 (unit 3224/3224 pass locally)",
+   "Owner decisions OD-DISC-1, OD-DISC-3, OD-DISC-5, OD-DISC-9 unresolved (shape of W1-a/c/f)",
+   "e2e progression2-discovery-ladder 'step 14, three cheeses' expects the 15-recipe ladder; I5b-3 did not update e2e (I5b-5 R-13) -> likely red on first CI"
+  ]
+ },
+ "verdict": "READY (conditional: after I5b-3 merge + OD-DISC-1/3/5/9)"
+}
