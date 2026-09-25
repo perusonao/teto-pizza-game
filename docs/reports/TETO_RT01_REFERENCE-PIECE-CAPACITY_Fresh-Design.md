@@ -1,6 +1,6 @@
 # RT-01 Reference Pizza Piece Capacity — Fresh Design
 
-Status: **Fresh Design (docs/tools only)**. There is no production change, no PR and no merge.
+Status: **Fresh Design (docs/tools only) — OWNER APPROVED 2026-09-25 (RT-01-OD-1, see §14)**. There is no production change in this document, no PR and no merge.
 Branch: `claude/rt-01-pizza-piece-capacity-1ncicd` (from main `1e53baa`).
 
 Companion (machine-readable): `docs/reports/data/TETO_RT01_REFERENCE_PIECE_CAPACITY_DESIGN.json`
@@ -332,7 +332,39 @@ The design otherwise needs no further decisions: no scoring, save or progression
 trimming of `minCount`. Once these three points are approved, RT-01a and RT-01b are
 implementation-ready.
 
+## 14. Owner Decision record (RT-01-OD-1): OWNER APPROVED, 2026-09-25
+
+The owner approved the following:
+
+1. Adopt Candidate B (multi-ring placement).
+2. n = 1..8 pieces keep the current `PIECE_RING_POSITIONS` layout exactly.
+3. n ≥ 9 pieces assign ingredients interleaved.
+4. Placement stays deterministic.
+5. New recipes' Scoring fixtures store the output of `getReferenceSlots(n)` (or an equivalent
+   placement function) as **frozen coordinates** in the fixture.
+6. Runtime scoring targets are **not** generated dynamically.
+
+This resolves #221 slice E `dependsOn: "reference-layout redesign owner approval"`. It is
+recorded in the companion JSON as `ownerDecision` and `verdict: IMPLEMENTATION_READY`.
+
+Scope authorised now:
+
+- RT-01a (`getReferenceSlots(n)`)
+- RT-01b (`playerReference` / `PizzaThumbnail` switch)
+
+Deferred:
+
+- RT-01c (W1 fixtures for Parmigiana, Portuguesa and Puttanesca). It joins the REC-01..04
+  authority first.
+
+Still out of scope:
+
+- registering the 7 new ingredients
+- registering the W1 recipes
+- any change to #220, #221, #222, REC-04 or Production Visual P1
+
 ---
 
-**OWNER DECISION REQUIRED**. Approving B + interleave + frozen fixtures, the recommended default,
-makes RT-01 implementation-ready immediately.
+Verdict before the decision: OWNER DECISION REQUIRED.
+
+**Current verdict: RT-01 IMPLEMENTATION READY** (Owner Decision RT-01-OD-1 approved).

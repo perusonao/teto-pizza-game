@@ -591,8 +591,26 @@ def build() -> tuple[dict, str]:
             "ownerDecisionItems": ["adopt candidate B with n<=8 legacy freeze",
                                    "interleaved slot assignment for n>8",
                                    "new recipes' Scoring 2.0 fixtures = frozen generator output"],
-            "verdict": "OWNER_DECISION_REQUIRED",
+            "verdictBeforeDecision": "OWNER_DECISION_REQUIRED",
         },
+        "ownerDecision": {
+            "id": "RT-01-OD-1",
+            "status": "OWNER_APPROVED",
+            "decidedOn": "2026-09-25",
+            "decidedBy": "owner (perusonao), session instruction",
+            "approved": [
+                "Adopt Candidate B (multi-ring placement)",
+                "n = 1..8 pieces keep the current PIECE_RING_POSITIONS layout exactly",
+                "n >= 9 pieces assign ingredients interleaved",
+                "placement stays deterministic",
+                "new recipes' Scoring fixtures store getReferenceSlots(n)-style generator output as frozen coordinates",
+                "runtime scoring targets are NOT generated dynamically",
+            ],
+            "resolves": "#221 slice E dependsOn 'reference-layout redesign owner approval'",
+            "scopeNow": ["RT-01a getReferenceSlots(n)", "RT-01b playerReference/PizzaThumbnail switch"],
+            "deferred": ["RT-01c W1 fixtures (Parmigiana/Portuguesa/Puttanesca) -- joins REC-01..04 authority first"],
+        },
+        "verdict": "IMPLEMENTATION_READY",
     }
     return report, render_html(report, legacy, ings, w1ing)
 
