@@ -135,3 +135,44 @@ Download: セッション内で直接提出した（repo には commit してい
 - ユーザーが iPhone で fresh-tomato B の Human Gate を行う（上の 7 項目）。
 - PASS になったら、production 採用を判断する W1 authoring slice に進む。そこで、Human PASS 済みの 6 材料と fresh-tomato の visual を、production で emoji を描いている 8 箇所に反映する。
 - NEEDS_REVISION になったら、fresh-tomato だけを Preview の中で直す。
+
+## 追記: fresh-tomato B の Human Verification 動画（完了条件の変更への対応）
+
+この動画を見れば、fresh-tomato Final candidate B を Human PASS にしてよいか判断できるように作った。
+
+| 項目 | 値 |
+|---|---|
+| File | `w1-fresh-tomato-B-human-verification-390x844.mp4`（セッションで直接提出。repo には commit していない） |
+| 形式 | MP4 / H.264 High / yuv420p / 30fps |
+| 解像度 | 390×844 |
+| 長さ | 63.97 s |
+| Size | 1,873,039 B |
+| sha256 | `bf545dcebca7abda84b991cd520580b3595b60c7c928a089abc71aee7d1734a0` |
+| 収録元 | deploy したものと byte 単位で同じ bundle（source `fe80e3c`、preview repo の `0e1e602` の `site/w1-visual-gate/` と `diff -r` で同一） |
+| 台本 | `visual-gate/w1/e2e/w1-hv-video.spec.ts`（`W1_GATE_HV_VIDEO=1` のときだけ動く）。キャプション、タップ位置のカーソル、最後のカードは test 側で表示しており、Preview の bundle には含まれない |
+
+収録順（各場面の静止時間は 1fps のサンプリングで測った値）:
+
+1. Preview の入口（hub）: source SHA を表示して約 5 秒。続けてゲームの ribbon（SHA と `tomato B (Final)`）を約 3 秒。
+2. tray: トマト（B）、チェリートマト 🍅、ペパロニ 🔴 が同じページに並ぶ（在庫 ×30）。約 3 秒。
+3. 同じ pizza に B ×3（左）、ペパロニ ×3（中）、チェリー ×3（右）を置く。タップ位置のカーソルが見える。
+4. RAW で約 4 秒静止し、続けて同じ pizza を grayscale で約 3 秒。
+5. BAKED（needle を焼成窓の中心で止める）で約 5 秒静止。同じ配置のまま。
+6. DEEP BAKE の見え方（needle ≈ 87、heat ≈ 1.6）を約 4 秒。その後 needle を窓の中心まで戻してから取り出す。
+7. RESULT（「いい焼き加減」、焦げではない）: 材料リストの小さいアイコンで比べる。約 5 秒。
+8. 比較ボード: A と B の tray と sauce の tray、B と A の行（cherry-tomato、pepperoni、tomato-sauce と一緒）、16px。各約 3 秒。
+9. grayscale で B とペパロニを比べる（参考に A も）。
+10. 最後の静止画 **HUMAN CHECK**（4 つの質問）と source SHA、Preview URL。約 7 秒。
+
+frame sampling による検証（1fps と、要所をフル解像度で確認）:
+
+| 条件 | 結果 |
+|---|---|
+| 最初から最後まで再生できる（ffmpeg で最後まで decode） | PASS（エラー 0） |
+| 解像度が 390×844 | PASS |
+| raw / baked / deep / Result / grayscale が含まれる | PASS |
+| B と pepperoni を同時に見られる | PASS（raw、raw の grayscale、baked、deep、board） |
+| SHA を読める | PASS（hub、ゲームの ribbon、最後のカード） |
+| 意図しない状態が映っていない | PASS（Result は通常の焼成。深焼きは step 6 として表示したものだけ） |
+
+fresh-tomato の **Human PASS はまだ付けていない**。ユーザーがこの動画を見てから決める（result JSON の `humanVerificationVideo.humanPass` は `null`）。

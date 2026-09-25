@@ -133,6 +133,40 @@ PREVIEW = {
 }
 PREVIEW["pagesRun"] = "https://github.com/perusonao/teto-pizza-game-preview/actions/runs/PAGES_RUN_ID"
 
+HV_VIDEO = {
+    "file": "w1-fresh-tomato-B-human-verification-390x844.mp4",
+    "delivery": "delivered directly in the session (artifacts/review/, gitignored) -- never committed",
+    "recordedFrom": "the exact deployed bundle (source fe80e3c, byte-identical to site/w1-visual-gate/ @ 0e1e602)",
+    "script": "visual-gate/w1/e2e/w1-hv-video.spec.ts (W1_GATE_HV_VIDEO=1; test-side captions / tap cursor / final card only)",
+    "codec": "H.264 High, yuv420p, 30 fps",
+    "resolution": "390x844",
+    "durationSeconds": 63.97,
+    "bytes": 1873039,
+    "sha256": "bf545dcebca7abda84b991cd520580b3595b60c7c928a089abc71aee7d1734a0",
+    "sequence": [
+        "1 Preview entry (hub, exact source SHA) + game ribbon (SHA, tomato B (Final))",
+        "2 tray: トマト (B) · チェリートマト 🍅 · ペパロニ 🔴 (stock ×30)",
+        "3 place ×3 each on one pizza (left B · middle pepperoni · right cherry), tap cursor visible",
+        "4 RAW hold + same pizza in grayscale",
+        "5 BAKED (needle at the bake-window center) hold",
+        "6 DEEP bake look (needle ≈ 87, heat ≈ 1.6) hold, then back to the window center before taking out",
+        "7 RESULT (normal bake, not burnt): small ingredient icons",
+        "8 comparison board: tray A/B + sauce tray, B / A rows with cherry-tomato + pepperoni on tomato sauce, 16px",
+        "9 grayscale: B vs pepperoni (+ A for reference)",
+        "10 final still: HUMAN CHECK (4 questions) + source SHA + Preview URL",
+    ],
+    "frameSamplingVerification": {
+        "decodeToEnd": "PASS (ffmpeg full decode, 0 errors)",
+        "resolution390x844": "PASS",
+        "rawBakedResultGrayscalePresent": "PASS (1 fps sampling; each held >= 3 s)",
+        "bAndPepperoniTogether": "PASS (raw / raw grayscale / baked / deep / board)",
+        "shaVisible": "PASS (hub caption + hub line, in-game ribbon, final card)",
+        "unintendedStates": "none: RESULT is a normal bake (いい焼き加減); the deep bake is shown only as the labelled step 6",
+    },
+    "humanPass": None,
+    "note": "Human PASS for fresh-tomato is decided by the user after watching this video.",
+}
+
 HUMAN_CHECKLIST = [
     "B reads as a tomato slice at first sight -- not salami / pepperoni",
     "B vs 🔴 pepperoni on the same pizza: tell apart by shape",
@@ -182,6 +216,7 @@ def build(pages_run_id: str) -> dict:
             "webkit": "not runnable in this sandbox; src/** unchanged -> not a Final Gate; iPhone Safari covered by the Human Gate",
         },
         "humanVerificationChecklist": HUMAN_CHECKLIST,
+        "humanVerificationVideo": HV_VIDEO,
         "summary": {
             "HUMAN_PASS": HUMAN_PASS_IDS,
             "HUMAN_VERIFICATION_REQUIRED": ["fresh-tomato"],
@@ -226,6 +261,10 @@ def validate(doc: dict) -> list[str]:
         errors.append("tomato alias recorded")
     if od["OD-S1"] != "A":
         errors.append("OD-S1 changed")
+    if doc["humanVerificationVideo"]["humanPass"] is not None:
+        errors.append("video recorded as Human PASS before the user reviewed it")
+    if doc["humanVerificationVideo"]["resolution"] != "390x844" or not re.fullmatch(r"[0-9a-f]{64}", doc["humanVerificationVideo"]["sha256"]):
+        errors.append("human verification video record incomplete")
     if doc["summary"]["productionAdoption"] is not None:
         errors.append("production adoption recorded")
     if not re.fullmatch(r"[0-9a-f]{40}", doc["preview"]["sourceSha"]):
@@ -272,6 +311,7 @@ def self_test(pages_run_id: str) -> int:
         "readiness edited": lambda d: d["summary"]["readiness"].__setitem__("REVIEW", 9),
         "OD-S1 changed": lambda d: d["ownerDecisions"].__setitem__("OD-S1", "B"),
         "evidence row dropped": lambda d: d["humanEvidence"]["ingredients"].pop(0),
+        "video marked Human PASS": lambda d: d["humanVerificationVideo"].__setitem__("humanPass", True),
     }
     caught = 0
     for name, mutate in mutations.items():
