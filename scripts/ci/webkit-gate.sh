@@ -77,7 +77,7 @@ summary="${GITHUB_STEP_SUMMARY:-/dev/stdout}"
 if [ "$status" -eq 0 ]; then
   # tested_base is read back by the next push's classify job (evidence reuse is only allowed when
   # the base is unchanged) -- keep the `tested_base=<sha>` token intact. `level` is informational
-  # in Phase 2A (it is always full or none) and becomes part of the reuse check in Phase 2B.
+  # (always full or none: Phase 2B added no affected/partial level, so reuse needs no level check).
   echo "::notice title=WebKit Gate::$verdict. tested_base=${TESTED_BASE:-unknown} level=$level. $REASON"
 else
   echo "::error title=WebKit Gate::$verdict. $REASON"

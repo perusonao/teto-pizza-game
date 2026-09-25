@@ -38,6 +38,12 @@ name: E2E WebKit (Cooking UI 1-Screen)
 # All three events share the same classify -> webkit -> WebKit Gate jobs; only classify's
 # decision differs.
 #
+# Issue #207 Phase 2B: classify's skip allow-list also covers files that cannot reach the browser
+# -- offline Python under tools/ and src/ Vitest files -- but only when classify-webkit.mjs's
+# repository scan proves nothing the browser/E2E suite loads references them (else: Full).
+# Measured and NOT adopted (see docs/reports/TETO_DEV-CI_WEBKIT-PHASE2B_Result.md): duration-
+# balanced shards (no wall-clock gain in 2 real runs) and affected-spec / single-viewport selection.
+#
 # The original rationale above still holds for runtime changes: a shared CSS variable, App.css
 # primitive, or reducer change is NOT documentation, so it always runs WebKit. Only changes that
 # cannot reach the browser (Markdown/docs, report screenshots under docs/) skip it.

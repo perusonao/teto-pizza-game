@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
-# Issue #207 Phase 2A: hermetic tests for the WebKit CI scripts (no network, no browser, no repo
-# history needed -- runs in ci.yml's shallow checkout and locally).
+# Issue #207 Phase 2A/2B: hermetic tests for the WebKit CI scripts (no network, no browser, no
+# repo history needed -- runs in ci.yml's shallow checkout and locally).
 #
-#   1. classify-webkit.mjs --self-test          (path classifier, #201)
+#   1. classify-webkit.mjs --self-test          (path classifier + repository scan, #201/#207)
 #   2. webkit-shard-evidence.mjs --self-test    (shard coverage verifier, #207)
 #   3. webkit-shard-evidence.mjs collect/verify CLI round trip on Playwright-shaped JSON, including
 #      "Re-run failed jobs" (stale earlier-attempt evidence present next to the re-run's)
 #   4. webkit-gate.sh truth table               (every classify x webkit x evidence combination)
-#   5. classify-webkit-pr.sh decisions in a throwaway git repo (docs-only, runtime, push /
-#      workflow_dispatch events, `webkit-full` label, fail-safe, no-reuse-without-evidence)
+#   5. classify-webkit-pr.sh decisions in a throwaway git repo (docs-only, tools-only, unit-test-
+#      only, guard violation, runtime, push / workflow_dispatch events, `webkit-full` label,
+#      fail-safe, no-reuse-without-evidence)
 #
 # Usage: bash scripts/ci/test-webkit-ci.sh   (exit 0 = all passed)
 set -uo pipefail
@@ -161,12 +162,26 @@ echo "== 5. classify-webkit-pr.sh decisions (throwaway repo)"
 repo="$work/repo"
 git init -q "$repo"
 g() { git -C "$repo" -c user.name=t -c user.email=t@example.invalid "$@"; }
-mkdir -p "$repo/src" "$repo/docs"
+mkdir -p "$repo/src" "$repo/docs" "$repo/e2e" "$repo/tools"
 echo "x" > "$repo/src/a.ts"; echo "r" > "$repo/README.md"
+echo 'import { x } from "./a";' > "$repo/src/a.test.ts"
+echo 'import { test } from "@playwright/test";' > "$repo/e2e/a.spec.ts"
+echo '<script type="module" src="/src/a.ts"></script>' > "$repo/index.html"
+echo '{"scripts":{"test":"vitest run"}}' > "$repo/package.json"
+echo 'export default { testDir: "./e2e" };' > "$repo/playwright.config.ts"
+echo "print(1)" > "$repo/tools/fresh_design_model.py"
 g add -A; g commit -q -m base; base="$(g rev-parse HEAD)"
 echo "d" > "$repo/docs/x.md"; g add -A; g commit -q -m docs; docs_head="$(g rev-parse HEAD)"
 echo "y" > "$repo/src/a.ts"; g add -A; g commit -q -m src; src_head="$(g rev-parse HEAD)"
 echo "e" >> "$repo/docs/x.md"; g add -A; g commit -q -m docs2; docs_on_src="$(g rev-parse HEAD)"
+g checkout -q -b tools "$base"
+echo "print(2)" > "$repo/tools/fresh_design_model.py"; mkdir -p "$repo/docs"; echo "n" > "$repo/docs/t.md"; g add -A; g commit -q -m tools; tools_head="$(g rev-parse HEAD)"
+g checkout -q -b unit "$base"
+echo 'import { x } from "./a"; // more' > "$repo/src/a.test.ts"; g add -A; g commit -q -m unit; unit_head="$(g rev-parse HEAD)"
+echo 'export const y = 1;' > "$repo/src/b.ts"; g add -A; g commit -q -m unit-plus-runtime; unit_runtime_head="$(g rev-parse HEAD)"
+g checkout -q -b guard "$base"
+echo 'import "./a.test";' > "$repo/src/a.ts"; g add -A; g commit -q -m wire-test; guard_base="$(g rev-parse HEAD)"
+echo 'import { x } from "./a"; // changed' > "$repo/src/a.test.ts"; g add -A; g commit -q -m unit2; guard_head="$(g rev-parse HEAD)"
 
 classify() { # KEY=VALUE... ; prints webkit_required
   local out="$work/gh_output"
@@ -176,6 +191,21 @@ classify() { # KEY=VALUE... ; prints webkit_required
   sed -n 's/^webkit_required=//p' "$out"
 }
 check "pr: docs-only PR -> skip" false "$(classify BASE_SHA="$base" HEAD_SHA="$docs_head")"
+# classify-webkit-pr.sh scans the CHECKED-OUT tree (in CI: the merge ref), so check out each head.
+co() { g checkout -q "$1"; }
+co "$tools_head"
+check "pr: tools/**/*.py + docs PR -> skip" false "$(classify BASE_SHA="$base" HEAD_SHA="$tools_head")"
+co "$unit_head"
+check "pr: src/**/*.test.ts-only PR -> skip" false "$(classify BASE_SHA="$base" HEAD_SHA="$unit_head")"
+co "$unit_runtime_head"
+check "pr: unit test + runtime file -> run" true "$(classify BASE_SHA="$base" HEAD_SHA="$unit_runtime_head")"
+co "$guard_head"
+check "pr: test-only change, but runtime imports a test module -> run" true \
+  "$(classify BASE_SHA="$guard_base" HEAD_SHA="$guard_head")"
+co "$src_head"
+check "pr: unit-test-only increment on a runtime PR without gate evidence -> run" true \
+  "$(classify BASE_SHA="$base" HEAD_SHA="$docs_on_src" BEFORE_SHA="$src_head")"
+co "$docs_on_src"
 check "pr: runtime PR -> run" true "$(classify BASE_SHA="$base" HEAD_SHA="$src_head")"
 check "pr: explicit pull_request event, docs-only -> skip" false "$(classify EVENT_NAME=pull_request BASE_SHA="$base" HEAD_SHA="$docs_head")"
 check "push to main -> Full" true "$(classify EVENT_NAME=push)"
@@ -191,6 +221,16 @@ out="$work/gh_output"; : > "$out"
 (cd "$repo" && env -u GH_TOKEN GITHUB_OUTPUT="$out" EVENT_NAME=push bash "$here/classify-webkit-pr.sh" > /dev/null 2>&1)
 grep -q '^reason=event .push. always runs Full WebKit' "$out"
 check "push reason is explicit (not a fail-safe message)" 0 $?
+
+# THIS repository's own tree must keep both guarded categories enabled -- otherwise the skip
+# silently never fires (e.g. a comment mentioning tools/** in e2e-webkit.yml disabled it once).
+repo_root="$(cd "$here/../.." && pwd)"
+check "this repo: tools/**/*.py-only change -> skip" false \
+  "$(printf 'tools/progression2_phase34_unlocks.py\n' | node "$here/classify-webkit.mjs" --repo "$repo_root" 2>/dev/null | sed -n 's/^webkit_required=//p')"
+check "this repo: unit-test-only change -> skip" false \
+  "$(printf 'src/logic/scoring.test.ts\n' | node "$here/classify-webkit.mjs" --repo "$repo_root" 2>/dev/null | sed -n 's/^webkit_required=//p')"
+check "this repo: persistence change -> run" true \
+  "$(printf 'src/state/persistence.ts\n' | node "$here/classify-webkit.mjs" --repo "$repo_root" 2>/dev/null | sed -n 's/^webkit_required=//p')"
 
 echo ""
 echo "$((cases - failures))/$cases WebKit CI script cases passed"

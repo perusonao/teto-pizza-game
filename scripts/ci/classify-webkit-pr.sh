@@ -12,10 +12,12 @@
 #         read live from the API (so a re-run after labelling sees it), falling back to the
 #         event payload (PR_LABELS). The workflow deliberately has no `labeled` trigger: with
 #         PR-scoped cancel-in-progress, any label event would cancel a running WebKit run.
-#   1. Whole PR diff (merge-base(base, head) -> head) is documentation-only
-#        -> skip (Case A: docs-only PR).
-#   2. Push to an existing PR (synchronize) whose diff since the previous head is
-#      documentation-only, AND the previous head already has a successful "WebKit Gate"
+#   1. Whole PR diff (merge-base(base, head) -> head) cannot reach the browser -- documentation,
+#      and (Issue #207 Phase 2B) offline tools/**/*.py scripts and src/** unit-test files, the
+#      latter two only when classify-webkit.mjs's repository scan proves nothing the browser or
+#      the E2E suite loads references them -> skip (Case A: docs-only / non-browser PR).
+#   2. Push to an existing PR (synchronize) whose diff since the previous head cannot reach the
+#      browser (same rule), AND the previous head already has a successful "WebKit Gate"
 #      check run, AND that gate recorded the same tested base as this run's merge ref
 #      -> skip, reusing that WebKit evidence (e.g. a Result Report commit on top of a runtime
 #      commit that already passed WebKit). If `main` moved in between, the new merge result was
@@ -66,9 +68,12 @@ emit() {
 failsafe() { emit true "fail-safe: $1"; }
 
 # $1 = newline-separated file list; sets cls_required / cls_reason.
+# The repository scan reads the checked-out tree (for pull_request: the merge ref being tested).
+# No toplevel -> no --repo -> the guarded categories stay disabled (fail-safe: WebKit runs).
+repo_root="$(git rev-parse --show-toplevel 2>/dev/null)" || repo_root=""
 run_classifier() {
   local result
-  result="$(printf '%s\n' "$1" | node "$classifier")" || return 1
+  result="$(printf '%s\n' "$1" | node "$classifier" ${repo_root:+--repo "$repo_root"} 2>/dev/null)" || return 1
   cls_required="$(sed -n 's/^webkit_required=//p' <<<"$result")"
   cls_reason="$(sed -n 's/^reason=//p' <<<"$result")"
   [ "$cls_required" = true ] || [ "$cls_required" = false ]
@@ -111,7 +116,7 @@ pr_files="$(git -c core.quotePath=false diff --name-only --no-renames "$merge_ba
 run_classifier "$pr_files" || failsafe "classifier returned no decision for the PR diff"
 
 if [ "$cls_required" = false ]; then
-  emit false "PR diff vs base is documentation-only: $cls_reason"
+  emit false "PR diff vs base cannot reach the browser: $cls_reason"
 fi
 pr_reason="$cls_reason"
 
@@ -141,14 +146,14 @@ if [ -n "${BEFORE_SHA:-}" ] && [ "$BEFORE_SHA" != "$zero_sha" ] && [ "$BEFORE_SH
       prev_base="$(gh api "repos/$REPO/check-runs/$gate_id/annotations" --jq '.[].message' 2>/dev/null \
         | grep -o 'tested_base=[0-9a-f]\{40\}' | head -n 1 | cut -d= -f2)"
       if [ -z "$tested_base" ] || [ -z "$prev_base" ]; then
-        emit true "$pr_reason; docs-only since ${BEFORE_SHA:0:7}, but its tested base is unknown (previous: ${prev_base:-none}, now: ${tested_base:-none}), so its WebKit result cannot be reused"
+        emit true "$pr_reason; non-browser-only since ${BEFORE_SHA:0:7}, but its tested base is unknown (previous: ${prev_base:-none}, now: ${tested_base:-none}), so its WebKit result cannot be reused"
       fi
       if [ "$prev_base" != "$tested_base" ]; then
-        emit true "$pr_reason; docs-only since ${BEFORE_SHA:0:7}, but the base branch moved (${prev_base:0:7} -> ${tested_base:0:7}), so the new merge result has not been WebKit-tested"
+        emit true "$pr_reason; non-browser-only since ${BEFORE_SHA:0:7}, but the base branch moved (${prev_base:0:7} -> ${tested_base:0:7}), so the new merge result has not been WebKit-tested"
       fi
-      emit false "only documentation changed since ${BEFORE_SHA:0:7} ($inc_reason), whose WebKit Gate already succeeded on the same base ${tested_base:0:7} -- reusing that WebKit evidence"
+      emit false "only non-browser files changed since ${BEFORE_SHA:0:7} ($inc_reason), whose WebKit Gate already succeeded on the same base ${tested_base:0:7} -- reusing that WebKit evidence"
     done <<<"$gates"
-    emit true "$pr_reason; docs-only since ${BEFORE_SHA:0:7} but it has no successful WebKit Gate to reuse (found: ${found:-none})"
+    emit true "$pr_reason; non-browser-only since ${BEFORE_SHA:0:7} but it has no successful WebKit Gate to reuse (found: ${found:-none})"
   fi
 fi
 
