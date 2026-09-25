@@ -1,0 +1,7439 @@
+{
+ "authority": [
+  {
+   "step": 1,
+   "dex": 1,
+   "ingredient": "egg",
+   "tier": "T1",
+   "first": 60,
+   "refill": 30,
+   "k": 1,
+   "pack": 10,
+   "key": "bismarck"
+  },
+  {
+   "step": 2,
+   "dex": 2,
+   "ingredient": "bacon",
+   "tier": "T1",
+   "first": 60,
+   "refill": 30,
+   "k": 3,
+   "pack": 30,
+   "key": "breakfast-pizza"
+  },
+  {
+   "step": 3,
+   "dex": 3,
+   "ingredient": "mushroom",
+   "tier": "T1",
+   "first": 60,
+   "refill": 30,
+   "k": 3,
+   "pack": 30,
+   "key": "funghi"
+  },
+  {
+   "step": 4,
+   "dex": 4,
+   "ingredient": "eggplant",
+   "tier": "T1",
+   "first": 60,
+   "refill": 30,
+   "k": 3,
+   "pack": 30,
+   "key": "melanzane-pizza"
+  },
+  {
+   "step": 5,
+   "dex": 5,
+   "ingredient": "parmigiano",
+   "tier": "T1",
+   "first": 60,
+   "refill": 30,
+   "k": 2,
+   "pack": 20,
+   "key": "parmigiana-pizza"
+  },
+  {
+   "step": 6,
+   "dex": 6,
+   "ingredient": "pepperoni",
+   "tier": "T2",
+   "first": 80,
+   "refill": 40,
+   "k": 4,
+   "pack": 40,
+   "key": "pepperoni"
+  },
+  {
+   "step": 7,
+   "dex": 7,
+   "ingredient": "sausage",
+   "tier": "T2",
+   "first": 80,
+   "refill": 40,
+   "k": 3,
+   "pack": 30,
+   "key": "salsiccia"
+  },
+  {
+   "step": 8,
+   "dex": 8,
+   "ingredient": "ham",
+   "tier": "T2",
+   "first": 80,
+   "refill": 40,
+   "k": 3,
+   "pack": 30,
+   "key": "meat-lovers"
+  },
+  {
+   "step": 9,
+   "dex": 9,
+   "ingredient": "corn",
+   "tier": "T2",
+   "first": 80,
+   "refill": 40,
+   "k": 3,
+   "pack": 30,
+   "key": "bambino"
+  },
+  {
+   "step": 10,
+   "dex": 10,
+   "ingredient": "pineapple",
+   "tier": "T2",
+   "first": 80,
+   "refill": 40,
+   "k": 3,
+   "pack": 30,
+   "key": "hawaiian"
+  },
+  {
+   "step": 11,
+   "dex": 11,
+   "ingredient": "black-olive",
+   "tier": "T2",
+   "first": 80,
+   "refill": 40,
+   "k": 2,
+   "pack": 20,
+   "key": "capricciosa"
+  },
+  {
+   "step": 11,
+   "dex": 11,
+   "ingredient": "oregano",
+   "tier": "T2",
+   "first": 80,
+   "refill": 40,
+   "k": 2,
+   "pack": 20,
+   "key": "capricciosa"
+  },
+  {
+   "step": 12,
+   "dex": 12,
+   "ingredient": "onion",
+   "tier": "T2",
+   "first": 80,
+   "refill": 40,
+   "k": 4,
+   "pack": 40,
+   "key": "pizza-portuguesa"
+  },
+  {
+   "step": 13,
+   "dex": 13,
+   "ingredient": "olive-oil",
+   "tier": "T2",
+   "first": 80,
+   "refill": 40,
+   "k": 1,
+   "pack": 10,
+   "key": "fugazza"
+  },
+  {
+   "step": 14,
+   "dex": 14,
+   "ingredient": "garlic",
+   "tier": "T2",
+   "first": 80,
+   "refill": 40,
+   "k": 3,
+   "pack": 30,
+   "key": "marinara"
+  },
+  {
+   "step": 15,
+   "dex": 15,
+   "ingredient": "anchovy",
+   "tier": "T3",
+   "first": 100,
+   "refill": 50,
+   "k": 3,
+   "pack": 30,
+   "key": "napoletana"
+  },
+  {
+   "step": 16,
+   "dex": 16,
+   "ingredient": "tuna",
+   "tier": "T3",
+   "first": 100,
+   "refill": 50,
+   "k": 3,
+   "pack": 30,
+   "key": "tonno-e-cipolla"
+  },
+  {
+   "step": 17,
+   "dex": 17,
+   "ingredient": "pesto",
+   "tier": "T3",
+   "first": 100,
+   "refill": 50,
+   "k": 1,
+   "pack": 10,
+   "key": "pesto-tonno"
+  },
+  {
+   "step": 18,
+   "dex": 18,
+   "ingredient": "cherry-tomato",
+   "tier": "T3",
+   "first": 100,
+   "refill": 50,
+   "k": 3,
+   "pack": 30,
+   "key": "genovese"
+  },
+  {
+   "step": 19,
+   "dex": 19,
+   "ingredient": "clam",
+   "tier": "T3",
+   "first": 100,
+   "refill": 50,
+   "k": 3,
+   "pack": 30,
+   "key": "new-haven-apizza"
+  },
+  {
+   "step": 20,
+   "dex": 20,
+   "ingredient": "fresh-tomato",
+   "tier": "T3",
+   "first": 100,
+   "refill": 50,
+   "k": 3,
+   "pack": 30,
+   "key": "pesto-caprese"
+  },
+  {
+   "step": 21,
+   "dex": 21,
+   "ingredient": "potato",
+   "tier": "T3",
+   "first": 100,
+   "refill": 50,
+   "k": 3,
+   "pack": 30,
+   "key": "pesto-patate"
+  },
+  {
+   "step": 22,
+   "dex": 22,
+   "ingredient": "rosemary",
+   "tier": "T3",
+   "first": 100,
+   "refill": 50,
+   "k": 3,
+   "pack": 30,
+   "key": "pizza-bianca"
+  },
+  {
+   "step": 23,
+   "dex": 23,
+   "ingredient": "capers",
+   "tier": "T3",
+   "first": 100,
+   "refill": 50,
+   "k": 2,
+   "pack": 20,
+   "key": "puttanesca-pizza"
+  },
+  {
+   "step": 24,
+   "dex": 24,
+   "ingredient": "fontina",
+   "tier": "T3",
+   "first": 100,
+   "refill": 50,
+   "k": 2,
+   "pack": 20,
+   "key": "quattro-formaggi"
+  },
+  {
+   "step": 24,
+   "dex": 24,
+   "ingredient": "gorgonzola",
+   "tier": "T3",
+   "first": 100,
+   "refill": 50,
+   "k": 2,
+   "pack": 20,
+   "key": "quattro-formaggi"
+  }
+ ],
+ "profiles": {
+  "A_Efficient": {
+   "totals": {
+    "earned": 3900,
+    "first_spend": 2200,
+    "refill_spend": 0,
+    "bakes": 25,
+    "forced": 0,
+    "voluntary": 0,
+    "failures": 0,
+    "shop_visits": 24,
+    "refills": 0,
+    "blocked_unlocks": 0
+   },
+   "endingPitz": 1700,
+   "minBalance": 96,
+   "maxForcedStreak": 0,
+   "minutes": 37.2,
+   "perStep": [
+    {
+     "target": "margherita",
+     "dexBefore": 0,
+     "forced": 0,
+     "pitzAtStart": 0,
+     "pitzAfterPurchase": 0,
+     "dexAfter": 1,
+     "pitzAfter": 156,
+     "newlyUnlocked": [
+      "egg"
+     ],
+     "unlockCost": 60,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "bismarck",
+     "dexBefore": 1,
+     "forced": 0,
+     "pitzAtStart": 156,
+     "pitzAfterPurchase": 96,
+     "dexAfter": 2,
+     "pitzAfter": 252,
+     "newlyUnlocked": [
+      "bacon"
+     ],
+     "unlockCost": 60,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "breakfast-pizza",
+     "dexBefore": 2,
+     "forced": 0,
+     "pitzAtStart": 252,
+     "pitzAfterPurchase": 192,
+     "dexAfter": 3,
+     "pitzAfter": 348,
+     "newlyUnlocked": [
+      "mushroom"
+     ],
+     "unlockCost": 60,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "funghi",
+     "dexBefore": 3,
+     "forced": 0,
+     "pitzAtStart": 348,
+     "pitzAfterPurchase": 288,
+     "dexAfter": 4,
+     "pitzAfter": 444,
+     "newlyUnlocked": [
+      "eggplant"
+     ],
+     "unlockCost": 60,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "melanzane-pizza",
+     "dexBefore": 4,
+     "forced": 0,
+     "pitzAtStart": 444,
+     "pitzAfterPurchase": 384,
+     "dexAfter": 5,
+     "pitzAfter": 540,
+     "newlyUnlocked": [
+      "parmigiano"
+     ],
+     "unlockCost": 60,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "parmigiana-pizza",
+     "dexBefore": 5,
+     "forced": 0,
+     "pitzAtStart": 540,
+     "pitzAfterPurchase": 480,
+     "dexAfter": 6,
+     "pitzAfter": 636,
+     "newlyUnlocked": [
+      "pepperoni"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "pepperoni",
+     "dexBefore": 6,
+     "forced": 0,
+     "pitzAtStart": 636,
+     "pitzAfterPurchase": 556,
+     "dexAfter": 7,
+     "pitzAfter": 712,
+     "newlyUnlocked": [
+      "sausage"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "salsiccia",
+     "dexBefore": 7,
+     "forced": 0,
+     "pitzAtStart": 712,
+     "pitzAfterPurchase": 632,
+     "dexAfter": 8,
+     "pitzAfter": 788,
+     "newlyUnlocked": [
+      "ham"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "meat-lovers",
+     "dexBefore": 8,
+     "forced": 0,
+     "pitzAtStart": 788,
+     "pitzAfterPurchase": 708,
+     "dexAfter": 9,
+     "pitzAfter": 864,
+     "newlyUnlocked": [
+      "corn"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "bambino",
+     "dexBefore": 9,
+     "forced": 0,
+     "pitzAtStart": 864,
+     "pitzAfterPurchase": 784,
+     "dexAfter": 10,
+     "pitzAfter": 940,
+     "newlyUnlocked": [
+      "pineapple"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "hawaiian",
+     "dexBefore": 10,
+     "forced": 0,
+     "pitzAtStart": 940,
+     "pitzAfterPurchase": 860,
+     "dexAfter": 11,
+     "pitzAfter": 1016,
+     "newlyUnlocked": [
+      "black-olive",
+      "oregano"
+     ],
+     "unlockCost": 160,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "capricciosa",
+     "dexBefore": 11,
+     "forced": 0,
+     "pitzAtStart": 1016,
+     "pitzAfterPurchase": 856,
+     "dexAfter": 12,
+     "pitzAfter": 1012,
+     "newlyUnlocked": [
+      "onion"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "pizza-portuguesa",
+     "dexBefore": 12,
+     "forced": 0,
+     "pitzAtStart": 1012,
+     "pitzAfterPurchase": 932,
+     "dexAfter": 13,
+     "pitzAfter": 1088,
+     "newlyUnlocked": [
+      "olive-oil"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "fugazza",
+     "dexBefore": 13,
+     "forced": 0,
+     "pitzAtStart": 1088,
+     "pitzAfterPurchase": 1008,
+     "dexAfter": 14,
+     "pitzAfter": 1164,
+     "newlyUnlocked": [
+      "garlic"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "marinara",
+     "dexBefore": 14,
+     "forced": 0,
+     "pitzAtStart": 1164,
+     "pitzAfterPurchase": 1084,
+     "dexAfter": 15,
+     "pitzAfter": 1240,
+     "newlyUnlocked": [
+      "anchovy"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "napoletana",
+     "dexBefore": 15,
+     "forced": 0,
+     "pitzAtStart": 1240,
+     "pitzAfterPurchase": 1140,
+     "dexAfter": 16,
+     "pitzAfter": 1296,
+     "newlyUnlocked": [
+      "tuna"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "tonno-e-cipolla",
+     "dexBefore": 16,
+     "forced": 0,
+     "pitzAtStart": 1296,
+     "pitzAfterPurchase": 1196,
+     "dexAfter": 17,
+     "pitzAfter": 1352,
+     "newlyUnlocked": [
+      "pesto"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "pesto-tonno",
+     "dexBefore": 17,
+     "forced": 0,
+     "pitzAtStart": 1352,
+     "pitzAfterPurchase": 1252,
+     "dexAfter": 18,
+     "pitzAfter": 1408,
+     "newlyUnlocked": [
+      "cherry-tomato"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "genovese",
+     "dexBefore": 18,
+     "forced": 0,
+     "pitzAtStart": 1408,
+     "pitzAfterPurchase": 1308,
+     "dexAfter": 19,
+     "pitzAfter": 1464,
+     "newlyUnlocked": [
+      "clam"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "new-haven-apizza",
+     "dexBefore": 19,
+     "forced": 0,
+     "pitzAtStart": 1464,
+     "pitzAfterPurchase": 1364,
+     "dexAfter": 20,
+     "pitzAfter": 1520,
+     "newlyUnlocked": [
+      "fresh-tomato"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "pesto-caprese",
+     "dexBefore": 20,
+     "forced": 0,
+     "pitzAtStart": 1520,
+     "pitzAfterPurchase": 1420,
+     "dexAfter": 21,
+     "pitzAfter": 1576,
+     "newlyUnlocked": [
+      "potato"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "pesto-patate",
+     "dexBefore": 21,
+     "forced": 0,
+     "pitzAtStart": 1576,
+     "pitzAfterPurchase": 1476,
+     "dexAfter": 22,
+     "pitzAfter": 1632,
+     "newlyUnlocked": [
+      "rosemary"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "pizza-bianca",
+     "dexBefore": 22,
+     "forced": 0,
+     "pitzAtStart": 1632,
+     "pitzAfterPurchase": 1532,
+     "dexAfter": 23,
+     "pitzAfter": 1688,
+     "newlyUnlocked": [
+      "capers"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "puttanesca-pizza",
+     "dexBefore": 23,
+     "forced": 0,
+     "pitzAtStart": 1688,
+     "pitzAfterPurchase": 1588,
+     "dexAfter": 24,
+     "pitzAfter": 1744,
+     "newlyUnlocked": [
+      "fontina",
+      "gorgonzola"
+     ],
+     "unlockCost": 200,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "quattro-formaggi",
+     "dexBefore": 24,
+     "forced": 0,
+     "pitzAtStart": 1744,
+     "pitzAfterPurchase": 1544,
+     "dexAfter": 25,
+     "pitzAfter": 1700,
+     "newlyUnlocked": [],
+     "unlockCost": 0,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    }
+   ],
+   "endingStock": {
+    "anchovy": 24,
+    "bacon": 23,
+    "black-olive": 12,
+    "capers": 18,
+    "cherry-tomato": 27,
+    "clam": 27,
+    "corn": 27,
+    "egg": 7,
+    "eggplant": 24,
+    "fontina": 18,
+    "fresh-tomato": 27,
+    "garlic": 23,
+    "gorgonzola": 18,
+    "ham": 21,
+    "mushroom": 25,
+    "olive-oil": 6,
+    "onion": 30,
+    "oregano": 15,
+    "parmigiano": 14,
+    "pepperoni": 35,
+    "pesto": 6,
+    "pineapple": 27,
+    "potato": 27,
+    "rosemary": 27,
+    "sausage": 25,
+    "tuna": 24
+   },
+   "discovered": 25,
+   "label": "A. Efficient",
+   "old15": {
+    "totals": {
+     "earned": 2340,
+     "first_spend": 1420,
+     "refill_spend": 0,
+     "bakes": 15,
+     "forced": 0,
+     "voluntary": 0,
+     "failures": 0,
+     "shop_visits": 14,
+     "refills": 0,
+     "blocked_unlocks": 0
+    },
+    "endingPitz": 920,
+    "minBalance": 96,
+    "maxForcedStreak": 0,
+    "minutes": 22.2,
+    "endingStock": {
+     "anchovy": 27,
+     "bacon": 25,
+     "black-olive": 18,
+     "cherry-tomato": 27,
+     "egg": 8,
+     "fontina": 18,
+     "garlic": 27,
+     "gorgonzola": 18,
+     "ham": 8,
+     "mushroom": 25,
+     "olive-oil": 7,
+     "onion": 34,
+     "oregano": 15,
+     "parmigiano": 18,
+     "pepperoni": 35,
+     "pesto": 9,
+     "rosemary": 27,
+     "sausage": 25,
+     "tuna": 27
+    },
+    "discovered": 15
+   }
+  },
+  "B_Normal": {
+   "totals": {
+    "earned": 4550,
+    "first_spend": 2200,
+    "refill_spend": 0,
+    "bakes": 33,
+    "forced": 0,
+    "voluntary": 8,
+    "failures": 0,
+    "shop_visits": 24,
+    "refills": 0,
+    "blocked_unlocks": 0
+   },
+   "endingPitz": 2350,
+   "minBalance": 90,
+   "maxForcedStreak": 0,
+   "minutes": 47.2,
+   "perStep": [
+    {
+     "target": "margherita",
+     "dexBefore": 0,
+     "forced": 0,
+     "pitzAtStart": 0,
+     "pitzAfterPurchase": 0,
+     "dexAfter": 1,
+     "pitzAfter": 150,
+     "newlyUnlocked": [
+      "egg"
+     ],
+     "unlockCost": 60,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "bismarck",
+     "dexBefore": 1,
+     "forced": 0,
+     "pitzAtStart": 150,
+     "pitzAfterPurchase": 90,
+     "dexAfter": 2,
+     "pitzAfter": 240,
+     "newlyUnlocked": [
+      "bacon"
+     ],
+     "unlockCost": 60,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "breakfast-pizza",
+     "dexBefore": 2,
+     "forced": 0,
+     "pitzAtStart": 240,
+     "pitzAfterPurchase": 180,
+     "dexAfter": 3,
+     "pitzAfter": 430,
+     "newlyUnlocked": [
+      "mushroom"
+     ],
+     "unlockCost": 60,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "funghi",
+     "dexBefore": 3,
+     "forced": 0,
+     "pitzAtStart": 430,
+     "pitzAfterPurchase": 370,
+     "dexAfter": 4,
+     "pitzAfter": 520,
+     "newlyUnlocked": [
+      "eggplant"
+     ],
+     "unlockCost": 60,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "melanzane-pizza",
+     "dexBefore": 4,
+     "forced": 0,
+     "pitzAtStart": 520,
+     "pitzAfterPurchase": 460,
+     "dexAfter": 5,
+     "pitzAfter": 610,
+     "newlyUnlocked": [
+      "parmigiano"
+     ],
+     "unlockCost": 60,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "parmigiana-pizza",
+     "dexBefore": 5,
+     "forced": 0,
+     "pitzAtStart": 610,
+     "pitzAfterPurchase": 550,
+     "dexAfter": 6,
+     "pitzAfter": 800,
+     "newlyUnlocked": [
+      "pepperoni"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "pepperoni",
+     "dexBefore": 6,
+     "forced": 0,
+     "pitzAtStart": 800,
+     "pitzAfterPurchase": 720,
+     "dexAfter": 7,
+     "pitzAfter": 870,
+     "newlyUnlocked": [
+      "sausage"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "salsiccia",
+     "dexBefore": 7,
+     "forced": 0,
+     "pitzAtStart": 870,
+     "pitzAfterPurchase": 790,
+     "dexAfter": 8,
+     "pitzAfter": 940,
+     "newlyUnlocked": [
+      "ham"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "meat-lovers",
+     "dexBefore": 8,
+     "forced": 0,
+     "pitzAtStart": 940,
+     "pitzAfterPurchase": 860,
+     "dexAfter": 9,
+     "pitzAfter": 1110,
+     "newlyUnlocked": [
+      "corn"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "bambino",
+     "dexBefore": 9,
+     "forced": 0,
+     "pitzAtStart": 1110,
+     "pitzAfterPurchase": 1030,
+     "dexAfter": 10,
+     "pitzAfter": 1180,
+     "newlyUnlocked": [
+      "pineapple"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "hawaiian",
+     "dexBefore": 10,
+     "forced": 0,
+     "pitzAtStart": 1180,
+     "pitzAfterPurchase": 1100,
+     "dexAfter": 11,
+     "pitzAfter": 1250,
+     "newlyUnlocked": [
+      "black-olive",
+      "oregano"
+     ],
+     "unlockCost": 160,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "capricciosa",
+     "dexBefore": 11,
+     "forced": 0,
+     "pitzAtStart": 1250,
+     "pitzAfterPurchase": 1090,
+     "dexAfter": 12,
+     "pitzAfter": 1340,
+     "newlyUnlocked": [
+      "onion"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "pizza-portuguesa",
+     "dexBefore": 12,
+     "forced": 0,
+     "pitzAtStart": 1340,
+     "pitzAfterPurchase": 1260,
+     "dexAfter": 13,
+     "pitzAfter": 1410,
+     "newlyUnlocked": [
+      "olive-oil"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "fugazza",
+     "dexBefore": 13,
+     "forced": 0,
+     "pitzAtStart": 1410,
+     "pitzAfterPurchase": 1330,
+     "dexAfter": 14,
+     "pitzAfter": 1480,
+     "newlyUnlocked": [
+      "garlic"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "marinara",
+     "dexBefore": 14,
+     "forced": 0,
+     "pitzAtStart": 1480,
+     "pitzAfterPurchase": 1400,
+     "dexAfter": 15,
+     "pitzAfter": 1650,
+     "newlyUnlocked": [
+      "anchovy"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "napoletana",
+     "dexBefore": 15,
+     "forced": 0,
+     "pitzAtStart": 1650,
+     "pitzAfterPurchase": 1550,
+     "dexAfter": 16,
+     "pitzAfter": 1700,
+     "newlyUnlocked": [
+      "tuna"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "tonno-e-cipolla",
+     "dexBefore": 16,
+     "forced": 0,
+     "pitzAtStart": 1700,
+     "pitzAfterPurchase": 1600,
+     "dexAfter": 17,
+     "pitzAfter": 1750,
+     "newlyUnlocked": [
+      "pesto"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "pesto-tonno",
+     "dexBefore": 17,
+     "forced": 0,
+     "pitzAtStart": 1750,
+     "pitzAfterPurchase": 1650,
+     "dexAfter": 18,
+     "pitzAfter": 1900,
+     "newlyUnlocked": [
+      "cherry-tomato"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "genovese",
+     "dexBefore": 18,
+     "forced": 0,
+     "pitzAtStart": 1900,
+     "pitzAfterPurchase": 1800,
+     "dexAfter": 19,
+     "pitzAfter": 1950,
+     "newlyUnlocked": [
+      "clam"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "new-haven-apizza",
+     "dexBefore": 19,
+     "forced": 0,
+     "pitzAtStart": 1950,
+     "pitzAfterPurchase": 1850,
+     "dexAfter": 20,
+     "pitzAfter": 2000,
+     "newlyUnlocked": [
+      "fresh-tomato"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "pesto-caprese",
+     "dexBefore": 20,
+     "forced": 0,
+     "pitzAtStart": 2000,
+     "pitzAfterPurchase": 1900,
+     "dexAfter": 21,
+     "pitzAfter": 2150,
+     "newlyUnlocked": [
+      "potato"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "pesto-patate",
+     "dexBefore": 21,
+     "forced": 0,
+     "pitzAtStart": 2150,
+     "pitzAfterPurchase": 2050,
+     "dexAfter": 22,
+     "pitzAfter": 2200,
+     "newlyUnlocked": [
+      "rosemary"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "pizza-bianca",
+     "dexBefore": 22,
+     "forced": 0,
+     "pitzAtStart": 2200,
+     "pitzAfterPurchase": 2100,
+     "dexAfter": 23,
+     "pitzAfter": 2250,
+     "newlyUnlocked": [
+      "capers"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "puttanesca-pizza",
+     "dexBefore": 23,
+     "forced": 0,
+     "pitzAtStart": 2250,
+     "pitzAfterPurchase": 2150,
+     "dexAfter": 24,
+     "pitzAfter": 2400,
+     "newlyUnlocked": [
+      "fontina",
+      "gorgonzola"
+     ],
+     "unlockCost": 200,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "quattro-formaggi",
+     "dexBefore": 24,
+     "forced": 0,
+     "pitzAtStart": 2400,
+     "pitzAfterPurchase": 2200,
+     "dexAfter": 25,
+     "pitzAfter": 2350,
+     "newlyUnlocked": [],
+     "unlockCost": 0,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    }
+   ],
+   "endingStock": {
+    "anchovy": 21,
+    "bacon": 18,
+    "black-olive": 6,
+    "capers": 16,
+    "cherry-tomato": 27,
+    "clam": 27,
+    "corn": 27,
+    "egg": 6,
+    "eggplant": 21,
+    "fontina": 18,
+    "fresh-tomato": 24,
+    "garlic": 18,
+    "gorgonzola": 18,
+    "ham": 19,
+    "mushroom": 23,
+    "olive-oil": 6,
+    "onion": 28,
+    "oregano": 12,
+    "parmigiano": 12,
+    "pepperoni": 34,
+    "pesto": 4,
+    "pineapple": 27,
+    "potato": 27,
+    "rosemary": 27,
+    "sausage": 23,
+    "tuna": 21
+   },
+   "discovered": 25,
+   "label": "B. Normal",
+   "old15": {
+    "totals": {
+     "earned": 2750,
+     "first_spend": 1420,
+     "refill_spend": 0,
+     "bakes": 20,
+     "forced": 0,
+     "voluntary": 5,
+     "failures": 0,
+     "shop_visits": 14,
+     "refills": 0,
+     "blocked_unlocks": 0
+    },
+    "endingPitz": 1330,
+    "minBalance": 90,
+    "maxForcedStreak": 0,
+    "minutes": 28.5,
+    "endingStock": {
+     "anchovy": 27,
+     "bacon": 22,
+     "black-olive": 18,
+     "cherry-tomato": 27,
+     "egg": 7,
+     "fontina": 16,
+     "garlic": 24,
+     "gorgonzola": 16,
+     "ham": 8,
+     "mushroom": 25,
+     "olive-oil": 5,
+     "onion": 34,
+     "oregano": 13,
+     "parmigiano": 16,
+     "pepperoni": 35,
+     "pesto": 9,
+     "rosemary": 24,
+     "sausage": 22,
+     "tuna": 27
+    },
+    "discovered": 15
+   }
+  },
+  "C_Explorer": {
+   "totals": {
+    "earned": 5170,
+    "first_spend": 2200,
+    "refill_spend": 120,
+    "bakes": 97,
+    "forced": 0,
+    "voluntary": 24,
+    "failures": 48,
+    "shop_visits": 27,
+    "refills": 3,
+    "blocked_unlocks": 0
+   },
+   "endingPitz": 2850,
+   "minBalance": 70,
+   "maxForcedStreak": 0,
+   "minutes": 128.0,
+   "perStep": [
+    {
+     "target": "margherita",
+     "dexBefore": 0,
+     "forced": 0,
+     "pitzAtStart": 0,
+     "pitzAfterPurchase": 0,
+     "dexAfter": 1,
+     "pitzAfter": 130,
+     "newlyUnlocked": [
+      "egg"
+     ],
+     "unlockCost": 60,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "bismarck",
+     "dexBefore": 1,
+     "forced": 0,
+     "pitzAtStart": 130,
+     "pitzAfterPurchase": 70,
+     "dexAfter": 2,
+     "pitzAfter": 280,
+     "newlyUnlocked": [
+      "bacon"
+     ],
+     "unlockCost": 60,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "breakfast-pizza",
+     "dexBefore": 2,
+     "forced": 0,
+     "pitzAtStart": 280,
+     "pitzAfterPurchase": 220,
+     "dexAfter": 3,
+     "pitzAfter": 430,
+     "newlyUnlocked": [
+      "mushroom"
+     ],
+     "unlockCost": 60,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "funghi",
+     "dexBefore": 3,
+     "forced": 0,
+     "pitzAtStart": 430,
+     "pitzAfterPurchase": 370,
+     "dexAfter": 4,
+     "pitzAfter": 580,
+     "newlyUnlocked": [
+      "eggplant"
+     ],
+     "unlockCost": 60,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "melanzane-pizza",
+     "dexBefore": 4,
+     "forced": 0,
+     "pitzAtStart": 580,
+     "pitzAfterPurchase": 520,
+     "dexAfter": 5,
+     "pitzAfter": 730,
+     "newlyUnlocked": [
+      "parmigiano"
+     ],
+     "unlockCost": 60,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "parmigiana-pizza",
+     "dexBefore": 5,
+     "forced": 0,
+     "pitzAtStart": 730,
+     "pitzAfterPurchase": 670,
+     "dexAfter": 6,
+     "pitzAfter": 880,
+     "newlyUnlocked": [
+      "pepperoni"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "pepperoni",
+     "dexBefore": 6,
+     "forced": 0,
+     "pitzAtStart": 880,
+     "pitzAfterPurchase": 800,
+     "dexAfter": 7,
+     "pitzAfter": 1010,
+     "newlyUnlocked": [
+      "sausage"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "salsiccia",
+     "dexBefore": 7,
+     "forced": 0,
+     "pitzAtStart": 1010,
+     "pitzAfterPurchase": 930,
+     "dexAfter": 8,
+     "pitzAfter": 1140,
+     "newlyUnlocked": [
+      "ham"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "meat-lovers",
+     "dexBefore": 8,
+     "forced": 0,
+     "pitzAtStart": 1140,
+     "pitzAfterPurchase": 1060,
+     "dexAfter": 9,
+     "pitzAfter": 1270,
+     "newlyUnlocked": [
+      "corn"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "bambino",
+     "dexBefore": 9,
+     "forced": 0,
+     "pitzAtStart": 1270,
+     "pitzAfterPurchase": 1190,
+     "dexAfter": 10,
+     "pitzAfter": 1400,
+     "newlyUnlocked": [
+      "pineapple"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "hawaiian",
+     "dexBefore": 10,
+     "forced": 0,
+     "pitzAtStart": 1400,
+     "pitzAfterPurchase": 1320,
+     "dexAfter": 11,
+     "pitzAfter": 1530,
+     "newlyUnlocked": [
+      "black-olive",
+      "oregano"
+     ],
+     "unlockCost": 160,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "capricciosa",
+     "dexBefore": 11,
+     "forced": 0,
+     "pitzAtStart": 1530,
+     "pitzAfterPurchase": 1370,
+     "dexAfter": 12,
+     "pitzAfter": 1580,
+     "newlyUnlocked": [
+      "onion"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "pizza-portuguesa",
+     "dexBefore": 12,
+     "forced": 0,
+     "pitzAtStart": 1580,
+     "pitzAfterPurchase": 1500,
+     "dexAfter": 13,
+     "pitzAfter": 1710,
+     "newlyUnlocked": [
+      "olive-oil"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "fugazza",
+     "dexBefore": 13,
+     "forced": 0,
+     "pitzAtStart": 1710,
+     "pitzAfterPurchase": 1630,
+     "dexAfter": 14,
+     "pitzAfter": 1840,
+     "newlyUnlocked": [
+      "garlic"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "marinara",
+     "dexBefore": 14,
+     "forced": 0,
+     "pitzAtStart": 1840,
+     "pitzAfterPurchase": 1760,
+     "dexAfter": 15,
+     "pitzAfter": 1970,
+     "newlyUnlocked": [
+      "anchovy"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "napoletana",
+     "dexBefore": 15,
+     "forced": 0,
+     "pitzAtStart": 1970,
+     "pitzAfterPurchase": 1870,
+     "dexAfter": 16,
+     "pitzAfter": 2080,
+     "newlyUnlocked": [
+      "tuna"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "tonno-e-cipolla",
+     "dexBefore": 16,
+     "forced": 0,
+     "pitzAtStart": 2080,
+     "pitzAfterPurchase": 1980,
+     "dexAfter": 17,
+     "pitzAfter": 2190,
+     "newlyUnlocked": [
+      "pesto"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "pesto-tonno",
+     "dexBefore": 17,
+     "forced": 0,
+     "pitzAtStart": 2190,
+     "pitzAfterPurchase": 2090,
+     "dexAfter": 18,
+     "pitzAfter": 2300,
+     "newlyUnlocked": [
+      "cherry-tomato"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "genovese",
+     "dexBefore": 18,
+     "forced": 0,
+     "pitzAtStart": 2300,
+     "pitzAfterPurchase": 2200,
+     "dexAfter": 19,
+     "pitzAfter": 2410,
+     "newlyUnlocked": [
+      "clam"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "new-haven-apizza",
+     "dexBefore": 19,
+     "forced": 0,
+     "pitzAtStart": 2410,
+     "pitzAfterPurchase": 2310,
+     "dexAfter": 20,
+     "pitzAfter": 2520,
+     "newlyUnlocked": [
+      "fresh-tomato"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "pesto-caprese",
+     "dexBefore": 20,
+     "forced": 0,
+     "pitzAtStart": 2520,
+     "pitzAfterPurchase": 2420,
+     "dexAfter": 21,
+     "pitzAfter": 2630,
+     "newlyUnlocked": [
+      "potato"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "pesto-patate",
+     "dexBefore": 21,
+     "forced": 0,
+     "pitzAtStart": 2630,
+     "pitzAfterPurchase": 2530,
+     "dexAfter": 22,
+     "pitzAfter": 2660,
+     "newlyUnlocked": [
+      "rosemary"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "pizza-bianca",
+     "dexBefore": 22,
+     "forced": 0,
+     "pitzAtStart": 2660,
+     "pitzAfterPurchase": 2560,
+     "dexAfter": 23,
+     "pitzAfter": 2770,
+     "newlyUnlocked": [
+      "capers"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "puttanesca-pizza",
+     "dexBefore": 23,
+     "forced": 0,
+     "pitzAtStart": 2770,
+     "pitzAfterPurchase": 2670,
+     "dexAfter": 24,
+     "pitzAfter": 2880,
+     "newlyUnlocked": [
+      "fontina",
+      "gorgonzola"
+     ],
+     "unlockCost": 200,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "quattro-formaggi",
+     "dexBefore": 24,
+     "forced": 0,
+     "pitzAtStart": 2880,
+     "pitzAfterPurchase": 2680,
+     "dexAfter": 25,
+     "pitzAfter": 2850,
+     "newlyUnlocked": [],
+     "unlockCost": 0,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    }
+   ],
+   "endingStock": {
+    "anchovy": 6,
+    "bacon": 20,
+    "black-olive": 4,
+    "capers": 12,
+    "cherry-tomato": 14,
+    "clam": 14,
+    "corn": 10,
+    "egg": 2,
+    "eggplant": 10,
+    "fontina": 16,
+    "fresh-tomato": 14,
+    "garlic": 4,
+    "gorgonzola": 12,
+    "ham": 6,
+    "mushroom": 6,
+    "olive-oil": 10,
+    "onion": 6,
+    "oregano": 6,
+    "parmigiano": 2,
+    "pepperoni": 12,
+    "pesto": 10,
+    "pineapple": 12,
+    "potato": 18,
+    "rosemary": 18,
+    "sausage": 12,
+    "tuna": 12
+   },
+   "discovered": 25,
+   "label": "C. Explorer",
+   "old15": {
+    "totals": {
+     "earned": 3070,
+     "first_spend": 1420,
+     "refill_spend": 0,
+     "bakes": 57,
+     "forced": 0,
+     "voluntary": 14,
+     "failures": 28,
+     "shop_visits": 14,
+     "refills": 0,
+     "blocked_unlocks": 0
+    },
+    "endingPitz": 1650,
+    "minBalance": 70,
+    "maxForcedStreak": 0,
+    "minutes": 74.8,
+    "endingStock": {
+     "anchovy": 14,
+     "bacon": 10,
+     "black-olive": 14,
+     "cherry-tomato": 20,
+     "egg": 4,
+     "fontina": 16,
+     "garlic": 14,
+     "gorgonzola": 12,
+     "ham": 4,
+     "mushroom": 6,
+     "olive-oil": 2,
+     "onion": 20,
+     "oregano": 6,
+     "parmigiano": 16,
+     "pepperoni": 14,
+     "pesto": 6,
+     "rosemary": 14,
+     "sausage": 12,
+     "tuna": 18
+    },
+    "discovered": 15
+   }
+  },
+  "D_LowScore": {
+   "totals": {
+    "earned": 3700,
+    "first_spend": 2200,
+    "refill_spend": 200,
+    "bakes": 57,
+    "forced": 0,
+    "voluntary": 24,
+    "failures": 8,
+    "shop_visits": 27,
+    "refills": 5,
+    "blocked_unlocks": 0
+   },
+   "endingPitz": 1300,
+   "minBalance": 40,
+   "maxForcedStreak": 0,
+   "minutes": 78.0,
+   "perStep": [
+    {
+     "target": "margherita",
+     "dexBefore": 0,
+     "forced": 0,
+     "pitzAtStart": 0,
+     "pitzAfterPurchase": 0,
+     "dexAfter": 1,
+     "pitzAfter": 100,
+     "newlyUnlocked": [
+      "egg"
+     ],
+     "unlockCost": 60,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "bismarck",
+     "dexBefore": 1,
+     "forced": 0,
+     "pitzAtStart": 100,
+     "pitzAfterPurchase": 40,
+     "dexAfter": 2,
+     "pitzAfter": 190,
+     "newlyUnlocked": [
+      "bacon"
+     ],
+     "unlockCost": 60,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "breakfast-pizza",
+     "dexBefore": 2,
+     "forced": 0,
+     "pitzAtStart": 190,
+     "pitzAfterPurchase": 130,
+     "dexAfter": 3,
+     "pitzAfter": 280,
+     "newlyUnlocked": [
+      "mushroom"
+     ],
+     "unlockCost": 60,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "funghi",
+     "dexBefore": 3,
+     "forced": 0,
+     "pitzAtStart": 280,
+     "pitzAfterPurchase": 220,
+     "dexAfter": 4,
+     "pitzAfter": 370,
+     "newlyUnlocked": [
+      "eggplant"
+     ],
+     "unlockCost": 60,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "melanzane-pizza",
+     "dexBefore": 4,
+     "forced": 0,
+     "pitzAtStart": 370,
+     "pitzAfterPurchase": 310,
+     "dexAfter": 5,
+     "pitzAfter": 460,
+     "newlyUnlocked": [
+      "parmigiano"
+     ],
+     "unlockCost": 60,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "parmigiana-pizza",
+     "dexBefore": 5,
+     "forced": 0,
+     "pitzAtStart": 460,
+     "pitzAfterPurchase": 400,
+     "dexAfter": 6,
+     "pitzAfter": 550,
+     "newlyUnlocked": [
+      "pepperoni"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "pepperoni",
+     "dexBefore": 6,
+     "forced": 0,
+     "pitzAtStart": 550,
+     "pitzAfterPurchase": 470,
+     "dexAfter": 7,
+     "pitzAfter": 620,
+     "newlyUnlocked": [
+      "sausage"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "salsiccia",
+     "dexBefore": 7,
+     "forced": 0,
+     "pitzAtStart": 620,
+     "pitzAfterPurchase": 540,
+     "dexAfter": 8,
+     "pitzAfter": 690,
+     "newlyUnlocked": [
+      "ham"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "meat-lovers",
+     "dexBefore": 8,
+     "forced": 0,
+     "pitzAtStart": 690,
+     "pitzAfterPurchase": 610,
+     "dexAfter": 9,
+     "pitzAfter": 760,
+     "newlyUnlocked": [
+      "corn"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "bambino",
+     "dexBefore": 9,
+     "forced": 0,
+     "pitzAtStart": 760,
+     "pitzAfterPurchase": 680,
+     "dexAfter": 10,
+     "pitzAfter": 830,
+     "newlyUnlocked": [
+      "pineapple"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "hawaiian",
+     "dexBefore": 10,
+     "forced": 0,
+     "pitzAtStart": 830,
+     "pitzAfterPurchase": 750,
+     "dexAfter": 11,
+     "pitzAfter": 900,
+     "newlyUnlocked": [
+      "black-olive",
+      "oregano"
+     ],
+     "unlockCost": 160,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "capricciosa",
+     "dexBefore": 11,
+     "forced": 0,
+     "pitzAtStart": 900,
+     "pitzAfterPurchase": 740,
+     "dexAfter": 12,
+     "pitzAfter": 890,
+     "newlyUnlocked": [
+      "onion"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "pizza-portuguesa",
+     "dexBefore": 12,
+     "forced": 0,
+     "pitzAtStart": 890,
+     "pitzAfterPurchase": 810,
+     "dexAfter": 13,
+     "pitzAfter": 890,
+     "newlyUnlocked": [
+      "olive-oil"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "fugazza",
+     "dexBefore": 13,
+     "forced": 0,
+     "pitzAtStart": 890,
+     "pitzAfterPurchase": 810,
+     "dexAfter": 14,
+     "pitzAfter": 960,
+     "newlyUnlocked": [
+      "garlic"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "marinara",
+     "dexBefore": 14,
+     "forced": 0,
+     "pitzAtStart": 960,
+     "pitzAfterPurchase": 880,
+     "dexAfter": 15,
+     "pitzAfter": 1030,
+     "newlyUnlocked": [
+      "anchovy"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "napoletana",
+     "dexBefore": 15,
+     "forced": 0,
+     "pitzAtStart": 1030,
+     "pitzAfterPurchase": 930,
+     "dexAfter": 16,
+     "pitzAfter": 1040,
+     "newlyUnlocked": [
+      "tuna"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "tonno-e-cipolla",
+     "dexBefore": 16,
+     "forced": 0,
+     "pitzAtStart": 1040,
+     "pitzAfterPurchase": 940,
+     "dexAfter": 17,
+     "pitzAfter": 1090,
+     "newlyUnlocked": [
+      "pesto"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "pesto-tonno",
+     "dexBefore": 17,
+     "forced": 0,
+     "pitzAtStart": 1090,
+     "pitzAfterPurchase": 990,
+     "dexAfter": 18,
+     "pitzAfter": 1140,
+     "newlyUnlocked": [
+      "cherry-tomato"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "genovese",
+     "dexBefore": 18,
+     "forced": 0,
+     "pitzAtStart": 1140,
+     "pitzAfterPurchase": 1040,
+     "dexAfter": 19,
+     "pitzAfter": 1190,
+     "newlyUnlocked": [
+      "clam"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "new-haven-apizza",
+     "dexBefore": 19,
+     "forced": 0,
+     "pitzAtStart": 1190,
+     "pitzAfterPurchase": 1090,
+     "dexAfter": 20,
+     "pitzAfter": 1240,
+     "newlyUnlocked": [
+      "fresh-tomato"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "pesto-caprese",
+     "dexBefore": 20,
+     "forced": 0,
+     "pitzAtStart": 1240,
+     "pitzAfterPurchase": 1140,
+     "dexAfter": 21,
+     "pitzAfter": 1290,
+     "newlyUnlocked": [
+      "potato"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "pesto-patate",
+     "dexBefore": 21,
+     "forced": 0,
+     "pitzAtStart": 1290,
+     "pitzAfterPurchase": 1190,
+     "dexAfter": 22,
+     "pitzAfter": 1340,
+     "newlyUnlocked": [
+      "rosemary"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "pizza-bianca",
+     "dexBefore": 22,
+     "forced": 0,
+     "pitzAtStart": 1340,
+     "pitzAfterPurchase": 1240,
+     "dexAfter": 23,
+     "pitzAfter": 1390,
+     "newlyUnlocked": [
+      "capers"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "puttanesca-pizza",
+     "dexBefore": 23,
+     "forced": 0,
+     "pitzAtStart": 1390,
+     "pitzAfterPurchase": 1250,
+     "dexAfter": 24,
+     "pitzAfter": 1400,
+     "newlyUnlocked": [
+      "fontina",
+      "gorgonzola"
+     ],
+     "unlockCost": 200,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "quattro-formaggi",
+     "dexBefore": 24,
+     "forced": 0,
+     "pitzAtStart": 1400,
+     "pitzAfterPurchase": 1200,
+     "dexAfter": 25,
+     "pitzAfter": 1300,
+     "newlyUnlocked": [],
+     "unlockCost": 0,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    }
+   ],
+   "endingStock": {
+    "anchovy": 30,
+    "bacon": 5,
+    "black-olive": 13,
+    "capers": 11,
+    "cherry-tomato": 15,
+    "clam": 20,
+    "corn": 15,
+    "egg": 6,
+    "eggplant": 10,
+    "fontina": 14,
+    "fresh-tomato": 20,
+    "garlic": 5,
+    "gorgonzola": 14,
+    "ham": 22,
+    "mushroom": 9,
+    "olive-oil": 2,
+    "onion": 7,
+    "oregano": 20,
+    "parmigiano": 2,
+    "pepperoni": 18,
+    "pesto": 1,
+    "pineapple": 20,
+    "potato": 15,
+    "rosemary": 20,
+    "sausage": 14,
+    "tuna": 10
+   },
+   "discovered": 25,
+   "label": "D. Low-score / high-consumption",
+   "old15": {
+    "totals": {
+     "earned": 2200,
+     "first_spend": 1420,
+     "refill_spend": 80,
+     "bakes": 33,
+     "forced": 0,
+     "voluntary": 14,
+     "failures": 4,
+     "shop_visits": 16,
+     "refills": 2,
+     "blocked_unlocks": 0
+    },
+    "endingPitz": 700,
+    "minBalance": 40,
+    "maxForcedStreak": 0,
+    "minutes": 45.2,
+    "endingStock": {
+     "anchovy": 15,
+     "bacon": 11,
+     "black-olive": 14,
+     "cherry-tomato": 20,
+     "egg": 2,
+     "fontina": 14,
+     "garlic": 20,
+     "gorgonzola": 14,
+     "ham": 10,
+     "mushroom": 9,
+     "olive-oil": 4,
+     "onion": 19,
+     "oregano": 20,
+     "parmigiano": 14,
+     "pepperoni": 22,
+     "pesto": 8,
+     "rosemary": 20,
+     "sausage": 11,
+     "tuna": 15
+    },
+    "discovered": 15
+   }
+  },
+  "E_Floor": {
+   "totals": {
+    "earned": 2270,
+    "first_spend": 2200,
+    "refill_spend": 0,
+    "bakes": 51,
+    "forced": 26,
+    "voluntary": 0,
+    "failures": 0,
+    "shop_visits": 24,
+    "refills": 0,
+    "blocked_unlocks": 12
+   },
+   "endingPitz": 70,
+   "minBalance": 0,
+   "maxForcedStreak": 6,
+   "minutes": 69.8,
+   "perStep": [
+    {
+     "target": "margherita",
+     "dexBefore": 0,
+     "forced": 0,
+     "pitzAtStart": 0,
+     "pitzAfterPurchase": 0,
+     "dexAfter": 1,
+     "pitzAfter": 70,
+     "newlyUnlocked": [
+      "egg"
+     ],
+     "unlockCost": 60,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "bismarck",
+     "dexBefore": 1,
+     "forced": 0,
+     "pitzAtStart": 70,
+     "pitzAfterPurchase": 10,
+     "dexAfter": 2,
+     "pitzAfter": 80,
+     "newlyUnlocked": [
+      "bacon"
+     ],
+     "unlockCost": 60,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "breakfast-pizza",
+     "dexBefore": 2,
+     "forced": 0,
+     "pitzAtStart": 80,
+     "pitzAfterPurchase": 20,
+     "dexAfter": 3,
+     "pitzAfter": 90,
+     "newlyUnlocked": [
+      "mushroom"
+     ],
+     "unlockCost": 60,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "funghi",
+     "dexBefore": 3,
+     "forced": 0,
+     "pitzAtStart": 90,
+     "pitzAfterPurchase": 30,
+     "dexAfter": 4,
+     "pitzAfter": 100,
+     "newlyUnlocked": [
+      "eggplant"
+     ],
+     "unlockCost": 60,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "melanzane-pizza",
+     "dexBefore": 4,
+     "forced": 0,
+     "pitzAtStart": 100,
+     "pitzAfterPurchase": 40,
+     "dexAfter": 5,
+     "pitzAfter": 110,
+     "newlyUnlocked": [
+      "parmigiano"
+     ],
+     "unlockCost": 60,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "parmigiana-pizza",
+     "dexBefore": 5,
+     "forced": 0,
+     "pitzAtStart": 110,
+     "pitzAfterPurchase": 50,
+     "dexAfter": 6,
+     "pitzAfter": 120,
+     "newlyUnlocked": [
+      "pepperoni"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "pepperoni",
+     "dexBefore": 6,
+     "forced": 0,
+     "pitzAtStart": 120,
+     "pitzAfterPurchase": 40,
+     "dexAfter": 7,
+     "pitzAfter": 110,
+     "newlyUnlocked": [
+      "sausage"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "salsiccia",
+     "dexBefore": 7,
+     "forced": 0,
+     "pitzAtStart": 110,
+     "pitzAfterPurchase": 30,
+     "dexAfter": 8,
+     "pitzAfter": 100,
+     "newlyUnlocked": [
+      "ham"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "meat-lovers",
+     "dexBefore": 8,
+     "forced": 0,
+     "pitzAtStart": 100,
+     "pitzAfterPurchase": 20,
+     "dexAfter": 9,
+     "pitzAfter": 90,
+     "newlyUnlocked": [
+      "corn"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "bambino",
+     "dexBefore": 9,
+     "forced": 0,
+     "pitzAtStart": 90,
+     "pitzAfterPurchase": 10,
+     "dexAfter": 10,
+     "pitzAfter": 80,
+     "newlyUnlocked": [
+      "pineapple"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "hawaiian",
+     "dexBefore": 10,
+     "forced": 0,
+     "pitzAtStart": 80,
+     "pitzAfterPurchase": 0,
+     "dexAfter": 11,
+     "pitzAfter": 70,
+     "newlyUnlocked": [
+      "black-olive",
+      "oregano"
+     ],
+     "unlockCost": 160,
+     "blockedAtUnlock": true,
+     "shortfallAtUnlock": 90
+    },
+    {
+     "target": "capricciosa",
+     "dexBefore": 11,
+     "forced": 5,
+     "pitzAtStart": 70,
+     "pitzAfterPurchase": 10,
+     "dexAfter": 12,
+     "pitzAfter": 80,
+     "newlyUnlocked": [
+      "onion"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "pizza-portuguesa",
+     "dexBefore": 12,
+     "forced": 0,
+     "pitzAtStart": 80,
+     "pitzAfterPurchase": 0,
+     "dexAfter": 13,
+     "pitzAfter": 70,
+     "newlyUnlocked": [
+      "olive-oil"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": true,
+     "shortfallAtUnlock": 10
+    },
+    {
+     "target": "fugazza",
+     "dexBefore": 13,
+     "forced": 1,
+     "pitzAtStart": 70,
+     "pitzAfterPurchase": 10,
+     "dexAfter": 14,
+     "pitzAfter": 80,
+     "newlyUnlocked": [
+      "garlic"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "marinara",
+     "dexBefore": 14,
+     "forced": 0,
+     "pitzAtStart": 80,
+     "pitzAfterPurchase": 0,
+     "dexAfter": 15,
+     "pitzAfter": 70,
+     "newlyUnlocked": [
+      "anchovy"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": true,
+     "shortfallAtUnlock": 30
+    },
+    {
+     "target": "napoletana",
+     "dexBefore": 15,
+     "forced": 2,
+     "pitzAtStart": 70,
+     "pitzAfterPurchase": 10,
+     "dexAfter": 16,
+     "pitzAfter": 80,
+     "newlyUnlocked": [
+      "tuna"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": true,
+     "shortfallAtUnlock": 20
+    },
+    {
+     "target": "tonno-e-cipolla",
+     "dexBefore": 16,
+     "forced": 1,
+     "pitzAtStart": 80,
+     "pitzAfterPurchase": 0,
+     "dexAfter": 17,
+     "pitzAfter": 70,
+     "newlyUnlocked": [
+      "pesto"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": true,
+     "shortfallAtUnlock": 30
+    },
+    {
+     "target": "pesto-tonno",
+     "dexBefore": 17,
+     "forced": 2,
+     "pitzAtStart": 70,
+     "pitzAfterPurchase": 10,
+     "dexAfter": 18,
+     "pitzAfter": 80,
+     "newlyUnlocked": [
+      "cherry-tomato"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": true,
+     "shortfallAtUnlock": 20
+    },
+    {
+     "target": "genovese",
+     "dexBefore": 18,
+     "forced": 1,
+     "pitzAtStart": 80,
+     "pitzAfterPurchase": 0,
+     "dexAfter": 19,
+     "pitzAfter": 70,
+     "newlyUnlocked": [
+      "clam"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": true,
+     "shortfallAtUnlock": 30
+    },
+    {
+     "target": "new-haven-apizza",
+     "dexBefore": 19,
+     "forced": 2,
+     "pitzAtStart": 70,
+     "pitzAfterPurchase": 10,
+     "dexAfter": 20,
+     "pitzAfter": 80,
+     "newlyUnlocked": [
+      "fresh-tomato"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": true,
+     "shortfallAtUnlock": 20
+    },
+    {
+     "target": "pesto-caprese",
+     "dexBefore": 20,
+     "forced": 1,
+     "pitzAtStart": 80,
+     "pitzAfterPurchase": 0,
+     "dexAfter": 21,
+     "pitzAfter": 70,
+     "newlyUnlocked": [
+      "potato"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": true,
+     "shortfallAtUnlock": 30
+    },
+    {
+     "target": "pesto-patate",
+     "dexBefore": 21,
+     "forced": 2,
+     "pitzAtStart": 70,
+     "pitzAfterPurchase": 10,
+     "dexAfter": 22,
+     "pitzAfter": 80,
+     "newlyUnlocked": [
+      "rosemary"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": true,
+     "shortfallAtUnlock": 20
+    },
+    {
+     "target": "pizza-bianca",
+     "dexBefore": 22,
+     "forced": 1,
+     "pitzAtStart": 80,
+     "pitzAfterPurchase": 0,
+     "dexAfter": 23,
+     "pitzAfter": 70,
+     "newlyUnlocked": [
+      "capers"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": true,
+     "shortfallAtUnlock": 30
+    },
+    {
+     "target": "puttanesca-pizza",
+     "dexBefore": 23,
+     "forced": 2,
+     "pitzAtStart": 70,
+     "pitzAfterPurchase": 10,
+     "dexAfter": 24,
+     "pitzAfter": 80,
+     "newlyUnlocked": [
+      "fontina",
+      "gorgonzola"
+     ],
+     "unlockCost": 200,
+     "blockedAtUnlock": true,
+     "shortfallAtUnlock": 120
+    },
+    {
+     "target": "quattro-formaggi",
+     "dexBefore": 24,
+     "forced": 6,
+     "pitzAtStart": 80,
+     "pitzAfterPurchase": 0,
+     "dexAfter": 25,
+     "pitzAfter": 70,
+     "newlyUnlocked": [],
+     "unlockCost": 0,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    }
+   ],
+   "endingStock": {
+    "anchovy": 24,
+    "bacon": 23,
+    "black-olive": 12,
+    "capers": 18,
+    "cherry-tomato": 27,
+    "clam": 27,
+    "corn": 27,
+    "egg": 7,
+    "eggplant": 24,
+    "fontina": 18,
+    "fresh-tomato": 27,
+    "garlic": 23,
+    "gorgonzola": 18,
+    "ham": 21,
+    "mushroom": 25,
+    "olive-oil": 6,
+    "onion": 30,
+    "oregano": 15,
+    "parmigiano": 14,
+    "pepperoni": 35,
+    "pesto": 6,
+    "pineapple": 27,
+    "potato": 27,
+    "rosemary": 27,
+    "sausage": 25,
+    "tuna": 24
+   },
+   "discovered": 25,
+   "label": "E. Floor (★1 stress, added)",
+   "old15": {
+    "totals": {
+     "earned": 1490,
+     "first_spend": 1420,
+     "refill_spend": 0,
+     "bakes": 37,
+     "forced": 22,
+     "voluntary": 0,
+     "failures": 0,
+     "shop_visits": 14,
+     "refills": 0,
+     "blocked_unlocks": 6
+    },
+    "endingPitz": 70,
+    "minBalance": 0,
+    "maxForcedStreak": 8,
+    "minutes": 49.8,
+    "endingStock": {
+     "anchovy": 27,
+     "bacon": 25,
+     "black-olive": 18,
+     "cherry-tomato": 27,
+     "egg": 8,
+     "fontina": 18,
+     "garlic": 27,
+     "gorgonzola": 18,
+     "ham": 8,
+     "mushroom": 25,
+     "olive-oil": 7,
+     "onion": 34,
+     "oregano": 15,
+     "parmigiano": 18,
+     "pepperoni": 35,
+     "pesto": 9,
+     "rosemary": 27,
+     "sausage": 25,
+     "tuna": 27
+    },
+    "discovered": 15
+   }
+  },
+  "F_Skilled": {
+   "totals": {
+    "earned": 4500,
+    "first_spend": 2200,
+    "refill_spend": 0,
+    "bakes": 25,
+    "forced": 0,
+    "voluntary": 0,
+    "failures": 0,
+    "shop_visits": 24,
+    "refills": 0,
+    "blocked_unlocks": 0
+   },
+   "endingPitz": 2300,
+   "minBalance": 120,
+   "maxForcedStreak": 0,
+   "minutes": 37.2,
+   "perStep": [
+    {
+     "target": "margherita",
+     "dexBefore": 0,
+     "forced": 0,
+     "pitzAtStart": 0,
+     "pitzAfterPurchase": 0,
+     "dexAfter": 1,
+     "pitzAfter": 180,
+     "newlyUnlocked": [
+      "egg"
+     ],
+     "unlockCost": 60,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "bismarck",
+     "dexBefore": 1,
+     "forced": 0,
+     "pitzAtStart": 180,
+     "pitzAfterPurchase": 120,
+     "dexAfter": 2,
+     "pitzAfter": 300,
+     "newlyUnlocked": [
+      "bacon"
+     ],
+     "unlockCost": 60,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "breakfast-pizza",
+     "dexBefore": 2,
+     "forced": 0,
+     "pitzAtStart": 300,
+     "pitzAfterPurchase": 240,
+     "dexAfter": 3,
+     "pitzAfter": 420,
+     "newlyUnlocked": [
+      "mushroom"
+     ],
+     "unlockCost": 60,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "funghi",
+     "dexBefore": 3,
+     "forced": 0,
+     "pitzAtStart": 420,
+     "pitzAfterPurchase": 360,
+     "dexAfter": 4,
+     "pitzAfter": 540,
+     "newlyUnlocked": [
+      "eggplant"
+     ],
+     "unlockCost": 60,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "melanzane-pizza",
+     "dexBefore": 4,
+     "forced": 0,
+     "pitzAtStart": 540,
+     "pitzAfterPurchase": 480,
+     "dexAfter": 5,
+     "pitzAfter": 660,
+     "newlyUnlocked": [
+      "parmigiano"
+     ],
+     "unlockCost": 60,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "parmigiana-pizza",
+     "dexBefore": 5,
+     "forced": 0,
+     "pitzAtStart": 660,
+     "pitzAfterPurchase": 600,
+     "dexAfter": 6,
+     "pitzAfter": 780,
+     "newlyUnlocked": [
+      "pepperoni"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "pepperoni",
+     "dexBefore": 6,
+     "forced": 0,
+     "pitzAtStart": 780,
+     "pitzAfterPurchase": 700,
+     "dexAfter": 7,
+     "pitzAfter": 880,
+     "newlyUnlocked": [
+      "sausage"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "salsiccia",
+     "dexBefore": 7,
+     "forced": 0,
+     "pitzAtStart": 880,
+     "pitzAfterPurchase": 800,
+     "dexAfter": 8,
+     "pitzAfter": 980,
+     "newlyUnlocked": [
+      "ham"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "meat-lovers",
+     "dexBefore": 8,
+     "forced": 0,
+     "pitzAtStart": 980,
+     "pitzAfterPurchase": 900,
+     "dexAfter": 9,
+     "pitzAfter": 1080,
+     "newlyUnlocked": [
+      "corn"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "bambino",
+     "dexBefore": 9,
+     "forced": 0,
+     "pitzAtStart": 1080,
+     "pitzAfterPurchase": 1000,
+     "dexAfter": 10,
+     "pitzAfter": 1180,
+     "newlyUnlocked": [
+      "pineapple"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "hawaiian",
+     "dexBefore": 10,
+     "forced": 0,
+     "pitzAtStart": 1180,
+     "pitzAfterPurchase": 1100,
+     "dexAfter": 11,
+     "pitzAfter": 1280,
+     "newlyUnlocked": [
+      "black-olive",
+      "oregano"
+     ],
+     "unlockCost": 160,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "capricciosa",
+     "dexBefore": 11,
+     "forced": 0,
+     "pitzAtStart": 1280,
+     "pitzAfterPurchase": 1120,
+     "dexAfter": 12,
+     "pitzAfter": 1300,
+     "newlyUnlocked": [
+      "onion"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "pizza-portuguesa",
+     "dexBefore": 12,
+     "forced": 0,
+     "pitzAtStart": 1300,
+     "pitzAfterPurchase": 1220,
+     "dexAfter": 13,
+     "pitzAfter": 1400,
+     "newlyUnlocked": [
+      "olive-oil"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "fugazza",
+     "dexBefore": 13,
+     "forced": 0,
+     "pitzAtStart": 1400,
+     "pitzAfterPurchase": 1320,
+     "dexAfter": 14,
+     "pitzAfter": 1500,
+     "newlyUnlocked": [
+      "garlic"
+     ],
+     "unlockCost": 80,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "marinara",
+     "dexBefore": 14,
+     "forced": 0,
+     "pitzAtStart": 1500,
+     "pitzAfterPurchase": 1420,
+     "dexAfter": 15,
+     "pitzAfter": 1600,
+     "newlyUnlocked": [
+      "anchovy"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "napoletana",
+     "dexBefore": 15,
+     "forced": 0,
+     "pitzAtStart": 1600,
+     "pitzAfterPurchase": 1500,
+     "dexAfter": 16,
+     "pitzAfter": 1680,
+     "newlyUnlocked": [
+      "tuna"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "tonno-e-cipolla",
+     "dexBefore": 16,
+     "forced": 0,
+     "pitzAtStart": 1680,
+     "pitzAfterPurchase": 1580,
+     "dexAfter": 17,
+     "pitzAfter": 1760,
+     "newlyUnlocked": [
+      "pesto"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "pesto-tonno",
+     "dexBefore": 17,
+     "forced": 0,
+     "pitzAtStart": 1760,
+     "pitzAfterPurchase": 1660,
+     "dexAfter": 18,
+     "pitzAfter": 1840,
+     "newlyUnlocked": [
+      "cherry-tomato"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "genovese",
+     "dexBefore": 18,
+     "forced": 0,
+     "pitzAtStart": 1840,
+     "pitzAfterPurchase": 1740,
+     "dexAfter": 19,
+     "pitzAfter": 1920,
+     "newlyUnlocked": [
+      "clam"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "new-haven-apizza",
+     "dexBefore": 19,
+     "forced": 0,
+     "pitzAtStart": 1920,
+     "pitzAfterPurchase": 1820,
+     "dexAfter": 20,
+     "pitzAfter": 2000,
+     "newlyUnlocked": [
+      "fresh-tomato"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "pesto-caprese",
+     "dexBefore": 20,
+     "forced": 0,
+     "pitzAtStart": 2000,
+     "pitzAfterPurchase": 1900,
+     "dexAfter": 21,
+     "pitzAfter": 2080,
+     "newlyUnlocked": [
+      "potato"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "pesto-patate",
+     "dexBefore": 21,
+     "forced": 0,
+     "pitzAtStart": 2080,
+     "pitzAfterPurchase": 1980,
+     "dexAfter": 22,
+     "pitzAfter": 2160,
+     "newlyUnlocked": [
+      "rosemary"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "pizza-bianca",
+     "dexBefore": 22,
+     "forced": 0,
+     "pitzAtStart": 2160,
+     "pitzAfterPurchase": 2060,
+     "dexAfter": 23,
+     "pitzAfter": 2240,
+     "newlyUnlocked": [
+      "capers"
+     ],
+     "unlockCost": 100,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "puttanesca-pizza",
+     "dexBefore": 23,
+     "forced": 0,
+     "pitzAtStart": 2240,
+     "pitzAfterPurchase": 2140,
+     "dexAfter": 24,
+     "pitzAfter": 2320,
+     "newlyUnlocked": [
+      "fontina",
+      "gorgonzola"
+     ],
+     "unlockCost": 200,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    },
+    {
+     "target": "quattro-formaggi",
+     "dexBefore": 24,
+     "forced": 0,
+     "pitzAtStart": 2320,
+     "pitzAfterPurchase": 2120,
+     "dexAfter": 25,
+     "pitzAfter": 2300,
+     "newlyUnlocked": [],
+     "unlockCost": 0,
+     "blockedAtUnlock": false,
+     "shortfallAtUnlock": 0
+    }
+   ],
+   "endingStock": {
+    "anchovy": 24,
+    "bacon": 23,
+    "black-olive": 12,
+    "capers": 18,
+    "cherry-tomato": 27,
+    "clam": 27,
+    "corn": 27,
+    "egg": 7,
+    "eggplant": 24,
+    "fontina": 18,
+    "fresh-tomato": 27,
+    "garlic": 23,
+    "gorgonzola": 18,
+    "ham": 21,
+    "mushroom": 25,
+    "olive-oil": 6,
+    "onion": 30,
+    "oregano": 15,
+    "parmigiano": 14,
+    "pepperoni": 35,
+    "pesto": 6,
+    "pineapple": 27,
+    "potato": 27,
+    "rosemary": 27,
+    "sausage": 25,
+    "tuna": 24
+   },
+   "discovered": 25,
+   "label": "F. Skilled (added)",
+   "old15": {
+    "totals": {
+     "earned": 2700,
+     "first_spend": 1420,
+     "refill_spend": 0,
+     "bakes": 15,
+     "forced": 0,
+     "voluntary": 0,
+     "failures": 0,
+     "shop_visits": 14,
+     "refills": 0,
+     "blocked_unlocks": 0
+    },
+    "endingPitz": 1280,
+    "minBalance": 120,
+    "maxForcedStreak": 0,
+    "minutes": 22.2,
+    "endingStock": {
+     "anchovy": 27,
+     "bacon": 25,
+     "black-olive": 18,
+     "cherry-tomato": 27,
+     "egg": 8,
+     "fontina": 18,
+     "garlic": 27,
+     "gorgonzola": 18,
+     "ham": 8,
+     "mushroom": 25,
+     "olive-oil": 7,
+     "onion": 34,
+     "oregano": 15,
+     "parmigiano": 18,
+     "pepperoni": 35,
+     "pesto": 9,
+     "rosemary": 27,
+     "sausage": 25,
+     "tuna": 27
+    },
+    "discovered": 15
+   }
+  }
+ },
+ "sensitivity": {
+  "current": {
+   "A_Efficient": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 1700,
+    "minBalance": 96,
+    "minutes": 37.2
+   },
+   "B_Normal": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 2350,
+    "minBalance": 90,
+    "minutes": 47.2
+   },
+   "C_Explorer": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 2850,
+    "minBalance": 70,
+    "minutes": 128.0
+   },
+   "D_LowScore": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 1300,
+    "minBalance": 40,
+    "minutes": 78.0
+   },
+   "E_Floor": {
+    "forced": 26,
+    "maxStreak": 6,
+    "blocked": 12,
+    "endingPitz": 70,
+    "minBalance": 0,
+    "minutes": 69.8
+   },
+   "F_Skilled": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 2300,
+    "minBalance": 120,
+    "minutes": 37.2
+   }
+  },
+  "reward120": {
+   "A_Efficient": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 2200,
+    "minBalance": 116,
+    "minutes": 37.2
+   },
+   "B_Normal": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 3010,
+    "minBalance": 110,
+    "minutes": 47.2
+   },
+   "C_Explorer": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 3634,
+    "minBalance": 86,
+    "minutes": 128.0
+   },
+   "D_LowScore": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 1790,
+    "minBalance": 50,
+    "minutes": 78.0
+   },
+   "E_Floor": {
+    "forced": 26,
+    "maxStreak": 6,
+    "blocked": 12,
+    "endingPitz": 70,
+    "minBalance": 0,
+    "minutes": 69.8
+   },
+   "F_Skilled": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 2900,
+    "minBalance": 144,
+    "minutes": 37.2
+   }
+  },
+  "first-20": {
+   "A_Efficient": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 2220,
+    "minBalance": 116,
+    "minutes": 37.2
+   },
+   "B_Normal": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 2870,
+    "minBalance": 110,
+    "minutes": 47.2
+   },
+   "C_Explorer": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 3370,
+    "minBalance": 90,
+    "minutes": 128.0
+   },
+   "D_LowScore": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 1820,
+    "minBalance": 60,
+    "minutes": 78.0
+   },
+   "E_Floor": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 70,
+    "minBalance": 0,
+    "minutes": 37.2
+   },
+   "F_Skilled": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 2820,
+    "minBalance": 140,
+    "minutes": 37.2
+   }
+  },
+  "firstPackFree": {
+   "A_Efficient": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 3900,
+    "minBalance": 156,
+    "minutes": 37.2
+   },
+   "B_Normal": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 4550,
+    "minBalance": 150,
+    "minutes": 47.2
+   },
+   "C_Explorer": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 5050,
+    "minBalance": 130,
+    "minutes": 128.0
+   },
+   "D_LowScore": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 3500,
+    "minBalance": 100,
+    "minutes": 78.0
+   },
+   "E_Floor": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 1750,
+    "minBalance": 70,
+    "minutes": 37.2
+   },
+   "F_Skilled": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 4500,
+    "minBalance": 180,
+    "minutes": 37.2
+   }
+  },
+  "first50pct": {
+   "A_Efficient": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 2800,
+    "minBalance": 126,
+    "minutes": 37.2
+   },
+   "B_Normal": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 3450,
+    "minBalance": 120,
+    "minutes": 47.2
+   },
+   "C_Explorer": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 3950,
+    "minBalance": 100,
+    "minutes": 128.0
+   },
+   "D_LowScore": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 2400,
+    "minBalance": 70,
+    "minutes": 78.0
+   },
+   "E_Floor": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 650,
+    "minBalance": 40,
+    "minutes": 37.2
+   },
+   "F_Skilled": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 3400,
+    "minBalance": 150,
+    "minutes": 37.2
+   }
+  },
+  "T3first80": {
+   "A_Efficient": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 1920,
+    "minBalance": 96,
+    "minutes": 37.2
+   },
+   "B_Normal": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 2570,
+    "minBalance": 90,
+    "minutes": 47.2
+   },
+   "C_Explorer": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 3070,
+    "minBalance": 70,
+    "minutes": 128.0
+   },
+   "D_LowScore": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 1520,
+    "minBalance": 40,
+    "minutes": 78.0
+   },
+   "E_Floor": {
+    "forced": 15,
+    "maxStreak": 5,
+    "blocked": 8,
+    "endingPitz": 70,
+    "minBalance": 0,
+    "minutes": 56.0
+   },
+   "F_Skilled": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 2520,
+    "minBalance": 120,
+    "minutes": 37.2
+   }
+  },
+  "noDiscoveryBonus": {
+   "A_Efficient": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 450,
+    "minBalance": 46,
+    "minutes": 37.2
+   },
+   "B_Normal": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 1100,
+    "minBalance": 40,
+    "minutes": 47.2
+   },
+   "C_Explorer": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 1600,
+    "minBalance": 20,
+    "minutes": 128.0
+   },
+   "D_LowScore": {
+    "forced": 1,
+    "maxStreak": 1,
+    "blocked": 1,
+    "endingPitz": 100,
+    "minBalance": 40,
+    "minutes": 79.2
+   },
+   "E_Floor": {
+    "forced": 86,
+    "maxStreak": 9,
+    "blocked": 24,
+    "endingPitz": 20,
+    "minBalance": 0,
+    "minutes": 144.8
+   },
+   "F_Skilled": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 1050,
+    "minBalance": 70,
+    "minutes": 37.2
+   }
+  },
+  "bundleHalf": {
+   "A_Efficient": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 1790,
+    "minBalance": 96,
+    "minutes": 37.2
+   },
+   "B_Normal": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 2440,
+    "minBalance": 90,
+    "minutes": 47.2
+   },
+   "C_Explorer": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 2940,
+    "minBalance": 70,
+    "minutes": 128.0
+   },
+   "D_LowScore": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 1390,
+    "minBalance": 40,
+    "minutes": 78.0
+   },
+   "E_Floor": {
+    "forced": 22,
+    "maxStreak": 4,
+    "blocked": 12,
+    "endingPitz": 80,
+    "minBalance": 0,
+    "minutes": 64.8
+   },
+   "F_Skilled": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 2390,
+    "minBalance": 120,
+    "minutes": 37.2
+   }
+  }
+ },
+ "branching": [
+  {
+   "dex": 0,
+   "makeableUndiscovered": [
+    "margherita"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 1,
+   "makeableUndiscovered": [
+    "bismarck"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 2,
+   "makeableUndiscovered": [
+    "breakfast-pizza"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 3,
+   "makeableUndiscovered": [
+    "funghi"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 4,
+   "makeableUndiscovered": [
+    "melanzane-pizza"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 5,
+   "makeableUndiscovered": [
+    "parmigiana-pizza"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 6,
+   "makeableUndiscovered": [
+    "pepperoni"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 7,
+   "makeableUndiscovered": [
+    "salsiccia"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 8,
+   "makeableUndiscovered": [
+    "meat-lovers"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 9,
+   "makeableUndiscovered": [
+    "bambino"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 10,
+   "makeableUndiscovered": [
+    "hawaiian"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 11,
+   "makeableUndiscovered": [
+    "capricciosa"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 12,
+   "makeableUndiscovered": [
+    "pizza-portuguesa"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 13,
+   "makeableUndiscovered": [
+    "fugazza"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 14,
+   "makeableUndiscovered": [
+    "marinara"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 15,
+   "makeableUndiscovered": [
+    "napoletana"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 16,
+   "makeableUndiscovered": [
+    "tonno-e-cipolla"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 17,
+   "makeableUndiscovered": [
+    "pesto-tonno"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 18,
+   "makeableUndiscovered": [
+    "genovese"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 19,
+   "makeableUndiscovered": [
+    "new-haven-apizza"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 20,
+   "makeableUndiscovered": [
+    "pesto-caprese"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 21,
+   "makeableUndiscovered": [
+    "pesto-patate"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 22,
+   "makeableUndiscovered": [
+    "pizza-bianca"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 23,
+   "makeableUndiscovered": [
+    "puttanesca-pizza"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 24,
+   "makeableUndiscovered": [
+    "quattro-formaggi"
+   ],
+   "branching": 1
+  }
+ ],
+ "branching15": [
+  {
+   "dex": 0,
+   "makeableUndiscovered": [
+    "margherita"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 1,
+   "makeableUndiscovered": [
+    "bismarck"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 2,
+   "makeableUndiscovered": [
+    "breakfast-pizza"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 3,
+   "makeableUndiscovered": [
+    "funghi"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 4,
+   "makeableUndiscovered": [
+    "pepperoni"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 5,
+   "makeableUndiscovered": [
+    "salsiccia"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 6,
+   "makeableUndiscovered": [
+    "meat-lovers"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 7,
+   "makeableUndiscovered": [
+    "capricciosa"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 8,
+   "makeableUndiscovered": [
+    "marinara"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 9,
+   "makeableUndiscovered": [
+    "napoletana"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 10,
+   "makeableUndiscovered": [
+    "fugazza"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 11,
+   "makeableUndiscovered": [
+    "pizza-bianca"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 12,
+   "makeableUndiscovered": [
+    "tonno-e-cipolla"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 13,
+   "makeableUndiscovered": [
+    "genovese"
+   ],
+   "branching": 1
+  },
+  {
+   "dex": 14,
+   "makeableUndiscovered": [
+    "quattro-formaggi"
+   ],
+   "branching": 1
+  }
+ ],
+ "ep1Lock": [
+  {
+   "step": 1,
+   "key": "bismarck",
+   "ep1Locked": true,
+   "why": "needs marinara"
+  },
+  {
+   "step": 2,
+   "key": "breakfast-pizza",
+   "ep1Locked": true,
+   "why": "needs pizza-bianca; needs ★30 (has 8)"
+  },
+  {
+   "step": 3,
+   "key": "funghi",
+   "ep1Locked": false,
+   "why": ""
+  },
+  {
+   "step": 4,
+   "key": "melanzane-pizza",
+   "ep1Locked": false,
+   "why": ""
+  },
+  {
+   "step": 5,
+   "key": "parmigiana-pizza",
+   "ep1Locked": false,
+   "why": ""
+  },
+  {
+   "step": 6,
+   "key": "pepperoni",
+   "ep1Locked": true,
+   "why": "needs salsiccia"
+  },
+  {
+   "step": 7,
+   "key": "salsiccia",
+   "ep1Locked": true,
+   "why": "needs fugazza"
+  },
+  {
+   "step": 8,
+   "key": "meat-lovers",
+   "ep1Locked": true,
+   "why": "needs capricciosa; needs ★36 (has 32)"
+  },
+  {
+   "step": 9,
+   "key": "bambino",
+   "ep1Locked": false,
+   "why": ""
+  },
+  {
+   "step": 10,
+   "key": "hawaiian",
+   "ep1Locked": false,
+   "why": ""
+  },
+  {
+   "step": 11,
+   "key": "capricciosa",
+   "ep1Locked": false,
+   "why": ""
+  },
+  {
+   "step": 12,
+   "key": "pizza-portuguesa",
+   "ep1Locked": false,
+   "why": ""
+  },
+  {
+   "step": 13,
+   "key": "fugazza",
+   "ep1Locked": true,
+   "why": "needs quattro-formaggi"
+  },
+  {
+   "step": 14,
+   "key": "marinara",
+   "ep1Locked": false,
+   "why": ""
+  },
+  {
+   "step": 15,
+   "key": "napoletana",
+   "ep1Locked": false,
+   "why": ""
+  },
+  {
+   "step": 16,
+   "key": "tonno-e-cipolla",
+   "ep1Locked": false,
+   "why": ""
+  },
+  {
+   "step": 17,
+   "key": "pesto-tonno",
+   "ep1Locked": false,
+   "why": ""
+  },
+  {
+   "step": 18,
+   "key": "genovese",
+   "ep1Locked": false,
+   "why": ""
+  },
+  {
+   "step": 19,
+   "key": "new-haven-apizza",
+   "ep1Locked": false,
+   "why": ""
+  },
+  {
+   "step": 20,
+   "key": "pesto-caprese",
+   "ep1Locked": false,
+   "why": ""
+  },
+  {
+   "step": 21,
+   "key": "pesto-patate",
+   "ep1Locked": false,
+   "why": ""
+  },
+  {
+   "step": 22,
+   "key": "pizza-bianca",
+   "ep1Locked": false,
+   "why": ""
+  },
+  {
+   "step": 23,
+   "key": "puttanesca-pizza",
+   "ep1Locked": false,
+   "why": ""
+  },
+  {
+   "step": 24,
+   "key": "quattro-formaggi",
+   "ep1Locked": false,
+   "why": ""
+  }
+ ],
+ "usageAlongPath": {
+  "egg": 3,
+  "bacon": 7,
+  "mushroom": 5,
+  "eggplant": 6,
+  "parmigiano": 6,
+  "pepperoni": 5,
+  "sausage": 5,
+  "ham": 9,
+  "corn": 3,
+  "pineapple": 3,
+  "oregano": 5,
+  "black-olive": 8,
+  "onion": 10,
+  "olive-oil": 4,
+  "garlic": 7,
+  "anchovy": 6,
+  "tuna": 6,
+  "pesto": 4,
+  "cherry-tomato": 3,
+  "clam": 3,
+  "fresh-tomato": 3,
+  "potato": 3,
+  "rosemary": 3,
+  "capers": 2,
+  "gorgonzola": 2,
+  "fontina": 2
+ },
+ "usageAlongPathLow": {
+  "egg": 6,
+  "bacon": 11,
+  "mushroom": 8,
+  "eggplant": 10,
+  "parmigiano": 9,
+  "pepperoni": 8,
+  "sausage": 8,
+  "ham": 15,
+  "corn": 5,
+  "pineapple": 5,
+  "oregano": 9,
+  "black-olive": 12,
+  "onion": 15,
+  "olive-oil": 4,
+  "garlic": 11,
+  "anchovy": 10,
+  "tuna": 10,
+  "pesto": 4,
+  "cherry-tomato": 5,
+  "clam": 5,
+  "fresh-tomato": 5,
+  "potato": 5,
+  "rosemary": 5,
+  "capers": 3,
+  "gorgonzola": 3,
+  "fontina": 3
+ },
+ "priceChanges": [
+  {
+   "ingredient": "egg",
+   "old": {
+    "step": 1,
+    "tier": "T1",
+    "first": 60,
+    "refill": 30,
+    "k": 1,
+    "pack": 10
+   },
+   "new": {
+    "step": 1,
+    "tier": "T1",
+    "first": 60,
+    "refill": 30,
+    "k": 1,
+    "pack": 10
+   }
+  },
+  {
+   "ingredient": "bacon",
+   "old": {
+    "step": 2,
+    "tier": "T1",
+    "first": 60,
+    "refill": 30,
+    "k": 3,
+    "pack": 30
+   },
+   "new": {
+    "step": 2,
+    "tier": "T1",
+    "first": 60,
+    "refill": 30,
+    "k": 3,
+    "pack": 30
+   }
+  },
+  {
+   "ingredient": "mushroom",
+   "old": {
+    "step": 3,
+    "tier": "T1",
+    "first": 60,
+    "refill": 30,
+    "k": 3,
+    "pack": 30
+   },
+   "new": {
+    "step": 3,
+    "tier": "T1",
+    "first": 60,
+    "refill": 30,
+    "k": 3,
+    "pack": 30
+   }
+  },
+  {
+   "ingredient": "pepperoni",
+   "old": {
+    "step": 4,
+    "tier": "T1",
+    "first": 60,
+    "refill": 30,
+    "k": 4,
+    "pack": 40
+   },
+   "new": {
+    "step": 6,
+    "tier": "T2",
+    "first": 80,
+    "refill": 40,
+    "k": 4,
+    "pack": 40
+   }
+  },
+  {
+   "ingredient": "sausage",
+   "old": {
+    "step": 5,
+    "tier": "T1",
+    "first": 60,
+    "refill": 30,
+    "k": 3,
+    "pack": 30
+   },
+   "new": {
+    "step": 7,
+    "tier": "T2",
+    "first": 80,
+    "refill": 40,
+    "k": 3,
+    "pack": 30
+   }
+  },
+  {
+   "ingredient": "ham",
+   "old": {
+    "step": 6,
+    "tier": "T2",
+    "first": 80,
+    "refill": 40,
+    "k": 1,
+    "pack": 10
+   },
+   "new": {
+    "step": 8,
+    "tier": "T2",
+    "first": 80,
+    "refill": 40,
+    "k": 3,
+    "pack": 30
+   }
+  },
+  {
+   "ingredient": "black-olive",
+   "old": {
+    "step": 7,
+    "tier": "T2",
+    "first": 80,
+    "refill": 40,
+    "k": 2,
+    "pack": 20
+   },
+   "new": {
+    "step": 11,
+    "tier": "T2",
+    "first": 80,
+    "refill": 40,
+    "k": 2,
+    "pack": 20
+   }
+  },
+  {
+   "ingredient": "oregano",
+   "old": {
+    "step": 7,
+    "tier": "T2",
+    "first": 80,
+    "refill": 40,
+    "k": 2,
+    "pack": 20
+   },
+   "new": {
+    "step": 11,
+    "tier": "T2",
+    "first": 80,
+    "refill": 40,
+    "k": 2,
+    "pack": 20
+   }
+  },
+  {
+   "ingredient": "garlic",
+   "old": {
+    "step": 8,
+    "tier": "T2",
+    "first": 80,
+    "refill": 40,
+    "k": 3,
+    "pack": 30
+   },
+   "new": {
+    "step": 14,
+    "tier": "T2",
+    "first": 80,
+    "refill": 40,
+    "k": 3,
+    "pack": 30
+   }
+  },
+  {
+   "ingredient": "anchovy",
+   "old": {
+    "step": 9,
+    "tier": "T2",
+    "first": 80,
+    "refill": 40,
+    "k": 3,
+    "pack": 30
+   },
+   "new": {
+    "step": 15,
+    "tier": "T3",
+    "first": 100,
+    "refill": 50,
+    "k": 3,
+    "pack": 30
+   }
+  },
+  {
+   "ingredient": "olive-oil",
+   "old": {
+    "step": 10,
+    "tier": "T2",
+    "first": 80,
+    "refill": 40,
+    "k": 1,
+    "pack": 10
+   },
+   "new": {
+    "step": 13,
+    "tier": "T2",
+    "first": 80,
+    "refill": 40,
+    "k": 1,
+    "pack": 10
+   }
+  },
+  {
+   "ingredient": "onion",
+   "old": {
+    "step": 10,
+    "tier": "T2",
+    "first": 80,
+    "refill": 40,
+    "k": 4,
+    "pack": 40
+   },
+   "new": {
+    "step": 12,
+    "tier": "T2",
+    "first": 80,
+    "refill": 40,
+    "k": 4,
+    "pack": 40
+   }
+  },
+  {
+   "ingredient": "rosemary",
+   "old": {
+    "step": 11,
+    "tier": "T2",
+    "first": 80,
+    "refill": 40,
+    "k": 3,
+    "pack": 30
+   },
+   "new": {
+    "step": 22,
+    "tier": "T3",
+    "first": 100,
+    "refill": 50,
+    "k": 3,
+    "pack": 30
+   }
+  },
+  {
+   "ingredient": "tuna",
+   "old": {
+    "step": 12,
+    "tier": "T2",
+    "first": 80,
+    "refill": 40,
+    "k": 3,
+    "pack": 30
+   },
+   "new": {
+    "step": 16,
+    "tier": "T3",
+    "first": 100,
+    "refill": 50,
+    "k": 3,
+    "pack": 30
+   }
+  },
+  {
+   "ingredient": "cherry-tomato",
+   "old": {
+    "step": 13,
+    "tier": "T2",
+    "first": 80,
+    "refill": 40,
+    "k": 3,
+    "pack": 30
+   },
+   "new": {
+    "step": 18,
+    "tier": "T3",
+    "first": 100,
+    "refill": 50,
+    "k": 3,
+    "pack": 30
+   }
+  },
+  {
+   "ingredient": "pesto",
+   "old": {
+    "step": 13,
+    "tier": "T2",
+    "first": 80,
+    "refill": 40,
+    "k": 1,
+    "pack": 10
+   },
+   "new": {
+    "step": 17,
+    "tier": "T3",
+    "first": 100,
+    "refill": 50,
+    "k": 1,
+    "pack": 10
+   }
+  },
+  {
+   "ingredient": "fontina",
+   "old": {
+    "step": 14,
+    "tier": "T2",
+    "first": 80,
+    "refill": 40,
+    "k": 2,
+    "pack": 20
+   },
+   "new": {
+    "step": 24,
+    "tier": "T3",
+    "first": 100,
+    "refill": 50,
+    "k": 2,
+    "pack": 20
+   }
+  },
+  {
+   "ingredient": "gorgonzola",
+   "old": {
+    "step": 14,
+    "tier": "T2",
+    "first": 80,
+    "refill": 40,
+    "k": 2,
+    "pack": 20
+   },
+   "new": {
+    "step": 24,
+    "tier": "T3",
+    "first": 100,
+    "refill": 50,
+    "k": 2,
+    "pack": 20
+   }
+  },
+  {
+   "ingredient": "parmigiano",
+   "old": {
+    "step": 14,
+    "tier": "T2",
+    "first": 80,
+    "refill": 40,
+    "k": 2,
+    "pack": 20
+   },
+   "new": {
+    "step": 5,
+    "tier": "T1",
+    "first": 60,
+    "refill": 30,
+    "k": 2,
+    "pack": 20
+   }
+  }
+ ],
+ "experimentation": {
+  "0": {
+   "totals": {
+    "earned": 5170,
+    "first_spend": 2200,
+    "refill_spend": 0,
+    "bakes": 49,
+    "forced": 0,
+    "voluntary": 24,
+    "failures": 0,
+    "shop_visits": 24,
+    "refills": 0,
+    "blocked_unlocks": 0
+   },
+   "endingPitz": 2970,
+   "minBalance": 70,
+   "maxForcedStreak": 0,
+   "minutes": 67.2,
+   "forcedPerStep": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "1": {
+   "totals": {
+    "earned": 5170,
+    "first_spend": 2200,
+    "refill_spend": 0,
+    "bakes": 73,
+    "forced": 0,
+    "voluntary": 24,
+    "failures": 24,
+    "shop_visits": 24,
+    "refills": 0,
+    "blocked_unlocks": 0
+   },
+   "endingPitz": 2970,
+   "minBalance": 70,
+   "maxForcedStreak": 0,
+   "minutes": 97.2,
+   "forcedPerStep": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "3": {
+   "totals": {
+    "earned": 5170,
+    "first_spend": 2200,
+    "refill_spend": 220,
+    "bakes": 121,
+    "forced": 0,
+    "voluntary": 24,
+    "failures": 72,
+    "shop_visits": 30,
+    "refills": 6,
+    "blocked_unlocks": 0
+   },
+   "endingPitz": 2750,
+   "minBalance": 70,
+   "maxForcedStreak": 0,
+   "minutes": 158.8,
+   "forcedPerStep": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "5": {
+   "totals": {
+    "earned": 5170,
+    "first_spend": 2200,
+    "refill_spend": 510,
+    "bakes": 169,
+    "forced": 0,
+    "voluntary": 24,
+    "failures": 120,
+    "shop_visits": 38,
+    "refills": 14,
+    "blocked_unlocks": 0
+   },
+   "endingPitz": 2460,
+   "minBalance": 70,
+   "maxForcedStreak": 0,
+   "minutes": 220.8,
+   "forcedPerStep": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  }
+ },
+ "experimentationFloor": {
+  "0": {
+   "forced": 26,
+   "maxStreak": 6,
+   "refillSpend": 0,
+   "minutes": 69.8,
+   "forcedPerStep": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    5,
+    0,
+    1,
+    0,
+    2,
+    1,
+    2,
+    1,
+    2,
+    1,
+    2,
+    1,
+    2,
+    6
+   ]
+  },
+  "1": {
+   "forced": 26,
+   "maxStreak": 6,
+   "refillSpend": 0,
+   "minutes": 99.8,
+   "forcedPerStep": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    5,
+    0,
+    1,
+    0,
+    2,
+    1,
+    2,
+    1,
+    2,
+    1,
+    2,
+    1,
+    2,
+    6
+   ]
+  },
+  "3": {
+   "forced": 26,
+   "maxStreak": 6,
+   "refillSpend": 0,
+   "minutes": 159.8,
+   "forcedPerStep": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    5,
+    0,
+    1,
+    0,
+    2,
+    1,
+    2,
+    1,
+    2,
+    1,
+    2,
+    1,
+    2,
+    6
+   ]
+  },
+  "5": {
+   "forced": 31,
+   "maxStreak": 7,
+   "refillSpend": 90,
+   "minutes": 226.0,
+   "forcedPerStep": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    1,
+    6,
+    0,
+    1,
+    0,
+    2,
+    1,
+    2,
+    1,
+    3,
+    2,
+    1,
+    2,
+    1,
+    7
+   ]
+  }
+ },
+ "qualitySweep": {
+  "★5": {
+   "current": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 2300,
+    "minutes": 37.2,
+    "minBalance": 120,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "reward120": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 2900,
+    "minutes": 37.2,
+    "minBalance": 144,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "first-20": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 2820,
+    "minutes": 37.2,
+    "minBalance": 140,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "T3first80": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 2520,
+    "minutes": 37.2,
+    "minBalance": 120,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "firstPackFree": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 4500,
+    "minutes": 37.2,
+    "minBalance": 180,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "noDiscoveryBonus": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 1050,
+    "minutes": 37.2,
+    "minBalance": 70,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "bundleHalf": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 2390,
+    "minutes": 37.2,
+    "minBalance": 120,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "floor40": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 2300,
+    "minutes": 37.2,
+    "minBalance": 120,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   }
+  },
+  "★4": {
+   "current": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 1700,
+    "minutes": 37.2,
+    "minBalance": 96,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "reward120": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 2200,
+    "minutes": 37.2,
+    "minBalance": 116,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "first-20": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 2220,
+    "minutes": 37.2,
+    "minBalance": 116,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "T3first80": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 1920,
+    "minutes": 37.2,
+    "minBalance": 96,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "firstPackFree": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 3900,
+    "minutes": 37.2,
+    "minBalance": 156,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "noDiscoveryBonus": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 450,
+    "minutes": 37.2,
+    "minBalance": 46,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "bundleHalf": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 1790,
+    "minutes": 37.2,
+    "minBalance": 96,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "floor40": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 1700,
+    "minutes": 37.2,
+    "minBalance": 96,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   }
+  },
+  "★3": {
+   "current": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 1125,
+    "minutes": 37.2,
+    "minBalance": 73,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "reward120": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 1525,
+    "minutes": 37.2,
+    "minBalance": 89,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "first-20": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 1645,
+    "minutes": 37.2,
+    "minBalance": 93,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "T3first80": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 1345,
+    "minutes": 37.2,
+    "minBalance": 73,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "firstPackFree": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 3325,
+    "minutes": 37.2,
+    "minBalance": 133,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "noDiscoveryBonus": {
+    "forced": 3,
+    "maxStreak": 1,
+    "blocked": 3,
+    "endingPitz": 124,
+    "minutes": 41.0,
+    "minBalance": 9,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1
+    ]
+   },
+   "bundleHalf": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 1215,
+    "minutes": 37.2,
+    "minBalance": 73,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "floor40": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 1125,
+    "minutes": 37.2,
+    "minBalance": 73,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   }
+  },
+  "★2": {
+   "current": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 300,
+    "minutes": 37.2,
+    "minBalance": 40,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "reward120": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 550,
+    "minutes": 37.2,
+    "minBalance": 50,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "first-20": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 820,
+    "minutes": 37.2,
+    "minBalance": 60,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "T3first80": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 520,
+    "minutes": 37.2,
+    "minBalance": 40,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "firstPackFree": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 2500,
+    "minutes": 37.2,
+    "minBalance": 100,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "noDiscoveryBonus": {
+    "forced": 20,
+    "maxStreak": 3,
+    "blocked": 16,
+    "endingPitz": 50,
+    "minutes": 62.2,
+    "minBalance": 0,
+    "forcedPerStep": [
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1,
+     0,
+     1,
+     0,
+     3,
+     0,
+     1,
+     0,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     3
+    ]
+   },
+   "bundleHalf": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 390,
+    "minutes": 37.2,
+    "minBalance": 40,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "floor40": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 300,
+    "minutes": 37.2,
+    "minBalance": 40,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   }
+  },
+  "★1": {
+   "current": {
+    "forced": 26,
+    "maxStreak": 6,
+    "blocked": 12,
+    "endingPitz": 70,
+    "minutes": 69.8,
+    "minBalance": 0,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     5,
+     0,
+     1,
+     0,
+     2,
+     1,
+     2,
+     1,
+     2,
+     1,
+     2,
+     1,
+     2,
+     6
+    ]
+   },
+   "reward120": {
+    "forced": 26,
+    "maxStreak": 6,
+    "blocked": 12,
+    "endingPitz": 70,
+    "minutes": 69.8,
+    "minBalance": 0,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     5,
+     0,
+     1,
+     0,
+     2,
+     1,
+     2,
+     1,
+     2,
+     1,
+     2,
+     1,
+     2,
+     6
+    ]
+   },
+   "first-20": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 70,
+    "minutes": 37.2,
+    "minBalance": 0,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "T3first80": {
+    "forced": 15,
+    "maxStreak": 5,
+    "blocked": 8,
+    "endingPitz": 70,
+    "minutes": 56.0,
+    "minBalance": 0,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     5,
+     0,
+     1,
+     0,
+     1,
+     0,
+     1,
+     0,
+     1,
+     0,
+     1,
+     0,
+     1,
+     4
+    ]
+   },
+   "firstPackFree": {
+    "forced": 0,
+    "maxStreak": 0,
+    "blocked": 0,
+    "endingPitz": 1750,
+    "minutes": 37.2,
+    "minBalance": 70,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "noDiscoveryBonus": {
+    "forced": 86,
+    "maxStreak": 9,
+    "blocked": 24,
+    "endingPitz": 20,
+    "minutes": 144.8,
+    "minBalance": 0,
+    "forcedPerStep": [
+     0,
+     2,
+     2,
+     2,
+     2,
+     2,
+     3,
+     3,
+     3,
+     3,
+     3,
+     7,
+     3,
+     3,
+     3,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     4,
+     9
+    ]
+   },
+   "bundleHalf": {
+    "forced": 22,
+    "maxStreak": 4,
+    "blocked": 12,
+    "endingPitz": 80,
+    "minutes": 64.8,
+    "minBalance": 0,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     3,
+     0,
+     1,
+     0,
+     2,
+     1,
+     2,
+     1,
+     2,
+     1,
+     2,
+     1,
+     2,
+     4
+    ]
+   },
+   "floor40": {
+    "forced": 1,
+    "maxStreak": 1,
+    "blocked": 1,
+    "endingPitz": 90,
+    "minutes": 38.5,
+    "minBalance": 0,
+    "forcedPerStep": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1
+    ]
+   }
+  }
+ },
+ "refillCostPerPizza": {
+  "perRecipe": {
+   "margherita": 0.0,
+   "marinara": 8.0,
+   "quattro-formaggi": 17.0,
+   "genovese": 10.0,
+   "bismarck": 3.0,
+   "funghi": 3.0,
+   "fugazza": 10.0,
+   "salsiccia": 4.0,
+   "pepperoni": 4.0,
+   "napoletana": 7.0,
+   "tonno-e-cipolla": 7.0,
+   "pizza-bianca": 9.0,
+   "breakfast-pizza": 6.0,
+   "capricciosa": 9.33,
+   "meat-lovers": 7.0,
+   "new-haven-apizza": 14.67,
+   "hawaiian": 6.67,
+   "parmigiana-pizza": 6.0,
+   "bambino": 6.67,
+   "pizza-portuguesa": 13.0,
+   "puttanesca-pizza": 16.67,
+   "pesto-caprese": 10.0,
+   "pesto-tonno": 16.0,
+   "pesto-patate": 12.0,
+   "melanzane-pizza": 3.0
+  },
+  "average": 8.36,
+  "lunchRush": {
+   "q78_served4": {
+    "runReward": 95,
+    "perPizza": 23.8,
+    "netPerRunAfterRefill": 61.6,
+    "netPerMinute": 20.5
+   },
+   "q78_served6": {
+    "runReward": 105,
+    "perPizza": 17.5,
+    "netPerRunAfterRefill": 54.8,
+    "netPerMinute": 18.3
+   },
+   "q85_served8": {
+    "runReward": 120,
+    "perPizza": 15.0,
+    "netPerRunAfterRefill": 53.1,
+    "netPerMinute": 17.7
+   }
+  },
+  "freeMargheritaReplayPerMinute": {
+   "★4": 84.8,
+   "★1": 16.0
+  }
+ },
+ "migration": {
+  "A_Dex0": {
+   "note": "fresh save",
+   "dex": 0,
+   "pitz": 0,
+   "owned": [],
+   "newShopRowsFromSwitch": [],
+   "allNewRows": [],
+   "firstPackCostAllNew": 0,
+   "makeableWithoutBuying": [
+    "margherita"
+   ],
+   "makeableAfterBuyingAllNew": [
+    "margherita"
+   ],
+   "nextHintStep": 1,
+   "discoveriesToNextHint": 1,
+   "priceChangesSeen": [],
+   "stock": {}
+  },
+  "B_Dex1": {
+   "note": "Margherita only; egg unlocked, not bought",
+   "dex": 1,
+   "pitz": 150,
+   "owned": [],
+   "newShopRowsFromSwitch": [],
+   "allNewRows": [
+    "egg"
+   ],
+   "firstPackCostAllNew": 60,
+   "makeableWithoutBuying": [],
+   "makeableAfterBuyingAllNew": [
+    "bismarck"
+   ],
+   "nextHintStep": 2,
+   "discoveriesToNextHint": 1,
+   "priceChangesSeen": [],
+   "stock": {}
+  },
+  "C_Dex5": {
+   "note": "old keys 1-4 done; sausage unlocked (old step 5) not bought",
+   "dex": 5,
+   "pitz": 300,
+   "owned": [
+    "bacon",
+    "egg",
+    "mushroom",
+    "pepperoni"
+   ],
+   "newShopRowsFromSwitch": [
+    "eggplant",
+    "parmigiano"
+   ],
+   "allNewRows": [
+    "eggplant",
+    "parmigiano",
+    "sausage"
+   ],
+   "firstPackCostAllNew": 200,
+   "makeableWithoutBuying": [],
+   "makeableAfterBuyingAllNew": [
+    "melanzane-pizza",
+    "parmigiana-pizza",
+    "salsiccia"
+   ],
+   "nextHintStep": 8,
+   "discoveriesToNextHint": 3,
+   "priceChangesSeen": [
+    {
+     "ingredient": "parmigiano",
+     "row": "first",
+     "old": [
+      80,
+      40,
+      20
+     ],
+     "new": [
+      60,
+      30,
+      20
+     ]
+    },
+    {
+     "ingredient": "pepperoni",
+     "row": "refill",
+     "old": [
+      60,
+      30,
+      40
+     ],
+     "new": [
+      80,
+      40,
+      40
+     ]
+    },
+    {
+     "ingredient": "sausage",
+     "row": "first",
+     "old": [
+      60,
+      30,
+      30
+     ],
+     "new": [
+      80,
+      40,
+      30
+     ]
+    }
+   ],
+   "stock": {
+    "egg": 8,
+    "bacon": 25,
+    "mushroom": 27,
+    "pepperoni": 36
+   }
+  },
+  "D_Dex15": {
+   "note": "all 15 discovered, all 22 owned",
+   "dex": 15,
+   "pitz": 600,
+   "owned": [
+    "anchovy",
+    "bacon",
+    "black-olive",
+    "cherry-tomato",
+    "egg",
+    "fontina",
+    "garlic",
+    "gorgonzola",
+    "ham",
+    "mushroom",
+    "olive-oil",
+    "onion",
+    "oregano",
+    "parmigiano",
+    "pepperoni",
+    "pesto",
+    "rosemary",
+    "sausage",
+    "tuna"
+   ],
+   "newShopRowsFromSwitch": [
+    "eggplant",
+    "corn",
+    "pineapple"
+   ],
+   "allNewRows": [
+    "eggplant",
+    "corn",
+    "pineapple"
+   ],
+   "firstPackCostAllNew": 220,
+   "makeableWithoutBuying": [
+    "pesto-tonno",
+    "pizza-portuguesa"
+   ],
+   "makeableAfterBuyingAllNew": [
+    "bambino",
+    "hawaiian",
+    "melanzane-pizza",
+    "parmigiana-pizza",
+    "pesto-tonno",
+    "pizza-portuguesa"
+   ],
+   "nextHintStep": 19,
+   "discoveriesToNextHint": 4,
+   "priceChangesSeen": [
+    {
+     "ingredient": "parmigiano",
+     "row": "refill",
+     "old": [
+      80,
+      40,
+      20
+     ],
+     "new": [
+      60,
+      30,
+      20
+     ]
+    },
+    {
+     "ingredient": "pepperoni",
+     "row": "refill",
+     "old": [
+      60,
+      30,
+      40
+     ],
+     "new": [
+      80,
+      40,
+      40
+     ]
+    },
+    {
+     "ingredient": "sausage",
+     "row": "refill",
+     "old": [
+      60,
+      30,
+      30
+     ],
+     "new": [
+      80,
+      40,
+      30
+     ]
+    },
+    {
+     "ingredient": "ham",
+     "row": "refill",
+     "old": [
+      80,
+      40,
+      10
+     ],
+     "new": [
+      80,
+      40,
+      30
+     ]
+    },
+    {
+     "ingredient": "anchovy",
+     "row": "refill",
+     "old": [
+      80,
+      40,
+      30
+     ],
+     "new": [
+      100,
+      50,
+      30
+     ]
+    },
+    {
+     "ingredient": "tuna",
+     "row": "refill",
+     "old": [
+      80,
+      40,
+      30
+     ],
+     "new": [
+      100,
+      50,
+      30
+     ]
+    },
+    {
+     "ingredient": "pesto",
+     "row": "refill",
+     "old": [
+      80,
+      40,
+      10
+     ],
+     "new": [
+      100,
+      50,
+      10
+     ]
+    },
+    {
+     "ingredient": "cherry-tomato",
+     "row": "refill",
+     "old": [
+      80,
+      40,
+      30
+     ],
+     "new": [
+      100,
+      50,
+      30
+     ]
+    },
+    {
+     "ingredient": "rosemary",
+     "row": "refill",
+     "old": [
+      80,
+      40,
+      30
+     ],
+     "new": [
+      100,
+      50,
+      30
+     ]
+    },
+    {
+     "ingredient": "fontina",
+     "row": "refill",
+     "old": [
+      80,
+      40,
+      20
+     ],
+     "new": [
+      100,
+      50,
+      20
+     ]
+    },
+    {
+     "ingredient": "gorgonzola",
+     "row": "refill",
+     "old": [
+      80,
+      40,
+      20
+     ],
+     "new": [
+      100,
+      50,
+      20
+     ]
+    }
+   ],
+   "stock": {
+    "onion": 10,
+    "bacon": 10,
+    "rosemary": 10,
+    "sausage": 10,
+    "cherry-tomato": 10,
+    "oregano": 10,
+    "pesto": 10,
+    "black-olive": 10,
+    "pepperoni": 10,
+    "tuna": 10,
+    "garlic": 10,
+    "anchovy": 10,
+    "egg": 10,
+    "parmigiano": 10,
+    "fontina": 10,
+    "mushroom": 10,
+    "gorgonzola": 10,
+    "ham": 10,
+    "olive-oil": 10
+   },
+   "playthrough": {
+    "A_Efficient": {
+     "forced": 0,
+     "maxStreak": 0,
+     "firstSpend": 620,
+     "refillSpend": 0,
+     "endingPitz": 1540,
+     "minBalance": 600,
+     "bakes": 10,
+     "order": [
+      {
+       "recipe": "pizza-portuguesa",
+       "cost": 0,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "pesto-tonno",
+       "cost": 0,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "parmigiana-pizza",
+       "cost": 60,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "melanzane-pizza",
+       "cost": 0,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "hawaiian",
+       "cost": 80,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "bambino",
+       "cost": 80,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "new-haven-apizza",
+       "cost": 100,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "pesto-caprese",
+       "cost": 100,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "puttanesca-pizza",
+       "cost": 100,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "pesto-patate",
+       "cost": 100,
+       "forcedBefore": 0
+      }
+     ]
+    },
+    "B_Normal": {
+     "forced": 0,
+     "maxStreak": 0,
+     "firstSpend": 620,
+     "refillSpend": 0,
+     "endingPitz": 1480,
+     "minBalance": 600,
+     "bakes": 10,
+     "order": [
+      {
+       "recipe": "pizza-portuguesa",
+       "cost": 0,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "pesto-tonno",
+       "cost": 0,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "parmigiana-pizza",
+       "cost": 60,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "melanzane-pizza",
+       "cost": 0,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "hawaiian",
+       "cost": 80,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "bambino",
+       "cost": 80,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "new-haven-apizza",
+       "cost": 100,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "pesto-caprese",
+       "cost": 100,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "puttanesca-pizza",
+       "cost": 100,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "pesto-patate",
+       "cost": 100,
+       "forcedBefore": 0
+      }
+     ]
+    },
+    "D_LowScore": {
+     "forced": 0,
+     "maxStreak": 0,
+     "firstSpend": 620,
+     "refillSpend": 40,
+     "endingPitz": 940,
+     "minBalance": 600,
+     "bakes": 10,
+     "order": [
+      {
+       "recipe": "pizza-portuguesa",
+       "cost": 0,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "pesto-tonno",
+       "cost": 0,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "parmigiana-pizza",
+       "cost": 60,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "melanzane-pizza",
+       "cost": 0,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "hawaiian",
+       "cost": 80,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "new-haven-apizza",
+       "cost": 100,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "pesto-caprese",
+       "cost": 100,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "pesto-patate",
+       "cost": 100,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "puttanesca-pizza",
+       "cost": 100,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "bambino",
+       "cost": 120,
+       "forcedBefore": 0
+      }
+     ]
+    },
+    "E_Floor": {
+     "forced": 0,
+     "maxStreak": 0,
+     "firstSpend": 620,
+     "refillSpend": 0,
+     "endingPitz": 680,
+     "minBalance": 600,
+     "bakes": 10,
+     "order": [
+      {
+       "recipe": "pizza-portuguesa",
+       "cost": 0,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "pesto-tonno",
+       "cost": 0,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "parmigiana-pizza",
+       "cost": 60,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "melanzane-pizza",
+       "cost": 0,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "hawaiian",
+       "cost": 80,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "bambino",
+       "cost": 80,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "new-haven-apizza",
+       "cost": 100,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "pesto-caprese",
+       "cost": 100,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "puttanesca-pizza",
+       "cost": 100,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "pesto-patate",
+       "cost": 100,
+       "forcedBefore": 0
+      }
+     ]
+    }
+   }
+  },
+  "E_EP4": {
+   "note": "EP4-era grants (first unit free) kept as OWNED",
+   "dex": 3,
+   "pitz": 120,
+   "owned": [
+    "egg",
+    "mushroom",
+    "onion"
+   ],
+   "newShopRowsFromSwitch": [],
+   "allNewRows": [
+    "bacon"
+   ],
+   "firstPackCostAllNew": 60,
+   "makeableWithoutBuying": [
+    "funghi"
+   ],
+   "makeableAfterBuyingAllNew": [
+    "funghi"
+   ],
+   "nextHintStep": 4,
+   "discoveriesToNextHint": 1,
+   "priceChangesSeen": [],
+   "stock": {
+    "egg": 1,
+    "mushroom": 3,
+    "onion": 4
+   }
+  },
+  "F_HighStock": {
+   "note": "high stock + Pitz",
+   "dex": 15,
+   "pitz": 2000,
+   "owned": [
+    "anchovy",
+    "bacon",
+    "black-olive",
+    "cherry-tomato",
+    "egg",
+    "fontina",
+    "garlic",
+    "gorgonzola",
+    "ham",
+    "mushroom",
+    "olive-oil",
+    "onion",
+    "oregano",
+    "parmigiano",
+    "pepperoni",
+    "pesto",
+    "rosemary",
+    "sausage",
+    "tuna"
+   ],
+   "newShopRowsFromSwitch": [
+    "eggplant",
+    "corn",
+    "pineapple"
+   ],
+   "allNewRows": [
+    "eggplant",
+    "corn",
+    "pineapple"
+   ],
+   "firstPackCostAllNew": 220,
+   "makeableWithoutBuying": [
+    "pesto-tonno",
+    "pizza-portuguesa"
+   ],
+   "makeableAfterBuyingAllNew": [
+    "bambino",
+    "hawaiian",
+    "melanzane-pizza",
+    "parmigiana-pizza",
+    "pesto-tonno",
+    "pizza-portuguesa"
+   ],
+   "nextHintStep": 19,
+   "discoveriesToNextHint": 4,
+   "priceChangesSeen": [
+    {
+     "ingredient": "parmigiano",
+     "row": "refill",
+     "old": [
+      80,
+      40,
+      20
+     ],
+     "new": [
+      60,
+      30,
+      20
+     ]
+    },
+    {
+     "ingredient": "pepperoni",
+     "row": "refill",
+     "old": [
+      60,
+      30,
+      40
+     ],
+     "new": [
+      80,
+      40,
+      40
+     ]
+    },
+    {
+     "ingredient": "sausage",
+     "row": "refill",
+     "old": [
+      60,
+      30,
+      30
+     ],
+     "new": [
+      80,
+      40,
+      30
+     ]
+    },
+    {
+     "ingredient": "ham",
+     "row": "refill",
+     "old": [
+      80,
+      40,
+      10
+     ],
+     "new": [
+      80,
+      40,
+      30
+     ]
+    },
+    {
+     "ingredient": "anchovy",
+     "row": "refill",
+     "old": [
+      80,
+      40,
+      30
+     ],
+     "new": [
+      100,
+      50,
+      30
+     ]
+    },
+    {
+     "ingredient": "tuna",
+     "row": "refill",
+     "old": [
+      80,
+      40,
+      30
+     ],
+     "new": [
+      100,
+      50,
+      30
+     ]
+    },
+    {
+     "ingredient": "pesto",
+     "row": "refill",
+     "old": [
+      80,
+      40,
+      10
+     ],
+     "new": [
+      100,
+      50,
+      10
+     ]
+    },
+    {
+     "ingredient": "cherry-tomato",
+     "row": "refill",
+     "old": [
+      80,
+      40,
+      30
+     ],
+     "new": [
+      100,
+      50,
+      30
+     ]
+    },
+    {
+     "ingredient": "rosemary",
+     "row": "refill",
+     "old": [
+      80,
+      40,
+      30
+     ],
+     "new": [
+      100,
+      50,
+      30
+     ]
+    },
+    {
+     "ingredient": "fontina",
+     "row": "refill",
+     "old": [
+      80,
+      40,
+      20
+     ],
+     "new": [
+      100,
+      50,
+      20
+     ]
+    },
+    {
+     "ingredient": "gorgonzola",
+     "row": "refill",
+     "old": [
+      80,
+      40,
+      20
+     ],
+     "new": [
+      100,
+      50,
+      20
+     ]
+    }
+   ],
+   "stock": {
+    "onion": 99,
+    "bacon": 99,
+    "rosemary": 99,
+    "sausage": 99,
+    "cherry-tomato": 99,
+    "oregano": 99,
+    "pesto": 99,
+    "black-olive": 99,
+    "pepperoni": 99,
+    "tuna": 99,
+    "garlic": 99,
+    "anchovy": 99,
+    "egg": 99,
+    "parmigiano": 99,
+    "fontina": 99,
+    "mushroom": 99,
+    "gorgonzola": 99,
+    "ham": 99,
+    "olive-oil": 99
+   }
+  },
+  "G_LowPitz": {
+   "note": "Dex 15, 0 Pitz, 0 stock everywhere",
+   "dex": 15,
+   "pitz": 0,
+   "owned": [
+    "anchovy",
+    "bacon",
+    "black-olive",
+    "cherry-tomato",
+    "egg",
+    "fontina",
+    "garlic",
+    "gorgonzola",
+    "ham",
+    "mushroom",
+    "olive-oil",
+    "onion",
+    "oregano",
+    "parmigiano",
+    "pepperoni",
+    "pesto",
+    "rosemary",
+    "sausage",
+    "tuna"
+   ],
+   "newShopRowsFromSwitch": [
+    "eggplant",
+    "corn",
+    "pineapple"
+   ],
+   "allNewRows": [
+    "eggplant",
+    "corn",
+    "pineapple"
+   ],
+   "firstPackCostAllNew": 220,
+   "makeableWithoutBuying": [
+    "pesto-tonno",
+    "pizza-portuguesa"
+   ],
+   "makeableAfterBuyingAllNew": [
+    "bambino",
+    "hawaiian",
+    "melanzane-pizza",
+    "parmigiana-pizza",
+    "pesto-tonno",
+    "pizza-portuguesa"
+   ],
+   "nextHintStep": 19,
+   "discoveriesToNextHint": 4,
+   "priceChangesSeen": [
+    {
+     "ingredient": "parmigiano",
+     "row": "refill",
+     "old": [
+      80,
+      40,
+      20
+     ],
+     "new": [
+      60,
+      30,
+      20
+     ]
+    },
+    {
+     "ingredient": "pepperoni",
+     "row": "refill",
+     "old": [
+      60,
+      30,
+      40
+     ],
+     "new": [
+      80,
+      40,
+      40
+     ]
+    },
+    {
+     "ingredient": "sausage",
+     "row": "refill",
+     "old": [
+      60,
+      30,
+      30
+     ],
+     "new": [
+      80,
+      40,
+      30
+     ]
+    },
+    {
+     "ingredient": "ham",
+     "row": "refill",
+     "old": [
+      80,
+      40,
+      10
+     ],
+     "new": [
+      80,
+      40,
+      30
+     ]
+    },
+    {
+     "ingredient": "anchovy",
+     "row": "refill",
+     "old": [
+      80,
+      40,
+      30
+     ],
+     "new": [
+      100,
+      50,
+      30
+     ]
+    },
+    {
+     "ingredient": "tuna",
+     "row": "refill",
+     "old": [
+      80,
+      40,
+      30
+     ],
+     "new": [
+      100,
+      50,
+      30
+     ]
+    },
+    {
+     "ingredient": "pesto",
+     "row": "refill",
+     "old": [
+      80,
+      40,
+      10
+     ],
+     "new": [
+      100,
+      50,
+      10
+     ]
+    },
+    {
+     "ingredient": "cherry-tomato",
+     "row": "refill",
+     "old": [
+      80,
+      40,
+      30
+     ],
+     "new": [
+      100,
+      50,
+      30
+     ]
+    },
+    {
+     "ingredient": "rosemary",
+     "row": "refill",
+     "old": [
+      80,
+      40,
+      30
+     ],
+     "new": [
+      100,
+      50,
+      30
+     ]
+    },
+    {
+     "ingredient": "fontina",
+     "row": "refill",
+     "old": [
+      80,
+      40,
+      20
+     ],
+     "new": [
+      100,
+      50,
+      20
+     ]
+    },
+    {
+     "ingredient": "gorgonzola",
+     "row": "refill",
+     "old": [
+      80,
+      40,
+      20
+     ],
+     "new": [
+      100,
+      50,
+      20
+     ]
+    }
+   ],
+   "stock": {
+    "onion": 0,
+    "bacon": 0,
+    "rosemary": 0,
+    "sausage": 0,
+    "cherry-tomato": 0,
+    "oregano": 0,
+    "pesto": 0,
+    "black-olive": 0,
+    "pepperoni": 0,
+    "tuna": 0,
+    "garlic": 0,
+    "anchovy": 0,
+    "egg": 0,
+    "parmigiano": 0,
+    "fontina": 0,
+    "mushroom": 0,
+    "gorgonzola": 0,
+    "ham": 0,
+    "olive-oil": 0
+   },
+   "playthrough": {
+    "A_Efficient": {
+     "forced": 1,
+     "maxStreak": 1,
+     "firstSpend": 620,
+     "refillSpend": 440,
+     "endingPitz": 606,
+     "minBalance": 0,
+     "bakes": 11,
+     "order": [
+      {
+       "recipe": "melanzane-pizza",
+       "cost": 60,
+       "forcedBefore": 1
+      },
+      {
+       "recipe": "parmigiana-pizza",
+       "cost": 30,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "hawaiian",
+       "cost": 120,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "bambino",
+       "cost": 80,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "pizza-portuguesa",
+       "cost": 110,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "pesto-tonno",
+       "cost": 100,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "pesto-caprese",
+       "cost": 100,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "pesto-patate",
+       "cost": 130,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "new-haven-apizza",
+       "cost": 180,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "puttanesca-pizza",
+       "cost": 150,
+       "forcedBefore": 0
+      }
+     ]
+    },
+    "B_Normal": {
+     "forced": 1,
+     "maxStreak": 1,
+     "firstSpend": 620,
+     "refillSpend": 440,
+     "endingPitz": 540,
+     "minBalance": 0,
+     "bakes": 11,
+     "order": [
+      {
+       "recipe": "melanzane-pizza",
+       "cost": 60,
+       "forcedBefore": 1
+      },
+      {
+       "recipe": "parmigiana-pizza",
+       "cost": 30,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "hawaiian",
+       "cost": 120,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "bambino",
+       "cost": 80,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "pizza-portuguesa",
+       "cost": 110,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "pesto-tonno",
+       "cost": 100,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "pesto-caprese",
+       "cost": 100,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "pesto-patate",
+       "cost": 130,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "new-haven-apizza",
+       "cost": 180,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "puttanesca-pizza",
+       "cost": 150,
+       "forcedBefore": 0
+      }
+     ]
+    },
+    "D_LowScore": {
+     "forced": 4,
+     "maxStreak": 2,
+     "firstSpend": 620,
+     "refillSpend": 440,
+     "endingPitz": 140,
+     "minBalance": 0,
+     "bakes": 14,
+     "order": [
+      {
+       "recipe": "melanzane-pizza",
+       "cost": 60,
+       "forcedBefore": 2
+      },
+      {
+       "recipe": "parmigiana-pizza",
+       "cost": 30,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "hawaiian",
+       "cost": 120,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "bambino",
+       "cost": 80,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "pizza-portuguesa",
+       "cost": 110,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "pesto-tonno",
+       "cost": 100,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "pesto-caprese",
+       "cost": 100,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "pesto-patate",
+       "cost": 130,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "new-haven-apizza",
+       "cost": 180,
+       "forcedBefore": 1
+      },
+      {
+       "recipe": "puttanesca-pizza",
+       "cost": 150,
+       "forcedBefore": 1
+      }
+     ]
+    },
+    "E_Floor": {
+     "forced": 22,
+     "maxStreak": 6,
+     "firstSpend": 620,
+     "refillSpend": 440,
+     "endingPitz": 80,
+     "minBalance": 0,
+     "bakes": 32,
+     "order": [
+      {
+       "recipe": "melanzane-pizza",
+       "cost": 60,
+       "forcedBefore": 3
+      },
+      {
+       "recipe": "parmigiana-pizza",
+       "cost": 30,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "hawaiian",
+       "cost": 120,
+       "forcedBefore": 1
+      },
+      {
+       "recipe": "bambino",
+       "cost": 80,
+       "forcedBefore": 0
+      },
+      {
+       "recipe": "pizza-portuguesa",
+       "cost": 110,
+       "forcedBefore": 2
+      },
+      {
+       "recipe": "pesto-tonno",
+       "cost": 100,
+       "forcedBefore": 2
+      },
+      {
+       "recipe": "pesto-caprese",
+       "cost": 100,
+       "forcedBefore": 1
+      },
+      {
+       "recipe": "pesto-patate",
+       "cost": 130,
+       "forcedBefore": 3
+      },
+      {
+       "recipe": "new-haven-apizza",
+       "cost": 180,
+       "forcedBefore": 6
+      },
+      {
+       "recipe": "puttanesca-pizza",
+       "cost": 150,
+       "forcedBefore": 4
+      }
+     ]
+    }
+   }
+  }
+ }
+}
