@@ -21,6 +21,7 @@
 | I4b-4 fix | `0500bc8` | 通知の中で材料名が途中改行しないようにした（Human Verification で発見） |
 | docs | `7eaa57e` | Result Report と Human Verification の screenshots |
 | WebKit fix | `8184298` | 通知が WebKit 360×800 でも RESULT 1-Screen の高さ予算内に収まるように修正（§4 を参照） |
+| delta fix | `fc1b885` | 材料が複数のとき、NEW MATERIAL 通知の名前が 1 つの塊になり CTA の下に潜る不具合を修正（§3 の「差分 その 2」） |
 | review fix | `ed7bc26` | PR #227 の review（Codex P2）: Shop の進捗表示（「あとN つ発見で…」）が、解放済みの材料だけの step を飛ばすように修正（下記参照） |
 
 ## 2. UI の変更一覧
@@ -66,16 +67,37 @@ owner が確認した内容:
 **PASS 後の差分（agent が検証。owner の再確認を推奨）**
 
 - 状況: PASS の対象 HEAD `7eaa57e` の Full WebKit（run 36125278188）が失敗した。webkit-360x800 で result-1screen-2.0 Scenario E が 4px 超過した。
-- 原因: `0500bc8` の `word-break: keep-all` によって、材料 3 つの通知が WebKit では Chromium より 1 行多く描画されていた。
+- 原因: `0500bc8` の `word-break: keep-all` によって、Scenario E（マリナーラの発見）の通知が WebKit では Chromium より 1 行多く描画されていた。
+  - 訂正: このケースで入荷する材料は **マッシュルーム 1 つ** だった（fixture がにんにく / オレガノをすでに所持しているため）。`8184298` の commit message にある「3 materials」は誤り。
 - 修正（`8184298`）:
   - 通知の文言を `🆕 新しい材料「たまご」が入荷！` から `🆕 新しい材料が入荷：たまご` に変更した。
   - 材料名ごとに `white-space: nowrap` をかけた（名前は分割されない）。
-  - これで通知は最大 2 行、Chromium で 52px。Full WebKit を通過した `332d200` のレイアウトより 14px 低い。
+  - 材料 1 つの通知は 2 行、Chromium で 52px。Full WebKit を通過した `332d200` のレイアウトより 14px 低い。
 - 影響の範囲: 通知の文言と折り返しだけ。CTA「🛒 ショップへ」、Shop、価格、runtime の挙動は変わっていない。
 - 差分の証拠:
   - `after/*/05`・`after/*/10` の screenshots を撮り直した。
   - 動画 `v2/I4b_HV_390x844_new-save-full-loop_v2.mp4`（45.00s、796,623 B）と `v2/I4b_HV_360x800_layout-smoke_v2.mp4`（35.28s、699,433 B）。どちらも H.264 で、最後まで decode できることを確認した。
   - Full WebKit run 36126133936 = success。
+
+**PASS 後の差分 その 2（`8184298` の不具合を delta 検証で発見し、修正した）**
+
+- 発見: 実際のアプリで材料が複数入荷する通知を確認したところ、3 つの名前が 1 行につながり、CTA の下に潜り込んでいた（「フォンティーナ・ゴルゴンゾーラ・パ…」）。ladder の step 14 = フォンティーナ・ゴルゴンゾーラ・パルミジャーノ。
+- 原因: 区切りの「・」を次の名前の run の先頭に置いていた。「・」の前では改行できない（UAX #14）ため、3 つの名前が 1 つの改行できない塊になっていた。
+- 修正: 「・」を前の名前の run の末尾に移した（「・」の後では改行できる）。材料 3 つの通知は 3 行（66.4px）になり、RESULT の overflow は 0。
+- 回帰テスト: `e2e/progression2-discovery-ladder.spec.ts` に step 14 のケースを追加した（名前ごとに 1 行、文字が CTA の下に潜らない、RESULT の予算内、CTA が完全に見える、横 overflow なし）。WebKit の CI でも走る。修正前の描画に戻すと失敗することを確認した。
+- screenshots（実際のアプリ、`post-fix-delta/`）:
+  - `390x844-three-materials-step14.png` / `360x800-three-materials-step14.png`
+  - `390x844-single-marinara-mushroom.png` / `360x800-single-marinara-mushroom.png`
+
+**post-fix Human delta の確認結果（agent）**
+
+| 確認項目 | 390×844 | 360×800 |
+|---|---|---|
+| 材料名が途中で分割されない（1 つ / 3 つ） | PASS | PASS |
+| 通知の文字が box や CTA からはみ出さない | PASS | PASS |
+| Shop CTA が完全に見える | PASS | PASS |
+| RESULT 1-Screen の予算内（overflow ≤ 0） | PASS | PASS |
+| 無料プレゼントと誤解する表現がない | PASS | PASS |
 
 ### Human Verification Videos
 
