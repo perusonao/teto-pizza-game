@@ -1,0 +1,429 @@
+{
+  "schemaVersion": 1,
+  "kind": "w1_ingredient_visual_gate_2_result",
+  "gate": "W1 Ingredient Visual Gate slice 2 -- dedicated preview candidates (Preview-only, not production authoring)",
+  "authority": {
+    "branchBase": "d62e884 (slice 1)",
+    "evidenceOwnerDecisionCommit": "abb0a3d",
+    "mainAtStart": "1e53baa (only #223 CI-only change since dff233c)",
+    "w1AuthorityPr": {
+      "pr": 220,
+      "headSha": "e49dab96bd9b26dc0f520349cf09d1160c3519f5"
+    },
+    "contentAuthoringPr": {
+      "pr": 221,
+      "headShaAtSlice1": "d028844e3a848ebf53cbc45d745784b7695dedf2",
+      "headShaNow": "070afc0",
+      "changeSinceSlice1": "merge of main (#223 WebKit CI evidence fix) only -- no W1 content / authority meaning change; not modified or rebased here"
+    },
+    "pinnedInputs": {
+      "docs/reports/data/TETO_PROGRESS2_W1_EVIDENCE_RESOLUTION_LEDGER.json": "6835257bfd9244a6d259bcf10639a9f78a4c294f6b7de06ec3ea8de65b07f599",
+      "docs/reports/data/TETO_PROGRESS2_W1_VISUAL_EVIDENCE_REQUIREMENTS.json": "56a01272b373051c01d77b6cd9e9e710c79064038c783397e19e8a1b5fe51441",
+      "docs/reports/data/TETO_PROGRESS2_W1_OWNER_DECISIONS.json": "f35c16e61030253235761dd2906360aca2bf66e1adf1eda6c11980256092eb6c",
+      "docs/reports/data/TETO_PROGRESS2_W1_DISCOVERY_REGRESSION_FIXTURES.json": "3fdba0faa6ccb2dee9d59fff066e3afd14f09fe35a8e7a3c5df53abdf446de05",
+      "docs/reports/data/TETO_PROGRESS2_W1_VISUAL_GATE_RESULT.json": "cd7ac3f4bac84cc4e77ff5aa88b160616362f0519839ee40fc669cca4f360c47"
+    },
+    "ownerDecisions": {
+      "OD-S1": "A",
+      "OD-CLAM-GLYPH": "DEFER_TO_VISUAL_GATE",
+      "OD-TOMATO-REPRESENTATION": "TEMPORARY_SHARED_GLYPH"
+    }
+  },
+  "method": {
+    "rendering": "visual-gate/w1/W1Glyph.tsx draws the dedicated SVGs by ingredient id; a preview-bundle-only Vite transform routes all 8 production `ingredient.emoji` render sites through it (src/** unchanged on disk; each rewrite must match exactly or the build fails).",
+    "renderer": "Playwright Chromium + Noto Color Emoji (emoji neighbours are not Apple glyphs); all verdicts are AI observation, never a Human PASS.",
+    "scenarios": [
+      "tomato",
+      "capers",
+      "eggplant",
+      "clam-a-oyster",
+      "clam-b-dedicated",
+      "yellow",
+      "full-tray",
+      "busy (22 pieces)",
+      "hub -> seeded game"
+    ],
+    "backgrounds": [
+      "tomato sauce",
+      "mozzarella",
+      "pesto",
+      "olive oil + parmigiano"
+    ],
+    "bake": "needle paused at free-cook target center (heat 1.0) + board heat 1.6",
+    "automatedLayoutChecks": [
+      "no horizontal overflow (PREPARE / RESULT / board / hub)",
+      "TOPPING needs no vertical scroll; bottom bar on-screen; 3-page tray pages cleanly",
+      "RESULT reached, not burnt, no page errors",
+      "dedicated visual count == placed id count; cherry-tomato stays 🍅 text; fresh-tomato draws no 🍅",
+      "RESULT list draws the same dedicated visual",
+      "only the gate save key is written"
+    ],
+    "e2e": "20/20 Chromium (390x844 + 360x800) against the exact deployed bytes",
+    "webkit": "not runnable in this sandbox (no WebKit executable); src/** unchanged, so not a Final Gate; the device Human Gate covers iPhone Safari"
+  },
+  "preview": {
+    "url": "https://perusonao.github.io/teto-pizza-game-preview/w1-visual-gate/",
+    "pages": {
+      "hub": "index.html (Human Verification entry; one-tap seeded links)",
+      "gameClamA": "game.html?seed=all",
+      "gameClamB": "game.html?seed=all&clam=dedicated",
+      "board": "board.html",
+      "legacyBefore": "game.html?seed=all&w1visual=emoji"
+    },
+    "sourceRepo": "perusonao/teto-pizza-game",
+    "sourceBranch": "claude/w1-ingredient-visual-preview-mt4uxw",
+    "sourceSha": "ea8ae74b898698b7550bc8cf6ddd7f9382bc044b",
+    "shaShownOnEveryPage": true,
+    "deployRepo": "perusonao/teto-pizza-game-preview",
+    "deployCommit": "a0f34c150d45d1b8ba0e374619f56c2b816a47ee",
+    "deployPath": "site/w1-visual-gate/ (additive; the existing top-level preview e5d5452 is unchanged)",
+    "pagesRun": "https://github.com/perusonao/teto-pizza-game-preview/actions/runs/36031443175 (success)",
+    "productionPagesTouched": false,
+    "saveKey": "teto-pizza-w1-visual-gate-save-v1 (never teto-pizza-save-v1 / teto-pizza-preview-save-v1)",
+    "liveUrlFetchedFromSandbox": false,
+    "liveVerification": "perusonao.github.io is egress-blocked from this sandbox; the deployed tree was verified byte-identical (diff -r) to the bundle the Chromium E2E suite ran against."
+  },
+  "candidates": [
+    {
+      "ingredientId": "fresh-tomato",
+      "ledgerId": "ING-09",
+      "candidate": "dedicated:tomato-slice",
+      "candidateVisual": "flat cross-section slice: dark skin ring + outline, pale core, 4 pale seed chambers with seeds; no calyx (SVG, W1Glyph)",
+      "replaces": "🍅 shared with cherry-tomato / tomato-sauce (slice 1: DEDICATED_VISUAL_REQUIRED)",
+      "identity": {
+        "ingredientId": "fresh-tomato",
+        "aliasOf": null,
+        "distinctFrom": "cherry-tomato"
+      },
+      "comparedAgainst": [
+        "cherry-tomato 🍅 (whole, calyx)",
+        "tomato-sauce (spread; 🍅 only on its tray chip / RESULT list)"
+      ],
+      "rawResult": "AI_OBSERVED: wheel/cross-section silhouette vs whole 🍅 -- distinguishable on sauce, cheese and pesto",
+      "bakedResult": "AI_OBSERVED: heat 1.0 / 1.6 keep the ring + chamber pattern; still distinct from 🍅",
+      "shapeOnlyResult": "AI_OBSERVED: grayscale keeps the ring + pale chambers vs the 🍅 calyx silhouette -- not colour-dependent",
+      "smallPieceResult": "AI_OBSERVED: 16px thumbnail and RESULT-list size still read as a slice vs 🍅",
+      "trayResult": "Own chip drawing (slice) next to チェリートマト 🍅 and the sauce tray's トマトソース 🍅",
+      "watchItems": [
+        "renders ~25% smaller than neighbouring emoji (SVG fills its 1em box less than Noto/Apple glyphs)",
+        "at a glance the dotted red disc could read as salami / pepperoni slice -- human check",
+        "flat-vector style next to emoji style"
+      ],
+      "viewport390x844": {
+        "layout": "AUTOMATED_CHECKS_PASSED",
+        "visual": "PREVIEW_CANDIDATE_OK"
+      },
+      "viewport360x800": {
+        "layout": "AUTOMATED_CHECKS_PASSED",
+        "visual": "PREVIEW_CANDIDATE_OK"
+      },
+      "status": "PREVIEW_CANDIDATE_OK",
+      "reason": "Shape-based distinction from cherry-tomato and tomato-sauce holds raw, baked, grayscale and at small size; ready for the device Human Gate. Not a production PASS.",
+      "requiredFollowUp": "iPhone Human Verification (tray / pizza / baked / RESULT); decide size parity with emoji.",
+      "screenshots": {
+        "390x844": [
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/tomato-1-tray.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/tomato-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/tomato-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/tomato-4-result.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/busy-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/busy-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/board-tomato.png"
+        ],
+        "360x800": [
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/tomato-1-tray.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/tomato-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/tomato-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/tomato-4-result.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/busy-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/busy-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/board-tomato.png"
+        ]
+      },
+      "before": {
+        "390x844": [
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/tomato-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/board-tomato.png"
+        ],
+        "360x800": [
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/tomato-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/board-tomato.png"
+        ]
+      }
+    },
+    {
+      "ingredientId": "capers",
+      "ledgerId": "ING-02",
+      "candidate": "dedicated:caper-cluster",
+      "candidateVisual": "irregular cluster of 3 small pointed olive-green buds of different sizes, dark outline, bud line + highlight (SVG, W1Glyph)",
+      "replaces": "🟢 single circle (slice 1: DEDICATED_VISUAL_REQUIRED)",
+      "identity": {
+        "ingredientId": "capers",
+        "aliasOf": null
+      },
+      "comparedAgainst": [
+        "black-olive ⚫",
+        "pepperoni 🔴",
+        "garlic 🧄",
+        "anchovy 🐟"
+      ],
+      "rawResult": "AI_OBSERVED: multi-bud cluster vs single discs -- distinct on sauce and cheese",
+      "bakedResult": "AI_OBSERVED: heat 1.0 / 1.6 keep the cluster outline",
+      "shapeOnlyResult": "AI_OBSERVED: grayscale / deuteranopia / protanopia simulations keep a 3-bud cluster next to two plain discs -- shape cue exists (slice 1 had none)",
+      "smallPieceResult": "AI_OBSERVED: 16px still reads as a small cluster",
+      "trayResult": "Own chip drawing next to ペパロニ 🔴 / ブラックオリーブ ⚫",
+      "watchItems": [
+        "renders smaller than 🔴 pepperoni",
+        "could read as peas / grapes / a herb cluster rather than capers -- human check"
+      ],
+      "viewport390x844": {
+        "layout": "AUTOMATED_CHECKS_PASSED",
+        "visual": "PREVIEW_CANDIDATE_OK"
+      },
+      "viewport360x800": {
+        "layout": "AUTOMATED_CHECKS_PASSED",
+        "visual": "PREVIEW_CANDIDATE_OK"
+      },
+      "status": "PREVIEW_CANDIDATE_OK",
+      "reason": "Colour is no longer the only cue: the bud-cluster silhouette separates capers from ⚫ / 🔴 in every simulation, raw and baked; ready for the device Human Gate. Not a production PASS.",
+      "requiredFollowUp": "iPhone Human Verification incl. a greyscale look (iOS Settings > Accessibility > Colour Filters) on Puttanesca-like pizzas.",
+      "screenshots": {
+        "390x844": [
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/capers-1-tray.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/capers-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/capers-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/capers-4-result.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/busy-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/busy-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/board-capers.png"
+        ],
+        "360x800": [
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/capers-1-tray.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/capers-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/capers-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/capers-4-result.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/busy-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/busy-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/board-capers.png"
+        ]
+      },
+      "before": {
+        "390x844": [
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/capers-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/board-capers.png"
+        ],
+        "360x800": [
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/capers-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/board-capers.png"
+        ]
+      }
+    },
+    {
+      "ingredientId": "clam",
+      "ledgerId": "ING-07",
+      "candidate": "A:🦪 vs B:dedicated:asari-valve",
+      "candidateVisual": {
+        "A": {
+          "visual": "🦪 OYSTER (PR #221 emoji)",
+          "status": "HUMAN_VERIFICATION_REQUIRED",
+          "note": "Legible, not confused with garlic / parmigiano; reads as an oyster (open shell + pearl), not あさり."
+        },
+        "B": {
+          "visual": "dedicated asari valve: closed wide rounded-triangle shell, hinge bump, horizontal growth bands + zig-zag marks, dark outline (SVG, W1Glyph)",
+          "status": "PREVIEW_CANDIDATE_OK",
+          "note": "Reads as a closed bivalve: no pearl / open meat (not oyster), no spiral (not a sea snail); bands run across while garlic's ribs run lengthwise; dark outline keeps it off parmigiano and the oil base, including grayscale and 16px."
+        },
+        "chosen": null
+      },
+      "identity": {
+        "ingredientId": "clam",
+        "aliasOf": null
+      },
+      "comparedAgainst": [
+        "🦪 (A)",
+        "garlic 🧄",
+        "parmigiano",
+        "olive-oil base",
+        "mushroom 🍄",
+        "tomato sauce"
+      ],
+      "rawResult": "AI_OBSERVED: A and B both legible; B reads as clam-like, A as oyster",
+      "bakedResult": "AI_OBSERVED: heat 1.0 / 1.6 keep both outlines",
+      "shapeOnlyResult": "AI_OBSERVED: grayscale -- B's banded outline stays apart from garlic; A too",
+      "smallPieceResult": "AI_OBSERVED: 16px -- both keep their outline",
+      "watchItems": [
+        "B renders smaller than 🦪",
+        "B could read as a scallop / bread bun -- human check",
+        "B's flat-vector style vs emoji"
+      ],
+      "viewport390x844": {
+        "layout": "AUTOMATED_CHECKS_PASSED",
+        "visual": "HUMAN_VERIFICATION_REQUIRED (A) / PREVIEW_CANDIDATE_OK (B)"
+      },
+      "viewport360x800": {
+        "layout": "AUTOMATED_CHECKS_PASSED",
+        "visual": "HUMAN_VERIFICATION_REQUIRED (A) / PREVIEW_CANDIDATE_OK (B)"
+      },
+      "status": "HUMAN_VERIFICATION_REQUIRED",
+      "reason": "Both A and B go to the device Human Gate side by side; picking one is the Owner call OD-CLAM-GLYPH defers. B is PREVIEW_CANDIDATE_OK, A stays HUMAN_VERIFICATION_REQUIRED. Nothing chosen here.",
+      "requiredFollowUp": "iPhone: compare hub links ① (A) and ② (B) on the same pizza; Owner decides A / B / other.",
+      "screenshots": {
+        "390x844": [
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/clam-a-oyster-1-tray.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/clam-a-oyster-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/clam-a-oyster-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/clam-a-oyster-4-result.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/clam-b-dedicated-1-tray.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/clam-b-dedicated-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/clam-b-dedicated-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/clam-b-dedicated-4-result.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/board-clam.png"
+        ],
+        "360x800": [
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/clam-a-oyster-1-tray.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/clam-a-oyster-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/clam-a-oyster-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/clam-a-oyster-4-result.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/clam-b-dedicated-1-tray.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/clam-b-dedicated-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/clam-b-dedicated-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/clam-b-dedicated-4-result.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/board-clam.png"
+        ]
+      },
+      "before": {
+        "390x844": [
+          "docs/reports/screenshots/w1-ingredient-visual-gate/390x844/board-clam.png"
+        ],
+        "360x800": [
+          "docs/reports/screenshots/w1-ingredient-visual-gate/360x800/board-clam.png"
+        ]
+      }
+    }
+  ],
+  "carriedHumanVerification": [
+    {
+      "ingredientId": "eggplant",
+      "ledgerId": "ING-03",
+      "candidateVisual": "🍆",
+      "status": "HUMAN_VERIFICATION_REQUIRED",
+      "note": "Unchanged emoji; slice 1 AI observation re-confirmed in the busy 22-piece pizza at both viewports. Device check pending.",
+      "screenshots": {
+        "390x844": [
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/busy-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/busy-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/eggplant-3-baked-stage.png"
+        ],
+        "360x800": [
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/busy-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/busy-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/eggplant-3-baked-stage.png"
+        ]
+      }
+    },
+    {
+      "ingredientId": "corn",
+      "ledgerId": "ING-08",
+      "candidateVisual": "🌽",
+      "status": "HUMAN_VERIFICATION_REQUIRED",
+      "note": "Unchanged emoji; slice 1 AI observation re-confirmed in the busy 22-piece pizza at both viewports. Device check pending.",
+      "screenshots": {
+        "390x844": [
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/busy-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/busy-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/yellow-3-baked-stage.png"
+        ],
+        "360x800": [
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/busy-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/busy-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/yellow-3-baked-stage.png"
+        ]
+      }
+    },
+    {
+      "ingredientId": "pineapple",
+      "ledgerId": "ING-10",
+      "candidateVisual": "🍍",
+      "status": "HUMAN_VERIFICATION_REQUIRED",
+      "note": "Unchanged emoji; slice 1 AI observation re-confirmed in the busy 22-piece pizza at both viewports. Device check pending.",
+      "screenshots": {
+        "390x844": [
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/busy-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/busy-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/yellow-3-baked-stage.png"
+        ],
+        "360x800": [
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/busy-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/busy-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/yellow-3-baked-stage.png"
+        ]
+      }
+    },
+    {
+      "ingredientId": "potato",
+      "ledgerId": "ING-11",
+      "candidateVisual": "🥔",
+      "status": "HUMAN_VERIFICATION_REQUIRED",
+      "note": "Unchanged emoji; slice 1 AI observation re-confirmed in the busy 22-piece pizza at both viewports. Device check pending.",
+      "screenshots": {
+        "390x844": [
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/busy-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/busy-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/390x844/full-tray-3-baked-stage.png"
+        ],
+        "360x800": [
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/busy-2-raw-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/busy-3-baked-stage.png",
+          "docs/reports/screenshots/w1-ingredient-visual-gate-2/360x800/full-tray-3-baked-stage.png"
+        ]
+      }
+    }
+  ],
+  "humanVerificationChecklist": [
+    "capers dedicated (bud cluster) vs ⚫ black-olive / 🔴 pepperoni -- tray, pizza raw/baked, RESULT, greyscale",
+    "fresh-tomato dedicated (slice) vs 🍅 cherry-tomato vs トマトソース -- tray, pizza raw/baked, RESULT; does it read as tomato (not salami)?",
+    "clam A 🦪 -- reads as あさり enough? (hub ①)",
+    "clam B dedicated -- clam, not oyster / snail / garlic / parmigiano? (hub ②)",
+    "eggplant 🍆 on tomato sauce after bake (Apple glyph is darker)",
+    "corn 🌽 on cheese, raw/baked",
+    "pineapple 🍍 on cheese, raw/baked",
+    "potato 🥔 on cheese/pesto, incl. a long (deep) bake",
+    "dedicated pieces' size vs neighbouring emoji; style fit",
+    "crowded pizza / 3-page tray stays one screen and RESULT is reachable"
+  ],
+  "summary": {
+    "PREVIEW_CANDIDATE_OK": [
+      "fresh-tomato:dedicated",
+      "capers:dedicated",
+      "clam:B-dedicated"
+    ],
+    "HUMAN_VERIFICATION_REQUIRED": [
+      "clam:A-🦪",
+      "eggplant",
+      "corn",
+      "pineapple",
+      "potato"
+    ],
+    "DEDICATED_VISUAL_REQUIRED": [],
+    "productionAdoption": null,
+    "productionAdoptionNote": "Nothing is adopted for production. PREVIEW_CANDIDATE_OK only means the candidate may go to the device Human Gate.",
+    "readiness": {
+      "READY": 0,
+      "REVIEW": 10,
+      "BLOCKED": 0
+    },
+    "untouched": [
+      "src/**",
+      "e2e/**",
+      "PR #220",
+      "PR #221",
+      "#215/#222/#223",
+      "REC-01..04",
+      "RT-01",
+      "recipe quantities",
+      "OD-S1 = A",
+      "evidence ledger / Owner Decisions",
+      "ingredient identities"
+    ]
+  }
+}
