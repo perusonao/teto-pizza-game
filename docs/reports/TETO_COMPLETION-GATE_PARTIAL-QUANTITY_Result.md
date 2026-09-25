@@ -169,6 +169,8 @@ Audited main **`a8e7888`**（#206 I0 save forward compat、#225 IngredientGlyph�
 
 - Local: `vitest` 133 files / 2624 tests PASS。`oxlint` clean、`tsc -b` と `npm run build` PASS。
 - Chromium（local、全 spec × `iphone-390x844` / `iphone-360x800`）: 132 / 132 PASS。
+- focused（Completion Gate / Scoring 2.0 / partial quantity / discovery / Free Cooking / 文言 / ResultPanel / MissionServePanel と、main 側の IngredientGlyph / PizzaThumbnail / pizzaReferenceLayout（getReferenceSlots・multi-ring）/ playerReference / rt01 regression / persistence（save forward compat））: 19 files / 686 tests PASS。
+- I0 / I3 / I2 の runtime file（`persistence.ts`、`IngredientGlyph.tsx`、`PizzaThumbnail.tsx`、`IngredientPieceVisual.tsx`、`IngredientTray.tsx`、`ingredients.ts`、`pizzaReferenceLayout.ts`、`playerReference.ts`）は、integration tree と main `a8e7888` で byte 単位で同じ。
 - 1 回目の tree（`23d9220`）: vitest 130 files / 2517、Chromium 122 / 122、上の在庫の scratch test、CI の WebKit Gate がすべて PASS。
 - WebKit: この sandbox に WebKit の browser がないので、CI の `WebKit Gate` を正とする（PR #222 の checks、この commit の後の HEAD）。
 
@@ -179,6 +181,9 @@ Audited main **`a8e7888`**（#206 I0 save forward compat、#225 IngredientGlyph�
   - Video: `issue215-hv-after-390x844.mp4`（authority viewport）と `issue215-hv-after-360x800.mp4`。H.264、decode 最後まで OK、Policy §4 のシナリオ（recipe 3/2/1/0/4、Free Cooking 1 個の発見、Lunch Rush 2/3/4）をカバー。実装セッション（`session_01WsUT7UH9CZwhHk1X2LUS97`）でユーザーに直接提出済み（repo には commit しない）。
   - Screenshots: `docs/reports/screenshots/completion-gate-partial-quantity/` の 36 枚（9 シナリオ × before/after × 2 viewport）がそろっている。after の 2/3（「少なめ（2個／お手本3個）」★4 82 点）と Lunch Rush 2/3（「注文のモッツァレラの数が足りません」注文失敗）を目で確認し、仕様と一致。
   - HV の後の runtime の変更: この PR の中ではなし（`9abe481` → `81a850c` は docs のみ）。main の merge で入った変更は save・CI・具材の glyph の抽象化（#225、見た目の変更なし）・お手本の配置（#226、それ自体の Human Verification PASS 済み）で、この PR の数量の判定・スコア・文言には関係しない。そのため HV の結果は merge 後の HEAD にもそのまま当てはまる。
-- **Human PASS authority:** `docs/decisions/TETO_HUMAN-VERIFICATION-POLICY.md` §12 の Definition of Done（Automated tests PASS / screenshots / video / Video validation PASS / 提出済み / Result Report 更新）を満たすことを、I1 で確認した。owner の I1 指示（2026-09-25、「Human PASS が正式記録されていなければ、既存の検証結果を確認した上で docs-only で記録する」）に従い、ここに **Human Verification: PASS** として記録する。owner が動画を見て別に判定した記録ではない。
+- **Human authority（区別して記録する）:**
+  - automated verification = **PASS**（vitest / typecheck / lint / build / Chromium / WebKit Gate）
+  - agent video/screenshot verification = **PASS**（上の Video Verification と Screenshots。`docs/decisions/TETO_HUMAN-VERIFICATION-POLICY.md` §12 の DoD 項目はそろっている）
+  - owner-issued Human PASS = **NOT RECORDED**（owner が動画を見て判定した記録は #215 / #222 のどこにもない。この Report でも owner が確認したとは記録しない）
 
 Verdict: CI（`WebKit Gate` を含む）が上の HEAD で green なら **PASS**、merge commit で main に merge する。
