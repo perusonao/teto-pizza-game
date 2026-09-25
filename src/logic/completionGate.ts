@@ -12,13 +12,31 @@
  * for exactly what it is derived from and why.
  */
 import { getIngredient } from "../data/ingredients";
-import type { Recipe } from "../data/recipes";
+import type { Recipe, RecipeRequirement } from "../data/recipes";
 import { getReferencePizza } from "../data/referencePizza";
 import type { PizzaState } from "../state/pizzaState";
 import { COVERAGE_POOR_RATIO } from "./sauceEvaluation";
 import { computeSauceMetrics } from "./sauceField";
 import { sanitizeSauceDeposits, sanitizeStringArray, sanitizeToppings } from "./scoringV2/boundary";
 import { countUsedIngredient } from "./scoring";
+
+/**
+ * Issue #215 (Owner Decision OD-1 = G1, OD-4 = LR-A): how much of each required ingredient a
+ * pizza needs to count as that dish at all.
+ * - `"recipe"` (recipe mode and Free Cooking / discovery): one piece is enough. Being below the
+ *   ideal (`minCount`, which stays the Reference quantity) is a Scoring 2.0 quality question
+ *   (../logic/scoringV2/quantityComponent.ts), not a completion one.
+ * - `"order"` (Lunch Rush): the ordered quantity (`minCount`) is required, exactly as before
+ *   #215 -- keeps Lunch Rush ranking scores comparable (ruleset unchanged).
+ * Zero pieces is `MISSING_REQUIRED_INGREDIENT` under both policies.
+ */
+export type CompletionPolicy = "recipe" | "order";
+
+/** The minimum count of `req` a pizza needs under `policy` (Fresh Audit DS-A: `minCount`
+ *  itself keeps meaning the ideal quantity for every other reader). */
+export function completionMinimum(req: RecipeRequirement, policy: CompletionPolicy): number {
+  return policy === "order" ? req.minCount : 1;
+}
 
 export type CompletionFailureReason =
   | "MISSING_REQUIRED_INGREDIENT"
@@ -168,7 +186,11 @@ function checkBake(recipe: Recipe, pizza: PizzaState): CompletionFailureDetail |
  * `computeScoringV2` (../logic/scoringV2/index.ts) -- the two are deliberately independent, so
  * this gate has no opinion on score/stars and Scoring 2.0 has no opinion on PASS/FAILED.
  */
-export function evaluatePizzaCompletion(recipe: Recipe, pizza: PizzaState): PizzaCompletionResult {
+export function evaluatePizzaCompletion(
+  recipe: Recipe,
+  pizza: PizzaState,
+  policy: CompletionPolicy = "recipe",
+): PizzaCompletionResult {
   const failures: CompletionFailureDetail[] = [];
   const safePizza = safePizzaForCompletionCheck(pizza);
 
@@ -176,7 +198,7 @@ export function evaluatePizzaCompletion(recipe: Recipe, pizza: PizzaState): Pizz
     const count = countUsedIngredient(safePizza, req.ingredientId);
     if (count === 0) {
       failures.push({ reason: "MISSING_REQUIRED_INGREDIENT", ingredientId: req.ingredientId });
-    } else if (count < req.minCount) {
+    } else if (count < completionMinimum(req, policy)) {
       failures.push({ reason: "INSUFFICIENT_REQUIRED_AMOUNT", ingredientId: req.ingredientId });
     }
   }

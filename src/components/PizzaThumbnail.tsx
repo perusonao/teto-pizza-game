@@ -3,7 +3,8 @@ import type { Recipe } from "../data/recipes";
 import { getIngredient } from "../data/ingredients";
 import { IngredientPieceVisual } from "./IngredientPieceVisual";
 import { stablePieceRotation } from "../logic/pieceDrag";
-import { PIECE_RING_POSITIONS } from "../logic/pizzaReferenceLayout";
+import { getReferenceSlots } from "../logic/pizzaReferenceLayout";
+import { IngredientGlyph } from "./IngredientGlyph";
 
 interface PizzaThumbnailProps {
   recipe: Recipe;
@@ -22,9 +23,11 @@ interface PizzaThumbnailProps {
  * every recipe. The two stay independent responsibilities per Issue #39's scope guard.
  */
 
-/** A recipe's non-sauce ingredients are assigned to `PIECE_RING_POSITIONS` in
- *  `requiredIngredients` order, so the same recipe always renders the same layout. */
-const PIECE_POSITIONS = PIECE_RING_POSITIONS;
+/** A recipe's non-sauce ingredients (one glyph per ingredient type) are assigned to
+ *  `getReferenceSlots(typeCount)` in `requiredIngredients` order, so the same recipe always
+ *  renders the same layout. RT-01b: for up to 8 types that is exactly `PIECE_RING_POSITIONS`
+ *  (unchanged from before); a 9th type now gets its own multi-ring slot instead of wrapping onto
+ *  the first one. */
 
 export function PizzaThumbnail({ recipe }: PizzaThumbnailProps) {
   const sauceIngredient = recipe.requiredIngredients
@@ -36,6 +39,8 @@ export function PizzaThumbnail({ recipe }: PizzaThumbnailProps) {
     .filter((ingredient): ingredient is NonNullable<typeof ingredient> => ingredient !== undefined)
     .filter((ingredient) => ingredient.category !== "sauce");
 
+  const positions = getReferenceSlots(pieces.length);
+
   return (
     <div className="pizza-thumbnail" aria-hidden="true">
       <div
@@ -43,7 +48,7 @@ export function PizzaThumbnail({ recipe }: PizzaThumbnailProps) {
         style={{ backgroundColor: sauceIngredient?.color ?? "#f0d9a0" }}
       />
       {pieces.map((ingredient, index) => {
-        const position = PIECE_POSITIONS[index % PIECE_POSITIONS.length];
+        const position = positions[index];
         const rotation = stablePieceRotation(ingredient.id, position.x, position.y);
         return (
           <span
@@ -60,7 +65,9 @@ export function PizzaThumbnail({ recipe }: PizzaThumbnailProps) {
             {ingredient.category === "cheese" ? (
               <IngredientPieceVisual ingredient={ingredient} />
             ) : (
-              <span className="pizza-thumbnail__piece-emoji">{ingredient.emoji}</span>
+              <span className="pizza-thumbnail__piece-emoji">
+                <IngredientGlyph ingredient={ingredient} />
+              </span>
             )}
           </span>
         );

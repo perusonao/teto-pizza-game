@@ -24,7 +24,7 @@ function ComponentChip({
   component,
 }: {
   label: string;
-  component: ScoringV2Components[keyof ScoringV2Components];
+  component: ScoringV2Components[Exclude<keyof ScoringV2Components, "quantity">];
 }) {
   return (
     <span className="scoring-v2-panel__chip">
@@ -82,6 +82,11 @@ export function ScoringV2DebugPanel({ result }: ScoringV2DebugPanelProps) {
             <ComponentChip label="Pieces" component={result.components.pieces} />
             <ComponentChip label="Recipe" component={result.components.recipe} />
             <ComponentChip label="Bake" component={result.components.bake} />
+            {!isUnavailable(result.components.quantity) && (
+              <span className="scoring-v2-panel__chip">
+                Q <strong>×{result.components.quantity.factor.toFixed(3)}</strong>
+              </span>
+            )}
           </div>
 
           {!isUnavailable(result.components.sauce) && (

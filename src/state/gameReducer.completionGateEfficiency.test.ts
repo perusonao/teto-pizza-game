@@ -92,16 +92,16 @@ describe("Completion Gate FAILED x Efficiency: lastEfficiencyCredit is null for 
     expect(after.lastEfficiencyCredit).toBeNull();
   });
 
-  it("2. FAILED (INSUFFICIENT_REQUIRED_AMOUNT) -> lastEfficiencyCredit null", () => {
+  it("2. Issue #215 (G1): an under-ideal FREE pizza (2 of 3 mozzarella) is no longer FAILED -- it PASSes and earns its Efficiency credit", () => {
+    // INSUFFICIENT_REQUIRED_AMOUNT is now only reachable under Lunch Rush's "order" policy,
+    // where Efficiency never applies (Mission rounds have no cookingTiming).
     const pizza = idealMargherita(70);
     const mozzarella = pizza.toppings.filter((t) => t.ingredientId === "mozzarella");
     const oneShort = { ...pizza, toppings: pizza.toppings.filter((t) => t.id !== mozzarella[0].id) };
     const result = playToResult(oneShort, 10_000);
-    expect(result.completion?.status === "FAILED" && result.completion.reason).toBe(
-      "INSUFFICIENT_REQUIRED_AMOUNT",
-    );
+    expect(result.completion?.status).toBe("PASS");
     const after = gameReducer(result, { type: "REGISTER_TO_DEX" });
-    expect(after.lastEfficiencyCredit).toBeNull();
+    expect(after.lastEfficiencyCredit).not.toBeNull();
   });
 
   it("3. FAILED (INSUFFICIENT_SAUCE) -> lastEfficiencyCredit null", () => {

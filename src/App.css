@@ -585,6 +585,26 @@
   transition: filter 0.3s ease;
 }
 
+/* Production Visual P1: a dedicated (non-emoji) ingredient glyph from IngredientGlyph.tsx. It sits
+   exactly where the emoji text did, sized 1em so each context's own font-size and the piece's bake
+   `filter` apply unchanged. No current ingredient uses it (every one still renders its emoji), so
+   these rules match nothing until a dedicated visual is registered. */
+.ingredient-glyph {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.125em;
+  overflow: visible;
+}
+
+/* The Human-approved fresh-tomato slice matches the visual size of neighbouring emoji (which
+   overfill their 1em box); negative margins keep its layout box at 1em. */
+.ingredient-glyph--tomato-slice {
+  width: 1.15em;
+  height: 1.15em;
+  margin: -0.075em;
+}
+
 /* ---------- Cheese identity (shape + size + texture differ per cheese) ---------- */
 /* Generic fallback so a new cheese ingredient is still visible before it gets a
    dedicated .pizza-cheese--<id> rule below. Each dedicated rule sets its own
@@ -1512,6 +1532,20 @@
   text-align: center;
 }
 
+/* Issue #215: the quantity-factor explanation ("…がお手本より少なめ（2個／お手本3個）") -- same
+   pill footprint as the bake badge above, its own full-width row so it wraps cleanly at 360px. */
+.result-panel__quantity-note {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 3px 10px;
+  background: #fbe9d0;
+  color: #7a4a12;
+  flex-basis: 100%;
+  text-align: center;
+}
+
 .result-panel__bake-badge--raw {
   background: #dfeaf9;
   color: #2f5590;
@@ -2317,6 +2351,15 @@
   font-size: 20px;
   font-weight: 800;
   color: #6b4226;
+}
+
+/* Issue #215 (OD-4b): Lunch Rush excess quantity line -- one compact row, same tone as the CUT
+   line below. */
+.mission-serve-panel__quantity-note {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #7a4a12;
 }
 
 /* Pizza Cutting 1.0 Phase 4A (Phase 4 Fresh Audit §5D/§6): compact CUT acknowledgement --

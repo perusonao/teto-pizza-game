@@ -189,8 +189,49 @@ describe("free cook -> NEW / KNOWN / ORIGINAL", () => {
     expect(register(after)).toBe(after);
   });
 
-  it("ORIGINAL (near miss): Margherita's set with too little basil is INCOMPLETE_MATCH, not a failure", () => {
-    const result = cook(start(), { ...MARGHERITA, toppings: piecesOf("basil").slice(0, 1) });
+  it("Issue #215 OD-5 (D-A): Margherita's set with under-ideal quantities is still a NEW discovery, scored below ★5", () => {
+    // 1 of 2 basil and 1 of 3 mozzarella: every required type is present, so the matched
+    // recipe's "recipe"-policy Completion Gate passes; the shortage is paid in Scoring 2.0.
+    const result = cook(start(), {
+      ...MARGHERITA,
+      cheese: piecesOf("mozzarella").slice(0, 1),
+      toppings: piecesOf("basil").slice(0, 1),
+    });
+    expect(result.completion?.status).toBe("PASS");
+    expect(result.recipe.id).toBe("margherita");
+    expect(result.scoringV2Result?.components.quantity).toMatchObject({ available: true });
+    expect(result.score!.stars).toBeLessThan(5);
+    const after = register(result);
+    expect(after.lastDiscovery).toEqual({
+      kind: "NEW_DISCOVERY",
+      recipeId: "margherita",
+      targetId: "shipped:margherita",
+    });
+    expect(getDexEntry(after.dex, "margherita")).toMatchObject({ discovered: true, timesMade: 1 });
+  });
+
+  it("ORIGINAL (near miss): Margherita's set with a barely-touched sauce is INCOMPLETE_MATCH, not a failure", () => {
+    // Quantity no longer blocks a match (OD-5), but the matched recipe's own sauce-amount
+    // check still does -- the generic free-cook completion has no sauce threshold.
+    let s = gameReducer(start(), { type: "CONFIRM_MAKING_STEP" }); // DOUGH -> SAUCE
+    s = gameReducer(s, {
+      type: "COMMIT_SAUCE_DISPENSE",
+      ingredientId: "tomato-sauce",
+      deposits: [{ x: 55, y: 55, amount: 0.02 }],
+    });
+    s = gameReducer(s, { type: "CONFIRM_MAKING_STEP" }); // SAUCE -> CHEESE
+    for (const piece of piecesOf("mozzarella")) {
+      s = gameReducer(s, { type: "PLACE_TOPPING", ingredientId: piece.id, x: piece.x, y: piece.y });
+    }
+    s = gameReducer(s, { type: "CONFIRM_MAKING_STEP" }); // CHEESE -> TOPPING
+    for (const piece of piecesOf("basil")) {
+      s = gameReducer(s, { type: "PLACE_TOPPING", ingredientId: piece.id, x: piece.x, y: piece.y });
+    }
+    s = dispatchAll(s, [
+      { type: "START_BAKE", now: NOW + 60_000 },
+      { type: "CONFIRM_BAKE", value: MARGHERITA_BAKE },
+    ]);
+    const result = walkPostBakeToResult(s);
     expect(result.completion?.status).toBe("PASS");
     const after = register(result);
     expect(after.phase).toBe("DISCOVERED");

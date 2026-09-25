@@ -21,6 +21,7 @@ import { ScoringV2DebugPanel } from "../components/ScoringV2DebugPanel";
 import { CutDebugPanel } from "../components/CutDebugPanel";
 import type { ReferencePizza } from "../data/referencePizza";
 import { getPlayerReferencePizza } from "../data/playerReference";
+import { buildQuantityNote } from "../data/quantityMessages";
 import type { SauceMetrics } from "../logic/sauceField";
 import type { SauceReferenceShadowScore } from "../logic/referenceScoring";
 import type { SauceDeposit } from "../state/pizzaState";
@@ -646,6 +647,7 @@ export function GameScreen({
           servedCount={mission.metrics.servedCount}
           completion={state.completion}
           cutEvaluation={state.cutState.evaluation}
+          quantityNoteJa={buildQuantityNote(state.scoringV2Result)}
           onNext={onMissionServeNext}
         />
       )}
@@ -679,6 +681,7 @@ export function GameScreen({
           freeCook={state.freeCook}
           discovery={state.lastDiscovery}
           usedIngredientIds={usedIngredientIds(state.pizza)}
+          quantityNoteJa={buildQuantityNote(state.scoringV2Result)}
           onRetrySameRecipe={onRetrySameRecipe}
           onBackToPizzaSelect={onBackToPizzaSelect}
         />
