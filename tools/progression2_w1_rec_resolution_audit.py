@@ -23,12 +23,17 @@ Evidence layers are kept apart on purpose:
 * ``PRODUCTION_CONVENTION``    -- values measured from src/** (read-only)
 * ``GAME_AUTHORING_CANDIDATE`` -- #221 candidates (never evidence)
 * ``OWNER_DECISION_RECORD``    -- decisions recorded by the owner on GitHub
-* ``HUMAN_SIGNOFF``            -- pending human sign-off; never external evidence
+* ``HUMAN_SIGNOFF``            -- the owner's content sign-off (Q1); never external evidence
+
+The owner's answers to this audit's Q1-Q4 (2026-09-25) are the only decisions
+applied (``OWNER_DECISIONS``); they resolve REC-01..03 while REC-04, RT-01,
+MD-01 and the other implementation dependencies stay open per recipe.
 
 Usage::
 
     git fetch origin codex/content-readiness-fresh-audit \
-        codex/w1-authoring-fresh-audit claude/w1-ingredient-visual-preview-mt4uxw
+        codex/w1-authoring-fresh-audit claude/w1-ingredient-visual-preview-mt4uxw \
+        claude/rt-01-pizza-piece-capacity-1ncicd
     python3 tools/progression2_w1_rec_resolution_audit.py            # regenerate
     python3 tools/progression2_w1_rec_resolution_audit.py --check    # verify
     python3 tools/progression2_w1_rec_resolution_audit.py --self-test
@@ -75,6 +80,14 @@ GIT_INPUTS = {
     "pr221.ingredientMatrix": (PR221["headSha"], "docs/reports/data/TETO_PROGRESS2_W1_INGREDIENT_AUTHORING_MATRIX.json"),
     "sync.evidenceLedger": (VISUAL_SYNC["commit"], "docs/reports/data/TETO_PROGRESS2_W1_EVIDENCE_RESOLUTION_LEDGER.json"),
     "sync.ownerDecisions": (VISUAL_SYNC["commit"], "docs/reports/data/TETO_PROGRESS2_W1_OWNER_DECISIONS.json"),
+    "rt01.designReport": ("745fbd7fae66fcd6c3951337575e8f2ea8e2df80",
+                          "docs/reports/TETO_RT01_REFERENCE-PIECE-CAPACITY_Fresh-Design.md"),
+}
+RT01 = {
+    "decisionId": "RT-01-OD-1", "choice": "Candidate B (multi-ring placement)",
+    "commit": "745fbd7fae66fcd6c3951337575e8f2ea8e2df80",
+    "branch": "claude/rt-01-pizza-piece-capacity-1ncicd",
+    "note": "owner-approved design; runtime/reference infrastructure not implemented",
 }
 LOCAL_INPUTS = {
     "main.recipes": "src/data/recipes.ts",
@@ -112,6 +125,50 @@ ISSUE_215_OD = {
                               "state": "OPEN (not merged)", "baseSha": "dff233c042d2df6ee1c3a92f2d2419830aa05460"},
     "bakeChanged": False,
     "cutChanged": False,
+}
+
+# Owner Decisions on this audit's Q1-Q4, given by the owner in this audit's
+# session on 2026-09-25.  Recorded verbatim in meaning; this is the only place
+# they enter the audit.
+OD_RECORDED_AT = "2026-09-25"
+OD_WHERE = "owner reply to the W1 REC-01..03 Fresh Audit (Claude Code session 01R3Ck2bwXUh5Svp3bN7xDsd)"
+NEW_HAVEN_ID = "new-haven-apizza"
+# Q1 normalization: the unsupported region prefix is removed and nothing else changes.
+NEW_HAVEN_REMOVED_WORDING = "アメリカ・"
+OWNER_DECISIONS = [
+    {"id": "Q1", "rec": "REC-01", "status": "APPROVED",
+     "value": "APPROVED_WITH_ONE_NORMALIZATION",
+     "decision": "W1 10 recipes: description / quantities / bake target approved as #221 authored, except "
+                 "(a) Hawaiian bakeTarget = catalog 60-80 (existing production authoring rule: non-null catalog "
+                 "bakeProfile is used verbatim), and (b) New Haven Apizza's description drops the PIZZA DB-unsupported "
+                 "'アメリカ' wording before sign-off.",
+     "sourceClass": "OWNER_DECISION_RECORD", "recordedAt": OD_RECORDED_AT, "where": OD_WHERE},
+    {"id": "Q2", "rec": "REC-01", "status": "APPROVED",
+     "value": "KEEP_AUTHORED_COUNTS",
+     "decision": "Parmigiana 9 / Pizza Portuguesa 10 / Puttanesca 9 non-sauce pieces are kept (not trimmed to 8). "
+                 "They depend on RT-01 runtime/reference infrastructure (RT-01-OD-1 Candidate B multi-ring, already "
+                 "approved) and must not be connected as production recipes before RT-01 is implemented.",
+     "sourceClass": "OWNER_DECISION_RECORD", "recordedAt": OD_RECORDED_AT, "where": OD_WHERE},
+    {"id": "Q3", "rec": "REC-02", "status": "APPROVED",
+     "value": "CUT_9_STANDARD_ROUND__NEW_HAVEN_NO_CUT",
+     "decision": "The 9 W1 recipes whose PIZZA DB dough is a standard round dough are CUT targets with cutSlices = 6. "
+                 "New Haven Apizza is not a CUT target (no dough evidence); the design matrix's default 'round' is "
+                 "never external evidence. A later dough-evidence authority update may add it.",
+     "sourceClass": "OWNER_DECISION_RECORD", "recordedAt": OD_RECORDED_AT, "where": OD_WHERE},
+    {"id": "Q4", "rec": "REC-03", "status": "APPROVED",
+     "value": "DESIGN_GATE_ISSUE_215__IMPLEMENTATION_GATE_222",
+     "decision": "REC-03 closes on Issue #215 OD-1..OD-5 (Design/Authority Gate). #222's merge is not a condition of "
+                 "the decision; production integration requires a #222-equivalent Completion Gate implementation on "
+                 "main / the integration target (Implementation Gate).",
+     "sourceClass": "OWNER_DECISION_RECORD", "recordedAt": OD_RECORDED_AT, "where": OD_WHERE},
+]
+MD01_RECORD = {
+    "status": "RECORDED_BY_OWNER_AS_IMPLEMENTATION_DEPENDENCY",
+    "recordedAt": OD_RECORDED_AT,
+    "kind": "AUTHORING / IMPLEMENTATION REQUIREMENT (not an Owner Decision, not a REC row)",
+    "rule": "Every W1 recipe needs a Scoring 2.0 reference fixture in src/data/referencePizza.ts before production "
+            "registration; never ship a recipe that falls back to no score / no stars. RT-01 recipes author their "
+            "fixture from the approved multi-ring placement output. Not implemented now.",
 }
 
 REC_IDS = ["REC-01", "REC-02", "REC-03"]
@@ -320,6 +377,11 @@ def build(raw: dict[str, bytes], digests: dict[str, str], tips: list[dict]) -> d
     ssot_cut_score_only = ("No (§10 — degrades score only)" in t["main.cookingStepsSsot"]
                            and "`false`\nfor CUT/FINISH" in t["main.cookingStepsSsot"])
     cutting_adopts_score_only = "**Adopted: A.** A pizza with zero committed cuts still passes the Completion Gate" in t["main.pizzaCuttingSsot"]
+    rt01_text = raw["rt01.designReport"].decode()
+    rt01_approved = all(s in rt01_text for s in ("RT-01-OD-1", "OWNER APPROVED", "Adopt Candidate B (multi-ring placement)"))
+    if not rt01_approved:
+        raise AuditError("RT-01-OD-1 (Candidate B) approval not found at the pinned RT-01 design commit")
+    decisions = {d["id"]: d for d in OWNER_DECISIONS}
 
     waves_w1 = sorted(r["canonicalCandidateId"] for r in j["pr220.waves"]["rows"] if r.get("wave") == "W1")
     w1_rows220 = {r["canonicalCandidateId"]: r for r in j["pr220.waves"]["rows"] if r.get("wave") == "W1"}
@@ -456,6 +518,92 @@ def build(raw: dict[str, bytes], digests: dict[str, str], tips: list[dict]) -> d
             "compatible": all(n >= 1 for _, n in reqs) and end > start,
         }
 
+        # Owner Decisions Q1-Q4 -> final authored values and REC resolution -------
+        normalizations = []
+        final_desc = desc
+        if rid == NEW_HAVEN_ID and decisions["Q1"]["status"] == "APPROVED":
+            if NEW_HAVEN_REMOVED_WORDING not in desc:
+                raise AuditError("New Haven candidate no longer contains the wording Q1 removes; re-audit")
+            final_desc = desc.replace(NEW_HAVEN_REMOVED_WORDING, "")
+            normalizations.append({"field": "description", "by": "Q1", "from": desc, "to": final_desc,
+                                   "reason": "removed region wording not backed by PIZZA DB (origin null)"})
+        final_bake = [start, end]
+        if bake_precedent["status"] == "CONFLICT" and decisions["Q1"]["status"] == "APPROVED":
+            final_bake = list(bake_precedent["catalogBakeProfile"])
+            normalizations.append({"field": "bakeTarget", "by": "Q1", "from": [start, end], "to": final_bake,
+                                   "reason": "existing production authoring rule: non-null catalog bakeProfile is used verbatim",
+                                   "authority": "INTERNAL_CATALOG data/recipes/pizza_master_catalog.json"})
+        final_mentions = [{"ingredientId": iid,
+                           "ok": any(f in final_desc for f in [name_of(iid)] + SURFACE_ALIASES.get(iid, []))}
+                          for iid, _ in reqs]
+        final_regions = region_claims(final_desc, ev.get("origin"), ev.get("nameJa") or "")
+        final_checks = {
+            "descriptionNamesEveryRequiredIngredient": all(x["ok"] for x in final_mentions),
+            "regionClaimsSupported": all(r["status"] == "SUPPORTED" for r in final_regions),
+            "bakeMatchesCatalogWhenPresent": bake_precedent["catalogBakeProfile"] in (None, final_bake),
+            "bakeWidthMatchesProductionConvention": (final_bake[1] - final_bake[0]) in conv["bakeWidths"],
+            "quantitiesUnchangedFromPr221": True,
+        }
+        final_info = {
+            "descriptionLength": len(final_desc),
+            "descriptionLengthWithinProductionRange": conv["descriptionLengthRange"][0] <= len(final_desc) <= conv["descriptionLengthRange"][1],
+            "note": "length is a style signal only; the owner approved the wording (Q1)",
+        }
+        signoff = {
+            "sourceClass": "HUMAN_SIGNOFF", "countsAsExternalEvidence": False,
+            "status": "SIGNED" if all(final_checks.values()) else "PENDING",
+            "signedBy": "owner" if all(final_checks.values()) else None,
+            "signedAt": OD_RECORDED_AT if all(final_checks.values()) else None,
+            "basis": "Q1" + (" (after the approved normalization)" if normalizations else ""),
+            "signsOffValues": "final (post-normalization) description / minCount / bakeTarget",
+        }
+        rec01_status = "RESOLVED" if signoff["status"] == "SIGNED" and decisions["Q2"]["status"] == "APPROVED" else "NOT_READY"
+
+        cut_enabled = cut_class == "CUT_CANDIDATE" and cut_basis["doughStyleRaw"] is not None
+        rec02_decision = {
+            "by": "Q3", "cutEnabled": cut_enabled, "cutSlices": 6 if cut_enabled else None,
+            "reason": ("PIZZA DB standard round dough (explicit doughStyle)" if cut_enabled else
+                       "no dough evidence; matrix default 'round' is not evidence -- no CUT until a dough-evidence authority update"),
+            "productionAllowlistChanged": False,
+        }
+        rec02_status = "RESOLVED" if decisions["Q3"]["status"] == "APPROVED" else "NOT_READY"
+
+        rec03_gates = {
+            "designAuthorityGate": {"status": "RESOLVED" if decisions["Q4"]["status"] == "APPROVED" else "OPEN",
+                                    "authority": "Issue #215 OD-1..OD-5"},
+            "implementationGate": {"status": "REQUIRED",
+                                   "requirement": "#222-equivalent Completion Gate implementation present on main / the integration target before production integration",
+                                   "pr222": ISSUE_215_OD["runtimeImplementation"]},
+        }
+        rec03_status = "RESOLVED" if rec03["compatible"] and rec03_gates["designAuthorityGate"]["status"] == "RESOLVED" else "NOT_READY"
+
+        # Everything that still stands between this recipe and READY, kept apart
+        # from the REC rows (which are resolved above).
+        open_ledger = [r for r in sync_recipes[rid]["effectiveOpenRefs"] if r not in REC_IDS]
+        impl = []
+        if rid not in ref_ids:
+            impl.append({"id": "MD-01", "kind": "IMPLEMENTATION_DEPENDENCY",
+                         "detail": "Scoring 2.0 reference fixture in src/data/referencePizza.ts"
+                                   + (" authored from the RT-01-OD-1 multi-ring placement output" if pieces > ring else "")})
+        if pieces > ring:
+            impl.append({"id": "RT-01-IMPL", "kind": "IMPLEMENTATION_DEPENDENCY",
+                         "detail": f"{pieces} non-sauce pieces kept (Q2); RT-01 runtime/reference infrastructure (RT-01-OD-1 Candidate B) must be implemented before production connection"})
+        impl.append({"id": "REC-03-IMPL-GATE", "kind": "IMPLEMENTATION_DEPENDENCY",
+                     "detail": "#222-equivalent Completion Gate on main / integration target"})
+        if cut_enabled:
+            impl.append({"id": "CUT-ALLOWLIST-IMPL", "kind": "IMPLEMENTATION_DEPENDENCY",
+                         "detail": "add id to CUT_ELIGIBLE_RECIPE_IDS (6 slices) when the recipe is implemented"})
+        new_ids = w1_rows220[rid]["newIngredientIds"]
+        if new_ids:
+            impl.append({"id": "SLICE-B-INGREDIENTS", "kind": "IMPLEMENTATION_DEPENDENCY",
+                         "detail": "new ingredient record(s) + approved dedicated visual: " + ", ".join(new_ids)})
+        if w1_rows220[rid]["currentFlowRepresentability"] != "FULL":
+            readiness = "BLOCKED"
+        elif open_ledger or impl:
+            readiness = "REVIEW"
+        else:
+            readiness = "READY"
+
         recipes.append({
             "recipeId": rid,
             "nameJa": m["nameJa"],
@@ -479,32 +627,47 @@ def build(raw: dict[str, bytes], digests: dict[str, str], tips: list[dict]) -> d
                 "bakeTarget": [start, end],
                 "sauce": m["sauce"],
             },
+            "final": {
+                "sourceClass": "OWNER_DECISION_RECORD",
+                "basis": "PR #221 authored values + Owner Decision Q1 normalizations",
+                "description": final_desc,
+                "requiredIngredients": [{"ingredientId": i, "minCount": n} for i, n in reqs],
+                "nonSaucePieceCount": pieces,
+                "bakeTarget": final_bake,
+                "normalizations": normalizations,
+                "checks": final_checks,
+                "info": final_info,
+                "regionClaims": final_regions,
+            },
             "rec01": {
                 "definition": ledger["REC-01"]["field"],
-                "mechanical": mech01,
+                "preDecisionMechanical": mech01,
                 "descriptionMentions": mentions,
-                "regionClaims": regions,
+                "preDecisionRegionClaims": regions,
                 "quantityChecks": qty_checks,
                 "bakePrecedent": bake_precedent,
-                "humanSignoff": {"sourceClass": "HUMAN_SIGNOFF", "status": "PENDING",
-                                 "countsAsExternalEvidence": False, "signedBy": None, "signedAt": None},
-                "humanItems": human01,
-                "status": "NOT_READY",
+                "preDecisionHumanItems": human01,
+                "humanSignoff": signoff,
+                "status": rec01_status,
             },
             "rec02": {
                 "definition": ledger["REC-02"]["field"],
                 "classification": cut_class,
                 "basis": cut_basis,
+                "decision": rec02_decision,
                 "completionEffect": "SCORE_ONLY (merged SSOT)",
-                "status": "NOT_READY",
+                "status": rec02_status,
             },
             "rec03": {
                 "definition": ledger["REC-03"]["field"],
                 "compatibility": rec03,
-                "status": "NOT_READY",
+                "gates": rec03_gates,
+                "status": rec03_status,
             },
             "missingDependencies": [] if rid in ref_ids else ["MD-01"],
-            "otherOpenRefs": [r for r in sync_recipes[rid]["effectiveOpenRefs"] if r not in REC_IDS],
+            "openLedgerRefs": open_ledger,
+            "implementationDependencies": impl,
+            "readiness": readiness,
         })
 
     cut_counts: dict[str, int] = {}
@@ -522,7 +685,12 @@ def build(raw: dict[str, bytes], digests: dict[str, str], tips: list[dict]) -> d
                       "provenanceChain": chain},
         "inputSha256": dict(sorted(digests.items())),
         "scopeGuard": ["no src/** / e2e/** / .github/** change", "PR #220 / #221 / #222 not modified",
-                       "no Owner Decision is recorded as CONFIRMED by this audit"],
+                       "Owner Decisions are only those the owner gave (Q1-Q4); none is invented by this audit"],
+        "productionGuard": {
+            "w1IdsInProductionRecipes": sorted(set(waves_w1) & set(prod)),
+            "w1IdsInCutAllowlist": sorted(set(waves_w1) & set(cut["ids"])),
+            "w1IdsInScoringReferenceMap": sorted(set(waves_w1) & set(ref_ids)),
+        },
         "recDefinitions": {rid: {"source": f"PR #221 ledger @ {PR221['headSha']}", **ledger[rid],
                                  "visualSyncState": sync_rows[rid]["resolution"]} for rid in REC_IDS},
         "w1RecipeSet": {"pr220": waves_w1, "pr221Matrix": sorted(matrix),
@@ -542,91 +710,68 @@ def build(raw: dict[str, bytes], digests: dict[str, str], tips: list[dict]) -> d
                 "trackedByPr221Ledger": False,
                 "inPr221ChangeMapLikelyFiles": "src/data/referencePizza.ts" in change_files,
                 "kind": "AUTHORING_REQUIRED (geometry) -- not an owner decision",
+                "ownerRecord": MD01_RECORD,
             },
         },
+        "rt01Authority": {**RT01, "approvalFoundAtPinnedCommit": rt01_approved},
         "recipes": recipes,
         "cutClassificationCounts": dict(sorted(cut_counts.items())),
-        "ownerDecisionsProposed": OWNER_QUESTIONS,
-        "verdict": {
-            "REC-01": {"status": "NOT_READY", "why": "Human content sign-off is pending for all 10 (not machine-resolvable); Q1/Q2 decide the rules it signs against"},
-            "REC-02": {"status": "NOT_READY", "why": "No W1 id is in CUT_ELIGIBLE_RECIPE_IDS; opt-in needs a deliberate human shape confirmation (cookingProfiles.ts); Q3 settles the one EVIDENCE_INSUFFICIENT row"},
-            "REC-03": {"status": "NOT_READY", "why": "Every axis is compatible and the blocking #218 decision now exists (Issue #215 OD); closing it needs Q4 (spec record vs #222 merge)"},
-            "readinessAfterThisAudit": {"READY": 0, "REVIEW": 10, "BLOCKED": 0},
+        "cutDecision": {
+            "cutEnabled": [r["recipeId"] for r in recipes if r["rec02"]["decision"]["cutEnabled"]],
+            "cutDisabled": [r["recipeId"] for r in recipes if not r["rec02"]["decision"]["cutEnabled"]],
+            "cutSlices": 6,
         },
+        "ownerDecisions": OWNER_DECISIONS,
+        "verdict": {
+            rid: {"status": "RESOLVED" if all(r[rid.lower().replace("-", "")]["status"] == "RESOLVED" for r in recipes) else "NOT_READY",
+                  "resolvedRecipes": sum(r[rid.lower().replace("-", "")]["status"] == "RESOLVED" for r in recipes)}
+            for rid in REC_IDS
+        },
+        "readiness": {k: sum(r["readiness"] == k for r in recipes) for k in ("READY", "REVIEW", "BLOCKED")},
     }
-
-
-OWNER_QUESTIONS = [
-    {"id": "Q1", "rec": "REC-01", "status": "PROPOSED_NOT_CONFIRMED",
-     "title": "REC-01 batch sign-off rule (description / minCount / bakeTarget)",
-     "options": {
-         "A": "Approve all 10 #221 candidates; Hawaiian bakeTarget follows the catalog precedent (60-80)",
-         "B": "Approve all 10 #221 candidates exactly as authored (Hawaiian 58-78)",
-         "C": "Do not approve yet; list edits"},
-     "recommended": "A"},
-    {"id": "Q2", "rec": "REC-01", "status": "PROPOSED_NOT_CONFIRMED",
-     "title": "Quantity rule for recipes over the 8-slot reference ring (Parmigiana 9 / Portuguesa 10 / Puttanesca 9)",
-     "options": {
-         "A": "Keep authored counts; recipes wait for RT-01 runtime slice E",
-         "B": "Trim to <= 8 non-sauce pieces (capricciosa / meat-lovers precedent); RT-01 no longer blocks them"},
-     "recommended": None},
-    {"id": "Q3", "rec": "REC-02", "status": "PROPOSED_NOT_CONFIRMED",
-     "title": "CUT default rule",
-     "options": {
-         "A": "Opt in the 9 CUT_CANDIDATE recipes (6 slices); New Haven Apizza without CUT until dough-shape evidence exists",
-         "B": "Opt in all 10 (treat New Haven's missing doughStyle as a standard round pizza)",
-         "C": "Opt in none of W1 yet"},
-     "recommended": "A"},
-    {"id": "Q4", "rec": "REC-03", "status": "PROPOSED_NOT_CONFIRMED",
-     "title": "REC-03 closing basis",
-     "options": {
-         "A": "Close now against the recorded Issue #215 Owner Decision (spec authority); runtime follows #222",
-         "B": "Close only after #222 is merged to main"},
-     "recommended": "A"},
-]
 
 
 # --- report pack -----------------------------------------------------------------
 
 def render_pack(audit: dict) -> str:
     lines = [PACK_BEGIN, ""]
+    ring = audit["productionConventions"]["referenceRingSlots"]
     for r in audit["recipes"]:
-        a, e, r1, r2, r3 = r["authoring"], r["evidence"], r["rec01"], r["rec02"], r["rec03"]
-        mech = r1["mechanical"]
+        a, e, f, r1, r2, r3 = r["authoring"], r["evidence"], r["final"], r["rec01"], r["rec02"], r["rec03"]
         ings = "、".join(f"{x['nameJa']}（{x['ingredientId']}）" for x in a["requiredIngredients"])
         qty = " / ".join(f"{x['ingredientId']}×{x['minCount']}" for x in a["requiredIngredients"])
-        fails = [k for k, v in mech.items() if v is False]
-        cut_word = {"CUT_CANDIDATE": "CUT候補（6切れ）", "EVIDENCE_INSUFFICIENT": "evidence不足",
-                    "MECHANIC_INSUFFICIENT": "mechanic不足", "CUT_NONE": "CUTなし"}[r2["classification"]]
-        q = []
-        if r1["bakePrecedent"]["status"] == "CONFLICT":
-            q.append("Q1（Hawaiian の焼き目標: catalog 60–80 か #221 58–78 か）")
-        if not mech["nonSaucePiecesFitReferenceRing"]:
-            q.append("Q2（8個を超える具材数をそのまま残すか、8個以下に減らすか）")
-        if r2["classification"] != "CUT_CANDIDATE":
-            q.append("Q3（New Haven に CUT を入れるか）")
-        if not mech["descriptionLengthWithinProductionRange"]:
-            q.append(f"Q1 に含めて確認: 説明文が {len(a['description'])} 文字（production は {audit['productionConventions']['descriptionLengthRange'][0]}〜{audit['productionConventions']['descriptionLengthRange'][1]} 文字）")
-        if not mech["regionClaimsSupported"]:
-            q.append("Q1 に含めて確認: 説明文の「" + "・".join(c["word"] for c in r1["regionClaims"] if c["status"] != "SUPPORTED") + "」は PIZZA DB の origin にない")
-        q_text = "; ".join(q) if q else "共通の Q1 / Q3 / Q4 だけ（この recipe 固有の質問はなし）"
+        norm = {n["field"]: n for n in f["normalizations"]}
+        recipe_cell = f["description"]
+        if "description" in norm:
+            recipe_cell += f"（Q1 で「{NEW_HAVEN_REMOVED_WORDING}」を削除。#221: {norm['description']['from']}）"
+        bake_cell = f"{f['bakeTarget'][0]}–{f['bakeTarget'][1]}"
+        if "bakeTarget" in norm:
+            fr = norm["bakeTarget"]["from"]
+            bake_cell += f"（Q1: catalog の値を採用。#221 は {fr[0]}–{fr[1]}）"
+        else:
+            bake_cell += "（#221 の値を承認）"
+        d = r2["decision"]
+        cut_cell = (f"CUT 対象（{d['cutSlices']} 切れ）。生地 {r2['basis']['doughStyleRaw']}" if d["cutEnabled"] else
+                    f"CUT なし（Q3）。生地の evidence がない（design matrix の round は default なので根拠にしない）")
+        qty_cell = f"{qty}（ソース以外 {a['nonSaucePieceCount']} 個）"
+        if a["nonSaucePieceCount"] > ring:
+            qty_cell += f"。Q2: 減らさない。RT-01（RT-01-OD-1 Candidate B）の実装が前提"
+        deps = ", ".join(x["id"] for x in r["implementationDependencies"])
         lines += [
             f"### {r['nameJa']}（`{r['recipeId']}`）",
             "",
             "| 項目 | 内容 |",
             "|---|---|",
-            f"| Recipe | {a['description']} |",
+            f"| Recipe | {recipe_cell} |",
             f"| Evidence | PIZZA DB `{e['evidenceId']}`（{e['evidenceOrigin']}）: {e['pizzaDbNameJa']} / 生地 {e['doughStyle'] or '記載なし'} / ソース {e['sauceFamily']} / origin {e['origin'] or '記載なし'}。量・焼き・説明文・CUT は PIZZA DB に含まれない |",
             f"| Ingredients | {ings} |",
-            f"| Quantity | {qty}（ソース以外 {a['nonSaucePieceCount']} 個 / ring {audit['productionConventions']['referenceRingSlots']}）。#221 の game authoring candidate |",
-            f"| Bake target | {a['bakeTarget'][0]}–{a['bakeTarget'][1]}（幅 {a['bakeTarget'][1]-a['bakeTarget'][0]}）。catalog: {r1['bakePrecedent']['status']}"
-            + (f" {r1['bakePrecedent']['catalogBakeProfile'][0]}–{r1['bakePrecedent']['catalogBakeProfile'][1]}" if r1['bakePrecedent']['catalogBakeProfile'] else "") + " |",
-            f"| CUT | {cut_word}。生地 {r2['basis']['doughStyleRaw'] or '記載なし'} → shape {r2['basis']['shape']}"
-            + ("（default）" if r2['basis']['doughStyleRaw'] is None else "") + "。CUT は score のみで完成判定に使わない |",
-            f"| REC-01 status | **{r1['status']}** — 機械チェックの不合格: {', '.join(fails) if fails else 'なし'}。Human sign-off: PENDING |",
-            f"| REC-02 status | **{r2['status']}** — {r2['classification']}（production allowlist 未登録） |",
-            f"| REC-03 status | **{r3['status']}** — 互換性: {'OK' if r3['compatibility']['compatible'] else 'NG'}（全具材 minCount ≥ 1、焼きの判定範囲 {r3['compatibility']['bakeGateWindow'][0]:g}–{r3['compatibility']['bakeGateWindow'][1]:g}） |",
-            f"| Question | {q_text} |",
+            f"| Quantity | {qty_cell} |",
+            f"| Bake target | {bake_cell} |",
+            f"| CUT | {cut_cell} |",
+            f"| REC-01 status | **{r1['status']}** — Human sign-off {r1['humanSignoff']['status']}（{r1['humanSignoff']['basis']}、外部 evidence ではない） |",
+            f"| REC-02 status | **{r2['status']}** — {r2['classification']} → {'CUT 対象' if d['cutEnabled'] else 'CUT なし'}（Q3。allowlist の変更は実装時） |",
+            f"| REC-03 status | **{r3['status']}** — Design/Authority Gate: Issue #215 OD-1〜5。Implementation Gate: #222 相当が必要 |",
+            f"| Readiness | **{r['readiness']}** — ledger: {', '.join(r['openLedgerRefs']) or 'なし'} / 実装: {deps} |",
             "",
         ]
     lines.append(PACK_END)
@@ -651,43 +796,93 @@ def check_invariants(audit: dict) -> list[str]:
         d = audit["recDefinitions"].get(rid)
         if not d or not d.get("detail"):
             errs.append(f"{rid} definition missing (must be copied from the #221 ledger)")
+    decisions = {d["id"]: d for d in audit["ownerDecisions"]}
+    if sorted(decisions) != ["Q1", "Q2", "Q3", "Q4"]:
+        errs.append("exactly the owner's Q1-Q4 decisions must be recorded")
+    for d in decisions.values():
+        if d["sourceClass"] != "OWNER_DECISION_RECORD" or not d.get("recordedAt") or not d.get("where"):
+            errs.append(f"{d['id']}: owner decision without a record (source/date/where)")
+    approved = {k for k, d in decisions.items() if d["status"] == "APPROVED"}
+    guard = audit["productionGuard"]
+    if any(guard.values()):
+        errs.append(f"production changed by an audit-only task: {guard}")
+    if not audit["rt01Authority"]["approvalFoundAtPinnedCommit"]:
+        errs.append("RT-01-OD-1 approval not found")
     ref_ids = set(audit["productionConventions"]["scoringReferenceRecipeIds"])
     md = audit["missingDependencyCatalog"]["MD-01"]
+    ring = audit["productionConventions"]["referenceRingSlots"]
     for r in audit["recipes"]:
         rid = r["recipeId"]
+        impl_ids = [x["id"] for x in r["implementationDependencies"]]
         expect_md = rid not in ref_ids and audit["productionConventions"]["referenceTestRequiresEveryRecipe"]
-        if expect_md != ("MD-01" in r["missingDependencies"]):
+        if expect_md != ("MD-01" in r["missingDependencies"]) or expect_md != ("MD-01" in impl_ids):
             errs.append(f"{rid}: MD-01 (Scoring Reference) detection mismatch")
         if "MD-01" in r["missingDependencies"] and md["inPr221ChangeMapLikelyFiles"]:
             errs.append("MD-01 claims untracked but #221 change map lists referencePizza.ts")
-        for key in ("evidence", "authoring"):
-            sc = r[key]["sourceClass"]
-            if sc not in SOURCE_CLASSES:
-                errs.append(f"{rid}.{key}: unknown sourceClass {sc}")
-        if r["authoring"]["sourceClass"] in EXTERNAL_EVIDENCE_CLASSES:
-            errs.append(f"{rid}: authoring candidate labelled as external evidence")
+        if "MD-01" in r["openLedgerRefs"] or any(x.startswith("REC-0") for x in impl_ids if x != "REC-03-IMPL-GATE"):
+            errs.append(f"{rid}: implementation dependencies mixed into REC rows")
+        for key in ("evidence", "authoring", "final"):
+            if r[key]["sourceClass"] not in SOURCE_CLASSES:
+                errs.append(f"{rid}.{key}: unknown sourceClass {r[key]['sourceClass']}")
+        if r["authoring"]["sourceClass"] in EXTERNAL_EVIDENCE_CLASSES or r["final"]["sourceClass"] in EXTERNAL_EVIDENCE_CLASSES:
+            errs.append(f"{rid}: authored / approved values labelled as external evidence")
         ev = r["evidence"]
         if ev["sourceClass"] != "PIZZA_DB_EVIDENCE" or any(ev[k] for k in ("carriesQuantity", "carriesBakeTarget", "carriesDescription", "carriesCutInfo")):
             errs.append(f"{rid}: PIZZA DB provenance altered (it carries no quantity/bake/description/cut)")
+        # REC-01
         hs = r["rec01"]["humanSignoff"]
         if hs["sourceClass"] != "HUMAN_SIGNOFF" or hs["countsAsExternalEvidence"] is not False:
             errs.append(f"{rid}: Human sign-off treated as external evidence")
-        if hs["status"] != "PENDING" and (hs["signedBy"] is None or hs["signedAt"] is None):
-            errs.append(f"{rid}: sign-off marked done without a signer/date")
-        if hs["status"] == "PENDING" and r["rec01"]["status"] != "NOT_READY":
-            errs.append(f"{rid}: REC-01 ready while Human sign-off is pending")
-        if r["rec02"]["status"] != "NOT_READY" and not r["rec02"]["basis"]["inProductionAllowlist"]:
-            errs.append(f"{rid}: REC-02 ready without an explicit allowlist opt-in")
+        if hs["status"] == "SIGNED" and (hs["signedBy"] is None or hs["signedAt"] is None or "Q1" not in approved):
+            errs.append(f"{rid}: sign-off without a signer/date/Q1 approval")
+        if r["rec01"]["status"] == "RESOLVED" and (hs["status"] != "SIGNED" or not {"Q1", "Q2"} <= approved):
+            errs.append(f"{rid}: REC-01 resolved without Human sign-off and Q1/Q2")
+        f = r["final"]
+        if r["rec01"]["status"] == "RESOLVED" and not all(f["checks"].values()):
+            errs.append(f"{rid}: REC-01 resolved but final values fail {[k for k, v in f['checks'].items() if not v]}")
+        if [q["minCount"] for q in f["requiredIngredients"]] != [q["minCount"] for q in r["authoring"]["requiredIngredients"]]:
+            errs.append(f"{rid}: quantities changed from #221 authored values (Q2 keeps them)")
+        cat = r["rec01"]["bakePrecedent"]["catalogBakeProfile"]
+        if cat is not None and f["bakeTarget"] != cat:
+            errs.append(f"{rid}: bakeTarget does not follow the catalog value (Q1 rule)")
+        if cat is None and f["bakeTarget"] != r["authoring"]["bakeTarget"]:
+            errs.append(f"{rid}: bakeTarget changed without a Q1 normalization")
+        if rid != NEW_HAVEN_ID and f["description"] != r["authoring"]["description"]:
+            errs.append(f"{rid}: description changed outside the approved New Haven normalization")
+        if f["nonSaucePieceCount"] > ring and "RT-01-IMPL" not in impl_ids:
+            errs.append(f"{rid}: over-ring recipe lost its RT-01 implementation dependency")
+        # REC-02
+        dec = r["rec02"]["decision"]
+        if dec["cutEnabled"] and (r["rec02"]["classification"] != "CUT_CANDIDATE" or r["rec02"]["basis"]["doughStyleRaw"] is None):
+            errs.append(f"{rid}: CUT enabled without explicit dough evidence (default round is not evidence)")
         if r["rec02"]["classification"] == "CUT_CANDIDATE" and r["rec02"]["basis"]["doughStyleRaw"] is None:
             errs.append(f"{rid}: CUT_CANDIDATE on a defaulted (null) dough shape")
-        if r["rec03"]["status"] != "NOT_READY" and not any(
-                q["id"] == "Q4" and q["status"].startswith("CONFIRMED") for q in audit["ownerDecisionsProposed"]):
-            errs.append(f"{rid}: REC-03 ready without the owner's closing basis")
-    for q in audit["ownerDecisionsProposed"]:
-        if q["status"] != "PROPOSED_NOT_CONFIRMED":
-            errs.append(f"{q['id']}: this audit must not record an Owner Decision as confirmed")
-    if not (2 <= len(audit["ownerDecisionsProposed"]) <= 4):
-        errs.append("owner questions must be compressed to 2-4")
+        if dec["cutEnabled"] != (dec["cutSlices"] == 6):
+            errs.append(f"{rid}: cutSlices must be 6 exactly when CUT is enabled")
+        if r["rec02"]["status"] == "RESOLVED" and "Q3" not in approved:
+            errs.append(f"{rid}: REC-02 resolved without Q3")
+        if dec["productionAllowlistChanged"]:
+            errs.append(f"{rid}: CUT allowlist must not change in this audit")
+        # REC-03
+        gates = r["rec03"]["gates"]
+        if r["rec03"]["status"] == "RESOLVED" and ("Q4" not in approved or gates["designAuthorityGate"]["status"] != "RESOLVED"):
+            errs.append(f"{rid}: REC-03 resolved without Q4 / Design Gate")
+        if gates["implementationGate"]["status"] != "REQUIRED" or "REC-03-IMPL-GATE" not in impl_ids:
+            errs.append(f"{rid}: REC-03 Implementation Gate (#222-equivalent) dropped")
+        # readiness
+        want = "REVIEW" if (r["openLedgerRefs"] or r["implementationDependencies"]) else "READY"
+        if r["readiness"] not in (want, "BLOCKED"):
+            errs.append(f"{rid}: readiness {r['readiness']} does not follow its open dependencies")
+        if "REC-04" not in r["openLedgerRefs"]:
+            errs.append(f"{rid}: REC-04 must remain open (out of scope)")
+    counts = {k: sum(r["readiness"] == k for r in audit["recipes"]) for k in ("READY", "REVIEW", "BLOCKED")}
+    if counts != audit["readiness"]:
+        errs.append("readiness summary does not match per-recipe readiness")
+    for rid in REC_IDS:
+        key = rid.lower().replace("-", "")
+        all_res = all(r[key]["status"] == "RESOLVED" for r in audit["recipes"])
+        if (audit["verdict"][rid]["status"] == "RESOLVED") != all_res:
+            errs.append(f"{rid}: verdict does not match per-recipe status")
     if audit["productionConventions"]["completionGate"]["readsCut"] or not audit["mergedSsot"]["cookingStepsCutScoreOnly"]:
         errs.append("CUT completion effect is no longer score-only; REC-02/03 need re-audit")
     return errs
@@ -713,21 +908,40 @@ def splice_report(text: str, pack: str) -> str:
 
 def self_test() -> int:
     audit, _ = generate()
+
+    def rec(a, rid):
+        return next(r for r in a["recipes"] if r["recipeId"] == rid)
+
     mutations = {
         "drop a recipe": lambda a: a["recipes"].pop(),
         "authority set drift": lambda a: a["w1RecipeSet"]["pr220"].append("aussie"),
         "hide MD-01": lambda a: a["recipes"][0]["missingDependencies"].clear(),
+        "MD-01 dropped from implementation deps": lambda a: a["recipes"][0].update(implementationDependencies=[x for x in a["recipes"][0]["implementationDependencies"] if x["id"] != "MD-01"]),
+        "MD-01 moved into ledger refs": lambda a: a["recipes"][1]["openLedgerRefs"].append("MD-01"),
         "sign-off as evidence": lambda a: a["recipes"][0]["rec01"]["humanSignoff"].update(countsAsExternalEvidence=True),
         "sign-off relabelled PIZZA DB": lambda a: a["recipes"][0]["rec01"]["humanSignoff"].update(sourceClass="PIZZA_DB_EVIDENCE"),
-        "authoring as evidence": lambda a: a["recipes"][1]["authoring"].update(sourceClass="PIZZA_DB_EVIDENCE"),
+        "approved values as evidence": lambda a: a["recipes"][1]["final"].update(sourceClass="PIZZA_DB_EVIDENCE"),
         "PIZZA DB claims quantity": lambda a: a["recipes"][2]["evidence"].update(carriesQuantity=True),
-        "REC-01 ready w/o sign-off": lambda a: a["recipes"][3]["rec01"].update(status="READY"),
-        "sign-off without signer": lambda a: a["recipes"][3]["rec01"]["humanSignoff"].update(status="SIGNED"),
-        "REC-02 ready w/o allowlist": lambda a: a["recipes"][4]["rec02"].update(status="READY"),
-        "defaulted shape as candidate": lambda a: next(r for r in a["recipes"] if r["recipeId"] == "new-haven-apizza")["rec02"].update(classification="CUT_CANDIDATE"),
-        "REC-03 ready w/o Q4": lambda a: a["recipes"][5]["rec03"].update(status="READY"),
-        "owner decision confirmed": lambda a: a["ownerDecisionsProposed"][0].update(status="CONFIRMED"),
-        "too many questions": lambda a: a["ownerDecisionsProposed"].extend(copy.deepcopy(a["ownerDecisionsProposed"])),
+        "REC-01 resolved w/o sign-off": lambda a: a["recipes"][3]["rec01"]["humanSignoff"].update(status="PENDING"),
+        "sign-off without signer": lambda a: a["recipes"][3]["rec01"]["humanSignoff"].update(signedBy=None),
+        "New Haven keeps アメリカ": lambda a: rec(a, NEW_HAVEN_ID)["final"]["checks"].update(regionClaimsSupported=False),
+        "Hawaiian back to 58-78": lambda a: rec(a, "hawaiian")["final"].update(bakeTarget=[58, 78]),
+        "other description edited": lambda a: rec(a, "bambino")["final"].update(description="x"),
+        "Portuguesa trimmed to 8": lambda a: rec(a, "pizza-portuguesa")["final"]["requiredIngredients"][2].update(minCount=1),
+        "RT-01 dependency dropped": lambda a: rec(a, "puttanesca-pizza").update(implementationDependencies=[x for x in rec(a, "puttanesca-pizza")["implementationDependencies"] if x["id"] != "RT-01-IMPL"]),
+        "New Haven CUT via default round": lambda a: rec(a, NEW_HAVEN_ID)["rec02"]["decision"].update(cutEnabled=True, cutSlices=6),
+        "defaulted shape as candidate": lambda a: rec(a, NEW_HAVEN_ID)["rec02"].update(classification="CUT_CANDIDATE"),
+        "cut slices 8": lambda a: rec(a, "hawaiian")["rec02"]["decision"].update(cutSlices=8),
+        "allowlist changed": lambda a: a["recipes"][4]["rec02"]["decision"].update(productionAllowlistChanged=True),
+        "REC-03 impl gate dropped": lambda a: a["recipes"][5]["rec03"]["gates"]["implementationGate"].update(status="SATISFIED"),
+        "Q4 not approved": lambda a: a["ownerDecisions"][3].update(status="PROPOSED_NOT_CONFIRMED"),
+        "invented owner decision": lambda a: a["ownerDecisions"].append({**a["ownerDecisions"][0], "id": "Q5"}),
+        "decision without record": lambda a: a["ownerDecisions"][0].update(where=""),
+        "W1 forced READY": lambda a: a["recipes"][6].update(readiness="READY"),
+        "REC-04 closed": lambda a: a["recipes"][7]["openLedgerRefs"].remove("REC-04"),
+        "readiness summary forged": lambda a: a["readiness"].update(READY=10, REVIEW=0),
+        "verdict forged": lambda a: a["verdict"]["REC-02"].update(status="NOT_READY"),
+        "production touched": lambda a: a["productionGuard"]["w1IdsInCutAllowlist"].append("hawaiian"),
         "REC definition dropped": lambda a: a["recDefinitions"]["REC-03"].update(detail=""),
         "CUT gates completion": lambda a: a["productionConventions"]["completionGate"].update(readsCut=True),
     }
@@ -769,10 +983,10 @@ def main() -> int:
             if errs:
                 print("FAIL\n  " + "\n  ".join(errs))
                 return 1
-            s = audit["cutClassificationCounts"]
-            print(f"PASS -- W1 {len(audit['recipes'])} recipes; REC-01/02/03 NOT_READY; "
-                  f"CUT {s}; MD-01 on {sum('MD-01' in r['missingDependencies'] for r in audit['recipes'])}; "
-                  f"owner questions {len(audit['ownerDecisionsProposed'])}")
+            v = {k: x["status"] for k, x in audit["verdict"].items()}
+            print(f"PASS -- W1 {len(audit['recipes'])} recipes; {v}; CUT enabled {len(audit['cutDecision']['cutEnabled'])} "
+                  f"/ disabled {audit['cutDecision']['cutDisabled']}; MD-01 on "
+                  f"{sum('MD-01' in r['missingDependencies'] for r in audit['recipes'])}; readiness {audit['readiness']}")
             return 0
         OUT_JSON.write_text(want_json)
         OUT_REPORT.write_text(want_report)

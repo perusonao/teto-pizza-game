@@ -1,17 +1,74 @@
 # Progression 2.0 W1 — REC-01〜REC-03 Resolution Fresh Audit
 
-## 結論
+> **2026-09-25 更新（Owner Decision を記録）**: Q1〜Q4 に対する owner の決定を記録し、checker で再計算した。下の「Owner Decision の記録と再計算」が現在の状態。そのあとの「決定前の監査」の節は、決定の前に提示した内容の記録として残してある。
 
-| REC | 判定 | 残っているもの |
+## 結論（Owner Decision 反映後）
+
+| REC | 判定 | 根拠 |
 |---|---|---|
-| **REC-01** | **NOT READY** | 10 件すべてで Human の content sign-off が PENDING（機械では解決できない）。sign-off の前に決めるルールが 2 つある（Q1 / Q2） |
-| **REC-02** | **NOT READY** | W1 の id は 1 件も `CUT_ELIGIBLE_RECIPE_IDS` に入っていない。CUT 候補 9 / evidence 不足 1（New Haven）/ mechanic 不足 0 / CUT なし 0。Q3 で決まる |
-| **REC-03** | **NOT READY** | 3 つの軸（CUT / minCount / bake）はすべて互換。REC-03 が待っていた #218 の判断は Issue #215 の Owner Decision として記録済み。閉じる根拠をどちらにするか（Q4）だけが残る |
+| **REC-01** | **RESOLVED**（10/10） | Q1 = APPROVED WITH ONE NORMALIZATION による Human sign-off。Hawaiian の bakeTarget は catalog の 60–80。New Haven は「アメリカ・」を削除した説明文で sign-off。Q2 = KEEP AUTHORED COUNTS（9 / 10 / 9 を維持） |
+| **REC-02** | **RESOLVED**（10/10） | Q3: standard round dough の evidence がある 9 件を CUT 対象（6 切れ）。New Haven は CUT なし |
+| **REC-03** | **RESOLVED**（10/10） | Q4: Design/Authority Gate は Issue #215 OD-1〜OD-5 で RESOLVED。Implementation Gate（#222 相当の Completion Gate）は production 統合の前提として残す |
 
-- W1 の readiness は変わらず **READY 0 / REVIEW 10 / BLOCKED 0**（REC-04 は範囲外で open のまま）。
-- 新しく見つかった dependency: **MD-01 — Scoring 2.0 Reference entry**（`src/data/referencePizza.ts`）。10 件すべてに必要だが、#221 の ledger にも change map の `likelyFiles` にも入っていない。
-- Owner に聞くのは **4 問**（Q1〜Q4）。どれも「ルール」を 1 回決めれば、10 recipe 分の回答になる。この audit では、どの Owner Decision も CONFIRMED にしていない。
-- `src/**` / `e2e/**` / `.github/**`、PR #220 / #221 / #222 は変更していない。PR は作っていない。
+- W1 の readiness は **READY 0 / REVIEW 10 / BLOCKED 0**（実 authority から再計算）。W1 は READY にしていない。
+- REC とは別に残る dependency: REC-04（10 件）、RT-01（ledger 行 + 実装、3 件）、MD-01（10 件）、REC-03 の Implementation Gate（10 件）、CUT allowlist の実装（9 件）、新 ingredient の実装（slice B、8 件）。
+- `src/**` / `e2e/**` / `.github/**`、PR #220 / #221 / #222 は変更していない。W1 recipe、7 ingredient、`referencePizza.ts`、CUT allowlist、Hawaiian の production data はどれも追加・変更していない（checker の `productionGuard` で確認）。PR は作っていない。
+
+## Owner Decision の記録と再計算
+
+記録は `docs/reports/data/TETO_PROGRESS2_W1_REC01-03_RESOLUTION_AUDIT.json` の `ownerDecisions`（`sourceClass: OWNER_DECISION_RECORD`、2026-09-25）。
+
+| ID | 決定 | 内容 |
+|---|---|---|
+| **Q1 / REC-01** | **APPROVED WITH ONE NORMALIZATION** | 10 件の description / quantities / bake target を #221 の値で承認する。例外は 2 つ。Hawaiian の bakeTarget は既存の production authoring rule（catalog に bakeProfile があればそのまま使う）に合わせて **60–80**。New Haven は PIZZA DB で裏付けのない「アメリカ」の表現を外してから sign-off する |
+| **Q2** | **KEEP AUTHORED COUNTS** | Parmigiana 9 / Pizza Portuguesa 10 / Puttanesca 9 を維持し、8 以下に減らさない。3 件は RT-01 の runtime / reference infrastructure に依存させる（RT-01-OD-1 = Candidate B multi-ring は承認済み。`745fbd7` で確認）。RT-01 の実装が終わるまで production recipe として接続しない |
+| **Q3 / REC-02** | **APPROVED** | PIZZA DB に standard round dough の根拠がある 9 件を CUT 対象とする（cutSlices = 6）。New Haven Apizza は dough evidence がないので CUT 対象にしない。design matrix の default の round を external evidence として扱わない。dough evidence が後で加われば、別の authority update で CUT を追加できる |
+| **Q4 / REC-03** | **APPROVED** | Issue #215 に記録済みの OD-1〜OD-5 を authority として REC-03 を閉じる。#222 の main merge は決定の成立条件にしない。production 実装では #222 相当の Completion Gate が main / 統合対象にあることを dependency とする（Design/Authority Gate と Implementation Gate を分ける） |
+| **MD-01** | **IMPLEMENTATION DEPENDENCY として記録** | Owner Decision ではなく AUTHORING / IMPLEMENTATION REQUIREMENT。W1 の 10 件すべてで、production 登録の前に `src/data/referencePizza.ts` の Scoring 2.0 reference fixture が必要。fallback で score / ★ のない recipe を production に入れない。RT-01 の 3 件は、承認済み multi-ring placement の出力をもとに fixture を作る。今は実装しない |
+
+### 確定した値
+
+| 項目 | 値 |
+|---|---|
+| Hawaiian の bake target | **60–80**（authority: `data/recipes/pizza_master_catalog.json` の bakeProfile。#221 の 58–78 は採用しない） |
+| New Haven の description | **オリーブオイルを塗った生地に、あさり、にんにく、パルミジャーノをのせて香ばしく焼き上げたニューヘイブン風の一枚。**（「アメリカ・」だけを削除。「ニューヘイブン」は PIZZA DB の nameJa で裏付けがある。56 文字で production の範囲 39〜56 に収まる） |
+| CUT 対象（6 切れ） | Hawaiian、Parmigiana Pizza、Bambino、Pizza Portuguesa、Puttanesca、Pesto Caprese、Pesto Tonno、Pesto Patate、Melanzane Pizza |
+| New Haven の CUT | **CUT なし**（dough evidence なし。default の round では PASS させない） |
+| 9 / 10 / 9 | 維持（Parmigiana 9、Portuguesa 10、Puttanesca 9）。checker が #221 の値との一致を確認 |
+| その他 | description / quantity / bake target は #221 の authored values のまま |
+
+### Human sign-off と evidence の区別
+
+- 10 件の sign-off は `HUMAN_SIGNOFF`（`countsAsExternalEvidence: false`、signedBy owner、2026-09-25、basis Q1）。PIZZA DB evidence の層（量・焼き・説明文・CUT を持たない）は変えていない。
+- 承認後の値（`final`）の source class は `OWNER_DECISION_RECORD`。PIZZA DB evidence としては記録しない。
+- Hawaiian の 60–80 の出どころは社内 catalog（`INTERNAL_CATALOG`）で、外部 evidence ではない。
+
+### 再計算した readiness
+
+readiness の規則: open な ledger 行も実装 dependency もなければ READY、current mechanic で表せなければ BLOCKED、それ以外は REVIEW。
+
+| recipe | open な ledger 行 | 実装 dependency | readiness |
+|---|---|---|---|
+| New Haven Apizza | REC-04 | MD-01, REC-03-IMPL-GATE, SLICE-B-INGREDIENTS（clam） | REVIEW |
+| Hawaiian | REC-04 | MD-01, REC-03-IMPL-GATE, CUT-ALLOWLIST-IMPL, SLICE-B-INGREDIENTS（pineapple） | REVIEW |
+| Parmigiana Pizza | RT-01, REC-04 | MD-01, RT-01-IMPL, REC-03-IMPL-GATE, CUT-ALLOWLIST-IMPL, SLICE-B-INGREDIENTS（eggplant） | REVIEW |
+| Bambino | REC-04 | MD-01, REC-03-IMPL-GATE, CUT-ALLOWLIST-IMPL, SLICE-B-INGREDIENTS（corn） | REVIEW |
+| Pizza Portuguesa | RT-01, REC-04 | MD-01, RT-01-IMPL, REC-03-IMPL-GATE, CUT-ALLOWLIST-IMPL | REVIEW |
+| Puttanesca | RT-01, REC-04 | MD-01, RT-01-IMPL, REC-03-IMPL-GATE, CUT-ALLOWLIST-IMPL, SLICE-B-INGREDIENTS（capers） | REVIEW |
+| Pesto Caprese | REC-04 | MD-01, REC-03-IMPL-GATE, CUT-ALLOWLIST-IMPL, SLICE-B-INGREDIENTS（fresh-tomato） | REVIEW |
+| Pesto Tonno | REC-04 | MD-01, REC-03-IMPL-GATE, CUT-ALLOWLIST-IMPL | REVIEW |
+| Pesto Patate | REC-04 | MD-01, REC-03-IMPL-GATE, CUT-ALLOWLIST-IMPL, SLICE-B-INGREDIENTS（potato） | REVIEW |
+| Melanzane Pizza | REC-04 | MD-01, REC-03-IMPL-GATE, CUT-ALLOWLIST-IMPL, SLICE-B-INGREDIENTS（eggplant） | REVIEW |
+
+**READY 0 / REVIEW 10 / BLOCKED 0**。ledger 行は `3fc02a0` の ledger の open refs から REC-01〜03 を除いたもの。MD-01 と実装系の項目は REC 行に混ぜず、`implementationDependencies` に分けてある。
+
+---
+
+# 決定前の監査（Owner Decision の前に提示した内容）
+
+## 決定前の結論（記録）
+
+- 決定前は REC-01 / REC-02 / REC-03 とも NOT READY で、Owner に 4 問（Q1〜Q4）を出した。MD-01 はこの段階で見つけた。
 
 ## 開始時に確認した GitHub の状態（2026-09-25）
 
@@ -85,7 +142,7 @@
 - entry の `pieceGroups` の位置は、recipe ごとに手で作ってレビューした配置で、minCount からは導出できない。
 - #221 の ledger にも change map（slice A / C の `likelyFiles`）にもない。Owner に聞く質問ではなく、実装 slice に加える authoring 作業。#221 を変える判断は Owner に任せる（この audit では変更しない）。
 
-### Human が見るもの（REC-01）
+### Human が見るもの（REC-01、決定前）
 
 機械で確認できない部分は **「10 件の文章と数値をまとめて承認するかどうか」の 1 回** に絞った。個別に見てほしい点は次の 3 つだけ。
 
@@ -121,9 +178,9 @@ production の方針（`src/data/cookingProfiles.ts`）:
 
 REC-03 の detail は「#218 の前に決めない」だった。#218 は reviewed 済みで、その選択肢への Owner Decision が Issue #215 に記録されている。残っているのは、REC-03 を **記録された仕様（Issue #215 OD）で閉じるか、#222 が main に入ってから閉じるか** だけ。→ **Q4**。
 
-## Owner Decision（4 問）
+## Owner Decision の選択肢（決定前に提示したもの）
 
-この audit では、どれも `PROPOSED_NOT_CONFIRMED` のまま。
+決定の結果は上の「Owner Decision の記録と再計算」を参照（Q1 = A に New Haven の文言修正を加えたもの、Q2 = A、Q3 = A、Q4 = A）。
 
 **Q1. REC-01 のまとめての承認（description / minCount / bakeTarget）**
 - A（推奨）: #221 の 10 件を承認する。Hawaiian の焼き目標は catalog の前例に合わせて 60–80 にする
@@ -144,11 +201,10 @@ REC-03 の detail は「#218 の前に決めない」だった。#218 は review
 - A（推奨）: 記録済みの Issue #215 Owner Decision で閉じる（runtime は #222 が後から追う）
 - B: #222 が main に merge されてから閉じる
 
-Q1〜Q4 に答えると、REC-01〜03 は 10 件すべてで閉じられる。そのあとも W1 の READY に残るのは REC-04（Progression）、RT-01（Q2 = A の場合）、MD-01 の authoring。
 
 ## Human Review Pack
 
-各 recipe の「Question」は、その recipe に固有の論点だけを書いた。共通の論点（Q1 のまとめての承認、Q3、Q4）は上の 4 問に含まれている。
+Owner Decision を反映した後の値。決定前の候補値と違う箇所は、その欄に #221 の値を併記した。
 
 <!-- BEGIN GENERATED: HUMAN REVIEW PACK (tools/progression2_w1_rec_resolution_audit.py) -->
 
@@ -156,16 +212,16 @@ Q1〜Q4 に答えると、REC-01〜03 は 10 件すべてで閉じられる。�
 
 | 項目 | 内容 |
 |---|---|
-| Recipe | オリーブオイルを塗った生地に、あさり、にんにく、パルミジャーノをのせて香ばしく焼き上げたアメリカ・ニューヘイブン風の一枚。 |
+| Recipe | オリーブオイルを塗った生地に、あさり、にんにく、パルミジャーノをのせて香ばしく焼き上げたニューヘイブン風の一枚。（Q1 で「アメリカ・」を削除。#221: オリーブオイルを塗った生地に、あさり、にんにく、パルミジャーノをのせて香ばしく焼き上げたアメリカ・ニューヘイブン風の一枚。） |
 | Evidence | PIZZA DB `new-haven-apizza-pizzadb`（comparison_table_sample）: ニューヘイブンアピッツァ / 生地 記載なし / ソース オイル / origin 記載なし。量・焼き・説明文・CUT は PIZZA DB に含まれない |
 | Ingredients | オリーブオイル（olive-oil）、パルミジャーノ（parmigiano）、あさり（clam）、にんにく（garlic） |
-| Quantity | olive-oil×1 / parmigiano×2 / clam×3 / garlic×2（ソース以外 7 個 / ring 8）。#221 の game authoring candidate |
-| Bake target | 62–82（幅 20）。catalog: NO_CATALOG_VALUE |
-| CUT | evidence不足。生地 記載なし → shape round（default）。CUT は score のみで完成判定に使わない |
-| REC-01 status | **NOT_READY** — 機械チェックの不合格: descriptionLengthWithinProductionRange, regionClaimsSupported, scoringReferenceEntryExists。Human sign-off: PENDING |
-| REC-02 status | **NOT_READY** — EVIDENCE_INSUFFICIENT（production allowlist 未登録） |
-| REC-03 status | **NOT_READY** — 互換性: OK（全具材 minCount ≥ 1、焼きの判定範囲 52–92） |
-| Question | Q3（New Haven に CUT を入れるか）; Q1 に含めて確認: 説明文が 61 文字（production は 39〜56 文字）; Q1 に含めて確認: 説明文の「アメリカ」は PIZZA DB の origin にない |
+| Quantity | olive-oil×1 / parmigiano×2 / clam×3 / garlic×2（ソース以外 7 個） |
+| Bake target | 62–82（#221 の値を承認） |
+| CUT | CUT なし（Q3）。生地の evidence がない（design matrix の round は default なので根拠にしない） |
+| REC-01 status | **RESOLVED** — Human sign-off SIGNED（Q1 (after the approved normalization)、外部 evidence ではない） |
+| REC-02 status | **RESOLVED** — EVIDENCE_INSUFFICIENT → CUT なし（Q3。allowlist の変更は実装時） |
+| REC-03 status | **RESOLVED** — Design/Authority Gate: Issue #215 OD-1〜5。Implementation Gate: #222 相当が必要 |
+| Readiness | **REVIEW** — ledger: REC-04 / 実装: MD-01, REC-03-IMPL-GATE, SLICE-B-INGREDIENTS |
 
 ### ハワイアンピザ（`hawaiian`）
 
@@ -174,13 +230,13 @@ Q1〜Q4 に答えると、REC-01〜03 は 10 件すべてで閉じられる。�
 | Recipe | トマトソースにハムとパイナップル、モッツァレラを合わせた、甘みと塩気のバランスが楽しい一枚。 |
 | Evidence | PIZZA DB `hawaiian-pizzadb-row`（individual_profile_page）: ハワイアンピザ / 生地 薄めの生地 / ソース トマトソース / origin カナダ / オンタリオ州。量・焼き・説明文・CUT は PIZZA DB に含まれない |
 | Ingredients | トマトソース（tomato-sauce）、モッツァレラ（mozzarella）、ハム（ham）、パイナップル（pineapple） |
-| Quantity | tomato-sauce×1 / mozzarella×2 / ham×2 / pineapple×3（ソース以外 7 個 / ring 8）。#221 の game authoring candidate |
-| Bake target | 58–78（幅 20）。catalog: CONFLICT 60–80 |
-| CUT | CUT候補（6切れ）。生地 薄めの生地 → shape round。CUT は score のみで完成判定に使わない |
-| REC-01 status | **NOT_READY** — 機械チェックの不合格: scoringReferenceEntryExists。Human sign-off: PENDING |
-| REC-02 status | **NOT_READY** — CUT_CANDIDATE（production allowlist 未登録） |
-| REC-03 status | **NOT_READY** — 互換性: OK（全具材 minCount ≥ 1、焼きの判定範囲 48–88） |
-| Question | Q1（Hawaiian の焼き目標: catalog 60–80 か #221 58–78 か） |
+| Quantity | tomato-sauce×1 / mozzarella×2 / ham×2 / pineapple×3（ソース以外 7 個） |
+| Bake target | 60–80（Q1: catalog の値を採用。#221 は 58–78） |
+| CUT | CUT 対象（6 切れ）。生地 薄めの生地 |
+| REC-01 status | **RESOLVED** — Human sign-off SIGNED（Q1 (after the approved normalization)、外部 evidence ではない） |
+| REC-02 status | **RESOLVED** — CUT_CANDIDATE → CUT 対象（Q3。allowlist の変更は実装時） |
+| REC-03 status | **RESOLVED** — Design/Authority Gate: Issue #215 OD-1〜5。Implementation Gate: #222 相当が必要 |
+| Readiness | **REVIEW** — ledger: REC-04 / 実装: MD-01, REC-03-IMPL-GATE, CUT-ALLOWLIST-IMPL, SLICE-B-INGREDIENTS |
 
 ### パルミジャーナピザ（`parmigiana-pizza`）
 
@@ -189,13 +245,13 @@ Q1〜Q4 に答えると、REC-01〜03 は 10 件すべてで閉じられる。�
 | Recipe | トマトソースにナス、モッツァレラ、パルミジャーノ、バジルを合わせた南イタリア風の一枚。 |
 | Evidence | PIZZA DB `parmigiana-pizza-pizzadb-p7`（comparison_table_sample）: パルミジャーナピザ / 生地 ナポリピッツァ生地 / ソース トマトソース / origin イタリア / 南イタリア。量・焼き・説明文・CUT は PIZZA DB に含まれない |
 | Ingredients | トマトソース（tomato-sauce）、モッツァレラ（mozzarella）、ナス（eggplant）、パルミジャーノ（parmigiano）、バジル（basil） |
-| Quantity | tomato-sauce×1 / mozzarella×2 / eggplant×3 / parmigiano×2 / basil×2（ソース以外 9 個 / ring 8）。#221 の game authoring candidate |
-| Bake target | 58–78（幅 20）。catalog: NO_CATALOG_VALUE |
-| CUT | CUT候補（6切れ）。生地 ナポリピッツァ生地 → shape round。CUT は score のみで完成判定に使わない |
-| REC-01 status | **NOT_READY** — 機械チェックの不合格: nonSaucePiecesFitReferenceRing, scoringReferenceEntryExists。Human sign-off: PENDING |
-| REC-02 status | **NOT_READY** — CUT_CANDIDATE（production allowlist 未登録） |
-| REC-03 status | **NOT_READY** — 互換性: OK（全具材 minCount ≥ 1、焼きの判定範囲 48–88） |
-| Question | Q2（8個を超える具材数をそのまま残すか、8個以下に減らすか） |
+| Quantity | tomato-sauce×1 / mozzarella×2 / eggplant×3 / parmigiano×2 / basil×2（ソース以外 9 個）。Q2: 減らさない。RT-01（RT-01-OD-1 Candidate B）の実装が前提 |
+| Bake target | 58–78（#221 の値を承認） |
+| CUT | CUT 対象（6 切れ）。生地 ナポリピッツァ生地 |
+| REC-01 status | **RESOLVED** — Human sign-off SIGNED（Q1、外部 evidence ではない） |
+| REC-02 status | **RESOLVED** — CUT_CANDIDATE → CUT 対象（Q3。allowlist の変更は実装時） |
+| REC-03 status | **RESOLVED** — Design/Authority Gate: Issue #215 OD-1〜5。Implementation Gate: #222 相当が必要 |
+| Readiness | **REVIEW** — ledger: RT-01, REC-04 / 実装: MD-01, RT-01-IMPL, REC-03-IMPL-GATE, CUT-ALLOWLIST-IMPL, SLICE-B-INGREDIENTS |
 
 ### バンビーノ（`bambino`）
 
@@ -204,13 +260,13 @@ Q1〜Q4 に答えると、REC-01〜03 は 10 件すべてで閉じられる。�
 | Recipe | トマトソースにハム、コーン、モッツァレラをのせた、やさしい甘みで親しみやすい一枚。 |
 | Evidence | PIZZA DB `bambino-pizzadb-p7`（comparison_table_sample）: バンビーノ / 生地 ピッツァ生地 / ソース トマトソース / origin イタリア / 各地。量・焼き・説明文・CUT は PIZZA DB に含まれない |
 | Ingredients | トマトソース（tomato-sauce）、モッツァレラ（mozzarella）、ハム（ham）、コーン（corn） |
-| Quantity | tomato-sauce×1 / mozzarella×2 / ham×2 / corn×3（ソース以外 7 個 / ring 8）。#221 の game authoring candidate |
-| Bake target | 56–76（幅 20）。catalog: NO_CATALOG_VALUE |
-| CUT | CUT候補（6切れ）。生地 ピッツァ生地 → shape round。CUT は score のみで完成判定に使わない |
-| REC-01 status | **NOT_READY** — 機械チェックの不合格: scoringReferenceEntryExists。Human sign-off: PENDING |
-| REC-02 status | **NOT_READY** — CUT_CANDIDATE（production allowlist 未登録） |
-| REC-03 status | **NOT_READY** — 互換性: OK（全具材 minCount ≥ 1、焼きの判定範囲 46–86） |
-| Question | 共通の Q1 / Q3 / Q4 だけ（この recipe 固有の質問はなし） |
+| Quantity | tomato-sauce×1 / mozzarella×2 / ham×2 / corn×3（ソース以外 7 個） |
+| Bake target | 56–76（#221 の値を承認） |
+| CUT | CUT 対象（6 切れ）。生地 ピッツァ生地 |
+| REC-01 status | **RESOLVED** — Human sign-off SIGNED（Q1、外部 evidence ではない） |
+| REC-02 status | **RESOLVED** — CUT_CANDIDATE → CUT 対象（Q3。allowlist の変更は実装時） |
+| REC-03 status | **RESOLVED** — Design/Authority Gate: Issue #215 OD-1〜5。Implementation Gate: #222 相当が必要 |
+| Readiness | **REVIEW** — ledger: REC-04 / 実装: MD-01, REC-03-IMPL-GATE, CUT-ALLOWLIST-IMPL, SLICE-B-INGREDIENTS |
 
 ### ピッツァ・ポルトゲーザ（`pizza-portuguesa`）
 
@@ -219,13 +275,13 @@ Q1〜Q4 に答えると、REC-01〜03 は 10 件すべてで閉じられる。�
 | Recipe | トマトソースにハム、卵、たまねぎ、ブラックオリーブ、モッツァレラを重ねたブラジル定番の一枚。 |
 | Evidence | PIZZA DB `pizza-portuguesa-pizzadb-p9`（comparison_table_sample）: ピッツァ・ポルトゲーザ / 生地 薄めの生地 / ソース トマトソース / origin ブラジル / サンパウロ。量・焼き・説明文・CUT は PIZZA DB に含まれない |
 | Ingredients | トマトソース（tomato-sauce）、モッツァレラ（mozzarella）、ハム（ham）、たまご（egg）、たまねぎ（onion）、ブラックオリーブ（black-olive） |
-| Quantity | tomato-sauce×1 / mozzarella×2 / ham×3 / egg×1 / onion×2 / black-olive×2（ソース以外 10 個 / ring 8）。#221 の game authoring candidate |
-| Bake target | 58–78（幅 20）。catalog: NO_CATALOG_VALUE |
-| CUT | CUT候補（6切れ）。生地 薄めの生地 → shape round。CUT は score のみで完成判定に使わない |
-| REC-01 status | **NOT_READY** — 機械チェックの不合格: nonSaucePiecesFitReferenceRing, scoringReferenceEntryExists。Human sign-off: PENDING |
-| REC-02 status | **NOT_READY** — CUT_CANDIDATE（production allowlist 未登録） |
-| REC-03 status | **NOT_READY** — 互換性: OK（全具材 minCount ≥ 1、焼きの判定範囲 48–88） |
-| Question | Q2（8個を超える具材数をそのまま残すか、8個以下に減らすか） |
+| Quantity | tomato-sauce×1 / mozzarella×2 / ham×3 / egg×1 / onion×2 / black-olive×2（ソース以外 10 個）。Q2: 減らさない。RT-01（RT-01-OD-1 Candidate B）の実装が前提 |
+| Bake target | 58–78（#221 の値を承認） |
+| CUT | CUT 対象（6 切れ）。生地 薄めの生地 |
+| REC-01 status | **RESOLVED** — Human sign-off SIGNED（Q1、外部 evidence ではない） |
+| REC-02 status | **RESOLVED** — CUT_CANDIDATE → CUT 対象（Q3。allowlist の変更は実装時） |
+| REC-03 status | **RESOLVED** — Design/Authority Gate: Issue #215 OD-1〜5。Implementation Gate: #222 相当が必要 |
+| Readiness | **REVIEW** — ledger: RT-01, REC-04 / 実装: MD-01, RT-01-IMPL, REC-03-IMPL-GATE, CUT-ALLOWLIST-IMPL |
 
 ### プッタネスカ（`puttanesca-pizza`）
 
@@ -234,13 +290,13 @@ Q1〜Q4 に答えると、REC-01〜03 は 10 件すべてで閉じられる。�
 | Recipe | トマトソースにアンチョビ、ブラックオリーブ、ケッパー、にんにくを効かせた、塩味と香りの強い一枚。 |
 | Evidence | PIZZA DB `puttanesca-pizza-pizzadb-p10`（comparison_table_sample）: プッタネスカ / 生地 ナポリピッツァ生地 / ソース トマトソース / origin イタリア / ナポリ。量・焼き・説明文・CUT は PIZZA DB に含まれない |
 | Ingredients | トマトソース（tomato-sauce）、アンチョビ（anchovy）、ブラックオリーブ（black-olive）、ケッパー（capers）、にんにく（garlic） |
-| Quantity | tomato-sauce×1 / anchovy×3 / black-olive×2 / capers×2 / garlic×2（ソース以外 9 個 / ring 8）。#221 の game authoring candidate |
-| Bake target | 50–70（幅 20）。catalog: NO_CATALOG_VALUE |
-| CUT | CUT候補（6切れ）。生地 ナポリピッツァ生地 → shape round。CUT は score のみで完成判定に使わない |
-| REC-01 status | **NOT_READY** — 機械チェックの不合格: nonSaucePiecesFitReferenceRing, scoringReferenceEntryExists。Human sign-off: PENDING |
-| REC-02 status | **NOT_READY** — CUT_CANDIDATE（production allowlist 未登録） |
-| REC-03 status | **NOT_READY** — 互換性: OK（全具材 minCount ≥ 1、焼きの判定範囲 40–80） |
-| Question | Q2（8個を超える具材数をそのまま残すか、8個以下に減らすか） |
+| Quantity | tomato-sauce×1 / anchovy×3 / black-olive×2 / capers×2 / garlic×2（ソース以外 9 個）。Q2: 減らさない。RT-01（RT-01-OD-1 Candidate B）の実装が前提 |
+| Bake target | 50–70（#221 の値を承認） |
+| CUT | CUT 対象（6 切れ）。生地 ナポリピッツァ生地 |
+| REC-01 status | **RESOLVED** — Human sign-off SIGNED（Q1、外部 evidence ではない） |
+| REC-02 status | **RESOLVED** — CUT_CANDIDATE → CUT 対象（Q3。allowlist の変更は実装時） |
+| REC-03 status | **RESOLVED** — Design/Authority Gate: Issue #215 OD-1〜5。Implementation Gate: #222 相当が必要 |
+| Readiness | **REVIEW** — ledger: RT-01, REC-04 / 実装: MD-01, RT-01-IMPL, REC-03-IMPL-GATE, CUT-ALLOWLIST-IMPL, SLICE-B-INGREDIENTS |
 
 ### ペストカプレーゼピザ（`pesto-caprese`）
 
@@ -249,13 +305,13 @@ Q1〜Q4 に答えると、REC-01〜03 は 10 件すべてで閉じられる。�
 | Recipe | ジェノベーゼソースにトマト、モッツァレラ、バジルを重ねた、カプレーゼ仕立ての爽やかな一枚。 |
 | Evidence | PIZZA DB `pesto-caprese-pizzadb-p11`（comparison_table_sample）: ペストカプレーゼピザ / 生地 ナポリピッツァ生地 / ソース バジル / origin イタリア / 各地。量・焼き・説明文・CUT は PIZZA DB に含まれない |
 | Ingredients | ジェノベーゼソース（pesto）、モッツァレラ（mozzarella）、トマト（fresh-tomato）、バジル（basil） |
-| Quantity | pesto×1 / mozzarella×2 / fresh-tomato×3 / basil×2（ソース以外 7 個 / ring 8）。#221 の game authoring candidate |
-| Bake target | 50–70（幅 20）。catalog: NO_CATALOG_VALUE |
-| CUT | CUT候補（6切れ）。生地 ナポリピッツァ生地 → shape round。CUT は score のみで完成判定に使わない |
-| REC-01 status | **NOT_READY** — 機械チェックの不合格: scoringReferenceEntryExists。Human sign-off: PENDING |
-| REC-02 status | **NOT_READY** — CUT_CANDIDATE（production allowlist 未登録） |
-| REC-03 status | **NOT_READY** — 互換性: OK（全具材 minCount ≥ 1、焼きの判定範囲 40–80） |
-| Question | 共通の Q1 / Q3 / Q4 だけ（この recipe 固有の質問はなし） |
+| Quantity | pesto×1 / mozzarella×2 / fresh-tomato×3 / basil×2（ソース以外 7 個） |
+| Bake target | 50–70（#221 の値を承認） |
+| CUT | CUT 対象（6 切れ）。生地 ナポリピッツァ生地 |
+| REC-01 status | **RESOLVED** — Human sign-off SIGNED（Q1、外部 evidence ではない） |
+| REC-02 status | **RESOLVED** — CUT_CANDIDATE → CUT 対象（Q3。allowlist の変更は実装時） |
+| REC-03 status | **RESOLVED** — Design/Authority Gate: Issue #215 OD-1〜5。Implementation Gate: #222 相当が必要 |
+| Readiness | **REVIEW** — ledger: REC-04 / 実装: MD-01, REC-03-IMPL-GATE, CUT-ALLOWLIST-IMPL, SLICE-B-INGREDIENTS |
 
 ### ペストトンノピザ（`pesto-tonno`）
 
@@ -264,13 +320,13 @@ Q1〜Q4 に答えると、REC-01〜03 は 10 件すべてで閉じられる。�
 | Recipe | 香り高いジェノベーゼソースに、ツナ、ブラックオリーブ、たまねぎを合わせた爽やかな一枚。 |
 | Evidence | PIZZA DB `pesto-tonno-pizzadb-p12`（comparison_table_sample）: ペストトンノピザ / 生地 ナポリピッツァ生地 / ソース バジル / origin イタリア / 各地。量・焼き・説明文・CUT は PIZZA DB に含まれない |
 | Ingredients | ジェノベーゼソース（pesto）、ツナ（tuna）、ブラックオリーブ（black-olive）、たまねぎ（onion） |
-| Quantity | pesto×1 / tuna×3 / black-olive×2 / onion×2（ソース以外 7 個 / ring 8）。#221 の game authoring candidate |
-| Bake target | 50–70（幅 20）。catalog: NO_CATALOG_VALUE |
-| CUT | CUT候補（6切れ）。生地 ナポリピッツァ生地 → shape round。CUT は score のみで完成判定に使わない |
-| REC-01 status | **NOT_READY** — 機械チェックの不合格: scoringReferenceEntryExists。Human sign-off: PENDING |
-| REC-02 status | **NOT_READY** — CUT_CANDIDATE（production allowlist 未登録） |
-| REC-03 status | **NOT_READY** — 互換性: OK（全具材 minCount ≥ 1、焼きの判定範囲 40–80） |
-| Question | 共通の Q1 / Q3 / Q4 だけ（この recipe 固有の質問はなし） |
+| Quantity | pesto×1 / tuna×3 / black-olive×2 / onion×2（ソース以外 7 個） |
+| Bake target | 50–70（#221 の値を承認） |
+| CUT | CUT 対象（6 切れ）。生地 ナポリピッツァ生地 |
+| REC-01 status | **RESOLVED** — Human sign-off SIGNED（Q1、外部 evidence ではない） |
+| REC-02 status | **RESOLVED** — CUT_CANDIDATE → CUT 対象（Q3。allowlist の変更は実装時） |
+| REC-03 status | **RESOLVED** — Design/Authority Gate: Issue #215 OD-1〜5。Implementation Gate: #222 相当が必要 |
+| Readiness | **REVIEW** — ledger: REC-04 / 実装: MD-01, REC-03-IMPL-GATE, CUT-ALLOWLIST-IMPL |
 
 ### ペストパターテピザ（`pesto-patate`）
 
@@ -279,13 +335,13 @@ Q1〜Q4 に答えると、REC-01〜03 は 10 件すべてで閉じられる。�
 | Recipe | ジェノベーゼソースにじゃがいも、ベーコン、モッツァレラを合わせた、ほくほくと香ばしい一枚。 |
 | Evidence | PIZZA DB `pesto-patate-pizzadb-p12`（comparison_table_sample）: ペストパターテピザ / 生地 ナポリピッツァ生地 / ソース バジル / origin イタリア / 各地。量・焼き・説明文・CUT は PIZZA DB に含まれない |
 | Ingredients | ジェノベーゼソース（pesto）、モッツァレラ（mozzarella）、じゃがいも（potato）、ベーコン（bacon） |
-| Quantity | pesto×1 / mozzarella×2 / potato×3 / bacon×2（ソース以外 7 個 / ring 8）。#221 の game authoring candidate |
-| Bake target | 58–78（幅 20）。catalog: NO_CATALOG_VALUE |
-| CUT | CUT候補（6切れ）。生地 ナポリピッツァ生地 → shape round。CUT は score のみで完成判定に使わない |
-| REC-01 status | **NOT_READY** — 機械チェックの不合格: scoringReferenceEntryExists。Human sign-off: PENDING |
-| REC-02 status | **NOT_READY** — CUT_CANDIDATE（production allowlist 未登録） |
-| REC-03 status | **NOT_READY** — 互換性: OK（全具材 minCount ≥ 1、焼きの判定範囲 48–88） |
-| Question | 共通の Q1 / Q3 / Q4 だけ（この recipe 固有の質問はなし） |
+| Quantity | pesto×1 / mozzarella×2 / potato×3 / bacon×2（ソース以外 7 個） |
+| Bake target | 58–78（#221 の値を承認） |
+| CUT | CUT 対象（6 切れ）。生地 ナポリピッツァ生地 |
+| REC-01 status | **RESOLVED** — Human sign-off SIGNED（Q1、外部 evidence ではない） |
+| REC-02 status | **RESOLVED** — CUT_CANDIDATE → CUT 対象（Q3。allowlist の変更は実装時） |
+| REC-03 status | **RESOLVED** — Design/Authority Gate: Issue #215 OD-1〜5。Implementation Gate: #222 相当が必要 |
+| Readiness | **REVIEW** — ledger: REC-04 / 実装: MD-01, REC-03-IMPL-GATE, CUT-ALLOWLIST-IMPL, SLICE-B-INGREDIENTS |
 
 ### メランザーネピザ（`melanzane-pizza`）
 
@@ -294,31 +350,32 @@ Q1〜Q4 に答えると、REC-01〜03 は 10 件すべてで閉じられる。�
 | Recipe | トマトソースにナス、モッツァレラ、バジルを合わせた、素朴で香り豊かな南イタリア風ピザ。 |
 | Evidence | PIZZA DB `melanzane-pizza-pizzadb-p13`（comparison_table_sample）: メランザーネピザ / 生地 ナポリピッツァ生地 / ソース トマトソース / origin イタリア / 南部。量・焼き・説明文・CUT は PIZZA DB に含まれない |
 | Ingredients | トマトソース（tomato-sauce）、モッツァレラ（mozzarella）、ナス（eggplant）、バジル（basil） |
-| Quantity | tomato-sauce×1 / mozzarella×2 / eggplant×3 / basil×2（ソース以外 7 個 / ring 8）。#221 の game authoring candidate |
-| Bake target | 58–78（幅 20）。catalog: NO_CATALOG_VALUE |
-| CUT | CUT候補（6切れ）。生地 ナポリピッツァ生地 → shape round。CUT は score のみで完成判定に使わない |
-| REC-01 status | **NOT_READY** — 機械チェックの不合格: scoringReferenceEntryExists。Human sign-off: PENDING |
-| REC-02 status | **NOT_READY** — CUT_CANDIDATE（production allowlist 未登録） |
-| REC-03 status | **NOT_READY** — 互換性: OK（全具材 minCount ≥ 1、焼きの判定範囲 48–88） |
-| Question | 共通の Q1 / Q3 / Q4 だけ（この recipe 固有の質問はなし） |
+| Quantity | tomato-sauce×1 / mozzarella×2 / eggplant×3 / basil×2（ソース以外 7 個） |
+| Bake target | 58–78（#221 の値を承認） |
+| CUT | CUT 対象（6 切れ）。生地 ナポリピッツァ生地 |
+| REC-01 status | **RESOLVED** — Human sign-off SIGNED（Q1、外部 evidence ではない） |
+| REC-02 status | **RESOLVED** — CUT_CANDIDATE → CUT 対象（Q3。allowlist の変更は実装時） |
+| REC-03 status | **RESOLVED** — Design/Authority Gate: Issue #215 OD-1〜5。Implementation Gate: #222 相当が必要 |
+| Readiness | **REVIEW** — ledger: REC-04 / 実装: MD-01, REC-03-IMPL-GATE, CUT-ALLOWLIST-IMPL, SLICE-B-INGREDIENTS |
 
 <!-- END GENERATED: HUMAN REVIEW PACK -->
 
 ## Verification
 
-- `python3 tools/progression2_w1_rec_resolution_audit.py --check`: 入力 20 個の sha256 を `tools/progression2_w1_rec_resolution_audit.pins.json` で固定し、JSON と、この report の Review Pack が byte 単位で再生成できることを確認する。確認する invariant:
-  - W1 が 10 件あり、#220 の authority・#221 の matrix・`3fc02a0` の ledger・この audit の recipe 集合が一致する
-  - #220 / #221 の remote tip が pin と一致する（動いたら FAIL）。`3fc02a0` が branch の祖先である
-  - `3fc02a0` の ledger が記録した #221 のファイル hash と #220 の blob hash が、実際の入力と一致する（provenance chain）
-  - REC-01〜03 の定義が #221 の ledger から来ていて、`3fc02a0` で UNCHANGED のまま
-  - MD-01: `REFERENCE_PIZZAS` にない recipe を検出し、#221 の change map が `referencePizza.ts` を含まないことを確認する
-  - PIZZA DB の provenance: 量・焼き・説明文・CUT を持たない。#221 の候補を evidence として扱わない
-  - Human sign-off: `HUMAN_SIGNOFF` で `countsAsExternalEvidence: false`。PENDING の間は REC-01 が READY にならない
-  - REC-02 は allowlist に明示的に入るまで READY にならない。default の shape を CUT 候補にしない
-  - REC-03 は Q4 が確定するまで READY にならない。Owner Decision を CONFIRMED にしない。質問は 2〜4 問
-  - `completionGate.ts` が CUT を読まず、merged SSOT が CUT を score のみとしている
-- `--self-test`: 16 種類の mutation をすべて検出する。
-- 既存の checker（`validate_recipe_catalog.py`、`progression2_evidence_invariants.py`）も PASS。
+- `python3 tools/progression2_w1_rec_resolution_audit.py --check`: PASS。入力 21 個（RT-01-OD-1 の記録 `745fbd7` を追加）の sha256 を `tools/progression2_w1_rec_resolution_audit.pins.json` で固定し、JSON と、この report の Review Pack が byte 単位で再生成できることを確認する。確認する invariant:
+  - W1 が 10 件あり、#220 の authority・#221 の matrix・`3fc02a0` の ledger・この audit の recipe 集合が一致する。#220 / #221 の remote tip が pin と一致する
+  - `3fc02a0` の ledger が記録した #221 / #220 の hash と実際の入力が一致する（provenance chain）
+  - 記録する Owner Decision は Q1〜Q4 だけで、どれも source / 日付 / 場所を持つ。RT-01-OD-1 の承認文が pin した commit にある
+  - REC-01: Human sign-off は `HUMAN_SIGNOFF` / `countsAsExternalEvidence: false`。signer と日付と Q1 があるときだけ RESOLVED。承認後の値は地名がすべて PIZZA DB で裏付けられ、必須の具材をすべて書いている。Hawaiian 以外の bakeTarget、New Haven 以外の description、全 recipe の quantity は #221 から変わっていない。catalog に値がある recipe は catalog の bakeTarget を使う
+  - Q2: 9 / 10 / 9 は減っていない。8 を超える recipe には RT-01-IMPL の dependency がある
+  - REC-02: CUT を有効にするのは、明示的な dough evidence のある CUT_CANDIDATE だけ（default の round では有効にしない）。cutSlices は 6。allowlist は変更していない
+  - REC-03: Q4 と Design Gate があるときだけ RESOLVED。Implementation Gate（#222 相当）は REQUIRED のまま残る
+  - MD-01: `REFERENCE_PIZZAS` にない recipe すべてで、REC 行ではなく実装 dependency として残る
+  - REC-04 は open のまま。readiness は per-recipe の dependency と summary が一致し、READY にしない
+  - production guard: W1 の id が `recipes.ts`・CUT allowlist・`REFERENCE_PIZZAS` のどれにも入っていない
+  - PIZZA DB の provenance を変えていない。`completionGate.ts` は CUT を読まない
+- `--self-test`: 31 種類の mutation をすべて検出する（例: New Haven の CUT を default の round で有効にする、Hawaiian を 58–78 に戻す、Portuguesa を 8 個に減らす、RT-01 / MD-01 / Implementation Gate の dependency を消す、sign-off を evidence 扱いにする、W1 を READY にする、Owner Decision を追加で作る）。
+- 既存の checker（`validate_recipe_catalog.py`、`progression2_evidence_invariants.py`、`progression2_mechanic_matrix.py --check`）も PASS。
 - docs / tooling だけの変更なので、Full Chromium / WebKit と Human Verification の動画は対象外（`docs/decisions/TETO_HUMAN-VERIFICATION-POLICY.md`）。
 
 ## 成果物
@@ -330,6 +387,6 @@ Q1〜Q4 に答えると、REC-01〜03 は 10 件すべてで閉じられる。�
 実行の前に authority を fetch する:
 
 ```
-git fetch origin codex/content-readiness-fresh-audit codex/w1-authoring-fresh-audit claude/w1-ingredient-visual-preview-mt4uxw
+git fetch origin codex/content-readiness-fresh-audit codex/w1-authoring-fresh-audit claude/w1-ingredient-visual-preview-mt4uxw claude/rt-01-pizza-piece-capacity-1ncicd
 python3 tools/progression2_w1_rec_resolution_audit.py --check
 ```

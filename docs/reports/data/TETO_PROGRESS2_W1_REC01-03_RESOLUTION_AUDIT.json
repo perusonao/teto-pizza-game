@@ -94,14 +94,20 @@
     "pr221.ingredientMatrix": "6b4d787f2301defd6a9bffa670fb1e4b4586cac7d078c343992cc29fc41c6ea5",
     "pr221.ledger": "93c668492e2f4157efdc11cee5625335545989f92e82c2a5c6a357c5fc4bc670",
     "pr221.recipeMatrix": "4069b4b0b4a8a8ee5c0c863faace958f66ece7c1da6e558342eb632cca116e21",
+    "rt01.designReport": "0b4600dfc3afc714edde3a6ae17cdfa6f1234abfa7e2e0fc927226b370d09b40",
     "sync.evidenceLedger": "329db363b5609ea3504f81d57d5baddac28bb6875f5577c7ab4d81d01f6ac570",
     "sync.ownerDecisions": "6b4d282426f63ee5b91c443b556cd769edd7f4719d83a688ac896371a5bb5f8e"
   },
   "scopeGuard": [
     "no src/** / e2e/** / .github/** change",
     "PR #220 / #221 / #222 not modified",
-    "no Owner Decision is recorded as CONFIRMED by this audit"
+    "Owner Decisions are only those the owner gave (Q1-Q4); none is invented by this audit"
   ],
+  "productionGuard": {
+    "w1IdsInProductionRecipes": [],
+    "w1IdsInCutAllowlist": [],
+    "w1IdsInScoringReferenceMap": []
+  },
   "recDefinitions": {
     "REC-01": {
       "source": "PR #221 ledger @ 070afc0827f382bec8bc813d62e7fafe663a0991",
@@ -263,8 +269,22 @@
       "why": "computeScoringV2 returns available:false (no totalScore/stars) and checkSauceQuantity is skipped when a recipe has no Reference; referencePizza.test.ts requires every RECIPES entry to have one; its pieceGroups positions are hand-authored reviewed geometry (count = minCount), not derivable from #221",
       "trackedByPr221Ledger": false,
       "inPr221ChangeMapLikelyFiles": false,
-      "kind": "AUTHORING_REQUIRED (geometry) -- not an owner decision"
+      "kind": "AUTHORING_REQUIRED (geometry) -- not an owner decision",
+      "ownerRecord": {
+        "status": "RECORDED_BY_OWNER_AS_IMPLEMENTATION_DEPENDENCY",
+        "recordedAt": "2026-09-25",
+        "kind": "AUTHORING / IMPLEMENTATION REQUIREMENT (not an Owner Decision, not a REC row)",
+        "rule": "Every W1 recipe needs a Scoring 2.0 reference fixture in src/data/referencePizza.ts before production registration; never ship a recipe that falls back to no score / no stars. RT-01 recipes author their fixture from the approved multi-ring placement output. Not implemented now."
+      }
     }
+  },
+  "rt01Authority": {
+    "decisionId": "RT-01-OD-1",
+    "choice": "Candidate B (multi-ring placement)",
+    "commit": "745fbd7fae66fcd6c3951337575e8f2ea8e2df80",
+    "branch": "claude/rt-01-pizza-piece-capacity-1ncicd",
+    "note": "owner-approved design; runtime/reference infrastructure not implemented",
+    "approvalFoundAtPinnedCommit": true
   },
   "recipes": [
     {
@@ -329,9 +349,65 @@
         ],
         "sauce": "olive-oil"
       },
+      "final": {
+        "sourceClass": "OWNER_DECISION_RECORD",
+        "basis": "PR #221 authored values + Owner Decision Q1 normalizations",
+        "description": "オリーブオイルを塗った生地に、あさり、にんにく、パルミジャーノをのせて香ばしく焼き上げたニューヘイブン風の一枚。",
+        "requiredIngredients": [
+          {
+            "ingredientId": "olive-oil",
+            "minCount": 1
+          },
+          {
+            "ingredientId": "parmigiano",
+            "minCount": 2
+          },
+          {
+            "ingredientId": "clam",
+            "minCount": 3
+          },
+          {
+            "ingredientId": "garlic",
+            "minCount": 2
+          }
+        ],
+        "nonSaucePieceCount": 7,
+        "bakeTarget": [
+          62,
+          82
+        ],
+        "normalizations": [
+          {
+            "field": "description",
+            "by": "Q1",
+            "from": "オリーブオイルを塗った生地に、あさり、にんにく、パルミジャーノをのせて香ばしく焼き上げたアメリカ・ニューヘイブン風の一枚。",
+            "to": "オリーブオイルを塗った生地に、あさり、にんにく、パルミジャーノをのせて香ばしく焼き上げたニューヘイブン風の一枚。",
+            "reason": "removed region wording not backed by PIZZA DB (origin null)"
+          }
+        ],
+        "checks": {
+          "descriptionNamesEveryRequiredIngredient": true,
+          "regionClaimsSupported": true,
+          "bakeMatchesCatalogWhenPresent": true,
+          "bakeWidthMatchesProductionConvention": true,
+          "quantitiesUnchangedFromPr221": true
+        },
+        "info": {
+          "descriptionLength": 56,
+          "descriptionLengthWithinProductionRange": true,
+          "note": "length is a style signal only; the owner approved the wording (Q1)"
+        },
+        "regionClaims": [
+          {
+            "word": "ニューヘイブン",
+            "supportedBy": "PIZZA_DB origin/nameJa",
+            "status": "SUPPORTED"
+          }
+        ]
+      },
       "rec01": {
         "definition": "description/minCount/bakeTarget",
-        "mechanical": {
+        "preDecisionMechanical": {
           "descriptionNamesEveryRequiredIngredient": true,
           "descriptionLengthWithinProductionRange": false,
           "descriptionOwnerDecisionConsistency": "CONSISTENT",
@@ -367,7 +443,7 @@
             "ok": true
           }
         ],
-        "regionClaims": [
+        "preDecisionRegionClaims": [
           {
             "word": "アメリカ",
             "supportedBy": null,
@@ -411,19 +487,21 @@
           "status": "NO_CATALOG_VALUE",
           "rule": "Batch 1B-A / 1B-C precedent: null catalog bakeProfile => original value on the 20-wide span convention"
         },
-        "humanSignoff": {
-          "sourceClass": "HUMAN_SIGNOFF",
-          "status": "PENDING",
-          "countsAsExternalEvidence": false,
-          "signedBy": null,
-          "signedAt": null
-        },
-        "humanItems": [
+        "preDecisionHumanItems": [
           "description is 61 chars; production range is 39-56 (check card fit)",
           "region wording not backed by PIZZA DB origin (see regionClaims)",
           "batch content sign-off of description / minCount / bakeTarget (REC-01 itself)"
         ],
-        "status": "NOT_READY"
+        "humanSignoff": {
+          "sourceClass": "HUMAN_SIGNOFF",
+          "countsAsExternalEvidence": false,
+          "status": "SIGNED",
+          "signedBy": "owner",
+          "signedAt": "2026-09-25",
+          "basis": "Q1 (after the approved normalization)",
+          "signsOffValues": "final (post-normalization) description / minCount / bakeTarget"
+        },
+        "status": "RESOLVED"
       },
       "rec02": {
         "definition": "cutRequirement",
@@ -442,8 +520,15 @@
           "pr221Candidate": "STANDARD_ROUND_6_SLICES",
           "inProductionAllowlist": false
         },
+        "decision": {
+          "by": "Q3",
+          "cutEnabled": false,
+          "cutSlices": null,
+          "reason": "no dough evidence; matrix default 'round' is not evidence -- no CUT until a dough-evidence authority update",
+          "productionAllowlistChanged": false
+        },
         "completionEffect": "SCORE_ONLY (merged SSOT)",
-        "status": "NOT_READY"
+        "status": "RESOLVED"
       },
       "rec03": {
         "definition": "completionGate",
@@ -462,14 +547,48 @@
           ],
           "compatible": true
         },
-        "status": "NOT_READY"
+        "gates": {
+          "designAuthorityGate": {
+            "status": "RESOLVED",
+            "authority": "Issue #215 OD-1..OD-5"
+          },
+          "implementationGate": {
+            "status": "REQUIRED",
+            "requirement": "#222-equivalent Completion Gate implementation present on main / the integration target before production integration",
+            "pr222": {
+              "pr": 222,
+              "headSha": "81a850c26edf4c7f7f8cf69fad64e66d75830efd",
+              "state": "OPEN (not merged)",
+              "baseSha": "dff233c042d2df6ee1c3a92f2d2419830aa05460"
+            }
+          }
+        },
+        "status": "RESOLVED"
       },
       "missingDependencies": [
         "MD-01"
       ],
-      "otherOpenRefs": [
+      "openLedgerRefs": [
         "REC-04"
-      ]
+      ],
+      "implementationDependencies": [
+        {
+          "id": "MD-01",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "Scoring 2.0 reference fixture in src/data/referencePizza.ts"
+        },
+        {
+          "id": "REC-03-IMPL-GATE",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "#222-equivalent Completion Gate on main / integration target"
+        },
+        {
+          "id": "SLICE-B-INGREDIENTS",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "new ingredient record(s) + approved dedicated visual: clam"
+        }
+      ],
+      "readiness": "REVIEW"
     },
     {
       "recipeId": "hawaiian",
@@ -532,9 +651,66 @@
         ],
         "sauce": "tomato-sauce"
       },
+      "final": {
+        "sourceClass": "OWNER_DECISION_RECORD",
+        "basis": "PR #221 authored values + Owner Decision Q1 normalizations",
+        "description": "トマトソースにハムとパイナップル、モッツァレラを合わせた、甘みと塩気のバランスが楽しい一枚。",
+        "requiredIngredients": [
+          {
+            "ingredientId": "tomato-sauce",
+            "minCount": 1
+          },
+          {
+            "ingredientId": "mozzarella",
+            "minCount": 2
+          },
+          {
+            "ingredientId": "ham",
+            "minCount": 2
+          },
+          {
+            "ingredientId": "pineapple",
+            "minCount": 3
+          }
+        ],
+        "nonSaucePieceCount": 7,
+        "bakeTarget": [
+          60,
+          80
+        ],
+        "normalizations": [
+          {
+            "field": "bakeTarget",
+            "by": "Q1",
+            "from": [
+              58,
+              78
+            ],
+            "to": [
+              60,
+              80
+            ],
+            "reason": "existing production authoring rule: non-null catalog bakeProfile is used verbatim",
+            "authority": "INTERNAL_CATALOG data/recipes/pizza_master_catalog.json"
+          }
+        ],
+        "checks": {
+          "descriptionNamesEveryRequiredIngredient": true,
+          "regionClaimsSupported": true,
+          "bakeMatchesCatalogWhenPresent": true,
+          "bakeWidthMatchesProductionConvention": true,
+          "quantitiesUnchangedFromPr221": true
+        },
+        "info": {
+          "descriptionLength": 46,
+          "descriptionLengthWithinProductionRange": true,
+          "note": "length is a style signal only; the owner approved the wording (Q1)"
+        },
+        "regionClaims": []
+      },
       "rec01": {
         "definition": "description/minCount/bakeTarget",
-        "mechanical": {
+        "preDecisionMechanical": {
           "descriptionNamesEveryRequiredIngredient": true,
           "descriptionLengthWithinProductionRange": true,
           "descriptionOwnerDecisionConsistency": "CONSISTENT",
@@ -570,7 +746,7 @@
             "ok": true
           }
         ],
-        "regionClaims": [],
+        "preDecisionRegionClaims": [],
         "quantityChecks": [
           {
             "ingredientId": "tomato-sauce",
@@ -607,18 +783,20 @@
           "status": "CONFLICT",
           "rule": "Batch 1A / 1B-B precedent: a non-null catalog bakeProfile is used verbatim (recipes.ts comments)"
         },
-        "humanSignoff": {
-          "sourceClass": "HUMAN_SIGNOFF",
-          "status": "PENDING",
-          "countsAsExternalEvidence": false,
-          "signedBy": null,
-          "signedAt": null
-        },
-        "humanItems": [
+        "preDecisionHumanItems": [
           "bakeTarget differs from the internal catalog value (see bakePrecedent)",
           "batch content sign-off of description / minCount / bakeTarget (REC-01 itself)"
         ],
-        "status": "NOT_READY"
+        "humanSignoff": {
+          "sourceClass": "HUMAN_SIGNOFF",
+          "countsAsExternalEvidence": false,
+          "status": "SIGNED",
+          "signedBy": "owner",
+          "signedAt": "2026-09-25",
+          "basis": "Q1 (after the approved normalization)",
+          "signsOffValues": "final (post-normalization) description / minCount / bakeTarget"
+        },
+        "status": "RESOLVED"
       },
       "rec02": {
         "definition": "cutRequirement",
@@ -637,8 +815,15 @@
           "pr221Candidate": "STANDARD_ROUND_6_SLICES",
           "inProductionAllowlist": false
         },
+        "decision": {
+          "by": "Q3",
+          "cutEnabled": true,
+          "cutSlices": 6,
+          "reason": "PIZZA DB standard round dough (explicit doughStyle)",
+          "productionAllowlistChanged": false
+        },
         "completionEffect": "SCORE_ONLY (merged SSOT)",
-        "status": "NOT_READY"
+        "status": "RESOLVED"
       },
       "rec03": {
         "definition": "completionGate",
@@ -657,14 +842,53 @@
           ],
           "compatible": true
         },
-        "status": "NOT_READY"
+        "gates": {
+          "designAuthorityGate": {
+            "status": "RESOLVED",
+            "authority": "Issue #215 OD-1..OD-5"
+          },
+          "implementationGate": {
+            "status": "REQUIRED",
+            "requirement": "#222-equivalent Completion Gate implementation present on main / the integration target before production integration",
+            "pr222": {
+              "pr": 222,
+              "headSha": "81a850c26edf4c7f7f8cf69fad64e66d75830efd",
+              "state": "OPEN (not merged)",
+              "baseSha": "dff233c042d2df6ee1c3a92f2d2419830aa05460"
+            }
+          }
+        },
+        "status": "RESOLVED"
       },
       "missingDependencies": [
         "MD-01"
       ],
-      "otherOpenRefs": [
+      "openLedgerRefs": [
         "REC-04"
-      ]
+      ],
+      "implementationDependencies": [
+        {
+          "id": "MD-01",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "Scoring 2.0 reference fixture in src/data/referencePizza.ts"
+        },
+        {
+          "id": "REC-03-IMPL-GATE",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "#222-equivalent Completion Gate on main / integration target"
+        },
+        {
+          "id": "CUT-ALLOWLIST-IMPL",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "add id to CUT_ELIGIBLE_RECIPE_IDS (6 slices) when the recipe is implemented"
+        },
+        {
+          "id": "SLICE-B-INGREDIENTS",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "new ingredient record(s) + approved dedicated visual: pineapple"
+        }
+      ],
+      "readiness": "REVIEW"
     },
     {
       "recipeId": "parmigiana-pizza",
@@ -734,9 +958,61 @@
         ],
         "sauce": "tomato-sauce"
       },
+      "final": {
+        "sourceClass": "OWNER_DECISION_RECORD",
+        "basis": "PR #221 authored values + Owner Decision Q1 normalizations",
+        "description": "トマトソースにナス、モッツァレラ、パルミジャーノ、バジルを合わせた南イタリア風の一枚。",
+        "requiredIngredients": [
+          {
+            "ingredientId": "tomato-sauce",
+            "minCount": 1
+          },
+          {
+            "ingredientId": "mozzarella",
+            "minCount": 2
+          },
+          {
+            "ingredientId": "eggplant",
+            "minCount": 3
+          },
+          {
+            "ingredientId": "parmigiano",
+            "minCount": 2
+          },
+          {
+            "ingredientId": "basil",
+            "minCount": 2
+          }
+        ],
+        "nonSaucePieceCount": 9,
+        "bakeTarget": [
+          58,
+          78
+        ],
+        "normalizations": [],
+        "checks": {
+          "descriptionNamesEveryRequiredIngredient": true,
+          "regionClaimsSupported": true,
+          "bakeMatchesCatalogWhenPresent": true,
+          "bakeWidthMatchesProductionConvention": true,
+          "quantitiesUnchangedFromPr221": true
+        },
+        "info": {
+          "descriptionLength": 43,
+          "descriptionLengthWithinProductionRange": true,
+          "note": "length is a style signal only; the owner approved the wording (Q1)"
+        },
+        "regionClaims": [
+          {
+            "word": "南イタリア",
+            "supportedBy": "PIZZA_DB origin/nameJa",
+            "status": "SUPPORTED"
+          }
+        ]
+      },
       "rec01": {
         "definition": "description/minCount/bakeTarget",
-        "mechanical": {
+        "preDecisionMechanical": {
           "descriptionNamesEveryRequiredIngredient": true,
           "descriptionLengthWithinProductionRange": true,
           "descriptionOwnerDecisionConsistency": "CONSISTENT",
@@ -777,7 +1053,7 @@
             "ok": true
           }
         ],
-        "regionClaims": [
+        "preDecisionRegionClaims": [
           {
             "word": "南イタリア",
             "supportedBy": "PIZZA_DB origin/nameJa",
@@ -822,18 +1098,20 @@
           "status": "NO_CATALOG_VALUE",
           "rule": "Batch 1B-A / 1B-C precedent: null catalog bakeProfile => original value on the 20-wide span convention"
         },
-        "humanSignoff": {
-          "sourceClass": "HUMAN_SIGNOFF",
-          "status": "PENDING",
-          "countsAsExternalEvidence": false,
-          "signedBy": null,
-          "signedAt": null
-        },
-        "humanItems": [
+        "preDecisionHumanItems": [
           "9 non-sauce pieces > 8-slot ring: keep authored (RT-01) or trim (capricciosa/meat-lovers precedent)",
           "batch content sign-off of description / minCount / bakeTarget (REC-01 itself)"
         ],
-        "status": "NOT_READY"
+        "humanSignoff": {
+          "sourceClass": "HUMAN_SIGNOFF",
+          "countsAsExternalEvidence": false,
+          "status": "SIGNED",
+          "signedBy": "owner",
+          "signedAt": "2026-09-25",
+          "basis": "Q1",
+          "signsOffValues": "final (post-normalization) description / minCount / bakeTarget"
+        },
+        "status": "RESOLVED"
       },
       "rec02": {
         "definition": "cutRequirement",
@@ -852,8 +1130,15 @@
           "pr221Candidate": "STANDARD_ROUND_6_SLICES",
           "inProductionAllowlist": false
         },
+        "decision": {
+          "by": "Q3",
+          "cutEnabled": true,
+          "cutSlices": 6,
+          "reason": "PIZZA DB standard round dough (explicit doughStyle)",
+          "productionAllowlistChanged": false
+        },
         "completionEffect": "SCORE_ONLY (merged SSOT)",
-        "status": "NOT_READY"
+        "status": "RESOLVED"
       },
       "rec03": {
         "definition": "completionGate",
@@ -873,15 +1158,59 @@
           ],
           "compatible": true
         },
-        "status": "NOT_READY"
+        "gates": {
+          "designAuthorityGate": {
+            "status": "RESOLVED",
+            "authority": "Issue #215 OD-1..OD-5"
+          },
+          "implementationGate": {
+            "status": "REQUIRED",
+            "requirement": "#222-equivalent Completion Gate implementation present on main / the integration target before production integration",
+            "pr222": {
+              "pr": 222,
+              "headSha": "81a850c26edf4c7f7f8cf69fad64e66d75830efd",
+              "state": "OPEN (not merged)",
+              "baseSha": "dff233c042d2df6ee1c3a92f2d2419830aa05460"
+            }
+          }
+        },
+        "status": "RESOLVED"
       },
       "missingDependencies": [
         "MD-01"
       ],
-      "otherOpenRefs": [
+      "openLedgerRefs": [
         "RT-01",
         "REC-04"
-      ]
+      ],
+      "implementationDependencies": [
+        {
+          "id": "MD-01",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "Scoring 2.0 reference fixture in src/data/referencePizza.ts authored from the RT-01-OD-1 multi-ring placement output"
+        },
+        {
+          "id": "RT-01-IMPL",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "9 non-sauce pieces kept (Q2); RT-01 runtime/reference infrastructure (RT-01-OD-1 Candidate B) must be implemented before production connection"
+        },
+        {
+          "id": "REC-03-IMPL-GATE",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "#222-equivalent Completion Gate on main / integration target"
+        },
+        {
+          "id": "CUT-ALLOWLIST-IMPL",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "add id to CUT_ELIGIBLE_RECIPE_IDS (6 slices) when the recipe is implemented"
+        },
+        {
+          "id": "SLICE-B-INGREDIENTS",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "new ingredient record(s) + approved dedicated visual: eggplant"
+        }
+      ],
+      "readiness": "REVIEW"
     },
     {
       "recipeId": "bambino",
@@ -944,9 +1273,51 @@
         ],
         "sauce": "tomato-sauce"
       },
+      "final": {
+        "sourceClass": "OWNER_DECISION_RECORD",
+        "basis": "PR #221 authored values + Owner Decision Q1 normalizations",
+        "description": "トマトソースにハム、コーン、モッツァレラをのせた、やさしい甘みで親しみやすい一枚。",
+        "requiredIngredients": [
+          {
+            "ingredientId": "tomato-sauce",
+            "minCount": 1
+          },
+          {
+            "ingredientId": "mozzarella",
+            "minCount": 2
+          },
+          {
+            "ingredientId": "ham",
+            "minCount": 2
+          },
+          {
+            "ingredientId": "corn",
+            "minCount": 3
+          }
+        ],
+        "nonSaucePieceCount": 7,
+        "bakeTarget": [
+          56,
+          76
+        ],
+        "normalizations": [],
+        "checks": {
+          "descriptionNamesEveryRequiredIngredient": true,
+          "regionClaimsSupported": true,
+          "bakeMatchesCatalogWhenPresent": true,
+          "bakeWidthMatchesProductionConvention": true,
+          "quantitiesUnchangedFromPr221": true
+        },
+        "info": {
+          "descriptionLength": 41,
+          "descriptionLengthWithinProductionRange": true,
+          "note": "length is a style signal only; the owner approved the wording (Q1)"
+        },
+        "regionClaims": []
+      },
       "rec01": {
         "definition": "description/minCount/bakeTarget",
-        "mechanical": {
+        "preDecisionMechanical": {
           "descriptionNamesEveryRequiredIngredient": true,
           "descriptionLengthWithinProductionRange": true,
           "descriptionOwnerDecisionConsistency": "CONSISTENT",
@@ -982,7 +1353,7 @@
             "ok": true
           }
         ],
-        "regionClaims": [],
+        "preDecisionRegionClaims": [],
         "quantityChecks": [
           {
             "ingredientId": "tomato-sauce",
@@ -1015,17 +1386,19 @@
           "status": "NO_CATALOG_VALUE",
           "rule": "Batch 1B-A / 1B-C precedent: null catalog bakeProfile => original value on the 20-wide span convention"
         },
-        "humanSignoff": {
-          "sourceClass": "HUMAN_SIGNOFF",
-          "status": "PENDING",
-          "countsAsExternalEvidence": false,
-          "signedBy": null,
-          "signedAt": null
-        },
-        "humanItems": [
+        "preDecisionHumanItems": [
           "batch content sign-off of description / minCount / bakeTarget (REC-01 itself)"
         ],
-        "status": "NOT_READY"
+        "humanSignoff": {
+          "sourceClass": "HUMAN_SIGNOFF",
+          "countsAsExternalEvidence": false,
+          "status": "SIGNED",
+          "signedBy": "owner",
+          "signedAt": "2026-09-25",
+          "basis": "Q1",
+          "signsOffValues": "final (post-normalization) description / minCount / bakeTarget"
+        },
+        "status": "RESOLVED"
       },
       "rec02": {
         "definition": "cutRequirement",
@@ -1044,8 +1417,15 @@
           "pr221Candidate": "STANDARD_ROUND_6_SLICES",
           "inProductionAllowlist": false
         },
+        "decision": {
+          "by": "Q3",
+          "cutEnabled": true,
+          "cutSlices": 6,
+          "reason": "PIZZA DB standard round dough (explicit doughStyle)",
+          "productionAllowlistChanged": false
+        },
         "completionEffect": "SCORE_ONLY (merged SSOT)",
-        "status": "NOT_READY"
+        "status": "RESOLVED"
       },
       "rec03": {
         "definition": "completionGate",
@@ -1064,14 +1444,53 @@
           ],
           "compatible": true
         },
-        "status": "NOT_READY"
+        "gates": {
+          "designAuthorityGate": {
+            "status": "RESOLVED",
+            "authority": "Issue #215 OD-1..OD-5"
+          },
+          "implementationGate": {
+            "status": "REQUIRED",
+            "requirement": "#222-equivalent Completion Gate implementation present on main / the integration target before production integration",
+            "pr222": {
+              "pr": 222,
+              "headSha": "81a850c26edf4c7f7f8cf69fad64e66d75830efd",
+              "state": "OPEN (not merged)",
+              "baseSha": "dff233c042d2df6ee1c3a92f2d2419830aa05460"
+            }
+          }
+        },
+        "status": "RESOLVED"
       },
       "missingDependencies": [
         "MD-01"
       ],
-      "otherOpenRefs": [
+      "openLedgerRefs": [
         "REC-04"
-      ]
+      ],
+      "implementationDependencies": [
+        {
+          "id": "MD-01",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "Scoring 2.0 reference fixture in src/data/referencePizza.ts"
+        },
+        {
+          "id": "REC-03-IMPL-GATE",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "#222-equivalent Completion Gate on main / integration target"
+        },
+        {
+          "id": "CUT-ALLOWLIST-IMPL",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "add id to CUT_ELIGIBLE_RECIPE_IDS (6 slices) when the recipe is implemented"
+        },
+        {
+          "id": "SLICE-B-INGREDIENTS",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "new ingredient record(s) + approved dedicated visual: corn"
+        }
+      ],
+      "readiness": "REVIEW"
     },
     {
       "recipeId": "pizza-portuguesa",
@@ -1148,9 +1567,65 @@
         ],
         "sauce": "tomato-sauce"
       },
+      "final": {
+        "sourceClass": "OWNER_DECISION_RECORD",
+        "basis": "PR #221 authored values + Owner Decision Q1 normalizations",
+        "description": "トマトソースにハム、卵、たまねぎ、ブラックオリーブ、モッツァレラを重ねたブラジル定番の一枚。",
+        "requiredIngredients": [
+          {
+            "ingredientId": "tomato-sauce",
+            "minCount": 1
+          },
+          {
+            "ingredientId": "mozzarella",
+            "minCount": 2
+          },
+          {
+            "ingredientId": "ham",
+            "minCount": 3
+          },
+          {
+            "ingredientId": "egg",
+            "minCount": 1
+          },
+          {
+            "ingredientId": "onion",
+            "minCount": 2
+          },
+          {
+            "ingredientId": "black-olive",
+            "minCount": 2
+          }
+        ],
+        "nonSaucePieceCount": 10,
+        "bakeTarget": [
+          58,
+          78
+        ],
+        "normalizations": [],
+        "checks": {
+          "descriptionNamesEveryRequiredIngredient": true,
+          "regionClaimsSupported": true,
+          "bakeMatchesCatalogWhenPresent": true,
+          "bakeWidthMatchesProductionConvention": true,
+          "quantitiesUnchangedFromPr221": true
+        },
+        "info": {
+          "descriptionLength": 46,
+          "descriptionLengthWithinProductionRange": true,
+          "note": "length is a style signal only; the owner approved the wording (Q1)"
+        },
+        "regionClaims": [
+          {
+            "word": "ブラジル",
+            "supportedBy": "PIZZA_DB origin/nameJa",
+            "status": "SUPPORTED"
+          }
+        ]
+      },
       "rec01": {
         "definition": "description/minCount/bakeTarget",
-        "mechanical": {
+        "preDecisionMechanical": {
           "descriptionNamesEveryRequiredIngredient": true,
           "descriptionLengthWithinProductionRange": true,
           "descriptionOwnerDecisionConsistency": "CONSISTENT",
@@ -1196,7 +1671,7 @@
             "ok": true
           }
         ],
-        "regionClaims": [
+        "preDecisionRegionClaims": [
           {
             "word": "ブラジル",
             "supportedBy": "PIZZA_DB origin/nameJa",
@@ -1247,18 +1722,20 @@
           "status": "NO_CATALOG_VALUE",
           "rule": "Batch 1B-A / 1B-C precedent: null catalog bakeProfile => original value on the 20-wide span convention"
         },
-        "humanSignoff": {
-          "sourceClass": "HUMAN_SIGNOFF",
-          "status": "PENDING",
-          "countsAsExternalEvidence": false,
-          "signedBy": null,
-          "signedAt": null
-        },
-        "humanItems": [
+        "preDecisionHumanItems": [
           "10 non-sauce pieces > 8-slot ring: keep authored (RT-01) or trim (capricciosa/meat-lovers precedent)",
           "batch content sign-off of description / minCount / bakeTarget (REC-01 itself)"
         ],
-        "status": "NOT_READY"
+        "humanSignoff": {
+          "sourceClass": "HUMAN_SIGNOFF",
+          "countsAsExternalEvidence": false,
+          "status": "SIGNED",
+          "signedBy": "owner",
+          "signedAt": "2026-09-25",
+          "basis": "Q1",
+          "signsOffValues": "final (post-normalization) description / minCount / bakeTarget"
+        },
+        "status": "RESOLVED"
       },
       "rec02": {
         "definition": "cutRequirement",
@@ -1277,8 +1754,15 @@
           "pr221Candidate": "STANDARD_ROUND_6_SLICES",
           "inProductionAllowlist": false
         },
+        "decision": {
+          "by": "Q3",
+          "cutEnabled": true,
+          "cutSlices": 6,
+          "reason": "PIZZA DB standard round dough (explicit doughStyle)",
+          "productionAllowlistChanged": false
+        },
         "completionEffect": "SCORE_ONLY (merged SSOT)",
-        "status": "NOT_READY"
+        "status": "RESOLVED"
       },
       "rec03": {
         "definition": "completionGate",
@@ -1299,15 +1783,54 @@
           ],
           "compatible": true
         },
-        "status": "NOT_READY"
+        "gates": {
+          "designAuthorityGate": {
+            "status": "RESOLVED",
+            "authority": "Issue #215 OD-1..OD-5"
+          },
+          "implementationGate": {
+            "status": "REQUIRED",
+            "requirement": "#222-equivalent Completion Gate implementation present on main / the integration target before production integration",
+            "pr222": {
+              "pr": 222,
+              "headSha": "81a850c26edf4c7f7f8cf69fad64e66d75830efd",
+              "state": "OPEN (not merged)",
+              "baseSha": "dff233c042d2df6ee1c3a92f2d2419830aa05460"
+            }
+          }
+        },
+        "status": "RESOLVED"
       },
       "missingDependencies": [
         "MD-01"
       ],
-      "otherOpenRefs": [
+      "openLedgerRefs": [
         "RT-01",
         "REC-04"
-      ]
+      ],
+      "implementationDependencies": [
+        {
+          "id": "MD-01",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "Scoring 2.0 reference fixture in src/data/referencePizza.ts authored from the RT-01-OD-1 multi-ring placement output"
+        },
+        {
+          "id": "RT-01-IMPL",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "10 non-sauce pieces kept (Q2); RT-01 runtime/reference infrastructure (RT-01-OD-1 Candidate B) must be implemented before production connection"
+        },
+        {
+          "id": "REC-03-IMPL-GATE",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "#222-equivalent Completion Gate on main / integration target"
+        },
+        {
+          "id": "CUT-ALLOWLIST-IMPL",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "add id to CUT_ELIGIBLE_RECIPE_IDS (6 slices) when the recipe is implemented"
+        }
+      ],
+      "readiness": "REVIEW"
     },
     {
       "recipeId": "puttanesca-pizza",
@@ -1377,9 +1900,55 @@
         ],
         "sauce": "tomato-sauce"
       },
+      "final": {
+        "sourceClass": "OWNER_DECISION_RECORD",
+        "basis": "PR #221 authored values + Owner Decision Q1 normalizations",
+        "description": "トマトソースにアンチョビ、ブラックオリーブ、ケッパー、にんにくを効かせた、塩味と香りの強い一枚。",
+        "requiredIngredients": [
+          {
+            "ingredientId": "tomato-sauce",
+            "minCount": 1
+          },
+          {
+            "ingredientId": "anchovy",
+            "minCount": 3
+          },
+          {
+            "ingredientId": "black-olive",
+            "minCount": 2
+          },
+          {
+            "ingredientId": "capers",
+            "minCount": 2
+          },
+          {
+            "ingredientId": "garlic",
+            "minCount": 2
+          }
+        ],
+        "nonSaucePieceCount": 9,
+        "bakeTarget": [
+          50,
+          70
+        ],
+        "normalizations": [],
+        "checks": {
+          "descriptionNamesEveryRequiredIngredient": true,
+          "regionClaimsSupported": true,
+          "bakeMatchesCatalogWhenPresent": true,
+          "bakeWidthMatchesProductionConvention": true,
+          "quantitiesUnchangedFromPr221": true
+        },
+        "info": {
+          "descriptionLength": 48,
+          "descriptionLengthWithinProductionRange": true,
+          "note": "length is a style signal only; the owner approved the wording (Q1)"
+        },
+        "regionClaims": []
+      },
       "rec01": {
         "definition": "description/minCount/bakeTarget",
-        "mechanical": {
+        "preDecisionMechanical": {
           "descriptionNamesEveryRequiredIngredient": true,
           "descriptionLengthWithinProductionRange": true,
           "descriptionOwnerDecisionConsistency": "CONSISTENT",
@@ -1420,7 +1989,7 @@
             "ok": true
           }
         ],
-        "regionClaims": [],
+        "preDecisionRegionClaims": [],
         "quantityChecks": [
           {
             "ingredientId": "tomato-sauce",
@@ -1459,18 +2028,20 @@
           "status": "NO_CATALOG_VALUE",
           "rule": "Batch 1B-A / 1B-C precedent: null catalog bakeProfile => original value on the 20-wide span convention"
         },
-        "humanSignoff": {
-          "sourceClass": "HUMAN_SIGNOFF",
-          "status": "PENDING",
-          "countsAsExternalEvidence": false,
-          "signedBy": null,
-          "signedAt": null
-        },
-        "humanItems": [
+        "preDecisionHumanItems": [
           "9 non-sauce pieces > 8-slot ring: keep authored (RT-01) or trim (capricciosa/meat-lovers precedent)",
           "batch content sign-off of description / minCount / bakeTarget (REC-01 itself)"
         ],
-        "status": "NOT_READY"
+        "humanSignoff": {
+          "sourceClass": "HUMAN_SIGNOFF",
+          "countsAsExternalEvidence": false,
+          "status": "SIGNED",
+          "signedBy": "owner",
+          "signedAt": "2026-09-25",
+          "basis": "Q1",
+          "signsOffValues": "final (post-normalization) description / minCount / bakeTarget"
+        },
+        "status": "RESOLVED"
       },
       "rec02": {
         "definition": "cutRequirement",
@@ -1489,8 +2060,15 @@
           "pr221Candidate": "STANDARD_ROUND_6_SLICES",
           "inProductionAllowlist": false
         },
+        "decision": {
+          "by": "Q3",
+          "cutEnabled": true,
+          "cutSlices": 6,
+          "reason": "PIZZA DB standard round dough (explicit doughStyle)",
+          "productionAllowlistChanged": false
+        },
         "completionEffect": "SCORE_ONLY (merged SSOT)",
-        "status": "NOT_READY"
+        "status": "RESOLVED"
       },
       "rec03": {
         "definition": "completionGate",
@@ -1510,15 +2088,59 @@
           ],
           "compatible": true
         },
-        "status": "NOT_READY"
+        "gates": {
+          "designAuthorityGate": {
+            "status": "RESOLVED",
+            "authority": "Issue #215 OD-1..OD-5"
+          },
+          "implementationGate": {
+            "status": "REQUIRED",
+            "requirement": "#222-equivalent Completion Gate implementation present on main / the integration target before production integration",
+            "pr222": {
+              "pr": 222,
+              "headSha": "81a850c26edf4c7f7f8cf69fad64e66d75830efd",
+              "state": "OPEN (not merged)",
+              "baseSha": "dff233c042d2df6ee1c3a92f2d2419830aa05460"
+            }
+          }
+        },
+        "status": "RESOLVED"
       },
       "missingDependencies": [
         "MD-01"
       ],
-      "otherOpenRefs": [
+      "openLedgerRefs": [
         "RT-01",
         "REC-04"
-      ]
+      ],
+      "implementationDependencies": [
+        {
+          "id": "MD-01",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "Scoring 2.0 reference fixture in src/data/referencePizza.ts authored from the RT-01-OD-1 multi-ring placement output"
+        },
+        {
+          "id": "RT-01-IMPL",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "9 non-sauce pieces kept (Q2); RT-01 runtime/reference infrastructure (RT-01-OD-1 Candidate B) must be implemented before production connection"
+        },
+        {
+          "id": "REC-03-IMPL-GATE",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "#222-equivalent Completion Gate on main / integration target"
+        },
+        {
+          "id": "CUT-ALLOWLIST-IMPL",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "add id to CUT_ELIGIBLE_RECIPE_IDS (6 slices) when the recipe is implemented"
+        },
+        {
+          "id": "SLICE-B-INGREDIENTS",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "new ingredient record(s) + approved dedicated visual: capers"
+        }
+      ],
+      "readiness": "REVIEW"
     },
     {
       "recipeId": "pesto-caprese",
@@ -1581,9 +2203,51 @@
         ],
         "sauce": "pesto"
       },
+      "final": {
+        "sourceClass": "OWNER_DECISION_RECORD",
+        "basis": "PR #221 authored values + Owner Decision Q1 normalizations",
+        "description": "ジェノベーゼソースにトマト、モッツァレラ、バジルを重ねた、カプレーゼ仕立ての爽やかな一枚。",
+        "requiredIngredients": [
+          {
+            "ingredientId": "pesto",
+            "minCount": 1
+          },
+          {
+            "ingredientId": "mozzarella",
+            "minCount": 2
+          },
+          {
+            "ingredientId": "fresh-tomato",
+            "minCount": 3
+          },
+          {
+            "ingredientId": "basil",
+            "minCount": 2
+          }
+        ],
+        "nonSaucePieceCount": 7,
+        "bakeTarget": [
+          50,
+          70
+        ],
+        "normalizations": [],
+        "checks": {
+          "descriptionNamesEveryRequiredIngredient": true,
+          "regionClaimsSupported": true,
+          "bakeMatchesCatalogWhenPresent": true,
+          "bakeWidthMatchesProductionConvention": true,
+          "quantitiesUnchangedFromPr221": true
+        },
+        "info": {
+          "descriptionLength": 45,
+          "descriptionLengthWithinProductionRange": true,
+          "note": "length is a style signal only; the owner approved the wording (Q1)"
+        },
+        "regionClaims": []
+      },
       "rec01": {
         "definition": "description/minCount/bakeTarget",
-        "mechanical": {
+        "preDecisionMechanical": {
           "descriptionNamesEveryRequiredIngredient": true,
           "descriptionLengthWithinProductionRange": true,
           "descriptionOwnerDecisionConsistency": "CONSISTENT",
@@ -1619,7 +2283,7 @@
             "ok": true
           }
         ],
-        "regionClaims": [],
+        "preDecisionRegionClaims": [],
         "quantityChecks": [
           {
             "ingredientId": "pesto",
@@ -1652,17 +2316,19 @@
           "status": "NO_CATALOG_VALUE",
           "rule": "Batch 1B-A / 1B-C precedent: null catalog bakeProfile => original value on the 20-wide span convention"
         },
-        "humanSignoff": {
-          "sourceClass": "HUMAN_SIGNOFF",
-          "status": "PENDING",
-          "countsAsExternalEvidence": false,
-          "signedBy": null,
-          "signedAt": null
-        },
-        "humanItems": [
+        "preDecisionHumanItems": [
           "batch content sign-off of description / minCount / bakeTarget (REC-01 itself)"
         ],
-        "status": "NOT_READY"
+        "humanSignoff": {
+          "sourceClass": "HUMAN_SIGNOFF",
+          "countsAsExternalEvidence": false,
+          "status": "SIGNED",
+          "signedBy": "owner",
+          "signedAt": "2026-09-25",
+          "basis": "Q1",
+          "signsOffValues": "final (post-normalization) description / minCount / bakeTarget"
+        },
+        "status": "RESOLVED"
       },
       "rec02": {
         "definition": "cutRequirement",
@@ -1681,8 +2347,15 @@
           "pr221Candidate": "STANDARD_ROUND_6_SLICES",
           "inProductionAllowlist": false
         },
+        "decision": {
+          "by": "Q3",
+          "cutEnabled": true,
+          "cutSlices": 6,
+          "reason": "PIZZA DB standard round dough (explicit doughStyle)",
+          "productionAllowlistChanged": false
+        },
         "completionEffect": "SCORE_ONLY (merged SSOT)",
-        "status": "NOT_READY"
+        "status": "RESOLVED"
       },
       "rec03": {
         "definition": "completionGate",
@@ -1701,14 +2374,53 @@
           ],
           "compatible": true
         },
-        "status": "NOT_READY"
+        "gates": {
+          "designAuthorityGate": {
+            "status": "RESOLVED",
+            "authority": "Issue #215 OD-1..OD-5"
+          },
+          "implementationGate": {
+            "status": "REQUIRED",
+            "requirement": "#222-equivalent Completion Gate implementation present on main / the integration target before production integration",
+            "pr222": {
+              "pr": 222,
+              "headSha": "81a850c26edf4c7f7f8cf69fad64e66d75830efd",
+              "state": "OPEN (not merged)",
+              "baseSha": "dff233c042d2df6ee1c3a92f2d2419830aa05460"
+            }
+          }
+        },
+        "status": "RESOLVED"
       },
       "missingDependencies": [
         "MD-01"
       ],
-      "otherOpenRefs": [
+      "openLedgerRefs": [
         "REC-04"
-      ]
+      ],
+      "implementationDependencies": [
+        {
+          "id": "MD-01",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "Scoring 2.0 reference fixture in src/data/referencePizza.ts"
+        },
+        {
+          "id": "REC-03-IMPL-GATE",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "#222-equivalent Completion Gate on main / integration target"
+        },
+        {
+          "id": "CUT-ALLOWLIST-IMPL",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "add id to CUT_ELIGIBLE_RECIPE_IDS (6 slices) when the recipe is implemented"
+        },
+        {
+          "id": "SLICE-B-INGREDIENTS",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "new ingredient record(s) + approved dedicated visual: fresh-tomato"
+        }
+      ],
+      "readiness": "REVIEW"
     },
     {
       "recipeId": "pesto-tonno",
@@ -1771,9 +2483,51 @@
         ],
         "sauce": "pesto"
       },
+      "final": {
+        "sourceClass": "OWNER_DECISION_RECORD",
+        "basis": "PR #221 authored values + Owner Decision Q1 normalizations",
+        "description": "香り高いジェノベーゼソースに、ツナ、ブラックオリーブ、たまねぎを合わせた爽やかな一枚。",
+        "requiredIngredients": [
+          {
+            "ingredientId": "pesto",
+            "minCount": 1
+          },
+          {
+            "ingredientId": "tuna",
+            "minCount": 3
+          },
+          {
+            "ingredientId": "black-olive",
+            "minCount": 2
+          },
+          {
+            "ingredientId": "onion",
+            "minCount": 2
+          }
+        ],
+        "nonSaucePieceCount": 7,
+        "bakeTarget": [
+          50,
+          70
+        ],
+        "normalizations": [],
+        "checks": {
+          "descriptionNamesEveryRequiredIngredient": true,
+          "regionClaimsSupported": true,
+          "bakeMatchesCatalogWhenPresent": true,
+          "bakeWidthMatchesProductionConvention": true,
+          "quantitiesUnchangedFromPr221": true
+        },
+        "info": {
+          "descriptionLength": 43,
+          "descriptionLengthWithinProductionRange": true,
+          "note": "length is a style signal only; the owner approved the wording (Q1)"
+        },
+        "regionClaims": []
+      },
       "rec01": {
         "definition": "description/minCount/bakeTarget",
-        "mechanical": {
+        "preDecisionMechanical": {
           "descriptionNamesEveryRequiredIngredient": true,
           "descriptionLengthWithinProductionRange": true,
           "descriptionOwnerDecisionConsistency": "CONSISTENT",
@@ -1809,7 +2563,7 @@
             "ok": true
           }
         ],
-        "regionClaims": [],
+        "preDecisionRegionClaims": [],
         "quantityChecks": [
           {
             "ingredientId": "pesto",
@@ -1842,17 +2596,19 @@
           "status": "NO_CATALOG_VALUE",
           "rule": "Batch 1B-A / 1B-C precedent: null catalog bakeProfile => original value on the 20-wide span convention"
         },
-        "humanSignoff": {
-          "sourceClass": "HUMAN_SIGNOFF",
-          "status": "PENDING",
-          "countsAsExternalEvidence": false,
-          "signedBy": null,
-          "signedAt": null
-        },
-        "humanItems": [
+        "preDecisionHumanItems": [
           "batch content sign-off of description / minCount / bakeTarget (REC-01 itself)"
         ],
-        "status": "NOT_READY"
+        "humanSignoff": {
+          "sourceClass": "HUMAN_SIGNOFF",
+          "countsAsExternalEvidence": false,
+          "status": "SIGNED",
+          "signedBy": "owner",
+          "signedAt": "2026-09-25",
+          "basis": "Q1",
+          "signsOffValues": "final (post-normalization) description / minCount / bakeTarget"
+        },
+        "status": "RESOLVED"
       },
       "rec02": {
         "definition": "cutRequirement",
@@ -1871,8 +2627,15 @@
           "pr221Candidate": "STANDARD_ROUND_6_SLICES",
           "inProductionAllowlist": false
         },
+        "decision": {
+          "by": "Q3",
+          "cutEnabled": true,
+          "cutSlices": 6,
+          "reason": "PIZZA DB standard round dough (explicit doughStyle)",
+          "productionAllowlistChanged": false
+        },
         "completionEffect": "SCORE_ONLY (merged SSOT)",
-        "status": "NOT_READY"
+        "status": "RESOLVED"
       },
       "rec03": {
         "definition": "completionGate",
@@ -1891,14 +2654,48 @@
           ],
           "compatible": true
         },
-        "status": "NOT_READY"
+        "gates": {
+          "designAuthorityGate": {
+            "status": "RESOLVED",
+            "authority": "Issue #215 OD-1..OD-5"
+          },
+          "implementationGate": {
+            "status": "REQUIRED",
+            "requirement": "#222-equivalent Completion Gate implementation present on main / the integration target before production integration",
+            "pr222": {
+              "pr": 222,
+              "headSha": "81a850c26edf4c7f7f8cf69fad64e66d75830efd",
+              "state": "OPEN (not merged)",
+              "baseSha": "dff233c042d2df6ee1c3a92f2d2419830aa05460"
+            }
+          }
+        },
+        "status": "RESOLVED"
       },
       "missingDependencies": [
         "MD-01"
       ],
-      "otherOpenRefs": [
+      "openLedgerRefs": [
         "REC-04"
-      ]
+      ],
+      "implementationDependencies": [
+        {
+          "id": "MD-01",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "Scoring 2.0 reference fixture in src/data/referencePizza.ts"
+        },
+        {
+          "id": "REC-03-IMPL-GATE",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "#222-equivalent Completion Gate on main / integration target"
+        },
+        {
+          "id": "CUT-ALLOWLIST-IMPL",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "add id to CUT_ELIGIBLE_RECIPE_IDS (6 slices) when the recipe is implemented"
+        }
+      ],
+      "readiness": "REVIEW"
     },
     {
       "recipeId": "pesto-patate",
@@ -1961,9 +2758,51 @@
         ],
         "sauce": "pesto"
       },
+      "final": {
+        "sourceClass": "OWNER_DECISION_RECORD",
+        "basis": "PR #221 authored values + Owner Decision Q1 normalizations",
+        "description": "ジェノベーゼソースにじゃがいも、ベーコン、モッツァレラを合わせた、ほくほくと香ばしい一枚。",
+        "requiredIngredients": [
+          {
+            "ingredientId": "pesto",
+            "minCount": 1
+          },
+          {
+            "ingredientId": "mozzarella",
+            "minCount": 2
+          },
+          {
+            "ingredientId": "potato",
+            "minCount": 3
+          },
+          {
+            "ingredientId": "bacon",
+            "minCount": 2
+          }
+        ],
+        "nonSaucePieceCount": 7,
+        "bakeTarget": [
+          58,
+          78
+        ],
+        "normalizations": [],
+        "checks": {
+          "descriptionNamesEveryRequiredIngredient": true,
+          "regionClaimsSupported": true,
+          "bakeMatchesCatalogWhenPresent": true,
+          "bakeWidthMatchesProductionConvention": true,
+          "quantitiesUnchangedFromPr221": true
+        },
+        "info": {
+          "descriptionLength": 45,
+          "descriptionLengthWithinProductionRange": true,
+          "note": "length is a style signal only; the owner approved the wording (Q1)"
+        },
+        "regionClaims": []
+      },
       "rec01": {
         "definition": "description/minCount/bakeTarget",
-        "mechanical": {
+        "preDecisionMechanical": {
           "descriptionNamesEveryRequiredIngredient": true,
           "descriptionLengthWithinProductionRange": true,
           "descriptionOwnerDecisionConsistency": "CONSISTENT",
@@ -1999,7 +2838,7 @@
             "ok": true
           }
         ],
-        "regionClaims": [],
+        "preDecisionRegionClaims": [],
         "quantityChecks": [
           {
             "ingredientId": "pesto",
@@ -2032,17 +2871,19 @@
           "status": "NO_CATALOG_VALUE",
           "rule": "Batch 1B-A / 1B-C precedent: null catalog bakeProfile => original value on the 20-wide span convention"
         },
-        "humanSignoff": {
-          "sourceClass": "HUMAN_SIGNOFF",
-          "status": "PENDING",
-          "countsAsExternalEvidence": false,
-          "signedBy": null,
-          "signedAt": null
-        },
-        "humanItems": [
+        "preDecisionHumanItems": [
           "batch content sign-off of description / minCount / bakeTarget (REC-01 itself)"
         ],
-        "status": "NOT_READY"
+        "humanSignoff": {
+          "sourceClass": "HUMAN_SIGNOFF",
+          "countsAsExternalEvidence": false,
+          "status": "SIGNED",
+          "signedBy": "owner",
+          "signedAt": "2026-09-25",
+          "basis": "Q1",
+          "signsOffValues": "final (post-normalization) description / minCount / bakeTarget"
+        },
+        "status": "RESOLVED"
       },
       "rec02": {
         "definition": "cutRequirement",
@@ -2061,8 +2902,15 @@
           "pr221Candidate": "STANDARD_ROUND_6_SLICES",
           "inProductionAllowlist": false
         },
+        "decision": {
+          "by": "Q3",
+          "cutEnabled": true,
+          "cutSlices": 6,
+          "reason": "PIZZA DB standard round dough (explicit doughStyle)",
+          "productionAllowlistChanged": false
+        },
         "completionEffect": "SCORE_ONLY (merged SSOT)",
-        "status": "NOT_READY"
+        "status": "RESOLVED"
       },
       "rec03": {
         "definition": "completionGate",
@@ -2081,14 +2929,53 @@
           ],
           "compatible": true
         },
-        "status": "NOT_READY"
+        "gates": {
+          "designAuthorityGate": {
+            "status": "RESOLVED",
+            "authority": "Issue #215 OD-1..OD-5"
+          },
+          "implementationGate": {
+            "status": "REQUIRED",
+            "requirement": "#222-equivalent Completion Gate implementation present on main / the integration target before production integration",
+            "pr222": {
+              "pr": 222,
+              "headSha": "81a850c26edf4c7f7f8cf69fad64e66d75830efd",
+              "state": "OPEN (not merged)",
+              "baseSha": "dff233c042d2df6ee1c3a92f2d2419830aa05460"
+            }
+          }
+        },
+        "status": "RESOLVED"
       },
       "missingDependencies": [
         "MD-01"
       ],
-      "otherOpenRefs": [
+      "openLedgerRefs": [
         "REC-04"
-      ]
+      ],
+      "implementationDependencies": [
+        {
+          "id": "MD-01",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "Scoring 2.0 reference fixture in src/data/referencePizza.ts"
+        },
+        {
+          "id": "REC-03-IMPL-GATE",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "#222-equivalent Completion Gate on main / integration target"
+        },
+        {
+          "id": "CUT-ALLOWLIST-IMPL",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "add id to CUT_ELIGIBLE_RECIPE_IDS (6 slices) when the recipe is implemented"
+        },
+        {
+          "id": "SLICE-B-INGREDIENTS",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "new ingredient record(s) + approved dedicated visual: potato"
+        }
+      ],
+      "readiness": "REVIEW"
     },
     {
       "recipeId": "melanzane-pizza",
@@ -2151,9 +3038,57 @@
         ],
         "sauce": "tomato-sauce"
       },
+      "final": {
+        "sourceClass": "OWNER_DECISION_RECORD",
+        "basis": "PR #221 authored values + Owner Decision Q1 normalizations",
+        "description": "トマトソースにナス、モッツァレラ、バジルを合わせた、素朴で香り豊かな南イタリア風ピザ。",
+        "requiredIngredients": [
+          {
+            "ingredientId": "tomato-sauce",
+            "minCount": 1
+          },
+          {
+            "ingredientId": "mozzarella",
+            "minCount": 2
+          },
+          {
+            "ingredientId": "eggplant",
+            "minCount": 3
+          },
+          {
+            "ingredientId": "basil",
+            "minCount": 2
+          }
+        ],
+        "nonSaucePieceCount": 7,
+        "bakeTarget": [
+          58,
+          78
+        ],
+        "normalizations": [],
+        "checks": {
+          "descriptionNamesEveryRequiredIngredient": true,
+          "regionClaimsSupported": true,
+          "bakeMatchesCatalogWhenPresent": true,
+          "bakeWidthMatchesProductionConvention": true,
+          "quantitiesUnchangedFromPr221": true
+        },
+        "info": {
+          "descriptionLength": 43,
+          "descriptionLengthWithinProductionRange": true,
+          "note": "length is a style signal only; the owner approved the wording (Q1)"
+        },
+        "regionClaims": [
+          {
+            "word": "南イタリア",
+            "supportedBy": "PIZZA_DB origin/nameJa",
+            "status": "SUPPORTED"
+          }
+        ]
+      },
       "rec01": {
         "definition": "description/minCount/bakeTarget",
-        "mechanical": {
+        "preDecisionMechanical": {
           "descriptionNamesEveryRequiredIngredient": true,
           "descriptionLengthWithinProductionRange": true,
           "descriptionOwnerDecisionConsistency": "CONSISTENT",
@@ -2189,7 +3124,7 @@
             "ok": true
           }
         ],
-        "regionClaims": [
+        "preDecisionRegionClaims": [
           {
             "word": "南イタリア",
             "supportedBy": "PIZZA_DB origin/nameJa",
@@ -2228,17 +3163,19 @@
           "status": "NO_CATALOG_VALUE",
           "rule": "Batch 1B-A / 1B-C precedent: null catalog bakeProfile => original value on the 20-wide span convention"
         },
-        "humanSignoff": {
-          "sourceClass": "HUMAN_SIGNOFF",
-          "status": "PENDING",
-          "countsAsExternalEvidence": false,
-          "signedBy": null,
-          "signedAt": null
-        },
-        "humanItems": [
+        "preDecisionHumanItems": [
           "batch content sign-off of description / minCount / bakeTarget (REC-01 itself)"
         ],
-        "status": "NOT_READY"
+        "humanSignoff": {
+          "sourceClass": "HUMAN_SIGNOFF",
+          "countsAsExternalEvidence": false,
+          "status": "SIGNED",
+          "signedBy": "owner",
+          "signedAt": "2026-09-25",
+          "basis": "Q1",
+          "signsOffValues": "final (post-normalization) description / minCount / bakeTarget"
+        },
+        "status": "RESOLVED"
       },
       "rec02": {
         "definition": "cutRequirement",
@@ -2257,8 +3194,15 @@
           "pr221Candidate": "STANDARD_ROUND_6_SLICES",
           "inProductionAllowlist": false
         },
+        "decision": {
+          "by": "Q3",
+          "cutEnabled": true,
+          "cutSlices": 6,
+          "reason": "PIZZA DB standard round dough (explicit doughStyle)",
+          "productionAllowlistChanged": false
+        },
         "completionEffect": "SCORE_ONLY (merged SSOT)",
-        "status": "NOT_READY"
+        "status": "RESOLVED"
       },
       "rec03": {
         "definition": "completionGate",
@@ -2277,14 +3221,53 @@
           ],
           "compatible": true
         },
-        "status": "NOT_READY"
+        "gates": {
+          "designAuthorityGate": {
+            "status": "RESOLVED",
+            "authority": "Issue #215 OD-1..OD-5"
+          },
+          "implementationGate": {
+            "status": "REQUIRED",
+            "requirement": "#222-equivalent Completion Gate implementation present on main / the integration target before production integration",
+            "pr222": {
+              "pr": 222,
+              "headSha": "81a850c26edf4c7f7f8cf69fad64e66d75830efd",
+              "state": "OPEN (not merged)",
+              "baseSha": "dff233c042d2df6ee1c3a92f2d2419830aa05460"
+            }
+          }
+        },
+        "status": "RESOLVED"
       },
       "missingDependencies": [
         "MD-01"
       ],
-      "otherOpenRefs": [
+      "openLedgerRefs": [
         "REC-04"
-      ]
+      ],
+      "implementationDependencies": [
+        {
+          "id": "MD-01",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "Scoring 2.0 reference fixture in src/data/referencePizza.ts"
+        },
+        {
+          "id": "REC-03-IMPL-GATE",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "#222-equivalent Completion Gate on main / integration target"
+        },
+        {
+          "id": "CUT-ALLOWLIST-IMPL",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "add id to CUT_ELIGIBLE_RECIPE_IDS (6 slices) when the recipe is implemented"
+        },
+        {
+          "id": "SLICE-B-INGREDIENTS",
+          "kind": "IMPLEMENTATION_DEPENDENCY",
+          "detail": "new ingredient record(s) + approved dedicated visual: eggplant"
+        }
+      ],
+      "readiness": "REVIEW"
     }
   ],
   "cutClassificationCounts": {
@@ -2293,71 +3276,82 @@
     "EVIDENCE_INSUFFICIENT": 1,
     "MECHANIC_INSUFFICIENT": 0
   },
-  "ownerDecisionsProposed": [
+  "cutDecision": {
+    "cutEnabled": [
+      "hawaiian",
+      "parmigiana-pizza",
+      "bambino",
+      "pizza-portuguesa",
+      "puttanesca-pizza",
+      "pesto-caprese",
+      "pesto-tonno",
+      "pesto-patate",
+      "melanzane-pizza"
+    ],
+    "cutDisabled": [
+      "new-haven-apizza"
+    ],
+    "cutSlices": 6
+  },
+  "ownerDecisions": [
     {
       "id": "Q1",
       "rec": "REC-01",
-      "status": "PROPOSED_NOT_CONFIRMED",
-      "title": "REC-01 batch sign-off rule (description / minCount / bakeTarget)",
-      "options": {
-        "A": "Approve all 10 #221 candidates; Hawaiian bakeTarget follows the catalog precedent (60-80)",
-        "B": "Approve all 10 #221 candidates exactly as authored (Hawaiian 58-78)",
-        "C": "Do not approve yet; list edits"
-      },
-      "recommended": "A"
+      "status": "APPROVED",
+      "value": "APPROVED_WITH_ONE_NORMALIZATION",
+      "decision": "W1 10 recipes: description / quantities / bake target approved as #221 authored, except (a) Hawaiian bakeTarget = catalog 60-80 (existing production authoring rule: non-null catalog bakeProfile is used verbatim), and (b) New Haven Apizza's description drops the PIZZA DB-unsupported 'アメリカ' wording before sign-off.",
+      "sourceClass": "OWNER_DECISION_RECORD",
+      "recordedAt": "2026-09-25",
+      "where": "owner reply to the W1 REC-01..03 Fresh Audit (Claude Code session 01R3Ck2bwXUh5Svp3bN7xDsd)"
     },
     {
       "id": "Q2",
       "rec": "REC-01",
-      "status": "PROPOSED_NOT_CONFIRMED",
-      "title": "Quantity rule for recipes over the 8-slot reference ring (Parmigiana 9 / Portuguesa 10 / Puttanesca 9)",
-      "options": {
-        "A": "Keep authored counts; recipes wait for RT-01 runtime slice E",
-        "B": "Trim to <= 8 non-sauce pieces (capricciosa / meat-lovers precedent); RT-01 no longer blocks them"
-      },
-      "recommended": null
+      "status": "APPROVED",
+      "value": "KEEP_AUTHORED_COUNTS",
+      "decision": "Parmigiana 9 / Pizza Portuguesa 10 / Puttanesca 9 non-sauce pieces are kept (not trimmed to 8). They depend on RT-01 runtime/reference infrastructure (RT-01-OD-1 Candidate B multi-ring, already approved) and must not be connected as production recipes before RT-01 is implemented.",
+      "sourceClass": "OWNER_DECISION_RECORD",
+      "recordedAt": "2026-09-25",
+      "where": "owner reply to the W1 REC-01..03 Fresh Audit (Claude Code session 01R3Ck2bwXUh5Svp3bN7xDsd)"
     },
     {
       "id": "Q3",
       "rec": "REC-02",
-      "status": "PROPOSED_NOT_CONFIRMED",
-      "title": "CUT default rule",
-      "options": {
-        "A": "Opt in the 9 CUT_CANDIDATE recipes (6 slices); New Haven Apizza without CUT until dough-shape evidence exists",
-        "B": "Opt in all 10 (treat New Haven's missing doughStyle as a standard round pizza)",
-        "C": "Opt in none of W1 yet"
-      },
-      "recommended": "A"
+      "status": "APPROVED",
+      "value": "CUT_9_STANDARD_ROUND__NEW_HAVEN_NO_CUT",
+      "decision": "The 9 W1 recipes whose PIZZA DB dough is a standard round dough are CUT targets with cutSlices = 6. New Haven Apizza is not a CUT target (no dough evidence); the design matrix's default 'round' is never external evidence. A later dough-evidence authority update may add it.",
+      "sourceClass": "OWNER_DECISION_RECORD",
+      "recordedAt": "2026-09-25",
+      "where": "owner reply to the W1 REC-01..03 Fresh Audit (Claude Code session 01R3Ck2bwXUh5Svp3bN7xDsd)"
     },
     {
       "id": "Q4",
       "rec": "REC-03",
-      "status": "PROPOSED_NOT_CONFIRMED",
-      "title": "REC-03 closing basis",
-      "options": {
-        "A": "Close now against the recorded Issue #215 Owner Decision (spec authority); runtime follows #222",
-        "B": "Close only after #222 is merged to main"
-      },
-      "recommended": "A"
+      "status": "APPROVED",
+      "value": "DESIGN_GATE_ISSUE_215__IMPLEMENTATION_GATE_222",
+      "decision": "REC-03 closes on Issue #215 OD-1..OD-5 (Design/Authority Gate). #222's merge is not a condition of the decision; production integration requires a #222-equivalent Completion Gate implementation on main / the integration target (Implementation Gate).",
+      "sourceClass": "OWNER_DECISION_RECORD",
+      "recordedAt": "2026-09-25",
+      "where": "owner reply to the W1 REC-01..03 Fresh Audit (Claude Code session 01R3Ck2bwXUh5Svp3bN7xDsd)"
     }
   ],
   "verdict": {
     "REC-01": {
-      "status": "NOT_READY",
-      "why": "Human content sign-off is pending for all 10 (not machine-resolvable); Q1/Q2 decide the rules it signs against"
+      "status": "RESOLVED",
+      "resolvedRecipes": 10
     },
     "REC-02": {
-      "status": "NOT_READY",
-      "why": "No W1 id is in CUT_ELIGIBLE_RECIPE_IDS; opt-in needs a deliberate human shape confirmation (cookingProfiles.ts); Q3 settles the one EVIDENCE_INSUFFICIENT row"
+      "status": "RESOLVED",
+      "resolvedRecipes": 10
     },
     "REC-03": {
-      "status": "NOT_READY",
-      "why": "Every axis is compatible and the blocking #218 decision now exists (Issue #215 OD); closing it needs Q4 (spec record vs #222 merge)"
-    },
-    "readinessAfterThisAudit": {
-      "READY": 0,
-      "REVIEW": 10,
-      "BLOCKED": 0
+      "status": "RESOLVED",
+      "resolvedRecipes": 10
     }
+  },
+  "readiness": {
+    "READY": 0,
+    "REVIEW": 10,
+    "BLOCKED": 0
   }
 }
