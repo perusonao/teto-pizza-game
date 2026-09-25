@@ -7,13 +7,16 @@ import { defineConfig, devices } from "@playwright/test";
  *   npx playwright test -c tools/p1_visual_regression/playwright.config.ts
  * Every capture is pixel-compared; W1_P1_SHOTS_DIR (optional) keeps the PNGs and diff images.
  */
+const video = process.env.W1_P1_VIDEO === "1" ? { mode: "on" as const, size: { width: 390, height: 844 } } : ("off" as const);
+
 export default defineConfig({
   testDir: ".",
-  testMatch: /before-after\.spec\.ts$/,
+  testMatch: /(before-after|hv-video)\.spec\.ts$/,
   fullyParallel: true,
   retries: 0,
   reporter: [["list"]],
   outputDir: "../../test-results/p1-visual-regression",
+  use: { video },
   projects: [
     { name: "chromium-390x844", use: { ...devices["Desktop Chrome"], viewport: { width: 390, height: 844 } } },
     { name: "chromium-360x800", use: { ...devices["Desktop Chrome"], viewport: { width: 360, height: 800 } } },
