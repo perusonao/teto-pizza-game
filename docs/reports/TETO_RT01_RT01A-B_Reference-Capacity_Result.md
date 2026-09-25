@@ -227,3 +227,37 @@ Final state:
   Puttanesca) join the REC-01..04 authority first. No W1 recipe, fixture or ingredient has been
   added.
 
+
+## W1 Integration I2: Final Merge Gate (2026-09-25)
+
+Audited main `46513b1` (PR #206 / I0 merged). The integration branch is
+`claude/teto-pizza-w1-integration-i2-69mp0s` (PR #226).
+
+**Method.** The RT-01 branch head `63d3acf` is merged as-is with merge commit `1aeea03`
+(parents `46513b1` + `63d3acf`). The reviewed commits `e708dd2` / `afcce51` / `63d3acf` reach main
+with their original SHAs, so the Human PASS evidence still points at the code that ships. The branch
+holds only RT-01 commits (base `dff233c`), and every file category has a reason to stay:
+
+| Category | Files | Why it stays |
+|---|---|---|
+| Runtime | `pizzaReferenceLayout.ts`, `playerReference.ts`, `PizzaThumbnail.tsx` | The change itself |
+| Tests | unit tests + frozen BEFORE baseline; `e2e/rt01-reference-capacity.spec.ts` + `e2e/harness/*` | Regression guard. The harness is served by the Vite dev server only and is not in `dist/` |
+| Screenshots | `docs/reports/screenshots/rt-01/` (6.4 MB) | Required by the Human Verification policy |
+| Design authority | Fresh Design, `tools/rt01_reference_capacity_design.py` + JSON/HTML | `multiRingSlots` cites the tool; `--check` passes |
+| Recorder | `scripts/record-rt01-human-verification.mjs` | Same precedent as `record-pr154-*` |
+
+| # | Check | Result |
+|---|---|---|
+| 1 | Diff against main | main moved only by #223 (CI) and #206 (`persistence.ts` + its tests/report). No file overlaps with RT-01, and `git merge-tree` is clean |
+| 2 | Semantic conflict with #206 | None. RT-01 reads only recipe/ingredient data and never touches save/Dex/inventory ids |
+| 3 | Production scope | 3 runtime files (above). `referencePizza.ts`, `recipes.ts`, `ingredients.ts`, `scoringV2/**` and `state/**` have zero diff |
+| 4 | 1–8 pieces | All 255 compositions of 1–8 pieces give the same result as main's legacy consecutive `slot % 8` rule. All 15 shipped recipes give the same result as main's own `playerReference.ts` (scratch check, not committed). The committed baseline tests also pass |
+| 5 | 9+ deterministic | n = 9..40 gives identical output across fresh module loads, with distinct slots and radius ≤ 34. For n = 9..30 the TS output equals the Python design tool's `cand_b_multiring` |
+| 6 | Scoring fixtures | Unchanged (FNV-1a baseline test passes, and the fixture sources have zero diff) |
+| 7 | Out of scope | No RT-01c, W1 recipe/fixture, 7 ingredients, #220/#221/#222 change, or new Owner Decision |
+
+Verification on `1aeea03`:
+
+- Local: Vitest 128 files / 2493 tests pass. oxlint, `tsc -b` and `npm run build` pass.
+- Chromium (local): the full e2e suite passes at 390×844 and 360×800, 126/126.
+- WebKit: Full WebKit (2 projects × 2 shards) + WebKit Gate run in CI on PR #226's final head, which carries this report. The run id and result are in the merge commit message. The PR merges only if that run passes.
