@@ -1,9 +1,9 @@
 # Progression 2.0 W1 I5b — 10 New Recipes / 25 Recipe Integration: Fresh Audit
 
-Status: **Fresh Audit 承認済み（owner、2026-09-25）。実装は未着手。**
+Status: **Fresh Audit 承認済み（owner、2026-09-25）。OD-I5B-1 / OD-I5B-2 とも RESOLVED。I5b は slice 単位で実装中（I5b-1 から）。**
 
+- OD-I5B-1 = **RESOLVED**（Mito の注文セリフ 10 件を承認）
 - OD-I5B-2 = **RESOLVED**
-- OD-I5B-1 = **PENDING**
 
 この文書は docs のみの記録です。`src/**` と `e2e/**` は変更していません。
 
@@ -354,13 +354,13 @@ Dex 0 → Free Cooking → Margherita → step 1（egg）という流れも同�
   - Pizza Select では、材料を持っていない W1 recipe は既存どおり LOCKED 表示になる。材料がそろうと NEW になる。
   - Lunch Rush の pool は、発見済みかつ作れるもの。
 
-### OD-I5B-1 — PENDING（Mito の注文セリフ）
+### OD-I5B-1 — RESOLVED（owner、2026-09-25。Mito の注文セリフ）
 
 Mito の注文セリフは、どの authority（#221、35bc937、6fe02e2）にもない。
 
 一方で、注文のない recipe は Pizza Select から開始できない（`startPreparingRecipe` が null を返す）。`recipes.test` も「1 recipe に 1 order」を必須にしている。
 
-そのため owner による文言の承認が必要。
+そのため owner による文言の承認が必要だった。owner は下の 10 件を **提示どおり承認** した。
 
 **表示される場面（監査の結果）:**
 
@@ -385,7 +385,7 @@ Mito の注文セリフは、どの authority（#221、35bc937、6fe02e2）に�
 - **P5 材料 + 名前、感想 + 食べてみたい:** tonno-e-cipolla, breakfast-pizza
 - **P6 入荷の話題:** fugazza
 
-**候補（各 1 案）:**
+**承認済みの注文セリフ（authority。I5b-3 で `ORDERS` の `lineJa` にこのまま使う）:**
 
 - 説明文（#221 / 35bc937）にある事実だけを使った。
 - 量をほのめかす表現（「たっぷり」「強め」など）は避けた。Q factor の関係で、多く置かせるような誘導にならないようにするため。
@@ -409,12 +409,15 @@ Mito の注文セリフは、どの authority（#221、35bc937、6fe02e2）に�
 - parmigiana と melanzane: 「パルミジャーノ」と「バジル」で区別した。
 - New Haven: 名前の全文は繰り返さず、説明文にある「ニューヘイブン風」を使った。
 
-候補の長さは 33〜40 文字で、既存の中央値（35）と最大値（47）の範囲に収まる。ORDERS への実装は OD-I5B-1 の承認後（I5b-3）に行う。
+長さは 33〜40 文字で、既存の中央値（35）と最大値（47）の範囲に収まる。
+
+- `ORDERS` への接続は I5b-3 で行う。order id は既存の慣例どおり `order-<recipeId>`、`requestedBy: "mito"` とする。
+- 文言は上の表から一字一句変えない。
 
 ## 18. STOP
 
-この文書の commit で STOP する。
+Fresh Audit の commit（`cc9dfaa`）の時点では、ここで STOP した。OD-I5B-1 の承認後、owner の指示で I5b-1 から slice 単位の実装を始めた。
 
-- I5b-1 は開始しない。
+- 各 slice の終わりで STOP し、報告する。
 - `src/**` / `e2e/**` の変更はない。
 - PR は作らない。main へ merge しない。
