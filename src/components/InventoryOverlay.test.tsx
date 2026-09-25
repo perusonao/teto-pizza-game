@@ -196,7 +196,9 @@ describe("InventoryOverlay (read-only stock view)", () => {
         onClose={() => {}}
       />,
     );
-    expect(screen.getByText(new RegExp(`所持 3/${INGREDIENTS.length}種`))).toBeInTheDocument();
+    // Progression 2.0 I5a-3: the total is the obtainable ingredients (starters + current Discovery
+    // Ladder materials) -- still 22; the 7 catalog-only W1 materials are not counted.
+    expect(screen.getByText(/所持 3\/22種/)).toBeInTheDocument();
   });
 
   it("test 14: reflects a Starter Grant landing (e.g. onion +40) exactly like remainingStock would", () => {
@@ -235,7 +237,9 @@ describe("InventoryOverlay (read-only stock view)", () => {
       <InventoryOverlay ownedIngredientIds={allOwned} inventory={EMPTY_INVENTORY} onClose={() => {}} />,
     );
     expect(INGREDIENTS.length).toBe(29);
-    expect(screen.getByText(/所持 29\/29種/)).toBeInTheDocument();
+    // Every catalog row is listed when owned (a future save), but the count stays within the
+    // 22 obtainable ingredients.
+    expect(screen.getByText(/所持 22\/22種/)).toBeInTheDocument();
     for (const ingredient of INGREDIENTS) {
       expect(screen.getByText(ingredient.nameJa)).toBeInTheDocument();
     }

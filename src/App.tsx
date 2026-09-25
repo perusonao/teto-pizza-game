@@ -17,7 +17,7 @@ import type { CutLine } from "./logic/cut/types";
 import { isDuplicateCutLine } from "./logic/cut/geometry";
 import type { SauceDeposit } from "./state/pizzaState";
 import type { RecipeId } from "./data/recipes";
-import { getIngredient, INGREDIENTS, type Ingredient, type IngredientCategory } from "./data/ingredients";
+import { getIngredient, type Ingredient, type IngredientCategory } from "./data/ingredients";
 import { isDoughShapeComplete, type DoughShape } from "./logic/doughShape";
 import { isAnyCookingTimingPauseReasonActive } from "./logic/cookingTiming";
 import {
@@ -33,7 +33,7 @@ import {
   persistMissionBest,
   resetSave,
 } from "./state/persistence";
-import { resolveShopEntitlement } from "./state/materialEntitlement";
+import { ingredientCollectionCount, resolveShopEntitlement } from "./state/materialEntitlement";
 import { ensureAnonymousUser, isFirebaseAvailable, submitLunchRushScore } from "./firebase";
 import {
   DEFAULT_MISSION_CONFIG,
@@ -825,6 +825,9 @@ function App() {
         : [],
     [referencePizza, state.pizza.toppings],
   );
+  // Progression 2.0 I5a-3: Home's "所持 N/M種" counts obtainable ingredients (the same SSOT as
+  // InventoryOverlay's summary), not every catalog row.
+  const ingredientCollection = ingredientCollectionCount(state.ownedIngredientIds);
 
   return (
     <div className="app-frame">
@@ -833,8 +836,8 @@ function App() {
         <HomeScreen
           pitzBalance={state.pitzBalance}
           dex={state.dex}
-          ownedIngredientCount={state.ownedIngredientIds.length}
-          totalIngredientCount={INGREDIENTS.length}
+          ownedIngredientCount={ingredientCollection.owned}
+          totalIngredientCount={ingredientCollection.total}
           onStartFreePlay={handleStartFreePlay}
           onStartFreeCook={handleStartFreeCook}
           onStartLunchRush={handleStartLunchRush}

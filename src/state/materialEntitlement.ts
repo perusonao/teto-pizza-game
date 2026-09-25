@@ -1,6 +1,6 @@
 import { DISCOVERY_LADDER, type DiscoveryLadder } from "../data/discoveryLadder";
-import { getIngredient } from "../data/ingredients";
-import { discoveredRecipeCount, resolveMaterialUnlocks } from "../logic/discoveryLadder";
+import { INGREDIENTS, getIngredient } from "../data/ingredients";
+import { discoveredRecipeCount, materialIdsOfSteps, resolveMaterialUnlocks } from "../logic/discoveryLadder";
 import type { DexState } from "./dex";
 
 /**
@@ -80,4 +80,34 @@ export function buildMaterialUnlockNotice(
     namesJa,
     messageJa: `${MATERIAL_UNLOCK_NOTICE_LEAD_JA}${namesJa.join("・")}`,
   };
+}
+
+/**
+ * Progression 2.0 W1 Integration I5a-3: the ingredients a player can obtain in this build -- the
+ * onboarding starters plus every material the current Discovery Ladder can unlock -- in catalog
+ * order. A catalog row nothing unlocks yet (the W1 materials until their recipes and ladder
+ * ship) is not counted, so the player-facing "所持 N/M種" never promises an unobtainable total.
+ * Grows with the ladder on its own (e.g. to 29 with the 25-recipe ladder).
+ */
+export function obtainableIngredientIds(ladder: DiscoveryLadder = DISCOVERY_LADDER): readonly string[] {
+  const ladderMaterials = new Set(materialIdsOfSteps(ladder.steps));
+  return INGREDIENTS.filter((i) => !i.unlockCondition || ladderMaterials.has(i.id)).map((i) => i.id);
+}
+
+export interface IngredientCollectionCount {
+  /** Obtainable ingredients the player owns. */
+  owned: number;
+  /** Every obtainable ingredient (`obtainableIngredientIds`). */
+  total: number;
+}
+
+/** The "所持 N/M種" pair shown by Home and Inventory -- one SSOT for both. An owned id that is not
+ *  obtainable in this build (a future save's material) is not counted, so N never exceeds M. */
+export function ingredientCollectionCount(
+  ownedIngredientIds: readonly string[],
+  ladder: DiscoveryLadder = DISCOVERY_LADDER,
+): IngredientCollectionCount {
+  const obtainable = obtainableIngredientIds(ladder);
+  const owned = new Set(ownedIngredientIds);
+  return { owned: obtainable.filter((id) => owned.has(id)).length, total: obtainable.length };
 }
