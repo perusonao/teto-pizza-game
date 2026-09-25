@@ -77,7 +77,7 @@ not-owned one cannot be placed. No production save can own one in I5a.
 | lint (oxlint) | PASS (exit 0) |
 | build | PASS |
 | Chromium full e2e 390×844 + 360×800 | 142 / 142 PASS (4.3 min) |
-| WebKit | classifier (local run on base…HEAD): `webkit_required=true` (src changes) → Full WebKit via `workflow_dispatch` on this branch (no PR yet) — result in the session report |
+| WebKit | classifier (local run on base…HEAD): `webkit_required=true` (src changes) → Full WebKit via `workflow_dispatch` on this branch (no PR yet): run 36141274962 on `3c6c0c7` — classify + webkit-390x844 1/2, 2/2 + webkit-360x800 1/2, 2/2 + WebKit Gate all **success** |
 
 ## 8. Visual regression evidence (before `0ba3302` / after `7760dec`)
 
