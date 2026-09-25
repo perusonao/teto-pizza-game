@@ -81,6 +81,47 @@ export const SHIPPED_15_DISCOVERY_LADDER: DiscoveryLadder = {
   ],
 };
 
+/**
+ * Progression 2.0 W1 I5b-1 (docs/reports/TETO_PROGRESS2_W1_I5B_FRESH-AUDIT.md §3): the same REC-04
+ * key-recipe rule applied to the W1 population -- the shipped 15 recipes plus the 10 W1 recipes
+ * (25 recipes, 24 steps; margherita still needs only the starters). Equal to the ladder REC-04
+ * simulated (`REC04_W1_25_LADDER_FIXTURE` in the ladder test-support module; pinned equal by
+ * ../logic/w1LadderEconomy.test.ts).
+ *
+ * **Not wired yet.** `DISCOVERY_LADDER` below stays `SHIPPED_15_DISCOVERY_LADDER` until the 10 W1
+ * recipes join `RECIPES` in the same change (I5b-3) -- switching earlier would unlock materials no
+ * shipped recipe uses.
+ */
+export const W1_25_DISCOVERY_LADDER: DiscoveryLadder = {
+  populationId: "w1-25",
+  steps: [
+    { step: 1, kind: "MATERIAL", ingredientIds: ["egg"], keyRecipeId: "bismarck" },
+    { step: 2, kind: "MATERIAL", ingredientIds: ["bacon"], keyRecipeId: "breakfast-pizza" },
+    { step: 3, kind: "MATERIAL", ingredientIds: ["mushroom"], keyRecipeId: "funghi" },
+    { step: 4, kind: "MATERIAL", ingredientIds: ["eggplant"], keyRecipeId: "melanzane-pizza" },
+    { step: 5, kind: "MATERIAL", ingredientIds: ["parmigiano"], keyRecipeId: "parmigiana-pizza" },
+    { step: 6, kind: "MATERIAL", ingredientIds: ["pepperoni"], keyRecipeId: "pepperoni" },
+    { step: 7, kind: "MATERIAL", ingredientIds: ["sausage"], keyRecipeId: "salsiccia" },
+    { step: 8, kind: "MATERIAL", ingredientIds: ["ham"], keyRecipeId: "meat-lovers" },
+    { step: 9, kind: "MATERIAL", ingredientIds: ["corn"], keyRecipeId: "bambino" },
+    { step: 10, kind: "MATERIAL", ingredientIds: ["pineapple"], keyRecipeId: "hawaiian" },
+    { step: 11, kind: "MATERIAL", ingredientIds: ["black-olive", "oregano"], keyRecipeId: "capricciosa" },
+    { step: 12, kind: "MATERIAL", ingredientIds: ["onion"], keyRecipeId: "pizza-portuguesa" },
+    { step: 13, kind: "MATERIAL", ingredientIds: ["olive-oil"], keyRecipeId: "fugazza" },
+    { step: 14, kind: "MATERIAL", ingredientIds: ["garlic"], keyRecipeId: "marinara" },
+    { step: 15, kind: "MATERIAL", ingredientIds: ["anchovy"], keyRecipeId: "napoletana" },
+    { step: 16, kind: "MATERIAL", ingredientIds: ["tuna"], keyRecipeId: "tonno-e-cipolla" },
+    { step: 17, kind: "MATERIAL", ingredientIds: ["pesto"], keyRecipeId: "pesto-tonno" },
+    { step: 18, kind: "MATERIAL", ingredientIds: ["cherry-tomato"], keyRecipeId: "genovese" },
+    { step: 19, kind: "MATERIAL", ingredientIds: ["clam"], keyRecipeId: "new-haven-apizza" },
+    { step: 20, kind: "MATERIAL", ingredientIds: ["fresh-tomato"], keyRecipeId: "pesto-caprese" },
+    { step: 21, kind: "MATERIAL", ingredientIds: ["potato"], keyRecipeId: "pesto-patate" },
+    { step: 22, kind: "MATERIAL", ingredientIds: ["rosemary"], keyRecipeId: "pizza-bianca" },
+    { step: 23, kind: "MATERIAL", ingredientIds: ["capers"], keyRecipeId: "puttanesca-pizza" },
+    { step: 24, kind: "MATERIAL", ingredientIds: ["fontina", "gorgonzola"], keyRecipeId: "quattro-formaggi" },
+  ],
+};
+
 /** The ladder for the content currently shipped. I4b reads this; a later wave swaps it for that
- *  wave's regenerated ladder. */
+ *  wave's regenerated ladder (W1: `W1_25_DISCOVERY_LADDER`, in I5b-3). */
 export const DISCOVERY_LADDER: DiscoveryLadder = SHIPPED_15_DISCOVERY_LADDER;

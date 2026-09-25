@@ -158,3 +158,38 @@ export const REC04_W1_25_LADDER_FIXTURE: DiscoveryLadder = {
     keyRecipeId,
   })),
 };
+
+/**
+ * Progression 2.0 W1 I5b-1: the 10 W1 recipes' `requiredIngredients` exactly as recorded in
+ * docs/reports/TETO_PROGRESS2_W1_I5B_FRESH-AUDIT.md §1 (#221 authored counts, kept by REC-01..03
+ * `35bc937`: Parmigiana 9 / Portuguesa 10 / Puttanesca 9 non-sauce pieces). Test-only: lets the
+ * material economy (k = largest minCount, pack = 10 x k) be pinned for the 25-recipe population
+ * before these recipes join `RECIPES` in I5b-3. Never imported by the runtime.
+ */
+export const W1_RECIPE_REQUIREMENTS_FIXTURE: readonly {
+  id: string;
+  requiredIngredients: readonly { ingredientId: string; minCount: number }[];
+}[] = [
+  ["new-haven-apizza", [["olive-oil", 1], ["parmigiano", 2], ["clam", 3], ["garlic", 2]]],
+  ["hawaiian", [["tomato-sauce", 1], ["mozzarella", 2], ["ham", 2], ["pineapple", 3]]],
+  [
+    "parmigiana-pizza",
+    [["tomato-sauce", 1], ["mozzarella", 2], ["eggplant", 3], ["parmigiano", 2], ["basil", 2]],
+  ],
+  ["bambino", [["tomato-sauce", 1], ["mozzarella", 2], ["ham", 2], ["corn", 3]]],
+  [
+    "pizza-portuguesa",
+    [["tomato-sauce", 1], ["mozzarella", 2], ["ham", 3], ["egg", 1], ["onion", 2], ["black-olive", 2]],
+  ],
+  [
+    "puttanesca-pizza",
+    [["tomato-sauce", 1], ["anchovy", 3], ["black-olive", 2], ["capers", 2], ["garlic", 2]],
+  ],
+  ["pesto-caprese", [["pesto", 1], ["mozzarella", 2], ["fresh-tomato", 3], ["basil", 2]]],
+  ["pesto-tonno", [["pesto", 1], ["tuna", 3], ["black-olive", 2], ["onion", 2]]],
+  ["pesto-patate", [["pesto", 1], ["mozzarella", 2], ["potato", 3], ["bacon", 2]]],
+  ["melanzane-pizza", [["tomato-sauce", 1], ["mozzarella", 2], ["eggplant", 3], ["basil", 2]]],
+].map(([id, reqs]) => ({
+  id: id as string,
+  requiredIngredients: (reqs as [string, number][]).map(([ingredientId, minCount]) => ({ ingredientId, minCount })),
+}));
