@@ -63,26 +63,32 @@ prior docs). Two things changed *after* that SHA that this document did not yet 
   phrasing: *"Cooking Time / Efficiency is the next design track under evaluation."* Do not assert
   an audit is "in progress" for this track unless a future fresh check finds one.
 
-**2026-09-18 addendum 2 (M3A Bake Judgment implementation complete, PR #68 still OPEN)** — see
+**2026-09-18 addendum 2 — M3A Bake Judgment is MERGED via PR #68**, merge commit
+`aaf56ed` on `main` (merged by the repo owner shortly after the Result report/Preview/Review
+Playthrough were delivered — see
 `docs/reports/TETO_M3A_BAKE-JUDGMENT_Fresh-Audit.md` and
-`docs/reports/TETO_M3A_BAKE-JUDGMENT_Result.md`. Final PR head `de52b612bcd65e1990e38d0ca752b1663e4cea35`
-(a merge commit bringing in 3 further docs-only `main` PRs — #69/#70/#71 — that landed while this
-PR was open; zero file overlap, confirmed before merging). BAKE's Guide (target/raw/burnt gauge,
-needle color, the CTA's target-zone glow, and the state-revealing Teto caption) now fades out
-linearly over elapsed BAKE-phase time (`src/logic/bakeGuideFade.ts`, ~3.6s full visibility then a
-~3.6s fade to fully hidden), never from needle proximity to the scoring boundary. Along the way,
-the Fresh Audit found and fixed a real bug that would have silently defeated the whole feature:
-the pizza's own dough/cheese/char visuals previously **snapped** discretely at the exact scoring
-boundary (`classifyBake`'s raw/perfect/burnt split), because CSS cannot animate a `background`
-swap — replaced with a continuous `bakeHeat` scalar (`src/logic/bakeVisual.ts`) with no seam at
-the boundary. `CONFIRM_BAKE` scoring itself is completely unchanged (new regression test:
+`docs/reports/TETO_M3A_BAKE-JUDGMENT_Result.md` for the full account). PR head at merge time was
+`ea896f8921923e3d2913405bd576635dcb0aaee5` (a merge commit that also brought in 3 further
+docs-only `main` PRs — #69/#70/#71 — that landed while this PR was open; zero file overlap,
+confirmed before merging). BAKE's Guide (target/raw/burnt gauge, needle color, the CTA's
+target-zone glow, and the state-revealing Teto caption) now fades out linearly over elapsed
+BAKE-phase time (`src/logic/bakeGuideFade.ts`, ~3.6s full visibility then a ~3.6s fade to fully
+hidden), never from needle proximity to the scoring boundary. Along the way, the Fresh Audit
+found and fixed a real bug that would have silently defeated the whole feature: the pizza's own
+dough/cheese/char visuals previously **snapped** discretely at the exact scoring boundary
+(`classifyBake`'s raw/perfect/burnt split), because CSS cannot animate a `background` swap —
+replaced with a continuous `bakeHeat` scalar (`src/logic/bakeVisual.ts`) with no seam at the
+boundary. `CONFIRM_BAKE` scoring itself is completely unchanged (regression test:
 `src/state/gameReducer.bakeGuideRegression.test.ts` pins identical scores for identical taps
-regardless of Guide visibility). 1188/1188 tests pass (22 new, 0 regressions), typecheck/lint/
-build all clean, dedicated Preview deployed at the final head (PR #68, commit `de52b61`) and
-390×844 MP4/H.264 Review Playthrough (Scenarios A underbake / B good-judgment / C overbake / D
-reset-retry) recorded and delivered to the user. Scoring 2.0 weights, Pitz, Save schema, and
-Recipe reference data are all confirmed unchanged (diff-verified). **Verdict: A. READY FOR HUMAN
-REVIEW — PR #68 stays OPEN, not merged, pending the user's own review of the video/Preview.**
+regardless of Guide visibility). 1188/1188 tests passed (22 new, 0 regressions), typecheck/lint/
+build all clean, dedicated Preview was deployed at the final head and a 390×844 MP4/H.264 Review
+Playthrough (Scenarios A underbake / B good-judgment / C overbake / D reset-retry) was recorded
+and delivered to the user before merge. Scoring 2.0 weights, Pitz, Save schema, and Recipe
+reference data are all confirmed unchanged (diff-verified). No Dough/Sauce/Pieces/RESULT work is
+gated on this — the next open Making Game 2.0 items remain M3B polish (Result report §13: fade
+retuning, a distinct "perfect" visual cue, extending continuity to sauce/topping tint, a real
+Practice/Normal/Challenge difficulty split), Issue #37 M2 (Cheese/Topping drag scope), and
+Cooking Time / Efficiency (still just a named future candidate, no work started).
 
 **2026-09-18 addendum 3 (RESULT 2.0 Slice 1: Completed Pizza Hero + Result Flow Foundation,
 PR #75 OPEN)** — see `docs/reports/TETO_RESULT-2_Fresh-Audit.md` (Verdict **B — READY, MULTIPLE
@@ -835,10 +841,13 @@ Rules for this sequence:
    Scoring 2.0 Sauce component/reference fixture, are unchanged. Do not re-implement this boundary
    test or re-litigate the render-only-vs-scoring split without a specific regression.
 9. Whenever priority, completion status, estimates, architecture, navigation or visual direction changes, update both Issue #22 and this file.
-10. **PR #68 (M3A Bake Judgment) implementation is complete and READY FOR HUMAN REVIEW** — see
-    `docs/reports/TETO_M3A_BAKE-JUDGMENT_Result.md`. Final head `de52b612bcd65e1990e38d0ca752b1663e4cea35`,
-    Preview deployed, Review Playthrough delivered. Still OPEN/unmerged pending the user's Human
-    Review — re-check fresh GitHub state before starting any further Bake-related work rather than
-    assuming it stays open or has since merged.
+10. **PR #68 (M3A Bake Judgment) is MERGED**, merge commit `aaf56ed` on `main` — see
+    `docs/reports/TETO_M3A_BAKE-JUDGMENT_Result.md`. BAKE's target-zone gauge/needle/caption/CTA
+    glow now fade out over elapsed BAKE time instead of staying visible until confirm, and the
+    pizza's own dough/cheese/char visuals were made continuous (no snap at the scoring boundary)
+    so the fade is actually meaningful. Do not re-implement the fade curve or the continuous
+    `bakeHeat` visual model without a specific regression; M3B polish/difficulty-split work is the
+    next open step on this track (see the Result report's own §11 known limitations / §13 M3B
+    candidates), independent of Issue #37 M2 (Cheese/Topping drag scope).
 
-Issue #37 remains the parent roadmap for physical pizza-making UX. Issue #39's HOME/FREE navigation work is complete. Issue #47 (Making UX Cleanup) is complete (Slice A/B merged, Human Feel PASS; Slice C's Finding J handed to Issue #37 M2). **Issue #33 (Dough Shaping) D1/D2 are COMPLETE, Human Feel PASS** (PR #54, merge SHA `c0b93504f84adbccdc1c75567677d234f832cfb1`, see `docs/reports/TETO_ISSUE-33_DOUGH-D1_Result.md`) — ChatGPT's review of the D2 Review Playthrough MP4 returned PASS and PR #54 was merged after that. **Issue #33 D3A (reversible/free-boundary shaping) is MERGED via PR #65** — see `docs/reports/TETO_ISSUE-33_D3A_REVERSIBLE-DOUGH_Result.md`. **Sauce Free Boundary is MERGED via PR #66** — see `docs/reports/TETO_SAUCE-FREE-BOUNDARY_Result.md`. Issue #37 M2 (Cheese/Topping drag scope) remains a separate, ungated Making Game 2.0 item. **Scoring 2.0 A1 Authority Cutover is MERGED** (PR #60, merge commit `12666faf55ed1e479d51572f6a8e3fcfc744cf31`, A2 Human Review PASSED) — see `docs/reports/TETO_SCORING2-A1_AUTHORITY_Result.md`; **A3 (A3a + A3b) is fully COMPLETE and MERGED** — PR #62 and PR #63 are both merged into `main` (see `docs/reports/TETO_SCORING2-A3A_SAFE-RENAME_Result.md` and `docs/reports/TETO_SCORING2-A3B_LEGACY-RETIREMENT_Result.md` — `scorePizza`/`scorePlacement` no longer exist anywhere in the codebase). **Issue #38 (Pitz Reward) E-P1/E-P2 is implemented and MERGED via PR #64** — see `docs/reports/TETO_ISSUE-38_PITZ-REWARD_Result.md`.
+Issue #37 remains the parent roadmap for physical pizza-making UX. Issue #39's HOME/FREE navigation work is complete. Issue #47 (Making UX Cleanup) is complete (Slice A/B merged, Human Feel PASS; Slice C's Finding J handed to Issue #37 M2). **Issue #33 (Dough Shaping) D1/D2 are COMPLETE, Human Feel PASS** (PR #54, merge SHA `c0b93504f84adbccdc1c75567677d234f832cfb1`, see `docs/reports/TETO_ISSUE-33_DOUGH-D1_Result.md`) — ChatGPT's review of the D2 Review Playthrough MP4 returned PASS and PR #54 was merged after that. **Issue #33 D3A (reversible/free-boundary shaping) is MERGED via PR #65** — see `docs/reports/TETO_ISSUE-33_D3A_REVERSIBLE-DOUGH_Result.md`. **Sauce Free Boundary is MERGED via PR #66** — see `docs/reports/TETO_SAUCE-FREE-BOUNDARY_Result.md`. **M3A Bake Judgment is MERGED via PR #68** — see `docs/reports/TETO_M3A_BAKE-JUDGMENT_Result.md`. Issue #37 M2 (Cheese/Topping drag scope) remains a separate, ungated Making Game 2.0 item. **Scoring 2.0 A1 Authority Cutover is MERGED** (PR #60, merge commit `12666faf55ed1e479d51572f6a8e3fcfc744cf31`, A2 Human Review PASSED) — see `docs/reports/TETO_SCORING2-A1_AUTHORITY_Result.md`; **A3 (A3a + A3b) is fully COMPLETE and MERGED** — PR #62 and PR #63 are both merged into `main` (see `docs/reports/TETO_SCORING2-A3A_SAFE-RENAME_Result.md` and `docs/reports/TETO_SCORING2-A3B_LEGACY-RETIREMENT_Result.md` — `scorePizza`/`scorePlacement` no longer exist anywhere in the codebase). **Issue #38 (Pitz Reward) E-P1/E-P2 is implemented and MERGED via PR #64** — see `docs/reports/TETO_ISSUE-38_PITZ-REWARD_Result.md`.
