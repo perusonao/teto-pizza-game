@@ -1753,6 +1753,10 @@
   font-weight: 700;
   line-height: 1.4;
   color: #6b4226;
+  /* Break at the 「」 boundary rather than inside a material name ("ベーコ/ン"); a name longer
+     than the line still wraps (overflow-wrap), never overflows. */
+  word-break: keep-all;
+  overflow-wrap: anywhere;
 }
 
 .material-unlock-notice__cta {

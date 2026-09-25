@@ -106,7 +106,7 @@ interface GameScreenProps {
    *  player can explicitly choose a different recipe (mirrors HOME's own 「ピザを作る」 entry
    *  point rather than picking a new recipe at random). */
   onBackToPizzaSelect: () => void;
-  /** Progression 2.0 I4b-4: the DISCOVERED NEW MATERIAL notice's "ショップで仕入れる" CTA -- opens the
+  /** Progression 2.0 I4b-4: the DISCOVERED NEW MATERIAL notice's "ショップへ" CTA -- opens the
    *  App-level Shop overlay (App.tsx's `setShopOpen`, same as HOME's Shop entry) on top of this
    *  screen, so closing it returns right here. Optional: no CTA is rendered without it. */
   onOpenShop?: () => void;

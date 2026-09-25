@@ -145,7 +145,7 @@ describe("ResultPanel", () => {
       />,
     );
     expect(screen.getByText(/新しい材料「たまご」が入荷/)).toBeInTheDocument();
-    await userEvent.click(screen.getByRole("button", { name: /ショップで仕入れる/ }));
+    await userEvent.click(screen.getByRole("button", { name: /ショップへ/ }));
     expect(onOpenShop).toHaveBeenCalledTimes(1);
   });
 
@@ -165,7 +165,7 @@ describe("ResultPanel", () => {
     expect(document.querySelector(".material-unlock-notice")).toBeNull();
     unmount();
     render(<ResultPanel {...baseProps()} materialUnlockNotice={buildMaterialUnlockNotice(["egg"])} />);
-    expect(screen.queryByRole("button", { name: /ショップで仕入れる/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /ショップへ/ })).not.toBeInTheDocument();
   });
 
   // Cooking Time CT2.

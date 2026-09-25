@@ -114,7 +114,7 @@ test.describe("Discovery Ladder Shop (I4b)", () => {
     const notice = page.locator(".material-unlock-notice");
     await expect(notice).toContainText("新しい材料「たまご」が入荷");
     await expect(notice).not.toContainText(/プレゼント|無料|🎁/);
-    await expectFullyVisible(page, ".material-unlock-notice__cta", "RESULT: ショップで仕入れる CTA");
+    await expectFullyVisible(page, ".material-unlock-notice__cta", "RESULT: ショップへ CTA");
     await expectNoHorizontalOverflow(page, "RESULT with NEW MATERIAL");
     const pitzAfterMargherita = (await readSave(page)).pitzBalance;
     expect(pitzAfterMargherita).toBeGreaterThanOrEqual(60);
