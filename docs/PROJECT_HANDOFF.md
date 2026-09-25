@@ -301,6 +301,24 @@ There is no save schema change. The unit suite is 2406/2406 (29 new) and Chromiu
 WebKit is covered by the CI job. Open follow-ups are listed in that report's §6: the ORIGINAL
 Pitz reward belongs to P3-3, and onboarding and hint tiers are also pending.
 
+**2026-09-23 addendum (Progression 2.0 Phase 3-4 Production: Pre-Implementation Audit,
+docs-only, PR OPEN)**. Audited `main` is `1e73a7d3` (the PR #199 Phase-3-3 merge). See
+`docs/reports/PROGRESSION-2.0_PHASE-3-4_PreImplementation-Audit.md`, its companion
+`PROGRESSION-2.0_PHASE-3-4_Implementation-Matrix.json`, and the generated graph under
+`docs/reports/data/`.
+
+- The Phase 3-4 authority (105 materials, 3 initial OWNED, 102 purchasable, 101 targets) is
+  re-verified with no deadlock. Production still runs EP1/EP4 on 15 recipes and 22 ingredients.
+- There are three P0 design risks. The EP1 chain combined with authority gates deadlocks after
+  Margherita. Authority gates on the 15-recipe runtime leave 5 shipped recipes unreachable at
+  the guaranteed-minimum ⭐. Two of them (genovese and quattro-formaggi) are unreachable even at
+  the maximum ★5. Retiring recipe unlock without the Starter Grant grants everything.
+- New owner decision **OD-03**: the content projection policy. Authority values verbatim plus
+  content tranches is recommended only if the owner accepts that genovese and quattro-formaggi
+  are temporarily undiscoverable for new players.
+- Slices 3-4A…3-4H. The first slice is **3-4A** (the headless rules foundation). Lunch Rush
+  depends on Issue #200 DISCOVERED_ONLY_MISSION_POOL (PR #202).
+
 > Fresh GitHub/main state always wins if this document becomes stale.
 
 ## Product goal
