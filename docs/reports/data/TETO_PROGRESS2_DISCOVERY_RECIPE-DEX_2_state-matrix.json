@@ -1,0 +1,852 @@
+{
+ "_meta": {
+  "title": "TETO Progression 2.0 Discovery / Recipe Dex 2.0 Fresh Design -- state matrix and 25-recipe ladder analysis",
+  "report": "docs/reports/TETO_PROGRESS2_DISCOVERY_RECIPE-DEX_2_FRESH-DESIGN.md",
+  "auditedMain": "12a09de2c4da8ed7e92f1ff9f47dd7bdf824a6e5",
+  "status": "DESIGN PROPOSAL ONLY -- not runtime authority. Nothing here is wired into src/**.",
+  "ladderSource": "src/logic/testSupport/discoveryLadderRule.ts REC04_W1_25_LADDER_FIXTURE (24 steps) + W1_RECIPE_POPULATION_FIXTURE; shipped-15 ingredient sets parsed from src/data/recipes.ts",
+  "w1NamesNote": "W1 recipes are not on main yet (I5b-3); ids shown, display names come from I5b-3",
+  "fieldNotes": {
+   "nearestKnown": "the discovered recipe (at that point on the linear path) with the smallest symmetric difference to the key recipe",
+   "add/remove": "ingredients the player must add to / remove from nearestKnown to reach the key recipe",
+   "pattern": "known+new = nearestKnown + the newly unlocked material(s) only; known+new-drop = same but one known ingredient must be removed; recombine = needs older materials and/or a base change",
+   "proposedChapter": "C1 = starter + T1 steps 1-5, C2 = T2 steps 6-14, C3 = T3 steps 15-24 (materialShop price tiers)"
+  }
+ },
+ "recipeStates": {
+  "DISCOVERED": "dex entry discovered === true",
+  "NEWLY_DISCOVERED": "DISCOVERED and it is the recipe this round just discovered (GameState.justDiscovered / lastDiscovery). Transient in W1; not persisted",
+  "DISCOVERABLE": "not discovered AND every required ingredient is OWNED AND (starter OR remaining stock >= 1)",
+  "KNOWN_BUT_MISSING_MATERIAL": "not discovered AND every required ingredient is Shop-entitled (owned or NEW row) AND at least one is not owned (reason NOT_BOUGHT) or owned with stock 0 (reason OUT_OF_STOCK). Suggested code name: SHOP_GATED",
+  "UNKNOWN": "not discovered AND at least one required ingredient is not Shop-entitled yet",
+  "precedence": [
+   "DISCOVERED",
+   "DISCOVERABLE",
+   "KNOWN_BUT_MISSING_MATERIAL",
+   "UNKNOWN"
+  ],
+  "inputs": [
+   "dex",
+   "ownedIngredientIds",
+   "unlockedForShopIngredientIds",
+   "inventory"
+  ],
+  "notInputs": [
+   "Recipe.unlockCondition (EP1 chain)",
+   "Recipe.mysteryLock",
+   "totalStars"
+  ]
+ },
+ "disclosureLevels": {
+  "L0": "completely unknown (not shown at all)",
+  "L1": "existence only (count, anonymous ？？？ slot)",
+  "L2": "recipe name",
+  "L3": "part of the ingredients (or base sauce / ingredient count)",
+  "L4": "finished-pizza visual (thumbnail / reference)",
+  "L5": "full recipe (all ingredients + quantities + placement)"
+ },
+ "currentDisclosure": [
+  {
+   "screen": "HOME",
+   "what": "レシピ N/15, 図鑑 発見 N/15",
+   "level": "L1",
+   "leak": false
+  },
+  {
+   "screen": "Pizza Select (Dex 0, margherita NEW preDiscoveryLocked)",
+   "what": "name + PizzaThumbnail",
+   "level": "L4",
+   "leak": true,
+   "id": "LK-4"
+  },
+  {
+   "screen": "Pizza Select NEW card (EP1-unlocked + ingredients owned, undiscovered)",
+   "what": "name + thumbnail + guided CTA",
+   "level": "L4 (L5 via guided round)",
+   "leak": true,
+   "id": "LK-1"
+  },
+  {
+   "screen": "Pizza Select guided round of an undiscovered recipe",
+   "what": "見本 reference + RECIPE_HINTS naming ingredients",
+   "level": "L5",
+   "leak": true,
+   "id": "LK-2"
+  },
+  {
+   "screen": "Pizza Select LOCKED card (non-mystery)",
+   "what": "name + EP1 text naming another recipe",
+   "level": "L2 (+wrong route)",
+   "leak": true,
+   "id": "LK-3"
+  },
+  {
+   "screen": "Pizza Select LOCKED mystery (fugazza)",
+   "what": "？？？ + あと★N",
+   "level": "L1",
+   "leak": false
+  },
+  {
+   "screen": "Recipe Dex undiscovered",
+   "what": "？？？ まだ見ぬピザ",
+   "level": "L1",
+   "leak": false
+  },
+  {
+   "screen": "Shop NEW row",
+   "what": "これを買うと: 🍕 <recipe name>",
+   "level": "L2+L3",
+   "leak": true,
+   "id": "LK-5"
+  },
+  {
+   "screen": "Shop post-purchase feedback",
+   "what": "新しいピザが作れます！「<recipe name>」",
+   "level": "L2+L3",
+   "leak": true,
+   "id": "LK-5"
+  },
+  {
+   "screen": "Free Cooking hint (Dex 0, 3rd+ failure)",
+   "what": "トマトソースを塗って、モッツァレラ…バジル",
+   "level": "L5",
+   "leak": "intentional onboarding",
+   "id": "LK-6"
+  },
+  {
+   "screen": "Free Cooking hint (Dex >= 1)",
+   "what": "step operation only",
+   "level": "L0",
+   "leak": false
+  },
+  {
+   "screen": "Result ORIGINAL",
+   "what": "オリジナルピザ完成",
+   "level": "L0",
+   "leak": false
+  },
+  {
+   "screen": "Result INCOMPLETE_MATCH",
+   "what": "図鑑のピザまであと少し…",
+   "level": "L1 (set matches some recipe)",
+   "leak": "designed"
+  },
+  {
+   "screen": "W1 recipes after I5b-3 (no unlockCondition)",
+   "what": "NEW card with name + thumbnail as soon as materials owned",
+   "level": "L4/L5",
+   "leak": true,
+   "id": "LK-7"
+  }
+ ],
+ "proposedDisclosure": {
+  "UNKNOWN": {
+   "HOME": "L1 count",
+   "PizzaSelect": "L0",
+   "RecipeDex": "L1 ？？？ slot",
+   "FreeCooking": "L0",
+   "Shop": "L0",
+   "Result": "L0"
+  },
+  "KNOWN_BUT_MISSING_MATERIAL": {
+   "HOME": "L1 + Shop badge",
+   "PizzaSelect": "L1 aggregate (Shop prompt card)",
+   "RecipeDex": "L1 ？？？ + 🏪 tag",
+   "FreeCooking": "L1 (hint Level 1: go to Shop)",
+   "Shop": "L1 (買うと新しいピザが見つかるかも)",
+   "Result": "L0"
+  },
+  "DISCOVERABLE": {
+   "HOME": "L1 bubble",
+   "PizzaSelect": "L1 aggregate (discovery prompt card)",
+   "RecipeDex": "L1 ？？？ + 🎨 tag",
+   "FreeCooking": "L1 -> L3 on hint request (max, OD-DISC-8)",
+   "Shop": "L0",
+   "Result": "near-miss copy (OD-DISC-7)"
+  },
+  "NEWLY_DISCOVERED": {
+   "HOME": "NEW badge on 図鑑 card",
+   "PizzaSelect": "L5 + NEW badge",
+   "RecipeDex": "L5 + NEW badge + scroll-into-view",
+   "FreeCooking": "-",
+   "Shop": "-",
+   "Result": "Discovery Result (name reveal)"
+  },
+  "DISCOVERED": {
+   "HOME": "count",
+   "PizzaSelect": "L5 (card, ★, BEST, guided)",
+   "RecipeDex": "L5",
+   "FreeCooking": "ALREADY_DISCOVERED names it",
+   "Shop": "-",
+   "Result": "Quality Result"
+  }
+ },
+ "screenStateMatrix": {
+  "PizzaSelect": {
+   "DISCOVERED": "card: name + thumbnail + ★ + BEST; tap -> detail -> このピザを作る！ (guided)",
+   "NEWLY_DISCOVERED": "same + NEW badge (transient)",
+   "DISCOVERABLE": "not listed individually; one aggregate prompt card at top: 🎨 まだ見つけていないピザが今の材料で作れるかも -> フリークッキング",
+   "KNOWN_BUT_MISSING_MATERIAL": "prompt card variant: 🏪 ショップに新しい材料が入荷 -> ショップ",
+   "UNKNOWN": "not listed; chapter header shows 発見 n/m only"
+  },
+  "RecipeDex": {
+   "DISCOVERED": "full card: name, description, ingredients, ★, BEST, 回数",
+   "NEWLY_DISCOVERED": "full card + NEW badge + auto scroll-into-view when opened from Result",
+   "DISCOVERABLE": "anonymous slot ？？？ + 🎨 いまの材料で作れるかも (no name, no silhouette of toppings)",
+   "KNOWN_BUT_MISSING_MATERIAL": "anonymous slot ？？？ + 🏪 ショップの材料で作れるかも",
+   "UNKNOWN": "anonymous slot ？？？"
+  },
+  "FreeCooking": {
+   "DISCOVERED": "matched pizza -> ALREADY_DISCOVERED (name shown, quality result)",
+   "NEWLY_DISCOVERED": "n/a",
+   "DISCOVERABLE": "hint target (Level 1..3)",
+   "KNOWN_BUT_MISSING_MATERIAL": "hint Level 1 redirects to Shop when DISCOVERABLE = 0",
+   "UNKNOWN": "never referenced"
+  },
+  "HOME": {
+   "DISCOVERED": "count in header / 図鑑 card",
+   "NEWLY_DISCOVERED": "図鑑 card NEW badge until next round starts",
+   "DISCOVERABLE": "bubble: 今の材料で新しいピザが作れるかも！ (Free Cooking CTA)",
+   "KNOWN_BUT_MISSING_MATERIAL": "Shop card badge NEW n; bubble: ショップに新しい材料が入ったよ！",
+   "UNKNOWN": "nothing"
+  }
+ },
+ "ladder25": [
+  {
+   "order": 1,
+   "step": 0,
+   "recipe": "margherita",
+   "tier": "starter",
+   "newMaterials": [],
+   "ingredientCount": 3,
+   "nearestKnown": null,
+   "add": [],
+   "remove": [],
+   "pattern": "starter",
+   "nameJa": "マルゲリータ",
+   "proposedChapter": "C1",
+   "ep1RequiresRecipeId": null,
+   "w1New": false
+  },
+  {
+   "order": 2,
+   "step": 1,
+   "tier": "T1",
+   "recipe": "bismarck",
+   "newMaterials": [
+    "egg"
+   ],
+   "ingredientCount": 3,
+   "ownedCount": 4,
+   "nearestKnown": "margherita",
+   "add": [
+    "egg"
+   ],
+   "remove": [
+    "basil"
+   ],
+   "distance": 2,
+   "pattern": "known+new-drop",
+   "usesAllNew": true,
+   "nameJa": "ビスマルク",
+   "proposedChapter": "C1",
+   "ep1RequiresRecipeId": "marinara",
+   "w1New": false
+  },
+  {
+   "order": 3,
+   "step": 2,
+   "tier": "T1",
+   "recipe": "breakfast-pizza",
+   "newMaterials": [
+    "bacon"
+   ],
+   "ingredientCount": 4,
+   "ownedCount": 5,
+   "nearestKnown": "bismarck",
+   "add": [
+    "bacon"
+   ],
+   "remove": [],
+   "distance": 1,
+   "pattern": "known+new",
+   "usesAllNew": true,
+   "nameJa": "ブレックファストピザ",
+   "proposedChapter": "C1",
+   "ep1RequiresRecipeId": "pizza-bianca",
+   "w1New": false
+  },
+  {
+   "order": 4,
+   "step": 3,
+   "tier": "T1",
+   "recipe": "funghi",
+   "newMaterials": [
+    "mushroom"
+   ],
+   "ingredientCount": 3,
+   "ownedCount": 6,
+   "nearestKnown": "bismarck",
+   "add": [
+    "mushroom"
+   ],
+   "remove": [
+    "egg"
+   ],
+   "distance": 2,
+   "pattern": "known+new-drop",
+   "usesAllNew": true,
+   "nameJa": "フンギ",
+   "proposedChapter": "C1",
+   "ep1RequiresRecipeId": "margherita",
+   "w1New": false
+  },
+  {
+   "order": 5,
+   "step": 4,
+   "tier": "T1",
+   "recipe": "melanzane-pizza",
+   "newMaterials": [
+    "eggplant"
+   ],
+   "ingredientCount": 4,
+   "ownedCount": 7,
+   "nearestKnown": "margherita",
+   "add": [
+    "eggplant"
+   ],
+   "remove": [],
+   "distance": 1,
+   "pattern": "known+new",
+   "usesAllNew": true,
+   "nameJa": "(W1) melanzane-pizza",
+   "proposedChapter": "C1",
+   "ep1RequiresRecipeId": null,
+   "w1New": true
+  },
+  {
+   "order": 6,
+   "step": 5,
+   "tier": "T1",
+   "recipe": "parmigiana-pizza",
+   "newMaterials": [
+    "parmigiano"
+   ],
+   "ingredientCount": 5,
+   "ownedCount": 8,
+   "nearestKnown": "melanzane-pizza",
+   "add": [
+    "parmigiano"
+   ],
+   "remove": [],
+   "distance": 1,
+   "pattern": "known+new",
+   "usesAllNew": true,
+   "nameJa": "(W1) parmigiana-pizza",
+   "proposedChapter": "C1",
+   "ep1RequiresRecipeId": null,
+   "w1New": true
+  },
+  {
+   "order": 7,
+   "step": 6,
+   "tier": "T2",
+   "recipe": "pepperoni",
+   "newMaterials": [
+    "pepperoni"
+   ],
+   "ingredientCount": 3,
+   "ownedCount": 9,
+   "nearestKnown": "bismarck",
+   "add": [
+    "pepperoni"
+   ],
+   "remove": [
+    "egg"
+   ],
+   "distance": 2,
+   "pattern": "known+new-drop",
+   "usesAllNew": true,
+   "nameJa": "ペパロニ",
+   "proposedChapter": "C2",
+   "ep1RequiresRecipeId": "salsiccia",
+   "w1New": false
+  },
+  {
+   "order": 8,
+   "step": 7,
+   "tier": "T2",
+   "recipe": "salsiccia",
+   "newMaterials": [
+    "sausage"
+   ],
+   "ingredientCount": 3,
+   "ownedCount": 10,
+   "nearestKnown": "bismarck",
+   "add": [
+    "sausage"
+   ],
+   "remove": [
+    "egg"
+   ],
+   "distance": 2,
+   "pattern": "known+new-drop",
+   "usesAllNew": true,
+   "nameJa": "サルシッチャ",
+   "proposedChapter": "C2",
+   "ep1RequiresRecipeId": "fugazza",
+   "w1New": false
+  },
+  {
+   "order": 9,
+   "step": 8,
+   "tier": "T2",
+   "recipe": "meat-lovers",
+   "newMaterials": [
+    "ham"
+   ],
+   "ingredientCount": 6,
+   "ownedCount": 11,
+   "nearestKnown": "pepperoni",
+   "add": [
+    "bacon",
+    "ham",
+    "sausage"
+   ],
+   "remove": [],
+   "distance": 3,
+   "pattern": "recombine",
+   "usesAllNew": true,
+   "nameJa": "ミートラヴァーズ",
+   "proposedChapter": "C2",
+   "ep1RequiresRecipeId": "capricciosa",
+   "w1New": false
+  },
+  {
+   "order": 10,
+   "step": 9,
+   "tier": "T2",
+   "recipe": "bambino",
+   "newMaterials": [
+    "corn"
+   ],
+   "ingredientCount": 4,
+   "ownedCount": 12,
+   "nearestKnown": "bismarck",
+   "add": [
+    "corn",
+    "ham"
+   ],
+   "remove": [
+    "egg"
+   ],
+   "distance": 3,
+   "pattern": "recombine",
+   "usesAllNew": true,
+   "nameJa": "(W1) bambino",
+   "proposedChapter": "C2",
+   "ep1RequiresRecipeId": null,
+   "w1New": true
+  },
+  {
+   "order": 11,
+   "step": 10,
+   "tier": "T2",
+   "recipe": "hawaiian",
+   "newMaterials": [
+    "pineapple"
+   ],
+   "ingredientCount": 4,
+   "ownedCount": 13,
+   "nearestKnown": "bambino",
+   "add": [
+    "pineapple"
+   ],
+   "remove": [
+    "corn"
+   ],
+   "distance": 2,
+   "pattern": "known+new-drop",
+   "usesAllNew": true,
+   "nameJa": "(W1) hawaiian",
+   "proposedChapter": "C2",
+   "ep1RequiresRecipeId": null,
+   "w1New": true
+  },
+  {
+   "order": 12,
+   "step": 11,
+   "tier": "T2",
+   "recipe": "capricciosa",
+   "newMaterials": [
+    "black-olive",
+    "oregano"
+   ],
+   "ingredientCount": 6,
+   "ownedCount": 15,
+   "nearestKnown": "funghi",
+   "add": [
+    "black-olive",
+    "ham",
+    "oregano"
+   ],
+   "remove": [],
+   "distance": 3,
+   "pattern": "recombine",
+   "usesAllNew": true,
+   "nameJa": "カプリチョーザ",
+   "proposedChapter": "C2",
+   "ep1RequiresRecipeId": "breakfast-pizza",
+   "w1New": false
+  },
+  {
+   "order": 13,
+   "step": 12,
+   "tier": "T2",
+   "recipe": "pizza-portuguesa",
+   "newMaterials": [
+    "onion"
+   ],
+   "ingredientCount": 6,
+   "ownedCount": 16,
+   "nearestKnown": "bismarck",
+   "add": [
+    "black-olive",
+    "ham",
+    "onion"
+   ],
+   "remove": [],
+   "distance": 3,
+   "pattern": "recombine",
+   "usesAllNew": true,
+   "nameJa": "(W1) pizza-portuguesa",
+   "proposedChapter": "C2",
+   "ep1RequiresRecipeId": null,
+   "w1New": true
+  },
+  {
+   "order": 14,
+   "step": 13,
+   "tier": "T2",
+   "recipe": "fugazza",
+   "newMaterials": [
+    "olive-oil"
+   ],
+   "ingredientCount": 3,
+   "ownedCount": 17,
+   "nearestKnown": "bismarck",
+   "add": [
+    "olive-oil",
+    "onion",
+    "oregano"
+   ],
+   "remove": [
+    "egg",
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "distance": 6,
+   "pattern": "recombine",
+   "usesAllNew": true,
+   "nameJa": "フガッサ",
+   "proposedChapter": "C2",
+   "ep1RequiresRecipeId": "quattro-formaggi",
+   "w1New": false
+  },
+  {
+   "order": 15,
+   "step": 14,
+   "tier": "T2",
+   "recipe": "marinara",
+   "newMaterials": [
+    "garlic"
+   ],
+   "ingredientCount": 3,
+   "ownedCount": 18,
+   "nearestKnown": "bismarck",
+   "add": [
+    "garlic",
+    "oregano"
+   ],
+   "remove": [
+    "egg",
+    "mozzarella"
+   ],
+   "distance": 4,
+   "pattern": "recombine",
+   "usesAllNew": true,
+   "nameJa": "マリナーラ",
+   "proposedChapter": "C2",
+   "ep1RequiresRecipeId": "funghi",
+   "w1New": false
+  },
+  {
+   "order": 16,
+   "step": 15,
+   "tier": "T3",
+   "recipe": "napoletana",
+   "newMaterials": [
+    "anchovy"
+   ],
+   "ingredientCount": 4,
+   "ownedCount": 19,
+   "nearestKnown": "bismarck",
+   "add": [
+    "anchovy",
+    "oregano"
+   ],
+   "remove": [
+    "egg"
+   ],
+   "distance": 3,
+   "pattern": "recombine",
+   "usesAllNew": true,
+   "nameJa": "ナポリ",
+   "proposedChapter": "C3",
+   "ep1RequiresRecipeId": "pepperoni",
+   "w1New": false
+  },
+  {
+   "order": 17,
+   "step": 16,
+   "tier": "T3",
+   "recipe": "tonno-e-cipolla",
+   "newMaterials": [
+    "tuna"
+   ],
+   "ingredientCount": 4,
+   "ownedCount": 20,
+   "nearestKnown": "bismarck",
+   "add": [
+    "onion",
+    "tuna"
+   ],
+   "remove": [
+    "egg"
+   ],
+   "distance": 3,
+   "pattern": "recombine",
+   "usesAllNew": true,
+   "nameJa": "トンノ・エ・チポッラ",
+   "proposedChapter": "C3",
+   "ep1RequiresRecipeId": "napoletana",
+   "w1New": false
+  },
+  {
+   "order": 18,
+   "step": 17,
+   "tier": "T3",
+   "recipe": "pesto-tonno",
+   "newMaterials": [
+    "pesto"
+   ],
+   "ingredientCount": 4,
+   "ownedCount": 21,
+   "nearestKnown": "tonno-e-cipolla",
+   "add": [
+    "black-olive",
+    "pesto"
+   ],
+   "remove": [
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "distance": 4,
+   "pattern": "recombine",
+   "usesAllNew": true,
+   "nameJa": "(W1) pesto-tonno",
+   "proposedChapter": "C3",
+   "ep1RequiresRecipeId": null,
+   "w1New": true
+  },
+  {
+   "order": 19,
+   "step": 18,
+   "tier": "T3",
+   "recipe": "genovese",
+   "newMaterials": [
+    "cherry-tomato"
+   ],
+   "ingredientCount": 3,
+   "ownedCount": 22,
+   "nearestKnown": "bismarck",
+   "add": [
+    "cherry-tomato",
+    "pesto"
+   ],
+   "remove": [
+    "egg",
+    "tomato-sauce"
+   ],
+   "distance": 4,
+   "pattern": "recombine",
+   "usesAllNew": true,
+   "nameJa": "ジェノベーゼ",
+   "proposedChapter": "C3",
+   "ep1RequiresRecipeId": "bismarck",
+   "w1New": false
+  },
+  {
+   "order": 20,
+   "step": 19,
+   "tier": "T3",
+   "recipe": "new-haven-apizza",
+   "newMaterials": [
+    "clam"
+   ],
+   "ingredientCount": 4,
+   "ownedCount": 23,
+   "nearestKnown": "fugazza",
+   "add": [
+    "clam",
+    "garlic",
+    "parmigiano"
+   ],
+   "remove": [
+    "onion",
+    "oregano"
+   ],
+   "distance": 5,
+   "pattern": "recombine",
+   "usesAllNew": true,
+   "nameJa": "(W1) new-haven-apizza",
+   "proposedChapter": "C3",
+   "ep1RequiresRecipeId": null,
+   "w1New": true
+  },
+  {
+   "order": 21,
+   "step": 20,
+   "tier": "T3",
+   "recipe": "pesto-caprese",
+   "newMaterials": [
+    "fresh-tomato"
+   ],
+   "ingredientCount": 4,
+   "ownedCount": 24,
+   "nearestKnown": "genovese",
+   "add": [
+    "basil",
+    "fresh-tomato"
+   ],
+   "remove": [
+    "cherry-tomato"
+   ],
+   "distance": 3,
+   "pattern": "recombine",
+   "usesAllNew": true,
+   "nameJa": "(W1) pesto-caprese",
+   "proposedChapter": "C3",
+   "ep1RequiresRecipeId": null,
+   "w1New": true
+  },
+  {
+   "order": 22,
+   "step": 21,
+   "tier": "T3",
+   "recipe": "pesto-patate",
+   "newMaterials": [
+    "potato"
+   ],
+   "ingredientCount": 4,
+   "ownedCount": 25,
+   "nearestKnown": "genovese",
+   "add": [
+    "bacon",
+    "potato"
+   ],
+   "remove": [
+    "cherry-tomato"
+   ],
+   "distance": 3,
+   "pattern": "recombine",
+   "usesAllNew": true,
+   "nameJa": "(W1) pesto-patate",
+   "proposedChapter": "C3",
+   "ep1RequiresRecipeId": null,
+   "w1New": true
+  },
+  {
+   "order": 23,
+   "step": 22,
+   "tier": "T3",
+   "recipe": "pizza-bianca",
+   "newMaterials": [
+    "rosemary"
+   ],
+   "ingredientCount": 2,
+   "ownedCount": 26,
+   "nearestKnown": "fugazza",
+   "add": [
+    "rosemary"
+   ],
+   "remove": [
+    "onion",
+    "oregano"
+   ],
+   "distance": 3,
+   "pattern": "known+new-drop",
+   "usesAllNew": true,
+   "nameJa": "ピッツァ・ビアンカ",
+   "proposedChapter": "C3",
+   "ep1RequiresRecipeId": "tonno-e-cipolla",
+   "w1New": false
+  },
+  {
+   "order": 24,
+   "step": 23,
+   "tier": "T3",
+   "recipe": "puttanesca-pizza",
+   "newMaterials": [
+    "capers"
+   ],
+   "ingredientCount": 5,
+   "ownedCount": 27,
+   "nearestKnown": "marinara",
+   "add": [
+    "anchovy",
+    "black-olive",
+    "capers"
+   ],
+   "remove": [
+    "oregano"
+   ],
+   "distance": 4,
+   "pattern": "recombine",
+   "usesAllNew": true,
+   "nameJa": "(W1) puttanesca-pizza",
+   "proposedChapter": "C3",
+   "ep1RequiresRecipeId": null,
+   "w1New": true
+  },
+  {
+   "order": 25,
+   "step": 24,
+   "tier": "T3",
+   "recipe": "quattro-formaggi",
+   "newMaterials": [
+    "fontina",
+    "gorgonzola"
+   ],
+   "ingredientCount": 5,
+   "ownedCount": 29,
+   "nearestKnown": "new-haven-apizza",
+   "add": [
+    "fontina",
+    "gorgonzola",
+    "mozzarella"
+   ],
+   "remove": [
+    "clam",
+    "garlic"
+   ],
+   "distance": 5,
+   "pattern": "recombine",
+   "usesAllNew": true,
+   "nameJa": "クアトロ フォルマッジ",
+   "proposedChapter": "C3",
+   "ep1RequiresRecipeId": "genovese",
+   "w1New": false
+  }
+ ]
+}
