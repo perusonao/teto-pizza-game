@@ -1,0 +1,5107 @@
+{
+ "schemaVersion": 1,
+ "kind": "RT01_REFERENCE_PIECE_CAPACITY_FRESH_DESIGN",
+ "generatedBy": "tools/rt01_reference_capacity_design.py",
+ "auditedMainSha": "1e53baa88f390bf6d8f52647e7c65cc279eb2567",
+ "authority": {
+  "rt01Source": {
+   "pr": 221,
+   "sha": "070afc0827f382bec8bc813d62e7fafe663a0991",
+   "branch": "codex/w1-authoring-fresh-audit",
+   "recipeMatrixSha256": "4069b4b0b4a8a8ee5c0c863faace958f66ece7c1da6e558342eb632cca116e21",
+   "ledgerSha256": "93c668492e2f4157efdc11cee5625335545989f92e82c2a5c6a357c5fc4bc670",
+   "rt01": {
+    "id": "RT-01",
+    "scope": "parmigiana-pizza,pizza-portuguesa,puttanesca-pizza",
+    "status": "RUNTIME_DEPENDENCY_REQUIRED",
+    "field": "reference capacity",
+    "runtimeDependency": "REFERENCE_RING_CAPACITY",
+    "detail": "Authored non-sauce piece counts (Parmigiana 9, Pizza Portuguesa 10, Puttanesca 9) exceed the fixed 8-slot PIECE_RING_POSITIONS ring; getPlayerReferencePizza() assigns slots modulo 8, so reference pieces would overlap. The counts are kept as authored and not trimmed to fit the UI; the reference-capacity / 8-slot limit must be resolved by future runtime work (slice E) before these recipes can be READY."
+   }
+  },
+  "w1Source": {
+   "pr": 220,
+   "sha": "e49dab96bd9b26dc0f520349cf09d1160c3519f5",
+   "branch": "codex/content-readiness-fresh-audit",
+   "wavesSha256": "3db316e3b656462384708ef7f5a78cdef03a7e6765f047ce249e23dc8915b2be",
+   "w1SnapshotSha256Per221": null
+  },
+  "verified": true,
+  "errors": []
+ },
+ "currentRuntime": {
+  "slotTable": "src/logic/pizzaReferenceLayout.ts PIECE_RING_POSITIONS",
+  "slotCount": 8,
+  "legacySlots": [
+   {
+    "x": 50.0,
+    "y": 24.0
+   },
+   {
+    "x": 73.0,
+    "y": 36.0
+   },
+   {
+    "x": 76.0,
+    "y": 63.0
+   },
+   {
+    "x": 58.0,
+    "y": 79.0
+   },
+   {
+    "x": 38.0,
+    "y": 79.0
+   },
+   {
+    "x": 22.0,
+    "y": 63.0
+   },
+   {
+    "x": 25.0,
+    "y": 36.0
+   },
+   {
+    "x": 50.0,
+    "y": 52.0
+   }
+  ],
+  "legacyMinPairDistance": 20.0,
+  "legacyMaxRadius": 31.38,
+  "consumers": [
+   {
+    "file": "src/data/playerReference.ts",
+    "fn": "getPlayerReferencePizza",
+    "unit": "piece (minCount-expanded)",
+    "capacity": 8,
+    "overflow": "slot % 8 -> exact duplicate coordinates",
+    "productionReachability": "fallback only: every shipped recipe has a referencePizza.ts fixture; any new recipe without one renders through this path"
+   },
+   {
+    "file": "src/components/PizzaThumbnail.tsx",
+    "fn": "PizzaThumbnail (Recipe Select cards)",
+    "unit": "ingredient TYPE (one glyph per non-sauce type, minCount ignored)",
+    "capacity": 8,
+    "overflow": "index % 8 -> duplicate coordinates for a 9th type"
+   },
+   {
+    "file": "src/data/referencePizza.ts",
+    "fn": "getReferencePizza (Scoring 2.0 fixtures)",
+    "unit": "piece",
+    "capacity": "no structural cap (hand-authored literals); MEAT_LOVERS_REFERENCE reuses the 8 legacy coordinates by hand",
+    "overflow": "n/a -- but a new recipe needs a fixture or computeScoringV2 returns available:false"
+   },
+   {
+    "file": "src/data/recipes.test.ts / src/data/playerReference.test.ts",
+    "fn": "tests",
+    "unit": "piece",
+    "capacity": 8,
+    "overflow": "playerReference.test 'never places two pieces ... at a colliding slot' iterates RECIPES and would fail for a 9+ piece recipe"
+   }
+  ],
+  "renderersThatOnlyDrawGivenPositions": [
+   "src/components/ReferenceThumbnail.tsx",
+   "src/components/ReferencePreview.tsx",
+   "src/components/PlayerReferencePreview.tsx",
+   "src/components/PizzaVisualPieces.tsx"
+  ],
+  "notReferencePositionConsumers": {
+   "PizzaStage raw/baked": "renders the player's own placed toppings; bakeVisual.ts only changes colour/filters, never positions",
+   "ResultPanel": "renders the player's own baked pizza, no reference positions",
+   "persistence.ts": "schemaVersion 2 stores no reference or topping coordinates"
+  }
+ },
+ "views": [
+  {
+   "id": "making-mini-thumb-48",
+   "boxPx": 48,
+   "borderPx": 4,
+   "pieceScale": 0.26,
+   "where": "GameScreen always-visible mini 見本 (.mini-reference__thumb .reference-thumbnail)",
+   "innerPx": 40,
+   "footprintPct": 18.2
+  },
+  {
+   "id": "reference-thumb-64",
+   "boxPx": 64,
+   "borderPx": 4,
+   "pieceScale": 0.34,
+   "where": "ReferenceThumbnail default size (.reference-thumbnail)",
+   "innerPx": 56,
+   "footprintPct": 17.0
+  },
+  {
+   "id": "reference-popover-140",
+   "boxPx": 140,
+   "borderPx": 6,
+   "pieceScale": 0.5,
+   "where": "見本 popover (.reference-mini-pizza / .player-reference-mini-pizza)",
+   "innerPx": 128,
+   "footprintPct": 10.94
+  }
+ ],
+ "authoredMinCountPerType": {
+  "histogram": {
+   "1": 9,
+   "2": 43,
+   "3": 20,
+   "4": 2
+  },
+  "mean": 2.203,
+  "sampleRows": 25
+ },
+ "w1": [
+  {
+   "recipeId": "new-haven-apizza",
+   "nameJa": "ニューヘイブンアピッツァ",
+   "nonSauceTypes": 3,
+   "nonSaucePieces": 7,
+   "authority221": {
+    "nonSaucePieceCount": 7,
+    "ringSlots": 8,
+    "fits": true,
+    "runtimeDependency": null
+   },
+   "groups": [
+    {
+     "ingredientId": "parmigiano",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "clam",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "garlic",
+     "minCount": 2
+    }
+   ],
+   "overCurrentCapacity": false
+  },
+  {
+   "recipeId": "hawaiian",
+   "nameJa": "ハワイアンピザ",
+   "nonSauceTypes": 3,
+   "nonSaucePieces": 7,
+   "authority221": {
+    "nonSaucePieceCount": 7,
+    "ringSlots": 8,
+    "fits": true,
+    "runtimeDependency": null
+   },
+   "groups": [
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "ham",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "pineapple",
+     "minCount": 3
+    }
+   ],
+   "overCurrentCapacity": false
+  },
+  {
+   "recipeId": "parmigiana-pizza",
+   "nameJa": "パルミジャーナピザ",
+   "nonSauceTypes": 4,
+   "nonSaucePieces": 9,
+   "authority221": {
+    "nonSaucePieceCount": 9,
+    "ringSlots": 8,
+    "fits": false,
+    "runtimeDependency": "REFERENCE_RING_CAPACITY"
+   },
+   "groups": [
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "eggplant",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "parmigiano",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "basil",
+     "minCount": 2
+    }
+   ],
+   "overCurrentCapacity": true
+  },
+  {
+   "recipeId": "bambino",
+   "nameJa": "バンビーノ",
+   "nonSauceTypes": 3,
+   "nonSaucePieces": 7,
+   "authority221": {
+    "nonSaucePieceCount": 7,
+    "ringSlots": 8,
+    "fits": true,
+    "runtimeDependency": null
+   },
+   "groups": [
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "ham",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "corn",
+     "minCount": 3
+    }
+   ],
+   "overCurrentCapacity": false
+  },
+  {
+   "recipeId": "pizza-portuguesa",
+   "nameJa": "ピッツァ・ポルトゲーザ",
+   "nonSauceTypes": 5,
+   "nonSaucePieces": 10,
+   "authority221": {
+    "nonSaucePieceCount": 10,
+    "ringSlots": 8,
+    "fits": false,
+    "runtimeDependency": "REFERENCE_RING_CAPACITY"
+   },
+   "groups": [
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "ham",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "egg",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "onion",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "black-olive",
+     "minCount": 2
+    }
+   ],
+   "overCurrentCapacity": true
+  },
+  {
+   "recipeId": "puttanesca-pizza",
+   "nameJa": "プッタネスカ",
+   "nonSauceTypes": 4,
+   "nonSaucePieces": 9,
+   "authority221": {
+    "nonSaucePieceCount": 9,
+    "ringSlots": 8,
+    "fits": false,
+    "runtimeDependency": "REFERENCE_RING_CAPACITY"
+   },
+   "groups": [
+    {
+     "ingredientId": "anchovy",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "black-olive",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "capers",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "garlic",
+     "minCount": 2
+    }
+   ],
+   "overCurrentCapacity": true
+  },
+  {
+   "recipeId": "pesto-caprese",
+   "nameJa": "ペストカプレーゼピザ",
+   "nonSauceTypes": 3,
+   "nonSaucePieces": 7,
+   "authority221": {
+    "nonSaucePieceCount": 7,
+    "ringSlots": 8,
+    "fits": true,
+    "runtimeDependency": null
+   },
+   "groups": [
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "fresh-tomato",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "basil",
+     "minCount": 2
+    }
+   ],
+   "overCurrentCapacity": false
+  },
+  {
+   "recipeId": "pesto-tonno",
+   "nameJa": "ペストトンノピザ",
+   "nonSauceTypes": 3,
+   "nonSaucePieces": 7,
+   "authority221": {
+    "nonSaucePieceCount": 7,
+    "ringSlots": 8,
+    "fits": true,
+    "runtimeDependency": null
+   },
+   "groups": [
+    {
+     "ingredientId": "tuna",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "black-olive",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "onion",
+     "minCount": 2
+    }
+   ],
+   "overCurrentCapacity": false
+  },
+  {
+   "recipeId": "pesto-patate",
+   "nameJa": "ペストパターテピザ",
+   "nonSauceTypes": 3,
+   "nonSaucePieces": 7,
+   "authority221": {
+    "nonSaucePieceCount": 7,
+    "ringSlots": 8,
+    "fits": true,
+    "runtimeDependency": null
+   },
+   "groups": [
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "potato",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "bacon",
+     "minCount": 2
+    }
+   ],
+   "overCurrentCapacity": false
+  },
+  {
+   "recipeId": "melanzane-pizza",
+   "nameJa": "メランザーネピザ",
+   "nonSauceTypes": 3,
+   "nonSaucePieces": 7,
+   "authority221": {
+    "nonSaucePieceCount": 7,
+    "ringSlots": 8,
+    "fits": true,
+    "runtimeDependency": null
+   },
+   "groups": [
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "eggplant",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "basil",
+     "minCount": 2
+    }
+   ],
+   "overCurrentCapacity": false
+  }
+ ],
+ "distributions": [
+  {
+   "population": "production (src/data/recipes.ts)",
+   "rowCount": 15,
+   "rowsWithIncompleteIdentitySet": 0,
+   "nonSauceTypeHistogram": {
+    "1": 1,
+    "2": 8,
+    "3": 3,
+    "4": 1,
+    "5": 2
+   },
+   "maxTypes": 5,
+   "pieces_min1PerType": {
+    "histogram": {
+     "1": 1,
+     "2": 8,
+     "3": 3,
+     "4": 1,
+     "5": 2
+    },
+    "max": 5,
+    "over8": 0,
+    "over12": 0,
+    "over16": 0
+   },
+   "pieces_empiricalMean": {
+    "histogram": {
+     "2": 1,
+     "4": 8,
+     "7": 3,
+     "9": 1,
+     "11": 2
+    },
+    "max": 11,
+    "over8": 3,
+    "over12": 0,
+    "over16": 0
+   },
+   "pieces_w1ConventionHigh": {
+    "histogram": {
+     "3": 1,
+     "5": 8,
+     "7": 3,
+     "9": 1,
+     "11": 2
+    },
+    "max": 11,
+    "over8": 3,
+    "over12": 0,
+    "over16": 0
+   },
+   "exactPieces": {
+    "histogram": {
+     "3": 1,
+     "4": 1,
+     "5": 6,
+     "6": 3,
+     "7": 1,
+     "8": 3
+    },
+    "max": 8,
+    "over8": 0
+   }
+  },
+  {
+   "population": "W1 (#221 @ 070afc0 / #220 @ e49dab9)",
+   "rowCount": 10,
+   "rowsWithIncompleteIdentitySet": 0,
+   "nonSauceTypeHistogram": {
+    "3": 7,
+    "4": 2,
+    "5": 1
+   },
+   "maxTypes": 5,
+   "pieces_min1PerType": {
+    "histogram": {
+     "3": 7,
+     "4": 2,
+     "5": 1
+    },
+    "max": 5,
+    "over8": 0,
+    "over12": 0,
+    "over16": 0
+   },
+   "pieces_empiricalMean": {
+    "histogram": {
+     "7": 7,
+     "9": 2,
+     "11": 1
+    },
+    "max": 11,
+    "over8": 3,
+    "over12": 0,
+    "over16": 0
+   },
+   "pieces_w1ConventionHigh": {
+    "histogram": {
+     "7": 7,
+     "9": 2,
+     "11": 1
+    },
+    "max": 11,
+    "over8": 3,
+    "over12": 0,
+    "over16": 0
+   },
+   "exactPieces": {
+    "histogram": {
+     "7": 7,
+     "9": 2,
+     "10": 1
+    },
+    "max": 10,
+    "over8": 3
+   }
+  },
+  {
+   "population": "53-entry master catalog (data/recipes/pizza_master_catalog.json)",
+   "rowCount": 53,
+   "rowsWithIncompleteIdentitySet": 0,
+   "nonSauceTypeHistogram": {
+    "0": 1,
+    "1": 4,
+    "2": 17,
+    "3": 17,
+    "4": 8,
+    "5": 5,
+    "7": 1
+   },
+   "maxTypes": 7,
+   "pieces_min1PerType": {
+    "histogram": {
+     "0": 1,
+     "1": 4,
+     "2": 17,
+     "3": 17,
+     "4": 8,
+     "5": 5,
+     "7": 1
+    },
+    "max": 7,
+    "over8": 0,
+    "over12": 0,
+    "over16": 0
+   },
+   "pieces_empiricalMean": {
+    "histogram": {
+     "0": 1,
+     "2": 4,
+     "4": 17,
+     "7": 17,
+     "9": 8,
+     "11": 5,
+     "15": 1
+    },
+    "max": 15,
+    "over8": 14,
+    "over12": 1,
+    "over16": 0
+   },
+   "pieces_w1ConventionHigh": {
+    "histogram": {
+     "0": 1,
+     "3": 4,
+     "5": 17,
+     "7": 17,
+     "9": 8,
+     "11": 5,
+     "15": 1
+    },
+    "max": 15,
+    "over8": 14,
+    "over12": 1,
+    "over16": 0
+   }
+  },
+  {
+   "population": "172 evidence (TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json)",
+   "rowCount": 172,
+   "rowsWithIncompleteIdentitySet": 52,
+   "nonSauceTypeHistogram": {
+    "1": 7,
+    "2": 26,
+    "3": 58,
+    "4": 59,
+    "5": 17,
+    "6": 5
+   },
+   "maxTypes": 6,
+   "pieces_min1PerType": {
+    "histogram": {
+     "1": 7,
+     "2": 26,
+     "3": 58,
+     "4": 59,
+     "5": 17,
+     "6": 5
+    },
+    "max": 6,
+    "over8": 0,
+    "over12": 0,
+    "over16": 0
+   },
+   "pieces_empiricalMean": {
+    "histogram": {
+     "2": 7,
+     "4": 26,
+     "7": 58,
+     "9": 59,
+     "11": 17,
+     "13": 5
+    },
+    "max": 13,
+    "over8": 81,
+    "over12": 5,
+    "over16": 0
+   },
+   "pieces_w1ConventionHigh": {
+    "histogram": {
+     "3": 7,
+     "5": 26,
+     "7": 58,
+     "9": 59,
+     "11": 17,
+     "13": 5
+    },
+    "max": 13,
+    "over8": 81,
+    "over12": 5,
+    "over16": 0
+   }
+  }
+ ],
+ "capacityEstimate": {
+  "maxNonSauceTypesAcrossAllPopulations": 7,
+  "evidenceHighPieces": 15,
+  "rule": "w1ConventionHigh = 2*types + 1 (W1 authoring convention: one primary x3, every other type x2); the largest value any known population reaches under the most generous observed authoring rule",
+  "noHardCap": true,
+  "note": "No upper limit is imposed. The algorithm is defined for any n; legibility thresholds per view are reported per candidate (legibleMaxNoTouch) and are a physical property of piece size, not a cap."
+ },
+ "candidates": [
+  {
+   "id": "CURRENT",
+   "label": "Current (slot % 8)",
+   "doc": "Current production behaviour: slot % 8 (wraps, collides for n > 8).",
+   "preservesLegacyUpTo8": true,
+   "deterministic": true,
+   "dependsOnRecipeId": false,
+   "legibleMaxNoTouch": {
+    "making-mini-thumb-48": 8,
+    "reference-thumb-64": 8,
+    "reference-popover-140": 8
+   },
+   "perCount": [
+    {
+     "n": 1,
+     "minPairDistance": 0.0,
+     "maxRadius": 26.0,
+     "distinctPositions": 1,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 2,
+     "minPairDistance": 25.94,
+     "maxRadius": 26.93,
+     "distinctPositions": 2,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 3,
+     "minPairDistance": 25.94,
+     "maxRadius": 29.07,
+     "distinctPositions": 3,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 4,
+     "minPairDistance": 24.08,
+     "maxRadius": 30.08,
+     "distinctPositions": 4,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 5,
+     "minPairDistance": 20.0,
+     "maxRadius": 31.38,
+     "distinctPositions": 5,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 6,
+     "minPairDistance": 20.0,
+     "maxRadius": 31.38,
+     "distinctPositions": 6,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 7,
+     "minPairDistance": 20.0,
+     "maxRadius": 31.38,
+     "distinctPositions": 7,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 8,
+     "minPairDistance": 20.0,
+     "maxRadius": 31.38,
+     "distinctPositions": 8,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": [
+      {
+       "x": 50.0,
+       "y": 24.0
+      },
+      {
+       "x": 73.0,
+       "y": 36.0
+      },
+      {
+       "x": 76.0,
+       "y": 63.0
+      },
+      {
+       "x": 58.0,
+       "y": 79.0
+      },
+      {
+       "x": 38.0,
+       "y": 79.0
+      },
+      {
+       "x": 22.0,
+       "y": 63.0
+      },
+      {
+       "x": 25.0,
+       "y": 36.0
+      },
+      {
+       "x": 50.0,
+       "y": 52.0
+      }
+     ]
+    },
+    {
+     "n": 9,
+     "minPairDistance": 0.0,
+     "maxRadius": 31.38,
+     "distinctPositions": 8,
+     "overlapPairs": {
+      "making-mini-thumb-48": 1,
+      "reference-thumb-64": 1,
+      "reference-popover-140": 1
+     },
+     "positions": [
+      {
+       "x": 50.0,
+       "y": 24.0
+      },
+      {
+       "x": 73.0,
+       "y": 36.0
+      },
+      {
+       "x": 76.0,
+       "y": 63.0
+      },
+      {
+       "x": 58.0,
+       "y": 79.0
+      },
+      {
+       "x": 38.0,
+       "y": 79.0
+      },
+      {
+       "x": 22.0,
+       "y": 63.0
+      },
+      {
+       "x": 25.0,
+       "y": 36.0
+      },
+      {
+       "x": 50.0,
+       "y": 52.0
+      },
+      {
+       "x": 50.0,
+       "y": 24.0
+      }
+     ]
+    },
+    {
+     "n": 10,
+     "minPairDistance": 0.0,
+     "maxRadius": 31.38,
+     "distinctPositions": 8,
+     "overlapPairs": {
+      "making-mini-thumb-48": 2,
+      "reference-thumb-64": 2,
+      "reference-popover-140": 2
+     },
+     "positions": [
+      {
+       "x": 50.0,
+       "y": 24.0
+      },
+      {
+       "x": 73.0,
+       "y": 36.0
+      },
+      {
+       "x": 76.0,
+       "y": 63.0
+      },
+      {
+       "x": 58.0,
+       "y": 79.0
+      },
+      {
+       "x": 38.0,
+       "y": 79.0
+      },
+      {
+       "x": 22.0,
+       "y": 63.0
+      },
+      {
+       "x": 25.0,
+       "y": 36.0
+      },
+      {
+       "x": 50.0,
+       "y": 52.0
+      },
+      {
+       "x": 50.0,
+       "y": 24.0
+      },
+      {
+       "x": 73.0,
+       "y": 36.0
+      }
+     ]
+    },
+    {
+     "n": 12,
+     "minPairDistance": 0.0,
+     "maxRadius": 31.38,
+     "distinctPositions": 8,
+     "overlapPairs": {
+      "making-mini-thumb-48": 4,
+      "reference-thumb-64": 4,
+      "reference-popover-140": 4
+     },
+     "positions": [
+      {
+       "x": 50.0,
+       "y": 24.0
+      },
+      {
+       "x": 73.0,
+       "y": 36.0
+      },
+      {
+       "x": 76.0,
+       "y": 63.0
+      },
+      {
+       "x": 58.0,
+       "y": 79.0
+      },
+      {
+       "x": 38.0,
+       "y": 79.0
+      },
+      {
+       "x": 22.0,
+       "y": 63.0
+      },
+      {
+       "x": 25.0,
+       "y": 36.0
+      },
+      {
+       "x": 50.0,
+       "y": 52.0
+      },
+      {
+       "x": 50.0,
+       "y": 24.0
+      },
+      {
+       "x": 73.0,
+       "y": 36.0
+      },
+      {
+       "x": 76.0,
+       "y": 63.0
+      },
+      {
+       "x": 58.0,
+       "y": 79.0
+      }
+     ]
+    },
+    {
+     "n": 15,
+     "minPairDistance": 0.0,
+     "maxRadius": 31.38,
+     "distinctPositions": 8,
+     "overlapPairs": {
+      "making-mini-thumb-48": 7,
+      "reference-thumb-64": 7,
+      "reference-popover-140": 7
+     },
+     "positions": null
+    },
+    {
+     "n": 16,
+     "minPairDistance": 0.0,
+     "maxRadius": 31.38,
+     "distinctPositions": 8,
+     "overlapPairs": {
+      "making-mini-thumb-48": 8,
+      "reference-thumb-64": 8,
+      "reference-popover-140": 8
+     },
+     "positions": [
+      {
+       "x": 50.0,
+       "y": 24.0
+      },
+      {
+       "x": 73.0,
+       "y": 36.0
+      },
+      {
+       "x": 76.0,
+       "y": 63.0
+      },
+      {
+       "x": 58.0,
+       "y": 79.0
+      },
+      {
+       "x": 38.0,
+       "y": 79.0
+      },
+      {
+       "x": 22.0,
+       "y": 63.0
+      },
+      {
+       "x": 25.0,
+       "y": 36.0
+      },
+      {
+       "x": 50.0,
+       "y": 52.0
+      },
+      {
+       "x": 50.0,
+       "y": 24.0
+      },
+      {
+       "x": 73.0,
+       "y": 36.0
+      },
+      {
+       "x": 76.0,
+       "y": 63.0
+      },
+      {
+       "x": 58.0,
+       "y": 79.0
+      },
+      {
+       "x": 38.0,
+       "y": 79.0
+      },
+      {
+       "x": 22.0,
+       "y": 63.0
+      },
+      {
+       "x": 25.0,
+       "y": 36.0
+      },
+      {
+       "x": 50.0,
+       "y": 52.0
+      }
+     ]
+    },
+    {
+     "n": 20,
+     "minPairDistance": 0.0,
+     "maxRadius": 31.38,
+     "distinctPositions": 8,
+     "overlapPairs": {
+      "making-mini-thumb-48": 16,
+      "reference-thumb-64": 16,
+      "reference-popover-140": 16
+     },
+     "positions": [
+      {
+       "x": 50.0,
+       "y": 24.0
+      },
+      {
+       "x": 73.0,
+       "y": 36.0
+      },
+      {
+       "x": 76.0,
+       "y": 63.0
+      },
+      {
+       "x": 58.0,
+       "y": 79.0
+      },
+      {
+       "x": 38.0,
+       "y": 79.0
+      },
+      {
+       "x": 22.0,
+       "y": 63.0
+      },
+      {
+       "x": 25.0,
+       "y": 36.0
+      },
+      {
+       "x": 50.0,
+       "y": 52.0
+      },
+      {
+       "x": 50.0,
+       "y": 24.0
+      },
+      {
+       "x": 73.0,
+       "y": 36.0
+      },
+      {
+       "x": 76.0,
+       "y": 63.0
+      },
+      {
+       "x": 58.0,
+       "y": 79.0
+      },
+      {
+       "x": 38.0,
+       "y": 79.0
+      },
+      {
+       "x": 22.0,
+       "y": 63.0
+      },
+      {
+       "x": 25.0,
+       "y": 36.0
+      },
+      {
+       "x": 50.0,
+       "y": 52.0
+      },
+      {
+       "x": 50.0,
+       "y": 24.0
+      },
+      {
+       "x": 73.0,
+       "y": 36.0
+      },
+      {
+       "x": 76.0,
+       "y": 63.0
+      },
+      {
+       "x": 58.0,
+       "y": 79.0
+      }
+     ]
+    },
+    {
+     "n": 24,
+     "minPairDistance": 0.0,
+     "maxRadius": 31.38,
+     "distinctPositions": 8,
+     "overlapPairs": {
+      "making-mini-thumb-48": 24,
+      "reference-thumb-64": 24,
+      "reference-popover-140": 24
+     },
+     "positions": null
+    },
+    {
+     "n": 32,
+     "minPairDistance": 0.0,
+     "maxRadius": 31.38,
+     "distinctPositions": 8,
+     "overlapPairs": {
+      "making-mini-thumb-48": 48,
+      "reference-thumb-64": 48,
+      "reference-popover-140": 48
+     },
+     "positions": null
+    },
+    {
+     "n": 40,
+     "minPairDistance": 0.0,
+     "maxRadius": 31.38,
+     "distinctPositions": 8,
+     "overlapPairs": {
+      "making-mini-thumb-48": 80,
+      "reference-thumb-64": 80,
+      "reference-popover-140": 80
+     },
+     "positions": null
+    }
+   ]
+  },
+  {
+   "id": "A",
+   "label": "A. Dynamic radial (1 ring + centre)",
+   "doc": "A. Dynamic radial: centre + (n-1) evenly on one ring (the legacy ring's own shape).",
+   "preservesLegacyUpTo8": true,
+   "deterministic": true,
+   "dependsOnRecipeId": false,
+   "legibleMaxNoTouch": {
+    "making-mini-thumb-48": 10,
+    "reference-thumb-64": 11,
+    "reference-popover-140": 16
+   },
+   "perCount": [
+    {
+     "n": 1,
+     "minPairDistance": 0.0,
+     "maxRadius": 26.0,
+     "distinctPositions": 1,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 2,
+     "minPairDistance": 25.94,
+     "maxRadius": 26.93,
+     "distinctPositions": 2,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 3,
+     "minPairDistance": 25.94,
+     "maxRadius": 29.07,
+     "distinctPositions": 3,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 4,
+     "minPairDistance": 24.08,
+     "maxRadius": 30.08,
+     "distinctPositions": 4,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 5,
+     "minPairDistance": 20.0,
+     "maxRadius": 31.38,
+     "distinctPositions": 5,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 6,
+     "minPairDistance": 20.0,
+     "maxRadius": 31.38,
+     "distinctPositions": 6,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 7,
+     "minPairDistance": 20.0,
+     "maxRadius": 31.38,
+     "distinctPositions": 7,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 8,
+     "minPairDistance": 20.0,
+     "maxRadius": 31.38,
+     "distinctPositions": 8,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": [
+      {
+       "x": 50.0,
+       "y": 24.0
+      },
+      {
+       "x": 73.0,
+       "y": 36.0
+      },
+      {
+       "x": 76.0,
+       "y": 63.0
+      },
+      {
+       "x": 58.0,
+       "y": 79.0
+      },
+      {
+       "x": 38.0,
+       "y": 79.0
+      },
+      {
+       "x": 22.0,
+       "y": 63.0
+      },
+      {
+       "x": 25.0,
+       "y": 36.0
+      },
+      {
+       "x": 50.0,
+       "y": 52.0
+      }
+     ]
+    },
+    {
+     "n": 9,
+     "minPairDistance": 21.43,
+     "maxRadius": 28.0,
+     "distinctPositions": 9,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": [
+      {
+       "x": 50.0,
+       "y": 50.0
+      },
+      {
+       "x": 50.0,
+       "y": 22.0
+      },
+      {
+       "x": 69.8,
+       "y": 30.2
+      },
+      {
+       "x": 78.0,
+       "y": 50.0
+      },
+      {
+       "x": 69.8,
+       "y": 69.8
+      },
+      {
+       "x": 50.0,
+       "y": 78.0
+      },
+      {
+       "x": 30.2,
+       "y": 69.8
+      },
+      {
+       "x": 22.0,
+       "y": 50.0
+      },
+      {
+       "x": 30.2,
+       "y": 30.2
+      }
+     ]
+    },
+    {
+     "n": 10,
+     "minPairDistance": 19.15,
+     "maxRadius": 28.0,
+     "distinctPositions": 10,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": [
+      {
+       "x": 50.0,
+       "y": 50.0
+      },
+      {
+       "x": 50.0,
+       "y": 22.0
+      },
+      {
+       "x": 68.0,
+       "y": 28.55
+      },
+      {
+       "x": 77.57,
+       "y": 45.14
+      },
+      {
+       "x": 74.25,
+       "y": 64.0
+      },
+      {
+       "x": 59.58,
+       "y": 76.31
+      },
+      {
+       "x": 40.42,
+       "y": 76.31
+      },
+      {
+       "x": 25.75,
+       "y": 64.0
+      },
+      {
+       "x": 22.43,
+       "y": 45.14
+      },
+      {
+       "x": 32.0,
+       "y": 28.55
+      }
+     ]
+    },
+    {
+     "n": 12,
+     "minPairDistance": 15.77,
+     "maxRadius": 28.01,
+     "distinctPositions": 12,
+     "overlapPairs": {
+      "making-mini-thumb-48": 11,
+      "reference-thumb-64": 11,
+      "reference-popover-140": 0
+     },
+     "positions": [
+      {
+       "x": 50.0,
+       "y": 50.0
+      },
+      {
+       "x": 50.0,
+       "y": 22.0
+      },
+      {
+       "x": 65.14,
+       "y": 26.44
+      },
+      {
+       "x": 75.47,
+       "y": 38.37
+      },
+      {
+       "x": 77.72,
+       "y": 53.98
+      },
+      {
+       "x": 71.16,
+       "y": 68.34
+      },
+      {
+       "x": 57.89,
+       "y": 76.87
+      },
+      {
+       "x": 42.11,
+       "y": 76.87
+      },
+      {
+       "x": 28.84,
+       "y": 68.34
+      },
+      {
+       "x": 22.28,
+       "y": 53.98
+      },
+      {
+       "x": 24.53,
+       "y": 38.37
+      },
+      {
+       "x": 34.86,
+       "y": 26.44
+      }
+     ]
+    },
+    {
+     "n": 15,
+     "minPairDistance": 12.46,
+     "maxRadius": 28.0,
+     "distinctPositions": 15,
+     "overlapPairs": {
+      "making-mini-thumb-48": 14,
+      "reference-thumb-64": 14,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 16,
+     "minPairDistance": 11.64,
+     "maxRadius": 28.0,
+     "distinctPositions": 16,
+     "overlapPairs": {
+      "making-mini-thumb-48": 15,
+      "reference-thumb-64": 15,
+      "reference-popover-140": 0
+     },
+     "positions": [
+      {
+       "x": 50.0,
+       "y": 50.0
+      },
+      {
+       "x": 50.0,
+       "y": 22.0
+      },
+      {
+       "x": 61.39,
+       "y": 24.42
+      },
+      {
+       "x": 70.81,
+       "y": 31.26
+      },
+      {
+       "x": 76.63,
+       "y": 41.35
+      },
+      {
+       "x": 77.85,
+       "y": 52.93
+      },
+      {
+       "x": 74.25,
+       "y": 64.0
+      },
+      {
+       "x": 66.46,
+       "y": 72.65
+      },
+      {
+       "x": 55.82,
+       "y": 77.39
+      },
+      {
+       "x": 44.18,
+       "y": 77.39
+      },
+      {
+       "x": 33.54,
+       "y": 72.65
+      },
+      {
+       "x": 25.75,
+       "y": 64.0
+      },
+      {
+       "x": 22.15,
+       "y": 52.93
+      },
+      {
+       "x": 23.37,
+       "y": 41.35
+      },
+      {
+       "x": 29.19,
+       "y": 31.26
+      },
+      {
+       "x": 38.61,
+       "y": 24.42
+      }
+     ]
+    },
+    {
+     "n": 20,
+     "minPairDistance": 9.21,
+     "maxRadius": 28.01,
+     "distinctPositions": 20,
+     "overlapPairs": {
+      "making-mini-thumb-48": 38,
+      "reference-thumb-64": 19,
+      "reference-popover-140": 19
+     },
+     "positions": [
+      {
+       "x": 50.0,
+       "y": 50.0
+      },
+      {
+       "x": 50.0,
+       "y": 22.0
+      },
+      {
+       "x": 59.09,
+       "y": 23.52
+      },
+      {
+       "x": 67.2,
+       "y": 27.9
+      },
+      {
+       "x": 73.44,
+       "y": 34.69
+      },
+      {
+       "x": 77.14,
+       "y": 43.13
+      },
+      {
+       "x": 77.9,
+       "y": 52.31
+      },
+      {
+       "x": 75.64,
+       "y": 61.25
+      },
+      {
+       "x": 70.6,
+       "y": 68.96
+      },
+      {
+       "x": 63.33,
+       "y": 74.63
+      },
+      {
+       "x": 54.61,
+       "y": 77.62
+      },
+      {
+       "x": 45.39,
+       "y": 77.62
+      },
+      {
+       "x": 36.67,
+       "y": 74.63
+      },
+      {
+       "x": 29.4,
+       "y": 68.96
+      },
+      {
+       "x": 24.36,
+       "y": 61.25
+      },
+      {
+       "x": 22.1,
+       "y": 52.31
+      },
+      {
+       "x": 22.86,
+       "y": 43.13
+      },
+      {
+       "x": 26.56,
+       "y": 34.69
+      },
+      {
+       "x": 32.8,
+       "y": 27.9
+      },
+      {
+       "x": 40.91,
+       "y": 23.52
+      }
+     ]
+    },
+    {
+     "n": 24,
+     "minPairDistance": 7.62,
+     "maxRadius": 28.01,
+     "distinctPositions": 24,
+     "overlapPairs": {
+      "making-mini-thumb-48": 46,
+      "reference-thumb-64": 46,
+      "reference-popover-140": 23
+     },
+     "positions": null
+    },
+    {
+     "n": 32,
+     "minPairDistance": 5.66,
+     "maxRadius": 28.0,
+     "distinctPositions": 32,
+     "overlapPairs": {
+      "making-mini-thumb-48": 93,
+      "reference-thumb-64": 93,
+      "reference-popover-140": 31
+     },
+     "positions": null
+    },
+    {
+     "n": 40,
+     "minPairDistance": 4.5,
+     "maxRadius": 28.01,
+     "distinctPositions": 40,
+     "overlapPairs": {
+      "making-mini-thumb-48": 156,
+      "reference-thumb-64": 117,
+      "reference-popover-140": 78
+     },
+     "positions": null
+    }
+   ]
+  },
+  {
+   "id": "B",
+   "label": "B. Multi-ring (adaptive rings)",
+   "doc": "B. Multi-ring: optional centre + 1-4 concentric rings (outer ring 28-34, inner ring radius/count searched for 2 rings). Picks the most compact config (smallest outer radius, then fewest rings, centre kept, then largest gap) whose minimum gap is touch-free at the smallest reference view; if none exists, the config with the largest minimum gap. Deterministic, depends only on n (memoised per n).",
+   "preservesLegacyUpTo8": true,
+   "deterministic": true,
+   "dependsOnRecipeId": false,
+   "legibleMaxNoTouch": {
+    "making-mini-thumb-48": 15,
+    "reference-thumb-64": 17,
+    "reference-popover-140": 38
+   },
+   "perCount": [
+    {
+     "n": 1,
+     "minPairDistance": 0.0,
+     "maxRadius": 26.0,
+     "distinctPositions": 1,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 2,
+     "minPairDistance": 25.94,
+     "maxRadius": 26.93,
+     "distinctPositions": 2,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 3,
+     "minPairDistance": 25.94,
+     "maxRadius": 29.07,
+     "distinctPositions": 3,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 4,
+     "minPairDistance": 24.08,
+     "maxRadius": 30.08,
+     "distinctPositions": 4,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 5,
+     "minPairDistance": 20.0,
+     "maxRadius": 31.38,
+     "distinctPositions": 5,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 6,
+     "minPairDistance": 20.0,
+     "maxRadius": 31.38,
+     "distinctPositions": 6,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 7,
+     "minPairDistance": 20.0,
+     "maxRadius": 31.38,
+     "distinctPositions": 7,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 8,
+     "minPairDistance": 20.0,
+     "maxRadius": 31.38,
+     "distinctPositions": 8,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": [
+      {
+       "x": 50.0,
+       "y": 24.0
+      },
+      {
+       "x": 73.0,
+       "y": 36.0
+      },
+      {
+       "x": 76.0,
+       "y": 63.0
+      },
+      {
+       "x": 58.0,
+       "y": 79.0
+      },
+      {
+       "x": 38.0,
+       "y": 79.0
+      },
+      {
+       "x": 22.0,
+       "y": 63.0
+      },
+      {
+       "x": 25.0,
+       "y": 36.0
+      },
+      {
+       "x": 50.0,
+       "y": 52.0
+      }
+     ]
+    },
+    {
+     "n": 9,
+     "minPairDistance": 21.43,
+     "maxRadius": 28.0,
+     "distinctPositions": 9,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": [
+      {
+       "x": 50.0,
+       "y": 50.0
+      },
+      {
+       "x": 50.0,
+       "y": 22.0
+      },
+      {
+       "x": 69.8,
+       "y": 30.2
+      },
+      {
+       "x": 78.0,
+       "y": 50.0
+      },
+      {
+       "x": 69.8,
+       "y": 69.8
+      },
+      {
+       "x": 50.0,
+       "y": 78.0
+      },
+      {
+       "x": 30.2,
+       "y": 69.8
+      },
+      {
+       "x": 22.0,
+       "y": 50.0
+      },
+      {
+       "x": 30.2,
+       "y": 30.2
+      }
+     ]
+    },
+    {
+     "n": 10,
+     "minPairDistance": 19.15,
+     "maxRadius": 28.0,
+     "distinctPositions": 10,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": [
+      {
+       "x": 50.0,
+       "y": 50.0
+      },
+      {
+       "x": 50.0,
+       "y": 22.0
+      },
+      {
+       "x": 68.0,
+       "y": 28.55
+      },
+      {
+       "x": 77.57,
+       "y": 45.14
+      },
+      {
+       "x": 74.25,
+       "y": 64.0
+      },
+      {
+       "x": 59.58,
+       "y": 76.31
+      },
+      {
+       "x": 40.42,
+       "y": 76.31
+      },
+      {
+       "x": 25.75,
+       "y": 64.0
+      },
+      {
+       "x": 22.43,
+       "y": 45.14
+      },
+      {
+       "x": 32.0,
+       "y": 28.55
+      }
+     ]
+    },
+    {
+     "n": 12,
+     "minPairDistance": 19.17,
+     "maxRadius": 30.0,
+     "distinctPositions": 12,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": [
+      {
+       "x": 50.0,
+       "y": 20.0
+      },
+      {
+       "x": 69.28,
+       "y": 27.02
+      },
+      {
+       "x": 79.54,
+       "y": 44.79
+      },
+      {
+       "x": 75.98,
+       "y": 65.0
+      },
+      {
+       "x": 60.26,
+       "y": 78.19
+      },
+      {
+       "x": 39.74,
+       "y": 78.19
+      },
+      {
+       "x": 24.02,
+       "y": 65.0
+      },
+      {
+       "x": 20.46,
+       "y": 44.79
+      },
+      {
+       "x": 30.72,
+       "y": 27.02
+      },
+      {
+       "x": 60.39,
+       "y": 44.0
+      },
+      {
+       "x": 50.0,
+       "y": 62.0
+      },
+      {
+       "x": 39.61,
+       "y": 44.0
+      }
+     ]
+    },
+    {
+     "n": 15,
+     "minPairDistance": 19.15,
+     "maxRadius": 34.01,
+     "distinctPositions": 15,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 16,
+     "minPairDistance": 18.05,
+     "maxRadius": 34.01,
+     "distinctPositions": 16,
+     "overlapPairs": {
+      "making-mini-thumb-48": 2,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": [
+      {
+       "x": 50.0,
+       "y": 16.0
+      },
+      {
+       "x": 68.38,
+       "y": 21.4
+      },
+      {
+       "x": 80.93,
+       "y": 35.88
+      },
+      {
+       "x": 83.65,
+       "y": 54.84
+      },
+      {
+       "x": 75.7,
+       "y": 72.27
+      },
+      {
+       "x": 59.58,
+       "y": 82.62
+      },
+      {
+       "x": 40.42,
+       "y": 82.62
+      },
+      {
+       "x": 24.3,
+       "y": 72.27
+      },
+      {
+       "x": 16.35,
+       "y": 54.84
+      },
+      {
+       "x": 19.07,
+       "y": 35.88
+      },
+      {
+       "x": 31.62,
+       "y": 21.4
+      },
+      {
+       "x": 59.4,
+       "y": 37.06
+      },
+      {
+       "x": 65.22,
+       "y": 54.94
+      },
+      {
+       "x": 50.0,
+       "y": 66.0
+      },
+      {
+       "x": 34.78,
+       "y": 54.94
+      },
+      {
+       "x": 40.6,
+       "y": 37.06
+      }
+     ]
+    },
+    {
+     "n": 20,
+     "minPairDistance": 16.27,
+     "maxRadius": 34.0,
+     "distinctPositions": 20,
+     "overlapPairs": {
+      "making-mini-thumb-48": 32,
+      "reference-thumb-64": 21,
+      "reference-popover-140": 0
+     },
+     "positions": [
+      {
+       "x": 50.0,
+       "y": 50.0
+      },
+      {
+       "x": 50.0,
+       "y": 16.0
+      },
+      {
+       "x": 65.8,
+       "y": 19.89
+      },
+      {
+       "x": 77.98,
+       "y": 30.69
+      },
+      {
+       "x": 83.75,
+       "y": 45.9
+      },
+      {
+       "x": 81.79,
+       "y": 62.06
+      },
+      {
+       "x": 72.55,
+       "y": 75.45
+      },
+      {
+       "x": 58.14,
+       "y": 83.01
+      },
+      {
+       "x": 41.86,
+       "y": 83.01
+      },
+      {
+       "x": 27.45,
+       "y": 75.45
+      },
+      {
+       "x": 18.21,
+       "y": 62.06
+      },
+      {
+       "x": 16.25,
+       "y": 45.9
+      },
+      {
+       "x": 22.02,
+       "y": 30.69
+      },
+      {
+       "x": 34.2,
+       "y": 19.89
+      },
+      {
+       "x": 50.0,
+       "y": 33.0
+      },
+      {
+       "x": 64.72,
+       "y": 41.5
+      },
+      {
+       "x": 64.72,
+       "y": 58.5
+      },
+      {
+       "x": 50.0,
+       "y": 67.0
+      },
+      {
+       "x": 35.28,
+       "y": 58.5
+      },
+      {
+       "x": 35.28,
+       "y": 41.5
+      }
+     ]
+    },
+    {
+     "n": 24,
+     "minPairDistance": 14.13,
+     "maxRadius": 34.0,
+     "distinctPositions": 24,
+     "overlapPairs": {
+      "making-mini-thumb-48": 38,
+      "reference-thumb-64": 36,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 32,
+     "minPairDistance": 11.33,
+     "maxRadius": 34.0,
+     "distinctPositions": 32,
+     "overlapPairs": {
+      "making-mini-thumb-48": 72,
+      "reference-thumb-64": 68,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 40,
+     "minPairDistance": 10.63,
+     "maxRadius": 34.0,
+     "distinctPositions": 40,
+     "overlapPairs": {
+      "making-mini-thumb-48": 111,
+      "reference-thumb-64": 105,
+      "reference-popover-140": 33
+     },
+     "positions": null
+    }
+   ]
+  },
+  {
+   "id": "C",
+   "label": "C. Seeded best-candidate",
+   "doc": "C. Deterministic seeded: Mitchell best-candidate sampling in the R_MAX disc, PRNG seeded by fnv1a(recipeId|n). Natural-looking, reproducible, but seed-dependent.",
+   "preservesLegacyUpTo8": true,
+   "deterministic": true,
+   "dependsOnRecipeId": true,
+   "legibleMaxNoTouch": {
+    "making-mini-thumb-48": 8,
+    "reference-thumb-64": 9,
+    "reference-popover-140": 17
+   },
+   "perCount": [
+    {
+     "n": 1,
+     "minPairDistance": 0.0,
+     "maxRadius": 26.0,
+     "distinctPositions": 1,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 2,
+     "minPairDistance": 25.94,
+     "maxRadius": 26.93,
+     "distinctPositions": 2,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 3,
+     "minPairDistance": 25.94,
+     "maxRadius": 29.07,
+     "distinctPositions": 3,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 4,
+     "minPairDistance": 24.08,
+     "maxRadius": 30.08,
+     "distinctPositions": 4,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 5,
+     "minPairDistance": 20.0,
+     "maxRadius": 31.38,
+     "distinctPositions": 5,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 6,
+     "minPairDistance": 20.0,
+     "maxRadius": 31.38,
+     "distinctPositions": 6,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 7,
+     "minPairDistance": 20.0,
+     "maxRadius": 31.38,
+     "distinctPositions": 7,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 8,
+     "minPairDistance": 20.0,
+     "maxRadius": 31.38,
+     "distinctPositions": 8,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": [
+      {
+       "x": 50.0,
+       "y": 24.0
+      },
+      {
+       "x": 73.0,
+       "y": 36.0
+      },
+      {
+       "x": 76.0,
+       "y": 63.0
+      },
+      {
+       "x": 58.0,
+       "y": 79.0
+      },
+      {
+       "x": 38.0,
+       "y": 79.0
+      },
+      {
+       "x": 22.0,
+       "y": 63.0
+      },
+      {
+       "x": 25.0,
+       "y": 36.0
+      },
+      {
+       "x": 50.0,
+       "y": 52.0
+      }
+     ]
+    },
+    {
+     "n": 9,
+     "minPairDistance": 18.11,
+     "maxRadius": 33.21,
+     "distinctPositions": 9,
+     "overlapPairs": {
+      "making-mini-thumb-48": 1,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": [
+      {
+       "x": 18.39,
+       "y": 57.32
+      },
+      {
+       "x": 78.24,
+       "y": 43.53
+      },
+      {
+       "x": 60.86,
+       "y": 80.21
+      },
+      {
+       "x": 41.56,
+       "y": 31.41
+      },
+      {
+       "x": 35.58,
+       "y": 73.91
+      },
+      {
+       "x": 64.8,
+       "y": 22.73
+      },
+      {
+       "x": 79.15,
+       "y": 65.91
+      },
+      {
+       "x": 40.59,
+       "y": 54.02
+      },
+      {
+       "x": 59.56,
+       "y": 62.15
+      }
+     ]
+    },
+    {
+     "n": 10,
+     "minPairDistance": 15.17,
+     "maxRadius": 32.97,
+     "distinctPositions": 10,
+     "overlapPairs": {
+      "making-mini-thumb-48": 7,
+      "reference-thumb-64": 6,
+      "reference-popover-140": 0
+     },
+     "positions": [
+      {
+       "x": 42.6,
+       "y": 71.52
+      },
+      {
+       "x": 62.02,
+       "y": 21.87
+      },
+      {
+       "x": 19.12,
+       "y": 42.48
+      },
+      {
+       "x": 71.09,
+       "y": 50.65
+      },
+      {
+       "x": 39.3,
+       "y": 37.29
+      },
+      {
+       "x": 50.01,
+       "y": 53.42
+      },
+      {
+       "x": 73.64,
+       "y": 72.98
+      },
+      {
+       "x": 22.66,
+       "y": 63.16
+      },
+      {
+       "x": 58.35,
+       "y": 67.46
+      },
+      {
+       "x": 32.43,
+       "y": 50.81
+      }
+     ]
+    },
+    {
+     "n": 12,
+     "minPairDistance": 14.13,
+     "maxRadius": 33.38,
+     "distinctPositions": 12,
+     "overlapPairs": {
+      "making-mini-thumb-48": 8,
+      "reference-thumb-64": 7,
+      "reference-popover-140": 0
+     },
+     "positions": [
+      {
+       "x": 73.7,
+       "y": 67.92
+      },
+      {
+       "x": 18.19,
+       "y": 48.63
+      },
+      {
+       "x": 55.81,
+       "y": 21.4
+      },
+      {
+       "x": 33.86,
+       "y": 76.56
+      },
+      {
+       "x": 45.47,
+       "y": 44.37
+      },
+      {
+       "x": 76.98,
+       "y": 42.78
+      },
+      {
+       "x": 33.07,
+       "y": 25.83
+      },
+      {
+       "x": 54.13,
+       "y": 67.66
+      },
+      {
+       "x": 40.23,
+       "y": 63.8
+      },
+      {
+       "x": 65.35,
+       "y": 56.52
+      },
+      {
+       "x": 56.17,
+       "y": 82.8
+      },
+      {
+       "x": 58.43,
+       "y": 38.16
+      }
+     ]
+    },
+    {
+     "n": 15,
+     "minPairDistance": 12.46,
+     "maxRadius": 33.34,
+     "distinctPositions": 15,
+     "overlapPairs": {
+      "making-mini-thumb-48": 14,
+      "reference-thumb-64": 10,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 16,
+     "minPairDistance": 10.98,
+     "maxRadius": 33.51,
+     "distinctPositions": 16,
+     "overlapPairs": {
+      "making-mini-thumb-48": 16,
+      "reference-thumb-64": 16,
+      "reference-popover-140": 0
+     },
+     "positions": [
+      {
+       "x": 30.58,
+       "y": 30.62
+      },
+      {
+       "x": 68.81,
+       "y": 72.91
+      },
+      {
+       "x": 73.49,
+       "y": 27.2
+      },
+      {
+       "x": 31.49,
+       "y": 72.82
+      },
+      {
+       "x": 63.5,
+       "y": 48.55
+      },
+      {
+       "x": 41.12,
+       "y": 54.2
+      },
+      {
+       "x": 16.57,
+       "y": 50.37
+      },
+      {
+       "x": 52.5,
+       "y": 83.14
+      },
+      {
+       "x": 52.08,
+       "y": 17.35
+      },
+      {
+       "x": 28.5,
+       "y": 53.12
+      },
+      {
+       "x": 76.99,
+       "y": 56.01
+      },
+      {
+       "x": 37.51,
+       "y": 41.13
+      },
+      {
+       "x": 52.94,
+       "y": 37.92
+      },
+      {
+       "x": 61.45,
+       "y": 61.92
+      },
+      {
+       "x": 82.08,
+       "y": 40.3
+      },
+      {
+       "x": 52.75,
+       "y": 72.16
+      }
+     ]
+    },
+    {
+     "n": 20,
+     "minPairDistance": 9.72,
+     "maxRadius": 33.96,
+     "distinctPositions": 20,
+     "overlapPairs": {
+      "making-mini-thumb-48": 31,
+      "reference-thumb-64": 26,
+      "reference-popover-140": 6
+     },
+     "positions": [
+      {
+       "x": 35.13,
+       "y": 29.99
+      },
+      {
+       "x": 72.91,
+       "y": 73.45
+      },
+      {
+       "x": 72.71,
+       "y": 25.52
+      },
+      {
+       "x": 47.17,
+       "y": 60.69
+      },
+      {
+       "x": 83.59,
+       "y": 47.87
+      },
+      {
+       "x": 22.15,
+       "y": 61.27
+      },
+      {
+       "x": 61.79,
+       "y": 43.12
+      },
+      {
+       "x": 44.27,
+       "y": 80.17
+      },
+      {
+       "x": 26.57,
+       "y": 44.38
+      },
+      {
+       "x": 52.35,
+       "y": 23.63
+      },
+      {
+       "x": 63.98,
+       "y": 59.0
+      },
+      {
+       "x": 31.2,
+       "y": 75.72
+      },
+      {
+       "x": 42.38,
+       "y": 17.0
+      },
+      {
+       "x": 76.42,
+       "y": 57.25
+      },
+      {
+       "x": 57.2,
+       "y": 76.99
+      },
+      {
+       "x": 41.97,
+       "y": 43.38
+      },
+      {
+       "x": 66.39,
+       "y": 34.03
+      },
+      {
+       "x": 47.37,
+       "y": 70.96
+      },
+      {
+       "x": 73.79,
+       "y": 43.1
+      },
+      {
+       "x": 16.15,
+       "y": 52.67
+      }
+     ]
+    },
+    {
+     "n": 24,
+     "minPairDistance": 7.73,
+     "maxRadius": 33.63,
+     "distinctPositions": 24,
+     "overlapPairs": {
+      "making-mini-thumb-48": 42,
+      "reference-thumb-64": 39,
+      "reference-popover-140": 7
+     },
+     "positions": null
+    },
+    {
+     "n": 32,
+     "minPairDistance": 7.89,
+     "maxRadius": 33.75,
+     "distinctPositions": 32,
+     "overlapPairs": {
+      "making-mini-thumb-48": 83,
+      "reference-thumb-64": 75,
+      "reference-popover-140": 16
+     },
+     "positions": null
+    },
+    {
+     "n": 40,
+     "minPairDistance": 6.84,
+     "maxRadius": 33.98,
+     "distinctPositions": 40,
+     "overlapPairs": {
+      "making-mini-thumb-48": 141,
+      "reference-thumb-64": 130,
+      "reference-popover-140": 53
+     },
+     "positions": null
+    }
+   ]
+  },
+  {
+   "id": "D",
+   "label": "D. Golden-angle sunflower",
+   "doc": "D. Golden-angle (Vogel) sunflower: r = R_MAX*sqrt((i+0.5)/n), theta = i*golden.",
+   "preservesLegacyUpTo8": true,
+   "deterministic": true,
+   "dependsOnRecipeId": false,
+   "legibleMaxNoTouch": {
+    "making-mini-thumb-48": 8,
+    "reference-thumb-64": 9,
+    "reference-popover-140": 23
+   },
+   "perCount": [
+    {
+     "n": 1,
+     "minPairDistance": 0.0,
+     "maxRadius": 26.0,
+     "distinctPositions": 1,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 2,
+     "minPairDistance": 25.94,
+     "maxRadius": 26.93,
+     "distinctPositions": 2,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 3,
+     "minPairDistance": 25.94,
+     "maxRadius": 29.07,
+     "distinctPositions": 3,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 4,
+     "minPairDistance": 24.08,
+     "maxRadius": 30.08,
+     "distinctPositions": 4,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 5,
+     "minPairDistance": 20.0,
+     "maxRadius": 31.38,
+     "distinctPositions": 5,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 6,
+     "minPairDistance": 20.0,
+     "maxRadius": 31.38,
+     "distinctPositions": 6,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 7,
+     "minPairDistance": 20.0,
+     "maxRadius": 31.38,
+     "distinctPositions": 7,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 8,
+     "minPairDistance": 20.0,
+     "maxRadius": 31.38,
+     "distinctPositions": 8,
+     "overlapPairs": {
+      "making-mini-thumb-48": 0,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": [
+      {
+       "x": 50.0,
+       "y": 24.0
+      },
+      {
+       "x": 73.0,
+       "y": 36.0
+      },
+      {
+       "x": 76.0,
+       "y": 63.0
+      },
+      {
+       "x": 58.0,
+       "y": 79.0
+      },
+      {
+       "x": 38.0,
+       "y": 79.0
+      },
+      {
+       "x": 22.0,
+       "y": 63.0
+      },
+      {
+       "x": 25.0,
+       "y": 36.0
+      },
+      {
+       "x": 50.0,
+       "y": 52.0
+      }
+     ]
+    },
+    {
+     "n": 9,
+     "minPairDistance": 17.53,
+     "maxRadius": 33.04,
+     "distinctPositions": 9,
+     "overlapPairs": {
+      "making-mini-thumb-48": 1,
+      "reference-thumb-64": 0,
+      "reference-popover-140": 0
+     },
+     "positions": [
+      {
+       "x": 50.0,
+       "y": 41.99
+      },
+      {
+       "x": 59.38,
+       "y": 60.24
+      },
+      {
+       "x": 32.15,
+       "y": 48.43
+      },
+      {
+       "x": 66.83,
+       "y": 37.1
+      },
+      {
+       "x": 45.81,
+       "y": 73.67
+      },
+      {
+       "x": 35.73,
+       "y": 27.57
+      },
+      {
+       "x": 77.9,
+       "y": 57.5
+      },
+      {
+       "x": 22.46,
+       "y": 64.31
+      },
+      {
+       "x": 61.33,
+       "y": 18.96
+      }
+     ]
+    },
+    {
+     "n": 10,
+     "minPairDistance": 16.62,
+     "maxRadius": 33.14,
+     "distinctPositions": 10,
+     "overlapPairs": {
+      "making-mini-thumb-48": 6,
+      "reference-thumb-64": 1,
+      "reference-popover-140": 0
+     },
+     "positions": [
+      {
+       "x": 50.0,
+       "y": 42.4
+      },
+      {
+       "x": 58.89,
+       "y": 59.71
+      },
+      {
+       "x": 33.07,
+       "y": 48.51
+      },
+      {
+       "x": 65.96,
+       "y": 37.76
+      },
+      {
+       "x": 46.03,
+       "y": 72.46
+      },
+      {
+       "x": 36.47,
+       "y": 28.72
+      },
+      {
+       "x": 76.47,
+       "y": 57.12
+      },
+      {
+       "x": 23.87,
+       "y": 63.57
+      },
+      {
+       "x": 60.75,
+       "y": 20.56
+      },
+      {
+       "x": 62.64,
+       "y": 80.63
+      }
+     ]
+    },
+    {
+     "n": 12,
+     "minPairDistance": 15.17,
+     "maxRadius": 33.29,
+     "distinctPositions": 12,
+     "overlapPairs": {
+      "making-mini-thumb-48": 13,
+      "reference-thumb-64": 7,
+      "reference-popover-140": 0
+     },
+     "positions": [
+      {
+       "x": 50.0,
+       "y": 43.06
+      },
+      {
+       "x": 58.12,
+       "y": 58.86
+      },
+      {
+       "x": 34.54,
+       "y": 48.64
+      },
+      {
+       "x": 64.57,
+       "y": 38.83
+      },
+      {
+       "x": 46.37,
+       "y": 70.5
+      },
+      {
+       "x": 37.65,
+       "y": 30.58
+      },
+      {
+       "x": 74.17,
+       "y": 56.5
+      },
+      {
+       "x": 26.15,
+       "y": 62.39
+      },
+      {
+       "x": 59.82,
+       "y": 23.12
+      },
+      {
+       "x": 61.54,
+       "y": 77.96
+      },
+      {
+       "x": 21.19,
+       "y": 36.52
+      },
+      {
+       "x": 81.76,
+       "y": 40.04
+      }
+     ]
+    },
+    {
+     "n": 15,
+     "minPairDistance": 13.57,
+     "maxRadius": 33.43,
+     "distinctPositions": 15,
+     "overlapPairs": {
+      "making-mini-thumb-48": 22,
+      "reference-thumb-64": 18,
+      "reference-popover-140": 0
+     },
+     "positions": null
+    },
+    {
+     "n": 16,
+     "minPairDistance": 13.14,
+     "maxRadius": 33.47,
+     "distinctPositions": 16,
+     "overlapPairs": {
+      "making-mini-thumb-48": 24,
+      "reference-thumb-64": 21,
+      "reference-popover-140": 0
+     },
+     "positions": [
+      {
+       "x": 50.0,
+       "y": 43.99
+      },
+      {
+       "x": 57.03,
+       "y": 57.68
+      },
+      {
+       "x": 36.61,
+       "y": 48.83
+      },
+      {
+       "x": 62.62,
+       "y": 40.32
+      },
+      {
+       "x": 46.86,
+       "y": 67.76
+      },
+      {
+       "x": 39.3,
+       "y": 33.18
+      },
+      {
+       "x": 70.93,
+       "y": 55.63
+      },
+      {
+       "x": 29.34,
+       "y": 60.73
+      },
+      {
+       "x": 58.5,
+       "y": 26.72
+      },
+      {
+       "x": 60.0,
+       "y": 74.22
+      },
+      {
+       "x": 25.05,
+       "y": 38.33
+      },
+      {
+       "x": 77.5,
+       "y": 41.37
+      },
+      {
+       "x": 34.93,
+       "y": 76.0
+      },
+      {
+       "x": 43.29,
+       "y": 19.5
+      },
+      {
+       "x": 76.48,
+       "y": 68.62
+      },
+      {
+       "x": 16.81,
+       "y": 54.3
+      }
+     ]
+    },
+    {
+     "n": 20,
+     "minPairDistance": 11.75,
+     "maxRadius": 33.58,
+     "distinctPositions": 20,
+     "overlapPairs": {
+      "making-mini-thumb-48": 40,
+      "reference-thumb-64": 34,
+      "reference-popover-140": 0
+     },
+     "positions": [
+      {
+       "x": 50.0,
+       "y": 44.62
+      },
+      {
+       "x": 56.29,
+       "y": 56.87
+      },
+      {
+       "x": 38.03,
+       "y": 48.95
+      },
+      {
+       "x": 61.29,
+       "y": 41.35
+      },
+      {
+       "x": 47.19,
+       "y": 65.88
+      },
+      {
+       "x": 40.43,
+       "y": 34.96
+      },
+      {
+       "x": 68.72,
+       "y": 55.03
+      },
+      {
+       "x": 31.52,
+       "y": 59.6
+      },
+      {
+       "x": 57.6,
+       "y": 29.18
+      },
+      {
+       "x": 58.94,
+       "y": 71.66
+      },
+      {
+       "x": 27.69,
+       "y": 39.56
+      },
+      {
+       "x": 74.6,
+       "y": 42.28
+      },
+      {
+       "x": 36.52,
+       "y": 73.26
+      },
+      {
+       "x": 44.0,
+       "y": 22.72
+      },
+      {
+       "x": 73.68,
+       "y": 66.65
+      },
+      {
+       "x": 20.32,
+       "y": 53.85
+      },
+      {
+       "x": 69.9,
+       "y": 26.39
+      },
+      {
+       "x": 51.31,
+       "y": 81.78
+      },
+      {
+       "x": 26.93,
+       "y": 26.82
+      },
+      {
+       "x": 83.54,
+       "y": 51.55
+      }
+     ]
+    },
+    {
+     "n": 24,
+     "minPairDistance": 10.73,
+     "maxRadius": 33.64,
+     "distinctPositions": 24,
+     "overlapPairs": {
+      "making-mini-thumb-48": 56,
+      "reference-thumb-64": 50,
+      "reference-popover-140": 1
+     },
+     "positions": null
+    },
+    {
+     "n": 32,
+     "minPairDistance": 9.29,
+     "maxRadius": 33.73,
+     "distinctPositions": 32,
+     "overlapPairs": {
+      "making-mini-thumb-48": 95,
+      "reference-thumb-64": 85,
+      "reference-popover-140": 32
+     },
+     "positions": null
+    },
+    {
+     "n": 40,
+     "minPairDistance": 8.31,
+     "maxRadius": 33.79,
+     "distinctPositions": 40,
+     "overlapPairs": {
+      "making-mini-thumb-48": 154,
+      "reference-thumb-64": 126,
+      "reference-popover-140": 60
+     },
+     "positions": null
+    }
+   ]
+  }
+ ],
+ "w1OverCapacityLayouts": [
+  {
+   "recipeId": "parmigiana-pizza",
+   "nonSaucePieces": 9,
+   "layouts": {
+    "CURRENT/consecutive": {
+     "minPairDistance": 0.0,
+     "sameIngredientMinDistance": 20.0,
+     "pieceGroups": [
+      {
+       "ingredientId": "mozzarella",
+       "positions": [
+        {
+         "x": 50.0,
+         "y": 24.0
+        },
+        {
+         "x": 73.0,
+         "y": 36.0
+        }
+       ]
+      },
+      {
+       "ingredientId": "eggplant",
+       "positions": [
+        {
+         "x": 76.0,
+         "y": 63.0
+        },
+        {
+         "x": 58.0,
+         "y": 79.0
+        },
+        {
+         "x": 38.0,
+         "y": 79.0
+        }
+       ]
+      },
+      {
+       "ingredientId": "parmigiano",
+       "positions": [
+        {
+         "x": 22.0,
+         "y": 63.0
+        },
+        {
+         "x": 25.0,
+         "y": 36.0
+        }
+       ]
+      },
+      {
+       "ingredientId": "basil",
+       "positions": [
+        {
+         "x": 50.0,
+         "y": 52.0
+        },
+        {
+         "x": 50.0,
+         "y": 24.0
+        }
+       ]
+      }
+     ]
+    },
+    "A/consecutive": {
+     "minPairDistance": 21.43,
+     "sameIngredientMinDistance": 21.43,
+     "pieceGroups": [
+      {
+       "ingredientId": "mozzarella",
+       "positions": [
+        {
+         "x": 50.0,
+         "y": 50.0
+        },
+        {
+         "x": 50.0,
+         "y": 22.0
+        }
+       ]
+      },
+      {
+       "ingredientId": "eggplant",
+       "positions": [
+        {
+         "x": 69.8,
+         "y": 30.2
+        },
+        {
+         "x": 78.0,
+         "y": 50.0
+        },
+        {
+         "x": 69.8,
+         "y": 69.8
+        }
+       ]
+      },
+      {
+       "ingredientId": "parmigiano",
+       "positions": [
+        {
+         "x": 50.0,
+         "y": 78.0
+        },
+        {
+         "x": 30.2,
+         "y": 69.8
+        }
+       ]
+      },
+      {
+       "ingredientId": "basil",
+       "positions": [
+        {
+         "x": 22.0,
+         "y": 50.0
+        },
+        {
+         "x": 30.2,
+         "y": 30.2
+        }
+       ]
+      }
+     ]
+    },
+    "A/interleaved": {
+     "minPairDistance": 21.43,
+     "sameIngredientMinDistance": 28.0,
+     "pieceGroups": [
+      {
+       "ingredientId": "mozzarella",
+       "positions": [
+        {
+         "x": 50.0,
+         "y": 22.0
+        },
+        {
+         "x": 50.0,
+         "y": 78.0
+        }
+       ]
+      },
+      {
+       "ingredientId": "eggplant",
+       "positions": [
+        {
+         "x": 69.8,
+         "y": 30.2
+        },
+        {
+         "x": 30.2,
+         "y": 69.8
+        },
+        {
+         "x": 50.0,
+         "y": 50.0
+        }
+       ]
+      },
+      {
+       "ingredientId": "parmigiano",
+       "positions": [
+        {
+         "x": 78.0,
+         "y": 50.0
+        },
+        {
+         "x": 22.0,
+         "y": 50.0
+        }
+       ]
+      },
+      {
+       "ingredientId": "basil",
+       "positions": [
+        {
+         "x": 69.8,
+         "y": 69.8
+        },
+        {
+         "x": 30.2,
+         "y": 30.2
+        }
+       ]
+      }
+     ]
+    },
+    "B/consecutive": {
+     "minPairDistance": 21.43,
+     "sameIngredientMinDistance": 21.43,
+     "pieceGroups": [
+      {
+       "ingredientId": "mozzarella",
+       "positions": [
+        {
+         "x": 50.0,
+         "y": 50.0
+        },
+        {
+         "x": 50.0,
+         "y": 22.0
+        }
+       ]
+      },
+      {
+       "ingredientId": "eggplant",
+       "positions": [
+        {
+         "x": 69.8,
+         "y": 30.2
+        },
+        {
+         "x": 78.0,
+         "y": 50.0
+        },
+        {
+         "x": 69.8,
+         "y": 69.8
+        }
+       ]
+      },
+      {
+       "ingredientId": "parmigiano",
+       "positions": [
+        {
+         "x": 50.0,
+         "y": 78.0
+        },
+        {
+         "x": 30.2,
+         "y": 69.8
+        }
+       ]
+      },
+      {
+       "ingredientId": "basil",
+       "positions": [
+        {
+         "x": 22.0,
+         "y": 50.0
+        },
+        {
+         "x": 30.2,
+         "y": 30.2
+        }
+       ]
+      }
+     ]
+    },
+    "B/interleaved": {
+     "minPairDistance": 21.43,
+     "sameIngredientMinDistance": 28.0,
+     "pieceGroups": [
+      {
+       "ingredientId": "mozzarella",
+       "positions": [
+        {
+         "x": 50.0,
+         "y": 22.0
+        },
+        {
+         "x": 50.0,
+         "y": 78.0
+        }
+       ]
+      },
+      {
+       "ingredientId": "eggplant",
+       "positions": [
+        {
+         "x": 69.8,
+         "y": 30.2
+        },
+        {
+         "x": 30.2,
+         "y": 69.8
+        },
+        {
+         "x": 50.0,
+         "y": 50.0
+        }
+       ]
+      },
+      {
+       "ingredientId": "parmigiano",
+       "positions": [
+        {
+         "x": 78.0,
+         "y": 50.0
+        },
+        {
+         "x": 22.0,
+         "y": 50.0
+        }
+       ]
+      },
+      {
+       "ingredientId": "basil",
+       "positions": [
+        {
+         "x": 69.8,
+         "y": 69.8
+        },
+        {
+         "x": 30.2,
+         "y": 30.2
+        }
+       ]
+      }
+     ]
+    },
+    "C/consecutive": {
+     "minPairDistance": 16.94,
+     "sameIngredientMinDistance": 24.57,
+     "pieceGroups": [
+      {
+       "ingredientId": "mozzarella",
+       "positions": [
+        {
+         "x": 45.63,
+         "y": 37.76
+        },
+        {
+         "x": 68.98,
+         "y": 77.56
+        }
+       ]
+      },
+      {
+       "ingredientId": "eggplant",
+       "positions": [
+        {
+         "x": 28.71,
+         "y": 73.19
+        },
+        {
+         "x": 74.63,
+         "y": 28.1
+        },
+        {
+         "x": 18.15,
+         "y": 45.45
+        }
+       ]
+      },
+      {
+       "ingredientId": "parmigiano",
+       "positions": [
+        {
+         "x": 63.08,
+         "y": 54.74
+        },
+        {
+         "x": 36.24,
+         "y": 21.86
+        }
+       ]
+      },
+      {
+       "ingredientId": "basil",
+       "positions": [
+        {
+         "x": 49.44,
+         "y": 74.6
+        },
+        {
+         "x": 32.61,
+         "y": 56.7
+        }
+       ]
+      }
+     ]
+    },
+    "C/interleaved": {
+     "minPairDistance": 16.94,
+     "sameIngredientMinDistance": 18.32,
+     "pieceGroups": [
+      {
+       "ingredientId": "mozzarella",
+       "positions": [
+        {
+         "x": 68.98,
+         "y": 77.56
+        },
+        {
+         "x": 36.24,
+         "y": 21.86
+        }
+       ]
+      },
+      {
+       "ingredientId": "eggplant",
+       "positions": [
+        {
+         "x": 74.63,
+         "y": 28.1
+        },
+        {
+         "x": 49.44,
+         "y": 74.6
+        },
+        {
+         "x": 45.63,
+         "y": 37.76
+        }
+       ]
+      },
+      {
+       "ingredientId": "parmigiano",
+       "positions": [
+        {
+         "x": 18.15,
+         "y": 45.45
+        },
+        {
+         "x": 32.61,
+         "y": 56.7
+        }
+       ]
+      },
+      {
+       "ingredientId": "basil",
+       "positions": [
+        {
+         "x": 28.71,
+         "y": 73.19
+        },
+        {
+         "x": 63.08,
+         "y": 54.74
+        }
+       ]
+      }
+     ]
+    },
+    "D/consecutive": {
+     "minPairDistance": 17.53,
+     "sameIngredientMinDistance": 20.52,
+     "pieceGroups": [
+      {
+       "ingredientId": "mozzarella",
+       "positions": [
+        {
+         "x": 50.0,
+         "y": 41.99
+        },
+        {
+         "x": 59.38,
+         "y": 60.24
+        }
+       ]
+      },
+      {
+       "ingredientId": "eggplant",
+       "positions": [
+        {
+         "x": 32.15,
+         "y": 48.43
+        },
+        {
+         "x": 66.83,
+         "y": 37.1
+        },
+        {
+         "x": 45.81,
+         "y": 73.67
+        }
+       ]
+      },
+      {
+       "ingredientId": "parmigiano",
+       "positions": [
+        {
+         "x": 35.73,
+         "y": 27.57
+        },
+        {
+         "x": 77.9,
+         "y": 57.5
+        }
+       ]
+      },
+      {
+       "ingredientId": "basil",
+       "positions": [
+        {
+         "x": 22.46,
+         "y": 64.31
+        },
+        {
+         "x": 61.33,
+         "y": 18.96
+        }
+       ]
+      }
+     ]
+    },
+    "D/interleaved": {
+     "minPairDistance": 17.53,
+     "sameIngredientMinDistance": 17.53,
+     "pieceGroups": [
+      {
+       "ingredientId": "mozzarella",
+       "positions": [
+        {
+         "x": 61.33,
+         "y": 18.96
+        },
+        {
+         "x": 45.81,
+         "y": 73.67
+        }
+       ]
+      },
+      {
+       "ingredientId": "eggplant",
+       "positions": [
+        {
+         "x": 22.46,
+         "y": 64.31
+        },
+        {
+         "x": 66.83,
+         "y": 37.1
+        },
+        {
+         "x": 50.0,
+         "y": 41.99
+        }
+       ]
+      },
+      {
+       "ingredientId": "parmigiano",
+       "positions": [
+        {
+         "x": 77.9,
+         "y": 57.5
+        },
+        {
+         "x": 32.15,
+         "y": 48.43
+        }
+       ]
+      },
+      {
+       "ingredientId": "basil",
+       "positions": [
+        {
+         "x": 35.73,
+         "y": 27.57
+        },
+        {
+         "x": 59.38,
+         "y": 60.24
+        }
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "recipeId": "pizza-portuguesa",
+   "nonSaucePieces": 10,
+   "layouts": {
+    "CURRENT/consecutive": {
+     "minPairDistance": 0.0,
+     "sameIngredientMinDistance": 20.0,
+     "pieceGroups": [
+      {
+       "ingredientId": "mozzarella",
+       "positions": [
+        {
+         "x": 50.0,
+         "y": 24.0
+        },
+        {
+         "x": 73.0,
+         "y": 36.0
+        }
+       ]
+      },
+      {
+       "ingredientId": "ham",
+       "positions": [
+        {
+         "x": 76.0,
+         "y": 63.0
+        },
+        {
+         "x": 58.0,
+         "y": 79.0
+        },
+        {
+         "x": 38.0,
+         "y": 79.0
+        }
+       ]
+      },
+      {
+       "ingredientId": "egg",
+       "positions": [
+        {
+         "x": 22.0,
+         "y": 63.0
+        }
+       ]
+      },
+      {
+       "ingredientId": "onion",
+       "positions": [
+        {
+         "x": 25.0,
+         "y": 36.0
+        },
+        {
+         "x": 50.0,
+         "y": 52.0
+        }
+       ]
+      },
+      {
+       "ingredientId": "black-olive",
+       "positions": [
+        {
+         "x": 50.0,
+         "y": 24.0
+        },
+        {
+         "x": 73.0,
+         "y": 36.0
+        }
+       ]
+      }
+     ]
+    },
+    "A/consecutive": {
+     "minPairDistance": 19.15,
+     "sameIngredientMinDistance": 19.15,
+     "pieceGroups": [
+      {
+       "ingredientId": "mozzarella",
+       "positions": [
+        {
+         "x": 50.0,
+         "y": 50.0
+        },
+        {
+         "x": 50.0,
+         "y": 22.0
+        }
+       ]
+      },
+      {
+       "ingredientId": "ham",
+       "positions": [
+        {
+         "x": 68.0,
+         "y": 28.55
+        },
+        {
+         "x": 77.57,
+         "y": 45.14
+        },
+        {
+         "x": 74.25,
+         "y": 64.0
+        }
+       ]
+      },
+      {
+       "ingredientId": "egg",
+       "positions": [
+        {
+         "x": 59.58,
+         "y": 76.31
+        }
+       ]
+      },
+      {
+       "ingredientId": "onion",
+       "positions": [
+        {
+         "x": 40.42,
+         "y": 76.31
+        },
+        {
+         "x": 25.75,
+         "y": 64.0
+        }
+       ]
+      },
+      {
+       "ingredientId": "black-olive",
+       "positions": [
+        {
+         "x": 22.43,
+         "y": 45.14
+        },
+        {
+         "x": 32.0,
+         "y": 28.55
+        }
+       ]
+      }
+     ]
+    },
+    "A/interleaved": {
+     "minPairDistance": 19.15,
+     "sameIngredientMinDistance": 28.0,
+     "pieceGroups": [
+      {
+       "ingredientId": "mozzarella",
+       "positions": [
+        {
+         "x": 50.0,
+         "y": 22.0
+        },
+        {
+         "x": 40.42,
+         "y": 76.31
+        }
+       ]
+      },
+      {
+       "ingredientId": "ham",
+       "positions": [
+        {
+         "x": 68.0,
+         "y": 28.55
+        },
+        {
+         "x": 25.75,
+         "y": 64.0
+        },
+        {
+         "x": 50.0,
+         "y": 50.0
+        }
+       ]
+      },
+      {
+       "ingredientId": "egg",
+       "positions": [
+        {
+         "x": 77.57,
+         "y": 45.14
+        }
+       ]
+      },
+      {
+       "ingredientId": "onion",
+       "positions": [
+        {
+         "x": 74.25,
+         "y": 64.0
+        },
+        {
+         "x": 22.43,
+         "y": 45.14
+        }
+       ]
+      },
+      {
+       "ingredientId": "black-olive",
+       "positions": [
+        {
+         "x": 59.58,
+         "y": 76.31
+        },
+        {
+         "x": 32.0,
+         "y": 28.55
+        }
+       ]
+      }
+     ]
+    },
+    "B/consecutive": {
+     "minPairDistance": 19.15,
+     "sameIngredientMinDistance": 19.15,
+     "pieceGroups": [
+      {
+       "ingredientId": "mozzarella",
+       "positions": [
+        {
+         "x": 50.0,
+         "y": 50.0
+        },
+        {
+         "x": 50.0,
+         "y": 22.0
+        }
+       ]
+      },
+      {
+       "ingredientId": "ham",
+       "positions": [
+        {
+         "x": 68.0,
+         "y": 28.55
+        },
+        {
+         "x": 77.57,
+         "y": 45.14
+        },
+        {
+         "x": 74.25,
+         "y": 64.0
+        }
+       ]
+      },
+      {
+       "ingredientId": "egg",
+       "positions": [
+        {
+         "x": 59.58,
+         "y": 76.31
+        }
+       ]
+      },
+      {
+       "ingredientId": "onion",
+       "positions": [
+        {
+         "x": 40.42,
+         "y": 76.31
+        },
+        {
+         "x": 25.75,
+         "y": 64.0
+        }
+       ]
+      },
+      {
+       "ingredientId": "black-olive",
+       "positions": [
+        {
+         "x": 22.43,
+         "y": 45.14
+        },
+        {
+         "x": 32.0,
+         "y": 28.55
+        }
+       ]
+      }
+     ]
+    },
+    "B/interleaved": {
+     "minPairDistance": 19.15,
+     "sameIngredientMinDistance": 28.0,
+     "pieceGroups": [
+      {
+       "ingredientId": "mozzarella",
+       "positions": [
+        {
+         "x": 50.0,
+         "y": 22.0
+        },
+        {
+         "x": 40.42,
+         "y": 76.31
+        }
+       ]
+      },
+      {
+       "ingredientId": "ham",
+       "positions": [
+        {
+         "x": 68.0,
+         "y": 28.55
+        },
+        {
+         "x": 25.75,
+         "y": 64.0
+        },
+        {
+         "x": 50.0,
+         "y": 50.0
+        }
+       ]
+      },
+      {
+       "ingredientId": "egg",
+       "positions": [
+        {
+         "x": 77.57,
+         "y": 45.14
+        }
+       ]
+      },
+      {
+       "ingredientId": "onion",
+       "positions": [
+        {
+         "x": 74.25,
+         "y": 64.0
+        },
+        {
+         "x": 22.43,
+         "y": 45.14
+        }
+       ]
+      },
+      {
+       "ingredientId": "black-olive",
+       "positions": [
+        {
+         "x": 59.58,
+         "y": 76.31
+        },
+        {
+         "x": 32.0,
+         "y": 28.55
+        }
+       ]
+      }
+     ]
+    },
+    "C/consecutive": {
+     "minPairDistance": 14.82,
+     "sameIngredientMinDistance": 26.28,
+     "pieceGroups": [
+      {
+       "ingredientId": "mozzarella",
+       "positions": [
+        {
+         "x": 29.05,
+         "y": 40.38
+        },
+        {
+         "x": 81.07,
+         "y": 58.68
+        }
+       ]
+      },
+      {
+       "ingredientId": "ham",
+       "positions": [
+        {
+         "x": 62.04,
+         "y": 18.92
+        },
+        {
+         "x": 40.66,
+         "y": 79.72
+        },
+        {
+         "x": 53.87,
+         "y": 43.9
+        }
+       ]
+      },
+      {
+       "ingredientId": "egg",
+       "positions": [
+        {
+         "x": 22.04,
+         "y": 63.16
+        }
+       ]
+      },
+      {
+       "ingredientId": "onion",
+       "positions": [
+        {
+         "x": 58.86,
+         "y": 71.69
+        },
+        {
+         "x": 37.52,
+         "y": 24.05
+        }
+       ]
+      },
+      {
+       "ingredientId": "black-olive",
+       "positions": [
+        {
+         "x": 75.32,
+         "y": 72.34
+        },
+        {
+         "x": 76.14,
+         "y": 35.45
+        }
+       ]
+      }
+     ]
+    },
+    "C/interleaved": {
+     "minPairDistance": 14.82,
+     "sameIngredientMinDistance": 19.89,
+     "pieceGroups": [
+      {
+       "ingredientId": "mozzarella",
+       "positions": [
+        {
+         "x": 75.32,
+         "y": 72.34
+        },
+        {
+         "x": 76.14,
+         "y": 35.45
+        }
+       ]
+      },
+      {
+       "ingredientId": "ham",
+       "positions": [
+        {
+         "x": 62.04,
+         "y": 18.92
+        },
+        {
+         "x": 37.52,
+         "y": 24.05
+        },
+        {
+         "x": 53.87,
+         "y": 43.9
+        }
+       ]
+      },
+      {
+       "ingredientId": "egg",
+       "positions": [
+        {
+         "x": 81.07,
+         "y": 58.68
+        }
+       ]
+      },
+      {
+       "ingredientId": "onion",
+       "positions": [
+        {
+         "x": 40.66,
+         "y": 79.72
+        },
+        {
+         "x": 58.86,
+         "y": 71.69
+        }
+       ]
+      },
+      {
+       "ingredientId": "black-olive",
+       "positions": [
+        {
+         "x": 22.04,
+         "y": 63.16
+        },
+        {
+         "x": 29.05,
+         "y": 40.38
+        }
+       ]
+      }
+     ]
+    },
+    "D/consecutive": {
+     "minPairDistance": 16.62,
+     "sameIngredientMinDistance": 19.46,
+     "pieceGroups": [
+      {
+       "ingredientId": "mozzarella",
+       "positions": [
+        {
+         "x": 50.0,
+         "y": 42.4
+        },
+        {
+         "x": 58.89,
+         "y": 59.71
+        }
+       ]
+      },
+      {
+       "ingredientId": "ham",
+       "positions": [
+        {
+         "x": 33.07,
+         "y": 48.51
+        },
+        {
+         "x": 65.96,
+         "y": 37.76
+        },
+        {
+         "x": 46.03,
+         "y": 72.46
+        }
+       ]
+      },
+      {
+       "ingredientId": "egg",
+       "positions": [
+        {
+         "x": 36.47,
+         "y": 28.72
+        }
+       ]
+      },
+      {
+       "ingredientId": "onion",
+       "positions": [
+        {
+         "x": 76.47,
+         "y": 57.12
+        },
+        {
+         "x": 23.87,
+         "y": 63.57
+        }
+       ]
+      },
+      {
+       "ingredientId": "black-olive",
+       "positions": [
+        {
+         "x": 60.75,
+         "y": 20.56
+        },
+        {
+         "x": 62.64,
+         "y": 80.63
+        }
+       ]
+      }
+     ]
+    },
+    "D/interleaved": {
+     "minPairDistance": 16.62,
+     "sameIngredientMinDistance": 16.62,
+     "pieceGroups": [
+      {
+       "ingredientId": "mozzarella",
+       "positions": [
+        {
+         "x": 62.64,
+         "y": 80.63
+        },
+        {
+         "x": 46.03,
+         "y": 72.46
+        }
+       ]
+      },
+      {
+       "ingredientId": "ham",
+       "positions": [
+        {
+         "x": 60.75,
+         "y": 20.56
+        },
+        {
+         "x": 65.96,
+         "y": 37.76
+        },
+        {
+         "x": 50.0,
+         "y": 42.4
+        }
+       ]
+      },
+      {
+       "ingredientId": "egg",
+       "positions": [
+        {
+         "x": 23.87,
+         "y": 63.57
+        }
+       ]
+      },
+      {
+       "ingredientId": "onion",
+       "positions": [
+        {
+         "x": 76.47,
+         "y": 57.12
+        },
+        {
+         "x": 33.07,
+         "y": 48.51
+        }
+       ]
+      },
+      {
+       "ingredientId": "black-olive",
+       "positions": [
+        {
+         "x": 36.47,
+         "y": 28.72
+        },
+        {
+         "x": 58.89,
+         "y": 59.71
+        }
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "recipeId": "puttanesca-pizza",
+   "nonSaucePieces": 9,
+   "layouts": {
+    "CURRENT/consecutive": {
+     "minPairDistance": 0.0,
+     "sameIngredientMinDistance": 20.0,
+     "pieceGroups": [
+      {
+       "ingredientId": "anchovy",
+       "positions": [
+        {
+         "x": 50.0,
+         "y": 24.0
+        },
+        {
+         "x": 73.0,
+         "y": 36.0
+        },
+        {
+         "x": 76.0,
+         "y": 63.0
+        }
+       ]
+      },
+      {
+       "ingredientId": "black-olive",
+       "positions": [
+        {
+         "x": 58.0,
+         "y": 79.0
+        },
+        {
+         "x": 38.0,
+         "y": 79.0
+        }
+       ]
+      },
+      {
+       "ingredientId": "capers",
+       "positions": [
+        {
+         "x": 22.0,
+         "y": 63.0
+        },
+        {
+         "x": 25.0,
+         "y": 36.0
+        }
+       ]
+      },
+      {
+       "ingredientId": "garlic",
+       "positions": [
+        {
+         "x": 50.0,
+         "y": 52.0
+        },
+        {
+         "x": 50.0,
+         "y": 24.0
+        }
+       ]
+      }
+     ]
+    },
+    "A/consecutive": {
+     "minPairDistance": 21.43,
+     "sameIngredientMinDistance": 21.43,
+     "pieceGroups": [
+      {
+       "ingredientId": "anchovy",
+       "positions": [
+        {
+         "x": 50.0,
+         "y": 50.0
+        },
+        {
+         "x": 50.0,
+         "y": 22.0
+        },
+        {
+         "x": 69.8,
+         "y": 30.2
+        }
+       ]
+      },
+      {
+       "ingredientId": "black-olive",
+       "positions": [
+        {
+         "x": 78.0,
+         "y": 50.0
+        },
+        {
+         "x": 69.8,
+         "y": 69.8
+        }
+       ]
+      },
+      {
+       "ingredientId": "capers",
+       "positions": [
+        {
+         "x": 50.0,
+         "y": 78.0
+        },
+        {
+         "x": 30.2,
+         "y": 69.8
+        }
+       ]
+      },
+      {
+       "ingredientId": "garlic",
+       "positions": [
+        {
+         "x": 22.0,
+         "y": 50.0
+        },
+        {
+         "x": 30.2,
+         "y": 30.2
+        }
+       ]
+      }
+     ]
+    },
+    "A/interleaved": {
+     "minPairDistance": 21.43,
+     "sameIngredientMinDistance": 28.0,
+     "pieceGroups": [
+      {
+       "ingredientId": "anchovy",
+       "positions": [
+        {
+         "x": 50.0,
+         "y": 22.0
+        },
+        {
+         "x": 50.0,
+         "y": 78.0
+        },
+        {
+         "x": 50.0,
+         "y": 50.0
+        }
+       ]
+      },
+      {
+       "ingredientId": "black-olive",
+       "positions": [
+        {
+         "x": 69.8,
+         "y": 30.2
+        },
+        {
+         "x": 30.2,
+         "y": 69.8
+        }
+       ]
+      },
+      {
+       "ingredientId": "capers",
+       "positions": [
+        {
+         "x": 78.0,
+         "y": 50.0
+        },
+        {
+         "x": 22.0,
+         "y": 50.0
+        }
+       ]
+      },
+      {
+       "ingredientId": "garlic",
+       "positions": [
+        {
+         "x": 69.8,
+         "y": 69.8
+        },
+        {
+         "x": 30.2,
+         "y": 30.2
+        }
+       ]
+      }
+     ]
+    },
+    "B/consecutive": {
+     "minPairDistance": 21.43,
+     "sameIngredientMinDistance": 21.43,
+     "pieceGroups": [
+      {
+       "ingredientId": "anchovy",
+       "positions": [
+        {
+         "x": 50.0,
+         "y": 50.0
+        },
+        {
+         "x": 50.0,
+         "y": 22.0
+        },
+        {
+         "x": 69.8,
+         "y": 30.2
+        }
+       ]
+      },
+      {
+       "ingredientId": "black-olive",
+       "positions": [
+        {
+         "x": 78.0,
+         "y": 50.0
+        },
+        {
+         "x": 69.8,
+         "y": 69.8
+        }
+       ]
+      },
+      {
+       "ingredientId": "capers",
+       "positions": [
+        {
+         "x": 50.0,
+         "y": 78.0
+        },
+        {
+         "x": 30.2,
+         "y": 69.8
+        }
+       ]
+      },
+      {
+       "ingredientId": "garlic",
+       "positions": [
+        {
+         "x": 22.0,
+         "y": 50.0
+        },
+        {
+         "x": 30.2,
+         "y": 30.2
+        }
+       ]
+      }
+     ]
+    },
+    "B/interleaved": {
+     "minPairDistance": 21.43,
+     "sameIngredientMinDistance": 28.0,
+     "pieceGroups": [
+      {
+       "ingredientId": "anchovy",
+       "positions": [
+        {
+         "x": 50.0,
+         "y": 22.0
+        },
+        {
+         "x": 50.0,
+         "y": 78.0
+        },
+        {
+         "x": 50.0,
+         "y": 50.0
+        }
+       ]
+      },
+      {
+       "ingredientId": "black-olive",
+       "positions": [
+        {
+         "x": 69.8,
+         "y": 30.2
+        },
+        {
+         "x": 30.2,
+         "y": 69.8
+        }
+       ]
+      },
+      {
+       "ingredientId": "capers",
+       "positions": [
+        {
+         "x": 78.0,
+         "y": 50.0
+        },
+        {
+         "x": 22.0,
+         "y": 50.0
+        }
+       ]
+      },
+      {
+       "ingredientId": "garlic",
+       "positions": [
+        {
+         "x": 69.8,
+         "y": 69.8
+        },
+        {
+         "x": 30.2,
+         "y": 30.2
+        }
+       ]
+      }
+     ]
+    },
+    "C/consecutive": {
+     "minPairDistance": 16.81,
+     "sameIngredientMinDistance": 18.46,
+     "pieceGroups": [
+      {
+       "ingredientId": "anchovy",
+       "positions": [
+        {
+         "x": 35.55,
+         "y": 61.16
+        },
+        {
+         "x": 76.8,
+         "y": 40.06
+        },
+        {
+         "x": 34.65,
+         "y": 25.27
+        }
+       ]
+      },
+      {
+       "ingredientId": "black-olive",
+       "positions": [
+        {
+         "x": 72.35,
+         "y": 70.99
+        },
+        {
+         "x": 50.69,
+         "y": 42.01
+        }
+       ]
+      },
+      {
+       "ingredientId": "capers",
+       "positions": [
+        {
+         "x": 17.45,
+         "y": 48.56
+        },
+        {
+         "x": 50.1,
+         "y": 81.92
+        }
+       ]
+      },
+      {
+       "ingredientId": "garlic",
+       "positions": [
+        {
+         "x": 65.07,
+         "y": 53.5
+        },
+        {
+         "x": 83.42,
+         "y": 55.51
+        }
+       ]
+      }
+     ]
+    },
+    "C/interleaved": {
+     "minPairDistance": 16.81,
+     "sameIngredientMinDistance": 18.94,
+     "pieceGroups": [
+      {
+       "ingredientId": "anchovy",
+       "positions": [
+        {
+         "x": 83.42,
+         "y": 55.51
+        },
+        {
+         "x": 34.65,
+         "y": 25.27
+        },
+        {
+         "x": 50.69,
+         "y": 42.01
+        }
+       ]
+      },
+      {
+       "ingredientId": "black-olive",
+       "positions": [
+        {
+         "x": 17.45,
+         "y": 48.56
+        },
+        {
+         "x": 76.8,
+         "y": 40.06
+        }
+       ]
+      },
+      {
+       "ingredientId": "capers",
+       "positions": [
+        {
+         "x": 50.1,
+         "y": 81.92
+        },
+        {
+         "x": 35.55,
+         "y": 61.16
+        }
+       ]
+      },
+      {
+       "ingredientId": "garlic",
+       "positions": [
+        {
+         "x": 72.35,
+         "y": 70.99
+        },
+        {
+         "x": 65.07,
+         "y": 53.5
+        }
+       ]
+      }
+     ]
+    },
+    "D/consecutive": {
+     "minPairDistance": 17.53,
+     "sameIngredientMinDistance": 18.98,
+     "pieceGroups": [
+      {
+       "ingredientId": "anchovy",
+       "positions": [
+        {
+         "x": 50.0,
+         "y": 41.99
+        },
+        {
+         "x": 59.38,
+         "y": 60.24
+        },
+        {
+         "x": 32.15,
+         "y": 48.43
+        }
+       ]
+      },
+      {
+       "ingredientId": "black-olive",
+       "positions": [
+        {
+         "x": 66.83,
+         "y": 37.1
+        },
+        {
+         "x": 45.81,
+         "y": 73.67
+        }
+       ]
+      },
+      {
+       "ingredientId": "capers",
+       "positions": [
+        {
+         "x": 35.73,
+         "y": 27.57
+        },
+        {
+         "x": 77.9,
+         "y": 57.5
+        }
+       ]
+      },
+      {
+       "ingredientId": "garlic",
+       "positions": [
+        {
+         "x": 22.46,
+         "y": 64.31
+        },
+        {
+         "x": 61.33,
+         "y": 18.96
+        }
+       ]
+      }
+     ]
+    },
+    "D/interleaved": {
+     "minPairDistance": 17.53,
+     "sameIngredientMinDistance": 25.67,
+     "pieceGroups": [
+      {
+       "ingredientId": "anchovy",
+       "positions": [
+        {
+         "x": 61.33,
+         "y": 18.96
+        },
+        {
+         "x": 45.81,
+         "y": 73.67
+        },
+        {
+         "x": 50.0,
+         "y": 41.99
+        }
+       ]
+      },
+      {
+       "ingredientId": "black-olive",
+       "positions": [
+        {
+         "x": 22.46,
+         "y": 64.31
+        },
+        {
+         "x": 66.83,
+         "y": 37.1
+        }
+       ]
+      },
+      {
+       "ingredientId": "capers",
+       "positions": [
+        {
+         "x": 77.9,
+         "y": 57.5
+        },
+        {
+         "x": 32.15,
+         "y": 48.43
+        }
+       ]
+      },
+      {
+       "ingredientId": "garlic",
+       "positions": [
+        {
+         "x": 35.73,
+         "y": 27.57
+        },
+        {
+         "x": 59.38,
+         "y": 60.24
+        }
+       ]
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "recommendation": {
+  "candidate": "B",
+  "assignment": "interleaved for n > 8; consecutive (unchanged) for n <= 8",
+  "legacyFreeze": "n <= 8 returns PIECE_RING_POSITIONS[:n] byte-identically",
+  "scoringFixtures": "new recipes' referencePizza.ts fixtures are authored from the generator output and frozen as literals (MEAT_LOVERS precedent); existing 15 fixtures untouched",
+  "scoringImpact": "NONE for shipped content (referencePizza.ts / scoringV2 / referenceMatching untouched)",
+  "saveImpact": "NONE (persistence schema v2 stores no reference/topping coordinates)",
+  "safariRisk": "LOW (pure TS data, existing percent left/top + transform; no new CSS features)",
+  "implementationSlices": [
+   "RT-01a getReferenceSlots(n) + tests (no visible change)",
+   "RT-01b playerReference/PizzaThumbnail switch + invariant tests (byte-identical for shipped)",
+   "RT-01c W1 fixtures frozen from generator + Human Verification (new recipes only)"
+  ],
+  "ownerDecisionRequired": true,
+  "ownerDecisionReason": "#221 slice E dependsOn 'reference-layout redesign owner approval'",
+  "ownerDecisionItems": [
+   "adopt candidate B with n<=8 legacy freeze",
+   "interleaved slot assignment for n>8",
+   "new recipes' Scoring 2.0 fixtures = frozen generator output"
+  ],
+  "verdict": "OWNER_DECISION_REQUIRED"
+ }
+}
