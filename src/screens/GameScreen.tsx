@@ -106,6 +106,10 @@ interface GameScreenProps {
    *  player can explicitly choose a different recipe (mirrors HOME's own 「ピザを作る」 entry
    *  point rather than picking a new recipe at random). */
   onBackToPizzaSelect: () => void;
+  /** Progression 2.0 I4b-4: the DISCOVERED NEW MATERIAL notice's "ショップへ" CTA -- opens the
+   *  App-level Shop overlay (App.tsx's `setShopOpen`, same as HOME's Shop entry) on top of this
+   *  screen, so closing it returns right here. Optional: no CTA is rendered without it. */
+  onOpenShop?: () => void;
   onMissionServeNext: () => void;
   onMissionStart: () => void;
   onMissionExitToFree: () => void;
@@ -168,6 +172,7 @@ export function GameScreen({
   onConfirmBake,
   onRetrySameRecipe,
   onBackToPizzaSelect,
+  onOpenShop,
   onMissionServeNext,
   onMissionStart,
   onMissionExitToFree,
@@ -676,7 +681,8 @@ export function GameScreen({
           pitzCredit={state.lastPitzCredit}
           efficiencyCredit={state.lastEfficiencyCredit}
           stepTimingRows={stepTimingRows(state.cookingProfile.steps, state.cookingTiming?.perStepElapsedMs)}
-          starterGrantNotice={state.lastStarterGrantNotice}
+          materialUnlockNotice={state.lastMaterialUnlockNotice}
+          onOpenShop={onOpenShop}
           cutEvaluation={state.cutState.evaluation}
           freeCook={state.freeCook}
           discovery={state.lastDiscovery}

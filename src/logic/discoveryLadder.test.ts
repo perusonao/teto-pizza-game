@@ -396,7 +396,7 @@ describe("validateDiscoveryLadder", () => {
   });
 });
 
-describe("runtime wiring boundary (I4b-3)", () => {
+describe("runtime wiring boundary (I4b-3/4)", () => {
   // Raw source of every non-test module under src/. `import.meta.glob` is resolved by Vite at
   // transform time, so this sees exactly the files the app build would.
   const sources = import.meta.glob<string>(["../**/*.{ts,tsx}", "!../**/*.test.{ts,tsx}"], {
@@ -406,16 +406,21 @@ describe("runtime wiring boundary (I4b-3)", () => {
   });
 
   it("the Discovery Ladder / material Shop pure layer is reached only through its intended bridges", () => {
-    // I4a (ladder) + I4b-1 (material Shop) may import each other. From I4b-3 the runtime reaches
-    // them only via ../state/materialEntitlement.ts (ladder -> Shop entitlement) and
-    // ../state/gameReducer.ts (first pack / refill transactions) -- never from UI code directly.
+    // I4a (ladder) + I4b-1 (material Shop) may import each other. The runtime reaches them only
+    // via ../state/materialEntitlement.ts (ladder -> Shop entitlement), ../state/gameReducer.ts
+    // (first pack / refill transactions) and, from I4b-4, ../components/ShopOverlay.tsx (reads the
+    // same `materialOffer`/`nextMaterialHint` the reducer charges by -- no duplicated numbers).
     const pureLayer = new Set([
       "../data/discoveryLadder.ts",
       "./discoveryLadder.ts",
       "./materialShop.ts",
       "./testSupport/discoveryLadderRule.ts",
     ]);
-    const bridges = ["../state/gameReducer.ts", "../state/materialEntitlement.ts"];
+    const bridges = [
+      "../components/ShopOverlay.tsx",
+      "../state/gameReducer.ts",
+      "../state/materialEntitlement.ts",
+    ];
     const importers = Object.entries(sources)
       .filter(([path]) => !pureLayer.has(path))
       .filter(([, text]) => /from\s+["'][^"']*(discoveryLadder(Rule)?|materialShop)["']/.test(text))

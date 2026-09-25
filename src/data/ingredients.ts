@@ -487,26 +487,9 @@ export const CATEGORY_TAB_LABEL: Record<CategoryTab, string> = {
   ...CATEGORY_LABEL,
 };
 
-/**
- * Visual Polish 1C (AI UI/UX Visual Review 1.0, P1-3): every ingredient that could *ever* show
- * up in `ShopOverlay.tsx`'s `shopProducts` -- i.e. the Shop's eventual full catalog size once
- * every recipe is unlocked. Used only to size `EARLY_GAME_HINT_THRESHOLD` below; never a gate on
- * what's purchasable itself.
- */
-const TOTAL_SHOP_ELIGIBLE_INGREDIENTS = INGREDIENTS.filter((i) => i.unlockCondition).length;
-
-/**
- * How many *visible* Shop products it takes before the Shop stops reading as "empty/broken" and
- * ShopOverlay's own "レシピを解放すると増えます" progression hint retires on its own. Set to half
- * of `TOTAL_SHOP_ELIGIBLE_INGREDIENTS` rather than a hand-picked constant, so the cutoff scales
- * automatically as the 18->20->62+ ingredient roadmap lands instead of needing re-tuning per
- * batch -- confirmed by Recipe Expansion Batch 1B-A's own rosemary/bacon addition, which moved
- * this from 8 (of 15) to 9 (of 17) with zero code change here. Lives in this data file (not
- * ShopOverlay.tsx itself) purely so it stays a plain exported value alongside `CATEGORY_TAB_*`
- * above, rather than breaking ShopOverlay's own "only exports its component" Fast Refresh
- * convention.
- */
-export const EARLY_GAME_HINT_THRESHOLD = Math.ceil(TOTAL_SHOP_ELIGIBLE_INGREDIENTS / 2);
+// Progression 2.0 I4b-4: `EARLY_GAME_HINT_THRESHOLD` (the Shop's old "レシピを解放すると…" hint
+// cutoff) was removed -- the Shop now shows the Discovery Ladder progress line instead
+// (../logic/materialShop.ts's `nextMaterialHint`).
 
 export function getIngredient(id: string): Ingredient | undefined {
   return INGREDIENTS.find((i) => i.id === id);

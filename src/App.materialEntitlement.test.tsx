@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { cleanup, render } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import App from "./App";
 import { SAVE_STORAGE_KEY, createDefaultSave, type PersistentSaveV2 } from "./state/persistence";
 import { STARTER_INGREDIENT_IDS } from "./data/ingredients";
@@ -89,5 +90,117 @@ describe("load-time migration of an existing EP4 save", () => {
     // Dex 2 -> bacon newly entitled; the unknown id and its stock are kept.
     expect(save.unlockedForShopIngredientIds).toEqual(["egg", "bacon", "future-ingredient"]);
     expect(save.inventory).toEqual({ "future-ingredient": 9 });
+  });
+});
+
+/** A save whose only discovery is margherita, with the ladder's step 1 (egg) already unlocked. */
+function seedEggNew(pitzBalance: number): void {
+  window.localStorage.setItem(
+    SAVE_STORAGE_KEY,
+    JSON.stringify({
+      ...createDefaultSave(),
+      dex: [{ recipeId: "margherita", discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 }],
+      pitzBalance,
+      unlockedForShopIngredientIds: ["egg"],
+    }),
+  );
+}
+
+async function openShop(user: ReturnType<typeof userEvent.setup>): Promise<HTMLElement> {
+  await user.click(screen.getByRole("button", { name: /ショップ/ }));
+  return document.querySelector<HTMLElement>(".dex-overlay")!;
+}
+
+function eggRow(shop: HTMLElement): HTMLElement {
+  return shop.querySelector<HTMLElement>('.shop-item[data-ingredient-id="egg"]')!;
+}
+
+describe("I4b-4 Shop through the real App: NEW -> first pack -> OWNED, persisted", () => {
+  it("buys egg's first pack: NEW -> OWNED, stock 0 -> 10, Pitz -60, and it survives a reload", async () => {
+    seedEggNew(100);
+    const user = userEvent.setup();
+    const { unmount } = render(<App />);
+    let shop = await openShop(user);
+    expect(eggRow(shop).dataset.shopState).toBe("NEW");
+    expect(within(eggRow(shop)).getByText("在庫 0")).toBeInTheDocument();
+
+    await user.click(within(eggRow(shop)).getByRole("button", { name: "仕入れる" }));
+    expect(eggRow(shop).dataset.shopState).toBe("OWNED");
+    expect(within(eggRow(shop)).getByText("在庫 10")).toBeInTheDocument();
+    expect(within(shop).getByText(/40 Pitz/)).toBeInTheDocument(); // balance 100 - 60
+    expect(within(shop).getByText(/たまごを仕入れました！（10ピザ分（10個））/)).toBeInTheDocument();
+    expect(within(eggRow(shop)).getByText(/補充 .*30 Pitz/)).toBeInTheDocument();
+
+    const saved = stored() as unknown as PersistentSaveV2;
+    expect(saved.ownedIngredientIds).toContain("egg");
+    expect(saved.inventory).toEqual({ egg: 10 });
+    expect(saved.pitzBalance).toBe(40);
+
+    // Reload.
+    unmount();
+    render(<App />);
+    shop = await openShop(user);
+    expect(eggRow(shop).dataset.shopState).toBe("OWNED");
+    expect(within(eggRow(shop)).getByText("在庫 10")).toBeInTheDocument();
+  });
+
+  it("refill after the first pack adds 10 more for 30 Pitz", async () => {
+    seedEggNew(100);
+    const user = userEvent.setup();
+    render(<App />);
+    const shop = await openShop(user);
+    await user.click(within(eggRow(shop)).getByRole("button", { name: "仕入れる" }));
+    await user.click(within(eggRow(shop)).getByRole("button", { name: "補充する" }));
+    expect(within(eggRow(shop)).getByText("在庫 20")).toBeInTheDocument();
+    expect(within(shop).getByText(/たまごを補充しました！/)).toBeInTheDocument();
+    expect((stored() as unknown as PersistentSaveV2).pitzBalance).toBe(10);
+  });
+
+  it("insufficient Pitz: the first pack cannot be bought and nothing changes", async () => {
+    seedEggNew(59);
+    const user = userEvent.setup();
+    render(<App />);
+    const shop = await openShop(user);
+    const button = within(eggRow(shop)).getByRole("button", { name: "仕入れる" });
+    expect(button).toBeDisabled();
+    expect(within(eggRow(shop)).getByText("あと 1 Pitz たりません")).toBeInTheDocument();
+    await user.click(button);
+    expect(eggRow(shop).dataset.shopState).toBe("NEW");
+    expect(window.localStorage.getItem(SAVE_STORAGE_KEY)).not.toContain('"egg":');
+  });
+
+  it("the progress hint counts toward the next step without naming it", async () => {
+    seedEggNew(0);
+    const user = userEvent.setup();
+    render(<App />);
+    const shop = await openShop(user);
+    expect(within(shop).getByText(/あと1つ発見で新しい材料が入荷/)).toBeInTheDocument();
+    expect(shop.textContent).not.toContain("ベーコン");
+  });
+});
+
+describe("A2 in the real Pizza Select: a Free-Cooking discovery is re-selectable", () => {
+  it("discovered Bismarck (EP1 chain predecessor marinara NOT discovered) is not LOCKED", async () => {
+    window.localStorage.setItem(
+      SAVE_STORAGE_KEY,
+      JSON.stringify({
+        ...createDefaultSave(),
+        dex: [
+          { recipeId: "margherita", discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 },
+          { recipeId: "bismarck", discovered: true, bestScore: 65, bestStars: 3, timesMade: 1 },
+        ],
+        ownedIngredientIds: ["tomato-sauce", "mozzarella", "basil", "egg"],
+        inventory: { egg: 9 },
+        unlockedForShopIngredientIds: ["egg", "bacon"],
+      }),
+    );
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
+    const card = screen.getByRole("button", { name: /^ビスマルク、/ });
+    expect(card.getAttribute("aria-label")).not.toMatch(/未解放/);
+    expect(card.getAttribute("aria-label")).toMatch(/最高評価3つ星/);
+    // Marinara itself stays EP1-locked (undiscovered, its chain is unchanged).
+    expect(screen.getByRole("button", { name: /^マリナーラ、/ }).getAttribute("aria-label")).toMatch(/未解放/);
   });
 });

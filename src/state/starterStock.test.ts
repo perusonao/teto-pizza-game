@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyStarterGrants, buildStarterGrantNotice, STARTER_STOCK_PLAYS_CHAPTER_1 } from "./starterStock";
+import { applyStarterGrants, STARTER_STOCK_PLAYS_CHAPTER_1 } from "./starterStock";
 import { registerScoreToDex, EMPTY_DEX, type DexState } from "./dex";
 import { getIngredient, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { hasStock, remainingStock, EMPTY_INVENTORY, type InventoryState } from "./inventory";
@@ -327,16 +327,6 @@ describe("applyStarterGrants: Batch 1A recipe grant amounts (#8-#11)", () => {
     },
   );
 
-  it.each([
-    ["salsiccia", "サルシッチャ"],
-    ["pepperoni", "ペパロニ"],
-    ["napoletana", "ナポリ"],
-    ["tonno-e-cipolla", "トンノ・エ・チポッラ"],
-  ])("buildStarterGrantNotice for %s reads '🎁「%s」の材料を最初の10回分プレゼントしました！'", (recipeId, nameJa) => {
-    const notice = buildStarterGrantNotice([recipeId as never]);
-    expect(notice).not.toBeNull();
-    expect(notice!.messageJa).toBe(`🎁「${nameJa}」の材料を最初の10回分プレゼントしました！`);
-  });
 });
 
 describe("applyStarterGrants: Batch 1B-B recipe grant amounts (#14, capricciosa)", () => {
@@ -405,11 +395,6 @@ describe("applyStarterGrants: Batch 1B-B recipe grant amounts (#14, capricciosa)
     expect(result.claimedRecipeIds).toBe(alreadyClaimedWithCapricciosa);
   });
 
-  it("buildStarterGrantNotice for capricciosa reads '🎁「カプリチョーザ」の材料を最初の10回分プレゼントしました！'", () => {
-    const notice = buildStarterGrantNotice(["capricciosa" as never]);
-    expect(notice).not.toBeNull();
-    expect(notice!.messageJa).toBe("🎁「カプリチョーザ」の材料を最初の10回分プレゼントしました！");
-  });
 });
 
 describe("applyStarterGrants: scatter vs spread/sauce derivation", () => {
@@ -647,7 +632,6 @@ describe("Starter Grant integration via the reducer (REGISTER_TO_DEX / MISSION_N
     expect(discovered.starterGrantClaimedRecipeIds).toEqual([]);
     expect(discovered.inventory).toEqual({});
     expect(discovered.ownedIngredientIds).toEqual(STARTER_INGREDIENT_IDS);
-    expect(discovered.lastStarterGrantNotice).toBeNull();
     expect(discovered.unlockedForShopIngredientIds).toEqual(["egg"]);
     expect(discovered.lastMaterialUnlockNotice?.ingredientIds).toEqual(["egg"]);
   });
@@ -658,7 +642,6 @@ describe("Starter Grant integration via the reducer (REGISTER_TO_DEX / MISSION_N
     expect(next.starterGrantClaimedRecipeIds).toEqual([]);
     expect(next.inventory).toEqual({});
     expect(next.ownedIngredientIds).toEqual(STARTER_INGREDIENT_IDS);
-    expect(next.lastStarterGrantNotice).toBeNull();
   });
 
   it("an existing claimed ledger and its granted stock are carried through untouched (never re-granted, never removed)", () => {
@@ -687,30 +670,14 @@ describe("Starter Grant integration via the reducer (REGISTER_TO_DEX / MISSION_N
     }
   });
 
-  describe("Economy Tuning 1 P1: Starter Grant notice -- retired with EP4", () => {
-    it("REGISTER_TO_DEX never sets lastStarterGrantNotice any more", () => {
-      const first = gameReducer(playMargheritaToResult(), { type: "REGISTER_TO_DEX" });
-      expect(first.lastStarterGrantNotice).toBeNull();
-      const retried = gameReducer(first, { type: "RETRY_SAME_RECIPE" });
-      const secondBaked = walkPostBakeToResult(
-        gameReducer(gameReducer(retried, { type: "START_BAKE" }), { type: "CONFIRM_BAKE", value: 70 }),
-      );
-      expect(gameReducer(secondBaked, { type: "REGISTER_TO_DEX" }).lastStarterGrantNotice).toBeNull();
-    });
-
-    it("buildStarterGrantNotice is a pure function: null for an empty grant, a single-recipe message otherwise", () => {
-      expect(buildStarterGrantNotice([])).toBeNull();
-      const notice = buildStarterGrantNotice(["marinara"]);
-      expect(notice?.recipeIds).toEqual(["marinara"]);
-      expect(notice?.messageJa).toBe(
-        `\u{1F381}「${getRecipe("marinara")!.nameJa}」の材料を最初の${STARTER_STOCK_PLAYS_CHAPTER_1}回分プレゼントしました！`,
-      );
-    });
-
-    it("joins multiple simultaneous grants into one message rather than dropping any", () => {
-      const notice = buildStarterGrantNotice(["marinara", "bismarck"]);
-      expect(notice?.messageJa).toContain(getRecipe("marinara")!.nameJa);
-      expect(notice?.messageJa).toContain(getRecipe("bismarck")!.nameJa);
-    });
+  it("the next margherita round unlocks nothing new: no NEW MATERIAL notice either", () => {
+    const first = gameReducer(playMargheritaToResult(), { type: "REGISTER_TO_DEX" });
+    const retried = gameReducer(first, { type: "RETRY_SAME_RECIPE" });
+    const secondBaked = walkPostBakeToResult(
+      gameReducer(gameReducer(retried, { type: "START_BAKE" }), { type: "CONFIRM_BAKE", value: 70 }),
+    );
+    const second = gameReducer(secondBaked, { type: "REGISTER_TO_DEX" });
+    expect(second.lastMaterialUnlockNotice).toBeNull();
+    expect(second.inventory).toEqual({});
   });
 });

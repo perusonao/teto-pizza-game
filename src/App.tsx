@@ -891,6 +891,7 @@ function App() {
           onConfirmBake={handleConfirmBake}
           onRetrySameRecipe={() => dispatch({ type: "RETRY_SAME_RECIPE", now: Date.now() })}
           onBackToPizzaSelect={handleBackToPizzaSelectFromDiscovered}
+          onOpenShop={() => setShopOpen(true)}
           onMissionServeNext={handleMissionServeNext}
           onMissionStart={startMission}
           onMissionExitToFree={exitMissionToFree}
@@ -923,6 +924,7 @@ function App() {
         <ShopOverlay
           dex={state.dex}
           ownedIngredientIds={state.ownedIngredientIds}
+          unlockedForShopIngredientIds={state.unlockedForShopIngredientIds}
           pitzBalance={state.pitzBalance}
           inventory={state.inventory}
           onPurchase={handlePurchaseIngredient}

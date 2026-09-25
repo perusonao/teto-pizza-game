@@ -2,6 +2,8 @@ import "@testing-library/jest-dom/vitest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { ResultPanel } from "./ResultPanel";
+import userEvent from "@testing-library/user-event";
+import { buildMaterialUnlockNotice } from "../state/materialEntitlement";
 import type { ScoreBreakdown } from "../logic/scoring";
 import type { PitzCredit } from "../logic/pitzReward";
 import type { CookingEfficiencyCredit } from "../logic/efficiency";
@@ -132,24 +134,38 @@ describe("ResultPanel", () => {
     expect(screen.getByText(/今回はPitzを獲得できませんでした/)).toBeInTheDocument();
   });
 
-  // Economy Tuning 1 P1: the Starter Grant notice.
-  it("renders the Starter Grant notice when provided", () => {
+  // Progression 2.0 I4b-4: the NEW MATERIAL notice (replaces EP4's retired Starter Grant notice).
+  it("renders the NEW MATERIAL notice with a Shop CTA that opens the Shop", async () => {
+    const onOpenShop = vi.fn();
     render(
       <ResultPanel
         {...baseProps()}
-        starterGrantNotice={{
-          recipeIds: ["funghi"],
-          messageJa: "\u{1F381}「フンギ」の材料を最初の10回分プレゼントしました！",
-        }}
+        materialUnlockNotice={buildMaterialUnlockNotice(["egg"])}
+        onOpenShop={onOpenShop}
       />,
     );
-    expect(screen.getByText(/フンギ/)).toBeInTheDocument();
-    expect(screen.getByText(/10回分/)).toBeInTheDocument();
+    expect(screen.getByText(/新しい材料「たまご」が入荷/)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: /ショップへ/ }));
+    expect(onOpenShop).toHaveBeenCalledTimes(1);
   });
 
-  it("omits the Starter Grant notice when null (the common case -- no new recipe just unlocked)", () => {
-    render(<ResultPanel {...baseProps()} starterGrantNotice={null} />);
-    expect(screen.queryByText(/プレゼントしました/)).not.toBeInTheDocument();
+  it("names every material a single discovery unlocked", () => {
+    render(<ResultPanel {...baseProps()} materialUnlockNotice={buildMaterialUnlockNotice(["black-olive", "oregano"])} onOpenShop={vi.fn()} />);
+    expect(screen.getByText(/「ブラックオリーブ・オレガノ」/)).toBeInTheDocument();
+  });
+
+  it("never reads as a free gift", () => {
+    render(<ResultPanel {...baseProps()} materialUnlockNotice={buildMaterialUnlockNotice(["egg"])} onOpenShop={vi.fn()} />);
+    const notice = document.querySelector(".material-unlock-notice")!;
+    expect(notice.textContent).not.toMatch(/プレゼント|無料|もらえ|\u{1F381}/u);
+  });
+
+  it("omits the notice when null (the common case -- nothing newly unlocked), and the CTA without onOpenShop", () => {
+    const { unmount } = render(<ResultPanel {...baseProps()} materialUnlockNotice={null} onOpenShop={vi.fn()} />);
+    expect(document.querySelector(".material-unlock-notice")).toBeNull();
+    unmount();
+    render(<ResultPanel {...baseProps()} materialUnlockNotice={buildMaterialUnlockNotice(["egg"])} />);
+    expect(screen.queryByRole("button", { name: /ショップへ/ })).not.toBeInTheDocument();
   });
 
   // Cooking Time CT2.

@@ -3,7 +3,7 @@ import { cleanup, fireEvent, render, screen, within } from "@testing-library/rea
 import userEvent from "@testing-library/user-event";
 import App from "./App";
 import { SAVE_STORAGE_KEY, type PersistentSaveV1 } from "./state/persistence";
-import { EARLY_GAME_HINT_THRESHOLD, INGREDIENTS, STARTER_INGREDIENT_IDS } from "./data/ingredients";
+import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "./data/ingredients";
 import { RECIPES, type RecipeId } from "./data/recipes";
 
 /** Recipe Select 2.0A: Pizza Select is a sectioned browse grid, not a single-recipe pager --
@@ -983,16 +983,17 @@ describe("Shop 2.0 restock (Economy & Progression 1.0 EP3)", () => {
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ショップ/ }));
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
+    // I4b-4 (REC-04): onion is ladder step 10 (T2) -> refill 40 Pitz for one 10-pizza pack
+    // (10 x k, k = 4 -> 40 pieces), all read from the same `materialOffer` the reducer charges.
     expect(within(shop).getByText(/在庫 2/)).toBeInTheDocument();
-    expect(within(shop).getByText("+12")).toBeInTheDocument();
-    expect(within(shop).getByText(/170 Pitz/)).toBeInTheDocument();
+    expect(within(shop).getByText(/10ピザ分（40個）/)).toBeInTheDocument();
+    expect(within(shop).getByText(/補充 .*40 Pitz/)).toBeInTheDocument();
     expect(within(shop).getByRole("button", { name: "補充する" })).toBeInTheDocument();
     expect(within(shop).queryByText("購入済み")).not.toBeInTheDocument();
   });
 
-  // I4b-3 (REC-04 OD-REC04-3): the refill transaction is now the Discovery Ladder Shop's -- onion
-  // is ladder step 10 (T2), so a refill is -40 Pitz and +40 stock (10 x k, k = 4). The row's price
-  // label is I4b-4 UI and still shows the legacy number until then.
+  // I4b-3/4 (REC-04 OD-REC04-3): the refill is the Discovery Ladder Shop's -- onion is ladder
+  // step 10 (T2), so a refill is -40 Pitz and +40 stock (10 x k, k = 4), exactly as labelled.
   it("補充する credits inventory by +40 (10 x k) and debits Pitz by 40 (T2 refill) in one atomic tap", async () => {
     const user = userEvent.setup();
     seedSaveV2({ pitzBalance: 200, ownedIngredientIds: ownedWithOnion, inventory: { onion: 2 } });
@@ -1007,12 +1008,13 @@ describe("Shop 2.0 restock (Economy & Progression 1.0 EP3)", () => {
 
   it("disables 補充する when Pitz balance is insufficient for the restock price", async () => {
     const user = userEvent.setup();
-    seedSaveV2({ pitzBalance: 50, ownedIngredientIds: ownedWithOnion, inventory: { onion: 2 } });
+    seedSaveV2({ pitzBalance: 39, ownedIngredientIds: ownedWithOnion, inventory: { onion: 2 } });
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ショップ/ }));
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
     const button = within(shop).getByRole("button", { name: "補充する" });
     expect(button).toBeDisabled();
+    expect(within(shop).getByText("あと 1 Pitz たりません")).toBeInTheDocument();
     await user.click(button);
     // A disabled button never fires a click handler -- stock/Pitz must stay exactly as seeded.
     expect(within(shop).getByText(/在庫 2/)).toBeInTheDocument();
@@ -1020,8 +1022,8 @@ describe("Shop 2.0 restock (Economy & Progression 1.0 EP3)", () => {
 
   it("an ingredient the player doesn't own yet never shows a restock row", async () => {
     const user = userEvent.setup();
-    // onion LOCKED (totalStars 0 < 12, and not owned) -- the pre-EP3 LOCKED/AVAILABLE_TO_BUY
-    // branches must be completely unaffected by the restock UI addition.
+    // I4b-4: with an empty Dex nothing is unlocked by the Discovery Ladder, so onion is LOCKED
+    // and LOCKED rows are never listed at all.
     seedSaveV2({ pitzBalance: 999, ownedIngredientIds: [...STARTER_INGREDIENT_IDS] });
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ショップ/ }));
@@ -1032,22 +1034,15 @@ describe("Shop 2.0 restock (Economy & Progression 1.0 EP3)", () => {
 });
 
 /**
- * Visual Polish 1C (AI UI/UX Visual Review 1.0, P1-3 / P2-5): fresh/early-game Shop guidance +
- * category filter. "few" below means fewer than `EARLY_GAME_HINT_THRESHOLD` owned finite
- * ingredients, "many" means at least that many -- `MANY` is sized directly off the real,
- * currently-shipped constant (imported from ShopOverlay.tsx) rather than a hardcoded copy of it,
- * so this suite doesn't go stale every time a Recipe Expansion batch changes the ingredient
- * catalog's size (as it already did once: 15 -> 17 shop-eligible ingredients moved the threshold
- * from 8 to 9 when Batch 1B-A added rosemary/bacon).
+ * Visual Polish 1C (AI UI/UX Visual Review 1.0, P1-3 / P2-5): Shop guidance + category filter.
+ * Progression 2.0 I4b-4: the old early-game "レシピを解放すると…" hint is replaced by the Discovery
+ * Ladder progress line ("あと1つ発見で新しい材料が入荷"), shown whenever a next ladder step exists
+ * and gone once every step is reached.
  */
 describe("Shop Visual Polish 1C: empty state + scalability", () => {
   const FEW = ["mushroom"]; // funghi's own grant -- 1 shop product, topping category
-  // The first `EARLY_GAME_HINT_THRESHOLD` shop-eligible ingredient ids, in catalog order --
-  // always exactly at the threshold, spanning whichever categories the catalog's own early
-  // entries happen to cover (today: sauce/cheese/topping, same 3 as ever).
-  const MANY = INGREDIENTS.filter((i) => i.unlockCondition)
-    .map((i) => i.id)
-    .slice(0, EARLY_GAME_HINT_THRESHOLD);
+  // Every shop-eligible (finite) ingredient id, in catalog order.
+  const MANY = INGREDIENTS.filter((i) => i.unlockCondition).map((i) => i.id);
 
   it("A/B. fresh game (0 products) shows only the big empty-shop message, no hint/filter/list", async () => {
     const user = userEvent.setup();
@@ -1055,12 +1050,13 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ショップ/ }));
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
-    expect(within(shop).getByText("新しい素材は、ピザの腕前が上がると入荷します")).toBeInTheDocument();
-    expect(within(shop).queryByText(/レシピを解放すると/)).not.toBeInTheDocument();
+    expect(within(shop).getByText("新しいピザを発見すると、材料が入荷します")).toBeInTheDocument();
+    expect(within(shop).getByText(/あと1つ発見で新しい材料が入荷/)).toBeInTheDocument();
+    expect(within(shop).queryByText(/腕前|★/)).not.toBeInTheDocument();
     expect(within(shop).queryByRole("tablist")).not.toBeInTheDocument();
   });
 
-  it("C. a few-item early Shop shows the progression hint alongside the real row (not instead of it)", async () => {
+  it("C. an early Shop shows the ladder progress hint alongside the real row (not instead of it)", async () => {
     const user = userEvent.setup();
     seedSaveV2({
       pitzBalance: 200,
@@ -1070,14 +1066,15 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ショップ/ }));
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
-    expect(within(shop).getByText("レシピを解放すると、買える材料が増えます")).toBeInTheDocument();
+    expect(within(shop).getByText(/あと1つ発見で新しい材料が入荷/)).toBeInTheDocument();
     expect(within(shop).getByText("マッシュルーム")).toBeInTheDocument();
     expect(within(shop).getByRole("tablist")).toBeInTheDocument();
   });
 
-  it("D. a progressed Shop (>= threshold products) no longer shows the progression hint", async () => {
+  it("D. once every ladder step is reached (all 15 recipes discovered) the progress hint is gone", async () => {
     const user = userEvent.setup();
     seedSaveV2({
+      dex: RECIPES.map((r) => ({ recipeId: r.id, discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 })),
       pitzBalance: 500,
       ownedIngredientIds: [...STARTER_INGREDIENT_IDS, ...MANY],
       inventory: Object.fromEntries(MANY.map((id) => [id, 5])),
@@ -1085,7 +1082,7 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ショップ/ }));
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
-    expect(within(shop).queryByText(/レシピを解放すると/)).not.toBeInTheDocument();
+    expect(within(shop).queryByText(/発見で新しい材料が入荷/)).not.toBeInTheDocument();
     expect(within(shop).getAllByRole("button", { name: "補充する" }).length).toBe(MANY.length);
   });
 
@@ -1149,7 +1146,7 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
 
     await user.click(within(shop).getByRole("tab", { name: "トッピング" }));
     expect(within(shop).queryByText("オリーブオイル")).not.toBeInTheDocument();
-    expect(within(shop).getByText(/170 Pitz/)).toBeInTheDocument(); // onion's price, unchanged
+    expect(within(shop).getByText(/補充 .*40 Pitz/)).toBeInTheDocument(); // onion's T2 refill, unchanged by filtering
     await user.click(within(shop).getByRole("button", { name: "補充する" }));
     // I4b-3: the same REC-04 refill as unfiltered (T2 onion: +40 stock, -40 Pitz).
     expect(within(shop).getByText(/在庫 42/)).toBeInTheDocument(); // 2 + 40

@@ -236,7 +236,6 @@ describe("render sites with every current ingredient (emoji path)", () => {
         justDiscovered={false}
         justGotNewBest={false}
         pitzCredit={null}
-        starterGrantNotice={null}
         freeCook
         onRetrySameRecipe={vi.fn()}
         onBackToPizzaSelect={vi.fn()}
@@ -264,6 +263,7 @@ describe("render sites with every current ingredient (emoji path)", () => {
       <ShopOverlay
         dex={EMPTY_DEX}
         ownedIngredientIds={allIds}
+        unlockedForShopIngredientIds={[]}
         pitzBalance={9999}
         inventory={Object.fromEntries(allIds.map((id) => [id, 1]))}
         onPurchase={() => {}}
@@ -354,7 +354,6 @@ describe("render sites with a dedicated-visual fixture row", () => {
         justDiscovered={false}
         justGotNewBest={false}
         pitzCredit={null}
-        starterGrantNotice={null}
         freeCook
         onRetrySameRecipe={vi.fn()}
         onBackToPizzaSelect={vi.fn()}
@@ -372,20 +371,31 @@ describe("render sites with a dedicated-visual fixture row", () => {
     expect(inventory.container.querySelector('.inventory-card__emoji svg[data-ingredient-visual="tomato-slice"]')).not.toBeNull();
     inventory.unmount();
 
-    const shop = render(
-      <ShopOverlay
-        dex={EMPTY_DEX}
-        ownedIngredientIds={[row.id]}
-        pitzBalance={999}
-        inventory={{ [row.id]: 0 }}
-        onPurchase={() => {}}
-        onRestock={() => {}}
-        onClose={() => {}}
-      />,
-    );
-    expect(shop.container.querySelector('.shop-item__emoji svg[data-ingredient-visual="tomato-slice"]')).not.toBeNull();
-    expect(shop.container.textContent).not.toContain(row.emoji);
-    shop.unmount();
+    // Progression 2.0 I4b-4: the Shop lists only Discovery Ladder materials, so the fixture row
+    // (not on the ladder) is never a Shop row. The Shop's glyph path is checked on a real ladder
+    // material (egg) given the same dedicated visual for the duration of this render.
+    const egg = getIngredient("egg")!;
+    const eggVisual = egg.pieceVisual;
+    egg.pieceVisual = "tomato-slice";
+    try {
+      const shop = render(
+        <ShopOverlay
+          dex={EMPTY_DEX}
+          ownedIngredientIds={["egg"]}
+          unlockedForShopIngredientIds={["egg"]}
+          pitzBalance={999}
+          inventory={{ egg: 0 }}
+          onPurchase={() => {}}
+          onRestock={() => {}}
+          onClose={() => {}}
+        />,
+      );
+      expect(shop.container.querySelector('.shop-item__emoji svg[data-ingredient-visual="tomato-slice"]')).not.toBeNull();
+      expect(shop.container.textContent).not.toContain(egg.emoji);
+      shop.unmount();
+    } finally {
+      egg.pieceVisual = eggVisual;
+    }
 
     const recipe = { ...RECIPES[0], requiredIngredients: [{ ingredientId: row.id, minCount: 1 }] } as unknown as Recipe;
     const thumb = render(<PizzaThumbnail recipe={recipe} />);

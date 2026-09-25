@@ -6,7 +6,6 @@ import {
   preBakeSteps,
   type CookingProfile,
 } from "../data/cookingProfiles";
-import type { StarterGrantNotice } from "./starterStock";
 import {
   buildMaterialUnlockNotice,
   resolveShopEntitlement,
@@ -219,18 +218,11 @@ export interface GameState {
    *  every fresh round (`buildOrderState` below) so a stale previous round's credit can never
    *  leak into a new one. Never persisted -- transient exactly like `score`/`scoringV2Result`. */
   lastPitzCredit: PitzCredit | null;
-  /** Economy Tuning 1 P1: canonical transient DISCOVERED display snapshot for the Starter Grant
-   *  `REGISTER_TO_DEX` just applied (../state/starterStock.ts's `buildStarterGrantNotice`) --
-   *  `null` on every call that granted nothing (already-claimed, margherita, or no newly-unlocked
-   *  recipe), and reset to `null` for every fresh round (`buildOrderState` below), exactly like
-   *  `lastPitzCredit` above. Never persisted, never set by `MISSION_NEXT_ORDER` (Lunch Rush skips
-   *  DISCOVERED entirely, so there is nowhere to show it -- the reset above still clears any stale
-   *  value before the next order). */
-  lastStarterGrantNotice: StarterGrantNotice | null;
-  /** I4b-3: transient NEW MATERIAL notice for the materials REGISTER_TO_DEX's ladder resolution
-   *  just unlocked (./materialEntitlement.ts). `null` when nothing new was unlocked; reset to
-   *  `null` every fresh round like `lastPitzCredit`; never persisted. EP4 is retired, so
-   *  `lastStarterGrantNotice` above is now always `null` (its UI goes in I4b-4). */
+  /** Progression 2.0 I4b-3/4: transient NEW MATERIAL notice for the materials REGISTER_TO_DEX's
+   *  ladder resolution just unlocked for the Shop (./materialEntitlement.ts), rendered by
+   *  ResultPanel with a Shop CTA. `null` when nothing new was unlocked; reset to `null` every
+   *  fresh round (`buildOrderState` below) like `lastPitzCredit`; never persisted. It replaces
+   *  EP4's retired Starter Grant notice (`lastStarterGrantNotice`, removed). */
   lastMaterialUnlockNotice: MaterialUnlockNotice | null;
   /** Cooking Time CT1/CT2: deterministic FREE-only "active making" timing (../logic/
    *  cookingTiming.ts), spanning `BEGIN_PREPARE`/an equivalent fresh-PREPARE entry (SELECT_RECIPE,
@@ -468,7 +460,6 @@ function buildOrderState(
     hint: null,
     placement: null,
     lastPitzCredit: null,
-    lastStarterGrantNotice: null,
     lastMaterialUnlockNotice: null,
     lastEfficiencyCredit: null,
     lastDiscovery: null,
@@ -1098,7 +1089,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // timesMade update, no Starter Grant, no Pitz credit (see ../logic/completionGate.ts and
       // the Result Report's FAILED semantics section for the full rationale). `state` is
       // returned completely unchanged, so the round stays parked at "RESULT" with
-      // `lastPitzCredit`/`lastStarterGrantNotice` still at their fresh-round `null` -- the
+      // `lastPitzCredit`/`lastMaterialUnlockNotice` still at their fresh-round `null` -- the
       // FAILED RESULT UI reads `state.completion` directly instead of any of the fields this
       // case would otherwise set.
       if (state.completion?.status === "FAILED") {
