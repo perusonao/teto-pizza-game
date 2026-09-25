@@ -187,14 +187,18 @@ jobs:
         run: >-
           node scripts/ci/webkit-shard-evidence.mjs collect
           --project ${{ matrix.project }} --shard ${{ matrix.shard }} --total ${{ matrix.total }}
+          --attempt ${{ github.run_attempt }}
           --list "$LIST_JSON" --results "$RESULTS_JSON"
           --out webkit-evidence/evidence.json
 
+      # The attempt is part of the name: "Re-run failed jobs" keeps the earlier attempt's artifacts,
+      # and two artifacts with one name made download-artifact keep an arbitrary one (PR #221 run
+      # 36019302842: the stale failed attempt). WebKit Gate uses each shard's latest attempt.
       - name: Upload shard evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: webkit-evidence-${{ matrix.project }}-shard${{ matrix.shard }}
+          name: webkit-evidence-${{ matrix.project }}-shard${{ matrix.shard }}-attempt${{ github.run_attempt }}
           path: webkit-evidence/evidence.json
           if-no-files-found: error
           retention-days: 14
@@ -231,6 +235,8 @@ jobs:
 
       # `needs.webkit.result` is the aggregate of every matrix shard (any failed/cancelled shard
       # -> not success). The evidence then proves the shards jointly covered the whole suite.
+      # On a re-run this also downloads earlier attempts' evidence; the verifier keeps only each
+      # shard's highest attempt (the job whose result `needs.webkit.result` reflects).
       # continue-on-error: a missing artifact must surface as a gate FAIL with a readable reason
       # from the verifier, not abort the evaluation step.
       - name: Download shard evidence
