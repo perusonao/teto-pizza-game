@@ -6,3 +6,11 @@
   vertical-align: -0.125em;
   overflow: visible;
 }
+
+/* Slice 3: the fresh-tomato Final candidate is drawn at the visual size of neighbouring emoji
+   (Noto/Apple glyphs overfill their 1em box); negative margins keep the layout box at 1em. */
+.w1-glyph--tomato-slice-final {
+  width: 1.15em;
+  height: 1.15em;
+  margin: -0.075em;
+}

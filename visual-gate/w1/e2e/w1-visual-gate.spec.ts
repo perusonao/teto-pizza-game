@@ -186,6 +186,13 @@ async function shot(page: Page, testInfo: { project: { name: string } }, name: s
   await page.screenshot({ path: `${dir}${name}.png` });
 }
 
+/** Pizza-only crop, same gating as `shot` (no hold: it always follows a full-screen shot). */
+async function stageShot(page: Page, testInfo: { project: { name: string } }, name: string) {
+  if (!SHOTS || !testInfo.project.name.startsWith("chromium")) return;
+  if (SHOT_ONLY && !SHOT_ONLY.some((prefix) => name.startsWith(prefix))) return;
+  await page.locator(".pizza-stage").screenshot({ path: `${SHOT_ROOT}${viewportKey(page)}/${name}.png` });
+}
+
 async function expectOneScreen(page: Page, label: string) {
   const state = await page.evaluate(() => {
     const el = document.querySelector(".game-screen")!;
@@ -245,7 +252,7 @@ async function expectDedicatedVisuals(page: Page, scenario: Scenario, counts: Re
   const pepperoniTexts = await stage.locator(".pizza-topping--pepperoni").allTextContents();
   expect(pepperoniTexts.every((text) => text === "\u{1F534}"), "pepperoni stays 🔴").toBe(true);
   expect(await n("caper-cluster"), "caper cluster pieces").toBe(counts.capers ?? 0);
-  expect(await n("asari-valve"), "asari pieces").toBe(scenario.clam === "dedicated" ? (counts.clam ?? 0) : 0);
+  expect(await n("asari-valve"), "asari pieces").toBe(scenario.clam === "oyster" ? 0 : (counts.clam ?? 0));
   const cherryTexts = await stage.locator(".pizza-topping--cherry-tomato").allTextContents();
   expect(cherryTexts.every((text) => text === "\u{1F345}"), "cherry-tomato stays 🍅").toBe(true);
   const freshTexts = await stage.locator(".pizza-topping--fresh-tomato").allTextContents();
@@ -305,11 +312,7 @@ for (const scenario of SCENARIOS) {
     await page.waitForTimeout(400);
     await expectOneScreen(page, `${scenario.key} TOPPING placed`);
     await shot(page, testInfo, `${scenario.key}-2-raw`);
-    await page.locator(".pizza-stage").screenshot(
-      SHOTS && testInfo.project.name.startsWith("chromium")
-        ? { path: `${SHOT_ROOT}${viewportKey(page)}/${scenario.key}-2-raw-stage.png` }
-        : {},
-    );
+    await stageShot(page, testInfo, `${scenario.key}-2-raw-stage`);
 
     // Identity: every candidate piece keeps its own id on the pizza (fresh-tomato is never
     // turned into cherry-tomato, clam stays clam whatever its glyph).
@@ -340,9 +343,7 @@ for (const scenario of SCENARIOS) {
     expect(frozenAt, "needle inside the free-cook bake window").toBeGreaterThan(FREE_COOK_BAKE_TARGET.start);
     expect(frozenAt).toBeLessThan(FREE_COOK_BAKE_TARGET.end);
     await shot(page, testInfo, `${scenario.key}-3-baked`);
-    if (SHOTS && testInfo.project.name.startsWith("chromium")) {
-      await page.locator(".pizza-stage").screenshot({ path: `${SHOT_ROOT}${viewportKey(page)}/${scenario.key}-3-baked-stage.png` });
-    }
+    await stageShot(page, testInfo, `${scenario.key}-3-baked-stage`);
     await page.getByRole("button", { name: "取り出す！" }).click();
     await page.clock.resume();
 

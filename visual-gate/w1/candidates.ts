@@ -50,7 +50,7 @@ export const TOMATO_VARIANT_LABEL: Record<TomatoVariant, string> = {
 
 /** Which ingredient ids render a dedicated (non-emoji) visual in this preview page load.
  *  `?w1visual=emoji` restores slice 1's shared 🍅 / 🟢 for before/after comparison;
- *  `?clam=dedicated` switches clam from A (🦪) to B. Identity never changes -- only the drawing. */
+ *  clam draws B (dedicated asari) unless `?clam=oyster`. Identity never changes -- only the drawing. */
 export function activeDedicatedVisuals(search: string): Partial<Record<string, DedicatedVisualKey>> {
   const params = new URLSearchParams(search);
   const active: Partial<Record<string, DedicatedVisualKey>> = {};
@@ -92,7 +92,9 @@ export function w1CandidateRows(): Ingredient[] {
 }
 
 export function clamVariantFromLocation(search: string): ClamGlyphVariant {
-  return new URLSearchParams(search).get("clam") === "dedicated" ? "dedicated" : "oyster";
+  // Owner Decision DEDICATED_CLAM_B (after the slice 2 Human Gate): B is the default; 🦪 stays
+  // reachable only as `?clam=oyster` for the record.
+  return new URLSearchParams(search).get("clam") === "oyster" ? "oyster" : "dedicated";
 }
 
 /** The gate's own save key. `vite.config.ts` rewrites production persistence's key to this in
