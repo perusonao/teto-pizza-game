@@ -548,3 +548,34 @@ describe("ResultPanel", () => {
     expect(onBackToPizzaSelect).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("ResultPanel: Issue #215 quantity line and near-miss copy", () => {
+  it("shows the quantity note under the score when one is given", () => {
+    render(
+      <ResultPanel
+        {...baseProps()}
+        score={baseScore({ total: 82.45, stars: 4 })}
+        quantityNoteJa="マッシュルームがお手本より少なめ（2個／お手本3個）"
+      />,
+    );
+    expect(screen.getByText("82点")).toBeInTheDocument();
+    expect(screen.getByText("マッシュルームがお手本より少なめ（2個／お手本3個）")).toBeInTheDocument();
+  });
+
+  it("renders no quantity note when omitted", () => {
+    const { container } = render(<ResultPanel {...baseProps()} />);
+    expect(container.querySelector(".result-panel__quantity-note")).toBeNull();
+  });
+
+  it("the free-cook near miss no longer blames the ingredient count", () => {
+    render(
+      <ResultPanel
+        {...baseProps()}
+        score={null}
+        freeCook
+        discovery={{ kind: "INCOMPLETE_MATCH", recipeId: "margherita", targetId: "shipped:margherita" }}
+      />,
+    );
+    expect(screen.getByText("図鑑のピザまであと少し…！ソースや焼き加減を変えてみよう。")).toBeInTheDocument();
+  });
+});

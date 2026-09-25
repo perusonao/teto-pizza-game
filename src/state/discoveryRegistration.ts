@@ -34,7 +34,8 @@ export function registerDiscoveryToDex(
     return { dex, outcome };
   }
   const recipe = getRecipe(outcome.recipeId);
-  if (!recipe || evaluatePizzaCompletion(recipe, pizza).status !== "PASS") {
+  // Issue #215 OD-5: the "recipe" policy -- one piece of each required ingredient discovers.
+  if (!recipe || evaluatePizzaCompletion(recipe, pizza, "recipe").status !== "PASS") {
     return {
       dex,
       outcome: { kind: "INCOMPLETE_MATCH", recipeId: outcome.recipeId, targetId: outcome.targetId },

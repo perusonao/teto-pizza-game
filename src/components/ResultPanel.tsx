@@ -91,6 +91,10 @@ interface ResultPanelProps {
   discovery?: DiscoveryOutcome | null;
   /** Distinct ingredient ids on the finished pizza (sauce first), shown on the ORIGINAL card. */
   usedIngredientIds?: readonly string[];
+  /** Issue #215: ../data/quantityMessages.ts's `buildQuantityNote` line ("…がお手本より少なめ
+   *  （2個／お手本3個）"), shown under the score when Scoring 2.0's quantity factor applied.
+   *  Omitted/null renders nothing. */
+  quantityNoteJa?: string | null;
   /** Issue #47 Finding D: retries this exact recipe (RETRY_SAME_RECIPE). */
   onRetrySameRecipe: () => void;
   /** Issue #47 Finding D: returns to Pizza Select so the player can choose a different recipe. */
@@ -150,6 +154,7 @@ export function ResultPanel({
   freeCook = false,
   discovery = null,
   usedIngredientIds = [],
+  quantityNoteJa = null,
   onRetrySameRecipe,
   onBackToPizzaSelect,
 }: ResultPanelProps) {
@@ -211,7 +216,7 @@ export function ResultPanel({
         <div className="result-panel__headline">
           <p className="original-pizza__lead">
             {nearMiss
-              ? "図鑑のピザまであと少し…！材料の数や焼き加減を変えてみよう。"
+              ? "図鑑のピザまであと少し…！ソースや焼き加減を変えてみよう。"
               : "図鑑にはない、あなただけのピザ！"}
           </p>
           {usedIngredientIds.length > 0 && (
@@ -275,6 +280,7 @@ export function ResultPanel({
             {BAKE_STATE_ICON[bakeState]} 焼き加減: {BAKE_STATE_LABEL[bakeState]}
           </p>
         )}
+        {quantityNoteJa && <p className="result-panel__quantity-note">{quantityNoteJa}</p>}
       </div>
 
       {freeCookMatch === "NEW_DISCOVERY" && (
