@@ -1,10 +1,19 @@
 import { describe, expect, it } from "vitest";
 import { createInitialGameState, gameReducer, type GameState } from "./gameReducer";
-import { EMPTY_DEX } from "./dex";
+import { EMPTY_DEX, registerScoreToDex } from "./dex";
 import { getRecipe } from "../data/recipes";
 import { calculatePitzReward } from "../logic/pitzReward";
 import { loadSave, persistProgress, type StorageLike } from "./persistence";
 import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
+
+const MARGHERITA_DISCOVERED_DEX = registerScoreToDex(EMPTY_DEX, "margherita", {
+  total: 80,
+  stars: 4,
+  matchScore: 80,
+  ingredientScore: 80,
+  placementScore: 80,
+  bakeScore: 80,
+}).dex;
 
 /**
  * Issue #38 E-P1/E-P2: FREE per-pizza Pitz reward, wired into REGISTER_TO_DEX
@@ -170,7 +179,7 @@ describe("FREE per-pizza Pitz credit (REGISTER_TO_DEX)", () => {
 
 describe("Lunch Rush isolation -- no per-pizza FREE reward leakage", () => {
   function playMissionMargheritaToResult(): GameState {
-    let state = createInitialGameState();
+    let state = createInitialGameState(MARGHERITA_DISCOVERED_DEX);
     state = gameReducer(state, { type: "MISSION_RESET_ORDER" });
     for (let i = 0; i < 30 && state.recipe.id !== "margherita"; i++) {
       state = gameReducer(state, { type: "MISSION_RESET_ORDER" });

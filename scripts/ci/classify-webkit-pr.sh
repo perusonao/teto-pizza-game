@@ -5,6 +5,13 @@
 # resolves to webkit_required=true ("fail-safe"), never to a skip.
 #
 # Decision order:
+#   0. Issue #207 Phase 2A forcing rules (checked first, never a skip):
+#      a. EVENT_NAME other than pull_request (push to main = post-merge Full, workflow_dispatch
+#         = manual Full) -> run.
+#      b. The PR carries the `webkit-full` label -> run (bypasses both skips below). Labels are
+#         read live from the API (so a re-run after labelling sees it), falling back to the
+#         event payload (PR_LABELS). The workflow deliberately has no `labeled` trigger: with
+#         PR-scoped cancel-in-progress, any label event would cancel a running WebKit run.
 #   1. Whole PR diff (merge-base(base, head) -> head) is documentation-only
 #        -> skip (Case A: docs-only PR).
 #   2. Push to an existing PR (synchronize) whose diff since the previous head is
@@ -18,9 +25,10 @@
 # Also outputs `tested_base`: the base-branch commit this run's merge ref (MERGE_SHA, i.e.
 # github.sha) was built on. WebKit Gate records it in its annotation so a later run can compare.
 #
-# Required env: BASE_SHA, HEAD_SHA. Optional: MERGE_SHA, BEFORE_SHA (synchronize only),
-# GH_TOKEN + REPO (needed for step 2's check-run lookup; without them step 2 falls through to
-# "run").
+# Required env (pull_request): BASE_SHA, HEAD_SHA. Optional: EVENT_NAME (default pull_request),
+# MERGE_SHA, BEFORE_SHA (synchronize only), PR_NUMBER + PR_LABELS (label forcing),
+# GH_TOKEN + REPO (needed for step 2's check-run lookup and the live label read; without them
+# step 2 falls through to "run" and labels come from PR_LABELS only).
 set -uo pipefail
 
 out="${GITHUB_OUTPUT:-/dev/stdout}"
@@ -37,7 +45,7 @@ emit() {
   echo "::notice title=WebKit classifier::webkit_required=$required -- $reason"
   if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
     {
-      echo "## WebKit change classifier (Issue #201)"
+      echo "## WebKit change classifier (Issue #201 / #207)"
       echo ""
       echo "| webkit_required | reason |"
       echo "|---|---|"
@@ -70,6 +78,11 @@ if ! node "$classifier" --self-test; then
   failsafe "classifier self-test failed"
 fi
 
+event="${EVENT_NAME:-pull_request}"
+if [ "$event" != "pull_request" ]; then
+  emit true "event '$event' always runs Full WebKit (post-merge / manual run, no PR diff to classify)"
+fi
+
 # GitHub's PR merge ref is a two-parent commit [base tip, PR head]. Anything else -> unknown,
 # which disables evidence reuse (never enables it).
 tested_base=""
@@ -78,6 +91,15 @@ if [ -n "${MERGE_SHA:-}" ] && [ -n "${HEAD_SHA:-}" ]; then
   if [ -n "${merge_p2:-}" ] && [ -z "${merge_extra:-}" ] && [ "$merge_p2" = "$HEAD_SHA" ]; then
     tested_base="$merge_p1"
   fi
+fi
+
+labels=""
+if [ -n "${GH_TOKEN:-}" ] && [ -n "${REPO:-}" ] && [ -n "${PR_NUMBER:-}" ]; then
+  labels="$(gh api "repos/$REPO/issues/$PR_NUMBER/labels" --jq '.[].name' 2>/dev/null)" || labels=""
+fi
+[ -n "$labels" ] || labels="$(printf '%s\n' "${PR_LABELS:-}" | tr ',' '\n')"
+if printf '%s\n' "$labels" | grep -qx 'webkit-full'; then
+  emit true "label 'webkit-full' forces Full WebKit (no docs-only skip, no evidence reuse)"
 fi
 
 [ -n "${BASE_SHA:-}" ] && [ -n "${HEAD_SHA:-}" ] || failsafe "BASE_SHA/HEAD_SHA not provided"

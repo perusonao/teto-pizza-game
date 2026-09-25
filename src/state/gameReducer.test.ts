@@ -34,6 +34,7 @@ function dexDiscovering(recipeIds: readonly string[], stars: QualityStars): DexS
  *  recipes before quattro-formaggi/fugazza, satisfying both stars gates) -- used by tests that
  *  need every recipe unlocked (EP1's recipe-unlock axis) so they can focus on a different
  *  concern (order rotation, ingredient-ownership gating, ...). */
+const MARGHERITA_DISCOVERED_DEX: DexState = dexDiscovering(["margherita"], 1 as QualityStars);
 const ALL_RECIPES_UNLOCKED_DEX: DexState = dexDiscovering(
   ["margherita", "funghi", "marinara", "bismarck", "genovese", "quattro-formaggi"],
   3 as QualityStars,
@@ -156,7 +157,7 @@ describe("pitzBalance carry-over (Phase 3C-5)", () => {
   });
 
   it("MISSION_RESET_ORDER carries pitzBalance forward unchanged", () => {
-    let state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 75);
+    let state = createInitialGameState(MARGHERITA_DISCOVERED_DEX, STARTER_INGREDIENT_IDS, 75);
     state = gameReducer(state, { type: "MISSION_RESET_ORDER" });
     expect(state.pitzBalance).toBe(75);
   });
@@ -557,8 +558,13 @@ describe("order selection availability (Phase 3C-3)", () => {
 });
 
 describe("Mission order actions (Phase 3C-4)", () => {
+  it("MISSION_RESET_ORDER fails closed at Dex 0 instead of falling back to an undiscovered order", () => {
+    const state = createInitialGameState(EMPTY_DEX);
+    expect(gameReducer(state, { type: "MISSION_RESET_ORDER" })).toBe(state);
+  });
+
   it("MISSION_RESET_ORDER picks a fresh available-pool order from any phase, including PREPARE/BAKE mid-round", () => {
-    let state = createInitialGameState();
+    let state = createInitialGameState(MARGHERITA_DISCOVERED_DEX);
     state = gameReducer(state, { type: "BEGIN_PREPARE" });
     expect(state.phase).toBe("PREPARE");
 
@@ -569,9 +575,10 @@ describe("Mission order actions (Phase 3C-4)", () => {
   });
 
   it("MISSION_RESET_ORDER never repeats the just-active recipe when another is available", () => {
-    const owned = ["tomato-sauce", "mozzarella", "basil", "garlic", "oregano"]; // margherita + marinara
-    // marinara needs funghi discovered first (Economy & Progression 1.0 EP1 chain) --
-    // margherita/funghi discovered so both margherita and marinara are unlocked recipes.
+    const owned = ["tomato-sauce", "mozzarella", "basil", "mushroom"]; // margherita + funghi
+    // Issue #200: Mission candidates must be BOTH discovered and currently available. Funghi
+    // is the direct post-Margherita chain recipe, so discovering both and owning mushroom gives
+    // this assertion a genuine two-item Mission pool without depending on a later chain gate.
     const dex = dexDiscovering(["margherita", "funghi"], 1 as QualityStars);
     let state = createInitialGameState(dex, owned);
     for (let i = 0; i < 30; i++) {
@@ -583,7 +590,7 @@ describe("Mission order actions (Phase 3C-4)", () => {
 
   it("MISSION_RESET_ORDER only ever selects a recipe from the currently-owned/available pool", () => {
     const marginallyOwned = ["tomato-sauce", "mozzarella", "basil"]; // margherita only
-    let state = createInitialGameState(EMPTY_DEX, marginallyOwned);
+    let state = createInitialGameState(MARGHERITA_DISCOVERED_DEX, marginallyOwned);
     for (let i = 0; i < 20; i++) {
       state = gameReducer(state, { type: "MISSION_RESET_ORDER" });
       expect(state.recipe.id).toBe("margherita");
@@ -720,7 +727,7 @@ describe("Phase 4A-2 Scoring 2.0 / A1 Authority Cutover (gameReducer integration
 
   it("Lunch Rush: CONFIRM_BAKE computes the Scoring 2.0 result from that exact mission pizza's canonical bake state (P0-2, same reducer path as FREE)", () => {
     const marginallyOwned = ["tomato-sauce", "mozzarella", "basil"]; // margherita is the only available recipe
-    let state = createInitialGameState(EMPTY_DEX, marginallyOwned);
+    let state = createInitialGameState(MARGHERITA_DISCOVERED_DEX, marginallyOwned);
     state = gameReducer(state, { type: "MISSION_RESET_ORDER" });
     expect(state.recipe.id).toBe("margherita");
     expect(state.isMissionRound).toBe(true);
@@ -888,7 +895,7 @@ describe("inventory carry-through (Save v2 / Inventory E1)", () => {
   });
 
   it("MISSION_RESET_ORDER carries inventory through unchanged", () => {
-    let state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS, 0, seededInventory);
+    let state = createInitialGameState(MARGHERITA_DISCOVERED_DEX, STARTER_INGREDIENT_IDS, 0, seededInventory);
     state = gameReducer(state, { type: "MISSION_RESET_ORDER" });
     expect(state.isMissionRound).toBe(true);
     expect(state.inventory).toEqual(seededInventory);

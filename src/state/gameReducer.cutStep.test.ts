@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createInitialGameState, gameReducer, type GameState } from "./gameReducer";
+import { EMPTY_DEX, registerScoreToDex } from "./dex";
 import { DEFAULT_COOKING_PROFILE, getCookingProfile } from "../data/cookingProfiles";
 import { requiredCutCount } from "../logic/cut/evaluation";
 import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
@@ -9,6 +10,15 @@ import { buildIdealMargheritaSauceFixture, MARGHERITA_REFERENCE } from "../data/
 import { createCutState } from "../logic/cut/state";
 import { getRecipe, type Recipe, type RecipeId } from "../data/recipes";
 import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
+
+const MARGHERITA_DISCOVERED_DEX = registerScoreToDex(EMPTY_DEX, "margherita", {
+  total: 80,
+  stars: 4,
+  matchScore: 80,
+  ingredientScore: 80,
+  placementScore: 80,
+  bakeScore: 80,
+}).dex;
 
 /** Pizza Cutting 1.0 Phase 4B (Full Recipe Expansion): every real, shipped `RecipeId` is now
  *  CUT-eligible (../data/cookingProfiles.ts's `CUT_ELIGIBLE_RECIPE_IDS`), so no real recipe can
@@ -54,7 +64,7 @@ function preparedMargheritaState(): GameState {
  *  landing at POST_BAKE/CUT (never walking the CUT step itself -- callers do that explicitly). */
 function bakedMargheritaAtCut(isMissionRound = false): GameState {
   let state: GameState = isMissionRound
-    ? gameReducer(createInitialGameState(), { type: "MISSION_RESET_ORDER" })
+    ? gameReducer(createInitialGameState(MARGHERITA_DISCOVERED_DEX), { type: "MISSION_RESET_ORDER" })
     : createInitialGameState();
   state = gameReducer(state, { type: "BEGIN_PREPARE" });
   state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // DOUGH -> SAUCE
@@ -465,7 +475,9 @@ describe("23/24. Lunch Rush: serve exactly once, next order clears CUT state", (
     const next = gameReducer(state, { type: "MISSION_NEXT_ORDER" });
     expect(next.phase).toBe("ORDER");
     const entry = next.dex.find((e) => e.recipeId === "margherita");
-    expect(entry?.timesMade).toBe(1);
+    // The Mission fixture starts with Margherita already discovered/timesMade=1 so Lunch Rush
+    // can legally order it under Issue #200; serving this round registers exactly one more make.
+    expect(entry?.timesMade).toBe(2);
     // The next order's own cutState is fresh -- the previous pizza's committed lines never
     // leak into it, regardless of which recipe the next order happens to be.
     expect(next.cutState.lines).toHaveLength(0);

@@ -1,7 +1,17 @@
 import { describe, expect, it } from "vitest";
 import { createInitialGameState, gameReducer, type GameState } from "./gameReducer";
+import { EMPTY_DEX, registerScoreToDex } from "./dex";
 import { buildIdealMargheritaSauceFixture, MARGHERITA_REFERENCE } from "../data/referencePizza";
 import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
+
+const MARGHERITA_DISCOVERED_DEX = registerScoreToDex(EMPTY_DEX, "margherita", {
+  total: 80,
+  stars: 4,
+  matchScore: 80,
+  ingredientScore: 80,
+  placementScore: 80,
+  bakeScore: 80,
+}).dex;
 
 /**
  * Cooking Time CT2: `REGISTER_TO_DEX`'s `lastEfficiencyCredit` wiring (../logic/efficiency.ts).
@@ -19,7 +29,7 @@ const [MOZZARELLA_GROUP, BASIL_GROUP] = MARGHERITA_REFERENCE.pieceGroups;
  *  78_000 -- see efficiency.ts's own constants. */
 function playHighQualityMargheritaToResult(bakeNow: number, isMissionRound = false): GameState {
   let state: GameState = isMissionRound
-    ? gameReducer(createInitialGameState(), { type: "MISSION_RESET_ORDER" })
+    ? gameReducer(createInitialGameState(MARGHERITA_DISCOVERED_DEX), { type: "MISSION_RESET_ORDER" })
     : createInitialGameState();
   state = gameReducer(state, { type: "BEGIN_PREPARE", now: 0 });
   state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // DOUGH -> SAUCE

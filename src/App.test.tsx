@@ -277,16 +277,13 @@ function seedBismarckUnlocked(): void {
   });
 }
 
-/** Progression 2.0 Phase 3-3 (Issue #198): satisfies the "something has ever been discovered"
- *  Lunch Rush gate without unlocking anything else -- `napoletana`'s own `unlockCondition`
- *  chains through several still-undiscovered prerequisites, so seeding it (an intentionally
- *  invalid save state no normal playthrough could reach) leaves `availableRecipeIds`/
- *  `pickMissionOrder`'s own candidate pool exactly `{margherita}`, same as a truly fresh save.
- *  Used by tests that need Lunch Rush unlocked but otherwise depend on that pool staying
- *  margherita-only (unlike `seedBismarckUnlocked`, which genuinely widens it). */
+/** Progression 2.0 Phase 3-3 + Issue #200: unlock Lunch Rush with exactly one legitimate
+ *  Mission candidate. Margherita is both discovered and available from Starter ingredients,
+ *  so the discovered ∩ available pool is exactly `{margherita}`. This keeps mechanics tests
+ *  deterministic without relying on an intentionally-invalid Dex save. */
 function seedLunchRushUnlockedOnly(): void {
   seedSave({
-    dex: [{ recipeId: "napoletana", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }],
+    dex: [{ recipeId: "margherita", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }],
   });
 }
 
