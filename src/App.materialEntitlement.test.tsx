@@ -179,6 +179,30 @@ describe("I4b-4 Shop through the real App: NEW -> first pack -> OWNED, persisted
   });
 });
 
+describe("progress hint on a migrated EP4 save (PR #227 review)", () => {
+  it("Margherita + Funghi with EP4-owned mushroom: the hint counts to step 4, not 'one more'", async () => {
+    window.localStorage.setItem(
+      SAVE_STORAGE_KEY,
+      JSON.stringify({
+        schemaVersion: 2,
+        dex: [
+          { recipeId: "margherita", discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 },
+          { recipeId: "funghi", discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 },
+        ],
+        pitzBalance: 0,
+        ownedIngredientIds: ["tomato-sauce", "mozzarella", "basil", "mushroom"],
+        missionBest: {},
+        inventory: { mushroom: 12 },
+        starterGrantClaimedRecipeIds: ["funghi"],
+      }),
+    );
+    const user = userEvent.setup();
+    render(<App />);
+    const shop = await openShop(user);
+    expect(within(shop).getByText(/あと2つ発見で新しい材料が入荷/)).toBeInTheDocument();
+  });
+});
+
 describe("A2 in the real Pizza Select: a Free-Cooking discovery is re-selectable", () => {
   it("discovered Bismarck (EP1 chain predecessor marinara NOT discovered) is not LOCKED", async () => {
     window.localStorage.setItem(

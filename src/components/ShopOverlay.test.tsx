@@ -177,6 +177,19 @@ describe("progress hint", () => {
     expect(document.querySelector(".shop-overlay__progress")).toBeNull();
   });
 
+  it("a migrated save entitled to the next step's material counts to the next *new* step (PR #227 review)", () => {
+    // Dex 2 with mushroom (step 3) already owned from EP4: the next new material is step 4.
+    renderShop({ dex: discovered(2), owned: [...STARTER_INGREDIENT_IDS, "mushroom"], unlocked: ["egg", "bacon", "mushroom"] });
+    expect(screen.getByText(/あと2つ発見で新しい材料が入荷/)).toBeInTheDocument();
+    expect(screen.queryByText(/あと1つ発見/)).not.toBeInTheDocument();
+  });
+
+  it("no hint when every remaining step's materials are already entitled", () => {
+    const all = materialIdsOfSteps(DISCOVERY_LADDER.steps);
+    renderShop({ dex: discovered(3), owned: all, unlocked: all });
+    expect(document.querySelector(".shop-overlay__progress")).toBeNull();
+  });
+
   it("with the step before the last reached, the hint still shows", () => {
     renderShop({ dex: discovered(DISCOVERY_LADDER.steps.length - 1) });
     expect(screen.getByText(/あと1つ発見で新しい材料が入荷/)).toBeInTheDocument();

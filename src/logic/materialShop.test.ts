@@ -205,6 +205,33 @@ describe("nextMaterialHint", () => {
     expect(nextMaterialHint(Number.NaN)).toEqual({ discoveriesNeeded: 1, step: 1 });
     expect(nextMaterialHint(-3)).toEqual({ discoveriesNeeded: 1, step: 1 });
   });
+
+  // PR #227 review: a migrated EP4 save can already be entitled to later-step materials.
+  it("skips steps whose materials are all already entitled (migrated EP4 save)", () => {
+    // Dex 2 (margherita, funghi) and mushroom (step 3) already owned -> next new step is 4.
+    expect(nextMaterialHint(2, ["egg", "bacon", "mushroom"])).toEqual({ discoveriesNeeded: 2, step: 4 });
+    // Several consecutive entitled steps are skipped together.
+    expect(nextMaterialHint(2, ["egg", "bacon", "mushroom", "pepperoni", "sausage"])).toEqual({
+      discoveriesNeeded: 4,
+      step: 6,
+    });
+  });
+
+  it("a multi-material step still counts while any of its materials is not entitled", () => {
+    // Step 7 = black-olive + oregano; only oregano entitled.
+    expect(nextMaterialHint(6, ["oregano"])).toEqual({ discoveriesNeeded: 1, step: 7 });
+    // Both entitled -> skip to step 8.
+    expect(nextMaterialHint(6, ["oregano", "black-olive"])).toEqual({ discoveriesNeeded: 2, step: 8 });
+  });
+
+  it("is null when every remaining step is already entitled, even before the last step", () => {
+    const all = materialIdsOfSteps(DISCOVERY_LADDER.steps);
+    expect(nextMaterialHint(3, all)).toBeNull();
+  });
+
+  it("entitlement of already-reached steps never changes the hint", () => {
+    expect(nextMaterialHint(1, ["egg"])).toEqual(nextMaterialHint(1));
+  });
 });
 
 describe("purchaseFirstPack", () => {

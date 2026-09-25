@@ -114,7 +114,7 @@ export function ShopOverlay({
   onClose,
 }: ShopOverlayProps) {
   const rows = shopRows(ownedIngredientIds, unlockedForShopIngredientIds);
-  const progress = nextMaterialHint(discoveredRecipeCount(dex));
+  const progress = nextMaterialHint(discoveredRecipeCount(dex), unlockedForShopIngredientIds);
   const [feedback, setFeedback] = useState<ShopFeedback | null>(null);
   // Visual Polish 1C: a client-side view filter over the already-visible rows only -- it can
   // never reveal a LOCKED material.

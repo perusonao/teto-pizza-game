@@ -2,7 +2,7 @@ import { DISCOVERY_LADDER, type DiscoveryLadder } from "../data/discoveryLadder"
 import type { Ingredient } from "../data/ingredients";
 import { RECIPES } from "../data/recipes";
 import type { InventoryState } from "../state/inventory";
-import { nextLadderStep, normalizeDiscoveredCount } from "./discoveryLadder";
+import { normalizeDiscoveredCount } from "./discoveryLadder";
 
 /**
  * Progression 2.0 W1 Integration I4b-1: the material Shop's economy as pure functions (REC-04
@@ -161,14 +161,32 @@ export interface NextMaterialHint {
   step: number;
 }
 
-/** The Shop progress hint ("あと1つ発見で新しい材料が入荷"), or `null` once the ladder is done. */
+/**
+ * The Shop progress hint ("あと1つ発見で新しい材料が入荷"): the first ladder step beyond
+ * `discoveredCount` that still brings at least one material not already in
+ * `unlockedForShopIngredientIds`, or `null` when no such step remains.
+ *
+ * A migrated EP4 save can already own (and so be entitled to) materials of later steps -- e.g.
+ * mushroom (step 3) at two discoveries -- so a step whose materials are all entitled promises
+ * nothing new and is skipped rather than counted.
+ */
 export function nextMaterialHint(
   discoveredCount: number,
+  unlockedForShopIngredientIds: readonly string[] = [],
   ladder: DiscoveryLadder = DISCOVERY_LADDER,
 ): NextMaterialHint | null {
-  const next = nextLadderStep(ladder, discoveredCount);
+  const count = normalizeDiscoveredCount(discoveredCount);
+  const entitled = new Set(unlockedForShopIngredientIds);
+  const next = [...ladder.steps]
+    .sort((a, b) => a.step - b.step)
+    .find(
+      (s) =>
+        s.step > count &&
+        s.kind === "MATERIAL" &&
+        s.ingredientIds.some((id) => !entitled.has(id)),
+    );
   if (!next) return null;
-  return { discoveriesNeeded: next.step - normalizeDiscoveredCount(discoveredCount), step: next.step };
+  return { discoveriesNeeded: next.step - count, step: next.step };
 }
 
 // ---------------------------------------------------------------------------------------------
