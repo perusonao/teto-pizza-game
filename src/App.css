@@ -1753,10 +1753,13 @@
   font-weight: 700;
   line-height: 1.4;
   color: #6b4226;
-  /* Break at the 「」 boundary rather than inside a material name ("ベーコ/ン"); a name longer
-     than the line still wraps (overflow-wrap), never overflows. */
-  word-break: keep-all;
-  overflow-wrap: anywhere;
+}
+
+/* One material name never splits across lines ("ベーコ/ン"): each name is a non-breaking run
+   and lines break only between names. (`word-break: keep-all` on the whole message rendered an
+   extra line in WebKit at 360x800 and overran RESULT 1-Screen 2.0's height budget.) */
+.material-unlock-notice__name {
+  white-space: nowrap;
 }
 
 .material-unlock-notice__cta {

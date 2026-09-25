@@ -112,7 +112,7 @@ test.describe("Discovery Ladder Shop (I4b)", () => {
 
     // NEW MATERIAL notice: names egg, not a gift, with a Shop CTA.
     const notice = page.locator(".material-unlock-notice");
-    await expect(notice).toContainText("新しい材料「たまご」が入荷");
+    await expect(notice).toContainText("新しい材料が入荷：たまご");
     await expect(notice).not.toContainText(/プレゼント|無料|🎁/);
     await expectFullyVisible(page, ".material-unlock-notice__cta", "RESULT: ショップへ CTA");
     await expectNoHorizontalOverflow(page, "RESULT with NEW MATERIAL");
@@ -156,7 +156,7 @@ test.describe("Discovery Ladder Shop (I4b)", () => {
     await page.getByRole("button", { name: "もう一度じゆうに作る" }).click();
     await cookPizza(page, [{ name: /たまご/, at: [[50, 50]] }]);
     await expect(page.locator(".discovered-banner--new-pizza")).toHaveText(/ビスマルクを発見しました！/);
-    await expect(page.locator(".material-unlock-notice")).toContainText("新しい材料「ベーコン」が入荷");
+    await expect(page.locator(".material-unlock-notice")).toContainText("新しい材料が入荷：ベーコン");
     const afterBismarck = await readSave(page);
     expect(afterBismarck.unlockedForShopIngredientIds).toEqual(["egg", "bacon"]);
     expect(afterBismarck.inventory.egg).toBe(9);

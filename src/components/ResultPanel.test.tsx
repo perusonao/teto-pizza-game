@@ -144,14 +144,19 @@ describe("ResultPanel", () => {
         onOpenShop={onOpenShop}
       />,
     );
-    expect(screen.getByText(/新しい材料「たまご」が入荷/)).toBeInTheDocument();
+    const message = document.querySelector(".material-unlock-notice__message")!;
+    expect(message.textContent).toBe("\u{1F195} 新しい材料が入荷：たまご");
     await userEvent.click(screen.getByRole("button", { name: /ショップへ/ }));
     expect(onOpenShop).toHaveBeenCalledTimes(1);
   });
 
   it("names every material a single discovery unlocked", () => {
     render(<ResultPanel {...baseProps()} materialUnlockNotice={buildMaterialUnlockNotice(["black-olive", "oregano"])} onOpenShop={vi.fn()} />);
-    expect(screen.getByText(/「ブラックオリーブ・オレガノ」/)).toBeInTheDocument();
+    const message = document.querySelector(".material-unlock-notice__message")!;
+    expect(message.textContent).toBe("\u{1F195} 新しい材料が入荷：ブラックオリーブ・オレガノ");
+    // Each name is its own non-breaking run, so no name can split across lines.
+    const names = Array.from(message.querySelectorAll(".material-unlock-notice__name")).map((e) => e.textContent);
+    expect(names).toEqual(["ブラックオリーブ", "・オレガノ"]);
   });
 
   it("never reads as a free gift", () => {

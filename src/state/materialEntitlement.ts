@@ -58,19 +58,26 @@ export function resolveShopEntitlement(
 export interface MaterialUnlockNotice {
   /** Newly unlocked material ids, in ladder order -- never empty. */
   ingredientIds: readonly string[];
-  /** Ready-to-render copy, e.g. `🆕 新しい材料「たまご」が入荷！` -- the "where to buy it" half is
-   *  the notice's own Shop CTA (ResultPanel), kept out of the text so the notice stays one line on
-   *  RESULT 1-Screen 2.0's height budget. */
+  /** Display names of `ingredientIds`, same order. ResultPanel renders each as its own
+   *  non-breaking run so a name never splits across lines ("ベーコ/ン"). */
+  namesJa: readonly string[];
+  /** Plain-text form of the notice, e.g. `🆕 新しい材料が入荷：たまご・ベーコン`. The "where to buy
+   *  it" half is the notice's own Shop CTA (ResultPanel), kept out of the text so the notice stays
+   *  within RESULT 1-Screen 2.0's height budget (at most two lines at 360x800, Chromium and WebKit). */
   messageJa: string;
 }
+
+/** The notice's lead-in, shared by `messageJa` and ResultPanel's structured rendering. */
+export const MATERIAL_UNLOCK_NOTICE_LEAD_JA = "\u{1F195} 新しい材料が入荷：";
 
 export function buildMaterialUnlockNotice(
   newlyUnlockedMaterialIds: readonly string[],
 ): MaterialUnlockNotice | null {
   if (newlyUnlockedMaterialIds.length === 0) return null;
-  const namesJa = newlyUnlockedMaterialIds.map((id) => getIngredient(id)?.nameJa ?? id).join("・");
+  const namesJa = newlyUnlockedMaterialIds.map((id) => getIngredient(id)?.nameJa ?? id);
   return {
     ingredientIds: newlyUnlockedMaterialIds,
-    messageJa: `\u{1F195} 新しい材料「${namesJa}」が入荷！`,
+    namesJa,
+    messageJa: `${MATERIAL_UNLOCK_NOTICE_LEAD_JA}${namesJa.join("・")}`,
   };
 }

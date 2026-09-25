@@ -3,7 +3,7 @@ import { BAKE_STATE_LABEL, type BakeState } from "../logic/bake";
 import type { PitzCredit } from "../logic/pitzReward";
 import { EFFICIENCY_TIER_LABEL_JA, formatCookingTime, type CookingEfficiencyCredit } from "../logic/efficiency";
 import type { StepTimingRow } from "../logic/cookingTimingDisplay";
-import type { MaterialUnlockNotice } from "../state/materialEntitlement";
+import { MATERIAL_UNLOCK_NOTICE_LEAD_JA, type MaterialUnlockNotice } from "../state/materialEntitlement";
 import type { PizzaCompletionResult } from "../logic/completionGate";
 import { buildCompletionFailureMessage } from "../data/completionMessages";
 import type { CutEvaluation } from "../logic/cut/types";
@@ -311,7 +311,16 @@ export function ResultPanel({
 
       {materialUnlockNotice && (
         <div className="material-unlock-notice" aria-live="polite">
-          <p className="material-unlock-notice__message">{materialUnlockNotice.messageJa}</p>
+          {/* Each name is its own non-breaking run, so lines break only between names. */}
+          <p className="material-unlock-notice__message">
+            {MATERIAL_UNLOCK_NOTICE_LEAD_JA}
+            {materialUnlockNotice.namesJa.map((name, i) => (
+              <span key={materialUnlockNotice.ingredientIds[i]} className="material-unlock-notice__name">
+                {i > 0 ? "・" : ""}
+                {name}
+              </span>
+            ))}
+          </p>
           {onOpenShop && (
             <button type="button" className="material-unlock-notice__cta" onClick={onOpenShop}>
               {"\u{1F6D2}"} ショップへ
