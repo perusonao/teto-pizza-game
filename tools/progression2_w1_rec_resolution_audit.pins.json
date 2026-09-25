@@ -1,0 +1,22 @@
+{
+  "main.completionGate": "58b2cfdf6c59b4721d0a176ba0b13a51e8aea9da1fc5f0c269f1f6c12540f515",
+  "main.cookingProfiles": "4f18b27fffacfb1329fc18b55b10c817f8984399cc361534568f9608b27d94b4",
+  "main.cookingStepsSsot": "6776e347f7c464829b9d6b9bf185a1eaab8490a45907c0aa2064945335e5bee7",
+  "main.designMatrix": "9f736aa31e4810668c80e29f28198f0ac0c5f1d783b746748a662bbeff15aefa",
+  "main.ingredients": "e2f086ab71391394404da98bd6fe4e473ef9432f9ded294a18bcec1382c32e66",
+  "main.pizzaCatalog": "9d86f5ef307474c57bd1a52a8c459df2d21198c7e0e30e0cc1026ff25dae918a",
+  "main.pizzaCuttingSsot": "61377fd559f3638382327185cc2a6dbf32427386e3462de81aa090848e2e2ed6",
+  "main.pizzaDbEvidence": "2ab2d2e8fae267ef7c7e1b740d25b22f16514195ed446c3351ee7339a2c05adf",
+  "main.playerReference": "0771ae5851e21ee61dcda87814cf6237a430cdd4fd7aa32a1cd3483a03e578d9",
+  "main.recipes": "1d5afc1f3bc3d224bd23bc505951e23f0c3732b96a77384ed8ce13753d63c576",
+  "main.referenceLayout": "c271fc6a98faa4aa5f3b12ff3ce17ccab5a6817eeee1eb23c6c10291161f295d",
+  "main.referencePizza": "ee51a99e94593d3c6cc01b735151bfcbacf47ef9419a85f279186e78528231f0",
+  "main.referencePizzaTest": "5f4a555363e8a56063156e111d2bc1cfa7aace9ca01323f7977b485a9c74bb55",
+  "pr220.waves": "3db316e3b656462384708ef7f5a78cdef03a7e6765f047ce249e23dc8915b2be",
+  "pr221.changeMap": "4dd73fcb0183242faa2a990996aaedab58ee0ea02c2fe64684568d3c85cff289",
+  "pr221.ingredientMatrix": "6b4d787f2301defd6a9bffa670fb1e4b4586cac7d078c343992cc29fc41c6ea5",
+  "pr221.ledger": "93c668492e2f4157efdc11cee5625335545989f92e82c2a5c6a357c5fc4bc670",
+  "pr221.recipeMatrix": "4069b4b0b4a8a8ee5c0c863faace958f66ece7c1da6e558342eb632cca116e21",
+  "sync.evidenceLedger": "329db363b5609ea3504f81d57d5baddac28bb6875f5577c7ab4d81d01f6ac570",
+  "sync.ownerDecisions": "6b4d282426f63ee5b91c443b556cd769edd7f4719d83a688ac896371a5bb5f8e"
+}

@@ -1,0 +1,2363 @@
+{
+  "schemaVersion": 1,
+  "kind": "w1_rec01_03_resolution_audit",
+  "auditedMainSha": "1e53baa88f390bf6d8f52647e7c65cc279eb2567",
+  "authority": {
+    "pr220": {
+      "pr": 220,
+      "branch": "codex/content-readiness-fresh-audit",
+      "headSha": "e49dab96bd9b26dc0f520349cf09d1160c3519f5"
+    },
+    "pr221": {
+      "pr": 221,
+      "branch": "codex/w1-authoring-fresh-audit",
+      "headSha": "070afc0827f382bec8bc813d62e7fafe663a0991"
+    },
+    "visualEvidenceSync": {
+      "commit": "3fc02a06c197967c5989e0b0c1f88a0a546e2d2c",
+      "branch": "claude/w1-ingredient-visual-preview-mt4uxw",
+      "title": "docs: sync W1 Human Visual Verification (7/7 HUMAN_PASS) and final visual Owner Decisions"
+    },
+    "issue215OwnerDecision": {
+      "sourceClass": "OWNER_DECISION_RECORD",
+      "where": "Issue #215 owner comment 2026-09-24 (id 5814618436) + handoff comment (id 5816513943)",
+      "reviewedAuditPr": "#218 @ 5105771d37577ad353e869ea35295a4ea18bbce9 (OPEN, docs-only)",
+      "decisions": {
+        "OD-1": "G1 -- a required ingredient at 0 pieces => FAILED; 1+ can complete",
+        "OD-2": "Q shortage coefficient 0.5 (quality)",
+        "OD-3": "excess penalty 0.15 (quality)",
+        "OD-4": "LR-A -- Lunch Rush still requires the ordered quantity",
+        "OD-4b": "Lunch Rush excess penalty 0.15",
+        "OD-5": "D-A -- Free Cooking discovers on ingredient kinds; quantity is not Recipe Identity"
+      },
+      "principle": "Recipe Identity = ingredient kinds (+ future required steps); Completion/Quality = quantity, placement, sauce, dough, bake, cut",
+      "runtimeImplementation": {
+        "pr": 222,
+        "headSha": "81a850c26edf4c7f7f8cf69fad64e66d75830efd",
+        "state": "OPEN (not merged)",
+        "baseSha": "dff233c042d2df6ee1c3a92f2d2419830aa05460"
+      },
+      "bakeChanged": false,
+      "cutChanged": false
+    },
+    "tipChecks": [
+      {
+        "authority": "PR #220",
+        "status": "TIP_MATCHES_PIN",
+        "pinned": "e49dab96bd9b26dc0f520349cf09d1160c3519f5"
+      },
+      {
+        "authority": "PR #221",
+        "status": "TIP_MATCHES_PIN",
+        "pinned": "070afc0827f382bec8bc813d62e7fafe663a0991"
+      },
+      {
+        "authority": "Visual Evidence Sync",
+        "status": "PINNED_COMMIT_IS_ANCESTOR_OF_TIP",
+        "pinned": "3fc02a06c197967c5989e0b0c1f88a0a546e2d2c"
+      }
+    ],
+    "provenanceChain": [
+      {
+        "path": "docs/reports/data/TETO_PROGRESS2_W1_RECIPE_AUTHORING_MATRIX.json",
+        "sha256": "4069b4b0b4a8a8ee5c0c863faace958f66ece7c1da6e558342eb632cca116e21",
+        "status": "MATCHES_VISUAL_SYNC_RECORD"
+      },
+      {
+        "path": "docs/reports/data/TETO_PROGRESS2_W1_UNRESOLVED_EVIDENCE_LEDGER.json",
+        "sha256": "93c668492e2f4157efdc11cee5625335545989f92e82c2a5c6a357c5fc4bc670",
+        "status": "MATCHES_VISUAL_SYNC_RECORD"
+      },
+      {
+        "path": "docs/reports/data/TETO_PROGRESS2_W1_INGREDIENT_AUTHORING_MATRIX.json",
+        "sha256": "6b4d787f2301defd6a9bffa670fb1e4b4586cac7d078c343992cc29fc41c6ea5",
+        "status": "MATCHES_VISUAL_SYNC_RECORD"
+      }
+    ]
+  },
+  "inputSha256": {
+    "main.completionGate": "58b2cfdf6c59b4721d0a176ba0b13a51e8aea9da1fc5f0c269f1f6c12540f515",
+    "main.cookingProfiles": "4f18b27fffacfb1329fc18b55b10c817f8984399cc361534568f9608b27d94b4",
+    "main.cookingStepsSsot": "6776e347f7c464829b9d6b9bf185a1eaab8490a45907c0aa2064945335e5bee7",
+    "main.designMatrix": "9f736aa31e4810668c80e29f28198f0ac0c5f1d783b746748a662bbeff15aefa",
+    "main.ingredients": "e2f086ab71391394404da98bd6fe4e473ef9432f9ded294a18bcec1382c32e66",
+    "main.pizzaCatalog": "9d86f5ef307474c57bd1a52a8c459df2d21198c7e0e30e0cc1026ff25dae918a",
+    "main.pizzaCuttingSsot": "61377fd559f3638382327185cc2a6dbf32427386e3462de81aa090848e2e2ed6",
+    "main.pizzaDbEvidence": "2ab2d2e8fae267ef7c7e1b740d25b22f16514195ed446c3351ee7339a2c05adf",
+    "main.playerReference": "0771ae5851e21ee61dcda87814cf6237a430cdd4fd7aa32a1cd3483a03e578d9",
+    "main.recipes": "1d5afc1f3bc3d224bd23bc505951e23f0c3732b96a77384ed8ce13753d63c576",
+    "main.referenceLayout": "c271fc6a98faa4aa5f3b12ff3ce17ccab5a6817eeee1eb23c6c10291161f295d",
+    "main.referencePizza": "ee51a99e94593d3c6cc01b735151bfcbacf47ef9419a85f279186e78528231f0",
+    "main.referencePizzaTest": "5f4a555363e8a56063156e111d2bc1cfa7aace9ca01323f7977b485a9c74bb55",
+    "pr220.waves": "3db316e3b656462384708ef7f5a78cdef03a7e6765f047ce249e23dc8915b2be",
+    "pr221.changeMap": "4dd73fcb0183242faa2a990996aaedab58ee0ea02c2fe64684568d3c85cff289",
+    "pr221.ingredientMatrix": "6b4d787f2301defd6a9bffa670fb1e4b4586cac7d078c343992cc29fc41c6ea5",
+    "pr221.ledger": "93c668492e2f4157efdc11cee5625335545989f92e82c2a5c6a357c5fc4bc670",
+    "pr221.recipeMatrix": "4069b4b0b4a8a8ee5c0c863faace958f66ece7c1da6e558342eb632cca116e21",
+    "sync.evidenceLedger": "329db363b5609ea3504f81d57d5baddac28bb6875f5577c7ab4d81d01f6ac570",
+    "sync.ownerDecisions": "6b4d282426f63ee5b91c443b556cd769edd7f4719d83a688ac896371a5bb5f8e"
+  },
+  "scopeGuard": [
+    "no src/** / e2e/** / .github/** change",
+    "PR #220 / #221 / #222 not modified",
+    "no Owner Decision is recorded as CONFIRMED by this audit"
+  ],
+  "recDefinitions": {
+    "REC-01": {
+      "source": "PR #221 ledger @ 070afc0827f382bec8bc813d62e7fafe663a0991",
+      "id": "REC-01",
+      "scope": "all recipes",
+      "inheritedByEveryRecipe": true,
+      "status": "AUTHORING_REQUIRED",
+      "field": "description/minCount/bakeTarget",
+      "detail": "Values are original game-authoring candidates, not claims from external evidence. Human content sign-off remains required before production.",
+      "visualSyncState": "UNCHANGED"
+    },
+    "REC-02": {
+      "source": "PR #221 ledger @ 070afc0827f382bec8bc813d62e7fafe663a0991",
+      "id": "REC-02",
+      "scope": "all recipes",
+      "inheritedByEveryRecipe": true,
+      "status": "AUTHORING_REQUIRED",
+      "field": "cutRequirement",
+      "detail": "All ten fit the current round-six-slice mechanic, but future production must explicitly opt each ID into the allowlist.",
+      "visualSyncState": "UNCHANGED"
+    },
+    "REC-03": {
+      "source": "PR #221 ledger @ 070afc0827f382bec8bc813d62e7fafe663a0991",
+      "id": "REC-03",
+      "scope": "all recipes",
+      "inheritedByEveryRecipe": true,
+      "status": "OWNER_DECISION_REQUIRED",
+      "field": "completionGate",
+      "detail": "Record compatibility only. Do not decide whether CUT/minCount/bake thresholds gate completion before #218.",
+      "visualSyncState": "UNCHANGED"
+    }
+  },
+  "w1RecipeSet": {
+    "pr220": [
+      "bambino",
+      "hawaiian",
+      "melanzane-pizza",
+      "new-haven-apizza",
+      "parmigiana-pizza",
+      "pesto-caprese",
+      "pesto-patate",
+      "pesto-tonno",
+      "pizza-portuguesa",
+      "puttanesca-pizza"
+    ],
+    "pr221Matrix": [
+      "bambino",
+      "hawaiian",
+      "melanzane-pizza",
+      "new-haven-apizza",
+      "parmigiana-pizza",
+      "pesto-caprese",
+      "pesto-patate",
+      "pesto-tonno",
+      "pizza-portuguesa",
+      "puttanesca-pizza"
+    ],
+    "visualSyncLedger": [
+      "bambino",
+      "hawaiian",
+      "melanzane-pizza",
+      "new-haven-apizza",
+      "parmigiana-pizza",
+      "pesto-caprese",
+      "pesto-patate",
+      "pesto-tonno",
+      "pizza-portuguesa",
+      "puttanesca-pizza"
+    ]
+  },
+  "productionConventions": {
+    "sourceClass": "PRODUCTION_CONVENTION",
+    "minCountBySauce": [
+      1
+    ],
+    "minCountByCheese": [
+      2,
+      3
+    ],
+    "minCountByTopping": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "bakeWidths": [
+      20
+    ],
+    "bakeStartRange": [
+      45,
+      65
+    ],
+    "descriptionLengthRange": [
+      39,
+      56
+    ],
+    "nonSaucePieceRange": [
+      3,
+      8
+    ],
+    "cutAllowlist": {
+      "ids": [
+        "margherita",
+        "marinara",
+        "quattro-formaggi",
+        "genovese",
+        "bismarck",
+        "funghi",
+        "fugazza",
+        "salsiccia",
+        "pepperoni",
+        "napoletana",
+        "tonno-e-cipolla",
+        "pizza-bianca",
+        "breakfast-pizza",
+        "capricciosa",
+        "meat-lovers"
+      ],
+      "standardSliceCount": 6,
+      "optInOnly": true
+    },
+    "scoringReferenceRecipeIds": [
+      "margherita",
+      "marinara",
+      "funghi",
+      "genovese",
+      "fugazza",
+      "bismarck",
+      "quattro-formaggi",
+      "salsiccia",
+      "pepperoni",
+      "napoletana",
+      "tonno-e-cipolla",
+      "pizza-bianca",
+      "breakfast-pizza",
+      "capricciosa",
+      "meat-lovers"
+    ],
+    "referenceRingSlots": 8,
+    "maxPaletteSlots": 6,
+    "completionGate": {
+      "bakeMarginRatio": 0.5,
+      "readsCut": false,
+      "minCountGates": true,
+      "bakeGates": true,
+      "readsScoringReference": true
+    },
+    "referenceTestRequiresEveryRecipe": true,
+    "playerReferenceDerivedFromMinCount": true
+  },
+  "mergedSsot": {
+    "sourceClass": "MERGED_SSOT",
+    "cookingStepsCutScoreOnly": true,
+    "pizzaCuttingAdoptsScoreOnly": true
+  },
+  "missingDependencyCatalog": {
+    "MD-01": {
+      "title": "Scoring 2.0 Reference entry (src/data/referencePizza.ts REFERENCE_PIZZAS)",
+      "why": "computeScoringV2 returns available:false (no totalScore/stars) and checkSauceQuantity is skipped when a recipe has no Reference; referencePizza.test.ts requires every RECIPES entry to have one; its pieceGroups positions are hand-authored reviewed geometry (count = minCount), not derivable from #221",
+      "trackedByPr221Ledger": false,
+      "inPr221ChangeMapLikelyFiles": false,
+      "kind": "AUTHORING_REQUIRED (geometry) -- not an owner decision"
+    }
+  },
+  "recipes": [
+    {
+      "recipeId": "new-haven-apizza",
+      "nameJa": "ニューヘイブンアピッツァ",
+      "evidence": {
+        "sourceClass": "PIZZA_DB_EVIDENCE",
+        "evidenceId": "new-haven-apizza-pizzadb",
+        "pizzaDbNameJa": "ニューヘイブンアピッツァ",
+        "origin": null,
+        "doughStyle": null,
+        "sauceFamily": "オイル",
+        "ingredientsJa": null,
+        "ingredientsCanonical": [
+          "clam",
+          "olive-oil",
+          "garlic",
+          "parmigiano"
+        ],
+        "evidenceOrigin": "comparison_table_sample",
+        "corroborationCount": 1,
+        "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/ (original Phase 0B sample batch, page 6)",
+        "carriesQuantity": false,
+        "carriesBakeTarget": false,
+        "carriesDescription": false,
+        "carriesCutInfo": false
+      },
+      "authoring": {
+        "sourceClass": "GAME_AUTHORING_CANDIDATE",
+        "source": "PR #221 @ 070afc0827f382bec8bc813d62e7fafe663a0991",
+        "description": "オリーブオイルを塗った生地に、あさり、にんにく、パルミジャーノをのせて香ばしく焼き上げたアメリカ・ニューヘイブン風の一枚。",
+        "requiredIngredients": [
+          {
+            "ingredientId": "olive-oil",
+            "nameJa": "オリーブオイル",
+            "category": "sauce",
+            "minCount": 1
+          },
+          {
+            "ingredientId": "parmigiano",
+            "nameJa": "パルミジャーノ",
+            "category": "cheese",
+            "minCount": 2
+          },
+          {
+            "ingredientId": "clam",
+            "nameJa": "あさり",
+            "category": "topping",
+            "minCount": 3
+          },
+          {
+            "ingredientId": "garlic",
+            "nameJa": "にんにく",
+            "category": "topping",
+            "minCount": 2
+          }
+        ],
+        "nonSaucePieceCount": 7,
+        "bakeTarget": [
+          62,
+          82
+        ],
+        "sauce": "olive-oil"
+      },
+      "rec01": {
+        "definition": "description/minCount/bakeTarget",
+        "mechanical": {
+          "descriptionNamesEveryRequiredIngredient": true,
+          "descriptionLengthWithinProductionRange": false,
+          "descriptionOwnerDecisionConsistency": "CONSISTENT",
+          "regionClaimsSupported": false,
+          "minCountsWithinProductionRanges": true,
+          "identitySetMatchesPr220": true,
+          "ingredientTypesFitPalette": true,
+          "nonSaucePiecesFitReferenceRing": true,
+          "bakeWidthMatchesProductionConvention": true,
+          "bakeStartWithinProductionRange": true,
+          "bakeCatalogPrecedent": "NO_CATALOG_VALUE",
+          "scoringReferenceEntryExists": false
+        },
+        "descriptionMentions": [
+          {
+            "ingredientId": "olive-oil",
+            "form": "オリーブオイル",
+            "ok": true
+          },
+          {
+            "ingredientId": "parmigiano",
+            "form": "パルミジャーノ",
+            "ok": true
+          },
+          {
+            "ingredientId": "clam",
+            "form": "あさり",
+            "ok": true
+          },
+          {
+            "ingredientId": "garlic",
+            "form": "にんにく",
+            "ok": true
+          }
+        ],
+        "regionClaims": [
+          {
+            "word": "アメリカ",
+            "supportedBy": null,
+            "status": "NOT_IN_PIZZA_DB_EVIDENCE"
+          },
+          {
+            "word": "ニューヘイブン",
+            "supportedBy": "PIZZA_DB origin/nameJa",
+            "status": "SUPPORTED"
+          }
+        ],
+        "quantityChecks": [
+          {
+            "ingredientId": "olive-oil",
+            "category": "sauce",
+            "minCount": 1,
+            "withinProductionRange": true
+          },
+          {
+            "ingredientId": "parmigiano",
+            "category": "cheese",
+            "minCount": 2,
+            "withinProductionRange": true
+          },
+          {
+            "ingredientId": "clam",
+            "category": "topping",
+            "minCount": 3,
+            "withinProductionRange": true
+          },
+          {
+            "ingredientId": "garlic",
+            "category": "topping",
+            "minCount": 2,
+            "withinProductionRange": true
+          }
+        ],
+        "bakePrecedent": {
+          "catalogEntry": null,
+          "catalogBakeProfile": null,
+          "status": "NO_CATALOG_VALUE",
+          "rule": "Batch 1B-A / 1B-C precedent: null catalog bakeProfile => original value on the 20-wide span convention"
+        },
+        "humanSignoff": {
+          "sourceClass": "HUMAN_SIGNOFF",
+          "status": "PENDING",
+          "countsAsExternalEvidence": false,
+          "signedBy": null,
+          "signedAt": null
+        },
+        "humanItems": [
+          "description is 61 chars; production range is 39-56 (check card fit)",
+          "region wording not backed by PIZZA DB origin (see regionClaims)",
+          "batch content sign-off of description / minCount / bakeTarget (REC-01 itself)"
+        ],
+        "status": "NOT_READY"
+      },
+      "rec02": {
+        "definition": "cutRequirement",
+        "classification": "EVIDENCE_INSUFFICIENT",
+        "basis": {
+          "doughStyleRaw": null,
+          "doughClass": "unknown",
+          "shape": "round",
+          "shapeSource": "DEFAULT -- design matrix falls back to 'round' when doughStyle is null (tools/progression2_mechanic_matrix.py)",
+          "requiresMechanicIdentity": false,
+          "requiredCapabilities": [],
+          "designMatrixCutServe": {
+            "behavior": "existing-round-cut-optional",
+            "basis": "current CUT (6 slices, opt-in allowlist)"
+          },
+          "pr221Candidate": "STANDARD_ROUND_6_SLICES",
+          "inProductionAllowlist": false
+        },
+        "completionEffect": "SCORE_ONLY (merged SSOT)",
+        "status": "NOT_READY"
+      },
+      "rec03": {
+        "definition": "completionGate",
+        "compatibility": {
+          "cutGatesCompletion": false,
+          "minCountAllAtLeastOne": true,
+          "g1ZeroPieceFailureApplies": true,
+          "lunchRushOrderQuantity": {
+            "parmigiano": 2,
+            "clam": 3,
+            "garlic": 2
+          },
+          "bakeGateWindow": [
+            52.0,
+            92.0
+          ],
+          "compatible": true
+        },
+        "status": "NOT_READY"
+      },
+      "missingDependencies": [
+        "MD-01"
+      ],
+      "otherOpenRefs": [
+        "REC-04"
+      ]
+    },
+    {
+      "recipeId": "hawaiian",
+      "nameJa": "ハワイアンピザ",
+      "evidence": {
+        "sourceClass": "PIZZA_DB_EVIDENCE",
+        "evidenceId": "hawaiian-pizzadb-row",
+        "pizzaDbNameJa": "ハワイアンピザ",
+        "origin": "カナダ / オンタリオ州",
+        "doughStyle": "薄めの生地",
+        "sauceFamily": "トマトソース",
+        "ingredientsJa": [
+          "モッツァレラチーズ",
+          "パイナップル",
+          "ハム"
+        ],
+        "ingredientsCanonical": null,
+        "evidenceOrigin": "individual_profile_page",
+        "corroborationCount": 1,
+        "sourceUrl": "https://pizzadb.jp/pizzas/hawaiian/",
+        "carriesQuantity": false,
+        "carriesBakeTarget": false,
+        "carriesDescription": false,
+        "carriesCutInfo": false
+      },
+      "authoring": {
+        "sourceClass": "GAME_AUTHORING_CANDIDATE",
+        "source": "PR #221 @ 070afc0827f382bec8bc813d62e7fafe663a0991",
+        "description": "トマトソースにハムとパイナップル、モッツァレラを合わせた、甘みと塩気のバランスが楽しい一枚。",
+        "requiredIngredients": [
+          {
+            "ingredientId": "tomato-sauce",
+            "nameJa": "トマトソース",
+            "category": "sauce",
+            "minCount": 1
+          },
+          {
+            "ingredientId": "mozzarella",
+            "nameJa": "モッツァレラ",
+            "category": "cheese",
+            "minCount": 2
+          },
+          {
+            "ingredientId": "ham",
+            "nameJa": "ハム",
+            "category": "topping",
+            "minCount": 2
+          },
+          {
+            "ingredientId": "pineapple",
+            "nameJa": "パイナップル",
+            "category": "topping",
+            "minCount": 3
+          }
+        ],
+        "nonSaucePieceCount": 7,
+        "bakeTarget": [
+          58,
+          78
+        ],
+        "sauce": "tomato-sauce"
+      },
+      "rec01": {
+        "definition": "description/minCount/bakeTarget",
+        "mechanical": {
+          "descriptionNamesEveryRequiredIngredient": true,
+          "descriptionLengthWithinProductionRange": true,
+          "descriptionOwnerDecisionConsistency": "CONSISTENT",
+          "regionClaimsSupported": true,
+          "minCountsWithinProductionRanges": true,
+          "identitySetMatchesPr220": true,
+          "ingredientTypesFitPalette": true,
+          "nonSaucePiecesFitReferenceRing": true,
+          "bakeWidthMatchesProductionConvention": true,
+          "bakeStartWithinProductionRange": true,
+          "bakeCatalogPrecedent": "CONFLICT",
+          "scoringReferenceEntryExists": false
+        },
+        "descriptionMentions": [
+          {
+            "ingredientId": "tomato-sauce",
+            "form": "トマトソース",
+            "ok": true
+          },
+          {
+            "ingredientId": "mozzarella",
+            "form": "モッツァレラ",
+            "ok": true
+          },
+          {
+            "ingredientId": "ham",
+            "form": "ハム",
+            "ok": true
+          },
+          {
+            "ingredientId": "pineapple",
+            "form": "パイナップル",
+            "ok": true
+          }
+        ],
+        "regionClaims": [],
+        "quantityChecks": [
+          {
+            "ingredientId": "tomato-sauce",
+            "category": "sauce",
+            "minCount": 1,
+            "withinProductionRange": true
+          },
+          {
+            "ingredientId": "mozzarella",
+            "category": "cheese",
+            "minCount": 2,
+            "withinProductionRange": true
+          },
+          {
+            "ingredientId": "ham",
+            "category": "topping",
+            "minCount": 2,
+            "withinProductionRange": true
+          },
+          {
+            "ingredientId": "pineapple",
+            "category": "topping",
+            "minCount": 3,
+            "withinProductionRange": true
+          }
+        ],
+        "bakePrecedent": {
+          "catalogEntry": "hawaiian",
+          "catalogBakeProfile": [
+            60,
+            80
+          ],
+          "catalogVerificationStatus": "game_design_candidate",
+          "status": "CONFLICT",
+          "rule": "Batch 1A / 1B-B precedent: a non-null catalog bakeProfile is used verbatim (recipes.ts comments)"
+        },
+        "humanSignoff": {
+          "sourceClass": "HUMAN_SIGNOFF",
+          "status": "PENDING",
+          "countsAsExternalEvidence": false,
+          "signedBy": null,
+          "signedAt": null
+        },
+        "humanItems": [
+          "bakeTarget differs from the internal catalog value (see bakePrecedent)",
+          "batch content sign-off of description / minCount / bakeTarget (REC-01 itself)"
+        ],
+        "status": "NOT_READY"
+      },
+      "rec02": {
+        "definition": "cutRequirement",
+        "classification": "CUT_CANDIDATE",
+        "basis": {
+          "doughStyleRaw": "薄めの生地",
+          "doughClass": "standard",
+          "shape": "round",
+          "shapeSource": "explicit standard doughStyle (round open pizza)",
+          "requiresMechanicIdentity": false,
+          "requiredCapabilities": [],
+          "designMatrixCutServe": {
+            "behavior": "existing-round-cut-optional",
+            "basis": "current CUT (6 slices, opt-in allowlist)"
+          },
+          "pr221Candidate": "STANDARD_ROUND_6_SLICES",
+          "inProductionAllowlist": false
+        },
+        "completionEffect": "SCORE_ONLY (merged SSOT)",
+        "status": "NOT_READY"
+      },
+      "rec03": {
+        "definition": "completionGate",
+        "compatibility": {
+          "cutGatesCompletion": false,
+          "minCountAllAtLeastOne": true,
+          "g1ZeroPieceFailureApplies": true,
+          "lunchRushOrderQuantity": {
+            "mozzarella": 2,
+            "ham": 2,
+            "pineapple": 3
+          },
+          "bakeGateWindow": [
+            48.0,
+            88.0
+          ],
+          "compatible": true
+        },
+        "status": "NOT_READY"
+      },
+      "missingDependencies": [
+        "MD-01"
+      ],
+      "otherOpenRefs": [
+        "REC-04"
+      ]
+    },
+    {
+      "recipeId": "parmigiana-pizza",
+      "nameJa": "パルミジャーナピザ",
+      "evidence": {
+        "sourceClass": "PIZZA_DB_EVIDENCE",
+        "evidenceId": "parmigiana-pizza-pizzadb-p7",
+        "pizzaDbNameJa": "パルミジャーナピザ",
+        "origin": "イタリア / 南イタリア",
+        "doughStyle": "ナポリピッツァ生地",
+        "sauceFamily": "トマトソース",
+        "ingredientsJa": [
+          "ナス",
+          "モッツァレラチーズ",
+          "パルミジャーノチーズ",
+          "バジル"
+        ],
+        "ingredientsCanonical": null,
+        "evidenceOrigin": "comparison_table_sample",
+        "corroborationCount": 0,
+        "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/7/",
+        "carriesQuantity": false,
+        "carriesBakeTarget": false,
+        "carriesDescription": false,
+        "carriesCutInfo": false
+      },
+      "authoring": {
+        "sourceClass": "GAME_AUTHORING_CANDIDATE",
+        "source": "PR #221 @ 070afc0827f382bec8bc813d62e7fafe663a0991",
+        "description": "トマトソースにナス、モッツァレラ、パルミジャーノ、バジルを合わせた南イタリア風の一枚。",
+        "requiredIngredients": [
+          {
+            "ingredientId": "tomato-sauce",
+            "nameJa": "トマトソース",
+            "category": "sauce",
+            "minCount": 1
+          },
+          {
+            "ingredientId": "mozzarella",
+            "nameJa": "モッツァレラ",
+            "category": "cheese",
+            "minCount": 2
+          },
+          {
+            "ingredientId": "eggplant",
+            "nameJa": "ナス",
+            "category": "topping",
+            "minCount": 3
+          },
+          {
+            "ingredientId": "parmigiano",
+            "nameJa": "パルミジャーノ",
+            "category": "cheese",
+            "minCount": 2
+          },
+          {
+            "ingredientId": "basil",
+            "nameJa": "バジル",
+            "category": "topping",
+            "minCount": 2
+          }
+        ],
+        "nonSaucePieceCount": 9,
+        "bakeTarget": [
+          58,
+          78
+        ],
+        "sauce": "tomato-sauce"
+      },
+      "rec01": {
+        "definition": "description/minCount/bakeTarget",
+        "mechanical": {
+          "descriptionNamesEveryRequiredIngredient": true,
+          "descriptionLengthWithinProductionRange": true,
+          "descriptionOwnerDecisionConsistency": "CONSISTENT",
+          "regionClaimsSupported": true,
+          "minCountsWithinProductionRanges": true,
+          "identitySetMatchesPr220": true,
+          "ingredientTypesFitPalette": true,
+          "nonSaucePiecesFitReferenceRing": false,
+          "bakeWidthMatchesProductionConvention": true,
+          "bakeStartWithinProductionRange": true,
+          "bakeCatalogPrecedent": "NO_CATALOG_VALUE",
+          "scoringReferenceEntryExists": false
+        },
+        "descriptionMentions": [
+          {
+            "ingredientId": "tomato-sauce",
+            "form": "トマトソース",
+            "ok": true
+          },
+          {
+            "ingredientId": "mozzarella",
+            "form": "モッツァレラ",
+            "ok": true
+          },
+          {
+            "ingredientId": "eggplant",
+            "form": "ナス",
+            "ok": true
+          },
+          {
+            "ingredientId": "parmigiano",
+            "form": "パルミジャーノ",
+            "ok": true
+          },
+          {
+            "ingredientId": "basil",
+            "form": "バジル",
+            "ok": true
+          }
+        ],
+        "regionClaims": [
+          {
+            "word": "南イタリア",
+            "supportedBy": "PIZZA_DB origin/nameJa",
+            "status": "SUPPORTED"
+          }
+        ],
+        "quantityChecks": [
+          {
+            "ingredientId": "tomato-sauce",
+            "category": "sauce",
+            "minCount": 1,
+            "withinProductionRange": true
+          },
+          {
+            "ingredientId": "mozzarella",
+            "category": "cheese",
+            "minCount": 2,
+            "withinProductionRange": true
+          },
+          {
+            "ingredientId": "eggplant",
+            "category": "topping",
+            "minCount": 3,
+            "withinProductionRange": true
+          },
+          {
+            "ingredientId": "parmigiano",
+            "category": "cheese",
+            "minCount": 2,
+            "withinProductionRange": true
+          },
+          {
+            "ingredientId": "basil",
+            "category": "topping",
+            "minCount": 2,
+            "withinProductionRange": true
+          }
+        ],
+        "bakePrecedent": {
+          "catalogEntry": null,
+          "catalogBakeProfile": null,
+          "status": "NO_CATALOG_VALUE",
+          "rule": "Batch 1B-A / 1B-C precedent: null catalog bakeProfile => original value on the 20-wide span convention"
+        },
+        "humanSignoff": {
+          "sourceClass": "HUMAN_SIGNOFF",
+          "status": "PENDING",
+          "countsAsExternalEvidence": false,
+          "signedBy": null,
+          "signedAt": null
+        },
+        "humanItems": [
+          "9 non-sauce pieces > 8-slot ring: keep authored (RT-01) or trim (capricciosa/meat-lovers precedent)",
+          "batch content sign-off of description / minCount / bakeTarget (REC-01 itself)"
+        ],
+        "status": "NOT_READY"
+      },
+      "rec02": {
+        "definition": "cutRequirement",
+        "classification": "CUT_CANDIDATE",
+        "basis": {
+          "doughStyleRaw": "ナポリピッツァ生地",
+          "doughClass": "standard",
+          "shape": "round",
+          "shapeSource": "explicit standard doughStyle (round open pizza)",
+          "requiresMechanicIdentity": false,
+          "requiredCapabilities": [],
+          "designMatrixCutServe": {
+            "behavior": "existing-round-cut-optional",
+            "basis": "current CUT (6 slices, opt-in allowlist)"
+          },
+          "pr221Candidate": "STANDARD_ROUND_6_SLICES",
+          "inProductionAllowlist": false
+        },
+        "completionEffect": "SCORE_ONLY (merged SSOT)",
+        "status": "NOT_READY"
+      },
+      "rec03": {
+        "definition": "completionGate",
+        "compatibility": {
+          "cutGatesCompletion": false,
+          "minCountAllAtLeastOne": true,
+          "g1ZeroPieceFailureApplies": true,
+          "lunchRushOrderQuantity": {
+            "mozzarella": 2,
+            "eggplant": 3,
+            "parmigiano": 2,
+            "basil": 2
+          },
+          "bakeGateWindow": [
+            48.0,
+            88.0
+          ],
+          "compatible": true
+        },
+        "status": "NOT_READY"
+      },
+      "missingDependencies": [
+        "MD-01"
+      ],
+      "otherOpenRefs": [
+        "RT-01",
+        "REC-04"
+      ]
+    },
+    {
+      "recipeId": "bambino",
+      "nameJa": "バンビーノ",
+      "evidence": {
+        "sourceClass": "PIZZA_DB_EVIDENCE",
+        "evidenceId": "bambino-pizzadb-p7",
+        "pizzaDbNameJa": "バンビーノ",
+        "origin": "イタリア / 各地",
+        "doughStyle": "ピッツァ生地",
+        "sauceFamily": "トマトソース",
+        "ingredientsJa": [
+          "モッツァレラチーズ",
+          "ハム",
+          "コーン"
+        ],
+        "ingredientsCanonical": null,
+        "evidenceOrigin": "comparison_table_sample",
+        "corroborationCount": 0,
+        "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/7/",
+        "carriesQuantity": false,
+        "carriesBakeTarget": false,
+        "carriesDescription": false,
+        "carriesCutInfo": false
+      },
+      "authoring": {
+        "sourceClass": "GAME_AUTHORING_CANDIDATE",
+        "source": "PR #221 @ 070afc0827f382bec8bc813d62e7fafe663a0991",
+        "description": "トマトソースにハム、コーン、モッツァレラをのせた、やさしい甘みで親しみやすい一枚。",
+        "requiredIngredients": [
+          {
+            "ingredientId": "tomato-sauce",
+            "nameJa": "トマトソース",
+            "category": "sauce",
+            "minCount": 1
+          },
+          {
+            "ingredientId": "mozzarella",
+            "nameJa": "モッツァレラ",
+            "category": "cheese",
+            "minCount": 2
+          },
+          {
+            "ingredientId": "ham",
+            "nameJa": "ハム",
+            "category": "topping",
+            "minCount": 2
+          },
+          {
+            "ingredientId": "corn",
+            "nameJa": "コーン",
+            "category": "topping",
+            "minCount": 3
+          }
+        ],
+        "nonSaucePieceCount": 7,
+        "bakeTarget": [
+          56,
+          76
+        ],
+        "sauce": "tomato-sauce"
+      },
+      "rec01": {
+        "definition": "description/minCount/bakeTarget",
+        "mechanical": {
+          "descriptionNamesEveryRequiredIngredient": true,
+          "descriptionLengthWithinProductionRange": true,
+          "descriptionOwnerDecisionConsistency": "CONSISTENT",
+          "regionClaimsSupported": true,
+          "minCountsWithinProductionRanges": true,
+          "identitySetMatchesPr220": true,
+          "ingredientTypesFitPalette": true,
+          "nonSaucePiecesFitReferenceRing": true,
+          "bakeWidthMatchesProductionConvention": true,
+          "bakeStartWithinProductionRange": true,
+          "bakeCatalogPrecedent": "NO_CATALOG_VALUE",
+          "scoringReferenceEntryExists": false
+        },
+        "descriptionMentions": [
+          {
+            "ingredientId": "tomato-sauce",
+            "form": "トマトソース",
+            "ok": true
+          },
+          {
+            "ingredientId": "mozzarella",
+            "form": "モッツァレラ",
+            "ok": true
+          },
+          {
+            "ingredientId": "ham",
+            "form": "ハム",
+            "ok": true
+          },
+          {
+            "ingredientId": "corn",
+            "form": "コーン",
+            "ok": true
+          }
+        ],
+        "regionClaims": [],
+        "quantityChecks": [
+          {
+            "ingredientId": "tomato-sauce",
+            "category": "sauce",
+            "minCount": 1,
+            "withinProductionRange": true
+          },
+          {
+            "ingredientId": "mozzarella",
+            "category": "cheese",
+            "minCount": 2,
+            "withinProductionRange": true
+          },
+          {
+            "ingredientId": "ham",
+            "category": "topping",
+            "minCount": 2,
+            "withinProductionRange": true
+          },
+          {
+            "ingredientId": "corn",
+            "category": "topping",
+            "minCount": 3,
+            "withinProductionRange": true
+          }
+        ],
+        "bakePrecedent": {
+          "catalogEntry": null,
+          "catalogBakeProfile": null,
+          "status": "NO_CATALOG_VALUE",
+          "rule": "Batch 1B-A / 1B-C precedent: null catalog bakeProfile => original value on the 20-wide span convention"
+        },
+        "humanSignoff": {
+          "sourceClass": "HUMAN_SIGNOFF",
+          "status": "PENDING",
+          "countsAsExternalEvidence": false,
+          "signedBy": null,
+          "signedAt": null
+        },
+        "humanItems": [
+          "batch content sign-off of description / minCount / bakeTarget (REC-01 itself)"
+        ],
+        "status": "NOT_READY"
+      },
+      "rec02": {
+        "definition": "cutRequirement",
+        "classification": "CUT_CANDIDATE",
+        "basis": {
+          "doughStyleRaw": "ピッツァ生地",
+          "doughClass": "standard",
+          "shape": "round",
+          "shapeSource": "explicit standard doughStyle (round open pizza)",
+          "requiresMechanicIdentity": false,
+          "requiredCapabilities": [],
+          "designMatrixCutServe": {
+            "behavior": "existing-round-cut-optional",
+            "basis": "current CUT (6 slices, opt-in allowlist)"
+          },
+          "pr221Candidate": "STANDARD_ROUND_6_SLICES",
+          "inProductionAllowlist": false
+        },
+        "completionEffect": "SCORE_ONLY (merged SSOT)",
+        "status": "NOT_READY"
+      },
+      "rec03": {
+        "definition": "completionGate",
+        "compatibility": {
+          "cutGatesCompletion": false,
+          "minCountAllAtLeastOne": true,
+          "g1ZeroPieceFailureApplies": true,
+          "lunchRushOrderQuantity": {
+            "mozzarella": 2,
+            "ham": 2,
+            "corn": 3
+          },
+          "bakeGateWindow": [
+            46.0,
+            86.0
+          ],
+          "compatible": true
+        },
+        "status": "NOT_READY"
+      },
+      "missingDependencies": [
+        "MD-01"
+      ],
+      "otherOpenRefs": [
+        "REC-04"
+      ]
+    },
+    {
+      "recipeId": "pizza-portuguesa",
+      "nameJa": "ピッツァ・ポルトゲーザ",
+      "evidence": {
+        "sourceClass": "PIZZA_DB_EVIDENCE",
+        "evidenceId": "pizza-portuguesa-pizzadb-p9",
+        "pizzaDbNameJa": "ピッツァ・ポルトゲーザ",
+        "origin": "ブラジル / サンパウロ",
+        "doughStyle": "薄めの生地",
+        "sauceFamily": "トマトソース",
+        "ingredientsJa": [
+          "ハム",
+          "卵",
+          "玉ねぎ",
+          "オリーブ",
+          "モッツァレラチーズ"
+        ],
+        "ingredientsCanonical": null,
+        "evidenceOrigin": "comparison_table_sample",
+        "corroborationCount": 0,
+        "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/9/",
+        "carriesQuantity": false,
+        "carriesBakeTarget": false,
+        "carriesDescription": false,
+        "carriesCutInfo": false
+      },
+      "authoring": {
+        "sourceClass": "GAME_AUTHORING_CANDIDATE",
+        "source": "PR #221 @ 070afc0827f382bec8bc813d62e7fafe663a0991",
+        "description": "トマトソースにハム、卵、たまねぎ、ブラックオリーブ、モッツァレラを重ねたブラジル定番の一枚。",
+        "requiredIngredients": [
+          {
+            "ingredientId": "tomato-sauce",
+            "nameJa": "トマトソース",
+            "category": "sauce",
+            "minCount": 1
+          },
+          {
+            "ingredientId": "mozzarella",
+            "nameJa": "モッツァレラ",
+            "category": "cheese",
+            "minCount": 2
+          },
+          {
+            "ingredientId": "ham",
+            "nameJa": "ハム",
+            "category": "topping",
+            "minCount": 3
+          },
+          {
+            "ingredientId": "egg",
+            "nameJa": "たまご",
+            "category": "topping",
+            "minCount": 1
+          },
+          {
+            "ingredientId": "onion",
+            "nameJa": "たまねぎ",
+            "category": "topping",
+            "minCount": 2
+          },
+          {
+            "ingredientId": "black-olive",
+            "nameJa": "ブラックオリーブ",
+            "category": "topping",
+            "minCount": 2
+          }
+        ],
+        "nonSaucePieceCount": 10,
+        "bakeTarget": [
+          58,
+          78
+        ],
+        "sauce": "tomato-sauce"
+      },
+      "rec01": {
+        "definition": "description/minCount/bakeTarget",
+        "mechanical": {
+          "descriptionNamesEveryRequiredIngredient": true,
+          "descriptionLengthWithinProductionRange": true,
+          "descriptionOwnerDecisionConsistency": "CONSISTENT",
+          "regionClaimsSupported": true,
+          "minCountsWithinProductionRanges": true,
+          "identitySetMatchesPr220": true,
+          "ingredientTypesFitPalette": true,
+          "nonSaucePiecesFitReferenceRing": false,
+          "bakeWidthMatchesProductionConvention": true,
+          "bakeStartWithinProductionRange": true,
+          "bakeCatalogPrecedent": "NO_CATALOG_VALUE",
+          "scoringReferenceEntryExists": false
+        },
+        "descriptionMentions": [
+          {
+            "ingredientId": "tomato-sauce",
+            "form": "トマトソース",
+            "ok": true
+          },
+          {
+            "ingredientId": "mozzarella",
+            "form": "モッツァレラ",
+            "ok": true
+          },
+          {
+            "ingredientId": "ham",
+            "form": "ハム",
+            "ok": true
+          },
+          {
+            "ingredientId": "egg",
+            "form": "卵",
+            "ok": true
+          },
+          {
+            "ingredientId": "onion",
+            "form": "たまねぎ",
+            "ok": true
+          },
+          {
+            "ingredientId": "black-olive",
+            "form": "ブラックオリーブ",
+            "ok": true
+          }
+        ],
+        "regionClaims": [
+          {
+            "word": "ブラジル",
+            "supportedBy": "PIZZA_DB origin/nameJa",
+            "status": "SUPPORTED"
+          }
+        ],
+        "quantityChecks": [
+          {
+            "ingredientId": "tomato-sauce",
+            "category": "sauce",
+            "minCount": 1,
+            "withinProductionRange": true
+          },
+          {
+            "ingredientId": "mozzarella",
+            "category": "cheese",
+            "minCount": 2,
+            "withinProductionRange": true
+          },
+          {
+            "ingredientId": "ham",
+            "category": "topping",
+            "minCount": 3,
+            "withinProductionRange": true
+          },
+          {
+            "ingredientId": "egg",
+            "category": "topping",
+            "minCount": 1,
+            "withinProductionRange": true
+          },
+          {
+            "ingredientId": "onion",
+            "category": "topping",
+            "minCount": 2,
+            "withinProductionRange": true
+          },
+          {
+            "ingredientId": "black-olive",
+            "category": "topping",
+            "minCount": 2,
+            "withinProductionRange": true
+          }
+        ],
+        "bakePrecedent": {
+          "catalogEntry": null,
+          "catalogBakeProfile": null,
+          "status": "NO_CATALOG_VALUE",
+          "rule": "Batch 1B-A / 1B-C precedent: null catalog bakeProfile => original value on the 20-wide span convention"
+        },
+        "humanSignoff": {
+          "sourceClass": "HUMAN_SIGNOFF",
+          "status": "PENDING",
+          "countsAsExternalEvidence": false,
+          "signedBy": null,
+          "signedAt": null
+        },
+        "humanItems": [
+          "10 non-sauce pieces > 8-slot ring: keep authored (RT-01) or trim (capricciosa/meat-lovers precedent)",
+          "batch content sign-off of description / minCount / bakeTarget (REC-01 itself)"
+        ],
+        "status": "NOT_READY"
+      },
+      "rec02": {
+        "definition": "cutRequirement",
+        "classification": "CUT_CANDIDATE",
+        "basis": {
+          "doughStyleRaw": "薄めの生地",
+          "doughClass": "standard",
+          "shape": "round",
+          "shapeSource": "explicit standard doughStyle (round open pizza)",
+          "requiresMechanicIdentity": false,
+          "requiredCapabilities": [],
+          "designMatrixCutServe": {
+            "behavior": "existing-round-cut-optional",
+            "basis": "current CUT (6 slices, opt-in allowlist)"
+          },
+          "pr221Candidate": "STANDARD_ROUND_6_SLICES",
+          "inProductionAllowlist": false
+        },
+        "completionEffect": "SCORE_ONLY (merged SSOT)",
+        "status": "NOT_READY"
+      },
+      "rec03": {
+        "definition": "completionGate",
+        "compatibility": {
+          "cutGatesCompletion": false,
+          "minCountAllAtLeastOne": true,
+          "g1ZeroPieceFailureApplies": true,
+          "lunchRushOrderQuantity": {
+            "mozzarella": 2,
+            "ham": 3,
+            "egg": 1,
+            "onion": 2,
+            "black-olive": 2
+          },
+          "bakeGateWindow": [
+            48.0,
+            88.0
+          ],
+          "compatible": true
+        },
+        "status": "NOT_READY"
+      },
+      "missingDependencies": [
+        "MD-01"
+      ],
+      "otherOpenRefs": [
+        "RT-01",
+        "REC-04"
+      ]
+    },
+    {
+      "recipeId": "puttanesca-pizza",
+      "nameJa": "プッタネスカ",
+      "evidence": {
+        "sourceClass": "PIZZA_DB_EVIDENCE",
+        "evidenceId": "puttanesca-pizza-pizzadb-p10",
+        "pizzaDbNameJa": "プッタネスカ",
+        "origin": "イタリア / ナポリ",
+        "doughStyle": "ナポリピッツァ生地",
+        "sauceFamily": "トマトソース",
+        "ingredientsJa": [
+          "アンチョビ",
+          "オリーブ",
+          "ケッパー",
+          "にんにく"
+        ],
+        "ingredientsCanonical": null,
+        "evidenceOrigin": "comparison_table_sample",
+        "corroborationCount": 0,
+        "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/10/",
+        "carriesQuantity": false,
+        "carriesBakeTarget": false,
+        "carriesDescription": false,
+        "carriesCutInfo": false
+      },
+      "authoring": {
+        "sourceClass": "GAME_AUTHORING_CANDIDATE",
+        "source": "PR #221 @ 070afc0827f382bec8bc813d62e7fafe663a0991",
+        "description": "トマトソースにアンチョビ、ブラックオリーブ、ケッパー、にんにくを効かせた、塩味と香りの強い一枚。",
+        "requiredIngredients": [
+          {
+            "ingredientId": "tomato-sauce",
+            "nameJa": "トマトソース",
+            "category": "sauce",
+            "minCount": 1
+          },
+          {
+            "ingredientId": "anchovy",
+            "nameJa": "アンチョビ",
+            "category": "topping",
+            "minCount": 3
+          },
+          {
+            "ingredientId": "black-olive",
+            "nameJa": "ブラックオリーブ",
+            "category": "topping",
+            "minCount": 2
+          },
+          {
+            "ingredientId": "capers",
+            "nameJa": "ケッパー",
+            "category": "topping",
+            "minCount": 2
+          },
+          {
+            "ingredientId": "garlic",
+            "nameJa": "にんにく",
+            "category": "topping",
+            "minCount": 2
+          }
+        ],
+        "nonSaucePieceCount": 9,
+        "bakeTarget": [
+          50,
+          70
+        ],
+        "sauce": "tomato-sauce"
+      },
+      "rec01": {
+        "definition": "description/minCount/bakeTarget",
+        "mechanical": {
+          "descriptionNamesEveryRequiredIngredient": true,
+          "descriptionLengthWithinProductionRange": true,
+          "descriptionOwnerDecisionConsistency": "CONSISTENT",
+          "regionClaimsSupported": true,
+          "minCountsWithinProductionRanges": true,
+          "identitySetMatchesPr220": true,
+          "ingredientTypesFitPalette": true,
+          "nonSaucePiecesFitReferenceRing": false,
+          "bakeWidthMatchesProductionConvention": true,
+          "bakeStartWithinProductionRange": true,
+          "bakeCatalogPrecedent": "NO_CATALOG_VALUE",
+          "scoringReferenceEntryExists": false
+        },
+        "descriptionMentions": [
+          {
+            "ingredientId": "tomato-sauce",
+            "form": "トマトソース",
+            "ok": true
+          },
+          {
+            "ingredientId": "anchovy",
+            "form": "アンチョビ",
+            "ok": true
+          },
+          {
+            "ingredientId": "black-olive",
+            "form": "ブラックオリーブ",
+            "ok": true
+          },
+          {
+            "ingredientId": "capers",
+            "form": "ケッパー",
+            "ok": true
+          },
+          {
+            "ingredientId": "garlic",
+            "form": "にんにく",
+            "ok": true
+          }
+        ],
+        "regionClaims": [],
+        "quantityChecks": [
+          {
+            "ingredientId": "tomato-sauce",
+            "category": "sauce",
+            "minCount": 1,
+            "withinProductionRange": true
+          },
+          {
+            "ingredientId": "anchovy",
+            "category": "topping",
+            "minCount": 3,
+            "withinProductionRange": true
+          },
+          {
+            "ingredientId": "black-olive",
+            "category": "topping",
+            "minCount": 2,
+            "withinProductionRange": true
+          },
+          {
+            "ingredientId": "capers",
+            "category": "topping",
+            "minCount": 2,
+            "withinProductionRange": true
+          },
+          {
+            "ingredientId": "garlic",
+            "category": "topping",
+            "minCount": 2,
+            "withinProductionRange": true
+          }
+        ],
+        "bakePrecedent": {
+          "catalogEntry": null,
+          "catalogBakeProfile": null,
+          "status": "NO_CATALOG_VALUE",
+          "rule": "Batch 1B-A / 1B-C precedent: null catalog bakeProfile => original value on the 20-wide span convention"
+        },
+        "humanSignoff": {
+          "sourceClass": "HUMAN_SIGNOFF",
+          "status": "PENDING",
+          "countsAsExternalEvidence": false,
+          "signedBy": null,
+          "signedAt": null
+        },
+        "humanItems": [
+          "9 non-sauce pieces > 8-slot ring: keep authored (RT-01) or trim (capricciosa/meat-lovers precedent)",
+          "batch content sign-off of description / minCount / bakeTarget (REC-01 itself)"
+        ],
+        "status": "NOT_READY"
+      },
+      "rec02": {
+        "definition": "cutRequirement",
+        "classification": "CUT_CANDIDATE",
+        "basis": {
+          "doughStyleRaw": "ナポリピッツァ生地",
+          "doughClass": "standard",
+          "shape": "round",
+          "shapeSource": "explicit standard doughStyle (round open pizza)",
+          "requiresMechanicIdentity": false,
+          "requiredCapabilities": [],
+          "designMatrixCutServe": {
+            "behavior": "existing-round-cut-optional",
+            "basis": "current CUT (6 slices, opt-in allowlist)"
+          },
+          "pr221Candidate": "STANDARD_ROUND_6_SLICES",
+          "inProductionAllowlist": false
+        },
+        "completionEffect": "SCORE_ONLY (merged SSOT)",
+        "status": "NOT_READY"
+      },
+      "rec03": {
+        "definition": "completionGate",
+        "compatibility": {
+          "cutGatesCompletion": false,
+          "minCountAllAtLeastOne": true,
+          "g1ZeroPieceFailureApplies": true,
+          "lunchRushOrderQuantity": {
+            "anchovy": 3,
+            "black-olive": 2,
+            "capers": 2,
+            "garlic": 2
+          },
+          "bakeGateWindow": [
+            40.0,
+            80.0
+          ],
+          "compatible": true
+        },
+        "status": "NOT_READY"
+      },
+      "missingDependencies": [
+        "MD-01"
+      ],
+      "otherOpenRefs": [
+        "RT-01",
+        "REC-04"
+      ]
+    },
+    {
+      "recipeId": "pesto-caprese",
+      "nameJa": "ペストカプレーゼピザ",
+      "evidence": {
+        "sourceClass": "PIZZA_DB_EVIDENCE",
+        "evidenceId": "pesto-caprese-pizzadb-p11",
+        "pizzaDbNameJa": "ペストカプレーゼピザ",
+        "origin": "イタリア / 各地",
+        "doughStyle": "ナポリピッツァ生地",
+        "sauceFamily": "バジル",
+        "ingredientsJa": [
+          "モッツァレラチーズ",
+          "トマト",
+          "バジル"
+        ],
+        "ingredientsCanonical": null,
+        "evidenceOrigin": "comparison_table_sample",
+        "corroborationCount": 0,
+        "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/11/",
+        "carriesQuantity": false,
+        "carriesBakeTarget": false,
+        "carriesDescription": false,
+        "carriesCutInfo": false
+      },
+      "authoring": {
+        "sourceClass": "GAME_AUTHORING_CANDIDATE",
+        "source": "PR #221 @ 070afc0827f382bec8bc813d62e7fafe663a0991",
+        "description": "ジェノベーゼソースにトマト、モッツァレラ、バジルを重ねた、カプレーゼ仕立ての爽やかな一枚。",
+        "requiredIngredients": [
+          {
+            "ingredientId": "pesto",
+            "nameJa": "ジェノベーゼソース",
+            "category": "sauce",
+            "minCount": 1
+          },
+          {
+            "ingredientId": "mozzarella",
+            "nameJa": "モッツァレラ",
+            "category": "cheese",
+            "minCount": 2
+          },
+          {
+            "ingredientId": "fresh-tomato",
+            "nameJa": "トマト",
+            "category": "topping",
+            "minCount": 3
+          },
+          {
+            "ingredientId": "basil",
+            "nameJa": "バジル",
+            "category": "topping",
+            "minCount": 2
+          }
+        ],
+        "nonSaucePieceCount": 7,
+        "bakeTarget": [
+          50,
+          70
+        ],
+        "sauce": "pesto"
+      },
+      "rec01": {
+        "definition": "description/minCount/bakeTarget",
+        "mechanical": {
+          "descriptionNamesEveryRequiredIngredient": true,
+          "descriptionLengthWithinProductionRange": true,
+          "descriptionOwnerDecisionConsistency": "CONSISTENT",
+          "regionClaimsSupported": true,
+          "minCountsWithinProductionRanges": true,
+          "identitySetMatchesPr220": true,
+          "ingredientTypesFitPalette": true,
+          "nonSaucePiecesFitReferenceRing": true,
+          "bakeWidthMatchesProductionConvention": true,
+          "bakeStartWithinProductionRange": true,
+          "bakeCatalogPrecedent": "NO_CATALOG_VALUE",
+          "scoringReferenceEntryExists": false
+        },
+        "descriptionMentions": [
+          {
+            "ingredientId": "pesto",
+            "form": "ジェノベーゼソース",
+            "ok": true
+          },
+          {
+            "ingredientId": "mozzarella",
+            "form": "モッツァレラ",
+            "ok": true
+          },
+          {
+            "ingredientId": "fresh-tomato",
+            "form": "トマト",
+            "ok": true
+          },
+          {
+            "ingredientId": "basil",
+            "form": "バジル",
+            "ok": true
+          }
+        ],
+        "regionClaims": [],
+        "quantityChecks": [
+          {
+            "ingredientId": "pesto",
+            "category": "sauce",
+            "minCount": 1,
+            "withinProductionRange": true
+          },
+          {
+            "ingredientId": "mozzarella",
+            "category": "cheese",
+            "minCount": 2,
+            "withinProductionRange": true
+          },
+          {
+            "ingredientId": "fresh-tomato",
+            "category": "topping",
+            "minCount": 3,
+            "withinProductionRange": true
+          },
+          {
+            "ingredientId": "basil",
+            "category": "topping",
+            "minCount": 2,
+            "withinProductionRange": true
+          }
+        ],
+        "bakePrecedent": {
+          "catalogEntry": null,
+          "catalogBakeProfile": null,
+          "status": "NO_CATALOG_VALUE",
+          "rule": "Batch 1B-A / 1B-C precedent: null catalog bakeProfile => original value on the 20-wide span convention"
+        },
+        "humanSignoff": {
+          "sourceClass": "HUMAN_SIGNOFF",
+          "status": "PENDING",
+          "countsAsExternalEvidence": false,
+          "signedBy": null,
+          "signedAt": null
+        },
+        "humanItems": [
+          "batch content sign-off of description / minCount / bakeTarget (REC-01 itself)"
+        ],
+        "status": "NOT_READY"
+      },
+      "rec02": {
+        "definition": "cutRequirement",
+        "classification": "CUT_CANDIDATE",
+        "basis": {
+          "doughStyleRaw": "ナポリピッツァ生地",
+          "doughClass": "standard",
+          "shape": "round",
+          "shapeSource": "explicit standard doughStyle (round open pizza)",
+          "requiresMechanicIdentity": false,
+          "requiredCapabilities": [],
+          "designMatrixCutServe": {
+            "behavior": "existing-round-cut-optional",
+            "basis": "current CUT (6 slices, opt-in allowlist)"
+          },
+          "pr221Candidate": "STANDARD_ROUND_6_SLICES",
+          "inProductionAllowlist": false
+        },
+        "completionEffect": "SCORE_ONLY (merged SSOT)",
+        "status": "NOT_READY"
+      },
+      "rec03": {
+        "definition": "completionGate",
+        "compatibility": {
+          "cutGatesCompletion": false,
+          "minCountAllAtLeastOne": true,
+          "g1ZeroPieceFailureApplies": true,
+          "lunchRushOrderQuantity": {
+            "mozzarella": 2,
+            "fresh-tomato": 3,
+            "basil": 2
+          },
+          "bakeGateWindow": [
+            40.0,
+            80.0
+          ],
+          "compatible": true
+        },
+        "status": "NOT_READY"
+      },
+      "missingDependencies": [
+        "MD-01"
+      ],
+      "otherOpenRefs": [
+        "REC-04"
+      ]
+    },
+    {
+      "recipeId": "pesto-tonno",
+      "nameJa": "ペストトンノピザ",
+      "evidence": {
+        "sourceClass": "PIZZA_DB_EVIDENCE",
+        "evidenceId": "pesto-tonno-pizzadb-p12",
+        "pizzaDbNameJa": "ペストトンノピザ",
+        "origin": "イタリア / 各地",
+        "doughStyle": "ナポリピッツァ生地",
+        "sauceFamily": "バジル",
+        "ingredientsJa": [
+          "ツナ",
+          "オリーブ",
+          "玉ねぎ"
+        ],
+        "ingredientsCanonical": null,
+        "evidenceOrigin": "comparison_table_sample",
+        "corroborationCount": 0,
+        "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/12/",
+        "carriesQuantity": false,
+        "carriesBakeTarget": false,
+        "carriesDescription": false,
+        "carriesCutInfo": false
+      },
+      "authoring": {
+        "sourceClass": "GAME_AUTHORING_CANDIDATE",
+        "source": "PR #221 @ 070afc0827f382bec8bc813d62e7fafe663a0991",
+        "description": "香り高いジェノベーゼソースに、ツナ、ブラックオリーブ、たまねぎを合わせた爽やかな一枚。",
+        "requiredIngredients": [
+          {
+            "ingredientId": "pesto",
+            "nameJa": "ジェノベーゼソース",
+            "category": "sauce",
+            "minCount": 1
+          },
+          {
+            "ingredientId": "tuna",
+            "nameJa": "ツナ",
+            "category": "topping",
+            "minCount": 3
+          },
+          {
+            "ingredientId": "black-olive",
+            "nameJa": "ブラックオリーブ",
+            "category": "topping",
+            "minCount": 2
+          },
+          {
+            "ingredientId": "onion",
+            "nameJa": "たまねぎ",
+            "category": "topping",
+            "minCount": 2
+          }
+        ],
+        "nonSaucePieceCount": 7,
+        "bakeTarget": [
+          50,
+          70
+        ],
+        "sauce": "pesto"
+      },
+      "rec01": {
+        "definition": "description/minCount/bakeTarget",
+        "mechanical": {
+          "descriptionNamesEveryRequiredIngredient": true,
+          "descriptionLengthWithinProductionRange": true,
+          "descriptionOwnerDecisionConsistency": "CONSISTENT",
+          "regionClaimsSupported": true,
+          "minCountsWithinProductionRanges": true,
+          "identitySetMatchesPr220": true,
+          "ingredientTypesFitPalette": true,
+          "nonSaucePiecesFitReferenceRing": true,
+          "bakeWidthMatchesProductionConvention": true,
+          "bakeStartWithinProductionRange": true,
+          "bakeCatalogPrecedent": "NO_CATALOG_VALUE",
+          "scoringReferenceEntryExists": false
+        },
+        "descriptionMentions": [
+          {
+            "ingredientId": "pesto",
+            "form": "ジェノベーゼソース",
+            "ok": true
+          },
+          {
+            "ingredientId": "tuna",
+            "form": "ツナ",
+            "ok": true
+          },
+          {
+            "ingredientId": "black-olive",
+            "form": "ブラックオリーブ",
+            "ok": true
+          },
+          {
+            "ingredientId": "onion",
+            "form": "たまねぎ",
+            "ok": true
+          }
+        ],
+        "regionClaims": [],
+        "quantityChecks": [
+          {
+            "ingredientId": "pesto",
+            "category": "sauce",
+            "minCount": 1,
+            "withinProductionRange": true
+          },
+          {
+            "ingredientId": "tuna",
+            "category": "topping",
+            "minCount": 3,
+            "withinProductionRange": true
+          },
+          {
+            "ingredientId": "black-olive",
+            "category": "topping",
+            "minCount": 2,
+            "withinProductionRange": true
+          },
+          {
+            "ingredientId": "onion",
+            "category": "topping",
+            "minCount": 2,
+            "withinProductionRange": true
+          }
+        ],
+        "bakePrecedent": {
+          "catalogEntry": null,
+          "catalogBakeProfile": null,
+          "status": "NO_CATALOG_VALUE",
+          "rule": "Batch 1B-A / 1B-C precedent: null catalog bakeProfile => original value on the 20-wide span convention"
+        },
+        "humanSignoff": {
+          "sourceClass": "HUMAN_SIGNOFF",
+          "status": "PENDING",
+          "countsAsExternalEvidence": false,
+          "signedBy": null,
+          "signedAt": null
+        },
+        "humanItems": [
+          "batch content sign-off of description / minCount / bakeTarget (REC-01 itself)"
+        ],
+        "status": "NOT_READY"
+      },
+      "rec02": {
+        "definition": "cutRequirement",
+        "classification": "CUT_CANDIDATE",
+        "basis": {
+          "doughStyleRaw": "ナポリピッツァ生地",
+          "doughClass": "standard",
+          "shape": "round",
+          "shapeSource": "explicit standard doughStyle (round open pizza)",
+          "requiresMechanicIdentity": false,
+          "requiredCapabilities": [],
+          "designMatrixCutServe": {
+            "behavior": "existing-round-cut-optional",
+            "basis": "current CUT (6 slices, opt-in allowlist)"
+          },
+          "pr221Candidate": "STANDARD_ROUND_6_SLICES",
+          "inProductionAllowlist": false
+        },
+        "completionEffect": "SCORE_ONLY (merged SSOT)",
+        "status": "NOT_READY"
+      },
+      "rec03": {
+        "definition": "completionGate",
+        "compatibility": {
+          "cutGatesCompletion": false,
+          "minCountAllAtLeastOne": true,
+          "g1ZeroPieceFailureApplies": true,
+          "lunchRushOrderQuantity": {
+            "tuna": 3,
+            "black-olive": 2,
+            "onion": 2
+          },
+          "bakeGateWindow": [
+            40.0,
+            80.0
+          ],
+          "compatible": true
+        },
+        "status": "NOT_READY"
+      },
+      "missingDependencies": [
+        "MD-01"
+      ],
+      "otherOpenRefs": [
+        "REC-04"
+      ]
+    },
+    {
+      "recipeId": "pesto-patate",
+      "nameJa": "ペストパターテピザ",
+      "evidence": {
+        "sourceClass": "PIZZA_DB_EVIDENCE",
+        "evidenceId": "pesto-patate-pizzadb-p12",
+        "pizzaDbNameJa": "ペストパターテピザ",
+        "origin": "イタリア / 各地",
+        "doughStyle": "ナポリピッツァ生地",
+        "sauceFamily": "バジル",
+        "ingredientsJa": [
+          "じゃがいも",
+          "ベーコン",
+          "モッツァレラチーズ"
+        ],
+        "ingredientsCanonical": null,
+        "evidenceOrigin": "comparison_table_sample",
+        "corroborationCount": 0,
+        "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/12/",
+        "carriesQuantity": false,
+        "carriesBakeTarget": false,
+        "carriesDescription": false,
+        "carriesCutInfo": false
+      },
+      "authoring": {
+        "sourceClass": "GAME_AUTHORING_CANDIDATE",
+        "source": "PR #221 @ 070afc0827f382bec8bc813d62e7fafe663a0991",
+        "description": "ジェノベーゼソースにじゃがいも、ベーコン、モッツァレラを合わせた、ほくほくと香ばしい一枚。",
+        "requiredIngredients": [
+          {
+            "ingredientId": "pesto",
+            "nameJa": "ジェノベーゼソース",
+            "category": "sauce",
+            "minCount": 1
+          },
+          {
+            "ingredientId": "mozzarella",
+            "nameJa": "モッツァレラ",
+            "category": "cheese",
+            "minCount": 2
+          },
+          {
+            "ingredientId": "potato",
+            "nameJa": "じゃがいも",
+            "category": "topping",
+            "minCount": 3
+          },
+          {
+            "ingredientId": "bacon",
+            "nameJa": "ベーコン",
+            "category": "topping",
+            "minCount": 2
+          }
+        ],
+        "nonSaucePieceCount": 7,
+        "bakeTarget": [
+          58,
+          78
+        ],
+        "sauce": "pesto"
+      },
+      "rec01": {
+        "definition": "description/minCount/bakeTarget",
+        "mechanical": {
+          "descriptionNamesEveryRequiredIngredient": true,
+          "descriptionLengthWithinProductionRange": true,
+          "descriptionOwnerDecisionConsistency": "CONSISTENT",
+          "regionClaimsSupported": true,
+          "minCountsWithinProductionRanges": true,
+          "identitySetMatchesPr220": true,
+          "ingredientTypesFitPalette": true,
+          "nonSaucePiecesFitReferenceRing": true,
+          "bakeWidthMatchesProductionConvention": true,
+          "bakeStartWithinProductionRange": true,
+          "bakeCatalogPrecedent": "NO_CATALOG_VALUE",
+          "scoringReferenceEntryExists": false
+        },
+        "descriptionMentions": [
+          {
+            "ingredientId": "pesto",
+            "form": "ジェノベーゼソース",
+            "ok": true
+          },
+          {
+            "ingredientId": "mozzarella",
+            "form": "モッツァレラ",
+            "ok": true
+          },
+          {
+            "ingredientId": "potato",
+            "form": "じゃがいも",
+            "ok": true
+          },
+          {
+            "ingredientId": "bacon",
+            "form": "ベーコン",
+            "ok": true
+          }
+        ],
+        "regionClaims": [],
+        "quantityChecks": [
+          {
+            "ingredientId": "pesto",
+            "category": "sauce",
+            "minCount": 1,
+            "withinProductionRange": true
+          },
+          {
+            "ingredientId": "mozzarella",
+            "category": "cheese",
+            "minCount": 2,
+            "withinProductionRange": true
+          },
+          {
+            "ingredientId": "potato",
+            "category": "topping",
+            "minCount": 3,
+            "withinProductionRange": true
+          },
+          {
+            "ingredientId": "bacon",
+            "category": "topping",
+            "minCount": 2,
+            "withinProductionRange": true
+          }
+        ],
+        "bakePrecedent": {
+          "catalogEntry": null,
+          "catalogBakeProfile": null,
+          "status": "NO_CATALOG_VALUE",
+          "rule": "Batch 1B-A / 1B-C precedent: null catalog bakeProfile => original value on the 20-wide span convention"
+        },
+        "humanSignoff": {
+          "sourceClass": "HUMAN_SIGNOFF",
+          "status": "PENDING",
+          "countsAsExternalEvidence": false,
+          "signedBy": null,
+          "signedAt": null
+        },
+        "humanItems": [
+          "batch content sign-off of description / minCount / bakeTarget (REC-01 itself)"
+        ],
+        "status": "NOT_READY"
+      },
+      "rec02": {
+        "definition": "cutRequirement",
+        "classification": "CUT_CANDIDATE",
+        "basis": {
+          "doughStyleRaw": "ナポリピッツァ生地",
+          "doughClass": "standard",
+          "shape": "round",
+          "shapeSource": "explicit standard doughStyle (round open pizza)",
+          "requiresMechanicIdentity": false,
+          "requiredCapabilities": [],
+          "designMatrixCutServe": {
+            "behavior": "existing-round-cut-optional",
+            "basis": "current CUT (6 slices, opt-in allowlist)"
+          },
+          "pr221Candidate": "STANDARD_ROUND_6_SLICES",
+          "inProductionAllowlist": false
+        },
+        "completionEffect": "SCORE_ONLY (merged SSOT)",
+        "status": "NOT_READY"
+      },
+      "rec03": {
+        "definition": "completionGate",
+        "compatibility": {
+          "cutGatesCompletion": false,
+          "minCountAllAtLeastOne": true,
+          "g1ZeroPieceFailureApplies": true,
+          "lunchRushOrderQuantity": {
+            "mozzarella": 2,
+            "potato": 3,
+            "bacon": 2
+          },
+          "bakeGateWindow": [
+            48.0,
+            88.0
+          ],
+          "compatible": true
+        },
+        "status": "NOT_READY"
+      },
+      "missingDependencies": [
+        "MD-01"
+      ],
+      "otherOpenRefs": [
+        "REC-04"
+      ]
+    },
+    {
+      "recipeId": "melanzane-pizza",
+      "nameJa": "メランザーネピザ",
+      "evidence": {
+        "sourceClass": "PIZZA_DB_EVIDENCE",
+        "evidenceId": "melanzane-pizza-pizzadb-p13",
+        "pizzaDbNameJa": "メランザーネピザ",
+        "origin": "イタリア / 南部",
+        "doughStyle": "ナポリピッツァ生地",
+        "sauceFamily": "トマトソース",
+        "ingredientsJa": [
+          "ナス",
+          "モッツァレラ",
+          "バジル"
+        ],
+        "ingredientsCanonical": null,
+        "evidenceOrigin": "comparison_table_sample",
+        "corroborationCount": 0,
+        "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/13/",
+        "carriesQuantity": false,
+        "carriesBakeTarget": false,
+        "carriesDescription": false,
+        "carriesCutInfo": false
+      },
+      "authoring": {
+        "sourceClass": "GAME_AUTHORING_CANDIDATE",
+        "source": "PR #221 @ 070afc0827f382bec8bc813d62e7fafe663a0991",
+        "description": "トマトソースにナス、モッツァレラ、バジルを合わせた、素朴で香り豊かな南イタリア風ピザ。",
+        "requiredIngredients": [
+          {
+            "ingredientId": "tomato-sauce",
+            "nameJa": "トマトソース",
+            "category": "sauce",
+            "minCount": 1
+          },
+          {
+            "ingredientId": "mozzarella",
+            "nameJa": "モッツァレラ",
+            "category": "cheese",
+            "minCount": 2
+          },
+          {
+            "ingredientId": "eggplant",
+            "nameJa": "ナス",
+            "category": "topping",
+            "minCount": 3
+          },
+          {
+            "ingredientId": "basil",
+            "nameJa": "バジル",
+            "category": "topping",
+            "minCount": 2
+          }
+        ],
+        "nonSaucePieceCount": 7,
+        "bakeTarget": [
+          58,
+          78
+        ],
+        "sauce": "tomato-sauce"
+      },
+      "rec01": {
+        "definition": "description/minCount/bakeTarget",
+        "mechanical": {
+          "descriptionNamesEveryRequiredIngredient": true,
+          "descriptionLengthWithinProductionRange": true,
+          "descriptionOwnerDecisionConsistency": "CONSISTENT",
+          "regionClaimsSupported": true,
+          "minCountsWithinProductionRanges": true,
+          "identitySetMatchesPr220": true,
+          "ingredientTypesFitPalette": true,
+          "nonSaucePiecesFitReferenceRing": true,
+          "bakeWidthMatchesProductionConvention": true,
+          "bakeStartWithinProductionRange": true,
+          "bakeCatalogPrecedent": "NO_CATALOG_VALUE",
+          "scoringReferenceEntryExists": false
+        },
+        "descriptionMentions": [
+          {
+            "ingredientId": "tomato-sauce",
+            "form": "トマトソース",
+            "ok": true
+          },
+          {
+            "ingredientId": "mozzarella",
+            "form": "モッツァレラ",
+            "ok": true
+          },
+          {
+            "ingredientId": "eggplant",
+            "form": "ナス",
+            "ok": true
+          },
+          {
+            "ingredientId": "basil",
+            "form": "バジル",
+            "ok": true
+          }
+        ],
+        "regionClaims": [
+          {
+            "word": "南イタリア",
+            "supportedBy": "PIZZA_DB origin/nameJa",
+            "status": "SUPPORTED"
+          }
+        ],
+        "quantityChecks": [
+          {
+            "ingredientId": "tomato-sauce",
+            "category": "sauce",
+            "minCount": 1,
+            "withinProductionRange": true
+          },
+          {
+            "ingredientId": "mozzarella",
+            "category": "cheese",
+            "minCount": 2,
+            "withinProductionRange": true
+          },
+          {
+            "ingredientId": "eggplant",
+            "category": "topping",
+            "minCount": 3,
+            "withinProductionRange": true
+          },
+          {
+            "ingredientId": "basil",
+            "category": "topping",
+            "minCount": 2,
+            "withinProductionRange": true
+          }
+        ],
+        "bakePrecedent": {
+          "catalogEntry": null,
+          "catalogBakeProfile": null,
+          "status": "NO_CATALOG_VALUE",
+          "rule": "Batch 1B-A / 1B-C precedent: null catalog bakeProfile => original value on the 20-wide span convention"
+        },
+        "humanSignoff": {
+          "sourceClass": "HUMAN_SIGNOFF",
+          "status": "PENDING",
+          "countsAsExternalEvidence": false,
+          "signedBy": null,
+          "signedAt": null
+        },
+        "humanItems": [
+          "batch content sign-off of description / minCount / bakeTarget (REC-01 itself)"
+        ],
+        "status": "NOT_READY"
+      },
+      "rec02": {
+        "definition": "cutRequirement",
+        "classification": "CUT_CANDIDATE",
+        "basis": {
+          "doughStyleRaw": "ナポリピッツァ生地",
+          "doughClass": "standard",
+          "shape": "round",
+          "shapeSource": "explicit standard doughStyle (round open pizza)",
+          "requiresMechanicIdentity": false,
+          "requiredCapabilities": [],
+          "designMatrixCutServe": {
+            "behavior": "existing-round-cut-optional",
+            "basis": "current CUT (6 slices, opt-in allowlist)"
+          },
+          "pr221Candidate": "STANDARD_ROUND_6_SLICES",
+          "inProductionAllowlist": false
+        },
+        "completionEffect": "SCORE_ONLY (merged SSOT)",
+        "status": "NOT_READY"
+      },
+      "rec03": {
+        "definition": "completionGate",
+        "compatibility": {
+          "cutGatesCompletion": false,
+          "minCountAllAtLeastOne": true,
+          "g1ZeroPieceFailureApplies": true,
+          "lunchRushOrderQuantity": {
+            "mozzarella": 2,
+            "eggplant": 3,
+            "basil": 2
+          },
+          "bakeGateWindow": [
+            48.0,
+            88.0
+          ],
+          "compatible": true
+        },
+        "status": "NOT_READY"
+      },
+      "missingDependencies": [
+        "MD-01"
+      ],
+      "otherOpenRefs": [
+        "REC-04"
+      ]
+    }
+  ],
+  "cutClassificationCounts": {
+    "CUT_CANDIDATE": 9,
+    "CUT_NONE": 0,
+    "EVIDENCE_INSUFFICIENT": 1,
+    "MECHANIC_INSUFFICIENT": 0
+  },
+  "ownerDecisionsProposed": [
+    {
+      "id": "Q1",
+      "rec": "REC-01",
+      "status": "PROPOSED_NOT_CONFIRMED",
+      "title": "REC-01 batch sign-off rule (description / minCount / bakeTarget)",
+      "options": {
+        "A": "Approve all 10 #221 candidates; Hawaiian bakeTarget follows the catalog precedent (60-80)",
+        "B": "Approve all 10 #221 candidates exactly as authored (Hawaiian 58-78)",
+        "C": "Do not approve yet; list edits"
+      },
+      "recommended": "A"
+    },
+    {
+      "id": "Q2",
+      "rec": "REC-01",
+      "status": "PROPOSED_NOT_CONFIRMED",
+      "title": "Quantity rule for recipes over the 8-slot reference ring (Parmigiana 9 / Portuguesa 10 / Puttanesca 9)",
+      "options": {
+        "A": "Keep authored counts; recipes wait for RT-01 runtime slice E",
+        "B": "Trim to <= 8 non-sauce pieces (capricciosa / meat-lovers precedent); RT-01 no longer blocks them"
+      },
+      "recommended": null
+    },
+    {
+      "id": "Q3",
+      "rec": "REC-02",
+      "status": "PROPOSED_NOT_CONFIRMED",
+      "title": "CUT default rule",
+      "options": {
+        "A": "Opt in the 9 CUT_CANDIDATE recipes (6 slices); New Haven Apizza without CUT until dough-shape evidence exists",
+        "B": "Opt in all 10 (treat New Haven's missing doughStyle as a standard round pizza)",
+        "C": "Opt in none of W1 yet"
+      },
+      "recommended": "A"
+    },
+    {
+      "id": "Q4",
+      "rec": "REC-03",
+      "status": "PROPOSED_NOT_CONFIRMED",
+      "title": "REC-03 closing basis",
+      "options": {
+        "A": "Close now against the recorded Issue #215 Owner Decision (spec authority); runtime follows #222",
+        "B": "Close only after #222 is merged to main"
+      },
+      "recommended": "A"
+    }
+  ],
+  "verdict": {
+    "REC-01": {
+      "status": "NOT_READY",
+      "why": "Human content sign-off is pending for all 10 (not machine-resolvable); Q1/Q2 decide the rules it signs against"
+    },
+    "REC-02": {
+      "status": "NOT_READY",
+      "why": "No W1 id is in CUT_ELIGIBLE_RECIPE_IDS; opt-in needs a deliberate human shape confirmation (cookingProfiles.ts); Q3 settles the one EVIDENCE_INSUFFICIENT row"
+    },
+    "REC-03": {
+      "status": "NOT_READY",
+      "why": "Every axis is compatible and the blocking #218 decision now exists (Issue #215 OD); closing it needs Q4 (spec record vs #222 merge)"
+    },
+    "readinessAfterThisAudit": {
+      "READY": 0,
+      "REVIEW": 10,
+      "BLOCKED": 0
+    }
+  }
+}
