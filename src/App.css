@@ -3419,6 +3419,14 @@
   min-height: 48px;
 }
 
+/* W1 I5b-4: before the first discovery, フリークッキング is the primary CTA -- same full-width row,
+   primary height/size, one line ("🎨 フリークッキングで探す" fits 328px+ without wrapping). */
+.cta-button--free-cook-lead {
+  min-height: 54px;
+  font-size: 16px;
+  white-space: nowrap;
+}
+
 /* Progression 2.0 Phase 3-3 (Issue #198): the "why is ランチラッシュ disabled" reason line --
    same copy/color family as .pizza-select-card__unlock-hint, so a locked CTA's reason always
    reads the same way across HOME and Pizza Select. */
@@ -3576,6 +3584,26 @@
 .pizza-select-grid-card .pizza-select-card__lock-label {
   font-size: 14px;
   line-height: 1.2;
+}
+
+/* W1 I5b-4: 25 recipes bring names up to 12 full-width chars (「ニューヘイブンアピッツァ」). At 360px a
+   card is ~138px inside, so 14px names broke mid-word (「ブレックファストピ／ザ」). The card is an
+   inline-size container and the name shrinks to fit its `--name-chars` on one line (11-14px, with
+   8px of slack for rounded glyph advances); normal wrapping stays as the fallback, so nothing can
+   overflow. */
+.pizza-select-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.pizza-select-grid-card {
+  container-type: inline-size;
+}
+
+@supports (width: 1cqi) {
+  .pizza-select-grid-card .pizza-select-card__name,
+  .pizza-select-grid-card .pizza-select-card__lock-label {
+    font-size: clamp(11px, calc((100cqi - 8px) / var(--name-chars, 1)), 14px);
+  }
 }
 
 .pizza-select-grid-card .pizza-select-card__unlock-hint {

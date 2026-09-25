@@ -160,6 +160,25 @@ describe("ResultPanel", () => {
     expect(names).toEqual(["ブラックオリーブ・", "オレガノ"]);
   });
 
+  // Progression 2.0 W1 I5b-4: the 25-recipe ladder no longer has a 3-material step (the old shipped-15
+  // step 14 fontina/gorgonzola/parmigiano is now split), so normal play never shows 3 names. The
+  // layout contract stays covered here: one non-breaking run per name, "・" closing each run.
+  it("keeps a 3-material notice to one non-breaking run per name", () => {
+    render(
+      <ResultPanel
+        {...baseProps()}
+        materialUnlockNotice={buildMaterialUnlockNotice(["fontina", "gorgonzola", "parmigiano"])}
+        onOpenShop={vi.fn()}
+      />,
+    );
+    const message = document.querySelector(".material-unlock-notice__message")!;
+    const names = Array.from(message.querySelectorAll(".material-unlock-notice__name")).map((e) => e.textContent);
+    expect(names).toHaveLength(3);
+    expect(names.slice(0, 2).every((n) => n?.endsWith("・"))).toBe(true);
+    expect(names[2]?.endsWith("・")).toBe(false);
+    expect(screen.getByRole("button", { name: /ショップへ/ })).toBeInTheDocument();
+  });
+
   it("never reads as a free gift", () => {
     render(<ResultPanel {...baseProps()} materialUnlockNotice={buildMaterialUnlockNotice(["egg"])} onOpenShop={vi.fn()} />);
     const notice = document.querySelector(".material-unlock-notice")!;

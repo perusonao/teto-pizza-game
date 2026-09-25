@@ -1,0 +1,124 @@
+{
+ "390x844/fresh-home": {
+  "docOverflowX": 0,
+  "offenders": [],
+  "ctaLines": [
+   "🍕 ピザを作る|1",
+   "⏱️ ランチラッシュ|1",
+   "🎨 フリークッキングで探す|1"
+  ],
+  "ctaBoxes": [
+   "🍕 ピザを作る@16,307 175x54",
+   "⏱️ ランチラッシュ@199,307 175x54",
+   "🎨 フリークッキングで探す@16,369 358x54"
+  ]
+ },
+ "390x844/fresh-pizza-select": {
+  "docOverflowX": 0,
+  "offenders": []
+ },
+ "390x844/dex1-home": {
+  "ctaBoxes": [
+   "🍕 ピザを作る@16,307 181x54",
+   "⏱️ ランチラッシュ@205,307 169x54",
+   "🎨 フリークッキング@16,369 358x48"
+  ]
+ },
+ "390x844/pizza-select-mid": {
+  "docOverflowX": 0,
+  "offenders": [],
+  "cards": 25,
+  "nameLines": [],
+  "scroll": {
+   "scrollHeight": 2472,
+   "clientHeight": 788,
+   "shots": 4
+  }
+ },
+ "390x844/pizza-select-detail": {
+  "docOverflowX": 0,
+  "offenders": []
+ },
+ "390x844/shop-max": {
+  "docOverflowX": 0,
+  "offenders": [],
+  "rows": 26,
+  "nameLines": [],
+  "scroll": {
+   "scrollHeight": 2688,
+   "clientHeight": 756,
+   "shots": 5
+  }
+ },
+ "390x844/tray": {
+  "docOverflowX": 0,
+  "offenders": [],
+  "pageLabel": "1 / 4",
+  "chips": 6,
+  "chipNameLines": [],
+  "p2NameLines": [],
+  "p3NameLines": [],
+  "p4NameLines": []
+ },
+ "360x800/fresh-home": {
+  "docOverflowX": 0,
+  "offenders": [],
+  "ctaLines": [
+   "🍕 ピザを作る|1",
+   "⏱️ ランチラッシュ|1",
+   "🎨 フリークッキングで探す|1"
+  ],
+  "ctaBoxes": [
+   "🍕 ピザを作る@16,307 160x54",
+   "⏱️ ランチラッシュ@184,307 160x54",
+   "🎨 フリークッキングで探す@16,369 328x54"
+  ]
+ },
+ "360x800/fresh-pizza-select": {
+  "docOverflowX": 0,
+  "offenders": []
+ },
+ "360x800/dex1-home": {
+  "ctaBoxes": [
+   "🍕 ピザを作る@16,307 166x54",
+   "⏱️ ランチラッシュ@190,307 154x54",
+   "🎨 フリークッキング@16,369 328x48"
+  ]
+ },
+ "360x800/pizza-select-mid": {
+  "docOverflowX": 0,
+  "offenders": [],
+  "cards": 25,
+  "nameLines": [],
+  "scroll": {
+   "scrollHeight": 2472,
+   "clientHeight": 744,
+   "shots": 4
+  }
+ },
+ "360x800/pizza-select-detail": {
+  "docOverflowX": 0,
+  "offenders": []
+ },
+ "360x800/shop-max": {
+  "docOverflowX": 0,
+  "offenders": [],
+  "rows": 26,
+  "nameLines": [],
+  "scroll": {
+   "scrollHeight": 3336,
+   "clientHeight": 712,
+   "shots": 6
+  }
+ },
+ "360x800/tray": {
+  "docOverflowX": 0,
+  "offenders": [],
+  "pageLabel": "1 / 4",
+  "chips": 6,
+  "chipNameLines": [],
+  "p2NameLines": [],
+  "p3NameLines": [],
+  "p4NameLines": []
+ }
+}

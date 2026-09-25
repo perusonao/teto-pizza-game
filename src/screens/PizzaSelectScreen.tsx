@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import { RECIPES, type Recipe, type RecipeId } from "../data/recipes";
 import type { DexState } from "../state/dex";
 import { buildRecipeSections, recipeCardState, type RecipeCardState } from "../state/pizzaSelect";
@@ -113,7 +113,12 @@ function RecipeGridCard({ card, onSelect }: { card: RecipeCardState; onSelect: (
         <PizzaThumbnail recipe={card.recipe} />
       )}
 
-      <p className={isLocked ? "pizza-select-card__lock-label" : "pizza-select-card__name"}>
+      {/* W1 I5b-4: names run up to 12 full-width chars; `--name-chars` lets the compact card shrink
+          the font just enough to keep one line (see `.pizza-select-grid-card` in App.css). */}
+      <p
+        className={isLocked ? "pizza-select-card__lock-label" : "pizza-select-card__name"}
+        style={{ "--name-chars": [...displayName].length } as CSSProperties}
+      >
         {displayName}
       </p>
 

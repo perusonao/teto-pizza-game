@@ -349,3 +349,23 @@ describe("PizzaSelectScreen scalability (30-50 recipe fixture, dev-only -- produ
     }
   });
 });
+
+// Progression 2.0 W1 I5b-4: 25 recipes bring names up to 12 full-width chars. The compact card
+// passes each displayed name's length as `--name-chars` so App.css can shrink the font to keep it
+// on one line at 360px (no mid-word breaks like 「ブレックファストピ／ザ」).
+describe("PizzaSelectScreen grid-card name fit (W1 I5b-4)", () => {
+  it("every grid card name / lock label carries its character count", () => {
+    renderSelect({ dex: dexDiscovering(["margherita", "breakfast-pizza"], 3), ownedIngredientIds: ALL_OWNED_INGREDIENTS });
+    const labels = Array.from(
+      document.querySelectorAll<HTMLElement>(
+        ".pizza-select-grid-card .pizza-select-card__name, .pizza-select-grid-card .pizza-select-card__lock-label",
+      ),
+    );
+    expect(labels).toHaveLength(RECIPES.length);
+    for (const label of labels) {
+      expect(label.style.getPropertyValue("--name-chars")).toBe(String([...(label.textContent ?? "")].length));
+    }
+    const longest = Math.max(...RECIPES.map((r) => [...r.nameJa].length));
+    expect(longest).toBeLessThanOrEqual(12);
+  });
+});
