@@ -256,8 +256,19 @@ holds only RT-01 commits (base `dff233c`), and every file category has a reason 
 | 6 | Scoring fixtures | Unchanged (FNV-1a baseline test passes, and the fixture sources have zero diff) |
 | 7 | Out of scope | No RT-01c, W1 recipe/fixture, 7 ingredients, #220/#221/#222 change, or new Owner Decision |
 
-Verification on `1aeea03`:
+**Main moved during the gate.** I3 (#225, Production Visual P1, `e6bece1`) merged while PR #226
+was open. Main was merged in with `fe8afa2`. The only conflict is the one the W1 preflight predicted:
+the adjacent import lines in `src/components/PizzaThumbnail.tsx`. The resolution keeps both RT-01's
+`getReferenceSlots` and P1's `IngredientGlyph`. The pixel harness (`tools/p1_visual_regression`) is
+not on main, so the combined thumbnail is guarded instead by RT-01's markup regression test. That
+test compares `<PizzaThumbnail>` innerHTML for all 15 recipes with the frozen pre-P1/pre-RT-01
+baseline and passes, so P1 + RT-01 together change no shipped thumbnail markup.
 
-- Local: Vitest 128 files / 2493 tests pass. oxlint, `tsc -b` and `npm run build` pass.
+Verification on `fe8afa2` (base `e6bece1`):
+
+- Local: Vitest 129 files / 2542 tests pass. oxlint, `tsc -b` and `npm run build` pass.
 - Chromium (local): the full e2e suite passes at 390×844 and 360×800, 126/126.
-- WebKit: Full WebKit (2 projects × 2 shards) + WebKit Gate run in CI on PR #226's final head, which carries this report. The run id and result are in the merge commit message. The PR merges only if that run passes.
+- WebKit: Full WebKit (2 projects × 2 shards) + WebKit Gate run in CI on PR #226's final head,
+  which carries this report. The run id and result are in the merge commit message. The PR merges
+  only if that run passes. An earlier run on `4129b24` (base `46513b1`) passed: run 36109828169,
+  `tested_base=46513b1`.
