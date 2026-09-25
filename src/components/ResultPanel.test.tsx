@@ -156,7 +156,8 @@ describe("ResultPanel", () => {
     expect(message.textContent).toBe("\u{1F195} 新しい材料が入荷：ブラックオリーブ・オレガノ");
     // Each name is its own non-breaking run, so no name can split across lines.
     const names = Array.from(message.querySelectorAll(".material-unlock-notice__name")).map((e) => e.textContent);
-    expect(names).toEqual(["ブラックオリーブ", "・オレガノ"]);
+    // "・" closes the previous run (a line may break after it, never before it).
+    expect(names).toEqual(["ブラックオリーブ・", "オレガノ"]);
   });
 
   it("never reads as a free gift", () => {

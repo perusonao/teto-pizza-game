@@ -311,13 +311,15 @@ export function ResultPanel({
 
       {materialUnlockNotice && (
         <div className="material-unlock-notice" aria-live="polite">
-          {/* Each name is its own non-breaking run, so lines break only between names. */}
+          {/* Each name is its own non-breaking run, so lines break only between names. The "・"
+              separator ends the *previous* run: a line may break after "・" but never before it
+              (UAX #14), so a leading separator would glue every name into one unbreakable run. */}
           <p className="material-unlock-notice__message">
             {MATERIAL_UNLOCK_NOTICE_LEAD_JA}
             {materialUnlockNotice.namesJa.map((name, i) => (
               <span key={materialUnlockNotice.ingredientIds[i]} className="material-unlock-notice__name">
-                {i > 0 ? "・" : ""}
                 {name}
+                {i < materialUnlockNotice.namesJa.length - 1 ? "・" : ""}
               </span>
             ))}
           </p>

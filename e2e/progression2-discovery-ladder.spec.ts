@@ -185,6 +185,58 @@ test.describe("Discovery Ladder Shop (I4b)", () => {
     await expectNoHorizontalOverflow(page, "Shop NEW + OWNED");
   });
 
+  test("multi-material NEW MATERIAL notice (step 14, three cheeses): names whole, clear of the CTA, RESULT fits", async ({
+    page,
+  }) => {
+    test.setTimeout(90_000);
+    // 13 discoveries (all but Bismarck and Quattro Formaggi) + egg bought: Free Cooking Bismarck is
+    // the 14th discovery, whose ladder step brings three materials at once -- the notice's widest
+    // case (PR #227 post-fix delta; a leading "・" once glued the names into one unbreakable run).
+    const all = [
+      "margherita", "marinara", "genovese", "funghi", "fugazza", "salsiccia", "pepperoni", "napoletana",
+      "tonno-e-cipolla", "pizza-bianca", "breakfast-pizza", "capricciosa", "meat-lovers",
+    ];
+    const save = {
+      schemaVersion: 2,
+      dex: all.map((recipeId) => ({ recipeId, discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 })),
+      pitzBalance: 100,
+      ownedIngredientIds: ["tomato-sauce", "mozzarella", "basil", "egg"],
+      missionBest: {},
+      inventory: { egg: 10 },
+      starterGrantClaimedRecipeIds: [],
+    };
+    await page.addInitScript(([key, raw]) => localStorage.setItem(key as string, JSON.stringify(raw)), [SAVE_KEY, save] as const);
+    await openHome(page);
+    await startFreeCook(page);
+    await cookPizza(page, [{ name: /たまご/, at: [[50, 50]] }]);
+    await expect(page.locator(".discovered-banner--new-pizza")).toHaveText(/ビスマルクを発見しました！/);
+    const notice = page.locator(".material-unlock-notice__message");
+    await expect(notice).toHaveText("\u{1F195} 新しい材料が入荷：フォンティーナ・ゴルゴンゾーラ・パルミジャーノ");
+    const m = await page.evaluate(() => {
+      const msg = document.querySelector(".material-unlock-notice__message")!;
+      const cta = document.querySelector(".material-unlock-notice__cta")!.getBoundingClientRect();
+      const range = document.createRange();
+      range.selectNodeContents(msg);
+      const gs = document.querySelector(".game-screen")!;
+      return {
+        // Line tops per name run; one line each means no name split.
+        nameLines: Array.from(document.querySelectorAll(".material-unlock-notice__name")).map(
+          (e) => new Set(Array.from(e.getClientRects()).map((r) => Math.round(r.top))).size,
+        ),
+        textRight: Math.max(...Array.from(range.getClientRects()).map((r) => r.right)),
+        msgRight: msg.getBoundingClientRect().right,
+        ctaLeft: cta.left,
+        overflow: gs.scrollHeight - gs.clientHeight,
+      };
+    });
+    expect(m.nameLines).toEqual([1, 1, 1]);
+    expect(m.textRight, "notice text stays inside its box").toBeLessThanOrEqual(m.msgRight + 0.5);
+    expect(m.textRight, "notice text never runs under the CTA").toBeLessThanOrEqual(m.ctaLeft);
+    expect(m.overflow, "RESULT stays within its 1-screen budget").toBeLessThanOrEqual(0);
+    await expectFullyVisible(page, ".material-unlock-notice__cta", "RESULT: ショップへ CTA (3 materials)");
+    await expectNoHorizontalOverflow(page, "RESULT with a 3-material notice");
+  });
+
   test("existing EP4 save: owned materials and stock kept, ladder materials become NEW at 0", async ({ page }) => {
     const legacy = {
       schemaVersion: 2,
