@@ -173,6 +173,26 @@ describe("Dex 0 Margherita onboarding is free (OD-HE-5)", () => {
     expect(act(h1, buy(1))).toBe(h1);
   });
 
+  it("only Margherita is free at Dex 0: another DISCOVERABLE recipe (migrated save) is paid", () => {
+    // Dex 0, but egg is entitled, owned and stocked, so bismarck is DISCOVERABLE next to Margherita.
+    const start = (pitz: number) =>
+      act(
+        createInitialGameState(undefined, [...STARTER_INGREDIENT_IDS, "egg"], pitz, { egg: 10 }, [], ["egg"]),
+        { type: "BEGIN_PREPARE" },
+        { type: "SHOW_HINT", pinnedRecipeId: "bismarck" },
+      );
+    const s = start(0);
+    expect(s.hintSession?.targetId).toBe("bismarck");
+    expect(hintSheetView(s)).toMatchObject({ next: { level: 1, price: 5, free: false, affordable: false } });
+    expect(act(s, buy(1))).toBe(s);
+    const paid = act(start(10), buy(1));
+    expect(paid.pitzBalance).toBe(5);
+    expect(paid.discoveryHintPurchases).toEqual({ bismarck: 1 });
+    // The failed-try escalation is Margherita's alone: it reveals nothing for bismarck.
+    const escalated = act({ ...start(0), preDiscoveryFreeCookAttempts: 3 }, { type: "SHOW_HINT", pinnedRecipeId: "bismarck" });
+    expect(hintSheetView(escalated)).toMatchObject({ kind: "TARGET", next: { level: 1 } });
+  });
+
   it("from Dex 1 the normal price applies", () => {
     const s = act(createInitialGameState(discover(["margherita"]), [...STARTER_INGREDIENT_IDS, "egg"], 5, { egg: 10 }, [], ["egg"]), { type: "START_FREE_COOK" }, { type: "SHOW_HINT" });
     expect(hintSheetView(s)).toMatchObject({ next: { level: 1, price: 5, free: false } });

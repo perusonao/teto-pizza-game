@@ -27,9 +27,11 @@ describe("Candidate B prices (OD-HE-1)", () => {
     for (const bad of [5, -1, 1.5, Number.NaN]) expect(() => discoveryHintPrice(bad)).toThrow(RangeError);
   });
 
-  it("onboarding is free only while the Dex is empty (OD-HE-5)", () => {
-    expect(isHintOnboardingFree(0)).toBe(true);
-    expect(isHintOnboardingFree(1)).toBe(false);
+  it("onboarding is free only for Margherita while the Dex is empty (OD-HE-5)", () => {
+    expect(isHintOnboardingFree(0, "margherita")).toBe(true);
+    expect(isHintOnboardingFree(1, "margherita")).toBe(false);
+    // Another recipe DISCOVERABLE at Dex 0 (a migrated save) is never free.
+    expect(isHintOnboardingFree(0, "bismarck")).toBe(false);
   });
 });
 
@@ -82,5 +84,15 @@ describe("purchaseDiscoveryHint", () => {
 
   it("Dex 0 onboarding is never a purchase (free, session-only)", () => {
     expect(purchaseDiscoveryHint({ ...base, recipeId: "margherita", discoveredCount: 0 })).toEqual({ success: false, reason: "ONBOARDING_FREE" });
+  });
+
+  it("a non-Margherita target at Dex 0 is a normal paid purchase", () => {
+    expect(purchaseDiscoveryHint({ ...base, recipeId: "bismarck", discoveredCount: 0, pitzBalance: 10 })).toMatchObject({
+      success: true,
+      price: 5,
+      nextPitzBalance: 5,
+      nextPurchases: { bismarck: 1 },
+    });
+    expect(purchaseDiscoveryHint({ ...base, recipeId: "bismarck", discoveredCount: 0, pitzBalance: 0 })).toEqual({ success: false, reason: "INSUFFICIENT_PITZ" });
   });
 });

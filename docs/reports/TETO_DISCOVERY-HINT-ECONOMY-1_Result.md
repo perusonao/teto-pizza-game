@@ -14,7 +14,7 @@ Authority: `docs/reports/TETO_DISCOVERY-HINT-ECONOMY-1_FRESH-AUDIT.md`, Issue #2
 | HE-2 | `977d369` | Candidate B price table, pure `purchaseDiscoveryHint`, `PURCHASE_DISCOVERY_HINT` (replaces the free `REVEAL_NEXT_HINT`), ledger-driven sheet view, harness production mode + parity |
 | HE-3 | `59f681a` | HintSheet CTA 「🔒 次のヒントを解除　N Pitz」 + 「所持 N Pitz」, neutral disabled state, free onboarding (✨) |
 | HE-4 | `7761478` | HE-UI-4 purchased-target preference, Dex / Result / Free Cooking integration, timer-pause regression for purchases |
-| HE-5 | (this report) | Final economy gate on production, full test gate |
+| HE-5 | `00c52bf`… | Final economy gate on production, full test gate, Codex P2 fix (onboarding exemption = Dex 0 + Margherita) |
 
 ## 2. Owner decisions implemented
 
@@ -22,7 +22,9 @@ Authority: `docs/reports/TETO_DISCOVERY-HINT-ECONOMY-1_FRESH-AUDIT.md`, Issue #2
 - **OD-HE-2/3:** paid once per recipe × level, the first time it is unlocked; re-reading is free forever.
   H4 is one level (one purchase shows every H4 line, still n-1 capped).
 - **OD-HE-4:** `discoveryHintPurchases: Record<recipeId, highestPurchasedHintLevel>` in the save.
-- **OD-HE-5:** Dex 0 (Margherita onboarding): H1–H4 free, session-only, nothing written, no Pitz shown.
+- **OD-HE-5:** Dex 0 **and** target Margherita (the onboarding): H1–H4 free, session-only, nothing written, no
+  Pitz shown. Any other recipe DISCOVERABLE at Dex 0 (possible on a migrated save) is priced normally — fixed
+  after the Codex review on PR #233 (the first version exempted every Dex-0 target).
 - **OD-HE-6:** short Pitz disables the CTA only; 閉じる / backdrop / Escape and cooking always work.
 - **OD-HE-7:** no H5 (`discoveryHintPrice(5)` throws; level 5 is rejected by the authority).
 - **OD-HE-8:** OD-HINT-5 stays OFF (near-miss untouched).
@@ -128,11 +130,12 @@ Cooking → buy (0:08 exact), Result CTA → new Free Cooking → buy two levels
 
 ## 9. Tests
 
-Local (sandbox, final code):
+Local (sandbox, final code). After the Codex P2 fix, Vitest / typecheck / lint / build were re-run in full and the
+affected e2e (hint sheet, Dex → Hint, Result → Hint, onboarding, Layout Contract; 26 passed / 11 width-guard skips) re-ran green:
 
 | Gate | Result |
 |---|---|
-| Vitest (full) | **3594 passed / 1 skipped** (170 files) |
+| Vitest (full) | **3596 passed / 1 skipped** (170 files) |
 | Typecheck (`tsc -b`) | PASS |
 | Lint (`oxlint`) | PASS (0 findings) |
 | Build (`npm run build`) | PASS (pre-existing chunk-size warning only) |

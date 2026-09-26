@@ -42,10 +42,13 @@ export function discoveryHintPrice(level: number): number {
   return DISCOVERY_HINT_PRICES[level];
 }
 
-/** OD-HE-5: while the Dex is empty (the first Margherita onboarding) every hint level is free and
- *  nothing is written to the ledger -- the player has no Pitz yet. */
-export function isHintOnboardingFree(discoveredCount: number): boolean {
-  return discoveredCount === 0;
+const ONBOARDING_RECIPE_ID = "margherita";
+
+/** OD-HE-5: the first Margherita onboarding (Dex 0, target Margherita) is free and nothing is
+ *  written to the ledger -- the player has no Pitz yet. Only that pair: any other recipe that is
+ *  DISCOVERABLE at Dex 0 (e.g. on a migrated save) is priced like every other hint. */
+export function isHintOnboardingFree(discoveredCount: number, recipeId: string): boolean {
+  return discoveredCount === 0 && recipeId === ONBOARDING_RECIPE_ID;
 }
 
 export type DiscoveryHintPurchaseFailure =
@@ -54,7 +57,7 @@ export type DiscoveryHintPurchaseFailure =
   | "NOT_NEXT_LEVEL"
   /** The recipe is not the session's DISCOVERABLE hint target (any more). */
   | "NOT_A_TARGET"
-  /** Dex 0: the onboarding reveal is free and session-only, never a purchase. */
+  /** Dex-0 Margherita: the onboarding reveal is free and session-only, never a purchase. */
   | "ONBOARDING_FREE"
   | "INSUFFICIENT_PITZ";
 
@@ -91,7 +94,7 @@ export type DiscoveryHintPurchaseResult =
  */
 export function purchaseDiscoveryHint(input: DiscoveryHintPurchaseInput): DiscoveryHintPurchaseResult {
   if (!input.isTarget) return { success: false, reason: "NOT_A_TARGET" };
-  if (isHintOnboardingFree(input.discoveredCount)) return { success: false, reason: "ONBOARDING_FREE" };
+  if (isHintOnboardingFree(input.discoveredCount, input.recipeId)) return { success: false, reason: "ONBOARDING_FREE" };
   const maxLevel = Math.min(input.maxLevel, MAX_PURCHASABLE_HINT_LEVEL);
   const purchased = purchasedHintLevel(input.purchases, input.recipeId, maxLevel);
   const level = input.requestedLevel;

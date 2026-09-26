@@ -15,7 +15,7 @@
  *   pinned from the Dex, and only while DISCOVERABLE); any other target starts again at H0.
  *   HE-UI-4: with no session target, a DISCOVERABLE recipe with purchased levels is preferred
  *   (so a reload keeps it); once it is no longer DISCOVERABLE, the deterministic order decides.
- * - Dex 0 (OD-HE-5): the Margherita onboarding is free. The reveal stays session-only, and the
+ * - Dex 0 + Margherita (OD-HE-5): the onboarding is free. The reveal stays session-only, and the
  *   pre-first-discovery escalation (`preDiscoveryFreeCookAttempts`) still counts: the sheet shows
  *   the larger of that automatic step and the manually revealed one (Fresh Audit §6 F-1/F-2).
  */
@@ -140,7 +140,7 @@ function lastIndexAtLevel(steps: readonly HintStep[], level: number): number {
 }
 
 function shownIndex(state: DiscoveryHintState, session: HintSession, steps: readonly HintStep[]): number {
-  if (isHintOnboardingFree(discoveredCount(state.dex))) {
+  if (isHintOnboardingFree(discoveredCount(state.dex), session.targetId)) {
     return Math.min(Math.max(session.revealedIndex, autoHintIndex(state)), steps.length - 1);
   }
   return lastIndexAtLevel(steps, purchasedFor(state, session.targetId));
@@ -159,8 +159,10 @@ export type HintUnlockPatch = Partial<Pick<DiscoveryHintState, "hintSession" | "
  * request is rejected (nothing changes). The level must be exactly the next one shown; the target
  * must still be the session's DISCOVERABLE target.
  *
- * - Dex 0 (OD-HE-5): free, session-only: `revealedIndex` moves to the last line of that level.
- * - Dex >= 1: `purchaseDiscoveryHint` debits the price and raises the ledger in one step.
+ * - Dex-0 Margherita (OD-HE-5): free, session-only: `revealedIndex` moves to the last line of
+ *   that level.
+ * - Anything else (Dex >= 1, or another recipe DISCOVERABLE at Dex 0 on a migrated save):
+ *   `purchaseDiscoveryHint` debits the price and raises the ledger in one step.
  */
 export function unlockNextHint(state: DiscoveryHintState, requestedLevel: number): HintUnlockPatch | null {
   const session = state.hintSession;
@@ -168,7 +170,7 @@ export function unlockNextHint(state: DiscoveryHintState, requestedLevel: number
   const steps = stepsFor(session.targetId, state.dex);
   if (steps.length === 0 || !isSessionTarget(state, session)) return null;
   const count = discoveredCount(state.dex);
-  if (isHintOnboardingFree(count)) {
+  if (isHintOnboardingFree(count, session.targetId)) {
     const shownLevel = steps[shownIndex(state, session, steps)].level;
     if (requestedLevel !== shownLevel + 1 || requestedLevel > lastLevel(steps)) return null;
     return { hintSession: { ...session, revealedIndex: lastIndexAtLevel(steps, requestedLevel) } };
@@ -200,7 +202,7 @@ export function hintSheetView(state: DiscoveryHintState): HintSheetView {
   const nextStep = steps[index + 1];
   let next: HintUnlockOffer | null = null;
   if (nextStep) {
-    const free = isHintOnboardingFree(discoveredCount(state.dex));
+    const free = isHintOnboardingFree(discoveredCount(state.dex), session.targetId);
     const price = free ? 0 : discoveryHintPrice(nextStep.level);
     next = { level: nextStep.level, price, free, affordable: free || state.pitzBalance >= price };
   }
