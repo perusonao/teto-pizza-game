@@ -1,4 +1,5 @@
 import { execSync } from "node:child_process";
+import { mkdirSync } from "node:fs";
 import { expect, type Page, type TestInfo } from "@playwright/test";
 import {
   compareStable,
@@ -380,6 +381,7 @@ export class LayoutContract {
         contentType: "image/png",
       });
     }
+    await this.evidenceShot(state, profile);
     this.samples.push({
       state,
       profile: {
@@ -394,6 +396,19 @@ export class LayoutContract {
       results,
       advisory: dough && m.rects.dough ? [{ id: "L-N", doughDiameterPx: Math.round(m.rects.dough.width), floorPx: null }] : [],
     });
+  }
+
+  /** Report screenshots (Human Verification evidence, not a failure artifact): only when
+   *  LC_SHOTS_DIR is set, for the profiles in LC_SHOTS_PROFILES (comma list, default all). */
+  private async evidenceShot(state: StateLabel, profile: Profile) {
+    const dir = process.env.LC_SHOTS_DIR;
+    if (!dir) return;
+    const only = process.env.LC_SHOTS_PROFILES?.split(",");
+    if (only && !only.includes(profile.id)) return;
+    const test = this.testInfo.title.split(" ")[0];
+    const name = `${test}-${state.label}-${profile.id}`.replace(/[^\w-]+/g, "_");
+    mkdirSync(dir, { recursive: true });
+    await this.page.screenshot({ path: `${dir}/${name}.png` });
   }
 
   /** Screenshot of the current profile for the report (not a failure artifact). */

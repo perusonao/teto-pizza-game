@@ -79,17 +79,25 @@ const DEX1_SAVE = {
   missionBest: {},
 };
 
-async function openWithSave(page: Page, save: object | null, query = "") {
-  await page.goto(`/${query}`);
-  await page.evaluate(
+/**
+ * Seeds the save and opens the app. The seed is written by an init script -- before the app
+ * reads storage on that navigation -- not by `evaluate` + `reload`: WebKit's page-hide save of
+ * the previous document can overwrite a seed written that way (CI run 36221989353, where every
+ * seeded flow silently opened at Dex 0). Each call registers a newer script that runs last, so
+ * the latest seed wins on every later navigation too. The Dex pill is asserted so a seed that
+ * did not load can never pass unnoticed.
+ */
+async function openWithSave(page: Page, save: { dex: unknown[] } | null, query = "") {
+  await page.addInitScript(
     ([key, value]) => {
       localStorage.clear();
       if (value) localStorage.setItem(key, value);
     },
     [SAVE_KEY, save ? JSON.stringify(save) : null] as const,
   );
-  await page.reload();
+  await page.goto(`/${query}`);
   await page.waitForSelector(".app-frame");
+  await expect(page.locator(".app-header__dex-pill"), "seeded save loaded").toHaveText(new RegExp(`${save ? save.dex.length : 0}/25`));
 }
 
 const bar = (page: Page) => page.locator(".prepare-bake-bar");
