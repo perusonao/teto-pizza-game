@@ -4703,3 +4703,26 @@
   font-weight: 700;
   color: #a1662f;
 }
+
+/* ---------- Progression 2.0 W1 I5b-5: Lunch Rush serve screen (Layout Contract L-A, P0) ----------
+   The I5b-5 Layout Contract (e2e/layout-contract.spec.ts, LC-3) found 「次の注文へ」 inside the
+   bottom safe-area inset on the envelope profiles (390x664 / 360x640 + 47/34 inset): the serve
+   panel had no inset padding and the pizza above it kept its fixed min(78vw, 300px). The same
+   rule as the I5b-4b cooking skeleton, scoped to this one screen: the stage starts at exactly its
+   old height (dough + its 8px vertical padding), may only shrink -- never grow -- and the dough
+   follows the stage's own height, so N / S profiles render unchanged and only a too-short
+   viewport gives way in the pizza, never under the CTA. */
+.game-screen:has(> .mission-serve-panel) > .pizza-stage {
+  flex: 0 1 calc(min(78vw, 300px) + 8px);
+  min-height: 0;
+  container-type: size;
+}
+
+.game-screen:has(> .mission-serve-panel) > .pizza-stage .pizza-dough {
+  width: min(78vw, 300px, 100cqh);
+  height: min(78vw, 300px, 100cqh);
+}
+
+.mission-serve-panel {
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+}
