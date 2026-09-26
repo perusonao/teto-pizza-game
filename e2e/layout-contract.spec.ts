@@ -361,6 +361,38 @@ test.describe("I5b-5 Layout Contract", () => {
     });
   });
 
+  test("LC-3b Lunch Rush shortage ORDER (#212): 4 short materials, skip CTA, then the cookable order", async ({ page, lc }) => {
+    test.setTimeout(120_000);
+    const mount = lc.mountProfile("short");
+    // margherita + quattro-formaggi discovered, its 4 finite materials owned at 0: the first order
+    // is the short quattro-formaggi (avoidRepeat excludes the initial margherita round) -- the
+    // widest shortage card in the W1 catalog.
+    const qf = ["olive-oil", "gorgonzola", "parmigiano", "fontina"];
+    await openWithSave(
+      page,
+      {
+        schemaVersion: 2,
+        dex: ["margherita", "quattro-formaggi"].map((recipeId) => ({ recipeId, discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 })),
+        pitzBalance: 150,
+        ownedIngredientIds: ["tomato-sauce", "mozzarella", "basil", ...qf],
+        missionBest: {},
+        inventory: Object.fromEntries(qf.map((m) => [m, 0])),
+      },
+      "?missionDuration=900",
+    );
+    await lc.apply(mount);
+    await page.getByRole("button", { name: /ランチラッシュ/ }).click();
+    await page.getByRole("button", { name: "スタート" }).click();
+    await expect(page.locator(".mission-shortage-panel__item")).toHaveCount(4);
+    await cp_(lc, mount, { label: "LR shortage ORDER", meta: { mission: "shortage", shortages: 4 } }, ["L-A", "L-D", "L-E", "L-G"], {
+      primary: ".mission-shortage-panel .cta-button--primary",
+      ctaBar: ".mission-shortage-panel",
+    });
+    await page.getByRole("button", { name: "この注文をスキップ" }).click();
+    await page.waitForSelector(".making-step-tabs");
+    await cp_(lc, mount, { label: "LR after skip PREPARE", meta: { mode: "LUNCH_RUSH" } }, withHud(PREPARE_CHECKS));
+  });
+
   test("LC-4 HOME: Dex 0 and Dex 1 on every profile (CTA shape, skeleton stable)", async ({ page, lc }) => {
     test.setTimeout(150_000);
     const slots: SlotSelectors = {
