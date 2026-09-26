@@ -1,0 +1,56 @@
+{
+ "390x844/dex0/pizza-select": {
+  "overflowX": 0,
+  "cards": 25
+ },
+ "390x844/dex0/dex": {
+  "overflowX": 0
+ },
+ "390x844/mid/pizza-select": {
+  "overflowX": 0,
+  "cards": 25
+ },
+ "390x844/mid/dex": {
+  "overflowX": 0
+ },
+ "390x844/mid/shop": {
+  "overflowX": 0
+ },
+ "390x844/legacy15/pizza-select": {
+  "overflowX": 0,
+  "cards": 25
+ },
+ "390x844/legacy15/dex": {
+  "overflowX": 0
+ },
+ "390x844/legacy15/shop": {
+  "overflowX": 0
+ },
+ "360x800/dex0/pizza-select": {
+  "overflowX": 0,
+  "cards": 25
+ },
+ "360x800/dex0/dex": {
+  "overflowX": 0
+ },
+ "360x800/mid/pizza-select": {
+  "overflowX": 0,
+  "cards": 25
+ },
+ "360x800/mid/dex": {
+  "overflowX": 0
+ },
+ "360x800/mid/shop": {
+  "overflowX": 0
+ },
+ "360x800/legacy15/pizza-select": {
+  "overflowX": 0,
+  "cards": 25
+ },
+ "360x800/legacy15/dex": {
+  "overflowX": 0
+ },
+ "360x800/legacy15/shop": {
+  "overflowX": 0
+ }
+}
