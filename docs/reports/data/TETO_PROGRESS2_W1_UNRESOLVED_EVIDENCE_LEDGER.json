@@ -1,0 +1,176 @@
+{
+  "schemaVersion": 1,
+  "kind": "unresolved_evidence_ledger",
+  "auditedMainSha": "dff233c042d2df6ee1c3a92f2d2419830aa05460",
+  "authorityRef": {
+    "pr": 220,
+    "headSha": "e49dab96bd9b26dc0f520349cf09d1160c3519f5",
+    "w1SnapshotSha256": "88422a13baff67a3ad65eb8df9f7c116d2d2d8db73ba04034cf7b7bdb375e746",
+    "referenceFile": "docs/reports/data/TETO_PROGRESS2_W1_AUTHORITY_REFERENCE.json"
+  },
+  "sourceRefs": [
+    "Issue #182",
+    "PR #189 (MERGED)",
+    "PR #191 (MERGED)",
+    "PR #217 (OPEN)",
+    "PR #220 (OPEN) @ e49dab96bd9b26dc0f520349cf09d1160c3519f5 -- W1 authority",
+    "Owner Decision Sauce OD-S1 = A"
+  ],
+  "rows": [
+    {
+      "id": "REC-01",
+      "scope": "all recipes",
+      "inheritedByEveryRecipe": true,
+      "status": "AUTHORING_REQUIRED",
+      "field": "description/minCount/bakeTarget",
+      "detail": "Values are original game-authoring candidates, not claims from external evidence. Human content sign-off remains required before production."
+    },
+    {
+      "id": "REC-02",
+      "scope": "all recipes",
+      "inheritedByEveryRecipe": true,
+      "status": "AUTHORING_REQUIRED",
+      "field": "cutRequirement",
+      "detail": "All ten fit the current round-six-slice mechanic, but future production must explicitly opt each ID into the allowlist."
+    },
+    {
+      "id": "REC-03",
+      "scope": "all recipes",
+      "inheritedByEveryRecipe": true,
+      "status": "OWNER_DECISION_REQUIRED",
+      "field": "completionGate",
+      "detail": "Record compatibility only. Do not decide whether CUT/minCount/bake thresholds gate completion before #218."
+    },
+    {
+      "id": "REC-04",
+      "scope": "all recipes",
+      "inheritedByEveryRecipe": true,
+      "status": "OWNER_DECISION_REQUIRED",
+      "field": "progression",
+      "detail": "Pitz price, unlock fee, star gate, and non-star condition stay TBD pending Progression 2.0."
+    },
+    {
+      "id": "REC-06",
+      "scope": "pizza-portuguesa",
+      "status": "EVIDENCE_REQUIRED",
+      "field": "black-olive alias",
+      "aliasEvidence": {
+        "token": "オリーブ",
+        "canonicalId": "black-olive"
+      },
+      "detail": "Source token オリーブ is a likely alias to black-olive, not an exact lexical alias; merged canonicalization is usable but provenance must remain visible."
+    },
+    {
+      "id": "REC-07",
+      "scope": "puttanesca-pizza",
+      "status": "EVIDENCE_REQUIRED",
+      "field": "black-olive alias",
+      "aliasEvidence": {
+        "token": "オリーブ",
+        "canonicalId": "black-olive"
+      },
+      "detail": "Source token オリーブ is a likely alias to black-olive; do not claim a more specific variety."
+    },
+    {
+      "id": "REC-08",
+      "scope": "parmigiana-pizza,melanzane-pizza",
+      "status": "AUTHORING_REQUIRED",
+      "field": "discovery regression",
+      "detail": "Both are eggplant-family recipes. Keep exact ingredient signatures distinct and add collision regression coverage."
+    },
+    {
+      "id": "REC-09",
+      "scope": "pesto-tonno",
+      "status": "EVIDENCE_REQUIRED",
+      "field": "black-olive alias",
+      "aliasEvidence": {
+        "token": "オリーブ",
+        "canonicalId": "black-olive"
+      },
+      "detail": "Source token オリーブ is a likely alias to black-olive, not an exact lexical alias; preserve the merged canonicalization but do not treat the provenance as settled."
+    },
+    {
+      "id": "REC-10",
+      "scope": "parmigiana-pizza",
+      "status": "EVIDENCE_REQUIRED",
+      "field": "parmigiano alias",
+      "aliasEvidence": {
+        "token": "パルミジャーノチーズ",
+        "canonicalId": "parmigiano"
+      },
+      "detail": "Source token パルミジャーノチーズ is classified likely_alias to parmigiano by the merged canonicalizer; keep the provenance visible until confirmed."
+    },
+    {
+      "id": "REC-11",
+      "scope": "all recipes",
+      "inheritedByEveryRecipe": false,
+      "status": "OWNER_DECISION_RECORDED",
+      "field": "sauce contract",
+      "detail": "Sauce OD-S1 = A: every W1 recipe uses a sauce inside the current RecipeSauceProfile union (tomato-sauce | pesto | olive-oil). Sauceless rows (Aussie, Bacalhau, Full English, Polish Kielbasa, Tsukimi) stay W4; Sauce Contract 2.0 is out of scope."
+    },
+    {
+      "id": "RT-01",
+      "scope": "parmigiana-pizza,pizza-portuguesa,puttanesca-pizza",
+      "status": "RUNTIME_DEPENDENCY_REQUIRED",
+      "field": "reference capacity",
+      "runtimeDependency": "REFERENCE_RING_CAPACITY",
+      "detail": "Authored non-sauce piece counts (Parmigiana 9, Pizza Portuguesa 10, Puttanesca 9) exceed the fixed 8-slot PIECE_RING_POSITIONS ring; getPlayerReferencePizza() assigns slots modulo 8, so reference pieces would overlap. The counts are kept as authored and not trimmed to fit the UI; the reference-capacity / 8-slot limit must be resolved by future runtime work (slice E) before these recipes can be READY."
+    },
+    {
+      "id": "ING-02",
+      "scope": "capers",
+      "status": "AUTHORING_REQUIRED",
+      "field": "visual",
+      "detail": "No exact emoji; approve or replace generic green-circle representation."
+    },
+    {
+      "id": "ING-03",
+      "scope": "eggplant",
+      "status": "AUTHORING_REQUIRED",
+      "field": "visual",
+      "detail": "Approve whole-eggplant glyph as the abstraction for slices."
+    },
+    {
+      "id": "ING-07",
+      "scope": "clam",
+      "status": "AUTHORING_REQUIRED",
+      "field": "visual",
+      "detail": "Approve the oyster glyph as a bivalve abstraction or choose a distinct representation."
+    },
+    {
+      "id": "ING-08",
+      "scope": "corn",
+      "status": "AUTHORING_REQUIRED",
+      "field": "visual",
+      "detail": "Approve whole-cob glyph for kernels and confirm contrast against egg/cheese."
+    },
+    {
+      "id": "ING-09",
+      "scope": "fresh-tomato",
+      "status": "AUTHORING_REQUIRED",
+      "field": "visual",
+      "detail": "Tomato glyph is already used by tomato-sauce and cherry-tomato; approve a distinguishing representation."
+    },
+    {
+      "id": "ING-10",
+      "scope": "pineapple",
+      "status": "AUTHORING_REQUIRED",
+      "field": "visual",
+      "detail": "Approve whole-fruit glyph for chunks and post-bake contrast."
+    },
+    {
+      "id": "ING-11",
+      "scope": "potato",
+      "status": "AUTHORING_REQUIRED",
+      "field": "visual",
+      "detail": "Approve whole-potato glyph for slices and post-bake contrast against cheese/crust."
+    }
+  ],
+  "retiredIds": {
+    "REC-05": "cheese-family sauceless base; no W1 recipe is sauceless after the #220 sync (OD-S1 = A)",
+    "ING-01": "baked-beans left W1 with full-english-pizza",
+    "ING-04": "green-onion left W1 with tsukimi-pizza",
+    "ING-05": "salt-cod left W1 with bacalhau",
+    "ING-06": "sauerkraut left W1 with polish-kielbasa"
+  }
+}

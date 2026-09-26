@@ -1,0 +1,1064 @@
+{
+  "schemaVersion": 1,
+  "kind": "recipe_authoring_matrix",
+  "auditedMainSha": "dff233c042d2df6ee1c3a92f2d2419830aa05460",
+  "authorityRef": {
+    "pr": 220,
+    "headSha": "e49dab96bd9b26dc0f520349cf09d1160c3519f5",
+    "w1SnapshotSha256": "88422a13baff67a3ad65eb8df9f7c116d2d2d8db73ba04034cf7b7bdb375e746",
+    "referenceFile": "docs/reports/data/TETO_PROGRESS2_W1_AUTHORITY_REFERENCE.json"
+  },
+  "sourceRefs": [
+    "Issue #182",
+    "PR #189 (MERGED)",
+    "PR #191 (MERGED)",
+    "PR #217 (OPEN)",
+    "PR #220 (OPEN) @ e49dab96bd9b26dc0f520349cf09d1160c3519f5 -- W1 authority",
+    "Owner Decision Sauce OD-S1 = A"
+  ],
+  "rows": [
+    {
+      "evidenceId": "new-haven-apizza-pizzadb",
+      "recipeIdCandidate": "new-haven-apizza",
+      "nameJa": "ニューヘイブンアピッツァ",
+      "descriptionCandidate": "オリーブオイルを塗った生地に、あさり、にんにく、パルミジャーノをのせて香ばしく焼き上げたアメリカ・ニューヘイブン風の一枚。",
+      "descriptionStatus": "AUTHORING_CANDIDATE",
+      "requiredIngredients": [
+        {
+          "ingredientId": "olive-oil",
+          "minCountCandidate": 1,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "one spread use"
+        },
+        {
+          "ingredientId": "parmigiano",
+          "minCountCandidate": 2,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "existing cheese-density baseline"
+        },
+        {
+          "ingredientId": "clam",
+          "minCountCandidate": 3,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "primary topping"
+        },
+        {
+          "ingredientId": "garlic",
+          "minCountCandidate": 2,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "supporting topping"
+        }
+      ],
+      "sauce": "olive-oil",
+      "cheese": [
+        "parmigiano"
+      ],
+      "toppings": [
+        "clam",
+        "garlic"
+      ],
+      "bakeTargetCandidate": {
+        "start": 62,
+        "end": 82,
+        "status": "AUTHORING_CANDIDATE"
+      },
+      "productionSchemaFit": {
+        "recipeFields": [
+          "id",
+          "nameJa",
+          "description",
+          "requiredIngredients",
+          "bakeTarget"
+        ],
+        "sauceProfileRequired": true,
+        "cookingProfile": "derived core steps + explicit CUT allowlist review"
+      },
+      "collisionRisk": {
+        "level": "LOW",
+        "nearestProductionRecipeId": "quattro-formaggi",
+        "exactIngredientSetCollision": false,
+        "note": "Shares only olive-oil/parmigiano with Quattro Formaggi; clam+garlic identity is distinct; exact-set collision absent."
+      },
+      "evidenceStatus": {
+        "composition": "EVIDENCE_READY",
+        "sourceAuthority": "PR_220_W1_e49dab9+MERGED_PR_189_MATRIX_AND_MASTER_EVIDENCE",
+        "description": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
+        "minCounts": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
+        "bakeTarget": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE"
+      },
+      "readiness": "REVIEW",
+      "unresolvedRefs": [
+        "ING-07"
+      ],
+      "currentMechanicRepresentability": "FULL",
+      "mechanicDependencies": [],
+      "runtimeContractDependencies": [],
+      "cutRequirement": {
+        "eligibilityCandidate": "STANDARD_ROUND_6_SLICES",
+        "completionGateEffect": "OWNER_DECISION_REQUIRED_ISSUE_218",
+        "status": "AUTHORING_CANDIDATE"
+      },
+      "progression": {
+        "pitzPrice": "TBD",
+        "unlockFee": "TBD",
+        "starGate": "TBD",
+        "nonStarUnlockCondition": "OWNER_DECISION_REQUIRED"
+      },
+      "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION",
+      "inheritedRefs": [
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "referenceCapacity": {
+        "nonSaucePieceCount": 7,
+        "ringSlots": 8,
+        "fits": true,
+        "runtimeDependency": null
+      }
+    },
+    {
+      "evidenceId": "hawaiian-pizzadb-row",
+      "recipeIdCandidate": "hawaiian",
+      "nameJa": "ハワイアンピザ",
+      "descriptionCandidate": "トマトソースにハムとパイナップル、モッツァレラを合わせた、甘みと塩気のバランスが楽しい一枚。",
+      "descriptionStatus": "AUTHORING_CANDIDATE",
+      "requiredIngredients": [
+        {
+          "ingredientId": "tomato-sauce",
+          "minCountCandidate": 1,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "one spread use"
+        },
+        {
+          "ingredientId": "mozzarella",
+          "minCountCandidate": 2,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "existing cheese-density baseline"
+        },
+        {
+          "ingredientId": "ham",
+          "minCountCandidate": 2,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "supporting meat"
+        },
+        {
+          "ingredientId": "pineapple",
+          "minCountCandidate": 3,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "primary topping"
+        }
+      ],
+      "sauce": "tomato-sauce",
+      "cheese": [
+        "mozzarella"
+      ],
+      "toppings": [
+        "ham",
+        "pineapple"
+      ],
+      "bakeTargetCandidate": {
+        "start": 58,
+        "end": 78,
+        "status": "AUTHORING_CANDIDATE"
+      },
+      "productionSchemaFit": {
+        "recipeFields": [
+          "id",
+          "nameJa",
+          "description",
+          "requiredIngredients",
+          "bakeTarget"
+        ],
+        "sauceProfileRequired": true,
+        "cookingProfile": "derived core steps + explicit CUT allowlist review"
+      },
+      "collisionRisk": {
+        "level": "LOW",
+        "nearestProductionRecipeId": "meat-lovers",
+        "exactIngredientSetCollision": false,
+        "note": "Ham+pineapple is distinct from Meat Lovers' mixed meats; one-ingredient neighbour of Bambino (pineapple vs corn); exact-set collision absent."
+      },
+      "evidenceStatus": {
+        "composition": "EVIDENCE_READY",
+        "sourceAuthority": "PR_220_W1_e49dab9+MERGED_PR_189_MATRIX_AND_MASTER_EVIDENCE",
+        "description": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
+        "minCounts": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
+        "bakeTarget": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE"
+      },
+      "readiness": "REVIEW",
+      "unresolvedRefs": [
+        "ING-10"
+      ],
+      "currentMechanicRepresentability": "FULL",
+      "mechanicDependencies": [],
+      "runtimeContractDependencies": [],
+      "cutRequirement": {
+        "eligibilityCandidate": "STANDARD_ROUND_6_SLICES",
+        "completionGateEffect": "OWNER_DECISION_REQUIRED_ISSUE_218",
+        "status": "AUTHORING_CANDIDATE"
+      },
+      "progression": {
+        "pitzPrice": "TBD",
+        "unlockFee": "TBD",
+        "starGate": "TBD",
+        "nonStarUnlockCondition": "OWNER_DECISION_REQUIRED"
+      },
+      "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION",
+      "inheritedRefs": [
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "referenceCapacity": {
+        "nonSaucePieceCount": 7,
+        "ringSlots": 8,
+        "fits": true,
+        "runtimeDependency": null
+      }
+    },
+    {
+      "evidenceId": "parmigiana-pizza-pizzadb-p7",
+      "recipeIdCandidate": "parmigiana-pizza",
+      "nameJa": "パルミジャーナピザ",
+      "descriptionCandidate": "トマトソースにナス、モッツァレラ、パルミジャーノ、バジルを合わせた南イタリア風の一枚。",
+      "descriptionStatus": "AUTHORING_CANDIDATE",
+      "requiredIngredients": [
+        {
+          "ingredientId": "tomato-sauce",
+          "minCountCandidate": 1,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "one spread use"
+        },
+        {
+          "ingredientId": "mozzarella",
+          "minCountCandidate": 2,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "existing cheese-density baseline"
+        },
+        {
+          "ingredientId": "eggplant",
+          "minCountCandidate": 3,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "primary topping"
+        },
+        {
+          "ingredientId": "parmigiano",
+          "minCountCandidate": 2,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "secondary cheese"
+        },
+        {
+          "ingredientId": "basil",
+          "minCountCandidate": 2,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "herb baseline"
+        }
+      ],
+      "sauce": "tomato-sauce",
+      "cheese": [
+        "mozzarella",
+        "parmigiano"
+      ],
+      "toppings": [
+        "eggplant",
+        "basil"
+      ],
+      "bakeTargetCandidate": {
+        "start": 58,
+        "end": 78,
+        "status": "AUTHORING_CANDIDATE"
+      },
+      "productionSchemaFit": {
+        "recipeFields": [
+          "id",
+          "nameJa",
+          "description",
+          "requiredIngredients",
+          "bakeTarget"
+        ],
+        "sauceProfileRequired": true,
+        "cookingProfile": "derived core steps + explicit CUT allowlist review"
+      },
+      "collisionRisk": {
+        "level": "LOW",
+        "nearestProductionRecipeId": "margherita",
+        "exactIngredientSetCollision": false,
+        "note": "Eggplant family is compositionally distinct from Melanzane and alla Norma."
+      },
+      "evidenceStatus": {
+        "composition": "EVIDENCE_READY",
+        "sourceAuthority": "PR_220_W1_e49dab9+MERGED_PR_189_MATRIX_AND_MASTER_EVIDENCE",
+        "description": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
+        "minCounts": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
+        "bakeTarget": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE"
+      },
+      "readiness": "REVIEW",
+      "unresolvedRefs": [
+        "ING-03",
+        "REC-08",
+        "REC-10",
+        "RT-01"
+      ],
+      "currentMechanicRepresentability": "FULL",
+      "mechanicDependencies": [],
+      "runtimeContractDependencies": [],
+      "cutRequirement": {
+        "eligibilityCandidate": "STANDARD_ROUND_6_SLICES",
+        "completionGateEffect": "OWNER_DECISION_REQUIRED_ISSUE_218",
+        "status": "AUTHORING_CANDIDATE"
+      },
+      "progression": {
+        "pitzPrice": "TBD",
+        "unlockFee": "TBD",
+        "starGate": "TBD",
+        "nonStarUnlockCondition": "OWNER_DECISION_REQUIRED"
+      },
+      "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION",
+      "inheritedRefs": [
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "referenceCapacity": {
+        "nonSaucePieceCount": 9,
+        "ringSlots": 8,
+        "fits": false,
+        "runtimeDependency": "REFERENCE_RING_CAPACITY"
+      }
+    },
+    {
+      "evidenceId": "bambino-pizzadb-p7",
+      "recipeIdCandidate": "bambino",
+      "nameJa": "バンビーノ",
+      "descriptionCandidate": "トマトソースにハム、コーン、モッツァレラをのせた、やさしい甘みで親しみやすい一枚。",
+      "descriptionStatus": "AUTHORING_CANDIDATE",
+      "requiredIngredients": [
+        {
+          "ingredientId": "tomato-sauce",
+          "minCountCandidate": 1,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "one spread use"
+        },
+        {
+          "ingredientId": "mozzarella",
+          "minCountCandidate": 2,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "existing cheese-density baseline"
+        },
+        {
+          "ingredientId": "ham",
+          "minCountCandidate": 2,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "supporting meat"
+        },
+        {
+          "ingredientId": "corn",
+          "minCountCandidate": 3,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "primary topping"
+        }
+      ],
+      "sauce": "tomato-sauce",
+      "cheese": [
+        "mozzarella"
+      ],
+      "toppings": [
+        "ham",
+        "corn"
+      ],
+      "bakeTargetCandidate": {
+        "start": 56,
+        "end": 76,
+        "status": "AUTHORING_CANDIDATE"
+      },
+      "productionSchemaFit": {
+        "recipeFields": [
+          "id",
+          "nameJa",
+          "description",
+          "requiredIngredients",
+          "bakeTarget"
+        ],
+        "sauceProfileRequired": true,
+        "cookingProfile": "derived core steps + explicit CUT allowlist review"
+      },
+      "collisionRisk": {
+        "level": "LOW",
+        "nearestProductionRecipeId": "meat-lovers",
+        "exactIngredientSetCollision": false,
+        "note": "Ham+corn is distinct from Meat Lovers; one-ingredient neighbour of Hawaiian (corn vs pineapple); exact-set collision absent."
+      },
+      "evidenceStatus": {
+        "composition": "EVIDENCE_READY",
+        "sourceAuthority": "PR_220_W1_e49dab9+MERGED_PR_189_MATRIX_AND_MASTER_EVIDENCE",
+        "description": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
+        "minCounts": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
+        "bakeTarget": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE"
+      },
+      "readiness": "REVIEW",
+      "unresolvedRefs": [
+        "ING-08"
+      ],
+      "currentMechanicRepresentability": "FULL",
+      "mechanicDependencies": [],
+      "runtimeContractDependencies": [],
+      "cutRequirement": {
+        "eligibilityCandidate": "STANDARD_ROUND_6_SLICES",
+        "completionGateEffect": "OWNER_DECISION_REQUIRED_ISSUE_218",
+        "status": "AUTHORING_CANDIDATE"
+      },
+      "progression": {
+        "pitzPrice": "TBD",
+        "unlockFee": "TBD",
+        "starGate": "TBD",
+        "nonStarUnlockCondition": "OWNER_DECISION_REQUIRED"
+      },
+      "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION",
+      "inheritedRefs": [
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "referenceCapacity": {
+        "nonSaucePieceCount": 7,
+        "ringSlots": 8,
+        "fits": true,
+        "runtimeDependency": null
+      }
+    },
+    {
+      "evidenceId": "pizza-portuguesa-pizzadb-p9",
+      "recipeIdCandidate": "pizza-portuguesa",
+      "nameJa": "ピッツァ・ポルトゲーザ",
+      "descriptionCandidate": "トマトソースにハム、卵、たまねぎ、ブラックオリーブ、モッツァレラを重ねたブラジル定番の一枚。",
+      "descriptionStatus": "AUTHORING_CANDIDATE",
+      "requiredIngredients": [
+        {
+          "ingredientId": "tomato-sauce",
+          "minCountCandidate": 1,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "one spread use"
+        },
+        {
+          "ingredientId": "mozzarella",
+          "minCountCandidate": 2,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "existing cheese-density baseline"
+        },
+        {
+          "ingredientId": "ham",
+          "minCountCandidate": 3,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "capricciosa analogue"
+        },
+        {
+          "ingredientId": "egg",
+          "minCountCandidate": 1,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "single center-piece convention"
+        },
+        {
+          "ingredientId": "onion",
+          "minCountCandidate": 2,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "supporting topping"
+        },
+        {
+          "ingredientId": "black-olive",
+          "minCountCandidate": 2,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "supporting topping"
+        }
+      ],
+      "sauce": "tomato-sauce",
+      "cheese": [
+        "mozzarella"
+      ],
+      "toppings": [
+        "ham",
+        "egg",
+        "onion",
+        "black-olive"
+      ],
+      "bakeTargetCandidate": {
+        "start": 58,
+        "end": 78,
+        "status": "AUTHORING_CANDIDATE"
+      },
+      "productionSchemaFit": {
+        "recipeFields": [
+          "id",
+          "nameJa",
+          "description",
+          "requiredIngredients",
+          "bakeTarget"
+        ],
+        "sauceProfileRequired": true,
+        "cookingProfile": "derived core steps + explicit CUT allowlist review"
+      },
+      "collisionRisk": {
+        "level": "LOW",
+        "nearestProductionRecipeId": "capricciosa",
+        "exactIngredientSetCollision": false,
+        "note": "Adds egg/onion and omits mushroom; exact-set collision absent."
+      },
+      "evidenceStatus": {
+        "composition": "EVIDENCE_READY",
+        "sourceAuthority": "PR_220_W1_e49dab9+MERGED_PR_189_MATRIX_AND_MASTER_EVIDENCE",
+        "description": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
+        "minCounts": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
+        "bakeTarget": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE"
+      },
+      "readiness": "REVIEW",
+      "unresolvedRefs": [
+        "REC-06",
+        "RT-01"
+      ],
+      "currentMechanicRepresentability": "FULL",
+      "mechanicDependencies": [],
+      "runtimeContractDependencies": [],
+      "cutRequirement": {
+        "eligibilityCandidate": "STANDARD_ROUND_6_SLICES",
+        "completionGateEffect": "OWNER_DECISION_REQUIRED_ISSUE_218",
+        "status": "AUTHORING_CANDIDATE"
+      },
+      "progression": {
+        "pitzPrice": "TBD",
+        "unlockFee": "TBD",
+        "starGate": "TBD",
+        "nonStarUnlockCondition": "OWNER_DECISION_REQUIRED"
+      },
+      "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION",
+      "inheritedRefs": [
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "referenceCapacity": {
+        "nonSaucePieceCount": 10,
+        "ringSlots": 8,
+        "fits": false,
+        "runtimeDependency": "REFERENCE_RING_CAPACITY"
+      }
+    },
+    {
+      "evidenceId": "puttanesca-pizza-pizzadb-p10",
+      "recipeIdCandidate": "puttanesca-pizza",
+      "nameJa": "プッタネスカ",
+      "descriptionCandidate": "トマトソースにアンチョビ、ブラックオリーブ、ケッパー、にんにくを効かせた、塩味と香りの強い一枚。",
+      "descriptionStatus": "AUTHORING_CANDIDATE",
+      "requiredIngredients": [
+        {
+          "ingredientId": "tomato-sauce",
+          "minCountCandidate": 1,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "one spread use"
+        },
+        {
+          "ingredientId": "anchovy",
+          "minCountCandidate": 3,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "napoletana analogue"
+        },
+        {
+          "ingredientId": "black-olive",
+          "minCountCandidate": 2,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "supporting topping"
+        },
+        {
+          "ingredientId": "capers",
+          "minCountCandidate": 2,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "accent topping"
+        },
+        {
+          "ingredientId": "garlic",
+          "minCountCandidate": 2,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "marinara analogue"
+        }
+      ],
+      "sauce": "tomato-sauce",
+      "cheese": [],
+      "toppings": [
+        "anchovy",
+        "black-olive",
+        "capers",
+        "garlic"
+      ],
+      "bakeTargetCandidate": {
+        "start": 50,
+        "end": 70,
+        "status": "AUTHORING_CANDIDATE"
+      },
+      "productionSchemaFit": {
+        "recipeFields": [
+          "id",
+          "nameJa",
+          "description",
+          "requiredIngredients",
+          "bakeTarget"
+        ],
+        "sauceProfileRequired": true,
+        "cookingProfile": "derived core steps + explicit CUT allowlist review"
+      },
+      "collisionRisk": {
+        "level": "LOW",
+        "nearestProductionRecipeId": "marinara",
+        "exactIngredientSetCollision": false,
+        "note": "Cheese-free identity remains distinct; exact-set collision absent."
+      },
+      "evidenceStatus": {
+        "composition": "EVIDENCE_READY",
+        "sourceAuthority": "PR_220_W1_e49dab9+MERGED_PR_189_MATRIX_AND_MASTER_EVIDENCE",
+        "description": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
+        "minCounts": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
+        "bakeTarget": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE"
+      },
+      "readiness": "REVIEW",
+      "unresolvedRefs": [
+        "ING-02",
+        "REC-07",
+        "RT-01"
+      ],
+      "currentMechanicRepresentability": "FULL",
+      "mechanicDependencies": [],
+      "runtimeContractDependencies": [],
+      "cutRequirement": {
+        "eligibilityCandidate": "STANDARD_ROUND_6_SLICES",
+        "completionGateEffect": "OWNER_DECISION_REQUIRED_ISSUE_218",
+        "status": "AUTHORING_CANDIDATE"
+      },
+      "progression": {
+        "pitzPrice": "TBD",
+        "unlockFee": "TBD",
+        "starGate": "TBD",
+        "nonStarUnlockCondition": "OWNER_DECISION_REQUIRED"
+      },
+      "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION",
+      "inheritedRefs": [
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "referenceCapacity": {
+        "nonSaucePieceCount": 9,
+        "ringSlots": 8,
+        "fits": false,
+        "runtimeDependency": "REFERENCE_RING_CAPACITY"
+      }
+    },
+    {
+      "evidenceId": "pesto-caprese-pizzadb-p11",
+      "recipeIdCandidate": "pesto-caprese",
+      "nameJa": "ペストカプレーゼピザ",
+      "descriptionCandidate": "ジェノベーゼソースにトマト、モッツァレラ、バジルを重ねた、カプレーゼ仕立ての爽やかな一枚。",
+      "descriptionStatus": "AUTHORING_CANDIDATE",
+      "requiredIngredients": [
+        {
+          "ingredientId": "pesto",
+          "minCountCandidate": 1,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "one spread use"
+        },
+        {
+          "ingredientId": "mozzarella",
+          "minCountCandidate": 2,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "existing cheese-density baseline"
+        },
+        {
+          "ingredientId": "fresh-tomato",
+          "minCountCandidate": 3,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "primary topping"
+        },
+        {
+          "ingredientId": "basil",
+          "minCountCandidate": 2,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "herb baseline"
+        }
+      ],
+      "sauce": "pesto",
+      "cheese": [
+        "mozzarella"
+      ],
+      "toppings": [
+        "fresh-tomato",
+        "basil"
+      ],
+      "bakeTargetCandidate": {
+        "start": 50,
+        "end": 70,
+        "status": "AUTHORING_CANDIDATE"
+      },
+      "productionSchemaFit": {
+        "recipeFields": [
+          "id",
+          "nameJa",
+          "description",
+          "requiredIngredients",
+          "bakeTarget"
+        ],
+        "sauceProfileRequired": true,
+        "cookingProfile": "derived core steps + explicit CUT allowlist review"
+      },
+      "collisionRisk": {
+        "level": "LOW",
+        "nearestProductionRecipeId": "margherita",
+        "exactIngredientSetCollision": false,
+        "note": "Pesto base separates it from Margherita; fresh-tomato vs Genovese's cherry-tomato must stay visually distinct; exact-set collision absent."
+      },
+      "evidenceStatus": {
+        "composition": "EVIDENCE_READY",
+        "sourceAuthority": "PR_220_W1_e49dab9+MERGED_PR_189_MATRIX_AND_MASTER_EVIDENCE",
+        "description": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
+        "minCounts": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
+        "bakeTarget": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE"
+      },
+      "readiness": "REVIEW",
+      "unresolvedRefs": [
+        "ING-09"
+      ],
+      "currentMechanicRepresentability": "FULL",
+      "mechanicDependencies": [],
+      "runtimeContractDependencies": [],
+      "cutRequirement": {
+        "eligibilityCandidate": "STANDARD_ROUND_6_SLICES",
+        "completionGateEffect": "OWNER_DECISION_REQUIRED_ISSUE_218",
+        "status": "AUTHORING_CANDIDATE"
+      },
+      "progression": {
+        "pitzPrice": "TBD",
+        "unlockFee": "TBD",
+        "starGate": "TBD",
+        "nonStarUnlockCondition": "OWNER_DECISION_REQUIRED"
+      },
+      "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION",
+      "inheritedRefs": [
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "referenceCapacity": {
+        "nonSaucePieceCount": 7,
+        "ringSlots": 8,
+        "fits": true,
+        "runtimeDependency": null
+      }
+    },
+    {
+      "evidenceId": "pesto-tonno-pizzadb-p12",
+      "recipeIdCandidate": "pesto-tonno",
+      "nameJa": "ペストトンノピザ",
+      "descriptionCandidate": "香り高いジェノベーゼソースに、ツナ、ブラックオリーブ、たまねぎを合わせた爽やかな一枚。",
+      "descriptionStatus": "AUTHORING_CANDIDATE",
+      "requiredIngredients": [
+        {
+          "ingredientId": "pesto",
+          "minCountCandidate": 1,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "one spread use"
+        },
+        {
+          "ingredientId": "tuna",
+          "minCountCandidate": 3,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "tonno-e-cipolla analogue"
+        },
+        {
+          "ingredientId": "black-olive",
+          "minCountCandidate": 2,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "supporting topping"
+        },
+        {
+          "ingredientId": "onion",
+          "minCountCandidate": 2,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "supporting topping"
+        }
+      ],
+      "sauce": "pesto",
+      "cheese": [],
+      "toppings": [
+        "tuna",
+        "black-olive",
+        "onion"
+      ],
+      "bakeTargetCandidate": {
+        "start": 50,
+        "end": 70,
+        "status": "AUTHORING_CANDIDATE"
+      },
+      "productionSchemaFit": {
+        "recipeFields": [
+          "id",
+          "nameJa",
+          "description",
+          "requiredIngredients",
+          "bakeTarget"
+        ],
+        "sauceProfileRequired": true,
+        "cookingProfile": "derived core steps + explicit CUT allowlist review"
+      },
+      "collisionRisk": {
+        "level": "LOW",
+        "nearestProductionRecipeId": "tonno-e-cipolla",
+        "exactIngredientSetCollision": false,
+        "note": "Pesto base distinguishes it from shipped Tonno e cipolla; exact-set collision absent."
+      },
+      "evidenceStatus": {
+        "composition": "EVIDENCE_READY",
+        "sourceAuthority": "PR_220_W1_e49dab9+MERGED_PR_189_MATRIX_AND_MASTER_EVIDENCE",
+        "description": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
+        "minCounts": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
+        "bakeTarget": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE"
+      },
+      "readiness": "REVIEW",
+      "unresolvedRefs": [
+        "REC-09"
+      ],
+      "currentMechanicRepresentability": "FULL",
+      "mechanicDependencies": [],
+      "runtimeContractDependencies": [],
+      "cutRequirement": {
+        "eligibilityCandidate": "STANDARD_ROUND_6_SLICES",
+        "completionGateEffect": "OWNER_DECISION_REQUIRED_ISSUE_218",
+        "status": "AUTHORING_CANDIDATE"
+      },
+      "progression": {
+        "pitzPrice": "TBD",
+        "unlockFee": "TBD",
+        "starGate": "TBD",
+        "nonStarUnlockCondition": "OWNER_DECISION_REQUIRED"
+      },
+      "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION",
+      "inheritedRefs": [
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "referenceCapacity": {
+        "nonSaucePieceCount": 7,
+        "ringSlots": 8,
+        "fits": true,
+        "runtimeDependency": null
+      }
+    },
+    {
+      "evidenceId": "pesto-patate-pizzadb-p12",
+      "recipeIdCandidate": "pesto-patate",
+      "nameJa": "ペストパターテピザ",
+      "descriptionCandidate": "ジェノベーゼソースにじゃがいも、ベーコン、モッツァレラを合わせた、ほくほくと香ばしい一枚。",
+      "descriptionStatus": "AUTHORING_CANDIDATE",
+      "requiredIngredients": [
+        {
+          "ingredientId": "pesto",
+          "minCountCandidate": 1,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "one spread use"
+        },
+        {
+          "ingredientId": "mozzarella",
+          "minCountCandidate": 2,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "existing cheese-density baseline"
+        },
+        {
+          "ingredientId": "potato",
+          "minCountCandidate": 3,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "primary topping"
+        },
+        {
+          "ingredientId": "bacon",
+          "minCountCandidate": 2,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "supporting meat"
+        }
+      ],
+      "sauce": "pesto",
+      "cheese": [
+        "mozzarella"
+      ],
+      "toppings": [
+        "potato",
+        "bacon"
+      ],
+      "bakeTargetCandidate": {
+        "start": 58,
+        "end": 78,
+        "status": "AUTHORING_CANDIDATE"
+      },
+      "productionSchemaFit": {
+        "recipeFields": [
+          "id",
+          "nameJa",
+          "description",
+          "requiredIngredients",
+          "bakeTarget"
+        ],
+        "sauceProfileRequired": true,
+        "cookingProfile": "derived core steps + explicit CUT allowlist review"
+      },
+      "collisionRisk": {
+        "level": "LOW",
+        "nearestProductionRecipeId": "genovese",
+        "exactIngredientSetCollision": false,
+        "note": "Shares pesto/mozzarella with Genovese but swaps cherry-tomato for potato+bacon; exact-set collision absent."
+      },
+      "evidenceStatus": {
+        "composition": "EVIDENCE_READY",
+        "sourceAuthority": "PR_220_W1_e49dab9+MERGED_PR_189_MATRIX_AND_MASTER_EVIDENCE",
+        "description": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
+        "minCounts": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
+        "bakeTarget": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE"
+      },
+      "readiness": "REVIEW",
+      "unresolvedRefs": [
+        "ING-11"
+      ],
+      "currentMechanicRepresentability": "FULL",
+      "mechanicDependencies": [],
+      "runtimeContractDependencies": [],
+      "cutRequirement": {
+        "eligibilityCandidate": "STANDARD_ROUND_6_SLICES",
+        "completionGateEffect": "OWNER_DECISION_REQUIRED_ISSUE_218",
+        "status": "AUTHORING_CANDIDATE"
+      },
+      "progression": {
+        "pitzPrice": "TBD",
+        "unlockFee": "TBD",
+        "starGate": "TBD",
+        "nonStarUnlockCondition": "OWNER_DECISION_REQUIRED"
+      },
+      "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION",
+      "inheritedRefs": [
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "referenceCapacity": {
+        "nonSaucePieceCount": 7,
+        "ringSlots": 8,
+        "fits": true,
+        "runtimeDependency": null
+      }
+    },
+    {
+      "evidenceId": "melanzane-pizza-pizzadb-p13",
+      "recipeIdCandidate": "melanzane-pizza",
+      "nameJa": "メランザーネピザ",
+      "descriptionCandidate": "トマトソースにナス、モッツァレラ、バジルを合わせた、素朴で香り豊かな南イタリア風ピザ。",
+      "descriptionStatus": "AUTHORING_CANDIDATE",
+      "requiredIngredients": [
+        {
+          "ingredientId": "tomato-sauce",
+          "minCountCandidate": 1,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "one spread use"
+        },
+        {
+          "ingredientId": "mozzarella",
+          "minCountCandidate": 2,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "existing cheese-density baseline"
+        },
+        {
+          "ingredientId": "eggplant",
+          "minCountCandidate": 3,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "primary topping"
+        },
+        {
+          "ingredientId": "basil",
+          "minCountCandidate": 2,
+          "status": "AUTHORING_CANDIDATE",
+          "rationale": "herb baseline"
+        }
+      ],
+      "sauce": "tomato-sauce",
+      "cheese": [
+        "mozzarella"
+      ],
+      "toppings": [
+        "eggplant",
+        "basil"
+      ],
+      "bakeTargetCandidate": {
+        "start": 58,
+        "end": 78,
+        "status": "AUTHORING_CANDIDATE"
+      },
+      "productionSchemaFit": {
+        "recipeFields": [
+          "id",
+          "nameJa",
+          "description",
+          "requiredIngredients",
+          "bakeTarget"
+        ],
+        "sauceProfileRequired": true,
+        "cookingProfile": "derived core steps + explicit CUT allowlist review"
+      },
+      "collisionRisk": {
+        "level": "LOW",
+        "nearestProductionRecipeId": "margherita",
+        "exactIngredientSetCollision": false,
+        "note": "Superset of Margherita by eggplant; exact-set collision absent but family proximity requires regression coverage."
+      },
+      "evidenceStatus": {
+        "composition": "EVIDENCE_READY",
+        "sourceAuthority": "PR_220_W1_e49dab9+MERGED_PR_189_MATRIX_AND_MASTER_EVIDENCE",
+        "description": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
+        "minCounts": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE",
+        "bakeTarget": "GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE"
+      },
+      "readiness": "REVIEW",
+      "unresolvedRefs": [
+        "ING-03",
+        "REC-08"
+      ],
+      "currentMechanicRepresentability": "FULL",
+      "mechanicDependencies": [],
+      "runtimeContractDependencies": [],
+      "cutRequirement": {
+        "eligibilityCandidate": "STANDARD_ROUND_6_SLICES",
+        "completionGateEffect": "OWNER_DECISION_REQUIRED_ISSUE_218",
+        "status": "AUTHORING_CANDIDATE"
+      },
+      "progression": {
+        "pitzPrice": "TBD",
+        "unlockFee": "TBD",
+        "starGate": "TBD",
+        "nonStarUnlockCondition": "OWNER_DECISION_REQUIRED"
+      },
+      "baseRewardPitz": "OUT_OF_SCOPE_PROGRESSION_DECISION",
+      "inheritedRefs": [
+        "REC-01",
+        "REC-02",
+        "REC-03",
+        "REC-04"
+      ],
+      "referenceCapacity": {
+        "nonSaucePieceCount": 7,
+        "ringSlots": 8,
+        "fits": true,
+        "runtimeDependency": null
+      }
+    }
+  ]
+}
