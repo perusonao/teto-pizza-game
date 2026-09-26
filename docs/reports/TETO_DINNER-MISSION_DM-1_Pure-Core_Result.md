@@ -5,7 +5,8 @@
 - **Design / authority:** `docs/reports/TETO_DINNER-MISSION_Phase0_Fresh-Design.md`
   - Fresh Design: `623b7b6`
   - §17 Owner Decisions: `742ab6b`。実装より前に commit して authority を固定した
-- **Implementation commit:** `6e0b73e`
+- **Implementation commits:** `6e0b73e`（DM-1）、`82288e3`（review 対応: `__proto__` の fail closed）
+- **PR:** #237（OPEN、自動 merge なし）
 - **Scope:** pure core のみ。App、UI、timer、Pitz、save には配線していない
 
 ## 1. What changed
@@ -93,7 +94,7 @@ Fresh Design §12 のうち、S / T / U / V / W / Y は UI、E2E、save の話�
 | lint（`oxlint`） | PASS（exit 0） |
 | build（`npm run build`） | PASS |
 | Human Verification | 不要。UI を変えていない（DM-1 は pure core、Owner の指示どおり） |
-| CI（`CI` / `E2E WebKit` → `WebKit Gate`） | PR の exact HEAD で確認する |
+| CI（PR #237, code HEAD `82288e3`） | `build`（lint / full Vitest / build）、`classify`、`layout-chromium`、`Layout Contract Gate`、WebKit 4 shard（390×844 / 360×800 × 2）、**`WebKit Gate`**: すべて success。mergeable_state `clean` |
 
 実装途中で既存の boundary test（`discoveryLadder.test.ts` の「material Shop layer の importer allowlist」）が失敗した。allowlist を広げると境界が緩むので、1 pack の確認を runtime の validator から test に移した。
 
