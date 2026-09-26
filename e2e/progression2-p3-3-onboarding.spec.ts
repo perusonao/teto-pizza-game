@@ -59,19 +59,15 @@ test.describe("Progression 2.0 Phase 3-3 onboarding (Issue #198)", () => {
     await expect(page.getByRole("button", { name: "\u{1F355} ピザを作る" })).toBeVisible();
     await expect(page.locator(".home-hero__bubble")).toHaveText(/フリークッキングで最初の1枚/);
 
-    // B. Recipe Select: margherita is visible but not guided-selectable pre-discovery; every
-    // other recipe stays LOCKED (chain-gated behind margherita).
+    // B. Recipe Select (Discovery 2.0 A′, OD-DISC-1/3): at Dex 0 there is no recipe card and no
+    // recipe name at all -- only the anonymous first-discovery prompt to Free Cooking.
     await page.getByRole("button", { name: "\u{1F355} ピザを作る" }).click();
     await expect(page.locator(".pizza-select-screen")).toBeVisible();
-    const margheritaCard = page.getByRole("button", { name: /^マルゲリータ、/ });
-    await expect(margheritaCard).toBeVisible();
-    await expect(margheritaCard.locator(".pizza-select-card__badge")).toHaveCount(0);
-    await margheritaCard.click();
-    const detailPanel = page.locator(".pizza-select-detail");
-    await expect(detailPanel.getByRole("button", { name: /このピザを作る/ })).toHaveCount(0);
-    const goFreeCookButton = detailPanel.getByRole("button", { name: /フリークッキングで探す/ });
+    await expect(page.locator(".pizza-select-grid-card")).toHaveCount(0);
+    await expect(page.locator(".pizza-select-screen")).not.toContainText("マルゲリータ");
+    await expect(page.locator(".pizza-select-prompt")).toContainText("まずはフリークッキングで1枚目のピザを見つけよう！");
+    const goFreeCookButton = page.locator(".pizza-select-prompt").getByRole("button", { name: /フリークッキングで探す/ });
     await expect(goFreeCookButton).toBeVisible();
-    await expect(detailPanel.getByText("フリークッキングで発見しよう")).toBeVisible();
 
     // B continued: routes straight into Free Cooking, not a guided SELECT_RECIPE round.
     await goFreeCookButton.click();

@@ -3531,6 +3531,56 @@
   color: #6b4226;
 }
 
+/* W1 Discovery 2.0 (A′): the chapter heading counts undiscovered recipes only as a number (L1). */
+.pizza-select-section__title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.pizza-select-section__count {
+  font-size: 12px;
+  font-weight: 700;
+  color: #a1662f;
+  white-space: nowrap;
+}
+
+/* W1 Discovery 2.0 (A′): the one anonymous "discovery chance" card -- never a recipe's name,
+   preview or ingredients. */
+.pizza-select-prompt {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 16px;
+  border: 2px dashed #e0a14a;
+  background: linear-gradient(180deg, #fff7e6 0%, #ffeccc 100%);
+  box-shadow: 0 2px 6px rgba(107, 66, 38, 0.12);
+}
+
+.pizza-select-prompt--shop {
+  border-color: #7fb069;
+  background: linear-gradient(180deg, #f3fbef 0%, #e3f3dc 100%);
+}
+
+.pizza-select-prompt__message {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.4;
+  color: #4a2e0a;
+}
+
+.pizza-select-prompt__cta {
+  align-self: stretch;
+  min-height: 48px;
+}
+
+.pizza-select-detail__shop {
+  margin-top: 4px;
+}
+
 .pizza-select-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

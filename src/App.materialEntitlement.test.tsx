@@ -224,8 +224,10 @@ describe("A2 in the real Pizza Select: a Free-Cooking discovery is re-selectable
     const card = screen.getByRole("button", { name: /^ビスマルク、/ });
     expect(card.getAttribute("aria-label")).not.toMatch(/未解放/);
     expect(card.getAttribute("aria-label")).toMatch(/最高評価3つ星/);
-    // Marinara itself stays EP1-locked (undiscovered, its chain is unchanged).
-    expect(screen.getByRole("button", { name: /^マリナーラ、/ }).getAttribute("aria-label")).toMatch(/未解放/);
+    // Discovery 2.0 (A′): undiscovered marinara is not in Pizza Select at all -- no LOCKED card, no
+    // name (OD-DISC-3), no EP1 hint (OD-DISC-5).
+    expect(screen.queryByRole("button", { name: /^マリナーラ、/ })).not.toBeInTheDocument();
+    expect(document.body.textContent).not.toContain("マリナーラ");
   });
 });
 

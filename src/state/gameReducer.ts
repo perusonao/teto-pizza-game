@@ -493,6 +493,8 @@ function guidedRecipeIds(carry: Pick<ProgressionCarry, "dex" | "ownedIngredientI
  *  MISSION_NEXT_ORDER and MISSION_RESET_ORDER so both pick a Mission order the exact same
  *  way and both mark the round as Mission's identically. */
 function nextMissionOrderState(state: GameState): GameState {
+  // Discovery 2.0 (OD-DISC-5): the EP1 axis of `availableRecipeIds` never gates here -- the pool is
+  // discovered-only and a discovered recipe is always unlocked (A2), so only ownership filters.
   const ids = availableRecipeIds(state.dex, state.ownedIngredientIds);
   const discoveredIds = discoveredRecipeIds(state.dex) as RecipeId[];
   const order = pickMissionOrder(ids, discoveredIds, state.recipe.id);

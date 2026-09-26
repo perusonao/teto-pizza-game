@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "./App";
+import { RECIPES } from "./data/recipes";
 import { SAVE_STORAGE_KEY, createDefaultSave, loadSave, type PersistentSaveV1 } from "./state/persistence";
 import { STARTER_INGREDIENT_IDS } from "./data/ingredients";
 import { LUNCH_RUSH_MISSION_ID } from "./mission/lunchRush";
@@ -236,30 +237,17 @@ describe("Post-reset fresh state (reload simulated via unmount + remount)", () =
     expect(screen.getByLabelText(/レシピ図鑑 発見数 0 \//)).toBeInTheDocument();
   });
 
-  it("only Margherita is available in Pizza Select; the next recipe is locked, and Margherita itself is preDiscoveryLocked (Progression 2.0 Phase 3-3)", async () => {
+  it("a reset save's Pizza Select has no recipe card at all -- only the first-discovery prompt to Free Cooking (Discovery 2.0 A′)", async () => {
     await resetAndSimulateReload();
     const user = userEvent.setup();
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
-    const margheritaCard = screen.getByRole("button", { name: /^マルゲリータ、/ });
-    expect(margheritaCard).toBeInTheDocument();
-    await user.click(margheritaCard);
-    // Progression 2.0 Phase 3-3 (Issue #198): on a truly fresh save, margherita is available
-    // but not directly guided-selectable -- Free Cooking is the discovery path, so its detail
-    // CTA is フリークッキングで探す, not a disabled/enabled このピザを作る.
+    // OD-DISC-1 (A′): Pizza Select shows discovered recipes only; at Dex 0 that is none, so the
+    // one anonymous prompt sends the player to Free Cooking (the only discovery path).
+    expect(document.querySelectorAll(".pizza-select-grid-card")).toHaveLength(0);
     expect(screen.queryByRole("button", { name: /このピザを作る/ })).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /フリークッキングで探す/ })).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "レシピ一覧に戻る" }));
-
-    // RECIPES's array order (data/recipes.ts) is not the same as the unlock-chain order (see
-    // the Fresh Audit §7 table) -- every recipe other than Margherita must be locked
-    // regardless of which one this lands on, so this picks any locked grid card rather than a
-    // specific recipe name.
-    const lockedCard = document.querySelector<HTMLElement>(".pizza-select-grid-card--locked")!;
-    await user.click(lockedCard);
-    expect(
-      within(document.querySelector(".pizza-select-detail")!).getByLabelText(/、未解放$/),
-    ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /このピザを作る/ })).toBeDisabled();
+    for (const r of RECIPES) expect(document.body.textContent).not.toContain(r.nameJa);
+    await user.click(screen.getByRole("button", { name: /フリークッキングで探す/ }));
+    expect(document.querySelector(".pizza-stage")).toBeInTheDocument();
   });
 
   it("Margherita's round reaches PREPARE using only Starter ingredients (no locked stock gate), via Free Cooking (Progression 2.0 Phase 3-3)", async () => {

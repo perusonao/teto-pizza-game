@@ -362,19 +362,15 @@ describe("HOME/GAME separation (Issue #24)", () => {
     expect(within(header).getByRole("button", { name: /ホーム/ })).toBeInTheDocument();
   });
 
-  it("a locked recipe card (fugazza, before onion is owned) cannot start a round", async () => {
+  it("an undiscovered recipe has no Pizza Select card, so it can never start a round (Discovery 2.0 A′)", async () => {
+    seedLunchRushUnlockedOnly(); // margherita discovered
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
-    // Queried once, before opening its detail -- the grid card stays mounted (only hidden)
-    // behind the detail view, so this same aria-label would otherwise match twice.
-    const mysteryCard = screen.getByLabelText("？？？、未解放");
-    await user.click(mysteryCard);
-    const cta = screen.getByRole("button", { name: /このピザを作る/ });
-    expect(cta).toBeDisabled();
-    await user.click(cta);
-    // Still on Pizza Select -- a disabled button's click is a no-op, never reaching GAME.
-    expect(document.querySelector(".pizza-select-screen")).toBeInTheDocument();
+    const cards = Array.from(document.querySelectorAll(".pizza-select-grid-card"));
+    expect(cards.map((c) => c.getAttribute("aria-label"))).toEqual([expect.stringMatching(/^マルゲリータ、/)]);
+    expect(screen.queryByLabelText(/未解放/)).not.toBeInTheDocument();
+    expect(screen.queryByText("？？？")).not.toBeInTheDocument();
     expect(document.querySelector(".game-screen")).not.toBeInTheDocument();
   });
 

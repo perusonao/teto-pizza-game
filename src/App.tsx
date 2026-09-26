@@ -868,9 +868,13 @@ function App() {
         <PizzaSelectScreen
           dex={state.dex}
           ownedIngredientIds={state.ownedIngredientIds}
+          unlockedForShopIngredientIds={state.unlockedForShopIngredientIds}
+          inventory={state.inventory}
           onSelectRecipe={handleSelectRecipe}
           onBack={handleBackFromPizzaSelect}
           onGoFreeCook={handleStartFreeCook}
+          onOpenShop={() => setShopOpen(true)}
+          newlyDiscoveredId={state.justDiscovered ? state.recipe.id : null}
         />
       )}
 

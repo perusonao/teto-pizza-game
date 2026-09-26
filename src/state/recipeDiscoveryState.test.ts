@@ -10,6 +10,7 @@ import {
   type RecipeDiscoveryInputs,
 } from "./recipeDiscoveryState";
 import { resolveShopEntitlement } from "./materialEntitlement";
+import { recipeUnlocked } from "./progression";
 
 const recipe = (id: string): Recipe => RECIPES.find((r) => r.id === id)!;
 function discover(ids: readonly string[], dex: DexState = EMPTY_DEX): DexState {
@@ -101,5 +102,17 @@ describe("canStartGuidedRound / isRecipeCookable (LK-8, F-15)", () => {
 
   it("rejects unknown recipe ids", () => {
     expect(canStartGuidedRound("brazilian-calabresa", { dex: discover(["margherita"]), ownedIngredientIds: owned, inventory: {} })).toBe(false);
+  });
+});
+
+describe("OD-DISC-5: EP1 is out of every W1 gate", () => {
+  it("any discovered recipe is EP1-unlocked (A2), so the Lunch Rush pool (discovered ∩ available) is ownership-only", () => {
+    // Discover every recipe one at a time in reverse chain order -- no EP1 predecessor is ever
+    // discovered first -- and check each one is unlocked the moment it is discovered.
+    const ids = [...RECIPES].reverse().map((r) => r.id);
+    for (let n = 1; n <= ids.length; n++) {
+      const dex = discover(ids.slice(0, n));
+      for (const id of ids.slice(0, n)) expect(recipeUnlocked(recipe(id), dex), `${id} @${n}`).toBe(true);
+    }
   });
 });

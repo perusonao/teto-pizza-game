@@ -1,8 +1,10 @@
-import { getRecipe, type Recipe } from "../data/recipes";
+import { getRecipe, RECIPES, type Recipe } from "../data/recipes";
 import type { QualityStars } from "../logic/scoring";
 import { discoveredRecipeIds, getDexEntry, isDiscovered, type DexState } from "./dex";
 import { totalStars } from "../logic/mastery";
 import { isRecipeAvailable } from "./progression";
+import { buildRecipeChapters } from "./recipeChapters";
+import { canStartGuidedRound, countRecipeDiscoveryStates, type RecipeDiscoveryInputs } from "./recipeDiscoveryState";
 
 /**
  * Pizza Select's per-recipe card state (Issue #39 PS2/PS3, extended by Economy & Progression
@@ -147,4 +149,77 @@ export function buildRecipeSections(recipes: readonly Recipe[]): RecipeSection[]
     const end = i + 1 < starts.length ? starts[i + 1].startIndex : recipes.length;
     return { titleJa: boundary.titleJa, recipes: recipes.slice(boundary.startIndex, end) };
   });
+}
+
+/* ------------------------------------------------------------------------------------------ *
+ * Progression 2.0 W1 Discovery 2.0 -- W1-a3 / W1-c (OD-DISC-1 = A′, OD-DISC-3, OD-DISC-5,
+ * OD-DISC-9). Pizza Select shows DISCOVERED recipes only (name, finished preview, BEST, guided
+ * CTA) plus at most one anonymous "discovery chance" prompt. Nothing about an undiscovered recipe
+ * -- name, preview, ingredients, name length -- reaches this view model, and the EP1 chain
+ * (`unlockCondition` / `mysteryLock`) is not read. Chapters come only from ./recipeChapters.ts.
+ * `recipeCardState` / `buildRecipeSections` above are legacy (kept with their tests, not used by
+ * the W1 UI).
+ * ------------------------------------------------------------------------------------------ */
+
+export interface DiscoveredRecipeCard {
+  recipe: Recipe;
+  bestStars: QualityStars;
+  bestScore: number;
+  /** `canStartGuidedRound` -- false when a finite material is out of stock (F-15). */
+  cookable: boolean;
+  /** Discovered this very round (transient `justDiscovered`, never persisted). */
+  isNew: boolean;
+}
+
+export interface PizzaSelectChapter {
+  chapter: number;
+  titleJa: string;
+  discovered: number;
+  total: number;
+  cards: readonly DiscoveredRecipeCard[];
+}
+
+/** The one anonymous prompt card (L1): where to go to find the next pizza. */
+export type PizzaSelectPrompt =
+  | { kind: "FIRST_DISCOVERY" }
+  | { kind: "DISCOVERABLE"; count: number }
+  | { kind: "SHOP"; count: number }
+  | null;
+
+export interface PizzaSelectView {
+  prompt: PizzaSelectPrompt;
+  chapters: readonly PizzaSelectChapter[];
+}
+
+export function buildPizzaSelectView(
+  inputs: RecipeDiscoveryInputs,
+  recipes: readonly Recipe[] = RECIPES,
+  newlyDiscoveredId: string | null = null,
+): PizzaSelectView {
+  const counts = countRecipeDiscoveryStates(recipes, inputs);
+  const prompt: PizzaSelectPrompt =
+    counts.DISCOVERED === 0
+      ? { kind: "FIRST_DISCOVERY" }
+      : counts.DISCOVERABLE > 0
+        ? { kind: "DISCOVERABLE", count: counts.DISCOVERABLE }
+        : counts.KNOWN_BUT_MISSING_MATERIAL > 0
+          ? { kind: "SHOP", count: counts.KNOWN_BUT_MISSING_MATERIAL }
+          : null;
+  const chapters = buildRecipeChapters(recipes).map((c): PizzaSelectChapter => {
+    const cards = c.recipes.flatMap((recipe): DiscoveredRecipeCard[] => {
+      const entry = getDexEntry(inputs.dex, recipe.id);
+      if (!entry?.discovered) return [];
+      return [
+        {
+          recipe,
+          bestStars: entry.bestStars,
+          bestScore: entry.bestScore,
+          cookable: canStartGuidedRound(recipe.id, inputs),
+          isNew: recipe.id === newlyDiscoveredId,
+        },
+      ];
+    });
+    return { chapter: c.chapter, titleJa: c.titleJa, discovered: cards.length, total: c.recipes.length, cards };
+  });
+  return { prompt, chapters };
 }
