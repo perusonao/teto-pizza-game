@@ -1726,6 +1726,42 @@
   color: #6b5a48;
 }
 
+/* Discovery Hint 2.0 (#229 229-C): the Free Cooking RESULT's one secondary "おしい" row -- the
+   generic near-miss line and the 「💡 ヒントを見る」 CTA. Compact and secondary to the result:
+   one wrapped line plus a small pill, never a second headline. */
+.result-near-miss {
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  margin: 0;
+}
+
+.result-near-miss__text {
+  margin: 0;
+  flex: 1 1 180px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #5a4632;
+  text-align: center;
+}
+
+.result-near-miss__cta {
+  flex: none;
+  min-height: 36px;
+  border: none;
+  border-radius: 999px;
+  padding: 6px 14px;
+  background: #ffe7b0;
+  color: #3d2a16;
+  font-size: 13px;
+  font-weight: 700;
+}
+
 /* ---------- NEW MATERIAL notice (Progression 2.0 I4b-4, DISCOVERED only) ----------
    Replaces EP4's Starter Grant notice (retired): a material is now *unlocked for the Shop*, not
    given for free, so the notice says so and offers the way there. */
@@ -4725,4 +4761,147 @@
 
 .mission-serve-panel {
   padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Discovery Hint 2.0 (Issue #229, 229-B): the Free Cooking hint bottom sheet. Fixed to the
+   viewport like `.prepare-bake-bar` (same centred 390px column), so opening it moves nothing on
+   the cooking screen. Above that bar (10) and at the shared modal level (25) so the bar can never
+   take a tap through it; at most 45dvh tall with the step list scrolling inside, and its content
+   ends above the home-indicator inset. */
+.hint-sheet__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(30, 18, 8, 0.35);
+  z-index: 25;
+}
+
+.hint-sheet {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 390px;
+  max-height: 45vh;
+  max-height: 45dvh;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+  background: #fff8ea;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.25);
+}
+
+.hint-sheet__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex: none;
+}
+
+.hint-sheet__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.hint-sheet__close {
+  border: none;
+  background: #e6d5ae;
+  border-radius: 999px;
+  padding: 8px 14px;
+  min-height: 36px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.hint-sheet__steps {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hint-sheet__step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: #f3e6c8;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #6b4a2b;
+}
+
+.hint-sheet__step--latest {
+  background: #ffe7b0;
+  color: #3d2a16;
+  font-weight: 700;
+}
+
+.hint-sheet__glyph {
+  flex: none;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.hint-sheet__text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.hint-sheet__footer {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hint-sheet__next {
+  width: 100%;
+  background: linear-gradient(180deg, #ffc15e, #f39a1e);
+  color: #3d2a16;
+}
+
+.hint-sheet__done,
+.hint-sheet__note {
+  margin: 0;
+  text-align: center;
+  font-size: 13px;
+  color: #6b4a2b;
+}
+
+.hint-sheet__note {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.hint-sheet__empty {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 4px 2px 8px;
+}
+
+.hint-sheet__empty-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: #3d2a16;
+}
+
+.hint-sheet__empty-body {
+  margin: 0;
+  font-size: 14px;
+  color: #6b4a2b;
 }

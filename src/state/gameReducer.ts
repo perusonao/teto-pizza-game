@@ -57,6 +57,7 @@ import { isEdgeToEdgeCutLine, resolveRequestedSliceCount, type CutLine } from ".
 import { requiredCutCount } from "../logic/cut/evaluation";
 import { isDuplicateCutLine } from "../logic/cut/geometry";
 import { isValidDoughShape, type DoughShape } from "../logic/doughShape";
+import { resolveHintSession, revealNextHint, type HintSession } from "./discoveryHint";
 import {
   createEmptyPizza,
   findOpenSpot,
@@ -191,6 +192,13 @@ export interface GameState {
    *  persisted, always starts at 0 for a fresh session load, same as every other `lastX`
    *  discovery/reward snapshot on this type. */
   preDiscoveryFreeCookAttempts: number;
+  /** Discovery Hint 2.0 (Issue #229, 229-B): the Free Cooking hint sheet's target and revealed
+   *  step (./discoveryHint.ts). Session-only: carried across rounds through `ProgressionCarry`
+   *  so one discovery search keeps its target, never persisted (a reload starts at H0). */
+  hintSession: HintSession | null;
+  /** 229-B: the hint sheet is open. Only SHOW_HINT during a Free Cooking PREPARE sets it; every
+   *  fresh round (`buildOrderState`) closes it. Transient, never persisted. */
+  hintSheetOpen: boolean;
   /** Idempotency key for CLAIM_MISSION_REWARD (Phase 3C-5): the Mission run id
    *  (`MissionState.runId`, ../mission/lunchRush.ts) whose Pitz reward has already been
    *  applied to `pitzBalance`. A run's reward is granted at most once no matter how many
@@ -360,7 +368,13 @@ export type GameAction =
   // Progression 2.0 Phase 3-2 (Issue #194): starts a fresh FREE round with no recipe selected
   // (HOME's フリークッキング). Lands straight at PREPARE like SELECT_RECIPE. Never a Mission round.
   | { type: "START_FREE_COOK"; now?: number }
-  | { type: "SHOW_HINT" }
+  // Free Cooking PREPARE: opens the Discovery Hint 2.0 sheet (229-B). Any other round: the
+  // explicit one-line operational hint, as before.
+  // 229-D: `pinnedRecipeId` -- the Dex card whose 「💡 ヒントを見る」 started this round. Never read
+  // from the DOM; a stale or unknown id falls back to the automatic target.
+  | { type: "SHOW_HINT"; pinnedRecipeId?: string }
+  | { type: "REVEAL_NEXT_HINT" }
+  | { type: "CLOSE_HINT" }
   // Phase 3C-4 (Lunch Rush): both below reuse this same round machinery (an ORDER phase with
   // a freshly-picked, available recipe) -- there is no separate Mission round state. See
   // src/mission/lunchRush.ts's top comment for the canonical/derived boundary this keeps.
@@ -411,6 +425,7 @@ interface ProgressionCarry {
   starterGrantClaimedRecipeIds: readonly string[];
   unlockedForShopIngredientIds: readonly string[];
   preDiscoveryFreeCookAttempts: number;
+  hintSession: HintSession | null;
 }
 
 /** Builds a fresh ORDER-phase state around an already-picked `order` -- the one place that
@@ -459,6 +474,7 @@ function buildOrderState(
     justDiscovered: false,
     justGotNewBest: false,
     hint: null,
+    hintSheetOpen: false,
     placement: null,
     lastPitzCredit: null,
     lastMaterialUnlockNotice: null,
@@ -513,6 +529,7 @@ function nextMissionOrderState(state: GameState): GameState {
       starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
       unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
       preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
+      hintSession: state.hintSession,
     },
     true,
   );
@@ -592,6 +609,7 @@ export function createInitialGameState(
       starterGrantClaimedRecipeIds,
       unlockedForShopIngredientIds,
       preDiscoveryFreeCookAttempts: 0,
+      hintSession: null,
     },
     { preferFirst: true },
   );
@@ -1227,6 +1245,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
           unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
           preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
+          hintSession: state.hintSession,
         },
         { excludeRecipeId: state.recipe.id },
       );
@@ -1248,6 +1267,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
           unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
           preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
+          hintSession: state.hintSession,
         }, action.now) ?? state
       );
     }
@@ -1263,6 +1283,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
           unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
           preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
+          hintSession: state.hintSession,
         },
         action.now,
       );
@@ -1281,6 +1302,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
             unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
             preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
+            hintSession: state.hintSession,
           },
           action.now,
         );
@@ -1297,6 +1319,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
           unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
           preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
+          hintSession: state.hintSession,
         }, action.now) ?? state
       );
 
@@ -1345,6 +1368,13 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return nextMissionOrderState(state);
 
     case "SHOW_HINT":
+      // Discovery Hint 2.0 (229-B): in Free Cooking the button opens the progressive hint sheet
+      // (PREPARE only) and leaves the order-card line alone; guided / Lunch Rush rounds keep the
+      // explicit operational line below.
+      if (state.freeCook) {
+        if (state.phase !== "PREPARE") return state;
+        return { ...state, hintSession: resolveHintSession(state, action.pinnedRecipeId), hintSheetOpen: true };
+      }
       return {
         ...state,
         hint: buildHintLine(
@@ -1355,6 +1385,15 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           state.preDiscoveryFreeCookAttempts,
         ),
       };
+
+    case "REVEAL_NEXT_HINT": {
+      if (!state.hintSheetOpen || state.phase !== "PREPARE" || !state.freeCook) return state;
+      const hintSession = revealNextHint(state);
+      return hintSession === state.hintSession ? state : { ...state, hintSession };
+    }
+
+    case "CLOSE_HINT":
+      return state.hintSheetOpen ? { ...state, hintSheetOpen: false } : state;
 
     // I4b-3 (REC-04 OD-REC04-2/3): the first-pack purchase of a NEW (ladder-unlocked, not yet
     // owned) material -- ../logic/materialShop.ts's `purchaseFirstPack`, the only place the

@@ -11,6 +11,7 @@ import { STEP_LABEL } from "../data/makingStepLabels";
 import type { DiscoveryOutcome } from "../logic/discovery/matcher";
 import { getIngredient } from "../data/ingredients";
 import { IngredientGlyph } from "./IngredientGlyph";
+import type { ResultNearMissLine } from "../state/resultNearMiss";
 
 interface ResultPanelProps {
   /** Completion Gate Phase 1: when this is `{ status: "FAILED" }`, every prop below except
@@ -108,6 +109,12 @@ interface ResultPanelProps {
   dexRegistration?: { slot: number; chapterTitleJa: string; discovered: number; total: number } | null;
   /** Progression 2.0 W1-d: opens the Dex (on the registration row, never in the bottom bar). */
   onOpenDex?: () => void;
+  /** Discovery Hint 2.0 (#229 229-C): the one generic "おしい" line (../state/resultNearMiss.ts),
+   *  already decided for this result -- never a recipe or an ingredient. */
+  nearMiss?: ResultNearMissLine | null;
+  /** 229-C: 「💡 ヒントを見る」 -- cook freely again with the hint sheet open (App.tsx). Offered on
+   *  an ORIGINAL result, and on a known pizza only next to a near-miss line. */
+  onShowHint?: () => void;
 }
 
 const MAX_STARS = 5;
@@ -169,7 +176,26 @@ export function ResultPanel({
   onBackToPizzaSelect,
   dexRegistration = null,
   onOpenDex,
+  nearMiss = null,
+  onShowHint,
 }: ResultPanelProps) {
+  // 229-C: a secondary row under the result itself -- the line (if any) and the hint CTA.
+  const hintRow = (line: ResultNearMissLine | null, withCta: boolean) =>
+    line || (withCta && onShowHint) ? (
+      <div className="result-near-miss">
+        {line && (
+          <p className="result-near-miss__text" aria-live="polite">
+            {line.textJa}
+          </p>
+        )}
+        {withCta && onShowHint && (
+          <button type="button" className="result-near-miss__cta" onClick={onShowHint}>
+            {"\u{1F4A1}"} ヒントを見る
+          </button>
+        )}
+      </div>
+    ) : null;
+
   const actions = (
     <div className="action-row action-row--column result-panel__actions">
       <button type="button" className="cta-button cta-button--primary" onClick={onRetrySameRecipe}>
@@ -219,7 +245,9 @@ export function ResultPanel({
   // styled or worded as a failure -- with no stars/score (nothing to score it against) and no
   // Dex/Pitz change.
   if (!score) {
-    const nearMiss = discovery?.kind === "INCOMPLETE_MATCH";
+    // 229-C (H-U4): the set already matches a recipe, so the fix is the sauce *amount* or the bake
+    // -- never the sauce type, which would break the match.
+    const incompleteMatch = discovery?.kind === "INCOMPLETE_MATCH";
     return (
       <div className="result-panel result-panel--original">
         <p className="result-panel__heading result-panel__heading--original">
@@ -227,8 +255,8 @@ export function ResultPanel({
         </p>
         <div className="result-panel__headline">
           <p className="original-pizza__lead">
-            {nearMiss
-              ? "図鑑のピザまであと少し…！ソースや焼き加減を変えてみよう。"
+            {incompleteMatch
+              ? "図鑑のピザまであと少し…！ソースの量や焼き加減を見直してみよう。"
               : "図鑑にはない、あなただけのピザ！"}
           </p>
           {usedIngredientIds.length > 0 && (
@@ -255,6 +283,7 @@ export function ResultPanel({
             </p>
           )}
         </div>
+        {freeCook && hintRow(nearMiss, true)}
         <p className="original-pizza__note">
           図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。
         </p>
@@ -345,6 +374,7 @@ export function ResultPanel({
           {"\u{1F4D6}"} {recipeNameJa}ができた！（発見済み）
         </p>
       )}
+      {freeCookMatch === "ALREADY_DISCOVERED" && nearMiss && hintRow(nearMiss, true)}
 
       {freeCookMatch !== "NEW_DISCOVERY" && (justDiscovered || justGotNewBest) && (
         <p

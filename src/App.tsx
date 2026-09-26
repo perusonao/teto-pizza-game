@@ -26,6 +26,7 @@ import {
   type GameState,
   type MakingStep,
 } from "./state/gameReducer";
+import { isHintSheetVisible } from "./state/discoveryHint";
 import {
   loadSave,
   loadMissionBest,
@@ -356,17 +357,31 @@ function App() {
   // at the same time, regardless of the order they toggled in. A no-op whenever `cookingTiming`
   // isn't running (Mission rounds, or FREE outside PREPARE) since PAUSE/RESUME_COOKING_TIMING's
   // own reducer guards already handle that; this effect only needs to track the transitions.
+  const isHintSheetOpen = isHintSheetVisible(state);
   const isCookingTimingPauseSignal = isAnyCookingTimingPauseReasonActive(
     isReferencePopoverOpen,
     isDexOpen,
     isShopOpen,
     isInventoryOpen,
+    // Discovery Hint 2.0 (229-B, OD-HINT-8 no penalty): reading hints never costs cooking time.
+    isHintSheetOpen,
     isDocumentHidden,
     isWindowBlurred,
   );
   const wasCookingTimingPausedRef = useRef(false);
+  // Discovery Hint 2.0 (#229, PR #231 review): a round can also *start* under an already-active
+  // signal -- the Dex 「💡 ヒントを見る」 closes the Dex and opens the hint sheet in the same render
+  // that starts a new Free Cooking timer, so the signal never transitions. A timer running while
+  // the signal is on is therefore paused too (PAUSE_COOKING_TIMING is a no-op when already paused).
+  const isCookingTimingRunning =
+    !!state.cookingTiming && state.cookingTiming.pausedAt === null && state.cookingTiming.completedMs === null;
   useEffect(() => {
-    if (isCookingTimingPauseSignal === wasCookingTimingPausedRef.current) return;
+    if (isCookingTimingPauseSignal === wasCookingTimingPausedRef.current) {
+      if (isCookingTimingPauseSignal && isCookingTimingRunning) {
+        dispatch({ type: "PAUSE_COOKING_TIMING", now: Date.now() });
+      }
+      return;
+    }
     wasCookingTimingPausedRef.current = isCookingTimingPauseSignal;
     const now = Date.now();
     if (isCookingTimingPauseSignal) {
@@ -374,7 +389,7 @@ function App() {
     } else {
       dispatch({ type: "RESUME_COOKING_TIMING", now });
     }
-  }, [isCookingTimingPauseSignal]);
+  }, [isCookingTimingPauseSignal, isCookingTimingRunning]);
 
   // --- Lunch Rush mission (Phase 3C-4) --------------------------------------------------
   // A separate reducer, not a field on GameState: Mission run state (which screen, the
@@ -740,6 +755,25 @@ function App() {
     dispatch({ type: "RETRY_SAME_RECIPE", now: Date.now() });
   }
 
+  // Discovery Hint 2.0 (#229 229-C): a Free Cooking RESULT's 「💡 ヒントを見る」 -- the same fresh
+  // free-cook round as "もう一度じゆうに作る", with the hint sheet opened on today's target (the
+  // result never pins a recipe; the sheet picks its target as always).
+  function handleRetryWithHint() {
+    if (!state.freeCook) return;
+    dispatch({ type: "RETRY_SAME_RECIPE", now: Date.now() });
+    dispatch({ type: "SHOW_HINT" });
+  }
+
+  // Discovery Hint 2.0 (#229 229-D): a Dex 🎨 card's 「💡 ヒントを見る」 -- always a Free Cooking
+  // round (never a guided round for an undiscovered recipe, LK-8), with the hint sheet pinned to
+  // that card's recipe. The reducer re-checks the pin: a recipe no longer DISCOVERABLE falls back
+  // to the automatic target.
+  function handleDexShowHint(recipeId: string) {
+    setDexOpen(false);
+    handleStartFreeCook();
+    dispatch({ type: "SHOW_HINT", pinnedRecipeId: recipeId });
+  }
+
   // Progression 2.0 Phase 3-2 (Issue #194): HOME's フリークッキング -- a fresh FREE round with
   // no recipe selected (START_FREE_COOK). Like SELECT_RECIPE it lands straight at PREPARE; the
   // previous round (whatever phase it was left in) is replaced wholesale by the reducer.
@@ -894,7 +928,9 @@ function App() {
           referenceModeEnabled={referenceModeEnabled}
           referencePizza={referencePizza}
           isReferencePopoverOpen={isReferencePopoverOpen}
-          isGlobalOverlayOpen={isDexOpen || isShopOpen || isInventoryOpen || isSettingsOpen || isRankingOpen}
+          isGlobalOverlayOpen={
+            isDexOpen || isShopOpen || isInventoryOpen || isSettingsOpen || isRankingOpen || isHintSheetOpen
+          }
           sauceMetrics={sauceMetrics}
           sauceShadowScore={sauceShadowScore}
           isDispensingSauce={pendingSauceDeposits.length > 0}
@@ -907,6 +943,9 @@ function App() {
           onConfirmMakingStep={handleConfirmMakingStep}
           onStartBake={() => dispatch({ type: "START_BAKE", now: Date.now() })}
           onShowHint={() => dispatch({ type: "SHOW_HINT" })}
+          onRevealNextHint={() => dispatch({ type: "REVEAL_NEXT_HINT" })}
+          onCloseHint={() => dispatch({ type: "CLOSE_HINT" })}
+          onRetryWithHint={handleRetryWithHint}
           onChangeCategory={handleChangeCategory}
           onSelectIngredient={handleSelectIngredient}
           onClearIngredientSelection={() => setSelectedIngredientId(null)}
@@ -953,6 +992,7 @@ function App() {
                 }
               : undefined
           }
+          onShowHint={mission.mode === "FREE" ? handleDexShowHint : undefined}
           onOpenShop={() => setShopOpen(true)}
         />
       )}

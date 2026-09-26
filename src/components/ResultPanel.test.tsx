@@ -617,7 +617,11 @@ describe("ResultPanel: Issue #215 quantity line and near-miss copy", () => {
         discovery={{ kind: "INCOMPLETE_MATCH", recipeId: "margherita", targetId: "shipped:margherita" }}
       />,
     );
-    expect(screen.getByText("図鑑のピザまであと少し…！ソースや焼き加減を変えてみよう。")).toBeInTheDocument();
+    // #229 229-C (H-U4): the set already matches, so the copy points at the sauce *amount* / bake,
+    // never at changing the sauce type (which would break the match).
+    expect(screen.getByText("図鑑のピザまであと少し…！ソースの量や焼き加減を見直してみよう。")).toBeInTheDocument();
+    expect(document.body.textContent).not.toContain("ソースや焼き加減を変えて");
+    expect(document.body.innerHTML).not.toContain("margherita");
   });
 });
 
