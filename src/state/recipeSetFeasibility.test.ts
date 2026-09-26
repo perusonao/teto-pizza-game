@@ -92,6 +92,16 @@ describe("parity with the #212 single-recipe authority", () => {
     }
   });
 
+  it("a prototype-named unknown id (__proto__) still fails closed", () => {
+    const fake = { ...recipe("margherita"), requiredIngredients: [{ ingredientId: "__proto__", minCount: 1 }] } as Recipe;
+    expect(recipeStockShortage(fake, FULL)).toEqual([{ ingredientId: "__proto__", need: 1, have: 0 }]);
+    expect(Object.entries(aggregateFiniteNeed([fake]))).toEqual([["__proto__", 1]]);
+    expect(recipeSetStockShortage([fake], FULL)).toEqual([
+      { ingredientId: "__proto__", need: 1, have: 0, recipeIds: ["margherita"] },
+    ]);
+    expect(isRecipeSetCookable([fake], FULL)).toBe(false);
+  });
+
   it("an unknown ingredient id fails closed exactly like recipeStockShortage (need 1, have 0)", () => {
     const fake = { ...recipe("margherita"), requiredIngredients: [{ ingredientId: "no-such-thing", minCount: 3 }] } as Recipe;
     expect(recipeStockShortage(fake, FULL)).toEqual([{ ingredientId: "no-such-thing", need: 1, have: 0 }]);

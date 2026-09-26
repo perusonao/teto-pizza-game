@@ -76,11 +76,11 @@ run の遷移:
 
 | ファイル | 件数 | 主な内容（Fresh Design §12 の ID） |
 |---|---:|---|
-| `src/state/recipeSetFeasibility.test.ts` | 15 | runtime の事実（egg / ham / olive-oil / pesto は有限、mozzarella は starter）、parity、共有 egg（単独なら可、集合だと不可 / ちょうどで可）、ham 3→4、olive-oil、pesto、starter のみ（F）、未所有、未知 id、重複、空集合、順番に依存しないこと |
+| `src/state/recipeSetFeasibility.test.ts` | 16 | runtime の事実（egg / ham / olive-oil / pesto は有限、mozzarella は starter）、parity、共有 egg（単独なら可、集合だと不可 / ちょうどで可）、ham 3→4、olive-oil、pesto、starter のみ（F）、未所有、未知 id（`__proto__` を含む）、重複、空集合、順番に依存しないこと |
 | `src/mission/dinner/dinnerMission.test.ts` | 13 | 定義が有効、DM-A / DM-B の集合の必要量、1 pack で足りること、validator（未知 target、重複、件数、タイトルに recipe 名、id や order の重複、時間、table）、unlock（A / B、「あと 1」、未発見の identity が出ないこと、`discovered:false` は数えない、Dex を書かないこと） |
 | `src/mission/dinner/dinnerRun.test.ts` | 23 | START gate（A / C / D / E、時間なし）、G、H（24 通りの順番）、I（実際の `consumePizzaInventory` での消費）、J、K（egg の置きすぎ → 即 INFEASIBLE）、余裕のある置きすぎ、関係ない素材の置きすぎ、最後の 1 枚、O（FAILED でも消費は残る → 再挑戦 / 即 INFEASIBLE）、L（TICK / 期限後の確定）、Q/R（ABANDON）、P（target 外、完成済み、二重の選択、違う結果は無視）、CANCEL、終了後の action は無視、Dex と Lunch Rush からの分離 |
 | `src/mission/dinner/dinnerReward.test.ts` | 15 | untuned の table（tier も Pitz も無し）、FAILED は 0、tier は ★ ではないこと、境界（N: ±1ms、7 ケース）、初回と repeat の schedule、BRONZE より遅い clear、table の validation |
-| **DM-1 合計** | **66** | |
+| **DM-1 合計** | **67** | |
 
 Fresh Design §12 のうち、S / T / U / V / W / Y は UI、E2E、save の話なので、DM-3 / DM-4 で扱う。
 
@@ -88,7 +88,7 @@ Fresh Design §12 のうち、S / T / U / V / W / Y は UI、E2E、save の話�
 
 | Gate | 結果 |
 |---|---|
-| full Vitest | **176 files / 3702 passed**, 1 skipped（既存）, 0 failed（main の 3636 に DM-1 の 66 を足した数） |
+| full Vitest | **176 files / 3703 passed**, 1 skipped（既存）, 0 failed（main の 3636 に DM-1 の 67 を足した数） |
 | typecheck（`tsc -b`） | PASS |
 | lint（`oxlint`） | PASS（exit 0） |
 | build（`npm run build`） | PASS |
@@ -96,6 +96,14 @@ Fresh Design §12 のうち、S / T / U / V / W / Y は UI、E2E、save の話�
 | CI（`CI` / `E2E WebKit` → `WebKit Gate`） | PR の exact HEAD で確認する |
 
 実装途中で既存の boundary test（`discoveryLadder.test.ts` の「material Shop layer の importer allowlist」）が失敗した。allowlist を広げると境界が緩むので、1 pack の確認を runtime の validator から test に移した。
+
+### 6.1 Review 対応
+
+Codex review（P2）の指摘: 必要量を集計する accumulator が通常の object だったため、`__proto__` という ingredient id が prototype の setter に吸われていた。その結果、必要量が数えられず、集合が cookable と判定されていた（fail closed が破れていた）。
+
+- 失敗する test を先に追加して、不具合を再現した。
+- accumulator を `Map` に変え、公開する値は `Object.fromEntries`（own property を定義する）で作るようにした。
+- 修正後、full gate を再実行して PASS を確認した。
 
 ## 7. Scope verification
 

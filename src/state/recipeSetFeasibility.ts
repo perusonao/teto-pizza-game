@@ -38,13 +38,20 @@ export function recipeFiniteNeed(recipe: Recipe): Readonly<Record<string, number
 
 /** Summed finite need of every recipe in `recipes` (a multiset), in first-appearance order. */
 export function aggregateFiniteNeed(recipes: readonly Recipe[]): Readonly<Record<string, number>> {
-  const need: Record<string, number> = {};
+  return Object.fromEntries(finiteNeedMap(recipes));
+}
+
+/** Accumulates in a `Map`, so any id -- `__proto__` included -- is counted as its own key and an
+ *  unknown id can never slip past the fail-closed check (`Object.fromEntries` above also defines
+ *  own properties rather than calling the prototype setter). */
+function finiteNeedMap(recipes: readonly Recipe[]): Map<string, number> {
+  const need = new Map<string, number>();
   for (const recipe of recipes) {
     for (const { ingredientId, minCount } of recipe.requiredIngredients) {
       const ingredient = getIngredient(ingredientId);
       if (ingredient && !ingredient.unlockCondition) continue; // starter: unlimited
       const units = ingredient ? finiteRequirementNeed(ingredient, minCount) : 1;
-      need[ingredientId] = (need[ingredientId] ?? 0) + units;
+      need.set(ingredientId, (need.get(ingredientId) ?? 0) + units);
     }
   }
   return need;
@@ -75,9 +82,8 @@ export function recipeSetStockShortage(
   inputs: RecipeSetInputs,
 ): SetIngredientShortage[] {
   const owned = new Set(inputs.ownedIngredientIds);
-  const need = aggregateFiniteNeed(recipes);
   const shortages: SetIngredientShortage[] = [];
-  for (const [ingredientId, units] of Object.entries(need)) {
+  for (const [ingredientId, units] of finiteNeedMap(recipes)) {
     const have = usableStock(ingredientId, inputs, owned);
     if (have >= units) continue;
     const recipeIds: string[] = [];
