@@ -1,0 +1,46 @@
+{
+ "lk8a": [
+  {
+   "order": null,
+   "leakOrder": [],
+   "inGame": 1,
+   "prepName": "ミートラヴァーズ",
+   "leakPrep": []
+  },
+  {
+   "order": null,
+   "leakOrder": [],
+   "inGame": 1,
+   "prepName": "マリナーラ",
+   "leakPrep": []
+  }
+ ],
+ "lk8b": [
+  {
+   "order": null,
+   "leakOrder": [],
+   "prepName": "トンノ・エ・チポッラ",
+   "leakPrep": []
+  },
+  {
+   "order": null,
+   "leakOrder": [],
+   "prepName": "トンノ・エ・チポッラ",
+   "leakPrep": []
+  }
+ ],
+ "lk8bMission": [
+  {
+   "order": null,
+   "leak": []
+  },
+  {
+   "order": null,
+   "leak": []
+  }
+ ],
+ "pizzaSelect": {
+  "leak": [],
+  "cards": 15
+ }
+}

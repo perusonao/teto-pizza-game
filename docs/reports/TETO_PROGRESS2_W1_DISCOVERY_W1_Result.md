@@ -1,6 +1,6 @@
 # Progression 2.0 W1 — Discovery 2.0 W1 production implementation (Result)
 
-Status: **W1-a1 → a2 → b → a3/c → f → e implemented and verified. Slice 8 (I5b-4b + W1-d) STOPPED:
+Status: **W1-a1 → a2 → b → a3/c → f → e implemented and verified (Chromium LK-8 PASS). Slice 8 (I5b-4b + W1-d) STOPPED:
 I5b-4b does not exist.** No PR, no merge, I5b-5 not started.
 
 - Branch: `claude/teto-pizza-w1-i4a-j46ph0` (the I5b integration line; base `fbfd738` = I5b-4).
@@ -67,11 +67,35 @@ I5b-4b does not exist.** No PR, no merge, I5b-5 not started.
 | STEP A on old production code | 149 / 3240 PASS (fixtures valid under both contracts) |
 | New LK-8 reducer suite on old code | 10 / 14 FAIL (they catch the leak); App LK-8b/8d suite 3 / 3 FAIL on old code |
 | Leak oracles | Shop, Pizza Select, Dex: every ladder Dex × (arrived, bought), text + aria/title/alt/style; NF-8 overlaps allowlisted by exact phrase (ペパロニ, ジェノベーゼソース, 「ナポリ生まれ」) |
-| Chromium e2e (touched specs, before W1-a2) | 86 / 86 PASS (Slice 1) |
+| Chromium e2e, full suite (iphone-390x844 + iphone-360x800), final code | **144 / 144 PASS** (2 more stale specs fixed in `be88532`: Pizza Select long-grid seed, RT-01 15→25) |
 
-## 5. Chromium LK-8 (390×844, dev server, legacy Dex-15 save)
+## 5. Chromium LK-8 (390×844, dev server, legacy Dex-15 save — W1 recipes DISCOVERABLE)
 
-See §5 table appended below (before = `fbfd738`, after = this branch).
+Undiscovered W1 names found in the page (`document.body.innerText`) per path; JSON in
+`docs/reports/screenshots/progression2-w1-discovery/lk8-{before,after}/lk8.json`.
+
+| Path | before (`fbfd738`) | after (this branch) |
+|---|---|---|
+| LK-8a Lunch Rush RESULT → フリープレイへ → ORDER → フリープレイ (2 runs) | ✕ ペストトンノピザ / ピッツァ・ポルトゲーザ order, guided round started | ✓ 0 — ミートラヴァーズ / マリナーラ (discovered) |
+| LK-8b FREE PREPARE → HOME → Lunch Rush intro 閉じる → フリープレイ (2 runs) | ✕ ピッツァ・ポルトゲーザ / ペストトンノピザ | ✓ 0 — トンノ・エ・チポッラ (discovered) |
+| LK-8b′ HOME during a Lunch Rush round → intro 閉じる (2 runs) | ✕ ペストトンノピザ ×2 | ✓ 0 |
+| Pizza Select on the same save | ✕ 25 cards, all 10 undiscovered names | ✓ 15 cards (discovered), 0 names |
+
+Screenshots: `lk8-before/lk8a-2-free-order.png` (an undiscovered recipe's order after フリープレイへ)
+vs `lk8-after/lk8a-2-free-order.png` and `lk8-after/lk8b-1-intro-closed-order.png` (discovered orders).
+
+UI before / after (390×844, 360×800; fresh, mid-ladder, legacy-15): `before/`, `after/` —
+horizontal overflow 0 everywhere; Pizza Select cards 25 / 25 / 25 → 0 / 8 / 15.
+
+## Human Verification Videos
+
+| Video | Viewport | Duration | Size | Verification |
+|---|---|---|---|---|
+| `w1-discovery-390x844.mp4` (MP4/H.264, delivered in session, not committed) | 390×844 | 41.0 s | 1.6 MB | PASS |
+
+Video Verification: PASS (contact sheet checked). What to check: fresh Pizza Select = prompt only →
+Free Cooking; legacy save HOME (Shop `NEW 3`, bubble) → Pizza Select (discovered only, 6/9/10 counts)
+→ Dex (？？？ + 🏪 / 🎨 tags) → Shop (generic hint); LK-8a and LK-8b land on discovered orders.
 
 ## 6. Remaining / handoff
 
