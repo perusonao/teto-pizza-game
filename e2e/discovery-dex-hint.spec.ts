@@ -2,13 +2,14 @@ import { test, expect, type Page } from "@playwright/test";
 import { completeDoughStep } from "./gestures";
 import { PROFILES, ProfileDriver, readViewport, type Profile } from "./support/layoutProfiles";
 import { runOnlyOnWidth } from "./support/projectGuard";
+import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
 
 /**
  * Discovery Hint 2.0 (Issue #229, 229-D): Recipe Dex 🎨 ？？？ card -> 「💡 ヒントを見る」 -> Free
  * Cooking PREPARE with the hint sheet -> H1..H3 -> close -> cook right away.
  *
  * Dex 11 ladder save: capricciosa (chapter 2) is the one DISCOVERABLE card. At 390x844, 360x800,
- * the short 360x640 and (Chromium) the 390x664 safe-area profile: no horizontal overflow, the card
+ * the short 390x664 / 360x640 and (Chromium) the three safe-area profiles: no horizontal overflow, the card
  * CTA fully visible and no card overlap in the chapter list, the sheet <= 45dvh with its CTA above
  * the bottom inset, and the Free Cooking screen underneath unmoved. Runs once per engine.
  */
@@ -31,6 +32,7 @@ const DEX11_SAVE = {
   starterGrantClaimedRecipeIds: [],
   unlockedForShopIngredientIds: materials,
 };
+const DEX11_IDS = LADDER.slice(0, 11).map(([id]) => id);
 const UNDISCOVERED = ["カプリチョーザ", "ピッツァ・ポルトゲーザ", "フガッサ", "マリナーラ"];
 
 async function openWithSave(page: Page) {
@@ -45,9 +47,10 @@ async function openWithSave(page: Page) {
 }
 
 function profilesFor(browserName: string): Profile[] {
-  return browserName === "chromium"
-    ? [PROFILES.N390, PROFILES.N360, PROFILES.S360, PROFILES.E390i]
-    : [PROFILES.N390, PROFILES.N360, PROFILES.S360];
+  // #229 Final Gate: the 7 Layout Contract profiles on Chromium; N and S at both widths on WebKit
+  // (no safe-area override there).
+  const all = Object.values(PROFILES);
+  return browserName === "chromium" ? all : all.filter((p) => !p.inset);
 }
 
 const card = (page: Page) => page.locator('.dex-card[data-dex-state="DISCOVERABLE"]');
@@ -135,6 +138,7 @@ test.describe("Discovery Hint 2.0 Dex entry (229-D)", () => {
     const lockedText = (await page.locator(".dex-card--locked").allTextContents()).join("|");
     for (const name of UNDISCOVERED) expect(lockedText).not.toContain(name);
     await card(page).scrollIntoViewIfNeeded();
+    await expectNoUndiscoveredIdentity(page, DEX11_IDS, "Dex with a DISCOVERABLE card");
     await capture(page, "d1-dex-discoverable-card");
 
     await card(page).getByRole("button", { name: /ヒントを見る/ }).click();
@@ -143,6 +147,7 @@ test.describe("Discovery Hint 2.0 Dex entry (229-D)", () => {
     const sheet = page.getByRole("dialog", { name: /ヒント/ });
     await expect(sheet).toBeVisible();
     await expect(sheet.locator(".hint-sheet__step")).toHaveCount(1);
+    await expectNoUndiscoveredIdentity(page, DEX11_IDS, "Dex -> Free Cooking + sheet H0");
     await capture(page, "d2-free-cook-sheet-h0");
 
     // Free Cooking underneath, measured with the sheet closed, per profile.
@@ -165,6 +170,7 @@ test.describe("Discovery Hint 2.0 Dex entry (229-D)", () => {
     await sheet.getByRole("button", { name: "次のヒントを見る" }).click();
     await expect(sheet.locator(".hint-sheet__step")).toHaveCount(4);
     await checkSheet(page, driver, browserName, "H3", closed);
+    await expectNoUndiscoveredIdentity(page, DEX11_IDS, "Dex -> sheet H3");
     await capture(page, "d4-h3");
     for (const name of UNDISCOVERED) await expect(sheet).not.toContainText(name);
 

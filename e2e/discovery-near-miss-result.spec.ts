@@ -2,14 +2,15 @@ import { test, expect, type Page } from "@playwright/test";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
 import { PROFILES, ProfileDriver, readViewport, type Profile } from "./support/layoutProfiles";
 import { runOnlyOnWidth } from "./support/projectGuard";
+import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
 
 /**
  * Discovery Hint 2.0 (Issue #229, 229-C): the Free Cooking RESULT's "おしい" row, played for real
  * (dough -> sauce -> cheese -> toppings -> bake) on a Dex 3 ladder save, where funghi (tomato
  * sauce, mozzarella, mushroom) is the one DISCOVERABLE recipe.
  *
- * Each result is measured at 390x844, 360x800, the short 360x640 and (Chromium) the 390x664
- * safe-area profile: no horizontal overflow, the primary CTA fully on screen above the bottom
+ * Each result is measured at 390x844, 360x800, the short 390x664 / 360x640 and (Chromium) the three
+ * safe-area profiles: no horizontal overflow, the primary CTA fully on screen above the bottom
  * inset, and no recipe name on screen. 「💡 ヒントを見る」 then opens Free Cooking with the hint
  * sheet. Profiles are forced per state, so this runs once per engine (the *-390x844 project).
  */
@@ -69,9 +70,10 @@ async function cookFree(page: Page, pieces: { cheese: [RegExp, number][]; toppin
 }
 
 function profilesFor(browserName: string): Profile[] {
-  return browserName === "chromium"
-    ? [PROFILES.N390, PROFILES.N360, PROFILES.S360, PROFILES.E390i]
-    : [PROFILES.N390, PROFILES.N360, PROFILES.S360];
+  // #229 Final Gate: the 7 Layout Contract profiles on Chromium; N and S at both widths on WebKit
+  // (no safe-area override there).
+  const all = Object.values(PROFILES);
+  return browserName === "chromium" ? all : all.filter((p) => !p.inset);
 }
 
 async function checkResult(page: Page, driver: ProfileDriver, browserName: string, label: string) {
@@ -90,6 +92,7 @@ async function checkResult(page: Page, driver: ProfileDriver, browserName: strin
   await driver.apply(PROFILES.N390);
   const text = (await page.locator(".result-panel").textContent()) ?? "";
   for (const name of UNDISCOVERED) expect(text, `${label}: ${name}`).not.toContain(name);
+  await expectNoUndiscoveredIdentity(page, DEX3_SAVE.dex.map((d) => d.recipeId), label);
 }
 
 async function capture(page: Page, name: string) {
@@ -134,6 +137,7 @@ test.describe("Discovery Hint 2.0 near-miss RESULT (229-C)", () => {
     await expect(page.locator(".order-card--free-cook")).toBeVisible();
     await expect(sheet.locator(".hint-sheet__step")).toHaveCount(1);
     await expect(sheet).not.toContainText("フンギ");
+    await expectNoUndiscoveredIdentity(page, DEX3_SAVE.dex.map((d) => d.recipeId), "RESULT -> hint sheet");
     await capture(page, "c5-hint-cta-sheet");
     await sheet.getByRole("button", { name: "閉じる" }).click();
     await expect(sheet).toHaveCount(0);

@@ -2,12 +2,13 @@ import { test, expect, type Page } from "@playwright/test";
 import { completeDoughStep } from "./gestures";
 import { PROFILES, ProfileDriver, readViewport, type Profile } from "./support/layoutProfiles";
 import { runOnlyOnWidth } from "./support/projectGuard";
+import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
 
 /**
  * Discovery Hint 2.0 (Issue #229, 229-B): the Free Cooking hint bottom sheet on mobile.
  *
  * For each state (sheet closed / H1 / H3 / longest H4 / the empty states) and each profile
- * (390×844, 360×800, the short 360×640 and, on Chromium, the 390×664 safe-area profile), checks:
+ * (390×844, 360×800, the short 390×664 / 360×640 and, on Chromium, the three safe-area profiles), checks:
  * no horizontal overflow, the sheet at most 45dvh and inside the viewport, its CTA visible above
  * the bottom safe-area inset, and the cooking screen underneath (stage, tabs, tray pager, bake
  * bar) at exactly the same place as with the sheet closed. Closing returns focus to 「ヒント」.
@@ -46,6 +47,8 @@ function ladderSave(count: number, opts: { newestOwned?: boolean; newestStock?: 
     unlockedForShopIngredientIds: materials,
   };
 }
+
+const DEX11 = LADDER.slice(0, 11).map(([id]) => id);
 
 async function openWithSave(page: Page, save: { dex: unknown[] }) {
   await page.goto(SEED_DOCUMENT);
@@ -105,9 +108,10 @@ async function sheetMetrics(page: Page) {
 }
 
 function profilesFor(browserName: string): Profile[] {
-  return browserName === "chromium"
-    ? [PROFILES.N390, PROFILES.N360, PROFILES.S360, PROFILES.E390i]
-    : [PROFILES.N390, PROFILES.N360, PROFILES.S360];
+  // #229 Final Gate: the 7 Layout Contract profiles on Chromium; N and S at both widths on WebKit
+  // (no safe-area override there).
+  const all = Object.values(PROFILES);
+  return browserName === "chromium" ? all : all.filter((p) => !p.inset);
 }
 
 /** Every profile: sheet geometry, and the background exactly where it is with the sheet closed. */
@@ -162,12 +166,14 @@ test.describe("Discovery Hint 2.0 sheet (229-B)", () => {
     await sheet(page).getByRole("button", { name: "次のヒントを見る" }).click();
     await expect(sheet(page).locator(".hint-sheet__step")).toHaveCount(2);
     await checkOpenState(page, driver, browserName, "H1", closed);
+    await expectNoUndiscoveredIdentity(page, DEX11, "sheet H1");
     await capture(page, "02-h1");
 
     await sheet(page).getByRole("button", { name: "次のヒントを見る" }).click();
     await sheet(page).getByRole("button", { name: "次のヒントを見る" }).click();
     await expect(sheet(page).locator(".hint-sheet__step")).toHaveCount(4);
     await checkOpenState(page, driver, browserName, "H3", closed);
+    await expectNoUndiscoveredIdentity(page, DEX11, "sheet H3");
     await capture(page, "03-h3");
 
     while (await sheet(page).getByRole("button", { name: "次のヒントを見る" }).count()) {
@@ -177,6 +183,7 @@ test.describe("Discovery Hint 2.0 sheet (229-B)", () => {
     await expect(sheet(page).getByText(/ヒントはここまで/)).toBeVisible();
     await expect(sheet(page)).not.toContainText("カプリチョーザ");
     await checkOpenState(page, driver, browserName, "H4 longest", closed);
+    await expectNoUndiscoveredIdentity(page, DEX11, "sheet H4 longest");
     await capture(page, "04-h4-longest");
 
     // Background taps are blocked by the sheet's backdrop; closing restores everything.
@@ -203,6 +210,7 @@ test.describe("Discovery Hint 2.0 sheet (229-B)", () => {
       await expect(sheet(page)).toHaveAttribute("data-hint-kind", kind);
       await expect(sheet(page)).toContainText(text);
       await checkOpenState(page, driver, browserName, kind, closed);
+      await expectNoUndiscoveredIdentity(page, save.dex.map((d) => d.recipeId), kind);
       await capture(page, `06-empty-${kind.toLowerCase()}`);
     });
   }
