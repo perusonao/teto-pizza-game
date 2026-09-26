@@ -128,7 +128,22 @@ Cooking → buy (0:08 exact), Result CTA → new Free Cooking → buy two levels
 
 ## 9. Tests
 
-E2E_PLACEHOLDER
+Local (sandbox, final code):
+
+| Gate | Result |
+|---|---|
+| Vitest (full) | **3594 passed / 1 skipped** (170 files) — baseline on \`42ce428\` + audit: 3551 passed |
+| Typecheck (\`tsc -b\`) | PASS |
+| Lint (\`oxlint\`) | PASS (0 findings) |
+| Build (\`npm run build\`) | PASS (pre-existing chunk-size warning only) |
+| Full Chromium E2E (\`iphone-390x844\`, \`iphone-360x800\`, \`layout-chromium\`) | **154 passed / 0 failed / 19 skipped** (skips = the existing per-width \`runOnlyOnWidth\` guards) |
+| Layout Contract (\`layout-chromium\`, 7 profiles) | **7 / 7 passed** (inside the 154) |
+| WebKit | not available in the sandbox — run by \`.github/workflows/e2e-webkit.yml\` on the PR (see the PR for the exact-HEAD CI result) |
+
+New / changed focused suites: \`hintPurchase.test.ts\` (pure rule), \`gameReducer.hintPurchase.test.ts\`
+(transaction, double tap, stale, skip, insufficient, Dex-0, pin, HE-UI-4), \`persistence.discoveryHintPurchases.test.ts\`
+(save), \`discoveryHint.walk.test.ts\` (25-recipe Final Gate walk paying every level), \`discoveryHintEconomy.sim.test.ts\`
+(parity + HE-5 gate), \`HintSheet.test.tsx\`, \`App.cookingTimingBackground.test.tsx\`, App / e2e hint flows.
 
 ## 10. Human Verification
 
