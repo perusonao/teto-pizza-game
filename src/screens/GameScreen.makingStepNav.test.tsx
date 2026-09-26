@@ -1,12 +1,15 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { GameScreen } from "./GameScreen";
-import { gameReducer, type GameState } from "../state/gameReducer";
+import { createInitialGameState, gameReducer, type GameState } from "../state/gameReducer";
 import { createGuidedInitialState } from "../state/testSupport/guidedRound";
 import { INITIAL_MISSION_STATE } from "../mission/lunchRush";
 import { emptySauceMetrics } from "../logic/sauceField";
 import type { IngredientCategory } from "../data/ingredients";
-import { buildIdealMargheritaSauceFixture, MARGHERITA_REFERENCE } from "../data/referencePizza";
+import { buildIdealMargheritaSauceFixture, buildIdealSauceFixture, getReferencePizza, MARGHERITA_REFERENCE } from "../data/referencePizza";
+import { walkPostBakeToResult } from "../state/testSupport/postBakeFlow";
+import { createEmptyPizza, type PizzaState } from "../state/pizzaState";
+import type { RecipeId } from "../data/recipes";
 import { getRecipe, type Recipe } from "../data/recipes";
 import { getCookingProfile } from "../data/cookingProfiles";
 
@@ -259,3 +262,42 @@ describe("I5b-4b: one cooking skeleton for PREPARE, BAKE and CUT", () => {
     expect(screen.queryByRole("button", { name: "次のページ" })).not.toBeInTheDocument();
   });
 });
+
+// Progression 2.0 W1-d: the Discovery Result's registration row comes from a real Free Cooking
+// matcher discovery and the canonical chapter functions (OD-DISC-9).
+describe("W1-d: Discovery Result from a real Free Cooking discovery", () => {
+  it("bismarck discovered after margherita: No.02（第1章 2/6）, 図鑑を見る on that row", () => {
+    const REFERENCE = getReferencePizzaForTest("bismarck");
+    let state = createInitialGameState(
+      [{ recipeId: "margherita", discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 }],
+      ["tomato-sauce", "mozzarella", "basil", "egg"],
+      0,
+      { egg: 9 },
+    );
+    state = gameReducer(state, { type: "START_FREE_COOK", now: 1 });
+    state = { ...state, phase: "PREPARE", pizza: REFERENCE };
+    state = gameReducer(state, { type: "START_BAKE" });
+    state = gameReducer(state, { type: "CONFIRM_BAKE", value: 65 });
+    state = walkPostBakeToResult(state);
+    state = gameReducer(state, { type: "REGISTER_TO_DEX" });
+    expect(state.lastDiscovery).toMatchObject({ kind: "NEW_DISCOVERY", recipeId: "bismarck" });
+    renderAt(state);
+    const row = document.querySelector(".dex-registration-row")!;
+    expect(row).toHaveTextContent("No.02（第1章 2/6）");
+    expect(document.querySelector(".discovered-banner--new-pizza")).toHaveTextContent("ビスマルクを発見しました！");
+  });
+});
+
+/** The reference pizza of `recipeId` as a baked PizzaState (the matcher's exact set). */
+function getReferencePizzaForTest(recipeId: RecipeId): PizzaState {
+  const reference = getReferencePizza(recipeId)!;
+  return {
+    ...createEmptyPizza(),
+    sauceIds: [reference.sauce.ingredientId],
+    sauceDeposits: buildIdealSauceFixture(),
+    toppings: reference.pieceGroups.flatMap((g, gi) =>
+      g.positions.map((p, i) => ({ id: `${recipeId}-${gi}-${i}`, ingredientId: g.ingredientId, ...p })),
+    ),
+    bakeResult: 65,
+  };
+}

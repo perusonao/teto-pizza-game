@@ -102,6 +102,12 @@ interface ResultPanelProps {
   onRetrySameRecipe: () => void;
   /** Issue #47 Finding D: returns to Pizza Select so the player can choose a different recipe. */
   onBackToPizzaSelect: () => void;
+  /** Progression 2.0 W1-d: where the just-discovered recipe landed in the Dex (canonical
+   *  chapter, fixed No. inside it, chapter progress after this discovery). Shown only on a
+   *  NEW_DISCOVERY result. */
+  dexRegistration?: { slot: number; chapterTitleJa: string; discovered: number; total: number } | null;
+  /** Progression 2.0 W1-d: opens the Dex (on the registration row, never in the bottom bar). */
+  onOpenDex?: () => void;
 }
 
 const MAX_STARS = 5;
@@ -161,6 +167,8 @@ export function ResultPanel({
   quantityNoteJa = null,
   onRetrySameRecipe,
   onBackToPizzaSelect,
+  dexRegistration = null,
+  onOpenDex,
 }: ResultPanelProps) {
   const actions = (
     <div className="action-row action-row--column result-panel__actions">
@@ -263,11 +271,49 @@ export function ResultPanel({
   const filledStars = "★".repeat(score.stars);
   const emptyStars = "☆".repeat(MAX_STARS - score.stars);
 
-  return (
-    <div className="result-panel">
-      <p className="result-panel__heading">{headingJa}</p>
+  // Progression 2.0 W1-d (Discovery 2.0 design §18.2 variant b, Integration Gate §7): a round
+  // that just discovered a recipe (the Free Cooking matcher's NEW_DISCOVERY -- the only source of
+  // new discoveries since W1-a2) reads discovery-first: 1. NEW PIZZA + the name (revealed here for
+  // the first time, OD-DISC-3) 2. the Dex registration row with 「📖 図鑑を見る」 3. ★ / score /
+  // Pitz on one line 4. the material arrival 5. the existing bottom CTA bar (unchanged; the Dex
+  // link is never added to it). Teto's heading and the bake badge are left out of this variant
+  // only. Known / guided / ORIGINAL / FAILED results keep their quality-first layout.
+  const isDiscoveryResult = freeCookMatch === "NEW_DISCOVERY";
+  const totalPitz = pitzCredit
+    ? pitzCredit.earnedPitz + pitzCredit.discoveryBonusPitz + (efficiencyCredit?.bonusPitz ?? 0)
+    : null;
 
-      <div className="result-panel__headline">
+  return (
+    <div className={`result-panel${isDiscoveryResult ? " result-panel--discovery" : ""}`}>
+      {isDiscoveryResult ? (
+        <>
+          <p className="discovered-banner discovered-banner--new-pizza" aria-live="polite">
+            <span className="discovered-banner__stamp">NEW PIZZA! {"✨"}</span>{" "}
+            <span className="discovered-banner__name">{recipeNameJa}</span>を発見しました！
+          </p>
+          <div className="dex-registration-row">
+            <p className="dex-registration-row__text">
+              {"\u{1F4D6}"} ピザ図鑑に登録！
+              {dexRegistration && (
+                <span className="dex-registration-row__slot">
+                  {" "}
+                  No.{String(dexRegistration.slot).padStart(2, "0")}（{dexRegistration.chapterTitleJa}{" "}
+                  {dexRegistration.discovered}/{dexRegistration.total}）
+                </span>
+              )}
+            </p>
+            {onOpenDex && (
+              <button type="button" className="dex-registration-row__cta" onClick={onOpenDex}>
+                {"\u{1F4D6}"} 図鑑を見る
+              </button>
+            )}
+          </div>
+        </>
+      ) : (
+        <p className="result-panel__heading">{headingJa}</p>
+      )}
+
+      <div className={`result-panel__headline${isDiscoveryResult ? " result-panel__headline--inline" : ""}`}>
         <div
           className="result-panel__stars"
           role="img"
@@ -279,19 +325,21 @@ export function ResultPanel({
           </span>
         </div>
         <div className="result-panel__score">{Math.round(score.total)}点</div>
-        {bakeState && (
+        {isDiscoveryResult && totalPitz !== null && (
+          <p className="result-panel__pitz-inline">
+            +{totalPitz} Pitz
+            {pitzCredit && pitzCredit.discoveryBonusPitz > 0 && (
+              <span className="result-panel__pitz-bonus">（初回発見 +{pitzCredit.discoveryBonusPitz}）</span>
+            )}
+          </p>
+        )}
+        {bakeState && !isDiscoveryResult && (
           <p className={`result-panel__bake-badge result-panel__bake-badge--${bakeState}`}>
             {BAKE_STATE_ICON[bakeState]} 焼き加減: {BAKE_STATE_LABEL[bakeState]}
           </p>
         )}
         {quantityNoteJa && <p className="result-panel__quantity-note">{quantityNoteJa}</p>}
       </div>
-
-      {freeCookMatch === "NEW_DISCOVERY" && (
-        <p className="discovered-banner discovered-banner--new-pizza" aria-live="polite">
-          NEW PIZZA! {"✨"} {recipeNameJa}を発見しました！
-        </p>
-      )}
       {freeCookMatch === "ALREADY_DISCOVERED" && (
         <p className="free-cook-known" aria-live="polite">
           {"\u{1F4D6}"} {recipeNameJa}ができた！（発見済み）
@@ -340,13 +388,13 @@ export function ResultPanel({
           calculation touched -- display only. */}
       {pitzCredit && (
         <div className="pitz-credit-summary">
-          <p className="pitz-credit-summary__headline">
-            今回の獲得{" "}
-            <strong>
-              +{pitzCredit.earnedPitz + pitzCredit.discoveryBonusPitz + (efficiencyCredit?.bonusPitz ?? 0)}{" "}
-              Pitz
-            </strong>
-          </p>
+          {/* W1-d: on a discovery result the total already sits on the ★ line above; only the
+              breakdown stays here. */}
+          {!isDiscoveryResult && (
+            <p className="pitz-credit-summary__headline">
+              今回の獲得 <strong>+{totalPitz} Pitz</strong>
+            </p>
+          )}
           <details className="pitz-credit-summary__breakdown">
             <summary className="pitz-credit-summary__breakdown-summary">内訳を見る</summary>
             <dl className="pitz-credit-summary__details">

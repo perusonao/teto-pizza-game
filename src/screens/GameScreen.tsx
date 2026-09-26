@@ -41,6 +41,7 @@ import { deriveMissionResultStats } from "../logic/missionResultStats";
 import { calculateMissionReward } from "../logic/economy";
 import type { PieceReferenceMetrics } from "../logic/referenceMatching";
 import type { DoughPoint } from "../logic/pizzaCoordinates";
+import { buildRecipeChapters, chapterProgress, recipeChapter, recipeChapterSlot } from "../state/recipeChapters";
 
 /**
  * GAME screen (Issue #24). Everything that happens while an actual round is in play --
@@ -110,6 +111,9 @@ interface GameScreenProps {
    *  App-level Shop overlay (App.tsx's `setShopOpen`, same as HOME's Shop entry) on top of this
    *  screen, so closing it returns right here. Optional: no CTA is rendered without it. */
   onOpenShop?: () => void;
+  /** Progression 2.0 W1-d: the Discovery Result's 「📖 図鑑を見る」 (on the Dex-registration row)
+   *  -- opens the App-level Dex overlay on top of this screen. Optional: no CTA without it. */
+  onOpenDex?: () => void;
   onMissionServeNext: () => void;
   onMissionStart: () => void;
   onMissionExitToFree: () => void;
@@ -173,6 +177,7 @@ export function GameScreen({
   onRetrySameRecipe,
   onBackToPizzaSelect,
   onOpenShop,
+  onOpenDex,
   onMissionServeNext,
   onMissionStart,
   onMissionExitToFree,
@@ -283,6 +288,24 @@ export function GameScreen({
   // ResultPanel renders its own "失敗" heading instead once `state.completion` is FAILED (see
   // its own file header), so a congratulatory/neutral bake line can never appear alongside a
   // pizza that was never actually servable.
+  // Progression 2.0 W1-d: the Dex slot of a recipe discovered this round -- chapter / No. / chapter
+  // progress from the canonical chapter functions only (OD-DISC-9). `state.recipe` is the
+  // matcher's recipe at this point (CONFIRM_BAKE), already registered by REGISTER_TO_DEX.
+  const dexRegistration =
+    isFreeResultScreen && state.lastDiscovery?.kind === "NEW_DISCOVERY"
+      ? (() => {
+          const chapter = buildRecipeChapters().find((c) => c.chapter === recipeChapter(state.recipe));
+          if (!chapter) return null;
+          const progress = chapterProgress(chapter, state.dex);
+          return {
+            slot: recipeChapterSlot(state.recipe),
+            chapterTitleJa: chapter.titleJa,
+            discovered: progress.discovered,
+            total: progress.total,
+          };
+        })()
+      : null;
+
   const resultHeadingJa =
     isFreeResultScreen && state.score && state.bakeState && state.completion?.status !== "FAILED"
       ? buildTetoResultLine(state.recipe, state.bakeState, state.pizza.bakeResult).textJa
@@ -711,6 +734,8 @@ export function GameScreen({
           quantityNoteJa={buildQuantityNote(state.scoringV2Result)}
           onRetrySameRecipe={onRetrySameRecipe}
           onBackToPizzaSelect={onBackToPizzaSelect}
+          dexRegistration={dexRegistration}
+          onOpenDex={onOpenDex}
         />
       )}
 

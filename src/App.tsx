@@ -916,6 +916,7 @@ function App() {
           onRetrySameRecipe={handleRetrySameRecipe}
           onBackToPizzaSelect={handleBackToPizzaSelectFromDiscovered}
           onOpenShop={() => setShopOpen(true)}
+          onOpenDex={() => setDexOpen(true)}
           onMissionServeNext={handleMissionServeNext}
           onMissionStart={startMission}
           onMissionExitToFree={exitMissionToFree}

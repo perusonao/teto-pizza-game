@@ -620,3 +620,115 @@ describe("ResultPanel: Issue #215 quantity line and near-miss copy", () => {
     expect(screen.getByText("図鑑のピザまであと少し…！ソースや焼き加減を変えてみよう。")).toBeInTheDocument();
   });
 });
+
+// Progression 2.0 W1-d (Discovery 2.0 design §18.2 variant b, Integration Gate §7, OD-DISC-6): a
+// NEW_DISCOVERY result reads discovery-first; every other result keeps its quality-first layout.
+describe("W1-d: Discovery Result hierarchy", () => {
+  const discoveryPitz: PitzCredit = {
+    baseReward: 100,
+    multiplier: 1.06,
+    earnedPitz: 106,
+    discoveryBonusPitz: 50,
+    balanceBefore: 0,
+    balanceAfter: 156,
+  };
+  function renderDiscovery(extra: Partial<Parameters<typeof ResultPanel>[0]> = {}) {
+    const onOpenDex = vi.fn();
+    const onOpenShop = vi.fn();
+    render(
+      <ResultPanel
+        {...baseProps()}
+        recipeNameJa="ビスマルク"
+        freeCook
+        justDiscovered
+        discovery={{ kind: "NEW_DISCOVERY", recipeId: "bismarck", targetId: "shipped:bismarck" }}
+        pitzCredit={discoveryPitz}
+        materialUnlockNotice={buildMaterialUnlockNotice(["bacon"])}
+        onOpenShop={onOpenShop}
+        dexRegistration={{ slot: 2, chapterTitleJa: "第1章", discovered: 2, total: 6 }}
+        onOpenDex={onOpenDex}
+        {...extra}
+      />,
+    );
+    return { onOpenDex, onOpenShop };
+  }
+  const pos = (sel: string) => {
+    const all = Array.from(document.querySelectorAll(".result-panel *"));
+    return all.indexOf(document.querySelector(sel)!);
+  };
+
+  it("orders name -> Dex registration -> ★ / Pitz -> material arrival -> CTA bar", () => {
+    renderDiscovery();
+    const order = [
+      ".discovered-banner--new-pizza",
+      ".dex-registration-row",
+      ".result-panel__stars",
+      ".material-unlock-notice",
+      ".result-panel__actions",
+    ].map(pos);
+    expect(order.every((p) => p >= 0)).toBe(true);
+    expect([...order].sort((a, b) => a - b)).toEqual(order);
+    expect(document.querySelector(".discovered-banner--new-pizza")).toHaveTextContent("NEW PIZZA! ✨ ビスマルクを発見しました！");
+    expect(document.querySelector(".dex-registration-row")).toHaveTextContent("📖 ピザ図鑑に登録！ No.02（第1章 2/6）");
+    // ★ / score / Pitz on one line, first-discovery bonus named; no second Pitz headline.
+    expect(document.querySelector(".result-panel__headline")).toHaveTextContent("+156 Pitz（初回発見 +50）");
+    expect(document.querySelector(".pitz-credit-summary__headline")).toBeNull();
+    // Teto's heading and the bake badge are left out of this variant only.
+    expect(screen.queryByText("いいできばえだね！")).not.toBeInTheDocument();
+    expect(document.querySelector(".result-panel__bake-badge")).toBeNull();
+  });
+
+  it("「📖 図鑑を見る」 sits on the registration row, never in the bottom CTA bar; the bar is unchanged", async () => {
+    const { onOpenDex } = renderDiscovery();
+    const dexCta = screen.getByRole("button", { name: /図鑑を見る/ });
+    expect(document.querySelector(".dex-registration-row")!.contains(dexCta)).toBe(true);
+    const bar = document.querySelector(".result-panel__actions")!;
+    expect(bar.contains(dexCta)).toBe(false);
+    expect(Array.from(bar.querySelectorAll("button")).map((b) => b.textContent)).toEqual([
+      "もう一度じゆうに作る",
+      "レシピを選んで作る",
+    ]);
+    await userEvent.click(dexCta);
+    expect(onOpenDex).toHaveBeenCalledTimes(1);
+  });
+
+  it("OD-DISC-6: the material arrival stays generic (material names only) with its own Shop link", async () => {
+    const { onOpenShop } = renderDiscovery();
+    const notice = document.querySelector(".material-unlock-notice")!;
+    expect(notice).toHaveTextContent("新しい材料が入荷：ベーコン");
+    expect(notice).not.toHaveTextContent(/作れる|ピザ/);
+    await userEvent.click(screen.getByRole("button", { name: /ショップへ/ }));
+    expect(onOpenShop).toHaveBeenCalledTimes(1);
+  });
+
+  it("leak contract: no recipe name other than the one just discovered anywhere in the Result", () => {
+    renderDiscovery();
+    const attrs = Array.from(document.querySelectorAll("*"))
+      .map((e) => `${e.getAttribute("aria-label") ?? ""}|${e.getAttribute("title") ?? ""}`)
+      .join("|");
+    const everything = `${document.body.textContent}||${attrs}`;
+    for (const name of [
+      "ブレックファストピザ", "フンギ", "メランザーネピザ", "パルミジャーナピザ", "マリナーラ",
+      "ハワイアンピザ", "ピッツァ・ポルトゲーザ", "プッタネスカ", "ペストトンノピザ",
+    ]) {
+      expect(everything, name).not.toContain(name);
+    }
+  });
+
+  it("known / guided results keep the quality-first layout (no registration row, heading + badge + Pitz headline)", () => {
+    render(
+      <ResultPanel
+        {...baseProps()}
+        freeCook
+        discovery={{ kind: "ALREADY_DISCOVERED", recipeId: "margherita", targetId: "shipped:margherita" }}
+        pitzCredit={{ ...discoveryPitz, discoveryBonusPitz: 0, balanceAfter: 106 }}
+        onOpenDex={vi.fn()}
+      />,
+    );
+    expect(document.querySelector(".result-panel--discovery")).toBeNull();
+    expect(document.querySelector(".dex-registration-row")).toBeNull();
+    expect(screen.getByText("いいできばえだね！")).toBeInTheDocument();
+    expect(document.querySelector(".result-panel__bake-badge")).not.toBeNull();
+    expect(document.querySelector(".pitz-credit-summary__headline")).toHaveTextContent("今回の獲得 +106 Pitz");
+  });
+});

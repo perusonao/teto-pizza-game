@@ -4618,3 +4618,88 @@
 .game-screen--cooking .bake-oven__flame {
   font-size: 32px;
 }
+
+/* ---------- Progression 2.0 W1-d: Discovery Result (NEW_DISCOVERY only) ----------
+   Discovery-first order inside the same ResultPanel (design §18.2 variant b): NEW PIZZA + name ->
+   Dex registration row (+ 「📖 図鑑を見る」) -> ★ / score / Pitz on one line -> material arrival.
+   The bottom CTA bar is the existing one, untouched. */
+.result-panel--discovery .discovered-banner--new-pizza {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+}
+
+.discovered-banner__stamp {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.result-panel--discovery .discovered-banner__name {
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+.dex-registration-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  width: 100%;
+}
+
+.dex-registration-row__text {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: #4a2e0a;
+}
+
+.dex-registration-row__slot {
+  font-weight: 700;
+  color: #a1662f;
+  white-space: nowrap;
+}
+
+.dex-registration-row__cta {
+  min-height: 36px;
+  padding: 6px 14px;
+  border: 2px solid #d9b876;
+  border-radius: 999px;
+  background: #fffaf0;
+  color: #6b4226;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.result-panel__headline--inline {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px 10px;
+}
+
+.result-panel__pitz-inline {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: #b3260a;
+}
+
+.result-panel__pitz-bonus {
+  font-size: 12px;
+  font-weight: 700;
+  color: #a1662f;
+}

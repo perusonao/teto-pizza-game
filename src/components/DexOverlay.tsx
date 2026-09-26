@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { RECIPES, type Recipe } from "../data/recipes";
 import { getIngredient } from "../data/ingredients";
 import type { DexState } from "../state/dex";
@@ -81,6 +82,12 @@ export function DexOverlay({
   const isComplete = discoveredCount >= total;
   const mastery = totalStars(dex);
   const inputs = { dex, ownedIngredientIds, unlockedForShopIngredientIds, inventory };
+  // W1-d: opened right after a discovery (Result's 「📖 図鑑を見る」), the Dex lands on the new slot.
+  const bodyRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const card = bodyRef.current?.querySelector<HTMLElement>(".dex-card--new");
+    card?.scrollIntoView?.({ block: "center" });
+  }, []);
 
   function renderSlot(recipe: Recipe, slot: number) {
     const entry = dex.find((e) => e.recipeId === recipe.id && e.discovered);
@@ -134,7 +141,7 @@ export function DexOverlay({
             閉じる
           </button>
         </div>
-        <div className="dex-overlay__body">
+        <div className="dex-overlay__body" ref={bodyRef}>
           <div className={`dex-overlay__progress ${isComplete ? "dex-overlay__progress--complete" : ""}`}>
             <div className="dex-overlay__progress-row">
               <p className="dex-overlay__progress-count">
