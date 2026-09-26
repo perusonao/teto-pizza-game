@@ -85,4 +85,48 @@ describe("Discovery Hint Economy 1.0: harness <-> production parity (Candidate B
       expect(production, profile).toEqual(simulated);
     }
   }, 120_000);
+
+  // HE-5 Final Gate: the production walk for every profile at ★4 / ★3 / ★1 -- Dex 25, no hard
+  // deadlock, Pitz never negative, and still identical to the simulated walk (price, transaction,
+  // balance and refill-before-hint all agree). `HINT_ECONOMY_FINAL_OUT=<path>` writes the summary.
+  it("HE-5: P0-P5 x ★4/★3/★1 reach Dex 25 on production with 0 hard deadlocks, in parity with the harness", async () => {
+    const rows: Record<string, unknown>[] = [];
+    for (const qualityTotal of QUALITIES) {
+      for (const profile of PROFILES) {
+        const production = simulateHintEconomy({ curve: B, profile, qualityTotal, transaction: "production" });
+        const simulated = simulateHintEconomy({ curve: B, profile, qualityTotal, refillBeforeHint: true });
+        const where = `Q${qualityTotal} ${profile}`;
+        expect(production.completed, where).toBe(true);
+        expect(production.hardDeadlock, where).toBe(false);
+        expect(production.stages.map((x) => x.discovery), where).toEqual(Array.from({ length: 25 }, (_, i) => i + 1));
+        expect(production.minPitz, where).toBeGreaterThanOrEqual(0);
+        expect(production.stages[0], where).toMatchObject({ recipe: "margherita", hintSpend: 0 });
+        for (const stage of production.stages.slice(1)) {
+          // Every paid stage spends a prefix sum of 5/10/20/40 (0, 5, 15, 35 or 75).
+          expect([0, 5, 15, 35, 75], `${where} ${stage.recipe}`).toContain(stage.hintSpend);
+        }
+        if (profile === "P0") expect(production.totalHintSpend, where).toBe(0);
+        expect(production, where).toEqual(simulated);
+        rows.push({
+          quality: qualityTotal,
+          profile,
+          hintSpend: production.totalHintSpend,
+          shopSpend: production.totalUnlockSpend + production.totalRefillSpend,
+          earned: production.totalEarned,
+          endingPitz: production.endingPitz,
+          minPitz: production.minPitz,
+          insufficient: production.insufficientHintAttempts,
+          experimental: production.experimentalBakes,
+          replays: production.grindBakes,
+          totalBakes: production.experimentalBakes + production.grindBakes,
+          hardDeadlock: production.hardDeadlock,
+        });
+      }
+    }
+    const finalOut = (import.meta.env as Record<string, string | undefined>).HINT_ECONOMY_FINAL_OUT;
+    if (finalOut) {
+      const fs = (await import(/* @vite-ignore */ "node:" + "fs")) as { writeFileSync(path: string, data: string): void };
+      fs.writeFileSync(finalOut, JSON.stringify(rows, null, 1));
+    }
+  }, 600_000);
 });
