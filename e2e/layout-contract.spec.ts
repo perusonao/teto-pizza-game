@@ -79,16 +79,23 @@ const DEX1_SAVE = {
   missionBest: {},
 };
 
+/** A same-origin static file that runs no app code (an image document has no scripts). */
+const SEED_DOCUMENT = "icons/icon-16.png";
+
 /**
- * Seeds the save and opens the app. The seed is written by an init script -- before the app
- * reads storage on that navigation -- not by `evaluate` + `reload`: WebKit's page-hide save of
- * the previous document can overwrite a seed written that way (CI run 36221989353, where every
- * seeded flow silently opened at Dex 0). Each call registers a newer script that runs last, so
- * the latest seed wins on every later navigation too. The Dex pill is asserted so a seed that
- * did not load can never pass unnoticed.
+ * Seeds the save and opens the app, deterministically:
+ * 1. navigate to a script-free same-origin document -- leaving the app here runs its page-hide
+ *    save, which is harmless because the seed is written after it;
+ * 2. write the seed on that document (nothing on it can save over it);
+ * 3. navigate to the app, which reads the seed on start.
+ * No init script is registered: several `page.addInitScript` scripts run in an undefined order
+ * (PR #230 review), and an `evaluate` + `reload` on the app itself lets WebKit's page-hide save
+ * overwrite the seed (CI run 36221989353). The Dex pill is asserted so a seed that did not load
+ * can never pass unnoticed.
  */
 async function openWithSave(page: Page, save: { dex: unknown[] } | null, query = "") {
-  await page.addInitScript(
+  await page.goto(SEED_DOCUMENT);
+  await page.evaluate(
     ([key, value]) => {
       localStorage.clear();
       if (value) localStorage.setItem(key, value);
