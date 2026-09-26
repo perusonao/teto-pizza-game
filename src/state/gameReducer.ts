@@ -58,6 +58,7 @@ import { requiredCutCount } from "../logic/cut/evaluation";
 import { isDuplicateCutLine } from "../logic/cut/geometry";
 import { isValidDoughShape, type DoughShape } from "../logic/doughShape";
 import { resolveHintSession, revealNextHint, type HintSession } from "./discoveryHint";
+import type { DiscoveryHintPurchases } from "../logic/discovery/hintPurchase";
 import {
   createEmptyPizza,
   findOpenSpot,
@@ -196,6 +197,11 @@ export interface GameState {
    *  step (./discoveryHint.ts). Session-only: carried across rounds through `ProgressionCarry`
    *  so one discovery search keeps its target, never persisted (a reload starts at H0). */
   hintSession: HintSession | null;
+  /** Discovery Hint Economy 1.0 (Issue #232, HE-1): `recipeId -> highest purchased hint level`,
+   *  the persisted ledger (./persistence.ts). Only a successful hint purchase raises a level; no
+   *  action ever lowers or removes one (an entry stays after its recipe is discovered). Carried
+   *  through every "fresh round" path via `ProgressionCarry`, like `pitzBalance`. */
+  discoveryHintPurchases: DiscoveryHintPurchases;
   /** 229-B: the hint sheet is open. Only SHOW_HINT during a Free Cooking PREPARE sets it; every
    *  fresh round (`buildOrderState`) closes it. Transient, never persisted. */
   hintSheetOpen: boolean;
@@ -426,6 +432,7 @@ interface ProgressionCarry {
   unlockedForShopIngredientIds: readonly string[];
   preDiscoveryFreeCookAttempts: number;
   hintSession: HintSession | null;
+  discoveryHintPurchases: DiscoveryHintPurchases;
 }
 
 /** Builds a fresh ORDER-phase state around an already-picked `order` -- the one place that
@@ -530,6 +537,7 @@ function nextMissionOrderState(state: GameState): GameState {
       unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
       preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
       hintSession: state.hintSession,
+      discoveryHintPurchases: state.discoveryHintPurchases,
     },
     true,
   );
@@ -586,7 +594,7 @@ function startPreparing(orderState: GameState, now?: number): GameState {
  *  `pitzBalance` defaults to 0 for existing call sites (tests, a from-scratch player);
  *  App.tsx passes them all in from persistence.ts (plus the retired EP4 ledger
  *  `starterGrantClaimedRecipeIds`, carried through untouched, and I4b's Shop entitlement
- *  `unlockedForShopIngredientIds`) so a reload hydrates progression while the round in progress
+ *  `unlockedForShopIngredientIds`, and HE-1's hint purchase ledger `discoveryHintPurchases`) so a reload hydrates progression while the round in progress
  *  starts fresh at ORDER regardless. Deliberately a pure passthrough -- this never itself resolves
  *  the Discovery Ladder (./materialEntitlement.ts), unlike REGISTER_TO_DEX/MISSION_NEXT_ORDER
  *  below, so a caller keeps getting back exactly the state it asked for. App.tsx's load path is
@@ -598,6 +606,7 @@ export function createInitialGameState(
   inventory: InventoryState = EMPTY_INVENTORY,
   starterGrantClaimedRecipeIds: readonly string[] = [],
   unlockedForShopIngredientIds: readonly string[] = [],
+  discoveryHintPurchases: DiscoveryHintPurchases = {},
 ): GameState {
   return nextOrderState(
     {
@@ -610,6 +619,7 @@ export function createInitialGameState(
       unlockedForShopIngredientIds,
       preDiscoveryFreeCookAttempts: 0,
       hintSession: null,
+      discoveryHintPurchases,
     },
     { preferFirst: true },
   );
@@ -1246,6 +1256,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
           preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
           hintSession: state.hintSession,
+          discoveryHintPurchases: state.discoveryHintPurchases,
         },
         { excludeRecipeId: state.recipe.id },
       );
@@ -1268,6 +1279,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
           preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
           hintSession: state.hintSession,
+          discoveryHintPurchases: state.discoveryHintPurchases,
         }, action.now) ?? state
       );
     }
@@ -1284,6 +1296,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
           preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
           hintSession: state.hintSession,
+          discoveryHintPurchases: state.discoveryHintPurchases,
         },
         action.now,
       );
@@ -1303,6 +1316,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
             preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
             hintSession: state.hintSession,
+            discoveryHintPurchases: state.discoveryHintPurchases,
           },
           action.now,
         );
@@ -1320,6 +1334,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
           preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
           hintSession: state.hintSession,
+          discoveryHintPurchases: state.discoveryHintPurchases,
         }, action.now) ?? state
       );
 

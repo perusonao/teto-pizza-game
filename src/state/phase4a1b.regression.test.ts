@@ -37,6 +37,8 @@ describe("Regression: Phase 4A-1B remains shadow-only", () => {
     // this pins that Phase 4A-1B Reference/animation work still adds nothing further.
     expect(Object.keys(createDefaultSave()).sort()).toEqual([
       "dex",
+      // Discovery Hint Economy 1.0 (Issue #232, HE-1): the hint purchase ledger, not a Reference field.
+      "discoveryHintPurchases",
       "inventory",
       "missionBest",
       "ownedIngredientIds",

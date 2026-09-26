@@ -151,6 +151,7 @@ function App() {
       save.inventory,
       save.starterGrantClaimedRecipeIds,
       entitlement.unlockedForShopIngredientIds,
+      save.discoveryHintPurchases,
     );
   });
   // HOME is always the first screen shown (Issue #24 requirement) regardless of what round
@@ -299,6 +300,7 @@ function App() {
       inventory: state.inventory,
       starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
       unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
+      discoveryHintPurchases: state.discoveryHintPurchases,
     });
   }, [
     state.dex,
@@ -307,6 +309,7 @@ function App() {
     state.inventory,
     state.starterGrantClaimedRecipeIds,
     state.unlockedForShopIngredientIds,
+    state.discoveryHintPurchases,
   ]);
 
   // Firebase Ranking 1.0 Phase 1A (Issue #87): establishes an anonymous Firebase identity in
