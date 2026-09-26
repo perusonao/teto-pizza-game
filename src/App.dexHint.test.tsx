@@ -11,8 +11,8 @@ import { RECIPES } from "./data/recipes";
  * Discovery Hint 2.0 (Issue #229, 229-D) through the real App: a Dex 🎨 card's 「💡 ヒントを見る」
  * closes the Dex, starts Free Cooking and opens the hint sheet -- on a legacy save where several
  * undiscovered recipes are DISCOVERABLE at once (the LK-8 worst case). No undiscovered name ever
- * shows (text or aria), no guided round starts, Pizza Select stays discovered-only, and the save is
- * untouched.
+ * shows (text or aria), no guided round starts, Pizza Select stays discovered-only. Discovery Hint
+ * Economy 1.0 (Issue #232, HE-2): the H1 bought on each card is the only change to the save.
  */
 
 const OLD15 = RECIPES.slice(0, 15);
@@ -54,7 +54,7 @@ afterEach(() => {
 });
 
 describe("Dex 「💡 ヒントを見る」 through the App (229-D)", () => {
-  it("every DISCOVERABLE card: Dex closes, Free Cooking PREPARE starts with the hint sheet, nothing leaks, save untouched", async () => {
+  it("every DISCOVERABLE card: Dex closes, Free Cooking PREPARE starts with the hint sheet, nothing leaks, only the purchase is saved", async () => {
     vi.spyOn(window, "confirm").mockReturnValue(true);
     seedLegacyDex15();
     const user = userEvent.setup();
@@ -74,7 +74,7 @@ describe("Dex 「💡 ヒントを見る」 through the App (229-D)", () => {
       expect(document.querySelector(".dex-overlay")).toBeNull();
       expect(document.querySelector(".order-card--free-cook")).toBeInTheDocument();
       const sheet = screen.getByRole("dialog", { name: /ヒント/ });
-      await user.click(within(sheet).getByRole("button", { name: "次のヒントを見る" }));
+      await user.click(sheet.querySelector<HTMLButtonElement>(".hint-sheet__next")!);
       expect(sheet.querySelectorAll(".hint-sheet__step")).toHaveLength(2);
       expectNoUndiscoveredName(`card ${i}: Free Cooking + sheet`);
       await user.click(within(sheet).getByRole("button", { name: "閉じる" }));
@@ -83,7 +83,15 @@ describe("Dex 「💡 ヒントを見る」 through the App (229-D)", () => {
       expect(document.querySelector(".prepare-bake-bar")).toBeInTheDocument();
     }
 
-    expect(window.localStorage.getItem(SAVE_STORAGE_KEY)).toBe(before);
+    const after = JSON.parse(window.localStorage.getItem(SAVE_STORAGE_KEY)!);
+    const { pitzBalance, discoveryHintPurchases, ...rest } = after;
+    // One H1 (5 Pitz) per card, each on its own recipe.
+    expect(pitzBalance).toBe(500 - 5 * count);
+    expect(Object.values(discoveryHintPurchases)).toEqual(Array(count).fill(1));
+    const { pitzBalance: _p, discoveryHintPurchases: _d, ...restBefore } = JSON.parse(before!);
+    void _p;
+    void _d;
+    expect(rest).toEqual(restBefore);
   });
 
   it("LK-8: after a Dex hint round, HOME -> Pizza Select still lists no undiscovered recipe", async () => {

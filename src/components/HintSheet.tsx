@@ -37,11 +37,12 @@ const EMPTY_COPY: Record<HintEmptyKind, { title: string; body: string }> = {
 
 export function HintSheet({
   view,
-  onRevealNext,
+  onUnlock,
   onClose,
 }: {
   view: HintSheetView;
-  onRevealNext: () => void;
+  /** Unlocks the offered level (`view.next.level`). */
+  onUnlock: (level: number) => void;
   onClose: () => void;
 }) {
   const titleId = useId();
@@ -110,7 +111,7 @@ export function HintSheet({
             </ol>
             <div className="hint-sheet__footer">
               {canRevealMore ? (
-                <button ref={nextRef} type="button" className="cta-button hint-sheet__next" onClick={onRevealNext}>
+                <button ref={nextRef} type="button" className="cta-button hint-sheet__next" onClick={() => view.kind === "TARGET" && view.next && onUnlock(view.next.level)}>
                   次のヒントを見る
                 </button>
               ) : (

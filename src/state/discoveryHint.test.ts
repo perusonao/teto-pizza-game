@@ -10,7 +10,7 @@ import {
   hintSheetView,
   isHintSheetVisible,
   resolveHintSession,
-  revealNextHint,
+  unlockNextHint,
   type DiscoveryHintState,
 } from "./discoveryHint";
 import { resolveShopEntitlement } from "./materialEntitlement";
@@ -40,14 +40,22 @@ function ladder(count: number, newest: "bought" | "not-bought" | "stock-0" = "bo
     inventory: Object.fromEntries(materials.map((m) => [m, newest === "stock-0" && newestIds.has(m) ? 0 : 10])),
     preDiscoveryFreeCookAttempts: 0,
     hintSession: null,
+    pitzBalance: 1000,
+    discoveryHintPurchases: {},
   };
 }
 
-/** Opens the sheet (resolve) and reveals `times` more steps, as SHOW_HINT + REVEAL_NEXT_HINT do. */
+/** Opens the sheet (resolve) and unlocks the offered level `times` more times, as SHOW_HINT +
+ *  PURCHASE_DISCOVERY_HINT do (a rejected unlock changes nothing). */
 function play(state: DiscoveryHintState, times: number): DiscoveryHintState {
   let s = { ...state, hintSession: resolveHintSession(state) };
-  for (let i = 0; i < times; i += 1) s = { ...s, hintSession: revealNextHint(s) };
+  for (let i = 0; i < times; i += 1) s = { ...s, ...unlockNextHint(s, nextLevel(s)) };
   return s;
+}
+
+function nextLevel(s: DiscoveryHintState): number {
+  const view = hintSheetView(s);
+  return view.kind === "TARGET" ? (view.next?.level ?? view.steps.at(-1)!.level + 1) : 1;
 }
 
 describe("resolveHintSession", () => {
@@ -61,12 +69,12 @@ describe("resolveHintSession", () => {
   });
 
   it("a stale target (now DISCOVERED) falls back to the new target at H0", () => {
-    const s = { ...ladder(4), hintSession: { targetId: "funghi", revealedIndex: 3 } };
+    const s = { ...ladder(4), hintSession: { targetId: "funghi", revealedIndex: 3 }, discoveryHintPurchases: { funghi: 3 } };
     expect(resolveHintSession(s)).toEqual({ targetId: "melanzane-pizza", revealedIndex: 0 });
   });
 
   it("an unknown / non-recipe target id falls back too", () => {
-    const s = { ...ladder(2), hintSession: { targetId: "no-such-recipe", revealedIndex: 2 } };
+    const s = { ...ladder(2), hintSession: { targetId: "no-such-recipe", revealedIndex: 2 }, discoveryHintPurchases: { "no-such-recipe": 2 } };
     expect(resolveHintSession(s)).toEqual({ targetId: "breakfast-pizza", revealedIndex: 0 });
   });
 
@@ -76,16 +84,27 @@ describe("resolveHintSession", () => {
   });
 });
 
-describe("revealNextHint / hintSheetView (H1 -> H4)", () => {
-  it("each reveal adds exactly one step, in order, then stops at the last one", () => {
+describe("unlockNextHint / hintSheetView (H1 -> H4)", () => {
+  it("each unlock adds exactly one level, in order, then stops at the last one", () => {
     const base = ladder(2); // breakfast-pizza
     const all = buildHintSteps(recipe("breakfast-pizza"), { discoveredCount: 2 });
+    const prices = [5, 10, 20, 40];
+    let spent = 0;
     for (let n = 0; n < all.length; n += 1) {
       const view = hintSheetView(play(base, n));
-      expect(view).toEqual({ kind: "TARGET", steps: all.slice(0, n + 1), canRevealMore: n < all.length - 1 });
+      const last = n === all.length - 1;
+      expect(view).toEqual({
+        kind: "TARGET",
+        steps: all.slice(0, n + 1),
+        canRevealMore: !last,
+        next: last ? null : { level: n + 1, price: prices[n], free: false, affordable: true },
+        pitzBalance: 1000 - spent,
+      });
+      if (!last) spent += prices[n];
     }
     const atMax = play(base, all.length - 1);
-    expect(revealNextHint(atMax)).toBe(atMax.hintSession);
+    expect(unlockNextHint(atMax, 5)).toBeNull();
+    expect(unlockNextHint(atMax, 4)).toBeNull();
     expect(hintSheetView(play(base, all.length + 5))).toEqual(hintSheetView(atMax));
   });
 
@@ -98,6 +117,18 @@ describe("revealNextHint / hintSheetView (H1 -> H4)", () => {
       expect(named.size, `Dex ${count}`).toBe(all.size - 1);
       expect(view.canRevealMore).toBe(false);
     }
+  });
+
+  it("H4 is one level: a single purchase shows every H4 line (still n-1 capped)", () => {
+    // capricciosa (Dex 11 -> 12) has three H4 lines.
+    const base = ladder(11);
+    expect(resolveHintSession(base)?.targetId).toBe("capricciosa");
+    const all = buildHintSteps(recipe("capricciosa"), { discoveredCount: 11 });
+    expect(all.filter((x) => x.level === 4).length).toBe(3);
+    const s = play(base, 4);
+    expect(s.discoveryHintPurchases).toEqual({ capricciosa: 4 });
+    expect(s.pitzBalance).toBe(1000 - 75);
+    expect(hintSheetView(s)).toMatchObject({ kind: "TARGET", steps: all, next: null });
   });
 
   it("no session -> the view still shows today's target at H0", () => {
@@ -164,6 +195,8 @@ function legacy(): DiscoveryHintState {
     inventory: Object.fromEntries(mats.map((m) => [m, 30])),
     preDiscoveryFreeCookAttempts: 0,
     hintSession: null,
+    pitzBalance: 1000,
+    discoveryHintPurchases: {},
   };
 }
 

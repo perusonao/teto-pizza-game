@@ -36,6 +36,7 @@ import { buildHintSteps, type HintStep } from "../discovery/hintSteps";
 import { selectHintTarget } from "../discovery/hintTarget";
 import { starsFromTotal } from "../scoring";
 import { discoveredRecipeIds } from "../../state/dex";
+import { hintSheetView } from "../../state/discoveryHint";
 import { createInitialGameState, gameReducer, type GameAction, type GameState } from "../../state/gameReducer";
 import { createEmptyPizza, type PizzaState } from "../../state/pizzaState";
 import { resultNearMiss } from "../../state/resultNearMiss";
@@ -75,6 +76,22 @@ export interface SimOptions {
   onboardingFree?: boolean;
   /** Safety cap on experimental bakes per stage before the walk gives up on that stage. */
   maxBakesPerStage?: number;
+  /**
+   * Discovery Hint Economy 1.0 (Issue #232, HE-2): how a hint level is paid.
+   * - "simulated" (default, the Fresh Audit): the harness debits `curve.prices` itself.
+   * - "production": every level goes through the real reducer (START_FREE_COOK -> SHOW_HINT ->
+   *   PURCHASE_DISCOVERY_HINT -> CLOSE_HINT), so the production price table, onboarding exemption,
+   *   affordability check and ledger decide; `curve` is then only a label. The harness asserts the
+   *   sheet's target is the stage target and mirrors the reducer's result into its own knowledge.
+   */
+  transaction?: "simulated" | "production";
+  /**
+   * Refill an out-of-stock target material before buying a hint (default: only in "production").
+   * The real sheet offers hints only for a DISCOVERABLE target and shows REFILL otherwise, so a
+   * production walk must refill first; the parity test turns this on for the simulated walk too, so
+   * the two runs differ in the transaction path only. Off in the Fresh Audit's own tables.
+   */
+  refillBeforeHint?: boolean;
 }
 
 export interface StageRecord {
@@ -199,6 +216,10 @@ const keyOf = (ids: readonly string[]) => [...ids].sort().join("+");
 export function simulateHintEconomy(options: SimOptions): SimResult {
   const { curve, profile, qualityTotal } = options;
   const onboardingFree = options.onboardingFree ?? true;
+  const production = options.transaction === "production";
+  if (production && !onboardingFree) throw new Error("production hints are always free at Dex 0");
+  const refillBeforeHint = options.refillBeforeHint ?? production;
+  if (production && !refillBeforeHint) throw new Error("the production sheet needs a stocked target");
   const maxBakes = options.maxBakesPerStage ?? 80;
 
   let s = createInitialGameState(undefined, undefined, 0);
@@ -283,6 +304,28 @@ export function simulateHintEconomy(options: SimOptions): SimResult {
     let owned = purchased.get(target.id) ?? 0;
     while (owned < cap) {
       const level = owned + 1;
+      if (refillBeforeHint) {
+        // The sheet only offers hints for a DISCOVERABLE target: an out-of-stock material shows the
+        // REFILL state instead, so refill it first, as the sheet tells the player to.
+        for (const { ingredientId } of target.requiredIngredients) {
+          while (isFiniteMaterial(ingredientId) && (s.inventory[ingredientId] ?? 0) < 1) {
+            acc.refillSpend += shop({ type: "RESTOCK_INGREDIENT", ingredientId });
+          }
+        }
+      }
+      if (production) {
+        const paid = buyThroughReducer(target, level);
+        if (paid === null) {
+          if (!acc.refused.has(level)) acc.insufficient += 1;
+          acc.refused.add(level);
+          return;
+        }
+        acc.hintSpend += paid;
+        owned = level;
+        purchased.set(target.id, owned);
+        track();
+        continue;
+      }
       const free = onboardingFree && dexCount === 0;
       const price = free ? 0 : curve.prices[level - 1];
       if (s.pitzBalance < price) {
@@ -297,6 +340,24 @@ export function simulateHintEconomy(options: SimOptions): SimResult {
       purchased.set(target.id, owned);
       track();
     }
+  }
+
+  /** One level through the real reducer; the Pitz charged, or `null` when the reducer refused. */
+  function buyThroughReducer(target: Recipe, level: number): number | null {
+    s = act(s, { type: "START_FREE_COOK" }, { type: "SHOW_HINT" });
+    if (s.hintSession?.targetId !== target.id) throw new Error(`sheet target ${s.hintSession?.targetId} != stage target ${target.id}`);
+    // Dex 0: the onboarding escalation may already show this level for free after failed tries.
+    const view = hintSheetView(s);
+    if (view.kind === "TARGET" && view.steps[view.steps.length - 1].level >= level) {
+      s = act(s, { type: "CLOSE_HINT" });
+      return 0;
+    }
+    const before = s;
+    s = act(s, { type: "PURCHASE_DISCOVERY_HINT", level });
+    const charged = before.pitzBalance - s.pitzBalance;
+    const refused = s === before;
+    s = act(s, { type: "CLOSE_HINT" });
+    return refused ? null : charged;
   }
 
   function knowledgeFor(target: Recipe, dexCount: number): Knowledge {

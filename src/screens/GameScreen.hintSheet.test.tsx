@@ -68,7 +68,7 @@ function Harness() {
         onConfirmMakingStep={() => dispatch({ type: "CONFIRM_MAKING_STEP" })}
         onStartBake={() => {}}
         onShowHint={() => dispatch({ type: "SHOW_HINT" })}
-        onRevealNextHint={() => dispatch({ type: "REVEAL_NEXT_HINT" })}
+        onUnlockHint={(level) => dispatch({ type: "PURCHASE_DISCOVERY_HINT", level })}
         onCloseHint={() => dispatch({ type: "CLOSE_HINT" })}
         onChangeCategory={setActiveCategory}
         onSelectIngredient={(ingredient) => setSelectedIngredientId(ingredient.id)}

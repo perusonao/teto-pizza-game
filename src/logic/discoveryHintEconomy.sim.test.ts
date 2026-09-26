@@ -7,6 +7,7 @@ import {
   type ProfileId,
   type SimResult,
 } from "./testSupport/discoveryHintEconomySim";
+import { DISCOVERY_HINT_PRICES, discoveryHintPrice } from "./discovery/hintPurchase";
 
 /**
  * Discovery Hint Economy 1.0 Fresh Audit (docs/reports/TETO_DISCOVERY-HINT-ECONOMY-1_FRESH-AUDIT.md):
@@ -58,4 +59,30 @@ describe("Discovery Hint Economy 1.0: 25-recipe hint-price simulation (analysis 
     const fs = (await import(/* @vite-ignore */ "node:" + "fs")) as { writeFileSync(path: string, data: string): void };
     fs.writeFileSync(out!, JSON.stringify(runs, null, 1));
   }, 180_000);
+});
+
+/**
+ * Discovery Hint Economy 1.0 (Issue #232), HE-2: the harness above priced hints itself; production
+ * now has the real transaction. Candidate B (OD-HE-1) must be exactly the production price table,
+ * and a walk that pays every level through the real reducer must give the same result, stage by
+ * stage, as the audit's simulated debit (both refilling an out-of-stock target before a hint, since
+ * the real sheet shows REFILL for it -- the only way the two runs may differ is the transaction).
+ */
+describe("Discovery Hint Economy 1.0: harness <-> production parity (Candidate B)", () => {
+  const B = HINT_PRICE_CURVES.find((c) => c.id === "B")!;
+
+  it("Candidate B is the production price table", () => {
+    expect(B.prices).toEqual([1, 2, 3, 4].map(discoveryHintPrice));
+    expect([1, 2, 3, 4].map((level) => DISCOVERY_HINT_PRICES[level as 1 | 2 | 3 | 4])).toEqual([...B.prices]);
+  });
+
+  it("every profile: the production transaction gives the same walk as the simulated one (★3)", () => {
+    for (const profile of PROFILES) {
+      const simulated = simulateHintEconomy({ curve: B, profile, qualityTotal: AVERAGE_QUALITY, refillBeforeHint: true });
+      const production = simulateHintEconomy({ curve: B, profile, qualityTotal: AVERAGE_QUALITY, transaction: "production" });
+      expect(production.completed, profile).toBe(true);
+      expect(production.hardDeadlock).toBe(false);
+      expect(production, profile).toEqual(simulated);
+    }
+  }, 120_000);
 });

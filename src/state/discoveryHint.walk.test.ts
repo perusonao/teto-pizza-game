@@ -21,6 +21,10 @@ import { resultNearMiss } from "./resultNearMiss";
  *  4. Try the owned ingredients of the hinted kind one at a time until the real matcher reports
  *     NEW_DISCOVERY -- which must be the hint's own target -- and move on.
  *
+ * Discovery Hint Economy 1.0 (Issue #232, HE-2): step 2 buys each level through the real
+ * PURCHASE_DISCOVERY_HINT (Dex 0 free, then Candidate B 5/10/20/40), and the walk checks the Pitz
+ * charged and the purchase ledger at every stage.
+ *
  * No recipe id is ever read from the sheet: the walk only uses `hintSheetView`'s steps (ingredient
  * ids + text) and the RESULT's near-miss class. The target id is read from `hintSession` for the
  * assertions only.
@@ -59,8 +63,11 @@ function bake(s: GameState, ids: readonly string[]): GameState {
   return act(s, { type: "REGISTER_TO_DEX" });
 }
 
+const PRICES = [0, 5, 10, 20, 40];
+
 interface StageRecord {
   dex: number;
+  hintSpend: number;
   target: string;
   shop: string[];
   steps: number;
@@ -99,9 +106,17 @@ describe("Final Gate: the 25-recipe ladder from a new save to a complete Dex, hi
       const target = RECIPES.find((r) => r.id === targetId)!;
       expect(recipeDiscoveryState(target, s), `Dex ${dexCount}`).toBe("DISCOVERABLE");
 
-      // 2. Reveal until the sheet stops.
-      for (let i = 0; i < 12 && hintSheetView(s).kind === "TARGET" && (hintSheetView(s) as { canRevealMore: boolean }).canRevealMore; i += 1) {
-        s = act(s, { type: "REVEAL_NEXT_HINT" });
+      // 2. Unlock every level the sheet offers, in order, until it stops.
+      let hintSpend = 0;
+      for (let i = 0; i < 12; i += 1) {
+        const offer = hintSheetView(s);
+        if (offer.kind !== "TARGET" || !offer.next) break;
+        expect(offer.next.free, `Dex ${dexCount}: onboarding free`).toBe(dexCount === 0);
+        expect(offer.next.price).toBe(dexCount === 0 ? 0 : PRICES[offer.next.level]);
+        const before = s.pitzBalance;
+        s = act(s, { type: "PURCHASE_DISCOVERY_HINT", level: offer.next.level });
+        expect(before - s.pitzBalance).toBe(offer.next.price);
+        hintSpend += before - s.pitzBalance;
       }
       const final = hintSheetView(s);
       if (final.kind !== "TARGET") throw new Error("target view expected");
@@ -110,6 +125,10 @@ describe("Final Gate: the 25-recipe ladder from a new save to a complete Dex, hi
       const named = final.steps.flatMap((x) => (x.namedIngredientId ? [x.namedIngredientId] : []));
       const total = new Set(target.requiredIngredients.map((r) => r.ingredientId)).size;
       expect(named.length, `Dex ${dexCount}: named ingredients`).toBe(dexCount === 0 ? total : total - 1);
+      const maxLevel = final.steps.at(-1)!.level;
+      // Dex 0 is free and session-only; from Dex 1 the ledger holds the target's last level.
+      expect(s.discoveryHintPurchases[targetId]).toBe(dexCount === 0 ? undefined : maxLevel);
+      expect(hintSpend).toBe(dexCount === 0 ? 0 : PRICES.slice(1, maxLevel + 1).reduce((a, b) => a + b, 0));
       const notTomato = final.steps.some((x) => x.textJa === "ソースはトマトじゃないみたい");
       s = act(s, { type: "CLOSE_HINT" });
 
@@ -136,7 +155,7 @@ describe("Final Gate: the 25-recipe ladder from a new save to a complete Dex, hi
         expect(s.lastDiscovery, `Dex ${dexCount}: discovery within ${pool.length} tries`).toMatchObject({ kind: "NEW_DISCOVERY", recipeId: targetId });
       }
       expect(discoveredRecipeIds(s.dex).length).toBe(dexCount + 1);
-      records.push({ dex: dexCount, target: targetId, shop, steps: final.steps.length, named: named.length, total, firstResult: first, trials });
+      records.push({ dex: dexCount, hintSpend, target: targetId, shop, steps: final.steps.length, named: named.length, total, firstResult: first, trials });
     }
 
     expect(records.map((r) => r.dex)).toEqual(Array.from({ length: 25 }, (_, i) => i));
@@ -145,6 +164,9 @@ describe("Final Gate: the 25-recipe ladder from a new save to a complete Dex, hi
     expect(hintSheetView(s)).toEqual({ kind: "COMPLETE" });
     // Every stage after the first went through the Shop (one new material per ladder step).
     expect(records.slice(1).every((r) => r.shop.length >= 1)).toBe(true);
-    console.info(records.map((r) => `${r.dex}\t${r.target}\tshop=${r.shop.join("+")}\tsteps=${r.steps}\tnamed=${r.named}/${r.total}\t${r.firstResult}\ttrials=${r.trials}`).join("\n"));
+    // Purchases stay after the discovery: 24 paid recipes (Margherita was free), each at H3 or H4.
+    expect(Object.keys(s.discoveryHintPurchases).sort()).toEqual(records.slice(1).map((r) => r.target).sort());
+    expect(records.slice(1).every((r) => r.hintSpend === 35 || r.hintSpend === 75)).toBe(true);
+    console.info(records.map((r) => `${r.dex}\t${r.target}\thint=${r.hintSpend}\tshop=${r.shop.join("+")}\tsteps=${r.steps}\tnamed=${r.named}/${r.total}\t${r.firstResult}\ttrials=${r.trials}`).join("\n"));
   });
 });

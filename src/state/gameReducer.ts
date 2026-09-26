@@ -57,7 +57,7 @@ import { isEdgeToEdgeCutLine, resolveRequestedSliceCount, type CutLine } from ".
 import { requiredCutCount } from "../logic/cut/evaluation";
 import { isDuplicateCutLine } from "../logic/cut/geometry";
 import { isValidDoughShape, type DoughShape } from "../logic/doughShape";
-import { resolveHintSession, revealNextHint, type HintSession } from "./discoveryHint";
+import { resolveHintSession, unlockNextHint, type HintSession } from "./discoveryHint";
 import type { DiscoveryHintPurchases } from "../logic/discovery/hintPurchase";
 import {
   createEmptyPizza,
@@ -154,8 +154,9 @@ export interface GameState {
    *  Mutated by PURCHASE_INGREDIENT (Phase 3C-5); every other action carries it through
    *  unchanged from the previous round. */
   ownedIngredientIds: readonly string[];
-  /** Canonical Pitz balance (Phase 3C-5, SSOT section 3). Mutated by PURCHASE_INGREDIENT
-   *  (spend) and CLAIM_MISSION_REWARD (earn) only -- never by anything else, including the
+  /** Canonical Pitz balance (Phase 3C-5, SSOT section 3). Mutated by PURCHASE_INGREDIENT /
+   *  RESTOCK_INGREDIENT / PURCHASE_DISCOVERY_HINT (spend), CLAIM_MISSION_REWARD and
+   *  REGISTER_TO_DEX's reward (earn) only -- never by anything else, including the
    *  round machinery itself (making/serving a pizza never touches this directly). */
   pitzBalance: number;
   /** Save v2 / Inventory E1: canonical consumable stock, keyed by ingredient id
@@ -379,7 +380,12 @@ export type GameAction =
   // 229-D: `pinnedRecipeId` -- the Dex card whose 「💡 ヒントを見る」 started this round. Never read
   // from the DOM; a stale or unknown id falls back to the automatic target.
   | { type: "SHOW_HINT"; pinnedRecipeId?: string }
-  | { type: "REVEAL_NEXT_HINT" }
+  // Discovery Hint Economy 1.0 (Issue #232, HE-2): unlocks hint `level` for the open sheet's target
+  // -- free at Dex 0 (onboarding), otherwise a one-time Pitz purchase recorded in
+  // `discoveryHintPurchases`. `level` is the level the CTA offered; the reducer re-checks it is
+  // exactly the next one, so a double tap or a stale event never charges twice. Replaces #229's
+  // free REVEAL_NEXT_HINT.
+  | { type: "PURCHASE_DISCOVERY_HINT"; level: number }
   | { type: "CLOSE_HINT" }
   // Phase 3C-4 (Lunch Rush): both below reuse this same round machinery (an ORDER phase with
   // a freshly-picked, available recipe) -- there is no separate Mission round state. See
@@ -1401,10 +1407,15 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         ),
       };
 
-    case "REVEAL_NEXT_HINT": {
+    // HE-2: the only place a hint level is unlocked. `unlockNextHint` (./discoveryHint.ts ->
+    // ../logic/discovery/hintPurchase.ts) re-validates the session target, the next level, the
+    // price, the balance and the Dex-0 exemption; a rejection returns `state` unchanged. A
+    // purchase debits `pitzBalance` and raises the ledger in this one step (never one without the
+    // other), exactly like PURCHASE_INGREDIENT.
+    case "PURCHASE_DISCOVERY_HINT": {
       if (!state.hintSheetOpen || state.phase !== "PREPARE" || !state.freeCook) return state;
-      const hintSession = revealNextHint(state);
-      return hintSession === state.hintSession ? state : { ...state, hintSession };
+      const patch = unlockNextHint(state, action.level);
+      return patch ? { ...state, ...patch } : state;
     }
 
     case "CLOSE_HINT":

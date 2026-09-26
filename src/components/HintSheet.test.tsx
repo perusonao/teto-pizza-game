@@ -11,21 +11,28 @@ const recipe = (id: string) => RECIPES.find((r) => r.id === id)!;
 const targetView = (id: string, discoveredCount: number, shown: number): HintSheetView => {
   const all = buildHintSteps(recipe(id), { discoveredCount });
   const n = Math.min(shown, all.length);
-  return { kind: "TARGET", steps: all.slice(0, n), canRevealMore: n < all.length };
+  const nextStep = all[n];
+  return {
+    kind: "TARGET",
+    steps: all.slice(0, n),
+    canRevealMore: n < all.length,
+    next: nextStep ? { level: nextStep.level, price: [0, 5, 10, 20, 40][nextStep.level], free: discoveredCount === 0, affordable: true } : null,
+    pitzBalance: 100,
+  };
 };
 
 function renderSheet(view: HintSheetView) {
-  const onRevealNext = vi.fn();
+  const onUnlock = vi.fn();
   const onClose = vi.fn();
-  const utils = render(<HintSheet view={view} onRevealNext={onRevealNext} onClose={onClose} />);
-  return { ...utils, onRevealNext, onClose };
+  const utils = render(<HintSheet view={view} onUnlock={onUnlock} onClose={onClose} />);
+  return { ...utils, onUnlock, onClose };
 }
 
 afterEach(() => cleanup());
 
 describe("HintSheet -- target view", () => {
   it("is a labelled dialog showing the revealed steps, newest last, with the next-hint CTA", () => {
-    const { onRevealNext } = renderSheet(targetView("breakfast-pizza", 2, 2));
+    const { onUnlock } = renderSheet(targetView("breakfast-pizza", 2, 2));
     const dialog = screen.getByRole("dialog", { name: /ヒント/ });
     expect(dialog).toHaveAttribute("aria-modal", "true");
     const items = dialog.querySelectorAll(".hint-sheet__step");
@@ -33,7 +40,8 @@ describe("HintSheet -- target view", () => {
     expect(items[1]).toHaveClass("hint-sheet__step--latest");
     expect(items[1]).toHaveTextContent("ベーコン を使うピザが作れそう！");
     fireEvent.click(screen.getByRole("button", { name: "次のヒントを見る" }));
-    expect(onRevealNext).toHaveBeenCalledTimes(1);
+    expect(onUnlock).toHaveBeenCalledTimes(1);
+    expect(onUnlock).toHaveBeenCalledWith(2);
   });
 
   it("a step naming an ingredient shows its glyph (decorative); H0 / count lines have none", () => {

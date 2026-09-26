@@ -946,7 +946,7 @@ function App() {
           onConfirmMakingStep={handleConfirmMakingStep}
           onStartBake={() => dispatch({ type: "START_BAKE", now: Date.now() })}
           onShowHint={() => dispatch({ type: "SHOW_HINT" })}
-          onRevealNextHint={() => dispatch({ type: "REVEAL_NEXT_HINT" })}
+          onUnlockHint={(level) => dispatch({ type: "PURCHASE_DISCOVERY_HINT", level })}
           onCloseHint={() => dispatch({ type: "CLOSE_HINT" })}
           onRetryWithHint={handleRetryWithHint}
           onChangeCategory={handleChangeCategory}
