@@ -146,3 +146,27 @@ describe("Dex 0 onboarding through the reducer", () => {
     expect(view).toMatchObject({ kind: "TARGET", canRevealMore: false });
   });
 });
+
+describe("229-D: SHOW_HINT with a Dex pin (App: START_FREE_COOK then SHOW_HINT)", () => {
+  it("pins a DISCOVERABLE recipe inside a Free Cooking round; the round itself stays Free Cooking (LK-8)", () => {
+    const s = apply(freeCookDex2(), "CLOSE_HINT");
+    const pinned = gameReducer(s, { type: "SHOW_HINT", pinnedRecipeId: "breakfast-pizza" });
+    expect(pinned.hintSession).toEqual({ targetId: "breakfast-pizza", revealedIndex: 0, fromDex: true });
+    expect(pinned.freeCook).toBe(true);
+    expect(pinned.recipe.id).toBe(s.recipe.id); // still the free-cook sentinel, never the pinned recipe
+    expect(pinned.order).toBe(s.order);
+  });
+
+  it("an undiscoverable pin (KBMM / UNKNOWN / stale) never becomes the target", () => {
+    for (const bad of ["funghi", "hawaiian", "bismarck", "x"]) {
+      expect(gameReducer(freeCookDex2(), { type: "SHOW_HINT", pinnedRecipeId: bad }).hintSession?.targetId).toBe("breakfast-pizza");
+    }
+  });
+
+  it("outside a Free Cooking PREPARE the pin is ignored like any SHOW_HINT", () => {
+    const guided = gameReducer(createInitialGameState(discover(["margherita"]), STARTER_INGREDIENT_IDS), { type: "BEGIN_PREPARE" });
+    const after = gameReducer(guided, { type: "SHOW_HINT", pinnedRecipeId: "bismarck" });
+    expect(after.hintSheetOpen).toBe(false);
+    expect(after.hintSession).toBeNull();
+  });
+});

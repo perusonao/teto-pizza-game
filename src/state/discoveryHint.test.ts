@@ -3,6 +3,7 @@ import { W1_25_DISCOVERY_LADDER } from "../data/discoveryLadder";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { RECIPES } from "../data/recipes";
 import { buildHintSteps } from "../logic/discovery/hintSteps";
+import { discoverableHintCandidates } from "../logic/discovery/hintTarget";
 import { EMPTY_DEX, registerScoreToDex, type DexState } from "./dex";
 import {
   autoHintIndex,
@@ -146,5 +147,57 @@ describe("isHintSheetVisible", () => {
     expect(isHintSheetVisible({ hintSheetOpen: true, phase: "BAKE", freeCook: true })).toBe(false);
     expect(isHintSheetVisible({ hintSheetOpen: true, phase: "PREPARE", freeCook: false })).toBe(false);
     expect(isHintSheetVisible({ hintSheetOpen: false, phase: "PREPARE", freeCook: true })).toBe(false);
+  });
+});
+
+/** Legacy save (15-ladder entitlement union): the first 15 RECIPES discovered, their materials
+ *  owned -> several recipes are DISCOVERABLE at once, so a Dex pin can differ from the auto pick. */
+function legacy(): DiscoveryHintState {
+  const old15 = RECIPES.slice(0, 15);
+  const mats = [...new Set(old15.flatMap((r) => r.requiredIngredients.map((q) => q.ingredientId)))];
+  const owned = [...new Set([...STARTER_INGREDIENT_IDS, ...mats])];
+  const dex = discover(old15.map((r) => r.id));
+  return {
+    dex,
+    ownedIngredientIds: owned,
+    unlockedForShopIngredientIds: resolveShopEntitlement(dex, owned, []).unlockedForShopIngredientIds,
+    inventory: Object.fromEntries(mats.map((m) => [m, 30])),
+    preDiscoveryFreeCookAttempts: 0,
+    hintSession: null,
+  };
+}
+
+describe("229-D: Dex-pinned target", () => {
+  const base = legacy();
+  const auto = resolveHintSession(base)!.targetId;
+  // The second DISCOVERABLE recipe in hint order: pinnable, and not what the auto pick would be.
+  const pinned = discoverableHintCandidates(base)[1];
+
+  it("a DISCOVERABLE pin becomes the target (at H0) and stays on re-open at H0", () => {
+    expect(pinned).toBeTruthy();
+    const s = resolveHintSession(base, pinned.id);
+    expect(s).toEqual({ targetId: pinned.id, revealedIndex: 0, fromDex: true });
+    expect(resolveHintSession({ ...base, hintSession: s })).toBe(s);
+  });
+
+  it("stale (DISCOVERED) / non-DISCOVERABLE / unknown pins fall back to the automatic target", () => {
+    for (const bad of ["margherita", "quattro-formaggi", "no-such-recipe", ""]) {
+      const s = resolveHintSession(base, bad);
+      expect(s?.targetId, bad).toBe(auto);
+      expect(s?.fromDex, bad).toBeUndefined();
+    }
+  });
+
+  it("the same recipe keeps its progress from Free Cooking; a different recipe starts at H0", () => {
+    const progressed = { ...base, hintSession: { targetId: pinned.id, revealedIndex: 3 } };
+    expect(resolveHintSession(progressed, pinned.id)).toEqual({ targetId: pinned.id, revealedIndex: 3, fromDex: true });
+    const other = { ...base, hintSession: { targetId: auto, revealedIndex: 3 } };
+    expect(resolveHintSession(other, pinned.id)).toEqual({ targetId: pinned.id, revealedIndex: 0, fromDex: true });
+  });
+
+  it("a pinned target that is found later lets go on the next open", () => {
+    const s = resolveHintSession(base, pinned.id)!;
+    const found = { ...base, dex: discover([...RECIPES.slice(0, 15).map((r) => r.id), pinned.id]), hintSession: s };
+    expect(resolveHintSession(found)?.targetId).not.toBe(pinned.id);
   });
 });

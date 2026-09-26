@@ -26,6 +26,11 @@ interface DexOverlayProps {
   /** A 🎨-tagged slot's CTA (Free Cooking) and a 🏪-tagged slot's CTA (Shop). */
   onGoFreeCook?: () => void;
   onOpenShop?: () => void;
+  /** Discovery Hint 2.0 (#229 229-D): a 🎨 (DISCOVERABLE) slot's 「💡 ヒントを見る」 -- Free Cooking
+   *  with the hint sheet on that slot's recipe. When given it replaces the 「フリークッキングで探す」
+   *  CTA (it starts Free Cooking too). The id travels only through this callback: the slot's DOM
+   *  never carries it. */
+  onShowHint?: (recipeId: string) => void;
 }
 
 /** W1-f: an undiscovered slot says only which kind of "next" it is (L1) -- never the recipe's
@@ -35,11 +40,14 @@ function UndiscoveredSlot({
   state,
   onGoFreeCook,
   onOpenShop,
+  onShowHint,
 }: {
   slot: number;
   state: Exclude<RecipeDiscoveryState, "DISCOVERED">;
   onGoFreeCook?: () => void;
   onOpenShop?: () => void;
+  /** 229-D: already bound to this slot's recipe by the parent (a closure, not a prop value). */
+  onShowHint?: () => void;
 }) {
   const tag =
     state === "DISCOVERABLE"
@@ -56,10 +64,17 @@ function UndiscoveredSlot({
           <span className="dex-card__no">No.{String(slot).padStart(2, "0")}</span> ？？？
         </p>
         <p className="dex-card__lock-hint">{tag ?? "まだ見ぬピザ"}</p>
-        {tag && cta && (
-          <button type="button" className="dex-card__tag-cta" onClick={cta}>
-            {state === "DISCOVERABLE" ? "フリークッキングで探す" : "ショップを見る"}
+        {state === "DISCOVERABLE" && onShowHint ? (
+          <button type="button" className="dex-card__tag-cta dex-card__tag-cta--hint" onClick={onShowHint}>
+            {"\u{1F4A1}"} ヒントを見る
           </button>
+        ) : (
+          tag &&
+          cta && (
+            <button type="button" className="dex-card__tag-cta" onClick={cta}>
+              {state === "DISCOVERABLE" ? "フリークッキングで探す" : "ショップを見る"}
+            </button>
+          )
         )}
       </div>
     </div>
@@ -76,6 +91,7 @@ export function DexOverlay({
   inventory = {},
   onGoFreeCook,
   onOpenShop,
+  onShowHint,
 }: DexOverlayProps) {
   const total = RECIPES.length;
   const discoveredCount = dex.filter((e) => e.discovered).length;
@@ -102,6 +118,7 @@ export function DexOverlay({
           state={state === "DISCOVERED" ? "UNKNOWN" : state}
           onGoFreeCook={onGoFreeCook}
           onOpenShop={onOpenShop}
+          onShowHint={state === "DISCOVERABLE" && onShowHint ? () => onShowHint(recipe.id) : undefined}
         />
       );
     }

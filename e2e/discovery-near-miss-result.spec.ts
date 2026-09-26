@@ -60,7 +60,10 @@ async function cookFree(page: Page, pieces: { cheese: [RegExp, number][]; toppin
   let s = 0;
   for (const [name, n] of pieces.cheese) await place(page, name, spots.slice(s, (s += n)));
   await bar(page).getByRole("button", { name: /次へ/ }).click();
-  for (const [name, n] of pieces.toppings) await place(page, name, spots.slice(s % 6, (s % 6) + n)), (s += n);
+  for (const [name, n] of pieces.toppings) {
+    await place(page, name, spots.slice(s % 6, (s % 6) + n));
+    s += n;
+  }
   await bakeToTarget(page, FREE_BAKE);
   await page.waitForSelector(".result-panel");
 }

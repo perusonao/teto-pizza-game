@@ -370,7 +370,9 @@ export type GameAction =
   | { type: "START_FREE_COOK"; now?: number }
   // Free Cooking PREPARE: opens the Discovery Hint 2.0 sheet (229-B). Any other round: the
   // explicit one-line operational hint, as before.
-  | { type: "SHOW_HINT" }
+  // 229-D: `pinnedRecipeId` -- the Dex card whose 「💡 ヒントを見る」 started this round. Never read
+  // from the DOM; a stale or unknown id falls back to the automatic target.
+  | { type: "SHOW_HINT"; pinnedRecipeId?: string }
   | { type: "REVEAL_NEXT_HINT" }
   | { type: "CLOSE_HINT" }
   // Phase 3C-4 (Lunch Rush): both below reuse this same round machinery (an ORDER phase with
@@ -1371,7 +1373,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // explicit operational line below.
       if (state.freeCook) {
         if (state.phase !== "PREPARE") return state;
-        return { ...state, hintSession: resolveHintSession(state), hintSheetOpen: true };
+        return { ...state, hintSession: resolveHintSession(state, action.pinnedRecipeId), hintSheetOpen: true };
       }
       return {
         ...state,

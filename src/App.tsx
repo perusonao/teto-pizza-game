@@ -753,6 +753,16 @@ function App() {
     dispatch({ type: "SHOW_HINT" });
   }
 
+  // Discovery Hint 2.0 (#229 229-D): a Dex 🎨 card's 「💡 ヒントを見る」 -- always a Free Cooking
+  // round (never a guided round for an undiscovered recipe, LK-8), with the hint sheet pinned to
+  // that card's recipe. The reducer re-checks the pin: a recipe no longer DISCOVERABLE falls back
+  // to the automatic target.
+  function handleDexShowHint(recipeId: string) {
+    setDexOpen(false);
+    handleStartFreeCook();
+    dispatch({ type: "SHOW_HINT", pinnedRecipeId: recipeId });
+  }
+
   // Progression 2.0 Phase 3-2 (Issue #194): HOME's フリークッキング -- a fresh FREE round with
   // no recipe selected (START_FREE_COOK). Like SELECT_RECIPE it lands straight at PREPARE; the
   // previous round (whatever phase it was left in) is replaced wholesale by the reducer.
@@ -971,6 +981,7 @@ function App() {
                 }
               : undefined
           }
+          onShowHint={mission.mode === "FREE" ? handleDexShowHint : undefined}
           onOpenShop={() => setShopOpen(true)}
         />
       )}

@@ -22,6 +22,8 @@ export interface HintSession {
   targetId: string;
   /** Index into `buildHintSteps(target)`: 0 = H0 only, 1 = up to H1, ... */
   revealedIndex: number;
+  /** 229-D: the target was picked from a Dex card, so it stays even at H0 (while DISCOVERABLE). */
+  fromDex?: boolean;
 }
 
 export interface DiscoveryHintState {
@@ -59,15 +61,24 @@ function stepsFor(targetId: string, dex: DexState): HintStep[] {
 }
 
 /** The session the sheet should open with: the current one while its target still holds,
- *  otherwise a fresh H0 session for today's target, or `null` when there is no target. */
-export function resolveHintSession(state: DiscoveryHintState): HintSession | null {
+ *  otherwise a fresh H0 session for today's target, or `null` when there is no target.
+ *
+ *  229-D: `pinnedRecipeId` is the Dex card the player tapped. It becomes the target only while it
+ *  is DISCOVERABLE (`selectHintTarget`'s own rule); a stale or unknown pin falls back to the
+ *  automatic target. Picking the recipe that already has a session keeps its progress; any other
+ *  recipe starts at H0 (one session at a time, no per-recipe history). */
+export function resolveHintSession(state: DiscoveryHintState, pinnedRecipeId?: string | null): HintSession | null {
   const current = state.hintSession;
   const target = selectHintTarget(state, {
-    stickyRecipeId: current && current.revealedIndex >= 1 ? current.targetId : null,
+    pinnedRecipeId,
+    stickyRecipeId: current && (current.revealedIndex >= 1 || current.fromDex) ? current.targetId : null,
   });
   if (target.kind !== "TARGET") return null;
-  if (current && current.targetId === target.recipeId) return current;
-  return { targetId: target.recipeId, revealedIndex: 0 };
+  const fromDex = target.source === "dex" || (current?.targetId === target.recipeId && !!current.fromDex);
+  if (current && current.targetId === target.recipeId) {
+    return fromDex === !!current.fromDex ? current : { ...current, fromDex: true };
+  }
+  return fromDex ? { targetId: target.recipeId, revealedIndex: 0, fromDex: true } : { targetId: target.recipeId, revealedIndex: 0 };
 }
 
 function shownIndex(state: DiscoveryHintState, session: HintSession, stepCount: number): number {
