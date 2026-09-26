@@ -1,0 +1,201 @@
+// Throwaway audit scripts (NOT a test file, NOT wired into the suite).
+// Run by copying into src/__sim__/ of a W1 checkout (fc8a4be) and 'npx vitest run src/__sim__'.
+
+// ===== hintSim.test.ts =====
+import { it } from "vitest";
+import { writeFileSync } from "node:fs";
+import { RECIPES, type Recipe } from "../data/recipes";
+import { INGREDIENTS, getIngredient } from "../data/ingredients";
+import { DISCOVERY_LADDER } from "../data/discoveryLadder";
+import { recipeDiscoveryState } from "../state/recipeDiscoveryState";
+import { recipeChapter, recipeKeyStep } from "../state/recipeChapters";
+import { obtainableIngredientIds } from "../state/materialEntitlement";
+import { RECIPE_DISCOVERY_CATALOG } from "../data/discoveryCatalog";
+import { matchDiscovery } from "../logic/discovery/matcher";
+import { signatureOfPizza } from "../logic/discovery/signature";
+import type { DexState } from "../state/dex";
+
+const out: string[] = [];
+const log = (s = "") => out.push(s);
+const cat = (id: string) => getIngredient(id)?.category ?? "?";
+const isStarter = (id: string) => !getIngredient(id)?.unlockCondition;
+const setOf = (r: Recipe) => [...new Set(r.requiredIngredients.map((q) => q.ingredientId))].sort();
+const sauceOf = (r: Recipe) => setOf(r).filter((i) => cat(i) === "sauce");
+const STARTERS = INGREDIENTS.filter((i) => !i.unlockCondition).map((i) => i.id);
+const stepOf = (id: string) => DISCOVERY_LADDER.steps.find((s) => s.ingredientIds.includes(id))?.step ?? 0;
+/** key material = required finite material with highest ladder step (starter-only -> none) */
+const keyMat = (r: Recipe) => setOf(r).filter((i) => !isStarter(i)).sort((a, b) => stepOf(b) - stepOf(a))[0] ?? null;
+
+function dexOf(ids: string[]): DexState {
+  return ids.map((recipeId) => ({ recipeId, discovered: true, bestScore: 80, bestStars: 2, timesMade: 1 })) as unknown as DexState;
+}
+function entitledAt(d: number): string[] {
+  return DISCOVERY_LADDER.steps.filter((s) => s.step <= d).flatMap((s) => s.ingredientIds);
+}
+function stateInputs(discovered: string[], buy: boolean) {
+  const ent = entitledAt(discovered.length);
+  const owned = [...STARTERS, ...(buy ? ent : [])];
+  const inv: Record<string, number> = {};
+  for (const id of ent) inv[id] = buy ? 5 : 0;
+  return { dex: dexOf(discovered), ownedIngredientIds: owned, unlockedForShopIngredientIds: ent, inventory: inv };
+}
+/** Proposed Hint 2.0 target selection: DISCOVERABLE first, lowest key step, fewest ingredients, RECIPES order. */
+function pickTarget(discovered: string[], buy: boolean): Recipe | null {
+  const inputs = stateInputs(discovered, buy);
+  const c = RECIPES.filter((r) => recipeDiscoveryState(r, inputs) === "DISCOVERABLE");
+  c.sort((a, b) => recipeKeyStep(a) - recipeKeyStep(b) || setOf(a).length - setOf(b).length || RECIPES.indexOf(a) - RECIPES.indexOf(b));
+  return c[0] ?? null;
+}
+function C(n: number, k: number): number { if (k < 0 || k > n) return 0; let r = 1; for (let i = 0; i < k; i++) r = (r * (n - i)) / (i + 1); return Math.round(r); }
+/** Count distinct ingredient sets buildable from `owned` (0/1 sauce + any non-sauce subset, non-empty) consistent with constraints. */
+function countSets(owned: string[], c: { sauce?: string[] | null; include: string[]; size?: number; cheeses?: string[] }): number {
+  const sauces = owned.filter((i) => cat(i) === "sauce");
+  const cheeses = owned.filter((i) => cat(i) === "cheese");
+  const tops = owned.filter((i) => cat(i) === "topping");
+  const sauceChoices: string[][] = c.sauce !== undefined && c.sauce !== null ? [c.sauce] : [[], ...sauces.map((x) => [x])];
+  let total = 0;
+  for (const sc of sauceChoices) {
+    if (c.include.some((i) => cat(i) === "sauce" && !sc.includes(i))) continue;
+    const incC = c.include.filter((i) => cat(i) === "cheese"), incT = c.include.filter((i) => cat(i) === "topping");
+    const freeT = tops.length - incT.length;
+    if (c.cheeses) {
+      const cs = c.cheeses.length;
+      if (c.size === undefined) total += 2 ** freeT; else total += C(freeT, c.size - sc.length - cs - incT.length);
+    } else {
+      const freeCT = cheeses.length - incC.length + freeT;
+      if (c.size === undefined) total += 2 ** freeCT; else total += C(freeCT, c.size - sc.length - incC.length - incT.length);
+    }
+  }
+  if (c.size === undefined && c.include.length === 0 && c.sauce === undefined) total -= 1; // empty pizza
+  return total;
+}
+
+it("25-recipe hint simulation", () => {
+  log("# RECIPES");
+  for (const r of RECIPES) {
+    log(`${r.id}\t${r.nameJa}\tch${recipeChapter(r)}\tkeyStep=${recipeKeyStep(r)}\tkey=${keyMat(r)}\tsauce=${sauceOf(r).join("+") || "(none)"}\tn=${setOf(r).length}\t[${setOf(r).map((i) => `${i}:${cat(i)[0]}`).join(", ")}]`);
+  }
+  log(`\n# INGREDIENT catalog rows=${INGREDIENTS.length} obtainable(ladder+starters)=${obtainableIngredientIds().length}`);
+  log(INGREDIENTS.map((i) => `${i.id}(${i.category[0]}${i.unlockCondition ? "" : ",starter"},step${stepOf(i.id)})`).join(" "));
+
+  // identity collisions / subset relations
+  log("\n# SET RELATIONS (distance 1 neighbours, by set symmetric diff)");
+  for (const a of RECIPES) {
+    const A = setOf(a);
+    const nb: string[] = [];
+    for (const b of RECIPES) {
+      if (a === b) continue;
+      const B = setOf(b);
+      const miss = B.filter((x) => !A.includes(x)), extra = A.filter((x) => !B.includes(x));
+      if (miss.length + extra.length === 1) nb.push(`${b.id}(${miss.length ? "+" + miss[0] : "-" + extra[0]})`);
+      if (miss.length === 1 && extra.length === 1 && cat(miss[0]) === "sauce" && cat(extra[0]) === "sauce") nb.push(`${b.id}(sauce ${extra[0]}->${miss[0]})`);
+      if (miss.length === 1 && extra.length === 1 && cat(miss[0]) !== "sauce") nb.push(`${b.id}(swap ${extra[0]}->${miss[0]})`);
+    }
+    log(`${a.id}: ${nb.join(", ") || "-"}`);
+  }
+  // duplicate signatures
+  const sigs = new Map<string, string[]>();
+  for (const r of RECIPES) { const k = setOf(r).join(","); sigs.set(k, [...(sigs.get(k) ?? []), r.id]); }
+  log("\n# duplicate exact sets: " + ([...sigs.values()].filter((v) => v.length > 1).map((v) => v.join("=")).join("; ") || "none"));
+  // matcher sanity: every recipe's own set matches uniquely
+  const bad = RECIPES.filter((r) => {
+    const m = matchDiscovery(signatureOfPizza({ sauceIds: sauceOf(r), toppings: setOf(r).filter((i) => cat(i) !== "sauce").map((ingredientId, k) => ({ ingredientId, x: k, y: k, id: String(k) })) } as never), RECIPE_DISCOVERY_CATALOG);
+    return m.kind !== "UNIQUE_MATCH" || m.target.recipeId !== r.id;
+  });
+  log("# recipes whose own exact set does not UNIQUE_MATCH: " + (bad.map((r) => r.id).join(",") || "none"));
+
+  // progression walk with several policies
+  const policies: Record<string, (c: Recipe[]) => Recipe> = {
+    hintTarget: (c) => [...c].sort((a, b) => recipeKeyStep(a) - recipeKeyStep(b) || setOf(a).length - setOf(b).length || RECIPES.indexOf(a) - RECIPES.indexOf(b))[0],
+    lastDeclared: (c) => c[c.length - 1],
+    mostIngredients: (c) => [...c].sort((a, b) => setOf(b).length - setOf(a).length)[0],
+  };
+  for (const [name, pol] of Object.entries(policies)) {
+    log(`\n# PROGRESSION WALK policy=${name} (player buys every entitled material)`);
+    log("dex\towned\tsearchSpace\tDISCOVERABLE\tKNOWN_MISSING(no-buy)\tUNKNOWN\thintTarget\tpicked");
+    const disc: string[] = [];
+    while (disc.length < RECIPES.length) {
+      const inBuy = stateInputs(disc, true), inNo = stateInputs(disc, false);
+      const dAble = RECIPES.filter((r) => recipeDiscoveryState(r, inBuy) === "DISCOVERABLE");
+      const known = RECIPES.filter((r) => recipeDiscoveryState(r, inNo) === "KNOWN_BUT_MISSING_MATERIAL");
+      const unk = RECIPES.filter((r) => recipeDiscoveryState(r, inBuy) === "UNKNOWN");
+      const owned = inBuy.ownedIngredientIds;
+      const nonSauce = owned.filter((i) => cat(i) !== "sauce").length;
+      const space = (owned.filter((i) => cat(i) === "sauce").length + 1) * 2 ** nonSauce - 1;
+      if (!dAble.length) { log(`${disc.length}\tDEAD END`); break; }
+      const t = pickTarget(disc, true)!;
+      const p = pol(dAble);
+      log(`${disc.length}\t${owned.length}\t${space}\t${dAble.length} [${dAble.map((r) => r.id).join(",")}]\t${known.length}\t${unk.length}\t${t.id}\t${p.id}`);
+      disc.push(p.id);
+    }
+  }
+
+  // progressive hint information content for the hintTarget policy
+  log("\n# PROGRESSIVE HINT NARROWING (policy=hintTarget, buy all). counts = consistent candidate pizzas in owned space");
+  log("dex\ttarget\tL0(all)\tL1 key\tL2 +sauce\tL3 +count\tL4 +cheese\tL5 +all-but-1\tunique@");
+  const disc: string[] = [];
+  while (disc.length < RECIPES.length) {
+    const t = pickTarget(disc, true)!;
+    const owned = stateInputs(disc, true).ownedIngredientIds;
+    const T = setOf(t);
+    const key = keyMat(t) ?? "basil";
+    const cheeses = T.filter((i) => cat(i) === "cheese");
+    const sc = sauceOf(t);
+    const known = [...new Set([key, ...sc, ...cheeses])];
+    const others = T.filter((i) => !known.includes(i));
+    const revealedL5 = T.length - 1;
+    const c0 = countSets(owned, { include: [] });
+    const c1 = countSets(owned, { include: [key] });
+    const c2 = countSets(owned, { include: [key], sauce: sc });
+    const c3 = countSets(owned, { include: [key], sauce: sc, size: T.length });
+    const c4 = countSets(owned, { include: [...new Set([key, ...cheeses])], sauce: sc, size: T.length, cheeses });
+    const c5 = countSets(owned, { include: [...new Set([key, ...cheeses, ...others.slice(0, Math.max(0, others.length - 1))])], sauce: sc, size: T.length, cheeses });
+    const counts = [c0, c1, c2, c3, c4, c5];
+    const uniq = counts.findIndex((n) => n === 1);
+    log(`${disc.length}\t${t.id}\t${counts.join("\t")}\t${uniq < 0 ? "never" : "L" + uniq}\t(revealed@L5=${revealedL5}/${T.length})`);
+    disc.push(t.id);
+  }
+  writeFileSync(process.env.SIM_OUT ?? "/tmp/sim.txt", out.join("\n"));
+});
+
+// ===== nearMiss.test.ts =====
+import { it } from "vitest";
+import { writeFileSync } from "node:fs";
+import { RECIPES, type Recipe } from "../data/recipes";
+import { getIngredient } from "../data/ingredients";
+import { DISCOVERY_LADDER } from "../data/discoveryLadder";
+const cat = (id: string) => getIngredient(id)?.category ?? "?";
+const setOf = (r: Recipe) => [...new Set(r.requiredIngredients.map((q) => q.ingredientId))].sort();
+function diff(P: string[], T: string[]) {
+  const miss = T.filter((x) => !P.includes(x)), extra = P.filter((x) => !T.includes(x));
+  const ps = P.filter((i) => cat(i) === "sauce"), ts = T.filter((i) => cat(i) === "sauce");
+  const sauceWrong = ps.join() !== ts.join();
+  const mT = miss.filter((i) => cat(i) !== "sauce"), eT = extra.filter((i) => cat(i) !== "sauce");
+  let kind = "";
+  if (!miss.length && !extra.length) kind = "EXACT";
+  else if (sauceWrong && !mT.length && !eT.length) kind = "SAUCE_ONLY";
+  else if (!sauceWrong && mT.length === 1 && !eT.length) kind = "ADD_ONE";
+  else if (!sauceWrong && !mT.length && eT.length === 1) kind = "REMOVE_ONE";
+  else if (!sauceWrong && mT.length === 1 && eT.length === 1) kind = "SWAP_ONE";
+  else kind = `FAR(d=${mT.length + eT.length}${sauceWrong ? "+sauce" : ""})`;
+  return { kind, miss, extra, d: miss.length + extra.length };
+}
+it("near-miss", () => {
+  const out: string[] = ["step\ttarget\tguessA=closestDiscovered+newMat\tguessB=tomato+mozz+newMat\tcollidesWithDiscovered"];
+  const disc: string[] = ["margherita"];
+  for (const s of DISCOVERY_LADDER.steps) {
+    const T = RECIPES.find((r) => r.id === s.keyRecipeId)!;
+    const Ts = setOf(T);
+    const D = disc.map((id) => RECIPES.find((r) => r.id === id)!);
+    // closest discovered by symmetric diff
+    const closest = [...D].sort((a, b) => diff(setOf(a), Ts).d - diff(setOf(b), Ts).d)[0];
+    const A = [...new Set([...setOf(closest), ...s.ingredientIds])].sort();
+    const B = [...new Set(["tomato-sauce", "mozzarella", ...s.ingredientIds])].sort();
+    const da = diff(A, Ts), db = diff(B, Ts);
+    const coll = [A, B].map((g) => D.find((r) => setOf(r).join() === g.join())?.id ?? "-").join("/");
+    out.push(`${s.step}\t${T.id}\t${closest.id}+${s.ingredientIds.join("+")}: ${da.kind} miss[${da.miss}] extra[${da.extra}]\t${db.kind} miss[${db.miss}] extra[${db.extra}]\t${coll}`);
+    disc.push(T.id);
+  }
+  // exact-set of a DISCOVERED recipe that is also distance-1 from the next target
+  writeFileSync("../nearmiss.txt", out.join("\n"));
+});
