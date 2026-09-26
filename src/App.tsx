@@ -369,8 +369,19 @@ function App() {
     isWindowBlurred,
   );
   const wasCookingTimingPausedRef = useRef(false);
+  // Discovery Hint 2.0 (#229, PR #231 review): a round can also *start* under an already-active
+  // signal -- the Dex 「💡 ヒントを見る」 closes the Dex and opens the hint sheet in the same render
+  // that starts a new Free Cooking timer, so the signal never transitions. A timer running while
+  // the signal is on is therefore paused too (PAUSE_COOKING_TIMING is a no-op when already paused).
+  const isCookingTimingRunning =
+    !!state.cookingTiming && state.cookingTiming.pausedAt === null && state.cookingTiming.completedMs === null;
   useEffect(() => {
-    if (isCookingTimingPauseSignal === wasCookingTimingPausedRef.current) return;
+    if (isCookingTimingPauseSignal === wasCookingTimingPausedRef.current) {
+      if (isCookingTimingPauseSignal && isCookingTimingRunning) {
+        dispatch({ type: "PAUSE_COOKING_TIMING", now: Date.now() });
+      }
+      return;
+    }
     wasCookingTimingPausedRef.current = isCookingTimingPauseSignal;
     const now = Date.now();
     if (isCookingTimingPauseSignal) {
@@ -378,7 +389,7 @@ function App() {
     } else {
       dispatch({ type: "RESUME_COOKING_TIMING", now });
     }
-  }, [isCookingTimingPauseSignal]);
+  }, [isCookingTimingPauseSignal, isCookingTimingRunning]);
 
   // --- Lunch Rush mission (Phase 3C-4) --------------------------------------------------
   // A separate reducer, not a field on GameState: Mission run state (which screen, the

@@ -347,3 +347,63 @@ describe("Cooking Time CT2: overlapping pause reasons never resume prematurely",
     expect(readDisplayedCookingTime()).toBe("0:05");
   });
 });
+
+// Discovery Hint 2.0 (#229, OD-HINT-8 no penalty): reading hints never costs Cooking Time. The
+// Dex CTA case closes the Dex (a pause reason) and opens the sheet (another) in the same render,
+// while a brand-new round's timer starts -- that timer must start paused, not run under a pause
+// signal that never transitioned (PR #231 review).
+describe("Cooking Time: Discovery Hint sheet pause (#229)", () => {
+  function seedWithDiscoverable(): void {
+    seedBismarckUnlocked();
+    const save = JSON.parse(window.localStorage.getItem(SAVE_STORAGE_KEY)!);
+    save.ownedIngredientIds.push("bacon"); // breakfast-pizza becomes DISCOVERABLE
+    window.localStorage.setItem(SAVE_STORAGE_KEY, JSON.stringify(save));
+  }
+
+  async function bakeBismarck(user: ReturnType<typeof userEvent.setup>) {
+    await advanceThroughMakingSteps(user);
+    const needle = controlBakeNeedle();
+    needle.stub();
+    await user.click(screen.getByRole("button", { name: /焼く/ }));
+    needle.driveTo(65);
+    await user.click(screen.getByRole("button", { name: "取り出す！" }));
+    await completeCutStepIfPresent(user);
+    needle.unstub();
+  }
+
+  it("excludes time spent reading a sheet opened from the Dex 「💡 ヒントを見る」", async () => {
+    seedWithDiscoverable();
+    let now = 5_000_000;
+    vi.spyOn(Date, "now").mockImplementation(() => now);
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: /ピザ図鑑/ }));
+    await user.click(screen.getByRole("button", { name: /ヒントを見る/ })); // new round + sheet, same render
+    expect(screen.getByRole("dialog", { name: /ヒント/ })).toBeInTheDocument();
+    now += 30_000; // reading hints -- never billed
+    await user.click(screen.getByRole("button", { name: "閉じる" }));
+    now += 8_000; // active work
+    await bakeBismarck(user);
+
+    expect(readDisplayedCookingTime()).toBe("0:08");
+  });
+
+  it("excludes time spent reading a sheet opened from the in-round 「ヒント」 button", async () => {
+    seedWithDiscoverable();
+    let now = 6_000_000;
+    vi.spyOn(Date, "now").mockImplementation(() => now);
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: /フリークッキング/ }));
+    now += 5_000;
+    await user.click(screen.getByRole("button", { name: "ヒント" }));
+    now += 30_000;
+    await user.click(screen.getByRole("button", { name: "閉じる" }));
+    now += 3_000;
+    await bakeBismarck(user);
+
+    expect(readDisplayedCookingTime()).toBe("0:08");
+  });
+});
