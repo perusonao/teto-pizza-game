@@ -104,6 +104,7 @@ function renderAt(state: GameState, referencePizza: typeof MARGHERITA_REFERENCE 
       onRetrySameRecipe={() => {}}
       onBackToPizzaSelect={() => {}}
       onMissionServeNext={() => {}}
+      onMissionSkipOrder={() => {}}
       onMissionStart={() => {}}
       onMissionExitToFree={() => {}}
       onMissionCloseIntro={() => {}}

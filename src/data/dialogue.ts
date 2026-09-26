@@ -32,6 +32,15 @@ export function buildTetoOrderLine(recipe: Recipe): DialogueLine {
   return { speaker: "teto", id: `order.teto.${recipe.id}`, textJa: template(recipe.nameJa) };
 }
 
+/** Issue #212: Teto's line on a Lunch Rush order that cannot be made with the stock on hand. */
+export function buildTetoShortageLine(recipe: Recipe): DialogueLine {
+  return {
+    speaker: "teto",
+    id: `order.teto.shortage.${recipe.id}`,
+    textJa: `うーん、${recipe.nameJa}の材料が足りないな…。この注文は今回はスキップしよう！`,
+  };
+}
+
 const TETO_BAKE_VARIANTS = [
   (name: string) =>
     `${name}、いい香りがしてきたぞ…色の変化をよく見て、ちょうどいいタイミングで取り出そう！`,

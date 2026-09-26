@@ -145,6 +145,7 @@ function Harness({
         onRetrySameRecipe={() => {}}
         onBackToPizzaSelect={() => {}}
         onMissionServeNext={() => {}}
+        onMissionSkipOrder={() => {}}
         onMissionStart={() => {}}
         onMissionExitToFree={() => {}}
         onMissionCloseIntro={() => {}}

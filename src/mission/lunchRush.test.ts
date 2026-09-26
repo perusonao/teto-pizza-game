@@ -594,3 +594,40 @@ describe("missionRunReducer", () => {
     }
   });
 });
+
+describe("missionRunReducer -- END_EARLY (Issue #212, OD-2: nothing cookable left)", () => {
+  function playing(): MissionState {
+    let s = missionRunReducer(INITIAL_MISSION_STATE, { type: "START", now: 1_000, config: { durationSeconds: 60 } });
+    s = missionRunReducer(s, { type: "SERVE", now: 2_000, qualityTotal: 80, recipeId: "margherita" });
+    return s;
+  }
+
+  it("ends a PLAYING run into RESULT before the deadline, keeping metrics/serves/clock/runId", () => {
+    const before = playing();
+    const after = missionRunReducer(before, { type: "END_EARLY" });
+    expect(after.mode).toBe("RESULT");
+    expect(after.endedEarly).toBe(true);
+    expect(after.metrics).toBe(before.metrics);
+    expect(after.serves).toBe(before.serves);
+    expect(after.clock).toBe(before.clock);
+    expect(after.runId).toBe(before.runId);
+  });
+
+  it("is one-shot and never touches a non-PLAYING run", () => {
+    const ended = missionRunReducer(playing(), { type: "END_EARLY" });
+    expect(missionRunReducer(ended, { type: "END_EARLY" })).toBe(ended);
+    expect(missionRunReducer(ended, { type: "TICK", now: 999_999 })).toBe(ended);
+    expect(missionRunReducer(INITIAL_MISSION_STATE, { type: "END_EARLY" })).toBe(INITIAL_MISSION_STATE);
+    const intro = missionRunReducer(INITIAL_MISSION_STATE, { type: "SHOW_INTRO" });
+    expect(missionRunReducer(intro, { type: "END_EARLY" })).toBe(intro);
+  });
+
+  it("a time-up run is never marked as ended early, and a retry clears the flag", () => {
+    const timedOut = missionRunReducer(playing(), { type: "TICK", now: 61_000 });
+    expect(timedOut.mode).toBe("RESULT");
+    expect(timedOut.endedEarly).toBeUndefined();
+    const ended = missionRunReducer(playing(), { type: "END_EARLY" });
+    expect(missionRunReducer(ended, { type: "START", now: 5 }).endedEarly).toBeUndefined();
+    expect(missionRunReducer(ended, { type: "EXIT_TO_FREE" }).endedEarly).toBeUndefined();
+  });
+});

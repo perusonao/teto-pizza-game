@@ -76,6 +76,7 @@ function renderAt(state: GameState) {
       onRetrySameRecipe={() => {}}
       onBackToPizzaSelect={() => {}}
       onMissionServeNext={() => {}}
+      onMissionSkipOrder={() => {}}
       onMissionStart={() => {}}
       onMissionExitToFree={() => {}}
       onMissionCloseIntro={() => {}}
