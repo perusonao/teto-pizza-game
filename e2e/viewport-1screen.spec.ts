@@ -175,16 +175,16 @@ test.describe("Weekly Ranking modal sizes to content, not a fixed 80dvh", () => 
 });
 
 /** Progression 2.0 Phase 3-3 (Issue #198): Lunch Rush stays locked until the player's first
- *  discovery -- seeds one harmless, deeply chain-gated discovery (mirrors
- *  e2e/gestures.ts's `startFreshMargherita`/`startLunchRushMission` own comment) purely to clear
- *  that gate. Every caller in this file tests layout/navigation, not onboarding. */
+ *  discovery -- seeds margherita as discovered (mirrors e2e/gestures.ts's
+ *  `startFreshMargherita`/`startLunchRushMission`) to clear that gate and give Lunch Rush a
+ *  discovered order. Every caller in this file tests layout/navigation, not onboarding. */
 async function seedLunchRushUnlockedOnly(page: import("@playwright/test").Page) {
   await page.addInitScript(() => {
     localStorage.setItem(
       "teto-pizza-save-v1",
       JSON.stringify({
         schemaVersion: 1,
-        dex: [{ recipeId: "napoletana", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }],
+        dex: [{ recipeId: "margherita", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }],
         pitzBalance: 0,
         ownedIngredientIds: ["tomato-sauce", "mozzarella", "basil"],
         missionBest: {},

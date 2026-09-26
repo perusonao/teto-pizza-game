@@ -154,19 +154,14 @@ export async function cutThreeLines(page: Page) {
   }
 }
 
-/** Fresh HOME -> Pizza Select -> margherita (the only unlockCondition-free recipe) -> PREPARE.
+/** HOME -> Pizza Select -> margherita -> PREPARE (a guided round).
  *
- * Progression 2.0 Phase 3-3 (Issue #198): a truly empty Dex now makes margherita's own NEW card
- * `preDiscoveryLocked` (its detail CTA routes to Free Cooking instead of guided SELECT_RECIPE,
- * see src/screens/PizzaSelectScreen.tsx) -- irrelevant to what every caller of this helper across
- * the suite actually tests (PREPARE/BAKE/RESULT/CUT mechanics, not onboarding), so an
- * `addInitScript` seeds one harmless, deeply chain-gated discovery (`napoletana` -- its own
- * unlock chain requires several undiscovered prerequisites, so this never widens
- * `isRecipeAvailable`/`availableRecipeIds` for anything else) purely to clear the "something has
- * ever been discovered" gate. `addInitScript` re-runs on every navigation this page makes,
- * including the `reload()` below, so the seed survives it. Dedicated Phase 3-3 onboarding
- * coverage (the gate itself, first discovery, Lunch Rush lock) lives in its own spec,
- * `e2e/progression2-p3-3-onboarding.spec.ts`, which never calls this helper. */
+ * Progression 2.0 W1 I5b-5a / Discovery 2.0: a guided round starts only from a DISCOVERED recipe
+ * (`canStartGuidedRound`, src/state/recipeDiscoveryState.ts), so margherita is seeded as
+ * discovered. `addInitScript` re-runs on every navigation this page makes, including the
+ * `reload()` below, so the seed survives it. Dedicated onboarding coverage (first discovery,
+ * Lunch Rush lock) lives in `e2e/progression2-p3-3-onboarding.spec.ts`, which never calls this
+ * helper. */
 export async function startFreshMargherita(page: Page) {
   await page.addInitScript(() => {
     localStorage.setItem(
@@ -247,7 +242,9 @@ export async function playFullMargheritaRound(page: Page) {
 export async function startQuattroFormaggiHeavyInventory(page: Page) {
   const save = {
     schemaVersion: 2,
-    dex: ["margherita", "funghi", "marinara", "bismarck", "genovese"].map((recipeId) => ({
+    // W1 I5b-5a: quattro-formaggi itself is discovered -- guided rounds start only from a
+    // discovered recipe (Discovery 2.0).
+    dex: ["margherita", "funghi", "marinara", "bismarck", "genovese", "quattro-formaggi"].map((recipeId) => ({
       recipeId,
       discovered: true,
       bestScore: 70,
@@ -355,6 +352,8 @@ export async function startCapricciosaUnlocked(page: Page) {
     "tonno-e-cipolla",
     "pizza-bianca",
     "breakfast-pizza",
+    // W1 I5b-5a: the guided target itself is discovered (Discovery 2.0).
+    "capricciosa",
   ];
   const save = {
     schemaVersion: 2,
@@ -567,7 +566,8 @@ export async function failMissionOrderMissingSauce(page: Page) {
 export async function startSalsicciaUnlocked(page: Page) {
   const save = {
     schemaVersion: 2,
-    dex: ["margherita", "funghi", "fugazza"].map((recipeId) => ({
+    // W1 I5b-5a: salsiccia itself is discovered (Discovery 2.0: guided rounds need a discovery).
+    dex: ["margherita", "funghi", "fugazza", "salsiccia"].map((recipeId) => ({
       recipeId,
       discovered: true,
       bestScore: 90,
@@ -608,7 +608,8 @@ export async function startSalsicciaUnlocked(page: Page) {
 export async function startMarinaraUnlocked(page: Page) {
   const save = {
     schemaVersion: 2,
-    dex: ["margherita", "funghi"].map((recipeId) => ({
+    // W1 I5b-5a: marinara itself is discovered (Discovery 2.0: guided rounds need a discovery).
+    dex: ["margherita", "funghi", "marinara"].map((recipeId) => ({
       recipeId,
       discovered: true,
       bestScore: 70,
