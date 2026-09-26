@@ -3,8 +3,23 @@
 - **Audited main:** `f59b5ed8b4ebba0c7b7c7c6f486b57f825aef63a`（Merge PR #237, DM-1）
 - **Branch:** `claude/dinner-mission-phase-0-design-ryqsnc`（最新の main から作り直した）
 - **Authority:** `docs/reports/TETO_DINNER-MISSION_Phase0_Fresh-Design.md` §17（Owner Decisions）と DM-2 の指示
+- **Issue:** #239（DM-2 専用。Duplicate Gate では該当する Issue も open PR も無かった）
+- **PR:** §19 を参照
+- **Commits:** `f6cd5f2`（Integration Map。実装前に commit）、`5106934`（実装と test）、この Result Report
 
-> この節（§3 Integration Map）は **実装より前に** 書いて commit した。残りの節は実装後に追記する。
+## 1. Audited main SHA
+
+`f59b5ed8b4ebba0c7b7c7c6f486b57f825aef63a`。作業開始時に GitHub で確認した。
+
+- PR #237 は MERGED、#236 は CLOSED、#234 は OPEN
+- open PR に Dinner 関連のものは無い
+
+## 2. Issue / PR
+
+- Issue #239
+- PR は §19 を参照（OPEN、auto-merge しない）
+
+> §3 Integration Map は **実装より前に** 書いて commit した（`f6cd5f2`）。§4 以降は実装後に書いた。
 
 ## 3. Integration Map（実装前の監査結果）
 
@@ -33,3 +48,157 @@
 5. **Dinner 中の guard:** `dinner !== null` の間は、他の round を始める action（`BEGIN_PREPARE`、`SELECT_RECIPE`、`START_FREE_COOK`、`RETRY_SAME_RECIPE`、`PLAY_AGAIN`、`MISSION_*`）、`REGISTER_TO_DEX`、Pitz を動かす action（`PURCHASE_INGREDIENT`、`RESTOCK_INGREDIENT`、`PURCHASE_DISCOVERY_HINT`、`CLAIM_MISSION_REWARD`）をすべて reducer で拒否する。
 6. **App:** Dinner の runtime を `useDinnerRuntime` hook にまとめる（TICK の interval、HOME での abandon の確認、開始）。App に入れるのは、この hook の呼び出し、`REGISTER_TO_DEX` を自動 dispatch する条件の predicate 化、Shop と Lunch Rush の開始 guard だけ。**Dinner の UI（入口、target 一覧、結果画面）は DM-3 で作る。** DM-2 では production UI から Dinner に入る経路が無いので、既存画面の見た目は変わらない。
 7. **制限時間:** `DINNER_START` に `durationMs` を渡す。production に仮の秒数は置かない。mission の `timeLimit.seconds` が `null` で duration も渡されなければ、開始を拒否する（DM-1 の `NO_TIME_LIMIT`）。
+
+## 4. Explicit round authority
+
+- `src/state/roundKind.ts`:
+  - `RoundKind = "GUIDED" | "FREE_COOK" | "LUNCH_RUSH" | "DINNER"`
+  - predicate: `isDinnerRound` / `isLunchRushRound` / `isFreeCookingRound` / `isGuidedRound` / `registersToDexAtResult` / `completionPolicyForRound` / `roundKindFor`
+- `GameState.roundKind` は `buildOrderState` だけが設定する。全ての round はここを通る。
+- invariant（`roundKind.test.ts` と random walk で固定）:
+  - `isMissionRound ⇔ LUNCH_RUSH`
+  - `freeCook ⇔ FREE_COOK`
+  - `dinner !== null ⇔ DINNER`
+- **Dinner の判定に `isMissionRound` は使っていない。**
+- Lunch Rush の既存コードは `isMissionRound` を読んだまま、1 行も分岐を変えていない。
+  - completion policy は `state.isMissionRound ? "order" : completionPolicyForRound(state)` とした。Lunch Rush 側の式は以前とまったく同じ。
+  - 実装の途中で、`isMissionRound: true` だけを直接書き換えた既存 test（`gameReducer.partialQuantity.test.ts`）がこの点を検出した。Lunch Rush 側を `roundKind` に切り替えると、手で組み立てた state で挙動が変わる。そのため Lunch Rush 側は旧 flag のまま残した。
+
+## 5. Dinner start contract（`DINNER_START {missionId, now, durationMs?}`）
+
+開始できるのは、次をすべて満たすときだけ:
+
+- `dinner === null`（run が 1 つも無い）
+- Lunch Rush の round ではない
+- `getDinnerMission` で mission が見つかる
+- DM-1 の `startDinnerRun` が ok を返す（mission 定義が valid、全 target が DISCOVERED、全体の必要量が在庫で足りる、duration がある）
+
+どれかを満たさなければ、同じ state をそのまま返す（fail closed）。
+
+- 開始すると、target 選択の round（phase ORDER、roundKind DINNER）になる。
+- **制限時間は `durationMs` で注入する。** mission の `timeLimit.seconds` は DM-5 まで `null` なので、duration を渡さない開始は拒否される。production に仮の秒数は置いていない。
+
+## 6. Target selection contract
+
+- `DINNER_SELECT_TARGET`
+  - target 選択の round（ORDER、選択中の target 無し）からだけ受け付ける。
+  - DM-1 の run が受け付ける target（残っている target）だけを選べる。対象外、完了済み、未知の id は拒否する。
+  - LK-8 の backstop として `canStartGuidedRound` も満たす必要がある。
+  - 選ぶと、その recipe の guided PREPARE round になる（`buildOrderState` → `startPreparing`）。Cooking Time は動かさない。
+- `DINNER_CANCEL_TARGET`: PREPARE のときだけ。選択を解除して target 選択に戻る。在庫、完了、報酬は変わらない。
+- `DINNER_RETURN_TO_TARGETS`: 判定済みの RESULT から target 選択に戻る。run が PLAYING のときだけ。
+- Dinner 中は、他の round を始める action（`BEGIN_PREPARE` / `SELECT_RECIPE` / `START_FREE_COOK` / `RETRY_SAME_RECIPE` / `PLAY_AGAIN` / `MISSION_*`）をすべて拒否する。そのため Free Cooking にも切り替えられない。
+- pizza を変える action（sauce / topping / dough / reset / step / bake / cut）は、PLAYING の run で、今作っている target の round に対してだけ受け付ける。
+
+## 7. Inventory timing proof
+
+- 判定（`RESOLVE_ATTEMPT`）は、Dinner の round が **RESULT に入る遷移の中** で行う。
+  - CUT の無い recipe: `CONFIRM_BAKE`
+  - CUT のある recipe: 最後の `CONFIRM_MAKING_STEP`
+- 渡す在庫は、その遷移が返す state の `inventory`。
+  - CUT なしの場合は、`consumePizzaInventory` を適用した直後の値になる。
+  - CUT ありの場合は、`CONFIRM_BAKE` の時点で消費済みの値になる。
+- App が在庫を組み立てて渡す経路は無い。
+
+pinned tests（`gameReducer.dinner.test.ts`）:
+
+| ケース | 内容 | 結果 |
+|---|---|---|
+| A | egg 2、bismarck で 1 個使う → 消費後 1 | PLAYING のまま |
+| B | bismarck に egg を 2 個置く → 消費後 0 | breakfast-pizza が作れなくなり、即 INFEASIBLE（`have: 0`） |
+| C | egg 3、品質 FAILED で 1 個消費 | target は未完了のまま、再挑戦して完了できる |
+| D | egg 2、品質 FAILED で 1 個消費 | INFEASIBLE（`have: 1` は消費後の値。消費前の 2 なら可能と判定されていた） |
+| CUT | `CONFIRM_BAKE` の時点では消費済みだが未判定。CUT の confirm で判定される | 期待どおり |
+| CUT なし | New Haven に parmigiano を置きすぎる | 同じ `CONFIRM_BAKE` の中で、parmigiana-pizza が作れないと判定（INFEASIBLE） |
+
+**mutation check:** 判定に渡す在庫を遷移前のものに変えると、CUT なしのケースが失敗することを確認した。CUT ありの経路は、判定の時点で round の在庫がすでに消費後なので、構造的に消費前の在庫が渡らない。
+
+## 8. FAILED semantics
+
+| 理由 | 起きる条件 |
+|---|---|
+| `INFEASIBLE` | 判定の時点で、残りの target を消費後の在庫で作れない（置きすぎ、品質 FAILED の消費） |
+| `TIME_UP` | TICK が期限に達した。期限以降の `CONFIRM_BAKE` は **焼かず、消費もしない**。RESULT に入る遷移も期限で止まる |
+| `ABANDONED` | HOME を確認した |
+
+- 品質 FAILED（Completion Gate FAILED）の pizza は完成として扱わない。在庫の消費は残る。
+- FAILED になった後の run は、action を受け付けない（terminal）。`DINNER_EXIT` で通常の round に戻る。
+
+## 9. CLEAR semantics
+
+- 最後の target が PASS したら CLEARED になる。`outcome: {kind: "CLEAR", clearMs, endedAt}`。
+- 24 通りのうち 3 つの順番で確認した（random walk でも確認している）。
+- reward の計算（DM-1 の `quoteDinnerReward`）は、DM-4 で表示と払い出しに使う。DM-2 では Pitz を動かさない。
+
+## 10. Timer semantics
+
+- Dinner の時計は `run.clock`（DM-1）が持ち、壁時計で判定する。
+- `useDinnerRuntime` が PLAYING の間だけ 250ms ごとに `DINNER_TICK` を dispatch する。終了すると止まる（test で確認）。
+- Lunch Rush の `missionNow` / `missionRunReducer` とは state を共有しない。
+- 時計を必要とする遷移（`CONFIRM_BAKE`、RESULT に入る confirm、select / cancel / return）は、`now` で期限を確認してから動く。`now` の無い `CONFIRM_BAKE` は拒否する。
+
+## 11. HOME / reload semantics
+
+- HOME（`handleGoHome`）で Dinner session があるとき:
+  - PLAYING なら `DINNER_REQUEST_ABANDON` を dispatch して確認を出す。
+    - cancel: `DINNER_CANCEL_ABANDON`。run はそのまま続く。
+    - confirm: `DINNER_CONFIRM_ABANDON`（ABANDONED、報酬なし）→ `DINNER_EXIT` → HOME。
+  - 終了済みなら、確認せずに exit して HOME に戻る。
+- 確認は DM-2 では既存の `window.confirm` を使う。最終的な modal は DM-3 で作る。
+- reload: `GameState.dinner` / `roundKind` は保存の対象外（`persistProgress` は field を明示して保存している）。
+  - reload 後は run が無い。
+  - 消費した在庫は保存されている（test で保存内容を確認した）。
+
+## 12. Shop guard
+
+- reducer: Dinner session 中は `PURCHASE_INGREDIENT` / `RESTOCK_INGREDIENT` を拒否する（補充で feasibility を回復させることはできない）。
+- App: `openShop()` で、HOME / Pizza Select / GAME / Dex からの Shop を開かせない。
+- Lunch Rush の開始（`startMission` / `handleStartLunchRush`）も Dinner 中は拒否する。
+
+## 13. Dex isolation
+
+Dinner の round では次をすべて行わない:
+- discovery
+- Dex の timesMade / bestScore / bestStars の更新
+- `justDiscovered` / `lastDiscovery` の更新
+
+仕組み:
+- `REGISTER_TO_DEX` は Dinner 中はガードで拒否し、case の中でも `isDinnerRound` を backstop にしている。
+- App も Dinner の round では自動 dispatch しない。
+- `MISSION_NEXT_ORDER`（#234 の経路）も拒否する。
+
+CLEAR の run、FAILED の run、random walk の全ステップで、Dex の JSON が変わらないことを確認した。
+
+## 14. Pitz / reward isolation
+
+- FREE Pitz（`lastPitzCredit`）、手際ボーナス（`lastEfficiencyCredit`。Cooking Time は null）、初発見 bonus、Lunch Rush の `CLAIM_MISSION_REWARD`、hint の購入は、Dinner 中は発生しない。
+- Dinner の報酬も払い出さない（DM-4）。
+- random walk の全ステップで `pitzBalance` が変わらないことを確認した。
+
+## 15. CUT integration
+
+- Dinner 専用の CUT の規則は作っていない。既存の cooking profile どおりに動く。
+  - CUT のある recipe: BAKE → POST_BAKE(CUT) → 最後の confirm で RESULT。そこで判定する。
+  - New Haven: `CONFIRM_BAKE` で RESULT に入り、そこで判定する。
+- 両方の経路を test で固定した。
+
+## 16. Lunch Rush regression
+
+- 分岐は変えていない（§4）。
+- 次の既存 test がすべて PASS した:
+  - `lunchRush.test.ts`
+  - `gameReducer.missionShortage.test.ts`（skip / SOLD OUT / zero-cookable）
+  - `gameReducer.partialQuantity.test.ts`（order policy）
+  - `App.test.tsx`（timer / RESULT / ranking の submit / reward）
+  - `MissionResultOverlay.test.tsx`
+  - 上の 5 ファイルで 229 件
+- Chromium E2E の `lunch-rush-*`、Layout Contract の LC-3 / LC-3b も PASS（§19）。
+- Dinner 中は `MISSION_*` / `CLAIM_MISSION_REWARD` を拒否し、Dinner の round は `missionSoldOutRecipeIds` を持たない。
+
+## 17. Free / Discovery regression
+
+- 次の既存 test（18 ファイル / 377 件）が PASS した:
+  - Free Cooking（`gameReducer.freeCook`、`FreeCook.ui`）
+  - Discovery（`gameReducer.discovery`、`logic/discovery/*`、`discoveryHint*`）
+  - inventory（`inventoryConsumption`、`restock`、`inventory`、`recipeDiscoveryState`、`recipeSetFeasibility`）
+- exit した後、Free Cooking と guided round が以前どおり始まること（Cooking Time も動くこと）を test で確認した。
