@@ -1,0 +1,4865 @@
+{
+ "schema": "teto-discovery-leak-matrix/1",
+ "generatedAt": "2026-09-25",
+ "kind": "AUDIT ONLY -- not a runtime authority",
+ "audited": {
+  "mainSha": "12a09de2c4da8ed7e92f1ff9f47dd7bdf824a6e5",
+  "i5b3Sha": "5204a269a813bd4951720737ab9799949bca0f0f",
+  "i5b4Sha": "fbfd738f4ca3e07a59d4bc489f7ab4a6af1b15bd",
+  "i5b4Branch": "claude/teto-pizza-w1-i4a-j46ph0",
+  "runtimeUnderTest": "fbfd738 (I5b-4 HEAD; includes I5b-3)",
+  "designSha": "a8ef4d9ea954f0c72a4e71936bf2ef66c28774de",
+  "integrationGateSha": "05415f6",
+  "i5b5PreflightSha": "b5c7b77"
+ },
+ "method": {
+  "runtimeProbe": "vitest+jsdom rendering real PizzaSelectScreen / ShopOverlay / DexOverlay / HomeScreen and driving the real gameReducer; Math.random swept over 60 values for order pools",
+  "states": [
+   "ladder Dex0 A(entitled,not bought)",
+   "ladder Dex1 A(entitled,not bought)",
+   "ladder Dex1 B(bought)",
+   "ladder Dex2 A(entitled,not bought)",
+   "ladder Dex2 B(bought)",
+   "ladder Dex3 A(entitled,not bought)",
+   "ladder Dex3 B(bought)",
+   "ladder Dex4 A(entitled,not bought)",
+   "ladder Dex4 B(bought)",
+   "ladder Dex5 A(entitled,not bought)",
+   "ladder Dex5 B(bought)",
+   "ladder Dex6 A(entitled,not bought)",
+   "ladder Dex6 B(bought)",
+   "ladder Dex7 A(entitled,not bought)",
+   "ladder Dex7 B(bought)",
+   "ladder Dex8 A(entitled,not bought)",
+   "ladder Dex8 B(bought)",
+   "ladder Dex9 A(entitled,not bought)",
+   "ladder Dex9 B(bought)",
+   "ladder Dex10 A(entitled,not bought)",
+   "ladder Dex10 B(bought)",
+   "ladder Dex11 A(entitled,not bought)",
+   "ladder Dex11 B(bought)",
+   "ladder Dex12 A(entitled,not bought)",
+   "ladder Dex12 B(bought)",
+   "ladder Dex13 A(entitled,not bought)",
+   "ladder Dex13 B(bought)",
+   "ladder Dex14 A(entitled,not bought)",
+   "ladder Dex14 B(bought)",
+   "ladder Dex15 A(entitled,not bought)",
+   "ladder Dex15 B(bought)",
+   "ladder Dex16 A(entitled,not bought)",
+   "ladder Dex16 B(bought)",
+   "ladder Dex17 A(entitled,not bought)",
+   "ladder Dex17 B(bought)",
+   "ladder Dex18 A(entitled,not bought)",
+   "ladder Dex18 B(bought)",
+   "ladder Dex19 A(entitled,not bought)",
+   "ladder Dex19 B(bought)",
+   "ladder Dex20 A(entitled,not bought)",
+   "ladder Dex20 B(bought)",
+   "ladder Dex21 A(entitled,not bought)",
+   "ladder Dex21 B(bought)",
+   "ladder Dex22 A(entitled,not bought)",
+   "ladder Dex22 B(bought)",
+   "ladder Dex23 A(entitled,not bought)",
+   "ladder Dex23 B(bought)",
+   "ladder Dex24 A(entitled,not bought)",
+   "ladder Dex24 B(bought)",
+   "ladder Dex25 A(entitled,not bought)",
+   "legacy: fresh save Dex0 (no save)",
+   "legacy: Dex1 margherita only",
+   "legacy: Dex15 legacy (old 15 discovered, all old materials owned)",
+   "legacy: Dex15 legacy + eggplant/corn/pineapple bought",
+   "legacy: Dex23 (all but quattro-formaggi, bismarck)",
+   "legacy: Dex24 (all but quattro-formaggi), fontina/gorgonzola owned",
+   "legacy: inventory 0 (Dex4 ladder, eggplant owned stock 0)",
+   "legacy: unlocked but not owned (Dex4 ladder A)",
+   "legacy: owned but recipe undiscovered (Dex3 + owns eggplant/parmigiano/corn/pineapple/ham via old save)"
+  ],
+  "domScan": "textContent (incl. display:none subtrees) + aria-label/title/alt/placeholder/value/data-* attributes; ingredient-name nodes stripped to avoid ingredient/recipe name collisions",
+  "nameCollisionsExcluded": {
+   "recipeNameEqualsIngredientName": [
+    "pepperoni"
+   ],
+   "recipeNameInsideIngredientName": [
+    "genovese (ingredient ジェノベーゼソース)"
+   ],
+   "recipeNameInsideDiscoveredDescriptions": [
+    "napoletana ('ナポリ生まれ' in marinara)",
+    "genovese ('ジェノベーゼソース' in pesto-* descriptions)"
+   ]
+  },
+  "browser": "Playwright Chromium 390x844 against `vite dev` of fbfd738 (scratch spec, not committed)"
+ },
+ "legend": {
+  "L1": "NAME",
+  "L2": "IMAGE",
+  "L3": "INGREDIENT ANSWER",
+  "L4": "ORDER ANSWER",
+  "L5": "UNLOCK ANSWER",
+  "L6": "NAVIGATION BYPASS",
+  "L7": "INDIRECT",
+  "states": "DISCOVERED > DISCOVERABLE (all finite materials OWNED with stock>=1) > KNOWN_BUT_MISSING_MATERIAL (all finite materials entitled) > UNKNOWN (Gate 05415f6 §3.1 definition; Design calls UNKNOWN 'LOCKED' in UI)"
+ },
+ "counts": {
+  "recipeCount": 25,
+  "affectedUniqueRecipes": 25,
+  "pizzaSelect": {
+   "NAME": 24,
+   "IMAGE": 20,
+   "BYPASS": 19,
+   "NAMED_IN_LOCK_HINT": 13,
+   "dex0LockedCardsWithName": 23
+  },
+  "shop": {
+   "UNLOCK_ANSWER_uniqueRecipes_freshLadder": 16,
+   "UNLOCK_ANSWER_uniqueRecipes_incl_legacy": 16,
+   "NEW_material_rows_naming_recipe_freshLadder": 16,
+   "NAME_outside_unlock_line": 0
+  },
+  "dex": {
+   "NAME": 0,
+   "IMAGE": 0,
+   "INGREDIENTS": 0
+  },
+  "home": {
+   "NAME": 0
+  },
+  "result": {
+   "preDiscoveryNAME": 0,
+   "indirectNearMiss": 1
+  },
+  "free": {
+   "ORDER_ANSWER_uiReachable": 19,
+   "ORDER_ANSWER_codeOnly": 1,
+   "BYPASS": 19
+  },
+  "lunchRushToFree": 19,
+  "hintsEP1": {
+   "uniqueRecipes": 24,
+   "lockHintNamedRecipes": 13,
+   "guidedHintRecipes": 19
+  },
+  "accessibility": {
+   "ariaLabelNameRecipes": 24,
+   "atOnlyLeaks": 0
+  },
+  "navigationBypass": 19
+ },
+ "ids": {
+  "psNameIds": [
+   "margherita",
+   "marinara",
+   "quattro-formaggi",
+   "genovese",
+   "bismarck",
+   "funghi",
+   "salsiccia",
+   "pepperoni",
+   "napoletana",
+   "tonno-e-cipolla",
+   "pizza-bianca",
+   "breakfast-pizza",
+   "capricciosa",
+   "meat-lovers",
+   "melanzane-pizza",
+   "parmigiana-pizza",
+   "bambino",
+   "hawaiian",
+   "pizza-portuguesa",
+   "pesto-tonno",
+   "new-haven-apizza",
+   "pesto-caprese",
+   "pesto-patate",
+   "puttanesca-pizza"
+  ],
+  "psImgIds": [
+   "margherita",
+   "marinara",
+   "quattro-formaggi",
+   "genovese",
+   "bismarck",
+   "funghi",
+   "napoletana",
+   "tonno-e-cipolla",
+   "pizza-bianca",
+   "capricciosa",
+   "melanzane-pizza",
+   "parmigiana-pizza",
+   "bambino",
+   "hawaiian",
+   "pizza-portuguesa",
+   "pesto-tonno",
+   "new-haven-apizza",
+   "pesto-caprese",
+   "pesto-patate",
+   "puttanesca-pizza"
+  ],
+  "psBypassIds": [
+   "marinara",
+   "quattro-formaggi",
+   "genovese",
+   "bismarck",
+   "funghi",
+   "napoletana",
+   "tonno-e-cipolla",
+   "pizza-bianca",
+   "capricciosa",
+   "melanzane-pizza",
+   "parmigiana-pizza",
+   "bambino",
+   "hawaiian",
+   "pizza-portuguesa",
+   "pesto-tonno",
+   "new-haven-apizza",
+   "pesto-caprese",
+   "pesto-patate",
+   "puttanesca-pizza"
+  ],
+  "psLockHintIds": [
+   "margherita",
+   "marinara",
+   "genovese",
+   "bismarck",
+   "funghi",
+   "fugazza",
+   "salsiccia",
+   "pepperoni",
+   "napoletana",
+   "tonno-e-cipolla",
+   "pizza-bianca",
+   "breakfast-pizza",
+   "capricciosa"
+  ],
+  "shopFreshIds": [
+   "marinara",
+   "genovese",
+   "funghi",
+   "napoletana",
+   "tonno-e-cipolla",
+   "pizza-bianca",
+   "melanzane-pizza",
+   "parmigiana-pizza",
+   "bambino",
+   "hawaiian",
+   "pizza-portuguesa",
+   "pesto-tonno",
+   "new-haven-apizza",
+   "pesto-caprese",
+   "pesto-patate",
+   "puttanesca-pizza"
+  ],
+  "shopAllIds": [
+   "marinara",
+   "genovese",
+   "funghi",
+   "napoletana",
+   "tonno-e-cipolla",
+   "pizza-bianca",
+   "melanzane-pizza",
+   "parmigiana-pizza",
+   "bambino",
+   "hawaiian",
+   "pizza-portuguesa",
+   "pesto-tonno",
+   "new-haven-apizza",
+   "pesto-caprese",
+   "pesto-patate",
+   "puttanesca-pizza"
+  ],
+  "shopRowsFresh": [
+   "mushroom",
+   "eggplant",
+   "parmigiano",
+   "corn",
+   "pineapple",
+   "onion",
+   "garlic",
+   "anchovy",
+   "tuna",
+   "pesto",
+   "cherry-tomato",
+   "clam",
+   "fresh-tomato",
+   "potato",
+   "rosemary",
+   "capers"
+  ],
+  "freeIds": [
+   "marinara",
+   "quattro-formaggi",
+   "genovese",
+   "bismarck",
+   "funghi",
+   "napoletana",
+   "tonno-e-cipolla",
+   "pizza-bianca",
+   "capricciosa",
+   "melanzane-pizza",
+   "parmigiana-pizza",
+   "bambino",
+   "hawaiian",
+   "pizza-portuguesa",
+   "pesto-tonno",
+   "new-haven-apizza",
+   "pesto-caprese",
+   "pesto-patate",
+   "puttanesca-pizza"
+  ],
+  "freeCodeOnly": [
+   "margherita"
+  ],
+  "ariaIds": [
+   "margherita",
+   "marinara",
+   "quattro-formaggi",
+   "genovese",
+   "bismarck",
+   "funghi",
+   "salsiccia",
+   "pepperoni",
+   "napoletana",
+   "tonno-e-cipolla",
+   "pizza-bianca",
+   "breakfast-pizza",
+   "capricciosa",
+   "meat-lovers",
+   "melanzane-pizza",
+   "parmigiana-pizza",
+   "bambino",
+   "hawaiian",
+   "pizza-portuguesa",
+   "pesto-tonno",
+   "new-haven-apizza",
+   "pesto-caprese",
+   "pesto-patate",
+   "puttanesca-pizza"
+  ],
+  "bypassIds": [
+   "marinara",
+   "quattro-formaggi",
+   "genovese",
+   "bismarck",
+   "funghi",
+   "napoletana",
+   "tonno-e-cipolla",
+   "pizza-bianca",
+   "capricciosa",
+   "melanzane-pizza",
+   "parmigiana-pizza",
+   "bambino",
+   "hawaiian",
+   "pizza-portuguesa",
+   "pesto-tonno",
+   "new-haven-apizza",
+   "pesto-caprese",
+   "pesto-patate",
+   "puttanesca-pizza"
+  ],
+  "dex0Locked": [
+   "marinara",
+   "quattro-formaggi",
+   "genovese",
+   "bismarck",
+   "funghi",
+   "salsiccia",
+   "pepperoni",
+   "napoletana",
+   "tonno-e-cipolla",
+   "pizza-bianca",
+   "breakfast-pizza",
+   "capricciosa",
+   "meat-lovers",
+   "melanzane-pizza",
+   "parmigiana-pizza",
+   "bambino",
+   "hawaiian",
+   "pizza-portuguesa",
+   "pesto-tonno",
+   "new-haven-apizza",
+   "pesto-caprese",
+   "pesto-patate",
+   "puttanesca-pizza"
+  ],
+  "affected": [
+   "margherita",
+   "marinara",
+   "quattro-formaggi",
+   "genovese",
+   "bismarck",
+   "funghi",
+   "fugazza",
+   "salsiccia",
+   "pepperoni",
+   "napoletana",
+   "tonno-e-cipolla",
+   "pizza-bianca",
+   "breakfast-pizza",
+   "capricciosa",
+   "meat-lovers",
+   "melanzane-pizza",
+   "parmigiana-pizza",
+   "bambino",
+   "hawaiian",
+   "pizza-portuguesa",
+   "pesto-tonno",
+   "new-haven-apizza",
+   "pesto-caprese",
+   "pesto-patate",
+   "puttanesca-pizza"
+  ]
+ },
+ "stateInvariants": {
+  "freshLadder": {
+   "maxDISCOVERABLE": 1,
+   "maxKBMM": 1,
+   "discoverableAlwaysNextKey": true
+  },
+  "legacy": {
+   "fresh save Dex0 (no save)": {
+    "DISCOVERED": 0,
+    "DISCOVERABLE": 1,
+    "KNOWN_BUT_MISSING_MATERIAL": 0,
+    "UNKNOWN": 24
+   },
+   "Dex1 margherita only": {
+    "DISCOVERED": 1,
+    "DISCOVERABLE": 0,
+    "KNOWN_BUT_MISSING_MATERIAL": 1,
+    "UNKNOWN": 23
+   },
+   "Dex15 legacy (old 15 discovered, all old materials owned)": {
+    "DISCOVERED": 15,
+    "DISCOVERABLE": 2,
+    "KNOWN_BUT_MISSING_MATERIAL": 4,
+    "UNKNOWN": 4
+   },
+   "Dex15 legacy + eggplant/corn/pineapple bought": {
+    "DISCOVERED": 15,
+    "DISCOVERABLE": 6,
+    "KNOWN_BUT_MISSING_MATERIAL": 0,
+    "UNKNOWN": 4
+   },
+   "Dex23 (all but quattro-formaggi, bismarck)": {
+    "DISCOVERED": 23,
+    "DISCOVERABLE": 1,
+    "KNOWN_BUT_MISSING_MATERIAL": 0,
+    "UNKNOWN": 1
+   },
+   "Dex24 (all but quattro-formaggi), fontina/gorgonzola owned": {
+    "DISCOVERED": 24,
+    "DISCOVERABLE": 1,
+    "KNOWN_BUT_MISSING_MATERIAL": 0,
+    "UNKNOWN": 0
+   },
+   "inventory 0 (Dex4 ladder, eggplant owned stock 0)": {
+    "DISCOVERED": 4,
+    "DISCOVERABLE": 0,
+    "KNOWN_BUT_MISSING_MATERIAL": 1,
+    "UNKNOWN": 20
+   },
+   "unlocked but not owned (Dex4 ladder A)": {
+    "DISCOVERED": 4,
+    "DISCOVERABLE": 0,
+    "KNOWN_BUT_MISSING_MATERIAL": 1,
+    "UNKNOWN": 20
+   },
+   "owned but recipe undiscovered (Dex3 + owns eggplant/parmigiano/corn/pineapple/ham via old save)": {
+    "DISCOVERED": 3,
+    "DISCOVERABLE": 5,
+    "KNOWN_BUT_MISSING_MATERIAL": 0,
+    "UNKNOWN": 17
+   }
+  },
+  "matcherSignatureDuplicates": 0,
+  "everyRecipeOwnSetIsNewDiscovery": true,
+  "isRecipeAvailableIgnoresStock": true
+ },
+ "lk8": {
+  "status": "CONFIRMED -- browser-reproduced end-to-end (melanzane-pizza), reducer-reproduced for 18/18 NEW-ladder recipes",
+  "reducerRuns": [
+   {
+    "state": "ladder Dex0 A(entitled,not bought)",
+    "recipeId": "margherita",
+    "recipeState": "DISCOVERABLE",
+    "orderPhase": "ORDER",
+    "isMissionRound": false,
+    "mitoLine": "マルゲリータが食べたいな！おすすめを教えてテト！",
+    "tetoLine": "よし！マルゲリータを作ろう！生地にソースを塗って好きなトッピングを選んでね。",
+    "phaseAfterBegin": "PREPARE",
+    "freeCookFlag": false,
+    "completion": "PASS",
+    "finalPhase": "DISCOVERED",
+    "justDiscovered": true,
+    "discoveredNow": true,
+    "hintSample": "指でなぞってトマトソースを塗ろう！"
+   },
+   {
+    "state": "ladder Dex3 B(bought)",
+    "recipeId": "funghi",
+    "recipeState": "DISCOVERABLE",
+    "orderPhase": "ORDER",
+    "isMissionRound": false,
+    "mitoLine": "きのこたっぷりのフンギが食べたい気分！マッシュルームの香りが恋しいな。",
+    "tetoLine": "よーし、今日はフンギに挑戦だ！トッピングは好きに選んでいいぞ。",
+    "phaseAfterBegin": "PREPARE",
+    "freeCookFlag": false,
+    "completion": "PASS",
+    "finalPhase": "DISCOVERED",
+    "justDiscovered": true,
+    "discoveredNow": true,
+    "hintSample": "指でなぞってトマトソースを塗ろう！"
+   },
+   {
+    "state": "ladder Dex4 B(bought)",
+    "recipeId": "melanzane-pizza",
+    "recipeState": "DISCOVERABLE",
+    "orderPhase": "ORDER",
+    "isMissionRound": false,
+    "mitoLine": "ナスがのったメランザーネピザが食べたいな！バジルの香りもお願いね！",
+    "tetoLine": "よし！メランザーネピザを作ろう！生地にソースを塗って好きなトッピングを選んでね。",
+    "phaseAfterBegin": "PREPARE",
+    "freeCookFlag": false,
+    "completion": "PASS",
+    "finalPhase": "DISCOVERED",
+    "justDiscovered": true,
+    "discoveredNow": true,
+    "hintSample": "まずはソースを塗ってみて！ピザを指でなぞると塗れるよ。"
+   },
+   {
+    "state": "ladder Dex5 B(bought)",
+    "recipeId": "parmigiana-pizza",
+    "recipeState": "DISCOVERABLE",
+    "orderPhase": "ORDER",
+    "isMissionRound": false,
+    "mitoLine": "ナスとパルミジャーノのパルミジャーナピザ、南イタリア風で気になるな！作ってみて！",
+    "tetoLine": "パルミジャーナピザか、腕が鳴るな！まずは生地にソースを塗るところからだ。",
+    "phaseAfterBegin": "PREPARE",
+    "freeCookFlag": false,
+    "completion": "PASS",
+    "finalPhase": "DISCOVERED",
+    "justDiscovered": true,
+    "discoveredNow": true,
+    "hintSample": "まずはソースを塗ってみて！ピザを指でなぞると塗れるよ。"
+   },
+   {
+    "state": "ladder Dex9 B(bought)",
+    "recipeId": "bambino",
+    "recipeState": "DISCOVERABLE",
+    "orderPhase": "ORDER",
+    "isMissionRound": false,
+    "mitoLine": "ハムとコーンのバンビーノ、やさしい甘さで食べやすそう！食べてみたいな！",
+    "tetoLine": "よーし、今日はバンビーノに挑戦だ！トッピングは好きに選んでいいぞ。",
+    "phaseAfterBegin": "PREPARE",
+    "freeCookFlag": false,
+    "completion": "PASS",
+    "finalPhase": "DISCOVERED",
+    "justDiscovered": true,
+    "discoveredNow": true,
+    "hintSample": "まずはソースを塗ってみて！ピザを指でなぞると塗れるよ。"
+   },
+   {
+    "state": "ladder Dex10 B(bought)",
+    "recipeId": "hawaiian",
+    "recipeState": "DISCOVERABLE",
+    "orderPhase": "ORDER",
+    "isMissionRound": false,
+    "mitoLine": "パイナップルがのったハワイアンピザ、甘じょっぱくて気になるな！作ってみて！",
+    "tetoLine": "よし！ハワイアンピザを作ろう！生地にソースを塗って好きなトッピングを選んでね。",
+    "phaseAfterBegin": "PREPARE",
+    "freeCookFlag": false,
+    "completion": "PASS",
+    "finalPhase": "DISCOVERED",
+    "justDiscovered": true,
+    "discoveredNow": true,
+    "hintSample": "まずはソースを塗ってみて！ピザを指でなぞると塗れるよ。"
+   },
+   {
+    "state": "ladder Dex11 B(bought)",
+    "recipeId": "capricciosa",
+    "recipeState": "DISCOVERABLE",
+    "orderPhase": "ORDER",
+    "isMissionRound": false,
+    "mitoLine": "ハムとブラックオリーブがのった具だくさんのカプリチョーザが食べたいな！",
+    "tetoLine": "カプリチョーザか、腕が鳴るな！まずは生地にソースを塗るところからだ。",
+    "phaseAfterBegin": "PREPARE",
+    "freeCookFlag": false,
+    "completion": "PASS",
+    "finalPhase": "DISCOVERED",
+    "justDiscovered": true,
+    "discoveredNow": true,
+    "hintSample": "まずはソースを塗ってみて！ピザを指でなぞると塗れるよ。"
+   },
+   {
+    "state": "ladder Dex12 B(bought)",
+    "recipeId": "pizza-portuguesa",
+    "recipeState": "DISCOVERABLE",
+    "orderPhase": "ORDER",
+    "isMissionRound": false,
+    "mitoLine": "ブラジル定番のピッツァ・ポルトゲーザが食べたいな！ハムも卵ものせてね！",
+    "tetoLine": "ピッツァ・ポルトゲーザか、腕が鳴るな！まずは生地にソースを塗るところからだ。",
+    "phaseAfterBegin": "PREPARE",
+    "freeCookFlag": false,
+    "completion": "PASS",
+    "finalPhase": "DISCOVERED",
+    "justDiscovered": true,
+    "discoveredNow": true,
+    "hintSample": "まずはソースを塗ってみて！ピザを指でなぞると塗れるよ。"
+   },
+   {
+    "state": "ladder Dex14 B(bought)",
+    "recipeId": "marinara",
+    "recipeState": "DISCOVERABLE",
+    "orderPhase": "ORDER",
+    "isMissionRound": false,
+    "mitoLine": "今日はシンプルにマリナーラの気分！トマトとにんにくの香りが恋しいな。",
+    "tetoLine": "マリナーラか、腕が鳴るな！まずは生地にソースを塗るところからだ。",
+    "phaseAfterBegin": "PREPARE",
+    "freeCookFlag": false,
+    "completion": "PASS",
+    "finalPhase": "DISCOVERED",
+    "justDiscovered": true,
+    "discoveredNow": true,
+    "hintSample": "指でなぞってトマトソースを塗ろう！"
+   },
+   {
+    "state": "ladder Dex15 B(bought)",
+    "recipeId": "napoletana",
+    "recipeState": "DISCOVERABLE",
+    "orderPhase": "ORDER",
+    "isMissionRound": false,
+    "mitoLine": "アンチョビがきいたナポリピザ、本場の味が気になるな！作ってみて！",
+    "tetoLine": "よし！ナポリを作ろう！生地にソースを塗って好きなトッピングを選んでね。",
+    "phaseAfterBegin": "PREPARE",
+    "freeCookFlag": false,
+    "completion": "PASS",
+    "finalPhase": "DISCOVERED",
+    "justDiscovered": true,
+    "discoveredNow": true,
+    "hintSample": "まずはソースを塗ってみて！ピザを指でなぞると塗れるよ。"
+   },
+   {
+    "state": "ladder Dex16 B(bought)",
+    "recipeId": "tonno-e-cipolla",
+    "recipeState": "DISCOVERABLE",
+    "orderPhase": "ORDER",
+    "isMissionRound": false,
+    "mitoLine": "ツナとたまねぎのトンノ・エ・チポッラ、さっぱりしてておいしそう！食べてみたいな！",
+    "tetoLine": "トンノ・エ・チポッラか、腕が鳴るな！まずは生地にソースを塗るところからだ。",
+    "phaseAfterBegin": "PREPARE",
+    "freeCookFlag": false,
+    "completion": "PASS",
+    "finalPhase": "DISCOVERED",
+    "justDiscovered": true,
+    "discoveredNow": true,
+    "hintSample": "まずはソースを塗ってみて！ピザを指でなぞると塗れるよ。"
+   },
+   {
+    "state": "ladder Dex17 B(bought)",
+    "recipeId": "pesto-tonno",
+    "recipeState": "DISCOVERABLE",
+    "orderPhase": "ORDER",
+    "isMissionRound": false,
+    "mitoLine": "ジェノベーゼソースとツナのペストトンノピザ、さわやかそう！食べてみたいな！",
+    "tetoLine": "よーし、今日はペストトンノピザに挑戦だ！トッピングは好きに選んでいいぞ。",
+    "phaseAfterBegin": "PREPARE",
+    "freeCookFlag": false,
+    "completion": "PASS",
+    "finalPhase": "DISCOVERED",
+    "justDiscovered": true,
+    "discoveredNow": true,
+    "hintSample": "まずはソースを塗ってみて！ピザを指でなぞると塗れるよ。"
+   },
+   {
+    "state": "ladder Dex18 B(bought)",
+    "recipeId": "genovese",
+    "recipeState": "DISCOVERABLE",
+    "orderPhase": "ORDER",
+    "isMissionRound": false,
+    "mitoLine": "緑のソースのピザ、気になるな〜！ジェノベーゼを作ってみて！",
+    "tetoLine": "よし！ジェノベーゼを作ろう！生地にソースを塗って好きなトッピングを選んでね。",
+    "phaseAfterBegin": "PREPARE",
+    "freeCookFlag": false,
+    "completion": "PASS",
+    "finalPhase": "DISCOVERED",
+    "justDiscovered": true,
+    "discoveredNow": true,
+    "hintSample": "指でなぞって緑のソースを塗ろう！"
+   },
+   {
+    "state": "ladder Dex19 B(bought)",
+    "recipeId": "new-haven-apizza",
+    "recipeState": "DISCOVERABLE",
+    "orderPhase": "ORDER",
+    "isMissionRound": false,
+    "mitoLine": "あさりとにんにくのニューヘイブン風ピザが食べたいな！香ばしく焼いてね！",
+    "tetoLine": "よし！ニューヘイブンアピッツァを作ろう！生地にソースを塗って好きなトッピングを選んでね。",
+    "phaseAfterBegin": "PREPARE",
+    "freeCookFlag": false,
+    "completion": "PASS",
+    "finalPhase": "DISCOVERED",
+    "justDiscovered": true,
+    "discoveredNow": true,
+    "hintSample": "まずはソースを塗ってみて！ピザを指でなぞると塗れるよ。"
+   },
+   {
+    "state": "ladder Dex20 B(bought)",
+    "recipeId": "pesto-caprese",
+    "recipeState": "DISCOVERABLE",
+    "orderPhase": "ORDER",
+    "isMissionRound": false,
+    "mitoLine": "ジェノベーゼソースにトマトをのせたペストカプレーゼピザ、さわやかで気になるな！",
+    "tetoLine": "ペストカプレーゼピザか、腕が鳴るな！まずは生地にソースを塗るところからだ。",
+    "phaseAfterBegin": "PREPARE",
+    "freeCookFlag": false,
+    "completion": "PASS",
+    "finalPhase": "DISCOVERED",
+    "justDiscovered": true,
+    "discoveredNow": true,
+    "hintSample": "まずはソースを塗ってみて！ピザを指でなぞると塗れるよ。"
+   },
+   {
+    "state": "ladder Dex21 B(bought)",
+    "recipeId": "pesto-patate",
+    "recipeState": "DISCOVERABLE",
+    "orderPhase": "ORDER",
+    "isMissionRound": false,
+    "mitoLine": "じゃがいもとベーコンのペストパターテピザ、ほくほくで食べてみたいな！",
+    "tetoLine": "よーし、今日はペストパターテピザに挑戦だ！トッピングは好きに選んでいいぞ。",
+    "phaseAfterBegin": "PREPARE",
+    "freeCookFlag": false,
+    "completion": "PASS",
+    "finalPhase": "DISCOVERED",
+    "justDiscovered": true,
+    "discoveredNow": true,
+    "hintSample": "まずはソースを塗ってみて！ピザを指でなぞると塗れるよ。"
+   },
+   {
+    "state": "ladder Dex22 B(bought)",
+    "recipeId": "pizza-bianca",
+    "recipeState": "DISCOVERABLE",
+    "orderPhase": "ORDER",
+    "isMissionRound": false,
+    "mitoLine": "トマトソースを使わない白いピザがあるんだって！ピッツァ・ビアンカを作ってみて！",
+    "tetoLine": "よーし、今日はピッツァ・ビアンカに挑戦だ！トッピングは好きに選んでいいぞ。",
+    "phaseAfterBegin": "PREPARE",
+    "freeCookFlag": false,
+    "completion": "PASS",
+    "finalPhase": "DISCOVERED",
+    "justDiscovered": true,
+    "discoveredNow": true,
+    "hintSample": "まずはソースを塗ってみて！ピザを指でなぞると塗れるよ。"
+   },
+   {
+    "state": "ladder Dex23 B(bought)",
+    "recipeId": "puttanesca-pizza",
+    "recipeState": "DISCOVERABLE",
+    "orderPhase": "ORDER",
+    "isMissionRound": false,
+    "mitoLine": "アンチョビとケッパーがきいたプッタネスカ、塩味と香りが強いんだって！作ってみて！",
+    "tetoLine": "よし！プッタネスカを作ろう！生地にソースを塗って好きなトッピングを選んでね。",
+    "phaseAfterBegin": "PREPARE",
+    "freeCookFlag": false,
+    "completion": "PASS",
+    "finalPhase": "DISCOVERED",
+    "justDiscovered": true,
+    "discoveredNow": true,
+    "hintSample": "まずはソースを塗ってみて！ピザを指でなぞると塗れるよ。"
+   },
+   {
+    "state": "ladder Dex24 B(bought)",
+    "recipeId": "quattro-formaggi",
+    "recipeState": "DISCOVERABLE",
+    "orderPhase": "ORDER",
+    "isMissionRound": false,
+    "mitoLine": "チーズたっぷりのクアトロ フォルマッジが食べたい！とろとろにしてね！",
+    "tetoLine": "よーし、今日はクアトロ フォルマッジに挑戦だ！トッピングは好きに選んでいいぞ。",
+    "phaseAfterBegin": "PREPARE",
+    "freeCookFlag": false,
+    "completion": "PASS",
+    "finalPhase": "DISCOVERED",
+    "justDiscovered": true,
+    "discoveredNow": true,
+    "hintSample": "指でなぞってオリーブオイルを塗ろう！"
+   }
+  ],
+  "browser": {
+   "lk8": {
+    "scenario": "Dex4 (margherita,bismarck,breakfast-pizza,funghi), eggplant owned stock 10, melanzane undiscovered",
+    "homeText": "🍕 テトのピザ屋さん\n🪙 500\n👑 レシピ 4/25\n⚙️\n今日はどんなピザを作ろう？\n🍕 ピザを作る\n⏱️ ランチラッシュ\n🎨 フリークッキング\n📖\nピザ図鑑\n発見 4/25\n🏪\nショップ\n所持 Pitz 500\n🧺\n材料\n所持 7/29種\n🏆\nランキング\n週間ランキング\n\n🐾 いいピザは、いい一日をつくる！",
+    "orderScreenText": "🏠 ホーム\n🪙 500\nミト\n\nナスがのったメランザーネピザが食べたいな！バジルの香りもお願いね！\n\nテト\n\nよし！メランザーネピザを作ろう！生地にソースを塗って好きなトッピングを選んでね。\n\n🍕 フリープレイ",
+    "orderNamesMelanzane": true,
+    "prepareOrderCard": "メランザーネピザ\n生地を伸ばしたり縮めたりして形を整えよう\n🍆\n🍆\n🍆\n🌿\n🌿\n見本",
+    "miniReferenceAria": "メランザーネピザの見本を拡大表示",
+    "referencePopoverText": "メランザーネピザ 見本\n閉じる\n🍆\n🍆\n🍆\n🌿\n🌿\n\nトマトソースをまんべんなく塗って、モッツァレラ2個とナス3個とバジル2個を見本に近く置こう。\n\nソース量の目安\n塗り広げの目安",
+    "prepareAttrs": [
+     "aria-label=メランザーネピザの見本を拡大表示"
+    ],
+    "sauceTrayChips": [
+     "トマトソース"
+    ],
+    "cheeseTrayChips": [
+     "モッツァレラ"
+    ],
+    "toppingTrayChips": [
+     "バジル",
+     "ナス"
+    ],
+    "resultText": "🏠 ホーム\n🪙 600\n🍆\n🍆\n🍆\n🌿\n🌿\n💨\n💨\n🔪\n\nメランザーネピザ、いい焼き色だ！これはうまく焼けたぞ！\n\n★★☆☆☆\n59点\n\n✅ 焼き加減: いい焼き加減\n\n✨ メランザーネピザを発見しました！\n\n🆕 新しい材料が入荷：パルミジャーノ\n\n🛒 ショップへ\n\n今回の獲得 +100 Pitz\n\n内訳を見る\n✂️ カット 100点\n⏱️ 調理時間 0:01（手際: スムーズ）\nくわしいスコアを見る\nもう一度つくる\n別のピザを作る",
+    "discoveredBanner": true,
+    "homeAfter": "👑 レシピ 5/25"
+   },
+   "lk8b": {
+    "orderScreenText": "🏠 ホーム\n🪙 500\nミト\n\nナスがのったメランザーネピザが食べたいな！バジルの香りもお願いね！\n\nテト\n\nよし！メランザーネピザを作ろう！生地にソースを塗って好きなトッピングを選んでね。\n\n🍕 フリープレイ",
+    "orderNamesMelanzane": true
+   }
+  },
+  "edgeProbes": {
+   "stock0": {
+    "order": "melanzane-pizza",
+    "completion": "FAILED",
+    "failures": [
+     {
+      "reason": "MISSING_REQUIRED_INGREDIENT",
+      "ingredientId": "eggplant"
+     }
+    ],
+    "discovered": false,
+    "eggplantPlaced": 0
+   },
+   "selectRecipe": {
+    "phase": "PREPARE",
+    "discovered": true,
+    "justDiscovered": true,
+    "completion": "PASS"
+   },
+   "retryAfterFail": {
+    "failedPhase": "POST_BAKE",
+    "failedCompletion": "FAILED",
+    "retryPhase": "PREPARE",
+    "retryRecipe": "melanzane-pizza",
+    "retryFreeCook": false
+   },
+   "dex0BeginPrepare": {
+    "initialOrder": "margherita",
+    "phase": "ORDER",
+    "discovered": true,
+    "completion": "PASS"
+   },
+   "dex0Select": "blocked(no-op)",
+   "lockedSelect": "blocked(no-op)"
+  }
+ },
+ "recipes": [
+  {
+   "recipeId": "margherita",
+   "recipeName": "マルゲリータ",
+   "ladderStep": 0,
+   "discoveredAtStart": false,
+   "requiredIngredients": [
+    "tomato-saucex1",
+    "mozzarellax3",
+    "basilx2"
+   ],
+   "hasUnlockCondition_EP1": false,
+   "mysteryLock": false,
+   "discoveryState": {
+    "freshLadderWalk": [
+     "Dex0 A=DISCOVERABLE",
+     "Dex1 A=DISCOVERED",
+     "Dex1 B=DISCOVERED",
+     "Dex2 A=DISCOVERED",
+     "Dex2 B=DISCOVERED",
+     "Dex3 A=DISCOVERED",
+     "Dex3 B=DISCOVERED",
+     "Dex4 A=DISCOVERED",
+     "Dex4 B=DISCOVERED",
+     "Dex5 A=DISCOVERED",
+     "Dex5 B=DISCOVERED",
+     "Dex6 A=DISCOVERED",
+     "Dex6 B=DISCOVERED",
+     "Dex7 A=DISCOVERED",
+     "Dex7 B=DISCOVERED",
+     "Dex8 A=DISCOVERED",
+     "Dex8 B=DISCOVERED",
+     "Dex9 A=DISCOVERED",
+     "Dex9 B=DISCOVERED",
+     "Dex10 A=DISCOVERED",
+     "Dex10 B=DISCOVERED",
+     "Dex11 A=DISCOVERED",
+     "Dex11 B=DISCOVERED",
+     "Dex12 A=DISCOVERED",
+     "Dex12 B=DISCOVERED",
+     "Dex13 A=DISCOVERED",
+     "Dex13 B=DISCOVERED",
+     "Dex14 A=DISCOVERED",
+     "Dex14 B=DISCOVERED",
+     "Dex15 A=DISCOVERED",
+     "Dex15 B=DISCOVERED",
+     "Dex16 A=DISCOVERED",
+     "Dex16 B=DISCOVERED",
+     "Dex17 A=DISCOVERED",
+     "Dex17 B=DISCOVERED",
+     "Dex18 A=DISCOVERED",
+     "Dex18 B=DISCOVERED",
+     "Dex19 A=DISCOVERED",
+     "Dex19 B=DISCOVERED",
+     "Dex20 A=DISCOVERED",
+     "Dex20 B=DISCOVERED",
+     "Dex21 A=DISCOVERED",
+     "Dex21 B=DISCOVERED",
+     "Dex22 A=DISCOVERED",
+     "Dex22 B=DISCOVERED",
+     "Dex23 A=DISCOVERED",
+     "Dex23 B=DISCOVERED",
+     "Dex24 A=DISCOVERED",
+     "Dex24 B=DISCOVERED",
+     "Dex25 A=DISCOVERED"
+    ],
+    "legacy": {
+     "fresh save Dex0 (no save)": "DISCOVERABLE",
+     "Dex1 margherita only": "DISCOVERED",
+     "Dex15 legacy (old 15 discovered, all old materials owned)": "DISCOVERED",
+     "Dex15 legacy + eggplant/corn/pineapple bought": "DISCOVERED",
+     "Dex23 (all but quattro-formaggi, bismarck)": "DISCOVERED",
+     "Dex24 (all but quattro-formaggi), fontina/gorgonzola owned": "DISCOVERED",
+     "inventory 0 (Dex4 ladder, eggplant owned stock 0)": "DISCOVERED",
+     "unlocked but not owned (Dex4 ladder A)": "DISCOVERED",
+     "owned but recipe undiscovered (Dex3 + owns eggplant/parmigiano/corn/pineapple/ham via old save)": "DISCOVERED"
+    }
+   },
+   "pizzaSelectLeak": {
+    "L1_NAME": true,
+    "L2_IMAGE": true,
+    "L6_BYPASS_SELECT_RECIPE": false,
+    "L7_NAMED_IN_OTHER_CARD_LOCK_HINT": true,
+    "firstNameState": "ladder Dex0 A(entitled,not bought)",
+    "firstImageState": "ladder Dex0 A(entitled,not bought)",
+    "note": null,
+    "severity": "HIGH"
+   },
+   "shopLeak": {
+    "L5_UNLOCK_ANSWER_ROW": false,
+    "L5_PURCHASE_FEEDBACK": false,
+    "freshLadder": [],
+    "legacy": [],
+    "severity": "NONE"
+   },
+   "dexLeak": {
+    "L1_NAME": false,
+    "L2_IMAGE": false,
+    "L3_INGREDIENTS": false,
+    "severity": "NONE",
+    "note": "undiscovered card = 🔒 ？？？ まだ見ぬピザ in every probed state"
+   },
+   "homeLeak": {
+    "L1_NAME": false,
+    "severity": "NONE"
+   },
+   "resultLeak": {
+    "preDiscovery": "NONE (recipe name only after REGISTER_TO_DEX / matcher NEW_DISCOVERY)",
+    "nearMissCopy_L7": "generic INCOMPLETE_MATCH copy (no name) -- global LOW finding F-13",
+    "severity": "NONE"
+   },
+   "freeOrderLeak": {
+    "L4_ORDER_ANSWER": true,
+    "uiReachable": false,
+    "states": [
+     "ladder Dex0 A(entitled,not bought)",
+     "legacy: fresh save Dex0 (no save)"
+    ],
+    "reducerChainCompletesDiscovery": true,
+    "evidenceLevel": "code-confirmed / UI-unreachable (Dex 0: Lunch Rush locked)",
+    "severity": "LOW"
+   },
+   "lunchRushToFreeLeak": {
+    "reachable": false,
+    "paths": [],
+    "lunchRushPoolItselfDiscoveredOnly": true,
+    "severity": "NONE"
+   },
+   "hintLeak": {
+    "L3_GUIDED_HINT": false,
+    "source": "RECIPE_HINTS (authored, names ingredients)",
+    "L7_UNLOCK_HINT_NAMES_THIS_RECIPE": true,
+    "L5_recipesUnlockedByIngredient": false,
+    "FREE_COOK_DISCOVERY_HINT_L3": "LK-6 (Dex 0, >=3 failed free-cook rounds) -- intended onboarding exception",
+    "severity": "MEDIUM"
+   },
+   "accessibilityLeak": {
+    "ariaLabelName": true,
+    "guidedMiniReferenceAria": null,
+    "hiddenDomOnly": false,
+    "note": "every aria-label hit duplicates visible text (no AT-only leak found); detail view keeps the grid mounted with display:none",
+    "severity": "LOW"
+   },
+   "navigationBypass": {
+    "SELECT_RECIPE": false,
+    "FREE_ORDER_BEGIN_PREPARE": false,
+    "RETRY_SAME_RECIPE_after_failed_guided": false,
+    "firstBypassState": null,
+    "severity": "NONE"
+   },
+   "highestSeverity": "HIGH",
+   "evidence": [
+    "runtime probe (vitest+jsdom, real components/reducer at fbfd738): scratch-only, not committed",
+    "Pizza Select NEW card (name+PizzaThumbnail+このピザを作る) first at ladder Dex0 A(entitled,not bought)",
+    "LK-8 reducer chain at ladder Dex0 A(entitled,not bought): ORDER 'よし！マルゲリータを作ろう！生地にソースを塗って好きなトッピングを選んでね。' -> BEGIN_PREPARE (guided) -> completion PASS -> discovered=true"
+   ]
+  },
+  {
+   "recipeId": "marinara",
+   "recipeName": "マリナーラ",
+   "ladderStep": 14,
+   "discoveredAtStart": false,
+   "requiredIngredients": [
+    "tomato-saucex1",
+    "garlicx3",
+    "oreganox2"
+   ],
+   "hasUnlockCondition_EP1": true,
+   "mysteryLock": false,
+   "discoveryState": {
+    "freshLadderWalk": [
+     "Dex0 A=UNKNOWN",
+     "Dex1 A=UNKNOWN",
+     "Dex1 B=UNKNOWN",
+     "Dex2 A=UNKNOWN",
+     "Dex2 B=UNKNOWN",
+     "Dex3 A=UNKNOWN",
+     "Dex3 B=UNKNOWN",
+     "Dex4 A=UNKNOWN",
+     "Dex4 B=UNKNOWN",
+     "Dex5 A=UNKNOWN",
+     "Dex5 B=UNKNOWN",
+     "Dex6 A=UNKNOWN",
+     "Dex6 B=UNKNOWN",
+     "Dex7 A=UNKNOWN",
+     "Dex7 B=UNKNOWN",
+     "Dex8 A=UNKNOWN",
+     "Dex8 B=UNKNOWN",
+     "Dex9 A=UNKNOWN",
+     "Dex9 B=UNKNOWN",
+     "Dex10 A=UNKNOWN",
+     "Dex10 B=UNKNOWN",
+     "Dex11 A=UNKNOWN",
+     "Dex11 B=UNKNOWN",
+     "Dex12 A=UNKNOWN",
+     "Dex12 B=UNKNOWN",
+     "Dex13 A=UNKNOWN",
+     "Dex13 B=UNKNOWN",
+     "Dex14 A=KNOWN_BUT_MISSING_MATERIAL",
+     "Dex14 B=DISCOVERABLE",
+     "Dex15 A=DISCOVERED",
+     "Dex15 B=DISCOVERED",
+     "Dex16 A=DISCOVERED",
+     "Dex16 B=DISCOVERED",
+     "Dex17 A=DISCOVERED",
+     "Dex17 B=DISCOVERED",
+     "Dex18 A=DISCOVERED",
+     "Dex18 B=DISCOVERED",
+     "Dex19 A=DISCOVERED",
+     "Dex19 B=DISCOVERED",
+     "Dex20 A=DISCOVERED",
+     "Dex20 B=DISCOVERED",
+     "Dex21 A=DISCOVERED",
+     "Dex21 B=DISCOVERED",
+     "Dex22 A=DISCOVERED",
+     "Dex22 B=DISCOVERED",
+     "Dex23 A=DISCOVERED",
+     "Dex23 B=DISCOVERED",
+     "Dex24 A=DISCOVERED",
+     "Dex24 B=DISCOVERED",
+     "Dex25 A=DISCOVERED"
+    ],
+    "legacy": {
+     "fresh save Dex0 (no save)": "UNKNOWN",
+     "Dex1 margherita only": "UNKNOWN",
+     "Dex15 legacy (old 15 discovered, all old materials owned)": "DISCOVERED",
+     "Dex15 legacy + eggplant/corn/pineapple bought": "DISCOVERED",
+     "Dex23 (all but quattro-formaggi, bismarck)": "DISCOVERED",
+     "Dex24 (all but quattro-formaggi), fontina/gorgonzola owned": "DISCOVERED",
+     "inventory 0 (Dex4 ladder, eggplant owned stock 0)": "UNKNOWN",
+     "unlocked but not owned (Dex4 ladder A)": "UNKNOWN",
+     "owned but recipe undiscovered (Dex3 + owns eggplant/parmigiano/corn/pineapple/ham via old save)": "UNKNOWN"
+    }
+   },
+   "pizzaSelectLeak": {
+    "L1_NAME": true,
+    "L2_IMAGE": true,
+    "L6_BYPASS_SELECT_RECIPE": true,
+    "L7_NAMED_IN_OTHER_CARD_LOCK_HINT": true,
+    "firstNameState": "ladder Dex0 A(entitled,not bought)",
+    "firstImageState": "ladder Dex14 B(bought)",
+    "note": null,
+    "severity": "BLOCKER"
+   },
+   "shopLeak": {
+    "L5_UNLOCK_ANSWER_ROW": true,
+    "L5_PURCHASE_FEEDBACK": true,
+    "freshLadder": [
+     "ladder Dex14 A(entitled,not bought): garlic"
+    ],
+    "legacy": [],
+    "severity": "HIGH"
+   },
+   "dexLeak": {
+    "L1_NAME": false,
+    "L2_IMAGE": false,
+    "L3_INGREDIENTS": false,
+    "severity": "NONE",
+    "note": "undiscovered card = 🔒 ？？？ まだ見ぬピザ in every probed state"
+   },
+   "homeLeak": {
+    "L1_NAME": false,
+    "severity": "NONE"
+   },
+   "resultLeak": {
+    "preDiscovery": "NONE (recipe name only after REGISTER_TO_DEX / matcher NEW_DISCOVERY)",
+    "nearMissCopy_L7": "generic INCOMPLETE_MATCH copy (no name) -- global LOW finding F-13",
+    "severity": "NONE"
+   },
+   "freeOrderLeak": {
+    "L4_ORDER_ANSWER": true,
+    "uiReachable": true,
+    "states": [
+     "ladder Dex14 B(bought)"
+    ],
+    "reducerChainCompletesDiscovery": true,
+    "evidenceLevel": "reducer-reproduced (runtime probe)",
+    "severity": "BLOCKER"
+   },
+   "lunchRushToFreeLeak": {
+    "reachable": true,
+    "paths": [
+     "MissionResultOverlay フリープレイへ -> exitMissionToFree -> PLAY_AGAIN (LK-8)",
+     "HOME(after PREPARE/BAKE exit) -> ランチラッシュ -> 閉じる -> stale ORDER (LK-8b)",
+     "Lunch Rush PLAYING -> ホーム -> exitMissionToFree -> PLAY_AGAIN -> later LK-8b"
+    ],
+    "lunchRushPoolItselfDiscoveredOnly": true,
+    "severity": "BLOCKER"
+   },
+   "hintLeak": {
+    "L3_GUIDED_HINT": true,
+    "source": "RECIPE_HINTS (authored, names ingredients)",
+    "L7_UNLOCK_HINT_NAMES_THIS_RECIPE": true,
+    "L5_recipesUnlockedByIngredient": true,
+    "FREE_COOK_DISCOVERY_HINT_L3": null,
+    "severity": "HIGH"
+   },
+   "accessibilityLeak": {
+    "ariaLabelName": true,
+    "guidedMiniReferenceAria": "マリナーラの見本を拡大表示",
+    "hiddenDomOnly": false,
+    "note": "every aria-label hit duplicates visible text (no AT-only leak found); detail view keeps the grid mounted with display:none",
+    "severity": "LOW"
+   },
+   "navigationBypass": {
+    "SELECT_RECIPE": true,
+    "FREE_ORDER_BEGIN_PREPARE": true,
+    "RETRY_SAME_RECIPE_after_failed_guided": true,
+    "firstBypassState": "ladder Dex14 B(bought)",
+    "severity": "BLOCKER"
+   },
+   "highestSeverity": "BLOCKER",
+   "evidence": [
+    "runtime probe (vitest+jsdom, real components/reducer at fbfd738): scratch-only, not committed",
+    "Pizza Select NEW card (name+PizzaThumbnail+このピザを作る) first at ladder Dex14 B(bought)",
+    "LK-8 reducer chain at ladder Dex14 B(bought): ORDER 'マリナーラか、腕が鳴るな！まずは生地にソースを塗るところからだ。' -> BEGIN_PREPARE (guided) -> completion PASS -> discovered=true"
+   ]
+  },
+  {
+   "recipeId": "quattro-formaggi",
+   "recipeName": "クアトロ フォルマッジ",
+   "ladderStep": 24,
+   "discoveredAtStart": false,
+   "requiredIngredients": [
+    "olive-oilx1",
+    "mozzarellax2",
+    "gorgonzolax2",
+    "parmigianox2",
+    "fontinax2"
+   ],
+   "hasUnlockCondition_EP1": true,
+   "mysteryLock": false,
+   "discoveryState": {
+    "freshLadderWalk": [
+     "Dex0 A=UNKNOWN",
+     "Dex1 A=UNKNOWN",
+     "Dex1 B=UNKNOWN",
+     "Dex2 A=UNKNOWN",
+     "Dex2 B=UNKNOWN",
+     "Dex3 A=UNKNOWN",
+     "Dex3 B=UNKNOWN",
+     "Dex4 A=UNKNOWN",
+     "Dex4 B=UNKNOWN",
+     "Dex5 A=UNKNOWN",
+     "Dex5 B=UNKNOWN",
+     "Dex6 A=UNKNOWN",
+     "Dex6 B=UNKNOWN",
+     "Dex7 A=UNKNOWN",
+     "Dex7 B=UNKNOWN",
+     "Dex8 A=UNKNOWN",
+     "Dex8 B=UNKNOWN",
+     "Dex9 A=UNKNOWN",
+     "Dex9 B=UNKNOWN",
+     "Dex10 A=UNKNOWN",
+     "Dex10 B=UNKNOWN",
+     "Dex11 A=UNKNOWN",
+     "Dex11 B=UNKNOWN",
+     "Dex12 A=UNKNOWN",
+     "Dex12 B=UNKNOWN",
+     "Dex13 A=UNKNOWN",
+     "Dex13 B=UNKNOWN",
+     "Dex14 A=UNKNOWN",
+     "Dex14 B=UNKNOWN",
+     "Dex15 A=UNKNOWN",
+     "Dex15 B=UNKNOWN",
+     "Dex16 A=UNKNOWN",
+     "Dex16 B=UNKNOWN",
+     "Dex17 A=UNKNOWN",
+     "Dex17 B=UNKNOWN",
+     "Dex18 A=UNKNOWN",
+     "Dex18 B=UNKNOWN",
+     "Dex19 A=UNKNOWN",
+     "Dex19 B=UNKNOWN",
+     "Dex20 A=UNKNOWN",
+     "Dex20 B=UNKNOWN",
+     "Dex21 A=UNKNOWN",
+     "Dex21 B=UNKNOWN",
+     "Dex22 A=UNKNOWN",
+     "Dex22 B=UNKNOWN",
+     "Dex23 A=UNKNOWN",
+     "Dex23 B=UNKNOWN",
+     "Dex24 A=KNOWN_BUT_MISSING_MATERIAL",
+     "Dex24 B=DISCOVERABLE",
+     "Dex25 A=DISCOVERED"
+    ],
+    "legacy": {
+     "fresh save Dex0 (no save)": "UNKNOWN",
+     "Dex1 margherita only": "UNKNOWN",
+     "Dex15 legacy (old 15 discovered, all old materials owned)": "DISCOVERED",
+     "Dex15 legacy + eggplant/corn/pineapple bought": "DISCOVERED",
+     "Dex23 (all but quattro-formaggi, bismarck)": "UNKNOWN",
+     "Dex24 (all but quattro-formaggi), fontina/gorgonzola owned": "DISCOVERABLE",
+     "inventory 0 (Dex4 ladder, eggplant owned stock 0)": "UNKNOWN",
+     "unlocked but not owned (Dex4 ladder A)": "UNKNOWN",
+     "owned but recipe undiscovered (Dex3 + owns eggplant/parmigiano/corn/pineapple/ham via old save)": "UNKNOWN"
+    }
+   },
+   "pizzaSelectLeak": {
+    "L1_NAME": true,
+    "L2_IMAGE": true,
+    "L6_BYPASS_SELECT_RECIPE": true,
+    "L7_NAMED_IN_OTHER_CARD_LOCK_HINT": false,
+    "firstNameState": "ladder Dex0 A(entitled,not bought)",
+    "firstImageState": "ladder Dex24 B(bought)",
+    "note": null,
+    "severity": "BLOCKER"
+   },
+   "shopLeak": {
+    "L5_UNLOCK_ANSWER_ROW": false,
+    "L5_PURCHASE_FEEDBACK": false,
+    "freshLadder": [],
+    "legacy": [],
+    "severity": "NONE"
+   },
+   "dexLeak": {
+    "L1_NAME": false,
+    "L2_IMAGE": false,
+    "L3_INGREDIENTS": false,
+    "severity": "NONE",
+    "note": "undiscovered card = 🔒 ？？？ まだ見ぬピザ in every probed state"
+   },
+   "homeLeak": {
+    "L1_NAME": false,
+    "severity": "NONE"
+   },
+   "resultLeak": {
+    "preDiscovery": "NONE (recipe name only after REGISTER_TO_DEX / matcher NEW_DISCOVERY)",
+    "nearMissCopy_L7": "generic INCOMPLETE_MATCH copy (no name) -- global LOW finding F-13",
+    "severity": "NONE"
+   },
+   "freeOrderLeak": {
+    "L4_ORDER_ANSWER": true,
+    "uiReachable": true,
+    "states": [
+     "ladder Dex24 B(bought)",
+     "legacy: Dex24 (all but quattro-formaggi), fontina/gorgonzola owned"
+    ],
+    "reducerChainCompletesDiscovery": true,
+    "evidenceLevel": "reducer-reproduced (runtime probe)",
+    "severity": "BLOCKER"
+   },
+   "lunchRushToFreeLeak": {
+    "reachable": true,
+    "paths": [
+     "MissionResultOverlay フリープレイへ -> exitMissionToFree -> PLAY_AGAIN (LK-8)",
+     "HOME(after PREPARE/BAKE exit) -> ランチラッシュ -> 閉じる -> stale ORDER (LK-8b)",
+     "Lunch Rush PLAYING -> ホーム -> exitMissionToFree -> PLAY_AGAIN -> later LK-8b"
+    ],
+    "lunchRushPoolItselfDiscoveredOnly": true,
+    "severity": "BLOCKER"
+   },
+   "hintLeak": {
+    "L3_GUIDED_HINT": true,
+    "source": "RECIPE_HINTS (authored, names ingredients)",
+    "L7_UNLOCK_HINT_NAMES_THIS_RECIPE": false,
+    "L5_recipesUnlockedByIngredient": false,
+    "FREE_COOK_DISCOVERY_HINT_L3": null,
+    "severity": "HIGH"
+   },
+   "accessibilityLeak": {
+    "ariaLabelName": true,
+    "guidedMiniReferenceAria": "クアトロ フォルマッジの見本を拡大表示",
+    "hiddenDomOnly": false,
+    "note": "every aria-label hit duplicates visible text (no AT-only leak found); detail view keeps the grid mounted with display:none",
+    "severity": "LOW"
+   },
+   "navigationBypass": {
+    "SELECT_RECIPE": true,
+    "FREE_ORDER_BEGIN_PREPARE": true,
+    "RETRY_SAME_RECIPE_after_failed_guided": true,
+    "firstBypassState": "ladder Dex24 B(bought)",
+    "severity": "BLOCKER"
+   },
+   "highestSeverity": "BLOCKER",
+   "evidence": [
+    "runtime probe (vitest+jsdom, real components/reducer at fbfd738): scratch-only, not committed",
+    "Pizza Select NEW card (name+PizzaThumbnail+このピザを作る) first at ladder Dex24 B(bought)",
+    "LK-8 reducer chain at ladder Dex24 B(bought): ORDER 'よーし、今日はクアトロ フォルマッジに挑戦だ！トッピングは好きに選んでいいぞ。' -> BEGIN_PREPARE (guided) -> completion PASS -> discovered=true"
+   ]
+  },
+  {
+   "recipeId": "genovese",
+   "recipeName": "ジェノベーゼ",
+   "ladderStep": 18,
+   "discoveredAtStart": false,
+   "requiredIngredients": [
+    "pestox1",
+    "mozzarellax2",
+    "cherry-tomatox3"
+   ],
+   "hasUnlockCondition_EP1": true,
+   "mysteryLock": false,
+   "discoveryState": {
+    "freshLadderWalk": [
+     "Dex0 A=UNKNOWN",
+     "Dex1 A=UNKNOWN",
+     "Dex1 B=UNKNOWN",
+     "Dex2 A=UNKNOWN",
+     "Dex2 B=UNKNOWN",
+     "Dex3 A=UNKNOWN",
+     "Dex3 B=UNKNOWN",
+     "Dex4 A=UNKNOWN",
+     "Dex4 B=UNKNOWN",
+     "Dex5 A=UNKNOWN",
+     "Dex5 B=UNKNOWN",
+     "Dex6 A=UNKNOWN",
+     "Dex6 B=UNKNOWN",
+     "Dex7 A=UNKNOWN",
+     "Dex7 B=UNKNOWN",
+     "Dex8 A=UNKNOWN",
+     "Dex8 B=UNKNOWN",
+     "Dex9 A=UNKNOWN",
+     "Dex9 B=UNKNOWN",
+     "Dex10 A=UNKNOWN",
+     "Dex10 B=UNKNOWN",
+     "Dex11 A=UNKNOWN",
+     "Dex11 B=UNKNOWN",
+     "Dex12 A=UNKNOWN",
+     "Dex12 B=UNKNOWN",
+     "Dex13 A=UNKNOWN",
+     "Dex13 B=UNKNOWN",
+     "Dex14 A=UNKNOWN",
+     "Dex14 B=UNKNOWN",
+     "Dex15 A=UNKNOWN",
+     "Dex15 B=UNKNOWN",
+     "Dex16 A=UNKNOWN",
+     "Dex16 B=UNKNOWN",
+     "Dex17 A=UNKNOWN",
+     "Dex17 B=UNKNOWN",
+     "Dex18 A=KNOWN_BUT_MISSING_MATERIAL",
+     "Dex18 B=DISCOVERABLE",
+     "Dex19 A=DISCOVERED",
+     "Dex19 B=DISCOVERED",
+     "Dex20 A=DISCOVERED",
+     "Dex20 B=DISCOVERED",
+     "Dex21 A=DISCOVERED",
+     "Dex21 B=DISCOVERED",
+     "Dex22 A=DISCOVERED",
+     "Dex22 B=DISCOVERED",
+     "Dex23 A=DISCOVERED",
+     "Dex23 B=DISCOVERED",
+     "Dex24 A=DISCOVERED",
+     "Dex24 B=DISCOVERED",
+     "Dex25 A=DISCOVERED"
+    ],
+    "legacy": {
+     "fresh save Dex0 (no save)": "UNKNOWN",
+     "Dex1 margherita only": "UNKNOWN",
+     "Dex15 legacy (old 15 discovered, all old materials owned)": "DISCOVERED",
+     "Dex15 legacy + eggplant/corn/pineapple bought": "DISCOVERED",
+     "Dex23 (all but quattro-formaggi, bismarck)": "DISCOVERED",
+     "Dex24 (all but quattro-formaggi), fontina/gorgonzola owned": "DISCOVERED",
+     "inventory 0 (Dex4 ladder, eggplant owned stock 0)": "UNKNOWN",
+     "unlocked but not owned (Dex4 ladder A)": "UNKNOWN",
+     "owned but recipe undiscovered (Dex3 + owns eggplant/parmigiano/corn/pineapple/ham via old save)": "UNKNOWN"
+    }
+   },
+   "pizzaSelectLeak": {
+    "L1_NAME": true,
+    "L2_IMAGE": true,
+    "L6_BYPASS_SELECT_RECIPE": true,
+    "L7_NAMED_IN_OTHER_CARD_LOCK_HINT": true,
+    "firstNameState": "ladder Dex0 A(entitled,not bought)",
+    "firstImageState": "ladder Dex18 B(bought)",
+    "note": null,
+    "severity": "BLOCKER"
+   },
+   "shopLeak": {
+    "L5_UNLOCK_ANSWER_ROW": true,
+    "L5_PURCHASE_FEEDBACK": true,
+    "freshLadder": [
+     "ladder Dex18 A(entitled,not bought): cherry-tomato"
+    ],
+    "legacy": [],
+    "severity": "HIGH"
+   },
+   "dexLeak": {
+    "L1_NAME": false,
+    "L2_IMAGE": false,
+    "L3_INGREDIENTS": false,
+    "severity": "NONE",
+    "note": "undiscovered card = 🔒 ？？？ まだ見ぬピザ in every probed state"
+   },
+   "homeLeak": {
+    "L1_NAME": false,
+    "severity": "NONE"
+   },
+   "resultLeak": {
+    "preDiscovery": "NONE (recipe name only after REGISTER_TO_DEX / matcher NEW_DISCOVERY)",
+    "nearMissCopy_L7": "generic INCOMPLETE_MATCH copy (no name) -- global LOW finding F-13",
+    "severity": "NONE"
+   },
+   "freeOrderLeak": {
+    "L4_ORDER_ANSWER": true,
+    "uiReachable": true,
+    "states": [
+     "ladder Dex18 B(bought)"
+    ],
+    "reducerChainCompletesDiscovery": true,
+    "evidenceLevel": "reducer-reproduced (runtime probe)",
+    "severity": "BLOCKER"
+   },
+   "lunchRushToFreeLeak": {
+    "reachable": true,
+    "paths": [
+     "MissionResultOverlay フリープレイへ -> exitMissionToFree -> PLAY_AGAIN (LK-8)",
+     "HOME(after PREPARE/BAKE exit) -> ランチラッシュ -> 閉じる -> stale ORDER (LK-8b)",
+     "Lunch Rush PLAYING -> ホーム -> exitMissionToFree -> PLAY_AGAIN -> later LK-8b"
+    ],
+    "lunchRushPoolItselfDiscoveredOnly": true,
+    "severity": "BLOCKER"
+   },
+   "hintLeak": {
+    "L3_GUIDED_HINT": true,
+    "source": "RECIPE_HINTS (authored, names ingredients)",
+    "L7_UNLOCK_HINT_NAMES_THIS_RECIPE": true,
+    "L5_recipesUnlockedByIngredient": true,
+    "FREE_COOK_DISCOVERY_HINT_L3": null,
+    "severity": "HIGH"
+   },
+   "accessibilityLeak": {
+    "ariaLabelName": true,
+    "guidedMiniReferenceAria": "ジェノベーゼの見本を拡大表示",
+    "hiddenDomOnly": false,
+    "note": "every aria-label hit duplicates visible text (no AT-only leak found); detail view keeps the grid mounted with display:none",
+    "severity": "LOW"
+   },
+   "navigationBypass": {
+    "SELECT_RECIPE": true,
+    "FREE_ORDER_BEGIN_PREPARE": true,
+    "RETRY_SAME_RECIPE_after_failed_guided": true,
+    "firstBypassState": "ladder Dex18 B(bought)",
+    "severity": "BLOCKER"
+   },
+   "highestSeverity": "BLOCKER",
+   "evidence": [
+    "runtime probe (vitest+jsdom, real components/reducer at fbfd738): scratch-only, not committed",
+    "Pizza Select NEW card (name+PizzaThumbnail+このピザを作る) first at ladder Dex18 B(bought)",
+    "LK-8 reducer chain at ladder Dex18 B(bought): ORDER 'よし！ジェノベーゼを作ろう！生地にソースを塗って好きなトッピングを選んでね。' -> BEGIN_PREPARE (guided) -> completion PASS -> discovered=true"
+   ]
+  },
+  {
+   "recipeId": "bismarck",
+   "recipeName": "ビスマルク",
+   "ladderStep": 1,
+   "discoveredAtStart": false,
+   "requiredIngredients": [
+    "tomato-saucex1",
+    "mozzarellax3",
+    "eggx1"
+   ],
+   "hasUnlockCondition_EP1": true,
+   "mysteryLock": false,
+   "discoveryState": {
+    "freshLadderWalk": [
+     "Dex0 A=UNKNOWN",
+     "Dex1 A=KNOWN_BUT_MISSING_MATERIAL",
+     "Dex1 B=DISCOVERABLE",
+     "Dex2 A=DISCOVERED",
+     "Dex2 B=DISCOVERED",
+     "Dex3 A=DISCOVERED",
+     "Dex3 B=DISCOVERED",
+     "Dex4 A=DISCOVERED",
+     "Dex4 B=DISCOVERED",
+     "Dex5 A=DISCOVERED",
+     "Dex5 B=DISCOVERED",
+     "Dex6 A=DISCOVERED",
+     "Dex6 B=DISCOVERED",
+     "Dex7 A=DISCOVERED",
+     "Dex7 B=DISCOVERED",
+     "Dex8 A=DISCOVERED",
+     "Dex8 B=DISCOVERED",
+     "Dex9 A=DISCOVERED",
+     "Dex9 B=DISCOVERED",
+     "Dex10 A=DISCOVERED",
+     "Dex10 B=DISCOVERED",
+     "Dex11 A=DISCOVERED",
+     "Dex11 B=DISCOVERED",
+     "Dex12 A=DISCOVERED",
+     "Dex12 B=DISCOVERED",
+     "Dex13 A=DISCOVERED",
+     "Dex13 B=DISCOVERED",
+     "Dex14 A=DISCOVERED",
+     "Dex14 B=DISCOVERED",
+     "Dex15 A=DISCOVERED",
+     "Dex15 B=DISCOVERED",
+     "Dex16 A=DISCOVERED",
+     "Dex16 B=DISCOVERED",
+     "Dex17 A=DISCOVERED",
+     "Dex17 B=DISCOVERED",
+     "Dex18 A=DISCOVERED",
+     "Dex18 B=DISCOVERED",
+     "Dex19 A=DISCOVERED",
+     "Dex19 B=DISCOVERED",
+     "Dex20 A=DISCOVERED",
+     "Dex20 B=DISCOVERED",
+     "Dex21 A=DISCOVERED",
+     "Dex21 B=DISCOVERED",
+     "Dex22 A=DISCOVERED",
+     "Dex22 B=DISCOVERED",
+     "Dex23 A=DISCOVERED",
+     "Dex23 B=DISCOVERED",
+     "Dex24 A=DISCOVERED",
+     "Dex24 B=DISCOVERED",
+     "Dex25 A=DISCOVERED"
+    ],
+    "legacy": {
+     "fresh save Dex0 (no save)": "UNKNOWN",
+     "Dex1 margherita only": "KNOWN_BUT_MISSING_MATERIAL",
+     "Dex15 legacy (old 15 discovered, all old materials owned)": "DISCOVERED",
+     "Dex15 legacy + eggplant/corn/pineapple bought": "DISCOVERED",
+     "Dex23 (all but quattro-formaggi, bismarck)": "DISCOVERABLE",
+     "Dex24 (all but quattro-formaggi), fontina/gorgonzola owned": "DISCOVERED",
+     "inventory 0 (Dex4 ladder, eggplant owned stock 0)": "DISCOVERED",
+     "unlocked but not owned (Dex4 ladder A)": "DISCOVERED",
+     "owned but recipe undiscovered (Dex3 + owns eggplant/parmigiano/corn/pineapple/ham via old save)": "DISCOVERED"
+    }
+   },
+   "pizzaSelectLeak": {
+    "L1_NAME": true,
+    "L2_IMAGE": true,
+    "L6_BYPASS_SELECT_RECIPE": true,
+    "L7_NAMED_IN_OTHER_CARD_LOCK_HINT": true,
+    "firstNameState": "ladder Dex0 A(entitled,not bought)",
+    "firstImageState": "legacy: Dex23 (all but quattro-formaggi, bismarck)",
+    "note": null,
+    "severity": "BLOCKER"
+   },
+   "shopLeak": {
+    "L5_UNLOCK_ANSWER_ROW": false,
+    "L5_PURCHASE_FEEDBACK": false,
+    "freshLadder": [],
+    "legacy": [],
+    "severity": "NONE"
+   },
+   "dexLeak": {
+    "L1_NAME": false,
+    "L2_IMAGE": false,
+    "L3_INGREDIENTS": false,
+    "severity": "NONE",
+    "note": "undiscovered card = 🔒 ？？？ まだ見ぬピザ in every probed state"
+   },
+   "homeLeak": {
+    "L1_NAME": false,
+    "severity": "NONE"
+   },
+   "resultLeak": {
+    "preDiscovery": "NONE (recipe name only after REGISTER_TO_DEX / matcher NEW_DISCOVERY)",
+    "nearMissCopy_L7": "generic INCOMPLETE_MATCH copy (no name) -- global LOW finding F-13",
+    "severity": "NONE"
+   },
+   "freeOrderLeak": {
+    "L4_ORDER_ANSWER": true,
+    "uiReachable": true,
+    "states": [
+     "legacy: Dex23 (all but quattro-formaggi, bismarck)"
+    ],
+    "reducerChainCompletesDiscovery": null,
+    "evidenceLevel": "reducer-reproduced (runtime probe)",
+    "severity": "BLOCKER"
+   },
+   "lunchRushToFreeLeak": {
+    "reachable": true,
+    "paths": [
+     "MissionResultOverlay フリープレイへ -> exitMissionToFree -> PLAY_AGAIN (LK-8)",
+     "HOME(after PREPARE/BAKE exit) -> ランチラッシュ -> 閉じる -> stale ORDER (LK-8b)",
+     "Lunch Rush PLAYING -> ホーム -> exitMissionToFree -> PLAY_AGAIN -> later LK-8b"
+    ],
+    "lunchRushPoolItselfDiscoveredOnly": true,
+    "severity": "BLOCKER"
+   },
+   "hintLeak": {
+    "L3_GUIDED_HINT": true,
+    "source": "RECIPE_HINTS (authored, names ingredients)",
+    "L7_UNLOCK_HINT_NAMES_THIS_RECIPE": true,
+    "L5_recipesUnlockedByIngredient": false,
+    "FREE_COOK_DISCOVERY_HINT_L3": null,
+    "severity": "HIGH"
+   },
+   "accessibilityLeak": {
+    "ariaLabelName": true,
+    "guidedMiniReferenceAria": "ビスマルクの見本を拡大表示",
+    "hiddenDomOnly": false,
+    "note": "every aria-label hit duplicates visible text (no AT-only leak found); detail view keeps the grid mounted with display:none",
+    "severity": "LOW"
+   },
+   "navigationBypass": {
+    "SELECT_RECIPE": true,
+    "FREE_ORDER_BEGIN_PREPARE": true,
+    "RETRY_SAME_RECIPE_after_failed_guided": true,
+    "firstBypassState": "legacy: Dex23 (all but quattro-formaggi, bismarck)",
+    "severity": "BLOCKER"
+   },
+   "highestSeverity": "BLOCKER",
+   "evidence": [
+    "runtime probe (vitest+jsdom, real components/reducer at fbfd738): scratch-only, not committed"
+   ]
+  },
+  {
+   "recipeId": "funghi",
+   "recipeName": "フンギ",
+   "ladderStep": 3,
+   "discoveredAtStart": false,
+   "requiredIngredients": [
+    "tomato-saucex1",
+    "mozzarellax2",
+    "mushroomx3"
+   ],
+   "hasUnlockCondition_EP1": true,
+   "mysteryLock": false,
+   "discoveryState": {
+    "freshLadderWalk": [
+     "Dex0 A=UNKNOWN",
+     "Dex1 A=UNKNOWN",
+     "Dex1 B=UNKNOWN",
+     "Dex2 A=UNKNOWN",
+     "Dex2 B=UNKNOWN",
+     "Dex3 A=KNOWN_BUT_MISSING_MATERIAL",
+     "Dex3 B=DISCOVERABLE",
+     "Dex4 A=DISCOVERED",
+     "Dex4 B=DISCOVERED",
+     "Dex5 A=DISCOVERED",
+     "Dex5 B=DISCOVERED",
+     "Dex6 A=DISCOVERED",
+     "Dex6 B=DISCOVERED",
+     "Dex7 A=DISCOVERED",
+     "Dex7 B=DISCOVERED",
+     "Dex8 A=DISCOVERED",
+     "Dex8 B=DISCOVERED",
+     "Dex9 A=DISCOVERED",
+     "Dex9 B=DISCOVERED",
+     "Dex10 A=DISCOVERED",
+     "Dex10 B=DISCOVERED",
+     "Dex11 A=DISCOVERED",
+     "Dex11 B=DISCOVERED",
+     "Dex12 A=DISCOVERED",
+     "Dex12 B=DISCOVERED",
+     "Dex13 A=DISCOVERED",
+     "Dex13 B=DISCOVERED",
+     "Dex14 A=DISCOVERED",
+     "Dex14 B=DISCOVERED",
+     "Dex15 A=DISCOVERED",
+     "Dex15 B=DISCOVERED",
+     "Dex16 A=DISCOVERED",
+     "Dex16 B=DISCOVERED",
+     "Dex17 A=DISCOVERED",
+     "Dex17 B=DISCOVERED",
+     "Dex18 A=DISCOVERED",
+     "Dex18 B=DISCOVERED",
+     "Dex19 A=DISCOVERED",
+     "Dex19 B=DISCOVERED",
+     "Dex20 A=DISCOVERED",
+     "Dex20 B=DISCOVERED",
+     "Dex21 A=DISCOVERED",
+     "Dex21 B=DISCOVERED",
+     "Dex22 A=DISCOVERED",
+     "Dex22 B=DISCOVERED",
+     "Dex23 A=DISCOVERED",
+     "Dex23 B=DISCOVERED",
+     "Dex24 A=DISCOVERED",
+     "Dex24 B=DISCOVERED",
+     "Dex25 A=DISCOVERED"
+    ],
+    "legacy": {
+     "fresh save Dex0 (no save)": "UNKNOWN",
+     "Dex1 margherita only": "UNKNOWN",
+     "Dex15 legacy (old 15 discovered, all old materials owned)": "DISCOVERED",
+     "Dex15 legacy + eggplant/corn/pineapple bought": "DISCOVERED",
+     "Dex23 (all but quattro-formaggi, bismarck)": "DISCOVERED",
+     "Dex24 (all but quattro-formaggi), fontina/gorgonzola owned": "DISCOVERED",
+     "inventory 0 (Dex4 ladder, eggplant owned stock 0)": "DISCOVERED",
+     "unlocked but not owned (Dex4 ladder A)": "DISCOVERED",
+     "owned but recipe undiscovered (Dex3 + owns eggplant/parmigiano/corn/pineapple/ham via old save)": "DISCOVERABLE"
+    }
+   },
+   "pizzaSelectLeak": {
+    "L1_NAME": true,
+    "L2_IMAGE": true,
+    "L6_BYPASS_SELECT_RECIPE": true,
+    "L7_NAMED_IN_OTHER_CARD_LOCK_HINT": true,
+    "firstNameState": "ladder Dex0 A(entitled,not bought)",
+    "firstImageState": "ladder Dex3 B(bought)",
+    "note": null,
+    "severity": "BLOCKER"
+   },
+   "shopLeak": {
+    "L5_UNLOCK_ANSWER_ROW": true,
+    "L5_PURCHASE_FEEDBACK": true,
+    "freshLadder": [
+     "ladder Dex3 A(entitled,not bought): mushroom"
+    ],
+    "legacy": [],
+    "severity": "HIGH"
+   },
+   "dexLeak": {
+    "L1_NAME": false,
+    "L2_IMAGE": false,
+    "L3_INGREDIENTS": false,
+    "severity": "NONE",
+    "note": "undiscovered card = 🔒 ？？？ まだ見ぬピザ in every probed state"
+   },
+   "homeLeak": {
+    "L1_NAME": false,
+    "severity": "NONE"
+   },
+   "resultLeak": {
+    "preDiscovery": "NONE (recipe name only after REGISTER_TO_DEX / matcher NEW_DISCOVERY)",
+    "nearMissCopy_L7": "generic INCOMPLETE_MATCH copy (no name) -- global LOW finding F-13",
+    "severity": "NONE"
+   },
+   "freeOrderLeak": {
+    "L4_ORDER_ANSWER": true,
+    "uiReachable": true,
+    "states": [
+     "ladder Dex3 B(bought)",
+     "legacy: owned but recipe undiscovered (Dex3 + owns eggplant/parmigiano/corn/pineapple/ham via old save)"
+    ],
+    "reducerChainCompletesDiscovery": true,
+    "evidenceLevel": "reducer-reproduced (runtime probe)",
+    "severity": "BLOCKER"
+   },
+   "lunchRushToFreeLeak": {
+    "reachable": true,
+    "paths": [
+     "MissionResultOverlay フリープレイへ -> exitMissionToFree -> PLAY_AGAIN (LK-8)",
+     "HOME(after PREPARE/BAKE exit) -> ランチラッシュ -> 閉じる -> stale ORDER (LK-8b)",
+     "Lunch Rush PLAYING -> ホーム -> exitMissionToFree -> PLAY_AGAIN -> later LK-8b"
+    ],
+    "lunchRushPoolItselfDiscoveredOnly": true,
+    "severity": "BLOCKER"
+   },
+   "hintLeak": {
+    "L3_GUIDED_HINT": true,
+    "source": "RECIPE_HINTS (authored, names ingredients)",
+    "L7_UNLOCK_HINT_NAMES_THIS_RECIPE": true,
+    "L5_recipesUnlockedByIngredient": true,
+    "FREE_COOK_DISCOVERY_HINT_L3": null,
+    "severity": "HIGH"
+   },
+   "accessibilityLeak": {
+    "ariaLabelName": true,
+    "guidedMiniReferenceAria": "フンギの見本を拡大表示",
+    "hiddenDomOnly": false,
+    "note": "every aria-label hit duplicates visible text (no AT-only leak found); detail view keeps the grid mounted with display:none",
+    "severity": "LOW"
+   },
+   "navigationBypass": {
+    "SELECT_RECIPE": true,
+    "FREE_ORDER_BEGIN_PREPARE": true,
+    "RETRY_SAME_RECIPE_after_failed_guided": true,
+    "firstBypassState": "ladder Dex3 B(bought)",
+    "severity": "BLOCKER"
+   },
+   "highestSeverity": "BLOCKER",
+   "evidence": [
+    "runtime probe (vitest+jsdom, real components/reducer at fbfd738): scratch-only, not committed",
+    "Pizza Select NEW card (name+PizzaThumbnail+このピザを作る) first at ladder Dex3 B(bought)",
+    "LK-8 reducer chain at ladder Dex3 B(bought): ORDER 'よーし、今日はフンギに挑戦だ！トッピングは好きに選んでいいぞ。' -> BEGIN_PREPARE (guided) -> completion PASS -> discovered=true"
+   ]
+  },
+  {
+   "recipeId": "fugazza",
+   "recipeName": "フガッサ",
+   "ladderStep": 13,
+   "discoveredAtStart": false,
+   "requiredIngredients": [
+    "olive-oilx1",
+    "onionx4",
+    "oreganox1"
+   ],
+   "hasUnlockCondition_EP1": true,
+   "mysteryLock": true,
+   "discoveryState": {
+    "freshLadderWalk": [
+     "Dex0 A=UNKNOWN",
+     "Dex1 A=UNKNOWN",
+     "Dex1 B=UNKNOWN",
+     "Dex2 A=UNKNOWN",
+     "Dex2 B=UNKNOWN",
+     "Dex3 A=UNKNOWN",
+     "Dex3 B=UNKNOWN",
+     "Dex4 A=UNKNOWN",
+     "Dex4 B=UNKNOWN",
+     "Dex5 A=UNKNOWN",
+     "Dex5 B=UNKNOWN",
+     "Dex6 A=UNKNOWN",
+     "Dex6 B=UNKNOWN",
+     "Dex7 A=UNKNOWN",
+     "Dex7 B=UNKNOWN",
+     "Dex8 A=UNKNOWN",
+     "Dex8 B=UNKNOWN",
+     "Dex9 A=UNKNOWN",
+     "Dex9 B=UNKNOWN",
+     "Dex10 A=UNKNOWN",
+     "Dex10 B=UNKNOWN",
+     "Dex11 A=UNKNOWN",
+     "Dex11 B=UNKNOWN",
+     "Dex12 A=UNKNOWN",
+     "Dex12 B=UNKNOWN",
+     "Dex13 A=KNOWN_BUT_MISSING_MATERIAL",
+     "Dex13 B=DISCOVERABLE",
+     "Dex14 A=DISCOVERED",
+     "Dex14 B=DISCOVERED",
+     "Dex15 A=DISCOVERED",
+     "Dex15 B=DISCOVERED",
+     "Dex16 A=DISCOVERED",
+     "Dex16 B=DISCOVERED",
+     "Dex17 A=DISCOVERED",
+     "Dex17 B=DISCOVERED",
+     "Dex18 A=DISCOVERED",
+     "Dex18 B=DISCOVERED",
+     "Dex19 A=DISCOVERED",
+     "Dex19 B=DISCOVERED",
+     "Dex20 A=DISCOVERED",
+     "Dex20 B=DISCOVERED",
+     "Dex21 A=DISCOVERED",
+     "Dex21 B=DISCOVERED",
+     "Dex22 A=DISCOVERED",
+     "Dex22 B=DISCOVERED",
+     "Dex23 A=DISCOVERED",
+     "Dex23 B=DISCOVERED",
+     "Dex24 A=DISCOVERED",
+     "Dex24 B=DISCOVERED",
+     "Dex25 A=DISCOVERED"
+    ],
+    "legacy": {
+     "fresh save Dex0 (no save)": "UNKNOWN",
+     "Dex1 margherita only": "UNKNOWN",
+     "Dex15 legacy (old 15 discovered, all old materials owned)": "DISCOVERED",
+     "Dex15 legacy + eggplant/corn/pineapple bought": "DISCOVERED",
+     "Dex23 (all but quattro-formaggi, bismarck)": "DISCOVERED",
+     "Dex24 (all but quattro-formaggi), fontina/gorgonzola owned": "DISCOVERED",
+     "inventory 0 (Dex4 ladder, eggplant owned stock 0)": "UNKNOWN",
+     "unlocked but not owned (Dex4 ladder A)": "UNKNOWN",
+     "owned but recipe undiscovered (Dex3 + owns eggplant/parmigiano/corn/pineapple/ham via old save)": "UNKNOWN"
+    }
+   },
+   "pizzaSelectLeak": {
+    "L1_NAME": false,
+    "L2_IMAGE": false,
+    "L6_BYPASS_SELECT_RECIPE": false,
+    "L7_NAMED_IN_OTHER_CARD_LOCK_HINT": true,
+    "firstNameState": null,
+    "firstImageState": null,
+    "note": "mysteryLock: LOCKED card shows ？？？ (name hidden); named in no lock hint",
+    "severity": "NONE"
+   },
+   "shopLeak": {
+    "L5_UNLOCK_ANSWER_ROW": false,
+    "L5_PURCHASE_FEEDBACK": false,
+    "freshLadder": [],
+    "legacy": [],
+    "severity": "NONE"
+   },
+   "dexLeak": {
+    "L1_NAME": false,
+    "L2_IMAGE": false,
+    "L3_INGREDIENTS": false,
+    "severity": "NONE",
+    "note": "undiscovered card = 🔒 ？？？ まだ見ぬピザ in every probed state"
+   },
+   "homeLeak": {
+    "L1_NAME": false,
+    "severity": "NONE"
+   },
+   "resultLeak": {
+    "preDiscovery": "NONE (recipe name only after REGISTER_TO_DEX / matcher NEW_DISCOVERY)",
+    "nearMissCopy_L7": "generic INCOMPLETE_MATCH copy (no name) -- global LOW finding F-13",
+    "severity": "NONE"
+   },
+   "freeOrderLeak": {
+    "L4_ORDER_ANSWER": false,
+    "uiReachable": false,
+    "states": [],
+    "reducerChainCompletesDiscovery": null,
+    "evidenceLevel": null,
+    "severity": "NONE"
+   },
+   "lunchRushToFreeLeak": {
+    "reachable": false,
+    "paths": [],
+    "lunchRushPoolItselfDiscoveredOnly": true,
+    "severity": "NONE"
+   },
+   "hintLeak": {
+    "L3_GUIDED_HINT": false,
+    "source": "buildHintLine fallback (`${ingredient}をのせてみよう！`)",
+    "L7_UNLOCK_HINT_NAMES_THIS_RECIPE": true,
+    "L5_recipesUnlockedByIngredient": false,
+    "FREE_COOK_DISCOVERY_HINT_L3": null,
+    "severity": "MEDIUM"
+   },
+   "accessibilityLeak": {
+    "ariaLabelName": false,
+    "guidedMiniReferenceAria": null,
+    "hiddenDomOnly": false,
+    "note": "every aria-label hit duplicates visible text (no AT-only leak found); detail view keeps the grid mounted with display:none",
+    "severity": "NONE"
+   },
+   "navigationBypass": {
+    "SELECT_RECIPE": false,
+    "FREE_ORDER_BEGIN_PREPARE": false,
+    "RETRY_SAME_RECIPE_after_failed_guided": false,
+    "firstBypassState": null,
+    "severity": "NONE"
+   },
+   "highestSeverity": "MEDIUM",
+   "evidence": [
+    "runtime probe (vitest+jsdom, real components/reducer at fbfd738): scratch-only, not committed"
+   ]
+  },
+  {
+   "recipeId": "salsiccia",
+   "recipeName": "サルシッチャ",
+   "ladderStep": 7,
+   "discoveredAtStart": false,
+   "requiredIngredients": [
+    "tomato-saucex1",
+    "mozzarellax2",
+    "sausagex3"
+   ],
+   "hasUnlockCondition_EP1": true,
+   "mysteryLock": false,
+   "discoveryState": {
+    "freshLadderWalk": [
+     "Dex0 A=UNKNOWN",
+     "Dex1 A=UNKNOWN",
+     "Dex1 B=UNKNOWN",
+     "Dex2 A=UNKNOWN",
+     "Dex2 B=UNKNOWN",
+     "Dex3 A=UNKNOWN",
+     "Dex3 B=UNKNOWN",
+     "Dex4 A=UNKNOWN",
+     "Dex4 B=UNKNOWN",
+     "Dex5 A=UNKNOWN",
+     "Dex5 B=UNKNOWN",
+     "Dex6 A=UNKNOWN",
+     "Dex6 B=UNKNOWN",
+     "Dex7 A=KNOWN_BUT_MISSING_MATERIAL",
+     "Dex7 B=DISCOVERABLE",
+     "Dex8 A=DISCOVERED",
+     "Dex8 B=DISCOVERED",
+     "Dex9 A=DISCOVERED",
+     "Dex9 B=DISCOVERED",
+     "Dex10 A=DISCOVERED",
+     "Dex10 B=DISCOVERED",
+     "Dex11 A=DISCOVERED",
+     "Dex11 B=DISCOVERED",
+     "Dex12 A=DISCOVERED",
+     "Dex12 B=DISCOVERED",
+     "Dex13 A=DISCOVERED",
+     "Dex13 B=DISCOVERED",
+     "Dex14 A=DISCOVERED",
+     "Dex14 B=DISCOVERED",
+     "Dex15 A=DISCOVERED",
+     "Dex15 B=DISCOVERED",
+     "Dex16 A=DISCOVERED",
+     "Dex16 B=DISCOVERED",
+     "Dex17 A=DISCOVERED",
+     "Dex17 B=DISCOVERED",
+     "Dex18 A=DISCOVERED",
+     "Dex18 B=DISCOVERED",
+     "Dex19 A=DISCOVERED",
+     "Dex19 B=DISCOVERED",
+     "Dex20 A=DISCOVERED",
+     "Dex20 B=DISCOVERED",
+     "Dex21 A=DISCOVERED",
+     "Dex21 B=DISCOVERED",
+     "Dex22 A=DISCOVERED",
+     "Dex22 B=DISCOVERED",
+     "Dex23 A=DISCOVERED",
+     "Dex23 B=DISCOVERED",
+     "Dex24 A=DISCOVERED",
+     "Dex24 B=DISCOVERED",
+     "Dex25 A=DISCOVERED"
+    ],
+    "legacy": {
+     "fresh save Dex0 (no save)": "UNKNOWN",
+     "Dex1 margherita only": "UNKNOWN",
+     "Dex15 legacy (old 15 discovered, all old materials owned)": "DISCOVERED",
+     "Dex15 legacy + eggplant/corn/pineapple bought": "DISCOVERED",
+     "Dex23 (all but quattro-formaggi, bismarck)": "DISCOVERED",
+     "Dex24 (all but quattro-formaggi), fontina/gorgonzola owned": "DISCOVERED",
+     "inventory 0 (Dex4 ladder, eggplant owned stock 0)": "UNKNOWN",
+     "unlocked but not owned (Dex4 ladder A)": "UNKNOWN",
+     "owned but recipe undiscovered (Dex3 + owns eggplant/parmigiano/corn/pineapple/ham via old save)": "UNKNOWN"
+    }
+   },
+   "pizzaSelectLeak": {
+    "L1_NAME": true,
+    "L2_IMAGE": false,
+    "L6_BYPASS_SELECT_RECIPE": false,
+    "L7_NAMED_IN_OTHER_CARD_LOCK_HINT": true,
+    "firstNameState": "ladder Dex0 A(entitled,not bought)",
+    "firstImageState": null,
+    "note": null,
+    "severity": "MEDIUM"
+   },
+   "shopLeak": {
+    "L5_UNLOCK_ANSWER_ROW": false,
+    "L5_PURCHASE_FEEDBACK": false,
+    "freshLadder": [],
+    "legacy": [],
+    "severity": "NONE"
+   },
+   "dexLeak": {
+    "L1_NAME": false,
+    "L2_IMAGE": false,
+    "L3_INGREDIENTS": false,
+    "severity": "NONE",
+    "note": "undiscovered card = 🔒 ？？？ まだ見ぬピザ in every probed state"
+   },
+   "homeLeak": {
+    "L1_NAME": false,
+    "severity": "NONE"
+   },
+   "resultLeak": {
+    "preDiscovery": "NONE (recipe name only after REGISTER_TO_DEX / matcher NEW_DISCOVERY)",
+    "nearMissCopy_L7": "generic INCOMPLETE_MATCH copy (no name) -- global LOW finding F-13",
+    "severity": "NONE"
+   },
+   "freeOrderLeak": {
+    "L4_ORDER_ANSWER": false,
+    "uiReachable": false,
+    "states": [],
+    "reducerChainCompletesDiscovery": null,
+    "evidenceLevel": null,
+    "severity": "NONE"
+   },
+   "lunchRushToFreeLeak": {
+    "reachable": false,
+    "paths": [],
+    "lunchRushPoolItselfDiscoveredOnly": true,
+    "severity": "NONE"
+   },
+   "hintLeak": {
+    "L3_GUIDED_HINT": false,
+    "source": "buildHintLine fallback (`${ingredient}をのせてみよう！`)",
+    "L7_UNLOCK_HINT_NAMES_THIS_RECIPE": true,
+    "L5_recipesUnlockedByIngredient": false,
+    "FREE_COOK_DISCOVERY_HINT_L3": null,
+    "severity": "MEDIUM"
+   },
+   "accessibilityLeak": {
+    "ariaLabelName": true,
+    "guidedMiniReferenceAria": null,
+    "hiddenDomOnly": false,
+    "note": "every aria-label hit duplicates visible text (no AT-only leak found); detail view keeps the grid mounted with display:none",
+    "severity": "LOW"
+   },
+   "navigationBypass": {
+    "SELECT_RECIPE": false,
+    "FREE_ORDER_BEGIN_PREPARE": false,
+    "RETRY_SAME_RECIPE_after_failed_guided": false,
+    "firstBypassState": null,
+    "severity": "NONE"
+   },
+   "highestSeverity": "MEDIUM",
+   "evidence": [
+    "runtime probe (vitest+jsdom, real components/reducer at fbfd738): scratch-only, not committed"
+   ]
+  },
+  {
+   "recipeId": "pepperoni",
+   "recipeName": "ペパロニ",
+   "ladderStep": 6,
+   "discoveredAtStart": false,
+   "requiredIngredients": [
+    "tomato-saucex1",
+    "mozzarellax2",
+    "pepperonix4"
+   ],
+   "hasUnlockCondition_EP1": true,
+   "mysteryLock": false,
+   "discoveryState": {
+    "freshLadderWalk": [
+     "Dex0 A=UNKNOWN",
+     "Dex1 A=UNKNOWN",
+     "Dex1 B=UNKNOWN",
+     "Dex2 A=UNKNOWN",
+     "Dex2 B=UNKNOWN",
+     "Dex3 A=UNKNOWN",
+     "Dex3 B=UNKNOWN",
+     "Dex4 A=UNKNOWN",
+     "Dex4 B=UNKNOWN",
+     "Dex5 A=UNKNOWN",
+     "Dex5 B=UNKNOWN",
+     "Dex6 A=KNOWN_BUT_MISSING_MATERIAL",
+     "Dex6 B=DISCOVERABLE",
+     "Dex7 A=DISCOVERED",
+     "Dex7 B=DISCOVERED",
+     "Dex8 A=DISCOVERED",
+     "Dex8 B=DISCOVERED",
+     "Dex9 A=DISCOVERED",
+     "Dex9 B=DISCOVERED",
+     "Dex10 A=DISCOVERED",
+     "Dex10 B=DISCOVERED",
+     "Dex11 A=DISCOVERED",
+     "Dex11 B=DISCOVERED",
+     "Dex12 A=DISCOVERED",
+     "Dex12 B=DISCOVERED",
+     "Dex13 A=DISCOVERED",
+     "Dex13 B=DISCOVERED",
+     "Dex14 A=DISCOVERED",
+     "Dex14 B=DISCOVERED",
+     "Dex15 A=DISCOVERED",
+     "Dex15 B=DISCOVERED",
+     "Dex16 A=DISCOVERED",
+     "Dex16 B=DISCOVERED",
+     "Dex17 A=DISCOVERED",
+     "Dex17 B=DISCOVERED",
+     "Dex18 A=DISCOVERED",
+     "Dex18 B=DISCOVERED",
+     "Dex19 A=DISCOVERED",
+     "Dex19 B=DISCOVERED",
+     "Dex20 A=DISCOVERED",
+     "Dex20 B=DISCOVERED",
+     "Dex21 A=DISCOVERED",
+     "Dex21 B=DISCOVERED",
+     "Dex22 A=DISCOVERED",
+     "Dex22 B=DISCOVERED",
+     "Dex23 A=DISCOVERED",
+     "Dex23 B=DISCOVERED",
+     "Dex24 A=DISCOVERED",
+     "Dex24 B=DISCOVERED",
+     "Dex25 A=DISCOVERED"
+    ],
+    "legacy": {
+     "fresh save Dex0 (no save)": "UNKNOWN",
+     "Dex1 margherita only": "UNKNOWN",
+     "Dex15 legacy (old 15 discovered, all old materials owned)": "DISCOVERED",
+     "Dex15 legacy + eggplant/corn/pineapple bought": "DISCOVERED",
+     "Dex23 (all but quattro-formaggi, bismarck)": "DISCOVERED",
+     "Dex24 (all but quattro-formaggi), fontina/gorgonzola owned": "DISCOVERED",
+     "inventory 0 (Dex4 ladder, eggplant owned stock 0)": "UNKNOWN",
+     "unlocked but not owned (Dex4 ladder A)": "UNKNOWN",
+     "owned but recipe undiscovered (Dex3 + owns eggplant/parmigiano/corn/pineapple/ham via old save)": "UNKNOWN"
+    }
+   },
+   "pizzaSelectLeak": {
+    "L1_NAME": true,
+    "L2_IMAGE": false,
+    "L6_BYPASS_SELECT_RECIPE": false,
+    "L7_NAMED_IN_OTHER_CARD_LOCK_HINT": true,
+    "firstNameState": "ladder Dex0 A(entitled,not bought)",
+    "firstImageState": null,
+    "note": null,
+    "severity": "MEDIUM"
+   },
+   "shopLeak": {
+    "L5_UNLOCK_ANSWER_ROW": false,
+    "L5_PURCHASE_FEEDBACK": false,
+    "freshLadder": [],
+    "legacy": [],
+    "severity": "NONE"
+   },
+   "dexLeak": {
+    "L1_NAME": false,
+    "L2_IMAGE": false,
+    "L3_INGREDIENTS": false,
+    "severity": "NONE",
+    "note": "undiscovered card = 🔒 ？？？ まだ見ぬピザ in every probed state"
+   },
+   "homeLeak": {
+    "L1_NAME": false,
+    "severity": "NONE"
+   },
+   "resultLeak": {
+    "preDiscovery": "NONE (recipe name only after REGISTER_TO_DEX / matcher NEW_DISCOVERY)",
+    "nearMissCopy_L7": "generic INCOMPLETE_MATCH copy (no name) -- global LOW finding F-13",
+    "severity": "NONE"
+   },
+   "freeOrderLeak": {
+    "L4_ORDER_ANSWER": false,
+    "uiReachable": false,
+    "states": [],
+    "reducerChainCompletesDiscovery": null,
+    "evidenceLevel": null,
+    "severity": "NONE"
+   },
+   "lunchRushToFreeLeak": {
+    "reachable": false,
+    "paths": [],
+    "lunchRushPoolItselfDiscoveredOnly": true,
+    "severity": "NONE"
+   },
+   "hintLeak": {
+    "L3_GUIDED_HINT": false,
+    "source": "buildHintLine fallback (`${ingredient}をのせてみよう！`)",
+    "L7_UNLOCK_HINT_NAMES_THIS_RECIPE": true,
+    "L5_recipesUnlockedByIngredient": false,
+    "FREE_COOK_DISCOVERY_HINT_L3": null,
+    "severity": "MEDIUM"
+   },
+   "accessibilityLeak": {
+    "ariaLabelName": true,
+    "guidedMiniReferenceAria": null,
+    "hiddenDomOnly": false,
+    "note": "every aria-label hit duplicates visible text (no AT-only leak found); detail view keeps the grid mounted with display:none",
+    "severity": "LOW"
+   },
+   "navigationBypass": {
+    "SELECT_RECIPE": false,
+    "FREE_ORDER_BEGIN_PREPARE": false,
+    "RETRY_SAME_RECIPE_after_failed_guided": false,
+    "firstBypassState": null,
+    "severity": "NONE"
+   },
+   "highestSeverity": "MEDIUM",
+   "evidence": [
+    "runtime probe (vitest+jsdom, real components/reducer at fbfd738): scratch-only, not committed"
+   ]
+  },
+  {
+   "recipeId": "napoletana",
+   "recipeName": "ナポリ",
+   "ladderStep": 15,
+   "discoveredAtStart": false,
+   "requiredIngredients": [
+    "tomato-saucex1",
+    "mozzarellax2",
+    "anchovyx3",
+    "oreganox1"
+   ],
+   "hasUnlockCondition_EP1": true,
+   "mysteryLock": false,
+   "discoveryState": {
+    "freshLadderWalk": [
+     "Dex0 A=UNKNOWN",
+     "Dex1 A=UNKNOWN",
+     "Dex1 B=UNKNOWN",
+     "Dex2 A=UNKNOWN",
+     "Dex2 B=UNKNOWN",
+     "Dex3 A=UNKNOWN",
+     "Dex3 B=UNKNOWN",
+     "Dex4 A=UNKNOWN",
+     "Dex4 B=UNKNOWN",
+     "Dex5 A=UNKNOWN",
+     "Dex5 B=UNKNOWN",
+     "Dex6 A=UNKNOWN",
+     "Dex6 B=UNKNOWN",
+     "Dex7 A=UNKNOWN",
+     "Dex7 B=UNKNOWN",
+     "Dex8 A=UNKNOWN",
+     "Dex8 B=UNKNOWN",
+     "Dex9 A=UNKNOWN",
+     "Dex9 B=UNKNOWN",
+     "Dex10 A=UNKNOWN",
+     "Dex10 B=UNKNOWN",
+     "Dex11 A=UNKNOWN",
+     "Dex11 B=UNKNOWN",
+     "Dex12 A=UNKNOWN",
+     "Dex12 B=UNKNOWN",
+     "Dex13 A=UNKNOWN",
+     "Dex13 B=UNKNOWN",
+     "Dex14 A=UNKNOWN",
+     "Dex14 B=UNKNOWN",
+     "Dex15 A=KNOWN_BUT_MISSING_MATERIAL",
+     "Dex15 B=DISCOVERABLE",
+     "Dex16 A=DISCOVERED",
+     "Dex16 B=DISCOVERED",
+     "Dex17 A=DISCOVERED",
+     "Dex17 B=DISCOVERED",
+     "Dex18 A=DISCOVERED",
+     "Dex18 B=DISCOVERED",
+     "Dex19 A=DISCOVERED",
+     "Dex19 B=DISCOVERED",
+     "Dex20 A=DISCOVERED",
+     "Dex20 B=DISCOVERED",
+     "Dex21 A=DISCOVERED",
+     "Dex21 B=DISCOVERED",
+     "Dex22 A=DISCOVERED",
+     "Dex22 B=DISCOVERED",
+     "Dex23 A=DISCOVERED",
+     "Dex23 B=DISCOVERED",
+     "Dex24 A=DISCOVERED",
+     "Dex24 B=DISCOVERED",
+     "Dex25 A=DISCOVERED"
+    ],
+    "legacy": {
+     "fresh save Dex0 (no save)": "UNKNOWN",
+     "Dex1 margherita only": "UNKNOWN",
+     "Dex15 legacy (old 15 discovered, all old materials owned)": "DISCOVERED",
+     "Dex15 legacy + eggplant/corn/pineapple bought": "DISCOVERED",
+     "Dex23 (all but quattro-formaggi, bismarck)": "DISCOVERED",
+     "Dex24 (all but quattro-formaggi), fontina/gorgonzola owned": "DISCOVERED",
+     "inventory 0 (Dex4 ladder, eggplant owned stock 0)": "UNKNOWN",
+     "unlocked but not owned (Dex4 ladder A)": "UNKNOWN",
+     "owned but recipe undiscovered (Dex3 + owns eggplant/parmigiano/corn/pineapple/ham via old save)": "UNKNOWN"
+    }
+   },
+   "pizzaSelectLeak": {
+    "L1_NAME": true,
+    "L2_IMAGE": true,
+    "L6_BYPASS_SELECT_RECIPE": true,
+    "L7_NAMED_IN_OTHER_CARD_LOCK_HINT": true,
+    "firstNameState": "ladder Dex0 A(entitled,not bought)",
+    "firstImageState": "ladder Dex15 B(bought)",
+    "note": null,
+    "severity": "BLOCKER"
+   },
+   "shopLeak": {
+    "L5_UNLOCK_ANSWER_ROW": true,
+    "L5_PURCHASE_FEEDBACK": true,
+    "freshLadder": [
+     "ladder Dex15 A(entitled,not bought): anchovy"
+    ],
+    "legacy": [],
+    "severity": "HIGH"
+   },
+   "dexLeak": {
+    "L1_NAME": false,
+    "L2_IMAGE": false,
+    "L3_INGREDIENTS": false,
+    "severity": "NONE",
+    "note": "undiscovered card = 🔒 ？？？ まだ見ぬピザ in every probed state"
+   },
+   "homeLeak": {
+    "L1_NAME": false,
+    "severity": "NONE"
+   },
+   "resultLeak": {
+    "preDiscovery": "NONE (recipe name only after REGISTER_TO_DEX / matcher NEW_DISCOVERY)",
+    "nearMissCopy_L7": "generic INCOMPLETE_MATCH copy (no name) -- global LOW finding F-13",
+    "severity": "NONE"
+   },
+   "freeOrderLeak": {
+    "L4_ORDER_ANSWER": true,
+    "uiReachable": true,
+    "states": [
+     "ladder Dex15 B(bought)"
+    ],
+    "reducerChainCompletesDiscovery": true,
+    "evidenceLevel": "reducer-reproduced (runtime probe)",
+    "severity": "BLOCKER"
+   },
+   "lunchRushToFreeLeak": {
+    "reachable": true,
+    "paths": [
+     "MissionResultOverlay フリープレイへ -> exitMissionToFree -> PLAY_AGAIN (LK-8)",
+     "HOME(after PREPARE/BAKE exit) -> ランチラッシュ -> 閉じる -> stale ORDER (LK-8b)",
+     "Lunch Rush PLAYING -> ホーム -> exitMissionToFree -> PLAY_AGAIN -> later LK-8b"
+    ],
+    "lunchRushPoolItselfDiscoveredOnly": true,
+    "severity": "BLOCKER"
+   },
+   "hintLeak": {
+    "L3_GUIDED_HINT": true,
+    "source": "buildHintLine fallback (`${ingredient}をのせてみよう！`)",
+    "L7_UNLOCK_HINT_NAMES_THIS_RECIPE": true,
+    "L5_recipesUnlockedByIngredient": true,
+    "FREE_COOK_DISCOVERY_HINT_L3": null,
+    "severity": "HIGH"
+   },
+   "accessibilityLeak": {
+    "ariaLabelName": true,
+    "guidedMiniReferenceAria": "ナポリの見本を拡大表示",
+    "hiddenDomOnly": false,
+    "note": "every aria-label hit duplicates visible text (no AT-only leak found); detail view keeps the grid mounted with display:none",
+    "severity": "LOW"
+   },
+   "navigationBypass": {
+    "SELECT_RECIPE": true,
+    "FREE_ORDER_BEGIN_PREPARE": true,
+    "RETRY_SAME_RECIPE_after_failed_guided": true,
+    "firstBypassState": "ladder Dex15 B(bought)",
+    "severity": "BLOCKER"
+   },
+   "highestSeverity": "BLOCKER",
+   "evidence": [
+    "runtime probe (vitest+jsdom, real components/reducer at fbfd738): scratch-only, not committed",
+    "Pizza Select NEW card (name+PizzaThumbnail+このピザを作る) first at ladder Dex15 B(bought)",
+    "LK-8 reducer chain at ladder Dex15 B(bought): ORDER 'よし！ナポリを作ろう！生地にソースを塗って好きなトッピングを選んでね。' -> BEGIN_PREPARE (guided) -> completion PASS -> discovered=true"
+   ]
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "recipeName": "トンノ・エ・チポッラ",
+   "ladderStep": 16,
+   "discoveredAtStart": false,
+   "requiredIngredients": [
+    "tomato-saucex1",
+    "mozzarellax2",
+    "onionx2",
+    "tunax3"
+   ],
+   "hasUnlockCondition_EP1": true,
+   "mysteryLock": false,
+   "discoveryState": {
+    "freshLadderWalk": [
+     "Dex0 A=UNKNOWN",
+     "Dex1 A=UNKNOWN",
+     "Dex1 B=UNKNOWN",
+     "Dex2 A=UNKNOWN",
+     "Dex2 B=UNKNOWN",
+     "Dex3 A=UNKNOWN",
+     "Dex3 B=UNKNOWN",
+     "Dex4 A=UNKNOWN",
+     "Dex4 B=UNKNOWN",
+     "Dex5 A=UNKNOWN",
+     "Dex5 B=UNKNOWN",
+     "Dex6 A=UNKNOWN",
+     "Dex6 B=UNKNOWN",
+     "Dex7 A=UNKNOWN",
+     "Dex7 B=UNKNOWN",
+     "Dex8 A=UNKNOWN",
+     "Dex8 B=UNKNOWN",
+     "Dex9 A=UNKNOWN",
+     "Dex9 B=UNKNOWN",
+     "Dex10 A=UNKNOWN",
+     "Dex10 B=UNKNOWN",
+     "Dex11 A=UNKNOWN",
+     "Dex11 B=UNKNOWN",
+     "Dex12 A=UNKNOWN",
+     "Dex12 B=UNKNOWN",
+     "Dex13 A=UNKNOWN",
+     "Dex13 B=UNKNOWN",
+     "Dex14 A=UNKNOWN",
+     "Dex14 B=UNKNOWN",
+     "Dex15 A=UNKNOWN",
+     "Dex15 B=UNKNOWN",
+     "Dex16 A=KNOWN_BUT_MISSING_MATERIAL",
+     "Dex16 B=DISCOVERABLE",
+     "Dex17 A=DISCOVERED",
+     "Dex17 B=DISCOVERED",
+     "Dex18 A=DISCOVERED",
+     "Dex18 B=DISCOVERED",
+     "Dex19 A=DISCOVERED",
+     "Dex19 B=DISCOVERED",
+     "Dex20 A=DISCOVERED",
+     "Dex20 B=DISCOVERED",
+     "Dex21 A=DISCOVERED",
+     "Dex21 B=DISCOVERED",
+     "Dex22 A=DISCOVERED",
+     "Dex22 B=DISCOVERED",
+     "Dex23 A=DISCOVERED",
+     "Dex23 B=DISCOVERED",
+     "Dex24 A=DISCOVERED",
+     "Dex24 B=DISCOVERED",
+     "Dex25 A=DISCOVERED"
+    ],
+    "legacy": {
+     "fresh save Dex0 (no save)": "UNKNOWN",
+     "Dex1 margherita only": "UNKNOWN",
+     "Dex15 legacy (old 15 discovered, all old materials owned)": "DISCOVERED",
+     "Dex15 legacy + eggplant/corn/pineapple bought": "DISCOVERED",
+     "Dex23 (all but quattro-formaggi, bismarck)": "DISCOVERED",
+     "Dex24 (all but quattro-formaggi), fontina/gorgonzola owned": "DISCOVERED",
+     "inventory 0 (Dex4 ladder, eggplant owned stock 0)": "UNKNOWN",
+     "unlocked but not owned (Dex4 ladder A)": "UNKNOWN",
+     "owned but recipe undiscovered (Dex3 + owns eggplant/parmigiano/corn/pineapple/ham via old save)": "UNKNOWN"
+    }
+   },
+   "pizzaSelectLeak": {
+    "L1_NAME": true,
+    "L2_IMAGE": true,
+    "L6_BYPASS_SELECT_RECIPE": true,
+    "L7_NAMED_IN_OTHER_CARD_LOCK_HINT": true,
+    "firstNameState": "ladder Dex0 A(entitled,not bought)",
+    "firstImageState": "ladder Dex16 B(bought)",
+    "note": null,
+    "severity": "BLOCKER"
+   },
+   "shopLeak": {
+    "L5_UNLOCK_ANSWER_ROW": true,
+    "L5_PURCHASE_FEEDBACK": true,
+    "freshLadder": [
+     "ladder Dex16 A(entitled,not bought): tuna"
+    ],
+    "legacy": [],
+    "severity": "HIGH"
+   },
+   "dexLeak": {
+    "L1_NAME": false,
+    "L2_IMAGE": false,
+    "L3_INGREDIENTS": false,
+    "severity": "NONE",
+    "note": "undiscovered card = 🔒 ？？？ まだ見ぬピザ in every probed state"
+   },
+   "homeLeak": {
+    "L1_NAME": false,
+    "severity": "NONE"
+   },
+   "resultLeak": {
+    "preDiscovery": "NONE (recipe name only after REGISTER_TO_DEX / matcher NEW_DISCOVERY)",
+    "nearMissCopy_L7": "generic INCOMPLETE_MATCH copy (no name) -- global LOW finding F-13",
+    "severity": "NONE"
+   },
+   "freeOrderLeak": {
+    "L4_ORDER_ANSWER": true,
+    "uiReachable": true,
+    "states": [
+     "ladder Dex16 B(bought)"
+    ],
+    "reducerChainCompletesDiscovery": true,
+    "evidenceLevel": "reducer-reproduced (runtime probe)",
+    "severity": "BLOCKER"
+   },
+   "lunchRushToFreeLeak": {
+    "reachable": true,
+    "paths": [
+     "MissionResultOverlay フリープレイへ -> exitMissionToFree -> PLAY_AGAIN (LK-8)",
+     "HOME(after PREPARE/BAKE exit) -> ランチラッシュ -> 閉じる -> stale ORDER (LK-8b)",
+     "Lunch Rush PLAYING -> ホーム -> exitMissionToFree -> PLAY_AGAIN -> later LK-8b"
+    ],
+    "lunchRushPoolItselfDiscoveredOnly": true,
+    "severity": "BLOCKER"
+   },
+   "hintLeak": {
+    "L3_GUIDED_HINT": true,
+    "source": "buildHintLine fallback (`${ingredient}をのせてみよう！`)",
+    "L7_UNLOCK_HINT_NAMES_THIS_RECIPE": true,
+    "L5_recipesUnlockedByIngredient": true,
+    "FREE_COOK_DISCOVERY_HINT_L3": null,
+    "severity": "HIGH"
+   },
+   "accessibilityLeak": {
+    "ariaLabelName": true,
+    "guidedMiniReferenceAria": "トンノ・エ・チポッラの見本を拡大表示",
+    "hiddenDomOnly": false,
+    "note": "every aria-label hit duplicates visible text (no AT-only leak found); detail view keeps the grid mounted with display:none",
+    "severity": "LOW"
+   },
+   "navigationBypass": {
+    "SELECT_RECIPE": true,
+    "FREE_ORDER_BEGIN_PREPARE": true,
+    "RETRY_SAME_RECIPE_after_failed_guided": true,
+    "firstBypassState": "ladder Dex16 B(bought)",
+    "severity": "BLOCKER"
+   },
+   "highestSeverity": "BLOCKER",
+   "evidence": [
+    "runtime probe (vitest+jsdom, real components/reducer at fbfd738): scratch-only, not committed",
+    "Pizza Select NEW card (name+PizzaThumbnail+このピザを作る) first at ladder Dex16 B(bought)",
+    "LK-8 reducer chain at ladder Dex16 B(bought): ORDER 'トンノ・エ・チポッラか、腕が鳴るな！まずは生地にソースを塗るところからだ。' -> BEGIN_PREPARE (guided) -> completion PASS -> discovered=true"
+   ]
+  },
+  {
+   "recipeId": "pizza-bianca",
+   "recipeName": "ピッツァ・ビアンカ",
+   "ladderStep": 22,
+   "discoveredAtStart": false,
+   "requiredIngredients": [
+    "olive-oilx1",
+    "rosemaryx3"
+   ],
+   "hasUnlockCondition_EP1": true,
+   "mysteryLock": false,
+   "discoveryState": {
+    "freshLadderWalk": [
+     "Dex0 A=UNKNOWN",
+     "Dex1 A=UNKNOWN",
+     "Dex1 B=UNKNOWN",
+     "Dex2 A=UNKNOWN",
+     "Dex2 B=UNKNOWN",
+     "Dex3 A=UNKNOWN",
+     "Dex3 B=UNKNOWN",
+     "Dex4 A=UNKNOWN",
+     "Dex4 B=UNKNOWN",
+     "Dex5 A=UNKNOWN",
+     "Dex5 B=UNKNOWN",
+     "Dex6 A=UNKNOWN",
+     "Dex6 B=UNKNOWN",
+     "Dex7 A=UNKNOWN",
+     "Dex7 B=UNKNOWN",
+     "Dex8 A=UNKNOWN",
+     "Dex8 B=UNKNOWN",
+     "Dex9 A=UNKNOWN",
+     "Dex9 B=UNKNOWN",
+     "Dex10 A=UNKNOWN",
+     "Dex10 B=UNKNOWN",
+     "Dex11 A=UNKNOWN",
+     "Dex11 B=UNKNOWN",
+     "Dex12 A=UNKNOWN",
+     "Dex12 B=UNKNOWN",
+     "Dex13 A=UNKNOWN",
+     "Dex13 B=UNKNOWN",
+     "Dex14 A=UNKNOWN",
+     "Dex14 B=UNKNOWN",
+     "Dex15 A=UNKNOWN",
+     "Dex15 B=UNKNOWN",
+     "Dex16 A=UNKNOWN",
+     "Dex16 B=UNKNOWN",
+     "Dex17 A=UNKNOWN",
+     "Dex17 B=UNKNOWN",
+     "Dex18 A=UNKNOWN",
+     "Dex18 B=UNKNOWN",
+     "Dex19 A=UNKNOWN",
+     "Dex19 B=UNKNOWN",
+     "Dex20 A=UNKNOWN",
+     "Dex20 B=UNKNOWN",
+     "Dex21 A=UNKNOWN",
+     "Dex21 B=UNKNOWN",
+     "Dex22 A=KNOWN_BUT_MISSING_MATERIAL",
+     "Dex22 B=DISCOVERABLE",
+     "Dex23 A=DISCOVERED",
+     "Dex23 B=DISCOVERED",
+     "Dex24 A=DISCOVERED",
+     "Dex24 B=DISCOVERED",
+     "Dex25 A=DISCOVERED"
+    ],
+    "legacy": {
+     "fresh save Dex0 (no save)": "UNKNOWN",
+     "Dex1 margherita only": "UNKNOWN",
+     "Dex15 legacy (old 15 discovered, all old materials owned)": "DISCOVERED",
+     "Dex15 legacy + eggplant/corn/pineapple bought": "DISCOVERED",
+     "Dex23 (all but quattro-formaggi, bismarck)": "DISCOVERED",
+     "Dex24 (all but quattro-formaggi), fontina/gorgonzola owned": "DISCOVERED",
+     "inventory 0 (Dex4 ladder, eggplant owned stock 0)": "UNKNOWN",
+     "unlocked but not owned (Dex4 ladder A)": "UNKNOWN",
+     "owned but recipe undiscovered (Dex3 + owns eggplant/parmigiano/corn/pineapple/ham via old save)": "UNKNOWN"
+    }
+   },
+   "pizzaSelectLeak": {
+    "L1_NAME": true,
+    "L2_IMAGE": true,
+    "L6_BYPASS_SELECT_RECIPE": true,
+    "L7_NAMED_IN_OTHER_CARD_LOCK_HINT": true,
+    "firstNameState": "ladder Dex0 A(entitled,not bought)",
+    "firstImageState": "ladder Dex22 B(bought)",
+    "note": null,
+    "severity": "BLOCKER"
+   },
+   "shopLeak": {
+    "L5_UNLOCK_ANSWER_ROW": true,
+    "L5_PURCHASE_FEEDBACK": true,
+    "freshLadder": [
+     "ladder Dex22 A(entitled,not bought): rosemary"
+    ],
+    "legacy": [],
+    "severity": "HIGH"
+   },
+   "dexLeak": {
+    "L1_NAME": false,
+    "L2_IMAGE": false,
+    "L3_INGREDIENTS": false,
+    "severity": "NONE",
+    "note": "undiscovered card = 🔒 ？？？ まだ見ぬピザ in every probed state"
+   },
+   "homeLeak": {
+    "L1_NAME": false,
+    "severity": "NONE"
+   },
+   "resultLeak": {
+    "preDiscovery": "NONE (recipe name only after REGISTER_TO_DEX / matcher NEW_DISCOVERY)",
+    "nearMissCopy_L7": "generic INCOMPLETE_MATCH copy (no name) -- global LOW finding F-13",
+    "severity": "NONE"
+   },
+   "freeOrderLeak": {
+    "L4_ORDER_ANSWER": true,
+    "uiReachable": true,
+    "states": [
+     "ladder Dex22 B(bought)"
+    ],
+    "reducerChainCompletesDiscovery": true,
+    "evidenceLevel": "reducer-reproduced (runtime probe)",
+    "severity": "BLOCKER"
+   },
+   "lunchRushToFreeLeak": {
+    "reachable": true,
+    "paths": [
+     "MissionResultOverlay フリープレイへ -> exitMissionToFree -> PLAY_AGAIN (LK-8)",
+     "HOME(after PREPARE/BAKE exit) -> ランチラッシュ -> 閉じる -> stale ORDER (LK-8b)",
+     "Lunch Rush PLAYING -> ホーム -> exitMissionToFree -> PLAY_AGAIN -> later LK-8b"
+    ],
+    "lunchRushPoolItselfDiscoveredOnly": true,
+    "severity": "BLOCKER"
+   },
+   "hintLeak": {
+    "L3_GUIDED_HINT": true,
+    "source": "buildHintLine fallback (`${ingredient}をのせてみよう！`)",
+    "L7_UNLOCK_HINT_NAMES_THIS_RECIPE": true,
+    "L5_recipesUnlockedByIngredient": true,
+    "FREE_COOK_DISCOVERY_HINT_L3": null,
+    "severity": "HIGH"
+   },
+   "accessibilityLeak": {
+    "ariaLabelName": true,
+    "guidedMiniReferenceAria": "ピッツァ・ビアンカの見本を拡大表示",
+    "hiddenDomOnly": false,
+    "note": "every aria-label hit duplicates visible text (no AT-only leak found); detail view keeps the grid mounted with display:none",
+    "severity": "LOW"
+   },
+   "navigationBypass": {
+    "SELECT_RECIPE": true,
+    "FREE_ORDER_BEGIN_PREPARE": true,
+    "RETRY_SAME_RECIPE_after_failed_guided": true,
+    "firstBypassState": "ladder Dex22 B(bought)",
+    "severity": "BLOCKER"
+   },
+   "highestSeverity": "BLOCKER",
+   "evidence": [
+    "runtime probe (vitest+jsdom, real components/reducer at fbfd738): scratch-only, not committed",
+    "Pizza Select NEW card (name+PizzaThumbnail+このピザを作る) first at ladder Dex22 B(bought)",
+    "LK-8 reducer chain at ladder Dex22 B(bought): ORDER 'よーし、今日はピッツァ・ビアンカに挑戦だ！トッピングは好きに選んでいいぞ。' -> BEGIN_PREPARE (guided) -> completion PASS -> discovered=true"
+   ]
+  },
+  {
+   "recipeId": "breakfast-pizza",
+   "recipeName": "ブレックファストピザ",
+   "ladderStep": 2,
+   "discoveredAtStart": false,
+   "requiredIngredients": [
+    "tomato-saucex1",
+    "mozzarellax2",
+    "eggx1",
+    "baconx3"
+   ],
+   "hasUnlockCondition_EP1": true,
+   "mysteryLock": false,
+   "discoveryState": {
+    "freshLadderWalk": [
+     "Dex0 A=UNKNOWN",
+     "Dex1 A=UNKNOWN",
+     "Dex1 B=UNKNOWN",
+     "Dex2 A=KNOWN_BUT_MISSING_MATERIAL",
+     "Dex2 B=DISCOVERABLE",
+     "Dex3 A=DISCOVERED",
+     "Dex3 B=DISCOVERED",
+     "Dex4 A=DISCOVERED",
+     "Dex4 B=DISCOVERED",
+     "Dex5 A=DISCOVERED",
+     "Dex5 B=DISCOVERED",
+     "Dex6 A=DISCOVERED",
+     "Dex6 B=DISCOVERED",
+     "Dex7 A=DISCOVERED",
+     "Dex7 B=DISCOVERED",
+     "Dex8 A=DISCOVERED",
+     "Dex8 B=DISCOVERED",
+     "Dex9 A=DISCOVERED",
+     "Dex9 B=DISCOVERED",
+     "Dex10 A=DISCOVERED",
+     "Dex10 B=DISCOVERED",
+     "Dex11 A=DISCOVERED",
+     "Dex11 B=DISCOVERED",
+     "Dex12 A=DISCOVERED",
+     "Dex12 B=DISCOVERED",
+     "Dex13 A=DISCOVERED",
+     "Dex13 B=DISCOVERED",
+     "Dex14 A=DISCOVERED",
+     "Dex14 B=DISCOVERED",
+     "Dex15 A=DISCOVERED",
+     "Dex15 B=DISCOVERED",
+     "Dex16 A=DISCOVERED",
+     "Dex16 B=DISCOVERED",
+     "Dex17 A=DISCOVERED",
+     "Dex17 B=DISCOVERED",
+     "Dex18 A=DISCOVERED",
+     "Dex18 B=DISCOVERED",
+     "Dex19 A=DISCOVERED",
+     "Dex19 B=DISCOVERED",
+     "Dex20 A=DISCOVERED",
+     "Dex20 B=DISCOVERED",
+     "Dex21 A=DISCOVERED",
+     "Dex21 B=DISCOVERED",
+     "Dex22 A=DISCOVERED",
+     "Dex22 B=DISCOVERED",
+     "Dex23 A=DISCOVERED",
+     "Dex23 B=DISCOVERED",
+     "Dex24 A=DISCOVERED",
+     "Dex24 B=DISCOVERED",
+     "Dex25 A=DISCOVERED"
+    ],
+    "legacy": {
+     "fresh save Dex0 (no save)": "UNKNOWN",
+     "Dex1 margherita only": "UNKNOWN",
+     "Dex15 legacy (old 15 discovered, all old materials owned)": "DISCOVERED",
+     "Dex15 legacy + eggplant/corn/pineapple bought": "DISCOVERED",
+     "Dex23 (all but quattro-formaggi, bismarck)": "DISCOVERED",
+     "Dex24 (all but quattro-formaggi), fontina/gorgonzola owned": "DISCOVERED",
+     "inventory 0 (Dex4 ladder, eggplant owned stock 0)": "DISCOVERED",
+     "unlocked but not owned (Dex4 ladder A)": "DISCOVERED",
+     "owned but recipe undiscovered (Dex3 + owns eggplant/parmigiano/corn/pineapple/ham via old save)": "DISCOVERED"
+    }
+   },
+   "pizzaSelectLeak": {
+    "L1_NAME": true,
+    "L2_IMAGE": false,
+    "L6_BYPASS_SELECT_RECIPE": false,
+    "L7_NAMED_IN_OTHER_CARD_LOCK_HINT": true,
+    "firstNameState": "ladder Dex0 A(entitled,not bought)",
+    "firstImageState": null,
+    "note": null,
+    "severity": "MEDIUM"
+   },
+   "shopLeak": {
+    "L5_UNLOCK_ANSWER_ROW": false,
+    "L5_PURCHASE_FEEDBACK": false,
+    "freshLadder": [],
+    "legacy": [],
+    "severity": "NONE"
+   },
+   "dexLeak": {
+    "L1_NAME": false,
+    "L2_IMAGE": false,
+    "L3_INGREDIENTS": false,
+    "severity": "NONE",
+    "note": "undiscovered card = 🔒 ？？？ まだ見ぬピザ in every probed state"
+   },
+   "homeLeak": {
+    "L1_NAME": false,
+    "severity": "NONE"
+   },
+   "resultLeak": {
+    "preDiscovery": "NONE (recipe name only after REGISTER_TO_DEX / matcher NEW_DISCOVERY)",
+    "nearMissCopy_L7": "generic INCOMPLETE_MATCH copy (no name) -- global LOW finding F-13",
+    "severity": "NONE"
+   },
+   "freeOrderLeak": {
+    "L4_ORDER_ANSWER": false,
+    "uiReachable": false,
+    "states": [],
+    "reducerChainCompletesDiscovery": null,
+    "evidenceLevel": null,
+    "severity": "NONE"
+   },
+   "lunchRushToFreeLeak": {
+    "reachable": false,
+    "paths": [],
+    "lunchRushPoolItselfDiscoveredOnly": true,
+    "severity": "NONE"
+   },
+   "hintLeak": {
+    "L3_GUIDED_HINT": false,
+    "source": "buildHintLine fallback (`${ingredient}をのせてみよう！`)",
+    "L7_UNLOCK_HINT_NAMES_THIS_RECIPE": true,
+    "L5_recipesUnlockedByIngredient": false,
+    "FREE_COOK_DISCOVERY_HINT_L3": null,
+    "severity": "MEDIUM"
+   },
+   "accessibilityLeak": {
+    "ariaLabelName": true,
+    "guidedMiniReferenceAria": null,
+    "hiddenDomOnly": false,
+    "note": "every aria-label hit duplicates visible text (no AT-only leak found); detail view keeps the grid mounted with display:none",
+    "severity": "LOW"
+   },
+   "navigationBypass": {
+    "SELECT_RECIPE": false,
+    "FREE_ORDER_BEGIN_PREPARE": false,
+    "RETRY_SAME_RECIPE_after_failed_guided": false,
+    "firstBypassState": null,
+    "severity": "NONE"
+   },
+   "highestSeverity": "MEDIUM",
+   "evidence": [
+    "runtime probe (vitest+jsdom, real components/reducer at fbfd738): scratch-only, not committed"
+   ]
+  },
+  {
+   "recipeId": "capricciosa",
+   "recipeName": "カプリチョーザ",
+   "ladderStep": 11,
+   "discoveredAtStart": false,
+   "requiredIngredients": [
+    "tomato-saucex1",
+    "mozzarellax2",
+    "mushroomx2",
+    "oreganox1",
+    "hamx1",
+    "black-olivex2"
+   ],
+   "hasUnlockCondition_EP1": true,
+   "mysteryLock": false,
+   "discoveryState": {
+    "freshLadderWalk": [
+     "Dex0 A=UNKNOWN",
+     "Dex1 A=UNKNOWN",
+     "Dex1 B=UNKNOWN",
+     "Dex2 A=UNKNOWN",
+     "Dex2 B=UNKNOWN",
+     "Dex3 A=UNKNOWN",
+     "Dex3 B=UNKNOWN",
+     "Dex4 A=UNKNOWN",
+     "Dex4 B=UNKNOWN",
+     "Dex5 A=UNKNOWN",
+     "Dex5 B=UNKNOWN",
+     "Dex6 A=UNKNOWN",
+     "Dex6 B=UNKNOWN",
+     "Dex7 A=UNKNOWN",
+     "Dex7 B=UNKNOWN",
+     "Dex8 A=UNKNOWN",
+     "Dex8 B=UNKNOWN",
+     "Dex9 A=UNKNOWN",
+     "Dex9 B=UNKNOWN",
+     "Dex10 A=UNKNOWN",
+     "Dex10 B=UNKNOWN",
+     "Dex11 A=KNOWN_BUT_MISSING_MATERIAL",
+     "Dex11 B=DISCOVERABLE",
+     "Dex12 A=DISCOVERED",
+     "Dex12 B=DISCOVERED",
+     "Dex13 A=DISCOVERED",
+     "Dex13 B=DISCOVERED",
+     "Dex14 A=DISCOVERED",
+     "Dex14 B=DISCOVERED",
+     "Dex15 A=DISCOVERED",
+     "Dex15 B=DISCOVERED",
+     "Dex16 A=DISCOVERED",
+     "Dex16 B=DISCOVERED",
+     "Dex17 A=DISCOVERED",
+     "Dex17 B=DISCOVERED",
+     "Dex18 A=DISCOVERED",
+     "Dex18 B=DISCOVERED",
+     "Dex19 A=DISCOVERED",
+     "Dex19 B=DISCOVERED",
+     "Dex20 A=DISCOVERED",
+     "Dex20 B=DISCOVERED",
+     "Dex21 A=DISCOVERED",
+     "Dex21 B=DISCOVERED",
+     "Dex22 A=DISCOVERED",
+     "Dex22 B=DISCOVERED",
+     "Dex23 A=DISCOVERED",
+     "Dex23 B=DISCOVERED",
+     "Dex24 A=DISCOVERED",
+     "Dex24 B=DISCOVERED",
+     "Dex25 A=DISCOVERED"
+    ],
+    "legacy": {
+     "fresh save Dex0 (no save)": "UNKNOWN",
+     "Dex1 margherita only": "UNKNOWN",
+     "Dex15 legacy (old 15 discovered, all old materials owned)": "DISCOVERED",
+     "Dex15 legacy + eggplant/corn/pineapple bought": "DISCOVERED",
+     "Dex23 (all but quattro-formaggi, bismarck)": "DISCOVERED",
+     "Dex24 (all but quattro-formaggi), fontina/gorgonzola owned": "DISCOVERED",
+     "inventory 0 (Dex4 ladder, eggplant owned stock 0)": "UNKNOWN",
+     "unlocked but not owned (Dex4 ladder A)": "UNKNOWN",
+     "owned but recipe undiscovered (Dex3 + owns eggplant/parmigiano/corn/pineapple/ham via old save)": "UNKNOWN"
+    }
+   },
+   "pizzaSelectLeak": {
+    "L1_NAME": true,
+    "L2_IMAGE": true,
+    "L6_BYPASS_SELECT_RECIPE": true,
+    "L7_NAMED_IN_OTHER_CARD_LOCK_HINT": true,
+    "firstNameState": "ladder Dex0 A(entitled,not bought)",
+    "firstImageState": "ladder Dex11 B(bought)",
+    "note": null,
+    "severity": "BLOCKER"
+   },
+   "shopLeak": {
+    "L5_UNLOCK_ANSWER_ROW": false,
+    "L5_PURCHASE_FEEDBACK": false,
+    "freshLadder": [],
+    "legacy": [],
+    "severity": "NONE"
+   },
+   "dexLeak": {
+    "L1_NAME": false,
+    "L2_IMAGE": false,
+    "L3_INGREDIENTS": false,
+    "severity": "NONE",
+    "note": "undiscovered card = 🔒 ？？？ まだ見ぬピザ in every probed state"
+   },
+   "homeLeak": {
+    "L1_NAME": false,
+    "severity": "NONE"
+   },
+   "resultLeak": {
+    "preDiscovery": "NONE (recipe name only after REGISTER_TO_DEX / matcher NEW_DISCOVERY)",
+    "nearMissCopy_L7": "generic INCOMPLETE_MATCH copy (no name) -- global LOW finding F-13",
+    "severity": "NONE"
+   },
+   "freeOrderLeak": {
+    "L4_ORDER_ANSWER": true,
+    "uiReachable": true,
+    "states": [
+     "ladder Dex11 B(bought)"
+    ],
+    "reducerChainCompletesDiscovery": true,
+    "evidenceLevel": "reducer-reproduced (runtime probe)",
+    "severity": "BLOCKER"
+   },
+   "lunchRushToFreeLeak": {
+    "reachable": true,
+    "paths": [
+     "MissionResultOverlay フリープレイへ -> exitMissionToFree -> PLAY_AGAIN (LK-8)",
+     "HOME(after PREPARE/BAKE exit) -> ランチラッシュ -> 閉じる -> stale ORDER (LK-8b)",
+     "Lunch Rush PLAYING -> ホーム -> exitMissionToFree -> PLAY_AGAIN -> later LK-8b"
+    ],
+    "lunchRushPoolItselfDiscoveredOnly": true,
+    "severity": "BLOCKER"
+   },
+   "hintLeak": {
+    "L3_GUIDED_HINT": true,
+    "source": "buildHintLine fallback (`${ingredient}をのせてみよう！`)",
+    "L7_UNLOCK_HINT_NAMES_THIS_RECIPE": true,
+    "L5_recipesUnlockedByIngredient": false,
+    "FREE_COOK_DISCOVERY_HINT_L3": null,
+    "severity": "HIGH"
+   },
+   "accessibilityLeak": {
+    "ariaLabelName": true,
+    "guidedMiniReferenceAria": "カプリチョーザの見本を拡大表示",
+    "hiddenDomOnly": false,
+    "note": "every aria-label hit duplicates visible text (no AT-only leak found); detail view keeps the grid mounted with display:none",
+    "severity": "LOW"
+   },
+   "navigationBypass": {
+    "SELECT_RECIPE": true,
+    "FREE_ORDER_BEGIN_PREPARE": true,
+    "RETRY_SAME_RECIPE_after_failed_guided": true,
+    "firstBypassState": "ladder Dex11 B(bought)",
+    "severity": "BLOCKER"
+   },
+   "highestSeverity": "BLOCKER",
+   "evidence": [
+    "runtime probe (vitest+jsdom, real components/reducer at fbfd738): scratch-only, not committed",
+    "Pizza Select NEW card (name+PizzaThumbnail+このピザを作る) first at ladder Dex11 B(bought)",
+    "LK-8 reducer chain at ladder Dex11 B(bought): ORDER 'カプリチョーザか、腕が鳴るな！まずは生地にソースを塗るところからだ。' -> BEGIN_PREPARE (guided) -> completion PASS -> discovered=true"
+   ]
+  },
+  {
+   "recipeId": "meat-lovers",
+   "recipeName": "ミートラヴァーズ",
+   "ladderStep": 8,
+   "discoveredAtStart": false,
+   "requiredIngredients": [
+    "tomato-saucex1",
+    "mozzarellax2",
+    "baconx2",
+    "hamx1",
+    "pepperonix1",
+    "sausagex2"
+   ],
+   "hasUnlockCondition_EP1": true,
+   "mysteryLock": false,
+   "discoveryState": {
+    "freshLadderWalk": [
+     "Dex0 A=UNKNOWN",
+     "Dex1 A=UNKNOWN",
+     "Dex1 B=UNKNOWN",
+     "Dex2 A=UNKNOWN",
+     "Dex2 B=UNKNOWN",
+     "Dex3 A=UNKNOWN",
+     "Dex3 B=UNKNOWN",
+     "Dex4 A=UNKNOWN",
+     "Dex4 B=UNKNOWN",
+     "Dex5 A=UNKNOWN",
+     "Dex5 B=UNKNOWN",
+     "Dex6 A=UNKNOWN",
+     "Dex6 B=UNKNOWN",
+     "Dex7 A=UNKNOWN",
+     "Dex7 B=UNKNOWN",
+     "Dex8 A=KNOWN_BUT_MISSING_MATERIAL",
+     "Dex8 B=DISCOVERABLE",
+     "Dex9 A=DISCOVERED",
+     "Dex9 B=DISCOVERED",
+     "Dex10 A=DISCOVERED",
+     "Dex10 B=DISCOVERED",
+     "Dex11 A=DISCOVERED",
+     "Dex11 B=DISCOVERED",
+     "Dex12 A=DISCOVERED",
+     "Dex12 B=DISCOVERED",
+     "Dex13 A=DISCOVERED",
+     "Dex13 B=DISCOVERED",
+     "Dex14 A=DISCOVERED",
+     "Dex14 B=DISCOVERED",
+     "Dex15 A=DISCOVERED",
+     "Dex15 B=DISCOVERED",
+     "Dex16 A=DISCOVERED",
+     "Dex16 B=DISCOVERED",
+     "Dex17 A=DISCOVERED",
+     "Dex17 B=DISCOVERED",
+     "Dex18 A=DISCOVERED",
+     "Dex18 B=DISCOVERED",
+     "Dex19 A=DISCOVERED",
+     "Dex19 B=DISCOVERED",
+     "Dex20 A=DISCOVERED",
+     "Dex20 B=DISCOVERED",
+     "Dex21 A=DISCOVERED",
+     "Dex21 B=DISCOVERED",
+     "Dex22 A=DISCOVERED",
+     "Dex22 B=DISCOVERED",
+     "Dex23 A=DISCOVERED",
+     "Dex23 B=DISCOVERED",
+     "Dex24 A=DISCOVERED",
+     "Dex24 B=DISCOVERED",
+     "Dex25 A=DISCOVERED"
+    ],
+    "legacy": {
+     "fresh save Dex0 (no save)": "UNKNOWN",
+     "Dex1 margherita only": "UNKNOWN",
+     "Dex15 legacy (old 15 discovered, all old materials owned)": "DISCOVERED",
+     "Dex15 legacy + eggplant/corn/pineapple bought": "DISCOVERED",
+     "Dex23 (all but quattro-formaggi, bismarck)": "DISCOVERED",
+     "Dex24 (all but quattro-formaggi), fontina/gorgonzola owned": "DISCOVERED",
+     "inventory 0 (Dex4 ladder, eggplant owned stock 0)": "UNKNOWN",
+     "unlocked but not owned (Dex4 ladder A)": "UNKNOWN",
+     "owned but recipe undiscovered (Dex3 + owns eggplant/parmigiano/corn/pineapple/ham via old save)": "UNKNOWN"
+    }
+   },
+   "pizzaSelectLeak": {
+    "L1_NAME": true,
+    "L2_IMAGE": false,
+    "L6_BYPASS_SELECT_RECIPE": false,
+    "L7_NAMED_IN_OTHER_CARD_LOCK_HINT": false,
+    "firstNameState": "ladder Dex0 A(entitled,not bought)",
+    "firstImageState": null,
+    "note": null,
+    "severity": "MEDIUM"
+   },
+   "shopLeak": {
+    "L5_UNLOCK_ANSWER_ROW": false,
+    "L5_PURCHASE_FEEDBACK": false,
+    "freshLadder": [],
+    "legacy": [],
+    "severity": "NONE"
+   },
+   "dexLeak": {
+    "L1_NAME": false,
+    "L2_IMAGE": false,
+    "L3_INGREDIENTS": false,
+    "severity": "NONE",
+    "note": "undiscovered card = 🔒 ？？？ まだ見ぬピザ in every probed state"
+   },
+   "homeLeak": {
+    "L1_NAME": false,
+    "severity": "NONE"
+   },
+   "resultLeak": {
+    "preDiscovery": "NONE (recipe name only after REGISTER_TO_DEX / matcher NEW_DISCOVERY)",
+    "nearMissCopy_L7": "generic INCOMPLETE_MATCH copy (no name) -- global LOW finding F-13",
+    "severity": "NONE"
+   },
+   "freeOrderLeak": {
+    "L4_ORDER_ANSWER": false,
+    "uiReachable": false,
+    "states": [],
+    "reducerChainCompletesDiscovery": null,
+    "evidenceLevel": null,
+    "severity": "NONE"
+   },
+   "lunchRushToFreeLeak": {
+    "reachable": false,
+    "paths": [],
+    "lunchRushPoolItselfDiscoveredOnly": true,
+    "severity": "NONE"
+   },
+   "hintLeak": {
+    "L3_GUIDED_HINT": false,
+    "source": "buildHintLine fallback (`${ingredient}をのせてみよう！`)",
+    "L7_UNLOCK_HINT_NAMES_THIS_RECIPE": false,
+    "L5_recipesUnlockedByIngredient": false,
+    "FREE_COOK_DISCOVERY_HINT_L3": null,
+    "severity": "NONE"
+   },
+   "accessibilityLeak": {
+    "ariaLabelName": true,
+    "guidedMiniReferenceAria": null,
+    "hiddenDomOnly": false,
+    "note": "every aria-label hit duplicates visible text (no AT-only leak found); detail view keeps the grid mounted with display:none",
+    "severity": "LOW"
+   },
+   "navigationBypass": {
+    "SELECT_RECIPE": false,
+    "FREE_ORDER_BEGIN_PREPARE": false,
+    "RETRY_SAME_RECIPE_after_failed_guided": false,
+    "firstBypassState": null,
+    "severity": "NONE"
+   },
+   "highestSeverity": "MEDIUM",
+   "evidence": [
+    "runtime probe (vitest+jsdom, real components/reducer at fbfd738): scratch-only, not committed"
+   ]
+  },
+  {
+   "recipeId": "melanzane-pizza",
+   "recipeName": "メランザーネピザ",
+   "ladderStep": 4,
+   "discoveredAtStart": false,
+   "requiredIngredients": [
+    "tomato-saucex1",
+    "mozzarellax2",
+    "eggplantx3",
+    "basilx2"
+   ],
+   "hasUnlockCondition_EP1": false,
+   "mysteryLock": false,
+   "discoveryState": {
+    "freshLadderWalk": [
+     "Dex0 A=UNKNOWN",
+     "Dex1 A=UNKNOWN",
+     "Dex1 B=UNKNOWN",
+     "Dex2 A=UNKNOWN",
+     "Dex2 B=UNKNOWN",
+     "Dex3 A=UNKNOWN",
+     "Dex3 B=UNKNOWN",
+     "Dex4 A=KNOWN_BUT_MISSING_MATERIAL",
+     "Dex4 B=DISCOVERABLE",
+     "Dex5 A=DISCOVERED",
+     "Dex5 B=DISCOVERED",
+     "Dex6 A=DISCOVERED",
+     "Dex6 B=DISCOVERED",
+     "Dex7 A=DISCOVERED",
+     "Dex7 B=DISCOVERED",
+     "Dex8 A=DISCOVERED",
+     "Dex8 B=DISCOVERED",
+     "Dex9 A=DISCOVERED",
+     "Dex9 B=DISCOVERED",
+     "Dex10 A=DISCOVERED",
+     "Dex10 B=DISCOVERED",
+     "Dex11 A=DISCOVERED",
+     "Dex11 B=DISCOVERED",
+     "Dex12 A=DISCOVERED",
+     "Dex12 B=DISCOVERED",
+     "Dex13 A=DISCOVERED",
+     "Dex13 B=DISCOVERED",
+     "Dex14 A=DISCOVERED",
+     "Dex14 B=DISCOVERED",
+     "Dex15 A=DISCOVERED",
+     "Dex15 B=DISCOVERED",
+     "Dex16 A=DISCOVERED",
+     "Dex16 B=DISCOVERED",
+     "Dex17 A=DISCOVERED",
+     "Dex17 B=DISCOVERED",
+     "Dex18 A=DISCOVERED",
+     "Dex18 B=DISCOVERED",
+     "Dex19 A=DISCOVERED",
+     "Dex19 B=DISCOVERED",
+     "Dex20 A=DISCOVERED",
+     "Dex20 B=DISCOVERED",
+     "Dex21 A=DISCOVERED",
+     "Dex21 B=DISCOVERED",
+     "Dex22 A=DISCOVERED",
+     "Dex22 B=DISCOVERED",
+     "Dex23 A=DISCOVERED",
+     "Dex23 B=DISCOVERED",
+     "Dex24 A=DISCOVERED",
+     "Dex24 B=DISCOVERED",
+     "Dex25 A=DISCOVERED"
+    ],
+    "legacy": {
+     "fresh save Dex0 (no save)": "UNKNOWN",
+     "Dex1 margherita only": "UNKNOWN",
+     "Dex15 legacy (old 15 discovered, all old materials owned)": "KNOWN_BUT_MISSING_MATERIAL",
+     "Dex15 legacy + eggplant/corn/pineapple bought": "DISCOVERABLE",
+     "Dex23 (all but quattro-formaggi, bismarck)": "DISCOVERED",
+     "Dex24 (all but quattro-formaggi), fontina/gorgonzola owned": "DISCOVERED",
+     "inventory 0 (Dex4 ladder, eggplant owned stock 0)": "KNOWN_BUT_MISSING_MATERIAL",
+     "unlocked but not owned (Dex4 ladder A)": "KNOWN_BUT_MISSING_MATERIAL",
+     "owned but recipe undiscovered (Dex3 + owns eggplant/parmigiano/corn/pineapple/ham via old save)": "DISCOVERABLE"
+    }
+   },
+   "pizzaSelectLeak": {
+    "L1_NAME": true,
+    "L2_IMAGE": true,
+    "L6_BYPASS_SELECT_RECIPE": true,
+    "L7_NAMED_IN_OTHER_CARD_LOCK_HINT": false,
+    "firstNameState": "ladder Dex0 A(entitled,not bought)",
+    "firstImageState": "ladder Dex4 B(bought)",
+    "note": null,
+    "severity": "BLOCKER"
+   },
+   "shopLeak": {
+    "L5_UNLOCK_ANSWER_ROW": true,
+    "L5_PURCHASE_FEEDBACK": true,
+    "freshLadder": [
+     "ladder Dex4 A(entitled,not bought): eggplant"
+    ],
+    "legacy": [
+     "legacy: Dex15 legacy (old 15 discovered, all old materials owned): eggplant",
+     "legacy: unlocked but not owned (Dex4 ladder A): eggplant"
+    ],
+    "severity": "HIGH"
+   },
+   "dexLeak": {
+    "L1_NAME": false,
+    "L2_IMAGE": false,
+    "L3_INGREDIENTS": false,
+    "severity": "NONE",
+    "note": "undiscovered card = 🔒 ？？？ まだ見ぬピザ in every probed state"
+   },
+   "homeLeak": {
+    "L1_NAME": false,
+    "severity": "NONE"
+   },
+   "resultLeak": {
+    "preDiscovery": "NONE (recipe name only after REGISTER_TO_DEX / matcher NEW_DISCOVERY)",
+    "nearMissCopy_L7": "generic INCOMPLETE_MATCH copy (no name) -- global LOW finding F-13",
+    "severity": "NONE"
+   },
+   "freeOrderLeak": {
+    "L4_ORDER_ANSWER": true,
+    "uiReachable": true,
+    "states": [
+     "ladder Dex4 B(bought)",
+     "legacy: Dex15 legacy + eggplant/corn/pineapple bought",
+     "legacy: inventory 0 (Dex4 ladder, eggplant owned stock 0)",
+     "legacy: owned but recipe undiscovered (Dex3 + owns eggplant/parmigiano/corn/pineapple/ham via old save)"
+    ],
+    "reducerChainCompletesDiscovery": true,
+    "evidenceLevel": "browser-reproduced (Chromium 390x844) + reducer",
+    "severity": "BLOCKER"
+   },
+   "lunchRushToFreeLeak": {
+    "reachable": true,
+    "paths": [
+     "MissionResultOverlay フリープレイへ -> exitMissionToFree -> PLAY_AGAIN (LK-8)",
+     "HOME(after PREPARE/BAKE exit) -> ランチラッシュ -> 閉じる -> stale ORDER (LK-8b)",
+     "Lunch Rush PLAYING -> ホーム -> exitMissionToFree -> PLAY_AGAIN -> later LK-8b"
+    ],
+    "lunchRushPoolItselfDiscoveredOnly": true,
+    "severity": "BLOCKER"
+   },
+   "hintLeak": {
+    "L3_GUIDED_HINT": true,
+    "source": "buildHintLine fallback (`${ingredient}をのせてみよう！`)",
+    "L7_UNLOCK_HINT_NAMES_THIS_RECIPE": false,
+    "L5_recipesUnlockedByIngredient": true,
+    "FREE_COOK_DISCOVERY_HINT_L3": null,
+    "severity": "HIGH"
+   },
+   "accessibilityLeak": {
+    "ariaLabelName": true,
+    "guidedMiniReferenceAria": "メランザーネピザの見本を拡大表示",
+    "hiddenDomOnly": false,
+    "note": "every aria-label hit duplicates visible text (no AT-only leak found); detail view keeps the grid mounted with display:none",
+    "severity": "LOW"
+   },
+   "navigationBypass": {
+    "SELECT_RECIPE": true,
+    "FREE_ORDER_BEGIN_PREPARE": true,
+    "RETRY_SAME_RECIPE_after_failed_guided": true,
+    "firstBypassState": "ladder Dex4 B(bought)",
+    "severity": "BLOCKER"
+   },
+   "highestSeverity": "BLOCKER",
+   "evidence": [
+    "runtime probe (vitest+jsdom, real components/reducer at fbfd738): scratch-only, not committed",
+    "Pizza Select NEW card (name+PizzaThumbnail+このピザを作る) first at ladder Dex4 B(bought)",
+    "LK-8 reducer chain at ladder Dex4 B(bought): ORDER 'よし！メランザーネピザを作ろう！生地にソースを塗って好きなトッピングを選んでね。' -> BEGIN_PREPARE (guided) -> completion PASS -> discovered=true",
+    "browser: Lunch Rush(missionDuration=3) RESULT フリープレイへ -> ORDER names メランザーネピザ -> guided PREPARE (見本 popover with exact counts) -> discovered, レシピ 5/25"
+   ]
+  },
+  {
+   "recipeId": "parmigiana-pizza",
+   "recipeName": "パルミジャーナピザ",
+   "ladderStep": 5,
+   "discoveredAtStart": false,
+   "requiredIngredients": [
+    "tomato-saucex1",
+    "mozzarellax2",
+    "eggplantx3",
+    "parmigianox2",
+    "basilx2"
+   ],
+   "hasUnlockCondition_EP1": false,
+   "mysteryLock": false,
+   "discoveryState": {
+    "freshLadderWalk": [
+     "Dex0 A=UNKNOWN",
+     "Dex1 A=UNKNOWN",
+     "Dex1 B=UNKNOWN",
+     "Dex2 A=UNKNOWN",
+     "Dex2 B=UNKNOWN",
+     "Dex3 A=UNKNOWN",
+     "Dex3 B=UNKNOWN",
+     "Dex4 A=UNKNOWN",
+     "Dex4 B=UNKNOWN",
+     "Dex5 A=KNOWN_BUT_MISSING_MATERIAL",
+     "Dex5 B=DISCOVERABLE",
+     "Dex6 A=DISCOVERED",
+     "Dex6 B=DISCOVERED",
+     "Dex7 A=DISCOVERED",
+     "Dex7 B=DISCOVERED",
+     "Dex8 A=DISCOVERED",
+     "Dex8 B=DISCOVERED",
+     "Dex9 A=DISCOVERED",
+     "Dex9 B=DISCOVERED",
+     "Dex10 A=DISCOVERED",
+     "Dex10 B=DISCOVERED",
+     "Dex11 A=DISCOVERED",
+     "Dex11 B=DISCOVERED",
+     "Dex12 A=DISCOVERED",
+     "Dex12 B=DISCOVERED",
+     "Dex13 A=DISCOVERED",
+     "Dex13 B=DISCOVERED",
+     "Dex14 A=DISCOVERED",
+     "Dex14 B=DISCOVERED",
+     "Dex15 A=DISCOVERED",
+     "Dex15 B=DISCOVERED",
+     "Dex16 A=DISCOVERED",
+     "Dex16 B=DISCOVERED",
+     "Dex17 A=DISCOVERED",
+     "Dex17 B=DISCOVERED",
+     "Dex18 A=DISCOVERED",
+     "Dex18 B=DISCOVERED",
+     "Dex19 A=DISCOVERED",
+     "Dex19 B=DISCOVERED",
+     "Dex20 A=DISCOVERED",
+     "Dex20 B=DISCOVERED",
+     "Dex21 A=DISCOVERED",
+     "Dex21 B=DISCOVERED",
+     "Dex22 A=DISCOVERED",
+     "Dex22 B=DISCOVERED",
+     "Dex23 A=DISCOVERED",
+     "Dex23 B=DISCOVERED",
+     "Dex24 A=DISCOVERED",
+     "Dex24 B=DISCOVERED",
+     "Dex25 A=DISCOVERED"
+    ],
+    "legacy": {
+     "fresh save Dex0 (no save)": "UNKNOWN",
+     "Dex1 margherita only": "UNKNOWN",
+     "Dex15 legacy (old 15 discovered, all old materials owned)": "KNOWN_BUT_MISSING_MATERIAL",
+     "Dex15 legacy + eggplant/corn/pineapple bought": "DISCOVERABLE",
+     "Dex23 (all but quattro-formaggi, bismarck)": "DISCOVERED",
+     "Dex24 (all but quattro-formaggi), fontina/gorgonzola owned": "DISCOVERED",
+     "inventory 0 (Dex4 ladder, eggplant owned stock 0)": "UNKNOWN",
+     "unlocked but not owned (Dex4 ladder A)": "UNKNOWN",
+     "owned but recipe undiscovered (Dex3 + owns eggplant/parmigiano/corn/pineapple/ham via old save)": "DISCOVERABLE"
+    }
+   },
+   "pizzaSelectLeak": {
+    "L1_NAME": true,
+    "L2_IMAGE": true,
+    "L6_BYPASS_SELECT_RECIPE": true,
+    "L7_NAMED_IN_OTHER_CARD_LOCK_HINT": false,
+    "firstNameState": "ladder Dex0 A(entitled,not bought)",
+    "firstImageState": "ladder Dex5 B(bought)",
+    "note": null,
+    "severity": "BLOCKER"
+   },
+   "shopLeak": {
+    "L5_UNLOCK_ANSWER_ROW": true,
+    "L5_PURCHASE_FEEDBACK": true,
+    "freshLadder": [
+     "ladder Dex5 A(entitled,not bought): parmigiano"
+    ],
+    "legacy": [
+     "legacy: Dex15 legacy (old 15 discovered, all old materials owned): eggplant"
+    ],
+    "severity": "HIGH"
+   },
+   "dexLeak": {
+    "L1_NAME": false,
+    "L2_IMAGE": false,
+    "L3_INGREDIENTS": false,
+    "severity": "NONE",
+    "note": "undiscovered card = 🔒 ？？？ まだ見ぬピザ in every probed state"
+   },
+   "homeLeak": {
+    "L1_NAME": false,
+    "severity": "NONE"
+   },
+   "resultLeak": {
+    "preDiscovery": "NONE (recipe name only after REGISTER_TO_DEX / matcher NEW_DISCOVERY)",
+    "nearMissCopy_L7": "generic INCOMPLETE_MATCH copy (no name) -- global LOW finding F-13",
+    "severity": "NONE"
+   },
+   "freeOrderLeak": {
+    "L4_ORDER_ANSWER": true,
+    "uiReachable": true,
+    "states": [
+     "ladder Dex5 B(bought)",
+     "legacy: Dex15 legacy + eggplant/corn/pineapple bought",
+     "legacy: owned but recipe undiscovered (Dex3 + owns eggplant/parmigiano/corn/pineapple/ham via old save)"
+    ],
+    "reducerChainCompletesDiscovery": true,
+    "evidenceLevel": "reducer-reproduced (runtime probe)",
+    "severity": "BLOCKER"
+   },
+   "lunchRushToFreeLeak": {
+    "reachable": true,
+    "paths": [
+     "MissionResultOverlay フリープレイへ -> exitMissionToFree -> PLAY_AGAIN (LK-8)",
+     "HOME(after PREPARE/BAKE exit) -> ランチラッシュ -> 閉じる -> stale ORDER (LK-8b)",
+     "Lunch Rush PLAYING -> ホーム -> exitMissionToFree -> PLAY_AGAIN -> later LK-8b"
+    ],
+    "lunchRushPoolItselfDiscoveredOnly": true,
+    "severity": "BLOCKER"
+   },
+   "hintLeak": {
+    "L3_GUIDED_HINT": true,
+    "source": "buildHintLine fallback (`${ingredient}をのせてみよう！`)",
+    "L7_UNLOCK_HINT_NAMES_THIS_RECIPE": false,
+    "L5_recipesUnlockedByIngredient": true,
+    "FREE_COOK_DISCOVERY_HINT_L3": null,
+    "severity": "HIGH"
+   },
+   "accessibilityLeak": {
+    "ariaLabelName": true,
+    "guidedMiniReferenceAria": "パルミジャーナピザの見本を拡大表示",
+    "hiddenDomOnly": false,
+    "note": "every aria-label hit duplicates visible text (no AT-only leak found); detail view keeps the grid mounted with display:none",
+    "severity": "LOW"
+   },
+   "navigationBypass": {
+    "SELECT_RECIPE": true,
+    "FREE_ORDER_BEGIN_PREPARE": true,
+    "RETRY_SAME_RECIPE_after_failed_guided": true,
+    "firstBypassState": "ladder Dex5 B(bought)",
+    "severity": "BLOCKER"
+   },
+   "highestSeverity": "BLOCKER",
+   "evidence": [
+    "runtime probe (vitest+jsdom, real components/reducer at fbfd738): scratch-only, not committed",
+    "Pizza Select NEW card (name+PizzaThumbnail+このピザを作る) first at ladder Dex5 B(bought)",
+    "LK-8 reducer chain at ladder Dex5 B(bought): ORDER 'パルミジャーナピザか、腕が鳴るな！まずは生地にソースを塗るところからだ。' -> BEGIN_PREPARE (guided) -> completion PASS -> discovered=true"
+   ]
+  },
+  {
+   "recipeId": "bambino",
+   "recipeName": "バンビーノ",
+   "ladderStep": 9,
+   "discoveredAtStart": false,
+   "requiredIngredients": [
+    "tomato-saucex1",
+    "mozzarellax2",
+    "hamx2",
+    "cornx3"
+   ],
+   "hasUnlockCondition_EP1": false,
+   "mysteryLock": false,
+   "discoveryState": {
+    "freshLadderWalk": [
+     "Dex0 A=UNKNOWN",
+     "Dex1 A=UNKNOWN",
+     "Dex1 B=UNKNOWN",
+     "Dex2 A=UNKNOWN",
+     "Dex2 B=UNKNOWN",
+     "Dex3 A=UNKNOWN",
+     "Dex3 B=UNKNOWN",
+     "Dex4 A=UNKNOWN",
+     "Dex4 B=UNKNOWN",
+     "Dex5 A=UNKNOWN",
+     "Dex5 B=UNKNOWN",
+     "Dex6 A=UNKNOWN",
+     "Dex6 B=UNKNOWN",
+     "Dex7 A=UNKNOWN",
+     "Dex7 B=UNKNOWN",
+     "Dex8 A=UNKNOWN",
+     "Dex8 B=UNKNOWN",
+     "Dex9 A=KNOWN_BUT_MISSING_MATERIAL",
+     "Dex9 B=DISCOVERABLE",
+     "Dex10 A=DISCOVERED",
+     "Dex10 B=DISCOVERED",
+     "Dex11 A=DISCOVERED",
+     "Dex11 B=DISCOVERED",
+     "Dex12 A=DISCOVERED",
+     "Dex12 B=DISCOVERED",
+     "Dex13 A=DISCOVERED",
+     "Dex13 B=DISCOVERED",
+     "Dex14 A=DISCOVERED",
+     "Dex14 B=DISCOVERED",
+     "Dex15 A=DISCOVERED",
+     "Dex15 B=DISCOVERED",
+     "Dex16 A=DISCOVERED",
+     "Dex16 B=DISCOVERED",
+     "Dex17 A=DISCOVERED",
+     "Dex17 B=DISCOVERED",
+     "Dex18 A=DISCOVERED",
+     "Dex18 B=DISCOVERED",
+     "Dex19 A=DISCOVERED",
+     "Dex19 B=DISCOVERED",
+     "Dex20 A=DISCOVERED",
+     "Dex20 B=DISCOVERED",
+     "Dex21 A=DISCOVERED",
+     "Dex21 B=DISCOVERED",
+     "Dex22 A=DISCOVERED",
+     "Dex22 B=DISCOVERED",
+     "Dex23 A=DISCOVERED",
+     "Dex23 B=DISCOVERED",
+     "Dex24 A=DISCOVERED",
+     "Dex24 B=DISCOVERED",
+     "Dex25 A=DISCOVERED"
+    ],
+    "legacy": {
+     "fresh save Dex0 (no save)": "UNKNOWN",
+     "Dex1 margherita only": "UNKNOWN",
+     "Dex15 legacy (old 15 discovered, all old materials owned)": "KNOWN_BUT_MISSING_MATERIAL",
+     "Dex15 legacy + eggplant/corn/pineapple bought": "DISCOVERABLE",
+     "Dex23 (all but quattro-formaggi, bismarck)": "DISCOVERED",
+     "Dex24 (all but quattro-formaggi), fontina/gorgonzola owned": "DISCOVERED",
+     "inventory 0 (Dex4 ladder, eggplant owned stock 0)": "UNKNOWN",
+     "unlocked but not owned (Dex4 ladder A)": "UNKNOWN",
+     "owned but recipe undiscovered (Dex3 + owns eggplant/parmigiano/corn/pineapple/ham via old save)": "DISCOVERABLE"
+    }
+   },
+   "pizzaSelectLeak": {
+    "L1_NAME": true,
+    "L2_IMAGE": true,
+    "L6_BYPASS_SELECT_RECIPE": true,
+    "L7_NAMED_IN_OTHER_CARD_LOCK_HINT": false,
+    "firstNameState": "ladder Dex0 A(entitled,not bought)",
+    "firstImageState": "ladder Dex9 B(bought)",
+    "note": null,
+    "severity": "BLOCKER"
+   },
+   "shopLeak": {
+    "L5_UNLOCK_ANSWER_ROW": true,
+    "L5_PURCHASE_FEEDBACK": true,
+    "freshLadder": [
+     "ladder Dex9 A(entitled,not bought): corn"
+    ],
+    "legacy": [
+     "legacy: Dex15 legacy (old 15 discovered, all old materials owned): corn"
+    ],
+    "severity": "HIGH"
+   },
+   "dexLeak": {
+    "L1_NAME": false,
+    "L2_IMAGE": false,
+    "L3_INGREDIENTS": false,
+    "severity": "NONE",
+    "note": "undiscovered card = 🔒 ？？？ まだ見ぬピザ in every probed state"
+   },
+   "homeLeak": {
+    "L1_NAME": false,
+    "severity": "NONE"
+   },
+   "resultLeak": {
+    "preDiscovery": "NONE (recipe name only after REGISTER_TO_DEX / matcher NEW_DISCOVERY)",
+    "nearMissCopy_L7": "generic INCOMPLETE_MATCH copy (no name) -- global LOW finding F-13",
+    "severity": "NONE"
+   },
+   "freeOrderLeak": {
+    "L4_ORDER_ANSWER": true,
+    "uiReachable": true,
+    "states": [
+     "ladder Dex9 B(bought)",
+     "legacy: Dex15 legacy + eggplant/corn/pineapple bought",
+     "legacy: owned but recipe undiscovered (Dex3 + owns eggplant/parmigiano/corn/pineapple/ham via old save)"
+    ],
+    "reducerChainCompletesDiscovery": true,
+    "evidenceLevel": "reducer-reproduced (runtime probe)",
+    "severity": "BLOCKER"
+   },
+   "lunchRushToFreeLeak": {
+    "reachable": true,
+    "paths": [
+     "MissionResultOverlay フリープレイへ -> exitMissionToFree -> PLAY_AGAIN (LK-8)",
+     "HOME(after PREPARE/BAKE exit) -> ランチラッシュ -> 閉じる -> stale ORDER (LK-8b)",
+     "Lunch Rush PLAYING -> ホーム -> exitMissionToFree -> PLAY_AGAIN -> later LK-8b"
+    ],
+    "lunchRushPoolItselfDiscoveredOnly": true,
+    "severity": "BLOCKER"
+   },
+   "hintLeak": {
+    "L3_GUIDED_HINT": true,
+    "source": "buildHintLine fallback (`${ingredient}をのせてみよう！`)",
+    "L7_UNLOCK_HINT_NAMES_THIS_RECIPE": false,
+    "L5_recipesUnlockedByIngredient": true,
+    "FREE_COOK_DISCOVERY_HINT_L3": null,
+    "severity": "HIGH"
+   },
+   "accessibilityLeak": {
+    "ariaLabelName": true,
+    "guidedMiniReferenceAria": "バンビーノの見本を拡大表示",
+    "hiddenDomOnly": false,
+    "note": "every aria-label hit duplicates visible text (no AT-only leak found); detail view keeps the grid mounted with display:none",
+    "severity": "LOW"
+   },
+   "navigationBypass": {
+    "SELECT_RECIPE": true,
+    "FREE_ORDER_BEGIN_PREPARE": true,
+    "RETRY_SAME_RECIPE_after_failed_guided": true,
+    "firstBypassState": "ladder Dex9 B(bought)",
+    "severity": "BLOCKER"
+   },
+   "highestSeverity": "BLOCKER",
+   "evidence": [
+    "runtime probe (vitest+jsdom, real components/reducer at fbfd738): scratch-only, not committed",
+    "Pizza Select NEW card (name+PizzaThumbnail+このピザを作る) first at ladder Dex9 B(bought)",
+    "LK-8 reducer chain at ladder Dex9 B(bought): ORDER 'よーし、今日はバンビーノに挑戦だ！トッピングは好きに選んでいいぞ。' -> BEGIN_PREPARE (guided) -> completion PASS -> discovered=true"
+   ]
+  },
+  {
+   "recipeId": "hawaiian",
+   "recipeName": "ハワイアンピザ",
+   "ladderStep": 10,
+   "discoveredAtStart": false,
+   "requiredIngredients": [
+    "tomato-saucex1",
+    "mozzarellax2",
+    "hamx2",
+    "pineapplex3"
+   ],
+   "hasUnlockCondition_EP1": false,
+   "mysteryLock": false,
+   "discoveryState": {
+    "freshLadderWalk": [
+     "Dex0 A=UNKNOWN",
+     "Dex1 A=UNKNOWN",
+     "Dex1 B=UNKNOWN",
+     "Dex2 A=UNKNOWN",
+     "Dex2 B=UNKNOWN",
+     "Dex3 A=UNKNOWN",
+     "Dex3 B=UNKNOWN",
+     "Dex4 A=UNKNOWN",
+     "Dex4 B=UNKNOWN",
+     "Dex5 A=UNKNOWN",
+     "Dex5 B=UNKNOWN",
+     "Dex6 A=UNKNOWN",
+     "Dex6 B=UNKNOWN",
+     "Dex7 A=UNKNOWN",
+     "Dex7 B=UNKNOWN",
+     "Dex8 A=UNKNOWN",
+     "Dex8 B=UNKNOWN",
+     "Dex9 A=UNKNOWN",
+     "Dex9 B=UNKNOWN",
+     "Dex10 A=KNOWN_BUT_MISSING_MATERIAL",
+     "Dex10 B=DISCOVERABLE",
+     "Dex11 A=DISCOVERED",
+     "Dex11 B=DISCOVERED",
+     "Dex12 A=DISCOVERED",
+     "Dex12 B=DISCOVERED",
+     "Dex13 A=DISCOVERED",
+     "Dex13 B=DISCOVERED",
+     "Dex14 A=DISCOVERED",
+     "Dex14 B=DISCOVERED",
+     "Dex15 A=DISCOVERED",
+     "Dex15 B=DISCOVERED",
+     "Dex16 A=DISCOVERED",
+     "Dex16 B=DISCOVERED",
+     "Dex17 A=DISCOVERED",
+     "Dex17 B=DISCOVERED",
+     "Dex18 A=DISCOVERED",
+     "Dex18 B=DISCOVERED",
+     "Dex19 A=DISCOVERED",
+     "Dex19 B=DISCOVERED",
+     "Dex20 A=DISCOVERED",
+     "Dex20 B=DISCOVERED",
+     "Dex21 A=DISCOVERED",
+     "Dex21 B=DISCOVERED",
+     "Dex22 A=DISCOVERED",
+     "Dex22 B=DISCOVERED",
+     "Dex23 A=DISCOVERED",
+     "Dex23 B=DISCOVERED",
+     "Dex24 A=DISCOVERED",
+     "Dex24 B=DISCOVERED",
+     "Dex25 A=DISCOVERED"
+    ],
+    "legacy": {
+     "fresh save Dex0 (no save)": "UNKNOWN",
+     "Dex1 margherita only": "UNKNOWN",
+     "Dex15 legacy (old 15 discovered, all old materials owned)": "KNOWN_BUT_MISSING_MATERIAL",
+     "Dex15 legacy + eggplant/corn/pineapple bought": "DISCOVERABLE",
+     "Dex23 (all but quattro-formaggi, bismarck)": "DISCOVERED",
+     "Dex24 (all but quattro-formaggi), fontina/gorgonzola owned": "DISCOVERED",
+     "inventory 0 (Dex4 ladder, eggplant owned stock 0)": "UNKNOWN",
+     "unlocked but not owned (Dex4 ladder A)": "UNKNOWN",
+     "owned but recipe undiscovered (Dex3 + owns eggplant/parmigiano/corn/pineapple/ham via old save)": "DISCOVERABLE"
+    }
+   },
+   "pizzaSelectLeak": {
+    "L1_NAME": true,
+    "L2_IMAGE": true,
+    "L6_BYPASS_SELECT_RECIPE": true,
+    "L7_NAMED_IN_OTHER_CARD_LOCK_HINT": false,
+    "firstNameState": "ladder Dex0 A(entitled,not bought)",
+    "firstImageState": "ladder Dex10 B(bought)",
+    "note": null,
+    "severity": "BLOCKER"
+   },
+   "shopLeak": {
+    "L5_UNLOCK_ANSWER_ROW": true,
+    "L5_PURCHASE_FEEDBACK": true,
+    "freshLadder": [
+     "ladder Dex10 A(entitled,not bought): pineapple"
+    ],
+    "legacy": [
+     "legacy: Dex15 legacy (old 15 discovered, all old materials owned): pineapple"
+    ],
+    "severity": "HIGH"
+   },
+   "dexLeak": {
+    "L1_NAME": false,
+    "L2_IMAGE": false,
+    "L3_INGREDIENTS": false,
+    "severity": "NONE",
+    "note": "undiscovered card = 🔒 ？？？ まだ見ぬピザ in every probed state"
+   },
+   "homeLeak": {
+    "L1_NAME": false,
+    "severity": "NONE"
+   },
+   "resultLeak": {
+    "preDiscovery": "NONE (recipe name only after REGISTER_TO_DEX / matcher NEW_DISCOVERY)",
+    "nearMissCopy_L7": "generic INCOMPLETE_MATCH copy (no name) -- global LOW finding F-13",
+    "severity": "NONE"
+   },
+   "freeOrderLeak": {
+    "L4_ORDER_ANSWER": true,
+    "uiReachable": true,
+    "states": [
+     "ladder Dex10 B(bought)",
+     "legacy: Dex15 legacy + eggplant/corn/pineapple bought",
+     "legacy: owned but recipe undiscovered (Dex3 + owns eggplant/parmigiano/corn/pineapple/ham via old save)"
+    ],
+    "reducerChainCompletesDiscovery": true,
+    "evidenceLevel": "reducer-reproduced (runtime probe)",
+    "severity": "BLOCKER"
+   },
+   "lunchRushToFreeLeak": {
+    "reachable": true,
+    "paths": [
+     "MissionResultOverlay フリープレイへ -> exitMissionToFree -> PLAY_AGAIN (LK-8)",
+     "HOME(after PREPARE/BAKE exit) -> ランチラッシュ -> 閉じる -> stale ORDER (LK-8b)",
+     "Lunch Rush PLAYING -> ホーム -> exitMissionToFree -> PLAY_AGAIN -> later LK-8b"
+    ],
+    "lunchRushPoolItselfDiscoveredOnly": true,
+    "severity": "BLOCKER"
+   },
+   "hintLeak": {
+    "L3_GUIDED_HINT": true,
+    "source": "buildHintLine fallback (`${ingredient}をのせてみよう！`)",
+    "L7_UNLOCK_HINT_NAMES_THIS_RECIPE": false,
+    "L5_recipesUnlockedByIngredient": true,
+    "FREE_COOK_DISCOVERY_HINT_L3": null,
+    "severity": "HIGH"
+   },
+   "accessibilityLeak": {
+    "ariaLabelName": true,
+    "guidedMiniReferenceAria": "ハワイアンピザの見本を拡大表示",
+    "hiddenDomOnly": false,
+    "note": "every aria-label hit duplicates visible text (no AT-only leak found); detail view keeps the grid mounted with display:none",
+    "severity": "LOW"
+   },
+   "navigationBypass": {
+    "SELECT_RECIPE": true,
+    "FREE_ORDER_BEGIN_PREPARE": true,
+    "RETRY_SAME_RECIPE_after_failed_guided": true,
+    "firstBypassState": "ladder Dex10 B(bought)",
+    "severity": "BLOCKER"
+   },
+   "highestSeverity": "BLOCKER",
+   "evidence": [
+    "runtime probe (vitest+jsdom, real components/reducer at fbfd738): scratch-only, not committed",
+    "Pizza Select NEW card (name+PizzaThumbnail+このピザを作る) first at ladder Dex10 B(bought)",
+    "LK-8 reducer chain at ladder Dex10 B(bought): ORDER 'よし！ハワイアンピザを作ろう！生地にソースを塗って好きなトッピングを選んでね。' -> BEGIN_PREPARE (guided) -> completion PASS -> discovered=true"
+   ]
+  },
+  {
+   "recipeId": "pizza-portuguesa",
+   "recipeName": "ピッツァ・ポルトゲーザ",
+   "ladderStep": 12,
+   "discoveredAtStart": false,
+   "requiredIngredients": [
+    "tomato-saucex1",
+    "mozzarellax2",
+    "hamx3",
+    "eggx1",
+    "onionx2",
+    "black-olivex2"
+   ],
+   "hasUnlockCondition_EP1": false,
+   "mysteryLock": false,
+   "discoveryState": {
+    "freshLadderWalk": [
+     "Dex0 A=UNKNOWN",
+     "Dex1 A=UNKNOWN",
+     "Dex1 B=UNKNOWN",
+     "Dex2 A=UNKNOWN",
+     "Dex2 B=UNKNOWN",
+     "Dex3 A=UNKNOWN",
+     "Dex3 B=UNKNOWN",
+     "Dex4 A=UNKNOWN",
+     "Dex4 B=UNKNOWN",
+     "Dex5 A=UNKNOWN",
+     "Dex5 B=UNKNOWN",
+     "Dex6 A=UNKNOWN",
+     "Dex6 B=UNKNOWN",
+     "Dex7 A=UNKNOWN",
+     "Dex7 B=UNKNOWN",
+     "Dex8 A=UNKNOWN",
+     "Dex8 B=UNKNOWN",
+     "Dex9 A=UNKNOWN",
+     "Dex9 B=UNKNOWN",
+     "Dex10 A=UNKNOWN",
+     "Dex10 B=UNKNOWN",
+     "Dex11 A=UNKNOWN",
+     "Dex11 B=UNKNOWN",
+     "Dex12 A=KNOWN_BUT_MISSING_MATERIAL",
+     "Dex12 B=DISCOVERABLE",
+     "Dex13 A=DISCOVERED",
+     "Dex13 B=DISCOVERED",
+     "Dex14 A=DISCOVERED",
+     "Dex14 B=DISCOVERED",
+     "Dex15 A=DISCOVERED",
+     "Dex15 B=DISCOVERED",
+     "Dex16 A=DISCOVERED",
+     "Dex16 B=DISCOVERED",
+     "Dex17 A=DISCOVERED",
+     "Dex17 B=DISCOVERED",
+     "Dex18 A=DISCOVERED",
+     "Dex18 B=DISCOVERED",
+     "Dex19 A=DISCOVERED",
+     "Dex19 B=DISCOVERED",
+     "Dex20 A=DISCOVERED",
+     "Dex20 B=DISCOVERED",
+     "Dex21 A=DISCOVERED",
+     "Dex21 B=DISCOVERED",
+     "Dex22 A=DISCOVERED",
+     "Dex22 B=DISCOVERED",
+     "Dex23 A=DISCOVERED",
+     "Dex23 B=DISCOVERED",
+     "Dex24 A=DISCOVERED",
+     "Dex24 B=DISCOVERED",
+     "Dex25 A=DISCOVERED"
+    ],
+    "legacy": {
+     "fresh save Dex0 (no save)": "UNKNOWN",
+     "Dex1 margherita only": "UNKNOWN",
+     "Dex15 legacy (old 15 discovered, all old materials owned)": "DISCOVERABLE",
+     "Dex15 legacy + eggplant/corn/pineapple bought": "DISCOVERABLE",
+     "Dex23 (all but quattro-formaggi, bismarck)": "DISCOVERED",
+     "Dex24 (all but quattro-formaggi), fontina/gorgonzola owned": "DISCOVERED",
+     "inventory 0 (Dex4 ladder, eggplant owned stock 0)": "UNKNOWN",
+     "unlocked but not owned (Dex4 ladder A)": "UNKNOWN",
+     "owned but recipe undiscovered (Dex3 + owns eggplant/parmigiano/corn/pineapple/ham via old save)": "UNKNOWN"
+    }
+   },
+   "pizzaSelectLeak": {
+    "L1_NAME": true,
+    "L2_IMAGE": true,
+    "L6_BYPASS_SELECT_RECIPE": true,
+    "L7_NAMED_IN_OTHER_CARD_LOCK_HINT": false,
+    "firstNameState": "ladder Dex0 A(entitled,not bought)",
+    "firstImageState": "ladder Dex12 B(bought)",
+    "note": null,
+    "severity": "BLOCKER"
+   },
+   "shopLeak": {
+    "L5_UNLOCK_ANSWER_ROW": true,
+    "L5_PURCHASE_FEEDBACK": true,
+    "freshLadder": [
+     "ladder Dex12 A(entitled,not bought): onion"
+    ],
+    "legacy": [],
+    "severity": "HIGH"
+   },
+   "dexLeak": {
+    "L1_NAME": false,
+    "L2_IMAGE": false,
+    "L3_INGREDIENTS": false,
+    "severity": "NONE",
+    "note": "undiscovered card = 🔒 ？？？ まだ見ぬピザ in every probed state"
+   },
+   "homeLeak": {
+    "L1_NAME": false,
+    "severity": "NONE"
+   },
+   "resultLeak": {
+    "preDiscovery": "NONE (recipe name only after REGISTER_TO_DEX / matcher NEW_DISCOVERY)",
+    "nearMissCopy_L7": "generic INCOMPLETE_MATCH copy (no name) -- global LOW finding F-13",
+    "severity": "NONE"
+   },
+   "freeOrderLeak": {
+    "L4_ORDER_ANSWER": true,
+    "uiReachable": true,
+    "states": [
+     "ladder Dex12 B(bought)",
+     "legacy: Dex15 legacy (old 15 discovered, all old materials owned)",
+     "legacy: Dex15 legacy + eggplant/corn/pineapple bought"
+    ],
+    "reducerChainCompletesDiscovery": true,
+    "evidenceLevel": "reducer-reproduced (runtime probe)",
+    "severity": "BLOCKER"
+   },
+   "lunchRushToFreeLeak": {
+    "reachable": true,
+    "paths": [
+     "MissionResultOverlay フリープレイへ -> exitMissionToFree -> PLAY_AGAIN (LK-8)",
+     "HOME(after PREPARE/BAKE exit) -> ランチラッシュ -> 閉じる -> stale ORDER (LK-8b)",
+     "Lunch Rush PLAYING -> ホーム -> exitMissionToFree -> PLAY_AGAIN -> later LK-8b"
+    ],
+    "lunchRushPoolItselfDiscoveredOnly": true,
+    "severity": "BLOCKER"
+   },
+   "hintLeak": {
+    "L3_GUIDED_HINT": true,
+    "source": "buildHintLine fallback (`${ingredient}をのせてみよう！`)",
+    "L7_UNLOCK_HINT_NAMES_THIS_RECIPE": false,
+    "L5_recipesUnlockedByIngredient": true,
+    "FREE_COOK_DISCOVERY_HINT_L3": null,
+    "severity": "HIGH"
+   },
+   "accessibilityLeak": {
+    "ariaLabelName": true,
+    "guidedMiniReferenceAria": "ピッツァ・ポルトゲーザの見本を拡大表示",
+    "hiddenDomOnly": false,
+    "note": "every aria-label hit duplicates visible text (no AT-only leak found); detail view keeps the grid mounted with display:none",
+    "severity": "LOW"
+   },
+   "navigationBypass": {
+    "SELECT_RECIPE": true,
+    "FREE_ORDER_BEGIN_PREPARE": true,
+    "RETRY_SAME_RECIPE_after_failed_guided": true,
+    "firstBypassState": "ladder Dex12 B(bought)",
+    "severity": "BLOCKER"
+   },
+   "highestSeverity": "BLOCKER",
+   "evidence": [
+    "runtime probe (vitest+jsdom, real components/reducer at fbfd738): scratch-only, not committed",
+    "Pizza Select NEW card (name+PizzaThumbnail+このピザを作る) first at ladder Dex12 B(bought)",
+    "LK-8 reducer chain at ladder Dex12 B(bought): ORDER 'ピッツァ・ポルトゲーザか、腕が鳴るな！まずは生地にソースを塗るところからだ。' -> BEGIN_PREPARE (guided) -> completion PASS -> discovered=true"
+   ]
+  },
+  {
+   "recipeId": "pesto-tonno",
+   "recipeName": "ペストトンノピザ",
+   "ladderStep": 17,
+   "discoveredAtStart": false,
+   "requiredIngredients": [
+    "pestox1",
+    "tunax3",
+    "black-olivex2",
+    "onionx2"
+   ],
+   "hasUnlockCondition_EP1": false,
+   "mysteryLock": false,
+   "discoveryState": {
+    "freshLadderWalk": [
+     "Dex0 A=UNKNOWN",
+     "Dex1 A=UNKNOWN",
+     "Dex1 B=UNKNOWN",
+     "Dex2 A=UNKNOWN",
+     "Dex2 B=UNKNOWN",
+     "Dex3 A=UNKNOWN",
+     "Dex3 B=UNKNOWN",
+     "Dex4 A=UNKNOWN",
+     "Dex4 B=UNKNOWN",
+     "Dex5 A=UNKNOWN",
+     "Dex5 B=UNKNOWN",
+     "Dex6 A=UNKNOWN",
+     "Dex6 B=UNKNOWN",
+     "Dex7 A=UNKNOWN",
+     "Dex7 B=UNKNOWN",
+     "Dex8 A=UNKNOWN",
+     "Dex8 B=UNKNOWN",
+     "Dex9 A=UNKNOWN",
+     "Dex9 B=UNKNOWN",
+     "Dex10 A=UNKNOWN",
+     "Dex10 B=UNKNOWN",
+     "Dex11 A=UNKNOWN",
+     "Dex11 B=UNKNOWN",
+     "Dex12 A=UNKNOWN",
+     "Dex12 B=UNKNOWN",
+     "Dex13 A=UNKNOWN",
+     "Dex13 B=UNKNOWN",
+     "Dex14 A=UNKNOWN",
+     "Dex14 B=UNKNOWN",
+     "Dex15 A=UNKNOWN",
+     "Dex15 B=UNKNOWN",
+     "Dex16 A=UNKNOWN",
+     "Dex16 B=UNKNOWN",
+     "Dex17 A=KNOWN_BUT_MISSING_MATERIAL",
+     "Dex17 B=DISCOVERABLE",
+     "Dex18 A=DISCOVERED",
+     "Dex18 B=DISCOVERED",
+     "Dex19 A=DISCOVERED",
+     "Dex19 B=DISCOVERED",
+     "Dex20 A=DISCOVERED",
+     "Dex20 B=DISCOVERED",
+     "Dex21 A=DISCOVERED",
+     "Dex21 B=DISCOVERED",
+     "Dex22 A=DISCOVERED",
+     "Dex22 B=DISCOVERED",
+     "Dex23 A=DISCOVERED",
+     "Dex23 B=DISCOVERED",
+     "Dex24 A=DISCOVERED",
+     "Dex24 B=DISCOVERED",
+     "Dex25 A=DISCOVERED"
+    ],
+    "legacy": {
+     "fresh save Dex0 (no save)": "UNKNOWN",
+     "Dex1 margherita only": "UNKNOWN",
+     "Dex15 legacy (old 15 discovered, all old materials owned)": "DISCOVERABLE",
+     "Dex15 legacy + eggplant/corn/pineapple bought": "DISCOVERABLE",
+     "Dex23 (all but quattro-formaggi, bismarck)": "DISCOVERED",
+     "Dex24 (all but quattro-formaggi), fontina/gorgonzola owned": "DISCOVERED",
+     "inventory 0 (Dex4 ladder, eggplant owned stock 0)": "UNKNOWN",
+     "unlocked but not owned (Dex4 ladder A)": "UNKNOWN",
+     "owned but recipe undiscovered (Dex3 + owns eggplant/parmigiano/corn/pineapple/ham via old save)": "UNKNOWN"
+    }
+   },
+   "pizzaSelectLeak": {
+    "L1_NAME": true,
+    "L2_IMAGE": true,
+    "L6_BYPASS_SELECT_RECIPE": true,
+    "L7_NAMED_IN_OTHER_CARD_LOCK_HINT": false,
+    "firstNameState": "ladder Dex0 A(entitled,not bought)",
+    "firstImageState": "ladder Dex17 B(bought)",
+    "note": null,
+    "severity": "BLOCKER"
+   },
+   "shopLeak": {
+    "L5_UNLOCK_ANSWER_ROW": true,
+    "L5_PURCHASE_FEEDBACK": true,
+    "freshLadder": [
+     "ladder Dex17 A(entitled,not bought): pesto"
+    ],
+    "legacy": [],
+    "severity": "HIGH"
+   },
+   "dexLeak": {
+    "L1_NAME": false,
+    "L2_IMAGE": false,
+    "L3_INGREDIENTS": false,
+    "severity": "NONE",
+    "note": "undiscovered card = 🔒 ？？？ まだ見ぬピザ in every probed state"
+   },
+   "homeLeak": {
+    "L1_NAME": false,
+    "severity": "NONE"
+   },
+   "resultLeak": {
+    "preDiscovery": "NONE (recipe name only after REGISTER_TO_DEX / matcher NEW_DISCOVERY)",
+    "nearMissCopy_L7": "generic INCOMPLETE_MATCH copy (no name) -- global LOW finding F-13",
+    "severity": "NONE"
+   },
+   "freeOrderLeak": {
+    "L4_ORDER_ANSWER": true,
+    "uiReachable": true,
+    "states": [
+     "ladder Dex17 B(bought)",
+     "legacy: Dex15 legacy (old 15 discovered, all old materials owned)",
+     "legacy: Dex15 legacy + eggplant/corn/pineapple bought"
+    ],
+    "reducerChainCompletesDiscovery": true,
+    "evidenceLevel": "reducer-reproduced (runtime probe)",
+    "severity": "BLOCKER"
+   },
+   "lunchRushToFreeLeak": {
+    "reachable": true,
+    "paths": [
+     "MissionResultOverlay フリープレイへ -> exitMissionToFree -> PLAY_AGAIN (LK-8)",
+     "HOME(after PREPARE/BAKE exit) -> ランチラッシュ -> 閉じる -> stale ORDER (LK-8b)",
+     "Lunch Rush PLAYING -> ホーム -> exitMissionToFree -> PLAY_AGAIN -> later LK-8b"
+    ],
+    "lunchRushPoolItselfDiscoveredOnly": true,
+    "severity": "BLOCKER"
+   },
+   "hintLeak": {
+    "L3_GUIDED_HINT": true,
+    "source": "buildHintLine fallback (`${ingredient}をのせてみよう！`)",
+    "L7_UNLOCK_HINT_NAMES_THIS_RECIPE": false,
+    "L5_recipesUnlockedByIngredient": true,
+    "FREE_COOK_DISCOVERY_HINT_L3": null,
+    "severity": "HIGH"
+   },
+   "accessibilityLeak": {
+    "ariaLabelName": true,
+    "guidedMiniReferenceAria": "ペストトンノピザの見本を拡大表示",
+    "hiddenDomOnly": false,
+    "note": "every aria-label hit duplicates visible text (no AT-only leak found); detail view keeps the grid mounted with display:none",
+    "severity": "LOW"
+   },
+   "navigationBypass": {
+    "SELECT_RECIPE": true,
+    "FREE_ORDER_BEGIN_PREPARE": true,
+    "RETRY_SAME_RECIPE_after_failed_guided": true,
+    "firstBypassState": "ladder Dex17 B(bought)",
+    "severity": "BLOCKER"
+   },
+   "highestSeverity": "BLOCKER",
+   "evidence": [
+    "runtime probe (vitest+jsdom, real components/reducer at fbfd738): scratch-only, not committed",
+    "Pizza Select NEW card (name+PizzaThumbnail+このピザを作る) first at ladder Dex17 B(bought)",
+    "LK-8 reducer chain at ladder Dex17 B(bought): ORDER 'よーし、今日はペストトンノピザに挑戦だ！トッピングは好きに選んでいいぞ。' -> BEGIN_PREPARE (guided) -> completion PASS -> discovered=true"
+   ]
+  },
+  {
+   "recipeId": "new-haven-apizza",
+   "recipeName": "ニューヘイブンアピッツァ",
+   "ladderStep": 19,
+   "discoveredAtStart": false,
+   "requiredIngredients": [
+    "olive-oilx1",
+    "parmigianox2",
+    "clamx3",
+    "garlicx2"
+   ],
+   "hasUnlockCondition_EP1": false,
+   "mysteryLock": false,
+   "discoveryState": {
+    "freshLadderWalk": [
+     "Dex0 A=UNKNOWN",
+     "Dex1 A=UNKNOWN",
+     "Dex1 B=UNKNOWN",
+     "Dex2 A=UNKNOWN",
+     "Dex2 B=UNKNOWN",
+     "Dex3 A=UNKNOWN",
+     "Dex3 B=UNKNOWN",
+     "Dex4 A=UNKNOWN",
+     "Dex4 B=UNKNOWN",
+     "Dex5 A=UNKNOWN",
+     "Dex5 B=UNKNOWN",
+     "Dex6 A=UNKNOWN",
+     "Dex6 B=UNKNOWN",
+     "Dex7 A=UNKNOWN",
+     "Dex7 B=UNKNOWN",
+     "Dex8 A=UNKNOWN",
+     "Dex8 B=UNKNOWN",
+     "Dex9 A=UNKNOWN",
+     "Dex9 B=UNKNOWN",
+     "Dex10 A=UNKNOWN",
+     "Dex10 B=UNKNOWN",
+     "Dex11 A=UNKNOWN",
+     "Dex11 B=UNKNOWN",
+     "Dex12 A=UNKNOWN",
+     "Dex12 B=UNKNOWN",
+     "Dex13 A=UNKNOWN",
+     "Dex13 B=UNKNOWN",
+     "Dex14 A=UNKNOWN",
+     "Dex14 B=UNKNOWN",
+     "Dex15 A=UNKNOWN",
+     "Dex15 B=UNKNOWN",
+     "Dex16 A=UNKNOWN",
+     "Dex16 B=UNKNOWN",
+     "Dex17 A=UNKNOWN",
+     "Dex17 B=UNKNOWN",
+     "Dex18 A=UNKNOWN",
+     "Dex18 B=UNKNOWN",
+     "Dex19 A=KNOWN_BUT_MISSING_MATERIAL",
+     "Dex19 B=DISCOVERABLE",
+     "Dex20 A=DISCOVERED",
+     "Dex20 B=DISCOVERED",
+     "Dex21 A=DISCOVERED",
+     "Dex21 B=DISCOVERED",
+     "Dex22 A=DISCOVERED",
+     "Dex22 B=DISCOVERED",
+     "Dex23 A=DISCOVERED",
+     "Dex23 B=DISCOVERED",
+     "Dex24 A=DISCOVERED",
+     "Dex24 B=DISCOVERED",
+     "Dex25 A=DISCOVERED"
+    ],
+    "legacy": {
+     "fresh save Dex0 (no save)": "UNKNOWN",
+     "Dex1 margherita only": "UNKNOWN",
+     "Dex15 legacy (old 15 discovered, all old materials owned)": "UNKNOWN",
+     "Dex15 legacy + eggplant/corn/pineapple bought": "UNKNOWN",
+     "Dex23 (all but quattro-formaggi, bismarck)": "DISCOVERED",
+     "Dex24 (all but quattro-formaggi), fontina/gorgonzola owned": "DISCOVERED",
+     "inventory 0 (Dex4 ladder, eggplant owned stock 0)": "UNKNOWN",
+     "unlocked but not owned (Dex4 ladder A)": "UNKNOWN",
+     "owned but recipe undiscovered (Dex3 + owns eggplant/parmigiano/corn/pineapple/ham via old save)": "UNKNOWN"
+    }
+   },
+   "pizzaSelectLeak": {
+    "L1_NAME": true,
+    "L2_IMAGE": true,
+    "L6_BYPASS_SELECT_RECIPE": true,
+    "L7_NAMED_IN_OTHER_CARD_LOCK_HINT": false,
+    "firstNameState": "ladder Dex0 A(entitled,not bought)",
+    "firstImageState": "ladder Dex19 B(bought)",
+    "note": null,
+    "severity": "BLOCKER"
+   },
+   "shopLeak": {
+    "L5_UNLOCK_ANSWER_ROW": true,
+    "L5_PURCHASE_FEEDBACK": true,
+    "freshLadder": [
+     "ladder Dex19 A(entitled,not bought): clam"
+    ],
+    "legacy": [],
+    "severity": "HIGH"
+   },
+   "dexLeak": {
+    "L1_NAME": false,
+    "L2_IMAGE": false,
+    "L3_INGREDIENTS": false,
+    "severity": "NONE",
+    "note": "undiscovered card = 🔒 ？？？ まだ見ぬピザ in every probed state"
+   },
+   "homeLeak": {
+    "L1_NAME": false,
+    "severity": "NONE"
+   },
+   "resultLeak": {
+    "preDiscovery": "NONE (recipe name only after REGISTER_TO_DEX / matcher NEW_DISCOVERY)",
+    "nearMissCopy_L7": "generic INCOMPLETE_MATCH copy (no name) -- global LOW finding F-13",
+    "severity": "NONE"
+   },
+   "freeOrderLeak": {
+    "L4_ORDER_ANSWER": true,
+    "uiReachable": true,
+    "states": [
+     "ladder Dex19 B(bought)"
+    ],
+    "reducerChainCompletesDiscovery": true,
+    "evidenceLevel": "reducer-reproduced (runtime probe)",
+    "severity": "BLOCKER"
+   },
+   "lunchRushToFreeLeak": {
+    "reachable": true,
+    "paths": [
+     "MissionResultOverlay フリープレイへ -> exitMissionToFree -> PLAY_AGAIN (LK-8)",
+     "HOME(after PREPARE/BAKE exit) -> ランチラッシュ -> 閉じる -> stale ORDER (LK-8b)",
+     "Lunch Rush PLAYING -> ホーム -> exitMissionToFree -> PLAY_AGAIN -> later LK-8b"
+    ],
+    "lunchRushPoolItselfDiscoveredOnly": true,
+    "severity": "BLOCKER"
+   },
+   "hintLeak": {
+    "L3_GUIDED_HINT": true,
+    "source": "buildHintLine fallback (`${ingredient}をのせてみよう！`)",
+    "L7_UNLOCK_HINT_NAMES_THIS_RECIPE": false,
+    "L5_recipesUnlockedByIngredient": true,
+    "FREE_COOK_DISCOVERY_HINT_L3": null,
+    "severity": "HIGH"
+   },
+   "accessibilityLeak": {
+    "ariaLabelName": true,
+    "guidedMiniReferenceAria": "ニューヘイブンアピッツァの見本を拡大表示",
+    "hiddenDomOnly": false,
+    "note": "every aria-label hit duplicates visible text (no AT-only leak found); detail view keeps the grid mounted with display:none",
+    "severity": "LOW"
+   },
+   "navigationBypass": {
+    "SELECT_RECIPE": true,
+    "FREE_ORDER_BEGIN_PREPARE": true,
+    "RETRY_SAME_RECIPE_after_failed_guided": true,
+    "firstBypassState": "ladder Dex19 B(bought)",
+    "severity": "BLOCKER"
+   },
+   "highestSeverity": "BLOCKER",
+   "evidence": [
+    "runtime probe (vitest+jsdom, real components/reducer at fbfd738): scratch-only, not committed",
+    "Pizza Select NEW card (name+PizzaThumbnail+このピザを作る) first at ladder Dex19 B(bought)",
+    "LK-8 reducer chain at ladder Dex19 B(bought): ORDER 'よし！ニューヘイブンアピッツァを作ろう！生地にソースを塗って好きなトッピングを選んでね。' -> BEGIN_PREPARE (guided) -> completion PASS -> discovered=true"
+   ]
+  },
+  {
+   "recipeId": "pesto-caprese",
+   "recipeName": "ペストカプレーゼピザ",
+   "ladderStep": 20,
+   "discoveredAtStart": false,
+   "requiredIngredients": [
+    "pestox1",
+    "mozzarellax2",
+    "fresh-tomatox3",
+    "basilx2"
+   ],
+   "hasUnlockCondition_EP1": false,
+   "mysteryLock": false,
+   "discoveryState": {
+    "freshLadderWalk": [
+     "Dex0 A=UNKNOWN",
+     "Dex1 A=UNKNOWN",
+     "Dex1 B=UNKNOWN",
+     "Dex2 A=UNKNOWN",
+     "Dex2 B=UNKNOWN",
+     "Dex3 A=UNKNOWN",
+     "Dex3 B=UNKNOWN",
+     "Dex4 A=UNKNOWN",
+     "Dex4 B=UNKNOWN",
+     "Dex5 A=UNKNOWN",
+     "Dex5 B=UNKNOWN",
+     "Dex6 A=UNKNOWN",
+     "Dex6 B=UNKNOWN",
+     "Dex7 A=UNKNOWN",
+     "Dex7 B=UNKNOWN",
+     "Dex8 A=UNKNOWN",
+     "Dex8 B=UNKNOWN",
+     "Dex9 A=UNKNOWN",
+     "Dex9 B=UNKNOWN",
+     "Dex10 A=UNKNOWN",
+     "Dex10 B=UNKNOWN",
+     "Dex11 A=UNKNOWN",
+     "Dex11 B=UNKNOWN",
+     "Dex12 A=UNKNOWN",
+     "Dex12 B=UNKNOWN",
+     "Dex13 A=UNKNOWN",
+     "Dex13 B=UNKNOWN",
+     "Dex14 A=UNKNOWN",
+     "Dex14 B=UNKNOWN",
+     "Dex15 A=UNKNOWN",
+     "Dex15 B=UNKNOWN",
+     "Dex16 A=UNKNOWN",
+     "Dex16 B=UNKNOWN",
+     "Dex17 A=UNKNOWN",
+     "Dex17 B=UNKNOWN",
+     "Dex18 A=UNKNOWN",
+     "Dex18 B=UNKNOWN",
+     "Dex19 A=UNKNOWN",
+     "Dex19 B=UNKNOWN",
+     "Dex20 A=KNOWN_BUT_MISSING_MATERIAL",
+     "Dex20 B=DISCOVERABLE",
+     "Dex21 A=DISCOVERED",
+     "Dex21 B=DISCOVERED",
+     "Dex22 A=DISCOVERED",
+     "Dex22 B=DISCOVERED",
+     "Dex23 A=DISCOVERED",
+     "Dex23 B=DISCOVERED",
+     "Dex24 A=DISCOVERED",
+     "Dex24 B=DISCOVERED",
+     "Dex25 A=DISCOVERED"
+    ],
+    "legacy": {
+     "fresh save Dex0 (no save)": "UNKNOWN",
+     "Dex1 margherita only": "UNKNOWN",
+     "Dex15 legacy (old 15 discovered, all old materials owned)": "UNKNOWN",
+     "Dex15 legacy + eggplant/corn/pineapple bought": "UNKNOWN",
+     "Dex23 (all but quattro-formaggi, bismarck)": "DISCOVERED",
+     "Dex24 (all but quattro-formaggi), fontina/gorgonzola owned": "DISCOVERED",
+     "inventory 0 (Dex4 ladder, eggplant owned stock 0)": "UNKNOWN",
+     "unlocked but not owned (Dex4 ladder A)": "UNKNOWN",
+     "owned but recipe undiscovered (Dex3 + owns eggplant/parmigiano/corn/pineapple/ham via old save)": "UNKNOWN"
+    }
+   },
+   "pizzaSelectLeak": {
+    "L1_NAME": true,
+    "L2_IMAGE": true,
+    "L6_BYPASS_SELECT_RECIPE": true,
+    "L7_NAMED_IN_OTHER_CARD_LOCK_HINT": false,
+    "firstNameState": "ladder Dex0 A(entitled,not bought)",
+    "firstImageState": "ladder Dex20 B(bought)",
+    "note": null,
+    "severity": "BLOCKER"
+   },
+   "shopLeak": {
+    "L5_UNLOCK_ANSWER_ROW": true,
+    "L5_PURCHASE_FEEDBACK": true,
+    "freshLadder": [
+     "ladder Dex20 A(entitled,not bought): fresh-tomato"
+    ],
+    "legacy": [],
+    "severity": "HIGH"
+   },
+   "dexLeak": {
+    "L1_NAME": false,
+    "L2_IMAGE": false,
+    "L3_INGREDIENTS": false,
+    "severity": "NONE",
+    "note": "undiscovered card = 🔒 ？？？ まだ見ぬピザ in every probed state"
+   },
+   "homeLeak": {
+    "L1_NAME": false,
+    "severity": "NONE"
+   },
+   "resultLeak": {
+    "preDiscovery": "NONE (recipe name only after REGISTER_TO_DEX / matcher NEW_DISCOVERY)",
+    "nearMissCopy_L7": "generic INCOMPLETE_MATCH copy (no name) -- global LOW finding F-13",
+    "severity": "NONE"
+   },
+   "freeOrderLeak": {
+    "L4_ORDER_ANSWER": true,
+    "uiReachable": true,
+    "states": [
+     "ladder Dex20 B(bought)"
+    ],
+    "reducerChainCompletesDiscovery": true,
+    "evidenceLevel": "reducer-reproduced (runtime probe)",
+    "severity": "BLOCKER"
+   },
+   "lunchRushToFreeLeak": {
+    "reachable": true,
+    "paths": [
+     "MissionResultOverlay フリープレイへ -> exitMissionToFree -> PLAY_AGAIN (LK-8)",
+     "HOME(after PREPARE/BAKE exit) -> ランチラッシュ -> 閉じる -> stale ORDER (LK-8b)",
+     "Lunch Rush PLAYING -> ホーム -> exitMissionToFree -> PLAY_AGAIN -> later LK-8b"
+    ],
+    "lunchRushPoolItselfDiscoveredOnly": true,
+    "severity": "BLOCKER"
+   },
+   "hintLeak": {
+    "L3_GUIDED_HINT": true,
+    "source": "buildHintLine fallback (`${ingredient}をのせてみよう！`)",
+    "L7_UNLOCK_HINT_NAMES_THIS_RECIPE": false,
+    "L5_recipesUnlockedByIngredient": true,
+    "FREE_COOK_DISCOVERY_HINT_L3": null,
+    "severity": "HIGH"
+   },
+   "accessibilityLeak": {
+    "ariaLabelName": true,
+    "guidedMiniReferenceAria": "ペストカプレーゼピザの見本を拡大表示",
+    "hiddenDomOnly": false,
+    "note": "every aria-label hit duplicates visible text (no AT-only leak found); detail view keeps the grid mounted with display:none",
+    "severity": "LOW"
+   },
+   "navigationBypass": {
+    "SELECT_RECIPE": true,
+    "FREE_ORDER_BEGIN_PREPARE": true,
+    "RETRY_SAME_RECIPE_after_failed_guided": true,
+    "firstBypassState": "ladder Dex20 B(bought)",
+    "severity": "BLOCKER"
+   },
+   "highestSeverity": "BLOCKER",
+   "evidence": [
+    "runtime probe (vitest+jsdom, real components/reducer at fbfd738): scratch-only, not committed",
+    "Pizza Select NEW card (name+PizzaThumbnail+このピザを作る) first at ladder Dex20 B(bought)",
+    "LK-8 reducer chain at ladder Dex20 B(bought): ORDER 'ペストカプレーゼピザか、腕が鳴るな！まずは生地にソースを塗るところからだ。' -> BEGIN_PREPARE (guided) -> completion PASS -> discovered=true"
+   ]
+  },
+  {
+   "recipeId": "pesto-patate",
+   "recipeName": "ペストパターテピザ",
+   "ladderStep": 21,
+   "discoveredAtStart": false,
+   "requiredIngredients": [
+    "pestox1",
+    "mozzarellax2",
+    "potatox3",
+    "baconx2"
+   ],
+   "hasUnlockCondition_EP1": false,
+   "mysteryLock": false,
+   "discoveryState": {
+    "freshLadderWalk": [
+     "Dex0 A=UNKNOWN",
+     "Dex1 A=UNKNOWN",
+     "Dex1 B=UNKNOWN",
+     "Dex2 A=UNKNOWN",
+     "Dex2 B=UNKNOWN",
+     "Dex3 A=UNKNOWN",
+     "Dex3 B=UNKNOWN",
+     "Dex4 A=UNKNOWN",
+     "Dex4 B=UNKNOWN",
+     "Dex5 A=UNKNOWN",
+     "Dex5 B=UNKNOWN",
+     "Dex6 A=UNKNOWN",
+     "Dex6 B=UNKNOWN",
+     "Dex7 A=UNKNOWN",
+     "Dex7 B=UNKNOWN",
+     "Dex8 A=UNKNOWN",
+     "Dex8 B=UNKNOWN",
+     "Dex9 A=UNKNOWN",
+     "Dex9 B=UNKNOWN",
+     "Dex10 A=UNKNOWN",
+     "Dex10 B=UNKNOWN",
+     "Dex11 A=UNKNOWN",
+     "Dex11 B=UNKNOWN",
+     "Dex12 A=UNKNOWN",
+     "Dex12 B=UNKNOWN",
+     "Dex13 A=UNKNOWN",
+     "Dex13 B=UNKNOWN",
+     "Dex14 A=UNKNOWN",
+     "Dex14 B=UNKNOWN",
+     "Dex15 A=UNKNOWN",
+     "Dex15 B=UNKNOWN",
+     "Dex16 A=UNKNOWN",
+     "Dex16 B=UNKNOWN",
+     "Dex17 A=UNKNOWN",
+     "Dex17 B=UNKNOWN",
+     "Dex18 A=UNKNOWN",
+     "Dex18 B=UNKNOWN",
+     "Dex19 A=UNKNOWN",
+     "Dex19 B=UNKNOWN",
+     "Dex20 A=UNKNOWN",
+     "Dex20 B=UNKNOWN",
+     "Dex21 A=KNOWN_BUT_MISSING_MATERIAL",
+     "Dex21 B=DISCOVERABLE",
+     "Dex22 A=DISCOVERED",
+     "Dex22 B=DISCOVERED",
+     "Dex23 A=DISCOVERED",
+     "Dex23 B=DISCOVERED",
+     "Dex24 A=DISCOVERED",
+     "Dex24 B=DISCOVERED",
+     "Dex25 A=DISCOVERED"
+    ],
+    "legacy": {
+     "fresh save Dex0 (no save)": "UNKNOWN",
+     "Dex1 margherita only": "UNKNOWN",
+     "Dex15 legacy (old 15 discovered, all old materials owned)": "UNKNOWN",
+     "Dex15 legacy + eggplant/corn/pineapple bought": "UNKNOWN",
+     "Dex23 (all but quattro-formaggi, bismarck)": "DISCOVERED",
+     "Dex24 (all but quattro-formaggi), fontina/gorgonzola owned": "DISCOVERED",
+     "inventory 0 (Dex4 ladder, eggplant owned stock 0)": "UNKNOWN",
+     "unlocked but not owned (Dex4 ladder A)": "UNKNOWN",
+     "owned but recipe undiscovered (Dex3 + owns eggplant/parmigiano/corn/pineapple/ham via old save)": "UNKNOWN"
+    }
+   },
+   "pizzaSelectLeak": {
+    "L1_NAME": true,
+    "L2_IMAGE": true,
+    "L6_BYPASS_SELECT_RECIPE": true,
+    "L7_NAMED_IN_OTHER_CARD_LOCK_HINT": false,
+    "firstNameState": "ladder Dex0 A(entitled,not bought)",
+    "firstImageState": "ladder Dex21 B(bought)",
+    "note": null,
+    "severity": "BLOCKER"
+   },
+   "shopLeak": {
+    "L5_UNLOCK_ANSWER_ROW": true,
+    "L5_PURCHASE_FEEDBACK": true,
+    "freshLadder": [
+     "ladder Dex21 A(entitled,not bought): potato"
+    ],
+    "legacy": [],
+    "severity": "HIGH"
+   },
+   "dexLeak": {
+    "L1_NAME": false,
+    "L2_IMAGE": false,
+    "L3_INGREDIENTS": false,
+    "severity": "NONE",
+    "note": "undiscovered card = 🔒 ？？？ まだ見ぬピザ in every probed state"
+   },
+   "homeLeak": {
+    "L1_NAME": false,
+    "severity": "NONE"
+   },
+   "resultLeak": {
+    "preDiscovery": "NONE (recipe name only after REGISTER_TO_DEX / matcher NEW_DISCOVERY)",
+    "nearMissCopy_L7": "generic INCOMPLETE_MATCH copy (no name) -- global LOW finding F-13",
+    "severity": "NONE"
+   },
+   "freeOrderLeak": {
+    "L4_ORDER_ANSWER": true,
+    "uiReachable": true,
+    "states": [
+     "ladder Dex21 B(bought)"
+    ],
+    "reducerChainCompletesDiscovery": true,
+    "evidenceLevel": "reducer-reproduced (runtime probe)",
+    "severity": "BLOCKER"
+   },
+   "lunchRushToFreeLeak": {
+    "reachable": true,
+    "paths": [
+     "MissionResultOverlay フリープレイへ -> exitMissionToFree -> PLAY_AGAIN (LK-8)",
+     "HOME(after PREPARE/BAKE exit) -> ランチラッシュ -> 閉じる -> stale ORDER (LK-8b)",
+     "Lunch Rush PLAYING -> ホーム -> exitMissionToFree -> PLAY_AGAIN -> later LK-8b"
+    ],
+    "lunchRushPoolItselfDiscoveredOnly": true,
+    "severity": "BLOCKER"
+   },
+   "hintLeak": {
+    "L3_GUIDED_HINT": true,
+    "source": "buildHintLine fallback (`${ingredient}をのせてみよう！`)",
+    "L7_UNLOCK_HINT_NAMES_THIS_RECIPE": false,
+    "L5_recipesUnlockedByIngredient": true,
+    "FREE_COOK_DISCOVERY_HINT_L3": null,
+    "severity": "HIGH"
+   },
+   "accessibilityLeak": {
+    "ariaLabelName": true,
+    "guidedMiniReferenceAria": "ペストパターテピザの見本を拡大表示",
+    "hiddenDomOnly": false,
+    "note": "every aria-label hit duplicates visible text (no AT-only leak found); detail view keeps the grid mounted with display:none",
+    "severity": "LOW"
+   },
+   "navigationBypass": {
+    "SELECT_RECIPE": true,
+    "FREE_ORDER_BEGIN_PREPARE": true,
+    "RETRY_SAME_RECIPE_after_failed_guided": true,
+    "firstBypassState": "ladder Dex21 B(bought)",
+    "severity": "BLOCKER"
+   },
+   "highestSeverity": "BLOCKER",
+   "evidence": [
+    "runtime probe (vitest+jsdom, real components/reducer at fbfd738): scratch-only, not committed",
+    "Pizza Select NEW card (name+PizzaThumbnail+このピザを作る) first at ladder Dex21 B(bought)",
+    "LK-8 reducer chain at ladder Dex21 B(bought): ORDER 'よーし、今日はペストパターテピザに挑戦だ！トッピングは好きに選んでいいぞ。' -> BEGIN_PREPARE (guided) -> completion PASS -> discovered=true"
+   ]
+  },
+  {
+   "recipeId": "puttanesca-pizza",
+   "recipeName": "プッタネスカ",
+   "ladderStep": 23,
+   "discoveredAtStart": false,
+   "requiredIngredients": [
+    "tomato-saucex1",
+    "anchovyx3",
+    "black-olivex2",
+    "capersx2",
+    "garlicx2"
+   ],
+   "hasUnlockCondition_EP1": false,
+   "mysteryLock": false,
+   "discoveryState": {
+    "freshLadderWalk": [
+     "Dex0 A=UNKNOWN",
+     "Dex1 A=UNKNOWN",
+     "Dex1 B=UNKNOWN",
+     "Dex2 A=UNKNOWN",
+     "Dex2 B=UNKNOWN",
+     "Dex3 A=UNKNOWN",
+     "Dex3 B=UNKNOWN",
+     "Dex4 A=UNKNOWN",
+     "Dex4 B=UNKNOWN",
+     "Dex5 A=UNKNOWN",
+     "Dex5 B=UNKNOWN",
+     "Dex6 A=UNKNOWN",
+     "Dex6 B=UNKNOWN",
+     "Dex7 A=UNKNOWN",
+     "Dex7 B=UNKNOWN",
+     "Dex8 A=UNKNOWN",
+     "Dex8 B=UNKNOWN",
+     "Dex9 A=UNKNOWN",
+     "Dex9 B=UNKNOWN",
+     "Dex10 A=UNKNOWN",
+     "Dex10 B=UNKNOWN",
+     "Dex11 A=UNKNOWN",
+     "Dex11 B=UNKNOWN",
+     "Dex12 A=UNKNOWN",
+     "Dex12 B=UNKNOWN",
+     "Dex13 A=UNKNOWN",
+     "Dex13 B=UNKNOWN",
+     "Dex14 A=UNKNOWN",
+     "Dex14 B=UNKNOWN",
+     "Dex15 A=UNKNOWN",
+     "Dex15 B=UNKNOWN",
+     "Dex16 A=UNKNOWN",
+     "Dex16 B=UNKNOWN",
+     "Dex17 A=UNKNOWN",
+     "Dex17 B=UNKNOWN",
+     "Dex18 A=UNKNOWN",
+     "Dex18 B=UNKNOWN",
+     "Dex19 A=UNKNOWN",
+     "Dex19 B=UNKNOWN",
+     "Dex20 A=UNKNOWN",
+     "Dex20 B=UNKNOWN",
+     "Dex21 A=UNKNOWN",
+     "Dex21 B=UNKNOWN",
+     "Dex22 A=UNKNOWN",
+     "Dex22 B=UNKNOWN",
+     "Dex23 A=KNOWN_BUT_MISSING_MATERIAL",
+     "Dex23 B=DISCOVERABLE",
+     "Dex24 A=DISCOVERED",
+     "Dex24 B=DISCOVERED",
+     "Dex25 A=DISCOVERED"
+    ],
+    "legacy": {
+     "fresh save Dex0 (no save)": "UNKNOWN",
+     "Dex1 margherita only": "UNKNOWN",
+     "Dex15 legacy (old 15 discovered, all old materials owned)": "UNKNOWN",
+     "Dex15 legacy + eggplant/corn/pineapple bought": "UNKNOWN",
+     "Dex23 (all but quattro-formaggi, bismarck)": "DISCOVERED",
+     "Dex24 (all but quattro-formaggi), fontina/gorgonzola owned": "DISCOVERED",
+     "inventory 0 (Dex4 ladder, eggplant owned stock 0)": "UNKNOWN",
+     "unlocked but not owned (Dex4 ladder A)": "UNKNOWN",
+     "owned but recipe undiscovered (Dex3 + owns eggplant/parmigiano/corn/pineapple/ham via old save)": "UNKNOWN"
+    }
+   },
+   "pizzaSelectLeak": {
+    "L1_NAME": true,
+    "L2_IMAGE": true,
+    "L6_BYPASS_SELECT_RECIPE": true,
+    "L7_NAMED_IN_OTHER_CARD_LOCK_HINT": false,
+    "firstNameState": "ladder Dex0 A(entitled,not bought)",
+    "firstImageState": "ladder Dex23 B(bought)",
+    "note": null,
+    "severity": "BLOCKER"
+   },
+   "shopLeak": {
+    "L5_UNLOCK_ANSWER_ROW": true,
+    "L5_PURCHASE_FEEDBACK": true,
+    "freshLadder": [
+     "ladder Dex23 A(entitled,not bought): capers"
+    ],
+    "legacy": [],
+    "severity": "HIGH"
+   },
+   "dexLeak": {
+    "L1_NAME": false,
+    "L2_IMAGE": false,
+    "L3_INGREDIENTS": false,
+    "severity": "NONE",
+    "note": "undiscovered card = 🔒 ？？？ まだ見ぬピザ in every probed state"
+   },
+   "homeLeak": {
+    "L1_NAME": false,
+    "severity": "NONE"
+   },
+   "resultLeak": {
+    "preDiscovery": "NONE (recipe name only after REGISTER_TO_DEX / matcher NEW_DISCOVERY)",
+    "nearMissCopy_L7": "generic INCOMPLETE_MATCH copy (no name) -- global LOW finding F-13",
+    "severity": "NONE"
+   },
+   "freeOrderLeak": {
+    "L4_ORDER_ANSWER": true,
+    "uiReachable": true,
+    "states": [
+     "ladder Dex23 B(bought)"
+    ],
+    "reducerChainCompletesDiscovery": true,
+    "evidenceLevel": "reducer-reproduced (runtime probe)",
+    "severity": "BLOCKER"
+   },
+   "lunchRushToFreeLeak": {
+    "reachable": true,
+    "paths": [
+     "MissionResultOverlay フリープレイへ -> exitMissionToFree -> PLAY_AGAIN (LK-8)",
+     "HOME(after PREPARE/BAKE exit) -> ランチラッシュ -> 閉じる -> stale ORDER (LK-8b)",
+     "Lunch Rush PLAYING -> ホーム -> exitMissionToFree -> PLAY_AGAIN -> later LK-8b"
+    ],
+    "lunchRushPoolItselfDiscoveredOnly": true,
+    "severity": "BLOCKER"
+   },
+   "hintLeak": {
+    "L3_GUIDED_HINT": true,
+    "source": "buildHintLine fallback (`${ingredient}をのせてみよう！`)",
+    "L7_UNLOCK_HINT_NAMES_THIS_RECIPE": false,
+    "L5_recipesUnlockedByIngredient": true,
+    "FREE_COOK_DISCOVERY_HINT_L3": null,
+    "severity": "HIGH"
+   },
+   "accessibilityLeak": {
+    "ariaLabelName": true,
+    "guidedMiniReferenceAria": "プッタネスカの見本を拡大表示",
+    "hiddenDomOnly": false,
+    "note": "every aria-label hit duplicates visible text (no AT-only leak found); detail view keeps the grid mounted with display:none",
+    "severity": "LOW"
+   },
+   "navigationBypass": {
+    "SELECT_RECIPE": true,
+    "FREE_ORDER_BEGIN_PREPARE": true,
+    "RETRY_SAME_RECIPE_after_failed_guided": true,
+    "firstBypassState": "ladder Dex23 B(bought)",
+    "severity": "BLOCKER"
+   },
+   "highestSeverity": "BLOCKER",
+   "evidence": [
+    "runtime probe (vitest+jsdom, real components/reducer at fbfd738): scratch-only, not committed",
+    "Pizza Select NEW card (name+PizzaThumbnail+このピザを作る) first at ladder Dex23 B(bought)",
+    "LK-8 reducer chain at ladder Dex23 B(bought): ORDER 'よし！プッタネスカを作ろう！生地にソースを塗って好きなトッピングを選んでね。' -> BEGIN_PREPARE (guided) -> completion PASS -> discovered=true"
+   ]
+  }
+ ]
+}
