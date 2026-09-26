@@ -1726,6 +1726,42 @@
   color: #6b5a48;
 }
 
+/* Discovery Hint 2.0 (#229 229-C): the Free Cooking RESULT's one secondary "おしい" row -- the
+   generic near-miss line and the 「💡 ヒントを見る」 CTA. Compact and secondary to the result:
+   one wrapped line plus a small pill, never a second headline. */
+.result-near-miss {
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  margin: 0;
+}
+
+.result-near-miss__text {
+  margin: 0;
+  flex: 1 1 180px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #5a4632;
+  text-align: center;
+}
+
+.result-near-miss__cta {
+  flex: none;
+  min-height: 36px;
+  border: none;
+  border-radius: 999px;
+  padding: 6px 14px;
+  background: #ffe7b0;
+  color: #3d2a16;
+  font-size: 13px;
+  font-weight: 700;
+}
+
 /* ---------- NEW MATERIAL notice (Progression 2.0 I4b-4, DISCOVERED only) ----------
    Replaces EP4's Starter Grant notice (retired): a material is now *unlocked for the Shop*, not
    given for free, so the notice says so and offers the way there. */

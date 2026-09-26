@@ -744,6 +744,15 @@ function App() {
     dispatch({ type: "RETRY_SAME_RECIPE", now: Date.now() });
   }
 
+  // Discovery Hint 2.0 (#229 229-C): a Free Cooking RESULT's 「💡 ヒントを見る」 -- the same fresh
+  // free-cook round as "もう一度じゆうに作る", with the hint sheet opened on today's target (the
+  // result never pins a recipe; the sheet picks its target as always).
+  function handleRetryWithHint() {
+    if (!state.freeCook) return;
+    dispatch({ type: "RETRY_SAME_RECIPE", now: Date.now() });
+    dispatch({ type: "SHOW_HINT" });
+  }
+
   // Progression 2.0 Phase 3-2 (Issue #194): HOME's フリークッキング -- a fresh FREE round with
   // no recipe selected (START_FREE_COOK). Like SELECT_RECIPE it lands straight at PREPARE; the
   // previous round (whatever phase it was left in) is replaced wholesale by the reducer.
@@ -915,6 +924,7 @@ function App() {
           onShowHint={() => dispatch({ type: "SHOW_HINT" })}
           onRevealNextHint={() => dispatch({ type: "REVEAL_NEXT_HINT" })}
           onCloseHint={() => dispatch({ type: "CLOSE_HINT" })}
+          onRetryWithHint={handleRetryWithHint}
           onChangeCategory={handleChangeCategory}
           onSelectIngredient={handleSelectIngredient}
           onClearIngredientSelection={() => setSelectedIngredientId(null)}

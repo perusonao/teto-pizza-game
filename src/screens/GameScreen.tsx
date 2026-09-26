@@ -21,6 +21,7 @@ import { ScoringV2DebugPanel } from "../components/ScoringV2DebugPanel";
 import { CutDebugPanel } from "../components/CutDebugPanel";
 import { HintSheet } from "../components/HintSheet";
 import { hintSheetView, isHintSheetVisible } from "../state/discoveryHint";
+import { resultNearMiss } from "../state/resultNearMiss";
 import type { ReferencePizza } from "../data/referencePizza";
 import { getPlayerReferencePizza } from "../data/playerReference";
 import { buildQuantityNote } from "../data/quantityMessages";
@@ -97,6 +98,9 @@ interface GameScreenProps {
   /** Discovery Hint 2.0 (229-B): the Free Cooking hint sheet's next-step / close actions. */
   onRevealNextHint?: () => void;
   onCloseHint?: () => void;
+  /** Discovery Hint 2.0 (229-C): the Free Cooking RESULT's 「💡 ヒントを見る」 -- cook freely again
+   *  with the hint sheet open. */
+  onRetryWithHint?: () => void;
   onChangeCategory: (category: IngredientCategory) => void;
   onSelectIngredient: (ingredient: Ingredient) => void;
   /** Clears the tray selection (IngredientTray's page switch hides the selected chip). */
@@ -175,6 +179,7 @@ export function GameScreen({
   onShowHint,
   onRevealNextHint = () => {},
   onCloseHint = () => {},
+  onRetryWithHint,
   onChangeCategory,
   onSelectIngredient,
   onClearIngredientSelection,
@@ -761,6 +766,8 @@ export function GameScreen({
           onBackToPizzaSelect={onBackToPizzaSelect}
           dexRegistration={dexRegistration}
           onOpenDex={onOpenDex}
+          nearMiss={resultNearMiss(state)}
+          onShowHint={state.freeCook ? onRetryWithHint : undefined}
         />
       )}
 

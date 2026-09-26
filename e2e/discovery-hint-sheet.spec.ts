@@ -145,7 +145,7 @@ async function capture(page: Page, name: string) {
 }
 
 test.describe("Discovery Hint 2.0 sheet (229-B)", () => {
-  test.beforeEach(async ({}, testInfo) => runOnlyOnWidth(testInfo, 390));
+  test.beforeEach(() => runOnlyOnWidth(test.info(), 390));
 
   test("target flow: closed -> H1 -> H3 -> longest H4, background never moves, close restores", async ({ page, browserName }) => {
     const driver = await ProfileDriver.create(page, browserName);
