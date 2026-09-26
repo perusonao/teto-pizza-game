@@ -60,16 +60,53 @@ const BAKE_NEEDLE_SPEED_PCT_PER_S = 55;
  *    exact target center across repeated runs at 10x CPU throttle.
  */
 export async function bakeToTarget(page: Page, target: { start: number; end: number }) {
-  const center = (target.start + target.end) / 2;
+  await enterBakePaused(page);
+  await landNeedleAndTakeOut(page, target);
+}
+
+/**
+ * Progression 2.0 W1 I5b-5 (Preflight §3 / R-3): the first half of `bakeToTarget` -- installs the
+ * clock, clicks 焼く and pauses virtual time right after BAKE mounts, so the Layout Contract can
+ * cycle viewport profiles while the needle (and the Lunch Rush timer) stand still. Resume with
+ * `page.clock.runFor` (e.g. past the Guide fade) and finish with `landNeedleAndTakeOut`.
+ */
+export async function enterBakePaused(page: Page) {
   await page.clock.install();
   await page.getByRole("button", { name: /焼く/ }).click();
   await page.waitForSelector(".bake-gauge__needle");
   // A short future buffer -- pausing at an already-past instant throws; this just needs to be
-  // comfortably longer than the pauseAt round trip itself, not a precise duration (see below).
+  // comfortably longer than the pauseAt round trip itself, not a precise duration (see above).
   await page.clock.pauseAt(Date.now() + 150);
+}
+
+/**
+ * The second half of `bakeToTarget`: from the paused clock, runs virtual time exactly until the
+ * needle reaches `target`'s center, clicks 取り出す！ and resumes real time. The needle bounces
+ * 0 -> 100 -> 0 (BakeOverlay), so after an arbitrary pause (e.g. past the Guide fade) its
+ * direction is read from one short step before computing the remaining distance.
+ */
+export async function landNeedleAndTakeOut(page: Page, target: { start: number; end: number }) {
+  const center = (target.start + target.end) / 2;
   const needle = page.locator(".bake-gauge__needle");
-  const currentPosition = await needle.evaluate((el) => Number.parseFloat(el.style.left) || 0);
-  const remainingMs = Math.max(0, Math.round(((center - currentPosition) / BAKE_NEEDLE_SPEED_PCT_PER_S) * 1000));
+  const read = () => needle.evaluate((el) => Number.parseFloat((el as HTMLElement).style.left) || 0);
+  let position = await read();
+  let direction = 1;
+  if (position > 0) {
+    await page.clock.runFor(20);
+    const next = await read();
+    direction = next >= position ? 1 : -1;
+    if (next === 100) direction = -1;
+    position = next;
+  }
+  const distance =
+    direction > 0
+      ? center >= position
+        ? center - position
+        : 100 - position + (100 - center)
+      : center <= position
+        ? position - center
+        : position + center;
+  const remainingMs = Math.max(0, Math.round((distance / BAKE_NEEDLE_SPEED_PCT_PER_S) * 1000));
   if (remainingMs > 0) await page.clock.runFor(remainingMs);
   await page.getByRole("button", { name: "取り出す！" }).click();
   await page.clock.resume();

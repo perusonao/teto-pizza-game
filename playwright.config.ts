@@ -26,15 +26,32 @@ export default defineConfig({
   reporter: [["list"]],
   use: {
     baseURL: "http://localhost:5183/teto-pizza-game/",
+    // I5b-5 (Design d4f96d0 §12, Preflight §8): failure artifacts only; video stays off (Human
+    // Verification videos are recorded separately, per the policy).
+    screenshot: "only-on-failure",
+    trace: "retain-on-failure",
+    video: "off",
   },
   projects: [
     {
       name: "iphone-390x844",
+      testIgnore: /layout-contract\.spec\.ts$/,
       use: { ...devices["Desktop Chrome"], viewport: { width: 390, height: 844 } },
     },
     {
       name: "iphone-360x800",
+      testIgnore: /layout-contract\.spec\.ts$/,
       use: { ...devices["Desktop Chrome"], viewport: { width: 360, height: 800 } },
+    },
+    /* Progression 2.0 W1 I5b-5 Layout Contract (e2e/layout-contract.spec.ts): one Chromium
+       project that cycles all 7 profiles (N390 / N360 / S390 / S360 and the CDP safe-area
+       profiles P390i / E390i / E360i) inside each test -- see e2e/support/layoutProfiles.ts.
+       The WebKit projects below also run the spec, cycling only the N and S profiles of their
+       own width. */
+    {
+      name: "layout-chromium",
+      testMatch: /layout-contract\.spec\.ts$/,
+      use: { ...devices["Desktop Chrome"], viewport: { width: 390, height: 844 } },
     },
     /* PR-A (Issue #167 §13): Phase 0's own Fresh Audit (docs/reports/
        TETO_COOKING-UI_1SCREEN-2.0_Phase0_Fresh-Audit.md §3/§5) named "both projects above run on
