@@ -439,3 +439,50 @@ DM-1 と DM-2 は UI 変更を含まない（HV の対象外）。DM-3 以降は
 - 実データ（`42feec7`）による監査は完了した。「推測で recipe set を作らない」という条件も満たしている（§9 と JSON）。
 - 実装に進むには OD-DM-1〜18 の決定が必要。特に **OD-DM-3 / 4 / 9 / 11 / 16** は、DM-1 の API の形に影響する。
 - Dinner Mission の production 実装には進んでいない。
+
+---
+
+## 17. Owner Decisions（2026-09-26 Owner Review — AUTHORITY）
+
+Owner Review で §14 の OD-DM-1〜18 を次のように決定した。**この節は §1〜§16 の推奨より優先する authority である。** 推奨と異なる決定には「推奨から変更」と記す。
+
+### 17.1 中心体験
+
+「制限時間内に指定された pizza を全種類完成させる」＋「有限 inventory を自分で管理する」。Lunch Rush とは明確に分離する。
+
+| | Lunch Rush | Dinner Mission |
+|---|---|---|
+| 注文 | 次々と来る注文を処理する | target set は固定 |
+| 不足 | skip する | **FAILED** |
+| 評価 | score / ranking | 全種類完成で CLEAR。clear time で mission reward |
+| 順番 | ― | 自由 |
+
+### 17.2 決定一覧
+
+| OD | 決定 |
+|---|---|
+| OD-DM-1 | 調理順は **自由** |
+| OD-DM-2 | mission 開始前に、target set 全体を最低必要量で完走できる場合だけ START できる |
+| **OD-DM-3** | **推奨から変更。** 予防型（予約 gate）は **採用しない**。置きすぎを自動的に禁止してプレイヤーを救済しない。「残りの target set を現在庫で完走できなくなった時点で即 FAILED」とする。例: 残り A と B が egg を 1 個ずつ必要で在庫が 2 のとき、A に egg を 2 個使うと、A 完成後に egg = 0 になり、B を作れないのでその時点で MISSION FAILED。starter の無限在庫は既存の authority どおり不足判定から除く |
+| OD-DM-4 | 品質 FAILED の pizza は target 完成として扱わない。通常の在庫消費は残る。再挑戦できる。消費後に残りの target を完走できなければ即 FAILED、できれば target 選択に戻る。**#234 の FAILED → Dex mutation を Dinner にコピーしない** |
+| OD-DM-5 | 完成は Completion PASS（`"order"` policy）とする |
+| OD-DM-6 | プレイヤーは target を選んでから作る。target 外の pizza を自由に作るモードにはしない |
+| OD-DM-7 | 中断した run は保存しない。reload = abandon、reward なし。HOME = 確認 → abandon、reward なし |
+| OD-DM-8 | mission 中の Shop 補充は **不可** |
+| **OD-DM-9** | Phase 1 は **段階制**（CLEAR ＋ 完成時間 tier: GOLD / SILVER / BRONZE）。tier の境界秒数、Pitz 額、初回 bonus、repeat reward の値は **未決定**（DM-5 で実測してから決める）。DM-1 では reward 計算の interface と data shape だけを作る |
+| OD-DM-10 | 評価は progression ★ とは別の記号・概念にする。Dinner の評価を progression ★ に加算しない |
+| **OD-DM-11** | Dinner で完成した pizza を timesMade / bestScore に記録するかは **保留**（#234 との整理が必要）。DM-1 では Dinner core が Dex mutation に依存しない構造にする。**Dinner の FAILED path では Dex mutation を絶対に行わない** |
+| OD-DM-12 | unlock = targetRecipeIds がすべて DISCOVERED。Dex から導出し、保存しない。未発見 recipe の情報を漏らさない |
+| OD-DM-13 | Phase 1 の対象は **DM-A**（margherita / bismarck / breakfast-pizza / funghi）と **DM-B**（margherita / funghi / melanzane-pizza / parmigiana-pizza）。本 report で実データから算出した定義を使い、素材の必要量は再定義しない |
+| OD-DM-14 | 制限時間、tier 境界、報酬額は DM-5 で実プレイ時間を計測してから決める |
+| OD-DM-15 | 保存（`dinnerMissionRecords`）は DM-4 で扱う。DM-1 では save schema を変更しない |
+| **OD-DM-16** | R-1（在庫の緊張の弱さ）は **Phase 1 では受け入れる**。Shop の pack size、ingredient の price、refill の price、starter の無限ルール、global な在庫バランスは変更しない。Dinner 専用の仮想 inventory も作らない。必要なら DM-5 の後に別途調整する |
+| OD-DM-17 | HUD はタイマー ＋ 完成数/総数（例: 1/4）。target 一覧は調理中は常時表示せず、target selection 画面に表示する。Lunch Rush の HUD を Dinner flag で流用せず、round / mode の authority を明示的に設計する。`isMissionRound` に Dinner の意味を足さない。390×844 / 360×800 が第一級の対象 |
+| OD-DM-18 | Dinner の Pitz 払い出しと records は DM-4 以降で扱う（DM-1 では払い出さない） |
+
+### 17.3 §3 / §4 / §6 / §12 への影響
+
+- §3.3 の「配置（PREPARE 中）」の行と §4.3 の予約つき配置 gate は **不採用**。§2.3 の `reservedStockFor` は実装しない。
+- 完走できるかは「pizza の結果（PASS / FAILED）を確定した時点で、残りの target set を消費後の在庫で判定する」ことで決める。
+- F2 は「即 FAILED」になる（§6 の F2-a）。
+- §12 の K' は削除する。代わりに「置きすぎによる消費の後に即 FAILED」の test を必須にする。
