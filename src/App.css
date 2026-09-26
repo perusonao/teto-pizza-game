@@ -4523,3 +4523,19 @@
   font-size: 13px;
   font-weight: 800;
 }
+
+/* W1 Discovery 2.0 (W1-e): small inline badges inside the existing HOME menu cards -- no new CTA,
+   row or layout change to the I5b-4 2+1 skeleton. */
+.home-menu__badge {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: #e4572e;
+  color: #fff;
+  font-size: 9.5px;
+  font-weight: 800;
+  line-height: 1.4;
+  vertical-align: 1px;
+  white-space: nowrap;
+}

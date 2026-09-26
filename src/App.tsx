@@ -16,7 +16,7 @@ import type { DoughPoint } from "./logic/pizzaCoordinates";
 import type { CutLine } from "./logic/cut/types";
 import { isDuplicateCutLine } from "./logic/cut/geometry";
 import type { SauceDeposit } from "./state/pizzaState";
-import type { RecipeId } from "./data/recipes";
+import { RECIPES, type RecipeId } from "./data/recipes";
 import { getIngredient, type Ingredient, type IngredientCategory } from "./data/ingredients";
 import { isDoughShapeComplete, type DoughShape } from "./logic/doughShape";
 import { isAnyCookingTimingPauseReasonActive } from "./logic/cookingTiming";
@@ -33,7 +33,7 @@ import {
   persistMissionBest,
   resetSave,
 } from "./state/persistence";
-import { ingredientCollectionCount, resolveShopEntitlement } from "./state/materialEntitlement";
+import { ingredientCollectionCount, newShopMaterialCount, resolveShopEntitlement } from "./state/materialEntitlement";
 import { ensureAnonymousUser, isFirebaseAvailable, submitLunchRushScore } from "./firebase";
 import {
   DEFAULT_MISSION_CONFIG,
@@ -45,7 +45,7 @@ import {
 } from "./mission/lunchRush";
 import { missionScore } from "./logic/missionScoring";
 import { calculateMissionReward } from "./logic/economy";
-import { canStartGuidedRound } from "./state/recipeDiscoveryState";
+import { canStartGuidedRound, countRecipeDiscoveryStates } from "./state/recipeDiscoveryState";
 import "./App.css";
 
 const MISSION_TICK_MS = 250;
@@ -861,6 +861,9 @@ function App() {
           onOpenInventory={() => setInventoryOpen(true)}
           onOpenSettings={() => setSettingsOpen(true)}
           onOpenRanking={() => setRankingOpen(true)}
+          newShopMaterialCount={newShopMaterialCount(state.ownedIngredientIds, state.unlockedForShopIngredientIds)}
+          dexHasNew={state.justDiscovered}
+          discoverableCount={countRecipeDiscoveryStates(RECIPES, state).DISCOVERABLE}
         />
       )}
 
