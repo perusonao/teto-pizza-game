@@ -42,12 +42,15 @@ test.describe("RT-01 reference placement", () => {
   test("shipped recipes: every reference piece is drawn at its own position", async ({ page }) => {
     await openHarness(page, "section=shipped");
     const cases = page.locator(".rt01-case");
-    await expect(cases).toHaveCount(15);
-    for (let i = 0; i < 15; i += 1) {
+    // Progression 2.0 W1 I5b-5a: 25 shipped recipes since I5b-3 (RECIPES order: the shipped 15,
+    // then the 10 W1). The shipped 15 keep the 8-piece ceiling; the W1 references go up to 10
+    // (REC-01..03: Parmigiana 9, Portuguesa 10, Puttanesca 9), covered by the p9 / p10 cases below.
+    await expect(cases).toHaveCount(25);
+    for (let i = 0; i < 25; i += 1) {
       const row = cases.nth(i);
       const total = Number(await row.getAttribute("data-total"));
       expect(total).toBeGreaterThan(0);
-      expect(total).toBeLessThanOrEqual(8);
+      expect(total).toBeLessThanOrEqual(i < 15 ? 8 : 10);
       const popover = await pieceCentres(row.locator('[data-view="popover-140"]'), ".player-reference-mini-pizza__piece");
       expect(popover).toHaveLength(total);
       if (total > 1) expect(minDistance(popover)).toBeGreaterThan(5);
