@@ -2,10 +2,14 @@ import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { GameScreen } from "./GameScreen";
 import { createInitialGameState, gameReducer, type GameState } from "../state/gameReducer";
+import { createGuidedInitialState } from "../state/testSupport/guidedRound";
 import { INITIAL_MISSION_STATE } from "../mission/lunchRush";
 import { emptySauceMetrics } from "../logic/sauceField";
 import type { IngredientCategory } from "../data/ingredients";
-import { buildIdealMargheritaSauceFixture, MARGHERITA_REFERENCE } from "../data/referencePizza";
+import { buildIdealMargheritaSauceFixture, buildIdealSauceFixture, getReferencePizza, MARGHERITA_REFERENCE } from "../data/referencePizza";
+import { walkPostBakeToResult } from "../state/testSupport/postBakeFlow";
+import { createEmptyPizza, type PizzaState } from "../state/pizzaState";
+import type { RecipeId } from "../data/recipes";
 import { getRecipe, type Recipe } from "../data/recipes";
 import { getCookingProfile } from "../data/cookingProfiles";
 
@@ -24,7 +28,7 @@ import { getCookingProfile } from "../data/cookingProfiles";
 const [MOZZARELLA_GROUP, BASIL_GROUP] = MARGHERITA_REFERENCE.pieceGroups;
 
 function preparedMargherita(): GameState {
-  return gameReducer(createInitialGameState(), { type: "BEGIN_PREPARE" });
+  return gameReducer(createGuidedInitialState(), { type: "BEGIN_PREPARE" });
 }
 
 /** Walks a full, Reference-quality margherita round from DOUGH through TOPPING, stopping right
@@ -201,3 +205,99 @@ describe("Non-cut recipes never show a CUT tab, at any phase (regression)", () =
     expect(screen.queryByRole("tablist")).not.toBeInTheDocument();
   });
 });
+
+// Progression 2.0 W1 I5b-4b (Cooking layout contract, I5b-4 UI/UX Fresh Audit §3-§4 / §13): every
+// cooking step renders the same flex skeleton -- tabs, then the compact order-card, then the
+// pizza stage, then an in-flow bottom CTA bar that holds the step's primary action. jsdom has no
+// layout, so this pins the DOM contract; the geometry (short viewports, safe-area insets, HUD)
+// is measured in Chromium (docs/reports/TETO_PROGRESS2_W1_I5B4B_W1D_Result.md).
+describe("I5b-4b: one cooking skeleton for PREPARE, BAKE and CUT", () => {
+  const order = (el: Element | null) => {
+    const all = Array.from(document.querySelectorAll(".game-screen *"));
+    return el ? all.indexOf(el) : -1;
+  };
+
+  it.each([
+    ["PREPARE (TOPPING)", toppedMargherita, /焼く！/],
+    ["BAKE", bakingMargherita, /取り出す！/],
+    ["CUT", cuttingMargherita, /切り終わる/],
+  ] as const)("%s: cooking layout, tabs -> order-card -> stage -> bar, primary CTA in the bar", (_label, build, cta) => {
+    renderAt(build(), MARGHERITA_REFERENCE);
+    const screenEl = document.querySelector(".game-screen")!;
+    expect(screenEl).toHaveClass("game-screen--cooking");
+    const bars = document.querySelectorAll(".prepare-bake-bar");
+    expect(bars).toHaveLength(1);
+    const primary = screen.getByRole("button", { name: cta });
+    expect(bars[0].contains(primary)).toBe(true);
+    const tabs = document.querySelector(".making-step-tabs");
+    const card = document.querySelector(".order-card");
+    const stage = document.querySelector(".pizza-stage");
+    expect(order(tabs)).toBeGreaterThan(-1);
+    expect(order(tabs)).toBeLessThan(order(card));
+    expect(order(card)).toBeLessThan(order(stage));
+    expect(order(stage)).toBeLessThan(order(bars[0]));
+  });
+
+  it("BAKE: no portrait dialogue above the tabs -- Teto's bake line is in the compact order-card", () => {
+    const state = bakingMargherita();
+    renderAt(state, MARGHERITA_REFERENCE);
+    expect(document.querySelector(".dialogue-area")).toBeNull();
+    const card = document.querySelector(".order-card--bake")!;
+    expect(card).toHaveTextContent(state.recipe.nameJa);
+    expect(card).toHaveTextContent(/取り出/);
+  });
+
+  it("ORDER and RESULT keep their own layout (not the cooking skeleton)", () => {
+    renderAt(createGuidedInitialState(), MARGHERITA_REFERENCE);
+    expect(document.querySelector(".game-screen")).not.toHaveClass("game-screen--cooking");
+  });
+
+  it("a one-page tray still lays out the pager row, invisible and inert", () => {
+    renderAt(toppedMargherita(), MARGHERITA_REFERENCE);
+    const placeholder = document.querySelector(".ingredient-page-nav--placeholder")!;
+    expect(placeholder).toBeInTheDocument();
+    expect(placeholder).toHaveAttribute("aria-hidden", "true");
+    for (const b of Array.from(placeholder.querySelectorAll("button"))) expect(b).toBeDisabled();
+    expect(screen.queryByRole("group", { name: "素材ページ切り替え" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "次のページ" })).not.toBeInTheDocument();
+  });
+});
+
+// Progression 2.0 W1-d: the Discovery Result's registration row comes from a real Free Cooking
+// matcher discovery and the canonical chapter functions (OD-DISC-9).
+describe("W1-d: Discovery Result from a real Free Cooking discovery", () => {
+  it("bismarck discovered after margherita: No.02（第1章 2/6）, 図鑑を見る on that row", () => {
+    const REFERENCE = getReferencePizzaForTest("bismarck");
+    let state = createInitialGameState(
+      [{ recipeId: "margherita", discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 }],
+      ["tomato-sauce", "mozzarella", "basil", "egg"],
+      0,
+      { egg: 9 },
+    );
+    state = gameReducer(state, { type: "START_FREE_COOK", now: 1 });
+    state = { ...state, phase: "PREPARE", pizza: REFERENCE };
+    state = gameReducer(state, { type: "START_BAKE" });
+    state = gameReducer(state, { type: "CONFIRM_BAKE", value: 65 });
+    state = walkPostBakeToResult(state);
+    state = gameReducer(state, { type: "REGISTER_TO_DEX" });
+    expect(state.lastDiscovery).toMatchObject({ kind: "NEW_DISCOVERY", recipeId: "bismarck" });
+    renderAt(state);
+    const row = document.querySelector(".dex-registration-row")!;
+    expect(row).toHaveTextContent("No.02（第1章 2/6）");
+    expect(document.querySelector(".discovered-banner--new-pizza")).toHaveTextContent("ビスマルクを発見しました！");
+  });
+});
+
+/** The reference pizza of `recipeId` as a baked PizzaState (the matcher's exact set). */
+function getReferencePizzaForTest(recipeId: RecipeId): PizzaState {
+  const reference = getReferencePizza(recipeId)!;
+  return {
+    ...createEmptyPizza(),
+    sauceIds: [reference.sauce.ingredientId],
+    sauceDeposits: buildIdealSauceFixture(),
+    toppings: reference.pieceGroups.flatMap((g, gi) =>
+      g.positions.map((p, i) => ({ id: `${recipeId}-${gi}-${i}`, ingredientId: g.ingredientId, ...p })),
+    ),
+    bakeResult: 65,
+  };
+}

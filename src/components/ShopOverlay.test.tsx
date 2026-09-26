@@ -220,3 +220,73 @@ describe("no EP4 gift wording anywhere in production UI source", () => {
     expect(hits).toEqual([]);
   });
 });
+
+// Progression 2.0 W1 Discovery 2.0 (W1-b, OD-DISC-3): the Shop never names an undiscovered recipe
+// -- not on a NEW row, not in the purchase feedback, not in an aria-label. Walked along the real
+// 25-recipe ladder (margherita, then each step's key recipe), before and after buying every NEW
+// material. Oracle (NF-8): an undiscovered recipe's `nameJa` may appear only as part of an
+// ingredient name the Shop legitimately shows (ペパロニ = pepperoni, ジェノベーゼソース contains
+// ジェノベーゼ) -- never by substring luck.
+describe("W1-b: no undiscovered recipe name anywhere in the Shop", () => {
+  const LEXICAL_OVERLAP: Record<string, string> = { ペパロニ: "ペパロニ", ジェノベーゼ: "ジェノベーゼソース" };
+  const keyOrder = ["margherita", ...DISCOVERY_LADDER.steps.map((s) => s.keyRecipeId)];
+
+  function assertNoUndiscoveredName(dex: DexState, where: string) {
+    const discoveredIds = new Set(dex.map((e) => e.recipeId));
+    const text = document.body.textContent ?? "";
+    const labels = Array.from(document.querySelectorAll("[aria-label],[title],[alt]"))
+      .map((e) => `${e.getAttribute("aria-label") ?? ""}|${e.getAttribute("title") ?? ""}|${e.getAttribute("alt") ?? ""}`)
+      .join("|");
+    for (const r of RECIPES.filter((x) => !discoveredIds.has(x.id))) {
+      const allowed = LEXICAL_OVERLAP[r.nameJa];
+      const scrub = (s: string) => (allowed ? s.split(allowed).join("") : s);
+      expect(scrub(text), `${where}: ${r.id}`).not.toContain(r.nameJa);
+      expect(scrub(labels), `${where} (attributes): ${r.id}`).not.toContain(r.nameJa);
+    }
+  }
+
+  it("at every ladder Dex, before and after buying, the Shop names no undiscovered recipe", async () => {
+    for (let n = 1; n <= keyOrder.length; n++) {
+      const dex: DexState = keyOrder.slice(0, n).map(
+        (id): DexEntry => ({ recipeId: id, discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }),
+      );
+      const unlocked = materialIdsOfSteps(DISCOVERY_LADDER.steps.filter((s) => s.step <= n));
+      const ownedBefore = [...STARTER_INGREDIENT_IDS, ...unlocked.slice(0, -2)];
+      const { onPurchase, rerender } = renderShop({ dex, owned: ownedBefore, unlocked, pitz: 9999 });
+      assertNoUndiscoveredName(dex, `Dex ${n} (NEW rows)`);
+      for (const newRow of Array.from(document.querySelectorAll<HTMLElement>('.shop-item[data-shop-state="NEW"]'))) {
+        expect(within(newRow).getByText("🎨 新しいピザのヒントになるかも")).toBeInTheDocument();
+      }
+      const buy = document.querySelector<HTMLButtonElement>(".shop-item__buy-button");
+      if (buy) {
+        await userEvent.click(buy);
+        const bought = onPurchase.mock.calls[0][0] as string;
+        rerender(
+          <ShopOverlay
+            dex={dex}
+            ownedIngredientIds={[...ownedBefore, bought]}
+            unlockedForShopIngredientIds={unlocked}
+            pitzBalance={9999}
+            inventory={{ [bought]: 30 }}
+            onPurchase={onPurchase}
+            onRestock={vi.fn()}
+            onClose={vi.fn()}
+          />,
+        );
+        expect(document.querySelector(".shop-overlay__feedback")).toBeInTheDocument();
+        assertNoUndiscoveredName(dex, `Dex ${n} (after buying ${bought})`);
+      }
+      cleanup();
+    }
+  });
+
+  it("keeps the NEW badge, price, pack and stock semantics", () => {
+    renderShop({ unlocked: ["egg"] });
+    const egg = row("egg")!;
+    expect(egg.dataset.shopState).toBe("NEW");
+    expect(within(egg).getByText("NEW 入荷")).toBeInTheDocument();
+    expect(egg).toHaveTextContent(`初回 🪙 ${materialOffer(getIngredient("egg")!)!.packPrice} Pitz`);
+    expect(egg).toHaveTextContent("在庫 0");
+    expect(egg).not.toHaveTextContent("これを買うと");
+  });
+});

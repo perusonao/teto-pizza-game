@@ -29,9 +29,9 @@ describe("totalRequiredItemCount", () => {
   });
 });
 
-describe("efficiencyThresholdsForRecipe: recipe complexity treatment (item 17 -- all 15 recipes)", () => {
+describe("efficiencyThresholdsForRecipe: recipe complexity treatment (item 17 -- all 25 recipes)", () => {
   it("every shipped recipe gets valid, ordered, strictly-increasing thresholds", () => {
-    expect(RECIPES.length).toBe(15);
+    expect(RECIPES.length).toBe(25);
     for (const recipe of RECIPES) {
       const thresholds = efficiencyThresholdsForRecipe(recipe as Recipe);
       expect(thresholds.comfortableMs).toBeGreaterThan(0);

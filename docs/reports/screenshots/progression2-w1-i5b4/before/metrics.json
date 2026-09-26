@@ -1,0 +1,129 @@
+{
+ "390x844/fresh-home": {
+  "docOverflowX": 0,
+  "offenders": [],
+  "ctaLines": [
+   "🎨 フリークッキングで探す|5",
+   "🍕 ピザを作る|5",
+   "⏱️ ランチラッシュ|5"
+  ],
+  "ctaBoxes": [
+   "🎨 フリークッキングで探す@16,307 122x87",
+   "🍕 ピザを作る@146,307 110x87",
+   "⏱️ ランチラッシュ@264,307 110x87"
+  ]
+ },
+ "390x844/fresh-pizza-select": {
+  "docOverflowX": 0,
+  "offenders": []
+ },
+ "390x844/dex1-home": {
+  "ctaBoxes": [
+   "🍕 ピザを作る@16,307 181x54",
+   "⏱️ ランチラッシュ@205,307 169x54",
+   "🎨 フリークッキング@16,369 358x48"
+  ]
+ },
+ "390x844/pizza-select-mid": {
+  "docOverflowX": 0,
+  "offenders": [],
+  "cards": 25,
+  "nameLines": [],
+  "scroll": {
+   "scrollHeight": 2472,
+   "clientHeight": 788,
+   "shots": 4
+  }
+ },
+ "390x844/pizza-select-detail": {
+  "docOverflowX": 0,
+  "offenders": []
+ },
+ "390x844/shop-max": {
+  "docOverflowX": 0,
+  "offenders": [],
+  "rows": 26,
+  "nameLines": [],
+  "scroll": {
+   "scrollHeight": 2688,
+   "clientHeight": 756,
+   "shots": 5
+  }
+ },
+ "390x844/tray": {
+  "docOverflowX": 0,
+  "offenders": [],
+  "pageLabel": "1 / 4",
+  "chips": 6,
+  "chipNameLines": [],
+  "p2NameLines": [],
+  "p3NameLines": [],
+  "p4NameLines": []
+ },
+ "360x800/fresh-home": {
+  "docOverflowX": 0,
+  "offenders": [],
+  "ctaLines": [
+   "🎨 フリークッキングで探す|7",
+   "🍕 ピザを作る|7",
+   "⏱️ ランチラッシュ|7"
+  ],
+  "ctaBoxes": [
+   "🎨 フリークッキングで探す@16,307 112x108",
+   "🍕 ピザを作る@136,307 100x108",
+   "⏱️ ランチラッシュ@244,307 100x108"
+  ]
+ },
+ "360x800/fresh-pizza-select": {
+  "docOverflowX": 0,
+  "offenders": []
+ },
+ "360x800/dex1-home": {
+  "ctaBoxes": [
+   "🍕 ピザを作る@16,307 166x54",
+   "⏱️ ランチラッシュ@190,307 154x54",
+   "🎨 フリークッキング@16,369 328x48"
+  ]
+ },
+ "360x800/pizza-select-mid": {
+  "docOverflowX": 0,
+  "offenders": [],
+  "cards": 25,
+  "nameLines": [
+   "クアトロ フォルマッジ|2",
+   "トンノ・エ・チポッラ|2",
+   "ブレックファストピザ|2",
+   "ピッツァ・ポルトゲーザ|2"
+  ],
+  "scroll": {
+   "scrollHeight": 2519,
+   "clientHeight": 744,
+   "shots": 4
+  }
+ },
+ "360x800/pizza-select-detail": {
+  "docOverflowX": 0,
+  "offenders": []
+ },
+ "360x800/shop-max": {
+  "docOverflowX": 0,
+  "offenders": [],
+  "rows": 26,
+  "nameLines": [],
+  "scroll": {
+   "scrollHeight": 3336,
+   "clientHeight": 712,
+   "shots": 6
+  }
+ },
+ "360x800/tray": {
+  "docOverflowX": 0,
+  "offenders": [],
+  "pageLabel": "1 / 4",
+  "chips": 6,
+  "chipNameLines": [],
+  "p2NameLines": [],
+  "p3NameLines": [],
+  "p4NameLines": []
+ }
+}

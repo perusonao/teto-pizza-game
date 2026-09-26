@@ -106,8 +106,10 @@ describe("ResultPanel in a free-cook round", () => {
         discovery={{ kind: "NEW_DISCOVERY", recipeId: "margherita", targetId: "shipped:margherita" }}
       />,
     );
-    expect(screen.getByText(/NEW PIZZA!/)).toHaveTextContent("マルゲリータを発見しました！");
-    expect(screen.getAllByText(/を発見しました/)).toHaveLength(1);
+    // W1-d: stamp and name are separate runs inside the one banner (same text content).
+    const banners = document.querySelectorAll(".discovered-banner--new-pizza");
+    expect(banners).toHaveLength(1);
+    expect(banners[0]).toHaveTextContent("NEW PIZZA! ✨ マルゲリータを発見しました！");
   });
 
   it("KNOWN: names the recipe as already discovered, with no discovery banner", () => {

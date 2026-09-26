@@ -285,10 +285,11 @@ describe("existing-save migration (resolveShopEntitlement at load)", () => {
       "pesto",
       "cherry-tomato",
       "bacon",
-      "pepperoni",
-      "sausage",
+      "eggplant",
+      "parmigiano",
     ]);
-    expect(result.newlyUnlockedMaterialIds).toEqual(["bacon", "pepperoni", "sausage"]);
+    // 25-recipe ladder (I5b-3): steps 1-5 are egg / bacon / mushroom / eggplant / parmigiano.
+    expect(result.newlyUnlockedMaterialIds).toEqual(["bacon", "eggplant", "parmigiano"]);
     // The load path hands exactly this to createInitialGameState: stock/ownership untouched.
     const inventory = { mushroom: 17, garlic: 4 };
     const state = createInitialGameState(dex, owned, 55, inventory, ["funghi", "marinara"], result.unlockedForShopIngredientIds);

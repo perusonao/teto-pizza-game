@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { DISCOVERY_LADDER } from "../data/discoveryLadder";
 import { INGREDIENTS, STARTER_INGREDIENT_IDS, getIngredient, type Ingredient } from "../data/ingredients";
-import { RECIPES } from "../data/recipes";
+import { RECIPES, type Recipe } from "../data/recipes";
 import { materialIdsOfSteps } from "./discoveryLadder";
 import {
   MATERIAL_PACK_PIZZAS,
@@ -25,27 +25,35 @@ function ing(id: string): Ingredient {
   return found;
 }
 
-/** Expected offer for every material of the shipped-15 ladder: [id, step, tier, k, qty, pack, refill]. */
+/** Expected offer for every material of the production ladder -- the 25-recipe W1 ladder since
+ *  I5b-3 (docs/reports/TETO_PROGRESS2_W1_I5B_FRESH-AUDIT.md §4-§6): [id, step, tier, k, qty, pack, refill]. */
 const EXPECTED_OFFERS: readonly [string, number, string, number, number, number, number][] = [
   ["egg", 1, "T1", 1, 10, 60, 30],
   ["bacon", 2, "T1", 3, 30, 60, 30],
   ["mushroom", 3, "T1", 3, 30, 60, 30],
-  ["pepperoni", 4, "T1", 4, 40, 60, 30],
-  ["sausage", 5, "T1", 3, 30, 60, 30],
-  ["ham", 6, "T2", 1, 10, 80, 40],
-  ["black-olive", 7, "T2", 2, 20, 80, 40],
-  ["oregano", 7, "T2", 2, 20, 80, 40],
-  ["garlic", 8, "T2", 3, 30, 80, 40],
-  ["anchovy", 9, "T2", 3, 30, 80, 40],
-  ["olive-oil", 10, "T2", 1, 10, 80, 40],
-  ["onion", 10, "T2", 4, 40, 80, 40],
-  ["rosemary", 11, "T2", 3, 30, 80, 40],
-  ["tuna", 12, "T2", 3, 30, 80, 40],
-  ["cherry-tomato", 13, "T2", 3, 30, 80, 40],
-  ["pesto", 13, "T2", 1, 10, 80, 40],
-  ["fontina", 14, "T2", 2, 20, 80, 40],
-  ["gorgonzola", 14, "T2", 2, 20, 80, 40],
-  ["parmigiano", 14, "T2", 2, 20, 80, 40],
+  ["eggplant", 4, "T1", 3, 30, 60, 30],
+  ["parmigiano", 5, "T1", 2, 20, 60, 30],
+  ["pepperoni", 6, "T2", 4, 40, 80, 40],
+  ["sausage", 7, "T2", 3, 30, 80, 40],
+  ["ham", 8, "T2", 3, 30, 80, 40],
+  ["corn", 9, "T2", 3, 30, 80, 40],
+  ["pineapple", 10, "T2", 3, 30, 80, 40],
+  ["black-olive", 11, "T2", 2, 20, 80, 40],
+  ["oregano", 11, "T2", 2, 20, 80, 40],
+  ["onion", 12, "T2", 4, 40, 80, 40],
+  ["olive-oil", 13, "T2", 1, 10, 80, 40],
+  ["garlic", 14, "T2", 3, 30, 80, 40],
+  ["anchovy", 15, "T3", 3, 30, 100, 50],
+  ["tuna", 16, "T3", 3, 30, 100, 50],
+  ["pesto", 17, "T3", 1, 10, 100, 50],
+  ["cherry-tomato", 18, "T3", 3, 30, 100, 50],
+  ["clam", 19, "T3", 3, 30, 100, 50],
+  ["fresh-tomato", 20, "T3", 3, 30, 100, 50],
+  ["potato", 21, "T3", 3, 30, 100, 50],
+  ["rosemary", 22, "T3", 3, 30, 100, 50],
+  ["capers", 23, "T3", 2, 20, 100, 50],
+  ["fontina", 24, "T3", 2, 20, 100, 50],
+  ["gorgonzola", 24, "T3", 2, 20, 100, 50],
 ];
 
 describe("price tiers (REC-04 OD-REC04-3)", () => {
@@ -93,13 +101,11 @@ describe("k and pack quantity (10 x k)", () => {
     }
   });
 
-  it("uses the given recipe population (e.g. a W1-style ham x3 raises ham to 30)", () => {
-    const withPortuguesa = [
-      ...RECIPES,
-      { requiredIngredients: [{ ingredientId: "ham", minCount: 3 }] },
-    ];
-    expect(packQuantity("ham")).toBe(10);
-    expect(packQuantity("ham", withPortuguesa)).toBe(30);
+  it("uses the given recipe population (ham: 10 for the pre-W1 recipes, 30 with W1's pizza-portuguesa ham x3)", () => {
+    const preW1 = (RECIPES as readonly Recipe[]).filter((r) => r.id === "margherita" || r.unlockCondition);
+    expect(preW1).toHaveLength(15);
+    expect(packQuantity("ham", preW1)).toBe(10);
+    expect(packQuantity("ham")).toBe(30);
   });
 
   it("an unused or unknown ingredient has k = 0 and no pack", () => {
@@ -197,8 +203,8 @@ describe("nextMaterialHint", () => {
   });
 
   it("is null once the ladder is complete", () => {
-    expect(nextMaterialHint(14)).toBeNull();
-    expect(nextMaterialHint(15)).toBeNull();
+    expect(nextMaterialHint(24)).toBeNull();
+    expect(nextMaterialHint(25)).toBeNull();
   });
 
   it("treats invalid counts as 0", () => {
@@ -210,18 +216,18 @@ describe("nextMaterialHint", () => {
   it("skips steps whose materials are all already entitled (migrated EP4 save)", () => {
     // Dex 2 (margherita, funghi) and mushroom (step 3) already owned -> next new step is 4.
     expect(nextMaterialHint(2, ["egg", "bacon", "mushroom"])).toEqual({ discoveriesNeeded: 2, step: 4 });
-    // Several consecutive entitled steps are skipped together.
-    expect(nextMaterialHint(2, ["egg", "bacon", "mushroom", "pepperoni", "sausage"])).toEqual({
+    // Several consecutive entitled steps are skipped together (steps 3-5: mushroom, eggplant, parmigiano).
+    expect(nextMaterialHint(2, ["egg", "bacon", "mushroom", "eggplant", "parmigiano"])).toEqual({
       discoveriesNeeded: 4,
       step: 6,
     });
   });
 
   it("a multi-material step still counts while any of its materials is not entitled", () => {
-    // Step 7 = black-olive + oregano; only oregano entitled.
-    expect(nextMaterialHint(6, ["oregano"])).toEqual({ discoveriesNeeded: 1, step: 7 });
-    // Both entitled -> skip to step 8.
-    expect(nextMaterialHint(6, ["oregano", "black-olive"])).toEqual({ discoveriesNeeded: 2, step: 8 });
+    // Step 11 = black-olive + oregano; only oregano entitled.
+    expect(nextMaterialHint(10, ["oregano"])).toEqual({ discoveriesNeeded: 1, step: 11 });
+    // Both entitled -> skip to step 12.
+    expect(nextMaterialHint(10, ["oregano", "black-olive"])).toEqual({ discoveriesNeeded: 2, step: 12 });
   });
 
   it("is null when every remaining step is already entitled, even before the last step", () => {
@@ -330,13 +336,13 @@ describe("refillPack", () => {
     pitzBalance: 100,
   };
 
-  it("OWNED: -40 Pitz (T2 refill), +10 x k stock", () => {
+  it("OWNED: -40 Pitz (T2 refill), +10 x k stock (ham k = 3 since W1's pizza-portuguesa)", () => {
     expect(refillPack(base)).toEqual({
       success: true,
       nextOwnedIngredientIds: [...STARTER_INGREDIENT_IDS, "ham"],
-      nextInventory: { ham: 12 },
+      nextInventory: { ham: 32 },
       nextPitzBalance: 60,
-      quantity: 10,
+      quantity: 30,
       price: 40,
     });
   });
@@ -362,7 +368,7 @@ describe("refillPack", () => {
       if (!r.success) throw new Error("expected success");
       state = { ...state, inventory: r.nextInventory, pitzBalance: r.nextPitzBalance };
     }
-    expect(state.inventory).toEqual({ ham: 22 });
+    expect(state.inventory).toEqual({ ham: 62 });
     expect(state.pitzBalance).toBe(20);
     expect(refillPack(state)).toEqual({ success: false, reason: "INSUFFICIENT_FUNDS" });
   });
@@ -381,6 +387,6 @@ describe("refillPack", () => {
 
   it("never produces negative stock", () => {
     const r = refillPack({ ...base, inventory: { ham: -9 } });
-    expect(r.success && r.nextInventory.ham).toBe(10);
+    expect(r.success && r.nextInventory.ham).toBe(30);
   });
 });

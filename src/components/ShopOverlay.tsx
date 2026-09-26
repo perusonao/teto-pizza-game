@@ -6,8 +6,6 @@ import {
   type CategoryTab,
   type Ingredient,
 } from "../data/ingredients";
-import { getRecipe } from "../data/recipes";
-import { recipesUnlockedByIngredient } from "../state/progression";
 import type { DexState } from "../state/dex";
 import { remainingStock, type InventoryState } from "../state/inventory";
 import { discoveredRecipeCount } from "../logic/discoveryLadder";
@@ -79,17 +77,11 @@ function packLabelJa(ingredient: Ingredient, offer: MaterialOffer): string {
     : `${MATERIAL_PACK_PIZZAS}ピザ分`;
 }
 
-/** "何を買うと何ができるか" preview (SSOT section 8), unchanged: only recipes whose own unlock
- *  already holds and that this ingredient alone would complete. */
-function unlockedRecipeNames(
-  ingredientId: string,
-  dex: DexState,
-  ownedIngredientIds: readonly string[],
-): string[] {
-  return recipesUnlockedByIngredient(ingredientId, dex, ownedIngredientIds)
-    .map((id) => getRecipe(id)?.nameJa)
-    .filter((name): name is string => !!name);
-}
+/** Progression 2.0 W1 Discovery 2.0 (W1-b, OD-DISC-3): a NEW material's row never names the
+ *  recipe it completes -- a recipe's name is revealed only at the moment it is discovered. The row
+ *  says only that the material may lead somewhere new (L1). `recipesUnlockedByIngredient`
+ *  (../state/progression.ts) is no longer read by the Shop. */
+export const SHOP_NEW_MATERIAL_HINT_JA = "\u{1F3A8} 新しいピザのヒントになるかも";
 
 /** Local, presentational purchase/refill feedback. Captured when the button is tapped and shown
  *  only once the reducer's result has actually landed (owned / stock increased), so a rejected
@@ -100,7 +92,6 @@ interface ShopFeedback {
   ingredientNameJa: string;
   quantityLabelJa: string;
   stockBefore: number;
-  unlockedRecipeNames: string[];
 }
 
 export function ShopOverlay({
@@ -129,7 +120,6 @@ export function ShopOverlay({
       ingredientNameJa: ingredient.nameJa,
       quantityLabelJa: packLabelJa(ingredient, offer),
       stockBefore: inventory[ingredient.id] ?? 0,
-      unlockedRecipeNames: unlockedRecipeNames(ingredient.id, dex, ownedIngredientIds),
     });
     onPurchase(ingredient.id);
   }
@@ -142,7 +132,6 @@ export function ShopOverlay({
       ingredientNameJa: ingredient.nameJa,
       quantityLabelJa: packLabelJa(ingredient, offer),
       stockBefore: inventory[ingredient.id] ?? 0,
-      unlockedRecipeNames: [],
     });
     onRestock(ingredient.id);
   }
@@ -175,12 +164,6 @@ export function ShopOverlay({
                   {"\u{1F4E6}"} {feedback.ingredientNameJa}を仕入れました！（{feedback.quantityLabelJa}）
                   <br />
                   {"\u{1F373}"} フリークッキングで使ってみよう
-                  {feedback.unlockedRecipeNames.length > 0 && (
-                    <>
-                      <br />
-                      {"\u{1F355}"} 新しいピザが作れます！「{feedback.unlockedRecipeNames.join("、")}」
-                    </>
-                  )}
                 </>
               ) : (
                 <>
@@ -227,8 +210,6 @@ export function ShopOverlay({
                 const { ingredient, state, offer } = row;
                 const price = state === "NEW" ? offer.packPrice : offer.refillPrice;
                 const shortfall = Math.max(0, price - pitzBalance);
-                const unlocksLabel =
-                  state === "NEW" ? unlockedRecipeNames(ingredient.id, dex, ownedIngredientIds).join("、") : "";
                 return (
                   <div
                     key={ingredient.id}
@@ -280,11 +261,7 @@ export function ShopOverlay({
                     {shortfall > 0 && (
                       <p className="shop-item__shortfall">あと {shortfall} Pitz たりません</p>
                     )}
-                    {unlocksLabel && (
-                      <p className="shop-item__unlocks">
-                        これを買うと: {"\u{1F355}"} {unlocksLabel}
-                      </p>
-                    )}
+                    {state === "NEW" && <p className="shop-item__unlocks">{SHOP_NEW_MATERIAL_HINT_JA}</p>}
                   </div>
                 );
               })}

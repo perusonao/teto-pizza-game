@@ -38,6 +38,15 @@ name: E2E WebKit (Cooking UI 1-Screen)
 # All three events share the same classify -> webkit -> WebKit Gate jobs; only classify's
 # decision differs.
 #
+# Progression 2.0 W1 I5b-5 (OD-V-1): two more jobs share the same classify decision --
+#   layout-chromium       -- e2e/layout-contract.spec.ts on Chromium across all 7 viewport profiles
+#                            (incl. CDP safe-area ones WebKit cannot emulate); parallel to webkit.
+#   layout-gate           -- "Layout Contract Gate" (scripts/ci/layout-gate.sh), same shape as
+#                            WebKit Gate; the check to require alongside it.
+# The WebKit shards also run the Layout Contract (N/S profiles of their width) and write its
+# summary to the job summary. OD-V-6: the 8 tests that force their own viewport run on one
+# project per engine (intentional skips, accepted by the shard evidence verifier).
+#
 # The original rationale above still holds for runtime changes: a shared CSS variable, App.css
 # primitive, or reducer change is NOT documentation, so it always runs WebKit. Only changes that
 # cannot reach the browser (Markdown/docs, report screenshots under docs/) skip it.
@@ -210,6 +219,146 @@ jobs:
           name: playwright-webkit-report-${{ matrix.project }}-shard${{ matrix.shard }}
           path: playwright-report/
           retention-days: 14
+
+      # I5b-5: the Layout Contract spec also runs here (the N and S profiles of this project's
+      # width). Its layout-evidence.json attachments are summarized into the job summary.
+      - name: Layout Contract summary (WebKit)
+        if: always()
+        run: node scripts/ci/layout-summary.mjs --results "$RESULTS_JSON" >> "$GITHUB_STEP_SUMMARY"
+
+      # Failure artifacts (trace, screenshots, annotated layout screenshots) -- only written for
+      # failing tests (playwright.config.ts: trace retain-on-failure, screenshot only-on-failure).
+      - name: Upload failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-webkit-test-results-${{ matrix.project }}-shard${{ matrix.shard }}-attempt${{ github.run_attempt }}
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  # Progression 2.0 W1 I5b-5 (OD-V-1): the Chromium Layout Contract -- e2e/layout-contract.spec.ts
+  # on the `layout-chromium` project, which cycles all 7 viewport profiles including the CDP
+  # safe-area ones (P390i / E390i / E360i) that WebKit cannot emulate. Shares classify's decision
+  # (docs-only changes skip it; a failed classify runs it), runs in parallel with the WebKit
+  # shards, one shard (7 tests, ~1.5 min on 2 workers locally).
+  layout-chromium:
+    name: layout-chromium
+    needs: classify
+    if: ${{ !cancelled() && (needs.classify.result != 'success' || needs.classify.outputs.webkit_required != 'false') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      LIST_JSON: ${{ github.workspace }}/../layout-list.json
+      RESULTS_JSON: ${{ github.workspace }}/../layout-results.json
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Install Chromium (with system deps)
+        run: npx playwright install --with-deps chromium
+
+      - name: Browser installation proof
+        run: |
+          npx playwright --version
+          find ~/.cache/ms-playwright -maxdepth 1 -type d -iname 'chromium-*'
+
+      - name: List full selection (layout-chromium)
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_NAME: ${{ env.LIST_JSON }}
+        run: |
+          npx playwright test --list --project=layout-chromium --reporter=json > /dev/null
+          npx playwright test --list --project=layout-chromium | tail -n 1
+
+      - name: Run Layout Contract (layout-chromium, 7 profiles)
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_NAME: ${{ env.RESULTS_JSON }}
+        run: npx playwright test --project=layout-chromium --reporter=list,html,json
+
+      - name: Record evidence
+        if: always()
+        run: >-
+          node scripts/ci/webkit-shard-evidence.mjs collect
+          --project layout-chromium --shard 1 --total 1
+          --attempt ${{ github.run_attempt }}
+          --list "$LIST_JSON" --results "$RESULTS_JSON"
+          --out layout-evidence/evidence.json
+
+      - name: Layout Contract summary
+        if: always()
+        run: node scripts/ci/layout-summary.mjs --results "$RESULTS_JSON" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: layout-evidence-layout-chromium-shard1-attempt${{ github.run_attempt }}
+          path: layout-evidence/evidence.json
+          if-no-files-found: error
+          retention-days: 14
+
+      # The html report carries every test's layout-evidence.json (pass or fail); test-results/
+      # carries traces and screenshots of failing tests.
+      - name: Upload Playwright report and failure artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-layout-report-attempt${{ github.run_attempt }}
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  layout-gate:
+    name: Layout Contract Gate
+    needs: [classify, layout-chromium]
+    # always(): like WebKit Gate, this must report a conclusion in every case.
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out CI scripts
+        if: always()
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/ci
+
+      - uses: actions/setup-node@v4
+        if: always()
+        with:
+          node-version: 22
+
+      - name: Download evidence
+        if: ${{ always() && needs.layout-chromium.result != 'skipped' }}
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          pattern: layout-evidence-*
+          path: layout-evidence
+
+      - name: Evaluate Layout Contract requirement
+        if: always()
+        env:
+          CLASSIFY_RESULT: ${{ needs.classify.result }}
+          WEBKIT_REQUIRED: ${{ needs.classify.outputs.webkit_required }}
+          REASON: ${{ needs.classify.outputs.reason }}
+          LAYOUT_RESULT: ${{ needs.layout-chromium.result }}
+          EVIDENCE_DIR: layout-evidence
+          REQUIRED_PROJECTS: layout-chromium
+        run: bash scripts/ci/layout-gate.sh
 
   webkit-gate:
     name: WebKit Gate

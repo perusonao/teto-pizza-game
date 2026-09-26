@@ -143,7 +143,11 @@ describe("free-cook tray paging never leaves a hidden selection active (PR #197 
     vi.unstubAllGlobals();
 
     // Margherita exactly -- not an ORIGINAL "margherita + garlic".
-    expect(await screen.findByText(/NEW PIZZA!.*マルゲリータを発見しました！/)).toBeInTheDocument();
+    // W1-d: the banner's stamp and name are separate runs (same text content).
+    await screen.findByText("NEW PIZZA! ✨");
+    expect(document.querySelector(".discovered-banner--new-pizza")).toHaveTextContent(
+      "NEW PIZZA! ✨ マルゲリータを発見しました！",
+    );
     const save = JSON.parse(window.localStorage.getItem(SAVE_STORAGE_KEY)!);
     expect(save.inventory.garlic).toBe(3);
   });

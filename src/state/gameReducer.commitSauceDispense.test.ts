@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { createInitialGameState, gameReducer, type GameState } from "./gameReducer";
+import { gameReducer, type GameState } from "./gameReducer";
 import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "../data/ingredients";
-import { EMPTY_DEX } from "./dex";
 import type { SauceDeposit } from "./pizzaState";
 import { createEmptyPizza } from "./pizzaState";
 import { RECIPES, type RecipeId } from "../data/recipes";
 import { ORDERS } from "../data/orders";
 import { getRecipeSauceProfile } from "../data/recipeSauceProfiles";
 import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
+import { createGuidedInitialState } from "./testSupport/guidedRound";
 
 /**
  * Phase 4A-1A (Post-Codex-Fix): COMMIT_SAUCE_DISPENSE reducer tests. Replaces the old
@@ -30,8 +30,9 @@ const GENEROUS_INVENTORY = Object.fromEntries(
 function preparedMargheritaState(
   ownedIngredientIds: readonly string[] = STARTER_INGREDIENT_IDS,
 ): GameState {
-  const state = createInitialGameState(EMPTY_DEX, ownedIngredientIds, 0, GENEROUS_INVENTORY);
-  expect(state.recipe.id).toBe("margherita"); // createInitialGameState always starts here
+  // Discovery 2.0: a guided round of an already-discovered margherita.
+  const state = createGuidedInitialState("margherita", { ownedIngredientIds, inventory: GENEROUS_INVENTORY });
+  expect(state.recipe.id).toBe("margherita");
   const prepared = gameReducer(state, { type: "BEGIN_PREPARE" });
   // Issue #33 D1: BEGIN_PREPARE now lands at DOUGH -- every caller in this file exercises
   // SAUCE-step COMMIT_SAUCE_DISPENSE, so advance past DOUGH once here.
@@ -39,7 +40,9 @@ function preparedMargheritaState(
 }
 
 function preparedRecipeState(recipeId: RecipeId, isMissionRound = false): GameState {
-  const base = createInitialGameState(EMPTY_DEX, ALL_INGREDIENT_IDS, 0, GENEROUS_INVENTORY);
+  // Discovery 2.0: hand-built from a guided (non-Free-Cooking) round, not the Dex-0 initial
+  // state (which is a Free Cooking round now).
+  const base = createGuidedInitialState(recipeId, { ownedIngredientIds: ALL_INGREDIENT_IDS, inventory: GENEROUS_INVENTORY });
   const recipe = RECIPES.find((candidate) => candidate.id === recipeId);
   const order = ORDERS.find((candidate) => candidate.recipeId === recipeId);
   if (!recipe || !order) throw new Error(`Missing test data for ${recipeId}`);
@@ -112,7 +115,7 @@ describe("COMMIT_SAUCE_DISPENSE: reducer scope guard (Codex MUST FIX 2)", () => 
   const deposits = [deposit(50, 50, 0.05)];
 
   it("rejects when phase is ORDER", () => {
-    const orderState = createInitialGameState();
+    const orderState = createGuidedInitialState();
     expect(orderState.phase).toBe("ORDER");
     const after = gameReducer(orderState, {
       type: "COMMIT_SAUCE_DISPENSE",

@@ -60,16 +60,69 @@ const BAKE_NEEDLE_SPEED_PCT_PER_S = 55;
  *    exact target center across repeated runs at 10x CPU throttle.
  */
 export async function bakeToTarget(page: Page, target: { start: number; end: number }) {
-  const center = (target.start + target.end) / 2;
+  await enterBakePaused(page);
+  await landNeedleAndTakeOut(page, target);
+}
+
+/**
+ * Progression 2.0 W1 I5b-5 (Preflight §3 / R-3): the first half of `bakeToTarget` -- installs the
+ * clock, clicks 焼く and pauses virtual time right after BAKE mounts, so the Layout Contract can
+ * cycle viewport profiles while the needle (and the Lunch Rush timer) stand still. Resume with
+ * `page.clock.runFor` (e.g. past the Guide fade) and finish with `landNeedleAndTakeOut`.
+ */
+export async function enterBakePaused(page: Page) {
   await page.clock.install();
   await page.getByRole("button", { name: /焼く/ }).click();
   await page.waitForSelector(".bake-gauge__needle");
   // A short future buffer -- pausing at an already-past instant throws; this just needs to be
-  // comfortably longer than the pauseAt round trip itself, not a precise duration (see below).
-  await page.clock.pauseAt(Date.now() + 150);
+  // comfortably longer than the pauseAt round trip itself, not a precise duration (see above).
+  // I5b-5: a loaded WebKit runner occasionally took longer than 150ms ("Cannot fast-forward to
+  // the past", run 36221528804), so a rejected pause retries with a longer buffer; the landing
+  // below is computed from wherever the needle really is, so the extra time is harmless.
+  for (const buffer of [150, 500, 1500]) {
+    try {
+      await page.clock.pauseAt(Date.now() + buffer);
+      return;
+    } catch (error) {
+      if (!String(error).includes("to the past")) throw error;
+    }
+  }
+  throw new Error("enterBakePaused: clock.pauseAt kept landing in the past");
+}
+
+/**
+ * The second half of `bakeToTarget`: from the paused clock, runs virtual time exactly until the
+ * needle reaches `target`'s center, clicks 取り出す！ and resumes real time. The needle bounces
+ * 0 -> 100 -> 0 (BakeOverlay), so after an arbitrary pause (e.g. past the Guide fade) its
+ * direction is read from one short step before computing the remaining distance.
+ */
+export async function landNeedleAndTakeOut(page: Page, target: { start: number; end: number }) {
+  const center = (target.start + target.end) / 2;
   const needle = page.locator(".bake-gauge__needle");
-  const currentPosition = await needle.evaluate((el) => Number.parseFloat(el.style.left) || 0);
-  const remainingMs = Math.max(0, Math.round(((center - currentPosition) / BAKE_NEEDLE_SPEED_PCT_PER_S) * 1000));
+  // The needle's style is written by a React render scheduled from the (faked) animation frame;
+  // a short real-time wait lets that render commit before reading (virtual time stays paused).
+  const read = async () => {
+    await page.waitForTimeout(50);
+    return needle.evaluate((el) => Number.parseFloat((el as HTMLElement).style.left) || 0);
+  };
+  let position = await read();
+  let direction = 1;
+  if (position > 0) {
+    await page.clock.runFor(20);
+    const next = await read();
+    direction = next >= position ? 1 : -1;
+    if (next === 100) direction = -1;
+    position = next;
+  }
+  const distance =
+    direction > 0
+      ? center >= position
+        ? center - position
+        : 100 - position + (100 - center)
+      : center <= position
+        ? position - center
+        : position + center;
+  const remainingMs = Math.max(0, Math.round((distance / BAKE_NEEDLE_SPEED_PCT_PER_S) * 1000));
   if (remainingMs > 0) await page.clock.runFor(remainingMs);
   await page.getByRole("button", { name: "取り出す！" }).click();
   await page.clock.resume();
@@ -154,19 +207,14 @@ export async function cutThreeLines(page: Page) {
   }
 }
 
-/** Fresh HOME -> Pizza Select -> margherita (the only unlockCondition-free recipe) -> PREPARE.
+/** HOME -> Pizza Select -> margherita -> PREPARE (a guided round).
  *
- * Progression 2.0 Phase 3-3 (Issue #198): a truly empty Dex now makes margherita's own NEW card
- * `preDiscoveryLocked` (its detail CTA routes to Free Cooking instead of guided SELECT_RECIPE,
- * see src/screens/PizzaSelectScreen.tsx) -- irrelevant to what every caller of this helper across
- * the suite actually tests (PREPARE/BAKE/RESULT/CUT mechanics, not onboarding), so an
- * `addInitScript` seeds one harmless, deeply chain-gated discovery (`napoletana` -- its own
- * unlock chain requires several undiscovered prerequisites, so this never widens
- * `isRecipeAvailable`/`availableRecipeIds` for anything else) purely to clear the "something has
- * ever been discovered" gate. `addInitScript` re-runs on every navigation this page makes,
- * including the `reload()` below, so the seed survives it. Dedicated Phase 3-3 onboarding
- * coverage (the gate itself, first discovery, Lunch Rush lock) lives in its own spec,
- * `e2e/progression2-p3-3-onboarding.spec.ts`, which never calls this helper. */
+ * Progression 2.0 W1 I5b-5a / Discovery 2.0: a guided round starts only from a DISCOVERED recipe
+ * (`canStartGuidedRound`, src/state/recipeDiscoveryState.ts), so margherita is seeded as
+ * discovered. `addInitScript` re-runs on every navigation this page makes, including the
+ * `reload()` below, so the seed survives it. Dedicated onboarding coverage (first discovery,
+ * Lunch Rush lock) lives in `e2e/progression2-p3-3-onboarding.spec.ts`, which never calls this
+ * helper. */
 export async function startFreshMargherita(page: Page) {
   await page.addInitScript(() => {
     localStorage.setItem(
@@ -247,7 +295,9 @@ export async function playFullMargheritaRound(page: Page) {
 export async function startQuattroFormaggiHeavyInventory(page: Page) {
   const save = {
     schemaVersion: 2,
-    dex: ["margherita", "funghi", "marinara", "bismarck", "genovese"].map((recipeId) => ({
+    // W1 I5b-5a: quattro-formaggi itself is discovered -- guided rounds start only from a
+    // discovered recipe (Discovery 2.0).
+    dex: ["margherita", "funghi", "marinara", "bismarck", "genovese", "quattro-formaggi"].map((recipeId) => ({
       recipeId,
       discovered: true,
       bestScore: 70,
@@ -355,6 +405,8 @@ export async function startCapricciosaUnlocked(page: Page) {
     "tonno-e-cipolla",
     "pizza-bianca",
     "breakfast-pizza",
+    // W1 I5b-5a: the guided target itself is discovered (Discovery 2.0).
+    "capricciosa",
   ];
   const save = {
     schemaVersion: 2,
@@ -567,7 +619,8 @@ export async function failMissionOrderMissingSauce(page: Page) {
 export async function startSalsicciaUnlocked(page: Page) {
   const save = {
     schemaVersion: 2,
-    dex: ["margherita", "funghi", "fugazza"].map((recipeId) => ({
+    // W1 I5b-5a: salsiccia itself is discovered (Discovery 2.0: guided rounds need a discovery).
+    dex: ["margherita", "funghi", "fugazza", "salsiccia"].map((recipeId) => ({
       recipeId,
       discovered: true,
       bestScore: 90,
@@ -608,7 +661,8 @@ export async function startSalsicciaUnlocked(page: Page) {
 export async function startMarinaraUnlocked(page: Page) {
   const save = {
     schemaVersion: 2,
-    dex: ["margherita", "funghi"].map((recipeId) => ({
+    // W1 I5b-5a: marinara itself is discovered (Discovery 2.0: guided rounds need a discovery).
+    dex: ["margherita", "funghi", "marinara"].map((recipeId) => ({
       recipeId,
       discovered: true,
       bestScore: 70,

@@ -55,9 +55,24 @@ const BATCH_1B_B_RECIPE_IDS: readonly RecipeId[] = ["capricciosa"];
  *  report's Section 2/Final Verdict). */
 const BATCH_1B_C_RECIPE_IDS: readonly RecipeId[] = ["meat-lovers"];
 
+/** Progression 2.0 W1 I5b-3 (docs/reports/TETO_PROGRESS2_W1_I5B_FRESH-AUDIT.md §1): the 10 W1 recipes. */
+const W1_RECIPE_IDS: readonly RecipeId[] = [
+  "melanzane-pizza",
+  "parmigiana-pizza",
+  "bambino",
+  "hawaiian",
+  "pizza-portuguesa",
+  "pesto-tonno",
+  "new-haven-apizza",
+  "pesto-caprese",
+  "pesto-patate",
+  "puttanesca-pizza",
+];
+
 describe("RECIPES (Phase 3C-6: fugazza is Recipe #7; Batch 1A adds #8-#11; Batch 1B-A adds #12-#13; Batch 1B-B adds #14; Batch 1B-C adds #15)", () => {
-  it("has exactly 15 recipes total (7 shipped + Batch 1A's 4 + Batch 1B-A's 2 + Batch 1B-B's 1 + Batch 1B-C's 1)", () => {
-    expect(RECIPES).toHaveLength(15);
+  it("has exactly 25 recipes total (7 shipped + Batch 1A's 4 + Batch 1B-A's 2 + Batch 1B-B's 1 + Batch 1B-C's 1 + W1's 10)", () => {
+    expect(RECIPES).toHaveLength(25);
+    expect(RECIPES.slice(15).map((r) => r.id)).toEqual(W1_RECIPE_IDS);
   });
 
   it("the pre-Batch-1A Starter 6 + fugazza are unchanged", () => {
@@ -68,7 +83,8 @@ describe("RECIPES (Phase 3C-6: fugazza is Recipe #7; Batch 1A adds #8-#11; Batch
           !BATCH_1A_RECIPE_IDS.includes(r.id) &&
           !BATCH_1B_A_RECIPE_IDS.includes(r.id) &&
           !BATCH_1B_B_RECIPE_IDS.includes(r.id) &&
-          !BATCH_1B_C_RECIPE_IDS.includes(r.id),
+          !BATCH_1B_C_RECIPE_IDS.includes(r.id) &&
+          !W1_RECIPE_IDS.includes(r.id),
       )
         .map((r) => r.id)
         .sort(),

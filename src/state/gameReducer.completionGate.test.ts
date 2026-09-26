@@ -71,7 +71,8 @@ function playToResultForRecipe(
   // `cookingProfile`/`cutState` for the *actual* `recipeId` under test would otherwise wrongly
   // carry margherita's CUT-enabled profile onto every other recipe this helper simulates.
   const cookingProfile = getCookingProfile(recipeId);
-  state = { ...state, recipe, order, pizza, cookingProfile, cutState: createCutState(cookingProfile.cutConfig) };
+  // Discovery 2.0: an injected guided round (a Dex-0 initial state is a Free Cooking round now).
+  state = { ...state, recipe, order, pizza, cookingProfile, cutState: createCutState(cookingProfile.cutConfig), freeCook: false };
   state = gameReducer(state, { type: "START_BAKE" });
   state = gameReducer(state, { type: "CONFIRM_BAKE", value: pizza.bakeResult ?? recipe.bakeTarget.start });
   return walkPostBakeToResult(state);

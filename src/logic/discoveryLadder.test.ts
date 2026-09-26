@@ -78,8 +78,8 @@ describe("discoveredRecipeCount", () => {
     expect(discoveredRecipeCount(high)).toBe(5);
   });
 
-  it("is 15 once every shipped recipe is discovered", () => {
-    expect(discoveredRecipeCount(RECIPES.map((r) => dexEntry(r.id)))).toBe(15);
+  it("is 25 once every shipped recipe is discovered (W1 I5b-3)", () => {
+    expect(discoveredRecipeCount(RECIPES.map((r) => dexEntry(r.id)))).toBe(25);
   });
 });
 
@@ -144,8 +144,9 @@ describe("Discovery Ladder: Dex discovered count >= step number (exhaustive, shi
   it("never deadlocks: at every count the reachable recipes let the player discover the next one", () => {
     // After `count` discoveries the player owns starters + the reached materials. There must be
     // at least `count + 1` makeable recipes (i.e. one not yet discovered) until all are found.
+    // The production pairing: RECIPES (25 since I5b-3) with the production ladder.
     for (let count = 0; count < RECIPES.length; count += 1) {
-      const owned = new Set([...REC04_STARTERS, ...ladderUnlockedMaterialIds(LADDER, count)]);
+      const owned = new Set([...REC04_STARTERS, ...ladderUnlockedMaterialIds(DISCOVERY_LADDER, count)]);
       const makeable = RECIPES.filter((r) =>
         r.requiredIngredients.every((q) => owned.has(q.ingredientId)),
       );
@@ -410,6 +411,8 @@ describe("runtime wiring boundary (I4b-3/4)", () => {
     // via ../state/materialEntitlement.ts (ladder -> Shop entitlement), ../state/gameReducer.ts
     // (first pack / refill transactions) and, from I4b-4, ../components/ShopOverlay.tsx (reads the
     // same `materialOffer`/`nextMaterialHint` the reducer charges by -- no duplicated numbers).
+    // Discovery 2.0 W1-a1: ../state/recipeChapters.ts derives the canonical chapter partition
+    // from the ladder's price tiers (OD-DISC-9) -- read-only, no numbers of its own.
     const pureLayer = new Set([
       "../data/discoveryLadder.ts",
       "./discoveryLadder.ts",
@@ -420,6 +423,7 @@ describe("runtime wiring boundary (I4b-3/4)", () => {
       "../components/ShopOverlay.tsx",
       "../state/gameReducer.ts",
       "../state/materialEntitlement.ts",
+      "../state/recipeChapters.ts",
     ];
     const importers = Object.entries(sources)
       .filter(([path]) => !pureLayer.has(path))

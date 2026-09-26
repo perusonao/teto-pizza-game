@@ -185,57 +185,79 @@ test.describe("Discovery Ladder Shop (I4b)", () => {
     await expectNoHorizontalOverflow(page, "Shop NEW + OWNED");
   });
 
-  test("multi-material NEW MATERIAL notice (step 14, three cheeses): names whole, clear of the CTA, RESULT fits", async ({
-    page,
-  }) => {
-    test.setTimeout(90_000);
-    // 13 discoveries (all but Bismarck and Quattro Formaggi) + egg bought: Free Cooking Bismarck is
-    // the 14th discovery, whose ladder step brings three materials at once -- the notice's widest
-    // case (PR #227 post-fix delta; a leading "・" once glued the names into one unbreakable run).
-    const all = [
-      "margherita", "marinara", "genovese", "funghi", "fugazza", "salsiccia", "pepperoni", "napoletana",
-      "tonno-e-cipolla", "pizza-bianca", "breakfast-pizza", "capricciosa", "meat-lovers",
-    ];
-    const save = {
-      schemaVersion: 2,
-      dex: all.map((recipeId) => ({ recipeId, discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 })),
-      pitzBalance: 100,
-      ownedIngredientIds: ["tomato-sauce", "mozzarella", "basil", "egg"],
-      missionBest: {},
-      inventory: { egg: 10 },
-      starterGrantClaimedRecipeIds: [],
-    };
-    await page.addInitScript(([key, raw]) => localStorage.setItem(key as string, JSON.stringify(raw)), [SAVE_KEY, save] as const);
-    await openHome(page);
-    await startFreeCook(page);
-    await cookPizza(page, [{ name: /たまご/, at: [[50, 50]] }]);
-    await expect(page.locator(".discovered-banner--new-pizza")).toHaveText(/ビスマルクを発見しました！/);
-    const notice = page.locator(".material-unlock-notice__message");
-    await expect(notice).toHaveText("\u{1F195} 新しい材料が入荷：フォンティーナ・ゴルゴンゾーラ・パルミジャーノ");
-    const m = await page.evaluate(() => {
-      const msg = document.querySelector(".material-unlock-notice__message")!;
-      const cta = document.querySelector(".material-unlock-notice__cta")!.getBoundingClientRect();
-      const range = document.createRange();
-      range.selectNodeContents(msg);
-      const gs = document.querySelector(".game-screen")!;
-      return {
-        // Line tops per name run; one line each means no name split.
-        nameLines: Array.from(document.querySelectorAll(".material-unlock-notice__name")).map(
-          (e) => new Set(Array.from(e.getClientRects()).map((r) => Math.round(r.top))).size,
-        ),
-        textRight: Math.max(...Array.from(range.getClientRects()).map((r) => r.right)),
-        msgRight: msg.getBoundingClientRect().right,
-        ctaLeft: cta.left,
-        overflow: gs.scrollHeight - gs.clientHeight,
+  // Progression 2.0 W1 I5b-5a: the 25-recipe ladder (I5b-3) has no 3-material step any more (the
+  // shipped-15 step 14 fontina/gorgonzola/parmigiano is gone); its widest steps are the two
+  // 2-material ones below. The 3-name layout contract lives in ResultPanel.test.tsx (I5b-4).
+  const OLD15_BUT_BISMARCK = [
+    "margherita", "marinara", "genovese", "funghi", "fugazza", "salsiccia", "pepperoni", "napoletana",
+    "tonno-e-cipolla", "pizza-bianca", "breakfast-pizza", "capricciosa", "meat-lovers", "quattro-formaggi",
+  ];
+  const W1_10 = [
+    "melanzane-pizza", "parmigiana-pizza", "bambino", "hawaiian", "pizza-portuguesa", "pesto-tonno",
+    "new-haven-apizza", "pesto-caprese", "pesto-patate", "puttanesca-pizza",
+  ];
+  const TWO_MATERIAL_STEPS = [
+    {
+      step: 11,
+      // any 10 discoveries other than Bismarck; the Free Cooking Bismarck is the 11th
+      discovered: OLD15_BUT_BISMARCK.slice(0, 10),
+      names: "ブラックオリーブ・オレガノ",
+      runs: 2,
+    },
+    {
+      step: 24,
+      // every recipe but Bismarck and Quattro Formaggi (23); Bismarck is the 24th
+      discovered: [...OLD15_BUT_BISMARCK.filter((id) => id !== "quattro-formaggi"), ...W1_10],
+      names: "フォンティーナ・ゴルゴンゾーラ",
+      runs: 2,
+    },
+  ];
+  for (const c of TWO_MATERIAL_STEPS) {
+    test(`multi-material NEW MATERIAL notice (step ${c.step}, 2 materials): names whole, clear of the CTA, RESULT fits`, async ({
+      page,
+    }) => {
+      test.setTimeout(90_000);
+      const save = {
+        schemaVersion: 2,
+        dex: c.discovered.map((recipeId) => ({ recipeId, discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 })),
+        pitzBalance: 100,
+        ownedIngredientIds: ["tomato-sauce", "mozzarella", "basil", "egg"],
+        missionBest: {},
+        inventory: { egg: 10 },
+        starterGrantClaimedRecipeIds: [],
       };
+      await page.addInitScript(([key, raw]) => localStorage.setItem(key as string, JSON.stringify(raw)), [SAVE_KEY, save] as const);
+      await openHome(page);
+      await startFreeCook(page);
+      await cookPizza(page, [{ name: /たまご/, at: [[50, 50]] }]);
+      await expect(page.locator(".discovered-banner--new-pizza")).toHaveText(/ビスマルクを発見しました！/);
+      const notice = page.locator(".material-unlock-notice__message");
+      await expect(notice).toHaveText(`\u{1F195} 新しい材料が入荷：${c.names}`);
+      const m = await page.evaluate(() => {
+        const msg = document.querySelector(".material-unlock-notice__message")!;
+        const cta = document.querySelector(".material-unlock-notice__cta")!.getBoundingClientRect();
+        const range = document.createRange();
+        range.selectNodeContents(msg);
+        const gs = document.querySelector(".game-screen")!;
+        return {
+          // Line tops per name run; one line each means no name split.
+          nameLines: Array.from(document.querySelectorAll(".material-unlock-notice__name")).map(
+            (e) => new Set(Array.from(e.getClientRects()).map((r) => Math.round(r.top))).size,
+          ),
+          textRight: Math.max(...Array.from(range.getClientRects()).map((r) => r.right)),
+          msgRight: msg.getBoundingClientRect().right,
+          ctaLeft: cta.left,
+          overflow: gs.scrollHeight - gs.clientHeight,
+        };
+      });
+      expect(m.nameLines).toEqual(Array(c.runs).fill(1));
+      expect(m.textRight, "notice text stays inside its box").toBeLessThanOrEqual(m.msgRight + 0.5);
+      expect(m.textRight, "notice text never runs under the CTA").toBeLessThanOrEqual(m.ctaLeft);
+      expect(m.overflow, "RESULT stays within its 1-screen budget").toBeLessThanOrEqual(0);
+      await expectFullyVisible(page, ".material-unlock-notice__cta", `RESULT: ショップへ CTA (step ${c.step})`);
+      await expectNoHorizontalOverflow(page, `RESULT with a step-${c.step} notice`);
     });
-    expect(m.nameLines).toEqual([1, 1, 1]);
-    expect(m.textRight, "notice text stays inside its box").toBeLessThanOrEqual(m.msgRight + 0.5);
-    expect(m.textRight, "notice text never runs under the CTA").toBeLessThanOrEqual(m.ctaLeft);
-    expect(m.overflow, "RESULT stays within its 1-screen budget").toBeLessThanOrEqual(0);
-    await expectFullyVisible(page, ".material-unlock-notice__cta", "RESULT: ショップへ CTA (3 materials)");
-    await expectNoHorizontalOverflow(page, "RESULT with a 3-material notice");
-  });
+  }
 
   test("existing EP4 save: owned materials and stock kept, ladder materials become NEW at 0", async ({ page }) => {
     const legacy = {

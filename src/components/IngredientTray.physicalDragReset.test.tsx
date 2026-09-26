@@ -2,7 +2,8 @@ import { useReducer, useState } from "react";
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { IngredientTray } from "./IngredientTray";
-import { createInitialGameState, gameReducer, type GameState, type MakingStep } from "../state/gameReducer";
+import { gameReducer, type GameState, type MakingStep } from "../state/gameReducer";
+import { createGuidedInitialState } from "../state/testSupport/guidedRound";
 import { resolvePieceDrop } from "../logic/pieceDrag";
 import { getIngredient, type Ingredient, type IngredientCategory } from "../data/ingredients";
 
@@ -48,7 +49,7 @@ const OUTSIDE_CLIENT = { x: 900, y: 900 };
 
 function Harness({ category }: { category: IngredientCategory }) {
   const [state, dispatch] = useReducer(gameReducer, undefined, () =>
-    advanceToStep(gameReducer(createInitialGameState(), { type: "BEGIN_PREPARE" }), category),
+    advanceToStep(gameReducer(createGuidedInitialState(), { type: "BEGIN_PREPARE" }), category),
   );
   const [resetToken, setResetToken] = useState(0);
 

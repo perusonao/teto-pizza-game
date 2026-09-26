@@ -22,6 +22,7 @@ import { RECIPES, type Recipe } from "../data/recipes";
 import { EMPTY_DEX } from "../state/dex";
 import { createEmptyPizza } from "../state/pizzaState";
 import { createDefaultSave, SAVE_STORAGE_KEY } from "../state/persistence";
+import { buildRecipeChapters } from "../state/recipeChapters";
 
 /**
  * Production Visual P1 (docs/reports/TETO_PROGRESS2_W1_VISUAL_PRODUCTION_PLAN.md): the
@@ -347,10 +348,10 @@ describe("render sites with every current ingredient (emoji path)", () => {
     const { container } = render(
       <ShopOverlay
         dex={EMPTY_DEX}
-        ownedIngredientIds={allIds}
+        ownedIngredientIds={emojiIds}
         unlockedForShopIngredientIds={[]}
         pitzBalance={9999}
-        inventory={Object.fromEntries(allIds.map((id) => [id, 1]))}
+        inventory={Object.fromEntries(emojiIds.map((id) => [id, 1]))}
         onPurchase={() => {}}
         onRestock={() => {}}
         onClose={() => {}}
@@ -365,11 +366,21 @@ describe("render sites with every current ingredient (emoji path)", () => {
   it("Pizza Select thumbnails show each recipe's non-cheese emoji text", () => {
     for (const recipe of RECIPES as readonly Recipe[]) {
       const { container, unmount } = render(<PizzaThumbnail recipe={recipe} />);
-      const expected = recipe.requiredIngredients
+      const pieces = recipe.requiredIngredients
         .map((req) => getIngredient(req.ingredientId)!)
-        .filter((i) => i.category !== "sauce" && i.category !== "cheese")
-        .map((i) => i.emoji);
-      expect(Array.from(container.querySelectorAll(".pizza-thumbnail__piece-emoji")).map((e) => e.innerHTML)).toEqual(expected);
+        .filter((i) => i.category !== "sauce" && i.category !== "cheese");
+      const rendered = Array.from(container.querySelectorAll(".pizza-thumbnail__piece-emoji"));
+      expect(rendered).toHaveLength(pieces.length);
+      // Emoji-path pieces render their emoji text; the W1 dedicated visuals render their SVG only.
+      rendered.forEach((e, index) => {
+        const ingredient = pieces[index];
+        if (ingredient.pieceVisual) {
+          expect(e.querySelector(`svg[data-ingredient-visual="${ingredient.pieceVisual}"]`)).not.toBeNull();
+          expect(e.textContent).toBe("");
+        } else {
+          expect(e.innerHTML).toBe(ingredient.emoji);
+        }
+      });
       unmount();
     }
   });
@@ -381,12 +392,15 @@ describe("render sites with every current ingredient (emoji path)", () => {
     );
     const chips = Array.from(container.querySelectorAll(".dex-card__ingredient"));
     expect(chips.length).toBeGreaterThan(0);
-    const expected = RECIPES.flatMap((r) => r.requiredIngredients.map((req) => {
+    // W1-f: the Dex lists recipes by canonical chapter (6 / 9 / 10), RECIPES order inside each.
+    const expected = buildRecipeChapters().flatMap((c) => c.recipes).flatMap((r) => r.requiredIngredients.map((req) => {
       const i = getIngredient(req.ingredientId)!;
-      return `${i.emoji} ${i.nameJa}`;
+      return i.pieceVisual ? ` ${i.nameJa}` : `${i.emoji} ${i.nameJa}`;
     }));
     expect(chips.map((c) => c.textContent)).toEqual(expected);
-    expect(container.querySelector(".dex-card__ingredient svg")).toBeNull();
+    // Only the W1 dedicated-visual ingredients (capers / clam / fresh-tomato) draw an SVG chip.
+    const dedicatedChips = (RECIPES as readonly Recipe[]).flatMap((r) => r.requiredIngredients).filter((q) => getIngredient(q.ingredientId)!.pieceVisual);
+    expect(container.querySelectorAll(".dex-card__ingredient svg")).toHaveLength(dedicatedChips.length);
   });
 });
 

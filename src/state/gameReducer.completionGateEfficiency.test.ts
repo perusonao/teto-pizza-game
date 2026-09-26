@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { createInitialGameState, gameReducer, type GameState } from "./gameReducer";
+import { gameReducer, type GameState } from "./gameReducer";
 import { getRecipe } from "../data/recipes";
 import { buildIdealSauceFixture, getReferencePizza } from "../data/referencePizza";
 import { createEmptyPizza, type PizzaState } from "./pizzaState";
 import type { CookingTimingState } from "../logic/cookingTiming";
 import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
+import { createGuidedInitialState } from "./testSupport/guidedRound";
 
 /**
  * Cooking Time CT2 x Completion Gate Phase 1 integration (see
@@ -68,7 +69,7 @@ function playToResult(
   scoreOverride?: number,
 ): GameState {
   const recipe = getRecipe("margherita")!;
-  let state: GameState = { ...createInitialGameState(), recipe, pizza };
+  let state: GameState = { ...createGuidedInitialState(), recipe, pizza };
   state = gameReducer(state, { type: "START_BAKE" });
   state = gameReducer(state, { type: "CONFIRM_BAKE", value: pizza.bakeResult ?? recipe.bakeTarget.start });
   state = walkPostBakeToResult(state);

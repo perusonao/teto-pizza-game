@@ -254,8 +254,9 @@ describe("isRecipeAvailable (two-axis AND: recipeUnlocked && ingredients owned)"
     expect(isRecipeAvailable(margherita, EMPTY_DEX, STARTER_INGREDIENT_IDS)).toBe(true);
   });
 
-  it("every other recipe is unavailable on a fresh save, even with every ingredient owned (recipe-unlock axis blocks it)", () => {
-    const others = RECIPES.filter((r) => r.id !== "margherita");
+  it("every other shipped-15 recipe is unavailable on a fresh save, even with every ingredient owned (recipe-unlock axis blocks it)", () => {
+    // The 10 W1 recipes have no unlockCondition (OD-I5B-2) -- see the next test.
+    const others = (RECIPES as readonly Recipe[]).filter((r) => r.id !== "margherita" && r.unlockCondition);
     expect(others).toHaveLength(14);
     const ownedEverything = [
       ...STARTER_INGREDIENT_IDS,
@@ -271,6 +272,30 @@ describe("isRecipeAvailable (two-axis AND: recipeUnlocked && ingredients owned)"
     ];
     for (const recipe of others) {
       expect(isRecipeAvailable(recipe, EMPTY_DEX, ownedEverything)).toBe(false);
+    }
+  });
+
+  it("OD-I5B-2: the 10 W1 recipes have no recipe gate -- on a fresh save they are available exactly when their materials are owned", () => {
+    const w1 = (RECIPES as readonly Recipe[]).filter((r) => !r.unlockCondition && r.id !== "margherita");
+    expect(w1.map((r) => r.id).sort()).toEqual(
+      [
+        "bambino",
+        "hawaiian",
+        "melanzane-pizza",
+        "new-haven-apizza",
+        "parmigiana-pizza",
+        "pesto-caprese",
+        "pesto-patate",
+        "pesto-tonno",
+        "pizza-portuguesa",
+        "puttanesca-pizza",
+      ],
+    );
+    for (const recipe of w1) {
+      expect(recipeUnlocked(recipe, EMPTY_DEX)).toBe(true);
+      const needed = recipe.requiredIngredients.map((q) => q.ingredientId);
+      expect(isRecipeAvailable(recipe, EMPTY_DEX, [...STARTER_INGREDIENT_IDS, ...needed])).toBe(true);
+      expect(isRecipeAvailable(recipe, EMPTY_DEX, [...STARTER_INGREDIENT_IDS])).toBe(false);
     }
   });
 

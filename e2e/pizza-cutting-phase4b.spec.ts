@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { runOnlyOnWidth } from "./support/projectGuard";
 import {
   bakeToTarget,
   completeDoughStep,
@@ -119,6 +120,7 @@ test.describe("Scenario C: topping-heavy recipe CUT at the secondary 360x800 vie
     page,
   }) => {
     test.setTimeout(30_000);
+    runOnlyOnWidth(test.info(), 360);
     await page.setViewportSize({ width: 360, height: 800 });
     await startCapricciosaUnlocked(page);
 

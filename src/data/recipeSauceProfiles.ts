@@ -104,6 +104,60 @@ export const RECIPE_SAUCE_PROFILES: Readonly<Record<RecipeId, RecipeSauceProfile
     ingredientId: "tomato-sauce",
     interaction: "PAINT",
   },
+  // Progression 2.0 W1 I5b-3: the 10 W1 recipes. Each follows the shipped profile for its sauce:
+  // tomato-sauce / pesto PAINT, olive-oil PAINT_TEMPORARY (quattro-formaggi / fugazza /
+  // pizza-bianca). New Haven's olive-oil keeps that existing behaviour -- no new mechanic.
+  "melanzane-pizza": {
+    recipeId: "melanzane-pizza",
+    ingredientId: "tomato-sauce",
+    interaction: "PAINT",
+  },
+  "parmigiana-pizza": {
+    recipeId: "parmigiana-pizza",
+    ingredientId: "tomato-sauce",
+    interaction: "PAINT",
+  },
+  bambino: {
+    recipeId: "bambino",
+    ingredientId: "tomato-sauce",
+    interaction: "PAINT",
+  },
+  hawaiian: {
+    recipeId: "hawaiian",
+    ingredientId: "tomato-sauce",
+    interaction: "PAINT",
+  },
+  "pizza-portuguesa": {
+    recipeId: "pizza-portuguesa",
+    ingredientId: "tomato-sauce",
+    interaction: "PAINT",
+  },
+  "pesto-tonno": {
+    recipeId: "pesto-tonno",
+    ingredientId: "pesto",
+    interaction: "PAINT",
+  },
+  "new-haven-apizza": {
+    recipeId: "new-haven-apizza",
+    ingredientId: "olive-oil",
+    // TODO: olive-oil -> DRIZZLE candidate.
+    interaction: "PAINT_TEMPORARY",
+  },
+  "pesto-caprese": {
+    recipeId: "pesto-caprese",
+    ingredientId: "pesto",
+    interaction: "PAINT",
+  },
+  "pesto-patate": {
+    recipeId: "pesto-patate",
+    ingredientId: "pesto",
+    interaction: "PAINT",
+  },
+  "puttanesca-pizza": {
+    recipeId: "puttanesca-pizza",
+    ingredientId: "tomato-sauce",
+    interaction: "PAINT",
+  },
 };
 
 export function getRecipeSauceProfile(recipeId: RecipeId): RecipeSauceProfile {

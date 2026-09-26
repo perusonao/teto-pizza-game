@@ -3419,6 +3419,14 @@
   min-height: 48px;
 }
 
+/* W1 I5b-4: before the first discovery, フリークッキング is the primary CTA -- same full-width row,
+   primary height/size, one line ("🎨 フリークッキングで探す" fits 328px+ without wrapping). */
+.cta-button--free-cook-lead {
+  min-height: 54px;
+  font-size: 16px;
+  white-space: nowrap;
+}
+
 /* Progression 2.0 Phase 3-3 (Issue #198): the "why is ランチラッシュ disabled" reason line --
    same copy/color family as .pizza-select-card__unlock-hint, so a locked CTA's reason always
    reads the same way across HOME and Pizza Select. */
@@ -3523,6 +3531,56 @@
   color: #6b4226;
 }
 
+/* W1 Discovery 2.0 (A′): the chapter heading counts undiscovered recipes only as a number (L1). */
+.pizza-select-section__title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.pizza-select-section__count {
+  font-size: 12px;
+  font-weight: 700;
+  color: #a1662f;
+  white-space: nowrap;
+}
+
+/* W1 Discovery 2.0 (A′): the one anonymous "discovery chance" card -- never a recipe's name,
+   preview or ingredients. */
+.pizza-select-prompt {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 16px;
+  border: 2px dashed #e0a14a;
+  background: linear-gradient(180deg, #fff7e6 0%, #ffeccc 100%);
+  box-shadow: 0 2px 6px rgba(107, 66, 38, 0.12);
+}
+
+.pizza-select-prompt--shop {
+  border-color: #7fb069;
+  background: linear-gradient(180deg, #f3fbef 0%, #e3f3dc 100%);
+}
+
+.pizza-select-prompt__message {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.4;
+  color: #4a2e0a;
+}
+
+.pizza-select-prompt__cta {
+  align-self: stretch;
+  min-height: 48px;
+}
+
+.pizza-select-detail__shop {
+  margin-top: 4px;
+}
+
 .pizza-select-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -3576,6 +3634,26 @@
 .pizza-select-grid-card .pizza-select-card__lock-label {
   font-size: 14px;
   line-height: 1.2;
+}
+
+/* W1 I5b-4: 25 recipes bring names up to 12 full-width chars (「ニューヘイブンアピッツァ」). At 360px a
+   card is ~138px inside, so 14px names broke mid-word (「ブレックファストピ／ザ」). The card is an
+   inline-size container and the name shrinks to fit its `--name-chars` on one line (11-14px, with
+   8px of slack for rounded glyph advances); normal wrapping stays as the fallback, so nothing can
+   overflow. */
+.pizza-select-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.pizza-select-grid-card {
+  container-type: inline-size;
+}
+
+@supports (width: 1cqi) {
+  .pizza-select-grid-card .pizza-select-card__name,
+  .pizza-select-grid-card .pizza-select-card__lock-label {
+    font-size: clamp(11px, calc((100cqi - 8px) / var(--name-chars, 1)), 14px);
+  }
 }
 
 .pizza-select-grid-card .pizza-select-card__unlock-hint {
@@ -4393,4 +4471,258 @@
   background: #ffffff;
   border-radius: 999px;
   padding: 4px 8px;
+}
+
+/* W1 Discovery 2.0 (W1-f): the Dex grouped by the canonical chapters; undiscovered slots show only
+   ？？？ and, for the "next" ones, a state tag (L1). */
+.dex-overlay__chapter {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dex-overlay__chapter-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 6px 2px 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: #6b4226;
+}
+
+.dex-overlay__chapter-count {
+  font-size: 12px;
+  font-weight: 700;
+  color: #a1662f;
+  white-space: nowrap;
+}
+
+.dex-card__no {
+  font-size: 11px;
+  font-weight: 700;
+  color: #a1662f;
+  margin-right: 2px;
+}
+
+.dex-card--tagged {
+  border-style: dashed;
+  border-color: #e0a14a;
+}
+
+.dex-card__tag-cta {
+  margin-top: 6px;
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: #e4572e;
+  color: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+/* W1 Discovery 2.0 (W1-e): small inline badges inside the existing HOME menu cards -- no new CTA,
+   row or layout change to the I5b-4 2+1 skeleton. */
+.home-menu__badge {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: #e4572e;
+  color: #fff;
+  font-size: 9.5px;
+  font-weight: 800;
+  line-height: 1.4;
+  vertical-align: 1px;
+  white-space: nowrap;
+}
+
+/* ---------- Progression 2.0 W1 I5b-4b: Cooking layout contract ----------
+   docs/reports/TETO_PROGRESS2_W1_I5B4_UIUX_FRESH-AUDIT.md §3 (BAKE CTA off-screen, F-3) and §4
+   (pager under the fixed bar, F-4). PREPARE / BAKE / CUT used to rely on a fixed-position CTA
+   bar plus fixed px reserves inside `calc(100dvh - 430px / 439px)` -- which knew nothing about
+   safe-area insets, the Lunch Rush HUD, a wrapped hint line or the ingredient pager, so on a short
+   visible viewport (390x664 / 360x640, + inset) the pager slid ~80px under the bar and
+   「取り出す！」 left the screen. Now the structure itself guarantees the order:
+
+     .game-screen--cooking (flex column, exactly the frame's height)
+       header / HUD / tabs / order-card      flex: none
+       .pizza-stage (compact | roomy)        flex: 1 1 0, min-height 0, size container
+         .pizza-dough = min(vw cap, px cap, the stage's own height)
+       CUT readout / bake overlay / tray     flex: none
+       pager (always laid out)               flex: none
+       .prepare-bake-bar (in-flow)           flex: none, padding-bottom includes the inset
+   The pizza is the only thing that gives way; nothing can sit under the CTA bar. Pointer and
+   gesture math already reads the dough's live getBoundingClientRect(), so it is unaffected. */
+.game-screen--cooking > * {
+  flex: none;
+}
+
+.game-screen--cooking > .pizza-stage--compact,
+.game-screen--cooking > .pizza-stage--roomy {
+  flex: 1 1 0;
+  min-height: 0;
+  container-type: size;
+}
+
+.game-screen--cooking > .pizza-stage--compact .pizza-dough {
+  width: min(76vw, 290px, 100cqh);
+  height: min(76vw, 290px, 100cqh);
+}
+
+.game-screen--cooking > .pizza-stage--roomy .pizza-dough {
+  width: min(92vw, 380px, 100cqh);
+  height: min(92vw, 380px, 100cqh);
+}
+
+.game-screen--cooking .prepare-bake-bar {
+  position: relative;
+  left: auto;
+  transform: none;
+  bottom: auto;
+  width: auto;
+  max-width: none;
+  margin-top: 0;
+}
+
+/* Nothing to reserve for any more: the bar is in-flow after the tray. */
+.game-screen--cooking .ingredient-panel {
+  --bake-bar-reserve: 0px;
+  padding-bottom: 0;
+}
+
+/* The audit's fixed 8px spacer between whatever sits directly above the CTA bar (the tray and
+   pager, the bake Guide, the CUT readout) and the bar itself. The stage never needs it: its own
+   padding already separates the dough from the bar. */
+.game-screen--cooking > :not(.pizza-stage):has(+ .prepare-bake-bar) {
+  margin-bottom: 8px;
+}
+
+/* One page: the pager row keeps its height (no layout jump when a category gains a page) but is
+   invisible and never a tap target. */
+.ingredient-page-nav--placeholder {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* BAKE: the Guide (flame, caption, gauge) stays; only its vertical padding tightens now that
+   「取り出す！」 lives in the bottom bar (audit §3 c). */
+.game-screen--cooking .bake-overlay {
+  gap: 8px;
+  padding: 4px 24px 0;
+}
+
+.game-screen--cooking .bake-oven__flame {
+  font-size: 32px;
+}
+
+/* ---------- Progression 2.0 W1-d: Discovery Result (NEW_DISCOVERY only) ----------
+   Discovery-first order inside the same ResultPanel (design §18.2 variant b): NEW PIZZA + name ->
+   Dex registration row (+ 「📖 図鑑を見る」) -> ★ / score / Pitz on one line -> material arrival.
+   The bottom CTA bar is the existing one, untouched. */
+.result-panel--discovery .discovered-banner--new-pizza {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+}
+
+.discovered-banner__stamp {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.result-panel--discovery .discovered-banner__name {
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+.dex-registration-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  width: 100%;
+}
+
+.dex-registration-row__text {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: #4a2e0a;
+}
+
+.dex-registration-row__slot {
+  font-weight: 700;
+  color: #a1662f;
+  white-space: nowrap;
+}
+
+.dex-registration-row__cta {
+  min-height: 36px;
+  padding: 6px 14px;
+  border: 2px solid #d9b876;
+  border-radius: 999px;
+  background: #fffaf0;
+  color: #6b4226;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.result-panel__headline--inline {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px 10px;
+}
+
+.result-panel__pitz-inline {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: #b3260a;
+}
+
+.result-panel__pitz-bonus {
+  font-size: 12px;
+  font-weight: 700;
+  color: #a1662f;
+}
+
+/* ---------- Progression 2.0 W1 I5b-5: Lunch Rush serve screen (Layout Contract L-A, P0) ----------
+   The I5b-5 Layout Contract (e2e/layout-contract.spec.ts, LC-3) found 「次の注文へ」 inside the
+   bottom safe-area inset on the envelope profiles (390x664 / 360x640 + 47/34 inset): the serve
+   panel had no inset padding and the pizza above it kept its fixed min(78vw, 300px). The same
+   rule as the I5b-4b cooking skeleton, scoped to this one screen: the stage starts at exactly its
+   old height (dough + its 8px vertical padding), may only shrink -- never grow -- and the dough
+   follows the stage's own height, so N / S profiles render unchanged and only a too-short
+   viewport gives way in the pizza, never under the CTA. */
+.game-screen:has(> .mission-serve-panel) > .pizza-stage {
+  flex: 0 1 calc(min(78vw, 300px) + 8px);
+  min-height: 0;
+  container-type: size;
+}
+
+.game-screen:has(> .mission-serve-panel) > .pizza-stage .pizza-dough {
+  width: min(78vw, 300px, 100cqh);
+  height: min(78vw, 300px, 100cqh);
+}
+
+.mission-serve-panel {
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
 }

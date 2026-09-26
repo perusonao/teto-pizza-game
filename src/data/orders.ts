@@ -98,6 +98,68 @@ export const ORDERS: Order[] = [
     requestedBy: "mito",
     lineJa: "お肉たっぷりのミートラヴァーズが食べたいな！ベーコンもハムもペパロニもソーセージも全部のせて！",
   },
+  // Progression 2.0 W1 I5b-3: the 10 W1 orders. `lineJa` is OD-I5B-1's owner-approved copy,
+  // verbatim (docs/reports/TETO_PROGRESS2_W1_I5B_FRESH-AUDIT.md §17).
+  {
+    id: "order-melanzane-pizza",
+    recipeId: "melanzane-pizza",
+    requestedBy: "mito",
+    lineJa: "ナスがのったメランザーネピザが食べたいな！バジルの香りもお願いね！",
+  },
+  {
+    id: "order-parmigiana-pizza",
+    recipeId: "parmigiana-pizza",
+    requestedBy: "mito",
+    lineJa: "ナスとパルミジャーノのパルミジャーナピザ、南イタリア風で気になるな！作ってみて！",
+  },
+  {
+    id: "order-bambino",
+    recipeId: "bambino",
+    requestedBy: "mito",
+    lineJa: "ハムとコーンのバンビーノ、やさしい甘さで食べやすそう！食べてみたいな！",
+  },
+  {
+    id: "order-hawaiian",
+    recipeId: "hawaiian",
+    requestedBy: "mito",
+    lineJa: "パイナップルがのったハワイアンピザ、甘じょっぱくて気になるな！作ってみて！",
+  },
+  {
+    id: "order-pizza-portuguesa",
+    recipeId: "pizza-portuguesa",
+    requestedBy: "mito",
+    lineJa: "ブラジル定番のピッツァ・ポルトゲーザが食べたいな！ハムも卵ものせてね！",
+  },
+  {
+    id: "order-pesto-tonno",
+    recipeId: "pesto-tonno",
+    requestedBy: "mito",
+    lineJa: "ジェノベーゼソースとツナのペストトンノピザ、さわやかそう！食べてみたいな！",
+  },
+  {
+    id: "order-new-haven-apizza",
+    recipeId: "new-haven-apizza",
+    requestedBy: "mito",
+    lineJa: "あさりとにんにくのニューヘイブン風ピザが食べたいな！香ばしく焼いてね！",
+  },
+  {
+    id: "order-pesto-caprese",
+    recipeId: "pesto-caprese",
+    requestedBy: "mito",
+    lineJa: "ジェノベーゼソースにトマトをのせたペストカプレーゼピザ、さわやかで気になるな！",
+  },
+  {
+    id: "order-pesto-patate",
+    recipeId: "pesto-patate",
+    requestedBy: "mito",
+    lineJa: "じゃがいもとベーコンのペストパターテピザ、ほくほくで食べてみたいな！",
+  },
+  {
+    id: "order-puttanesca-pizza",
+    recipeId: "puttanesca-pizza",
+    requestedBy: "mito",
+    lineJa: "アンチョビとケッパーがきいたプッタネスカ、塩味と香りが強いんだって！作ってみて！",
+  },
 ];
 
 /** Looks up the one Order for an explicit recipe id (Issue #39 Pizza Select: every recipe in
@@ -156,4 +218,28 @@ export function getNextOrder(options: NextOrderOptions = {}): Order {
       : avoidRepeat(pool, options.excludeRecipeId);
 
   return pickRandom(finalPool);
+}
+
+export interface NextFreeOrderOptions {
+  /** Recipe ids a guided round may start for right now: DISCOVERED and cookable
+   *  (`canStartGuidedRound`, ../state/recipeDiscoveryState.ts). */
+  guidedRecipeIds: readonly string[];
+  /** Prefer the margherita order when it is in the pool (the very first round of a session). */
+  preferFirst?: boolean;
+  /** Avoid repeating this recipe id when picking randomly (used on replay). */
+  excludeRecipeId?: string;
+}
+
+/**
+ * Progression 2.0 W1 Discovery 2.0 (LK-8 / NF-1): the FREE order pool. Orders only for
+ * `guidedRecipeIds` (DISCOVERED ∩ cookable), never undiscovered-first, and **fail closed**: an
+ * empty pool returns `null` instead of falling back to every order (`getNextOrder`'s free-play
+ * fallback would hand out an undiscovered recipe's name and reference). The caller starts a
+ * Free Cooking round instead.
+ */
+export function getNextFreeOrder(options: NextFreeOrderOptions): Order | null {
+  const pool = ORDERS.filter((o) => options.guidedRecipeIds.includes(o.recipeId));
+  if (pool.length === 0) return null;
+  if (options.preferFirst) return pool.find((o) => o.recipeId === "margherita") ?? pool[0];
+  return pickRandom(avoidRepeat(pool, options.excludeRecipeId));
 }

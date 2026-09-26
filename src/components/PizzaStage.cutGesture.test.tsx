@@ -2,7 +2,8 @@ import "@testing-library/jest-dom/vitest";
 import { useReducer } from "react";
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { createInitialGameState, gameReducer, type GameState } from "../state/gameReducer";
+import { gameReducer, type GameState } from "../state/gameReducer";
+import { createGuidedInitialState } from "../state/testSupport/guidedRound";
 import { PizzaStage } from "./PizzaStage";
 import type { CutLine } from "../logic/cut/types";
 
@@ -24,7 +25,7 @@ const DOUGH_RECT = {
 
 /** margherita, fresh off CONFIRM_BAKE -- POST_BAKE, makingStep "CUT", zero committed lines. */
 function preparedCutState(): GameState {
-  let state = createInitialGameState();
+  let state = createGuidedInitialState();
   state = gameReducer(state, { type: "BEGIN_PREPARE" });
   state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // DOUGH -> SAUCE
   state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // SAUCE -> CHEESE

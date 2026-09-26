@@ -58,7 +58,21 @@ test.describe("Static screens fit the viewport with no page/body scroll", () => 
 
 test.describe("Recipe Select: browse grid scrolls internally, not the page", () => {
   test("grid content overflows its own scroll region, never the document", async ({ page }) => {
-    await freshHome(page);
+    // Discovery 2.0 (A′): Pizza Select lists discovered recipes only, so the long-content case is a
+    // save that has discovered the 15 shipped recipes.
+    await page.addInitScript(() => {
+      const ids = ["margherita", "marinara", "quattro-formaggi", "genovese", "bismarck", "funghi", "fugazza", "salsiccia",
+        "pepperoni", "napoletana", "tonno-e-cipolla", "pizza-bianca", "breakfast-pizza", "capricciosa", "meat-lovers"];
+      localStorage.setItem("teto-pizza-save-v1", JSON.stringify({
+        schemaVersion: 1,
+        dex: ids.map((recipeId) => ({ recipeId, discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 })),
+        pitzBalance: 0,
+        ownedIngredientIds: ["tomato-sauce", "mozzarella", "basil"],
+        missionBest: {},
+      }));
+    });
+    await page.goto("/");
+    await page.waitForSelector(".app-frame");
     await page.getByRole("button", { name: /ピザを作る/ }).click();
 
     const s = await pageScrollState(page);
@@ -68,7 +82,7 @@ test.describe("Recipe Select: browse grid scrolls internally, not the page", () 
       const el = document.querySelector(".pizza-select-body")!;
       return { scrollHeight: el.scrollHeight, clientHeight: el.clientHeight, overflowY: getComputedStyle(el).overflowY };
     });
-    // The grid (15 recipes) is a known long-content case -- it's expected to overflow its own
+    // The grid (15 discovered recipes) is a known long-content case -- it's expected to overflow its own
     // region and scroll there, just never the page.
     expect(body.overflowY).toBe("auto");
     expect(body.scrollHeight).toBeGreaterThan(body.clientHeight);
@@ -175,16 +189,16 @@ test.describe("Weekly Ranking modal sizes to content, not a fixed 80dvh", () => 
 });
 
 /** Progression 2.0 Phase 3-3 (Issue #198): Lunch Rush stays locked until the player's first
- *  discovery -- seeds one harmless, deeply chain-gated discovery (mirrors
- *  e2e/gestures.ts's `startFreshMargherita`/`startLunchRushMission` own comment) purely to clear
- *  that gate. Every caller in this file tests layout/navigation, not onboarding. */
+ *  discovery -- seeds margherita as discovered (mirrors e2e/gestures.ts's
+ *  `startFreshMargherita`/`startLunchRushMission`) to clear that gate and give Lunch Rush a
+ *  discovered order. Every caller in this file tests layout/navigation, not onboarding. */
 async function seedLunchRushUnlockedOnly(page: import("@playwright/test").Page) {
   await page.addInitScript(() => {
     localStorage.setItem(
       "teto-pizza-save-v1",
       JSON.stringify({
         schemaVersion: 1,
-        dex: [{ recipeId: "napoletana", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }],
+        dex: [{ recipeId: "margherita", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }],
         pitzBalance: 0,
         ownedIngredientIds: ["tomato-sauce", "mozzarella", "basil"],
         missionBest: {},

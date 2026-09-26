@@ -6,6 +6,7 @@ import { createDefaultSave } from "./persistence";
 import { requiredCutCount } from "../logic/cut/evaluation";
 import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
 import { DOUGH_CENTER, DOUGH_RADIUS } from "../logic/pizzaCoordinates";
+import { createGuidedInitialState } from "./testSupport/guidedRound";
 
 const MARGHERITA_DISCOVERED_DEX = registerScoreToDex(EMPTY_DEX, "margherita", {
   total: 80,
@@ -49,7 +50,7 @@ function commitRequiredCutLines(state: GameState): GameState {
  */
 
 function preparedState(now = 0): GameState {
-  return gameReducer(createInitialGameState(), { type: "BEGIN_PREPARE", now });
+  return gameReducer(createGuidedInitialState(), { type: "BEGIN_PREPARE", now });
 }
 
 function withProfile(state: GameState, profile: CookingProfile): GameState {
@@ -62,7 +63,7 @@ function confirmAt(state: GameState, now: number): GameState {
 
 describe("1. Timing initial state", () => {
   it("a fresh initial GameState (ORDER, before any BEGIN_PREPARE) has no cookingTiming at all", () => {
-    const state = createInitialGameState();
+    const state = createGuidedInitialState();
     expect(state.phase).toBe("ORDER");
     expect(state.cookingTiming).toBeNull();
   });
@@ -78,7 +79,7 @@ describe("2. PREPARE start: DOUGH timing starts", () => {
   });
 
   it("omitting `now` leaves cookingTiming null entirely -- no per-step timing without the whole-round clock", () => {
-    const state = gameReducer(createInitialGameState(), { type: "BEGIN_PREPARE" });
+    const state = gameReducer(createGuidedInitialState(), { type: "BEGIN_PREPARE" });
     expect(state.cookingTiming).toBeNull();
   });
 });

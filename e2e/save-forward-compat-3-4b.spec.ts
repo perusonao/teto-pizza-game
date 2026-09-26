@@ -40,7 +40,7 @@ test("a save carrying future recipe/ingredient data loads unchanged and survives
 
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(/1\/15/);
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(/1\/25/);
   await expect(page.getByRole("button", { name: /ランチラッシュ/ })).toBeEnabled();
 
   const readSave = () =>
@@ -61,7 +61,7 @@ test("a save carrying future recipe/ingredient data loads unchanged and survives
 
   await page.reload();
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(/1\/15/);
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(/1\/25/);
   const reloaded = await readSave();
   expect(reloaded.dex).toContainEqual(FUTURE_SAVE.dex[1]);
   expect(reloaded.ownedIngredientIds).toContain("calabresa");

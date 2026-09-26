@@ -3,6 +3,7 @@ import mitoImg from "../assets/characters/mito.webp";
 import blueImg from "../assets/characters/blue.webp";
 import { RECIPES } from "../data/recipes";
 import type { DexState } from "../state/dex";
+import { homeBubbleJa } from "../state/homeBubble";
 
 /**
  * HOME screen (Issue #24, visual pass Issue #39 PS3). The app's landing screen and
@@ -55,6 +56,13 @@ interface HomeScreenProps {
    *  を見る" button (`isRankingOpen`/`setRankingOpen`) -- HOME just gets a second entry point
    *  into that one piece of state, never a second ranking UI or fetch path. */
   onOpenRanking: () => void;
+  /** Progression 2.0 W1 Discovery 2.0 (W1-e): derived, never persisted. NEW materials waiting in
+   *  the Shop (unlocked, not bought yet) -> a "NEW n" badge on the Shop card. */
+  newShopMaterialCount?: number;
+  /** A recipe was discovered this round (transient `justDiscovered`) -> "NEW" on the Dex card. */
+  dexHasNew?: boolean;
+  /** Undiscovered recipes cookable with what the player owns right now (DISCOVERABLE). */
+  discoverableCount?: number;
 }
 
 export function HomeScreen({
@@ -71,6 +79,9 @@ export function HomeScreen({
   onOpenInventory,
   onOpenSettings,
   onOpenRanking,
+  newShopMaterialCount = 0,
+  dexHasNew = false,
+  discoverableCount = 0,
 }: HomeScreenProps) {
   const totalRecipes = RECIPES.length;
   const discoveredCount = dex.filter((e) => e.discovered).length;
@@ -103,9 +114,7 @@ export function HomeScreen({
       <section className="home-hero">
         <div className="home-hero__oven-glow" aria-hidden="true" />
         <div className="home-hero__bubble">
-          {lunchRushLocked
-            ? "まずはフリークッキングで最初の1枚を見つけよう！"
-            : "今日はどんなピザを作ろう？"}
+          {homeBubbleJa({ lunchRushLocked, newShopMaterialCount, discoverableCount })}
         </div>
         <div className="home-hero__cast">
           <img className="home-hero__sidekick home-hero__sidekick--mito" src={mitoImg} alt="ミト" />
@@ -115,40 +124,26 @@ export function HomeScreen({
       </section>
 
       <div className="home-cta-row">
-        {/* Progression 2.0 Phase 3-3 (Issue #198, Recipe Select design option C): before the
-            player's first-ever discovery, フリークッキング takes the primary (visually leading)
-            CTA slot -- Free Cooking is the actual discovery path. 「ピザを作る」 never
-            disappears (it still opens Pizza Select, whose own margherita card routes back into
-            Free Cooking too, see PizzaSelectScreen) -- only its styling/position demotes to
-            secondary while locked, so every existing HOME -> Pizza Select navigation stays
-            reachable. Swaps back to the original ピザを作る-primary layout the instant
-            anything is discovered. */}
-        {lunchRushLocked && onStartFreeCook ? (
-          <>
-            <button
-              type="button"
-              className="cta-button cta-button--primary cta-button--home"
-              onClick={onStartFreeCook}
-            >
-              {"\u{1F3A8}"} フリークッキングで探す
-            </button>
-            <button
-              type="button"
-              className="cta-button cta-button--secondary cta-button--home-secondary"
-              onClick={onStartFreePlay}
-            >
-              {"\u{1F355}"} ピザを作る
-            </button>
-          </>
-        ) : (
-          <button
-            type="button"
-            className="cta-button cta-button--primary cta-button--home"
-            onClick={onStartFreePlay}
-          >
-            {"\u{1F355}"} ピザを作る
-          </button>
-        )}
+        {/* Progression 2.0 Phase 3-3 (Issue #198, Recipe Select design option C) + W1 I5b-4: the
+            HOME CTAs always keep the same 2+1 skeleton -- 「ピザを作る」 / 「ランチラッシュ」 on the top
+            row, a full-width フリークッキング row below -- in the same DOM order (focus/reading
+            order = visual order). Before the player's first-ever discovery only the *emphasis*
+            moves: フリークッキング (the actual discovery path) takes the primary styling as
+            「フリークッキングで探す」, 「ピザを作る」 demotes to secondary but never disappears (it
+            still opens Pizza Select, whose margherita card routes back into Free Cooking, see
+            PizzaSelectScreen), and ランチラッシュ stays disabled. The earlier fresh-save layout put
+            all three in one row, where each label wrapped into a 5-7 line pill at 390/360px. */}
+        <button
+          type="button"
+          className={
+            lunchRushLocked && onStartFreeCook
+              ? "cta-button cta-button--secondary cta-button--home-secondary"
+              : "cta-button cta-button--primary cta-button--home"
+          }
+          onClick={onStartFreePlay}
+        >
+          {"\u{1F355}"} ピザを作る
+        </button>
         <button
           type="button"
           className="cta-button cta-button--secondary cta-button--home-secondary"
@@ -158,17 +153,24 @@ export function HomeScreen({
         >
           {"\u{23F1}\u{FE0F}"} ランチラッシュ
         </button>
-        {/* Last in the DOM so keyboard/screen-reader order matches the visual rows. Hidden once
-            it's already the primary CTA above, so it's never shown twice. */}
-        {onStartFreeCook && !lunchRushLocked && (
-          <button
-            type="button"
-            className="cta-button cta-button--secondary cta-button--home-secondary cta-button--free-cook"
-            onClick={onStartFreeCook}
-          >
-            {"\u{1F3A8}"} フリークッキング
-          </button>
-        )}
+        {onStartFreeCook &&
+          (lunchRushLocked ? (
+            <button
+              type="button"
+              className="cta-button cta-button--primary cta-button--home cta-button--free-cook cta-button--free-cook-lead"
+              onClick={onStartFreeCook}
+            >
+              {"\u{1F3A8}"} フリークッキングで探す
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="cta-button cta-button--secondary cta-button--home-secondary cta-button--free-cook"
+              onClick={onStartFreeCook}
+            >
+              {"\u{1F3A8}"} フリークッキング
+            </button>
+          ))}
         {lunchRushLocked && (
           <p className="home-lunch-rush-hint">
             {"\u{1F512}"} まず1枚ピザを発見しよう
@@ -179,14 +181,20 @@ export function HomeScreen({
       <section className="home-menu" aria-label="メニュー">
         <button type="button" className="home-menu__card" onClick={onOpenDex}>
           <span className="home-menu__icon">{"\u{1F4D6}"}</span>
-          <span className="home-menu__label">ピザ図鑑</span>
+          <span className="home-menu__label">
+            ピザ図鑑
+            {dexHasNew && <span className="home-menu__badge">NEW</span>}
+          </span>
           <span className="home-menu__sub">
             発見 {discoveredCount}/{totalRecipes}
           </span>
         </button>
         <button type="button" className="home-menu__card" onClick={onOpenShop}>
           <span className="home-menu__icon">{"\u{1F3EA}"}</span>
-          <span className="home-menu__label">ショップ</span>
+          <span className="home-menu__label">
+            ショップ
+            {newShopMaterialCount > 0 && <span className="home-menu__badge">NEW {newShopMaterialCount}</span>}
+          </span>
           <span className="home-menu__sub">所持 Pitz {pitzBalance}</span>
         </button>
         <button type="button" className="home-menu__card" onClick={onOpenInventory}>

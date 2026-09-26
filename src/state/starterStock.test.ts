@@ -7,6 +7,7 @@ import { createInitialGameState, gameReducer, type GameState } from "./gameReduc
 import type { QualityStars } from "../logic/scoring";
 import { getRecipe } from "../data/recipes";
 import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
+import { createGuidedInitialState } from "./testSupport/guidedRound";
 
 /**
  * Economy & Progression 1.0 EP4: dedicated unit/integration tests for the Starter Grant
@@ -604,7 +605,7 @@ describe("Starter Grant integration via the reducer (REGISTER_TO_DEX / MISSION_N
   /** Plays margherita through PREPARE -> BAKE -> RESULT, scoring inside its perfect zone. */
   function playMargheritaToResult(
     isMissionRound = false,
-    initial: GameState = createInitialGameState(),
+    initial: GameState = createGuidedInitialState(),
   ): GameState {
     let state = initial;
     if (isMissionRound) state = gameReducer(state, { type: "MISSION_RESET_ORDER" });

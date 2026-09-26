@@ -8,6 +8,7 @@ import { buildIdealSauceFixture, getReferencePizza } from "../data/referencePizz
 import { createEmptyPizza, type PizzaState } from "./pizzaState";
 import { getCookingProfile } from "../data/cookingProfiles";
 import { createCutState } from "../logic/cut/state";
+import { createGuidedInitialState } from "./testSupport/guidedRound";
 import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
 import { startCookingTiming } from "../logic/cookingTiming";
 
@@ -26,9 +27,8 @@ import { startCookingTiming } from "../logic/cookingTiming";
  */
 
 function preparedFor(recipeId: RecipeId): GameState {
-  const base = gameReducer(createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS), {
-    type: "BEGIN_PREPARE",
-  });
+  // Discovery 2.0: a guided margherita PREPARE (then re-targeted to `recipeId` below).
+  const base = gameReducer(createGuidedInitialState(), { type: "BEGIN_PREPARE" });
   const recipe = getRecipe(recipeId);
   if (!recipe) throw new Error(`${recipeId} fixture missing`);
   const cookingProfile = getCookingProfile(recipeId);
@@ -72,7 +72,8 @@ function playToResultForRecipe(recipeId: RecipeId): GameState {
   const pizza = idealPizzaFor(recipeId, recipe.bakeTarget.start);
   const cookingProfile = getCookingProfile(recipeId);
   let state = createInitialGameState(EMPTY_DEX, [...STARTER_INGREDIENT_IDS, "onion", "mushroom"]);
-  state = { ...state, recipe, order, pizza, cookingProfile, cutState: createCutState(cookingProfile.cutConfig) };
+  // Discovery 2.0: an injected guided round (a Dex-0 initial state is a Free Cooking round now).
+  state = { ...state, recipe, order, pizza, cookingProfile, cutState: createCutState(cookingProfile.cutConfig), freeCook: false };
   state = gameReducer(state, { type: "START_BAKE" });
   state = gameReducer(state, { type: "CONFIRM_BAKE", value: pizza.bakeResult! });
   return walkPostBakeToResult(state);

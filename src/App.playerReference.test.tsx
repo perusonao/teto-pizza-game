@@ -45,6 +45,8 @@ function seedBismarckUnlocked(): void {
       { recipeId: "margherita", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 },
       { recipeId: "funghi", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 },
       { recipeId: "marinara", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 },
+      // Discovery 2.0: bismarck itself is discovered -- guided rounds need a discovery.
+      { recipeId: "bismarck", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 },
     ],
     pitzBalance: 0,
     // Progression 2.0 I4b-3: EP4's load-time Starter Grant is retired, so the materials these
@@ -67,16 +69,13 @@ async function selectRecipeInPizzaSelect(
   await user.click(screen.getByRole("button", { name: /このピザを作る/ }));
 }
 
-/** Progression 2.0 Phase 3-3 (Issue #198): a truly fresh save makes margherita's own NEW card
- *  preDiscoveryLocked (guided selection routes to Free Cooking instead) -- this suite is about
- *  the mini Reference panel, not onboarding, so seed an (intentionally invalid, test-only)
- *  already-discovered entry for a different, deeply-chain-gated recipe id, never actually
- *  reachable via `isRecipeAvailable`, purely to clear the "something has ever been discovered"
- *  gate without widening anything else. */
+/** Discovery 2.0 (W1-a2): a guided round starts only from a DISCOVERED, cookable recipe, so
+ *  margherita itself is seeded as discovered. This suite tests PREPARE mechanics, not
+ *  onboarding. */
 function seedGuidedSelectUnlocked(): void {
   const save: PersistentSaveV1 = {
     schemaVersion: 1,
-    dex: [{ recipeId: "napoletana", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }],
+    dex: [{ recipeId: "margherita", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }],
     pitzBalance: 0,
     ownedIngredientIds: [...STARTER_INGREDIENT_IDS],
     missionBest: {},

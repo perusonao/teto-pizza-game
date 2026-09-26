@@ -1,0 +1,830 @@
+{
+ "free-topping": {
+  "N390": {
+   "vh": 844,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 56,
+   "dough": 290,
+   "cta": 836,
+   "barTop": 774,
+   "pager": [
+    615,
+    643
+   ],
+   "sh": 844,
+   "ch": 844,
+   "fails": []
+  },
+  "N360": {
+   "vh": 800,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 56,
+   "dough": 274,
+   "cta": 792,
+   "barTop": 730,
+   "pager": [
+    599,
+    627
+   ],
+   "sh": 800,
+   "ch": 800,
+   "fails": []
+  },
+  "S390": {
+   "vh": 664,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 56,
+   "dough": 225,
+   "cta": 656,
+   "barTop": 594,
+   "pager": [
+    550,
+    578
+   ],
+   "sh": 664,
+   "ch": 664,
+   "fails": []
+  },
+  "S360": {
+   "vh": 640,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 56,
+   "dough": 201,
+   "cta": 632,
+   "barTop": 570,
+   "pager": [
+    526,
+    554
+   ],
+   "sh": 640,
+   "ch": 640,
+   "fails": []
+  },
+  "E390i": {
+   "vh": 664,
+   "sat": 47,
+   "sab": 34,
+   "tabsTop": 103,
+   "dough": 225,
+   "cta": 622,
+   "barTop": 560,
+   "pager": [
+    597,
+    625
+   ],
+   "sh": 733,
+   "ch": 664,
+   "fails": [
+    "L-B gap -65",
+    "L-C 3 chips hidden",
+    "L-C 2 pager btns hidden",
+    "L-E gs sh 733 > ch 664"
+   ]
+  },
+  "E360i": {
+   "vh": 640,
+   "sat": 47,
+   "sab": 34,
+   "tabsTop": 103,
+   "dough": 201,
+   "cta": 598,
+   "barTop": 536,
+   "pager": [
+    573,
+    601
+   ],
+   "sh": 709,
+   "ch": 640,
+   "fails": [
+    "L-B gap -65",
+    "L-C 3 chips hidden",
+    "L-C 2 pager btns hidden",
+    "L-E gs sh 709 > ch 640"
+   ]
+  }
+ },
+ "free-topping-hint": {
+  "N390": {
+   "vh": 844,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 56,
+   "dough": 290,
+   "cta": 836,
+   "barTop": 774,
+   "pager": [
+    630,
+    658
+   ],
+   "sh": 844,
+   "ch": 844,
+   "fails": []
+  },
+  "N360": {
+   "vh": 800,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 56,
+   "dough": 274,
+   "cta": 792,
+   "barTop": 730,
+   "pager": [
+    613,
+    641
+   ],
+   "sh": 800,
+   "ch": 800,
+   "fails": []
+  },
+  "S390": {
+   "vh": 664,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 56,
+   "dough": 225,
+   "cta": 656,
+   "barTop": 594,
+   "pager": [
+    565,
+    593
+   ],
+   "sh": 667,
+   "ch": 664,
+   "fails": [
+    "L-B gap 1",
+    "L-E gs sh 667 > ch 664"
+   ]
+  },
+  "S360": {
+   "vh": 640,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 56,
+   "dough": 201,
+   "cta": 632,
+   "barTop": 570,
+   "pager": [
+    541,
+    569
+   ],
+   "sh": 643,
+   "ch": 640,
+   "fails": [
+    "L-B gap 1",
+    "L-E gs sh 643 > ch 640"
+   ]
+  },
+  "E390i": {
+   "vh": 664,
+   "sat": 47,
+   "sab": 34,
+   "tabsTop": 103,
+   "dough": 225,
+   "cta": 622,
+   "barTop": 560,
+   "pager": [
+    612,
+    640
+   ],
+   "sh": 748,
+   "ch": 664,
+   "fails": [
+    "L-B gap -80",
+    "L-C 3 chips hidden",
+    "L-C 2 pager btns hidden",
+    "L-E gs sh 748 > ch 664"
+   ]
+  },
+  "E360i": {
+   "vh": 640,
+   "sat": 47,
+   "sab": 34,
+   "tabsTop": 103,
+   "dough": 201,
+   "cta": 598,
+   "barTop": 536,
+   "pager": [
+    588,
+    616
+   ],
+   "sh": 724,
+   "ch": 640,
+   "fails": [
+    "L-B gap -80",
+    "L-C 3 chips hidden",
+    "L-C 2 pager btns hidden",
+    "L-E gs sh 724 > ch 640"
+   ]
+  }
+ },
+ "guided-portuguesa-topping": {
+  "N390": {
+   "vh": 844,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 56,
+   "dough": 290,
+   "cta": 836,
+   "barTop": 774,
+   "pager": null,
+   "sh": 844,
+   "ch": 844,
+   "fails": []
+  },
+  "N360": {
+   "vh": 800,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 56,
+   "dough": 274,
+   "cta": 792,
+   "barTop": 730,
+   "pager": null,
+   "sh": 800,
+   "ch": 800,
+   "fails": []
+  },
+  "S390": {
+   "vh": 664,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 56,
+   "dough": 225,
+   "cta": 656,
+   "barTop": 594,
+   "pager": null,
+   "sh": 664,
+   "ch": 664,
+   "fails": []
+  },
+  "S360": {
+   "vh": 640,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 56,
+   "dough": 201,
+   "cta": 632,
+   "barTop": 570,
+   "pager": null,
+   "sh": 640,
+   "ch": 640,
+   "fails": []
+  },
+  "E390i": {
+   "vh": 664,
+   "sat": 47,
+   "sab": 34,
+   "tabsTop": 103,
+   "dough": 225,
+   "cta": 622,
+   "barTop": 560,
+   "pager": null,
+   "sh": 737,
+   "ch": 664,
+   "fails": [
+    "L-C 1 chips hidden",
+    "L-E gs sh 737 > ch 664"
+   ]
+  },
+  "E360i": {
+   "vh": 640,
+   "sat": 47,
+   "sab": 34,
+   "tabsTop": 103,
+   "dough": 201,
+   "cta": 598,
+   "barTop": 536,
+   "pager": null,
+   "sh": 713,
+   "ch": 640,
+   "fails": [
+    "L-C 1 chips hidden",
+    "L-E gs sh 713 > ch 640"
+   ]
+  }
+ },
+ "guided-bake": {
+  "N390": {
+   "vh": 844,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 164,
+   "dough": 359,
+   "cta": 755,
+   "barTop": 574,
+   "pager": null,
+   "sh": 844,
+   "ch": 844,
+   "fails": []
+  },
+  "N360": {
+   "vh": 800,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 164,
+   "dough": 331,
+   "cta": 728,
+   "barTop": 547,
+   "pager": null,
+   "sh": 800,
+   "ch": 800,
+   "fails": []
+  },
+  "S390": {
+   "vh": 664,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 164,
+   "dough": 234,
+   "cta": 631,
+   "barTop": 450,
+   "pager": null,
+   "sh": 664,
+   "ch": 664,
+   "fails": []
+  },
+  "S360": {
+   "vh": 640,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 164,
+   "dough": 210,
+   "cta": 607,
+   "barTop": 426,
+   "pager": null,
+   "sh": 640,
+   "ch": 640,
+   "fails": []
+  },
+  "E390i": {
+   "vh": 664,
+   "sat": 47,
+   "sab": 34,
+   "tabsTop": 187,
+   "dough": 234,
+   "cta": 654,
+   "barTop": 473,
+   "pager": null,
+   "sh": 678,
+   "ch": 664,
+   "fails": [
+    "L-A cta.bottom 654 > 630",
+    "L-E gs sh 678 > ch 664"
+   ]
+  },
+  "E360i": {
+   "vh": 640,
+   "sat": 47,
+   "sab": 34,
+   "tabsTop": 187,
+   "dough": 210,
+   "cta": 630,
+   "barTop": 449,
+   "pager": null,
+   "sh": 654,
+   "ch": 640,
+   "fails": [
+    "L-A cta.bottom 630 > 606",
+    "L-E gs sh 654 > ch 640"
+   ]
+  }
+ },
+ "guided-bake-faded": {
+  "N390": {
+   "vh": 844,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 164,
+   "dough": 359,
+   "cta": 755,
+   "barTop": 574,
+   "pager": null,
+   "sh": 844,
+   "ch": 844,
+   "fails": []
+  },
+  "N360": {
+   "vh": 800,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 164,
+   "dough": 331,
+   "cta": 728,
+   "barTop": 547,
+   "pager": null,
+   "sh": 800,
+   "ch": 800,
+   "fails": []
+  },
+  "S390": {
+   "vh": 664,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 164,
+   "dough": 234,
+   "cta": 631,
+   "barTop": 450,
+   "pager": null,
+   "sh": 664,
+   "ch": 664,
+   "fails": []
+  },
+  "S360": {
+   "vh": 640,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 164,
+   "dough": 210,
+   "cta": 607,
+   "barTop": 426,
+   "pager": null,
+   "sh": 640,
+   "ch": 640,
+   "fails": []
+  },
+  "E390i": {
+   "vh": 664,
+   "sat": 47,
+   "sab": 34,
+   "tabsTop": 187,
+   "dough": 234,
+   "cta": 654,
+   "barTop": 473,
+   "pager": null,
+   "sh": 678,
+   "ch": 664,
+   "fails": [
+    "L-A cta.bottom 654 > 630",
+    "L-E gs sh 678 > ch 664"
+   ]
+  },
+  "E360i": {
+   "vh": 640,
+   "sat": 47,
+   "sab": 34,
+   "tabsTop": 187,
+   "dough": 210,
+   "cta": 630,
+   "barTop": 449,
+   "pager": null,
+   "sh": 654,
+   "ch": 640,
+   "fails": [
+    "L-A cta.bottom 630 > 606",
+    "L-E gs sh 654 > ch 640"
+   ]
+  }
+ },
+ "guided-cut": {
+  "N390": {
+   "vh": 844,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 56,
+   "dough": 359,
+   "cta": 836,
+   "barTop": 774,
+   "pager": null,
+   "sh": 844,
+   "ch": 844,
+   "fails": []
+  },
+  "N360": {
+   "vh": 800,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 56,
+   "dough": 331,
+   "cta": 792,
+   "barTop": 730,
+   "pager": null,
+   "sh": 800,
+   "ch": 800,
+   "fails": []
+  },
+  "S390": {
+   "vh": 664,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 56,
+   "dough": 234,
+   "cta": 656,
+   "barTop": 594,
+   "pager": null,
+   "sh": 664,
+   "ch": 664,
+   "fails": []
+  },
+  "S360": {
+   "vh": 640,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 56,
+   "dough": 210,
+   "cta": 632,
+   "barTop": 570,
+   "pager": null,
+   "sh": 640,
+   "ch": 640,
+   "fails": []
+  },
+  "E390i": {
+   "vh": 664,
+   "sat": 47,
+   "sab": 34,
+   "tabsTop": 103,
+   "dough": 234,
+   "cta": 622,
+   "barTop": 560,
+   "pager": null,
+   "sh": 664,
+   "ch": 664,
+   "fails": []
+  },
+  "E360i": {
+   "vh": 640,
+   "sat": 47,
+   "sab": 34,
+   "tabsTop": 103,
+   "dough": 210,
+   "cta": 598,
+   "barTop": 536,
+   "pager": null,
+   "sh": 640,
+   "ch": 640,
+   "fails": []
+  }
+ },
+ "newhaven-bake": {
+  "N390": {
+   "vh": 844,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 164,
+   "dough": 359,
+   "cta": 755,
+   "barTop": 574,
+   "pager": null,
+   "sh": 844,
+   "ch": 844,
+   "fails": []
+  },
+  "N360": {
+   "vh": 800,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 164,
+   "dough": 331,
+   "cta": 728,
+   "barTop": 547,
+   "pager": null,
+   "sh": 800,
+   "ch": 800,
+   "fails": []
+  },
+  "S390": {
+   "vh": 664,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 164,
+   "dough": 234,
+   "cta": 631,
+   "barTop": 450,
+   "pager": null,
+   "sh": 664,
+   "ch": 664,
+   "fails": []
+  },
+  "S360": {
+   "vh": 640,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 164,
+   "dough": 210,
+   "cta": 607,
+   "barTop": 426,
+   "pager": null,
+   "sh": 640,
+   "ch": 640,
+   "fails": []
+  },
+  "E390i": {
+   "vh": 664,
+   "sat": 47,
+   "sab": 34,
+   "tabsTop": 187,
+   "dough": 234,
+   "cta": 654,
+   "barTop": 473,
+   "pager": null,
+   "sh": 678,
+   "ch": 664,
+   "fails": [
+    "L-A cta.bottom 654 > 630",
+    "L-E gs sh 678 > ch 664"
+   ]
+  },
+  "E360i": {
+   "vh": 640,
+   "sat": 47,
+   "sab": 34,
+   "tabsTop": 187,
+   "dough": 210,
+   "cta": 630,
+   "barTop": 449,
+   "pager": null,
+   "sh": 654,
+   "ch": 640,
+   "fails": [
+    "L-A cta.bottom 630 > 606",
+    "L-E gs sh 654 > ch 640"
+   ]
+  }
+ },
+ "newhaven-result": {
+  "cutStep": 0,
+  "result": 1
+ },
+ "lunchrush-prepare": {
+  "N390": {
+   "vh": 844,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 97,
+   "dough": 290,
+   "cta": 836,
+   "barTop": 774,
+   "pager": null,
+   "sh": 844,
+   "ch": 844,
+   "fails": []
+  },
+  "N360": {
+   "vh": 800,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 97,
+   "dough": 274,
+   "cta": 792,
+   "barTop": 730,
+   "pager": null,
+   "sh": 800,
+   "ch": 800,
+   "fails": []
+  },
+  "S390": {
+   "vh": 664,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 97,
+   "dough": 225,
+   "cta": 656,
+   "barTop": 594,
+   "pager": null,
+   "sh": 664,
+   "ch": 664,
+   "fails": []
+  },
+  "S360": {
+   "vh": 640,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 97,
+   "dough": 201,
+   "cta": 632,
+   "barTop": 570,
+   "pager": null,
+   "sh": 640,
+   "ch": 640,
+   "fails": []
+  },
+  "E390i": {
+   "vh": 664,
+   "sat": 47,
+   "sab": 34,
+   "tabsTop": 144,
+   "dough": 225,
+   "cta": 622,
+   "barTop": 560,
+   "pager": null,
+   "sh": 694,
+   "ch": 664,
+   "fails": [
+    "L-C 1 chips hidden",
+    "L-E gs sh 694 > ch 664"
+   ]
+  },
+  "E360i": {
+   "vh": 640,
+   "sat": 47,
+   "sab": 34,
+   "tabsTop": 144,
+   "dough": 201,
+   "cta": 598,
+   "barTop": 536,
+   "pager": null,
+   "sh": 670,
+   "ch": 640,
+   "fails": [
+    "L-C 1 chips hidden",
+    "L-E gs sh 670 > ch 640"
+   ]
+  }
+ },
+ "lunchrush-bake": {
+  "N390": {
+   "vh": 844,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 205,
+   "dough": 359,
+   "cta": 796,
+   "barTop": 615,
+   "pager": null,
+   "sh": 844,
+   "ch": 844,
+   "fails": []
+  },
+  "N360": {
+   "vh": 800,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 205,
+   "dough": 331,
+   "cta": 769,
+   "barTop": 588,
+   "pager": null,
+   "sh": 800,
+   "ch": 800,
+   "fails": []
+  },
+  "S390": {
+   "vh": 664,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 181,
+   "dough": 234,
+   "cta": 648,
+   "barTop": 467,
+   "pager": null,
+   "sh": 672,
+   "ch": 664,
+   "fails": [
+    "L-E gs sh 672 > ch 664"
+   ]
+  },
+  "S360": {
+   "vh": 640,
+   "sat": 0,
+   "sab": 0,
+   "tabsTop": 181,
+   "dough": 210,
+   "cta": 624,
+   "barTop": 443,
+   "pager": null,
+   "sh": 648,
+   "ch": 640,
+   "fails": [
+    "L-E gs sh 648 > ch 640"
+   ]
+  },
+  "E390i": {
+   "vh": 664,
+   "sat": 47,
+   "sab": 34,
+   "tabsTop": 228,
+   "dough": 234,
+   "cta": 695,
+   "barTop": 514,
+   "pager": null,
+   "sh": 719,
+   "ch": 664,
+   "fails": [
+    "L-A cta.bottom 695 > 630",
+    "L-A cta not hittable",
+    "L-E gs sh 719 > ch 664"
+   ]
+  },
+  "E360i": {
+   "vh": 640,
+   "sat": 47,
+   "sab": 34,
+   "tabsTop": 228,
+   "dough": 210,
+   "cta": 671,
+   "barTop": 490,
+   "pager": null,
+   "sh": 695,
+   "ch": 640,
+   "fails": [
+    "L-A cta.bottom 671 > 606",
+    "L-A cta not hittable",
+    "L-E gs sh 695 > ch 640"
+   ]
+  }
+ }
+}

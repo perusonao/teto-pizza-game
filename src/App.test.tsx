@@ -274,6 +274,8 @@ function seedBismarckUnlocked(): void {
       { recipeId: "margherita", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 },
       { recipeId: "funghi", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 },
       { recipeId: "marinara", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 },
+      // Discovery 2.0: bismarck itself is discovered -- guided rounds need a discovery.
+      { recipeId: "bismarck", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 },
     ],
     // Progression 2.0 I4b-3: EP4's load-time Starter Grant is retired, so the materials these
     // recipes need are seeded as already bought (the v1 -> v2 migration backfills their stock).
@@ -360,19 +362,15 @@ describe("HOME/GAME separation (Issue #24)", () => {
     expect(within(header).getByRole("button", { name: /ホーム/ })).toBeInTheDocument();
   });
 
-  it("a locked recipe card (fugazza, before onion is owned) cannot start a round", async () => {
+  it("an undiscovered recipe has no Pizza Select card, so it can never start a round (Discovery 2.0 A′)", async () => {
+    seedLunchRushUnlockedOnly(); // margherita discovered
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
-    // Queried once, before opening its detail -- the grid card stays mounted (only hidden)
-    // behind the detail view, so this same aria-label would otherwise match twice.
-    const mysteryCard = screen.getByLabelText("？？？、未解放");
-    await user.click(mysteryCard);
-    const cta = screen.getByRole("button", { name: /このピザを作る/ });
-    expect(cta).toBeDisabled();
-    await user.click(cta);
-    // Still on Pizza Select -- a disabled button's click is a no-op, never reaching GAME.
-    expect(document.querySelector(".pizza-select-screen")).toBeInTheDocument();
+    const cards = Array.from(document.querySelectorAll(".pizza-select-grid-card"));
+    expect(cards.map((c) => c.getAttribute("aria-label"))).toEqual([expect.stringMatching(/^マルゲリータ、/)]);
+    expect(screen.queryByLabelText(/未解放/)).not.toBeInTheDocument();
+    expect(screen.queryByText("？？？")).not.toBeInTheDocument();
     expect(document.querySelector(".game-screen")).not.toBeInTheDocument();
   });
 
@@ -755,7 +753,9 @@ describe("HOME/GAME separation (Issue #24)", () => {
     // No intermediate "score only, tap to register" screen -- the discovery banner, the CTAs,
     // and the completed pizza are all present on the very first render after CUT confirms.
     expect(screen.queryByRole("button", { name: "レシピ図鑑に登録する" })).not.toBeInTheDocument();
-    expect(screen.getByText(/を発見しました/)).toBeInTheDocument();
+    // Discovery 2.0: a guided round re-registers an already-discovered recipe -- the NEW PIZZA
+    // banner belongs to Free Cooking discoveries only (matcher-only discovery authority).
+    expect(screen.queryByText(/を発見しました/)).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "もう一度つくる" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "別のピザを作る" })).toBeInTheDocument();
 
@@ -788,12 +788,9 @@ describe("HOME/GAME separation (Issue #24)", () => {
   // Japanese labels, never the four raw technical signal names, and never perturbs the
   // existing stars/score/Pitz headline.
   it("Pizza Cutting Phase 3: margherita's RESULT shows the CUT evaluation card after a real CUT walkthrough", async () => {
-    // Progression 2.0 Phase 3-3 (Issue #198): margherita is guided-selectable pre-first-
-    // discovery only once *something* has ever been discovered. Seed an (otherwise-invalid,
-    // test-only) already-discovered entry for a different recipe id -- not margherita itself,
-    // whose own NEW-discovery banner this test still asserts below -- so this stays a pure
-    // CUT-walkthrough check, unrelated to onboarding gating.
-    seedSave({ dex: [{ recipeId: "funghi", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }] });
+    // Discovery 2.0 (W1-a2): a guided round starts only from a DISCOVERED recipe, so margherita
+    // itself is seeded as discovered -- this stays a pure CUT-walkthrough check.
+    seedSave({ dex: [{ recipeId: "margherita", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }] });
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));
@@ -930,8 +927,8 @@ describe("HOME/GAME separation (Issue #24)", () => {
     expect(screen.getByLabelText("Pitz残高 250")).toBeInTheDocument();
     // 15 total recipes (src/data/recipes.ts, Recipe Expansion Batch 1A + Batch 1B-A + Batch
     // 1B-B + Batch 1B-C) -- 1 discovered from the seeded save.
-    expect(screen.getByLabelText(/レシピ図鑑 発見数 1 \/ 15/)).toBeInTheDocument();
-    expect(screen.getByText(/発見 1\/15/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/レシピ図鑑 発見数 1 \/ 25/)).toBeInTheDocument();
+    expect(screen.getByText(/発見 1\/25/)).toBeInTheDocument();
   });
 
   it("still shows HOME first after a reload, with persisted progression intact", () => {
@@ -1074,7 +1071,7 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
     expect(within(shop).getByRole("tablist")).toBeInTheDocument();
   });
 
-  it("D. once every ladder step is reached (all 15 recipes discovered) the progress hint is gone", async () => {
+  it("D. once every ladder step is reached (all 25 recipes discovered) the progress hint is gone", async () => {
     const user = userEvent.setup();
     seedSaveV2({
       dex: RECIPES.map((r) => ({ recipeId: r.id, discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 })),
@@ -1087,9 +1084,10 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
     expect(within(shop).queryByText(/発見で新しい材料が入荷/)).not.toBeInTheDocument();
     expect(within(shop).getAllByRole("button", { name: "補充する" }).length).toBe(MANY.length);
-    // Owned W1 materials have no offer yet, so they are never Shop rows.
-    expect(UNOFFERED).toHaveLength(7);
-    for (const id of UNOFFERED) expect(shop.querySelector(`.shop-item[data-ingredient-id="${id}"]`)).toBeNull();
+    // Since the 25-recipe ladder (W1 I5b-3) every finite material has an offer, so every owned one
+    // is a refill row.
+    expect(UNOFFERED).toEqual([]);
+    expect(MANY).toHaveLength(26);
   });
 
   it("E. category filtering narrows the visible list to that category only", async () => {

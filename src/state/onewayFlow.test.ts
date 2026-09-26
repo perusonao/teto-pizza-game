@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { createInitialGameState, gameReducer, type GameState, type MakingStep } from "./gameReducer";
+import { gameReducer, type GameState, type MakingStep } from "./gameReducer";
 import { DOUGH_RADIUS } from "../logic/pizzaCoordinates";
 import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
+import { createGuidedInitialState } from "./testSupport/guidedRound";
 import {
   DOUGH_COMPLETION_THRESHOLD,
   applyStretchPoint,
@@ -32,7 +33,9 @@ const MARGHERITA_ONLY_OWNED = [SAUCE_ID, CHEESE_ID, TOPPING_ID];
 /** A fresh PREPARE-phase round -- Issue #33 D1: this now naturally lands at "DOUGH", the new
  *  first step, rather than "SAUCE". */
 function preparedState(isMissionRound = false): GameState {
-  let state = createInitialGameState(undefined, MARGHERITA_ONLY_OWNED);
+  // Discovery 2.0: a guided round of an already-discovered margherita (also gives Lunch Rush a
+  // discovered order to pick).
+  let state = createGuidedInitialState("margherita", { ownedIngredientIds: MARGHERITA_ONLY_OWNED });
   state = gameReducer(state, { type: "BEGIN_PREPARE" });
   if (isMissionRound) {
     state = gameReducer(state, { type: "MISSION_RESET_ORDER" });

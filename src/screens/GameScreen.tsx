@@ -41,6 +41,7 @@ import { deriveMissionResultStats } from "../logic/missionResultStats";
 import { calculateMissionReward } from "../logic/economy";
 import type { PieceReferenceMetrics } from "../logic/referenceMatching";
 import type { DoughPoint } from "../logic/pizzaCoordinates";
+import { buildRecipeChapters, chapterProgress, recipeChapter, recipeChapterSlot } from "../state/recipeChapters";
 
 /**
  * GAME screen (Issue #24). Everything that happens while an actual round is in play --
@@ -110,6 +111,9 @@ interface GameScreenProps {
    *  App-level Shop overlay (App.tsx's `setShopOpen`, same as HOME's Shop entry) on top of this
    *  screen, so closing it returns right here. Optional: no CTA is rendered without it. */
   onOpenShop?: () => void;
+  /** Progression 2.0 W1-d: the Discovery Result's 「📖 図鑑を見る」 (on the Dex-registration row)
+   *  -- opens the App-level Dex overlay on top of this screen. Optional: no CTA without it. */
+  onOpenDex?: () => void;
   onMissionServeNext: () => void;
   onMissionStart: () => void;
   onMissionExitToFree: () => void;
@@ -173,6 +177,7 @@ export function GameScreen({
   onRetrySameRecipe,
   onBackToPizzaSelect,
   onOpenShop,
+  onOpenDex,
   onMissionServeNext,
   onMissionStart,
   onMissionExitToFree,
@@ -283,6 +288,24 @@ export function GameScreen({
   // ResultPanel renders its own "失敗" heading instead once `state.completion` is FAILED (see
   // its own file header), so a congratulatory/neutral bake line can never appear alongside a
   // pizza that was never actually servable.
+  // Progression 2.0 W1-d: the Dex slot of a recipe discovered this round -- chapter / No. / chapter
+  // progress from the canonical chapter functions only (OD-DISC-9). `state.recipe` is the
+  // matcher's recipe at this point (CONFIRM_BAKE), already registered by REGISTER_TO_DEX.
+  const dexRegistration =
+    isFreeResultScreen && state.lastDiscovery?.kind === "NEW_DISCOVERY"
+      ? (() => {
+          const chapter = buildRecipeChapters().find((c) => c.chapter === recipeChapter(state.recipe));
+          if (!chapter) return null;
+          const progress = chapterProgress(chapter, state.dex);
+          return {
+            slot: recipeChapterSlot(state.recipe),
+            chapterTitleJa: chapter.titleJa,
+            discovered: progress.discovered,
+            total: progress.total,
+          };
+        })()
+      : null;
+
   const resultHeadingJa =
     isFreeResultScreen && state.score && state.bakeState && state.completion?.status !== "FAILED"
       ? buildTetoResultLine(state.recipe, state.bakeState, state.pizza.bakeResult).textJa
@@ -293,8 +316,19 @@ export function GameScreen({
   // doesn't. Cheap pure function (../data/playerReference.ts), safe to compute unconditionally.
   const playerReference = getPlayerReferencePizza(state.recipe);
 
+  // Progression 2.0 W1 I5b-4b (Cooking layout contract, docs/reports/
+  // TETO_PROGRESS2_W1_I5B4_UIUX_FRESH-AUDIT.md §3-§4 / §13): PREPARE, BAKE and CUT share one
+  // flex-column skeleton -- header / HUD / tabs / order-card / stage / tray / pager / CTA bar --
+  // in which only the pizza stage takes the left-over height and every CTA bar is in-flow at the
+  // bottom. Nothing below the stage can be pushed under a fixed bar or off-screen, whatever the
+  // visible height, safe-area or HUD (App.css `.game-screen--cooking`).
+  const isCookingLayout =
+    state.phase === "PREPARE" ||
+    state.phase === "BAKE" ||
+    (state.phase === "POST_BAKE" && state.makingStep === "CUT");
+
   return (
-    <div className="game-screen">
+    <div className={`game-screen${isCookingLayout ? " game-screen--cooking" : ""}`}>
       {/* Issue #47 Finding K: Shop/Pizza Dex were reachable from every Making phase
           (ORDER/PREPARE/BAKE/RESULT/DISCOVERED) via this header -- removed so Making stays
           focused on making and HOME remains the sole hub for Shop/Dex navigation (Issue #22's
@@ -325,15 +359,13 @@ export function GameScreen({
           `min-height: 84px` reserved space so the hero pizza is the first thing on screen
           (the task's own "完成ピザを押し下げない" requirement), rather than leaving an empty
           gap above it. ORDER/BAKE dialogue is completely unaffected, Mission or not. */}
-      {state.phase !== "PREPARE" && state.phase !== "POST_BAKE" && !isFreeResultScreen && (
+      {/* W1 I5b-4b: BAKE no longer uses the portrait DialogueBox here (108px, above the tabs) --
+          its line moves into the compact `.order-card` row below the tabs, like PREPARE and CUT,
+          so the tabs stay right under the header on every cooking step. */}
+      {state.phase === "ORDER" && (
         <section className="dialogue-area">
-          {state.phase === "ORDER" && (
-            <>
-              <DialogueBox {...mitoOrderLine} />
-              <DialogueBox {...buildTetoOrderLine(state.recipe)} />
-            </>
-          )}
-          {state.phase === "BAKE" && <DialogueBox {...buildTetoBakeLine(state.recipe)} />}
+          <DialogueBox {...mitoOrderLine} />
+          <DialogueBox {...buildTetoOrderLine(state.recipe)} />
         </section>
       )}
 
@@ -439,6 +471,18 @@ export function GameScreen({
               renderTrigger={false}
             />
           )}
+        </div>
+      )}
+
+      {/* W1 I5b-4b: BAKE's Teto line, in the same compact row PREPARE / CUT use (2-line clamp). */}
+      {state.phase === "BAKE" && (
+        <div className={`order-card order-card--bake${state.freeCook ? " order-card--free-cook" : ""}`}>
+          <div className="order-card__text">
+            <span className="order-card__recipe-name">
+              {state.freeCook ? <>{"\u{1F3A8}"} フリークッキング</> : state.recipe.nameJa}
+            </span>
+            <span className="order-card__hint">{buildTetoBakeLine(state.recipe).textJa}</span>
+          </div>
         </div>
       )}
 
@@ -690,6 +734,8 @@ export function GameScreen({
           quantityNoteJa={buildQuantityNote(state.scoringV2Result)}
           onRetrySameRecipe={onRetrySameRecipe}
           onBackToPizzaSelect={onBackToPizzaSelect}
+          dexRegistration={dexRegistration}
+          onOpenDex={onOpenDex}
         />
       )}
 

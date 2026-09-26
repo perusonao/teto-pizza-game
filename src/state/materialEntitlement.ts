@@ -111,3 +111,13 @@ export function ingredientCollectionCount(
   const owned = new Set(ownedIngredientIds);
   return { owned: obtainable.filter((id) => owned.has(id)).length, total: obtainable.length };
 }
+
+/** Progression 2.0 W1 Discovery 2.0 (W1-e): how many materials wait in the Shop as NEW rows --
+ *  unlocked for the Shop, not bought yet (onboarding starters never count). Derived only. */
+export function newShopMaterialCount(
+  ownedIngredientIds: readonly string[],
+  unlockedForShopIngredientIds: readonly string[],
+): number {
+  const owned = new Set(ownedIngredientIds);
+  return unlockedForShopIngredientIds.filter((id) => isFiniteMaterial(id) && !owned.has(id)).length;
+}

@@ -102,37 +102,45 @@ export function BakeOverlay({ targetStart, targetEnd, onConfirm, onTick }: BakeO
   // the rest of the Guide uses, so it goes dark at exactly the same moment.
   const showGlow = inTarget && guideOpacity > 0;
 
+  // W1 I5b-4b: 「取り出す！」 sits in the same in-flow bottom CTA bar as PREPARE's 「焼く！」 and
+  // CUT's 「切り終わる」 (`.prepare-bake-bar`), not inside this in-flow overlay under the pizza --
+  // so it is always at the bottom of the visible area and never pushed off-screen by the
+  // content above it (audit F-3, a timed decision).
   return (
-    <div className="bake-overlay">
-      <div className="bake-oven">
-        <span className="bake-oven__flame">{"\u{1F525}"}</span>
-        <div className="bake-oven__caption-row" style={{ opacity: guideHidden ? 1 : guideOpacity }}>
-          <img className="bake-oven__caption-avatar" src={tetoImg} alt="テト" />
-          <p className="bake-oven__caption">{guideHidden ? CAPTION_NEUTRAL : CAPTION[bakeState]}</p>
+    <>
+      <div className="bake-overlay">
+        <div className="bake-oven">
+          <span className="bake-oven__flame">{"\u{1F525}"}</span>
+          <div className="bake-oven__caption-row" style={{ opacity: guideHidden ? 1 : guideOpacity }}>
+            <img className="bake-oven__caption-avatar" src={tetoImg} alt="テト" />
+            <p className="bake-oven__caption">{guideHidden ? CAPTION_NEUTRAL : CAPTION[bakeState]}</p>
+          </div>
+        </div>
+        <div className="bake-gauge" aria-hidden="true" style={{ opacity: guideOpacity }}>
+          <div className="bake-gauge__zone bake-gauge__zone--raw" style={{ width: `${targetStart}%` }} />
+          <div
+            className="bake-gauge__target"
+            style={{ left: `${targetStart}%`, width: `${targetEnd - targetStart}%` }}
+          />
+          <div
+            className="bake-gauge__zone bake-gauge__zone--burnt"
+            style={{ width: `${100 - targetEnd}%` }}
+          />
+          <div
+            className="bake-gauge__needle"
+            style={{ left: `${position}%`, backgroundColor: NEEDLE_COLOR[bakeState] }}
+          />
         </div>
       </div>
-      <div className="bake-gauge" aria-hidden="true" style={{ opacity: guideOpacity }}>
-        <div className="bake-gauge__zone bake-gauge__zone--raw" style={{ width: `${targetStart}%` }} />
-        <div
-          className="bake-gauge__target"
-          style={{ left: `${targetStart}%`, width: `${targetEnd - targetStart}%` }}
-        />
-        <div
-          className="bake-gauge__zone bake-gauge__zone--burnt"
-          style={{ width: `${100 - targetEnd}%` }}
-        />
-        <div
-          className="bake-gauge__needle"
-          style={{ left: `${position}%`, backgroundColor: NEEDLE_COLOR[bakeState] }}
-        />
+      <div className="action-row prepare-bake-bar bake-bar">
+        <button
+          type="button"
+          className={`cta-button cta-button--bake ${showGlow ? "cta-button--glow" : ""}`}
+          onClick={() => onConfirm(positionRef.current)}
+        >
+          取り出す！
+        </button>
       </div>
-      <button
-        type="button"
-        className={`cta-button cta-button--bake ${showGlow ? "cta-button--glow" : ""}`}
-        onClick={() => onConfirm(positionRef.current)}
-      >
-        取り出す！
-      </button>
-    </div>
+    </>
   );
 }

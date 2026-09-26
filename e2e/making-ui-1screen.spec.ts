@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { runOnlyOnWidth } from "./support/projectGuard";
 import {
   completeDoughStep,
   cutThreeLines,
@@ -31,17 +32,16 @@ const VIEWPORTS = [
   { name: "361x800", width: 361, height: 800 },
 ] as const;
 
-/** Progression 2.0 Phase 3-3 (Issue #198): Lunch Rush/guided-margherita-on-empty-Dex gate --
- *  seeds one harmless, deeply chain-gated discovery (mirrors e2e/gestures.ts's
- *  `startFreshMargherita` own comment) purely to clear the "something has ever been discovered"
- *  gate. This file tests Cooking UI layout, not onboarding. */
+/** Progression 2.0 Phase 3-3 (Issue #198) / W1 I5b-5a: guided rounds start only from a
+ *  discovered recipe, so margherita itself is seeded as discovered (mirrors e2e/gestures.ts's
+ *  `startFreshMargherita`). This file tests Cooking UI layout, not onboarding. */
 async function seedGuidedSelectUnlocked(page: Page) {
   await page.addInitScript(() => {
     localStorage.setItem(
       "teto-pizza-save-v1",
       JSON.stringify({
         schemaVersion: 1,
-        dex: [{ recipeId: "napoletana", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }],
+        dex: [{ recipeId: "margherita", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }],
         pitzBalance: 0,
         ownedIngredientIds: ["tomato-sauce", "mozzarella", "basil"],
         missionBest: {},
@@ -94,6 +94,43 @@ async function assertOneScreen(page: Page, label: string) {
   // in-flow content is the max `getBoundingClientRect().bottom` among `.game-screen`'s direct
   // children that are not `position: fixed` (`.prepare-bake-bar`/its own scroll-cue sit outside
   // normal flow by design, see App.css, and must not be counted as "content that needs room").
+  // Progression 2.0 W1 I5b-4b: cooking steps (PREPARE / BAKE / CUT) use an in-flow CTA bar at the
+  // very bottom and a pizza stage that absorbs the left-over height, so the content legitimately
+  // reaches the viewport's bottom edge. There the floor applies where real-device variance now
+  // lands: the bar is fully on screen, nothing overlaps it, and the tray / pager / CUT readout
+  // keep >= MIN_SAFETY_MARGIN_PX above it (I5b-5 L-A / L-B).
+  const cooking = await page.evaluate(() => {
+    const gs = document.querySelector(".game-screen--cooking");
+    if (!gs) return null;
+    const bar = gs.querySelector(":scope > .prepare-bake-bar")!.getBoundingClientRect();
+    const children = Array.from(gs.children).filter(
+      (c) => !c.classList.contains("prepare-bake-bar") && getComputedStyle(c).position !== "fixed",
+    );
+    const aboveBar = children.filter((c) => !c.classList.contains("pizza-stage"));
+    const lastAbove = Math.max(0, ...aboveBar.map((c) => c.getBoundingClientRect().bottom));
+    const stage = gs.querySelector(":scope > .pizza-stage")!.getBoundingClientRect();
+    const dough = gs.querySelector(".pizza-dough")!.getBoundingClientRect();
+    return {
+      barTop: bar.top,
+      barBottom: bar.bottom,
+      overlap: Math.max(0, ...children.map((c) => c.getBoundingClientRect().bottom)) - bar.top,
+      belowStageGap: bar.top - lastAbove,
+      hasTrayOrReadout: aboveBar.some((c) => c.getBoundingClientRect().top >= stage.bottom - 1),
+      doughInsideStage: dough.top >= stage.top - 1 && dough.bottom <= stage.bottom + 1,
+    };
+  });
+  if (cooking) {
+    expect(cooking.barBottom, `${label}: CTA bar fully on screen`).toBeLessThanOrEqual(s.innerHeight + 1);
+    expect(cooking.overlap, `${label}: nothing overlaps the in-flow CTA bar`).toBeLessThanOrEqual(1);
+    expect(cooking.doughInsideStage, `${label}: the dough stays inside its stage`).toBe(true);
+    if (cooking.hasTrayOrReadout) {
+      expect(
+        cooking.belowStageGap,
+        `${label}: tray / pager / readout must keep >= ${MIN_SAFETY_MARGIN_PX}px above the CTA bar`,
+      ).toBeGreaterThanOrEqual(MIN_SAFETY_MARGIN_PX);
+    }
+    return;
+  }
   const flowBottom = await page.evaluate(() => {
     const gs = document.querySelector(".game-screen")!;
     let maxBottom = 0;
@@ -152,6 +189,7 @@ for (const { name, width, height } of VIEWPORTS) {
       page,
     }) => {
       test.setTimeout(30_000);
+      runOnlyOnWidth(test.info(), width === 390 ? 390 : 360);
       await freshMargheritaAt(page, width, height);
 
       await assertOneScreen(page, `${name} DOUGH`);
@@ -200,13 +238,10 @@ test.describe("Sauce lock (Issue #159 P0): no second sauce ever offered once SAU
   }) => {
     const save = {
       schemaVersion: 2,
-      // Progression 2.0 Phase 3-3 (Issue #198): an empty Dex makes margherita's own NEW card
-      // preDiscoveryLocked (guided selection routes to Free Cooking instead) -- this test is
-      // about the SAUCE tray filter, not onboarding, so seed one harmless, deeply chain-gated
-      // discovery (napoletana; its own unlock chain requires several other undiscovered
-      // recipes, so this never widens ownership/availability of anything real this test cares
-      // about) purely to clear that gate.
-      dex: [{ recipeId: "napoletana", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }],
+      // Progression 2.0 Phase 3-3 (Issue #198) / W1 I5b-5a: guided rounds start only from a
+      // discovered recipe -- this test is about the SAUCE tray filter, not onboarding, so
+      // margherita is seeded as discovered.
+      dex: [{ recipeId: "margherita", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }],
       pitzBalance: 500,
       ownedIngredientIds: ["tomato-sauce", "mozzarella", "basil", "olive-oil", "pesto"],
       missionBest: {},
@@ -349,6 +384,7 @@ test.describe("Reference modal fit + close (Issue #167 PR-C §9): Margherita and
   });
 
   test("Salsiccia @ 360x800: Reference modal fits the secondary viewport too", async ({ page }) => {
+    runOnlyOnWidth(test.info(), 360);
     await page.setViewportSize({ width: 360, height: 800 });
     await startSalsicciaUnlocked(page);
     await assertReferenceModalLifecycle(page, "Salsiccia 360x800");
@@ -385,6 +421,7 @@ test.describe("PizzaStage height-aware sizing: shrink path actually engages belo
     page,
   }) => {
     test.setTimeout(30_000);
+    runOnlyOnWidth(test.info(), 390);
     await freshMargheritaAt(page, 390, 650);
 
     async function doughSize() {
@@ -395,14 +432,9 @@ test.describe("PizzaStage height-aware sizing: shrink path actually engages belo
       return box!.width;
     }
 
-    // Compact ceiling at 390px width is min(76vw=296.4, 290) = 290 -- the height term
-    // (650 - 439px reserve = 211) must be strictly smaller, i.e. actually binding, not just
-    // coincidentally equal to the vw/px cap.
-    const doughWidthCompact = await doughSize();
-    expect(
-      doughWidthCompact,
-      "390x650 DOUGH: height-aware term must actually shrink the dough below its vw/px cap (290px)",
-    ).toBeLessThan(290);
+    // W1 I5b-4b: the stage takes only the height the other rows leave, so at DOUGH (no tray yet)
+    // the dough keeps its vw/px cap (290) and it shrinks once the tray appears (CHEESE, below).
+    expect(await doughSize(), "390x650 DOUGH: no tray yet, the vw/px cap wins").toBeLessThanOrEqual(290);
     await assertOneScreen(page, "390x650 DOUGH");
     await assertNavFitsViewport(page, "390x650 DOUGH");
 
@@ -413,6 +445,12 @@ test.describe("PizzaStage height-aware sizing: shrink path actually engages belo
     await paintSauceRing(page, 25, 16);
     await page.getByRole("button", { name: /次へ/ }).click();
     await assertOneScreen(page, "390x650 CHEESE");
+    // Compact cap at 390px width is min(76vw=296.4, 290) = 290 -- with the tray on screen the
+    // stage's own height must actually bind.
+    expect(
+      await doughSize(),
+      "390x650 CHEESE: the stage height must actually shrink the dough below its vw/px cap (290px)",
+    ).toBeLessThan(290);
 
     // Physical drag at the shrunk dough size -- the drop must actually land (pointer math reads
     // the live, smaller rect, not a stale cached size from before the shrink).
@@ -428,8 +466,8 @@ test.describe("PizzaStage height-aware sizing: shrink path actually engages belo
     }
 
     await page.getByRole("button", { name: /焼く/ }).click();
-    // Roomy ceiling at 390px width is min(92vw=358.8, 380) = 358.8 -- the height term
-    // (650 - 430px reserve = 220) must again actually bind.
+    // Roomy ceiling at 390px width is min(92vw=358.8, 380) = 358.8 -- the stage height must
+    // again actually bind.
     const doughWidthRoomy = await doughSize();
     expect(
       doughWidthRoomy,

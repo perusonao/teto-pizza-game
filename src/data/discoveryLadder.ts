@@ -25,8 +25,9 @@
  * The onboarding starters (tomato-sauce / mozzarella / basil) are not ladder steps: they keep the
  * existing onboarding starter authority (REC-04 `onboardingStarters`, CONFIRMED).
  *
- * **Not wired yet.** Nothing in the runtime imports this module; App/GameState/Shop/save wiring,
- * pack prices and first-stock handling are I4b.
+ * Wiring: the Shop entitlement (../state/materialEntitlement.ts), the material Shop
+ * (../logic/materialShop.ts) and the reducer read `DISCOVERY_LADDER` below (I4b); the 25-recipe
+ * W1 ladder became `DISCOVERY_LADDER` in I5b-3.
  */
 
 /** What a progression step unlocks. W1 only ever uses `MATERIAL`; later waves may extend this
@@ -81,6 +82,48 @@ export const SHIPPED_15_DISCOVERY_LADDER: DiscoveryLadder = {
   ],
 };
 
-/** The ladder for the content currently shipped. I4b reads this; a later wave swaps it for that
- *  wave's regenerated ladder. */
-export const DISCOVERY_LADDER: DiscoveryLadder = SHIPPED_15_DISCOVERY_LADDER;
+/**
+ * Progression 2.0 W1 I5b-1 (docs/reports/TETO_PROGRESS2_W1_I5B_FRESH-AUDIT.md §3): the same REC-04
+ * key-recipe rule applied to the W1 population -- the shipped 15 recipes plus the 10 W1 recipes
+ * (25 recipes, 24 steps; margherita still needs only the starters). Equal to the ladder REC-04
+ * simulated (`REC04_W1_25_LADDER_FIXTURE` in the ladder test-support module; pinned equal by
+ * ../logic/w1LadderEconomy.test.ts).
+ *
+ * Wired as `DISCOVERY_LADDER` since I5b-3, in the same change that added the 10 W1 recipes to
+ * `RECIPES` (switching earlier would have unlocked materials no shipped recipe used).
+ */
+export const W1_25_DISCOVERY_LADDER: DiscoveryLadder = {
+  populationId: "w1-25",
+  steps: [
+    { step: 1, kind: "MATERIAL", ingredientIds: ["egg"], keyRecipeId: "bismarck" },
+    { step: 2, kind: "MATERIAL", ingredientIds: ["bacon"], keyRecipeId: "breakfast-pizza" },
+    { step: 3, kind: "MATERIAL", ingredientIds: ["mushroom"], keyRecipeId: "funghi" },
+    { step: 4, kind: "MATERIAL", ingredientIds: ["eggplant"], keyRecipeId: "melanzane-pizza" },
+    { step: 5, kind: "MATERIAL", ingredientIds: ["parmigiano"], keyRecipeId: "parmigiana-pizza" },
+    { step: 6, kind: "MATERIAL", ingredientIds: ["pepperoni"], keyRecipeId: "pepperoni" },
+    { step: 7, kind: "MATERIAL", ingredientIds: ["sausage"], keyRecipeId: "salsiccia" },
+    { step: 8, kind: "MATERIAL", ingredientIds: ["ham"], keyRecipeId: "meat-lovers" },
+    { step: 9, kind: "MATERIAL", ingredientIds: ["corn"], keyRecipeId: "bambino" },
+    { step: 10, kind: "MATERIAL", ingredientIds: ["pineapple"], keyRecipeId: "hawaiian" },
+    { step: 11, kind: "MATERIAL", ingredientIds: ["black-olive", "oregano"], keyRecipeId: "capricciosa" },
+    { step: 12, kind: "MATERIAL", ingredientIds: ["onion"], keyRecipeId: "pizza-portuguesa" },
+    { step: 13, kind: "MATERIAL", ingredientIds: ["olive-oil"], keyRecipeId: "fugazza" },
+    { step: 14, kind: "MATERIAL", ingredientIds: ["garlic"], keyRecipeId: "marinara" },
+    { step: 15, kind: "MATERIAL", ingredientIds: ["anchovy"], keyRecipeId: "napoletana" },
+    { step: 16, kind: "MATERIAL", ingredientIds: ["tuna"], keyRecipeId: "tonno-e-cipolla" },
+    { step: 17, kind: "MATERIAL", ingredientIds: ["pesto"], keyRecipeId: "pesto-tonno" },
+    { step: 18, kind: "MATERIAL", ingredientIds: ["cherry-tomato"], keyRecipeId: "genovese" },
+    { step: 19, kind: "MATERIAL", ingredientIds: ["clam"], keyRecipeId: "new-haven-apizza" },
+    { step: 20, kind: "MATERIAL", ingredientIds: ["fresh-tomato"], keyRecipeId: "pesto-caprese" },
+    { step: 21, kind: "MATERIAL", ingredientIds: ["potato"], keyRecipeId: "pesto-patate" },
+    { step: 22, kind: "MATERIAL", ingredientIds: ["rosemary"], keyRecipeId: "pizza-bianca" },
+    { step: 23, kind: "MATERIAL", ingredientIds: ["capers"], keyRecipeId: "puttanesca-pizza" },
+    { step: 24, kind: "MATERIAL", ingredientIds: ["fontina", "gorgonzola"], keyRecipeId: "quattro-formaggi" },
+  ],
+};
+
+/** The ladder for the content currently shipped. I4b read `SHIPPED_15_DISCOVERY_LADDER`; since
+ *  Progression 2.0 W1 I5b-3 (the 10 W1 recipes joined `RECIPES` in the same change) it is the
+ *  25-recipe `W1_25_DISCOVERY_LADDER`. Entitlements already granted by the 15-recipe ladder are
+ *  kept: the Shop ledger is a union and never re-locks (../state/materialEntitlement.ts). */
+export const DISCOVERY_LADDER: DiscoveryLadder = W1_25_DISCOVERY_LADDER;
