@@ -25,17 +25,13 @@ afterEach(() => {
   window.localStorage.clear();
 });
 
-/** Progression 2.0 Phase 3-3 (Issue #198): on a truly fresh (empty-Dex) save, margherita's own
- *  NEW card is preDiscoveryLocked -- guided selection routes to Free Cooking instead. This
- *  suite's own tests are about PREPARE's layout/Sauce-evaluation-panel mechanics, not
- *  onboarding, so seed an (intentionally invalid, test-only) already-discovered entry for a
- *  different, deeply-chain-gated recipe id -- never actually reachable via `isRecipeAvailable`,
- *  so it widens nothing else -- purely to clear the "something has ever been discovered" gate
- *  and keep margherita itself a plain, guided-selectable NEW card exactly as before this phase. */
+/** Discovery 2.0 (W1-a2): a guided round starts only from a DISCOVERED, cookable recipe, so
+ *  margherita itself is seeded as discovered. This suite tests PREPARE mechanics, not
+ *  onboarding. */
 function seedGuidedSelectUnlocked(): void {
   const save: PersistentSaveV1 = {
     schemaVersion: 1,
-    dex: [{ recipeId: "napoletana", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }],
+    dex: [{ recipeId: "margherita", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }],
     pitzBalance: 0,
     ownedIngredientIds: [...STARTER_INGREDIENT_IDS],
     missionBest: {},
@@ -54,8 +50,8 @@ async function enterFreePlayPrepare() {
   // lands straight at PREPARE -- the old redundant フリープレイ tap is gone. Recipe Select
   // 2.0A: Pizza Select is a sectioned browse grid, not a pager -- tap margherita's own grid
   // card to open its focused detail, then the shared CTA there.
-  expect(screen.getByLabelText("マルゲリータ、未挑戦")).toBeInTheDocument();
-  await user.click(screen.getByRole("button", { name: "マルゲリータ、未挑戦" }));
+  // Discovery 2.0: margherita is seeded as discovered, so its card is a COMPLETED card.
+  await user.click(screen.getByRole("button", { name: /^マルゲリータ、/ }));
   await user.click(screen.getByRole("button", { name: /このピザを作る/ }));
   return user;
 }

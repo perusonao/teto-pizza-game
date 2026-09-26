@@ -10,6 +10,7 @@ import { buildIdealMargheritaSauceFixture, MARGHERITA_REFERENCE } from "../data/
 import { createCutState } from "../logic/cut/state";
 import { getRecipe, type Recipe, type RecipeId } from "../data/recipes";
 import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
+import { createGuidedInitialState } from "./testSupport/guidedRound";
 
 const MARGHERITA_DISCOVERED_DEX = registerScoreToDex(EMPTY_DEX, "margherita", {
   total: 80,
@@ -57,7 +58,7 @@ function idealCutLine(index: number, count: number): CutLine {
 }
 
 function preparedMargheritaState(): GameState {
-  return gameReducer(createInitialGameState(), { type: "BEGIN_PREPARE" });
+  return gameReducer(createGuidedInitialState(), { type: "BEGIN_PREPARE" });
 }
 
 /** Plays a full, Reference-quality margherita round through PREPARE -> BAKE -> CONFIRM_BAKE,
@@ -65,7 +66,7 @@ function preparedMargheritaState(): GameState {
 function bakedMargheritaAtCut(isMissionRound = false): GameState {
   let state: GameState = isMissionRound
     ? gameReducer(createInitialGameState(MARGHERITA_DISCOVERED_DEX), { type: "MISSION_RESET_ORDER" })
-    : createInitialGameState();
+    : createGuidedInitialState();
   state = gameReducer(state, { type: "BEGIN_PREPARE" });
   state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // DOUGH -> SAUCE
   state = gameReducer(state, {
@@ -383,7 +384,7 @@ describe("10b/15. CONFIRM_MAKING_STEP's own CUT confirm gate + evaluation", () =
 
 describe("16/17. CUT confirm -> RESULT, finalizes perStepElapsedMs.CUT", () => {
   it("confirming CUT with `now` finalizes CUT's own elapsed ms and lands on RESULT", () => {
-    let state = gameReducer(createInitialGameState(), { type: "BEGIN_PREPARE", now: 0 });
+    let state = gameReducer(createGuidedInitialState(), { type: "BEGIN_PREPARE", now: 0 });
     state = gameReducer(state, { type: "CONFIRM_MAKING_STEP", now: 1_000 });
     state = gameReducer(state, { type: "CONFIRM_MAKING_STEP", now: 2_000 });
     state = gameReducer(state, { type: "CONFIRM_MAKING_STEP", now: 3_000 });
@@ -403,7 +404,7 @@ describe("16/17. CUT confirm -> RESULT, finalizes perStepElapsedMs.CUT", () => {
 
 describe("18. pause boundary (CT1/CT2) is unaffected by CUT -- regression", () => {
   it("PAUSE/RESUME_COOKING_TIMING keep their existing PREPARE-only scope, byte-identical to before this phase", () => {
-    let state = gameReducer(createInitialGameState(), { type: "BEGIN_PREPARE", now: 0 });
+    let state = gameReducer(createGuidedInitialState(), { type: "BEGIN_PREPARE", now: 0 });
     state = gameReducer(state, { type: "PAUSE_COOKING_TIMING", now: 1_000 });
     expect(state.cookingTiming?.pausedAt).toBe(1_000);
     state = gameReducer(state, { type: "RESUME_COOKING_TIMING", now: 4_000 }); // 3s paused
@@ -435,7 +436,8 @@ describe("19/20/21. REGISTER_TO_DEX orchestration boundary for a CUT-enabled rec
     expect(state.phase).toBe("RESULT");
     const discovered = gameReducer(state, { type: "REGISTER_TO_DEX" });
     expect(discovered.phase).toBe("DISCOVERED");
-    expect(discovered.justDiscovered).toBe(true);
+    // Discovery 2.0: a guided round re-registers an already-discovered recipe (never discovers).
+    expect(discovered.justDiscovered).toBe(false);
     const entry = discovered.dex.find((e) => e.recipeId === "margherita");
     expect(entry?.timesMade).toBe(1);
   });

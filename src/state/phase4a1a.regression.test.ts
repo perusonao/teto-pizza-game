@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { createInitialGameState, gameReducer, type GameState } from "./gameReducer";
+import { gameReducer, type GameState } from "./gameReducer";
 import { EMPTY_DEX, registerScoreToDex, type DexState } from "./dex";
 import { missionScore, averageQualityScore } from "../logic/missionScoring";
 import { totalStars } from "../logic/mastery";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { createEmptyPizza } from "./pizzaState";
 import { EMPTY_INVENTORY, type InventoryState } from "./inventory";
+import { createGuidedInitialState } from "./testSupport/guidedRound";
 
 /**
  * Phase 4A-1A regression suite (SSOT section 10/13's "Scope Guard"): confirms the Phase
@@ -20,7 +21,8 @@ function preparedState(
   recipeIdOwned: readonly string[],
   inventory: InventoryState = EMPTY_INVENTORY,
 ): GameState {
-  const state = createInitialGameState(EMPTY_DEX, recipeIdOwned, 0, inventory);
+  // Discovery 2.0: a guided round of an already-discovered margherita.
+  const state = createGuidedInitialState("margherita", { ownedIngredientIds: recipeIdOwned, inventory });
   const prepared = gameReducer(state, { type: "BEGIN_PREPARE" });
   // Issue #33 D1: BEGIN_PREPARE now lands at DOUGH, the new first step -- every caller in
   // this file exercises SAUCE-step sauce-dispense actions, so advance past DOUGH once here.
@@ -72,10 +74,11 @@ describe("Regression: non-Margherita sauce interaction", () => {
     // margherita/funghi rounds. With `funghi` discovered and only marinara's three ingredients
     // owned, marinara is the one and only entry in the available pool -- deterministic
     // regardless of `RECIPES`' length.
+    // Discovery 2.0: marinara itself is discovered, with stock for garlic/oregano.
     const funghiDiscoveredDex: DexState = [
       { recipeId: "funghi", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 },
     ];
-    let state = createInitialGameState(funghiDiscoveredDex, owned);
+    let state = createGuidedInitialState("marinara", { dex: funghiDiscoveredDex, ownedIngredientIds: owned });
     expect(state.recipe.id).toBe("marinara");
     state = gameReducer(state, { type: "BEGIN_PREPARE" });
     state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // DOUGH -> SAUCE
@@ -123,7 +126,7 @@ describe("Regression: no direct invalid state transition (Codex MUST FIX 2 -- in
   // MUST FIX 2 explicitly calls for that spec to be inverted: COMMIT_SAUCE_DISPENSE must now
   // reject entirely (state identity-equal, no fields touched) when dispatched from ORDER.
   it("COMMIT_SAUCE_DISPENSE is rejected outright when dispatched from ORDER, not merely 'accepted without changing phase'", () => {
-    const orderState = createInitialGameState();
+    const orderState = createGuidedInitialState();
     expect(orderState.phase).toBe("ORDER");
     const after = gameReducer(orderState, {
       type: "COMMIT_SAUCE_DISPENSE",

@@ -3,10 +3,12 @@ import { createInitialGameState, gameReducer, type GameState, type MakingStep } 
 import { registerScoreToDex, EMPTY_DEX, type DexState } from "./dex";
 import type { ScoreBreakdown, QualityStars } from "../logic/scoring";
 import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "../data/ingredients";
+import { RECIPES } from "../data/recipes";
 import { buildIdealMargheritaSauceFixture, MARGHERITA_REFERENCE } from "../data/referencePizza";
 import { EMPTY_MISSION_METRICS, recordServe } from "../logic/missionScoring";
 import { EMPTY_INVENTORY, type InventoryState } from "./inventory";
 import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
+import { createGuidedInitialState } from "./testSupport/guidedRound";
 
 function scoreOf(total: number, stars: QualityStars): ScoreBreakdown {
   return {
@@ -40,10 +42,13 @@ const ALL_RECIPES_UNLOCKED_DEX: DexState = dexDiscovering(
   3 as QualityStars,
 );
 
-/** Plays through PREPARE -> BAKE -> RESULT for the initial (Margherita) order, placing every
- *  required ingredient so the round scores well, then confirms the bake at `bakeValue`. */
-function playToResult(bakeValue: number): GameState {
-  let state = createInitialGameState();
+/** Plays through PREPARE -> BAKE -> RESULT for a margherita round, placing every required
+ *  ingredient so the round scores well, then confirms the bake at `bakeValue`. `start` defaults
+ *  to a fresh save (Dex 0: a Free Cooking round the matcher resolves to margherita); pass
+ *  `createGuidedInitialState()` for a guided round of an already-discovered margherita
+ *  (Discovery 2.0: guided rounds need a discovery). */
+function playToResult(bakeValue: number, start: GameState = createInitialGameState()): GameState {
+  let state = start;
   state = gameReducer(state, { type: "BEGIN_PREPARE" });
   state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // DOUGH -> SAUCE
   state = gameReducer(state, { type: "APPLY_SAUCE", ingredientId: "tomato-sauce", x: 50, y: 50 });
@@ -215,14 +220,16 @@ describe("SELECT_RECIPE (Issue #39 Pizza Select)", () => {
   // now lands straight at PREPARE, skipping the old, redundant FREE-mode ORDER gate.
   // bismarck needs margherita->funghi->marinara discovered first (Economy & Progression 1.0
   // EP1's recipe-unlock chain), so these tests seed a Dex with that chain already discovered.
-  const bismarckUnlockedDex = dexDiscovering(["margherita", "funghi", "marinara"], 1 as QualityStars);
+  // Discovery 2.0 (LK-8): guided selection needs the recipe itself discovered and cookable.
+  const bismarckUnlockedDex = dexDiscovering(["margherita", "funghi", "marinara", "bismarck"], 1 as QualityStars);
+  const BISMARCK_STOCK: InventoryState = { egg: 10 };
   // EP4: `egg` (bismarck's own non-Starter ingredient) is no longer trivially owned -- own it
   // explicitly, as production's bismarck Starter Grant would have the instant this chain
   // unlocked, so these SELECT_RECIPE tests keep exercising a genuinely *available* bismarck.
   const BISMARCK_OWNED = [...STARTER_INGREDIENT_IDS, "egg"];
 
   it("starts a fresh PREPARE-phase round for the explicitly chosen, available recipe", () => {
-    const state = createInitialGameState(bismarckUnlockedDex, BISMARCK_OWNED, 75);
+    const state = createInitialGameState(bismarckUnlockedDex, BISMARCK_OWNED, 75, BISMARCK_STOCK);
     const after = gameReducer(state, { type: "SELECT_RECIPE", recipeId: "bismarck" });
     expect(after.recipe.id).toBe("bismarck");
     expect(after.order.recipeId).toBe("bismarck");
@@ -235,7 +242,7 @@ describe("SELECT_RECIPE (Issue #39 Pizza Select)", () => {
   });
 
   it("carries dex/pitzBalance/ownedIngredientIds forward unchanged", () => {
-    const state = createInitialGameState(bismarckUnlockedDex, BISMARCK_OWNED, 75);
+    const state = createInitialGameState(bismarckUnlockedDex, BISMARCK_OWNED, 75, BISMARCK_STOCK);
     const after = gameReducer(state, { type: "SELECT_RECIPE", recipeId: "bismarck" });
     expect(after.dex).toBe(bismarckUnlockedDex);
     expect(after.pitzBalance).toBe(75);
@@ -243,7 +250,7 @@ describe("SELECT_RECIPE (Issue #39 Pizza Select)", () => {
   });
 
   it("rebuilds a fresh round even mid-PREPARE/RESULT of a different recipe", () => {
-    let state = createInitialGameState(bismarckUnlockedDex, BISMARCK_OWNED, 0);
+    let state = createInitialGameState(bismarckUnlockedDex, BISMARCK_OWNED, 0, BISMARCK_STOCK);
     state = gameReducer(state, { type: "BEGIN_PREPARE" });
     state = gameReducer(state, { type: "APPLY_SAUCE", ingredientId: "tomato-sauce", x: 50, y: 50 });
     const after = gameReducer(state, { type: "SELECT_RECIPE", recipeId: "bismarck" });
@@ -269,22 +276,23 @@ describe("SELECT_RECIPE (Issue #39 Pizza Select)", () => {
   });
 
   it("selects fugazza once both its recipe-unlock chain/stars gate and onion ownership hold", () => {
+    // Discovery 2.0: fugazza itself is discovered, with stock for its finite ingredients.
     const chainDex = dexDiscovering(
-      ["margherita", "funghi", "marinara", "bismarck", "genovese", "quattro-formaggi"],
+      ["margherita", "funghi", "marinara", "bismarck", "genovese", "quattro-formaggi", "fugazza"],
       5 as QualityStars,
     );
     // EP4: olive-oil/oregano are also no longer trivially owned -- own them explicitly (as
     // production's quattro-formaggi/marinara Starter Grant would have) so onion is the one
     // ingredient this test is isolating.
     const ownedWithOnion = [...STARTER_INGREDIENT_IDS, "olive-oil", "oregano", "onion"];
-    const state = createInitialGameState(chainDex, ownedWithOnion, 0);
+    const state = createInitialGameState(chainDex, ownedWithOnion, 0, { "olive-oil": 10, oregano: 10, onion: 10 });
     const after = gameReducer(state, { type: "SELECT_RECIPE", recipeId: "fugazza" });
     expect(after.recipe.id).toBe("fugazza");
     expect(after.phase).toBe("PREPARE");
   });
 
   it("never touches Mission's own random order selection", () => {
-    let state = createInitialGameState(bismarckUnlockedDex, BISMARCK_OWNED, 0);
+    let state = createInitialGameState(bismarckUnlockedDex, BISMARCK_OWNED, 0, BISMARCK_STOCK);
     const before = state;
     state = gameReducer(state, { type: "SELECT_RECIPE", recipeId: "bismarck" });
     // Mission's own order picker still works after a SELECT_RECIPE dispatch -- selecting a
@@ -297,7 +305,7 @@ describe("SELECT_RECIPE (Issue #39 Pizza Select)", () => {
 
 describe("RETRY_SAME_RECIPE (Issue #47 Finding D)", () => {
   it("retries the exact same recipe just played, landing straight at PREPARE with a fresh pizza", () => {
-    const discovered = gameReducer(playToResult(70), { type: "REGISTER_TO_DEX" });
+    const discovered = gameReducer(playToResult(70, createGuidedInitialState()), { type: "REGISTER_TO_DEX" });
     expect(discovered.phase).toBe("DISCOVERED");
     expect(discovered.recipe.id).toBe("margherita");
 
@@ -318,7 +326,7 @@ describe("RETRY_SAME_RECIPE (Issue #47 Finding D)", () => {
     // A fresh save only owns the Starter Set, so margherita/marinara/genovese are the only
     // available recipes -- run RETRY_SAME_RECIPE many times and confirm it never drifts off
     // the current recipe the way PLAY_AGAIN's random selection would.
-    let state = gameReducer(playToResult(70), { type: "REGISTER_TO_DEX" });
+    let state = gameReducer(playToResult(70, createGuidedInitialState()), { type: "REGISTER_TO_DEX" });
     for (let i = 0; i < 10; i++) {
       state = gameReducer(state, { type: "RETRY_SAME_RECIPE" });
       expect(state.recipe.id).toBe("margherita");
@@ -328,7 +336,7 @@ describe("RETRY_SAME_RECIPE (Issue #47 Finding D)", () => {
   it("preserves dex/pitzBalance/ownedIngredientIds (progression) unchanged", () => {
     const dex = registerScoreToDex(EMPTY_DEX, "margherita", scoreOf(96, 5)).dex;
     const seeded: GameState = {
-      ...gameReducer(playToResult(70), { type: "REGISTER_TO_DEX" }),
+      ...gameReducer(playToResult(70, createGuidedInitialState()), { type: "REGISTER_TO_DEX" }),
       dex,
       pitzBalance: 75,
       ownedIngredientIds: STARTER_INGREDIENT_IDS,
@@ -518,9 +526,13 @@ describe("order selection availability (Phase 3C-3)", () => {
     // left, which would turn this into an infinite-fugazza loop unrelated to what this test
     // is about.
     const seen = new Set<string>();
+    // Discovery 2.0 (F-15): owned finite materials need stock to be cookable.
+    const ownedIds = INGREDIENTS.filter((i) => i.id !== "onion").map((i) => i.id);
     let state = createInitialGameState(
       ALL_RECIPES_UNLOCKED_DEX,
-      INGREDIENTS.filter((i) => i.id !== "onion").map((i) => i.id),
+      ownedIds,
+      0,
+      Object.fromEntries(ownedIds.map((id) => [id, 99])),
     );
     for (let i = 0; i < 60 && seen.size < 6; i++) {
       seen.add(state.recipe.id);
@@ -542,7 +554,8 @@ describe("order selection availability (Phase 3C-3)", () => {
     // this list doesn't have (mozzarella-only recipes still need their own extra
     // ingredient, e.g. marinara needs garlic/oregano instead of mozzarella at all).
     const marginallyOwned = ["tomato-sauce", "mozzarella", "basil"];
-    let state = createInitialGameState(EMPTY_DEX, marginallyOwned);
+    // Discovery 2.0: every recipe discovered, so ownership is the only filter under test.
+    let state = createInitialGameState(dexDiscovering(RECIPES.map((r) => r.id), 1 as QualityStars), marginallyOwned);
     for (let i = 0; i < 30; i++) {
       expect(state.recipe.id).toBe("margherita");
       state = gameReducer(state, { type: "PLAY_AGAIN" });
@@ -603,7 +616,9 @@ describe("Mission order actions (Phase 3C-4)", () => {
   });
 
   it("MISSION_NEXT_ORDER registers the round to the Dex (discovery, BEST, timesMade) and advances straight to a fresh ORDER, skipping DISCOVERED", () => {
-    const resultState = playToResult(70); // Margherita's perfect zone is 60-80
+    // Discovery 2.0: Lunch Rush only re-registers a discovered recipe (never discovers), so the
+    // round is a guided margherita that is discovered but never made yet.
+    const resultState = playToResult(70, createGuidedInitialState()); // perfect zone is 60-80
     expect(resultState.phase).toBe("RESULT");
 
     const next = gameReducer(resultState, { type: "MISSION_NEXT_ORDER" });
@@ -617,7 +632,7 @@ describe("Mission order actions (Phase 3C-4)", () => {
   });
 
   it("MISSION_NEXT_ORDER updates Dex BEST on a repeat play the same way REGISTER_TO_DEX does", () => {
-    let state = playToResult(70);
+    let state = playToResult(70, createGuidedInitialState());
     state = gameReducer(state, { type: "MISSION_NEXT_ORDER" }); // first margherita registered, BEST set
 
     // Force the Mission loop back onto margherita specifically (MISSION_NEXT_ORDER's own
@@ -649,7 +664,7 @@ describe("Mission order actions (Phase 3C-4)", () => {
   });
 
   it("MISSION_NEXT_ORDER registers exactly once even if dispatched twice in a row", () => {
-    const resultState = playToResult(70);
+    const resultState = playToResult(70, createGuidedInitialState());
     const first = gameReducer(resultState, { type: "MISSION_NEXT_ORDER" });
     // The phase has already moved to ORDER, so a stray repeat must be a true no-op (ORDER has
     // no `score`, which is exactly the guard MISSION_NEXT_ORDER shares with REGISTER_TO_DEX).
@@ -795,7 +810,9 @@ describe("inventory carry-through (Save v2 / Inventory E1)", () => {
     ownedIngredientIds: readonly string[] = STARTER_INGREDIENT_IDS,
     bakeValue = 70,
   ): GameState {
-    let state = createInitialGameState(EMPTY_DEX, ownedIngredientIds, 0, inventory);
+    // Discovery 2.0: a guided margherita (discovered, never made) -- MISSION_NEXT_ORDER only
+    // re-registers discovered recipes, and RETRY_SAME_RECIPE only retries them.
+    let state = createGuidedInitialState("margherita", { ownedIngredientIds, inventory });
     state = gameReducer(state, { type: "BEGIN_PREPARE" });
     state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // DOUGH -> SAUCE
     state = gameReducer(state, { type: "APPLY_SAUCE", ingredientId: "tomato-sauce", x: 50, y: 50 });

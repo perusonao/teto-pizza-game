@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { createInitialGameState, gameReducer, type GameState } from "./gameReducer";
+import { gameReducer, type GameState } from "./gameReducer";
 import { DEFAULT_COOKING_PROFILE } from "../data/cookingProfiles";
 import { requiredCutCount } from "../logic/cut/evaluation";
 import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
 import { DOUGH_CENTER, DOUGH_RADIUS } from "../logic/pizzaCoordinates";
 import { buildIdealMargheritaSauceFixture, MARGHERITA_REFERENCE } from "../data/referencePizza";
+import { createGuidedInitialState } from "./testSupport/guidedRound";
 
 /**
  * Pizza Cutting 1.0 Phase 3 (docs/design/TETO_PIZZA-CUTTING_1.0.md §14 Option D / RESULT UI
@@ -40,7 +41,7 @@ function offCenterCutLine(offset: number): CutLine {
 }
 
 function bakedMargheritaAtCut(): GameState {
-  let state: GameState = createInitialGameState();
+  let state: GameState = createGuidedInitialState();
   state = gameReducer(state, { type: "BEGIN_PREPARE" });
   state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // DOUGH -> SAUCE
   state = gameReducer(state, {
@@ -160,7 +161,7 @@ describe("uneven / off-center / mismatched-count cuts reach state.cutState.evalu
 describe("CUT time never influences cutScore (design doc §6.1)", () => {
   it("identical lines confirmed after 1s vs. after 30s of CUT-step elapsed time produce the exact same cutScore", () => {
     function confirmAfter(cutElapsedMs: number): number {
-      let state: GameState = gameReducer(createInitialGameState(), { type: "BEGIN_PREPARE", now: 0 });
+      let state: GameState = gameReducer(createGuidedInitialState(), { type: "BEGIN_PREPARE", now: 0 });
       state = gameReducer(state, { type: "CONFIRM_MAKING_STEP", now: 1 });
       state = gameReducer(state, {
         type: "COMMIT_SAUCE_DISPENSE",
@@ -191,7 +192,7 @@ describe("CUT time never influences cutScore (design doc §6.1)", () => {
 
 describe("non-CUT recipes never populate state.cutState.evaluation (RESULT's own display guard contract)", () => {
   it("a recipe with the default (empty) post-BAKE profile reaches RESULT with cutState.evaluation still null", () => {
-    let state: GameState = createInitialGameState();
+    let state: GameState = createGuidedInitialState();
     state = gameReducer(state, { type: "BEGIN_PREPARE" });
     // margherita is this repo's own default/first recipe and does carry a CUT-enabled
     // profile (Phase 2) -- force a non-CUT profile the same way this repo's own existing

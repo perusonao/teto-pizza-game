@@ -274,6 +274,8 @@ function seedBismarckUnlocked(): void {
       { recipeId: "margherita", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 },
       { recipeId: "funghi", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 },
       { recipeId: "marinara", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 },
+      // Discovery 2.0: bismarck itself is discovered -- guided rounds need a discovery.
+      { recipeId: "bismarck", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 },
     ],
     // Progression 2.0 I4b-3: EP4's load-time Starter Grant is retired, so the materials these
     // recipes need are seeded as already bought (the v1 -> v2 migration backfills their stock).
@@ -755,7 +757,9 @@ describe("HOME/GAME separation (Issue #24)", () => {
     // No intermediate "score only, tap to register" screen -- the discovery banner, the CTAs,
     // and the completed pizza are all present on the very first render after CUT confirms.
     expect(screen.queryByRole("button", { name: "レシピ図鑑に登録する" })).not.toBeInTheDocument();
-    expect(screen.getByText(/を発見しました/)).toBeInTheDocument();
+    // Discovery 2.0: a guided round re-registers an already-discovered recipe -- the NEW PIZZA
+    // banner belongs to Free Cooking discoveries only (matcher-only discovery authority).
+    expect(screen.queryByText(/を発見しました/)).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "もう一度つくる" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "別のピザを作る" })).toBeInTheDocument();
 
@@ -788,12 +792,9 @@ describe("HOME/GAME separation (Issue #24)", () => {
   // Japanese labels, never the four raw technical signal names, and never perturbs the
   // existing stars/score/Pitz headline.
   it("Pizza Cutting Phase 3: margherita's RESULT shows the CUT evaluation card after a real CUT walkthrough", async () => {
-    // Progression 2.0 Phase 3-3 (Issue #198): margherita is guided-selectable pre-first-
-    // discovery only once *something* has ever been discovered. Seed an (otherwise-invalid,
-    // test-only) already-discovered entry for a different recipe id -- not margherita itself,
-    // whose own NEW-discovery banner this test still asserts below -- so this stays a pure
-    // CUT-walkthrough check, unrelated to onboarding gating.
-    seedSave({ dex: [{ recipeId: "funghi", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }] });
+    // Discovery 2.0 (W1-a2): a guided round starts only from a DISCOVERED recipe, so margherita
+    // itself is seeded as discovered -- this stays a pure CUT-walkthrough check.
+    seedSave({ dex: [{ recipeId: "margherita", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }] });
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: /ピザを作る/ }));

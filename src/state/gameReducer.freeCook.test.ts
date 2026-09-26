@@ -7,6 +7,7 @@ import { DEFAULT_COOKING_PROFILE } from "../data/cookingProfiles";
 import { FREE_COOK_BAKE_TARGET, FREE_COOK_RECIPE, FREE_COOK_RECIPE_ID } from "../data/freeCook";
 import type { InventoryState } from "./inventory";
 import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
+import { discoveredDex } from "./testSupport/guidedRound";
 
 /**
  * Progression 2.0 Phase 3-2 (Issue #194): the free-cook round end to end, through the real
@@ -299,7 +300,8 @@ describe("free cook: inventory consumption", () => {
 
 describe("free cook does not leak into other flows", () => {
   it("HOME (PLAY_AGAIN) mid-round resets to a recipe round with no stale discovery", () => {
-    const mid = gameReducer(start(), { type: "CONFIRM_MAKING_STEP" });
+    // Discovery 2.0: PLAY_AGAIN only offers a discovered, cookable recipe -- margherita is.
+    const mid = gameReducer(start(discoveredDex(["margherita"])), { type: "CONFIRM_MAKING_STEP" });
     const home = gameReducer(mid, { type: "PLAY_AGAIN" });
     expect(home.freeCook).toBe(false);
     expect(home.recipe.id).not.toBe(FREE_COOK_RECIPE_ID);

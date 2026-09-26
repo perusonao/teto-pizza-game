@@ -58,6 +58,8 @@ function playToResult(recipeId: RecipeId, pizza: PizzaState, isMissionRound = fa
     cookingProfile,
     cutState: createCutState(cookingProfile.cutConfig),
     isMissionRound,
+    // Discovery 2.0: an injected guided round (a Dex-0 initial state is a Free Cooking round now).
+    freeCook: false,
   };
   state = gameReducer(state, { type: "START_BAKE" });
   state = gameReducer(state, { type: "CONFIRM_BAKE", value: pizza.bakeResult! });

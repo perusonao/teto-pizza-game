@@ -411,6 +411,8 @@ describe("runtime wiring boundary (I4b-3/4)", () => {
     // via ../state/materialEntitlement.ts (ladder -> Shop entitlement), ../state/gameReducer.ts
     // (first pack / refill transactions) and, from I4b-4, ../components/ShopOverlay.tsx (reads the
     // same `materialOffer`/`nextMaterialHint` the reducer charges by -- no duplicated numbers).
+    // Discovery 2.0 W1-a1: ../state/recipeChapters.ts derives the canonical chapter partition
+    // from the ladder's price tiers (OD-DISC-9) -- read-only, no numbers of its own.
     const pureLayer = new Set([
       "../data/discoveryLadder.ts",
       "./discoveryLadder.ts",
@@ -421,6 +423,7 @@ describe("runtime wiring boundary (I4b-3/4)", () => {
       "../components/ShopOverlay.tsx",
       "../state/gameReducer.ts",
       "../state/materialEntitlement.ts",
+      "../state/recipeChapters.ts",
     ];
     const importers = Object.entries(sources)
       .filter(([path]) => !pureLayer.has(path))

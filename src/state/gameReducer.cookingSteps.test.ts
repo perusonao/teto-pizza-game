@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { createInitialGameState, gameReducer, type GameState } from "./gameReducer";
+import { gameReducer, type GameState } from "./gameReducer";
 import type { CookingProfile } from "../data/cookingProfiles";
 import { DEFAULT_COOKING_PROFILE } from "../data/cookingProfiles";
 import { buildIdealSauceFixture, getReferencePizza } from "../data/referencePizza";
 import { createEmptyPizza, type PizzaState } from "./pizzaState";
 import { DOUGH_CENTER, DOUGH_RADIUS } from "../logic/pizzaCoordinates";
+import { createGuidedInitialState } from "./testSupport/guidedRound";
 
 /**
  * Recipe Cooking Steps 1.0 Phase 1A (docs/design/TETO_RECIPE-COOKING-STEPS_1.0.md §8/§18):
@@ -19,7 +20,7 @@ import { DOUGH_CENTER, DOUGH_RADIUS } from "../logic/pizzaCoordinates";
  */
 
 function preparedState(): GameState {
-  return gameReducer(createInitialGameState(), { type: "BEGIN_PREPARE" });
+  return gameReducer(createGuidedInitialState(), { type: "BEGIN_PREPARE" });
 }
 
 /** Overrides the round's `cookingProfile` with a test fixture -- mirrors how a future recipe's
@@ -128,7 +129,7 @@ describe("Making sequence (nextStepWithin, driven by CookingProfile)", () => {
   });
 
   it("CONFIRM_MAKING_STEP outside PREPARE/POST_BAKE (e.g. ORDER) is a no-op regardless of profile", () => {
-    const orderState = createInitialGameState();
+    const orderState = createGuidedInitialState();
     expect(orderState.phase).toBe("ORDER");
     expect(confirm(orderState)).toBe(orderState);
   });

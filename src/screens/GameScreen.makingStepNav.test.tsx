@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { GameScreen } from "./GameScreen";
-import { createInitialGameState, gameReducer, type GameState } from "../state/gameReducer";
+import { gameReducer, type GameState } from "../state/gameReducer";
+import { createGuidedInitialState } from "../state/testSupport/guidedRound";
 import { INITIAL_MISSION_STATE } from "../mission/lunchRush";
 import { emptySauceMetrics } from "../logic/sauceField";
 import type { IngredientCategory } from "../data/ingredients";
@@ -24,7 +25,7 @@ import { getCookingProfile } from "../data/cookingProfiles";
 const [MOZZARELLA_GROUP, BASIL_GROUP] = MARGHERITA_REFERENCE.pieceGroups;
 
 function preparedMargherita(): GameState {
-  return gameReducer(createInitialGameState(), { type: "BEGIN_PREPARE" });
+  return gameReducer(createGuidedInitialState(), { type: "BEGIN_PREPARE" });
 }
 
 /** Walks a full, Reference-quality margherita round from DOUGH through TOPPING, stopping right

@@ -26,6 +26,7 @@ import {
   calculateLunchRushMissionScore,
   isValidLunchRushServeRecord,
 } from "../shared/lunchRushScoring";
+import { discoveredDex } from "./testSupport/guidedRound";
 
 /**
  * Progression 2.0 W1 I5b-3 activation (docs/reports/TETO_PROGRESS2_W1_I5B_FRESH-AUDIT.md): the 10
@@ -107,9 +108,10 @@ describe("production tables: 25 recipes, one row each", () => {
     expect([nonSauce("parmigiana-pizza"), nonSauce("pizza-portuguesa"), nonSauce("puttanesca-pizza")]).toEqual([9, 10, 9]);
   });
 
-  it.each(W1_RECIPES)("%s: Pizza Select can start it (SELECT_RECIPE -> PREPARE with its own order)", (id) => {
+  it.each(W1_RECIPES)("%s: once discovered, Pizza Select can start it (SELECT_RECIPE -> PREPARE with its own order)", (id) => {
     const owned = [...STARTER_INGREDIENT_IDS, ...ingredientsOf(id)];
-    const state = createInitialGameState(dexOf(1), owned, 0, Object.fromEntries(ingredientsOf(id).map((i) => [i, 99])), [], []);
+    // Discovery 2.0: guided selection needs the recipe discovered (and cookable).
+    const state = createInitialGameState(discoveredDex([id], dexOf(1)), owned, 0, Object.fromEntries(ingredientsOf(id).map((i) => [i, 99])), [], []);
     const next = gameReducer(state, { type: "SELECT_RECIPE", recipeId: id });
     expect(next.phase).toBe("PREPARE");
     expect(next.recipe.id).toBe(id);
@@ -151,7 +153,8 @@ describe("CUT: New Haven ends at BAKE; the other W1 recipes cut", () => {
     const recipe = getRecipe(id)!;
     const reference = getReferencePizza(id)!;
     const owned = [...STARTER_INGREDIENT_IDS, ...ingredientsOf(id)];
-    let s = createInitialGameState(dexOf(1), owned, 0, Object.fromEntries(ingredientsOf(id).map((i) => [i, 99])), [], []);
+    // Discovery 2.0: a guided round of the (already discovered) recipe.
+    let s = createInitialGameState(discoveredDex([id], dexOf(1)), owned, 0, Object.fromEntries(ingredientsOf(id).map((i) => [i, 99])), [], []);
     s = gameReducer(s, { type: "SELECT_RECIPE", recipeId: id });
     s = gameReducer(s, { type: "BEGIN_PREPARE" });
     const steps = s.cookingProfile.steps.filter((step) => step !== "CUT");

@@ -13,6 +13,7 @@ import { totalStars } from "../logic/mastery";
 import { applyPitzCredit } from "../logic/pitzReward";
 import { loadSave, persistProgress, SAVE_STORAGE_KEY, type StorageLike } from "./persistence";
 import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
+import { discoveredDex } from "./testSupport/guidedRound";
 
 /**
  * Progression 2.0 Phase 3-1 (Issue #192): discovery at the REGISTER_TO_DEX integration layer --
@@ -40,8 +41,9 @@ function idealPizzaFor(recipeId: RecipeId, bakeResult = BAKE): PizzaState {
   };
 }
 
-/** Drives a FREE round for `recipeId` to RESULT with exactly `pizza` (same direct-injection
- *  pattern as gameReducer.completionGate.test.ts). */
+/** Drives a guided FREE round for `recipeId` to RESULT with exactly `pizza` (same
+ *  direct-injection pattern as gameReducer.completionGate.test.ts). Discovery 2.0: a guided
+ *  round is only ever for an already-discovered recipe, so callers pass a Dex that has it. */
 function playToResult(
   recipeId: RecipeId,
   pizza: PizzaState,
@@ -59,11 +61,25 @@ function playToResult(
     cookingProfile,
     cutState: createCutState(cookingProfile.cutConfig),
     isMissionRound,
+    freeCook: false,
   };
   state = gameReducer(state, { type: "START_BAKE" });
   state = gameReducer(state, { type: "CONFIRM_BAKE", value: pizza.bakeResult ?? BAKE });
   return walkPostBakeToResult(state);
 }
+
+/** Discovery 2.0: the discovery path -- a Free Cooking round (START_FREE_COOK) baked with exactly
+ *  `pizza`; the matcher (CONFIRM_BAKE) decides which recipe it is. */
+function freeCookToResult(pizza: PizzaState, dex: DexState = EMPTY_DEX): GameState {
+  let state = gameReducer(createInitialGameState(dex, OWNED, 0, {}, []), { type: "START_FREE_COOK" });
+  state = { ...state, pizza };
+  state = gameReducer(state, { type: "START_BAKE" });
+  state = gameReducer(state, { type: "CONFIRM_BAKE", value: pizza.bakeResult ?? BAKE });
+  return walkPostBakeToResult(state);
+}
+
+/** Bismarck already discovered (never made): the guided round the cross-recipe tests start from. */
+const BISMARCK_DEX = discoveredDex(["bismarck"]);
 
 function register(state: GameState): GameState {
   return gameReducer(state, { type: "REGISTER_TO_DEX" });
@@ -81,7 +97,7 @@ function withExtraPieces(pizza: PizzaState, ingredientId: string, count: number)
 
 describe("REGISTER_TO_DEX discovery integration (P3-1)", () => {
   it("first Margherita: NEW_DISCOVERY, and the Dex write is exactly the legacy write", () => {
-    const result = playToResult("margherita", idealPizzaFor("margherita", 70));
+    const result = freeCookToResult(idealPizzaFor("margherita", 70));
     expect(result.completion?.status).toBe("PASS");
     const after = register(result);
     expect(after.lastDiscovery).toEqual({
@@ -95,7 +111,7 @@ describe("REGISTER_TO_DEX discovery integration (P3-1)", () => {
   });
 
   it("9. already discovered: ALREADY_DISCOVERED, legacy BEST/timesMade rules unchanged", () => {
-    const first = register(playToResult("margherita", idealPizzaFor("margherita", 70)));
+    const first = register(freeCookToResult(idealPizzaFor("margherita", 70)));
     const secondResult = playToResult("margherita", idealPizzaFor("margherita", 79), first.dex);
     const second = register(secondResult);
     expect(second.lastDiscovery).toEqual({
@@ -109,7 +125,7 @@ describe("REGISTER_TO_DEX discovery integration (P3-1)", () => {
   });
 
   it("10. a duplicate REGISTER_TO_DEX (repeated RESULT event / re-render) never discovers twice", () => {
-    const once = register(playToResult("margherita", idealPizzaFor("margherita", 70)));
+    const once = register(freeCookToResult(idealPizzaFor("margherita", 70)));
     const twice = register(once);
     expect(twice).toBe(once);
     expect(getDexEntry(twice.dex, "margherita")?.timesMade).toBe(1);
@@ -134,18 +150,18 @@ describe("REGISTER_TO_DEX discovery integration (P3-1)", () => {
   });
 
   it("every fresh round starts with lastDiscovery reset", () => {
-    const after = register(playToResult("margherita", idealPizzaFor("margherita", 70)));
+    const after = register(freeCookToResult(idealPizzaFor("margherita", 70)));
     expect(after.lastDiscovery).not.toBeNull();
     expect(gameReducer(after, { type: "PLAY_AGAIN" }).lastDiscovery).toBeNull();
     expect(gameReducer(after, { type: "RETRY_SAME_RECIPE" }).lastDiscovery).toBeNull();
   });
 
   it("7. original pizza (PASS for the selected recipe, no target): ORIGINAL, legacy registration only", () => {
-    const result = playToResult("bismarck", withExtraPieces(idealPizzaFor("bismarck"), "mushroom", 3));
+    const result = playToResult("bismarck", withExtraPieces(idealPizzaFor("bismarck"), "mushroom", 3), BISMARCK_DEX);
     expect(result.completion?.status).toBe("PASS");
     const after = register(result);
     expect(after.lastDiscovery).toEqual({ kind: "ORIGINAL", blockedTargetIds: [] });
-    expect(after.dex).toEqual(registerScoreToDex(EMPTY_DEX, "bismarck", result.score!).dex);
+    expect(after.dex).toEqual(registerScoreToDex(BISMARCK_DEX, "bismarck", result.score!).dex);
   });
 
   describe("an exact match to a different recipe", () => {
@@ -153,7 +169,7 @@ describe("REGISTER_TO_DEX discovery integration (P3-1)", () => {
     const breakfastOnBismarck = () => withExtraPieces(idealPizzaFor("bismarck"), "bacon", 3);
 
     it("is written to the Dex as that recipe, scored as that recipe", () => {
-      const result = playToResult("bismarck", breakfastOnBismarck());
+      const result = playToResult("bismarck", breakfastOnBismarck(), BISMARCK_DEX);
       expect(result.completion?.status).toBe("PASS");
       const after = register(result);
       expect(after.lastDiscovery).toEqual({
@@ -167,20 +183,19 @@ describe("REGISTER_TO_DEX discovery integration (P3-1)", () => {
         result.pizza.bakeResult,
         breakfast.bakeTarget,
       );
-      const legacy = registerScoreToDex(EMPTY_DEX, "bismarck", result.score!).dex;
+      const legacy = registerScoreToDex(BISMARCK_DEX, "bismarck", result.score!).dex;
       expect(after.dex).toEqual(registerScoreToDex(legacy, "breakfast-pizza", breakfastScore).dex);
-      // The selected recipe's own legacy flags and Pitz are unchanged. OD-02: bismarck itself is
-      // also a first-ever discovery here (dex started empty), so its own credit includes the
-      // first-discovery bonus -- breakfast-pizza's own separate discovery is Dex-only (§ above),
-      // never a second Pitz credit.
-      expect(after.justDiscovered).toBe(true);
+      // The selected recipe's own legacy flags and Pitz are unchanged. Discovery 2.0: the guided
+      // bismarck was already discovered, so its credit has no first-discovery bonus --
+      // breakfast-pizza's own separate (matcher) discovery is Dex-only, never a second Pitz credit.
+      expect(after.justDiscovered).toBe(false);
       expect(after.lastPitzCredit).toEqual(
-        applyPitzCredit(getRecipe("bismarck")!.baseRewardPitz, result.score!.total, 0, true),
+        applyPitzCredit(getRecipe("bismarck")!.baseRewardPitz, result.score!.total, 0, false),
       );
     });
 
     it("is idempotent: making it again never re-writes that recipe", () => {
-      const first = register(playToResult("bismarck", breakfastOnBismarck()));
+      const first = register(playToResult("bismarck", breakfastOnBismarck(), BISMARCK_DEX));
       const second = register(playToResult("bismarck", breakfastOnBismarck(), first.dex));
       expect(second.lastDiscovery).toEqual({
         kind: "ALREADY_DISCOVERED",
@@ -194,7 +209,7 @@ describe("REGISTER_TO_DEX discovery integration (P3-1)", () => {
       // 1 bacon: the signature is Breakfast Pizza's; Breakfast's ideal is 3 bacon, but the
       // "recipe" Completion Gate policy only needs one, so it is discovered -- scored (with the
       // quantity factor) as Breakfast Pizza.
-      const result = playToResult("bismarck", withExtraPieces(idealPizzaFor("bismarck"), "bacon", 1));
+      const result = playToResult("bismarck", withExtraPieces(idealPizzaFor("bismarck"), "bacon", 1), BISMARCK_DEX);
       expect(result.completion?.status).toBe("PASS");
       const after = register(result);
       expect(after.lastDiscovery).toEqual({
@@ -209,15 +224,15 @@ describe("REGISTER_TO_DEX discovery integration (P3-1)", () => {
         shortage: { ingredientId: "bacon", playerCount: 1, targetCount: 3 },
       });
       const breakfastScore = toLegacyScoreBreakdown(breakfastResult, result.pizza.bakeResult, breakfast.bakeTarget);
-      const legacy = registerScoreToDex(EMPTY_DEX, "bismarck", result.score!).dex;
+      const legacy = registerScoreToDex(BISMARCK_DEX, "bismarck", result.score!).dex;
       expect(after.dex).toEqual(registerScoreToDex(legacy, "breakfast-pizza", breakfastScore).dex);
     });
   });
 
-  it("12. every shipped recipe's reference pizza: discovery matches the selected recipe and Dex/★/Pitz equal the legacy result", () => {
+  it("12. every shipped recipe's reference pizza: Free Cooking discovers exactly that recipe and Dex/★/Pitz equal the legacy result", () => {
     for (const recipe of RECIPES) {
       const bake = Math.round((recipe.bakeTarget.start + recipe.bakeTarget.end) / 2);
-      const result = playToResult(recipe.id, idealPizzaFor(recipe.id, bake));
+      const result = freeCookToResult(idealPizzaFor(recipe.id, bake));
       expect(result.completion?.status, recipe.id).toBe("PASS");
       const after = register(result);
       expect(after.lastDiscovery, recipe.id).toMatchObject({ kind: "NEW_DISCOVERY", recipeId: recipe.id });
@@ -265,7 +280,9 @@ describe("11. existing save compatibility (no schema change)", () => {
 
   it("a save written after a discovery keeps the v2 shape and reloads identically", () => {
     const storage = fakeStorage({ [SAVE_STORAGE_KEY]: JSON.stringify(V2_SAVE) });
-    const first = register(playToResult("bismarck", withExtraPieces(idealPizzaFor("bismarck"), "bacon", 3), loadSave(storage).dex));
+    const first = register(
+      playToResult("bismarck", withExtraPieces(idealPizzaFor("bismarck"), "bacon", 3), discoveredDex(["bismarck"], loadSave(storage).dex)),
+    );
     persistProgress(
       {
         dex: first.dex,

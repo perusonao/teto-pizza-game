@@ -2,7 +2,8 @@ import { useReducer, useState } from "react";
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { IngredientTray } from "./IngredientTray";
-import { createInitialGameState, gameReducer, type MakingStep } from "../state/gameReducer";
+import { gameReducer, type MakingStep } from "../state/gameReducer";
+import { createGuidedInitialState } from "../state/testSupport/guidedRound";
 import { getRecipe } from "../data/recipes";
 import { resolvePieceDrop } from "../logic/pieceDrag";
 import {
@@ -73,7 +74,8 @@ function Harness({
   recipeOverride?: Recipe;
 }) {
   const [state, dispatch] = useReducer(gameReducer, undefined, () => {
-    let initial = gameReducer(createInitialGameState(undefined, ownedIngredientIds), {
+    // Discovery 2.0: a guided round of an already-discovered margherita.
+    let initial = gameReducer(createGuidedInitialState("margherita", { ownedIngredientIds }), {
       type: "BEGIN_PREPARE",
     });
     const targetStep = CATEGORY_TO_MAKING_STEP[category];
