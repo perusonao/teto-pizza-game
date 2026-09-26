@@ -1,4 +1,4 @@
-import { getIngredient } from "../data/ingredients";
+import { getIngredient, type Ingredient } from "../data/ingredients";
 import { getRecipe, type Recipe, type RecipeId } from "../data/recipes";
 import { isDiscovered, type DexState } from "./dex";
 import type { InventoryState } from "./inventory";
@@ -88,6 +88,16 @@ export function isRecipeCookable(recipe: Recipe, inputs: Omit<GuidedRoundInputs,
   return recipeStockShortage(recipe, inputs).length === 0;
 }
 
+/**
+ * Units of one finite ingredient a single pizza needs for one requirement: scatter needs
+ * `max(1, minCount)` pieces (the "order" completion minimum), a sauce/spread needs one unit. The one
+ * need rule shared by `recipeStockShortage` and the Dinner Mission recipe-set check
+ * (./recipeSetFeasibility.ts), so the two can never disagree about a single recipe.
+ */
+export function finiteRequirementNeed(ingredient: Pick<Ingredient, "placement">, minCount: number): number {
+  return ingredient.placement === "scatter" ? Math.max(1, minCount) : 1;
+}
+
 /** One required ingredient `recipe` is short of: `need` units for one pizza, `have` usable now. */
 export interface IngredientShortage {
   ingredientId: string;
@@ -117,7 +127,7 @@ export function recipeStockShortage(
       continue;
     }
     if (!ingredient.unlockCondition) continue;
-    const need = ingredient.placement === "scatter" ? Math.max(1, minCount) : 1;
+    const need = finiteRequirementNeed(ingredient, minCount);
     const have = owned.has(ingredientId) ? stockOf(ingredientId, inputs.inventory) : 0;
     if (have < need) shortages.push({ ingredientId, need, have });
   }
