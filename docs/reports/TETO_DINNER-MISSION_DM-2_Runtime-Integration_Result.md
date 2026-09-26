@@ -202,3 +202,89 @@ CLEAR の run、FAILED の run、random walk の全ステップで、Dex の JSO
   - Discovery（`gameReducer.discovery`、`logic/discovery/*`、`discoveryHint*`）
   - inventory（`inventoryConsumption`、`restock`、`inventory`、`recipeDiscoveryState`、`recipeSetFeasibility`）
 - exit した後、Free Cooking と guided round が以前どおり始まること（Cooking Time も動くこと）を test で確認した。
+
+## 18. Tests
+
+| ファイル | 件数 | 内容（DM-2 test 項目の番号） |
+|---|---:|---|
+| `src/state/gameReducer.dinner.test.ts`（新規） | 39 | 1〜46（47〜49 は E2E / CI で確認）と seeded random walk の invariant（150 seed × 25 step） |
+| `src/state/roundKind.test.ts`（新規） | 6 | predicate、legacy flag への写像、既存の全 round 経路と Dinner の開始で `roundKind` と flag が一致すること（2 段の組み合わせ） |
+| `src/state/useDinnerRuntime.test.tsx`（新規） | 6 | duration の注入、壁時計の TICK → TIME_UP と停止（18）、HOME の cancel / confirm（20 / 21）、終了済みの run の exit、Lunch Rush の state に触れないこと（37） |
+| `src/mission/dinner/dinnerRun.test.ts`（更新） | ― | Dinner モジュールのファイル一覧に `dinnerSession.ts` を追加しただけ |
+| **DM-2 で追加した test** | **51** | |
+
+random walk で確認している invariant（全 step で検査）:
+
+- completed ∩ remaining = ∅
+- completed ∪ remaining = target 集合
+- CLEARED ⇔ remaining が空
+- terminal の run は PLAYING に戻らない
+- 有限在庫は増えない（Shop は拒否される）
+- Pitz と Dex は変わらない
+- round kind は常に DINNER
+
+mutation check（どれも一時的に変更して、失敗することを確認した）:
+
+| 変更 | 検出した test |
+|---|---|
+| 判定に消費前の在庫を渡す | CUT なしの test が失敗 |
+| Dinner の completion policy を `"recipe"` にする | 12 / 13 が失敗 |
+| `REGISTER_TO_DEX` の guard を外す | 29〜34 と random walk が失敗 |
+
+## 19. CI
+
+ローカル（exact HEAD `5106934` のコード）:
+
+| Gate | 結果 |
+|---|---|
+| full Vitest | **179 files / 3754 passed**, 1 skipped（既存）, 0 failed（main の 3703 に DM-2 の 51 を足した数） |
+| typecheck（`tsc -b`） | PASS |
+| lint（`oxlint`） | PASS（exit 0） |
+| build | PASS |
+| Chromium E2E（`iphone-390x844` / `iphone-360x800`）と Layout Contract（`layout-chromium`、7 profile） | **161 passed**, 19 skipped（既存の 1 幅 1 回の guard）, 0 failed。LC-0〜LC-5（LC-2b New Haven、LC-3 / LC-3b Lunch Rush、LC-4 HOME を含む）がすべて PASS |
+| Lunch Rush / App / partial quantity の regression | 5 ファイル / 229 件 PASS |
+| Free / Discovery / inventory の regression | 18 ファイル / 377 件 PASS |
+
+PR の CI（`build`、`E2E WebKit` → `WebKit Gate`、`Layout Contract Gate`）は、PR を作成した後に exact HEAD で確認して追記する。
+
+## 20. Changed files
+
+| ファイル | 種類 |
+|---|---|
+| `src/state/roundKind.ts` | 新規: round authority |
+| `src/mission/dinner/dinnerSession.ts` | 新規: `DinnerSession` の型 |
+| `src/state/useDinnerRuntime.ts` | 新規: App 側の runtime hook |
+| `src/state/gameReducer.ts` | `roundKind` / `dinner` の field、`DinnerAction`、`buildOrderState` の引数、completion policy、`REGISTER_TO_DEX` の backstop、Dinner の層（`dinnerActionReducer` / `dinnerGuardedReducer`）、`gameReducer` を wrapper にしたこと |
+| `src/App.tsx` | hook の呼び出し、`REGISTER_TO_DEX` の自動 dispatch の条件、HOME の分岐、`openShop`、Lunch Rush 開始の guard |
+| 新しい test 3 ファイルと `dinnerRun.test.ts` の 1 行 | test |
+| `docs/reports/TETO_DINNER-MISSION_DM-2_Runtime-Integration_Result.md` | この report |
+
+## 21. Scope verification
+
+- **Dinner の UI は作っていない。** production UI から Dinner に入る経路は無い（DM-3）。
+- 既存画面の見た目は変わっていない。Layout Contract と E2E が同じ結果で PASS しているので、before / after の screenshot は不要と判断した。
+- 次のものは変更していない:
+  - reward の払い出し、tier の数値、save schema、best time / clear count の保存
+  - ranking、Shop / economy / pack size、recipe / ingredient catalog
+  - Hint 3.0、#234、Cooking Steps、Cutting
+- `git diff f59b5ed -- src` の範囲は §20 のファイルだけ。
+
+## 22. Residual risks
+
+| # | リスク | 扱い |
+|---|---|---|
+| R-1 | GameScreen は Dinner の target 選択 round（phase ORDER）を、通常の ORDER 画面として描画してしまう（「ピザを作る！」は `BEGIN_PREPARE` なので拒否される） | production からは到達できない。DM-3 で target 一覧の画面に置き換える |
+| R-2 | HOME の確認は `window.confirm` のまま | DM-3 で modal にする。reducer 側の契約（request / cancel / confirm）はできている |
+| R-3 | 期限を過ぎた後の `CONFIRM_BAKE` は焼かないので、BAKE 画面のまま止まる | run は FAILED(TIME_UP) になる。DM-3 の FAILED 画面で exit させる |
+| R-4 | 在庫の緊張が弱い（OD-DM-16） | DM-5 で計測する |
+| R-5 | Dinner の Dex 登録（OD-DM-11）は #234 とともに未決 | DM-2 では一切登録しない。どちらに決まっても `REGISTER_TO_DEX` 側の 1 か所で変えられる |
+| R-6 | `isMissionRound` と `roundKind` の二重管理 | `buildOrderState` だけが両方を設定する。invariant test で固定した。Lunch Rush を `roundKind` に寄せる整理は、別の task にするのが安全 |
+
+## 23. DM-3 plan（未着手）
+
+1. HOME の Dinner カードと Mission Select（unlock の表示と「あと N 種類」、未発見の identity を出さないこと、START の gate と不足の表示、Shop への導線）
+2. Mission Detail（target、制限時間、集合の在庫チェック表）
+3. Target Board（`dinner.run.activeRecipeId === null` のとき。✓ / ○、選択、キャンセル）
+4. HUD（timer と completed / total。Lunch Rush の HUD とは別 component か、props を一般化する）
+5. 判定後のパネル（「ターゲット一覧へ」= `DINNER_RETURN_TO_TARGETS`）、CLEAR / FAILED 画面（`DINNER_EXIT`）、HOME の確認 modal
+6. E2E（390×844 / 360×800、CUT あり / New Haven）、Layout Contract の追加、WebKit、Human Verification 動画と before / after の screenshot
