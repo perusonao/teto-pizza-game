@@ -219,3 +219,27 @@ export function getNextOrder(options: NextOrderOptions = {}): Order {
 
   return pickRandom(finalPool);
 }
+
+export interface NextFreeOrderOptions {
+  /** Recipe ids a guided round may start for right now: DISCOVERED and cookable
+   *  (`canStartGuidedRound`, ../state/recipeDiscoveryState.ts). */
+  guidedRecipeIds: readonly string[];
+  /** Prefer the margherita order when it is in the pool (the very first round of a session). */
+  preferFirst?: boolean;
+  /** Avoid repeating this recipe id when picking randomly (used on replay). */
+  excludeRecipeId?: string;
+}
+
+/**
+ * Progression 2.0 W1 Discovery 2.0 (LK-8 / NF-1): the FREE order pool. Orders only for
+ * `guidedRecipeIds` (DISCOVERED ∩ cookable), never undiscovered-first, and **fail closed**: an
+ * empty pool returns `null` instead of falling back to every order (`getNextOrder`'s free-play
+ * fallback would hand out an undiscovered recipe's name and reference). The caller starts a
+ * Free Cooking round instead.
+ */
+export function getNextFreeOrder(options: NextFreeOrderOptions): Order | null {
+  const pool = ORDERS.filter((o) => options.guidedRecipeIds.includes(o.recipeId));
+  if (pool.length === 0) return null;
+  if (options.preferFirst) return pool.find((o) => o.recipeId === "margherita") ?? pool[0];
+  return pickRandom(avoidRepeat(pool, options.excludeRecipeId));
+}

@@ -45,6 +45,7 @@ import {
 } from "./mission/lunchRush";
 import { missionScore } from "./logic/missionScoring";
 import { calculateMissionReward } from "./logic/economy";
+import { canStartGuidedRound } from "./state/recipeDiscoveryState";
 import "./App.css";
 
 const MISSION_TICK_MS = 250;
@@ -718,12 +719,25 @@ function App() {
   }
 
   // Pizza Select's card tap -- starts a fresh FREE round for the explicitly chosen recipe
-  // (SELECT_RECIPE, src/state/gameReducer.ts) and enters GAME. The reducer itself re-checks
-  // availability, so a locked recipe can never start a round even via a stray dispatch; the
-  // UI-level guard is PizzaSelectScreen's LOCKED cards never wiring this callback at all.
+  // (SELECT_RECIPE, src/state/gameReducer.ts) and enters GAME. Discovery 2.0 (LK-8d / NF-2): GAME
+  // is entered only when the reducer will accept the selection -- the same pure authority
+  // (`canStartGuidedRound`) SELECT_RECIPE applies, evaluated on the same state -- so a rejected
+  // pick can never surface a stale ORDER left over from an earlier round.
   function handleSelectRecipe(recipeId: RecipeId) {
+    if (!canStartGuidedRound(recipeId, state)) return;
     dispatch({ type: "SELECT_RECIPE", recipeId, now: Date.now() });
     setScreen("GAME");
+  }
+
+  // RESULT's 「もう一度つくる」. A guided retry follows the same authority as SELECT_RECIPE
+  // (Discovery 2.0, F-15): when the recipe can no longer be cooked (its stock ran out), the reducer
+  // rejects the retry, so App goes to Pizza Select instead of leaving a dead button.
+  function handleRetrySameRecipe() {
+    if (!state.freeCook && !canStartGuidedRound(state.recipe.id, state)) {
+      setScreen("PIZZA_SELECT");
+      return;
+    }
+    dispatch({ type: "RETRY_SAME_RECIPE", now: Date.now() });
   }
 
   // Progression 2.0 Phase 3-2 (Issue #194): HOME's フリークッキング -- a fresh FREE round with
@@ -892,7 +906,7 @@ function App() {
           onTapPizza={handleTapPizza}
           onBakeTick={handleBakeTick}
           onConfirmBake={handleConfirmBake}
-          onRetrySameRecipe={() => dispatch({ type: "RETRY_SAME_RECIPE", now: Date.now() })}
+          onRetrySameRecipe={handleRetrySameRecipe}
           onBackToPizzaSelect={handleBackToPizzaSelectFromDiscovered}
           onOpenShop={() => setShopOpen(true)}
           onMissionServeNext={handleMissionServeNext}

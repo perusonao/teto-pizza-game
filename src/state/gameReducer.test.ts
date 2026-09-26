@@ -4,6 +4,7 @@ import { registerScoreToDex, EMPTY_DEX, type DexState } from "./dex";
 import type { ScoreBreakdown, QualityStars } from "../logic/scoring";
 import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { RECIPES } from "../data/recipes";
+import { FREE_COOK_ORDER, FREE_COOK_RECIPE_ID } from "../data/freeCook";
 import { buildIdealMargheritaSauceFixture, MARGHERITA_REFERENCE } from "../data/referencePizza";
 import { EMPTY_MISSION_METRICS, recordServe } from "../logic/missionScoring";
 import { EMPTY_INVENTORY, type InventoryState } from "./inventory";
@@ -541,10 +542,15 @@ describe("order selection availability (Phase 3C-3)", () => {
     expect(seen.size).toBe(6);
   });
 
-  it("only margherita is reachable on a fresh save (empty Dex), regardless of ingredient ownership (Economy & Progression 1.0 EP1)", () => {
-    let state = createInitialGameState(EMPTY_DEX, STARTER_INGREDIENT_IDS);
+  it("a fresh save (empty Dex) never gets a guided order: every round is Free Cooking (Discovery 2.0, NF-1 fail closed)", () => {
+    // Before Discovery 2.0 this was an undiscovered margherita ORDER (LK-8c). The FREE pool is
+    // DISCOVERED ∩ cookable and never falls back to every order, so an empty pool is a Free
+    // Cooking round -- the one discovery path.
+    let state = createInitialGameState(EMPTY_DEX, INGREDIENTS.map((i) => i.id));
     for (let i = 0; i < 20; i++) {
-      expect(state.recipe.id).toBe("margherita");
+      expect(state.freeCook).toBe(true);
+      expect(state.recipe.id).toBe(FREE_COOK_RECIPE_ID);
+      expect(state.order.id).toBe(FREE_COOK_ORDER.id);
       state = gameReducer(state, { type: "PLAY_AGAIN" });
     }
   });

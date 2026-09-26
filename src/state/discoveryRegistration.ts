@@ -25,7 +25,9 @@ export interface DiscoveryRegistration {
 export function registerDiscoveryToDex(
   dex: DexState,
   outcome: DiscoveryOutcome,
-  selectedRecipeId: RecipeId,
+  /** The recipe the caller already registered, or `null` when it registered none (a guided id
+   *  that is not discovered yet -- Discovery 2.0: only the matcher may discover it). */
+  selectedRecipeId: RecipeId | null,
   pizza: PizzaState,
 ): DiscoveryRegistration {
   // The selected recipe itself was already registered by the caller; nothing else to write for

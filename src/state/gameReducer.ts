@@ -1,4 +1,4 @@
-import { findOrderForRecipe, getNextOrder, type NextOrderOptions, type Order } from "../data/orders";
+import { findOrderForRecipe, getNextFreeOrder, type NextFreeOrderOptions, type Order } from "../data/orders";
 import { getRecipe, type Recipe, type RecipeId } from "../data/recipes";
 import {
   getCookingProfile,
@@ -36,7 +36,8 @@ import { signatureOfPizza } from "../logic/discovery/signature";
 import { registerDiscoveryToDex } from "./discoveryRegistration";
 import { FREE_COOK_ORDER, FREE_COOK_RECIPE } from "../data/freeCook";
 import { resolveFreeCookPizza } from "../logic/discovery/freeCook";
-import { availableRecipeIds, isRecipeAvailable } from "./progression";
+import { availableRecipeIds } from "./progression";
+import { canStartGuidedRound } from "./recipeDiscoveryState";
 import {
   canPlaceIngredient,
   consumePizzaInventory,
@@ -468,14 +469,23 @@ function buildOrderState(
 }
 
 /** Every free-play "start a new round" path (initial state, PLAY_AGAIN, exiting Mission to
- *  free) goes through here -- always `isMissionRound: false`. */
-function nextOrderState(carry: ProgressionCarry, orderOptions: NextOrderOptions): GameState {
-  const order = getNextOrder({
-    ...orderOptions,
-    dex: discoveredRecipeIds(carry.dex),
-    availableRecipeIds: availableRecipeIds(carry.dex, carry.ownedIngredientIds),
-  });
-  return buildOrderState(order, carry, false);
+ *  free) goes through here -- always `isMissionRound: false`.
+ *
+ *  Progression 2.0 W1 Discovery 2.0 (LK-8 / NF-1): the order is picked only from recipes a guided
+ *  round may start for (`canStartGuidedRound`: DISCOVERED ∩ cookable). An empty pool (Dex 0, or
+ *  nothing discovered is cookable) never falls back to an undiscovered order -- the round becomes
+ *  a Free Cooking round at ORDER instead, the one discovery path. */
+function nextOrderState(
+  carry: ProgressionCarry,
+  orderOptions: Omit<NextFreeOrderOptions, "guidedRecipeIds">,
+): GameState {
+  const order = getNextFreeOrder({ ...orderOptions, guidedRecipeIds: guidedRecipeIds(carry) });
+  return order ? buildOrderState(order, carry, false) : buildOrderState(FREE_COOK_ORDER, carry, false, true);
+}
+
+/** Recipe ids a guided round may start for right now (DISCOVERED ∩ cookable), in RECIPES order. */
+function guidedRecipeIds(carry: Pick<ProgressionCarry, "dex" | "ownedIngredientIds" | "inventory">): RecipeId[] {
+  return discoveredRecipeIds(carry.dex).filter((id) => canStartGuidedRound(id, carry)) as RecipeId[];
 }
 
 /** Picks a fresh Mission order (see ../mission/lunchRush.ts's `pickMissionOrder`) and builds
@@ -591,6 +601,15 @@ let placementTokenCounter = 0;
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case "BEGIN_PREPARE":
+      // LK-8 backstop (Discovery 2.0): a FREE guided round (not Free Cooking) starts only for a
+      // DISCOVERED, cookable recipe; a Lunch Rush round only for a discovered one (its own pool
+      // and stock rules are unchanged). A stale ORDER for anything else stays at ORDER.
+      if (
+        !state.freeCook &&
+        (state.isMissionRound ? !isDiscovered(state.dex, state.recipe.id) : !canStartGuidedRound(state.recipe.id, state))
+      ) {
+        return state;
+      }
       return {
         ...state,
         phase: "PREPARE",
@@ -1105,12 +1124,26 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             RECIPE_DISCOVERY_CATALOG,
             discoveredRecipeIds(state.dex),
           );
-      const selectedRegistration = registerScoreToDex(state.dex, state.recipe.id, state.score);
+      // Progression 2.0 W1 Discovery 2.0: NEW discoveries come only from the matcher. A Free
+      // Cooking round's recipe *is* the matcher's pick (CONFIRM_BAKE), so it registers as before;
+      // a guided round only ever re-registers an already-discovered recipe. A guided round whose
+      // recipe is undiscovered (unreachable behind SELECT_RECIPE/BEGIN_PREPARE/RETRY, kept as the
+      // last backstop) writes nothing for that id -- only the matcher below may discover it.
+      const guidedIdOnly = !state.freeCook && !isDiscovered(state.dex, state.recipe.id);
+      const selectedRegistration = guidedIdOnly
+        ? { dex: state.dex, wasNewDiscovery: false, isNewBest: false }
+        : registerScoreToDex(state.dex, state.recipe.id, state.score);
       const { wasNewDiscovery, isNewBest } = selectedRegistration;
       // The selected recipe is registered exactly as before; the discovery writer only adds a
-      // different recipe the pizza is an exact match for (./discoveryRegistration.ts).
+      // recipe the pizza is an exact match for that the selected registration did not already
+      // write (./discoveryRegistration.ts).
       const discoveryRegistration = evaluatedDiscovery
-        ? registerDiscoveryToDex(selectedRegistration.dex, evaluatedDiscovery, state.recipe.id, state.pizza)
+        ? registerDiscoveryToDex(
+            selectedRegistration.dex,
+            evaluatedDiscovery,
+            guidedIdOnly ? null : state.recipe.id,
+            state.pizza,
+          )
         : null;
       const dex = discoveryRegistration ? discoveryRegistration.dex : selectedRegistration.dex;
       // Progression 2.0 W1 Integration I4b-3 (REC-04): this is one of the two places `dex` can
@@ -1197,24 +1230,12 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       );
 
     case "SELECT_RECIPE": {
-      const recipe = getRecipe(action.recipeId);
-      if (!recipe || !isRecipeAvailable(recipe, state.dex, state.ownedIngredientIds)) return state;
-      // Progression 2.0 Phase 3-3 (Issue #198): before the player's first-ever discovery, an
-      // available-but-undiscovered recipe is not directly guided-selectable -- Free Cooking
-      // (START_FREE_COOK) is the only discovery path pre-Dex-1, so a stray SELECT_RECIPE
-      // dispatch can never let a fresh player skip it. Margherita is the only recipe *available*
-      // at Dex 0: the shipped-15 recipes chain from it (`unlockCondition.requiresRecipeId`), and the
-      // W1 recipes (no unlockCondition, OD-I5B-2) need Shop materials a Dex-0 player cannot own --
-      // and even if a save owned them, this guard still blocks them. It only ever gates a
-      // brand-new save's very first round; once any recipe has been
-      // discovered (`discoveredRecipeIds(state.dex).length > 0`), guided selection of any other
-      // NEW-but-available recipe is completely unaffected -- unchanged from before this phase.
-      if (
-        !isDiscovered(state.dex, action.recipeId) &&
-        discoveredRecipeIds(state.dex).length === 0
-      ) {
-        return state;
-      }
+      // Progression 2.0 W1 Discovery 2.0 (LK-8): the single guided-round authority. Only a
+      // DISCOVERED recipe that is cookable right now (owned, finite stock for its own minimum)
+      // can be selected -- at any Dex size. An undiscovered recipe is found only by Free
+      // Cooking's matcher (START_FREE_COOK), never by holding its id. (Replaces Phase 3-3's
+      // Dex-0-only guard, which this subsumes.)
+      if (!canStartGuidedRound(action.recipeId, state)) return state;
       return (
         startPreparingRecipe(action.recipeId, {
           dex: state.dex,
@@ -1262,6 +1283,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           action.now,
         );
       }
+      // LK-8 backstop (NF-4): the guided retry follows the same authority as SELECT_RECIPE.
+      if (!canStartGuidedRound(state.recipe.id, state)) return state;
       return (
         startPreparingRecipe(state.recipe.id, {
           dex: state.dex,
@@ -1293,7 +1316,11 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // Grant registration below is deliberately left exactly as it already was (unconditional
       // on `state.completion`, same as before this phase): FREE-only completion gating on Dex
       // itself (REGISTER_TO_DEX above) is untouched scope, not an oversight.
-      const { dex } = registerScoreToDex(state.dex, state.recipe.id, state.score);
+      // Discovery 2.0: Lunch Rush never discovers -- only an already-discovered recipe is
+      // re-registered (its pool is discovered-only; this is the reducer backstop).
+      const dex = isDiscovered(state.dex, state.recipe.id)
+        ? registerScoreToDex(state.dex, state.recipe.id, state.score).dex
+        : state.dex;
       // I4b-3: the second (and last) place `dex` changes -- resolved here too for symmetry with
       // REGISTER_TO_DEX. Lunch Rush only serves discovered recipes, so in practice the count
       // does not move here; nothing is granted either way (EP4 retired).
