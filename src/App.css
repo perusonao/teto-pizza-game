@@ -4873,6 +4873,56 @@
   color: #3d2a16;
 }
 
+/* Discovery Hint Economy 1.0 (Issue #232, HE-3): the priced unlock CTA. Label left, price chip right;
+   one line at 360px. A short balance disables it in a neutral grey (never red): it is information,
+   not an error. */
+.hint-sheet__next--paid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.hint-sheet__lock {
+  flex: none;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.hint-sheet__price {
+  flex: none;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.55);
+  font-size: 14px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.hint-sheet__next--short,
+.hint-sheet__next--short:disabled {
+  background: #e7e0d2;
+  color: #7a6a58;
+  box-shadow: none;
+  opacity: 1;
+  cursor: default;
+}
+
+.hint-sheet__next--short .hint-sheet__price {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.hint-sheet__wallet {
+  margin: 0;
+  text-align: center;
+  font-size: 12px;
+  color: #6b4a2b;
+}
+
+.hint-sheet__wallet-note {
+  opacity: 0.85;
+}
+
 .hint-sheet__done,
 .hint-sheet__note {
   margin: 0;

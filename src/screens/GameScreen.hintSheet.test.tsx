@@ -116,7 +116,7 @@ function tapDough() {
 afterEach(() => cleanup());
 
 describe("Free Cooking hint sheet in GameScreen (229-B)", () => {
-  it("the 「ヒント」 button opens the sheet; next reveals one more step", () => {
+  it("the 「ヒント」 button opens the sheet; next reveals one more step (Dex 0: free)", () => {
     render(<Harness />);
     expect(screen.getByTestId("free-cook")).toHaveTextContent("true");
     expect(hintButton()).toHaveTextContent("ヒント");

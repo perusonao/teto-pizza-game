@@ -161,13 +161,13 @@ test.describe("Discovery Hint 2.0 Dex entry (229-D)", () => {
     await page.locator(".prepare-bake-bar").getByRole("button", { name: "ヒント" }).click();
     await expect(sheet.locator(".hint-sheet__step")).toHaveCount(1); // same pinned session, still H0
 
-    await sheet.getByRole("button", { name: "次のヒントを見る" }).click();
+    await sheet.locator(".hint-sheet__next").click();
     // H1 names capricciosa's key ingredient (oregano); the recipe itself is never named.
     await expect(sheet.locator(".hint-sheet__step--latest")).toContainText("オレガノ を使うピザが作れそう！");
     await checkSheet(page, driver, browserName, "H1", closed);
     await capture(page, "d3-h1");
-    await sheet.getByRole("button", { name: "次のヒントを見る" }).click();
-    await sheet.getByRole("button", { name: "次のヒントを見る" }).click();
+    await sheet.locator(".hint-sheet__next").click();
+    await sheet.locator(".hint-sheet__next").click();
     await expect(sheet.locator(".hint-sheet__step")).toHaveCount(4);
     await checkSheet(page, driver, browserName, "H3", closed);
     await expectNoUndiscoveredIdentity(page, DEX11_IDS, "Dex -> sheet H3");
