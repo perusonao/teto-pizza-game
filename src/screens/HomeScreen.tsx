@@ -47,6 +47,9 @@ interface HomeScreenProps {
    *  it stays closed (disabled, with an explanatory line) until then. Defaults to `false` so
    *  existing test call sites that predate this phase keep their exact pre-Phase-3-3 rendering. */
   lunchRushLocked?: boolean;
+  /** Issue #212 (OD-2): discovered recipes exist but none is cookable with the stock on hand, so
+   *  Lunch Rush cannot start until the Shop restocks something. */
+  lunchRushNoCookable?: boolean;
   onOpenDex: () => void;
   onOpenShop: () => void;
   onOpenInventory: () => void;
@@ -74,6 +77,7 @@ export function HomeScreen({
   onStartFreeCook,
   onStartLunchRush,
   lunchRushLocked = false,
+  lunchRushNoCookable = false,
   onOpenDex,
   onOpenShop,
   onOpenInventory,
@@ -148,8 +152,8 @@ export function HomeScreen({
           type="button"
           className="cta-button cta-button--secondary cta-button--home-secondary"
           onClick={onStartLunchRush}
-          disabled={lunchRushLocked}
-          aria-disabled={lunchRushLocked}
+          disabled={lunchRushLocked || lunchRushNoCookable}
+          aria-disabled={lunchRushLocked || lunchRushNoCookable}
         >
           {"\u{23F1}\u{FE0F}"} ランチラッシュ
         </button>
@@ -174,6 +178,11 @@ export function HomeScreen({
         {lunchRushLocked && (
           <p className="home-lunch-rush-hint">
             {"\u{1F512}"} まず1枚ピザを発見しよう
+          </p>
+        )}
+        {!lunchRushLocked && lunchRushNoCookable && (
+          <p className="home-lunch-rush-hint home-lunch-rush-hint--no-stock">
+            {"\u{1F6D2}"} 材料不足でランチラッシュできません
           </p>
         )}
       </div>

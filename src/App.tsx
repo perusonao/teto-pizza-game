@@ -39,6 +39,8 @@ import { ensureAnonymousUser, isFirebaseAvailable, submitLunchRushScore } from "
 import {
   DEFAULT_MISSION_CONFIG,
   LUNCH_RUSH_MISSION_ID,
+  canStartLunchRush,
+  cookableMissionRecipeIds,
   isMissionExpired,
   missionRunReducer,
   INITIAL_MISSION_STATE,
@@ -46,7 +48,7 @@ import {
 } from "./mission/lunchRush";
 import { missionScore } from "./logic/missionScoring";
 import { calculateMissionReward } from "./logic/economy";
-import { canStartGuidedRound, countRecipeDiscoveryStates } from "./state/recipeDiscoveryState";
+import { canStartGuidedRound, countRecipeDiscoveryStates, isRecipeCookable } from "./state/recipeDiscoveryState";
 import "./App.css";
 
 const MISSION_TICK_MS = 250;
@@ -162,6 +164,9 @@ function App() {
   // all -- gates Lunch Rush (HOME's own button + handleStartLunchRush below) until the player's
   // first discovery. Derived, never independently stored, same discipline as `activeCategory`.
   const hasAnyDiscovery = state.dex.some((entry) => entry.discovered);
+  // Issue #212 (OD-2): Lunch Rush also needs at least one discovered recipe that is cookable with
+  // the stock on hand -- otherwise every order would be short. Derived, like `hasAnyDiscovery`.
+  const lunchRushCookable = canStartLunchRush(state);
   // Issue #32 Phase 2: derived, never independently set -- see makingStepToCategory's doc
   // comment above.
   const activeCategory = makingStepToCategory(state.makingStep);
@@ -485,6 +490,9 @@ function App() {
   // already counting down underneath. Force it closed here so neither entry point can leave
   // it open over a running Mission.
   function startMission() {
+    // Issue #212 (OD-2): never start (or retry) a run with nothing cookable -- the HOME button and
+    // RESULT's 「もう一度」 are disabled for it, and this is the backstop behind both.
+    if (!canStartLunchRush(state)) return;
     setDexOpen(false);
     setMissionBestAtStartOfRun(loadMissionBest(LUNCH_RUSH_MISSION_ID));
     missionDispatch({ type: "START", now: Date.now(), config: resolveMissionConfig() });
@@ -553,6 +561,15 @@ function App() {
     // RESULT with its score unregistered, exactly like a TICK-detected expiry would leave it.
     if (mission.clock && !isMissionExpired(now, mission.clock)) {
       dispatch({ type: "MISSION_NEXT_ORDER" });
+      // Issue #212 (OD-2): the pizza just baked may have used the last stock of everything still
+      // cookable. MISSION_NEXT_ORDER then registers it and keeps the round at RESULT (no order to
+      // draw), and the run ends into its RESULT here instead of preparing anything. Stock and the
+      // discovered set are the same before and after MISSION_NEXT_ORDER, so reading `state` here
+      // agrees with the reducer.
+      if (cookableMissionRecipeIds(state, state.missionSoldOutRecipeIds).length === 0) {
+        missionDispatch({ type: "END_EARLY" });
+        return;
+      }
       // Issue #85 UX-1: MISSION_NEXT_ORDER always lands at a fresh phase "ORDER"
       // (gameReducer.ts's buildOrderState), which used to wait for a second, redundant
       // 「ピザを作る！」 tap before PREPARE reopened. React 18 batches same-tick dispatches (this
@@ -565,6 +582,27 @@ function App() {
       // Lunch Rush never accumulates a Cooking Time of its own.
       dispatch({ type: "BEGIN_PREPARE", now: Date.now() });
     }
+  }
+
+  // Issue #212 (H-R): 「この注文をスキップ」 on a short order. The reducer re-checks everything (a
+  // Lunch Rush ORDER, this exact recipe, really short) and marks the recipe SOLD OUT; the next order
+  // comes from the cookable pool and goes straight to PREPARE, like every order after the first
+  // (UX-1). The mission clock is never touched -- the seconds spent reading the shortage are the
+  // only cost. If nothing cookable is left (defensive; stock does not change at ORDER), the run
+  // ends into its RESULT (OD-2).
+  function handleMissionSkipOrder() {
+    if (mission.mode !== "PLAYING" || !mission.clock) return;
+    const now = Date.now();
+    // Past the deadline the TICK interval is about to end the run; nothing is skipped after it.
+    if (isMissionExpired(now, mission.clock)) return;
+    if (!state.isMissionRound || state.phase !== "ORDER" || isRecipeCookable(state.recipe, state)) return;
+    const recipeId = state.recipe.id;
+    dispatch({ type: "MISSION_SKIP_ORDER", recipeId });
+    if (cookableMissionRecipeIds(state, [...state.missionSoldOutRecipeIds, recipeId]).length === 0) {
+      missionDispatch({ type: "END_EARLY" });
+      return;
+    }
+    dispatch({ type: "BEGIN_PREPARE", now });
   }
 
   function exitMissionToFree() {
@@ -807,7 +845,7 @@ function App() {
   // `missionRunReducer` (../mission/lunchRush.ts) has no Dex awareness of its own, so the guard
   // lives here rather than inside SHOW_INTRO's own case.
   function handleStartLunchRush() {
-    if (!hasAnyDiscovery) return;
+    if (!hasAnyDiscovery || !lunchRushCookable) return;
     setScreen("GAME");
     missionDispatch({ type: "SHOW_INTRO" });
   }
@@ -893,6 +931,7 @@ function App() {
           onStartFreeCook={handleStartFreeCook}
           onStartLunchRush={handleStartLunchRush}
           lunchRushLocked={!hasAnyDiscovery}
+          lunchRushNoCookable={hasAnyDiscovery && !lunchRushCookable}
           onOpenDex={() => setDexOpen(true)}
           onOpenShop={() => setShopOpen(true)}
           onOpenInventory={() => setInventoryOpen(true)}
@@ -960,6 +999,7 @@ function App() {
           onOpenShop={() => setShopOpen(true)}
           onOpenDex={() => setDexOpen(true)}
           onMissionServeNext={handleMissionServeNext}
+          onMissionSkipOrder={handleMissionSkipOrder}
           onMissionStart={startMission}
           onMissionExitToFree={exitMissionToFree}
           onMissionCloseIntro={() => missionDispatch({ type: "EXIT_TO_FREE" })}

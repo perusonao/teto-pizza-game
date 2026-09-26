@@ -167,3 +167,23 @@ describe("MissionResultOverlay", () => {
     expect(props.onShowRanking).not.toHaveBeenCalled();
   });
 });
+
+describe("MissionResultOverlay -- Issue #212 (OD-2)", () => {
+  it("a time-up run shows no early-end note and a live 「もう一度」", () => {
+    render(<MissionResultOverlay {...baseProps()} />);
+    expect(screen.queryByText("作れるピザがなくなったので終了しました")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "もう一度" })).toBeEnabled();
+  });
+
+  it("endedEarly explains why the run ended; retryBlocked disables 「もう一度」 and says how to recover", async () => {
+    const props = baseProps();
+    const user = userEvent.setup();
+    render(<MissionResultOverlay {...props} endedEarly retryBlocked />);
+    expect(screen.getByText("作れるピザがなくなったので終了しました")).toBeInTheDocument();
+    const retry = screen.getByRole("button", { name: "もう一度" });
+    expect(retry).toBeDisabled();
+    await user.click(retry);
+    expect(props.onRetry).not.toHaveBeenCalled();
+    expect(screen.getByText(/ショップで材料を補充すると再挑戦できます/)).toBeInTheDocument();
+  });
+});

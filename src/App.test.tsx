@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "./App";
 import { SAVE_STORAGE_KEY, type PersistentSaveV1 } from "./state/persistence";
@@ -1195,5 +1195,155 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
     expect(screen.getByLabelText("Pitz残高 321")).toBeInTheDocument();
     expect(within(shop).getByText(/在庫 7/)).toBeInTheDocument();
     expect(within(shop).getByText(/在庫 3/)).toBeInTheDocument();
+  });
+});
+
+/**
+ * Issue #212 (H-R / OD-2): Lunch Rush material-shortage orders through the real App. A short
+ * order shows 「材料が足りません」 + the missing materials + 「この注文をスキップ」 (never
+ * 「ピザを作る！」); skipping draws a cookable order straight into PREPARE with no score/Pitz/save
+ * side effect and without touching the mission clock; with nothing cookable a run never starts,
+ * and a running one ends into its RESULT. Matrix ids follow
+ * docs/reports/TETO_LUNCH-RUSH_MATERIAL-SHORTAGE-SKIP_Fresh-Revalidation.md §8.
+ */
+describe("Lunch Rush material shortage (Issue #212)", () => {
+  const entry = (recipeId: string) => ({ recipeId, discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 });
+
+  function seedV2(dex: readonly string[], owned: readonly string[], inventory: Record<string, number>): void {
+    window.localStorage.setItem(
+      SAVE_STORAGE_KEY,
+      JSON.stringify({
+        schemaVersion: 2,
+        dex: dex.map(entry),
+        pitzBalance: 120,
+        ownedIngredientIds: [...STARTER_INGREDIENT_IDS, ...owned],
+        missionBest: {},
+        inventory,
+      }),
+    );
+  }
+
+  /** margherita + bismarck discovered, egg owned at 0: the first Lunch Rush order is always the
+   *  short bismarck (avoidRepeat excludes the initial margherita round). */
+  const seedShortBismarck = () => seedV2(["margherita", "bismarck"], ["egg"], { egg: 0 });
+
+  async function startRun(user: ReturnType<typeof userEvent.setup>) {
+    await user.click(screen.getByRole("button", { name: /ランチラッシュ/ }));
+    await user.click(screen.getByRole("button", { name: "スタート" }));
+  }
+
+  it("B: a short order shows the shortage, the missing material and only the skip CTA", async () => {
+    seedShortBismarck();
+    const user = userEvent.setup();
+    render(<App />);
+    await startRun(user);
+
+    const panel = document.querySelector<HTMLElement>(".mission-shortage-panel");
+    expect(panel).toBeInTheDocument();
+    expect(within(panel!).getByText(/材料が足りません/)).toBeInTheDocument();
+    expect(within(panel!).getByLabelText("たまご 在庫0 必要1")).toHaveTextContent("たまご0/1");
+    expect(screen.getByRole("button", { name: "この注文をスキップ" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "ピザを作る！" })).not.toBeInTheDocument();
+    expect(screen.getByText(/ビスマルクの材料が足りないな/)).toBeInTheDocument();
+    expect(document.querySelector(".making-step-tabs")).not.toBeInTheDocument(); // still ORDER, not PREPARE
+  });
+
+  it("F/K/L/I: skip -> a cookable order straight into PREPARE; no served/Pitz/save change", async () => {
+    seedShortBismarck();
+    const user = userEvent.setup();
+    render(<App />);
+    await startRun(user);
+    const saveBefore = window.localStorage.getItem(SAVE_STORAGE_KEY);
+
+    await user.click(screen.getByRole("button", { name: "この注文をスキップ" }));
+
+    expect(document.querySelector(".mission-shortage-panel")).not.toBeInTheDocument();
+    expect(document.querySelector(".making-step-tabs")).toBeInTheDocument(); // PREPARE
+    expect(screen.getByText("マルゲリータ")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "この注文をスキップ" })).not.toBeInTheDocument();
+    expect(document.querySelector(".mission-hud__served")?.textContent).toContain("0");
+    expect(screen.getByLabelText("Pitz残高 120")).toBeInTheDocument();
+    // Nothing persisted changed (inventory, Dex, Pitz), and SOLD OUT is never saved.
+    expect(window.localStorage.getItem(SAVE_STORAGE_KEY)).toBe(saveBefore);
+    expect(saveBefore).not.toMatch(/soldOut|SoldOut/);
+  });
+
+  it("A/M: a cookable order shows 「ピザを作る！」 and never a skip CTA", async () => {
+    seedV2(["margherita", "bismarck"], ["egg"], { egg: 3 });
+    const user = userEvent.setup();
+    render(<App />);
+    await startRun(user);
+    expect(screen.getByRole("button", { name: "ピザを作る！" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "この注文をスキップ" })).not.toBeInTheDocument();
+    expect(document.querySelector(".mission-shortage-panel")).not.toBeInTheDocument();
+  });
+
+  it("H: HOME keeps Lunch Rush closed while nothing discovered is cookable", async () => {
+    seedV2(["bismarck"], ["egg"], { egg: 0 });
+    const user = userEvent.setup();
+    render(<App />);
+    const lunchRush = screen.getByRole("button", { name: /ランチラッシュ/ });
+    expect(lunchRush).toBeDisabled();
+    expect(screen.getByText(/材料不足でランチラッシュできません/)).toBeInTheDocument();
+    await user.click(lunchRush);
+    expect(document.querySelector(".mission-overlay")).not.toBeInTheDocument();
+    expect(document.querySelector(".home-screen")).toBeInTheDocument();
+  });
+
+  it("J: the mission clock keeps running through the shortage screen and the skip, and time-up still ends the run", async () => {
+    let clock = 1_000_000;
+    vi.spyOn(Date, "now").mockImplementation(() => clock);
+    seedShortBismarck();
+    const user = userEvent.setup();
+    render(<App />);
+    await startRun(user);
+    const remaining = () => document.querySelector(".mission-hud")?.textContent ?? "";
+
+    clock += 30_000; // 30s read on the shortage screen
+    await act(() => new Promise((resolve) => setTimeout(resolve, 400)));
+    expect(remaining()).toContain("2:30");
+    await user.click(screen.getByRole("button", { name: "この注文をスキップ" }));
+    await act(() => new Promise((resolve) => setTimeout(resolve, 400)));
+    expect(remaining()).toContain("2:30"); // skip neither reset nor paused the clock
+
+    clock += 151_000; // past the 180s deadline
+    await act(() => new Promise((resolve) => setTimeout(resolve, 400)));
+    expect(document.querySelector(".mission-result__stats")).toBeInTheDocument();
+    expect(document.querySelector(".mission-result__ended-early")).not.toBeInTheDocument();
+  });
+
+  it("H: using up the last cookable stock ends the run into RESULT (never PREPARE, never Free Cooking); retry is blocked", async () => {
+    // bismarck (egg 1) is the only cookable recipe; genovese is short. The first order is the
+    // short genovese (avoidRepeat excludes the initial bismarck round).
+    seedV2(["bismarck", "genovese"], ["egg", "pesto", "cherry-tomato"], { egg: 1, pesto: 0, "cherry-tomato": 0 });
+    const user = userEvent.setup();
+    render(<App />);
+    await startRun(user);
+    expect(screen.getByLabelText("ジェノベーゼソース 在庫0 必要1")).toBeInTheDocument();
+    expect(screen.getByLabelText("チェリートマト 在庫0 必要3")).toBeInTheDocument(); // C: several at once
+    await user.click(screen.getByRole("button", { name: "この注文をスキップ" }));
+
+    // bismarck, made with its only egg (and no sauce: a FAILED pizza -- still consumes the egg).
+    completeDoughStep();
+    await user.click(screen.getByRole("button", { name: /次へ/ })); // DOUGH -> SAUCE
+    await user.click(screen.getByRole("button", { name: /次へ/ })); // SAUCE -> CHEESE
+    await user.click(screen.getByRole("button", { name: /次へ/ })); // CHEESE -> TOPPING
+    await selectAndTapPizza(user, "たまご", 50, 50);
+    const needle = controlBakeNeedle();
+    needle.stub();
+    await user.click(screen.getByRole("button", { name: /焼く/ }));
+    needle.driveTo(65);
+    await user.click(screen.getByRole("button", { name: "取り出す！" }));
+    needle.unstub();
+    await completeCutStepIfPresent(user);
+    await user.click(screen.getByRole("button", { name: "次の注文へ" }));
+
+    expect(screen.getByText("作れるピザがなくなったので終了しました")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "もう一度" })).toBeDisabled();
+    expect(screen.getByText(/ショップで材料を補充すると再挑戦できます/)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "この注文をスキップ" })).not.toBeInTheDocument();
+    expect(screen.getByText(/\+0 Pitz/)).toBeInTheDocument();
+    const stored = JSON.parse(window.localStorage.getItem(SAVE_STORAGE_KEY)!);
+    expect(stored.inventory.egg).toBe(0);
   });
 });

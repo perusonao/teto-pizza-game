@@ -2558,6 +2558,16 @@
   width: 100%;
 }
 
+/* Issue #212 (OD-2): why a run ended before the clock / why 「もう一度」 is unavailable. */
+.mission-result__ended-early,
+.mission-result__retry-blocked {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #b3260a;
+  text-align: center;
+}
+
 /* Gameplay UX Phase 2 (Issue #157): フリープレイへ/🏠ホームへ paired into one row (mirrors
    .home-cta-row's flex:1-pair pattern) so the new HOME CTA costs ~0 extra vertical height --
    keeps the existing 390x844/360x800 "RESULT fits without page scroll" e2e assertions holding. */
@@ -4761,6 +4771,87 @@
 
 .mission-serve-panel {
   padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Issue #212 (H-R): the short Lunch Rush order screen. Same shrink-only stage rule as the serve
+   panel above, so the shortage card and 「この注文をスキップ」 always stay in-flow at the bottom,
+   above the safe-area inset, and only a too-short viewport gives way in the pizza. Missing
+   materials wrap as compact chips, so a 4-material shortage (quattro-formaggi) adds a row, not
+   four. */
+.game-screen:has(> .mission-shortage-panel) > .pizza-stage {
+  flex: 0 1 calc(min(78vw, 300px) + 8px);
+  min-height: 0;
+  container-type: size;
+}
+
+.game-screen:has(> .mission-shortage-panel) > .pizza-stage .pizza-dough {
+  width: min(78vw, 300px, 100cqh);
+  height: min(78vw, 300px, 100cqh);
+}
+
+.mission-shortage-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+  padding: 4px 16px calc(20px + env(safe-area-inset-bottom, 0px));
+}
+
+.mission-shortage-panel__title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: #b3260a;
+}
+
+.mission-shortage-panel__list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mission-shortage-panel__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #fff4e5;
+  border: 1.5px solid #e8a15c;
+  font-size: 14px;
+  font-weight: 700;
+  color: #5a3714;
+}
+
+.mission-shortage-panel__glyph {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.mission-shortage-panel__count {
+  font-variant-numeric: tabular-nums;
+  color: #8a5a2b;
+}
+
+.mission-shortage-panel__count strong {
+  color: #b3260a;
+}
+
+.mission-shortage-panel__note {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #a1662f;
+}
+
+.mission-shortage-panel .cta-button {
+  width: 100%;
+  margin-top: 2px;
 }
 
 /* Discovery Hint 2.0 (Issue #229, 229-B): the Free Cooking hint bottom sheet. Fixed to the

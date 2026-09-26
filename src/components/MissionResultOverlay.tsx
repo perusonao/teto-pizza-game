@@ -32,6 +32,11 @@ interface MissionResultOverlayProps {
    *  and `handleGoHome`'s own `mission.mode !== "FREE"` branch tidies the Mission state back to
    *  FREE before navigating HOME. No new navigation/reset logic here. */
   onGoHome: () => void;
+  /** Issue #212 (OD-2): the run ended before the clock because nothing left was cookable. */
+  endedEarly?: boolean;
+  /** Issue #212 (OD-2): no discovered recipe is cookable right now, so 「もう一度」 cannot start a
+   *  run (App.tsx's `startMission` refuses it as well). */
+  retryBlocked?: boolean;
 }
 
 /** Shown once a Lunch Rush run's timer expires (Phase 3C-4 section 11). One screen, no extra
@@ -48,11 +53,18 @@ export function MissionResultOverlay({
   onExit,
   onShowRanking,
   onGoHome,
+  endedEarly = false,
+  retryBlocked = false,
 }: MissionResultOverlayProps) {
   return (
     <div className="mission-overlay">
       <div className="mission-overlay__panel">
         <h2 className="mission-overlay__title">ランチラッシュ結果</h2>
+        {endedEarly && (
+          <p className="mission-result__ended-early" role="status">
+            作れるピザがなくなったので終了しました
+          </p>
+        )}
         <div className="mission-result__stats">
           {/* Lunch Rush Phase 4 (Result Summary): attempts/successes/failures/success rate,
               derived once by ../logic/missionResultStats.ts's `deriveMissionResultStats` from
@@ -95,9 +107,18 @@ export function MissionResultOverlay({
           {"\u{1F3C6}"} ランキングを見る
         </button>
         <div className="action-row action-row--column">
-          <button type="button" className="cta-button cta-button--primary" onClick={onRetry}>
+          <button
+            type="button"
+            className="cta-button cta-button--primary"
+            onClick={onRetry}
+            disabled={retryBlocked}
+            aria-disabled={retryBlocked}
+          >
             もう一度
           </button>
+          {retryBlocked && (
+            <p className="mission-result__retry-blocked">{"\u{1F6D2}"} ショップで材料を補充すると再挑戦できます</p>
+          )}
           {/* Gameplay UX Phase 2 (Issue #157): フリープレイへ/🏠ホームへ paired side-by-side
               (`.mission-result__nav-row`, `.home-cta-row`'s own flex:1-pair pattern) instead of
               stacked, so the 4th CTA adds ~0 vertical height to the RESULT panel and both

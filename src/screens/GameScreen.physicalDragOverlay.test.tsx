@@ -102,6 +102,7 @@ function Harness({ category }: { category: IngredientCategory }) {
         onRetrySameRecipe={() => {}}
         onBackToPizzaSelect={() => {}}
         onMissionServeNext={() => {}}
+        onMissionSkipOrder={() => {}}
         onMissionStart={() => {}}
         onMissionExitToFree={() => {}}
         onMissionCloseIntro={() => {}}

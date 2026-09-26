@@ -12,6 +12,8 @@ import { ResultPanel } from "../components/ResultPanel";
 import { MissionHud } from "../components/MissionHud";
 import { MissionIntroOverlay } from "../components/MissionIntroOverlay";
 import { MissionServePanel } from "../components/MissionServePanel";
+import { MissionShortagePanel } from "../components/MissionShortagePanel";
+import { recipeStockShortage } from "../state/recipeDiscoveryState";
 import { MissionResultOverlay } from "../components/MissionResultOverlay";
 import { ReferencePreview } from "../components/ReferencePreview";
 import { PlayerReferencePreview } from "../components/PlayerReferencePreview";
@@ -33,12 +35,13 @@ import {
   buildMitoOrderLine,
   buildTetoBakeLine,
   buildTetoOrderLine,
+  buildTetoShortageLine,
   buildTetoResultLine,
 } from "../data/dialogue";
 import { getIngredient, type Ingredient, type IngredientCategory } from "../data/ingredients";
 import type { GameState } from "../state/gameReducer";
 import { discoveredRecipeIds } from "../state/dex";
-import { remainingSeconds, type MissionState } from "../mission/lunchRush";
+import { canStartLunchRush, remainingSeconds, type MissionState } from "../mission/lunchRush";
 import { averageQualityScore, missionScore } from "../logic/missionScoring";
 import { deriveMissionResultStats } from "../logic/missionResultStats";
 import { calculateMissionReward } from "../logic/economy";
@@ -125,6 +128,8 @@ interface GameScreenProps {
    *  -- opens the App-level Dex overlay on top of this screen. Optional: no CTA without it. */
   onOpenDex?: () => void;
   onMissionServeNext: () => void;
+  /** Issue #212 (H-R): 「この注文をスキップ」 on a short Lunch Rush order. */
+  onMissionSkipOrder: () => void;
   onMissionStart: () => void;
   onMissionExitToFree: () => void;
   onMissionCloseIntro: () => void;
@@ -192,6 +197,7 @@ export function GameScreen({
   onOpenShop,
   onOpenDex,
   onMissionServeNext,
+  onMissionSkipOrder,
   onMissionStart,
   onMissionExitToFree,
   onMissionCloseIntro,
@@ -275,6 +281,12 @@ export function GameScreen({
   const cutConfirmReady = state.cutState.lines.length >= cutRequiredCount;
 
   const isMissionPlaying = mission.mode === "PLAYING";
+  // Issue #212 (H-R): a Lunch Rush order the player cannot make with the stock on hand. The
+  // reducer already refuses BEGIN_PREPARE for it (isRecipeCookable); this only decides what the
+  // ORDER screen offers -- the shortage and 「この注文をスキップ」 instead of 「ピザを作る！」.
+  const missionShortages =
+    state.phase === "ORDER" && state.isMissionRound && !state.freeCook ? recipeStockShortage(state.recipe, state) : [];
+  const isMissionShortOrder = isMissionPlaying && missionShortages.length > 0;
   // Free play's own RESULT dialogue/ResultPanel are gated on this, not just `!isMissionPlaying`
   // -- once a run's timer expires mid-round, `mission.mode` flips straight to "RESULT" while
   // `state.phase` can still be sitting at "RESULT" (or PREPARE/BAKE) from the interrupted
@@ -387,7 +399,7 @@ export function GameScreen({
       {state.phase === "ORDER" && (
         <section className="dialogue-area">
           <DialogueBox {...mitoOrderLine} />
-          <DialogueBox {...buildTetoOrderLine(state.recipe)} />
+          <DialogueBox {...(isMissionShortOrder ? buildTetoShortageLine(state.recipe) : buildTetoOrderLine(state.recipe))} />
         </section>
       )}
 
@@ -603,7 +615,9 @@ export function GameScreen({
         </>
       )}
 
-      {state.phase === "ORDER" && (
+      {isMissionShortOrder && <MissionShortagePanel shortages={missionShortages} onSkip={onMissionSkipOrder} />}
+
+      {state.phase === "ORDER" && !isMissionShortOrder && (
         <div className="action-row">
           <button type="button" className="cta-button cta-button--primary" onClick={onBeginPrepare}>
             {mission.mode === "FREE" ? <>{"\u{1F355}"} フリープレイ</> : "ピザを作る！"}
@@ -810,6 +824,8 @@ export function GameScreen({
           onExit={onMissionExitToFree}
           onShowRanking={onShowRanking}
           onGoHome={onGoHome}
+          endedEarly={mission.endedEarly}
+          retryBlocked={!canStartLunchRush(state)}
         />
       )}
     </div>
