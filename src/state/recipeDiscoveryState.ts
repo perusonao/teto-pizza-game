@@ -85,15 +85,43 @@ export interface GuidedRoundInputs {
  * or a Shop unlock alone is not enough: stock 0 is not cookable. Starters stay unlimited.
  */
 export function isRecipeCookable(recipe: Recipe, inputs: Omit<GuidedRoundInputs, "dex">): boolean {
+  return recipeStockShortage(recipe, inputs).length === 0;
+}
+
+/** One required ingredient `recipe` is short of: `need` units for one pizza, `have` usable now. */
+export interface IngredientShortage {
+  ingredientId: string;
+  need: number;
+  have: number;
+}
+
+/**
+ * Issue #212: the per-ingredient breakdown behind `isRecipeCookable` -- every required ingredient
+ * that keeps `recipe` from being cooked right now, in `requiredIngredients` order (empty exactly
+ * when the recipe is cookable). The need is the same minimum as `isRecipeCookable` (scatter:
+ * `max(1, minCount)` pieces, i.e. Lunch Rush's "order" completion minimum; a sauce/spread: one
+ * unit). Starters are never short. An unowned finite material has 0 usable and an unknown id is
+ * short by one, so both keep the recipe uncookable exactly as before. Mode-agnostic and pure:
+ * Lunch Rush's order screen reads it, and any other mode can reuse it without a UI dependency.
+ */
+export function recipeStockShortage(
+  recipe: Recipe,
+  inputs: Omit<GuidedRoundInputs, "dex">,
+): IngredientShortage[] {
   const owned = new Set(inputs.ownedIngredientIds);
-  return recipe.requiredIngredients.every(({ ingredientId, minCount }) => {
+  const shortages: IngredientShortage[] = [];
+  for (const { ingredientId, minCount } of recipe.requiredIngredients) {
     const ingredient = getIngredient(ingredientId);
-    if (!ingredient) return false;
-    if (!ingredient.unlockCondition) return true;
-    if (!owned.has(ingredientId)) return false;
-    const needed = ingredient.placement === "scatter" ? Math.max(1, minCount) : 1;
-    return stockOf(ingredientId, inputs.inventory) >= needed;
-  });
+    if (!ingredient) {
+      shortages.push({ ingredientId, need: 1, have: 0 });
+      continue;
+    }
+    if (!ingredient.unlockCondition) continue;
+    const need = ingredient.placement === "scatter" ? Math.max(1, minCount) : 1;
+    const have = owned.has(ingredientId) ? stockOf(ingredientId, inputs.inventory) : 0;
+    if (have < need) shortages.push({ ingredientId, need, have });
+  }
+  return shortages;
 }
 
 /**

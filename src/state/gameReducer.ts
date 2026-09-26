@@ -36,15 +36,14 @@ import { signatureOfPizza } from "../logic/discovery/signature";
 import { registerDiscoveryToDex } from "./discoveryRegistration";
 import { FREE_COOK_ORDER, FREE_COOK_RECIPE } from "../data/freeCook";
 import { resolveFreeCookPizza } from "../logic/discovery/freeCook";
-import { availableRecipeIds } from "./progression";
-import { canStartGuidedRound } from "./recipeDiscoveryState";
+import { canStartGuidedRound, isRecipeCookable } from "./recipeDiscoveryState";
 import {
   canPlaceIngredient,
   consumePizzaInventory,
   EMPTY_INVENTORY,
   type InventoryState,
 } from "./inventory";
-import { pickMissionOrder } from "../mission/lunchRush";
+import { cookableMissionRecipeIds, missionOrderRecipeIds, pickMissionOrder } from "../mission/lunchRush";
 import { isInsideDough } from "../logic/pizzaCoordinates";
 import {
   addCutLine,
@@ -218,6 +217,12 @@ export interface GameState {
    *  this as an interaction gate: FREE and Lunch Rush resolve the same recipe sauce profile
    *  and dispatch through the same reducer action. Transient only; never persisted. */
   isMissionRound: boolean;
+  /** Issue #212 (H-R): recipes skipped as short in the current Lunch Rush run -- SOLD OUT for the
+   *  rest of it, never drawn again (stock cannot rise mid-run: the Shop is not reachable while
+   *  PLAYING). Run-local: MISSION_SKIP_ORDER adds to it, MISSION_NEXT_ORDER carries it,
+   *  MISSION_RESET_ORDER (a new run) and every FREE round (`buildOrderState`) reset it to `[]`.
+   *  Never persisted. */
+  missionSoldOutRecipeIds: readonly string[];
   justDiscovered: boolean;
   /** True when REGISTER_TO_DEX just improved this recipe's Dex BEST (including its very
    *  first discovery, which trivially sets the first BEST). RESULT/DISCOVERED UI uses this
@@ -392,6 +397,9 @@ export type GameAction =
   // src/mission/lunchRush.ts's top comment for the canonical/derived boundary this keeps.
   | { type: "MISSION_NEXT_ORDER" }
   | { type: "MISSION_RESET_ORDER" }
+  // Issue #212 (H-R): skip the current Lunch Rush order because it is short of stock. `recipeId`
+  // is the order the player saw, so a stale/double tap against a newer order is a no-op.
+  | { type: "MISSION_SKIP_ORDER"; recipeId: string }
   // Phase 3C-5 (Pitz + Shop), repriced by I4b-3: the reducer only applies the result of a pure
   // rule, it never computes a price or a reward itself. PURCHASE_INGREDIENT is the REC-04 first
   // pack (../logic/materialShop.ts's `purchaseFirstPack`); CLAIM_MISSION_REWARD uses
@@ -454,6 +462,7 @@ function buildOrderState(
   carry: ProgressionCarry,
   isMissionRound: boolean,
   freeCook = false,
+  missionSoldOutRecipeIds: readonly string[] = [],
 ): GameState {
   const recipe = freeCook ? FREE_COOK_RECIPE : getRecipe(order.recipeId);
   if (!recipe) {
@@ -484,6 +493,7 @@ function buildOrderState(
     cookingTiming: null,
     ...carry,
     isMissionRound,
+    missionSoldOutRecipeIds: isMissionRound ? missionSoldOutRecipeIds : [],
     justDiscovered: false,
     justGotNewBest: false,
     hint: null,
@@ -519,18 +529,27 @@ function guidedRecipeIds(carry: Pick<ProgressionCarry, "dex" | "ownedIngredientI
 
 /** Picks a fresh Mission order (see ../mission/lunchRush.ts's `pickMissionOrder`) and builds
  *  the ORDER-phase state around it -- always `isMissionRound: true`. Shared by
- *  MISSION_NEXT_ORDER and MISSION_RESET_ORDER so both pick a Mission order the exact same
- *  way and both mark the round as Mission's identically. */
-function nextMissionOrderState(state: GameState): GameState {
-  // Discovery 2.0 (OD-DISC-5): the EP1 axis of `availableRecipeIds` never gates here -- the pool is
-  // discovered-only and a discovered recipe is always unlocked (A2), so only ownership filters.
-  const ids = availableRecipeIds(state.dex, state.ownedIngredientIds);
-  const discoveredIds = discoveredRecipeIds(state.dex) as RecipeId[];
-  const order = pickMissionOrder(ids, discoveredIds, state.recipe.id);
-  // Issue #200: an empty discovered ∩ available pool must fail closed. The HOME gate normally
-  // prevents Mission at Dex 0, but a stray lower-level dispatch must never fall back to an
-  // undiscovered order.
-  if (!order) return state;
+ *  MISSION_NEXT_ORDER, MISSION_RESET_ORDER and MISSION_SKIP_ORDER so all three pick a Mission
+ *  order the exact same way and mark the round as Mission's identically.
+ *
+ *  Issue #212 (H-R): an order is only picked while at least one discovered, not-SOLD-OUT recipe
+ *  is cookable (`cookableMissionRecipeIds`) -- otherwise `null`, and the caller keeps its own
+ *  state (fail-closed: never an undiscovered order, never a Free Cooking fallback). A normal pick
+ *  (`cookableOnly: false`) draws from every discovered, owned, not-SOLD-OUT recipe, so a short
+ *  order may still appear; the pick right after a skip (`cookableOnly: true`) draws only from the
+ *  cookable ones, so a shortage is never followed by another shortage. */
+function nextMissionOrderState(
+  state: GameState,
+  missionSoldOutRecipeIds: readonly string[],
+  cookableOnly: boolean,
+): GameState | null {
+  const cookable = cookableMissionRecipeIds(state, missionSoldOutRecipeIds);
+  if (cookable.length === 0) return null;
+  const pool = cookableOnly ? cookable : missionOrderRecipeIds(state, missionSoldOutRecipeIds);
+  // Discovery 2.0 (OD-DISC-5): both pools are discovered-only already, so the discovered filter
+  // inside `pickMissionOrder` is the unchanged Issue #200 backstop.
+  const order = pickMissionOrder(pool, discoveredRecipeIds(state.dex) as RecipeId[], state.recipe.id);
+  if (!order) return null;
   return buildOrderState(
     order,
     {
@@ -546,6 +565,8 @@ function nextMissionOrderState(state: GameState): GameState {
       discoveryHintPurchases: state.discoveryHintPurchases,
     },
     true,
+    false,
+    missionSoldOutRecipeIds,
   );
 }
 
@@ -637,12 +658,18 @@ let placementTokenCounter = 0;
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case "BEGIN_PREPARE":
-      // LK-8 backstop (Discovery 2.0): a FREE guided round (not Free Cooking) starts only for a
-      // DISCOVERED, cookable recipe; a Lunch Rush round only for a discovered one (its own pool
-      // and stock rules are unchanged). A stale ORDER for anything else stays at ORDER.
+      // Issue #212: only an ORDER round can begin preparing. Without this, a BEGIN_PREPARE that
+      // lands on a round sitting at RESULT/POST_BAKE/BAKE (e.g. MISSION_NEXT_ORDER finding no
+      // next order) would drag an already-baked pizza back into PREPARE.
+      if (state.phase !== "ORDER") return state;
+      // LK-8 backstop (Discovery 2.0): a guided round (not Free Cooking) starts only for a
+      // DISCOVERED, cookable recipe -- FREE and Lunch Rush alike (Issue #212: a short Lunch Rush
+      // order stays at ORDER, where it can only be skipped). A stale ORDER stays at ORDER.
       if (
         !state.freeCook &&
-        (state.isMissionRound ? !isDiscovered(state.dex, state.recipe.id) : !canStartGuidedRound(state.recipe.id, state))
+        (state.isMissionRound
+          ? !isDiscovered(state.dex, state.recipe.id) || !isRecipeCookable(state.recipe, state)
+          : !canStartGuidedRound(state.recipe.id, state))
       ) {
         return state;
       }
@@ -1375,18 +1402,45 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         state.ownedIngredientIds,
         state.unlockedForShopIngredientIds,
       );
-      return nextMissionOrderState({
+      const registered: GameState = {
         ...state,
         dex,
         unlockedForShopIngredientIds: entitlement.unlockedForShopIngredientIds,
-      });
+      };
+      // Issue #212 (OD-2): nothing cookable left -> the served round stays at RESULT (registered)
+      // and App.tsx ends the run (END_EARLY); BEGIN_PREPARE's phase guard keeps it there.
+      return nextMissionOrderState(registered, state.missionSoldOutRecipeIds, false) ?? registered;
     }
 
     // Forces a fresh Mission order regardless of the current phase -- used when a Mission run
     // starts or retries, since the underlying round could be sitting anywhere (idle at ORDER,
     // or frozen mid-PREPARE/BAKE/RESULT if the previous run's timer expired mid-round).
+    // Issue #212: a new run starts with an empty SOLD OUT set. With nothing cookable the state is
+    // returned unchanged (App.tsx never starts such a run -- `canStartLunchRush`).
     case "MISSION_RESET_ORDER":
-      return nextMissionOrderState(state);
+      return nextMissionOrderState(state, [], false) ?? state;
+
+    // Issue #212 (H-R): the only way past a short Lunch Rush order. Accepted only for the Mission
+    // ORDER the player is looking at, and only while it really is short -- a cookable order can
+    // never be skipped (no rerolling). The recipe becomes SOLD OUT for the rest of the run and the
+    // next order comes from the cookable pool. Nothing else moves: Dex/BEST/timesMade, inventory,
+    // Pitz, score and the Mission metrics/clock (a separate reducer) are untouched. With nothing
+    // cookable left, only the SOLD OUT set changes and App.tsx ends the run (OD-2).
+    case "MISSION_SKIP_ORDER": {
+      if (
+        !state.isMissionRound ||
+        state.freeCook ||
+        state.phase !== "ORDER" ||
+        state.recipe.id !== action.recipeId ||
+        isRecipeCookable(state.recipe, state)
+      ) {
+        return state;
+      }
+      const soldOut = state.missionSoldOutRecipeIds.includes(action.recipeId)
+        ? state.missionSoldOutRecipeIds
+        : [...state.missionSoldOutRecipeIds, action.recipeId];
+      return nextMissionOrderState(state, soldOut, true) ?? { ...state, missionSoldOutRecipeIds: soldOut };
+    }
 
     case "SHOW_HINT":
       // Discovery Hint 2.0 (229-B): in Free Cooking the button opens the progressive hint sheet

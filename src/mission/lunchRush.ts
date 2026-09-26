@@ -1,5 +1,9 @@
 import { getNextOrder, type Order } from "../data/orders";
-import type { RecipeId } from "../data/recipes";
+import { getRecipe, type RecipeId } from "../data/recipes";
+import { discoveredRecipeIds, type DexState } from "../state/dex";
+import type { InventoryState } from "../state/inventory";
+import { availableRecipeIds } from "../state/progression";
+import { isRecipeCookable } from "../state/recipeDiscoveryState";
 import { EMPTY_MISSION_METRICS, recordServe, type MissionMetrics } from "../logic/missionScoring";
 import type { LunchRushServeRecord } from "../shared/lunchRushScoring";
 
@@ -100,6 +104,51 @@ export function pickMissionOrder(
   return getNextOrder({ availableRecipeIds: [...missionRecipeIds], excludeRecipeId });
 }
 
+/** The progression facts a Lunch Rush order pool is derived from (a `GameState` satisfies it). */
+export interface MissionPoolInputs {
+  dex: DexState;
+  ownedIngredientIds: readonly string[];
+  inventory: InventoryState;
+}
+
+/**
+ * Issue #212 (H-R): the recipes a Lunch Rush order may be drawn from -- discovered, every required
+ * ingredient OWNED, and not SOLD OUT this run. Stock is deliberately not checked: a short order may
+ * still appear (it is shown as short and can be skipped). In `RECIPES` order.
+ */
+export function missionOrderRecipeIds(
+  inputs: MissionPoolInputs,
+  soldOutRecipeIds: readonly string[] = [],
+): RecipeId[] {
+  const discovered = new Set(discoveredRecipeIds(inputs.dex));
+  const soldOut = new Set(soldOutRecipeIds);
+  return availableRecipeIds(inputs.dex, inputs.ownedIngredientIds).filter(
+    (id) => discovered.has(id) && !soldOut.has(id),
+  );
+}
+
+/**
+ * Issue #212 (H-R): the recipes Lunch Rush can actually cook right now -- `missionOrderRecipeIds`
+ * narrowed by `isRecipeCookable` (../state/recipeDiscoveryState.ts, the single stock authority).
+ * The order after a skip is drawn from here, and an empty result means the run cannot continue
+ * (OD-2: Lunch Rush does not start, or a running one ends into its RESULT).
+ */
+export function cookableMissionRecipeIds(
+  inputs: MissionPoolInputs,
+  soldOutRecipeIds: readonly string[] = [],
+): RecipeId[] {
+  return missionOrderRecipeIds(inputs, soldOutRecipeIds).filter((id) => {
+    const recipe = getRecipe(id);
+    return !!recipe && isRecipeCookable(recipe, inputs);
+  });
+}
+
+/** OD-2: a Lunch Rush run may start (or retry) only while at least one discovered recipe is
+ *  cookable. The HOME button, the Intro start and the RESULT retry all read this. */
+export function canStartLunchRush(inputs: MissionPoolInputs): boolean {
+  return cookableMissionRecipeIds(inputs).length > 0;
+}
+
 /** Which screen the Mission wrapper is showing. "FREE" means Mission is not engaged at all --
  *  the app is plain free play, unaffected by anything in this module. */
 export type MissionMode = "FREE" | "INTRO" | "PLAYING" | "RESULT";
@@ -127,6 +176,10 @@ export interface MissionState {
    *  realtime accumulator every other part of the app already reads. Reset to `[]` on START and
    *  EXIT_TO_FREE, the same points `metrics` itself resets at. */
   serves: readonly LunchRushServeRecord[];
+  /** Issue #212 (OD-2): set only when the run was ended by END_EARLY because no discovered recipe
+   *  can be cooked any more (RESULT shows why). Absent for a time-up run; START/EXIT_TO_FREE build
+   *  a fresh state without it. */
+  endedEarly?: boolean;
 }
 
 export const INITIAL_MISSION_STATE: MissionState = {
@@ -153,6 +206,10 @@ export type MissionRunAction =
    *  read -- not a new fact this reducer computes, just carried through to the log. */
   | { type: "SERVE"; qualityTotal: number; now: number; recipeId: string; completionFailed?: boolean }
   | { type: "TICK"; now: number }
+  /** Issue #212 (OD-2): ends a PLAYING run into RESULT before the deadline because nothing left
+   *  is cookable (App.tsx decides that from `cookableMissionRecipeIds`). Metrics/serves are kept
+   *  as they are, so the reward/BEST/ranking read exactly what was served. */
+  | { type: "END_EARLY" }
   | { type: "EXIT_TO_FREE" };
 
 /**
@@ -237,6 +294,12 @@ export function missionRunReducer(state: MissionState, action: MissionRunAction)
       if (!isMissionExpired(action.now, state.clock)) return state;
       return { ...state, mode: "RESULT" };
     }
+
+    // Issue #212 (OD-2): one-shot like TICK's expiry -- only a PLAYING run can end, and once
+    // `mode` is RESULT every later END_EARLY/TICK/SERVE leaves it alone.
+    case "END_EARLY":
+      if (state.mode !== "PLAYING") return state;
+      return { ...state, mode: "RESULT", endedEarly: true };
 
     case "EXIT_TO_FREE":
       // runId is deliberately preserved, not reset -- see the field's own doc comment above.
