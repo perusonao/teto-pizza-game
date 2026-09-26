@@ -13,6 +13,10 @@ Deliverables:
 
 Verdict: **A. READY FOR OWNER DECISIONS** (§16).
 
+> **Update (Owner Decisions confirmed):** the Owner confirmed OD-H3-1..12 (§20, Owner Authority).
+> The mandatory pre-implementation check of OD-H3-6 then found conflicts between the confirmed
+> decisions (§21). H3-1 has **not** been started: **C. BLOCKED — needs Owner Decisions OD-H3-13..15**.
+
 ---
 
 ## 1. Audited main SHA and GitHub state
@@ -531,3 +535,138 @@ Additional invariants:
   Economy 1.0 Result report.
 - UI: a static mock loading the production `App.css`, measured with Playwright Chromium at 390×844,
   360×800 and 360×640.
+
+---
+
+## 20. Owner Decisions — confirmed (Owner Authority)
+
+Confirmed by the Owner after Fresh Design commit `7dfd95e`. These supersede the recommendations in
+§18 wherever they differ. Recorded verbatim.
+
+**OD-H3-1:** Discovery Hint 3.0はSelectable Hint方式を採用する。一本道の H1 → H2 → H3 → H4 ではなく、
+「プレイヤーが知りたい情報カテゴリを選んで購入する」方式へ移行する。
+
+**OD-H3-2:** 未発見recipeについて、実際のトッピング数 / ingredient slot数は表示しない。全recipeで同じ
+カテゴリ構造を基本表示し、slot数そのものをrecipe identity hintにしない。
+
+**OD-H3-3:** 「トッピング① / ② / ③」のような、recipe dataに存在しない順番をUI authorityにしない。
+ingredient identityはunordered setとして扱う。内部のstable fact idとUI表示順序は分離する。
+
+**OD-H3-4:** pricing authorityは ESC_PARITY を採用する。そのrecipeに対して購入する有料factの段階に
+応じて 1段目 5 / 2段目 10 / 3段目 20 / 4段目 40 Pitz を基本とする。複数同時購入でも、1個ずつ購入
+した場合と総額を必ず同じにする（例: 3段分をまとめて購入 = 5 + 10 + 20 = 35 Pitz、1個ずつ3回購入
+しても35 Pitz）。購入操作の分割によるprice bypassを禁止する。既存Economyとのparity capを維持:
+現行でfull hint cost 35のrecipe → selectableでも最大35、現行でfull hint cost 75のrecipe →
+selectableでも最大75。有料対象24recipeのfull unlock総額1480 Pitzを維持する。
+
+**OD-H3-5:** Rule Wを採用する。recipeごとに「最後まで直接開示しないreserved ingredient」を
+deterministicに固定する。プレイヤー自身にreserved ingredientを選ばせない。現在のH4が伏せている
+ingredientと同じauthorityを維持する。n-1 protectionを壊さない。
+
+**OD-H3-6:** key ingredientは無料情報にする方向で採用する。ShopのNEW等ですでに実質的に得られる情報に
+Pitzを要求しない。ただし実装前に、現在の24 paid recipesすべてについて「無料key factがDiscovery
+privacyを追加で破壊しない」ことをテストでpinする。問題が見つかったrecipeは勝手に例外化せずSTOPする。
+
+**OD-H3-7:** チーズ / topping等について、「これで全部」「他には使わない」というnegative factは原則
+無料でも有料でも開示しない。購入したpositive factだけを表示する。absence / exact slot count自体を
+recipe identity leakにしない。Fresh Designで見つかった5 recipeのslot-count identity leakを閉じる。
+
+**OD-H3-8:** Dex0 Margherita onboardingは引き続き無料。Pitzを消費しない。purchase persistenceにも
+書かない。
+
+**OD-H3-9:** 既存Hint Economy購入者を不利にしない。旧 discoveryHintPurchases から新selectable facts
+へのmigrationでは、すでに購入済みだった情報を失わせない。同じ情報への再課金を禁止する。次の価格段階を
+巻き戻さない。schemaVersion 2維持可能性をH3-2で正式検証する。
+
+**OD-H3-10:** near-missは未購入factを無料で特定しない。ingredient名等のexact informationは、そのfact
+がすでに公開可能な場合だけ表示可能。generic near-missは維持可能。
+
+**OD-H3-11:** 25-recipe段階では、Fresh Designで確認されたDiscovery高速化を許容する。「必要な分だけ
+購入」profileが★3で338 → 166 bakesになったことを理由に今回Shop価格・reward・pack size・Hint価格を
+追加調整しない。Human Verificationと実プレイ後に再評価する。既知の★1 economy burdenも今回修正しない。
+
+**OD-H3-12:** 将来の101/172対応を考慮し、fact taxonomyは将来 `ing:` / `none:` / `finish:` /
+`shape:` / `pan:` / `tech:` / `cook:` 等へ拡張可能にする。ただし現在runtimeに存在しないmechanicを
+Hint 3.0で先行実装しない。
+
+Consequences for the §6 model (mechanical, no new choice):
+
+- OD-H3-7 removes every non-positive fact from sale: `none:cheese`, `none:topping`,
+  `sauce:not-tomato` (a "not X" fact), and `meta:ingredient-count` (an exact slot count).
+- OD-H3-6 removes the key from sale (it becomes a free positive fact).
+- So the sellable set per recipe (Dex ≥ 1) = every distinct ingredient **except** the key and
+  the Rule W reserve = `distinct − 2` positive `ing:` facts.
+
+## 21. H3-1 Pre-implementation Gate (OD-H3-6 check) — **BLOCKED**
+
+Base: `origin/main` = `f59b5ed` (PR #237 merged since the Fresh Design; merged into this branch, no
+Dinner Mission file touched). The check was run on the committed matrix
+(`keyIngredient`, `reservedIngredient_RuleW`, `sauceSlot` / `cheeseSlots` / `toppingSlots`) with
+the §20 consequences applied. No production code was written.
+
+### 21.1 Sellable positive facts per paid recipe (free key + Rule W + positive-only)
+
+| Recipe | distinct | free key | reserved (W) | sellable: sauce / cheese / topping | n | full cost (ESC_PARITY) | current |
+|---|---:|---|---|---|---:|---:|---:|
+| **pizza-bianca** | 2 | rosemary | olive-oil | **0 / 0 / 0** | **0** | **0** | 35 |
+| marinara | 3 | garlic | oregano | 1 / 0 / 0 | 1 | 5 | 35 |
+| genovese, bismarck, funghi, salsiccia, pepperoni | 3 | (topping) | mozzarella | 1 / 0 / 0 | 1 | 5 | 35 |
+| fugazza | 3 | olive-oil | oregano | 0 / 0 / 1 | 1 | 5 | 35 |
+| napoletana, tonno-e-cipolla, breakfast, melanzane, bambino, hawaiian, new-haven, pesto-caprese, pesto-patate | 4 | | | 1 / 1 / 0 | 2 | 15 | 75 |
+| pesto-tonno | 4 | pesto | onion | 0 / 0 / 2 | 2 | 15 | 75 |
+| quattro-formaggi | 5 | gorgonzola | fontina | 1 / 2 / 0 | 3 | 35 | 75 |
+| parmigiana-pizza | 5 | parmigiano | basil | 1 / 1 / 1 | 3 | 35 | 75 |
+| **puttanesca-pizza** | 5 | capers | garlic | 1 / 0 / 2 | 3 | 35 | 75 |
+| capricciosa, meat-lovers, pizza-portuguesa | 6 | | | 1 / 1 / 2 | 4 | 75 | 75 |
+| **24-recipe total** | | | | | | **515** | **1480** |
+
+### 21.2 Findings
+
+**F-1: pizza-bianca has zero purchasable facts. This is a free identity leak, and the recipe is one
+of the 5 that OD-H3-7 requires to close.**
+
+After the free key (rosemary) and the Rule W reserve (olive-oil), nothing positive is left to sell.
+Its sheet would offer nothing from the first open, so a player learns for free "this target is a
+2-ingredient recipe with rosemary". That leaves about 3 candidates (one of the owned sauces). With
+the key paid (the Fresh Design), the same recipe had a sellable fact.
+
+So the free key is what creates this leak. Per OD-H3-6 this is a problem recipe, and I did **not**
+make it an exception.
+
+**F-2: category choice + positive-only makes category availability observable.**
+
+A selected category with no sellable fact must either be shown as unavailable or be rejected on
+purchase. Either way the absence becomes observable, before or at the purchase, at no cost.
+Availability patterns (sauce / cheese / topping) split the 24 recipes into 6 classes:
+(T,T,F) 10 · (T,F,F) 6 · (T,T,T) 4 · (F,F,T) 2 · **(F,F,F) 1 = pizza-bianca** ·
+**(T,F,T) 1 = puttanesca**.
+
+That uniquely identifies 2 of the 5 leak recipes named in OD-H3-7, so OD-H3-1 (choose a category)
+and OD-H3-7 (no absence leak) cannot both be met with a presentation that exposes or rejects per
+category.
+
+**F-3: exhaustion reveals the exact ingredient count cheaply.**
+
+Once the last sellable fact is bought, "nothing more to buy" is observable, and `n = distinct − 2`
+gives the exact count. For the 7 three-ingredient recipes (n = 1) this costs 5 Pitz, while today
+it costs 35 cumulative via H3. That conflicts with OD-H3-7's "exact slot count" clause.
+
+**F-4: OD-H3-4's 1480 total is arithmetically unreachable under OD-H3-6 and OD-H3-7.**
+
+- With the fixed 5/10/20/40 ladder (OD-H3-11: no price change), the per-recipe caps 35 / 75 still
+  hold as maxima.
+- The full-unlock total is **515**. Even with a paid key it would be 910.
+- 1480 needs the count and negative facts that OD-H3-7 forbids, or a different ladder that
+  OD-H3-11 forbids.
+
+### 21.3 Owner Decisions needed before H3-1 (proposed; not decided here)
+
+| ID | Question | Options | Recommendation |
+|---|---|---|---|
+| **OD-H3-13** | pizza-bianca (F-1) | (a) key stays paid for any recipe where the free key would leave 0 sellable facts (pizza-bianca only today) · (b) keep the free key and accept the leak · (c) another reserve rule for 2-ingredient recipes (breaks n-1: both named = full answer; not viable) | **(a)**, stated as a general rule rather than a hand-made exception. Residual: after paying 5, exhaustion shows the recipe has 2 ingredients (F-3 class). |
+| **OD-H3-14** | category availability (F-2) | (a) **category preference with deterministic fallback**: the player picks categories, each purchase returns the next sellable fact of that category or else the next one in a fixed order (sauce → cheese → topping), always a positive fact and always paid; the presentation exposes no per-category availability · (b) show or reject unavailable categories (leaks F-2) · (c) no category choice (contradicts OD-H3-1) | **(a)**. Only positive facts are ever shown; absence can be inferred only indirectly, and only after paying. |
+| **OD-H3-15** | exhaustion and the 1480 target (F-3, F-4) | (a) read OD-H3-4's 1480 as the ceiling: per-recipe caps 35/75 kept as maxima, real total 515; accept that exhaustion is observable (as with today's 「ヒントはここまで」) · (b) keep 1480 by changing the ladder (conflicts with OD-H3-11) · (c) re-admit `meta:ingredient-count` as a paid fact (conflicts with OD-H3-7) | **(a)**. Re-evaluate prices after Human Verification, as OD-H3-11 already plans. |
+
+Once these three are decided, H3-1 can proceed exactly as scoped (pure logic, unwired). The fact
+generation, Rule W, ESC pricing / batch parity and the validation design in §6–§7 are unaffected.
+Only the sellable set, fallback rule and parity expectation change.
