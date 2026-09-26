@@ -26,6 +26,7 @@ import {
   type GameState,
   type MakingStep,
 } from "./state/gameReducer";
+import { isHintSheetVisible } from "./state/discoveryHint";
 import {
   loadSave,
   loadMissionBest,
@@ -356,11 +357,14 @@ function App() {
   // at the same time, regardless of the order they toggled in. A no-op whenever `cookingTiming`
   // isn't running (Mission rounds, or FREE outside PREPARE) since PAUSE/RESUME_COOKING_TIMING's
   // own reducer guards already handle that; this effect only needs to track the transitions.
+  const isHintSheetOpen = isHintSheetVisible(state);
   const isCookingTimingPauseSignal = isAnyCookingTimingPauseReasonActive(
     isReferencePopoverOpen,
     isDexOpen,
     isShopOpen,
     isInventoryOpen,
+    // Discovery Hint 2.0 (229-B, OD-HINT-8 no penalty): reading hints never costs cooking time.
+    isHintSheetOpen,
     isDocumentHidden,
     isWindowBlurred,
   );
@@ -894,7 +898,9 @@ function App() {
           referenceModeEnabled={referenceModeEnabled}
           referencePizza={referencePizza}
           isReferencePopoverOpen={isReferencePopoverOpen}
-          isGlobalOverlayOpen={isDexOpen || isShopOpen || isInventoryOpen || isSettingsOpen || isRankingOpen}
+          isGlobalOverlayOpen={
+            isDexOpen || isShopOpen || isInventoryOpen || isSettingsOpen || isRankingOpen || isHintSheetOpen
+          }
           sauceMetrics={sauceMetrics}
           sauceShadowScore={sauceShadowScore}
           isDispensingSauce={pendingSauceDeposits.length > 0}
@@ -907,6 +913,8 @@ function App() {
           onConfirmMakingStep={handleConfirmMakingStep}
           onStartBake={() => dispatch({ type: "START_BAKE", now: Date.now() })}
           onShowHint={() => dispatch({ type: "SHOW_HINT" })}
+          onRevealNextHint={() => dispatch({ type: "REVEAL_NEXT_HINT" })}
+          onCloseHint={() => dispatch({ type: "CLOSE_HINT" })}
           onChangeCategory={handleChangeCategory}
           onSelectIngredient={handleSelectIngredient}
           onClearIngredientSelection={() => setSelectedIngredientId(null)}

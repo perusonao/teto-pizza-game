@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DialogueBox } from "../components/DialogueBox";
 import { PizzaStage } from "../components/PizzaStage";
 import { IngredientTray } from "../components/IngredientTray";
@@ -19,6 +19,8 @@ import { ReferenceThumbnail } from "../components/ReferenceThumbnail";
 import { SauceMetricsPanel } from "../components/SauceMetricsPanel";
 import { ScoringV2DebugPanel } from "../components/ScoringV2DebugPanel";
 import { CutDebugPanel } from "../components/CutDebugPanel";
+import { HintSheet } from "../components/HintSheet";
+import { hintSheetView, isHintSheetVisible } from "../state/discoveryHint";
 import type { ReferencePizza } from "../data/referencePizza";
 import { getPlayerReferencePizza } from "../data/playerReference";
 import { buildQuantityNote } from "../data/quantityMessages";
@@ -92,6 +94,9 @@ interface GameScreenProps {
   onConfirmMakingStep: () => void;
   onStartBake: () => void;
   onShowHint: () => void;
+  /** Discovery Hint 2.0 (229-B): the Free Cooking hint sheet's next-step / close actions. */
+  onRevealNextHint?: () => void;
+  onCloseHint?: () => void;
   onChangeCategory: (category: IngredientCategory) => void;
   onSelectIngredient: (ingredient: Ingredient) => void;
   /** Clears the tray selection (IngredientTray's page switch hides the selected chip). */
@@ -168,6 +173,8 @@ export function GameScreen({
   onConfirmMakingStep,
   onStartBake,
   onShowHint,
+  onRevealNextHint = () => {},
+  onCloseHint = () => {},
   onChangeCategory,
   onSelectIngredient,
   onClearIngredientSelection,
@@ -200,6 +207,15 @@ export function GameScreen({
   // physical-drag reset race in PR #26 and is now shared with PizzaStage so both topping drags
   // and buffered Sauce gestures become permanently invalid in the same reset transaction.
   const [pizzaResetToken, setPizzaResetToken] = useState(0);
+  // Discovery Hint 2.0 (229-B): the sheet's open state is reducer-owned; closing it hands focus
+  // back to the 「ヒント」 button that opened it.
+  const hintSheetOpen = isHintSheetVisible(state);
+  const hintButtonRef = useRef<HTMLButtonElement>(null);
+  const wasHintSheetOpenRef = useRef(hintSheetOpen);
+  useEffect(() => {
+    if (wasHintSheetOpenRef.current && !hintSheetOpen) hintButtonRef.current?.focus();
+    wasHintSheetOpenRef.current = hintSheetOpen;
+  }, [hintSheetOpen]);
   function handleResetPizza() {
     setPizzaResetToken((token) => token + 1);
     onResetPizza();
@@ -674,10 +690,19 @@ export function GameScreen({
                 次へ {"→"}
               </button>
             )}
-            <button type="button" className="secondary-button" onClick={onShowHint}>
+            <button
+              ref={hintButtonRef}
+              type="button"
+              className="secondary-button"
+              onClick={onShowHint}
+              aria-haspopup={state.freeCook ? "dialog" : undefined}
+            >
               ヒント
             </button>
           </div>
+          {hintSheetOpen && (
+            <HintSheet view={hintSheetView(state)} onRevealNext={onRevealNextHint} onClose={onCloseHint} />
+          )}
         </>
       )}
 

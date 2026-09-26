@@ -204,12 +204,19 @@ test.describe("I5b-5 Layout Contract", () => {
     const pages = await trayPageLabel(page);
     expect(pages, "22 toppings need more than one tray page").not.toBe("1/1");
     await cp({ label: `FREE TOPPING p${pages}`, meta: { mode: "FREE", step: "TOPPING", page: pages } }, TRAY_CHECKS);
+    // Discovery Hint 2.0 (#229 229-B): in Free Cooking 「ヒント」 opens the hint bottom sheet (a
+    // modal over the screen) instead of rewriting the order-card line, so the tray pages are
+    // cycled after closing it; the sheet's own mobile checks are e2e/discovery-hint-sheet.spec.ts.
     await bar(page).getByRole("button", { name: "ヒント" }).click();
-    await cp({ label: `FREE TOPPING p${pages} hint=open`, meta: { hintOpen: true } }, TRAY_CHECKS);
+    const hintSheet = page.getByRole("dialog", { name: /ヒント/ });
+    await expect(hintSheet).toBeVisible();
+    await hintSheet.getByRole("button", { name: "閉じる" }).click();
+    await expect(hintSheet).toHaveCount(0);
+    await cp({ label: `FREE TOPPING p${pages} hint=closed`, meta: { hintSheet: "closed" } }, TRAY_CHECKS);
     await page.getByRole("button", { name: "次のページ" }).click();
-    await cp({ label: `FREE TOPPING p${await trayPageLabel(page)} hint=open`, meta: { hintOpen: true } }, TRAY_CHECKS);
+    await cp({ label: `FREE TOPPING p${await trayPageLabel(page)} hint=closed`, meta: { hintSheet: "closed" } }, TRAY_CHECKS);
     await goToTrayPage(page, "last");
-    await cp({ label: `FREE TOPPING p${await trayPageLabel(page)} (last) hint=open`, meta: { hintOpen: true } }, TRAY_CHECKS);
+    await cp({ label: `FREE TOPPING p${await trayPageLabel(page)} (last) hint=closed`, meta: { hintSheet: "closed" } }, TRAY_CHECKS);
 
     await enterBakePaused(page);
     await cp({ label: "FREE BAKE start", meta: { phase: "BAKE", guide: "visible" } }, BAKE_CHECKS);
