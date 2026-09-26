@@ -207,4 +207,36 @@ describe("Dex-pinned target uses the same authority", () => {
     const reopened = act({ ...bought, hintSession: { targetId: pinned.id, revealedIndex: 0 } }, { type: "SHOW_HINT" });
     expect(reopened.hintSession?.targetId).toBe(pinned.id);
   });
+
+  it("HE-UI-4: after a reload (no session) a purchased, still-DISCOVERABLE recipe is the target again", () => {
+    const base = legacy(100);
+    const [auto, second] = discoverableHintCandidates(base);
+    const bought = act(base, { type: "SHOW_HINT", pinnedRecipeId: second.id }, buy(1), buy(2), { type: "CLOSE_HINT" });
+    // A reload: the ledger comes back from the save, the session does not.
+    const reloaded = act({ ...bought, hintSession: null }, { type: "START_FREE_COOK" }, { type: "SHOW_HINT" });
+    expect(reloaded.hintSession?.targetId).toBe(second.id);
+    expect(reloaded.hintSession?.targetId).not.toBe(auto.id);
+    const view = hintSheetView(reloaded);
+    expect(view).toMatchObject({ kind: "TARGET", next: { level: 3, price: 20 } });
+    expect(reloaded.pitzBalance).toBe(85);
+  });
+
+  it("HE-UI-4: a Dex pin still wins over the purchased preference", () => {
+    const base = legacy(100);
+    const [auto, second] = discoverableHintCandidates(base);
+    const bought = act(base, { type: "SHOW_HINT", pinnedRecipeId: second.id }, buy(1), { type: "CLOSE_HINT" });
+    const pinnedAuto = act({ ...bought, hintSession: null }, { type: "SHOW_HINT", pinnedRecipeId: auto.id });
+    expect(pinnedAuto.hintSession?.targetId).toBe(auto.id);
+  });
+
+  it("HE-UI-4 fallback: once the purchased recipe is not DISCOVERABLE, the deterministic order decides", () => {
+    const base = legacy(100);
+    const [auto, second] = discoverableHintCandidates(base);
+    const bought = act(base, { type: "SHOW_HINT", pinnedRecipeId: second.id }, buy(1), { type: "CLOSE_HINT" });
+    const found: GameState = { ...bought, hintSession: null, dex: registerScoreToDex(bought.dex, second.id, { matchScore: 100, ingredientScore: 100, placementScore: 100, bakeScore: 100, total: 60, stars: 3 }).dex };
+    const reopened = act(found, { type: "START_FREE_COOK" }, { type: "SHOW_HINT" });
+    expect(reopened.hintSession?.targetId).toBe(auto.id);
+    // The purchase record itself stays in the ledger.
+    expect(reopened.discoveryHintPurchases).toEqual({ [second.id]: 1 });
+  });
 });

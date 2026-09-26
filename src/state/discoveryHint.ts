@@ -13,6 +13,8 @@
  *   its target. `resolveHintSession` re-checks it every time the sheet opens: the target stays
  *   only while `selectHintTarget` still returns it (sticky once H1+ was revealed or bought, or
  *   pinned from the Dex, and only while DISCOVERABLE); any other target starts again at H0.
+ *   HE-UI-4: with no session target, a DISCOVERABLE recipe with purchased levels is preferred
+ *   (so a reload keeps it); once it is no longer DISCOVERABLE, the deterministic order decides.
  * - Dex 0 (OD-HE-5): the Margherita onboarding is free. The reveal stays session-only, and the
  *   pre-first-discovery escalation (`preDiscoveryFreeCookAttempts`) still counts: the sheet shows
  *   the larger of that automatic step and the manually revealed one (Fresh Audit §6 F-1/F-2).
@@ -26,7 +28,7 @@ import {
   type DiscoveryHintPurchases,
 } from "../logic/discovery/hintPurchase";
 import { buildHintSteps, type HintLevel, type HintStep } from "../logic/discovery/hintSteps";
-import { selectHintTarget, type HintEmptyKind } from "../logic/discovery/hintTarget";
+import { discoverableHintCandidates, selectHintTarget, type HintEmptyKind } from "../logic/discovery/hintTarget";
 import { discoveredRecipeIds, type DexState } from "./dex";
 import type { InventoryState } from "./inventory";
 
@@ -98,10 +100,18 @@ function stepsFor(targetId: string, dex: DexState): HintStep[] {
  *  recipe starts at H0 (one session at a time, no per-recipe history). */
 export function resolveHintSession(state: DiscoveryHintState, pinnedRecipeId?: string | null): HintSession | null {
   const current = state.hintSession;
-  const target = selectHintTarget(state, {
-    pinnedRecipeId,
-    stickyRecipeId: current && (current.revealedIndex >= 1 || current.fromDex || purchasedFor(state, current.targetId) >= 1) ? current.targetId : null,
-  });
+  const sessionSticky =
+    current && (current.revealedIndex >= 1 || current.fromDex || purchasedFor(state, current.targetId) >= 1) ? current.targetId : null;
+  // HE-UI-4: without a session target (a reload, or a session that never got past H0), a
+  // DISCOVERABLE recipe the player already paid for is preferred, first in hint order, so
+  // re-opening the sheet never trades bought information for a different recipe. Anything else
+  // (no purchase still DISCOVERABLE) keeps the deterministic automatic order.
+  const candidates = discoverableHintCandidates(state);
+  const stickyRecipeId =
+    [sessionSticky, candidates.find((r) => purchasedFor(state, r.id) >= 1)?.id].find(
+      (id) => !!id && candidates.some((r) => r.id === id),
+    ) ?? null;
+  const target = selectHintTarget(state, { pinnedRecipeId, stickyRecipeId });
   if (target.kind !== "TARGET") return null;
   const fromDex = target.source === "dex" || (current?.targetId === target.recipeId && !!current.fromDex);
   if (current && current.targetId === target.recipeId) {

@@ -406,4 +406,98 @@ describe("Cooking Time: Discovery Hint sheet pause (#229)", () => {
 
     expect(readDisplayedCookingTime()).toBe("0:08");
   });
+
+  // Discovery Hint Economy 1.0 (Issue #232, HE-4): buying a level happens inside the open sheet, so
+  // it is paused time too -- whichever door the sheet was opened from.
+  function seedWithPitz(pitz: number): void {
+    seedWithDiscoverable();
+    const save = JSON.parse(window.localStorage.getItem(SAVE_STORAGE_KEY)!);
+    save.pitzBalance = pitz;
+    window.localStorage.setItem(SAVE_STORAGE_KEY, JSON.stringify(save));
+  }
+
+  function savedPitz(): number {
+    return JSON.parse(window.localStorage.getItem(SAVE_STORAGE_KEY)!).pitzBalance;
+  }
+
+  it("HE-4: Dex CTA -> new Free Cooking -> buy a hint: the time spent buying and reading is never billed", async () => {
+    seedWithPitz(100);
+    let now = 7_000_000;
+    vi.spyOn(Date, "now").mockImplementation(() => now);
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: /ピザ図鑑/ }));
+    await user.click(screen.getByRole("button", { name: /ヒントを見る/ }));
+    now += 10_000;
+    await user.click(document.querySelector<HTMLButtonElement>(".hint-sheet__next")!);
+    now += 20_000;
+    await user.click(screen.getByRole("button", { name: "閉じる" }));
+    expect(savedPitz()).toBe(95);
+    now += 8_000;
+    await bakeBismarck(user);
+
+    expect(readDisplayedCookingTime()).toBe("0:08");
+  });
+
+  it("HE-4: Result 「💡 ヒントを見る」 -> new Free Cooking -> buy a hint: never billed either", async () => {
+    seedWithPitz(100);
+    let now = 8_000_000;
+    vi.spyOn(Date, "now").mockImplementation(() => now);
+    const user = userEvent.setup();
+    render(<App />);
+
+    // A cheese-only Free Cooking pizza matches no recipe -> RESULT with the hint CTA.
+    await user.click(screen.getByRole("button", { name: /フリークッキング/ }));
+    const needle = controlBakeNeedle();
+    needle.stub();
+    completeDoughStep();
+    await user.click(screen.getByRole("button", { name: /次へ/ })); // DOUGH -> SAUCE
+    await user.click(screen.getByRole("button", { name: /次へ/ })); // SAUCE -> CHEESE
+    await selectAndTapPizza(user, "モッツァレラ", 50, 50);
+    await user.click(screen.getByRole("button", { name: /次へ/ })); // CHEESE -> TOPPING
+    await user.click(screen.getByRole("button", { name: /焼く/ }));
+    needle.driveTo(65);
+    await user.click(screen.getByRole("button", { name: "取り出す！" }));
+    await completeCutStepIfPresent(user);
+    needle.unstub();
+
+    await user.click(screen.getByRole("button", { name: /ヒントを見る/ })); // new round + sheet
+    expect(screen.getByRole("dialog", { name: /ヒント/ })).toBeInTheDocument();
+    now += 15_000;
+    await user.click(document.querySelector<HTMLButtonElement>(".hint-sheet__next")!);
+    await user.click(document.querySelector<HTMLButtonElement>(".hint-sheet__next")!);
+    now += 15_000;
+    await user.click(screen.getByRole("button", { name: "閉じる" }));
+    // Two levels bought through the same reducer authority as every other door.
+    const purchases = JSON.parse(window.localStorage.getItem(SAVE_STORAGE_KEY)!).discoveryHintPurchases;
+    expect(purchases).toEqual({ "breakfast-pizza": 2 });
+    now += 6_000;
+    await bakeBismarck(user);
+
+    expect(readDisplayedCookingTime()).toBe("0:06");
+  });
+
+  it("HE-4: with no Pitz the CTA is disabled, nothing is charged, and the player still cooks to RESULT", async () => {
+    seedWithPitz(0);
+    let now = 9_000_000;
+    vi.spyOn(Date, "now").mockImplementation(() => now);
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: /フリークッキング/ }));
+    await user.click(screen.getByRole("button", { name: "ヒント" }));
+    const cta = document.querySelector<HTMLButtonElement>(".hint-sheet__next")!;
+    expect(cta).toBeDisabled();
+    await user.click(cta);
+    expect(screen.getByRole("dialog", { name: /ヒント/ })).toHaveTextContent("所持 0 Pitz");
+    now += 20_000;
+    await user.click(screen.getByRole("button", { name: "閉じる" }));
+    now += 4_000;
+    await bakeBismarck(user);
+
+    expect(readDisplayedCookingTime()).toBe("0:04");
+    const save = JSON.parse(window.localStorage.getItem(SAVE_STORAGE_KEY)!);
+    expect(save.discoveryHintPurchases ?? {}).toEqual({});
+  });
 });

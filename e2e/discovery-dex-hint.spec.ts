@@ -172,6 +172,10 @@ test.describe("Discovery Hint 2.0 Dex entry (229-D)", () => {
     await checkSheet(page, driver, browserName, "H3", closed);
     await expectNoUndiscoveredIdentity(page, DEX11_IDS, "Dex -> sheet H3");
     await capture(page, "d4-h3");
+    // Discovery Hint Economy 1.0 (Issue #232, HE-4): the Dex door buys through the same reducer
+    // authority -- H1..H3 = 5 + 10 + 20 on the pinned recipe, saved.
+    const saved = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), SAVE_KEY);
+    expect(Object.values(saved.discoveryHintPurchases)).toEqual([3]);
     for (const name of UNDISCOVERED) await expect(sheet).not.toContainText(name);
 
     await sheet.getByRole("button", { name: "閉じる" }).click();
