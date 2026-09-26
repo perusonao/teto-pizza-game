@@ -27,7 +27,8 @@ export default defineConfig({
   use: {
     baseURL: "http://localhost:5183/teto-pizza-game/",
     // I5b-5 (Design d4f96d0 §12, Preflight §8): failure artifacts only; video stays off (Human
-    // Verification videos are recorded separately, per the policy).
+    // Verification videos are recorded separately, per the policy). Trace is off on the WebKit
+    // projects (Preflight §8 / R-4: WebKit shard time grew >10% with it; CI run 36221528804).
     screenshot: "only-on-failure",
     trace: "retain-on-failure",
     video: "off",
@@ -68,11 +69,11 @@ export default defineConfig({
        closer than Desktop Chrome, and now CI-enforced on every PR rather than opt-in local-only. */
     {
       name: "webkit-390x844",
-      use: { ...devices["Desktop Safari"], viewport: { width: 390, height: 844 } },
+      use: { ...devices["Desktop Safari"], viewport: { width: 390, height: 844 }, trace: "off" },
     },
     {
       name: "webkit-360x800",
-      use: { ...devices["Desktop Safari"], viewport: { width: 360, height: 800 } },
+      use: { ...devices["Desktop Safari"], viewport: { width: 360, height: 800 }, trace: "off" },
     },
   ],
   webServer: {

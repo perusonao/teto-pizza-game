@@ -76,7 +76,18 @@ export async function enterBakePaused(page: Page) {
   await page.waitForSelector(".bake-gauge__needle");
   // A short future buffer -- pausing at an already-past instant throws; this just needs to be
   // comfortably longer than the pauseAt round trip itself, not a precise duration (see above).
-  await page.clock.pauseAt(Date.now() + 150);
+  // I5b-5: a loaded WebKit runner occasionally took longer than 150ms ("Cannot fast-forward to
+  // the past", run 36221528804), so a rejected pause retries with a longer buffer; the landing
+  // below is computed from wherever the needle really is, so the extra time is harmless.
+  for (const buffer of [150, 500, 1500]) {
+    try {
+      await page.clock.pauseAt(Date.now() + buffer);
+      return;
+    } catch (error) {
+      if (!String(error).includes("to the past")) throw error;
+    }
+  }
+  throw new Error("enterBakePaused: clock.pauseAt kept landing in the past");
 }
 
 /**
@@ -88,7 +99,12 @@ export async function enterBakePaused(page: Page) {
 export async function landNeedleAndTakeOut(page: Page, target: { start: number; end: number }) {
   const center = (target.start + target.end) / 2;
   const needle = page.locator(".bake-gauge__needle");
-  const read = () => needle.evaluate((el) => Number.parseFloat((el as HTMLElement).style.left) || 0);
+  // The needle's style is written by a React render scheduled from the (faked) animation frame;
+  // a short real-time wait lets that render commit before reading (virtual time stays paused).
+  const read = async () => {
+    await page.waitForTimeout(50);
+    return needle.evaluate((el) => Number.parseFloat((el as HTMLElement).style.left) || 0);
+  };
   let position = await read();
   let direction = 1;
   if (position > 0) {
