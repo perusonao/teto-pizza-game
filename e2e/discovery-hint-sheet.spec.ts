@@ -32,14 +32,18 @@ const LADDER = [
 
 /** The ladder played to `count` discoveries; the materials of steps <= count owned with `stock`
  *  (the newest step's with `newestStock`, or not owned at all when `newestOwned` is false). */
-function ladderSave(count: number, opts: { newestOwned?: boolean; newestStock?: number } = {}) {
+function ladderSave(
+  count: number,
+  opts: { newestOwned?: boolean; newestStock?: number; pitz?: number; purchases?: Record<string, number> } = {},
+) {
   const materials = LADDER.slice(1, count + 1).flatMap(([, m]) => m);
   const newest = count >= 1 && count < LADDER.length ? LADDER[count][1] : [];
   const owned = materials.filter((m) => opts.newestOwned !== false || !(newest as readonly string[]).includes(m));
   return {
     schemaVersion: 2,
     dex: LADDER.slice(0, count).map(([recipeId]) => ({ recipeId, discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 })),
-    pitzBalance: 999,
+    pitzBalance: opts.pitz ?? 999,
+    ...(opts.purchases ? { discoveryHintPurchases: opts.purchases } : {}),
     ownedIngredientIds: ["tomato-sauce", "mozzarella", "basil", ...owned],
     missionBest: {},
     inventory: Object.fromEntries(owned.map((m) => [m, (newest as readonly string[]).includes(m) ? (opts.newestStock ?? 10) : 10])),
@@ -163,21 +167,21 @@ test.describe("Discovery Hint 2.0 sheet (229-B)", () => {
     const hint = bar(page).getByRole("button", { name: "ヒント" });
     await hint.click();
     await expect(sheet(page)).toBeVisible();
-    await sheet(page).getByRole("button", { name: "次のヒントを見る" }).click();
+    await sheet(page).locator(".hint-sheet__next").click();
     await expect(sheet(page).locator(".hint-sheet__step")).toHaveCount(2);
     await checkOpenState(page, driver, browserName, "H1", closed);
     await expectNoUndiscoveredIdentity(page, DEX11, "sheet H1");
     await capture(page, "02-h1");
 
-    await sheet(page).getByRole("button", { name: "次のヒントを見る" }).click();
-    await sheet(page).getByRole("button", { name: "次のヒントを見る" }).click();
+    await sheet(page).locator(".hint-sheet__next").click();
+    await sheet(page).locator(".hint-sheet__next").click();
     await expect(sheet(page).locator(".hint-sheet__step")).toHaveCount(4);
     await checkOpenState(page, driver, browserName, "H3", closed);
     await expectNoUndiscoveredIdentity(page, DEX11, "sheet H3");
     await capture(page, "03-h3");
 
-    while (await sheet(page).getByRole("button", { name: "次のヒントを見る" }).count()) {
-      await sheet(page).getByRole("button", { name: "次のヒントを見る" }).click();
+    while (await sheet(page).locator(".hint-sheet__next").count()) {
+      await sheet(page).locator(".hint-sheet__next").click();
     }
     await expect(sheet(page).locator(".hint-sheet__step")).toHaveCount(7);
     await expect(sheet(page).getByText(/ヒントはここまで/)).toBeVisible();
@@ -214,4 +218,86 @@ test.describe("Discovery Hint 2.0 sheet (229-B)", () => {
       await capture(page, `06-empty-${kind.toLowerCase()}`);
     });
   }
+
+  // Discovery Hint Economy 1.0 (Issue #232, HE-3): the purchase CTA states, on the same geometry
+  // contract (every profile: <= 45dvh, CTA above the safe area, background unmoved).
+  test("purchase CTA: price + balance, buy H1, insufficient, reload keeps purchases", async ({ page, browserName }) => {
+    const driver = await ProfileDriver.create(page, browserName);
+    await driver.apply(PROFILES.N390);
+    // Dex 11 (capricciosa, 6 ingredients -> the longest H4), 120 Pitz.
+    await openWithSave(page, ladderSave(11, { pitz: 120 }));
+    await startFreeCookAtTopping(page);
+    const closed = await closedRects(page, driver, browserName);
+    const hint = bar(page).getByRole("button", { name: "ヒント" });
+    await hint.click();
+
+    const cta = sheet(page).locator(".hint-sheet__next");
+    await expect(cta).toHaveText("🔒次のヒントを解除 5 Pitz");
+    await expect(sheet(page)).toContainText("所持 120 Pitz");
+    await checkOpenState(page, driver, browserName, "H1 CTA", closed);
+    await expectNoUndiscoveredIdentity(page, DEX11, "H1 CTA");
+
+    await cta.click();
+    await expect(sheet(page).locator(".hint-sheet__step")).toHaveCount(2);
+    await expect(cta).toHaveText("🔒次のヒントを解除 10 Pitz");
+    await expect(sheet(page)).toContainText("所持 115 Pitz");
+    await cta.click();
+    await cta.click();
+    await cta.click();
+    await expect(sheet(page).locator(".hint-sheet__step")).toHaveCount(7);
+    // Nothing left to buy: the footer shows the closing line, no price and no balance line.
+    await expect(sheet(page).getByText(/ヒントはここまで/)).toBeVisible();
+    await expect(sheet(page)).not.toContainText("Pitz");
+    await expect(page.locator(".app-header__pitz")).toContainText("45");
+    await checkOpenState(page, driver, browserName, "purchased H4 longest", closed);
+    await expectNoUndiscoveredIdentity(page, DEX11, "purchased H4 longest");
+    const saved = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), SAVE_KEY);
+    expect(saved.pitzBalance).toBe(45);
+    expect(saved.discoveryHintPurchases).toEqual({ capricciosa: 4 });
+
+    // Reload: every bought line is back, nothing is charged again.
+    await page.reload();
+    await page.waitForSelector(".app-frame");
+    await startFreeCookAtTopping(page);
+    await bar(page).getByRole("button", { name: "ヒント" }).click();
+    await expect(sheet(page).locator(".hint-sheet__step")).toHaveCount(7);
+    await expect(sheet(page).getByText(/ヒントはここまで/)).toBeVisible();
+    await expect(page.locator(".app-header__pitz")).toContainText("45");
+    await sheet(page).getByRole("button", { name: "閉じる" }).click();
+
+    // Insufficient: H4 (40) with 25 Pitz -> disabled, calm; 閉じる still works and cooking goes on.
+    await openWithSave(page, ladderSave(11, { pitz: 25, purchases: { capricciosa: 3 } }));
+    await startFreeCookAtTopping(page);
+    const closedShort = await closedRects(page, driver, browserName);
+    await bar(page).getByRole("button", { name: "ヒント" }).click();
+    await expect(cta).toBeDisabled();
+    await expect(cta).toHaveText("🔒次のヒント 40 Pitz");
+    await expect(sheet(page)).toContainText("所持 25 Pitz");
+    await expect(sheet(page).getByRole("button", { name: "閉じる" })).toBeFocused();
+    await checkOpenState(page, driver, browserName, "insufficient", closedShort);
+    await expectNoUndiscoveredIdentity(page, DEX11, "insufficient");
+    await sheet(page).getByRole("button", { name: "閉じる" }).click();
+    await expect(sheet(page)).toHaveCount(0);
+    await expect(bar(page).getByRole("button", { name: "ヒント" })).toBeFocused();
+  });
+
+  test("Dex 0 Margherita onboarding: free, no price and no balance", async ({ page, browserName }) => {
+    const driver = await ProfileDriver.create(page, browserName);
+    await driver.apply(PROFILES.N390);
+    await openWithSave(page, ladderSave(0, { pitz: 0 }));
+    await startFreeCookAtTopping(page);
+    const closed = await closedRects(page, driver, browserName);
+    await bar(page).getByRole("button", { name: "ヒント" }).click();
+    const cta = sheet(page).locator(".hint-sheet__next");
+    for (let level = 1; level <= 4; level += 1) {
+      await expect(cta).toHaveText("次のヒントを見る");
+      await expect(sheet(page)).not.toContainText("Pitz");
+      if (level === 1) await checkOpenState(page, driver, browserName, "onboarding", closed);
+      await cta.click();
+    }
+    await expect(sheet(page).getByText(/ヒントはここまで/)).toBeVisible();
+    const saved = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), SAVE_KEY);
+    expect(saved.pitzBalance).toBe(0);
+    expect(saved.discoveryHintPurchases ?? {}).toEqual({});
+  });
 });

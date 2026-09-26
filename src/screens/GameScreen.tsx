@@ -96,7 +96,8 @@ interface GameScreenProps {
   onStartBake: () => void;
   onShowHint: () => void;
   /** Discovery Hint 2.0 (229-B): the Free Cooking hint sheet's next-step / close actions. */
-  onRevealNextHint?: () => void;
+  /** HE-2: unlock hint `level` (PURCHASE_DISCOVERY_HINT). */
+  onUnlockHint?: (level: number) => void;
   onCloseHint?: () => void;
   /** Discovery Hint 2.0 (229-C): the Free Cooking RESULT's 「💡 ヒントを見る」 -- cook freely again
    *  with the hint sheet open. */
@@ -177,7 +178,7 @@ export function GameScreen({
   onConfirmMakingStep,
   onStartBake,
   onShowHint,
-  onRevealNextHint = () => {},
+  onUnlockHint = () => {},
   onCloseHint = () => {},
   onRetryWithHint,
   onChangeCategory,
@@ -706,7 +707,7 @@ export function GameScreen({
             </button>
           </div>
           {hintSheetOpen && (
-            <HintSheet view={hintSheetView(state)} onRevealNext={onRevealNextHint} onClose={onCloseHint} />
+            <HintSheet view={hintSheetView(state)} onUnlock={onUnlockHint} onClose={onCloseHint} />
           )}
         </>
       )}

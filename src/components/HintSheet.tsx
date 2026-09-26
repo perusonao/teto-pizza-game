@@ -11,6 +11,13 @@ import { IngredientGlyph } from "./IngredientGlyph";
  * there is nothing more to reveal the CTA gives way to a short "the rest is yours" line. With
  * no DISCOVERABLE recipe it shows the Shop / refill / complete message instead.
  *
+ * Discovery Hint Economy 1.0 (Issue #232, HE-3): from Dex 1 the CTA unlocks the next level for its
+ * price (「🔒 次のヒントを解除 5 Pitz」) with the balance under it (「所持 120 Pitz」). It never says
+ * what the level reveals, nor how many levels are left. When the balance is short the CTA is
+ * disabled in a neutral grey with a calm line -- not an error: 閉じる and cooking on stay open. The
+ * Dex-0 Margherita onboarding shows no price at all. The sheet itself never changes Pitz: the CTA
+ * reports the offered level and the reducer's PURCHASE_DISCOVERY_HINT decides.
+ *
  * Anti-spoiler: everything rendered comes from `HintSheetView`, which carries hint text and
  * ingredient ids only -- no recipe name, id or image reaches the DOM, `aria-*` or `data-*`.
  * Glyphs go through `IngredientGlyph` (the one audited `.emoji` reader), decorative only.
@@ -37,25 +44,28 @@ const EMPTY_COPY: Record<HintEmptyKind, { title: string; body: string }> = {
 
 export function HintSheet({
   view,
-  onRevealNext,
+  onUnlock,
   onClose,
 }: {
   view: HintSheetView;
-  onRevealNext: () => void;
+  /** Unlocks the offered level (`view.next.level`). */
+  onUnlock: (level: number) => void;
   onClose: () => void;
 }) {
   const titleId = useId();
   const nextRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const latestRef = useRef<HTMLLIElement>(null);
-  const canRevealMore = view.kind === "TARGET" && view.canRevealMore;
+  const next = view.kind === "TARGET" ? view.next : null;
+  const ctaEnabled = !!next && next.affordable;
   const stepCount = view.kind === "TARGET" ? view.steps.length : 0;
 
-  // Opening lands on the next-hint CTA (or 閉じる); when the last step removes the CTA, focus
-  // moves to 閉じる instead of falling back to <body>.
+  // Opening lands on the next-hint CTA (or 閉じる); when the last step removes the CTA, or a
+  // purchase leaves the next one unaffordable (disabled), focus moves to 閉じる instead of falling
+  // back to <body>.
   useEffect(() => {
-    (canRevealMore ? nextRef.current : closeRef.current)?.focus();
-  }, [canRevealMore]);
+    (ctaEnabled ? nextRef.current : closeRef.current)?.focus();
+  }, [ctaEnabled]);
 
   useEffect(() => {
     latestRef.current?.scrollIntoView?.({ block: "nearest" });
@@ -109,12 +119,33 @@ export function HintSheet({
               })}
             </ol>
             <div className="hint-sheet__footer">
-              {canRevealMore ? (
-                <button ref={nextRef} type="button" className="cta-button hint-sheet__next" onClick={onRevealNext}>
-                  次のヒントを見る
-                </button>
-              ) : (
+              {!next ? (
                 <p className="hint-sheet__done">ヒントはここまで！あとは作って試してみよう。</p>
+              ) : next.free ? (
+                <>
+                  <button ref={nextRef} type="button" className="cta-button hint-sheet__next" onClick={() => onUnlock(next.level)}>
+                    次のヒントを見る
+                  </button>
+                  <p className="hint-sheet__wallet hint-sheet__wallet--free">{"\u{2728}"} はじめてのピザはヒント無料！</p>
+                </>
+              ) : (
+                <>
+                  <button
+                    ref={nextRef}
+                    type="button"
+                    className={`cta-button hint-sheet__next hint-sheet__next--paid${next.affordable ? "" : " hint-sheet__next--short"}`}
+                    disabled={!next.affordable}
+                    onClick={() => onUnlock(next.level)}
+                  >
+                    <span className="hint-sheet__lock" aria-hidden="true">
+                      {"\u{1F512}"}
+                    </span>
+                    <span className="hint-sheet__next-label">{next.affordable ? "次のヒントを解除" : "次のヒント"}</span>{" "}
+                    <span className="hint-sheet__price">{next.price} Pitz</span>
+                  </button>
+                  <p className="hint-sheet__wallet">所持 {view.pitzBalance} Pitz</p>
+                  {!next.affordable && <p className="hint-sheet__wallet hint-sheet__wallet-note">たまったら解除できるよ。このまま作ってもOK！</p>}
+                </>
               )}
               {stepCount === 1 && <p className="hint-sheet__note">自分で見つけたいときは、閉じてね。</p>}
             </div>

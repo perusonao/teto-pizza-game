@@ -68,7 +68,7 @@ function Harness() {
         onConfirmMakingStep={() => dispatch({ type: "CONFIRM_MAKING_STEP" })}
         onStartBake={() => {}}
         onShowHint={() => dispatch({ type: "SHOW_HINT" })}
-        onRevealNextHint={() => dispatch({ type: "REVEAL_NEXT_HINT" })}
+        onUnlockHint={(level) => dispatch({ type: "PURCHASE_DISCOVERY_HINT", level })}
         onCloseHint={() => dispatch({ type: "CLOSE_HINT" })}
         onChangeCategory={setActiveCategory}
         onSelectIngredient={(ingredient) => setSelectedIngredientId(ingredient.id)}
@@ -116,7 +116,7 @@ function tapDough() {
 afterEach(() => cleanup());
 
 describe("Free Cooking hint sheet in GameScreen (229-B)", () => {
-  it("the 「ヒント」 button opens the sheet; next reveals one more step", () => {
+  it("the 「ヒント」 button opens the sheet; next reveals one more step (Dex 0: free)", () => {
     render(<Harness />);
     expect(screen.getByTestId("free-cook")).toHaveTextContent("true");
     expect(hintButton()).toHaveTextContent("ヒント");

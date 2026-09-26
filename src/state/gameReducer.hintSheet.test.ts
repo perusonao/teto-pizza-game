@@ -6,7 +6,10 @@ import { hintSheetView } from "./discoveryHint";
 
 /**
  * Discovery Hint 2.0 (Issue #229, 229-B): the reducer side of the Free Cooking hint sheet --
- * SHOW_HINT / REVEAL_NEXT_HINT / CLOSE_HINT and the session-only `hintSession` lifecycle.
+ * SHOW_HINT / PURCHASE_DISCOVERY_HINT / CLOSE_HINT and the session-only `hintSession` lifecycle.
+ * Discovery Hint Economy 1.0 (Issue #232, HE-2): from Dex 1 on a level is bought once with Pitz
+ * (`gameReducer.hintPurchase.test.ts` covers the transaction); "NEXT" below unlocks whatever level
+ * the sheet currently offers.
  */
 
 function discover(ids: readonly string[]): DexState {
@@ -18,10 +21,10 @@ function discover(ids: readonly string[]): DexState {
 }
 
 /** Dex {margherita, bismarck}, bacon owned -> breakfast-pizza is the one DISCOVERABLE recipe. */
-function freeCookDex2(): GameState {
+function freeCookDex2(pitz = 500): GameState {
   const owned = [...STARTER_INGREDIENT_IDS, "egg", "bacon"];
   const dex = discover(["margherita", "bismarck"]);
-  const initial = createInitialGameState(dex, owned, 0, { egg: 10, bacon: 10 }, [], ["egg", "bacon"]);
+  const initial = createInitialGameState(dex, owned, pitz, { egg: 10, bacon: 10 }, [], ["egg", "bacon"]);
   return gameReducer(initial, { type: "START_FREE_COOK" });
 }
 
@@ -30,8 +33,14 @@ function freeCookDex0(): GameState {
   return gameReducer(createInitialGameState(), { type: "BEGIN_PREPARE" });
 }
 
-const apply = (state: GameState, ...types: ("SHOW_HINT" | "REVEAL_NEXT_HINT" | "CLOSE_HINT")[]) =>
-  types.reduce((s, type) => gameReducer(s, { type }), state);
+/** "NEXT" = the sheet's CTA: unlock the level it offers (or the level after the last one, a no-op). */
+const apply = (state: GameState, ...types: ("SHOW_HINT" | "NEXT" | "CLOSE_HINT")[]) =>
+  types.reduce((s, type) => {
+    if (type !== "NEXT") return gameReducer(s, { type });
+    const view = hintSheetView(s);
+    const level = view.kind === "TARGET" ? (view.next?.level ?? view.steps.at(-1)!.level + 1) : 1;
+    return gameReducer(s, { type: "PURCHASE_DISCOVERY_HINT", level });
+  }, state);
 
 describe("SHOW_HINT in Free Cooking PREPARE", () => {
   it("opens the sheet on today's target at H0 and leaves the order-card line alone", () => {
@@ -63,39 +72,42 @@ describe("SHOW_HINT in Free Cooking PREPARE", () => {
   });
 });
 
-describe("REVEAL_NEXT_HINT / CLOSE_HINT", () => {
+describe("PURCHASE_DISCOVERY_HINT (next level) / CLOSE_HINT", () => {
   it("H1 -> H2 -> H3 -> H4, then repeated next at the last step returns the same state", () => {
     let s = apply(freeCookDex2(), "SHOW_HINT");
     const axes: string[][] = [];
     for (let i = 0; i < 4; i += 1) {
-      s = apply(s, "REVEAL_NEXT_HINT");
+      s = apply(s, "NEXT");
       const view = hintSheetView(s);
       axes.push(view.kind === "TARGET" ? view.steps.map((x) => x.axis) : []);
     }
     expect(axes.at(-1)).toEqual(["EXISTENCE", "KEY", "SAUCE", "COUNT_CHEESE", "INGREDIENT"]);
-    expect(s.hintSession?.revealedIndex).toBe(4);
-    expect(apply(s, "REVEAL_NEXT_HINT")).toBe(s);
-    expect(apply(s, "REVEAL_NEXT_HINT", "REVEAL_NEXT_HINT", "REVEAL_NEXT_HINT")).toBe(s);
+    // Dex >= 1: the progress is the purchase ledger, not the session index.
+    expect(s.hintSession?.revealedIndex).toBe(0);
+    expect(s.discoveryHintPurchases).toEqual({ "breakfast-pizza": 4 });
+    expect(apply(s, "NEXT")).toBe(s);
+    expect(apply(s, "NEXT", "NEXT", "NEXT")).toBe(s);
   });
 
-  it("REVEAL_NEXT_HINT is ignored while the sheet is closed", () => {
+  it("an unlock is ignored while the sheet is closed", () => {
     const s = apply(freeCookDex2(), "SHOW_HINT", "CLOSE_HINT");
-    expect(apply(s, "REVEAL_NEXT_HINT")).toBe(s);
+    expect(apply(s, "NEXT")).toBe(s);
   });
 
   it("CLOSE_HINT closes, keeps the progress, and re-opening shows the same step", () => {
-    const opened = apply(freeCookDex2(), "SHOW_HINT", "REVEAL_NEXT_HINT", "REVEAL_NEXT_HINT");
+    const opened = apply(freeCookDex2(), "SHOW_HINT", "NEXT", "NEXT");
     const closed = apply(opened, "CLOSE_HINT");
     expect(closed.hintSheetOpen).toBe(false);
     expect(closed.hintSession).toEqual(opened.hintSession);
     expect(apply(closed, "CLOSE_HINT")).toBe(closed);
     expect(apply(closed, "SHOW_HINT").hintSession).toEqual(opened.hintSession);
+    expect(hintSheetView(apply(closed, "SHOW_HINT"))).toEqual(hintSheetView(opened));
   });
 });
 
 describe("hintSession lifecycle (session-only, sticky within one search)", () => {
   it("survives a Free Cooking retry and RESET_PIZZA; a fresh round closes the sheet", () => {
-    const revealed = apply(freeCookDex2(), "SHOW_HINT", "REVEAL_NEXT_HINT", "REVEAL_NEXT_HINT");
+    const revealed = apply(freeCookDex2(), "SHOW_HINT", "NEXT", "NEXT");
     const reset = gameReducer(revealed, { type: "RESET_PIZZA" });
     expect(reset.hintSession).toEqual(revealed.hintSession);
     const retry = gameReducer(revealed, { type: "START_FREE_COOK" });
@@ -105,7 +117,7 @@ describe("hintSession lifecycle (session-only, sticky within one search)", () =>
   });
 
   it("once the target is discovered, the next SHOW_HINT moves to the new target at H0", () => {
-    const revealed = apply(freeCookDex2(), "SHOW_HINT", "REVEAL_NEXT_HINT", "REVEAL_NEXT_HINT", "CLOSE_HINT");
+    const revealed = apply(freeCookDex2(), "SHOW_HINT", "NEXT", "NEXT", "CLOSE_HINT");
     const found: GameState = {
       ...gameReducer(revealed, { type: "START_FREE_COOK" }),
       dex: discover(["margherita", "bismarck", "breakfast-pizza"]),
@@ -134,7 +146,7 @@ describe("hintSession lifecycle (session-only, sticky within one search)", () =>
 
 describe("Dex 0 onboarding through the reducer", () => {
   it("the first SHOW_HINT opens at H0 and three reveals reach count/cheese + mozzarella", () => {
-    const s = apply(freeCookDex0(), "SHOW_HINT", "REVEAL_NEXT_HINT", "REVEAL_NEXT_HINT", "REVEAL_NEXT_HINT");
+    const s = apply(freeCookDex0(), "SHOW_HINT", "NEXT", "NEXT", "NEXT");
     expect(s.hintSession).toEqual({ targetId: "margherita", revealedIndex: 3 });
     const view = hintSheetView(s);
     expect(view.kind === "TARGET" && view.canRevealMore).toBe(true);

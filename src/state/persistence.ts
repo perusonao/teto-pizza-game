@@ -144,6 +144,15 @@ export interface PersistentSaveV2 {
    *  non-starter ingredient); a well-formed id this build does not know is kept in storage by the
    *  I0 forward-compat merge (`writeSave`), never dropped. */
   unlockedForShopIngredientIds: string[];
+  /** Discovery Hint Economy 1.0 (Issue #232, HE-1, OD-HE-3/4): `recipeId -> highest purchased
+   *  hint level`. A ledger -- a level only ever goes up (`persistProgress` merges with `max`), and
+   *  an entry stays after its recipe is discovered. The stored number is a hint *level*, never a
+   *  step index, and is kept as written: gameplay clamps it to the recipe's own max level when it
+   *  reads it, so a level a later build adds stays valid here. Added to v2 without a schema bump,
+   *  like the two ledgers above: an absent/malformed value reads back as `{}` (nothing bought --
+   *  Discovery Hint 2.0's free reveals were session-only, so there is nothing to migrate). A
+   *  well-formed id this build does not know is kept in storage by `writeSave`, never dropped. */
+  discoveryHintPurchases: Record<string, number>;
 }
 
 const KNOWN_RECIPE_IDS: readonly string[] = RECIPES.map((r) => r.id);
@@ -289,6 +298,26 @@ function sanitizeUnlockedForShopIngredientIds(raw: unknown): string[] {
   return Array.from(seen);
 }
 
+/** A purchased hint level as stored: a positive integer. No upper bound here -- the value is a
+ *  level, and a later build may add levels above today's H4 (see `discoveryHintPurchases`). */
+function isPurchasedHintLevel(value: unknown): value is number {
+  return typeof value === "number" && Number.isSafeInteger(value) && value >= 1;
+}
+
+/**
+ * HE-1: the Discovery Hint purchase ledger. Per-key tolerant like `sanitizeMissionBest`: a known
+ * recipe id with a positive integer level is kept, anything else is dropped. An unknown id is not
+ * returned here but survives in storage through `extractForwardCompatExtras`/`writeSave`.
+ */
+function sanitizeDiscoveryHintPurchases(raw: unknown): Record<string, number> {
+  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) return {};
+  const result: Record<string, number> = {};
+  for (const [id, value] of Object.entries(raw as Record<string, unknown>)) {
+    if (isKnownRecipeId(id) && isPurchasedHintLevel(value)) result[id] = value;
+  }
+  return result;
+}
+
 function sanitizeInventory(raw: unknown): Record<string, number> {
   if (typeof raw !== "object" || raw === null || Array.isArray(raw)) return {};
   const result: Record<string, number> = {};
@@ -351,6 +380,8 @@ export function migrateV1toV2(v1: PersistentSaveV1): PersistentSaveV2 {
     // I4b-2: the Shop entitlement ledger did not exist in v1 either; the load-time ladder
     // resolution derives it from the migrated Dex.
     unlockedForShopIngredientIds: [],
+    // HE-1: hints were free and session-only before Discovery Hint Economy 1.0 -- nothing bought.
+    discoveryHintPurchases: {},
   };
 }
 
@@ -364,6 +395,7 @@ export function createDefaultSave(): PersistentSaveV2 {
     inventory: {},
     starterGrantClaimedRecipeIds: [],
     unlockedForShopIngredientIds: [],
+    discoveryHintPurchases: {},
   };
 }
 
@@ -429,6 +461,7 @@ interface ForwardCompatExtras {
   inventory: Record<string, number>;
   starterGrantClaimedRecipeIds: string[];
   unlockedForShopIngredientIds: string[];
+  discoveryHintPurchases: Record<string, number>;
 }
 
 const KNOWN_SAVE_KEYS: ReadonlySet<string> = new Set([
@@ -440,6 +473,7 @@ const KNOWN_SAVE_KEYS: ReadonlySet<string> = new Set([
   "inventory",
   "starterGrantClaimedRecipeIds",
   "unlockedForShopIngredientIds",
+  "discoveryHintPurchases",
 ]);
 
 const FORWARD_COMPAT_ID_PATTERN = /^[a-z0-9][a-z0-9_-]{0,63}$/;
@@ -491,6 +525,16 @@ function extractForwardCompatExtras(raw: unknown): ForwardCompatExtras | null {
     }
   }
 
+  const discoveryHintPurchases: Record<string, number> = {};
+  const rawPurchases = r.discoveryHintPurchases;
+  if (typeof rawPurchases === "object" && rawPurchases !== null && !Array.isArray(rawPurchases)) {
+    for (const [id, value] of Object.entries(rawPurchases as Record<string, unknown>)) {
+      if (isForwardCompatUnknownId(id, KNOWN_RECIPE_IDS) && isPurchasedHintLevel(value)) {
+        discoveryHintPurchases[id] = value;
+      }
+    }
+  }
+
   return {
     topLevel,
     dex,
@@ -498,6 +542,7 @@ function extractForwardCompatExtras(raw: unknown): ForwardCompatExtras | null {
     inventory,
     starterGrantClaimedRecipeIds: unknownIdsIn(r.starterGrantClaimedRecipeIds, KNOWN_RECIPE_IDS),
     unlockedForShopIngredientIds: unknownIdsIn(r.unlockedForShopIngredientIds, KNOWN_INGREDIENT_IDS),
+    discoveryHintPurchases,
   };
 }
 
@@ -535,6 +580,7 @@ function writeSave(storage: StorageLike, next: PersistentSaveV2): void {
       next.unlockedForShopIngredientIds,
       extras.unlockedForShopIngredientIds,
     ),
+    discoveryHintPurchases: { ...extras.discoveryHintPurchases, ...next.discoveryHintPurchases },
   };
   storage.setItem(SAVE_STORAGE_KEY, JSON.stringify(merged));
 }
@@ -566,6 +612,7 @@ function sanitizeSave(raw: unknown): PersistentSaveV2 | null {
     unlockedForShopIngredientIds: sanitizeUnlockedForShopIngredientIds(
       intermediate.unlockedForShopIngredientIds,
     ),
+    discoveryHintPurchases: sanitizeDiscoveryHintPurchases(intermediate.discoveryHintPurchases),
   };
 }
 
@@ -691,6 +738,30 @@ export interface ProgressionSnapshot {
    *  the stored list exactly as it is; when given, its ids are appended to the stored ones
    *  (sanitized, never removed). */
   unlockedForShopIngredientIds?: readonly string[];
+  /** HE-1: the Discovery Hint purchase ledger. Optional like `unlockedForShopIngredientIds`: an
+   *  absent value leaves the stored ledger as it is; a given one is merged per id with `max`
+   *  (never lowered, never removed). */
+  discoveryHintPurchases?: Readonly<Record<string, number>>;
+}
+
+/** Per-id `max` of two purchase ledgers, sanitized. A level can only go up. */
+function mergeDiscoveryHintPurchases(
+  stored: Readonly<Record<string, number>>,
+  snapshot: Readonly<Record<string, number>>,
+): Record<string, number> {
+  const merged: Record<string, number> = { ...stored };
+  for (const [id, level] of Object.entries(sanitizeDiscoveryHintPurchases(snapshot))) {
+    merged[id] = Math.max(merged[id] ?? 0, level);
+  }
+  return merged;
+}
+
+function sameLevels(a: Readonly<Record<string, number>>, b: Readonly<Record<string, number>>): boolean {
+  const ids = new Set([...Object.keys(a), ...Object.keys(b)]);
+  for (const id of ids) {
+    if (a[id] !== b[id]) return false;
+  }
+  return true;
 }
 
 /**
@@ -746,13 +817,21 @@ export function persistProgress(
       nextUnlockedForShop,
       current.unlockedForShopIngredientIds,
     );
+    // HE-1: a ledger like the one above -- merged per id with `max`, so a stale snapshot can never
+    // lower or drop a purchase. Only `resetSave` (Full Game Reset) clears it.
+    const nextDiscoveryHintPurchases =
+      snapshot.discoveryHintPurchases === undefined
+        ? current.discoveryHintPurchases
+        : mergeDiscoveryHintPurchases(current.discoveryHintPurchases, snapshot.discoveryHintPurchases);
+    const purchasesUnchanged = sameLevels(nextDiscoveryHintPurchases, current.discoveryHintPurchases);
     if (
       dexUnchanged &&
       pitzUnchanged &&
       ownedUnchanged &&
       inventoryUnchanged &&
       claimedUnchanged &&
-      unlockedForShopUnchanged
+      unlockedForShopUnchanged &&
+      purchasesUnchanged
     ) {
       return;
     }
@@ -765,6 +844,7 @@ export function persistProgress(
       inventory: nextInventory,
       starterGrantClaimedRecipeIds: nextClaimedRecipeIds,
       unlockedForShopIngredientIds: nextUnlockedForShop,
+      discoveryHintPurchases: nextDiscoveryHintPurchases,
     };
     writeSave(storage, next);
   } catch {
