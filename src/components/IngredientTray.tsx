@@ -286,13 +286,9 @@ export function IngredientTray({
     if (!target || typeof IntersectionObserver === "undefined") return;
     const observer = new IntersectionObserver(
       ([entry]) => setHasMoreBelow(!entry.isIntersecting),
-      // At maximum scroll, the sentinel (the true end of in-flow content) sits exactly
-      // `--bake-bar-reserve` (App.css, 84px) above the viewport's bottom edge -- that's what
-      // the reserved padding-bottom *is* -- so shrinking the observer's effective viewport by
-      // slightly less than that (78px) is what makes "intersecting" track "scrolled all the
-      // way down" rather than firing a few pixels early or (worse, leaving the cue stuck on
-      // forever) never firing at all.
-      { rootMargin: "0px 0px -78px 0px" },
+      // W1 I5b-4b: the CTA bar is in-flow *below* this sentinel now (no fixed bar to reserve
+      // space for), so the sentinel is intersecting whenever the end of the tray is on screen.
+      { rootMargin: "0px" },
     );
     observer.observe(target);
     return () => observer.disconnect();
@@ -490,7 +486,11 @@ export function IngredientTray({
           was pre-fix (no nav, no layout change) until a 7th "Other" ingredient in one category is
           actually owned. Page switching, not scrolling, so it never reintroduces the
           single-finger-swipe conflict Fix 2 removed. */}
-      {pageCount > 1 && (
+      {/* W1 I5b-4b: the pager row is always laid out (audit §4, "pager の場所を常に確保する") --
+          with one page it keeps its height but is invisible and inert (aria-hidden, disabled
+          buttons), so the tray / pager / CTA-bar stack has the same height with 6 or 22
+          ingredients and nothing moves when a category gains a second page. */}
+      {pageCount > 1 ? (
         <div className="ingredient-page-nav" role="group" aria-label="素材ページ切り替え">
           <button
             type="button"
@@ -511,6 +511,16 @@ export function IngredientTray({
             disabled={currentPage === pageCount - 1}
             aria-label="次のページ"
           >
+            {"▶"}
+          </button>
+        </div>
+      ) : (
+        <div className="ingredient-page-nav ingredient-page-nav--placeholder" aria-hidden="true">
+          <button type="button" className="ingredient-page-nav__button" disabled tabIndex={-1}>
+            {"◀"}
+          </button>
+          <span className="ingredient-page-nav__label">1 / 1</span>
+          <button type="button" className="ingredient-page-nav__button" disabled tabIndex={-1}>
             {"▶"}
           </button>
         </div>

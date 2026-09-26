@@ -293,8 +293,19 @@ export function GameScreen({
   // doesn't. Cheap pure function (../data/playerReference.ts), safe to compute unconditionally.
   const playerReference = getPlayerReferencePizza(state.recipe);
 
+  // Progression 2.0 W1 I5b-4b (Cooking layout contract, docs/reports/
+  // TETO_PROGRESS2_W1_I5B4_UIUX_FRESH-AUDIT.md §3-§4 / §13): PREPARE, BAKE and CUT share one
+  // flex-column skeleton -- header / HUD / tabs / order-card / stage / tray / pager / CTA bar --
+  // in which only the pizza stage takes the left-over height and every CTA bar is in-flow at the
+  // bottom. Nothing below the stage can be pushed under a fixed bar or off-screen, whatever the
+  // visible height, safe-area or HUD (App.css `.game-screen--cooking`).
+  const isCookingLayout =
+    state.phase === "PREPARE" ||
+    state.phase === "BAKE" ||
+    (state.phase === "POST_BAKE" && state.makingStep === "CUT");
+
   return (
-    <div className="game-screen">
+    <div className={`game-screen${isCookingLayout ? " game-screen--cooking" : ""}`}>
       {/* Issue #47 Finding K: Shop/Pizza Dex were reachable from every Making phase
           (ORDER/PREPARE/BAKE/RESULT/DISCOVERED) via this header -- removed so Making stays
           focused on making and HOME remains the sole hub for Shop/Dex navigation (Issue #22's
@@ -325,15 +336,13 @@ export function GameScreen({
           `min-height: 84px` reserved space so the hero pizza is the first thing on screen
           (the task's own "完成ピザを押し下げない" requirement), rather than leaving an empty
           gap above it. ORDER/BAKE dialogue is completely unaffected, Mission or not. */}
-      {state.phase !== "PREPARE" && state.phase !== "POST_BAKE" && !isFreeResultScreen && (
+      {/* W1 I5b-4b: BAKE no longer uses the portrait DialogueBox here (108px, above the tabs) --
+          its line moves into the compact `.order-card` row below the tabs, like PREPARE and CUT,
+          so the tabs stay right under the header on every cooking step. */}
+      {state.phase === "ORDER" && (
         <section className="dialogue-area">
-          {state.phase === "ORDER" && (
-            <>
-              <DialogueBox {...mitoOrderLine} />
-              <DialogueBox {...buildTetoOrderLine(state.recipe)} />
-            </>
-          )}
-          {state.phase === "BAKE" && <DialogueBox {...buildTetoBakeLine(state.recipe)} />}
+          <DialogueBox {...mitoOrderLine} />
+          <DialogueBox {...buildTetoOrderLine(state.recipe)} />
         </section>
       )}
 
@@ -439,6 +448,18 @@ export function GameScreen({
               renderTrigger={false}
             />
           )}
+        </div>
+      )}
+
+      {/* W1 I5b-4b: BAKE's Teto line, in the same compact row PREPARE / CUT use (2-line clamp). */}
+      {state.phase === "BAKE" && (
+        <div className={`order-card order-card--bake${state.freeCook ? " order-card--free-cook" : ""}`}>
+          <div className="order-card__text">
+            <span className="order-card__recipe-name">
+              {state.freeCook ? <>{"\u{1F3A8}"} フリークッキング</> : state.recipe.nameJa}
+            </span>
+            <span className="order-card__hint">{buildTetoBakeLine(state.recipe).textJa}</span>
+          </div>
         </div>
       )}
 

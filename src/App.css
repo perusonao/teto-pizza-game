@@ -4539,3 +4539,82 @@
   vertical-align: 1px;
   white-space: nowrap;
 }
+
+/* ---------- Progression 2.0 W1 I5b-4b: Cooking layout contract ----------
+   docs/reports/TETO_PROGRESS2_W1_I5B4_UIUX_FRESH-AUDIT.md §3 (BAKE CTA off-screen, F-3) and §4
+   (pager under the fixed bar, F-4). PREPARE / BAKE / CUT used to rely on a fixed-position CTA
+   bar plus fixed px reserves inside `calc(100dvh - 430px / 439px)` -- which knew nothing about
+   safe-area insets, the Lunch Rush HUD, a wrapped hint line or the ingredient pager, so on a short
+   visible viewport (390x664 / 360x640, + inset) the pager slid ~80px under the bar and
+   「取り出す！」 left the screen. Now the structure itself guarantees the order:
+
+     .game-screen--cooking (flex column, exactly the frame's height)
+       header / HUD / tabs / order-card      flex: none
+       .pizza-stage (compact | roomy)        flex: 1 1 0, min-height 0, size container
+         .pizza-dough = min(vw cap, px cap, the stage's own height)
+       CUT readout / bake overlay / tray     flex: none
+       pager (always laid out)               flex: none
+       .prepare-bake-bar (in-flow)           flex: none, padding-bottom includes the inset
+   The pizza is the only thing that gives way; nothing can sit under the CTA bar. Pointer and
+   gesture math already reads the dough's live getBoundingClientRect(), so it is unaffected. */
+.game-screen--cooking > * {
+  flex: none;
+}
+
+.game-screen--cooking > .pizza-stage--compact,
+.game-screen--cooking > .pizza-stage--roomy {
+  flex: 1 1 0;
+  min-height: 0;
+  container-type: size;
+}
+
+.game-screen--cooking > .pizza-stage--compact .pizza-dough {
+  width: min(76vw, 290px, 100cqh);
+  height: min(76vw, 290px, 100cqh);
+}
+
+.game-screen--cooking > .pizza-stage--roomy .pizza-dough {
+  width: min(92vw, 380px, 100cqh);
+  height: min(92vw, 380px, 100cqh);
+}
+
+.game-screen--cooking .prepare-bake-bar {
+  position: relative;
+  left: auto;
+  transform: none;
+  bottom: auto;
+  width: auto;
+  max-width: none;
+  margin-top: 0;
+}
+
+/* Nothing to reserve for any more: the bar is in-flow after the tray. */
+.game-screen--cooking .ingredient-panel {
+  --bake-bar-reserve: 0px;
+  padding-bottom: 0;
+}
+
+/* The audit's fixed 8px spacer between whatever sits directly above the CTA bar (the tray and
+   pager, the bake Guide, the CUT readout) and the bar itself. The stage never needs it: its own
+   padding already separates the dough from the bar. */
+.game-screen--cooking > :not(.pizza-stage):has(+ .prepare-bake-bar) {
+  margin-bottom: 8px;
+}
+
+/* One page: the pager row keeps its height (no layout jump when a category gains a page) but is
+   invisible and never a tap target. */
+.ingredient-page-nav--placeholder {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* BAKE: the Guide (flame, caption, gauge) stays; only its vertical padding tightens now that
+   「取り出す！」 lives in the bottom bar (audit §3 c). */
+.game-screen--cooking .bake-overlay {
+  gap: 8px;
+  padding: 4px 24px 0;
+}
+
+.game-screen--cooking .bake-oven__flame {
+  font-size: 32px;
+}

@@ -202,3 +202,60 @@ describe("Non-cut recipes never show a CUT tab, at any phase (regression)", () =
     expect(screen.queryByRole("tablist")).not.toBeInTheDocument();
   });
 });
+
+// Progression 2.0 W1 I5b-4b (Cooking layout contract, I5b-4 UI/UX Fresh Audit §3-§4 / §13): every
+// cooking step renders the same flex skeleton -- tabs, then the compact order-card, then the
+// pizza stage, then an in-flow bottom CTA bar that holds the step's primary action. jsdom has no
+// layout, so this pins the DOM contract; the geometry (short viewports, safe-area insets, HUD)
+// is measured in Chromium (docs/reports/TETO_PROGRESS2_W1_I5B4B_W1D_Result.md).
+describe("I5b-4b: one cooking skeleton for PREPARE, BAKE and CUT", () => {
+  const order = (el: Element | null) => {
+    const all = Array.from(document.querySelectorAll(".game-screen *"));
+    return el ? all.indexOf(el) : -1;
+  };
+
+  it.each([
+    ["PREPARE (TOPPING)", toppedMargherita, /焼く！/],
+    ["BAKE", bakingMargherita, /取り出す！/],
+    ["CUT", cuttingMargherita, /切り終わる/],
+  ] as const)("%s: cooking layout, tabs -> order-card -> stage -> bar, primary CTA in the bar", (_label, build, cta) => {
+    renderAt(build(), MARGHERITA_REFERENCE);
+    const screenEl = document.querySelector(".game-screen")!;
+    expect(screenEl).toHaveClass("game-screen--cooking");
+    const bars = document.querySelectorAll(".prepare-bake-bar");
+    expect(bars).toHaveLength(1);
+    const primary = screen.getByRole("button", { name: cta });
+    expect(bars[0].contains(primary)).toBe(true);
+    const tabs = document.querySelector(".making-step-tabs");
+    const card = document.querySelector(".order-card");
+    const stage = document.querySelector(".pizza-stage");
+    expect(order(tabs)).toBeGreaterThan(-1);
+    expect(order(tabs)).toBeLessThan(order(card));
+    expect(order(card)).toBeLessThan(order(stage));
+    expect(order(stage)).toBeLessThan(order(bars[0]));
+  });
+
+  it("BAKE: no portrait dialogue above the tabs -- Teto's bake line is in the compact order-card", () => {
+    const state = bakingMargherita();
+    renderAt(state, MARGHERITA_REFERENCE);
+    expect(document.querySelector(".dialogue-area")).toBeNull();
+    const card = document.querySelector(".order-card--bake")!;
+    expect(card).toHaveTextContent(state.recipe.nameJa);
+    expect(card).toHaveTextContent(/取り出/);
+  });
+
+  it("ORDER and RESULT keep their own layout (not the cooking skeleton)", () => {
+    renderAt(createGuidedInitialState(), MARGHERITA_REFERENCE);
+    expect(document.querySelector(".game-screen")).not.toHaveClass("game-screen--cooking");
+  });
+
+  it("a one-page tray still lays out the pager row, invisible and inert", () => {
+    renderAt(toppedMargherita(), MARGHERITA_REFERENCE);
+    const placeholder = document.querySelector(".ingredient-page-nav--placeholder")!;
+    expect(placeholder).toBeInTheDocument();
+    expect(placeholder).toHaveAttribute("aria-hidden", "true");
+    for (const b of Array.from(placeholder.querySelectorAll("button"))) expect(b).toBeDisabled();
+    expect(screen.queryByRole("group", { name: "素材ページ切り替え" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "次のページ" })).not.toBeInTheDocument();
+  });
+});
