@@ -4,7 +4,7 @@
 - **Branch:** `claude/dinner-mission-phase-0-design-ryqsnc`（最新の main から作り直した）
 - **Authority:** `docs/reports/TETO_DINNER-MISSION_Phase0_Fresh-Design.md` §17（Owner Decisions）と DM-2 の指示
 - **Issue:** #239（DM-2 専用。Duplicate Gate では該当する Issue も open PR も無かった）
-- **PR:** §19 を参照
+- **PR:** #240（OPEN、auto-merge しない）
 - **Commits:** `f6cd5f2`（Integration Map。実装前に commit）、`5106934`（実装と test）、この Result Report
 
 ## 1. Audited main SHA
@@ -245,7 +245,7 @@ mutation check（どれも一時的に変更して、失敗することを確認
 | Lunch Rush / App / partial quantity の regression | 5 ファイル / 229 件 PASS |
 | Free / Discovery / inventory の regression | 18 ファイル / 377 件 PASS |
 
-PR の CI（`build`、`E2E WebKit` → `WebKit Gate`、`Layout Contract Gate`）は、PR を作成した後に exact HEAD で確認して追記する。
+PR #240 の CI（exact HEAD `193f8fa`）: `build`（lint / full Vitest / build）、`classify`、`layout-chromium`、**`Layout Contract Gate`**、WebKit の 4 shard（390×844 / 360×800 × 2）、**`WebKit Gate`** がすべて success。mergeable_state は `clean`。
 
 ## 20. Changed files
 
