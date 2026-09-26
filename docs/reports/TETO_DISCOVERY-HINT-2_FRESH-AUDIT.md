@@ -30,7 +30,7 @@
    + Dex の 🎨 枠から同じ sheet を開く入口。ペナルティなし、save schema 変更なし。
 6. W1 との関係: **B（W1 merge 後の最優先 Post-W1 slice）** を推奨。ただし W1 merge は `main` push → Pages deploy なので、
    「W1 merge は late-game discoverability の regression を含む」ことを Owner が承知したうえで merge する前提（§11）。
-7. 新規 Issue を作成（§12。番号は Issue 本文と最終報告に記載）。
+7. 新規 Issue **#229** を作成（§12）。
 
 ---
 
@@ -431,7 +431,7 @@ throwaway の vitest script から呼んだ（repo の test suite には入れ�
 
 Duplicate Gate: open issues 22 件（#22〜#224）と `hint` / `Discovery` 検索で、Discovery Hint 改善を扱う Issue は **無い**。
 近いもの: #182（PIZZA DB 全量の発見・アンロック再設計、親テーマ）、#215（Completion Gate、INCOMPLETE_MATCH の周辺）、
-#88 / #39（Pizza Select、hint は EP1 文脈）。いずれも本件の重複ではない → 新規 Issue を作成（#182 を親テーマとして参照）。
+#88 / #39（Pizza Select、hint は EP1 文脈）。いずれも本件の重複ではない → 新規 Issue **#229**（https://github.com/perusonao/teto-pizza-game/issues/229）を作成（#182 を親テーマとして参照）。
 
 ---
 
