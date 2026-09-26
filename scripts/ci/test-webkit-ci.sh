@@ -9,6 +9,7 @@
 #   4. webkit-gate.sh truth table               (every classify x webkit x evidence combination)
 #   5. classify-webkit-pr.sh decisions in a throwaway git repo (docs-only, runtime, push /
 #      workflow_dispatch events, `webkit-full` label, fail-safe, no-reuse-without-evidence)
+#   6. I5b-5 Layout Contract: layout-summary.mjs --self-test and the layout-gate.sh truth table
 #
 # Usage: bash scripts/ci/test-webkit-ci.sh   (exit 0 = all passed)
 set -uo pipefail
@@ -191,6 +192,50 @@ out="$work/gh_output"; : > "$out"
 (cd "$repo" && env -u GH_TOKEN GITHUB_OUTPUT="$out" EVENT_NAME=push bash "$here/classify-webkit-pr.sh" > /dev/null 2>&1)
 grep -q '^reason=event .push. always runs Full WebKit' "$out"
 check "push reason is explicit (not a fail-safe message)" 0 $?
+
+echo "== 6. Layout Contract summary + gate (I5b-5)"
+node "$here/layout-summary.mjs" --self-test > "$work/ls.txt" 2>&1
+check "layout-summary.mjs --self-test" 0 $?
+# layout-chromium is one project, one shard (1/1): build its evidence the same way.
+cat > "$work/mkl.mjs" <<'EOF2'
+import { mkdirSync, writeFileSync } from "node:fs";
+const [dir, mode] = process.argv.slice(2);
+const project = "layout-chromium";
+const report = (entries) => ({ suites: [{ title: "layout-contract.spec.ts", file: "layout-contract.spec.ts", specs: [], suites: [{
+  title: "I5b-5 Layout Contract", file: "layout-contract.spec.ts",
+  specs: entries.map(([id, status]) => ({ id: `${project}-${id}`, title: `LC-${id}`, file: "layout-contract.spec.ts", line: 1,
+    tests: [{ projectName: project, status, expectedStatus: "passed" }] })) }] }] });
+const ids = ["0", "1", "2", "3", "4", "5"];
+mkdirSync(dir, { recursive: true });
+writeFileSync(`${dir}/list.json`, JSON.stringify(report(ids.map((id) => [id, "skipped"]))));
+writeFileSync(`${dir}/res.json`, JSON.stringify(report(ids.map((id) => [id, mode === "fail" && id === "3" ? "unexpected" : "expected"]))));
+EOF2
+make_layout() { # dir mode
+  node "$work/mkl.mjs" "$1/raw" "$2"
+  node "$here/webkit-shard-evidence.mjs" collect --project layout-chromium --shard 1 --total 1 --attempt 1 \
+    --list "$1/raw/list.json" --results "$1/raw/res.json" \
+    --out "$1/ev/layout-evidence-layout-chromium-shard1-attempt1/evidence.json" > /dev/null
+}
+make_layout "$work/lgood" pass
+make_layout "$work/lfail" fail
+mkdir -p "$work/lempty/ev"
+lgate() { # classify_result webkit_required layout_result evidence_dir
+  CLASSIFY_RESULT="$1" WEBKIT_REQUIRED="$2" LAYOUT_RESULT="$3" EVIDENCE_DIR="$4" REASON="test" \
+    GITHUB_STEP_SUMMARY="$work/lsummary.md" bash "$here/layout-gate.sh" > "$work/lgate.out" 2>&1
+  echo $?
+}
+check "layout gate: docs-only, skipped -> PASS" 0 "$(lgate success false skipped "")"
+check "layout gate: not required, ran and passed -> PASS" 0 "$(lgate success false success "")"
+check "layout gate: not required, ran and failed -> FAIL" 1 "$(lgate success false failure "")"
+check "layout gate: required, passed + evidence OK -> PASS" 0 "$(lgate success true success "$work/lgood/ev")"
+check "layout gate: required, success but no evidence -> FAIL" 1 "$(lgate success true success "$work/lempty/ev")"
+check "layout gate: required, evidence shows a failed LC test -> FAIL" 1 "$(lgate success true success "$work/lfail/ev")"
+check "layout gate: required, job failed -> FAIL" 1 "$(lgate success true failure "$work/lgood/ev")"
+check "layout gate: required, job cancelled -> FAIL" 1 "$(lgate success true cancelled "$work/lgood/ev")"
+check "layout gate: required, job skipped -> FAIL" 1 "$(lgate success true skipped "$work/lgood/ev")"
+check "layout gate: classify failed -> fail-safe, ran and verified -> PASS" 0 "$(lgate failure "" success "$work/lgood/ev")"
+check "layout gate: classify failed, layout skipped -> FAIL" 1 "$(lgate failure "" skipped "")"
+check "layout gate: empty layout result -> FAIL" 1 "$(lgate success true "" "$work/lgood/ev")"
 
 echo ""
 echo "$((cases - failures))/$cases WebKit CI script cases passed"

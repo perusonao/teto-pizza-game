@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { runOnlyOnWidth } from "./support/projectGuard";
 import {
   bakeToTarget,
   completeDoughStep,
@@ -35,6 +36,7 @@ test.describe("Scenario A: Marinara (no CHEESE step) @390x844", () => {
     page,
   }) => {
     test.setTimeout(30_000);
+    runOnlyOnWidth(test.info(), 390);
     await page.setViewportSize({ width: 390, height: 844 });
     await startMarinaraUnlocked(page);
 
@@ -96,6 +98,7 @@ test.describe("Scenario A: Marinara (no CHEESE step) @390x844", () => {
 test.describe("Scenario B: Margherita (full-step recipe, regression) @390x844", () => {
   test("CHEESE and TOPPING both remain; flow stays functional through BAKE -> CUT", async ({ page }) => {
     test.setTimeout(30_000);
+    runOnlyOnWidth(test.info(), 390);
     await page.setViewportSize({ width: 390, height: 844 });
     await startFreshMargherita(page);
 
@@ -143,6 +146,7 @@ test.describe("Scenario C: constrained viewport (360x800), maximum-tab recipe (C
     page,
   }) => {
     test.setTimeout(30_000);
+    runOnlyOnWidth(test.info(), 360);
     await page.setViewportSize({ width: 360, height: 800 });
     await startCapricciosaUnlocked(page);
 

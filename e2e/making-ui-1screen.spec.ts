@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { runOnlyOnWidth } from "./support/projectGuard";
 import {
   completeDoughStep,
   cutThreeLines,
@@ -188,6 +189,7 @@ for (const { name, width, height } of VIEWPORTS) {
       page,
     }) => {
       test.setTimeout(30_000);
+      runOnlyOnWidth(test.info(), width === 390 ? 390 : 360);
       await freshMargheritaAt(page, width, height);
 
       await assertOneScreen(page, `${name} DOUGH`);
@@ -382,6 +384,7 @@ test.describe("Reference modal fit + close (Issue #167 PR-C §9): Margherita and
   });
 
   test("Salsiccia @ 360x800: Reference modal fits the secondary viewport too", async ({ page }) => {
+    runOnlyOnWidth(test.info(), 360);
     await page.setViewportSize({ width: 360, height: 800 });
     await startSalsicciaUnlocked(page);
     await assertReferenceModalLifecycle(page, "Salsiccia 360x800");
@@ -418,6 +421,7 @@ test.describe("PizzaStage height-aware sizing: shrink path actually engages belo
     page,
   }) => {
     test.setTimeout(30_000);
+    runOnlyOnWidth(test.info(), 390);
     await freshMargheritaAt(page, 390, 650);
 
     async function doughSize() {
