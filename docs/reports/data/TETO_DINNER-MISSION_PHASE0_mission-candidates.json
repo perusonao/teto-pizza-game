@@ -1,0 +1,869 @@
+{
+ "auditedMainSha": "42feec70f4e2b659c590b1c236116c0bf579200a",
+ "population": "w1-25",
+ "ladder": "W1_25_DISCOVERY_LADDER",
+ "notes": [
+  "finiteNeed uses recipeStockShortage's rule: scatter max(1,minCount), spread 1; starters (tomato-sauce, mozzarella, basil) excluded",
+  "earliestDexCount = max over targets of (ladder step of its last material + 1); actual discovery order varies per player",
+  "refillCostPitz = sum(need * refillPrice / packQuantity); a calibration input, not a reward decision",
+  "sumComfortableSec = sum over targets of CT2 comfortableMs (25s + 3s * sum minCount incl. sauce); BAKE/CUT excluded; NOT a time limit"
+ ],
+ "recipes": {
+  "margherita": {
+   "makeableAtLadderStep": 0,
+   "finiteNeed": {},
+   "starters": [
+    "tomato-sauce",
+    "mozzarella",
+    "basil"
+   ],
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "scatterPieces": 5,
+   "cut": true
+  },
+  "marinara": {
+   "makeableAtLadderStep": 14,
+   "finiteNeed": {
+    "garlic": 3,
+    "oregano": 2
+   },
+   "starters": [
+    "tomato-sauce"
+   ],
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "scatterPieces": 5,
+   "cut": true
+  },
+  "quattro-formaggi": {
+   "makeableAtLadderStep": 24,
+   "finiteNeed": {
+    "olive-oil": 1,
+    "gorgonzola": 2,
+    "parmigiano": 2,
+    "fontina": 2
+   },
+   "starters": [
+    "mozzarella"
+   ],
+   "sauce": [
+    "olive-oil"
+   ],
+   "scatterPieces": 8,
+   "cut": true
+  },
+  "genovese": {
+   "makeableAtLadderStep": 18,
+   "finiteNeed": {
+    "pesto": 1,
+    "cherry-tomato": 3
+   },
+   "starters": [
+    "mozzarella"
+   ],
+   "sauce": [
+    "pesto"
+   ],
+   "scatterPieces": 5,
+   "cut": true
+  },
+  "bismarck": {
+   "makeableAtLadderStep": 1,
+   "finiteNeed": {
+    "egg": 1
+   },
+   "starters": [
+    "tomato-sauce",
+    "mozzarella"
+   ],
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "scatterPieces": 4,
+   "cut": true
+  },
+  "funghi": {
+   "makeableAtLadderStep": 3,
+   "finiteNeed": {
+    "mushroom": 3
+   },
+   "starters": [
+    "tomato-sauce",
+    "mozzarella"
+   ],
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "scatterPieces": 5,
+   "cut": true
+  },
+  "fugazza": {
+   "makeableAtLadderStep": 13,
+   "finiteNeed": {
+    "olive-oil": 1,
+    "onion": 4,
+    "oregano": 1
+   },
+   "starters": [],
+   "sauce": [
+    "olive-oil"
+   ],
+   "scatterPieces": 5,
+   "cut": true
+  },
+  "salsiccia": {
+   "makeableAtLadderStep": 7,
+   "finiteNeed": {
+    "sausage": 3
+   },
+   "starters": [
+    "tomato-sauce",
+    "mozzarella"
+   ],
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "scatterPieces": 5,
+   "cut": true
+  },
+  "pepperoni": {
+   "makeableAtLadderStep": 6,
+   "finiteNeed": {
+    "pepperoni": 4
+   },
+   "starters": [
+    "tomato-sauce",
+    "mozzarella"
+   ],
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "scatterPieces": 6,
+   "cut": true
+  },
+  "napoletana": {
+   "makeableAtLadderStep": 15,
+   "finiteNeed": {
+    "anchovy": 3,
+    "oregano": 1
+   },
+   "starters": [
+    "tomato-sauce",
+    "mozzarella"
+   ],
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "scatterPieces": 6,
+   "cut": true
+  },
+  "tonno-e-cipolla": {
+   "makeableAtLadderStep": 16,
+   "finiteNeed": {
+    "onion": 2,
+    "tuna": 3
+   },
+   "starters": [
+    "tomato-sauce",
+    "mozzarella"
+   ],
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "scatterPieces": 7,
+   "cut": true
+  },
+  "pizza-bianca": {
+   "makeableAtLadderStep": 22,
+   "finiteNeed": {
+    "olive-oil": 1,
+    "rosemary": 3
+   },
+   "starters": [],
+   "sauce": [
+    "olive-oil"
+   ],
+   "scatterPieces": 3,
+   "cut": true
+  },
+  "breakfast-pizza": {
+   "makeableAtLadderStep": 2,
+   "finiteNeed": {
+    "egg": 1,
+    "bacon": 3
+   },
+   "starters": [
+    "tomato-sauce",
+    "mozzarella"
+   ],
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "scatterPieces": 6,
+   "cut": true
+  },
+  "capricciosa": {
+   "makeableAtLadderStep": 11,
+   "finiteNeed": {
+    "mushroom": 2,
+    "oregano": 1,
+    "ham": 1,
+    "black-olive": 2
+   },
+   "starters": [
+    "tomato-sauce",
+    "mozzarella"
+   ],
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "scatterPieces": 8,
+   "cut": true
+  },
+  "meat-lovers": {
+   "makeableAtLadderStep": 8,
+   "finiteNeed": {
+    "bacon": 2,
+    "ham": 1,
+    "pepperoni": 1,
+    "sausage": 2
+   },
+   "starters": [
+    "tomato-sauce",
+    "mozzarella"
+   ],
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "scatterPieces": 8,
+   "cut": true
+  },
+  "melanzane-pizza": {
+   "makeableAtLadderStep": 4,
+   "finiteNeed": {
+    "eggplant": 3
+   },
+   "starters": [
+    "tomato-sauce",
+    "mozzarella",
+    "basil"
+   ],
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "scatterPieces": 7,
+   "cut": true
+  },
+  "parmigiana-pizza": {
+   "makeableAtLadderStep": 5,
+   "finiteNeed": {
+    "eggplant": 3,
+    "parmigiano": 2
+   },
+   "starters": [
+    "tomato-sauce",
+    "mozzarella",
+    "basil"
+   ],
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "scatterPieces": 9,
+   "cut": true
+  },
+  "bambino": {
+   "makeableAtLadderStep": 9,
+   "finiteNeed": {
+    "ham": 2,
+    "corn": 3
+   },
+   "starters": [
+    "tomato-sauce",
+    "mozzarella"
+   ],
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "scatterPieces": 7,
+   "cut": true
+  },
+  "hawaiian": {
+   "makeableAtLadderStep": 10,
+   "finiteNeed": {
+    "ham": 2,
+    "pineapple": 3
+   },
+   "starters": [
+    "tomato-sauce",
+    "mozzarella"
+   ],
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "scatterPieces": 7,
+   "cut": true
+  },
+  "pizza-portuguesa": {
+   "makeableAtLadderStep": 12,
+   "finiteNeed": {
+    "ham": 3,
+    "egg": 1,
+    "onion": 2,
+    "black-olive": 2
+   },
+   "starters": [
+    "tomato-sauce",
+    "mozzarella"
+   ],
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "scatterPieces": 10,
+   "cut": true
+  },
+  "pesto-tonno": {
+   "makeableAtLadderStep": 17,
+   "finiteNeed": {
+    "pesto": 1,
+    "tuna": 3,
+    "black-olive": 2,
+    "onion": 2
+   },
+   "starters": [],
+   "sauce": [
+    "pesto"
+   ],
+   "scatterPieces": 7,
+   "cut": true
+  },
+  "new-haven-apizza": {
+   "makeableAtLadderStep": 19,
+   "finiteNeed": {
+    "olive-oil": 1,
+    "parmigiano": 2,
+    "clam": 3,
+    "garlic": 2
+   },
+   "starters": [],
+   "sauce": [
+    "olive-oil"
+   ],
+   "scatterPieces": 7,
+   "cut": false
+  },
+  "pesto-caprese": {
+   "makeableAtLadderStep": 20,
+   "finiteNeed": {
+    "pesto": 1,
+    "fresh-tomato": 3
+   },
+   "starters": [
+    "mozzarella",
+    "basil"
+   ],
+   "sauce": [
+    "pesto"
+   ],
+   "scatterPieces": 7,
+   "cut": true
+  },
+  "pesto-patate": {
+   "makeableAtLadderStep": 21,
+   "finiteNeed": {
+    "pesto": 1,
+    "potato": 3,
+    "bacon": 2
+   },
+   "starters": [
+    "mozzarella"
+   ],
+   "sauce": [
+    "pesto"
+   ],
+   "scatterPieces": 7,
+   "cut": true
+  },
+  "puttanesca-pizza": {
+   "makeableAtLadderStep": 23,
+   "finiteNeed": {
+    "anchovy": 3,
+    "black-olive": 2,
+    "capers": 2,
+    "garlic": 2
+   },
+   "starters": [
+    "tomato-sauce"
+   ],
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "scatterPieces": 9,
+   "cut": true
+  }
+ },
+ "materialPacks": {
+  "egg": {
+   "step": 1,
+   "tier": "T1",
+   "k": 1,
+   "pack": 10,
+   "price": 60,
+   "refill": 30
+  },
+  "bacon": {
+   "step": 2,
+   "tier": "T1",
+   "k": 3,
+   "pack": 30,
+   "price": 60,
+   "refill": 30
+  },
+  "mushroom": {
+   "step": 3,
+   "tier": "T1",
+   "k": 3,
+   "pack": 30,
+   "price": 60,
+   "refill": 30
+  },
+  "eggplant": {
+   "step": 4,
+   "tier": "T1",
+   "k": 3,
+   "pack": 30,
+   "price": 60,
+   "refill": 30
+  },
+  "parmigiano": {
+   "step": 5,
+   "tier": "T1",
+   "k": 2,
+   "pack": 20,
+   "price": 60,
+   "refill": 30
+  },
+  "pepperoni": {
+   "step": 6,
+   "tier": "T2",
+   "k": 4,
+   "pack": 40,
+   "price": 80,
+   "refill": 40
+  },
+  "sausage": {
+   "step": 7,
+   "tier": "T2",
+   "k": 3,
+   "pack": 30,
+   "price": 80,
+   "refill": 40
+  },
+  "ham": {
+   "step": 8,
+   "tier": "T2",
+   "k": 3,
+   "pack": 30,
+   "price": 80,
+   "refill": 40
+  },
+  "corn": {
+   "step": 9,
+   "tier": "T2",
+   "k": 3,
+   "pack": 30,
+   "price": 80,
+   "refill": 40
+  },
+  "pineapple": {
+   "step": 10,
+   "tier": "T2",
+   "k": 3,
+   "pack": 30,
+   "price": 80,
+   "refill": 40
+  },
+  "black-olive": {
+   "step": 11,
+   "tier": "T2",
+   "k": 2,
+   "pack": 20,
+   "price": 80,
+   "refill": 40
+  },
+  "oregano": {
+   "step": 11,
+   "tier": "T2",
+   "k": 2,
+   "pack": 20,
+   "price": 80,
+   "refill": 40
+  },
+  "onion": {
+   "step": 12,
+   "tier": "T2",
+   "k": 4,
+   "pack": 40,
+   "price": 80,
+   "refill": 40
+  },
+  "olive-oil": {
+   "step": 13,
+   "tier": "T2",
+   "k": 1,
+   "pack": 10,
+   "price": 80,
+   "refill": 40
+  },
+  "garlic": {
+   "step": 14,
+   "tier": "T2",
+   "k": 3,
+   "pack": 30,
+   "price": 80,
+   "refill": 40
+  },
+  "anchovy": {
+   "step": 15,
+   "tier": "T3",
+   "k": 3,
+   "pack": 30,
+   "price": 100,
+   "refill": 50
+  },
+  "tuna": {
+   "step": 16,
+   "tier": "T3",
+   "k": 3,
+   "pack": 30,
+   "price": 100,
+   "refill": 50
+  },
+  "pesto": {
+   "step": 17,
+   "tier": "T3",
+   "k": 1,
+   "pack": 10,
+   "price": 100,
+   "refill": 50
+  },
+  "cherry-tomato": {
+   "step": 18,
+   "tier": "T3",
+   "k": 3,
+   "pack": 30,
+   "price": 100,
+   "refill": 50
+  },
+  "clam": {
+   "step": 19,
+   "tier": "T3",
+   "k": 3,
+   "pack": 30,
+   "price": 100,
+   "refill": 50
+  },
+  "fresh-tomato": {
+   "step": 20,
+   "tier": "T3",
+   "k": 3,
+   "pack": 30,
+   "price": 100,
+   "refill": 50
+  },
+  "potato": {
+   "step": 21,
+   "tier": "T3",
+   "k": 3,
+   "pack": 30,
+   "price": 100,
+   "refill": 50
+  },
+  "rosemary": {
+   "step": 22,
+   "tier": "T3",
+   "k": 3,
+   "pack": 30,
+   "price": 100,
+   "refill": 50
+  },
+  "capers": {
+   "step": 23,
+   "tier": "T3",
+   "k": 2,
+   "pack": 20,
+   "price": 100,
+   "refill": 50
+  },
+  "fontina": {
+   "step": 24,
+   "tier": "T3",
+   "k": 2,
+   "pack": 20,
+   "price": 100,
+   "refill": 50
+  },
+  "gorgonzola": {
+   "step": 24,
+   "tier": "T3",
+   "k": 2,
+   "pack": 20,
+   "price": 100,
+   "refill": 50
+  }
+ },
+ "candidates": [
+  {
+   "candidateId": "DM-A",
+   "band": "EARLY",
+   "status": "PHASE1_RECOMMENDED",
+   "targetRecipeIds": [
+    "margherita",
+    "bismarck",
+    "breakfast-pizza",
+    "funghi"
+   ],
+   "aggregateFiniteNeed": {
+    "egg": 2,
+    "bacon": 3,
+    "mushroom": 3
+   },
+   "sharedFinite": {
+    "egg": [
+     "bismarck",
+     "breakfast-pizza"
+    ]
+   },
+   "earliestDexCount": 4,
+   "nonCutTargets": [],
+   "sauces": [
+    "tomato-sauce"
+   ],
+   "fitsOnePackEach": true,
+   "refillCostPitz": 12.0,
+   "sumComfortableSec": 172
+  },
+  {
+   "candidateId": "DM-B",
+   "band": "EARLY",
+   "status": "PHASE1_RECOMMENDED",
+   "targetRecipeIds": [
+    "margherita",
+    "funghi",
+    "melanzane-pizza",
+    "parmigiana-pizza"
+   ],
+   "aggregateFiniteNeed": {
+    "mushroom": 3,
+    "eggplant": 6,
+    "parmigiano": 2
+   },
+   "sharedFinite": {
+    "eggplant": [
+     "melanzane-pizza",
+     "parmigiana-pizza"
+    ]
+   },
+   "earliestDexCount": 6,
+   "nonCutTargets": [],
+   "sauces": [
+    "tomato-sauce"
+   ],
+   "fitsOnePackEach": true,
+   "refillCostPitz": 12.0,
+   "sumComfortableSec": 190
+  },
+  {
+   "candidateId": "DM-C",
+   "band": "MID",
+   "status": "NEXT",
+   "targetRecipeIds": [
+    "meat-lovers",
+    "bambino",
+    "hawaiian",
+    "capricciosa"
+   ],
+   "aggregateFiniteNeed": {
+    "bacon": 2,
+    "ham": 6,
+    "pepperoni": 1,
+    "sausage": 2,
+    "corn": 3,
+    "pineapple": 3,
+    "mushroom": 2,
+    "oregano": 1,
+    "black-olive": 2
+   },
+   "sharedFinite": {
+    "ham": [
+     "meat-lovers",
+     "bambino",
+     "hawaiian",
+     "capricciosa"
+    ]
+   },
+   "earliestDexCount": 12,
+   "nonCutTargets": [],
+   "sauces": [
+    "tomato-sauce"
+   ],
+   "fitsOnePackEach": true,
+   "refillCostPitz": 29.7,
+   "sumComfortableSec": 202
+  },
+  {
+   "candidateId": "DM-D",
+   "band": "MID",
+   "status": "NEXT",
+   "targetRecipeIds": [
+    "bismarck",
+    "breakfast-pizza",
+    "pizza-portuguesa"
+   ],
+   "aggregateFiniteNeed": {
+    "egg": 3,
+    "bacon": 3,
+    "ham": 3,
+    "onion": 2,
+    "black-olive": 2
+   },
+   "sharedFinite": {
+    "egg": [
+     "bismarck",
+     "breakfast-pizza",
+     "pizza-portuguesa"
+    ]
+   },
+   "earliestDexCount": 13,
+   "nonCutTargets": [],
+   "sauces": [
+    "tomato-sauce"
+   ],
+   "fitsOnePackEach": true,
+   "refillCostPitz": 22.0,
+   "sumComfortableSec": 144
+  },
+  {
+   "candidateId": "DM-E",
+   "band": "LATE",
+   "status": "LATER",
+   "targetRecipeIds": [
+    "genovese",
+    "pesto-tonno",
+    "pesto-caprese",
+    "pesto-patate"
+   ],
+   "aggregateFiniteNeed": {
+    "pesto": 4,
+    "cherry-tomato": 3,
+    "tuna": 3,
+    "black-olive": 2,
+    "onion": 2,
+    "fresh-tomato": 3,
+    "potato": 3,
+    "bacon": 2
+   },
+   "sharedFinite": {
+    "pesto": [
+     "genovese",
+     "pesto-tonno",
+     "pesto-caprese",
+     "pesto-patate"
+    ]
+   },
+   "earliestDexCount": 22,
+   "nonCutTargets": [],
+   "sauces": [
+    "pesto"
+   ],
+   "fitsOnePackEach": true,
+   "refillCostPitz": 48.0,
+   "sumComfortableSec": 190
+  },
+  {
+   "candidateId": "DM-G",
+   "band": "LATE",
+   "status": "LATER",
+   "targetRecipeIds": [
+    "marinara",
+    "napoletana",
+    "puttanesca-pizza"
+   ],
+   "aggregateFiniteNeed": {
+    "garlic": 5,
+    "oregano": 3,
+    "anchovy": 6,
+    "black-olive": 2,
+    "capers": 2
+   },
+   "sharedFinite": {
+    "garlic": [
+     "marinara",
+     "puttanesca-pizza"
+    ],
+    "oregano": [
+     "marinara",
+     "napoletana"
+    ],
+    "anchovy": [
+     "napoletana",
+     "puttanesca-pizza"
+    ]
+   },
+   "earliestDexCount": 24,
+   "nonCutTargets": [],
+   "sauces": [
+    "tomato-sauce"
+   ],
+   "fitsOnePackEach": true,
+   "refillCostPitz": 31.7,
+   "sumComfortableSec": 144
+  },
+  {
+   "candidateId": "DM-F",
+   "band": "LATE",
+   "status": "LATER",
+   "targetRecipeIds": [
+    "fugazza",
+    "pizza-bianca",
+    "new-haven-apizza",
+    "quattro-formaggi"
+   ],
+   "aggregateFiniteNeed": {
+    "olive-oil": 4,
+    "onion": 4,
+    "oregano": 1,
+    "rosemary": 3,
+    "parmigiano": 4,
+    "clam": 3,
+    "garlic": 2,
+    "gorgonzola": 2,
+    "fontina": 2
+   },
+   "sharedFinite": {
+    "olive-oil": [
+     "fugazza",
+     "pizza-bianca",
+     "new-haven-apizza",
+     "quattro-formaggi"
+    ],
+    "parmigiano": [
+     "new-haven-apizza",
+     "quattro-formaggi"
+    ]
+   },
+   "earliestDexCount": 25,
+   "nonCutTargets": [
+    "new-haven-apizza"
+   ],
+   "sauces": [
+    "olive-oil"
+   ],
+   "fitsOnePackEach": true,
+   "refillCostPitz": 50.7,
+   "sumComfortableSec": 181
+  }
+ ]
+}
