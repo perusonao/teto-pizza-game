@@ -62,7 +62,8 @@ describe("HOME Global Overlay shell sizing (Dex/Shop/Inventory share one rule)",
     expectPanelShellShape(panel);
     // The variable-length recipe list lives inside the scrollable body, not directly in the panel.
     expect(panel.querySelector(":scope > .dex-overlay__list")).not.toBeInTheDocument();
-    expect(panel.querySelector(".dex-overlay__body > .dex-overlay__list")).toBeInTheDocument();
+    // W1-f: one list per chapter section, all inside the scrollable body.
+    expect(panel.querySelector(".dex-overlay__body > .dex-overlay__chapter > .dex-overlay__list")).toBeInTheDocument();
   });
 
   it("Shop overlay panel uses the same shared shell as Dex", async () => {

@@ -938,6 +938,18 @@ function App() {
           newlyDiscoveredId={state.justDiscovered ? state.recipe.id : null}
           newBestRecipeId={!state.justDiscovered && state.justGotNewBest ? state.recipe.id : null}
           onClose={() => setDexOpen(false)}
+          ownedIngredientIds={state.ownedIngredientIds}
+          unlockedForShopIngredientIds={state.unlockedForShopIngredientIds}
+          inventory={state.inventory}
+          onGoFreeCook={
+            mission.mode === "FREE"
+              ? () => {
+                  setDexOpen(false);
+                  handleStartFreeCook();
+                }
+              : undefined
+          }
+          onOpenShop={() => setShopOpen(true)}
         />
       )}
 

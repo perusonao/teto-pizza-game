@@ -22,6 +22,7 @@ import { RECIPES, type Recipe } from "../data/recipes";
 import { EMPTY_DEX } from "../state/dex";
 import { createEmptyPizza } from "../state/pizzaState";
 import { createDefaultSave, SAVE_STORAGE_KEY } from "../state/persistence";
+import { buildRecipeChapters } from "../state/recipeChapters";
 
 /**
  * Production Visual P1 (docs/reports/TETO_PROGRESS2_W1_VISUAL_PRODUCTION_PLAN.md): the
@@ -391,7 +392,8 @@ describe("render sites with every current ingredient (emoji path)", () => {
     );
     const chips = Array.from(container.querySelectorAll(".dex-card__ingredient"));
     expect(chips.length).toBeGreaterThan(0);
-    const expected = RECIPES.flatMap((r) => r.requiredIngredients.map((req) => {
+    // W1-f: the Dex lists recipes by canonical chapter (6 / 9 / 10), RECIPES order inside each.
+    const expected = buildRecipeChapters().flatMap((c) => c.recipes).flatMap((r) => r.requiredIngredients.map((req) => {
       const i = getIngredient(req.ingredientId)!;
       return i.pieceVisual ? ` ${i.nameJa}` : `${i.emoji} ${i.nameJa}`;
     }));

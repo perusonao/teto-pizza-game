@@ -4472,3 +4472,54 @@
   border-radius: 999px;
   padding: 4px 8px;
 }
+
+/* W1 Discovery 2.0 (W1-f): the Dex grouped by the canonical chapters; undiscovered slots show only
+   ？？？ and, for the "next" ones, a state tag (L1). */
+.dex-overlay__chapter {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dex-overlay__chapter-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 6px 2px 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: #6b4226;
+}
+
+.dex-overlay__chapter-count {
+  font-size: 12px;
+  font-weight: 700;
+  color: #a1662f;
+  white-space: nowrap;
+}
+
+.dex-card__no {
+  font-size: 11px;
+  font-weight: 700;
+  color: #a1662f;
+  margin-right: 2px;
+}
+
+.dex-card--tagged {
+  border-style: dashed;
+  border-color: #e0a14a;
+}
+
+.dex-card__tag-cta {
+  margin-top: 6px;
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: #e4572e;
+  color: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 800;
+}
