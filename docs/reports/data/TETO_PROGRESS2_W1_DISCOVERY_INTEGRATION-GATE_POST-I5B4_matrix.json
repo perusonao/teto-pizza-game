@@ -1,0 +1,4247 @@
+{
+ "_meta": {
+  "kind": "W1 Discovery Integration Gate POST-I5b-4 matrix (docs-only; NOT a runtime authority)",
+  "report": "docs/reports/TETO_PROGRESS2_W1_DISCOVERY_INTEGRATION-GATE_POST-I5B4.md",
+  "supersedes": "docs/reports/data/TETO_PROGRESS2_W1_DISCOVERY_INTEGRATION-GATE_matrix.json @ 05415f6 (audited 5204a26)",
+  "auditedShas": {
+   "main": "12a09de2c4da8ed7e92f1ff9f47dd7bdf824a6e5",
+   "i5b3": "5204a269a813bd4951720737ab9799949bca0f0f",
+   "i5b4": "fbfd738f4ca3e07a59d4bc489f7ab4a6af1b15bd",
+   "i5b4Branch": "claude/teto-pizza-w1-i4a-j46ph0 (HEAD = fbfd738, no open PR)",
+   "previousIntegrationGate": "05415f60979a4ea32be5476783a768ff25d53364 (claude/w1-discovery-integration-gate-jovdyc)",
+   "discoveryDesign": "a8ef4d9ea954f0c72a4e71936bf2ef66c28774de",
+   "i5b4UiuxFreshAudit": "0c3e01f4233db6cdccf33ab611f8be31b47fca59",
+   "i5bFreshAudit": "cc9dfaa8c4bf01e0804ef1bdd7ca09e0a8d080ec (defines I5b-4 as implemented)",
+   "i5b5VerificationDesign": "d4f96d0227830d387ea8813995bd8954eb1d1ce0"
+  },
+  "lineNumbersAt": "fbfd738",
+  "unitBaselineAtFbfd738": "147 files / 3228 tests PASS (re-run in this audit, scratch worktree)"
+ },
+ "static": {
+  "recipes": 25,
+  "catalogTargets": 25,
+  "eligible": 25,
+  "duplicateSignatures": 0,
+  "itemsEqualRequired": true,
+  "ladderSteps": 24,
+  "ordersCount": 25,
+  "ordersCoverRecipes": [],
+  "withUnlockCondition": [
+   "marinara",
+   "quattro-formaggi",
+   "genovese",
+   "bismarck",
+   "funghi",
+   "fugazza",
+   "salsiccia",
+   "pepperoni",
+   "napoletana",
+   "tonno-e-cipolla",
+   "pizza-bianca",
+   "breakfast-pizza",
+   "capricciosa",
+   "meat-lovers"
+  ],
+  "withoutUnlockCondition": [
+   "margherita",
+   "melanzane-pizza",
+   "parmigiana-pizza",
+   "bambino",
+   "hawaiian",
+   "pizza-portuguesa",
+   "pesto-tonno",
+   "new-haven-apizza",
+   "pesto-caprese",
+   "pesto-patate",
+   "puttanesca-pizza"
+  ],
+  "sectionsNow": [
+   [
+    "第1章",
+    7,
+    [
+     "margherita",
+     "marinara",
+     "quattro-formaggi",
+     "genovese",
+     "bismarck",
+     "funghi",
+     "fugazza"
+    ]
+   ],
+   [
+    "第2章",
+    8,
+    [
+     "salsiccia",
+     "pepperoni",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "breakfast-pizza",
+     "capricciosa",
+     "meat-lovers"
+    ]
+   ],
+   [
+    "第3章",
+    8,
+    [
+     "melanzane-pizza",
+     "parmigiana-pizza",
+     "bambino",
+     "hawaiian",
+     "pizza-portuguesa",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese"
+    ]
+   ],
+   [
+    "第4章",
+    2,
+    [
+     "pesto-patate",
+     "puttanesca-pizza"
+    ]
+   ]
+  ]
+ },
+ "stateDerivation": {
+  "inputs": [
+   "dex",
+   "ownedIngredientIds",
+   "unlockedForShopIngredientIds",
+   "inventory"
+  ],
+  "rules": {
+   "DISCOVERED": "dex entry discovered",
+   "DISCOVERABLE": "not DISCOVERED; every required finite ingredient OWNED with inventory >= 1 (starters always)",
+   "KNOWN_BUT_MISSING_MATERIAL": "not above; every required finite ingredient entitled (ledger or OWNED)",
+   "UNKNOWN": "otherwise"
+  },
+  "freshWalkMaxDiscoverable": 1,
+  "freshWalkMaxKbmm": 1,
+  "discoverableIsNextKeyRecipe": true,
+  "inventoryZero": {
+   "dexCount": 12,
+   "recipe": "pizza-portuguesa",
+   "zeroIngredient": "black-olive",
+   "derivedState": "KNOWN_BUT_MISSING_MATERIAL",
+   "pizzaSelectCard": "NEW",
+   "isRecipeAvailable": true,
+   "leaks": {
+    "lockedNamedIds": [
+     "marinara",
+     "quattro-formaggi",
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "ep1HintNamedIds": [
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla"
+    ],
+    "shopRowIds": [],
+    "shopLexical": [],
+    "psNames": 12,
+    "psNameIds": [
+     "marinara",
+     "quattro-formaggi",
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "pizza-portuguesa",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "psThumbs": 0,
+    "newUndiscovered": [
+     "pizza-portuguesa"
+    ],
+    "preLocked": [],
+    "lockedNamed": 12,
+    "ep1Hints": [
+     "ジェノベーゼを1枚完成させると解禁",
+     "ナポリを1枚完成させると解禁",
+     "トンノ・エ・チポッラを1枚完成させると解禁"
+    ],
+    "detailGuided": [
+     "pizza-portuguesa"
+    ],
+    "shopNames": [],
+    "buyToMakeRows": 0,
+    "shopPurchaseFeedback": [],
+    "dexNames": [],
+    "homeNames": []
+   }
+  },
+  "legacyDex15": {
+   "loadedKeys": [
+    "dex",
+    "inventory",
+    "missionBest",
+    "ownedIngredientIds",
+    "pitzBalance",
+    "schemaVersion",
+    "starterGrantClaimedRecipeIds",
+    "unlockedForShopIngredientIds"
+   ],
+   "newlyUnlocked": [
+    "eggplant",
+    "corn",
+    "pineapple"
+   ],
+   "shopNew": [
+    "eggplant",
+    "corn",
+    "pineapple"
+   ],
+   "states": {
+    "DISCOVERED": [
+     "margherita",
+     "marinara",
+     "quattro-formaggi",
+     "genovese",
+     "bismarck",
+     "funghi",
+     "fugazza",
+     "salsiccia",
+     "pepperoni",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "breakfast-pizza",
+     "capricciosa",
+     "meat-lovers"
+    ],
+    "KNOWN_BUT_MISSING_MATERIAL": [
+     "melanzane-pizza",
+     "parmigiana-pizza",
+     "bambino",
+     "hawaiian"
+    ],
+    "DISCOVERABLE": [
+     "pizza-portuguesa",
+     "pesto-tonno"
+    ],
+    "UNKNOWN": [
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ]
+   },
+   "leaks": {
+    "lockedNamedIds": [
+     "melanzane-pizza",
+     "parmigiana-pizza",
+     "bambino",
+     "hawaiian",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "ep1HintNamedIds": [],
+    "shopRowIds": [
+     "melanzane-pizza",
+     "parmigiana-pizza",
+     "bambino",
+     "hawaiian"
+    ],
+    "shopLexical": [],
+    "psNames": 10,
+    "psNameIds": [
+     "melanzane-pizza",
+     "parmigiana-pizza",
+     "bambino",
+     "hawaiian",
+     "pizza-portuguesa",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "psThumbs": 0,
+    "newUndiscovered": [
+     "pizza-portuguesa",
+     "pesto-tonno"
+    ],
+    "preLocked": [],
+    "lockedNamed": 8,
+    "ep1Hints": [],
+    "detailGuided": [
+     "pizza-portuguesa",
+     "pesto-tonno"
+    ],
+    "shopNames": [
+     "melanzane-pizza",
+     "parmigiana-pizza",
+     "bambino",
+     "hawaiian"
+    ],
+    "buyToMakeRows": 3,
+    "shopPurchaseFeedback": [
+     "eggplant->melanzane-pizza",
+     "eggplant->parmigiana-pizza",
+     "corn->bambino",
+     "pineapple->hawaiian"
+    ],
+    "dexNames": [],
+    "homeNames": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 200,
+    "undiscoveredOrders": 200,
+    "guidedStartsFromUndiscoveredOrder": 200,
+    "orderRecipes": {
+     "pesto-tonno": 100,
+     "pizza-portuguesa": 100
+    },
+    "sampleTetoLines": [
+     "よーし、今日はペストトンノピザに挑戦だ！トッピングは好きに選んでいいぞ。",
+     "ピッツァ・ポルトゲーザか、腕が鳴るな！まずは生地にソースを塗るところからだ。"
+    ],
+    "selectRecipeUndiscoveredAccepted": [
+     "pizza-portuguesa",
+     "pesto-tonno"
+    ]
+   }
+  },
+  "ep1Independence": {
+   "diffs": 0,
+   "cardStateDependsOnEp1": []
+  },
+  "lunchRushPool": {
+   "dexCount": 5,
+   "picks": [
+    "funghi",
+    "bismarck",
+    "margherita",
+    "breakfast-pizza",
+    "melanzane-pizza"
+   ],
+   "undiscoveredPicked": []
+  },
+  "saveSchemaChange": false
+ },
+ "leakSummary": {
+  "method": "25-recipe runtime probe at fbfd738 (scratch vitest, not committed): fresh save, margherita then ladder key recipes, all ★3; at each Dex 0..25 snapshot A (ladder unlocked, not bought) and B (bought, stock 30). Pizza Select / Shop / Dex / HOME rendered with @testing-library (textContent + aria-label + alt/title); reducer driven directly (PLAY_AGAIN x120, BEGIN_PREPARE, SELECT_RECIPE).",
+  "distinctRecipesLeakedByAnyChannel": 25,
+  "recipesNeverLeaked": 0,
+  "byChannel": {
+   "FREE_ORDER_LK8": {
+    "count": 19,
+    "recipes": [
+     "bambino",
+     "capricciosa",
+     "funghi",
+     "genovese",
+     "hawaiian",
+     "margherita",
+     "marinara",
+     "melanzane-pizza",
+     "napoletana",
+     "new-haven-apizza",
+     "parmigiana-pizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "pesto-tonno",
+     "pizza-bianca",
+     "pizza-portuguesa",
+     "puttanesca-pizza",
+     "quattro-formaggi",
+     "tonno-e-cipolla"
+    ],
+    "firstSeen": {
+     "margherita": "dex0A",
+     "funghi": "dex3B",
+     "melanzane-pizza": "dex4B",
+     "parmigiana-pizza": "dex5B",
+     "bambino": "dex9B",
+     "hawaiian": "dex10B",
+     "capricciosa": "dex11B",
+     "pizza-portuguesa": "dex12B",
+     "marinara": "dex14B",
+     "napoletana": "dex15B",
+     "tonno-e-cipolla": "dex16B",
+     "pesto-tonno": "dex17B",
+     "genovese": "dex18B",
+     "new-haven-apizza": "dex19B",
+     "pesto-caprese": "dex20B",
+     "pesto-patate": "dex21B",
+     "pizza-bianca": "dex22B",
+     "puttanesca-pizza": "dex23B",
+     "quattro-formaggi": "dex24B"
+    }
+   },
+   "PS_EP1_HINT_NAME": {
+    "count": 13,
+    "recipes": [
+     "bismarck",
+     "breakfast-pizza",
+     "capricciosa",
+     "fugazza",
+     "funghi",
+     "genovese",
+     "margherita",
+     "marinara",
+     "napoletana",
+     "pepperoni",
+     "pizza-bianca",
+     "salsiccia",
+     "tonno-e-cipolla"
+    ],
+    "firstSeen": {
+     "margherita": "dex0A",
+     "marinara": "dex0A",
+     "genovese": "dex0A",
+     "bismarck": "dex0A",
+     "funghi": "dex0A",
+     "fugazza": "dex0A",
+     "salsiccia": "dex0A",
+     "pepperoni": "dex0A",
+     "napoletana": "dex0A",
+     "tonno-e-cipolla": "dex0A",
+     "pizza-bianca": "dex0A",
+     "breakfast-pizza": "dex0A",
+     "capricciosa": "dex0A"
+    }
+   },
+   "PS_LOCKED_NAME": {
+    "count": 23,
+    "recipes": [
+     "bambino",
+     "bismarck",
+     "breakfast-pizza",
+     "capricciosa",
+     "funghi",
+     "genovese",
+     "hawaiian",
+     "marinara",
+     "meat-lovers",
+     "melanzane-pizza",
+     "napoletana",
+     "new-haven-apizza",
+     "parmigiana-pizza",
+     "pepperoni",
+     "pesto-caprese",
+     "pesto-patate",
+     "pesto-tonno",
+     "pizza-bianca",
+     "pizza-portuguesa",
+     "puttanesca-pizza",
+     "quattro-formaggi",
+     "salsiccia",
+     "tonno-e-cipolla"
+    ],
+    "firstSeen": {
+     "marinara": "dex0A",
+     "quattro-formaggi": "dex0A",
+     "genovese": "dex0A",
+     "bismarck": "dex0A",
+     "funghi": "dex0A",
+     "salsiccia": "dex0A",
+     "pepperoni": "dex0A",
+     "napoletana": "dex0A",
+     "tonno-e-cipolla": "dex0A",
+     "pizza-bianca": "dex0A",
+     "breakfast-pizza": "dex0A",
+     "capricciosa": "dex0A",
+     "meat-lovers": "dex0A",
+     "melanzane-pizza": "dex0A",
+     "parmigiana-pizza": "dex0A",
+     "bambino": "dex0A",
+     "hawaiian": "dex0A",
+     "pizza-portuguesa": "dex0A",
+     "pesto-tonno": "dex0A",
+     "new-haven-apizza": "dex0A",
+     "pesto-caprese": "dex0A",
+     "pesto-patate": "dex0A",
+     "puttanesca-pizza": "dex0A"
+    }
+   },
+   "PS_NEW_CARD_NAME_THUMB_GUIDED": {
+    "count": 18,
+    "recipes": [
+     "bambino",
+     "capricciosa",
+     "funghi",
+     "genovese",
+     "hawaiian",
+     "marinara",
+     "melanzane-pizza",
+     "napoletana",
+     "new-haven-apizza",
+     "parmigiana-pizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "pesto-tonno",
+     "pizza-bianca",
+     "pizza-portuguesa",
+     "puttanesca-pizza",
+     "quattro-formaggi",
+     "tonno-e-cipolla"
+    ],
+    "firstSeen": {
+     "funghi": "dex3B",
+     "melanzane-pizza": "dex4B",
+     "parmigiana-pizza": "dex5B",
+     "bambino": "dex9B",
+     "hawaiian": "dex10B",
+     "capricciosa": "dex11B",
+     "pizza-portuguesa": "dex12B",
+     "marinara": "dex14B",
+     "napoletana": "dex15B",
+     "tonno-e-cipolla": "dex16B",
+     "pesto-tonno": "dex17B",
+     "genovese": "dex18B",
+     "new-haven-apizza": "dex19B",
+     "pesto-caprese": "dex20B",
+     "pesto-patate": "dex21B",
+     "pizza-bianca": "dex22B",
+     "puttanesca-pizza": "dex23B",
+     "quattro-formaggi": "dex24B"
+    }
+   },
+   "PS_PREDISCOVERY_CARD_NAME_THUMB": {
+    "count": 1,
+    "recipes": [
+     "margherita"
+    ],
+    "firstSeen": {
+     "margherita": "dex0A"
+    }
+   },
+   "SELECT_RECIPE_GUIDED_ACCEPTED": {
+    "count": 18,
+    "recipes": [
+     "bambino",
+     "capricciosa",
+     "funghi",
+     "genovese",
+     "hawaiian",
+     "marinara",
+     "melanzane-pizza",
+     "napoletana",
+     "new-haven-apizza",
+     "parmigiana-pizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "pesto-tonno",
+     "pizza-bianca",
+     "pizza-portuguesa",
+     "puttanesca-pizza",
+     "quattro-formaggi",
+     "tonno-e-cipolla"
+    ],
+    "firstSeen": {
+     "funghi": "dex3B",
+     "melanzane-pizza": "dex4B",
+     "parmigiana-pizza": "dex5B",
+     "bambino": "dex9B",
+     "hawaiian": "dex10B",
+     "capricciosa": "dex11B",
+     "pizza-portuguesa": "dex12B",
+     "marinara": "dex14B",
+     "napoletana": "dex15B",
+     "tonno-e-cipolla": "dex16B",
+     "pesto-tonno": "dex17B",
+     "genovese": "dex18B",
+     "new-haven-apizza": "dex19B",
+     "pesto-caprese": "dex20B",
+     "pesto-patate": "dex21B",
+     "pizza-bianca": "dex22B",
+     "puttanesca-pizza": "dex23B",
+     "quattro-formaggi": "dex24B"
+    }
+   },
+   "SHOP_BUY_TO_MAKE_ROW_AND_PURCHASE_FEEDBACK": {
+    "count": 16,
+    "recipes": [
+     "bambino",
+     "funghi",
+     "genovese",
+     "hawaiian",
+     "marinara",
+     "melanzane-pizza",
+     "napoletana",
+     "new-haven-apizza",
+     "parmigiana-pizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "pesto-tonno",
+     "pizza-bianca",
+     "pizza-portuguesa",
+     "puttanesca-pizza",
+     "tonno-e-cipolla"
+    ],
+    "firstSeen": {
+     "funghi": "dex3A",
+     "melanzane-pizza": "dex4A",
+     "parmigiana-pizza": "dex5A",
+     "bambino": "dex9A",
+     "hawaiian": "dex10A",
+     "pizza-portuguesa": "dex12A",
+     "marinara": "dex14A",
+     "napoletana": "dex15A",
+     "tonno-e-cipolla": "dex16A",
+     "pesto-tonno": "dex17A",
+     "genovese": "dex18A",
+     "new-haven-apizza": "dex19A",
+     "pesto-caprese": "dex20A",
+     "pesto-patate": "dex21A",
+     "pizza-bianca": "dex22A",
+     "puttanesca-pizza": "dex23A"
+    }
+   }
+  },
+  "lk8UiReachable": {
+   "count": 18,
+   "recipes": [
+    "bambino",
+    "capricciosa",
+    "funghi",
+    "genovese",
+    "hawaiian",
+    "marinara",
+    "melanzane-pizza",
+    "napoletana",
+    "new-haven-apizza",
+    "parmigiana-pizza",
+    "pesto-caprese",
+    "pesto-patate",
+    "pesto-tonno",
+    "pizza-bianca",
+    "pizza-portuguesa",
+    "puttanesca-pizza",
+    "quattro-formaggi",
+    "tonno-e-cipolla"
+   ],
+   "note": "margherita (Dex 0) is reducer-reachable only: Lunch Rush is locked at Dex 0 and the Dex-0 Pizza Select card routes to Free Cooking, so no UI path shows the Dex-0 ORDER today"
+  },
+  "lexicalOverlapNotALeakChannel": {
+   "shop": {
+    "pepperoni": "ingredient nameJa ペパロニ == recipe nameJa ペパロニ",
+    "genovese": "ingredient ジェノベーゼソース (pesto) contains recipe name ジェノベーゼ"
+   },
+   "dex": {
+    "napoletana": "discovered marinara description contains ナポリ (= napoletana nameJa)",
+    "genovese": "discovered card ingredient list shows ジェノベーゼソース"
+   },
+   "handling": "not removable by W1-b; owner accepts as vocabulary overlap or renames the ingredient label (no data id change). Test oracle must whitelist these exact overlaps instead of a raw substring search."
+  },
+  "dexOverlay": "0 real leaks at every Dex (未発見 = 🔒 ？？？ まだ見ぬピザ).",
+  "home": "0 at every Dex (HOME renders counts only).",
+  "previousGate23LockedNames": "Still true at fbfd738, but it is Pizza Select (not the Dex overlay): Dex 0 shows 24 LOCKED cards, 23 with names (fugazza is mystery ？？？). Fugazza's name is still exposed at Dex 0 through salsiccia's EP1 hint 'フガッサを1枚完成させると解禁' -> all 24 undiscovered names + margherita = 25/25 names in the Dex-0 Pizza Select DOM."
+ },
+ "freshWalk": [
+  {
+   "dexCount": 0,
+   "phase": "A_unlocked_not_bought",
+   "stateCounts": {
+    "DISCOVERABLE": 1,
+    "UNKNOWN": 24
+   },
+   "discoverable": [
+    "margherita"
+   ],
+   "knownButMissingMaterial": [],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 25,
+    "pizzaSelectLockedNamed": [
+     "marinara",
+     "quattro-formaggi",
+     "genovese",
+     "bismarck",
+     "funghi",
+     "salsiccia",
+     "pepperoni",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "breakfast-pizza",
+     "capricciosa",
+     "meat-lovers",
+     "melanzane-pizza",
+     "parmigiana-pizza",
+     "bambino",
+     "hawaiian",
+     "pizza-portuguesa",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "margherita",
+     "marinara",
+     "genovese",
+     "bismarck",
+     "funghi",
+     "fugazza",
+     "salsiccia",
+     "pepperoni",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "breakfast-pizza",
+     "capricciosa"
+    ],
+    "pizzaSelectNewUndiscovered": [],
+    "pizzaSelectPreDiscoveryLocked": [
+     "margherita"
+    ],
+    "pizzaSelectDetailGuidedCta": [],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": true,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 120,
+    "guidedStartsViaBeginPrepare": 120,
+    "undiscoveredOrderRecipes": [
+     "margherita"
+    ],
+    "selectRecipeUndiscoveredAccepted": []
+   }
+  },
+  {
+   "dexCount": 0,
+   "phase": "B_bought",
+   "stateCounts": {
+    "DISCOVERABLE": 1,
+    "UNKNOWN": 24
+   },
+   "discoverable": [
+    "margherita"
+   ],
+   "knownButMissingMaterial": [],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 25,
+    "pizzaSelectLockedNamed": [
+     "marinara",
+     "quattro-formaggi",
+     "genovese",
+     "bismarck",
+     "funghi",
+     "salsiccia",
+     "pepperoni",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "breakfast-pizza",
+     "capricciosa",
+     "meat-lovers",
+     "melanzane-pizza",
+     "parmigiana-pizza",
+     "bambino",
+     "hawaiian",
+     "pizza-portuguesa",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "margherita",
+     "marinara",
+     "genovese",
+     "bismarck",
+     "funghi",
+     "fugazza",
+     "salsiccia",
+     "pepperoni",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "breakfast-pizza",
+     "capricciosa"
+    ],
+    "pizzaSelectNewUndiscovered": [],
+    "pizzaSelectPreDiscoveryLocked": [
+     "margherita"
+    ],
+    "pizzaSelectDetailGuidedCta": [],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": true,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 120,
+    "guidedStartsViaBeginPrepare": 120,
+    "undiscoveredOrderRecipes": [
+     "margherita"
+    ],
+    "selectRecipeUndiscoveredAccepted": []
+   }
+  },
+  {
+   "dexCount": 1,
+   "phase": "A_unlocked_not_bought",
+   "stateCounts": {
+    "DISCOVERED": 1,
+    "UNKNOWN": 23,
+    "KNOWN_BUT_MISSING_MATERIAL": 1
+   },
+   "discoverable": [],
+   "knownButMissingMaterial": [
+    "bismarck"
+   ],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 24,
+    "pizzaSelectLockedNamed": [
+     "marinara",
+     "quattro-formaggi",
+     "genovese",
+     "bismarck",
+     "funghi",
+     "salsiccia",
+     "pepperoni",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "breakfast-pizza",
+     "capricciosa",
+     "meat-lovers",
+     "melanzane-pizza",
+     "parmigiana-pizza",
+     "bambino",
+     "hawaiian",
+     "pizza-portuguesa",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "marinara",
+     "genovese",
+     "bismarck",
+     "funghi",
+     "fugazza",
+     "salsiccia",
+     "pepperoni",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "breakfast-pizza",
+     "capricciosa"
+    ],
+    "pizzaSelectNewUndiscovered": [],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 0,
+    "guidedStartsViaBeginPrepare": 0,
+    "undiscoveredOrderRecipes": [],
+    "selectRecipeUndiscoveredAccepted": []
+   }
+  },
+  {
+   "dexCount": 1,
+   "phase": "B_bought",
+   "stateCounts": {
+    "DISCOVERED": 1,
+    "UNKNOWN": 23,
+    "DISCOVERABLE": 1
+   },
+   "discoverable": [
+    "bismarck"
+   ],
+   "knownButMissingMaterial": [],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 24,
+    "pizzaSelectLockedNamed": [
+     "marinara",
+     "quattro-formaggi",
+     "genovese",
+     "bismarck",
+     "funghi",
+     "salsiccia",
+     "pepperoni",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "breakfast-pizza",
+     "capricciosa",
+     "meat-lovers",
+     "melanzane-pizza",
+     "parmigiana-pizza",
+     "bambino",
+     "hawaiian",
+     "pizza-portuguesa",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "marinara",
+     "genovese",
+     "bismarck",
+     "funghi",
+     "fugazza",
+     "salsiccia",
+     "pepperoni",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "breakfast-pizza",
+     "capricciosa"
+    ],
+    "pizzaSelectNewUndiscovered": [],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 0,
+    "guidedStartsViaBeginPrepare": 0,
+    "undiscoveredOrderRecipes": [],
+    "selectRecipeUndiscoveredAccepted": []
+   }
+  },
+  {
+   "dexCount": 2,
+   "phase": "A_unlocked_not_bought",
+   "stateCounts": {
+    "DISCOVERED": 2,
+    "UNKNOWN": 22,
+    "KNOWN_BUT_MISSING_MATERIAL": 1
+   },
+   "discoverable": [],
+   "knownButMissingMaterial": [
+    "breakfast-pizza"
+   ],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 23,
+    "pizzaSelectLockedNamed": [
+     "marinara",
+     "quattro-formaggi",
+     "genovese",
+     "funghi",
+     "salsiccia",
+     "pepperoni",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "breakfast-pizza",
+     "capricciosa",
+     "meat-lovers",
+     "melanzane-pizza",
+     "parmigiana-pizza",
+     "bambino",
+     "hawaiian",
+     "pizza-portuguesa",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "genovese",
+     "funghi",
+     "fugazza",
+     "salsiccia",
+     "pepperoni",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "breakfast-pizza",
+     "capricciosa"
+    ],
+    "pizzaSelectNewUndiscovered": [],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 0,
+    "guidedStartsViaBeginPrepare": 0,
+    "undiscoveredOrderRecipes": [],
+    "selectRecipeUndiscoveredAccepted": []
+   }
+  },
+  {
+   "dexCount": 2,
+   "phase": "B_bought",
+   "stateCounts": {
+    "DISCOVERED": 2,
+    "UNKNOWN": 22,
+    "DISCOVERABLE": 1
+   },
+   "discoverable": [
+    "breakfast-pizza"
+   ],
+   "knownButMissingMaterial": [],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 23,
+    "pizzaSelectLockedNamed": [
+     "marinara",
+     "quattro-formaggi",
+     "genovese",
+     "funghi",
+     "salsiccia",
+     "pepperoni",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "breakfast-pizza",
+     "capricciosa",
+     "meat-lovers",
+     "melanzane-pizza",
+     "parmigiana-pizza",
+     "bambino",
+     "hawaiian",
+     "pizza-portuguesa",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "genovese",
+     "funghi",
+     "fugazza",
+     "salsiccia",
+     "pepperoni",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "breakfast-pizza",
+     "capricciosa"
+    ],
+    "pizzaSelectNewUndiscovered": [],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 0,
+    "guidedStartsViaBeginPrepare": 0,
+    "undiscoveredOrderRecipes": [],
+    "selectRecipeUndiscoveredAccepted": []
+   }
+  },
+  {
+   "dexCount": 3,
+   "phase": "A_unlocked_not_bought",
+   "stateCounts": {
+    "DISCOVERED": 3,
+    "UNKNOWN": 21,
+    "KNOWN_BUT_MISSING_MATERIAL": 1
+   },
+   "discoverable": [],
+   "knownButMissingMaterial": [
+    "funghi"
+   ],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 22,
+    "pizzaSelectLockedNamed": [
+     "marinara",
+     "quattro-formaggi",
+     "genovese",
+     "funghi",
+     "salsiccia",
+     "pepperoni",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "capricciosa",
+     "meat-lovers",
+     "melanzane-pizza",
+     "parmigiana-pizza",
+     "bambino",
+     "hawaiian",
+     "pizza-portuguesa",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "genovese",
+     "funghi",
+     "fugazza",
+     "salsiccia",
+     "pepperoni",
+     "napoletana",
+     "tonno-e-cipolla",
+     "capricciosa"
+    ],
+    "pizzaSelectNewUndiscovered": [],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [],
+    "shopBuyToMakeRows": 1,
+    "shopRowOrFeedbackRecipes": [
+     "funghi"
+    ],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 0,
+    "guidedStartsViaBeginPrepare": 0,
+    "undiscoveredOrderRecipes": [],
+    "selectRecipeUndiscoveredAccepted": []
+   }
+  },
+  {
+   "dexCount": 3,
+   "phase": "B_bought",
+   "stateCounts": {
+    "DISCOVERED": 3,
+    "UNKNOWN": 21,
+    "DISCOVERABLE": 1
+   },
+   "discoverable": [
+    "funghi"
+   ],
+   "knownButMissingMaterial": [],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 22,
+    "pizzaSelectLockedNamed": [
+     "marinara",
+     "quattro-formaggi",
+     "genovese",
+     "salsiccia",
+     "pepperoni",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "capricciosa",
+     "meat-lovers",
+     "melanzane-pizza",
+     "parmigiana-pizza",
+     "bambino",
+     "hawaiian",
+     "pizza-portuguesa",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "genovese",
+     "funghi",
+     "fugazza",
+     "salsiccia",
+     "pepperoni",
+     "napoletana",
+     "tonno-e-cipolla",
+     "capricciosa"
+    ],
+    "pizzaSelectNewUndiscovered": [
+     "funghi"
+    ],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [
+     "funghi"
+    ],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 120,
+    "guidedStartsViaBeginPrepare": 120,
+    "undiscoveredOrderRecipes": [
+     "funghi"
+    ],
+    "selectRecipeUndiscoveredAccepted": [
+     "funghi"
+    ]
+   }
+  },
+  {
+   "dexCount": 4,
+   "phase": "A_unlocked_not_bought",
+   "stateCounts": {
+    "DISCOVERED": 4,
+    "UNKNOWN": 20,
+    "KNOWN_BUT_MISSING_MATERIAL": 1
+   },
+   "discoverable": [],
+   "knownButMissingMaterial": [
+    "melanzane-pizza"
+   ],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 21,
+    "pizzaSelectLockedNamed": [
+     "marinara",
+     "quattro-formaggi",
+     "genovese",
+     "salsiccia",
+     "pepperoni",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "capricciosa",
+     "meat-lovers",
+     "melanzane-pizza",
+     "parmigiana-pizza",
+     "bambino",
+     "hawaiian",
+     "pizza-portuguesa",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "genovese",
+     "fugazza",
+     "salsiccia",
+     "pepperoni",
+     "napoletana",
+     "tonno-e-cipolla",
+     "capricciosa"
+    ],
+    "pizzaSelectNewUndiscovered": [],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [],
+    "shopBuyToMakeRows": 1,
+    "shopRowOrFeedbackRecipes": [
+     "melanzane-pizza"
+    ],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 0,
+    "guidedStartsViaBeginPrepare": 0,
+    "undiscoveredOrderRecipes": [],
+    "selectRecipeUndiscoveredAccepted": []
+   }
+  },
+  {
+   "dexCount": 4,
+   "phase": "B_bought",
+   "stateCounts": {
+    "DISCOVERED": 4,
+    "UNKNOWN": 20,
+    "DISCOVERABLE": 1
+   },
+   "discoverable": [
+    "melanzane-pizza"
+   ],
+   "knownButMissingMaterial": [],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 21,
+    "pizzaSelectLockedNamed": [
+     "marinara",
+     "quattro-formaggi",
+     "genovese",
+     "salsiccia",
+     "pepperoni",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "capricciosa",
+     "meat-lovers",
+     "parmigiana-pizza",
+     "bambino",
+     "hawaiian",
+     "pizza-portuguesa",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "genovese",
+     "fugazza",
+     "salsiccia",
+     "pepperoni",
+     "napoletana",
+     "tonno-e-cipolla",
+     "capricciosa"
+    ],
+    "pizzaSelectNewUndiscovered": [
+     "melanzane-pizza"
+    ],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [
+     "melanzane-pizza"
+    ],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 120,
+    "guidedStartsViaBeginPrepare": 120,
+    "undiscoveredOrderRecipes": [
+     "melanzane-pizza"
+    ],
+    "selectRecipeUndiscoveredAccepted": [
+     "melanzane-pizza"
+    ]
+   }
+  },
+  {
+   "dexCount": 5,
+   "phase": "A_unlocked_not_bought",
+   "stateCounts": {
+    "DISCOVERED": 5,
+    "UNKNOWN": 19,
+    "KNOWN_BUT_MISSING_MATERIAL": 1
+   },
+   "discoverable": [],
+   "knownButMissingMaterial": [
+    "parmigiana-pizza"
+   ],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 20,
+    "pizzaSelectLockedNamed": [
+     "marinara",
+     "quattro-formaggi",
+     "genovese",
+     "salsiccia",
+     "pepperoni",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "capricciosa",
+     "meat-lovers",
+     "parmigiana-pizza",
+     "bambino",
+     "hawaiian",
+     "pizza-portuguesa",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "genovese",
+     "fugazza",
+     "salsiccia",
+     "pepperoni",
+     "napoletana",
+     "tonno-e-cipolla",
+     "capricciosa"
+    ],
+    "pizzaSelectNewUndiscovered": [],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [],
+    "shopBuyToMakeRows": 1,
+    "shopRowOrFeedbackRecipes": [
+     "parmigiana-pizza"
+    ],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 0,
+    "guidedStartsViaBeginPrepare": 0,
+    "undiscoveredOrderRecipes": [],
+    "selectRecipeUndiscoveredAccepted": []
+   }
+  },
+  {
+   "dexCount": 5,
+   "phase": "B_bought",
+   "stateCounts": {
+    "DISCOVERED": 5,
+    "UNKNOWN": 19,
+    "DISCOVERABLE": 1
+   },
+   "discoverable": [
+    "parmigiana-pizza"
+   ],
+   "knownButMissingMaterial": [],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 20,
+    "pizzaSelectLockedNamed": [
+     "marinara",
+     "quattro-formaggi",
+     "genovese",
+     "salsiccia",
+     "pepperoni",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "capricciosa",
+     "meat-lovers",
+     "bambino",
+     "hawaiian",
+     "pizza-portuguesa",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "genovese",
+     "fugazza",
+     "salsiccia",
+     "pepperoni",
+     "napoletana",
+     "tonno-e-cipolla",
+     "capricciosa"
+    ],
+    "pizzaSelectNewUndiscovered": [
+     "parmigiana-pizza"
+    ],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [
+     "parmigiana-pizza"
+    ],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 120,
+    "guidedStartsViaBeginPrepare": 120,
+    "undiscoveredOrderRecipes": [
+     "parmigiana-pizza"
+    ],
+    "selectRecipeUndiscoveredAccepted": [
+     "parmigiana-pizza"
+    ]
+   }
+  },
+  {
+   "dexCount": 6,
+   "phase": "A_unlocked_not_bought",
+   "stateCounts": {
+    "DISCOVERED": 6,
+    "UNKNOWN": 18,
+    "KNOWN_BUT_MISSING_MATERIAL": 1
+   },
+   "discoverable": [],
+   "knownButMissingMaterial": [
+    "pepperoni"
+   ],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 19,
+    "pizzaSelectLockedNamed": [
+     "marinara",
+     "quattro-formaggi",
+     "genovese",
+     "salsiccia",
+     "pepperoni",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "capricciosa",
+     "meat-lovers",
+     "bambino",
+     "hawaiian",
+     "pizza-portuguesa",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "genovese",
+     "fugazza",
+     "salsiccia",
+     "pepperoni",
+     "napoletana",
+     "tonno-e-cipolla",
+     "capricciosa"
+    ],
+    "pizzaSelectNewUndiscovered": [],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [
+     "pepperoni"
+    ],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 0,
+    "guidedStartsViaBeginPrepare": 0,
+    "undiscoveredOrderRecipes": [],
+    "selectRecipeUndiscoveredAccepted": []
+   }
+  },
+  {
+   "dexCount": 6,
+   "phase": "B_bought",
+   "stateCounts": {
+    "DISCOVERED": 6,
+    "UNKNOWN": 18,
+    "DISCOVERABLE": 1
+   },
+   "discoverable": [
+    "pepperoni"
+   ],
+   "knownButMissingMaterial": [],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 19,
+    "pizzaSelectLockedNamed": [
+     "marinara",
+     "quattro-formaggi",
+     "genovese",
+     "salsiccia",
+     "pepperoni",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "capricciosa",
+     "meat-lovers",
+     "bambino",
+     "hawaiian",
+     "pizza-portuguesa",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "genovese",
+     "fugazza",
+     "salsiccia",
+     "pepperoni",
+     "napoletana",
+     "tonno-e-cipolla",
+     "capricciosa"
+    ],
+    "pizzaSelectNewUndiscovered": [],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [
+     "pepperoni"
+    ],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 0,
+    "guidedStartsViaBeginPrepare": 0,
+    "undiscoveredOrderRecipes": [],
+    "selectRecipeUndiscoveredAccepted": []
+   }
+  },
+  {
+   "dexCount": 7,
+   "phase": "A_unlocked_not_bought",
+   "stateCounts": {
+    "DISCOVERED": 7,
+    "UNKNOWN": 17,
+    "KNOWN_BUT_MISSING_MATERIAL": 1
+   },
+   "discoverable": [],
+   "knownButMissingMaterial": [
+    "salsiccia"
+   ],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 18,
+    "pizzaSelectLockedNamed": [
+     "marinara",
+     "quattro-formaggi",
+     "genovese",
+     "salsiccia",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "capricciosa",
+     "meat-lovers",
+     "bambino",
+     "hawaiian",
+     "pizza-portuguesa",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "genovese",
+     "fugazza",
+     "napoletana",
+     "tonno-e-cipolla",
+     "capricciosa"
+    ],
+    "pizzaSelectNewUndiscovered": [],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 0,
+    "guidedStartsViaBeginPrepare": 0,
+    "undiscoveredOrderRecipes": [],
+    "selectRecipeUndiscoveredAccepted": []
+   }
+  },
+  {
+   "dexCount": 7,
+   "phase": "B_bought",
+   "stateCounts": {
+    "DISCOVERED": 7,
+    "UNKNOWN": 17,
+    "DISCOVERABLE": 1
+   },
+   "discoverable": [
+    "salsiccia"
+   ],
+   "knownButMissingMaterial": [],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 18,
+    "pizzaSelectLockedNamed": [
+     "marinara",
+     "quattro-formaggi",
+     "genovese",
+     "salsiccia",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "capricciosa",
+     "meat-lovers",
+     "bambino",
+     "hawaiian",
+     "pizza-portuguesa",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "genovese",
+     "fugazza",
+     "napoletana",
+     "tonno-e-cipolla",
+     "capricciosa"
+    ],
+    "pizzaSelectNewUndiscovered": [],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 0,
+    "guidedStartsViaBeginPrepare": 0,
+    "undiscoveredOrderRecipes": [],
+    "selectRecipeUndiscoveredAccepted": []
+   }
+  },
+  {
+   "dexCount": 8,
+   "phase": "A_unlocked_not_bought",
+   "stateCounts": {
+    "DISCOVERED": 8,
+    "UNKNOWN": 16,
+    "KNOWN_BUT_MISSING_MATERIAL": 1
+   },
+   "discoverable": [],
+   "knownButMissingMaterial": [
+    "meat-lovers"
+   ],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 16,
+    "pizzaSelectLockedNamed": [
+     "marinara",
+     "quattro-formaggi",
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "capricciosa",
+     "meat-lovers",
+     "bambino",
+     "hawaiian",
+     "pizza-portuguesa",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla",
+     "capricciosa"
+    ],
+    "pizzaSelectNewUndiscovered": [],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 0,
+    "guidedStartsViaBeginPrepare": 0,
+    "undiscoveredOrderRecipes": [],
+    "selectRecipeUndiscoveredAccepted": []
+   }
+  },
+  {
+   "dexCount": 8,
+   "phase": "B_bought",
+   "stateCounts": {
+    "DISCOVERED": 8,
+    "UNKNOWN": 16,
+    "DISCOVERABLE": 1
+   },
+   "discoverable": [
+    "meat-lovers"
+   ],
+   "knownButMissingMaterial": [],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 16,
+    "pizzaSelectLockedNamed": [
+     "marinara",
+     "quattro-formaggi",
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "capricciosa",
+     "meat-lovers",
+     "bambino",
+     "hawaiian",
+     "pizza-portuguesa",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla",
+     "capricciosa"
+    ],
+    "pizzaSelectNewUndiscovered": [],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 0,
+    "guidedStartsViaBeginPrepare": 0,
+    "undiscoveredOrderRecipes": [],
+    "selectRecipeUndiscoveredAccepted": []
+   }
+  },
+  {
+   "dexCount": 9,
+   "phase": "A_unlocked_not_bought",
+   "stateCounts": {
+    "DISCOVERED": 9,
+    "UNKNOWN": 15,
+    "KNOWN_BUT_MISSING_MATERIAL": 1
+   },
+   "discoverable": [],
+   "knownButMissingMaterial": [
+    "bambino"
+   ],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 15,
+    "pizzaSelectLockedNamed": [
+     "marinara",
+     "quattro-formaggi",
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "capricciosa",
+     "bambino",
+     "hawaiian",
+     "pizza-portuguesa",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla"
+    ],
+    "pizzaSelectNewUndiscovered": [],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [],
+    "shopBuyToMakeRows": 1,
+    "shopRowOrFeedbackRecipes": [
+     "bambino"
+    ],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 0,
+    "guidedStartsViaBeginPrepare": 0,
+    "undiscoveredOrderRecipes": [],
+    "selectRecipeUndiscoveredAccepted": []
+   }
+  },
+  {
+   "dexCount": 9,
+   "phase": "B_bought",
+   "stateCounts": {
+    "DISCOVERED": 9,
+    "UNKNOWN": 15,
+    "DISCOVERABLE": 1
+   },
+   "discoverable": [
+    "bambino"
+   ],
+   "knownButMissingMaterial": [],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 15,
+    "pizzaSelectLockedNamed": [
+     "marinara",
+     "quattro-formaggi",
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "capricciosa",
+     "hawaiian",
+     "pizza-portuguesa",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla"
+    ],
+    "pizzaSelectNewUndiscovered": [
+     "bambino"
+    ],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [
+     "bambino"
+    ],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 120,
+    "guidedStartsViaBeginPrepare": 120,
+    "undiscoveredOrderRecipes": [
+     "bambino"
+    ],
+    "selectRecipeUndiscoveredAccepted": [
+     "bambino"
+    ]
+   }
+  },
+  {
+   "dexCount": 10,
+   "phase": "A_unlocked_not_bought",
+   "stateCounts": {
+    "DISCOVERED": 10,
+    "UNKNOWN": 14,
+    "KNOWN_BUT_MISSING_MATERIAL": 1
+   },
+   "discoverable": [],
+   "knownButMissingMaterial": [
+    "hawaiian"
+   ],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 14,
+    "pizzaSelectLockedNamed": [
+     "marinara",
+     "quattro-formaggi",
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "capricciosa",
+     "hawaiian",
+     "pizza-portuguesa",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla"
+    ],
+    "pizzaSelectNewUndiscovered": [],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [],
+    "shopBuyToMakeRows": 1,
+    "shopRowOrFeedbackRecipes": [
+     "hawaiian"
+    ],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 0,
+    "guidedStartsViaBeginPrepare": 0,
+    "undiscoveredOrderRecipes": [],
+    "selectRecipeUndiscoveredAccepted": []
+   }
+  },
+  {
+   "dexCount": 10,
+   "phase": "B_bought",
+   "stateCounts": {
+    "DISCOVERED": 10,
+    "UNKNOWN": 14,
+    "DISCOVERABLE": 1
+   },
+   "discoverable": [
+    "hawaiian"
+   ],
+   "knownButMissingMaterial": [],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 14,
+    "pizzaSelectLockedNamed": [
+     "marinara",
+     "quattro-formaggi",
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "capricciosa",
+     "pizza-portuguesa",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla"
+    ],
+    "pizzaSelectNewUndiscovered": [
+     "hawaiian"
+    ],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [
+     "hawaiian"
+    ],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 120,
+    "guidedStartsViaBeginPrepare": 120,
+    "undiscoveredOrderRecipes": [
+     "hawaiian"
+    ],
+    "selectRecipeUndiscoveredAccepted": [
+     "hawaiian"
+    ]
+   }
+  },
+  {
+   "dexCount": 11,
+   "phase": "A_unlocked_not_bought",
+   "stateCounts": {
+    "DISCOVERED": 11,
+    "UNKNOWN": 13,
+    "KNOWN_BUT_MISSING_MATERIAL": 1
+   },
+   "discoverable": [],
+   "knownButMissingMaterial": [
+    "capricciosa"
+   ],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 13,
+    "pizzaSelectLockedNamed": [
+     "marinara",
+     "quattro-formaggi",
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "capricciosa",
+     "pizza-portuguesa",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla"
+    ],
+    "pizzaSelectNewUndiscovered": [],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 0,
+    "guidedStartsViaBeginPrepare": 0,
+    "undiscoveredOrderRecipes": [],
+    "selectRecipeUndiscoveredAccepted": []
+   }
+  },
+  {
+   "dexCount": 11,
+   "phase": "B_bought",
+   "stateCounts": {
+    "DISCOVERED": 11,
+    "UNKNOWN": 13,
+    "DISCOVERABLE": 1
+   },
+   "discoverable": [
+    "capricciosa"
+   ],
+   "knownButMissingMaterial": [],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 13,
+    "pizzaSelectLockedNamed": [
+     "marinara",
+     "quattro-formaggi",
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "pizza-portuguesa",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla"
+    ],
+    "pizzaSelectNewUndiscovered": [
+     "capricciosa"
+    ],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [
+     "capricciosa"
+    ],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 120,
+    "guidedStartsViaBeginPrepare": 120,
+    "undiscoveredOrderRecipes": [
+     "capricciosa"
+    ],
+    "selectRecipeUndiscoveredAccepted": [
+     "capricciosa"
+    ]
+   }
+  },
+  {
+   "dexCount": 12,
+   "phase": "A_unlocked_not_bought",
+   "stateCounts": {
+    "DISCOVERED": 12,
+    "UNKNOWN": 12,
+    "KNOWN_BUT_MISSING_MATERIAL": 1
+   },
+   "discoverable": [],
+   "knownButMissingMaterial": [
+    "pizza-portuguesa"
+   ],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 12,
+    "pizzaSelectLockedNamed": [
+     "marinara",
+     "quattro-formaggi",
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "pizza-portuguesa",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla"
+    ],
+    "pizzaSelectNewUndiscovered": [],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [],
+    "shopBuyToMakeRows": 1,
+    "shopRowOrFeedbackRecipes": [
+     "pizza-portuguesa"
+    ],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 0,
+    "guidedStartsViaBeginPrepare": 0,
+    "undiscoveredOrderRecipes": [],
+    "selectRecipeUndiscoveredAccepted": []
+   }
+  },
+  {
+   "dexCount": 12,
+   "phase": "B_bought",
+   "stateCounts": {
+    "DISCOVERED": 12,
+    "UNKNOWN": 12,
+    "DISCOVERABLE": 1
+   },
+   "discoverable": [
+    "pizza-portuguesa"
+   ],
+   "knownButMissingMaterial": [],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 12,
+    "pizzaSelectLockedNamed": [
+     "marinara",
+     "quattro-formaggi",
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla"
+    ],
+    "pizzaSelectNewUndiscovered": [
+     "pizza-portuguesa"
+    ],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [
+     "pizza-portuguesa"
+    ],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 120,
+    "guidedStartsViaBeginPrepare": 120,
+    "undiscoveredOrderRecipes": [
+     "pizza-portuguesa"
+    ],
+    "selectRecipeUndiscoveredAccepted": [
+     "pizza-portuguesa"
+    ]
+   }
+  },
+  {
+   "dexCount": 13,
+   "phase": "A_unlocked_not_bought",
+   "stateCounts": {
+    "DISCOVERED": 13,
+    "UNKNOWN": 11,
+    "KNOWN_BUT_MISSING_MATERIAL": 1
+   },
+   "discoverable": [],
+   "knownButMissingMaterial": [
+    "fugazza"
+   ],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 11,
+    "pizzaSelectLockedNamed": [
+     "marinara",
+     "quattro-formaggi",
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla"
+    ],
+    "pizzaSelectNewUndiscovered": [],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 0,
+    "guidedStartsViaBeginPrepare": 0,
+    "undiscoveredOrderRecipes": [],
+    "selectRecipeUndiscoveredAccepted": []
+   }
+  },
+  {
+   "dexCount": 13,
+   "phase": "B_bought",
+   "stateCounts": {
+    "DISCOVERED": 13,
+    "UNKNOWN": 11,
+    "DISCOVERABLE": 1
+   },
+   "discoverable": [
+    "fugazza"
+   ],
+   "knownButMissingMaterial": [],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 11,
+    "pizzaSelectLockedNamed": [
+     "marinara",
+     "quattro-formaggi",
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla"
+    ],
+    "pizzaSelectNewUndiscovered": [],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 0,
+    "guidedStartsViaBeginPrepare": 0,
+    "undiscoveredOrderRecipes": [],
+    "selectRecipeUndiscoveredAccepted": []
+   }
+  },
+  {
+   "dexCount": 14,
+   "phase": "A_unlocked_not_bought",
+   "stateCounts": {
+    "DISCOVERED": 14,
+    "KNOWN_BUT_MISSING_MATERIAL": 1,
+    "UNKNOWN": 10
+   },
+   "discoverable": [],
+   "knownButMissingMaterial": [
+    "marinara"
+   ],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 11,
+    "pizzaSelectLockedNamed": [
+     "marinara",
+     "quattro-formaggi",
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla"
+    ],
+    "pizzaSelectNewUndiscovered": [],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [],
+    "shopBuyToMakeRows": 1,
+    "shopRowOrFeedbackRecipes": [
+     "marinara"
+    ],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 0,
+    "guidedStartsViaBeginPrepare": 0,
+    "undiscoveredOrderRecipes": [],
+    "selectRecipeUndiscoveredAccepted": []
+   }
+  },
+  {
+   "dexCount": 14,
+   "phase": "B_bought",
+   "stateCounts": {
+    "DISCOVERED": 14,
+    "DISCOVERABLE": 1,
+    "UNKNOWN": 10
+   },
+   "discoverable": [
+    "marinara"
+   ],
+   "knownButMissingMaterial": [],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 11,
+    "pizzaSelectLockedNamed": [
+     "quattro-formaggi",
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla"
+    ],
+    "pizzaSelectNewUndiscovered": [
+     "marinara"
+    ],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [
+     "marinara"
+    ],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 120,
+    "guidedStartsViaBeginPrepare": 120,
+    "undiscoveredOrderRecipes": [
+     "marinara"
+    ],
+    "selectRecipeUndiscoveredAccepted": [
+     "marinara"
+    ]
+   }
+  },
+  {
+   "dexCount": 15,
+   "phase": "A_unlocked_not_bought",
+   "stateCounts": {
+    "DISCOVERED": 15,
+    "UNKNOWN": 9,
+    "KNOWN_BUT_MISSING_MATERIAL": 1
+   },
+   "discoverable": [],
+   "knownButMissingMaterial": [
+    "napoletana"
+   ],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 10,
+    "pizzaSelectLockedNamed": [
+     "quattro-formaggi",
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla"
+    ],
+    "pizzaSelectNewUndiscovered": [],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [],
+    "shopBuyToMakeRows": 1,
+    "shopRowOrFeedbackRecipes": [
+     "napoletana"
+    ],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [
+     "napoletana"
+    ],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 0,
+    "guidedStartsViaBeginPrepare": 0,
+    "undiscoveredOrderRecipes": [],
+    "selectRecipeUndiscoveredAccepted": []
+   }
+  },
+  {
+   "dexCount": 15,
+   "phase": "B_bought",
+   "stateCounts": {
+    "DISCOVERED": 15,
+    "UNKNOWN": 9,
+    "DISCOVERABLE": 1
+   },
+   "discoverable": [
+    "napoletana"
+   ],
+   "knownButMissingMaterial": [],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 10,
+    "pizzaSelectLockedNamed": [
+     "quattro-formaggi",
+     "genovese",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla"
+    ],
+    "pizzaSelectNewUndiscovered": [
+     "napoletana"
+    ],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [
+     "napoletana"
+    ],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [
+     "napoletana"
+    ],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 120,
+    "guidedStartsViaBeginPrepare": 120,
+    "undiscoveredOrderRecipes": [
+     "napoletana"
+    ],
+    "selectRecipeUndiscoveredAccepted": [
+     "napoletana"
+    ]
+   }
+  },
+  {
+   "dexCount": 16,
+   "phase": "A_unlocked_not_bought",
+   "stateCounts": {
+    "DISCOVERED": 16,
+    "UNKNOWN": 8,
+    "KNOWN_BUT_MISSING_MATERIAL": 1
+   },
+   "discoverable": [],
+   "knownButMissingMaterial": [
+    "tonno-e-cipolla"
+   ],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 9,
+    "pizzaSelectLockedNamed": [
+     "quattro-formaggi",
+     "genovese",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "genovese",
+     "tonno-e-cipolla"
+    ],
+    "pizzaSelectNewUndiscovered": [],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [],
+    "shopBuyToMakeRows": 1,
+    "shopRowOrFeedbackRecipes": [
+     "tonno-e-cipolla"
+    ],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 0,
+    "guidedStartsViaBeginPrepare": 0,
+    "undiscoveredOrderRecipes": [],
+    "selectRecipeUndiscoveredAccepted": []
+   }
+  },
+  {
+   "dexCount": 16,
+   "phase": "B_bought",
+   "stateCounts": {
+    "DISCOVERED": 16,
+    "UNKNOWN": 8,
+    "DISCOVERABLE": 1
+   },
+   "discoverable": [
+    "tonno-e-cipolla"
+   ],
+   "knownButMissingMaterial": [],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 9,
+    "pizzaSelectLockedNamed": [
+     "quattro-formaggi",
+     "genovese",
+     "pizza-bianca",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "genovese",
+     "tonno-e-cipolla"
+    ],
+    "pizzaSelectNewUndiscovered": [
+     "tonno-e-cipolla"
+    ],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [
+     "tonno-e-cipolla"
+    ],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 120,
+    "guidedStartsViaBeginPrepare": 120,
+    "undiscoveredOrderRecipes": [
+     "tonno-e-cipolla"
+    ],
+    "selectRecipeUndiscoveredAccepted": [
+     "tonno-e-cipolla"
+    ]
+   }
+  },
+  {
+   "dexCount": 17,
+   "phase": "A_unlocked_not_bought",
+   "stateCounts": {
+    "DISCOVERED": 17,
+    "UNKNOWN": 7,
+    "KNOWN_BUT_MISSING_MATERIAL": 1
+   },
+   "discoverable": [],
+   "knownButMissingMaterial": [
+    "pesto-tonno"
+   ],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 8,
+    "pizzaSelectLockedNamed": [
+     "quattro-formaggi",
+     "genovese",
+     "pizza-bianca",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "genovese"
+    ],
+    "pizzaSelectNewUndiscovered": [],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [],
+    "shopBuyToMakeRows": 1,
+    "shopRowOrFeedbackRecipes": [
+     "pesto-tonno"
+    ],
+    "shopLexicalOverlap": [
+     "genovese"
+    ],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 0,
+    "guidedStartsViaBeginPrepare": 0,
+    "undiscoveredOrderRecipes": [],
+    "selectRecipeUndiscoveredAccepted": []
+   }
+  },
+  {
+   "dexCount": 17,
+   "phase": "B_bought",
+   "stateCounts": {
+    "DISCOVERED": 17,
+    "UNKNOWN": 7,
+    "DISCOVERABLE": 1
+   },
+   "discoverable": [
+    "pesto-tonno"
+   ],
+   "knownButMissingMaterial": [],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 8,
+    "pizzaSelectLockedNamed": [
+     "quattro-formaggi",
+     "genovese",
+     "pizza-bianca",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "genovese"
+    ],
+    "pizzaSelectNewUndiscovered": [
+     "pesto-tonno"
+    ],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [
+     "pesto-tonno"
+    ],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [
+     "genovese"
+    ],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 120,
+    "guidedStartsViaBeginPrepare": 120,
+    "undiscoveredOrderRecipes": [
+     "pesto-tonno"
+    ],
+    "selectRecipeUndiscoveredAccepted": [
+     "pesto-tonno"
+    ]
+   }
+  },
+  {
+   "dexCount": 18,
+   "phase": "A_unlocked_not_bought",
+   "stateCounts": {
+    "DISCOVERED": 18,
+    "UNKNOWN": 6,
+    "KNOWN_BUT_MISSING_MATERIAL": 1
+   },
+   "discoverable": [],
+   "knownButMissingMaterial": [
+    "genovese"
+   ],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 7,
+    "pizzaSelectLockedNamed": [
+     "quattro-formaggi",
+     "genovese",
+     "pizza-bianca",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "genovese"
+    ],
+    "pizzaSelectNewUndiscovered": [],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [],
+    "shopBuyToMakeRows": 1,
+    "shopRowOrFeedbackRecipes": [
+     "genovese"
+    ],
+    "shopLexicalOverlap": [
+     "genovese"
+    ],
+    "dexOverlayNameHits": [
+     "genovese"
+    ],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 0,
+    "guidedStartsViaBeginPrepare": 0,
+    "undiscoveredOrderRecipes": [],
+    "selectRecipeUndiscoveredAccepted": []
+   }
+  },
+  {
+   "dexCount": 18,
+   "phase": "B_bought",
+   "stateCounts": {
+    "DISCOVERED": 18,
+    "UNKNOWN": 6,
+    "DISCOVERABLE": 1
+   },
+   "discoverable": [
+    "genovese"
+   ],
+   "knownButMissingMaterial": [],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 7,
+    "pizzaSelectLockedNamed": [
+     "quattro-formaggi",
+     "pizza-bianca",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [
+     "genovese"
+    ],
+    "pizzaSelectNewUndiscovered": [
+     "genovese"
+    ],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [
+     "genovese"
+    ],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [
+     "genovese"
+    ],
+    "dexOverlayNameHits": [
+     "genovese"
+    ],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 120,
+    "guidedStartsViaBeginPrepare": 120,
+    "undiscoveredOrderRecipes": [
+     "genovese"
+    ],
+    "selectRecipeUndiscoveredAccepted": [
+     "genovese"
+    ]
+   }
+  },
+  {
+   "dexCount": 19,
+   "phase": "A_unlocked_not_bought",
+   "stateCounts": {
+    "DISCOVERED": 19,
+    "UNKNOWN": 5,
+    "KNOWN_BUT_MISSING_MATERIAL": 1
+   },
+   "discoverable": [],
+   "knownButMissingMaterial": [
+    "new-haven-apizza"
+   ],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 6,
+    "pizzaSelectLockedNamed": [
+     "quattro-formaggi",
+     "pizza-bianca",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [],
+    "pizzaSelectNewUndiscovered": [],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [],
+    "shopBuyToMakeRows": 1,
+    "shopRowOrFeedbackRecipes": [
+     "new-haven-apizza"
+    ],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 0,
+    "guidedStartsViaBeginPrepare": 0,
+    "undiscoveredOrderRecipes": [],
+    "selectRecipeUndiscoveredAccepted": []
+   }
+  },
+  {
+   "dexCount": 19,
+   "phase": "B_bought",
+   "stateCounts": {
+    "DISCOVERED": 19,
+    "UNKNOWN": 5,
+    "DISCOVERABLE": 1
+   },
+   "discoverable": [
+    "new-haven-apizza"
+   ],
+   "knownButMissingMaterial": [],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 6,
+    "pizzaSelectLockedNamed": [
+     "quattro-formaggi",
+     "pizza-bianca",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [],
+    "pizzaSelectNewUndiscovered": [
+     "new-haven-apizza"
+    ],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [
+     "new-haven-apizza"
+    ],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 120,
+    "guidedStartsViaBeginPrepare": 120,
+    "undiscoveredOrderRecipes": [
+     "new-haven-apizza"
+    ],
+    "selectRecipeUndiscoveredAccepted": [
+     "new-haven-apizza"
+    ]
+   }
+  },
+  {
+   "dexCount": 20,
+   "phase": "A_unlocked_not_bought",
+   "stateCounts": {
+    "DISCOVERED": 20,
+    "UNKNOWN": 4,
+    "KNOWN_BUT_MISSING_MATERIAL": 1
+   },
+   "discoverable": [],
+   "knownButMissingMaterial": [
+    "pesto-caprese"
+   ],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 5,
+    "pizzaSelectLockedNamed": [
+     "quattro-formaggi",
+     "pizza-bianca",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [],
+    "pizzaSelectNewUndiscovered": [],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [],
+    "shopBuyToMakeRows": 1,
+    "shopRowOrFeedbackRecipes": [
+     "pesto-caprese"
+    ],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 0,
+    "guidedStartsViaBeginPrepare": 0,
+    "undiscoveredOrderRecipes": [],
+    "selectRecipeUndiscoveredAccepted": []
+   }
+  },
+  {
+   "dexCount": 20,
+   "phase": "B_bought",
+   "stateCounts": {
+    "DISCOVERED": 20,
+    "UNKNOWN": 4,
+    "DISCOVERABLE": 1
+   },
+   "discoverable": [
+    "pesto-caprese"
+   ],
+   "knownButMissingMaterial": [],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 5,
+    "pizzaSelectLockedNamed": [
+     "quattro-formaggi",
+     "pizza-bianca",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [],
+    "pizzaSelectNewUndiscovered": [
+     "pesto-caprese"
+    ],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [
+     "pesto-caprese"
+    ],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 120,
+    "guidedStartsViaBeginPrepare": 120,
+    "undiscoveredOrderRecipes": [
+     "pesto-caprese"
+    ],
+    "selectRecipeUndiscoveredAccepted": [
+     "pesto-caprese"
+    ]
+   }
+  },
+  {
+   "dexCount": 21,
+   "phase": "A_unlocked_not_bought",
+   "stateCounts": {
+    "DISCOVERED": 21,
+    "UNKNOWN": 3,
+    "KNOWN_BUT_MISSING_MATERIAL": 1
+   },
+   "discoverable": [],
+   "knownButMissingMaterial": [
+    "pesto-patate"
+   ],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 4,
+    "pizzaSelectLockedNamed": [
+     "quattro-formaggi",
+     "pizza-bianca",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [],
+    "pizzaSelectNewUndiscovered": [],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [],
+    "shopBuyToMakeRows": 1,
+    "shopRowOrFeedbackRecipes": [
+     "pesto-patate"
+    ],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 0,
+    "guidedStartsViaBeginPrepare": 0,
+    "undiscoveredOrderRecipes": [],
+    "selectRecipeUndiscoveredAccepted": []
+   }
+  },
+  {
+   "dexCount": 21,
+   "phase": "B_bought",
+   "stateCounts": {
+    "DISCOVERED": 21,
+    "UNKNOWN": 3,
+    "DISCOVERABLE": 1
+   },
+   "discoverable": [
+    "pesto-patate"
+   ],
+   "knownButMissingMaterial": [],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 4,
+    "pizzaSelectLockedNamed": [
+     "quattro-formaggi",
+     "pizza-bianca",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [],
+    "pizzaSelectNewUndiscovered": [
+     "pesto-patate"
+    ],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [
+     "pesto-patate"
+    ],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 120,
+    "guidedStartsViaBeginPrepare": 120,
+    "undiscoveredOrderRecipes": [
+     "pesto-patate"
+    ],
+    "selectRecipeUndiscoveredAccepted": [
+     "pesto-patate"
+    ]
+   }
+  },
+  {
+   "dexCount": 22,
+   "phase": "A_unlocked_not_bought",
+   "stateCounts": {
+    "DISCOVERED": 22,
+    "UNKNOWN": 2,
+    "KNOWN_BUT_MISSING_MATERIAL": 1
+   },
+   "discoverable": [],
+   "knownButMissingMaterial": [
+    "pizza-bianca"
+   ],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 3,
+    "pizzaSelectLockedNamed": [
+     "quattro-formaggi",
+     "pizza-bianca",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [],
+    "pizzaSelectNewUndiscovered": [],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [],
+    "shopBuyToMakeRows": 1,
+    "shopRowOrFeedbackRecipes": [
+     "pizza-bianca"
+    ],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 0,
+    "guidedStartsViaBeginPrepare": 0,
+    "undiscoveredOrderRecipes": [],
+    "selectRecipeUndiscoveredAccepted": []
+   }
+  },
+  {
+   "dexCount": 22,
+   "phase": "B_bought",
+   "stateCounts": {
+    "DISCOVERED": 22,
+    "UNKNOWN": 2,
+    "DISCOVERABLE": 1
+   },
+   "discoverable": [
+    "pizza-bianca"
+   ],
+   "knownButMissingMaterial": [],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 3,
+    "pizzaSelectLockedNamed": [
+     "quattro-formaggi",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [],
+    "pizzaSelectNewUndiscovered": [
+     "pizza-bianca"
+    ],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [
+     "pizza-bianca"
+    ],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 120,
+    "guidedStartsViaBeginPrepare": 120,
+    "undiscoveredOrderRecipes": [
+     "pizza-bianca"
+    ],
+    "selectRecipeUndiscoveredAccepted": [
+     "pizza-bianca"
+    ]
+   }
+  },
+  {
+   "dexCount": 23,
+   "phase": "A_unlocked_not_bought",
+   "stateCounts": {
+    "DISCOVERED": 23,
+    "UNKNOWN": 1,
+    "KNOWN_BUT_MISSING_MATERIAL": 1
+   },
+   "discoverable": [],
+   "knownButMissingMaterial": [
+    "puttanesca-pizza"
+   ],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 2,
+    "pizzaSelectLockedNamed": [
+     "quattro-formaggi",
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectEp1HintNames": [],
+    "pizzaSelectNewUndiscovered": [],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [],
+    "shopBuyToMakeRows": 1,
+    "shopRowOrFeedbackRecipes": [
+     "puttanesca-pizza"
+    ],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 0,
+    "guidedStartsViaBeginPrepare": 0,
+    "undiscoveredOrderRecipes": [],
+    "selectRecipeUndiscoveredAccepted": []
+   }
+  },
+  {
+   "dexCount": 23,
+   "phase": "B_bought",
+   "stateCounts": {
+    "DISCOVERED": 23,
+    "UNKNOWN": 1,
+    "DISCOVERABLE": 1
+   },
+   "discoverable": [
+    "puttanesca-pizza"
+   ],
+   "knownButMissingMaterial": [],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 2,
+    "pizzaSelectLockedNamed": [
+     "quattro-formaggi"
+    ],
+    "pizzaSelectEp1HintNames": [],
+    "pizzaSelectNewUndiscovered": [
+     "puttanesca-pizza"
+    ],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [
+     "puttanesca-pizza"
+    ],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 120,
+    "guidedStartsViaBeginPrepare": 120,
+    "undiscoveredOrderRecipes": [
+     "puttanesca-pizza"
+    ],
+    "selectRecipeUndiscoveredAccepted": [
+     "puttanesca-pizza"
+    ]
+   }
+  },
+  {
+   "dexCount": 24,
+   "phase": "A_unlocked_not_bought",
+   "stateCounts": {
+    "DISCOVERED": 24,
+    "KNOWN_BUT_MISSING_MATERIAL": 1
+   },
+   "discoverable": [],
+   "knownButMissingMaterial": [
+    "quattro-formaggi"
+   ],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 1,
+    "pizzaSelectLockedNamed": [
+     "quattro-formaggi"
+    ],
+    "pizzaSelectEp1HintNames": [],
+    "pizzaSelectNewUndiscovered": [],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 0,
+    "guidedStartsViaBeginPrepare": 0,
+    "undiscoveredOrderRecipes": [],
+    "selectRecipeUndiscoveredAccepted": []
+   }
+  },
+  {
+   "dexCount": 24,
+   "phase": "B_bought",
+   "stateCounts": {
+    "DISCOVERED": 24,
+    "DISCOVERABLE": 1
+   },
+   "discoverable": [
+    "quattro-formaggi"
+   ],
+   "knownButMissingMaterial": [],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 1,
+    "pizzaSelectLockedNamed": [],
+    "pizzaSelectEp1HintNames": [],
+    "pizzaSelectNewUndiscovered": [
+     "quattro-formaggi"
+    ],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [
+     "quattro-formaggi"
+    ],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 120,
+    "guidedStartsViaBeginPrepare": 120,
+    "undiscoveredOrderRecipes": [
+     "quattro-formaggi"
+    ],
+    "selectRecipeUndiscoveredAccepted": [
+     "quattro-formaggi"
+    ]
+   }
+  },
+  {
+   "dexCount": 25,
+   "phase": "A_unlocked_not_bought",
+   "stateCounts": {
+    "DISCOVERED": 25
+   },
+   "discoverable": [],
+   "knownButMissingMaterial": [],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 0,
+    "pizzaSelectLockedNamed": [],
+    "pizzaSelectEp1HintNames": [],
+    "pizzaSelectNewUndiscovered": [],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 0,
+    "guidedStartsViaBeginPrepare": 0,
+    "undiscoveredOrderRecipes": [],
+    "selectRecipeUndiscoveredAccepted": []
+   }
+  },
+  {
+   "dexCount": 25,
+   "phase": "B_bought",
+   "stateCounts": {
+    "DISCOVERED": 25
+   },
+   "discoverable": [],
+   "knownButMissingMaterial": [],
+   "leaks": {
+    "pizzaSelectDistinctUndiscoveredNamesInDom": 0,
+    "pizzaSelectLockedNamed": [],
+    "pizzaSelectEp1HintNames": [],
+    "pizzaSelectNewUndiscovered": [],
+    "pizzaSelectPreDiscoveryLocked": [],
+    "pizzaSelectDetailGuidedCta": [],
+    "shopBuyToMakeRows": 0,
+    "shopRowOrFeedbackRecipes": [],
+    "shopLexicalOverlap": [],
+    "dexOverlayNameHits": [],
+    "homeNameHits": []
+   },
+   "lk8": {
+    "initialOrder": "margherita",
+    "initialOrderUndiscovered": false,
+    "playAgainTrials": 120,
+    "undiscoveredOrders": 0,
+    "guidedStartsViaBeginPrepare": 0,
+    "undiscoveredOrderRecipes": [],
+    "selectRecipeUndiscoveredAccepted": []
+   }
+  }
+ ],
+ "chapters": {
+  "currentCode": {
+   "source": "pizzaSelect.ts RECIPE_SECTION_BOUNDARIES (0,7) + FALLBACK_CHUNK_SIZE 8",
+   "sizes": [
+    7,
+    8,
+    8,
+    2
+   ],
+   "sections": [
+    [
+     "第1章",
+     7,
+     [
+      "margherita",
+      "marinara",
+      "quattro-formaggi",
+      "genovese",
+      "bismarck",
+      "funghi",
+      "fugazza"
+     ]
+    ],
+    [
+     "第2章",
+     8,
+     [
+      "salsiccia",
+      "pepperoni",
+      "napoletana",
+      "tonno-e-cipolla",
+      "pizza-bianca",
+      "breakfast-pizza",
+      "capricciosa",
+      "meat-lovers"
+     ]
+    ],
+    [
+     "第3章",
+     8,
+     [
+      "melanzane-pizza",
+      "parmigiana-pizza",
+      "bambino",
+      "hawaiian",
+      "pizza-portuguesa",
+      "pesto-tonno",
+      "new-haven-apizza",
+      "pesto-caprese"
+     ]
+    ],
+    [
+     "第4章",
+     2,
+     [
+      "pesto-patate",
+      "puttanesca-pizza"
+     ]
+    ]
+   ]
+  },
+  "authored_7_8_10_I5b4d": {
+   "status": "never implemented (I5b-4 fbfd738 kept 7/8/8/2)",
+   "chapters": [
+    [
+     "margherita",
+     "marinara",
+     "quattro-formaggi",
+     "genovese",
+     "bismarck",
+     "funghi",
+     "fugazza"
+    ],
+    [
+     "salsiccia",
+     "pepperoni",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "breakfast-pizza",
+     "capricciosa",
+     "meat-lovers"
+    ],
+    [
+     "melanzane-pizza",
+     "parmigiana-pizza",
+     "bambino",
+     "hawaiian",
+     "pizza-portuguesa",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ]
+   ]
+  },
+  "priceTier_6_9_10_W1f": {
+   "status": "proposed canonical",
+   "perRecipe": [
+    {
+     "id": "margherita",
+     "maxMaterialStep": 0,
+     "keyStep": 0,
+     "tier": "T1"
+    },
+    {
+     "id": "marinara",
+     "maxMaterialStep": 14,
+     "keyStep": 14,
+     "tier": "T2"
+    },
+    {
+     "id": "quattro-formaggi",
+     "maxMaterialStep": 24,
+     "keyStep": 24,
+     "tier": "T3"
+    },
+    {
+     "id": "genovese",
+     "maxMaterialStep": 18,
+     "keyStep": 18,
+     "tier": "T3"
+    },
+    {
+     "id": "bismarck",
+     "maxMaterialStep": 1,
+     "keyStep": 1,
+     "tier": "T1"
+    },
+    {
+     "id": "funghi",
+     "maxMaterialStep": 3,
+     "keyStep": 3,
+     "tier": "T1"
+    },
+    {
+     "id": "fugazza",
+     "maxMaterialStep": 13,
+     "keyStep": 13,
+     "tier": "T2"
+    },
+    {
+     "id": "salsiccia",
+     "maxMaterialStep": 7,
+     "keyStep": 7,
+     "tier": "T2"
+    },
+    {
+     "id": "pepperoni",
+     "maxMaterialStep": 6,
+     "keyStep": 6,
+     "tier": "T2"
+    },
+    {
+     "id": "napoletana",
+     "maxMaterialStep": 15,
+     "keyStep": 15,
+     "tier": "T3"
+    },
+    {
+     "id": "tonno-e-cipolla",
+     "maxMaterialStep": 16,
+     "keyStep": 16,
+     "tier": "T3"
+    },
+    {
+     "id": "pizza-bianca",
+     "maxMaterialStep": 22,
+     "keyStep": 22,
+     "tier": "T3"
+    },
+    {
+     "id": "breakfast-pizza",
+     "maxMaterialStep": 2,
+     "keyStep": 2,
+     "tier": "T1"
+    },
+    {
+     "id": "capricciosa",
+     "maxMaterialStep": 11,
+     "keyStep": 11,
+     "tier": "T2"
+    },
+    {
+     "id": "meat-lovers",
+     "maxMaterialStep": 8,
+     "keyStep": 8,
+     "tier": "T2"
+    },
+    {
+     "id": "melanzane-pizza",
+     "maxMaterialStep": 4,
+     "keyStep": 4,
+     "tier": "T1"
+    },
+    {
+     "id": "parmigiana-pizza",
+     "maxMaterialStep": 5,
+     "keyStep": 5,
+     "tier": "T1"
+    },
+    {
+     "id": "bambino",
+     "maxMaterialStep": 9,
+     "keyStep": 9,
+     "tier": "T2"
+    },
+    {
+     "id": "hawaiian",
+     "maxMaterialStep": 10,
+     "keyStep": 10,
+     "tier": "T2"
+    },
+    {
+     "id": "pizza-portuguesa",
+     "maxMaterialStep": 12,
+     "keyStep": 12,
+     "tier": "T2"
+    },
+    {
+     "id": "pesto-tonno",
+     "maxMaterialStep": 17,
+     "keyStep": 17,
+     "tier": "T3"
+    },
+    {
+     "id": "new-haven-apizza",
+     "maxMaterialStep": 19,
+     "keyStep": 19,
+     "tier": "T3"
+    },
+    {
+     "id": "pesto-caprese",
+     "maxMaterialStep": 20,
+     "keyStep": 20,
+     "tier": "T3"
+    },
+    {
+     "id": "pesto-patate",
+     "maxMaterialStep": 21,
+     "keyStep": 21,
+     "tier": "T3"
+    },
+    {
+     "id": "puttanesca-pizza",
+     "maxMaterialStep": 23,
+     "keyStep": 23,
+     "tier": "T3"
+    }
+   ],
+   "byTier": {
+    "T1": [
+     "margherita",
+     "bismarck",
+     "funghi",
+     "breakfast-pizza",
+     "melanzane-pizza",
+     "parmigiana-pizza"
+    ],
+    "T2": [
+     "marinara",
+     "fugazza",
+     "salsiccia",
+     "pepperoni",
+     "capricciosa",
+     "meat-lovers",
+     "bambino",
+     "hawaiian",
+     "pizza-portuguesa"
+    ],
+    "T3": [
+     "quattro-formaggi",
+     "genovese",
+     "napoletana",
+     "tonno-e-cipolla",
+     "pizza-bianca",
+     "pesto-tonno",
+     "new-haven-apizza",
+     "pesto-caprese",
+     "pesto-patate",
+     "puttanesca-pizza"
+    ]
+   },
+   "sizes": {
+    "T1": 6,
+    "T2": 9,
+    "T3": 10
+   },
+   "keyStepEqualsMaxStep": true
+  },
+  "canonical": {
+   "partition": "priceTier 6/9/10 (T1 60 / T2 80 / T3 100)",
+   "rule": "chapter(recipe) = price tier of max ladder step among its finite required ingredients (starters-only -> T1); keyStep == maxMaterialStep for all 25",
+   "singleSource": "one pure function (proposed src/state/recipeChapters.ts) consumed by Pizza Select, Dex and Result; RECIPE_SECTION_BOUNDARIES / FALLBACK_CHUNK_SIZE retired from UI use",
+   "orderInsideChapter": "RECIPES declaration order (never ladder order)",
+   "ownerRatification": "OD-DISC-9"
+  }
+ },
+ "reducerBackstopExperiment": {
+  "method": "scratch worktree at fbfd738, gameReducer.ts patched in place, per-file `vitest run` (timeout 90-120s), patch reverted; nothing committed",
+  "baseline": "147 files / 3228 tests PASS",
+  "A": {
+   "variant": "A: SELECT_RECIPE discovered-only + FREE pool discovered-only (orders.ts fallback untouched) + BEGIN_PREPARE guard (FREE, non-freeCook, undiscovered -> no-op)",
+   "filesTotal": 147,
+   "failedFiles": [
+    {
+     "file": "src/App.cookingTimingBackground.test.tsx",
+     "failedTests": 4
+    },
+    {
+     "file": "src/App.playerReference.test.tsx",
+     "failedTests": 9
+    },
+    {
+     "file": "src/App.humanFeelFix3.test.tsx",
+     "failedTests": 10
+    },
+    {
+     "file": "src/App.test.tsx",
+     "failedTests": 8
+    },
+    {
+     "file": "src/components/PizzaStage.doughStretch.test.tsx",
+     "failedTests": 6
+    },
+    {
+     "file": "src/screens/GameScreen.dynamicSteps.test.tsx",
+     "failedTests": 6
+    },
+    {
+     "file": "src/screens/GameScreen.makingStepNav.test.tsx",
+     "failedTests": 1
+    },
+    {
+     "file": "src/state/gameReducer.commitSauceDispense.test.ts",
+     "failedTests": 5
+    },
+    {
+     "file": "src/state/gameReducer.cookingSteps.test.ts",
+     "failedTests": 4
+    },
+    {
+     "file": "src/state/gameReducer.cookingTiming.test.ts",
+     "failedTests": 8
+    },
+    {
+     "file": "src/state/gameReducer.cutResultDisplay.test.ts",
+     "failedTests": 1
+    },
+    {
+     "file": "src/state/gameReducer.cutStep.test.ts",
+     "failedTests": 6
+    },
+    {
+     "file": "src/state/gameReducer.efficiency.test.ts",
+     "failedTests": 5
+    },
+    {
+     "file": "src/state/gameReducer.dynamicCookingSteps.test.ts",
+     "failedTests": 8
+    },
+    {
+     "file": "src/state/gameReducer.pieceDrag.test.ts",
+     "failedTests": 1
+    },
+    {
+     "file": "src/state/gameReducer.pitzReward.test.ts",
+     "failedTests": 6
+    },
+    {
+     "file": "src/state/gameReducer.stepTiming.test.ts",
+     "failedTests": 18
+    },
+    {
+     "file": "src/state/phase4a1a.regression.test.ts",
+     "failedTests": 3
+    },
+    {
+     "file": "src/state/starterStock.test.ts",
+     "failedTests": 1
+    },
+    {
+     "file": "src/state/w1Activation.test.tsx",
+     "failedTests": 11
+    }
+   ],
+   "hungFiles": [
+    "src/components/IngredientTray.palette.test.tsx",
+    "src/components/IngredientTray.physicalDragReset.test.tsx",
+    "src/components/MakingStepTabs.test.tsx",
+    "src/logic/pieceDrag.test.ts",
+    "src/screens/GameScreen.keyboardOverlay.test.tsx",
+    "src/screens/GameScreen.keyboardSpreadRepeat.test.tsx",
+    "src/screens/GameScreen.physicalDragOverlay.test.tsx",
+    "src/state/gameReducer.test.ts",
+    "src/state/onewayFlow.test.ts"
+   ],
+   "failedTests": 121,
+   "hangCause": "9 files pass in 2-4s at baseline (serial re-run) but exceed 90s under A: helpers that drive createInitialGameState() (Dex 0, margherita undiscovered ORDER) + BEGIN_PREPARE never reach PREPARE"
+  },
+  "B": {
+   "variant": "B: same as A without the BEGIN_PREPARE guard",
+   "filesTotal": 147,
+   "failedFiles": [
+    {
+     "file": "src/App.cookingTimingBackground.test.tsx",
+     "failedTests": 4
+    },
+    {
+     "file": "src/App.humanFeelFix3.test.tsx",
+     "failedTests": 10
+    },
+    {
+     "file": "src/App.playerReference.test.tsx",
+     "failedTests": 9
+    },
+    {
+     "file": "src/App.test.tsx",
+     "failedTests": 8
+    },
+    {
+     "file": "src/state/gameReducer.test.ts",
+     "failedTests": 5
+    },
+    {
+     "file": "src/state/phase4a1a.regression.test.ts",
+     "failedTests": 1
+    },
+    {
+     "file": "src/state/w1Activation.test.tsx",
+     "failedTests": 11
+    }
+   ],
+   "hungFiles": [],
+   "failedTests": 48,
+   "notable": {
+    "gameReducer.test.ts: 'only margherita is reachable on a fresh save (empty Dex)'": "FAILS -> discovered-only pool is empty at Dex 0 and availableOrders() falls back to all 25 ORDERS (NF-1 confirmed)"
+   }
+  },
+  "reading": "The SELECT_RECIPE + pool narrowing part is cheap (7 files / 48 tests, all fixtures that select/start undiscovered recipes). The BEGIN_PREPARE guard is the expensive part (+13 files, +73 failing tests, 9 hanging files) because the Dex-0 initial ORDER (margherita, undiscovered) is the de-facto generic cooking fixture. W1-a2 must ship a shared test helper that seeds the target recipe as discovered before adding that guard."
+ },
+ "i5b4Delta": {
+  "implemented": [
+   "HomeScreen 2+1 CTA skeleton, same DOM order Dex0/Dex1+ (class switch only), .cta-button--free-cook-lead",
+   "PizzaSelectScreen --name-chars + container-query name fit 11-14px, grid minmax(0,1fr)",
+   "tests: HomeScreen.ctaLayout.test.tsx (new), PizzaSelectScreen name-length, ResultPanel 3-material component test"
+  ],
+  "notImplemented_fromUiuxAudit0c3e01f": [
+   "I5b-4b cooking layout contract (F-3 BAKE CTA, F-4 pager overlap; P0)",
+   "I5b-4c Pizza Select 4 states / F-2a EP1 wording / F-2b answer leak",
+   "I5b-4d chapter boundary (7/8/8/2 kept)",
+   "F-7a カット->切る"
+  ],
+  "untouched": [
+   "state/*",
+   "data/*",
+   "gameReducer",
+   "orders",
+   "ShopOverlay",
+   "DexOverlay",
+   "ResultPanel.tsx",
+   "GameScreen",
+   "e2e/*"
+  ]
+ },
+ "conflicts": [
+  {
+   "id": "C-1",
+   "area": "Pizza Select pizzaSelect.ts / PizzaSelectScreen.tsx",
+   "before": "HIGH (W1-a3 vs planned I5b-4c/4d)",
+   "after": "LOW-MEDIUM",
+   "status": "RESOLVED_BY_SCOPE",
+   "why": "I5b-4 changed only the name-fit hook + CSS; I5b-4c/4d were not implemented, so W1-a3 absorbs F-2a/F-2b with no competing branch. Keep --name-chars; compute it from the displayed text only."
+  },
+  {
+   "id": "C-2",
+   "area": "HOME HomeScreen.tsx / App.css",
+   "before": "HIGH (same DOM as I5b-4a)",
+   "after": "LOW",
+   "status": "RESOLVED",
+   "why": "2+1 skeleton landed (fbfd738) with a layout test; W1-e only adds badges/bubble text inside existing nodes."
+  },
+  {
+   "id": "C-3",
+   "area": "chapter partition",
+   "before": "HIGH (7/8/10 vs 6/9/10)",
+   "after": "OPEN (needs OD-DISC-9 ratification)",
+   "status": "REDUCED",
+   "why": "7/8/10 never shipped; code is still 7/8/8/2; only one candidate (6/9/10) is data-derived."
+  },
+  {
+   "id": "C-4",
+   "area": "Result ResultPanel/GameScreen",
+   "before": "MEDIUM (I5b-4b CTA bar)",
+   "after": "MEDIUM",
+   "status": "OPEN",
+   "why": "I5b-4b not implemented; RESULT DOM unchanged since 5204a26. W1-d must not touch the fixed .result-panel__actions bar."
+  },
+  {
+   "id": "C-5",
+   "area": "reducer / orders",
+   "before": "LOW-MEDIUM",
+   "after": "LOW",
+   "status": "OPEN (LK-8 unfixed)",
+   "why": "I5b-4 did not touch reducer/orders."
+  },
+  {
+   "id": "C-6",
+   "area": "Shop / Dex",
+   "before": "LOW",
+   "after": "LOW",
+   "status": "OPEN (leaks unfixed)",
+   "why": "untouched by I5b-4"
+  },
+  {
+   "id": "C-7",
+   "area": "I5b-5 E2E",
+   "before": "-",
+   "after": "MEDIUM",
+   "status": "NEW",
+   "why": "e2e fixtures start guided rounds of undiscovered recipes (startCapricciosaUnlocked etc.); W1-a2 breaks them unless seeded discovered. I5b-5 LC invariants assume I5b-4b which is not in fbfd738."
+  }
+ ],
+ "newFindings": [
+  {
+   "id": "NF-1",
+   "sev": "P1",
+   "title": "availableOrders() falls back to all ORDERS on an empty pool",
+   "where": "src/data/orders.ts:199-203",
+   "impact": "a discovered-only FREE pool that is empty (Dex 0 / everything discovered-but-unowned) would silently fall back to undiscovered orders; the LK-8 fix must not rely on narrowing availableRecipeIds alone"
+  },
+  {
+   "id": "NF-2",
+   "sev": "P1",
+   "title": "App.handleSelectRecipe enters GAME even when SELECT_RECIPE is rejected",
+   "where": "src/App.tsx:724-727",
+   "impact": "a rejected select shows whatever ORDER is parked in state (possibly an undiscovered PLAY_AGAIN order) -> LK-8d"
+  },
+  {
+   "id": "NF-3",
+   "sev": "P2",
+   "title": "Dex-0 initial ORDER is margherita (preferFirst) and BEGIN_PREPARE starts a guided margherita",
+   "where": "gameReducer.ts:565-585, :593",
+   "impact": "reducer-reachable bypass of the Dex-0 SELECT_RECIPE guard; no UI path today"
+  },
+  {
+   "id": "NF-4",
+   "sev": "P2",
+   "title": "RETRY_SAME_RECIPE (guided) re-enters an undiscovered recipe",
+   "where": "gameReducer.ts:1249-",
+   "impact": "only after a guided start, but must share the same predicate"
+  },
+  {
+   "id": "NF-5",
+   "sev": "P1",
+   "title": "EP1 hint names the mystery recipe (fugazza) at Dex 0",
+   "where": "pizzaSelect.ts:29 unlockHintFor",
+   "impact": "mysteryLock is bypassed by another card's hint; 13 recipes named by hints overall"
+  },
+  {
+   "id": "NF-6",
+   "sev": "P1",
+   "title": "E2E fixtures play undiscovered recipes via Pizza Select guided CTA",
+   "where": "e2e/gestures.ts startQuattroFormaggiHeavyInventory / startCapricciosaUnlocked / startSalsicciaUnlocked / startMarinaraUnlocked (+ inline ハム flows)",
+   "impact": "used by 9 spec files; W1-a2/a3 break them unless the target is seeded discovered"
+  },
+  {
+   "id": "NF-7",
+   "sev": "P2",
+   "title": "--name-chars must never be derived from an undiscovered name",
+   "where": "PizzaSelectScreen.tsx:116-121",
+   "impact": "a hidden card whose width hint = true name length leaks the name length"
+  },
+  {
+   "id": "NF-8",
+   "sev": "P2",
+   "title": "lexical overlaps (ペパロニ, ジェノベーゼソース, ナポリ in marinara description)",
+   "where": "ingredients.ts / recipes.ts",
+   "impact": "raw substring leak tests will report 2 Shop + 2 Dex false positives; whitelist or rename labels (OD)"
+  },
+  {
+   "id": "NF-9",
+   "sev": "P1 (I5b-5)",
+   "title": "I5b-4 as shipped does not include I5b-4b (cooking layout P0 F-3/F-4)",
+   "where": "fbfd738 vs 0c3e01f §10 / d4f96d0 B-2",
+   "impact": "I5b-5 LC P0 invariants will fail on fbfd738; outside Discovery but blocks I5b-5 PASS"
+  }
+ ],
+ "lk8": {
+  "status": "OPEN / BLOCKER (maintained)",
+  "reproduced": "fresh walk B at every key step whose recipe is EP1-available: 120/120 PLAY_AGAIN orders undiscovered, 120/120 BEGIN_PREPARE start guided; legacy Dex15: 200/200 (pizza-portuguesa, pesto-tonno)",
+  "uiRoutes": [
+   "LK-8a Lunch Rush RESULT フリープレイへ -> exitMissionToFree -> PLAY_AGAIN -> ORDER(undiscovered) -> フリープレイ -> BEGIN_PREPARE (guided, 見本)",
+   "LK-8b HOME during PREPARE/BAKE -> PLAY_AGAIN parks ORDER -> Lunch Rush intro 閉じる (EXIT_TO_FREE only) -> GAME shows parked ORDER",
+   "LK-8c Dex 0 initial ORDER margherita (reducer only)",
+   "LK-8d rejected SELECT_RECIPE still setScreen(GAME) -> parked ORDER (NF-2)"
+  ],
+  "contract": {
+   "predicate": "canStartGuidedRound(state, recipeId) = isDiscovered(dex, recipeId) && isRecipeAvailable(recipe, dex, owned) -- one exported function",
+   "enforcedAt": [
+    "SELECT_RECIPE",
+    "BEGIN_PREPARE (FREE, non-freeCook)",
+    "RETRY_SAME_RECIPE (non-freeCook)",
+    "nextOrderState FREE pool = available ∩ discovered, strict (no ORDERS fallback); empty -> Free Cook round (buildOrderState(..., freeCook=true))",
+    "App.handleSelectRecipe: GAME only if the reducer accepted"
+   ],
+   "unchanged": [
+    "pickMissionOrder (already discovered-only, returns null on empty)",
+    "START_FREE_COOK / free-cook RETRY (only legitimate discovery path)"
+   ]
+  }
+ },
+ "ownerDecisions": {
+  "OD-DISC-1": {
+   "status": "UNDECIDED",
+   "evidence": "no record on main / I5b-4 branch / any branch except the design + previous gate"
+  },
+  "OD-DISC-3": {
+   "status": "UNDECIDED",
+   "evidence": "same"
+  },
+  "OD-DISC-5": {
+   "status": "UNDECIDED",
+   "evidence": "same; I5b-4 did not touch EP1"
+  },
+  "OD-DISC-9": {
+   "status": "UNDECIDED",
+   "evidence": "same; OD-PS-4 also undecided, code still 7/8/8/2"
+  },
+  "OD-UX-1": {
+   "status": "IMPLEMENTED_DEFAULT",
+   "evidence": "fbfd738 keeps 「ピザを作る」 enabled secondary at Dex 0; owner HV 390x844/360x800 PASS per request"
+  },
+  "OD-DISC-6": {
+   "status": "UNDECIDED",
+   "gates": "W1-d only"
+  }
+ },
+ "i5b5": {
+  "discoveryIndependent_doFirst": [
+   {
+    "file": "e2e/save-forward-compat-3-4b.spec.ts:43,64",
+    "change": "/1\\/15/ -> /1\\/25/"
+   },
+   {
+    "file": "e2e/progression2-p3-3-onboarding.spec.ts:54,172,208,218",
+    "change": "/0|1\\/15/ -> /25/"
+   },
+   {
+    "file": "e2e/progression2-discovery-ladder.spec.ts:188-236",
+    "change": "step-14 three cheeses -> 2-material steps (11 black-olive+oregano / 24 fontina+gorgonzola); 3-name layout stays in ResultPanel.test.tsx (I5b-4)"
+   },
+   {
+    "file": "e2e/gestures.ts fixtures (NF-6)",
+    "change": "seed the played recipe as discovered (valid today and after W1-a2)"
+   },
+   {
+    "file": "LC invariants L-A..L-G",
+    "change": "require I5b-4b first (NF-9)"
+   }
+  ],
+  "discoveryDependent_fixAfter": [
+   "onboarding B (Dex-0 margherita card -> prompt card / A′ per OD-DISC-1)",
+   "R-14 Pizza Select chapter boundary (OD-DISC-9)",
+   "Pizza Select / Shop / ORDER no-name assertions and LK-8 e2e",
+   "result-1screen-2.0 / onboarding D / discovery-ladder notice position (W1-d variant)",
+   "HOME bubble / badge text (W1-e)"
+  ]
+ },
+ "sliceOrder": [
+  "0 merge I5b-3+I5b-4 (fbfd738) by owner; decide OD-DISC-1/3/5/9",
+  "1 I5b-5a Discovery-independent E2E refresh (/25, 2-material notice, fixtures seeded discovered)",
+  "2 W1-a1 recipeDiscoveryState.ts + recipeChapters.ts (pure, no UI)",
+  "3 W1-a2 reducer backstop canStartGuidedRound + strict FREE pool + App guard (+ unit rewrites)",
+  "4 W1-b Shop no recipe names",
+  "5 W1-a3 + W1-c Pizza Select (OD-DISC-1/3/5) + canonical chapters (HV)",
+  "6 W1-f Dex chapters/tags (HV)",
+  "7 W1-e HOME badges/bubble on the fbfd738 2+1 skeleton (HV)",
+  "8 I5b-4b cooking layout -> W1-d Result variant (OD-DISC-6, HV)",
+  "9 I5b-5b Discovery-dependent E2E + LC + WebKit + HV; W1-g optional"
+ ],
+ "blockers": {
+  "hardTechnical": [],
+  "productBlockerToW1Completion": [
+   "LK-8 (a-d) until slice 3 lands"
+  ],
+  "gating": [
+   "I5b-3/I5b-4 not on main (no PR)",
+   "OD-DISC-1/3/5/9 undecided (UI slices 5-7)",
+   "OD-DISC-6 (slice 8)",
+   "I5b-4b missing (slice 8, I5b-5 LC)"
+  ]
+ },
+ "verdict": "READY (conditional): slices 1-4 can start on an fbfd738 base; UI slices 5-8 NOT READY until the ODs are decided."
+}
