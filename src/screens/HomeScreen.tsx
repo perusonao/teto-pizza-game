@@ -42,6 +42,11 @@ interface HomeScreenProps {
    *  button only renders when it is wired. */
   onStartFreeCook?: () => void;
   onStartLunchRush: () => void;
+  /** Dinner Mission DM-3 (Issue #242): opens Mission Select. Optional so existing test call sites
+   *  compile; the card only renders when it is wired. */
+  onOpenDinner?: () => void;
+  /** How many Dinner missions are unlocked (derived from the Dex; locked ones are still listed). */
+  dinnerUnlockedCount?: number;
   /** Progression 2.0 Phase 3-3 (Issue #198): true before the player's first-ever discovery --
    *  Lunch Rush needs at least one discovered recipe to pick orders from that mean anything, so
    *  it stays closed (disabled, with an explanatory line) until then. Defaults to `false` so
@@ -76,6 +81,8 @@ export function HomeScreen({
   onStartFreePlay,
   onStartFreeCook,
   onStartLunchRush,
+  onOpenDinner,
+  dinnerUnlockedCount = 0,
   lunchRushLocked = false,
   lunchRushNoCookable = false,
   onOpenDex,
@@ -188,6 +195,19 @@ export function HomeScreen({
       </div>
 
       <section className="home-menu" aria-label="メニュー">
+        {/* Dinner Mission DM-3 (Issue #242): a wide card at the head of the menu, below the
+            unchanged 2+1 CTA skeleton. Shown even with nothing unlocked -- it says so. */}
+        {onOpenDinner && (
+          <button type="button" className="home-menu__card home-menu__card--wide home-menu__card--dinner" onClick={onOpenDinner}>
+            <span className="home-menu__icon">{"\u{1F319}"}</span>
+            <span className="home-menu__label">ディナーミッション</span>
+            <span className="home-menu__sub">
+              {dinnerUnlockedCount > 0
+                ? `時間内に指定のピザを全部作ろう！（解放 ${dinnerUnlockedCount}）`
+                : "時間内に指定のピザを全部作ろう！ 発見で解放"}
+            </span>
+          </button>
+        )}
         <button type="button" className="home-menu__card" onClick={onOpenDex}>
           <span className="home-menu__icon">{"\u{1F4D6}"}</span>
           <span className="home-menu__label">

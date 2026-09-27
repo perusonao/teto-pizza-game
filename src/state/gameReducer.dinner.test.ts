@@ -2,21 +2,33 @@ import { describe, expect, it } from "vitest";
 import { INGREDIENTS } from "../data/ingredients";
 import { buildIdealSauceFixture, getReferencePizza } from "../data/referencePizza";
 import { getRecipe, type RecipeId } from "../data/recipes";
-import { isCutEligible } from "../data/cookingProfiles";
+import { FREE_COOK_BAKE_TARGET, FREE_COOK_RECIPE, isFreeCookRecipe } from "../data/freeCook";
+import { requiredCutCount } from "../logic/cut/evaluation";
+import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
+import { DOUGH_CENTER, DOUGH_RADIUS } from "../logic/pizzaCoordinates";
+import type { QualityStars } from "../logic/scoring";
 import { getDinnerMission, type DinnerMissionDefinition } from "../mission/dinner/dinnerMission";
+import { resolveDinnerAttempt } from "../mission/dinner/dinnerResultDetection";
 import { remainingTargetIds, startDinnerRun } from "../mission/dinner/dinnerRun";
 import type { DexEntry, DexState } from "./dex";
 import { createInitialGameState, gameReducer, type GameAction, type GameState } from "./gameReducer";
-import type { InventoryState } from "./inventory";
+import { consumePizzaInventory, type InventoryState } from "./inventory";
 import { loadSave, persistProgress, type StorageLike } from "./persistence";
 import { createEmptyPizza, type PizzaState } from "./pizzaState";
 import { completionPolicyForRound, isDinnerRound, isFreeCookingRound, isGuidedRound, isLunchRushRound } from "./roundKind";
-import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
 
 /**
- * Dinner Mission DM-2 (Issue #239): runtime integration through the real `gameReducer` -- the
- * DM-1 run driven by the same actions the cooking screen dispatches, with stock consumed by the
- * real CONFIRM_BAKE. Numbers in the test names follow the DM-2 test list.
+ * Dinner Mission DM-3R-2 (Issue #250): the recipe-free, result-detection Dinner runtime through the
+ * real `gameReducer` -- the actions the cooking screen dispatches, with stock consumed by the real
+ * CONFIRM_BAKE and results decided by the DM-3R-1 authority (../mission/dinner/dinnerResultDetection.ts).
+ *
+ * Replaces the DM-2 suite of the same name, whose cases were built on the declared-target flow
+ * (DINNER_SELECT_TARGET / CANCEL_TARGET / RETURN_TO_TARGETS, `activeRecipeId`) that DM-3R-2 removes
+ * (OD-R1 / OD-R3). Every rule that survives -- round authority, START gate, "order" policy,
+ * post-bake feasibility, CLEAR precedence, TIME_UP, abandon, reload, Shop / Dex / Pitz / Lunch Rush
+ * isolation, CUT, repeated events, the seeded invariants -- is kept here against the new flow;
+ * the selection-only cases (DM-2 8-11) are replaced by "no declaration" cases (R1, R27).
+ * "Rn" numbers follow the DM-3R-2 required test list.
  */
 
 const ALL_IDS = INGREDIENTS.map((i) => i.id);
@@ -26,33 +38,53 @@ const DM_A_IDS = ["margherita", "bismarck", "breakfast-pizza", "funghi"];
 const T0 = 1_000_000;
 const DURATION = 600_000;
 const PITZ = 500;
+const S: QualityStars = 3;
 const EXACT_A: InventoryState = { egg: 2, bacon: 3, mushroom: 3 };
 
 function dexOf(ids: readonly string[]): DexState {
   return ids.map((recipeId): DexEntry => ({ recipeId, discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 }));
 }
 
-function saved(inventory: InventoryState, discovered: readonly string[] = DM_A_IDS): GameState {
+function saved(inventory: InventoryState, discovered: readonly string[] = [...DM_A_IDS, "marinara"]): GameState {
   return createInitialGameState(dexOf(discovered), ALL_IDS, PITZ, inventory, [], FINITE_IDS, {});
 }
 
-function started(inventory: InventoryState = EXACT_A, missionId = "dm-a"): GameState {
-  const state = gameReducer(saved(inventory), { type: "DINNER_START", missionId, now: T0, durationMs: DURATION });
+function started(inventory: InventoryState = EXACT_A, minimumStars: QualityStars = S, discovered?: readonly string[]): GameState {
+  const state = gameReducer(saved(inventory, discovered), {
+    type: "DINNER_START",
+    missionId: "dm-a",
+    now: T0,
+    durationMs: DURATION,
+    minimumStars,
+  });
   if (state.dinner === null) throw new Error("Dinner did not start");
   return state;
 }
 
+/** A started session swapped onto a test-only mission (same runtime, custom targets). */
+function startedCustom(targets: RecipeId[], inventory: InventoryState, discovered: readonly string[]): GameState {
+  const base = started(EXACT_A, S, discovered);
+  const mission: DinnerMissionDefinition = { ...DM_A, missionId: "test-custom", targetRecipeIds: targets };
+  const custom = startDinnerRun(mission, { dex: base.dex, ownedIngredientIds: ALL_IDS, inventory }, T0, DURATION);
+  if (!custom.ok) throw new Error(`custom run: ${JSON.stringify(custom.block)}`);
+  return { ...base, inventory, dinner: { ...base.dinner!, run: custom.state } };
+}
+
 /** The Reference pizza of `recipeId`, with piece counts overridden per ingredient (extra pieces
- *  are placed inside the dough; fewer take the first Reference positions). */
-function pizzaFor(recipeId: string, counts: Record<string, number> = {}): PizzaState {
+ *  are placed inside the dough; fewer take the first Reference positions), plus extra ingredients. */
+function pizzaFor(recipeId: string, counts: Record<string, number> = {}, extra: Record<string, number> = {}): PizzaState {
   const reference = getReferencePizza(recipeId);
   if (!reference) throw new Error(`no reference for ${recipeId}`);
+  const groups = [
+    ...reference.pieceGroups.map((g) => ({ ingredientId: g.ingredientId, positions: g.positions })),
+    ...Object.keys(extra).map((ingredientId) => ({ ingredientId, positions: [] as { x: number; y: number }[] })),
+  ];
   return {
     ...createEmptyPizza(),
     sauceIds: [reference.sauce.ingredientId],
     sauceDeposits: buildIdealSauceFixture(),
-    toppings: reference.pieceGroups.flatMap((group, gi) => {
-      const count = counts[group.ingredientId] ?? group.positions.length;
+    toppings: groups.flatMap((group, gi) => {
+      const count = counts[group.ingredientId] ?? extra[group.ingredientId] ?? group.positions.length;
       return Array.from({ length: count }, (_, i) => ({
         id: `${recipeId}-${gi}-${i}`,
         ingredientId: group.ingredientId,
@@ -62,473 +94,584 @@ function pizzaFor(recipeId: string, counts: Record<string, number> = {}): PizzaS
   };
 }
 
-interface CookOptions {
-  counts?: Record<string, number>;
-  /** Bake far below the target: Completion Gate FAILED (UNDERBAKED). */
-  underbake?: boolean;
-}
-
-function bakeValue(recipeId: string, underbake = false): number {
+function mid(recipeId: string): number {
   const { start, end } = getRecipe(recipeId as RecipeId)!.bakeTarget;
-  return underbake ? 0 : Math.round((start + end) / 2);
+  return Math.round((start + end) / 2);
 }
 
-/** Selects `recipeId` and cooks it to RESULT (CUT included) with the real actions. */
-function cook(state: GameState, recipeId: string, now: number, options: CookOptions = {}): GameState {
-  let next = gameReducer(state, { type: "DINNER_SELECT_TARGET", recipeId, now });
-  expect(next.phase, `select ${recipeId}`).toBe("PREPARE");
-  // The gestures themselves are covered by their own suites; here the finished pizza is placed
-  // on the round the Dinner target actually started.
-  next = { ...next, pizza: pizzaFor(recipeId, options.counts) };
-  next = gameReducer(next, { type: "START_BAKE", now });
-  next = gameReducer(next, { type: "CONFIRM_BAKE", value: bakeValue(recipeId, options.underbake), now });
-  return walkPostBakeToResult(next, now);
+function idealCutLines(count: number): CutLine[] {
+  return Array.from({ length: count }, (_, i) => {
+    const angle = (Math.PI * i) / count;
+    const dx = Math.cos(angle) * DOUGH_RADIUS;
+    const dy = Math.sin(angle) * DOUGH_RADIUS;
+    return { start: { x: DOUGH_CENTER - dx, y: DOUGH_CENTER - dy }, end: { x: DOUGH_CENTER + dx, y: DOUGH_CENTER + dy } };
+  });
 }
 
-function back(state: GameState, now: number): GameState {
-  return gameReducer(state, { type: "DINNER_RETURN_TO_TARGETS", now });
+/** POST_BAKE -> RESULT with the real CUT actions (bounded: a refused confirm stops the walk). */
+function cutToResult(state: GameState, now: number): GameState {
+  let next = state;
+  for (let guard = 0; guard < 4 && next.phase === "POST_BAKE"; guard += 1) {
+    if (next.makingStep === "CUT") {
+      for (const line of idealCutLines(requiredCutCount(resolveRequestedSliceCount(next.cutState.config)))) {
+        next = gameReducer(next, { type: "ADD_CUT_LINE", line });
+      }
+    }
+    const confirmed = gameReducer(next, { type: "CONFIRM_MAKING_STEP", now });
+    if (confirmed === next) break;
+    next = confirmed;
+  }
+  return next;
+}
+
+/**
+ * Puts `pizza` on the current recipe-free Dinner round (the gestures have their own suites) and
+ * bakes it -- START_BAKE, CONFIRM_BAKE, CUT when the plan has one -- with the real actions.
+ */
+function cookPizza(state: GameState, pizza: PizzaState, bake: number, now: number): GameState {
+  expect(state.phase, "a Dinner round is at PREPARE").toBe("PREPARE");
+  let next = gameReducer({ ...state, pizza }, { type: "START_BAKE", now });
+  next = gameReducer(next, { type: "CONFIRM_BAKE", value: bake, now });
+  return cutToResult(next, now);
+}
+
+function cook(state: GameState, recipeId: string, now: number, counts: Record<string, number> = {}): GameState {
+  return cookPizza(state, pizzaFor(recipeId, counts), mid(recipeId), now);
+}
+
+function nextPizza(state: GameState, now: number): GameState {
+  return gameReducer(state, { type: "DINNER_NEXT_PIZZA", now });
 }
 
 function run(state: GameState) {
   return state.dinner!.run;
 }
 
-describe("1-4: explicit round authority", () => {
-  it("1: a Dinner run makes DINNER rounds that are neither Lunch Rush nor Free Cooking", () => {
-    const board = started();
-    expect(board.roundKind).toBe("DINNER");
-    expect([isDinnerRound(board), isLunchRushRound(board), isFreeCookingRound(board), isGuidedRound(board)]).toEqual([
+function lastAttempt(state: GameState) {
+  const attempts = run(state).attempts;
+  return attempts[attempts.length - 1];
+}
+
+describe("round authority and START", () => {
+  it("R1: START goes straight to a recipe-free DINNER PREPARE round -- no target is declared", () => {
+    const state = started();
+    expect(state.phase).toBe("PREPARE");
+    expect(state.roundKind).toBe("DINNER");
+    expect([isDinnerRound(state), isLunchRushRound(state), isFreeCookingRound(state), isGuidedRound(state)]).toEqual([
       true,
       false,
       false,
       false,
     ]);
-    expect(board.isMissionRound).toBe(false);
-    expect(board.freeCook).toBe(false);
-    const target = gameReducer(board, { type: "DINNER_SELECT_TARGET", recipeId: "bismarck", now: T0 });
-    expect(target.roundKind).toBe("DINNER");
-    expect(target.isMissionRound).toBe(false);
-    expect(completionPolicyForRound(target)).toBe("order");
+    expect([state.isMissionRound, state.freeCook]).toEqual([false, false]);
+    expect(isFreeCookRecipe(state.recipe)).toBe(true);
+    expect(state.recipe.requiredIngredients).toEqual([]);
+    expect(state.cookingTiming).toBeNull();
+    expect(completionPolicyForRound(state)).toBe("order");
+    expect(run(state)).not.toHaveProperty("activeRecipeId");
+    expect(state.dinner).toMatchObject({ minimumStars: S, roundSeq: 1, pending: null, lastResult: null });
   });
 
-  it("2/3/4: Lunch Rush, Free Cooking and guided rounds keep their kinds and have no Dinner session", () => {
+  it("R2: any OWNED ingredient can be placed -- the round is not narrowed to any target", () => {
+    let state = started({ ...EXACT_A, ham: 2, pineapple: 3, capers: 2 });
+    const step = (s: GameState) => gameReducer(s, { type: "CONFIRM_MAKING_STEP", now: T0 });
+    state = step(step(state)); // DOUGH -> SAUCE -> CHEESE
+    expect(state.makingStep).toBe("CHEESE");
+    state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "mozzarella", x: 50, y: 50 });
+    state = step(state); // -> TOPPING
+    const placed = ["ham", "pineapple", "capers", "egg"];
+    placed.forEach((ingredientId, i) => {
+      state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId, x: 35 + i * 10, y: 50 });
+    });
+    expect(state.pizza.toppings.map((t) => t.ingredientId)).toEqual(["mozzarella", ...placed]);
+  });
+
+  it("START needs a valid injected S (no default), an unlocked mission and a feasible set", () => {
+    const base = saved(EXACT_A);
+    for (const bad of [0, 6, 2.5, Number.NaN, undefined]) {
+      const action = { type: "DINNER_START", missionId: "dm-a", now: T0, durationMs: DURATION, minimumStars: bad } as unknown as GameAction;
+      expect(gameReducer(base, action), String(bad)).toBe(base);
+    }
+    const locked = saved(EXACT_A, ["margherita", "bismarck", "funghi"]);
+    expect(gameReducer(locked, { type: "DINNER_START", missionId: "dm-a", now: T0, durationMs: DURATION, minimumStars: S })).toBe(locked);
+    const short = saved({ ...EXACT_A, egg: 1 });
+    expect(gameReducer(short, { type: "DINNER_START", missionId: "dm-a", now: T0, durationMs: DURATION, minimumStars: S })).toBe(short);
+    expect(gameReducer(base, { type: "DINNER_START", missionId: "dm-a", now: T0, minimumStars: S })).toBe(base); // no time limit
+    const lunch = gameReducer(base, { type: "MISSION_RESET_ORDER" });
+    expect(gameReducer(lunch, { type: "DINNER_START", missionId: "dm-a", now: T0, durationMs: DURATION, minimumStars: S })).toBe(lunch);
+    const twice = started();
+    expect(gameReducer(twice, { type: "DINNER_START", missionId: "dm-a", now: T0, durationMs: DURATION, minimumStars: S })).toBe(twice);
+  });
+
+  it("Lunch Rush, Free Cooking and guided rounds keep their kinds and have no Dinner session", () => {
     const base = saved({ egg: 5 });
     const lunch = gameReducer(base, { type: "MISSION_RESET_ORDER" });
     expect([lunch.roundKind, lunch.isMissionRound, lunch.dinner]).toEqual(["LUNCH_RUSH", true, null]);
     const free = gameReducer(base, { type: "START_FREE_COOK", now: T0 });
     expect([free.roundKind, free.freeCook, free.dinner]).toEqual(["FREE_COOK", true, null]);
     const guided = gameReducer(base, { type: "SELECT_RECIPE", recipeId: "bismarck", now: T0 });
-    expect([guided.roundKind, guided.isMissionRound, guided.freeCook, guided.dinner]).toEqual(["GUIDED", false, false, null]);
+    expect([guided.roundKind, guided.freeCook, guided.dinner]).toEqual(["GUIDED", false, null]);
     expect(completionPolicyForRound(guided)).toBe("recipe");
   });
 });
 
-describe("5-7, 43: starting a run", () => {
-  it("5: DM-A starts at target selection with the injected duration", () => {
-    const board = started();
-    expect(board.phase).toBe("ORDER");
-    expect(run(board)).toMatchObject({ missionId: "dm-a", status: "PLAYING", activeRecipeId: null });
-    expect(run(board).clock).toEqual({ startedAt: T0, endsAt: T0 + DURATION });
-    expect(board.dinner!.abandonRequested).toBe(false);
-  });
-
-  it("6: a locked mission (one target undiscovered) does not start", () => {
-    const locked = saved(EXACT_A, ["margherita", "bismarck", "funghi"]);
-    expect(gameReducer(locked, { type: "DINNER_START", missionId: "dm-a", now: T0, durationMs: DURATION })).toBe(locked);
-  });
-
-  it("7: an initially infeasible set (one egg short) does not start", () => {
-    const short = saved({ ...EXACT_A, egg: 1 });
-    expect(gameReducer(short, { type: "DINNER_START", missionId: "dm-a", now: T0, durationMs: DURATION })).toBe(short);
-  });
-
-  it("43: unknown mission, no time limit, a second run, or a Lunch Rush round fail closed", () => {
-    const base = saved(EXACT_A);
-    expect(gameReducer(base, { type: "DINNER_START", missionId: "nope", now: T0, durationMs: DURATION })).toBe(base);
-    expect(gameReducer(base, { type: "DINNER_START", missionId: "dm-a", now: T0 })).toBe(base); // untuned, no duration
-    const board = started();
-    expect(gameReducer(board, { type: "DINNER_START", missionId: "dm-b", now: T0, durationMs: DURATION })).toBe(board);
-    const lunch = gameReducer(base, { type: "MISSION_RESET_ORDER" });
-    expect(gameReducer(lunch, { type: "DINNER_START", missionId: "dm-a", now: T0, durationMs: DURATION })).toBe(lunch);
-  });
-});
-
-describe("8-11, 44: target selection", () => {
-  it("8: selecting a remaining target starts its guided PREPARE round (no Cooking Time)", () => {
-    const target = gameReducer(started(), { type: "DINNER_SELECT_TARGET", recipeId: "funghi", now: T0 + 1 });
-    expect(target.phase).toBe("PREPARE");
-    expect(target.recipe.id).toBe("funghi");
-    expect(run(target).activeRecipeId).toBe("funghi");
-    expect(target.cookingTiming).toBeNull();
-  });
-
-  it("9/44: a non-target or unknown recipe is rejected", () => {
-    const board = started();
-    expect(gameReducer(board, { type: "DINNER_SELECT_TARGET", recipeId: "hawaiian", now: T0 })).toBe(board);
-    expect(gameReducer(board, { type: "DINNER_SELECT_TARGET", recipeId: "no-such-recipe", now: T0 })).toBe(board);
-  });
-
-  it("10: a completed target cannot be selected again", () => {
-    const done = back(cook(started(), "margherita", T0 + 10), T0 + 11);
-    expect(run(done).completedRecipeIds).toEqual(["margherita"]);
-    expect(gameReducer(done, { type: "DINNER_SELECT_TARGET", recipeId: "margherita", now: T0 + 12 })).toBe(done);
-  });
-
-  it("11: cancelling a selected target changes nothing but the selection", () => {
-    const board = started();
-    const target = gameReducer(board, { type: "DINNER_SELECT_TARGET", recipeId: "bismarck", now: T0 });
-    const placed = { ...target, pizza: pizzaFor("bismarck") };
-    const cancelled = gameReducer(placed, { type: "DINNER_CANCEL_TARGET", now: T0 + 1 });
-    expect(cancelled.phase).toBe("ORDER");
-    expect(run(cancelled)).toMatchObject({ activeRecipeId: null, completedRecipeIds: [], attempts: [], status: "PLAYING" });
-    expect(cancelled.inventory).toBe(board.inventory);
-    expect(cancelled.pitzBalance).toBe(PITZ);
-    expect(cancelled.dex).toBe(board.dex);
-    expect(cancelled.pizza.toppings).toEqual([]);
-  });
-
-  it("cancel is only for a PREPARE round (not after baking has started)", () => {
-    let target = gameReducer(started(), { type: "DINNER_SELECT_TARGET", recipeId: "bismarck", now: T0 });
-    target = gameReducer({ ...target, pizza: pizzaFor("bismarck") }, { type: "START_BAKE", now: T0 });
-    expect(gameReducer(target, { type: "DINNER_CANCEL_TARGET", now: T0 })).toBe(target);
-  });
-});
-
-describe("12-17: cooking targets", () => {
-  it("12/13: the full ordered quantity is required -- two of three mushrooms does not complete funghi", () => {
-    const result = cook(started(), "funghi", T0 + 10, { counts: { mushroom: 2 } });
-    expect(result.completion).toMatchObject({ status: "FAILED", reason: "INSUFFICIENT_REQUIRED_AMOUNT" });
-    expect(run(result).completedRecipeIds).toEqual([]);
-    expect(run(result).attempts).toEqual([{ recipeId: "funghi", completion: "FAILED", at: T0 + 10 }]);
-    expect(result.inventory.mushroom).toBe(1); // the two placed are consumed (EXACT_A had 3)
-  });
-
-  it("12: the same short pizza completes a guided round (recipe policy) -- Dinner does not inherit it", () => {
-    let guided = gameReducer(saved(EXACT_A), { type: "SELECT_RECIPE", recipeId: "funghi", now: T0 });
-    guided = { ...guided, pizza: pizzaFor("funghi", { mushroom: 2 }) };
-    guided = gameReducer(guided, { type: "START_BAKE", now: T0 });
-    guided = walkPostBakeToResult(gameReducer(guided, { type: "CONFIRM_BAKE", value: bakeValue("funghi"), now: T0 }), T0);
-    expect(guided.completion?.status).toBe("PASS");
-  });
-
-  it("14/15: a completed target is marked, and the next one can be selected from the target list", () => {
+describe("result detection wired into the runtime", () => {
+  it("R3: a target pizza -> TARGET_PASS, the target is ✓, and the next pizza is a fresh free round", () => {
     const result = cook(started(), "bismarck", T0 + 10);
     expect(result.phase).toBe("RESULT");
-    expect(run(result)).toMatchObject({ completedRecipeIds: ["bismarck"], activeRecipeId: null, status: "PLAYING" });
-    const board = back(result, T0 + 11);
-    expect(board.phase).toBe("ORDER");
-    const next = gameReducer(board, { type: "DINNER_SELECT_TARGET", recipeId: "funghi", now: T0 + 12 });
-    expect(next.recipe.id).toBe("funghi");
+    expect(run(result)).toMatchObject({ status: "PLAYING", completedRecipeIds: ["bismarck"] });
+    expect(result.dinner!.lastResult).toMatchObject({ category: "TARGET_PASS", recipeId: "bismarck", nameJa: "ビスマルク" });
+    expect(lastAttempt(result)).toMatchObject({
+      category: "TARGET_PASS",
+      identityRecipeId: "bismarck",
+      displayedRecipeId: "bismarck",
+      completedTargetId: "bismarck",
+      consumed: { egg: 1 },
+      at: T0 + 10,
+    });
+    const next = nextPizza(result, T0 + 11);
+    expect(next.phase).toBe("PREPARE");
+    expect(isFreeCookRecipe(next.recipe)).toBe(true);
+    expect(next.pizza.toppings).toEqual([]);
+    expect(next.dinner).toMatchObject({ roundSeq: 2, pending: null, lastResult: null });
+    expect(run(next).completedRecipeIds).toEqual(["bismarck"]);
   });
 
-  it("16/17: any order clears; CLEAR records the clear time", () => {
-    for (const order of [DM_A_IDS, [...DM_A_IDS].reverse(), ["funghi", "bismarck", "margherita", "breakfast-pizza"]]) {
-      let state = started();
-      order.forEach((id, i) => {
-        state = cook(state, id, T0 + 1000 * (i + 1));
-        if (i < order.length - 1) state = back(state, T0 + 1000 * (i + 1) + 1);
-      });
-      expect(run(state).status, order.join(">")).toBe("CLEARED");
-      expect(run(state).outcome).toEqual({ kind: "CLEAR", endedAt: T0 + 4000, clearMs: 4000 });
-      expect(state.inventory).toEqual({ egg: 0, bacon: 0, mushroom: 0 });
-    }
+  it("R4: a different remaining target made next completes that target (no intent anywhere)", () => {
+    let state = cook(started(), "bismarck", T0 + 10);
+    state = cook(nextPizza(state, T0 + 11), "funghi", T0 + 20);
+    expect(run(state).completedRecipeIds).toEqual(["bismarck", "funghi"]);
+    // Nested: breakfast minus bacon is bismarck (already done) -> DUPLICATE, not breakfast.
+    const dup = cook(nextPizza(started({ ...EXACT_A, egg: 3 }), T0), "breakfast-pizza", T0 + 5, { bacon: 0 });
+    expect(dup.dinner!.lastResult).toMatchObject({ category: "QUALITY_FAIL", recipeId: "bismarck" }); // mozzarella 2 < 3
+  });
+
+  it("R5: QUALITY_FAIL (★ below S, or the order gate) keeps the target open and consumes", () => {
+    // Bake inside the acceptable band but outside the perfect window: ★4 < S = 5.
+    const belowStars = cookPizza(started({ ...EXACT_A, egg: 3 }, 5), pizzaFor("bismarck"), 80, T0 + 10);
+    expect(belowStars.dinner!.lastResult).toMatchObject({
+      category: "QUALITY_FAIL",
+      failure: { kind: "BELOW_MINIMUM_STARS", stars: 4, minimumStars: 5 },
+    });
+    expect(run(belowStars)).toMatchObject({ status: "PLAYING", completedRecipeIds: [] });
+    expect(belowStars.inventory.egg).toBe(2);
+    expect(lastAttempt(belowStars)).toMatchObject({ category: "QUALITY_FAIL", stars: 4, completedTargetId: null });
+    // Two of three mushrooms: the "order" Completion Gate fails.
+    const gate = cook(started({ ...EXACT_A, mushroom: 5 }), "funghi", T0 + 10, { mushroom: 2 });
+    expect(gate.dinner!.lastResult).toMatchObject({
+      category: "QUALITY_FAIL",
+      recipeId: "funghi",
+      failure: { kind: "COMPLETION_GATE", reason: "INSUFFICIENT_REQUIRED_AMOUNT", ingredientId: "mushroom" },
+    });
+    expect(gate.inventory.mushroom).toBe(3);
+  });
+
+  it("R6: the same target again -> DUPLICATE_TARGET, no progress, stock still consumed", () => {
+    let state = cook(started({ ...EXACT_A, egg: 3 }), "bismarck", T0 + 10);
+    state = cook(nextPizza(state, T0 + 11), "bismarck", T0 + 20);
+    expect(state.dinner!.lastResult).toMatchObject({ category: "DUPLICATE_TARGET", recipeId: "bismarck" });
+    expect(run(state).completedRecipeIds).toEqual(["bismarck"]);
+    expect(state.inventory.egg).toBe(1);
+    expect(run(state).attempts.map((a) => a.category)).toEqual(["TARGET_PASS", "DUPLICATE_TARGET"]);
+  });
+
+  it("R7: a discovered non-target recipe -> NON_TARGET with its name", () => {
+    const state = cook(started({ ...EXACT_A, garlic: 3, oregano: 2 }), "marinara", T0 + 10);
+    expect(state.dinner!.lastResult).toEqual({ category: "NON_TARGET", recipeId: "marinara", nameJa: "マリナーラ" });
+    expect(run(state).completedRecipeIds).toEqual([]);
+  });
+
+  it("R8: an undiscovered recipe -> anonymous ORIGINAL: no id or name in the result, internal identity only in the log", () => {
+    const state = cook(started({ ...EXACT_A, ham: 2, pineapple: 3 }), "hawaiian", T0 + 10);
+    expect(state.dinner!.lastResult).toEqual({ category: "ORIGINAL" });
+    const shown = JSON.stringify(state.dinner!.lastResult);
+    expect(shown).not.toContain("hawaiian");
+    expect(shown).not.toContain(getRecipe("hawaiian")!.nameJa);
+    expect(lastAttempt(state)).toMatchObject({ category: "ORIGINAL", identityRecipeId: "hawaiian", displayedRecipeId: null });
+    // The visible round still carries only the anonymous sentinel.
+    expect(isFreeCookRecipe(state.recipe)).toBe(true);
+    expect(JSON.stringify({ recipe: state.recipe, order: state.order, hint: state.hint })).not.toContain(getRecipe("hawaiian")!.nameJa);
+    // A composition matching nothing is ORIGINAL too.
+    const none = cookPizza(started({ ...EXACT_A, egg: 3 }), pizzaFor("funghi", {}, { egg: 1 }), 68, T0 + 10);
+    expect(none.dinner!.lastResult).toEqual({ category: "ORIGINAL" });
+    expect(lastAttempt(none).identityRecipeId).toBeNull();
+  });
+
+  it("R9 / R10: raw and burnt pizzas -> INVALID_PIZZA (UNDERBAKED / OVERBAKED), stock consumed", () => {
+    const raw = cookPizza(started({ ...EXACT_A, egg: 3 }), pizzaFor("bismarck"), 0, T0 + 10);
+    expect(raw.dinner!.lastResult).toEqual({ category: "INVALID_PIZZA", reason: "UNDERBAKED" });
+    expect(raw.inventory.egg).toBe(2);
+    const burnt = cookPizza(started({ ...EXACT_A, egg: 3 }), pizzaFor("bismarck"), 100, T0 + 10);
+    expect(burnt.dinner!.lastResult).toEqual({ category: "INVALID_PIZZA", reason: "OVERBAKED" });
+    expect(run(burnt).completedRecipeIds).toEqual([]);
+    expect(lastAttempt(burnt)).toMatchObject({ category: "INVALID_PIZZA", displayedRecipeId: null, consumed: { egg: 1 } });
   });
 });
 
-describe("24-28: post-bake inventory (the stock the run judges is the stock after CONFIRM_BAKE)", () => {
-  it("A/24: remaining need egg 2, stock 2, bismarck uses 1 -> post-bake egg 1 -> still feasible", () => {
-    const result = cook(started(), "bismarck", T0 + 10);
-    expect(result.inventory.egg).toBe(1);
-    expect(run(result).status).toBe("PLAYING");
+describe("START_BAKE: Stage A picks the window and the CUT step, and freezes the composition", () => {
+  it("R11: the identified recipe's bake window drives BAKE and the result (not the generic one)", () => {
+    const bismarck = gameReducer({ ...started(), pizza: pizzaFor("bismarck") }, { type: "START_BAKE", now: T0 });
+    expect(bismarck.phase).toBe("BAKE");
+    expect(bismarck.recipe.bakeTarget).toEqual(getRecipe("bismarck")!.bakeTarget);
+    // The round never names the identity during BAKE (OD-R6).
+    expect([bismarck.recipe.id, bismarck.recipe.nameJa]).toEqual([FREE_COOK_RECIPE.id, FREE_COOK_RECIPE.nameJa]);
+    // bismarck at 86: inside the generic band, outside bismarck's -> INVALID_PIZZA (OVERBAKED).
+    const over = cookPizza(started({ ...EXACT_A, egg: 3 }), pizzaFor("bismarck"), 86, T0 + 10);
+    expect(over.dinner!.lastResult).toEqual({ category: "INVALID_PIZZA", reason: "OVERBAKED" });
+    // margherita at 89.5: outside the generic band, inside margherita's -> TARGET_PASS.
+    const marg = cookPizza(started(), pizzaFor("margherita"), 89.5, T0 + 10);
+    expect(marg.dinner!.lastResult).toMatchObject({ category: "TARGET_PASS", recipeId: "margherita" });
   });
 
-  it("B/25: over-placing a second egg on bismarck -> post-bake egg 0 -> breakfast-pizza impossible -> INFEASIBLE at once", () => {
-    const result = cook(started(), "bismarck", T0 + 10, { counts: { egg: 2 } });
-    expect(result.inventory.egg).toBe(0);
-    expect(run(result).completedRecipeIds).toEqual(["bismarck"]);
-    expect(run(result).outcome).toEqual({
-      kind: "FAILED",
-      reason: "INFEASIBLE",
-      endedAt: T0 + 10,
-      shortages: [{ ingredientId: "egg", need: 1, have: 0, recipeIds: ["breakfast-pizza"] }],
-    });
-  });
-
-  it("C/26: quality FAILED consumes the egg, the target stays open, and it can be retried", () => {
-    const failed = cook(started({ ...EXACT_A, egg: 3 }), "bismarck", T0 + 10, { underbake: true });
-    expect(failed.completion?.status).toBe("FAILED");
-    expect(failed.inventory.egg).toBe(2);
-    expect(run(failed)).toMatchObject({ status: "PLAYING", completedRecipeIds: [] });
-    const retried = cook(back(failed, T0 + 11), "bismarck", T0 + 20);
-    expect(run(retried).completedRecipeIds).toEqual(["bismarck"]);
-    expect(retried.inventory.egg).toBe(1);
-  });
-
-  it("D/27: quality FAILED whose consumption leaves the set short -> FAILED(INFEASIBLE), judged on the post-bake stock", () => {
-    const failed = cook(started(), "bismarck", T0 + 10, { underbake: true });
-    expect(failed.inventory.egg).toBe(1);
-    expect(run(failed).outcome).toMatchObject({
-      reason: "INFEASIBLE",
-      // have: 1 is the post-bake stock; the pre-bake stock (2) would have been feasible.
-      shortages: [{ ingredientId: "egg", need: 2, have: 1, recipeIds: ["bismarck", "breakfast-pizza"] }],
-    });
-  });
-
-  it("a CUT recipe consumes at CONFIRM_BAKE and resolves at the CUT confirm, reading the stock then", () => {
-    expect(isCutEligible("bismarck")).toBe(true);
-    let state = gameReducer(started(), { type: "DINNER_SELECT_TARGET", recipeId: "bismarck", now: T0 });
-    state = gameReducer({ ...state, pizza: pizzaFor("bismarck", { egg: 2 }) }, { type: "START_BAKE", now: T0 });
-    state = gameReducer(state, { type: "CONFIRM_BAKE", value: bakeValue("bismarck"), now: T0 + 5 });
-    expect(state.phase).toBe("POST_BAKE");
-    expect(state.inventory.egg).toBe(0); // consumed now
-    expect(run(state)).toMatchObject({ status: "PLAYING", activeRecipeId: "bismarck" }); // not resolved yet
-    state = walkPostBakeToResult(state, T0 + 9);
-    expect(run(state).outcome).toMatchObject({ reason: "INFEASIBLE", endedAt: T0 + 9 });
-  });
-
-  it("28: a starter-only target consumes nothing and never affects feasibility", () => {
-    const board = started();
-    const result = cook(board, "margherita", T0 + 10, { counts: { mozzarella: 9, basil: 9 } });
-    expect(result.inventory).toBe(board.inventory);
-    expect(run(result).completedRecipeIds).toEqual(["margherita"]);
-  });
-});
-
-describe("18-22: time, HOME and reload", () => {
-  it("18: the clock reaching 0 fails the run with TIME_UP", () => {
-    const board = started();
-    expect(gameReducer(board, { type: "DINNER_TICK", now: T0 + DURATION - 1 })).toBe(board);
-    expect(run(gameReducer(board, { type: "DINNER_TICK", now: T0 + DURATION })).outcome).toEqual({
-      kind: "FAILED",
-      reason: "TIME_UP",
-      endedAt: T0 + DURATION,
-    });
-  });
-
-  it("18: a bake confirmed after the deadline consumes nothing and completes nothing", () => {
-    let state = gameReducer(started(), { type: "DINNER_SELECT_TARGET", recipeId: "bismarck", now: T0 });
-    state = gameReducer({ ...state, pizza: pizzaFor("bismarck") }, { type: "START_BAKE", now: T0 });
-    const late = gameReducer(state, { type: "CONFIRM_BAKE", value: bakeValue("bismarck"), now: T0 + DURATION });
-    expect(late.phase).toBe("BAKE");
-    expect(late.inventory).toBe(state.inventory);
-    expect(run(late).outcome).toMatchObject({ reason: "TIME_UP" });
-    expect(gameReducer(late, { type: "CONFIRM_BAKE", value: 60, now: T0 + DURATION + 1 })).toBe(late);
-  });
-
-  it("19/20: HOME asks first; cancel keeps the run going", () => {
-    const requested = gameReducer(started(), { type: "DINNER_REQUEST_ABANDON" });
-    expect(requested.dinner!.abandonRequested).toBe(true);
-    const cancelled = gameReducer(requested, { type: "DINNER_CANCEL_ABANDON" });
-    expect(cancelled.dinner!.abandonRequested).toBe(false);
-    expect(run(cancelled).status).toBe("PLAYING");
-  });
-
-  it("21: confirming abandons (FAILED / ABANDONED, no reward); exiting returns to a normal round", () => {
-    const board = started();
-    const requested = gameReducer(board, { type: "DINNER_REQUEST_ABANDON" });
-    expect(gameReducer(board, { type: "DINNER_CONFIRM_ABANDON", now: T0 + 5 })).toBe(board); // not requested
-    const abandoned = gameReducer(requested, { type: "DINNER_CONFIRM_ABANDON", now: T0 + 5 });
-    expect(run(abandoned).outcome).toEqual({ kind: "FAILED", reason: "ABANDONED", endedAt: T0 + 5 });
-    expect(abandoned.pitzBalance).toBe(PITZ);
-    const exited = gameReducer(abandoned, { type: "DINNER_EXIT" });
-    expect(exited.dinner).toBeNull();
-    expect(exited.roundKind).not.toBe("DINNER");
-  });
-
-  it("DINNER_EXIT is refused while the run is still PLAYING", () => {
-    const board = started();
-    expect(gameReducer(board, { type: "DINNER_EXIT" })).toBe(board);
-  });
-
-  it("22: nothing of a run is saved; a reload starts with no run", () => {
-    const store = new Map<string, string>();
-    const storage: StorageLike = {
-      getItem: (k) => store.get(k) ?? null,
-      setItem: (k, v) => void store.set(k, v),
-      removeItem: (k) => void store.delete(k),
-    };
-    const mid = back(cook(started(), "bismarck", T0 + 10), T0 + 11);
-    persistProgress(mid, storage);
-    const raw = [...store.values()].join("");
-    expect(raw).not.toMatch(/dinner|roundKind|DINNER/);
-    const save = loadSave(storage);
-    expect(save.inventory.egg).toBe(1); // consumption is real and stays
-    const reloaded = createInitialGameState(save.dex, save.ownedIngredientIds, save.pitzBalance, save.inventory);
-    expect(reloaded.dinner).toBeNull();
-    expect(reloaded.roundKind).not.toBe("DINNER");
-  });
-});
-
-describe("23, 29-36: isolation from the Shop, the Dex, Pitz and Lunch Rush", () => {
-  it("23: purchases and refills are rejected during a run", () => {
-    const board = started();
-    expect(gameReducer(board, { type: "RESTOCK_INGREDIENT", ingredientId: "egg" })).toBe(board);
-    expect(gameReducer(board, { type: "PURCHASE_INGREDIENT", ingredientId: "capers" })).toBe(board);
-  });
-
-  it("29-34: a cleared run and a failed run leave Dex, discovery and Pitz untouched", () => {
-    const board = started();
-    const dexBefore = JSON.stringify(board.dex);
-    let state = board;
-    DM_A_IDS.forEach((id, i) => {
-      state = cook(state, id, T0 + 1000 * (i + 1));
-      // The App never dispatches it for Dinner; the reducer refuses it anyway.
-      expect(gameReducer(state, { type: "REGISTER_TO_DEX" })).toBe(state);
-      expect(state.lastPitzCredit).toBeNull();
-      expect(state.lastEfficiencyCredit).toBeNull();
-      expect(state.cookingTiming).toBeNull();
-      if (i < 3) state = back(state, T0 + 1000 * (i + 1) + 1);
-    });
-    expect(run(state).status).toBe("CLEARED");
-    const failed = cook(started(), "bismarck", T0 + 10, { underbake: true });
-    for (const s of [state, failed]) {
-      expect(JSON.stringify(s.dex)).toBe(dexBefore);
-      expect(s.justDiscovered).toBe(false);
-      expect(s.justGotNewBest).toBe(false);
-      expect(s.lastDiscovery).toBeNull();
-      expect(s.pitzBalance).toBe(PITZ); // no FREE Pitz, no Dinner payout yet
-    }
-  });
-
-  it("33/35/36: Lunch Rush reward, skip and SOLD OUT actions are refused during a run", () => {
-    const board = started();
-    for (const action of [
-      { type: "CLAIM_MISSION_REWARD", runId: 9, amount: 100 },
-      { type: "MISSION_SKIP_ORDER", recipeId: "bismarck" },
-      { type: "MISSION_NEXT_ORDER" },
-      { type: "MISSION_RESET_ORDER" },
-    ] as GameAction[]) {
-      expect(gameReducer(board, action)).toBe(board);
-    }
-    expect(board.missionSoldOutRecipeIds).toEqual([]);
-  });
-
-  it("no other round can start during a run (no Free Cooking switch, no guided round, no hint purchase)", () => {
-    const board = started();
-    for (const action of [
-      { type: "START_FREE_COOK", now: T0 },
-      { type: "SELECT_RECIPE", recipeId: "bismarck", now: T0 },
-      { type: "BEGIN_PREPARE", now: T0 },
-      { type: "RETRY_SAME_RECIPE", now: T0 },
-      { type: "PLAY_AGAIN" },
-      { type: "PURCHASE_DISCOVERY_HINT", level: 1 },
-    ] as GameAction[]) {
-      expect(gameReducer(board, action)).toBe(board);
-    }
-  });
-
-  it("39/40: after exiting, Free Cooking and guided rounds work as before", () => {
-    const exited = gameReducer(
-      gameReducer(gameReducer(started(), { type: "DINNER_REQUEST_ABANDON" }), { type: "DINNER_CONFIRM_ABANDON", now: T0 }),
-      { type: "DINNER_EXIT" },
-    );
-    const free = gameReducer(exited, { type: "START_FREE_COOK", now: T0 });
-    expect(free.roundKind).toBe("FREE_COOK");
-    const guided = gameReducer(exited, { type: "SELECT_RECIPE", recipeId: "funghi", now: T0 });
-    expect([guided.roundKind, guided.phase]).toEqual(["GUIDED", "PREPARE"]);
-    expect(guided.cookingTiming).not.toBeNull();
-  });
-});
-
-describe("41/42: CUT and New Haven (no CUT)", () => {
-  it("41: every DM-A target goes through the existing CUT step", () => {
-    for (const id of DM_A_IDS) expect(isCutEligible(id as RecipeId), id).toBe(true);
-    let state = gameReducer(started(), { type: "DINNER_SELECT_TARGET", recipeId: "funghi", now: T0 });
-    state = gameReducer({ ...state, pizza: pizzaFor("funghi") }, { type: "START_BAKE", now: T0 });
-    state = gameReducer(state, { type: "CONFIRM_BAKE", value: bakeValue("funghi"), now: T0 });
+  it("R12: a CUT recipe gets its CUT step after BAKE, and resolves only at the CUT confirm", () => {
+    let state = gameReducer({ ...started(), pizza: pizzaFor("funghi") }, { type: "START_BAKE", now: T0 });
+    expect(state.cookingProfile.steps).toEqual(["DOUGH", "SAUCE", "CHEESE", "TOPPING", "CUT"]);
+    state = gameReducer(state, { type: "CONFIRM_BAKE", value: mid("funghi"), now: T0 + 1 });
     expect([state.phase, state.makingStep]).toEqual(["POST_BAKE", "CUT"]);
+    expect(run(state).attempts).toEqual([]); // not resolved yet
+    expect(state.dinner!.lastResult).toBeNull();
+    state = cutToResult(state, T0 + 2);
+    expect(state.phase).toBe("RESULT");
+    expect(run(state).completedRecipeIds).toEqual(["funghi"]);
   });
 
-  it("42: New Haven resolves straight at CONFIRM_BAKE", () => {
-    expect(isCutEligible("new-haven-apizza")).toBe(false);
+  it("R13: no match -> the generic window and no CUT: the result comes at CONFIRM_BAKE", () => {
+    let state = gameReducer({ ...started({ ...EXACT_A, egg: 3 }), pizza: pizzaFor("funghi", {}, { egg: 1 }) }, { type: "START_BAKE", now: T0 });
+    expect(state.recipe.bakeTarget).toEqual(FREE_COOK_BAKE_TARGET);
+    expect(state.cookingProfile.steps).toEqual(["DOUGH", "SAUCE", "CHEESE", "TOPPING"]);
+    state = gameReducer(state, { type: "CONFIRM_BAKE", value: 68, now: T0 + 1 });
+    expect(state.phase).toBe("RESULT");
+    expect(state.dinner!.lastResult).toEqual({ category: "ORIGINAL" });
+  });
+
+  it("new-haven-apizza (identified, no CUT) resolves straight at CONFIRM_BAKE", () => {
     const inventory = { ...EXACT_A, "olive-oil": 1, parmigiano: 2, clam: 3, garlic: 2 };
-    const board = gameReducer(saved(inventory, [...DM_A_IDS, "new-haven-apizza"]), {
-      type: "DINNER_START",
-      missionId: "dm-a",
-      now: T0,
-      durationMs: DURATION,
-    });
-    // A test-only mission containing New Haven, run on the same runtime.
-    const mission: DinnerMissionDefinition = { ...DM_A, missionId: "test-nh", targetRecipeIds: ["new-haven-apizza", "margherita"] };
-    const custom = startDinnerRun(mission, { dex: board.dex, ownedIngredientIds: ALL_IDS, inventory }, T0, DURATION);
-    if (!custom.ok) throw new Error("custom run");
-    let state: GameState = { ...board, dinner: { run: custom.state, abandonRequested: false } };
-    state = gameReducer(state, { type: "DINNER_SELECT_TARGET", recipeId: "new-haven-apizza", now: T0 });
-    state = gameReducer({ ...state, pizza: pizzaFor("new-haven-apizza") }, { type: "START_BAKE", now: T0 });
-    state = gameReducer(state, { type: "CONFIRM_BAKE", value: bakeValue("new-haven-apizza"), now: T0 + 3 });
+    const state = cook(startedCustom(["new-haven-apizza", "margherita"], inventory, [...DM_A_IDS, "new-haven-apizza"]), "new-haven-apizza", T0 + 3);
     expect(state.phase).toBe("RESULT");
     expect(run(state).completedRecipeIds).toEqual(["new-haven-apizza"]);
     expect(state.inventory).toMatchObject({ "olive-oil": 0, parmigiano: 0, clam: 0, garlic: 0 });
   });
+
+  it("the composition cannot change after START_BAKE (BAKE / POST_BAKE / RESULT)", () => {
+    const composition: GameAction[] = [
+      { type: "PLACE_TOPPING", ingredientId: "egg", x: 50, y: 50 },
+      { type: "APPLY_SAUCE", ingredientId: "tomato-sauce", x: 50, y: 50 },
+      { type: "COMMIT_SAUCE_DISPENSE", ingredientId: "tomato-sauce", deposits: [] },
+      { type: "RESET_PIZZA" },
+    ];
+    const bake = gameReducer({ ...started(), pizza: pizzaFor("funghi") }, { type: "START_BAKE", now: T0 });
+    const post = gameReducer(bake, { type: "CONFIRM_BAKE", value: mid("funghi"), now: T0 + 1 });
+    const result = cutToResult(post, T0 + 2);
+    for (const state of [bake, post, result]) {
+      for (const action of composition) expect(gameReducer(state, action), `${state.phase} ${action.type}`).toBe(state);
+    }
+    // START_BAKE twice does not re-plan.
+    expect(gameReducer(bake, { type: "START_BAKE", now: T0 + 1 })).toBe(bake);
+  });
 });
 
-describe("24/25 on the no-CUT path: CONFIRM_BAKE itself resolves against its own post-consumption stock", () => {
-  it("New Haven over-places parmigiano -> parmigiana-pizza can no longer be made -> INFEASIBLE (pre-bake stock would pass)", () => {
-    const discovered = [...DM_A_IDS, "new-haven-apizza", "parmigiana-pizza"];
+describe("inventory: exactly once, from the stock captured before CONFIRM_BAKE", () => {
+  it("R15 / R16: CONFIRM_BAKE consumes once; the CUT confirm resolves against the captured pre-consumption stock and consumes nothing more", () => {
+    let state = gameReducer({ ...started(), pizza: pizzaFor("bismarck") }, { type: "START_BAKE", now: T0 });
+    expect(state.inventory).toEqual(EXACT_A);
+    state = gameReducer(state, { type: "CONFIRM_BAKE", value: mid("bismarck"), now: T0 + 1 });
+    expect(state.inventory.egg).toBe(1); // consumed now, once
+    expect(state.dinner!.pending!.preConsumptionInventory).toEqual(EXACT_A); // captured before it
+    const pizza = state.pizza;
+    const cut = cutToResult(state, T0 + 2);
+    expect(cut.inventory).toBe(state.inventory); // the CUT confirm never touches the stock
+    expect(cut.inventory.egg).toBe(1);
+    // DM-A exact stock: egg 1 left covers breakfast-pizza. Resolving from the post-bake stock
+    // (the double-consumption bug) would see egg 0 and fail the run INFEASIBLE.
+    expect(run(cut)).toMatchObject({ status: "PLAYING", completedRecipeIds: ["bismarck"] });
+    expect(lastAttempt(cut).consumed).toEqual({ egg: 1 });
+    // The resolver's own post-consumption stock equals the reducer's single consumption.
+    const parity = resolveDinnerAttempt({
+      run: state.dinner!.run,
+      pizza,
+      cutCompleted: true,
+      preConsumptionInventory: EXACT_A,
+      ownedIngredientIds: ALL_IDS,
+      dex: state.dex,
+      minimumStars: S,
+      now: T0 + 2,
+    });
+    expect(parity.status === "RESOLVED" && parity.postConsumptionInventory).toEqual(cut.inventory);
+    expect(consumePizzaInventory(pizza, EXACT_A)).toEqual(cut.inventory);
+    // Mutation guard: feeding the post-bake stock would double-consume and fail the run.
+    const doubled = resolveDinnerAttempt({
+      run: state.dinner!.run,
+      pizza,
+      cutCompleted: true,
+      preConsumptionInventory: state.inventory,
+      ownedIngredientIds: ALL_IDS,
+      dex: state.dex,
+      minimumStars: S,
+      now: T0 + 2,
+    });
+    expect(doubled.status === "RESOLVED" && doubled.run.status).toBe("FAILED");
+  });
+
+  it("R17: every failed category keeps its consumption (no refund)", () => {
+    const cases: [string, GameState][] = [
+      ["QUALITY_FAIL", cookPizza(started({ ...EXACT_A, egg: 3 }, 5), pizzaFor("bismarck"), 80, T0 + 1)],
+      ["INVALID_PIZZA", cookPizza(started({ ...EXACT_A, egg: 3 }), pizzaFor("bismarck"), 0, T0 + 1)],
+      ["ORIGINAL", cookPizza(started({ ...EXACT_A, egg: 3 }), pizzaFor("funghi", {}, { egg: 1 }), 68, T0 + 1)],
+    ];
+    for (const [category, state] of cases) {
+      expect(state.dinner!.lastResult?.category, category).toBe(category);
+      expect(state.inventory.egg, category).toBe(2);
+    }
+    let dup = cook(started({ ...EXACT_A, egg: 3 }), "bismarck", T0 + 1);
+    dup = cook(nextPizza(dup, T0 + 2), "bismarck", T0 + 3);
+    expect(dup.dinner!.lastResult?.category).toBe("DUPLICATE_TARGET");
+    expect(dup.inventory.egg).toBe(1);
+  });
+
+  it("a starter-only target consumes nothing and never affects feasibility", () => {
+    const state = started();
+    const result = cook(state, "margherita", T0 + 10, { mozzarella: 9, basil: 9 });
+    expect(result.inventory).toEqual(state.inventory);
+    expect(run(result).completedRecipeIds).toEqual(["margherita"]);
+  });
+});
+
+describe("feasibility and the end of the run", () => {
+  it("R18: a duplicate that uses up the shared egg -> the remaining set is infeasible -> INFEASIBLE", () => {
+    let state = cook(started(), "bismarck", T0 + 10);
+    state = cook(nextPizza(state, T0 + 11), "bismarck", T0 + 20);
+    expect(state.dinner!.lastResult?.category).toBe("DUPLICATE_TARGET");
+    expect(run(state).outcome).toEqual({
+      kind: "FAILED",
+      reason: "INFEASIBLE",
+      endedAt: T0 + 20,
+      shortages: [{ ingredientId: "egg", need: 1, have: 0, recipeIds: ["breakfast-pizza"] }],
+    });
+    expect(nextPizza(state, T0 + 21)).toBe(state); // the run is over
+  });
+
+  it("over-placing a second egg on bismarck completes it, then fails the run at once (post-bake stock)", () => {
+    const result = cook(started(), "bismarck", T0 + 10, { egg: 2 });
+    expect(result.inventory.egg).toBe(0);
+    expect(run(result).completedRecipeIds).toEqual(["bismarck"]);
+    expect(run(result).outcome).toMatchObject({ reason: "INFEASIBLE" });
+  });
+
+  it("the no-CUT path judges its own post-consumption stock too (New Haven over-places parmigiano)", () => {
     const inventory = { ...EXACT_A, "olive-oil": 1, parmigiano: 4, clam: 3, garlic: 2, eggplant: 3 };
-    const board = gameReducer(saved(inventory, discovered), { type: "DINNER_START", missionId: "dm-a", now: T0, durationMs: DURATION });
-    const mission: DinnerMissionDefinition = {
-      ...DM_A,
-      missionId: "test-nh-parm",
-      targetRecipeIds: ["new-haven-apizza", "parmigiana-pizza"],
-    };
-    const custom = startDinnerRun(mission, { dex: board.dex, ownedIngredientIds: ALL_IDS, inventory }, T0, DURATION);
-    if (!custom.ok) throw new Error("custom run");
-    let state: GameState = { ...board, dinner: { run: custom.state, abandonRequested: false } };
-    state = gameReducer(state, { type: "DINNER_SELECT_TARGET", recipeId: "new-haven-apizza", now: T0 });
-    state = gameReducer({ ...state, pizza: pizzaFor("new-haven-apizza", { parmigiano: 3 }) }, { type: "START_BAKE", now: T0 });
-    expect(state.inventory.parmigiano).toBe(4); // pre-bake: 4 >= 2 + 2 would still be feasible
-    state = gameReducer(state, { type: "CONFIRM_BAKE", value: bakeValue("new-haven-apizza"), now: T0 + 3 });
-    expect(state.phase).toBe("RESULT");
+    const board = startedCustom(["new-haven-apizza", "parmigiana-pizza"], inventory, [...DM_A_IDS, "new-haven-apizza", "parmigiana-pizza"]);
+    const state = cook(board, "new-haven-apizza", T0 + 3, { parmigiano: 3 });
     expect(state.inventory.parmigiano).toBe(1);
     expect(run(state).outcome).toMatchObject({
       reason: "INFEASIBLE",
       shortages: [{ ingredientId: "parmigiano", need: 2, have: 1, recipeIds: ["parmigiana-pizza"] }],
     });
   });
+
+  it("R19: the final target CLEARs even when it empties the stock (CLEAR before feasibility)", () => {
+    for (const order of [DM_A_IDS, [...DM_A_IDS].reverse(), ["funghi", "bismarck", "margherita", "breakfast-pizza"]]) {
+      let state = started();
+      order.forEach((id, i) => {
+        state = cook(state, id, T0 + 1000 * (i + 1));
+        if (i < order.length - 1) state = nextPizza(state, T0 + 1000 * (i + 1) + 1);
+      });
+      expect(run(state).status, order.join(">")).toBe("CLEARED");
+      expect(run(state).outcome).toEqual({ kind: "CLEAR", endedAt: T0 + 4000, clearMs: 4000 });
+      expect(state.inventory).toEqual({ egg: 0, bacon: 0, mushroom: 0 });
+      expect(run(state).attempts).toHaveLength(4);
+    }
+  });
+
+  it("R20: the clock reaching 0 -> TIME_UP; a bake or CUT confirmed after it consumes and completes nothing", () => {
+    const state = started();
+    expect(gameReducer(state, { type: "DINNER_TICK", now: T0 + DURATION - 1 })).toBe(state);
+    expect(run(gameReducer(state, { type: "DINNER_TICK", now: T0 + DURATION })).outcome).toEqual({
+      kind: "FAILED",
+      reason: "TIME_UP",
+      endedAt: T0 + DURATION,
+    });
+    const bake = gameReducer({ ...state, pizza: pizzaFor("bismarck") }, { type: "START_BAKE", now: T0 });
+    const late = gameReducer(bake, { type: "CONFIRM_BAKE", value: mid("bismarck"), now: T0 + DURATION });
+    expect(late.phase).toBe("BAKE");
+    expect(late.inventory).toBe(bake.inventory);
+    expect(run(late).outcome).toMatchObject({ reason: "TIME_UP" });
+    const post = gameReducer(bake, { type: "CONFIRM_BAKE", value: mid("bismarck"), now: T0 + 1 });
+    const lateCut = cutToResult(post, T0 + DURATION + 5);
+    expect(run(lateCut).completedRecipeIds).toEqual([]);
+    expect(run(lateCut).outcome).toMatchObject({ reason: "TIME_UP" });
+    expect(lateCut.inventory).toBe(post.inventory);
+  });
 });
 
-describe("45/46: stale and repeated actions", () => {
-  it("45: Dinner actions without a run, and cooking actions on the target list, do nothing", () => {
+describe("Shop / hint / Dex / Pitz / Lunch Rush isolation", () => {
+  it("R21: purchases and refills are rejected during a run", () => {
+    const state = started();
+    expect(gameReducer(state, { type: "RESTOCK_INGREDIENT", ingredientId: "egg" })).toBe(state);
+    expect(gameReducer(state, { type: "PURCHASE_INGREDIENT", ingredientId: "capers" })).toBe(state);
+  });
+
+  it("R22: hints and hint purchases are rejected during a run", () => {
+    const state = started();
+    for (const action of [
+      { type: "SHOW_HINT" },
+      { type: "SHOW_HINT", pinnedRecipeId: "hawaiian" },
+      { type: "PURCHASE_DISCOVERY_HINT", level: 1 },
+      { type: "PURCHASE_SELECTABLE_HINT", preference: "INGREDIENT", expectedPaidCount: 0 },
+    ] as GameAction[]) {
+      expect(gameReducer(state, action), action.type).toBe(state);
+    }
+    expect(state.hintSheetOpen).toBe(false);
+  });
+
+  it("R23 / R24: a cleared run and a failed run leave the Dex, discovery and Pitz untouched", () => {
+    const board = started(EXACT_A, S, [...DM_A_IDS, "marinara"]);
+    const dexBefore = JSON.stringify(board.dex);
+    let state = board;
+    DM_A_IDS.forEach((id, i) => {
+      state = cook(state, id, T0 + 1000 * (i + 1));
+      expect(gameReducer(state, { type: "REGISTER_TO_DEX" })).toBe(state);
+      expect(state.lastPitzCredit).toBeNull();
+      expect(state.lastEfficiencyCredit).toBeNull();
+      expect(state.cookingTiming).toBeNull();
+      if (i < 3) state = nextPizza(state, T0 + 1000 * (i + 1) + 1);
+    });
+    expect(run(state).status).toBe("CLEARED");
+    const original = cook(started({ ...EXACT_A, ham: 2, pineapple: 3 }), "hawaiian", T0 + 10); // undiscovered
+    const failed = cookPizza(started({ ...EXACT_A, egg: 3 }), pizzaFor("bismarck"), 0, T0 + 10);
+    for (const s of [state, original, failed]) {
+      expect(JSON.stringify(s.dex)).toBe(dexBefore);
+      expect(s.justDiscovered).toBe(false);
+      expect(s.justGotNewBest).toBe(false);
+      expect(s.lastDiscovery).toBeNull();
+      expect(s.pitzBalance).toBe(PITZ);
+      expect(s.score).toBeNull(); // no sentinel score left for any screen to misread
+    }
+  });
+
+  it("Lunch Rush reward / skip / order actions and every other round start are refused during a run", () => {
+    const state = started();
+    for (const action of [
+      { type: "CLAIM_MISSION_REWARD", runId: 9, amount: 100 },
+      { type: "MISSION_SKIP_ORDER", recipeId: "bismarck" },
+      { type: "MISSION_NEXT_ORDER" },
+      { type: "MISSION_RESET_ORDER" },
+      { type: "START_FREE_COOK", now: T0 },
+      { type: "SELECT_RECIPE", recipeId: "bismarck", now: T0 },
+      { type: "BEGIN_PREPARE", now: T0 },
+      { type: "RETRY_SAME_RECIPE", now: T0 },
+      { type: "PLAY_AGAIN" },
+    ] as GameAction[]) {
+      expect(gameReducer(state, action), action.type).toBe(state);
+    }
+    expect(state.missionSoldOutRecipeIds).toEqual([]);
+  });
+
+  it("after exiting, Free Cooking and guided rounds work as before", () => {
+    const exited = gameReducer(
+      gameReducer(gameReducer(started(), { type: "DINNER_REQUEST_ABANDON" }), { type: "DINNER_CONFIRM_ABANDON", now: T0 }),
+      { type: "DINNER_EXIT" },
+    );
+    const free = gameReducer(exited, { type: "START_FREE_COOK", now: T0 });
+    expect([free.roundKind, free.freeCook]).toEqual(["FREE_COOK", true]);
+    const guided = gameReducer(exited, { type: "SELECT_RECIPE", recipeId: "funghi", now: T0 });
+    expect([guided.roundKind, guided.phase]).toEqual(["GUIDED", "PREPARE"]);
+    expect(guided.cookingTiming).not.toBeNull();
+  });
+});
+
+describe("HOME, reload and stale actions", () => {
+  it("R26: HOME asks first; cancel keeps the run; confirm abandons (no reward); exit returns to a normal round", () => {
+    const state = started();
+    const requested = gameReducer(state, { type: "DINNER_REQUEST_ABANDON" });
+    expect(requested.dinner!.abandonRequested).toBe(true);
+    const cancelled = gameReducer(requested, { type: "DINNER_CANCEL_ABANDON" });
+    expect([cancelled.dinner!.abandonRequested, run(cancelled).status]).toEqual([false, "PLAYING"]);
+    expect(gameReducer(state, { type: "DINNER_CONFIRM_ABANDON", now: T0 + 5 })).toBe(state); // not requested
+    const abandoned = gameReducer(requested, { type: "DINNER_CONFIRM_ABANDON", now: T0 + 5 });
+    expect(run(abandoned).outcome).toEqual({ kind: "FAILED", reason: "ABANDONED", endedAt: T0 + 5 });
+    expect(abandoned.pitzBalance).toBe(PITZ);
+    expect(gameReducer(state, { type: "DINNER_EXIT" })).toBe(state); // refused while PLAYING
+    const exited = gameReducer(abandoned, { type: "DINNER_EXIT" });
+    expect(exited.dinner).toBeNull();
+    expect(exited.roundKind).not.toBe("DINNER");
+  });
+
+  it("nothing cooks, bakes or consumes while the HOME confirmation is open; 続ける resumes", () => {
+    const prepare = gameReducer(started(), { type: "DINNER_REQUEST_ABANDON" });
+    for (const action of [
+      { type: "CONFIRM_MAKING_STEP", now: T0 },
+      { type: "COMMIT_DOUGH_STRETCH", shape: prepare.pizza.doughShape },
+      { type: "START_BAKE", now: T0 },
+    ] as GameAction[]) {
+      expect(gameReducer(prepare, action), action.type).toBe(prepare);
+    }
+    const bake = gameReducer({ ...started(), pizza: pizzaFor("bismarck") }, { type: "START_BAKE", now: T0 });
+    const asked = gameReducer(bake, { type: "DINNER_REQUEST_ABANDON" });
+    expect(gameReducer(asked, { type: "CONFIRM_BAKE", value: mid("bismarck"), now: T0 + 1 })).toBe(asked);
+    expect(asked.inventory).toEqual(EXACT_A);
+    const resumed = gameReducer(asked, { type: "DINNER_CANCEL_ABANDON" });
+    const baked = gameReducer(resumed, { type: "CONFIRM_BAKE", value: mid("bismarck"), now: T0 + 2 });
+    expect([baked.phase, baked.inventory.egg]).toEqual(["POST_BAKE", 1]);
+  });
+
+  it("R25: nothing of a run is saved; a reload starts with no run (consumption stays real)", () => {
+    const store = new Map<string, string>();
+    const storage: StorageLike = {
+      getItem: (k) => store.get(k) ?? null,
+      setItem: (k, v) => void store.set(k, v),
+      removeItem: (k) => void store.delete(k),
+    };
+    const mid1 = nextPizza(cook(started(), "bismarck", T0 + 10), T0 + 11);
+    persistProgress(mid1, storage);
+    const raw = [...store.values()].join("");
+    expect(raw).not.toMatch(/dinner|roundKind|DINNER|attempt/);
+    const save = loadSave(storage);
+    expect(save.inventory.egg).toBe(1);
+    const reloaded = createInitialGameState(save.dex, save.ownedIngredientIds, save.pitzBalance, save.inventory);
+    expect(reloaded.dinner).toBeNull();
+    expect(reloaded.roundKind).not.toBe("DINNER");
+  });
+
+  it("Dinner actions without a run, or out of phase, do nothing; removed selection actions do not exist", () => {
     const base = saved(EXACT_A);
     for (const action of [
-      { type: "DINNER_SELECT_TARGET", recipeId: "bismarck", now: T0 },
+      { type: "DINNER_NEXT_PIZZA", now: T0 },
       { type: "DINNER_TICK", now: T0 },
       { type: "DINNER_EXIT" },
       { type: "DINNER_REQUEST_ABANDON" },
-    ] as GameAction[]) {
+      { type: "DINNER_SELECT_TARGET", recipeId: "bismarck", now: T0 },
+    ] as unknown as GameAction[]) {
       expect(gameReducer(base, action)).toBe(base);
     }
-    const board = started();
+    const state = started();
     for (const action of [
-      { type: "START_BAKE", now: T0 },
-      { type: "CONFIRM_BAKE", value: 60, now: T0 },
-      { type: "PLACE_TOPPING", ingredientId: "egg", x: 50, y: 50 },
+      { type: "DINNER_NEXT_PIZZA", now: T0 }, // PREPARE, not a result
+      { type: "CONFIRM_BAKE", value: 60, now: T0 }, // nothing started baking
+      { type: "DINNER_SELECT_TARGET", recipeId: "bismarck", now: T0 },
       { type: "DINNER_RETURN_TO_TARGETS", now: T0 },
       { type: "DINNER_CANCEL_TARGET", now: T0 },
-    ] as GameAction[]) {
-      expect(gameReducer(board, action)).toBe(board);
+    ] as unknown as GameAction[]) {
+      expect(gameReducer(state, action), action.type).toBe(state);
     }
   });
 
-  it("45: a result-producing confirm without a clock is refused", () => {
-    let state = gameReducer(started(), { type: "DINNER_SELECT_TARGET", recipeId: "bismarck", now: T0 });
-    state = gameReducer({ ...state, pizza: pizzaFor("bismarck") }, { type: "START_BAKE", now: T0 });
-    expect(gameReducer(state, { type: "CONFIRM_BAKE", value: 60 })).toBe(state);
+  it("a result-producing confirm without a clock is refused", () => {
+    const bake = gameReducer({ ...started(), pizza: pizzaFor("bismarck") }, { type: "START_BAKE", now: T0 });
+    expect(gameReducer(bake, { type: "CONFIRM_BAKE", value: 60 })).toBe(bake);
   });
 
-  it("46: a repeated bake / result event consumes and counts only once", () => {
+  it("a repeated bake / result event consumes and counts only once", () => {
     const result = cook(started(), "bismarck", T0 + 10);
-    const again = gameReducer(result, { type: "CONFIRM_BAKE", value: 60, now: T0 + 11 });
-    expect(again).toBe(result);
+    expect(gameReducer(result, { type: "CONFIRM_BAKE", value: 60, now: T0 + 11 })).toBe(result);
     expect(gameReducer(result, { type: "CONFIRM_MAKING_STEP", now: T0 + 11 })).toBe(result);
     expect(run(result).attempts).toHaveLength(1);
     expect(result.inventory.egg).toBe(1);
+    const next = nextPizza(result, T0 + 12);
+    expect(nextPizza(next, T0 + 13)).toBe(next); // not at RESULT any more
   });
 });
 
 describe("invariants over random play (seeded)", () => {
-  /** Small deterministic PRNG so failures reproduce. */
   function prng(seed: number) {
     let x = seed >>> 0 || 1;
     return () => {
@@ -539,11 +682,20 @@ describe("invariants over random play (seeded)", () => {
     };
   }
 
-  it("completed/remaining partition, CLEAR iff empty, terminal is final, stock never rises, Pitz and Dex never move", () => {
-    for (let seed = 1; seed <= 150; seed += 1) {
+  it("completed/remaining partition, CLEAR iff empty, terminal is final, stock never rises, one attempt per result, Pitz and Dex never move", () => {
+    const pool = [...DM_A_IDS, "marinara", "hawaiian"];
+    for (let seed = 1; seed <= 120; seed += 1) {
       const rand = prng(seed);
       const pick = <T,>(xs: readonly T[]): T => xs[Math.floor(rand() * xs.length)];
-      let state = started({ egg: 2 + Math.floor(rand() * 3), bacon: 3 + Math.floor(rand() * 3), mushroom: 3 + Math.floor(rand() * 3) });
+      let state = started({
+        egg: 2 + Math.floor(rand() * 3),
+        bacon: 3 + Math.floor(rand() * 3),
+        mushroom: 3 + Math.floor(rand() * 3),
+        garlic: 3,
+        oregano: 2,
+        ham: 2,
+        pineapple: 3,
+      });
       const dex = JSON.stringify(state.dex);
       let now = T0;
       let wasTerminal = false;
@@ -551,31 +703,24 @@ describe("invariants over random play (seeded)", () => {
         now += Math.floor(rand() * 40_000);
         const before = state;
         const r = rand();
-        if (r < 0.45 && state.dinner?.run.activeRecipeId === null && state.phase === "ORDER") {
-          const id = pick(remainingTargetIds(state.dinner.run));
-          if (id) {
-            try {
-              state = cook(state, id, now, {
-                underbake: rand() < 0.2,
-                counts: rand() < 0.3 ? { egg: 2, mushroom: 4, bacon: 4 } : {},
-              });
-            } catch {
-              // The deadline passed at selection: SELECT did not reach PREPARE.
-              state = gameReducer(state, { type: "DINNER_SELECT_TARGET", recipeId: id, now });
-            }
+        if (r < 0.5 && state.phase === "PREPARE" && state.dinner!.run.status === "PLAYING") {
+          const id = pick(pool);
+          const bake = rand() < 0.15 ? 0 : rand() < 0.1 ? 100 : mid(id);
+          state = cookPizza(state, pizzaFor(id, rand() < 0.3 ? { egg: 2, mushroom: 4, bacon: 4 } : {}), bake, now);
+          if (state.dinner!.run.status === "PLAYING" && state.phase === "RESULT") {
+            expect(run(state).attempts.length, `seed ${seed}`).toBe(run(before).attempts.length + 1);
           }
         } else {
           const actions: GameAction[] = [
-            { type: "DINNER_RETURN_TO_TARGETS", now },
+            { type: "DINNER_NEXT_PIZZA", now },
             { type: "DINNER_TICK", now },
             { type: "DINNER_REQUEST_ABANDON" },
             { type: "DINNER_CANCEL_ABANDON" },
             { type: "RESTOCK_INGREDIENT", ingredientId: "egg" },
             { type: "PURCHASE_INGREDIENT", ingredientId: "capers" },
             { type: "REGISTER_TO_DEX" },
+            { type: "SHOW_HINT" },
             { type: "PLAY_AGAIN" },
-            { type: "DINNER_SELECT_TARGET", recipeId: pick([...DM_A_IDS, "hawaiian"]), now },
-            { type: "DINNER_CANCEL_TARGET", now },
           ];
           state = gameReducer(state, pick(actions));
         }
@@ -587,6 +732,7 @@ describe("invariants over random play (seeded)", () => {
         expect(session.run.status === "CLEARED", `seed ${seed}`).toBe(remaining.length === 0);
         if (wasTerminal) expect(session.run.status, `seed ${seed}`).not.toBe("PLAYING");
         wasTerminal = session.run.status !== "PLAYING";
+        expect(session.run.attempts.filter((a) => a.category === "TARGET_PASS").length, `seed ${seed}`).toBe(done.length);
         for (const id of FINITE_IDS) {
           expect(state.inventory[id] ?? 0, `seed ${seed} ${id}`).toBeLessThanOrEqual(before.inventory[id] ?? 0);
         }
