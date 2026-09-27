@@ -111,3 +111,15 @@
 ## 10. Human Verification
 
 UI・操作・見た目の変更がない pure logic とテストのみの変更なので、Human Verification Policy §2 の「原則不要」（見た目や操作が変わらない unit test 追加、内部実装）に該当し、動画・スクショはない。
+
+## 11. PR #272 — CI とレビュー
+
+| 項目 | 結果 |
+|---|---|
+| PR | #272（`claude/large-catalog-ux-design-sq8saf` → `main`、base `7bb0116`）。mergeable_state **clean** |
+| CI（head `11471ac`） | **9/9 success**: `build`（lint → Vitest → build）、`classify`、`layout-chromium`、`Layout Contract Gate`、`webkit-390x844` shard 1/2・2/2、`webkit-360x800` shard 1/2・2/2、**`WebKit Gate`** |
+| 旧 head `526fd25` の WebKit Gate FAIL | 修正 push による per-PR `cancel-in-progress` で shard 1/2 が cancelled になったためで、テストの失敗ではない。完了していた shard 2/2・layout-chromium・Layout Contract Gate はすべて success |
+| Codex review（2 件、どちらも投影ツールの不具合） | ① P2: `vertical_scroll` の章数を `ceil(n/25)` から `CHAPTER_SIZES` に修正。172 の scroll 投影は −120px（範囲表記は不変）。② P1: 発見済みカードの DOM コストに locked 分を足し戻した。Dex 172 全発見の推定が 1045 → 2242 要素になり、Fresh Design の性能表を修正。どちらも `11471ac` で修正し、返信・resolve 済み |
+| mutation gate | 19 / 19 killed（`docs/reports/data/TETO_LARGE-CATALOG-UX_LC-1_MUTATION-RESULT.txt`） |
+
+**判定: READY FOR OWNER REVIEW。** merge、auto-merge、deploy はしていない。
