@@ -76,6 +76,10 @@ describe("Free Cooking hint sheet in the App (229-B)", () => {
     await buy(user, dialog);
     expect(dialog).toHaveTextContent("このピザは、今わかっているヒントを手がかりに考えてみよう！");
     expect(dialog).toHaveTextContent("所持 285 Pitz");
+    // H3-4 (OD-H3-4-3): only now, after the reducer answered GUIDANCE_ONLY, the CTA stops.
+    expect(cta(dialog)).toBeDisabled();
+    expect(cta(dialog)).toHaveTextContent("今あるヒントはここまで");
+    expect(dialog).toHaveTextContent("今回はPitzを使っていないよ");
     expect(dialog).not.toHaveTextContent("ブレックファストピザ");
     expect(dialog).not.toHaveTextContent("たまご");
     await user.click(within(dialog).getByRole("button", { name: "閉じる" }));
@@ -142,7 +146,7 @@ describe("Free Cooking hint sheet in the App (229-B)", () => {
     const dialog = await openSheet(user);
     const before = window.localStorage.getItem(SAVE_STORAGE_KEY);
     expect(cta(dialog)).toBeDisabled();
-    expect(dialog).toHaveTextContent("たまったら解除できるよ。このまま作ってもOK！");
+    expect(dialog).toHaveTextContent("Pitzがたまったら、またためしてね。このまま作ってもOK！");
     await user.click(cta(dialog));
     expect(window.localStorage.getItem(SAVE_STORAGE_KEY)).toBe(before);
     expect(screen.getByRole("dialog", { name: /ヒント/ })).toBeInTheDocument();
@@ -163,5 +167,82 @@ describe("Free Cooking hint sheet in the App (229-B)", () => {
       discoveryHintPurchases: { "breakfast-pizza": 3 },
       discoveryHintFacts: { "breakfast-pizza": ["ing:mozzarella"] },
     });
+  });
+
+  // H3-4 (Issue #238, OD-H3-4-1/3): capricciosa, a legacy Economy 1.0 H1 buyer. Cap parity (75):
+  // 10 + 20 + 40 are paid, then the cap is reached while one real fact is still for sale. That fact
+  // must still be obtainable at 「支払いずみ」 (never pre-disabled), and only the following request
+  // answers GUIDANCE_ONLY, charges nothing and stops the CTA.
+  const LADDER11 = [
+    ["margherita", []], ["bismarck", ["egg"]], ["breakfast-pizza", ["bacon"]], ["funghi", ["mushroom"]],
+    ["melanzane-pizza", ["eggplant"]], ["parmigiana-pizza", ["parmigiano"]], ["pepperoni", ["pepperoni"]],
+    ["salsiccia", ["sausage"]], ["meat-lovers", ["ham"]], ["bambino", ["corn"]], ["hawaiian", ["pineapple"]],
+  ] as const;
+  const DEX11_MATERIALS = [...LADDER11.flatMap(([, m]) => m), "black-olive", "oregano"];
+  const DEX11_SAVE = {
+    schemaVersion: 2,
+    dex: LADDER11.map(([recipeId]) => ({ recipeId, discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 })),
+    pitzBalance: 200,
+    discoveryHintPurchases: { capricciosa: 1 },
+    ownedIngredientIds: [...STARTER_INGREDIENT_IDS, ...DEX11_MATERIALS],
+    missionBest: {},
+    inventory: Object.fromEntries(DEX11_MATERIALS.map((m) => [m, 10])),
+    starterGrantClaimedRecipeIds: [],
+    unlockedForShopIngredientIds: DEX11_MATERIALS,
+  };
+  const chips = (dialog: HTMLElement) => dialog.querySelectorAll(".hint-sheet__chip:not(.hint-sheet__chip--unknown)").length;
+  const saved = () => JSON.parse(window.localStorage.getItem(SAVE_STORAGE_KEY)!);
+
+  it("H3-4: a legacy buyer at the cap gets the remaining real fact at 「支払いずみ」 (0 Pitz); only then GUIDANCE_ONLY stops the CTA", async () => {
+    window.localStorage.setItem(SAVE_STORAGE_KEY, JSON.stringify(DEX11_SAVE));
+    const user = userEvent.setup();
+    render(<App />);
+    const dialog = await openSheet(user);
+    expect(cta(dialog)).toHaveTextContent("ヒントを1つもらう 10 Pitz");
+    await buy(user, dialog);
+    await buy(user, dialog);
+    await buy(user, dialog);
+    expect(saved().pitzBalance).toBe(200 - 10 - 20 - 40);
+    const before = chips(dialog);
+
+    // Cap reached, one real fact left: the CTA is a request, enabled, and never says 0 Pitz / free.
+    expect(cta(dialog).textContent).toBe("ヒントをたずねる 支払いずみ");
+    expect(cta(dialog)).toBeEnabled();
+    expect(dialog).toHaveTextContent("このピザのヒント代は上限まで支払いずみ");
+    await buy(user, dialog);
+    expect(chips(dialog)).toBe(before + 1);
+    expect(dialog.querySelectorAll(".hint-sheet__chip--new")).toHaveLength(1);
+    expect(saved().pitzBalance).toBe(130);
+    expect(saved().discoveryHintFacts.capricciosa).toHaveLength(4);
+    expect(saved().discoveryHintPurchases).toEqual({ capricciosa: 1 });
+    expect(dialog.querySelector(".hint-sheet__guidance")).toBeNull();
+
+    // Same wording again (the view cannot tell that nothing is left) -> this time GUIDANCE_ONLY.
+    expect(cta(dialog).textContent).toBe("ヒントをたずねる 支払いずみ");
+    expect(cta(dialog)).toBeEnabled();
+    const snapshot = window.localStorage.getItem(SAVE_STORAGE_KEY);
+    await user.click(cta(dialog));
+    await waitFor(() => expect(dialog.querySelector(".hint-sheet__guidance")).not.toBeNull());
+    expect(cta(dialog)).toBeDisabled();
+    expect(cta(dialog)).toHaveTextContent("今あるヒントはここまで");
+    expect(window.localStorage.getItem(SAVE_STORAGE_KEY)).toBe(snapshot);
+
+    // Re-operating after the guidance changes nothing (clicks, Enter).
+    await user.click(cta(dialog));
+    cta(dialog).focus();
+    await user.keyboard("{Enter}{Enter}");
+    expect(window.localStorage.getItem(SAVE_STORAGE_KEY)).toBe(snapshot);
+    expect(chips(dialog)).toBe(before + 1);
+    expect(screen.getByRole("dialog", { name: /ヒント/ })).toBeInTheDocument();
+
+    // Close and reopen: the outcome is transient; the request is offered again, still without Pitz.
+    await user.click(within(dialog).getByRole("button", { name: "閉じる" }));
+    const bar = document.querySelector(".prepare-bake-bar") as HTMLElement;
+    await user.click(within(bar).getByRole("button", { name: "ヒント" }));
+    const reopened = screen.getByRole("dialog", { name: /ヒント/ });
+    expect(cta(reopened).textContent).toBe("ヒントをたずねる 支払いずみ");
+    expect(cta(reopened)).toBeEnabled();
+    expect(reopened.querySelector(".hint-sheet__guidance")).toBeNull();
+    expect(reopened.querySelectorAll(".hint-sheet__chip--new")).toHaveLength(0);
   });
 });
