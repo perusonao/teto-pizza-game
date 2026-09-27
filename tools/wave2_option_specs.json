@@ -1,0 +1,86 @@
+{
+ "note": "Owner comparison inputs for tools/progression2_wave2_candidates.py. Each option is a candidate Wave 2 set, NOT an adopted production recipe set. recipeEvidenceIds are Phase-1 matrix evidenceIds; every one must be class A-D (validated).",
+ "options": [
+  {
+   "id": "W2-A_LEAN_DATA_ONLY",
+   "title": "Lean data-only (A+B, zero new mechanic)",
+   "thesis": "Ship immediately on the W1 pipeline: 9 recipes, 8 new ingredients, first white (fromage-blanc) base, first seafood-in-oil and pesto-protein variants, two no-CUT pizzas. Adds count and flavour, few new ways to play.",
+   "mechanicsIntroduced": [],
+   "recipeEvidenceIds": [
+    "brazilian-calabresa-pizzadb-p10",
+    "vongole-pizzadb",
+    "flammkuchen-pizzadb",
+    "pesto-gamberi-pizzadb-p11",
+    "pesto-pollo-pizzadb-p12",
+    "ratatouille-pizza-pizzadb-p13",
+    "pesto-vegetariana-pizzadb-p12",
+    "prosciutto-funghi-pizzadb-p11",
+    "jamon-serrano-pizza-pizzadb-p7"
+   ]
+  },
+  {
+   "id": "W2-B_SAUCE_PALETTE",
+   "title": "Sauce palette (B only, new PAINT sauces)",
+   "thesis": "Keep the gesture, change what you paint: 6 new sauce colours (fromage-blanc white, miso, doubanjiang, curry-ketchup, tahini, yuzu-kosho) through the existing PAINT pipeline. Visible variety at the SAUCE step, but each sauce is a new ingredient + colour + Shop row.",
+   "mechanicsIntroduced": ["NEW_PAINT_SAUCE_PROFILE (widen RecipeSauceProfile.ingredientId)"],
+   "recipeEvidenceIds": [
+    "flammkuchen-pizzadb",
+    "eggplant-dengaku-pizza-pizzadb-p6",
+    "sichuan-eggplant-pizza",
+    "currywurst-pizzadb",
+    "eggplant-tahini-pizza-pizzadb-p5",
+    "yuzu-shrimp-pizza",
+    "brazilian-calabresa-pizzadb-p10",
+    "pesto-gamberi-pizzadb-p11"
+   ]
+  },
+  {
+   "id": "W2-C_NO_SAUCE_INTRO",
+   "title": "No-sauce introduction (SAUCELESS_SCORING)",
+   "thesis": "First pizzas with no SAUCE step: dough -> cheese -> toppings. Two need zero new ingredients (Aussie, Chilean Napolitana). Requires the sauce-less Scoring 2.0 / Reference / sauce-profile contract before any recipe ships.",
+   "mechanicsIntroduced": ["SAUCELESS_SCORING"],
+   "recipeEvidenceIds": [
+    "aussie-pizzadb",
+    "chilean-napolitana-pizzadb",
+    "tsukimi-pizza-pizzadb-p14",
+    "spanish-chorizo-pizza-pizzadb-p4",
+    "porchetta-pizza-pizzadb-p12",
+    "frango-catupiry-pizzadb-p10",
+    "brazilian-calabresa-pizzadb-p10",
+    "vongole-pizzadb"
+   ]
+  },
+  {
+   "id": "W2-D_DRIZZLE_MULTI_SPREAD",
+   "title": "Drizzle / multi-spread introduction (MULTI_SPREAD_LAYER)",
+   "thesis": "Two spreads in order: paint the base, then drizzle oil or honey on top. Grandma and Sfincione need zero new ingredients; burrata and honey add a strong visual finish. Resolves the olive-oil -> DRIZZLE TODO in recipeSauceProfiles.ts.",
+   "mechanicsIntroduced": ["MULTI_SPREAD_LAYER"],
+   "recipeEvidenceIds": [
+    "grandma-pizza-pizzadb",
+    "sfincione-pizzadb",
+    "burrata-pizza-pizzadb-p10",
+    "pesto-burrata-pizzadb-p12",
+    "hot-honey-pepperoni-pizzadb-p12",
+    "pesto-noci-pizzadb-p12",
+    "brazilian-calabresa-pizzadb-p10",
+    "vongole-pizzadb"
+   ]
+  },
+  {
+   "id": "W2-E_EXPERIENCE_SAMPLER",
+   "title": "Experience sampler (one pizza per new way to play)",
+   "thesis": "Maximum variety per recipe: white base, no sauce, drizzle, post-bake topping, cheese-first order. Needs three to four mechanics at once (SAUCELESS_SCORING, MULTI_SPREAD_LAYER, FINISH, STEP_ORDER) -- highest cost and Human-Verification load.",
+   "mechanicsIntroduced": ["NEW_PAINT_SAUCE_PROFILE", "SAUCELESS_SCORING", "MULTI_SPREAD_LAYER", "FINISH_POST_BAKE", "STEP_ORDER"],
+   "recipeEvidenceIds": [
+    "brazilian-calabresa-pizzadb-p10",
+    "flammkuchen-pizzadb",
+    "aussie-pizzadb",
+    "chilean-napolitana-pizzadb",
+    "grandma-pizza-pizzadb",
+    "hot-honey-pepperoni-pizzadb-p12",
+    "bbq-chicken-pizzadb",
+    "trenton-tomato-pie-pizzadb"
+   ]
+  }
+ ]
+}
