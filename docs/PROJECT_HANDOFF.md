@@ -301,6 +301,26 @@ There is no save schema change. The unit suite is 2406/2406 (29 new) and Chromiu
 WebKit is covered by the CI job. Open follow-ups are listed in that report's §6: the ORIGINAL
 Pitz reward belongs to P3-3, and onboarding and hint tiers are also pending.
 
+**2026-09-27 addendum (Cooking Techniques 1.0 Fresh Design, docs/data/tools only, not merged)**.
+Base `main` `51e0923` (PR #252). See `docs/design/TETO_COOKING-TECHNIQUES_1.0_DESIGN.md`, the audit
+data `docs/design/data/TETO_COOKING-TECHNIQUES_1.0_AUDIT.json`, the generated tables
+`docs/design/TETO_COOKING-TECHNIQUES_1.0_ROWS.md` and `tools/cooking_techniques_audit.py`
+(`--check`). The design separates Technique Discovery (the first PASS pizza that uses a new
+way of cooking) from Recipe and Material discovery. The ladder opens only an affordance. Nothing
+is sold in the Shop, and Hints never sell an undiscovered technique. Candidates audited against
+the 172 matrix:
+
+- Techniques: post-bake topping, no sauce, multi-spread.
+- Later techniques: shape, pan, enclose and the rest.
+- Not techniques: pre-bake placement (baseline), special sauce and dough type or piadina
+  (material), and no-CUT (serve attribute).
+
+The recommended minimum slice, TQ-1, is the ledger, detection, ceremony and Dex section, with a
+`NO_SAUCE` pilot and one recipe (Aussie). It needs no new gesture. Post-bake follows in TQ-2.
+Owner Decisions OD-TQ-1…15 are open, and no `src/**` change was made. Known pre-existing issue
+on `main`: `tools/progression2_mechanic_matrix.py --check` reports that the committed matrix JSON
+differs from a fresh regeneration. This is unrelated to this change.
+
 > Fresh GitHub/main state always wins if this document becomes stale.
 
 ## Product goal

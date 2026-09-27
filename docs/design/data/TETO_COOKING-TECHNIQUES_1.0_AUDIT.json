@@ -1,0 +1,4587 @@
+{
+ "schemaNote": "Cooking Techniques 1.0 Fresh Design audit. Docs/data only; not a production SSOT. Counts derive from the Phase-1 matrix + Phase-2 classification; verdicts are the design proposal.",
+ "generatedBy": "tools/cooking_techniques_audit.py",
+ "inputs": [
+  "docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json",
+  "docs/design/data/TETO_PROGRESSION2_PHASE2_UNLOCK-MATRIX.json",
+  "src/data/recipes.ts",
+  "src/data/ingredients.ts",
+  "src/data/discoveryCatalog.ts"
+ ],
+ "requiredStrengths": [
+  "catalog_design_tag",
+  "phase0_sample_mechanic_tag",
+  "source_dough_field",
+  "source_ingredient_field",
+  "source_profile_text"
+ ],
+ "summary": {
+  "rows": 172,
+  "rowsByTechniqueCount": {
+   "0": 86,
+   "1": 74,
+   "2": 11,
+   "3": 1
+  },
+  "rowsNeedingNoTechnique": 86,
+  "readyTargets": 87,
+  "readyTargetsNeedingNoTechnique": 40,
+  "readyTargetsNeedingTechnique": 47,
+  "verdictCounts": {
+   "TECHNIQUE": 3,
+   "TECHNIQUE_LATER": 10,
+   "BASELINE": 1,
+   "MATERIAL": 2,
+   "SERVE_ATTRIBUTE": 1
+  },
+  "runtimeRecipeCount": 25,
+  "runtimeIngredientCount": 29,
+  "runtimeSauceIds": [
+   "olive-oil",
+   "pesto",
+   "tomato-sauce"
+  ]
+ },
+ "candidates": [
+  {
+   "id": "PRE_BAKE_PLACEMENT",
+   "nameJa": "焼く前にのせる",
+   "userListed": true,
+   "capability": null,
+   "runtimeAxis": "FIXED_BY_FLOW (the only placement timing that exists)",
+   "verdict": "BASELINE",
+   "verdictReasonJa": "全172行・全25 runtime recipeの既定動作。発見対象ではなく、後乗せ/途中のせを『対比として』理解させる基準線。",
+   "rowsRequired": 172,
+   "rowsCandidateOnly": 0,
+   "rowsRequiredReady": 87,
+   "readyTargetsOnlyThisTechnique": 57,
+   "readyTargetsBuildableWithRuntimeIngredients": 14,
+   "runtimeRecipesCarryingIt": [
+    "bambino",
+    "bismarck",
+    "breakfast-pizza",
+    "capricciosa",
+    "fugazza",
+    "funghi",
+    "genovese",
+    "hawaiian",
+    "margherita",
+    "marinara",
+    "meat-lovers",
+    "melanzane-pizza",
+    "napoletana",
+    "new-haven-apizza",
+    "parmigiana-pizza",
+    "pepperoni",
+    "pesto-caprese",
+    "pesto-patate",
+    "pesto-tonno",
+    "pizza-bianca",
+    "pizza-portuguesa",
+    "puttanesca-pizza",
+    "quattro-formaggi",
+    "salsiccia",
+    "tonno-e-cipolla"
+   ],
+   "requiredRowIds": [
+    "bbq-chicken-pizzadb",
+    "apple-cinnamon-dessert-pizzadb",
+    "calabresa-argentina-pizzadb",
+    "vongole-pizzadb",
+    "aussie-pizzadb",
+    "capricciosa-pizzadb",
+    "currywurst-pizzadb",
+    "calzone-pizzadb",
+    "quattro-stagioni-pizzadb",
+    "quattro-formaggi-pizzadb",
+    "grandma-pizza-pizzadb",
+    "greek-style-pizzadb",
+    "chicago-deep-dish-pizzadb",
+    "siciliana-pizzadb",
+    "sfincione-pizzadb",
+    "supreme-pizzadb",
+    "taco-pizza-pizzadb",
+    "flammkuchen-pizzadb",
+    "chilean-napolitana-pizzadb",
+    "trenton-tomato-pie-pizzadb",
+    "tonno-e-cipolla-pizzadb",
+    "new-haven-apizza-pizzadb",
+    "ny-style-pizzadb",
+    "bacalhau-pizzadb",
+    "buffalo-chicken-pizzadb",
+    "margherita-pizzadb-row",
+    "pizza-baiana",
+    "pizza-a-caballo",
+    "fugazzeta-rellena",
+    "bianca-pizzadb-row",
+    "pizza-de-cancha",
+    "hawaiian-pizzadb-row",
+    "swedish-kebab-pizza-pizzadb-p4",
+    "scacciata-ragusana-pizzadb-p4",
+    "spanish-chorizo-pizza-pizzadb-p4",
+    "spinach-artichoke-pizza-pizzadb-p4",
+    "speck-e-brie-pizzadb-p4",
+    "smore-dessert-pizza-pizzadb-p4",
+    "st-louis-style-pizza-pizzadb-p4",
+    "thai-chicken-pizza-pizzadb-p4",
+    "mentaiko-cream-pizza-pizzadb-p4",
+    "argentine-napolitana-pizzadb-p1",
+    "ikura-salmon-pizza-pizzadb-p1",
+    "vegan-cashew-cheese-pizza-pizzadb-p1",
+    "eel-pizza-pizzadb-p1",
+    "jerusalem-mixed-grill-pizza-pizzadb-p1",
+    "old-forge-style-pizza-pizzadb-p1",
+    "okonomiyaki-style-pizza-pizzadb-p1",
+    "caponata-pizza-pizzadb-p2",
+    "california-style-pizza-pizzadb-p2",
+    "cauliflower-crust-pizza-pizzadb-p2",
+    "curry-pizza-japan-pizzadb-p2",
+    "keema-pizza-pizzadb-p2",
+    "kimchi-pizza-pizzadb-p2",
+    "cuban-pizza-pizzadb-p2",
+    "quad-cities-style-pizza-pizzadb-p2",
+    "goulash-pizza-pizzadb-p3",
+    "colorado-mountain-pie-pizzadb-p3",
+    "salsiccia-e-friarielli-pizzadb-p3",
+    "chicago-stuffed-pizza-pizzadb-p3",
+    "potato-mayo-pizza-pizzadb-p3",
+    "jamaican-jerk-chicken-pizza-pizzadb-p3",
+    "shirasu-pizza-pizzadb-p3",
+    "tandoori-paneer-pizza-pizzadb-p5",
+    "chicken-tikka-pizza-pizzadb-p5",
+    "diavola-pizza-pizzadb-p5",
+    "detroit-style-pizza-pizzadb-p5",
+    "turkish-pide-pizzadb-p5",
+    "nigerian-suya-pizza-pizzadb-p5",
+    "eggplant-tahini-pizza-pizzadb-p5",
+    "eggplant-ricotta-pizza-pizzadb-p5",
+    "eggplant-dengaku-pizza-pizzadb-p6",
+    "nashville-hot-chicken-pizza-pizzadb-p6",
+    "new-england-bar-pizza-pizzadb-p6",
+    "new-zealand-lamb-pizza-pizzadb-p6",
+    "nutella-dessert-pizza-pizzadb-p6",
+    "baingan-bharta-pizza-pizzadb-p6",
+    "banh-mi-pizza-pizzadb-p6",
+    "buffalo-cauliflower-pizza-pizzadb-p6",
+    "baba-ganoush-pizza-pizzadb-p7",
+    "jamon-serrano-pizza-pizzadb-p7",
+    "jalapeno-popper-pizza-pizzadb-p7",
+    "palmitos-salsa-golf-pizzadb-p7",
+    "parmigiana-pizza-pizzadb-p7",
+    "palmito-pizza-pizzadb-p7",
+    "bambino-pizzadb-p7",
+    "piadina-romagnola-pizzadb-p7",
+    "pizza-overload-pizzadb-p7",
+    "pizza-salad-pizzadb-p7",
+    "bismarck-pizza-pizzadb-p7",
+    "pizza-alla-crudaiola-pizzadb-p8",
+    "pizza-asparagi-limone-pizzadb-p8",
+    "pizza-carciofi-salad-pizzadb-p8",
+    "pizza-finocchi-salad-pizzadb-p8",
+    "pizza-cavolo-carote-pizzadb-p8",
+    "pizza-zucchine-menta-pizzadb-p8",
+    "pizza-cicoria-limone-pizzadb-p8",
+    "pizza-puntarelle-pizzadb-p8",
+    "pizza-radicchio-noci-pizzadb-p8",
+    "pizza-chilena-pizzadb-p8",
+    "pizza-portuguesa-pizzadb-p9",
+    "pizza-romana-pizzadb-p9",
+    "pizza-alla-norma-pizzadb-p9",
+    "pizza-al-taglio-romana-pizzadb-p9",
+    "pizza-feta-eliniki-pizzadb-p9",
+    "pizza-fritta-pizzadb-p9",
+    "pizza-moscow-pizzadb-p9",
+    "pinsa-romana-pizzadb-p9",
+    "fathead-pizza-keto-pizzadb-p9",
+    "philly-cheesesteak-pizza-pizzadb-p9",
+    "poutine-pizza-pizzadb-p10",
+    "feteer-meshaltet-pizzadb-p10",
+    "focaccia-genovese-pizzadb-p10",
+    "fugazza-pizzadb-p10",
+    "fugazzetta-pizzadb-p10",
+    "puttanesca-pizza-pizzadb-p10",
+    "burrata-pizza-pizzadb-p10",
+    "brazilian-calabresa-pizzadb-p10",
+    "brazilian-catupiry-corn-pizza-pizzadb-p10",
+    "frango-catupiry-pizzadb-p10",
+    "full-english-pizza-pizzadb-p10",
+    "fruit-dessert-pizza-pizzadb-p11",
+    "bulgogi-pizza-pizzadb-p11",
+    "frutti-di-mare-pizzadb-p11",
+    "breakfast-pizza-pizzadb-p11",
+    "prosciutto-funghi-pizzadb-p11",
+    "veggie-supreme-pizza-pizzadb-p11",
+    "pescatore-pizzadb-p11",
+    "pesto-caprese-pizzadb-p11",
+    "pesto-gamberi-pizzadb-p11",
+    "pesto-salmone-pizzadb-p11",
+    "pesto-genovese-pizza-pizzadb-p11",
+    "pesto-trapanese-pizzadb-p11",
+    "pesto-tonno-pizzadb-p12",
+    "pesto-noci-pizzadb-p12",
+    "pesto-patate-pizzadb-p12",
+    "pesto-burrata-pizzadb-p12",
+    "pesto-vegetariana-pizzadb-p12",
+    "pesto-pollo-pizzadb-p12",
+    "venezuelan-reina-pepiada-pizzadb-p12",
+    "peruvian-aji-amarillo-pizzadb-p12",
+    "polish-kielbasa-pizzadb-p12",
+    "boscaiola-pizzadb-p12",
+    "hot-honey-pepperoni-pizzadb-p12",
+    "porchetta-pizza-pizzadb-p12",
+    "natto-pizza",
+    "peking-duck-pizza",
+    "mentaiko-mochi-pizza",
+    "manakish",
+    "yuzu-shrimp-pizza",
+    "wasabi-beef-pizza",
+    "sichuan-eggplant-pizza",
+    "yakiniku-pizza",
+    "pizza-de-lomo-saltado",
+    "lahmacun",
+    "porcini-pizza-pizzadb-p13",
+    "marinara-pizza-pizzadb-p13",
+    "meat-lovers-pizza-pizzadb-p13",
+    "moussaka-style-pizza-pizzadb-p13",
+    "mexican-elote-pizza-pizzadb-p13",
+    "melanzane-pizza-pizzadb-p13",
+    "montreal-style-pizza-pizzadb-p13",
+    "ratatouille-pizza-pizzadb-p13",
+    "rucola-e-grana-pizzadb-p13",
+    "rendang-pizza-pizzadb-p14",
+    "nduja-pizza-pizzadb-p14",
+    "tsukimi-pizza-pizzadb-p14",
+    "black-truffle-pizza-pizzadb-p14",
+    "teriyaki-chicken-pizza-pizzadb-p14",
+    "south-african-boerewors-pizzadb-p14",
+    "ume-shiso-pizza-pizzadb-p14",
+    "hokkaido-cheese-pizza-pizzadb-p15"
+   ],
+   "candidateOnlyRowIds": [],
+   "readyTargets": [
+    {
+     "evidenceId": "bbq-chicken-pizzadb",
+     "nameJa": "BBQチキンピザ",
+     "reachableAtStep": 20,
+     "tier": "mid",
+     "otherRequiredCapabilities": [
+      "LATE_ADDITION"
+     ],
+     "ingredientsMissingFromRuntime": [
+      "bbq-sauce",
+      "chicken",
+      "cilantro"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "calabresa-argentina-pizzadb",
+     "nameJa": "アルゼンチン風カラブレーサ",
+     "reachableAtStep": 42,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "salami"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "vongole-pizzadb",
+     "nameJa": "ヴォンゴレピザ",
+     "reachableAtStep": 14,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "parsley"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "aussie-pizzadb",
+     "nameJa": "オージーピザ",
+     "reachableAtStep": 1,
+     "tier": "early",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "currywurst-pizzadb",
+     "nameJa": "カリーヴルストピザ",
+     "reachableAtStep": 66,
+     "tier": "endgame",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "curry-ketchup",
+      "paprika-powder",
+      "wurstel"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "quattro-stagioni-pizzadb",
+     "nameJa": "クアトロスタジオーニ（PIZZA DB版）",
+     "reachableAtStep": 16,
+     "tier": "mid",
+     "otherRequiredCapabilities": [
+      "ZONED_PLACEMENT"
+     ],
+     "ingredientsMissingFromRuntime": [
+      "artichoke"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "grandma-pizza-pizzadb",
+     "nameJa": "グランマピザ",
+     "reachableAtStep": 11,
+     "tier": "mid",
+     "otherRequiredCapabilities": [
+      "MULTI_SPREAD_LAYER"
+     ],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "sfincione-pizzadb",
+     "nameJa": "スフィンチョーネ",
+     "reachableAtStep": 12,
+     "tier": "mid",
+     "otherRequiredCapabilities": [
+      "MULTI_SPREAD_LAYER"
+     ],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "flammkuchen-pizzadb",
+     "nameJa": "タルトフランベ",
+     "reachableAtStep": 36,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "fromage-blanc-sauce"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "chilean-napolitana-pizzadb",
+     "nameJa": "チリアンナポリターナ",
+     "reachableAtStep": 4,
+     "tier": "early",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "trenton-tomato-pie-pizzadb",
+     "nameJa": "トレントントマトパイ",
+     "reachableAtStep": 8,
+     "tier": "early",
+     "otherRequiredCapabilities": [
+      "STEP_ORDER"
+     ],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "tonno-e-cipolla-pizzadb",
+     "nameJa": "トンノエチポッラ（PIZZA DB版）",
+     "reachableAtStep": 6,
+     "tier": "early",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": "tonno-e-cipolla"
+    },
+    {
+     "evidenceId": "new-haven-apizza-pizzadb",
+     "nameJa": "ニューヘイブンアピッツァ",
+     "reachableAtStep": 9,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": "new-haven-apizza"
+    },
+    {
+     "evidenceId": "ny-style-pizzadb",
+     "nameJa": "ニューヨークスタイルピザ（PIZZA DB版）",
+     "reachableAtStep": 33,
+     "tier": "late",
+     "otherRequiredCapabilities": [
+      "DOUGH_VARIANT"
+     ],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "bacalhau-pizzadb",
+     "nameJa": "バカリャウピザ",
+     "reachableAtStep": 43,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "salt-cod"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "fugazzeta-rellena",
+     "nameJa": "フガゼッタ・レジェーナ",
+     "reachableAtStep": 30,
+     "tier": "late",
+     "otherRequiredCapabilities": [
+      "DOUGH_VARIANT",
+      "ENCLOSE"
+     ],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "bianca-pizzadb-row",
+     "nameJa": "ピッツァビアンカ",
+     "reachableAtStep": 21,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "ricotta"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "hawaiian-pizzadb-row",
+     "nameJa": "ハワイアンピザ",
+     "reachableAtStep": 22,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": "hawaiian"
+    },
+    {
+     "evidenceId": "scacciata-ragusana-pizzadb-p4",
+     "nameJa": "スカッチャラグザーナ",
+     "reachableAtStep": 30,
+     "tier": "late",
+     "otherRequiredCapabilities": [
+      "ENCLOSE"
+     ],
+     "ingredientsMissingFromRuntime": [
+      "caciocavallo"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "spanish-chorizo-pizza-pizzadb-p4",
+     "nameJa": "スパニッシュチョリソピザ",
+     "reachableAtStep": 7,
+     "tier": "early",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "bell-pepper"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "spinach-artichoke-pizza-pizzadb-p4",
+     "nameJa": "スピナッチアーティチョークピザ",
+     "reachableAtStep": 47,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "artichoke",
+      "cream-cheese",
+      "spinach"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "mentaiko-cream-pizza-pizzadb-p4",
+     "nameJa": "たらこクリームピザ",
+     "reachableAtStep": 65,
+     "tier": "endgame",
+     "otherRequiredCapabilities": [
+      "LATE_ADDITION"
+     ],
+     "ingredientsMissingFromRuntime": [
+      "cod-roe",
+      "fresh-cream-sauce",
+      "nori",
+      "shiso"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "argentine-napolitana-pizzadb-p1",
+     "nameJa": "アルゼンチン風ナポリターナ",
+     "reachableAtStep": 23,
+     "tier": "mid",
+     "otherRequiredCapabilities": [
+      "DOUGH_VARIANT"
+     ],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "ikura-salmon-pizza-pizzadb-p1",
+     "nameJa": "いくらとサーモンのピザ",
+     "reachableAtStep": 50,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "cream-cheese",
+      "salmon",
+      "salmon-roe",
+      "shiso"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "vegan-cashew-cheese-pizza-pizzadb-p1",
+     "nameJa": "ヴィーガンカシューチーズピザ",
+     "reachableAtStep": 29,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "bell-pepper",
+      "cashew-cheese",
+      "zucchini"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "california-style-pizza-pizzadb-p2",
+     "nameJa": "カリフォルニアスタイルピザ",
+     "reachableAtStep": 57,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "arugula",
+      "avocado",
+      "goat-cheese"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "cauliflower-crust-pizza-pizzadb-p2",
+     "nameJa": "カリフラワークラストピザ",
+     "reachableAtStep": 5,
+     "tier": "early",
+     "otherRequiredCapabilities": [
+      "DOUGH_VARIANT"
+     ],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "cuban-pizza-pizzadb-p2",
+     "nameJa": "キューバンピザ",
+     "reachableAtStep": 68,
+     "tier": "endgame",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "mustard",
+      "pickles",
+      "pork",
+      "swiss-cheese"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "salsiccia-e-friarielli-pizzadb-p3",
+     "nameJa": "サルシッチャエフリアリエッリ",
+     "reachableAtStep": 35,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "friarielli"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "chicago-stuffed-pizza-pizzadb-p3",
+     "nameJa": "シカゴスタッフドピザ",
+     "reachableAtStep": 30,
+     "tier": "late",
+     "otherRequiredCapabilities": [
+      "DOUGH_VARIANT",
+      "ENCLOSE"
+     ],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "shirasu-pizza-pizzadb-p3",
+     "nameJa": "しらすピザ",
+     "reachableAtStep": 51,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "lemon",
+      "shiso",
+      "whitebait"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "eggplant-tahini-pizza-pizzadb-p5",
+     "nameJa": "ナスとタヒニのピザ",
+     "reachableAtStep": 60,
+     "tier": "endgame",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "parsley",
+      "pomegranate",
+      "tahini"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "eggplant-ricotta-pizza-pizzadb-p5",
+     "nameJa": "ナスとリコッタのピザ",
+     "reachableAtStep": 21,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "mint",
+      "ricotta"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "eggplant-dengaku-pizza-pizzadb-p6",
+     "nameJa": "ナス田楽ピザ",
+     "reachableAtStep": 55,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "miso-sauce",
+      "white-sesame"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "new-england-bar-pizza-pizzadb-p6",
+     "nameJa": "ニューイングランドバーピザ",
+     "reachableAtStep": 58,
+     "tier": "endgame",
+     "otherRequiredCapabilities": [
+      "DOUGH_VARIANT",
+      "PAN_BAKE"
+     ],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "new-zealand-lamb-pizza-pizzadb-p6",
+     "nameJa": "ニュージーランドラムピザ",
+     "reachableAtStep": 59,
+     "tier": "endgame",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "lamb",
+      "sweet-potato"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "baba-ganoush-pizza-pizzadb-p7",
+     "nameJa": "ババガヌーシュピザ",
+     "reachableAtStep": 40,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "parsley",
+      "pine-nuts"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "jamon-serrano-pizza-pizzadb-p7",
+     "nameJa": "ハモンセラーノピザ",
+     "reachableAtStep": 10,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "arugula",
+      "prosciutto-crudo"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "jalapeno-popper-pizza-pizzadb-p7",
+     "nameJa": "ハラペーニョポッパーピザ",
+     "reachableAtStep": 46,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "cream-cheese",
+      "jalapeno"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "parmigiana-pizza-pizzadb-p7",
+     "nameJa": "パルミジャーナピザ",
+     "reachableAtStep": 9,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": "parmigiana-pizza"
+    },
+    {
+     "evidenceId": "palmito-pizza-pizzadb-p7",
+     "nameJa": "パルミットピザ",
+     "reachableAtStep": 39,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "palm-heart"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "bambino-pizzadb-p7",
+     "nameJa": "バンビーノ",
+     "reachableAtStep": 18,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": "bambino"
+    },
+    {
+     "evidenceId": "piadina-romagnola-pizzadb-p7",
+     "nameJa": "ピアディーナ・ロマニョーラ",
+     "reachableAtStep": 45,
+     "tier": "late",
+     "otherRequiredCapabilities": [
+      "DOUGH_VARIANT"
+     ],
+     "ingredientsMissingFromRuntime": [
+      "arugula",
+      "cream-cheese",
+      "prosciutto-crudo"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "pizza-overload-pizzadb-p7",
+     "nameJa": "ピザオーバーロード",
+     "reachableAtStep": 22,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "hot-dog"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "pizza-salad-pizzadb-p7",
+     "nameJa": "ピザサラダ",
+     "reachableAtStep": 62,
+     "tier": "endgame",
+     "otherRequiredCapabilities": [
+      "MULTI_SPREAD_LAYER"
+     ],
+     "ingredientsMissingFromRuntime": [
+      "cucumber",
+      "lettuce",
+      "yogurt-sauce"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "pizza-alla-crudaiola-pizzadb-p8",
+     "nameJa": "ピッツァ・アッラ・クルダイオーラ",
+     "reachableAtStep": 11,
+     "tier": "mid",
+     "otherRequiredCapabilities": [
+      "MULTI_SPREAD_LAYER"
+     ],
+     "ingredientsMissingFromRuntime": [
+      "arugula",
+      "burrata"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "pizza-portuguesa-pizzadb-p9",
+     "nameJa": "ピッツァ・ポルトゲーザ",
+     "reachableAtStep": 3,
+     "tier": "early",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": "pizza-portuguesa"
+    },
+    {
+     "evidenceId": "pizza-al-taglio-romana-pizzadb-p9",
+     "nameJa": "ピッツァアルタリオローマーナ",
+     "reachableAtStep": 34,
+     "tier": "late",
+     "otherRequiredCapabilities": [
+      "DOUGH_SHAPE_TARGET",
+      "DOUGH_VARIANT",
+      "PAN_BAKE"
+     ],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "pizza-feta-eliniki-pizzadb-p9",
+     "nameJa": "ピッツァフェッタエッリニキ",
+     "reachableAtStep": 4,
+     "tier": "early",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "feta"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "pizza-fritta-pizzadb-p9",
+     "nameJa": "ピッツァフリッタ",
+     "reachableAtStep": 24,
+     "tier": "mid",
+     "otherRequiredCapabilities": [
+      "FRY_COOK"
+     ],
+     "ingredientsMissingFromRuntime": [
+      "pork",
+      "ricotta"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "pizza-moscow-pizzadb-p9",
+     "nameJa": "ピッツァモスクワ",
+     "reachableAtStep": 49,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "salmon",
+      "sardine"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "pinsa-romana-pizzadb-p9",
+     "nameJa": "ピンサロマーナ",
+     "reachableAtStep": 10,
+     "tier": "mid",
+     "otherRequiredCapabilities": [
+      "DOUGH_VARIANT"
+     ],
+     "ingredientsMissingFromRuntime": [
+      "arugula",
+      "prosciutto-crudo"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "fathead-pizza-keto-pizzadb-p9",
+     "nameJa": "ファットヘッドピザ（ケト風）",
+     "reachableAtStep": 32,
+     "tier": "late",
+     "otherRequiredCapabilities": [
+      "DOUGH_VARIANT"
+     ],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "poutine-pizza-pizzadb-p10",
+     "nameJa": "プーティンピザ",
+     "reachableAtStep": 64,
+     "tier": "endgame",
+     "otherRequiredCapabilities": [
+      "DOUGH_VARIANT"
+     ],
+     "ingredientsMissingFromRuntime": [
+      "cheese-curd",
+      "french-fries",
+      "gravy-sauce"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "puttanesca-pizza-pizzadb-p10",
+     "nameJa": "プッタネスカ",
+     "reachableAtStep": 28,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": "puttanesca-pizza"
+    },
+    {
+     "evidenceId": "burrata-pizza-pizzadb-p10",
+     "nameJa": "ブラータピザ",
+     "reachableAtStep": 11,
+     "tier": "mid",
+     "otherRequiredCapabilities": [
+      "MULTI_SPREAD_LAYER"
+     ],
+     "ingredientsMissingFromRuntime": [
+      "burrata"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "brazilian-calabresa-pizzadb-p10",
+     "nameJa": "ブラジリアン・カラブレーザ",
+     "reachableAtStep": 3,
+     "tier": "early",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "brazilian-catupiry-corn-pizza-pizzadb-p10",
+     "nameJa": "ブラジリアンカトゥピリコーンピザ",
+     "reachableAtStep": 18,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "catupiry"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "frango-catupiry-pizzadb-p10",
+     "nameJa": "フランゴ・コン・カトゥピリ",
+     "reachableAtStep": 17,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "catupiry",
+      "chicken"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "full-english-pizza-pizzadb-p10",
+     "nameJa": "フルイングリッシュピザ",
+     "reachableAtStep": 27,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "baked-beans"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "prosciutto-funghi-pizzadb-p11",
+     "nameJa": "プロシュットフンギ",
+     "reachableAtStep": 10,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "prosciutto-crudo"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "veggie-supreme-pizza-pizzadb-p11",
+     "nameJa": "ベジースプリームピザ",
+     "reachableAtStep": 38,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "green-pepper"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "pescatore-pizzadb-p11",
+     "nameJa": "ペスカトーレ",
+     "reachableAtStep": 14,
+     "tier": "mid",
+     "otherRequiredCapabilities": [
+      "MULTI_SPREAD_LAYER"
+     ],
+     "ingredientsMissingFromRuntime": [
+      "mussel",
+      "parsley",
+      "shrimp"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "pesto-caprese-pizzadb-p11",
+     "nameJa": "ペストカプレーゼピザ",
+     "reachableAtStep": 6,
+     "tier": "early",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": "pesto-caprese"
+    },
+    {
+     "evidenceId": "pesto-gamberi-pizzadb-p11",
+     "nameJa": "ペストガンベリピザ",
+     "reachableAtStep": 14,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "shrimp"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "pesto-salmone-pizzadb-p11",
+     "nameJa": "ペストサーモンピザ",
+     "reachableAtStep": 48,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "cream-cheese",
+      "lemon",
+      "salmon"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "pesto-trapanese-pizzadb-p11",
+     "nameJa": "ペストトラパネーゼピザ",
+     "reachableAtStep": 26,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "almond"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "pesto-tonno-pizzadb-p12",
+     "nameJa": "ペストトンノピザ",
+     "reachableAtStep": 6,
+     "tier": "early",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": "pesto-tonno"
+    },
+    {
+     "evidenceId": "pesto-noci-pizzadb-p12",
+     "nameJa": "ペストノーチピザ",
+     "reachableAtStep": 54,
+     "tier": "late",
+     "otherRequiredCapabilities": [
+      "MULTI_SPREAD_LAYER"
+     ],
+     "ingredientsMissingFromRuntime": [
+      "honey",
+      "walnut"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "pesto-patate-pizzadb-p12",
+     "nameJa": "ペストパターテピザ",
+     "reachableAtStep": 41,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": "pesto-patate"
+    },
+    {
+     "evidenceId": "pesto-burrata-pizzadb-p12",
+     "nameJa": "ペストブラータピザ",
+     "reachableAtStep": 11,
+     "tier": "mid",
+     "otherRequiredCapabilities": [
+      "MULTI_SPREAD_LAYER"
+     ],
+     "ingredientsMissingFromRuntime": [
+      "burrata"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "pesto-vegetariana-pizzadb-p12",
+     "nameJa": "ペストベジタリアーナピザ",
+     "reachableAtStep": 7,
+     "tier": "early",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "bell-pepper",
+      "zucchini"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "pesto-pollo-pizzadb-p12",
+     "nameJa": "ペストポッロピザ",
+     "reachableAtStep": 17,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "chicken"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "polish-kielbasa-pizzadb-p12",
+     "nameJa": "ポーリッシュキエルバサピザ",
+     "reachableAtStep": 44,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "sauerkraut"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "hot-honey-pepperoni-pizzadb-p12",
+     "nameJa": "ホットハニーペパロニピザ",
+     "reachableAtStep": 25,
+     "tier": "mid",
+     "otherRequiredCapabilities": [
+      "MULTI_SPREAD_LAYER"
+     ],
+     "ingredientsMissingFromRuntime": [
+      "honey"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "porchetta-pizza-pizzadb-p12",
+     "nameJa": "ポルケッタピザ",
+     "reachableAtStep": 15,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "pork"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "peking-duck-pizza",
+     "nameJa": "北京ダックピザ",
+     "reachableAtStep": 63,
+     "tier": "endgame",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "cucumber",
+      "green-onion",
+      "peking-duck",
+      "sweet-bean-sauce"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "manakish",
+     "nameJa": "マナキーシュ",
+     "reachableAtStep": 67,
+     "tier": "endgame",
+     "otherRequiredCapabilities": [
+      "DOUGH_VARIANT"
+     ],
+     "ingredientsMissingFromRuntime": [
+      "halloumi",
+      "zaatar"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "yuzu-shrimp-pizza",
+     "nameJa": "柚子えびピザ",
+     "reachableAtStep": 52,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "shiso",
+      "shrimp",
+      "yuzu-kosho"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "wasabi-beef-pizza",
+     "nameJa": "わさび牛ピザ",
+     "reachableAtStep": 61,
+     "tier": "endgame",
+     "otherRequiredCapabilities": [
+      "LATE_ADDITION"
+     ],
+     "ingredientsMissingFromRuntime": [
+      "beef",
+      "soy-sauce",
+      "wasabi"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "sichuan-eggplant-pizza",
+     "nameJa": "四川風ナスピザ",
+     "reachableAtStep": 19,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "doubanjiang",
+      "green-onion"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "yakiniku-pizza",
+     "nameJa": "焼肉ピザ",
+     "reachableAtStep": 56,
+     "tier": "late",
+     "otherRequiredCapabilities": [
+      "PREP_STEP"
+     ],
+     "ingredientsMissingFromRuntime": [
+      "beef",
+      "white-sesame",
+      "yakiniku-sauce"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "melanzane-pizza-pizzadb-p13",
+     "nameJa": "メランザーネピザ",
+     "reachableAtStep": 7,
+     "tier": "early",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": "melanzane-pizza"
+    },
+    {
+     "evidenceId": "montreal-style-pizza-pizzadb-p13",
+     "nameJa": "モントリオールスタイルピザ",
+     "reachableAtStep": 13,
+     "tier": "mid",
+     "otherRequiredCapabilities": [
+      "DOUGH_VARIANT",
+      "PAN_BAKE"
+     ],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "ratatouille-pizza-pizzadb-p13",
+     "nameJa": "ラタトゥイユピザ",
+     "reachableAtStep": 7,
+     "tier": "early",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "bell-pepper",
+      "zucchini"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "rucola-e-grana-pizzadb-p13",
+     "nameJa": "ルーコラエグラーナピザ",
+     "reachableAtStep": 37,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "arugula",
+      "grana-padano",
+      "prosciutto-crudo"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "tsukimi-pizza-pizzadb-p14",
+     "nameJa": "月見ピザ",
+     "reachableAtStep": 19,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "green-onion"
+     ],
+     "runtimeRecipeId": null
+    }
+   ]
+  },
+  {
+   "id": "POST_BAKE_FINISH",
+   "nameJa": "焼いた後にのせる（後乗せ）",
+   "userListed": true,
+   "capability": "LATE_ADDITION",
+   "runtimeAxis": "FIXED_BY_FLOW (late: FINISH is a reserved step with no gameplay)",
+   "verdict": "TECHNIQUE",
+   "verdictReasonJa": "新しい『動詞』ではなく『タイミング』。既存のTOPPING操作を焼成後にもう一度使うだけなので、偶然発見しやすく、教える負荷が最小。POST_BAKE phase が既に存在する。",
+   "rowsRequired": 8,
+   "rowsCandidateOnly": 11,
+   "rowsRequiredReady": 2,
+   "readyTargetsOnlyThisTechnique": 2,
+   "readyTargetsBuildableWithRuntimeIngredients": 0,
+   "runtimeRecipesCarryingIt": [],
+   "requiredRowIds": [
+    "bbq-chicken-pizzadb",
+    "buffalo-chicken-pizzadb",
+    "smore-dessert-pizza-pizzadb-p4",
+    "detroit-style-pizza-pizzadb-p5",
+    "nutella-dessert-pizza-pizzadb-p6",
+    "wasabi-beef-pizza",
+    "black-truffle-pizza-pizzadb-p14",
+    "teriyaki-chicken-pizza-pizzadb-p14"
+   ],
+   "candidateOnlyRowIds": [
+    "taco-pizza-pizzadb",
+    "pizza-asparagi-limone-pizzadb-p8",
+    "pizza-carciofi-salad-pizzadb-p8",
+    "pizza-finocchi-salad-pizzadb-p8",
+    "pizza-cavolo-carote-pizzadb-p8",
+    "pizza-zucchine-menta-pizzadb-p8",
+    "pizza-cicoria-limone-pizzadb-p8",
+    "pizza-puntarelle-pizzadb-p8",
+    "pizza-radicchio-noci-pizzadb-p8",
+    "hot-honey-pepperoni-pizzadb-p12",
+    "lahmacun"
+   ],
+   "readyTargets": [
+    {
+     "evidenceId": "bbq-chicken-pizzadb",
+     "nameJa": "BBQチキンピザ",
+     "reachableAtStep": 20,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "bbq-sauce",
+      "chicken",
+      "cilantro"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "wasabi-beef-pizza",
+     "nameJa": "わさび牛ピザ",
+     "reachableAtStep": 61,
+     "tier": "endgame",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "beef",
+      "soy-sauce",
+      "wasabi"
+     ],
+     "runtimeRecipeId": null
+    }
+   ]
+  },
+  {
+   "id": "MID_BAKE_ADD",
+   "nameJa": "焼いている途中でのせる（途中のせ）",
+   "userListed": false,
+   "capability": "LATE_ADDITION",
+   "runtimeAxis": "FIXED_BY_FLOW (BAKE is one uninterrupted judgment)",
+   "verdict": "TECHNIQUE_LATER",
+   "verdictReasonJa": "BAKEを中断・再開する新しい時間操作が要る。後乗せの派生として後で。うなぎはmodeが未確定。",
+   "rowsRequired": 4,
+   "rowsCandidateOnly": 0,
+   "rowsRequiredReady": 1,
+   "readyTargetsOnlyThisTechnique": 1,
+   "readyTargetsBuildableWithRuntimeIngredients": 0,
+   "runtimeRecipesCarryingIt": [],
+   "requiredRowIds": [
+    "mentaiko-cream-pizza-pizzadb-p4",
+    "eel-pizza-pizzadb-p1",
+    "natto-pizza",
+    "pizza-de-lomo-saltado"
+   ],
+   "candidateOnlyRowIds": [],
+   "readyTargets": [
+    {
+     "evidenceId": "mentaiko-cream-pizza-pizzadb-p4",
+     "nameJa": "たらこクリームピザ",
+     "reachableAtStep": 65,
+     "tier": "endgame",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "cod-roe",
+      "fresh-cream-sauce",
+      "nori",
+      "shiso"
+     ],
+     "runtimeRecipeId": null
+    }
+   ]
+  },
+  {
+   "id": "NO_SAUCE",
+   "nameJa": "ソースなし",
+   "userListed": true,
+   "capability": null,
+   "runtimeAxis": "OBSERVED (sauceBase can already be empty: free cook's SAUCE step is not content-gated)",
+   "verdict": "TECHNIQUE",
+   "verdictReasonJa": "『省く』という発想の発見。runtimeで既に観測可能（新しい操作ゼロ）。ただし現在の25 recipeに該当0なので、単独で入れると発見しても行き先が無い（dead technique）。",
+   "rowsRequired": 44,
+   "rowsCandidateOnly": 0,
+   "rowsRequiredReady": 26,
+   "readyTargetsOnlyThisTechnique": 23,
+   "readyTargetsBuildableWithRuntimeIngredients": 2,
+   "runtimeRecipesCarryingIt": [],
+   "requiredRowIds": [
+    "vongole-pizzadb",
+    "aussie-pizzadb",
+    "quattro-formaggi-pizzadb",
+    "chilean-napolitana-pizzadb",
+    "bacalhau-pizzadb",
+    "pizza-a-caballo",
+    "fugazzeta-rellena",
+    "bianca-pizzadb-row",
+    "spanish-chorizo-pizza-pizzadb-p4",
+    "spinach-artichoke-pizza-pizzadb-p4",
+    "speck-e-brie-pizzadb-p4",
+    "argentine-napolitana-pizzadb-p1",
+    "ikura-salmon-pizza-pizzadb-p1",
+    "california-style-pizza-pizzadb-p2",
+    "salsiccia-e-friarielli-pizzadb-p3",
+    "shirasu-pizza-pizzadb-p3",
+    "eggplant-ricotta-pizza-pizzadb-p5",
+    "new-zealand-lamb-pizza-pizzadb-p6",
+    "jalapeno-popper-pizza-pizzadb-p7",
+    "palmito-pizza-pizzadb-p7",
+    "piadina-romagnola-pizzadb-p7",
+    "pizza-asparagi-limone-pizzadb-p8",
+    "pizza-carciofi-salad-pizzadb-p8",
+    "pizza-finocchi-salad-pizzadb-p8",
+    "pizza-cavolo-carote-pizzadb-p8",
+    "pizza-zucchine-menta-pizzadb-p8",
+    "pizza-cicoria-limone-pizzadb-p8",
+    "pizza-puntarelle-pizzadb-p8",
+    "pizza-radicchio-noci-pizzadb-p8",
+    "pizza-feta-eliniki-pizzadb-p9",
+    "pizza-moscow-pizzadb-p9",
+    "philly-cheesesteak-pizza-pizzadb-p9",
+    "fugazza-pizzadb-p10",
+    "fugazzetta-pizzadb-p10",
+    "brazilian-catupiry-corn-pizza-pizzadb-p10",
+    "frango-catupiry-pizzadb-p10",
+    "full-english-pizza-pizzadb-p10",
+    "polish-kielbasa-pizzadb-p12",
+    "boscaiola-pizzadb-p12",
+    "porchetta-pizza-pizzadb-p12",
+    "porcini-pizza-pizzadb-p13",
+    "tsukimi-pizza-pizzadb-p14",
+    "black-truffle-pizza-pizzadb-p14",
+    "hokkaido-cheese-pizza-pizzadb-p15"
+   ],
+   "candidateOnlyRowIds": [],
+   "readyTargets": [
+    {
+     "evidenceId": "vongole-pizzadb",
+     "nameJa": "ヴォンゴレピザ",
+     "reachableAtStep": 14,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "parsley"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "aussie-pizzadb",
+     "nameJa": "オージーピザ",
+     "reachableAtStep": 1,
+     "tier": "early",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "chilean-napolitana-pizzadb",
+     "nameJa": "チリアンナポリターナ",
+     "reachableAtStep": 4,
+     "tier": "early",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "bacalhau-pizzadb",
+     "nameJa": "バカリャウピザ",
+     "reachableAtStep": 43,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "salt-cod"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "fugazzeta-rellena",
+     "nameJa": "フガゼッタ・レジェーナ",
+     "reachableAtStep": 30,
+     "tier": "late",
+     "otherRequiredCapabilities": [
+      "DOUGH_VARIANT",
+      "ENCLOSE"
+     ],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "bianca-pizzadb-row",
+     "nameJa": "ピッツァビアンカ",
+     "reachableAtStep": 21,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "ricotta"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "spanish-chorizo-pizza-pizzadb-p4",
+     "nameJa": "スパニッシュチョリソピザ",
+     "reachableAtStep": 7,
+     "tier": "early",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "bell-pepper"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "spinach-artichoke-pizza-pizzadb-p4",
+     "nameJa": "スピナッチアーティチョークピザ",
+     "reachableAtStep": 47,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "artichoke",
+      "cream-cheese",
+      "spinach"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "argentine-napolitana-pizzadb-p1",
+     "nameJa": "アルゼンチン風ナポリターナ",
+     "reachableAtStep": 23,
+     "tier": "mid",
+     "otherRequiredCapabilities": [
+      "DOUGH_VARIANT"
+     ],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "ikura-salmon-pizza-pizzadb-p1",
+     "nameJa": "いくらとサーモンのピザ",
+     "reachableAtStep": 50,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "cream-cheese",
+      "salmon",
+      "salmon-roe",
+      "shiso"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "california-style-pizza-pizzadb-p2",
+     "nameJa": "カリフォルニアスタイルピザ",
+     "reachableAtStep": 57,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "arugula",
+      "avocado",
+      "goat-cheese"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "salsiccia-e-friarielli-pizzadb-p3",
+     "nameJa": "サルシッチャエフリアリエッリ",
+     "reachableAtStep": 35,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "friarielli"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "shirasu-pizza-pizzadb-p3",
+     "nameJa": "しらすピザ",
+     "reachableAtStep": 51,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "lemon",
+      "shiso",
+      "whitebait"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "eggplant-ricotta-pizza-pizzadb-p5",
+     "nameJa": "ナスとリコッタのピザ",
+     "reachableAtStep": 21,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "mint",
+      "ricotta"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "new-zealand-lamb-pizza-pizzadb-p6",
+     "nameJa": "ニュージーランドラムピザ",
+     "reachableAtStep": 59,
+     "tier": "endgame",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "lamb",
+      "sweet-potato"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "jalapeno-popper-pizza-pizzadb-p7",
+     "nameJa": "ハラペーニョポッパーピザ",
+     "reachableAtStep": 46,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "cream-cheese",
+      "jalapeno"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "palmito-pizza-pizzadb-p7",
+     "nameJa": "パルミットピザ",
+     "reachableAtStep": 39,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "palm-heart"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "piadina-romagnola-pizzadb-p7",
+     "nameJa": "ピアディーナ・ロマニョーラ",
+     "reachableAtStep": 45,
+     "tier": "late",
+     "otherRequiredCapabilities": [
+      "DOUGH_VARIANT"
+     ],
+     "ingredientsMissingFromRuntime": [
+      "arugula",
+      "cream-cheese",
+      "prosciutto-crudo"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "pizza-feta-eliniki-pizzadb-p9",
+     "nameJa": "ピッツァフェッタエッリニキ",
+     "reachableAtStep": 4,
+     "tier": "early",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "feta"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "pizza-moscow-pizzadb-p9",
+     "nameJa": "ピッツァモスクワ",
+     "reachableAtStep": 49,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "salmon",
+      "sardine"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "brazilian-catupiry-corn-pizza-pizzadb-p10",
+     "nameJa": "ブラジリアンカトゥピリコーンピザ",
+     "reachableAtStep": 18,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "catupiry"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "frango-catupiry-pizzadb-p10",
+     "nameJa": "フランゴ・コン・カトゥピリ",
+     "reachableAtStep": 17,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "catupiry",
+      "chicken"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "full-english-pizza-pizzadb-p10",
+     "nameJa": "フルイングリッシュピザ",
+     "reachableAtStep": 27,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "baked-beans"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "polish-kielbasa-pizzadb-p12",
+     "nameJa": "ポーリッシュキエルバサピザ",
+     "reachableAtStep": 44,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "sauerkraut"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "porchetta-pizza-pizzadb-p12",
+     "nameJa": "ポルケッタピザ",
+     "reachableAtStep": 15,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "pork"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "tsukimi-pizza-pizzadb-p14",
+     "nameJa": "月見ピザ",
+     "reachableAtStep": 19,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "green-onion"
+     ],
+     "runtimeRecipeId": null
+    }
+   ]
+  },
+  {
+   "id": "DOUBLE_SPREAD",
+   "nameJa": "複数spread（重ね塗り・仕上げがけ）",
+   "userListed": true,
+   "capability": "MULTI_SPREAD_LAYER",
+   "runtimeAxis": "FIXED_BY_FLOW (one sauce per pizza; a new sauce replaces the old)",
+   "verdict": "TECHNIQUE",
+   "verdictReasonJa": "既存のSAUCE塗り操作の2回目。『置き換えではなく重ねる』という発見。後乗せ（焼成後のオイルがけ等）と組み合わさる行が多い。",
+   "rowsRequired": 17,
+   "rowsCandidateOnly": 10,
+   "rowsRequiredReady": 9,
+   "readyTargetsOnlyThisTechnique": 9,
+   "readyTargetsBuildableWithRuntimeIngredients": 2,
+   "runtimeRecipesCarryingIt": [],
+   "requiredRowIds": [
+    "grandma-pizza-pizzadb",
+    "sfincione-pizzadb",
+    "buffalo-chicken-pizzadb",
+    "margherita-pizzadb-row",
+    "pizza-de-cancha",
+    "okonomiyaki-style-pizza-pizzadb-p1",
+    "pizza-salad-pizzadb-p7",
+    "pizza-alla-crudaiola-pizzadb-p8",
+    "pizza-radicchio-noci-pizzadb-p8",
+    "feteer-meshaltet-pizzadb-p10",
+    "burrata-pizza-pizzadb-p10",
+    "pescatore-pizzadb-p11",
+    "pesto-noci-pizzadb-p12",
+    "pesto-burrata-pizzadb-p12",
+    "hot-honey-pepperoni-pizzadb-p12",
+    "lahmacun",
+    "marinara-pizza-pizzadb-p13"
+   ],
+   "candidateOnlyRowIds": [
+    "swedish-kebab-pizza-pizzadb-p4",
+    "potato-mayo-pizza-pizzadb-p3",
+    "nashville-hot-chicken-pizza-pizzadb-p6",
+    "buffalo-cauliflower-pizza-pizzadb-p6",
+    "venezuelan-reina-pepiada-pizzadb-p12",
+    "mentaiko-mochi-pizza",
+    "mexican-elote-pizza-pizzadb-p13",
+    "nduja-pizza-pizzadb-p14",
+    "teriyaki-chicken-pizza-pizzadb-p14",
+    "south-african-boerewors-pizzadb-p14"
+   ],
+   "readyTargets": [
+    {
+     "evidenceId": "grandma-pizza-pizzadb",
+     "nameJa": "グランマピザ",
+     "reachableAtStep": 11,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "sfincione-pizzadb",
+     "nameJa": "スフィンチョーネ",
+     "reachableAtStep": 12,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "pizza-salad-pizzadb-p7",
+     "nameJa": "ピザサラダ",
+     "reachableAtStep": 62,
+     "tier": "endgame",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "cucumber",
+      "lettuce",
+      "yogurt-sauce"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "pizza-alla-crudaiola-pizzadb-p8",
+     "nameJa": "ピッツァ・アッラ・クルダイオーラ",
+     "reachableAtStep": 11,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "arugula",
+      "burrata"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "burrata-pizza-pizzadb-p10",
+     "nameJa": "ブラータピザ",
+     "reachableAtStep": 11,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "burrata"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "pescatore-pizzadb-p11",
+     "nameJa": "ペスカトーレ",
+     "reachableAtStep": 14,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "mussel",
+      "parsley",
+      "shrimp"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "pesto-noci-pizzadb-p12",
+     "nameJa": "ペストノーチピザ",
+     "reachableAtStep": 54,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "honey",
+      "walnut"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "pesto-burrata-pizzadb-p12",
+     "nameJa": "ペストブラータピザ",
+     "reachableAtStep": 11,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "burrata"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "hot-honey-pepperoni-pizzadb-p12",
+     "nameJa": "ホットハニーペパロニピザ",
+     "reachableAtStep": 25,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "honey"
+     ],
+     "runtimeRecipeId": null
+    }
+   ]
+  },
+  {
+   "id": "SPECIAL_SAUCE",
+   "nameJa": "特殊なソース",
+   "userListed": true,
+   "capability": null,
+   "runtimeAxis": "OBSERVED (sauceBase id; pesto/olive-oil already ship)",
+   "verdict": "MATERIAL",
+   "verdictReasonJa": "操作は同じSAUCE塗り。違うのは材料だけなので Recipe/Material Discovery の領域。Techniqueにすると『材料を買えば技法が増える』になり、Shopで答えを買う構造に戻る。",
+   "rowsRequired": 33,
+   "rowsCandidateOnly": 0,
+   "rowsRequiredReady": 26,
+   "readyTargetsOnlyThisTechnique": 18,
+   "readyTargetsBuildableWithRuntimeIngredients": 4,
+   "runtimeRecipesCarryingIt": [
+    "fugazza",
+    "genovese",
+    "new-haven-apizza",
+    "pesto-caprese",
+    "pesto-patate",
+    "pesto-tonno",
+    "pizza-bianca",
+    "quattro-formaggi"
+   ],
+   "requiredRowIds": [
+    "bbq-chicken-pizzadb",
+    "currywurst-pizzadb",
+    "taco-pizza-pizzadb",
+    "flammkuchen-pizzadb",
+    "new-haven-apizza-pizzadb",
+    "buffalo-chicken-pizzadb",
+    "thai-chicken-pizza-pizzadb-p4",
+    "mentaiko-cream-pizza-pizzadb-p4",
+    "okonomiyaki-style-pizza-pizzadb-p1",
+    "cuban-pizza-pizzadb-p2",
+    "eggplant-tahini-pizza-pizzadb-p5",
+    "eggplant-dengaku-pizza-pizzadb-p6",
+    "nutella-dessert-pizza-pizzadb-p6",
+    "baba-ganoush-pizza-pizzadb-p7",
+    "poutine-pizza-pizzadb-p10",
+    "focaccia-genovese-pizzadb-p10",
+    "pesto-caprese-pizzadb-p11",
+    "pesto-gamberi-pizzadb-p11",
+    "pesto-salmone-pizzadb-p11",
+    "pesto-genovese-pizza-pizzadb-p11",
+    "pesto-trapanese-pizzadb-p11",
+    "pesto-tonno-pizzadb-p12",
+    "pesto-noci-pizzadb-p12",
+    "pesto-patate-pizzadb-p12",
+    "pesto-burrata-pizzadb-p12",
+    "pesto-vegetariana-pizzadb-p12",
+    "pesto-pollo-pizzadb-p12",
+    "peking-duck-pizza",
+    "manakish",
+    "yuzu-shrimp-pizza",
+    "wasabi-beef-pizza",
+    "sichuan-eggplant-pizza",
+    "yakiniku-pizza"
+   ],
+   "candidateOnlyRowIds": [],
+   "readyTargets": [
+    {
+     "evidenceId": "bbq-chicken-pizzadb",
+     "nameJa": "BBQチキンピザ",
+     "reachableAtStep": 20,
+     "tier": "mid",
+     "otherRequiredCapabilities": [
+      "LATE_ADDITION"
+     ],
+     "ingredientsMissingFromRuntime": [
+      "bbq-sauce",
+      "chicken",
+      "cilantro"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "currywurst-pizzadb",
+     "nameJa": "カリーヴルストピザ",
+     "reachableAtStep": 66,
+     "tier": "endgame",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "curry-ketchup",
+      "paprika-powder",
+      "wurstel"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "flammkuchen-pizzadb",
+     "nameJa": "タルトフランベ",
+     "reachableAtStep": 36,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "fromage-blanc-sauce"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "new-haven-apizza-pizzadb",
+     "nameJa": "ニューヘイブンアピッツァ",
+     "reachableAtStep": 9,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": "new-haven-apizza"
+    },
+    {
+     "evidenceId": "mentaiko-cream-pizza-pizzadb-p4",
+     "nameJa": "たらこクリームピザ",
+     "reachableAtStep": 65,
+     "tier": "endgame",
+     "otherRequiredCapabilities": [
+      "LATE_ADDITION"
+     ],
+     "ingredientsMissingFromRuntime": [
+      "cod-roe",
+      "fresh-cream-sauce",
+      "nori",
+      "shiso"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "cuban-pizza-pizzadb-p2",
+     "nameJa": "キューバンピザ",
+     "reachableAtStep": 68,
+     "tier": "endgame",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "mustard",
+      "pickles",
+      "pork",
+      "swiss-cheese"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "eggplant-tahini-pizza-pizzadb-p5",
+     "nameJa": "ナスとタヒニのピザ",
+     "reachableAtStep": 60,
+     "tier": "endgame",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "parsley",
+      "pomegranate",
+      "tahini"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "eggplant-dengaku-pizza-pizzadb-p6",
+     "nameJa": "ナス田楽ピザ",
+     "reachableAtStep": 55,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "miso-sauce",
+      "white-sesame"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "baba-ganoush-pizza-pizzadb-p7",
+     "nameJa": "ババガヌーシュピザ",
+     "reachableAtStep": 40,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "parsley",
+      "pine-nuts"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "poutine-pizza-pizzadb-p10",
+     "nameJa": "プーティンピザ",
+     "reachableAtStep": 64,
+     "tier": "endgame",
+     "otherRequiredCapabilities": [
+      "DOUGH_VARIANT"
+     ],
+     "ingredientsMissingFromRuntime": [
+      "cheese-curd",
+      "french-fries",
+      "gravy-sauce"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "pesto-caprese-pizzadb-p11",
+     "nameJa": "ペストカプレーゼピザ",
+     "reachableAtStep": 6,
+     "tier": "early",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": "pesto-caprese"
+    },
+    {
+     "evidenceId": "pesto-gamberi-pizzadb-p11",
+     "nameJa": "ペストガンベリピザ",
+     "reachableAtStep": 14,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "shrimp"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "pesto-salmone-pizzadb-p11",
+     "nameJa": "ペストサーモンピザ",
+     "reachableAtStep": 48,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "cream-cheese",
+      "lemon",
+      "salmon"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "pesto-trapanese-pizzadb-p11",
+     "nameJa": "ペストトラパネーゼピザ",
+     "reachableAtStep": 26,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "almond"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "pesto-tonno-pizzadb-p12",
+     "nameJa": "ペストトンノピザ",
+     "reachableAtStep": 6,
+     "tier": "early",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": "pesto-tonno"
+    },
+    {
+     "evidenceId": "pesto-noci-pizzadb-p12",
+     "nameJa": "ペストノーチピザ",
+     "reachableAtStep": 54,
+     "tier": "late",
+     "otherRequiredCapabilities": [
+      "MULTI_SPREAD_LAYER"
+     ],
+     "ingredientsMissingFromRuntime": [
+      "honey",
+      "walnut"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "pesto-patate-pizzadb-p12",
+     "nameJa": "ペストパターテピザ",
+     "reachableAtStep": 41,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": "pesto-patate"
+    },
+    {
+     "evidenceId": "pesto-burrata-pizzadb-p12",
+     "nameJa": "ペストブラータピザ",
+     "reachableAtStep": 11,
+     "tier": "mid",
+     "otherRequiredCapabilities": [
+      "MULTI_SPREAD_LAYER"
+     ],
+     "ingredientsMissingFromRuntime": [
+      "burrata"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "pesto-vegetariana-pizzadb-p12",
+     "nameJa": "ペストベジタリアーナピザ",
+     "reachableAtStep": 7,
+     "tier": "early",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "bell-pepper",
+      "zucchini"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "pesto-pollo-pizzadb-p12",
+     "nameJa": "ペストポッロピザ",
+     "reachableAtStep": 17,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "chicken"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "peking-duck-pizza",
+     "nameJa": "北京ダックピザ",
+     "reachableAtStep": 63,
+     "tier": "endgame",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "cucumber",
+      "green-onion",
+      "peking-duck",
+      "sweet-bean-sauce"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "manakish",
+     "nameJa": "マナキーシュ",
+     "reachableAtStep": 67,
+     "tier": "endgame",
+     "otherRequiredCapabilities": [
+      "DOUGH_VARIANT"
+     ],
+     "ingredientsMissingFromRuntime": [
+      "halloumi",
+      "zaatar"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "yuzu-shrimp-pizza",
+     "nameJa": "柚子えびピザ",
+     "reachableAtStep": 52,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "shiso",
+      "shrimp",
+      "yuzu-kosho"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "wasabi-beef-pizza",
+     "nameJa": "わさび牛ピザ",
+     "reachableAtStep": 61,
+     "tier": "endgame",
+     "otherRequiredCapabilities": [
+      "LATE_ADDITION"
+     ],
+     "ingredientsMissingFromRuntime": [
+      "beef",
+      "soy-sauce",
+      "wasabi"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "sichuan-eggplant-pizza",
+     "nameJa": "四川風ナスピザ",
+     "reachableAtStep": 19,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "doubanjiang",
+      "green-onion"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "yakiniku-pizza",
+     "nameJa": "焼肉ピザ",
+     "reachableAtStep": 56,
+     "tier": "late",
+     "otherRequiredCapabilities": [
+      "PREP_STEP"
+     ],
+     "ingredientsMissingFromRuntime": [
+      "beef",
+      "white-sesame",
+      "yakiniku-sauce"
+     ],
+     "runtimeRecipeId": null
+    }
+   ]
+  },
+  {
+   "id": "SHAPE_SQUARE",
+   "nameJa": "特殊形状：四角",
+   "userListed": true,
+   "capability": "DOUGH_SHAPE_TARGET",
+   "runtimeAxis": "UNAVAILABLE (doughShape radii exist but no shape classification rule)",
+   "verdict": "TECHNIQUE_LATER",
+   "verdictReasonJa": "D3Aの8点doughShapeでは四角を作れない/判定できない。形状判定・shape-aware CUT・（ほぼ全行）PAN_BAKEが前提。構造的。",
+   "rowsRequired": 4,
+   "rowsCandidateOnly": 0,
+   "rowsRequiredReady": 1,
+   "readyTargetsOnlyThisTechnique": 0,
+   "readyTargetsBuildableWithRuntimeIngredients": 0,
+   "runtimeRecipesCarryingIt": [],
+   "requiredRowIds": [
+    "siciliana-pizzadb",
+    "old-forge-style-pizza-pizzadb-p1",
+    "detroit-style-pizza-pizzadb-p5",
+    "pizza-al-taglio-romana-pizzadb-p9"
+   ],
+   "candidateOnlyRowIds": [],
+   "readyTargets": [
+    {
+     "evidenceId": "pizza-al-taglio-romana-pizzadb-p9",
+     "nameJa": "ピッツァアルタリオローマーナ",
+     "reachableAtStep": 34,
+     "tier": "late",
+     "otherRequiredCapabilities": [
+      "DOUGH_VARIANT",
+      "PAN_BAKE"
+     ],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    }
+   ]
+  },
+  {
+   "id": "SHAPE_BOAT",
+   "nameJa": "特殊形状：舟形（ピデ）",
+   "userListed": true,
+   "capability": "DOUGH_SHAPE_TARGET",
+   "runtimeAxis": "UNAVAILABLE",
+   "verdict": "TECHNIQUE_LATER",
+   "verdictReasonJa": "1行のみ（turkish-pide、BLOCKED）。形状判定＋縁を寄せる操作が必要。",
+   "rowsRequired": 1,
+   "rowsCandidateOnly": 0,
+   "rowsRequiredReady": 0,
+   "readyTargetsOnlyThisTechnique": 0,
+   "readyTargetsBuildableWithRuntimeIngredients": 0,
+   "runtimeRecipesCarryingIt": [],
+   "requiredRowIds": [
+    "turkish-pide-pizzadb-p5"
+   ],
+   "candidateOnlyRowIds": [],
+   "readyTargets": []
+  },
+  {
+   "id": "ENCLOSE",
+   "nameJa": "包む・折る・かぶせる",
+   "userListed": false,
+   "capability": "ENCLOSE",
+   "runtimeAxis": "FIXED_BY_FLOW (FOLD/SEAL are reserved steps with no gameplay)",
+   "verdict": "TECHNIQUE_LATER",
+   "verdictReasonJa": "『発見した！』の驚きは最大級だが新ジェスチャー＋CUT無効化が必要。Technique Dexの後半の山場として温存。",
+   "rowsRequired": 5,
+   "rowsCandidateOnly": 0,
+   "rowsRequiredReady": 3,
+   "readyTargetsOnlyThisTechnique": 1,
+   "readyTargetsBuildableWithRuntimeIngredients": 0,
+   "runtimeRecipesCarryingIt": [],
+   "requiredRowIds": [
+    "calzone-pizzadb",
+    "pizza-a-caballo",
+    "fugazzeta-rellena",
+    "scacciata-ragusana-pizzadb-p4",
+    "chicago-stuffed-pizza-pizzadb-p3"
+   ],
+   "candidateOnlyRowIds": [],
+   "readyTargets": [
+    {
+     "evidenceId": "fugazzeta-rellena",
+     "nameJa": "フガゼッタ・レジェーナ",
+     "reachableAtStep": 30,
+     "tier": "late",
+     "otherRequiredCapabilities": [
+      "DOUGH_VARIANT"
+     ],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "scacciata-ragusana-pizzadb-p4",
+     "nameJa": "スカッチャラグザーナ",
+     "reachableAtStep": 30,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "caciocavallo"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "chicago-stuffed-pizza-pizzadb-p3",
+     "nameJa": "シカゴスタッフドピザ",
+     "reachableAtStep": 30,
+     "tier": "late",
+     "otherRequiredCapabilities": [
+      "DOUGH_VARIANT"
+     ],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    }
+   ]
+  },
+  {
+   "id": "NO_CUT",
+   "nameJa": "CUTなし",
+   "userListed": true,
+   "capability": null,
+   "runtimeAxis": "NOT AN IDENTITY AXIS (CUT is excluded from the signature by design)",
+   "verdict": "SERVE_ATTRIBUTE",
+   "verdictReasonJa": "CUTはidentityではなく提供方法。CUTなしは『包む』等の形状の結果として付随する。プレイヤーが『切らない』ことを発見しても新しいピザは生まれない。",
+   "rowsRequired": 1,
+   "rowsCandidateOnly": 0,
+   "rowsRequiredReady": 0,
+   "readyTargetsOnlyThisTechnique": 0,
+   "readyTargetsBuildableWithRuntimeIngredients": 0,
+   "runtimeRecipesCarryingIt": [],
+   "requiredRowIds": [
+    "calzone-pizzadb"
+   ],
+   "candidateOnlyRowIds": [],
+   "readyTargets": []
+  },
+  {
+   "id": "PAN_BAKE",
+   "nameJa": "型で焼く（パン／トレイ）",
+   "userListed": true,
+   "capability": "PAN_BAKE",
+   "runtimeAxis": "FIXED_BY_FLOW (no pan exists)",
+   "verdict": "TECHNIQUE_LATER",
+   "verdictReasonJa": "『道具の選択』。型そのものは材料と同じく入手物になりやすいので、Techniqueは『型に入れて焼いた』初回で発見、という形なら成立。ready行が少ない。",
+   "rowsRequired": 8,
+   "rowsCandidateOnly": 0,
+   "rowsRequiredReady": 3,
+   "readyTargetsOnlyThisTechnique": 0,
+   "readyTargetsBuildableWithRuntimeIngredients": 0,
+   "runtimeRecipesCarryingIt": [],
+   "requiredRowIds": [
+    "greek-style-pizzadb",
+    "chicago-deep-dish-pizzadb",
+    "siciliana-pizzadb",
+    "old-forge-style-pizza-pizzadb-p1",
+    "detroit-style-pizza-pizzadb-p5",
+    "new-england-bar-pizza-pizzadb-p6",
+    "pizza-al-taglio-romana-pizzadb-p9",
+    "montreal-style-pizza-pizzadb-p13"
+   ],
+   "candidateOnlyRowIds": [],
+   "readyTargets": [
+    {
+     "evidenceId": "new-england-bar-pizza-pizzadb-p6",
+     "nameJa": "ニューイングランドバーピザ",
+     "reachableAtStep": 58,
+     "tier": "endgame",
+     "otherRequiredCapabilities": [
+      "DOUGH_VARIANT"
+     ],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "pizza-al-taglio-romana-pizzadb-p9",
+     "nameJa": "ピッツァアルタリオローマーナ",
+     "reachableAtStep": 34,
+     "tier": "late",
+     "otherRequiredCapabilities": [
+      "DOUGH_SHAPE_TARGET",
+      "DOUGH_VARIANT"
+     ],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "montreal-style-pizza-pizzadb-p13",
+     "nameJa": "モントリオールスタイルピザ",
+     "reachableAtStep": 13,
+     "tier": "mid",
+     "otherRequiredCapabilities": [
+      "DOUGH_VARIANT"
+     ],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    }
+   ]
+  },
+  {
+   "id": "DOUGH_BASE",
+   "nameJa": "生地の種類（ピアディーナ等の平焼き・厚生地・素材生地）",
+   "userListed": true,
+   "capability": "DOUGH_VARIANT",
+   "runtimeAxis": "FIXED_BY_FLOW (one dough style only)",
+   "verdict": "MATERIAL",
+   "verdictReasonJa": "Phase-1の結論どおり操作は変わらず『生地カードの選択』。材料と同じ入手物として扱い、Techniqueにはしない（ピアディーナはこの枠）。ただし『生地を選べる』こと自体の初回体験は Technique Dex に載せない。",
+   "rowsRequired": 33,
+   "rowsCandidateOnly": 0,
+   "rowsRequiredReady": 13,
+   "readyTargetsOnlyThisTechnique": 8,
+   "readyTargetsBuildableWithRuntimeIngredients": 4,
+   "runtimeRecipesCarryingIt": [],
+   "requiredRowIds": [
+    "greek-style-pizzadb",
+    "siciliana-pizzadb",
+    "ny-style-pizzadb",
+    "pizza-a-caballo",
+    "fugazzeta-rellena",
+    "pizza-de-cancha",
+    "st-louis-style-pizza-pizzadb-p4",
+    "argentine-napolitana-pizzadb-p1",
+    "old-forge-style-pizza-pizzadb-p1",
+    "cauliflower-crust-pizza-pizzadb-p2",
+    "quad-cities-style-pizza-pizzadb-p2",
+    "colorado-mountain-pie-pizzadb-p3",
+    "chicago-stuffed-pizza-pizzadb-p3",
+    "detroit-style-pizza-pizzadb-p5",
+    "turkish-pide-pizzadb-p5",
+    "new-england-bar-pizza-pizzadb-p6",
+    "palmitos-salsa-golf-pizzadb-p7",
+    "piadina-romagnola-pizzadb-p7",
+    "pizza-carciofi-salad-pizzadb-p8",
+    "pizza-cicoria-limone-pizzadb-p8",
+    "pizza-puntarelle-pizzadb-p8",
+    "pizza-romana-pizzadb-p9",
+    "pizza-al-taglio-romana-pizzadb-p9",
+    "pinsa-romana-pizzadb-p9",
+    "fathead-pizza-keto-pizzadb-p9",
+    "poutine-pizza-pizzadb-p10",
+    "focaccia-genovese-pizzadb-p10",
+    "fugazza-pizzadb-p10",
+    "fugazzetta-pizzadb-p10",
+    "fruit-dessert-pizza-pizzadb-p11",
+    "manakish",
+    "lahmacun",
+    "montreal-style-pizza-pizzadb-p13"
+   ],
+   "candidateOnlyRowIds": [],
+   "readyTargets": [
+    {
+     "evidenceId": "ny-style-pizzadb",
+     "nameJa": "ニューヨークスタイルピザ（PIZZA DB版）",
+     "reachableAtStep": 33,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "fugazzeta-rellena",
+     "nameJa": "フガゼッタ・レジェーナ",
+     "reachableAtStep": 30,
+     "tier": "late",
+     "otherRequiredCapabilities": [
+      "ENCLOSE"
+     ],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "argentine-napolitana-pizzadb-p1",
+     "nameJa": "アルゼンチン風ナポリターナ",
+     "reachableAtStep": 23,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "cauliflower-crust-pizza-pizzadb-p2",
+     "nameJa": "カリフラワークラストピザ",
+     "reachableAtStep": 5,
+     "tier": "early",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "chicago-stuffed-pizza-pizzadb-p3",
+     "nameJa": "シカゴスタッフドピザ",
+     "reachableAtStep": 30,
+     "tier": "late",
+     "otherRequiredCapabilities": [
+      "ENCLOSE"
+     ],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "new-england-bar-pizza-pizzadb-p6",
+     "nameJa": "ニューイングランドバーピザ",
+     "reachableAtStep": 58,
+     "tier": "endgame",
+     "otherRequiredCapabilities": [
+      "PAN_BAKE"
+     ],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "piadina-romagnola-pizzadb-p7",
+     "nameJa": "ピアディーナ・ロマニョーラ",
+     "reachableAtStep": 45,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "arugula",
+      "cream-cheese",
+      "prosciutto-crudo"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "pizza-al-taglio-romana-pizzadb-p9",
+     "nameJa": "ピッツァアルタリオローマーナ",
+     "reachableAtStep": 34,
+     "tier": "late",
+     "otherRequiredCapabilities": [
+      "DOUGH_SHAPE_TARGET",
+      "PAN_BAKE"
+     ],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "pinsa-romana-pizzadb-p9",
+     "nameJa": "ピンサロマーナ",
+     "reachableAtStep": 10,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "arugula",
+      "prosciutto-crudo"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "fathead-pizza-keto-pizzadb-p9",
+     "nameJa": "ファットヘッドピザ（ケト風）",
+     "reachableAtStep": 32,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "poutine-pizza-pizzadb-p10",
+     "nameJa": "プーティンピザ",
+     "reachableAtStep": 64,
+     "tier": "endgame",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "cheese-curd",
+      "french-fries",
+      "gravy-sauce"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "manakish",
+     "nameJa": "マナキーシュ",
+     "reachableAtStep": 67,
+     "tier": "endgame",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "halloumi",
+      "zaatar"
+     ],
+     "runtimeRecipeId": null
+    },
+    {
+     "evidenceId": "montreal-style-pizza-pizzadb-p13",
+     "nameJa": "モントリオールスタイルピザ",
+     "reachableAtStep": 13,
+     "tier": "mid",
+     "otherRequiredCapabilities": [
+      "PAN_BAKE"
+     ],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    }
+   ]
+  },
+  {
+   "id": "CHEESE_FIRST",
+   "nameJa": "チーズを先に（逆順）",
+   "userListed": false,
+   "capability": "STEP_ORDER",
+   "runtimeAxis": "FIXED_BY_FLOW (reducer enforces DOUGH -> SAUCE -> CHEESE -> TOPPING)",
+   "verdict": "TECHNIQUE_LATER",
+   "verdictReasonJa": "偶然性は高い（順番を変えられれば起きる）が、ready 1行・NYとの衝突解消が主目的。工程順の自由化はUI全体に波及。",
+   "rowsRequired": 2,
+   "rowsCandidateOnly": 0,
+   "rowsRequiredReady": 1,
+   "readyTargetsOnlyThisTechnique": 1,
+   "readyTargetsBuildableWithRuntimeIngredients": 1,
+   "runtimeRecipesCarryingIt": [],
+   "requiredRowIds": [
+    "chicago-deep-dish-pizzadb",
+    "trenton-tomato-pie-pizzadb"
+   ],
+   "candidateOnlyRowIds": [],
+   "readyTargets": [
+    {
+     "evidenceId": "trenton-tomato-pie-pizzadb",
+     "nameJa": "トレントントマトパイ",
+     "reachableAtStep": 8,
+     "tier": "early",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [],
+     "runtimeRecipeId": null
+    }
+   ]
+  },
+  {
+   "id": "ZONED",
+   "nameJa": "区切ってのせる（クアトロ・スタジオーニ等）",
+   "userListed": false,
+   "capability": "ZONED_PLACEMENT",
+   "runtimeAxis": "UNAVAILABLE (piece positions exist but no zone classification rule)",
+   "verdict": "TECHNIQUE_LATER",
+   "verdictReasonJa": "位置は既に記録されているので将来は『偶然』発見可能。ただし判定ルールが未定義で、required 1行。",
+   "rowsRequired": 1,
+   "rowsCandidateOnly": 2,
+   "rowsRequiredReady": 1,
+   "readyTargetsOnlyThisTechnique": 1,
+   "readyTargetsBuildableWithRuntimeIngredients": 0,
+   "runtimeRecipesCarryingIt": [],
+   "requiredRowIds": [
+    "quattro-stagioni-pizzadb"
+   ],
+   "candidateOnlyRowIds": [
+    "capricciosa-pizzadb",
+    "bismarck-pizza-pizzadb-p7"
+   ],
+   "readyTargets": [
+    {
+     "evidenceId": "quattro-stagioni-pizzadb",
+     "nameJa": "クアトロスタジオーニ（PIZZA DB版）",
+     "reachableAtStep": 16,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "artichoke"
+     ],
+     "runtimeRecipeId": null
+    }
+   ]
+  },
+  {
+   "id": "PREP",
+   "nameJa": "炒めてからのせる（下ごしらえ）",
+   "userListed": false,
+   "capability": "PREP_STEP",
+   "runtimeAxis": "FIXED_BY_FLOW (no prep step exists)",
+   "verdict": "TECHNIQUE_LATER",
+   "verdictReasonJa": "新しい工程。ready 1行。",
+   "rowsRequired": 3,
+   "rowsCandidateOnly": 0,
+   "rowsRequiredReady": 1,
+   "readyTargetsOnlyThisTechnique": 1,
+   "readyTargetsBuildableWithRuntimeIngredients": 0,
+   "runtimeRecipesCarryingIt": [],
+   "requiredRowIds": [
+    "kimchi-pizza-pizzadb-p2",
+    "yakiniku-pizza",
+    "pizza-de-lomo-saltado"
+   ],
+   "candidateOnlyRowIds": [],
+   "readyTargets": [
+    {
+     "evidenceId": "yakiniku-pizza",
+     "nameJa": "焼肉ピザ",
+     "reachableAtStep": 56,
+     "tier": "late",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "beef",
+      "white-sesame",
+      "yakiniku-sauce"
+     ],
+     "runtimeRecipeId": null
+    }
+   ]
+  },
+  {
+   "id": "FRY",
+   "nameJa": "揚げる",
+   "userListed": false,
+   "capability": "FRY_COOK",
+   "runtimeAxis": "FIXED_BY_FLOW (BAKE is the only cooking method)",
+   "verdict": "TECHNIQUE_LATER",
+   "verdictReasonJa": "調理法そのものの置換。1行。",
+   "rowsRequired": 1,
+   "rowsCandidateOnly": 0,
+   "rowsRequiredReady": 1,
+   "readyTargetsOnlyThisTechnique": 1,
+   "readyTargetsBuildableWithRuntimeIngredients": 0,
+   "runtimeRecipesCarryingIt": [],
+   "requiredRowIds": [
+    "pizza-fritta-pizzadb-p9"
+   ],
+   "candidateOnlyRowIds": [],
+   "readyTargets": [
+    {
+     "evidenceId": "pizza-fritta-pizzadb-p9",
+     "nameJa": "ピッツァフリッタ",
+     "reachableAtStep": 24,
+     "tier": "mid",
+     "otherRequiredCapabilities": [],
+     "ingredientsMissingFromRuntime": [
+      "pork",
+      "ricotta"
+     ],
+     "runtimeRecipeId": null
+    }
+   ]
+  },
+  {
+   "id": "LAMINATE",
+   "nameJa": "生地を折り重ねる",
+   "userListed": false,
+   "capability": "LAMINATE",
+   "runtimeAxis": "FIXED_BY_FLOW (no laminate step exists)",
+   "verdict": "TECHNIQUE_LATER",
+   "verdictReasonJa": "feteerのscope questionが先。ready 0行。",
+   "rowsRequired": 1,
+   "rowsCandidateOnly": 0,
+   "rowsRequiredReady": 0,
+   "readyTargetsOnlyThisTechnique": 0,
+   "readyTargetsBuildableWithRuntimeIngredients": 0,
+   "runtimeRecipesCarryingIt": [],
+   "requiredRowIds": [
+    "feteer-meshaltet-pizzadb-p10"
+   ],
+   "candidateOnlyRowIds": [],
+   "readyTargets": []
+  }
+ ],
+ "rows": [
+  {
+   "evidenceId": "bbq-chicken-pizzadb",
+   "nameJa": "BBQチキンピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "POST_BAKE_FINISH"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "SPECIAL_SAUCE"
+   ]
+  },
+  {
+   "evidenceId": "apple-cinnamon-dessert-pizzadb",
+   "nameJa": "アップルシナモンデザートピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "calabresa-argentina-pizzadb",
+   "nameJa": "アルゼンチン風カラブレーサ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "vongole-pizzadb",
+   "nameJa": "ヴォンゴレピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "aussie-pizzadb",
+   "nameJa": "オージーピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "capricciosa-pizzadb",
+   "nameJa": "カプリチョーザ（PIZZA DB版）",
+   "phase2Class": "BLOCKED_PRODUCT_DECISION",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [
+    "ZONED"
+   ],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "currywurst-pizzadb",
+   "nameJa": "カリーヴルストピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "SPECIAL_SAUCE"
+   ]
+  },
+  {
+   "evidenceId": "calzone-pizzadb",
+   "nameJa": "カルツォーネ（PIZZA DB版）",
+   "phase2Class": "BLOCKED_PRODUCT_DECISION",
+   "techniquesRequired": [
+    "ENCLOSE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "NO_CUT"
+   ]
+  },
+  {
+   "evidenceId": "quattro-stagioni-pizzadb",
+   "nameJa": "クアトロスタジオーニ（PIZZA DB版）",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "ZONED"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "quattro-formaggi-pizzadb",
+   "nameJa": "クアトロフォルマッジ（PIZZA DB版）",
+   "phase2Class": "BLOCKED_PRODUCT_DECISION",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "grandma-pizza-pizzadb",
+   "nameJa": "グランマピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "DOUBLE_SPREAD"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "greek-style-pizzadb",
+   "nameJa": "グリークスタイルピザ（PIZZA DB版）",
+   "phase2Class": "BLOCKED_PRODUCT_DECISION",
+   "techniquesRequired": [
+    "PAN_BAKE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "DOUGH_BASE"
+   ]
+  },
+  {
+   "evidenceId": "chicago-deep-dish-pizzadb",
+   "nameJa": "シカゴディープディッシュ（PIZZA DB版）",
+   "phase2Class": "BLOCKED_PRODUCT_DECISION",
+   "techniquesRequired": [
+    "PAN_BAKE",
+    "CHEESE_FIRST"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "siciliana-pizzadb",
+   "nameJa": "シチリアンピザ（PIZZA DB版）",
+   "phase2Class": "BLOCKED_PRODUCT_DECISION",
+   "techniquesRequired": [
+    "SHAPE_SQUARE",
+    "PAN_BAKE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "DOUGH_BASE"
+   ]
+  },
+  {
+   "evidenceId": "sfincione-pizzadb",
+   "nameJa": "スフィンチョーネ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "DOUBLE_SPREAD"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "supreme-pizzadb",
+   "nameJa": "スプリームピザ",
+   "phase2Class": "BLOCKED_PRODUCT_DECISION",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "taco-pizza-pizzadb",
+   "nameJa": "タコピザ",
+   "phase2Class": "BLOCKED_MECHANIC_INTERPRETATION",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [
+    "POST_BAKE_FINISH"
+   ],
+   "nonTechniqueTags": [
+    "SPECIAL_SAUCE"
+   ]
+  },
+  {
+   "evidenceId": "flammkuchen-pizzadb",
+   "nameJa": "タルトフランベ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "SPECIAL_SAUCE"
+   ]
+  },
+  {
+   "evidenceId": "chilean-napolitana-pizzadb",
+   "nameJa": "チリアンナポリターナ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "trenton-tomato-pie-pizzadb",
+   "nameJa": "トレントントマトパイ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "CHEESE_FIRST"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "tonno-e-cipolla-pizzadb",
+   "nameJa": "トンノエチポッラ（PIZZA DB版）",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "new-haven-apizza-pizzadb",
+   "nameJa": "ニューヘイブンアピッツァ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "SPECIAL_SAUCE"
+   ]
+  },
+  {
+   "evidenceId": "ny-style-pizzadb",
+   "nameJa": "ニューヨークスタイルピザ（PIZZA DB版）",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "DOUGH_BASE"
+   ]
+  },
+  {
+   "evidenceId": "bacalhau-pizzadb",
+   "nameJa": "バカリャウピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "buffalo-chicken-pizzadb",
+   "nameJa": "バッファローチキンピザ（PIZZA DB版）",
+   "phase2Class": "BLOCKED_PRODUCT_DECISION",
+   "techniquesRequired": [
+    "POST_BAKE_FINISH",
+    "DOUBLE_SPREAD"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "SPECIAL_SAUCE"
+   ]
+  },
+  {
+   "evidenceId": "margherita-pizzadb-row",
+   "nameJa": "マルゲリータ",
+   "phase2Class": "BLOCKED_PRODUCT_DECISION",
+   "techniquesRequired": [
+    "DOUBLE_SPREAD"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "pizza-baiana",
+   "nameJa": "ピッツァ・バイアーナ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "pizza-a-caballo",
+   "nameJa": "ピッツァ・ア・カバージョ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [
+    "NO_SAUCE",
+    "ENCLOSE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "DOUGH_BASE"
+   ]
+  },
+  {
+   "evidenceId": "fugazzeta-rellena",
+   "nameJa": "フガゼッタ・レジェーナ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "NO_SAUCE",
+    "ENCLOSE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "DOUGH_BASE"
+   ]
+  },
+  {
+   "evidenceId": "bianca-pizzadb-row",
+   "nameJa": "ピッツァビアンカ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "pizza-de-cancha",
+   "nameJa": "ピッツァ・デ・カンチャ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [
+    "DOUBLE_SPREAD"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "DOUGH_BASE"
+   ]
+  },
+  {
+   "evidenceId": "hawaiian-pizzadb-row",
+   "nameJa": "ハワイアンピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "swedish-kebab-pizza-pizzadb-p4",
+   "nameJa": "スウェディッシュケバブピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [
+    "DOUBLE_SPREAD"
+   ],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "scacciata-ragusana-pizzadb-p4",
+   "nameJa": "スカッチャラグザーナ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "ENCLOSE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "spanish-chorizo-pizza-pizzadb-p4",
+   "nameJa": "スパニッシュチョリソピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "spinach-artichoke-pizza-pizzadb-p4",
+   "nameJa": "スピナッチアーティチョークピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "speck-e-brie-pizzadb-p4",
+   "nameJa": "スペックエブリー",
+   "phase2Class": "BLOCKED_PRODUCT_DECISION",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "smore-dessert-pizza-pizzadb-p4",
+   "nameJa": "スモアデザートピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [
+    "POST_BAKE_FINISH"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "st-louis-style-pizza-pizzadb-p4",
+   "nameJa": "セントルイススタイルピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "DOUGH_BASE"
+   ]
+  },
+  {
+   "evidenceId": "thai-chicken-pizza-pizzadb-p4",
+   "nameJa": "タイチキンピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "SPECIAL_SAUCE"
+   ]
+  },
+  {
+   "evidenceId": "mentaiko-cream-pizza-pizzadb-p4",
+   "nameJa": "たらこクリームピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "MID_BAKE_ADD"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "SPECIAL_SAUCE"
+   ]
+  },
+  {
+   "evidenceId": "argentine-napolitana-pizzadb-p1",
+   "nameJa": "アルゼンチン風ナポリターナ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "DOUGH_BASE"
+   ]
+  },
+  {
+   "evidenceId": "ikura-salmon-pizza-pizzadb-p1",
+   "nameJa": "いくらとサーモンのピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "vegan-cashew-cheese-pizza-pizzadb-p1",
+   "nameJa": "ヴィーガンカシューチーズピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "eel-pizza-pizzadb-p1",
+   "nameJa": "うなぎピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [
+    "MID_BAKE_ADD"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "jerusalem-mixed-grill-pizza-pizzadb-p1",
+   "nameJa": "エルサレムミックスグリルピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "old-forge-style-pizza-pizzadb-p1",
+   "nameJa": "オールドフォージスタイルピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [
+    "SHAPE_SQUARE",
+    "PAN_BAKE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "DOUGH_BASE"
+   ]
+  },
+  {
+   "evidenceId": "okonomiyaki-style-pizza-pizzadb-p1",
+   "nameJa": "お好み焼き風ピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [
+    "DOUBLE_SPREAD"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "SPECIAL_SAUCE"
+   ]
+  },
+  {
+   "evidenceId": "caponata-pizza-pizzadb-p2",
+   "nameJa": "カポナータピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "california-style-pizza-pizzadb-p2",
+   "nameJa": "カリフォルニアスタイルピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "cauliflower-crust-pizza-pizzadb-p2",
+   "nameJa": "カリフラワークラストピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "DOUGH_BASE"
+   ]
+  },
+  {
+   "evidenceId": "curry-pizza-japan-pizzadb-p2",
+   "nameJa": "カレーピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "keema-pizza-pizzadb-p2",
+   "nameJa": "キーマピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "kimchi-pizza-pizzadb-p2",
+   "nameJa": "キムチピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [
+    "PREP"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "cuban-pizza-pizzadb-p2",
+   "nameJa": "キューバンピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "SPECIAL_SAUCE"
+   ]
+  },
+  {
+   "evidenceId": "quad-cities-style-pizza-pizzadb-p2",
+   "nameJa": "クアッドシティーズスタイルピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "DOUGH_BASE"
+   ]
+  },
+  {
+   "evidenceId": "goulash-pizza-pizzadb-p3",
+   "nameJa": "グヤーシュピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "colorado-mountain-pie-pizzadb-p3",
+   "nameJa": "コロラドマウンテンパイ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "DOUGH_BASE"
+   ]
+  },
+  {
+   "evidenceId": "salsiccia-e-friarielli-pizzadb-p3",
+   "nameJa": "サルシッチャエフリアリエッリ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "chicago-stuffed-pizza-pizzadb-p3",
+   "nameJa": "シカゴスタッフドピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "ENCLOSE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "DOUGH_BASE"
+   ]
+  },
+  {
+   "evidenceId": "potato-mayo-pizza-pizzadb-p3",
+   "nameJa": "じゃがマヨピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [
+    "DOUBLE_SPREAD"
+   ],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "jamaican-jerk-chicken-pizza-pizzadb-p3",
+   "nameJa": "ジャマイカンジャークチキンピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "shirasu-pizza-pizzadb-p3",
+   "nameJa": "しらすピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "tandoori-paneer-pizza-pizzadb-p5",
+   "nameJa": "タンドリーパニールピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "chicken-tikka-pizza-pizzadb-p5",
+   "nameJa": "チキンティッカピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "diavola-pizza-pizzadb-p5",
+   "nameJa": "ディアボラ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "detroit-style-pizza-pizzadb-p5",
+   "nameJa": "デトロイトスタイルピザ",
+   "phase2Class": "BLOCKED_PRODUCT_DECISION",
+   "techniquesRequired": [
+    "POST_BAKE_FINISH",
+    "SHAPE_SQUARE",
+    "PAN_BAKE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "DOUGH_BASE"
+   ]
+  },
+  {
+   "evidenceId": "turkish-pide-pizzadb-p5",
+   "nameJa": "トルコピデ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [
+    "SHAPE_BOAT"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "DOUGH_BASE"
+   ]
+  },
+  {
+   "evidenceId": "nigerian-suya-pizza-pizzadb-p5",
+   "nameJa": "ナイジェリアンスヤピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "eggplant-tahini-pizza-pizzadb-p5",
+   "nameJa": "ナスとタヒニのピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "SPECIAL_SAUCE"
+   ]
+  },
+  {
+   "evidenceId": "eggplant-ricotta-pizza-pizzadb-p5",
+   "nameJa": "ナスとリコッタのピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "eggplant-dengaku-pizza-pizzadb-p6",
+   "nameJa": "ナス田楽ピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "SPECIAL_SAUCE"
+   ]
+  },
+  {
+   "evidenceId": "nashville-hot-chicken-pizza-pizzadb-p6",
+   "nameJa": "ナッシュビルホットチキンピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [
+    "DOUBLE_SPREAD"
+   ],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "new-england-bar-pizza-pizzadb-p6",
+   "nameJa": "ニューイングランドバーピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "PAN_BAKE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "DOUGH_BASE"
+   ]
+  },
+  {
+   "evidenceId": "new-zealand-lamb-pizza-pizzadb-p6",
+   "nameJa": "ニュージーランドラムピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "nutella-dessert-pizza-pizzadb-p6",
+   "nameJa": "ヌテラデザートピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [
+    "POST_BAKE_FINISH"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "SPECIAL_SAUCE"
+   ]
+  },
+  {
+   "evidenceId": "baingan-bharta-pizza-pizzadb-p6",
+   "nameJa": "バインガンバルタピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "banh-mi-pizza-pizzadb-p6",
+   "nameJa": "バインミーピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "buffalo-cauliflower-pizza-pizzadb-p6",
+   "nameJa": "バッファローカリフラワーピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [
+    "DOUBLE_SPREAD"
+   ],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "baba-ganoush-pizza-pizzadb-p7",
+   "nameJa": "ババガヌーシュピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "SPECIAL_SAUCE"
+   ]
+  },
+  {
+   "evidenceId": "jamon-serrano-pizza-pizzadb-p7",
+   "nameJa": "ハモンセラーノピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "jalapeno-popper-pizza-pizzadb-p7",
+   "nameJa": "ハラペーニョポッパーピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "palmitos-salsa-golf-pizzadb-p7",
+   "nameJa": "パルミートス・イ・サルサ・ゴルフ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "DOUGH_BASE"
+   ]
+  },
+  {
+   "evidenceId": "parmigiana-pizza-pizzadb-p7",
+   "nameJa": "パルミジャーナピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "palmito-pizza-pizzadb-p7",
+   "nameJa": "パルミットピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "bambino-pizzadb-p7",
+   "nameJa": "バンビーノ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "piadina-romagnola-pizzadb-p7",
+   "nameJa": "ピアディーナ・ロマニョーラ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "DOUGH_BASE"
+   ]
+  },
+  {
+   "evidenceId": "pizza-overload-pizzadb-p7",
+   "nameJa": "ピザオーバーロード",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "pizza-salad-pizzadb-p7",
+   "nameJa": "ピザサラダ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "DOUBLE_SPREAD"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "bismarck-pizza-pizzadb-p7",
+   "nameJa": "ビスマルク",
+   "phase2Class": "BLOCKED_PRODUCT_DECISION",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [
+    "ZONED"
+   ],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "pizza-alla-crudaiola-pizzadb-p8",
+   "nameJa": "ピッツァ・アッラ・クルダイオーラ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "DOUBLE_SPREAD"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "pizza-asparagi-limone-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・アスパラージ・クルーディ・エ・リモーネ",
+   "phase2Class": "BLOCKED_MECHANIC_INTERPRETATION",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [
+    "POST_BAKE_FINISH"
+   ],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "pizza-carciofi-salad-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・インサラータ・ディ・カルチョーフィ",
+   "phase2Class": "BLOCKED_MECHANIC_INTERPRETATION",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [
+    "POST_BAKE_FINISH"
+   ],
+   "nonTechniqueTags": [
+    "DOUGH_BASE"
+   ]
+  },
+  {
+   "evidenceId": "pizza-finocchi-salad-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・インサラータ・ディ・フィノッキ",
+   "phase2Class": "BLOCKED_MECHANIC_INTERPRETATION",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [
+    "POST_BAKE_FINISH"
+   ],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "pizza-cavolo-carote-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・カーヴォロ・ロッソ・エ・カローテ",
+   "phase2Class": "BLOCKED_MECHANIC_INTERPRETATION",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [
+    "POST_BAKE_FINISH"
+   ],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "pizza-zucchine-menta-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・ズッキーネ・クルーデ・エ・メンタ",
+   "phase2Class": "BLOCKED_MECHANIC_INTERPRETATION",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [
+    "POST_BAKE_FINISH"
+   ],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "pizza-cicoria-limone-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・チコリア・エ・リモーネ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [
+    "POST_BAKE_FINISH"
+   ],
+   "nonTechniqueTags": [
+    "DOUGH_BASE"
+   ]
+  },
+  {
+   "evidenceId": "pizza-puntarelle-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・プンタレッレ",
+   "phase2Class": "BLOCKED_MECHANIC_INTERPRETATION",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [
+    "POST_BAKE_FINISH"
+   ],
+   "nonTechniqueTags": [
+    "DOUGH_BASE"
+   ]
+  },
+  {
+   "evidenceId": "pizza-radicchio-noci-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・ラディッキオ・クルード・エ・ノーチ",
+   "phase2Class": "BLOCKED_MECHANIC_INTERPRETATION",
+   "techniquesRequired": [
+    "NO_SAUCE",
+    "DOUBLE_SPREAD"
+   ],
+   "techniquesCandidateOnly": [
+    "POST_BAKE_FINISH"
+   ],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "pizza-chilena-pizzadb-p8",
+   "nameJa": "ピッツァ・チレーナ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "pizza-portuguesa-pizzadb-p9",
+   "nameJa": "ピッツァ・ポルトゲーザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "pizza-romana-pizzadb-p9",
+   "nameJa": "ピッツァ・ロマーナ",
+   "phase2Class": "BLOCKED_PRODUCT_DECISION",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "DOUGH_BASE"
+   ]
+  },
+  {
+   "evidenceId": "pizza-alla-norma-pizzadb-p9",
+   "nameJa": "ピッツァアッラノルマ",
+   "phase2Class": "BLOCKED_PRODUCT_DECISION",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "pizza-al-taglio-romana-pizzadb-p9",
+   "nameJa": "ピッツァアルタリオローマーナ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "SHAPE_SQUARE",
+    "PAN_BAKE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "DOUGH_BASE"
+   ]
+  },
+  {
+   "evidenceId": "pizza-feta-eliniki-pizzadb-p9",
+   "nameJa": "ピッツァフェッタエッリニキ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "pizza-fritta-pizzadb-p9",
+   "nameJa": "ピッツァフリッタ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "FRY"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "pizza-moscow-pizzadb-p9",
+   "nameJa": "ピッツァモスクワ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "pinsa-romana-pizzadb-p9",
+   "nameJa": "ピンサロマーナ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "DOUGH_BASE"
+   ]
+  },
+  {
+   "evidenceId": "fathead-pizza-keto-pizzadb-p9",
+   "nameJa": "ファットヘッドピザ（ケト風）",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "DOUGH_BASE"
+   ]
+  },
+  {
+   "evidenceId": "philly-cheesesteak-pizza-pizzadb-p9",
+   "nameJa": "フィリーチーズステーキピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "poutine-pizza-pizzadb-p10",
+   "nameJa": "プーティンピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "SPECIAL_SAUCE",
+    "DOUGH_BASE"
+   ]
+  },
+  {
+   "evidenceId": "feteer-meshaltet-pizzadb-p10",
+   "nameJa": "フェテイールメシャルテル",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [
+    "DOUBLE_SPREAD",
+    "LAMINATE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "focaccia-genovese-pizzadb-p10",
+   "nameJa": "フォカッチャジェノヴェーゼ",
+   "phase2Class": "BLOCKED_PRODUCT_DECISION",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "SPECIAL_SAUCE",
+    "DOUGH_BASE"
+   ]
+  },
+  {
+   "evidenceId": "fugazza-pizzadb-p10",
+   "nameJa": "フガザ",
+   "phase2Class": "BLOCKED_DISCOVERY_RULE",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "DOUGH_BASE"
+   ]
+  },
+  {
+   "evidenceId": "fugazzetta-pizzadb-p10",
+   "nameJa": "フガゼッタ",
+   "phase2Class": "BLOCKED_DISCOVERY_RULE",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "DOUGH_BASE"
+   ]
+  },
+  {
+   "evidenceId": "puttanesca-pizza-pizzadb-p10",
+   "nameJa": "プッタネスカ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "burrata-pizza-pizzadb-p10",
+   "nameJa": "ブラータピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "DOUBLE_SPREAD"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "brazilian-calabresa-pizzadb-p10",
+   "nameJa": "ブラジリアン・カラブレーザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "brazilian-catupiry-corn-pizza-pizzadb-p10",
+   "nameJa": "ブラジリアンカトゥピリコーンピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "frango-catupiry-pizzadb-p10",
+   "nameJa": "フランゴ・コン・カトゥピリ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "full-english-pizza-pizzadb-p10",
+   "nameJa": "フルイングリッシュピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "fruit-dessert-pizza-pizzadb-p11",
+   "nameJa": "フルーツデザートピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "DOUGH_BASE"
+   ]
+  },
+  {
+   "evidenceId": "bulgogi-pizza-pizzadb-p11",
+   "nameJa": "プルコギピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "frutti-di-mare-pizzadb-p11",
+   "nameJa": "フルッティディマーレ",
+   "phase2Class": "BLOCKED_PRODUCT_DECISION",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "breakfast-pizza-pizzadb-p11",
+   "nameJa": "ブレックファーストピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "prosciutto-funghi-pizzadb-p11",
+   "nameJa": "プロシュットフンギ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "veggie-supreme-pizza-pizzadb-p11",
+   "nameJa": "ベジースプリームピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "pescatore-pizzadb-p11",
+   "nameJa": "ペスカトーレ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "DOUBLE_SPREAD"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "pesto-caprese-pizzadb-p11",
+   "nameJa": "ペストカプレーゼピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "SPECIAL_SAUCE"
+   ]
+  },
+  {
+   "evidenceId": "pesto-gamberi-pizzadb-p11",
+   "nameJa": "ペストガンベリピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "SPECIAL_SAUCE"
+   ]
+  },
+  {
+   "evidenceId": "pesto-salmone-pizzadb-p11",
+   "nameJa": "ペストサーモンピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "SPECIAL_SAUCE"
+   ]
+  },
+  {
+   "evidenceId": "pesto-genovese-pizza-pizzadb-p11",
+   "nameJa": "ペストジェノヴェーゼピザ",
+   "phase2Class": "BLOCKED_PRODUCT_DECISION",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "SPECIAL_SAUCE"
+   ]
+  },
+  {
+   "evidenceId": "pesto-trapanese-pizzadb-p11",
+   "nameJa": "ペストトラパネーゼピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "SPECIAL_SAUCE"
+   ]
+  },
+  {
+   "evidenceId": "pesto-tonno-pizzadb-p12",
+   "nameJa": "ペストトンノピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "SPECIAL_SAUCE"
+   ]
+  },
+  {
+   "evidenceId": "pesto-noci-pizzadb-p12",
+   "nameJa": "ペストノーチピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "DOUBLE_SPREAD"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "SPECIAL_SAUCE"
+   ]
+  },
+  {
+   "evidenceId": "pesto-patate-pizzadb-p12",
+   "nameJa": "ペストパターテピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "SPECIAL_SAUCE"
+   ]
+  },
+  {
+   "evidenceId": "pesto-burrata-pizzadb-p12",
+   "nameJa": "ペストブラータピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "DOUBLE_SPREAD"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "SPECIAL_SAUCE"
+   ]
+  },
+  {
+   "evidenceId": "pesto-vegetariana-pizzadb-p12",
+   "nameJa": "ペストベジタリアーナピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "SPECIAL_SAUCE"
+   ]
+  },
+  {
+   "evidenceId": "pesto-pollo-pizzadb-p12",
+   "nameJa": "ペストポッロピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "SPECIAL_SAUCE"
+   ]
+  },
+  {
+   "evidenceId": "venezuelan-reina-pepiada-pizzadb-p12",
+   "nameJa": "ベネズエラレイナペピアーダピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [
+    "DOUBLE_SPREAD"
+   ],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "peruvian-aji-amarillo-pizzadb-p12",
+   "nameJa": "ペルーアヒアマリージョピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "polish-kielbasa-pizzadb-p12",
+   "nameJa": "ポーリッシュキエルバサピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "boscaiola-pizzadb-p12",
+   "nameJa": "ボスカイオーラ",
+   "phase2Class": "BLOCKED_PRODUCT_DECISION",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "hot-honey-pepperoni-pizzadb-p12",
+   "nameJa": "ホットハニーペパロニピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "DOUBLE_SPREAD"
+   ],
+   "techniquesCandidateOnly": [
+    "POST_BAKE_FINISH"
+   ],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "porchetta-pizza-pizzadb-p12",
+   "nameJa": "ポルケッタピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "natto-pizza",
+   "nameJa": "納豆ピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [
+    "MID_BAKE_ADD"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "peking-duck-pizza",
+   "nameJa": "北京ダックピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "SPECIAL_SAUCE"
+   ]
+  },
+  {
+   "evidenceId": "mentaiko-mochi-pizza",
+   "nameJa": "明太子もちピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [
+    "DOUBLE_SPREAD"
+   ],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "manakish",
+   "nameJa": "マナキーシュ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "SPECIAL_SAUCE",
+    "DOUGH_BASE"
+   ]
+  },
+  {
+   "evidenceId": "yuzu-shrimp-pizza",
+   "nameJa": "柚子えびピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "SPECIAL_SAUCE"
+   ]
+  },
+  {
+   "evidenceId": "wasabi-beef-pizza",
+   "nameJa": "わさび牛ピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "POST_BAKE_FINISH"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "SPECIAL_SAUCE"
+   ]
+  },
+  {
+   "evidenceId": "sichuan-eggplant-pizza",
+   "nameJa": "四川風ナスピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "SPECIAL_SAUCE"
+   ]
+  },
+  {
+   "evidenceId": "yakiniku-pizza",
+   "nameJa": "焼肉ピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "PREP"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "SPECIAL_SAUCE"
+   ]
+  },
+  {
+   "evidenceId": "pizza-de-lomo-saltado",
+   "nameJa": "ロモ・サルタード・ピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [
+    "MID_BAKE_ADD",
+    "PREP"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "lahmacun",
+   "nameJa": "ラフマジュン",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [
+    "DOUBLE_SPREAD"
+   ],
+   "techniquesCandidateOnly": [
+    "POST_BAKE_FINISH"
+   ],
+   "nonTechniqueTags": [
+    "DOUGH_BASE"
+   ]
+  },
+  {
+   "evidenceId": "porcini-pizza-pizzadb-p13",
+   "nameJa": "ポルチーニ茸のピザ",
+   "phase2Class": "BLOCKED_PRODUCT_DECISION",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "marinara-pizza-pizzadb-p13",
+   "nameJa": "マリナーラ",
+   "phase2Class": "BLOCKED_PRODUCT_DECISION",
+   "techniquesRequired": [
+    "DOUBLE_SPREAD"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "meat-lovers-pizza-pizzadb-p13",
+   "nameJa": "ミートラバーズピザ",
+   "phase2Class": "BLOCKED_PRODUCT_DECISION",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "moussaka-style-pizza-pizzadb-p13",
+   "nameJa": "ムサカ風ピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "mexican-elote-pizza-pizzadb-p13",
+   "nameJa": "メキシカンエロテピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [
+    "DOUBLE_SPREAD"
+   ],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "melanzane-pizza-pizzadb-p13",
+   "nameJa": "メランザーネピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "montreal-style-pizza-pizzadb-p13",
+   "nameJa": "モントリオールスタイルピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "PAN_BAKE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": [
+    "DOUGH_BASE"
+   ]
+  },
+  {
+   "evidenceId": "ratatouille-pizza-pizzadb-p13",
+   "nameJa": "ラタトゥイユピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "rucola-e-grana-pizzadb-p13",
+   "nameJa": "ルーコラエグラーナピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "rendang-pizza-pizzadb-p14",
+   "nameJa": "ルンダンピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "nduja-pizza-pizzadb-p14",
+   "nameJa": "ンドゥイヤピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [
+    "DOUBLE_SPREAD"
+   ],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "tsukimi-pizza-pizzadb-p14",
+   "nameJa": "月見ピザ",
+   "phase2Class": "EVIDENCE_READY_TARGET",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "black-truffle-pizza-pizzadb-p14",
+   "nameJa": "黒トリュフピザ",
+   "phase2Class": "BLOCKED_PRODUCT_DECISION",
+   "techniquesRequired": [
+    "POST_BAKE_FINISH",
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "teriyaki-chicken-pizza-pizzadb-p14",
+   "nameJa": "照り焼きチキンピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [
+    "POST_BAKE_FINISH"
+   ],
+   "techniquesCandidateOnly": [
+    "DOUBLE_SPREAD"
+   ],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "south-african-boerewors-pizzadb-p14",
+   "nameJa": "南アフリカボアヴォースピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [
+    "DOUBLE_SPREAD"
+   ],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "ume-shiso-pizza-pizzadb-p14",
+   "nameJa": "梅しそピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  },
+  {
+   "evidenceId": "hokkaido-cheese-pizza-pizzadb-p15",
+   "nameJa": "北海道チーズピザ",
+   "phase2Class": "BLOCKED_EVIDENCE",
+   "techniquesRequired": [
+    "NO_SAUCE"
+   ],
+   "techniquesCandidateOnly": [],
+   "nonTechniqueTags": []
+  }
+ ]
+}
