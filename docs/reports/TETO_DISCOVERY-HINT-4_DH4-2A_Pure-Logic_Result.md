@@ -215,7 +215,23 @@ The mutation harness is a scratch script: apply a string mutation, run the 5 foc
 
 ## 15. CI
 
-Recorded on the PR after push.
+PR #264, code head `0c3316c`. **All 9 check runs are green:**
+
+| Check | Result |
+|---|---|
+| `build` (CI: lint, Vitest, build) | success |
+| `classify` | success |
+| `layout-chromium` | success |
+| Layout Contract Gate | success |
+| webkit-390x844 shards 1/2, 2/2 | success |
+| webkit-360x800 shards 1/2, 2/2 | success |
+| WebKit Gate | success |
+
+Other PR state:
+- `mergeable_state: clean`.
+- 0 review threads.
+- The Codex connector posted only a usage-limit notice, so no review ran and no finding exists.
+- Commits after `0c3316c` are docs-only.
 
 ## 16. Blockers
 
