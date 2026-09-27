@@ -15,7 +15,9 @@ Verdict: **A. READY FOR OWNER DECISIONS** (§16).
 
 > **Update (Owner Decisions confirmed):** the Owner confirmed OD-H3-1..12 (§20, Owner Authority).
 > The mandatory pre-implementation check of OD-H3-6 then found conflicts between the confirmed
-> decisions (§21). H3-1 has **not** been started: **C. BLOCKED — needs Owner Decisions OD-H3-13..15**.
+> decisions (§21). The Owner resolved them with OD-H3-13..16 (§22). The restart-gate privacy
+> recheck passed (§23), and H3-1 (pure logic, unwired) was implemented. See
+> `docs/reports/TETO_DISCOVERY-HINT-3_H3-1_Result.md`.
 
 ---
 
@@ -670,3 +672,71 @@ it costs 35 cumulative via H3. That conflicts with OD-H3-7's "exact slot count" 
 Once these three are decided, H3-1 can proceed exactly as scoped (pure logic, unwired). The fact
 generation, Rule W, ESC pricing / batch parity and the validation design in §6–§7 are unaffected.
 Only the sellable set, fallback rule and parity expectation change.
+
+## 22. Owner Decisions — blocker resolution (Owner Authority)
+
+Confirmed by the Owner after the §21 BLOCKED report (branch HEAD `cf63a27`). Recorded verbatim.
+These replace the §21.3 proposals.
+
+**OD-H3-13:** 「無料key factが0 purchasable factsを作るrecipeだけkeyを有料化する」案は採用しない。
+key ingredientは全対象recipeで無料というOD-H3-6の一貫したルールを維持する。pizza-biancaを個別例外に
+しない。pizza-biancaで有料ingredient factが0になること自体は許容する。ただし、「有料factが0だから
+ingredient数が2だ」と購入前に分かるpresentationは禁止する。
+
+**OD-H3-14:** Selectable Hintのカテゴリは「そのカテゴリに購入可能factが存在すること」を意味しない。
+カテゴリはプレイヤーが「どの方向の情報を知りたいか」を指定する preference として扱う（例: ソースに
+ついて / チーズについて / トッピングについて）。選択カテゴリにprivacy-safeな未公開positive factが
+あれば、それを優先して返す。存在しない場合は、deterministicなfallback orderで別カテゴリの未公開
+positive factを返してよい。fallback authority候補: sauce → cheese → topping。ただし実データを使って
+deterministicかつprivacy-safeであることをテストする。購入前UIでは以下を絶対に公開しない:
+categoryごとの残りfact数 / category complete / category empty / exact ingredient slot count /
+exact topping count / exact cheese count / 「このカテゴリには使わない」。UI copyも、「チーズを1つ解除」
+のように結果を保証する表現ではなく、「チーズを中心にヒントを探す」のようにpreferenceであることが
+分かる設計をH3-4で検討する。H3-1ではpresentation modelまで。最終copy/CSSは実装しない。
+
+**OD-H3-15:** Hint 2.0の有料対象24recipe総額1480 Pitzとの完全parityをHint 3.0の絶対条件から外す。
+Selectable Hintは旧H1-H4と販売する情報単位が異なるため、1480を維持するためだけに material count /
+absence fact / exact slot count / unnecessary duplicate information を販売してはいけない。Fresh Audit
+で算出された515 Pitzも最終authorityにはしない。H3-1では現在決定済みの 5 / 10 / 20 / 40 ESC
+progression および 旧35-cap recipe → max 35 / 旧75-cap recipe → max 75 をpure pricing authority
+として維持する。実際の25recipe総額はmeasurementとしてResult Reportに記録する。最終的なHint 3.0
+economy tuningは、UI/Human Verificationとsimulation後に再判断する。Shop価格、pack size、reward
+economy、既知の★1 economy burdenは今回変更しない。
+
+**OD-H3-16:** 「すべての購入可能positive factを購入した結果、プレイヤーがingredient数等を推論できる」
+ことは許容する。ただし区別する: FREE LEAK: 購入前に構造からrecipe情報が分かる → 禁止。
+PAID INFERENCE: 十分なPitzを支払ってpositive factsを取得した結果、残りを推論できる → 許容。
+したがって、購入前の row数 / disabled state / category availability / category complete表示 /
+remaining count からingredient数を漏らしてはいけない。一方、購入済みpositive factsからプレイヤー
+自身が推理することはHint gameplayの一部として許容する。
+
+## 23. H3-1 restart gate — privacy recheck (before code): **PASS**
+
+Base: `origin/main` = `4bf098f` (PR #240 DM-2 merged since §21; merged into this branch). DM-2
+touched no hint, discovery, recipe, ingredient or ladder file.
+
+I enumerated what a pre-purchase presentation could possibly depend on per recipe, using the
+committed matrix plus §20/§22:
+
+| Candidate recipe-dependent quantity | Decision | Result |
+|---|---|---|
+| Rows | 3 fixed category rows (sauce / cheese / topping) for every recipe | identical for all 24 |
+| Preferences | all 3 always selectable; no availability, empty, complete or remaining count (OD-H3-14) | identical for all 24 |
+| Next price | a function of the paid-fact count only (0 → 5). The 35/75 cap **never binds before exhaustion** on any runtime recipe (checked for every reachable paid count), so the displayed price never reveals the cap. | identical for all 24 (5) |
+| Free key chip | the key ingredient, shown in its own category row (OD-H3-6) | the only difference; its category (topping 20, cheese 2, sauce 2) is a property of the public ingredient, not hidden structure |
+| Purchasable fact count | never part of the pre-purchase presentation | not exposed |
+
+With the key chip stripped, all 24 paid recipes have **one identical pre-purchase structure**.
+
+1. pizza-bianca is not identified by pre-purchase structure: PASS.
+2. puttanesca is not identified by pre-purchase structure: PASS.
+3. The 5 slot-count leak recipes (quattro-formaggi, pizza-bianca, parmigiana, pesto-tonno,
+   puttanesca) are not identified by pre-purchase structure: PASS.
+4. Category availability leaks nothing, because it is not exposed: PASS.
+5. The free key leaks no hidden structure beyond the key itself: PASS.
+
+The gate passed, so H3-1 proceeded. It pins all five as tests on the real module.
+
+One condition carried forward (not a pre-purchase structure item; raised for the Owner in the H3-1
+Result Report, C-1): pizza-bianca has 0 paid facts, so its **first** purchase attempt resolves to
+"nothing to reveal" at 0 Pitz. That is a zero-cost signal at the first action.
