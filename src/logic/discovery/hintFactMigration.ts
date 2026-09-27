@@ -14,8 +14,11 @@
  *   player owns (`grantedFactIds`). The key it named is free under Hint 3.0 anyway.
  * - A line that named no ingredient -- H3's count + cheese line, the coarse
  *   「ソースはトマトじゃないみたい」 -- has no positive fact to become (OD-H3-7 forbids count and
- *   negative facts). Its value is kept as paid progress instead: `paidRungs` = the level, so the next
- *   price continues the ladder where the player left it.
+ *   negative facts, and none is created). It is kept twice instead: as paid progress (`paidRungs` =
+ *   the level, so the next price continues the ladder) and as the line itself
+ *   (`grandfatheredSteps`), so the text the player already paid for is not lost at cutover. It is
+ *   only ever this player's own purchased line, never sold again and never turned into a fact; how
+ *   H3-4 shows it is an Owner decision (H3-2 Result Report §25).
  * - The level is clamped to the recipe's own last level (a later build may have stored a higher one),
  *   exactly like `purchasedHintLevel`. Malformed or absent -> H0 (nothing bought).
  */
@@ -28,6 +31,13 @@ import { hintFactId, type HintFactId, type LegacyHintProgress } from "./selectab
  *  never written), so the paid lines are the Dex >= 1 lines. */
 const PAID_CONTEXT = { discoveredCount: 1 } as const;
 
+/** `LegacyHintProgress` as this module produces it: always well-typed (assignable to H3-1's
+ *  deliberately `unknown`-typed input). */
+export interface MigratedLegacyProgress extends LegacyHintProgress {
+  paidRungs: number;
+  grantedFactIds: readonly HintFactId[];
+}
+
 export interface LegacyHintMapping {
   recipeId: string;
   /** The stored level clamped to the recipe's last level (0 = nothing bought). */
@@ -39,7 +49,7 @@ export interface LegacyHintMapping {
   /** Visible lines that named no ingredient: kept as paid progress, never turned into a fact. */
   progressOnlySteps: readonly HintStep[];
   /** What to hand H3-1 (`selectableHintPresentation` / `purchaseSelectableHint`). */
-  legacy: LegacyHintProgress;
+  legacy: MigratedLegacyProgress;
 }
 
 function lastLevel(recipe: Recipe): number {
@@ -81,7 +91,10 @@ export interface SelectableHintSavedState {
    *  ignores what it cannot use; the save never drops them). */
   purchasedFactIds: readonly string[];
   /** The Economy 1.0 progress (paid rungs + the facts its lines showed). */
-  legacy: LegacyHintProgress;
+  legacy: MigratedLegacyProgress;
+  /** Already-purchased Hint 2.0 lines that named no ingredient (count + cheese, coarse sauce),
+   *  carried verbatim so nothing the player paid for is lost. Display only; never a fact. */
+  grandfatheredSteps: readonly HintStep[];
 }
 
 /**
@@ -101,5 +114,6 @@ export function selectableHintSavedState(
   return {
     purchasedFactIds: Array.isArray(stored) ? stored.filter((id): id is string => typeof id === "string") : [],
     legacy: mapping.legacy,
+    grandfatheredSteps: mapping.progressOnlySteps,
   };
 }

@@ -101,8 +101,54 @@ describe("legacy mapping reads what the Hint 2.0 sheet really showed (25 recipes
     const a = selectableHintSavedState("napoletana", save);
     const b = selectableHintSavedState("napoletana", save);
     expect(b).toEqual(a);
-    expect(a).toEqual({ purchasedFactIds: ["ing:mozzarella"], legacy: { paidRungs: 3, grantedFactIds: ["ing:anchovy", "ing:tomato-sauce"] } });
+    expect(a).toMatchObject({ purchasedFactIds: ["ing:mozzarella"], legacy: { paidRungs: 3, grantedFactIds: ["ing:anchovy", "ing:tomato-sauce"] } });
+    expect(a!.grandfatheredSteps.map((x) => x.textJa)).toEqual(["材料は全部で4種類。チーズを使うみたい"]);
     expect(save.discoveryHintPurchases).toEqual({ napoletana: 3, capricciosa: 2 });
+  });
+});
+
+describe("no loss of non-ingredient lines (Codex P2 on PR #244)", () => {
+  it("every visible line is carried: ingredient lines as granted facts, the rest verbatim as grandfatheredSteps", () => {
+    let lostLines = 0;
+    for (const recipe of RECIPES) {
+      for (const level of LEVELS) {
+        const state = selectableHintSavedState(recipe.id, { discoveryHintPurchases: level === 0 ? {} : { [recipe.id]: level }, discoveryHintFacts: {} })!;
+        const m = mapping(recipe.id, level);
+        for (const step of m.visibleSteps.slice(1)) {
+          const kept = step.namedIngredientId
+            ? state.legacy.grantedFactIds.includes(`ing:${step.namedIngredientId}`)
+            : state.grandfatheredSteps.some((g) => g.textJa === step.textJa && g.axis === step.axis && g.level === step.level);
+          if (!kept) lostLines += 1;
+        }
+        expect(state.grandfatheredSteps).toEqual(m.progressOnlySteps);
+      }
+    }
+    expect(lostLines).toBe(0);
+  });
+
+  it("pizza-bianca H2/H3 keeps its coarse sauce line and count line as text, and still no 'not tomato' fact exists", () => {
+    const state = selectableHintSavedState("pizza-bianca", { discoveryHintPurchases: { "pizza-bianca": 3 }, discoveryHintFacts: {} })!;
+    expect(state.grandfatheredSteps.map((s) => s.textJa)).toEqual(["ソースはトマトじゃないみたい", "材料は全部で2種類。チーズは使わないみたい"]);
+    expect(state.legacy.grantedFactIds).toEqual(["ing:rosemary"]);
+    const p = selectableHintPresentation(model("pizza-bianca"), state.purchasedFactIds, 0, state.legacy);
+    expect(JSON.stringify(p)).not.toMatch(/none:|not-tomato|olive-oil/);
+  });
+
+  it("nothing is grandfathered for a player who never bought those lines (H0/H1): no free disclosure", () => {
+    for (const recipe of RECIPES) {
+      for (const level of [0, 1]) {
+        const state = selectableHintSavedState(recipe.id, { discoveryHintPurchases: level === 0 ? {} : { [recipe.id]: level }, discoveryHintFacts: {} })!;
+        const lines = mapping(recipe.id, level).visibleSteps.filter((s) => s.level > 0 && !s.namedIngredientId);
+        expect(state.grandfatheredSteps).toEqual(lines);
+      }
+    }
+    expect(selectableHintSavedState("napoletana", { discoveryHintPurchases: { napoletana: 2 }, discoveryHintFacts: {} })!.grandfatheredSteps).toEqual([]);
+  });
+
+  it("mutation: dropping the grandfathered lines (price kept, text lost) is caught", () => {
+    const state = selectableHintSavedState("napoletana", { discoveryHintPurchases: { napoletana: 3 }, discoveryHintFacts: {} })!;
+    const dropped = { ...state, grandfatheredSteps: [] };
+    expect(dropped.grandfatheredSteps).not.toEqual(mapping("napoletana", 3).progressOnlySteps);
   });
 });
 

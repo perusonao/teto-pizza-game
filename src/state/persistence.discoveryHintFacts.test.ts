@@ -107,10 +107,12 @@ describe("old saves load through the production path (fixtures 1-15)", () => {
       const loaded = loadSave(storageWith(economySave(level === 0 ? {} : { napoletana: level })));
       expect(loaded.discoveryHintPurchases).toEqual(level === 0 ? {} : { napoletana: level });
       expect(loaded.discoveryHintFacts).toEqual({});
-      expect(selectableHintSavedState("napoletana", loaded)).toEqual({
+      expect(selectableHintSavedState("napoletana", loaded)).toMatchObject({
         purchasedFactIds: [],
         legacy: { paidRungs: expected[level].paidRungs, grantedFactIds: expected[level].granted },
       });
+      // H3's count + cheese line is carried as text from H3 on (never a fact).
+      expect(selectableHintSavedState("napoletana", loaded)!.grandfatheredSteps.map((s) => s.axis)).toEqual(level >= 3 ? ["COUNT_CHEESE"] : []);
     }
   });
 
@@ -197,7 +199,7 @@ describe("old saves load through the production path (fixtures 1-15)", () => {
     const storage = storageWith(economySave({ napoletana: 2 }, { discoveryHintFacts: { napoletana: ["ing:mozzarella"] } }));
     const loaded = loadSave(storage);
     const state = selectableHintSavedState("napoletana", loaded)!;
-    expect(state).toEqual({ purchasedFactIds: ["ing:mozzarella"], legacy: { paidRungs: 2, grantedFactIds: ["ing:anchovy", "ing:tomato-sauce"] } });
+    expect(state).toEqual({ purchasedFactIds: ["ing:mozzarella"], legacy: { paidRungs: 2, grantedFactIds: ["ing:anchovy", "ing:tomato-sauce"] }, grandfatheredSteps: [] });
     const p = selectableHintPresentation(buildSelectableHintModel("napoletana", { discoveredCount: 1 })!, state.purchasedFactIds, 0, state.legacy);
     expect(p.paidCount).toBe(3);
     expect(p.rows.flatMap((r) => r.revealed.map((c) => c.ingredientId)).sort()).toEqual(["anchovy", "mozzarella", "tomato-sauce"]);
