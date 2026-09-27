@@ -1,1 +1,1 @@
-run_id,tester_id,tester_profile,is_owner,device,os_browser,viewport_css,preview_badge,mission_id,duration_param_s,min_stars_param,attempt_index,outcome,remaining_at_end_s,clear_s,notes
+run_id,tester_id,tester_profile,is_owner,device,os_browser,viewport_css,preview_badge,mission_id,duration_param_s,min_stars_param,attempt_index,outcome,remaining_at_end_s,clear_s,notes,evidence_class
