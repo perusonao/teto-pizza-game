@@ -1,0 +1,956 @@
+[
+ {
+  "ladderIndex": 0,
+  "recipeId": "margherita",
+  "signature": {
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "cheese": [
+    "mozzarella"
+   ],
+   "topping": [
+    "basil"
+   ]
+  },
+  "total": null,
+  "key": null,
+  "sellable": [
+   "tomato-sauce",
+   "mozzarella",
+   "basil"
+  ],
+  "reserve": null,
+  "reserveFamily": null,
+  "owned": 3,
+  "answer": null,
+  "privacyWorstCaseCandidates": {},
+  "catalogComparisonCandidates": {},
+  "bits": null
+ },
+ {
+  "ladderIndex": 1,
+  "recipeId": "bismarck",
+  "signature": {
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "cheese": [
+    "mozzarella"
+   ],
+   "topping": [
+    "egg"
+   ]
+  },
+  "total": 3,
+  "key": "egg",
+  "sellable": [
+   "tomato-sauce"
+  ],
+  "reserve": "mozzarella",
+  "reserveFamily": null,
+  "owned": 4,
+  "answer": "attr:existence",
+  "privacyWorstCaseCandidates": {
+   "category": 1
+  },
+  "catalogComparisonCandidates": {
+   "category": 4
+  },
+  "bits": {
+   "material": 1,
+   "attribute": 0
+  }
+ },
+ {
+  "ladderIndex": 2,
+  "recipeId": "breakfast-pizza",
+  "signature": {
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "cheese": [
+    "mozzarella"
+   ],
+   "topping": [
+    "bacon",
+    "egg"
+   ]
+  },
+  "total": 4,
+  "key": "bacon",
+  "sellable": [
+   "tomato-sauce",
+   "mozzarella"
+  ],
+  "reserve": "egg",
+  "reserveFamily": "other",
+  "owned": 5,
+  "answer": "attr:category:topping",
+  "privacyWorstCaseCandidates": {
+   "family": 1,
+   "group": 1,
+   "category": 2
+  },
+  "catalogComparisonCandidates": {
+   "family": 1,
+   "group": 1,
+   "category": 21
+  },
+  "bits": {
+   "material": 1,
+   "attribute": 0
+  }
+ },
+ {
+  "ladderIndex": 3,
+  "recipeId": "funghi",
+  "signature": {
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "cheese": [
+    "mozzarella"
+   ],
+   "topping": [
+    "mushroom"
+   ]
+  },
+  "total": 3,
+  "key": "mushroom",
+  "sellable": [
+   "tomato-sauce"
+  ],
+  "reserve": "mozzarella",
+  "reserveFamily": null,
+  "owned": 6,
+  "answer": "attr:existence",
+  "privacyWorstCaseCandidates": {
+   "category": 1
+  },
+  "catalogComparisonCandidates": {
+   "category": 4
+  },
+  "bits": {
+   "material": 2,
+   "attribute": 0
+  }
+ },
+ {
+  "ladderIndex": 4,
+  "recipeId": "melanzane-pizza",
+  "signature": {
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "cheese": [
+    "mozzarella"
+   ],
+   "topping": [
+    "basil",
+    "eggplant"
+   ]
+  },
+  "total": 4,
+  "key": "eggplant",
+  "sellable": [
+   "tomato-sauce",
+   "mozzarella"
+  ],
+  "reserve": "basil",
+  "reserveFamily": "herb",
+  "owned": 7,
+  "answer": "attr:category:topping",
+  "privacyWorstCaseCandidates": {
+   "family": 1,
+   "group": 1,
+   "category": 4
+  },
+  "catalogComparisonCandidates": {
+   "family": 4,
+   "group": 5,
+   "category": 21
+  },
+  "bits": {
+   "material": 2,
+   "attribute": 0
+  }
+ },
+ {
+  "ladderIndex": 5,
+  "recipeId": "parmigiana-pizza",
+  "signature": {
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "cheese": [
+    "mozzarella",
+    "parmigiano"
+   ],
+   "topping": [
+    "basil",
+    "eggplant"
+   ]
+  },
+  "total": 5,
+  "key": "parmigiano",
+  "sellable": [
+   "tomato-sauce",
+   "mozzarella",
+   "eggplant"
+  ],
+  "reserve": "basil",
+  "reserveFamily": "herb",
+  "owned": 8,
+  "answer": "attr:category:topping",
+  "privacyWorstCaseCandidates": {
+   "family": 1,
+   "group": 1,
+   "category": 4
+  },
+  "catalogComparisonCandidates": {
+   "family": 4,
+   "group": 5,
+   "category": 21
+  },
+  "bits": {
+   "material": 2,
+   "attribute": 0
+  }
+ },
+ {
+  "ladderIndex": 6,
+  "recipeId": "pepperoni",
+  "signature": {
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "cheese": [
+    "mozzarella"
+   ],
+   "topping": [
+    "pepperoni"
+   ]
+  },
+  "total": 3,
+  "key": "pepperoni",
+  "sellable": [
+   "tomato-sauce"
+  ],
+  "reserve": "mozzarella",
+  "reserveFamily": null,
+  "owned": 9,
+  "answer": "attr:category:cheese",
+  "privacyWorstCaseCandidates": {
+   "category": 2
+  },
+  "catalogComparisonCandidates": {
+   "category": 4
+  },
+  "bits": {
+   "material": 2.81,
+   "attribute": 1.81
+  }
+ },
+ {
+  "ladderIndex": 7,
+  "recipeId": "salsiccia",
+  "signature": {
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "cheese": [
+    "mozzarella"
+   ],
+   "topping": [
+    "sausage"
+   ]
+  },
+  "total": 3,
+  "key": "sausage",
+  "sellable": [
+   "tomato-sauce"
+  ],
+  "reserve": "mozzarella",
+  "reserveFamily": null,
+  "owned": 10,
+  "answer": "attr:category:cheese",
+  "privacyWorstCaseCandidates": {
+   "category": 2
+  },
+  "catalogComparisonCandidates": {
+   "category": 4
+  },
+  "bits": {
+   "material": 3,
+   "attribute": 2
+  }
+ },
+ {
+  "ladderIndex": 8,
+  "recipeId": "meat-lovers",
+  "signature": {
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "cheese": [
+    "mozzarella"
+   ],
+   "topping": [
+    "bacon",
+    "ham",
+    "pepperoni",
+    "sausage"
+   ]
+  },
+  "total": 6,
+  "key": "ham",
+  "sellable": [
+   "tomato-sauce",
+   "mozzarella",
+   "bacon",
+   "pepperoni"
+  ],
+  "reserve": "sausage",
+  "reserveFamily": "meat",
+  "owned": 11,
+  "answer": "attr:category:topping",
+  "privacyWorstCaseCandidates": {
+   "family": 1,
+   "group": 1,
+   "category": 5
+  },
+  "catalogComparisonCandidates": {
+   "family": 1,
+   "group": 4,
+   "category": 19
+  },
+  "bits": {
+   "material": 2.58,
+   "attribute": 0.26
+  }
+ },
+ {
+  "ladderIndex": 9,
+  "recipeId": "bambino",
+  "signature": {
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "cheese": [
+    "mozzarella"
+   ],
+   "topping": [
+    "corn",
+    "ham"
+   ]
+  },
+  "total": 4,
+  "key": "corn",
+  "sellable": [
+   "tomato-sauce",
+   "mozzarella"
+  ],
+  "reserve": "ham",
+  "reserveFamily": "meat",
+  "owned": 12,
+  "answer": "attr:family:meat",
+  "privacyWorstCaseCandidates": {
+   "family": 4,
+   "group": 4,
+   "category": 8
+  },
+  "catalogComparisonCandidates": {
+   "family": 4,
+   "group": 7,
+   "category": 21
+  },
+  "bits": {
+   "material": 3.17,
+   "attribute": 1.17
+  }
+ },
+ {
+  "ladderIndex": 10,
+  "recipeId": "hawaiian",
+  "signature": {
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "cheese": [
+    "mozzarella"
+   ],
+   "topping": [
+    "ham",
+    "pineapple"
+   ]
+  },
+  "total": 4,
+  "key": "pineapple",
+  "sellable": [
+   "tomato-sauce",
+   "mozzarella"
+  ],
+  "reserve": "ham",
+  "reserveFamily": "meat",
+  "owned": 13,
+  "answer": "attr:family:meat",
+  "privacyWorstCaseCandidates": {
+   "family": 4,
+   "group": 4,
+   "category": 9
+  },
+  "catalogComparisonCandidates": {
+   "family": 4,
+   "group": 7,
+   "category": 21
+  },
+  "bits": {
+   "material": 3.32,
+   "attribute": 1.32
+  }
+ },
+ {
+  "ladderIndex": 11,
+  "recipeId": "capricciosa",
+  "signature": {
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "cheese": [
+    "mozzarella"
+   ],
+   "topping": [
+    "black-olive",
+    "ham",
+    "mushroom",
+    "oregano"
+   ]
+  },
+  "total": 6,
+  "key": "oregano",
+  "sellable": [
+   "tomato-sauce",
+   "mozzarella",
+   "mushroom",
+   "ham"
+  ],
+  "reserve": "black-olive",
+  "reserveFamily": "vegetable",
+  "owned": 15,
+  "answer": "attr:family:vegetable",
+  "privacyWorstCaseCandidates": {
+   "family": 3,
+   "group": 4,
+   "category": 9
+  },
+  "catalogComparisonCandidates": {
+   "family": 7,
+   "group": 8,
+   "category": 19
+  },
+  "bits": {
+   "material": 3.32,
+   "attribute": 1.74
+  }
+ },
+ {
+  "ladderIndex": 12,
+  "recipeId": "pizza-portuguesa",
+  "signature": {
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "cheese": [
+    "mozzarella"
+   ],
+   "topping": [
+    "black-olive",
+    "egg",
+    "ham",
+    "onion"
+   ]
+  },
+  "total": 6,
+  "key": "onion",
+  "sellable": [
+   "tomato-sauce",
+   "mozzarella",
+   "ham",
+   "egg"
+  ],
+  "reserve": "black-olive",
+  "reserveFamily": "vegetable",
+  "owned": 16,
+  "answer": "attr:family:vegetable",
+  "privacyWorstCaseCandidates": {
+   "family": 4,
+   "group": 5,
+   "category": 10
+  },
+  "catalogComparisonCandidates": {
+   "family": 7,
+   "group": 8,
+   "category": 19
+  },
+  "bits": {
+   "material": 3.46,
+   "attribute": 1.46
+  }
+ },
+ {
+  "ladderIndex": 13,
+  "recipeId": "fugazza",
+  "signature": {
+   "sauce": [
+    "olive-oil"
+   ],
+   "cheese": [],
+   "topping": [
+    "onion",
+    "oregano"
+   ]
+  },
+  "total": 3,
+  "key": "olive-oil",
+  "sellable": [
+   "onion"
+  ],
+  "reserve": "oregano",
+  "reserveFamily": "herb",
+  "owned": 17,
+  "answer": "attr:family:herb",
+  "privacyWorstCaseCandidates": {
+   "family": 2,
+   "group": 2,
+   "category": 12
+  },
+  "catalogComparisonCandidates": {
+   "family": 4,
+   "group": 5,
+   "category": 21
+  },
+  "bits": {
+   "material": 3.91,
+   "attribute": 2.91
+  }
+ },
+ {
+  "ladderIndex": 14,
+  "recipeId": "marinara",
+  "signature": {
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "cheese": [],
+   "topping": [
+    "garlic",
+    "oregano"
+   ]
+  },
+  "total": 3,
+  "key": "garlic",
+  "sellable": [
+   "tomato-sauce"
+  ],
+  "reserve": "oregano",
+  "reserveFamily": "herb",
+  "owned": 18,
+  "answer": "attr:family:herb",
+  "privacyWorstCaseCandidates": {
+   "family": 2,
+   "group": 2,
+   "category": 13
+  },
+  "catalogComparisonCandidates": {
+   "family": 3,
+   "group": 4,
+   "category": 21
+  },
+  "bits": {
+   "material": 4,
+   "attribute": 3
+  }
+ },
+ {
+  "ladderIndex": 15,
+  "recipeId": "napoletana",
+  "signature": {
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "cheese": [
+    "mozzarella"
+   ],
+   "topping": [
+    "anchovy",
+    "oregano"
+   ]
+  },
+  "total": 4,
+  "key": "anchovy",
+  "sellable": [
+   "tomato-sauce",
+   "mozzarella"
+  ],
+  "reserve": "oregano",
+  "reserveFamily": "herb",
+  "owned": 19,
+  "answer": "attr:family:herb",
+  "privacyWorstCaseCandidates": {
+   "family": 3,
+   "group": 3,
+   "category": 14
+  },
+  "catalogComparisonCandidates": {
+   "family": 4,
+   "group": 5,
+   "category": 21
+  },
+  "bits": {
+   "material": 4,
+   "attribute": 2.42
+  }
+ },
+ {
+  "ladderIndex": 16,
+  "recipeId": "tonno-e-cipolla",
+  "signature": {
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "cheese": [
+    "mozzarella"
+   ],
+   "topping": [
+    "onion",
+    "tuna"
+   ]
+  },
+  "total": 4,
+  "key": "tuna",
+  "sellable": [
+   "tomato-sauce",
+   "mozzarella"
+  ],
+  "reserve": "onion",
+  "reserveFamily": "vegetable",
+  "owned": 20,
+  "answer": "attr:family:vegetable",
+  "privacyWorstCaseCandidates": {
+   "family": 5,
+   "group": 6,
+   "category": 15
+  },
+  "catalogComparisonCandidates": {
+   "family": 8,
+   "group": 9,
+   "category": 21
+  },
+  "bits": {
+   "material": 4.09,
+   "attribute": 1.77
+  }
+ },
+ {
+  "ladderIndex": 17,
+  "recipeId": "pesto-tonno",
+  "signature": {
+   "sauce": [
+    "pesto"
+   ],
+   "cheese": [],
+   "topping": [
+    "black-olive",
+    "onion",
+    "tuna"
+   ]
+  },
+  "total": 4,
+  "key": "pesto",
+  "sellable": [
+   "tuna",
+   "black-olive"
+  ],
+  "reserve": "onion",
+  "reserveFamily": "vegetable",
+  "owned": 21,
+  "answer": "attr:family:vegetable",
+  "privacyWorstCaseCandidates": {
+   "family": 4,
+   "group": 5,
+   "category": 14
+  },
+  "catalogComparisonCandidates": {
+   "family": 7,
+   "group": 8,
+   "category": 20
+  },
+  "bits": {
+   "material": 4.17,
+   "attribute": 2.17
+  }
+ },
+ {
+  "ladderIndex": 18,
+  "recipeId": "genovese",
+  "signature": {
+   "sauce": [
+    "pesto"
+   ],
+   "cheese": [
+    "mozzarella"
+   ],
+   "topping": [
+    "cherry-tomato"
+   ]
+  },
+  "total": 3,
+  "key": "cherry-tomato",
+  "sellable": [
+   "pesto"
+  ],
+  "reserve": "mozzarella",
+  "reserveFamily": null,
+  "owned": 22,
+  "answer": "attr:category:cheese",
+  "privacyWorstCaseCandidates": {
+   "category": 2
+  },
+  "catalogComparisonCandidates": {
+   "category": 4
+  },
+  "bits": {
+   "material": 4.32,
+   "attribute": 3.32
+  }
+ },
+ {
+  "ladderIndex": 19,
+  "recipeId": "new-haven-apizza",
+  "signature": {
+   "sauce": [
+    "olive-oil"
+   ],
+   "cheese": [
+    "parmigiano"
+   ],
+   "topping": [
+    "clam",
+    "garlic"
+   ]
+  },
+  "total": 4,
+  "key": "clam",
+  "sellable": [
+   "olive-oil",
+   "parmigiano"
+  ],
+  "reserve": "garlic",
+  "reserveFamily": "herb",
+  "owned": 23,
+  "answer": "attr:family:herb",
+  "privacyWorstCaseCandidates": {
+   "family": 3,
+   "group": 3,
+   "category": 17
+  },
+  "catalogComparisonCandidates": {
+   "family": 4,
+   "group": 5,
+   "category": 21
+  },
+  "bits": {
+   "material": 4.32,
+   "attribute": 2.74
+  }
+ },
+ {
+  "ladderIndex": 20,
+  "recipeId": "pesto-caprese",
+  "signature": {
+   "sauce": [
+    "pesto"
+   ],
+   "cheese": [
+    "mozzarella"
+   ],
+   "topping": [
+    "basil",
+    "fresh-tomato"
+   ]
+  },
+  "total": 4,
+  "key": "fresh-tomato",
+  "sellable": [
+   "pesto",
+   "mozzarella"
+  ],
+  "reserve": "basil",
+  "reserveFamily": "herb",
+  "owned": 24,
+  "answer": "attr:family:herb",
+  "privacyWorstCaseCandidates": {
+   "family": 3,
+   "group": 3,
+   "category": 18
+  },
+  "catalogComparisonCandidates": {
+   "family": 4,
+   "group": 5,
+   "category": 21
+  },
+  "bits": {
+   "material": 4.39,
+   "attribute": 2.81
+  }
+ },
+ {
+  "ladderIndex": 21,
+  "recipeId": "pesto-patate",
+  "signature": {
+   "sauce": [
+    "pesto"
+   ],
+   "cheese": [
+    "mozzarella"
+   ],
+   "topping": [
+    "bacon",
+    "potato"
+   ]
+  },
+  "total": 4,
+  "key": "potato",
+  "sellable": [
+   "pesto",
+   "mozzarella"
+  ],
+  "reserve": "bacon",
+  "reserveFamily": "meat",
+  "owned": 25,
+  "answer": "attr:family:meat",
+  "privacyWorstCaseCandidates": {
+   "family": 4,
+   "group": 7,
+   "category": 19
+  },
+  "catalogComparisonCandidates": {
+   "family": 4,
+   "group": 7,
+   "category": 21
+  },
+  "bits": {
+   "material": 4.46,
+   "attribute": 2.46
+  }
+ },
+ {
+  "ladderIndex": 22,
+  "recipeId": "pizza-bianca",
+  "signature": {
+   "sauce": [
+    "olive-oil"
+   ],
+   "cheese": [],
+   "topping": [
+    "rosemary"
+   ]
+  },
+  "total": 2,
+  "key": "rosemary",
+  "sellable": [],
+  "reserve": "olive-oil",
+  "reserveFamily": null,
+  "owned": 26,
+  "answer": "attr:category:sauce",
+  "privacyWorstCaseCandidates": {
+   "category": 3
+  },
+  "catalogComparisonCandidates": {
+   "category": 3
+  },
+  "bits": {
+   "material": 4.64,
+   "attribute": 3.06
+  }
+ },
+ {
+  "ladderIndex": 23,
+  "recipeId": "puttanesca-pizza",
+  "signature": {
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "cheese": [],
+   "topping": [
+    "anchovy",
+    "black-olive",
+    "capers",
+    "garlic"
+   ]
+  },
+  "total": 5,
+  "key": "capers",
+  "sellable": [
+   "tomato-sauce",
+   "anchovy",
+   "black-olive"
+  ],
+  "reserve": "garlic",
+  "reserveFamily": "herb",
+  "owned": 27,
+  "answer": "attr:family:herb",
+  "privacyWorstCaseCandidates": {
+   "family": 4,
+   "group": 4,
+   "category": 19
+  },
+  "catalogComparisonCandidates": {
+   "family": 4,
+   "group": 4,
+   "category": 19
+  },
+  "bits": {
+   "material": 4.52,
+   "attribute": 2.52
+  }
+ },
+ {
+  "ladderIndex": 24,
+  "recipeId": "quattro-formaggi",
+  "signature": {
+   "sauce": [
+    "olive-oil"
+   ],
+   "cheese": [
+    "fontina",
+    "gorgonzola",
+    "mozzarella",
+    "parmigiano"
+   ],
+   "topping": []
+  },
+  "total": 5,
+  "key": "gorgonzola",
+  "sellable": [
+   "olive-oil",
+   "mozzarella",
+   "parmigiano"
+  ],
+  "reserve": "fontina",
+  "reserveFamily": null,
+  "owned": 29,
+  "answer": "attr:existence",
+  "privacyWorstCaseCandidates": {
+   "category": 1
+  },
+  "catalogComparisonCandidates": {
+   "category": 1
+  },
+  "bits": {
+   "material": 4.64,
+   "attribute": 0
+  }
+ }
+]
