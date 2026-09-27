@@ -245,7 +245,13 @@ describe("Stage A: bake window and CUT from the composition (§9 / §10)", () =>
   it("the BAKE view carries the window and steps only -- no identity, id or name", () => {
     for (const recipe of RECIPES) {
       const view = dinnerBakePlanView(planDinnerBake(pizzaFor(recipe.id, { bake: null })));
-      expect(Object.keys(view).sort()).toEqual(["bakeTarget", "cutRequired", "postBakeSteps"]);
+      // DM-3R-2 adds the CUT slice count (the same standard config for every CUT recipe) -- still
+      // no identity, id or name.
+      const keys = view.cutRequired
+        ? ["bakeTarget", "cutConfig", "cutRequired", "postBakeSteps"]
+        : ["bakeTarget", "cutRequired", "postBakeSteps"];
+      expect(Object.keys(view).sort()).toEqual(keys);
+      if (view.cutConfig) expect(view.cutConfig).toEqual({ requestedSliceCount: 6 });
       const text = JSON.stringify(view);
       expect(text).not.toContain(recipe.id);
       expect(text).not.toContain(recipe.nameJa);
@@ -552,7 +558,10 @@ describe("feasibility after every attempt, and CLEAR precedence (§14 / §15)", 
     expect(result.remainingShortages).toEqual([]);
   });
 
-  it("the run transition matches DM-1 RESOLVE_ATTEMPT for the same target and stock", () => {
+  // DM-3R-2 (Issue #250): DM-1's SELECT_TARGET is gone, so parity is now with the one run
+  // transition the resolver delegates to -- RESOLVE_ATTEMPT carrying the classified attempt. The
+  // run (status / progress / outcome) and the appended attempt must be exactly that transition's.
+  it("the run transition matches DM-1 RESOLVE_ATTEMPT for the same classified attempt and stock", () => {
     const scenarios: [DinnerMissionDefinition, InventoryState, string[], PizzaState, QualityStars][] = [
       [DM_A, EXACT_A, [], pizzaFor("bismarck"), 3],
       [DM_A, { egg: 1, bacon: 3 }, ["margherita", "bismarck", "funghi"], pizzaFor("breakfast-pizza"), 3],
@@ -562,17 +571,45 @@ describe("feasibility after every attempt, and CLEAR precedence (§14 / §15)", 
     for (const [mission, stock, completed, pizza, minimumStars] of scenarios) {
       const run = runOf(mission, completed);
       const result = resolved(resolveDinnerAttempt(input(run, pizza, { preConsumptionInventory: stock, minimumStars })));
-      const recipeId = (result.classification as { recipeId: string }).recipeId;
-      const selected = dinnerRunReducer(run, { type: "SELECT_TARGET", recipeId, now: NOW });
-      const dm1 = dinnerRunReducer(selected, {
+      const attempt = result.run.attempts[result.run.attempts.length - 1];
+      expect(result.run.attempts).toHaveLength(run.attempts.length + 1);
+      const dm1 = dinnerRunReducer(run, {
         type: "RESOLVE_ATTEMPT",
-        recipeId,
-        completion: result.completedTargetId ? "PASS" : "FAILED",
+        attempt,
         stock: { ownedIngredientIds: ALL_IDS, inventory: result.postConsumptionInventory },
         now: NOW,
       });
-      expect({ ...result.run, attempts: [] }).toEqual({ ...dm1, attempts: [] });
+      expect(result.run).toEqual(dm1);
+      expect(attempt.completedTargetId).toBe(result.completedTargetId);
     }
+  });
+
+  it("DM-3R-2 attempt log: category, internal identity, displayed recipe, ★, consumption, completed target", () => {
+    const pass = resolved(resolveDinnerAttempt(input(runOf(DM_A), pizzaFor("bismarck"), { preConsumptionInventory: EXACT_A })));
+    expect(pass.run.attempts).toEqual([
+      {
+        at: NOW,
+        category: "TARGET_PASS",
+        identityRecipeId: "bismarck",
+        displayedRecipeId: "bismarck",
+        completedTargetId: "bismarck",
+        stars: (pass.classification as { stars: number }).stars,
+        consumed: { egg: 1 },
+      },
+    ]);
+    // An undiscovered non-target: the internal identity is kept, nothing is displayed.
+    const hidden = resolved(
+      resolveDinnerAttempt(input(runOf(DM_A), pizzaFor("hawaiian"), { preConsumptionInventory: { ...EXACT_A, ham: 3, pineapple: 3 } })),
+    );
+    expect(hidden.classification.category).toBe("ORIGINAL");
+    expect(hidden.run.attempts[0]).toMatchObject({
+      category: "ORIGINAL",
+      identityRecipeId: "hawaiian",
+      displayedRecipeId: null,
+      completedTargetId: null,
+      stars: null,
+    });
+    expect(Object.keys(hidden.run.attempts[0].consumed).sort()).toEqual(["ham", "pineapple"]);
   });
 });
 

@@ -116,3 +116,65 @@ for (const [label, width, height] of [
     await expect(page.locator(".pizza-cut-line")).toHaveCount(3);
   });
 }
+
+/* DM-3R-2 (Issue #250): the recipe-free Dinner round -- target row in place of the order card,
+   the all-owned paged tray -- must keep pointer accuracy and one PREPARE diameter too. */
+const DINNER_MATERIALS = ["egg", "bacon", "mushroom"];
+const DINNER_SAVE = {
+  schemaVersion: 2,
+  dex: ["margherita", "bismarck", "breakfast-pizza", "funghi"].map((recipeId) => ({ recipeId, discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 })),
+  pitzBalance: 150,
+  ownedIngredientIds: ["tomato-sauce", "mozzarella", "basil", ...DINNER_MATERIALS],
+  missionBest: {},
+  inventory: { egg: 5, bacon: 5, mushroom: 5 },
+  unlockedForShopIngredientIds: DINNER_MATERIALS,
+};
+
+for (const [label, width, height] of [
+  ["390x844", 390, 844],
+  ["390x664 (Safari-like)", 390, 664],
+  ["360x640 (Safari-like)", 360, 640],
+] as const) {
+  test(`DM-3R-2 Dinner pointer smoke ${label}: sauce dab and topping taps land where the pointer went`, async ({ page }) => {
+    test.setTimeout(90_000);
+    runOnlyOnWidth(test.info(), width === 390 ? 390 : 360);
+    await page.setViewportSize({ width, height });
+    await page.goto("icons/icon-16.png");
+    await page.evaluate(([k, v]) => {
+      localStorage.clear();
+      localStorage.setItem(k, v);
+    }, [SAVE_KEY, JSON.stringify(DINNER_SAVE)] as const);
+    await page.goto("/?dinnerDuration=900");
+    await page.waitForSelector(".app-frame");
+    await page.getByRole("button", { name: /ディナーミッション/ }).click();
+    await page.locator(".dinner-mission-card", { hasText: /ディナーミッション 1/ }).click();
+    await page.getByRole("button", { name: /スタート/ }).click();
+    await page.waitForSelector(".pizza-stage");
+    await expect(page.getByTestId("dinner-target-row")).toBeVisible();
+
+    const dough = await doughWidth(page);
+    await completeDoughStep(page);
+    await page.locator(".prepare-bake-bar").getByRole("button", { name: /次へ/ }).click();
+    await page.getByRole("button", { name: /トマトソース/ }).click();
+    expect(await doughWidth(page), `${label}: SAUCE keeps the DOUGH diameter`).toBeCloseTo(dough, 0);
+    await tapDoughPercent(page, 35, 40);
+    const dab = await sauceCentroidPercent(page);
+    expect(dab, `${label}: the dab painted something`).not.toBeNull();
+    expect(Math.abs(dab!.x - 35), `${label}: sauce dab x (${dab!.x.toFixed(1)}%)`).toBeLessThanOrEqual(4);
+    expect(Math.abs(dab!.y - 40), `${label}: sauce dab y (${dab!.y.toFixed(1)}%)`).toBeLessThanOrEqual(4);
+    await page.locator(".prepare-bake-bar").getByRole("button", { name: /次へ/ }).click();
+    expect(await doughWidth(page), `${label}: CHEESE keeps the DOUGH diameter`).toBeCloseTo(dough, 0);
+    await page.getByRole("button", { name: /モッツァレラ/ }).click();
+    for (const [x, y] of [[30, 45], [68, 55]] as const) {
+      await tapDoughPercent(page, x, y);
+      const at = await lastToppingPercent(page);
+      expect(Math.hypot(at.x - x, at.y - y), `${label}: mozzarella at ${x},${y} landed at ${at.x.toFixed(1)},${at.y.toFixed(1)}`).toBeLessThanOrEqual(3);
+    }
+    await page.locator(".prepare-bake-bar").getByRole("button", { name: /次へ/ }).click();
+    expect(await doughWidth(page), `${label}: TOPPING keeps the DOUGH diameter`).toBeCloseTo(dough, 0);
+    await page.getByRole("button", { name: /たまご/ }).click();
+    await tapDoughPercent(page, 50, 28);
+    const egg = await lastToppingPercent(page);
+    expect(Math.hypot(egg.x - 50, egg.y - 28), `${label}: egg landed at ${egg.x.toFixed(1)},${egg.y.toFixed(1)}`).toBeLessThanOrEqual(3);
+  });
+}

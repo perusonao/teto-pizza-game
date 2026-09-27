@@ -90,6 +90,23 @@ describe("validateDinnerMissions", () => {
   });
 });
 
+describe("DM-3R-2 quality gate slot (OD-R2, S decided in DM-5)", () => {
+  it("every shipped mission leaves minimumStars untuned (null) -- no production balance value", () => {
+    for (const m of DINNER_MISSIONS) expect(m.quality.minimumStars, m.missionId).toBeNull();
+  });
+
+  it("accepts an integer 1..5 or null and rejects anything else", () => {
+    for (const ok of [1, 3, 5, null] as const) {
+      expect(validateDinnerMissions([mission({ quality: { minimumStars: ok } })])).toEqual([]);
+    }
+    for (const bad of [0, 6, 3.5, Number.NaN]) {
+      expect(validateDinnerMissions([mission({ quality: { minimumStars: bad as 3 } })])).toContain(
+        "mission dm-a: minimum stars must be an integer 1..5 or null",
+      );
+    }
+  });
+});
+
 describe("derived unlock (OD-DM-12)", () => {
   it("locked with nothing discovered; the view names no undiscovered target", () => {
     const view = dinnerMissionUnlock(DM_A, dexOf([]));

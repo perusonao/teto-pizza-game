@@ -61,7 +61,7 @@ describe("every existing round path sets a kind that agrees with its flags", () 
       ["SELECT_RECIPE", { type: "SELECT_RECIPE", recipeId: "funghi", now: 1 }],
       ["START_FREE_COOK", { type: "START_FREE_COOK", now: 1 }],
       ["MISSION_RESET_ORDER", { type: "MISSION_RESET_ORDER" }],
-      ["DINNER_START", { type: "DINNER_START", missionId: "dm-a", now: 1, durationMs: 60_000 }],
+      ["DINNER_START", { type: "DINNER_START", missionId: "dm-a", now: 1, durationMs: 60_000, minimumStars: 3 }],
     ];
     for (const s of [dex0, base]) expectConsistent(s, "initial");
     for (const [label, action] of actions) {

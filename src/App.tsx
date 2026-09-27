@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { HomeScreen } from "./screens/HomeScreen";
 import { PizzaSelectScreen } from "./screens/PizzaSelectScreen";
+import { DinnerMissionScreen } from "./screens/DinnerMissionScreen";
 import { PreviewBadge } from "./components/PreviewBadge";
 import { GameScreen } from "./screens/GameScreen";
 import { DexOverlay } from "./components/DexOverlay";
@@ -51,6 +52,15 @@ import { calculateMissionReward } from "./logic/economy";
 import { canStartGuidedRound, countRecipeDiscoveryStates, isRecipeCookable } from "./state/recipeDiscoveryState";
 import { useDinnerRuntime } from "./state/useDinnerRuntime";
 import { isDinnerRound } from "./state/roundKind";
+import { resolveDinnerDurationMs, resolveDinnerMinimumStars } from "./state/dinnerView";
+import {
+  DINNER_MISSIONS,
+  getDinnerMission,
+  isDinnerMissionUnlocked,
+  type DinnerMissionDefinition,
+} from "./mission/dinner/dinnerMission";
+import { dinnerStartBlock } from "./mission/dinner/dinnerRun";
+import type { QualityStars } from "./logic/scoring";
 import "./App.css";
 
 const MISSION_TICK_MS = 250;
@@ -80,6 +90,28 @@ function resolveMissionConfig(): MissionConfig {
     }
   }
   return DEFAULT_MISSION_CONFIG;
+}
+
+/** DEV and Preview builds only (Vite replaces both env checks statically, so production has none). */
+const DINNER_PREVIEW_ALLOWED = Boolean(import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE);
+
+/**
+ * Dinner Mission DM-3 (OD-DM3-1): a Dinner mission has no time limit until DM-5, so production
+ * never starts one (START shows 「制限時間を調整中」). DEV and Preview builds may pass
+ * `?dinnerDuration=<seconds>` for Human Verification; production passes `""`, so no provisional
+ * duration exists in what ships.
+ */
+function dinnerDurationFor(mission: DinnerMissionDefinition): number | null {
+  return resolveDinnerDurationMs(mission, DINNER_PREVIEW_ALLOWED ? window.location.search : "");
+}
+
+/**
+ * DM-3R-2 (OD-R2): the quality gate S -- the mission's own value once DM-5 sets one; until then
+ * DEV / Preview only use the explicit placeholder or `?dinnerMinStars=<1..5>`, and production has
+ * none (so START stays unavailable, like the duration above).
+ */
+function dinnerMinimumStarsFor(mission: DinnerMissionDefinition): QualityStars | null {
+  return resolveDinnerMinimumStars(mission, DINNER_PREVIEW_ALLOWED ? window.location.search : "", DINNER_PREVIEW_ALLOWED);
 }
 
 /** Issue #32 Phase 2: `activeCategory` is a *view* of the reducer's own `state.makingStep`,
@@ -124,7 +156,7 @@ function findPrimarySauceId(recipe: GameState["recipe"]): string | null {
  *  HomeScreen/PizzaSelectScreen/GameScreen are all pure views over the one GameState/
  *  MissionState this component owns, so which of the three is on screen is itself just more
  *  App-level UI state, the same way `isDexOpen`/`isShopOpen` already were pre-split. */
-type Screen = "HOME" | "PIZZA_SELECT" | "GAME";
+type Screen = "HOME" | "PIZZA_SELECT" | "GAME" | "DINNER";
 
 const GO_HOME_CONFIRM_MESSAGE =
   "ピザ作りを中断してホームに戻りますか？作りかけのピザは失われます。";
@@ -159,8 +191,8 @@ function App() {
       save.discoveryHintFacts,
     );
   });
-  // Dinner Mission DM-2 (Issue #239): the Dinner run's clock and HOME exit. No Dinner UI yet
-  // (DM-3); the run itself lives in `state.dinner` (./state/gameReducer.ts).
+  // Dinner Mission DM-2 / DM-3R-2 (Issues #239, #250): the Dinner run's clock, START and HOME exit;
+  // the run itself lives in `state.dinner` (./state/gameReducer.ts).
   const dinnerRuntime = useDinnerRuntime(state, dispatch);
   // HOME is always the first screen shown (Issue #24 requirement) regardless of what round
   // hydration produced -- a resumed ORDER-phase round from a prior session is simply what
@@ -170,6 +202,8 @@ function App() {
   // all -- gates Lunch Rush (HOME's own button + handleStartLunchRush below) until the player's
   // first discovery. Derived, never independently stored, same discipline as `activeCategory`.
   const hasAnyDiscovery = state.dex.some((entry) => entry.discovered);
+  // Dinner Mission DM-3: unlocked missions, derived from the Dex (never saved).
+  const dinnerUnlockedCount = DINNER_MISSIONS.filter((m) => isDinnerMissionUnlocked(m, state.dex)).length;
   // Issue #212 (OD-2): Lunch Rush also needs at least one discovered recipe that is cookable with
   // the stock on hand -- otherwise every order would be short. Derived, like `hasAnyDiscovery`.
   const lunchRushCookable = canStartLunchRush(state);
@@ -205,7 +239,7 @@ function App() {
   // dispense session's not-yet-committed deposits, mirrored up from PizzaStage purely so
   // Prototype Metrics can show live numbers while holding -- see handleDispenseProgress/
   // handleDispenseCommit below. Declared here (not lower, near those handlers) so the
-  // lastOrderId reset block just below can safely clear it.
+  // lastRoundKey reset block just below can safely clear it.
   const [pendingSauceDeposits, setPendingSauceDeposits] = useState<SauceDeposit[]>([]);
   // Issue #33 D1: mirrors `pendingSauceDeposits` exactly -- the current in-progress DOUGH
   // gesture's uncommitted shape, mirrored up from PizzaStage purely so the DOUGH step's CTA
@@ -236,9 +270,15 @@ function App() {
 
   // Every new order should start the player off with the recipe's own sauce selected,
   // so a fresh order never opens on a sauce that belongs to a different recipe.
-  const [lastOrderId, setLastOrderId] = useState(state.order.id);
-  if (lastOrderId !== state.order.id) {
-    setLastOrderId(state.order.id);
+  // Dinner Mission DM-3R-2: every Dinner pizza shares the one recipe-free order id, so the round key
+  // also carries the run (`startedAt`) and the per-run round counter -- each next pizza (and a
+  // retried run) is a fresh round with no stale 見本 popover, selection or gesture.
+  const roundKey = state.dinner
+    ? `${state.order.id}|dinner:${state.dinner.run.clock.startedAt}:${state.dinner.roundSeq}`
+    : state.order.id;
+  const [lastRoundKey, setLastRoundKey] = useState(roundKey);
+  if (lastRoundKey !== roundKey) {
+    setLastRoundKey(roundKey);
     // Issue #33 D1: a fresh round starts at DOUGH, not SAUCE -- nothing selectable yet (see
     // `selectedIngredientId`'s own declaration above).
     setSelectedIngredientId(null);
@@ -261,12 +301,12 @@ function App() {
   // starts with the recipe's own primary sauce already picked for the player -- previously
   // this ran once, at round start, back when SAUCE was itself the first step; now it fires
   // here instead, the moment the round actually reaches SAUCE (round start or a same-round
-  // DOUGH -> SAUCE confirm alike). `lastOrderId`'s own sync above already handles a brand new
+  // DOUGH -> SAUCE confirm alike). `lastRoundKey`'s own sync above already handles a brand new
   // round's own reset, so this only fires for a same-round step change.
   const [lastMakingStep, setLastMakingStep] = useState(state.makingStep);
   if (lastMakingStep !== state.makingStep) {
     setLastMakingStep(state.makingStep);
-    if (lastOrderId === state.order.id) {
+    if (lastRoundKey === roundKey) {
       setSelectedIngredientId(state.makingStep === "SAUCE" ? findPrimarySauceId(state.recipe) : null);
     }
     // Pizza Cutting 1.0 Phase 4A: a duplicate-line rejection message never survives past the CUT
@@ -750,11 +790,57 @@ function App() {
     setShopOpen(true);
   }
 
+  // --- Dinner Mission (DM-3 #242 / DM-3R-2 #250) -----------------------------------------------
+  function handleStartDinner(missionId: string, durationMs: number, minimumStars: QualityStars) {
+    if (dinnerRuntime.active || mission.mode !== "FREE") return;
+    // Leave for GAME only with a run the reducer will accept (the same checks as startDinnerRun),
+    // so a rejected START never lands on an unrelated non-Dinner round.
+    const target = getDinnerMission(missionId);
+    if (!target || dinnerStartBlock(target, state) !== null || !Number.isFinite(durationMs) || durationMs <= 0) return;
+    setDexOpen(false);
+    dinnerRuntime.startDinner(missionId, durationMs, minimumStars);
+    setScreen("GAME");
+  }
+
+  /** 「もう一度」 on CLEAR / FAILED: re-checks the start conditions (stock may have run out). */
+  const dinnerRetryMission = state.dinner ? getDinnerMission(state.dinner.run.missionId) : undefined;
+  const dinnerRetryDurationMs = dinnerRetryMission ? dinnerDurationFor(dinnerRetryMission) : null;
+  const dinnerRetryMinimumStars = dinnerRetryMission ? dinnerMinimumStarsFor(dinnerRetryMission) : null;
+  const dinnerRetryBlocked =
+    !dinnerRetryMission ||
+    dinnerRetryDurationMs === null ||
+    dinnerRetryMinimumStars === null ||
+    dinnerStartBlock(dinnerRetryMission, state) !== null;
+
+  function handleDinnerRetry() {
+    if (!dinnerRetryMission || dinnerRetryDurationMs === null || dinnerRetryMinimumStars === null || dinnerRetryBlocked) return;
+    dinnerRuntime.exitFinished();
+    dinnerRuntime.startDinner(dinnerRetryMission.missionId, dinnerRetryDurationMs, dinnerRetryMinimumStars);
+  }
+
+  function handleDinnerHome() {
+    dinnerRuntime.exitFinished();
+    setScreen("HOME");
+  }
+
+  /** After a finished run only: leave it first (the Shop is closed while a run exists). */
+  function handleDinnerOpenShop() {
+    dinnerRuntime.exitFinished();
+    setScreen("HOME");
+    setShopOpen(true);
+  }
+
+  function handleDinnerQuit() {
+    dinnerRuntime.confirmLeave();
+    setScreen("HOME");
+  }
+
   function handleGoHome() {
     // Dinner Mission DM-2 (OD-DM-7): HOME during a Dinner run asks first, then abandons it (no
-    // reward); cancelling keeps the run going.
+    // reward); cancelling keeps the run going. DM-3: the confirmation is the in-app
+    // DinnerAbandonDialog (GameScreen), not window.confirm.
     if (dinnerRuntime.active) {
-      if (dinnerRuntime.leaveDinner((message) => window.confirm(message))) setScreen("HOME");
+      if (dinnerRuntime.requestLeave()) setScreen("HOME");
       return;
     }
     if (isRoundInProgress() && !window.confirm(GO_HOME_CONFIRM_MESSAGE)) {
@@ -954,6 +1040,8 @@ function App() {
           onStartFreePlay={handleStartFreePlay}
           onStartFreeCook={handleStartFreeCook}
           onStartLunchRush={handleStartLunchRush}
+          onOpenDinner={() => setScreen("DINNER")}
+          dinnerUnlockedCount={dinnerUnlockedCount}
           lunchRushLocked={!hasAnyDiscovery}
           lunchRushNoCookable={hasAnyDiscovery && !lunchRushCookable}
           onOpenDex={() => setDexOpen(true)}
@@ -964,6 +1052,19 @@ function App() {
           newShopMaterialCount={newShopMaterialCount(state.ownedIngredientIds, state.unlockedForShopIngredientIds)}
           dexHasNew={state.justDiscovered}
           discoverableCount={countRecipeDiscoveryStates(RECIPES, state).DISCOVERABLE}
+        />
+      )}
+
+      {screen === "DINNER" && (
+        <DinnerMissionScreen
+          dex={state.dex}
+          ownedIngredientIds={state.ownedIngredientIds}
+          inventory={state.inventory}
+          durationFor={dinnerDurationFor}
+          minimumStarsFor={dinnerMinimumStarsFor}
+          onStart={handleStartDinner}
+          onBack={() => setScreen("HOME")}
+          onOpenShop={openShop}
         />
       )}
 
@@ -983,6 +1084,16 @@ function App() {
 
       {screen === "GAME" && (
         <GameScreen
+          dinner={{
+            now: dinnerRuntime.now,
+            retryBlocked: dinnerRetryBlocked,
+            onNextPizza: () => dispatch({ type: "DINNER_NEXT_PIZZA", now: Date.now() }),
+            onRetry: handleDinnerRetry,
+            onHome: handleDinnerHome,
+            onOpenShop: handleDinnerOpenShop,
+            onContinue: dinnerRuntime.cancelLeave,
+            onQuit: handleDinnerQuit,
+          }}
           state={state}
           mission={mission}
           missionNow={missionNow}

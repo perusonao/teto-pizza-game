@@ -16,6 +16,16 @@ import { MissionServePanel } from "../components/MissionServePanel";
 import { MissionShortagePanel } from "../components/MissionShortagePanel";
 import { recipeStockShortage } from "../state/recipeDiscoveryState";
 import { MissionResultOverlay } from "../components/MissionResultOverlay";
+import {
+  DinnerAbandonDialog,
+  DinnerAttemptResultPanel,
+  DinnerHud,
+  DinnerResultOverlay,
+  DinnerTargetRow,
+} from "../components/DinnerGameUi";
+import { getDinnerMission } from "../mission/dinner/dinnerMission";
+import { getReferencePizza } from "../data/referencePizza";
+import { getRecipe, type RecipeId } from "../data/recipes";
 import { ReferencePreview } from "../components/ReferencePreview";
 import { PlayerReferencePreview } from "../components/PlayerReferencePreview";
 import { ReferenceThumbnail } from "../components/ReferenceThumbnail";
@@ -63,7 +73,23 @@ import type { HintCategory } from "../logic/discovery/selectableHint";
  * GAME stay two views over one shared App-level state rather than duplicating any game logic.
  */
 
+/** Dinner Mission DM-3 (Issue #242) / DM-3R-2 (Issue #250): what the Dinner screens need from App.
+ *  The run itself is `state.dinner` -- these are only the display clock and the tap handlers. */
+export interface DinnerScreenProps {
+  now: number;
+  retryBlocked: boolean;
+  /** DM-3R-2: a resolved pizza's 「次のピザを作る」 (DINNER_NEXT_PIZZA). */
+  onNextPizza: () => void;
+  onRetry: () => void;
+  onHome: () => void;
+  onOpenShop: () => void;
+  onContinue: () => void;
+  onQuit: () => void;
+}
+
 interface GameScreenProps {
+  /** Dinner Mission DM-3: required only while `state.dinner` exists. */
+  dinner?: DinnerScreenProps;
   state: GameState;
   mission: MissionState;
   missionNow: number;
@@ -163,6 +189,7 @@ function usedIngredientIds(pizza: GameState["pizza"]): string[] {
 }
 
 export function GameScreen({
+  dinner: dinnerUi,
   state,
   mission,
   missionNow,
@@ -224,6 +251,9 @@ export function GameScreen({
   // physical-drag reset race in PR #26 and is now shared with PizzaStage so both topping drags
   // and buffered Sauce gestures become permanently invalid in the same reset transaction.
   const [pizzaResetToken, setPizzaResetToken] = useState(0);
+  // DM-3R-2: which Dinner target's reference the popover shows. Purely a view choice -- it is never
+  // dispatched, stored in GameState or read by the result detection (a tap is not a selection).
+  const [dinnerReferenceId, setDinnerReferenceId] = useState<string | null>(null);
   // Discovery Hint 2.0 (229-B): the sheet's open state is reducer-owned; closing it hands focus
   // back to the 「ヒント」 button that opened it.
   const hintSheetOpen = isHintSheetVisible(state);
@@ -268,10 +298,13 @@ export function GameScreen({
   // of *this* round (src/logic/prepareDock.ts), so the stage -- and the dough inside it -- keeps
   // one size from DOUGH to the last PREPARE step instead of shrinking whenever the readout or a
   // second chip row appears (App.css `.prepare-dock`).
+  // DM-3R-2 (OD-R5): a Dinner round is recipe-free like Free Cooking -- every OWNED ingredient on
+  // the tray -- without being a Free Cooking (Discovery) round.
+  const recipeFreeTray = state.freeCook || state.dinner !== null;
   const dockReserve = prepareDockReserve({
     steps: activePreBakeSteps,
     ownedIngredientIds: state.ownedIngredientIds,
-    freeCook: state.freeCook,
+    freeCook: recipeFreeTray,
     recipe: state.recipe,
     sauceReadout: referenceModeEnabled && referencePizza !== null,
   });
@@ -320,7 +353,17 @@ export function GameScreen({
   // dispatch that somehow leaves phase at "RESULT" (e.g. a failed REGISTER_TO_DEX guard) still
   // renders a complete screen instead of the old score-only one.
   const isFreeResultScreen =
-    !isMissionActive && (state.phase === "RESULT" || state.phase === "DISCOVERED");
+    !isMissionActive && state.dinner === null && (state.phase === "RESULT" || state.phase === "DISCOVERED");
+  // Dinner Mission DM-3R-2 (Issue #250): the run drives its own screens -- the target row in PREPARE,
+  // the HUD elsewhere, a per-pizza result, and the CLEAR / FAILED overlay. FREE's ResultPanel never
+  // renders for a Dinner pizza, and nothing here reads the internal identity (`dinner.pending`).
+  const dinnerSession = state.dinner;
+  const dinnerRun = dinnerSession?.run ?? null;
+  const dinnerPlaying = dinnerRun?.status === "PLAYING";
+  const dinnerTitleJa = dinnerRun ? (getDinnerMission(dinnerRun.missionId)?.display.titleJa ?? "ディナーミッション") : "";
+  const isDinnerResult = dinnerSession !== null && state.phase === "RESULT";
+  const dinnerReferenceRecipe = dinnerReferenceId ? (getRecipe(dinnerReferenceId as RecipeId) ?? null) : null;
+  const dinnerReferencePizza = dinnerReferenceId ? getReferencePizza(dinnerReferenceId) : null;
 
   const mitoOrderLine = buildMitoOrderLine(
     state.order.id,
@@ -397,6 +440,11 @@ export function GameScreen({
         </div>
       </header>
 
+      {/* DM-3R-2: outside the cooking layout (the per-pizza result) the Dinner HUD is its own row;
+          during PREPARE / BAKE / CUT it is folded into the target row below the tabs, so the tabs
+          never move between steps (Layout Contract L-J). */}
+      {dinnerRun && dinnerPlaying && dinnerUi && !isCookingLayout && <DinnerHud run={dinnerRun} now={dinnerUi.now} />}
+
       {isMissionPlaying && mission.clock && (
         <MissionHud
           remainingSeconds={remainingSeconds(missionNow, mission.clock)}
@@ -414,7 +462,7 @@ export function GameScreen({
       {/* W1 I5b-4b: BAKE no longer uses the portrait DialogueBox here (108px, above the tabs) --
           its line moves into the compact `.order-card` row below the tabs, like PREPARE and CUT,
           so the tabs stay right under the header on every cooking step. */}
-      {state.phase === "ORDER" && (
+      {state.phase === "ORDER" && state.dinner === null && (
         <section className="dialogue-area">
           <DialogueBox {...mitoOrderLine} />
           <DialogueBox {...(isMissionShortOrder ? buildTetoShortageLine(state.recipe) : buildTetoOrderLine(state.recipe))} />
@@ -471,6 +519,39 @@ export function GameScreen({
 
       {/* Progression 2.0 Phase 3-2 (Issue #194): a free-cook round has no recipe card and no
           見本 target -- the row only names the mode and carries the step hint. */}
+      {/* DM-3R-2 (OD-R7): a Dinner round has no recipe card -- the target row (with the time and
+          progress folded in) takes its place in every cooking step (PREPARE / BAKE / CUT, one
+          slot, so nothing moves), and a chip tap opens that target's reference. */}
+      {isCookingLayout && dinnerRun && dinnerPlaying && dinnerUi && (
+        <>
+          <DinnerTargetRow
+            run={dinnerRun}
+            now={dinnerUi.now}
+            onOpenReference={(recipeId) => {
+              setDinnerReferenceId(recipeId);
+              onReferencePopoverChange(true);
+            }}
+          />
+          {dinnerReferenceRecipe &&
+            (dinnerReferencePizza ? (
+              <ReferencePreview
+                reference={dinnerReferencePizza}
+                recipeNameJa={dinnerReferenceRecipe.nameJa}
+                isOpen={isReferencePopoverOpen}
+                onOpenChange={onReferencePopoverChange}
+                renderTrigger={false}
+              />
+            ) : (
+              <PlayerReferencePreview
+                reference={getPlayerReferencePizza(dinnerReferenceRecipe)}
+                isOpen={isReferencePopoverOpen}
+                onOpenChange={onReferencePopoverChange}
+                renderTrigger={false}
+              />
+            ))}
+        </>
+      )}
+
       {state.phase === "PREPARE" && state.freeCook && (
         <div className="order-card order-card--free-cook">
           <div className="order-card__text">
@@ -480,7 +561,7 @@ export function GameScreen({
         </div>
       )}
 
-      {state.phase === "PREPARE" && !state.freeCook && (
+      {state.phase === "PREPARE" && !state.freeCook && state.dinner === null && (
         <div className="order-card">
           <div className="order-card__text">
             <span className="order-card__recipe-name">{state.recipe.nameJa}</span>
@@ -527,7 +608,7 @@ export function GameScreen({
       )}
 
       {/* W1 I5b-4b: BAKE's Teto line, in the same compact row PREPARE / CUT use (2-line clamp). */}
-      {state.phase === "BAKE" && (
+      {state.phase === "BAKE" && state.dinner === null && (
         <div className={`order-card order-card--bake${state.freeCook ? " order-card--free-cook" : ""}`}>
           <div className="order-card__text">
             <span className="order-card__recipe-name">
@@ -542,7 +623,7 @@ export function GameScreen({
           row -- same `.order-card`-style component PREPARE already uses, reused verbatim rather
           than inventing a second layout for what is structurally the same "recipe name + short
           instruction" row. */}
-      {state.phase === "POST_BAKE" && state.makingStep === "CUT" && (
+      {state.phase === "POST_BAKE" && state.makingStep === "CUT" && state.dinner === null && (
         <div className="order-card">
           <div className="order-card__text">
             <span className="order-card__recipe-name">{state.recipe.nameJa}</span>
@@ -564,7 +645,7 @@ export function GameScreen({
         activeIngredient={selectedIngredientId ? (getIngredient(selectedIngredientId) ?? null) : null}
         bakeProgress={bakeProgress}
         placement={state.placement}
-        resultRevealed={isFreeResultScreen}
+        resultRevealed={isFreeResultScreen || isDinnerResult}
         referenceModeEnabled={referenceModeEnabled}
         resetToken={pizzaResetToken}
         makingStepToken={state.makingStepToken}
@@ -580,7 +661,7 @@ export function GameScreen({
         onAddCutLine={onAddCutLine}
         roomy={roomyStage}
         compact={state.phase === "PREPARE"}
-        resultCompact={isFreeResultScreen}
+        resultCompact={isFreeResultScreen || isDinnerResult}
       />
 
       {/* Pizza Cutting 1.0 Phase 2 (design doc §8.1/§8.4): progress readout + the CUT step's own
@@ -635,7 +716,7 @@ export function GameScreen({
 
       {isMissionShortOrder && <MissionShortagePanel shortages={missionShortages} onSkip={onMissionSkipOrder} />}
 
-      {state.phase === "ORDER" && !isMissionShortOrder && (
+      {state.phase === "ORDER" && !isMissionShortOrder && state.dinner === null && (
         <div className="action-row">
           <button type="button" className="cta-button cta-button--primary" onClick={onBeginPrepare}>
             {mission.mode === "FREE" ? <>{"\u{1F355}"} フリープレイ</> : "ピザを作る！"}
@@ -689,7 +770,7 @@ export function GameScreen({
                 onClearSelection={onClearIngredientSelection}
                 ownedIngredientIds={state.ownedIngredientIds}
                 recipe={state.recipe}
-                freeCook={state.freeCook}
+                freeCook={recipeFreeTray}
                 inventory={state.inventory}
                 pizza={state.pizza}
                 physicalDragEnabled={
@@ -740,15 +821,18 @@ export function GameScreen({
                 次へ {"→"}
               </button>
             )}
-            <button
-              ref={hintButtonRef}
-              type="button"
-              className="secondary-button"
-              onClick={onShowHint}
-              aria-haspopup={state.freeCook ? "dialog" : undefined}
-            >
-              ヒント
-            </button>
+            {/* DM-3R-2: no hint in a Dinner round (the reducer refuses SHOW_HINT during a run). */}
+            {state.dinner === null && (
+              <button
+                ref={hintButtonRef}
+                type="button"
+                className="secondary-button"
+                onClick={onShowHint}
+                aria-haspopup={state.freeCook ? "dialog" : undefined}
+              >
+                ヒント
+              </button>
+            )}
           </div>
           {hintSheetOpen && (
             <HintSheet view={hintSheetView(state)} onUnlock={onUnlockHint} onBuySelectable={onBuySelectableHint} onClose={onCloseHint} />
@@ -773,6 +857,15 @@ export function GameScreen({
           cutEvaluation={state.cutState.evaluation}
           quantityNoteJa={buildQuantityNote(state.scoringV2Result)}
           onNext={onMissionServeNext}
+        />
+      )}
+
+      {dinnerRun && dinnerPlaying && dinnerUi && isDinnerResult && dinnerSession?.lastResult && (
+        <DinnerAttemptResultPanel
+          view={dinnerSession.lastResult}
+          completed={dinnerRun.completedRecipeIds.length}
+          total={dinnerRun.targetRecipeIds.length}
+          onNext={dinnerUi.onNextPizza}
         />
       )}
 
@@ -831,6 +924,22 @@ export function GameScreen({
           renders nothing then (CutDebugPanel.tsx's own guard). */}
       {(isFreeResultScreen || (state.phase === "RESULT" && isMissionPlaying)) && (
         <CutDebugPanel evaluation={state.cutState.evaluation} />
+      )}
+
+      {dinnerRun && !dinnerPlaying && dinnerUi && (
+        <DinnerResultOverlay
+          run={dinnerRun}
+          titleJa={dinnerTitleJa}
+          lastResult={dinnerSession?.lastResult ?? null}
+          retryBlocked={dinnerUi.retryBlocked}
+          onRetry={dinnerUi.onRetry}
+          onHome={dinnerUi.onHome}
+          onOpenShop={dinnerUi.onOpenShop}
+        />
+      )}
+
+      {dinnerSession?.abandonRequested && dinnerPlaying && dinnerUi && (
+        <DinnerAbandonDialog onContinue={dinnerUi.onContinue} onQuit={dinnerUi.onQuit} />
       )}
 
       {mission.mode === "INTRO" && (
