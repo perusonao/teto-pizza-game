@@ -15,7 +15,7 @@
 | Fresh Audit | `docs/reports/TETO_DISCOVERY-HINT-3_H3-4_Fresh-Audit.md`, commit `d5a3a90`, verdict B (Owner decisions required) |
 | Issue | #238 (the parent of every Hint 3.0 slice; the Duplicate Gate found no H3-4 issue or PR) |
 | Branch | `claude/h3-4-fresh-audit-5hhkoi`: `main` + the audit commit + this implementation. That is linear history on top of the latest `main`, so the branch was reused. |
-| PR | {{PR}} |
+| PR | #251 (`main` ← `claude/h3-4-fresh-audit-5hhkoi`), OPEN, no auto-merge |
 | Final HEAD | {{HEAD}} |
 
 ## 2. Owner Decisions (Owner Authority, recorded)
@@ -177,9 +177,9 @@ Local Chromium. The body column is `.hint-sheet__selectable`, shown as visible /
   `teto-pizza-preview-save-v1`, so the production save (`teto-pizza-save-v1`, same origin) is never
   touched.
 - The guide includes a backup/restore one-liner.
-- Validated locally against a `VITE_PREVIEW_MODE=1` build: {{SEEDCHECK}}.
+- Validated locally against a `VITE_PREVIEW_MODE=1` build: on a page without the badge it throws 「Preview build only」. On a `VITE_PREVIEW_MODE=1` dev server, `h34Seed("HV8_LEGACY_H2_PLUS_NEW")` wrote only `teto-pizza-preview-save-v1`: a production-key sentinel was left untouched, and after the reload the app showed Dex 11/25 and 200 Pitz.
 
-**Preview deployment:** {{PREVIEW}}
+**Preview deployment:** **Not dispatched from this session.** The Preview pipeline lives in the separate `perusonao/teto-pizza-game-preview` repository, which is outside this session's GitHub scope, and the Owner did not ask for it here. The Owner (or a session with that repository in scope) runs `deploy-from-source.yml` with `ref` = this PR's HEAD and `pr_number=251`, then `pages.yml`, as in the Issue #39 Preview-Gate report. The seeds above are ready for that build.
 
 ### Human Verification Videos
 
@@ -269,20 +269,20 @@ Key comparisons:
 | 17 | Near-miss regression | Unchanged: `resultNearMiss.test.ts`, `nearMiss.test.ts`, e2e `discovery-near-miss-result` |
 | 18 | Dinner action block regression | Unchanged: `DINNER_BLOCKED_ACTIONS` tests (reducer matrix 38, Dinner suites) |
 | 19–22 | 390×844 / 360×800 / 390×664 / 360×640 | `e2e/discovery-hint-sheet.spec.ts` geometry contract on N390, N360, S390, S360 (+ 3 safe-area profiles) for H0, one fact, cap paid, longest, purchase, insufficient |
-| 23 | Sheet scroll affordance | The same contract: the cue class must match `scrollHeight > clientHeight` on every profile (polled). Unit coverage via the jsdom-safe hook. |
+| 23 | Sheet scroll affordance | The same contract: the cue class must match `scrollHeight > clientHeight` on every profile, including the safe-area profiles (polled; this caught the missing ResizeObserver during development) |
 | 24 | Underlying stage stability | The same contract ("background unmoved" on every profile/state); `stage-size-stability.spec.ts` in the full run |
 
 ### Runs
 
 | Check | Result |
 |---|---|
-| Hint focused (`HintSheet`, `App.hintSheet`, `App.dexHint`, `GameScreen.hintSheet`) | green (43 + 6 tests) |
+| Hint focused (`HintSheet`, `App.hintSheet`, `App.dexHint`, `GameScreen.hintSheet`, `gameReducer.selectableHint`) | 5 files, **84 passed** |
 | Full Vitest | **185 files, 3994 passed, 1 skipped, 0 failed** |
 | `tsc -b` | 0 errors |
 | `oxlint` | 0 warnings |
-| `npm run build` | {{BUILD}} |
+| `npm run build` | OK (only the existing chunk-size warning) |
 | Hint E2E (Chromium: `iphone-390x844`, `iphone-360x800`, `layout-chromium`) | 13 passed, 11 skipped (width guards) |
-| Full Chromium E2E + Layout Contract | {{E2E}} |
+| Full Chromium E2E + Layout Contract | `iphone-390x844` + `iphone-360x800` + `layout-chromium` (the full suite, including the Layout Contract LC-* and the DM-3R-0 Stage Size Stability LC-S1..S4): **175 passed, 22 skipped (width guards), 0 failed** |
 | CI / WebKit (PR) | {{CI}} |
 
 ## 12. Residual risks
@@ -298,7 +298,7 @@ Key comparisons:
   「ここまで」, it is one string in `SELECTABLE_COPY`.
 - **The legacy 0-price real facts** remain by design. Their share of real players is unknown
   (→ H3-ECON-1).
-- **Preview deployment** to the separate preview repo was {{PREVIEWRISK}}.
+- **Preview deployment** to the separate preview repo was not dispatched (outside this session's scope, see §10). The real-device HV needs that Preview build first.
 - **WebKit** runs in CI only. There is no local WebKit in this sandbox.
 
 ## 13. H3-ECON-1 follow-up (proposal, not started)
