@@ -1,0 +1,1576 @@
+{
+ "schema": "Discovery Hint 4.0 Fresh Design -- 25-recipe information audit (NOT authority; candidate taxonomy only)",
+ "auditedMainSha": "726b0ac",
+ "pr251Head": "5dc5f47",
+ "method": "Runtime facts dumped from the real pure layer (buildSelectableHintModel, hintKeyIngredientId) at main 726b0ac via a throw-away Vitest probe; owned set = starter + discovery-ladder materials up to the target (e2e ladder). E_* = endgame state (key + every sellable fact owned, only the Rule W reserve unknown); values are counts of owned, not-yet-known ingredients consistent with the added information. F_* = fresh state (key only) with one attribute hint about one unrevealed topping.",
+ "taxonomyT7": {
+  "tomato-sauce": "ソース",
+  "olive-oil": "ソース",
+  "pesto": "ソース",
+  "mozzarella": "チーズ",
+  "gorgonzola": "チーズ",
+  "parmigiano": "チーズ",
+  "fontina": "チーズ",
+  "sausage": "肉",
+  "pepperoni": "肉",
+  "bacon": "肉",
+  "ham": "肉",
+  "anchovy": "魚介",
+  "tuna": "魚介",
+  "clam": "魚介",
+  "mushroom": "きのこ",
+  "basil": "ハーブ・香味",
+  "oregano": "ハーブ・香味",
+  "rosemary": "ハーブ・香味",
+  "garlic": "ハーブ・香味",
+  "cherry-tomato": "野菜",
+  "onion": "野菜",
+  "black-olive": "野菜",
+  "capers": "野菜",
+  "corn": "野菜",
+  "eggplant": "野菜",
+  "fresh-tomato": "野菜",
+  "potato": "野菜",
+  "pineapple": "果物",
+  "egg": "たまご"
+ },
+ "taxonomyT4": {
+  "tomato-sauce": "ソース",
+  "olive-oil": "ソース",
+  "pesto": "ソース",
+  "mozzarella": "チーズ",
+  "gorgonzola": "チーズ",
+  "parmigiano": "チーズ",
+  "fontina": "チーズ",
+  "sausage": "肉・魚介",
+  "pepperoni": "肉・魚介",
+  "bacon": "肉・魚介",
+  "ham": "肉・魚介",
+  "anchovy": "肉・魚介",
+  "tuna": "肉・魚介",
+  "clam": "肉・魚介",
+  "mushroom": "野菜・果物",
+  "basil": "ハーブ・香味",
+  "oregano": "ハーブ・香味",
+  "rosemary": "ハーブ・香味",
+  "garlic": "ハーブ・香味",
+  "cherry-tomato": "野菜・果物",
+  "onion": "野菜・果物",
+  "black-olive": "野菜・果物",
+  "capers": "野菜・果物",
+  "corn": "野菜・果物",
+  "eggplant": "野菜・果物",
+  "fresh-tomato": "野菜・果物",
+  "potato": "野菜・果物",
+  "pineapple": "野菜・果物",
+  "egg": "その他"
+ },
+ "recipes": [
+  {
+   "idx": 0,
+   "id": "margherita",
+   "nameJa": "マルゲリータ",
+   "sig": [
+    "tomato-sauce",
+    "mozzarella",
+    "basil"
+   ],
+   "N": 3,
+   "toppings": 1,
+   "cheeses": 1,
+   "sauces": 1,
+   "key": null,
+   "reserved": "basil",
+   "sellable": [
+    "tomato-sauce",
+    "mozzarella"
+   ],
+   "owned": 3,
+   "tax7": [
+    "ソース",
+    "チーズ",
+    "ハーブ・香味"
+   ],
+   "tax4": [
+    "ソース",
+    "チーズ",
+    "ハーブ・香味"
+   ],
+   "same_struct": 6,
+   "same_tax7": 1,
+   "same_tax4": 1,
+   "key_plus_struct": 6,
+   "key_plus_struct_tax7": 1
+  },
+  {
+   "idx": 1,
+   "id": "bismarck",
+   "nameJa": "ビスマルク",
+   "sig": [
+    "tomato-sauce",
+    "mozzarella",
+    "egg"
+   ],
+   "N": 3,
+   "toppings": 1,
+   "cheeses": 1,
+   "sauces": 1,
+   "key": "egg",
+   "reserved": "mozzarella",
+   "sellable": [
+    "tomato-sauce"
+   ],
+   "owned": 4,
+   "tax7": [
+    "ソース",
+    "チーズ",
+    "たまご"
+   ],
+   "tax4": [
+    "ソース",
+    "チーズ",
+    "その他"
+   ],
+   "E_base": 2,
+   "E_topcount": 1,
+   "E_tax7": 1,
+   "E_tax4": 1,
+   "E_both7": 1,
+   "E_both4": 1,
+   "E_both7_list": [
+    "mozzarella"
+   ],
+   "E_both4_list": [
+    "mozzarella"
+   ],
+   "F_min_tax7": null,
+   "F_named7": [],
+   "F_min_tax4": null,
+   "F_named4": [],
+   "recipes_makeable_undiscovered": 1,
+   "same_struct": 6,
+   "same_tax7": 1,
+   "same_tax4": 1,
+   "key_plus_struct": 1,
+   "key_plus_struct_tax7": 1
+  },
+  {
+   "idx": 2,
+   "id": "breakfast-pizza",
+   "nameJa": "ブレックファストピザ",
+   "sig": [
+    "tomato-sauce",
+    "mozzarella",
+    "egg",
+    "bacon"
+   ],
+   "N": 4,
+   "toppings": 2,
+   "cheeses": 1,
+   "sauces": 1,
+   "key": "bacon",
+   "reserved": "egg",
+   "sellable": [
+    "tomato-sauce",
+    "mozzarella"
+   ],
+   "owned": 5,
+   "tax7": [
+    "ソース",
+    "チーズ",
+    "たまご",
+    "肉"
+   ],
+   "tax4": [
+    "ソース",
+    "チーズ",
+    "その他",
+    "肉・魚介"
+   ],
+   "E_base": 2,
+   "E_topcount": 2,
+   "E_tax7": 1,
+   "E_tax4": 1,
+   "E_both7": 1,
+   "E_both4": 1,
+   "E_both7_list": [
+    "egg"
+   ],
+   "E_both4_list": [
+    "egg"
+   ],
+   "F_min_tax7": 1,
+   "F_named7": [
+    "egg"
+   ],
+   "F_min_tax4": 1,
+   "F_named4": [
+    "egg"
+   ],
+   "recipes_makeable_undiscovered": 1,
+   "same_struct": 9,
+   "same_tax7": 1,
+   "same_tax4": 1,
+   "key_plus_struct": 2,
+   "key_plus_struct_tax7": 1
+  },
+  {
+   "idx": 3,
+   "id": "funghi",
+   "nameJa": "フンギ",
+   "sig": [
+    "tomato-sauce",
+    "mozzarella",
+    "mushroom"
+   ],
+   "N": 3,
+   "toppings": 1,
+   "cheeses": 1,
+   "sauces": 1,
+   "key": "mushroom",
+   "reserved": "mozzarella",
+   "sellable": [
+    "tomato-sauce"
+   ],
+   "owned": 6,
+   "tax7": [
+    "ソース",
+    "チーズ",
+    "きのこ"
+   ],
+   "tax4": [
+    "ソース",
+    "チーズ",
+    "野菜・果物"
+   ],
+   "E_base": 4,
+   "E_topcount": 1,
+   "E_tax7": 1,
+   "E_tax4": 1,
+   "E_both7": 1,
+   "E_both4": 1,
+   "E_both7_list": [
+    "mozzarella"
+   ],
+   "E_both4_list": [
+    "mozzarella"
+   ],
+   "F_min_tax7": null,
+   "F_named7": [],
+   "F_min_tax4": null,
+   "F_named4": [],
+   "recipes_makeable_undiscovered": 1,
+   "same_struct": 6,
+   "same_tax7": 1,
+   "same_tax4": 2,
+   "key_plus_struct": 1,
+   "key_plus_struct_tax7": 1
+  },
+  {
+   "idx": 4,
+   "id": "melanzane-pizza",
+   "nameJa": "メランザーネピザ",
+   "sig": [
+    "tomato-sauce",
+    "mozzarella",
+    "eggplant",
+    "basil"
+   ],
+   "N": 4,
+   "toppings": 2,
+   "cheeses": 1,
+   "sauces": 1,
+   "key": "eggplant",
+   "reserved": "basil",
+   "sellable": [
+    "tomato-sauce",
+    "mozzarella"
+   ],
+   "owned": 7,
+   "tax7": [
+    "ソース",
+    "チーズ",
+    "野菜",
+    "ハーブ・香味"
+   ],
+   "tax4": [
+    "ソース",
+    "チーズ",
+    "野菜・果物",
+    "ハーブ・香味"
+   ],
+   "E_base": 4,
+   "E_topcount": 4,
+   "E_tax7": 1,
+   "E_tax4": 1,
+   "E_both7": 1,
+   "E_both4": 1,
+   "E_both7_list": [
+    "basil"
+   ],
+   "E_both4_list": [
+    "basil"
+   ],
+   "F_min_tax7": 1,
+   "F_named7": [
+    "basil"
+   ],
+   "F_min_tax4": 1,
+   "F_named4": [
+    "basil"
+   ],
+   "recipes_makeable_undiscovered": 1,
+   "same_struct": 9,
+   "same_tax7": 2,
+   "same_tax4": 2,
+   "key_plus_struct": 1,
+   "key_plus_struct_tax7": 1
+  },
+  {
+   "idx": 5,
+   "id": "parmigiana-pizza",
+   "nameJa": "パルミジャーナピザ",
+   "sig": [
+    "tomato-sauce",
+    "mozzarella",
+    "eggplant",
+    "parmigiano",
+    "basil"
+   ],
+   "N": 5,
+   "toppings": 2,
+   "cheeses": 2,
+   "sauces": 1,
+   "key": "parmigiano",
+   "reserved": "basil",
+   "sellable": [
+    "tomato-sauce",
+    "mozzarella",
+    "eggplant"
+   ],
+   "owned": 8,
+   "tax7": [
+    "ソース",
+    "チーズ",
+    "野菜",
+    "チーズ",
+    "ハーブ・香味"
+   ],
+   "tax4": [
+    "ソース",
+    "チーズ",
+    "野菜・果物",
+    "チーズ",
+    "ハーブ・香味"
+   ],
+   "E_base": 4,
+   "E_topcount": 4,
+   "E_tax7": 1,
+   "E_tax4": 1,
+   "E_both7": 1,
+   "E_both4": 1,
+   "E_both7_list": [
+    "basil"
+   ],
+   "E_both4_list": [
+    "basil"
+   ],
+   "F_min_tax7": 1,
+   "F_named7": [
+    "eggplant",
+    "basil"
+   ],
+   "F_min_tax4": 1,
+   "F_named4": [
+    "basil"
+   ],
+   "recipes_makeable_undiscovered": 1,
+   "same_struct": 1,
+   "same_tax7": 1,
+   "same_tax4": 1,
+   "key_plus_struct": 1,
+   "key_plus_struct_tax7": 1
+  },
+  {
+   "idx": 6,
+   "id": "pepperoni",
+   "nameJa": "ペパロニ",
+   "sig": [
+    "tomato-sauce",
+    "mozzarella",
+    "pepperoni"
+   ],
+   "N": 3,
+   "toppings": 1,
+   "cheeses": 1,
+   "sauces": 1,
+   "key": "pepperoni",
+   "reserved": "mozzarella",
+   "sellable": [
+    "tomato-sauce"
+   ],
+   "owned": 9,
+   "tax7": [
+    "ソース",
+    "チーズ",
+    "肉"
+   ],
+   "tax4": [
+    "ソース",
+    "チーズ",
+    "肉・魚介"
+   ],
+   "E_base": 7,
+   "E_topcount": 2,
+   "E_tax7": 2,
+   "E_tax4": 2,
+   "E_both7": 2,
+   "E_both4": 2,
+   "E_both7_list": [
+    "mozzarella",
+    "parmigiano"
+   ],
+   "E_both4_list": [
+    "mozzarella",
+    "parmigiano"
+   ],
+   "F_min_tax7": null,
+   "F_named7": [],
+   "F_min_tax4": null,
+   "F_named4": [],
+   "recipes_makeable_undiscovered": 1,
+   "same_struct": 6,
+   "same_tax7": 2,
+   "same_tax4": 2,
+   "key_plus_struct": 1,
+   "key_plus_struct_tax7": 1
+  },
+  {
+   "idx": 7,
+   "id": "salsiccia",
+   "nameJa": "サルシッチャ",
+   "sig": [
+    "tomato-sauce",
+    "mozzarella",
+    "sausage"
+   ],
+   "N": 3,
+   "toppings": 1,
+   "cheeses": 1,
+   "sauces": 1,
+   "key": "sausage",
+   "reserved": "mozzarella",
+   "sellable": [
+    "tomato-sauce"
+   ],
+   "owned": 10,
+   "tax7": [
+    "ソース",
+    "チーズ",
+    "肉"
+   ],
+   "tax4": [
+    "ソース",
+    "チーズ",
+    "肉・魚介"
+   ],
+   "E_base": 8,
+   "E_topcount": 2,
+   "E_tax7": 2,
+   "E_tax4": 2,
+   "E_both7": 2,
+   "E_both4": 2,
+   "E_both7_list": [
+    "mozzarella",
+    "parmigiano"
+   ],
+   "E_both4_list": [
+    "mozzarella",
+    "parmigiano"
+   ],
+   "F_min_tax7": null,
+   "F_named7": [],
+   "F_min_tax4": null,
+   "F_named4": [],
+   "recipes_makeable_undiscovered": 1,
+   "same_struct": 6,
+   "same_tax7": 2,
+   "same_tax4": 2,
+   "key_plus_struct": 1,
+   "key_plus_struct_tax7": 1
+  },
+  {
+   "idx": 8,
+   "id": "meat-lovers",
+   "nameJa": "ミートラヴァーズ",
+   "sig": [
+    "tomato-sauce",
+    "mozzarella",
+    "bacon",
+    "ham",
+    "pepperoni",
+    "sausage"
+   ],
+   "N": 6,
+   "toppings": 4,
+   "cheeses": 1,
+   "sauces": 1,
+   "key": "ham",
+   "reserved": "sausage",
+   "sellable": [
+    "tomato-sauce",
+    "mozzarella",
+    "bacon",
+    "pepperoni"
+   ],
+   "owned": 11,
+   "tax7": [
+    "ソース",
+    "チーズ",
+    "肉",
+    "肉",
+    "肉",
+    "肉"
+   ],
+   "tax4": [
+    "ソース",
+    "チーズ",
+    "肉・魚介",
+    "肉・魚介",
+    "肉・魚介",
+    "肉・魚介"
+   ],
+   "E_base": 6,
+   "E_topcount": 5,
+   "E_tax7": 1,
+   "E_tax4": 1,
+   "E_both7": 1,
+   "E_both4": 1,
+   "E_both7_list": [
+    "sausage"
+   ],
+   "E_both4_list": [
+    "sausage"
+   ],
+   "F_min_tax7": 3,
+   "F_named7": [],
+   "F_min_tax4": 3,
+   "F_named4": [],
+   "recipes_makeable_undiscovered": 1,
+   "same_struct": 3,
+   "same_tax7": 1,
+   "same_tax4": 1,
+   "key_plus_struct": 3,
+   "key_plus_struct_tax7": 1
+  },
+  {
+   "idx": 9,
+   "id": "bambino",
+   "nameJa": "バンビーノ",
+   "sig": [
+    "tomato-sauce",
+    "mozzarella",
+    "ham",
+    "corn"
+   ],
+   "N": 4,
+   "toppings": 2,
+   "cheeses": 1,
+   "sauces": 1,
+   "key": "corn",
+   "reserved": "ham",
+   "sellable": [
+    "tomato-sauce",
+    "mozzarella"
+   ],
+   "owned": 12,
+   "tax7": [
+    "ソース",
+    "チーズ",
+    "肉",
+    "野菜"
+   ],
+   "tax4": [
+    "ソース",
+    "チーズ",
+    "肉・魚介",
+    "野菜・果物"
+   ],
+   "E_base": 9,
+   "E_topcount": 8,
+   "E_tax7": 4,
+   "E_tax4": 4,
+   "E_both7": 4,
+   "E_both4": 4,
+   "E_both7_list": [
+    "bacon",
+    "ham",
+    "pepperoni",
+    "sausage"
+   ],
+   "E_both4_list": [
+    "bacon",
+    "ham",
+    "pepperoni",
+    "sausage"
+   ],
+   "F_min_tax7": 4,
+   "F_named7": [],
+   "F_min_tax4": 4,
+   "F_named4": [],
+   "recipes_makeable_undiscovered": 1,
+   "same_struct": 9,
+   "same_tax7": 2,
+   "same_tax4": 4,
+   "key_plus_struct": 1,
+   "key_plus_struct_tax7": 1
+  },
+  {
+   "idx": 10,
+   "id": "hawaiian",
+   "nameJa": "ハワイアンピザ",
+   "sig": [
+    "tomato-sauce",
+    "mozzarella",
+    "ham",
+    "pineapple"
+   ],
+   "N": 4,
+   "toppings": 2,
+   "cheeses": 1,
+   "sauces": 1,
+   "key": "pineapple",
+   "reserved": "ham",
+   "sellable": [
+    "tomato-sauce",
+    "mozzarella"
+   ],
+   "owned": 13,
+   "tax7": [
+    "ソース",
+    "チーズ",
+    "肉",
+    "果物"
+   ],
+   "tax4": [
+    "ソース",
+    "チーズ",
+    "肉・魚介",
+    "野菜・果物"
+   ],
+   "E_base": 10,
+   "E_topcount": 9,
+   "E_tax7": 4,
+   "E_tax4": 4,
+   "E_both7": 4,
+   "E_both4": 4,
+   "E_both7_list": [
+    "bacon",
+    "ham",
+    "pepperoni",
+    "sausage"
+   ],
+   "E_both4_list": [
+    "bacon",
+    "ham",
+    "pepperoni",
+    "sausage"
+   ],
+   "F_min_tax7": 4,
+   "F_named7": [],
+   "F_min_tax4": 4,
+   "F_named4": [],
+   "recipes_makeable_undiscovered": 1,
+   "same_struct": 9,
+   "same_tax7": 1,
+   "same_tax4": 4,
+   "key_plus_struct": 1,
+   "key_plus_struct_tax7": 1
+  },
+  {
+   "idx": 11,
+   "id": "capricciosa",
+   "nameJa": "カプリチョーザ",
+   "sig": [
+    "tomato-sauce",
+    "mozzarella",
+    "mushroom",
+    "oregano",
+    "ham",
+    "black-olive"
+   ],
+   "N": 6,
+   "toppings": 4,
+   "cheeses": 1,
+   "sauces": 1,
+   "key": "oregano",
+   "reserved": "black-olive",
+   "sellable": [
+    "tomato-sauce",
+    "mozzarella",
+    "mushroom",
+    "ham"
+   ],
+   "owned": 15,
+   "tax7": [
+    "ソース",
+    "チーズ",
+    "きのこ",
+    "ハーブ・香味",
+    "肉",
+    "野菜"
+   ],
+   "tax4": [
+    "ソース",
+    "チーズ",
+    "野菜・果物",
+    "ハーブ・香味",
+    "肉・魚介",
+    "野菜・果物"
+   ],
+   "E_base": 10,
+   "E_topcount": 9,
+   "E_tax7": 3,
+   "E_tax4": 4,
+   "E_both7": 3,
+   "E_both4": 4,
+   "E_both7_list": [
+    "black-olive",
+    "corn",
+    "eggplant"
+   ],
+   "E_both4_list": [
+    "black-olive",
+    "corn",
+    "eggplant",
+    "pineapple"
+   ],
+   "F_min_tax7": 1,
+   "F_named7": [
+    "mushroom"
+   ],
+   "F_min_tax4": 4,
+   "F_named4": [],
+   "recipes_makeable_undiscovered": 1,
+   "same_struct": 3,
+   "same_tax7": 1,
+   "same_tax4": 1,
+   "key_plus_struct": 1,
+   "key_plus_struct_tax7": 1
+  },
+  {
+   "idx": 12,
+   "id": "pizza-portuguesa",
+   "nameJa": "ピッツァ・ポルトゲーザ",
+   "sig": [
+    "tomato-sauce",
+    "mozzarella",
+    "ham",
+    "egg",
+    "onion",
+    "black-olive"
+   ],
+   "N": 6,
+   "toppings": 4,
+   "cheeses": 1,
+   "sauces": 1,
+   "key": "onion",
+   "reserved": "black-olive",
+   "sellable": [
+    "tomato-sauce",
+    "mozzarella",
+    "ham",
+    "egg"
+   ],
+   "owned": 16,
+   "tax7": [
+    "ソース",
+    "チーズ",
+    "肉",
+    "たまご",
+    "野菜",
+    "野菜"
+   ],
+   "tax4": [
+    "ソース",
+    "チーズ",
+    "肉・魚介",
+    "その他",
+    "野菜・果物",
+    "野菜・果物"
+   ],
+   "E_base": 11,
+   "E_topcount": 10,
+   "E_tax7": 3,
+   "E_tax4": 5,
+   "E_both7": 3,
+   "E_both4": 5,
+   "E_both7_list": [
+    "black-olive",
+    "corn",
+    "eggplant"
+   ],
+   "E_both4_list": [
+    "black-olive",
+    "corn",
+    "eggplant",
+    "mushroom",
+    "pineapple"
+   ],
+   "F_min_tax7": 1,
+   "F_named7": [
+    "egg"
+   ],
+   "F_min_tax4": 1,
+   "F_named4": [
+    "egg"
+   ],
+   "recipes_makeable_undiscovered": 1,
+   "same_struct": 3,
+   "same_tax7": 1,
+   "same_tax4": 1,
+   "key_plus_struct": 1,
+   "key_plus_struct_tax7": 1
+  },
+  {
+   "idx": 13,
+   "id": "fugazza",
+   "nameJa": "フガッサ",
+   "sig": [
+    "olive-oil",
+    "onion",
+    "oregano"
+   ],
+   "N": 3,
+   "toppings": 2,
+   "cheeses": 0,
+   "sauces": 1,
+   "key": "olive-oil",
+   "reserved": "oregano",
+   "sellable": [
+    "onion"
+   ],
+   "owned": 17,
+   "tax7": [
+    "ソース",
+    "野菜",
+    "ハーブ・香味"
+   ],
+   "tax4": [
+    "ソース",
+    "野菜・果物",
+    "ハーブ・香味"
+   ],
+   "E_base": 15,
+   "E_topcount": 12,
+   "E_tax7": 2,
+   "E_tax4": 2,
+   "E_both7": 2,
+   "E_both4": 2,
+   "E_both7_list": [
+    "basil",
+    "oregano"
+   ],
+   "E_both4_list": [
+    "basil",
+    "oregano"
+   ],
+   "F_min_tax7": 2,
+   "F_named7": [],
+   "F_min_tax4": 2,
+   "F_named4": [],
+   "recipes_makeable_undiscovered": 1,
+   "same_struct": 2,
+   "same_tax7": 1,
+   "same_tax4": 1,
+   "key_plus_struct": 1,
+   "key_plus_struct_tax7": 1
+  },
+  {
+   "idx": 14,
+   "id": "marinara",
+   "nameJa": "マリナーラ",
+   "sig": [
+    "tomato-sauce",
+    "garlic",
+    "oregano"
+   ],
+   "N": 3,
+   "toppings": 2,
+   "cheeses": 0,
+   "sauces": 1,
+   "key": "garlic",
+   "reserved": "oregano",
+   "sellable": [
+    "tomato-sauce"
+   ],
+   "owned": 18,
+   "tax7": [
+    "ソース",
+    "ハーブ・香味",
+    "ハーブ・香味"
+   ],
+   "tax4": [
+    "ソース",
+    "ハーブ・香味",
+    "ハーブ・香味"
+   ],
+   "E_base": 16,
+   "E_topcount": 13,
+   "E_tax7": 2,
+   "E_tax4": 2,
+   "E_both7": 2,
+   "E_both4": 2,
+   "E_both7_list": [
+    "basil",
+    "oregano"
+   ],
+   "E_both4_list": [
+    "basil",
+    "oregano"
+   ],
+   "F_min_tax7": 2,
+   "F_named7": [],
+   "F_min_tax4": 2,
+   "F_named4": [],
+   "recipes_makeable_undiscovered": 1,
+   "same_struct": 2,
+   "same_tax7": 1,
+   "same_tax4": 1,
+   "key_plus_struct": 1,
+   "key_plus_struct_tax7": 1
+  },
+  {
+   "idx": 15,
+   "id": "napoletana",
+   "nameJa": "ナポリ",
+   "sig": [
+    "tomato-sauce",
+    "mozzarella",
+    "anchovy",
+    "oregano"
+   ],
+   "N": 4,
+   "toppings": 2,
+   "cheeses": 1,
+   "sauces": 1,
+   "key": "anchovy",
+   "reserved": "oregano",
+   "sellable": [
+    "tomato-sauce",
+    "mozzarella"
+   ],
+   "owned": 19,
+   "tax7": [
+    "ソース",
+    "チーズ",
+    "魚介",
+    "ハーブ・香味"
+   ],
+   "tax4": [
+    "ソース",
+    "チーズ",
+    "肉・魚介",
+    "ハーブ・香味"
+   ],
+   "E_base": 16,
+   "E_topcount": 14,
+   "E_tax7": 3,
+   "E_tax4": 3,
+   "E_both7": 3,
+   "E_both4": 3,
+   "E_both7_list": [
+    "basil",
+    "garlic",
+    "oregano"
+   ],
+   "E_both4_list": [
+    "basil",
+    "garlic",
+    "oregano"
+   ],
+   "F_min_tax7": 3,
+   "F_named7": [],
+   "F_min_tax4": 3,
+   "F_named4": [],
+   "recipes_makeable_undiscovered": 1,
+   "same_struct": 9,
+   "same_tax7": 2,
+   "same_tax4": 2,
+   "key_plus_struct": 1,
+   "key_plus_struct_tax7": 1
+  },
+  {
+   "idx": 16,
+   "id": "tonno-e-cipolla",
+   "nameJa": "トンノ・エ・チポッラ",
+   "sig": [
+    "tomato-sauce",
+    "mozzarella",
+    "onion",
+    "tuna"
+   ],
+   "N": 4,
+   "toppings": 2,
+   "cheeses": 1,
+   "sauces": 1,
+   "key": "tuna",
+   "reserved": "onion",
+   "sellable": [
+    "tomato-sauce",
+    "mozzarella"
+   ],
+   "owned": 20,
+   "tax7": [
+    "ソース",
+    "チーズ",
+    "野菜",
+    "魚介"
+   ],
+   "tax4": [
+    "ソース",
+    "チーズ",
+    "野菜・果物",
+    "肉・魚介"
+   ],
+   "E_base": 17,
+   "E_topcount": 15,
+   "E_tax7": 4,
+   "E_tax4": 6,
+   "E_both7": 4,
+   "E_both4": 6,
+   "E_both7_list": [
+    "black-olive",
+    "corn",
+    "eggplant",
+    "onion"
+   ],
+   "E_both4_list": [
+    "black-olive",
+    "corn",
+    "eggplant",
+    "mushroom",
+    "onion",
+    "pineapple"
+   ],
+   "F_min_tax7": 4,
+   "F_named7": [],
+   "F_min_tax4": 6,
+   "F_named4": [],
+   "recipes_makeable_undiscovered": 1,
+   "same_struct": 9,
+   "same_tax7": 1,
+   "same_tax4": 4,
+   "key_plus_struct": 1,
+   "key_plus_struct_tax7": 1
+  },
+  {
+   "idx": 17,
+   "id": "pesto-tonno",
+   "nameJa": "ペストトンノピザ",
+   "sig": [
+    "pesto",
+    "tuna",
+    "black-olive",
+    "onion"
+   ],
+   "N": 4,
+   "toppings": 3,
+   "cheeses": 0,
+   "sauces": 1,
+   "key": "pesto",
+   "reserved": "onion",
+   "sellable": [
+    "tuna",
+    "black-olive"
+   ],
+   "owned": 21,
+   "tax7": [
+    "ソース",
+    "魚介",
+    "野菜",
+    "野菜"
+   ],
+   "tax4": [
+    "ソース",
+    "肉・魚介",
+    "野菜・果物",
+    "野菜・果物"
+   ],
+   "E_base": 18,
+   "E_topcount": 14,
+   "E_tax7": 3,
+   "E_tax4": 5,
+   "E_both7": 3,
+   "E_both4": 5,
+   "E_both7_list": [
+    "corn",
+    "eggplant",
+    "onion"
+   ],
+   "E_both4_list": [
+    "corn",
+    "eggplant",
+    "mushroom",
+    "onion",
+    "pineapple"
+   ],
+   "F_min_tax7": 2,
+   "F_named7": [],
+   "F_min_tax4": 6,
+   "F_named4": [],
+   "recipes_makeable_undiscovered": 1,
+   "same_struct": 1,
+   "same_tax7": 1,
+   "same_tax4": 1,
+   "key_plus_struct": 1,
+   "key_plus_struct_tax7": 1
+  },
+  {
+   "idx": 18,
+   "id": "genovese",
+   "nameJa": "ジェノベーゼ",
+   "sig": [
+    "pesto",
+    "mozzarella",
+    "cherry-tomato"
+   ],
+   "N": 3,
+   "toppings": 1,
+   "cheeses": 1,
+   "sauces": 1,
+   "key": "cherry-tomato",
+   "reserved": "mozzarella",
+   "sellable": [
+    "pesto"
+   ],
+   "owned": 22,
+   "tax7": [
+    "ソース",
+    "チーズ",
+    "野菜"
+   ],
+   "tax4": [
+    "ソース",
+    "チーズ",
+    "野菜・果物"
+   ],
+   "E_base": 20,
+   "E_topcount": 2,
+   "E_tax7": 2,
+   "E_tax4": 2,
+   "E_both7": 2,
+   "E_both4": 2,
+   "E_both7_list": [
+    "mozzarella",
+    "parmigiano"
+   ],
+   "E_both4_list": [
+    "mozzarella",
+    "parmigiano"
+   ],
+   "F_min_tax7": null,
+   "F_named7": [],
+   "F_min_tax4": null,
+   "F_named4": [],
+   "recipes_makeable_undiscovered": 1,
+   "same_struct": 6,
+   "same_tax7": 1,
+   "same_tax4": 2,
+   "key_plus_struct": 1,
+   "key_plus_struct_tax7": 1
+  },
+  {
+   "idx": 19,
+   "id": "new-haven-apizza",
+   "nameJa": "ニューヘイブンアピッツァ",
+   "sig": [
+    "olive-oil",
+    "parmigiano",
+    "clam",
+    "garlic"
+   ],
+   "N": 4,
+   "toppings": 2,
+   "cheeses": 1,
+   "sauces": 1,
+   "key": "clam",
+   "reserved": "garlic",
+   "sellable": [
+    "olive-oil",
+    "parmigiano"
+   ],
+   "owned": 23,
+   "tax7": [
+    "ソース",
+    "チーズ",
+    "魚介",
+    "ハーブ・香味"
+   ],
+   "tax4": [
+    "ソース",
+    "チーズ",
+    "肉・魚介",
+    "ハーブ・香味"
+   ],
+   "E_base": 20,
+   "E_topcount": 17,
+   "E_tax7": 3,
+   "E_tax4": 3,
+   "E_both7": 3,
+   "E_both4": 3,
+   "E_both7_list": [
+    "basil",
+    "garlic",
+    "oregano"
+   ],
+   "E_both4_list": [
+    "basil",
+    "garlic",
+    "oregano"
+   ],
+   "F_min_tax7": 3,
+   "F_named7": [],
+   "F_min_tax4": 3,
+   "F_named4": [],
+   "recipes_makeable_undiscovered": 1,
+   "same_struct": 9,
+   "same_tax7": 2,
+   "same_tax4": 2,
+   "key_plus_struct": 1,
+   "key_plus_struct_tax7": 1
+  },
+  {
+   "idx": 20,
+   "id": "pesto-caprese",
+   "nameJa": "ペストカプレーゼピザ",
+   "sig": [
+    "pesto",
+    "mozzarella",
+    "fresh-tomato",
+    "basil"
+   ],
+   "N": 4,
+   "toppings": 2,
+   "cheeses": 1,
+   "sauces": 1,
+   "key": "fresh-tomato",
+   "reserved": "basil",
+   "sellable": [
+    "pesto",
+    "mozzarella"
+   ],
+   "owned": 24,
+   "tax7": [
+    "ソース",
+    "チーズ",
+    "野菜",
+    "ハーブ・香味"
+   ],
+   "tax4": [
+    "ソース",
+    "チーズ",
+    "野菜・果物",
+    "ハーブ・香味"
+   ],
+   "E_base": 21,
+   "E_topcount": 18,
+   "E_tax7": 3,
+   "E_tax4": 3,
+   "E_both7": 3,
+   "E_both4": 3,
+   "E_both7_list": [
+    "basil",
+    "garlic",
+    "oregano"
+   ],
+   "E_both4_list": [
+    "basil",
+    "garlic",
+    "oregano"
+   ],
+   "F_min_tax7": 3,
+   "F_named7": [],
+   "F_min_tax4": 3,
+   "F_named4": [],
+   "recipes_makeable_undiscovered": 1,
+   "same_struct": 9,
+   "same_tax7": 2,
+   "same_tax4": 2,
+   "key_plus_struct": 1,
+   "key_plus_struct_tax7": 1
+  },
+  {
+   "idx": 21,
+   "id": "pesto-patate",
+   "nameJa": "ペストパターテピザ",
+   "sig": [
+    "pesto",
+    "mozzarella",
+    "potato",
+    "bacon"
+   ],
+   "N": 4,
+   "toppings": 2,
+   "cheeses": 1,
+   "sauces": 1,
+   "key": "potato",
+   "reserved": "bacon",
+   "sellable": [
+    "pesto",
+    "mozzarella"
+   ],
+   "owned": 25,
+   "tax7": [
+    "ソース",
+    "チーズ",
+    "野菜",
+    "肉"
+   ],
+   "tax4": [
+    "ソース",
+    "チーズ",
+    "野菜・果物",
+    "肉・魚介"
+   ],
+   "E_base": 22,
+   "E_topcount": 19,
+   "E_tax7": 4,
+   "E_tax4": 7,
+   "E_both7": 4,
+   "E_both4": 7,
+   "E_both7_list": [
+    "bacon",
+    "ham",
+    "pepperoni",
+    "sausage"
+   ],
+   "E_both4_list": [
+    "anchovy",
+    "bacon",
+    "clam",
+    "ham",
+    "pepperoni",
+    "sausage",
+    "tuna"
+   ],
+   "F_min_tax7": 4,
+   "F_named7": [],
+   "F_min_tax4": 7,
+   "F_named4": [],
+   "recipes_makeable_undiscovered": 1,
+   "same_struct": 9,
+   "same_tax7": 2,
+   "same_tax4": 4,
+   "key_plus_struct": 1,
+   "key_plus_struct_tax7": 1
+  },
+  {
+   "idx": 22,
+   "id": "pizza-bianca",
+   "nameJa": "ピッツァ・ビアンカ",
+   "sig": [
+    "olive-oil",
+    "rosemary"
+   ],
+   "N": 2,
+   "toppings": 1,
+   "cheeses": 0,
+   "sauces": 1,
+   "key": "rosemary",
+   "reserved": "olive-oil",
+   "sellable": [],
+   "owned": 26,
+   "tax7": [
+    "ソース",
+    "ハーブ・香味"
+   ],
+   "tax4": [
+    "ソース",
+    "ハーブ・香味"
+   ],
+   "E_base": 25,
+   "E_topcount": 3,
+   "E_tax7": 3,
+   "E_tax4": 3,
+   "E_both7": 3,
+   "E_both4": 3,
+   "E_both7_list": [
+    "olive-oil",
+    "pesto",
+    "tomato-sauce"
+   ],
+   "E_both4_list": [
+    "olive-oil",
+    "pesto",
+    "tomato-sauce"
+   ],
+   "F_min_tax7": null,
+   "F_named7": [],
+   "F_min_tax4": null,
+   "F_named4": [],
+   "recipes_makeable_undiscovered": 1,
+   "same_struct": 1,
+   "same_tax7": 1,
+   "same_tax4": 1,
+   "key_plus_struct": 1,
+   "key_plus_struct_tax7": 1
+  },
+  {
+   "idx": 23,
+   "id": "puttanesca-pizza",
+   "nameJa": "プッタネスカ",
+   "sig": [
+    "tomato-sauce",
+    "anchovy",
+    "black-olive",
+    "capers",
+    "garlic"
+   ],
+   "N": 5,
+   "toppings": 4,
+   "cheeses": 0,
+   "sauces": 1,
+   "key": "capers",
+   "reserved": "garlic",
+   "sellable": [
+    "tomato-sauce",
+    "anchovy",
+    "black-olive"
+   ],
+   "owned": 27,
+   "tax7": [
+    "ソース",
+    "魚介",
+    "野菜",
+    "野菜",
+    "ハーブ・香味"
+   ],
+   "tax4": [
+    "ソース",
+    "肉・魚介",
+    "野菜・果物",
+    "野菜・果物",
+    "ハーブ・香味"
+   ],
+   "E_base": 23,
+   "E_topcount": 19,
+   "E_tax7": 4,
+   "E_tax4": 4,
+   "E_both7": 4,
+   "E_both4": 4,
+   "E_both7_list": [
+    "basil",
+    "garlic",
+    "oregano",
+    "rosemary"
+   ],
+   "E_both4_list": [
+    "basil",
+    "garlic",
+    "oregano",
+    "rosemary"
+   ],
+   "F_min_tax7": 3,
+   "F_named7": [],
+   "F_min_tax4": 4,
+   "F_named4": [],
+   "recipes_makeable_undiscovered": 1,
+   "same_struct": 1,
+   "same_tax7": 1,
+   "same_tax4": 1,
+   "key_plus_struct": 1,
+   "key_plus_struct_tax7": 1
+  },
+  {
+   "idx": 24,
+   "id": "quattro-formaggi",
+   "nameJa": "クアトロ フォルマッジ",
+   "sig": [
+    "olive-oil",
+    "mozzarella",
+    "gorgonzola",
+    "parmigiano",
+    "fontina"
+   ],
+   "N": 5,
+   "toppings": 0,
+   "cheeses": 4,
+   "sauces": 1,
+   "key": "gorgonzola",
+   "reserved": "fontina",
+   "sellable": [
+    "olive-oil",
+    "mozzarella",
+    "parmigiano"
+   ],
+   "owned": 29,
+   "tax7": [
+    "ソース",
+    "チーズ",
+    "チーズ",
+    "チーズ",
+    "チーズ"
+   ],
+   "tax4": [
+    "ソース",
+    "チーズ",
+    "チーズ",
+    "チーズ",
+    "チーズ"
+   ],
+   "E_base": 25,
+   "E_topcount": 1,
+   "E_tax7": 1,
+   "E_tax4": 1,
+   "E_both7": 1,
+   "E_both4": 1,
+   "E_both7_list": [
+    "fontina"
+   ],
+   "E_both4_list": [
+    "fontina"
+   ],
+   "F_min_tax7": null,
+   "F_named7": [],
+   "F_min_tax4": null,
+   "F_named4": [],
+   "recipes_makeable_undiscovered": 1,
+   "same_struct": 1,
+   "same_tax7": 1,
+   "same_tax4": 1,
+   "key_plus_struct": 1,
+   "key_plus_struct_tax7": 1
+  }
+ ],
+ "scalability172": {
+  "universe": 181,
+  "classSizes": {
+   "sauce": 31,
+   "魚介": 17,
+   "野菜・その他": 32,
+   "ナッツ・種": 6,
+   "ハーブ・香味": 11,
+   "肉": 20,
+   "甘味": 6,
+   "果物": 11,
+   "スパイス・薬味": 18,
+   "cheese": 25,
+   "きのこ": 3,
+   "たまご": 1
+  },
+  "toppingCountDist": {
+   "3": 62,
+   "5": 6,
+   "2": 52,
+   "1": 25,
+   "4": 23,
+   "0": 3,
+   "6": 1
+  },
+  "structureClasses": 19,
+  "structureUnique": 2,
+  "taxSigClasses": 126,
+  "taxSigUnique": 105
+ }
+}
