@@ -3578,6 +3578,616 @@
    ]
   }
  },
+ "finalGate": {
+  "attributeGuardOptions": {
+   "a_dh41_as_merged": {
+    "ladderOwned": {
+     "levels": {
+      "existence": 3,
+      "category": 8,
+      "family": 13
+     },
+     "namedAfterLevelInversion": [
+      "funghi",
+      "quattro-formaggi"
+     ],
+     "namedAfterLevelInversion_withTCG": [
+      "funghi",
+      "quattro-formaggi"
+     ]
+    },
+    "allOwned": {
+     "levels": {
+      "category": 7,
+      "family": 15,
+      "group": 1,
+      "existence": 1
+     },
+     "namedAfterLevelInversion": [
+      "breakfast-pizza",
+      "meat-lovers",
+      "quattro-formaggi"
+     ],
+     "namedAfterLevelInversion_withTCG": [
+      "breakfast-pizza",
+      "meat-lovers",
+      "quattro-formaggi"
+     ]
+    }
+   },
+   "b_reserve_isolation_wrapper": {
+    "ladderOwned": {
+     "levels": {
+      "existence": 3,
+      "category": 8,
+      "family": 13
+     },
+     "namedAfterLevelInversion": [
+      "funghi"
+     ],
+     "namedAfterLevelInversion_withTCG": [
+      "funghi"
+     ]
+    },
+    "allOwned": {
+     "levels": {
+      "category": 8,
+      "family": 15,
+      "existence": 1
+     },
+     "namedAfterLevelInversion": [],
+     "namedAfterLevelInversion_withTCG": []
+    }
+   },
+   "c_partition_checked": {
+    "ladderOwned": {
+     "levels": {
+      "existence": 13,
+      "category": 11
+     },
+     "namedAfterLevelInversion": [],
+     "namedAfterLevelInversion_withTCG": []
+    },
+    "allOwned": {
+     "levels": {
+      "category": 22,
+      "group": 1,
+      "existence": 1
+     },
+     "namedAfterLevelInversion": [],
+     "namedAfterLevelInversion_withTCG": []
+    }
+   },
+   "strict_level_before_value": {
+    "ladderOwned": {
+     "levels": {
+      "existence": 13,
+      "category": 11
+     },
+     "namedAfterLevelInversion": [],
+     "namedAfterLevelInversion_withTCG": []
+    },
+    "allOwned": {
+     "levels": {
+      "category": 22,
+      "group": 1,
+      "existence": 1
+     },
+     "namedAfterLevelInversion": [],
+     "namedAfterLevelInversion_withTCG": []
+    }
+   },
+   "d_partition_checked_plus_runtime_merge": {
+    "ladderOwned": {
+     "levels": {
+      "existence": 13,
+      "category": 7,
+      "family": 3,
+      "group": 1
+     },
+     "namedAfterLevelInversion_incl_TCG": []
+    },
+    "allOwned": {
+     "levels": {
+      "category": 6,
+      "family": 16,
+      "group": 1,
+      "existence": 1
+     },
+     "namedAfterLevelInversion_incl_TCG": []
+    }
+   }
+  },
+  "attributeAnswersPerRecipe": {
+   "bismarck": {
+    "ladderOwned": {
+     "a": "existence",
+     "b": "existence",
+     "c": "existence",
+     "d": "existence"
+    },
+    "allOwned": {
+     "a": "category:cheese",
+     "b": "category:cheese",
+     "c": "category:cheese",
+     "d": "category:cheese"
+    }
+   },
+   "breakfast-pizza": {
+    "ladderOwned": {
+     "a": "category:topping",
+     "b": "category:topping",
+     "c": "category:topping",
+     "d": "category:topping"
+    },
+    "allOwned": {
+     "a": "category:topping",
+     "b": "category:topping",
+     "c": "category:topping",
+     "d": "family:other"
+    }
+   },
+   "funghi": {
+    "ladderOwned": {
+     "a": "existence",
+     "b": "existence",
+     "c": "existence",
+     "d": "existence"
+    },
+    "allOwned": {
+     "a": "category:cheese",
+     "b": "category:cheese",
+     "c": "category:cheese",
+     "d": "category:cheese"
+    }
+   },
+   "melanzane-pizza": {
+    "ladderOwned": {
+     "a": "category:topping",
+     "b": "category:topping",
+     "c": "category:topping",
+     "d": "category:topping"
+    },
+    "allOwned": {
+     "a": "family:herb",
+     "b": "family:herb",
+     "c": "category:topping",
+     "d": "family:herb"
+    }
+   },
+   "parmigiana-pizza": {
+    "ladderOwned": {
+     "a": "category:topping",
+     "b": "category:topping",
+     "c": "category:topping",
+     "d": "category:topping"
+    },
+    "allOwned": {
+     "a": "family:herb",
+     "b": "family:herb",
+     "c": "category:topping",
+     "d": "family:herb"
+    }
+   },
+   "pepperoni": {
+    "ladderOwned": {
+     "a": "category:cheese",
+     "b": "category:cheese",
+     "c": "category:cheese",
+     "d": "category:cheese"
+    },
+    "allOwned": {
+     "a": "category:cheese",
+     "b": "category:cheese",
+     "c": "category:cheese",
+     "d": "category:cheese"
+    }
+   },
+   "salsiccia": {
+    "ladderOwned": {
+     "a": "category:cheese",
+     "b": "category:cheese",
+     "c": "category:cheese",
+     "d": "category:cheese"
+    },
+    "allOwned": {
+     "a": "category:cheese",
+     "b": "category:cheese",
+     "c": "category:cheese",
+     "d": "category:cheese"
+    }
+   },
+   "meat-lovers": {
+    "ladderOwned": {
+     "a": "category:topping",
+     "b": "category:topping",
+     "c": "existence",
+     "d": "existence"
+    },
+    "allOwned": {
+     "a": "group:protein",
+     "b": "category:topping",
+     "c": "category:topping",
+     "d": "group:protein"
+    }
+   },
+   "bambino": {
+    "ladderOwned": {
+     "a": "family:meat",
+     "b": "family:meat",
+     "c": "existence",
+     "d": "existence"
+    },
+    "allOwned": {
+     "a": "family:meat",
+     "b": "family:meat",
+     "c": "category:topping",
+     "d": "family:meat"
+    }
+   },
+   "hawaiian": {
+    "ladderOwned": {
+     "a": "family:meat",
+     "b": "family:meat",
+     "c": "existence",
+     "d": "existence"
+    },
+    "allOwned": {
+     "a": "family:meat",
+     "b": "family:meat",
+     "c": "category:topping",
+     "d": "family:meat"
+    }
+   },
+   "capricciosa": {
+    "ladderOwned": {
+     "a": "family:vegetable",
+     "b": "family:vegetable",
+     "c": "existence",
+     "d": "existence"
+    },
+    "allOwned": {
+     "a": "family:vegetable",
+     "b": "family:vegetable",
+     "c": "category:topping",
+     "d": "family:vegetable"
+    }
+   },
+   "pizza-portuguesa": {
+    "ladderOwned": {
+     "a": "family:vegetable",
+     "b": "family:vegetable",
+     "c": "existence",
+     "d": "existence"
+    },
+    "allOwned": {
+     "a": "family:vegetable",
+     "b": "family:vegetable",
+     "c": "group:produce",
+     "d": "family:vegetable"
+    }
+   },
+   "fugazza": {
+    "ladderOwned": {
+     "a": "family:herb",
+     "b": "family:herb",
+     "c": "category:topping",
+     "d": "family:herb"
+    },
+    "allOwned": {
+     "a": "family:herb",
+     "b": "family:herb",
+     "c": "category:topping",
+     "d": "family:herb"
+    }
+   },
+   "marinara": {
+    "ladderOwned": {
+     "a": "family:herb",
+     "b": "family:herb",
+     "c": "category:topping",
+     "d": "family:herb"
+    },
+    "allOwned": {
+     "a": "family:herb",
+     "b": "family:herb",
+     "c": "category:topping",
+     "d": "family:herb"
+    }
+   },
+   "napoletana": {
+    "ladderOwned": {
+     "a": "family:herb",
+     "b": "family:herb",
+     "c": "existence",
+     "d": "existence"
+    },
+    "allOwned": {
+     "a": "family:herb",
+     "b": "family:herb",
+     "c": "category:topping",
+     "d": "family:herb"
+    }
+   },
+   "tonno-e-cipolla": {
+    "ladderOwned": {
+     "a": "family:vegetable",
+     "b": "family:vegetable",
+     "c": "existence",
+     "d": "existence"
+    },
+    "allOwned": {
+     "a": "family:vegetable",
+     "b": "family:vegetable",
+     "c": "category:topping",
+     "d": "family:vegetable"
+    }
+   },
+   "pesto-tonno": {
+    "ladderOwned": {
+     "a": "family:vegetable",
+     "b": "family:vegetable",
+     "c": "category:topping",
+     "d": "group:produce"
+    },
+    "allOwned": {
+     "a": "family:vegetable",
+     "b": "family:vegetable",
+     "c": "category:topping",
+     "d": "family:vegetable"
+    }
+   },
+   "genovese": {
+    "ladderOwned": {
+     "a": "category:cheese",
+     "b": "category:cheese",
+     "c": "category:cheese",
+     "d": "category:cheese"
+    },
+    "allOwned": {
+     "a": "category:cheese",
+     "b": "category:cheese",
+     "c": "category:cheese",
+     "d": "category:cheese"
+    }
+   },
+   "new-haven-apizza": {
+    "ladderOwned": {
+     "a": "family:herb",
+     "b": "family:herb",
+     "c": "existence",
+     "d": "existence"
+    },
+    "allOwned": {
+     "a": "family:herb",
+     "b": "family:herb",
+     "c": "category:topping",
+     "d": "family:herb"
+    }
+   },
+   "pesto-caprese": {
+    "ladderOwned": {
+     "a": "family:herb",
+     "b": "family:herb",
+     "c": "existence",
+     "d": "existence"
+    },
+    "allOwned": {
+     "a": "family:herb",
+     "b": "family:herb",
+     "c": "category:topping",
+     "d": "family:herb"
+    }
+   },
+   "pesto-patate": {
+    "ladderOwned": {
+     "a": "family:meat",
+     "b": "family:meat",
+     "c": "existence",
+     "d": "existence"
+    },
+    "allOwned": {
+     "a": "family:meat",
+     "b": "family:meat",
+     "c": "category:topping",
+     "d": "family:meat"
+    }
+   },
+   "pizza-bianca": {
+    "ladderOwned": {
+     "a": "category:sauce",
+     "b": "category:sauce",
+     "c": "category:sauce",
+     "d": "category:sauce"
+    },
+    "allOwned": {
+     "a": "category:sauce",
+     "b": "category:sauce",
+     "c": "category:sauce",
+     "d": "category:sauce"
+    }
+   },
+   "puttanesca-pizza": {
+    "ladderOwned": {
+     "a": "family:herb",
+     "b": "family:herb",
+     "c": "category:topping",
+     "d": "family:herb"
+    },
+    "allOwned": {
+     "a": "family:herb",
+     "b": "family:herb",
+     "c": "category:topping",
+     "d": "family:herb"
+    }
+   },
+   "quattro-formaggi": {
+    "ladderOwned": {
+     "a": "existence",
+     "b": "existence",
+     "c": "existence",
+     "d": "existence"
+    },
+    "allOwned": {
+     "a": "existence",
+     "b": "existence",
+     "c": "existence",
+     "d": "existence"
+    }
+   }
+  },
+  "runtimeMergeForOptionD": {
+   "pineapple": "other",
+   "capers": "other"
+  },
+  "toppingCountOptions": {
+   "A_ingredient_total": {
+    "copy": "材料は全部で○種類",
+    "sameInformationAs": "E",
+    "recipeClasses24": {
+     "classes": 5,
+     "largest": 10,
+     "unique": 1
+    },
+    "ladderOwned": {
+     "reserveNamed": [],
+     "unboughtMaterialNewlyNamed": [],
+     "zeroCountStated": []
+    },
+    "allOwned": {
+     "reserveNamed": [],
+     "unboughtMaterialNewlyNamed": [],
+     "zeroCountStated": []
+    }
+   },
+   "B_topping_total_raw": {
+    "copy": "トッピングは全部で○種類",
+    "recipeClasses24": {
+     "classes": 5,
+     "largest": 12,
+     "unique": 2
+    },
+    "ladderOwned": {
+     "reserveNamed": [
+      "bismarck",
+      "funghi",
+      "quattro-formaggi"
+     ],
+     "unboughtMaterialNewlyNamed": [
+      "breakfast-pizza",
+      "melanzane-pizza",
+      "parmigiana-pizza",
+      "quattro-formaggi"
+     ],
+     "zeroCountStated": [
+      "quattro-formaggi"
+     ]
+    },
+    "allOwned": {
+     "reserveNamed": [
+      "quattro-formaggi"
+     ],
+     "unboughtMaterialNewlyNamed": [
+      "quattro-formaggi"
+     ],
+     "zeroCountStated": [
+      "quattro-formaggi"
+     ]
+    }
+   },
+   "C_gu_zai_total": {
+    "copy": "具材は全部で○種類",
+    "note": "Read as cheese + topping it equals N - 1 for all 25 (one sauce each), so the information is N; read as toppings it is B.",
+    "equalsNminus1For": 25,
+    "recipeClasses24": {
+     "classes": 5,
+     "largest": 10,
+     "unique": 1
+    },
+    "ladderOwned": {
+     "reserveNamed": [],
+     "unboughtMaterialNewlyNamed": [],
+     "zeroCountStated": []
+    },
+    "allOwned": {
+     "reserveNamed": [],
+     "unboughtMaterialNewlyNamed": [],
+     "zeroCountStated": []
+    }
+   },
+   "D_total_plus_topping_raw": {
+    "copy": "材料は全部で○種類 + トッピングは○種類",
+    "recipeClasses24": {
+     "classes": 9,
+     "largest": 9,
+     "unique": 5
+    },
+    "ladderOwned": {
+     "reserveNamed": [
+      "bismarck",
+      "funghi",
+      "quattro-formaggi"
+     ],
+     "unboughtMaterialNewlyNamed": [
+      "breakfast-pizza",
+      "melanzane-pizza",
+      "parmigiana-pizza",
+      "quattro-formaggi"
+     ],
+     "zeroCountStated": [
+      "quattro-formaggi"
+     ]
+    },
+    "allOwned": {
+     "reserveNamed": [
+      "quattro-formaggi"
+     ],
+     "unboughtMaterialNewlyNamed": [
+      "quattro-formaggi"
+     ],
+     "zeroCountStated": [
+      "quattro-formaggi"
+     ]
+    }
+   },
+   "D_prime_total_plus_topping_TCG": {
+    "copy": "材料は全部で○種類（+ ガード通過時のみ トッピングは○種類）",
+    "ladderOwned": {
+     "reserveNamed": [],
+     "unboughtMaterialNewlyNamed": [
+      "breakfast-pizza",
+      "melanzane-pizza",
+      "parmigiana-pizza"
+     ],
+     "zeroCountStated": []
+    },
+    "allOwned": {
+     "reserveNamed": [],
+     "unboughtMaterialNewlyNamed": [],
+     "zeroCountStated": []
+    }
+   },
+   "E_total_only": {
+    "copy": "材料総数だけ",
+    "sameInformationAs": "A",
+    "recipeClasses24": {
+     "classes": 5,
+     "largest": 10,
+     "unique": 1
+    },
+    "ladderOwned": {
+     "reserveNamed": [],
+     "unboughtMaterialNewlyNamed": [],
+     "zeroCountStated": []
+    },
+    "allOwned": {
+     "reserveNamed": [],
+     "unboughtMaterialNewlyNamed": [],
+     "zeroCountStated": []
+    }
+   }
+  }
+ },
  "recipes": [
   {
    "ladderIndex": 1,

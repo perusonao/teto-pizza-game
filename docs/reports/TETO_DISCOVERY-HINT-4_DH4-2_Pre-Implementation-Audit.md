@@ -1,720 +1,602 @@
-# Discovery Hint 4.0 — DH4-2 Runtime + U3 UI: Pre-Implementation Fresh Audit
+# Discovery Hint 4.0 — DH4-2 Runtime + U3 UI: Pre-Implementation Fresh Audit (Final Owner Decision Gate)
 
-> **Status:** Fresh Audit, docs only (Issue #253).
+> **Status:** Fresh Audit / Design, docs only (Issue #253).
 >
-> - No production code, test, CSS, reducer, persistence, pricing or save-schema change.
-> - PR #254 (DH4-1) and PR #252 (DM-3R-2) are not touched. PR #251 and PR #243 are not touched. Dinner is not touched.
+> - Nothing is implemented. There is no `src/`, CSS, reducer, persistence, pricing or save-schema change. No DH4-2 branch was created and nothing was merged.
+> - PR #255, PR #252, Dinner, PR #243 and Issue #238 are not touched.
 > - Nothing here is authority until the Owner decides §19.
-> - Machine-readable output: `docs/reports/data/TETO_DISCOVERY-HINT-4_DH4-2_PRE-AUDIT.json`. It is produced by `tools/dh4_2_topping_count_audit.py` from `docs/reports/data/TETO_DISCOVERY-HINT-4_DH4-2_RUNTIME-SNAPSHOT.json`.
-> - Hint Sheet vertical space (Owner Finding HV-5, §8A): `docs/reports/data/TETO_DISCOVERY-HINT-4_DH4-2_HINT-SHEET-VSPACE.json`, with baseline screenshots in `docs/reports/screenshots/dh4-2-pre-audit/`.
 >
-> **Verdict: A. DH4-2 DESIGN READY FOR OWNER DECISIONS** (§21)
+> **Machine-readable outputs** (regenerated deterministically by `python3 tools/dh4_2_topping_count_audit.py`):
+>
+> | File | Content |
+> |---|---|
+> | `docs/reports/data/TETO_DISCOVERY-HINT-4_DH4-2_PRE-AUDIT.json` | The whole audit. Final-gate data is in `finalGate`. |
+> | `docs/reports/data/TETO_DISCOVERY-HINT-4_DH4-2_RUNTIME-SNAPSHOT.json` | Input: the runtime data of `5a33d85` |
+> | `docs/reports/data/TETO_DISCOVERY-HINT-4_DH4-2_HINT-SHEET-VSPACE.json` | Hint Sheet vertical-space measurements |
+> | `docs/reports/screenshots/dh4-2-pre-audit/before-*.png` | Baseline screenshots, the before images for DH4-2 |
+>
+> **Verdict: A. DH4-2 DESIGN READY FOR OWNER DECISIONS** (§22)
 
 ## 1. Audited main SHA
 
 | Item | Value |
 |---|---|
-| `origin/main` at session start | `22658f7` (Merge PR #251, H3-4) |
-| **`origin/main` at audit close (authority)** | **`5a33d85`** (Merge PR #254, DH4-1), merged at 10:28Z while this audit was running |
-| Effect of the move | `5a33d85` adds only the 7 DH4-1 files. Its tree is identical to PR #254's head `057e387`, which this audit had already read. `src/data/recipes.ts`, `ingredients.ts`, `discoveryLadder.ts`, `selectableHint.ts`, `HintSheet.tsx`, `App.css` and `src/state/*` are unchanged between `22658f7` and `5a33d85`. |
-| Runtime data | 25 recipes, 29 ingredients, the 24-step W1 Discovery Ladder, the free key and the Rule W reserve per recipe (`buildSelectableHintModel`). They were dumped by a throw-away Vitest probe, which was deleted afterwards (`git status` clean). The snapshot is committed as the audit input. |
-| DH4-1 check | The audit tool re-implements `reserveAttributeAnswer` so combinations can be measured. A second throw-away probe compared it with the merged module for 24 targets × {ladder-owned, all-owned}: **48 / 48 identical**. |
-| 172 data | `docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json` (172 rows) and `data/recipes/ingredient_master_catalog.json` (62 authored ingredients) |
+| `origin/main` (fresh, re-checked at the final gate) | **`5a33d85`**: Merge PR #254 (DH4-1) |
+| DH4-1 on main | The tree is identical to PR #254's head `057e387`. It is still unwired: no production module imports `deductionHint.ts` or `ingredientTaxonomy.ts`. |
+| Runtime data | 25 recipes, 29 ingredients, the 24-step W1 ladder, and per recipe the key and the Rule W reserve. The snapshot comes from a throw-away Vitest probe, deleted afterwards. |
+| DH4-1 replica check | The audit tool re-implements `reserveAttributeAnswer`. A throw-away probe compared it with the merged module: **48 / 48 identical** (24 targets × ladder-owned / all-owned). |
+| Hint Sheet measurement | Local Chromium (Playwright), the 7 layout-contract profiles including the CDP safe-area override (47 / 34). The probe spec was deleted afterwards. |
 
-## 2. GitHub state (fresh)
+## 2. Current GitHub state (fresh)
 
-| Item | State | Used as |
+| Item | State | Role in this audit |
 |---|---|---|
-| Issue #253 | OPEN. Its slice table still reads 「PR #254 OPEN」 and has no comments. It carries OD-DH4-1…10. | Authority for the DH4 decisions |
-| PR #254 (DH4-1) | **MERGED** as `5a33d85`. This session did not touch it. | Authority (pure layer, unwired) |
-| PR #252 (DM-3R-2) | OPEN against base `726b0ac`. It is not read beyond its description and is not touched. | Dinner boundary only (§18) |
-| PR #251 (H3-4) | MERGED as `22658f7` | Authority for the current sheet copy |
-| Pages deploy | Run 194 (`22658f7`) and run 195 (`5a33d85`) succeeded | — |
-| Firebase production deploy | `workflow_dispatch` only. The last successful run is **2026-09-21** (`7e5692f`), which predates Hint 3.0 H3-3 and H3-4. | §3 |
+| main | `5a33d85` | Authority |
+| PR #254 (DH4-1) | **MERGED / POST-MERGE PASS**: WebKit run 36312634317 and Pages run 36312634344 green. Unwired. | The pure authority DH4-2 must use |
+| Issue #253 | OPEN. The DH4-1 row reads MERGED; the DH4-2 row reads "Not started". | Parent issue. Carries OD-DH4-1…10. |
+| Issue #238 | OPEN (kept open). H3-1…H3-4 are all merged. | Hint 3.0 authority: material facts, ESC, Rule W, GUIDANCE_ONLY |
+| PR #255 (172 taxonomy) | OPEN, not merged, head `e221e36`, base `5a33d85`. docs / data / tools only (3 files). OD-TAX-1…9 are recorded. | **Read only** (§18) |
+| PR #252 (DM-3R-2) | OPEN, base `726b0ac`. Not touched. | Dinner boundary only (§17) |
+| Production (Firebase) | Last successful deploy 2026-09-21 (`7e5692f`). That predates H3-3 and H3-4. | Explains the observed copy (§3.1) |
 
-## 3. iPhone Human Verification findings
+## 3. iPhone Owner Findings
 
-### 3.1 The Owner's four points
-
-| # | Finding | Root cause on `5a33d85` | Addressed in |
+| # | Owner finding | Measured root cause on `5a33d85` | Resolved by |
 |---|---|---|---|
-| HV-1 | The player wants to know how many toppings are needed | Only the whole-recipe total exists (`meta:ingredient-total`, OD-DH4-2). No per-category count exists. | §4–§7 |
-| HV-2 | At the end, the player wants a kind or attribute, not the name | Already solved in the pure layer (DH4-1 `attr:`), but not wired. §5.4 adds a privacy finding. | §5.4, §15 |
-| HV-3 | 「category choice + 0 Pitz CTA」 reads as a guaranteed new fact | The preference radio plus a price-0 CTA promise a category fact | §8–§11 |
-| HV-4 | GUIDANCE_ONLY does not match the expectation | The request can end in guidance, but nothing before the tap says so | §12 |
-| **HV-5** (Owner Finding, added) | The known-information area is too small. The topping row fades out mid-read. The 知りたいジャンル buttons, the CTA and the Pitz line take more height than the hints themselves. U3 would make this worse. | Measured (§8A): at 390×844 with safe area the known area is **138 px, 36 % of the sheet**. The fixed footer is 132 px plus a 46 px bottom padding. The 2-chip topping row shows 40 of 52 px. At 360×640 with safe area the known area is 46 px and **no row is visible**. | **§8A**, OD-DH4-2-12 |
+| HV-1 | The player wants to know how many toppings are needed | Only the whole-recipe total exists (OD-DH4-2) | §4, OD-DH4-2-3 |
+| HV-2 | At the end, the player wants a kind or attribute, not the name | Solved in DH4-1, but unwired. §5.3 finds an inversion risk. | §8, OD-DH4-2-4 |
+| HV-3 | 「category choice + 0 Pitz」 reads as "a new fact is guaranteed" | The preference radio plus a price CTA promise a slot | §10, §14, §15 |
+| HV-4 | GUIDANCE_ONLY does not match the expectation | Nothing before the tap says a request can end empty | §15 |
+| **HV-5** | **The hint body area is too small.** The topping row fades out, while the guidance line, the legend, 3 selectors, the CTA and the Pitz line take the height. | **At 390×844 + safe area, known information is 138 px (36 % of the sheet), against 132 px of footer + 46 px of bottom padding. The 2-chip topping row shows 40 of 52 px. At 360×640 + safe area, no fact row is visible (46 px, less than the 55 px H0 line).** | §11, §12, OD-DH4-2-8 |
 
-### 3.2 Which build was verified
+### 3.1 Which build was on the phone
 
-The copy described from the iPhone images is:
+- The copy in the images, 「ヒントを1つ解除」 / 「0 Pitz」 / 「どれのヒントがほしい？」, is the **H3-3** copy (`d4d558d`).
+- H3-4 (`22658f7`) replaced it with 「ヒントを1つもらう」 and, at price 0, 「ヒントをたずねる／支払いずみ」, plus the pay-only-when-given line.
+- Production was last deployed before H3-3 and H3-4. The images therefore most likely come from production or a cached PWA.
+- **HV-3 and HV-4 are partly addressed on main already.** HV-5 reproduces exactly on main: see `before-K-all-facts_P390i.png`.
 
-- legend 「どれのヒントがほしい？」;
-- CTA 「ヒントを1つ解除 0 Pitz」.
+## 4. Topping-count audit (STEP 2)
 
-That is the **H3-3** copy (`d4d558d`). H3-4 (`9b3db21`, merged in `22658f7`) replaced it with:
+### 4.1 Runtime distribution
 
-- 「知りたいジャンル（ないときは別のジャンルから1つ）」;
-- 「ヒントを1つもらう {n} Pitz」;
-- at price 0: 「ヒントをたずねる」 + 「支払いずみ」, with 「Pitzはヒントが出たときだけ使うよ」;
-- after GUIDANCE_ONLY: 「今あるヒントはここまで」.
-
-The H3-4 Fresh Audit had already filed the same problem as **F-1 (High)** and **F-5**.
-
-The Firebase production site was last deployed on 2026-09-21, so it still serves pre-Hint-3.0 or H3-3-era code. The images therefore most likely come from production, or from a cached Preview/PWA, not from `main`.
-
-**Consequence:**
-
-- HV-3 and HV-4 are **partly fixed on `main` already** (H3-4).
-- The remaining gap is structural: the category choice still reads as a slot, and the U3 families will multiply this. It is handled in §10–§12.
-- Before the DH4-2 UI copy is frozen, the Owner should re-check the sheet on a build at or after `22658f7`: the Pages URL, or a fresh Preview (OD-DH4-2-11).
-
-## 4. Topping-count matrix: 25 runtime recipes
-
-**Notation:**
-
-- **N** = total ingredients.
-- **T** = topping total.
-- **Hyps** = the reserve candidates a smart player still has at the endgame (key plus every sellable fact known), with the ladder-owned inventory.
-- **A** = the DH4-1 attribute answer.
-- The last column is the mean information value of T, given N, over every reachable mid-game state.
-
-| # | Recipe | N | T | Cheese | Key | Rule W reserve | Hyps: N → N+T | N+A → N+T+A | N+T names the reserve? | Mid-game bits T\|N |
-|---:|---|---:|---:|---:|---|---|---|---|---|---:|
-| 1 | ビスマルク | 3 | 1 | 1 | たまご | モッツァレラ（チーズ） | 2 → 1 | 2 → 1 | **YES** (ladder) | 1.0 |
-| 2 | ブレックファストピザ | 4 | 2 | 1 | ベーコン | たまご（トッピング） | 2 → 2 | 2 → 2 | no | 0.39 |
-| 3 | フンギ | 3 | 1 | 1 | マッシュルーム | モッツァレラ（チーズ） | 4 → 1 | 4 → 1 | **YES** (ladder) | 2.0 |
-| 4 | メランザーネピザ | 4 | 2 | 1 | ナス | バジル（トッピング） | 4 → 4 | 4 → 4 | no | 0.88 |
-| 5 | パルミジャーナピザ | 5 | 2 | 2 | パルミジャーノ | バジル（トッピング） | 4 → 4 | 4 → 4 | no | 0.66 |
-| 6 | ペパロニ | 3 | 1 | 1 | ペパロニ | モッツァレラ（チーズ） | 7 → 2 | 2 → 2 | no | 1.81 |
-| 7 | サルシッチャ | 3 | 1 | 1 | ソーセージ | モッツァレラ（チーズ） | 8 → 2 | 2 → 2 | no | 2.0 |
-| 8 | ミートラヴァーズ | 6 | 4 | 1 | ハム | ソーセージ（トッピング） | 6 → 5 | 5 → 5 | no | 0.75 |
-| 9 | バンビーノ | 4 | 2 | 1 | コーン | ハム（トッピング） | 9 → 8 | 4 → 4 | no | 1.05 |
-| 10 | ハワイアンピザ | 4 | 2 | 1 | パイナップル | ハム（トッピング） | 10 → 9 | 4 → 4 | no | 1.12 |
-| 11 | カプリチョーザ | 6 | 4 | 1 | オレガノ | ブラックオリーブ（トッピング） | 10 → 9 | 3 → 3 | no | 0.87 |
-| 12 | ピッツァ・ポルトゲーザ | 6 | 4 | 1 | たまねぎ | ブラックオリーブ（トッピング） | 11 → 10 | 4 → 4 | no | 0.91 |
-| 13 | フガッサ | 3 | 2 | 0 | オリーブオイル | オレガノ（トッピング） | 14 → 12 | 2 → 2 | no | 0.43 |
-| 14 | マリナーラ | 3 | 2 | 0 | にんにく | オレガノ（トッピング） | 15 → 13 | 2 → 2 | no | 0.21 |
-| 15 | ナポリ | 4 | 2 | 1 | アンチョビ | オレガノ（トッピング） | 15 → 14 | 3 → 3 | no | 1.43 |
-| 16 | トンノ・エ・チポッラ | 4 | 2 | 1 | ツナ | たまねぎ（トッピング） | 16 → 15 | 5 → 5 | no | 1.48 |
-| 17 | ペストトンノピザ | 4 | 3 | 0 | ジェノベーゼソース | たまねぎ（トッピング） | 16 → 14 | 4 → 4 | no | 0.46 |
-| 18 | ジェノベーゼ | 3 | 1 | 1 | チェリートマト | モッツァレラ（チーズ） | 18 → 2 | 2 → 2 | no | 3.17 |
-| 19 | ニューヘイブンアピッツァ | 4 | 2 | 1 | あさり | にんにく（トッピング） | 18 → 17 | 3 → 3 | no | 1.58 |
-| 20 | ペストカプレーゼピザ | 4 | 2 | 1 | トマト | バジル（トッピング） | 19 → 18 | 3 → 3 | no | 1.63 |
-| 21 | ペストパターテピザ | 4 | 2 | 1 | じゃがいも | ベーコン（トッピング） | 20 → 19 | 4 → 4 | no | 1.67 |
-| 22 | ピッツァ・ビアンカ | 2 | 1 | 0 | ローズマリー | オリーブオイル（ソース） | 3 → 3 | 3 → 3 | no | — (no mid-game state) |
-| 23 | プッタネスカ | 5 | 4 | 0 | ケッパー | にんにく（トッピング） | 21 → 19 | 4 → 4 | no | 0.3 |
-| 24 | クアトロ フォルマッジ | 5 | **0** | 4 | ゴルゴンゾーラ | フォンティーナ（チーズ） | 23 → **1** | 23 → **1** | **YES** (ladder **and** all owned) | 8.62 |
-
-### 4.1 Distributions (JSON `distributions`)
-
-**Topping total T over the 25 recipes:**
+**T = topping total; N = ingredient total.**
 
 | T | Recipes |
-|---:|---:|
-| 0 | 1 (quattro-formaggi) |
-| 1 | 7 |
-| 2 | 12 |
-| 3 | 1 |
-| 4 | 4 |
+|---:|---|
+| **0** | quattro-formaggi |
+| 1 | margherita, bismarck, funghi, pepperoni, salsiccia, genovese, pizza-bianca |
+| 2 | 12 recipes |
+| 3 | pesto-tonno |
+| 4 | meat-lovers, capricciosa, pizza-portuguesa, puttanesca |
 
-**Total and structure:**
+**Other distributions:**
 
 - N: 2 → 1 · 3 → 8 · 4 → 10 · 5 → 3 · 6 → 3.
-- **Every recipe has exactly one sauce.** So 「のせる材料」 (cheese + topping) = N − 1: no new information (§7).
-- Cheese = 0 in 5 recipes. Those are the recipes where a per-category count would be a negative fact.
+- Sauce = 1 in **all 25**.
+- Cheese = 0 in 5.
+- (N, T) gives 9 classes; the full list is in JSON `distributions.recipesByNT`.
 
-**Recipes by (N, T):**
+### 4.2 Options A–E, mechanically compared
 
-| (N, T) | Recipes |
-|---|---|
-| (2, 1) | pizza-bianca |
-| (3, 1) | margherita, bismarck, funghi, pepperoni, salsiccia, genovese |
-| (3, 2) | fugazza, marinara |
-| (4, 2) | 9 recipes |
-| (4, 3) | pesto-tonno |
-| (5, 0) | quattro-formaggi |
-| (5, 2) | parmigiana-pizza |
-| (5, 4) | puttanesca |
-| (6, 4) | meat-lovers, capricciosa, pizza-portuguesa |
+JSON `finalGate.toppingCountOptions`. The method:
 
-**Recipe candidates (24 targets):**
+- Every reachable purchase state is enumerated (each per-category prefix of sellable facts), each with and without the DH4-1 attribute.
+- The player model is a smart player with the one-sauce prior.
+- **N is assumed known whenever it is part of the option, because near-miss ADD_ONE on the known facts gives it for free.**
 
-- N alone gives 5 classes: the largest holds 10 and 1 is unique.
-- N + T gives 9 classes: the largest holds 9 and 5 are unique.
-- The free key alone is already unique for all 24 targets, and with the deterministic ladder the makeable-undiscovered count is 1 at every step (JSON `makeableCandidatesFresh`).
-- **Recipe identity is therefore not the live risk.** The risk is at the ingredient level, as the Fresh Design §5 found.
+| Option (copy) | Information | Recipe classes (24 targets) | Rule W reserve **named** (ladder / all owned) | Unbought material fact newly named | Zero stated | Verdict |
+|---|---|---|---|---|---|---|
+| **A** 材料は全部で○種類 | N | 5 classes, largest 10, 1 unique | 0 / 0 | 0 | never (N ≥ 2) | Safe |
+| **B** トッピングは全部で○種類 | T (with N via ADD_ONE) | 5 classes, largest 12, 2 unique | **3 (bismarck, funghi, quattro) / 1 (quattro)** | 4 (mozzarella ×3, quattro) | **quattro 「0種類」** | **Reject** |
+| **C** 具材は全部で○種類 | **Ambiguous.** As cheese + topping it equals N − 1 for all 25 (zero new information). As toppings it is B. | = A | 0 / 0 | 0 | never | Reject (ambiguous; no gain) |
+| **D** 材料総数 + トッピング数 (raw) | N + T | 9 classes, largest 9, 5 unique | **3 / 1** | 4 | **quattro** | **Reject** |
+| **D′** 材料総数 + トッピング数 through the **TC-G** guard | N (+ T when the guard passes) | — | **0 / 0** | 3 (mozzarella, a starter; economy only) / 0 | never | **Safe** |
+| **E** 材料総数だけ | N | = A | 0 / 0 | 0 | never | Safe (= A) |
 
-### 4.2 Combination audit: which facts name something (JSON `combinationSummary`)
+**Other measured values:**
 
-**Player model (worst case):**
+- **Recipe identity leak.** None, for any option. The free key alone already separates all 24 targets, and on the deterministic ladder the makeable-undiscovered count is 1 at every step. The risk is at the **ingredient** level.
+- **Intersections.**
+  - Material facts × T: closure (「全部で4・トッピング2・チップ2」 means no more toppings) is PAID INFERENCE.
+  - DH4 attribute × T: this is where the reserve is named (B, D).
+  - Near-miss × T: ADD_ONE supplies N for free, so T alone behaves like N + T.
+  - Rule W × T: T reveals whether the reserve is a topping.
+- **Information value** (JSON `informationValue`):
+  - At the endgame, **T given N + attribute = 0 bits**, except in the 3 recipes where T names the reserve (1.0 / 2.0 / 4.52 bits).
+  - In the mid-game, T given N ≈ **1.50 bits** (1.18 without quattro), against 1.14 bits for the attribute.
+  - **So the topping count is a mid-game deduction aid.** At the endgame it only adds information where it breaks Rule W.
 
-- The player knows the free key and the facts they bought.
-- They assume "exactly one sauce", which holds for all 25 and is visible in the Dex.
-- An ingredient is **named** when it lies in every hypothesis consistent with the facts.
-- **N stands for "N bought, or near-miss ADD_ONE seen on a pizza made of exactly the known facts".** The two give the same closure, and ADD_ONE is free (§17).
+**Is 「トッピング0種類」 too strong?**
 
-Every reachable purchase state was enumerated: each per-category prefix of the sellable facts, 1–12 states per recipe.
+- **Yes.** For quattro-formaggi, T = 0 is worth **8.62 bits** in the mid-game: it rules out all 21 owned toppings at once. That is the strongest single fact in the audit and a negative fact by construction (OD-DH4-2 forbids category-zero statements).
+- TC-G never states 0: when T = 0 the guard fails, and only the total is told.
 
-| Facts held | The Rule W reserve becomes named (ladder owned) | Same (all 29 owned) | An unbought material fact becomes newly named |
-|---|---|---|---|
-| none / N / A / N+A | 0 | 0 | 0 |
-| T | 0 | 0 | 0 |
-| **N+T** | **3: bismarck, funghi, quattro-formaggi** | **1: quattro-formaggi** | 4: breakfast, melanzane, parmigiana (mozzarella), quattro |
-| **T+A** | 3 (the same) | 1 | 0 |
-| N+T+A | 3 | 1 | 4 |
+**TC-G guard (inversion-safe):**
 
-**How to read it:**
+- Let W = the reserve + owned ingredients outside the recipe.
+- T is told only if T ≥ 1 **and** every category side present in W (topping / cheese / sauce under the one-sauce prior) has at least 2 members.
+- The guard decision depends on W alone, so the fallback reveals nothing about which unknown is the reserve.
+- It passes in **11 / 24** recipes on the ladder and **23 / 24** with everything owned (the Owner's late-game case).
 
-- The baseline (no hint) already names the sauce in 12 recipes, because tomato sauce is the only owned sauce until step 13. That is not a hint effect and is excluded from the "newly" column.
-- **N+T breaks Rule W** in exactly the 3 recipes where DH4-1 deliberately answered only `existence`, because the reserve's category held one owned ingredient. The topping total reveals the reserve's category (topping vs not) through closure. That bypasses the k ≥ 2 guard DH4-1 was built for.
-- quattro-formaggi is broken at **every** inventory: the runtime catalog has only 4 cheeses, all in that recipe.
-- The 「mozzarella newly named」 cases are PAID INFERENCE that stands in for an unbought material fact. That is an economy concern (a cheaper route to a starter), not a privacy one.
+### 4.3 Category boundary: sauce, cheese, topping, finishing, post-bake
 
-### 4.3 Information value (JSON `informationValue`)
-
-| Measure | Endgame (only the reserve unknown) | Mid-game (every other reachable state) |
-|---|---:|---:|
-| T given N | 0.69 bits (all from the 3 leaking recipes) | **1.50 bits** (1.18 without quattro's T=0 outlier) |
-| A given N | 1.44 bits | 1.14 bits |
-| T given N + A | **0 bits, except 1.0 / 2.0 / 4.52 in the 3 leaking recipes** | 1.29 bits |
-
-**Key result:**
-
-- **At the endgame (the Owner's "last hint" moment), a topping count adds nothing over total + attribute, except where it names the reserve.**
-- Its real value is in the **mid-game**: how many toppings are still missing. That is exactly HV-1.
-
-## 5. Topping-count privacy analysis
-
-### 5.1 The candidate facts
-
-| | A 「トッピングは全部で○種類」 | B 「トッピングを○種類使う」 | C 「具材を○種類使う」 | D the total only (today) |
-|---|---|---|---|---|
-| Information | T | T | Ambiguous: T, or cheese + topping (= N − 1 at runtime, §7) | N |
-| T = 0 (quattro-formaggi 1/24; 5/172) | 「全部で0種類」: an **explicit negative**, forbidden by OD-DH4-2 | 「0種類使う」: unnatural, and still negative | Same as A if it means toppings | never 0 |
-| Names the reserve (N+T or T+A) | 3/24 ladder, 1/24 all owned | same | same if it means toppings | 0 |
-| FREE LEAK if 0 is withheld | Yes: offering the fact only for T ≥ 1 marks quattro-formaggi before payment | same | same | none (uniform) |
-| As a second 構成 fact (N then T) | For T = 0, the second request would end in GUIDANCE_ONLY: a **free** negative | same | same | — |
-
-**No raw form (A, B or C) is acceptable.** Each one sells a negative for T = 0, or leaks it for free, and each names the reserve in 3 recipes.
-
-### 5.2 TC-G: a guarded topping count (proposal)
-
-**The answer:**
-
-- One **構成** answer per recipe: 「このピザは全部で○種類の材料を使うよ。トッピングは○種類だよ」.
-- The topping clause is present **only when the TC-G guard passes**. Otherwise the answer is the total alone.
-
-**The guard (inversion-safe, the same idea as §5.4):**
-
-- Let W = the reserve + every **owned** ingredient not in the recipe (the DH4-1 privacy worst case).
-- The guard passes iff T ≥ 1 **and** every category side present in W (topping / cheese / sauce under the one-sauce prior) holds at least 2 members of W.
-- W is the same set for every hypothetical reserve, so the fallback itself says nothing about which unknown it is.
-
-**Results (JSON `inversionSafeProposal`):**
-
-| Inventory | Guard passes | Falls back |
+| Boundary | Runtime (25) | 172 evidence |
 |---|---|---|
-| Ladder-owned | 11 / 24 | the rest |
-| All owned (the Owner's late-game case) | **23 / 24** | only quattro-formaggi |
+| Sauce / cheese / topping | The authoritative `Ingredient.category`. Exactly 1 sauce per recipe. | Categories are authored for 29 runtime + 62 catalog ids only. 135 default-topping guesses are needed (evidence gap). 30 rows have no spread sauce; 26 have 2 or more spread layers. |
+| Finishing / post-bake | Does not exist in the runtime | 14 rows with late additions. **Late items include sauces** (buffalo-sauce, Detroit tomato sauce, hot honey) as well as toppings (cilantro, truffle, lettuce…). |
+| Conclusion | T = the count of `category === "topping"` | "Post-bake" is **orthogonal** to category (the same as PR #255 OD-TAX-6). A topping count must never exclude finishing items: black-truffle would drop to 0, and the count would leak the LATE_ADDITION technique. |
 
-**Leak check:**
+### 4.4 Terminology recommendation
 
-- Name-equivalent cases after a guard-aware inversion: **0**, at both inventories.
-- T = 0 is never stated.
-- Uniform before payment: the 構成 control is the same for every target and is single-shot.
+- **Use 「トッピング」.** It is the tray's own category label (ソース / チーズ / トッピング). Use it with the verb **「使う」** (「トッピングは○種類使うよ」), because 「のせる」 is wrong for enclosed pizzas (calzone) and for late additions.
+- **Reject 「具材」.** It is ambiguous and often includes cheese.
+- **Reject 「のせる材料」.** It equals N − (sauce count): zero information at runtime, and a no-sauce negative at 172.
+- **Reject 「仕上げを除く具材」.** It turns a technique into a structure fact.
+- **Re-audit trigger:** if Cooking Steps ever gives FINISH its own tray category, 「トッピング」 must be re-audited. Until then the count follows the tray category. That is recorded, not guessed.
 
-**Monotonic:** W only grows with ownership, so a passed guard stays passed.
+**Final topping-count recommendation: D′ (TC-G) if the Owner wants the number, otherwise E.** A, B and C as standalone count facts are not offered.
 
-**Cost:**
+## 5. Privacy analysis
 
-- Early in the ladder, the Owner's topping number is often withheld: cheese-side singletons, since mozzarella is the only cheese until step 5 and parmigiano the only decoy after that.
-- This is the same structural early-inventory limit as the Fresh Design §8. **Not a bug; the price of never naming the reserve.**
+### 5.1 Classification
 
-### 5.3 FREE LEAK vs PAID INFERENCE (topping count)
-
-| Mechanism | Class | Verdict |
+| Mechanism | Class | Status |
 |---|---|---|
-| A 構成 control shown for every target, single-shot, at a uniform price | — | OK |
-| Topping clause shown or absent after payment (TC-G) | PAID INFERENCE. The level is inversion-safe. | OK |
-| A 「0種類」 statement | Sold negative | Forbidden (OD-DH4-2) |
-| Topping fact offered only when T ≥ 1 | FREE LEAK | Forbidden |
-| The second 構成 request ends in GUIDANCE_ONLY only for T = 0 | Free negative (interaction) | Forbidden |
-| Closure 「全部で5・トッピング2・チップ2」 ⇒ no more toppings | PAID INFERENCE | Allowed (OD-H3-16) |
-| Near-miss ADD_ONE (free) + T (paid) ⇒ N+T | PAID INFERENCE, but it gives the N+T leak for free-plus-T | Why the guard must assume N is known |
+| A family control shown identically for every target, with a uniform price | — | Required |
+| Answer granularity, availability or singleton-ness visible **before** the request | **FREE LEAK** | Forbidden (OD-DH4-10) |
+| A price that differs by answer granularity, shown before the request | **FREE LEAK** | Forbidden |
+| Offering a topping count only when T ≥ 1 | FREE LEAK | Forbidden |
+| 「0種類」, 「なし」, 「残り○個」, 「あと○種類」 | Sold negative, or FREE LEAK | Forbidden |
+| Closure from bought facts (N, T, chips) | PAID INFERENCE | Allowed (OD-H3-16) |
+| The outcome of a free request (GUIDANCE_ONLY, a no-charge existence answer) | INTERACTION INFERENCE | Allowed (OD-H3-17), **only if it cannot name an ingredient** (§5.3) |
+| Two answers about the same reserve | Joint answer (PR #255 FR-3) | Allowed only when nested (family ⊂ group ⊂ category), which holds for one attribute family |
 
-### 5.4 A new finding about the merged DH4-1: the answer *level* can be inverted
+### 5.2 Topping count
 
-The merged DH4-1 guard picks the level from the reserve's own class:
+This is §4.2. Raw counts name the reserve in 3/24 (ladder) and 1/24 (all owned). TC-G names nothing.
 
-- family, then group, then category, then existence;
-- the first level whose class holds at least 2 owned ingredients outside the recipe.
+### 5.3 A new finding on the merged DH4-1: the answer *level* is invertible
 
-A player who knows this rule, and who holds N (or has seen a free ADD_ONE), can test each remaining owned ingredient: "if it were the reserve, would the answer have been this level?"
+**How the inversion works:**
 
-JSON `guardAwareNameEquivalent_A`: the reserve is then **named** in:
+- DH4-1 picks the level from the **reserve's own class**.
+- A player who knows the rule and holds N (bought, or a free ADD_ONE) can test each remaining owned ingredient x: "if x were the reserve, would the answer have been this level?"
 
-| Recipe | Inventory | Observed answer | Why |
+**Where it names the reserve** (JSON `finalGate.attributeGuardOptions.a_dh41_as_merged`):
+
+| Recipe | Inventory | Observed answer | Named reserve |
 |---|---|---|---|
-| funghi | ladder | `existence` | Every topping candidate would have produced `category:topping`, so only mozzarella fits |
-| quattro-formaggi | ladder, all owned | `existence` | Only fontina fits |
-| breakfast-pizza | all owned | `category:topping` | Only たまご has singleton family *and* group (その他) |
-| meat-lovers | all owned | `group:protein` | Only a meat whose family is exhausted fits: ソーセージ |
+| funghi | ladder | existence | mozzarella |
+| quattro-formaggi | ladder and all owned | existence | fontina |
+| breakfast-pizza | all owned | category:topping | egg |
+| meat-lovers | all owned | group:protein | sausage |
 
-**Classification:**
+**Root cause:**
 
-- This is PAID INFERENCE, but it produces a **name**, which OD-DH4-3 rules out ("never its name").
-- OD-DH4-10 accepted the visible level on the premise that "the level is a function of the player's own inventory". The level is in fact also a function of **the reserve's class**, which is what makes it invertible.
-- DH4-1 is merged and this audit does not change it. It is an Owner decision (OD-DH4-2-2).
+- The guard protects the reserve's own class. It does **not** stop singleton classes *elsewhere in W* from answering at a different level.
+- At runtime, three families are singletons: fruit = pineapple, spice = capers, other = egg. PR #255 §5 records these as "protected by the guard"; §18 notes the gap.
 
-**Proposed fix, "level before value" (the strict rule, JSON `safe_attribute_answer`):**
+**Options, all measured with the topping clause included:**
 
-1. Choose the level from W alone: the finest level at which **every** member of W sits in a class of at least 2. Classes are total: an ingredient without a family is classed by its category.
-2. Then answer the reserve's class at that level.
-3. The level is identical for every hypothetical reserve, so nothing can be inverted.
+| Option | DH4-1 answer function | Levels, ladder | Levels, all owned | Named after inversion | Data change |
+|---|---|---|---|---|---|
+| **(a)** DH4-1 as merged | unchanged | family 13 · category 8 · existence 3 | family 15 · category 7 · group 1 · existence 1 | **5 cases** | none |
+| **(b)** reserve-isolation wrapper (keep DH4-1 when ≥ 2 hypotheses share its answer) | unchanged, wrapped | family 13 · category 8 · existence 3 | family 15 · category 8 · existence 1 | **1** (funghi @ ladder) | none |
+| **(c)** partition check (keep DH4-1 only if **every** DH4-1 answer class over the hypotheses has ≥ 2; else a strict answer for all) | unchanged, wrapped | category 11 · existence 13 | category 22 · group 1 · existence 1 | **0** | none |
+| **(d)** (c) + runtime merge **pineapple, capers → `other`** (ids kept) | unchanged, wrapped | family 3 · group 1 · category 7 · existence 13 | **family 16** · category 6 · group 1 · existence 1 | **0** | 2 rows. **Needs PR #255's Human Classification Gate** (capers is in the runtime review queue). |
 
-**Results:**
+**Why (c) gives up family answers at 25 recipes:** the runtime singleton families mean the partition check almost always falls back. At 105 / 172 every family has ≥ 3 / ≥ 8 members (PR #255), so (c) returns family answers by data alone as the catalog grows.
 
-| Rule | Levels, ladder owned | Levels, all owned | Named after inversion |
-|---|---|---|---|
-| DH4-1 as merged | family 13 · category 8 · existence 3 | family 15 · category 7 · group 1 · existence 1 | **5** |
-| Strict, DH4-1 taxonomy | category 11 · existence 13 | category 22 · group 1 · existence 1 | **0** |
-| **Strict + merge the runtime singleton families** (果物 pineapple and スパイス capers into その他) | family 3 · group 1 · category 7 · existence 13 | **family 16** · category 6 · group 1 · existence 1 | **0** |
+**Recommendation: (c) now, becoming (d) through data after the Human Classification Gate.**
 
-**Recommendation:**
+- (c) makes every answer inversion-safe **today**.
+- It needs no taxonomy decision and keeps DH4-1's answer function and all 7 ids (OD-TAX-2).
+- (b) is a fallback if the Owner prefers family answers now and accepts one early residual (funghi, whose reserve is the starter mozzarella). Under (b), the no-charge existence UX (§8) is **not** allowed, because it would make that residual free.
 
-- Strict rule + that runtime merge. The late game keeps family answers (16 / 24), and nothing is ever named.
-- The early game is weak (existence 13 / 24). An optional Dex gate for 特徴 (OD-DH4-2-9) keeps players from buying empty answers early.
-- The merge only concerns the 25-recipe runtime. At 172 maturity the 果物 and スパイス families are expected to have ≥ 5 members (Fresh Design §7.2), so the merge can be undone by data once the class-size test passes.
+**Per-recipe answers** under (a) / (c) / (d): JSON `finalGate.attributeAnswersPerRecipe`.
 
-## 6. 172-recipe scalability (JSON `scalability172`)
+### 5.4 Near-miss
 
-**Evidence quality:**
+- ADD_ONE equals N closure for free. Every check above assumes it.
+- The near-miss copy stays fixed and attribute-free (OD-DH4-7).
+- Near-miss never reads `meta:` or `attr:` (a DH4-2 pin test).
 
-- 120 / 172 rows have a complete ingredient list.
-- Categories exist for the 29 runtime and 62 catalog ingredients only.
-- 97 rows contain at least one ingredient whose category had to be guessed: 135 default-topping guesses and 23 name guesses.
-- 33 rows have an unresolved (placeholder) base sauce.
-- **Every number below is indicative. The evidence gaps are listed in §6.2 and were not filled in by guessing.**
+## 6. 172 scalability
+
+**Sources:** the design matrix (172 rows) and the ingredient catalog. **Indicative only:**
+
+- 120 / 172 rows have a complete ingredient list;
+- 97 rows contain at least one guessed category;
+- 33 rows have an unresolved base sauce.
 
 | Measure | Value |
 |---|---|
-| T distribution (all rows) | 0: 5 · 1: 29 · 2: 51 · 3: 61 · 4: 20 · 5: 5 · 6: 1 |
-| T distribution (complete rows only) | 0: 3 · 1: 21 · 2: 42 · 3: 37 · 4: 12 · 5: 4 · 6: 1 |
-| T = 0 rows | 5: quattro-formaggi (PIZZA DB), trenton-tomato-pie, ny-style, quad-cities, colorado-mountain-pie. All are cheese-only pizzas, and their categories are runtime-proven. |
-| (N, T) classes | 19. The largest holds 33 and 6 are unique. |
-| No spread sauce (sauce = 0) | 30 rows. **The one-sauce prior breaks at 172.** |
-| ≥ 2 spread layers | 26 rows (17 carry MULTI_SPREAD_LAYER) |
-| Late additions | 14 rows (mid-bake or post-bake) |
-| Non-round or enclosed forms | 11 rows: square 4, boat 1, enclosed 5, laminated 1 |
+| T distribution (all / complete rows) | 0: 5 · 1: 29 · 2: 51 · 3: 61 · 4: 20 · 5: 5 · 6: 1 / 0: 3 · 1: 21 · 2: 42 · 3: 37 · 4: 12 · 5: 4 · 6: 1 |
+| T = 0 | 5 cheese-only pizzas (quattro-formaggi, trenton, NY-style, quad-cities, colorado). Their categories are runtime-proven. |
+| (N, T) classes | 19. The largest holds 33 and 6 are unique. PR #255: total + topping count makes 4 % of complete rows unique. |
+| No sauce / multi-spread / late additions / non-round | 30 / 26 / 14 / 11 |
 
-### 6.1 Does 「トッピング数」 still read naturally?
+| Case | 「トッピングを○種類使う」 | Note |
+|---|---|---|
+| Post-bake / finishing | Natural | The count follows the tray category, not the timing |
+| Late sauces | Natural | They are sauces, not counted |
+| No sauce, piadina | Natural | 「のせる材料」 would leak no-sauce |
+| Pizza bianca | Natural (T = 1) | — |
+| Pan / square / boat (pide) | Natural | — |
+| Enclosed (calzone, stuffed) | Natural with 「使う」 | 「のせる」 fails |
+| Multi-spread drizzles (honey, balsamic) | **Depends on catalog authoring** | Evidence gap |
+| Cheese-only | Only through TC-G (never 「0種類」) | — |
 
-| Case (evidence) | Tray category count "T" | 「トッピングを○種類使う」 | 「のせる材料」 | 「仕上げを除く具材」 |
+**Evidence gaps, recorded and not filled:**
+
+1. Categories of about 117 ids.
+2. The category of spread-layer items.
+3. Mid vs post-bake timing for eel.
+4. The family rows for the 105 / 172 ids. These are PR #255's PROPOSED and NEEDS_REVIEW rows.
+5. Family-derived base sauces.
+
+## 7. Hint family model (STEP 3)
+
+| Family (UI) | Meaning (authority) | Fact ids | Answers per recipe | Can end in GUIDANCE_ONLY? |
 |---|---|---|---|---|
-| Post-bake or finishing (14 rows; e.g. BBQチキン: cilantro, 黒トリュフ: truffle) | Unchanged | Natural. The finishing item is still a topping. | Natural | **Breaks**: black-truffle drops to 0 (a negative), and excluding late items reveals LATE_ADDITION (a technique fact) |
-| Late **sauces** (buffalo-sauce, Detroit tomato sauce, hot honey) | Not toppings | Natural | — | 「仕上げ」 ≠ category: incoherent |
-| No sauce (30 rows; aussie, piadina, black-truffle…) | Unchanged | Natural | = N: tells "no sauce" (a **negative**) | — |
-| Pizza bianca (runtime: olive oil + rosemary; 172 row: + mozzarella and ricotta) | 1 | Natural | = N − 1 | — |
-| Pan / square (4), boat (pide) | Unchanged | Natural | Natural | — |
-| Enclosed (calzone, stuffed, two-sheet) | Unchanged | Natural with 「使う」 | **Unnatural**: fillings are inside, not on top | — |
-| Piadina (flatbread, no sauce) | 2 | Natural | = N: no-sauce negative | — |
-| Multi-spread (honey, balsamic, olive-oil drizzles) | **Depends on catalog authoring** (sauce vs topping) | Natural | Varies | — |
-| Unusual cheese (cheese-before-sauce Trenton, cheese-base Aussie, 4-cheese) | T = 0 in 5 rows | Only with the TC-G guard (never 「0種類」) | — | — |
+| **材料** | Hint 3.0: one positive ingredient of the target. The key is free; the Rule W reserve is never sold (H3-1, unchanged). | `ing:<id>` | `distinct − 2` (0 for pizza-bianca) | Yes (existing OD-H3-17) |
+| **構成** | DH4-1 `structureTotalFact`: the total (`meta:ingredient-total`) + (if OD-DH4-2-3 D′) the TC-G topping clause (`meta:topping-total`, stored only when told) | `meta:*` | **1** (single-shot) | No |
+| **特徴** | DH4-1 `reserveAttributeAnswer`, behind the §5.3 guard: one attribute of the **Rule W reserve** | `attr:<level>:<value>` | **1 informative answer** (single-shot once informative, §8) | No (the existence case has its own UX, §8) |
 
-### 6.2 Evidence gaps (recorded, not filled)
+**No double purchase:**
 
-1. The category of ~117 ingredient ids has not been authored for the 172 set. The T values above use a default-topping heuristic for 135 occurrences.
-2. Spread-layer items (honey, balsamic, chili oil, mayo drizzles) have no category decision. **The value of T depends on it.**
-3. Mid-bake vs post-bake is unresolved for at least one row (eel).
-4. The family taxonomy is authored only for the 22 runtime toppings. The inversion-safe level distribution at 172 cannot be computed until it exists.
-5. Family-derived base sauces (57 rows) are not in the canonical ingredient lists. N at 172 is computed with the sauce layers added and is still uncertain for 33 rows.
+- **Disjoint facts.** The three families write disjoint fact kinds. 特徴 describes only the reserve, which 材料 never sells, and 構成 never names an ingredient.
+- **Single-shot.** 構成 and 特徴 cannot be bought twice for a recipe, because the ledger check is by fact kind.
+- **Legacy grants count as owned:**
+  - a legacy 「材料は全部で○種類」 line means 構成 (total) is owned (DH4-1 `ingredientTotalOwned`, OD-DH4-8);
+  - legacy `grantedFactIds` mean those 材料 facts are owned (H3-2);
+  - legacy negative lines (「チーズは使わないみたい」) grant nothing and are archive only.
+- **TC-G for a legacy owner of N.** 構成 remains requestable once, for the topping clause. If the guard fails, that request ends in GUIDANCE_ONLY; the guard is W-only, so this is safe.
 
-## 7. Terminology recommendation
+## 8. Attribute fallback and existence-only UX (STEP 4)
 
-- The game's category label is **トッピング**, with ソース / チーズ / トッピング on the tray tabs and in the hint rows. **Use it, and only as the tray category**: an ingredient counts if its catalog category is `topping`, whatever its timing or technique.
-- **Verb 「使う」, not 「のせる」**. 「のせる」 is wrong for enclosed pizzas and for late additions. 「使う」 also matches DH4-1's total line (「全部で○種類の材料を使うよ」).
-- **Reject 「具材」.** In everyday Japanese it often includes cheese, and if it is read as cheese + topping it equals N − 1 at runtime (zero information).
-- **Reject 「のせる材料」.** It equals N − (sauce count): zero information at runtime, and at 172 it gives away no-sauce (30 rows) as a negative.
-- **Reject 「仕上げ材料を除く具材数」.** It sells a technique fact (LATE_ADDITION) inside a structure hint, it turns black-truffle into 0, and it is incoherent with late sauces. Finishing belongs to a future **技法ヒント** (`finish:`), not to 構成.
-- **Proposed copy:** 「このピザは全部で○種類の材料を使うよ。トッピングは○種類だよ」. When the TC-G guard falls back, the second sentence is absent.
+**What existence-only is:**
 
-## 8. U3 UI alternatives
+- 「まだわかっていない材料があるよ」 is **always true**: Rule W guarantees an unknown ingredient.
+- So it carries ≈ 0 information.
+- Under guard option (c) it is common early: 13 / 24 answers on the ladder, 1 / 24 with everything owned.
 
-**Vertical budget:**
+| Option | Pre-request | Charge | FREE LEAK? | Fit with 「Pitzはヒントが出たときだけ使うよ」 | Verdict |
+|---|---|---|---|---|---|
+| A. Paid at the same price | Uniform | Yes | No | **Poor.** It charges for a constant-true line; 13 / 24 early buys would feel like a rip-off. | Reject |
+| B. 「無料」 when existence-only | **Shows free vs paid before the tap** | No | **Yes**: it reveals the granularity before purchase | — | **Forbidden** |
+| C. Charged, with 「今回は大きな手がかりは見つからなかった」 | Uniform | Yes | No | Contradicts the line | Weak |
+| **D. No charge after the request** | **Uniform** (same card, same price) | **0**, decided by the authority | **No.** The outcome reveals only what the answer text reveals anyway; with guard (c) or (d) it is inversion-safe. | **Consistent**: the same semantics as GUIDANCE_ONLY | **Recommended** |
 
-- The sheet is capped at 45dvh: 380 / 360 / 299 / 288 px.
-- H3-4 measured a header of about 76 px and a footer of 132 px, so today's body is 172 / 152 / 91 / 80 px.
-- The U3 heights below are **estimates** from the same CSS primitives (44 px controls). They are not measured. OD-DH4-6 requires a measured prototype before authority.
+**Rules of D:**
 
-| | **U3-A** 「ヒントをもらう」 → inline chooser 材料 / 構成 / 特徴 | **U3-B** one 「ヒントをもらう」; the system picks the family | **U3-C** 「わかっていること」 first → 「ヒントをもらう」 opens family cards |
+- The request is priced and affordability-checked exactly like an informative one (the H3-1 pattern): the balance check happens on the request, before resolving.
+- If the answer is existence: nothing is charged and nothing is recorded (`attr:existence` is not stored).
+- The card shows 「今はまだ、大きな手がかりが見つからなかったよ（Pitzは使っていないよ）。材料がふえると、わかることがあるかも」 and is disabled for this sheet session.
+- A later request, after the inventory grows, may return a finer answer. It is charged then, and then 特徴 becomes single-shot.
+- **Why that is safe:** successive answers are nested (existence ⊃ category ⊃ group ⊃ family), so their joint is the finest one, which itself passed the guard.
+
+**Price differences by granularity (family vs category) are rejected.** Shown before the request they are a FREE LEAK. After the request they add complexity with no benefit. One price for any informative answer; 0 only for the non-informative one.
+
+**Dependency:** D requires guard (c) or (d). Under (a) or (b), D would turn the residual inversion cases into free names. Then C is the only acceptable choice.
+
+## 9. Economy boundary (STEP 5)
+
+| | E1: no runtime purchase until DH4-ECON | E2: reuse ESC 5 / 10 / 20 / 40 as one shared hint progression now | **E3: wire runtime and UI behind a flag (DEV / Preview), production cannot buy 構成 / 特徴** |
 |---|---|---|---|
-| **Flow** | Board + a footer with one CTA. Tapping it swaps the footer for a chooser: 3 family segments, a material preference row when 材料 is picked, and a price CTA. | Board + one CTA with a price. Fixed order: 構成 (if not owned) → 材料 until exhausted → 特徴. | Board + one CTA. Tapping it opens an in-sheet panel of 3 cards (title, one-line "what it tells", status, a price button), plus 「もどる」. |
-| **Body, board state (390×844 / 360×800 / 390×664 / 360×640)** | ~216 / 196 / 135 / 124 (footer ~88) | ~216 / 196 / 135 / 124 | ~216 / 196 / 135 / 124 |
-| **Chooser state** | Footer ~180 → body 124 / 104 / 43 / **32** (the knowledge is almost hidden while choosing) | — | Panel ~216 of 304 / 284 / 223 / **212** available: fits; **tight** at 360×640 (cards ≤ 54 px) |
-| **Taps from an open sheet** | 3 (CTA, family, price CTA); 4 with a preference | **1** | 2 (CTA, card button); 3 with a preference |
-| **Information density** | High on the board, low while choosing | Highest | High on the board; the cards explain each family |
-| **First-time clarity** | Medium: three bare words (構成 is abstract) | Low: the player does not know what they will get | **High**: each card says what it tells |
-| **0 Pitz clarity** | Medium: one shared price CTA | Low | **High**: every card shows 「たずねる 支払いずみ」 and the guidance promise |
-| **GUIDANCE_ONLY clarity** | Medium | **Poor**: exhausting 材料 silently switches family, and the player pays for a family they did not choose | **High**: single-shot families show 「もらいずみ」, and only 材料 can end in guidance, which its card announces |
-| **Privacy** | Uniform | **Risk**: the switch 材料 → 特徴 reveals exhaustion *on a charged request*; the charged family depends on recipe state | Uniform: every card for every target, and 「もらいずみ」 comes from the player's own ledger only |
-| **172 scalability** | Good | Good | Good (the board grows; the cards stay 3) |
-| **Technique Hint (D)** | +1 segment (4 at 360 px ≈ 80 px each) | +1 in the fixed order | **+1 card** (the panel scrolls; the cleanest) |
-| **Fit with OD-DH4-6** (「ヒントをもらう → 材料/構成/特徴」, one 「わかっていること」 area) | Literal | Violates it (no choice) | Literal, with the explanation added |
+| Complexity | Lowest now, but UI and runtime wait | Medium: a family-aware paid count and cap semantics | Medium: the same code as E2, plus a flag |
+| Migration | none | Irreversible once production saves record rungs from new families | none in production. Preview uses its own save key (`teto-pizza-preview-save-v1`, `VITE_PREVIEW_MODE`). |
+| Privacy | — | The price must stay uniform across families and levels | Same, testable before production |
+| UX | HV-5 (layout) waits too, unless split out | Real prices without an economy review | Real prices are not decided; the Preview prototype uses the ESC rung, labelled provisional |
+| Future economy change | Free | **Constrained**: production saves already carry spend | Free |
+| Save compatibility | n/a | New ids are fine (schema 2), but paid-count semantics are frozen | New ids are fine; production writes none |
 
-U3-B is rejected: it has a charged-exhaustion leak and makes the player pay for a family they did not pick.
+**Recommendation: E3.**
 
-The heights in this table are estimates inside today's 45dvh sheet. §8A replaces them with measured values and shows that 45dvh is itself the constraint.
+- The prototype price inside the flag is the shared ESC rung (the E2 logic), so DH4-ECON can evaluate a real curve.
+- **Never set 0 Pitz as a production price.** Price 0 remains only the existing cap-paid state (「支払いずみ」) and the no-charge outcomes (GUIDANCE_ONLY, existence).
+- **The vertical layout (HV-5) and the U3 sheet for the 材料 family can ship to production without DH4-ECON**, because they change no price (§20).
 
-## 8A. Hint Sheet vertical-space audit (Owner Finding HV-5)
+## 10. U3 comparison (STEP 6)
 
-**Method:**
+The heights below are measured-model values from §12.
 
-- Measured on `5a33d85` (the H3-4 sheet, unchanged) in local Chromium.
-- The layout-contract profiles were used, including the CDP safe-area override (top 47 / bottom 34, as on a notched iPhone).
-- A throw-away Playwright spec seeded 3 sheet states and was deleted afterwards (`git status` clean):
-  - **F**: fresh, key only;
-  - **K**: every sellable fact owned (the late-game case);
-  - **L**: legacy + every fact + GUIDANCE_ONLY (the longest).
-- Raw data: `docs/reports/data/TETO_DISCOVERY-HINT-4_DH4-2_HINT-SHEET-VSPACE.json`.
-- Baseline screenshots: `docs/reports/screenshots/dh4-2-pre-audit/before-*.png`. They are **before** images for DH4-2c. No UI was changed.
+| | U3-A: 「ヒントをもらう」 → 材料 / 構成 / 特徴 (inline segments) | U3-B: one CTA, the system picks the family | **U3-C: 「わかっていること」 first → 「ヒントをもらう」 → family cards** |
+|---|---|---|---|
+| First-time clarity | Medium (構成 is abstract) | Low: the player does not know what they will get | **High**: each card says what it tells |
+| Taps from an open sheet | 3 (+1 for a preference) | 1 | **2 (+1 for a preference)** |
+| Privacy | Uniform | **Leak risk**: switching families on exhaustion reveals it on a charged request, and the player pays for an unchosen family | **Uniform.** 「✓ もらいずみ」 comes from the player's own ledger only. |
+| 0 Pitz | One shared price CTA | Poor | **Each card:** 「たずねる ｜ 支払いずみ」 |
+| GUIDANCE_ONLY | Medium | Poor (silent family switch) | **Only 材料 can end empty, and its card says so before the tap** |
+| Legacy | OK | Confusing | 構成 card shows 「✓ もらいずみ（以前のヒント）」 |
+| 172 scalability | Good | Good | Good |
+| Technique Hint (D) | +1 segment (crowded at 360) | +1 in the fixed order | **+1 card** |
+| 390×844 / 360×800 / 390×664 / 360×640 (layout C) | Chooser in the footer: known area 566–362 px (+ safe area) | Best density | Panel ≥ 362 px everywhere: 3 full cards fit |
+| Fit with OD-DH4-6 | Literal | Violates it (no choice) | Literal + explanations |
 
-### 8A.1 Measured heights (px, state K, body scrolled to the top)
+**Recommendation: U3-C (called U3-R earlier: the U3-A entry with U3-C cards).**
 
-| Region | 390×844 | 360×800 | 390×664 | 360×640 | 390×844 + safe area | 390×664 + SA | 360×640 + SA |
+## 11. Vertical-layout comparison (STEP 7)
+
+**Measured today** (state K = every sellable fact owned; JSON `…HINT-SHEET-VSPACE.json`):
+
+| Region (px) | 390×844 | 360×800 | 390×664 | 360×640 | 390×844 + SA | 390×664 + SA | 360×640 + SA |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| Sheet (cap 45dvh) | 379 | 360 | 299 | 288 | 380 | 299 | 288 |
-| Top padding + **header** (💡 ヒント / 閉じる) + gap | 12 + **36** + 8 | same | same | same | same | same | same |
-| **Guidance message** (H0 「今の材料で…」, inside the body) | 36 | **55** (wraps) | 36 | 55 | 36 | 36 | 55 |
-| **Known information** visible (body viewport, H0 included) | **171** | **152** | **91** | **80** | **138** | **57** | **46** |
-| Known-information content height | 171 | 190 | 171 | 190 | 171 | 171 | 190 |
-| Rows fully visible (ソース / チーズ / トッピング) | 3 / 3 | 2 / 3 (topping 35 of 52) | 1 / 3 | **0 / 3** | **2 / 3 (topping 40 of 52)** | **0 / 3** | **0 / 3** |
-| Gap + **selector** (legend 17 + 3 radios 44) | 8 + **63** | same | same | same | same | same | same |
-| **CTA** | 44 | 44 | 44 | 44 | 44 | 44 | 44 |
-| **Pitz explanation** (所持… ・ 注意文) | 17 | 17 | 17 | 17 | 17 | 17 | 17 |
-| Footer total | 132 | 132 | 132 | 132 | 132 | 132 | 132 |
-| Bottom padding (12 + **safe area**) | 12 | 12 | 12 | 12 | **46** | **46** | **46** |
-| **Known info ÷ sheet** | 45 % | 42 % | 30 % | 28 % | **36 %** | **19 %** | **16 %** |
-| Controls (footer) ÷ known info | 0.8 | 0.9 | 1.5 | 1.7 | **1.0** (1.3 with the safe area) | **2.3** | **2.9** |
+| Sheet (45dvh cap) | 379 | 360 | 299 | 288 | 380 | 299 | 288 |
+| Padding 12 + header 36 + gap 8 | 56 | 56 | 56 | 56 | 56 | 56 | 56 |
+| Guidance (H0, in the body) | 36 | 55 | 36 | 55 | 36 | 36 | 55 |
+| **Known information visible (body)** | **171** | **152** | **91** | **80** | **138** | **57** | **46** |
+| Fact rows fully visible (of 3) | 3 | 2 | 1 | **0** | 2 (topping 40 / 52) | **0** | **0** |
+| Gap + selector (legend 17 + 3 × 44) | 71 | 71 | 71 | 71 | 71 | 71 | 71 |
+| CTA | 44 | 44 | 44 | 44 | 44 | 44 | 44 |
+| Pitz explanation | 17 | 17 | 17 | 17 | 17 | 17 | 17 |
+| Bottom padding (12 + safe area) | 12 | 12 | 12 | 12 | **46** | **46** | **46** |
+| Known ÷ sheet | 45 % | 42 % | 30 % | 28 % | **36 %** | 19 % | 16 % |
 
-**What the numbers show:**
+**Budget model check:** body = sheet − 12 − 36 − 16 − footer − (12 + safe area). It reproduces all 7 measured values exactly.
 
-- The measurement reproduces the Owner's photo: see `before-K-all-facts_P390i.png`. The 2-chip トッピング row is cut under the fade, and the ▾ is a 14 px glyph at the far right.
-- On every short or safe-area profile, **the controls are larger than the hints**.
-- At 360×640 with the safe area, the known area (46 px) is smaller than the H0 line (55 px), so no fact is on screen when the sheet opens (`before-K-all-facts_E360i.png`).
-- In the longest state (L), the content is 309–328 px against the same 46–172 px viewport.
+**Known-information viewport per layout (px):**
 
-**Estimated DH4-2 board (U3-R, §9, 390 px wide), built from the measured parts:**
-
-| Part | Height (px) |
-|---|---:|
-| H0 | 36 |
-| 材料 rows | 108 |
-| 「？」 legend | 15 |
-| 3 section labels | ~54 |
-| 構成 (2 lines) | ~44 |
-| 特徴 (2 lines) | ~44 |
-| Gaps | ~36 |
-| **Typical late-game board** | **≈ 330** |
-| Longest (+ guidance 52 + legacy 72) | ≈ 470 |
-
-Today's sheet shows 138 px of that on an iPhone: about 2–3 lines of known information. The Owner rules this out.
-
-### 8A.2 Layouts compared (known-information viewport, px)
-
-Every number is computed from the measured parts:
-
-- 12 px top padding, the 36 px header, two 8 px gaps, the footer, and 12 px + the safe area at the bottom.
-- The formula reproduces all 7 measured "today" values exactly.
-
-**The three layouts:**
-
-- **A**: today's structure (footer 132 px, 3 radios), with the sheet raised from 45dvh to 70dvh.
-- **B**: header and footer fixed, only 「わかっていること」 scrolls, at today's 45dvh. With today's footer this *is* the current H3-4 structure, so it is shown with the compact U3-R footer (one CTA + one Pitz line = 65 px).
-- **C**: a near-full-height sheet (max-height `100dvh − safe-area-top − 56 px`, so the app header stays visible), fixed header, scrolling known information, and a compact footer (65 px; **C′** = 44 px with the balance moved into the header).
-
-| Profile | Today (45dvh, footer 132) | A (70dvh, footer 132) | B (45dvh, footer 65) | **C** (near-full, footer 65) | C′ (footer 44) |
+| Profile | Today | **A** (70dvh, footer 132) | **B** (45dvh, header / footer fixed, compact footer 65) | **C** (near-full `100dvh − safe-top − 56`, compact footer 65) | C′ (balance in the header, footer 44) |
 |---|---:|---:|---:|---:|---:|
 | 390×844 | 172 | 383 | 239 | **647** | 668 |
 | 360×800 | 152 | 352 | 219 | **603** | 624 |
 | 390×664 | 91 | 257 | 158 | **467** | 488 |
 | 360×640 | 80 | 240 | 147 | **443** | 464 |
-| 390×844 + safe area | **138** | 349 | 205 | **566** | 587 |
+| 390×844 + SA | 138 | 349 | 205 | **566** | 587 |
 | 390×664 + SA | 57 | 223 | 124 | **386** | 407 |
-| 360×640 + SA | **46** | 206 | 113 | **362** | 383 |
+| 360×640 + SA | 46 | 206 | 113 | **362** | 383 |
 
-| Criterion | A (taller, same UI) | B (45dvh, scroll only the middle) | **C (near-full, compact footer)** |
+| Requirement | A | B | **C** |
 |---|---|---|---|
-| CAP-1: 390×844 + SA shows the typical DH4-2 board (≈ 330) without scrolling | 349: just, with no margin | ✗ 205 | ✓ 566 (the longest ≈ 470 fits too) |
-| CAP-2: 360×640 + SA, CTA visible, known area ≥ 150 px (≈ 6 rows) | ✓ 206 | ✗ 113 | ✓ 362 |
-| CAP-3: known area ≥ the controls on every profile (the §13 principle) | ✓, but the 132 px footer and 3 radios stay | Marginal (113 vs 65 + 46) | ✓ |
-| Keeps the ソース / チーズ / トッピング radios as a persistent control | Yes (the Owner asks not to assume this) | No | No: preference lives in the 材料 card (§9) |
-| The U3-R family panel (3 cards ≈ 216 px + back) | Fits | **Does not fit** at 360×640 + SA | Fits everywhere (≥ 362 px) |
-| Context | Covers 70 % of the cooking screen | Keeps the stage visible | Covers the stage, keeps the app header. The sheet is a modal read-then-close step (the backdrop already blocks the stage). |
-| Safe area | Kept (padding) | Kept | Kept on both edges (`env(safe-area-inset-top/bottom)`) |
-| Re-opens a decision | OD-H3-4-7 (45dvh) | none | OD-H3-4-7 (45dvh) |
+| Known information is the main content (known ≥ controls, everywhere) | ✓, but the 132 px footer stays | Marginal (113 vs 111) | **✓** |
+| 390×844 (+SA) shows the typical DH4-2 board (≈ 330 px) with no scroll; never 2–3 lines | 349: no margin | ✗ 205 | **✓ 566** (the longest, ≈ 470, fits too) |
+| 360×640 (+SA): practical scroll, ≥ 150 px | ✓ 206 | ✗ 113 | **✓ 362** (the typical board fits without scrolling) |
+| CTA always reachable | ✓ | ✓ | ✓ (fixed compact footer) |
+| Safe area | Kept | Kept | Kept top and bottom (`env(safe-area-inset-*)`) |
+| Scroll is discoverable | Fade only (insufficient) | Fade only | Rarely needed, plus the labelled cue |
+| Keyboard not needed / no horizontal overflow | ✓ | ✓ | ✓ (buttons only; the existing e2e overflow check) |
+| Keeps the 3 persistent category radios | Yes (the Owner asks not to assume this) | No | No: the preference moves into the 材料 card |
+| Re-opens OD-H3-4-7 (45dvh) | Yes | No | Yes |
 
-**Recommendation: C (C′ if the Owner accepts the balance in the header).**
+**Is the fade enough? No.** The 18 px fade ends exactly at the selector legend, so the cut reads as a clip, and the ▾ is a 14 px glyph with no label (`before-K-all-facts_P390i.png`).
 
-- A buys height but keeps the controls-first ratio and the three radios.
-- B cannot meet CAP-1 or CAP-2, because the whole problem at 45dvh is that the sheet is too short for any footer.
+**Recommended scroll affordance:**
 
-### 8A.3 Selector height (U3)
+1. Layout C makes scrolling rare.
+2. When the body does scroll, a labelled pill 「▾ 下にもヒントがあるよ」 (≥ 24 px, `aria-hidden`) is removed at the end of the list. The fade stays.
+3. Section labels (材料 / 構成 / 特徴 / 以前のヒント) peek above the fold.
+4. The newest fact is scrolled into view (existing).
 
-- Today's selector costs 63 px, and it is always on screen.
-- In U3-R the persistent footer holds **only** 「ヒントをもらう」 (+ the Pitz line). The 材料 / 構成 / 特徴 choice and the 材料 preference (おまかせ / ソース / チーズ / トッピング) appear only in the transient family panel.
-- **The footer shrinks from 132 to 65 px (or 44 px with C′), a saving of 67–88 px on every profile.**
-- The three category radios are **not** kept as a persistent control. Their 44 px tap-target height is kept inside the 材料 card (the H3-4 e2e contract).
+**Recommendation: Layout C** (C′ if the Owner accepts the balance in the header).
 
-### 8A.4 Is the fade enough to show that the body scrolls?
+**Principle (OD-DH4-2-7): ヒント本文を操作UIより優先する.**
 
-**No.** Evidence from `before-K-all-facts_P390i.png` and `before-L-legacy-guidance_P390i.png`:
+- The known-information viewport must never be smaller than the persistent controls plus the bottom safe area.
+- The persistent footer holds one CTA row and one Pitz line at most.
+- Choices live in a transient step.
 
-- The 18 px bottom fade sits right above the selector legend, so the cut reads as a layout clip, not as "more below".
-- The ▾ cue is a 14 px orange glyph at the right edge with no text. iOS shows no scrollbar until the user scrolls.
-- In state L, 137–282 px of content (guidance and the 「以前のヒント」 archive) is below the fold with only that cue.
+## 12. Viewport budgets for the recommendation (Layout C + U3-C)
 
-**Proposal for DH4-2c:**
+All values in px.
 
-1. Make scrolling rare: layout C fits the typical board with no scroll at 390×844.
-2. When the body does scroll, keep the fade and add a **labelled cue pill** at the bottom centre of the known area: 「▾ 下にもヒントがあるよ」. It is ≥ 24 px, it is removed when scrolled to the end, and it is `aria-hidden` (the list stays readable to assistive tech).
-3. Put **section labels** (材料 / 構成 / 特徴 / 以前のヒント) at the start of each block, so a partly visible next label also signals more content.
-4. Keep H3-4's "scroll the newest fact into view" after a purchase.
+| Region | 390×844 | 360×800 | 390×664 | 360×640 | notes |
+|---|---:|---:|---:|---:|---|
+| Sheet max-height | 788 | 744 | 608 | 584 | `100dvh − env(safe-area-inset-top) − 56`: the app header stays visible (with SA: 741 / – / 561 / 537) |
+| Top padding + header (title, 閉じる; C′: + 所持 Pitz) | 48 | 48 | 48 | 48 | 36 px header |
+| Gaps | 16 | 16 | 16 | 16 | — |
+| **Known information (scrolls)** | **647** (SA 566) | **603** | **467** (SA 386) | **443** (SA 362) | The typical board is ≈ 330, the longest ≈ 470 |
+| Footer: 「ヒントをもらう」 44 + 4 + Pitz line 17 | 65 | 65 | 65 | 65 | C′: 44 |
+| Bottom padding 12 + safe area | 12 (SA 46) | 12 | 12 (SA 46) | 12 (SA 46) | — |
+| Family panel (replaces body + footer; sheet − 48 − 8 − (12 + SA)) | 720 (SA 639) | 676 | 540 (SA 459) | 516 (SA 435) | 3 cards × ~76 + 材料 preference row 44 + back 32 ≈ 320: fits everywhere without scrolling |
 
-**Privacy:** whether the cue shows depends only on content the player already owns (their facts, legacy lines and guidance), as in H3-4. It never depends on what is left to sell.
+**Sheet sizing rule:** the sheet may use `height: auto` up to max-height, so a short board keeps a short sheet. A fresh target (H0 + one chip) stays around 200 px tall.
 
-### 8A.5 H0 line and balance placement (height savings, optional)
+## 13. Known Information design (STEP 8)
 
-| Item | Today | Option | Saving |
-|---|---|---|---|
-| H0 「今の材料で、まだ見つけていないピザが作れそう！」 | 36 px (55 px at 360, 2 lines) | A one-line caption under the title, or a shorter text | 18–37 px |
-| Pitz line | 17 px in the footer | 「所持 999 Pitz」 in the header row, next to 閉じる (C′) | 21 px |
-
-Both are presentation-only and uniform for every target.
-
-## 9. Recommended U3 flow ("U3-R" = the U3-A entry with U3-C cards)
+| Form | Height | Clarity | Privacy | Verdict |
+|---|---|---|---|---|
+| Timeline (purchase order) | Grows with purchases | Low: the same category is scattered | Reveals the purchase order only (own data) | No |
+| Chips only | Densest | Poor for sentences (構成 / 特徴) | OK | Only for 材料 |
+| Cards per fact | Tallest | Good | OK | No: too tall at 360×640 |
+| Flat list | Medium | Medium | OK | — |
+| **Sections** (材料 chips / 構成 line / 特徴 line / 以前のヒント archive) | Medium | **Best** | OK | **Recommended** |
 
 ```
-[Sheet opens]  💡 ヒント                          [閉じる]
-┌ わかっていること ───────────────────────────────┐
-│ (H0) 今の材料で、まだ見つけていないピザが作れそう！ │
-│ 材料  ソース  トマトソース                        │
-│       チーズ  ？                                  │
-│       トッピング 🥚たまご                          │
-│       ？＝まだわからない（使わないジャンルもあるよ） │
-│ 構成  まだ聞いていないよ                          │
-│ 特徴  まだ聞いていないよ                          │
-│ ┄ 以前のヒント（前のヒント方式のメモ）┄ (legacy only) │
-└──────────────────────────────────────────────────┘
-[ ヒントをもらう ]              所持 120 Pitz
-
-→ tap 「ヒントをもらう」 (panel replaces the body + footer; 「もどる」 returns)
-
-┌ 材料ヒント   材料の名前を1つ教えるよ ─────────────┐
-│ [おまかせ][ソース][チーズ][トッピング]              │
-│ もう教えられる材料がないときは、Pitzは使わないよ    │
-│                           [ たずねる   5 Pitz ]    │
-├ 構成ヒント   材料の数を教えるよ ──────────────────┤
-│                           [ たずねる   5 Pitz ]    │  (owned → ✓ もらいずみ)
-├ 特徴ヒント   まだわからない材料の「なかま」を教えるよ ┤
-│                           [ たずねる   5 Pitz ]    │  (owned → ✓ もらいずみ)
-└ [もどる]                        所持 120 Pitz ───┘
+わかっていること
+ 材料   ソース: 🍅トマトソース   チーズ: 🧀モッツァレラ
+        トッピング: 🌿オレガノ 🍄マッシュルーム 🍖ハム
+ 構成   材料は全部で6種類（トッピングは4種類）        ← TC-G clause only when told
+ 特徴   まだわかっていない材料に、野菜・きのこの仲間があるよ
+ ┄ 以前のヒント（前のヒント方式のメモ）┄             ← dashed, muted archive
+   材料は全部で6種類。チーズを使うみたい
 ```
-
-**Layout:**
-
-- Layout **C** from §8A: a near-full-height sheet with a fixed header, a scrolling 「わかっていること」, and a compact footer holding only 「ヒントをもらう」 and the Pitz line.
-- The family panel opens inside the same sheet (≥ 362 px everywhere), so the cards never need the 54 px squeeze.
-- Measured targets are CAP-1…3 (§8A.2).
 
 **Rules:**
 
-- **All three cards are shown for every target.** The price shown is the same for all three and depends only on the paid count (it is a placeholder until DH4-ECON, OD-DH4-2-6).
-- **構成 and 特徴 are single-shot per recipe.** One answer each, never re-sold, including when the inventory grows later. 「✓ もらいずみ」 therefore comes from the player's own ledger and is the same for every target: no leak.
-- **After a successful answer**, the sheet returns to the board and the new line gets the H3-4 highlight.
-- **Double-tap safety:** each card button keeps the H3-4 latch (450 ms) and the `expectedPaidCount` stale guard.
-- **360×640 + safe area:** with layout C the panel has ≥ 362 px, so all three cards fit at full size. If it ever scrolls, the labelled cue from §8A.4 applies. Every button stays reachable (e2e geometry contract).
-- **Dex-0 Margherita onboarding:** stays on the free TARGET flow. No U3 (OD-H3-4-8).
+- **Only acquired facts are shown.** 材料 shows chips grouped with a small category label. **Empty categories are omitted, not filled with 「？」.** This replaces H3-4's 「？」 row and legend (OD-H3-4-5/6); it is an Owner decision (OD-DH4-2-7). It is safe because it reflects only the player's own knowledge.
+- **An unasked 構成 or 特徴 section is omitted.** The 「ヒントをもらう」 panel lists all families uniformly instead, so the board never says what is missing.
+- **Never shown:** 「残り○個」, 「まだ○件」, per-category availability, 「なし」, 「0種類」, candidate counts, the answer level as a label, 「?」 slots per unknown.
+- **Legacy lines** stay verbatim in the dashed archive at the end, including negatives such as 「チーズは使わないみたい」. They are never merged into sections, never priced, never counted (OD-H3-4-4).
+- **Hint 4.0 sells no new negative fact.**
+- **The H0 line** becomes a one-line caption under the title (it saves 18–37 px).
 
-## 10. CTA wording
+## 14. CTA / price copy (STEP 9)
 
-| Candidate | New fact implied? | At 0 Pitz | With GUIDANCE_ONLY | Verdict |
+| Candidate | Promises a new fact? | At price 0 | With GUIDANCE_ONLY | Verdict |
 |---|---|---|---|---|
-| ヒントを1つ解除 (H3-3) | Yes: "unlock one" | 「解除 0 Pitz」 reads as a free fact | Contradicts it | Retired (H3-4 F-1) |
-| ヒントを1つもらう (H3-4) | Yes: "one" | Replaced by 「たずねる」 at 0 | Acceptable | Drop 「1つ」 |
-| **ヒントをもらう** | Mild. It is the Owner's U3 entry. | Neutral (it opens the panel; no price on it) | Nothing is charged at the entry | **Entry CTA** |
-| ヒントを聞く / **たずねる** | **No**: asking may get "that's all" | Natural (H3-4 already uses 「たずねる」 at 0) | Matches the answer | **Card buttons** |
-| もう1つヒント | Yes: "one more" | Misleading | Contradicts it | Reject |
-| ヒントを見る | Implies something already exists (and is free) | Misleading when paid | — | Keep only on the Dex entry, which just opens the sheet |
+| ヒントを1つ解除 (H3-3, seen on the phone) | Yes | 「0 Pitz」 reads as a free fact | Contradicts it | Retired |
+| もう1つヒント | Yes | Misleading | Contradicts it | Reject |
 | 手がかりをもらう | Yes | — | — | A new term; no gain |
+| **ヒントをもらう** | Mild. It is the Owner's U3 entry and opens the panel, with no price. | Neutral | Nothing is charged at the entry | **Entry CTA** |
+| **たずねる** (ヒントを聞く) | **No**: asking may get "nothing new" | Natural (H3-4 already uses it) | Matches | **Card buttons** |
 
-**Pitz display:** keep the H3-4 pattern of label + price badge on the button: 「たずねる ｜ 5 Pitz」, or 「たずねる ｜ 支払いずみ」 at 0.
+**Price display:**
 
-Do not use 「5 Pitzでヒントをもらう」:
+- **Use 「たずねる ｜ 5 Pitz」**: label + price badge (the H3-4 component).
+- At the cap, use 「たずねる ｜ 支払いずみ」.
+- **Not** 「5 Pitzでヒントをもらう」: it is money-first, it reads badly as 「0 Pitzで」, and it breaks the badge pattern.
 
-- it puts money first;
-- it reads badly as 「0 Pitzで」 or 「支払いずみでヒントを」;
-- it breaks the one-component pattern.
+**Card copy (uniform for every target):**
 
-The entry CTA 「ヒントをもらう」 carries **no price**: the price lives on the cards, where the choice is made. No price authority changes.
-
-## 11. 0 Pitz behavior
-
-- **Price 0 means "the per-recipe cap is already paid"** (H3-4 OD-H3-4-1). It is shown as 「支払いずみ」, never as 「0 Pitz」.
-- **Each card at price 0 reads 「たずねる ｜ 支払いずみ」 and stays enabled.** A legacy buyer can still get a real fact there, so the view must not tell the two cases apart before the request.
-- **Fixed line on the 材料 card:** 「もう教えられる材料がないときは、Pitzは使わないよ」. It is identical for every target and replaces H3-4's 「Pitzはヒントが出たときだけ使うよ」 in the family panel.
-- **Open economy question:** whether 構成 and 特徴 spend the same per-recipe cap (so they become 「支払いずみ」 once the cap is reached) is DH4-ECON (OD-DH4-9). Until then DH4-2 ships behind a Preview flag (OD-DH4-2-6).
-
-## 12. GUIDANCE_ONLY UX
-
-| Family | Can end in GUIDANCE_ONLY? | Pre-request copy | After |
+| Card | Title | Description | Note on the card |
 |---|---|---|---|
-| 材料 | Yes: exhausted after `distinct − 2` facts. pizza-bianca sells none. The exhaustion point varies by recipe, which is the existing, accepted INTERACTION INFERENCE (OD-H3-17). | 「もう教えられる材料がないときは、Pitzは使わないよ」 on the card, before any tap | The card reads 「材料ヒントはここまで」 and 「今回はPitzを使っていないよ」. Its button is disabled for this sheet session (H3-4 semantics). A uniform suggestion follows: 「構成・特徴のヒントもあるよ」, shown only when those are not owned by the player's own ledger. |
-| 構成 | **Never.** Every target has exactly one answer (TC-G falls back, it never withholds). | — | 「✓ もらいずみ」 |
-| 特徴 | **Never.** Every target has exactly one answer (existence at worst). | — | 「✓ もらいずみ」 |
+| 材料 | 材料ヒント | 材料の名前を1つ教えるよ | 「えらんだジャンルに無いときは、ほかのジャンルから教えるよ」 + 「もう教えられる材料がないときは、Pitzは使わないよ」 |
+| 構成 | 構成ヒント | 材料の数を教えるよ | — |
+| 特徴 | 特徴ヒント | まだわからない材料の「なかま」を教えるよ | — |
 
-This resolves HV-4:
+- **材料 preference chips:** 「おまかせ / ソース / チーズ / トッピング」, with おまかせ as the default. おまかせ maps to the existing fallback order, so there is no authority change.
+- **The `other` family label:** PR #255 OD-TAX-8 candidate 「ちょっと変わった材料があるよ」. Recommended (OD-DH4-2-9).
 
-- The only family that can say "nothing more" says so **before** the tap.
-- The other two families can always answer.
-- The legacy exception, where a legacy 「材料は全部で○種類」 line already owns 構成 (OD-DH4-8), shows 「✓ もらいずみ」, not guidance.
+## 15. GUIDANCE_ONLY behavior
 
-## 13. Known Information (「わかっていること」) design
-
-**Information-design principle (Owner, HV-5): ヒント本文を操作UIより優先する.**
-
-- The sheet exists to read hints. On every profile, the known-information viewport must be at least as tall as the persistent controls (footer + bottom safe area): CAP-3 in §8A.
-- The persistent footer carries at most one primary CTA row and one Pitz line.
-- Choices (family, 材料 preference) live in a transient step, never permanently on screen.
-
-| Section | Shows | Never shows |
-|---|---|---|
-| **材料** | The three H3-4 rows (ソース / チーズ / トッピング) with chips, 「？」 for an empty row, and the fixed 「？」 legend | Remaining counts, per-row availability, 「なし」 |
-| **構成** | The owned total. With TC-G, the topping clause when it was told. Otherwise the uniform 「まだ聞いていないよ」. | 「残り○個」, 「あと○種類」, 0, per-category totals |
-| **特徴** | The owned attribute line (e.g. 「まだわかっていない材料に、肉の仲間があるよ」). Otherwise 「まだ聞いていないよ」. | The answer level as a label, candidate counts, 「?」 slots per class |
-| **以前のヒント** | The player's own Economy 1.0 lines verbatim, in the H3-4 dashed muted archive box at the end, titled 「前のヒント方式で買ったメモ」 | Prices, step pills, being counted as a new fact |
-
-**Visual distinction:**
-
-- Hint 4.0 facts use solid chips (材料) and solid text rows (構成 / 特徴).
-- Legacy lines stay inside the dashed box. The negative 「チーズは使わないみたい」 lives **only** in that box, never in a 材料 row or as a 構成 fact.
-
-**Why the unowned placeholder is safe:** 「まだ聞いていないよ」 on an unowned 構成 or 特徴 row is uniform, because every target has exactly one such answer.
-
-**No 「?」 slots:** there is no 「?」 per unknown ingredient and no 「残り○個」. With N owned, the gap is the player's PAID INFERENCE; the UI never draws it.
-
-## 14. Legacy presentation
-
-- **grandfatheredSteps** are unchanged and display-only (OD-H3-4-4, OD-DH4-8).
-- **A legacy count line** (`COUNT_CHEESE` axis) means `ingredientTotalOwned` = true:
-  - the 構成 card shows 「✓ もらいずみ」;
-  - the 構成 row shows the total with a small 「以前のヒント」 tag (a derived display; nothing is written to the ledger). **OD-DH4-2-8.**
-- **If TC-G is adopted:** a legacy owner of N has not been told the topping clause. The 構成 card then stays requestable once, for the topping clause only. If the guard falls back, that request is GUIDANCE_ONLY. The guard is inversion-safe, so this reveals nothing (§5.2). **OD-DH4-2-8.**
-- **Legacy price rungs** (`LegacyHintProgress.paidRungs`) are unchanged. Whether new families advance the rung is DH4-ECON.
-
-## 15. Runtime integration map (DH4-2)
-
-The principle: **one pure authority decides; the reducer applies; the sheet renders fact ids through fixed copy.** The UI never computes answers, levels, guards or availability.
-
-| Boundary | `5a33d85` today | DH4-2 proposal |
-|---|---|---|
-| Pure authority | DH4-1 `structureTotalFact`, `reserveAttributeAnswer`, `ingredientTotalOwned`, `deductionHintTextJa` (provisional copy). All unwired. | New `purchaseDeductionHint(input)` in `logic/discovery/`, next to `purchaseSelectableHint`. It follows the same contract: re-derive everything → STALE / INSUFFICIENT_PITZ decided on the request → answer or GUIDANCE_ONLY → price. It composes the existing material authority for `family: "material"`. Strict-guard and TC-G changes, if chosen, land in `deductionHint.ts` first (slice DH4-2a). |
-| Reducer action | `PURCHASE_SELECTABLE_HINT { preference, expectedPaidCount }` | **Extend the same action** with `family: "material" \| "structure" \| "attribute"` (default `material`). It is already Free Cooking PREPARE + sheet-open only, and **already in `DINNER_BLOCKED_ACTIONS`**, so no Dinner file changes. |
-| Purchase request | The sheet sends `(preference, paidCount)` | The sheet sends `(family, preference?, paidCount)`. The latch and stale guard are kept. |
-| Pitz charge | `purchaseSelectableHintFact` debits and extends the ledger in one patch | The same single patch for every family. It never debits without recording. |
-| Paid count / rung | `ownedPurchasedFacts` counts `ing:` facts only | Needs a family-aware paid count (**OD-DH4-2-6**, economy). No price numbers change. |
-| Persistence | `discoveryHintFacts[recipeId]` keeps any `<kind>:<value>[:<q>]` id verbatim (`HINT_FACT_ID_PATTERN`) | Store `meta:ingredient-total`, `meta:topping-total` (TC-G, only when told) and the **answered** `attr:<level>:<value>` id. No schema bump (schemaVersion 2). The stored attribute is what was told and is never re-derived (§16). |
-| View model | `HintSheetView.SELECTABLE` carries the presentation, H0, grandfatheredSteps and outcome | Add `deduction: { structure: textId \| null, attribute: textId \| null, legacyStructure: boolean }` and a per-family `outcome`. **No availability, level, count or candidate field.** |
-| HintSheet | H3-4 SELECTABLE body | The U3-R board + family panel (§9). The copy table lives in the component; fact → text comes from the pure layer's fixed map. |
-| Dex | 「💡 ヒントを見る」 on DISCOVERABLE cards → `SHOW_HINT { pinnedRecipeId }` | Unchanged. The pinned target works the same for every family. |
-| Free Cooking | The only mode that opens the sheet | Unchanged |
-| Near-miss | `resultNearMiss`: fixed copy, reads no hint ledger | Unchanged (OD-DH4-7). A test pins that it never reads `meta:` / `attr:`. |
-| Onboarding | Dex-0 Margherita → the TARGET view | Unchanged |
-| Legacy save | `legacyHintMapping`, `ingredientTotalOwned` | Read-only, as today |
-| Dinner | `PURCHASE_SELECTABLE_HINT` blocked; `SHOW_HINT` **not** blocked on main (PR #252 adds it) | Nothing to add when the action is extended. If a new action type were chosen instead, it would have to join `DINNER_BLOCKED_ACTIONS`, the same set PR #252 edits (conflict risk). |
-
-## 16. Persistence implications
-
-- **No save-schema change.** New ids fit `HINT_FACT_ID_PATTERN`, for example:
-  - `meta:ingredient-total`
-  - `meta:topping-total`
-  - `attr:family:meat`
-  - `attr:category:topping`
-  - `attr:existence`
-- **Older and newer builds.** H3-2 already keeps unknown ids verbatim, and `unionHintFacts` merges them.
-- **Cap.** 64 ids per recipe is far above the ~7 possible.
-- **The attribute is state-dependent.** The **answered** id is stored and shown as told.
-  - A later, finer answer (the inventory grew) is **not** re-sold: the family is single-shot (**OD-DH4-2-7**).
-  - This keeps monotonic safety: under both the DH4-1 rule and the strict rule, a stored answer stays k ≥ 2.
-- **TC-G.** `meta:topping-total` is written only when the clause was told. A fallback answer writes `meta:ingredient-total` alone (no marker of the fallback is stored).
-- **Full Reset** clears the ledgers as today. The Preview flag must not leak into the production save key (the H3-4 HV-seed pattern).
-
-## 17. Near-miss implications
-
-- **ADD_ONE is free closure.**
-  - When the player bakes exactly their known facts and sees 「材料をあと1つ足すと…」, they learn N = |known| + 1 without paying.
-  - Every privacy check in this audit therefore assumes N is known.
-  - This is why raw T (N+T) and the DH4-1 level inversion (§5.4) leak even when N was never bought.
-- **The copy stays fixed and attribute-free (OD-DH4-7).** No 「肉系が足りない」.
-- **Near-miss never reads `meta:` or `attr:`.** DH4-2 adds that pin test.
-- **No combined line** such as 「あと1つ。買ったヒント：肉系」 in DH4-2. It would restate paid facts only, but it adds UI and review cost for no new information.
-
-## 18. Dinner isolation
-
-- DH4-2 changes **no Dinner file**, does not rely on PR #252, and does not touch PR #243.
-- **Blocking:** extending `PURCHASE_SELECTABLE_HINT` inherits the existing Dinner block. On `main`, `SHOW_HINT` is not blocked during Dinner, but the sheet itself only opens in Free Cooking PREPARE (`isHintSheetVisible`). PR #252 adds the explicit block.
-- **Merge order:** if PR #252 merges first, DH4-2 rebases onto it. Its reducer diff should touch only the hint cases, not the Dinner sets.
-- **A test to add:** during a Dinner run, a `family: "structure" | "attribute"` request leaves the state byte-identical.
-
-## 19. Owner Decisions required
-
-| ID | Decision | Options | Recommendation |
+| Family | Pre-request | Outcome | After |
 |---|---|---|---|
-| **OD-DH4-2-1** | Topping count (HV-1) | (a) keep the total only · (b) raw 「トッピングは全部で○種類」 · (c) **TC-G**: the topping clause inside the 構成 answer, behind the inversion-safe guard | **(c)**, with the wording in §7. (b) is rejected: it sells 「0種類」 and names the reserve in 3/24. It re-opens OD-DH4-2 for a positive, guarded clause only. |
-| **OD-DH4-2-2** | The DH4-1 level-inversion finding (§5.4) | (a) accept as PAID INFERENCE · (b) **strict "level before value"** rule · (c) (b) + merge the runtime singleton families (果物, スパイス → その他) | **(c)**: 0 named in both inventories, family answers 16/24 in the late game. It amends DH4-1 in slice DH4-2a. |
-| **OD-DH4-2-3** | UI model | U3-A / U3-B / U3-C / **U3-R** | **U3-R** (§9). A measured 4-viewport prototype comes before authority. |
-| **OD-DH4-2-4** | CTA wording | §10 | The entry reads 「ヒントをもらう」 (no price). Card buttons read 「たずねる ｜ n Pitz」 or 「たずねる ｜ 支払いずみ」. |
-| **OD-DH4-2-5** | 材料 preference | Keep the 3 categories · **add 「おまかせ」 as the default** | Add おまかせ. It maps to the existing fallback order (sauce → cheese → topping), so there is no authority change. |
-| **OD-DH4-2-6** | Economy of 構成 and 特徴 in DH4-2 | (a) **Preview-only flag until DH4-ECON** · (b) the shared ESC rung and cap now | **(a)**. Prices stay with DH4-ECON (OD-DH4-9). The prototype uses the shared rung, labelled provisional. |
-| **OD-DH4-2-7** | Single-shot families | 構成 and 特徴 are answered once per recipe and never re-sold | **Yes** |
-| **OD-DH4-2-8** | Legacy count line | Show the derived total in the 構成 row with a 「以前のヒント」 tag. With TC-G, allow one topping-clause request. | Yes and yes |
-| **OD-DH4-2-9** | Early-game 特徴 | (a) no gate · (b) a Dex gate (e.g. Dex ≥ 8), uniform | Owner call. Under the strict rule, 13/24 ladder answers are 「まだわかっていない材料があるよ」. |
-| **OD-DH4-2-10** | Family labels | 材料 / 構成 / 特徴 (OD-DH4-6) · plain alternatives 材料 / かず / なかま | Keep the Owner's labels, with the one-line description on each card |
-| **OD-DH4-2-12** | **Hint Sheet visible-content capacity** (HV-5, §8A) | (a) today's 45dvh with the U3 footer (layout B) · (b) 70dvh with today's footer (layout A) · (c) **near-full-height sheet, fixed header, scrolling 「わかっていること」, compact footer** (layout C; C′ = the balance in the header) | **(c)**. It adopts CAP-1 (390×844 + SA shows the typical DH4-2 board, ≈ 330 px, without scrolling), CAP-2 (360×640 + SA: CTA visible and ≥ 150 px of known info), CAP-3 (known info ≥ controls everywhere) and the §13 principle. It retires the persistent ソース / チーズ / トッピング radios (the preference moves into the 材料 card), adds the labelled scroll cue (§8A.4) and keeps the safe area on both edges. It **re-opens OD-H3-4-7** (the 45dvh cap). Optional: shorten H0 (§8A.5). |
-| **OD-DH4-2-11** | Re-verify HV-3 / HV-4 | On a build at or after `22658f7` (H3-4 copy) before freezing the DH4-2 copy | **Yes.** The images match the H3-3 copy; production was last deployed on 2026-09-21. |
+| 材料 | The card note says it may have nothing more | GUIDANCE_ONLY (existing OD-H3-17): no charge, nothing stored | The card reads 「材料ヒントはここまで（Pitzは使っていないよ）」 and is disabled for this sheet session. A uniform line follows: 「構成・特徴のヒントもあるよ」, only if those are unowned in the player's own ledger. |
+| 構成 | — | Always answers | 「✓ もらいずみ」. Exception: TC-G for a legacy N owner (§7). |
+| 特徴 | — | An informative answer, **or the existence outcome with no charge** (§8) | 「✓ もらいずみ」 after an informative answer; otherwise 「今はまだ、大きな手がかりが見つからなかったよ（Pitzは使っていないよ）」 and a retry in a later session |
 
-## 20. Recommended DH4-2 slices
+**Summary:**
 
-| Slice | Scope | Gate |
+- Every non-answer is free and is announced on the card before the tap.
+- **No family promises a category.** The 材料 preference is labelled as a wish.
+
+## 16. Legacy behavior
+
+| Legacy data | DH4-2 handling |
+|---|---|
+| `discoveryHintPurchases` (Economy 1.0 levels) | Read-only. `LegacyHintProgress` keeps the price rung (H3-1 / H3-2). |
+| `grandfatheredSteps` | Shown verbatim in the dashed archive at the end of the board (OD-H3-4-4). Never facts. |
+| Legacy 「材料は全部で○種類」 line | 構成 counts as owned (OD-DH4-8, `ingredientTotalOwned`). The 構成 section shows the total with a 「以前のヒント」 tag (a derived display; nothing is written) (OD-DH4-2-10). |
+| Legacy granted positive facts | 材料 counts them as owned (unchanged) |
+| Legacy negative lines | Archive only. No new negative is sold. |
+| Legacy price-0 real facts (cap parity) | Unchanged: 「たずねる ｜ 支払いずみ」 stays enabled |
+
+## 17. Runtime integration map (STEP 10)
+
+**Principle:** the pure layer (`deductionHint.ts`, extended in DH4-2A) is the **only** authority for structure and attribute answers, guards and charges. The UI renders fact ids through a fixed copy map and never computes levels, guards or availability.
+
+| Component | `5a33d85` | DH4-2 |
 |---|---|---|
-| **DH4-2a**: pure amendments + purchase authority (unwired) | Strict level rule + runtime taxonomy merge (if OD-DH4-2-2 (b)/(c)); TC-G (if OD-DH4-2-1 (c)); `purchaseDeductionHint`; single-shot semantics; mechanical tests: inversion (this tool's model), no 0, no FREE LEAK, monotonic, near-miss + N assumed, legacy | Vitest, tsc, oxlint, mutants |
-| **DH4-2b**: runtime wiring behind a Preview flag | Extend `PURCHASE_SELECTABLE_HINT` with `family`; one patch per charge; ledger ids; view-model fields; Dinner byte-identity test; near-miss never reads the new ledger | Unit + App tests, full Vitest; production unchanged while the flag is off |
-| **DH4-2c**: U3-R sheet | `HintSheet` board + family panel in the layout OD-DH4-2-12 picks, `.hint-sheet*` CSS. The e2e geometry contract gains CAP-1…3 on all 7 profiles, the labelled scroll cue, and safe-area checks. After-screenshots are paired with `docs/reports/screenshots/dh4-2-pre-audit/before-*`. | HV policy: 390×844 video delivered directly, before/after screenshots under `docs/reports/screenshots/<task>/` |
-| **DH4-ECON** | Prices and cap for the new families; turning on production | Owner |
+| Pure authority | `structureTotalFact`, `reserveAttributeAnswer`, `ingredientTotalOwned` (unwired); `purchaseSelectableHint` (H3-1) | **DH4-2A:**<br>- the §5.3 guard as an additive wrapper *inside* `deductionHint.ts`;<br>- the TC-G clause (if approved);<br>- `purchaseDeductionHint(input)`, which follows the H3-1 contract: re-derive → STALE / INSUFFICIENT_PITZ decided on the request → answer / existence-no-charge / GUIDANCE_ONLY → price;<br>- single-shot semantics;<br>- the fact → copy map. |
+| Action | `PURCHASE_SELECTABLE_HINT { preference, expectedPaidCount }` | Same action plus `family: "material" \| "structure" \| "attribute"` (default `material`). **It stays in `DINNER_BLOCKED_ACTIONS` with no Dinner edit.** |
+| Reducer | One case, which applies the patch from `purchaseSelectableHintFact` | The same case dispatches on `family` to one state helper. One patch = debit + ledger together, or nothing. |
+| Purchase request | The sheet sends `(preference, paidCount)` | The sheet sends `(family, preference?, paidCount)`. The 450 ms latch and the stale guard are kept. |
+| Pricing | ESC 5 / 10 / 20 / 40, cap 35 / 75, `LegacyHintProgress` | E3: a family-aware paid count (a shared rung) **behind the flag only**. Production prices only 材料, as today. |
+| Pitz charge | Only in the purchase patch | The same; 0 for GUIDANCE_ONLY and for the existence outcome |
+| New fact ledger | `discoveryHintFacts[recipeId]` keeps any `<kind>:<value>[:<q>]` | Adds `meta:ingredient-total`, `meta:topping-total` (told only) and `attr:<level>:<value>` (informative only) |
+| Legacy ledger | `discoveryHintPurchases`, read-only | Unchanged; `ingredientTotalOwned` is read |
+| Persistence / save migration | schemaVersion 2; `HINT_FACT_ID_PATTERN` accepts every new id; unknown ids are kept (H3-2) | **No schema change, no migration.** Tests pin the round-trip and the old-build keep. |
+| Reset | Full Reset clears both ledgers; `hintOutcome` is transient | Unchanged. The per-family outcome is transient too. |
+| View model (`hintSheetView`) | SELECTABLE: presentation, H0, grandfathered steps, outcome | Adds `deduction: { structure: factId \| null, attribute: factId \| null, legacyStructure: boolean }`, per-family outcomes and `familiesEnabled` (from the flag). **No availability, level, count or candidate field.** |
+| HintSheet / App | The H3-4 SELECTABLE body; `onBuySelectable` | Board + family panel (§12). App passes `onRequestHint(family, preference, paidCount)`. **CSS only for `.hint-sheet*`.** |
+| Dex | 「💡 ヒントを見る」 → `SHOW_HINT { pinnedRecipeId }` | Unchanged. The pinned target works for every family. |
+| Free Cooking | The only mode that opens the sheet (PREPARE) | Unchanged |
+| Near-miss | Fixed copy, reads no ledger | Unchanged; a pin test covers `meta:` / `attr:` |
+| Onboarding | Dex-0 Margherita → the TARGET flow | Unchanged (no U3) |
+| Dinner | `PURCHASE_SELECTABLE_HINT` blocked; `SHOW_HINT` blocked only by PR #252 | Nothing added (the extended action is covered). Test: a Dinner run plus any family request leaves the state byte-identical. |
+| Flag | `VITE_PREVIEW_MODE` (a separate save key) / DEV | 構成 / 特徴 cards and purchases are enabled only under the flag (E3) |
 
-## 21. Final verdict
+## 18. PR #255 compatibility (STEP 11)
 
-**A. DH4-2 DESIGN READY FOR OWNER DECISIONS.**
+| #255 decision | DH4-2 design | Compatible? |
+|---|---|---|
+| OD-TAX-1: 3 layers | DH4-2 reads only L2 / L1 through DH4-1 | ✓ |
+| OD-TAX-2: keep the 7 family ids; do not rebuild the DH4-1 algorithm | All 7 ids kept. The §5.3 guard is an **additive wrapper**: DH4-1's answer function is unchanged. | ✓ with a **caveat**: the wrapper is a new guard, so the Owner approves it explicitly (OD-DH4-2-4) |
+| OD-TAX-3: at most L2 displayed; L3 internal | The board shows the family label at most | ✓ |
+| OD-TAX-4: k ≥ 2; intersection for multi-axis | One attribute axis only. Successive answers are nested, so the joint is the finest answer. The topping clause is W-guarded. | ✓ |
+| OD-TAX-5: one fact per hint; no full signature | Each request returns one fact; the 構成 total + topping clause is one structure fact about counts, not a taxonomy signature | ✓ (PR #255 audit F: total + topping count makes 4 % of complete rows unique, not identifying) |
+| OD-TAX-6: role / timing / technique separate | The topping count follows the tray category; finishing / post-bake is never in 構成 or 特徴 | ✓ |
+| OD-TAX-7: NEEDS_REVIEW / UNKNOWN not authority | DH4-2 needs no new row. Option (d) needs 2 row changes (pineapple, capers) and is therefore **gated on the Human Classification Gate** | ✓ |
+| OD-TAX-8: no 「その他系」 in player copy | 「ちょっと変わった材料があるよ」 is recommended for `other` | ✓ |
+| OD-TAX-9: subfamily / sauce / cheese / multi-axis out of scope | Out of DH4-2 scope | ✓ |
+| Open items (garlic / capers / black-olive, family table placement, clusters) | Not needed by DH4-2 | ✓ Do not block |
 
-**What is measured:**
+**Result: PR #255 = compatible.**
 
-- The topping-count question is measured on all 25 runtime recipes and every reachable state.
-- Raw topping counts sell a negative (1/24) and name the Rule W reserve (3/24 early; 1/24 in the late game).
-- A guarded, inversion-safe topping clause (TC-G) keeps the mid-game value (about 1.2–1.5 bits) with 0 named cases.
+**One finding to report to the Owner** (PR #255 is not changed):
 
-**A new finding on the merged DH4-1:**
+- PR #255 §5 states that the runtime singleton families are protected by the DH4-1 guard.
+- §5.3 shows that the guard protects only the reserve's own class. Singleton families elsewhere in W make the answer *level* invertible (5 cases).
+- This does not contradict OD-TAX-1…9. It adds weight to resolving the runtime fruit / spice / other singletons at the Human Classification Gate: option (d).
 
-- Its fallback level can be inverted to name the reserve in 5 inventory cases.
-- The proposed "level before value" rule removes that at no loss of late-game family answers, if the runtime singleton families are merged.
+## 19. Owner Decision table (STEP 12)
 
-**Owner Finding HV-5 is measured:**
+| ID | Decision | Options | Evidence | Recommendation | Privacy impact | Implementation impact |
+|---|---|---|---|---|---|---|
+| **OD-DH4-2-1** | Hint families | 材料 / 構成 / 特徴 as defined in §7 · fewer families | §7; disjoint fact kinds; single-shot | **Adopt §7.** 構成 and 特徴 are single-shot; legacy counts as owned. | No double sale; no negative | Family field on the existing action |
+| **OD-DH4-2-2** | Structure / count facts | total only · total + guarded topping clause · per-category counts | §4.2 | **Total + (optional) TC-G clause.** No per-category or remaining counts (OD-DH4-2 stands). | 0 named cases | `structureTotalFact` + clause |
+| **OD-DH4-2-3** | Topping count | A · B · C · D · **D′ (TC-G)** · E | §4.2: B and D name the reserve 3/24 and state 「0種類」; D′ 0 / 0; mid-game 1.18–1.50 bits | **D′** if the Owner wants the number (copy 「トッピングは○種類使うよ」, never 0), else E | D′ is W-guarded, no zero | Pure guard + 1 id |
+| **OD-DH4-2-4** | Attribute guard and existence-only | Guard (a) / (b) / **(c)** / (d); existence UX A / B / C / **D** | §5.3, §8 | **Guard (c) now → (d) after the Human Classification Gate; existence = D** (no charge, not stored, retry later) | (c) and (d): 0 inversion names; D is safe only with (c) or (d) | An additive wrapper in `deductionHint.ts`; no answer-function change |
+| **OD-DH4-2-5** | Pricing / economy boundary | E1 · E2 · **E3** | §9 | **E3**: flag-only purchase of 構成 / 特徴 with a provisional shared ESC rung; production prices in DH4-ECON; never a production 0 price | Uniform price per request | A flag; the family-aware paid count stays behind it |
+| **OD-DH4-2-6** | U3 UI | U3-A · U3-B · **U3-C** | §10 | **U3-C** (board → 「ヒントをもらう」 → family cards) | U3-B has a charged exhaustion leak | HintSheet body + panel |
+| **OD-DH4-2-7** | Known Information | Sections · timeline · chips · cards · list; keep or drop the 「？」 rows | §13 | **Sections, acquired facts only.** Drop the 「？」 rows and legend (re-opens OD-H3-4-5/6). Adopt the principle 「ヒント本文 > 操作UI」. | Only the player's own knowledge is shown | View model + HintSheet |
+| **OD-DH4-2-8** | Vertical layout: **Hint Sheet visible-content capacity** | Layout A · B · **C** (C′) | §11, §12 (measured) | **Layout C**: near-full height, fixed header, scrolling known info, compact footer, safe area on both edges, labelled scroll cue. Capacity bars CAP-1 (390×844 + SA shows the ≈ 330 px board with no scroll), CAP-2 (360×640 + SA ≥ 150 px with the CTA visible), CAP-3 (known ≥ controls everywhere). Re-opens OD-H3-4-7 (45dvh). | None (presentation of owned data) | CSS `.hint-sheet*` + e2e geometry contract |
+| **OD-DH4-2-9** | CTA / copy | §14 | §14 | Entry 「ヒントをもらう」 (no price); cards 「たずねる ｜ n Pitz」 / 「たずねる ｜ 支払いずみ」; おまかせ preference; 「ちょっと変わった材料があるよ」 for `other` | No promise of a category or a fact | Copy table |
+| **OD-DH4-2-10** | Legacy presentation | §16 | §16 | Keep the archive; derive 構成 ownership; the 「以前のヒント」 tag on the total | No legacy negative promoted | Read-only helpers |
+| **OD-DH4-2-11** | PR #255 compatibility | compatible · needs change | §18 | **Compatible**. Record the singleton-inversion caveat for the Human Classification Gate. PR #255 unchanged. | — | none |
+| **OD-DH4-2-12** | Implementation slicing | §20 | §20 | **DH4-2A → 2B → 2C → 2D**; production enablement of 構成 / 特徴 after DH4-ECON | Each slice keeps production prices unchanged | Independent rollback per slice |
+| **OD-DH4-2-13** | Re-verify HV-3 / HV-4 on a current build | yes / no | §3.1 | **Yes**, on the Pages build or a Preview built from `5a33d85` or later | — | none |
 
-- On an iPhone (390×844 + safe area), today's sheet shows 138 px of known information (36 %) under 178 px of controls and safe area.
-- At 360×640 + safe area it shows none.
-- A near-full-height sheet with a compact U3 footer (layout C) gives 566 / 362 px and meets every proposed capacity bar. It is Owner Decision **OD-DH4-2-12 (Hint Sheet visible-content capacity)**.
+## 20. Recommended implementation slices (STEP 13)
 
-**What stays open:**
+| Slice | Scope | Changed files (expected) | Depends on | Test gate | Rollback boundary |
+|---|---|---|---|---|---|
+| **DH4-2A: pure authority** (unwired) | The §5.3 guard (c) as a wrapper; the TC-G clause (if approved); `purchaseDeductionHint`; the existence no-charge outcome; single-shot; the fact → copy map | `src/logic/discovery/deductionHint.ts` (+ tests), a new `deductionPurchase.ts` (+ tests), audit test-support | OD-DH4-2-1…4 | Vitest:<br>- the level-inversion regression (this tool's model: 0 names, both inventories);<br>- no 0 stated;<br>- no pre-request FREE LEAK;<br>- monotonic;<br>- ADD_ONE assumed;<br>- legacy;<br>- mutation tests;<br>- tsc, oxlint. | Unwired; revert the files |
+| **DH4-2B: runtime wiring behind the flag** | Add `family` to `PURCHASE_SELECTABLE_HINT`; the state helper; one-patch charge; new ledger ids; view-model fields; `familiesEnabled` from `VITE_PREVIEW_MODE` / DEV | `src/state/discoveryHint.ts`, `src/state/gameReducer.ts` (hint cases only), `src/App.tsx` (callback), tests | 2A, OD-DH4-2-5 | Reducer + App tests:<br>- Dinner byte-identity;<br>- near-miss pin;<br>- save round-trip and old-build keep;<br>- Full Reset;<br>- production-flag-off parity with `5a33d85`.<br>Full Vitest. | Flag off = today's behavior; revert touches only the hint cases |
+| **DH4-2C: vertical layout + U3 sheet** (production-visible for 材料) | Layout C; board sections; compact footer; family panel (材料 card always; 構成 / 特徴 cards only when `familiesEnabled`); labelled scroll cue; copy | `src/components/HintSheet.tsx` (+ tests), `src/App.css` (`.hint-sheet*` only), e2e hint specs | 2B, OD-DH4-2-6…10 | e2e on 7 profiles:<br>- CAP-1…3;<br>- CTA reachable;<br>- no horizontal overflow;<br>- safe area;<br>- cue matches scroll;<br>- background unmoved.<br>WebKit CI. **Human Verification** (390×844 video delivered directly; before/after screenshots paired with `docs/reports/screenshots/dh4-2-pre-audit/`). | Revert the component + CSS; the runtime is unaffected |
+| **DH4-2D: privacy / migration regression pack** | End-to-end privacy sweep (every target × state, the sheet DOM carries no level, count or candidate); legacy-save matrix (H0–H4 × 25); Preview save-key isolation; Dex pin per family | e2e + App tests only | 2C | Full Vitest + full Chromium E2E + WebKit | Tests only |
+| DH4-ECON (separate) | Prices and caps for 構成 / 特徴; production enablement (flag flip) | Economy authority + tests | 2D, Owner | Economy simulation | Flag |
 
-- At 172, categories and taxonomy are indicative only, and the evidence gaps are recorded in §6.2.
-- These gaps belong to catalog authoring. They do not block DH4-2 on the 25-recipe runtime.
+**Why persistence is not its own slice:** there is no schema change or migration. The ledger ids ride on H3-2's existing forward-compatible store, and their tests belong to 2B and 2D.
 
-Nothing here was implemented. PR #254 was already merged by the Owner during the audit and was not touched. Nothing was merged by this session.
+**Why the layout (2C) can ship before DH4-ECON:** it changes no price, and it fixes HV-5 for the existing 材料 family.
+
+## 21. Risks
+
+| Risk | Severity | Mitigation |
+|---|---|---|
+| The level inversion (§5.3) is kept (guard option (a)) | High for a guard-aware player: names the reserve in 5 cases | Guard (c) / (d) |
+| Guard (c) makes 特徴 weak at 25 recipes (existence 13 / 24 early) | Medium (value) | Existence = no charge (§8); (d) after the Human Classification Gate; the catalog growth restores family answers |
+| TC-G withholds the topping clause early (passes 11 / 24 on the ladder) | Low | Explained as the single-shot 構成 answer; 23 / 24 late |
+| Mozzarella inferred through T instead of bought (3 early recipes) | Low (economy) | DH4-ECON |
+| Layout C re-opens OD-H3-4-7 and hides the pizza while reading | Medium (UX) | The sheet is a modal read-then-close step; the app header stays visible; `height: auto` keeps short boards short |
+| The flag leaks into production | Medium | E3 test: the production build has `familiesEnabled = false`; the Preview save key is separate |
+| Merge conflict with PR #252 in `gameReducer.ts` | Low | DH4-2B touches only the hint cases, never `DINNER_*` sets |
+| 172 category gaps change T semantics (drizzles) | Low (future) | Re-audit trigger in §4.4; PR #255's Human Classification Gate |
+| The Owner's phone runs an old build | Medium (decision quality) | OD-DH4-2-13 re-verification |
+
+## 22. Non-goals and Final verdict
+
+**Non-goals (this audit):**
+
+- No src, CSS, reducer, persistence, pricing, save-schema or Dinner change.
+- No DH4-2 branch; no merge; PR #255, PR #252, PR #243 and Issue #238 are untouched.
+- No production price (0 Pitz included).
+- No change to the H3 authority.
+- No classification decided by guess (the 172 gaps stay gaps).
+- No subfamily, sauce or cheese families, multi-axis or technique hints (PR #255 OD-TAX-9).
+- No near-miss change.
+
+**Final verdict: A. DH4-2 DESIGN READY FOR OWNER DECISIONS.**
+
+**Answered with machine evidence on the 25 runtime recipes:**
+
+- The topping-count question: D′ (TC-G) or E. A raw count sells 「0種類」 and names the Rule W reserve.
+- A new DH4-1 finding (level inversion), with a W-only guard that removes it without changing DH4-1's answer function.
+- The existence-only UX, compatible with 「Pitzはヒントが出たときだけ使うよ」.
+- The economy boundary (E3).
+
+**Measured on the Hint Sheet (HV-5):**
+
+- Today's layout is ruled out: 138 px of hints under 178 px of controls on an iPhone, and 0 visible rows at 360×640 + SA.
+- Layout C gives 566 / 362 px and meets every capacity bar.
+
+**Other:**
+
+- PR #255 is compatible.
+- 13 Owner decisions are listed.
+- Implementation is split into 4 slices with independent rollback.
+
+**Still open by design** (none blocks DH4-2): the 172 evidence gaps, and the Human Classification Gate for option (d).

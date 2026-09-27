@@ -515,6 +515,168 @@ for index, rid in enumerate(ORDER):
             "inversionCandidates_safeA_plus_TCG": inversion_candidates(r, owned, combined_safe),
         })
 
+# ---- Final Owner Decision Gate: attribute-guard options (OD-DH4-2-4) -------------------------------
+def known_of(r):
+    """The worst-case known set: every recipe ingredient except the reserve."""
+    return {i["id"] for i in r["ingredients"]} - {r["reserve"]}
+
+
+def hypothetical_recipes(known, owned):
+    """Every hypothetical recipe the player cannot rule out at the endgame: known + one owned x
+    (exactly-one-sauce prior), with x as its reserve."""
+    out = []
+    for x in owned:
+        if x in known:
+            continue
+        if CAT[x] == "sauce" and any(CAT[i] == "sauce" for i in known):
+            continue
+        if CAT[x] != "sauce" and not any(CAT[i] == "sauce" for i in known):
+            continue
+        out.append({"id": "hyp", "ingredients": [{"id": i} for i in list(known) + [x]], "reserve": x})
+    return out
+
+
+def reserve_isolation_wrapper(r, owned):
+    """Option (b): DH4-1's answer function is kept as is. A wrapper keeps its answer when at least 2
+    hypothetical reserves would receive the same DH4-1 answer, else falls back to the strict level."""
+    a = attribute_answer(r, owned)
+    same = [h for h in hypothetical_recipes(known_of(r), owned) if attribute_answer(h, owned) == a]
+    return a if len(same) >= 2 else safe_attribute_answer(r, owned)
+
+
+def partition_checked(r, owned):
+    """Option (c): DH4-1's answer only if EVERY DH4-1 answer class over the hypotheses has >= 2
+    members (decided from W alone), else the strict answer for everyone. Inversion-safe."""
+    counts = Counter(attribute_answer(h, owned) for h in hypothetical_recipes(known_of(r), owned))
+    return attribute_answer(r, owned) if all(v >= 2 for v in counts.values()) else safe_attribute_answer(r, owned)
+
+
+def with_tcg(fn):
+    def combined(r, owned):
+        g = safe_T_guard(r, owned)
+        return (fn(r, owned), g, t_total(r) if g else None)
+    return combined
+
+
+attribute_options = {}
+for label, fn in (("a_dh41_as_merged", attribute_answer), ("b_reserve_isolation_wrapper", reserve_isolation_wrapper),
+                  ("c_partition_checked", partition_checked), ("strict_level_before_value", safe_attribute_answer)):
+    res = {}
+    for sc in ("ladderOwned", "allOwned"):
+        levels = Counter()
+        named, named_tcg = [], []
+        for index, rid in enumerate(ORDER):
+            if index == 0:
+                continue
+            r = RECIPES[rid]
+            owned = owned_at(index) if sc == "ladderOwned" else ALL_IDS
+            levels[fn(r, owned)[0]] += 1
+            if len(inversion_candidates(r, owned, fn)) < 2:
+                named.append(rid)
+            if len(inversion_candidates(r, owned, with_tcg(fn))) < 2:
+                named_tcg.append(rid)
+        res[sc] = {"levels": dict(levels), "namedAfterLevelInversion": named, "namedAfterLevelInversion_withTCG": named_tcg}
+    attribute_options[label] = res
+
+RUNTIME_MERGE = {"pineapple": "other", "capers": "other"}  # needs the Human Classification Gate (PR #255 OD-TAX-7)
+
+
+def fmt_answer(a):
+    return a[0] if a[0] == "existence" else "%s:%s" % a
+
+
+def option_d_run():
+    base = dict(FAMILY)
+    FAMILY.update(RUNTIME_MERGE)
+    try:
+        res = {}
+        for sc in ("ladderOwned", "allOwned"):
+            levels, named = Counter(), []
+            for index, rid in enumerate(ORDER):
+                if index == 0:
+                    continue
+                r = RECIPES[rid]
+                owned = owned_at(index) if sc == "ladderOwned" else ALL_IDS
+                levels[partition_checked(r, owned)[0]] += 1
+                if len(inversion_candidates(r, owned, partition_checked)) < 2 or len(inversion_candidates(r, owned, with_tcg(partition_checked))) < 2:
+                    named.append(rid)
+            res[sc] = {"levels": dict(levels), "namedAfterLevelInversion_incl_TCG": named}
+        per = {}
+        for index, rid in enumerate(ORDER):
+            if index == 0:
+                continue
+            r = RECIPES[rid]
+            per[rid] = {sc: fmt_answer(partition_checked(r, owned_at(index) if sc == "ladderOwned" else ALL_IDS)) for sc in ("ladderOwned", "allOwned")}
+        return res, per
+    finally:
+        FAMILY.clear()
+        FAMILY.update(base)
+
+
+attribute_options["d_partition_checked_plus_runtime_merge"], per_d = option_d_run()
+attribute_answers_per_recipe = {}
+for index, rid in enumerate(ORDER):
+    if index == 0:
+        continue
+    r = RECIPES[rid]
+    row = {}
+    for sc in ("ladderOwned", "allOwned"):
+        owned = owned_at(index) if sc == "ladderOwned" else ALL_IDS
+        row[sc] = {"a": fmt_answer(attribute_answer(r, owned)), "b": fmt_answer(reserve_isolation_wrapper(r, owned)),
+                   "c": fmt_answer(partition_checked(r, owned)), "d": per_d[rid][sc]}
+    attribute_answers_per_recipe[rid] = row
+
+# ---- Final Owner Decision Gate: topping-count options A..E (STEP 2) -------------------------------
+def option_summary(fact_keys, use_tcg=False):
+    """Per option: reserve named / unbought material newly named, over every reachable state, with and
+    without the DH4-1 attribute, N always assumed known when the option includes it or via ADD_ONE."""
+    out = {}
+    for sc in ("ladderOwned", "allOwned"):
+        reserve_named, material_named, zero_stated = [], [], []
+        for index, rid in enumerate(ORDER):
+            if index == 0:
+                continue
+            r = RECIPES[rid]
+            owned = owned_at(index) if sc == "ladderOwned" else ALL_IDS
+            facts = {}
+            if "N" in fact_keys:
+                facts["N"] = n_total(r)
+            if "T" in fact_keys and (not use_tcg or safe_T_guard(r, owned)):
+                facts["T"] = t_total(r)
+            if "T" in facts and facts["T"] == 0:
+                zero_stated.append(rid)
+            hit_r = hit_m = False
+            for k in reachable_known_sets(r):
+                for extra in ({}, {"A": attribute_answer(r, owned)}):
+                    f = dict(facts, **extra)
+                    _, forced = analyse(r, owned, k, f)
+                    _, base = analyse(r, owned, k, extra)
+                    if r["reserve"] in forced and r["reserve"] not in base:
+                        hit_r = True
+                    if (forced - base) & (set(r["sellable"]) - k):
+                        hit_m = True
+            if hit_r:
+                reserve_named.append(rid)
+            if hit_m:
+                material_named.append(rid)
+        out[sc] = {"reserveNamed": reserve_named, "unboughtMaterialNewlyNamed": material_named, "zeroCountStated": zero_stated}
+    return out
+
+targets24 = [RECIPES[rid] for rid in ORDER[1:]]
+def classes(fn):
+    c = Counter(fn(r) for r in targets24)
+    return {"classes": len(c), "largest": max(c.values()), "unique": sum(1 for v in c.values() if v == 1)}
+
+topping_count_options = {
+    "A_ingredient_total": {"copy": "材料は全部で○種類", "sameInformationAs": "E", "recipeClasses24": classes(n_total), **option_summary(("N",))},
+    "B_topping_total_raw": {"copy": "トッピングは全部で○種類", "recipeClasses24": classes(t_total), **option_summary(("N", "T"))},
+    "C_gu_zai_total": {"copy": "具材は全部で○種類", "note": "Read as cheese + topping it equals N - 1 for all 25 (one sauce each), so the information is N; read as toppings it is B.",
+                       "equalsNminus1For": sum(1 for r in all25 if n_total(r) - s_total(r) == n_total(r) - 1), "recipeClasses24": classes(lambda r: n_total(r) - s_total(r)), **option_summary(("N",))},
+    "D_total_plus_topping_raw": {"copy": "材料は全部で○種類 + トッピングは○種類", "recipeClasses24": classes(lambda r: (n_total(r), t_total(r))), **option_summary(("N", "T"))},
+    "D_prime_total_plus_topping_TCG": {"copy": "材料は全部で○種類（+ ガード通過時のみ トッピングは○種類）", **option_summary(("N", "T"), use_tcg=True)},
+    "E_total_only": {"copy": "材料総数だけ", "sameInformationAs": "A", "recipeClasses24": classes(n_total), **option_summary(("N",))},
+}
+
 # ---- 172 scalability ----------------------------------------------------------------------------
 m172 = json.loads(MATRIX_172.read_text())
 cat62 = {i["id"]: i["category"] for i in json.loads(CATALOG_62.read_text())["ingredients"]}
@@ -627,10 +789,13 @@ out = {
         "guardTC_G": {"failLadderOwned": [x["recipeId"] for x in midgame if not x["guardTC_G_ladderOwned"]],
                       "failAllOwned": [x["recipeId"] for x in midgame if not x["guardTC_G_allOwned"]]},
     },
+    "finalGate": {"attributeGuardOptions": attribute_options, "attributeAnswersPerRecipe": attribute_answers_per_recipe,
+                  "runtimeMergeForOptionD": RUNTIME_MERGE, "toppingCountOptions": topping_count_options},
     "recipes": rows,
     "scalability172": {"summary": special, "rows": rows172},
 }
 OUT.write_text(json.dumps(out, ensure_ascii=False, indent=1) + "\n")
+print(json.dumps(out["finalGate"], ensure_ascii=False))
 print(json.dumps(out["informationValue"]["guardTC_G"]), mavg("avgBits_T_given_N"), mavg("avgBits_A_given_N"), mavg("avgBits_T_given_NA"), [x for x in endgame_T_given_NA if x["bits"]])
 print(out["informationValue"]["guardAwareNameEquivalent_A"], out["informationValue"]["guardAwareNameEquivalent_A_plus_TCG"])
 print(json.dumps({k: v for k, v in out["informationValue"]["inversionSafeProposal"].items() if k != "rows"}))
