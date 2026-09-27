@@ -410,7 +410,7 @@ Preview: https://perusonao.github.io/teto-pizza-game-preview/dm3r2-setup.html
 **TEST 1: HOME abandon**
 1. On the helper page, tap 「通常セーブ」, then 「HV-normal」.
 2. HOME → ディナーミッション → ディナーミッション 1 → スタート.
-3. Start the dough step and place a few pieces, then tap 「ホーム」 at the top left.
+3. Stretch the dough (or go on to place a few pieces), then tap 「ホーム」 at the top left.
 4. With the dialog open, try to touch the pizza: nothing should change. The timer on the row keeps counting.
 5. Tap 「続ける」. You are back in the same cooking state and can keep cooking.
 6. Tap 「ホーム」 again, then 「やめる」. You land on HOME with no reward.
