@@ -408,4 +408,31 @@ Full Vitest after the fix: 190 files, **4037 passed / 1 skipped**. `tsc -b`, `ox
   - `tsc -b` clean, `oxlint` 0 warnings, build succeeded.
   - Full Vitest: **192 files, 4077 passed / 1 skipped**.
   - Full Chromium E2E (iphone-390x844, iphone-360x800, layout-chromium): **201 passed / 25 skipped (per-width guards) / 0 failed**. This includes the H3-4 hint-sheet specs and LC-S Dinner.
-- GitHub CI is re-running on the merged head.
+- GitHub CI on the merged head: see §22.
+
+## 22. Latest main integration: exact HEAD `3e3ae0d` CI PASS
+
+After the latest main integration, CI passed on exact HEAD `3e3ae0d` (fresh GitHub check):
+
+| item | state |
+|---|---|
+| PR #252 HEAD | `3e3ae0d4b06c77bfacafcfc9cc0774908a811610` (merge `c27e00f` + docs) |
+| `origin/main` | `5a33d855674652ab3483c3cedb8815859e88ce6e` |
+| CI on `3e3ae0d` | **9/9 success**: `classify`, `build`, `layout-chromium`, **Layout Contract Gate**, `webkit webkit-390x844 shard 1/2` and `2/2`, `webkit webkit-360x800 shard 1/2` and `2/2`, **WebKit Gate** |
+| mergeability | `mergeable: true`, `mergeable_state: clean` |
+| auto-merge | disabled (`auto_merge: null`) |
+| review threads | 0 unresolved (both Codex P2 threads are fixed and resolved) |
+
+The only change after `3e3ae0d` is this docs-only report commit.
+
+### 22.1 Owner Human Verification status
+
+| item | status |
+|---|---|
+| TIME_UP | **PASS** (Owner iPhone HV) |
+| CUT for a raw / burnt pizza (§13 risk 1) | Not a merge blocker. Split out to **Issue #256** (a shared CUT UX follow-up, not started). |
+| **HOME abandon** | **Waiting for Owner HV.** Steps: during Dinner cooking press HOME → while the dialog is up the pizza does not react → the timer keeps running → 「続ける」 returns to the same cooking state → HOME again → 「やめる」 discards the run → back on HOME |
+
+**Technical gate verdict: A. TECHNICAL GATE PASS — WAITING ONLY FOR OWNER HOME-ABANDON HV.**
+
+PR #252 is not merged until the Owner's HOME-abandon PASS is recorded.
