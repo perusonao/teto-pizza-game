@@ -24,8 +24,8 @@
   "reserveFamily": null,
   "owned": 3,
   "answer": null,
-  "candidatesOwned": {},
-  "candidatesCatalog": {},
+  "privacyWorstCaseCandidates": {},
+  "catalogComparisonCandidates": {},
   "bits": null
  },
  {
@@ -51,10 +51,10 @@
   "reserveFamily": null,
   "owned": 4,
   "answer": "attr:existence",
-  "candidatesOwned": {
+  "privacyWorstCaseCandidates": {
    "category": 1
   },
-  "candidatesCatalog": {
+  "catalogComparisonCandidates": {
    "category": 4
   },
   "bits": {
@@ -87,12 +87,12 @@
   "reserveFamily": "other",
   "owned": 5,
   "answer": "attr:category:topping",
-  "candidatesOwned": {
+  "privacyWorstCaseCandidates": {
    "family": 1,
    "group": 1,
    "category": 2
   },
-  "candidatesCatalog": {
+  "catalogComparisonCandidates": {
    "family": 1,
    "group": 1,
    "category": 21
@@ -125,10 +125,10 @@
   "reserveFamily": null,
   "owned": 6,
   "answer": "attr:existence",
-  "candidatesOwned": {
+  "privacyWorstCaseCandidates": {
    "category": 1
   },
-  "candidatesCatalog": {
+  "catalogComparisonCandidates": {
    "category": 4
   },
   "bits": {
@@ -161,12 +161,12 @@
   "reserveFamily": "herb",
   "owned": 7,
   "answer": "attr:category:topping",
-  "candidatesOwned": {
+  "privacyWorstCaseCandidates": {
    "family": 1,
    "group": 1,
    "category": 4
   },
-  "candidatesCatalog": {
+  "catalogComparisonCandidates": {
    "family": 4,
    "group": 5,
    "category": 21
@@ -203,12 +203,12 @@
   "reserveFamily": "herb",
   "owned": 8,
   "answer": "attr:category:topping",
-  "candidatesOwned": {
+  "privacyWorstCaseCandidates": {
    "family": 1,
    "group": 1,
    "category": 4
   },
-  "candidatesCatalog": {
+  "catalogComparisonCandidates": {
    "family": 4,
    "group": 5,
    "category": 21
@@ -241,10 +241,10 @@
   "reserveFamily": null,
   "owned": 9,
   "answer": "attr:category:cheese",
-  "candidatesOwned": {
+  "privacyWorstCaseCandidates": {
    "category": 2
   },
-  "candidatesCatalog": {
+  "catalogComparisonCandidates": {
    "category": 4
   },
   "bits": {
@@ -275,10 +275,10 @@
   "reserveFamily": null,
   "owned": 10,
   "answer": "attr:category:cheese",
-  "candidatesOwned": {
+  "privacyWorstCaseCandidates": {
    "category": 2
   },
-  "candidatesCatalog": {
+  "catalogComparisonCandidates": {
    "category": 4
   },
   "bits": {
@@ -315,12 +315,12 @@
   "reserveFamily": "meat",
   "owned": 11,
   "answer": "attr:category:topping",
-  "candidatesOwned": {
+  "privacyWorstCaseCandidates": {
    "family": 1,
    "group": 1,
    "category": 5
   },
-  "candidatesCatalog": {
+  "catalogComparisonCandidates": {
    "family": 1,
    "group": 4,
    "category": 19
@@ -355,12 +355,12 @@
   "reserveFamily": "meat",
   "owned": 12,
   "answer": "attr:family:meat",
-  "candidatesOwned": {
+  "privacyWorstCaseCandidates": {
    "family": 4,
    "group": 4,
    "category": 8
   },
-  "candidatesCatalog": {
+  "catalogComparisonCandidates": {
    "family": 4,
    "group": 7,
    "category": 21
@@ -395,12 +395,12 @@
   "reserveFamily": "meat",
   "owned": 13,
   "answer": "attr:family:meat",
-  "candidatesOwned": {
+  "privacyWorstCaseCandidates": {
    "family": 4,
    "group": 4,
    "category": 9
   },
-  "candidatesCatalog": {
+  "catalogComparisonCandidates": {
    "family": 4,
    "group": 7,
    "category": 21
@@ -439,12 +439,12 @@
   "reserveFamily": "vegetable",
   "owned": 15,
   "answer": "attr:family:vegetable",
-  "candidatesOwned": {
+  "privacyWorstCaseCandidates": {
    "family": 3,
    "group": 4,
    "category": 9
   },
-  "candidatesCatalog": {
+  "catalogComparisonCandidates": {
    "family": 7,
    "group": 8,
    "category": 19
@@ -483,12 +483,12 @@
   "reserveFamily": "vegetable",
   "owned": 16,
   "answer": "attr:family:vegetable",
-  "candidatesOwned": {
+  "privacyWorstCaseCandidates": {
    "family": 4,
    "group": 5,
    "category": 10
   },
-  "candidatesCatalog": {
+  "catalogComparisonCandidates": {
    "family": 7,
    "group": 8,
    "category": 19
@@ -520,12 +520,12 @@
   "reserveFamily": "herb",
   "owned": 17,
   "answer": "attr:family:herb",
-  "candidatesOwned": {
+  "privacyWorstCaseCandidates": {
    "family": 2,
    "group": 2,
    "category": 12
   },
-  "candidatesCatalog": {
+  "catalogComparisonCandidates": {
    "family": 4,
    "group": 5,
    "category": 21
@@ -557,12 +557,12 @@
   "reserveFamily": "herb",
   "owned": 18,
   "answer": "attr:family:herb",
-  "candidatesOwned": {
+  "privacyWorstCaseCandidates": {
    "family": 2,
    "group": 2,
    "category": 13
   },
-  "candidatesCatalog": {
+  "catalogComparisonCandidates": {
    "family": 3,
    "group": 4,
    "category": 21
@@ -597,12 +597,12 @@
   "reserveFamily": "herb",
   "owned": 19,
   "answer": "attr:family:herb",
-  "candidatesOwned": {
+  "privacyWorstCaseCandidates": {
    "family": 3,
    "group": 3,
    "category": 14
   },
-  "candidatesCatalog": {
+  "catalogComparisonCandidates": {
    "family": 4,
    "group": 5,
    "category": 21
@@ -637,12 +637,12 @@
   "reserveFamily": "vegetable",
   "owned": 20,
   "answer": "attr:family:vegetable",
-  "candidatesOwned": {
+  "privacyWorstCaseCandidates": {
    "family": 5,
    "group": 6,
    "category": 15
   },
-  "candidatesCatalog": {
+  "catalogComparisonCandidates": {
    "family": 8,
    "group": 9,
    "category": 21
@@ -676,12 +676,12 @@
   "reserveFamily": "vegetable",
   "owned": 21,
   "answer": "attr:family:vegetable",
-  "candidatesOwned": {
+  "privacyWorstCaseCandidates": {
    "family": 4,
    "group": 5,
    "category": 14
   },
-  "candidatesCatalog": {
+  "catalogComparisonCandidates": {
    "family": 7,
    "group": 8,
    "category": 20
@@ -714,10 +714,10 @@
   "reserveFamily": null,
   "owned": 22,
   "answer": "attr:category:cheese",
-  "candidatesOwned": {
+  "privacyWorstCaseCandidates": {
    "category": 2
   },
-  "candidatesCatalog": {
+  "catalogComparisonCandidates": {
    "category": 4
   },
   "bits": {
@@ -750,12 +750,12 @@
   "reserveFamily": "herb",
   "owned": 23,
   "answer": "attr:family:herb",
-  "candidatesOwned": {
+  "privacyWorstCaseCandidates": {
    "family": 3,
    "group": 3,
    "category": 17
   },
-  "candidatesCatalog": {
+  "catalogComparisonCandidates": {
    "family": 4,
    "group": 5,
    "category": 21
@@ -790,12 +790,12 @@
   "reserveFamily": "herb",
   "owned": 24,
   "answer": "attr:family:herb",
-  "candidatesOwned": {
+  "privacyWorstCaseCandidates": {
    "family": 3,
    "group": 3,
    "category": 18
   },
-  "candidatesCatalog": {
+  "catalogComparisonCandidates": {
    "family": 4,
    "group": 5,
    "category": 21
@@ -830,12 +830,12 @@
   "reserveFamily": "meat",
   "owned": 25,
   "answer": "attr:family:meat",
-  "candidatesOwned": {
+  "privacyWorstCaseCandidates": {
    "family": 4,
    "group": 7,
    "category": 19
   },
-  "candidatesCatalog": {
+  "catalogComparisonCandidates": {
    "family": 4,
    "group": 7,
    "category": 21
@@ -864,10 +864,10 @@
   "reserveFamily": null,
   "owned": 26,
   "answer": "attr:category:sauce",
-  "candidatesOwned": {
+  "privacyWorstCaseCandidates": {
    "category": 3
   },
-  "candidatesCatalog": {
+  "catalogComparisonCandidates": {
    "category": 3
   },
   "bits": {
@@ -901,12 +901,12 @@
   "reserveFamily": "herb",
   "owned": 27,
   "answer": "attr:family:herb",
-  "candidatesOwned": {
+  "privacyWorstCaseCandidates": {
    "family": 4,
    "group": 4,
    "category": 19
   },
-  "candidatesCatalog": {
+  "catalogComparisonCandidates": {
    "family": 4,
    "group": 4,
    "category": 19
@@ -942,10 +942,10 @@
   "reserveFamily": null,
   "owned": 29,
   "answer": "attr:existence",
-  "candidatesOwned": {
+  "privacyWorstCaseCandidates": {
    "category": 1
   },
-  "candidatesCatalog": {
+  "catalogComparisonCandidates": {
    "category": 1
   },
   "bits": {

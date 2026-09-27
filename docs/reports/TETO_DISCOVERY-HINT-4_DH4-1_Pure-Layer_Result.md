@@ -10,11 +10,12 @@
 | Item | Value |
 |---|---|
 | `origin/main` (fresh check at start) | `726b0ac` (Merge PR #249). The same as the whole H3-4 cycle. |
-| Other PRs (read-only check) | #251 (H3-4) OPEN at `1ef9b61`, clean, not merged · #252 (DM-3R-2) OPEN, not touched |
+| Other PRs (read-only check) | #251 (H3-4) was OPEN at the start. It has since been **merged** as `22658f7`, and main is now `22658f7`. #252 (DM-3R-2) is OPEN and not touched. |
 | Parent Issue | **#253** Discovery Hint 4.0: Deduction Hints. New; the Duplicate Gate found no existing DH4 / structure / attribute issue. It records OD-DH4-1…10 and the DH4-1 scope. |
 | Branch | `claude/dh4-1-deduction-pure-layer`, cut from `origin/main` `726b0ac` (not from PR #251's branch) |
 | PR | **#254** (`main` ← `claude/dh4-1-deduction-pure-layer`), OPEN, no auto-merge |
-| Final HEAD | The commit carrying the Codex P2 fix (§10.1), on top of `0e66ba0`. The PR's Checks tab shows the exact SHA. |
+| HEAD before the main integration | `dae3c08` (the Codex P2 fix, §10.1) |
+| Integration | See §14: `Merge origin/main (H3-4 #251) into DH4-1 (#253)` = `e4810fd`, followed by the `privacyWorstCaseCandidates` wording commit. The PR's Checks tab shows the exact final SHA. |
 
 ## 2. Owner Decisions (Owner Authority, recorded in #253)
 
@@ -85,7 +86,7 @@
 
 No family is below 11 at maturity. Authoring the real 172 rows (the 32 unmatched names) is catalog work for a later slice.
 
-## 5. Candidate-universe decision (the k ≥ 2 authority)
+## 5. Candidate universe: `privacyWorstCaseCandidates` (the k ≥ 2 authority)
 
 **Compared universes:**
 
@@ -98,7 +99,14 @@ No family is below 11 at maturity. Authoring the real 172 rows (the 32 unmatched
 
 **Definition (in `deductionHint.ts`):**
 
-`candidates(level) = { reserve } ∪ { i ∈ OWNED : matches(level, i) ∧ i ∉ recipe }`, and an answer is allowed only when `|candidates| ≥ 2`.
+`privacyWorstCaseCandidates(level) = { reserve } ∪ { i ∈ OWNED : matches(level, i) ∧ i ∉ recipe }`, and an answer is allowed only when `|privacyWorstCaseCandidates| ≥ 2`.
+
+**Meaning (Owner-confirmed wording):** this is **not** "the candidates the player currently knows or considers".
+
+- It is the **privacy worst-case candidate universe**: it must still hold ≥ 2 ingredients *even if the player later learns every other ingredient of the target recipe*.
+- The reserve ingredient therefore can never be singled out by this hint.
+
+The implementation, the module header, the audit field name (`privacyWorstCaseCandidates`) and this report use the same definition. The logic is unchanged by the rename.
 
 - **∉ recipe** excludes *every* other ingredient of the recipe, known or not. That is the worst case of what the player can learn about this recipe (every other ingredient is a sellable material fact or the free key).
 
@@ -119,7 +127,7 @@ No Owner decision was needed. The data (C: 5 / 24 name-equivalent, A: 0) settles
 
 ## 6. k ≥ 2 definition and the fallback hierarchy
 
-- **k** = |candidates(level)| as in §5, the reserve included. `MIN_ATTRIBUTE_CANDIDATES = 2`.
+- **k** = |privacyWorstCaseCandidates(level)| as in §5, the reserve included. `MIN_ATTRIBUTE_CANDIDATES = 2`.
 - **Hierarchy** (the first level with k ≥ 2 wins):
   1. `family`;
   2. `group`;
@@ -130,7 +138,7 @@ No Owner decision was needed. The data (C: 5 / 24 name-equivalent, A: 0) settles
 - **No FREE LEAK:**
   - the answer has no count or size field (tested);
   - the level is a function of (recipe, owned) only, never of purchases;
-  - `reserveAttributeAudit` exposes candidates for tests only and is documented as never presentation.
+  - `reserveAttributeAudit` exposes the privacy worst-case candidates for tests only and is documented as never presentation.
 - **Provisional copy** (DH4-2 finalizes it):
   - 「このピザは全部で5種類の材料を使うよ」
   - 「まだわかっていない材料に、肉の仲間があるよ」
@@ -271,14 +279,43 @@ Each mutant was applied to `deductionHint.ts`, the two DH4 test files were run, 
 3. Human Verification per the HV Policy.
 4. **Prices stay pending DH4-ECON.** DH4-2 either waits for DH4-ECON or ships behind a zero-price test-only flag, per an Owner decision.
 
-## 14. Verdict
+## 14. Integration with main after PR #251 (2026-09-27)
+
+**Main after the merge:**
+
+- PR #251 (H3-4) was merged as `22658f7`.
+- Post-merge CI on `22658f7` is green: E2E WebKit run 36311314830 and Pages deploy run 36311314846.
+- #238 was updated (H3-4 MERGED / POST-MERGE PASS).
+
+**Method:** the repo's convention for PR branches is one merge commit from main (as `74c977f`, `5976da0`). So `Merge origin/main (H3-4 #251) into DH4-1 (#253)` = `e4810fd`. There is no rebase and no force push, so the reviewed commits and the Codex thread keep their SHAs.
+
+**Overlap:**
+
+- The merge had no conflict. The file sets are disjoint:
+  - H3-4 touched HintSheet, `.hint-sheet*` CSS, and its tests and e2e;
+  - DH4-1 touches only its new files.
+- DH4-1 depends on `selectableHint.ts`, `hintFactMigration.ts` and `persistence.ts`. H3-4 changed none of them, so there is **no semantic overlap**.
+
+**Wording:** the candidate universe was renamed to `privacyWorstCaseCandidates`. The code identifier, the module header, the audit API/JSON field and this report all changed; the logic did not. The audit JSON diff is field names only.
+
+**Re-verification on the integrated tree:**
+
+| Check | Result |
+|---|---|
+| Focused (DH4 ×2, the ladder boundary, `selectableHint`, `hintFactMigration`, `HintSheet`, `App.hintSheet`) | 7 files, **228 passed** |
+| Full Vitest | **187 files, 4023 passed, 1 skipped, 0 failed** |
+| `tsc -b` / `oxlint` / `npm run build` | clean / 0 warnings / OK |
+| Checks re-confirmed on the integrated tree | the k ≥ 2 invariant, deterministic selection, Rule W, legacy total ownership, fact-id persistence (the `loadSave` round-trip), the unwired boundary, H3-4 compatibility (the HintSheet suites green together with DH4) |
+| CI | Recorded after the push of the integrated HEAD (next commit) |
+
+## 15. Verdict
 
 **A. DH4-1 READY FOR OWNER REVIEW.**
 
 The pure, unwired layer implements OD-DH4-1…10:
 
 - the whole-recipe total only;
-- the reserve attribute behind k ≥ 2 over OWNED-outside-recipe candidates, with a monotonic safety invariant;
+- the reserve attribute behind k ≥ 2 over `privacyWorstCaseCandidates` (OWNED, outside the recipe), with a monotonic safety invariant;
 - a 7-family / 4-group data taxonomy;
 - read-only legacy ownership;
 - no near-miss change.

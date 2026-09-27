@@ -46,10 +46,10 @@ export interface DeductionAuditRow {
   reserveFamily: string | null;
   owned: number;
   answer: string | null;
-  /** Candidate counts per level under the authority universe (OWNED, ∉ recipe, reserve included). */
-  candidatesOwned: Record<string, number>;
+  /** privacyWorstCaseCandidates counts per level (the authority: OWNED, ∉ recipe, reserve included). */
+  privacyWorstCaseCandidates: Record<string, number>;
   /** The same counts if the universe were the full runtime catalog (comparison only, not authority). */
-  candidatesCatalog: Record<string, number>;
+  catalogComparisonCandidates: Record<string, number>;
   /** Information value in bits at the endgame (only the reserve unknown): log2(pool before / after). */
   bits: { material: number; attribute: number } | null;
 }
@@ -69,7 +69,7 @@ export function buildDeductionAudit(ladder: AuditLadder): DeductionAuditRow[] {
     const audit = reserveAttributeAudit(recipeId, ctx);
     const catalogAudit = reserveAttributeAudit(recipeId, { ...ctx, ownedIngredientIds: allIds });
     const answer = reserveAttributeAnswer(recipeId, ctx);
-    const counts = (a: typeof audit) => Object.fromEntries((a?.levels ?? []).map((l) => [l.level, l.candidates.length]));
+    const counts = (a: typeof audit) => Object.fromEntries((a?.levels ?? []).map((l) => [l.level, l.privacyWorstCaseCandidates.length]));
     let bits: DeductionAuditRow["bits"] = null;
     if (audit && answer) {
       // Endgame: every other recipe ingredient known, so the reserve is one of the owned non-recipe
@@ -77,7 +77,7 @@ export function buildDeductionAudit(ladder: AuditLadder): DeductionAuditRow[] {
       const recipeIds = new Set<string>(recipe.requiredIngredients.map((r) => r.ingredientId));
       const base = ctx.ownedIngredientIds.filter((id) => !recipeIds.has(id)).length + 1;
       const level = audit.levels.find((l) => l.level === answer.level);
-      const after = level ? level.candidates.length : base;
+      const after = level ? level.privacyWorstCaseCandidates.length : base;
       bits = { material: round(Math.log2(base)), attribute: round(Math.log2(base / after)) };
     }
     return {
@@ -91,8 +91,8 @@ export function buildDeductionAudit(ladder: AuditLadder): DeductionAuditRow[] {
       reserveFamily: ingredientAttributeFamily(model.reservedIngredientId),
       owned: ctx.ownedIngredientIds.length,
       answer: answer?.factId ?? null,
-      candidatesOwned: counts(audit),
-      candidatesCatalog: counts(catalogAudit),
+      privacyWorstCaseCandidates: counts(audit),
+      catalogComparisonCandidates: counts(catalogAudit),
       bits,
     };
   });

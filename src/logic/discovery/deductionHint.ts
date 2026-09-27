@@ -22,9 +22,13 @@
  *   Existence is the floor. "There is one more ingredient" is always true under Rule W, so it
  *   carries nothing that is not already implied.
  *
- * ## Candidate universe (the k >= 2 guard) — the authority
+ * ## privacyWorstCaseCandidates (the k >= 2 guard) — the authority
  *
- * `candidates(level) = { reserve } ∪ { i ∈ OWNED : i matches the level, i ∉ recipe }`
+ * This is **not** "the candidates the player currently considers". It is the privacy worst-case
+ * universe: the set that must still hold >= 2 ingredients even if the player later learns every other
+ * ingredient of the target recipe, so the reserve can never be singled out by this hint.
+ *
+ * `privacyWorstCaseCandidates(level) = { reserve } ∪ { i ∈ OWNED : i matches the level, i ∉ recipe }`
  *
  * - **OWNED** (`ownedIngredientIds`): the player's owned ingredients that exist in the catalog,
  *   de-duplicated. The target is always makeable from owned ingredients (its H0 line says so), so an
@@ -67,7 +71,8 @@ import { buildSelectableHintModel, type HintCategory } from "./selectableHint";
 /** OD-DH4-2: the one structure fact. */
 export const INGREDIENT_TOTAL_FACT_ID = "meta:ingredient-total";
 
-/** OD-DH4-3: an attribute answer must leave at least this many candidates, the reserve included. */
+/** OD-DH4-3: an attribute answer must leave at least this many privacy worst-case candidates, the
+ *  reserve included. */
 export const MIN_ATTRIBUTE_CANDIDATES = 2;
 
 export interface StructureTotalFact {
@@ -156,7 +161,8 @@ function reserveLevels(recipeId: unknown, context: AttributeContext, recipes: re
   return { reserve, recipeIds: new Set(distinctIngredientIds(recipe)), owned: ownedCatalogIds(context.ownedIngredientIds), levels };
 }
 
-function candidates(levels: ReserveLevels, matches: LevelMatch): string[] {
+/** The privacy worst-case candidate universe of one level (see the module header). */
+function privacyWorstCaseCandidates(levels: ReserveLevels, matches: LevelMatch): string[] {
   const decoys = levels.owned.filter((id) => !levels.recipeIds.has(id) && matches(id));
   return [levels.reserve, ...decoys];
 }
@@ -174,26 +180,26 @@ export function reserveAttributeAnswer(
   const levels = reserveLevels(recipeId, context, recipes);
   if (!levels) return null;
   for (const level of levels.levels) {
-    if (candidates(levels, level.matches).length >= MIN_ATTRIBUTE_CANDIDATES) return level.answer;
+    if (privacyWorstCaseCandidates(levels, level.matches).length >= MIN_ATTRIBUTE_CANDIDATES) return level.answer;
   }
   return { level: "existence", factId: "attr:existence" };
 }
 
 /**
  * AUDIT ONLY (tests and the information audit; never presentation, never a view model): the
- * candidate ids behind every level, the reserve included. Exposing these to a player would be a
+ * privacy worst-case candidate ids behind every level, the reserve included. Exposing these to a player would be a
  * FREE LEAK (OD-DH4-10).
  */
 export function reserveAttributeAudit(
   recipeId: unknown,
   context: AttributeContext,
   recipes: readonly Recipe[] = RECIPES,
-): { reserve: string; levels: { level: AttributeAnswerLevel; candidates: string[] }[] } | null {
+): { reserve: string; levels: { level: AttributeAnswerLevel; privacyWorstCaseCandidates: string[] }[] } | null {
   const levels = reserveLevels(recipeId, context, recipes);
   if (!levels) return null;
   return {
     reserve: levels.reserve,
-    levels: levels.levels.map((l) => ({ level: l.answer.level, candidates: candidates(levels, l.matches) })),
+    levels: levels.levels.map((l) => ({ level: l.answer.level, privacyWorstCaseCandidates: privacyWorstCaseCandidates(levels, l.matches) })),
   };
 }
 

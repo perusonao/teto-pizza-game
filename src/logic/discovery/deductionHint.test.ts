@@ -43,7 +43,7 @@ const TARGETS = LADDER.slice(1); // Dex >= 1: margherita at Dex 0 is the free on
 const distinct = (r: Recipe) => [...new Set(r.requiredIngredients.map((x) => x.ingredientId))];
 const ctxAt = (index: number, owned: readonly string[] = ownedAtLadderStep(index)) => ({ discoveredCount: index, ownedIngredientIds: owned });
 const levelPool = (id: string, index: number, answer: ReserveAttributeAnswer, owned?: readonly string[]) =>
-  reserveAttributeAudit(id, ctxAt(index, owned))!.levels.find((l) => l.level === answer.level)?.candidates ?? null;
+  reserveAttributeAudit(id, ctxAt(index, owned))!.levels.find((l) => l.level === answer.level)?.privacyWorstCaseCandidates ?? null;
 
 /** Words that would state an absence, a closure or a remaining count (OD-H3-7, OD-DH4-2). */
 // 「まだわかっていない」 is about the player's knowledge, not the recipe, so a bare ない is allowed.
@@ -145,7 +145,7 @@ describe("DH4-1 reserve attribute answer (OD-DH4-3/5/10)", () => {
       seen.add(answer.level);
       const idx = audit.levels.findIndex((l) => l.level === answer.level);
       const finer = answer.level === "existence" ? audit.levels : audit.levels.slice(0, idx);
-      for (const l of finer) expect(l.candidates.length, `${id} ${l.level}`).toBeLessThan(MIN_ATTRIBUTE_CANDIDATES);
+      for (const l of finer) expect(l.privacyWorstCaseCandidates.length, `${id} ${l.level}`).toBeLessThan(MIN_ATTRIBUTE_CANDIDATES);
     }
     // On the shipped ladder the answers are family / category / existence (the audit fixture pins
     // which recipe lands where); the group level is exercised off-ladder below.
@@ -161,7 +161,7 @@ describe("DH4-1 reserve attribute answer (OD-DH4-3/5/10)", () => {
     expect(reserveAttributeAnswer("bambino", ctxAt(9, withJunk as string[]))).toEqual(reserveAttributeAnswer("bambino", ctxAt(9)));
     // Owning the recipe's own ingredients never adds a decoy (they are excluded, known or not).
     const meatLovers = distinct(recipe("meat-lovers"));
-    expect(reserveAttributeAudit("meat-lovers", ctxAt(8, meatLovers))!.levels.every((l) => l.candidates.length === 1)).toBe(true);
+    expect(reserveAttributeAudit("meat-lovers", ctxAt(8, meatLovers))!.levels.every((l) => l.privacyWorstCaseCandidates.length === 1)).toBe(true);
   });
 
   it("progression safety: an answer given at a state keeps k >= 2 at every later ladder state (monotonic invariant)", () => {
