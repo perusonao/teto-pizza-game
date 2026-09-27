@@ -1,0 +1,358 @@
+{
+  "generatedBy": "tools/large_catalog_ux_scale_model.py",
+  "inputs": {
+    "measurements": "docs/reports/data/TETO_LARGE-CATALOG-UX_UI-MEASUREMENTS.json",
+    "universe105": "docs/design/data/TETO_PROGRESSION2_PHASE34_INGREDIENT-UNLOCK-MATRIX.json",
+    "proposedCategoryAndFamilyCounts": "PR #255 taxonomy Fresh Audit (PROPOSED, OD-TAX-7: not authority)"
+  },
+  "slotsPerTrayPage": 6,
+  "trayProjection": {
+    "runtime29": {
+      "sauce": {
+        "ownedCount": 3,
+        "pages": 1,
+        "worstTapsCurrentPager": 1,
+        "meanTapsCurrentPager": 1.0,
+        "proposed": {
+          "counterPagesMax": 2,
+          "worstTapsCounterHit": 2,
+          "worstTapsPantryPick": 3
+        }
+      },
+      "cheese": {
+        "ownedCount": 4,
+        "pages": 1,
+        "worstTapsCurrentPager": 1,
+        "meanTapsCurrentPager": 1.0,
+        "proposed": {
+          "counterPagesMax": 2,
+          "worstTapsCounterHit": 2,
+          "worstTapsPantryPick": 3
+        }
+      },
+      "topping": {
+        "ownedCount": 22,
+        "pages": 4,
+        "worstTapsCurrentPager": 4,
+        "meanTapsCurrentPager": 2.36,
+        "proposed": {
+          "counterPagesMax": 2,
+          "worstTapsCounterHit": 2,
+          "worstTapsPantryPick": 3
+        }
+      }
+    },
+    "universe105": {
+      "sauce": {
+        "ownedCount": 18,
+        "pages": 3,
+        "worstTapsCurrentPager": 3,
+        "meanTapsCurrentPager": 2.0,
+        "proposed": {
+          "counterPagesMax": 2,
+          "worstTapsCounterHit": 2,
+          "worstTapsPantryPick": 3
+        }
+      },
+      "cheese": {
+        "ownedCount": 16,
+        "pages": 3,
+        "worstTapsCurrentPager": 3,
+        "meanTapsCurrentPager": 1.88,
+        "proposed": {
+          "counterPagesMax": 2,
+          "worstTapsCounterHit": 2,
+          "worstTapsPantryPick": 3
+        }
+      },
+      "topping": {
+        "ownedCount": 71,
+        "pages": 12,
+        "worstTapsCurrentPager": 12,
+        "meanTapsCurrentPager": 6.42,
+        "familyRail": {
+          "families": {
+            "vegetable": 24,
+            "meat": 13,
+            "seafood": 11,
+            "herb": 8,
+            "other": 7,
+            "spice": 5,
+            "fruit": 3
+          },
+          "largestFamilyPages": 4,
+          "worstTaps": 5
+        },
+        "proposed": {
+          "counterPagesMax": 2,
+          "worstTapsCounterHit": 2,
+          "worstTapsPantryPick": 3
+        }
+      }
+    },
+    "union179": {
+      "sauce": {
+        "ownedCount": 31,
+        "pages": 6,
+        "worstTapsCurrentPager": 6,
+        "meanTapsCurrentPager": 3.1,
+        "proposed": {
+          "counterPagesMax": 2,
+          "worstTapsCounterHit": 2,
+          "worstTapsPantryPick": 3
+        }
+      },
+      "cheese": {
+        "ownedCount": 25,
+        "pages": 5,
+        "worstTapsCurrentPager": 5,
+        "meanTapsCurrentPager": 2.6,
+        "proposed": {
+          "counterPagesMax": 2,
+          "worstTapsCounterHit": 2,
+          "worstTapsPantryPick": 3
+        }
+      },
+      "topping": {
+        "ownedCount": 123,
+        "pages": 21,
+        "worstTapsCurrentPager": 21,
+        "meanTapsCurrentPager": 10.76,
+        "familyRail": {
+          "families": {
+            "vegetable": 40,
+            "meat": 20,
+            "other": 17,
+            "seafood": 15,
+            "spice": 12,
+            "fruit": 11,
+            "herb": 8
+          },
+          "largestFamilyPages": 7,
+          "worstTaps": 8
+        },
+        "proposed": {
+          "counterPagesMax": 2,
+          "worstTapsCounterHit": 2,
+          "worstTapsPantryPick": 3
+        }
+      }
+    }
+  },
+  "verticalScrollProjection": {
+    "360x640": {
+      "runtime_25r_29i": {
+        "dex": {
+          "clientHeight": 552,
+          "allUndiscoveredPx": 3014,
+          "halfDiscoveredPx": 3709,
+          "allDiscoveredPx": 4452,
+          "screensHalfDiscovered": 6.7,
+          "screensAllDiscovered": 8.1,
+          "undiscoveredSlotsShown": 24
+        },
+        "pizzaSelect": {
+          "clientHeight": 584,
+          "allDiscoveredPx": 2734,
+          "screensAllDiscovered": 4.7
+        },
+        "shop": {
+          "clientHeight": 552,
+          "listedRows": 26,
+          "allRowsPx": 2814,
+          "screens": 5.1
+        },
+        "inventory": {
+          "clientHeight": 552,
+          "allOwnedPx": 1165,
+          "screensAll": 2.1,
+          "toppingTabScreens": 1.7
+        }
+      },
+      "scale_172r_105i": {
+        "dex": {
+          "clientHeight": 552,
+          "allUndiscoveredPx": 19198,
+          "halfDiscoveredPx": 24265,
+          "allDiscoveredPx": 29382,
+          "screensHalfDiscovered": 44.0,
+          "screensAllDiscovered": 53.2,
+          "undiscoveredSlotsShown": 171
+        },
+        "pizzaSelect": {
+          "clientHeight": 584,
+          "allDiscoveredPx": 16727,
+          "screensAllDiscovered": 28.6
+        },
+        "shop": {
+          "clientHeight": 552,
+          "listedRows": 102,
+          "allRowsPx": 10528,
+          "screens": 19.1
+        },
+        "inventory": {
+          "clientHeight": 552,
+          "allOwnedPx": 3678,
+          "screensAll": 6.7,
+          "toppingTabScreens": 4.7
+        }
+      }
+    },
+    "360x800": {
+      "runtime_25r_29i": {
+        "dex": {
+          "clientHeight": 712,
+          "allUndiscoveredPx": 3014,
+          "halfDiscoveredPx": 3709,
+          "allDiscoveredPx": 4452,
+          "screensHalfDiscovered": 5.2,
+          "screensAllDiscovered": 6.3,
+          "undiscoveredSlotsShown": 24
+        },
+        "pizzaSelect": {
+          "clientHeight": 744,
+          "allDiscoveredPx": 2734,
+          "screensAllDiscovered": 3.7
+        },
+        "shop": {
+          "clientHeight": 712,
+          "listedRows": 26,
+          "allRowsPx": 2814,
+          "screens": 4.0
+        },
+        "inventory": {
+          "clientHeight": 712,
+          "allOwnedPx": 1165,
+          "screensAll": 1.6,
+          "toppingTabScreens": 1.4
+        }
+      },
+      "scale_172r_105i": {
+        "dex": {
+          "clientHeight": 712,
+          "allUndiscoveredPx": 19198,
+          "halfDiscoveredPx": 24265,
+          "allDiscoveredPx": 29382,
+          "screensHalfDiscovered": 34.1,
+          "screensAllDiscovered": 41.3,
+          "undiscoveredSlotsShown": 171
+        },
+        "pizzaSelect": {
+          "clientHeight": 744,
+          "allDiscoveredPx": 16727,
+          "screensAllDiscovered": 22.5
+        },
+        "shop": {
+          "clientHeight": 712,
+          "listedRows": 102,
+          "allRowsPx": 10528,
+          "screens": 14.8
+        },
+        "inventory": {
+          "clientHeight": 712,
+          "allOwnedPx": 3678,
+          "screensAll": 5.2,
+          "toppingTabScreens": 3.6
+        }
+      }
+    },
+    "390x844": {
+      "runtime_25r_29i": {
+        "dex": {
+          "clientHeight": 756,
+          "allUndiscoveredPx": 3014,
+          "halfDiscoveredPx": 3709,
+          "allDiscoveredPx": 4452,
+          "screensHalfDiscovered": 4.9,
+          "screensAllDiscovered": 5.9,
+          "undiscoveredSlotsShown": 24
+        },
+        "pizzaSelect": {
+          "clientHeight": 788,
+          "allDiscoveredPx": 2734,
+          "screensAllDiscovered": 3.5
+        },
+        "shop": {
+          "clientHeight": 756,
+          "listedRows": 26,
+          "allRowsPx": 2463,
+          "screens": 3.3
+        },
+        "inventory": {
+          "clientHeight": 756,
+          "allOwnedPx": 1130,
+          "screensAll": 1.5,
+          "toppingTabScreens": 1.2
+        }
+      },
+      "scale_172r_105i": {
+        "dex": {
+          "clientHeight": 756,
+          "allUndiscoveredPx": 19198,
+          "halfDiscoveredPx": 24265,
+          "allDiscoveredPx": 29382,
+          "screensHalfDiscovered": 32.1,
+          "screensAllDiscovered": 38.9,
+          "undiscoveredSlotsShown": 171
+        },
+        "pizzaSelect": {
+          "clientHeight": 788,
+          "allDiscoveredPx": 16727,
+          "screensAllDiscovered": 21.2
+        },
+        "shop": {
+          "clientHeight": 756,
+          "listedRows": 102,
+          "allRowsPx": 9151,
+          "screens": 12.1
+        },
+        "inventory": {
+          "clientHeight": 756,
+          "allOwnedPx": 3555,
+          "screensAll": 4.7,
+          "toppingTabScreens": 3.3
+        }
+      }
+    }
+  },
+  "domProjection": {
+    "dexPerDiscoveredCard": 5.9,
+    "dexAt172AllDiscovered": 1045,
+    "pizzaSelectPerCard": 11.0,
+    "pizzaSelectAt172": 1932,
+    "shopAt102Rows": 1397,
+    "note": "Element counts, 390x844. Budget guidance: keep any one overlay under ~1500 elements without virtualization on low-end phones; collapsed chapters keep the initial render small."
+  },
+  "measuredTrayVerticalBudget": {
+    "360x640": {
+      "stageHeight": 253,
+      "trayHeight": 122,
+      "pagerRowHeight": 28,
+      "chipSize": [
+        108,
+        58
+      ],
+      "hintSheetHeight": 288
+    },
+    "360x800": {
+      "stageHeight": 401,
+      "trayHeight": 134,
+      "pagerRowHeight": 28,
+      "chipSize": [
+        108,
+        64
+      ],
+      "hintSheetHeight": 360
+    },
+    "390x844": {
+      "stageHeight": 445,
+      "trayHeight": 134,
+      "pagerRowHeight": 28,
+      "chipSize": [
+        118,
+        64
+      ],
+      "hintSheetHeight": 351
+    }
+  }
+}

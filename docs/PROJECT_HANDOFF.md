@@ -301,6 +301,20 @@ There is no save schema change. The unit suite is 2406/2406 (29 new) and Chromiu
 WebKit is covered by the CI job. Open follow-ups are listed in that report's §6: the ORIGINAL
 Pitz reward belongs to P3-3, and onboarding and hint tiers are also pending.
 
+**2026-09-27 addendum (Large Catalog UX Fresh Design, docs/data/tools-only, branch
+`claude/large-catalog-ux-design-sq8saf`)**. Audited `main` `5a33d855`. See
+`docs/reports/TETO_LARGE-CATALOG-UX_Fresh-Design.md`. The current mobile UI works at 25 recipes / 29
+ingredients but every "list everything" surface breaks at 172 / 105: the Free Cooking topping tray
+goes from 4 to 12 pages (21 at 179 ids), and the Recipe Dex from ~6 to 39–53 screens with 171
+anonymous ？？？ cards. Recommended direction: a ≤12-slot Counter in the unchanged 3×2 cooking tray
+plus a Pantry bottom sheet (family / search / sort / favorites / recent), shared by Inventory and
+Shop; Dex and Pizza Select collapse chapters and count undiscovered recipes instead of drawing
+them. Discovery Hint, Progression and Inventory authorities are unchanged. Owner Decisions
+LC-OD-1…18 and staged slices LC-1…LC-9 are in the report. Measured data and the projection:
+`docs/reports/data/TETO_LARGE-CATALOG-UX_{UI-MEASUREMENTS,SCALE-MODEL}.json`,
+`tools/large-catalog-ux/`, `tools/large_catalog_ux_scale_model.py`. No `src/**`, `e2e/**` or CSS
+change.
+
 > Fresh GitHub/main state always wins if this document becomes stale.
 
 ## Product goal

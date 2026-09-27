@@ -1,0 +1,958 @@
+{
+  "generatedBy": "tools/large-catalog-ux/measure.spec.ts",
+  "note": "Measured on the unchanged production UI (Chromium). Runtime catalog: 25 recipes / 29 ingredients.",
+  "saves": {
+    "dex11": [
+      "margherita",
+      "bismarck",
+      "breakfast-pizza",
+      "funghi",
+      "melanzane-pizza",
+      "parmigiana-pizza",
+      "pepperoni",
+      "salsiccia",
+      "meat-lovers",
+      "bambino",
+      "hawaiian"
+    ],
+    "dex0": [
+      "margherita"
+    ],
+    "ownedIngredientCount": 29
+  },
+  "viewports": {
+    "360x640": {
+      "viewport": {
+        "id": "360x640",
+        "width": 360,
+        "height": 640
+      },
+      "freeCookTray": {
+        "SAUCE": {
+          "chips": {
+            "count": 3,
+            "width": 105,
+            "heightMin": 58,
+            "heightMax": 58,
+            "columns": 3
+          },
+          "pagerLabel": "1 / 1",
+          "pagerVisible": false,
+          "trayRect": {
+            "y": 470,
+            "height": 58,
+            "width": 336
+          },
+          "pagerRect": {
+            "y": 534,
+            "height": 28,
+            "width": 336
+          },
+          "stageRect": {
+            "y": 147,
+            "height": 253,
+            "width": 360
+          },
+          "bakeBarRect": {
+            "y": 570,
+            "height": 70,
+            "width": 360
+          },
+          "gameScreen": {
+            "selector": ".game-screen",
+            "scrollHeight": 640,
+            "clientHeight": 640
+          }
+        },
+        "CHEESE": {
+          "chips": {
+            "count": 4,
+            "width": 108,
+            "heightMin": 58,
+            "heightMax": 58,
+            "columns": 3
+          },
+          "pagerLabel": "1 / 1",
+          "pagerVisible": false,
+          "trayRect": {
+            "y": 406,
+            "height": 122,
+            "width": 336
+          },
+          "pagerRect": {
+            "y": 534,
+            "height": 28,
+            "width": 336
+          },
+          "stageRect": {
+            "y": 147,
+            "height": 253,
+            "width": 360
+          },
+          "bakeBarRect": {
+            "y": 570,
+            "height": 70,
+            "width": 360
+          },
+          "gameScreen": {
+            "selector": ".game-screen",
+            "scrollHeight": 640,
+            "clientHeight": 640
+          }
+        },
+        "TOPPING": {
+          "chips": {
+            "count": 6,
+            "width": 108,
+            "heightMin": 58,
+            "heightMax": 58,
+            "columns": 3
+          },
+          "pagerLabel": "1 / 4",
+          "pagerVisible": true,
+          "trayRect": {
+            "y": 406,
+            "height": 122,
+            "width": 336
+          },
+          "pagerRect": {
+            "y": 534,
+            "height": 28,
+            "width": 336
+          },
+          "stageRect": {
+            "y": 147,
+            "height": 253,
+            "width": 360
+          },
+          "bakeBarRect": {
+            "y": 570,
+            "height": 70,
+            "width": 360
+          },
+          "gameScreen": {
+            "selector": ".game-screen",
+            "scrollHeight": 640,
+            "clientHeight": 640
+          }
+        }
+      },
+      "hintSheet": {
+        "sheetRect": {
+          "y": 352,
+          "height": 288,
+          "width": 360
+        },
+        "body": {
+          "selector": ".hint-sheet",
+          "scrollHeight": 288,
+          "clientHeight": 288
+        }
+      },
+      "dex_dex11": {
+        "body": {
+          "selector": ".dex-overlay__body",
+          "scrollHeight": 3632,
+          "clientHeight": 552
+        },
+        "lockedCard": {
+          "count": 14,
+          "width": 328,
+          "heightMin": 99,
+          "heightMax": 99,
+          "columns": 1
+        },
+        "discoveredCard": {
+          "count": 11,
+          "width": 328,
+          "heightMin": 134,
+          "heightMax": 183,
+          "columns": 1
+        },
+        "taggedCard": {
+          "count": 14,
+          "width": 328,
+          "heightMin": 99,
+          "heightMax": 99,
+          "columns": 1
+        },
+        "chapterTitle": {
+          "count": 3,
+          "width": 324,
+          "heightMin": 19,
+          "heightMax": 19,
+          "columns": 1
+        },
+        "progressRect": {
+          "y": 88,
+          "height": 58,
+          "width": 328
+        },
+        "domElements": 263
+      },
+      "pizzaSelect_dex11": {
+        "body": {
+          "selector": ".pizza-select-body",
+          "scrollHeight": 1397,
+          "clientHeight": 584
+        },
+        "gridCard": {
+          "count": 11,
+          "width": 159,
+          "heightMin": 168,
+          "heightMax": 187,
+          "columns": 2
+        },
+        "sectionTitle": {
+          "count": 3,
+          "width": 328,
+          "heightMin": 19,
+          "heightMax": 19,
+          "columns": 1
+        },
+        "prompt": {
+          "y": 70,
+          "height": 132,
+          "width": 328
+        },
+        "domElements": 161
+      },
+      "dex_dex0": {
+        "body": {
+          "selector": ".dex-overlay__body",
+          "scrollHeight": 2977,
+          "clientHeight": 552
+        },
+        "lockedCard": {
+          "count": 24,
+          "width": 328,
+          "heightMin": 99,
+          "heightMax": 99,
+          "columns": 1
+        },
+        "discoveredCard": {
+          "count": 1,
+          "width": 328,
+          "heightMin": 134,
+          "heightMax": 134,
+          "columns": 1
+        },
+        "taggedCard": {
+          "count": 24,
+          "width": 328,
+          "heightMin": 99,
+          "heightMax": 99,
+          "columns": 1
+        },
+        "chapterTitle": {
+          "count": 3,
+          "width": 324,
+          "heightMin": 19,
+          "heightMax": 19,
+          "columns": 1
+        },
+        "progressRect": {
+          "y": 88,
+          "height": 58,
+          "width": 328
+        },
+        "domElements": 204
+      },
+      "pizzaSelect_dex0": {
+        "body": {
+          "selector": ".app-frame",
+          "scrollHeight": 640,
+          "clientHeight": 640
+        },
+        "gridCard": {
+          "count": 1,
+          "width": 159,
+          "heightMin": 168,
+          "heightMax": 168,
+          "columns": 1
+        },
+        "sectionTitle": {
+          "count": 3,
+          "width": 328,
+          "heightMin": 19,
+          "heightMax": 19,
+          "columns": 1
+        },
+        "prompt": {
+          "y": 70,
+          "height": 132,
+          "width": 328
+        },
+        "domElements": 28
+      },
+      "shop": {
+        "body": {
+          "selector": ".shop-overlay__body",
+          "scrollHeight": 2979,
+          "clientHeight": 552
+        },
+        "row": {
+          "count": 26,
+          "width": 328,
+          "heightMin": 78,
+          "heightMax": 105,
+          "columns": 1
+        },
+        "tabs": {
+          "count": 4,
+          "width": 64,
+          "heightMin": 33,
+          "heightMax": 33,
+          "columns": 4
+        },
+        "listTop": {
+          "y": 175,
+          "height": 2876,
+          "width": 328
+        },
+        "domElements": 356
+      },
+      "inventory": {
+        "body": {
+          "selector": ".inventory-overlay__panel .dex-overlay__body",
+          "scrollHeight": 1050,
+          "clientHeight": 552
+        },
+        "card": {
+          "count": 29,
+          "width": 104,
+          "heightMin": 86,
+          "heightMax": 99,
+          "columns": 3
+        },
+        "gridTop": {
+          "y": 160,
+          "height": 962,
+          "width": 328
+        }
+      }
+    },
+    "360x800": {
+      "viewport": {
+        "id": "360x800",
+        "width": 360,
+        "height": 800
+      },
+      "freeCookTray": {
+        "SAUCE": {
+          "chips": {
+            "count": 3,
+            "width": 105,
+            "heightMin": 64,
+            "heightMax": 64,
+            "columns": 3
+          },
+          "pagerLabel": "1 / 1",
+          "pagerVisible": false,
+          "trayRect": {
+            "y": 624,
+            "height": 64,
+            "width": 336
+          },
+          "pagerRect": {
+            "y": 694,
+            "height": 28,
+            "width": 336
+          },
+          "stageRect": {
+            "y": 147,
+            "height": 401,
+            "width": 360
+          },
+          "bakeBarRect": {
+            "y": 730,
+            "height": 70,
+            "width": 360
+          },
+          "gameScreen": {
+            "selector": ".game-screen",
+            "scrollHeight": 800,
+            "clientHeight": 800
+          }
+        },
+        "CHEESE": {
+          "chips": {
+            "count": 4,
+            "width": 108,
+            "heightMin": 64,
+            "heightMax": 64,
+            "columns": 3
+          },
+          "pagerLabel": "1 / 1",
+          "pagerVisible": false,
+          "trayRect": {
+            "y": 554,
+            "height": 134,
+            "width": 336
+          },
+          "pagerRect": {
+            "y": 694,
+            "height": 28,
+            "width": 336
+          },
+          "stageRect": {
+            "y": 147,
+            "height": 401,
+            "width": 360
+          },
+          "bakeBarRect": {
+            "y": 730,
+            "height": 70,
+            "width": 360
+          },
+          "gameScreen": {
+            "selector": ".game-screen",
+            "scrollHeight": 800,
+            "clientHeight": 800
+          }
+        },
+        "TOPPING": {
+          "chips": {
+            "count": 6,
+            "width": 108,
+            "heightMin": 64,
+            "heightMax": 64,
+            "columns": 3
+          },
+          "pagerLabel": "1 / 4",
+          "pagerVisible": true,
+          "trayRect": {
+            "y": 554,
+            "height": 134,
+            "width": 336
+          },
+          "pagerRect": {
+            "y": 694,
+            "height": 28,
+            "width": 336
+          },
+          "stageRect": {
+            "y": 147,
+            "height": 401,
+            "width": 360
+          },
+          "bakeBarRect": {
+            "y": 730,
+            "height": 70,
+            "width": 360
+          },
+          "gameScreen": {
+            "selector": ".game-screen",
+            "scrollHeight": 800,
+            "clientHeight": 800
+          }
+        }
+      },
+      "hintSheet": {
+        "sheetRect": {
+          "y": 440,
+          "height": 360,
+          "width": 360
+        },
+        "body": {
+          "selector": ".hint-sheet",
+          "scrollHeight": 360,
+          "clientHeight": 360
+        }
+      },
+      "dex_dex11": {
+        "body": {
+          "selector": ".dex-overlay__body",
+          "scrollHeight": 3632,
+          "clientHeight": 712
+        },
+        "lockedCard": {
+          "count": 14,
+          "width": 328,
+          "heightMin": 99,
+          "heightMax": 99,
+          "columns": 1
+        },
+        "discoveredCard": {
+          "count": 11,
+          "width": 328,
+          "heightMin": 134,
+          "heightMax": 183,
+          "columns": 1
+        },
+        "taggedCard": {
+          "count": 14,
+          "width": 328,
+          "heightMin": 99,
+          "heightMax": 99,
+          "columns": 1
+        },
+        "chapterTitle": {
+          "count": 3,
+          "width": 324,
+          "heightMin": 19,
+          "heightMax": 19,
+          "columns": 1
+        },
+        "progressRect": {
+          "y": 88,
+          "height": 58,
+          "width": 328
+        },
+        "domElements": 263
+      },
+      "pizzaSelect_dex11": {
+        "body": {
+          "selector": ".pizza-select-body",
+          "scrollHeight": 1397,
+          "clientHeight": 744
+        },
+        "gridCard": {
+          "count": 11,
+          "width": 159,
+          "heightMin": 168,
+          "heightMax": 187,
+          "columns": 2
+        },
+        "sectionTitle": {
+          "count": 3,
+          "width": 328,
+          "heightMin": 19,
+          "heightMax": 19,
+          "columns": 1
+        },
+        "prompt": {
+          "y": 70,
+          "height": 132,
+          "width": 328
+        },
+        "domElements": 161
+      },
+      "dex_dex0": {
+        "body": {
+          "selector": ".dex-overlay__body",
+          "scrollHeight": 2977,
+          "clientHeight": 712
+        },
+        "lockedCard": {
+          "count": 24,
+          "width": 328,
+          "heightMin": 99,
+          "heightMax": 99,
+          "columns": 1
+        },
+        "discoveredCard": {
+          "count": 1,
+          "width": 328,
+          "heightMin": 134,
+          "heightMax": 134,
+          "columns": 1
+        },
+        "taggedCard": {
+          "count": 24,
+          "width": 328,
+          "heightMin": 99,
+          "heightMax": 99,
+          "columns": 1
+        },
+        "chapterTitle": {
+          "count": 3,
+          "width": 324,
+          "heightMin": 19,
+          "heightMax": 19,
+          "columns": 1
+        },
+        "progressRect": {
+          "y": 88,
+          "height": 58,
+          "width": 328
+        },
+        "domElements": 204
+      },
+      "pizzaSelect_dex0": {
+        "body": {
+          "selector": ".app-frame",
+          "scrollHeight": 800,
+          "clientHeight": 800
+        },
+        "gridCard": {
+          "count": 1,
+          "width": 159,
+          "heightMin": 168,
+          "heightMax": 168,
+          "columns": 1
+        },
+        "sectionTitle": {
+          "count": 3,
+          "width": 328,
+          "heightMin": 19,
+          "heightMax": 19,
+          "columns": 1
+        },
+        "prompt": {
+          "y": 70,
+          "height": 132,
+          "width": 328
+        },
+        "domElements": 28
+      },
+      "shop": {
+        "body": {
+          "selector": ".shop-overlay__body",
+          "scrollHeight": 2979,
+          "clientHeight": 712
+        },
+        "row": {
+          "count": 26,
+          "width": 328,
+          "heightMin": 78,
+          "heightMax": 105,
+          "columns": 1
+        },
+        "tabs": {
+          "count": 4,
+          "width": 64,
+          "heightMin": 33,
+          "heightMax": 33,
+          "columns": 4
+        },
+        "listTop": {
+          "y": 175,
+          "height": 2876,
+          "width": 328
+        },
+        "domElements": 356
+      },
+      "inventory": {
+        "body": {
+          "selector": ".inventory-overlay__panel .dex-overlay__body",
+          "scrollHeight": 1050,
+          "clientHeight": 712
+        },
+        "card": {
+          "count": 29,
+          "width": 104,
+          "heightMin": 86,
+          "heightMax": 99,
+          "columns": 3
+        },
+        "gridTop": {
+          "y": 160,
+          "height": 962,
+          "width": 328
+        }
+      }
+    },
+    "390x844": {
+      "viewport": {
+        "id": "390x844",
+        "width": 390,
+        "height": 844
+      },
+      "freeCookTray": {
+        "SAUCE": {
+          "chips": {
+            "count": 3,
+            "width": 118,
+            "heightMin": 64,
+            "heightMax": 64,
+            "columns": 3
+          },
+          "pagerLabel": "1 / 1",
+          "pagerVisible": false,
+          "trayRect": {
+            "y": 668,
+            "height": 64,
+            "width": 366
+          },
+          "pagerRect": {
+            "y": 738,
+            "height": 28,
+            "width": 366
+          },
+          "stageRect": {
+            "y": 147,
+            "height": 445,
+            "width": 390
+          },
+          "bakeBarRect": {
+            "y": 774,
+            "height": 70,
+            "width": 390
+          },
+          "gameScreen": {
+            "selector": ".game-screen",
+            "scrollHeight": 844,
+            "clientHeight": 844
+          }
+        },
+        "CHEESE": {
+          "chips": {
+            "count": 4,
+            "width": 118,
+            "heightMin": 64,
+            "heightMax": 64,
+            "columns": 3
+          },
+          "pagerLabel": "1 / 1",
+          "pagerVisible": false,
+          "trayRect": {
+            "y": 598,
+            "height": 134,
+            "width": 366
+          },
+          "pagerRect": {
+            "y": 738,
+            "height": 28,
+            "width": 366
+          },
+          "stageRect": {
+            "y": 147,
+            "height": 445,
+            "width": 390
+          },
+          "bakeBarRect": {
+            "y": 774,
+            "height": 70,
+            "width": 390
+          },
+          "gameScreen": {
+            "selector": ".game-screen",
+            "scrollHeight": 844,
+            "clientHeight": 844
+          }
+        },
+        "TOPPING": {
+          "chips": {
+            "count": 6,
+            "width": 118,
+            "heightMin": 64,
+            "heightMax": 64,
+            "columns": 3
+          },
+          "pagerLabel": "1 / 4",
+          "pagerVisible": true,
+          "trayRect": {
+            "y": 598,
+            "height": 134,
+            "width": 366
+          },
+          "pagerRect": {
+            "y": 738,
+            "height": 28,
+            "width": 366
+          },
+          "stageRect": {
+            "y": 147,
+            "height": 445,
+            "width": 390
+          },
+          "bakeBarRect": {
+            "y": 774,
+            "height": 70,
+            "width": 390
+          },
+          "gameScreen": {
+            "selector": ".game-screen",
+            "scrollHeight": 844,
+            "clientHeight": 844
+          }
+        }
+      },
+      "hintSheet": {
+        "sheetRect": {
+          "y": 493,
+          "height": 351,
+          "width": 390
+        },
+        "body": {
+          "selector": ".hint-sheet",
+          "scrollHeight": 351,
+          "clientHeight": 351
+        }
+      },
+      "dex_dex11": {
+        "body": {
+          "selector": ".dex-overlay__body",
+          "scrollHeight": 3548,
+          "clientHeight": 756
+        },
+        "lockedCard": {
+          "count": 14,
+          "width": 358,
+          "heightMin": 99,
+          "heightMax": 99,
+          "columns": 1
+        },
+        "discoveredCard": {
+          "count": 11,
+          "width": 358,
+          "heightMin": 134,
+          "heightMax": 183,
+          "columns": 1
+        },
+        "taggedCard": {
+          "count": 14,
+          "width": 358,
+          "heightMin": 99,
+          "heightMax": 99,
+          "columns": 1
+        },
+        "chapterTitle": {
+          "count": 3,
+          "width": 354,
+          "heightMin": 19,
+          "heightMax": 19,
+          "columns": 1
+        },
+        "progressRect": {
+          "y": 88,
+          "height": 58,
+          "width": 358
+        },
+        "domElements": 263
+      },
+      "pizzaSelect_dex11": {
+        "body": {
+          "selector": ".pizza-select-body",
+          "scrollHeight": 1397,
+          "clientHeight": 788
+        },
+        "gridCard": {
+          "count": 11,
+          "width": 174,
+          "heightMin": 168,
+          "heightMax": 187,
+          "columns": 2
+        },
+        "sectionTitle": {
+          "count": 3,
+          "width": 358,
+          "heightMin": 19,
+          "heightMax": 19,
+          "columns": 1
+        },
+        "prompt": {
+          "y": 70,
+          "height": 132,
+          "width": 358
+        },
+        "domElements": 161
+      },
+      "dex_dex0": {
+        "body": {
+          "selector": ".dex-overlay__body",
+          "scrollHeight": 2977,
+          "clientHeight": 756
+        },
+        "lockedCard": {
+          "count": 24,
+          "width": 358,
+          "heightMin": 99,
+          "heightMax": 99,
+          "columns": 1
+        },
+        "discoveredCard": {
+          "count": 1,
+          "width": 358,
+          "heightMin": 134,
+          "heightMax": 134,
+          "columns": 1
+        },
+        "taggedCard": {
+          "count": 24,
+          "width": 358,
+          "heightMin": 99,
+          "heightMax": 99,
+          "columns": 1
+        },
+        "chapterTitle": {
+          "count": 3,
+          "width": 354,
+          "heightMin": 19,
+          "heightMax": 19,
+          "columns": 1
+        },
+        "progressRect": {
+          "y": 88,
+          "height": 58,
+          "width": 358
+        },
+        "domElements": 204
+      },
+      "pizzaSelect_dex0": {
+        "body": {
+          "selector": ".app-frame",
+          "scrollHeight": 844,
+          "clientHeight": 844
+        },
+        "gridCard": {
+          "count": 1,
+          "width": 174,
+          "heightMin": 168,
+          "heightMax": 168,
+          "columns": 1
+        },
+        "sectionTitle": {
+          "count": 3,
+          "width": 358,
+          "heightMin": 19,
+          "heightMax": 19,
+          "columns": 1
+        },
+        "prompt": {
+          "y": 70,
+          "height": 132,
+          "width": 358
+        },
+        "domElements": 28
+      },
+      "shop": {
+        "body": {
+          "selector": ".shop-overlay__body",
+          "scrollHeight": 2331,
+          "clientHeight": 756
+        },
+        "row": {
+          "count": 26,
+          "width": 358,
+          "heightMin": 78,
+          "heightMax": 78,
+          "columns": 1
+        },
+        "tabs": {
+          "count": 4,
+          "width": 64,
+          "heightMin": 33,
+          "heightMax": 33,
+          "columns": 4
+        },
+        "listTop": {
+          "y": 175,
+          "height": 2228,
+          "width": 358
+        },
+        "domElements": 356
+      },
+      "inventory": {
+        "body": {
+          "selector": ".inventory-overlay__panel .dex-overlay__body",
+          "scrollHeight": 1036,
+          "clientHeight": 756
+        },
+        "card": {
+          "count": 29,
+          "width": 114,
+          "heightMin": 86,
+          "heightMax": 92,
+          "columns": 3
+        },
+        "gridTop": {
+          "y": 160,
+          "height": 948,
+          "width": 358
+        }
+      }
+    }
+  }
+}
