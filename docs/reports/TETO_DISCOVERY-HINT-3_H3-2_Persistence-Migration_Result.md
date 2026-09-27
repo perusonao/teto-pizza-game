@@ -1,7 +1,6 @@
 # Discovery Hint 3.0 — H3-2 Persistence / Legacy Migration: Result (Issue #238)
 
-**Verdict: A. H3-2 FINAL GATE PASS — PR READY FOR OWNER REVIEW** (pending the CI rows in §22, which
-are filled in once CI finishes on the PR head).
+**Verdict: A. H3-2 FINAL GATE PASS — PR READY FOR OWNER REVIEW.**
 
 The Step 0 Integration Map (§0) was committed before any code (`cfece82`). Sections 1–26 follow the
 order the task asked for.
@@ -455,8 +454,22 @@ Chromium storage and hint e2e: 19/19 (hint sheet, Dex hint, near-miss, ladder in
 
 ## 22. CI / WebKit
 
-See the PR checks. This section is updated once CI finishes on the PR head. The storage change makes
-WebKit mandatory; the classify job decides whether the full WebKit run applies.
+PR #244, code head **`ad0a584`**: **all 9 checks success**. Workflow runs `36295464663` (build) and
+`36295464665` (E2E WebKit).
+
+| Check | Result |
+|---|---|
+| build (Vitest, typecheck, lint, build) | success |
+| classify | success. Because storage code changed, the **full WebKit run** was selected, not a skip. |
+| layout-chromium (7 Layout Contract profiles) | success |
+| Layout Contract Gate | success |
+| webkit-390x844 shard 1/2 and 2/2 | success |
+| webkit-360x800 shard 1/2 and 2/2 | success |
+| **WebKit Gate** | **success** |
+
+The first head, `add92aa`, was green too, before the Codex fix. After it, Codex posted one P2 and no
+further findings. That P2 was fixed in `20e6e8c`; the thread is replied to and resolved.
+Mergeability: `clean`.
 
 ## 23. Changed files
 
