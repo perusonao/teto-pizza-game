@@ -10,6 +10,11 @@
 - Human Verification Policy: 本タスクは docs-only の設計であり §2「原則不要」に該当（動画なし）。現行UIの
   **実測スクリーンショット**を監査証拠として `docs/reports/screenshots/large-catalog-ux/` に置いた。
 
+> **Revision（Owner Decision Gate, 2026-09-27）**: Owner 判断用の確定版は
+> `docs/reports/TETO_LARGE-CATALOG-UX_Owner-Decision-Gate.md`。本書と食い違う箇所（HC-4 の撤回、
+> 手元の優先順・容量、Pizza Select / Dex タイルの列数、Dex 件数の基準、Dinner の追加、slice の順序、
+> LC-OD-18 の方式）は Gate 文書が優先する（Gate §12 に差分一覧）。
+
 ---
 
 ## 0. 結論（Verdict）

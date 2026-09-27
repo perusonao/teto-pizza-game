@@ -314,6 +314,11 @@ LC-OD-1…18 and staged slices LC-1…LC-9 are in the report. Measured data and 
 `docs/reports/data/TETO_LARGE-CATALOG-UX_{UI-MEASUREMENTS,SCALE-MODEL}.json`,
 `tools/large-catalog-ux/`, `tools/large_catalog_ux_scale_model.py`. No `src/**`, `e2e/**` or CSS
 change.
+**Owner Decision Gate** (same branch, re-verified against `main` `51e0923` / PR #252 Dinner DM-3R-2):
+`docs/reports/TETO_LARGE-CATALOG-UX_Owner-Decision-Gate.md` — verdict **A. READY FOR OWNER FINAL
+DECISIONS**; W2-A gate **C** (LC-1 pure layer + LC-1b scale fixtures before W2-A; tray LC-2/3 before
+any wave pushing a category past 30 owned; Dex LC-5 before >40 recipes). Dinner now shares the
+recipe-free tray, so it is in scope. "1つ戻す" is split out as a separate issue candidate (LC-X).
 
 > Fresh GitHub/main state always wins if this document becomes stale.
 
