@@ -285,7 +285,7 @@ Playwright Chromium で実測した。値は px。
 
 ## 18. Regression
 
-- full Vitest: §19 に記録する。Lunch Rush、Free Cooking、Discovery、Hint Economy、Shop、Inventory の各 suite を含む。
+- full Vitest: 183 files、3789 passed、1 skipped（§19）。Lunch Rush、Free Cooking、Discovery、Hint Economy、Shop、Inventory の各 suite を含む。
 - full Chromium E2E（§16）: 既存の Lunch Rush、Free Cooking、Discovery、Hint、Shop、Inventory、Layout Contract LC-1〜LC-5 の spec は全部通った。
 - Lunch Rush: Lunch の runtime、Lunch HUD、`isMissionRound` は変えていない。HOME の確認は、Dinner の run 中だけアプリ内 dialog になる。それ以外の調理中は、今までどおり `window.confirm(GO_HOME_CONFIRM_MESSAGE)` を使う。
 - Free Cooking の結果画面: `isFreeResultScreen` は `state.dinner !== null` のときだけ除外する。Dinner がないときの挙動は同じ。
@@ -319,7 +319,15 @@ Playwright Chromium で実測した。値は px。
    - 修正: 変換後の値が有限で 0 より大きいときだけ duration として返す。あわせて `handleStartDinner` も、`startDinnerRun` と同じ条件（mission、`dinnerStartBlock`、duration）を満たすときだけ GAME に移るようにした。
    - test: unit test に 2 つの値を追加した。
 
-修正後の head の CI: 下に追記する。
+**`ba7c977`（Codex の指摘を修正したあとの head）: 9 / 9 success**
+- 上の表と同じ 9 check がすべて success。WebKit Gate と Layout Contract Gate も含む。
+
+**`ba7c977` の local gate:**
+- Vitest: 183 files、3789 passed、1 skipped（test を 2 つ追加した）
+- `tsc -b`: OK
+- lint: OK
+- build: OK
+- Chromium E2E（iphone-390x844 / iphone-360x800 / layout-chromium）: 183 passed、19 skipped、0 failed
 
 ## 20. Changed files
 
