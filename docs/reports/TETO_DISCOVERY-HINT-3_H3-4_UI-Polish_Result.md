@@ -31,7 +31,7 @@
 | OD-H3-4-7 | Keep 45dvh. Compact the footer as needed. A scroll affordance. Controls and CTA reachable. The stage does not move. | Legend merged into one line. Preferences are a 3-column grid at 44 px height. The Selectable CTA is 44 px. Footer height is unchanged (132 px). A top/bottom fade + 「▾」 cue driven by scroll / ResizeObserver / resize. |
 | OD-H3-4-8 | A: Dex-0 Margherita onboarding unchanged | The TARGET branch is untouched (「次のヒントを見る」, 「✨ はじめてのピザはヒント無料！」) |
 | OD-H3-4-9 | CTA 「ヒントを1つもらう」, no 🔒 | 「ヒントを1つもらう {n} Pitz」. When unaffordable, the same label, disabled in grey. |
-| OD-H3-4-10 | No economy numbers change in H3-4; H3-ECON-1 is a follow-up | No price, ladder, cap or parity change (§13) |
+| OD-H3-4-10 | No economy numbers change in H3-4; H3-ECON-1 is a follow-up | No price, ladder, cap or parity change (§14) |
 
 ## 3. Changed files
 
@@ -179,7 +179,25 @@ Local Chromium. The body column is `.hint-sheet__selectable`, shown as visible /
 - The guide includes a backup/restore one-liner.
 - Validated locally against a `VITE_PREVIEW_MODE=1` build: on a page without the badge it throws 「Preview build only」. On a `VITE_PREVIEW_MODE=1` dev server, `h34Seed("HV8_LEGACY_H2_PLUS_NEW")` wrote only `teto-pizza-preview-save-v1`: a production-key sentinel was left untouched, and after the reload the app showed Dex 11/25 and 200 Pitz.
 
-**Preview deployment:** **Not dispatched from this session.** The Preview pipeline lives in the separate `perusonao/teto-pizza-game-preview` repository, which is outside this session's GitHub scope, and the Owner did not ask for it here. The Owner (or a session with that repository in scope) runs `deploy-from-source.yml` with `ref` = this PR's HEAD and `pr_number=251`, then `pages.yml`, as in the Issue #39 Preview-Gate report. The seeds above are ready for that build.
+**Preview deployment (done after the Owner asked for it, 2026-09-27):**
+
+- `perusonao/teto-pizza-game-preview` `deploy-from-source.yml` ran with `ref=5dc5f47239ddeadeabd518a1e83ac499decdff7a`, `pr_number=251`: run 36305586289, success, commit `92882c7`.
+- The Preview-only seed page `site/h34-seed.html` was committed to the preview repo (`109fe28`). It writes only `teto-pizza-preview-save-v1`, refuses to run outside `/teto-pizza-game-preview/`, and offers backup and restore. It is not in the source repository or the production bundle, and the next deploy removes it.
+- `pages.yml` ran for `109fe28`: run 36305634978, success.
+- The badge reads 「PREVIEW · PR#251 · 5dc5f47」.
+- This sandbox cannot reach `perusonao.github.io`, so the smoke test ran on a byte-equivalent local rebuild: the same commit and the same build and post-processing commands, served under `/teto-pizza-game-preview/` with the seed page, at 390×844 and 360×640. All checks passed:
+  - HOME and the badge;
+  - normal purchase, highlight, fallback;
+  - 「支払いずみ」 enabled;
+  - GUIDANCE_ONLY: 0 charged, then disabled;
+  - the legacy H1 real fact at 0 Pitz;
+  - the 「以前のヒント」 archive last in the body;
+  - the zero-fact recipe;
+  - the short-viewport scroll cue and 44 px preferences;
+  - the production-key sentinel untouched;
+  - the seed page refusing outside the Preview path.
+- A production build of the same commit contains no seed or debug strings, no Preview key and no Preview badge.
+- Note: the Preview has a single slot, so this replaced PR #243's Preview build and its `dm3-setup.html`. PR #243 itself is untouched.
 
 ### Human Verification Videos
 
@@ -306,10 +324,33 @@ On the first head `9b3db21`, the WebKit Gate reported *failure*. The only cause 
   「ここまで」, it is one string in `SELECTABLE_COPY`.
 - **The legacy 0-price real facts** remain by design. Their share of real players is unknown
   (→ H3-ECON-1).
-- **Preview deployment** to the separate preview repo was not dispatched (outside this session's scope, see §10). The real-device HV needs that Preview build first.
+- **Preview deployment:** done (§10). The real-device HV ran on it (§13).
 - **WebKit** runs in CI only. There is no local WebKit in this sandbox.
 
-## 13. H3-ECON-1 follow-up (proposal, not started)
+## 13. iPhone Human Verification — Owner Finding (2026-09-27)
+
+The Owner verified the PR #251 Preview on an iPhone (HEAD `5dc5f47`).
+
+**Finding (Owner):** material names can be bought per category (ソース / チーズ / トッピング). In late-game search, the player also wants:
+
+1. the number of toppings needed (e.g. 「トッピングは全部で2種類」);
+2. a last hint that is **not the ingredient name** but its kind, attribute or family (e.g. 「残りの材料には肉系があるよ」, 「香草系を使うよ」).
+
+Selling the last ingredient by name (「残りはペパロニ」) is to be avoided. The purchase is for deduction material, not for the answer.
+
+**Disposition:**
+
+- **Not implemented in PR #251.** H3-4 keeps its scope: no production code, authority, HintSheet, reducer, persistence or pricing change.
+- It is recorded here as an Owner Finding and carried into the next-phase Fresh Design: `docs/reports/TETO_DISCOVERY-HINT-4_DEDUCTION-HINTS_Fresh-Design.md`, proposed name **Discovery Hint 4.0 — Deduction Hints (材料 / 構成 / 特徴)**.
+- That design re-opens OD-H3-2 / OD-H3-7 / OD-H3-15 (counts, closure) and Rule W (the attribute of the reserve). Those are Owner decisions for the new phase, not H3-4 changes.
+
+**Verification record for PR #251 after this docs-only addendum:**
+
+- The code HEAD remains `5dc5f47` (the code is identical to `9b3db21`).
+- Its full verification stands: full Vitest, Chromium E2E + Layout Contract, and the WebKit matrix (run 36304820218 on `9a47b6e`, the same code).
+- Docs-only pushes on this PR are classified as documentation-only by `classify`. The WebKit / layout shards are skipped, and the gates pass on the earlier code evidence (as for `5dc5f47`).
+
+## 14. H3-ECON-1 follow-up (proposal, not started)
 
 The Duplicate Gate found no existing economy follow-up issue. Following OD-H3-4-10, **no separate
 issue was opened in H3-4**. It is recorded here and on #238, to be opened after Human Verification
@@ -324,7 +365,7 @@ so its scope can include the HV feedback. Candidates:
 
 No economy number changes in H3-4.
 
-## 14. Verdict
+## 15. Verdict
 
 **A. H3-4 READY FOR OWNER REVIEW.**
 
