@@ -177,6 +177,7 @@ function App() {
       save.starterGrantClaimedRecipeIds,
       entitlement.unlockedForShopIngredientIds,
       save.discoveryHintPurchases,
+      save.discoveryHintFacts,
     );
   });
   // Dinner Mission DM-2 (Issue #239): the Dinner run's clock and HOME exit. No Dinner UI yet
@@ -340,6 +341,7 @@ function App() {
       starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
       unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
       discoveryHintPurchases: state.discoveryHintPurchases,
+      discoveryHintFacts: state.discoveryHintFacts,
     });
   }, [
     state.dex,
@@ -349,6 +351,7 @@ function App() {
     state.starterGrantClaimedRecipeIds,
     state.unlockedForShopIngredientIds,
     state.discoveryHintPurchases,
+    state.discoveryHintFacts,
   ]);
 
   // Firebase Ranking 1.0 Phase 1A (Issue #87): establishes an anonymous Firebase identity in
@@ -1103,6 +1106,9 @@ function App() {
           onStartBake={() => dispatch({ type: "START_BAKE", now: Date.now() })}
           onShowHint={() => dispatch({ type: "SHOW_HINT" })}
           onUnlockHint={(level) => dispatch({ type: "PURCHASE_DISCOVERY_HINT", level })}
+          onBuySelectableHint={(preference, expectedPaidCount) =>
+            dispatch({ type: "PURCHASE_SELECTABLE_HINT", preference, expectedPaidCount })
+          }
           onCloseHint={() => dispatch({ type: "CLOSE_HINT" })}
           onRetryWithHint={handleRetryWithHint}
           onChangeCategory={handleChangeCategory}

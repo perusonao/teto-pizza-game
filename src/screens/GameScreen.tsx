@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { DialogueBox } from "../components/DialogueBox";
 import { PizzaStage } from "../components/PizzaStage";
 import { IngredientTray } from "../components/IngredientTray";
 import { MakingStepTabs } from "../components/MakingStepTabs";
 import { preBakeSteps, postBakeSteps } from "../data/cookingProfiles";
 import { stepTimingRows } from "../logic/cookingTimingDisplay";
+import { prepareDockReserve } from "../logic/prepareDock";
 import { requiredCutCount } from "../logic/cut/evaluation";
 import { resolveRequestedSliceCount, type CutLine } from "../logic/cut/types";
 import { BakeOverlay } from "../components/BakeOverlay";
@@ -56,6 +57,7 @@ import { calculateMissionReward } from "../logic/economy";
 import type { PieceReferenceMetrics } from "../logic/referenceMatching";
 import type { DoughPoint } from "../logic/pizzaCoordinates";
 import { buildRecipeChapters, chapterProgress, recipeChapter, recipeChapterSlot } from "../state/recipeChapters";
+import type { HintCategory } from "../logic/discovery/selectableHint";
 
 /**
  * GAME screen (Issue #24). Everything that happens while an actual round is in play --
@@ -125,6 +127,8 @@ interface GameScreenProps {
   /** Discovery Hint 2.0 (229-B): the Free Cooking hint sheet's next-step / close actions. */
   /** HE-2: unlock hint `level` (PURCHASE_DISCOVERY_HINT). */
   onUnlockHint?: (level: number) => void;
+  /** H3-3: buy one Selectable Hint fact (PURCHASE_SELECTABLE_HINT). */
+  onBuySelectableHint?: (preference: HintCategory, expectedPaidCount: number) => void;
   onCloseHint?: () => void;
   /** Discovery Hint 2.0 (229-C): the Free Cooking RESULT's 「💡 ヒントを見る」 -- cook freely again
    *  with the hint sheet open. */
@@ -209,6 +213,7 @@ export function GameScreen({
   onStartBake,
   onShowHint,
   onUnlockHint = () => {},
+  onBuySelectableHint = () => {},
   onCloseHint = () => {},
   onRetryWithHint,
   onChangeCategory,
@@ -282,6 +287,19 @@ export function GameScreen({
   const isLastPrepareStep =
     activePreBakeSteps.length > 0 &&
     state.makingStep === activePreBakeSteps[activePreBakeSteps.length - 1];
+
+  // DM-3R-0 Cooking Stage Size Stability (Issue #245): the readout and the tray share one
+  // "PREPARE dock" under the pizza stage whose height is reserved for the tallest PREPARE step
+  // of *this* round (src/logic/prepareDock.ts), so the stage -- and the dough inside it -- keeps
+  // one size from DOUGH to the last PREPARE step instead of shrinking whenever the readout or a
+  // second chip row appears (App.css `.prepare-dock`).
+  const dockReserve = prepareDockReserve({
+    steps: activePreBakeSteps,
+    ownedIngredientIds: state.ownedIngredientIds,
+    freeCook: state.freeCook,
+    recipe: state.recipe,
+    sauceReadout: referenceModeEnabled && referencePizza !== null,
+  });
 
   // Gameplay UX Phase 1 (材料選択スクロール解消, see docs/reports/
   // TETO_GAMEPLAY-UX_4ITEMS_Fresh-Audit.md sec.1.4): PREPARE no longer gets the larger roomy
@@ -667,55 +685,67 @@ export function GameScreen({
         </div>
       )}
 
-      {/* Human Feel Fix 3 (Compact Evaluation UI, brief section F): shown only while Sauce is
-          the active category -- Cheese/Topping never needed a sauce readout, and hiding it
-          then is most of this panel's contribution to the 1-screen budget. Positioned right
-          after PizzaStage ("Pizza Stage近くに", per the brief), not beside it -- a true
-          side-by-side layout would mean resizing the dough itself, which section A's
-          "Pizza操作領域を極端に縮小しない" rules out as this round's tradeoff. Issue #33 D1:
-          explicitly excludes DOUGH too -- there is no sauce readout to show before sauce is
-          even reachable. */}
-      {state.phase === "PREPARE" &&
-        state.makingStep !== "DOUGH" &&
-        referenceModeEnabled &&
-        referencePizza &&
-        activeCategory === "sauce" && (
-          <SauceMetricsPanel
-            metrics={sauceMetrics}
-            shadowScore={sauceShadowScore}
-            reference={referencePizza.sauce}
-            isDispensing={isDispensingSauce}
-            pieceMetrics={pieceShadowMetrics}
-          />
-        )}
-
       {state.phase === "PREPARE" && (
         <>
-          {/* Issue #33 D1: DOUGH isn't a tray-selectable ingredient/category at all (see
-              App.tsx's makingStepToCategory) -- the whole ingredient palette is hidden while
-              it's the active step, reappearing exactly as before once SAUCE opens. */}
-          {state.makingStep !== "DOUGH" && (
-            <IngredientTray
-              activeCategory={activeCategory}
-              onChangeCategory={onChangeCategory}
-              selectedIngredientId={selectedIngredientId}
-              onSelectIngredient={onSelectIngredient}
-              onClearSelection={onClearIngredientSelection}
-              ownedIngredientIds={state.ownedIngredientIds}
-              recipe={state.recipe}
-              freeCook={state.freeCook}
-              inventory={state.inventory}
-              pizza={state.pizza}
-              physicalDragEnabled={
-                referenceModeEnabled && !isReferencePopoverOpen && !isGlobalOverlayOpen
-              }
-              draggableIngredientIds={["mozzarella", "basil"]}
-              resolvePhysicalDrop={resolvePhysicalDrop}
-              onPhysicalDrop={onPhysicalDrop}
-              resetToken={pizzaResetToken}
-              makingStepToken={state.makingStepToken}
-            />
-          )}
+          {/* DM-3R-0 (Issue #245): the PREPARE dock -- laid out in every PREPARE step, DOUGH
+              included (empty there), with the same reserved height for the whole round, so the
+              pizza stage above it never changes size between steps. */}
+          <div
+            className={`prepare-dock${dockReserve.pager ? "" : " prepare-dock--no-pager"}`}
+            data-testid="prepare-dock"
+            style={
+              {
+                "--dock-sauce-rows": dockReserve.sauceRows,
+                "--dock-other-rows": dockReserve.otherRows,
+                "--dock-readout": dockReserve.readout ? 1 : 0,
+                "--dock-pager": dockReserve.pager ? 1 : 0,
+              } as CSSProperties
+            }
+          >
+            {/* Human Feel Fix 3 (Compact Evaluation UI, brief section F): shown only while Sauce
+                is the active category -- Cheese/Topping never needed a sauce readout. Positioned
+                right after PizzaStage ("Pizza Stage近くに", per the brief). Issue #33 D1:
+                explicitly excludes DOUGH too -- there is no sauce readout to show before sauce
+                is even reachable. */}
+            {state.makingStep !== "DOUGH" &&
+              referenceModeEnabled &&
+              referencePizza &&
+              activeCategory === "sauce" && (
+                <SauceMetricsPanel
+                  metrics={sauceMetrics}
+                  shadowScore={sauceShadowScore}
+                  reference={referencePizza.sauce}
+                  isDispensing={isDispensingSauce}
+                  pieceMetrics={pieceShadowMetrics}
+                />
+              )}
+            {/* Issue #33 D1: DOUGH isn't a tray-selectable ingredient/category at all (see
+                App.tsx's makingStepToCategory) -- the whole ingredient palette is hidden while
+                it's the active step, reappearing exactly as before once SAUCE opens. */}
+            {state.makingStep !== "DOUGH" && (
+              <IngredientTray
+                activeCategory={activeCategory}
+                onChangeCategory={onChangeCategory}
+                selectedIngredientId={selectedIngredientId}
+                onSelectIngredient={onSelectIngredient}
+                onClearSelection={onClearIngredientSelection}
+                ownedIngredientIds={state.ownedIngredientIds}
+                recipe={state.recipe}
+                freeCook={state.freeCook}
+                inventory={state.inventory}
+                pizza={state.pizza}
+                physicalDragEnabled={
+                  referenceModeEnabled && !isReferencePopoverOpen && !isGlobalOverlayOpen
+                }
+                draggableIngredientIds={["mozzarella", "basil"]}
+                resolvePhysicalDrop={resolvePhysicalDrop}
+                onPhysicalDrop={onPhysicalDrop}
+                resetToken={pizzaResetToken}
+                makingStepToken={state.makingStepToken}
+                reservePagerRow={dockReserve.pager}
+              />
+            )}
+          </div>
           {/* Human Feel Fix 3 (Fixed Bake CTA, brief section B): `.prepare-bake-bar` is
               `position: fixed` to the viewport (matching .app-frame's own centered max-width,
               see App.css), not the old `.action-row` + flex `margin-top: auto` this replaces
@@ -763,7 +793,7 @@ export function GameScreen({
             </button>
           </div>
           {hintSheetOpen && (
-            <HintSheet view={hintSheetView(state)} onUnlock={onUnlockHint} onClose={onCloseHint} />
+            <HintSheet view={hintSheetView(state)} onUnlock={onUnlockHint} onBuySelectable={onBuySelectableHint} onClose={onCloseHint} />
           )}
         </>
       )}

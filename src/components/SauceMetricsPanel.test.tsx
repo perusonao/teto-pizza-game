@@ -69,6 +69,23 @@ describe("SauceMetricsPanel: player-facing evaluation (Human Feel Fix 2)", () =>
     expect(screen.queryByText("いい感じ！")).not.toBeInTheDocument();
   });
 
+  // DM-3R-0 (Issue #245): the live line is laid out even while idle (empty, aria-hidden), so the
+  // panel -- and the pizza stage above it -- does not change height when painting starts.
+  it("keeps the live-message line laid out while idle, and fills the same line while painting", () => {
+    const metrics = computeSauceMetrics(ring(3, 4));
+    const props = { metrics, shadowScore: scoreSauceAgainstReference(metrics, REFERENCE), reference: REFERENCE };
+    const { container, rerender } = render(<SauceMetricsPanel {...props} isDispensing={false} />);
+    const idle = container.querySelector(".sauce-metrics-panel__live-row .sauce-metrics-panel__live-message")!;
+    expect(idle).toBeInTheDocument();
+    expect(idle).toHaveAttribute("aria-hidden", "true");
+    expect(idle.textContent?.trim()).toBe("");
+    rerender(<SauceMetricsPanel {...props} isDispensing />);
+    const live = container.querySelector(".sauce-metrics-panel__live-row .sauce-metrics-panel__live-message")!;
+    expect(live).toHaveTextContent("もう少し広げよう");
+    expect(live).not.toHaveAttribute("aria-hidden");
+    expect(container.querySelectorAll(".sauce-metrics-panel__live-message")).toHaveLength(1);
+  });
+
   it("in Preview (VITE_PREVIEW_MODE), the detailed quantity/coverage/evenness/overflow numbers stay hidden until the 開発用 toggle expands", () => {
     vi.stubEnv("VITE_PREVIEW_MODE", "true");
     const metrics = computeSauceMetrics(IDEAL_MARGHERITA_SAUCE_FIXTURE);

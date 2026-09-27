@@ -63,12 +63,15 @@ describe("Discovery Hint Economy 1.0: 25-recipe hint-price simulation (analysis 
 
 /**
  * Discovery Hint Economy 1.0 (Issue #232), HE-2: the harness above priced hints itself; production
- * now has the real transaction. Candidate B (OD-HE-1) must be exactly the production price table,
- * and a walk that pays every level through the real reducer must give the same result, stage by
- * stage, as the audit's simulated debit (both refilling an out-of-stock target before a hint, since
+ * then had the real transaction. Since Discovery Hint 3.0 H3-3 (Issue #238) the runtime sells
+ * Selectable Hint facts instead, so the "authority" walk pays each level through the Economy 1.0
+ * authority (`purchaseDiscoveryHint`, still the legacy read model) with the sheet opened through the
+ * real reducer; the Hint 3.0 runtime walk is src/state/discoveryHint.walk.test.ts.
+ * Candidate B (OD-HE-1) must be exactly the Economy 1.0 price table, and a walk that pays every level
+ * through that authority must give the same result, stage by stage, as the audit's simulated debit (both refilling an out-of-stock target before a hint, since
  * the real sheet shows REFILL for it -- the only way the two runs may differ is the transaction).
  */
-describe("Discovery Hint Economy 1.0: harness <-> production parity (Candidate B)", () => {
+describe("Discovery Hint Economy 1.0: harness <-> authority parity (Candidate B)", () => {
   const B = HINT_PRICE_CURVES.find((c) => c.id === "B")!;
 
   it("Candidate B is the production price table", () => {
@@ -76,10 +79,10 @@ describe("Discovery Hint Economy 1.0: harness <-> production parity (Candidate B
     expect([1, 2, 3, 4].map((level) => DISCOVERY_HINT_PRICES[level as 1 | 2 | 3 | 4])).toEqual([...B.prices]);
   });
 
-  it("every profile: the production transaction gives the same walk as the simulated one (★3)", () => {
+  it("every profile: the authority transaction gives the same walk as the simulated one (★3)", () => {
     for (const profile of PROFILES) {
       const simulated = simulateHintEconomy({ curve: B, profile, qualityTotal: AVERAGE_QUALITY, refillBeforeHint: true });
-      const production = simulateHintEconomy({ curve: B, profile, qualityTotal: AVERAGE_QUALITY, transaction: "production" });
+      const production = simulateHintEconomy({ curve: B, profile, qualityTotal: AVERAGE_QUALITY, transaction: "authority" });
       expect(production.completed, profile).toBe(true);
       expect(production.hardDeadlock).toBe(false);
       expect(production, profile).toEqual(simulated);
@@ -89,11 +92,11 @@ describe("Discovery Hint Economy 1.0: harness <-> production parity (Candidate B
   // HE-5 Final Gate: the production walk for every profile at ★4 / ★3 / ★1 -- Dex 25, no hard
   // deadlock, Pitz never negative, and still identical to the simulated walk (price, transaction,
   // balance and refill-before-hint all agree). `HINT_ECONOMY_FINAL_OUT=<path>` writes the summary.
-  it("HE-5: P0-P5 x ★4/★3/★1 reach Dex 25 on production with 0 hard deadlocks, in parity with the harness", async () => {
+  it("HE-5: P0-P5 x ★4/★3/★1 reach Dex 25 through the Economy 1.0 authority with 0 hard deadlocks, in parity with the harness", async () => {
     const rows: Record<string, unknown>[] = [];
     for (const qualityTotal of QUALITIES) {
       for (const profile of PROFILES) {
-        const production = simulateHintEconomy({ curve: B, profile, qualityTotal, transaction: "production" });
+        const production = simulateHintEconomy({ curve: B, profile, qualityTotal, transaction: "authority" });
         const simulated = simulateHintEconomy({ curve: B, profile, qualityTotal, refillBeforeHint: true });
         const where = `Q${qualityTotal} ${profile}`;
         expect(production.completed, where).toBe(true);

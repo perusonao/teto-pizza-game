@@ -4647,6 +4647,140 @@
   margin-bottom: 8px;
 }
 
+/* ---------- DM-3R-0 Cooking Stage Size Stability (Issue #245) ----------
+   The pizza stage takes whatever height is left, so anything under it that changes between
+   PREPARE steps used to change the dough: none in DOUGH, the ソースのでき readout + tray in SAUCE,
+   one or two chip rows in CHEESE / TOPPING (390x664: 290 -> 240 -> 287px; Lunch Rush TOPPING
+   158px). `.prepare-dock` holds the readout and the tray and is laid out in every PREPARE step,
+   DOUGH included, with a min-height reserved for the tallest step of this round
+   (src/logic/prepareDock.ts sets the four --dock-* numbers). Its parts get fixed heights below
+   so the reservation is exact rather than font-dependent:
+     readout block  = 6 + 24 (tiers) + 4 + 18 (live line) + 6 + 4 (margin)   = 62px
+     tray           = 6 (panel padding + section margin) + rows x 64 + (rows - 1) x 6
+     pager row      = 6 (margin) + 28                                        = 34px
+   `min-height`, never `height`: if something is ever taller than reserved (Preview's expanded
+   開発用 metrics), the dock grows and the pizza gives way as before -- nothing overlaps. */
+.prepare-dock {
+  --chip-h: 64px;
+  --tray-gap: 6px;
+  --panel-overhead: 6px;
+  --pager-h: 34px;
+  --readout-block: 62px;
+  display: flex;
+  flex-direction: column;
+  /* The tray hugs the CTA bar, so its chips sit at the same height in every step; spare
+     reserved space (DOUGH, or a one-row step in a round that also has a two-row step) opens
+     between the pizza and the tray instead. */
+  justify-content: flex-end;
+  min-height: max(
+    calc(
+      var(--dock-readout, 0) * var(--readout-block) + var(--panel-overhead) +
+        max(0px, var(--dock-sauce-rows, 0) * (var(--chip-h) + var(--tray-gap)) - var(--tray-gap)) +
+        var(--dock-pager, 0) * var(--pager-h)
+    ),
+    calc(
+      var(--panel-overhead) +
+        max(0px, var(--dock-other-rows, 0) * (var(--chip-h) + var(--tray-gap)) - var(--tray-gap)) +
+        var(--dock-pager, 0) * var(--pager-h)
+    )
+  );
+}
+
+.prepare-dock .ingredient-chip {
+  height: var(--chip-h);
+  min-height: 0;
+  padding: 4px 6px;
+  gap: 2px;
+}
+
+.prepare-dock .ingredient-chip__emoji,
+.prepare-dock .ingredient-chip__cheese-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  line-height: 26px;
+}
+
+.prepare-dock .ingredient-chip__name {
+  line-height: 13px;
+}
+
+.prepare-dock .ingredient-chip__stock {
+  line-height: 9px;
+}
+
+.prepare-dock .ingredient-page-nav {
+  height: 28px;
+}
+
+.prepare-dock .sauce-metrics-panel {
+  box-sizing: border-box;
+  margin: 0 16px 4px;
+  padding: 6px 12px;
+}
+
+.prepare-dock .sauce-metrics-panel__player-row {
+  min-height: 24px;
+}
+
+.sauce-metrics-panel__live-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 18px;
+  margin-top: 4px;
+}
+
+.sauce-metrics-panel__live-row .sauce-metrics-panel__live-message {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  line-height: 18px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sauce-metrics-panel__live-row .sauce-metrics-panel__toggle {
+  flex: none;
+  width: auto;
+  margin: 0;
+  padding: 0 6px;
+  line-height: 18px;
+}
+
+/* DM-3R-0: on a short visible height (Safari with its toolbars, 390x664 / 360x640) the chrome
+   around the stage gives up a little so the pizza keeps more of its size: 6px per chip row
+   (still well above the 44px tap target) and 8px of the 見本 thumbnail. Nothing is hidden. */
+@media (max-height: 700px) {
+  .prepare-dock {
+    --chip-h: 58px;
+  }
+
+  .prepare-dock .ingredient-chip {
+    padding: 3px 6px;
+  }
+
+  .prepare-dock .ingredient-chip__emoji,
+  .prepare-dock .ingredient-chip__cheese-slot {
+    height: 22px;
+    line-height: 22px;
+    font-size: 22px;
+  }
+
+  .prepare-dock .ingredient-chip__name {
+    line-height: 12px;
+  }
+
+  .game-screen--cooking .mini-reference__thumb .reference-thumbnail {
+    width: 40px;
+    height: 40px;
+    --piece-scale: 0.22;
+  }
+}
+
 /* One page: the pager row keeps its height (no layout jump when a category gains a page) but is
    invisible and never a tap target. */
 .ingredient-page-nav--placeholder {
@@ -5060,6 +5194,121 @@
   margin: 0;
   font-size: 14px;
   color: #6b4a2b;
+}
+
+/* Discovery Hint 3.0 (Issue #238, H3-3): the Selectable sheet, minimal wiring only.
+   H3-4 TODO: final chip / preference styling and Human Verification. */
+p.hint-sheet__step {
+  margin: 0;
+}
+
+.hint-sheet__rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hint-sheet__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #6b4a2b;
+}
+
+.hint-sheet__row-label {
+  flex: none;
+  width: 5.5em;
+  font-weight: 700;
+}
+
+.hint-sheet__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-width: 0;
+}
+
+.hint-sheet__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #ffe7b0;
+  color: #3d2a16;
+  font-size: 13px;
+}
+
+.hint-sheet__chip--unknown {
+  background: #f3e6c8;
+  color: #9a7b58;
+}
+
+.hint-sheet__chip .hint-sheet__glyph {
+  font-size: 16px;
+}
+
+.hint-sheet__legacy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hint-sheet__legacy-title,
+.hint-sheet__guidance {
+  margin: 0;
+  font-size: 12px;
+  color: #6b4a2b;
+}
+
+.hint-sheet__guidance {
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: #fff4d6;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.hint-sheet__prefs {
+  margin: 0 0 4px;
+  padding: 0;
+  border: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+
+.hint-sheet__prefs-legend {
+  width: 100%;
+  margin-bottom: 2px;
+  text-align: center;
+  font-size: 12px;
+  color: #6b4a2b;
+}
+
+.hint-sheet__pref {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 36px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 2px solid #e0c48f;
+  background: #fffaf0;
+  font-size: 13px;
+  color: #3d2a16;
+  cursor: pointer;
+}
+
+.hint-sheet__pref--on {
+  border-color: #d9822b;
+  background: #ffe7b0;
+  font-weight: 700;
 }
 
 /* ---------- Dinner Mission DM-3 (Issue #242) ----------

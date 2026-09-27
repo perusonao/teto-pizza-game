@@ -75,26 +75,40 @@ export function SauceMetricsPanel({
       </div>
 
       {/* Exactly one short line, replaced wholesale every render -- never stacked with a
-          previous message (brief section 4: "常時文章を大量表示せず、短い1メッセージのみ"). */}
-      {liveMessage && <p className="sauce-metrics-panel__live-message">{liveMessage}</p>}
+          previous message (brief section 4: "常時文章を大量表示せず、短い1メッセージのみ").
+          DM-3R-0 (Issue #245): the line is always laid out (empty and aria-hidden while not
+          painting) so the panel never grows mid-stroke -- it used to push the pizza up and
+          shrink it under the player's finger the moment painting started. The Preview-only
+          toggle below shares this line instead of adding one of its own. */}
+      <div className="sauce-metrics-panel__live-row">
+        <p
+          className="sauce-metrics-panel__live-message"
+          aria-hidden={liveMessage ? undefined : true}
+        >
+          {liveMessage ?? "\u00a0"}
+        </p>
 
-      {/* Phase 4A-1B.1 Fix C: the toggle and its raw/debug detail below are Preview-only --
-          import.meta.env.VITE_PREVIEW_MODE is the project's existing Preview/Production SSOT
-          (see PreviewBadge.tsx, persistence.ts's SAVE_STORAGE_KEY), statically false in a
-          production `vite build` so Vite dead-code-eliminates this whole subtree there. The
-          player-facing 広さ/均一さ/ふち row and live message above are never gated -- only
-          this internal-numbers block is. */}
-      {import.meta.env.VITE_PREVIEW_MODE && (
-        <>
+        {/* Phase 4A-1B.1 Fix C: the toggle and its raw/debug detail below are Preview-only --
+            import.meta.env.VITE_PREVIEW_MODE is the project's existing Preview/Production SSOT
+            (see PreviewBadge.tsx, persistence.ts's SAVE_STORAGE_KEY), statically false in a
+            production `vite build` so Vite dead-code-eliminates this whole subtree there. The
+            player-facing 広さ/均一さ/ふち row and live message above are never gated -- only
+            this internal-numbers block is. */}
+        {import.meta.env.VITE_PREVIEW_MODE && (
           <button
             type="button"
             className="sauce-metrics-panel__toggle"
             onClick={() => setExpanded((v) => !v)}
             aria-expanded={expanded}
+            aria-label="Prototype Metrics（開発用）"
           >
-            {"\u{1F9EA}"} Prototype Metrics（開発用） {expanded ? "▴" : "▾"}
+            {"\u{1F9EA}"} 開発用 {expanded ? "▴" : "▾"}
           </button>
+        )}
+      </div>
 
+      {import.meta.env.VITE_PREVIEW_MODE && (
+        <>
           {expanded && (
             <div className="sauce-metrics-panel__detail">
               <p className="sauce-metrics-panel__detail-note">

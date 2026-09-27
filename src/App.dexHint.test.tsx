@@ -75,7 +75,8 @@ describe("Dex 「💡 ヒントを見る」 through the App (229-D)", () => {
       expect(document.querySelector(".order-card--free-cook")).toBeInTheDocument();
       const sheet = screen.getByRole("dialog", { name: /ヒント/ });
       await user.click(sheet.querySelector<HTMLButtonElement>(".hint-sheet__next")!);
-      expect(sheet.querySelectorAll(".hint-sheet__step")).toHaveLength(2);
+      // H3-3: the Selectable sheet -- the free key plus the one fact just bought.
+      expect(sheet.querySelectorAll(".hint-sheet__chip:not(.hint-sheet__chip--unknown)")).toHaveLength(2);
       expectNoUndiscoveredName(`card ${i}: Free Cooking + sheet`);
       await user.click(within(sheet).getByRole("button", { name: "閉じる" }));
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
@@ -84,13 +85,13 @@ describe("Dex 「💡 ヒントを見る」 through the App (229-D)", () => {
     }
 
     const after = JSON.parse(window.localStorage.getItem(SAVE_STORAGE_KEY)!);
-    const { pitzBalance, discoveryHintPurchases, ...rest } = after;
-    // One H1 (5 Pitz) per card, each on its own recipe.
+    const { pitzBalance, discoveryHintFacts, ...rest } = after;
+    // One first fact (5 Pitz) per card, each on its own recipe; the legacy ledger never moves.
     expect(pitzBalance).toBe(500 - 5 * count);
-    expect(Object.values(discoveryHintPurchases)).toEqual(Array(count).fill(1));
-    const { pitzBalance: _p, discoveryHintPurchases: _d, ...restBefore } = JSON.parse(before!);
+    expect(Object.values(discoveryHintFacts).map((facts) => (facts as string[]).length)).toEqual(Array(count).fill(1));
+    const { pitzBalance: _p, discoveryHintFacts: _f, ...restBefore } = JSON.parse(before!);
     void _p;
-    void _d;
+    void _f;
     expect(rest).toEqual(restBefore);
   });
 

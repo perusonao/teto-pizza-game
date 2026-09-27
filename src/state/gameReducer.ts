@@ -60,7 +60,15 @@ import { isEdgeToEdgeCutLine, resolveRequestedSliceCount, type CutLine } from ".
 import { requiredCutCount } from "../logic/cut/evaluation";
 import { isDuplicateCutLine } from "../logic/cut/geometry";
 import { isValidDoughShape, type DoughShape } from "../logic/doughShape";
-import { resolveHintSession, unlockNextHint, type HintSession } from "./discoveryHint";
+import {
+  isOnboardingHintSession,
+  purchaseSelectableHintFact,
+  resolveHintSession,
+  unlockNextHint,
+  type HintOutcome,
+  type HintSession,
+} from "./discoveryHint";
+import type { HintCategory } from "../logic/discovery/selectableHint";
 import type { DiscoveryHintPurchases } from "../logic/discovery/hintPurchase";
 import {
   createEmptyPizza,
@@ -206,6 +214,14 @@ export interface GameState {
    *  action ever lowers or removes one (an entry stays after its recipe is discovered). Carried
    *  through every "fresh round" path via `ProgressionCarry`, like `pitzBalance`. */
   discoveryHintPurchases: DiscoveryHintPurchases;
+  /** Discovery Hint 3.0 (Issue #238, H3-3): `recipeId -> purchased Selectable Hint fact ids`, the
+   *  persisted Hint 3.0 ledger (H3-2, ./persistence.ts). Only a successful PURCHASE_SELECTABLE_HINT
+   *  adds to it; nothing removes an entry. Unknown / future ids loaded from the save are kept as is.
+   *  Carried through every "fresh round" path via `ProgressionCarry`. */
+  discoveryHintFacts: Readonly<Record<string, readonly string[]>>;
+  /** H3-3: the last Selectable request's non-purchase outcome (GUIDANCE_ONLY), shown in the open
+   *  sheet. Transient: never persisted, reset by SHOW_HINT / CLOSE_HINT / a fresh round. */
+  hintOutcome: HintOutcome | null;
   /** 229-B: the hint sheet is open. Only SHOW_HINT during a Free Cooking PREPARE sets it; every
    *  fresh round (`buildOrderState`) closes it. Transient, never persisted. */
   hintSheetOpen: boolean;
@@ -400,7 +416,13 @@ export type GameAction =
   // `discoveryHintPurchases`. `level` is the level the CTA offered; the reducer re-checks it is
   // exactly the next one, so a double tap or a stale event never charges twice. Replaces #229's
   // free REVEAL_NEXT_HINT.
+  // H3-3: since Hint 3.0 this only serves the free Dex-0 Margherita onboarding; any other target
+  // is rejected (Economy 1.0 levels are no longer sold, so `discoveryHintPurchases` never advances).
   | { type: "PURCHASE_DISCOVERY_HINT"; level: number }
+  // Discovery Hint 3.0 (Issue #238, H3-3): buys one Selectable Hint fact for the open sheet's target,
+  // `preference` first (fallback sauce -> cheese -> topping, OD-H3-14). `expectedPaidCount` is the
+  // paid count the sheet showed; a double tap or stale sheet no longer matches and changes nothing.
+  | { type: "PURCHASE_SELECTABLE_HINT"; preference: HintCategory; expectedPaidCount: number }
   | { type: "CLOSE_HINT" }
   // Phase 3C-4 (Lunch Rush): both below reuse this same round machinery (an ORDER phase with
   // a freshly-picked, available recipe) -- there is no separate Mission round state. See
@@ -481,6 +503,7 @@ interface ProgressionCarry {
   preDiscoveryFreeCookAttempts: number;
   hintSession: HintSession | null;
   discoveryHintPurchases: DiscoveryHintPurchases;
+  discoveryHintFacts: Readonly<Record<string, readonly string[]>>;
 }
 
 /** Builds a fresh ORDER-phase state around an already-picked `order` -- the one place that
@@ -537,6 +560,7 @@ function buildOrderState(
     justGotNewBest: false,
     hint: null,
     hintSheetOpen: false,
+    hintOutcome: null,
     placement: null,
     lastPitzCredit: null,
     lastMaterialUnlockNotice: null,
@@ -602,6 +626,7 @@ function nextMissionOrderState(
       preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
       hintSession: state.hintSession,
       discoveryHintPurchases: state.discoveryHintPurchases,
+      discoveryHintFacts: state.discoveryHintFacts,
     },
     true,
     false,
@@ -673,6 +698,7 @@ export function createInitialGameState(
   starterGrantClaimedRecipeIds: readonly string[] = [],
   unlockedForShopIngredientIds: readonly string[] = [],
   discoveryHintPurchases: DiscoveryHintPurchases = {},
+  discoveryHintFacts: Readonly<Record<string, readonly string[]>> = {},
 ): GameState {
   return nextOrderState(
     {
@@ -686,6 +712,7 @@ export function createInitialGameState(
       preDiscoveryFreeCookAttempts: 0,
       hintSession: null,
       discoveryHintPurchases,
+      discoveryHintFacts,
     },
     { preferFirst: true },
   );
@@ -1334,6 +1361,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
           preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
           hintSession: state.hintSession,
           discoveryHintPurchases: state.discoveryHintPurchases,
+          discoveryHintFacts: state.discoveryHintFacts,
         },
         { excludeRecipeId: state.recipe.id },
       );
@@ -1357,6 +1385,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
           preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
           hintSession: state.hintSession,
           discoveryHintPurchases: state.discoveryHintPurchases,
+          discoveryHintFacts: state.discoveryHintFacts,
         }, action.now) ?? state
       );
     }
@@ -1374,6 +1403,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
           preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
           hintSession: state.hintSession,
           discoveryHintPurchases: state.discoveryHintPurchases,
+          discoveryHintFacts: state.discoveryHintFacts,
         },
         action.now,
       );
@@ -1394,6 +1424,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
             preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
             hintSession: state.hintSession,
             discoveryHintPurchases: state.discoveryHintPurchases,
+            discoveryHintFacts: state.discoveryHintFacts,
           },
           action.now,
         );
@@ -1412,6 +1443,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
           preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
           hintSession: state.hintSession,
           discoveryHintPurchases: state.discoveryHintPurchases,
+          discoveryHintFacts: state.discoveryHintFacts,
         }, action.now) ?? state
       );
 
@@ -1492,7 +1524,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // explicit operational line below.
       if (state.freeCook) {
         if (state.phase !== "PREPARE") return state;
-        return { ...state, hintSession: resolveHintSession(state, action.pinnedRecipeId), hintSheetOpen: true };
+        return { ...state, hintSession: resolveHintSession(state, action.pinnedRecipeId), hintSheetOpen: true, hintOutcome: null };
       }
       return {
         ...state,
@@ -1512,12 +1544,27 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
     // other), exactly like PURCHASE_INGREDIENT.
     case "PURCHASE_DISCOVERY_HINT": {
       if (!state.hintSheetOpen || state.phase !== "PREPARE" || !state.freeCook) return state;
+      // H3-3: only the free Dex-0 Margherita onboarding still reveals Hint 2.0 levels.
+      if (!isOnboardingHintSession(state)) return state;
       const patch = unlockNextHint(state, action.level);
       return patch ? { ...state, ...patch } : state;
     }
 
+    // H3-3: the only place a Selectable Hint fact is bought. `purchaseSelectableHintFact`
+    // (./discoveryHint.ts -> ../logic/discovery/selectableHint.ts) re-validates the target, the
+    // preference, the paid count, the price (legacy rung included) and the balance. A purchase
+    // debits `pitzBalance` and extends `discoveryHintFacts` in this one step; GUIDANCE_ONLY only
+    // sets the transient `hintOutcome`; any rejection returns `state` unchanged.
+    case "PURCHASE_SELECTABLE_HINT": {
+      if (!state.hintSheetOpen || state.phase !== "PREPARE" || !state.freeCook) return state;
+      const patch = purchaseSelectableHintFact(state, action.preference, action.expectedPaidCount);
+      if (!patch) return state;
+      if (patch.hintOutcome && patch.hintOutcome === state.hintOutcome && Object.keys(patch).length === 1) return state;
+      return { ...state, ...patch };
+    }
+
     case "CLOSE_HINT":
-      return state.hintSheetOpen ? { ...state, hintSheetOpen: false } : state;
+      return state.hintSheetOpen ? { ...state, hintSheetOpen: false, hintOutcome: null } : state;
 
     // I4b-3 (REC-04 OD-REC04-2/3): the first-pack purchase of a NEW (ladder-unlocked, not yet
     // owned) material -- ../logic/materialShop.ts's `purchaseFirstPack`, the only place the
@@ -1628,6 +1675,7 @@ function carryOf(state: GameState): ProgressionCarry {
     preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
     hintSession: state.hintSession,
     discoveryHintPurchases: state.discoveryHintPurchases,
+    discoveryHintFacts: state.discoveryHintFacts,
   };
 }
 
@@ -1747,6 +1795,7 @@ const DINNER_BLOCKED_ACTIONS: ReadonlySet<GameAction["type"]> = new Set<GameActi
   "PURCHASE_INGREDIENT",
   "RESTOCK_INGREDIENT",
   "PURCHASE_DISCOVERY_HINT",
+  "PURCHASE_SELECTABLE_HINT",
   "CLAIM_MISSION_REWARD",
 ]);
 
