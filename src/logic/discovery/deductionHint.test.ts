@@ -349,7 +349,10 @@ describe("DH4-1 is unwired", () => {
       .map(([path]) => path)
       .sort();
     expect(Object.keys(sources).length).toBeGreaterThan(50);
-    expect(importers).toEqual(["./deductionHint.ts"]);
+    // DH4-2A (Issue #253) adds the guard and the request authority to the same unwired layer. They are
+    // the only importers besides DH4-1 itself; no production module imports the layer
+    // (deductionGuard.test.ts T-15 pins the same boundary for the DH4-2A modules).
+    expect(importers).toEqual(["./deductionGuard.ts", "./deductionHint.ts", "./deductionRequest.ts"]);
   });
 });
 
