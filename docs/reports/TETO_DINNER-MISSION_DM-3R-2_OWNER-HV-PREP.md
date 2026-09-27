@@ -3,7 +3,7 @@
 - **Lane:** D (Dinner only). Independent of DH4-x / HintSheet / Recipe Taxonomy lanes.
 - **Scope guard:** no production code changed, nothing merged. PR #252, #243 and #242 are untouched. No production deploy.
 - **Verdict (prep):** **A. DINNER PREVIEW READY FOR OWNER HUMAN VERIFICATION**
-- **Owner iPhone HV:** round 1 is in §9, round 2 (TIME_UP) in §10, round 3 (CUT invalid-bake reclassification) in §11. Every item run passed. One Owner test remains before merge: HOME abandon (§11.4). #252 is **not merge-ready yet**. §11 supersedes the classification in §9.6 / §10.3–§10.5.
+- **Owner iPhone HV:** round 1 is in §9, round 2 (TIME_UP) in §10, round 3 (CUT invalid-bake reclassification) in §11, round 4 (margherita-composition burnt → CUT evidence) in §12. Every item run passed. One Owner test remains before merge: HOME abandon (§11.4). #252 is **not merge-ready yet**. §11 supersedes the classification in §9.6 / §10.3–§10.5.
 - Captured: 2026-09-27 (UTC ~10:40–10:50)
 
 ## 1. Fresh GitHub Gate
@@ -117,7 +117,7 @@ Recommended order: 通常セーブ + HV-normal (D1–D6, D8, D10, D12), then HV-
 
 | # | risk | class |
 |---|---|---|
-| 1 | A raw / burnt pizza **whose composition Stage A identifies as a CUT recipe** goes through CUT, then gets INVALID. A composition that identifies as nothing gets no CUT and INVALID straight after 取り出す. This is the case the Owner saw on iPhone (§9.3). | **Owner decision via HV-D8 / Q9.** Non-blocking for HV. If the Owner rejects it, it becomes a blocking defect for #252, or a separate DM-3R-1 Stage B order change. |
+| 1 | A raw / burnt pizza **whose composition Stage A identifies as a CUT recipe** goes through CUT, then gets INVALID. A composition that identifies as nothing gets no CUT and INVALID straight after 取り出す. This is the case the Owner saw on iPhone (§9.3). | **Resolved for #252 (§11 / §12):** shared cooking-flow behaviour, Owner-confirmed on iPhone. Not a #252 blocker. The UX question is tracked for all modes in #256. |
 | 2 | The presence of CUT (the 「カット」 tab is shown during BAKE) implies "some CUT recipe matched". It never names the recipe. | non-blocking (inherent to the DM-3R-1 authority) |
 | 3 | 30px thumbnails look alike. | non-blocking; HV-D2 / Q6 |
 | 4 | The official minimumStars is undecided. | DM-5 deferred |
@@ -496,3 +496,55 @@ TEST 1, HOME abandon, as in §10.4:
 - Everything else is ready: CI green, review threads resolved, `clean` against its base, and the trial merge with `5a33d85` passes (§2).
 - #252 stays OPEN, and #243 / #242 stay OPEN.
 - No production code change and no production deploy. DM-4 / DM-5 are not started. #256 is not started.
+
+## 12. Round 4 — Owner evidence: an identified margherita still gets CUT when burnt
+
+**Status: PASS.**
+- **Evidence:** Owner iPhone Human Verification (Preview PR #252 / `7a18e29`). The Owner's screenshot shows a burnt pizza that kept the margherita composition and moved on to the CUT screen. It is not copied into the repo.
+- **Observed:** a pizza whose ingredients form a margherita gets the CUT step even when it is raw or burnt, and then ends in INVALID.
+
+This matches §9.3 and closes the question on the device. Together with the round-1 observation (a burnt pizza with no CUT), the Owner has now seen both paths:
+
+| composition at START_BAKE | CUT? | result on a raw / burnt bake | Owner evidence |
+|---|---|---|---|
+| identifies as a CUT recipe (e.g. margherita) | yes | INVALID after CUT | round 4 (this section) |
+| identifies as nothing | no | INVALID right after 取り出す | round 1 (§9.1 / §9.3) |
+
+- **Rule:** the CUT step is decided by the **recipe identity at START_BAKE**, never by the bake quality.
+- **Stale wording:** the "burnt ⇒ no CUT" reading does not appear as a rule anywhere in this report.
+  - §9.1 records the round-1 case only as "PASS as observed (no-identification path)".
+  - §9.3, the HV-D8 row and residual risk 1 now state the identity rule.
+
+### 12.1 Shared cooking flow: fresh check
+
+| mode | CUT decided by | invalid bake of a CUT recipe | code / test |
+|---|---|---|---|
+| Guided (Pizza Select) | the selected recipe's `getCookingProfile(recipe.id)`, fixed at round start | CUT, then the FAILED / invalid result | base `CONFIRM_BAKE` reads `postBakeSteps(state.cookingProfile)` only. Pinned by `gameReducer.cutStep.test.ts` "CUT never gates completion" (`value: 5` → `POST_BAKE` → RESULT), since #128. |
+| Lunch Rush | the order recipe's profile, fixed at round start | same | same base `CONFIRM_BAKE` path. `bakedMargheritaAtCut(isMissionRound = true)` in the same test file walks Lunch Rush through CUT. |
+| Dinner (#252) | the identified recipe's profile, chosen at START_BAKE (Stage A) | same | unit R12 / R13, E2E R7/R8/R13 and R5/R9, Preview re-check §9.3, and the Owner's device check (§12) |
+| Free Cooking (じぶんのピザ) | **none**: the round keeps `DEFAULT_COOKING_PROFILE`, even after a match at CONFIRM_BAKE | no CUT step in any case | `gameReducer.freeCook.test.ts` (profile is `DEFAULT_COOKING_PROFILE`, a matched pizza goes straight to RESULT) |
+
+- **Guided, Lunch Rush and Dinner** follow the same rule: the round's recipe (known or identified) decides CUT, and the bake quality does not.
+- **Free Cooking is the exception:** it never has a CUT step, so the UX question does not arise there.
+- **Dinner is consistent with the shared flow.** #252 does not change it, and it will not make Dinner differ.
+
+### 12.2 Follow-up
+
+- **The UX question stays open:** a raw or burnt pizza whose failure is already certain still has to finish CUT when its recipe is a CUT recipe.
+- **Duplicate Gate:** re-checked. The only matching Issue is **#256** (all modes, opened in round 3), so no new Issue was created. This round's evidence and the Free Cooking exception were added to #256 as a comment.
+- Not Dinner-specific. Not started.
+
+### 12.3 Merge readiness (supersedes §11.5)
+
+- **Merge blocker:** only TEST 1, **HOME abandon**, on iPhone (§11.4). No further device check is needed for the CUT invalid-bake behaviour.
+- **Non-blocking follow-ups:**
+  - #256 (CUT on a failed bake, all modes)
+  - target row polish (thumbnail, name ellipsis, chip-as-selection perception)
+  - a long last-pizza name
+  - 「DINNER CLEAR!」 in English
+  - the QUALITY_FAIL guidance (「あと★1」, DM-5 / UI polish)
+- **PR #252:** **not yet mergeable. It waits only on HOME abandon PASS.**
+  - CI is green, the review threads are resolved, it is `clean` against its base, and the trial merge with `5a33d85` passes (§2).
+  - No blocking defect has been found.
+  - #252 / #243 / #242 stay OPEN.
+  - No production code change and no production deploy. DM-4 / DM-5 and DH4 are not touched.
