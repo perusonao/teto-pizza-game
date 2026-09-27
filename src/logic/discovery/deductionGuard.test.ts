@@ -149,17 +149,17 @@ describe("T-03 the guard decides from W / H only", () => {
   });
 });
 
-describe("T-04 pinned levels (audit finalGate)", () => {
+describe("T-04 pinned levels (hardened guard, DH4-2B Pre-Implementation Gate; the DH4-2A audit finalGate had existence 144 · category 155 · group 1)", () => {
   const levels = (answers: (string | undefined)[]) => {
     const out: Record<string, number> = {};
     for (const a of answers) out[a!] = (out[a!] ?? 0) + 1;
     return out;
   };
-  it("the 300-state sweep: existence 144 · category 155 · group 1", () => {
-    expect(levels(STATES.map((s) => guardedAnswerForParts(partsOf(s))?.level))).toEqual({ existence: 144, category: 155, group: 1 });
+  it("the 300-state sweep: existence 122 · category 165 · group 13", () => {
+    expect(levels(STATES.map((s) => guardedAnswerForParts(partsOf(s))?.level))).toEqual({ existence: 122, category: 165, group: 13 });
   });
-  it("ladder-owned: category 11 · existence 13; all owned: category 22 · group 1 · existence 1", () => {
-    expect(levels(TARGETS.map((id, i) => guardedReserveAttributeAnswer(id, ctxAt(i + 1))?.level))).toEqual({ category: 11, existence: 13 });
+  it("ladder-owned: category 12 · group 1 · existence 11; all owned: category 22 · group 1 · existence 1", () => {
+    expect(levels(TARGETS.map((id, i) => guardedReserveAttributeAnswer(id, ctxAt(i + 1))?.level))).toEqual({ category: 12, group: 1, existence: 11 });
     expect(levels(TARGETS.map((id, i) => guardedReserveAttributeAnswer(id, ctxAt(i + 1, ALL_INGREDIENT_IDS))?.level))).toEqual({ category: 22, group: 1, existence: 1 });
   });
   it("the strict fallback is never finer than the DH4-1 answer it replaces would allow (family never forced)", () => {
@@ -180,15 +180,22 @@ describe("T-06 determinism and hostile input", () => {
       expect(guardedReserveAttributeAnswer(s.recipeId, ctxAt(s.step, s.owned))).toEqual(base);
     }
   });
-  it("not a target: unknown / hostile recipe ids, the Dex-0 onboarding, non-array owned", () => {
+  it("not a target: unknown / hostile recipe ids, the Dex-0 onboarding, non-array owned, an unmakeable recipe", () => {
     for (const id of ["nope", "__proto__", 7, null, undefined]) {
       expect(guardedReserveAttributeAnswer(id, ctxAt(5))).toBeNull();
       expect(structureAnswer(id, ctxAt(5))).toBeNull();
       expect(toppingClauseAllowed(id, ctxAt(5))).toBe(false);
     }
     expect(guardedReserveAttributeAnswer("margherita", { discoveredCount: 0, ownedIngredientIds: ALL_INGREDIENT_IDS })).toBeNull();
-    const a = guardedReserveAttributeAnswer("bismarck", { discoveredCount: 1, ownedIngredientIds: "egg" });
-    expect(a).toEqual({ level: "existence", factId: "attr:existence" });
+    // A hint target is DISCOVERABLE (every ingredient owned). Anything else is not a target and gets
+    // no answer at all (DH4-2B Pre-Implementation Gate, P3 reserve-owned precondition).
+    expect(guardedReserveAttributeAnswer("bismarck", { discoveredCount: 1, ownedIngredientIds: "egg" })).toBeNull();
+    expect(structureAnswer("bismarck", { discoveredCount: 1, ownedIngredientIds: "egg" })).toBeNull();
+    const reserve = targetReserveParts("capricciosa", ctxAt(24, ALL_INGREDIENT_IDS))!.reserveId;
+    const withoutReserve = ALL_INGREDIENT_IDS.filter((id) => id !== reserve);
+    expect(targetReserveParts("capricciosa", ctxAt(24, withoutReserve))).toBeNull();
+    expect(guardedReserveAttributeAnswer("capricciosa", ctxAt(24, withoutReserve))).toBeNull();
+    expect(toppingClauseAllowed("capricciosa", ctxAt(24, withoutReserve))).toBe(false);
   });
 });
 
@@ -218,28 +225,29 @@ describe("T-08 TC-G: the topping clause (OD-DH4-2-1)", () => {
     for (const s of STATES.filter((st) => recipeCounts(st.recipeId).toppings === 0)) expect(toppingClauseAllowedForParts(partsOf(s))).toBe(false);
     expect(STATES.some((s) => recipeCounts(s.recipeId).toppings === 0)).toBe(true);
   });
-  it("never for T = 0 even when every W side has >= 2 members (a future-catalog shape, synthetic parts)", () => {
-    // A zero-topping pizza (tomato sauce + mozzarella, reserve mozzarella) with everything owned: W has
-    // 4 cheeses and 22 toppings, so only the T >= 1 rule keeps 「トッピング0」 from being told.
-    const parts = { recipeIngredientIds: ["tomato-sauce", "mozzarella"], reserveId: "mozzarella", owned: [...ALL_INGREDIENT_IDS] };
+  it("never for T = 0 even when every H side has >= 2 members (a future-catalog shape, synthetic parts)", () => {
+    // A zero-topping pizza (tomato sauce + mozzarella, reserve mozzarella) with everything owned: H has
+    // 3 cheeses and 22 toppings, so only the T rule keeps 「トッピング0」 from being told.
+    const parts = { recipeIngredientIds: ["tomato-sauce", "mozzarella"], reserveId: "mozzarella", keyId: "tomato-sauce", owned: [...ALL_INGREDIENT_IDS] };
     const sides = new Map<string, number>();
     for (const id of privacyPartitionUniverse(parts)) sides.set(getIngredient(id)!.category, (sides.get(getIngredient(id)!.category) ?? 0) + 1);
     expect([...sides.values()].every((n) => n >= 2)).toBe(true);
     expect(toppingClauseAllowedForParts(parts)).toBe(false);
-    expect(toppingClauseAllowedForParts({ ...parts, recipeIngredientIds: ["tomato-sauce", "mozzarella", "basil"] })).toBe(true);
+    // P2-2 (H-only): the same known part with a topping reserve is NOT told either, because a cheese
+    // hypothesis in H would have T = 0. So a missing clause never implies 「トッピング0」.
+    expect(toppingClauseAllowedForParts({ ...parts, recipeIngredientIds: ["tomato-sauce", "mozzarella", "basil"], reserveId: "basil" })).toBe(false);
+    // With a topping in the known part every hypothesis has T >= 1: told.
+    expect(toppingClauseAllowedForParts({ ...parts, recipeIngredientIds: ["tomato-sauce", "mozzarella", "basil", "egg"], reserveId: "egg" })).toBe(true);
   });
-  it("pinned: passes for 11/24 at the ladder state and 23/24 with everything owned", () => {
-    expect(TARGETS.filter((id, i) => toppingClauseAllowed(id, ctxAt(i + 1))).length).toBe(11);
+  it("pinned: passes for 13/24 at the ladder state and 23/24 with everything owned (DH4-2A: 11 / 23)", () => {
+    expect(TARGETS.filter((id, i) => toppingClauseAllowed(id, ctxAt(i + 1))).length).toBe(13);
     expect(TARGETS.filter((id, i) => toppingClauseAllowed(id, ctxAt(i + 1, ALL_INGREDIENT_IDS))).length).toBe(23);
   });
-  it("runtime: a missing clause is always explained by W's sides, never by T = 0 alone", () => {
-    // The W-side condition is computable by the player; if it passed while T = 0, the missing clause
-    // would reveal 「トッピング0」 by inference. On the 25-recipe runtime this never happens.
-    for (const s of STATES.filter((st) => recipeCounts(st.recipeId).toppings === 0)) {
+  it("P2-2: the decision is H-only — identical for every hypothesis in H, so a missing clause never implies 「トッピング0」", () => {
+    for (const s of STATES) {
       const parts = partsOf(s);
-      const sides = new Map<string, number>();
-      for (const id of privacyPartitionUniverse(parts)) sides.set(getIngredient(id)!.category, (sides.get(getIngredient(id)!.category) ?? 0) + 1);
-      expect([...sides.values()].some((n) => n < 2), `${s.recipeId}@${s.step}`).toBe(true);
+      const told = toppingClauseAllowedForParts(parts);
+      for (const x of hypotheticalReserves(parts)) expect(toppingClauseAllowedForParts(hypotheticalParts(parts, x)), `${s.recipeId}@${s.step} x=${x}`).toBe(told);
     }
   });
 });
@@ -304,7 +312,7 @@ describe("T-15 unwired boundary", () => {
     const own = /\/(deductionHint|deductionGuard|deductionRequest|ingredientTaxonomy)\.ts$|\/testSupport\//;
     const importers = Object.entries(sources)
       .filter(([path]) => !own.test(path))
-      .filter(([, text]) => /from\s+["'][^"']*(deductionHint|deductionGuard|deductionRequest|ingredientTaxonomy)["']/.test(text))
+      .filter(([, text]) => /(from\s+|import\s*\(\s*)["'][^"']*(deductionHint|deductionGuard|deductionRequest|ingredientTaxonomy)["']/.test(text))
       .map(([path]) => path);
     expect(importers).toEqual([]);
     expect(Object.keys(sources).some((p) => p.endsWith("/App.tsx"))).toBe(true);

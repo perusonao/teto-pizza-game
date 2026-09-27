@@ -15,22 +15,26 @@
  * target x ladder-inventory states (bismarck, funghi, breakfast-pizza, meat-lovers,
  * quattro-formaggi). The DH4-1 answer function is NOT changed; this module wraps it.
  *
- * - **Hypothetical reserves H.** Every ingredient the player cannot rule out as the missing one when
- *   every other ingredient is known: the reserve, plus every owned catalog ingredient outside the
- *   recipe, under the one-sauce prior (every runtime pizza has exactly one sauce): when the rest of
- *   the recipe has a sauce, no sauce is a hypothesis; when it has none, only sauces are.
+ * - **Hypothetical reserves H** (hardened at the DH4-2B Pre-Implementation Gate, P2-1). Every owned
+ *   ingredient the player cannot rule out as the missing one when every other ingredient is known:
+ *   outside the known part, not the key, and Rule W-consistent (its category ranks at least as high
+ *   as every non-key known ingredient). No catalog prior is assumed: the DH4-2A one-sauce prior
+ *   dropped the real reserve of a sauceless recipe from H, so an answer class could name it.
+ *   H depends on the known part, the key and the owned set only: it is the same set for every
+ *   hypothesis. **Fail closed:** when the real reserve is not in H (not owned; never at runtime,
+ *   where every target is DISCOVERABLE), the answer is existence and the clause is not told.
  * - **Partition guard.** For every x in H, h(x) = the DH4-1 answer of the hypothetical recipe
  *   (recipe - reserve + x) whose reserve is x. When every answer class { x : h(x) = a } has at
- *   least MIN_ATTRIBUTE_CANDIDATES members, the DH4-1 answer is given; otherwise the strict answer
- *   below is given. The branch depends on H only, and H is the same set for every hypothesis, so
- *   the answer level can never single one out.
- * - **Strict ("level before value") answer.** Over W = the reserve plus the owned catalog
- *   ingredients outside the recipe (sauces dropped when the recipe has another sauce), choose the
- *   finest level (family -> group -> category) at which EVERY member of W shares its class with at
- *   least one other member (classes are total: an ingredient with no family or group is classed by
- *   its category, never guessed), then answer the reserve's class there; else existence.
- * - **TC-G (OD-DH4-2-1).** The topping total may be told only when it is >= 1 and every category
- *   side present in W (topping / cheese / sauce) has at least 2 members. W-only; never for 0.
+ *   least MIN_ATTRIBUTE_CANDIDATES members **within each category side** (so any category-defined
+ *   prior an attacker adds still leaves >= 2), the DH4-1 answer is given; otherwise the strict
+ *   answer below is given. The branch depends on H only.
+ * - **Strict ("level before value") answer.** Over H, choose the finest level
+ *   (family -> group -> category) at which EVERY member of H shares its class with at least one
+ *   other member (classes are total: an ingredient with no family or group is classed by its
+ *   category, never guessed), then answer the reserve's class there; else existence.
+ * - **TC-G (OD-DH4-2-1, hardened for P2-2).** The topping total may be told only when every
+ *   hypothesis in H gives a topping total >= 1 (so it is never 0 and a missing clause never implies
+ *   0) and every category side present in H has at least 2 members. H-only.
  *
  * The taxonomy is not changed for privacy (OD-DH4-2-3). Ingredients without a family row are
  * classed by category only; nothing is inferred from names. Lookups use arrays, Sets and Maps.
@@ -56,6 +60,8 @@ export const TOPPING_TOTAL_FACT_ID = "meta:topping-total";
 export interface ReserveParts {
   recipeIngredientIds: readonly string[];
   reserveId: string;
+  /** The recipe's free key (public: the player gets it for free), or `null` when it has none. */
+  keyId: string | null;
   /** Owned catalog ids (already normalised). */
   owned: readonly string[];
 }
@@ -70,48 +76,82 @@ function categoryOf(id: string): string | null {
   return getIngredient(id)?.category ?? null;
 }
 
+/** Rule W's category order (OD-H3-5): the reserve is in the highest category among the non-key
+ *  ingredients. A category this build does not rank is `null` (fail closed). */
+const RULE_W_RANK = new Map<string, number>([
+  ["sauce", 0],
+  ["cheese", 1],
+  ["topping", 2],
+]);
+
+function ruleWRank(id: string): number | null {
+  const category = categoryOf(id);
+  return category === null ? null : (RULE_W_RANK.get(category) ?? null);
+}
+
 function distinctIngredientIds(recipe: Recipe): string[] {
   return [...new Set(recipe.requiredIngredients.map((r) => r.ingredientId))];
 }
 
-/** A target's real reserve parts, or `null` (unknown recipe, Dex-0 onboarding, non-catalog data). */
+/** A target's real reserve parts, or `null` (unknown recipe, Dex-0 onboarding, non-catalog data, or
+ *  a recipe the owned set cannot make). */
 export function targetReserveParts(recipeId: unknown, context: AttributeContext, recipes: readonly Recipe[] = RECIPES): ReserveParts | null {
   const model = buildSelectableHintModel(recipeId, context, recipes);
   if (!model || model.onboarding || model.reservedIngredientId === null) return null;
   const recipe = recipes.find((r) => r.id === model.recipeId);
   if (!recipe) return null;
-  return {
-    recipeIngredientIds: distinctIngredientIds(recipe),
-    reserveId: model.reservedIngredientId,
-    owned: byCatalogOrder(ownedCatalogIds(context.ownedIngredientIds)),
-  };
+  const owned = byCatalogOrder(ownedCatalogIds(context.ownedIngredientIds));
+  const recipeIngredientIds = distinctIngredientIds(recipe);
+  // Precondition (DH4-2B Gate, P3): a hint target is DISCOVERABLE, so every ingredient is owned. An
+  // input that breaks it is not a target: nothing is answered (no existence, no clause), because
+  // answering would split owned from unowned hypotheses.
+  const ownedSet = new Set(owned);
+  if (!recipeIngredientIds.every((id) => ownedSet.has(id))) return null;
+  return { recipeIngredientIds, reserveId: model.reservedIngredientId, keyId: model.freeFacts[0]?.ingredientId ?? null, owned };
 }
 
 function knownPart(parts: ReserveParts): string[] {
   return parts.recipeIngredientIds.filter((id) => id !== parts.reserveId);
 }
 
-/** W: the reserve plus the owned ingredients outside the recipe, sauces dropped when the recipe has
- *  another sauce (the one-sauce prior). Catalog order after the reserve. */
-export function privacyPartitionUniverse(parts: ReserveParts): string[] {
-  const inRecipe = new Set(parts.recipeIngredientIds);
-  const otherSauce = knownPart(parts).some((id) => categoryOf(id) === "sauce");
-  const keep = (id: string) => categoryOf(id) !== null && !(otherSauce && categoryOf(id) === "sauce");
-  return [parts.reserveId, ...parts.owned.filter((id) => !inRecipe.has(id))].filter(keep);
+/**
+ * H (DH4-2B Pre-Implementation Gate, P2-1): every hypothetical reserve, i.e. every ingredient the
+ * player cannot rule out as the missing one when every other ingredient of the recipe is known.
+ *
+ * H = { x in OWNED : x not in the known part, x is not the key, x is Rule W-consistent }, where
+ * Rule W-consistent means x's category ranks at least as high as every non-key known ingredient
+ * (Rule W, OD-H3-5, holds for every recipe by construction; it is not a catalog assumption).
+ *
+ * No catalog prior (such as "every pizza has exactly one sauce") narrows H: a sauceless,
+ * cheese-based or multi-spread recipe keeps its real reserve in H. H depends on the known part, the
+ * key and the owned set only, so it is the same set for every hypothesis. Catalog order.
+ */
+export function hypotheticalReserves(parts: ReserveParts): string[] {
+  const known = new Set(knownPart(parts));
+  const floor = Math.max(-1, ...[...known].filter((id) => id !== parts.keyId).map((id) => ruleWRank(id) ?? Number.POSITIVE_INFINITY));
+  return byCatalogOrder(parts.owned).filter((id) => {
+    const rank = ruleWRank(id);
+    return !known.has(id) && id !== parts.keyId && rank !== null && rank >= floor;
+  });
 }
 
-/** H: every hypothetical reserve (see the module header). Always contains the real reserve. */
-export function hypotheticalReserves(parts: ReserveParts): string[] {
-  const known = knownPart(parts);
-  const knownSet = new Set(known);
-  const knownHasSauce = known.some((id) => categoryOf(id) === "sauce");
-  const candidates = byCatalogOrder([parts.reserveId, ...parts.owned]).filter((id) => !knownSet.has(id) && categoryOf(id) !== null);
-  return candidates.filter((id) => (categoryOf(id) === "sauce") !== knownHasSauce);
+/** W, the strict answer's universe: the same set as H (kept as its own name for the audit). */
+export function privacyPartitionUniverse(parts: ReserveParts): string[] {
+  return hypotheticalReserves(parts);
+}
+
+/**
+ * The guard's precondition (fail closed): the real reserve is in H. It fails only for inputs the
+ * runtime never produces (the reserve is not owned: targets are DISCOVERABLE, so every ingredient is
+ * owned; or a reserve Rule W could not have chosen). The answer is then existence and no clause.
+ */
+export function reserveInHypotheses(parts: ReserveParts): boolean {
+  return hypotheticalReserves(parts).includes(parts.reserveId);
 }
 
 /** The ReserveParts of hypothesis x: the same known part, x as the missing reserve. */
 export function hypotheticalParts(parts: ReserveParts, x: string): ReserveParts {
-  return { recipeIngredientIds: [...knownPart(parts), x], reserveId: x, owned: parts.owned };
+  return { recipeIngredientIds: [...knownPart(parts), x], reserveId: x, keyId: parts.keyId, owned: parts.owned };
 }
 
 function dh41Answer(parts: ReserveParts): ReserveAttributeAnswer | null {
@@ -137,29 +177,45 @@ function answerForClass(cls: string): ReserveAttributeAnswer {
   return { level: "category", category: value as never, factId: `attr:category:${value}` as never };
 }
 
-/** The strict ("level before value") answer for these parts. The level depends on W only. */
-export function strictAnswerForParts(parts: ReserveParts): ReserveAttributeAnswer {
-  const w = privacyPartitionUniverse(parts);
-  for (const level of ["family", "group", "category"] as const) {
-    const sizes = new Map<string, number>();
-    for (const id of w) sizes.set(classOf(level, id), (sizes.get(classOf(level, id)) ?? 0) + 1);
-    if ([...sizes.values()].every((n) => n >= MIN_ATTRIBUTE_CANDIDATES)) return answerForClass(classOf(level, parts.reserveId));
-  }
-  return { level: "existence", factId: "attr:existence" };
-}
+const EXISTENCE: ReserveAttributeAnswer = { level: "existence", factId: "attr:existence" };
 
-/** Whether the DH4-1 answer may be used: every DH4-1 answer class over H has >= 2 members. H-only. */
-export function partitionAllowsDh41(parts: ReserveParts): boolean {
-  const sizes = new Map<string, number>();
-  for (const x of hypotheticalReserves(parts)) {
-    const answer = dh41Answer(hypotheticalParts(parts, x));
-    const key = answer ? answer.factId : "none";
-    sizes.set(key, (sizes.get(key) ?? 0) + 1);
-  }
+/** Every value is 0 or >= MIN_ATTRIBUTE_CANDIDATES. */
+function allClassesSafe(sizes: ReadonlyMap<string, number>): boolean {
   return [...sizes.values()].every((n) => n >= MIN_ATTRIBUTE_CANDIDATES);
 }
 
-/** OD-DH4-2-2: the guarded answer for any parts (real or hypothetical). */
+/** The strict ("level before value") answer for these parts. The level depends on H only. */
+export function strictAnswerForParts(parts: ReserveParts): ReserveAttributeAnswer {
+  const h = hypotheticalReserves(parts);
+  if (!h.includes(parts.reserveId)) return EXISTENCE;
+  for (const level of ["family", "group", "category"] as const) {
+    const sizes = new Map<string, number>();
+    for (const id of h) sizes.set(classOf(level, id), (sizes.get(classOf(level, id)) ?? 0) + 1);
+    if (allClassesSafe(sizes)) return answerForClass(classOf(level, parts.reserveId));
+  }
+  return EXISTENCE;
+}
+
+/**
+ * Whether the DH4-1 answer may be used. H-only. Every DH4-1 answer class over H must have >= 2
+ * members **within every category side** (sauce / cheese / topping): an attacker who narrows H by
+ * any category-defined prior (one sauce per pizza, a known reserve category, a future base
+ * category...) still finds >= 2 candidates in the class the answer names.
+ */
+export function partitionAllowsDh41(parts: ReserveParts): boolean {
+  const h = hypotheticalReserves(parts);
+  if (!h.includes(parts.reserveId)) return false;
+  const sizes = new Map<string, number>();
+  for (const x of h) {
+    const answer = dh41Answer(hypotheticalParts(parts, x));
+    const key = `${categoryOf(x)}|${answer ? answer.factId : "none"}`;
+    sizes.set(key, (sizes.get(key) ?? 0) + 1);
+  }
+  return allClassesSafe(sizes);
+}
+
+/** OD-DH4-2-2: the guarded answer for any parts (real or hypothetical). Fails closed to existence
+ *  when the real reserve is not in H (the partition check refuses and the strict answer is existence). */
 export function guardedAnswerForParts(parts: ReserveParts): ReserveAttributeAnswer | null {
   if (categoryOf(parts.reserveId) === null) return null;
   return partitionAllowsDh41(parts) ? dh41Answer(parts) : strictAnswerForParts(parts);
@@ -182,12 +238,23 @@ function toppingTotalOf(recipeIngredientIds: readonly string[]): number {
   return recipeIngredientIds.filter((id) => categoryOf(id) === "topping").length;
 }
 
-/** OD-DH4-2-1 TC-G for any parts: T >= 1 and every category side present in W has >= 2 members. */
+/**
+ * OD-DH4-2-1 TC-G for any parts, decided from H only (DH4-2B Pre-Implementation Gate, P2-2):
+ * - the real reserve is in H (fail closed);
+ * - every hypothesis in H gives a topping total >= 1 (the known part has a topping, or every
+ *   hypothesis is a topping), so a missing clause never implies 「トッピング0」 and a told clause is
+ *   never 0;
+ * - every category side present in H has >= 2 members.
+ */
 export function toppingClauseAllowedForParts(parts: ReserveParts): boolean {
+  const h = hypotheticalReserves(parts);
+  if (!h.includes(parts.reserveId)) return false;
+  const knownToppings = toppingTotalOf(knownPart(parts));
+  if (h.some((x) => knownToppings + (categoryOf(x) === "topping" ? 1 : 0) < 1)) return false;
   if (toppingTotalOf(parts.recipeIngredientIds) < 1) return false;
   const sides = new Map<string, number>();
-  for (const id of privacyPartitionUniverse(parts)) sides.set(categoryOf(id)!, (sides.get(categoryOf(id)!) ?? 0) + 1);
-  return [...sides.values()].every((n) => n >= MIN_ATTRIBUTE_CANDIDATES);
+  for (const id of h) sides.set(categoryOf(id)!, (sides.get(categoryOf(id)!) ?? 0) + 1);
+  return allClassesSafe(sides);
 }
 
 export function toppingClauseAllowed(recipeId: unknown, context: AttributeContext, recipes: readonly Recipe[] = RECIPES): boolean {
