@@ -395,3 +395,17 @@ Full Vitest after the fix: 190 files, **4037 passed / 1 skipped**. `tsc -b`, `ox
   - `webkit webkit-390x844 shard 1/2` and `2/2`, `webkit webkit-360x800 shard 1/2` and `2/2`, **WebKit Gate**
 - Mergeable: clean against `main` `726b0ac`. No open review threads (both Codex P2 threads are fixed and resolved).
 - This CI record is a docs-only commit (no code change).
+
+## 21. Latest-main integration (after the review and CI)
+
+- `origin/main` moved from `726b0ac` to **`5a33d85`**. That brings in PR #251 (H3-4, the Selectable sheet UI) and PR #254 (DH4-1, a Deduction Hint pure layer, not yet wired in).
+- **Textual overlap:** only `src/App.css`. Both sides appended, and git merged it cleanly with no conflict.
+- **Semantic overlap:** none.
+  - H3-4 changes the Free Cooking hint sheet, which Dinner never opens (`SHOW_HINT` and hint purchases are blocked during a run).
+  - DH4-1 is a pure layer with no wiring.
+- **Merge commit:** `c27e00f`. No rebase and no force-push.
+- **Re-verified on the merged tree:**
+  - `tsc -b` clean, `oxlint` 0 warnings, build succeeded.
+  - Full Vitest: **192 files, 4077 passed / 1 skipped**.
+  - Full Chromium E2E (iphone-390x844, iphone-360x800, layout-chromium): **201 passed / 25 skipped (per-width guards) / 0 failed**. This includes the H3-4 hint-sheet specs and LC-S Dinner.
+- GitHub CI is re-running on the merged head.
