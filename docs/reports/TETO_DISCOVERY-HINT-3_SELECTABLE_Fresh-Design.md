@@ -16,8 +16,8 @@ Verdict: **A. READY FOR OWNER DECISIONS** (§16).
 > **Update (Owner Decisions confirmed):** the Owner confirmed OD-H3-1..12 (§20, Owner Authority).
 > The mandatory pre-implementation check of OD-H3-6 then found conflicts between the confirmed
 > decisions (§21). The Owner resolved them with OD-H3-13..16 (§22). The restart-gate privacy
-> recheck passed (§23), and H3-1 (pure logic, unwired) was implemented. See
-> `docs/reports/TETO_DISCOVERY-HINT-3_H3-1_Result.md`.
+> recheck passed (§23), and H3-1 (pure logic, unwired) was implemented. The Owner then decided
+> C-1 with OD-H3-17 (§24). See `docs/reports/TETO_DISCOVERY-HINT-3_H3-1_Result.md`.
 
 ---
 
@@ -740,3 +740,38 @@ The gate passed, so H3-1 proceeded. It pins all five as tests on the real module
 One condition carried forward (not a pre-purchase structure item; raised for the Owner in the H3-1
 Result Report, C-1): pizza-bianca has 0 paid facts, so its **first** purchase attempt resolves to
 "nothing to reveal" at 0 Pitz. That is a zero-cost signal at the first action.
+
+## 24. OD-H3-17 — zero purchasable fact (Owner Authority)
+
+Confirmed by the Owner on the H3-1 review of PR #241 (HEAD `be665cf`), resolving C-1. Recorded verbatim.
+
+**OD-H3-17 — ZERO PURCHASABLE FACT.** C-1は (a) を採用します。pizza-biancaのように、
+free key factは存在する / Rule W reserved ingredientは存在する / purchasable positive factが0
+となるrecipeを許容します。recipe個別例外は作りません。key factをpizza-biancaだけ有料化しません。
+absence / negative factも作りません。
+
+**ZERO-FACT REQUEST SEMANTICS.** purchasable positive factが0の状態でプレイヤーが追加hintを要求
+した場合: Pitz消費 = 0 / purchase countを進めない / paid progressを進めない / purchased factを追加
+しない / persistence mutationなし / recipe-specific special caseなし。結果はprivacy-safeなgeneric
+guidanceとする。禁止copy / semantic: 「材料はこれで全部」 / 「追加の材料はありません」 /
+「トッピングはありません」 / 「チーズはありません」 / 「残り0個」 / exact ingredient count /
+exact category absence / reserved ingredient identity。つまり、zero purchasable factをnegative
+recipe factとして直接公開しない。
+
+**PAID INFERENCE AUTHORITY.** この操作結果からプレイヤー自身が「もう追加情報がないのかもしれない」
+と推測することは許容する。これはOD-H3-16のPAID INFERENCEと同じ考え方で扱う。ただしPitzを実際には
+消費しないため、より正確には: INTERACTION INFERENCE としてResult Reportへ区別して記録する。
+購入前structureから無料で漏れるFREE LEAKは禁止のまま。
+
+**UI COPY.** 最終文言はH3-4で決める。候補の方向性:「このピザは、今わかっているヒントを手がかりに
+考えてみよう！」のようなgeneric guidance。H3-1ではproduction UI/CSSを変更しない。privacy-safe
+presentation modelとしてgeneric result/statusだけ定義してよい。
+
+Implementation (H3-1, pure only):
+
+- A request that resolves to no fact returns
+  `{ success: false, reason: "GUIDANCE_ONLY", guidance: "THINK_WITH_KNOWN_HINTS", price: 0 }`.
+- The same answer applies to every recipe and every exhausted target.
+- The answer carries no new ids, no balance and no `persist` flag, so the caller has nothing to
+  record and no counter moves.
+- `NOTHING_TO_REVEAL` no longer exists.

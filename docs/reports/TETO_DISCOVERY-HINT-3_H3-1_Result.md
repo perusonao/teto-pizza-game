@@ -8,15 +8,16 @@ authority.
   (OD-H3-13..16) and §23 (restart-gate recheck: PASS).
 - Base `main`: `4bf098f` (Merge PR #240, DM-2). No Dinner Mission file is touched.
 
-**Verdict: B. READY WITH CONDITIONS.** The one condition, C-1 in §12, needs an Owner acknowledgment.
+**Verdict: A. H3-1 FINAL GATE PASS — PR READY FOR OWNER MERGE.** C-1 is resolved by OD-H3-17
+(Fresh Design §24, §8a below). PR #241 is not merged; H3-2 is not started.
 
 ## 1. Changed files
 
 | File | Change |
 |---|---|
 | `src/logic/discovery/selectableHint.ts` | **new**: the pure layer (unwired) |
-| `src/logic/discovery/selectableHint.test.ts` | **new**: 63 tests (fact model, Rule W, free key, fallback, pricing, legacy progress, validation, privacy, mutation) |
-| `docs/reports/TETO_DISCOVERY-HINT-3_SELECTABLE_Fresh-Design.md` | §22 OD-H3-13..16 (verbatim), §23 restart-gate recheck, status note |
+| `src/logic/discovery/selectableHint.test.ts` | **new**: 73 tests (fact model, Rule W, free key, fallback, pricing, legacy progress, zero-fact guidance, validation, privacy, mutation) |
+| `docs/reports/TETO_DISCOVERY-HINT-3_SELECTABLE_Fresh-Design.md` | §22 OD-H3-13..16 and §24 OD-H3-17 (verbatim), §23 restart-gate recheck, status note |
 | `docs/reports/TETO_DISCOVERY-HINT-3_H3-1_Result.md` | this report |
 
 Read-only reuse, unchanged: `DISCOVERY_HINT_PRICES`, `MAX_PURCHASABLE_HINT_LEVEL` and
@@ -154,13 +155,49 @@ Pinned:
   ①②③.
 - The remaining fact count is not exposed at paid count 0 or 1.
 
-**PAID INFERENCE: allowed.** After buying every fact, the next attempt is `NOTHING_TO_REVEAL`
+**PAID INFERENCE: allowed.** After buying every fact, the next attempt is the generic guidance (§8a)
 (no charge, no negative fact). The presentation shows the paid facts plus the key, and never the
 reserve.
 
+## 8a. Zero purchasable fact: generic guidance (OD-H3-17)
+
+A request that resolves to no fact returns exactly
+`{ success: false, reason: "GUIDANCE_ONLY", guidance: "THINK_WITH_KNOWN_HINTS", price: 0 }`.
+
+- It never carries a new id, a balance or a `persist` flag.
+- Pitz, the paid count, legacy progress and the purchased facts cannot move.
+- There is no recipe-id special case. pizza-bianca, a synthetic future zero-fact recipe
+  (`future-zero-fact`: pesto + cherry-tomato), an exhausted capricciosa and a legacy-H4
+  napoletana all get the identical answer.
+
+Final UI copy is decided in H3-4 (OD-H3-17 direction: 「このピザは、今わかっているヒントを
+手がかりに考えてみよう！」).
+
+Three kinds of leak are now told apart:
+
+| Kind | What the player learns | Status |
+|---|---|---|
+| FREE LEAK | recipe structure from the pre-purchase presentation | **forbidden**, pinned (§8) |
+| PAID INFERENCE | "maybe nothing more" after paying for every fact | allowed (OD-H3-16) |
+| **INTERACTION INFERENCE** | "maybe nothing more" from a zero-fact request that cost 0 Pitz (pizza-bianca on the first request, any target after exhaustion) | **allowed** (OD-H3-17), recorded separately because no Pitz was spent |
+
+Tests (OD-H3-17 items 1–15):
+
+- pizza-bianca has 0 purchasable facts.
+- Zero charge.
+- Paid count, legacy progress and purchased facts are unchanged. Inputs are frozen, and the
+  presentation is identical before and after.
+- Repeated requests are idempotent.
+- The serialized result contains no negative fact, no reserve, no count, no category word and no
+  digit other than 0.
+- Stale, insufficient-Pitz and hostile requests stay fail closed, exactly as for bismarck.
+- The future zero-fact recipe behaves identically to pizza-bianca.
+- Mutants that return the reserve, charge 5 Pitz, return a negative fact, or add a count are all
+  detected.
+
 ## 9. Mutation / adversarial tests
 
-**In-test mutants (16).** The privacy, resolver, Rule W and bypass checks run against deliberately
+**In-test mutants (21).** The privacy, resolver, Rule W, bypass, legacy-rung and zero-fact checks run against deliberately
 broken implementations, and each one is detected:
 - remaining-count field
 - per-row availability flag
@@ -178,9 +215,14 @@ broken implementations, and each one is detected:
 - absence fact
 - Rule W "first instead of last"
 - batch-size pricing (5 + 5 + 5 ≠ 30)
+- legacy rung rolled back (the Codex P2 bug)
+- zero-fact path returns the reserve
+- zero-fact path charges 5 Pitz
+- zero-fact path returns a negative fact
+- zero-fact path adds a count
 
-**Source mutants of `selectableHint.ts` (9).** Each was applied temporarily, the suite was run, and
-the file was restored (diff-verified). **All 9 were killed:**
+**Source mutants of `selectableHint.ts` (12).** Each was applied temporarily, the suite was run, and
+the file was restored (diff-verified). **All 12 were killed:**
 
 | Mutant | Tests failed |
 |---|---:|
@@ -193,13 +235,16 @@ the file was restored (diff-verified). **All 9 were killed:**
 | price reveals a zero-fact recipe | 5 |
 | onboarding not free | 1 |
 | rung from owned facts only (the Codex P2 bug) | 6 |
+| zero-fact request charges 5 Pitz | 9 |
+| zero-fact request returns the reserve | 10 |
+| zero-fact request disguised as insufficient Pitz | 11 |
 
 ## 10. Test counts / gate
 
 | Check | Result |
 |---|---|
-| Focused `selectableHint.test.ts` | **63 / 63** |
-| Full Vitest | **180 files, 3817 passed, 1 skipped** (3754 + 1 skipped at base, +63) |
+| Focused `selectableHint.test.ts` | **73 / 73** |
+| Full Vitest | **180 files, 3827 passed, 1 skipped** (3754 + 1 skipped at base, +73) |
 | `tsc -b` | exit 0 |
 | `oxlint` | exit 0 |
 | `vite build` | exit 0 (only the pre-existing chunk-size warning) |
@@ -234,7 +279,7 @@ No production file imports `selectableHint`.
 
 | # | Item | Status |
 |---|---|---|
-| **C-1** | **pizza-bianca, first purchase attempt.** With 0 sellable facts, a player with ≥ 5 Pitz who tries to buy gets `NOTHING_TO_REVEAL` at 0 Pitz. Every other target reveals a fact. That is a zero-cost signal at the first *action*. It is not the pre-purchase presentation (the gate items all pass), and it cannot be removed without making pizza-bianca a special case (OD-H3-13 forbids that) or selling a non-positive fact (OD-H3-7 forbids that). | **Owner acknowledgment needed** before H3-3/H3-4 wire the outcome. Options: (a) accept it as the consequence of OD-H3-13; (b) decide in H3-4 how the "nothing more" outcome is worded. |
+| **C-1** | pizza-bianca, first purchase attempt: a zero-cost "nothing new" answer. | **Resolved by OD-H3-17 (a)**: generic guidance, no charge, no progress, no record, no special case (§8a). Recorded as INTERACTION INFERENCE. |
 | R-1 | Paid inference is cheap on small recipes. The 7 three-ingredient targets sell 1 fact (5 Pitz), after which "nothing more" follows. | Allowed by OD-H3-16. Revisit in economy tuning. |
 | R-2 | Fallback lets a buyer infer "no more in my preferred category" after paying. | Allowed (paid inference). Only positive facts are shown. |
 | R-3 | Rule W and key ties depend on authored order. | Existing authorities, pinned (reserve = H4 withheld, 25/25). |
