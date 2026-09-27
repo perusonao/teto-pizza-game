@@ -32,17 +32,18 @@ So a sauceless recipe loses its real reserve from H.
 
 **The independent attacker.**
 - It lives in `testSupport/deductionAttacker.ts` and never reads `hypotheticalReserves`.
-- It takes the candidates from what the player can observe: the owned set, the known part, the key, N, the clause, the answer, the catalog and Rule W.
-- It tests them with no prior, and separately with one-sauce, not-one-sauce, Rule W, and known-category priors.
+- It takes the candidates from what the player can observe: the owned set, the known part, the free key, N, the clause, the answer, the catalog, the Discovery Ladder, Rule W and the key rule.
+- The key rule: the free key is the ingredient with the recipe's key step, so nothing in the recipe is unlocked later than it.
+- It tests the candidates with no prior, and separately with one-sauce, not-one-sauce, Rule W, the key rule, Rule W + key, and a known category (alone and with Rule W + key).
 - A **leak** is a prior that holds for the real recipe, starts with at least 2 candidates, and is narrowed to 1 by the hint.
 
 | Case | DH4-2A guard (7bb0116) | Hardened guard |
 |---|---|---|
-| A. Runtime: 300 target × ladder states | 0 leaks | 0 leaks |
+| A. Runtime: 300 target × ladder states | **40 leaking states** under the key rule: bismarck and funghi at steps 5–24, where `attr:category:cheese` leaves only mozzarella (found by the Codex review of this PR) | **0** |
 | A. Runtime: 24 targets, everything owned | 0 | 0 |
 | B. Synthetic sauceless `[mozzarella, egg, mushroom]`, everything owned | **egg named with no prior** (`attr:category:topping`) | 0. Egg is in H. |
 | B. The review's example `[mozzarella, basil, egg]` | Rule W picks basil as the reserve under the current ladder key. Egg is the free key, so it is not the reserve. | 0 at every inventory |
-| B + C. Synthetic families: sauceless, cheese-base, multi-sauce, zero-topping, no-cheese (141 recipes × 7 inventories = 987 owned states) | **48 leaking states** | **0** |
+| B + C. Synthetic families: sauceless, cheese-base, multi-sauce, zero-topping, no-cheese (141 recipes × 7 inventories = 987 owned states) | **84 leaking states** (48 without the key-rule priors) | **0** |
 | D / E. Full and partial ownership (ladder steps 3 … 24 and everything) | included above | 0 |
 | E. Partial knowledge: every reachable purchase state × 300; synthetic key-only and one-fact-short | — | 0. At least 2 possible reserves remain. |
 | F. Reserve **not** owned (adversarial) | Answers and leaks: the owned and unowned hypotheses split | **Refused** with `NOT_A_TARGET` before anything else. Nothing is disclosed or charged. |
@@ -61,9 +62,11 @@ So a sauceless recipe loses its real reserve from H.
 
 The rule lives in `deductionGuard.ts`.
 
-- **H** = { x ∈ owned : x ∉ the known part, x ≠ the key, and rank(x) ≥ the rank of every non-key known ingredient }.
+- **H** = { x ∈ owned : x ∉ the known part, x ≠ the key, rank(x) ≥ the rank of every non-key known ingredient, and keyStep(x) ≤ keyStep(key) }.
   - The rank order is sauce < cheese < topping, which is Rule W, OD-H3-5.
-  - Rule W holds for every recipe by construction. It is not a catalog assumption, so the real reserve is always in H.
+  - keyStep is `recipeKeyStep`, the rule behind `hintKeyIngredientId`. An ingredient unlocked after the key would itself have been the key. With no key, every ingredient is a starter (step 0). A tie stays in H, because the ingredient order is not public.
+  - Both rules hold for every recipe by construction. They are not catalog assumptions, so the real reserve is always in H.
+  - **Consequence:** for a DISCOVERABLE target, owning ingredients unlocked after its key no longer changes anything. DH4-2A counted them as decoys, but a player can rule them out.
 - **Partition guard (OD-DH4-2-2, strengthened).** Every DH4-1 answer class must have at least 2 members **within each category side**.
   - So an attacker who adds any category-defined prior still has at least 2 candidates.
   - Examples of such priors: one sauce per pizza, a reserve category learned from T, a future base category.
@@ -72,16 +75,23 @@ The rule lives in `deductionGuard.ts`.
   - If the real reserve is not in H, the answer is existence and the clause is not told.
   - A recipe the owned set cannot make is not a target, and its request is `NOT_A_TARGET`. This cannot happen at runtime, because every hint target is DISCOVERABLE.
 
+### 2.4 Review round 1 (Codex, P1): the key rule
+
+- **The finding.** The free key is public, but DH4-2A's H (and this PR's first head, `5ccece1`) kept candidates unlocked *after* the key. The key rule excludes those.
+- **The example.** Bismarck at step 5: the key is egg, so the real candidates before the hint are mozzarella and basil. `attr:category:cheese` then leaves only mozzarella.
+- **Confirmed** with the independent attacker (key-rule priors added): the DH4-2A guard leaks in 40 of the 300 runtime states.
+- **Fixed** by the key-consistency condition in H (§2.3). A test pins the 40 states for the DH4-2A reference and 0 for the hardened guard.
+
 ## 3. P2-2: TC-G `T ≥ 1`
 
 `T ≥ 1` of the real recipe is not H-only. Once the H sides pass, a missing clause means 「トッピング0」.
 
 | Option | Runtime 300: clause told | Leaks | 「0」 inferred | Ladder 24 | All owned 24 | Synthetic (460 states): told / leaks / 「0」 inferred |
 |---|---|---|---|---|---|---|
-| A. Real `T ≥ 1` (DH4-2A rule, hardened H) | 178 | 0 | 0 | 13 | 23 | 235 / 0 / **44** |
-| B. The known part has at least 1 topping | 178 | 0 | 0 | 13 | 23 | 137 / 0 / 0 |
-| **C. Every hypothesis in H has T ≥ 1 (adopted)** | **178** | 0 | 0 | **13** | **23** | 137 / 0 / 0 |
-| D. B, and every hypothesis is a topping (T constant) | 90 | 0 | 0 | 9 | 7 | 68 / 0 / 0 |
+| A. Real `T ≥ 1` (DH4-2A rule, hardened H) | 177 | 0 | 0 | 13 | 13 | 159 / 0 / **45** |
+| B. The known part has at least 1 topping | 177 | 0 | 0 | 13 | 13 | 99 / 0 / 0 |
+| **C. Every hypothesis in H has T ≥ 1 (adopted)** | **177** | 0 | 0 | **13** | **13** | 99 / 0 / 0 |
+| D. B, and every hypothesis is a topping (T constant) | 130 | 0 | 0 | 9 | 9 | 72 / 0 / 0 |
 
 **C is adopted.**
 - It is H-derived.
@@ -94,15 +104,18 @@ The rule lives in `deductionGuard.ts`.
 
 | Measure | DH4-2A (audit `2f0ffaa`) | Hardened |
 |---|---|---|
-| 300-state levels | existence 144 · category 155 · group 1 | existence **122** · category **165** · group **13** |
+| 300-state levels | existence 144 · category 155 · group 1 | existence **123** · category **164** · group **13** |
 | Ladder-owned, 24 targets | category 11 · existence 13 | category 12 · group 1 · existence 11 |
-| All owned, 24 targets | category 22 · group 1 · existence 1 | unchanged |
-| TC-G passes, ladder / all | 11 / 23 | **13** / 23 |
-| TC-G states, of 300 | 156 | 178 |
-| DH4-1 alone | 29 / 300 leaks (5 recipes) | unchanged; the DH4-1 function is not touched |
-| Guarded inversion leaks | 0 | 0; the independent attacker also finds 0 |
+| All owned, 24 targets | category 22 · group 1 · existence 1 | category 12 · group 1 · existence 11 (the same as ladder-owned) |
+| TC-G passes, ladder / all | 11 / 23 | **13** / **13** |
+| TC-G states, of 300 | 156 | 177 |
+| DH4-1 alone, under the audit's player model | 29 / 300 leaks (5 recipes) | unchanged; the DH4-1 function is not touched |
+| Guarded leaks, independent attacker with the key rule | **40** (bismarck, funghi) | **0** |
 
-**Why the numbers rise.** Rule W-consistent H is often *narrower* than the one-sauce H. When the known part has a non-key topping, only toppings can be the reserve. That is a true, public rule, so the per-category classes pass more often.
+**Why the numbers move.**
+- **Early answers rise.** Rule W-consistent H is often *narrower* than the one-sauce H: when the known part has a non-key topping, only toppings can be the reserve. That rule is true and public, so the per-category classes pass more often.
+- **The all-owned figures drop to the ladder figures.** The key rule removes the late-unlocked decoys, which were never real (they are how the DH4-2A guard leaked on bismarck and funghi).
+- **The old all-owned "23 / 24" TC-G figure overstated safety.** It is 13 / 24 now.
 
 **Regenerated data:**
 - `docs/reports/data/TETO_DISCOVERY-HINT-4_DH4-2A_AUDIT.json` (schema v2). Each row gains `independentAttackerLeaks`, and the summary gains `dh4_2aReference`.
@@ -121,12 +134,13 @@ The rule lives in `deductionGuard.ts`.
 | 7. Dynamic-import boundary | **Fixed.** Both boundary regexes also match `import("…")`. Verified with a throw-away `import("./logic/discovery/deductionGuard")` file, which the test caught. | `deductionGuard.test.ts`, `deductionHint.test.ts` |
 | 8. Issue #253 freshness | A status comment is posted with this PR | #253 |
 
-**Mutation run on this fix: 17 / 17 killed.** The mutants:
+**Mutation run on this fix: 18 / 18 killed.** The mutants:
 - the one-sauce prior back in H;
 - partition classes that ignore the category;
 - the TC-G min-over-H rule dropped;
 - the makeable precondition dropped, in the guard and in the request;
 - the Rule W floor dropped;
+- the key rule dropped;
 - the TC-G sides check dropped;
 - the reserve-in-H check dropped, separately in strict and in partition;
 - unranked known ingredients ignored;
@@ -148,12 +162,12 @@ The first run left three layered reserve-in-H checks alive, because each one mas
 
 | Check | Result |
 |---|---|
-| Focused `src/logic/discovery` | green, including the 12 gate tests and 3 future-category tests |
-| Full Vitest | 197 files, **4141 passed**, 1 skipped |
+| Focused `src/logic/discovery` | green, including the 14 gate tests and 3 future-category tests |
+| Full Vitest | 197 files, **4143 passed**, 1 skipped |
 | `tsc -b` | clean |
 | `oxlint` | 0 warnings |
 | `npm run build` | OK; 0 DH4 strings in `dist` |
-| Mutation | 17 / 17 killed |
+| Mutation | 18 / 18 killed |
 
 No UI change, so Human Verification does not apply.
 

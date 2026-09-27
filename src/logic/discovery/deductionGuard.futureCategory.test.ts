@@ -24,20 +24,20 @@ const guard = { answer: guardedAnswerForParts, clauseAllowed: toppingClauseAllow
 
 describe("future (unranked) category", () => {
   it("an unranked hypothesis never enters H, and owning such items leaves the answer leak-free", () => {
-    const parts = { recipeIngredientIds: ["tomato-sauce", "mozzarella", "basil", "ham"], reserveId: "ham", keyId: "basil", owned: OWNED };
+    const parts = { recipeIngredientIds: ["tomato-sauce", "fontina", "basil", "ham"], reserveId: "ham", keyId: "fontina", owned: OWNED };
     expect(hypotheticalReserves(parts).some((id) => id.startsWith("future-"))).toBe(false);
     expect(hypotheticalReserves(parts)).toContain("ham");
-    const results = endgameAttack(guard, { recipeIngredientIds: parts.recipeIngredientIds, reserveId: "ham", keyId: "basil", owned: OWNED });
+    const results = endgameAttack(guard, { recipeIngredientIds: parts.recipeIngredientIds, reserveId: "ham", keyId: "fontina", owned: OWNED });
     expect(results.filter((r) => r.leak)).toEqual([]);
   });
   it("an unranked item in the known part fails closed: existence, no clause", () => {
-    const parts = { recipeIngredientIds: ["future-spread-a", "mozzarella", "basil", "ham"], reserveId: "ham", keyId: "basil", owned: OWNED };
+    const parts = { recipeIngredientIds: ["future-spread-a", "fontina", "basil", "ham"], reserveId: "ham", keyId: "fontina", owned: OWNED };
     expect(hypotheticalReserves(parts)).toEqual([]);
     expect(guardedAnswerForParts(parts)).toEqual({ level: "existence", factId: "attr:existence" });
     expect(toppingClauseAllowedForParts(parts)).toBe(false);
   });
   it("an unranked reserve fails closed: existence, no clause", () => {
-    const parts = { recipeIngredientIds: ["tomato-sauce", "future-spread-a"], reserveId: "future-spread-a", keyId: "tomato-sauce", owned: OWNED };
+    const parts = { recipeIngredientIds: ["fontina", "future-spread-a"], reserveId: "future-spread-a", keyId: "fontina", owned: OWNED };
     expect(guardedAnswerForParts(parts)).toEqual({ level: "existence", factId: "attr:existence" });
     expect(toppingClauseAllowedForParts(parts)).toBe(false);
   });

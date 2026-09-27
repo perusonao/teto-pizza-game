@@ -88,9 +88,13 @@ export const observeGuardedWithClause: Observation = (parts) => {
 };
 
 /** The hypothetical reserves whose observation equals the real one. Fewer than 2 = a name leak. */
-export function inversionCandidates(parts: ReserveParts, observe: Observation): string[] {
+export function inversionCandidates(
+  parts: ReserveParts,
+  observe: Observation,
+  universe: (parts: ReserveParts) => string[] = hypotheticalReserves,
+): string[] {
   const seen = observe(parts);
-  return hypotheticalReserves(parts).filter((x) => observe(hypotheticalParts(parts, x)) === seen);
+  return universe(parts).filter((x) => observe(hypotheticalParts(parts, x)) === seen);
 }
 
 // ---- closure / forced-ingredient model (the combined inference test) ------------------------------

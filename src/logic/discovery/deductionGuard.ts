@@ -17,8 +17,9 @@
  *
  * - **Hypothetical reserves H** (hardened at the DH4-2B Pre-Implementation Gate, P2-1). Every owned
  *   ingredient the player cannot rule out as the missing one when every other ingredient is known:
- *   outside the known part, not the key, and Rule W-consistent (its category ranks at least as high
- *   as every non-key known ingredient). No catalog prior is assumed: the DH4-2A one-sauce prior
+ *   outside the known part, not the key, Rule W-consistent (its category ranks at least as high
+ *   as every non-key known ingredient) and key-consistent (not unlocked later than the free key,
+ *   which would have made it the key: the Codex review of PR #267). No catalog prior is assumed: the DH4-2A one-sauce prior
  *   dropped the real reserve of a sauceless recipe from H, so an answer class could name it.
  *   H depends on the known part, the key and the owned set only: it is the same set for every
  *   hypothesis. **Fail closed:** when the real reserve is not in H (not owned; never at runtime,
@@ -51,6 +52,7 @@ import {
   type AttributeContext,
   type ReserveAttributeAnswer,
 } from "./deductionHint";
+import { recipeKeyStep } from "../../state/recipeChapters";
 import { buildSelectableHintModel } from "./selectableHint";
 
 /** OD-DH4-2-1: the optional structure fact, stored only when it was told. */
@@ -129,10 +131,19 @@ function knownPart(parts: ReserveParts): string[] {
 export function hypotheticalReserves(parts: ReserveParts): string[] {
   const known = new Set(knownPart(parts));
   const floor = Math.max(-1, ...[...known].filter((id) => id !== parts.keyId).map((id) => ruleWRank(id) ?? Number.POSITIVE_INFINITY));
+  // The free key is public too (hintKeyIngredientId: the ingredient with the recipe's key step). An
+  // ingredient unlocked later than the key would itself have been the key, so it is no hypothesis;
+  // with no key, every ingredient is a starter (step 0). A tie keeps it: the order is not public.
+  const keyStep = parts.keyId === null ? 0 : ingredientKeyStep(parts.keyId);
   return byCatalogOrder(parts.owned).filter((id) => {
     const rank = ruleWRank(id);
-    return !known.has(id) && id !== parts.keyId && rank !== null && rank >= floor;
+    return !known.has(id) && id !== parts.keyId && rank !== null && rank >= floor && ingredientKeyStep(id) <= keyStep;
   });
+}
+
+/** The key step one ingredient alone gives (`recipeKeyStep`, the rule behind the free key). */
+function ingredientKeyStep(id: string): number {
+  return recipeKeyStep({ requiredIngredients: [{ ingredientId: id }] } as unknown as Recipe);
 }
 
 /** W, the strict answer's universe: the same set as H (kept as its own name for the audit). */

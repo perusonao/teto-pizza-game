@@ -3,6 +3,7 @@ import { W1_25_DISCOVERY_LADDER } from "../../data/discoveryLadder";
 import { MIN_ATTRIBUTE_CANDIDATES } from "./deductionHint";
 import { guardedAnswerForParts, partitionAllowsDh41, toppingClauseAllowedForParts } from "./deductionGuard";
 import { RECIPES } from "../../data/recipes";
+import { dh42aHypotheses } from "./testSupport/deductionGuardDh42a";
 import { attackStateOf, endgameAttack, type GuardUnderAttack } from "./testSupport/deductionAttacker";
 import { inversionCandidates, observeDh41, observeGuarded, observeGuardedWithClause, partsOf, sweepStates } from "./testSupport/deductionInversion";
 
@@ -23,7 +24,8 @@ const HARDENED: GuardUnderAttack = { answer: guardedAnswerForParts, clauseAllowe
 describe("T-16 DH4-2A 300-state privacy sweep", () => {
   const rows = sweepStates(W1_25_DISCOVERY_LADDER).map((s) => {
     const parts = partsOf(s);
-    const dh41 = inversionCandidates(parts, observeDh41);
+    // The DH4-1 rows keep the DH4-2 audit's player model (2f0ffaa), so they stay comparable.
+    const dh41 = inversionCandidates(parts, observeDh41, dh42aHypotheses);
     return {
       recipeId: s.recipeId,
       targetIndex: s.targetIndex,
@@ -71,7 +73,7 @@ describe("T-16 DH4-2A 300-state privacy sweep", () => {
     expect(summary.guardedNameLeakStates).toBe(0);
     expect(summary.guardedWithClauseNameLeakStates).toBe(0);
     expect(summary.independentAttackerLeakStates).toBe(0);
-    expect(summary.guardedLevels).toEqual({ existence: 122, category: 165, group: 13 });
-    expect(summary.toppingClauseAllowedStates).toBe(178);
+    expect(summary.guardedLevels).toEqual({ existence: 123, category: 164, group: 13 });
+    expect(summary.toppingClauseAllowedStates).toBe(177);
   });
 });

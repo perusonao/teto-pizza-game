@@ -23,7 +23,8 @@ function universeW(p: ReserveParts): string[] {
   return [p.reserveId, ...p.owned.filter((id) => !inRecipe.has(id))].filter(keep);
 }
 
-function hypotheses(p: ReserveParts): string[] {
+/** DH4-2A `hypotheticalReserves` (7bb0116): the audit's player model (one-sauce prior, no key rule). */
+export function dh42aHypotheses(p: ReserveParts): string[] {
   const known = new Set(knownPart(p));
   const knownHasSauce = [...known].some((id) => categoryOf(id) === "sauce");
   return [...new Set([p.reserveId, ...p.owned])].filter((id) => !known.has(id) && categoryOf(id) !== null && (categoryOf(id) === "sauce") !== knownHasSauce);
@@ -57,7 +58,7 @@ function strict(p: ReserveParts): ReserveAttributeAnswer {
 export function dh42aGuardedAnswer(p: ReserveParts): ReserveAttributeAnswer | null {
   if (categoryOf(p.reserveId) === null) return null;
   const sizes = new Map<string, number>();
-  for (const x of hypotheses(p)) {
+  for (const x of dh42aHypotheses(p)) {
     const a = dh41({ ...p, recipeIngredientIds: [...knownPart(p), x], reserveId: x });
     sizes.set(a ? a.factId : "none", (sizes.get(a ? a.factId : "none") ?? 0) + 1);
   }

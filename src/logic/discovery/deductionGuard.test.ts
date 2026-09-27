@@ -37,6 +37,7 @@ import {
   recipeCounts,
   sweepStates,
 } from "./testSupport/deductionInversion";
+import { dh42aHypotheses } from "./testSupport/deductionGuardDh42a";
 
 /**
  * Discovery Hint 4.0 DH4-2A (Issue #253): the partition guard, TC-G and the structure answer.
@@ -90,7 +91,7 @@ describe("T-01 DH4-1 parity: attributeAnswerForReserve is the unchanged DH4-1 ru
 
 describe("T-02 / T-05 inversion: the answer level never names the reserve", () => {
   it("reproduces the old leak: DH4-1 alone names the reserve in exactly 29 of 300 states (5 recipes)", () => {
-    const leaks = STATES.filter((s) => inversionCandidates(partsOf(s), observeDh41).length < MIN_ATTRIBUTE_CANDIDATES);
+    const leaks = STATES.filter((s) => inversionCandidates(partsOf(s), observeDh41, dh42aHypotheses).length < MIN_ATTRIBUTE_CANDIDATES);
     expect(leaks).toHaveLength(29);
     const byRecipe = new Map<string, number[]>();
     for (const s of leaks) byRecipe.set(s.recipeId, [...(byRecipe.get(s.recipeId) ?? []), s.step]);
@@ -98,7 +99,7 @@ describe("T-02 / T-05 inversion: the answer level never names the reserve", () =
     for (const [recipeId, { steps, named }] of Object.entries(DH41_LEAKS)) {
       const expected = Array.from({ length: steps[1] - steps[0] + 1 }, (_, i) => steps[0] + i);
       expect(byRecipe.get(recipeId), recipeId).toEqual(expected);
-      for (const s of leaks.filter((l) => l.recipeId === recipeId)) expect(inversionCandidates(partsOf(s), observeDh41)).toEqual([named]);
+      for (const s of leaks.filter((l) => l.recipeId === recipeId)) expect(inversionCandidates(partsOf(s), observeDh41, dh42aHypotheses)).toEqual([named]);
     }
   });
 
@@ -155,12 +156,12 @@ describe("T-04 pinned levels (hardened guard, DH4-2B Pre-Implementation Gate; th
     for (const a of answers) out[a!] = (out[a!] ?? 0) + 1;
     return out;
   };
-  it("the 300-state sweep: existence 122 · category 165 · group 13", () => {
-    expect(levels(STATES.map((s) => guardedAnswerForParts(partsOf(s))?.level))).toEqual({ existence: 122, category: 165, group: 13 });
+  it("the 300-state sweep: existence 123 · category 164 · group 13", () => {
+    expect(levels(STATES.map((s) => guardedAnswerForParts(partsOf(s))?.level))).toEqual({ existence: 123, category: 164, group: 13 });
   });
-  it("ladder-owned: category 12 · group 1 · existence 11; all owned: category 22 · group 1 · existence 1", () => {
+  it("ladder-owned and all owned are identical (the key rule): category 12 · group 1 · existence 11", () => {
     expect(levels(TARGETS.map((id, i) => guardedReserveAttributeAnswer(id, ctxAt(i + 1))?.level))).toEqual({ category: 12, group: 1, existence: 11 });
-    expect(levels(TARGETS.map((id, i) => guardedReserveAttributeAnswer(id, ctxAt(i + 1, ALL_INGREDIENT_IDS))?.level))).toEqual({ category: 22, group: 1, existence: 1 });
+    expect(levels(TARGETS.map((id, i) => guardedReserveAttributeAnswer(id, ctxAt(i + 1, ALL_INGREDIENT_IDS))?.level))).toEqual({ category: 12, group: 1, existence: 11 });
   });
   it("the strict fallback is never finer than the DH4-1 answer it replaces would allow (family never forced)", () => {
     for (const s of STATES) {
@@ -226,22 +227,26 @@ describe("T-08 TC-G: the topping clause (OD-DH4-2-1)", () => {
     expect(STATES.some((s) => recipeCounts(s.recipeId).toppings === 0)).toBe(true);
   });
   it("never for T = 0 even when every H side has >= 2 members (a future-catalog shape, synthetic parts)", () => {
-    // A zero-topping pizza (tomato sauce + mozzarella, reserve mozzarella) with everything owned: H has
-    // 3 cheeses and 22 toppings, so only the T rule keeps 「トッピング0」 from being told.
-    const parts = { recipeIngredientIds: ["tomato-sauce", "mozzarella"], reserveId: "mozzarella", keyId: "tomato-sauce", owned: [...ALL_INGREDIENT_IDS] };
+    // A zero-topping pizza (tomato sauce + fontina + mozzarella; fontina, the last ladder material, is
+    // the key, so nothing owned is ruled out by the key rule; reserve mozzarella) with everything owned:
+    // H has cheeses and toppings, each side >= 2, so only the T rule keeps 「トッピング0」 from being told.
+    const parts = { recipeIngredientIds: ["tomato-sauce", "fontina", "mozzarella"], reserveId: "mozzarella", keyId: "fontina", owned: [...ALL_INGREDIENT_IDS] };
     const sides = new Map<string, number>();
     for (const id of privacyPartitionUniverse(parts)) sides.set(getIngredient(id)!.category, (sides.get(getIngredient(id)!.category) ?? 0) + 1);
+    expect([...sides.keys()].sort()).toEqual(["cheese", "sauce", "topping"]);
     expect([...sides.values()].every((n) => n >= 2)).toBe(true);
     expect(toppingClauseAllowedForParts(parts)).toBe(false);
     // P2-2 (H-only): the same known part with a topping reserve is NOT told either, because a cheese
     // hypothesis in H would have T = 0. So a missing clause never implies 「トッピング0」.
-    expect(toppingClauseAllowedForParts({ ...parts, recipeIngredientIds: ["tomato-sauce", "mozzarella", "basil"], reserveId: "basil" })).toBe(false);
+    expect(toppingClauseAllowedForParts({ ...parts, recipeIngredientIds: ["tomato-sauce", "fontina", "mozzarella", "basil"], reserveId: "basil" })).toBe(false);
     // With a topping in the known part every hypothesis has T >= 1: told.
-    expect(toppingClauseAllowedForParts({ ...parts, recipeIngredientIds: ["tomato-sauce", "mozzarella", "basil", "egg"], reserveId: "egg" })).toBe(true);
+    expect(toppingClauseAllowedForParts({ ...parts, recipeIngredientIds: ["tomato-sauce", "fontina", "mozzarella", "basil", "egg"], reserveId: "egg" })).toBe(true);
   });
-  it("pinned: passes for 13/24 at the ladder state and 23/24 with everything owned (DH4-2A: 11 / 23)", () => {
+  it("pinned: passes for 13/24 at the ladder state and 13/24 with everything owned (DH4-2A: 11 / 23)", () => {
     expect(TARGETS.filter((id, i) => toppingClauseAllowed(id, ctxAt(i + 1))).length).toBe(13);
-    expect(TARGETS.filter((id, i) => toppingClauseAllowed(id, ctxAt(i + 1, ALL_INGREDIENT_IDS))).length).toBe(23);
+    // With everything owned DH4-2A counted ingredients unlocked after the key as decoys; the key rule
+    // rules them out, so the inventory beyond the key step no longer changes the decision.
+    expect(TARGETS.filter((id, i) => toppingClauseAllowed(id, ctxAt(i + 1, ALL_INGREDIENT_IDS))).length).toBe(13);
   });
   it("P2-2: the decision is H-only — identical for every hypothesis in H, so a missing clause never implies 「トッピング0」", () => {
     for (const s of STATES) {

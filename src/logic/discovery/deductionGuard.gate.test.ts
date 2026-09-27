@@ -14,7 +14,7 @@ import {
   type ReserveParts,
 } from "./deductionGuard";
 import { requestDeductionHint } from "./deductionRequest";
-import { attackStateOf, endgameAttack, partialAttack, type GuardUnderAttack } from "./testSupport/deductionAttacker";
+import { attackStateOf, endgameAttack, keyStepOf, partialAttack, type GuardUnderAttack } from "./testSupport/deductionAttacker";
 import { dh42aGuardedAnswer, dh42aToppingClauseAllowed } from "./testSupport/deductionGuardDh42a";
 import { ALL_INGREDIENT_IDS, ownedAt, reachableKnownSets, sweepStates } from "./testSupport/deductionInversion";
 
@@ -102,7 +102,7 @@ describe("P2-1 reproduced: the DH4-2A one-sauce prior drops a sauceless reserve 
         expect(leakPriors(HARDENED, recipe, parts), `${family} ${recipe.requiredIngredients.map((r) => r.ingredientId)} @${step}`).toEqual([]);
       }
     }
-    expect(dh42aLeaks).toBe(48); // of 141 recipes x 7 inventories = 987 owned states
+    expect(dh42aLeaks).toBe(84); // of 141 recipes x 7 inventories = 987 owned states
   }, 120_000);
 });
 
@@ -147,19 +147,28 @@ describe("Hardened guard: H completeness, H-only branches, fail closed", () => {
     }
   });
   it("fails closed when the reserve is not in H (hand-built parts the runtime never produces)", () => {
-    const parts: ReserveParts = { recipeIngredientIds: ["tomato-sauce", "mozzarella", "ham"], reserveId: "ham", keyId: "tomato-sauce", owned: ["tomato-sauce", "mozzarella"] };
-    expect(hypotheticalReserves(parts)).not.toContain("ham");
-    expect(reserveInHypotheses(parts)).toBe(false);
-    expect(partitionAllowsDh41(parts)).toBe(false);
-    expect(strictAnswerForParts(parts)).toEqual({ level: "existence", factId: "attr:existence" });
-    expect(guardedAnswerForParts(parts)).toEqual({ level: "existence", factId: "attr:existence" });
-    expect(toppingClauseAllowedForParts(parts)).toBe(false);
+    const real = targetReserveParts("capricciosa", { discoveredCount: 24, ownedIngredientIds: ALL_INGREDIENT_IDS })!;
+    // The reserve is not owned.
+    const unowned: ReserveParts = { ...real, owned: real.owned.filter((id) => id !== real.reserveId) };
     // A reserve Rule W could not have chosen (a cheese while a non-key topping is known).
-    const notRuleW: ReserveParts = { recipeIngredientIds: ["tomato-sauce", "ham", "mozzarella"], reserveId: "mozzarella", keyId: "tomato-sauce", owned: [...ALL_INGREDIENT_IDS] };
-    expect(partitionAllowsDh41(notRuleW)).toBe(false);
-    expect(strictAnswerForParts(notRuleW)).toEqual({ level: "existence", factId: "attr:existence" });
-    expect(guardedAnswerForParts(notRuleW)).toEqual({ level: "existence", factId: "attr:existence" });
-    expect(toppingClauseAllowedForParts(notRuleW)).toBe(false);
+    const cheese = real.recipeIngredientIds.find((id) => getIngredient(id)!.category === "cheese")!;
+    const notRuleW: ReserveParts = { ...real, reserveId: cheese };
+    // A reserve unlocked after the key (it would have been the key).
+    const lateKey: ReserveParts = { ...real, keyId: real.recipeIngredientIds.find((id) => getIngredient(id)!.category === "sauce")! };
+    for (const parts of [unowned, notRuleW, lateKey]) {
+      expect(hypotheticalReserves(parts)).not.toContain(parts.reserveId);
+      expect(reserveInHypotheses(parts)).toBe(false);
+      expect(partitionAllowsDh41(parts)).toBe(false);
+      expect(strictAnswerForParts(parts)).toEqual({ level: "existence", factId: "attr:existence" });
+      expect(guardedAnswerForParts(parts)).toEqual({ level: "existence", factId: "attr:existence" });
+      expect(toppingClauseAllowedForParts(parts)).toBe(false);
+    }
+  });
+  it("key rule (Codex review): Bismarck at step 5 never answers a class that only mozzarella can fill", () => {
+    const parts = targetReserveParts("bismarck", { discoveredCount: 5, ownedIngredientIds: ownedAt(5, LADDER) })!;
+    for (const x of hypotheticalReserves(parts)) expect(keyStepOf(x)).toBeLessThanOrEqual(keyStepOf(parts.keyId!));
+    expect(guardedAnswerForParts(parts)!.factId).not.toBe("attr:category:cheese");
+    expect(leakPriors(HARDENED, RECIPES.find((r) => r.id === "bismarck")!, parts)).toEqual([]);
   });
   it("a reserve-unowned request is refused as NOT_A_TARGET: nothing disclosed, nothing charged", () => {
     const recipe = synthetic(["mozzarella", "egg", "mushroom"]);
@@ -174,6 +183,19 @@ describe("Hardened guard: H completeness, H-only branches, fail closed", () => {
 });
 
 describe("Independent attacker: runtime and partial knowledge", () => {
+  it("the DH4-2A guard leaks on the RUNTIME under the key rule (Codex review of #267): 40 states, bismarck + funghi @5..24; the hardened guard 0", () => {
+    const leaking = new Map<string, number[]>();
+    for (const s of sweepStates(LADDER)) {
+      const recipe = RECIPES.find((r) => r.id === s.recipeId)!;
+      const parts = targetReserveParts(s.recipeId, { discoveredCount: s.step, ownedIngredientIds: s.owned })!;
+      if (leakPriors(DH4_2A, recipe, parts).length > 0) leaking.set(s.recipeId, [...(leaking.get(s.recipeId) ?? []), s.step]);
+    }
+    const steps = Array.from({ length: 20 }, (_, i) => i + 5);
+    expect([...leaking]).toEqual([
+      ["bismarck", steps],
+      ["funghi", steps],
+    ]);
+  });
   it("runtime 300 states: no prior (none / one-sauce / not-one-sauce / Rule W / known category) is narrowed to 1 by the hint", () => {
     for (const s of sweepStates(LADDER)) {
       const recipe = RECIPES.find((r) => r.id === s.recipeId)!;

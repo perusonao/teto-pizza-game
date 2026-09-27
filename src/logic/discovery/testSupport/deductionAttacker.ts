@@ -10,8 +10,9 @@
  * Observable facts: the owned ingredients O; the known part K (the free key + bought material
  * facts); the ingredient total N; the topping clause (told with its value, or not told); the guarded
  * attribute outcome (an informative fact id, or the existence outcome); the public catalog
- * (categories, taxonomy) and the public rules (Rule W: the reserve is in the highest category among
- * the non-key ingredients, topping > cheese > sauce; the key is known).
+ * (categories, taxonomy, the Discovery Ladder) and the public rules (Rule W: the reserve is in the
+ * highest category among the non-key ingredients, topping > cheese > sauce; the free key is the
+ * ingredient with the recipe's key step, so nothing unlocked later than it is in the recipe).
  *
  * No one-sauce prior is assumed by the base universe. Stronger attackers add a public prior
  * (category-defined): the candidate set is narrowed by it, and a leak is counted only when the prior
@@ -21,6 +22,7 @@ import { getIngredient, INGREDIENTS } from "../../../data/ingredients";
 import type { Recipe } from "../../../data/recipes";
 import type { ReserveAttributeAnswer } from "../deductionHint";
 import type { ReserveParts } from "../deductionGuard";
+import { recipeKeyStep } from "../../../state/recipeChapters";
 import { hintKeyIngredientId } from "../hintSteps";
 
 export type Category = "sauce" | "cheese" | "topping";
@@ -67,27 +69,45 @@ export function observeAnswerOnly(guard: GuardUnderAttack, parts: ReserveParts):
   return a ? a.factId : "none";
 }
 
-/** A public, category-defined prior an attacker may hold: may x be the reserve, given K? */
+/** A public prior an attacker may hold: may x be the reserve, given K and the key? */
 export type Prior = { name: string; allows: (x: string, known: readonly string[], keyId: string | null) => boolean };
 
 const knownHasSauce = (known: readonly string[]) => known.some((id) => categoryOf(id) === "sauce");
 
+/** The key step one ingredient gives on its own (the free-key rule, `hintKeyIngredientId`). */
+export function keyStepOf(id: string): number {
+  return recipeKeyStep({ requiredIngredients: [{ ingredientId: id }] } as unknown as Recipe);
+}
+
+type Allows = Prior["allows"];
+// Rule W: the reserve is in the highest category among the non-key ingredients.
+const ruleW: Allows = (x, known, keyId) => {
+  const top = Math.max(...[...known, x].filter((id) => id !== keyId).map((id) => RANK[categoryOf(id)!]));
+  return x !== keyId && RANK[categoryOf(x)!] === top;
+};
+// The free key is the ingredient with the recipe's key step: x may not be unlocked after the key.
+const keyRule: Allows = (x, _known, keyId) => keyStepOf(x) <= (keyId === null ? 0 : keyStepOf(keyId));
+// Every pizza has exactly one sauce (true for the 25 runtime recipes).
+const oneSauce: Allows = (x, known) => (categoryOf(x) === "sauce") !== knownHasSauce(known);
+const notOneSauce: Allows = (x, known) => (categoryOf(x) === "sauce") === knownHasSauce(known);
+const inCategory = (c: Category): Allows => (x) => categoryOf(x) === c;
+const both = (a: Allows, b: Allows): Allows => (x, k, key) => a(x, k, key) && b(x, k, key);
+const structural = both(ruleW, keyRule);
+
 export const PRIORS: readonly Prior[] = [
   { name: "none", allows: () => true },
-  // Every pizza has exactly one sauce (true for the 25 runtime recipes).
-  { name: "one-sauce", allows: (x, known) => (categoryOf(x) === "sauce") !== knownHasSauce(known) },
-  // The attacker has learned the one-sauce prior is wrong for this recipe.
-  { name: "not-one-sauce", allows: (x, known) => (categoryOf(x) === "sauce") === knownHasSauce(known) },
-  // Rule W: the reserve is in the highest category among the non-key ingredients.
-  {
-    name: "rule-w",
-    allows: (x, known, keyId) => {
-      const top = Math.max(...[...known, x].filter((id) => id !== keyId).map((id) => RANK[categoryOf(id)!]));
-      return x !== keyId && RANK[categoryOf(x)!] === top;
-    },
-  },
+  { name: "one-sauce", allows: oneSauce },
+  { name: "not-one-sauce", allows: notOneSauce },
+  { name: "rule-w", allows: ruleW },
+  { name: "key-rule", allows: keyRule },
+  { name: "rule-w+key", allows: structural },
+  { name: "rule-w+key+one-sauce", allows: both(structural, oneSauce) },
+  { name: "rule-w+key+not-one-sauce", allows: both(structural, notOneSauce) },
   // The strongest category prior: the reserve's category is known (e.g. from T and N).
-  ...(["sauce", "cheese", "topping"] as const).map((c) => ({ name: `category:${c}`, allows: (x: string) => categoryOf(x) === c })),
+  ...(["sauce", "cheese", "topping"] as const).flatMap((c) => [
+    { name: `category:${c}`, allows: inCategory(c) },
+    { name: `rule-w+key+category:${c}`, allows: both(structural, inCategory(c)) },
+  ]),
 ];
 
 export interface EndgameResult {
@@ -138,8 +158,8 @@ export interface PartialResult {
 
 /**
  * The partial-knowledge attacker: K is any subset of the known part (always containing the key).
- * A hypothesis is (U, r): U = owned unknown ingredients with |K| + |U| = N, r in U a Rule W-consistent
- * reserve, such that the system's joint observation for (K + U, r) equals the real one. No sauce
+ * A hypothesis is (U, r): U = owned unknown ingredients with |K| + |U| = N that keep the known key
+ * the key, r in U a Rule W-consistent reserve, such that the system's joint observation for (K + U, r) equals the real one. No sauce
  * prior. A leak is a single possible reserve.
  */
 export function partialAttack(guard: GuardUnderAttack, state: AttackState, known: readonly string[]): PartialResult {
@@ -147,7 +167,9 @@ export function partialAttack(guard: GuardUnderAttack, state: AttackState, known
   const realKnown = state.recipeIngredientIds.filter((id) => id !== state.reserveId);
   const realParts: ReserveParts = { recipeIngredientIds: [...realKnown, state.reserveId], reserveId: state.reserveId, keyId: state.keyId, owned: state.owned };
   const seen = observe(guard, realParts);
-  const pool = state.owned.filter((id) => !known.includes(id));
+  // The free key is public: an unknown ingredient unlocked after it would have been the key.
+  const keyStep = state.keyId === null ? 0 : keyStepOf(state.keyId);
+  const pool = state.owned.filter((id) => !known.includes(id) && keyStepOf(id) <= keyStep);
   const reserves = new Set<string>();
   const tried = new Set<string>();
   // Cheapest first: the real reserve's own hypotheses are consistent by construction, so look for a
