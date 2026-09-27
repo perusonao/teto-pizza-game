@@ -5430,3 +5430,466 @@ p.hint-sheet__step {
   background: #ffe7b0;
   font-weight: 700;
 }
+
+/* ---------- Dinner Mission DM-3 (Issue #242) ----------
+   Reuses the existing skeletons (home-menu card, pizza-select screen, mission-hud,
+   mission-serve-panel, mission-overlay); Dinner only adds a light "night" accent. */
+:root {
+  --dinner-night: #2f2a52;
+  --dinner-night-soft: #ece8fb;
+}
+
+/* One slim row (icon | label + sub) so HOME keeps the vertical slack the hero relies on. */
+.home-menu__card--wide {
+  grid-column: 1 / -1;
+  min-height: 48px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 10px;
+  row-gap: 1px;
+  align-items: center;
+  padding: 7px 12px;
+}
+
+.home-menu__card--wide .home-menu__icon {
+  grid-row: 1 / 3;
+}
+
+.home-menu__card--dinner {
+  border-color: #c9c0ec;
+  background: linear-gradient(180deg, #fbfaff 0%, #f1edff 100%);
+}
+
+.home-menu__card--dinner .home-menu__label {
+  color: var(--dinner-night);
+}
+
+.dinner-screen {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background:
+    repeating-linear-gradient(
+      180deg,
+      rgba(107, 66, 38, 0.05) 0px,
+      rgba(107, 66, 38, 0.05) 1px,
+      transparent 1px,
+      transparent 34px
+    ),
+    linear-gradient(180deg, #f7ecd4 0%, #efdcb3 100%);
+}
+
+.dinner-screen__body {
+  padding: 14px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dinner-screen__lead {
+  font-size: 13px;
+  font-weight: 700;
+  color: #6b4226;
+}
+
+.dinner-mission-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dinner-mission-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-height: 44px;
+  padding: 14px 14px 12px;
+  background: #fff8ea;
+  border: 2px solid #c9c0ec;
+  border-radius: 16px;
+  text-align: left;
+  box-shadow: 0 2px 6px rgba(47, 42, 82, 0.14);
+}
+
+.dinner-mission-card--locked {
+  border-style: dashed;
+  border-color: #d6c9a4;
+  box-shadow: none;
+  opacity: 0.85;
+}
+
+.dinner-mission-card__title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--dinner-night);
+}
+
+.dinner-mission-card__count {
+  font-size: 12px;
+  font-weight: 700;
+  color: #a1662f;
+}
+
+.dinner-mission-card__targets {
+  font-size: 13px;
+  color: #4a2e0a;
+  line-height: 1.4;
+}
+
+.dinner-mission-card__lock {
+  font-size: 13px;
+  font-weight: 700;
+  color: #8a5a2c;
+}
+
+.dinner-mission-card__cta {
+  align-self: flex-end;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--dinner-night);
+}
+
+.dinner-detail {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.dinner-detail__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dinner-detail__title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--dinner-night);
+}
+
+.dinner-detail__lead,
+.dinner-detail__row {
+  font-size: 14px;
+  color: #4a2e0a;
+}
+
+.dinner-detail__targets {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.dinner-detail__target {
+  background: #fff8ea;
+  border: 2px solid #e6d3a3;
+  border-radius: 12px;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #4a2e0a;
+  overflow-wrap: anywhere;
+}
+
+.dinner-detail__ready {
+  font-size: 14px;
+  font-weight: 700;
+  color: #2f7a3b;
+}
+
+.dinner-detail__shortage {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #fff1e8;
+  border: 2px solid #f0b48c;
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.dinner-detail__shortage-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #b3471d;
+}
+
+.dinner-detail__shortage-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  color: #4a2e0a;
+}
+
+.dinner-detail__note {
+  font-size: 12px;
+  color: #8a5a2c;
+  line-height: 1.5;
+}
+
+.dinner-detail__cta-bar {
+  padding: 8px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+}
+
+.dinner-detail__cta-bar .cta-button {
+  width: 100%;
+}
+
+.dinner-hud {
+  background: var(--dinner-night);
+}
+
+.dinner-hud__label {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  color: #d9d2ff;
+}
+
+/* DM-3R-2 (Issue #250, OD-R7): the PREPARE-time Dinner bar -- time / progress on the left, one
+   compact chip per mission target on the right. It stands in for the order card (same margins,
+   no taller than the guided card's 48px 見本 thumbnail row), and folds the HUD row in, so the pizza
+   stage keeps the height it had. Chips scroll sideways only if they ever outgrow the width. */
+.dinner-bar {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  margin: 3px 12px 0;
+  padding: 4px;
+  background: var(--dinner-night);
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(47, 25, 8, 0.12);
+  min-width: 0;
+}
+
+.dinner-bar__status {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: 0 6px;
+  color: #fff9ec;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.dinner-bar__timer {
+  font-size: 14px;
+  letter-spacing: 0.3px;
+}
+
+.dinner-bar__count {
+  font-size: 12px;
+  color: #d9d2ff;
+}
+
+.dinner-bar__status--urgent .dinner-bar__timer {
+  color: #ffb4a8;
+}
+
+.dinner-bar__targets {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.dinner-bar__targets::-webkit-scrollbar {
+  display: none;
+}
+
+.dinner-bar__item {
+  flex: 1 0 60px;
+  min-width: 60px;
+}
+
+.dinner-chip {
+  width: 100%;
+  height: 100%;
+  min-height: 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  padding: 3px 2px;
+  background: #fff8ea;
+  border: 0;
+  border-radius: 10px;
+  color: #4a2e0a;
+  cursor: pointer;
+}
+
+.dinner-chip:active {
+  transform: scale(0.97);
+}
+
+.dinner-chip--done {
+  background: #e3f1dd;
+}
+
+.dinner-chip__thumb {
+  position: relative;
+  display: block;
+  line-height: 0;
+}
+
+.dinner-chip__thumb .reference-thumbnail {
+  width: 30px;
+  height: 30px;
+  --piece-scale: 0.16;
+}
+
+.dinner-chip__check {
+  position: absolute;
+  right: -5px;
+  top: -3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #2f7a3b;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 16px;
+  text-align: center;
+}
+
+.dinner-chip__name {
+  max-width: 100%;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-height: 700px) {
+  /* Short heights: the bar hugs its 44px chips (still a full touch target), like DM-3R-0's short
+     order card, so the Dinner stage loses no more than the Free Cooking one. */
+  .dinner-bar {
+    padding: 2px;
+    gap: 4px;
+  }
+
+  .dinner-chip {
+    min-height: 44px;
+    padding: 2px;
+  }
+
+  .dinner-chip__thumb .reference-thumbnail {
+    width: 26px;
+    height: 26px;
+    --piece-scale: 0.14;
+  }
+}
+
+/* DM-3R-2: one finished pizza's result, then 「次のピザを作る」. */
+.dinner-attempt {
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+}
+
+.dinner-attempt__title {
+  font-size: 18px;
+  font-weight: 900;
+  color: #4a2e0a;
+  text-align: center;
+}
+
+.dinner-attempt--success .dinner-attempt__title {
+  color: #2f7a3b;
+}
+
+.dinner-attempt--neutral .dinner-attempt__title {
+  color: var(--dinner-night);
+}
+
+.dinner-attempt__line {
+  font-size: 14px;
+  font-weight: 700;
+  color: #4a2e0a;
+  text-align: center;
+}
+
+.dinner-attempt__progress {
+  font-size: 13px;
+  font-weight: 700;
+  color: #8a5a2c;
+}
+
+.dinner-attempt .cta-button {
+  width: 100%;
+}
+
+.dinner-result__last {
+  font-size: 13px;
+  font-weight: 700;
+  color: #4a2e0a;
+}
+
+.dinner-result__mission {
+  font-size: 12px;
+  font-weight: 700;
+  color: #8a5a2c;
+}
+
+.dinner-result--clear .dinner-result__title {
+  color: var(--dinner-night);
+  font-size: 24px;
+}
+
+.dinner-result__row {
+  font-size: 15px;
+  color: #4a2e0a;
+}
+
+.dinner-result__row strong {
+  font-size: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
+.dinner-result__shortages {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  color: #4a2e0a;
+  text-align: left;
+}
+
+.dinner-result__blocked {
+  font-size: 12px;
+  color: #8a5a2c;
+}
+
+.dinner-result .action-row,
+.dinner-abandon .action-row {
+  width: 100%;
+}
+
+.dinner-result .secondary-button,
+.dinner-abandon .secondary-button {
+  width: 100%;
+  min-height: 44px;
+}

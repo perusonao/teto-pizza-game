@@ -17,15 +17,19 @@ import { consumePizzaInventory, type InventoryState } from "../../state/inventor
 import type { PizzaState } from "../../state/pizzaState";
 import type { SetIngredientShortage } from "../../state/recipeSetFeasibility";
 import { completionPolicyForRound } from "../../state/roundKind";
+import type { CutConfig } from "../../logic/cut/types";
 import {
+  dinnerRunReducer,
   isDinnerClockExpired,
-  remainingTargetIds,
-  remainingTargetShortages,
+  type DinnerAttempt,
   type DinnerRunState,
 } from "./dinnerRun";
 
+export type { DinnerAttemptCategory } from "./dinnerRun";
+
 /**
- * Dinner Mission DM-3R-1: result detection, pure. Not wired into the runtime yet (DM-3R-2).
+ * Dinner Mission DM-3R-1: result detection, pure. Wired into the runtime by DM-3R-2 (Issue #250,
+ * ../../state/gameReducer.ts's Dinner guard).
  *
  * The redesigned loop (docs/reports/TETO_DINNER-MISSION_DM-3R-1_RESULT-DETECTION_Result.md): the
  * player never declares which pizza they are making (OD-R1 / OD-R3). What the finished pizza *is*
@@ -73,6 +77,8 @@ export interface DinnerBakePlan {
   /** The steps after BAKE for the identified recipe (its cooking profile); empty otherwise. */
   postBakeSteps: readonly PostBakeStep[];
   cutRequired: boolean;
+  /** The identified recipe's CUT configuration (slice count); absent when no CUT follows. */
+  cutConfig?: CutConfig;
 }
 
 function identifiedRecipe(identity: DinnerIdentity): Recipe | null {
@@ -90,12 +96,15 @@ export function planDinnerBake(
     // generic window and no CUT (the same shape as a Free Cooking round's own profile).
     return { identity, bakeWindow: { source: "GENERIC", target: FREE_COOK_BAKE_TARGET }, postBakeSteps: [], cutRequired: false };
   }
-  const steps = postBakeSteps(getCookingProfile(recipe.id));
+  const profile = getCookingProfile(recipe.id);
+  const steps = postBakeSteps(profile);
+  const cutRequired = steps.includes("CUT");
   return {
     identity,
     bakeWindow: { source: "RECIPE", target: recipe.bakeTarget },
     postBakeSteps: steps,
-    cutRequired: steps.includes("CUT"),
+    cutRequired,
+    ...(cutRequired && profile.cutConfig ? { cutConfig: profile.cutConfig } : {}),
   };
 }
 
@@ -104,6 +113,8 @@ export interface DinnerBakePlanView {
   bakeTarget: BakeTarget;
   postBakeSteps: readonly PostBakeStep[];
   cutRequired: boolean;
+  /** Slice count of the CUT step (the same standard config for every CUT recipe today). */
+  cutConfig?: CutConfig;
 }
 
 export function dinnerBakePlanView(plan: DinnerBakePlan): DinnerBakePlanView {
@@ -111,6 +122,7 @@ export function dinnerBakePlanView(plan: DinnerBakePlan): DinnerBakePlanView {
     bakeTarget: { start: plan.bakeWindow.target.start, end: plan.bakeWindow.target.end },
     postBakeSteps: [...plan.postBakeSteps],
     cutRequired: plan.cutRequired,
+    ...(plan.cutConfig ? { cutConfig: { ...plan.cutConfig } } : {}),
   };
 }
 
@@ -123,14 +135,6 @@ export type DinnerQualityFailure =
 
 /** Why a pizza gave no safe known result. */
 export type DinnerOriginalReason = "NO_MATCH" | "AMBIGUOUS_IDENTITY" | "UNDISCOVERED_RECIPE";
-
-export type DinnerAttemptCategory =
-  | "TARGET_PASS"
-  | "QUALITY_FAIL"
-  | "DUPLICATE_TARGET"
-  | "NON_TARGET"
-  | "ORIGINAL"
-  | "INVALID_PIZZA";
 
 /**
  * Stage B's classification, in resolution order:
@@ -237,41 +241,66 @@ function classify(
   return { category: "ORIGINAL", reason: "UNDISCOVERED_RECIPE", internalRecipeId: recipe.id };
 }
 
+/** Pre-consumption minus post-consumption stock, positive entries only (the attempt log's effect). */
+function consumedBetween(pre: InventoryState, post: InventoryState): Record<string, number> {
+  const consumed: Record<string, number> = {};
+  for (const [id, before] of Object.entries(pre)) {
+    const used = before - (post[id] ?? 0);
+    if (used > 0) consumed[id] = used;
+  }
+  return consumed;
+}
+
+/** The recipe a result names (a target or a discovered recipe), from the presentation-safe view. */
+function displayedRecipeIdOf(view: DinnerAttemptView): string | null {
+  return "recipeId" in view ? view.recipeId : null;
+}
+
+/** The attempt log entry for one classified pizza (DM-3R-2). `at` is set by the run transition. */
+export function dinnerAttemptRecord(
+  plan: DinnerBakePlan,
+  classification: DinnerAttemptClassification,
+  consumed: Readonly<Record<string, number>>,
+  dex: DexState,
+): DinnerAttempt {
+  const stars =
+    classification.category === "TARGET_PASS"
+      ? classification.stars
+      : classification.category === "QUALITY_FAIL" && classification.failure.kind === "BELOW_MINIMUM_STARS"
+        ? classification.failure.stars
+        : null;
+  return {
+    at: 0,
+    category: classification.category,
+    identityRecipeId: plan.identity.kind === "RECIPE" ? plan.identity.recipeId : null,
+    displayedRecipeId: displayedRecipeIdOf(dinnerAttemptView(classification, dex)),
+    completedTargetId: classification.category === "TARGET_PASS" ? classification.recipeId : null,
+    stars,
+    consumed,
+  };
+}
+
 /**
- * The run after one resolved pizza -- the DM-1 `RESOLVE_ATTEMPT` rules with the declared target
- * replaced by the detected one: a completed target is added; every target done -> CLEARED, which
+ * The run after one resolved pizza: the DM-1 run transition (`dinnerRunReducer`'s RESOLVE_ATTEMPT)
+ * with the classified attempt -- a completed target is added; every target done -> CLEARED, which
  * wins over the stock check (nothing is left to cook); otherwise the remaining targets are checked
- * against the post-consumption stock and a shortage fails the run at once (INFEASIBLE). The
- * per-attempt log shape is DM-3R-2's (the classification is returned alongside), so `attempts` is
- * left as is.
+ * against the post-consumption stock and a shortage fails the run at once (INFEASIBLE). The attempt
+ * is appended to `attempts`.
  */
 function settleRun(
   run: DinnerRunState,
-  completedTargetId: RecipeId | null,
+  attempt: DinnerAttempt,
   stock: { ownedIngredientIds: readonly string[]; inventory: InventoryState },
   now: number,
 ): { run: DinnerRunState; remainingShortages: SetIngredientShortage[] } {
-  const next: DinnerRunState =
-    completedTargetId === null ? run : { ...run, completedRecipeIds: [...run.completedRecipeIds, completedTargetId] };
-  if (remainingTargetIds(next).length === 0) {
-    return {
-      run: { ...next, status: "CLEARED", outcome: { kind: "CLEAR", endedAt: now, clearMs: now - run.clock.startedAt } },
-      remainingShortages: [],
-    };
-  }
-  const shortages = remainingTargetShortages(next, { ownedIngredientIds: [...stock.ownedIngredientIds], inventory: stock.inventory });
-  if (shortages.length > 0) {
-    return {
-      run: {
-        ...next,
-        status: "FAILED",
-        activeRecipeId: null,
-        outcome: { kind: "FAILED", reason: "INFEASIBLE", endedAt: now, shortages },
-      },
-      remainingShortages: shortages,
-    };
-  }
-  return { run: next, remainingShortages: [] };
+  const next = dinnerRunReducer(run, {
+    type: "RESOLVE_ATTEMPT",
+    attempt,
+    stock: { ownedIngredientIds: [...stock.ownedIngredientIds], inventory: stock.inventory },
+    now,
+  });
+  const remainingShortages = next.outcome?.kind === "FAILED" && next.outcome.reason === "INFEASIBLE" ? next.outcome.shortages : [];
+  return { run: next, remainingShortages };
 }
 
 /** Stage B. Pure and total: never throws, never mutates its input. */
@@ -287,7 +316,6 @@ export function resolveDinnerAttempt(input: DinnerAttemptInput): DinnerAttemptRe
       run: {
         ...run,
         status: "FAILED",
-        activeRecipeId: null,
         outcome: { kind: "FAILED", reason: "TIME_UP", endedAt: run.clock.endsAt },
       },
     };
@@ -304,7 +332,13 @@ export function resolveDinnerAttempt(input: DinnerAttemptInput): DinnerAttemptRe
   const completedTargetId = classification.category === "TARGET_PASS" ? classification.recipeId : null;
   // Every category consumed what the pizza used (CONFIRM_BAKE's one consumption authority).
   const postConsumptionInventory = consumePizzaInventory(pizza, input.preConsumptionInventory);
-  const settled = settleRun(run, completedTargetId, { ownedIngredientIds: input.ownedIngredientIds, inventory: postConsumptionInventory }, now);
+  const attempt = dinnerAttemptRecord(
+    plan,
+    classification,
+    consumedBetween(input.preConsumptionInventory, postConsumptionInventory),
+    input.dex,
+  );
+  const settled = settleRun(run, attempt, { ownedIngredientIds: input.ownedIngredientIds, inventory: postConsumptionInventory }, now);
   return {
     status: "RESOLVED",
     plan,

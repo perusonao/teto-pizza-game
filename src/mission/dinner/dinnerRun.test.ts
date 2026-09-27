@@ -13,6 +13,7 @@ import {
   isRemainingTargetSetFeasible,
   remainingTargetIds,
   startDinnerRun,
+  type DinnerAttempt,
   type DinnerRunAction,
   type DinnerRunState,
 } from "./dinnerRun";
@@ -58,6 +59,22 @@ function pizzaFor(recipeId: string, extra: Record<string, number> = {}): PizzaSt
   return pizza;
 }
 
+/**
+ * DM-3R-2: a classified attempt as the result detection records it. PASS = a TARGET_PASS of
+ * `recipeId`; FAILED = a QUALITY_FAIL of it (the target stays open). No target is ever declared.
+ */
+function attemptOf(recipeId: string, completion: "PASS" | "FAILED"): DinnerAttempt {
+  return {
+    at: 0,
+    category: completion === "PASS" ? "TARGET_PASS" : "QUALITY_FAIL",
+    identityRecipeId: recipeId,
+    displayedRecipeId: recipeId,
+    completedTargetId: completion === "PASS" ? recipeId : null,
+    stars: null,
+    consumed: {},
+  };
+}
+
 /** Cooks the target through the real consumption transaction and resolves it. */
 function cook(
   state: DinnerRunState,
@@ -67,12 +84,10 @@ function cook(
   now: number,
   extra: Record<string, number> = {},
 ): { state: DinnerRunState; inventory: InventoryState } {
-  const selected = dinnerRunReducer(state, { type: "SELECT_TARGET", recipeId, now });
   const after = consumePizzaInventory(pizzaFor(recipeId, extra), inventory);
-  const resolved = dinnerRunReducer(selected, {
+  const resolved = dinnerRunReducer(state, {
     type: "RESOLVE_ATTEMPT",
-    recipeId,
-    completion,
+    attempt: attemptOf(recipeId, completion),
     stock: stockOf(after),
     now: now + 1,
   });
@@ -109,7 +124,8 @@ describe("START gate (OD-DM-2)", () => {
 
   it("a started run is PLAYING with every target open and 0/4 progress", () => {
     const state = start(EXACT_A);
-    expect(state).toMatchObject({ status: "PLAYING", activeRecipeId: null, outcome: null });
+    expect(state).toMatchObject({ status: "PLAYING", outcome: null, attempts: [] });
+    expect(state).not.toHaveProperty("activeRecipeId"); // DM-3R-2: no selected target exists
     expect(state.clock).toEqual({ startedAt: T0, endsAt: T0 + DURATION });
     expect(remainingTargetIds(state)).toEqual(DM_A_IDS);
     expect(dinnerProgress(state)).toEqual({ completed: 0, total: 4 });
@@ -194,7 +210,7 @@ describe("OD-DM-4: a quality-FAILED pizza", () => {
     expect(failed.inventory.egg).toBe(2);
     expect(failed.state.status).toBe("PLAYING");
     expect(failed.state.completedRecipeIds).toEqual([]);
-    expect(failed.state.attempts).toEqual([{ recipeId: "bismarck", completion: "FAILED", at: T0 + 11 }]);
+    expect(failed.state.attempts).toEqual([{ ...attemptOf("bismarck", "FAILED"), at: T0 + 11 }]);
     const retried = cook(failed.state, failed.inventory, "bismarck", "PASS", T0 + 20);
     expect(retried.state.completedRecipeIds).toEqual(["bismarck"]);
     expect(retried.state.status).toBe("PLAYING");
@@ -210,7 +226,7 @@ describe("OD-DM-4: a quality-FAILED pizza", () => {
   });
 });
 
-describe("time, abandon and the target-selection rules", () => {
+describe("time, abandon and stale resolutions", () => {
   it("L: TICK at the deadline fails with TIME_UP", () => {
     const state = start(EXACT_A);
     expect(dinnerRunReducer(state, { type: "TICK", now: T0 + DURATION - 1 })).toBe(state);
@@ -222,14 +238,13 @@ describe("time, abandon and the target-selection rules", () => {
   });
 
   it("L: a pizza resolved at or after the deadline does not count", () => {
-    const selected = dinnerRunReducer(start(EXACT_A), { type: "SELECT_TARGET", recipeId: "margherita", now: T0 });
-    const late = dinnerRunReducer(selected, {
+    const late = dinnerRunReducer(start(EXACT_A), {
       type: "RESOLVE_ATTEMPT",
-      recipeId: "margherita",
-      completion: "PASS",
+      attempt: attemptOf("margherita", "PASS"),
       stock: stockOf(EXACT_A),
       now: T0 + DURATION,
     });
+    expect(late.attempts).toEqual([]);
     expect(late.completedRecipeIds).toEqual([]);
     expect(late.outcome).toMatchObject({ reason: "TIME_UP" });
   });
@@ -242,35 +257,52 @@ describe("time, abandon and the target-selection rules", () => {
     });
   });
 
-  it("P: non-target, completed, or second selections and mismatched results are ignored", () => {
+  // DM-3R-2 replaces DM-1's P (selection rules) and CANCEL_TARGET: there is no selection any more,
+  // so the same backstop now sits on the resolution itself -- a completion that is not an open
+  // target, or a completion/category mismatch, changes nothing.
+  it("P: a completion of a non-target or an already completed target, or a mismatched attempt, is ignored", () => {
     const state = start(EXACT_A);
-    expect(dinnerRunReducer(state, { type: "SELECT_TARGET", recipeId: "hawaiian", now: T0 })).toBe(state);
-    const selected = dinnerRunReducer(state, { type: "SELECT_TARGET", recipeId: "bismarck", now: T0 });
-    expect(dinnerRunReducer(selected, { type: "SELECT_TARGET", recipeId: "funghi", now: T0 })).toBe(selected);
-    const wrong: DinnerRunAction = {
+    const pass = (recipeId: string): DinnerRunAction => ({
       type: "RESOLVE_ATTEMPT",
-      recipeId: "funghi",
-      completion: "PASS",
+      attempt: attemptOf(recipeId, "PASS"),
+      stock: stockOf(EXACT_A),
+      now: T0 + 1,
+    });
+    expect(dinnerRunReducer(state, pass("hawaiian"))).toBe(state);
+    const { state: done } = cook(state, EXACT_A, "margherita", "PASS", T0 + 1);
+    expect(dinnerRunReducer(done, pass("margherita"))).toBe(done);
+    const mismatched: DinnerRunAction = {
+      type: "RESOLVE_ATTEMPT",
+      attempt: { ...attemptOf("funghi", "FAILED"), completedTargetId: "funghi" },
       stock: stockOf(EXACT_A),
       now: T0 + 1,
     };
-    expect(dinnerRunReducer(selected, wrong)).toBe(selected);
-    expect(dinnerRunReducer(state, { ...wrong, recipeId: "bismarck" })).toBe(state);
-    const { state: done } = cook(state, EXACT_A, "margherita", "PASS", T0 + 1);
-    expect(dinnerRunReducer(done, { type: "SELECT_TARGET", recipeId: "margherita", now: T0 + 2 })).toBe(done);
+    expect(dinnerRunReducer(state, mismatched)).toBe(state);
+    const passWithoutTarget: DinnerRunAction = {
+      type: "RESOLVE_ATTEMPT",
+      attempt: { ...attemptOf("funghi", "PASS"), completedTargetId: null },
+      stock: stockOf(EXACT_A),
+      now: T0 + 1,
+    };
+    expect(dinnerRunReducer(state, passWithoutTarget)).toBe(state);
   });
 
-  it("CANCEL_TARGET returns to selection without other changes", () => {
-    const selected = dinnerRunReducer(start(EXACT_A), { type: "SELECT_TARGET", recipeId: "funghi", now: T0 });
-    const cancelled = dinnerRunReducer(selected, { type: "CANCEL_TARGET", now: T0 + 1 });
-    expect(cancelled).toEqual({ ...selected, activeRecipeId: null });
+  it("a non-completing attempt (duplicate / non-target / original / invalid) is logged without progress", () => {
+    const state = start({ ...EXACT_A, egg: 5 });
+    for (const category of ["DUPLICATE_TARGET", "NON_TARGET", "ORIGINAL", "INVALID_PIZZA"] as const) {
+      const attempt: DinnerAttempt = { ...attemptOf("bismarck", "FAILED"), category };
+      const next = dinnerRunReducer(state, { type: "RESOLVE_ATTEMPT", attempt, stock: stockOf({ ...EXACT_A, egg: 5 }), now: T0 + 3 });
+      expect(next.completedRecipeIds, category).toEqual([]);
+      expect(next.attempts, category).toEqual([{ ...attempt, at: T0 + 3 }]);
+      expect(next.status, category).toBe("PLAYING");
+    }
   });
 
   it("finished runs ignore every action", () => {
     const failed = dinnerRunReducer(start(EXACT_A), { type: "ABANDON", now: T0 });
     for (const action of [
       { type: "TICK", now: T0 + DURATION * 2 },
-      { type: "SELECT_TARGET", recipeId: "funghi", now: T0 },
+      { type: "RESOLVE_ATTEMPT", attempt: attemptOf("funghi", "PASS"), stock: stockOf(EXACT_A), now: T0 },
       { type: "ABANDON", now: T0 },
     ] as DinnerRunAction[]) {
       expect(dinnerRunReducer(failed, action)).toBe(failed);

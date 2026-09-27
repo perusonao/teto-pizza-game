@@ -53,6 +53,7 @@ const ALL_RECIPES = [
 const FREE_BAKE = { start: 58, end: 78 };
 const PORTUGUESA_BAKE = { start: 58, end: 78 };
 const NEW_HAVEN_BAKE = { start: 62, end: 82 };
+const BISMARCK_BAKE = { start: 55, end: 75 };
 // GUIDE_FADE_END_S (src/logic/bakeGuideFade.ts) = 7.2 s, plus a margin.
 const AFTER_GUIDE_FADE_MS = 7_300;
 
@@ -487,16 +488,19 @@ const STAGE_CENTER_DRIFT_MAX = 8;
 const SAUCE_MIN_RATIO = 0.9;
 /** LC-S3 floors (px). N / P: the 290 / 274 px cap itself. S / E: measured after DM-3R-0 with the
  *  tallest dock of each mode (Result Report §6: GUIDED 279/255/198/174, FREE 269/245/188/164,
- *  LUNCH 236/212/155/131 on S390/S360/E390i/E360i) minus ~6px for real-font variance. */
-const STAGE_FLOOR: Record<string, Record<"GUIDED" | "FREE" | "LUNCH", number>> = {
-  N390: { GUIDED: 290, FREE: 290, LUNCH: 290 },
-  N360: { GUIDED: 274, FREE: 274, LUNCH: 274 },
-  P390i: { GUIDED: 290, FREE: 290, LUNCH: 290 },
-  S390: { GUIDED: 272, FREE: 262, LUNCH: 230 },
-  S360: { GUIDED: 248, FREE: 238, LUNCH: 205 },
-  E390i: { GUIDED: 192, FREE: 182, LUNCH: 148 },
-  E360i: { GUIDED: 168, FREE: 158, LUNCH: 125 },
+ *  LUNCH 236/212/155/131 on S390/S360/E390i/E360i) minus ~6px for real-font variance. DM-3R-2
+ *  adds DINNER, measured the same way (265/241/184/160: Free Cooking's paged tray with the target
+ *  row in the order card's place, 4px under FREE). */
+const STAGE_FLOOR: Record<string, Record<StageMode, number>> = {
+  N390: { GUIDED: 290, FREE: 290, LUNCH: 290, DINNER: 290 },
+  N360: { GUIDED: 274, FREE: 274, LUNCH: 274, DINNER: 274 },
+  P390i: { GUIDED: 290, FREE: 290, LUNCH: 290, DINNER: 290 },
+  S390: { GUIDED: 272, FREE: 262, LUNCH: 230, DINNER: 259 },
+  S360: { GUIDED: 248, FREE: 238, LUNCH: 205, DINNER: 235 },
+  E390i: { GUIDED: 192, FREE: 182, LUNCH: 148, DINNER: 178 },
+  E360i: { GUIDED: 168, FREE: 158, LUNCH: 125, DINNER: 154 },
 };
+type StageMode = "GUIDED" | "FREE" | "LUNCH" | "DINNER";
 const PREPARE_STEPS = ["DOUGH", "SAUCE", "CHEESE", "TOPPING"] as const;
 
 interface StageRects {
@@ -518,7 +522,7 @@ async function stageRects(page: Page): Promise<StageRects> {
       return b.width || b.height ? (b.toJSON() as DOMRect) : null;
     };
     // The lowest of HUD / tabs / order card: the dough must stay below all of them.
-    const aboveEls = [".mission-hud", ".making-step-tabs", ".game-screen .order-card"]
+    const aboveEls = [".mission-hud", ".making-step-tabs", ".game-screen .order-card", ".dinner-bar"]
       .map((sel) => document.querySelector(sel)?.getBoundingClientRect())
       .filter((b): b is DOMRect => !!b && b.height > 0);
     const above = aboveEls.length ? aboveEls.reduce((a, b) => (b.bottom > a.bottom ? b : a)) : null;
@@ -541,7 +545,7 @@ class StageStability {
   constructor(
     private readonly lc: LayoutContract,
     private readonly page: Page,
-    private readonly mode: "GUIDED" | "FREE" | "LUNCH",
+    private readonly mode: StageMode,
     private readonly mount: ReturnType<LayoutContract["mountProfile"]>,
   ) {}
 
@@ -708,6 +712,51 @@ test.describe("DM-3R-0 Stage Size Stability (LC-S1..LC-S4)", () => {
     await landNeedleAndTakeOut(page, PORTUGUESA_BAKE);
     await expect(page.getByRole("button", { name: /切り終わる/ })).toBeVisible();
     await s.step("CUT", withHud(CUT_CHECKS));
+    await s.judge(testInfo);
+  });
+});
+
+/* ---------- DM-3R-2 (Issue #250): the recipe-free Dinner round ----------
+   The Dinner round has Free Cooking's all-owned (paged) tray, and its target row replaces the
+   order card with the HUD folded in (no separate HUD row in PREPARE, BAKE or CUT). LC-S1..S4 must
+   hold like every other mode; BAKE / CUT are recorded, not pinned (OD-R8). */
+test.describe("DM-3R-2 Dinner Stage Size Stability (LC-S1..LC-S4)", () => {
+  test("LC-S Dinner: target row, paged all-owned tray, BAKE and CUT recorded", async ({ page, lc }, testInfo) => {
+    test.setTimeout(240_000);
+    const mount = lc.mountProfile("short");
+    await openWithSave(page, makeSave(["margherita", "bismarck", "breakfast-pizza", "funghi"]), "?dinnerDuration=900");
+    await lc.apply(mount);
+    await page.getByRole("button", { name: /ディナーミッション/ }).click();
+    await page.locator(".dinner-mission-card", { hasText: /ディナーミッション 1/ }).click();
+    await page.getByRole("button", { name: /スタート/ }).click();
+    await page.waitForSelector(".pizza-stage");
+    await expect(page.getByTestId("dinner-target-row")).toBeVisible();
+    const s = new StageStability(lc, page, "DINNER", mount);
+
+    await s.step("DOUGH", PREPARE_CHECKS);
+    await completeDoughStep(page);
+    await next(page);
+    await selectChip(page, /トマトソース/);
+    await paintSauceRing(page, 25, 16);
+    await s.step("SAUCE", PREPARE_CHECKS);
+    await next(page);
+    await place(page, /モッツァレラ/, [[35, 40], [65, 40], [50, 62]]);
+    await s.step("CHEESE", PREPARE_CHECKS);
+    await next(page);
+    await place(page, /たまご/, [[50, 48]]);
+    await goToTrayPage(page, "first");
+    expect(await trayPageLabel(page), "every owned topping needs more than one tray page").not.toBe("1/1");
+    await s.step("TOPPING", TRAY_CHECKS);
+    await page.getByRole("button", { name: "次のページ" }).click();
+    await s.step("TOPPING p2", TRAY_CHECKS);
+
+    await enterBakePaused(page);
+    // The Dinner HUD stays folded into the target row (below the tabs) through BAKE / CUT too, so
+    // L-G (a separate HUD row above the tabs) does not apply; L-J pins that the tabs never move.
+    await s.step("BAKE", BAKE_CHECKS, COOKING_SLOTS.bake);
+    await landNeedleAndTakeOut(page, BISMARCK_BAKE);
+    await expect(page.getByRole("button", { name: /切り終わる/ })).toBeVisible();
+    await s.step("CUT", CUT_CHECKS);
     await s.judge(testInfo);
   });
 });
