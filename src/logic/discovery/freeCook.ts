@@ -23,8 +23,8 @@
  * against), and it writes nothing to the Dex.
  */
 import { RECIPE_DISCOVERY_CATALOG } from "../../data/discoveryCatalog";
-import { FREE_COOK_RECIPE } from "../../data/freeCook";
-import { getRecipe, type Recipe } from "../../data/recipes";
+import { FREE_COOK_BAKE_TARGET, FREE_COOK_RECIPE } from "../../data/freeCook";
+import { getRecipe, type BakeTarget, type Recipe } from "../../data/recipes";
 import { discoveredRecipeIds, type DexState } from "../../state/dex";
 import type { PizzaState } from "../../state/pizzaState";
 import {
@@ -51,12 +51,21 @@ export type FreeCookResolution =
     }
   | { kind: "ORIGINAL"; outcome: OriginalOutcome };
 
-/** Phase-2 X-3's recipe-free completion rule. */
-export function evaluateFreeCookCompletion(pizza: PizzaState): PizzaCompletionResult {
+/**
+ * Phase-2 X-3's recipe-free completion rule. `bakeTarget` defaults to the generic window; Dinner
+ * Mission DM-3R-1 (../../mission/dinner/dinnerResultDetection.ts) passes the window of the recipe
+ * the pizza's composition already identifies, so "is it a dish at all" is judged against the same
+ * window the BAKE step used.
+ */
+export function evaluateFreeCookCompletion(
+  pizza: PizzaState,
+  bakeTarget: BakeTarget = FREE_COOK_BAKE_TARGET,
+): PizzaCompletionResult {
   const hasItem =
     sanitizeStringArray(pizza?.sauceIds).length > 0 || sanitizeToppings(pizza?.toppings).length > 0;
   // The sentinel recipe has no requirements and no Reference, so this is the bake check alone.
-  const bake = evaluatePizzaCompletion(FREE_COOK_RECIPE, pizza);
+  const sentinel = bakeTarget === FREE_COOK_BAKE_TARGET ? FREE_COOK_RECIPE : { ...FREE_COOK_RECIPE, bakeTarget };
+  const bake = evaluatePizzaCompletion(sentinel, pizza);
   if (hasItem) return bake;
   const empty = { reason: "MISSING_REQUIRED_INGREDIENT" as const };
   return {
