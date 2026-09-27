@@ -15,7 +15,7 @@
 | Branch | `claude/dh4-1-deduction-pure-layer`, cut from `origin/main` `726b0ac` (not from PR #251's branch) |
 | PR | **#254** (`main` ← `claude/dh4-1-deduction-pure-layer`), OPEN, no auto-merge |
 | HEAD before the main integration | `dae3c08` (the Codex P2 fix, §10.1) |
-| Integration | See §14: `Merge origin/main (H3-4 #251) into DH4-1 (#253)` = `e4810fd`, followed by the `privacyWorstCaseCandidates` wording commit. The PR's Checks tab shows the exact final SHA. |
+| Integration | See §14: `Merge origin/main (H3-4 #251) into DH4-1 (#253)` = `e4810fd`, then the `privacyWorstCaseCandidates` wording commit `4b766a1` (the last code HEAD), then this docs-only record |
 
 ## 2. Owner Decisions (Owner Authority, recorded in #253)
 
@@ -306,7 +306,7 @@ Each mutant was applied to `deductionHint.ts`, the two DH4 test files were run, 
 | Full Vitest | **187 files, 4023 passed, 1 skipped, 0 failed** |
 | `tsc -b` / `oxlint` / `npm run build` | clean / 0 warnings / OK |
 | Checks re-confirmed on the integrated tree | the k ≥ 2 invariant, deterministic selection, Rule W, legacy total ownership, fact-id persistence (the `loadSave` round-trip), the unwired boundary, H3-4 compatibility (the HintSheet suites green together with DH4) |
-| CI | Recorded after the push of the integrated HEAD (next commit) |
+| CI on the integrated code HEAD `4b766a1` | **All green** (runs 36311836204 / 36311836395):<br>- `classify`, `build`, `layout-chromium`, `Layout Contract Gate`;<br>- `webkit-390x844` and `webkit-360x800` 1/2 + 2/2;<br>- `WebKit Gate`.<br>Later commits are docs only. |
 
 ## 15. Verdict
 
