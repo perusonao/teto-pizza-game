@@ -140,19 +140,20 @@ test.describe("Discovery Hint 2.0 near-miss RESULT (229-C)", () => {
     await expectNoUndiscoveredIdentity(page, DEX3_SAVE.dex.map((d) => d.recipeId), "RESULT -> hint sheet");
     await capture(page, "c5-hint-cta-sheet");
 
-    // Discovery Hint Economy 1.0 (Issue #232, HE-4): the RESULT door buys through the same
-    // PURCHASE_DISCOVERY_HINT authority -- the CTA names only the price, never the ingredient.
+    // HE-4 / Discovery Hint 3.0 (Issue #238, H3-3): the RESULT door buys through the same reducer
+    // authority (PURCHASE_SELECTABLE_HINT) -- the CTA names only the price, never the ingredient.
     const cta = sheet.locator(".hint-sheet__next");
-    await expect(cta).toHaveText("🔒次のヒントを解除 5 Pitz");
+    await expect(cta).toHaveText("🔒ヒントを1つ解除 5 Pitz");
     const before = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!).pitzBalance, SAVE_KEY);
     await cta.click();
-    await expect(sheet.locator(".hint-sheet__step")).toHaveCount(2);
-    await expect(cta).toHaveText("🔒次のヒントを解除 10 Pitz");
+    await expect(sheet.locator(".hint-sheet__chip:not(.hint-sheet__chip--unknown)")).toHaveCount(2);
+    await expect(cta).toHaveText("🔒ヒントを1つ解除 10 Pitz");
     await expect(sheet).toContainText(`所持 ${before - 5} Pitz`);
     await expectNoUndiscoveredIdentity(page, DEX3_SAVE.dex.map((d) => d.recipeId), "RESULT -> hint sheet H1 bought");
     const saved = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), SAVE_KEY);
     expect(saved.pitzBalance).toBe(before - 5);
-    expect(saved.discoveryHintPurchases).toEqual({ funghi: 1 });
+    expect(saved.discoveryHintFacts).toEqual({ funghi: ["ing:tomato-sauce"] });
+    expect(saved.discoveryHintPurchases ?? {}).toEqual({});
 
     await sheet.getByRole("button", { name: "閉じる" }).click();
     await expect(sheet).toHaveCount(0);

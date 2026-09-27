@@ -18,6 +18,13 @@
  * - Dex 0 + Margherita (OD-HE-5): the onboarding is free. The reveal stays session-only, and the
  *   pre-first-discovery escalation (`preDiscoveryFreeCookAttempts`) still counts: the sheet shows
  *   the larger of that automatic step and the manually revealed one (Fresh Audit §6 F-1/F-2).
+ *
+ * Discovery Hint 3.0 (Issue #238, H3-3): every target except that onboarding now uses the Selectable
+ * Hint (`SELECTABLE` view, `purchaseSelectableHintFact`). The H3-1 pure authority prices and resolves
+ * each purchase; H3-2's `selectableHintSavedState` supplies its input from both ledgers. A purchase
+ * adds facts to `discoveryHintFacts` and never advances the legacy `discoveryHintPurchases`, which
+ * stays the read-only source of `LegacyHintProgress` and `grandfatheredSteps`. Economy 1.0 levels
+ * are no longer sold (`unlockNextHint` only runs for the onboarding, see the reducer).
  */
 import { getRecipe, type RecipeId } from "../data/recipes";
 import {
@@ -29,6 +36,16 @@ import {
 } from "../logic/discovery/hintPurchase";
 import { buildHintSteps, type HintLevel, type HintStep } from "../logic/discovery/hintSteps";
 import { discoverableHintCandidates, selectHintTarget, type HintEmptyKind } from "../logic/discovery/hintTarget";
+import { selectableHintSavedState } from "../logic/discovery/hintFactMigration";
+import {
+  buildSelectableHintModel,
+  hintFactId,
+  purchaseSelectableHint,
+  selectableHintPresentation,
+  type HintCategory,
+  type SelectableHintModel,
+  type SelectableHintPresentation,
+} from "../logic/discovery/selectableHint";
 import { discoveredRecipeIds, type DexState } from "./dex";
 import type { InventoryState } from "./inventory";
 
@@ -50,7 +67,15 @@ export interface DiscoveryHintState {
   hintSession: HintSession | null;
   pitzBalance: number;
   discoveryHintPurchases: DiscoveryHintPurchases;
+  /** H3-3: the Hint 3.0 fact ledger (`recipeId -> fact ids`, H3-2). */
+  discoveryHintFacts: Readonly<Record<string, readonly string[]>>;
+  /** H3-3: the last Selectable request's non-purchase outcome, shown once in the sheet. Session UI
+   *  only: never persisted, cleared when the sheet opens or closes and by a successful purchase. */
+  hintOutcome?: HintOutcome | null;
 }
+
+/** OD-H3-17: a request with nothing unrevealed for sale answers with generic guidance only. */
+export type HintOutcome = "GUIDANCE_ONLY";
 
 /** The next level the sheet offers. Says nothing about what that level reveals. */
 export interface HintUnlockOffer {
@@ -72,6 +97,18 @@ export type HintSheetView =
       /** The next level to unlock; `null` once everything the target offers is shown. */
       next: HintUnlockOffer | null;
       pitzBalance: number;
+    }
+  | {
+      /** H3-3: the Hint 3.0 sheet (every target except the Dex-0 Margherita onboarding). Carries
+       *  only H3-1's privacy-safe presentation, the H0 line and this player's own grandfathered
+       *  legacy lines -- never the target, a remaining count or per-category availability. */
+      kind: "SELECTABLE";
+      existenceText: string;
+      presentation: SelectableHintPresentation;
+      /** Already-purchased Economy 1.0 lines that named no ingredient (H3-2). Display only: never a
+       *  fact, never for sale, never priced. H3-4 decides the final presentation. */
+      grandfatheredSteps: readonly HintStep[];
+      outcome: HintOutcome | null;
     }
   | { kind: HintEmptyKind };
 
@@ -101,14 +138,14 @@ function stepsFor(targetId: string, dex: DexState): HintStep[] {
 export function resolveHintSession(state: DiscoveryHintState, pinnedRecipeId?: string | null): HintSession | null {
   const current = state.hintSession;
   const sessionSticky =
-    current && (current.revealedIndex >= 1 || current.fromDex || purchasedFor(state, current.targetId) >= 1) ? current.targetId : null;
+    current && (current.revealedIndex >= 1 || current.fromDex || hasBoughtHints(state, current.targetId)) ? current.targetId : null;
   // HE-UI-4: without a session target (a reload, or a session that never got past H0), a
   // DISCOVERABLE recipe the player already paid for is preferred, first in hint order, so
   // re-opening the sheet never trades bought information for a different recipe. Anything else
   // (no purchase still DISCOVERABLE) keeps the deterministic automatic order.
   const candidates = discoverableHintCandidates(state);
   const stickyRecipeId =
-    [sessionSticky, candidates.find((r) => purchasedFor(state, r.id) >= 1)?.id].find(
+    [sessionSticky, candidates.find((r) => hasBoughtHints(state, r.id))?.id].find(
       (id) => !!id && candidates.some((r) => r.id === id),
     ) ?? null;
   const target = selectHintTarget(state, { pinnedRecipeId, stickyRecipeId });
@@ -118,6 +155,14 @@ export function resolveHintSession(state: DiscoveryHintState, pinnedRecipeId?: s
     return fromDex === !!current.fromDex ? current : { ...current, fromDex: true };
   }
   return fromDex ? { targetId: target.recipeId, revealedIndex: 0, fromDex: true } : { targetId: target.recipeId, revealedIndex: 0 };
+}
+
+/** H3-3: the player paid for something on `recipeId` -- a legacy level or a Hint 3.0 fact. */
+function hasBoughtHints(state: Pick<DiscoveryHintState, "dex" | "discoveryHintPurchases" | "discoveryHintFacts">, recipeId: string): boolean {
+  if (purchasedFor(state, recipeId) >= 1) return true;
+  const facts = state.discoveryHintFacts;
+  const own = Object.prototype.hasOwnProperty.call(facts, recipeId) ? facts[recipeId] : undefined;
+  return Array.isArray(own) && own.length > 0;
 }
 
 /** Highest purchased level for `recipeId`, clamped to what its steps offer (0 = none). */
@@ -188,6 +233,67 @@ export function unlockNextHint(state: DiscoveryHintState, requestedLevel: number
   return { discoveryHintPurchases: result.nextPurchases, pitzBalance: result.nextPitzBalance };
 }
 
+/** H3-3: the Selectable Hint inputs for the session target, or `null` for the Dex-0 Margherita
+ *  onboarding (which keeps the free Hint 2.0 reveal) or when there is no valid target. */
+function selectableContext(state: DiscoveryHintState, session: HintSession) {
+  const count = discoveredCount(state.dex);
+  if (isHintOnboardingFree(count, session.targetId)) return null;
+  const model: SelectableHintModel | null = buildSelectableHintModel(session.targetId, { discoveredCount: count });
+  const saved = selectableHintSavedState(session.targetId, state);
+  return model && saved ? { model, saved } : null;
+}
+
+/** True while the session target is the free Dex-0 Margherita onboarding (the only target
+ *  `PURCHASE_DISCOVERY_HINT` still serves). */
+export function isOnboardingHintSession(state: DiscoveryHintState): boolean {
+  const session = state.hintSession;
+  return !!session && isHintOnboardingFree(discoveredCount(state.dex), session.targetId);
+}
+
+export type SelectableHintPatch = Partial<Pick<DiscoveryHintState, "pitzBalance" | "discoveryHintFacts" | "hintOutcome">>;
+
+/**
+ * H3-3: one Selectable Hint request for the session target -- the patch to apply, or `null` when
+ * it is rejected (nothing changes). H3-1's `purchaseSelectableHint` is the only authority: it
+ * re-checks the preference, the paid count the sheet showed (`expectedPaidCount`: a double tap or a
+ * stale sheet is rejected), the price with the legacy rung, and the balance.
+ *
+ * - Success: Pitz is debited once and the target's ledger becomes the stored list (unknown / future
+ *   ids kept) plus the revealed facts. `discoveryHintPurchases` is never touched.
+ * - GUIDANCE_ONLY (nothing unrevealed for sale, OD-H3-17): only the session UI flag changes -- no Pitz,
+ *   no facts, no legacy change.
+ */
+export function purchaseSelectableHintFact(
+  state: DiscoveryHintState,
+  preference: HintCategory,
+  expectedPaidCount: number,
+): SelectableHintPatch | null {
+  const session = state.hintSession;
+  if (!session || !isSessionTarget(state, session)) return null;
+  const context = selectableContext(state, session);
+  if (!context) return null;
+  const { model, saved } = context;
+  const result = purchaseSelectableHint({
+    model,
+    purchasedFactIds: saved.purchasedFactIds,
+    preferences: [preference],
+    expectedPaidCount,
+    pitzBalance: state.pitzBalance,
+    legacy: saved.legacy,
+  });
+  if (!result.success) {
+    return result.reason === "GUIDANCE_ONLY" ? { hintOutcome: "GUIDANCE_ONLY" } : null;
+  }
+  // Only the onboarding answers `persist: false`, and it never reaches here (`selectableContext`).
+  if (!result.persist) return null;
+  const stored = saved.purchasedFactIds;
+  const merged = [...stored, ...result.revealed.map((f) => hintFactId(f.ingredientId)).filter((id) => !stored.includes(id))];
+  const ledger: Record<string, readonly string[]> = Object.create(null) as Record<string, readonly string[]>;
+  for (const [id, facts] of Object.entries(state.discoveryHintFacts)) ledger[id] = facts;
+  ledger[model.recipeId] = merged;
+  return { pitzBalance: result.nextPitzBalance, discoveryHintFacts: ledger, hintOutcome: null };
+}
+
 export function hintSheetView(state: DiscoveryHintState): HintSheetView {
   const session = state.hintSession;
   const steps = session ? stepsFor(session.targetId, state.dex) : [];
@@ -196,6 +302,17 @@ export function hintSheetView(state: DiscoveryHintState): HintSheetView {
     // A target without a session only happens before SHOW_HINT ran; show it as SHOW_HINT would.
     if (target.kind === "TARGET") return hintSheetView({ ...state, hintSession: { targetId: target.recipeId, revealedIndex: 0 } });
     return { kind: target.kind };
+  }
+  const context = selectableContext(state, session);
+  if (context) {
+    const { model, saved } = context;
+    return {
+      kind: "SELECTABLE",
+      existenceText: steps[0].textJa,
+      presentation: selectableHintPresentation(model, saved.purchasedFactIds, state.pitzBalance, saved.legacy),
+      grandfatheredSteps: saved.grandfatheredSteps,
+      outcome: state.hintOutcome ?? null,
+    };
   }
   const index = shownIndex(state, session, steps);
   const shown = steps.slice(0, index + 1);

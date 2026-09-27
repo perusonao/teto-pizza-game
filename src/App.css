@@ -5061,3 +5061,118 @@
   font-size: 14px;
   color: #6b4a2b;
 }
+
+/* Discovery Hint 3.0 (Issue #238, H3-3): the Selectable sheet, minimal wiring only.
+   H3-4 TODO: final chip / preference styling and Human Verification. */
+p.hint-sheet__step {
+  margin: 0;
+}
+
+.hint-sheet__rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hint-sheet__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #6b4a2b;
+}
+
+.hint-sheet__row-label {
+  flex: none;
+  width: 5.5em;
+  font-weight: 700;
+}
+
+.hint-sheet__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-width: 0;
+}
+
+.hint-sheet__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #ffe7b0;
+  color: #3d2a16;
+  font-size: 13px;
+}
+
+.hint-sheet__chip--unknown {
+  background: #f3e6c8;
+  color: #9a7b58;
+}
+
+.hint-sheet__chip .hint-sheet__glyph {
+  font-size: 16px;
+}
+
+.hint-sheet__legacy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hint-sheet__legacy-title,
+.hint-sheet__guidance {
+  margin: 0;
+  font-size: 12px;
+  color: #6b4a2b;
+}
+
+.hint-sheet__guidance {
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: #fff4d6;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.hint-sheet__prefs {
+  margin: 0 0 4px;
+  padding: 0;
+  border: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+
+.hint-sheet__prefs-legend {
+  width: 100%;
+  margin-bottom: 2px;
+  text-align: center;
+  font-size: 12px;
+  color: #6b4a2b;
+}
+
+.hint-sheet__pref {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 36px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 2px solid #e0c48f;
+  background: #fffaf0;
+  font-size: 13px;
+  color: #3d2a16;
+  cursor: pointer;
+}
+
+.hint-sheet__pref--on {
+  border-color: #d9822b;
+  background: #ffe7b0;
+  font-weight: 700;
+}

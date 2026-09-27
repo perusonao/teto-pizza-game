@@ -125,7 +125,7 @@ async function checkSheet(page: Page, driver: ProfileDriver, browserName: string
 test.describe("Discovery Hint 2.0 Dex entry (229-D)", () => {
   test.beforeEach(() => runOnlyOnWidth(test.info(), 390));
 
-  test("Dex 🎨 card -> 「💡 ヒントを見る」 -> Free Cooking + hint sheet -> H1..H3 -> close -> cook", async ({ page, browserName }) => {
+  test("Dex 🎨 card -> 「💡 ヒントを見る」 -> Free Cooking + hint sheet -> three facts -> close -> cook", async ({ page, browserName }) => {
     const driver = await ProfileDriver.create(page, browserName);
     await driver.apply(PROFILES.N390);
     await openWithSave(page);
@@ -161,21 +161,24 @@ test.describe("Discovery Hint 2.0 Dex entry (229-D)", () => {
     await page.locator(".prepare-bake-bar").getByRole("button", { name: "ヒント" }).click();
     await expect(sheet.locator(".hint-sheet__step")).toHaveCount(1); // same pinned session, still H0
 
+    // Discovery Hint 3.0 (Issue #238, H3-3): the Selectable sheet. The free key (capricciosa's
+    // oregano) is shown from H0; the recipe itself is never named.
+    await expect(sheet.locator(".hint-sheet__chip")).toContainText(["オレガノ"]);
     await sheet.locator(".hint-sheet__next").click();
-    // H1 names capricciosa's key ingredient (oregano); the recipe itself is never named.
-    await expect(sheet.locator(".hint-sheet__step--latest")).toContainText("オレガノ を使うピザが作れそう！");
-    await checkSheet(page, driver, browserName, "H1", closed);
-    await capture(page, "d3-h1");
+    await expect(sheet.locator(".hint-sheet__chip:not(.hint-sheet__chip--unknown)")).toHaveCount(2);
+    await checkSheet(page, driver, browserName, "one fact", closed);
+    await capture(page, "d3-one-fact");
     await sheet.locator(".hint-sheet__next").click();
     await sheet.locator(".hint-sheet__next").click();
-    await expect(sheet.locator(".hint-sheet__step")).toHaveCount(4);
-    await checkSheet(page, driver, browserName, "H3", closed);
-    await expectNoUndiscoveredIdentity(page, DEX11_IDS, "Dex -> sheet H3");
-    await capture(page, "d4-h3");
-    // Discovery Hint Economy 1.0 (Issue #232, HE-4): the Dex door buys through the same reducer
-    // authority -- H1..H3 = 5 + 10 + 20 on the pinned recipe, saved.
+    await expect(sheet.locator(".hint-sheet__chip:not(.hint-sheet__chip--unknown)")).toHaveCount(4);
+    await checkSheet(page, driver, browserName, "three facts", closed);
+    await expectNoUndiscoveredIdentity(page, DEX11_IDS, "Dex -> sheet three facts");
+    await capture(page, "d4-three-facts");
+    // HE-4 / H3-3: the Dex door buys through the same reducer authority -- 5 + 10 + 20 on the pinned
+    // recipe, saved in the fact ledger; the legacy ledger never moves.
     const saved = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), SAVE_KEY);
-    expect(Object.values(saved.discoveryHintPurchases)).toEqual([3]);
+    expect(Object.values(saved.discoveryHintFacts).map((facts) => (facts as string[]).length)).toEqual([3]);
+    expect(saved.discoveryHintPurchases ?? {}).toEqual({});
     for (const name of UNDISCOVERED) await expect(sheet).not.toContainText(name);
 
     await sheet.getByRole("button", { name: "閉じる" }).click();

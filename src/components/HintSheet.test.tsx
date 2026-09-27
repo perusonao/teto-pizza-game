@@ -4,8 +4,10 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { INGREDIENTS } from "../data/ingredients";
 import { RECIPES } from "../data/recipes";
 import { buildHintSteps, type HintLevel } from "../logic/discovery/hintSteps";
+import { selectableHintSavedState } from "../logic/discovery/hintFactMigration";
+import { buildSelectableHintModel, selectableHintPresentation } from "../logic/discovery/selectableHint";
 import type { HintSheetView } from "../state/discoveryHint";
-import { HintSheet } from "./HintSheet";
+import { HintSheet, SELECTABLE_GUIDANCE_TEXT } from "./HintSheet";
 
 const recipe = (id: string) => RECIPES.find((r) => r.id === id)!;
 const targetView = (id: string, discoveredCount: number, shown: number, pitzBalance = 100): HintSheetView => {
@@ -200,5 +202,109 @@ describe("HintSheet -- anti-spoiler DOM sweep (25 recipes, every revealed step)"
     for (const n of ["トマトソース", "モッツァレラ", "バジル"]) expect(margherita0).toContain(n);
     const breakfast = shownIngredients("breakfast-pizza", 2).join("|");
     expect(breakfast).not.toContain("たまご");
+  });
+});
+
+/** The H3-3 Selectable view exactly as `hintSheetView` builds it, from both ledgers. */
+function selectableView(
+  id: string,
+  opts: { facts?: string[]; legacyLevel?: number; pitz?: number; outcome?: "GUIDANCE_ONLY" | null } = {},
+): Extract<HintSheetView, { kind: "SELECTABLE" }> {
+  const saved = selectableHintSavedState(id, {
+    discoveryHintPurchases: opts.legacyLevel ? { [id]: opts.legacyLevel } : {},
+    discoveryHintFacts: opts.facts ? { [id]: opts.facts } : {},
+  })!;
+  const model = buildSelectableHintModel(id, { discoveredCount: 3 })!;
+  return {
+    kind: "SELECTABLE",
+    existenceText: buildHintSteps(recipe(id), { discoveredCount: 3 })[0].textJa,
+    presentation: selectableHintPresentation(model, saved.purchasedFactIds, opts.pitz ?? 100, saved.legacy),
+    grandfatheredSteps: saved.grandfatheredSteps,
+    outcome: opts.outcome ?? null,
+  };
+}
+
+function renderSelectable(view: HintSheetView) {
+  const onUnlock = vi.fn();
+  const onBuySelectable = vi.fn();
+  const onClose = vi.fn();
+  const utils = render(<HintSheet view={view} onUnlock={onUnlock} onBuySelectable={onBuySelectable} onClose={onClose} />);
+  return { ...utils, onUnlock, onBuySelectable, onClose };
+}
+
+describe("HintSheet -- Selectable view (Discovery Hint 3.0, H3-3)", () => {
+  it("shows H0, three category rows, the free key, three preferences, the price and the balance", () => {
+    renderSelectable(selectableView("capricciosa"));
+    const dialog = screen.getByRole("dialog", { name: /ヒント/ });
+    expect(dialog).toHaveAttribute("data-hint-kind", "SELECTABLE");
+    expect(dialog).toHaveTextContent("今の材料で、まだ見つけていないピザが作れそう！");
+    expect([...dialog.querySelectorAll(".hint-sheet__row-label")].map((e) => e.textContent)).toEqual(["ソース", "チーズ", "トッピング"]);
+    expect(dialog).toHaveTextContent("オレガノ");
+    expect(screen.getAllByRole("radio").map((r) => (r as HTMLInputElement).value)).toEqual(["sauce", "cheese", "topping"]);
+    expect(screen.getByRole("radio", { name: "ソース" })).toBeChecked();
+    const cta = dialog.querySelector<HTMLButtonElement>(".hint-sheet__next")!;
+    expect(cta).toHaveTextContent("5 Pitz");
+    expect(cta).toBeEnabled();
+    expect(cta).toHaveFocus();
+    expect(dialog).toHaveTextContent("所持 100 Pitz");
+    expect(dialog.querySelector(".hint-sheet__legacy")).toBeNull();
+    expect(dialog).not.toHaveTextContent(SELECTABLE_GUIDANCE_TEXT);
+  });
+
+  it("the CTA reports the chosen preference and the paid count it showed; it never changes anything itself", () => {
+    const { onBuySelectable, onUnlock } = renderSelectable(selectableView("capricciosa", { facts: ["ing:mushroom"] }));
+    fireEvent.click(screen.getByRole("radio", { name: "チーズ" }));
+    fireEvent.click(document.querySelector<HTMLButtonElement>(".hint-sheet__next")!);
+    expect(onBuySelectable).toHaveBeenCalledWith("cheese", 1);
+    expect(onUnlock).not.toHaveBeenCalled();
+    expect(document.querySelector(".hint-sheet__next")).toHaveTextContent("10 Pitz");
+  });
+
+  it("insufficient Pitz: a disabled CTA in the calm tone, focus on 閉じる", () => {
+    const { onBuySelectable } = renderSelectable(selectableView("capricciosa", { pitz: 4 }));
+    const cta = document.querySelector<HTMLButtonElement>(".hint-sheet__next")!;
+    expect(cta).toBeDisabled();
+    expect(cta).toHaveClass("hint-sheet__next--short");
+    fireEvent.click(cta);
+    expect(onBuySelectable).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "閉じる" })).toHaveFocus();
+    expect(document.body).toHaveTextContent("たまったら解除できるよ。このまま作ってもOK！");
+  });
+
+  it("GUIDANCE_ONLY shows the generic line only -- no count, no category, no 'that is all'", () => {
+    renderSelectable(selectableView("pizza-bianca", { outcome: "GUIDANCE_ONLY" }));
+    const line = document.querySelector(".hint-sheet__guidance")!;
+    expect(line.textContent).toBe(SELECTABLE_GUIDANCE_TEXT);
+    expect(document.body.textContent).not.toMatch(/ここまで|全部|もうない|ありません|種類/);
+  });
+
+  it("grandfathered legacy lines render in their own 「以前のヒント」 block, not as a purchasable row", () => {
+    renderSelectable(selectableView("breakfast-pizza", { legacyLevel: 3 }));
+    const legacy = document.querySelector(".hint-sheet__legacy")!;
+    expect(legacy).toHaveTextContent("以前のヒント");
+    expect(legacy).toHaveTextContent("材料は全部で4種類。チーズを使うみたい");
+    expect(document.querySelector(".hint-sheet__rows")).not.toHaveTextContent("材料は全部で");
+    expect(document.querySelector(".hint-sheet__next")).toHaveTextContent("40 Pitz");
+  });
+
+  it("every recipe: no recipe identity, and the same shape whatever is left to sell", () => {
+    const ingredientNames = [...new Set(INGREDIENTS.map((i) => i.nameJa))].sort((a, b) => b.length - a.length);
+    const shape = () => ({
+      rows: [...document.querySelectorAll(".hint-sheet__row")].map((r) => r.getAttribute("data-hint-category")),
+      radios: screen.getAllByRole("radio").map((r) => (r as HTMLInputElement).value),
+      cta: document.querySelector(".hint-sheet__next")?.textContent,
+    });
+    let reference: ReturnType<typeof shape> | null = null;
+    for (const r of RECIPES.filter((x) => x.id !== "margherita")) {
+      renderSelectable(selectableView(r.id));
+      const text = ingredientNames.reduce((t, n) => t.split(n).join("□"), document.body.textContent ?? "");
+      expect(text, r.id).not.toContain(r.nameJa);
+      const attributes = [...document.body.querySelectorAll("*")].flatMap((el) => [...el.attributes].map((a) => a.value));
+      expect(attributes.some((v) => v.split(/[\s:]/).includes(r.id)), r.id).toBe(false);
+      expect((document.body.textContent ?? "").split("Pitz").join(""), r.id).not.toMatch(/[a-z]{3,}/);
+      reference ??= shape();
+      expect(shape(), r.id).toEqual(reference);
+      cleanup();
+    }
   });
 });

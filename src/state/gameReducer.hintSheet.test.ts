@@ -10,6 +10,8 @@ import { hintSheetView } from "./discoveryHint";
  * Discovery Hint Economy 1.0 (Issue #232, HE-2): from Dex 1 on a level is bought once with Pitz
  * (`gameReducer.hintPurchase.test.ts` covers the transaction); "NEXT" below unlocks whatever level
  * the sheet currently offers.
+ * Discovery Hint 3.0 (Issue #238, H3-3): outside the Dex-0 Margherita onboarding the sheet is the
+ * Selectable one, so "NEXT" there buys one fact (PURCHASE_SELECTABLE_HINT, sauce first).
  */
 
 function discover(ids: readonly string[]): DexState {
@@ -33,11 +35,15 @@ function freeCookDex0(): GameState {
   return gameReducer(createInitialGameState(), { type: "BEGIN_PREPARE" });
 }
 
-/** "NEXT" = the sheet's CTA: unlock the level it offers (or the level after the last one, a no-op). */
+/** "NEXT" = the sheet's CTA: unlock the level it offers (or the level after the last one, a no-op);
+ *  on the Selectable sheet, buy one fact with the paid count it shows. */
 const apply = (state: GameState, ...types: ("SHOW_HINT" | "NEXT" | "CLOSE_HINT")[]) =>
   types.reduce((s, type) => {
     if (type !== "NEXT") return gameReducer(s, { type });
     const view = hintSheetView(s);
+    if (view.kind === "SELECTABLE") {
+      return gameReducer(s, { type: "PURCHASE_SELECTABLE_HINT", preference: "sauce", expectedPaidCount: view.presentation.paidCount });
+    }
     const level = view.kind === "TARGET" ? (view.next?.level ?? view.steps.at(-1)!.level + 1) : 1;
     return gameReducer(s, { type: "PURCHASE_DISCOVERY_HINT", level });
   }, state);
@@ -72,21 +78,28 @@ describe("SHOW_HINT in Free Cooking PREPARE", () => {
   });
 });
 
-describe("PURCHASE_DISCOVERY_HINT (next level) / CLOSE_HINT", () => {
-  it("H1 -> H2 -> H3 -> H4, then repeated next at the last step returns the same state", () => {
+describe("PURCHASE_SELECTABLE_HINT (next fact) / CLOSE_HINT", () => {
+  it("one fact per purchase, then the guidance line; repeated next after that returns the same state", () => {
     let s = apply(freeCookDex2(), "SHOW_HINT");
-    const axes: string[][] = [];
-    for (let i = 0; i < 4; i += 1) {
+    const known: string[][] = [];
+    for (let i = 0; i < 2; i += 1) {
       s = apply(s, "NEXT");
       const view = hintSheetView(s);
-      axes.push(view.kind === "TARGET" ? view.steps.map((x) => x.axis) : []);
+      known.push(view.kind === "SELECTABLE" ? view.presentation.rows.flatMap((r) => r.revealed.map((c) => c.ingredientId)).sort() : []);
     }
-    expect(axes.at(-1)).toEqual(["EXISTENCE", "KEY", "SAUCE", "COUNT_CHEESE", "INGREDIENT"]);
-    // Dex >= 1: the progress is the purchase ledger, not the session index.
+    expect(known).toEqual([
+      ["bacon", "tomato-sauce"],
+      ["bacon", "mozzarella", "tomato-sauce"],
+    ]);
+    // Dex >= 1: the progress is the fact ledger, not the session index nor the legacy ledger.
     expect(s.hintSession?.revealedIndex).toBe(0);
-    expect(s.discoveryHintPurchases).toEqual({ "breakfast-pizza": 4 });
-    expect(apply(s, "NEXT")).toBe(s);
-    expect(apply(s, "NEXT", "NEXT", "NEXT")).toBe(s);
+    expect(s.discoveryHintFacts).toEqual({ "breakfast-pizza": ["ing:tomato-sauce", "ing:mozzarella"] });
+    expect(s.discoveryHintPurchases).toEqual({});
+    const guided = apply(s, "NEXT");
+    expect(guided.hintOutcome).toBe("GUIDANCE_ONLY");
+    expect(guided.pitzBalance).toBe(s.pitzBalance);
+    expect(apply(guided, "NEXT")).toBe(guided);
+    expect(apply(guided, "NEXT", "NEXT", "NEXT")).toBe(guided);
   });
 
   it("an unlock is ignored while the sheet is closed", () => {

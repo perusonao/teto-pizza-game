@@ -469,9 +469,11 @@ describe("Cooking Time: Discovery Hint sheet pause (#229)", () => {
     await user.click(document.querySelector<HTMLButtonElement>(".hint-sheet__next")!);
     now += 15_000;
     await user.click(screen.getByRole("button", { name: "閉じる" }));
-    // Two levels bought through the same reducer authority as every other door.
-    const purchases = JSON.parse(window.localStorage.getItem(SAVE_STORAGE_KEY)!).discoveryHintPurchases;
-    expect(purchases).toEqual({ "breakfast-pizza": 2 });
+    // Two facts bought through the same reducer authority as every other door (H3-3: the
+    // Selectable Hint; the legacy ledger never moves).
+    const saved = JSON.parse(window.localStorage.getItem(SAVE_STORAGE_KEY)!);
+    expect(saved.discoveryHintFacts).toEqual({ "breakfast-pizza": ["ing:tomato-sauce", "ing:mozzarella"] });
+    expect(saved.discoveryHintPurchases ?? {}).toEqual({});
     now += 6_000;
     await bakeBismarck(user);
 
