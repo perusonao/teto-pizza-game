@@ -7,6 +7,7 @@ import {
   REC04_STARTERS,
   REC04_W1_25_LADDER_FIXTURE,
   W1_RECIPE_POPULATION_FIXTURE,
+  buildAppendOnlyLadder,
   buildKeyRecipeLadder,
   toMaterialLadder,
   type LadderRecipe,
@@ -28,7 +29,9 @@ const PRODUCTION_POPULATION: LadderRecipe[] = RECIPES.map((r) => ({
 
 describe("Discovery Ladder authority data (I4a, REC-04 OD-REC04-1)", () => {
   it("the current ladder is the 25-recipe W1 ladder (I5b-3); the shipped-15 ladder stays as history", () => {
-    expect(DISCOVERY_LADDER).toBe(W1_25_DISCOVERY_LADDER);
+    // LAD-1 (OD-W2-1): composed as the frozen W1 ladder + appended steps (none yet), so it is an
+    // equal copy rather than the same object.
+    expect(DISCOVERY_LADDER).toEqual(W1_25_DISCOVERY_LADDER);
     expect(DISCOVERY_LADDER.populationId).toBe("w1-25");
     expect(SHIPPED_15_DISCOVERY_LADDER.populationId).toBe("shipped-15");
   });
@@ -40,8 +43,9 @@ describe("Discovery Ladder authority data (I4a, REC-04 OD-REC04-1)", () => {
     expect(SHIPPED_15_DISCOVERY_LADDER.steps).toHaveLength(14);
   });
 
-  it("the production ladder equals the REC-04 key-recipe rule applied to the production recipe data", () => {
-    const derived = toMaterialLadder("w1-25", buildKeyRecipeLadder(PRODUCTION_POPULATION));
+  it("the production ladder equals the REC-04 key-recipe rule applied append-only to the production recipe data", () => {
+    // LAD-1 (OD-W2-1): the W1 steps are frozen; the rule only ever appends after them.
+    const derived = buildAppendOnlyLadder(W1_25_DISCOVERY_LADDER, PRODUCTION_POPULATION);
     expect(DISCOVERY_LADDER).toEqual(derived);
     expect(validateDiscoveryLadder(DISCOVERY_LADDER)).toEqual([]);
   });

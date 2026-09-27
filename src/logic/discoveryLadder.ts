@@ -161,3 +161,120 @@ export function validateDiscoveryLadder(ladder: DiscoveryLadder): string[] {
   });
   return problems;
 }
+
+/**
+ * LAD-1 (Issue #261, Owner Decision OD-W2-1): the append-only ladder. The W1 steps 1..24 are a
+ * frozen authority -- adding recipes or ingredients never regenerates or reorders them (a
+ * regeneration would change "what step N unlocks" for every save in the middle of W1). Later
+ * waves only add steps *after* the frozen ones, so an existing save keeps its next unlock, a
+ * mid-W1 save means exactly what it meant before, and a W1-complete save simply reaches the
+ * appended steps as its discovered count grows.
+ */
+export interface AppendedLadderStep {
+  ingredientIds: readonly string[];
+  keyRecipeId: string;
+}
+
+/** `base` (in step order) followed by `appended`, renumbered from `base.steps.length + 1`. Pure:
+ *  neither input is mutated. The appended steps are always `MATERIAL` steps. */
+export function appendLadderSteps(
+  base: DiscoveryLadder,
+  appended: readonly AppendedLadderStep[],
+  populationId: string = base.populationId,
+): DiscoveryLadder {
+  const fixed = stepsInOrder(base);
+  return {
+    populationId,
+    steps: [
+      ...fixed,
+      ...appended.map((s, index) => ({
+        step: fixed.length + index + 1,
+        kind: "MATERIAL" as const,
+        ingredientIds: [...s.ingredientIds],
+        keyRecipeId: s.keyRecipeId,
+      })),
+    ],
+  };
+}
+
+function sameStep(a: ProgressionStep, b: ProgressionStep): boolean {
+  return (
+    a.step === b.step &&
+    a.kind === b.kind &&
+    a.keyRecipeId === b.keyRecipeId &&
+    a.ingredientIds.length === b.ingredientIds.length &&
+    a.ingredientIds.every((id, i) => id === b.ingredientIds[i])
+  );
+}
+
+/** Problems (empty when valid) if `next` is not `base` with steps only appended: every base
+ *  step must be present, in place and unchanged (same number, kind, materials in the same order,
+ *  key recipe). */
+export function validateAppendOnlyExtension(base: DiscoveryLadder, next: DiscoveryLadder): string[] {
+  const problems: string[] = [];
+  const fixed = stepsInOrder(base);
+  const candidate = stepsInOrder(next);
+  if (candidate.length < fixed.length) {
+    problems.push(`FIXED_STEP_REMOVED: ${fixed.length} fixed steps, next has ${candidate.length}`);
+  }
+  fixed.forEach((step, index) => {
+    const other = candidate[index];
+    if (other && !sameStep(step, other)) problems.push(`FIXED_STEP_CHANGED: step ${step.step}`);
+  });
+  return problems;
+}
+
+/** Minimal recipe shape the progression check reads, so tests can pass synthetic populations. */
+export interface LadderProgressionRecipe {
+  id: string;
+  ingredientIds: readonly string[];
+}
+
+/**
+ * Progression problems of a ladder against a recipe population (empty when valid). Complements
+ * `validateDiscoveryLadder` (structure, duplicate unlocks):
+ * - `STARTER_IN_LADDER`: a starter is sold again as a ladder material.
+ * - `UNUSED_MATERIAL`: a material no recipe uses (a dead unlock).
+ * - `KEY_RECIPE`: a step's key recipe is unknown, already makeable before the step, or still not
+ *   makeable after it (a useless step).
+ * - `UNREACHABLE`: a recipe needs an ingredient that neither the starters nor any step provide.
+ * - `SOFTLOCK`: step `s` needs `s` discoveries, but fewer than `s` recipes are makeable from the
+ *   starters and the materials of the steps before it -- the player could never reach it.
+ */
+export function validateLadderProgression(
+  ladder: DiscoveryLadder,
+  recipes: readonly LadderProgressionRecipe[],
+  starters: readonly string[],
+): string[] {
+  const problems: string[] = [];
+  const steps = stepsInOrder(ladder);
+  const starterSet = new Set(starters);
+  const recipeIds = new Set(recipes.map((r) => r.id));
+  const used = new Set(recipes.flatMap((r) => r.ingredientIds));
+  const makeable = (owned: ReadonlySet<string>) =>
+    new Set(recipes.filter((r) => r.ingredientIds.every((i) => owned.has(i))).map((r) => r.id));
+
+  const owned = new Set(starterSet);
+  for (const step of steps) {
+    const before = makeable(owned);
+    if (before.size < step.step) {
+      problems.push(`SOFTLOCK: step ${step.step} needs ${step.step} discoveries, only ${before.size} recipes are makeable before it`);
+    }
+    for (const id of step.ingredientIds) {
+      if (starterSet.has(id)) problems.push(`STARTER_IN_LADDER: ${id} (step ${step.step})`);
+      if (!used.has(id)) problems.push(`UNUSED_MATERIAL: ${id} (step ${step.step})`);
+      owned.add(id);
+    }
+    const after = makeable(owned);
+    if (!recipeIds.has(step.keyRecipeId)) {
+      problems.push(`KEY_RECIPE: step ${step.step} names unknown recipe ${step.keyRecipeId}`);
+    } else if (before.has(step.keyRecipeId) || !after.has(step.keyRecipeId)) {
+      problems.push(`KEY_RECIPE: step ${step.step} does not newly complete ${step.keyRecipeId}`);
+    }
+  }
+  for (const recipe of recipes) {
+    const missing = recipe.ingredientIds.filter((i) => !owned.has(i));
+    if (missing.length > 0) problems.push(`UNREACHABLE: ${recipe.id} needs ${[...new Set(missing)].join(", ")}`);
+  }
+  return problems;
+}
