@@ -1,0 +1,2896 @@
+{
+ "schema": "teto-wave2-w2a-calibration/1",
+ "generatedBy": "tools/wave2-w2a/w2a.harness.test.ts (real Scoring 2.0 / Completion Gate / persistence; candidate values)",
+ "calibration": {
+  "brazilian-calabresa": {
+   "pieces": 8,
+   "reference": [
+    {
+     "ingredientId": "sausage",
+     "positions": [
+      {
+       "x": 50,
+       "y": 24
+      },
+      {
+       "x": 73,
+       "y": 36
+      },
+      {
+       "x": 76,
+       "y": 63
+      }
+     ],
+     "landingStyle": "HEAVY_SQUASH"
+    },
+    {
+     "ingredientId": "onion",
+     "positions": [
+      {
+       "x": 58,
+       "y": 79
+      },
+      {
+       "x": 38,
+       "y": 79
+      }
+     ],
+     "landingStyle": "HEAVY_SQUASH"
+    },
+    {
+     "ingredientId": "black-olive",
+     "positions": [
+      {
+       "x": 22,
+       "y": 63
+      },
+      {
+       "x": 25,
+       "y": 36
+      }
+     ],
+     "landingStyle": "HEAVY_SQUASH"
+    },
+    {
+     "ingredientId": "oregano",
+     "positions": [
+      {
+       "x": 50,
+       "y": 52
+      }
+     ],
+     "landingStyle": "HEAVY_SQUASH"
+    }
+   ],
+   "bakeTarget": {
+    "start": 62,
+    "end": 82,
+    "status": "DERIVED_FROM_AUTHORITY",
+    "why": "R-BT: runtime salsiccia (tomato-sauce base, sausage primary) 62-82"
+   },
+   "variants": {
+    "V0 reference-accurate": {
+     "total": 99.5,
+     "stars": 5,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V1 good (pieces ±3, sauce ring 28x24)": {
+     "total": 70.6,
+     "stars": 3,
+     "components": {
+      "sauce": 43.43,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V2 careless sauce (dumped at one spot)": {
+     "total": 65.2,
+     "stars": 3,
+     "components": {
+      "sauce": 33.095,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "FAILED:INSUFFICIENT_SAUCE",
+     "completionOrder": "FAILED:INSUFFICIENT_SAUCE"
+    },
+    "V3 careless placement (all pieces in one corner)": {
+     "total": 89.9,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 39.906,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V4 quantity short (1 of each)": {
+     "total": 65.4,
+     "stars": 3,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 91.25,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "FAILED:INSUFFICIENT_REQUIRED_AMOUNT+INSUFFICIENT_REQUIRED_AMOUNT+INSUFFICIENT_REQUIRED_AMOUNT"
+    },
+    "V5 quantity over (+2 primary)": {
+     "total": 87.8,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 87.5,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V6 bake at window edge + 4 (burnt, inside Completion margin)": {
+     "total": 98.4,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 94.444
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V7 bake far over (end + 15)": {
+     "total": 95.4,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 79.167
+     },
+     "completionFree": "FAILED:OVERBAKED",
+     "completionOrder": "FAILED:OVERBAKED"
+    },
+    "V8 bake far under (start - 15)": {
+     "total": 95.4,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 79.167
+     },
+     "completionFree": "FAILED:UNDERBAKED",
+     "completionOrder": "FAILED:UNDERBAKED"
+    },
+    "V9 missing one required topping": {
+     "total": 46.6,
+     "stars": 2,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 75,
+      "recipe": 80,
+      "bake": 100
+     },
+     "completionFree": "FAILED:MISSING_REQUIRED_INGREDIENT",
+     "completionOrder": "FAILED:MISSING_REQUIRED_INGREDIENT"
+    },
+    "V10 no sauce": {
+     "total": 45.6,
+     "stars": 2,
+     "components": {
+      "sauce": 0,
+      "pieces": 100,
+      "recipe": 80,
+      "bake": 100
+     },
+     "completionFree": "FAILED:MISSING_REQUIRED_INGREDIENT",
+     "completionOrder": "FAILED:MISSING_REQUIRED_INGREDIENT"
+    }
+   }
+  },
+  "vongole": {
+   "pieces": 7,
+   "reference": [
+    {
+     "ingredientId": "clam",
+     "positions": [
+      {
+       "x": 50,
+       "y": 24
+      },
+      {
+       "x": 73,
+       "y": 36
+      },
+      {
+       "x": 76,
+       "y": 63
+      }
+     ],
+     "landingStyle": "HEAVY_SQUASH"
+    },
+    {
+     "ingredientId": "garlic",
+     "positions": [
+      {
+       "x": 58,
+       "y": 79
+      },
+      {
+       "x": 38,
+       "y": 79
+      }
+     ],
+     "landingStyle": "HEAVY_SQUASH"
+    },
+    {
+     "ingredientId": "parsley",
+     "positions": [
+      {
+       "x": 22,
+       "y": 63
+      },
+      {
+       "x": 25,
+       "y": 36
+      }
+     ],
+     "landingStyle": "LIGHT_LEAF"
+    }
+   ],
+   "bakeTarget": {
+    "start": 62,
+    "end": 82,
+    "status": "DERIVED_FROM_AUTHORITY",
+    "why": "R-BT: runtime new-haven-apizza (olive-oil base, clam primary) 62-82"
+   },
+   "variants": {
+    "V0 reference-accurate": {
+     "total": 99.5,
+     "stars": 5,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V1 good (pieces ±3, sauce ring 28x24)": {
+     "total": 70.6,
+     "stars": 3,
+     "components": {
+      "sauce": 43.43,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V2 careless sauce (dumped at one spot)": {
+     "total": 65.2,
+     "stars": 3,
+     "components": {
+      "sauce": 33.095,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "FAILED:INSUFFICIENT_SAUCE",
+     "completionOrder": "FAILED:INSUFFICIENT_SAUCE"
+    },
+    "V3 careless placement (all pieces in one corner)": {
+     "total": 90.5,
+     "stars": 5,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 43.209,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V4 quantity short (1 of each)": {
+     "total": 65.1,
+     "stars": 3,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 88.333,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "FAILED:INSUFFICIENT_REQUIRED_AMOUNT+INSUFFICIENT_REQUIRED_AMOUNT+INSUFFICIENT_REQUIRED_AMOUNT"
+    },
+    "V5 quantity over (+2 primary)": {
+     "total": 87.2,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 83.333,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V6 bake at window edge + 4 (burnt, inside Completion margin)": {
+     "total": 98.4,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 94.444
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V7 bake far over (end + 15)": {
+     "total": 95.4,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 79.167
+     },
+     "completionFree": "FAILED:OVERBAKED",
+     "completionOrder": "FAILED:OVERBAKED"
+    },
+    "V8 bake far under (start - 15)": {
+     "total": 95.4,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 79.167
+     },
+     "completionFree": "FAILED:UNDERBAKED",
+     "completionOrder": "FAILED:UNDERBAKED"
+    },
+    "V9 missing one required topping": {
+     "total": 45.6,
+     "stars": 2,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 66.667,
+      "recipe": 75,
+      "bake": 100
+     },
+     "completionFree": "FAILED:MISSING_REQUIRED_INGREDIENT",
+     "completionOrder": "FAILED:MISSING_REQUIRED_INGREDIENT"
+    },
+    "V10 no sauce": {
+     "total": 45,
+     "stars": 2,
+     "components": {
+      "sauce": 0,
+      "pieces": 100,
+      "recipe": 75,
+      "bake": 100
+     },
+     "completionFree": "FAILED:MISSING_REQUIRED_INGREDIENT",
+     "completionOrder": "FAILED:MISSING_REQUIRED_INGREDIENT"
+    }
+   }
+  },
+  "flammkuchen": {
+   "pieces": 5,
+   "reference": [
+    {
+     "ingredientId": "bacon",
+     "positions": [
+      {
+       "x": 50,
+       "y": 24
+      },
+      {
+       "x": 73,
+       "y": 36
+      },
+      {
+       "x": 76,
+       "y": 63
+      }
+     ],
+     "landingStyle": "HEAVY_SQUASH"
+    },
+    {
+     "ingredientId": "onion",
+     "positions": [
+      {
+       "x": 58,
+       "y": 79
+      },
+      {
+       "x": 38,
+       "y": 79
+      }
+     ],
+     "landingStyle": "HEAVY_SQUASH"
+    }
+   ],
+   "bakeTarget": {
+    "start": 56,
+    "end": 76,
+    "status": "OWNER_REQUIRED",
+    "why": "no white-sauce analog and no catalog bakeProfile; candidate = breakfast-pizza (bacon) 56-76, alternative fugazza (onion, painted base) 63-83"
+   },
+   "variants": {
+    "V0 reference-accurate": {
+     "total": 99.5,
+     "stars": 5,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V1 good (pieces ±3, sauce ring 28x24)": {
+     "total": 70.6,
+     "stars": 3,
+     "components": {
+      "sauce": 43.43,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V2 careless sauce (dumped at one spot)": {
+     "total": 65.2,
+     "stars": 3,
+     "components": {
+      "sauce": 33.095,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "FAILED:INSUFFICIENT_SAUCE",
+     "completionOrder": "FAILED:INSUFFICIENT_SAUCE"
+    },
+    "V3 careless placement (all pieces in one corner)": {
+     "total": 88.7,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 32.313,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V4 quantity short (1 of each)": {
+     "total": 65,
+     "stars": 3,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 87.5,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "FAILED:INSUFFICIENT_REQUIRED_AMOUNT+INSUFFICIENT_REQUIRED_AMOUNT"
+    },
+    "V5 quantity over (+2 primary)": {
+     "total": 86,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 75,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V6 bake at window edge + 4 (burnt, inside Completion margin)": {
+     "total": 98.3,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 93.939
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V7 bake far over (end + 15)": {
+     "total": 95,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 77.273
+     },
+     "completionFree": "FAILED:OVERBAKED",
+     "completionOrder": "FAILED:OVERBAKED"
+    },
+    "V8 bake far under (start - 15)": {
+     "total": 95,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 77.273
+     },
+     "completionFree": "FAILED:UNDERBAKED",
+     "completionOrder": "FAILED:UNDERBAKED"
+    },
+    "V9 missing one required topping": {
+     "total": 43.8,
+     "stars": 2,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 50,
+      "recipe": 66.667,
+      "bake": 100
+     },
+     "completionFree": "FAILED:MISSING_REQUIRED_INGREDIENT",
+     "completionOrder": "FAILED:MISSING_REQUIRED_INGREDIENT"
+    },
+    "V10 no sauce": {
+     "total": 44,
+     "stars": 2,
+     "components": {
+      "sauce": 0,
+      "pieces": 100,
+      "recipe": 66.667,
+      "bake": 100
+     },
+     "completionFree": "FAILED:MISSING_REQUIRED_INGREDIENT",
+     "completionOrder": "FAILED:MISSING_REQUIRED_INGREDIENT"
+    }
+   }
+  },
+  "pesto-gamberi": {
+   "pieces": 7,
+   "reference": [
+    {
+     "ingredientId": "shrimp",
+     "positions": [
+      {
+       "x": 50,
+       "y": 24
+      },
+      {
+       "x": 73,
+       "y": 36
+      },
+      {
+       "x": 76,
+       "y": 63
+      }
+     ],
+     "landingStyle": "HEAVY_SQUASH"
+    },
+    {
+     "ingredientId": "fresh-tomato",
+     "positions": [
+      {
+       "x": 58,
+       "y": 79
+      },
+      {
+       "x": 38,
+       "y": 79
+      }
+     ],
+     "landingStyle": "HEAVY_SQUASH"
+    },
+    {
+     "ingredientId": "garlic",
+     "positions": [
+      {
+       "x": 22,
+       "y": 63
+      },
+      {
+       "x": 25,
+       "y": 36
+      }
+     ],
+     "landingStyle": "HEAVY_SQUASH"
+    }
+   ],
+   "bakeTarget": {
+    "start": 50,
+    "end": 70,
+    "status": "DERIVED_FROM_AUTHORITY",
+    "why": "R-BT: runtime pesto-tonno (pesto base, seafood primary) 50-70"
+   },
+   "variants": {
+    "V0 reference-accurate": {
+     "total": 99.5,
+     "stars": 5,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V1 good (pieces ±3, sauce ring 28x24)": {
+     "total": 70.6,
+     "stars": 3,
+     "components": {
+      "sauce": 43.43,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V2 careless sauce (dumped at one spot)": {
+     "total": 65.2,
+     "stars": 3,
+     "components": {
+      "sauce": 33.095,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "FAILED:INSUFFICIENT_SAUCE",
+     "completionOrder": "FAILED:INSUFFICIENT_SAUCE"
+    },
+    "V3 careless placement (all pieces in one corner)": {
+     "total": 90.5,
+     "stars": 5,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 43.209,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V4 quantity short (1 of each)": {
+     "total": 65.1,
+     "stars": 3,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 88.333,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "FAILED:INSUFFICIENT_REQUIRED_AMOUNT+INSUFFICIENT_REQUIRED_AMOUNT+INSUFFICIENT_REQUIRED_AMOUNT"
+    },
+    "V5 quantity over (+2 primary)": {
+     "total": 87.2,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 83.333,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V6 bake at window edge + 4 (burnt, inside Completion margin)": {
+     "total": 98.2,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 93.333
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V7 bake far over (end + 15)": {
+     "total": 94.5,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 75
+     },
+     "completionFree": "FAILED:OVERBAKED",
+     "completionOrder": "FAILED:OVERBAKED"
+    },
+    "V8 bake far under (start - 15)": {
+     "total": 94.5,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 75
+     },
+     "completionFree": "FAILED:UNDERBAKED",
+     "completionOrder": "FAILED:UNDERBAKED"
+    },
+    "V9 missing one required topping": {
+     "total": 45.6,
+     "stars": 2,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 66.667,
+      "recipe": 75,
+      "bake": 100
+     },
+     "completionFree": "FAILED:MISSING_REQUIRED_INGREDIENT",
+     "completionOrder": "FAILED:MISSING_REQUIRED_INGREDIENT"
+    },
+    "V10 no sauce": {
+     "total": 45,
+     "stars": 2,
+     "components": {
+      "sauce": 0,
+      "pieces": 100,
+      "recipe": 75,
+      "bake": 100
+     },
+     "completionFree": "FAILED:MISSING_REQUIRED_INGREDIENT",
+     "completionOrder": "FAILED:MISSING_REQUIRED_INGREDIENT"
+    }
+   }
+  },
+  "pesto-pollo": {
+   "pieces": 7,
+   "reference": [
+    {
+     "ingredientId": "mozzarella",
+     "positions": [
+      {
+       "x": 50,
+       "y": 24
+      },
+      {
+       "x": 73,
+       "y": 36
+      }
+     ],
+     "landingStyle": "HEAVY_SQUASH"
+    },
+    {
+     "ingredientId": "chicken",
+     "positions": [
+      {
+       "x": 76,
+       "y": 63
+      },
+      {
+       "x": 58,
+       "y": 79
+      },
+      {
+       "x": 38,
+       "y": 79
+      }
+     ],
+     "landingStyle": "HEAVY_SQUASH"
+    },
+    {
+     "ingredientId": "fresh-tomato",
+     "positions": [
+      {
+       "x": 22,
+       "y": 63
+      },
+      {
+       "x": 25,
+       "y": 36
+      }
+     ],
+     "landingStyle": "HEAVY_SQUASH"
+    }
+   ],
+   "bakeTarget": {
+    "start": 50,
+    "end": 70,
+    "status": "OWNER_REQUIRED",
+    "why": "pesto recipes are 50-70 except pesto-patate 58-78 (dense primary); chicken has no runtime analog. Candidate 50-70 (pesto-caprese, same pesto + mozzarella + fresh-tomato)"
+   },
+   "variants": {
+    "V0 reference-accurate": {
+     "total": 99.5,
+     "stars": 5,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V1 good (pieces ±3, sauce ring 28x24)": {
+     "total": 70.6,
+     "stars": 3,
+     "components": {
+      "sauce": 43.43,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V2 careless sauce (dumped at one spot)": {
+     "total": 65.2,
+     "stars": 3,
+     "components": {
+      "sauce": 33.095,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "FAILED:INSUFFICIENT_SAUCE",
+     "completionOrder": "FAILED:INSUFFICIENT_SAUCE"
+    },
+    "V3 careless placement (all pieces in one corner)": {
+     "total": 90.2,
+     "stars": 5,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 41.667,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V4 quantity short (1 of each)": {
+     "total": 65.1,
+     "stars": 3,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 88.333,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "FAILED:INSUFFICIENT_REQUIRED_AMOUNT+INSUFFICIENT_REQUIRED_AMOUNT+INSUFFICIENT_REQUIRED_AMOUNT"
+    },
+    "V5 quantity over (+2 primary)": {
+     "total": 87.2,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 83.333,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V6 bake at window edge + 4 (burnt, inside Completion margin)": {
+     "total": 98.2,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 93.333
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V7 bake far over (end + 15)": {
+     "total": 94.5,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 75
+     },
+     "completionFree": "FAILED:OVERBAKED",
+     "completionOrder": "FAILED:OVERBAKED"
+    },
+    "V8 bake far under (start - 15)": {
+     "total": 94.5,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 75
+     },
+     "completionFree": "FAILED:UNDERBAKED",
+     "completionOrder": "FAILED:UNDERBAKED"
+    },
+    "V9 missing one required topping": {
+     "total": 45.6,
+     "stars": 2,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 66.667,
+      "recipe": 75,
+      "bake": 100
+     },
+     "completionFree": "FAILED:MISSING_REQUIRED_INGREDIENT",
+     "completionOrder": "FAILED:MISSING_REQUIRED_INGREDIENT"
+    },
+    "V10 no sauce": {
+     "total": 45,
+     "stars": 2,
+     "components": {
+      "sauce": 0,
+      "pieces": 100,
+      "recipe": 75,
+      "bake": 100
+     },
+     "completionFree": "FAILED:MISSING_REQUIRED_INGREDIENT",
+     "completionOrder": "FAILED:MISSING_REQUIRED_INGREDIENT"
+    }
+   }
+  },
+  "ratatouille-pizza": {
+   "pieces": 7,
+   "reference": [
+    {
+     "ingredientId": "eggplant",
+     "positions": [
+      {
+       "x": 50,
+       "y": 24
+      },
+      {
+       "x": 73,
+       "y": 36
+      }
+     ],
+     "landingStyle": "HEAVY_SQUASH"
+    },
+    {
+     "ingredientId": "zucchini",
+     "positions": [
+      {
+       "x": 76,
+       "y": 63
+      },
+      {
+       "x": 58,
+       "y": 79
+      }
+     ],
+     "landingStyle": "HEAVY_SQUASH"
+    },
+    {
+     "ingredientId": "bell-pepper",
+     "positions": [
+      {
+       "x": 38,
+       "y": 79
+      },
+      {
+       "x": 22,
+       "y": 63
+      }
+     ],
+     "landingStyle": "HEAVY_SQUASH"
+    },
+    {
+     "ingredientId": "oregano",
+     "positions": [
+      {
+       "x": 25,
+       "y": 36
+      }
+     ],
+     "landingStyle": "HEAVY_SQUASH"
+    }
+   ],
+   "bakeTarget": {
+    "start": 58,
+    "end": 78,
+    "status": "DERIVED_FROM_AUTHORITY",
+    "why": "R-BT: runtime melanzane-pizza (tomato-sauce base, eggplant) 58-78"
+   },
+   "variants": {
+    "V0 reference-accurate": {
+     "total": 99.5,
+     "stars": 5,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V1 good (pieces ±3, sauce ring 28x24)": {
+     "total": 70.6,
+     "stars": 3,
+     "components": {
+      "sauce": 43.43,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V2 careless sauce (dumped at one spot)": {
+     "total": 65.2,
+     "stars": 3,
+     "components": {
+      "sauce": 33.095,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "FAILED:INSUFFICIENT_SAUCE",
+     "completionOrder": "FAILED:INSUFFICIENT_SAUCE"
+    },
+    "V3 careless placement (all pieces in one corner)": {
+     "total": 91.1,
+     "stars": 5,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 47.5,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V4 quantity short (1 of each)": {
+     "total": 73.8,
+     "stars": 3,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 92.5,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "FAILED:INSUFFICIENT_REQUIRED_AMOUNT+INSUFFICIENT_REQUIRED_AMOUNT+INSUFFICIENT_REQUIRED_AMOUNT"
+    },
+    "V5 quantity over (+2 primary)": {
+     "total": 82.3,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 83.333,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V6 bake at window edge + 4 (burnt, inside Completion margin)": {
+     "total": 98.4,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 94.118
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V7 bake far over (end + 15)": {
+     "total": 95.1,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 77.941
+     },
+     "completionFree": "FAILED:OVERBAKED",
+     "completionOrder": "FAILED:OVERBAKED"
+    },
+    "V8 bake far under (start - 15)": {
+     "total": 95.1,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 77.941
+     },
+     "completionFree": "FAILED:UNDERBAKED",
+     "completionOrder": "FAILED:UNDERBAKED"
+    },
+    "V9 missing one required topping": {
+     "total": 46.6,
+     "stars": 2,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 75,
+      "recipe": 80,
+      "bake": 100
+     },
+     "completionFree": "FAILED:MISSING_REQUIRED_INGREDIENT",
+     "completionOrder": "FAILED:MISSING_REQUIRED_INGREDIENT"
+    },
+    "V10 no sauce": {
+     "total": 45.6,
+     "stars": 2,
+     "components": {
+      "sauce": 0,
+      "pieces": 100,
+      "recipe": 80,
+      "bake": 100
+     },
+     "completionFree": "FAILED:MISSING_REQUIRED_INGREDIENT",
+     "completionOrder": "FAILED:MISSING_REQUIRED_INGREDIENT"
+    }
+   }
+  },
+  "pesto-vegetariana": {
+   "pieces": 8,
+   "reference": [
+    {
+     "ingredientId": "mozzarella",
+     "positions": [
+      {
+       "x": 50,
+       "y": 24
+      },
+      {
+       "x": 73,
+       "y": 36
+      }
+     ],
+     "landingStyle": "HEAVY_SQUASH"
+    },
+    {
+     "ingredientId": "zucchini",
+     "positions": [
+      {
+       "x": 76,
+       "y": 63
+      },
+      {
+       "x": 58,
+       "y": 79
+      }
+     ],
+     "landingStyle": "HEAVY_SQUASH"
+    },
+    {
+     "ingredientId": "bell-pepper",
+     "positions": [
+      {
+       "x": 38,
+       "y": 79
+      },
+      {
+       "x": 22,
+       "y": 63
+      }
+     ],
+     "landingStyle": "HEAVY_SQUASH"
+    },
+    {
+     "ingredientId": "eggplant",
+     "positions": [
+      {
+       "x": 25,
+       "y": 36
+      },
+      {
+       "x": 50,
+       "y": 52
+      }
+     ],
+     "landingStyle": "HEAVY_SQUASH"
+    }
+   ],
+   "bakeTarget": {
+    "start": 50,
+    "end": 70,
+    "status": "OWNER_REQUIRED",
+    "why": "pesto 50-70 (pesto-caprese) vs 58-78 (pesto-patate, dense vegetable). Candidate 50-70"
+   },
+   "variants": {
+    "V0 reference-accurate": {
+     "total": 99.5,
+     "stars": 5,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V1 good (pieces ±3, sauce ring 28x24)": {
+     "total": 70.6,
+     "stars": 3,
+     "components": {
+      "sauce": 43.43,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V2 careless sauce (dumped at one spot)": {
+     "total": 65.2,
+     "stars": 3,
+     "components": {
+      "sauce": 33.095,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "FAILED:INSUFFICIENT_SAUCE",
+     "completionOrder": "FAILED:INSUFFICIENT_SAUCE"
+    },
+    "V3 careless placement (all pieces in one corner)": {
+     "total": 89.7,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 38.75,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V4 quantity short (1 of each)": {
+     "total": 73.5,
+     "stars": 3,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 90,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "FAILED:INSUFFICIENT_REQUIRED_AMOUNT+INSUFFICIENT_REQUIRED_AMOUNT+INSUFFICIENT_REQUIRED_AMOUNT+INSUFFICIENT_REQUIRED_AMOUNT"
+    },
+    "V5 quantity over (+2 primary)": {
+     "total": 82.3,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 83.333,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V6 bake at window edge + 4 (burnt, inside Completion margin)": {
+     "total": 98.2,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 93.333
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V7 bake far over (end + 15)": {
+     "total": 94.5,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 75
+     },
+     "completionFree": "FAILED:OVERBAKED",
+     "completionOrder": "FAILED:OVERBAKED"
+    },
+    "V8 bake far under (start - 15)": {
+     "total": 94.5,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 75
+     },
+     "completionFree": "FAILED:UNDERBAKED",
+     "completionOrder": "FAILED:UNDERBAKED"
+    },
+    "V9 missing one required topping": {
+     "total": 46.6,
+     "stars": 2,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 75,
+      "recipe": 80,
+      "bake": 100
+     },
+     "completionFree": "FAILED:MISSING_REQUIRED_INGREDIENT",
+     "completionOrder": "FAILED:MISSING_REQUIRED_INGREDIENT"
+    },
+    "V10 no sauce": {
+     "total": 45.6,
+     "stars": 2,
+     "components": {
+      "sauce": 0,
+      "pieces": 100,
+      "recipe": 80,
+      "bake": 100
+     },
+     "completionFree": "FAILED:MISSING_REQUIRED_INGREDIENT",
+     "completionOrder": "FAILED:MISSING_REQUIRED_INGREDIENT"
+    }
+   }
+  },
+  "prosciutto-funghi": {
+   "pieces": 7,
+   "reference": [
+    {
+     "ingredientId": "mozzarella",
+     "positions": [
+      {
+       "x": 50,
+       "y": 24
+      },
+      {
+       "x": 73,
+       "y": 36
+      }
+     ],
+     "landingStyle": "HEAVY_SQUASH"
+    },
+    {
+     "ingredientId": "prosciutto-crudo",
+     "positions": [
+      {
+       "x": 76,
+       "y": 63
+      },
+      {
+       "x": 58,
+       "y": 79
+      }
+     ],
+     "landingStyle": "HEAVY_SQUASH"
+    },
+    {
+     "ingredientId": "mushroom",
+     "positions": [
+      {
+       "x": 38,
+       "y": 79
+      },
+      {
+       "x": 22,
+       "y": 63
+      },
+      {
+       "x": 25,
+       "y": 36
+      }
+     ],
+     "landingStyle": "HEAVY_SQUASH"
+    }
+   ],
+   "bakeTarget": {
+    "start": 58,
+    "end": 78,
+    "status": "OWNER_REQUIRED",
+    "why": "catalog funghi 58-78 (= runtime funghi) vs catalog prosciutto 55-75. Candidate 58-78"
+   },
+   "variants": {
+    "V0 reference-accurate": {
+     "total": 99.5,
+     "stars": 5,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V1 good (pieces ±3, sauce ring 28x24)": {
+     "total": 70.6,
+     "stars": 3,
+     "components": {
+      "sauce": 43.43,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V2 careless sauce (dumped at one spot)": {
+     "total": 65.2,
+     "stars": 3,
+     "components": {
+      "sauce": 33.095,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "FAILED:INSUFFICIENT_SAUCE",
+     "completionOrder": "FAILED:INSUFFICIENT_SAUCE"
+    },
+    "V3 careless placement (all pieces in one corner)": {
+     "total": 89.6,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 37.743,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V4 quantity short (1 of each)": {
+     "total": 65.1,
+     "stars": 3,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 88.333,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "FAILED:INSUFFICIENT_REQUIRED_AMOUNT+INSUFFICIENT_REQUIRED_AMOUNT+INSUFFICIENT_REQUIRED_AMOUNT"
+    },
+    "V5 quantity over (+2 primary)": {
+     "total": 87.2,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 83.333,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V6 bake at window edge + 4 (burnt, inside Completion margin)": {
+     "total": 98.4,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 94.118
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V7 bake far over (end + 15)": {
+     "total": 95.1,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 77.941
+     },
+     "completionFree": "FAILED:OVERBAKED",
+     "completionOrder": "FAILED:OVERBAKED"
+    },
+    "V8 bake far under (start - 15)": {
+     "total": 95.1,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 77.941
+     },
+     "completionFree": "FAILED:UNDERBAKED",
+     "completionOrder": "FAILED:UNDERBAKED"
+    },
+    "V9 missing one required topping": {
+     "total": 45.6,
+     "stars": 2,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 66.667,
+      "recipe": 75,
+      "bake": 100
+     },
+     "completionFree": "FAILED:MISSING_REQUIRED_INGREDIENT",
+     "completionOrder": "FAILED:MISSING_REQUIRED_INGREDIENT"
+    },
+    "V10 no sauce": {
+     "total": 45,
+     "stars": 2,
+     "components": {
+      "sauce": 0,
+      "pieces": 100,
+      "recipe": 75,
+      "bake": 100
+     },
+     "completionFree": "FAILED:MISSING_REQUIRED_INGREDIENT",
+     "completionOrder": "FAILED:MISSING_REQUIRED_INGREDIENT"
+    }
+   }
+  },
+  "jamon-serrano-pizza": {
+   "pieces": 7,
+   "reference": [
+    {
+     "ingredientId": "mozzarella",
+     "positions": [
+      {
+       "x": 50,
+       "y": 24
+      },
+      {
+       "x": 73,
+       "y": 36
+      }
+     ],
+     "landingStyle": "HEAVY_SQUASH"
+    },
+    {
+     "ingredientId": "prosciutto-crudo",
+     "positions": [
+      {
+       "x": 76,
+       "y": 63
+      },
+      {
+       "x": 58,
+       "y": 79
+      },
+      {
+       "x": 38,
+       "y": 79
+      }
+     ],
+     "landingStyle": "HEAVY_SQUASH"
+    },
+    {
+     "ingredientId": "arugula",
+     "positions": [
+      {
+       "x": 22,
+       "y": 63
+      },
+      {
+       "x": 25,
+       "y": 36
+      }
+     ],
+     "landingStyle": "LIGHT_LEAF"
+    }
+   ],
+   "bakeTarget": {
+    "start": 55,
+    "end": 75,
+    "status": "DERIVED_FROM_AUTHORITY",
+    "why": "R-BT: catalog 'prosciutto' (crudo e rucola: tomato, mozzarella, prosciutto-crudo, arugula, parmigiano) bakeProfile 55-75"
+   },
+   "variants": {
+    "V0 reference-accurate": {
+     "total": 99.5,
+     "stars": 5,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V1 good (pieces ±3, sauce ring 28x24)": {
+     "total": 70.6,
+     "stars": 3,
+     "components": {
+      "sauce": 43.43,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V2 careless sauce (dumped at one spot)": {
+     "total": 65.2,
+     "stars": 3,
+     "components": {
+      "sauce": 33.095,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "FAILED:INSUFFICIENT_SAUCE",
+     "completionOrder": "FAILED:INSUFFICIENT_SAUCE"
+    },
+    "V3 careless placement (all pieces in one corner)": {
+     "total": 90.2,
+     "stars": 5,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 41.667,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V4 quantity short (1 of each)": {
+     "total": 65.1,
+     "stars": 3,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 88.333,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "FAILED:INSUFFICIENT_REQUIRED_AMOUNT+INSUFFICIENT_REQUIRED_AMOUNT+INSUFFICIENT_REQUIRED_AMOUNT"
+    },
+    "V5 quantity over (+2 primary)": {
+     "total": 87.2,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 83.333,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V6 bake at window edge + 4 (burnt, inside Completion margin)": {
+     "total": 98.3,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 93.846
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V7 bake far over (end + 15)": {
+     "total": 94.9,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 76.923
+     },
+     "completionFree": "FAILED:OVERBAKED",
+     "completionOrder": "FAILED:OVERBAKED"
+    },
+    "V8 bake far under (start - 15)": {
+     "total": 94.9,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 76.923
+     },
+     "completionFree": "FAILED:UNDERBAKED",
+     "completionOrder": "FAILED:UNDERBAKED"
+    },
+    "V9 missing one required topping": {
+     "total": 45.6,
+     "stars": 2,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 66.667,
+      "recipe": 75,
+      "bake": 100
+     },
+     "completionFree": "FAILED:MISSING_REQUIRED_INGREDIENT",
+     "completionOrder": "FAILED:MISSING_REQUIRED_INGREDIENT"
+    },
+    "V10 no sauce": {
+     "total": 45,
+     "stars": 2,
+     "components": {
+      "sauce": 0,
+      "pieces": 100,
+      "recipe": 75,
+      "bake": 100
+     },
+     "completionFree": "FAILED:MISSING_REQUIRED_INGREDIENT",
+     "completionOrder": "FAILED:MISSING_REQUIRED_INGREDIENT"
+    }
+   }
+  }
+ },
+ "analogs": {
+  "salsiccia": {
+   "variants": {
+    "V0 reference-accurate": {
+     "total": 99.5,
+     "stars": 5,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V1 good (pieces ±3, sauce ring 28x24)": {
+     "total": 70.6,
+     "stars": 3,
+     "components": {
+      "sauce": 43.43,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V2 careless sauce (dumped at one spot)": {
+     "total": 65.2,
+     "stars": 3,
+     "components": {
+      "sauce": 33.095,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "FAILED:INSUFFICIENT_SAUCE",
+     "completionOrder": "FAILED:INSUFFICIENT_SAUCE"
+    },
+    "V3 careless placement (all pieces in one corner)": {
+     "total": 89.9,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 39.589,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V4 quantity short (1 of each)": {
+     "total": 65,
+     "stars": 3,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 87.5,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "FAILED:INSUFFICIENT_REQUIRED_AMOUNT+INSUFFICIENT_REQUIRED_AMOUNT"
+    },
+    "V5 quantity over (+2 primary)": {
+     "total": 86,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 75,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V6 bake at window edge + 4 (burnt, inside Completion margin)": {
+     "total": 98.4,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 94.444
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V7 bake far over (end + 15)": {
+     "total": 95.4,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 79.167
+     },
+     "completionFree": "FAILED:OVERBAKED",
+     "completionOrder": "FAILED:OVERBAKED"
+    },
+    "V8 bake far under (start - 15)": {
+     "total": 95.4,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 79.167
+     },
+     "completionFree": "FAILED:UNDERBAKED",
+     "completionOrder": "FAILED:UNDERBAKED"
+    },
+    "V9 missing one required topping": {
+     "total": 43.8,
+     "stars": 2,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 50,
+      "recipe": 66.667,
+      "bake": 100
+     },
+     "completionFree": "FAILED:MISSING_REQUIRED_INGREDIENT",
+     "completionOrder": "FAILED:MISSING_REQUIRED_INGREDIENT"
+    },
+    "V10 no sauce": {
+     "total": 44,
+     "stars": 2,
+     "components": {
+      "sauce": 0,
+      "pieces": 100,
+      "recipe": 66.667,
+      "bake": 100
+     },
+     "completionFree": "FAILED:MISSING_REQUIRED_INGREDIENT",
+     "completionOrder": "FAILED:MISSING_REQUIRED_INGREDIENT"
+    }
+   }
+  },
+  "new-haven-apizza": {
+   "variants": {
+    "V0 reference-accurate": {
+     "total": 99.5,
+     "stars": 5,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V1 good (pieces ±3, sauce ring 28x24)": {
+     "total": 70.6,
+     "stars": 3,
+     "components": {
+      "sauce": 43.43,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V2 careless sauce (dumped at one spot)": {
+     "total": 65.2,
+     "stars": 3,
+     "components": {
+      "sauce": 33.095,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "FAILED:INSUFFICIENT_SAUCE",
+     "completionOrder": "FAILED:INSUFFICIENT_SAUCE"
+    },
+    "V3 careless placement (all pieces in one corner)": {
+     "total": 90.2,
+     "stars": 5,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 41.667,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V4 quantity short (1 of each)": {
+     "total": 65.1,
+     "stars": 3,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 88.333,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "FAILED:INSUFFICIENT_REQUIRED_AMOUNT+INSUFFICIENT_REQUIRED_AMOUNT+INSUFFICIENT_REQUIRED_AMOUNT"
+    },
+    "V5 quantity over (+2 primary)": {
+     "total": 87.2,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 83.333,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V6 bake at window edge + 4 (burnt, inside Completion margin)": {
+     "total": 98.4,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 94.444
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V7 bake far over (end + 15)": {
+     "total": 95.4,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 79.167
+     },
+     "completionFree": "FAILED:OVERBAKED",
+     "completionOrder": "FAILED:OVERBAKED"
+    },
+    "V8 bake far under (start - 15)": {
+     "total": 95.4,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 79.167
+     },
+     "completionFree": "FAILED:UNDERBAKED",
+     "completionOrder": "FAILED:UNDERBAKED"
+    },
+    "V9 missing one required topping": {
+     "total": 45.6,
+     "stars": 2,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 66.667,
+      "recipe": 75,
+      "bake": 100
+     },
+     "completionFree": "FAILED:MISSING_REQUIRED_INGREDIENT",
+     "completionOrder": "FAILED:MISSING_REQUIRED_INGREDIENT"
+    },
+    "V10 no sauce": {
+     "total": 45,
+     "stars": 2,
+     "components": {
+      "sauce": 0,
+      "pieces": 100,
+      "recipe": 75,
+      "bake": 100
+     },
+     "completionFree": "FAILED:MISSING_REQUIRED_INGREDIENT",
+     "completionOrder": "FAILED:MISSING_REQUIRED_INGREDIENT"
+    }
+   }
+  },
+  "breakfast-pizza": {
+   "variants": {
+    "V0 reference-accurate": {
+     "total": 99.5,
+     "stars": 5,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V1 good (pieces ±3, sauce ring 28x24)": {
+     "total": 70.6,
+     "stars": 3,
+     "components": {
+      "sauce": 43.43,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V2 careless sauce (dumped at one spot)": {
+     "total": 65.2,
+     "stars": 3,
+     "components": {
+      "sauce": 33.095,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "FAILED:INSUFFICIENT_SAUCE",
+     "completionOrder": "FAILED:INSUFFICIENT_SAUCE"
+    },
+    "V3 careless placement (all pieces in one corner)": {
+     "total": 88.7,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 32.512,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V4 quantity short (1 of each)": {
+     "total": 65.5,
+     "stars": 3,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 91.667,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "FAILED:INSUFFICIENT_REQUIRED_AMOUNT+INSUFFICIENT_REQUIRED_AMOUNT"
+    },
+    "V5 quantity over (+2 primary)": {
+     "total": 87.2,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 83.333,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V6 bake at window edge + 4 (burnt, inside Completion margin)": {
+     "total": 98.3,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 93.939
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V7 bake far over (end + 15)": {
+     "total": 95,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 77.273
+     },
+     "completionFree": "FAILED:OVERBAKED",
+     "completionOrder": "FAILED:OVERBAKED"
+    },
+    "V8 bake far under (start - 15)": {
+     "total": 95,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 77.273
+     },
+     "completionFree": "FAILED:UNDERBAKED",
+     "completionOrder": "FAILED:UNDERBAKED"
+    },
+    "V9 missing one required topping": {
+     "total": 45.6,
+     "stars": 2,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 66.667,
+      "recipe": 75,
+      "bake": 100
+     },
+     "completionFree": "FAILED:MISSING_REQUIRED_INGREDIENT",
+     "completionOrder": "FAILED:MISSING_REQUIRED_INGREDIENT"
+    },
+    "V10 no sauce": {
+     "total": 45,
+     "stars": 2,
+     "components": {
+      "sauce": 0,
+      "pieces": 100,
+      "recipe": 75,
+      "bake": 100
+     },
+     "completionFree": "FAILED:MISSING_REQUIRED_INGREDIENT",
+     "completionOrder": "FAILED:MISSING_REQUIRED_INGREDIENT"
+    }
+   }
+  },
+  "pesto-tonno": {
+   "variants": {
+    "V0 reference-accurate": {
+     "total": 99.5,
+     "stars": 5,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V1 good (pieces ±3, sauce ring 28x24)": {
+     "total": 70.6,
+     "stars": 3,
+     "components": {
+      "sauce": 43.43,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V2 careless sauce (dumped at one spot)": {
+     "total": 65.2,
+     "stars": 3,
+     "components": {
+      "sauce": 33.095,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "FAILED:INSUFFICIENT_SAUCE",
+     "completionOrder": "FAILED:INSUFFICIENT_SAUCE"
+    },
+    "V3 careless placement (all pieces in one corner)": {
+     "total": 90.5,
+     "stars": 5,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 43.209,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V4 quantity short (1 of each)": {
+     "total": 65.1,
+     "stars": 3,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 88.333,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "FAILED:INSUFFICIENT_REQUIRED_AMOUNT+INSUFFICIENT_REQUIRED_AMOUNT+INSUFFICIENT_REQUIRED_AMOUNT"
+    },
+    "V5 quantity over (+2 primary)": {
+     "total": 87.2,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 83.333,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V6 bake at window edge + 4 (burnt, inside Completion margin)": {
+     "total": 98.2,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 93.333
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V7 bake far over (end + 15)": {
+     "total": 94.5,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 75
+     },
+     "completionFree": "FAILED:OVERBAKED",
+     "completionOrder": "FAILED:OVERBAKED"
+    },
+    "V8 bake far under (start - 15)": {
+     "total": 94.5,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 75
+     },
+     "completionFree": "FAILED:UNDERBAKED",
+     "completionOrder": "FAILED:UNDERBAKED"
+    },
+    "V9 missing one required topping": {
+     "total": 45.6,
+     "stars": 2,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 66.667,
+      "recipe": 75,
+      "bake": 100
+     },
+     "completionFree": "FAILED:MISSING_REQUIRED_INGREDIENT",
+     "completionOrder": "FAILED:MISSING_REQUIRED_INGREDIENT"
+    },
+    "V10 no sauce": {
+     "total": 45,
+     "stars": 2,
+     "components": {
+      "sauce": 0,
+      "pieces": 100,
+      "recipe": 75,
+      "bake": 100
+     },
+     "completionFree": "FAILED:MISSING_REQUIRED_INGREDIENT",
+     "completionOrder": "FAILED:MISSING_REQUIRED_INGREDIENT"
+    }
+   }
+  },
+  "pesto-caprese": {
+   "variants": {
+    "V0 reference-accurate": {
+     "total": 99.5,
+     "stars": 5,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V1 good (pieces ±3, sauce ring 28x24)": {
+     "total": 70.6,
+     "stars": 3,
+     "components": {
+      "sauce": 43.43,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V2 careless sauce (dumped at one spot)": {
+     "total": 65.2,
+     "stars": 3,
+     "components": {
+      "sauce": 33.095,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "FAILED:INSUFFICIENT_SAUCE",
+     "completionOrder": "FAILED:INSUFFICIENT_SAUCE"
+    },
+    "V3 careless placement (all pieces in one corner)": {
+     "total": 90.2,
+     "stars": 5,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 41.667,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V4 quantity short (1 of each)": {
+     "total": 65.1,
+     "stars": 3,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 88.333,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "FAILED:INSUFFICIENT_REQUIRED_AMOUNT+INSUFFICIENT_REQUIRED_AMOUNT+INSUFFICIENT_REQUIRED_AMOUNT"
+    },
+    "V5 quantity over (+2 primary)": {
+     "total": 87.2,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 83.333,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V6 bake at window edge + 4 (burnt, inside Completion margin)": {
+     "total": 98.2,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 93.333
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V7 bake far over (end + 15)": {
+     "total": 94.5,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 75
+     },
+     "completionFree": "FAILED:OVERBAKED",
+     "completionOrder": "FAILED:OVERBAKED"
+    },
+    "V8 bake far under (start - 15)": {
+     "total": 94.5,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 75
+     },
+     "completionFree": "FAILED:UNDERBAKED",
+     "completionOrder": "FAILED:UNDERBAKED"
+    },
+    "V9 missing one required topping": {
+     "total": 45.6,
+     "stars": 2,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 66.667,
+      "recipe": 75,
+      "bake": 100
+     },
+     "completionFree": "FAILED:MISSING_REQUIRED_INGREDIENT",
+     "completionOrder": "FAILED:MISSING_REQUIRED_INGREDIENT"
+    },
+    "V10 no sauce": {
+     "total": 45,
+     "stars": 2,
+     "components": {
+      "sauce": 0,
+      "pieces": 100,
+      "recipe": 75,
+      "bake": 100
+     },
+     "completionFree": "FAILED:MISSING_REQUIRED_INGREDIENT",
+     "completionOrder": "FAILED:MISSING_REQUIRED_INGREDIENT"
+    }
+   }
+  },
+  "melanzane-pizza": {
+   "variants": {
+    "V0 reference-accurate": {
+     "total": 99.5,
+     "stars": 5,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V1 good (pieces ±3, sauce ring 28x24)": {
+     "total": 70.6,
+     "stars": 3,
+     "components": {
+      "sauce": 43.43,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V2 careless sauce (dumped at one spot)": {
+     "total": 65.2,
+     "stars": 3,
+     "components": {
+      "sauce": 33.095,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "FAILED:INSUFFICIENT_SAUCE",
+     "completionOrder": "FAILED:INSUFFICIENT_SAUCE"
+    },
+    "V3 careless placement (all pieces in one corner)": {
+     "total": 90.2,
+     "stars": 5,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 41.667,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V4 quantity short (1 of each)": {
+     "total": 65.1,
+     "stars": 3,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 88.333,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "FAILED:INSUFFICIENT_REQUIRED_AMOUNT+INSUFFICIENT_REQUIRED_AMOUNT+INSUFFICIENT_REQUIRED_AMOUNT"
+    },
+    "V5 quantity over (+2 primary)": {
+     "total": 87.2,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 83.333,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V6 bake at window edge + 4 (burnt, inside Completion margin)": {
+     "total": 98.4,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 94.118
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V7 bake far over (end + 15)": {
+     "total": 95.1,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 77.941
+     },
+     "completionFree": "FAILED:OVERBAKED",
+     "completionOrder": "FAILED:OVERBAKED"
+    },
+    "V8 bake far under (start - 15)": {
+     "total": 95.1,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 77.941
+     },
+     "completionFree": "FAILED:UNDERBAKED",
+     "completionOrder": "FAILED:UNDERBAKED"
+    },
+    "V9 missing one required topping": {
+     "total": 45.6,
+     "stars": 2,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 66.667,
+      "recipe": 75,
+      "bake": 100
+     },
+     "completionFree": "FAILED:MISSING_REQUIRED_INGREDIENT",
+     "completionOrder": "FAILED:MISSING_REQUIRED_INGREDIENT"
+    },
+    "V10 no sauce": {
+     "total": 45,
+     "stars": 2,
+     "components": {
+      "sauce": 0,
+      "pieces": 100,
+      "recipe": 75,
+      "bake": 100
+     },
+     "completionFree": "FAILED:MISSING_REQUIRED_INGREDIENT",
+     "completionOrder": "FAILED:MISSING_REQUIRED_INGREDIENT"
+    }
+   }
+  },
+  "funghi": {
+   "variants": {
+    "V0 reference-accurate": {
+     "total": 99.5,
+     "stars": 5,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V1 good (pieces ±3, sauce ring 28x24)": {
+     "total": 70.6,
+     "stars": 3,
+     "components": {
+      "sauce": 43.43,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V2 careless sauce (dumped at one spot)": {
+     "total": 65.2,
+     "stars": 3,
+     "components": {
+      "sauce": 33.095,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "FAILED:INSUFFICIENT_SAUCE",
+     "completionOrder": "FAILED:INSUFFICIENT_SAUCE"
+    },
+    "V3 careless placement (all pieces in one corner)": {
+     "total": 89,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 34.22,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V4 quantity short (1 of each)": {
+     "total": 65,
+     "stars": 3,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 87.5,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "FAILED:INSUFFICIENT_REQUIRED_AMOUNT+INSUFFICIENT_REQUIRED_AMOUNT"
+    },
+    "V5 quantity over (+2 primary)": {
+     "total": 86,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 75,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V6 bake at window edge + 4 (burnt, inside Completion margin)": {
+     "total": 98.4,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 94.118
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V7 bake far over (end + 15)": {
+     "total": 95.1,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 77.941
+     },
+     "completionFree": "FAILED:OVERBAKED",
+     "completionOrder": "FAILED:OVERBAKED"
+    },
+    "V8 bake far under (start - 15)": {
+     "total": 95.1,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 77.941
+     },
+     "completionFree": "FAILED:UNDERBAKED",
+     "completionOrder": "FAILED:UNDERBAKED"
+    },
+    "V9 missing one required topping": {
+     "total": 43.8,
+     "stars": 2,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 50,
+      "recipe": 66.667,
+      "bake": 100
+     },
+     "completionFree": "FAILED:MISSING_REQUIRED_INGREDIENT",
+     "completionOrder": "FAILED:MISSING_REQUIRED_INGREDIENT"
+    },
+    "V10 no sauce": {
+     "total": 44,
+     "stars": 2,
+     "components": {
+      "sauce": 0,
+      "pieces": 100,
+      "recipe": 66.667,
+      "bake": 100
+     },
+     "completionFree": "FAILED:MISSING_REQUIRED_INGREDIENT",
+     "completionOrder": "FAILED:MISSING_REQUIRED_INGREDIENT"
+    }
+   }
+  },
+  "hawaiian": {
+   "variants": {
+    "V0 reference-accurate": {
+     "total": 99.5,
+     "stars": 5,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V1 good (pieces ±3, sauce ring 28x24)": {
+     "total": 70.6,
+     "stars": 3,
+     "components": {
+      "sauce": 43.43,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V2 careless sauce (dumped at one spot)": {
+     "total": 65.2,
+     "stars": 3,
+     "components": {
+      "sauce": 33.095,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "FAILED:INSUFFICIENT_SAUCE",
+     "completionOrder": "FAILED:INSUFFICIENT_SAUCE"
+    },
+    "V3 careless placement (all pieces in one corner)": {
+     "total": 89.6,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 37.743,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V4 quantity short (1 of each)": {
+     "total": 65.1,
+     "stars": 3,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 88.333,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "FAILED:INSUFFICIENT_REQUIRED_AMOUNT+INSUFFICIENT_REQUIRED_AMOUNT+INSUFFICIENT_REQUIRED_AMOUNT"
+    },
+    "V5 quantity over (+2 primary)": {
+     "total": 87.2,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 83.333,
+      "recipe": 100,
+      "bake": 100
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V6 bake at window edge + 4 (burnt, inside Completion margin)": {
+     "total": 98.4,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 94.286
+     },
+     "completionFree": "PASS",
+     "completionOrder": "PASS"
+    },
+    "V7 bake far over (end + 15)": {
+     "total": 95.3,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 78.571
+     },
+     "completionFree": "FAILED:OVERBAKED",
+     "completionOrder": "FAILED:OVERBAKED"
+    },
+    "V8 bake far under (start - 15)": {
+     "total": 95.3,
+     "stars": 4,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 100,
+      "recipe": 100,
+      "bake": 78.571
+     },
+     "completionFree": "FAILED:UNDERBAKED",
+     "completionOrder": "FAILED:UNDERBAKED"
+    },
+    "V9 missing one required topping": {
+     "total": 45.6,
+     "stars": 2,
+     "components": {
+      "sauce": 99.117,
+      "pieces": 66.667,
+      "recipe": 75,
+      "bake": 100
+     },
+     "completionFree": "FAILED:MISSING_REQUIRED_INGREDIENT",
+     "completionOrder": "FAILED:MISSING_REQUIRED_INGREDIENT"
+    },
+    "V10 no sauce": {
+     "total": 45,
+     "stars": 2,
+     "components": {
+      "sauce": 0,
+      "pieces": 100,
+      "recipe": 75,
+      "bake": 100
+     },
+     "completionFree": "FAILED:MISSING_REQUIRED_INGREDIENT",
+     "completionOrder": "FAILED:MISSING_REQUIRED_INGREDIENT"
+    }
+   }
+  }
+ },
+ "saveCompatibility": {
+  "Dex 0": {
+   "discoveredCount": 0,
+   "w1EntitlementUnchanged": true,
+   "entitlementBefore": 0,
+   "entitlementAfterW2A": 0,
+   "newlyEntitledByW2A": [],
+   "currentBuildLoad": {
+    "schemaVersion": 2,
+    "knownDex": 0
+   },
+   "forwardCompatAfterWrite": {
+    "dex": true,
+    "owned": true
+   }
+  },
+  "W1 mid (10 discovered)": {
+   "discoveredCount": 10,
+   "w1EntitlementUnchanged": true,
+   "entitlementBefore": 10,
+   "entitlementAfterW2A": 10,
+   "newlyEntitledByW2A": [],
+   "currentBuildLoad": {
+    "schemaVersion": 2,
+    "knownDex": 10
+   },
+   "forwardCompatAfterWrite": {
+    "dex": true,
+    "owned": true
+   }
+  },
+  "W1 complete (25 discovered)": {
+   "discoveredCount": 25,
+   "w1EntitlementUnchanged": true,
+   "entitlementBefore": 26,
+   "entitlementAfterW2A": 27,
+   "newlyEntitledByW2A": [
+    "prosciutto-crudo"
+   ],
+   "currentBuildLoad": {
+    "schemaVersion": 2,
+    "knownDex": 25
+   },
+   "forwardCompatAfterWrite": {
+    "dex": true,
+    "owned": true
+   }
+  },
+  "future ids (W1 complete + 3 W2-A discovered, W2-A materials owned)": {
+   "discoveredCount": 28,
+   "w1EntitlementUnchanged": true,
+   "entitlementBefore": 29,
+   "entitlementAfterW2A": 30,
+   "newlyEntitledByW2A": [
+    "prosciutto-crudo",
+    "fromage-blanc-sauce",
+    "arugula",
+    "shrimp"
+   ],
+   "currentBuildLoad": {
+    "schemaVersion": 2,
+    "knownDex": 25
+   },
+   "forwardCompatAfterWrite": {
+    "dex": true,
+    "owned": true
+   }
+  }
+ }
+}

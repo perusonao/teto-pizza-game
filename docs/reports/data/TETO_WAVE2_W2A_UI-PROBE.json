@@ -1,0 +1,2376 @@
+{
+ "schema": "teto-wave2-w2a-ui-probe/1",
+ "generatedBy": "tools/wave2-w2a/probe.spec.ts (Chromium, dev server, injected prototype rows; no src change)",
+ "whiteSauce": {
+  "B-olive-oil@360x640": {
+   "candidate": "B-olive-oil",
+   "viewport": "360x640",
+   "color": null,
+   "css": null,
+   "note": "shipped baseline (needed PR #45 / #159 fixes)",
+   "baseline": true,
+   "prepare": {
+    "meanDeltaE": 23.5,
+    "shareDeltaEOver10": 1,
+    "luminanceContrast": 1.04
+   },
+   "result": {
+    "screenshot": "sauce_B-olive-oil_result_360x640.png"
+   }
+  },
+  "B-olive-oil@360x800": {
+   "candidate": "B-olive-oil",
+   "viewport": "360x800",
+   "color": null,
+   "css": null,
+   "note": "shipped baseline (needed PR #45 / #159 fixes)",
+   "baseline": true,
+   "prepare": {
+    "meanDeltaE": 23.5,
+    "shareDeltaEOver10": 1,
+    "luminanceContrast": 1.04
+   },
+   "result": null
+  },
+  "B-olive-oil@390x664": {
+   "candidate": "B-olive-oil",
+   "viewport": "390x664",
+   "color": null,
+   "css": null,
+   "note": "shipped baseline (needed PR #45 / #159 fixes)",
+   "baseline": true,
+   "prepare": {
+    "meanDeltaE": 23.5,
+    "shareDeltaEOver10": 1,
+    "luminanceContrast": 1.04
+   },
+   "result": null
+  },
+  "B-olive-oil@390x844": {
+   "candidate": "B-olive-oil",
+   "viewport": "390x844",
+   "color": null,
+   "css": null,
+   "note": "shipped baseline (needed PR #45 / #159 fixes)",
+   "baseline": true,
+   "prepare": {
+    "meanDeltaE": 23.5,
+    "shareDeltaEOver10": 1,
+    "luminanceContrast": 1.04
+   },
+   "result": {
+    "screenshot": "sauce_B-olive-oil_result_390x844.png"
+   }
+  },
+  "B-pesto@360x640": {
+   "candidate": "B-pesto",
+   "viewport": "360x640",
+   "color": null,
+   "css": null,
+   "note": "shipped baseline",
+   "baseline": true,
+   "prepare": {
+    "meanDeltaE": 32.4,
+    "shareDeltaEOver10": 1,
+    "luminanceContrast": 2
+   },
+   "result": {
+    "screenshot": "sauce_B-pesto_result_360x640.png"
+   }
+  },
+  "B-pesto@360x800": {
+   "candidate": "B-pesto",
+   "viewport": "360x800",
+   "color": null,
+   "css": null,
+   "note": "shipped baseline",
+   "baseline": true,
+   "prepare": {
+    "meanDeltaE": 32.4,
+    "shareDeltaEOver10": 1,
+    "luminanceContrast": 2
+   },
+   "result": null
+  },
+  "B-pesto@390x664": {
+   "candidate": "B-pesto",
+   "viewport": "390x664",
+   "color": null,
+   "css": null,
+   "note": "shipped baseline",
+   "baseline": true,
+   "prepare": {
+    "meanDeltaE": 32.4,
+    "shareDeltaEOver10": 1,
+    "luminanceContrast": 2
+   },
+   "result": null
+  },
+  "B-pesto@390x844": {
+   "candidate": "B-pesto",
+   "viewport": "390x844",
+   "color": null,
+   "css": null,
+   "note": "shipped baseline",
+   "baseline": true,
+   "prepare": {
+    "meanDeltaE": 32.4,
+    "shareDeltaEOver10": 1,
+    "luminanceContrast": 2
+   },
+   "result": {
+    "screenshot": "sauce_B-pesto_result_390x844.png"
+   }
+  },
+  "B-tomato@360x640": {
+   "candidate": "B-tomato",
+   "viewport": "360x640",
+   "color": null,
+   "css": null,
+   "note": "shipped baseline",
+   "baseline": true,
+   "prepare": {
+    "meanDeltaE": 51.5,
+    "shareDeltaEOver10": 1,
+    "luminanceContrast": 2.62
+   },
+   "result": {
+    "screenshot": "sauce_B-tomato_result_360x640.png"
+   }
+  },
+  "B-tomato@360x800": {
+   "candidate": "B-tomato",
+   "viewport": "360x800",
+   "color": null,
+   "css": null,
+   "note": "shipped baseline",
+   "baseline": true,
+   "prepare": {
+    "meanDeltaE": 51.5,
+    "shareDeltaEOver10": 1,
+    "luminanceContrast": 2.62
+   },
+   "result": null
+  },
+  "B-tomato@390x664": {
+   "candidate": "B-tomato",
+   "viewport": "390x664",
+   "color": null,
+   "css": null,
+   "note": "shipped baseline",
+   "baseline": true,
+   "prepare": {
+    "meanDeltaE": 51.5,
+    "shareDeltaEOver10": 1,
+    "luminanceContrast": 2.62
+   },
+   "result": null
+  },
+  "B-tomato@390x844": {
+   "candidate": "B-tomato",
+   "viewport": "390x844",
+   "color": null,
+   "css": null,
+   "note": "shipped baseline",
+   "baseline": true,
+   "prepare": {
+    "meanDeltaE": 51.5,
+    "shareDeltaEOver10": 1,
+    "luminanceContrast": 2.63
+   },
+   "result": {
+    "screenshot": "sauce_B-tomato_result_390x844.png"
+   }
+  },
+  "W0-plain@360x640": {
+   "candidate": "W0-plain",
+   "viewport": "360x640",
+   "color": "#f4efe4",
+   "css": null,
+   "note": "realistic fromage blanc, generic PAINT treatment only",
+   "baseline": false,
+   "prepare": {
+    "meanDeltaE": 22.5,
+    "shareDeltaEOver10": 1,
+    "luminanceContrast": 1.24
+   },
+   "result": {
+    "screenshot": "sauce_W0-plain_result_360x640.png"
+   }
+  },
+  "W0-plain@360x800": {
+   "candidate": "W0-plain",
+   "viewport": "360x800",
+   "color": "#f4efe4",
+   "css": null,
+   "note": "realistic fromage blanc, generic PAINT treatment only",
+   "baseline": false,
+   "prepare": {
+    "meanDeltaE": 22.5,
+    "shareDeltaEOver10": 1,
+    "luminanceContrast": 1.24
+   },
+   "result": null
+  },
+  "W0-plain@390x664": {
+   "candidate": "W0-plain",
+   "viewport": "390x664",
+   "color": "#f4efe4",
+   "css": null,
+   "note": "realistic fromage blanc, generic PAINT treatment only",
+   "baseline": false,
+   "prepare": {
+    "meanDeltaE": 22.5,
+    "shareDeltaEOver10": 1,
+    "luminanceContrast": 1.24
+   },
+   "result": null
+  },
+  "W0-plain@390x844": {
+   "candidate": "W0-plain",
+   "viewport": "390x844",
+   "color": "#f4efe4",
+   "css": null,
+   "note": "realistic fromage blanc, generic PAINT treatment only",
+   "baseline": false,
+   "prepare": {
+    "meanDeltaE": 22.5,
+    "shareDeltaEOver10": 1,
+    "luminanceContrast": 1.24
+   },
+   "result": {
+    "screenshot": "sauce_W0-plain_result_390x844.png"
+   }
+  },
+  "W1-bright@360x640": {
+   "candidate": "W1-bright",
+   "viewport": "360x640",
+   "color": "#fffdf7",
+   "css": null,
+   "note": "brighter white, generic treatment",
+   "baseline": false,
+   "prepare": {
+    "meanDeltaE": 26.1,
+    "shareDeltaEOver10": 1,
+    "luminanceContrast": 1.36
+   },
+   "result": {
+    "screenshot": "sauce_W1-bright_result_360x640.png"
+   }
+  },
+  "W1-bright@360x800": {
+   "candidate": "W1-bright",
+   "viewport": "360x800",
+   "color": "#fffdf7",
+   "css": null,
+   "note": "brighter white, generic treatment",
+   "baseline": false,
+   "prepare": {
+    "meanDeltaE": 26.1,
+    "shareDeltaEOver10": 1,
+    "luminanceContrast": 1.36
+   },
+   "result": null
+  },
+  "W1-bright@390x664": {
+   "candidate": "W1-bright",
+   "viewport": "390x664",
+   "color": "#fffdf7",
+   "css": null,
+   "note": "brighter white, generic treatment",
+   "baseline": false,
+   "prepare": {
+    "meanDeltaE": 26.1,
+    "shareDeltaEOver10": 1,
+    "luminanceContrast": 1.36
+   },
+   "result": null
+  },
+  "W1-bright@390x844": {
+   "candidate": "W1-bright",
+   "viewport": "390x844",
+   "color": "#fffdf7",
+   "css": null,
+   "note": "brighter white, generic treatment",
+   "baseline": false,
+   "prepare": {
+    "meanDeltaE": 26.1,
+    "shareDeltaEOver10": 1,
+    "luminanceContrast": 1.36
+   },
+   "result": {
+    "screenshot": "sauce_W1-bright_result_390x844.png"
+   }
+  },
+  "W2-cool-tint@360x640": {
+   "candidate": "W2-cool-tint",
+   "viewport": "360x640",
+   "color": "#eef1f4",
+   "css": null,
+   "note": "slightly cool (blue-grey) base tint, generic treatment",
+   "baseline": false,
+   "prepare": {
+    "meanDeltaE": 28.3,
+    "shareDeltaEOver10": 1,
+    "luminanceContrast": 1.25
+   },
+   "result": {
+    "screenshot": "sauce_W2-cool-tint_result_360x640.png"
+   }
+  },
+  "W2-cool-tint@360x800": {
+   "candidate": "W2-cool-tint",
+   "viewport": "360x800",
+   "color": "#eef1f4",
+   "css": null,
+   "note": "slightly cool (blue-grey) base tint, generic treatment",
+   "baseline": false,
+   "prepare": {
+    "meanDeltaE": 28.3,
+    "shareDeltaEOver10": 1,
+    "luminanceContrast": 1.25
+   },
+   "result": null
+  },
+  "W2-cool-tint@390x664": {
+   "candidate": "W2-cool-tint",
+   "viewport": "390x664",
+   "color": "#eef1f4",
+   "css": null,
+   "note": "slightly cool (blue-grey) base tint, generic treatment",
+   "baseline": false,
+   "prepare": {
+    "meanDeltaE": 28.3,
+    "shareDeltaEOver10": 1,
+    "luminanceContrast": 1.25
+   },
+   "result": null
+  },
+  "W2-cool-tint@390x844": {
+   "candidate": "W2-cool-tint",
+   "viewport": "390x844",
+   "color": "#eef1f4",
+   "css": null,
+   "note": "slightly cool (blue-grey) base tint, generic treatment",
+   "baseline": false,
+   "prepare": {
+    "meanDeltaE": 28.4,
+    "shareDeltaEOver10": 1,
+    "luminanceContrast": 1.25
+   },
+   "result": {
+    "screenshot": "sauce_W2-cool-tint_result_390x844.png"
+   }
+  },
+  "W3-outline@360x640": {
+   "candidate": "W3-outline",
+   "viewport": "360x640",
+   "color": "#f7f3ea",
+   "css": "blur(3px) contrast(1.15) drop-shadow(0 0 1.5px rgba(120, 86, 44, 0.75)) drop-shadow(0 0 3px rgba(120, 86, 44, 0.35))",
+   "note": "near-white + warm outline (drop-shadow), olive-oil style CSS modifier",
+   "baseline": false,
+   "prepare": {
+    "meanDeltaE": 25.4,
+    "shareDeltaEOver10": 1,
+    "luminanceContrast": 1.16
+   },
+   "result": {
+    "screenshot": "sauce_W3-outline_result_360x640.png"
+   }
+  },
+  "W3-outline@360x800": {
+   "candidate": "W3-outline",
+   "viewport": "360x800",
+   "color": "#f7f3ea",
+   "css": "blur(3px) contrast(1.15) drop-shadow(0 0 1.5px rgba(120, 86, 44, 0.75)) drop-shadow(0 0 3px rgba(120, 86, 44, 0.35))",
+   "note": "near-white + warm outline (drop-shadow), olive-oil style CSS modifier",
+   "baseline": false,
+   "prepare": {
+    "meanDeltaE": 25.4,
+    "shareDeltaEOver10": 1,
+    "luminanceContrast": 1.16
+   },
+   "result": null
+  },
+  "W3-outline@390x664": {
+   "candidate": "W3-outline",
+   "viewport": "390x664",
+   "color": "#f7f3ea",
+   "css": "blur(3px) contrast(1.15) drop-shadow(0 0 1.5px rgba(120, 86, 44, 0.75)) drop-shadow(0 0 3px rgba(120, 86, 44, 0.35))",
+   "note": "near-white + warm outline (drop-shadow), olive-oil style CSS modifier",
+   "baseline": false,
+   "prepare": {
+    "meanDeltaE": 25.4,
+    "shareDeltaEOver10": 1,
+    "luminanceContrast": 1.16
+   },
+   "result": null
+  },
+  "W3-outline@390x844": {
+   "candidate": "W3-outline",
+   "viewport": "390x844",
+   "color": "#f7f3ea",
+   "css": "blur(3px) contrast(1.15) drop-shadow(0 0 1.5px rgba(120, 86, 44, 0.75)) drop-shadow(0 0 3px rgba(120, 86, 44, 0.35))",
+   "note": "near-white + warm outline (drop-shadow), olive-oil style CSS modifier",
+   "baseline": false,
+   "prepare": {
+    "meanDeltaE": 25.4,
+    "shareDeltaEOver10": 1,
+    "luminanceContrast": 1.16
+   },
+   "result": {
+    "screenshot": "sauce_W3-outline_result_390x844.png"
+   }
+  },
+  "W4-outline-opaque@360x640": {
+   "candidate": "W4-outline-opaque",
+   "viewport": "360x640",
+   "color": "#fbf8f1",
+   "css": "blur(2px) contrast(1.35) brightness(1.04) drop-shadow(0 0 1px rgba(110, 78, 40, 0.9)) drop-shadow(0 1px 2px rgba(110, 78, 40, 0.45))",
+   "note": "brighter, more opaque core + stronger outline (texture substitute)",
+   "baseline": false,
+   "prepare": {
+    "meanDeltaE": 27.4,
+    "shareDeltaEOver10": 1,
+    "luminanceContrast": 1.12
+   },
+   "result": {
+    "screenshot": "sauce_W4-outline-opaque_result_360x640.png"
+   }
+  },
+  "W4-outline-opaque@360x800": {
+   "candidate": "W4-outline-opaque",
+   "viewport": "360x800",
+   "color": "#fbf8f1",
+   "css": "blur(2px) contrast(1.35) brightness(1.04) drop-shadow(0 0 1px rgba(110, 78, 40, 0.9)) drop-shadow(0 1px 2px rgba(110, 78, 40, 0.45))",
+   "note": "brighter, more opaque core + stronger outline (texture substitute)",
+   "baseline": false,
+   "prepare": {
+    "meanDeltaE": 27.5,
+    "shareDeltaEOver10": 1,
+    "luminanceContrast": 1.12
+   },
+   "result": null
+  },
+  "W4-outline-opaque@390x664": {
+   "candidate": "W4-outline-opaque",
+   "viewport": "390x664",
+   "color": "#fbf8f1",
+   "css": "blur(2px) contrast(1.35) brightness(1.04) drop-shadow(0 0 1px rgba(110, 78, 40, 0.9)) drop-shadow(0 1px 2px rgba(110, 78, 40, 0.45))",
+   "note": "brighter, more opaque core + stronger outline (texture substitute)",
+   "baseline": false,
+   "prepare": {
+    "meanDeltaE": 27.4,
+    "shareDeltaEOver10": 1,
+    "luminanceContrast": 1.12
+   },
+   "result": null
+  },
+  "W4-outline-opaque@390x844": {
+   "candidate": "W4-outline-opaque",
+   "viewport": "390x844",
+   "color": "#fbf8f1",
+   "css": "blur(2px) contrast(1.35) brightness(1.04) drop-shadow(0 0 1px rgba(110, 78, 40, 0.9)) drop-shadow(0 1px 2px rgba(110, 78, 40, 0.45))",
+   "note": "brighter, more opaque core + stronger outline (texture substitute)",
+   "baseline": false,
+   "prepare": {
+    "meanDeltaE": 27.5,
+    "shareDeltaEOver10": 1,
+    "luminanceContrast": 1.12
+   },
+   "result": {
+    "screenshot": "sauce_W4-outline-opaque_result_390x844.png"
+   }
+  }
+ },
+ "tray": {
+  "dinner/append@360x640": {
+   "mode": "dinner",
+   "order": "append",
+   "viewport": "360x640",
+   "sauceStep": {
+    "stage": {
+     "x": 0,
+     "y": 151,
+     "width": 360,
+     "height": 249
+    },
+    "dough": {
+     "x": 60,
+     "y": 155,
+     "width": 241,
+     "height": 241
+    },
+    "tray": {
+     "x": 12,
+     "y": 406,
+     "width": 336,
+     "height": 122
+    },
+    "pager": {
+     "x": 12,
+     "y": 534,
+     "width": 336,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 570,
+     "width": 360,
+     "height": 70
+    },
+    "pagerLabel": "1 / 1",
+    "chipsOnPage": 4,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   },
+   "toppingStep": {
+    "stage": {
+     "x": 0,
+     "y": 151,
+     "width": 360,
+     "height": 249
+    },
+    "dough": {
+     "x": 60,
+     "y": 155,
+     "width": 241,
+     "height": 241
+    },
+    "tray": {
+     "x": 12,
+     "y": 406,
+     "width": 336,
+     "height": 122
+    },
+    "pager": {
+     "x": 12,
+     "y": 534,
+     "width": 336,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 570,
+     "width": 360,
+     "height": 70
+    },
+    "pagerLabel": "1 / 5",
+    "chipsOnPage": 6,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   },
+   "tapsToFirstNewIngredient": 3,
+   "tapsToLastNewIngredientAfterThat": 1,
+   "afterPaging": {
+    "stage": {
+     "x": 0,
+     "y": 151,
+     "width": 360,
+     "height": 249
+    },
+    "dough": {
+     "x": 60,
+     "y": 155,
+     "width": 241,
+     "height": 241
+    },
+    "tray": {
+     "x": 12,
+     "y": 406,
+     "width": 336,
+     "height": 122
+    },
+    "pager": {
+     "x": 12,
+     "y": 534,
+     "width": 336,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 570,
+     "width": 360,
+     "height": 70
+    },
+    "pagerLabel": "5 / 5",
+    "chipsOnPage": 5,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   }
+  },
+  "dinner/append@360x800": {
+   "mode": "dinner",
+   "order": "append",
+   "viewport": "360x800",
+   "sauceStep": {
+    "stage": {
+     "x": 0,
+     "y": 160,
+     "width": 360,
+     "height": 388
+    },
+    "dough": {
+     "x": 43,
+     "y": 217,
+     "width": 274,
+     "height": 274
+    },
+    "tray": {
+     "x": 12,
+     "y": 554,
+     "width": 336,
+     "height": 134
+    },
+    "pager": {
+     "x": 12,
+     "y": 694,
+     "width": 336,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 730,
+     "width": 360,
+     "height": 70
+    },
+    "pagerLabel": "1 / 1",
+    "chipsOnPage": 4,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   },
+   "toppingStep": {
+    "stage": {
+     "x": 0,
+     "y": 160,
+     "width": 360,
+     "height": 388
+    },
+    "dough": {
+     "x": 43,
+     "y": 217,
+     "width": 274,
+     "height": 274
+    },
+    "tray": {
+     "x": 12,
+     "y": 554,
+     "width": 336,
+     "height": 134
+    },
+    "pager": {
+     "x": 12,
+     "y": 694,
+     "width": 336,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 730,
+     "width": 360,
+     "height": 70
+    },
+    "pagerLabel": "1 / 5",
+    "chipsOnPage": 6,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   },
+   "tapsToFirstNewIngredient": 3,
+   "tapsToLastNewIngredientAfterThat": 1,
+   "afterPaging": {
+    "stage": {
+     "x": 0,
+     "y": 160,
+     "width": 360,
+     "height": 388
+    },
+    "dough": {
+     "x": 43,
+     "y": 217,
+     "width": 274,
+     "height": 274
+    },
+    "tray": {
+     "x": 12,
+     "y": 554,
+     "width": 336,
+     "height": 134
+    },
+    "pager": {
+     "x": 12,
+     "y": 694,
+     "width": 336,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 730,
+     "width": 360,
+     "height": 70
+    },
+    "pagerLabel": "5 / 5",
+    "chipsOnPage": 5,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   }
+  },
+  "dinner/append@390x664": {
+   "mode": "dinner",
+   "order": "append",
+   "viewport": "390x664",
+   "sauceStep": {
+    "stage": {
+     "x": 0,
+     "y": 151,
+     "width": 390,
+     "height": 273
+    },
+    "dough": {
+     "x": 63,
+     "y": 155,
+     "width": 265,
+     "height": 265
+    },
+    "tray": {
+     "x": 12,
+     "y": 430,
+     "width": 366,
+     "height": 122
+    },
+    "pager": {
+     "x": 12,
+     "y": 558,
+     "width": 366,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 594,
+     "width": 390,
+     "height": 70
+    },
+    "pagerLabel": "1 / 1",
+    "chipsOnPage": 4,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   },
+   "toppingStep": {
+    "stage": {
+     "x": 0,
+     "y": 151,
+     "width": 390,
+     "height": 273
+    },
+    "dough": {
+     "x": 63,
+     "y": 155,
+     "width": 265,
+     "height": 265
+    },
+    "tray": {
+     "x": 12,
+     "y": 430,
+     "width": 366,
+     "height": 122
+    },
+    "pager": {
+     "x": 12,
+     "y": 558,
+     "width": 366,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 594,
+     "width": 390,
+     "height": 70
+    },
+    "pagerLabel": "1 / 5",
+    "chipsOnPage": 6,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   },
+   "tapsToFirstNewIngredient": 3,
+   "tapsToLastNewIngredientAfterThat": 1,
+   "afterPaging": {
+    "stage": {
+     "x": 0,
+     "y": 151,
+     "width": 390,
+     "height": 273
+    },
+    "dough": {
+     "x": 63,
+     "y": 155,
+     "width": 265,
+     "height": 265
+    },
+    "tray": {
+     "x": 12,
+     "y": 430,
+     "width": 366,
+     "height": 122
+    },
+    "pager": {
+     "x": 12,
+     "y": 558,
+     "width": 366,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 594,
+     "width": 390,
+     "height": 70
+    },
+    "pagerLabel": "5 / 5",
+    "chipsOnPage": 5,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   }
+  },
+  "dinner/append@390x844": {
+   "mode": "dinner",
+   "order": "append",
+   "viewport": "390x844",
+   "sauceStep": {
+    "stage": {
+     "x": 0,
+     "y": 160,
+     "width": 390,
+     "height": 432
+    },
+    "dough": {
+     "x": 50,
+     "y": 231,
+     "width": 290,
+     "height": 290
+    },
+    "tray": {
+     "x": 12,
+     "y": 598,
+     "width": 366,
+     "height": 134
+    },
+    "pager": {
+     "x": 12,
+     "y": 738,
+     "width": 366,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 774,
+     "width": 390,
+     "height": 70
+    },
+    "pagerLabel": "1 / 1",
+    "chipsOnPage": 4,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   },
+   "toppingStep": {
+    "stage": {
+     "x": 0,
+     "y": 160,
+     "width": 390,
+     "height": 432
+    },
+    "dough": {
+     "x": 50,
+     "y": 231,
+     "width": 290,
+     "height": 290
+    },
+    "tray": {
+     "x": 12,
+     "y": 598,
+     "width": 366,
+     "height": 134
+    },
+    "pager": {
+     "x": 12,
+     "y": 738,
+     "width": 366,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 774,
+     "width": 390,
+     "height": 70
+    },
+    "pagerLabel": "1 / 5",
+    "chipsOnPage": 6,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   },
+   "tapsToFirstNewIngredient": 3,
+   "tapsToLastNewIngredientAfterThat": 1,
+   "afterPaging": {
+    "stage": {
+     "x": 0,
+     "y": 160,
+     "width": 390,
+     "height": 432
+    },
+    "dough": {
+     "x": 50,
+     "y": 231,
+     "width": 290,
+     "height": 290
+    },
+    "tray": {
+     "x": 12,
+     "y": 598,
+     "width": 366,
+     "height": 134
+    },
+    "pager": {
+     "x": 12,
+     "y": 738,
+     "width": 366,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 774,
+     "width": 390,
+     "height": 70
+    },
+    "pagerLabel": "5 / 5",
+    "chipsOnPage": 5,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   }
+  },
+  "dinner/prepend@360x640": {
+   "mode": "dinner",
+   "order": "prepend",
+   "viewport": "360x640",
+   "sauceStep": {
+    "stage": {
+     "x": 0,
+     "y": 151,
+     "width": 360,
+     "height": 249
+    },
+    "dough": {
+     "x": 60,
+     "y": 155,
+     "width": 241,
+     "height": 241
+    },
+    "tray": {
+     "x": 12,
+     "y": 406,
+     "width": 336,
+     "height": 122
+    },
+    "pager": {
+     "x": 12,
+     "y": 534,
+     "width": 336,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 570,
+     "width": 360,
+     "height": 70
+    },
+    "pagerLabel": "1 / 1",
+    "chipsOnPage": 4,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   },
+   "toppingStep": {
+    "stage": {
+     "x": 0,
+     "y": 151,
+     "width": 360,
+     "height": 249
+    },
+    "dough": {
+     "x": 60,
+     "y": 155,
+     "width": 241,
+     "height": 241
+    },
+    "tray": {
+     "x": 12,
+     "y": 406,
+     "width": 336,
+     "height": 122
+    },
+    "pager": {
+     "x": 12,
+     "y": 534,
+     "width": 336,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 570,
+     "width": 360,
+     "height": 70
+    },
+    "pagerLabel": "1 / 5",
+    "chipsOnPage": 6,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   },
+   "tapsToFirstNewIngredient": 0,
+   "tapsToLastNewIngredientAfterThat": 1,
+   "afterPaging": {
+    "stage": {
+     "x": 0,
+     "y": 151,
+     "width": 360,
+     "height": 249
+    },
+    "dough": {
+     "x": 60,
+     "y": 155,
+     "width": 241,
+     "height": 241
+    },
+    "tray": {
+     "x": 12,
+     "y": 406,
+     "width": 336,
+     "height": 122
+    },
+    "pager": {
+     "x": 12,
+     "y": 534,
+     "width": 336,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 570,
+     "width": 360,
+     "height": 70
+    },
+    "pagerLabel": "2 / 5",
+    "chipsOnPage": 6,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   }
+  },
+  "dinner/prepend@360x800": {
+   "mode": "dinner",
+   "order": "prepend",
+   "viewport": "360x800",
+   "sauceStep": {
+    "stage": {
+     "x": 0,
+     "y": 160,
+     "width": 360,
+     "height": 388
+    },
+    "dough": {
+     "x": 43,
+     "y": 217,
+     "width": 274,
+     "height": 274
+    },
+    "tray": {
+     "x": 12,
+     "y": 554,
+     "width": 336,
+     "height": 134
+    },
+    "pager": {
+     "x": 12,
+     "y": 694,
+     "width": 336,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 730,
+     "width": 360,
+     "height": 70
+    },
+    "pagerLabel": "1 / 1",
+    "chipsOnPage": 4,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   },
+   "toppingStep": {
+    "stage": {
+     "x": 0,
+     "y": 160,
+     "width": 360,
+     "height": 388
+    },
+    "dough": {
+     "x": 43,
+     "y": 217,
+     "width": 274,
+     "height": 274
+    },
+    "tray": {
+     "x": 12,
+     "y": 554,
+     "width": 336,
+     "height": 134
+    },
+    "pager": {
+     "x": 12,
+     "y": 694,
+     "width": 336,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 730,
+     "width": 360,
+     "height": 70
+    },
+    "pagerLabel": "1 / 5",
+    "chipsOnPage": 6,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   },
+   "tapsToFirstNewIngredient": 0,
+   "tapsToLastNewIngredientAfterThat": 1,
+   "afterPaging": {
+    "stage": {
+     "x": 0,
+     "y": 160,
+     "width": 360,
+     "height": 388
+    },
+    "dough": {
+     "x": 43,
+     "y": 217,
+     "width": 274,
+     "height": 274
+    },
+    "tray": {
+     "x": 12,
+     "y": 554,
+     "width": 336,
+     "height": 134
+    },
+    "pager": {
+     "x": 12,
+     "y": 694,
+     "width": 336,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 730,
+     "width": 360,
+     "height": 70
+    },
+    "pagerLabel": "2 / 5",
+    "chipsOnPage": 6,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   }
+  },
+  "dinner/prepend@390x664": {
+   "mode": "dinner",
+   "order": "prepend",
+   "viewport": "390x664",
+   "sauceStep": {
+    "stage": {
+     "x": 0,
+     "y": 151,
+     "width": 390,
+     "height": 273
+    },
+    "dough": {
+     "x": 63,
+     "y": 155,
+     "width": 265,
+     "height": 265
+    },
+    "tray": {
+     "x": 12,
+     "y": 430,
+     "width": 366,
+     "height": 122
+    },
+    "pager": {
+     "x": 12,
+     "y": 558,
+     "width": 366,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 594,
+     "width": 390,
+     "height": 70
+    },
+    "pagerLabel": "1 / 1",
+    "chipsOnPage": 4,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   },
+   "toppingStep": {
+    "stage": {
+     "x": 0,
+     "y": 151,
+     "width": 390,
+     "height": 273
+    },
+    "dough": {
+     "x": 63,
+     "y": 155,
+     "width": 265,
+     "height": 265
+    },
+    "tray": {
+     "x": 12,
+     "y": 430,
+     "width": 366,
+     "height": 122
+    },
+    "pager": {
+     "x": 12,
+     "y": 558,
+     "width": 366,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 594,
+     "width": 390,
+     "height": 70
+    },
+    "pagerLabel": "1 / 5",
+    "chipsOnPage": 6,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   },
+   "tapsToFirstNewIngredient": 0,
+   "tapsToLastNewIngredientAfterThat": 1,
+   "afterPaging": {
+    "stage": {
+     "x": 0,
+     "y": 151,
+     "width": 390,
+     "height": 273
+    },
+    "dough": {
+     "x": 63,
+     "y": 155,
+     "width": 265,
+     "height": 265
+    },
+    "tray": {
+     "x": 12,
+     "y": 430,
+     "width": 366,
+     "height": 122
+    },
+    "pager": {
+     "x": 12,
+     "y": 558,
+     "width": 366,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 594,
+     "width": 390,
+     "height": 70
+    },
+    "pagerLabel": "2 / 5",
+    "chipsOnPage": 6,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   }
+  },
+  "dinner/prepend@390x844": {
+   "mode": "dinner",
+   "order": "prepend",
+   "viewport": "390x844",
+   "sauceStep": {
+    "stage": {
+     "x": 0,
+     "y": 160,
+     "width": 390,
+     "height": 432
+    },
+    "dough": {
+     "x": 50,
+     "y": 231,
+     "width": 290,
+     "height": 290
+    },
+    "tray": {
+     "x": 12,
+     "y": 598,
+     "width": 366,
+     "height": 134
+    },
+    "pager": {
+     "x": 12,
+     "y": 738,
+     "width": 366,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 774,
+     "width": 390,
+     "height": 70
+    },
+    "pagerLabel": "1 / 1",
+    "chipsOnPage": 4,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   },
+   "toppingStep": {
+    "stage": {
+     "x": 0,
+     "y": 160,
+     "width": 390,
+     "height": 432
+    },
+    "dough": {
+     "x": 50,
+     "y": 231,
+     "width": 290,
+     "height": 290
+    },
+    "tray": {
+     "x": 12,
+     "y": 598,
+     "width": 366,
+     "height": 134
+    },
+    "pager": {
+     "x": 12,
+     "y": 738,
+     "width": 366,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 774,
+     "width": 390,
+     "height": 70
+    },
+    "pagerLabel": "1 / 5",
+    "chipsOnPage": 6,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   },
+   "tapsToFirstNewIngredient": 0,
+   "tapsToLastNewIngredientAfterThat": 1,
+   "afterPaging": {
+    "stage": {
+     "x": 0,
+     "y": 160,
+     "width": 390,
+     "height": 432
+    },
+    "dough": {
+     "x": 50,
+     "y": 231,
+     "width": 290,
+     "height": 290
+    },
+    "tray": {
+     "x": 12,
+     "y": 598,
+     "width": 366,
+     "height": 134
+    },
+    "pager": {
+     "x": 12,
+     "y": 738,
+     "width": 366,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 774,
+     "width": 390,
+     "height": 70
+    },
+    "pagerLabel": "2 / 5",
+    "chipsOnPage": 6,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   }
+  },
+  "free/append@360x640": {
+   "mode": "free",
+   "order": "append",
+   "viewport": "360x640",
+   "sauceStep": {
+    "stage": {
+     "x": 0,
+     "y": 147,
+     "width": 360,
+     "height": 253
+    },
+    "dough": {
+     "x": 57,
+     "y": 151,
+     "width": 245,
+     "height": 245
+    },
+    "tray": {
+     "x": 12,
+     "y": 406,
+     "width": 336,
+     "height": 122
+    },
+    "pager": {
+     "x": 12,
+     "y": 534,
+     "width": 336,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 570,
+     "width": 360,
+     "height": 70
+    },
+    "pagerLabel": "1 / 1",
+    "chipsOnPage": 4,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   },
+   "toppingStep": {
+    "stage": {
+     "x": 0,
+     "y": 147,
+     "width": 360,
+     "height": 253
+    },
+    "dough": {
+     "x": 57,
+     "y": 151,
+     "width": 245,
+     "height": 245
+    },
+    "tray": {
+     "x": 12,
+     "y": 406,
+     "width": 336,
+     "height": 122
+    },
+    "pager": {
+     "x": 12,
+     "y": 534,
+     "width": 336,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 570,
+     "width": 360,
+     "height": 70
+    },
+    "pagerLabel": "1 / 5",
+    "chipsOnPage": 6,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   },
+   "tapsToFirstNewIngredient": 3,
+   "tapsToLastNewIngredientAfterThat": 1,
+   "afterPaging": {
+    "stage": {
+     "x": 0,
+     "y": 147,
+     "width": 360,
+     "height": 253
+    },
+    "dough": {
+     "x": 57,
+     "y": 151,
+     "width": 245,
+     "height": 245
+    },
+    "tray": {
+     "x": 12,
+     "y": 406,
+     "width": 336,
+     "height": 122
+    },
+    "pager": {
+     "x": 12,
+     "y": 534,
+     "width": 336,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 570,
+     "width": 360,
+     "height": 70
+    },
+    "pagerLabel": "5 / 5",
+    "chipsOnPage": 5,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   }
+  },
+  "free/append@360x800": {
+   "mode": "free",
+   "order": "append",
+   "viewport": "360x800",
+   "sauceStep": {
+    "stage": {
+     "x": 0,
+     "y": 147,
+     "width": 360,
+     "height": 401
+    },
+    "dough": {
+     "x": 43,
+     "y": 211,
+     "width": 274,
+     "height": 274
+    },
+    "tray": {
+     "x": 12,
+     "y": 554,
+     "width": 336,
+     "height": 134
+    },
+    "pager": {
+     "x": 12,
+     "y": 694,
+     "width": 336,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 730,
+     "width": 360,
+     "height": 70
+    },
+    "pagerLabel": "1 / 1",
+    "chipsOnPage": 4,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   },
+   "toppingStep": {
+    "stage": {
+     "x": 0,
+     "y": 147,
+     "width": 360,
+     "height": 401
+    },
+    "dough": {
+     "x": 43,
+     "y": 211,
+     "width": 274,
+     "height": 274
+    },
+    "tray": {
+     "x": 12,
+     "y": 554,
+     "width": 336,
+     "height": 134
+    },
+    "pager": {
+     "x": 12,
+     "y": 694,
+     "width": 336,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 730,
+     "width": 360,
+     "height": 70
+    },
+    "pagerLabel": "1 / 5",
+    "chipsOnPage": 6,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   },
+   "tapsToFirstNewIngredient": 3,
+   "tapsToLastNewIngredientAfterThat": 1,
+   "afterPaging": {
+    "stage": {
+     "x": 0,
+     "y": 147,
+     "width": 360,
+     "height": 401
+    },
+    "dough": {
+     "x": 43,
+     "y": 211,
+     "width": 274,
+     "height": 274
+    },
+    "tray": {
+     "x": 12,
+     "y": 554,
+     "width": 336,
+     "height": 134
+    },
+    "pager": {
+     "x": 12,
+     "y": 694,
+     "width": 336,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 730,
+     "width": 360,
+     "height": 70
+    },
+    "pagerLabel": "5 / 5",
+    "chipsOnPage": 5,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   }
+  },
+  "free/append@390x664": {
+   "mode": "free",
+   "order": "append",
+   "viewport": "390x664",
+   "sauceStep": {
+    "stage": {
+     "x": 0,
+     "y": 147,
+     "width": 390,
+     "height": 277
+    },
+    "dough": {
+     "x": 60,
+     "y": 151,
+     "width": 269,
+     "height": 269
+    },
+    "tray": {
+     "x": 12,
+     "y": 430,
+     "width": 366,
+     "height": 122
+    },
+    "pager": {
+     "x": 12,
+     "y": 558,
+     "width": 366,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 594,
+     "width": 390,
+     "height": 70
+    },
+    "pagerLabel": "1 / 1",
+    "chipsOnPage": 4,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   },
+   "toppingStep": {
+    "stage": {
+     "x": 0,
+     "y": 147,
+     "width": 390,
+     "height": 277
+    },
+    "dough": {
+     "x": 60,
+     "y": 151,
+     "width": 269,
+     "height": 269
+    },
+    "tray": {
+     "x": 12,
+     "y": 430,
+     "width": 366,
+     "height": 122
+    },
+    "pager": {
+     "x": 12,
+     "y": 558,
+     "width": 366,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 594,
+     "width": 390,
+     "height": 70
+    },
+    "pagerLabel": "1 / 5",
+    "chipsOnPage": 6,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   },
+   "tapsToFirstNewIngredient": 3,
+   "tapsToLastNewIngredientAfterThat": 1,
+   "afterPaging": {
+    "stage": {
+     "x": 0,
+     "y": 147,
+     "width": 390,
+     "height": 277
+    },
+    "dough": {
+     "x": 60,
+     "y": 151,
+     "width": 269,
+     "height": 269
+    },
+    "tray": {
+     "x": 12,
+     "y": 430,
+     "width": 366,
+     "height": 122
+    },
+    "pager": {
+     "x": 12,
+     "y": 558,
+     "width": 366,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 594,
+     "width": 390,
+     "height": 70
+    },
+    "pagerLabel": "5 / 5",
+    "chipsOnPage": 5,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   }
+  },
+  "free/append@390x844": {
+   "mode": "free",
+   "order": "append",
+   "viewport": "390x844",
+   "sauceStep": {
+    "stage": {
+     "x": 0,
+     "y": 147,
+     "width": 390,
+     "height": 445
+    },
+    "dough": {
+     "x": 50,
+     "y": 224,
+     "width": 290,
+     "height": 290
+    },
+    "tray": {
+     "x": 12,
+     "y": 598,
+     "width": 366,
+     "height": 134
+    },
+    "pager": {
+     "x": 12,
+     "y": 738,
+     "width": 366,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 774,
+     "width": 390,
+     "height": 70
+    },
+    "pagerLabel": "1 / 1",
+    "chipsOnPage": 4,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   },
+   "toppingStep": {
+    "stage": {
+     "x": 0,
+     "y": 147,
+     "width": 390,
+     "height": 445
+    },
+    "dough": {
+     "x": 50,
+     "y": 224,
+     "width": 290,
+     "height": 290
+    },
+    "tray": {
+     "x": 12,
+     "y": 598,
+     "width": 366,
+     "height": 134
+    },
+    "pager": {
+     "x": 12,
+     "y": 738,
+     "width": 366,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 774,
+     "width": 390,
+     "height": 70
+    },
+    "pagerLabel": "1 / 5",
+    "chipsOnPage": 6,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   },
+   "tapsToFirstNewIngredient": 3,
+   "tapsToLastNewIngredientAfterThat": 1,
+   "afterPaging": {
+    "stage": {
+     "x": 0,
+     "y": 147,
+     "width": 390,
+     "height": 445
+    },
+    "dough": {
+     "x": 50,
+     "y": 224,
+     "width": 290,
+     "height": 290
+    },
+    "tray": {
+     "x": 12,
+     "y": 598,
+     "width": 366,
+     "height": 134
+    },
+    "pager": {
+     "x": 12,
+     "y": 738,
+     "width": 366,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 774,
+     "width": 390,
+     "height": 70
+    },
+    "pagerLabel": "5 / 5",
+    "chipsOnPage": 5,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   }
+  },
+  "free/prepend@360x640": {
+   "mode": "free",
+   "order": "prepend",
+   "viewport": "360x640",
+   "sauceStep": {
+    "stage": {
+     "x": 0,
+     "y": 147,
+     "width": 360,
+     "height": 253
+    },
+    "dough": {
+     "x": 57,
+     "y": 151,
+     "width": 245,
+     "height": 245
+    },
+    "tray": {
+     "x": 12,
+     "y": 406,
+     "width": 336,
+     "height": 122
+    },
+    "pager": {
+     "x": 12,
+     "y": 534,
+     "width": 336,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 570,
+     "width": 360,
+     "height": 70
+    },
+    "pagerLabel": "1 / 1",
+    "chipsOnPage": 4,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   },
+   "toppingStep": {
+    "stage": {
+     "x": 0,
+     "y": 147,
+     "width": 360,
+     "height": 253
+    },
+    "dough": {
+     "x": 57,
+     "y": 151,
+     "width": 245,
+     "height": 245
+    },
+    "tray": {
+     "x": 12,
+     "y": 406,
+     "width": 336,
+     "height": 122
+    },
+    "pager": {
+     "x": 12,
+     "y": 534,
+     "width": 336,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 570,
+     "width": 360,
+     "height": 70
+    },
+    "pagerLabel": "1 / 5",
+    "chipsOnPage": 6,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   },
+   "tapsToFirstNewIngredient": 0,
+   "tapsToLastNewIngredientAfterThat": 1,
+   "afterPaging": {
+    "stage": {
+     "x": 0,
+     "y": 147,
+     "width": 360,
+     "height": 253
+    },
+    "dough": {
+     "x": 57,
+     "y": 151,
+     "width": 245,
+     "height": 245
+    },
+    "tray": {
+     "x": 12,
+     "y": 406,
+     "width": 336,
+     "height": 122
+    },
+    "pager": {
+     "x": 12,
+     "y": 534,
+     "width": 336,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 570,
+     "width": 360,
+     "height": 70
+    },
+    "pagerLabel": "2 / 5",
+    "chipsOnPage": 6,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   }
+  },
+  "free/prepend@360x800": {
+   "mode": "free",
+   "order": "prepend",
+   "viewport": "360x800",
+   "sauceStep": {
+    "stage": {
+     "x": 0,
+     "y": 147,
+     "width": 360,
+     "height": 401
+    },
+    "dough": {
+     "x": 43,
+     "y": 211,
+     "width": 274,
+     "height": 274
+    },
+    "tray": {
+     "x": 12,
+     "y": 554,
+     "width": 336,
+     "height": 134
+    },
+    "pager": {
+     "x": 12,
+     "y": 694,
+     "width": 336,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 730,
+     "width": 360,
+     "height": 70
+    },
+    "pagerLabel": "1 / 1",
+    "chipsOnPage": 4,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   },
+   "toppingStep": {
+    "stage": {
+     "x": 0,
+     "y": 147,
+     "width": 360,
+     "height": 401
+    },
+    "dough": {
+     "x": 43,
+     "y": 211,
+     "width": 274,
+     "height": 274
+    },
+    "tray": {
+     "x": 12,
+     "y": 554,
+     "width": 336,
+     "height": 134
+    },
+    "pager": {
+     "x": 12,
+     "y": 694,
+     "width": 336,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 730,
+     "width": 360,
+     "height": 70
+    },
+    "pagerLabel": "1 / 5",
+    "chipsOnPage": 6,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   },
+   "tapsToFirstNewIngredient": 0,
+   "tapsToLastNewIngredientAfterThat": 1,
+   "afterPaging": {
+    "stage": {
+     "x": 0,
+     "y": 147,
+     "width": 360,
+     "height": 401
+    },
+    "dough": {
+     "x": 43,
+     "y": 211,
+     "width": 274,
+     "height": 274
+    },
+    "tray": {
+     "x": 12,
+     "y": 554,
+     "width": 336,
+     "height": 134
+    },
+    "pager": {
+     "x": 12,
+     "y": 694,
+     "width": 336,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 730,
+     "width": 360,
+     "height": 70
+    },
+    "pagerLabel": "2 / 5",
+    "chipsOnPage": 6,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   }
+  },
+  "free/prepend@390x664": {
+   "mode": "free",
+   "order": "prepend",
+   "viewport": "390x664",
+   "sauceStep": {
+    "stage": {
+     "x": 0,
+     "y": 147,
+     "width": 390,
+     "height": 277
+    },
+    "dough": {
+     "x": 60,
+     "y": 151,
+     "width": 269,
+     "height": 269
+    },
+    "tray": {
+     "x": 12,
+     "y": 430,
+     "width": 366,
+     "height": 122
+    },
+    "pager": {
+     "x": 12,
+     "y": 558,
+     "width": 366,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 594,
+     "width": 390,
+     "height": 70
+    },
+    "pagerLabel": "1 / 1",
+    "chipsOnPage": 4,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   },
+   "toppingStep": {
+    "stage": {
+     "x": 0,
+     "y": 147,
+     "width": 390,
+     "height": 277
+    },
+    "dough": {
+     "x": 60,
+     "y": 151,
+     "width": 269,
+     "height": 269
+    },
+    "tray": {
+     "x": 12,
+     "y": 430,
+     "width": 366,
+     "height": 122
+    },
+    "pager": {
+     "x": 12,
+     "y": 558,
+     "width": 366,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 594,
+     "width": 390,
+     "height": 70
+    },
+    "pagerLabel": "1 / 5",
+    "chipsOnPage": 6,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   },
+   "tapsToFirstNewIngredient": 0,
+   "tapsToLastNewIngredientAfterThat": 1,
+   "afterPaging": {
+    "stage": {
+     "x": 0,
+     "y": 147,
+     "width": 390,
+     "height": 277
+    },
+    "dough": {
+     "x": 60,
+     "y": 151,
+     "width": 269,
+     "height": 269
+    },
+    "tray": {
+     "x": 12,
+     "y": 430,
+     "width": 366,
+     "height": 122
+    },
+    "pager": {
+     "x": 12,
+     "y": 558,
+     "width": 366,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 594,
+     "width": 390,
+     "height": 70
+    },
+    "pagerLabel": "2 / 5",
+    "chipsOnPage": 6,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   }
+  },
+  "free/prepend@390x844": {
+   "mode": "free",
+   "order": "prepend",
+   "viewport": "390x844",
+   "sauceStep": {
+    "stage": {
+     "x": 0,
+     "y": 147,
+     "width": 390,
+     "height": 445
+    },
+    "dough": {
+     "x": 50,
+     "y": 224,
+     "width": 290,
+     "height": 290
+    },
+    "tray": {
+     "x": 12,
+     "y": 598,
+     "width": 366,
+     "height": 134
+    },
+    "pager": {
+     "x": 12,
+     "y": 738,
+     "width": 366,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 774,
+     "width": 390,
+     "height": 70
+    },
+    "pagerLabel": "1 / 1",
+    "chipsOnPage": 4,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   },
+   "toppingStep": {
+    "stage": {
+     "x": 0,
+     "y": 147,
+     "width": 390,
+     "height": 445
+    },
+    "dough": {
+     "x": 50,
+     "y": 224,
+     "width": 290,
+     "height": 290
+    },
+    "tray": {
+     "x": 12,
+     "y": 598,
+     "width": 366,
+     "height": 134
+    },
+    "pager": {
+     "x": 12,
+     "y": 738,
+     "width": 366,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 774,
+     "width": 390,
+     "height": 70
+    },
+    "pagerLabel": "1 / 5",
+    "chipsOnPage": 6,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   },
+   "tapsToFirstNewIngredient": 0,
+   "tapsToLastNewIngredientAfterThat": 1,
+   "afterPaging": {
+    "stage": {
+     "x": 0,
+     "y": 147,
+     "width": 390,
+     "height": 445
+    },
+    "dough": {
+     "x": 50,
+     "y": 224,
+     "width": 290,
+     "height": 290
+    },
+    "tray": {
+     "x": 12,
+     "y": 598,
+     "width": 366,
+     "height": 134
+    },
+    "pager": {
+     "x": 12,
+     "y": 738,
+     "width": 366,
+     "height": 28
+    },
+    "bakeBar": {
+     "x": 0,
+     "y": 774,
+     "width": 390,
+     "height": 70
+    },
+    "pagerLabel": "2 / 5",
+    "chipsOnPage": 6,
+    "horizontalOverflow": false,
+    "documentScrolls": false,
+    "gameScreenScrolls": false
+   }
+  }
+ }
+}

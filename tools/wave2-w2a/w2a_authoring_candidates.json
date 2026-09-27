@@ -1,0 +1,151 @@
+{
+ "schema": "teto-wave2-w2a-authoring-candidates/1",
+ "note": "W2-A Authoring Gate CANDIDATES. Not production authority. status per field: EVIDENCE (read from PIZZA DB / Phase-1 matrix), DERIVED_FROM_AUTHORITY (mechanical application of an existing approved rule, rule cited), OWNER_REQUIRED (a real choice the evidence and existing rules do not settle; candidate shown, not adopted), EVIDENCE_REQUIRED (no evidence and no rule).",
+ "rules": {
+  "R-MC": "W1 authoring minCount role rule (docs/reports/TETO_PROGRESS2_W1_I5B_FRESH-AUDIT.md §1 / #221 authoring tool, approved via REC-01..03): sauce 1; mozzarella 2; secondary cheese 2; the recipe's primary (name-giving) topping 3; supporting topping 2; herb baseline 2 (basil); egg 1. Oregano as an accent is 1 in 3 of 4 runtime recipes that use it (napoletana, capricciosa, fugazza; marinara 2).",
+  "R-BT": "bakeTarget is game authoring (REC-01: GAME_AUTHORING_NOT_EXTERNAL_EVIDENCE). A candidate is DERIVED only when a catalog bakeProfile exists for the same composition family, or a runtime recipe has the same base + same primary topping; otherwise OWNER_REQUIRED. Width is always 20 (every runtime recipe).",
+  "R-REF": "Reference positions are not authored: RT-01 getReferenceSlots/assignReferenceSlots over the ordered non-sauce requiredIngredients (sauce, mozzarella, then evidence order), exactly like the W1 references. Landing LIGHT_LEAF for leafy herbs/greens, HEAVY_SQUASH otherwise; tolerance 8/22 (egg 14/30).",
+  "R-CUT": "OD-W2-4: CUT (6 slices) only with dough evidence; none otherwise (New Haven rule).",
+  "R-NAME": "nameJa = PIZZA DB evidence nameJa. The runtime Recipe / Ingredient types have no English-name field; English names are informational only."
+ },
+ "recipes": [
+  {
+   "runtimeId": "brazilian-calabresa", "evidenceId": "brazilian-calabresa-pizzadb-p10", "nameJa": "ブラジリアン・カラブレーザ",
+   "nameEnInformational": "Brazilian Calabresa (informational; not in evidence)",
+   "requiredIngredients": [
+    {"ingredientId": "tomato-sauce", "minCount": 1, "status": "DERIVED_FROM_AUTHORITY", "why": "R-MC sauce"},
+    {"ingredientId": "sausage", "minCount": 3, "status": "DERIVED_FROM_AUTHORITY", "why": "R-MC primary (calabresa = the sausage)"},
+    {"ingredientId": "onion", "minCount": 2, "status": "DERIVED_FROM_AUTHORITY", "why": "R-MC supporting"},
+    {"ingredientId": "black-olive", "minCount": 2, "status": "DERIVED_FROM_AUTHORITY", "why": "R-MC supporting"},
+    {"ingredientId": "oregano", "minCount": 1, "status": "DERIVED_FROM_AUTHORITY", "why": "R-MC oregano accent (napoletana precedent: tomato + protein + oregano 1)"}
+   ],
+   "bakeTarget": {"start": 62, "end": 82, "status": "DERIVED_FROM_AUTHORITY", "why": "R-BT: runtime salsiccia (tomato-sauce base, sausage primary) 62-82"},
+   "descriptionDraft": "トマトソースにソーセージ、たまねぎ、ブラックオリーブ、オレガノをのせた、サンパウロ生まれのチーズを使わない一枚。",
+   "descriptionStatus": "OWNER_REQUIRED",
+   "w1Analog": "salsiccia"
+  },
+  {
+   "runtimeId": "vongole", "evidenceId": "vongole-pizzadb", "nameJa": "ヴォンゴレピザ",
+   "nameEnInformational": "Vongole Pizza (informational)",
+   "requiredIngredients": [
+    {"ingredientId": "olive-oil", "minCount": 1, "status": "DERIVED_FROM_AUTHORITY", "why": "R-MC sauce; OD-W2-7(a) olive oil as base"},
+    {"ingredientId": "clam", "minCount": 3, "status": "DERIVED_FROM_AUTHORITY", "why": "R-MC primary; = new-haven-apizza clam 3"},
+    {"ingredientId": "garlic", "minCount": 2, "status": "DERIVED_FROM_AUTHORITY", "why": "R-MC supporting; = new-haven-apizza garlic 2"},
+    {"ingredientId": "parsley", "minCount": 2, "status": "DERIVED_FROM_AUTHORITY", "why": "R-MC herb baseline"}
+   ],
+   "bakeTarget": {"start": 62, "end": 82, "status": "DERIVED_FROM_AUTHORITY", "why": "R-BT: runtime new-haven-apizza (olive-oil base, clam primary) 62-82"},
+   "descriptionDraft": "オリーブオイルを塗った生地に、あさり、にんにく、パセリをのせて焼き上げた、チーズを使わない魚介の一枚。",
+   "descriptionStatus": "OWNER_REQUIRED",
+   "w1Analog": "new-haven-apizza"
+  },
+  {
+   "runtimeId": "flammkuchen", "evidenceId": "flammkuchen-pizzadb", "nameJa": "タルトフランベ",
+   "nameEnInformational": "Flammkuchen / Tarte flambée (informational)",
+   "requiredIngredients": [
+    {"ingredientId": "fromage-blanc-sauce", "minCount": 1, "status": "DERIVED_FROM_AUTHORITY", "why": "R-MC sauce"},
+    {"ingredientId": "bacon", "minCount": 3, "status": "OWNER_REQUIRED", "why": "two co-defining toppings (bacon + onion); R-MC has one primary. Candidate bacon 3 / onion 2; alternatives 2/3 or 3/3"},
+    {"ingredientId": "onion", "minCount": 2, "status": "OWNER_REQUIRED", "why": "see bacon"}
+   ],
+   "bakeTarget": {"start": 56, "end": 76, "status": "OWNER_REQUIRED", "why": "no white-sauce analog and no catalog bakeProfile; candidate = breakfast-pizza (bacon) 56-76, alternative fugazza (onion, painted base) 63-83"},
+   "descriptionDraft": "フロマージュブランを塗った生地に、ベーコンとたまねぎをのせて焼き上げた、アルザス生まれの白い一枚。",
+   "descriptionStatus": "OWNER_REQUIRED",
+   "w1Analog": "breakfast-pizza / fugazza"
+  },
+  {
+   "runtimeId": "pesto-gamberi", "evidenceId": "pesto-gamberi-pizzadb-p11", "nameJa": "ペストガンベリピザ",
+   "nameEnInformational": "Pesto Gamberi (informational)",
+   "requiredIngredients": [
+    {"ingredientId": "pesto", "minCount": 1, "status": "DERIVED_FROM_AUTHORITY", "why": "R-MC sauce"},
+    {"ingredientId": "shrimp", "minCount": 3, "status": "DERIVED_FROM_AUTHORITY", "why": "R-MC primary (gamberi)"},
+    {"ingredientId": "fresh-tomato", "minCount": 2, "status": "DERIVED_FROM_AUTHORITY", "why": "R-MC supporting"},
+    {"ingredientId": "garlic", "minCount": 2, "status": "DERIVED_FROM_AUTHORITY", "why": "R-MC supporting"}
+   ],
+   "bakeTarget": {"start": 50, "end": 70, "status": "DERIVED_FROM_AUTHORITY", "why": "R-BT: runtime pesto-tonno (pesto base, seafood primary) 50-70"},
+   "descriptionDraft": "ジェノベーゼソースにエビ、トマト、にんにくを合わせた、香りの立つ魚介のペストピザ。",
+   "descriptionStatus": "OWNER_REQUIRED",
+   "w1Analog": "pesto-tonno"
+  },
+  {
+   "runtimeId": "pesto-pollo", "evidenceId": "pesto-pollo-pizzadb-p12", "nameJa": "ペストポッロピザ",
+   "nameEnInformational": "Pesto Pollo (informational)",
+   "requiredIngredients": [
+    {"ingredientId": "pesto", "minCount": 1, "status": "DERIVED_FROM_AUTHORITY", "why": "R-MC sauce"},
+    {"ingredientId": "mozzarella", "minCount": 2, "status": "DERIVED_FROM_AUTHORITY", "why": "R-MC mozzarella"},
+    {"ingredientId": "chicken", "minCount": 3, "status": "DERIVED_FROM_AUTHORITY", "why": "R-MC primary (pollo)"},
+    {"ingredientId": "fresh-tomato", "minCount": 2, "status": "DERIVED_FROM_AUTHORITY", "why": "R-MC supporting"}
+   ],
+   "bakeTarget": {"start": 50, "end": 70, "status": "OWNER_REQUIRED", "why": "pesto recipes are 50-70 except pesto-patate 58-78 (dense primary); chicken has no runtime analog. Candidate 50-70 (pesto-caprese, same pesto + mozzarella + fresh-tomato)"},
+   "descriptionDraft": "ジェノベーゼソースにチキン、トマト、モッツァレラを合わせた、食べごたえのあるペストピザ。",
+   "descriptionStatus": "OWNER_REQUIRED",
+   "w1Analog": "pesto-caprese"
+  },
+  {
+   "runtimeId": "ratatouille-pizza", "evidenceId": "ratatouille-pizza-pizzadb-p13", "nameJa": "ラタトゥイユピザ",
+   "nameEnInformational": "Ratatouille Pizza (informational)",
+   "requiredIngredients": [
+    {"ingredientId": "tomato-sauce", "minCount": 1, "status": "DERIVED_FROM_AUTHORITY", "why": "R-MC sauce"},
+    {"ingredientId": "eggplant", "minCount": 2, "status": "OWNER_REQUIRED", "why": "three co-equal vegetables, no name-giving primary. Candidate 2/2/2; alternative one of them 3"},
+    {"ingredientId": "zucchini", "minCount": 2, "status": "OWNER_REQUIRED", "why": "see eggplant"},
+    {"ingredientId": "bell-pepper", "minCount": 2, "status": "OWNER_REQUIRED", "why": "see eggplant"},
+    {"ingredientId": "oregano", "minCount": 1, "status": "DERIVED_FROM_AUTHORITY", "why": "R-MC oregano accent"}
+   ],
+   "bakeTarget": {"start": 58, "end": 78, "status": "DERIVED_FROM_AUTHORITY", "why": "R-BT: runtime melanzane-pizza (tomato-sauce base, eggplant) 58-78"},
+   "descriptionDraft": "トマトソースにナス、ズッキーニ、パプリカ、オレガノを合わせた、プロヴァンス風の野菜たっぷりの一枚。",
+   "descriptionStatus": "OWNER_REQUIRED",
+   "w1Analog": "melanzane-pizza"
+  },
+  {
+   "runtimeId": "pesto-vegetariana", "evidenceId": "pesto-vegetariana-pizzadb-p12", "nameJa": "ペストベジタリアーナピザ",
+   "nameEnInformational": "Pesto Vegetariana (informational)",
+   "requiredIngredients": [
+    {"ingredientId": "pesto", "minCount": 1, "status": "DERIVED_FROM_AUTHORITY", "why": "R-MC sauce"},
+    {"ingredientId": "mozzarella", "minCount": 2, "status": "DERIVED_FROM_AUTHORITY", "why": "R-MC mozzarella"},
+    {"ingredientId": "zucchini", "minCount": 2, "status": "OWNER_REQUIRED", "why": "three co-equal vegetables. Candidate 2/2/2 (8 pieces)"},
+    {"ingredientId": "bell-pepper", "minCount": 2, "status": "OWNER_REQUIRED", "why": "see zucchini"},
+    {"ingredientId": "eggplant", "minCount": 2, "status": "OWNER_REQUIRED", "why": "see zucchini"}
+   ],
+   "bakeTarget": {"start": 50, "end": 70, "status": "OWNER_REQUIRED", "why": "pesto 50-70 (pesto-caprese) vs 58-78 (pesto-patate, dense vegetable). Candidate 50-70"},
+   "descriptionDraft": "ジェノベーゼソースにズッキーニ、パプリカ、ナス、モッツァレラを合わせた、野菜が主役のペストピザ。",
+   "descriptionStatus": "OWNER_REQUIRED",
+   "w1Analog": "pesto-caprese / pesto-patate"
+  },
+  {
+   "runtimeId": "prosciutto-funghi", "evidenceId": "prosciutto-funghi-pizzadb-p11", "nameJa": "プロシュットフンギ",
+   "nameEnInformational": "Prosciutto e Funghi (catalog nameOriginal)",
+   "requiredIngredients": [
+    {"ingredientId": "tomato-sauce", "minCount": 1, "status": "DERIVED_FROM_AUTHORITY", "why": "R-MC sauce"},
+    {"ingredientId": "mozzarella", "minCount": 2, "status": "DERIVED_FROM_AUTHORITY", "why": "R-MC mozzarella"},
+    {"ingredientId": "prosciutto-crudo", "minCount": 2, "status": "OWNER_REQUIRED", "why": "two name-giving toppings. Candidate: prosciutto 2 / mushroom 3 (keeps funghi's mushroom 3, so the recipe reads as funghi + prosciutto); alternative 3/2"},
+    {"ingredientId": "mushroom", "minCount": 3, "status": "OWNER_REQUIRED", "why": "see prosciutto-crudo"}
+   ],
+   "bakeTarget": {"start": 58, "end": 78, "status": "OWNER_REQUIRED", "why": "catalog funghi 58-78 (= runtime funghi) vs catalog prosciutto 55-75. Candidate 58-78"},
+   "descriptionDraft": "トマトソースとモッツァレラに、生ハムとマッシュルームを合わせた、イタリア定番の組み合わせの一枚。",
+   "descriptionStatus": "OWNER_REQUIRED",
+   "w1Analog": "funghi"
+  },
+  {
+   "runtimeId": "jamon-serrano-pizza", "evidenceId": "jamon-serrano-pizza-pizzadb-p7", "nameJa": "ハモンセラーノピザ",
+   "nameEnInformational": "Jamón Serrano Pizza (informational)",
+   "requiredIngredients": [
+    {"ingredientId": "tomato-sauce", "minCount": 1, "status": "DERIVED_FROM_AUTHORITY", "why": "R-MC sauce"},
+    {"ingredientId": "mozzarella", "minCount": 2, "status": "DERIVED_FROM_AUTHORITY", "why": "R-MC mozzarella"},
+    {"ingredientId": "prosciutto-crudo", "minCount": 3, "status": "DERIVED_FROM_AUTHORITY", "why": "R-MC primary (jamón)"},
+    {"ingredientId": "arugula", "minCount": 2, "status": "DERIVED_FROM_AUTHORITY", "why": "R-MC supporting"}
+   ],
+   "bakeTarget": {"start": 55, "end": 75, "status": "DERIVED_FROM_AUTHORITY", "why": "R-BT: catalog 'prosciutto' (crudo e rucola: tomato, mozzarella, prosciutto-crudo, arugula, parmigiano) bakeProfile 55-75"},
+   "descriptionDraft": "トマトソースとモッツァレラに、生ハムとルッコラを合わせた、スペイン風のシンプルな一枚。",
+   "descriptionStatus": "OWNER_REQUIRED",
+   "w1Analog": "hawaiian (structure)"
+  }
+ ],
+ "ingredients": [
+  {"id": "prosciutto-crudo", "nameJa": "生ハム", "nameEnInformational": "Prosciutto crudo", "emojiCandidate": "U+1F953 (collides with bacon)", "emojiCollision": "bacon", "colorCandidate": "#d98b8b", "landingStyle": "HEAVY_SQUASH", "bakeRoastResistant": false, "dedicatedVisualNeeded": true},
+  {"id": "arugula", "nameJa": "ルッコラ", "nameEnInformational": "Arugula", "emojiCandidate": "U+1F96C", "emojiCollision": null, "colorCandidate": "#4f7f2f", "landingStyle": "LIGHT_LEAF", "bakeRoastResistant": true, "dedicatedVisualNeeded": false},
+  {"id": "shrimp", "nameJa": "エビ", "nameEnInformational": "Shrimp", "emojiCandidate": "U+1F990", "emojiCollision": null, "colorCandidate": "#f08a5d", "landingStyle": "HEAVY_SQUASH", "bakeRoastResistant": false, "dedicatedVisualNeeded": false},
+  {"id": "chicken", "nameJa": "チキン", "nameEnInformational": "Chicken", "emojiCandidate": "U+1F357", "emojiCollision": null, "colorCandidate": "#d9a066", "landingStyle": "HEAVY_SQUASH", "bakeRoastResistant": false, "dedicatedVisualNeeded": false},
+  {"id": "parsley", "nameJa": "パセリ", "nameEnInformational": "Parsley", "emojiCandidate": "U+1F33F (collides with basil and pesto)", "emojiCollision": "basil, pesto", "colorCandidate": "#3f7d33", "landingStyle": "LIGHT_LEAF", "bakeRoastResistant": true, "dedicatedVisualNeeded": true},
+  {"id": "bell-pepper", "nameJa": "パプリカ", "nameEnInformational": "Bell pepper", "emojiCandidate": "U+1FAD1", "emojiCollision": null, "colorCandidate": "#e0452b", "landingStyle": "HEAVY_SQUASH", "bakeRoastResistant": false, "dedicatedVisualNeeded": false},
+  {"id": "zucchini", "nameJa": "ズッキーニ", "nameEnInformational": "Zucchini", "emojiCandidate": "U+1F952 (cucumber glyph as zucchini, like eggplant/potato whole glyphs in W1)", "emojiCollision": null, "colorCandidate": "#5b8c3a", "landingStyle": "HEAVY_SQUASH", "bakeRoastResistant": false, "dedicatedVisualNeeded": false},
+  {"id": "fromage-blanc-sauce", "nameJa": "フロマージュブラン", "nameEnInformational": "Fromage blanc", "emojiCandidate": "U+1F95B (chip only; sauce is drawn by colour)", "emojiCollision": null, "colorCandidate": "#eef1f4", "landingStyle": null, "bakeRoastResistant": null, "dedicatedVisualNeeded": false}
+ ]
+}

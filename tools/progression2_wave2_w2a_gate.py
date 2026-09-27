@@ -202,10 +202,10 @@ def main(check: bool) -> int:
         return sorted(r for r, items in pop.items() if set(items) <= owned)
 
     deadlocks, curve = [], []
-    for c in range(0, len(pop)):
+    for c in range(0, len(pop) + 1):
         m = makeable(c)
         curve.append({"discoveredCount": c, "makeable": len(m), "slack": len(m) - (c + 1)})
-        if len(m) < c + 1:
+        if c < len(pop) and len(m) < c + 1:
             deadlocks.append(c)
     unreachable = sorted(set(pop) - set(makeable(len(ladder))))
 
@@ -224,6 +224,15 @@ def main(check: bool) -> int:
                                    "diff": sorted((na ^ nb)) + ([f"base:{'/'.join(sa)}->{'/'.join(sb)}"] if sa != sb else [])})
     base_d1 = sum(1 for p in pairs["d1"] if not p["aIsWave2"] and not p["bIsWave2"])
     base_d2 = sum(1 for p in pairs["d2"] if not p["aIsWave2"] and not p["bIsWave2"])
+    # Nested identity (strict subset of the full identity set, sauce included)
+    nested = []
+    for a, b in itertools.permutations(sorted(pop), 2):
+        if set(pop[a]) < set(pop[b]):
+            nested.append({"subset": a, "superset": b, "extra": sorted(set(pop[b]) - set(pop[a])),
+                           "involvesWave2": a not in base_pop or b not in base_pop})
+    # W1 byte parity (serialised steps 1..24)
+    w1_serial = json.dumps(w1, sort_keys=True, separators=(",", ":"))
+    w1_hash = hashlib.sha256(w1_serial.encode()).hexdigest()
     if pairs["d0"]:
         errors.append(f"D-1: exact collisions {pairs['d0']}")
 
@@ -353,10 +362,19 @@ def main(check: bool) -> int:
         "policy": {"OD-W2-1": "APPEND_ONLY (Owner candidate): W1 steps 1..24 fixed; Wave 2 materials appended from step 25 with the REC-04 key-recipe rule applied to the delta only"},
         "checks": checks,
         "ladder": ladder,
+        "w1LadderParity": {"sha256": w1_hash, "steps": 24, "sameAsRuleDerivation": l1, "prefixIdentical": l2},
+        "appendedSteps": [
+            {"step": st["step"], "unlockIngredients": st["ingredientIds"], "requiredDiscoveryCount": st["step"],
+             "priceTier": tier_for(st["step"], tiers)["tier"], "packPrice": tier_for(st["step"], tiers)["packPrice"],
+             "refillPrice": tier_for(st["step"], tiers)["refillPrice"],
+             "keyRecipe": st["keyRecipeId"], "keyRecipeChapter": tiers.index(tier_for(st["step"], tiers)) + 1,
+             "newlyMakeable": sorted(set(makeable(st["step"])) - set(makeable(st["step"] - 1)))}
+            for st in ladder[24:]],
         "existingSaveNextUnlock": l4_rows,
         "deadlockCurve": curve,
         "collisionAudit": {"population": len(pop), "pairs": len(pop) * (len(pop) - 1) // 2,
-                           "exactCollisions": pairs["d0"], "d1Pairs": pairs["d1"], "d2PairCount": len(pairs["d2"]),
+                           "exactCollisions": pairs["d0"], "nestedIdentities": nested,
+                           "nestedInvolvingWave2": [n for n in nested if n["involvesWave2"]], "d1Pairs": pairs["d1"], "d2PairCount": len(pairs["d2"]),
                            "d1PairsRuntimeOnlyBefore": base_d1, "d1PairsAfter": len(pairs["d1"]),
                            "d2PairsRuntimeOnlyBefore": base_d2},
         "recipes": recipe_rows,

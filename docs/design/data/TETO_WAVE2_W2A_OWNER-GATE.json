@@ -255,6 +255,121 @@
    "keyRecipeId": "pesto-vegetariana"
   }
  ],
+ "w1LadderParity": {
+  "sha256": "0e8f352b9adb74a5d5e64dde7594da75cd949b0fa95d587e91d8c3eb72b7d58f",
+  "steps": 24,
+  "sameAsRuleDerivation": true,
+  "prefixIdentical": true
+ },
+ "appendedSteps": [
+  {
+   "step": 25,
+   "unlockIngredients": [
+    "prosciutto-crudo"
+   ],
+   "requiredDiscoveryCount": 25,
+   "priceTier": "T3",
+   "packPrice": 100,
+   "refillPrice": 50,
+   "keyRecipe": "prosciutto-funghi",
+   "keyRecipeChapter": 3,
+   "newlyMakeable": [
+    "prosciutto-funghi"
+   ]
+  },
+  {
+   "step": 26,
+   "unlockIngredients": [
+    "fromage-blanc-sauce"
+   ],
+   "requiredDiscoveryCount": 26,
+   "priceTier": "T3",
+   "packPrice": 100,
+   "refillPrice": 50,
+   "keyRecipe": "flammkuchen",
+   "keyRecipeChapter": 3,
+   "newlyMakeable": [
+    "flammkuchen"
+   ]
+  },
+  {
+   "step": 27,
+   "unlockIngredients": [
+    "arugula"
+   ],
+   "requiredDiscoveryCount": 27,
+   "priceTier": "T3",
+   "packPrice": 100,
+   "refillPrice": 50,
+   "keyRecipe": "jamon-serrano-pizza",
+   "keyRecipeChapter": 3,
+   "newlyMakeable": [
+    "jamon-serrano-pizza"
+   ]
+  },
+  {
+   "step": 28,
+   "unlockIngredients": [
+    "shrimp"
+   ],
+   "requiredDiscoveryCount": 28,
+   "priceTier": "T3",
+   "packPrice": 100,
+   "refillPrice": 50,
+   "keyRecipe": "pesto-gamberi",
+   "keyRecipeChapter": 3,
+   "newlyMakeable": [
+    "pesto-gamberi"
+   ]
+  },
+  {
+   "step": 29,
+   "unlockIngredients": [
+    "chicken"
+   ],
+   "requiredDiscoveryCount": 29,
+   "priceTier": "T3",
+   "packPrice": 100,
+   "refillPrice": 50,
+   "keyRecipe": "pesto-pollo",
+   "keyRecipeChapter": 3,
+   "newlyMakeable": [
+    "pesto-pollo"
+   ]
+  },
+  {
+   "step": 30,
+   "unlockIngredients": [
+    "parsley"
+   ],
+   "requiredDiscoveryCount": 30,
+   "priceTier": "T4",
+   "packPrice": 120,
+   "refillPrice": 60,
+   "keyRecipe": "vongole",
+   "keyRecipeChapter": 4,
+   "newlyMakeable": [
+    "vongole"
+   ]
+  },
+  {
+   "step": 31,
+   "unlockIngredients": [
+    "bell-pepper",
+    "zucchini"
+   ],
+   "requiredDiscoveryCount": 31,
+   "priceTier": "T4",
+   "packPrice": 120,
+   "refillPrice": 60,
+   "keyRecipe": "pesto-vegetariana",
+   "keyRecipeChapter": 4,
+   "newlyMakeable": [
+    "pesto-vegetariana",
+    "ratatouille-pizza"
+   ]
+  }
+ ],
  "existingSaveNextUnlock": [
   {
    "discoveredCount": 0,
@@ -691,12 +806,110 @@
    "discoveredCount": 33,
    "makeable": 34,
    "slack": 0
+  },
+  {
+   "discoveredCount": 34,
+   "makeable": 34,
+   "slack": -1
   }
  ],
  "collisionAudit": {
   "population": 34,
   "pairs": 561,
   "exactCollisions": [],
+  "nestedIdentities": [
+   {
+    "subset": "bismarck",
+    "superset": "breakfast-pizza",
+    "extra": [
+     "bacon"
+    ],
+    "involvesWave2": false
+   },
+   {
+    "subset": "bismarck",
+    "superset": "pizza-portuguesa",
+    "extra": [
+     "black-olive",
+     "ham",
+     "onion"
+    ],
+    "involvesWave2": false
+   },
+   {
+    "subset": "funghi",
+    "superset": "capricciosa",
+    "extra": [
+     "black-olive",
+     "ham",
+     "oregano"
+    ],
+    "involvesWave2": false
+   },
+   {
+    "subset": "funghi",
+    "superset": "prosciutto-funghi",
+    "extra": [
+     "prosciutto-crudo"
+    ],
+    "involvesWave2": true
+   },
+   {
+    "subset": "margherita",
+    "superset": "melanzane-pizza",
+    "extra": [
+     "eggplant"
+    ],
+    "involvesWave2": false
+   },
+   {
+    "subset": "margherita",
+    "superset": "parmigiana-pizza",
+    "extra": [
+     "eggplant",
+     "parmigiano"
+    ],
+    "involvesWave2": false
+   },
+   {
+    "subset": "melanzane-pizza",
+    "superset": "parmigiana-pizza",
+    "extra": [
+     "parmigiano"
+    ],
+    "involvesWave2": false
+   },
+   {
+    "subset": "pepperoni",
+    "superset": "meat-lovers",
+    "extra": [
+     "bacon",
+     "ham",
+     "sausage"
+    ],
+    "involvesWave2": false
+   },
+   {
+    "subset": "salsiccia",
+    "superset": "meat-lovers",
+    "extra": [
+     "bacon",
+     "ham",
+     "pepperoni"
+    ],
+    "involvesWave2": false
+   }
+  ],
+  "nestedInvolvingWave2": [
+   {
+    "subset": "funghi",
+    "superset": "prosciutto-funghi",
+    "extra": [
+     "prosciutto-crudo"
+    ],
+    "involvesWave2": true
+   }
+  ],
   "d1Pairs": [
    {
     "a": "bismarck",
