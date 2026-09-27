@@ -73,6 +73,20 @@ describe("DinnerTargetRow (R27: a reference tap is not a selection)", () => {
   });
 });
 
+describe("DinnerTargetRow: the 🔍 見本 mark (OD-DUI-1a)", () => {
+  it("every chip carries one decorative 🔍, hidden from assistive tech; the button name stays 「○○の見本を見る」", () => {
+    render(<DinnerTargetRow run={run({ completedRecipeIds: ["margherita"] })} now={T0} onOpenReference={vi.fn()} />);
+    const lenses = screen.getAllByTestId("dinner-chip-lens");
+    expect(lenses).toHaveLength(4);
+    for (const lens of lenses) {
+      expect(lens).toHaveTextContent("🔍");
+      expect(lens.closest("[aria-hidden='true']")).not.toBeNull();
+    }
+    expect(screen.getByRole("button", { name: "ビスマルクの見本を見る" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "マルゲリータ（完成）の見本を見る" })).toHaveTextContent("✓");
+  });
+});
+
 describe("DinnerAttemptResultPanel", () => {
   it("TARGET_PASS: 「○○完成！」, the progress and 次のピザを作る", () => {
     const onNext = vi.fn();

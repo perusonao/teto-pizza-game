@@ -91,6 +91,9 @@ export function DinnerTargetRow({
               aria-label={`${item.nameJa}${item.completed ? "（完成）" : ""}の見本を見る`}
               data-testid={`dinner-chip-${item.recipeId}`}
             >
+              <span className="dinner-chip__lens" aria-hidden="true" data-testid="dinner-chip-lens">
+                {"\u{1F50D}"}
+              </span>
               <span className="dinner-chip__thumb" aria-hidden="true">
                 <TargetThumbnail recipeId={item.recipeId} />
                 {item.completed && <span className="dinner-chip__check">{"✓"}</span>}
