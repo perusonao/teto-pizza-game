@@ -365,7 +365,64 @@ so its scope can include the HV feedback. Candidates:
 
 No economy number changes in H3-4.
 
-## 15. Verdict
+## 15. Final Human Verification Gate (2026-09-27)
+
+### 15.1 HEADs
+
+| | SHA | Content |
+|---|---|---|
+| **Final code HEAD** | `5dc5f47`, code-identical to `9b3db21` | Every production/test/e2e file of H3-4 |
+| Docs-only HEADs after it | `1ef9b61` (the Owner Finding + the DH4 Fresh Design docs, Owner-approved in #251) and the commit recording this section | Docs only |
+
+Evidence on the code HEAD, not re-run here because the code is unchanged:
+
+- full Vitest 185 files / 3994 passed;
+- `tsc -b` / `oxlint` / build clean;
+- full Chromium E2E + Layout Contract (incl. DM-3R-0 LC-S1..S4): 175 passed, 0 failed;
+- WebKit CI green: run 36304820218 on `9a47b6e`, the same code;
+- Preview `109fe28` (source `5dc5f47`) smoke: all PASS (§10);
+- the 390×844 / 360×640 videos: PASS.
+
+### 15.2 Fresh overlap gate
+
+- **`origin/main`** is still `726b0ac`, so there is nothing to integrate. PR #251 is `mergeable_state: clean`.
+- **PR #252** (DM-3R-2, OPEN) touches `App.css`, `App.tsx`, `GameScreen.tsx` and `gameReducer.ts`.
+  - Its `App.css` change is an append after the hint-sheet block, with no `.hint-sheet*` selector.
+  - A trial `git merge-tree` of #251 + #252 has **no conflict**.
+  - The H3-3 authority and the DM-3R-0 Layout Contract are not touched by #251's code (HintSheet + `.hint-sheet*` only).
+- **PR #254** (DH4-1, OPEN): a trial merge with #251 has **no conflict**. No DH4 code is in #251.
+- Neither #252 nor #254 was pulled into #251.
+
+### 15.3 Gate items → evidence
+
+| # | Item | Evidence | Result |
+|---|---|---|---|
+| 1 | Normal paid hint: category, fact, Pitz, new-chip highlight | Unit OD-H3-4-9/2 + OD-H3-4-5; App purchase test; e2e purchase CTA; Preview smoke (120 → 115, one highlighted chip); video HV-2/3; the Owner's iPhone pass | PASS |
+| 2 | 0 Pitz, new save: no pre-request leak → GUIDANCE_ONLY → no charge → CTA stops | Unit "pre-request view identical whether a real fact is left or not"; App test (balance kept, disabled after guidance); e2e "cap paid"; smoke; video HV-9 | PASS |
+| 3 | 0 Pitz, legacy: a real fact at 「支払いずみ」, no charge, parity | App legacy H1 test (the chip +1, the balance kept, `discoveryHintPurchases` unchanged); smoke (chips 4 → 5, 130 Pitz kept); video HV-8 | PASS |
+| 4 | grandfatheredSteps as an archive, not priced or selectable | Unit OD-H3-4-4 ×2; smoke (the last element of the body); screenshots F/G/H | PASS |
+| 5 | Category = preference; fallback leaks no negative fact | Unit OD-H3-4-5; App fallback; smoke fallback | PASS |
+| 6 | 「？」 privacy + a fixed unused-category legend | Unit OD-H3-4-6 + the 24 × H0–H4 sweep; smoke legend | PASS |
+| 7 | Short viewports: scroll cue, every control and the CTA reachable, stage unmoved | The e2e geometry contract on N390 / N360 / S390 / S360 (+ safe-area) with preferences ≥ 44 px, the cue matching the body and the background unmoved; WebKit CI N/S; §9 measurements; the 360×640 video and smoke | PASS |
+| 8 | Near-miss: RESULT → 「ヒントを見る」, no unpaid fact leak | e2e `discovery-near-miss-result` (CI green); `resultNearMiss` / `nearMiss` not in the H3-4 diff | PASS |
+| 9 | Dinner: no Hint Sheet or purchase, no regression | The H3-4 code diff touches no reducer / GameScreen / App file. `isHintSheetVisible` is still `freeCook`-gated. Dinner blocks the purchase actions (`gameReducer.dinner.test.ts` "no hint purchase", H3-3 matrix 38). The Dinner suites are green in full Vitest on the code HEAD. | PASS |
+| 10 | Dex-0 Margherita onboarding unchanged | The TARGET branch is untouched; e2e "Dex 0 Margherita onboarding"; HintSheet target-view unit tests; video HV-1 | PASS |
+
+### 15.4 Human Verification result
+
+**H3-4 Human Verification PASS.** The Owner checked the Hint Sheet on an iPhone (Preview `109fe28`, source `5dc5f47`), and no H3-4 defect was reported.
+
+Real-device play revealed the need for **Deduction Hints**:
+
+- the topping / total count;
+- a non-name last hint (attribute).
+
+That is a **non-blocking Owner Finding** (§13). It was split into **Discovery Hint 4.0: Issue #253**, with its pure layer in **PR #254 (DH4-1)**. It is not implemented in, and not a blocker for, H3-4.
+
+## 16. Verdict
+
+> **Superseded by the final gate (§15): A. H3-4 HUMAN VERIFIED — READY TO MERGE.** The PR stays OPEN, pending the Owner's merge approval. The text below is the pre-HV verdict.
+
 
 **A. H3-4 READY FOR OWNER REVIEW.**
 
