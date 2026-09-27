@@ -141,7 +141,8 @@ def vertical_scroll(measure: dict, vp: str, recipes: int, ingredients: int, owne
     disc_h = (dex["discoveredCard"]["heightMin"] + dex["discoveredCard"]["heightMax"]) / 2
     client = dex["body"]["clientHeight"]
     gap = 10  # measured list gap (px) between Dex cards, approx.
-    chapters = 3 if recipes <= 25 else math.ceil(recipes / 25)
+    # The model's own declared chapter layout (CHAPTER_SIZES), never a derived guess.
+    chapters = len(CHAPTER_SIZES[recipes])
     header = 120 + chapters * 40
     dex_all_locked = header + (recipes - 1) * (locked_h + gap) + disc_h
     dex_half = header + recipes / 2 * (locked_h + gap) + recipes / 2 * (disc_h + gap)
@@ -198,9 +199,10 @@ def vertical_scroll(measure: dict, vp: str, recipes: int, ingredients: int, owne
 def dom_projection(measure: dict) -> dict:
     m = measure["viewports"]["390x844"]
     d11, d1 = m["dex_dex11"]["domElements"], m["dex_dex0"]["domElements"]
-    per_discovered = (d11 - d1) / 10  # 10 more discovered cards between the two saves
     per_locked = 7  # anonymous slot: card, icon, text, label, no, hint, CTA
-    base = d1 - per_locked * 24 - per_discovered
+    # dex11 - dex0 swaps 10 locked cards for 10 discovered ones, so the delta is (discovered - locked) x 10.
+    per_discovered = (d11 - d1) / 10 + per_locked
+    base = d1 - per_locked * 24 - per_discovered  # dex0 = base + 24 locked + 1 discovered
     ps = m["pizzaSelect_dex11"]["domElements"]
     per_ps_card = round((ps - 40) / 11, 1)
     return {

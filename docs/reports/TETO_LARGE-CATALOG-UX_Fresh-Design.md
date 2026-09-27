@@ -585,7 +585,7 @@ Dex（LC-6）はレシピ数 > 約 40 より前。Shop / Inventory は材料 > �
 
 | 項目 | 現状 | 172/105 での見積もり | 推奨 |
 |---|---|---|---|
-| Dex DOM | 263 要素（dex11） | 全カード描画で約 1,000〜2,000 要素＋長大レイアウト | 章折りたたみで**閉じた章は mount しない**。開いた章のみタイル描画 |
+| Dex DOM | 263 要素（dex11） | 全カード描画で約 2,200 要素（発見済みカード 1 枚 ≈ 13 要素、172 枚全発見時）＋長大レイアウト | 章折りたたみで**閉じた章は mount しない**。開いた章のみタイル描画 |
 | Pizza Select DOM | 161 要素（11 枚、1 枚 ≈ 11 要素 + サムネ） | 約 1,900 要素 | 章折りたたみ＋`PizzaThumbnail` の遅延 mount（IntersectionObserver）。仮想化は不要な規模 |
 | Shop DOM | 356（26 行） | 約 1,400 | 既定は NEW + 在庫少のみ描画 |
 | `getIngredient` / `getRecipe` | `Array.find` 線形 | recipeDiscoveryState: 172 × 平均 5 材料 × 105 ≈ 9 万比較/描画 | `Map` 索引（pure 層で memo）。描画ごとの全再計算を `useMemo`（dex / owned / inventory 参照）で抑止 |

@@ -172,17 +172,17 @@
       "scale_172r_105i": {
         "dex": {
           "clientHeight": 552,
-          "allUndiscoveredPx": 19198,
-          "halfDiscoveredPx": 24265,
-          "allDiscoveredPx": 29382,
-          "screensHalfDiscovered": 44.0,
-          "screensAllDiscovered": 53.2,
+          "allUndiscoveredPx": 19078,
+          "halfDiscoveredPx": 24145,
+          "allDiscoveredPx": 29262,
+          "screensHalfDiscovered": 43.7,
+          "screensAllDiscovered": 53.0,
           "undiscoveredSlotsShown": 171
         },
         "pizzaSelect": {
           "clientHeight": 584,
-          "allDiscoveredPx": 16727,
-          "screensAllDiscovered": 28.6
+          "allDiscoveredPx": 16607,
+          "screensAllDiscovered": 28.4
         },
         "shop": {
           "clientHeight": 552,
@@ -230,17 +230,17 @@
       "scale_172r_105i": {
         "dex": {
           "clientHeight": 712,
-          "allUndiscoveredPx": 19198,
-          "halfDiscoveredPx": 24265,
-          "allDiscoveredPx": 29382,
-          "screensHalfDiscovered": 34.1,
-          "screensAllDiscovered": 41.3,
+          "allUndiscoveredPx": 19078,
+          "halfDiscoveredPx": 24145,
+          "allDiscoveredPx": 29262,
+          "screensHalfDiscovered": 33.9,
+          "screensAllDiscovered": 41.1,
           "undiscoveredSlotsShown": 171
         },
         "pizzaSelect": {
           "clientHeight": 744,
-          "allDiscoveredPx": 16727,
-          "screensAllDiscovered": 22.5
+          "allDiscoveredPx": 16607,
+          "screensAllDiscovered": 22.3
         },
         "shop": {
           "clientHeight": 712,
@@ -288,17 +288,17 @@
       "scale_172r_105i": {
         "dex": {
           "clientHeight": 756,
-          "allUndiscoveredPx": 19198,
-          "halfDiscoveredPx": 24265,
-          "allDiscoveredPx": 29382,
-          "screensHalfDiscovered": 32.1,
-          "screensAllDiscovered": 38.9,
+          "allUndiscoveredPx": 19078,
+          "halfDiscoveredPx": 24145,
+          "allDiscoveredPx": 29262,
+          "screensHalfDiscovered": 31.9,
+          "screensAllDiscovered": 38.7,
           "undiscoveredSlotsShown": 171
         },
         "pizzaSelect": {
           "clientHeight": 788,
-          "allDiscoveredPx": 16727,
-          "screensAllDiscovered": 21.2
+          "allDiscoveredPx": 16607,
+          "screensAllDiscovered": 21.1
         },
         "shop": {
           "clientHeight": 756,
@@ -316,8 +316,8 @@
     }
   },
   "domProjection": {
-    "dexPerDiscoveredCard": 5.9,
-    "dexAt172AllDiscovered": 1045,
+    "dexPerDiscoveredCard": 12.9,
+    "dexAt172AllDiscovered": 2242,
     "pizzaSelectPerCard": 11.0,
     "pizzaSelectAt172": 1932,
     "shopAt102Rows": 1397,
