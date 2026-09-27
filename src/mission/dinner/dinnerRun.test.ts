@@ -323,7 +323,7 @@ describe("separation from the Dex and from Lunch Rush (OD-DM-11 / architecture)"
 
   it("the Dinner modules import no Dex writer and nothing from Lunch Rush or the game reducer", () => {
     const sources = import.meta.glob<string>(["./*.ts", "!./*.test.ts"], { query: "?raw", import: "default", eager: true });
-    expect(Object.keys(sources).sort()).toEqual(["./dinnerMission.ts", "./dinnerResultDetection.ts", "./dinnerReward.ts", "./dinnerRun.ts", "./dinnerSession.ts"]);
+    expect(Object.keys(sources).sort()).toEqual(["./dinnerMission.ts", "./dinnerResultDetection.ts", "./dinnerReward.ts", "./dinnerRun.ts", "./dinnerSession.ts", "./dinnerSettlement.ts"]);
     for (const [file, source] of Object.entries(sources)) {
       const imports = source.split("\n").filter((line: string) => /^import |^} from /.test(line)).join("\n");
       expect(imports, file).not.toMatch(/lunchRush|gameReducer|persistence|registerScoreToDex/);
