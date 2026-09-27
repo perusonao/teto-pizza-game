@@ -297,7 +297,8 @@ export function guardedAnswerForParts(parts: ReserveParts): ReserveAttributeAnsw
 
 /**
  * OD-DH4-2-2: the player-facing 特徴 answer about the Rule W reserve, or `null` when the recipe is
- * not a target. Deterministic (any owned order or duplication), never a name or id, no count.
+ * not a target. Deterministic for a given acquisition order (T1a: the order matters; an untrusted
+ * order is not a target), never a name or id, no count.
  */
 export function guardedReserveAttributeAnswer(
   recipeId: unknown,

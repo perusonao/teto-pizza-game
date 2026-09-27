@@ -194,6 +194,8 @@ describe("Hardened guard: H completeness, H-only branches, fail closed", () => {
 });
 
 describe("T1a: synthetic families with the reserve bought last fail closed, and still leak nothing", () => {
+  // The onset-aware attacker check below is structurally 0 in these states (its universe is the
+  // reserve alone: the makeable moment already names it); the fail-closed answer is what is tested.
   it("every synthetic family: existence and no clause whenever the reserve was acquired after everything else", () => {
     let reserveLast = 0;
     for (const recipes of Object.values(FAMILIES)) {
@@ -209,15 +211,21 @@ describe("T1a: synthetic families with the reserve bought last fail closed, and 
     expect(reserveLast).toBeGreaterThan(100);
   }, 120_000);
   it("an onset-UNAWARE attacker can only single out a reserve that was acquired last (the makeable moment itself)", () => {
+    let found = 0;
     for (const recipes of Object.values(FAMILIES)) {
       for (const opts of [{}, { reserveLast: true }]) {
         for (const { recipe, owned, parts } of syntheticStates(recipes.filter((_, i) => i % 2 === 0), opts)) {
           const state = attackStateOf(recipe, parts.reserveId, owned);
           const leaks = endgameAttack(HARDENED, state, undefined, { onsetAware: false }).filter((r) => r.leak);
-          if (leaks.length > 0) expect(reserveAcquiredLast(state), recipe.requiredIngredients.map((r) => r.ingredientId).join(",")).toBe(true);
+          if (leaks.length > 0) {
+            found += 1;
+            expect(reserveAcquiredLast(state), recipe.requiredIngredients.map((r) => r.ingredientId).join(",")).toBe(true);
+          }
         }
       }
     }
+    // Not vacuous: the onset-unaware attacker does find these (and only these).
+    expect(found).toBeGreaterThan(0);
   }, 120_000);
 });
 

@@ -81,8 +81,17 @@ describe("P1-1 purchase timing, Owner Decision T1a", () => {
       if (timingAttack(DH4_2A, state, [decoy]).some((r) => r.leak)) dh42a += 1;
       if (timingAttack(HARDENED, state, [decoy]).some((r) => r.leak) || endgameAttack(HARDENED, state).some((r) => r.leak)) hardened += 1;
     }
-    expect(dh42a).toBe(85); // DH4-2A lacks the key rule too; the pre-T1a hardened guard leaked in 44
+    expect(dh42a).toBe(85); // DH4-2A lacks the key rule too
     expect(hardened).toBe(0);
+    // The pre-T1a hardened guard read today's inventory as a set, so it answered as if each decoy
+    // were owned from the start. That exact situation (the decoy early, the attacker knowing it was
+    // bought late) reproduces the review's 44.
+    let preT1a = 0;
+    for (const { s, decoy } of cases) {
+      const parts = targetReserveParts(s.recipeId, ctx(s.step, s.owned))!;
+      if (timingAttack(HARDENED, attackStateOf(recipeOf(s.recipeId), parts.reserveId, s.owned), [decoy]).some((r) => r.leak)) preT1a += 1;
+    }
+    expect(preT1a).toBe(44);
   }, 120_000);
 
   it("a late purchase never makes any answer stronger: the answer and the clause equal those without it", () => {

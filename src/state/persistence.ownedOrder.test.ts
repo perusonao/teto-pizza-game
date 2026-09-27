@@ -61,18 +61,30 @@ describe("ownedIngredientIds append-order invariant (T1a)", () => {
     expect(ownedAcquisitionOrder(loadSave(storage).ownedIngredientIds)).toEqual(ACQUIRED);
   });
 
-  it("unknown / future ids in between never reorder the known ids; they are carried to the end on write", () => {
+  it("unknown / future ids keep their acquisition position through a write by a build that does not know them", () => {
     const raw = [...STARTER_INGREDIENT_IDS, "pineapple", "future-truffle", "egg", "future-honey", "parmigiano"];
     const storage = memoryStorage({ [SAVE_STORAGE_KEY]: saveWith(raw) });
     const loaded = loadSave(storage).ownedIngredientIds;
     expect(loaded).toEqual([...STARTER_INGREDIENT_IDS, "pineapple", "egg", "parmigiano"]);
-    // This build buys bacon; the write appends it and keeps the future ids (after the known ones:
-    // later, never earlier -- so T1a can only ever count them as acquired later, the safe side).
+    // This build buys bacon: the write keeps every stored id where it was and appends bacon.
     persistProgress(progress([...loaded, "bacon"]), storage);
-    const stored = storage.json().ownedIngredientIds as string[];
-    expect(stored.filter((id) => !id.startsWith("future-"))).toEqual([...STARTER_INGREDIENT_IDS, "pineapple", "egg", "parmigiano", "bacon"]);
-    expect(stored.filter((id) => id.startsWith("future-"))).toEqual(["future-truffle", "future-honey"]);
+    expect(storage.json().ownedIngredientIds).toEqual([...raw, "bacon"]);
+    // A second write (nothing new) keeps it exactly.
+    persistProgress(progress(loadSave(storage).ownedIngredientIds), storage);
+    expect(storage.json().ownedIngredientIds).toEqual([...raw, "bacon"]);
     expect(loadSave(storage).ownedIngredientIds).toEqual([...STARTER_INGREDIENT_IDS, "pineapple", "egg", "parmigiano", "bacon"]);
+  });
+
+  it("rollback scenario (independent review of #267): an id the older build does not know never moves behind a later purchase", () => {
+    // A newer build bought future-key, then parmigiano. An older build (future-key unknown to it)
+    // loads that save and buys bacon. future-key must stay before parmigiano and bacon, otherwise a
+    // target keyed on future-key would count them as owned when it became makeable (a late decoy).
+    const raw = [...STARTER_INGREDIENT_IDS, "egg", "future-key", "parmigiano"];
+    const storage = memoryStorage({ [SAVE_STORAGE_KEY]: saveWith(raw) });
+    persistProgress(progress([...loadSave(storage).ownedIngredientIds, "bacon"]), storage);
+    const stored = storage.json().ownedIngredientIds as string[];
+    expect(stored).toEqual([...raw, "bacon"]);
+    expect(stored.indexOf("future-key")).toBeLessThan(stored.indexOf("parmigiano"));
   });
 
   it("normalization never sorts: junk is dropped, a duplicate keeps its first acquisition, starters lead", () => {

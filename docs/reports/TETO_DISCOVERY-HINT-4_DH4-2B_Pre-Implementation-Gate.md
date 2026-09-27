@@ -196,7 +196,7 @@ The review ran full Vitest (4143 passed) and wrote its own attacker code. It fou
 
 | Option | What it does | Usefulness (300-state ladder model: states with an informative 特徴) | Persistence | Privacy |
 |---|---|---|---|---|
-| **T1. Snapshot at makeable** (recommended) | H and the DH4-1 decoys come from the owned set **at the moment the target became makeable**, not from today's inventory. | **177 / 300**, the same as now: in the ladder model nothing bought later ever counted | **T1a:** derived from the order of `ownedIngredientIds`. It is append order today (starters first, then purchases; Firebase merge appends), so there is **no schema change**. The order becomes a guaranteed contract, pinned by tests.<br>**T1b:** a stored per-target snapshot (schema addition, migration) | Closes P1-1. A player's timing knowledge (what they owned when the target appeared) is exactly the snapshot. |
+| **T1. Snapshot at makeable** (recommended) | H and the DH4-1 decoys come from the owned set **at the moment the target became makeable**, not from today's inventory. | **177 / 300**, the same as now: in the ladder model nothing bought later ever counted | **T1a:** derived from the order of `ownedIngredientIds`. It is append order today (starters first, then purchases; the localStorage forward-compat merge appends), so there is **no schema change**. The order becomes a guaranteed contract, pinned by tests.<br>**T1b:** a stored per-target snapshot (schema addition, migration) | Closes P1-1. A player's timing knowledge (what they owned when the target appeared) is exactly the snapshot. |
 | T2. Restrictive, pure | Informative 特徴 and the clause only when **nothing was acquired after the latest known-part ingredient**; otherwise existence (free) | **13 / 300** (only the step where the target became makeable) | none | Closes P1-1 |
 | T3. Accept | Keep today's inventory as H; document P1-1 as accepted interaction inference | 177 / 300 | none | 44+ named states in 3 recipes |
 
@@ -208,7 +208,7 @@ The review ran full Vitest (4143 passed) and wrote its own attacker code. It fou
 **Recommendation: T1a.**
 - It keeps the Owner-decided usefulness.
 - It needs no schema change.
-- The ordering contract gets tests: purchase appends, load keeps order, the Firebase merge appends.
+- The ordering contract gets tests: purchase appends, load keeps order, the localStorage forward-compat merge appends.
 
 ## 10. Verdict
 
@@ -237,7 +237,7 @@ The review ran full Vitest (4143 passed) and wrote its own attacker code. It fou
 | `applyStarterGrants` | A Set in insertion order, so a grant appends | same |
 | `sanitizeOwnedIngredientIds` (load / persist) | Drops non-string and non-catalog ids, keeps the first occurrence of a duplicate, puts the starters first. **Never sorts.** | same; mutant T8 (a sort on load) is killed |
 | `migrateV1toV2` | Copies the list | same |
-| Forward-compat merge (`writeSave`) | Unknown / future ids are carried **after** the known ids. So an old build can only move a future id *later*, never earlier: T1a then counts it as acquired later, which is the safe side. | same |
+| Forward-compat merge (`writeSave`, localStorage) | **Fixed in this PR (Codex P1 / independent review P2-1).** `mergeOwnedOrder` keeps the stored order as it is, with ids this build does not know left in their acquisition position, and appends only new ids.<br>The old merge carried unknown ids *after* every known id. Moving a **known-part** id (a key) later pulls later purchases into the makeable prefix, which reopened P1-1 after a rollback. | same (exact positions, rollback scenario); mutant killed |
 | The invariant, at its source | Documented on `sanitizeOwnedIngredientIds` | `persistence.ts` |
 
 ### 11.2 The rule (`deductionGuard.ts`)
@@ -259,6 +259,10 @@ The review ran full Vitest (4143 passed) and wrote its own attacker code. It fou
   - An onset-unaware attacker can single out a reserve **only** in that reserve-last case. A test pins this: every onset-unaware leak is a reserve-last state.
   - It never happens on the 300 runtime ladder states, where the key is acquired last.
 
+**Further residuals (independent review of `ed6f2ac`, P3):**
+- **A starter added in a future catalog** would read as owned from time 0. The invariant therefore adds a catalog rule: the starter set never grows. A new starter needs its own migration decision.
+- **Two tabs writing at once** can lose a purchase, an older behaviour of `persistProgress`. Buying it again places it later, with the same effect as a moved id. This is an edge case, recorded.
+
 ### 11.3 Owner checklist
 
 | # | Requirement | Result |
@@ -278,7 +282,7 @@ The review ran full Vitest (4143 passed) and wrote its own attacker code. It fou
 | 13 | P2-2 option C: 0 leaks | Kept (TC-G H-only tests, synthetic 「0」 inference 0) |
 | 14 | Reserve-unowned / `NOT_A_TARGET` fail closed | Kept (gate + request tests) |
 
-**Mutation gate: 24 / 24 killed.**
+**Mutation gate: 25 / 25 killed.** (After the review round, W1 was added: the writer moving unknown ids to the end.)
 - The 16 earlier mutants.
 - Eight new T1a mutants:
   - no prefix (today's inventory);
@@ -291,7 +295,7 @@ The review ran full Vitest (4143 passed) and wrote its own attacker code. It fou
   - load sorting owned.
 
 **Verification on this head:**
-- Full Vitest: 199 files, **4159 passed**, 1 skipped.
+- Full Vitest: 199 files, **4160 passed**, 1 skipped (after the review round).
 - `tsc -b` clean; `oxlint` 0 warnings; `npm run build` OK.
 - 0 DH4 strings in `dist`.
 
@@ -301,6 +305,6 @@ The review ran full Vitest (4143 passed) and wrote its own attacker code. It fou
 |---|---|---|
 | Untrusted order in memory (not an array, junk, a duplicate, a starter after a purchase) | Never from a loaded save, which load normalizes | `NOT_A_TARGET`: no answer, no clause, no total, no charge |
 | The reserve was the last recipe ingredient acquired | A player buys the reserve after every other ingredient, key included | 特徴: `EXISTENCE_ONLY` (free, nothing stored). 構成: the total only, no clause. |
-| A future id moved later by an old build's write | Mixed-build saves | It only ever counts as acquired later: fewer decoys, never more |
+| A save written by a build from **before** this PR while it held unknown ingredient ids | Only after a rollback to such a build. No shipped build has ever written an unknown ingredient id: Preview uses its own save key, and no newer catalog has shipped. | **Residual.** Those builds moved unknown ids to the end. From this PR on, the merge keeps positions. |
 
 **Verdict: B. READY AFTER SMALL PURE FIX.** The fix is this PR. After its review, CI and merge: **A. READY FOR DH4-2B.**
