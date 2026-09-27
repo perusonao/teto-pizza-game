@@ -105,6 +105,8 @@ test.describe("Dinner Mission DM-3R-2", () => {
     }
     await expect(overlay(page)).toContainText("DINNER CLEAR!");
     await expect(overlay(page)).toContainText("4 / 4");
+    // OD-DUI-3a: the last pizza by name and ★, not a result headline.
+    await expect(page.getByTestId("dinner-result-last")).toHaveText(new RegExp(`^最後のピザ：${order[order.length - 1][1]} ★[1-5]$`));
     const after = await readSave(page);
     expect(after.dex).toEqual(before.dex);
     expect(after.pitzBalance).toBe(before.pitzBalance);
@@ -121,7 +123,8 @@ test.describe("Dinner Mission DM-3R-2", () => {
     await nextDinnerPizza(page);
     await cookDinnerPizza(page, "bismarck");
     await expect(overlay(page)).toContainText("材料が足りなくなりました");
-    await expect(overlay(page)).toContainText("最後のピザ：これはもう完成済み！");
+    await expect(overlay(page)).toContainText("最後のピザ：ビスマルク");
+    await expect(overlay(page)).not.toContainText("これはもう完成済み！");
     await expect(overlay(page)).toContainText("たまご 必要 1 / 所持 0");
     expect((await readSave(page)).inventory.egg).toBe(0); // nothing refunded
     await expect(overlay(page).getByRole("button", { name: "もう一度" })).toBeDisabled();
@@ -160,12 +163,27 @@ test.describe("Dinner Mission DM-3R-2", () => {
     await expect(result(page)).toHaveAttribute("data-category", "QUALITY_FAIL");
     await expect(result(page)).toContainText("もう少し丁寧に作ろう");
     await expect(result(page)).toContainText("合格は★5以上");
+    await expect(page.getByTestId("dinner-attempt-gap")).toHaveText(/^あと★[1-4]$/);
     await nextDinnerPizza(page);
     await cookDinnerPizza(page, "bismarck", { underbake: true });
     await expect(result(page)).toHaveAttribute("data-category", "INVALID_PIZZA");
     await expect(result(page)).toContainText("生焼け");
+    // Issue #256: the bake failed the Completion Gate, so no CUT step came before the result.
+    await expect(page.getByRole("button", { name: /切り終わる/ })).toHaveCount(0);
     await expect(result(page)).toContainText("完成 0 / 4");
     expect((await readSave(page)).inventory.egg).toBe(3);
+  });
+
+  test("#256: a burnt margherita (identified CUT recipe) gets INVALID_PIZZA at 取り出す, with no CUT", async ({ page }) => {
+    test.setTimeout(120_000);
+    await start(page, dinnerSave([...DM_A]));
+    await cookDinnerPizza(page, "margherita", { overbake: true });
+    await expect(result(page)).toHaveAttribute("data-category", "INVALID_PIZZA");
+    await expect(result(page)).toContainText("焦げてしまいました");
+    await expect(page.getByRole("button", { name: /切り終わる/ })).toHaveCount(0);
+    await expect(result(page)).toContainText("完成 0 / 4");
+    // Not stuck: the next pizza starts.
+    await nextDinnerPizza(page);
   });
 
   test("R20: the clock reaching 0 -> 時間切れ", async ({ page }) => {

@@ -5833,6 +5833,14 @@ p.hint-sheet__step {
   text-align: center;
 }
 
+/* OD-DUI-5a: the ★ gap to the injected S, right under the result line (QUALITY_FAIL only). */
+.dinner-attempt__gap {
+  font-size: 15px;
+  font-weight: 900;
+  color: #c2410c;
+  text-align: center;
+}
+
 .dinner-attempt__progress {
   font-size: 13px;
   font-weight: 700;
