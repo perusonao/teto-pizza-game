@@ -2,7 +2,8 @@
 
 - **Lane:** D (Dinner only). Independent of DH4-x / HintSheet / Recipe Taxonomy lanes.
 - **Scope guard:** no production code changed, nothing merged. PR #252, #243 and #242 are untouched. No production deploy.
-- **Verdict:** **A. DINNER PREVIEW READY FOR OWNER HUMAN VERIFICATION**
+- **Verdict (prep):** **A. DINNER PREVIEW READY FOR OWNER HUMAN VERIFICATION**
+- **Owner iPhone HV (round 1):** recorded in §9. PASS for the items run. Several items are still unverified, so #252 is **not merge-ready yet** (§9.6).
 - Captured: 2026-09-27 (UTC ~10:40–10:50)
 
 ## 1. Fresh GitHub Gate
@@ -91,7 +92,7 @@ Recommended order: 通常セーブ + HV-normal (D1–D6, D8, D10, D12), then HV-
 | HV-D3 Auto result | P0 | Make any target with no selection | No recipe name appears before or during BAKE / CUT. The result appears only when the pizza is finished. TARGET_PASS feels good. The chip gets ✓. 「次のピザを作る」 is natural. |
 | HV-D12 CLEAR | P0 | Finish all 4 | DINNER CLEAR feels good. 「最後のピザ：○○完成！」 and the clear time show. Next steps (もう一度 / ホーム) are clear. Reward tiers are unimplemented — does it feel too placeholder-like? |
 | HV-D4 Free order | P1 | Make the targets in a different order from the list | Any order CLEARs. You decide the next pizza yourself. |
-| HV-D8 Invalid | P1 | Take a target out far too early (raw) or late (burnt) | **The CUT step still comes, then 「ピザとして完成しませんでした」.** Does cutting a failed pizza feel wrong? (Owner Finding candidate) |
+| HV-D8 Invalid | P1 | Take a target out far too early (raw) or late (burnt) | Ends in 「ピザとして完成しませんでした」. **Whether CUT comes first depends on the composition, not on raw vs burnt (see §9.3).** If it identifies as a CUT recipe, CUT comes first; if it identifies as nothing, there is no CUT. Does cutting a failed pizza feel wrong? (Owner Finding candidate) |
 | HV-D6 Duplicate | P1 | Make an already-✓ target again | 「これはもう完成済み！」, the ✓ count does not rise, ingredients are used. Is the reason clear? |
 | HV-D5 ORIGINAL | P1 | Make hawaiian (ham 2 + pineapple 3, mozzarella 2). Optionally marinara (garlic 3 + oregano 2, no cheese) | Hawaiian shows 「オリジナルピザ！」 and never the name 「ハワイアン」. No Dex / Pitz change. No target progress. Marinara is named (NON_TARGET). |
 | HV-D10 HOME abandon | P1 | During cooking: ホーム → 続ける, then ホーム → やめる | The in-app dialog shows. Cooking is frozen behind it, and the timer keeps running. 続ける resumes. やめる returns HOME with no reward. |
@@ -116,7 +117,7 @@ Recommended order: 通常セーブ + HV-normal (D1–D6, D8, D10, D12), then HV-
 
 | # | risk | class |
 |---|---|---|
-| 1 | A raw / burnt pizza of a CUT recipe goes through CUT, then gets INVALID. | **Owner decision via HV-D8 / Q9.** Non-blocking for HV. If the Owner rejects it, it becomes a blocking defect for #252, or a separate DM-3R-1 Stage B order change. |
+| 1 | A raw / burnt pizza **whose composition Stage A identifies as a CUT recipe** goes through CUT, then gets INVALID. A composition that identifies as nothing gets no CUT and INVALID straight after 取り出す. This is the case the Owner saw on iPhone (§9.3). | **Owner decision via HV-D8 / Q9.** Non-blocking for HV. If the Owner rejects it, it becomes a blocking defect for #252, or a separate DM-3R-1 Stage B order change. |
 | 2 | The presence of CUT (the 「カット」 tab is shown during BAKE) implies "some CUT recipe matched". It never names the recipe. | non-blocking (inherent to the DM-3R-1 authority) |
 | 3 | 30px thumbnails look alike. | non-blocking; HV-D2 / Q6 |
 | 4 | The official minimumStars is undecided. | DM-5 deferred |
@@ -182,3 +183,132 @@ Video Verification: PASS. The file exists, ffprobe reads H.264 390×844 40.2 s, 
 - The site/ JS / CSS match a local `VITE_PREVIEW_MODE=1 VITE_PREVIEW_PR=252 VITE_PREVIEW_SHA=7a18e29` build byte for byte. Only `index.html` and the manifest differ, from the workflow's noindex and scope post-processing.
 
 The live page itself is to be confirmed by the Owner on iPhone.
+
+## 9. Owner iPhone Human Verification — round 1 (2026-09-27)
+
+- **Device:** iPhone Safari.
+- **Preview build:** PR #252, code `7a18e29`. The Owner confirmed the badge 「PREVIEW · PR#252 · 7a18e29」 on the device.
+
+### 9.1 Confirmed on iPhone (Owner)
+
+| item | result | Owner observation |
+|---|---|---|
+| Entry / START (HV-D1) | PASS | Dinner Mission 1 → START goes straight to cooking. No pizza is chosen first. |
+| Automatic result-detection flow (HV-D3 core) | PASS | Pizzas are judged at the finish, with no declaration. |
+| CLEAR (HV-D12) | PASS | 「DINNER CLEAR! / 作ったピザ 4 / 4 / クリアタイム 02:34 / 最後のピザ：ブレックファストピザ完成！」. 「もう一度」 and 「ホーム」 show. |
+| Burnt INVALID (HV-D8, burnt only) | PASS | 「ピザとして完成しませんでした / 焦げてしまいました / 完成 0 / 4」 |
+| Burnt pizza: no CUT before INVALID (this attempt) | PASS as observed | BAKE → 取り出す → INVALID → 次のピザ. CUT was not asked. The general behaviour is in §9.3. |
+| QUALITY_FAIL ★4 (HV-D7) | PASS | `dinnerMinStars=5`. A correctly built margherita: 「★4（合格は★5以上）」 / 「もう少し丁寧に作ろう」 / 「完成 0 / 4」 / 「次のピザを作る」 |
+| QUALITY_FAIL ★3 (HV-D7) | PASS | Another attempt: ★3, the same outcome |
+| The completion count does not rise on a failure | PASS | It stays 0 / 4. |
+| The Dinner timer keeps running after a failed attempt | PASS | |
+
+These attempts confirm three behaviours:
+- The recipe identity was correct (「マルゲリータ」).
+- The quality threshold failed as expected.
+- The run continued.
+
+### 9.2 Not yet verified on iPhone
+
+Each item below is untested on iPhone. No PASS is implied.
+
+- **Target-row reference UX** (HV-D2): chip tap = 見本 only, 30px thumbnails, Q2 / Q3 / Q6.
+- **Arbitrary-order UX in detail** (HV-D4, Q1 / Q5). The CLEAR run was made in some order, but the order was not an explicit check.
+- **Raw / undercooked INVALID** (HV-D8, raw). It is deliberately not folded into the burnt PASS.
+- **Burnt pizza with a composition that identifies as a CUT recipe:** does CUT come first? (§9.3)
+- DUPLICATE_TARGET (HV-D6)
+- ORIGINAL / NON_TARGET (HV-D5)
+- HOME abandon (HV-D10)
+- INFEASIBLE (HV-D9)
+- TIME_UP (HV-D11)
+- Q10: no 「ヒント」 wording in Dinner. Not reported either way.
+
+### 9.3 Correction: "raw / burnt always goes through CUT"
+
+The earlier wording in §5 HV-D8 said a raw or burnt pizza still gets the CUT step. The Owner's burnt pizza got no CUT. Both statements are true for different compositions. The rule is below.
+
+**Code (`7a18e29`):**
+- `planDinnerBake` (`src/mission/dinner/dinnerResultDetection.ts`) fixes the CUT step at **START_BAKE**, from the composition alone. `bakeResult` does not exist yet at that point.
+- When the composition identifies as a recipe with a CUT profile (24 of 25 recipes), CUT follows BAKE.
+- No match, an ambiguous match, or a no-CUT recipe (New Haven) gets the generic window and **no CUT**. The result is resolved right at CONFIRM_BAKE (`dinnerGuardedReducer`).
+- Nothing in the Dinner path looks at raw vs burnt before deciding on CUT. Raw and burnt are classified afterwards, in Stage B (`INVALID_PIZZA`).
+
+**Automated re-check on the deployed Preview bytes** (`4e29ac4` site/, 390×844, Chromium, real gestures):
+
+| composition | bake | CUT asked? | result |
+|---|---|---|---|
+| funghi (CUT recipe) | burnt | yes | INVALID 「焦げてしまいました」 |
+| margherita (CUT recipe) | burnt | yes | INVALID 「焦げてしまいました」 |
+| funghi (CUT recipe) | raw | yes | INVALID 「生焼けでした」 |
+| funghi + egg (matches nothing) | burnt | **no** | INVALID 「焦げてしまいました」 |
+
+**Conclusion:**
+- The Owner's observation (BAKE → 取り出す → INVALID, no CUT) is the **no-identification** path. The composition of that pizza did not identify as a single CUT recipe.
+- It is **not** a general rule that burnt pizzas skip CUT.
+- A burnt or raw pizza whose composition *does* identify as a CUT recipe is still cut before INVALID. That is residual risk 1, still open and Owner-decision.
+- The iPhone screenshots cannot tell which ingredients that pizza had. So this report does not claim the burnt pizza was a specific recipe.
+
+**Recorded as:**
+- Burnt INVALID: PASS
+- Burnt without CUT: PASS as observed (no-identification path)
+- Burnt / raw of an identified CUT recipe → CUT → INVALID: not yet seen on iPhone; still the Owner's Q9 decision
+- Raw INVALID: not verified on iPhone
+
+### 9.4 Is the pizza cut part of the ★? (Owner question; code-verified)
+
+**No. The cut does not enter Dinner's ★, for CUT or non-CUT recipes.**
+- **How the ★ is computed:** the internal `classify` in `dinnerResultDetection.ts` computes it as `toLegacyScoreBreakdown(computeScoringV2(recipe, pizza), pizza.bakeResult, recipe.bakeTarget).stars`.
+- **What that reads:** `computeScoringV2` reads only `PizzaState`: dough shape, sauce, toppings and `bakeResult`. Its components are Sauce 52 / Pieces 16 / Recipe 12 / Bake 20, times the quantity factor Q. `capStarsForBake` then turns a ★5 into ★4 unless the bake is `perfect`. So even a pizza that scores ★5 shows ★4 whenever its bake is not perfect.
+  - `PizzaState` has no cut data. Cut lines live in the separate `cutState`, and nothing in `src/logic/scoringV2/` reads them.
+- **What the cut does in Dinner:** `resolveDinnerAttempt` receives only `cutCompleted: boolean`. It is a gate: a CUT recipe cannot resolve before the CUT confirm (`CUT_PENDING`). How well it was cut is never passed in.
+- **`evaluateCut`'s `cutScore`:** a standalone preview metric. `gameReducer.cutStep.test.ts` #26 pins that "Scoring 2.0 total is never perturbed by cutState / cutScore".
+- **Non-CUT recipes:** same formula, same ★, just no gate.
+- **So the Owner's ★3 / ★4 QUALITY_FAIL did not come from the cut.** The source is in sauce, pieces, recipe, bake, the quantity factor or the bake cap. Which one cannot be read from the result screen, which shows only ★ and the threshold. This report does not name a cause. The ★4 could be the bake cap alone, or lower component scores; the screen cannot tell.
+
+### 9.5 New findings (round 1)
+
+| # | finding | class |
+|---|---|---|
+| F1 | 「最後のピザ：○○完成！」 has not been checked with a long pizza name | non-blocking follow-up (UI polish). The longest current DM-A name, 「ブレックファストピザ」, fit on iPhone. |
+| F2 | 「DINNER CLEAR!」 is English while the rest is Japanese | non-blocking (UI polish) |
+| F3 | 「もう少し丁寧に作ろう」 does not say what to improve for ★5 | non-blocking. DM-5 / UI polish candidate: a gap display (「あと★1」 / 「マルゲリータ ★4 / 合格 ★5」), and possibly the single largest improvement point if the scoring authority can expose it safely. |
+| F4 | The HV-D8 wording in this report was imprecise (§9.3) | fixed in this report. No code change. |
+
+### 9.6 Merge readiness: remaining Owner HV, reclassified
+
+**Automated coverage** (at `7a18e29`; the Dinner E2E also runs in CI WebKit 390×844 / 360×800):
+
+| item | unit (reducer / pure) | Chromium + WebKit E2E | screenshot |
+|---|---|---|---|
+| DUPLICATE_TARGET | R6, R17 | R6/R18 (duplicate → INFEASIBLE) | hv-prep `result-duplicate` |
+| INFEASIBLE | R18, over-placement ×2 | R6/R18 (need / have, retry disabled, no refund) | `after-failed-infeasible-duplicate`, hv-prep `infeasible` |
+| TIME_UP | R20 (bake / CUT after 0 changes nothing) | R20 (clock → 時間切れ → HOME) | `after-failed-timeup`, hv-prep `timeup` |
+| HOME abandon | R26, the "nothing cooks behind the dialog" test | R26 (in-app dialog, 続ける / やめる, no `window.confirm`) | hv-prep `abandon-dialog` |
+| raw INVALID | R9 / R10 | R5/R9 (raw bismarck → INVALID) | `after-result-invalid`, hv-prep `invalid-after-cut` |
+| ORIGINAL | R8 | R7/R8/R13 (full DOM sweep during BAKE / CUT / result) | `after-result-original` |
+| target-row reference | R27 (unit + App) | R1/R27 (a chip opens 見本 only) | `after-reference-popover` |
+
+**Proposal:**
+
+- **Required before merge (Owner):**
+  1. **Target-row reference UX** (HV-D2 / Q2 / Q3 / Q6).
+     - Tests only prove that a chip selects nothing. They cannot tell whether a player reads the chip as a selection, or whether 30px thumbnails work on the device.
+     - This is the core of OD-R7 and the only UI concept #252 introduces that has no human sign-off yet.
+  2. **Q9 decision: CUT before INVALID on a raw / burnt pizza that identifies as a CUT recipe.**
+     - The quick check: build a correct target, burn or under-bake it, then see CUT, then INVALID.
+     - This also covers raw INVALID on iPhone.
+     - If the Owner rejects the behaviour, the fix changes #252 / DM-3R-1 Stage B order. So the decision has to come before merge. The check itself is one pizza.
+  3. **HOME abandon (HV-D10), short.**
+     - It is the one destructive action, and the review fix `7a18e29` (freezing touch input behind the dialog) is about real touch gestures. Chromium pointer events are not a full stand-in for that.
+     - About 30 seconds: 続ける once, やめる once.
+- **Non-blocking / follow-up (optional on iPhone):**
+  - DUPLICATE_TARGET, INFEASIBLE, TIME_UP.
+    - Each is covered by unit tests plus Chromium and WebKit E2E, with screenshots.
+    - Their copy is simple, and none carries an open design question.
+    - A feel check can ride along with any later HV (for example DM-4 / DM-5).
+  - ORIGINAL: privacy is covered by the E2E DOM sweep.
+  - Arbitrary-order detail (HV-D4): the CLEAR run and E2E R3/R4 already cover the behaviour.
+  - F1–F3.
+- **Blocking defects found so far:** none.
+
+**PR #252 merge readiness:** **not yet.** It is waiting on items 1–3 above. CI is green, there are no open review threads, the branch is clean against its base, and the trial merge with main `5a33d85` passes (§2). #252 stays OPEN. #243 / #242 stay OPEN. DM-4 / DM-5 are not started.
