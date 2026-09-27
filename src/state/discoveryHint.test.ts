@@ -9,10 +9,13 @@ import {
   autoHintIndex,
   hintSheetView,
   isHintSheetVisible,
+  purchaseSelectableHintFact,
   resolveHintSession,
   unlockNextHint,
   type DiscoveryHintState,
+  type HintSheetView,
 } from "./discoveryHint";
+import { buildSelectableHintModel, type HintCategory } from "../logic/discovery/selectableHint";
 import { resolveShopEntitlement } from "./materialEntitlement";
 
 const LADDER_ORDER = ["margherita", ...W1_25_DISCOVERY_LADDER.steps.map((s) => s.keyRecipeId)];
@@ -42,6 +45,7 @@ function ladder(count: number, newest: "bought" | "not-bought" | "stock-0" = "bo
     hintSession: null,
     pitzBalance: 1000,
     discoveryHintPurchases: {},
+    discoveryHintFacts: {},
   };
 }
 
@@ -56,6 +60,22 @@ function play(state: DiscoveryHintState, times: number): DiscoveryHintState {
 function nextLevel(s: DiscoveryHintState): number {
   const view = hintSheetView(s);
   return view.kind === "TARGET" ? (view.next?.level ?? view.steps.at(-1)!.level + 1) : 1;
+}
+
+/** Opens the sheet on today's target (SHOW_HINT's session resolve). */
+function open(state: DiscoveryHintState): DiscoveryHintState {
+  return { ...state, hintSession: resolveHintSession(state) };
+}
+
+function selectable(s: DiscoveryHintState): Extract<HintSheetView, { kind: "SELECTABLE" }> {
+  const view = hintSheetView(s);
+  if (view.kind !== "SELECTABLE") throw new Error(`expected SELECTABLE, got ${view.kind}`);
+  return view;
+}
+
+/** One PURCHASE_SELECTABLE_HINT as the sheet sends it (a rejection changes nothing). */
+function buy(s: DiscoveryHintState, preference: HintCategory = "sauce"): DiscoveryHintState {
+  return { ...s, ...purchaseSelectableHintFact(s, preference, selectable(s).presentation.paidCount) };
 }
 
 describe("resolveHintSession", () => {
@@ -84,57 +104,58 @@ describe("resolveHintSession", () => {
   });
 });
 
-describe("unlockNextHint / hintSheetView (H1 -> H4)", () => {
-  it("each unlock adds exactly one level, in order, then stops at the last one", () => {
-    const base = ladder(2); // breakfast-pizza
-    const all = buildHintSteps(recipe("breakfast-pizza"), { discoveredCount: 2 });
-    const prices = [5, 10, 20, 40];
+describe("purchaseSelectableHintFact / hintSheetView (Hint 3.0, H3-3)", () => {
+  it("each purchase adds exactly one fact at 5/10/20/40 (capped), then answers GUIDANCE_ONLY", () => {
+    const base = open(ladder(2)); // breakfast-pizza
+    const model = buildSelectableHintModel("breakfast-pizza", { discoveredCount: 2 })!;
+    let s = base;
     let spent = 0;
-    for (let n = 0; n < all.length; n += 1) {
-      const view = hintSheetView(play(base, n));
-      const last = n === all.length - 1;
-      expect(view).toEqual({
-        kind: "TARGET",
-        steps: all.slice(0, n + 1),
-        canRevealMore: !last,
-        next: last ? null : { level: n + 1, price: prices[n], free: false, affordable: true },
-        pitzBalance: 1000 - spent,
-      });
-      if (!last) spent += prices[n];
+    for (let n = 0; n < model.purchasableFacts.length; n += 1) {
+      const before = selectable(s);
+      expect(before.presentation.paidCount).toBe(n);
+      const price = Math.min([5, 10, 20, 40][Math.min(n, 3)], model.priceCap - spent);
+      expect(before.presentation.nextPrice).toBe(price);
+      s = buy(s);
+      spent += price;
+      expect(s.pitzBalance).toBe(1000 - spent);
+      expect(s.discoveryHintFacts["breakfast-pizza"]).toHaveLength(n + 1);
+      expect(s.discoveryHintPurchases).toEqual({});
     }
-    const atMax = play(base, all.length - 1);
-    expect(unlockNextHint(atMax, 5)).toBeNull();
-    expect(unlockNextHint(atMax, 4)).toBeNull();
-    expect(hintSheetView(play(base, all.length + 5))).toEqual(hintSheetView(atMax));
+    expect(spent).toBeLessThanOrEqual(model.priceCap);
+    const done = s;
+    const patch = purchaseSelectableHintFact(done, "sauce", selectable(done).presentation.paidCount);
+    expect(patch).toEqual({ hintOutcome: "GUIDANCE_ONLY" });
+    expect(selectable({ ...done, ...patch }).outcome).toBe("GUIDANCE_ONLY");
   });
 
-  it("at Dex >= 1 the full answer is never shown, however often next is pressed (every ladder step)", () => {
+  it("at Dex >= 1 the full answer is never shown, however often a fact is bought (every ladder step)", () => {
     for (let count = 1; count < 25; count += 1) {
-      const view = hintSheetView(play(ladder(count), 20));
-      if (view.kind !== "TARGET") throw new Error(`Dex ${count}: expected a target`);
-      const named = new Set(view.steps.flatMap((s) => (s.namedIngredientId ? [s.namedIngredientId] : [])));
+      let s = open(ladder(count));
+      for (let i = 0; i < 12; i += 1) s = buy(s, (["sauce", "cheese", "topping"] as const)[i % 3]);
+      const view = selectable(s);
+      const named = new Set(view.presentation.rows.flatMap((r) => r.revealed.map((c) => c.ingredientId)));
       const all = new Set(recipe(LADDER_ORDER[count]).requiredIngredients.map((r) => r.ingredientId));
       expect(named.size, `Dex ${count}`).toBe(all.size - 1);
-      expect(view.canRevealMore).toBe(false);
+      expect(s.discoveryHintPurchases).toEqual({});
     }
   });
 
-  it("H4 is one level: a single purchase shows every H4 line (still n-1 capped)", () => {
-    // capricciosa (Dex 11 -> 12) has three H4 lines.
-    const base = ladder(11);
-    expect(resolveHintSession(base)?.targetId).toBe("capricciosa");
-    const all = buildHintSteps(recipe("capricciosa"), { discoveredCount: 11 });
-    expect(all.filter((x) => x.level === 4).length).toBe(3);
-    const s = play(base, 4);
-    expect(s.discoveryHintPurchases).toEqual({ capricciosa: 4 });
-    expect(s.pitzBalance).toBe(1000 - 75);
-    expect(hintSheetView(s)).toMatchObject({ kind: "TARGET", steps: all, next: null });
+  it("the total spend never exceeds the recipe's Hint 2.0 cost (capricciosa: 75)", () => {
+    const base = open(ladder(11));
+    expect(base.hintSession?.targetId).toBe("capricciosa");
+    let s = base;
+    for (let i = 0; i < 12; i += 1) s = buy(s, "topping");
+    expect(1000 - s.pitzBalance).toBeLessThanOrEqual(75);
   });
 
-  it("no session -> the view still shows today's target at H0", () => {
+  it("no session -> the view still shows today's target at H0, only the free key revealed", () => {
     const view = hintSheetView(ladder(1));
-    expect(view).toMatchObject({ kind: "TARGET", canRevealMore: true });
-    expect(view.kind === "TARGET" && view.steps.map((s) => s.axis)).toEqual(["EXISTENCE"]);
+    if (view.kind !== "SELECTABLE") throw new Error("expected SELECTABLE");
+    const model = buildSelectableHintModel(LADDER_ORDER[1], { discoveredCount: 1 })!;
+    expect(view.existenceText).toBe(buildHintSteps(recipe(LADDER_ORDER[1]), { discoveredCount: 1 })[0].textJa);
+    expect(view.presentation.rows.flatMap((r) => r.revealed.map((c) => c.ingredientId))).toEqual(model.freeFacts.map((f) => f.ingredientId));
+    expect(view.presentation.nextPrice).toBe(5);
+    expect(view.outcome).toBeNull();
   });
 
   it("empty states: SHOP_NEW / REFILL / COMPLETE", () => {
@@ -197,6 +218,7 @@ function legacy(): DiscoveryHintState {
     hintSession: null,
     pitzBalance: 1000,
     discoveryHintPurchases: {},
+    discoveryHintFacts: {},
   };
 }
 

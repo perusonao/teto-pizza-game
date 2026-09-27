@@ -13,6 +13,9 @@ import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
  * the bottom safe-area inset, and the cooking screen underneath (stage, tabs, tray pager, bake
  * bar) at exactly the same place as with the sheet closed. Closing returns focus to 「ヒント」.
  *
+ * Discovery Hint 3.0 (Issue #238, H3-3): from Dex 1 the sheet is the Selectable one (H0, one
+ * fact, the longest legacy + all facts + guidance content); Dex 0 Margherita keeps the free flow.
+ *
  * The profiles are forced per state, so this runs once per engine (the *-390x844 project).
  * The final Layout Contract matrix for the sheet is 229-E.
  */
@@ -155,10 +158,13 @@ async function capture(page: Page, name: string) {
 test.describe("Discovery Hint 2.0 sheet (229-B)", () => {
   test.beforeEach(() => runOnlyOnWidth(test.info(), 390));
 
-  test("target flow: closed -> H1 -> H3 -> longest H4, background never moves, close restores", async ({ page, browserName }) => {
+  // Discovery Hint 3.0 (Issue #238, H3-3): from Dex 1 the sheet is the Selectable one. Same
+  // geometry contract for its states: H0, one fact, and the longest content (a legacy Economy 1.0
+  // save's 「以前のヒント」 line + every fact + the guidance line).
+  test("target flow: closed -> H0 -> one fact -> longest (legacy + all facts + guidance), background never moves, close restores", async ({ page, browserName }) => {
     const driver = await ProfileDriver.create(page, browserName);
     await driver.apply(PROFILES.N390);
-    // Dex 11 with the ladder's materials: capricciosa (6 ingredients) is today's target -> 7 lines.
+    // Dex 11 with the ladder's materials: capricciosa (6 ingredients) is today's target.
     await openWithSave(page, ladderSave(11));
     await startFreeCookAtTopping(page);
     const closed = await closedRects(page, driver, browserName);
@@ -166,35 +172,46 @@ test.describe("Discovery Hint 2.0 sheet (229-B)", () => {
 
     const hint = bar(page).getByRole("button", { name: "ヒント" });
     await hint.click();
-    await expect(sheet(page)).toBeVisible();
-    await sheet(page).locator(".hint-sheet__next").click();
-    await expect(sheet(page).locator(".hint-sheet__step")).toHaveCount(2);
-    await checkOpenState(page, driver, browserName, "H1", closed);
-    await expectNoUndiscoveredIdentity(page, DEX11, "sheet H1");
-    await capture(page, "02-h1");
+    await expect(sheet(page)).toHaveAttribute("data-hint-kind", "SELECTABLE");
+    await expect(sheet(page).locator(".hint-sheet__row")).toHaveCount(3);
+    await expect(sheet(page).getByRole("radio")).toHaveCount(3);
+    await checkOpenState(page, driver, browserName, "H0", closed);
+    await expectNoUndiscoveredIdentity(page, DEX11, "sheet H0");
+    await capture(page, "02-h0");
 
+    await sheet(page).getByText("トッピング", { exact: true }).last().click();
     await sheet(page).locator(".hint-sheet__next").click();
-    await sheet(page).locator(".hint-sheet__next").click();
-    await expect(sheet(page).locator(".hint-sheet__step")).toHaveCount(4);
-    await checkOpenState(page, driver, browserName, "H3", closed);
-    await expectNoUndiscoveredIdentity(page, DEX11, "sheet H3");
-    await capture(page, "03-h3");
-
-    while (await sheet(page).locator(".hint-sheet__next").count()) {
-      await sheet(page).locator(".hint-sheet__next").click();
-    }
-    await expect(sheet(page).locator(".hint-sheet__step")).toHaveCount(7);
-    await expect(sheet(page).getByText(/ヒントはここまで/)).toBeVisible();
-    await expect(sheet(page)).not.toContainText("カプリチョーザ");
-    await checkOpenState(page, driver, browserName, "H4 longest", closed);
-    await expectNoUndiscoveredIdentity(page, DEX11, "sheet H4 longest");
-    await capture(page, "04-h4-longest");
-
-    // Background taps are blocked by the sheet's backdrop; closing restores everything.
+    await expect(sheet(page).locator(".hint-sheet__chip:not(.hint-sheet__chip--unknown)")).toHaveCount(2);
+    await checkOpenState(page, driver, browserName, "one fact", closed);
+    await expectNoUndiscoveredIdentity(page, DEX11, "sheet one fact");
+    await capture(page, "03-one-fact");
     await sheet(page).getByRole("button", { name: "閉じる" }).click();
     await expect(sheet(page)).toHaveCount(0);
     await expect(hint).toBeFocused();
     expect(await backgroundRects(page)).toEqual(closed.get("N390"));
+
+    // Longest: a legacy H3 buyer (the count line kept) who then buys every remaining fact.
+    await openWithSave(page, ladderSave(11, { purchases: { capricciosa: 3 } }));
+    await startFreeCookAtTopping(page);
+    const closedLegacy = await closedRects(page, driver, browserName);
+    await bar(page).getByRole("button", { name: "ヒント" }).click();
+    await expect(sheet(page)).toContainText("以前のヒント");
+    for (let i = 0; i < 6 && !(await sheet(page).locator(".hint-sheet__guidance").count()); i += 1) {
+      await sheet(page).locator(".hint-sheet__next").click();
+    }
+    await expect(sheet(page).locator(".hint-sheet__guidance")).toHaveText("このピザは、今わかっているヒントを手がかりに考えてみよう！");
+    await expect(sheet(page).locator(".hint-sheet__chip:not(.hint-sheet__chip--unknown)")).toHaveCount(5);
+    await expect(sheet(page)).not.toContainText("カプリチョーザ");
+    await expect(sheet(page)).not.toContainText("ブラックオリーブ");
+    await checkOpenState(page, driver, browserName, "longest", closedLegacy);
+    await expectNoUndiscoveredIdentity(page, DEX11, "sheet longest");
+    await capture(page, "04-longest");
+
+    // Background taps are blocked by the sheet's backdrop; closing restores everything.
+    await sheet(page).getByRole("button", { name: "閉じる" }).click();
+    await expect(sheet(page)).toHaveCount(0);
+    await expect(bar(page).getByRole("button", { name: "ヒント" })).toBeFocused();
+    expect(await backgroundRects(page)).toEqual(closedLegacy.get("N390"));
     await page.getByRole("button", { name: "次のページ" }).click();
     await capture(page, "05-closed-after");
   });
@@ -219,12 +236,13 @@ test.describe("Discovery Hint 2.0 sheet (229-B)", () => {
     });
   }
 
-  // Discovery Hint Economy 1.0 (Issue #232, HE-3): the purchase CTA states, on the same geometry
-  // contract (every profile: <= 45dvh, CTA above the safe area, background unmoved).
-  test("purchase CTA: price + balance, buy H1, insufficient, reload keeps purchases", async ({ page, browserName }) => {
+  // Discovery Hint Economy 1.0 (Issue #232, HE-3) / Discovery Hint 3.0 (Issue #238, H3-3): the
+  // Selectable purchase CTA states, on the same geometry contract (every profile: <= 45dvh, CTA
+  // above the safe area, background unmoved).
+  test("purchase CTA: price + balance, buy a fact, guidance, reload keeps facts, insufficient", async ({ page, browserName }) => {
     const driver = await ProfileDriver.create(page, browserName);
     await driver.apply(PROFILES.N390);
-    // Dex 11 (capricciosa, 6 ingredients -> the longest H4), 120 Pitz.
+    // Dex 11 (capricciosa: 4 facts for sale, the 75 Pitz cap), 120 Pitz.
     await openWithSave(page, ladderSave(11, { pitz: 120 }));
     await startFreeCookAtTopping(page);
     const closed = await closedRects(page, driver, browserName);
@@ -232,46 +250,49 @@ test.describe("Discovery Hint 2.0 sheet (229-B)", () => {
     await hint.click();
 
     const cta = sheet(page).locator(".hint-sheet__next");
-    await expect(cta).toHaveText("🔒次のヒントを解除 5 Pitz");
+    await expect(cta).toHaveText("🔒ヒントを1つ解除 5 Pitz");
     await expect(sheet(page)).toContainText("所持 120 Pitz");
-    await checkOpenState(page, driver, browserName, "H1 CTA", closed);
-    await expectNoUndiscoveredIdentity(page, DEX11, "H1 CTA");
+    await checkOpenState(page, driver, browserName, "first CTA", closed);
+    await expectNoUndiscoveredIdentity(page, DEX11, "first CTA");
 
     await cta.click();
-    await expect(sheet(page).locator(".hint-sheet__step")).toHaveCount(2);
-    await expect(cta).toHaveText("🔒次のヒントを解除 10 Pitz");
+    await expect(sheet(page).locator(".hint-sheet__chip:not(.hint-sheet__chip--unknown)")).toHaveCount(2);
+    await expect(cta).toHaveText("🔒ヒントを1つ解除 10 Pitz");
     await expect(sheet(page)).toContainText("所持 115 Pitz");
     await cta.click();
     await cta.click();
     await cta.click();
-    await expect(sheet(page).locator(".hint-sheet__step")).toHaveCount(7);
-    // Nothing left to buy: the footer shows the closing line, no price and no balance line.
-    await expect(sheet(page).getByText(/ヒントはここまで/)).toBeVisible();
-    await expect(sheet(page)).not.toContainText("Pitz");
+    await expect(sheet(page).locator(".hint-sheet__chip:not(.hint-sheet__chip--unknown)")).toHaveCount(5);
     await expect(page.locator(".app-header__pitz")).toContainText("45");
-    await checkOpenState(page, driver, browserName, "purchased H4 longest", closed);
-    await expectNoUndiscoveredIdentity(page, DEX11, "purchased H4 longest");
+    // Nothing left to sell: the generic guidance only, nothing charged.
+    await cta.click();
+    await expect(sheet(page).locator(".hint-sheet__guidance")).toBeVisible();
+    await expect(page.locator(".app-header__pitz")).toContainText("45");
+    await checkOpenState(page, driver, browserName, "all facts + guidance", closed);
+    await expectNoUndiscoveredIdentity(page, DEX11, "all facts + guidance");
     const saved = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), SAVE_KEY);
+    expect(saved.schemaVersion).toBe(2);
     expect(saved.pitzBalance).toBe(45);
-    expect(saved.discoveryHintPurchases).toEqual({ capricciosa: 4 });
+    expect(saved.discoveryHintPurchases ?? {}).toEqual({});
+    expect([...saved.discoveryHintFacts.capricciosa].sort()).toEqual(["ing:ham", "ing:mozzarella", "ing:mushroom", "ing:tomato-sauce"]);
 
-    // Reload: every bought line is back, nothing is charged again.
+    // Reload: every bought fact is back, nothing is charged again, no guidance until asked.
     await page.reload();
     await page.waitForSelector(".app-frame");
     await startFreeCookAtTopping(page);
     await bar(page).getByRole("button", { name: "ヒント" }).click();
-    await expect(sheet(page).locator(".hint-sheet__step")).toHaveCount(7);
-    await expect(sheet(page).getByText(/ヒントはここまで/)).toBeVisible();
+    await expect(sheet(page).locator(".hint-sheet__chip:not(.hint-sheet__chip--unknown)")).toHaveCount(5);
+    await expect(sheet(page).locator(".hint-sheet__guidance")).toHaveCount(0);
     await expect(page.locator(".app-header__pitz")).toContainText("45");
     await sheet(page).getByRole("button", { name: "閉じる" }).click();
 
-    // Insufficient: H4 (40) with 25 Pitz -> disabled, calm; 閉じる still works and cooking goes on.
+    // Insufficient: a legacy H3 buyer's next fact (40) with 25 Pitz -> disabled, calm.
     await openWithSave(page, ladderSave(11, { pitz: 25, purchases: { capricciosa: 3 } }));
     await startFreeCookAtTopping(page);
     const closedShort = await closedRects(page, driver, browserName);
     await bar(page).getByRole("button", { name: "ヒント" }).click();
     await expect(cta).toBeDisabled();
-    await expect(cta).toHaveText("🔒次のヒント 40 Pitz");
+    await expect(cta).toHaveText("🔒ヒント 40 Pitz");
     await expect(sheet(page)).toContainText("所持 25 Pitz");
     await expect(sheet(page).getByRole("button", { name: "閉じる" })).toBeFocused();
     await checkOpenState(page, driver, browserName, "insufficient", closedShort);

@@ -49,6 +49,7 @@ import { calculateMissionReward } from "../logic/economy";
 import type { PieceReferenceMetrics } from "../logic/referenceMatching";
 import type { DoughPoint } from "../logic/pizzaCoordinates";
 import { buildRecipeChapters, chapterProgress, recipeChapter, recipeChapterSlot } from "../state/recipeChapters";
+import type { HintCategory } from "../logic/discovery/selectableHint";
 
 /**
  * GAME screen (Issue #24). Everything that happens while an actual round is in play --
@@ -102,6 +103,8 @@ interface GameScreenProps {
   /** Discovery Hint 2.0 (229-B): the Free Cooking hint sheet's next-step / close actions. */
   /** HE-2: unlock hint `level` (PURCHASE_DISCOVERY_HINT). */
   onUnlockHint?: (level: number) => void;
+  /** H3-3: buy one Selectable Hint fact (PURCHASE_SELECTABLE_HINT). */
+  onBuySelectableHint?: (preference: HintCategory, expectedPaidCount: number) => void;
   onCloseHint?: () => void;
   /** Discovery Hint 2.0 (229-C): the Free Cooking RESULT's 「💡 ヒントを見る」 -- cook freely again
    *  with the hint sheet open. */
@@ -185,6 +188,7 @@ export function GameScreen({
   onStartBake,
   onShowHint,
   onUnlockHint = () => {},
+  onBuySelectableHint = () => {},
   onCloseHint = () => {},
   onRetryWithHint,
   onChangeCategory,
@@ -747,7 +751,7 @@ export function GameScreen({
             </button>
           </div>
           {hintSheetOpen && (
-            <HintSheet view={hintSheetView(state)} onUnlock={onUnlockHint} onClose={onCloseHint} />
+            <HintSheet view={hintSheetView(state)} onUnlock={onUnlockHint} onBuySelectable={onBuySelectableHint} onClose={onCloseHint} />
           )}
         </>
       )}

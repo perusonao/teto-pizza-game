@@ -1,6 +1,7 @@
-import { useEffect, useId, useRef } from "react";
+import { useEffect, useId, useRef, useState, type RefObject } from "react";
 import { getIngredient } from "../data/ingredients";
 import type { HintEmptyKind } from "../logic/discovery/hintTarget";
+import type { HintCategory } from "../logic/discovery/selectableHint";
 import type { HintSheetView } from "../state/discoveryHint";
 import { IngredientGlyph } from "./IngredientGlyph";
 
@@ -26,6 +27,15 @@ import { IngredientGlyph } from "./IngredientGlyph";
  * moves nothing underneath. Cooking input is paused by the caller through the existing
  * `isGlobalOverlayOpen` gate, not by anything in here. Closes like the existing overlays
  * (閉じる button, backdrop tap) plus Escape from inside the dialog.
+ *
+ * Discovery Hint 3.0 (Issue #238, H3-3): every target except the Dex-0 Margherita onboarding renders
+ * the `SELECTABLE` view -- the H0 line, three category rows with the facts revealed so far (the free
+ * key included), this player's own earlier Economy 1.0 lines (「以前のヒント」), a category
+ * preference and one CTA for one more fact at `nextPrice`. The rows and the three preferences are
+ * the same for every target, so nothing says how many facts are left or which category has one.
+ * The CTA reports `(preference, paidCount)` and the reducer's PURCHASE_SELECTABLE_HINT decides. A
+ * request with nothing left to sell shows the generic guidance line only (OD-H3-17).
+ * H3-4 TODO: final copy, chip styling, preference control polish, Human Verification.
  */
 const EMPTY_COPY: Record<HintEmptyKind, { title: string; body: string }> = {
   SHOP_NEW: {
@@ -42,22 +52,51 @@ const EMPTY_COPY: Record<HintEmptyKind, { title: string; body: string }> = {
   },
 };
 
+const CATEGORY_LABEL: Record<HintCategory, string> = {
+  sauce: "ソース",
+  cheese: "チーズ",
+  topping: "トッピング",
+};
+
+/** How long the Selectable CTA ignores further activations after one purchase request. A
+ *  double-click (or key repeat) lands its second click after React re-rendered the sheet with the
+ *  new paid count, so the reducer's `expectedPaidCount` check alone cannot catch it. */
+export const SELECTABLE_BUY_LATCH_MS = 450;
+
+/** OD-H3-17 generic guidance. H3-4 TODO: final copy. */
+export const SELECTABLE_GUIDANCE_TEXT = "このピザは、今わかっているヒントを手がかりに考えてみよう！";
+
 export function HintSheet({
   view,
   onUnlock,
+  onBuySelectable = () => {},
   onClose,
 }: {
   view: HintSheetView;
   /** Unlocks the offered level (`view.next.level`). */
   onUnlock: (level: number) => void;
+  /** H3-3: buys one Selectable Hint fact, echoing the paid count the sheet showed. */
+  onBuySelectable?: (preference: HintCategory, expectedPaidCount: number) => void;
   onClose: () => void;
 }) {
   const titleId = useId();
   const nextRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const latestRef = useRef<HTMLLIElement>(null);
+  const [preference, setPreference] = useState<HintCategory>("sauce");
+  // H3-3: the Selectable CTA's activation latch (see SELECTABLE_BUY_LATCH_MS). The ref blocks a
+  // second activation synchronously; the state only mirrors it into `aria-disabled`.
+  const buyLatchRef = useRef(false);
+  const buyLatchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [buyLatched, setBuyLatched] = useState(false);
+  useEffect(
+    () => () => {
+      if (buyLatchTimer.current) clearTimeout(buyLatchTimer.current);
+    },
+    [],
+  );
   const next = view.kind === "TARGET" ? view.next : null;
-  const ctaEnabled = !!next && next.affordable;
+  const ctaEnabled = view.kind === "SELECTABLE" ? view.presentation.affordable : !!next && next.affordable;
   const stepCount = view.kind === "TARGET" ? view.steps.length : 0;
 
   // Opening lands on the next-hint CTA (or 閉じる); when the last step removes the CTA, or a
@@ -96,7 +135,25 @@ export function HintSheet({
           </button>
         </div>
 
-        {view.kind === "TARGET" ? (
+        {view.kind === "SELECTABLE" ? (
+          <SelectableHintBody
+            view={view}
+            preference={preference}
+            onPreference={setPreference}
+            buyRef={nextRef}
+            latched={buyLatched}
+            onBuy={() => {
+              if (buyLatchRef.current) return;
+              buyLatchRef.current = true;
+              setBuyLatched(true);
+              buyLatchTimer.current = setTimeout(() => {
+                buyLatchRef.current = false;
+                setBuyLatched(false);
+              }, SELECTABLE_BUY_LATCH_MS);
+              onBuySelectable(preference, view.presentation.paidCount);
+            }}
+          />
+        ) : view.kind === "TARGET" ? (
           <>
             <ol className="hint-sheet__steps" aria-live="polite">
               {view.steps.map((step, i) => {
@@ -158,5 +215,114 @@ export function HintSheet({
         )}
       </section>
     </div>
+  );
+}
+
+function SelectableHintBody({
+  view,
+  preference,
+  onPreference,
+  buyRef,
+  latched,
+  onBuy,
+}: {
+  view: Extract<HintSheetView, { kind: "SELECTABLE" }>;
+  preference: HintCategory;
+  onPreference: (category: HintCategory) => void;
+  buyRef: RefObject<HTMLButtonElement | null>;
+  /** Right after a request: further activations are ignored (focus stays on the CTA). */
+  latched: boolean;
+  onBuy: () => void;
+}) {
+  const groupName = useId();
+  const guidanceRef = useRef<HTMLParagraphElement>(null);
+  const { presentation } = view;
+  // The body scrolls inside the 45dvh sheet: bring the guidance line into view when it appears.
+  useEffect(() => {
+    if (view.outcome) guidanceRef.current?.scrollIntoView?.({ block: "nearest" });
+  }, [view.outcome]);
+  return (
+    <>
+      <div className="hint-sheet__steps hint-sheet__selectable" aria-live="polite">
+        <p className="hint-sheet__step">
+          <span className="hint-sheet__text">{view.existenceText}</span>
+        </p>
+        <ul className="hint-sheet__rows">
+          {presentation.rows.map((row) => (
+            <li key={row.category} className="hint-sheet__row" data-hint-category={row.category}>
+              <span className="hint-sheet__row-label">{CATEGORY_LABEL[row.category]}</span>
+              <span className="hint-sheet__chips">
+                {row.revealed.length === 0 ? (
+                  <span className="hint-sheet__chip hint-sheet__chip--unknown">？</span>
+                ) : (
+                  row.revealed.map((chip) => {
+                    const ingredient = getIngredient(chip.ingredientId);
+                    return (
+                      <span key={chip.factId} className="hint-sheet__chip">
+                        {ingredient && (
+                          <span className="hint-sheet__glyph" aria-hidden="true">
+                            <IngredientGlyph ingredient={ingredient} />
+                          </span>
+                        )}
+                        {ingredient?.nameJa ?? chip.ingredientId}
+                      </span>
+                    );
+                  })
+                )}
+              </span>
+            </li>
+          ))}
+        </ul>
+        {view.grandfatheredSteps.length > 0 && (
+          // H3-4 TODO (H3-2 Result Report §25): final presentation of the legacy lines.
+          <div className="hint-sheet__legacy">
+            <p className="hint-sheet__legacy-title">以前のヒント</p>
+            {view.grandfatheredSteps.map((step) => (
+              <p key={step.level} className="hint-sheet__step">
+                <span className="hint-sheet__text">{step.textJa}</span>
+              </p>
+            ))}
+          </div>
+        )}
+        {view.outcome === "GUIDANCE_ONLY" && (
+          <p ref={guidanceRef} className="hint-sheet__guidance">
+            {SELECTABLE_GUIDANCE_TEXT}
+          </p>
+        )}
+      </div>
+      <div className="hint-sheet__footer">
+        <fieldset className="hint-sheet__prefs">
+          <legend className="hint-sheet__prefs-legend">どれのヒントがほしい？</legend>
+          {presentation.preferences.map((category) => (
+            <label key={category} className={`hint-sheet__pref${preference === category ? " hint-sheet__pref--on" : ""}`}>
+              <input
+                type="radio"
+                name={groupName}
+                value={category}
+                checked={preference === category}
+                onChange={() => onPreference(category)}
+              />
+              {CATEGORY_LABEL[category]}
+            </label>
+          ))}
+        </fieldset>
+        <button
+          ref={buyRef}
+          type="button"
+          className={`cta-button hint-sheet__next hint-sheet__next--paid${presentation.affordable ? "" : " hint-sheet__next--short"}`}
+          disabled={!presentation.affordable}
+          aria-disabled={latched || undefined}
+          onClick={onBuy}
+        >
+          <span className="hint-sheet__lock" aria-hidden="true">
+            {"\u{1F512}"}
+          </span>
+          <span className="hint-sheet__next-label">{presentation.affordable ? "ヒントを1つ解除" : "ヒント"}</span>{" "}
+          <span className="hint-sheet__price">{presentation.nextPrice} Pitz</span>
+        </button>
+        <p className="hint-sheet__wallet">所持 {presentation.pitzBalance} Pitz</p>
+        {!presentation.affordable && <p className="hint-sheet__wallet hint-sheet__wallet-note">たまったら解除できるよ。このまま作ってもOK！</p>}
+      </div>
+    </>
   );
 }

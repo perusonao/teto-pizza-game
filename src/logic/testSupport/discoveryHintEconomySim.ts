@@ -32,6 +32,7 @@
  */
 import { getIngredient } from "../../data/ingredients";
 import { getRecipe, RECIPES, type Recipe, type RecipeId } from "../../data/recipes";
+import { purchaseDiscoveryHint } from "../discovery/hintPurchase";
 import { buildHintSteps, type HintStep } from "../discovery/hintSteps";
 import { selectHintTarget } from "../discovery/hintTarget";
 import { starsFromTotal } from "../scoring";
@@ -79,16 +80,20 @@ export interface SimOptions {
   /**
    * Discovery Hint Economy 1.0 (Issue #232, HE-2): how a hint level is paid.
    * - "simulated" (default, the Fresh Audit): the harness debits `curve.prices` itself.
-   * - "production": every level goes through the real reducer (START_FREE_COOK -> SHOW_HINT ->
-   *   PURCHASE_DISCOVERY_HINT -> CLOSE_HINT), so the production price table, onboarding exemption,
-   *   affordability check and ledger decide; `curve` is then only a label. The harness asserts the
-   *   sheet's target is the stage target and mirrors the reducer's result into its own knowledge.
+   * - "authority": every level goes through the Economy 1.0 authority, so its price table,
+   *   onboarding exemption, affordability check and ledger decide; `curve` is then only a label. The
+   *   sheet is still opened through the real reducer (START_FREE_COOK -> SHOW_HINT -> CLOSE_HINT) and
+   *   the harness asserts its target is the stage target. Dex 0 reveals through the reducer's
+   *   PURCHASE_DISCOVERY_HINT (the free onboarding). From Dex 1 the level is bought with
+   *   `purchaseDiscoveryHint` applied to the walk's state: since Discovery Hint 3.0 H3-3 (Issue #238)
+   *   the reducer no longer sells Economy 1.0 levels (the runtime sells Selectable Hint facts, see
+   *   src/state/discoveryHint.walk.test.ts), so this harness stays an Economy 1.0 analysis tool.
    */
-  transaction?: "simulated" | "production";
+  transaction?: "simulated" | "authority";
   /**
-   * Refill an out-of-stock target material before buying a hint (default: only in "production").
+   * Refill an out-of-stock target material before buying a hint (default: only in "authority").
    * The real sheet offers hints only for a DISCOVERABLE target and shows REFILL otherwise, so a
-   * production walk must refill first; the parity test turns this on for the simulated walk too, so
+   * sheet-driven walk must refill first; the parity test turns this on for the simulated walk too, so
    * the two runs differ in the transaction path only. Off in the Fresh Audit's own tables.
    */
   refillBeforeHint?: boolean;
@@ -216,10 +221,10 @@ const keyOf = (ids: readonly string[]) => [...ids].sort().join("+");
 export function simulateHintEconomy(options: SimOptions): SimResult {
   const { curve, profile, qualityTotal } = options;
   const onboardingFree = options.onboardingFree ?? true;
-  const production = options.transaction === "production";
-  if (production && !onboardingFree) throw new Error("production hints are always free at Dex 0");
+  const production = options.transaction === "authority";
+  if (production && !onboardingFree) throw new Error("authority hints are always free at Dex 0");
   const refillBeforeHint = options.refillBeforeHint ?? production;
-  if (production && !refillBeforeHint) throw new Error("the production sheet needs a stocked target");
+  if (production && !refillBeforeHint) throw new Error("the sheet needs a stocked target");
   const maxBakes = options.maxBakesPerStage ?? 80;
 
   let s = createInitialGameState(undefined, undefined, 0);
@@ -342,7 +347,7 @@ export function simulateHintEconomy(options: SimOptions): SimResult {
     }
   }
 
-  /** One level through the real reducer; the Pitz charged, or `null` when the reducer refused. */
+  /** One level through the Economy 1.0 authority; the Pitz charged, or `null` when it refused. */
   function buyThroughReducer(target: Recipe, level: number): number | null {
     s = act(s, { type: "START_FREE_COOK" }, { type: "SHOW_HINT" });
     if (s.hintSession?.targetId !== target.id) throw new Error(`sheet target ${s.hintSession?.targetId} != stage target ${target.id}`);
@@ -353,7 +358,23 @@ export function simulateHintEconomy(options: SimOptions): SimResult {
       return 0;
     }
     const before = s;
-    s = act(s, { type: "PURCHASE_DISCOVERY_HINT", level });
+    if (view.kind === "TARGET") {
+      s = act(s, { type: "PURCHASE_DISCOVERY_HINT", level });
+    } else {
+      if (view.kind !== "SELECTABLE") throw new Error(`no hint target sheet (${view.kind})`);
+      const dexCount = discoveredRecipeIds(s.dex).length;
+      const steps = buildHintSteps(target, { discoveredCount: dexCount });
+      const result = purchaseDiscoveryHint({
+        recipeId: target.id,
+        requestedLevel: level,
+        maxLevel: steps[steps.length - 1].level,
+        isTarget: true,
+        discoveredCount: dexCount,
+        purchases: s.discoveryHintPurchases,
+        pitzBalance: s.pitzBalance,
+      });
+      if (result.success) s = { ...s, pitzBalance: result.nextPitzBalance, discoveryHintPurchases: result.nextPurchases };
+    }
     const charged = before.pitzBalance - s.pitzBalance;
     const refused = s === before;
     s = act(s, { type: "CLOSE_HINT" });
