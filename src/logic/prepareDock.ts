@@ -1,0 +1,86 @@
+import {
+  ingredientsByCategory,
+  MAX_INGREDIENT_PALETTE_SLOTS,
+  type Ingredient,
+  type IngredientCategory,
+} from "../data/ingredients";
+import type { Recipe } from "../data/recipes";
+import type { MakingStep } from "../state/gameReducer";
+
+/**
+ * DM-3R-0 Cooking Stage Size Stability (Issue #245).
+ *
+ * The pizza stage is the only flex-grow item of `.game-screen--cooking`, so whatever sits below
+ * it in each PREPARE step used to take height from the dough: nothing in DOUGH, the sauce
+ * readout plus the tray in SAUCE, a one- or two-row tray in CHEESE / TOPPING. On a short visible
+ * height (Safari 390x664) that made the dough jump 290 -> 240 -> 287px between steps (Lunch Rush
+ * TOPPING: 158px).
+ *
+ * The fix reserves one constant-height "PREPARE dock" under the stage for the whole round, sized
+ * for the tallest step of *this* round. Everything it depends on is fixed when the round starts:
+ * the recipe, free-cook or not, the owned ingredients and whether the sauce readout shows.
+ */
+
+/** Chips per tray row (`.ingredient-tray`'s `grid-template-columns: repeat(3, 1fr)`). */
+export const TRAY_COLUMNS = 3;
+
+/** The ingredients the tray offers in `category`: every owned one in a free-cook round,
+ *  otherwise only the owned ones the recipe requires (Issue #159 P0 / Issue #194). The single
+ *  source for both `IngredientTray` and the dock reservation, so the two cannot disagree. */
+export function trayIngredientsFor(
+  category: IngredientCategory,
+  options: { ownedIngredientIds: readonly string[]; freeCook: boolean; recipe: Recipe },
+): Ingredient[] {
+  const { ownedIngredientIds, freeCook, recipe } = options;
+  return ingredientsByCategory(category).filter(
+    (i) =>
+      ownedIngredientIds.includes(i.id) &&
+      (freeCook || recipe.requiredIngredients.some((requirement) => requirement.ingredientId === i.id)),
+  );
+}
+
+const STEP_CATEGORY: Partial<Record<MakingStep, IngredientCategory>> = {
+  SAUCE: "sauce",
+  CHEESE: "cheese",
+  TOPPING: "topping",
+};
+
+export interface PrepareDockReserve {
+  /** Chip rows of the SAUCE step's page (0 when the round has no SAUCE step). */
+  sauceRows: number;
+  /** The most chip rows any CHEESE / TOPPING step shows on one page. */
+  otherRows: number;
+  /** Some step of this round has more than one tray page: every step keeps the pager row. */
+  pager: boolean;
+  /** The SAUCE step shows the ソースのでき readout above the tray. */
+  readout: boolean;
+}
+
+function rowsFor(count: number): number {
+  return Math.ceil(Math.min(count, MAX_INGREDIENT_PALETTE_SLOTS) / TRAY_COLUMNS);
+}
+
+/** What the dock must hold so that no PREPARE step of this round is taller than it. */
+export function prepareDockReserve(options: {
+  steps: readonly MakingStep[];
+  ownedIngredientIds: readonly string[];
+  freeCook: boolean;
+  recipe: Recipe;
+  sauceReadout: boolean;
+}): PrepareDockReserve {
+  const { steps, sauceReadout, ...trayOptions } = options;
+  const reserve: PrepareDockReserve = { sauceRows: 0, otherRows: 0, pager: false, readout: false };
+  for (const step of steps) {
+    const category = STEP_CATEGORY[step];
+    if (!category) continue;
+    const count = trayIngredientsFor(category, trayOptions).length;
+    if (count > MAX_INGREDIENT_PALETTE_SLOTS) reserve.pager = true;
+    if (step === "SAUCE") {
+      reserve.sauceRows = Math.max(reserve.sauceRows, rowsFor(count));
+      reserve.readout = reserve.readout || sauceReadout;
+    } else {
+      reserve.otherRows = Math.max(reserve.otherRows, rowsFor(count));
+    }
+  }
+  return reserve;
+}

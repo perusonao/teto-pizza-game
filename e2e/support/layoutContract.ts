@@ -149,6 +149,9 @@ function measureInPage(s: Required<Omit<SlotSelectors, "names" | "homeCtas">> & 
 
   const pagerEl = firstVisible(".ingredient-page-nav") ?? document.querySelector(".ingredient-page-nav--placeholder");
   const pagerPlaceholder = !!pagerEl?.classList.contains("ingredient-page-nav--placeholder");
+  // DM-3R-0: what the PREPARE dock reserved for this round -- "1" (some step pages: the pager row
+  // must be laid out), "0" (no step pages: no pager row), null (no dock, e.g. BAKE / CUT).
+  const dockPager = document.querySelector<HTMLElement>(".prepare-dock")?.style.getPropertyValue("--dock-pager").trim() || null;
   const chips = [...document.querySelectorAll(".ingredient-chip")].filter(isVisible).map((c) => probeHit(c, text(c.querySelector(".ingredient-chip__name") ?? c)));
   const pagerButtons = pagerEl && !pagerPlaceholder
     ? [...pagerEl.querySelectorAll(".ingredient-page-nav__button")].map((b) => probeHit(b, b.getAttribute("aria-label") ?? "pager"))
@@ -234,6 +237,7 @@ function measureInPage(s: Required<Omit<SlotSelectors, "names" | "homeCtas">> & 
       primaryCta: primary?.rect ?? null,
     },
     pagerPlaceholder,
+    pagerReserved: dockPager === null ? null : dockPager === "1",
     primary,
     primaryLines: primaryEl ? lineCount(primaryEl) : null,
     chips,

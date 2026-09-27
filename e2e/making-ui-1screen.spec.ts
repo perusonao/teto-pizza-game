@@ -432,9 +432,10 @@ test.describe("PizzaStage height-aware sizing: shrink path actually engages belo
       return box!.width;
     }
 
-    // W1 I5b-4b: the stage takes only the height the other rows leave, so at DOUGH (no tray yet)
-    // the dough keeps its vw/px cap (290) and it shrinks once the tray appears (CHEESE, below).
-    expect(await doughSize(), "390x650 DOUGH: no tray yet, the vw/px cap wins").toBeLessThanOrEqual(290);
+    // W1 I5b-4b: the stage takes only the height the other rows leave. DM-3R-0 (Issue #245): the
+    // PREPARE dock reserves the tray's height from DOUGH on, so DOUGH already has the (shrunk)
+    // size CHEESE has below -- never above the vw/px cap (290).
+    expect(await doughSize(), "390x650 DOUGH: never above the vw/px cap").toBeLessThanOrEqual(290);
     await assertOneScreen(page, "390x650 DOUGH");
     await assertNavFitsViewport(page, "390x650 DOUGH");
 

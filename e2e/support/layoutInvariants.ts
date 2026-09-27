@@ -96,6 +96,8 @@ export interface LayoutMeasurement {
     primaryCta: Rect | null;
   };
   pagerPlaceholder: boolean;
+  /** DM-3R-0: whether the round's PREPARE dock reserves the pager row (null = no dock). */
+  pagerReserved: boolean | null;
   primary: HitProbe | null;
   primaryLines: number | null;
   chips: HitProbe[];
@@ -170,11 +172,17 @@ export const CHECKS: Partial<Record<InvariantId, Check>> = {
   "L-A": ctaReachable,
   "L-F": ctaReachable,
   "L-B": (m) => {
-    const { pager, ctaBar } = m.rects;
-    if (!pager || !ctaBar) {
-      return { pass: false, expected: "pager and CTA bar present", actual: `pager=${!!pager} bar=${!!ctaBar}`, deltaPx: null, what: "pager/CTA gap" };
+    // DM-3R-0 (Issue #245): the pager row is reserved per round -- a round in which no PREPARE
+    // step pages lays out none at all. Only there (the dock explicitly reserves no pager row)
+    // does the tray itself stand in as the lowest tray content, with the same gap to the CTA
+    // bar. A round that pages (or any screen without that explicit "no pager" reservation) still
+    // needs the pager row, so a missing pager is never hidden by the fallback.
+    const { pager, tray, ctaBar } = m.rects;
+    const lowest = pager ?? (m.pagerReserved === false ? tray : null);
+    if (!lowest || !ctaBar) {
+      return { pass: false, expected: m.pagerReserved === false ? "tray and CTA bar present" : "pager and CTA bar present", actual: `pager=${!!pager} tray=${!!tray} bar=${!!ctaBar} pagerReserved=${m.pagerReserved}`, deltaPx: null, what: "pager/CTA gap" };
     }
-    const gap = ctaBar.top - pager.bottom;
+    const gap = ctaBar.top - lowest.bottom;
     return gap + TOL >= PAGER_CTA_GAP
       ? ok("pager/CTA gap")
       : { pass: false, expected: `>= ${PAGER_CTA_GAP}`, actual: `gap=${fmt(gap)}px`, deltaPx: fmt(gap - PAGER_CTA_GAP), what: "pager/CTA gap" };
