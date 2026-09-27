@@ -15,6 +15,14 @@ import { MissionServePanel } from "../components/MissionServePanel";
 import { MissionShortagePanel } from "../components/MissionShortagePanel";
 import { recipeStockShortage } from "../state/recipeDiscoveryState";
 import { MissionResultOverlay } from "../components/MissionResultOverlay";
+import {
+  DinnerAbandonDialog,
+  DinnerHud,
+  DinnerResultOverlay,
+  DinnerTargetBoard,
+  DinnerTargetResultPanel,
+} from "../components/DinnerGameUi";
+import { getDinnerMission } from "../mission/dinner/dinnerMission";
 import { ReferencePreview } from "../components/ReferencePreview";
 import { PlayerReferencePreview } from "../components/PlayerReferencePreview";
 import { ReferenceThumbnail } from "../components/ReferenceThumbnail";
@@ -61,7 +69,23 @@ import { buildRecipeChapters, chapterProgress, recipeChapter, recipeChapterSlot 
  * GAME stay two views over one shared App-level state rather than duplicating any game logic.
  */
 
+/** Dinner Mission DM-3 (Issue #242): what the Dinner screens need from App. The run itself is
+ *  `state.dinner` -- these are only the display clock and the tap handlers. */
+export interface DinnerScreenProps {
+  now: number;
+  retryBlocked: boolean;
+  onSelectTarget: (recipeId: string) => void;
+  onReturnToTargets: () => void;
+  onRetry: () => void;
+  onHome: () => void;
+  onOpenShop: () => void;
+  onContinue: () => void;
+  onQuit: () => void;
+}
+
 interface GameScreenProps {
+  /** Dinner Mission DM-3: required only while `state.dinner` exists. */
+  dinner?: DinnerScreenProps;
   state: GameState;
   mission: MissionState;
   missionNow: number;
@@ -159,6 +183,7 @@ function usedIngredientIds(pizza: GameState["pizza"]): string[] {
 }
 
 export function GameScreen({
+  dinner: dinnerUi,
   state,
   mission,
   missionNow,
@@ -293,6 +318,13 @@ export function GameScreen({
   // round. `MissionResultOverlay` covers the whole screen either way, but this keeps free
   // play's own RESULT UI from rendering (uselessly) underneath it during that window.
   const isMissionActive = mission.mode === "PLAYING" || mission.mode === "RESULT";
+  // Dinner Mission DM-3 (Issue #242): the Dinner run (DM-2's `state.dinner`) drives its own
+  // screens. The target list replaces the ORDER screen entirely (no 「ピザを作る！」 that does
+  // nothing), and FREE's ResultPanel never renders for a Dinner target.
+  const dinnerRun = state.dinner?.run ?? null;
+  const dinnerPlaying = dinnerRun?.status === "PLAYING";
+  const isDinnerBoard = dinnerRun !== null && dinnerPlaying && state.phase === "ORDER";
+  const dinnerTitleJa = dinnerRun ? (getDinnerMission(dinnerRun.missionId)?.display.titleJa ?? "ディナーミッション") : "";
   // RESULT 2.0 Slice 1: REGISTER_TO_DEX now applies automatically the instant CONFIRM_BAKE
   // lands (App.tsx's `handleConfirmBake`), so a FREE round's `state.phase` goes straight from
   // "BAKE" to "DISCOVERED" -- there is no longer a player-visible moment where phase sits at
@@ -302,7 +334,7 @@ export function GameScreen({
   // dispatch that somehow leaves phase at "RESULT" (e.g. a failed REGISTER_TO_DEX guard) still
   // renders a complete screen instead of the old score-only one.
   const isFreeResultScreen =
-    !isMissionActive && (state.phase === "RESULT" || state.phase === "DISCOVERED");
+    !isMissionActive && state.dinner === null && (state.phase === "RESULT" || state.phase === "DISCOVERED");
 
   const mitoOrderLine = buildMitoOrderLine(
     state.order.id,
@@ -386,6 +418,14 @@ export function GameScreen({
         />
       )}
 
+      {dinnerRun && dinnerPlaying && dinnerUi && state.phase !== "ORDER" && (
+        <DinnerHud run={dinnerRun} now={dinnerUi.now} />
+      )}
+
+      {isDinnerBoard && dinnerUi && (
+        <DinnerTargetBoard run={dinnerRun} now={dinnerUi.now} titleJa={dinnerTitleJa} onSelect={dinnerUi.onSelectTarget} />
+      )}
+
       {/* RESULT 2.0 Slice 1: the merged Hero result screen (`isFreeResultScreen`) renders its
           own short heading (`resultHeadingJa`, fed to `ResultPanel`) directly under the
           completed-pizza hero instead of here -- skipping this whole section for that screen,
@@ -396,7 +436,7 @@ export function GameScreen({
       {/* W1 I5b-4b: BAKE no longer uses the portrait DialogueBox here (108px, above the tabs) --
           its line moves into the compact `.order-card` row below the tabs, like PREPARE and CUT,
           so the tabs stay right under the header on every cooking step. */}
-      {state.phase === "ORDER" && (
+      {state.phase === "ORDER" && state.dinner === null && (
         <section className="dialogue-area">
           <DialogueBox {...mitoOrderLine} />
           <DialogueBox {...(isMissionShortOrder ? buildTetoShortageLine(state.recipe) : buildTetoOrderLine(state.recipe))} />
@@ -535,6 +575,7 @@ export function GameScreen({
         </div>
       )}
 
+      {!isDinnerBoard && (
       <PizzaStage
         pizza={state.pizza}
         recipe={state.recipe}
@@ -564,6 +605,7 @@ export function GameScreen({
         compact={state.phase === "PREPARE"}
         resultCompact={isFreeResultScreen}
       />
+      )}
 
       {/* Pizza Cutting 1.0 Phase 2 (design doc §8.1/§8.4): progress readout + the CUT step's own
           bottom bar -- "1本戻す" (undo last line) / "切り終わる" (confirm, gated on
@@ -617,7 +659,7 @@ export function GameScreen({
 
       {isMissionShortOrder && <MissionShortagePanel shortages={missionShortages} onSkip={onMissionSkipOrder} />}
 
-      {state.phase === "ORDER" && !isMissionShortOrder && (
+      {state.phase === "ORDER" && !isMissionShortOrder && state.dinner === null && (
         <div className="action-row">
           <button type="button" className="cta-button cta-button--primary" onClick={onBeginPrepare}>
             {mission.mode === "FREE" ? <>{"\u{1F355}"} フリープレイ</> : "ピザを作る！"}
@@ -746,6 +788,16 @@ export function GameScreen({
         />
       )}
 
+      {dinnerRun && dinnerPlaying && dinnerUi && state.phase === "RESULT" && dinnerRun.activeRecipeId === null && (
+        <DinnerTargetResultPanel
+          recipeNameJa={state.recipe.nameJa}
+          completion={state.completion}
+          completed={dinnerRun.completedRecipeIds.length}
+          total={dinnerRun.targetRecipeIds.length}
+          onBack={dinnerUi.onReturnToTargets}
+        />
+      )}
+
       {/* RESULT 2.0 Slice 1: one merged Hero result screen replaces the old two-phase
           ResultPanel (RESULT, score/stars only, behind a "レシピ図鑑に登録する" tap) +
           DISCOVERED (a separate action-row for the banner/Pitz/retry CTAs) split. The
@@ -801,6 +853,21 @@ export function GameScreen({
           renders nothing then (CutDebugPanel.tsx's own guard). */}
       {(isFreeResultScreen || (state.phase === "RESULT" && isMissionPlaying)) && (
         <CutDebugPanel evaluation={state.cutState.evaluation} />
+      )}
+
+      {dinnerRun && !dinnerPlaying && dinnerUi && (
+        <DinnerResultOverlay
+          run={dinnerRun}
+          titleJa={dinnerTitleJa}
+          retryBlocked={dinnerUi.retryBlocked}
+          onRetry={dinnerUi.onRetry}
+          onHome={dinnerUi.onHome}
+          onOpenShop={dinnerUi.onOpenShop}
+        />
+      )}
+
+      {state.dinner?.abandonRequested && dinnerPlaying && dinnerUi && (
+        <DinnerAbandonDialog onContinue={dinnerUi.onContinue} onQuit={dinnerUi.onQuit} />
       )}
 
       {mission.mode === "INTRO" && (

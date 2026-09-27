@@ -5061,3 +5061,405 @@
   font-size: 14px;
   color: #6b4a2b;
 }
+
+/* ---------- Dinner Mission DM-3 (Issue #242) ----------
+   Reuses the existing skeletons (home-menu card, pizza-select screen, mission-hud,
+   mission-serve-panel, mission-overlay); Dinner only adds a light "night" accent. */
+:root {
+  --dinner-night: #2f2a52;
+  --dinner-night-soft: #ece8fb;
+}
+
+/* One slim row (icon | label + sub) so HOME keeps the vertical slack the hero relies on. */
+.home-menu__card--wide {
+  grid-column: 1 / -1;
+  min-height: 48px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 10px;
+  row-gap: 1px;
+  align-items: center;
+  padding: 7px 12px;
+}
+
+.home-menu__card--wide .home-menu__icon {
+  grid-row: 1 / 3;
+}
+
+.home-menu__card--dinner {
+  border-color: #c9c0ec;
+  background: linear-gradient(180deg, #fbfaff 0%, #f1edff 100%);
+}
+
+.home-menu__card--dinner .home-menu__label {
+  color: var(--dinner-night);
+}
+
+.dinner-screen {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background:
+    repeating-linear-gradient(
+      180deg,
+      rgba(107, 66, 38, 0.05) 0px,
+      rgba(107, 66, 38, 0.05) 1px,
+      transparent 1px,
+      transparent 34px
+    ),
+    linear-gradient(180deg, #f7ecd4 0%, #efdcb3 100%);
+}
+
+.dinner-screen__body {
+  padding: 14px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dinner-screen__lead {
+  font-size: 13px;
+  font-weight: 700;
+  color: #6b4226;
+}
+
+.dinner-mission-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dinner-mission-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-height: 44px;
+  padding: 14px 14px 12px;
+  background: #fff8ea;
+  border: 2px solid #c9c0ec;
+  border-radius: 16px;
+  text-align: left;
+  box-shadow: 0 2px 6px rgba(47, 42, 82, 0.14);
+}
+
+.dinner-mission-card--locked {
+  border-style: dashed;
+  border-color: #d6c9a4;
+  box-shadow: none;
+  opacity: 0.85;
+}
+
+.dinner-mission-card__title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--dinner-night);
+}
+
+.dinner-mission-card__count {
+  font-size: 12px;
+  font-weight: 700;
+  color: #a1662f;
+}
+
+.dinner-mission-card__targets {
+  font-size: 13px;
+  color: #4a2e0a;
+  line-height: 1.4;
+}
+
+.dinner-mission-card__lock {
+  font-size: 13px;
+  font-weight: 700;
+  color: #8a5a2c;
+}
+
+.dinner-mission-card__cta {
+  align-self: flex-end;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--dinner-night);
+}
+
+.dinner-detail {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.dinner-detail__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dinner-detail__title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--dinner-night);
+}
+
+.dinner-detail__lead,
+.dinner-detail__row {
+  font-size: 14px;
+  color: #4a2e0a;
+}
+
+.dinner-detail__targets {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.dinner-detail__target {
+  background: #fff8ea;
+  border: 2px solid #e6d3a3;
+  border-radius: 12px;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #4a2e0a;
+  overflow-wrap: anywhere;
+}
+
+.dinner-detail__ready {
+  font-size: 14px;
+  font-weight: 700;
+  color: #2f7a3b;
+}
+
+.dinner-detail__shortage {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #fff1e8;
+  border: 2px solid #f0b48c;
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.dinner-detail__shortage-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #b3471d;
+}
+
+.dinner-detail__shortage-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  color: #4a2e0a;
+}
+
+.dinner-detail__note {
+  font-size: 12px;
+  color: #8a5a2c;
+  line-height: 1.5;
+}
+
+.dinner-detail__cta-bar {
+  padding: 8px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+}
+
+.dinner-detail__cta-bar .cta-button {
+  width: 100%;
+}
+
+.dinner-hud {
+  background: var(--dinner-night);
+}
+
+.dinner-hud__label {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  color: #d9d2ff;
+}
+
+.dinner-board {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: 12px;
+  padding: 12px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+}
+
+.dinner-board__head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--dinner-night);
+  color: #fff9ec;
+  border-radius: 16px;
+  padding: 12px 14px;
+}
+
+.dinner-board__title {
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.dinner-board__stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.dinner-board__stats strong {
+  font-size: 18px;
+}
+
+.dinner-board__timer {
+  font-variant-numeric: tabular-nums;
+}
+
+.dinner-board__lead {
+  font-size: 12px;
+  color: #d9d2ff;
+}
+
+.dinner-board__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dinner-board__item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: 10px 14px;
+  background: #fff8ea;
+  border: 2px solid #d9b876;
+  border-radius: 14px;
+  text-align: left;
+  box-shadow: 0 2px 5px rgba(107, 66, 38, 0.12);
+}
+
+.dinner-board__item:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.dinner-board__item--done {
+  background: #eef6ea;
+  border-color: #a9d3a0;
+  box-shadow: none;
+  opacity: 0.8;
+}
+
+.dinner-board__mark {
+  font-size: 20px;
+}
+
+.dinner-board__name {
+  flex: 1;
+  min-width: 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: #4a2e0a;
+  overflow-wrap: anywhere;
+}
+
+.dinner-board__state {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--dinner-night);
+  white-space: nowrap;
+}
+
+.dinner-board__item--done .dinner-board__state {
+  color: #2f7a3b;
+}
+
+.dinner-target-result__line {
+  font-size: 16px;
+  font-weight: 800;
+  color: #4a2e0a;
+  text-align: center;
+}
+
+.dinner-target-result__line--done {
+  color: #2f7a3b;
+}
+
+.dinner-target-result__progress {
+  font-size: 13px;
+  font-weight: 700;
+  color: #8a5a2c;
+}
+
+.dinner-target-result .cta-button {
+  width: 100%;
+}
+
+.dinner-target-result {
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+}
+
+.dinner-result__mission {
+  font-size: 12px;
+  font-weight: 700;
+  color: #8a5a2c;
+}
+
+.dinner-result--clear .dinner-result__title {
+  color: var(--dinner-night);
+  font-size: 24px;
+}
+
+.dinner-result__row {
+  font-size: 15px;
+  color: #4a2e0a;
+}
+
+.dinner-result__row strong {
+  font-size: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
+.dinner-result__shortages {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  color: #4a2e0a;
+  text-align: left;
+}
+
+.dinner-result__blocked {
+  font-size: 12px;
+  color: #8a5a2c;
+}
+
+.dinner-result .action-row,
+.dinner-abandon .action-row {
+  width: 100%;
+}
+
+.dinner-result .secondary-button,
+.dinner-abandon .secondary-button {
+  width: 100%;
+  min-height: 44px;
+}
