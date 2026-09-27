@@ -170,11 +170,15 @@ export const CHECKS: Partial<Record<InvariantId, Check>> = {
   "L-A": ctaReachable,
   "L-F": ctaReachable,
   "L-B": (m) => {
-    const { pager, ctaBar } = m.rects;
-    if (!pager || !ctaBar) {
-      return { pass: false, expected: "pager and CTA bar present", actual: `pager=${!!pager} bar=${!!ctaBar}`, deltaPx: null, what: "pager/CTA gap" };
+    // DM-3R-0 (Issue #245): the pager row is reserved per round -- a round in which no PREPARE
+    // step pages lays out none at all -- so there the tray itself is the lowest tray content
+    // and must keep the same gap to the CTA bar.
+    const { pager, tray, ctaBar } = m.rects;
+    const lowest = pager ?? tray;
+    if (!lowest || !ctaBar) {
+      return { pass: false, expected: "pager (or tray) and CTA bar present", actual: `pager=${!!pager} tray=${!!tray} bar=${!!ctaBar}`, deltaPx: null, what: "pager/CTA gap" };
     }
-    const gap = ctaBar.top - pager.bottom;
+    const gap = ctaBar.top - lowest.bottom;
     return gap + TOL >= PAGER_CTA_GAP
       ? ok("pager/CTA gap")
       : { pass: false, expected: `>= ${PAGER_CTA_GAP}`, actual: `gap=${fmt(gap)}px`, deltaPx: fmt(gap - PAGER_CTA_GAP), what: "pager/CTA gap" };

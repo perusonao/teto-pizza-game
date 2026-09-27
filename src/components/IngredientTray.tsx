@@ -6,11 +6,11 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import {
-  ingredientsByCategory,
   MAX_INGREDIENT_PALETTE_SLOTS,
   type Ingredient,
   type IngredientCategory,
 } from "../data/ingredients";
+import { trayIngredientsFor } from "../logic/prepareDock";
 import { IngredientPieceVisual } from "./IngredientPieceVisual";
 import type { DoughPoint } from "../logic/pizzaCoordinates";
 import { hasPieceDragIntent } from "../logic/pieceDrag";
@@ -90,6 +90,11 @@ interface IngredientTrayProps {
    *  could survive the confirmation and commit onto the step that follows it. Mirrors
    *  `resetToken`'s own effect below exactly. */
   makingStepToken?: number;
+  /** DM-3R-0 (Issue #245): whether a one-page tray still lays out the invisible pager row.
+   *  GameScreen passes `false` when no PREPARE step of the round ever pages (its dock height is
+   *  reserved per round, so there is no later page to make room for). Defaults to `true`, the
+   *  W1 I5b-4b "always keep the pager's place" behavior. */
+  reservePagerRow?: boolean;
 }
 
 interface DragSession {
@@ -125,6 +130,7 @@ export function IngredientTray({
   onPhysicalDrop,
   resetToken,
   makingStepToken,
+  reservePagerRow = true,
 }: IngredientTrayProps) {
   // Issue #159 P0 (Cooking UI 1-Screen Polish): the tray previously split owned ingredients into
   // "Recommended" (this round's own recipe requirements) and "Other" (every remaining owned
@@ -139,12 +145,7 @@ export function IngredientTray({
   // "Preserve ... ingredient-selection behavior except where #159 explicitly changes ...
   // locking"); IngredientTray.recommendedOther.test.tsx's old FREE-creativity assertions are
   // updated accordingly (see that file's own new header comment).
-  const requiredItems = ingredientsByCategory(activeCategory).filter(
-    (i) =>
-      ownedIngredientIds.includes(i.id) &&
-      (freeCook ||
-        recipe.requiredIngredients.some((requirement) => requirement.ingredientId === i.id)),
-  );
+  const requiredItems = trayIngredientsFor(activeCategory, { ownedIngredientIds, freeCook, recipe });
 
   // Phase 4A-1B Human Feel Fix 2 / Issue #86: the visible grid stays a fixed 3x2
   // (MAX_INGREDIENT_PALETTE_SLOTS in data/ingredients.ts), no scrolling -- paged
@@ -514,7 +515,7 @@ export function IngredientTray({
             {"▶"}
           </button>
         </div>
-      ) : (
+      ) : reservePagerRow ? (
         <div className="ingredient-page-nav ingredient-page-nav--placeholder" aria-hidden="true">
           <button type="button" className="ingredient-page-nav__button" disabled tabIndex={-1}>
             {"◀"}
@@ -524,7 +525,7 @@ export function IngredientTray({
             {"▶"}
           </button>
         </div>
-      )}
+      ) : null}
 
       {/* Visual Polish 1A (Ingredient Tray Overflow, P1-1): the true end of this panel's
           in-flow content -- see this ref's own doc comment above and `.ingredient-panel__
