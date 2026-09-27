@@ -58,6 +58,11 @@ const CATEGORY_LABEL: Record<HintCategory, string> = {
   topping: "トッピング",
 };
 
+/** How long the Selectable CTA ignores further activations after one purchase request. A
+ *  double-click (or key repeat) lands its second click after React re-rendered the sheet with the
+ *  new paid count, so the reducer's `expectedPaidCount` check alone cannot catch it. */
+export const SELECTABLE_BUY_LATCH_MS = 450;
+
 /** OD-H3-17 generic guidance. H3-4 TODO: final copy. */
 export const SELECTABLE_GUIDANCE_TEXT = "このピザは、今わかっているヒントを手がかりに考えてみよう！";
 
@@ -79,6 +84,17 @@ export function HintSheet({
   const closeRef = useRef<HTMLButtonElement>(null);
   const latestRef = useRef<HTMLLIElement>(null);
   const [preference, setPreference] = useState<HintCategory>("sauce");
+  // H3-3: the Selectable CTA's activation latch (see SELECTABLE_BUY_LATCH_MS). The ref blocks a
+  // second activation synchronously; the state only mirrors it into `aria-disabled`.
+  const buyLatchRef = useRef(false);
+  const buyLatchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [buyLatched, setBuyLatched] = useState(false);
+  useEffect(
+    () => () => {
+      if (buyLatchTimer.current) clearTimeout(buyLatchTimer.current);
+    },
+    [],
+  );
   const next = view.kind === "TARGET" ? view.next : null;
   const ctaEnabled = view.kind === "SELECTABLE" ? view.presentation.affordable : !!next && next.affordable;
   const stepCount = view.kind === "TARGET" ? view.steps.length : 0;
@@ -125,7 +141,17 @@ export function HintSheet({
             preference={preference}
             onPreference={setPreference}
             buyRef={nextRef}
-            onBuy={() => onBuySelectable(preference, view.presentation.paidCount)}
+            latched={buyLatched}
+            onBuy={() => {
+              if (buyLatchRef.current) return;
+              buyLatchRef.current = true;
+              setBuyLatched(true);
+              buyLatchTimer.current = setTimeout(() => {
+                buyLatchRef.current = false;
+                setBuyLatched(false);
+              }, SELECTABLE_BUY_LATCH_MS);
+              onBuySelectable(preference, view.presentation.paidCount);
+            }}
           />
         ) : view.kind === "TARGET" ? (
           <>
@@ -197,12 +223,15 @@ function SelectableHintBody({
   preference,
   onPreference,
   buyRef,
+  latched,
   onBuy,
 }: {
   view: Extract<HintSheetView, { kind: "SELECTABLE" }>;
   preference: HintCategory;
   onPreference: (category: HintCategory) => void;
   buyRef: RefObject<HTMLButtonElement | null>;
+  /** Right after a request: further activations are ignored (focus stays on the CTA). */
+  latched: boolean;
   onBuy: () => void;
 }) {
   const groupName = useId();
@@ -282,6 +311,7 @@ function SelectableHintBody({
           type="button"
           className={`cta-button hint-sheet__next hint-sheet__next--paid${presentation.affordable ? "" : " hint-sheet__next--short"}`}
           disabled={!presentation.affordable}
+          aria-disabled={latched || undefined}
           onClick={onBuy}
         >
           <span className="hint-sheet__lock" aria-hidden="true">

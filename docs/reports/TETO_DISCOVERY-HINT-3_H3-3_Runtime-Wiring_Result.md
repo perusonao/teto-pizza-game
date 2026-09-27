@@ -205,7 +205,18 @@ No timer code changed. The purchase happens inside the open sheet, so the existi
   time excluded;
 - insufficient Pitz.
 
-Double or stale taps are rejected by `expectedPaidCount` (matrix 8/9; mutation M10 is killed). Dinner
+Double or stale taps are stopped in two layers:
+
+1. **The reducer** rejects any request whose `expectedPaidCount` no longer matches (matrix 8/9;
+   mutation M10 is killed).
+2. **The CTA itself** has an activation latch (`SELECTABLE_BUY_LATCH_MS` = 450 ms, in
+   `HintSheet.tsx`). A real double-click or key repeat lands its second click *after* React has
+   re-rendered the sheet with the new paid count, so that click carries a fresh count the reducer
+   would accept. Codex review P1 on #247 found this.
+   - While the latch is on, further activations are ignored and the CTA is `aria-disabled`.
+   - It is a ref, so it takes effect synchronously. Focus stays on the CTA.
+   - Tests: the App test (`user.dblClick` + click + Enter×2 buys exactly one fact, then re-arms) and
+     a HintSheet unit test (fake timers). Removing the latch fails the App test. Dinner
 never opens the sheet (`freeCook` is false). The action is Dinner-blocked in any case.
 
 ## 11. Near-miss
@@ -287,6 +298,7 @@ was restored (`git diff` was verified clean after each run).
 | M8 | Dex 0 any recipe free | **KILLED** (2 failed) | matrix 24, hintPurchase Dex-0 test |
 | M9 | skip the persistence write (App) | **KILLED** (4 failed) | App purchase/save, App reload |
 | M10 | a stale request charges (ignore `expectedPaidCount`) | **KILLED** (4 failed) | matrix 8, 9 |
+| M11 | the CTA latch removed (a UI double-click buys twice) | **KILLED** | App double-click test |
 
 ### Test matrix → tests
 
@@ -321,7 +333,8 @@ The following were migrated deliberately, not skipped:
 Unchanged and green: Hint 2.0 onboarding, Discovery, Free Cooking, Shop, Inventory, Lunch Rush and
 Dinner (merged-main DM-2 behavior; no Dinner file touched; nothing from #243 used).
 
-- Full Vitest: **183 files, 3919 passed, 1 skipped**, 0 failed.
+- Full Vitest: **183 files, 3921 passed, 1 skipped**, 0 failed. This includes the latch tests added
+  after the Codex review.
 - `tsc -b`: 0 errors. `oxlint`: 0 warnings. `npm run build`: OK.
 
 ## 17. E2E (local Chromium)

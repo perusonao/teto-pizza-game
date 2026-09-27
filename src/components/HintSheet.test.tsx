@@ -1,13 +1,13 @@
 import "@testing-library/jest-dom/vitest";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { INGREDIENTS } from "../data/ingredients";
 import { RECIPES } from "../data/recipes";
 import { buildHintSteps, type HintLevel } from "../logic/discovery/hintSteps";
 import { selectableHintSavedState } from "../logic/discovery/hintFactMigration";
 import { buildSelectableHintModel, selectableHintPresentation } from "../logic/discovery/selectableHint";
 import type { HintSheetView } from "../state/discoveryHint";
-import { HintSheet, SELECTABLE_GUIDANCE_TEXT } from "./HintSheet";
+import { HintSheet, SELECTABLE_BUY_LATCH_MS, SELECTABLE_GUIDANCE_TEXT } from "./HintSheet";
 
 const recipe = (id: string) => RECIPES.find((r) => r.id === id)!;
 const targetView = (id: string, discoveredCount: number, shown: number, pitzBalance = 100): HintSheetView => {
@@ -258,6 +258,26 @@ describe("HintSheet -- Selectable view (Discovery Hint 3.0, H3-3)", () => {
     expect(onBuySelectable).toHaveBeenCalledWith("cheese", 1);
     expect(onUnlock).not.toHaveBeenCalled();
     expect(document.querySelector(".hint-sheet__next")).toHaveTextContent("10 Pitz");
+  });
+
+  it("the CTA latches after one activation: a double-click reports once, focus stays, it re-arms after the latch", () => {
+    vi.useFakeTimers();
+    try {
+      const { onBuySelectable } = renderSelectable(selectableView("capricciosa"));
+      const cta = document.querySelector<HTMLButtonElement>(".hint-sheet__next")!;
+      fireEvent.click(cta);
+      fireEvent.click(cta);
+      fireEvent.click(cta);
+      expect(onBuySelectable).toHaveBeenCalledTimes(1);
+      expect(cta).toHaveAttribute("aria-disabled", "true");
+      expect(cta).toHaveFocus();
+      act(() => vi.advanceTimersByTime(SELECTABLE_BUY_LATCH_MS));
+      expect(cta).not.toHaveAttribute("aria-disabled");
+      fireEvent.click(cta);
+      expect(onBuySelectable).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("insufficient Pitz: a disabled CTA in the calm tone, focus on 閉じる", () => {

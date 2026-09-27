@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "./App";
 import { SAVE_STORAGE_KEY, type PersistentSaveV1 } from "./state/persistence";
@@ -465,8 +465,11 @@ describe("Cooking Time: Discovery Hint sheet pause (#229)", () => {
     await user.click(screen.getByRole("button", { name: /ヒントを見る/ })); // new round + sheet
     expect(screen.getByRole("dialog", { name: /ヒント/ })).toBeInTheDocument();
     now += 15_000;
-    await user.click(document.querySelector<HTMLButtonElement>(".hint-sheet__next")!);
-    await user.click(document.querySelector<HTMLButtonElement>(".hint-sheet__next")!);
+    for (let i = 0; i < 2; i += 1) {
+      await user.click(document.querySelector<HTMLButtonElement>(".hint-sheet__next")!);
+      // H3-3: wait out the CTA's activation latch between two deliberate purchases.
+      await waitFor(() => expect(document.querySelector(".hint-sheet__next")).not.toHaveAttribute("aria-disabled"), { timeout: 2000 });
+    }
     now += 15_000;
     await user.click(screen.getByRole("button", { name: "閉じる" }));
     // Two facts bought through the same reducer authority as every other door (H3-3: the
