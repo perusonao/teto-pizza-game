@@ -368,7 +368,9 @@ describe("save forward-compat (Phase 3-4B)", () => {
     const storage = fakeStorage();
     playOneRound(storage);
     const raw = storage.raw() as Record<string, unknown>;
-    expect(Object.keys(raw).sort()).toEqual(Object.keys(createDefaultSave()).sort());
+    // DM-4-2: `dinnerMissionRecords` is written only once a record exists, so a save that never met
+    // Dinner keeps exactly its pre-DM-4-2 keys.
+    expect(Object.keys(raw).sort()).toEqual(Object.keys(createDefaultSave()).filter((k) => k !== "dinnerMissionRecords").sort());
   });
 });
 
