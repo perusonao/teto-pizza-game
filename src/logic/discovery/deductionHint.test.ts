@@ -27,6 +27,7 @@ import { buildSelectableHintModel, purchaseSelectableHint, selectableHintPresent
 import { selectableHintSavedState } from "./hintFactMigration";
 import { signatureOfPizza } from "./signature";
 import { ladderOrder, ownedAtLadderStep as ownedAtStep } from "./testSupport/deductionAudit";
+import { createDefaultSave, loadSave, SAVE_STORAGE_KEY } from "../../state/persistence";
 
 const ownedAtLadderStep = (index: number) => ownedAtStep(index, W1_25_DISCOVERY_LADDER);
 
@@ -154,7 +155,7 @@ describe("DH4-1 reserve attribute answer (OD-DH4-3/5/10)", () => {
   it("owned-set edge cases: empty, non-array, hostile and unknown ids never inflate k", () => {
     for (const owned of [[], "ham", null, undefined, 42, { 0: "ham" }]) {
       const answer = reserveAttributeAnswer("bambino", { discoveredCount: 9, ownedIngredientIds: owned });
-      expect(answer).toEqual({ level: "existence", factId: "attr:reserve:existence" });
+      expect(answer).toEqual({ level: "existence", factId: "attr:existence" });
     }
     const withJunk = [...ownedAtLadderStep(9), "future-meat", "__proto__", "constructor", "", 12, null];
     expect(reserveAttributeAnswer("bambino", ctxAt(9, withJunk as string[]))).toEqual(reserveAttributeAnswer("bambino", ctxAt(9)));
@@ -204,7 +205,7 @@ describe("DH4-1 reserve attribute answer (OD-DH4-3/5/10)", () => {
     // hawaiian: reserve ham (meat). No other meat owned, one seafood owned -> 肉・魚介 (protein).
     const owned = ["tomato-sauce", "mozzarella", "basil", "pineapple", "ham", "tuna"];
     const answer = reserveAttributeAnswer("hawaiian", { discoveredCount: 10, ownedIngredientIds: owned })!;
-    expect(answer).toEqual({ level: "group", group: "protein", factId: "attr:reserve:group:protein" });
+    expect(answer).toEqual({ level: "group", group: "protein", factId: "attr:group:protein" });
     expect(deductionHintTextJa(answer)).toBe("まだわかっていない材料に、肉・魚介の仲間があるよ");
   });
 
@@ -215,7 +216,7 @@ describe("DH4-1 reserve attribute answer (OD-DH4-3/5/10)", () => {
     expect(answer.level).not.toBe("family");
     // One more owned meat outside the recipe makes the family answer safe.
     const safe = reserveAttributeAnswer("hawaiian", { discoveredCount: 10, ownedIngredientIds: [...owned, "bacon"] })!;
-    expect(safe).toEqual({ level: "family", family: "meat", factId: "attr:reserve:family:meat" });
+    expect(safe).toEqual({ level: "family", family: "meat", factId: "attr:family:meat" });
   });
 
   it("not a target / zero attribute: onboarding, unknown and hostile recipe ids answer nothing; the floor is existence", () => {
@@ -316,6 +317,26 @@ describe("DH4-1 legacy total-count ownership (OD-DH4-8)", () => {
       expect(ingredientTotalOwned("capricciosa", { discoveryHintPurchases: null, discoveryHintFacts: facts })).toBe(false);
     }
     expect(ingredientTotalOwned("__proto__", { discoveryHintPurchases: {}, discoveryHintFacts: {} })).toBe(false);
+  });
+});
+
+describe("DH4-1 fact ids survive the real save path", () => {
+  it("every fact id this layer can produce is kept by loadSave (the persisted fact-id grammar)", () => {
+    const ids = new Set<string>([INGREDIENT_TOTAL_FACT_ID]);
+    for (const [i, id] of TARGETS.map((t, j) => [j + 1, t] as const)) {
+      for (const owned of [ownedAtLadderStep(i), ownedAtLadderStep(LADDER.length - 1), []]) {
+        ids.add(reserveAttributeAnswer(id, ctxAt(i, owned))!.factId);
+      }
+    }
+    for (const f of ATTRIBUTE_FAMILIES) ids.add(`attr:family:${f.id}`);
+    for (const g of ATTRIBUTE_GROUPS) ids.add(`attr:group:${g.id}`);
+    for (const c of ["sauce", "cheese", "topping"]) ids.add(`attr:category:${c}`);
+    ids.add("attr:existence");
+    const store = new Map<string, string>();
+    const storage = { getItem: (k: string) => store.get(k) ?? null, setItem: (k: string, v: string) => void store.set(k, v), removeItem: (k: string) => void store.delete(k) };
+    storage.setItem(SAVE_STORAGE_KEY, JSON.stringify({ ...createDefaultSave(), discoveryHintFacts: { capricciosa: [...ids] } }));
+    const loaded = loadSave(storage);
+    expect([...(loaded.discoveryHintFacts as Record<string, string[]>).capricciosa].sort()).toEqual([...ids].sort());
   });
 });
 

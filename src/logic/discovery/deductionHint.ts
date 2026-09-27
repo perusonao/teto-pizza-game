@@ -41,6 +41,11 @@
  * - The level chosen depends only on the recipe and the owned set. It never depends on what the
  *   player already bought, and the result carries no candidate count (OD-DH4-10: no FREE LEAK).
  *
+ * Fact ids stay inside the persisted grammar `<kind>:<value>[:<qualifier>]` (../../state/persistence.ts
+ * `HINT_FACT_ID_PATTERN`, at most two segments after the kind), so a stored answer survives a reload:
+ * `meta:ingredient-total`, `attr:family:<family>`, `attr:group:<group>`, `attr:category:<category>`,
+ * `attr:existence`. `attr:` answers are always about the Rule W reserve.
+ *
  * Inputs from outside are untrusted: an unknown recipe or the Dex-0 onboarding returns `null` (not
  * a target), and owned ids that are not catalog ingredients are ignored. Lookups use arrays, Sets and
  * Maps, never object keys.
@@ -74,10 +79,10 @@ export interface StructureTotalFact {
 export type AttributeAnswerLevel = "family" | "group" | "category" | "existence";
 
 export type ReserveAttributeAnswer =
-  | { level: "family"; family: AttributeFamilyId; factId: `attr:reserve:family:${AttributeFamilyId}` }
-  | { level: "group"; group: AttributeGroupId; factId: `attr:reserve:group:${AttributeGroupId}` }
-  | { level: "category"; category: HintCategory; factId: `attr:reserve:category:${HintCategory}` }
-  | { level: "existence"; factId: "attr:reserve:existence" };
+  | { level: "family"; family: AttributeFamilyId; factId: `attr:family:${AttributeFamilyId}` }
+  | { level: "group"; group: AttributeGroupId; factId: `attr:group:${AttributeGroupId}` }
+  | { level: "category"; category: HintCategory; factId: `attr:category:${HintCategory}` }
+  | { level: "existence"; factId: "attr:existence" };
 
 export interface DeductionContext {
   /** The Dex discovered count (Dex 0 + margherita is the free onboarding, never a target here). */
@@ -139,15 +144,15 @@ function reserveLevels(recipeId: unknown, context: AttributeContext, recipes: re
   if (family) {
     const group = ingredientAttributeGroup(reserve)!;
     levels.push({
-      answer: { level: "family", family, factId: `attr:reserve:family:${family}` },
+      answer: { level: "family", family, factId: `attr:family:${family}` },
       matches: (id) => sameCategory(id) && ingredientAttributeFamily(id) === family,
     });
     levels.push({
-      answer: { level: "group", group, factId: `attr:reserve:group:${group}` },
+      answer: { level: "group", group, factId: `attr:group:${group}` },
       matches: (id) => sameCategory(id) && ingredientAttributeGroup(id) === group,
     });
   }
-  levels.push({ answer: { level: "category", category, factId: `attr:reserve:category:${category}` }, matches: sameCategory });
+  levels.push({ answer: { level: "category", category, factId: `attr:category:${category}` }, matches: sameCategory });
   return { reserve, recipeIds: new Set(distinctIngredientIds(recipe)), owned: ownedCatalogIds(context.ownedIngredientIds), levels };
 }
 
@@ -171,7 +176,7 @@ export function reserveAttributeAnswer(
   for (const level of levels.levels) {
     if (candidates(levels, level.matches).length >= MIN_ATTRIBUTE_CANDIDATES) return level.answer;
   }
-  return { level: "existence", factId: "attr:reserve:existence" };
+  return { level: "existence", factId: "attr:existence" };
 }
 
 /**

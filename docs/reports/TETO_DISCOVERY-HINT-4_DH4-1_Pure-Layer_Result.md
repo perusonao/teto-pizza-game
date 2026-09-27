@@ -13,8 +13,8 @@
 | Other PRs (read-only check) | #251 (H3-4) OPEN at `1ef9b61`, clean, not merged · #252 (DM-3R-2) OPEN, not touched |
 | Parent Issue | **#253** Discovery Hint 4.0: Deduction Hints. New; the Duplicate Gate found no existing DH4 / structure / attribute issue. It records OD-DH4-1…10 and the DH4-1 scope. |
 | Branch | `claude/dh4-1-deduction-pure-layer`, cut from `origin/main` `726b0ac` (not from PR #251's branch) |
-| PR | {{PR}} |
-| Final HEAD | {{HEAD}} |
+| PR | **#254** (`main` ← `claude/dh4-1-deduction-pure-layer`), OPEN, no auto-merge |
+| Final HEAD | The commit carrying the Codex P2 fix (§10.1), on top of `0e66ba0`. The PR's Checks tab shows the exact SHA. |
 
 ## 2. Owner Decisions (Owner Authority, recorded in #253)
 
@@ -38,7 +38,7 @@
 | `src/data/ingredientTaxonomy.ts` | **New.** Families (7) and groups (4), a topping → family table for the 22 runtime toppings, and lookups (Map-based, hostile-safe) |
 | `src/logic/discovery/deductionHint.ts` | **New.** The pure layer: `structureTotalFact`, `reserveAttributeAnswer`, `reserveAttributeAudit` (audit only), `deductionHintTextJa` (provisional copy), `legacyOwnsIngredientTotal`, `ingredientTotalOwned` |
 | `src/logic/discovery/testSupport/deductionAudit.ts` | **New.** The 25-recipe audit builder. It takes the ladder as a parameter, which respects the existing ladder wiring boundary. |
-| `src/logic/discovery/deductionHint.test.ts` | **New.** 26 tests (§10) |
+| `src/logic/discovery/deductionHint.test.ts` | **New.** 27 tests (§10) |
 | `src/logic/discovery/deductionHint.audit.test.ts` | **New.** Pins the machine-readable audit (`toMatchFileSnapshot`) + 2 invariants |
 | `docs/reports/data/TETO_DISCOVERY-HINT-4_DH4-1_AUDIT.json` | **New.** The machine-readable 25-recipe audit |
 | this report | |
@@ -126,7 +126,7 @@ No Owner decision was needed. The data (C: 5 / 24 name-equivalent, A: 0) settles
   3. `category`;
   4. `existence` (always allowed; it restates Rule W's guaranteed "one more ingredient").
 - Sauce and cheese reserves start at `category`.
-- The answer is `{ level, family | group | category, factId }`, where `factId` is `attr:reserve:family:meat` / `…group:protein` / `…category:topping` / `attr:reserve:existence`. It stores the answered value, so it stays stable after later growth.
+- The answer is `{ level, family | group | category, factId }`, where `factId` is `attr:family:meat` / `attr:group:protein` / `attr:category:topping` / `attr:existence`. These ids stay within the persisted `<kind>:<value>[:<qualifier>]` grammar, so they survive `loadSave`. Each id stores the answered value, so it stays stable after later growth.
 - **No FREE LEAK:**
   - the answer has no count or size field (tested);
   - the level is a function of (recipe, owned) only, never of purchases;
@@ -185,7 +185,7 @@ The audit test asserts attribute < material for every recipe. These numbers are 
 
 ## 10. Tests
 
-**`deductionHint.test.ts` (26) + `deductionHint.audit.test.ts` (2).** Owner list → test:
+**`deductionHint.test.ts` (27) + `deductionHint.audit.test.ts` (2).** Owner list → test:
 
 | Owner item | Test |
 |---|---|
@@ -206,17 +206,34 @@ The audit test asserts attribute < material for every recipe. These numbers are 
 | Unknown / future ingredient safety | "unknown / future ingredient: a recipe with a non-catalog ingredient fails closed …"; hostile ids in the taxonomy |
 | 25-recipe audit maintained | `deductionHint.audit.test.ts` (file snapshot of the JSON) |
 | Unwired | "no production module imports the Deduction Hint layer or the taxonomy yet" |
+| Save compatibility (Codex P2, §10.1) | "every fact id this layer can produce is kept by loadSave" |
 
 **Runs:**
 
 | Check | Result |
 |---|---|
 | Focused (DH4 + `discoveryLadder.test.ts` boundary) | green |
-| Full Vitest | **187 files, 4011 passed, 1 skipped, 0 failed** |
+| Full Vitest | **187 files, 4012 passed, 1 skipped, 0 failed** |
 | `tsc -b` | 0 errors |
 | `oxlint` | 0 warnings |
 | `npm run build` | OK (only the existing chunk-size warning) |
-| E2E | Not run locally (pure layer, no UI). CI follows the classifier: {{CI}} |
+| E2E | Not run locally (pure layer, no UI). CI follows the classifier. On the first head `0e66ba0` everything is **green**:
+- `classify`, `build`, `layout-chromium`, `Layout Contract Gate`;
+- `webkit-390x844` and `webkit-360x800` 1/2 + 2/2;
+- `WebKit Gate`.
+
+The runs are 36309627040 (E2E) and 36309627044 (build). The Codex-fix head re-runs the same suite. |
+
+### 10.1 Codex review (PR #254)
+
+**P2: "Use fact IDs accepted by the persistence sanitizer". Valid, and fixed in this PR.**
+
+- The first head `0e66ba0` used ids such as `attr:reserve:family:meat` (three segments after the kind).
+- `persistence.ts` `HINT_FACT_ID_PATTERN` keeps at most `<kind>:<value>[:<qualifier>]`. Such ids would therefore be dropped on save once DH4-2 wires purchases.
+- **The fix:**
+  - the ids are now `attr:family:<f>` / `attr:group:<g>` / `attr:category:<c>` / `attr:existence`. `attr:` answers are always about the reserve; this is documented in the module;
+  - a new test round-trips every id the layer can produce through the real `loadSave`;
+  - persistence is unchanged.
 
 During development, the existing ladder wiring-boundary test caught a support file importing `discoveryLadder`. It was fixed by passing the ladder in, not by widening the boundary.
 
@@ -256,4 +273,22 @@ Each mutant was applied to `deductionHint.ts`, the two DH4 test files were run, 
 
 ## 14. Verdict
 
-{{VERDICT}}
+**A. DH4-1 READY FOR OWNER REVIEW.**
+
+The pure, unwired layer implements OD-DH4-1…10:
+
+- the whole-recipe total only;
+- the reserve attribute behind k ≥ 2 over OWNED-outside-recipe candidates, with a monotonic safety invariant;
+- a 7-family / 4-group data taxonomy;
+- read-only legacy ownership;
+- no near-miss change.
+
+**Evidence:**
+
+- The 25-recipe audit shows no name-equivalent answer at any ladder state.
+- 29 DH4 tests pass and 7 / 7 mutants are killed.
+- Full Vitest, typecheck, lint and build are green.
+- Full CI, WebKit included, is green on `0e66ba0`.
+- The Codex P2 (fact-id persistence grammar) is fixed in-PR with a real `loadSave` round-trip test.
+
+The candidate-universe decision needed no Owner stop (§5). **Not merged.**

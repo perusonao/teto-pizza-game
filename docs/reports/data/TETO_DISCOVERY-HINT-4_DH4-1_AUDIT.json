@@ -50,7 +50,7 @@
   "reserve": "mozzarella",
   "reserveFamily": null,
   "owned": 4,
-  "answer": "attr:reserve:existence",
+  "answer": "attr:existence",
   "candidatesOwned": {
    "category": 1
   },
@@ -86,7 +86,7 @@
   "reserve": "egg",
   "reserveFamily": "other",
   "owned": 5,
-  "answer": "attr:reserve:category:topping",
+  "answer": "attr:category:topping",
   "candidatesOwned": {
    "family": 1,
    "group": 1,
@@ -124,7 +124,7 @@
   "reserve": "mozzarella",
   "reserveFamily": null,
   "owned": 6,
-  "answer": "attr:reserve:existence",
+  "answer": "attr:existence",
   "candidatesOwned": {
    "category": 1
   },
@@ -160,7 +160,7 @@
   "reserve": "basil",
   "reserveFamily": "herb",
   "owned": 7,
-  "answer": "attr:reserve:category:topping",
+  "answer": "attr:category:topping",
   "candidatesOwned": {
    "family": 1,
    "group": 1,
@@ -202,7 +202,7 @@
   "reserve": "basil",
   "reserveFamily": "herb",
   "owned": 8,
-  "answer": "attr:reserve:category:topping",
+  "answer": "attr:category:topping",
   "candidatesOwned": {
    "family": 1,
    "group": 1,
@@ -240,7 +240,7 @@
   "reserve": "mozzarella",
   "reserveFamily": null,
   "owned": 9,
-  "answer": "attr:reserve:category:cheese",
+  "answer": "attr:category:cheese",
   "candidatesOwned": {
    "category": 2
   },
@@ -274,7 +274,7 @@
   "reserve": "mozzarella",
   "reserveFamily": null,
   "owned": 10,
-  "answer": "attr:reserve:category:cheese",
+  "answer": "attr:category:cheese",
   "candidatesOwned": {
    "category": 2
   },
@@ -314,7 +314,7 @@
   "reserve": "sausage",
   "reserveFamily": "meat",
   "owned": 11,
-  "answer": "attr:reserve:category:topping",
+  "answer": "attr:category:topping",
   "candidatesOwned": {
    "family": 1,
    "group": 1,
@@ -354,7 +354,7 @@
   "reserve": "ham",
   "reserveFamily": "meat",
   "owned": 12,
-  "answer": "attr:reserve:family:meat",
+  "answer": "attr:family:meat",
   "candidatesOwned": {
    "family": 4,
    "group": 4,
@@ -394,7 +394,7 @@
   "reserve": "ham",
   "reserveFamily": "meat",
   "owned": 13,
-  "answer": "attr:reserve:family:meat",
+  "answer": "attr:family:meat",
   "candidatesOwned": {
    "family": 4,
    "group": 4,
@@ -438,7 +438,7 @@
   "reserve": "black-olive",
   "reserveFamily": "vegetable",
   "owned": 15,
-  "answer": "attr:reserve:family:vegetable",
+  "answer": "attr:family:vegetable",
   "candidatesOwned": {
    "family": 3,
    "group": 4,
@@ -482,7 +482,7 @@
   "reserve": "black-olive",
   "reserveFamily": "vegetable",
   "owned": 16,
-  "answer": "attr:reserve:family:vegetable",
+  "answer": "attr:family:vegetable",
   "candidatesOwned": {
    "family": 4,
    "group": 5,
@@ -519,7 +519,7 @@
   "reserve": "oregano",
   "reserveFamily": "herb",
   "owned": 17,
-  "answer": "attr:reserve:family:herb",
+  "answer": "attr:family:herb",
   "candidatesOwned": {
    "family": 2,
    "group": 2,
@@ -556,7 +556,7 @@
   "reserve": "oregano",
   "reserveFamily": "herb",
   "owned": 18,
-  "answer": "attr:reserve:family:herb",
+  "answer": "attr:family:herb",
   "candidatesOwned": {
    "family": 2,
    "group": 2,
@@ -596,7 +596,7 @@
   "reserve": "oregano",
   "reserveFamily": "herb",
   "owned": 19,
-  "answer": "attr:reserve:family:herb",
+  "answer": "attr:family:herb",
   "candidatesOwned": {
    "family": 3,
    "group": 3,
@@ -636,7 +636,7 @@
   "reserve": "onion",
   "reserveFamily": "vegetable",
   "owned": 20,
-  "answer": "attr:reserve:family:vegetable",
+  "answer": "attr:family:vegetable",
   "candidatesOwned": {
    "family": 5,
    "group": 6,
@@ -675,7 +675,7 @@
   "reserve": "onion",
   "reserveFamily": "vegetable",
   "owned": 21,
-  "answer": "attr:reserve:family:vegetable",
+  "answer": "attr:family:vegetable",
   "candidatesOwned": {
    "family": 4,
    "group": 5,
@@ -713,7 +713,7 @@
   "reserve": "mozzarella",
   "reserveFamily": null,
   "owned": 22,
-  "answer": "attr:reserve:category:cheese",
+  "answer": "attr:category:cheese",
   "candidatesOwned": {
    "category": 2
   },
@@ -749,7 +749,7 @@
   "reserve": "garlic",
   "reserveFamily": "herb",
   "owned": 23,
-  "answer": "attr:reserve:family:herb",
+  "answer": "attr:family:herb",
   "candidatesOwned": {
    "family": 3,
    "group": 3,
@@ -789,7 +789,7 @@
   "reserve": "basil",
   "reserveFamily": "herb",
   "owned": 24,
-  "answer": "attr:reserve:family:herb",
+  "answer": "attr:family:herb",
   "candidatesOwned": {
    "family": 3,
    "group": 3,
@@ -829,7 +829,7 @@
   "reserve": "bacon",
   "reserveFamily": "meat",
   "owned": 25,
-  "answer": "attr:reserve:family:meat",
+  "answer": "attr:family:meat",
   "candidatesOwned": {
    "family": 4,
    "group": 7,
@@ -863,7 +863,7 @@
   "reserve": "olive-oil",
   "reserveFamily": null,
   "owned": 26,
-  "answer": "attr:reserve:category:sauce",
+  "answer": "attr:category:sauce",
   "candidatesOwned": {
    "category": 3
   },
@@ -900,7 +900,7 @@
   "reserve": "garlic",
   "reserveFamily": "herb",
   "owned": 27,
-  "answer": "attr:reserve:family:herb",
+  "answer": "attr:family:herb",
   "candidatesOwned": {
    "family": 4,
    "group": 4,
@@ -941,7 +941,7 @@
   "reserve": "fontina",
   "reserveFamily": null,
   "owned": 29,
-  "answer": "attr:reserve:existence",
+  "answer": "attr:existence",
   "candidatesOwned": {
    "category": 1
   },

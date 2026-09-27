@@ -18,7 +18,7 @@ describe("DH4-1 25-recipe information audit", () => {
 
   it("no target's answer is name-equivalent at its ladder state; the attribute is always worth less than the name", () => {
     for (const row of audit.slice(1)) {
-      const level = row.answer!.split(":")[2];
+      const level = row.answer!.split(":")[1];
       if (level !== "existence") expect(row.candidatesOwned[level], row.recipeId).toBeGreaterThanOrEqual(MIN_ATTRIBUTE_CANDIDATES);
       expect(row.bits!.attribute, row.recipeId).toBeLessThan(row.bits!.material);
     }
