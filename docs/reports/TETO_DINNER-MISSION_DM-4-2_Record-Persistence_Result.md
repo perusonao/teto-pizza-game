@@ -16,19 +16,25 @@
 |---|---|
 | `src/state/dinnerMissionRecordsSave.ts`（新規） | pure。`parseDinnerMissionRecords`、`isDinnerMissionRecordBlocked`、`mergeDinnerMissionRecord`、`mergeDinnerMissionRecordsForWrite` |
 | `src/state/persistence.ts` | 下の表を参照 |
-| `src/state/persistence.dinnerMissionRecords.test.ts`（新規） | 39 tests |
+| `src/state/persistence.dinnerMissionRecords.test.ts`（新規） | 44 tests（review 対応後） |
+| `src/state/saveIdGrammar.ts`（新規） | save が信頼する id 文法 `SAVE_ID_PATTERN` を 1 か所にまとめた（forward-compat と Dinner records で共有する。review #7） |
 | `e2e/save-dinner-records-dm4-2.spec.ts`（新規） | 実 browser での forward-compat（2 tests × 2 viewport） |
 | `src/state/persistence.test.ts`、`persistence.forwardCompat.test.ts`、`persistence.discoveryHintPurchases.test.ts`、`phase4a1b.regression.test.ts` | schema key の guard 3 件と、fixture 3 件を更新した（§4） |
 
 `persistence.ts` の変更点:
 
-- `PersistentSaveV2.dinnerMissionRecords` を追加した。中身は **parse 済みの state**（読める records、blocked の mission、container が壊れているか）。
-- `KNOWN_SAVE_KEYS` に key を追加した。
+- `PersistentSaveV2.dinnerMissionRecordsState` を追加した。中身は **parse 済みの state**（読める records、blocked の mission、container が壊れているか）。
+  - 保存する key（`dinnerMissionRecords`）とは **わざと別の名前** にしている（review #1）。in-memory の state が誤って records の位置に保存されないようにするため。
+- `KNOWN_SAVE_KEYS` に 2 つの key を追加した。
+  - `dinnerMissionRecords`
+  - `dinnerMissionRecordsState`（保存されない名前。紛れ込んだ copy は読まず、carry もしない）
 - default / v1 migration は空の state にする。
-- sanitize は **v2 root が保存している値だけ** を parse する。
+- sanitize は **root が保存している値**（v1 / v2 とも）を parse する。migration 後の中間値は parse しない。
 - forward-compat の extras に、保存されている生の値を追加した。
 - `writeSave` は Dinner の値を **保存値への merge** で書く。
 - `ProgressionSnapshot.dinnerMissionRecordUpdates?` を追加した（Pitz と同じ `writeSave` に乗る）。
+- `persistProgress` は `{ refusedDinnerMissionIds }` を返すようにした（review #2）。
+- `dinnerRecordForSettlement(state, id)` を追加した。`{ blocked: true }` か `{ blocked: false, record }` を返す（review #2）。
 
 **変更していないもの:**
 
@@ -65,7 +71,11 @@ schema は広げていない。DM-4-1 の 5 field だけ。
 | **Full Reset** | `resetSave` で save ごと消える |
 | **revision（V-1）** | load では migration しない（保存された revision のまま）。V-1 は settlement（DM-4-1）が適用し、write の merge は `firstClearRewarded` / `clears` を必ず保持する |
 
-**DM-4-3 への約束:** settlement の前に `isDinnerMissionRecordBlocked(state, missionId)` を確認し、blocked なら精算しない（Pitz 0、record を書かない）。
+**DM-4-3 への約束:**
+
+- settlement に渡す record は、**必ず** `dinnerRecordForSettlement(state, missionId)` で取る。blocked なら精算しない（Pitz 0、record を書かない）。
+- `records[id]` を直接読むと、blocked な mission が「record 無し = 初回」に見えてしまう。
+- `persistProgress` の `refusedDinnerMissionIds` が空であることを assert できる。
 
 DM-4-1 の `decideDinnerSettlement` も、壊れた record を INVALID_INPUT で拒否する（二重の fail-closed）。
 
@@ -138,14 +148,14 @@ DM-4-1 の `decideDinnerSettlement` も、壊れた record を INVALID_INPUT で
 | P4: snapshot の blocked filter を外す | 最初は **SURVIVED**（害のない余分な write が 1 回起きるだけ）。「blocked だけへの更新は write 0」の test を追加して DETECTED（1） |
 | P5: `KNOWN_SAVE_KEYS` から key を外す | **equivalent**。`writeSave` の明示的な merge が常にこの key を所有するので、観測できる差が無い |
 
-**結果: 19 / 19 の非 equivalent mutant が DETECTED。**
+**結果（初回）: 19 / 19 の非 equivalent mutant が DETECTED。** review 対応後は §8。
 
 ## 6. Verification
 
 | check | result |
 |---|---|
-| focused（`src/state`） | 53 files、1205 passed |
-| full Vitest | **197 files、4250 passed / 1 skipped**（既存の skip） |
+| focused（`src/state`） | 53 files、1205 passed（review 対応前） |
+| full Vitest | 197 files、4250 passed / 1 skipped（review 対応前）→ **4255 passed / 1 skipped**（review 対応後。skip は既存のもの） |
 | `tsc -b` | clean |
 | `oxlint` | 0 warnings / 0 errors |
 | `npm run build` | success |
@@ -156,3 +166,51 @@ DM-4-1 の `decideDinnerSettlement` も、壊れた record を INVALID_INPUT で
 
 - **壊れた record の recovery UI、または明示的な reset policy。** 今は壊れた record の mission は settlement を拒否し続ける。Full Reset では消える。必要になったら別の Issue で決める。
 - **DM-4-3:** runtime で `isDinnerMissionRecordBlocked` と `decideDinnerSettlement` を CLEAR 遷移で 1 回だけ呼び、Pitz と `dinnerMissionRecordUpdates` を同じ state step で `persistProgress` に渡す。
+
+## 8. Independent review（`80e923d` の diff に対するもの。PR #276）
+
+`/code-review high` で 8 件の指摘が出た。修正は `80e923d` の次の commit で行った。
+
+| # | 指摘 | 判断 | 対応 |
+|---|---|---|---|
+| 1 | in-memory の state が保存 key と同じ名前 `dinnerMissionRecords` を使っている。save object を stringify した fixture が state を保存し、次の load で `records` という mission が blocked になる | **妥当（P2）** | in-memory の field 名を `dinnerMissionRecordsState` に変えた。保存 key は `writeSave` の merge だけが作る。`dinnerMissionRecordsState` は `KNOWN_SAVE_KEYS` に入れ、紛れ込んだ copy は読まず、保持もしない。先に入れていた `discoveryHintPurchases` の fixture の変更は、不要になったので revert した |
+| 2 | `persistProgress` が拒否された更新を報告しない。blocked な mission には読める record が無いので、DM-4-3 が `records[id]` を読むと初回扱いで支払ってしまいうる | **妥当（P2。runtime の部分は DM-4-3）** | 型で blocked の処理を強制する `dinnerRecordForSettlement` を追加した。`persistProgress` は `{ refusedDinnerMissionIds }` を返す |
+| 3 | `clears` の max merge では、2 つの tab から同時に clear すると 1 回分が失われる | **設計どおり（P3）** | 単調な merge では増分を足せない（ledger が必要）。`clears` に支払いは掛かっていないので exploit にはならない。既知の制限として記録する |
+| 4 | snapshot の merge が record を独自に再 merge していた。そのため、文法外の key や `__proto__` が in-memory の state に入りうる | **妥当（P2）** | 次の state を、1 回の write merge の結果から parse して作るようにした。#6 の二重 merge も同時に解消した |
+| 5 | v1 root に key がある場合、load（無視）と write（merge）で見え方が違う | **妥当（P3）** | 認識できる root（v1 / v2）すべてで、保存値を parse するようにした |
+| 6 | merge の二重実装 | #4 で解消 | ― |
+| 7 | id 文法の重複 | **妥当（P3）** | `saveIdGrammar.ts` の `SAVE_ID_PATTERN` を共有するようにした |
+| 8 | 保存値を二重に parse し、`includes` で O(n·m) の検索をしている | P3 | blocked の検索を `Set` にした。二重 parse は数件の mission なので無視できる |
+
+**追加した test（5 件）:**
+
+- #1: stringify された in-memory の save が records を植え付けないこと。stray な key が落ちること
+- #2: accessor が blocked を「record 無し」として見せないこと（4 通り）
+- #2: `persistProgress` が拒否を報告すること（blocked、不正な record、壊れた container、全件保存時は空）
+- #4: 文法外の key と `__proto__` が state にも storage にも入らないこと
+- #5: v1 root の key が load と write で一致すること
+
+**Mutation（review 対応後）: 22 / 22 の非 equivalent mutant が DETECTED。**
+
+新しく加えた mutant:
+
+- N1: in-memory の key を extra として carry する
+- N2: accessor が blocked を無視する
+- N3: 拒否を報告しない
+- N5 / P3b: v1 root を読まない / 中間値を再 parse する
+
+**equivalent mutant:**
+
+- **N4**（次の state を生の incoming から作る）: `writeSave` が保存値に対して全 record を再 filter・再検証するので、in-memory の中間値は外から観測できない。
+- **P5**（`KNOWN_SAVE_KEYS` から保存 key を外す）: 明示的な merge が常にこの key を所有するので、差が出ない。
+
+**Verification（review 対応後）:**
+
+| check | result |
+|---|---|
+| full Vitest | 197 files、**4255 passed / 1 skipped** |
+| `tsc -b` | clean |
+| `oxlint` | 0 / 0 |
+| build | success |
+| E2E（Chromium 390×844 と 360×800） | 新しい spec、`save-forward-compat-3-4b`、`dinner-mission`、`discovery-hint-facts-save`: **30 passed** |
+

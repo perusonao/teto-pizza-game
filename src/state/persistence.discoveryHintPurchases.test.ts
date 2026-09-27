@@ -90,10 +90,8 @@ describe("HE-1: discoveryHintPurchases in save v2", () => {
   });
 
   it("a current save round-trips its ledger", () => {
-    // DM-4-2: `dinnerMissionRecords` is the parsed in-memory state, not the stored shape -- only
-    // `writeSave` serializes it (by merging), so the fixture writes the stored shape without it.
-    const { dinnerMissionRecords, ...stored } = { ...createDefaultSave(), discoveryHintPurchases: { bismarck: 1, capricciosa: 4 } };
-    expect(loadSave(storageWith(stored))).toEqual({ ...stored, dinnerMissionRecords });
+    const save = { ...createDefaultSave(), discoveryHintPurchases: { bismarck: 1, capricciosa: 4 } };
+    expect(loadSave(storageWith(save))).toEqual(save);
   });
 
   it("drops malformed values per entry, never the whole save", () => {

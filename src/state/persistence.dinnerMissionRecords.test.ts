@@ -7,6 +7,7 @@ import {
 import type { DinnerRewardTable } from "../mission/dinner/dinnerReward";
 import type { DinnerRunState } from "../mission/dinner/dinnerRun";
 import {
+  dinnerRecordForSettlement,
   EMPTY_DINNER_MISSION_RECORDS_STATE,
   isDinnerMissionRecordBlocked,
   mergeDinnerMissionRecord,
@@ -56,7 +57,7 @@ function fakeStorage(initial?: unknown): StorageLike & { raw(): Record<string, u
 
 /** A save as stored on disk (never a stringified `PersistentSaveV2`: its Dinner field is parsed state). */
 function storedSave(extra: Record<string, unknown> = {}) {
-  const { dinnerMissionRecords: _parsed, ...stored } = createDefaultSave();
+  const { dinnerMissionRecordsState: _parsed, ...stored } = createDefaultSave();
   void _parsed;
   return {
     ...stored,
@@ -84,38 +85,38 @@ const BROKEN = { revision: 1, clears: -3, bestClearMs: "fast", bestTier: "PLATIN
 
 describe("load (cases 1, 2, 3, 4, 7-10)", () => {
   it("1: a fresh save has no records and nothing blocked", () => {
-    expect(loadSave(fakeStorage()).dinnerMissionRecords).toEqual(EMPTY_DINNER_MISSION_RECORDS_STATE);
-    expect(createDefaultSave().dinnerMissionRecords).toEqual(EMPTY_DINNER_MISSION_RECORDS_STATE);
+    expect(loadSave(fakeStorage()).dinnerMissionRecordsState).toEqual(EMPTY_DINNER_MISSION_RECORDS_STATE);
+    expect(createDefaultSave().dinnerMissionRecordsState).toEqual(EMPTY_DINNER_MISSION_RECORDS_STATE);
   });
 
   it("2: an old save without the key loads as empty, and the rest of it is unchanged", () => {
     const old = storedSave();
     const loaded = loadSave(fakeStorage(old));
-    expect(loaded.dinnerMissionRecords).toEqual(EMPTY_DINNER_MISSION_RECORDS_STATE);
+    expect(loaded.dinnerMissionRecordsState).toEqual(EMPTY_DINNER_MISSION_RECORDS_STATE);
     expect(loaded.pitzBalance).toBe(100);
     expect(loaded.dex).toEqual(old.dex);
   });
 
   it("3 / 7-10: a valid record loads with every field intact", () => {
     const loaded = loadSave(fakeStorage(storedSave({ dinnerMissionRecords: { "dm-a": REC } })));
-    expect(loaded.dinnerMissionRecords).toEqual({ records: { "dm-a": REC }, blockedMissionIds: [], containerCorrupt: false });
+    expect(loaded.dinnerMissionRecordsState).toEqual({ records: { "dm-a": REC }, blockedMissionIds: [], containerCorrupt: false });
   });
 
   it("4: several missions load independently", () => {
     const loaded = loadSave(fakeStorage(storedSave({ dinnerMissionRecords: { "dm-a": REC, "dm-b": REC_B } })));
-    expect(loaded.dinnerMissionRecords.records).toEqual({ "dm-a": REC, "dm-b": REC_B });
+    expect(loaded.dinnerMissionRecordsState.records).toEqual({ "dm-a": REC, "dm-b": REC_B });
   });
 
   it("an older (pre-DM-4-2) save with no key, and a v1 save, both load as empty", () => {
     const v1 = { schemaVersion: 1, dex: [], pitzBalance: 5, ownedIngredientIds: [], missionBest: {} };
-    expect(loadSave(fakeStorage(v1)).dinnerMissionRecords).toEqual(EMPTY_DINNER_MISSION_RECORDS_STATE);
+    expect(loadSave(fakeStorage(v1)).dinnerMissionRecordsState).toEqual(EMPTY_DINNER_MISSION_RECORDS_STATE);
   });
 });
 
 describe("fail-closed broken records (cases 12, 13, 14)", () => {
   it("12: a broken record blocks only its own mission, and is NOT normalized to a fresh/default record", () => {
     const loaded = loadSave(fakeStorage(storedSave({ dinnerMissionRecords: { "dm-a": BROKEN, "dm-b": REC_B } })));
-    const state = loaded.dinnerMissionRecords;
+    const state = loaded.dinnerMissionRecordsState;
     expect(state.blockedMissionIds).toEqual(["dm-a"]);
     expect(state.records).toEqual({ "dm-b": REC_B });
     expect(state.records["dm-a"]).toBeUndefined();
@@ -173,7 +174,7 @@ describe("fail-closed broken records (cases 12, 13, 14)", () => {
   });
 
   it("14: a broken record never reads as first-clear-not-rewarded, so settlement is refused", () => {
-    const loaded = loadSave(fakeStorage(storedSave({ dinnerMissionRecords: { "dm-a": BROKEN } }))).dinnerMissionRecords;
+    const loaded = loadSave(fakeStorage(storedSave({ dinnerMissionRecords: { "dm-a": BROKEN } }))).dinnerMissionRecordsState;
     expect(isDinnerMissionRecordBlocked(loaded, "dm-a")).toBe(true);
     // The DM-4-1 authority refuses the raw broken record too (fail closed, never re-pays).
     const run = clearedRun();
@@ -191,8 +192,8 @@ describe("fail-closed broken records (cases 12, 13, 14)", () => {
     for (const bad of [null, 3, "x", [REC]]) {
       const storage = fakeStorage(storedSave({ dinnerMissionRecords: bad }));
       const loaded = loadSave(storage);
-      expect(loaded.dinnerMissionRecords.containerCorrupt).toBe(true);
-      expect(isDinnerMissionRecordBlocked(loaded.dinnerMissionRecords, "dm-a")).toBe(true);
+      expect(loaded.dinnerMissionRecordsState.containerCorrupt).toBe(true);
+      expect(isDinnerMissionRecordBlocked(loaded.dinnerMissionRecordsState, "dm-a")).toBe(true);
       persistProgress(snapshotOf(storage, { pitzBalance: 7, dinnerMissionRecordUpdates: { "dm-a": REC } }), storage);
       expect(storage.raw()!.dinnerMissionRecords).toEqual(bad);
       expect(storage.raw()!.pitzBalance).toBe(7);
@@ -203,7 +204,7 @@ describe("fail-closed broken records (cases 12, 13, 14)", () => {
 describe("forward compatibility (cases 5, 6, 19)", () => {
   it("5: future mission ids are loaded as records and kept on every write", () => {
     const storage = fakeStorage(storedSave({ dinnerMissionRecords: { "dm-z-future": REC } }));
-    expect(loadSave(storage).dinnerMissionRecords.records["dm-z-future"]).toEqual(REC);
+    expect(loadSave(storage).dinnerMissionRecordsState.records["dm-z-future"]).toEqual(REC);
     persistProgress(snapshotOf(storage, { dinnerMissionRecordUpdates: { "dm-a": REC_B } }), storage);
     expect(storage.raw()!.dinnerMissionRecords).toEqual({ "dm-z-future": REC, "dm-a": REC_B });
   });
@@ -211,7 +212,7 @@ describe("forward compatibility (cases 5, 6, 19)", () => {
   it("5: keys outside the id grammar are neither read nor dropped", () => {
     const stored = { "Not An Id": { any: 1 }, "dm-a": REC };
     const storage = fakeStorage(storedSave({ dinnerMissionRecords: stored }));
-    expect(loadSave(storage).dinnerMissionRecords).toEqual({ records: { "dm-a": REC }, blockedMissionIds: [], containerCorrupt: false });
+    expect(loadSave(storage).dinnerMissionRecordsState).toEqual({ records: { "dm-a": REC }, blockedMissionIds: [], containerCorrupt: false });
     persistProgress(snapshotOf(storage, { pitzBalance: 1 }), storage);
     expect(storage.raw()!.dinnerMissionRecords).toEqual(stored);
   });
@@ -219,7 +220,7 @@ describe("forward compatibility (cases 5, 6, 19)", () => {
   it("6: unknown fields inside a record (a newer build's) survive, also when this build updates the record", () => {
     const future = { ...REC, attempts: 9, medal: { shiny: true } };
     const storage = fakeStorage(storedSave({ dinnerMissionRecords: { "dm-a": future } }));
-    expect(loadSave(storage).dinnerMissionRecords.records["dm-a"]).toEqual(REC); // gameplay sees only its fields
+    expect(loadSave(storage).dinnerMissionRecordsState.records["dm-a"]).toEqual(REC); // gameplay sees only its fields
     const better: DinnerMissionRecord = { ...REC, clears: 3, bestClearMs: 70_000, bestTier: "GOLD" };
     persistProgress(snapshotOf(storage, { dinnerMissionRecordUpdates: { "dm-a": better } }), storage);
     expect((storage.raw()!.dinnerMissionRecords as Record<string, unknown>)["dm-a"]).toEqual({ ...better, attempts: 9, medal: { shiny: true } });
@@ -248,7 +249,7 @@ describe("write semantics (cases 3, 7-11, 16-18)", () => {
     persistProgress(snapshotOf(storage, { pitzBalance: 350, dinnerMissionRecordUpdates: { "dm-a": REC } }), storage);
     expect(storage.writes - before).toBe(1);
     expect(storage.raw()).toMatchObject({ pitzBalance: 350, dinnerMissionRecords: { "dm-a": REC } });
-    expect(loadSave(storage).dinnerMissionRecords.records["dm-a"]).toEqual(REC);
+    expect(loadSave(storage).dinnerMissionRecordsState.records["dm-a"]).toEqual(REC);
   });
 
   it("7-10: a stale snapshot never lowers stored progress", () => {
@@ -322,11 +323,69 @@ describe("write semantics (cases 3, 7-11, 16-18)", () => {
     persistProgress(snapshotOf(storage, { dinnerMissionRecordUpdates: { "dm-a": REC, "dm-b": REC_B } }), storage);
     const text = storage.text();
     const writes = storage.writes;
-    const again = loadSave(storage).dinnerMissionRecords.records;
+    const again = loadSave(storage).dinnerMissionRecordsState.records;
     persistProgress(snapshotOf(storage, { dinnerMissionRecordUpdates: again }), storage);
     persistProgress(snapshotOf(storage, { dinnerMissionRecordUpdates: { "dm-a": REC } }), storage);
     expect(storage.writes).toBe(writes);
     expect(storage.text()).toBe(text);
+  });
+});
+
+describe("independent review follow-ups (PR #276)", () => {
+  it("#1: a serialized in-memory save cannot plant parsed state where the records belong", () => {
+    // Fixtures (and any careless caller) stringify a whole PersistentSaveV2. Its Dinner field is the
+    // in-memory `dinnerMissionRecordsState`, which is never read as records and is dropped on write.
+    const inMemory = { ...createDefaultSave(), dinnerMissionRecordsState: { records: { "dm-a": REC }, blockedMissionIds: ["dm-b"], containerCorrupt: false } };
+    const storage = fakeStorage(inMemory);
+    expect(loadSave(storage).dinnerMissionRecordsState).toEqual(EMPTY_DINNER_MISSION_RECORDS_STATE);
+    persistProgress(snapshotOf(storage, { pitzBalance: 9 }), storage);
+    expect(storage.raw()).not.toHaveProperty("dinnerMissionRecordsState");
+    expect(storage.raw()).not.toHaveProperty("dinnerMissionRecords");
+  });
+
+  it("#2: dinnerRecordForSettlement never presents a blocked mission as 'no record' (a first clear)", () => {
+    const state = parseDinnerMissionRecords({ "dm-a": BROKEN, "dm-b": REC_B });
+    expect(dinnerRecordForSettlement(state, "dm-a")).toEqual({ blocked: true });
+    expect(dinnerRecordForSettlement(state, "dm-b")).toEqual({ blocked: false, record: REC_B });
+    expect(dinnerRecordForSettlement(state, "dm-new")).toEqual({ blocked: false, record: undefined });
+    expect(dinnerRecordForSettlement(parseDinnerMissionRecords(5), "dm-b")).toEqual({ blocked: true });
+  });
+
+  it("#2: persistProgress reports every refused record update (and nothing when all are stored)", () => {
+    const storage = fakeStorage(storedSave({ dinnerMissionRecords: { "dm-a": BROKEN } }));
+    expect(
+      persistProgress(snapshotOf(storage, { pitzBalance: 5, dinnerMissionRecordUpdates: { "dm-a": REC, "dm-b": REC_B } }), storage),
+    ).toEqual({ refusedDinnerMissionIds: ["dm-a"] });
+    expect(
+      persistProgress(snapshotOf(storage, { dinnerMissionRecordUpdates: { "dm-c": BROKEN as unknown as DinnerMissionRecord } }), storage),
+    ).toEqual({ refusedDinnerMissionIds: ["dm-c"] });
+    expect(persistProgress(snapshotOf(storage, { dinnerMissionRecordUpdates: { "dm-b": REC_B } }), storage)).toEqual({
+      refusedDinnerMissionIds: [],
+    });
+    const corrupt = fakeStorage(storedSave({ dinnerMissionRecords: [1] }));
+    expect(persistProgress(snapshotOf(corrupt, { dinnerMissionRecordUpdates: { "dm-a": REC } }), corrupt)).toEqual({
+      refusedDinnerMissionIds: ["dm-a"],
+    });
+  });
+
+  it("#4: update keys outside the id grammar (and __proto__) never reach the state or storage", () => {
+    const storage = fakeStorage(storedSave());
+    const updates = JSON.parse(
+      `{"__proto__": ${JSON.stringify(REC)}, "Bad Id": {"garbage": true}, "dm-a": ${JSON.stringify(REC)}}`,
+    ) as Record<string, DinnerMissionRecord>;
+    persistProgress(snapshotOf(storage, { dinnerMissionRecordUpdates: updates }), storage);
+    expect(storage.raw()!.dinnerMissionRecords).toEqual({ "dm-a": REC });
+    expect(Object.keys(loadSave(storage).dinnerMissionRecordsState.records)).toEqual(["dm-a"]);
+    expect(Object.getPrototypeOf(loadSave(storage).dinnerMissionRecordsState.records)).toBe(Object.prototype);
+  });
+
+  it("#5: a v1 root carrying the key is read the same way it is written (one view of the records)", () => {
+    const v1 = { schemaVersion: 1, dex: [], pitzBalance: 5, ownedIngredientIds: [], missionBest: {}, dinnerMissionRecords: { "dm-a": BROKEN, "dm-b": REC_B } };
+    const storage = fakeStorage(v1);
+    const state = loadSave(storage).dinnerMissionRecordsState;
+    expect(state).toEqual({ records: { "dm-b": REC_B }, blockedMissionIds: ["dm-a"], containerCorrupt: false });
+    persistProgress(snapshotOf(storage, { pitzBalance: 6 }), storage);
+    expect(storage.raw()!.dinnerMissionRecords).toEqual({ "dm-a": BROKEN, "dm-b": REC_B });
   });
 });
 
@@ -335,7 +394,7 @@ describe("Full Reset (case 15)", () => {
     const storage = fakeStorage(storedSave({ dinnerMissionRecords: { "dm-a": REC, "dm-x": BROKEN } }));
     expect(resetSave(storage)).toBe(true);
     expect(storage.text()).toBeNull();
-    expect(loadSave(storage).dinnerMissionRecords).toEqual(EMPTY_DINNER_MISSION_RECORDS_STATE);
+    expect(loadSave(storage).dinnerMissionRecordsState).toEqual(EMPTY_DINNER_MISSION_RECORDS_STATE);
   });
 });
 
@@ -345,7 +404,7 @@ describe("settlement -> persistence round trip (DM-4-1 authority unchanged)", ()
     const first = decideDinnerSettlement({ run: clearedRun(), mission: getDinnerMission("dm-a"), record: undefined, table: TABLE, settledRunKey: null });
     if (first.kind !== "SETTLE") throw new Error("expected SETTLE");
     persistProgress(snapshotOf(storage, { pitzBalance: 100 + first.pitz, dinnerMissionRecordUpdates: { "dm-a": first.record } }), storage);
-    const reloaded = loadSave(storage).dinnerMissionRecords.records["dm-a"];
+    const reloaded = loadSave(storage).dinnerMissionRecordsState.records["dm-a"];
     expect(reloaded).toEqual(first.record);
     const second = decideDinnerSettlement({
       run: clearedRun(T0 + 5_000_000),
@@ -381,7 +440,7 @@ describe("boundaries (case 20: DM-1..DM-3 runtime unaffected)", () => {
 
   it("the records-save module imports only DM-4-1's pure settlement", () => {
     const src = sources["./dinnerMissionRecordsSave.ts"];
-    expect([...src.matchAll(/from\s+"([^"]+)"/g)].map((m) => m[1])).toEqual(["../mission/dinner/dinnerSettlement"]);
+    expect([...src.matchAll(/from\s+"([^"]+)"/g)].map((m) => m[1])).toEqual(["../mission/dinner/dinnerSettlement", "./saveIdGrammar"]);
   });
 });
 

@@ -138,7 +138,9 @@ describe("save forward-compat (Phase 3-4B)", () => {
     expect(raw.missionBest).toEqual(current.missionBest);
     expect(raw.inventory).toEqual(current.inventory);
     expect(raw.starterGrantClaimedRecipeIds).toEqual(current.starterGrantClaimedRecipeIds);
-    expect(Object.keys(raw).sort()).toEqual(Object.keys(current).sort());
+    // DM-4-2: `dinnerMissionRecordsState` is the in-memory Dinner state, never a stored key -- a
+    // serialized copy (this fixture stringifies an in-memory save) is dropped, not carried through.
+    expect(Object.keys(raw).sort()).toEqual(Object.keys(current).filter((k) => k !== "dinnerMissionRecordsState").sort());
   });
 
   it("loadSave still hides unknown ids from gameplay (runtime view unchanged)", () => {
@@ -368,9 +370,9 @@ describe("save forward-compat (Phase 3-4B)", () => {
     const storage = fakeStorage();
     playOneRound(storage);
     const raw = storage.raw() as Record<string, unknown>;
-    // DM-4-2: `dinnerMissionRecords` is written only once a record exists, so a save that never met
-    // Dinner keeps exactly its pre-DM-4-2 keys.
-    expect(Object.keys(raw).sort()).toEqual(Object.keys(createDefaultSave()).filter((k) => k !== "dinnerMissionRecords").sort());
+    // DM-4-2: `dinnerMissionRecordsState` is in-memory only, and the stored `dinnerMissionRecords` key
+    // is written only once a record exists -- a save that never met Dinner keeps its pre-DM-4-2 keys.
+    expect(Object.keys(raw).sort()).toEqual(Object.keys(createDefaultSave()).filter((k) => k !== "dinnerMissionRecordsState").sort());
   });
 });
 

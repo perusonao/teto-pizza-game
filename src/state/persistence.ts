@@ -8,11 +8,11 @@ import type { DinnerMissionRecord } from "../mission/dinner/dinnerSettlement";
 import {
   EMPTY_DINNER_MISSION_RECORDS_STATE,
   isDinnerMissionRecordBlocked,
-  mergeDinnerMissionRecord,
   mergeDinnerMissionRecordsForWrite,
   parseDinnerMissionRecords,
   type DinnerMissionRecordsState,
 } from "./dinnerMissionRecordsSave";
+import { SAVE_ID_PATTERN } from "./saveIdGrammar";
 
 /**
  * Minimal cross-reload persistence (Phase 3C-2, see
@@ -171,15 +171,15 @@ export interface PersistentSaveV2 {
    *  recipe id this build does not know is kept in storage by `writeSave`. `discoveryHintPurchases`
    *  stays the read-only legacy authority (Hint Economy 1.0 levels); nothing here rewrites it. */
   discoveryHintFacts: Record<string, string[]>;
-  /** Dinner Mission DM-4-2 (Issue #274): per-mission records (./dinnerMissionRecordsSave.ts).
-   *  Stored as `{ [missionId]: DinnerMissionRecord }` (save v2, no schema bump); held here as the
-   *  *parsed* state -- readable records plus the missions whose stored record is broken
-   *  (fail-closed: blocked, never rewritten). `writeSave` never serializes this object: it merges
-   *  `records` into whatever storage holds (`mergeDinnerMissionRecordsForWrite`), so broken
-   *  records, future ids and unknown fields survive every write. Absent (every earlier save) reads
-   *  as empty, and a save that never had a record is written without the key. Never
-   *  `JSON.stringify` a `PersistentSaveV2` directly: this field is not the stored shape. */
-  dinnerMissionRecords: DinnerMissionRecordsState;
+  /** Dinner Mission DM-4-2 (Issue #274): the *parsed* per-mission records
+   *  (./dinnerMissionRecordsSave.ts) -- readable records plus the missions whose stored record is
+   *  broken (fail-closed: blocked, never rewritten). In storage the data lives under the top-level
+   *  key `dinnerMissionRecords` as `{ [missionId]: DinnerMissionRecord }` (save v2, no schema bump).
+   *  This in-memory field deliberately has a DIFFERENT name: it is never stored (`writeSave` drops
+   *  it and merges `records` into whatever storage holds), so a fixture that serializes a whole
+   *  `PersistentSaveV2` can never write this state where the records belong. Absent key (every
+   *  earlier save) reads as empty; a save that never had a record is written without the key. */
+  dinnerMissionRecordsState: DinnerMissionRecordsState;
 }
 
 const KNOWN_RECIPE_IDS: readonly string[] = RECIPES.map((r) => r.id);
@@ -483,7 +483,7 @@ export function migrateV1toV2(v1: PersistentSaveV1): PersistentSaveV2 {
     // H3-2: no Selectable Hint facts existed in v1.
     discoveryHintFacts: emptyHintFacts(),
     // DM-4-2: Dinner did not exist in v1.
-    dinnerMissionRecords: EMPTY_DINNER_MISSION_RECORDS_STATE,
+    dinnerMissionRecordsState: EMPTY_DINNER_MISSION_RECORDS_STATE,
   };
 }
 
@@ -499,7 +499,7 @@ export function createDefaultSave(): PersistentSaveV2 {
     unlockedForShopIngredientIds: [],
     discoveryHintPurchases: {},
     discoveryHintFacts: emptyHintFacts(),
-    dinnerMissionRecords: EMPTY_DINNER_MISSION_RECORDS_STATE,
+    dinnerMissionRecordsState: EMPTY_DINNER_MISSION_RECORDS_STATE,
   };
 }
 
@@ -585,9 +585,12 @@ const KNOWN_SAVE_KEYS: ReadonlySet<string> = new Set([
   "discoveryHintPurchases",
   "discoveryHintFacts",
   "dinnerMissionRecords",
+  // DM-4-2: the in-memory name of the parsed Dinner state. Never stored; listed so a stray
+  // serialized copy is neither read nor carried through as a forward-compat extra.
+  "dinnerMissionRecordsState",
 ]);
 
-const FORWARD_COMPAT_ID_PATTERN = /^[a-z0-9][a-z0-9_-]{0,63}$/;
+const FORWARD_COMPAT_ID_PATTERN = SAVE_ID_PATTERN;
 
 function isForwardCompatUnknownId(value: unknown, knownIds: readonly string[]): value is string {
   return (
@@ -673,8 +676,8 @@ function writeSave(storage: StorageLike, next: PersistentSaveV2): void {
   // DM-4-2: the Dinner records are merged into what storage holds -- never serialized from
   // `next` -- so a broken record, a future mission id or an unknown field is never dropped or
   // overwritten, and a save that never had a record stays without the key.
-  const { dinnerMissionRecords, ...nextFields } = next;
-  const dinner = mergeDinnerMissionRecordsForWrite(extras?.dinnerMissionRecordsRaw, dinnerMissionRecords.records);
+  const { dinnerMissionRecordsState, ...nextFields } = next;
+  const dinner = mergeDinnerMissionRecordsForWrite(extras?.dinnerMissionRecordsRaw, dinnerMissionRecordsState.records);
   const withDinner = <T extends object>(value: T) =>
     dinner.value === undefined ? value : { ...value, dinnerMissionRecords: dinner.value };
   if (!extras) {
@@ -735,10 +738,10 @@ function sanitizeSave(raw: unknown): PersistentSaveV2 | null {
     ),
     discoveryHintPurchases: sanitizeDiscoveryHintPurchases(intermediate.discoveryHintPurchases),
     discoveryHintFacts: sanitizeDiscoveryHintFacts(intermediate.discoveryHintFacts),
-    // DM-4-2: read the *stored* value of a v2 root only. A v1 root has no Dinner data (and its
-    // migrated intermediate already holds the parsed empty state, which is not a stored map).
-    dinnerMissionRecords:
-      r.schemaVersion === 2 ? parseDinnerMissionRecords(r.dinnerMissionRecords) : EMPTY_DINNER_MISSION_RECORDS_STATE,
+    // DM-4-2: always the *stored* value of the root (never the migrated intermediate, which holds
+    // parsed state). Read for every recognized root, v1 included, so load and `writeSave` (which
+    // merges into the same stored value) always see the same records.
+    dinnerMissionRecordsState: parseDinnerMissionRecords(r.dinnerMissionRecords),
   };
 }
 
@@ -879,6 +882,14 @@ export interface ProgressionSnapshot {
   dinnerMissionRecordUpdates?: Readonly<Record<string, DinnerMissionRecord>>;
 }
 
+/** What `persistProgress` reports back (DM-4-2). Every other outcome stays silent as before
+ *  (storage errors are swallowed). */
+export interface PersistProgressResult {
+  /** Dinner record updates that were not stored: blocked mission, broken container or invalid
+   *  record. A caller must never have paid for one of these (fail-closed, DM-4-3). */
+  refusedDinnerMissionIds: string[];
+}
+
 /** Per-id `max` of two purchase ledgers, sanitized. A level can only go up. */
 function mergeDiscoveryHintPurchases(
   stored: Readonly<Record<string, number>>,
@@ -919,8 +930,11 @@ function sameLevels(a: Readonly<Record<string, number>>, b: Readonly<Record<stri
 export function persistProgress(
   snapshot: ProgressionSnapshot,
   storage: StorageLike | null = getDefaultStorage(),
-): void {
-  if (!storage) return;
+): PersistProgressResult {
+  // DM-4-2: Dinner record updates this call refused (blocked mission, broken container, invalid
+  // record). Reported so DM-4-3 can assert it never paid for a record that could not be stored.
+  let refusedDinnerMissionIds: string[] = [];
+  if (!storage) return { refusedDinnerMissionIds };
   try {
     const current = loadSave(storage);
     const nextDex = [...snapshot.dex];
@@ -967,8 +981,9 @@ export function persistProgress(
     const factsUnchanged = sameHintFacts(nextDiscoveryHintFacts, current.discoveryHintFacts);
     // DM-4-2: Dinner records -- merged per mission, never lowered; blocked missions are skipped
     // here and refused again by `writeSave` against what storage actually holds.
-    const nextDinnerMissionRecords = mergeSnapshotDinnerRecords(current.dinnerMissionRecords, snapshot.dinnerMissionRecordUpdates);
-    const dinnerUnchanged = nextDinnerMissionRecords === current.dinnerMissionRecords;
+    const dinnerMerge = mergeSnapshotDinnerRecords(current.dinnerMissionRecordsState, snapshot.dinnerMissionRecordUpdates);
+    refusedDinnerMissionIds = dinnerMerge.refusedMissionIds;
+    const dinnerUnchanged = dinnerMerge.state === current.dinnerMissionRecordsState;
     if (
       dexUnchanged &&
       pitzUnchanged &&
@@ -980,7 +995,7 @@ export function persistProgress(
       factsUnchanged &&
       dinnerUnchanged
     ) {
-      return;
+      return { refusedDinnerMissionIds };
     }
 
     const next: PersistentSaveV2 = {
@@ -993,32 +1008,38 @@ export function persistProgress(
       unlockedForShopIngredientIds: nextUnlockedForShop,
       discoveryHintPurchases: nextDiscoveryHintPurchases,
       discoveryHintFacts: nextDiscoveryHintFacts,
-      dinnerMissionRecords: nextDinnerMissionRecords,
+      dinnerMissionRecordsState: dinnerMerge.state,
     };
     writeSave(storage, next);
   } catch {
     // Storage full, disabled, or otherwise unavailable -- gameplay continues unaffected.
   }
+  return { refusedDinnerMissionIds };
 }
 
-/** The Dinner records state after applying a snapshot's records, or `state` itself (same object)
- *  when nothing would change. Blocked missions and invalid snapshot records are skipped. */
+/** The Dinner records state after applying a snapshot's record updates -- `state` itself (same
+ *  object) when nothing would change -- plus the updates that were refused. One merge
+ *  (`mergeDinnerMissionRecordsForWrite`) decides everything; the next state is read back from its
+ *  result, so the id grammar, field picking and validation can never drift from the write path.
+ *  Blocked missions (and a broken container) are refused and keep blocking. */
 function mergeSnapshotDinnerRecords(
   state: DinnerMissionRecordsState,
   incoming: Readonly<Record<string, DinnerMissionRecord>> | undefined,
-): DinnerMissionRecordsState {
-  if (incoming === undefined) return state;
-  const write = mergeDinnerMissionRecordsForWrite(
-    { ...state.records },
-    Object.fromEntries(Object.entries(incoming).filter(([id]) => !isDinnerMissionRecordBlocked(state, id))),
-  );
-  if (!write.changed) return state;
-  const records: Record<string, DinnerMissionRecord> = { ...state.records };
+): { state: DinnerMissionRecordsState; refusedMissionIds: string[] } {
+  if (incoming === undefined) return { state, refusedMissionIds: [] };
+  const allowed: Record<string, DinnerMissionRecord> = {};
+  const refused: string[] = [];
   for (const [id, record] of Object.entries(incoming)) {
-    if (isDinnerMissionRecordBlocked(state, id) || write.refusedMissionIds.includes(id)) continue;
-    records[id] = state.records[id] ? mergeDinnerMissionRecord(state.records[id], record) : { ...record };
+    if (isDinnerMissionRecordBlocked(state, id)) refused.push(id);
+    else allowed[id] = record;
   }
-  return { ...state, records };
+  const write = mergeDinnerMissionRecordsForWrite({ ...state.records }, allowed);
+  refused.push(...write.refusedMissionIds);
+  if (!write.changed) return { state, refusedMissionIds: refused };
+  return {
+    state: { ...state, records: parseDinnerMissionRecords(write.value).records },
+    refusedMissionIds: refused,
+  };
 }
 
 /** Reads one mission's persisted BEST score. Never throws (delegates to `loadSave`'s own

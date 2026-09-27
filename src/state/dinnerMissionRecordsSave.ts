@@ -3,6 +3,7 @@ import {
   isBetterDinnerTier,
   type DinnerMissionRecord,
 } from "../mission/dinner/dinnerSettlement";
+import { SAVE_ID_PATTERN } from "./saveIdGrammar";
 
 /**
  * Dinner Mission DM-4-2 (Issue #274): how `dinnerMissionRecords` is read from and merged into the
@@ -20,8 +21,8 @@ import {
  * Stored shape (save v2, top-level, no schema bump): `{ [missionId]: DinnerMissionRecord }`.
  */
 
-/** Same id grammar the save's forward-compat layer trusts (./persistence.ts). */
-const RECORD_ID_PATTERN = /^[a-z0-9][a-z0-9_-]{0,63}$/;
+/** The save's shared id grammar (./saveIdGrammar.ts), also used by the forward-compat layer. */
+const RECORD_ID_PATTERN = SAVE_ID_PATTERN;
 
 export interface DinnerMissionRecordsState {
   /** Readable records by mission id -- ids this build knows and well-formed future ids alike. */
@@ -75,6 +76,20 @@ export function parseDinnerMissionRecords(raw: unknown): DinnerMissionRecordsSta
 /** Whether a mission may be settled / written at all (DM-4-3 must refuse when this is true). */
 export function isDinnerMissionRecordBlocked(state: DinnerMissionRecordsState, missionId: string): boolean {
   return state.containerCorrupt || state.blockedMissionIds.includes(missionId);
+}
+
+/**
+ * The record DM-4-3 hands to settlement -- the only safe way to read one for that purpose. A
+ * blocked mission has NO readable record, and reading `records[id]` alone would make it look like
+ * "never cleared" (a first clear). This forces the caller to handle `blocked` first (fail-closed:
+ * no settlement, no Pitz, no write).
+ */
+export function dinnerRecordForSettlement(
+  state: DinnerMissionRecordsState,
+  missionId: string,
+): { blocked: true } | { blocked: false; record: DinnerMissionRecord | undefined } {
+  if (isDinnerMissionRecordBlocked(state, missionId)) return { blocked: true };
+  return { blocked: false, record: state.records[missionId] };
 }
 
 function minBest(a: number | null, b: number | null): number | null {
@@ -140,6 +155,7 @@ export function mergeDinnerMissionRecordsForWrite(
 ): DinnerRecordsWrite {
   const incomingIds = Object.keys(incoming).filter((id) => RECORD_ID_PATTERN.test(id));
   const stored = parseDinnerMissionRecords(storedRaw);
+  const blocked = new Set(stored.blockedMissionIds);
   if (stored.containerCorrupt) {
     return { value: storedRaw, changed: false, refusedMissionIds: incomingIds };
   }
@@ -154,7 +170,7 @@ export function mergeDinnerMissionRecordsForWrite(
   let changed = false;
   for (const id of incomingIds) {
     const record = incoming[id];
-    if (stored.blockedMissionIds.includes(id) || dinnerMissionRecordProblems(record).length > 0) {
+    if (blocked.has(id) || dinnerMissionRecordProblems(record).length > 0) {
       refused.push(id);
       continue;
     }
