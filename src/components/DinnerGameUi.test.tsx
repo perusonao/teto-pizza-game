@@ -114,9 +114,19 @@ describe("DinnerResultOverlay", () => {
 
   it("CLEAR: title, pizzas made and the clear time; no reward row (DM-4)", () => {
     const r = run({ status: "CLEARED", completedRecipeIds: DM_A_IDS, outcome: { kind: "CLEAR", endedAt: T0 + 95_000, clearMs: 95_000 } });
-    render(<DinnerResultOverlay run={r} titleJa="ディナーミッション 1" lastResult={null} retryBlocked={false} {...handlers} />);
+    render(
+      <DinnerResultOverlay
+        run={r}
+        titleJa="ディナーミッション 1"
+        lastResult={{ category: "TARGET_PASS", recipeId: "breakfast-pizza", nameJa: "ブレックファストピザ", stars: 4, minimumStars: 3 }}
+        retryBlocked={false}
+        {...handlers}
+      />,
+    );
     const dialog = screen.getByRole("dialog");
     expect(dialog).toHaveTextContent("DINNER CLEAR!");
+    // The pizza that cleared the run is named, not only the aggregate.
+    expect(screen.getByTestId("dinner-result-last")).toHaveTextContent("最後のピザ：ブレックファストピザ完成！");
     expect(dialog).toHaveTextContent("4 / 4");
     expect(dialog).toHaveTextContent("01:35");
     expect(dialog).not.toHaveTextContent("Pitz");
@@ -125,8 +135,17 @@ describe("DinnerResultOverlay", () => {
 
   it("TIME_UP: 時間切れ！ with the count", () => {
     const r = run({ status: "FAILED", completedRecipeIds: ["funghi"], outcome: { kind: "FAILED", reason: "TIME_UP", endedAt: T0 + 180_000 } });
-    render(<DinnerResultOverlay run={r} titleJa="ディナーミッション 1" lastResult={null} retryBlocked={false} {...handlers} />);
+    render(
+      <DinnerResultOverlay
+        run={r}
+        titleJa="ディナーミッション 1"
+        lastResult={{ category: "ORIGINAL" }}
+        retryBlocked={false}
+        {...handlers}
+      />,
+    );
     expect(screen.getByRole("dialog")).toHaveTextContent("時間切れ！");
+    expect(screen.queryByTestId("dinner-result-last")).toBeNull();
     expect(screen.getByRole("dialog")).toHaveTextContent("1 / 4");
   });
 

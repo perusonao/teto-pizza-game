@@ -153,7 +153,8 @@ export function DinnerResultOverlay({
 }: {
   run: DinnerRunState;
   titleJa: string;
-  /** The pizza that ended the run, when one did (CLEAR / INFEASIBLE): shown as one line. */
+  /** The pizza that ended the run, when one did (CLEAR / INFEASIBLE): shown as one line. TIME_UP
+   *  never shows it -- the clock, not a pizza, ended the run. */
   lastResult: DinnerAttemptView | null;
   retryBlocked: boolean;
   onRetry: () => void;
@@ -178,6 +179,11 @@ export function DinnerResultOverlay({
             <p className="dinner-result__row">
               クリアタイム <strong>{formatDinnerClock(outcome.clearMs)}</strong>
             </p>
+            {lastResult && (
+              <p className="dinner-result__last" data-testid="dinner-result-last">
+                最後のピザ：{dinnerAttemptCopy(lastResult).titleJa}
+              </p>
+            )}
           </>
         ) : outcome.reason === "TIME_UP" ? (
           <>

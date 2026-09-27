@@ -596,6 +596,24 @@ describe("HOME, reload and stale actions", () => {
     expect(exited.roundKind).not.toBe("DINNER");
   });
 
+  it("nothing cooks, bakes or consumes while the HOME confirmation is open; 続ける resumes", () => {
+    const prepare = gameReducer(started(), { type: "DINNER_REQUEST_ABANDON" });
+    for (const action of [
+      { type: "CONFIRM_MAKING_STEP", now: T0 },
+      { type: "COMMIT_DOUGH_STRETCH", shape: prepare.pizza.doughShape },
+      { type: "START_BAKE", now: T0 },
+    ] as GameAction[]) {
+      expect(gameReducer(prepare, action), action.type).toBe(prepare);
+    }
+    const bake = gameReducer({ ...started(), pizza: pizzaFor("bismarck") }, { type: "START_BAKE", now: T0 });
+    const asked = gameReducer(bake, { type: "DINNER_REQUEST_ABANDON" });
+    expect(gameReducer(asked, { type: "CONFIRM_BAKE", value: mid("bismarck"), now: T0 + 1 })).toBe(asked);
+    expect(asked.inventory).toEqual(EXACT_A);
+    const resumed = gameReducer(asked, { type: "DINNER_CANCEL_ABANDON" });
+    const baked = gameReducer(resumed, { type: "CONFIRM_BAKE", value: mid("bismarck"), now: T0 + 2 });
+    expect([baked.phase, baked.inventory.egg]).toEqual(["POST_BAKE", 1]);
+  });
+
   it("R25: nothing of a run is saved; a reload starts with no run (consumption stays real)", () => {
     const store = new Map<string, string>();
     const storage: StorageLike = {

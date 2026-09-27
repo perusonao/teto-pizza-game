@@ -378,6 +378,16 @@ PR #243 / #242 are untouched.
 
 The Preview captures used `?dinnerDuration=` and `?dinnerMinStars=` (A / B use S=1, C uses S=5). Production has neither.
 
+## 19. Review follow-up (Codex on `daed3dd`)
+
+| finding | fix |
+|---|---|
+| P2: cooking was still accepted behind the HOME abandon dialog (the run stays PLAYING) | The Dinner guard refuses every cooking action (placement, steps, START_BAKE, CONFIRM_BAKE, CUT) while `abandonRequested`. `PizzaStage` is non-interactive while the dialog is open (any in-flight gesture is aborted). The clock still runs. Test: nothing changes or is consumed behind the dialog; 続ける resumes. A mutant that removes the guard is detected. |
+| P2: CLEAR did not show the pizza that cleared the run | The CLEAR overlay now shows 「最後のピザ：○○完成！」 like INFEASIBLE. TIME_UP never shows it, because the clock ended the run, not a pizza. Tests cover both. |
+
+Full Vitest after the fix: 190 files, **4037 passed / 1 skipped**. `tsc -b`, `oxlint` and build are clean. The Dinner E2E on both Chromium projects: 22 passed.
+
 ## 20. PR / CI
 
-(filled in after push)
+- PR #252 (`claude/dm-3r-2-result-detection-ioac6d` → `main`), no auto-merge.
+- CI on the final head: recorded on the PR checks.

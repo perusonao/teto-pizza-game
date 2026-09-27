@@ -640,7 +640,8 @@ export function GameScreen({
         interactive={
           (state.phase === "PREPARE" || (state.phase === "POST_BAKE" && state.makingStep === "CUT")) &&
           !isReferencePopoverOpen &&
-          !isGlobalOverlayOpen
+          !isGlobalOverlayOpen &&
+          !state.dinner?.abandonRequested
         }
         activeIngredient={selectedIngredientId ? (getIngredient(selectedIngredientId) ?? null) : null}
         bakeProgress={bakeProgress}

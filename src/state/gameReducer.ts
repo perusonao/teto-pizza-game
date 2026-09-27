@@ -1888,7 +1888,7 @@ function dinnerResolve(
 
 /**
  * A normal action during a Dinner session (DM-3R-2, recipe-free rounds):
- * - composition actions only in PREPARE while PLAYING;
+ * - composition actions only in PREPARE while PLAYING, and nothing while the HOME confirmation is open;
  * - START_BAKE runs Stage A (window + CUT);
  * - CONFIRM_BAKE captures the pre-consumption stock, consumes exactly once (the base reducer's
  *   `consumePizzaInventory`), and resolves at once when no CUT follows;
@@ -1900,6 +1900,8 @@ function dinnerGuardedReducer(state: GameState, action: GameAction, session: Din
   if (DINNER_BLOCKED_ACTIONS.has(action.type)) return state;
   if (!DINNER_COOKING_ACTIONS.has(action.type)) return baseGameReducer(state, action);
   if (session.run.status !== "PLAYING") return state;
+  // The HOME confirmation is open: nothing cooks, bakes or consumes behind it (the clock still runs).
+  if (session.abandonRequested) return state;
   if (DINNER_COMPOSITION_ACTIONS.has(action.type) && state.phase !== "PREPARE") return state;
 
   if (action.type === "START_BAKE") return dinnerStartBake(state, session, action);
