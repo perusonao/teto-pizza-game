@@ -3,7 +3,7 @@
 - **Lane:** D (Dinner only). Independent of DH4-x / HintSheet / Recipe Taxonomy lanes.
 - **Scope guard:** no production code changed, nothing merged. PR #252, #243 and #242 are untouched. No production deploy.
 - **Verdict (prep):** **A. DINNER PREVIEW READY FOR OWNER HUMAN VERIFICATION**
-- **Owner iPhone HV (round 1):** recorded in §9. PASS for the items run. Several items are still unverified, so #252 is **not merge-ready yet** (§9.6).
+- **Owner iPhone HV:** round 1 is in §9 and round 2 (TIME_UP) is in §10. Every item run passed. Two Owner tests remain before merge (§10.4), so #252 is **not merge-ready yet**. §10.3 supersedes the §9.6 classification.
 - Captured: 2026-09-27 (UTC ~10:40–10:50)
 
 ## 1. Fresh GitHub Gate
@@ -220,7 +220,7 @@ Each item below is untested on iPhone. No PASS is implied.
 - ORIGINAL / NON_TARGET (HV-D5)
 - HOME abandon (HV-D10)
 - INFEASIBLE (HV-D9)
-- TIME_UP (HV-D11)
+- ~~TIME_UP (HV-D11)~~: verified on iPhone in round 2 (§10.1)
 - Q10: no 「ヒント」 wording in Dinner. Not reported either way.
 
 ### 9.3 Correction: "raw / burnt always goes through CUT"
@@ -312,3 +312,123 @@ The earlier wording in §5 HV-D8 said a raw or burnt pizza still gets the CUT st
 - **Blocking defects found so far:** none.
 
 **PR #252 merge readiness:** **not yet.** It is waiting on items 1–3 above. CI is green, there are no open review threads, the branch is clean against its base, and the trial merge with main `5a33d85` passes (§2). #252 stays OPEN. #243 / #242 stay OPEN. DM-4 / DM-5 are not started.
+
+## 10. Owner iPhone Human Verification — round 2 (TIME_UP) and merge-readiness re-evaluation
+
+**Fresh gate**, re-checked from GitHub before this update. Nothing changed since round 1:
+
+| item | state |
+|---|---|
+| `origin/main` | `5a33d85` |
+| PR #252 | OPEN, head `5e217ea` (docs-only), code `7a18e29` |
+| Mergeability | `clean` |
+| CI | green |
+| Review threads | 2 of 2 resolved |
+| Issue #250 | OPEN |
+| PR #243 / Issue #242 | OPEN |
+| Preview repo | `4e29ac4`. Source commit is `7a18e29`, source PR #252 (README). |
+
+### 10.1 HV-D11 TIME_UP
+
+**Status: PASS.** Evidence: Owner iPhone Human Verification, Preview PR #252 / `7a18e29` with the badge confirmed on the device.
+
+This is a device observation reported by the Owner. It is separate from the automated E2E R20 and unit R20 passes (§9.6), and it does not replace them.
+
+The Owner's screenshot was the evidence. It is not copied into the repo.
+
+Observed:
+- The timer reaching 0 during play moves to the TIME_UP result.
+- 「⏰ 時間切れ！」 is shown.
+- The completed count shows correctly, as 「0 / 4」 in this run.
+- The Retry (「もう一度」) and Home (「ホーム」) buttons are visible.
+- No visible layout break.
+- Cooking does not continue behind the TIME_UP result; the player does not stay on the cooking screen.
+  - This matches the code: `dinnerGuardedReducer` refuses every cooking action once `run.status !== "PLAYING"`, and a bake or CUT confirmed after the deadline consumes and completes nothing (unit R20).
+
+### 10.2 Re-evaluation of the three candidates
+
+**A. HOME abandon.** Kept as a **merge blocker (Owner HV)**.
+- `7a18e29` fixed a real touch-interaction issue: cooking accepted gestures behind the dialog.
+- Two layers now stop it: the reducer guard refuses every cooking action while `abandonRequested`, and `PizzaStage` is non-interactive behind the dialog.
+- Chromium pointer events and the unit test cover the logic. Only a device shows whether an in-flight iOS touch really stops behind the dialog.
+
+**B. CUT recipe + invalid bake.**
+- The facts are settled (§9.3 / §9.4):
+  - CUT is decided at START_BAKE by the recipe identity, never by the bake.
+  - A composition that identifies as nothing gets no CUT.
+  - An identified CUT recipe is cut even when raw or burnt, then gets INVALID.
+  - The cut never enters the ★.
+- What remains is a **UX decision**: is it acceptable to make the player cut a pizza whose failure is already certain? That decision is a merge blocker, because rejecting it would change #252 / the DM-3R-1 Stage B order.
+- The shortest check is TEST 2 in §10.4. It also covers raw INVALID on iPhone.
+
+**C. Target row.** Proposed to move to a **non-blocking follow-up**. The Owner can overrule this.
+
+The implementation matches OD-R7 (Issue #250: "compact target row (thumbnail + tap for the reference). Tapping is **not** a selection"):
+- Each chip is a `<button>` with `aria-haspopup="dialog"` and the label 「○○の見本を見る」. A tap only opens the existing 見本 popover (`DinnerGameUi.tsx`).
+- There is no selected state anywhere.
+  - In the UI, the only chip modifier is `dinner-chip--done` (✓), and there is no pressed or active-selection style.
+  - In the state, `SELECT_TARGET` / `activeRecipeId` were removed, and a test asserts that removed selection actions do not exist.
+  - Unit, App and E2E R27 pin that a tap changes nothing in the run.
+- So misreading a chip as a selection cannot produce a wrong outcome: whatever is cooked is judged by its composition anyway.
+
+Presentation findings from the 390×844 captures (the chip-level screenshots the Owner mentioned are not visible in this session, so the committed captures are used):
+- The name is 10px with an ellipsis: 「ブレックフ…」 at 390 wide, and 「マルゲリ…」 at narrower chip widths.
+- The thumbnail is 30px, and 26px at short heights.
+- Both are legibility polish. They live only in `.dinner-chip*` CSS and the chip markup, and the Layout Contract (LC-S Dinner, L-J) guards the row height. A later UI-polish slice can change them without touching the runtime.
+- Examples: a wider chip or a 2-line name, a larger thumbnail, or a one-time hint 「タップで見本」.
+
+Why non-blocking: nothing is functionally wrong, the behaviour is the OD-R7 authority, and the fix surface is CSS and copy only. It becomes a blocker only if the Owner judges on the device that the row fails its purpose, "what to make".
+
+### 10.3 Reclassification (supersedes §9.6)
+
+"Owner-confirmed" means already passed on iPhone; it is not asked again.
+
+| item | class | basis |
+|---|---|---|
+| HOME abandon | **merge blocker (Owner HV: TEST 1)** | real-touch fix `7a18e29` (§10.2 A) |
+| CUT recipe invalid-bake UX | **merge blocker (Owner decision: TEST 2)** | a rejection changes #252 behaviour (§10.2 B) |
+| raw INVALID | automated coverage sufficient; also observed in TEST 2 | unit R9/R10, E2E R5/R9 (raw bismarck), Preview re-check §9.3 |
+| target row | non-blocking follow-up (UI polish) | OD-R7 conformant, no functional issue (§10.2 C) |
+| long last-pizza name (F1) | non-blocking follow-up | the longest DM-A name fit on iPhone |
+| 「DINNER CLEAR!」 in English (F2) | non-blocking follow-up | copy only |
+| QUALITY_FAIL guidance, e.g. 「あと★1」 (F3) | non-blocking follow-up (DM-5 / UI polish) | needs a scoring-authority decision |
+| arbitrary order | automated coverage sufficient | unit R4, E2E R3/R4 (a non-list order to CLEAR), plus the Owner's CLEAR run |
+| DUPLICATE_TARGET | automated coverage sufficient | unit R6/R17, E2E R6/R18, screenshot |
+| ORIGINAL | automated coverage sufficient | unit R8, E2E R7/R8/R13 with a full-DOM identity sweep during BAKE, CUT and the result |
+| NON_TARGET | automated coverage sufficient | unit R7, E2E R7 |
+| INFEASIBLE | automated coverage sufficient | unit R18 plus 2 over-placement cases, E2E R6/R18, screenshot |
+| burnt INVALID | Owner-confirmed (round 1) | §9.1 |
+| TIME_UP | Owner-confirmed (round 2) | §10.1 |
+| CLEAR | Owner-confirmed (round 1) | §9.1 |
+
+"Automated coverage sufficient" means unit plus Chromium E2E, with the Dinner E2E also run by the CI WebKit gate at 390×844 / 360×800. An optional feel check can ride along with any later HV.
+
+### 10.4 Remaining Owner device tests (max 2)
+
+Preview: https://perusonao.github.io/teto-pizza-game-preview/dm3r2-setup.html
+
+**TEST 1: HOME abandon**
+1. On the helper page, tap 「通常セーブ」, then 「HV-normal」.
+2. HOME → ディナーミッション → ディナーミッション 1 → スタート.
+3. Start the dough step and place a few pieces, then tap 「ホーム」 at the top left.
+4. With the dialog open, try to touch the pizza: nothing should change. The timer on the row keeps counting.
+5. Tap 「続ける」. You are back in the same cooking state and can keep cooking.
+6. Tap 「ホーム」 again, then 「やめる」. You land on HOME with no reward.
+
+**TEST 2: CUT recipe + raw bake** (a new run from TEST 1's HOME)
+1. ディナーミッション 1 → スタート. Build a correct margherita: stretch the dough, add tomato sauce, 3 mozzarella, 2 basil.
+2. In BAKE, tap 「取り出す」 right away (clearly raw).
+3. The CUT step appears. Cut and tap 「切り終わる」.
+4. The result reads 「ピザとして完成しませんでした / 生焼けでした」, and the ✓ count does not rise.
+5. **Owner decision:** is cutting a pizza that has already failed acceptable (keep as is), or should a failed bake skip CUT (a change to #252 / DM-3R-1)?
+
+### 10.5 PR #252 merge readiness
+
+**Not yet.**
+- It needs TEST 1 PASS and a TEST 2 decision of "keep as is".
+- CI is green, the review threads are resolved, the PR is `clean` against its base, and the trial merge with `5a33d85` passes (§2).
+- No blocking code defect has been found.
+
+If TEST 2 is decided as "skip CUT", a production change is needed, and this lane stops for a new decision before any implementation.
+
+#252 stays OPEN, and #243 / #242 stay OPEN. There has been no production deploy, and DM-4 / DM-5 are not started.
