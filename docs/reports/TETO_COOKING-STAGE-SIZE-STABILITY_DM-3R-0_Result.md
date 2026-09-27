@@ -170,6 +170,14 @@ One existing invariant was adjusted:
 - **L-B** (pager to CTA gap ≥ 8px, P0) used to fail when no pager row was laid out.
 - It now measures the tray's bottom when the round has no pager row. The same 8px gap is still required.
 - This is the only change to an existing check.
+- **Pre-merge hardening (Owner condition 4):**
+  - The fallback applies only when the round's PREPARE dock explicitly reserves **no** pager row (`--dock-pager: 0`, now read into the measurement as `pagerReserved`).
+  - A round that pages (`pagerReserved = true`), or a screen without a dock, still requires the pager row. A missing pager therefore fails L-B instead of being replaced by the tray.
+  - `e2e/layout-invariants-lb.spec.ts` pins this with synthetic measurements:
+    - paging round: the pager is measured, and a 4px gap fails even though the tray would pass
+    - paging round with the pager missing: fails (the pre-hardening fallback would have passed it)
+    - non-paging round: the tray is measured, 8px passes, 4px fails
+    - `PAGER_CTA_GAP` is still 8
 
 Existing Owner-pending P1 entries (`KNOWN_P1`) are untouched.
 
@@ -274,7 +282,7 @@ Scenario, for each video: HOME → start round → DOUGH stretch → SAUCE paint
 - `src/components/IngredientTray.tsx`
 - `src/components/SauceMetricsPanel.tsx`, `src/components/SauceMetricsPanel.test.tsx`
 - `src/App.css`
-- `e2e/layout-contract.spec.ts`, `e2e/support/layoutInvariants.ts` (L-B fallback), `e2e/stage-size-stability.spec.ts` (new), `e2e/making-ui-1screen.spec.ts` (comment only)
+- `e2e/layout-contract.spec.ts`, `e2e/support/layoutInvariants.ts` (L-B fallback), `e2e/support/layoutContract.ts` (`pagerReserved`), `e2e/layout-invariants-lb.spec.ts` (new), `e2e/stage-size-stability.spec.ts` (new), `e2e/making-ui-1screen.spec.ts` (comment only)
 - `docs/reports/…` (this report, screenshots)
 
 ## 15. Scope
