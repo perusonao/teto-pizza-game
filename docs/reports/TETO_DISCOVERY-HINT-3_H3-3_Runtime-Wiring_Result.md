@@ -385,7 +385,25 @@ What to look at in the video:
 
 ## 18. CI / WebKit
 
-_Recorded after the PR's CI run; see below._
+PR #247. CI was green on head `bc7194a`, the code head this report describes (the Codex-review latch fix).
+The GitHub Actions run IDs are `36299705940` (E2E) and `36299705948` (build):
+
+| Check | Result |
+|---|---|
+| `classify` | success |
+| `build` (lint + Vitest + build) | success |
+| `layout-chromium` | success |
+| `Layout Contract Gate` | success |
+| `webkit webkit-390x844 shard 1/2` | success |
+| `webkit webkit-390x844 shard 2/2` | success |
+| `webkit webkit-360x800 shard 1/2` | success |
+| `webkit webkit-360x800 shard 2/2` | success |
+| `WebKit Gate` | success |
+
+The first head, `d4d558d`, also finished CI with no failed suite.
+
+Review: Codex found one P1, a UI double-click that bought twice. It was fixed in `bc7194a` (§10), and
+the thread was replied to and resolved. No other review threads are open.
 
 ## 19. Changed files
 
