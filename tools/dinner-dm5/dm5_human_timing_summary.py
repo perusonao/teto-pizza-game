@@ -17,7 +17,7 @@ Conditions are never mixed (Phase 4-0 §11.2, U-7):
               The only balance sample: gate, tier candidates, TIME_UP share, repeat cap.
   - AUX_900   duration = 900 s, beginner only. Censored / time-distribution observation only
               ("how long would it take without the cut-off"). Reported separately under
-              "auxiliaryUncensored"; never counted by the gate or any candidate.
+              "supplemental900"; never counted by the gate or any candidate.
   - anything else is OFF_PROTOCOL: excluded, with a problem.
 
 Input sheets (templates in docs/reports/data/):
@@ -348,7 +348,7 @@ def summarize(runs: list[dict], pizzas: list[dict]) -> dict:
         "excluded": excluded,
         "runs": rows,
         "missions": {},
-        "auxiliaryUncensored": {},
+        "supplemental900": {},
     }
     for mission in sorted(MISSION_TARGETS):
         limit = BASELINE_LIMIT_S[mission]
@@ -393,8 +393,8 @@ def summarize(runs: list[dict], pizzas: list[dict]) -> dict:
         if aux:
             clears = [x["clearS"] for x in aux if x["outcome"] == "CLEAR" and x["clearS"] is not None]
             ended = [x for x in aux if x["outcome"] in ("CLEAR", "TIME_UP")]
-            out["auxiliaryUncensored"][mission] = {
-                "label": "AUX_900 — beginner censored / time-distribution observation ONLY. NOT a balance sample: "
+            out["supplemental900"][mission] = {
+                "label": "SUPPLEMENTAL (AUX_900) — beginner-only censored-distribution observation. NOT a balance sample: "
                          "excluded from the gate, tier candidates, TIME_UP share and repeat cap.",
                 "durationS": AUX_DURATION_S,
                 "runs": len(aux),
@@ -456,8 +456,8 @@ def self_test() -> None:
     # The AUX_900 beginner clear is NOT in the balance sample...
     assert a["perProfile"]["beginner"]["runs"] == 1 and a["perProfile"]["beginner"]["clearSeconds"]["n"] == 0
     assert a["baselineTimeUpShare"] == 0.25  # 1 TIME_UP of 4 BASELINE runs
-    # ...only under auxiliaryUncensored: 400 s > 320 s would have been TIME_UP at the baseline.
-    aux = out["auxiliaryUncensored"]["dm-a"]
+    # ...only under supplemental900: 400 s > 320 s would have been TIME_UP at the baseline.
+    aux = out["supplemental900"]["dm-a"]
     assert aux["clearSeconds"]["median"] == 400.0 and aux["wouldTimeUpAtBaselineShare"] == 1.0
     assert a["repeatPayoutCapPitz"] == int(140 / 3 * 80 / 60)  # 62
     assert a["gate"]["experienced"] is True and a["gate"]["beginner"] is False and a["gatePass"] is False

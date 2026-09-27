@@ -167,6 +167,6 @@ test.describe("DM-5-1 Human Timing environment", () => {
     expect(timeUp).toMatchObject({ condition: "BASELINE", outcome: "TIME_UP", timeUp: true });
     expect(aux).toMatchObject({ run_id: "SYNTH-dm-a-900-1", condition: "AUX_900", clearS: 450, pizzaSeconds: [120, 120, 90, 120] });
     expect(summary.missions["dm-a"].perProfile.beginner.runs).toBe(0); // the 900 s run is not a balance sample
-    expect(summary.auxiliaryUncensored["dm-a"]).toMatchObject({ runs: 1, wouldTimeUpAtBaselineShare: 1 });
+    expect(summary.supplemental900["dm-a"]).toMatchObject({ runs: 1, wouldTimeUpAtBaselineShare: 1 });
   });
 });
