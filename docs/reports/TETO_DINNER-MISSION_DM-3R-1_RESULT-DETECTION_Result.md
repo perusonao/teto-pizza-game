@@ -236,7 +236,8 @@ API に intent / 宣言の入力は存在しない（OD-R1 / OD-R3）。
 ## 20. CI
 
 - ローカル: focused 47 passed、full Vitest 3931 passed / 1 skipped、`tsc -b` clean、`oxlint` 0 warnings、`vite build` 成功。
-- GitHub CI: PR 上の結果を下記に追記する。
+- GitHub CI（PR #249、head `da1727c`）: **全 9 check success** — `build`、`classify`、`layout-chromium`、`Layout Contract Gate`、`webkit webkit-360x800 shard 1/2・2/2`、`webkit webkit-390x844 shard 1/2・2/2`、`WebKit Gate`。
+- この CI 記録の commit は docs のみ（code 変更なし）。
 
 ## 21. DM-3R-2 integration map
 
