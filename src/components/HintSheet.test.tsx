@@ -288,14 +288,21 @@ describe("HintSheet -- Selectable view (Discovery Hint 3.0, H3-3)", () => {
     fireEvent.click(cta);
     expect(onBuySelectable).not.toHaveBeenCalled();
     expect(screen.getByRole("button", { name: "閉じる" })).toHaveFocus();
-    expect(document.body).toHaveTextContent("たまったら解除できるよ。このまま作ってもOK！");
+    expect(document.body).toHaveTextContent("Pitzがたまったら、またためしてね。このまま作ってもOK！");
+    expect(cta).toHaveTextContent("ヒントを1つもらう 5 Pitz");
   });
 
   it("GUIDANCE_ONLY shows the generic line only -- no count, no category, no 'that is all'", () => {
     renderSelectable(selectableView("pizza-bianca", { outcome: "GUIDANCE_ONLY" }));
     const line = document.querySelector(".hint-sheet__guidance")!;
     expect(line.textContent).toBe(SELECTABLE_GUIDANCE_TEXT);
-    expect(document.body.textContent).not.toMatch(/ここまで|全部|もうない|ありません|種類/);
+    // OD-H3-17: nothing states an ingredient count, a category absence or "that's all". The one
+    // exception is the post-request CTA label (OD-H3-4-3, INTERACTION INFERENCE), which names hints,
+    // never ingredients or categories.
+    const cta = document.querySelector(".hint-sheet__next")!;
+    expect(cta.textContent).toBe("今あるヒントはここまで");
+    const rest = (document.body.textContent ?? "").split(cta.textContent!).join("");
+    expect(rest).not.toMatch(/ここまで|全部|もうない|ありません|種類|ない$|使わない(?!ジャンルもあるよ)/);
   });
 
   it("grandfathered legacy lines render in their own 「以前のヒント」 block, not as a purchasable row", () => {
@@ -306,6 +313,7 @@ describe("HintSheet -- Selectable view (Discovery Hint 3.0, H3-3)", () => {
     expect(document.querySelector(".hint-sheet__rows")).not.toHaveTextContent("材料は全部で");
     expect(document.querySelector(".hint-sheet__next")).toHaveTextContent("40 Pitz");
   });
+
 
   it("every recipe: no recipe identity, and the same shape whatever is left to sell", () => {
     const ingredientNames = [...new Set(INGREDIENTS.map((i) => i.nameJa))].sort((a, b) => b.length - a.length);
@@ -328,3 +336,155 @@ describe("HintSheet -- Selectable view (Discovery Hint 3.0, H3-3)", () => {
     }
   });
 });
+
+/** H3-4 (Issue #238, OD-H3-4-1..10): the final SELECTABLE copy and presentation. */
+describe("HintSheet -- Selectable H3-4 presentation", () => {
+  const cta = () => document.querySelector<HTMLButtonElement>(".hint-sheet__next")!;
+  const walletText = () => document.querySelector(".hint-sheet__wallet")!.textContent;
+
+  it("OD-H3-4-9/2: a normal purchase reads 「ヒントを1つもらう {n} Pitz」 without 🔒, with the pay-only-when-given line", () => {
+    renderSelectable(selectableView("capricciosa"));
+    expect(cta().textContent).toBe("ヒントを1つもらう 5 Pitz");
+    expect(cta()).toBeEnabled();
+    expect(document.querySelector(".hint-sheet__lock")).toBeNull();
+    expect(document.body.textContent).not.toContain("\u{1F512}");
+    expect(document.body.textContent).not.toContain("解除");
+    expect(walletText()).toBe("所持 100 Pitz ・ Pitzはヒントが出たときだけ使うよ");
+    expect(document.querySelector(".hint-sheet__prefs-legend")!.textContent).toBe("知りたいジャンル（ないときは別のジャンルから1つ）");
+  });
+
+  it("OD-H3-4-1: price 0 reads 「ヒントをたずねる」 + 「支払いずみ」, enabled, and never 「0 Pitz」 / 無料 / sold out", () => {
+    const { onBuySelectable } = renderSelectable(selectableView("capricciosa", { legacyLevel: 4 }));
+    expect(cta().textContent).toBe("ヒントをたずねる 支払いずみ");
+    expect(cta()).toBeEnabled();
+    expect(cta()).toHaveFocus();
+    expect(cta().textContent).not.toContain("Pitz");
+    expect(document.body.textContent).not.toMatch(/無料|品切れ|売り切れ|もうない/);
+    expect(walletText()).toBe("所持 100 Pitz ・ このピザのヒント代は上限まで支払いずみ");
+    fireEvent.click(cta());
+    expect(onBuySelectable).toHaveBeenCalledWith("sauce", 4);
+  });
+
+  it("OD-H3-4-1/3: at price 0 the pre-request view is identical whether a real fact is left (legacy) or not (fresh, all bought)", () => {
+    const shape = () => ({
+      cta: cta().textContent,
+      enabled: !cta().disabled,
+      wallet: walletText(),
+      legend: document.querySelector(".hint-sheet__prefs-legend")!.textContent,
+      guidance: document.querySelector(".hint-sheet__guidance"),
+    });
+    // Legacy H1 capricciosa after 3 paid facts: price 0 and one real fact still for sale (cap parity).
+    renderSelectable(selectableView("capricciosa", { legacyLevel: 1, facts: ["ing:tomato-sauce", "ing:mozzarella", "ing:mushroom"] }));
+    const withFactLeft = shape();
+    cleanup();
+    // Fresh capricciosa with all 4 facts bought: price 0 and nothing left.
+    renderSelectable(selectableView("capricciosa", { facts: ["ing:tomato-sauce", "ing:mozzarella", "ing:mushroom", "ing:ham"] }));
+    const nothingLeft = shape();
+    expect(withFactLeft.cta).toBe("ヒントをたずねる 支払いずみ");
+    expect(withFactLeft.enabled).toBe(true);
+    expect(nothingLeft).toEqual(withFactLeft);
+  });
+
+  it("OD-H3-4-3: only after GUIDANCE_ONLY is the CTA disabled and relabelled; a further activation reports nothing", () => {
+    const { onBuySelectable } = renderSelectable(selectableView("capricciosa", { legacyLevel: 4, outcome: "GUIDANCE_ONLY" }));
+    expect(cta()).toBeDisabled();
+    expect(cta().textContent).toBe("今あるヒントはここまで");
+    expect(walletText()).toBe("所持 100 Pitz ・ 今回はPitzを使っていないよ");
+    expect(screen.getByRole("button", { name: "閉じる" })).toHaveFocus();
+    fireEvent.click(cta());
+    fireEvent.keyDown(cta(), { key: "Enter" });
+    expect(onBuySelectable).not.toHaveBeenCalled();
+    // Also at a non-zero price (fresh margherita-like exhaustion): the guidance answers, the CTA stops.
+    cleanup();
+    renderSelectable(selectableView("pizza-bianca", { outcome: "GUIDANCE_ONLY" }));
+    expect(cta()).toBeDisabled();
+    expect(cta().textContent).toBe("今あるヒントはここまで");
+  });
+
+  it("OD-H3-4-3: the same exhausted target before its request keeps an enabled CTA at its price (no pre-request exhaustion signal)", () => {
+    renderSelectable(selectableView("pizza-bianca"));
+    expect(cta().textContent).toBe("ヒントを1つもらう 5 Pitz");
+    expect(cta()).toBeEnabled();
+    expect(document.querySelector(".hint-sheet__guidance")).toBeNull();
+  });
+
+  it("OD-H3-4-4: grandfathered lines are an archive box at the end of the body -- not a row, chip, step pill or price", () => {
+    renderSelectable(selectableView("capricciosa", { legacyLevel: 4, outcome: "GUIDANCE_ONLY" }));
+    const body = document.querySelector(".hint-sheet__selectable")!;
+    const legacy = body.querySelector(".hint-sheet__legacy")!;
+    expect(body.lastElementChild).toBe(legacy);
+    expect(legacy.querySelector(".hint-sheet__legacy-title")!.textContent).toBe("以前のヒント");
+    expect(legacy).toHaveTextContent("前のヒント方式で買ったメモ（そのまま残してあるよ）");
+    expect([...legacy.querySelectorAll(".hint-sheet__legacy-line")].map((e) => e.textContent)).toEqual(["材料は全部で6種類。チーズを使うみたい"]);
+    expect(legacy.querySelector(".hint-sheet__step, .hint-sheet__chip, input, button")).toBeNull();
+    expect(legacy.textContent).not.toMatch(/Pitz|ソース$|トッピング/);
+    // The guidance line comes before the archive, right after the rows.
+    expect(body.querySelector(".hint-sheet__guidance")!.compareDocumentPosition(legacy) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("OD-H3-4-4: grandfathered lines never change the price or the rows (verbatim, not a fact)", () => {
+    // legacy H2 pesto-tonno keeps a count line at level 2; its price is the rung, not the line count.
+    renderSelectable(selectableView("pesto-tonno", { legacyLevel: 2 }));
+    expect(document.querySelectorAll(".hint-sheet__legacy-line")).toHaveLength(1);
+    expect(cta().textContent).toBe("ヒントを1つもらう 20 Pitz");
+    expect(document.querySelectorAll(".hint-sheet__row")).toHaveLength(3);
+    expect(document.querySelector(".hint-sheet__rows")!.textContent).not.toContain("材料は全部で");
+  });
+
+  it("OD-H3-4-5: a newly revealed chip is highlighted after a request, never on opening; the fallback states no absence", () => {
+    const onBuySelectable = vi.fn();
+    const props = { onUnlock: vi.fn(), onBuySelectable, onClose: vi.fn() };
+    const { rerender } = render(<HintSheet view={selectableView("capricciosa", { facts: ["ing:tomato-sauce"] })} {...props} />);
+    expect(document.querySelectorAll(".hint-sheet__chip--new")).toHaveLength(0);
+    // "sauce" preferred again, but the reducer served cheese (fallback): only the new cheese chip is marked.
+    rerender(<HintSheet view={selectableView("capricciosa", { facts: ["ing:tomato-sauce", "ing:mozzarella"] })} {...props} />);
+    const fresh = [...document.querySelectorAll(".hint-sheet__chip--new")];
+    expect(fresh).toHaveLength(1);
+    expect(fresh[0]).toHaveTextContent("モッツァレラ");
+    expect(fresh[0].closest(".hint-sheet__row")).toHaveAttribute("data-hint-category", "cheese");
+    expect(screen.getByRole("radio", { name: "ソース" })).toBeChecked();
+    expect(document.body.textContent).not.toMatch(/ソースは(もう)?ない|ソースのヒントはない|使わないみたい/);
+    // A request that reveals nothing (GUIDANCE_ONLY) adds no new mark.
+    rerender(
+      <HintSheet view={selectableView("capricciosa", { facts: ["ing:tomato-sauce", "ing:mozzarella"], outcome: "GUIDANCE_ONLY" })} {...props} />,
+    );
+    expect(document.querySelectorAll(".hint-sheet__chip--new")).toHaveLength(1);
+  });
+
+  it("OD-H3-4-6: 「？」 and its legend are the same for a recipe without cheese as for one with cheese", () => {
+    const view = () => ({
+      cheese: document.querySelector('[data-hint-category="cheese"] .hint-sheet__chips')!.innerHTML,
+      legend: document.querySelector(".hint-sheet__unknown-legend")!.textContent,
+      cta: cta().textContent,
+      radios: screen.getAllByRole("radio").map((r) => (r as HTMLInputElement).value),
+    });
+    renderSelectable(selectableView("marinara")); // no cheese
+    const noCheese = view();
+    cleanup();
+    renderSelectable(selectableView("capricciosa")); // has cheese
+    expect(view()).toEqual(noCheese);
+    expect(noCheese.legend).toBe("？＝まだわからない（使わないジャンルもあるよ）");
+    expect(noCheese.cheese).toContain("？");
+    cleanup();
+    renderSelectable(selectableView("quattro-formaggi")); // no topping
+    expect(document.querySelector('[data-hint-category="topping"] .hint-sheet__chips')!.textContent).toBe("？");
+  });
+
+  it("every recipe, every pre-request paid state: the same static copy (legend, 「？」 legend, CTA verb) and no identity", () => {
+    const ingredientNames = [...new Set(INGREDIENTS.map((i) => i.nameJa))].sort((a, b) => b.length - a.length);
+    for (const r of RECIPES.filter((x) => x.id !== "margherita")) {
+      for (const legacyLevel of [0, 1, 2, 3, 4]) {
+        renderSelectable(selectableView(r.id, { legacyLevel }));
+        const label = document.querySelector(".hint-sheet__next-label")!.textContent;
+        expect(["ヒントを1つもらう", "ヒントをたずねる"], `${r.id} H${legacyLevel}`).toContain(label);
+        expect(document.querySelector(".hint-sheet__unknown-legend")!.textContent).toBe("？＝まだわからない（使わないジャンルもあるよ）");
+        expect(document.querySelector(".hint-sheet__guidance"), `${r.id} H${legacyLevel}`).toBeNull();
+        expect(cta().disabled, `${r.id} H${legacyLevel}`).toBe(false);
+        const text = ingredientNames.reduce((t, n) => t.split(n).join("□"), document.body.textContent ?? "");
+        expect(text, r.id).not.toContain(r.nameJa);
+        cleanup();
+      }
+    }
+  });
+});
+

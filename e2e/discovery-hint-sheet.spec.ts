@@ -136,8 +136,40 @@ async function checkOpenState(page: Page, driver: ProfileDriver, browserName: st
     expect.soft(m.cta.top, `${where}: CTA inside the sheet`).toBeGreaterThanOrEqual(m.sheet.top);
     expect.soft(m.close.top, `${where}: 閉じる inside the sheet`).toBeGreaterThanOrEqual(m.sheet.top);
     expect.soft(await backgroundRects(page), `${where}: background unmoved`).toEqual(closed.get(profile.id));
+    // H3-4 (OD-H3-4-7): in the Selectable sheet the category controls and the CTA stay reachable
+    // (inside the sheet and the viewport, >= 44px tall), and a scrollable body shows its cue.
+    const sel = await selectableMetrics(page);
+    if (sel) {
+      for (const pref of sel.prefs) {
+        expect.soft(pref.height, `${where}: preference >= 44px`).toBeGreaterThanOrEqual(44);
+        expect.soft(pref.top >= m.sheet.top && pref.bottom <= vp.innerHeight - vp.sab + 0.5, `${where}: preference reachable`).toBe(true);
+      }
+      await expect
+        .poll(async () => {
+          const now = await selectableMetrics(page);
+          return !!now && now.scrollable === (now.cueBelow || now.cueAbove);
+        }, { message: `${where}: scroll cue matches the body`, timeout: 2000 })
+        .toBe(true);
+    }
   }
   await driver.apply(PROFILES.N390);
+}
+
+/** H3-4: the Selectable sheet's preference controls and body scroll cue (null for other sheets). */
+async function selectableMetrics(page: Page) {
+  return page.evaluate(() => {
+    const body = document.querySelector<HTMLElement>(".hint-sheet__selectable");
+    const wrap = document.querySelector(".hint-sheet__scroll");
+    if (!body || !wrap) return null;
+    const prefs = [...document.querySelectorAll(".hint-sheet__pref")].map((e) => {
+      const b = e.getBoundingClientRect();
+      return { top: b.top, bottom: b.bottom, height: b.height };
+    });
+    const scrollable = body.scrollHeight - body.clientHeight > 1;
+    const cueBelow = wrap.classList.contains("hint-sheet__scroll--below");
+    const cueAbove = wrap.classList.contains("hint-sheet__scroll--above");
+    return { prefs, scrollable, cueBelow, cueAbove, client: body.clientHeight, scroll: body.scrollHeight };
+  });
 }
 
 async function closedRects(page: Page, driver: ProfileDriver, browserName: string) {
@@ -250,24 +282,31 @@ test.describe("Discovery Hint 2.0 sheet (229-B)", () => {
     await hint.click();
 
     const cta = sheet(page).locator(".hint-sheet__next");
-    await expect(cta).toHaveText("🔒ヒントを1つ解除 5 Pitz");
+    await expect(cta).toHaveText("ヒントを1つもらう 5 Pitz");
     await expect(sheet(page)).toContainText("所持 120 Pitz");
     await checkOpenState(page, driver, browserName, "first CTA", closed);
     await expectNoUndiscoveredIdentity(page, DEX11, "first CTA");
 
     await cta.click();
     await expect(sheet(page).locator(".hint-sheet__chip:not(.hint-sheet__chip--unknown)")).toHaveCount(2);
-    await expect(cta).toHaveText("🔒ヒントを1つ解除 10 Pitz");
+    await expect(cta).toHaveText("ヒントを1つもらう 10 Pitz");
     await expect(sheet(page)).toContainText("所持 115 Pitz");
     await cta.click();
     await cta.click();
     await cta.click();
     await expect(sheet(page).locator(".hint-sheet__chip:not(.hint-sheet__chip--unknown)")).toHaveCount(5);
     await expect(page.locator(".app-header__pitz")).toContainText("45");
-    // Nothing left to sell: the generic guidance only, nothing charged.
+    // H3-4 (OD-H3-4-1): the cap is paid -- a request, enabled, never 「0 Pitz」.
+    await expect(cta).toHaveText("ヒントをたずねる 支払いずみ");
+    await expect(cta).toBeEnabled();
+    await checkOpenState(page, driver, browserName, "cap paid", closed);
+    await capture(page, "07-cap-paid");
+    // Nothing left to sell: the generic guidance only, nothing charged; only now the CTA stops (OD-H3-4-3).
     await cta.click();
     await expect(sheet(page).locator(".hint-sheet__guidance")).toBeVisible();
     await expect(page.locator(".app-header__pitz")).toContainText("45");
+    await expect(cta).toBeDisabled();
+    await expect(cta).toHaveText("今あるヒントはここまで");
     await checkOpenState(page, driver, browserName, "all facts + guidance", closed);
     await expectNoUndiscoveredIdentity(page, DEX11, "all facts + guidance");
     const saved = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), SAVE_KEY);
@@ -292,7 +331,7 @@ test.describe("Discovery Hint 2.0 sheet (229-B)", () => {
     const closedShort = await closedRects(page, driver, browserName);
     await bar(page).getByRole("button", { name: "ヒント" }).click();
     await expect(cta).toBeDisabled();
-    await expect(cta).toHaveText("🔒ヒント 40 Pitz");
+    await expect(cta).toHaveText("ヒントを1つもらう 40 Pitz");
     await expect(sheet(page)).toContainText("所持 25 Pitz");
     await expect(sheet(page).getByRole("button", { name: "閉じる" })).toBeFocused();
     await checkOpenState(page, driver, browserName, "insufficient", closedShort);
