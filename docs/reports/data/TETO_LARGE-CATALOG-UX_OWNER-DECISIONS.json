@@ -4,27 +4,92 @@
   "approvedAt": "2026-09-27",
   "auditedMainSha": "51e0923",
   "decisions": {
-    "LC-OD-1": { "status": "APPROVED_AS_DESIGN_DIRECTION", "value": "working set (counter) + ingredient library bottom sheet; applies to Free Cooking and Dinner recipe-free trays; Guided / Lunch Rush unchanged" },
-    "LC-OD-2": { "status": "APPROVED_AS_DESIGN_DIRECTION", "value": "topping shelves use the DH4-1 L2 family; sauce / cheese have no family label" },
-    "LC-OD-3": { "status": "APPROVED_AS_DESIGN_DIRECTION", "value": "toggle-select + confirm; final feel at LC-3" },
-    "LC-OD-4": { "status": "DECIDED", "value": "capacity NOT fixed (9 or 12); decided at LC-2 by a 390x844 / 360x800 / 390x664 / 360x640 comparison including Human Feel; pure logic takes capacity as an argument" },
-    "LC-OD-5": { "status": "APPROVED_AS_DESIGN_DIRECTION", "value": "favorites / recent are session-only; persistence re-decided at LC-9" },
-    "LC-OD-6": { "status": "DECIDED", "value": "undo last placement is separated from Large Catalog as LC-X (independent issue); not implemented now" },
-    "LC-OD-7": { "status": "APPROVED_AS_DESIGN_DIRECTION", "value": "only disclosed ing: facts reach the working set; attribute answers open the library at the answered granularity; near-miss boost (HC-4) withdrawn" },
-    "LC-OD-8": { "status": "APPROVED_AS_DESIGN_DIRECTION", "value": "Dex collapses undiscovered recipes per chapter; no per-slot anonymous cards" },
-    "LC-OD-8b": { "status": "DECIDED", "value": "Dex explore / shop counts use permanent ownership, not inventory quantity; production behavior unchanged until LC-5" },
-    "LC-OD-9": { "status": "APPROVED_AS_DESIGN_DIRECTION", "value": "chapter derivation unchanged; display-only shelves of ~12" },
-    "LC-OD-10": { "status": "APPROVED_AS_DESIGN_DIRECTION", "value": "Dex discovered tiles + detail sheet, 2 columns (aligned with LC-OD-12)" },
-    "LC-OD-11": { "status": "APPROVED_AS_DESIGN_DIRECTION", "value": "one hint CTA in the summary + one per chapter" },
-    "LC-OD-12": { "status": "DECIDED", "value": "Pizza Select keeps 2 columns; 3 columns rejected; scale handled by search / filters / recent / favorites" },
-    "LC-OD-13": { "status": "APPROVED_AS_DESIGN_DIRECTION", "value": "Shop sections NEW / low stock / all; no bulk refill" },
-    "LC-OD-14": { "status": "APPROVED_AS_DESIGN_DIRECTION", "value": "Inventory view mode may toggle favorites only" },
-    "LC-OD-15": { "status": "APPROVED_AS_DESIGN_DIRECTION", "value": "readingJa search data for names with kanji (LC-3)" },
-    "LC-OD-16": { "status": "APPROVED_AS_DESIGN_DIRECTION", "value": "no compatibility filter toward undiscovered recipes; remix of discovered recipes and disclosed facts only" },
-    "LC-OD-16b": { "status": "DECIDED", "value": "Dinner target recipe ingredients are never auto-inserted into the working set; revisit only as Dinner-specific UX if Dinner Human Timing shows a problem" },
-    "LC-OD-17": { "status": "APPROVED_AS_DESIGN_DIRECTION", "value": "zero-stock owned ingredients excluded from automatic working-set sources; listed last in the library" },
-    "LC-OD-18": { "status": "APPROVED_AS_DESIGN_DIRECTION", "value": "test-only synthetic fixtures + e2e harness; no production flag" }
+    "LC-OD-1": {
+      "status": "APPROVED_AS_DESIGN_DIRECTION",
+      "value": "working set (counter) + ingredient library bottom sheet; applies to Free Cooking and Dinner recipe-free trays; Guided / Lunch Rush unchanged"
+    },
+    "LC-OD-2": {
+      "status": "APPROVED_AS_DESIGN_DIRECTION",
+      "value": "topping shelves use the DH4-1 L2 family; sauce / cheese have no family label"
+    },
+    "LC-OD-3": {
+      "status": "APPROVED_AS_DESIGN_DIRECTION",
+      "value": "toggle-select + confirm; final feel at LC-3"
+    },
+    "LC-OD-4": {
+      "status": "DECIDED",
+      "value": "capacity NOT fixed (9 or 12); decided at LC-2 by a 390x844 / 360x800 / 390x664 / 360x640 comparison including Human Feel; pure logic takes capacity as an argument"
+    },
+    "LC-OD-5": {
+      "status": "APPROVED_AS_DESIGN_DIRECTION",
+      "value": "favorites / recent are session-only; persistence re-decided at LC-9"
+    },
+    "LC-OD-6": {
+      "status": "DECIDED",
+      "value": "undo last placement is separated from Large Catalog as LC-X (independent issue); not implemented now"
+    },
+    "LC-OD-7": {
+      "status": "APPROVED_AS_DESIGN_DIRECTION",
+      "value": "only disclosed ing: facts reach the working set; attribute answers open the library at the answered granularity; near-miss boost (HC-4) withdrawn"
+    },
+    "LC-OD-8": {
+      "status": "APPROVED_AS_DESIGN_DIRECTION",
+      "value": "Dex collapses undiscovered recipes per chapter; no per-slot anonymous cards"
+    },
+    "LC-OD-8b": {
+      "status": "DECIDED",
+      "value": "Dex explore / shop counts use permanent ownership, not inventory quantity; production behavior unchanged until LC-5"
+    },
+    "LC-OD-9": {
+      "status": "APPROVED_AS_DESIGN_DIRECTION",
+      "value": "chapter derivation unchanged; display-only shelves of ~12"
+    },
+    "LC-OD-10": {
+      "status": "APPROVED_AS_DESIGN_DIRECTION",
+      "value": "Dex discovered tiles + detail sheet, 2 columns (aligned with LC-OD-12)"
+    },
+    "LC-OD-11": {
+      "status": "APPROVED_AS_DESIGN_DIRECTION",
+      "value": "one hint CTA in the summary + one per chapter"
+    },
+    "LC-OD-12": {
+      "status": "DECIDED",
+      "value": "Pizza Select keeps 2 columns; 3 columns rejected; scale handled by search / filters / recent / favorites"
+    },
+    "LC-OD-13": {
+      "status": "APPROVED_AS_DESIGN_DIRECTION",
+      "value": "Shop sections NEW / low stock / all; no bulk refill"
+    },
+    "LC-OD-14": {
+      "status": "APPROVED_AS_DESIGN_DIRECTION",
+      "value": "Inventory view mode may toggle favorites only"
+    },
+    "LC-OD-15": {
+      "status": "APPROVED_AS_DESIGN_DIRECTION",
+      "value": "readingJa search data for names with kanji (LC-3)"
+    },
+    "LC-OD-16": {
+      "status": "APPROVED_AS_DESIGN_DIRECTION",
+      "value": "no compatibility filter toward undiscovered recipes; remix of discovered recipes and disclosed facts only"
+    },
+    "LC-OD-16b": {
+      "status": "DECIDED",
+      "value": "Dinner target recipe ingredients are never auto-inserted into the working set; revisit only as Dinner-specific UX if Dinner Human Timing shows a problem"
+    },
+    "LC-OD-17": {
+      "status": "APPROVED_AS_DESIGN_DIRECTION",
+      "value": "zero-stock owned ingredients excluded from automatic working-set sources; listed last in the library"
+    },
+    "LC-OD-18": {
+      "status": "APPROVED_AS_DESIGN_DIRECTION",
+      "value": "test-only synthetic fixtures + e2e harness; no production flag"
+    }
   },
   "w2aGate": "C: LC-1 / LC-1b only required before W2-A; LC-2/3 required before any wave takes a category past 30 owned; LC-5 before > 40 recipes",
-  "lcX": { "title": "Undo last placement (1つ戻す)", "duplicateGate": "no duplicate issue or PR", "issue": null }
+  "lcX": {
+    "title": "Undo last placement (1つ戻す)",
+    "duplicateGate": "no duplicate issue or PR",
+    "issue": 270
+  },
+  "lc1Issue": 269
 }

@@ -319,6 +319,13 @@ change.
 DECISIONS**; W2-A gate **C** (LC-1 pure layer + LC-1b scale fixtures before W2-A; tray LC-2/3 before
 any wave pushing a category past 30 owned; Dex LC-5 before >40 recipes). Dinner now shares the
 recipe-free tray, so it is in scope. "1つ戻す" is split out as a separate issue candidate (LC-X).
+**LC-1 / LC-1b (Issue #269, PR open, READY FOR OWNER REVIEW)**: pure, unwired catalog model under
+`src/logic/catalog/` (working set with capacity as an argument, disclosed-hint boundary, query,
+session usage signals, ownership-basis Dex summary) plus deterministic scale fixtures (29x25 ..
+179x172). Owner Authority LC-OD-4/6/8b/12/16b is recorded in the Owner Decision Gate §17 and
+`docs/reports/data/TETO_LARGE-CATALOG-UX_OWNER-DECISIONS.json`. The DH4-1 taxonomy is injected, not
+imported (DH4 stays unwired). Mutation gate 19/19 killed. See
+`docs/reports/TETO_LARGE-CATALOG-UX_LC-1_Result.md`. LC-X "1つ戻す" is Issue #270 (not implemented).
 
 > Fresh GitHub/main state always wins if this document becomes stale.
 

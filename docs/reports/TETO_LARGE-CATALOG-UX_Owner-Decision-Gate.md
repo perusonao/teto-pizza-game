@@ -643,5 +643,6 @@ Owner は本 Gate の結果を承認し、以下を **Owner Authority** とし�
 | **LC-OD-6** | 「1つ戻す」は Large Catalog 本体から分離する。Duplicate Gate を行い、重複がなければ LC-X の独立 Issue として記録する。今回は実装しない | DECIDED（LC-X Issue として記録） |
 | その他（LC-OD-1〜3, 5, 7〜11, 13〜15, 16, 17, 18） | Gate の推奨を**設計方針として承認**。数値・文言は各 slice の Gate で最終確認する | APPROVED AS DESIGN DIRECTION |
 
-- LC-X（1つ戻す）: Duplicate Gate の結果は重複なし。独立 Issue を作成し、番号は `TETO_LARGE-CATALOG-UX_OWNER-DECISIONS.json` の `lcX.issue` と LC-1 の Result Report に記録する。
+- LC-X（1つ戻す）: Duplicate Gate の結果は重複なし。**独立 Issue #270** として記録した（今回は実装しない）。
+- LC-1 / LC-1b: **Issue #269**。
 - 次の段階: `docs/reports/TETO_LARGE-CATALOG-UX_LC-1_Implementation-Gate.md`（LC-1 / LC-1b）。

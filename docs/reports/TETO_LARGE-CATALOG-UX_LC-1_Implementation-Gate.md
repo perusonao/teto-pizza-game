@@ -6,6 +6,12 @@
   - `docs/reports/data/TETO_LARGE-CATALOG-UX_OWNER-DECISIONS.json`
 - ブランチ: `claude/large-catalog-ux-design-sq8saf`（`origin/main` を merge 済み）。
 
+> **実装時の追記（Result Report 参照）**: 実装中に `main` が `7bb0116`（DH4-2A merge）へ進んだ。DH4-1 の「unwired」guard
+> test は、production から `ingredientTaxonomy` を import すること（type import を含む）を禁じている。そのため
+> **taxonomy は import せず引数で注入する**よう API を修正した（`runtimeCatalog(familyOf)`、
+> `libraryFilterForAttribute(factId, taxonomy)`、family id は `CatalogFamilyId = string`）。
+> mutant M15（production 側からの配線）と M16（taxonomy の import）も追加した。
+
 ## 0. 判定
 
 **A. READY — LC-1 / LC-1b を実装してよい。**
