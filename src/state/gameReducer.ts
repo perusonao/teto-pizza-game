@@ -25,7 +25,12 @@ import {
   type CookingTimingState,
 } from "../logic/cookingTiming";
 import { computeScoringV2, toLegacyScoreBreakdown, type ScoringV2Result } from "../logic/scoringV2";
-import { evaluatePizzaCompletion, type PizzaCompletionResult } from "../logic/completionGate";
+import {
+  bakeCompletionFailure,
+  evaluatePizzaCompletion,
+  type BakeCompletionFailure,
+  type PizzaCompletionResult,
+} from "../logic/completionGate";
 import { purchaseFirstPack, refillPack } from "../logic/materialShop";
 import { applyPitzCredit, type PitzCredit } from "../logic/pitzReward";
 import { evaluateCookingEfficiency, type CookingEfficiencyCredit } from "../logic/efficiency";
@@ -1189,7 +1194,15 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // every real recipe today -- byte-identical to the pre-Phase-1A behavior. Only a future
       // recipe's non-default profile (none activated this phase) would ever land on "POST_BAKE"
       // here, entering it at that profile's own first post-BAKE step.
-      const postBake = postBakeSteps(state.cookingProfile);
+      //
+      // Issue #256 (OD-CUT256-1..4): a pizza the Completion Gate has just failed for its bake
+      // (UNDERBAKED / OVERBAKED anywhere in `failures`, e.g. MISSING + UNDERBAKED too) skips the
+      // post-BAKE steps (CUT) and lands on RESULT -- its outcome is already certain and CUT never
+      // changes it. The verdict is `completion` above, read through `bakeCompletionFailure`; no
+      // band is computed here. A servable pizza (PASS, incl. a ★4 "生焼け / 焦げ" badge) and a
+      // composition-only failure keep CUT. A Dinner round forwards the same verdict to Stage B
+      // (`dinnerGuardedReducer`), so its CUT gate stays consistent.
+      const postBake = bakeCompletionFailure(completion) ? [] : postBakeSteps(state.cookingProfile);
       // Phase 1A-T (§22.2/§22.14): starts timing `postBake[0]` the instant the round actually
       // enters POST_BAKE -- `state.cookingTiming.activeStep` is already `null` here (closed out
       // by START_BAKE above), so this is purely a "start", never a re-finalize. No-op (byte-
@@ -1860,13 +1873,14 @@ function dinnerResolve(
   next: GameState,
   session: DinnerSession,
   preConsumptionInventory: InventoryState,
-  cutCompleted: boolean,
+  cut: { completed: boolean; waivedFor: BakeCompletionFailure | null },
   now: number,
 ): GameState {
   const result = resolveDinnerAttempt({
     run: session.run,
     pizza: next.pizza,
-    cutCompleted,
+    cutCompleted: cut.completed,
+    cutWaivedFor: cut.waivedFor,
     preConsumptionInventory,
     ownedIngredientIds: next.ownedIngredientIds,
     dex: next.dex,
@@ -1891,7 +1905,9 @@ function dinnerResolve(
  * - composition actions only in PREPARE while PLAYING, and nothing while the HOME confirmation is open;
  * - START_BAKE runs Stage A (window + CUT);
  * - CONFIRM_BAKE captures the pre-consumption stock, consumes exactly once (the base reducer's
- *   `consumePizzaInventory`), and resolves at once when no CUT follows;
+ *   `consumePizzaInventory`), and resolves at once when no CUT follows -- including a CUT recipe
+ *   whose bake the Completion Gate failed (Issue #256: the base skipped CUT; the verdict goes on
+ *   as `cutWaivedFor`);
  * - the last CONFIRM_MAKING_STEP (CUT) resolves with the stock captured at CONFIRM_BAKE.
  * The clock is checked on every step that bakes or resolves: past the deadline nothing is baked,
  * consumed or completed.
@@ -1914,8 +1930,16 @@ function dinnerGuardedReducer(state: GameState, action: GameAction, session: Din
     // The base CONFIRM_BAKE bakes and consumes (once). Its score / completion are computed against
     // the anonymous sentinel and mean nothing for Dinner -- the result is the resolver's -- so they
     // are cleared rather than left for any screen to misread.
-    const next: GameState = { ...baseGameReducer(state, action), score: null, scoringV2Result: null, completion: null };
-    if (next.phase === "RESULT") return dinnerResolve(state, next, session, preConsumptionInventory, false, action.now);
+    const baked = baseGameReducer(state, action);
+    // Issue #256: read the base Completion Gate's bake verdict before it is cleared. With the
+    // sentinel recipe carrying the Stage A window, that verdict is the bake check against the same
+    // window Stage B judges. When it made the base reducer skip CUT, it is forwarded as the CUT
+    // waiver; Stage B only accepts it if its own classification agrees (fail closed otherwise).
+    const cutWaivedFor = bakeCompletionFailure(baked.completion);
+    const next: GameState = { ...baked, score: null, scoringV2Result: null, completion: null };
+    if (next.phase === "RESULT") {
+      return dinnerResolve(state, next, session, preConsumptionInventory, { completed: false, waivedFor: cutWaivedFor }, action.now);
+    }
     return { ...next, dinner: { ...session, pending: { ...session.pending, preConsumptionInventory } } };
   }
 
@@ -1927,7 +1951,7 @@ function dinnerGuardedReducer(state: GameState, action: GameAction, session: Din
     if (action.now === undefined || pre == null) return state;
     const run = tickedRun(session, action.now);
     if (run.status !== "PLAYING") return withRun(state, session, run);
-    return dinnerResolve(state, next, session, pre, true, action.now);
+    return dinnerResolve(state, next, session, pre, { completed: true, waivedFor: null }, action.now);
   }
 
   return baseGameReducer(state, action);

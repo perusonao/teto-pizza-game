@@ -573,17 +573,28 @@ describe("27. Completion Gate is never perturbed by CUT", () => {
     expect(afterCut.completion?.status).toBe("PASS");
   });
 
-  it("CUT never gates completion: a FAILED (empty) margherita pizza still walks CUT to RESULT", () => {
+  function emptyMargheritaBakedAt(value: number): GameState {
     let state = preparedMargheritaState();
     state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" });
     state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" });
     state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" });
     state = gameReducer(state, { type: "START_BAKE" });
-    state = gameReducer(state, { type: "CONFIRM_BAKE", value: 5 }); // far outside perfect zone
+    return gameReducer(state, { type: "CONFIRM_BAKE", value });
+  }
+
+  it("CUT never gates completion: a composition-FAILED (empty) margherita baked in band still walks CUT to RESULT", () => {
+    const state = emptyMargheritaBakedAt(70);
     expect(state.phase).toBe("POST_BAKE");
     expect(state.completion?.status).toBe("FAILED");
     const result = walkPostBakeToResult(state);
     expect(result.phase).toBe("RESULT");
     expect(result.completion?.status).toBe("FAILED");
+  });
+
+  it("Issue #256: an empty margherita whose bake also failed (value 5, UNDERBAKED in failures) skips CUT", () => {
+    const state = emptyMargheritaBakedAt(5);
+    expect(state.phase).toBe("RESULT");
+    expect(state.completion?.status).toBe("FAILED");
+    expect(state.cutState.lines).toHaveLength(0);
   });
 });

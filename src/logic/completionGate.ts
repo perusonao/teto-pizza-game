@@ -226,6 +226,26 @@ export function evaluatePizzaCompletion(
   };
 }
 
+/** A Completion Gate bake failure: the pizza is outside its window's acceptable band. */
+export type BakeCompletionFailure = Extract<CompletionFailureReason, "UNDERBAKED" | "OVERBAKED">;
+
+/**
+ * Issue #256 (OD-CUT256-1 / 6): the bake failure recorded in an existing Completion Gate result,
+ * or null. It reads the *full* `failures` list, never only the primary `reason` -- a pizza that is
+ * both missing an ingredient and underbaked still has a certain bake failure. No threshold is
+ * evaluated here: `checkBake` above stays the one place the band is computed. `checkBake` pushes
+ * at most one bake entry, so UNDERBAKED and OVERBAKED never both appear.
+ */
+export function bakeCompletionFailure(
+  completion: PizzaCompletionResult | null | undefined,
+): BakeCompletionFailure | null {
+  if (completion?.status !== "FAILED") return null;
+  for (const failure of completion.failures) {
+    if (failure.reason === "UNDERBAKED" || failure.reason === "OVERBAKED") return failure.reason;
+  }
+  return null;
+}
+
 /** Convenience re-export so callers that only need an ingredient's display name for a failure
  *  don't need their own import of ../data/ingredients. */
 export function completionFailureIngredientName(ingredientId: string | undefined): string | null {
