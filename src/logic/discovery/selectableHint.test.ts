@@ -489,6 +489,70 @@ describe("purchase validation", () => {
   });
 });
 
+describe("legacy Hint Economy 1.0 progress (OD-H3-9: no rung roll-back, no re-charge)", () => {
+  const nap = model("napoletana"); // sells tomato-sauce, mozzarella; key anchovy; cap 75
+  const buy = (m: SelectableHintModel, owned: readonly string[], legacy: Parameters<typeof selectableHintPresentation>[3], balance = 999) => {
+    const expected = selectableHintPresentation(m, owned, balance, legacy).paidCount;
+    return purchaseSelectableHint({ model: m, purchasedFactIds: owned, preferences: ["cheese"], expectedPaidCount: expected, pitzBalance: balance, legacy });
+  };
+
+  it("old H1 (the key, now free): the next fact costs rung 2 (10), not 5, and the one after 20", () => {
+    const legacy = { paidRungs: 1, grantedFactIds: [] };
+    expect(selectableHintPresentation(nap, [], 100, legacy)).toMatchObject({ paidCount: 1, nextPrice: 10 });
+    const first = buy(nap, [], legacy);
+    if (!first.success) throw new Error(first.reason);
+    expect(first.price).toBe(10);
+    expect(selectableHintPresentation(nap, first.nextPurchasedFactIds, 100, legacy)).toMatchObject({ paidCount: 2, nextPrice: 20 });
+  });
+
+  it("old H3 (key + sauce + count/cheese line): the sauce is owned and never sold again; the next fact costs 40 (= today's H4)", () => {
+    const legacy = { paidRungs: 3, grantedFactIds: ["ing:tomato-sauce"] };
+    const p = selectableHintPresentation(nap, [], 100, legacy);
+    expect(p).toMatchObject({ paidCount: 3, nextPrice: 40 });
+    expect(p.rows[0].revealed.map((c) => c.ingredientId)).toEqual(["tomato-sauce"]);
+    const r = purchaseSelectableHint({ model: nap, purchasedFactIds: [], preferences: ["sauce"], expectedPaidCount: 3, pitzBalance: 100, legacy });
+    if (!r.success) throw new Error(r.reason);
+    expect(r.revealed.map((f) => f.ingredientId)).toEqual(["mozzarella"]); // the sauce preference falls back: tomato is already owned
+    expect(r.price).toBe(40);
+    expect(r.nextPurchasedFactIds).toEqual(["ing:mozzarella"]); // grants stay derived, never copied into the new ledger
+  });
+
+  it("old H4: everything sellable is owned, the cap is reached, nothing is charged", () => {
+    const legacy = { paidRungs: 4, grantedFactIds: nap.purchasableFacts.map((f) => f.id) };
+    expect(selectableHintPresentation(nap, [], 0, legacy)).toMatchObject({ paidCount: 4, nextPrice: 0 });
+    expect(buy(nap, [], legacy, 0)).toEqual({ success: false, reason: "NOTHING_TO_REVEAL" });
+  });
+
+  it("a granted fact also present in the new ledger is not counted twice", () => {
+    const legacy = { paidRungs: 2, grantedFactIds: ["ing:tomato-sauce"] };
+    expect(selectableHintPresentation(nap, ["ing:tomato-sauce"], 0, legacy).paidCount).toBe(2);
+    expect(selectableHintPresentation(nap, ["ing:tomato-sauce", "ing:mozzarella"], 0, legacy).paidCount).toBe(3);
+  });
+
+  it("hostile or out-of-range legacy input fails closed (rungs 0, grants ignored) and pollutes nothing", () => {
+    for (const paidRungs of [-1, 1.5, Number.NaN, Number.POSITIVE_INFINITY, "3", null, {}, "__proto__"]) {
+      expect(selectableHintPresentation(nap, [], 0, { paidRungs, grantedFactIds: [] }).paidCount).toBe(0);
+    }
+    expect(selectableHintPresentation(nap, [], 0, { paidRungs: 99, grantedFactIds: [] }).paidCount).toBe(4);
+    const hostile = { paidRungs: 0, grantedFactIds: ["__proto__", "ing:__proto__", "ing:anchovy", "ing:oregano", "tech:fold", 7] };
+    expect(selectableHintPresentation(nap, [], 0, hostile).rows.flatMap((r) => r.revealed.map((c) => c.ingredientId))).toEqual(["anchovy"]);
+    expect(JSON.stringify(selectableHintPresentation(nap, [], 0, hostile))).not.toContain("oregano"); // the reserve stays hidden
+  });
+
+  it("without legacy progress the behaviour is exactly the fact-count rung", () => {
+    for (const recipe of PAID_TARGETS) {
+      const m = model(recipe.id);
+      const all = m.purchasableFacts.map((f) => f.id);
+      expect(selectableHintPresentation(m, all, 0, { paidRungs: 0, grantedFactIds: [] })).toEqual(selectableHintPresentation(m, all, 0));
+    }
+  });
+
+  it("mutation: a rung derived from owned facts alone (the Codex P2 bug) is caught", () => {
+    const rolledBack = (owned: number) => selectableHintBatchPrice(owned, 1, nap.priceCap); // ignores the legacy rung
+    expect(rolledBack(0)).not.toBe(selectableHintPresentation(nap, [], 0, { paidRungs: 1, grantedFactIds: [] }).nextPrice);
+  });
+});
+
 // ---- privacy ----
 
 describe("privacy: FREE LEAK rejected (OD-H3-16)", () => {

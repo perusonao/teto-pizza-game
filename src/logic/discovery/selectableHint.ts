@@ -21,7 +21,9 @@
  *   sauce -> cheese -> topping. Nothing says whether a category has facts left.
  * - Price (OD-H3-4): the k-th paid fact of a recipe costs 5 / 10 / 20 / 40 (40 from then on), and
  *   the total never exceeds the recipe's current full H1..H4 cost (35 or 75). A batch costs exactly
- *   the sum of buying the same facts one by one, so splitting never changes the price.
+ *   the sum of buying the same facts one by one, so splitting never changes the price. The rung
+ *   counts Hint Economy 1.0 levels already paid (`LegacyHintProgress`, OD-H3-9), so a migrated
+ *   buyer never goes back down the ladder.
  * - Presentation (OD-H3-16): before any purchase, every target looks the same apart from its free
  *   key: 3 fixed rows, 3 preferences, and a price that depends only on how many facts were paid.
  *   What a player works out from facts they paid for is theirs.
@@ -223,9 +225,49 @@ export interface SelectableHintPurchaseInput {
   model: SelectableHintModel | null;
   purchasedFactIds: readonly unknown[] | unknown;
   preferences: readonly unknown[] | unknown;
+  /** Hint Economy 1.0 progress carried over (OD-H3-9); omitted = none. */
+  legacy?: LegacyHintProgress;
   /** The paid count the sheet showed when the player confirmed. */
   expectedPaidCount: number;
   pitzBalance: number;
+}
+
+/**
+ * OD-H3-9: what a Hint Economy 1.0 purchaser already paid for, supplied by the migration (H3-2).
+ * The price rung must never roll back: an old H1 buyer paid rung 1 for the key, which is now free
+ * and therefore not a purchasable fact, so the rung cannot be derived from the facts alone.
+ * - `paidRungs`: rungs already paid (the old level). Not a safe integer in 0..4 -> 0.
+ * - `grantedFactIds`: the positive facts the old levels showed. They are owned (shown, never sold
+ *   again) but add no rung: `paidRungs` already paid for them.
+ */
+export interface LegacyHintProgress {
+  paidRungs: unknown;
+  grantedFactIds: readonly unknown[] | unknown;
+}
+
+interface PaidProgress {
+  /** Every owned purchasable fact (bought or granted), in reveal order. */
+  owned: SelectableHintFact[];
+  /** Facts bought under Hint 3.0 only -- the new ledger. */
+  bought: SelectableHintFact[];
+  /** The price rung: legacy rungs + facts bought beyond the legacy grant. */
+  paidCount: number;
+}
+
+function legacyRungs(raw: unknown): number {
+  return typeof raw === "number" && Number.isSafeInteger(raw) && raw >= 0 ? Math.min(raw, MAX_PURCHASABLE_HINT_LEVEL) : 0;
+}
+
+function paidProgress(model: SelectableHintModel, purchasedFactIds: unknown, legacy: LegacyHintProgress | undefined): PaidProgress {
+  const bought = ownedPurchasedFacts(model, purchasedFactIds);
+  if (model.onboarding) return { owned: bought, bought, paidCount: 0 };
+  const granted = new Set(ownedPurchasedFacts(model, legacy?.grantedFactIds).map((f) => f.ingredientId));
+  const boughtIds = new Set(bought.map((f) => f.ingredientId));
+  return {
+    owned: model.purchasableFacts.filter((f) => granted.has(f.ingredientId) || boughtIds.has(f.ingredientId)),
+    bought,
+    paidCount: legacyRungs(legacy?.paidRungs) + bought.filter((f) => !granted.has(f.ingredientId)).length,
+  };
 }
 
 export type SelectableHintPurchaseResult =
@@ -233,6 +275,7 @@ export type SelectableHintPurchaseResult =
       success: true;
       revealed: readonly SelectableHintFact[];
       price: number;
+      /** The new ledger: facts bought under Hint 3.0 (legacy grants stay derived, never copied). */
       nextPurchasedFactIds: readonly HintFactId[];
       nextPitzBalance: number;
       /** false for the Dex-0 onboarding: the caller must not write it to the save. */
@@ -253,15 +296,14 @@ export function purchaseSelectableHint(input: SelectableHintPurchaseInput): Sele
   if (!Array.isArray(preferences) || preferences.length === 0 || preferences.length > MAX_HINT_BATCH || !preferences.every(isHintCategory)) {
     return { success: false, reason: "INVALID_PREFERENCES" };
   }
-  const owned = ownedPurchasedFacts(model, input.purchasedFactIds);
-  const paidCount = model.onboarding ? 0 : owned.length;
+  const { owned, bought, paidCount } = paidProgress(model, input.purchasedFactIds, input.legacy);
   if (!model.onboarding && input.expectedPaidCount !== paidCount) return { success: false, reason: "STALE" };
   const requestedPrice = model.onboarding ? 0 : selectableHintBatchPrice(paidCount, preferences.length, model.priceCap);
   if (!Number.isFinite(input.pitzBalance) || input.pitzBalance < requestedPrice) return { success: false, reason: "INSUFFICIENT_PITZ" };
   const revealed = resolveHintPreferences(model, owned, preferences);
   if (revealed.length === 0) return { success: false, reason: "NOTHING_TO_REVEAL" };
   const price = model.onboarding ? 0 : selectableHintBatchPrice(paidCount, revealed.length, model.priceCap);
-  const ownedIds = new Set([...owned, ...revealed].map((f) => f.ingredientId));
+  const ownedIds = new Set([...bought, ...revealed].map((f) => f.ingredientId));
   return {
     success: true,
     revealed,
@@ -313,9 +355,9 @@ export function selectableHintPresentation(
   model: SelectableHintModel,
   purchasedFactIds: readonly unknown[] | unknown,
   pitzBalance: number,
+  legacy?: LegacyHintProgress,
 ): SelectableHintPresentation {
-  const owned = ownedPurchasedFacts(model, purchasedFactIds);
-  const paidCount = model.onboarding ? 0 : owned.length;
+  const { owned, paidCount } = paidProgress(model, purchasedFactIds, legacy);
   const chips: (SelectableHintChip & { category: HintCategory })[] = [
     ...model.freeFacts.map((f) => ({ factId: f.id, ingredientId: f.ingredientId, category: f.category, free: true })),
     ...owned.map((f) => ({ factId: f.id, ingredientId: f.ingredientId, category: f.category, free: model.onboarding })),

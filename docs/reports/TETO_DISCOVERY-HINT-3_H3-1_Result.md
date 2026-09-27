@@ -15,7 +15,7 @@ authority.
 | File | Change |
 |---|---|
 | `src/logic/discovery/selectableHint.ts` | **new**: the pure layer (unwired) |
-| `src/logic/discovery/selectableHint.test.ts` | **new**: 56 tests (fact model, Rule W, free key, fallback, pricing, validation, privacy, mutation) |
+| `src/logic/discovery/selectableHint.test.ts` | **new**: 63 tests (fact model, Rule W, free key, fallback, pricing, legacy progress, validation, privacy, mutation) |
 | `docs/reports/TETO_DISCOVERY-HINT-3_SELECTABLE_Fresh-Design.md` | §22 OD-H3-13..16 (verbatim), §23 restart-gate recheck, status note |
 | `docs/reports/TETO_DISCOVERY-HINT-3_H3-1_Result.md` | this report |
 
@@ -101,6 +101,16 @@ The presentation never states whether a category has anything left.
   paid count. Pinned for every recipe, paid count 0–5, batch 1–6, and every split of the batch.
   Through the purchase rule, 3 facts at once cost 35, and the same 3 one by one cost 35 and return
   the same facts.
+- **Legacy progress (OD-H3-9).** After the Codex P2 review on PR #241, the rung no longer comes
+  from owned facts alone. An optional `LegacyHintProgress { paidRungs, grantedFactIds }`, which H3-2
+  will supply from `discoveryHintPurchases`, sets the rung to legacy rungs + facts bought beyond
+  the legacy grant. Granted facts are owned and never sold again, but add no rung.
+  - Old H1 (the key, now free): the next fact costs 10, not 5.
+  - Old H3: the next fact costs 40 (= today's H4).
+  - Old H4: nothing left, and the cap is reached.
+  - Hostile values fail closed.
+  - Without legacy input the behaviour is unchanged (pinned).
+  This is pure input only; no save or migration exists yet.
 - Affordability is decided on the **requested** batch before anything resolves, so a refusal never
   depends on what is left. A batch larger than what is left charges only for the facts revealed.
 - **The cap never binds before a target is exhausted** (pinned). No displayed price can reveal the
@@ -169,8 +179,8 @@ broken implementations, and each one is detected:
 - Rule W "first instead of last"
 - batch-size pricing (5 + 5 + 5 ≠ 30)
 
-**Source mutants of `selectableHint.ts` (8).** Each was applied temporarily, the suite was run, and
-the file was restored (diff-verified). **All 8 were killed:**
+**Source mutants of `selectableHint.ts` (9).** Each was applied temporarily, the suite was run, and
+the file was restored (diff-verified). **All 9 were killed:**
 
 | Mutant | Tests failed |
 |---|---:|
@@ -182,13 +192,14 @@ the file was restored (diff-verified). **All 8 were killed:**
 | batch-relative rungs (bypass) | 6 |
 | price reveals a zero-fact recipe | 5 |
 | onboarding not free | 1 |
+| rung from owned facts only (the Codex P2 bug) | 6 |
 
 ## 10. Test counts / gate
 
 | Check | Result |
 |---|---|
-| Focused `selectableHint.test.ts` | **56 / 56** |
-| Full Vitest | **180 files, 3810 passed, 1 skipped** (3754 + 1 skipped at base, +56) |
+| Focused `selectableHint.test.ts` | **63 / 63** |
+| Full Vitest | **180 files, 3817 passed, 1 skipped** (3754 + 1 skipped at base, +63) |
 | `tsc -b` | exit 0 |
 | `oxlint` | exit 0 |
 | `vite build` | exit 0 (only the pre-existing chunk-size warning) |
@@ -241,8 +252,8 @@ Persistence only, still unwired to UI:
   - **Grant**: every positive fact the old levels showed (H1 key: already free; H2 sauce; H4
     named ingredients).
   - **Never charge again** for a granted fact.
-  - **Never roll back** the price rung: the paid count starts at `max(legacy level, granted
-    facts)`.
+  - **Never roll back** the price rung: H3-2 passes the old level as `LegacyHintProgress.paidRungs`,
+    and the H3-1 pure layer already honours it (§4).
   - The old H3 count / cheese line has no positive fact equivalent, so it has no fact. It still
     counts toward the rung, so nothing is lost and nothing is re-sold.
 - Full Reset, old builds and downgrade are checked against the existing `extractForwardCompatExtras`.
