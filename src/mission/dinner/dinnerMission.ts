@@ -1,4 +1,5 @@
 import { getRecipe, RECIPES, type Recipe, type RecipeId } from "../../data/recipes";
+import type { QualityStars } from "../../logic/scoring";
 import { isDiscovered, type DexState } from "../../state/dex";
 import { getDinnerRewardTable } from "./dinnerReward";
 
@@ -26,6 +27,12 @@ export interface DinnerMissionDefinition {
   targetRecipeIds: readonly RecipeId[];
   /** `seconds: null` = not tuned yet (OD-DM-14: DM-5 measures play time first). */
   timeLimit: { seconds: number | null };
+  /**
+   * DM-3R-2 (Issue #250): the quality gate S -- a target completes only with Scoring 2.0 ★ >= S
+   * (OD-R2). `null` = not tuned yet: S is DM-5's balance decision, so no shipped mission has a
+   * value and a production START stays unavailable until DM-5 sets one (like `timeLimit`).
+   */
+  quality: { minimumStars: QualityStars | null };
   /** Id of a table in ./dinnerReward.ts; amounts live there, never inline. */
   reward: { tableId: string };
   unlock: DinnerMissionUnlockCondition;
@@ -56,6 +63,7 @@ export const DINNER_MISSIONS: readonly DinnerMissionDefinition[] = [
     populationId: "w1-25",
     targetRecipeIds: ["margherita", "bismarck", "breakfast-pizza", "funghi"],
     timeLimit: { seconds: null },
+    quality: { minimumStars: null },
     reward: { tableId: "dinner-phase1-untuned" },
     unlock: { kind: "ALL_TARGETS_DISCOVERED" },
     display: { titleJa: "ディナーミッション 1", order: 1, band: "EARLY" },
@@ -66,6 +74,7 @@ export const DINNER_MISSIONS: readonly DinnerMissionDefinition[] = [
     populationId: "w1-25",
     targetRecipeIds: ["margherita", "funghi", "melanzane-pizza", "parmigiana-pizza"],
     timeLimit: { seconds: null },
+    quality: { minimumStars: null },
     reward: { tableId: "dinner-phase1-untuned" },
     unlock: { kind: "ALL_TARGETS_DISCOVERED" },
     display: { titleJa: "ディナーミッション 2", order: 2, band: "EARLY" },
@@ -132,6 +141,10 @@ export function validateDinnerMissions(
     const seconds = m.timeLimit.seconds;
     if (seconds !== null && (!Number.isInteger(seconds) || seconds <= 0)) {
       problems.push(`${at}: time limit must be a positive integer or null`);
+    }
+    const minimumStars = m.quality.minimumStars;
+    if (minimumStars !== null && (!Number.isInteger(minimumStars) || minimumStars < 1 || minimumStars > 5)) {
+      problems.push(`${at}: minimum stars must be an integer 1..5 or null`);
     }
     if (!getDinnerRewardTable(m.reward.tableId)) problems.push(`${at}: unknown reward table ${m.reward.tableId}`);
     if (m.unlock.kind !== "ALL_TARGETS_DISCOVERED") problems.push(`${at}: unknown unlock kind`);
