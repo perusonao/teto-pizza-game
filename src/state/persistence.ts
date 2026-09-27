@@ -153,6 +153,15 @@ export interface PersistentSaveV2 {
    *  Discovery Hint 2.0's free reveals were session-only, so there is nothing to migrate). A
    *  well-formed id this build does not know is kept in storage by `writeSave`, never dropped. */
   discoveryHintPurchases: Record<string, number>;
+  /** Discovery Hint 3.0 (Issue #238, H3-2): the Selectable Hint fact ledger, `recipeId -> fact ids`
+   *  bought under Hint 3.0 (H3-1 stable ids, e.g. `ing:mozzarella`). A ledger like the ones above:
+   *  merged per recipe as a set **union**, never lowered or removed except by `resetSave`. Added to
+   *  v2 without a schema bump (H3-2 Result Report §4): an absent/malformed value reads back as `{}`.
+   *  Every well-formed fact id is kept as written, including kinds this build cannot use yet
+   *  (`tech:`, `finish:`...) -- gameplay ignores them, storage never drops them. A well-formed
+   *  recipe id this build does not know is kept in storage by `writeSave`. `discoveryHintPurchases`
+   *  stays the read-only legacy authority (Hint Economy 1.0 levels); nothing here rewrites it. */
+  discoveryHintFacts: Record<string, string[]>;
 }
 
 const KNOWN_RECIPE_IDS: readonly string[] = RECIPES.map((r) => r.id);
@@ -318,6 +327,77 @@ function sanitizeDiscoveryHintPurchases(raw: unknown): Record<string, number> {
   return result;
 }
 
+/** H3-2: a stored Selectable Hint fact id, any kind: `<kind>:<value>[:<qualifier>]`, lowercase.
+ *  Deliberately wider than what H3-1 can use today (`ing:` only), so a fact a later build sells
+ *  survives this build's writes; anything else (non-string, hostile, oversized) is dropped. */
+const HINT_FACT_ID_PATTERN = /^[a-z][a-z0-9-]{0,15}(?::[a-z0-9][a-z0-9_-]{0,63}){1,2}$/;
+
+/** At most this many fact ids per recipe are kept (far above any recipe's fact count). */
+export const MAX_STORED_HINT_FACTS_PER_RECIPE = 64;
+
+/** The well-formed fact ids in `raw`, first occurrence order, deduplicated, capped. */
+function sanitizeHintFactIds(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return [];
+  const seen = new Set<string>();
+  for (const value of raw) {
+    if (typeof value !== "string" || !HINT_FACT_ID_PATTERN.test(value)) continue;
+    seen.add(value);
+    if (seen.size >= MAX_STORED_HINT_FACTS_PER_RECIPE) break;
+  }
+  return [...seen];
+}
+
+/** A fresh `recipeId -> fact ids` record with no prototype, so no recipe id (`__proto__`,
+ *  `constructor`, ...) can ever reach `Object.prototype`. JSON serialization is unaffected. */
+function emptyHintFacts(): Record<string, string[]> {
+  return Object.create(null) as Record<string, string[]>;
+}
+
+/** H3-2: the Selectable Hint fact ledger, for ids `accept` allows. Empty or malformed entries are
+ *  dropped per recipe, never the whole ledger. */
+function hintFactsFor(raw: unknown, accept: (id: string) => boolean): Record<string, string[]> {
+  const result = emptyHintFacts();
+  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) return result;
+  for (const [id, value] of Object.entries(raw as Record<string, unknown>)) {
+    if (!accept(id)) continue;
+    const facts = sanitizeHintFactIds(value);
+    if (facts.length > 0) result[id] = facts;
+  }
+  return result;
+}
+
+/** H3-2: known recipe ids only (what gameplay reads); unknown ones survive through
+ *  `extractForwardCompatExtras`/`writeSave`. */
+function sanitizeDiscoveryHintFacts(raw: unknown): Record<string, string[]> {
+  return hintFactsFor(raw, isKnownRecipeId);
+}
+
+/** Per-recipe set union of two fact ledgers, first ledger's order first. Never removes an id. */
+function unionHintFacts(
+  a: Readonly<Record<string, readonly string[]>>,
+  b: Readonly<Record<string, readonly string[]>>,
+): Record<string, string[]> {
+  const result = emptyHintFacts();
+  for (const source of [a, b]) {
+    for (const [id, facts] of Object.entries(source)) {
+      const merged = sanitizeHintFactIds([...(result[id] ?? []), ...facts]);
+      if (merged.length > 0) result[id] = merged;
+    }
+  }
+  return result;
+}
+
+function sameHintFacts(
+  a: Readonly<Record<string, readonly string[]>>,
+  b: Readonly<Record<string, readonly string[]>>,
+): boolean {
+  const ids = new Set([...Object.keys(a), ...Object.keys(b)]);
+  for (const id of ids) {
+    if (!sameStringSet(a[id] ?? [], b[id] ?? [])) return false;
+  }
+  return true;
+}
+
 function sanitizeInventory(raw: unknown): Record<string, number> {
   if (typeof raw !== "object" || raw === null || Array.isArray(raw)) return {};
   const result: Record<string, number> = {};
@@ -382,6 +462,8 @@ export function migrateV1toV2(v1: PersistentSaveV1): PersistentSaveV2 {
     unlockedForShopIngredientIds: [],
     // HE-1: hints were free and session-only before Discovery Hint Economy 1.0 -- nothing bought.
     discoveryHintPurchases: {},
+    // H3-2: no Selectable Hint facts existed in v1.
+    discoveryHintFacts: emptyHintFacts(),
   };
 }
 
@@ -396,6 +478,7 @@ export function createDefaultSave(): PersistentSaveV2 {
     starterGrantClaimedRecipeIds: [],
     unlockedForShopIngredientIds: [],
     discoveryHintPurchases: {},
+    discoveryHintFacts: emptyHintFacts(),
   };
 }
 
@@ -462,6 +545,8 @@ interface ForwardCompatExtras {
   starterGrantClaimedRecipeIds: string[];
   unlockedForShopIngredientIds: string[];
   discoveryHintPurchases: Record<string, number>;
+  /** H3-2: fact ledgers of well-formed recipe ids this build does not know. */
+  discoveryHintFacts: Record<string, string[]>;
 }
 
 const KNOWN_SAVE_KEYS: ReadonlySet<string> = new Set([
@@ -474,6 +559,7 @@ const KNOWN_SAVE_KEYS: ReadonlySet<string> = new Set([
   "starterGrantClaimedRecipeIds",
   "unlockedForShopIngredientIds",
   "discoveryHintPurchases",
+  "discoveryHintFacts",
 ]);
 
 const FORWARD_COMPAT_ID_PATTERN = /^[a-z0-9][a-z0-9_-]{0,63}$/;
@@ -543,6 +629,7 @@ function extractForwardCompatExtras(raw: unknown): ForwardCompatExtras | null {
     starterGrantClaimedRecipeIds: unknownIdsIn(r.starterGrantClaimedRecipeIds, KNOWN_RECIPE_IDS),
     unlockedForShopIngredientIds: unknownIdsIn(r.unlockedForShopIngredientIds, KNOWN_INGREDIENT_IDS),
     discoveryHintPurchases,
+    discoveryHintFacts: hintFactsFor(r.discoveryHintFacts, isUnknownRecipeId),
   };
 }
 
@@ -581,6 +668,7 @@ function writeSave(storage: StorageLike, next: PersistentSaveV2): void {
       extras.unlockedForShopIngredientIds,
     ),
     discoveryHintPurchases: { ...extras.discoveryHintPurchases, ...next.discoveryHintPurchases },
+    discoveryHintFacts: unionHintFacts(next.discoveryHintFacts, extras.discoveryHintFacts),
   };
   storage.setItem(SAVE_STORAGE_KEY, JSON.stringify(merged));
 }
@@ -613,6 +701,7 @@ function sanitizeSave(raw: unknown): PersistentSaveV2 | null {
       intermediate.unlockedForShopIngredientIds,
     ),
     discoveryHintPurchases: sanitizeDiscoveryHintPurchases(intermediate.discoveryHintPurchases),
+    discoveryHintFacts: sanitizeDiscoveryHintFacts(intermediate.discoveryHintFacts),
   };
 }
 
@@ -742,6 +831,10 @@ export interface ProgressionSnapshot {
    *  absent value leaves the stored ledger as it is; a given one is merged per id with `max`
    *  (never lowered, never removed). */
   discoveryHintPurchases?: Readonly<Record<string, number>>;
+  /** H3-2: the Selectable Hint fact ledger. Optional -- absent leaves the stored ledger as it is
+   *  (no caller passes it before H3-3); a given one is merged per recipe as a set union (never
+   *  lowered, never removed). */
+  discoveryHintFacts?: Readonly<Record<string, readonly string[]>>;
 }
 
 /** Per-id `max` of two purchase ledgers, sanitized. A level can only go up. */
@@ -824,6 +917,12 @@ export function persistProgress(
         ? current.discoveryHintPurchases
         : mergeDiscoveryHintPurchases(current.discoveryHintPurchases, snapshot.discoveryHintPurchases);
     const purchasesUnchanged = sameLevels(nextDiscoveryHintPurchases, current.discoveryHintPurchases);
+    // H3-2: the fact ledger -- a per-recipe union, so a stale snapshot never drops a fact.
+    const nextDiscoveryHintFacts =
+      snapshot.discoveryHintFacts === undefined
+        ? current.discoveryHintFacts
+        : unionHintFacts(current.discoveryHintFacts, sanitizeDiscoveryHintFacts(snapshot.discoveryHintFacts));
+    const factsUnchanged = sameHintFacts(nextDiscoveryHintFacts, current.discoveryHintFacts);
     if (
       dexUnchanged &&
       pitzUnchanged &&
@@ -831,7 +930,8 @@ export function persistProgress(
       inventoryUnchanged &&
       claimedUnchanged &&
       unlockedForShopUnchanged &&
-      purchasesUnchanged
+      purchasesUnchanged &&
+      factsUnchanged
     ) {
       return;
     }
@@ -845,6 +945,7 @@ export function persistProgress(
       starterGrantClaimedRecipeIds: nextClaimedRecipeIds,
       unlockedForShopIngredientIds: nextUnlockedForShop,
       discoveryHintPurchases: nextDiscoveryHintPurchases,
+      discoveryHintFacts: nextDiscoveryHintFacts,
     };
     writeSave(storage, next);
   } catch {

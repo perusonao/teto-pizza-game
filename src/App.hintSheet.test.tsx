@@ -50,9 +50,12 @@ describe("Free Cooking hint sheet in the App (229-B)", () => {
     await user.click(within(dialog).getByRole("button", { name: "閉じる" }));
 
     const after = JSON.parse(window.localStorage.getItem(SAVE_STORAGE_KEY)!);
-    const { pitzBalance, discoveryHintPurchases, ...rest } = after;
+    const { pitzBalance, discoveryHintPurchases, discoveryHintFacts, ...rest } = after;
     expect(pitzBalance).toBe(300 - 75);
     expect(discoveryHintPurchases).toEqual({ "breakfast-pizza": 4 });
+    // Discovery Hint 3.0 H3-2: the first write adds the (empty) Selectable Hint fact ledger, like
+    // HE-1's first write added `discoveryHintPurchases`. Hint 2.0 purchases never write facts.
+    expect(discoveryHintFacts).toEqual({});
     const { pitzBalance: _p, discoveryHintPurchases: _d, ...restBefore } = JSON.parse(before!);
     void _p;
     void _d;
