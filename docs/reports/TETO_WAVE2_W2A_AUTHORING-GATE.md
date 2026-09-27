@@ -1,6 +1,6 @@
 # Wave 2 — W2-A Authoring Gate
 
-Status: **判定 B. OWNER DECISIONS REQUIRED**（§12）。production 実装・PR・merge・deploy はしていない。
+Status: **判定 B → Owner が A1〜A8 を確定（§13）。W2-A0 完了。**（元の判定は §12）production 実装・PR・merge・deploy はしていない。
 変更は docs / data / tools だけ（src / e2e / CSS 変更なし）。
 
 | 項目 | 値 |
@@ -563,3 +563,21 @@ A にしなかった理由: OD-W2-6（「未確定値を推測して production 
 A1〜A7 が決まれば W2-A0 で候補 JSON を確定値に更新し、W2-A1 → W2-A2 の実装に入れる（その時点で判定 A 相当）。
 
 ここで STOP。production 実装・PR・merge・deploy はしていない。
+
+## 13. Owner Decision（2026-09-27）— W2-A0 完了
+
+Owner が A1〜A8 をすべて確定した。記録: `docs/design/TETO_WAVE2_OWNER-DECISION-LEDGER.md`。値の正本: `tools/wave2-w2a/w2a_authoring_candidates.json`（旧 OWNER_REQUIRED はすべて `APPROVED_OWNER`）。
+
+| ID | 確定内容 |
+|---|---|
+| A1 | §12 推奨の minCount を採用。W2-A 専用の scoring rule は作らない |
+| A2 | §12 推奨の bakeTarget を採用。W2-A 固有の焼き仕様は追加しない |
+| A3 | 9 件の説明文 draft を承認。HV で表示・改行・意味の自然さを確認 |
+| A4 | 「ブラジリアン・カラブレーザ」を正式名称。短縮しない。W2-A2 の Layout Contract で 2 行以内を確認 |
+| A5 | 白ソースは `#eef1f4`。W2-A では追加 CSS / outline なし（HV で問題が出た時だけ follow-up） |
+| A6 | emoji 6 件を承認。生ハム・パセリは capers / clam と同じ方針の専用 visual。外部 asset 依存は作らない |
+| A7 | 新材料を tray 先頭へ移動しない（deterministic order 維持、最大 3 tap を許容） |
+| A8 | phase2 tool drift を Issue #260 に追記。W2-A の blocker にしない |
+
+**W2-A0 判定: A. W2-A AUTHORING COMPLETE — IMPLEMENTATION READY。** 次は W2-A1（材料データ + visual、まだ入手不可）→ 検証 → W2-A2（9 recipes + ladder append）。
+W2-A2 の ladder は PR #268（LAD-1、append-only ladder foundation、OPEN）の `POST_W1_APPENDED_STEPS` に載せる（重複実装しない）。
