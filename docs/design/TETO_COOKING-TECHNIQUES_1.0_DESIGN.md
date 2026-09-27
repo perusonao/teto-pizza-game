@@ -3,6 +3,11 @@
 > **Status:** Fresh Design のみ（docs / data / tools）。production code・test・save・UI・価格・★は一切変更しない。
 > Owner Decision（§18）が確定するまで、ここに書いたものは authority ではない。
 >
+> **Gate update（後続 commit）:** TQ-1 の Owner Decision Gate は
+> `docs/design/TETO_COOKING-TECHNIQUES_1.0_OWNER-DECISION-GATE.md` を参照。本書から修正した点
+> （Dinner を検出対象外に、TECHNIQUE_SLOT を派生化、SAUCE_ONLY の k≥2 抑制、scoring 案 B、append-only ladder が前提）は
+> 同書 §11 に一覧がある。本書の本文は 49b0976 時点のまま残している。
+>
 > **Verdict: A. FRESH DESIGN READY FOR OWNER DECISIONS**（§18 の OD-TQ-1…15 と §19 の最小 slice）
 
 | Artifact | Path |

@@ -1,0 +1,3481 @@
+{
+ "schemaNote": "Cooking Techniques 1.0 TQ-1 Owner Decision Gate audit. Docs/data only; not a production SSOT.",
+ "generatedBy": "tools/cooking_techniques_tq1_gate.py",
+ "designBase": "49b0976 (claude/cooking-techniques-design-n0qfwj)",
+ "inputs": [
+  "docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json",
+  "docs/design/data/TETO_PROGRESSION2_PHASE2_UNLOCK-MATRIX.json",
+  "docs/design/data/TETO_COOKING-TECHNIQUES_1.0_AUDIT.json",
+  "src/data/recipes.ts",
+  "src/data/ingredients.ts",
+  "src/data/discoveryLadder.ts",
+  "src/logic/scoringV2/index.ts",
+  "src/logic/scoringV2/sauceComponent.ts",
+  "src/logic/scoring.ts",
+  "src/logic/pitzReward.ts"
+ ],
+ "runtime": {
+  "recipeCount": 25,
+  "ingredientCount": 29,
+  "sauces": [
+   "olive-oil",
+   "pesto",
+   "tomato-sauce"
+  ],
+  "w1LadderSteps": 24
+ },
+ "ladderRulePortParity": true,
+ "noSauceCandidates": [
+  {
+   "evidenceId": "vongole-pizzadb",
+   "canonicalCandidateId": "vongole",
+   "nameJa": "ヴォンゴレピザ",
+   "ingredients": [
+    "clam",
+    "garlic",
+    "olive-oil",
+    "parsley"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "ノンソース",
+    "status": "none",
+    "rule": "explicitly no sauce"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [
+    "parsley"
+   ],
+   "progression": {
+    "phase2Class": "EVIDENCE_READY_TARGET",
+    "phase2ReachableAtStep": 14,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [
+     "clam",
+     "garlic",
+     "olive-oil",
+     "parsley"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": null,
+    "wave2Profile": "NO_CUT (OD-W2-4 New Haven precedent: no dough evidence)"
+   },
+   "evidence": {
+    "productDecisionStatus": "READY",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/ (original Phase 0B sample batch, page 1)",
+    "blockers": [],
+    "reviewItems": [],
+    "sauceEvidence": "family label（ノンソース）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "ingredients not in runtime: parsley"
+   ]
+  },
+  {
+   "evidenceId": "aussie-pizzadb",
+   "canonicalCandidateId": "aussie",
+   "nameJa": "オージーピザ",
+   "ingredients": [
+    "bacon",
+    "egg",
+    "mozzarella",
+    "onion"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "チーズ（トマトソースなし）",
+    "status": "none",
+    "rule": "cheese base without tomato sauce"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [],
+   "progression": {
+    "phase2Class": "EVIDENCE_READY_TARGET",
+    "phase2ReachableAtStep": 1,
+    "w1LadderFirstMakeableStep": 12
+   },
+   "matcherIdentity": {
+    "items": [
+     "bacon",
+     "egg",
+     "mozzarella",
+     "onion"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": [
+     {
+      "recipeId": "breakfast-pizza",
+      "distance": 2
+     }
+    ]
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": null,
+    "wave2Profile": "NO_CUT (OD-W2-4 New Haven precedent: no dough evidence)"
+   },
+   "evidence": {
+    "productDecisionStatus": "READY",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/ (original Phase 0B sample batch, page 1)",
+    "blockers": [],
+    "reviewItems": [],
+    "sauceEvidence": "family label（チーズ（トマトソースなし））= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": [
+     "tomato-sauce"
+    ],
+    "sauceOnlyK": 1
+   },
+   "tq1Eligible": true,
+   "tq1IneligibleReasons": []
+  },
+  {
+   "evidenceId": "quattro-formaggi-pizzadb",
+   "canonicalCandidateId": "quattro-formaggi-pizzadb",
+   "nameJa": "クアトロフォルマッジ（PIZZA DB版）",
+   "ingredients": [
+    "fontina",
+    "gorgonzola",
+    "mozzarella",
+    "parmigiano"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "チーズ",
+    "status": "none",
+    "rule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [],
+   "progression": {
+    "phase2Class": "BLOCKED_PRODUCT_DECISION",
+    "phase2ReachableAtStep": null,
+    "w1LadderFirstMakeableStep": 24
+   },
+   "matcherIdentity": {
+    "items": [
+     "fontina",
+     "gorgonzola",
+     "mozzarella",
+     "parmigiano"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": [
+     {
+      "recipeId": "quattro-formaggi",
+      "distance": 1
+     }
+    ]
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": null,
+    "wave2Profile": "NO_CUT (OD-W2-4 New Haven precedent: no dough evidence)"
+   },
+   "evidence": {
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/ (original Phase 0B sample batch, page 3)",
+    "blockers": [
+     "COMPOSITION_CONFLICT_SHIPPED"
+    ],
+    "reviewItems": [],
+    "sauceEvidence": "family label（チーズ）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": [
+     "olive-oil",
+     "pesto",
+     "tomato-sauce"
+    ],
+    "sauceOnlyK": 3
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "phase2Class=BLOCKED_PRODUCT_DECISION"
+   ]
+  },
+  {
+   "evidenceId": "chilean-napolitana-pizzadb",
+   "canonicalCandidateId": "chilean-napolitana",
+   "nameJa": "チリアンナポリターナ",
+   "ingredients": [
+    "fresh-tomato",
+    "mozzarella",
+    "oregano"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "チーズ",
+    "status": "none",
+    "rule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [],
+   "progression": {
+    "phase2Class": "EVIDENCE_READY_TARGET",
+    "phase2ReachableAtStep": 4,
+    "w1LadderFirstMakeableStep": 20
+   },
+   "matcherIdentity": {
+    "items": [
+     "fresh-tomato",
+     "mozzarella",
+     "oregano"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": null,
+    "wave2Profile": "NO_CUT (OD-W2-4 New Haven precedent: no dough evidence)"
+   },
+   "evidence": {
+    "productDecisionStatus": "READY_WITH_REVIEW",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/ (original Phase 0B sample batch, page 5)",
+    "blockers": [],
+    "reviewItems": [
+     "NAMING_CLUSTER"
+    ],
+    "sauceEvidence": "family label（チーズ）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": [
+     "olive-oil",
+     "pesto",
+     "tomato-sauce"
+    ],
+    "sauceOnlyK": 3
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "review items: NAMING_CLUSTER"
+   ]
+  },
+  {
+   "evidenceId": "bacalhau-pizzadb",
+   "canonicalCandidateId": "bacalhau",
+   "nameJa": "バカリャウピザ",
+   "ingredients": [
+    "black-olive",
+    "mozzarella",
+    "onion",
+    "salt-cod"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "チーズ",
+    "status": "none",
+    "rule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [
+    "salt-cod"
+   ],
+   "progression": {
+    "phase2Class": "EVIDENCE_READY_TARGET",
+    "phase2ReachableAtStep": 43,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [
+     "black-olive",
+     "mozzarella",
+     "onion",
+     "salt-cod"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": null,
+    "wave2Profile": "NO_CUT (OD-W2-4 New Haven precedent: no dough evidence)"
+   },
+   "evidence": {
+    "productDecisionStatus": "READY",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/ (original Phase 0B sample batch, page 6)",
+    "blockers": [],
+    "reviewItems": [],
+    "sauceEvidence": "family label（チーズ）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "ingredients not in runtime: salt-cod"
+   ]
+  },
+  {
+   "evidenceId": "pizza-a-caballo",
+   "canonicalCandidateId": "pizza-a-caballo",
+   "nameJa": "ピッツァ・ア・カバージョ",
+   "ingredients": [
+    "black-olive",
+    "mozzarella",
+    "oregano"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "チーズ",
+    "status": "none",
+    "rule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE",
+    "ENCLOSE"
+   ],
+   "runtimeIngredientsMissing": [],
+   "progression": {
+    "phase2Class": "BLOCKED_EVIDENCE",
+    "phase2ReachableAtStep": null,
+    "w1LadderFirstMakeableStep": 11
+   },
+   "matcherIdentity": {
+    "items": [
+     "black-olive",
+     "mozzarella",
+     "oregano"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": [
+     "ENCLOSE"
+    ]
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "unspecified",
+    "doughStyleRaw": "厚みのあるふんわりした生地",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "evidenceOrigin": "individual_profile_page",
+    "sourceUrl": "https://pizzadb.jp/pizzas/pizza-a-caballo/",
+    "blockers": [
+     "EVIDENCE_GAP"
+    ],
+    "reviewItems": [],
+    "sauceEvidence": "family label（チーズ）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": [
+     "tomato-sauce"
+    ],
+    "sauceOnlyK": 1
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "phase2Class=BLOCKED_EVIDENCE",
+    "needs other techniques: ENCLOSE"
+   ]
+  },
+  {
+   "evidenceId": "fugazzeta-rellena",
+   "canonicalCandidateId": "fugazzeta-rellena",
+   "nameJa": "フガゼッタ・レジェーナ",
+   "ingredients": [
+    "ham",
+    "mozzarella",
+    "onion",
+    "oregano"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "チーズ",
+    "status": "none",
+    "rule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE",
+    "ENCLOSE"
+   ],
+   "runtimeIngredientsMissing": [],
+   "progression": {
+    "phase2Class": "EVIDENCE_READY_TARGET",
+    "phase2ReachableAtStep": 30,
+    "w1LadderFirstMakeableStep": 12
+   },
+   "matcherIdentity": {
+    "items": [
+     "ham",
+     "mozzarella",
+     "onion",
+     "oregano"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": [
+     "ENCLOSE"
+    ]
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "unspecified",
+    "doughStyleRaw": "厚みのあるふんわりした生地（2枚の生地でチーズ・ハムを挟む）",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "READY",
+    "evidenceOrigin": "individual_profile_page",
+    "sourceUrl": "https://pizzadb.jp/pizzas/fugazzeta-rellena/",
+    "blockers": [],
+    "reviewItems": [],
+    "sauceEvidence": "family label（チーズ）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": [
+     "tomato-sauce"
+    ],
+    "sauceOnlyK": 1
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "needs other techniques: ENCLOSE"
+   ]
+  },
+  {
+   "evidenceId": "bianca-pizzadb-row",
+   "canonicalCandidateId": "bianca",
+   "nameJa": "ピッツァビアンカ",
+   "ingredients": [
+    "mozzarella",
+    "olive-oil",
+    "ricotta",
+    "rosemary"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "チーズ",
+    "status": "none",
+    "rule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [
+    "ricotta"
+   ],
+   "progression": {
+    "phase2Class": "EVIDENCE_READY_TARGET",
+    "phase2ReachableAtStep": 21,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [
+     "mozzarella",
+     "olive-oil",
+     "ricotta",
+     "rosemary"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "ナポリピッツァ生地",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "READY_WITH_REVIEW",
+    "evidenceOrigin": "individual_profile_page",
+    "sourceUrl": "https://pizzadb.jp/pizzas/bianca/",
+    "blockers": [],
+    "reviewItems": [
+     "NAMING_CLUSTER"
+    ],
+    "sauceEvidence": "family label（チーズ）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "ingredients not in runtime: ricotta",
+    "review items: NAMING_CLUSTER"
+   ]
+  },
+  {
+   "evidenceId": "spanish-chorizo-pizza-pizzadb-p4",
+   "canonicalCandidateId": "spanish-chorizo-pizza",
+   "nameJa": "スパニッシュチョリソピザ",
+   "ingredients": [
+    "bell-pepper",
+    "mozzarella",
+    "onion",
+    "sausage"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "チーズ",
+    "status": "none",
+    "rule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [
+    "bell-pepper"
+   ],
+   "progression": {
+    "phase2Class": "EVIDENCE_READY_TARGET",
+    "phase2ReachableAtStep": 7,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [
+     "bell-pepper",
+     "mozzarella",
+     "onion",
+     "sausage"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "薄め",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "READY",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/4/",
+    "blockers": [],
+    "reviewItems": [],
+    "sauceEvidence": "family label（チーズ）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "ingredients not in runtime: bell-pepper"
+   ]
+  },
+  {
+   "evidenceId": "spinach-artichoke-pizza-pizzadb-p4",
+   "canonicalCandidateId": "spinach-artichoke-pizza",
+   "nameJa": "スピナッチアーティチョークピザ",
+   "ingredients": [
+    "artichoke",
+    "cream-cheese",
+    "mozzarella",
+    "parmigiano",
+    "spinach"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "チーズ",
+    "status": "none",
+    "rule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [
+    "artichoke",
+    "cream-cheese",
+    "spinach"
+   ],
+   "progression": {
+    "phase2Class": "EVIDENCE_READY_TARGET",
+    "phase2ReachableAtStep": 47,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [
+     "artichoke",
+     "cream-cheese",
+     "mozzarella",
+     "parmigiano",
+     "spinach"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "薄め",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "READY",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/4/",
+    "blockers": [],
+    "reviewItems": [],
+    "sauceEvidence": "family label（チーズ）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "ingredients not in runtime: artichoke, cream-cheese, spinach"
+   ]
+  },
+  {
+   "evidenceId": "speck-e-brie-pizzadb-p4",
+   "canonicalCandidateId": "speck-e-brie-pizzadb",
+   "nameJa": "スペックエブリー",
+   "ingredients": [
+    "brie",
+    "mozzarella",
+    "prosciutto-crudo",
+    "walnut"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "チーズ",
+    "status": "none",
+    "rule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [
+    "brie",
+    "prosciutto-crudo",
+    "walnut"
+   ],
+   "progression": {
+    "phase2Class": "BLOCKED_PRODUCT_DECISION",
+    "phase2ReachableAtStep": null,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [
+     "brie",
+     "mozzarella",
+     "prosciutto-crudo",
+     "walnut"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "ナポリピッツァ",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/4/",
+    "blockers": [
+     "COMPOSITION_CONFLICT_CANDIDATE"
+    ],
+    "reviewItems": [
+     "NAMING_CLUSTER"
+    ],
+    "sauceEvidence": "family label（チーズ）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "phase2Class=BLOCKED_PRODUCT_DECISION",
+    "ingredients not in runtime: brie, prosciutto-crudo, walnut",
+    "review items: NAMING_CLUSTER"
+   ]
+  },
+  {
+   "evidenceId": "argentine-napolitana-pizzadb-p1",
+   "canonicalCandidateId": "argentine-napolitana",
+   "nameJa": "アルゼンチン風ナポリターナ",
+   "ingredients": [
+    "fresh-tomato",
+    "garlic",
+    "mozzarella",
+    "oregano",
+    "parmigiano"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "チーズ",
+    "status": "none",
+    "rule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [],
+   "progression": {
+    "phase2Class": "EVIDENCE_READY_TARGET",
+    "phase2ReachableAtStep": 23,
+    "w1LadderFirstMakeableStep": 20
+   },
+   "matcherIdentity": {
+    "items": [
+     "fresh-tomato",
+     "garlic",
+     "mozzarella",
+     "oregano",
+     "parmigiano"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "厚みのあるふんわりした生地",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "READY_WITH_REVIEW",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/",
+    "blockers": [],
+    "reviewItems": [
+     "NAMING_CLUSTER"
+    ],
+    "sauceEvidence": "family label（チーズ）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": [
+     "olive-oil",
+     "pesto",
+     "tomato-sauce"
+    ],
+    "sauceOnlyK": 3
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "review items: NAMING_CLUSTER"
+   ]
+  },
+  {
+   "evidenceId": "ikura-salmon-pizza-pizzadb-p1",
+   "canonicalCandidateId": "ikura-salmon-pizza",
+   "nameJa": "いくらとサーモンのピザ",
+   "ingredients": [
+    "cream-cheese",
+    "salmon",
+    "salmon-roe",
+    "shiso"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "チーズ",
+    "status": "none",
+    "rule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [
+    "cream-cheese",
+    "salmon",
+    "salmon-roe",
+    "shiso"
+   ],
+   "progression": {
+    "phase2Class": "EVIDENCE_READY_TARGET",
+    "phase2ReachableAtStep": 50,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [
+     "cream-cheese",
+     "salmon",
+     "salmon-roe",
+     "shiso"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "薄め",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "READY",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/",
+    "blockers": [],
+    "reviewItems": [],
+    "sauceEvidence": "family label（チーズ）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "ingredients not in runtime: cream-cheese, salmon, salmon-roe, shiso"
+   ]
+  },
+  {
+   "evidenceId": "california-style-pizza-pizzadb-p2",
+   "canonicalCandidateId": "california-style-pizza",
+   "nameJa": "カリフォルニアスタイルピザ",
+   "ingredients": [
+    "arugula",
+    "avocado",
+    "fresh-tomato",
+    "goat-cheese"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "チーズ",
+    "status": "none",
+    "rule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [
+    "arugula",
+    "avocado",
+    "goat-cheese"
+   ],
+   "progression": {
+    "phase2Class": "EVIDENCE_READY_TARGET",
+    "phase2ReachableAtStep": 57,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [
+     "arugula",
+     "avocado",
+     "fresh-tomato",
+     "goat-cheese"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "薄めのナポリ風生地",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "READY",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/2/",
+    "blockers": [],
+    "reviewItems": [],
+    "sauceEvidence": "family label（チーズ）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "ingredients not in runtime: arugula, avocado, goat-cheese"
+   ]
+  },
+  {
+   "evidenceId": "salsiccia-e-friarielli-pizzadb-p3",
+   "canonicalCandidateId": "salsiccia-e-friarielli",
+   "nameJa": "サルシッチャエフリアリエッリ",
+   "ingredients": [
+    "friarielli",
+    "mozzarella",
+    "sausage"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "チーズ",
+    "status": "none",
+    "rule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [
+    "friarielli"
+   ],
+   "progression": {
+    "phase2Class": "EVIDENCE_READY_TARGET",
+    "phase2ReachableAtStep": 35,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [
+     "friarielli",
+     "mozzarella",
+     "sausage"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": [
+     {
+      "recipeId": "salsiccia",
+      "distance": 2
+     }
+    ]
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "ナポリピッツァ生地",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "READY",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/3/",
+    "blockers": [],
+    "reviewItems": [],
+    "sauceEvidence": "family label（チーズ）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "ingredients not in runtime: friarielli"
+   ]
+  },
+  {
+   "evidenceId": "shirasu-pizza-pizzadb-p3",
+   "canonicalCandidateId": "shirasu-pizza",
+   "nameJa": "しらすピザ",
+   "ingredients": [
+    "lemon",
+    "mozzarella",
+    "shiso",
+    "whitebait"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "チーズ",
+    "status": "none",
+    "rule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [
+    "lemon",
+    "shiso",
+    "whitebait"
+   ],
+   "progression": {
+    "phase2Class": "EVIDENCE_READY_TARGET",
+    "phase2ReachableAtStep": 51,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [
+     "lemon",
+     "mozzarella",
+     "shiso",
+     "whitebait"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "薄めの生地",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "READY",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/3/",
+    "blockers": [],
+    "reviewItems": [],
+    "sauceEvidence": "family label（チーズ）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "ingredients not in runtime: lemon, shiso, whitebait"
+   ]
+  },
+  {
+   "evidenceId": "eggplant-ricotta-pizza-pizzadb-p5",
+   "canonicalCandidateId": "eggplant-ricotta-pizza",
+   "nameJa": "ナスとリコッタのピザ",
+   "ingredients": [
+    "eggplant",
+    "mint",
+    "olive-oil",
+    "ricotta"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "チーズ",
+    "status": "none",
+    "rule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [
+    "mint",
+    "ricotta"
+   ],
+   "progression": {
+    "phase2Class": "EVIDENCE_READY_TARGET",
+    "phase2ReachableAtStep": 21,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [
+     "eggplant",
+     "mint",
+     "olive-oil",
+     "ricotta"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "ナポリピッツァ生地",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "READY",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/5/",
+    "blockers": [],
+    "reviewItems": [],
+    "sauceEvidence": "family label（チーズ）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "ingredients not in runtime: mint, ricotta"
+   ]
+  },
+  {
+   "evidenceId": "new-zealand-lamb-pizza-pizzadb-p6",
+   "canonicalCandidateId": "new-zealand-lamb-pizza",
+   "nameJa": "ニュージーランドラムピザ",
+   "ingredients": [
+    "lamb",
+    "mozzarella",
+    "rosemary",
+    "sweet-potato"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "チーズ",
+    "status": "none",
+    "rule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [
+    "lamb",
+    "sweet-potato"
+   ],
+   "progression": {
+    "phase2Class": "EVIDENCE_READY_TARGET",
+    "phase2ReachableAtStep": 59,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [
+     "lamb",
+     "mozzarella",
+     "rosemary",
+     "sweet-potato"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "薄めの生地",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "READY",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/6/",
+    "blockers": [],
+    "reviewItems": [],
+    "sauceEvidence": "family label（チーズ）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "ingredients not in runtime: lamb, sweet-potato"
+   ]
+  },
+  {
+   "evidenceId": "jalapeno-popper-pizza-pizzadb-p7",
+   "canonicalCandidateId": "jalapeno-popper-pizza",
+   "nameJa": "ハラペーニョポッパーピザ",
+   "ingredients": [
+    "bacon",
+    "cream-cheese",
+    "jalapeno",
+    "mozzarella"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "チーズ",
+    "status": "none",
+    "rule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [
+    "cream-cheese",
+    "jalapeno"
+   ],
+   "progression": {
+    "phase2Class": "EVIDENCE_READY_TARGET",
+    "phase2ReachableAtStep": 46,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [
+     "bacon",
+     "cream-cheese",
+     "jalapeno",
+     "mozzarella"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "薄めの生地",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "READY",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/7/",
+    "blockers": [],
+    "reviewItems": [],
+    "sauceEvidence": "family label（チーズ）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "ingredients not in runtime: cream-cheese, jalapeno"
+   ]
+  },
+  {
+   "evidenceId": "palmito-pizza-pizzadb-p7",
+   "canonicalCandidateId": "palmito-pizza",
+   "nameJa": "パルミットピザ",
+   "ingredients": [
+    "black-olive",
+    "mozzarella",
+    "palm-heart"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "チーズ",
+    "status": "none",
+    "rule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [
+    "palm-heart"
+   ],
+   "progression": {
+    "phase2Class": "EVIDENCE_READY_TARGET",
+    "phase2ReachableAtStep": 39,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [
+     "black-olive",
+     "mozzarella",
+     "palm-heart"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "薄めの生地",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "READY",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/7/",
+    "blockers": [],
+    "reviewItems": [],
+    "sauceEvidence": "family label（チーズ）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "ingredients not in runtime: palm-heart"
+   ]
+  },
+  {
+   "evidenceId": "piadina-romagnola-pizzadb-p7",
+   "canonicalCandidateId": "piadina-romagnola",
+   "nameJa": "ピアディーナ・ロマニョーラ",
+   "ingredients": [
+    "arugula",
+    "cream-cheese",
+    "prosciutto-crudo"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "ノンソース",
+    "status": "none",
+    "rule": "explicitly no sauce"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [
+    "arugula",
+    "cream-cheese",
+    "prosciutto-crudo"
+   ],
+   "progression": {
+    "phase2Class": "EVIDENCE_READY_TARGET",
+    "phase2ReachableAtStep": 45,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [
+     "arugula",
+     "cream-cheese",
+     "prosciutto-crudo"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "薄い無発酵の平焼き生地",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "READY",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/7/",
+    "blockers": [],
+    "reviewItems": [],
+    "sauceEvidence": "family label（ノンソース）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "ingredients not in runtime: arugula, cream-cheese, prosciutto-crudo"
+   ]
+  },
+  {
+   "evidenceId": "pizza-asparagi-limone-pizzadb-p8",
+   "canonicalCandidateId": "pizza-asparagi-limone",
+   "nameJa": "ピッツァ・コン・アスパラージ・クルーディ・エ・リモーネ",
+   "ingredients": [
+    "asparagus",
+    "lemon",
+    "mozzarella",
+    "olive-oil",
+    "parmigiano"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "ノンソース",
+    "status": "none",
+    "rule": "explicitly no sauce"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [
+    "asparagus",
+    "lemon"
+   ],
+   "progression": {
+    "phase2Class": "BLOCKED_MECHANIC_INTERPRETATION",
+    "phase2ReachableAtStep": null,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [
+     "asparagus",
+     "lemon",
+     "mozzarella",
+     "olive-oil",
+     "parmigiano"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "薄焼きピッツァ生地",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/8/",
+    "blockers": [
+     "MECHANIC_INTERPRETATION"
+    ],
+    "reviewItems": [],
+    "sauceEvidence": "family label（ノンソース）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "phase2Class=BLOCKED_MECHANIC_INTERPRETATION",
+    "ingredients not in runtime: asparagus, lemon"
+   ]
+  },
+  {
+   "evidenceId": "pizza-carciofi-salad-pizzadb-p8",
+   "canonicalCandidateId": "pizza-carciofi-salad",
+   "nameJa": "ピッツァ・コン・インサラータ・ディ・カルチョーフィ",
+   "ingredients": [
+    "artichoke",
+    "celery",
+    "lemon",
+    "mozzarella",
+    "olive-oil",
+    "parmigiano"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "ノンソース",
+    "status": "none",
+    "rule": "explicitly no sauce"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [
+    "artichoke",
+    "celery",
+    "lemon"
+   ],
+   "progression": {
+    "phase2Class": "BLOCKED_MECHANIC_INTERPRETATION",
+    "phase2ReachableAtStep": null,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [
+     "artichoke",
+     "celery",
+     "lemon",
+     "mozzarella",
+     "olive-oil",
+     "parmigiano"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "ローマ風ピッツァ生地",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/8/",
+    "blockers": [
+     "MECHANIC_INTERPRETATION"
+    ],
+    "reviewItems": [],
+    "sauceEvidence": "family label（ノンソース）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "phase2Class=BLOCKED_MECHANIC_INTERPRETATION",
+    "ingredients not in runtime: artichoke, celery, lemon"
+   ]
+  },
+  {
+   "evidenceId": "pizza-finocchi-salad-pizzadb-p8",
+   "canonicalCandidateId": "pizza-finocchi-salad",
+   "nameJa": "ピッツァ・コン・インサラータ・ディ・フィノッキ",
+   "ingredients": [
+    "black-olive",
+    "fennel",
+    "mint",
+    "mozzarella",
+    "olive-oil",
+    "orange"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "ノンソース",
+    "status": "none",
+    "rule": "explicitly no sauce"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [
+    "fennel",
+    "mint",
+    "orange"
+   ],
+   "progression": {
+    "phase2Class": "BLOCKED_MECHANIC_INTERPRETATION",
+    "phase2ReachableAtStep": null,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [
+     "black-olive",
+     "fennel",
+     "mint",
+     "mozzarella",
+     "olive-oil",
+     "orange"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "薄焼きピッツァ生地",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/8/",
+    "blockers": [
+     "MECHANIC_INTERPRETATION"
+    ],
+    "reviewItems": [],
+    "sauceEvidence": "family label（ノンソース）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "phase2Class=BLOCKED_MECHANIC_INTERPRETATION",
+    "ingredients not in runtime: fennel, mint, orange"
+   ]
+  },
+  {
+   "evidenceId": "pizza-cavolo-carote-pizzadb-p8",
+   "canonicalCandidateId": "pizza-cavolo-carote",
+   "nameJa": "ピッツァ・コン・カーヴォロ・ロッソ・エ・カローテ",
+   "ingredients": [
+    "carrot",
+    "lemon",
+    "mozzarella",
+    "olive-oil",
+    "red-cabbage",
+    "sunflower-seeds"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "ノンソース",
+    "status": "none",
+    "rule": "explicitly no sauce"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [
+    "carrot",
+    "lemon",
+    "red-cabbage",
+    "sunflower-seeds"
+   ],
+   "progression": {
+    "phase2Class": "BLOCKED_MECHANIC_INTERPRETATION",
+    "phase2ReachableAtStep": null,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [
+     "carrot",
+     "lemon",
+     "mozzarella",
+     "olive-oil",
+     "red-cabbage",
+     "sunflower-seeds"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "薄焼きピッツァ生地",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/8/",
+    "blockers": [
+     "MECHANIC_INTERPRETATION"
+    ],
+    "reviewItems": [],
+    "sauceEvidence": "family label（ノンソース）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "phase2Class=BLOCKED_MECHANIC_INTERPRETATION",
+    "ingredients not in runtime: carrot, lemon, red-cabbage, sunflower-seeds"
+   ]
+  },
+  {
+   "evidenceId": "pizza-zucchine-menta-pizzadb-p8",
+   "canonicalCandidateId": "pizza-zucchine-menta",
+   "nameJa": "ピッツァ・コン・ズッキーネ・クルーデ・エ・メンタ",
+   "ingredients": [
+    "lemon",
+    "mint",
+    "mozzarella",
+    "olive-oil",
+    "ricotta",
+    "zucchini"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "ノンソース",
+    "status": "none",
+    "rule": "explicitly no sauce"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [
+    "lemon",
+    "mint",
+    "ricotta",
+    "zucchini"
+   ],
+   "progression": {
+    "phase2Class": "BLOCKED_MECHANIC_INTERPRETATION",
+    "phase2ReachableAtStep": null,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [
+     "lemon",
+     "mint",
+     "mozzarella",
+     "olive-oil",
+     "ricotta",
+     "zucchini"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "ナポリピッツァ生地",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/8/",
+    "blockers": [
+     "MECHANIC_INTERPRETATION"
+    ],
+    "reviewItems": [],
+    "sauceEvidence": "family label（ノンソース）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "phase2Class=BLOCKED_MECHANIC_INTERPRETATION",
+    "ingredients not in runtime: lemon, mint, ricotta, zucchini"
+   ]
+  },
+  {
+   "evidenceId": "pizza-cicoria-limone-pizzadb-p8",
+   "canonicalCandidateId": "pizza-cicoria-limone",
+   "nameJa": "ピッツァ・コン・チコリア・エ・リモーネ",
+   "ingredients": [],
+   "sauceRequirement": {
+    "sauceFamily": "ノンソース",
+    "status": "none",
+    "rule": "explicitly no sauce"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [],
+   "progression": {
+    "phase2Class": "BLOCKED_EVIDENCE",
+    "phase2ReachableAtStep": null,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "ローマ風ピッツァ生地",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/8/",
+    "blockers": [
+     "MECHANIC_INTERPRETATION",
+     "UNRESOLVED_INGREDIENT"
+    ],
+    "reviewItems": [],
+    "sauceEvidence": "family label（ノンソース）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "phase2Class=BLOCKED_EVIDENCE",
+    "identity set incomplete"
+   ]
+  },
+  {
+   "evidenceId": "pizza-puntarelle-pizzadb-p8",
+   "canonicalCandidateId": "pizza-puntarelle",
+   "nameJa": "ピッツァ・コン・プンタレッレ",
+   "ingredients": [
+    "anchovy",
+    "lemon",
+    "mozzarella",
+    "olive-oil",
+    "puntarelle"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "ノンソース",
+    "status": "none",
+    "rule": "explicitly no sauce"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [
+    "lemon",
+    "puntarelle"
+   ],
+   "progression": {
+    "phase2Class": "BLOCKED_MECHANIC_INTERPRETATION",
+    "phase2ReachableAtStep": null,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [
+     "anchovy",
+     "lemon",
+     "mozzarella",
+     "olive-oil",
+     "puntarelle"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "ローマ風ピッツァ生地",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/8/",
+    "blockers": [
+     "MECHANIC_INTERPRETATION"
+    ],
+    "reviewItems": [],
+    "sauceEvidence": "family label（ノンソース）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "phase2Class=BLOCKED_MECHANIC_INTERPRETATION",
+    "ingredients not in runtime: lemon, puntarelle"
+   ]
+  },
+  {
+   "evidenceId": "pizza-radicchio-noci-pizzadb-p8",
+   "canonicalCandidateId": "pizza-radicchio-noci",
+   "nameJa": "ピッツァ・コン・ラディッキオ・クルード・エ・ノーチ",
+   "ingredients": [
+    "balsamic-vinegar",
+    "mozzarella",
+    "olive-oil",
+    "radicchio",
+    "walnut"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "ノンソース",
+    "status": "none",
+    "rule": "explicitly no sauce"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE",
+    "DOUBLE_SPREAD"
+   ],
+   "runtimeIngredientsMissing": [
+    "balsamic-vinegar",
+    "radicchio",
+    "walnut"
+   ],
+   "progression": {
+    "phase2Class": "BLOCKED_MECHANIC_INTERPRETATION",
+    "phase2ReachableAtStep": null,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [
+     "balsamic-vinegar",
+     "mozzarella",
+     "olive-oil",
+     "radicchio",
+     "walnut"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": [
+     "DOUBLE_SPREAD"
+    ]
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "薄焼きピッツァ生地",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/8/",
+    "blockers": [
+     "MECHANIC_INTERPRETATION"
+    ],
+    "reviewItems": [],
+    "sauceEvidence": "family label（ノンソース）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "phase2Class=BLOCKED_MECHANIC_INTERPRETATION",
+    "ingredients not in runtime: balsamic-vinegar, radicchio, walnut",
+    "needs other techniques: DOUBLE_SPREAD"
+   ]
+  },
+  {
+   "evidenceId": "pizza-feta-eliniki-pizzadb-p9",
+   "canonicalCandidateId": "pizza-feta-eliniki",
+   "nameJa": "ピッツァフェッタエッリニキ",
+   "ingredients": [
+    "black-olive",
+    "feta",
+    "fresh-tomato",
+    "olive-oil",
+    "oregano"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "チーズ",
+    "status": "none",
+    "rule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [
+    "feta"
+   ],
+   "progression": {
+    "phase2Class": "EVIDENCE_READY_TARGET",
+    "phase2ReachableAtStep": 4,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [
+     "black-olive",
+     "feta",
+     "fresh-tomato",
+     "olive-oil",
+     "oregano"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "薄めの生地",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "READY",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/9/",
+    "blockers": [],
+    "reviewItems": [],
+    "sauceEvidence": "family label（チーズ）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "ingredients not in runtime: feta"
+   ]
+  },
+  {
+   "evidenceId": "pizza-moscow-pizzadb-p9",
+   "canonicalCandidateId": "pizza-moscow",
+   "nameJa": "ピッツァモスクワ",
+   "ingredients": [
+    "mozzarella",
+    "onion",
+    "salmon",
+    "sardine",
+    "tuna"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "チーズ",
+    "status": "none",
+    "rule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [
+    "salmon",
+    "sardine"
+   ],
+   "progression": {
+    "phase2Class": "EVIDENCE_READY_TARGET",
+    "phase2ReachableAtStep": 49,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [
+     "mozzarella",
+     "onion",
+     "salmon",
+     "sardine",
+     "tuna"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "薄めの生地",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "READY",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/9/",
+    "blockers": [],
+    "reviewItems": [],
+    "sauceEvidence": "family label（チーズ）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "ingredients not in runtime: salmon, sardine"
+   ]
+  },
+  {
+   "evidenceId": "philly-cheesesteak-pizza-pizzadb-p9",
+   "canonicalCandidateId": "philly-cheesesteak-pizza",
+   "nameJa": "フィリーチーズステーキピザ",
+   "ingredients": [],
+   "sauceRequirement": {
+    "sauceFamily": "チーズ",
+    "status": "none",
+    "rule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [],
+   "progression": {
+    "phase2Class": "BLOCKED_EVIDENCE",
+    "phase2ReachableAtStep": null,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "薄めの生地",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/9/",
+    "blockers": [
+     "UNRESOLVED_INGREDIENT"
+    ],
+    "reviewItems": [],
+    "sauceEvidence": "family label（チーズ）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "phase2Class=BLOCKED_EVIDENCE",
+    "identity set incomplete"
+   ]
+  },
+  {
+   "evidenceId": "fugazza-pizzadb-p10",
+   "canonicalCandidateId": "fugazza-pizzadb",
+   "nameJa": "フガザ",
+   "ingredients": [
+    "mozzarella",
+    "onion",
+    "oregano"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "チーズ",
+    "status": "none",
+    "rule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [],
+   "progression": {
+    "phase2Class": "BLOCKED_DISCOVERY_RULE",
+    "phase2ReachableAtStep": null,
+    "w1LadderFirstMakeableStep": 12
+   },
+   "matcherIdentity": {
+    "items": [
+     "mozzarella",
+     "onion",
+     "oregano"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [
+     "fugazzetta-pizzadb-p10"
+    ],
+    "runtimeNeighboursWithin2": [
+     {
+      "recipeId": "fugazza",
+      "distance": 2
+     }
+    ]
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "厚みのあるふんわりした生地",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/10/",
+    "blockers": [
+     "COMPOSITION_CONFLICT_SHIPPED",
+     "DISCOVERY_COLLISION"
+    ],
+    "reviewItems": [],
+    "sauceEvidence": "family label（チーズ）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": [
+     "tomato-sauce"
+    ],
+    "sauceOnlyK": 1
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "phase2Class=BLOCKED_DISCOVERY_RULE",
+    "exact identity collision"
+   ]
+  },
+  {
+   "evidenceId": "fugazzetta-pizzadb-p10",
+   "canonicalCandidateId": "fugazzetta",
+   "nameJa": "フガゼッタ",
+   "ingredients": [
+    "mozzarella",
+    "onion",
+    "oregano"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "チーズ",
+    "status": "none",
+    "rule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [],
+   "progression": {
+    "phase2Class": "BLOCKED_DISCOVERY_RULE",
+    "phase2ReachableAtStep": null,
+    "w1LadderFirstMakeableStep": 12
+   },
+   "matcherIdentity": {
+    "items": [
+     "mozzarella",
+     "onion",
+     "oregano"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [
+     "fugazza-pizzadb-p10"
+    ],
+    "runtimeNeighboursWithin2": [
+     {
+      "recipeId": "fugazza",
+      "distance": 2
+     }
+    ]
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "厚みのあるふんわりした生地",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/10/",
+    "blockers": [
+     "COMPOSITION_CONFLICT_CANDIDATE",
+     "DISCOVERY_COLLISION"
+    ],
+    "reviewItems": [],
+    "sauceEvidence": "family label（チーズ）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": [
+     "tomato-sauce"
+    ],
+    "sauceOnlyK": 1
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "phase2Class=BLOCKED_DISCOVERY_RULE",
+    "exact identity collision"
+   ]
+  },
+  {
+   "evidenceId": "brazilian-catupiry-corn-pizza-pizzadb-p10",
+   "canonicalCandidateId": "brazilian-catupiry-corn-pizza",
+   "nameJa": "ブラジリアンカトゥピリコーンピザ",
+   "ingredients": [
+    "catupiry",
+    "corn",
+    "mozzarella"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "チーズ",
+    "status": "none",
+    "rule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [
+    "catupiry"
+   ],
+   "progression": {
+    "phase2Class": "EVIDENCE_READY_TARGET",
+    "phase2ReachableAtStep": 18,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [
+     "catupiry",
+     "corn",
+     "mozzarella"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "薄めの生地",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "READY",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/10/",
+    "blockers": [],
+    "reviewItems": [],
+    "sauceEvidence": "family label（チーズ）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "ingredients not in runtime: catupiry"
+   ]
+  },
+  {
+   "evidenceId": "frango-catupiry-pizzadb-p10",
+   "canonicalCandidateId": "frango-catupiry",
+   "nameJa": "フランゴ・コン・カトゥピリ",
+   "ingredients": [
+    "catupiry",
+    "chicken",
+    "mozzarella",
+    "oregano"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "チーズ",
+    "status": "none",
+    "rule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [
+    "catupiry",
+    "chicken"
+   ],
+   "progression": {
+    "phase2Class": "EVIDENCE_READY_TARGET",
+    "phase2ReachableAtStep": 17,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [
+     "catupiry",
+     "chicken",
+     "mozzarella",
+     "oregano"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "薄めの生地",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "READY",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/10/",
+    "blockers": [],
+    "reviewItems": [],
+    "sauceEvidence": "family label（チーズ）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "ingredients not in runtime: catupiry, chicken"
+   ]
+  },
+  {
+   "evidenceId": "full-english-pizza-pizzadb-p10",
+   "canonicalCandidateId": "full-english-pizza",
+   "nameJa": "フルイングリッシュピザ",
+   "ingredients": [
+    "bacon",
+    "baked-beans",
+    "egg",
+    "mozzarella",
+    "sausage"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "チーズ",
+    "status": "none",
+    "rule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [
+    "baked-beans"
+   ],
+   "progression": {
+    "phase2Class": "EVIDENCE_READY_TARGET",
+    "phase2ReachableAtStep": 27,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [
+     "bacon",
+     "baked-beans",
+     "egg",
+     "mozzarella",
+     "sausage"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "薄めの生地",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "READY",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/10/",
+    "blockers": [],
+    "reviewItems": [],
+    "sauceEvidence": "family label（チーズ）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "ingredients not in runtime: baked-beans"
+   ]
+  },
+  {
+   "evidenceId": "polish-kielbasa-pizzadb-p12",
+   "canonicalCandidateId": "polish-kielbasa",
+   "nameJa": "ポーリッシュキエルバサピザ",
+   "ingredients": [
+    "mozzarella",
+    "onion",
+    "sauerkraut",
+    "sausage"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "チーズ",
+    "status": "none",
+    "rule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [
+    "sauerkraut"
+   ],
+   "progression": {
+    "phase2Class": "EVIDENCE_READY_TARGET",
+    "phase2ReachableAtStep": 44,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [
+     "mozzarella",
+     "onion",
+     "sauerkraut",
+     "sausage"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "薄めの生地",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "READY",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/12/",
+    "blockers": [],
+    "reviewItems": [],
+    "sauceEvidence": "family label（チーズ）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "ingredients not in runtime: sauerkraut"
+   ]
+  },
+  {
+   "evidenceId": "boscaiola-pizzadb-p12",
+   "canonicalCandidateId": "boscaiola-pizzadb",
+   "nameJa": "ボスカイオーラ",
+   "ingredients": [
+    "mozzarella",
+    "olive-oil",
+    "porcini",
+    "sausage"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "チーズ",
+    "status": "none",
+    "rule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [
+    "porcini"
+   ],
+   "progression": {
+    "phase2Class": "BLOCKED_PRODUCT_DECISION",
+    "phase2ReachableAtStep": null,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [
+     "mozzarella",
+     "olive-oil",
+     "porcini",
+     "sausage"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "ピッツァ生地",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/12/",
+    "blockers": [
+     "COMPOSITION_CONFLICT_CANDIDATE"
+    ],
+    "reviewItems": [],
+    "sauceEvidence": "family label（チーズ）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "phase2Class=BLOCKED_PRODUCT_DECISION",
+    "ingredients not in runtime: porcini"
+   ]
+  },
+  {
+   "evidenceId": "porchetta-pizza-pizzadb-p12",
+   "canonicalCandidateId": "porchetta-pizza",
+   "nameJa": "ポルケッタピザ",
+   "ingredients": [
+    "mozzarella",
+    "pork",
+    "rosemary"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "チーズ",
+    "status": "none",
+    "rule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [
+    "pork"
+   ],
+   "progression": {
+    "phase2Class": "EVIDENCE_READY_TARGET",
+    "phase2ReachableAtStep": 15,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [
+     "mozzarella",
+     "pork",
+     "rosemary"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "ナポリピッツァ生地",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "READY",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/12/",
+    "blockers": [],
+    "reviewItems": [],
+    "sauceEvidence": "family label（チーズ）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "ingredients not in runtime: pork"
+   ]
+  },
+  {
+   "evidenceId": "porcini-pizza-pizzadb-p13",
+   "canonicalCandidateId": "porcini-pizza",
+   "nameJa": "ポルチーニ茸のピザ",
+   "ingredients": [
+    "garlic",
+    "mozzarella",
+    "parsley",
+    "porcini"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "チーズ",
+    "status": "none",
+    "rule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [
+    "parsley",
+    "porcini"
+   ],
+   "progression": {
+    "phase2Class": "BLOCKED_PRODUCT_DECISION",
+    "phase2ReachableAtStep": null,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [
+     "garlic",
+     "mozzarella",
+     "parsley",
+     "porcini"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "ナポリピッツァ生地",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/13/",
+    "blockers": [
+     "COMPOSITION_CONFLICT_CANDIDATE"
+    ],
+    "reviewItems": [],
+    "sauceEvidence": "family label（チーズ）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "phase2Class=BLOCKED_PRODUCT_DECISION",
+    "ingredients not in runtime: parsley, porcini"
+   ]
+  },
+  {
+   "evidenceId": "tsukimi-pizza-pizzadb-p14",
+   "canonicalCandidateId": "tsukimi-pizza",
+   "nameJa": "月見ピザ",
+   "ingredients": [
+    "bacon",
+    "egg",
+    "green-onion",
+    "mozzarella"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "チーズ",
+    "status": "none",
+    "rule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [
+    "green-onion"
+   ],
+   "progression": {
+    "phase2Class": "EVIDENCE_READY_TARGET",
+    "phase2ReachableAtStep": 19,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [
+     "bacon",
+     "egg",
+     "green-onion",
+     "mozzarella"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": [
+     {
+      "recipeId": "breakfast-pizza",
+      "distance": 2
+     }
+    ]
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "薄めの生地",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "READY",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/14/",
+    "blockers": [],
+    "reviewItems": [],
+    "sauceEvidence": "family label（チーズ）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "ingredients not in runtime: green-onion"
+   ]
+  },
+  {
+   "evidenceId": "black-truffle-pizza-pizzadb-p14",
+   "canonicalCandidateId": "black-truffle-pizza",
+   "nameJa": "黒トリュフピザ",
+   "ingredients": [
+    "mozzarella",
+    "parmigiano",
+    "truffle"
+   ],
+   "sauceRequirement": {
+    "sauceFamily": "チーズ",
+    "status": "none",
+    "rule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+   },
+   "requiredTechniques": [
+    "POST_BAKE_FINISH",
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [
+    "truffle"
+   ],
+   "progression": {
+    "phase2Class": "BLOCKED_PRODUCT_DECISION",
+    "phase2ReachableAtStep": null,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [
+     "mozzarella",
+     "parmigiano",
+     "truffle"
+    ],
+    "sauceBase": [],
+    "nonDefaultDimensions": [
+     "POST_BAKE_FINISH"
+    ]
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "ナポリピッツァ生地",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/14/",
+    "blockers": [
+     "COMPOSITION_CONFLICT_CANDIDATE"
+    ],
+    "reviewItems": [],
+    "sauceEvidence": "family label（チーズ）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "phase2Class=BLOCKED_PRODUCT_DECISION",
+    "ingredients not in runtime: truffle",
+    "needs other techniques: POST_BAKE_FINISH"
+   ]
+  },
+  {
+   "evidenceId": "hokkaido-cheese-pizza-pizzadb-p15",
+   "canonicalCandidateId": "hokkaido-cheese-pizza",
+   "nameJa": "北海道チーズピザ",
+   "ingredients": [],
+   "sauceRequirement": {
+    "sauceFamily": "チーズ",
+    "status": "none",
+    "rule": "cheese base, no spread sauce (SAUCE step skipped, as for shipped quattro-formaggi-style rows)"
+   },
+   "requiredTechniques": [
+    "NO_SAUCE"
+   ],
+   "runtimeIngredientsMissing": [],
+   "progression": {
+    "phase2Class": "BLOCKED_EVIDENCE",
+    "phase2ReachableAtStep": null,
+    "w1LadderFirstMakeableStep": null
+   },
+   "matcherIdentity": {
+    "items": [],
+    "sauceBase": [],
+    "nonDefaultDimensions": []
+   },
+   "collision": {
+    "exactRuntime": [],
+    "exact172": [],
+    "runtimeNeighboursWithin2": []
+   },
+   "scoringImpact": "needs a no-sauce scoring profile: under today's formula the sauce component (weight 52) reads ~0, so the maximum total is 48 (★2 cap)",
+   "cut": {
+    "matrix": "existing-round-cut-optional",
+    "doughStyleRaw": "薄めの生地",
+    "wave2Profile": "STANDARD_6 (round dough evidenced)"
+   },
+   "evidence": {
+    "productDecisionStatus": "BLOCKED_PRODUCT_DECISION",
+    "evidenceOrigin": "comparison_table_sample",
+    "sourceUrl": "https://pizzadb.jp/compare/world-pizzas/page/15/",
+    "blockers": [
+     "UNRESOLVED_INGREDIENT"
+    ],
+    "reviewItems": [],
+    "sauceEvidence": "family label（チーズ）= no spread sauce"
+   },
+   "privacy": {
+    "ownedSaucesAtFirstMakeableStep": null,
+    "sauceOnlyK": null
+   },
+   "tq1Eligible": false,
+   "tq1IneligibleReasons": [
+    "phase2Class=BLOCKED_EVIDENCE",
+    "identity set incomplete"
+   ]
+  }
+ ],
+ "tq1EligibleEvidenceIds": [
+  "aussie-pizzadb"
+ ],
+ "ladderImpact": [
+  {
+   "evidenceId": "aussie-pizzadb",
+   "regenerate": {
+    "stepCount": 25,
+    "w1OrderChanged": true,
+    "firstChangedStep": 3,
+    "firstSteps": [
+     "1:egg→bismarck",
+     "2:bacon→breakfast-pizza",
+     "3:onion→aussie",
+     "4:mushroom→funghi",
+     "5:eggplant→melanzane-pizza",
+     "6:parmigiano→parmigiana-pizza",
+     "7:pepperoni→pepperoni",
+     "8:sausage→salsiccia",
+     "9:ham→meat-lovers",
+     "10:black-olive→pizza-portuguesa",
+     "11:oregano→capricciosa",
+     "12:olive-oil→fugazza",
+     "13:garlic→marinara",
+     "14:anchovy→napoletana"
+    ]
+   },
+   "appendOnly": {
+    "newSteps": 0,
+    "w1OrderChanged": false,
+    "note": "every ingredient is already a W1 material or starter, so an append-only ladder adds no step; the recipe becomes discoverable at W1 step 12"
+   }
+  }
+ ],
+ "scoring": {
+  "weights": {
+   "SAUCE": 52,
+   "PIECES": 16,
+   "RECIPE": 12,
+   "BAKE": 20
+  },
+  "sauceSubWeights": {
+   "QUANTITY": 30,
+   "COVERAGE": 30,
+   "EVENNESS": 20,
+   "EDGE": 20
+  },
+  "starThresholds": [
+   [
+    90,
+    5
+   ],
+   [
+    75,
+    4
+   ],
+   [
+    60,
+    3
+   ],
+   [
+    40,
+    2
+   ],
+   [
+    0,
+    1
+   ]
+  ],
+  "pitzBands": [
+   [
+    90,
+    1.2
+   ],
+   [
+    75,
+    1.0
+   ],
+   [
+    60,
+    0.8
+   ],
+   [
+    40,
+    0.5
+   ],
+   [
+    0,
+    0.0
+   ]
+  ],
+  "pitzFloor": 20,
+  "assumption": "equal skill: a sauce recipe with sauce=pieces=x vs a no-sauce recipe with pieces=x; recipe=100 (an exact-match discovery is always 100% present, purity 1) and bake=100; quantity factor 1",
+  "grid": [
+   {
+    "skill": 0,
+    "sauceRecipe_equalSkill": 32.0,
+    "sauceRecipe_stars": 1,
+    "current_sauce_scored_as_missing": {
+     "total": 32.0,
+     "stars": 1,
+     "pitzMultiplier": 0.0
+    },
+    "A_proportional_redistribution": {
+     "total": 66.67,
+     "stars": 3,
+     "pitzMultiplier": 0.8
+    },
+    "B_dedicated_profile_pieces_takes_sauce": {
+     "total": 32.0,
+     "stars": 1,
+     "pitzMultiplier": 0.0
+    },
+    "C_sauce_full_marks": {
+     "total": 84.0,
+     "stars": 4,
+     "pitzMultiplier": 1.0
+    },
+    "D1_zero_target_reference": {
+     "total": 63.2,
+     "stars": 3,
+     "pitzMultiplier": 0.8
+    }
+   },
+   {
+    "skill": 10,
+    "sauceRecipe_equalSkill": 38.8,
+    "sauceRecipe_stars": 1,
+    "current_sauce_scored_as_missing": {
+     "total": 33.6,
+     "stars": 1,
+     "pitzMultiplier": 0.0
+    },
+    "A_proportional_redistribution": {
+     "total": 70.0,
+     "stars": 3,
+     "pitzMultiplier": 0.8
+    },
+    "B_dedicated_profile_pieces_takes_sauce": {
+     "total": 38.8,
+     "stars": 1,
+     "pitzMultiplier": 0.0
+    },
+    "C_sauce_full_marks": {
+     "total": 85.6,
+     "stars": 4,
+     "pitzMultiplier": 1.0
+    },
+    "D1_zero_target_reference": {
+     "total": 64.8,
+     "stars": 3,
+     "pitzMultiplier": 0.8
+    }
+   },
+   {
+    "skill": 20,
+    "sauceRecipe_equalSkill": 45.6,
+    "sauceRecipe_stars": 2,
+    "current_sauce_scored_as_missing": {
+     "total": 35.2,
+     "stars": 1,
+     "pitzMultiplier": 0.0
+    },
+    "A_proportional_redistribution": {
+     "total": 73.33,
+     "stars": 3,
+     "pitzMultiplier": 0.8
+    },
+    "B_dedicated_profile_pieces_takes_sauce": {
+     "total": 45.6,
+     "stars": 2,
+     "pitzMultiplier": 0.5
+    },
+    "C_sauce_full_marks": {
+     "total": 87.2,
+     "stars": 4,
+     "pitzMultiplier": 1.0
+    },
+    "D1_zero_target_reference": {
+     "total": 66.4,
+     "stars": 3,
+     "pitzMultiplier": 0.8
+    }
+   },
+   {
+    "skill": 30,
+    "sauceRecipe_equalSkill": 52.4,
+    "sauceRecipe_stars": 2,
+    "current_sauce_scored_as_missing": {
+     "total": 36.8,
+     "stars": 1,
+     "pitzMultiplier": 0.0
+    },
+    "A_proportional_redistribution": {
+     "total": 76.67,
+     "stars": 4,
+     "pitzMultiplier": 1.0
+    },
+    "B_dedicated_profile_pieces_takes_sauce": {
+     "total": 52.4,
+     "stars": 2,
+     "pitzMultiplier": 0.5
+    },
+    "C_sauce_full_marks": {
+     "total": 88.8,
+     "stars": 4,
+     "pitzMultiplier": 1.0
+    },
+    "D1_zero_target_reference": {
+     "total": 68.0,
+     "stars": 3,
+     "pitzMultiplier": 0.8
+    }
+   },
+   {
+    "skill": 40,
+    "sauceRecipe_equalSkill": 59.2,
+    "sauceRecipe_stars": 2,
+    "current_sauce_scored_as_missing": {
+     "total": 38.4,
+     "stars": 1,
+     "pitzMultiplier": 0.0
+    },
+    "A_proportional_redistribution": {
+     "total": 80.0,
+     "stars": 4,
+     "pitzMultiplier": 1.0
+    },
+    "B_dedicated_profile_pieces_takes_sauce": {
+     "total": 59.2,
+     "stars": 2,
+     "pitzMultiplier": 0.5
+    },
+    "C_sauce_full_marks": {
+     "total": 90.4,
+     "stars": 5,
+     "pitzMultiplier": 1.2
+    },
+    "D1_zero_target_reference": {
+     "total": 69.6,
+     "stars": 3,
+     "pitzMultiplier": 0.8
+    }
+   },
+   {
+    "skill": 50,
+    "sauceRecipe_equalSkill": 66.0,
+    "sauceRecipe_stars": 3,
+    "current_sauce_scored_as_missing": {
+     "total": 40.0,
+     "stars": 2,
+     "pitzMultiplier": 0.5
+    },
+    "A_proportional_redistribution": {
+     "total": 83.33,
+     "stars": 4,
+     "pitzMultiplier": 1.0
+    },
+    "B_dedicated_profile_pieces_takes_sauce": {
+     "total": 66.0,
+     "stars": 3,
+     "pitzMultiplier": 0.8
+    },
+    "C_sauce_full_marks": {
+     "total": 92.0,
+     "stars": 5,
+     "pitzMultiplier": 1.2
+    },
+    "D1_zero_target_reference": {
+     "total": 71.2,
+     "stars": 3,
+     "pitzMultiplier": 0.8
+    }
+   },
+   {
+    "skill": 60,
+    "sauceRecipe_equalSkill": 72.8,
+    "sauceRecipe_stars": 3,
+    "current_sauce_scored_as_missing": {
+     "total": 41.6,
+     "stars": 2,
+     "pitzMultiplier": 0.5
+    },
+    "A_proportional_redistribution": {
+     "total": 86.67,
+     "stars": 4,
+     "pitzMultiplier": 1.0
+    },
+    "B_dedicated_profile_pieces_takes_sauce": {
+     "total": 72.8,
+     "stars": 3,
+     "pitzMultiplier": 0.8
+    },
+    "C_sauce_full_marks": {
+     "total": 93.6,
+     "stars": 5,
+     "pitzMultiplier": 1.2
+    },
+    "D1_zero_target_reference": {
+     "total": 72.8,
+     "stars": 3,
+     "pitzMultiplier": 0.8
+    }
+   },
+   {
+    "skill": 70,
+    "sauceRecipe_equalSkill": 79.6,
+    "sauceRecipe_stars": 4,
+    "current_sauce_scored_as_missing": {
+     "total": 43.2,
+     "stars": 2,
+     "pitzMultiplier": 0.5
+    },
+    "A_proportional_redistribution": {
+     "total": 90.0,
+     "stars": 5,
+     "pitzMultiplier": 1.2
+    },
+    "B_dedicated_profile_pieces_takes_sauce": {
+     "total": 79.6,
+     "stars": 4,
+     "pitzMultiplier": 1.0
+    },
+    "C_sauce_full_marks": {
+     "total": 95.2,
+     "stars": 5,
+     "pitzMultiplier": 1.2
+    },
+    "D1_zero_target_reference": {
+     "total": 74.4,
+     "stars": 3,
+     "pitzMultiplier": 0.8
+    }
+   },
+   {
+    "skill": 80,
+    "sauceRecipe_equalSkill": 86.4,
+    "sauceRecipe_stars": 4,
+    "current_sauce_scored_as_missing": {
+     "total": 44.8,
+     "stars": 2,
+     "pitzMultiplier": 0.5
+    },
+    "A_proportional_redistribution": {
+     "total": 93.33,
+     "stars": 5,
+     "pitzMultiplier": 1.2
+    },
+    "B_dedicated_profile_pieces_takes_sauce": {
+     "total": 86.4,
+     "stars": 4,
+     "pitzMultiplier": 1.0
+    },
+    "C_sauce_full_marks": {
+     "total": 96.8,
+     "stars": 5,
+     "pitzMultiplier": 1.2
+    },
+    "D1_zero_target_reference": {
+     "total": 76.0,
+     "stars": 4,
+     "pitzMultiplier": 1.0
+    }
+   },
+   {
+    "skill": 90,
+    "sauceRecipe_equalSkill": 93.2,
+    "sauceRecipe_stars": 5,
+    "current_sauce_scored_as_missing": {
+     "total": 46.4,
+     "stars": 2,
+     "pitzMultiplier": 0.5
+    },
+    "A_proportional_redistribution": {
+     "total": 96.67,
+     "stars": 5,
+     "pitzMultiplier": 1.2
+    },
+    "B_dedicated_profile_pieces_takes_sauce": {
+     "total": 93.2,
+     "stars": 5,
+     "pitzMultiplier": 1.2
+    },
+    "C_sauce_full_marks": {
+     "total": 98.4,
+     "stars": 5,
+     "pitzMultiplier": 1.2
+    },
+    "D1_zero_target_reference": {
+     "total": 77.6,
+     "stars": 4,
+     "pitzMultiplier": 1.0
+    }
+   },
+   {
+    "skill": 100,
+    "sauceRecipe_equalSkill": 100.0,
+    "sauceRecipe_stars": 5,
+    "current_sauce_scored_as_missing": {
+     "total": 48.0,
+     "stars": 2,
+     "pitzMultiplier": 0.5
+    },
+    "A_proportional_redistribution": {
+     "total": 100.0,
+     "stars": 5,
+     "pitzMultiplier": 1.2
+    },
+    "B_dedicated_profile_pieces_takes_sauce": {
+     "total": 100.0,
+     "stars": 5,
+     "pitzMultiplier": 1.2
+    },
+    "C_sauce_full_marks": {
+     "total": 100.0,
+     "stars": 5,
+     "pitzMultiplier": 1.2
+    },
+    "D1_zero_target_reference": {
+     "total": 79.2,
+     "stars": 4,
+     "pitzMultiplier": 1.0
+    }
+   }
+  ],
+  "maxAbsDeviationFromEqualSkillParity": {
+   "current_sauce_scored_as_missing": 52.0,
+   "A_proportional_redistribution": 34.67,
+   "B_dedicated_profile_pieces_takes_sauce": 0.0,
+   "C_sauce_full_marks": 52.0,
+   "D1_zero_target_reference": 31.2
+  },
+  "starBandMismatchesOver11GridPoints": {
+   "current_sauce_scored_as_missing": 9,
+   "A_proportional_redistribution": 9,
+   "B_dedicated_profile_pieces_takes_sauce": 0,
+   "C_sauce_full_marks": 9,
+   "D1_zero_target_reference": 8
+  },
+  "freeCreditFloor_pieces0": {
+   "current_sauce_scored_as_missing": 32.0,
+   "A_proportional_redistribution": 66.67,
+   "B_dedicated_profile_pieces_takes_sauce": 32.0,
+   "C_sauce_full_marks": 84.0,
+   "D1_zero_target_reference": 63.2
+  },
+  "ceiling_all100": {
+   "current_sauce_scored_as_missing": 48.0,
+   "A_proportional_redistribution": 100.0,
+   "B_dedicated_profile_pieces_takes_sauce": 100.0,
+   "C_sauce_full_marks": 100.0,
+   "D1_zero_target_reference": 79.2
+  },
+  "bakeMissCase_pieces80_bake40": {
+   "current_sauce_scored_as_missing": 32.8,
+   "A_proportional_redistribution": 68.33,
+   "B_dedicated_profile_pieces_takes_sauce": 74.4,
+   "C_sauce_full_marks": 84.8,
+   "D1_zero_target_reference": 64.0
+  },
+  "existing25Unchanged": {
+   "current_sauce_scored_as_missing": true,
+   "A_proportional_redistribution": true,
+   "B_dedicated_profile_pieces_takes_sauce": true,
+   "C_sauce_full_marks": true,
+   "D1_zero_target_reference": true,
+   "why": "every option is selected only when a recipe's Reference has no sauce (data-driven); all 25 runtime Reference fixtures carry a sauce, so their branch is byte-identical. Pinned by a golden test in TQ-1B."
+  }
+ },
+ "classificationChecks": [
+  {
+   "id": "C1-special-sauce-is-material",
+   "holds": true,
+   "detail": "33 non-tomato-base rows; 21 need no capability at all, so a special sauce never requires a new gesture by itself (a second layer is DOUBLE_SPREAD, counted separately)"
+  },
+  {
+   "id": "C2-dough-variant-is-material",
+   "holds": true,
+   "detail": "33 DOUGH_VARIANT rows; Phase-1 merge rationale: the evidence never changes the player's gesture for any dough variant (data-level dough base)"
+  },
+  {
+   "id": "C3-piadina-is-dough-plus-no-sauce",
+   "holds": true,
+   "detail": "piadina requiredCapabilities=['DOUGH_VARIANT'], sauce=none: piadina itself is not a technique; it is DOUGH_VARIANT (material) × NO_SAUCE (technique)"
+  },
+  {
+   "id": "C4-no-cut-follows-a-form",
+   "holds": true,
+   "detail": "serve-whole-no-cut rows ['calzone-pizzadb'] are all ENCLOSE rows; CUT is not an identity dimension (signature.ts); the only full-signature collision group (fugazza/fugazzetta) is not separated by CUT"
+  },
+  {
+   "id": "C5-pre-bake-is-baseline",
+   "holds": true,
+   "detail": "every complete row with a late-addition ingredient (8 rows) still has pre-bake ingredients; no evidenced pizza is made only after the bake, so pre-bake placement is the baseline every row shares"
+  },
+  {
+   "id": "C6-post-bake-inference-kept-separate",
+   "holds": true,
+   "detail": "12 rows need LATE_ADDITION on required-strength evidence; 11 rows carry it as candidate-only (repo inference) and are never counted as required (OD-TQ-12)"
+  }
+ ],
+ "summary": {
+  "noSauceRows": 44,
+  "readyNoSauceRows": 26,
+  "tq1Eligible": [
+   "aussie-pizzadb"
+  ]
+ }
+}

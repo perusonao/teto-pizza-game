@@ -321,6 +321,26 @@ Owner Decisions OD-TQ-1…15 are open, and no `src/**` change was made. Known pr
 on `main`: `tools/progression2_mechanic_matrix.py --check` reports that the committed matrix JSON
 differs from a fresh regeneration. This is unrelated to this change.
 
+**2026-09-27 addendum 2 (Cooking Techniques 1.0 TQ-1 Owner Decision Gate, docs/data/tools only)**.
+See `docs/design/TETO_COOKING-TECHNIQUES_1.0_OWNER-DECISION-GATE.md` and
+`tools/cooking_techniques_tq1_gate.py` (`--check`). Verdict: **A. TQ-1 READY FOR OWNER FINAL
+DECISIONS**. Results:
+
+- The TQ-1 recipe is Aussie. It is the only one of the 44 no-sauce rows that is ready, uses only
+  runtime ingredients and has no collision.
+- No-sauce scoring should use option B, a dedicated profile that moves the sauce weight 52 to
+  pieces. It is the only option with equal-skill ★ parity. Existing recipes are unchanged by
+  construction and pinned by a golden test.
+- Three prerequisites are hard:
+  - OD-TQ-S1: the scoring option (it also answers Wave 2 OD-W2-8).
+  - OD-W2-1: the ladder must be append-only. Regenerating it with Aussie would reorder W1
+    from step 3.
+  - OD-TQ-P1: a k≥2 near-miss rule. Without it, the existing SAUCE_ONLY line singles out
+    "no sauce" at step 12.
+
+Order: LAD-1, TQ-1A and TQ-1B, then TQ-1C (inert), then TQ-1D+E (the loop goes live), then
+Wave 2 without Aussie. No `src/**` change was made.
+
 > Fresh GitHub/main state always wins if this document becomes stale.
 
 ## Product goal
