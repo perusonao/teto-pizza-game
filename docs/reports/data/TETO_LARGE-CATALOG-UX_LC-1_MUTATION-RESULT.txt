@@ -1,0 +1,21 @@
+KILLED          M1    answer leak: import RECIPES and add every recipe ingredient to the hint source
+KILLED          M1b   answer leak without an import: read an extra answerIngredientIds key into the pinned source
+KILLED          M2    matcher leak: import the discovery matcher
+KILLED          M3    undisclosed facts: treat every ingredient of a revealed category as named
+KILLED          M4    group answer opens only the group's first family (the reserve's family guess)
+KILLED          M5    finer than disclosed: a family filter returns only its first owned member
+KILLED          M6    stock in Dex: the ownership-basis summary starts reading inventory
+KILLED          M6b   stock in Dex (behavioral): an owned id counts as missing when a stock map says 0
+KILLED          M7    Dinner seed: resolve dinnerTargetRecipeIds to their ingredients and pin them
+KILLED          M8    unstable order: fill follows input order instead of catalog order
+KILLED          M9    priority swap: hint above pinned
+KILLED          M10   capacity off-by-one (activation)
+KILLED          M10b  capacity off-by-one (item count)
+KILLED          M11   zero stock allowed in automatic fill (LC-OD-17)
+KILLED          M12   inactive divergence: small catalogs drop zero-stock rows (differs from today's tray)
+KILLED          M13   locked leak: the query stops filtering by ownership
+KILLED          M14   prototype leak: the usage sanitizer reads inherited lists
+KILLED          M15   wiring leak: a production module (GameScreen) starts importing the unwired catalog
+KILLED          M16   DH4 leak: a catalog module imports the (unwired) DH4-1 taxonomy
+
+19/19 killed

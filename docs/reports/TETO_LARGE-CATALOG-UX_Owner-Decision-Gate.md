@@ -626,3 +626,22 @@ Gate の計測は、`origin/main` 51e0923 の worktree に tools だけを複製
 - 発見規則・ヒント規則（Rule W、k≥2、価格）・Ladder・章算出・価格・在庫規則の変更。
 - PV-1（現行 Dex の在庫 oracle）の hotfix。LC-5 で解消する方針として記録するのみ。
 - W2-A の内容定義（GitHub 上に未定義。本書は Owner 提示の規模だけを使用）。
+
+---
+
+## 17. Owner Authority（2026-09-27 承認）
+
+Owner は本 Gate の結果を承認し、以下を **Owner Authority** とした。machine-readable 版は
+`docs/reports/data/TETO_LARGE-CATALOG-UX_OWNER-DECISIONS.json`。
+
+| ID | Owner の決定 | 状態 |
+|---|---|---|
+| **LC-OD-4** | 手元の容量は 9 / 12 のどちらにも**まだ固定しない**。LC-2 の実装時に 390×844 / 360×800 / 390×664 / 360×640 で実機相当の比較を行い、Human Feel を含めて最終決定する。それまで pure logic は容量を**引数**として受け取る | DECIDED（数値は LC-2 で決定） |
+| **LC-OD-8b** | Dex の「作れそう」などの集計は、inventory の数量ではなく **permanent ownership** を基準にする。在庫を 0 にすることで未発見レシピ情報が変化する既存の漏洩（PV-1）を解消する方向を採用する。ただし既存 production の挙動は **LC-5 まで変えない** | DECIDED |
+| **LC-OD-12** | Pizza Select は **2 列を維持**する。3 列化は採用しない。大量化は検索・絞り込み・最近・お気に入りなどで解決する | DECIDED |
+| **LC-OD-16b** | Dinner の手元へ target recipe の材料を**自動投入しない**。Dinner でも player が自分で手元を構成する。target が発見済みであることを利用した、自動的な正解材料の提示は行わない。将来、Dinner の Human Timing で探索負荷が問題になった場合は、Dinner 専用 UX として再検討する | DECIDED |
+| **LC-OD-6** | 「1つ戻す」は Large Catalog 本体から分離する。Duplicate Gate を行い、重複がなければ LC-X の独立 Issue として記録する。今回は実装しない | DECIDED（LC-X Issue として記録） |
+| その他（LC-OD-1〜3, 5, 7〜11, 13〜15, 16, 17, 18） | Gate の推奨を**設計方針として承認**。数値・文言は各 slice の Gate で最終確認する | APPROVED AS DESIGN DIRECTION |
+
+- LC-X（1つ戻す）: Duplicate Gate の結果は重複なし。独立 Issue を作成し、番号は `TETO_LARGE-CATALOG-UX_OWNER-DECISIONS.json` の `lcX.issue` と LC-1 の Result Report に記録する。
+- 次の段階: `docs/reports/TETO_LARGE-CATALOG-UX_LC-1_Implementation-Gate.md`（LC-1 / LC-1b）。
