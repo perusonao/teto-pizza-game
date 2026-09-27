@@ -100,3 +100,16 @@ TQ-1C は 3 つすべての merge が前提。
 なし。Final Gate の範囲で新しい判断は生じなかった。
 
 1 点だけ実装上の注意を記す。OD-TQ-P1 の k 規則を**全 target に一律**適用すると、「ソースを塗らずに焼き、target がトマトで、所持ソースがトマトだけ」の場合に、既存の SAUCE_ONLY 文言も fallback に変わる（k=1）。これは Owner 文言の「候補が 2 未満なら fallback」にそのまま従った結果なので、新しい判断ではない。TQ-1A は pure 関数だけを持ち、適用範囲の wiring と copy は TQ-1C / 1D で扱う。
+
+## 7. 実装状況（Final Gate 後）
+
+実装時点の `origin/main` は `7bb0116`（PR #264 DH4-2A）。§2 以降に main が動いたが、DH4 の discovery hint 系だけで 3 レーンと重ならない。
+
+| レーン | Issue | Branch | PR | 状態 |
+|---|---|---|---|---|
+| LAD-1 | #261 | `claude/lad-1-append-only-ladder` | #268 | technical gate 完了（CI 全 green）。Owner review 待ち、auto-merge OFF |
+| TQ-1B | #263 | `claude/tq-1b-no-sauce-scoring` | #271 | technical gate 完了（CI 全 green）。Owner review 待ち、auto-merge OFF |
+| TQ-1A | #262 | `claude/tq-1a-technique-foundation` | #273 | local の tests / typecheck / lint / build は完了。CI の結果は PR を参照。Owner review 待ち、auto-merge OFF |
+| follow-up | #260 | — | — | mechanic_matrix drift。修正しない |
+
+推奨 merge 順: **#268 → #271 → #273**。3 本はファイルが重ならない。TQ-1C は 3 本すべての merge 後に着手する（本 PR 系列では着手しない）。

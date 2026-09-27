@@ -341,6 +341,19 @@ DECISIONS**. Results:
 Order: LAD-1, TQ-1A and TQ-1B, then TQ-1C (inert), then TQ-1D+E (the loop goes live), then
 Wave 2 without Aussie. No `src/**` change was made.
 
+**2026-09-27 addendum 3 (Cooking Techniques 1.0: Owner Authority recorded; LAD-1 / TQ-1B / TQ-1A PRs open)**.
+See `docs/design/TETO_COOKING-TECHNIQUES_1.0_FINAL-IMPLEMENTATION-GATE.md`. The Owner approved
+OD-TQ-S1 (no-sauce scoring option B), OD-W2-1 (append-only ladder) and OD-TQ-P1 (near-miss
+privacy fallback). Three separate PRs are open, none of them merged, all with auto-merge off:
+
+- **#268 LAD-1:** the append-only ladder. Ladder content is unchanged.
+- **#271 TQ-1B:** the no-sauce scoring profile. All 25 recipes are pinned bit-identical to
+  `7bb0116`.
+- **#273 TQ-1A:** the technique model, detection and save ledger. It is not wired.
+
+Recommended merge order: #268, then #271, then #273. TQ-1C and later, and Aussie, are not
+started. Follow-up Issue #260 tracks the mechanic_matrix drift, which is deliberately not fixed.
+
 > Fresh GitHub/main state always wins if this document becomes stale.
 
 ## Product goal
