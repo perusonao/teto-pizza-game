@@ -73,6 +73,30 @@ describe("useDinnerRuntime", () => {
     confirmSpy.mockRestore();
   });
 
+  it("HOME dialog open: the clock keeps running (display and deadline); 続ける returns to the same cooking state", () => {
+    const { result } = setup();
+    act(() => result.current.runtime.startDinner("dm-a", 5_000, 3));
+    const before = result.current.state;
+    act(() => {
+      result.current.runtime.requestLeave();
+    });
+    const shownAt = result.current.runtime.now;
+    act(() => vi.advanceTimersByTime(2_000));
+    // The display clock moved while the dialog stayed up, and the run is still the same pizza.
+    expect(result.current.runtime.now).toBeGreaterThanOrEqual(shownAt + 2_000);
+    expect(result.current.state.dinner).toMatchObject({ abandonRequested: true, run: { status: "PLAYING" } });
+    act(() => result.current.runtime.cancelLeave());
+    expect(result.current.state.phase).toBe(before.phase);
+    expect(result.current.state.pizza).toBe(before.pizza);
+    expect(result.current.state.makingStep).toBe(before.makingStep);
+    // The dialog never pauses the deadline: left open past it, the run ends TIME_UP.
+    act(() => {
+      result.current.runtime.requestLeave();
+    });
+    act(() => vi.advanceTimersByTime(3_000 + DINNER_TICK_MS));
+    expect(result.current.state.dinner!.run.outcome).toMatchObject({ kind: "FAILED", reason: "TIME_UP" });
+  });
+
   it("17/21: やめる -> ABANDONED and exited, no Pitz change", () => {
     const { result } = setup();
     act(() => result.current.runtime.startDinner("dm-a", 60_000, 3));

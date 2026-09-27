@@ -430,9 +430,23 @@ The only change after `3e3ae0d` is this docs-only report commit.
 | item | status |
 |---|---|
 | TIME_UP | **PASS** (Owner iPhone HV) |
-| CUT for a raw / burnt pizza (§13 risk 1) | Not a merge blocker. Split out to **Issue #256** (a shared CUT UX follow-up, not started). |
-| **HOME abandon** | **Waiting for Owner HV.** Steps: during Dinner cooking press HOME → while the dialog is up the pizza does not react → the timer keeps running → 「続ける」 returns to the same cooking state → HOME again → 「やめる」 discards the run → back on HOME |
+| CUT for a raw / burnt pizza (§13 risk 1) | Not a merge blocker. Split out to **Issue #256** (a shared CUT UX follow-up for all modes; OPEN, not started). |
+| HOME abandon | **Merge blocker cleared** (evidence split in §23) |
 
-**Technical gate verdict: A. TECHNICAL GATE PASS — WAITING ONLY FOR OWNER HOME-ABANDON HV.**
+## 23. HOME abandon: evidence split (Owner iPhone HV vs automated coverage)
 
-PR #252 is not merged until the Owner's HOME-abandon PASS is recorded.
+The Owner supplied an iPhone screen recording. Owner device verification and automated tests are recorded separately; the automated items are **not** claimed as Owner device PASS.
+
+| step | evidence | result |
+|---|---|---|
+| During Dinner cooking, tap HOME → the 「ディナーミッションをやめますか？」 dialog appears normally | **Owner iPhone HV** | PASS |
+| Tap 「やめる」 → the Dinner run ends → back on HOME, with no broken layout and nothing unresponsive | **Owner iPhone HV** | PASS |
+| While the dialog is up, pizza input is frozen (no placement / step / bake / CUT; nothing consumed) | **automated** | PASS: `gameReducer.dinner.test.ts` "nothing cooks, bakes or consumes while the HOME confirmation is open"; `PizzaStage` non-interactive via `abandonRequested`. A mutant removing the guard is detected. |
+| While the dialog is up, the timer keeps running | **automated** | PASS: `useDinnerRuntime.test.tsx` "HOME dialog open: the clock keeps running …". With the dialog up, the display clock advances, and left open past the deadline the run ends TIME_UP. Added in this gate because no existing test asserted it explicitly (test-only; no production change). |
+| 「続ける」 returns to the same cooking state | **automated** | PASS: the same hook test (phase, pizza and step identical after 続ける); reducer test (after DINNER_CANCEL_ABANDON the same pizza bakes and consumes as normal); `App.dinner.test.tsx` R1 (続ける keeps the run and the target row); E2E R26 (続ける keeps the run at 1/4). |
+
+The Owner does not require further device checks for the automated items.
+
+**FINAL VERDICT (pre-merge): A. DM-3R-2 HUMAN VERIFIED — READY TO MERGE**
+- final production-code/integration HEAD: `3e3ae0d` (CI 9/9)
+- later commits: this report plus one test-only addition (`useDinnerRuntime.test.tsx`). No production code changed after `3e3ae0d`.
