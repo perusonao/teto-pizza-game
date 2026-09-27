@@ -7,20 +7,24 @@ import {
   paintSauceRing,
   startFreshMargherita,
   startLunchRushMission,
+  startMarinaraUnlocked,
   tapDoughPercent,
 } from "./gestures";
 
 /**
  * Issue #256 (OD-CUT256-1..3): a pizza the Completion Gate fails for its bake skips CUT and shows
- * its failure at 取り出す, in Guided and Lunch Rush alike; a servable pizza keeps CUT. Margherita:
- * bakeTarget 60-80, Completion Gate band 50-90. The bakes used here stay far from the band edges
- * (2 / 70 / 99): the needle moves 55 %/s, so a value within a few points of an edge is timing-
- * sensitive. Dinner's half lives in dinner-mission.spec.ts.
+ * its failure at 取り出す, in Guided and Lunch Rush alike; a servable pizza keeps CUT. Dinner's half
+ * lives in dinner-mission.spec.ts.
+ *
+ * Every take-out stays far from a Completion Gate band edge: the virtual-clock landing can drift
+ * by several points on a loaded runner. Margherita (bakeTarget 60-80, band 50-90): raw at 2 and
+ * in band at 70. Burnt uses marinara (bakeTarget 45-65, band 35-75) at 97 -- margherita's burnt
+ * range (90-100) is too narrow to hit reliably.
  */
 
 const RAW = 2;
 const PERFECT = 70;
-const BURNT = 99;
+const MARINARA_BURNT = 97;
 
 async function prepareMargherita(page: Page) {
   await completeDoughStep(page);
@@ -38,6 +42,22 @@ async function prepareMargherita(page: Page) {
   await tapDoughPercent(page, 55, 45);
 }
 
+/** Marinara PREPARE (no CHEESE step): the same gestures as `playFullMarinaraRound`, without its bake. */
+async function prepareMarinara(page: Page) {
+  await completeDoughStep(page);
+  await page.getByRole("button", { name: /次へ/ }).click();
+  await page.getByRole("button", { name: /トマトソース/ }).click();
+  await paintSauceRing(page, 25, 16);
+  await page.getByRole("button", { name: /次へ/ }).click();
+  await page.getByRole("button", { name: /にんにく/ }).click();
+  await tapDoughPercent(page, 35, 45);
+  await tapDoughPercent(page, 65, 45);
+  await tapDoughPercent(page, 50, 65);
+  await page.getByRole("button", { name: /オレガノ/ }).click();
+  await tapDoughPercent(page, 45, 30);
+  await tapDoughPercent(page, 55, 30);
+}
+
 async function bakeAt(page: Page, value: number) {
   await enterBakePaused(page);
   await landNeedleAndTakeOut(page, { start: value, end: value });
@@ -46,19 +66,23 @@ async function bakeAt(page: Page, value: number) {
 const cutButton = (page: Page) => page.getByRole("button", { name: /切り終わる/ });
 
 test.describe("Issue #256: CUT is skipped only for a Completion-Gate bake failure", () => {
-  for (const [label, value, reason] of [
-    ["raw", RAW, "生焼け"],
-    ["burnt", BURNT, "焦げ"],
-  ] as const) {
-    test(`Guided ${label}: the 失敗 card appears at 取り出す, with no CUT`, async ({ page }) => {
-      await startFreshMargherita(page);
-      await prepareMargherita(page);
-      await bakeAt(page, value);
-      await expect(page.locator(".result-panel--failed")).toBeVisible();
-      await expect(page.locator(".result-panel--failed")).toContainText(reason);
-      await expect(cutButton(page)).toHaveCount(0);
-    });
-  }
+  test("Guided raw: the 失敗 card appears at 取り出す, with no CUT", async ({ page }) => {
+    await startFreshMargherita(page);
+    await prepareMargherita(page);
+    await bakeAt(page, RAW);
+    await expect(page.locator(".result-panel--failed")).toBeVisible();
+    await expect(page.locator(".result-panel--failed")).toContainText("生焼け");
+    await expect(cutButton(page)).toHaveCount(0);
+  });
+
+  test("Guided burnt (marinara): the 失敗 card appears at 取り出す, with no CUT", async ({ page }) => {
+    await startMarinaraUnlocked(page);
+    await prepareMarinara(page);
+    await bakeAt(page, MARINARA_BURNT);
+    await expect(page.locator(".result-panel--failed")).toBeVisible();
+    await expect(page.locator(".result-panel--failed")).toContainText("焦げ");
+    await expect(cutButton(page)).toHaveCount(0);
+  });
 
   test("Guided in band: CUT is kept, then the normal result", async ({ page }) => {
     await startFreshMargherita(page);
@@ -71,10 +95,10 @@ test.describe("Issue #256: CUT is skipped only for a Completion-Gate bake failur
     await expect(page.locator(".result-panel--failed")).toHaveCount(0);
   });
 
-  test("Lunch Rush burnt: the FAILED serve panel appears with no CUT, and the run moves on", async ({ page }) => {
+  test("Lunch Rush raw: the FAILED serve panel appears with no CUT, and the run moves on", async ({ page }) => {
     await startLunchRushMission(page, 900);
     await prepareMargherita(page);
-    await bakeAt(page, BURNT);
+    await bakeAt(page, RAW);
     await expect(page.locator(".mission-serve-panel--failed")).toBeVisible();
     await expect(cutButton(page)).toHaveCount(0);
     await page.getByRole("button", { name: /次の注文へ/ }).click();

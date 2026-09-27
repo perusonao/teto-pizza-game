@@ -3,6 +3,8 @@ import { runOnlyOnWidth } from "./support/projectGuard";
 import {
   completeDoughStep,
   cutThreeLines,
+  enterBakePaused,
+  landNeedleAndTakeOut,
   paintSauceRing,
   physicalDragToDough,
   playFullMargheritaRound,
@@ -217,13 +219,15 @@ for (const { name, width, height } of VIEWPORTS) {
       await assertOneScreen(page, `${name} TOPPING`);
       await assertNavFitsViewport(page, `${name} TOPPING`);
 
-      await page.getByRole("button", { name: /焼く/ }).click();
+      // Issue #256: CUT now follows only a bake inside the Completion Gate band, so the take-out is
+      // landed on the virtual clock (70, far from the band edges) instead of after a real-time wait
+      // whose needle position drifts under load.
+      await enterBakePaused(page);
       await assertOneScreen(page, `${name} BAKE`);
       await assertNavFitsViewport(page, `${name} BAKE`);
       await expect(page.getByRole("tab", { name: "カット" }), `${name} BAKE: CUT tab still visible`).toBeVisible();
 
-      await page.waitForTimeout(1300);
-      await page.getByRole("button", { name: "取り出す！" }).click();
+      await landNeedleAndTakeOut(page, { start: 70, end: 70 });
       await assertOneScreen(page, `${name} POST_BAKE/CUT`);
       await assertNavFitsViewport(page, `${name} POST_BAKE/CUT`);
       const cutTab = page.getByRole("tab", { name: "カット" });
@@ -466,7 +470,8 @@ test.describe("PizzaStage height-aware sizing: shrink path actually engages belo
       await physicalDragToDough(page, /バジル/, 55, 45);
     }
 
-    await page.getByRole("button", { name: /焼く/ }).click();
+    // Issue #256: land the take-out on the virtual clock (see the per-viewport test above).
+    await enterBakePaused(page);
     // Roomy ceiling at 390px width is min(92vw=358.8, 380) = 358.8 -- the stage height must
     // again actually bind.
     const doughWidthRoomy = await doughSize();
@@ -477,8 +482,7 @@ test.describe("PizzaStage height-aware sizing: shrink path actually engages belo
     await assertOneScreen(page, "390x650 BAKE");
     await assertNavFitsViewport(page, "390x650 BAKE");
 
-    await page.waitForTimeout(1300);
-    await page.getByRole("button", { name: "取り出す！" }).click();
+    await landNeedleAndTakeOut(page, { start: 70, end: 70 });
     await assertOneScreen(page, "390x650 POST_BAKE/CUT");
     await assertNavFitsViewport(page, "390x650 POST_BAKE/CUT");
 

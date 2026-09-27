@@ -174,10 +174,11 @@ test.describe("Dinner Mission DM-3R-2", () => {
     expect((await readSave(page)).inventory.egg).toBe(3);
   });
 
-  test("#256: a burnt margherita (identified CUT recipe) gets INVALID_PIZZA at 取り出す, with no CUT", async ({ page }) => {
+  // bismarck's band ends at 85, so the helper's burnt take-out (97-99) is far from the edge.
+  test("#256: a burnt bismarck (identified CUT recipe) gets INVALID_PIZZA at 取り出す, with no CUT", async ({ page }) => {
     test.setTimeout(120_000);
-    await start(page, dinnerSave([...DM_A]));
-    await cookDinnerPizza(page, "margherita", { overbake: true });
+    await start(page, dinnerSave([...DM_A], { egg: 3 }));
+    await cookDinnerPizza(page, "bismarck", { overbake: true });
     await expect(result(page)).toHaveAttribute("data-category", "INVALID_PIZZA");
     await expect(result(page)).toContainText("焦げてしまいました");
     await expect(page.getByRole("button", { name: /切り終わる/ })).toHaveCount(0);
