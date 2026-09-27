@@ -1,0 +1,951 @@
+{
+  "note": "Model output, not production values. (M)=measured, (C)=code, (A)=assumption; see the tool header.",
+  "constants": {
+    "sauceMinHoldS": 2.3,
+    "bakeFullCycleS": 3.64,
+    "profiles": {
+      "EXPERT": {
+        "plan": 1.5,
+        "dough_tap": 0.25,
+        "sauce_hold": 2.6,
+        "chip": 0.7,
+        "page_flip": 0.5,
+        "piece": 0.45,
+        "cta": 0.5,
+        "bake_react": 0.3,
+        "bake_miss": 0.05,
+        "cut_drag": 0.7,
+        "result": 1.0,
+        "remake_rate": 0.02,
+        "sauce_mode": "SPIRAL",
+        "variant": "REFERENCE"
+      },
+      "AVERAGE": {
+        "plan": 4.0,
+        "dough_tap": 0.35,
+        "sauce_hold": 3.5,
+        "chip": 1.2,
+        "page_flip": 0.8,
+        "piece": 0.7,
+        "cta": 0.8,
+        "bake_react": 0.4,
+        "bake_miss": 0.2,
+        "cut_drag": 1.0,
+        "result": 2.0,
+        "remake_rate": 0.1,
+        "sauce_mode": "SPIRAL",
+        "variant": "CARELESS"
+      },
+      "BEGINNER": {
+        "plan": 8.0,
+        "dough_tap": 0.5,
+        "sauce_hold": 5.0,
+        "chip": 2.0,
+        "page_flip": 1.2,
+        "piece": 1.1,
+        "cta": 1.2,
+        "bake_react": 0.5,
+        "bake_miss": 0.4,
+        "cut_drag": 1.6,
+        "result": 3.5,
+        "remake_rate": 0.25,
+        "sauce_mode": "TAPS",
+        "variant": "CARELESS"
+      }
+    }
+  },
+  "measuredStars": {
+    "margherita": {
+      "CARELESS/SPIRAL@2600ms/bake=CENTER": [
+        5
+      ],
+      "CARELESS/SPIRAL@2600ms/bake=EDGE": [
+        4,
+        5
+      ],
+      "CARELESS/SPIRAL@4000ms/bake=CENTER": [
+        4
+      ],
+      "CARELESS/SPIRAL@4000ms/bake=EDGE": [
+        4
+      ],
+      "CARELESS/TAPS/bake=CENTER": [
+        3
+      ],
+      "CARELESS/TAPS/bake=EDGE": [
+        3
+      ],
+      "REFERENCE/SPIRAL@2600ms/bake=CENTER": [
+        4
+      ],
+      "REFERENCE/SPIRAL@2600ms/bake=EDGE": [
+        5
+      ],
+      "REFERENCE/SPIRAL@4000ms/bake=CENTER": [
+        4
+      ],
+      "REFERENCE/SPIRAL@4000ms/bake=EDGE": [
+        4
+      ],
+      "REFERENCE/TAPS/bake=CENTER": [
+        3
+      ],
+      "REFERENCE/TAPS/bake=EDGE": [
+        3
+      ]
+    },
+    "bismarck": {
+      "CARELESS/SPIRAL@2600ms/bake=CENTER": [
+        4,
+        5
+      ],
+      "CARELESS/SPIRAL@2600ms/bake=EDGE": [
+        4
+      ],
+      "CARELESS/SPIRAL@4000ms/bake=CENTER": [
+        4
+      ],
+      "CARELESS/SPIRAL@4000ms/bake=EDGE": [
+        4
+      ],
+      "CARELESS/TAPS/bake=CENTER": [
+        3
+      ],
+      "CARELESS/TAPS/bake=EDGE": [
+        3
+      ],
+      "REFERENCE/SPIRAL@2600ms/bake=CENTER": [
+        4,
+        5
+      ],
+      "REFERENCE/SPIRAL@2600ms/bake=EDGE": [
+        5
+      ],
+      "REFERENCE/SPIRAL@4000ms/bake=CENTER": [
+        4
+      ],
+      "REFERENCE/SPIRAL@4000ms/bake=EDGE": [
+        4
+      ],
+      "REFERENCE/TAPS/bake=CENTER": [
+        3
+      ],
+      "REFERENCE/TAPS/bake=EDGE": [
+        3
+      ]
+    },
+    "breakfast-pizza": {
+      "CARELESS/SPIRAL@2600ms/bake=CENTER": [
+        4,
+        5
+      ],
+      "CARELESS/SPIRAL@2600ms/bake=EDGE": [
+        4,
+        5
+      ],
+      "CARELESS/SPIRAL@4000ms/bake=CENTER": [
+        4
+      ],
+      "CARELESS/SPIRAL@4000ms/bake=EDGE": [
+        4
+      ],
+      "CARELESS/TAPS/bake=CENTER": [
+        3
+      ],
+      "CARELESS/TAPS/bake=EDGE": [
+        3
+      ],
+      "REFERENCE/SPIRAL@2600ms/bake=CENTER": [
+        4,
+        5
+      ],
+      "REFERENCE/SPIRAL@2600ms/bake=EDGE": [
+        5
+      ],
+      "REFERENCE/SPIRAL@4000ms/bake=CENTER": [
+        4
+      ],
+      "REFERENCE/SPIRAL@4000ms/bake=EDGE": [
+        4
+      ],
+      "REFERENCE/TAPS/bake=CENTER": [
+        3
+      ],
+      "REFERENCE/TAPS/bake=EDGE": [
+        3
+      ]
+    },
+    "funghi": {
+      "CARELESS/SPIRAL@2600ms/bake=CENTER": [
+        4,
+        5
+      ],
+      "CARELESS/SPIRAL@2600ms/bake=EDGE": [
+        4
+      ],
+      "CARELESS/SPIRAL@4000ms/bake=CENTER": [
+        4
+      ],
+      "CARELESS/SPIRAL@4000ms/bake=EDGE": [
+        4
+      ],
+      "CARELESS/TAPS/bake=CENTER": [
+        3
+      ],
+      "CARELESS/TAPS/bake=EDGE": [
+        3
+      ],
+      "REFERENCE/SPIRAL@2600ms/bake=CENTER": [
+        5
+      ],
+      "REFERENCE/SPIRAL@2600ms/bake=EDGE": [
+        5
+      ],
+      "REFERENCE/SPIRAL@4000ms/bake=CENTER": [
+        4
+      ],
+      "REFERENCE/SPIRAL@4000ms/bake=EDGE": [
+        4
+      ],
+      "REFERENCE/TAPS/bake=CENTER": [
+        3
+      ],
+      "REFERENCE/TAPS/bake=EDGE": [
+        3
+      ]
+    },
+    "melanzane-pizza": {
+      "CARELESS/SPIRAL@2600ms/bake=CENTER": [
+        4
+      ],
+      "CARELESS/SPIRAL@2600ms/bake=EDGE": [
+        4
+      ],
+      "CARELESS/SPIRAL@4000ms/bake=CENTER": [
+        4
+      ],
+      "CARELESS/SPIRAL@4000ms/bake=EDGE": [
+        4
+      ],
+      "CARELESS/TAPS/bake=CENTER": [
+        3
+      ],
+      "CARELESS/TAPS/bake=EDGE": [
+        3
+      ],
+      "REFERENCE/SPIRAL@2600ms/bake=CENTER": [
+        5
+      ],
+      "REFERENCE/SPIRAL@2600ms/bake=EDGE": [
+        5
+      ],
+      "REFERENCE/SPIRAL@4000ms/bake=CENTER": [
+        4
+      ],
+      "REFERENCE/SPIRAL@4000ms/bake=EDGE": [
+        4
+      ],
+      "REFERENCE/TAPS/bake=CENTER": [
+        3
+      ],
+      "REFERENCE/TAPS/bake=EDGE": [
+        3
+      ]
+    },
+    "parmigiana-pizza": {
+      "CARELESS/SPIRAL@2600ms/bake=CENTER": [
+        4
+      ],
+      "CARELESS/SPIRAL@2600ms/bake=EDGE": [
+        4
+      ],
+      "CARELESS/SPIRAL@4000ms/bake=CENTER": [
+        3
+      ],
+      "CARELESS/SPIRAL@4000ms/bake=EDGE": [
+        3
+      ],
+      "CARELESS/TAPS/bake=CENTER": [
+        2
+      ],
+      "CARELESS/TAPS/bake=EDGE": [
+        2
+      ],
+      "REFERENCE/SPIRAL@2600ms/bake=CENTER": [
+        5
+      ],
+      "REFERENCE/SPIRAL@2600ms/bake=EDGE": [
+        4,
+        5
+      ],
+      "REFERENCE/SPIRAL@4000ms/bake=CENTER": [
+        4
+      ],
+      "REFERENCE/SPIRAL@4000ms/bake=EDGE": [
+        4
+      ],
+      "REFERENCE/TAPS/bake=CENTER": [
+        3
+      ],
+      "REFERENCE/TAPS/bake=EDGE": [
+        3
+      ]
+    }
+  },
+  "perPizzaSeconds": {
+    "margherita": {
+      "EXPERT": {
+        "seconds": 18.9,
+        "parts": {
+          "plan": 1.5,
+          "dough": 2.0,
+          "sauce": 2.6,
+          "chips": 2.1,
+          "pieces": 2.25,
+          "ctas": 2.5,
+          "bake": 1.75,
+          "cut": 2.1,
+          "result": 1.0,
+          "uiFloor": 1.07
+        },
+        "pieces": 5,
+        "ops": {
+          "taps": 14,
+          "drags": 4,
+          "chipSelects": 3,
+          "pageFlips": 0,
+          "ctas": 5
+        }
+      },
+      "AVERAGE": {
+        "seconds": 29.9,
+        "parts": {
+          "plan": 4.0,
+          "dough": 2.8,
+          "sauce": 3.5,
+          "chips": 3.6,
+          "pieces": 3.5,
+          "ctas": 4.0,
+          "bake": 2.4,
+          "cut": 3.0,
+          "result": 2.0,
+          "uiFloor": 1.07
+        },
+        "pieces": 5,
+        "ops": {
+          "taps": 14,
+          "drags": 4,
+          "chipSelects": 3,
+          "pageFlips": 0,
+          "ctas": 5
+        }
+      },
+      "BEGINNER": {
+        "seconds": 50.1,
+        "parts": {
+          "plan": 8.0,
+          "dough": 4.0,
+          "sauce": 8.0,
+          "chips": 6.0,
+          "pieces": 5.5,
+          "ctas": 6.0,
+          "bake": 3.23,
+          "cut": 4.8,
+          "result": 3.5,
+          "uiFloor": 1.07
+        },
+        "pieces": 5,
+        "ops": {
+          "taps": 30,
+          "drags": 3,
+          "chipSelects": 3,
+          "pageFlips": 0,
+          "ctas": 5
+        }
+      }
+    },
+    "bismarck": {
+      "EXPERT": {
+        "seconds": 18.3,
+        "parts": {
+          "plan": 1.5,
+          "dough": 2.0,
+          "sauce": 2.6,
+          "chips": 2.1,
+          "pieces": 1.8,
+          "ctas": 2.5,
+          "bake": 1.66,
+          "cut": 2.1,
+          "result": 1.0,
+          "uiFloor": 1.04
+        },
+        "pieces": 4,
+        "ops": {
+          "taps": 13,
+          "drags": 4,
+          "chipSelects": 3,
+          "pageFlips": 0,
+          "ctas": 5
+        }
+      },
+      "AVERAGE": {
+        "seconds": 29.0,
+        "parts": {
+          "plan": 4.0,
+          "dough": 2.8,
+          "sauce": 3.5,
+          "chips": 3.6,
+          "pieces": 2.8,
+          "ctas": 4.0,
+          "bake": 2.31,
+          "cut": 3.0,
+          "result": 2.0,
+          "uiFloor": 1.04
+        },
+        "pieces": 4,
+        "ops": {
+          "taps": 13,
+          "drags": 4,
+          "chipSelects": 3,
+          "pageFlips": 0,
+          "ctas": 5
+        }
+      },
+      "BEGINNER": {
+        "seconds": 48.9,
+        "parts": {
+          "plan": 8.0,
+          "dough": 4.0,
+          "sauce": 8.0,
+          "chips": 6.0,
+          "pieces": 4.4,
+          "ctas": 6.0,
+          "bake": 3.14,
+          "cut": 4.8,
+          "result": 3.5,
+          "uiFloor": 1.04
+        },
+        "pieces": 4,
+        "ops": {
+          "taps": 29,
+          "drags": 3,
+          "chipSelects": 3,
+          "pageFlips": 0,
+          "ctas": 5
+        }
+      }
+    },
+    "breakfast-pizza": {
+      "EXPERT": {
+        "seconds": 21.2,
+        "parts": {
+          "plan": 1.5,
+          "dough": 2.0,
+          "sauce": 2.6,
+          "chips": 3.8,
+          "pieces": 2.7,
+          "ctas": 2.5,
+          "bake": 1.68,
+          "cut": 2.1,
+          "result": 1.0,
+          "uiFloor": 1.31
+        },
+        "pieces": 6,
+        "ops": {
+          "taps": 15,
+          "drags": 4,
+          "chipSelects": 4,
+          "pageFlips": 2,
+          "ctas": 5
+        }
+      },
+      "AVERAGE": {
+        "seconds": 33.5,
+        "parts": {
+          "plan": 4.0,
+          "dough": 2.8,
+          "sauce": 3.5,
+          "chips": 6.4,
+          "pieces": 4.2,
+          "ctas": 4.0,
+          "bake": 2.33,
+          "cut": 3.0,
+          "result": 2.0,
+          "uiFloor": 1.31
+        },
+        "pieces": 6,
+        "ops": {
+          "taps": 15,
+          "drags": 4,
+          "chipSelects": 4,
+          "pageFlips": 2,
+          "ctas": 5
+        }
+      },
+      "BEGINNER": {
+        "seconds": 55.8,
+        "parts": {
+          "plan": 8.0,
+          "dough": 4.0,
+          "sauce": 8.0,
+          "chips": 10.4,
+          "pieces": 6.6,
+          "ctas": 6.0,
+          "bake": 3.15,
+          "cut": 4.8,
+          "result": 3.5,
+          "uiFloor": 1.31
+        },
+        "pieces": 6,
+        "ops": {
+          "taps": 31,
+          "drags": 3,
+          "chipSelects": 4,
+          "pageFlips": 2,
+          "ctas": 5
+        }
+      }
+    },
+    "funghi": {
+      "EXPERT": {
+        "seconds": 18.9,
+        "parts": {
+          "plan": 1.5,
+          "dough": 2.0,
+          "sauce": 2.6,
+          "chips": 2.1,
+          "pieces": 2.25,
+          "ctas": 2.5,
+          "bake": 1.72,
+          "cut": 2.1,
+          "result": 1.0,
+          "uiFloor": 1.08
+        },
+        "pieces": 5,
+        "ops": {
+          "taps": 14,
+          "drags": 4,
+          "chipSelects": 3,
+          "pageFlips": 0,
+          "ctas": 5
+        }
+      },
+      "AVERAGE": {
+        "seconds": 29.8,
+        "parts": {
+          "plan": 4.0,
+          "dough": 2.8,
+          "sauce": 3.5,
+          "chips": 3.6,
+          "pieces": 3.5,
+          "ctas": 4.0,
+          "bake": 2.36,
+          "cut": 3.0,
+          "result": 2.0,
+          "uiFloor": 1.08
+        },
+        "pieces": 5,
+        "ops": {
+          "taps": 14,
+          "drags": 4,
+          "chipSelects": 3,
+          "pageFlips": 0,
+          "ctas": 5
+        }
+      },
+      "BEGINNER": {
+        "seconds": 50.1,
+        "parts": {
+          "plan": 8.0,
+          "dough": 4.0,
+          "sauce": 8.0,
+          "chips": 6.0,
+          "pieces": 5.5,
+          "ctas": 6.0,
+          "bake": 3.19,
+          "cut": 4.8,
+          "result": 3.5,
+          "uiFloor": 1.08
+        },
+        "pieces": 5,
+        "ops": {
+          "taps": 30,
+          "drags": 3,
+          "chipSelects": 3,
+          "pageFlips": 0,
+          "ctas": 5
+        }
+      }
+    },
+    "melanzane-pizza": {
+      "EXPERT": {
+        "seconds": 23.9,
+        "parts": {
+          "plan": 1.5,
+          "dough": 2.0,
+          "sauce": 2.6,
+          "chips": 5.8,
+          "pieces": 3.15,
+          "ctas": 2.5,
+          "bake": 1.72,
+          "cut": 2.1,
+          "result": 1.0,
+          "uiFloor": 1.58
+        },
+        "pieces": 7,
+        "ops": {
+          "taps": 16,
+          "drags": 4,
+          "chipSelects": 4,
+          "pageFlips": 6,
+          "ctas": 5
+        }
+      },
+      "AVERAGE": {
+        "seconds": 37.7,
+        "parts": {
+          "plan": 4.0,
+          "dough": 2.8,
+          "sauce": 3.5,
+          "chips": 9.6,
+          "pieces": 4.9,
+          "ctas": 4.0,
+          "bake": 2.36,
+          "cut": 3.0,
+          "result": 2.0,
+          "uiFloor": 1.58
+        },
+        "pieces": 7,
+        "ops": {
+          "taps": 16,
+          "drags": 4,
+          "chipSelects": 4,
+          "pageFlips": 6,
+          "ctas": 5
+        }
+      },
+      "BEGINNER": {
+        "seconds": 62.0,
+        "parts": {
+          "plan": 8.0,
+          "dough": 4.0,
+          "sauce": 8.0,
+          "chips": 15.2,
+          "pieces": 7.7,
+          "ctas": 6.0,
+          "bake": 3.19,
+          "cut": 4.8,
+          "result": 3.5,
+          "uiFloor": 1.58
+        },
+        "pieces": 7,
+        "ops": {
+          "taps": 32,
+          "drags": 3,
+          "chipSelects": 4,
+          "pageFlips": 6,
+          "ctas": 5
+        }
+      }
+    },
+    "parmigiana-pizza": {
+      "EXPERT": {
+        "seconds": 25.7,
+        "parts": {
+          "plan": 1.5,
+          "dough": 2.0,
+          "sauce": 2.6,
+          "chips": 6.5,
+          "pieces": 4.05,
+          "ctas": 2.5,
+          "bake": 1.72,
+          "cut": 2.1,
+          "result": 1.0,
+          "uiFloor": 1.71
+        },
+        "pieces": 9,
+        "ops": {
+          "taps": 18,
+          "drags": 4,
+          "chipSelects": 5,
+          "pageFlips": 6,
+          "ctas": 5
+        }
+      },
+      "AVERAGE": {
+        "seconds": 40.5,
+        "parts": {
+          "plan": 4.0,
+          "dough": 2.8,
+          "sauce": 3.5,
+          "chips": 10.8,
+          "pieces": 6.3,
+          "ctas": 4.0,
+          "bake": 2.36,
+          "cut": 3.0,
+          "result": 2.0,
+          "uiFloor": 1.71
+        },
+        "pieces": 9,
+        "ops": {
+          "taps": 18,
+          "drags": 4,
+          "chipSelects": 5,
+          "pageFlips": 6,
+          "ctas": 5
+        }
+      },
+      "BEGINNER": {
+        "seconds": 66.3,
+        "parts": {
+          "plan": 8.0,
+          "dough": 4.0,
+          "sauce": 8.0,
+          "chips": 17.2,
+          "pieces": 9.9,
+          "ctas": 6.0,
+          "bake": 3.19,
+          "cut": 4.8,
+          "result": 3.5,
+          "uiFloor": 1.71
+        },
+        "pieces": 9,
+        "ops": {
+          "taps": 34,
+          "drags": 3,
+          "chipSelects": 5,
+          "pageFlips": 6,
+          "ctas": 5
+        }
+      }
+    }
+  },
+  "missionClearSeconds": {
+    "dm-a": {
+      "EXPERT": {
+        "cleanClearS": 77.3,
+        "expectedClearS": 78.8
+      },
+      "AVERAGE": {
+        "cleanClearS": 122.2,
+        "expectedClearS": 134.4
+      },
+      "BEGINNER": {
+        "cleanClearS": 204.9,
+        "expectedClearS": 256.1
+      }
+    },
+    "dm-b": {
+      "EXPERT": {
+        "cleanClearS": 87.4,
+        "expectedClearS": 89.1
+      },
+      "AVERAGE": {
+        "cleanClearS": 137.9,
+        "expectedClearS": 151.7
+      },
+      "BEGINNER": {
+        "cleanClearS": 228.5,
+        "expectedClearS": 285.6
+      }
+    }
+  },
+  "timeLimitOptions": {
+    "dm-a": {
+      "T-1 generous (limit = 1.25 x BEGINNER expected)": {
+        "limitS": 320,
+        "goldS": 90,
+        "silverS": 150,
+        "bronzeS": 320,
+        "whoClears": {
+          "EXPERT": "GOLD",
+          "AVERAGE": "SILVER",
+          "BEGINNER": "BRONZE"
+        }
+      },
+      "T-2 standard (limit = BEGINNER expected)": {
+        "limitS": 255,
+        "goldS": 85,
+        "silverS": 135,
+        "bronzeS": 255,
+        "whoClears": {
+          "EXPERT": "GOLD",
+          "AVERAGE": "SILVER",
+          "BEGINNER": "TIME_UP"
+        }
+      },
+      "T-3 tight (limit = 1.2 x AVERAGE expected)": {
+        "limitS": 160,
+        "goldS": 80,
+        "silverS": 120,
+        "bronzeS": 160,
+        "whoClears": {
+          "EXPERT": "GOLD",
+          "AVERAGE": "BRONZE",
+          "BEGINNER": "TIME_UP"
+        }
+      }
+    },
+    "dm-b": {
+      "T-1 generous (limit = 1.25 x BEGINNER expected)": {
+        "limitS": 355,
+        "goldS": 100,
+        "silverS": 165,
+        "bronzeS": 355,
+        "whoClears": {
+          "EXPERT": "GOLD",
+          "AVERAGE": "SILVER",
+          "BEGINNER": "BRONZE"
+        }
+      },
+      "T-2 standard (limit = BEGINNER expected)": {
+        "limitS": 285,
+        "goldS": 100,
+        "silverS": 150,
+        "bronzeS": 285,
+        "whoClears": {
+          "EXPERT": "GOLD",
+          "AVERAGE": "BRONZE",
+          "BEGINNER": "TIME_UP"
+        }
+      },
+      "T-3 tight (limit = 1.2 x AVERAGE expected)": {
+        "limitS": 180,
+        "goldS": 90,
+        "silverS": 135,
+        "bronzeS": 180,
+        "whoClears": {
+          "EXPERT": "GOLD",
+          "AVERAGE": "BRONZE",
+          "BEGINNER": "TIME_UP"
+        }
+      }
+    }
+  },
+  "existingIncome": {
+    "FREE per pizza (★3 / ★4 / ★5, incl. CT2 GOOD)": {
+      "3": 83,
+      "4": 106,
+      "5": 130
+    },
+    "Lunch Rush max per run": 140,
+    "Lunch Rush max per minute": 46.7
+  },
+  "freeNetPitzPerMinute": {
+    "EXPERT": 319.8,
+    "AVERAGE": 157.1,
+    "BEGINNER": 93.7
+  },
+  "rewardOptions": {
+    "RW-A improvement-only (Phase 0 RW-3)": {
+      "firstClear": {
+        "clear": 150,
+        "tierBonus": {
+          "GOLD": 150,
+          "SILVER": 75,
+          "BRONZE": 25
+        }
+      },
+      "repeatClear": {
+        "clear": 0,
+        "tierBonus": {
+          "GOLD": 0,
+          "SILVER": 0,
+          "BRONZE": 0
+        }
+      },
+      "tierUpgrade": "pay the difference of tierBonus when best tier improves"
+    },
+    "RW-B material-plus repeat": {
+      "firstClear": {
+        "clear": 150,
+        "tierBonus": {
+          "GOLD": 100,
+          "SILVER": 50,
+          "BRONZE": 20
+        }
+      },
+      "repeatClear": {
+        "clear": 30,
+        "tierBonus": {
+          "GOLD": 30,
+          "SILVER": 15,
+          "BRONZE": 5
+        }
+      },
+      "tierUpgrade": "none (repeat schedule already pays tier)"
+    },
+    "RW-C FREE parity repeat": {
+      "firstClear": {
+        "clear": 200,
+        "tierBonus": {
+          "GOLD": 150,
+          "SILVER": 75,
+          "BRONZE": 25
+        }
+      },
+      "repeatClear": {
+        "clear": 240,
+        "tierBonus": {
+          "GOLD": 80,
+          "SILVER": 40,
+          "BRONZE": 0
+        }
+      },
+      "tierUpgrade": "none"
+    }
+  },
+  "dinnerRepeatNetPitzPerMinute_dmA_T2": {
+    "RW-A improvement-only (Phase 0 RW-3)": {
+      "EXPERT": {
+        "tier": "GOLD",
+        "repeatPitz": 0,
+        "netPerMin": -9.3
+      },
+      "AVERAGE": {
+        "tier": "SILVER",
+        "repeatPitz": 0,
+        "netPerMin": -5.9
+      },
+      "BEGINNER": {
+        "tier": "TIME_UP",
+        "repeatPitz": 0,
+        "netPerMin": -3.5
+      }
+    },
+    "RW-B material-plus repeat": {
+      "EXPERT": {
+        "tier": "GOLD",
+        "repeatPitz": 60,
+        "netPerMin": 36.4
+      },
+      "AVERAGE": {
+        "tier": "SILVER",
+        "repeatPitz": 45,
+        "netPerMin": 14.2
+      },
+      "BEGINNER": {
+        "tier": "TIME_UP",
+        "repeatPitz": 0,
+        "netPerMin": -3.5
+      }
+    },
+    "RW-C FREE parity repeat": {
+      "EXPERT": {
+        "tier": "GOLD",
+        "repeatPitz": 320,
+        "netPerMin": 234.3
+      },
+      "AVERAGE": {
+        "tier": "SILVER",
+        "repeatPitz": 280,
+        "netPerMin": 119.1
+      },
+      "BEGINNER": {
+        "tier": "TIME_UP",
+        "repeatPitz": 0,
+        "netPerMin": -3.5
+      }
+    }
+  }
+}
