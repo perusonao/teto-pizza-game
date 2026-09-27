@@ -19,7 +19,12 @@ export interface IngredientUnlockCondition {
  * Ingredient Visual Gate (docs/reports/data/TETO_PROGRESS2_W1_HUMAN_VISUAL_VERIFICATION.json:
  * fresh-tomato B / capers / clam B). Drawn by ../components/IngredientGlyph.tsx.
  */
-export type DedicatedIngredientVisual = "tomato-slice" | "caper-cluster" | "clam-valve";
+export type DedicatedIngredientVisual =
+  | "tomato-slice"
+  | "caper-cluster"
+  | "clam-valve"
+  | "prosciutto-fold"
+  | "parsley-sprig";
 
 export interface Ingredient {
   id: string;
@@ -541,6 +546,100 @@ export const INGREDIENTS: Ingredient[] = [
     nameJa: "じゃがいも",
     color: "#d9b77e",
     emoji: "\u{1F954}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /**
+   * Wave 2 W2-A1 (docs/reports/TETO_WAVE2_W2A_AUTHORING-GATE.md, Owner Decisions A5/A6 in
+   * docs/design/TETO_WAVE2_OWNER-DECISION-LEDGER.md): the 8 W2-A materials, registered in the
+   * catalog only -- exactly the W1 I5a pattern above. Appended last so the existing tray order and
+   * paging are untouched (Owner A7: deterministic order, no special move to the front).
+   *
+   * - Finite materials, sold only by the REC-04 material Shop once a Discovery Ladder step names
+   *   them. Not obtainable yet: no recipe uses them (k = 0) and the ladder does not contain them,
+   *   so `materialOffer` is null -- no Shop row, no unlock notice, no entitlement. They become
+   *   reachable when the W2-A recipes and their appended steps (25-31) ship together (W2-A2).
+   * - Visuals (Owner A6): the emoji of arugula / shrimp / chicken / bell-pepper / zucchini and the
+   *   fromage-blanc chip are approved as-is; prosciutto-crudo and parsley draw a dedicated in-code
+   *   `pieceVisual` (IngredientGlyph.tsx) because their only emoji are already bacon's / ham's and
+   *   basil's / pesto's / oregano's / rosemary's. No external asset.
+   * - fromage-blanc-sauce is a spread sauce painted through the existing PAINT pipeline; its paint
+   *   colour is `color` (Owner A5: cool tint #eef1f4, no extra CSS / outline in W2-A).
+   * - Green leaves (arugula, parsley) keep the herb roast curve (`bakeRoastResistant`), like basil.
+   */
+  {
+    id: "prosciutto-crudo",
+    category: "topping",
+    nameJa: "生ハム",
+    color: "#d98b8b",
+    emoji: "\u{1F953}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    pieceVisual: "prosciutto-fold",
+  },
+  {
+    id: "fromage-blanc-sauce",
+    category: "sauce",
+    nameJa: "フロマージュブラン",
+    color: "#eef1f4",
+    emoji: "\u{1F95B}",
+    placement: "spread",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  {
+    id: "arugula",
+    category: "topping",
+    nameJa: "ルッコラ",
+    color: "#4f7f2f",
+    emoji: "\u{1F96C}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    bakeRoastResistant: true,
+  },
+  {
+    id: "shrimp",
+    category: "topping",
+    nameJa: "エビ",
+    color: "#f08a5d",
+    emoji: "\u{1F990}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  {
+    id: "chicken",
+    category: "topping",
+    nameJa: "チキン",
+    color: "#d9a066",
+    emoji: "\u{1F357}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  {
+    id: "parsley",
+    category: "topping",
+    nameJa: "パセリ",
+    color: "#3f7d33",
+    emoji: "\u{1F33F}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    bakeRoastResistant: true,
+    pieceVisual: "parsley-sprig",
+  },
+  {
+    id: "bell-pepper",
+    category: "topping",
+    nameJa: "パプリカ",
+    color: "#e0452b",
+    emoji: "\u{1FAD1}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  {
+    id: "zucchini",
+    category: "topping",
+    nameJa: "ズッキーニ",
+    color: "#5b8c3a",
+    emoji: "\u{1F952}",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },

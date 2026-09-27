@@ -231,13 +231,14 @@ describe("InventoryOverlay (read-only stock view)", () => {
     expect(within(card).getByText("×8")).toBeInTheDocument();
   });
 
-  it("test 16 (current 29 ingredients): renders every real, owned ingredient across every category without crashing", () => {
+  it("test 16 (current 37 ingredients): renders every real, owned ingredient across every category without crashing", () => {
     const allOwned = INGREDIENTS.map((i) => i.id);
     render(
       <InventoryOverlay ownedIngredientIds={allOwned} inventory={EMPTY_INVENTORY} onClose={() => {}} />,
     );
-    expect(INGREDIENTS.length).toBe(29);
-    // Every catalog row is obtainable with the 25-recipe ladder (W1 I5b-3).
+    expect(INGREDIENTS.length).toBe(37);
+    // Every W1 catalog row is obtainable with the 25-recipe ladder (W1 I5b-3). Wave 2 W2-A1: the 8
+    // W2-A rows are catalog-only (no ladder step until W2-A2), so they are not counted yet.
     expect(screen.getByText(/所持 29\/29種/)).toBeInTheDocument();
     for (const ingredient of INGREDIENTS) {
       expect(screen.getByText(ingredient.nameJa)).toBeInTheDocument();

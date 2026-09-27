@@ -42,7 +42,10 @@ export interface SweepState {
   owned: string[];
 }
 
-export const ALL_INGREDIENT_IDS: readonly string[] = INGREDIENTS.map((i) => i.id);
+/** Every catalog ingredient some runtime recipe uses (the most a player can own). Wave 2 W2-A1's 8
+ *  catalog-only rows are excluded until W2-A2 ships the recipes that use them. */
+const RECIPE_USED_IDS = new Set<string>(RECIPES.flatMap((r) => r.requiredIngredients.map((q) => q.ingredientId)));
+export const ALL_INGREDIENT_IDS: readonly string[] = INGREDIENTS.map((i) => i.id).filter((id) => RECIPE_USED_IDS.has(id));
 
 export function ladderTargets(ladder: SweepLadder): string[] {
   return ["margherita", ...ladder.steps.map((s) => s.keyRecipeId)];

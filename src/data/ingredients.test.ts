@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { INGREDIENTS, STARTER_INGREDIENT_IDS, getIngredient } from "./ingredients";
+import { ingredientAttributeFamily } from "./ingredientTaxonomy";
 
 /**
  * Economy Tuning 1 (docs/reports/TETO_ECONOMY-TUNING-1_Implementation-Result.md), section 1's
@@ -149,8 +150,8 @@ describe("Starter Set (EP4: shrunk to Margherita's own 3 permanently-unlimited i
     );
   });
 
-  it("total production ingredient count is now 29 (3 Starter + 10 EP4 Starter-Grant + onion + Batch 1A's 4 + Batch 1B-A's 2 + Batch 1B-B's 2 + W1's 7)", () => {
-    expect(INGREDIENTS).toHaveLength(29);
+  it("total production ingredient count is now 37 (3 Starter + 10 EP4 Starter-Grant + onion + Batch 1A's 4 + Batch 1B-A's 2 + Batch 1B-B's 2 + W1's 7 + W2-A's 8)", () => {
+    expect(INGREDIENTS).toHaveLength(37);
   });
 });
 
@@ -174,8 +175,8 @@ const W1_MATERIALS: readonly {
 ];
 
 describe("W1 materials (Progression 2.0 I5a)", () => {
-  it("are the last 7 catalog rows, in this order (existing tray order untouched)", () => {
-    expect(INGREDIENTS.slice(-7).map((i) => i.id)).toEqual(W1_MATERIALS.map((m) => m.id));
+  it("are the 7 catalog rows right before the W2-A rows, in this order (existing tray order untouched)", () => {
+    expect(INGREDIENTS.slice(-15, -8).map((i) => i.id)).toEqual(W1_MATERIALS.map((m) => m.id));
   });
 
   it.each(W1_MATERIALS)("$id: $nameJa, finite scatter topping with the approved visual", (m) => {
@@ -195,6 +196,81 @@ describe("W1 materials (Progression 2.0 I5a)", () => {
     expect(ingredient.pricePitz).toBeUndefined();
     expect(ingredient.restockQuantity).toBeUndefined();
     expect(ingredient.starterGrantOnly).toBeUndefined();
+  });
+
+  it("ids and display names stay unique across the whole catalog", () => {
+    expect(new Set(INGREDIENTS.map((i) => i.id)).size).toBe(INGREDIENTS.length);
+    expect(new Set(INGREDIENTS.map((i) => i.nameJa)).size).toBe(INGREDIENTS.length);
+  });
+});
+
+/**
+ * Wave 2 W2-A1 (docs/reports/TETO_WAVE2_W2A_AUTHORING-GATE.md; Owner Decisions A5/A6/A7 in
+ * docs/design/TETO_WAVE2_OWNER-DECISION-LEDGER.md): the 8 W2-A materials, catalog-only (no recipe,
+ * no Discovery Ladder step) until W2-A2.
+ */
+const W2A_MATERIALS: readonly {
+  id: string;
+  nameJa: string;
+  category: "sauce" | "topping";
+  emoji: string;
+  color: string;
+  pieceVisual?: string;
+  bakeRoastResistant?: boolean;
+}[] = [
+  { id: "prosciutto-crudo", nameJa: "生ハム", category: "topping", emoji: "\u{1F953}", color: "#d98b8b", pieceVisual: "prosciutto-fold" },
+  { id: "fromage-blanc-sauce", nameJa: "フロマージュブラン", category: "sauce", emoji: "\u{1F95B}", color: "#eef1f4" },
+  { id: "arugula", nameJa: "ルッコラ", category: "topping", emoji: "\u{1F96C}", color: "#4f7f2f", bakeRoastResistant: true },
+  { id: "shrimp", nameJa: "エビ", category: "topping", emoji: "\u{1F990}", color: "#f08a5d" },
+  { id: "chicken", nameJa: "チキン", category: "topping", emoji: "\u{1F357}", color: "#d9a066" },
+  { id: "parsley", nameJa: "パセリ", category: "topping", emoji: "\u{1F33F}", color: "#3f7d33", pieceVisual: "parsley-sprig", bakeRoastResistant: true },
+  { id: "bell-pepper", nameJa: "パプリカ", category: "topping", emoji: "\u{1FAD1}", color: "#e0452b" },
+  { id: "zucchini", nameJa: "ズッキーニ", category: "topping", emoji: "\u{1F952}", color: "#5b8c3a" },
+];
+
+describe("W2-A materials (Wave 2 W2-A1)", () => {
+  it("are the last 8 catalog rows, in this order (Owner A7: existing tray order untouched)", () => {
+    expect(INGREDIENTS.slice(-8).map((i) => i.id)).toEqual(W2A_MATERIALS.map((m) => m.id));
+  });
+
+  it.each(W2A_MATERIALS)("$id: $nameJa, finite $category with the approved visual and colour", (m) => {
+    const ingredient = getIngredient(m.id)!;
+    expect(ingredient).toBeDefined();
+    expect(ingredient.nameJa).toBe(m.nameJa);
+    expect(ingredient.category).toBe(m.category);
+    expect(ingredient.placement).toBe(m.category === "sauce" ? "spread" : "scatter");
+    expect(ingredient.unlockCondition).toEqual({ minTotalStars: 0 });
+    expect(ingredient.emoji).toBe(m.emoji);
+    expect(ingredient.color).toBe(m.color);
+    expect(ingredient.pieceVisual).toBe(m.pieceVisual);
+    expect(ingredient.bakeRoastResistant).toBe(m.bakeRoastResistant);
+    expect(ingredient.pricePitz).toBeUndefined();
+    expect(ingredient.restockQuantity).toBeUndefined();
+    expect(ingredient.starterGrantOnly).toBeUndefined();
+    expect(STARTER_INGREDIENT_IDS).not.toContain(m.id);
+  });
+
+  it("OD-W2-5: the 7 W2-A toppings carry the approved attribute family; the sauce keeps its category", () => {
+    expect(Object.fromEntries(W2A_MATERIALS.map((m) => [m.id, ingredientAttributeFamily(m.id)]))).toEqual({
+      "prosciutto-crudo": "meat",
+      "fromage-blanc-sauce": null,
+      arugula: "vegetable",
+      shrimp: "seafood",
+      chicken: "meat",
+      parsley: "herb",
+      "bell-pepper": "vegetable",
+      zucchini: "vegetable",
+    });
+  });
+
+  it("Owner A6: prosciutto-crudo and parsley never draw an emoji another ingredient already draws", () => {
+    for (const id of ["prosciutto-crudo", "parsley"]) {
+      expect(getIngredient(id)!.pieceVisual).toBeDefined();
+    }
+    const drawnEmoji = INGREDIENTS.filter((i) => i.pieceVisual === undefined && i.category !== "cheese").map((i) => i.emoji);
+    for (const m of W2A_MATERIALS.filter((x) => x.pieceVisual === undefined && x.category === "topping")) {
+      expect(drawnEmoji.filter((e) => e === m.emoji)).toHaveLength(1);
+    }
   });
 
   it("ids and display names stay unique across the whole catalog", () => {

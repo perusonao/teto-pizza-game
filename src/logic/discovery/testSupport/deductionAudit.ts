@@ -61,7 +61,11 @@ function signatureOf(recipe: Recipe) {
 }
 
 export function buildDeductionAudit(ladder: AuditLadder): DeductionAuditRow[] {
-  const allIds = INGREDIENTS.map((i) => i.id);
+  // The "full runtime catalog" comparison universe: every catalog ingredient some runtime recipe
+  // uses. Wave 2 W2-A1 registered 8 catalog-only rows (no recipe, not obtainable) that no player can
+  // own, so they are not part of it -- until W2-A2 ships the recipes that use them.
+  const used = new Set<string>(RECIPES.flatMap((r) => r.requiredIngredients.map((q) => q.ingredientId)));
+  const allIds = INGREDIENTS.map((i) => i.id).filter((id) => used.has(id));
   return ladderOrder(ladder).map((recipeId, ladderIndex) => {
     const recipe = RECIPES.find((r) => r.id === recipeId)!;
     const ctx = { discoveredCount: ladderIndex, ownedIngredientIds: ownedAtLadderStep(ladderIndex, ladder) };

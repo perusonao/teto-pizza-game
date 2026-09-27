@@ -77,6 +77,16 @@ const TOPPING_FAMILY_ROWS: readonly (readonly [string, AttributeFamilyId])[] = [
   ["garlic", "herb"],
   ["capers", "spice"],
   ["egg", "other"],
+  // Wave 2 W2-A1 (Owner Decision OD-W2-5, scoped; PR #255 proposals, all high confidence): the 7
+  // W2-A topping materials. fromage-blanc-sauce is a sauce, so it keeps its category as its
+  // attribute, like every other sauce.
+  ["prosciutto-crudo", "meat"],
+  ["arugula", "vegetable"],
+  ["shrimp", "seafood"],
+  ["chicken", "meat"],
+  ["parsley", "herb"],
+  ["bell-pepper", "vegetable"],
+  ["zucchini", "vegetable"],
 ];
 
 const FAMILY_BY_INGREDIENT = new Map<string, AttributeFamilyId>(TOPPING_FAMILY_ROWS);

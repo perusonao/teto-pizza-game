@@ -33,7 +33,13 @@ import { buildRecipeChapters } from "../state/recipeChapters";
 
 afterEach(() => cleanup());
 
-const DEDICATED: readonly DedicatedIngredientVisual[] = ["tomato-slice", "caper-cluster", "clam-valve"];
+const DEDICATED: readonly DedicatedIngredientVisual[] = [
+  "tomato-slice",
+  "caper-cluster",
+  "clam-valve",
+  "prosciutto-fold",
+  "parsley-sprig",
+];
 const W1_NEW_IDS = ["capers", "clam", "corn", "eggplant", "fresh-tomato", "pineapple", "potato"];
 /** Progression 2.0 I5a: the W1 Human Visual Gate authority for the 3 dedicated-visual materials. */
 const W1_DEDICATED: Record<string, DedicatedIngredientVisual> = {
@@ -41,6 +47,12 @@ const W1_DEDICATED: Record<string, DedicatedIngredientVisual> = {
   clam: "clam-valve",
   "fresh-tomato": "tomato-slice",
 };
+/** Wave 2 W2-A1 (Owner A6): the 2 W2-A materials with a dedicated in-code visual. */
+const W2A_DEDICATED: Record<string, DedicatedIngredientVisual> = {
+  "prosciutto-crudo": "prosciutto-fold",
+  parsley: "parsley-sprig",
+};
+const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...W1_DEDICATED, ...W2A_DEDICATED };
 /** Every production row that draws its emoji (no dedicated visual). */
 const EMOJI_ROWS = INGREDIENTS.filter((i) => i.pieceVisual === undefined);
 
@@ -66,12 +78,12 @@ function fixture(overrides: Partial<Ingredient>): Ingredient {
 }
 
 describe("IngredientGlyph: default emoji path (every production ingredient without a dedicated visual)", () => {
-  it("production has 29 ingredients and only capers / clam / fresh-tomato declare a dedicated visual (I5a)", () => {
-    expect(INGREDIENTS).toHaveLength(29);
+  it("production has 37 ingredients and only capers / clam / fresh-tomato (I5a) + prosciutto-crudo / parsley (W2-A1) declare a dedicated visual", () => {
+    expect(INGREDIENTS).toHaveLength(37);
     expect(
       Object.fromEntries(INGREDIENTS.filter((i) => i.pieceVisual !== undefined).map((i) => [i.id, i.pieceVisual])),
-    ).toEqual(W1_DEDICATED);
-    expect(EMOJI_ROWS).toHaveLength(26);
+    ).toEqual(ALL_DEDICATED);
+    expect(EMOJI_ROWS).toHaveLength(32);
   });
 
   it.each(EMOJI_ROWS.map((i) => [i.id, i] as const))("%s renders the identical emoji DOM", (_id, ingredient) => {
@@ -134,8 +146,8 @@ describe("IngredientGlyph: dedicated visual path (fixtures only -- no production
  * Progression 2.0 I5a: the 3 W1 materials with a Human-approved dedicated visual draw that SVG
  * everywhere, and their required `emoji` text fallback is never drawn.
  */
-describe("I5a: W1 dedicated-visual materials never draw their emoji fallback", () => {
-  it.each(Object.entries(W1_DEDICATED))("%s -> %s", (id, visual) => {
+describe("I5a / W2-A1: dedicated-visual materials never draw their emoji fallback", () => {
+  it.each(Object.entries(ALL_DEDICATED))("%s -> %s", (id, visual) => {
     const ingredient = getIngredient(id)!;
     expect(ingredient.emoji.length).toBeGreaterThan(0); // the fallback still exists as data
 
@@ -331,7 +343,7 @@ describe("render sites with every current ingredient (emoji path)", () => {
       INGREDIENTS.map((i) => (i.pieceVisual ? ` ${i.nameJa}` : `${i.emoji} ${i.nameJa}`)),
     );
     expect(getByRole("list", { name: "使った材料" }).querySelectorAll("svg")).toHaveLength(
-      Object.keys(W1_DEDICATED).length,
+      Object.keys(ALL_DEDICATED).length,
     );
   });
 

@@ -14,15 +14,18 @@ import { ingredientCollectionCount, obtainableIngredientIds } from "./materialEn
  */
 
 const W1 = ["capers", "clam", "corn", "eggplant", "fresh-tomato", "pineapple", "potato"];
+/** Wave 2 W2-A1: catalog-only until W2-A2 (no recipe, no ladder step) -- never counted yet. */
+const W2A = ["prosciutto-crudo", "fromage-blanc-sauce", "arugula", "shrimp", "chicken", "parsley", "bell-pepper", "zucchini"];
 
 describe("obtainableIngredientIds", () => {
-  it("is the 3 starters + the 26 current ladder materials = the whole 29-row catalog, in catalog order", () => {
+  it("is the 3 starters + the 26 current ladder materials = the whole 29-row W1 catalog, in catalog order (W2-A rows excluded)", () => {
     const ids = obtainableIngredientIds();
     expect(DISCOVERY_LADDER).toBe(W1_25_DISCOVERY_LADDER);
     expect(ids).toHaveLength(29);
     expect(new Set(ids)).toEqual(new Set([...STARTER_INGREDIENT_IDS, ...materialIdsOfSteps(DISCOVERY_LADDER.steps)]));
-    expect(ids).toEqual(INGREDIENTS.map((i) => i.id));
+    expect(ids).toEqual(INGREDIENTS.map((i) => i.id).filter((id) => !W2A.includes(id)));
     for (const id of W1) expect(ids).toContain(id);
+    for (const id of W2A) expect(ids).not.toContain(id);
   });
 
   it("parity with the current ladder: every obtainable finite material is exactly what the Shop can offer", () => {

@@ -1084,9 +1084,19 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
     expect(within(shop).queryByText(/発見で新しい材料が入荷/)).not.toBeInTheDocument();
     expect(within(shop).getAllByRole("button", { name: "補充する" }).length).toBe(MANY.length);
-    // Since the 25-recipe ladder (W1 I5b-3) every finite material has an offer, so every owned one
-    // is a refill row.
-    expect(UNOFFERED).toEqual([]);
+    // Since the 25-recipe ladder (W1 I5b-3) every W1 finite material has an offer, so every owned
+    // one is a refill row. Wave 2 W2-A1: the 8 W2-A materials are catalog-only (no recipe, no ladder
+    // step), so they have no offer and no Shop row until W2-A2.
+    expect(UNOFFERED).toEqual([
+      "prosciutto-crudo",
+      "fromage-blanc-sauce",
+      "arugula",
+      "shrimp",
+      "chicken",
+      "parsley",
+      "bell-pepper",
+      "zucchini",
+    ]);
     expect(MANY).toHaveLength(26);
   });
 

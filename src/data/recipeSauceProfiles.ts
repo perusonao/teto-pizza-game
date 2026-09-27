@@ -12,7 +12,9 @@ export type SauceInteractionKind = "PAINT" | "PAINT_TEMPORARY";
 
 export interface RecipeSauceProfile {
   recipeId: RecipeId;
-  ingredientId: "tomato-sauce" | "pesto" | "olive-oil";
+  /** Wave 2 W2-A1: fromage-blanc-sauce joins the union (a PAINT sauce, Owner A5). No recipe uses it
+   *  until W2-A2. */
+  ingredientId: "tomato-sauce" | "pesto" | "olive-oil" | "fromage-blanc-sauce";
   interaction: SauceInteractionKind;
 }
 

@@ -25,6 +25,9 @@ import {
 import { ingredientCollectionCount, obtainableIngredientIds, resolveShopEntitlement } from "../state/materialEntitlement";
 import type { DexEntry, DexState } from "../state/dex";
 
+/** Wave 2 W2-A1: the 8 W2-A materials are catalog-only (no recipe, no ladder step) until W2-A2. */
+const W2A_CATALOG_ONLY: readonly string[] = ["prosciutto-crudo", "fromage-blanc-sauce", "arugula", "shrimp", "chicken", "parsley", "bell-pepper", "zucchini"];
+
 /**
  * Progression 2.0 W1 I5b-1 / I5b-3 (docs/reports/TETO_PROGRESS2_W1_I5B_FRESH-AUDIT.md §3-§6): the
  * 25-recipe Discovery Ladder and its material economy. Pinned as a pure foundation in I5b-1 and
@@ -113,16 +116,20 @@ describe("W1_25_DISCOVERY_LADDER: the exact 24-step authority", () => {
     for (const q of margherita.requiredIngredients) expect(REC04_STARTERS).toContain(q.ingredientId);
   });
 
-  it("unlocks exactly the 26 finite catalog materials, never a starter, each once", () => {
+  it("unlocks exactly the 26 finite W1 catalog materials, never a starter, each once", () => {
     const materials = materialIdsOfSteps(W1_25_DISCOVERY_LADDER.steps);
     expect(materials).toHaveLength(26);
     expect(new Set(materials).size).toBe(26);
-    expect([...materials].sort()).toEqual(INGREDIENTS.filter((i) => i.unlockCondition).map((i) => i.id).sort());
+    expect([...materials].sort()).toEqual(
+      INGREDIENTS.filter((i) => i.unlockCondition && !W2A_CATALOG_ONLY.includes(i.id)).map((i) => i.id).sort(),
+    );
     for (const starter of STARTER_INGREDIENT_IDS) expect(materials).not.toContain(starter);
   });
 
-  it("with it, starters + ladder materials = the whole 29-row catalog", () => {
-    expect(obtainableIngredientIds(W1_25_DISCOVERY_LADDER)).toEqual(INGREDIENTS.map((i) => i.id));
+  it("with it, starters + ladder materials = the whole 29-row W1 catalog (the W2-A rows are catalog-only)", () => {
+    expect(obtainableIngredientIds(W1_25_DISCOVERY_LADDER)).toEqual(
+      INGREDIENTS.map((i) => i.id).filter((id) => !W2A_CATALOG_ONLY.includes(id)),
+    );
   });
 });
 
@@ -175,11 +182,13 @@ describe("25-ladder economy parity (pure; not wired to the runtime Shop)", () =>
     },
   );
 
-  it("covers every finite material; starters stay unlimited and unsold", () => {
+  it("covers every finite W1 material; starters stay unlimited and unsold", () => {
     expect(EXPECTED_W1_OFFERS.map(([id]) => id).sort()).toEqual(
-      INGREDIENTS.filter((i) => i.unlockCondition).map((i) => i.id).sort(),
+      INGREDIENTS.filter((i) => i.unlockCondition && !W2A_CATALOG_ONLY.includes(i.id)).map((i) => i.id).sort(),
     );
     for (const id of STARTER_INGREDIENT_IDS) expect(offer(id, W1_OPTIONS)).toBeNull();
+    // Wave 2 W2-A1: the catalog-only W2-A rows have no offer on the W1 ladder.
+    for (const id of W2A_CATALOG_ONLY) expect(offer(id, W1_OPTIONS)).toBeNull();
   });
 });
 
@@ -245,11 +254,11 @@ describe("k / pack foundation", () => {
 });
 
 describe("I5b-3 activation: production runs the 25-recipe ladder", () => {
-  it("RECIPES 25, the 24-step W1 ladder, 29 catalog rows, 29 obtainable (3/29 on a fresh save)", () => {
+  it("RECIPES 25, the 24-step W1 ladder, 37 catalog rows (8 W2-A catalog-only), 29 obtainable (3/29 on a fresh save)", () => {
     expect(RECIPES).toHaveLength(25);
     expect(DISCOVERY_LADDER).toBe(W1_25_DISCOVERY_LADDER);
     expect(DISCOVERY_LADDER.steps).toHaveLength(24);
-    expect(INGREDIENTS).toHaveLength(29);
+    expect(INGREDIENTS).toHaveLength(37);
     expect(obtainableIngredientIds()).toHaveLength(29);
     expect(ingredientCollectionCount([...STARTER_INGREDIENT_IDS])).toEqual({ owned: 3, total: 29 });
   });

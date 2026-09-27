@@ -95,7 +95,8 @@ describe("sauce: the mechanical derivation for each recipe's own sauce profile",
     const sauceReq = recipe(id).requiredIngredients.find((q) => getIngredient(q.ingredientId)!.category === "sauce")!;
     expect(profile.ingredientId).toBe(sauceReq.ingredientId);
     expect(reference(id).sauce).toEqual(computeMechanicalSauceReference(id));
-    const precedent = PRECEDENT[profile.ingredientId];
+    // W2-A1 widened the sauce union with fromage-blanc-sauce, which no W1 recipe uses.
+    const precedent = (PRECEDENT as Record<string, (typeof PRECEDENT)[keyof typeof PRECEDENT]>)[profile.ingredientId];
     expect(reference(id).sauce).toEqual(computeMechanicalSauceReference(precedent));
     expect(profile.interaction).toBe(getRecipeSauceProfile(precedent).interaction);
   });

@@ -37,6 +37,8 @@ function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual 
       {visual === "tomato-slice" && <TomatoSlice />}
       {visual === "caper-cluster" && <CaperCluster />}
       {visual === "clam-valve" && <ClamValve />}
+      {visual === "prosciutto-fold" && <ProsciuttoFold />}
+      {visual === "parsley-sprig" && <ParsleySprig />}
     </svg>
   );
 }
@@ -175,6 +177,62 @@ function ClamValve() {
       <path d="M9.6 10.6 C 12 13.3, 20 13.3, 22.4 10.6" stroke="#8d6d4b" strokeWidth="1.6" fill="none" strokeLinecap="round" />
       <path d="M8.5 18.6 l1.6 -1.9 l1.6 1.9 l1.6 -1.9 M18.8 18.6 l1.6 -1.9 l1.6 1.9 l1.6 -1.9" stroke="#4d3924" strokeWidth="0.9" fill="none" strokeLinejoin="round" />
       <path d="M12.6 5.9 C 14 3.6, 18 3.6, 19.4 5.9 C 18 7.2, 14 7.2, 12.6 5.9 Z" fill="#6e5236" stroke="#3f2f1e" strokeWidth="0.8" />
+    </g>
+  );
+}
+
+/* ---------- prosciutto-crudo: one thin, loosely folded slice (Wave 2 W2-A1, Owner A6) ----------
+   Owner A6: a dedicated in-code visual instead of reusing an emoji -- 🥓 is bacon's and 🍖 is ham's.
+   A translucent rose ribbon with a cream fat edge and marbling, draped in two folds, so it reads
+   as a thin cured slice rather than a bacon strip (straight, striped) or a ham cut (a joint). */
+
+function ProsciuttoFold() {
+  return (
+    <g>
+      <path
+        d="M3.4 13.2 C 7.2 8.4, 12.6 9.6, 15.4 12.4 C 18.2 15.2, 22.6 7.6, 28.2 10.4 C 30.4 11.6, 29.8 15.6, 27.4 17.8 C 24.2 20.8, 21.8 25.6, 17.2 25.8 C 13.4 26, 12.2 21.6, 8.6 22.4 C 5.2 23.2, 2.2 20.8, 2.4 17.4 C 2.5 15.8, 2.8 14.2, 3.4 13.2 Z"
+        fill="#e38e8c"
+        stroke="#8f3b3f"
+        strokeWidth="1.3"
+        strokeLinejoin="round"
+      />
+      <path d="M4.2 13.6 C 7.6 10.6, 12 11.4, 14.6 14.2" stroke="#fbe9dc" strokeWidth="2.1" fill="none" strokeLinecap="round" />
+      <path d="M18.4 14.6 C 21.4 11.2, 25.2 10.4, 27.6 12.2" stroke="#fbe9dc" strokeWidth="1.9" fill="none" strokeLinecap="round" />
+      <path d="M7.6 18.4 C 10.4 17.2, 13.4 19.2, 15.8 21.4" stroke="#c9656a" strokeWidth="0.9" fill="none" strokeLinecap="round" />
+      <path d="M17.6 19.8 C 20.2 18.6, 22.8 17.4, 25.4 16.8" stroke="#c9656a" strokeWidth="0.9" fill="none" strokeLinecap="round" />
+      <path d="M15.4 12.4 C 16.6 15.4, 16.8 19.6, 15.2 23.4" stroke="#a9484e" strokeWidth="1" fill="none" strokeLinecap="round" opacity="0.8" />
+      <path d="M10.6 20.6 C 11.6 21.2, 12.8 21.2, 13.6 20.8 M20.8 21.8 C 21.6 22.2, 22.6 22.1, 23.2 21.6" stroke="#fbe9dc" strokeWidth="0.9" fill="none" strokeLinecap="round" />
+    </g>
+  );
+}
+
+/* ---------- parsley: a flat-leaf sprig (Wave 2 W2-A1, Owner A6) ----------
+   Owner A6: 🌿 is basil's and pesto's, 🍃 oregano's, 🌱 rosemary's. Three deeply lobed, toothed
+   leaflets on thin stems -- the Italian parsley silhouette -- in a brighter green than basil. */
+
+const PARSLEY_LEAVES = [
+  { x: 16, y: 8.4, rot: 0, s: 1.3 },
+  { x: 8.2, y: 14.2, rot: -50, s: 1.12 },
+  { x: 23.8, y: 14.4, rot: 48, s: 1.12 },
+];
+
+function ParsleySprig() {
+  return (
+    <g>
+      <path d="M16 30 C 16 24, 15.6 19, 16 13.4" stroke="#4d7f2a" strokeWidth="1.8" fill="none" strokeLinecap="round" />
+      <path d="M16 21.4 C 13.2 19.8, 11 18, 9.4 15.8 M16 21.8 C 18.8 20.2, 21 18.4, 22.6 16" stroke="#4d7f2a" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+      {PARSLEY_LEAVES.map((leaf, index) => (
+        <g key={index} transform={`translate(${leaf.x} ${leaf.y}) rotate(${leaf.rot}) scale(${leaf.s})`}>
+          <path
+            d="M0 5.6 C -1.2 4.4, -3.4 4.6, -4.6 3.2 C -3.4 2.8, -3 1.8, -5.8 0.4 C -4.2 -0.6, -4.8 -2.4, -3.6 -3.8 C -2.4 -3, -1.4 -3.4, -1.2 -5.8 C -0.4 -5, 0.4 -5, 1.2 -5.8 C 1.4 -3.4, 2.4 -3, 3.6 -3.8 C 4.8 -2.4, 4.2 -0.6, 5.8 0.4 C 3 1.8, 3.4 2.8, 4.6 3.2 C 3.4 4.6, 1.2 4.4, 0 5.6 Z"
+            fill="#5aa336"
+            stroke="#2f5d19"
+            strokeWidth="0.9"
+            strokeLinejoin="round"
+          />
+          <path d="M0 5.2 L 0 -3.6 M0 1.2 L -2.8 -1.2 M0 1.2 L 2.8 -1.2" stroke="#2f5d19" strokeWidth="0.6" fill="none" strokeLinecap="round" />
+        </g>
+      ))}
     </g>
   );
 }
