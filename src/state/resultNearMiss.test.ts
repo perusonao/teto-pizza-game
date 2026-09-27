@@ -174,6 +174,7 @@ describe("the RESULT 「💡 ヒントを見る」 path (App: RETRY_SAME_RECIPE 
     expect(s.freeCook).toBe(true);
     expect(s.hintSheetOpen).toBe(true);
     expect(s.hintSession).toEqual({ targetId: "breakfast-pizza", revealedIndex: 0 });
-    expect(hintSheetView(s)).toMatchObject({ kind: "TARGET", canRevealMore: true });
+    // H3-3: from Dex 1 the sheet is the Selectable one, opened at H0 with nothing bought yet.
+    expect(hintSheetView(s)).toMatchObject({ kind: "SELECTABLE", presentation: { paidCount: 0 }, outcome: null });
   });
 });
