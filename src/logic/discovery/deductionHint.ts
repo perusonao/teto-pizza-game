@@ -120,7 +120,9 @@ export function structureTotalFact(
   return { id: INGREDIENT_TOTAL_FACT_ID, total: distinctIngredientIds(recipe).length };
 }
 
-function ownedCatalogIds(raw: unknown): string[] {
+/** The player's owned catalog ingredient ids: non-strings and non-catalog ids are ignored and
+ *  duplicates collapse (first occurrence order). Shared with the DH4-2A guard (./deductionGuard.ts). */
+export function ownedCatalogIds(raw: unknown): string[] {
   if (!Array.isArray(raw)) return [];
   const out = new Set<string>();
   for (const value of raw) if (typeof value === "string" && getIngredient(value)) out.add(value);
@@ -136,11 +138,23 @@ interface ReserveLevels {
   levels: readonly { answer: ReserveAttributeAnswer; matches: LevelMatch }[];
 }
 
-function reserveLevels(recipeId: unknown, context: AttributeContext, recipes: readonly Recipe[]): ReserveLevels | null {
-  const model = buildSelectableHintModel(recipeId, context, recipes);
-  const recipe = findRecipe(recipeId, recipes);
-  if (!model || model.onboarding || !recipe || model.reservedIngredientId === null) return null;
-  const reserve = model.reservedIngredientId;
+/**
+ * DH4-2A (Issue #253, OD-DH4-2-2): the reserve's answer inputs, independent of how the recipe was
+ * found. The DH4-2 partition guard evaluates the SAME answer rule for hypothetical reserves, so the
+ * rule is parameterised by (recipe ingredient ids, reserve id, owned ids) here instead of by a recipe
+ * id. Extraction only: `reserveAttributeAnswer` produces exactly what it produced before.
+ */
+export interface ReserveAttributeInput {
+  /** Every distinct ingredient id of the (real or hypothetical) recipe, the reserve included. */
+  recipeIngredientIds: readonly string[];
+  /** The Rule W reserve the answer is about. */
+  reserveId: string;
+  /** The player's owned ingredient ids (untrusted). */
+  ownedIngredientIds: readonly unknown[] | unknown;
+}
+
+function levelsForReserve(input: ReserveAttributeInput): ReserveLevels | null {
+  const reserve = input.reserveId;
   const category = getIngredient(reserve)?.category;
   if (!category) return null;
   const levels: { answer: ReserveAttributeAnswer; matches: LevelMatch }[] = [];
@@ -158,7 +172,18 @@ function reserveLevels(recipeId: unknown, context: AttributeContext, recipes: re
     });
   }
   levels.push({ answer: { level: "category", category, factId: `attr:category:${category}` }, matches: sameCategory });
-  return { reserve, recipeIds: new Set(distinctIngredientIds(recipe)), owned: ownedCatalogIds(context.ownedIngredientIds), levels };
+  return { reserve, recipeIds: new Set(input.recipeIngredientIds), owned: ownedCatalogIds(input.ownedIngredientIds), levels };
+}
+
+function reserveLevels(recipeId: unknown, context: AttributeContext, recipes: readonly Recipe[]): ReserveLevels | null {
+  const model = buildSelectableHintModel(recipeId, context, recipes);
+  const recipe = findRecipe(recipeId, recipes);
+  if (!model || model.onboarding || !recipe || model.reservedIngredientId === null) return null;
+  return levelsForReserve({
+    recipeIngredientIds: distinctIngredientIds(recipe),
+    reserveId: model.reservedIngredientId,
+    ownedIngredientIds: context.ownedIngredientIds,
+  });
 }
 
 /** The privacy worst-case candidate universe of one level (see the module header). */
@@ -178,7 +203,22 @@ export function reserveAttributeAnswer(
   recipes: readonly Recipe[] = RECIPES,
 ): ReserveAttributeAnswer | null {
   const levels = reserveLevels(recipeId, context, recipes);
-  if (!levels) return null;
+  return levels ? firstPassingLevel(levels) : null;
+}
+
+/**
+ * DH4-2A: the same DH4-1 answer rule (first level with >= MIN_ATTRIBUTE_CANDIDATES privacy
+ * worst-case candidates, else existence) for any (recipe ingredients, reserve, owned) triple.
+ * `null` when the reserve is not a catalog ingredient. PRIVACY: on its own this answer's LEVEL can
+ * be inverted (DH4-2 audit §5.3); anything player-facing must go through the DH4-2 partition guard
+ * (./deductionGuard.ts `guardedReserveAttributeAnswer`).
+ */
+export function attributeAnswerForReserve(input: ReserveAttributeInput): ReserveAttributeAnswer | null {
+  const levels = levelsForReserve(input);
+  return levels ? firstPassingLevel(levels) : null;
+}
+
+function firstPassingLevel(levels: ReserveLevels): ReserveAttributeAnswer {
   for (const level of levels.levels) {
     if (privacyWorstCaseCandidates(levels, level.matches).length >= MIN_ATTRIBUTE_CANDIDATES) return level.answer;
   }
