@@ -24,6 +24,11 @@
  *   H depends on the known part, the key and the owned set only: it is the same set for every
  *   hypothesis. **Fail closed:** when the real reserve is not in H (not owned; never at runtime,
  *   where every target is DISCOVERABLE), the answer is existence and the clause is not told.
+ * - **Purchase timing (Owner Decision T1a, P1-1).** H and every DH4-1 decoy come only from the
+ *   ingredients owned when the target became makeable (`makeablePrefix`, rebuilt from the
+ *   acquisition order of `ownedIngredientIds`). A player who saw the target knows anything bought
+ *   later is not the reserve, so a later purchase never makes an answer finer. An order that cannot
+ *   be trusted fails closed (`ownedAcquisitionOrder` -> not a target).
  * - **Partition guard.** For every x in H, h(x) = the DH4-1 answer of the hypothetical recipe
  *   (recipe - reserve + x) whose reserve is x. When every answer class { x : h(x) = a } has at
  *   least MIN_ATTRIBUTE_CANDIDATES members **within each category side** (so any category-defined
@@ -40,14 +45,13 @@
  * The taxonomy is not changed for privacy (OD-DH4-2-3). Ingredients without a family row are
  * classed by category only; nothing is inferred from names. Lookups use arrays, Sets and Maps.
  */
-import { getIngredient, INGREDIENTS } from "../../data/ingredients";
+import { getIngredient, INGREDIENTS, STARTER_INGREDIENT_IDS } from "../../data/ingredients";
 import { ingredientAttributeFamily, ingredientAttributeGroup } from "../../data/ingredientTaxonomy";
 import { RECIPES, type Recipe } from "../../data/recipes";
 import {
   attributeAnswerForReserve,
   INGREDIENT_TOTAL_FACT_ID,
   MIN_ATTRIBUTE_CANDIDATES,
-  ownedCatalogIds,
   structureTotalFact,
   type AttributeContext,
   type ReserveAttributeAnswer,
@@ -64,7 +68,9 @@ export interface ReserveParts {
   reserveId: string;
   /** The recipe's free key (public: the player gets it for free), or `null` when it has none. */
   keyId: string | null;
-  /** Owned catalog ids (already normalised). */
+  /** Owned catalog ids in ACQUISITION ORDER (`ownedIngredientIds` order: the starters, then every
+   *  later acquisition appended; see `ownedAcquisitionOrder`). Only the prefix owned when the
+   *  target became makeable is ever read (`makeablePrefix`, Owner Decision T1a). */
   owned: readonly string[];
 }
 
@@ -102,7 +108,9 @@ export function targetReserveParts(recipeId: unknown, context: AttributeContext,
   if (!model || model.onboarding || model.reservedIngredientId === null) return null;
   const recipe = recipes.find((r) => r.id === model.recipeId);
   if (!recipe) return null;
-  const owned = byCatalogOrder(ownedCatalogIds(context.ownedIngredientIds));
+  const owned = ownedAcquisitionOrder(context.ownedIngredientIds);
+  // T1a: an acquisition order that cannot be trusted is not guessed: nothing is answered.
+  if (owned === null) return null;
   const recipeIngredientIds = distinctIngredientIds(recipe);
   // Precondition (DH4-2B Gate, P3): a hint target is DISCOVERABLE, so every ingredient is owned. An
   // input that breaks it is not a target: nothing is answered (no existence, no clause), because
@@ -110,6 +118,58 @@ export function targetReserveParts(recipeId: unknown, context: AttributeContext,
   const ownedSet = new Set(owned);
   if (!recipeIngredientIds.every((id) => ownedSet.has(id))) return null;
   return { recipeIngredientIds, reserveId: model.reservedIngredientId, keyId: model.freeFacts[0]?.ingredientId ?? null, owned };
+}
+
+/**
+ * Owner Decision T1a (P1-1, purchase timing): the owned ids in acquisition order, or `null` when that
+ * order cannot be trusted. The APPEND-ORDER INVARIANT this relies on (docs/reports/
+ * TETO_DISCOVERY-HINT-4_DH4-2B_Pre-Implementation-Gate.md §11, pinned by
+ * src/state/persistence.ownedOrder.test.ts): `ownedIngredientIds` lists the starter ingredients
+ * first, then every later acquisition in the order it happened; every writer appends, and load /
+ * migration / merge never sort or move a known id earlier.
+ *
+ * Fail closed (never guess a candidate): not an array, a non-string or non-catalog entry, a
+ * duplicate, or a starter after a non-starter makes the order ambiguous -> `null`.
+ */
+export function ownedAcquisitionOrder(raw: unknown): string[] | null {
+  if (!Array.isArray(raw)) return null;
+  const out: string[] = [];
+  const seen = new Set<string>();
+  let nonStarterSeen = false;
+  for (const value of raw) {
+    if (typeof value !== "string" || !getIngredient(value) || seen.has(value)) return null;
+    const starter = STARTER_IDS.has(value);
+    if (starter && nonStarterSeen) return null;
+    if (!starter) nonStarterSeen = true;
+    seen.add(value);
+    out.push(value);
+  }
+  return out;
+}
+
+const STARTER_IDS = new Set(STARTER_INGREDIENT_IDS);
+
+/**
+ * Owner Decision T1a: the ingredients owned when the target became makeable -- the acquisition-order
+ * prefix up to the last-acquired ingredient of the KNOWN part (everything but the reserve, the key
+ * included). The starters count as acquired together at the start, so the prefix always holds them. Anything acquired later cannot be the reserve for a player who saw the target, so it is
+ * never a hypothesis or a decoy.
+ *
+ * The prefix is taken from the known part, not from the whole recipe, so it is the same for every
+ * hypothesis (the known part is): the guard stays H-only. When the real reserve was itself acquired
+ * after every other ingredient of the recipe (the purchase that made the target makeable), it is not
+ * in this prefix, so it is not in H and the guard fails closed (existence, no clause) -- the privacy
+ * side of T1a; see the Gate report §11. `null` when a known ingredient is not owned (fail closed).
+ */
+export function makeablePrefix(parts: ReserveParts): string[] | null {
+  // The starters are owned together from the start (they lead the list): acquired at time 0.
+  let last = parts.owned.filter((id) => STARTER_IDS.has(id)).length - 1;
+  for (const id of knownPart(parts)) {
+    const index = parts.owned.indexOf(id);
+    if (index < 0) return null;
+    last = Math.max(last, index);
+  }
+  return parts.owned.slice(0, last + 1);
 }
 
 function knownPart(parts: ReserveParts): string[] {
@@ -135,7 +195,9 @@ export function hypotheticalReserves(parts: ReserveParts): string[] {
   // ingredient unlocked later than the key would itself have been the key, so it is no hypothesis;
   // with no key, every ingredient is a starter (step 0). A tie keeps it: the order is not public.
   const keyStep = parts.keyId === null ? 0 : ingredientKeyStep(parts.keyId);
-  return byCatalogOrder(parts.owned).filter((id) => {
+  const prefix = makeablePrefix(parts);
+  if (prefix === null) return [];
+  return byCatalogOrder(prefix).filter((id) => {
     const rank = ruleWRank(id);
     return !known.has(id) && id !== parts.keyId && rank !== null && rank >= floor && ingredientKeyStep(id) <= keyStep;
   });
@@ -166,7 +228,8 @@ export function hypotheticalParts(parts: ReserveParts, x: string): ReserveParts 
 }
 
 function dh41Answer(parts: ReserveParts): ReserveAttributeAnswer | null {
-  return attributeAnswerForReserve({ recipeIngredientIds: parts.recipeIngredientIds, reserveId: parts.reserveId, ownedIngredientIds: parts.owned });
+  // T1a: the DH4-1 decoys come from the same makeable prefix as H, never from later purchases.
+  return attributeAnswerForReserve({ recipeIngredientIds: parts.recipeIngredientIds, reserveId: parts.reserveId, ownedIngredientIds: makeablePrefix(parts) ?? [] });
 }
 
 type StrictLevel = "family" | "group" | "category";

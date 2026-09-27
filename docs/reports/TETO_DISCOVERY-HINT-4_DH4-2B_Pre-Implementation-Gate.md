@@ -5,10 +5,10 @@
 > - Nothing is wired: there is no change to the reducer, App, flag, persistence, HintSheet, CSS, e2e, prices or Dinner.
 > - Production imports of the DH4 layer: **0**. Tests now also check dynamic `import(…)`.
 >
-> **Verdict: C. OWNER DECISION REQUIRED** (§9).
-> - The pure hardening in this PR (P2-1, P2-2, the key rule, the P3 items) is sound and strictly safer than DH4-2A. It needs no Owner decision.
-> - The independent review found **P1-1, purchase timing**: a privacy leak that no pure change can close without an Owner decision on the threat model or persistence.
-> - DH4-2B does not start until the Owner decides.
+> **Verdict: B → A after merge. The Owner decided T1a for P1-1** (§11), and it is implemented in this PR.
+> - The pure hardening in this PR covers P2-1, P2-2, the key rule, the P3 items and T1a. All of it is strictly safer than DH4-2A.
+> - Once this PR is merged: **A. READY FOR DH4-2B**.
+> - The earlier verdict C (§9, §10) is kept below as history.
 
 ## 1. Fresh state (2026-09-27)
 
@@ -220,3 +220,87 @@ The review ran full Vitest (4143 passed) and wrote its own attacker code. It fou
 **Residual, not blocking:**
 - Priors that are not category-defined are outside this model, for example "X and Y never appear together" and the discovered-recipe exclusion. They go to the catalog batch re-audit and DH4-2D.
 - The Python audit tool still models the DH4-2A guard. A port is optional and belongs to DH4-2D.
+
+## 11. Owner Decision P1-1: T1a adopted (Owner Authority, 2026-09-27)
+
+| ID | Owner Decision |
+|---|---|
+| **OD-DH4-2B-G1 (P1-1)** | **T1a.**<br>- For a target, only the ingredients that were **owned when the target became makeable** are candidates or decoys in H. An ingredient bought later is never a reserve candidate or a decoy for that target.<br>- **No per-target snapshot field is added.** The ownership prefix is rebuilt deterministically from the stored `ownedIngredientIds` append order.<br>- **The append-order invariant must be explicit**, never implicit.<br>- **A malformed or ambiguous order fails closed**, toward privacy; candidates are never added by guessing.<br>- T1b (a snapshot field), T2 (the restrictive rule) and T3 (accept the leak) are **rejected**. |
+
+### 11.1 The append-order invariant (explicit contract)
+
+> `ownedIngredientIds` is the **acquisition order**. It lists the starter ingredients first (they are owned together from the start), then every later acquisition in the order it happened. Every writer appends. Load, migration, normalization and the forward-compatible merge never sort the list, and never move a known id earlier.
+
+| Writer / reader | Behaviour | Pinned by |
+|---|---|---|
+| `purchaseFirstPack`, `PURCHASE_INGREDIENT` | `[...owned, id]` (append) | `persistence.ownedOrder.test.ts` |
+| `applyStarterGrants` | A Set in insertion order, so a grant appends | same |
+| `sanitizeOwnedIngredientIds` (load / persist) | Drops non-string and non-catalog ids, keeps the first occurrence of a duplicate, puts the starters first. **Never sorts.** | same; mutant T8 (a sort on load) is killed |
+| `migrateV1toV2` | Copies the list | same |
+| Forward-compat merge (`writeSave`) | Unknown / future ids are carried **after** the known ids. So an old build can only move a future id *later*, never earlier: T1a then counts it as acquired later, which is the safe side. | same |
+| The invariant, at its source | Documented on `sanitizeOwnedIngredientIds` | `persistence.ts` |
+
+### 11.2 The rule (`deductionGuard.ts`)
+
+- **`ownedAcquisitionOrder(owned)`.** Returns the owned ids in acquisition order, or `null` when the order cannot be trusted. That case is **fail closed**: `targetReserveParts` returns `null`, and the request is `NOT_A_TARGET`, so nothing is disclosed and nothing is charged. The untrusted cases:
+  - the value is not an array;
+  - an entry is not a string or not a catalog id;
+  - an id is duplicated;
+  - a starter appears after a purchased ingredient.
+
+  A sanitized save never hits any of these, because load normalizes to a valid order. So this only catches corrupted in-memory data.
+- **`makeablePrefix(parts)`.** The owned prefix up to the last-acquired ingredient of the **known part** (everything but the reserve, the key included).
+  - The starters count as acquired together at time 0.
+  - **H and every DH4-1 decoy are read from this prefix only.**
+- **Why the prefix is taken over the known part.**
+  - It makes the prefix identical for every hypothesis, so the guard stays H-only.
+  - When the reserve itself was the **last** recipe ingredient acquired (the purchase that made the target makeable), it is outside the prefix. The guard then **fails closed**: existence, no clause.
+  - What that reveals is only "the target became makeable when this ingredient was bought". The UI already shows that moment (the Dex card's hint button, HOME 「作れそう」), and T1a presumes it is known.
+  - An onset-unaware attacker can single out a reserve **only** in that reserve-last case. A test pins this: every onset-unaware leak is a reserve-last state.
+  - It never happens on the 300 runtime ladder states, where the key is acquired last.
+
+### 11.3 Owner checklist
+
+| # | Requirement | Result |
+|---|---|---|
+| 1 | Record T1a in the Owner Decision Ledger / this report | §11 (above); Issue #253 status comment |
+| 2 | The append-order invariant is explicit | §11.1; the `persistence.ts` doc comment |
+| 3 | Save / load round trip keeps the order | `persistence.ownedOrder.test.ts` |
+| 4 | Unknown / future ids never break the order | same (interleaved future ids) |
+| 5 | Migration / normalization never sort or dedupe-reorder | same (v1 → v2, junk + duplicates, starters) |
+| 6 | Purchase boundary before / after makeable | `deductionGuard.timing.test.ts`: parmigiano one purchase before vs one after pepperoni |
+| 7 | A late purchase never strengthens an answer | Same file. Answer, clause and structure are identical with and without the late decoy, for every (state, decoy), and with everything after the key moved late. |
+| 8 | Pepperoni / parmigiano regression | Same file: `existence` before and after. DH4-2A gave `category:cheese`. |
+| 9 | The confirmed 44 pairs go to 0 | Same file: the full late-decoy case set (it contains the 44). **T1a: 0 leaks.** DH4-2A: 85. |
+| 10 | Re-run the 300-state privacy audit | `TETO_DISCOVERY-HINT-4_DH4-2A_AUDIT.json` regenerated. Guarded inversion leaks 0; the independent attacker (onset-aware, all priors) finds 0; DH4-1 alone is still 29 / 300. |
+| 11 | Usefulness stays at 177 / 300 | **Yes.** Levels: existence 123 · category 164 · group 13, i.e. 177 / 300 informative, unchanged. TC-G: 177 states, 13 / 24 on the ladder and 13 / 24 with everything owned, unchanged. Only the internal branch counts moved (DH4-1 branch 20 → 118), because the decoys now come from the prefix. |
+| 12 | Sauceless / multi-sauce synthetic attacker tests | Kept. Synthetic states now acquire the key last, as in play: DH4-2A leaks in 84, T1a in 0. A reserve-last variant (>100 states) fails closed with 0 leaks. |
+| 13 | P2-2 option C: 0 leaks | Kept (TC-G H-only tests, synthetic 「0」 inference 0) |
+| 14 | Reserve-unowned / `NOT_A_TARGET` fail closed | Kept (gate + request tests) |
+
+**Mutation gate: 24 / 24 killed.**
+- The 16 earlier mutants.
+- Eight new T1a mutants:
+  - no prefix (today's inventory);
+  - a prefix over the whole recipe (reserve-dependent);
+  - DH4-1 decoys from today's inventory;
+  - a starter after a purchase accepted;
+  - duplicates merged silently;
+  - owned sorted by catalog;
+  - starters not simultaneous;
+  - load sorting owned.
+
+**Verification on this head:**
+- Full Vitest: 199 files, **4159 passed**, 1 skipped.
+- `tsc -b` clean; `oxlint` 0 warnings; `npm run build` OK.
+- 0 DH4 strings in `dist`.
+
+**Fail-closed cases (reported per the Owner's instruction):**
+
+| Case | When | Behaviour |
+|---|---|---|
+| Untrusted order in memory (not an array, junk, a duplicate, a starter after a purchase) | Never from a loaded save, which load normalizes | `NOT_A_TARGET`: no answer, no clause, no total, no charge |
+| The reserve was the last recipe ingredient acquired | A player buys the reserve after every other ingredient, key included | 特徴: `EXISTENCE_ONLY` (free, nothing stored). 構成: the total only, no clause. |
+| A future id moved later by an old build's write | Mixed-build saves | It only ever counts as acquired later: fewer decoys, never more |
+
+**Verdict: B. READY AFTER SMALL PURE FIX.** The fix is this PR. After its review, CI and merge: **A. READY FOR DH4-2B.**

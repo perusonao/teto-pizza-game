@@ -121,10 +121,9 @@ describe("T-02 / T-05 inversion: the answer level never names the reserve", () =
     }
   });
 
-  it("full ownership (every catalog ingredient, any order) is also 0", () => {
-    const shuffled = [...ALL_INGREDIENT_IDS].reverse();
+  it("full ownership (every catalog ingredient, in acquisition order) is also 0", () => {
     TARGETS.forEach((recipeId, i) => {
-      const parts = targetReserveParts(recipeId, ctxAt(i + 1, shuffled))!;
+      const parts = targetReserveParts(recipeId, ctxAt(i + 1, ALL_INGREDIENT_IDS))!;
       expect(inversionCandidates(parts, observeGuardedWithClause).length, recipeId).toBeGreaterThanOrEqual(2);
     });
   });
@@ -172,13 +171,28 @@ describe("T-04 pinned levels (hardened guard, DH4-2B Pre-Implementation Gate; th
 });
 
 describe("T-06 determinism and hostile input", () => {
-  it("owned order, duplicates and junk never change the guarded answer or TC-G", () => {
+  it("T1a: an acquisition order that cannot be trusted is never guessed -- not a target (fail closed)", () => {
     for (const s of STATES.filter((_, i) => i % 7 === 0)) {
-      const base = guardedReserveAttributeAnswer(s.recipeId, ctxAt(s.step, s.owned));
-      const noisy = [...s.owned].reverse().concat(s.owned, ["__proto__", "constructor", "nope", 42, null] as never[]);
-      expect(guardedReserveAttributeAnswer(s.recipeId, ctxAt(s.step, noisy)), `${s.recipeId}@${s.step}`).toEqual(base);
-      expect(toppingClauseAllowed(s.recipeId, ctxAt(s.step, noisy))).toBe(toppingClauseAllowed(s.recipeId, ctxAt(s.step, s.owned)));
-      expect(guardedReserveAttributeAnswer(s.recipeId, ctxAt(s.step, s.owned))).toEqual(base);
+      const hostile = [
+        [...s.owned].reverse(), // a starter after a non-starter
+        [...s.owned, s.owned[s.owned.length - 1]], // a duplicate
+        [...s.owned, "__proto__"], // a non-catalog id
+        [...s.owned, 42 as never], // a non-string
+      ];
+      for (const owned of hostile) {
+        expect(guardedReserveAttributeAnswer(s.recipeId, ctxAt(s.step, owned)), `${s.recipeId}@${s.step}`).toBeNull();
+        expect(structureAnswer(s.recipeId, ctxAt(s.step, owned))).toBeNull();
+        expect(toppingClauseAllowed(s.recipeId, ctxAt(s.step, owned))).toBe(false);
+      }
+    }
+  });
+  it("T1a: re-ordering what was bought after the target became makeable never changes the answer or TC-G", () => {
+    for (const s of STATES.filter((_, i) => i % 7 === 0)) {
+      const parts = targetReserveParts(s.recipeId, ctxAt(s.step, s.owned))!;
+      const cut = s.owned.indexOf(parts.keyId!) + 1;
+      const reordered = [...s.owned.slice(0, cut), ...s.owned.slice(cut).reverse()];
+      expect(guardedReserveAttributeAnswer(s.recipeId, ctxAt(s.step, reordered))).toEqual(guardedReserveAttributeAnswer(s.recipeId, ctxAt(s.step, s.owned)));
+      expect(toppingClauseAllowed(s.recipeId, ctxAt(s.step, reordered))).toBe(toppingClauseAllowed(s.recipeId, ctxAt(s.step, s.owned)));
     }
   });
   it("not a target: unknown / hostile recipe ids, the Dex-0 onboarding, non-array owned, an unmakeable recipe", () => {

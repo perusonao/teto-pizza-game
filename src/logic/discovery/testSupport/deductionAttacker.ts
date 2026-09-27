@@ -18,12 +18,14 @@
  * (category-defined): the candidate set is narrowed by it, and a leak is counted only when the prior
  * holds for the real recipe (a refuted prior names nothing).
  */
-import { getIngredient, INGREDIENTS } from "../../../data/ingredients";
+import { getIngredient, INGREDIENTS, STARTER_INGREDIENT_IDS } from "../../../data/ingredients";
 import type { Recipe } from "../../../data/recipes";
 import type { ReserveAttributeAnswer } from "../deductionHint";
 import type { ReserveParts } from "../deductionGuard";
 import { recipeKeyStep } from "../../../state/recipeChapters";
 import { hintKeyIngredientId } from "../hintSteps";
+
+const STARTERS = new Set(STARTER_INGREDIENT_IDS);
 
 export type Category = "sauce" | "cheese" | "topping";
 const RANK: Readonly<Record<Category, number>> = { sauce: 0, cheese: 1, topping: 2 };
@@ -129,6 +131,7 @@ export function endgameAttack(
   guard: GuardUnderAttack,
   state: AttackState,
   observation: (guard: GuardUnderAttack, parts: ReserveParts) => string = observe,
+  options: { onsetAware?: boolean } = {},
 ): EndgameResult[] {
   const known = state.recipeIngredientIds.filter((id) => id !== state.reserveId);
   const partsFor = (x: string): ReserveParts => ({ recipeIngredientIds: [...known, x], reserveId: x, keyId: state.keyId, owned: state.owned });
@@ -136,17 +139,43 @@ export function endgameAttack(
   // Hint targets are DISCOVERABLE (every ingredient owned), so an attacker assumes the reserve is
   // owned. An input whose reserve is NOT owned breaks that precondition: that attacker then has to
   // consider every catalog ingredient outside K.
-  const pool = state.owned.includes(state.reserveId) ? state.owned : INGREDIENTS.map((i) => i.id);
-  const universe = pool.filter((id) => !known.includes(id));
+  const reserveOwned = state.owned.includes(state.reserveId);
+  const pool = reserveOwned ? state.owned : INGREDIENTS.map((i) => i.id);
+  let universe = pool.filter((id) => !known.includes(id));
+  // Owner Decision T1a threat model (worst case): the player knows WHEN the target became makeable
+  // (the Dex card / HOME show it; purchases are the player's own history). A hypothesis x is only
+  // possible if K + x would have become makeable at that same moment.
+  if ((options.onsetAware ?? true) && reserveOwned) {
+    const onset = makeableMoment(state.owned, state.recipeIngredientIds);
+    universe = universe.filter((x) => makeableMoment(state.owned, [...known, x]) === onset);
+  }
   const obs = new Map(universe.map((x) => [x, observation(guard, partsFor(x))]));
   return PRIORS.map((prior) => {
     const priorHolds = prior.allows(state.reserveId, known, state.keyId);
     const allowed = universe.filter((x) => prior.allows(x, known, state.keyId));
     const candidates = allowed.filter((x) => obs.get(x) === seen);
     // A prior that alone leaves < 2 candidates names the reserve without any Deduction Hint (Hint 3.0
-    // paid inference); the hint leaks only when it narrows a set of >= 2 down to 1.
+    // paid inference, or the makeable moment itself); the hint leaks only when it narrows >= 2 to 1.
     return { prior: prior.name, before: allowed.length, candidates, priorHolds, leak: priorHolds && allowed.length >= 2 && candidates.length < 2 };
   });
+}
+
+/** The acquisition index at which `ids` were all owned (`owned` is in acquisition order), or -1. */
+export function makeableMoment(owned: readonly string[], ids: readonly string[]): number {
+  // The starters are owned together from the start: they all count as acquired at the same moment.
+  let last = owned.filter((id) => STARTERS.has(id)).length - 1;
+  for (const id of ids) {
+    const i = owned.indexOf(id);
+    if (i < 0) return -1;
+    last = Math.max(last, i);
+  }
+  return last;
+}
+
+/** The reserve was the last recipe ingredient acquired: the purchase that made the target makeable. */
+export function reserveAcquiredLast(state: AttackState): boolean {
+  const known = state.recipeIngredientIds.filter((id) => id !== state.reserveId);
+  return makeableMoment(state.owned, known) < state.owned.indexOf(state.reserveId);
 }
 
 export interface PartialResult {
@@ -159,7 +188,7 @@ export interface PartialResult {
 /**
  * The partial-knowledge attacker: K is any subset of the known part (always containing the key).
  * A hypothesis is (U, r): U = owned unknown ingredients with |K| + |U| = N that keep the known key
- * the key, r in U a Rule W-consistent reserve, such that the system's joint observation for (K + U, r) equals the real one. No sauce
+ * the key and the observed makeable moment, r in U a Rule W-consistent reserve, such that the system's joint observation for (K + U, r) equals the real one. No sauce
  * prior. A leak is a single possible reserve.
  */
 export function partialAttack(guard: GuardUnderAttack, state: AttackState, known: readonly string[]): PartialResult {
@@ -170,6 +199,7 @@ export function partialAttack(guard: GuardUnderAttack, state: AttackState, known
   // The free key is public: an unknown ingredient unlocked after it would have been the key.
   const keyStep = state.keyId === null ? 0 : keyStepOf(state.keyId);
   const pool = state.owned.filter((id) => !known.includes(id) && keyStepOf(id) <= keyStep);
+  const onset = makeableMoment(state.owned, state.recipeIngredientIds);
   const reserves = new Set<string>();
   const tried = new Set<string>();
   // Cheapest first: the real reserve's own hypotheses are consistent by construction, so look for a
@@ -179,6 +209,8 @@ export function partialAttack(guard: GuardUnderAttack, state: AttackState, known
   const walk = (start: number, acc: string[]): boolean => {
     if (acc.length === need) {
       const recipe = [...known, ...acc];
+      // Onset-aware (T1a): the hypothetical recipe must have become makeable at the observed moment.
+      if (makeableMoment(state.owned, recipe) !== onset) return false;
       const top = Math.max(...recipe.filter((id) => id !== state.keyId).map((id) => RANK[categoryOf(id)!]));
       for (const r of acc) {
         if (reserves.has(r) || r === state.keyId || RANK[categoryOf(r)!] !== top) continue;

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { W1_25_DISCOVERY_LADDER } from "../../data/discoveryLadder";
-import { getIngredient, INGREDIENTS } from "../../data/ingredients";
+import { getIngredient, INGREDIENTS, STARTER_INGREDIENT_IDS } from "../../data/ingredients";
 import { RECIPES, type Recipe } from "../../data/recipes";
 import {
   guardedAnswerForParts,
@@ -14,9 +14,11 @@ import {
   type ReserveParts,
 } from "./deductionGuard";
 import { requestDeductionHint } from "./deductionRequest";
-import { attackStateOf, endgameAttack, keyStepOf, partialAttack, type GuardUnderAttack } from "./testSupport/deductionAttacker";
+import { attackStateOf, endgameAttack, keyStepOf, partialAttack, reserveAcquiredLast, type GuardUnderAttack } from "./testSupport/deductionAttacker";
 import { dh42aGuardedAnswer, dh42aToppingClauseAllowed } from "./testSupport/deductionGuardDh42a";
 import { ALL_INGREDIENT_IDS, ownedAt, reachableKnownSets, sweepStates } from "./testSupport/deductionInversion";
+import { hintKeyIngredientId } from "./hintSteps";
+import { reservedIngredientId } from "./selectableHint";
 
 /**
  * Discovery Hint 4.0 (Issue #253), DH4-2B Pre-Implementation Gate: P2-1 (the one-sauce prior) and
@@ -61,11 +63,20 @@ const FAMILIES: Record<string, Recipe[]> = {
 };
 const OWNED_STEPS = [3, 8, 12, 16, 20, 24, "all"] as const;
 
-function syntheticStates(recipes: readonly Recipe[]) {
+/** Synthetic states as they happen in play: the recipe's missing ingredients are bought after the
+ *  inventory base, the free key last (the purchase that makes the target makeable). With
+ *  `reserveLast`, the reserve is bought after the key instead (T1a: that fails closed). */
+function syntheticStates(recipes: readonly Recipe[], opts: { reserveLast?: boolean } = {}) {
   return recipes.flatMap((recipe) =>
     OWNED_STEPS.map((step) => {
       const base = step === "all" ? ALL_INGREDIENT_IDS : ownedAt(step, LADDER);
-      const owned = [...new Set([...base, ...recipe.requiredIngredients.map((r) => r.ingredientId)])];
+      const ids = recipe.requiredIngredients.map((r) => r.ingredientId);
+      const key = hintKeyIngredientId(recipe);
+      const reserve = reservedIngredientId(recipe);
+      const tail = opts.reserveLast ? [...ids.filter((id) => id !== reserve), reserve] : [...ids.filter((id) => id !== key), ...(key ? [key] : [])];
+      const starters = new Set(STARTER_INGREDIENT_IDS);
+      const late = tail.filter((id, i) => tail.indexOf(id) === i && !starters.has(id));
+      const owned = [...base.filter((id) => !late.includes(id)), ...late];
       const parts = targetReserveParts(recipe.id, { discoveredCount: 5, ownedIngredientIds: owned }, [recipe])!;
       return { recipe, step, owned, parts };
     }),
@@ -180,6 +191,34 @@ describe("Hardened guard: H completeness, H-only branches, fail closed", () => {
       });
     }
   });
+});
+
+describe("T1a: synthetic families with the reserve bought last fail closed, and still leak nothing", () => {
+  it("every synthetic family: existence and no clause whenever the reserve was acquired after everything else", () => {
+    let reserveLast = 0;
+    for (const recipes of Object.values(FAMILIES)) {
+      for (const { recipe, owned, parts } of syntheticStates(recipes, { reserveLast: true })) {
+        const state = attackStateOf(recipe, parts.reserveId, owned);
+        if (!reserveAcquiredLast(state)) continue;
+        reserveLast += 1;
+        expect(guardedAnswerForParts(parts)).toEqual({ level: "existence", factId: "attr:existence" });
+        expect(toppingClauseAllowedForParts(parts)).toBe(false);
+        expect(leakPriors(HARDENED, recipe, parts)).toEqual([]);
+      }
+    }
+    expect(reserveLast).toBeGreaterThan(100);
+  }, 120_000);
+  it("an onset-UNAWARE attacker can only single out a reserve that was acquired last (the makeable moment itself)", () => {
+    for (const recipes of Object.values(FAMILIES)) {
+      for (const opts of [{}, { reserveLast: true }]) {
+        for (const { recipe, owned, parts } of syntheticStates(recipes.filter((_, i) => i % 2 === 0), opts)) {
+          const state = attackStateOf(recipe, parts.reserveId, owned);
+          const leaks = endgameAttack(HARDENED, state, undefined, { onsetAware: false }).filter((r) => r.leak);
+          if (leaks.length > 0) expect(reserveAcquiredLast(state), recipe.requiredIngredients.map((r) => r.ingredientId).join(",")).toBe(true);
+        }
+      }
+    }
+  }, 120_000);
 });
 
 describe("Independent attacker: runtime and partial knowledge", () => {

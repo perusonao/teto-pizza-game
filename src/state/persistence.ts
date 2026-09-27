@@ -236,6 +236,15 @@ function sanitizePitzBalance(raw: unknown): number {
  * -- an array that's present but simply doesn't list every starter id. Either way, the
  * starter ingredients must never read back as anything other than OWNED.
  */
+/**
+ * APPEND-ORDER INVARIANT (Discovery Hint 4.0, Owner Decision T1a; pinned by
+ * ./persistence.ownedOrder.test.ts): `ownedIngredientIds` is the acquisition order -- the starters
+ * (owned together from the start) first, then every later acquisition in the order it happened.
+ * Every writer appends (`purchaseFirstPack`, the starter grant); this normalization only drops
+ * junk, keeps the first occurrence of a duplicate and leads with the starters; nothing may sort it
+ * or move a known id earlier. The Deduction Hint privacy guard rebuilds "what was owned when a
+ * target became makeable" from this order (../logic/discovery/deductionGuard.ts `makeablePrefix`).
+ */
 function sanitizeOwnedIngredientIds(raw: unknown): string[] {
   const validKnownIds = Array.isArray(raw)
     ? raw.filter((id): id is string => typeof id === "string" && KNOWN_INGREDIENT_IDS.includes(id))
