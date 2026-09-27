@@ -4,9 +4,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { INGREDIENTS } from "../data/ingredients";
 import type { DexEntry } from "./dex";
 import { createInitialGameState, gameReducer } from "./gameReducer";
-import { DINNER_ABANDON_CONFIRM_MESSAGE, DINNER_TICK_MS, useDinnerRuntime } from "./useDinnerRuntime";
+import { DINNER_TICK_MS, useDinnerRuntime } from "./useDinnerRuntime";
 
-/** Dinner Mission DM-2 (Issue #239): the App-side runtime against the real reducer. */
+/** Dinner Mission DM-2/DM-3/DM-3R-2 (Issues #239, #242, #250): the App-side runtime against the real reducer. */
 
 const ALL_IDS = INGREDIENTS.map((i) => i.id);
 const FINITE_IDS = INGREDIENTS.filter((i) => i.unlockCondition).map((i) => i.id);
@@ -36,17 +36,17 @@ beforeEach(() => {
 afterEach(() => vi.useRealTimers());
 
 describe("useDinnerRuntime", () => {
-  it("starts a run only with an injected duration (no production time limit yet)", () => {
+  it("starts a run with the given duration and a display clock", () => {
     const { result } = setup();
-    act(() => result.current.runtime.startDinner("dm-a"));
-    expect(result.current.state.dinner).toBeNull();
-    act(() => result.current.runtime.startDinner("dm-a", 30_000));
-    expect(result.current.runtime).toMatchObject({ active: true, playing: true });
+    act(() => result.current.runtime.startDinner("dm-a", 30_000, 3));
+    expect(result.current.runtime).toMatchObject({ active: true, playing: true, now: T0 });
+    act(() => vi.advanceTimersByTime(1_000));
+    expect(result.current.runtime.now).toBeGreaterThanOrEqual(T0 + 1_000);
   });
 
   it("18: the wall-clock TICK ends the run with TIME_UP and then stops ticking", () => {
     const { result } = setup();
-    act(() => result.current.runtime.startDinner("dm-a", 2_000));
+    act(() => result.current.runtime.startDinner("dm-a", 2_000, 3));
     act(() => vi.advanceTimersByTime(1_000));
     expect(result.current.state.dinner!.run.status).toBe("PLAYING");
     act(() => vi.advanceTimersByTime(1_000 + DINNER_TICK_MS));
@@ -57,27 +57,53 @@ describe("useDinnerRuntime", () => {
     expect(result.current.state).toBe(after);
   });
 
-  it("20: HOME cancelled -> the run continues, no abandon pending", () => {
+  it("16/20: HOME on a PLAYING run raises the in-app confirmation; 続ける keeps the run going", () => {
+    const confirmSpy = vi.spyOn(window, "confirm");
     const { result } = setup();
-    act(() => result.current.runtime.startDinner("dm-a", 60_000));
-    const confirm = vi.fn(() => false);
+    act(() => result.current.runtime.startDinner("dm-a", 60_000, 3));
     let goHome = true;
     act(() => {
-      goHome = result.current.runtime.leaveDinner(confirm);
+      goHome = result.current.runtime.requestLeave();
     });
-    expect(confirm).toHaveBeenCalledWith(DINNER_ABANDON_CONFIRM_MESSAGE);
     expect(goHome).toBe(false);
+    expect(result.current.state.dinner).toMatchObject({ abandonRequested: true, run: { status: "PLAYING" } });
+    act(() => result.current.runtime.cancelLeave());
     expect(result.current.state.dinner).toMatchObject({ abandonRequested: false, run: { status: "PLAYING" } });
+    expect(confirmSpy).not.toHaveBeenCalled(); // no browser confirm any more
+    confirmSpy.mockRestore();
   });
 
-  it("21: HOME confirmed -> ABANDONED, exited, no Pitz change", () => {
+  it("HOME dialog open: the clock keeps running (display and deadline); 続ける returns to the same cooking state", () => {
     const { result } = setup();
-    act(() => result.current.runtime.startDinner("dm-a", 60_000));
-    let goHome = false;
+    act(() => result.current.runtime.startDinner("dm-a", 5_000, 3));
+    const before = result.current.state;
     act(() => {
-      goHome = result.current.runtime.leaveDinner(() => true);
+      result.current.runtime.requestLeave();
     });
-    expect(goHome).toBe(true);
+    const shownAt = result.current.runtime.now;
+    act(() => vi.advanceTimersByTime(2_000));
+    // The display clock moved while the dialog stayed up, and the run is still the same pizza.
+    expect(result.current.runtime.now).toBeGreaterThanOrEqual(shownAt + 2_000);
+    expect(result.current.state.dinner).toMatchObject({ abandonRequested: true, run: { status: "PLAYING" } });
+    act(() => result.current.runtime.cancelLeave());
+    expect(result.current.state.phase).toBe(before.phase);
+    expect(result.current.state.pizza).toBe(before.pizza);
+    expect(result.current.state.makingStep).toBe(before.makingStep);
+    // The dialog never pauses the deadline: left open past it, the run ends TIME_UP.
+    act(() => {
+      result.current.runtime.requestLeave();
+    });
+    act(() => vi.advanceTimersByTime(3_000 + DINNER_TICK_MS));
+    expect(result.current.state.dinner!.run.outcome).toMatchObject({ kind: "FAILED", reason: "TIME_UP" });
+  });
+
+  it("17/21: やめる -> ABANDONED and exited, no Pitz change", () => {
+    const { result } = setup();
+    act(() => result.current.runtime.startDinner("dm-a", 60_000, 3));
+    act(() => {
+      result.current.runtime.requestLeave();
+    });
+    act(() => result.current.runtime.confirmLeave());
     expect(result.current.state.dinner).toBeNull();
     expect(result.current.state.roundKind).not.toBe("DINNER");
     expect(result.current.state.pitzBalance).toBe(100);
@@ -85,20 +111,20 @@ describe("useDinnerRuntime", () => {
 
   it("a finished run leaves without asking; no session means nothing to confirm", () => {
     const { result } = setup();
-    const confirm = vi.fn(() => true);
-    expect(result.current.runtime.leaveDinner(confirm)).toBe(true);
-    act(() => result.current.runtime.startDinner("dm-a", 1_000));
+    expect(result.current.runtime.requestLeave()).toBe(true);
+    act(() => result.current.runtime.startDinner("dm-a", 1_000, 3));
     act(() => vi.advanceTimersByTime(2_000));
+    let goHome = false;
     act(() => {
-      result.current.runtime.leaveDinner(confirm);
+      goHome = result.current.runtime.requestLeave();
     });
-    expect(confirm).not.toHaveBeenCalled();
+    expect(goHome).toBe(true);
     expect(result.current.state.dinner).toBeNull();
   });
 
   it("37: the Dinner clock never touches the Lunch Rush state", () => {
     const { result } = setup();
-    act(() => result.current.runtime.startDinner("dm-a", 60_000));
+    act(() => result.current.runtime.startDinner("dm-a", 60_000, 3));
     act(() => vi.advanceTimersByTime(5_000));
     expect(result.current.state.isMissionRound).toBe(false);
     expect(result.current.state.lastClaimedMissionRunId).toBeNull();
