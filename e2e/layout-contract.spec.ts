@@ -470,6 +470,248 @@ test.describe("I5b-5 Layout Contract", () => {
   });
 });
 
+/* ---------- DM-3R-0 Cooking Stage Size Stability (Issue #245): LC-S1..LC-S4 ----------
+   The pizza stage used to change size between PREPARE steps -- whatever sat below it (nothing in
+   DOUGH, the sauce readout + tray in SAUCE, one or two chip rows later) took height from the
+   dough, most on a short visible height (390x664: DOUGH 290 -> SAUCE 240; Lunch Rush TOPPING
+   158). Each flow below measures every PREPARE step on every profile of the project and pins:
+     LC-S1  diameter variance across DOUGH / SAUCE / CHEESE / TOPPING <= 10%, and the dough's
+            center does not jump (<= 8px)
+     LC-S2  SAUCE is never the outlier: >= 90% of the largest PREPARE diameter, also mid-stroke
+     LC-S3  a minimum usable PREPARE diameter per profile (STAGE_FLOOR)
+     LC-S4  the dough stays inside its stage, above the dock / tray / readout / CTA bar and below
+            the HUD / tabs / order card
+   BAKE / CUT are measured and recorded (OD-R8 evidence) but their size is not pinned here. */
+const STAGE_VARIANCE_MAX = 0.1;
+const STAGE_CENTER_DRIFT_MAX = 8;
+const SAUCE_MIN_RATIO = 0.9;
+/** LC-S3 floors (px). N / P: the 290 / 274 px cap itself. S / E: measured after DM-3R-0 with the
+ *  tallest dock of each mode (Result Report §6: GUIDED 279/255/198/174, FREE 269/245/188/164,
+ *  LUNCH 236/212/155/131 on S390/S360/E390i/E360i) minus ~6px for real-font variance. */
+const STAGE_FLOOR: Record<string, Record<"GUIDED" | "FREE" | "LUNCH", number>> = {
+  N390: { GUIDED: 290, FREE: 290, LUNCH: 290 },
+  N360: { GUIDED: 274, FREE: 274, LUNCH: 274 },
+  P390i: { GUIDED: 290, FREE: 290, LUNCH: 290 },
+  S390: { GUIDED: 272, FREE: 262, LUNCH: 230 },
+  S360: { GUIDED: 248, FREE: 238, LUNCH: 205 },
+  E390i: { GUIDED: 192, FREE: 182, LUNCH: 148 },
+  E360i: { GUIDED: 168, FREE: 158, LUNCH: 125 },
+};
+const PREPARE_STEPS = ["DOUGH", "SAUCE", "CHEESE", "TOPPING"] as const;
+
+interface StageRects {
+  dough: DOMRect | null;
+  stage: DOMRect | null;
+  dock: DOMRect | null;
+  readout: DOMRect | null;
+  tray: DOMRect | null;
+  bar: DOMRect | null;
+  above: DOMRect | null;
+}
+
+async function stageRects(page: Page): Promise<StageRects> {
+  return page.evaluate(() => {
+    const r = (sel: string) => {
+      const el = document.querySelector(sel);
+      if (!el) return null;
+      const b = el.getBoundingClientRect();
+      return b.width || b.height ? (b.toJSON() as DOMRect) : null;
+    };
+    // The lowest of HUD / tabs / order card: the dough must stay below all of them.
+    const aboveEls = [".mission-hud", ".making-step-tabs", ".game-screen .order-card"]
+      .map((sel) => document.querySelector(sel)?.getBoundingClientRect())
+      .filter((b): b is DOMRect => !!b && b.height > 0);
+    const above = aboveEls.length ? aboveEls.reduce((a, b) => (b.bottom > a.bottom ? b : a)) : null;
+    return {
+      dough: r('[data-pizza-drop-target="true"]'),
+      stage: r(".game-screen--cooking > .pizza-stage"),
+      dock: r(".prepare-dock"),
+      readout: r(".prepare-dock .sauce-metrics-panel"),
+      tray: r(".prepare-dock .ingredient-panel"),
+      bar: r(".prepare-bake-bar"),
+      above: above ? (above.toJSON() as DOMRect) : null,
+    };
+  });
+}
+
+type StageLog = Map<string, Map<string, StageRects>>;
+
+class StageStability {
+  readonly log: StageLog = new Map();
+  constructor(
+    private readonly lc: LayoutContract,
+    private readonly page: Page,
+    private readonly mode: "GUIDED" | "FREE" | "LUNCH",
+    private readonly mount: ReturnType<LayoutContract["mountProfile"]>,
+  ) {}
+
+  /** The Layout Contract checkpoint (L-* invariants on every profile) plus the stage rects. */
+  async step(step: string, ids: InvariantId[], slots: SlotSelectors = COOKING_SLOTS.prepare) {
+    const perProfile = new Map<string, StageRects>();
+    await this.lc.checkpoint({ label: `LC-S ${this.mode} ${step}`, meta: { mode: this.mode, step } }, ids, slots, this.mount, {
+      beforeMeasure: async (profile) => {
+        const rects = await stageRects(this.page);
+        perProfile.set(profile.id, rects);
+        lcS4(rects, `${this.mode} ${step} @${profile.id}`);
+      },
+    });
+    this.log.set(step, perProfile);
+  }
+
+  /** LC-S1 / LC-S2 / LC-S3 over the recorded PREPARE steps; attaches the diameter table. */
+  async judge(testInfo: import("@playwright/test").TestInfo) {
+    const table: Record<string, Record<string, number | null>> = {};
+    for (const profile of this.lc.profiles) {
+      const d = (step: string) => this.log.get(step)?.get(profile.id)?.dough ?? null;
+      const prepare = [...this.log.keys()]
+        .filter((k) => PREPARE_STEPS.some((p) => k === p || k.startsWith(`${p} `)))
+        .map((s) => ({ step: s, rect: d(s)! }));
+      table[profile.id] = Object.fromEntries([...this.log.keys()].map((s) => [s, d(s) ? Math.round(d(s)!.width) : null]));
+      const widths = prepare.map((p) => p.rect.width);
+      const max = Math.max(...widths);
+      const min = Math.min(...widths);
+      expect.soft((max - min) / max, `LC-S1 ${this.mode} @${profile.id}: PREPARE diameters ${widths.map(Math.round).join("/")} vary <= ${STAGE_VARIANCE_MAX * 100}%`).toBeLessThanOrEqual(STAGE_VARIANCE_MAX);
+      const centers = prepare.map((p) => p.rect.top + p.rect.height / 2);
+      expect.soft(Math.max(...centers) - Math.min(...centers), `LC-S1 ${this.mode} @${profile.id}: dough center drift`).toBeLessThanOrEqual(STAGE_CENTER_DRIFT_MAX);
+      const sauce = d("SAUCE");
+      if (sauce) {
+        expect.soft(sauce.width / max, `LC-S2 ${this.mode} @${profile.id}: SAUCE ${Math.round(sauce.width)} vs largest PREPARE ${Math.round(max)}`).toBeGreaterThanOrEqual(SAUCE_MIN_RATIO);
+      }
+      const floor = STAGE_FLOOR[profile.id]?.[this.mode];
+      if (floor !== undefined) {
+        expect.soft(min + TOL, `LC-S3 ${this.mode} @${profile.id}: smallest PREPARE diameter ${Math.round(min)} >= ${floor}`).toBeGreaterThanOrEqual(floor);
+      }
+    }
+    await testInfo.attach(`stage-diameters-${this.mode}.json`, { body: JSON.stringify(table, null, 1), contentType: "application/json" });
+  }
+}
+
+const TOL = 1;
+
+/** LC-S4: nothing overlaps the dough, and the dough stays inside its stage. */
+function lcS4(r: StageRects, where: string) {
+  const { dough, stage } = r;
+  expect.soft(dough, `LC-S4 ${where}: dough present`).not.toBeNull();
+  if (!dough) return;
+  if (stage) {
+    expect.soft(dough.top + TOL >= stage.top && dough.bottom <= stage.bottom + TOL, `LC-S4 ${where}: dough inside its stage`).toBe(true);
+  }
+  if (r.above) expect.soft(dough.top + TOL, `LC-S4 ${where}: dough below HUD / tabs / order card`).toBeGreaterThanOrEqual(r.above.bottom);
+  for (const [name, below] of [["dock", r.dock], ["readout", r.readout], ["tray", r.tray], ["CTA bar", r.bar]] as const) {
+    if (below) expect.soft(dough.bottom, `LC-S4 ${where}: dough above the ${name}`).toBeLessThanOrEqual(below.top + TOL);
+  }
+}
+
+test.describe("DM-3R-0 Stage Size Stability (LC-S1..LC-S4)", () => {
+  test("LC-S guided margherita: sauce readout, one-row tray, BAKE and CUT recorded", async ({ page, lc }, testInfo) => {
+    test.setTimeout(240_000);
+    const mount = lc.mountProfile("nominal");
+    await openWithSave(page, makeSave(ALL_RECIPES));
+    await lc.apply(mount);
+    await page.getByRole("button", { name: /ピザを作る/ }).first().click();
+    await page.getByRole("button", { name: /^マルゲリータ、/ }).click();
+    await page.getByRole("button", { name: /このピザを作る/ }).click();
+    await page.waitForSelector(".pizza-stage");
+    const s = new StageStability(lc, page, "GUIDED", mount);
+
+    await s.step("DOUGH", PREPARE_CHECKS);
+    await completeDoughStep(page);
+    await next(page);
+    await selectChip(page, /トマトソース/);
+    // LC-S2 mid-stroke: the readout's live line appears while painting; the dough must not move.
+    const idle = await stageRects(page);
+    const box = idle.dough!;
+    await page.mouse.move(box.x + box.width * 0.4, box.y + box.height * 0.5);
+    await page.mouse.down();
+    await page.mouse.move(box.x + box.width * 0.6, box.y + box.height * 0.5, { steps: 6 });
+    await expect(page.locator(".sauce-metrics-panel__live-message:not([aria-hidden])")).toHaveCount(1);
+    const painting = await stageRects(page);
+    await page.mouse.up();
+    expect.soft(Math.abs(painting.dough!.width - idle.dough!.width), "LC-S2 SAUCE mid-stroke diameter change").toBeLessThanOrEqual(TOL);
+    expect.soft(Math.abs(painting.dough!.top - idle.dough!.top), "LC-S2 SAUCE mid-stroke dough top change").toBeLessThanOrEqual(TOL);
+    await paintSauceRing(page, 25, 16);
+    await s.step("SAUCE", PREPARE_CHECKS);
+    await next(page);
+    await place(page, /モッツァレラ/, [[40, 50], [60, 50]]);
+    await s.step("CHEESE", PREPARE_CHECKS);
+    await next(page);
+    await place(page, /バジル/, [[45, 60], [58, 42]]);
+    await s.step("TOPPING", TRAY_CHECKS);
+
+    await enterBakePaused(page);
+    await s.step("BAKE", BAKE_CHECKS, COOKING_SLOTS.bake);
+    await landNeedleAndTakeOut(page, FREE_BAKE);
+    await expect(page.getByRole("button", { name: /切り終わる/ })).toBeVisible();
+    await s.step("CUT", CUT_CHECKS);
+    await s.judge(testInfo);
+  });
+
+  test("LC-S Free Cooking: paged tray (pager row reserved in every step)", async ({ page, lc }, testInfo) => {
+    test.setTimeout(240_000);
+    const mount = lc.mountProfile("short");
+    await openWithSave(page, makeSave(ALL_RECIPES.filter((r) => r !== "margherita")));
+    await lc.apply(mount);
+    await page.getByRole("button", { name: /^🎨 フリークッキング/ }).click();
+    await page.waitForSelector(".pizza-stage");
+    const s = new StageStability(lc, page, "FREE", mount);
+
+    await s.step("DOUGH", PREPARE_CHECKS);
+    await completeDoughStep(page);
+    await next(page);
+    await selectChip(page, /トマトソース/);
+    await paintSauceRing(page, 25, 16);
+    await s.step("SAUCE", PREPARE_CHECKS);
+    await next(page);
+    await place(page, /モッツァレラ/, [[40, 50], [60, 50]]);
+    await s.step("CHEESE", PREPARE_CHECKS);
+    await next(page);
+    await place(page, /バジル/, [[45, 60], [58, 42]]);
+    await goToTrayPage(page, "first");
+    expect(await trayPageLabel(page), "22 toppings need more than one tray page").not.toBe("1/1");
+    await s.step("TOPPING", TRAY_CHECKS);
+    // A later page must not change the stage either.
+    await page.getByRole("button", { name: "次のページ" }).click();
+    await s.step("TOPPING p2", TRAY_CHECKS);
+
+    await enterBakePaused(page);
+    await s.step("BAKE", BAKE_CHECKS, COOKING_SLOTS.bake);
+    await s.judge(testInfo);
+  });
+
+  test("LC-S Lunch Rush: HUD, two-row topping tray, BAKE and CUT recorded", async ({ page, lc }, testInfo) => {
+    test.setTimeout(240_000);
+    const mount = lc.mountProfile("short");
+    await openWithSave(page, makeSave(["pizza-portuguesa"]), "?missionDuration=900");
+    await lc.apply(mount);
+    await page.getByRole("button", { name: /ランチラッシュ/ }).click();
+    await page.getByRole("button", { name: "スタート" }).click();
+    await page.getByRole("button", { name: "ピザを作る！" }).click();
+    await page.waitForSelector(".pizza-stage");
+    const s = new StageStability(lc, page, "LUNCH", mount);
+
+    await s.step("DOUGH", withHud(PREPARE_CHECKS));
+    await completeDoughStep(page);
+    await next(page);
+    await selectChip(page, /トマトソース/);
+    await paintSauceRing(page, 25, 16);
+    await s.step("SAUCE", withHud(PREPARE_CHECKS));
+    await next(page);
+    await place(page, /モッツァレラ/, [[40, 50], [60, 50]]);
+    await s.step("CHEESE", withHud(PREPARE_CHECKS));
+    await next(page);
+    await place(page, /ハム/, [[30, 40], [70, 40], [50, 70]]);
+    await place(page, /たまご/, [[50, 50]]);
+    await s.step("TOPPING", withHud(TRAY_CHECKS));
+
+    await enterBakePaused(page);
+    await s.step("BAKE", withHud(BAKE_CHECKS), COOKING_SLOTS.bake);
+    await landNeedleAndTakeOut(page, PORTUGUESA_BAKE);
+    await expect(page.getByRole("button", { name: /切り終わる/ })).toBeVisible();
+    await s.step("CUT", withHud(CUT_CHECKS));
+    await s.judge(testInfo);
+  });
+});
+
 function cp_(lc: LayoutContract, mount: ReturnType<LayoutContract["mountProfile"]>, state: StateLabel, ids: InvariantId[], slots: SlotSelectors = COOKING_SLOTS.prepare) {
   return lc.checkpoint(state, ids, slots, mount);
 }

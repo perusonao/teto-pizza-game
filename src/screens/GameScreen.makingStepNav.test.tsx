@@ -253,14 +253,80 @@ describe("I5b-4b: one cooking skeleton for PREPARE, BAKE and CUT", () => {
     expect(document.querySelector(".game-screen")).not.toHaveClass("game-screen--cooking");
   });
 
-  it("a one-page tray still lays out the pager row, invisible and inert", () => {
+  // DM-3R-0 (Issue #245): the invisible pager row is reserved only when some PREPARE step of
+  // the round actually pages -- the dock's height is fixed per round, so a round that never
+  // pages has no later page to make room for.
+  it("a round in which no step pages lays out no pager row at all", () => {
     renderAt(toppedMargherita(), MARGHERITA_REFERENCE);
+    expect(document.querySelector(".ingredient-page-nav--placeholder")).toBeNull();
+    expect(screen.queryByRole("group", { name: "素材ページ切り替え" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "次のページ" })).not.toBeInTheDocument();
+  });
+
+  it("a one-page step of a round that pages elsewhere still lays out the pager row, invisible and inert", () => {
+    const toppings = ["egg", "bacon", "mushroom", "eggplant", "ham", "corn", "pineapple", "onion"];
+    let state: GameState = {
+      ...preparedMargherita(),
+      freeCook: true,
+      ownedIngredientIds: ["tomato-sauce", "mozzarella", "basil", ...toppings],
+    };
+    state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // DOUGH -> SAUCE (one page)
+    renderAt(state, MARGHERITA_REFERENCE);
     const placeholder = document.querySelector(".ingredient-page-nav--placeholder")!;
     expect(placeholder).toBeInTheDocument();
     expect(placeholder).toHaveAttribute("aria-hidden", "true");
     for (const b of Array.from(placeholder.querySelectorAll("button"))) expect(b).toBeDisabled();
     expect(screen.queryByRole("group", { name: "素材ページ切り替え" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "次のページ" })).not.toBeInTheDocument();
+    expect(document.querySelector<HTMLElement>(".prepare-dock")!.style.getPropertyValue("--dock-pager")).toBe("1");
+  });
+});
+
+// DM-3R-0 Cooking Stage Size Stability (Issue #245): the readout and the tray live in one
+// `.prepare-dock` under the stage, laid out in every PREPARE step (DOUGH included) with the same
+// per-round reservation, so the pizza stage above it keeps one size. jsdom has no layout, so this
+// pins the DOM contract; the diameters are measured in Chromium / WebKit (Layout Contract LC-S).
+describe("DM-3R-0: one PREPARE dock for the whole round", () => {
+  const DOCK_VARS = ["--dock-sauce-rows", "--dock-other-rows", "--dock-readout", "--dock-pager"];
+  const dockVars = () => {
+    const dock = document.querySelector<HTMLElement>(".prepare-dock");
+    expect(dock).not.toBeNull();
+    return DOCK_VARS.map((v) => dock!.style.getPropertyValue(v));
+  };
+
+  it("DOUGH lays out the dock (empty) with the same reservation as every later PREPARE step", () => {
+    let state = preparedMargherita();
+    expect(state.makingStep).toBe("DOUGH");
+    renderAt(state, MARGHERITA_REFERENCE);
+    const dough = dockVars();
+    expect(document.querySelector(".prepare-dock .ingredient-panel")).toBeNull();
+    expect(document.querySelector(".prepare-dock .sauce-metrics-panel")).toBeNull();
+    // margherita: one sauce, one cheese, one topping, the readout in SAUCE, never a second page.
+    expect(dough).toEqual(["1", "1", "1", "0"]);
+    cleanup();
+
+    state = gameReducer(state, { type: "CONFIRM_MAKING_STEP" }); // SAUCE
+    renderAt(state, MARGHERITA_REFERENCE);
+    expect(dockVars()).toEqual(dough);
+    expect(document.querySelector(".prepare-dock .sauce-metrics-panel")).not.toBeNull();
+    expect(document.querySelector(".prepare-dock .ingredient-panel")).not.toBeNull();
+    cleanup();
+
+    renderAt(toppedMargherita(), MARGHERITA_REFERENCE);
+    expect(dockVars()).toEqual(dough);
+    expect(document.querySelector(".prepare-dock .sauce-metrics-panel")).toBeNull();
+  });
+
+  it("the dock sits between the stage and the CTA bar, and is gone outside PREPARE", () => {
+    renderAt(toppedMargherita(), MARGHERITA_REFERENCE);
+    const children = Array.from(document.querySelector(".game-screen--cooking")!.children);
+    const stage = children.findIndex((c) => c.classList.contains("pizza-stage"));
+    const dock = children.findIndex((c) => c.classList.contains("prepare-dock"));
+    const bar = children.findIndex((c) => c.classList.contains("prepare-bake-bar"));
+    expect(stage).toBeLessThan(dock);
+    expect(dock + 1).toBe(bar);
+    cleanup();
+    renderAt(bakingMargherita(), MARGHERITA_REFERENCE);
+    expect(document.querySelector(".prepare-dock")).toBeNull();
   });
 });
 
