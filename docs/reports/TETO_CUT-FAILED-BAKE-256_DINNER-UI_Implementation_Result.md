@@ -199,7 +199,10 @@ Screenshots: `docs/reports/screenshots/cut256-dinner-ui-implementation/{before,a
 - the Dinner #256 burnt test, R5/R9 (no CUT before 生焼け)
 - CLEAR 「最後のピザ：name ★N」, INFEASIBLE 「最後のピザ：ビスマルク」, QUALITY_FAIL 「あと★N」
 
-**WebKit:** runs in CI on the PR (`WebKit Gate`).
+**CI on PR #275, head `ad6ef12`: 9 / 9 success.**
+- `build`, `classify`, `layout-chromium`, **Layout Contract Gate**
+- `webkit webkit-390x844` shards 1/2 and 2/2, `webkit webkit-360x800` shards 1/2 and 2/2, **WebKit Gate**
+- mergeable: `clean`; review threads: 0
 
 ## 14. Human Verification Videos
 
