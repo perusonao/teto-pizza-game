@@ -1,0 +1,3954 @@
+[
+ {
+  "mode": "guided",
+  "phase": "DOUGH",
+  "vp": "390x844",
+  "dough": {
+   "top": 263,
+   "bottom": 553,
+   "h": 290,
+   "w": 290
+  },
+  "stage": {
+   "top": 181,
+   "bottom": 634,
+   "h": 453,
+   "w": 390
+  },
+  "bar": {
+   "top": 774,
+   "bottom": 844,
+   "h": 70,
+   "w": 390
+  },
+  "hud": null,
+  "tray": null,
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 78
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 132
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "guided",
+  "phase": "DOUGH",
+  "vp": "360x800",
+  "dough": {
+   "top": 249,
+   "bottom": 522,
+   "h": 274,
+   "w": 274
+  },
+  "stage": {
+   "top": 181,
+   "bottom": 590,
+   "h": 409,
+   "w": 360
+  },
+  "bar": {
+   "top": 730,
+   "bottom": 800,
+   "h": 70,
+   "w": 360
+  },
+  "hud": null,
+  "tray": null,
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 78
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 132
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "guided",
+  "phase": "DOUGH",
+  "vp": "390x664",
+  "dough": {
+   "top": 177,
+   "bottom": 456,
+   "h": 279,
+   "w": 279
+  },
+  "stage": {
+   "top": 173,
+   "bottom": 460,
+   "h": 287,
+   "w": 390
+  },
+  "bar": {
+   "top": 594,
+   "bottom": 664,
+   "h": 70,
+   "w": 390
+  },
+  "hud": null,
+  "tray": null,
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 70
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 126
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "guided",
+  "phase": "DOUGH",
+  "vp": "360x620",
+  "dough": {
+   "top": 177,
+   "bottom": 412,
+   "h": 235,
+   "w": 235
+  },
+  "stage": {
+   "top": 173,
+   "bottom": 416,
+   "h": 243,
+   "w": 360
+  },
+  "bar": {
+   "top": 550,
+   "bottom": 620,
+   "h": 70,
+   "w": 360
+  },
+  "hud": null,
+  "tray": null,
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 70
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 126
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "guided",
+  "phase": "SAUCE",
+  "vp": "390x844",
+  "dough": {
+   "top": 263,
+   "bottom": 553,
+   "h": 290,
+   "w": 290
+  },
+  "stage": {
+   "top": 181,
+   "bottom": 634,
+   "h": 453,
+   "w": 390
+  },
+  "bar": {
+   "top": 774,
+   "bottom": 844,
+   "h": 70,
+   "w": 390
+  },
+  "hud": null,
+  "tray": {
+   "top": 696,
+   "bottom": 766,
+   "h": 70,
+   "w": 390
+  },
+  "readout": {
+   "top": 634,
+   "bottom": 692,
+   "h": 58,
+   "w": 358
+  },
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 78
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 132
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "guided",
+  "phase": "SAUCE",
+  "vp": "360x800",
+  "dough": {
+   "top": 249,
+   "bottom": 522,
+   "h": 274,
+   "w": 274
+  },
+  "stage": {
+   "top": 181,
+   "bottom": 590,
+   "h": 409,
+   "w": 360
+  },
+  "bar": {
+   "top": 730,
+   "bottom": 800,
+   "h": 70,
+   "w": 360
+  },
+  "hud": null,
+  "tray": {
+   "top": 652,
+   "bottom": 722,
+   "h": 70,
+   "w": 360
+  },
+  "readout": {
+   "top": 590,
+   "bottom": 648,
+   "h": 58,
+   "w": 328
+  },
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 78
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 132
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "guided",
+  "phase": "SAUCE",
+  "vp": "390x664",
+  "dough": {
+   "top": 177,
+   "bottom": 456,
+   "h": 279,
+   "w": 279
+  },
+  "stage": {
+   "top": 173,
+   "bottom": 460,
+   "h": 287,
+   "w": 390
+  },
+  "bar": {
+   "top": 594,
+   "bottom": 664,
+   "h": 70,
+   "w": 390
+  },
+  "hud": null,
+  "tray": {
+   "top": 522,
+   "bottom": 586,
+   "h": 64,
+   "w": 390
+  },
+  "readout": {
+   "top": 460,
+   "bottom": 518,
+   "h": 58,
+   "w": 358
+  },
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 70
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 126
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "guided",
+  "phase": "SAUCE",
+  "vp": "360x620",
+  "dough": {
+   "top": 177,
+   "bottom": 412,
+   "h": 235,
+   "w": 235
+  },
+  "stage": {
+   "top": 173,
+   "bottom": 416,
+   "h": 243,
+   "w": 360
+  },
+  "bar": {
+   "top": 550,
+   "bottom": 620,
+   "h": 70,
+   "w": 360
+  },
+  "hud": null,
+  "tray": {
+   "top": 478,
+   "bottom": 542,
+   "h": 64,
+   "w": 360
+  },
+  "readout": {
+   "top": 416,
+   "bottom": 474,
+   "h": 58,
+   "w": 328
+  },
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 70
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 126
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "guided",
+  "phase": "CHEESE",
+  "vp": "390x844",
+  "dough": {
+   "top": 263,
+   "bottom": 553,
+   "h": 290,
+   "w": 290
+  },
+  "stage": {
+   "top": 181,
+   "bottom": 634,
+   "h": 453,
+   "w": 390
+  },
+  "bar": {
+   "top": 774,
+   "bottom": 844,
+   "h": 70,
+   "w": 390
+  },
+  "hud": null,
+  "tray": {
+   "top": 696,
+   "bottom": 766,
+   "h": 70,
+   "w": 390
+  },
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 78
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 132
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "guided",
+  "phase": "CHEESE",
+  "vp": "360x800",
+  "dough": {
+   "top": 249,
+   "bottom": 522,
+   "h": 274,
+   "w": 274
+  },
+  "stage": {
+   "top": 181,
+   "bottom": 590,
+   "h": 409,
+   "w": 360
+  },
+  "bar": {
+   "top": 730,
+   "bottom": 800,
+   "h": 70,
+   "w": 360
+  },
+  "hud": null,
+  "tray": {
+   "top": 652,
+   "bottom": 722,
+   "h": 70,
+   "w": 360
+  },
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 78
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 132
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "guided",
+  "phase": "CHEESE",
+  "vp": "390x664",
+  "dough": {
+   "top": 177,
+   "bottom": 456,
+   "h": 279,
+   "w": 279
+  },
+  "stage": {
+   "top": 173,
+   "bottom": 460,
+   "h": 287,
+   "w": 390
+  },
+  "bar": {
+   "top": 594,
+   "bottom": 664,
+   "h": 70,
+   "w": 390
+  },
+  "hud": null,
+  "tray": {
+   "top": 522,
+   "bottom": 586,
+   "h": 64,
+   "w": 390
+  },
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 70
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 126
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "guided",
+  "phase": "CHEESE",
+  "vp": "360x620",
+  "dough": {
+   "top": 177,
+   "bottom": 412,
+   "h": 235,
+   "w": 235
+  },
+  "stage": {
+   "top": 173,
+   "bottom": 416,
+   "h": 243,
+   "w": 360
+  },
+  "bar": {
+   "top": 550,
+   "bottom": 620,
+   "h": 70,
+   "w": 360
+  },
+  "hud": null,
+  "tray": {
+   "top": 478,
+   "bottom": 542,
+   "h": 64,
+   "w": 360
+  },
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 70
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 126
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "guided",
+  "phase": "TOPPING",
+  "vp": "390x844",
+  "dough": {
+   "top": 263,
+   "bottom": 553,
+   "h": 290,
+   "w": 290
+  },
+  "stage": {
+   "top": 181,
+   "bottom": 634,
+   "h": 453,
+   "w": 390
+  },
+  "bar": {
+   "top": 774,
+   "bottom": 844,
+   "h": 70,
+   "w": 390
+  },
+  "hud": null,
+  "tray": {
+   "top": 696,
+   "bottom": 766,
+   "h": 70,
+   "w": 390
+  },
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 78
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 132
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "guided",
+  "phase": "TOPPING",
+  "vp": "360x800",
+  "dough": {
+   "top": 249,
+   "bottom": 522,
+   "h": 274,
+   "w": 274
+  },
+  "stage": {
+   "top": 181,
+   "bottom": 590,
+   "h": 409,
+   "w": 360
+  },
+  "bar": {
+   "top": 730,
+   "bottom": 800,
+   "h": 70,
+   "w": 360
+  },
+  "hud": null,
+  "tray": {
+   "top": 652,
+   "bottom": 722,
+   "h": 70,
+   "w": 360
+  },
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 78
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 132
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "guided",
+  "phase": "TOPPING",
+  "vp": "390x664",
+  "dough": {
+   "top": 177,
+   "bottom": 456,
+   "h": 279,
+   "w": 279
+  },
+  "stage": {
+   "top": 173,
+   "bottom": 460,
+   "h": 287,
+   "w": 390
+  },
+  "bar": {
+   "top": 594,
+   "bottom": 664,
+   "h": 70,
+   "w": 390
+  },
+  "hud": null,
+  "tray": {
+   "top": 522,
+   "bottom": 586,
+   "h": 64,
+   "w": 390
+  },
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 70
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 126
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "guided",
+  "phase": "TOPPING",
+  "vp": "360x620",
+  "dough": {
+   "top": 177,
+   "bottom": 412,
+   "h": 235,
+   "w": 235
+  },
+  "stage": {
+   "top": 173,
+   "bottom": 416,
+   "h": 243,
+   "w": 360
+  },
+  "bar": {
+   "top": 550,
+   "bottom": 620,
+   "h": 70,
+   "w": 360
+  },
+  "hud": null,
+  "tray": {
+   "top": 478,
+   "bottom": 542,
+   "h": 64,
+   "w": 360
+  },
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 70
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 126
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "guided",
+  "phase": "BAKE",
+  "vp": "390x844",
+  "dough": {
+   "top": 238,
+   "bottom": 596,
+   "h": 359,
+   "w": 358
+  },
+  "stage": {
+   "top": 162,
+   "bottom": 672,
+   "h": 510,
+   "w": 390
+  },
+  "bar": {
+   "top": 774,
+   "bottom": 844,
+   "h": 70,
+   "w": 390
+  },
+  "hud": null,
+  "tray": null,
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 59
+   }
+  ],
+  "below": [
+   {
+    "cls": "bake-overlay",
+    "h": 94
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "guided",
+  "phase": "BAKE",
+  "vp": "360x800",
+  "dough": {
+   "top": 229,
+   "bottom": 561,
+   "h": 331,
+   "w": 328
+  },
+  "stage": {
+   "top": 162,
+   "bottom": 628,
+   "h": 466,
+   "w": 360
+  },
+  "bar": {
+   "top": 730,
+   "bottom": 800,
+   "h": 70,
+   "w": 360
+  },
+  "hud": null,
+  "tray": null,
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 59
+   }
+  ],
+  "below": [
+   {
+    "cls": "bake-overlay",
+    "h": 94
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "guided",
+  "phase": "BAKE",
+  "vp": "390x664",
+  "dough": {
+   "top": 166,
+   "bottom": 488,
+   "h": 322,
+   "w": 322
+  },
+  "stage": {
+   "top": 162,
+   "bottom": 492,
+   "h": 330,
+   "w": 390
+  },
+  "bar": {
+   "top": 594,
+   "bottom": 664,
+   "h": 70,
+   "w": 390
+  },
+  "hud": null,
+  "tray": null,
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 59
+   }
+  ],
+  "below": [
+   {
+    "cls": "bake-overlay",
+    "h": 94
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "guided",
+  "phase": "BAKE",
+  "vp": "360x620",
+  "dough": {
+   "top": 166,
+   "bottom": 444,
+   "h": 278,
+   "w": 278
+  },
+  "stage": {
+   "top": 162,
+   "bottom": 448,
+   "h": 286,
+   "w": 360
+  },
+  "bar": {
+   "top": 550,
+   "bottom": 620,
+   "h": 70,
+   "w": 360
+  },
+  "hud": null,
+  "tray": null,
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 59
+   }
+  ],
+  "below": [
+   {
+    "cls": "bake-overlay",
+    "h": 94
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "guided",
+  "phase": "CUT",
+  "vp": "390x844",
+  "dough": {
+   "top": 265,
+   "bottom": 624,
+   "h": 359,
+   "w": 358
+  },
+  "stage": {
+   "top": 147,
+   "bottom": 742,
+   "h": 595,
+   "w": 390
+  },
+  "bar": {
+   "top": 774,
+   "bottom": 844,
+   "h": 70,
+   "w": 390
+  },
+  "hud": null,
+  "tray": null,
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 44
+   }
+  ],
+  "below": [
+   {
+    "cls": "cut-progress-readout",
+    "h": 24
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "guided",
+  "phase": "CUT",
+  "vp": "360x800",
+  "dough": {
+   "top": 257,
+   "bottom": 588,
+   "h": 331,
+   "w": 328
+  },
+  "stage": {
+   "top": 147,
+   "bottom": 698,
+   "h": 551,
+   "w": 360
+  },
+  "bar": {
+   "top": 730,
+   "bottom": 800,
+   "h": 70,
+   "w": 360
+  },
+  "hud": null,
+  "tray": null,
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 44
+   }
+  ],
+  "below": [
+   {
+    "cls": "cut-progress-readout",
+    "h": 24
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "guided",
+  "phase": "CUT",
+  "vp": "390x664",
+  "dough": {
+   "top": 175,
+   "bottom": 534,
+   "h": 359,
+   "w": 358
+  },
+  "stage": {
+   "top": 147,
+   "bottom": 562,
+   "h": 415,
+   "w": 390
+  },
+  "bar": {
+   "top": 594,
+   "bottom": 664,
+   "h": 70,
+   "w": 390
+  },
+  "hud": null,
+  "tray": null,
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 44
+   }
+  ],
+  "below": [
+   {
+    "cls": "cut-progress-readout",
+    "h": 24
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "guided",
+  "phase": "CUT",
+  "vp": "360x620",
+  "dough": {
+   "top": 167,
+   "bottom": 498,
+   "h": 331,
+   "w": 328
+  },
+  "stage": {
+   "top": 147,
+   "bottom": 518,
+   "h": 371,
+   "w": 360
+  },
+  "bar": {
+   "top": 550,
+   "bottom": 620,
+   "h": 70,
+   "w": 360
+  },
+  "hud": null,
+  "tray": null,
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 44
+   }
+  ],
+  "below": [
+   {
+    "cls": "cut-progress-readout",
+    "h": 24
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "free",
+  "phase": "DOUGH",
+  "vp": "390x844",
+  "dough": {
+   "top": 224,
+   "bottom": 514,
+   "h": 290,
+   "w": 290
+  },
+  "stage": {
+   "top": 147,
+   "bottom": 592,
+   "h": 445,
+   "w": 390
+  },
+  "bar": {
+   "top": 774,
+   "bottom": 844,
+   "h": 70,
+   "w": 390
+  },
+  "hud": null,
+  "tray": null,
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 44
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 174
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "free",
+  "phase": "DOUGH",
+  "vp": "360x800",
+  "dough": {
+   "top": 211,
+   "bottom": 484,
+   "h": 274,
+   "w": 274
+  },
+  "stage": {
+   "top": 147,
+   "bottom": 548,
+   "h": 401,
+   "w": 360
+  },
+  "bar": {
+   "top": 730,
+   "bottom": 800,
+   "h": 70,
+   "w": 360
+  },
+  "hud": null,
+  "tray": null,
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 44
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 174
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "free",
+  "phase": "DOUGH",
+  "vp": "390x664",
+  "dough": {
+   "top": 151,
+   "bottom": 420,
+   "h": 269,
+   "w": 269
+  },
+  "stage": {
+   "top": 147,
+   "bottom": 424,
+   "h": 277,
+   "w": 390
+  },
+  "bar": {
+   "top": 594,
+   "bottom": 664,
+   "h": 70,
+   "w": 390
+  },
+  "hud": null,
+  "tray": null,
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 44
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 162
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "free",
+  "phase": "DOUGH",
+  "vp": "360x620",
+  "dough": {
+   "top": 151,
+   "bottom": 376,
+   "h": 225,
+   "w": 225
+  },
+  "stage": {
+   "top": 147,
+   "bottom": 380,
+   "h": 233,
+   "w": 360
+  },
+  "bar": {
+   "top": 550,
+   "bottom": 620,
+   "h": 70,
+   "w": 360
+  },
+  "hud": null,
+  "tray": null,
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 44
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 162
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "free",
+  "phase": "SAUCE",
+  "vp": "390x844",
+  "dough": {
+   "top": 224,
+   "bottom": 514,
+   "h": 290,
+   "w": 290
+  },
+  "stage": {
+   "top": 147,
+   "bottom": 592,
+   "h": 445,
+   "w": 390
+  },
+  "bar": {
+   "top": 774,
+   "bottom": 844,
+   "h": 70,
+   "w": 390
+  },
+  "hud": null,
+  "tray": {
+   "top": 666,
+   "bottom": 766,
+   "h": 100,
+   "w": 390
+  },
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 44
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 174
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "free",
+  "phase": "SAUCE",
+  "vp": "360x800",
+  "dough": {
+   "top": 211,
+   "bottom": 484,
+   "h": 274,
+   "w": 274
+  },
+  "stage": {
+   "top": 147,
+   "bottom": 548,
+   "h": 401,
+   "w": 360
+  },
+  "bar": {
+   "top": 730,
+   "bottom": 800,
+   "h": 70,
+   "w": 360
+  },
+  "hud": null,
+  "tray": {
+   "top": 622,
+   "bottom": 722,
+   "h": 100,
+   "w": 360
+  },
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 44
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 174
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "free",
+  "phase": "SAUCE",
+  "vp": "390x664",
+  "dough": {
+   "top": 151,
+   "bottom": 420,
+   "h": 269,
+   "w": 269
+  },
+  "stage": {
+   "top": 147,
+   "bottom": 424,
+   "h": 277,
+   "w": 390
+  },
+  "bar": {
+   "top": 594,
+   "bottom": 664,
+   "h": 70,
+   "w": 390
+  },
+  "hud": null,
+  "tray": {
+   "top": 492,
+   "bottom": 586,
+   "h": 94,
+   "w": 390
+  },
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 44
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 162
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "free",
+  "phase": "SAUCE",
+  "vp": "360x620",
+  "dough": {
+   "top": 151,
+   "bottom": 376,
+   "h": 225,
+   "w": 225
+  },
+  "stage": {
+   "top": 147,
+   "bottom": 380,
+   "h": 233,
+   "w": 360
+  },
+  "bar": {
+   "top": 550,
+   "bottom": 620,
+   "h": 70,
+   "w": 360
+  },
+  "hud": null,
+  "tray": {
+   "top": 448,
+   "bottom": 542,
+   "h": 94,
+   "w": 360
+  },
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 44
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 162
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "free",
+  "phase": "CHEESE",
+  "vp": "390x844",
+  "dough": {
+   "top": 224,
+   "bottom": 514,
+   "h": 290,
+   "w": 290
+  },
+  "stage": {
+   "top": 147,
+   "bottom": 592,
+   "h": 445,
+   "w": 390
+  },
+  "bar": {
+   "top": 774,
+   "bottom": 844,
+   "h": 70,
+   "w": 390
+  },
+  "hud": null,
+  "tray": {
+   "top": 596,
+   "bottom": 766,
+   "h": 170,
+   "w": 390
+  },
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 44
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 174
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "free",
+  "phase": "CHEESE",
+  "vp": "360x800",
+  "dough": {
+   "top": 211,
+   "bottom": 484,
+   "h": 274,
+   "w": 274
+  },
+  "stage": {
+   "top": 147,
+   "bottom": 548,
+   "h": 401,
+   "w": 360
+  },
+  "bar": {
+   "top": 730,
+   "bottom": 800,
+   "h": 70,
+   "w": 360
+  },
+  "hud": null,
+  "tray": {
+   "top": 552,
+   "bottom": 722,
+   "h": 170,
+   "w": 360
+  },
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 44
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 174
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "free",
+  "phase": "CHEESE",
+  "vp": "390x664",
+  "dough": {
+   "top": 151,
+   "bottom": 420,
+   "h": 269,
+   "w": 269
+  },
+  "stage": {
+   "top": 147,
+   "bottom": 424,
+   "h": 277,
+   "w": 390
+  },
+  "bar": {
+   "top": 594,
+   "bottom": 664,
+   "h": 70,
+   "w": 390
+  },
+  "hud": null,
+  "tray": {
+   "top": 428,
+   "bottom": 586,
+   "h": 158,
+   "w": 390
+  },
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 44
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 162
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "free",
+  "phase": "CHEESE",
+  "vp": "360x620",
+  "dough": {
+   "top": 151,
+   "bottom": 376,
+   "h": 225,
+   "w": 225
+  },
+  "stage": {
+   "top": 147,
+   "bottom": 380,
+   "h": 233,
+   "w": 360
+  },
+  "bar": {
+   "top": 550,
+   "bottom": 620,
+   "h": 70,
+   "w": 360
+  },
+  "hud": null,
+  "tray": {
+   "top": 384,
+   "bottom": 542,
+   "h": 158,
+   "w": 360
+  },
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 44
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 162
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "free",
+  "phase": "TOPPING",
+  "vp": "390x844",
+  "dough": {
+   "top": 224,
+   "bottom": 514,
+   "h": 290,
+   "w": 290
+  },
+  "stage": {
+   "top": 147,
+   "bottom": 592,
+   "h": 445,
+   "w": 390
+  },
+  "bar": {
+   "top": 774,
+   "bottom": 844,
+   "h": 70,
+   "w": 390
+  },
+  "hud": null,
+  "tray": {
+   "top": 596,
+   "bottom": 766,
+   "h": 170,
+   "w": 390
+  },
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 44
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 174
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "free",
+  "phase": "TOPPING",
+  "vp": "360x800",
+  "dough": {
+   "top": 211,
+   "bottom": 484,
+   "h": 274,
+   "w": 274
+  },
+  "stage": {
+   "top": 147,
+   "bottom": 548,
+   "h": 401,
+   "w": 360
+  },
+  "bar": {
+   "top": 730,
+   "bottom": 800,
+   "h": 70,
+   "w": 360
+  },
+  "hud": null,
+  "tray": {
+   "top": 552,
+   "bottom": 722,
+   "h": 170,
+   "w": 360
+  },
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 44
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 174
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "free",
+  "phase": "TOPPING",
+  "vp": "390x664",
+  "dough": {
+   "top": 151,
+   "bottom": 420,
+   "h": 269,
+   "w": 269
+  },
+  "stage": {
+   "top": 147,
+   "bottom": 424,
+   "h": 277,
+   "w": 390
+  },
+  "bar": {
+   "top": 594,
+   "bottom": 664,
+   "h": 70,
+   "w": 390
+  },
+  "hud": null,
+  "tray": {
+   "top": 428,
+   "bottom": 586,
+   "h": 158,
+   "w": 390
+  },
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 44
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 162
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "free",
+  "phase": "TOPPING",
+  "vp": "360x620",
+  "dough": {
+   "top": 151,
+   "bottom": 376,
+   "h": 225,
+   "w": 225
+  },
+  "stage": {
+   "top": 147,
+   "bottom": 380,
+   "h": 233,
+   "w": 360
+  },
+  "bar": {
+   "top": 550,
+   "bottom": 620,
+   "h": 70,
+   "w": 360
+  },
+  "hud": null,
+  "tray": {
+   "top": 384,
+   "bottom": 542,
+   "h": 158,
+   "w": 360
+  },
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 44
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 162
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "free",
+  "phase": "BAKE",
+  "vp": "390x844",
+  "dough": {
+   "top": 238,
+   "bottom": 596,
+   "h": 359,
+   "w": 358
+  },
+  "stage": {
+   "top": 162,
+   "bottom": 672,
+   "h": 510,
+   "w": 390
+  },
+  "bar": {
+   "top": 774,
+   "bottom": 844,
+   "h": 70,
+   "w": 390
+  },
+  "hud": null,
+  "tray": null,
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 59
+   }
+  ],
+  "below": [
+   {
+    "cls": "bake-overlay",
+    "h": 94
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "free",
+  "phase": "BAKE",
+  "vp": "360x800",
+  "dough": {
+   "top": 229,
+   "bottom": 561,
+   "h": 331,
+   "w": 328
+  },
+  "stage": {
+   "top": 162,
+   "bottom": 628,
+   "h": 466,
+   "w": 360
+  },
+  "bar": {
+   "top": 730,
+   "bottom": 800,
+   "h": 70,
+   "w": 360
+  },
+  "hud": null,
+  "tray": null,
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 59
+   }
+  ],
+  "below": [
+   {
+    "cls": "bake-overlay",
+    "h": 94
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "free",
+  "phase": "BAKE",
+  "vp": "390x664",
+  "dough": {
+   "top": 166,
+   "bottom": 488,
+   "h": 322,
+   "w": 322
+  },
+  "stage": {
+   "top": 162,
+   "bottom": 492,
+   "h": 330,
+   "w": 390
+  },
+  "bar": {
+   "top": 594,
+   "bottom": 664,
+   "h": 70,
+   "w": 390
+  },
+  "hud": null,
+  "tray": null,
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 59
+   }
+  ],
+  "below": [
+   {
+    "cls": "bake-overlay",
+    "h": 94
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "free",
+  "phase": "BAKE",
+  "vp": "360x620",
+  "dough": {
+   "top": 166,
+   "bottom": 444,
+   "h": 278,
+   "w": 278
+  },
+  "stage": {
+   "top": 162,
+   "bottom": 448,
+   "h": 286,
+   "w": 360
+  },
+  "bar": {
+   "top": 550,
+   "bottom": 620,
+   "h": 70,
+   "w": 360
+  },
+  "hud": null,
+  "tray": null,
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 59
+   }
+  ],
+  "below": [
+   {
+    "cls": "bake-overlay",
+    "h": 94
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "lunch",
+  "phase": "DOUGH",
+  "vp": "390x844",
+  "dough": {
+   "top": 279,
+   "bottom": 569,
+   "h": 290,
+   "w": 290
+  },
+  "stage": {
+   "top": 222,
+   "bottom": 626,
+   "h": 404,
+   "w": 390
+  },
+  "bar": {
+   "top": 774,
+   "bottom": 844,
+   "h": 70,
+   "w": 390
+  },
+  "hud": {
+   "top": 64,
+   "bottom": 97,
+   "h": 33,
+   "w": 366
+  },
+  "tray": null,
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "mission-hud",
+    "h": 33
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 78
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 140
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "lunch",
+  "phase": "DOUGH",
+  "vp": "360x800",
+  "dough": {
+   "top": 265,
+   "bottom": 539,
+   "h": 274,
+   "w": 274
+  },
+  "stage": {
+   "top": 222,
+   "bottom": 582,
+   "h": 360,
+   "w": 360
+  },
+  "bar": {
+   "top": 730,
+   "bottom": 800,
+   "h": 70,
+   "w": 360
+  },
+  "hud": {
+   "top": 64,
+   "bottom": 97,
+   "h": 33,
+   "w": 336
+  },
+  "tray": null,
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "mission-hud",
+    "h": 33
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 78
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 140
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "lunch",
+  "phase": "DOUGH",
+  "vp": "390x664",
+  "dough": {
+   "top": 218,
+   "bottom": 454,
+   "h": 236,
+   "w": 236
+  },
+  "stage": {
+   "top": 214,
+   "bottom": 458,
+   "h": 244,
+   "w": 390
+  },
+  "bar": {
+   "top": 594,
+   "bottom": 664,
+   "h": 70,
+   "w": 390
+  },
+  "hud": {
+   "top": 64,
+   "bottom": 97,
+   "h": 33,
+   "w": 366
+  },
+  "tray": null,
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "mission-hud",
+    "h": 33
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 70
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 128
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "lunch",
+  "phase": "DOUGH",
+  "vp": "360x620",
+  "dough": {
+   "top": 218,
+   "bottom": 410,
+   "h": 192,
+   "w": 192
+  },
+  "stage": {
+   "top": 214,
+   "bottom": 414,
+   "h": 200,
+   "w": 360
+  },
+  "bar": {
+   "top": 550,
+   "bottom": 620,
+   "h": 70,
+   "w": 360
+  },
+  "hud": {
+   "top": 64,
+   "bottom": 97,
+   "h": 33,
+   "w": 336
+  },
+  "tray": null,
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "mission-hud",
+    "h": 33
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 70
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 128
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "lunch",
+  "phase": "SAUCE",
+  "vp": "390x844",
+  "dough": {
+   "top": 279,
+   "bottom": 569,
+   "h": 290,
+   "w": 290
+  },
+  "stage": {
+   "top": 222,
+   "bottom": 626,
+   "h": 404,
+   "w": 390
+  },
+  "bar": {
+   "top": 774,
+   "bottom": 844,
+   "h": 70,
+   "w": 390
+  },
+  "hud": {
+   "top": 64,
+   "bottom": 97,
+   "h": 33,
+   "w": 366
+  },
+  "tray": {
+   "top": 696,
+   "bottom": 766,
+   "h": 70,
+   "w": 390
+  },
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "mission-hud",
+    "h": 33
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 78
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 140
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "lunch",
+  "phase": "SAUCE",
+  "vp": "360x800",
+  "dough": {
+   "top": 265,
+   "bottom": 539,
+   "h": 274,
+   "w": 274
+  },
+  "stage": {
+   "top": 222,
+   "bottom": 582,
+   "h": 360,
+   "w": 360
+  },
+  "bar": {
+   "top": 730,
+   "bottom": 800,
+   "h": 70,
+   "w": 360
+  },
+  "hud": {
+   "top": 64,
+   "bottom": 97,
+   "h": 33,
+   "w": 336
+  },
+  "tray": {
+   "top": 652,
+   "bottom": 722,
+   "h": 70,
+   "w": 360
+  },
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "mission-hud",
+    "h": 33
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 78
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 140
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "lunch",
+  "phase": "SAUCE",
+  "vp": "390x664",
+  "dough": {
+   "top": 218,
+   "bottom": 454,
+   "h": 236,
+   "w": 236
+  },
+  "stage": {
+   "top": 214,
+   "bottom": 458,
+   "h": 244,
+   "w": 390
+  },
+  "bar": {
+   "top": 594,
+   "bottom": 664,
+   "h": 70,
+   "w": 390
+  },
+  "hud": {
+   "top": 64,
+   "bottom": 97,
+   "h": 33,
+   "w": 366
+  },
+  "tray": {
+   "top": 522,
+   "bottom": 586,
+   "h": 64,
+   "w": 390
+  },
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "mission-hud",
+    "h": 33
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 70
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 128
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "lunch",
+  "phase": "SAUCE",
+  "vp": "360x620",
+  "dough": {
+   "top": 218,
+   "bottom": 410,
+   "h": 192,
+   "w": 192
+  },
+  "stage": {
+   "top": 214,
+   "bottom": 414,
+   "h": 200,
+   "w": 360
+  },
+  "bar": {
+   "top": 550,
+   "bottom": 620,
+   "h": 70,
+   "w": 360
+  },
+  "hud": {
+   "top": 64,
+   "bottom": 97,
+   "h": 33,
+   "w": 336
+  },
+  "tray": {
+   "top": 478,
+   "bottom": 542,
+   "h": 64,
+   "w": 360
+  },
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "mission-hud",
+    "h": 33
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 70
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 128
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "lunch",
+  "phase": "CHEESE",
+  "vp": "390x844",
+  "dough": {
+   "top": 279,
+   "bottom": 569,
+   "h": 290,
+   "w": 290
+  },
+  "stage": {
+   "top": 222,
+   "bottom": 626,
+   "h": 404,
+   "w": 390
+  },
+  "bar": {
+   "top": 774,
+   "bottom": 844,
+   "h": 70,
+   "w": 390
+  },
+  "hud": {
+   "top": 64,
+   "bottom": 97,
+   "h": 33,
+   "w": 366
+  },
+  "tray": {
+   "top": 696,
+   "bottom": 766,
+   "h": 70,
+   "w": 390
+  },
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "mission-hud",
+    "h": 33
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 78
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 140
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "lunch",
+  "phase": "CHEESE",
+  "vp": "360x800",
+  "dough": {
+   "top": 265,
+   "bottom": 539,
+   "h": 274,
+   "w": 274
+  },
+  "stage": {
+   "top": 222,
+   "bottom": 582,
+   "h": 360,
+   "w": 360
+  },
+  "bar": {
+   "top": 730,
+   "bottom": 800,
+   "h": 70,
+   "w": 360
+  },
+  "hud": {
+   "top": 64,
+   "bottom": 97,
+   "h": 33,
+   "w": 336
+  },
+  "tray": {
+   "top": 652,
+   "bottom": 722,
+   "h": 70,
+   "w": 360
+  },
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "mission-hud",
+    "h": 33
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 78
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 140
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "lunch",
+  "phase": "CHEESE",
+  "vp": "390x664",
+  "dough": {
+   "top": 218,
+   "bottom": 454,
+   "h": 236,
+   "w": 236
+  },
+  "stage": {
+   "top": 214,
+   "bottom": 458,
+   "h": 244,
+   "w": 390
+  },
+  "bar": {
+   "top": 594,
+   "bottom": 664,
+   "h": 70,
+   "w": 390
+  },
+  "hud": {
+   "top": 64,
+   "bottom": 97,
+   "h": 33,
+   "w": 366
+  },
+  "tray": {
+   "top": 522,
+   "bottom": 586,
+   "h": 64,
+   "w": 390
+  },
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "mission-hud",
+    "h": 33
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 70
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 128
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "lunch",
+  "phase": "CHEESE",
+  "vp": "360x620",
+  "dough": {
+   "top": 218,
+   "bottom": 410,
+   "h": 192,
+   "w": 192
+  },
+  "stage": {
+   "top": 214,
+   "bottom": 414,
+   "h": 200,
+   "w": 360
+  },
+  "bar": {
+   "top": 550,
+   "bottom": 620,
+   "h": 70,
+   "w": 360
+  },
+  "hud": {
+   "top": 64,
+   "bottom": 97,
+   "h": 33,
+   "w": 336
+  },
+  "tray": {
+   "top": 478,
+   "bottom": 542,
+   "h": 64,
+   "w": 360
+  },
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "mission-hud",
+    "h": 33
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 70
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 128
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "lunch",
+  "phase": "TOPPING",
+  "vp": "390x844",
+  "dough": {
+   "top": 279,
+   "bottom": 569,
+   "h": 290,
+   "w": 290
+  },
+  "stage": {
+   "top": 222,
+   "bottom": 626,
+   "h": 404,
+   "w": 390
+  },
+  "bar": {
+   "top": 774,
+   "bottom": 844,
+   "h": 70,
+   "w": 390
+  },
+  "hud": {
+   "top": 64,
+   "bottom": 97,
+   "h": 33,
+   "w": 366
+  },
+  "tray": {
+   "top": 626,
+   "bottom": 766,
+   "h": 140,
+   "w": 390
+  },
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "mission-hud",
+    "h": 33
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 78
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 140
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "lunch",
+  "phase": "TOPPING",
+  "vp": "360x800",
+  "dough": {
+   "top": 265,
+   "bottom": 539,
+   "h": 274,
+   "w": 274
+  },
+  "stage": {
+   "top": 222,
+   "bottom": 582,
+   "h": 360,
+   "w": 360
+  },
+  "bar": {
+   "top": 730,
+   "bottom": 800,
+   "h": 70,
+   "w": 360
+  },
+  "hud": {
+   "top": 64,
+   "bottom": 97,
+   "h": 33,
+   "w": 336
+  },
+  "tray": {
+   "top": 582,
+   "bottom": 722,
+   "h": 140,
+   "w": 360
+  },
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "mission-hud",
+    "h": 33
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 78
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 140
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "lunch",
+  "phase": "TOPPING",
+  "vp": "390x664",
+  "dough": {
+   "top": 218,
+   "bottom": 454,
+   "h": 236,
+   "w": 236
+  },
+  "stage": {
+   "top": 214,
+   "bottom": 458,
+   "h": 244,
+   "w": 390
+  },
+  "bar": {
+   "top": 594,
+   "bottom": 664,
+   "h": 70,
+   "w": 390
+  },
+  "hud": {
+   "top": 64,
+   "bottom": 97,
+   "h": 33,
+   "w": 366
+  },
+  "tray": {
+   "top": 458,
+   "bottom": 586,
+   "h": 128,
+   "w": 390
+  },
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "mission-hud",
+    "h": 33
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 70
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 128
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "lunch",
+  "phase": "TOPPING",
+  "vp": "360x620",
+  "dough": {
+   "top": 218,
+   "bottom": 410,
+   "h": 192,
+   "w": 192
+  },
+  "stage": {
+   "top": 214,
+   "bottom": 414,
+   "h": 200,
+   "w": 360
+  },
+  "bar": {
+   "top": 550,
+   "bottom": 620,
+   "h": 70,
+   "w": 360
+  },
+  "hud": {
+   "top": 64,
+   "bottom": 97,
+   "h": 33,
+   "w": 336
+  },
+  "tray": {
+   "top": 414,
+   "bottom": 542,
+   "h": 128,
+   "w": 360
+  },
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "mission-hud",
+    "h": 33
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 70
+   }
+  ],
+  "below": [
+   {
+    "cls": "prepare-dock",
+    "h": 128
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "lunch",
+  "phase": "BAKE",
+  "vp": "390x844",
+  "dough": {
+   "top": 258,
+   "bottom": 617,
+   "h": 359,
+   "w": 358
+  },
+  "stage": {
+   "top": 203,
+   "bottom": 672,
+   "h": 469,
+   "w": 390
+  },
+  "bar": {
+   "top": 774,
+   "bottom": 844,
+   "h": 70,
+   "w": 390
+  },
+  "hud": {
+   "top": 64,
+   "bottom": 97,
+   "h": 33,
+   "w": 366
+  },
+  "tray": null,
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "mission-hud",
+    "h": 33
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 59
+   }
+  ],
+  "below": [
+   {
+    "cls": "bake-overlay",
+    "h": 94
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "lunch",
+  "phase": "BAKE",
+  "vp": "360x800",
+  "dough": {
+   "top": 250,
+   "bottom": 581,
+   "h": 331,
+   "w": 328
+  },
+  "stage": {
+   "top": 203,
+   "bottom": 628,
+   "h": 425,
+   "w": 360
+  },
+  "bar": {
+   "top": 730,
+   "bottom": 800,
+   "h": 70,
+   "w": 360
+  },
+  "hud": {
+   "top": 64,
+   "bottom": 97,
+   "h": 33,
+   "w": 336
+  },
+  "tray": null,
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "mission-hud",
+    "h": 33
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 59
+   }
+  ],
+  "below": [
+   {
+    "cls": "bake-overlay",
+    "h": 94
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "lunch",
+  "phase": "BAKE",
+  "vp": "390x664",
+  "dough": {
+   "top": 207,
+   "bottom": 488,
+   "h": 281,
+   "w": 281
+  },
+  "stage": {
+   "top": 203,
+   "bottom": 492,
+   "h": 289,
+   "w": 390
+  },
+  "bar": {
+   "top": 594,
+   "bottom": 664,
+   "h": 70,
+   "w": 390
+  },
+  "hud": {
+   "top": 64,
+   "bottom": 97,
+   "h": 33,
+   "w": 366
+  },
+  "tray": null,
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "mission-hud",
+    "h": 33
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 59
+   }
+  ],
+  "below": [
+   {
+    "cls": "bake-overlay",
+    "h": 94
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "lunch",
+  "phase": "BAKE",
+  "vp": "360x620",
+  "dough": {
+   "top": 207,
+   "bottom": 444,
+   "h": 237,
+   "w": 237
+  },
+  "stage": {
+   "top": 203,
+   "bottom": 448,
+   "h": 245,
+   "w": 360
+  },
+  "bar": {
+   "top": 550,
+   "bottom": 620,
+   "h": 70,
+   "w": 360
+  },
+  "hud": {
+   "top": 64,
+   "bottom": 97,
+   "h": 33,
+   "w": 336
+  },
+  "tray": null,
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "mission-hud",
+    "h": 33
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 59
+   }
+  ],
+  "below": [
+   {
+    "cls": "bake-overlay",
+    "h": 94
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "lunch",
+  "phase": "CUT",
+  "vp": "390x844",
+  "dough": {
+   "top": 286,
+   "bottom": 644,
+   "h": 359,
+   "w": 358
+  },
+  "stage": {
+   "top": 188,
+   "bottom": 742,
+   "h": 554,
+   "w": 390
+  },
+  "bar": {
+   "top": 774,
+   "bottom": 844,
+   "h": 70,
+   "w": 390
+  },
+  "hud": {
+   "top": 64,
+   "bottom": 97,
+   "h": 33,
+   "w": 366
+  },
+  "tray": null,
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "mission-hud",
+    "h": 33
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 44
+   }
+  ],
+  "below": [
+   {
+    "cls": "cut-progress-readout",
+    "h": 24
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "lunch",
+  "phase": "CUT",
+  "vp": "360x800",
+  "dough": {
+   "top": 277,
+   "bottom": 609,
+   "h": 331,
+   "w": 328
+  },
+  "stage": {
+   "top": 188,
+   "bottom": 698,
+   "h": 510,
+   "w": 360
+  },
+  "bar": {
+   "top": 730,
+   "bottom": 800,
+   "h": 70,
+   "w": 360
+  },
+  "hud": {
+   "top": 64,
+   "bottom": 97,
+   "h": 33,
+   "w": 336
+  },
+  "tray": null,
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "mission-hud",
+    "h": 33
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 44
+   }
+  ],
+  "below": [
+   {
+    "cls": "cut-progress-readout",
+    "h": 24
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "lunch",
+  "phase": "CUT",
+  "vp": "390x664",
+  "dough": {
+   "top": 196,
+   "bottom": 554,
+   "h": 359,
+   "w": 358
+  },
+  "stage": {
+   "top": 188,
+   "bottom": 562,
+   "h": 374,
+   "w": 390
+  },
+  "bar": {
+   "top": 594,
+   "bottom": 664,
+   "h": 70,
+   "w": 390
+  },
+  "hud": {
+   "top": 64,
+   "bottom": 97,
+   "h": 33,
+   "w": 366
+  },
+  "tray": null,
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "mission-hud",
+    "h": 33
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 44
+   }
+  ],
+  "below": [
+   {
+    "cls": "cut-progress-readout",
+    "h": 24
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ },
+ {
+  "mode": "lunch",
+  "phase": "CUT",
+  "vp": "360x620",
+  "dough": {
+   "top": 192,
+   "bottom": 514,
+   "h": 322,
+   "w": 322
+  },
+  "stage": {
+   "top": 188,
+   "bottom": 518,
+   "h": 330,
+   "w": 360
+  },
+  "bar": {
+   "top": 550,
+   "bottom": 620,
+   "h": 70,
+   "w": 360
+  },
+  "hud": {
+   "top": 64,
+   "bottom": 97,
+   "h": 33,
+   "w": 336
+  },
+  "tray": null,
+  "readout": null,
+  "above": [
+   {
+    "cls": "app-header",
+    "h": 56
+   },
+   {
+    "cls": "mission-hud",
+    "h": 33
+   },
+   {
+    "cls": "making-step-tabs",
+    "h": 44
+   },
+   {
+    "cls": "order-card",
+    "h": 44
+   }
+  ],
+  "below": [
+   {
+    "cls": "cut-progress-readout",
+    "h": 24
+   },
+   {
+    "cls": "action-row",
+    "h": 70
+   }
+  ],
+  "overflowX": 0,
+  "overflowY": 0
+ }
+]
