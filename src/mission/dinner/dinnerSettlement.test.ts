@@ -84,19 +84,29 @@ function realRun(completeCount: number, lastAtMs: number): DinnerRunState {
   return run;
 }
 
-/** A synthetic CLEARED run of DM-A (for fine-grained clear times). */
+/** Long enough for every fixture clear time (the boundaries go past 300 000 ms). */
+const SYNTHETIC_DURATION = 1_000_000;
+
+/** A synthetic CLEARED run of DM-A (for fine-grained clear times). The outcome is derived from the
+ *  clock exactly as the run machine does (`endedAt = startedAt + clearMs`) unless overridden. */
 function clearedRun(clearMs: number, overrides: Partial<DinnerRunState> = {}): DinnerRunState {
+  const startedAt = overrides.clock?.startedAt ?? T0;
   return {
     missionId: "dm-a",
     revision: DM_A.revision,
     status: "CLEARED",
     targetRecipeIds: DM_A_IDS,
     completedRecipeIds: DM_A_IDS,
-    clock: { startedAt: T0, endsAt: T0 + DURATION },
+    clock: { startedAt, endsAt: startedAt + SYNTHETIC_DURATION },
     attempts: [],
-    outcome: { kind: "CLEAR", endedAt: T0 + clearMs, clearMs },
+    outcome: { kind: "CLEAR", endedAt: startedAt + clearMs, clearMs },
     ...overrides,
   };
+}
+
+/** A later run (retry / next session) starting at `startedAt`. */
+function laterRun(clearMs: number, startedAt: number): DinnerRunState {
+  return clearedRun(clearMs, { clock: { startedAt, endsAt: startedAt + SYNTHETIC_DURATION } });
 }
 
 function input(over: Partial<DinnerSettlementInput> = {}): DinnerSettlementInput {
@@ -122,7 +132,7 @@ describe("first clear / repeat clear (OD-DM4-1, E01, E06)", () => {
 
   it("E06: once the first clear is rewarded, a later run (retry / reload) pays the repeat schedule", () => {
     const first = settle({ run: clearedRun(120_000) });
-    const retryRun = clearedRun(120_000, { clock: { startedAt: T0 + 500_000, endsAt: T0 + 800_000 } });
+    const retryRun = laterRun(120_000, T0 + 5_000_000);
     const second = settle({ run: retryRun, record: first.record, settledRunKey: first.runKey });
     expect(second).toMatchObject({ schedule: "REPEAT_CLEAR", tier: "SILVER", pitz: 45 });
     expect(second.record.clears).toBe(2);
@@ -264,7 +274,7 @@ describe("reward table unavailable (E12)", () => {
 
   it("the first-clear entitlement survives an unpaid clear and is used by the first real payment", () => {
     const unpaid = settle({ table: null });
-    const paid = settle({ record: unpaid.record, run: clearedRun(80_000, { clock: { startedAt: T0 + 1, endsAt: T0 + 2 } }) });
+    const paid = settle({ record: unpaid.record, run: laterRun(80_000, T0 + 1) });
     expect(paid).toMatchObject({ schedule: "FIRST_CLEAR", pitz: 250 });
     expect(paid.record).toMatchObject({ clears: 2, firstClearRewarded: true });
   });
@@ -287,7 +297,7 @@ describe("exactly once / replay (OD-DM4-3, E02, E03, E05)", () => {
 
   it("a run key is mission + revision + start instant", () => {
     expect(dinnerRunKey(clearedRun(1))).toBe(`dm-a@1#${T0}`);
-    expect(dinnerRunKey(clearedRun(1, { clock: { startedAt: T0 + 1, endsAt: T0 + 2 } }))).not.toBe(dinnerRunKey(clearedRun(1)));
+    expect(dinnerRunKey(laterRun(1, T0 + 1))).not.toBe(dinnerRunKey(clearedRun(1)));
   });
 
   it("E03: TICK / ABANDON after CLEAR cannot change the run, so the decision is unchanged", () => {
@@ -302,7 +312,7 @@ describe("exactly once / replay (OD-DM4-3, E02, E03, E05)", () => {
     let settledRunKey: string | null = null;
     const pays: number[] = [];
     for (let i = 0; i < 5; i += 1) {
-      const d = settle({ run: clearedRun(80_000, { clock: { startedAt: T0 + i * 1_000_000, endsAt: T0 + i * 1_000_000 + DURATION } }), record: rec, settledRunKey });
+      const d = settle({ run: laterRun(80_000, T0 + i * 10_000_000), record: rec, settledRunKey });
       pays.push(d.pitz);
       rec = d.record;
       settledRunKey = d.runKey;
@@ -341,6 +351,14 @@ describe("malformed input fails closed (nothing paid, nothing recorded)", () => 
     ["stale run revision", { run: clearedRun(1, { revision: 2 }) }],
     ["mission revision not a positive integer", { mission: { ...DM_A, revision: 0 } as DinnerMissionDefinition }],
     ["broken clock", { run: clearedRun(1, { clock: null as unknown as DinnerRunState["clock"] }) }],
+    ["non-finite endsAt", { run: clearedRun(1, { clock: { startedAt: T0, endsAt: Number.POSITIVE_INFINITY } }) }],
+    ["endsAt not after startedAt", { run: clearedRun(1, { clock: { startedAt: T0, endsAt: T0 } }) }],
+    ["clear at the deadline", { run: clearedRun(1, { clock: { startedAt: T0, endsAt: T0 + 50_000 }, outcome: { kind: "CLEAR", endedAt: T0 + 50_000, clearMs: 50_000 } }) }],
+    ["clear after the deadline", { run: clearedRun(1, { clock: { startedAt: T0, endsAt: T0 + 50_000 }, outcome: { kind: "CLEAR", endedAt: T0 + 60_000, clearMs: 60_000 } }) }],
+    ["clearMs shorter than endedAt - startedAt (fake GOLD)", { run: clearedRun(1, { outcome: { kind: "CLEAR", endedAt: T0 + 200_000, clearMs: 1_000 } }) }],
+    ["clearMs longer than endedAt - startedAt", { run: clearedRun(1, { outcome: { kind: "CLEAR", endedAt: T0 + 1_000, clearMs: 2_000 } }) }],
+    ["endedAt before startedAt", { run: clearedRun(1, { outcome: { kind: "CLEAR", endedAt: T0 - 1, clearMs: 0 } }) }],
+    ["non-finite endedAt", { run: clearedRun(1, { outcome: { kind: "CLEAR", endedAt: Number.NaN, clearMs: 1 } }) }],
     ["record: string", { record: "x" as unknown as DinnerMissionRecord }],
     ["record: negative clears", { record: record({ clears: -1 }) }],
     ["record: fractional revision", { record: record({ revision: 1.5 }) }],
@@ -422,6 +440,23 @@ describe("economy invariants of a tuned table (OD-DM4-1 I1..I4; limits are input
   it("I3: repeat must pay less than the first clear", () => {
     const t = { ...TABLE, pitz: { firstClear: TABLE.pitz!.repeatClear, repeatClear: TABLE.pitz!.repeatClear } };
     expect(validateDinnerRewardEconomy(t, LIMITS).join()).toContain("I3");
+  });
+
+  it("I3 is checked per tier, not only at the maxima (Codex review on 5770016)", () => {
+    // Max repeat 110 < max first 200, yet SILVER / BRONZE / no-tier repeats pay 110 > 100.
+    const t: DinnerRewardTable = {
+      ...TABLE,
+      pitz: {
+        firstClear: { clear: 100, tierBonus: { GOLD: 100, SILVER: 0, BRONZE: 0 } },
+        repeatClear: { clear: 110, tierBonus: { GOLD: 0, SILVER: 0, BRONZE: 0 } },
+      },
+    };
+    const problems = validateDinnerRewardEconomy(t, { ...LIMITS, fastestHumanClearMs: 600_000 });
+    expect(problems.filter((p) => p.startsWith("I3"))).toEqual([
+      "I3: repeat clear (110) must pay less than the first clear (100) at SILVER",
+      "I3: repeat clear (110) must pay less than the first clear (100) at BRONZE",
+      "I3: repeat clear (110) must pay less than the first clear (100) at no tier",
+    ]);
   });
 
   it("I4: tier bonuses must be ordered", () => {

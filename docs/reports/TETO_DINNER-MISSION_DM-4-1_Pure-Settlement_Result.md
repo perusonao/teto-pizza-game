@@ -15,7 +15,7 @@
 | file | 変更 |
 |---|---|
 | `src/mission/dinner/dinnerSettlement.ts`（新規） | 下の表を参照 |
-| `src/mission/dinner/dinnerSettlement.test.ts`（新規） | 82 tests |
+| `src/mission/dinner/dinnerSettlement.test.ts`（新規） | 91 tests（review 対応後） |
 | `src/mission/dinner/dinnerRun.test.ts` | 既存の「Dinner modules import no Dex writer / Lunch Rush / gameReducer / persistence」guard の file allowlist に `dinnerSettlement.ts` を追加した。追加によって、その guard が新しい module にも適用される |
 
 `dinnerSettlement.ts` の中身:
@@ -49,7 +49,7 @@ production の bundle にこの module は含まれていない。どこから�
 
 record の更新: `clears` は +1、`bestClearMs` は厳密に短いときだけ、`bestTier` は厳密に良いときだけ更新する。`firstClearRewarded` は、実際に支払ったときだけ true になる。
 
-## 3. Tests（`dinnerSettlement.test.ts`、82 件）
+## 3. Tests（`dinnerSettlement.test.ts`、91 件。review 対応後）
 
 依頼された最低限の項目と、Phase 4-0 の E-ID の対応:
 
@@ -100,14 +100,14 @@ record の更新: `clears` は +1、`bestClearMs` は厳密に短いときだけ
 | M15: 負 / 非有限の clearMs を受け入れる | DETECTED（5） |
 | M16: I2（LR の Pitz/分）の検査を外す | DETECTED（1） |
 
-**最終結果: 18 / 18 が DETECTED。**
+**初回の結果: 18 / 18 が DETECTED。** review 対応後は §7 の 21 / 21。
 
 ## 5. Verification
 
 | check | result |
 |---|---|
-| focused（`src/mission/dinner`） | 5 files、186 passed |
-| full Vitest | **193 files、4160 passed / 1 skipped**（既存の skip） |
+| focused（`src/mission/dinner`） | 5 files、186 passed（初回の `5770016`）→ **195 passed**（review 対応後） |
+| full Vitest | 193 files、4160 passed / 1 skipped（初回）→ **196 files、4211 passed / 1 skipped**（review 対応後。main `7bb0116` を取り込み済み。skip は既存のもの） |
 | `tsc -b` | clean |
 | `oxlint` | 0 warnings / 0 errors |
 | `npm run build` | success（`dist` に `dinnerSettlement` は含まれない。unwired） |
@@ -118,3 +118,37 @@ record の更新: `clears` は +1、`bestClearMs` は厳密に短いときだけ
 - **壊れた record:** pure layer は fail closed（INVALID_INPUT）。DM-4-2 の sanitize は、壊れた record を「捨てる（= 初回をもう一度払いうる）」か「保持して精算を止める」かを決める必要がある。改ざんされた local save の信頼度は、もともと低い。
 - **DM-4-3:** `dinnerResolve` の CLEAR 遷移で `decideDinnerSettlement` を 1 回呼ぶ。`SETTLE` のときだけ、Pitz と record と `session.settlement` を同じ state で更新する。table は `getDinnerRewardTable(mission.reward.tableId)` から取り、DM-5-2 までは untuned（0 Pitz）。
 - **DM-5-2:** production の table に `validateDinnerRewardEconomy` を適用する。limits は、上限の候補、`economy.ts` から導出した LR の Pitz/分、DM-5-1 で実測した最速の clear。
+
+## 7. Review follow-up（Codex、`5770016` に対するもの）
+
+最初の HEAD `5770016` の CI は 9 / 9 green だった（build、classify、layout-chromium、Layout Contract Gate、WebKit の 4 shard、WebKit Gate）。Codex が P2 を 2 件出した。どちらも妥当で、DM-4-1 の scope 内なので修正した。
+
+| finding | 修正 | test |
+|---|---|---|
+| **P2:** I3 が schedule ごとの最大値しか比べていない。たとえば first が base 100 + GOLD 100、repeat が base 110 だと、最大値の比較（110 < 200）は通る。しかし SILVER / BRONZE / tier なしでは repeat の 110 が first の 100 を上回る | I3 を **結果ごと**（GOLD / SILVER / BRONZE / tier なし）に「repeat < first」で検査するようにした | 指摘の例をそのまま使い、SILVER / BRONZE / tier なしの 3 件が出ることを固定した |
+| **P2:** CLEARED の outcome を clock と照合していない。非有限の `endsAt`、deadline 以後の `endedAt`、`clearMs ≠ endedAt − startedAt` を受け入れ、偽の高 tier で精算しうる | clock（`startedAt` と `endsAt` が有限で、`startedAt < endsAt`）と outcome（`endedAt` が有限で、`startedAt` 以上かつ `endsAt` より前、`clearMs === endedAt − startedAt`）を検証する。run machine（`dinnerRunReducer`）が作れない CLEAR は INVALID_INPUT（fail closed）。**deadline が優先** する既存の規則とも一致する | malformed の 8 件（非有限の endsAt、endsAt ≤ startedAt、deadline ちょうど、deadline 後、clearMs が短すぎる = 偽の GOLD、長すぎる、endedAt < startedAt、非有限の endedAt）。実際の run machine の CLEAR は引き続き精算される |
+
+test の fixture（`clearedRun`）は、run machine と同じく outcome を clock から導出するように直した（`endedAt = startedAt + clearMs`、synthetic な制限時間は 1 000 000 ms）。retry / 連鎖の run は `laterRun` で作る。
+
+**Mutation（review 対応後）:** 既存の 18 件に次の 4 件を加えた。
+
+- M17: deadline の検査を外す
+- M18: clearMs の整合の検査を外す
+- M19: endsAt の検証を外す
+- M20: I3 を tier なしだけで検査する
+
+結果は **21 / 21 が DETECTED**。M15 は、clearMs の整合の検査も効くようになったので、failed の件数が 5 から 2 に変わった。ファイルは元に戻したことを確認した。
+
+**review で再確認した性質**（すべて test と mutant で固定されている）:
+
+| 性質 | 担保 |
+|---|---|
+| `firstClearRewarded` の exactly-once | M3、M4 |
+| table が使えないときは初回の権利を消費しない | E12、M3 |
+| 同じ run の replay を拒否する | M2 |
+| status と outcome の矛盾を拒否する | M1、M1b |
+| revision policy | M12 |
+| 壊れた record を勝手に作り直さない | M10 |
+| best time / best tier は単調にしか更新しない | M5、M6、M8、M9 |
+| production への接続が 0 | import の scan と build（`dist` に含まれない） |
+

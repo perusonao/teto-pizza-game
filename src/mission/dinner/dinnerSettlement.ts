@@ -216,11 +216,28 @@ export function decideDinnerSettlement(input: DinnerSettlementInput): DinnerSett
     if (!isPositiveInteger(mission.revision)) problems.push("mission revision must be a positive integer");
     else if (run.revision !== mission.revision) problems.push("run revision differs from the mission revision");
   }
-  if (typeof run.clock !== "object" || run.clock === null || !Number.isFinite(run.clock.startedAt)) {
-    problems.push("run clock is malformed");
-  }
   const clearMs = run.outcome.clearMs;
   if (!isClearMs(clearMs)) problems.push("clearMs must be a non-negative finite number");
+  // The clear must be one the run machine (./dinnerRun.ts) could have produced: a well-formed
+  // clock, `clearMs === endedAt - startedAt`, and strictly before the deadline (the deadline wins,
+  // a resolution at `endsAt` is TIME_UP). Anything else is a malformed state and fails closed.
+  const clock = run.clock;
+  if (
+    typeof clock !== "object" ||
+    clock === null ||
+    !Number.isFinite(clock.startedAt) ||
+    !Number.isFinite(clock.endsAt) ||
+    !(clock.startedAt < clock.endsAt)
+  ) {
+    problems.push("run clock is malformed");
+  } else {
+    const endedAt = run.outcome.endedAt;
+    if (!Number.isFinite(endedAt) || endedAt < clock.startedAt) problems.push("clear endedAt is malformed");
+    else {
+      if (!(endedAt < clock.endsAt)) problems.push("clear endedAt is not before the deadline");
+      if (clearMs !== endedAt - clock.startedAt) problems.push("clearMs differs from endedAt - startedAt");
+    }
+  }
   if (record !== undefined) {
     // A malformed record is never silently replaced: rebuilding it could pay the first clear twice.
     // Turning a corrupt save into `undefined` (or not) is DM-4-2's decision.
@@ -302,7 +319,12 @@ export function validateDinnerRewardEconomy(table: DinnerRewardTable, limits: Di
   if (repeatPerMinute > lunchRushPitzPerMinute) {
     problems.push(`I2: repeat clear earns ${repeatPerMinute.toFixed(1)} Pitz/min > Lunch Rush ${lunchRushPitzPerMinute.toFixed(1)}`);
   }
-  if (!(repeatMax < firstMax)) problems.push(`I3: repeat clear (${repeatMax}) must pay less than the first clear (${firstMax})`);
+  // I3 per result: for the same clear (each tier, and no tier) the repeat pays strictly less.
+  for (const tier of [...DINNER_CLEAR_TIERS, null]) {
+    const first = firstClear.clear + (tier ? firstClear.tierBonus[tier] : 0);
+    const repeat = repeatClear.clear + (tier ? repeatClear.tierBonus[tier] : 0);
+    if (!(repeat < first)) problems.push(`I3: repeat clear (${repeat}) must pay less than the first clear (${first}) at ${tier ?? "no tier"}`);
+  }
   for (const [name, payout] of [["first", firstClear], ["repeat", repeatClear]] as const) {
     const b = payout.tierBonus;
     if (!(b.GOLD >= b.SILVER && b.SILVER >= b.BRONZE && b.BRONZE >= 0)) {
