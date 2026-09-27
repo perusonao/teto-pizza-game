@@ -10,6 +10,8 @@ src / e2e / CSS / runtime recipe / PR #252 / DH4 はいずれも変更してい�
 | machine-readable | `docs/design/data/TETO_WAVE2_RUNTIME-RECIPE_CANDIDATES.json`（172 行 + focus checks + 5 wave options） |
 | generator / validator | `tools/progression2_wave2_candidates.py`（`--check` = 検証 + byte 比較）、入力 `tools/wave2_option_specs.json` |
 
+次段: Owner Decision Gate（W2-A、main `51e0923` で再監査）→ `docs/reports/TETO_WAVE2_W2A_OWNER-DECISION-GATE.md`。
+
 JSON が SSOT。本文の数値はすべて tool の出力を転記したもので、食い違えば JSON が正しい。
 
 ## 0. 読み直した authority

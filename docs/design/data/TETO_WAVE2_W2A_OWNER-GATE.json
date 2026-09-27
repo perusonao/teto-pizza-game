@@ -1,0 +1,1885 @@
+{
+ "schemaVersion": "teto-wave2-w2a-gate/1",
+ "generatedBy": "tools/progression2_wave2_w2a_gate.py",
+ "scope": "Owner Decision Gate for W2-A. Docs/data/tools only; nothing here is production authority.",
+ "inputHashes": {
+  "src/data/recipes.ts": "c845be9782278938",
+  "src/data/ingredients.ts": "7c748a13e88a7ab5",
+  "src/data/discoveryCatalog.ts": "6836afaab8b1b90a",
+  "src/data/discoveryLadder.ts": "6594d7761fc14eed",
+  "src/data/recipeSauceProfiles.ts": "54ecc9edcab345ec",
+  "src/data/cookingProfiles.ts": "dff5bf9963f39812",
+  "src/data/ingredientTaxonomy.ts": "697ab6cf5f99e705",
+  "src/data/referencePizza.ts": "79e95864dc5ae7f0",
+  "src/logic/materialShop.ts": "bdcd21ad03fbfe2a",
+  "src/logic/discovery/matcher.ts": "0722ce700ad0c0f6",
+  "src/logic/discovery/nearMiss.ts": "ef43ac3dc2448714",
+  "src/logic/discoveryLadder.ts": "6731d4f423526485",
+  "src/state/recipeChapters.ts": "0c6b232d69ca34bd",
+  "src/state/materialEntitlement.ts": "ab82c123065d73ac",
+  "src/logic/prepareDock.ts": "2ae60ec7871ddd41",
+  "src/mission/dinner/dinnerMission.ts": "0ca296709a496d4c"
+ },
+ "policy": {
+  "OD-W2-1": "APPEND_ONLY (Owner candidate): W1 steps 1..24 fixed; Wave 2 materials appended from step 25 with the REC-04 key-recipe rule applied to the delta only"
+ },
+ "checks": {
+  "L-1_w1LadderEqualsRuleDerivation": true,
+  "L-2_steps1to24Identical": true,
+  "L-3_wave2OnlyAt25Plus": true,
+  "L-4_existingSaveNextUnlockUnchanged": true,
+  "L-5_noIngredientUnlockCollision": true,
+  "L-6_deadlockCount": 0,
+  "L-7_unreachableRecipes": [],
+  "D-1_exactIdentityCollisions": 0
+ },
+ "ladder": [
+  {
+   "step": 1,
+   "ingredientIds": [
+    "egg"
+   ],
+   "keyRecipeId": "bismarck"
+  },
+  {
+   "step": 2,
+   "ingredientIds": [
+    "bacon"
+   ],
+   "keyRecipeId": "breakfast-pizza"
+  },
+  {
+   "step": 3,
+   "ingredientIds": [
+    "mushroom"
+   ],
+   "keyRecipeId": "funghi"
+  },
+  {
+   "step": 4,
+   "ingredientIds": [
+    "eggplant"
+   ],
+   "keyRecipeId": "melanzane-pizza"
+  },
+  {
+   "step": 5,
+   "ingredientIds": [
+    "parmigiano"
+   ],
+   "keyRecipeId": "parmigiana-pizza"
+  },
+  {
+   "step": 6,
+   "ingredientIds": [
+    "pepperoni"
+   ],
+   "keyRecipeId": "pepperoni"
+  },
+  {
+   "step": 7,
+   "ingredientIds": [
+    "sausage"
+   ],
+   "keyRecipeId": "salsiccia"
+  },
+  {
+   "step": 8,
+   "ingredientIds": [
+    "ham"
+   ],
+   "keyRecipeId": "meat-lovers"
+  },
+  {
+   "step": 9,
+   "ingredientIds": [
+    "corn"
+   ],
+   "keyRecipeId": "bambino"
+  },
+  {
+   "step": 10,
+   "ingredientIds": [
+    "pineapple"
+   ],
+   "keyRecipeId": "hawaiian"
+  },
+  {
+   "step": 11,
+   "ingredientIds": [
+    "black-olive",
+    "oregano"
+   ],
+   "keyRecipeId": "capricciosa"
+  },
+  {
+   "step": 12,
+   "ingredientIds": [
+    "onion"
+   ],
+   "keyRecipeId": "pizza-portuguesa"
+  },
+  {
+   "step": 13,
+   "ingredientIds": [
+    "olive-oil"
+   ],
+   "keyRecipeId": "fugazza"
+  },
+  {
+   "step": 14,
+   "ingredientIds": [
+    "garlic"
+   ],
+   "keyRecipeId": "marinara"
+  },
+  {
+   "step": 15,
+   "ingredientIds": [
+    "anchovy"
+   ],
+   "keyRecipeId": "napoletana"
+  },
+  {
+   "step": 16,
+   "ingredientIds": [
+    "tuna"
+   ],
+   "keyRecipeId": "tonno-e-cipolla"
+  },
+  {
+   "step": 17,
+   "ingredientIds": [
+    "pesto"
+   ],
+   "keyRecipeId": "pesto-tonno"
+  },
+  {
+   "step": 18,
+   "ingredientIds": [
+    "cherry-tomato"
+   ],
+   "keyRecipeId": "genovese"
+  },
+  {
+   "step": 19,
+   "ingredientIds": [
+    "clam"
+   ],
+   "keyRecipeId": "new-haven-apizza"
+  },
+  {
+   "step": 20,
+   "ingredientIds": [
+    "fresh-tomato"
+   ],
+   "keyRecipeId": "pesto-caprese"
+  },
+  {
+   "step": 21,
+   "ingredientIds": [
+    "potato"
+   ],
+   "keyRecipeId": "pesto-patate"
+  },
+  {
+   "step": 22,
+   "ingredientIds": [
+    "rosemary"
+   ],
+   "keyRecipeId": "pizza-bianca"
+  },
+  {
+   "step": 23,
+   "ingredientIds": [
+    "capers"
+   ],
+   "keyRecipeId": "puttanesca-pizza"
+  },
+  {
+   "step": 24,
+   "ingredientIds": [
+    "fontina",
+    "gorgonzola"
+   ],
+   "keyRecipeId": "quattro-formaggi"
+  },
+  {
+   "step": 25,
+   "ingredientIds": [
+    "prosciutto-crudo"
+   ],
+   "keyRecipeId": "prosciutto-funghi"
+  },
+  {
+   "step": 26,
+   "ingredientIds": [
+    "fromage-blanc-sauce"
+   ],
+   "keyRecipeId": "flammkuchen"
+  },
+  {
+   "step": 27,
+   "ingredientIds": [
+    "arugula"
+   ],
+   "keyRecipeId": "jamon-serrano-pizza"
+  },
+  {
+   "step": 28,
+   "ingredientIds": [
+    "shrimp"
+   ],
+   "keyRecipeId": "pesto-gamberi"
+  },
+  {
+   "step": 29,
+   "ingredientIds": [
+    "chicken"
+   ],
+   "keyRecipeId": "pesto-pollo"
+  },
+  {
+   "step": 30,
+   "ingredientIds": [
+    "parsley"
+   ],
+   "keyRecipeId": "vongole"
+  },
+  {
+   "step": 31,
+   "ingredientIds": [
+    "bell-pepper",
+    "zucchini"
+   ],
+   "keyRecipeId": "pesto-vegetariana"
+  }
+ ],
+ "existingSaveNextUnlock": [
+  {
+   "discoveredCount": 0,
+   "w1NextStep": 1,
+   "w2aNextStep": 1,
+   "w2aNextMaterials": [
+    "egg"
+   ],
+   "newlyReachedAtThisCount": [],
+   "unchanged": true
+  },
+  {
+   "discoveredCount": 1,
+   "w1NextStep": 2,
+   "w2aNextStep": 2,
+   "w2aNextMaterials": [
+    "bacon"
+   ],
+   "newlyReachedAtThisCount": [],
+   "unchanged": true
+  },
+  {
+   "discoveredCount": 2,
+   "w1NextStep": 3,
+   "w2aNextStep": 3,
+   "w2aNextMaterials": [
+    "mushroom"
+   ],
+   "newlyReachedAtThisCount": [],
+   "unchanged": true
+  },
+  {
+   "discoveredCount": 3,
+   "w1NextStep": 4,
+   "w2aNextStep": 4,
+   "w2aNextMaterials": [
+    "eggplant"
+   ],
+   "newlyReachedAtThisCount": [],
+   "unchanged": true
+  },
+  {
+   "discoveredCount": 4,
+   "w1NextStep": 5,
+   "w2aNextStep": 5,
+   "w2aNextMaterials": [
+    "parmigiano"
+   ],
+   "newlyReachedAtThisCount": [],
+   "unchanged": true
+  },
+  {
+   "discoveredCount": 5,
+   "w1NextStep": 6,
+   "w2aNextStep": 6,
+   "w2aNextMaterials": [
+    "pepperoni"
+   ],
+   "newlyReachedAtThisCount": [],
+   "unchanged": true
+  },
+  {
+   "discoveredCount": 6,
+   "w1NextStep": 7,
+   "w2aNextStep": 7,
+   "w2aNextMaterials": [
+    "sausage"
+   ],
+   "newlyReachedAtThisCount": [],
+   "unchanged": true
+  },
+  {
+   "discoveredCount": 7,
+   "w1NextStep": 8,
+   "w2aNextStep": 8,
+   "w2aNextMaterials": [
+    "ham"
+   ],
+   "newlyReachedAtThisCount": [],
+   "unchanged": true
+  },
+  {
+   "discoveredCount": 8,
+   "w1NextStep": 9,
+   "w2aNextStep": 9,
+   "w2aNextMaterials": [
+    "corn"
+   ],
+   "newlyReachedAtThisCount": [],
+   "unchanged": true
+  },
+  {
+   "discoveredCount": 9,
+   "w1NextStep": 10,
+   "w2aNextStep": 10,
+   "w2aNextMaterials": [
+    "pineapple"
+   ],
+   "newlyReachedAtThisCount": [],
+   "unchanged": true
+  },
+  {
+   "discoveredCount": 10,
+   "w1NextStep": 11,
+   "w2aNextStep": 11,
+   "w2aNextMaterials": [
+    "black-olive",
+    "oregano"
+   ],
+   "newlyReachedAtThisCount": [],
+   "unchanged": true
+  },
+  {
+   "discoveredCount": 11,
+   "w1NextStep": 12,
+   "w2aNextStep": 12,
+   "w2aNextMaterials": [
+    "onion"
+   ],
+   "newlyReachedAtThisCount": [],
+   "unchanged": true
+  },
+  {
+   "discoveredCount": 12,
+   "w1NextStep": 13,
+   "w2aNextStep": 13,
+   "w2aNextMaterials": [
+    "olive-oil"
+   ],
+   "newlyReachedAtThisCount": [],
+   "unchanged": true
+  },
+  {
+   "discoveredCount": 13,
+   "w1NextStep": 14,
+   "w2aNextStep": 14,
+   "w2aNextMaterials": [
+    "garlic"
+   ],
+   "newlyReachedAtThisCount": [],
+   "unchanged": true
+  },
+  {
+   "discoveredCount": 14,
+   "w1NextStep": 15,
+   "w2aNextStep": 15,
+   "w2aNextMaterials": [
+    "anchovy"
+   ],
+   "newlyReachedAtThisCount": [],
+   "unchanged": true
+  },
+  {
+   "discoveredCount": 15,
+   "w1NextStep": 16,
+   "w2aNextStep": 16,
+   "w2aNextMaterials": [
+    "tuna"
+   ],
+   "newlyReachedAtThisCount": [],
+   "unchanged": true
+  },
+  {
+   "discoveredCount": 16,
+   "w1NextStep": 17,
+   "w2aNextStep": 17,
+   "w2aNextMaterials": [
+    "pesto"
+   ],
+   "newlyReachedAtThisCount": [],
+   "unchanged": true
+  },
+  {
+   "discoveredCount": 17,
+   "w1NextStep": 18,
+   "w2aNextStep": 18,
+   "w2aNextMaterials": [
+    "cherry-tomato"
+   ],
+   "newlyReachedAtThisCount": [],
+   "unchanged": true
+  },
+  {
+   "discoveredCount": 18,
+   "w1NextStep": 19,
+   "w2aNextStep": 19,
+   "w2aNextMaterials": [
+    "clam"
+   ],
+   "newlyReachedAtThisCount": [],
+   "unchanged": true
+  },
+  {
+   "discoveredCount": 19,
+   "w1NextStep": 20,
+   "w2aNextStep": 20,
+   "w2aNextMaterials": [
+    "fresh-tomato"
+   ],
+   "newlyReachedAtThisCount": [],
+   "unchanged": true
+  },
+  {
+   "discoveredCount": 20,
+   "w1NextStep": 21,
+   "w2aNextStep": 21,
+   "w2aNextMaterials": [
+    "potato"
+   ],
+   "newlyReachedAtThisCount": [],
+   "unchanged": true
+  },
+  {
+   "discoveredCount": 21,
+   "w1NextStep": 22,
+   "w2aNextStep": 22,
+   "w2aNextMaterials": [
+    "rosemary"
+   ],
+   "newlyReachedAtThisCount": [],
+   "unchanged": true
+  },
+  {
+   "discoveredCount": 22,
+   "w1NextStep": 23,
+   "w2aNextStep": 23,
+   "w2aNextMaterials": [
+    "capers"
+   ],
+   "newlyReachedAtThisCount": [],
+   "unchanged": true
+  },
+  {
+   "discoveredCount": 23,
+   "w1NextStep": 24,
+   "w2aNextStep": 24,
+   "w2aNextMaterials": [
+    "fontina",
+    "gorgonzola"
+   ],
+   "newlyReachedAtThisCount": [],
+   "unchanged": true
+  },
+  {
+   "discoveredCount": 24,
+   "w1NextStep": null,
+   "w2aNextStep": 25,
+   "w2aNextMaterials": [
+    "prosciutto-crudo"
+   ],
+   "newlyReachedAtThisCount": [],
+   "unchanged": true
+  },
+  {
+   "discoveredCount": 25,
+   "w1NextStep": null,
+   "w2aNextStep": 26,
+   "w2aNextMaterials": [
+    "fromage-blanc-sauce"
+   ],
+   "newlyReachedAtThisCount": [
+    25
+   ],
+   "unchanged": true
+  }
+ ],
+ "deadlockCurve": [
+  {
+   "discoveredCount": 0,
+   "makeable": 1,
+   "slack": 0
+  },
+  {
+   "discoveredCount": 1,
+   "makeable": 2,
+   "slack": 0
+  },
+  {
+   "discoveredCount": 2,
+   "makeable": 3,
+   "slack": 0
+  },
+  {
+   "discoveredCount": 3,
+   "makeable": 4,
+   "slack": 0
+  },
+  {
+   "discoveredCount": 4,
+   "makeable": 5,
+   "slack": 0
+  },
+  {
+   "discoveredCount": 5,
+   "makeable": 6,
+   "slack": 0
+  },
+  {
+   "discoveredCount": 6,
+   "makeable": 7,
+   "slack": 0
+  },
+  {
+   "discoveredCount": 7,
+   "makeable": 8,
+   "slack": 0
+  },
+  {
+   "discoveredCount": 8,
+   "makeable": 9,
+   "slack": 0
+  },
+  {
+   "discoveredCount": 9,
+   "makeable": 10,
+   "slack": 0
+  },
+  {
+   "discoveredCount": 10,
+   "makeable": 11,
+   "slack": 0
+  },
+  {
+   "discoveredCount": 11,
+   "makeable": 12,
+   "slack": 0
+  },
+  {
+   "discoveredCount": 12,
+   "makeable": 14,
+   "slack": 1
+  },
+  {
+   "discoveredCount": 13,
+   "makeable": 15,
+   "slack": 1
+  },
+  {
+   "discoveredCount": 14,
+   "makeable": 16,
+   "slack": 1
+  },
+  {
+   "discoveredCount": 15,
+   "makeable": 17,
+   "slack": 1
+  },
+  {
+   "discoveredCount": 16,
+   "makeable": 18,
+   "slack": 1
+  },
+  {
+   "discoveredCount": 17,
+   "makeable": 19,
+   "slack": 1
+  },
+  {
+   "discoveredCount": 18,
+   "makeable": 20,
+   "slack": 1
+  },
+  {
+   "discoveredCount": 19,
+   "makeable": 21,
+   "slack": 1
+  },
+  {
+   "discoveredCount": 20,
+   "makeable": 22,
+   "slack": 1
+  },
+  {
+   "discoveredCount": 21,
+   "makeable": 23,
+   "slack": 1
+  },
+  {
+   "discoveredCount": 22,
+   "makeable": 24,
+   "slack": 1
+  },
+  {
+   "discoveredCount": 23,
+   "makeable": 25,
+   "slack": 1
+  },
+  {
+   "discoveredCount": 24,
+   "makeable": 26,
+   "slack": 1
+  },
+  {
+   "discoveredCount": 25,
+   "makeable": 27,
+   "slack": 1
+  },
+  {
+   "discoveredCount": 26,
+   "makeable": 28,
+   "slack": 1
+  },
+  {
+   "discoveredCount": 27,
+   "makeable": 29,
+   "slack": 1
+  },
+  {
+   "discoveredCount": 28,
+   "makeable": 30,
+   "slack": 1
+  },
+  {
+   "discoveredCount": 29,
+   "makeable": 31,
+   "slack": 1
+  },
+  {
+   "discoveredCount": 30,
+   "makeable": 32,
+   "slack": 1
+  },
+  {
+   "discoveredCount": 31,
+   "makeable": 34,
+   "slack": 2
+  },
+  {
+   "discoveredCount": 32,
+   "makeable": 34,
+   "slack": 1
+  },
+  {
+   "discoveredCount": 33,
+   "makeable": 34,
+   "slack": 0
+  }
+ ],
+ "collisionAudit": {
+  "population": 34,
+  "pairs": 561,
+  "exactCollisions": [],
+  "d1Pairs": [
+   {
+    "a": "bismarck",
+    "b": "breakfast-pizza",
+    "aIsWave2": false,
+    "bIsWave2": false,
+    "diff": [
+     "bacon"
+    ]
+   },
+   {
+    "a": "funghi",
+    "b": "prosciutto-funghi",
+    "aIsWave2": false,
+    "bIsWave2": true,
+    "diff": [
+     "prosciutto-crudo"
+    ]
+   },
+   {
+    "a": "margherita",
+    "b": "melanzane-pizza",
+    "aIsWave2": false,
+    "bIsWave2": false,
+    "diff": [
+     "eggplant"
+    ]
+   },
+   {
+    "a": "melanzane-pizza",
+    "b": "parmigiana-pizza",
+    "aIsWave2": false,
+    "bIsWave2": false,
+    "diff": [
+     "parmigiano"
+    ]
+   }
+  ],
+  "d2PairCount": 16,
+  "d1PairsRuntimeOnlyBefore": 3,
+  "d1PairsAfter": 4,
+  "d2PairsRuntimeOnlyBefore": 13
+ },
+ "recipes": [
+  {
+   "evidenceId": "brazilian-calabresa-pizzadb-p10",
+   "proposedRuntimeId": "brazilian-calabresa",
+   "nameJa": "ブラジリアン・カラブレーザ",
+   "origin": "ブラジル / サンパウロ",
+   "ingredients": [
+    "black-olive",
+    "onion",
+    "oregano",
+    "sausage",
+    "tomato-sauce"
+   ],
+   "ingredientCategories": {
+    "black-olive": "topping",
+    "onion": "topping",
+    "oregano": "topping",
+    "sausage": "topping",
+    "tomato-sauce": "sauce"
+   },
+   "sauce": {
+    "ingredientId": "tomato-sauce",
+    "interaction": "PAINT",
+    "evidenceFamily": "トマトソース",
+    "evidenceRule": "family label names the existing tomato-sauce"
+   },
+   "cookingProfile": {
+    "steps": [
+     "DOUGH",
+     "SAUCE",
+     "TOPPING",
+     "CUT"
+    ],
+    "derivedBy": "deriveCoreSteps (category-derived) + CUT allowlist"
+   },
+   "cut": {
+    "profile": "STANDARD_6",
+    "doughEvidence": "薄めの生地"
+   },
+   "discoveryIdentity": {
+    "targetId": "brazilian-calabresa-pizzadb-p10",
+    "items": [
+     "black-olive",
+     "onion",
+     "oregano",
+     "sausage",
+     "tomato-sauce"
+    ],
+    "sauceBase": [
+     "tomato-sauce"
+    ],
+    "identityDimensions": "DEFAULT (no capability)",
+    "nearestRuntime": []
+   },
+   "newIngredients": [],
+   "progression": {
+    "keyStep": 12,
+    "keyStepMaterials": [
+     "onion"
+    ],
+    "discoverableAtDiscoveredCount": 12,
+    "priceTier": "T2",
+    "chapter": 2,
+    "note": "no own step: makeable from W1 materials"
+   },
+   "expectedScoring": {
+    "components": {
+     "sauce": 52,
+     "pieces": 16,
+     "recipe": 12,
+     "bake": 20
+    },
+    "sauceReference": "computeMechanicalSauceReference (ingredient-agnostic; same target as every recipe)",
+    "starCeiling": 5,
+    "calibration": "NOT_CALIBRATED: minCount / bakeTarget / reference piece layout are OD-W2-6 authoring values; expected curve = the W1 analog below",
+    "w1Analog": "salsiccia / capricciosa"
+   },
+   "evidence": {
+    "phase1Status": "READY_WITH_REVIEW",
+    "evidenceOrigin": "comparison_table_sample",
+    "source": "https://pizzadb.jp/compare/world-pizzas/page/10/",
+    "tokenDispositions": [
+     "exact_alias",
+     "likely_alias"
+    ],
+    "likelyAliasTokens": [
+     "オリーブ->black-olive"
+    ],
+    "reviewItems": [
+     "NAMING_CLUSTER:NC-4-calabresa"
+    ],
+    "strength": "MEDIUM"
+   },
+   "unresolved": [
+    "オリーブ -> black-olive is a likely_alias (colour not stated in PIZZA DB)",
+    "NAMING_CLUSTER NC-4-calabresa (アルゼンチン風カラブレーサ is a blocked sibling)",
+    "no cheese in evidence -> no CHEESE step (same as marinara / puttanesca)"
+   ]
+  },
+  {
+   "evidenceId": "vongole-pizzadb",
+   "proposedRuntimeId": "vongole",
+   "nameJa": "ヴォンゴレピザ",
+   "origin": null,
+   "ingredients": [
+    "clam",
+    "garlic",
+    "olive-oil",
+    "parsley"
+   ],
+   "ingredientCategories": {
+    "clam": "topping",
+    "garlic": "topping",
+    "olive-oil": "sauce",
+    "parsley": "topping"
+   },
+   "sauce": {
+    "ingredientId": "olive-oil",
+    "interaction": "PAINT_TEMPORARY",
+    "evidenceFamily": "ノンソース",
+    "evidenceRule": "explicitly no sauce"
+   },
+   "cookingProfile": {
+    "steps": [
+     "DOUGH",
+     "SAUCE",
+     "TOPPING"
+    ],
+    "derivedBy": "deriveCoreSteps (category-derived) + CUT allowlist"
+   },
+   "cut": {
+    "profile": "NONE",
+    "doughEvidence": null
+   },
+   "discoveryIdentity": {
+    "targetId": "vongole-pizzadb",
+    "items": [
+     "clam",
+     "garlic",
+     "olive-oil",
+     "parsley"
+    ],
+    "sauceBase": [
+     "olive-oil"
+    ],
+    "identityDimensions": "DEFAULT (no capability)",
+    "nearestRuntime": []
+   },
+   "newIngredients": [
+    "parsley"
+   ],
+   "progression": {
+    "keyStep": 30,
+    "keyStepMaterials": [
+     "parsley"
+    ],
+    "discoverableAtDiscoveredCount": 30,
+    "priceTier": "T4",
+    "chapter": 4,
+    "note": "keyed by an appended W2 step"
+   },
+   "expectedScoring": {
+    "components": {
+     "sauce": 52,
+     "pieces": 16,
+     "recipe": 12,
+     "bake": 20
+    },
+    "sauceReference": "computeMechanicalSauceReference (ingredient-agnostic; same target as every recipe)",
+    "starCeiling": 5,
+    "calibration": "NOT_CALIBRATED: minCount / bakeTarget / reference piece layout are OD-W2-6 authoring values; expected curve = the W1 analog below",
+    "w1Analog": "new-haven-apizza"
+   },
+   "evidence": {
+    "phase1Status": "READY",
+    "evidenceOrigin": "comparison_table_sample",
+    "source": "https://pizzadb.jp/compare/world-pizzas/ (original Phase 0B sample batch, page 1)",
+    "tokenDispositions": [
+     "phase0b_sample_canonical"
+    ],
+    "likelyAliasTokens": [],
+    "reviewItems": [],
+    "strength": "HIGH"
+   },
+   "unresolved": [
+    "sauce family label is ノンソース but olive-oil is a listed spread layer; represented as the olive-oil PAINT_TEMPORARY base like fugazza / new-haven (Phase-1 FULL); a drizzle reading would move it to W2-D",
+    "dough evidence absent -> no CUT under the New Haven precedent (OD-W2-4)",
+    "no cheese -> no CHEESE step"
+   ]
+  },
+  {
+   "evidenceId": "flammkuchen-pizzadb",
+   "proposedRuntimeId": "flammkuchen",
+   "nameJa": "タルトフランベ",
+   "origin": null,
+   "ingredients": [
+    "bacon",
+    "fromage-blanc-sauce",
+    "onion"
+   ],
+   "ingredientCategories": {
+    "bacon": "topping",
+    "fromage-blanc-sauce": "sauce",
+    "onion": "topping"
+   },
+   "sauce": {
+    "ingredientId": "fromage-blanc-sauce",
+    "interaction": "PAINT (new profile)",
+    "evidenceFamily": "ホワイトソース",
+    "evidenceRule": "generic white sauce -- ambiguous in the canonicalizer (ホワイトソース); satisfied only by a listed white-sauce item"
+   },
+   "cookingProfile": {
+    "steps": [
+     "DOUGH",
+     "SAUCE",
+     "TOPPING"
+    ],
+    "derivedBy": "deriveCoreSteps (category-derived) + CUT allowlist"
+   },
+   "cut": {
+    "profile": "NONE",
+    "doughEvidence": null
+   },
+   "discoveryIdentity": {
+    "targetId": "flammkuchen-pizzadb",
+    "items": [
+     "bacon",
+     "fromage-blanc-sauce",
+     "onion"
+    ],
+    "sauceBase": [
+     "fromage-blanc-sauce"
+    ],
+    "identityDimensions": "DEFAULT (no capability)",
+    "nearestRuntime": []
+   },
+   "newIngredients": [
+    "fromage-blanc-sauce"
+   ],
+   "progression": {
+    "keyStep": 26,
+    "keyStepMaterials": [
+     "fromage-blanc-sauce"
+    ],
+    "discoverableAtDiscoveredCount": 26,
+    "priceTier": "T3",
+    "chapter": 3,
+    "note": "keyed by an appended W2 step"
+   },
+   "expectedScoring": {
+    "components": {
+     "sauce": 52,
+     "pieces": 16,
+     "recipe": 12,
+     "bake": 20
+    },
+    "sauceReference": "computeMechanicalSauceReference (ingredient-agnostic; same target as every recipe)",
+    "starCeiling": 5,
+    "calibration": "NOT_CALIBRATED: minCount / bakeTarget / reference piece layout are OD-W2-6 authoring values; expected curve = the W1 analog below",
+    "w1Analog": "fugazza (no cheese, painted base)"
+   },
+   "evidence": {
+    "phase1Status": "READY",
+    "evidenceOrigin": "comparison_table_sample",
+    "source": "https://pizzadb.jp/compare/world-pizzas/ (original Phase 0B sample batch, page 5)",
+    "tokenDispositions": [
+     "phase0b_sample_canonical"
+    ],
+    "likelyAliasTokens": [],
+    "reviewItems": [],
+    "strength": "HIGH"
+   },
+   "unresolved": [
+    "first non-tomato/pesto/oil PAINT sauce: RecipeSauceProfile.ingredientId union must widen; white-on-dough visibility needs a Human Visual check (olive-oil needed a --oil class, PR #45)",
+    "dough evidence absent -> no CUT (real-world flammkuchen is often rectangular; evidence is silent on shape, so round is kept)",
+    "no cheese -> no CHEESE step"
+   ]
+  },
+  {
+   "evidenceId": "pesto-gamberi-pizzadb-p11",
+   "proposedRuntimeId": "pesto-gamberi",
+   "nameJa": "ペストガンベリピザ",
+   "origin": "イタリア / 各地",
+   "ingredients": [
+    "fresh-tomato",
+    "garlic",
+    "pesto",
+    "shrimp"
+   ],
+   "ingredientCategories": {
+    "fresh-tomato": "topping",
+    "garlic": "topping",
+    "pesto": "sauce",
+    "shrimp": "topping"
+   },
+   "sauce": {
+    "ingredientId": "pesto",
+    "interaction": "PAINT",
+    "evidenceFamily": "バジル",
+    "evidenceRule": "all 11 バジル-family rows are ペスト-named dishes; the existing basil sauce is pesto (ジェノベーゼソース). pesto-trapanese is a pesto variant -- flagged as a content note, not a separate sauce id"
+   },
+   "cookingProfile": {
+    "steps": [
+     "DOUGH",
+     "SAUCE",
+     "TOPPING",
+     "CUT"
+    ],
+    "derivedBy": "deriveCoreSteps (category-derived) + CUT allowlist"
+   },
+   "cut": {
+    "profile": "STANDARD_6",
+    "doughEvidence": "ナポリピッツァ生地"
+   },
+   "discoveryIdentity": {
+    "targetId": "pesto-gamberi-pizzadb-p11",
+    "items": [
+     "fresh-tomato",
+     "garlic",
+     "pesto",
+     "shrimp"
+    ],
+    "sauceBase": [
+     "pesto"
+    ],
+    "identityDimensions": "DEFAULT (no capability)",
+    "nearestRuntime": []
+   },
+   "newIngredients": [
+    "shrimp"
+   ],
+   "progression": {
+    "keyStep": 28,
+    "keyStepMaterials": [
+     "shrimp"
+    ],
+    "discoverableAtDiscoveredCount": 28,
+    "priceTier": "T3",
+    "chapter": 3,
+    "note": "keyed by an appended W2 step"
+   },
+   "expectedScoring": {
+    "components": {
+     "sauce": 52,
+     "pieces": 16,
+     "recipe": 12,
+     "bake": 20
+    },
+    "sauceReference": "computeMechanicalSauceReference (ingredient-agnostic; same target as every recipe)",
+    "starCeiling": 5,
+    "calibration": "NOT_CALIBRATED: minCount / bakeTarget / reference piece layout are OD-W2-6 authoring values; expected curve = the W1 analog below",
+    "w1Analog": "pesto-tonno"
+   },
+   "evidence": {
+    "phase1Status": "READY",
+    "evidenceOrigin": "comparison_table_sample",
+    "source": "https://pizzadb.jp/compare/world-pizzas/page/11/",
+    "tokenDispositions": [
+     "exact_alias"
+    ],
+    "likelyAliasTokens": [],
+    "reviewItems": [],
+    "strength": "HIGH"
+   },
+   "unresolved": [
+    "no cheese in evidence -> no CHEESE step"
+   ]
+  },
+  {
+   "evidenceId": "pesto-pollo-pizzadb-p12",
+   "proposedRuntimeId": "pesto-pollo",
+   "nameJa": "ペストポッロピザ",
+   "origin": "イタリア / 各地",
+   "ingredients": [
+    "chicken",
+    "fresh-tomato",
+    "mozzarella",
+    "pesto"
+   ],
+   "ingredientCategories": {
+    "chicken": "topping",
+    "fresh-tomato": "topping",
+    "mozzarella": "cheese",
+    "pesto": "sauce"
+   },
+   "sauce": {
+    "ingredientId": "pesto",
+    "interaction": "PAINT",
+    "evidenceFamily": "バジル",
+    "evidenceRule": "all 11 バジル-family rows are ペスト-named dishes; the existing basil sauce is pesto (ジェノベーゼソース). pesto-trapanese is a pesto variant -- flagged as a content note, not a separate sauce id"
+   },
+   "cookingProfile": {
+    "steps": [
+     "DOUGH",
+     "SAUCE",
+     "CHEESE",
+     "TOPPING",
+     "CUT"
+    ],
+    "derivedBy": "deriveCoreSteps (category-derived) + CUT allowlist"
+   },
+   "cut": {
+    "profile": "STANDARD_6",
+    "doughEvidence": "ナポリピッツァ生地"
+   },
+   "discoveryIdentity": {
+    "targetId": "pesto-pollo-pizzadb-p12",
+    "items": [
+     "chicken",
+     "fresh-tomato",
+     "mozzarella",
+     "pesto"
+    ],
+    "sauceBase": [
+     "pesto"
+    ],
+    "identityDimensions": "DEFAULT (no capability)",
+    "nearestRuntime": []
+   },
+   "newIngredients": [
+    "chicken"
+   ],
+   "progression": {
+    "keyStep": 29,
+    "keyStepMaterials": [
+     "chicken"
+    ],
+    "discoverableAtDiscoveredCount": 29,
+    "priceTier": "T3",
+    "chapter": 3,
+    "note": "keyed by an appended W2 step"
+   },
+   "expectedScoring": {
+    "components": {
+     "sauce": 52,
+     "pieces": 16,
+     "recipe": 12,
+     "bake": 20
+    },
+    "sauceReference": "computeMechanicalSauceReference (ingredient-agnostic; same target as every recipe)",
+    "starCeiling": 5,
+    "calibration": "NOT_CALIBRATED: minCount / bakeTarget / reference piece layout are OD-W2-6 authoring values; expected curve = the W1 analog below",
+    "w1Analog": "pesto-caprese"
+   },
+   "evidence": {
+    "phase1Status": "READY",
+    "evidenceOrigin": "comparison_table_sample",
+    "source": "https://pizzadb.jp/compare/world-pizzas/page/12/",
+    "tokenDispositions": [
+     "exact_alias"
+    ],
+    "likelyAliasTokens": [],
+    "reviewItems": [],
+    "strength": "HIGH"
+   },
+   "unresolved": []
+  },
+  {
+   "evidenceId": "ratatouille-pizza-pizzadb-p13",
+   "proposedRuntimeId": "ratatouille-pizza",
+   "nameJa": "ラタトゥイユピザ",
+   "origin": "フランス / プロヴァンス",
+   "ingredients": [
+    "bell-pepper",
+    "eggplant",
+    "oregano",
+    "tomato-sauce",
+    "zucchini"
+   ],
+   "ingredientCategories": {
+    "bell-pepper": "topping",
+    "eggplant": "topping",
+    "oregano": "topping",
+    "tomato-sauce": "sauce",
+    "zucchini": "topping"
+   },
+   "sauce": {
+    "ingredientId": "tomato-sauce",
+    "interaction": "PAINT",
+    "evidenceFamily": "トマトソース",
+    "evidenceRule": "family label names the existing tomato-sauce"
+   },
+   "cookingProfile": {
+    "steps": [
+     "DOUGH",
+     "SAUCE",
+     "TOPPING",
+     "CUT"
+    ],
+    "derivedBy": "deriveCoreSteps (category-derived) + CUT allowlist"
+   },
+   "cut": {
+    "profile": "STANDARD_6",
+    "doughEvidence": "ナポリピッツァ生地"
+   },
+   "discoveryIdentity": {
+    "targetId": "ratatouille-pizza-pizzadb-p13",
+    "items": [
+     "bell-pepper",
+     "eggplant",
+     "oregano",
+     "tomato-sauce",
+     "zucchini"
+    ],
+    "sauceBase": [
+     "tomato-sauce"
+    ],
+    "identityDimensions": "DEFAULT (no capability)",
+    "nearestRuntime": []
+   },
+   "newIngredients": [
+    "bell-pepper",
+    "zucchini"
+   ],
+   "progression": {
+    "keyStep": 31,
+    "keyStepMaterials": [
+     "bell-pepper",
+     "zucchini"
+    ],
+    "discoverableAtDiscoveredCount": 31,
+    "priceTier": "T4",
+    "chapter": 4,
+    "note": "keyed by an appended W2 step"
+   },
+   "expectedScoring": {
+    "components": {
+     "sauce": 52,
+     "pieces": 16,
+     "recipe": 12,
+     "bake": 20
+    },
+    "sauceReference": "computeMechanicalSauceReference (ingredient-agnostic; same target as every recipe)",
+    "starCeiling": 5,
+    "calibration": "NOT_CALIBRATED: minCount / bakeTarget / reference piece layout are OD-W2-6 authoring values; expected curve = the W1 analog below",
+    "w1Analog": "melanzane-pizza"
+   },
+   "evidence": {
+    "phase1Status": "READY",
+    "evidenceOrigin": "comparison_table_sample",
+    "source": "https://pizzadb.jp/compare/world-pizzas/page/13/",
+    "tokenDispositions": [
+     "exact_alias"
+    ],
+    "likelyAliasTokens": [],
+    "reviewItems": [],
+    "strength": "HIGH"
+   },
+   "unresolved": [
+    "no cheese in evidence -> no CHEESE step"
+   ]
+  },
+  {
+   "evidenceId": "pesto-vegetariana-pizzadb-p12",
+   "proposedRuntimeId": "pesto-vegetariana",
+   "nameJa": "ペストベジタリアーナピザ",
+   "origin": "イタリア / 各地",
+   "ingredients": [
+    "bell-pepper",
+    "eggplant",
+    "mozzarella",
+    "pesto",
+    "zucchini"
+   ],
+   "ingredientCategories": {
+    "bell-pepper": "topping",
+    "eggplant": "topping",
+    "mozzarella": "cheese",
+    "pesto": "sauce",
+    "zucchini": "topping"
+   },
+   "sauce": {
+    "ingredientId": "pesto",
+    "interaction": "PAINT",
+    "evidenceFamily": "バジル",
+    "evidenceRule": "all 11 バジル-family rows are ペスト-named dishes; the existing basil sauce is pesto (ジェノベーゼソース). pesto-trapanese is a pesto variant -- flagged as a content note, not a separate sauce id"
+   },
+   "cookingProfile": {
+    "steps": [
+     "DOUGH",
+     "SAUCE",
+     "CHEESE",
+     "TOPPING",
+     "CUT"
+    ],
+    "derivedBy": "deriveCoreSteps (category-derived) + CUT allowlist"
+   },
+   "cut": {
+    "profile": "STANDARD_6",
+    "doughEvidence": "ナポリピッツァ生地"
+   },
+   "discoveryIdentity": {
+    "targetId": "pesto-vegetariana-pizzadb-p12",
+    "items": [
+     "bell-pepper",
+     "eggplant",
+     "mozzarella",
+     "pesto",
+     "zucchini"
+    ],
+    "sauceBase": [
+     "pesto"
+    ],
+    "identityDimensions": "DEFAULT (no capability)",
+    "nearestRuntime": []
+   },
+   "newIngredients": [
+    "bell-pepper",
+    "zucchini"
+   ],
+   "progression": {
+    "keyStep": 31,
+    "keyStepMaterials": [
+     "bell-pepper",
+     "zucchini"
+    ],
+    "discoverableAtDiscoveredCount": 31,
+    "priceTier": "T4",
+    "chapter": 4,
+    "note": "keyed by an appended W2 step"
+   },
+   "expectedScoring": {
+    "components": {
+     "sauce": 52,
+     "pieces": 16,
+     "recipe": 12,
+     "bake": 20
+    },
+    "sauceReference": "computeMechanicalSauceReference (ingredient-agnostic; same target as every recipe)",
+    "starCeiling": 5,
+    "calibration": "NOT_CALIBRATED: minCount / bakeTarget / reference piece layout are OD-W2-6 authoring values; expected curve = the W1 analog below",
+    "w1Analog": "pesto-patate"
+   },
+   "evidence": {
+    "phase1Status": "READY",
+    "evidenceOrigin": "comparison_table_sample",
+    "source": "https://pizzadb.jp/compare/world-pizzas/page/12/",
+    "tokenDispositions": [
+     "exact_alias"
+    ],
+    "likelyAliasTokens": [],
+    "reviewItems": [],
+    "strength": "HIGH"
+   },
+   "unresolved": []
+  },
+  {
+   "evidenceId": "prosciutto-funghi-pizzadb-p11",
+   "proposedRuntimeId": "prosciutto-funghi",
+   "nameJa": "プロシュットフンギ",
+   "origin": "イタリア / 各地",
+   "ingredients": [
+    "mozzarella",
+    "mushroom",
+    "prosciutto-crudo",
+    "tomato-sauce"
+   ],
+   "ingredientCategories": {
+    "mozzarella": "cheese",
+    "mushroom": "topping",
+    "prosciutto-crudo": "topping",
+    "tomato-sauce": "sauce"
+   },
+   "sauce": {
+    "ingredientId": "tomato-sauce",
+    "interaction": "PAINT",
+    "evidenceFamily": "トマトソース",
+    "evidenceRule": "family label names the existing tomato-sauce"
+   },
+   "cookingProfile": {
+    "steps": [
+     "DOUGH",
+     "SAUCE",
+     "CHEESE",
+     "TOPPING",
+     "CUT"
+    ],
+    "derivedBy": "deriveCoreSteps (category-derived) + CUT allowlist"
+   },
+   "cut": {
+    "profile": "STANDARD_6",
+    "doughEvidence": "ナポリピッツァ生地"
+   },
+   "discoveryIdentity": {
+    "targetId": "prosciutto-funghi-pizzadb-p11",
+    "items": [
+     "mozzarella",
+     "mushroom",
+     "prosciutto-crudo",
+     "tomato-sauce"
+    ],
+    "sauceBase": [
+     "tomato-sauce"
+    ],
+    "identityDimensions": "DEFAULT (no capability)",
+    "nearestRuntime": [
+     "funghi"
+    ]
+   },
+   "newIngredients": [
+    "prosciutto-crudo"
+   ],
+   "progression": {
+    "keyStep": 25,
+    "keyStepMaterials": [
+     "prosciutto-crudo"
+    ],
+    "discoverableAtDiscoveredCount": 25,
+    "priceTier": "T3",
+    "chapter": 3,
+    "note": "keyed by an appended W2 step"
+   },
+   "expectedScoring": {
+    "components": {
+     "sauce": 52,
+     "pieces": 16,
+     "recipe": 12,
+     "bake": 20
+    },
+    "sauceReference": "computeMechanicalSauceReference (ingredient-agnostic; same target as every recipe)",
+    "starCeiling": 5,
+    "calibration": "NOT_CALIBRATED: minCount / bakeTarget / reference piece layout are OD-W2-6 authoring values; expected curve = the W1 analog below",
+    "w1Analog": "funghi"
+   },
+   "evidence": {
+    "phase1Status": "READY_WITH_REVIEW",
+    "evidenceOrigin": "comparison_table_sample",
+    "source": "https://pizzadb.jp/compare/world-pizzas/page/11/",
+    "tokenDispositions": [
+     "exact_alias"
+    ],
+    "likelyAliasTokens": [],
+    "reviewItems": [
+     "SAME_INGREDIENT_SET_AS_CATALOG_RECIPE:prosciutto-e-funghi"
+    ],
+    "strength": "MEDIUM"
+   },
+   "unresolved": [
+    "SAME_INGREDIENT_SET_AS_CATALOG_RECIPE prosciutto-e-funghi (catalog-only, not runtime): naming decision",
+    "prosciutto-crudo is post-bake in catalog finishing tags; this row has no REQUIRED late-addition evidence, so it is placed pre-bake (OD-TAX-6: timing is not identity)",
+    "one ingredient from runtime funghi (near-miss ADD_ONE / REMOVE_ONE neighbour)"
+   ]
+  },
+  {
+   "evidenceId": "jamon-serrano-pizza-pizzadb-p7",
+   "proposedRuntimeId": "jamon-serrano-pizza",
+   "nameJa": "ハモンセラーノピザ",
+   "origin": "スペイン / 各地",
+   "ingredients": [
+    "arugula",
+    "mozzarella",
+    "prosciutto-crudo",
+    "tomato-sauce"
+   ],
+   "ingredientCategories": {
+    "arugula": "topping",
+    "mozzarella": "cheese",
+    "prosciutto-crudo": "topping",
+    "tomato-sauce": "sauce"
+   },
+   "sauce": {
+    "ingredientId": "tomato-sauce",
+    "interaction": "PAINT",
+    "evidenceFamily": "トマトソース",
+    "evidenceRule": "family label names the existing tomato-sauce"
+   },
+   "cookingProfile": {
+    "steps": [
+     "DOUGH",
+     "SAUCE",
+     "CHEESE",
+     "TOPPING",
+     "CUT"
+    ],
+    "derivedBy": "deriveCoreSteps (category-derived) + CUT allowlist"
+   },
+   "cut": {
+    "profile": "STANDARD_6",
+    "doughEvidence": "薄めの生地"
+   },
+   "discoveryIdentity": {
+    "targetId": "jamon-serrano-pizza-pizzadb-p7",
+    "items": [
+     "arugula",
+     "mozzarella",
+     "prosciutto-crudo",
+     "tomato-sauce"
+    ],
+    "sauceBase": [
+     "tomato-sauce"
+    ],
+    "identityDimensions": "DEFAULT (no capability)",
+    "nearestRuntime": []
+   },
+   "newIngredients": [
+    "arugula",
+    "prosciutto-crudo"
+   ],
+   "progression": {
+    "keyStep": 27,
+    "keyStepMaterials": [
+     "arugula"
+    ],
+    "discoverableAtDiscoveredCount": 27,
+    "priceTier": "T3",
+    "chapter": 3,
+    "note": "keyed by an appended W2 step"
+   },
+   "expectedScoring": {
+    "components": {
+     "sauce": 52,
+     "pieces": 16,
+     "recipe": 12,
+     "bake": 20
+    },
+    "sauceReference": "computeMechanicalSauceReference (ingredient-agnostic; same target as every recipe)",
+    "starCeiling": 5,
+    "calibration": "NOT_CALIBRATED: minCount / bakeTarget / reference piece layout are OD-W2-6 authoring values; expected curve = the W1 analog below",
+    "w1Analog": "hawaiian"
+   },
+   "evidence": {
+    "phase1Status": "READY",
+    "evidenceOrigin": "comparison_table_sample",
+    "source": "https://pizzadb.jp/compare/world-pizzas/page/7/",
+    "tokenDispositions": [
+     "exact_alias"
+    ],
+    "likelyAliasTokens": [],
+    "reviewItems": [],
+    "strength": "HIGH"
+   },
+   "unresolved": [
+    "reserves the P0-COLL-4 pair: pinsa-romana can later ship only with DOUGH_VARIANT",
+    "arugula / prosciutto-crudo are post-bake in catalog finishing tags; no REQUIRED evidence here -> pre-bake"
+   ]
+  }
+ ],
+ "newIngredients": [
+  {
+   "id": "arugula",
+   "nameJa": "ルッコラ",
+   "nameSource": "ingredient_master_catalog.json",
+   "category": "topping",
+   "placement": "scatter",
+   "inventoryUnit": "piece (scatter, k = max minCount)",
+   "taxonomy": {
+    "family": "vegetable",
+    "subfamily": "vegetable.leafy",
+    "status": "PROPOSED (PR #255 audit: high confidence; production row needs OD-W2-5)"
+   },
+   "unlockStep": 27,
+   "priceTier": "T3",
+   "packPrice": 100,
+   "refillPrice": 50,
+   "packQuantity": "10 x k (k = max minCount over recipes, OD-W2-6)",
+   "recipeDependency": [
+    "jamon-serrano-pizza"
+   ],
+   "evidence": {
+    "inCatalogV2": true,
+    "catalogUsedBy": [
+     "prosciutto",
+     "speck-e-brie"
+    ],
+    "evidence172RowCount": 6
+   }
+  },
+  {
+   "id": "bell-pepper",
+   "nameJa": "パプリカ",
+   "nameSource": "ingredient_master_catalog.json",
+   "category": "topping",
+   "placement": "scatter",
+   "inventoryUnit": "piece (scatter, k = max minCount)",
+   "taxonomy": {
+    "family": "vegetable",
+    "subfamily": "vegetable.fruiting",
+    "status": "PROPOSED (PR #255 audit: high confidence; production row needs OD-W2-5)"
+   },
+   "unlockStep": 31,
+   "priceTier": "T4",
+   "packPrice": 120,
+   "refillPrice": 60,
+   "packQuantity": "10 x k (k = max minCount over recipes, OD-W2-6)",
+   "recipeDependency": [
+    "pesto-vegetariana",
+    "ratatouille-pizza"
+   ],
+   "evidence": {
+    "inCatalogV2": true,
+    "catalogUsedBy": [
+     "ortolana",
+     "philly-cheesesteak",
+     "supreme"
+    ],
+    "evidence172RowCount": 5
+   }
+  },
+  {
+   "id": "chicken",
+   "nameJa": "チキン",
+   "nameSource": "ingredient_master_catalog.json",
+   "category": "topping",
+   "placement": "scatter",
+   "inventoryUnit": "piece (scatter, k = max minCount)",
+   "taxonomy": {
+    "family": "meat",
+    "subfamily": "meat.poultry",
+    "status": "PROPOSED (PR #255 audit: high confidence; production row needs OD-W2-5)"
+   },
+   "unlockStep": 29,
+   "priceTier": "T3",
+   "packPrice": 100,
+   "refillPrice": 50,
+   "packQuantity": "10 x k (k = max minCount over recipes, OD-W2-6)",
+   "recipeDependency": [
+    "pesto-pollo"
+   ],
+   "evidence": {
+    "inCatalogV2": true,
+    "catalogUsedBy": [
+     "bbq-chicken",
+     "buffalo-chicken",
+     "teriyaki-chicken"
+    ],
+    "evidence172RowCount": 4
+   }
+  },
+  {
+   "id": "fromage-blanc-sauce",
+   "nameJa": "フロマージュブラン",
+   "nameSource": "PR #255 taxonomy audit (not in catalog v2)",
+   "category": "sauce",
+   "placement": "spread",
+   "inventoryUnit": "use (spread, k=1)",
+   "taxonomy": {
+    "family": null,
+    "subfamily": "sauce.cream-dairy",
+    "status": "category-level attribute (DH4-1: sauces/cheeses have no family row)"
+   },
+   "unlockStep": 26,
+   "priceTier": "T3",
+   "packPrice": 100,
+   "refillPrice": 50,
+   "packQuantity": "10 x k (k = max minCount over recipes, OD-W2-6)",
+   "recipeDependency": [
+    "flammkuchen"
+   ],
+   "evidence": {
+    "inCatalogV2": false,
+    "catalogUsedBy": null,
+    "evidence172RowCount": 1
+   }
+  },
+  {
+   "id": "parsley",
+   "nameJa": "パセリ",
+   "nameSource": "ingredient_master_catalog.json",
+   "category": "topping",
+   "placement": "scatter",
+   "inventoryUnit": "piece (scatter, k = max minCount)",
+   "taxonomy": {
+    "family": "herb",
+    "subfamily": "herb.leaf",
+    "status": "PROPOSED (PR #255 audit: high confidence; production row needs OD-W2-5)"
+   },
+   "unlockStep": 30,
+   "priceTier": "T4",
+   "packPrice": 120,
+   "refillPrice": 60,
+   "packQuantity": "10 x k (k = max minCount over recipes, OD-W2-6)",
+   "recipeDependency": [
+    "vongole"
+   ],
+   "evidence": {
+    "inCatalogV2": true,
+    "catalogUsedBy": [
+     "frutti-di-mare"
+    ],
+    "evidence172RowCount": 5
+   }
+  },
+  {
+   "id": "prosciutto-crudo",
+   "nameJa": "生ハム",
+   "nameSource": "ingredient_master_catalog.json",
+   "category": "topping",
+   "placement": "scatter",
+   "inventoryUnit": "piece (scatter, k = max minCount)",
+   "taxonomy": {
+    "family": "meat",
+    "subfamily": "meat.cured",
+    "status": "PROPOSED (PR #255 audit: high confidence; production row needs OD-W2-5)"
+   },
+   "unlockStep": 25,
+   "priceTier": "T3",
+   "packPrice": 100,
+   "refillPrice": 50,
+   "packQuantity": "10 x k (k = max minCount over recipes, OD-W2-6)",
+   "recipeDependency": [
+    "jamon-serrano-pizza",
+    "prosciutto-funghi"
+   ],
+   "evidence": {
+    "inCatalogV2": true,
+    "catalogUsedBy": [
+     "prosciutto",
+     "prosciutto-e-funghi"
+    ],
+    "evidence172RowCount": 6
+   }
+  },
+  {
+   "id": "shrimp",
+   "nameJa": "エビ",
+   "nameSource": "ingredient_master_catalog.json",
+   "category": "topping",
+   "placement": "scatter",
+   "inventoryUnit": "piece (scatter, k = max minCount)",
+   "taxonomy": {
+    "family": "seafood",
+    "subfamily": "seafood.shellfish",
+    "status": "PROPOSED (PR #255 audit: high confidence; production row needs OD-W2-5)"
+   },
+   "unlockStep": 28,
+   "priceTier": "T3",
+   "packPrice": 100,
+   "refillPrice": 50,
+   "packQuantity": "10 x k (k = max minCount over recipes, OD-W2-6)",
+   "recipeDependency": [
+    "pesto-gamberi"
+   ],
+   "evidence": {
+    "inCatalogV2": true,
+    "catalogUsedBy": [
+     "frutti-di-mare",
+     "shrimp-mayo"
+    ],
+    "evidence172RowCount": 4
+   }
+  },
+  {
+   "id": "zucchini",
+   "nameJa": "ズッキーニ",
+   "nameSource": "ingredient_master_catalog.json",
+   "category": "topping",
+   "placement": "scatter",
+   "inventoryUnit": "piece (scatter, k = max minCount)",
+   "taxonomy": {
+    "family": "vegetable",
+    "subfamily": "vegetable.fruiting",
+    "status": "PROPOSED (PR #255 audit: high confidence; production row needs OD-W2-5)"
+   },
+   "unlockStep": 31,
+   "priceTier": "T4",
+   "packPrice": 120,
+   "refillPrice": 60,
+   "packQuantity": "10 x k (k = max minCount over recipes, OD-W2-6)",
+   "recipeDependency": [
+    "pesto-vegetariana",
+    "ratatouille-pizza"
+   ],
+   "evidence": {
+    "inCatalogV2": true,
+    "catalogUsedBy": [
+     "ortolana"
+    ],
+    "evidence172RowCount": 4
+   }
+  }
+ ],
+ "afterW2A": {
+  "recipeCount": 34,
+  "ingredientCount": 37,
+  "categoryCounts": {
+   "sauce": 4,
+   "cheese": 4,
+   "topping": 29
+  },
+  "ladderSteps": 31,
+  "dexPill": "n/34",
+  "chapters": {
+   "1": {
+    "count": 6,
+    "wave2": [],
+    "countBefore": 6
+   },
+   "2": {
+    "count": 10,
+    "wave2": [
+     "brazilian-calabresa"
+    ],
+    "countBefore": 9
+   },
+   "3": {
+    "count": 15,
+    "wave2": [
+     "flammkuchen",
+     "jamon-serrano-pizza",
+     "pesto-gamberi",
+     "pesto-pollo",
+     "prosciutto-funghi"
+    ],
+    "countBefore": 10
+   },
+   "4": {
+    "count": 3,
+    "wave2": [
+     "pesto-vegetariana",
+     "ratatouille-pizza",
+     "vongole"
+    ],
+    "countBefore": 0
+   }
+  },
+  "tray": {
+   "paletteSlotsPerPage": 6,
+   "columns": 3,
+   "rowsPerPageMax": 2,
+   "categories": {
+    "sauce": {
+     "before": 3,
+     "after": 4,
+     "freeCookPagesBefore": 1,
+     "freeCookPagesAfter": 1
+    },
+    "cheese": {
+     "before": 4,
+     "after": 4,
+     "freeCookPagesBefore": 1,
+     "freeCookPagesAfter": 1
+    },
+    "topping": {
+     "before": 22,
+     "after": 29,
+     "freeCookPagesBefore": 4,
+     "freeCookPagesAfter": 5
+    }
+   },
+   "guidedMaxItemsPerCategory": 4
+  }
+ }
+}
