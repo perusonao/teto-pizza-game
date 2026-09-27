@@ -105,4 +105,23 @@ describe("App: Dinner Mission (DM-3)", () => {
     // Only the current target is on the cooking screen, never the full list.
     expect(screen.queryByText("ビスマルク")).toBeNull();
   });
+
+  it("a retry after TIME_UP starts a fresh round: nothing transient (the 見本 popover) carries over", async () => {
+    seed();
+    window.history.replaceState({}, "", "/?dinnerDuration=1");
+    const user = userEvent.setup();
+    render(<App />);
+    await openDetail(user);
+    await user.click(screen.getByRole("button", { name: /スタート/ }));
+    // マルゲリータ is the first target, so the retried run's board anchors on the same order.
+    await user.click(screen.getByRole("button", { name: /マルゲリータ/ }));
+    await user.click(screen.getByRole("button", { name: /見本/ }));
+    expect(screen.getByRole("dialog", { name: /見本/ })).toBeInTheDocument();
+
+    const result = await screen.findByRole("dialog", { name: "ディナーミッション結果" }, { timeout: 3000 });
+    expect(result).toHaveTextContent("時間切れ！");
+    await user.click(within(result).getByRole("button", { name: "もう一度" }));
+    await user.click(within(screen.getByRole("region", { name: "ターゲット選択" })).getByRole("button", { name: /マルゲリータ/ }));
+    expect(screen.queryByRole("dialog", { name: /見本/ })).toBeNull();
+  });
 });

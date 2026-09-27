@@ -28,7 +28,7 @@
 
 - Duplicate Gate: Issue を作る前に open / closed の Issue と PR を確認した。DM-3 と重複するものはなかった。
 - Issue: **#242**「Dinner Mission DM-3: Playable UI / Human Verification」
-- PR: §19 に記録する（OPEN のみ。auto-merge は使わない。main への merge もしない）。
+- PR: **#243**（OPEN のみ。auto-merge は使わない。main への merge もしない）。
 - 並行している PR #241（Discovery Hint 3.0 H3-1）の変更ファイルは 6 個で、DM-3 と重なるファイルはない（`docs/reports/TETO_DISCOVERY-HINT-3_*`、`docs/reports/data/TETO_DISCOVERY-HINT-3_*`、`src/logic/discovery/selectableHint*`）。
 - Issue #234 は OPEN のまま。DM-3 では触っていない。
 
@@ -293,7 +293,33 @@ Playwright Chromium で実測した。値は px。
 
 ## 19. CI
 
-（PR を作ったあとに記録する）
+**`0b65500`（PR を作ったときの head）: 9 / 9 success**
+
+| check | 結果 |
+|---|---|
+| build | success |
+| classify | success |
+| layout-chromium | success |
+| Layout Contract Gate | success |
+| webkit webkit-390x844 shard 1/2・2/2 | success |
+| webkit webkit-360x800 shard 1/2・2/2 | success |
+| WebKit Gate | success |
+
+**Codex review（`0b65500` に対する P2 × 3）: 3 件とも確認して修正した**
+
+1. **retry したときに、調理中の一時的な UI 状態が残る**
+   - 原因: Dinner の target は recipe ごとに固定の order を使う。そのため、1 つ目の target の途中で TIME_UP になってから retry すると、order id も `makingStep` も同じままになり、App の round reset が発火しなかった（見本の popover が開いたまま戻ってくる）。
+   - 修正: reset の key を `order.id` から `order.id | run.clock.startedAt | activeRecipeId` に変えた（Dinner のときだけ。それ以外の round の key は今までどおり `order.id`）。
+   - test: App test を追加した。修正前に失敗することを確認してから修正した。
+2. **`missions` prop で渡した mission の Detail を、global の一覧から引いていた**
+   - 修正: Detail もカードと同じ `missions` から引くようにした。
+   - test: component test を追加した。
+3. **秒を ms に変換したあとの値を検証していなかった**
+   - 問題: `?dinnerDuration=0.0001` は 0ms に、`1e306` は Infinity になり、START が押せてしまっていた。
+   - 修正: 変換後の値が有限で 0 より大きいときだけ duration として返す。あわせて `handleStartDinner` も、`startDinnerRun` と同じ条件（mission、`dinnerStartBlock`、duration）を満たすときだけ GAME に移るようにした。
+   - test: unit test に 2 つの値を追加した。
+
+修正後の head の CI: 下に追記する。
 
 ## 20. Changed files
 

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { DINNER_MISSIONS, getDinnerMission, type DinnerMissionDefinition } from "../mission/dinner/dinnerMission";
+import { DINNER_MISSIONS, type DinnerMissionDefinition } from "../mission/dinner/dinnerMission";
 import type { DexState } from "../state/dex";
 import type { InventoryState } from "../state/inventory";
 import {
@@ -38,7 +38,8 @@ export function DinnerMissionScreen({
 }: DinnerMissionScreenProps) {
   const [detailId, setDetailId] = useState<string | null>(null);
   const cards = missions.map((m) => dinnerMissionCardView(m, dex));
-  const detailMission = detailId ? getDinnerMission(detailId) : undefined;
+  // Detail resolves from the same list the cards came from, so `missions` controls the whole screen.
+  const detailMission = detailId ? missions.find((m) => m.missionId === detailId) : undefined;
   const detailCard = cards.find((c) => c.missionId === detailId);
 
   return (

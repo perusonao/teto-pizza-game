@@ -20,7 +20,11 @@ export function resolveDinnerDurationMs(mission: DinnerMissionDefinition, overri
   if (mission.timeLimit.seconds !== null) return mission.timeLimit.seconds * 1000;
   if (!overrideSearch) return null;
   const seconds = Number(new URLSearchParams(overrideSearch).get("dinnerDuration"));
-  return Number.isFinite(seconds) && seconds > 0 ? Math.round(seconds * 1000) : null;
+  if (!Number.isFinite(seconds) || seconds <= 0) return null;
+  // Validate the converted value too: `0.0001` rounds to 0 ms and `1e306` overflows to Infinity,
+  // and `startDinnerRun` would reject either after START had already been offered.
+  const ms = Math.round(seconds * 1000);
+  return Number.isFinite(ms) && ms > 0 ? ms : null;
 }
 
 /** `m:ss` (or `mm:ss`), rounded up to the whole second like the Lunch Rush HUD; never negative. */

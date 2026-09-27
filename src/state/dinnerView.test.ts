@@ -29,7 +29,8 @@ describe("resolveDinnerDurationMs (OD-DM3-1)", () => {
 
   it("DEV / Preview may inject ?dinnerDuration=<seconds>", () => {
     expect(resolveDinnerDurationMs(DM_A, "?dinnerDuration=300")).toBe(300_000);
-    for (const bad of ["?dinnerDuration=0", "?dinnerDuration=-5", "?dinnerDuration=abc", "?dinnerDuration="]) {
+    // 0.0001 s rounds to 0 ms and 1e306 s overflows to Infinity ms: neither may enable START.
+    for (const bad of ["?dinnerDuration=0", "?dinnerDuration=-5", "?dinnerDuration=abc", "?dinnerDuration=", "?dinnerDuration=0.0001", "?dinnerDuration=1e306"]) {
       expect(resolveDinnerDurationMs(DM_A, bad), bad).toBeNull();
     }
   });

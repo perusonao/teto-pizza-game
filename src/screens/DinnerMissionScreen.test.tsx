@@ -2,6 +2,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { INGREDIENTS } from "../data/ingredients";
 import { RECIPES } from "../data/recipes";
+import { getDinnerMission, type DinnerMissionDefinition } from "../mission/dinner/dinnerMission";
 import type { DexEntry } from "../state/dex";
 import { DinnerMissionScreen } from "./DinnerMissionScreen";
 
@@ -90,6 +91,33 @@ describe("Mission Detail", () => {
     fireEvent.click(screen.getByRole("button", { name: /ディナーミッション 1/ }));
     expect(screen.getByText("調整中")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /スタート/ })).toBeDisabled();
+  });
+
+  it("Detail resolves from the supplied `missions`, not the global list", () => {
+    const dmA = getDinnerMission("dm-a")!;
+    const custom: DinnerMissionDefinition = {
+      ...dmA,
+      missionId: "dm-test",
+      display: { ...dmA.display, titleJa: "テストミッション" },
+      targetRecipeIds: ["margherita", "funghi"],
+    };
+    const onStart = vi.fn();
+    render(
+      <DinnerMissionScreen
+        dex={dexOf(DM_A_IDS)}
+        ownedIngredientIds={ALL_IDS}
+        inventory={{ egg: 2, bacon: 3, mushroom: 3 }}
+        durationFor={() => 60_000}
+        onStart={onStart}
+        onBack={vi.fn()}
+        onOpenShop={vi.fn()}
+        missions={[custom]}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: /テストミッション/ }));
+    expect(screen.getByText("この 2 種類を、好きな順番で全部作ろう！")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /スタート/ }));
+    expect(onStart).toHaveBeenCalledWith("dm-test", 60_000);
   });
 
   it("← もどる returns to the list; ホーム leaves", () => {

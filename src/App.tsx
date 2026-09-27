@@ -227,7 +227,7 @@ function App() {
   // dispense session's not-yet-committed deposits, mirrored up from PizzaStage purely so
   // Prototype Metrics can show live numbers while holding -- see handleDispenseProgress/
   // handleDispenseCommit below. Declared here (not lower, near those handlers) so the
-  // lastOrderId reset block just below can safely clear it.
+  // lastRoundKey reset block just below can safely clear it.
   const [pendingSauceDeposits, setPendingSauceDeposits] = useState<SauceDeposit[]>([]);
   // Issue #33 D1: mirrors `pendingSauceDeposits` exactly -- the current in-progress DOUGH
   // gesture's uncommitted shape, mirrored up from PizzaStage purely so the DOUGH step's CTA
@@ -258,9 +258,15 @@ function App() {
 
   // Every new order should start the player off with the recipe's own sauce selected,
   // so a fresh order never opens on a sauce that belongs to a different recipe.
-  const [lastOrderId, setLastOrderId] = useState(state.order.id);
-  if (lastOrderId !== state.order.id) {
-    setLastOrderId(state.order.id);
+  // Dinner Mission DM-3: a Dinner target reuses its recipe's fixed order, so the round key also
+  // carries the run (`startedAt`) and the active target -- a retried run whose board anchors on
+  // the target that just timed out is still a fresh round, not the same one.
+  const roundKey = state.dinner
+    ? `${state.order.id}|dinner:${state.dinner.run.clock.startedAt}:${state.dinner.run.activeRecipeId ?? ""}`
+    : state.order.id;
+  const [lastRoundKey, setLastRoundKey] = useState(roundKey);
+  if (lastRoundKey !== roundKey) {
+    setLastRoundKey(roundKey);
     // Issue #33 D1: a fresh round starts at DOUGH, not SAUCE -- nothing selectable yet (see
     // `selectedIngredientId`'s own declaration above).
     setSelectedIngredientId(null);
@@ -283,12 +289,12 @@ function App() {
   // starts with the recipe's own primary sauce already picked for the player -- previously
   // this ran once, at round start, back when SAUCE was itself the first step; now it fires
   // here instead, the moment the round actually reaches SAUCE (round start or a same-round
-  // DOUGH -> SAUCE confirm alike). `lastOrderId`'s own sync above already handles a brand new
+  // DOUGH -> SAUCE confirm alike). `lastRoundKey`'s own sync above already handles a brand new
   // round's own reset, so this only fires for a same-round step change.
   const [lastMakingStep, setLastMakingStep] = useState(state.makingStep);
   if (lastMakingStep !== state.makingStep) {
     setLastMakingStep(state.makingStep);
-    if (lastOrderId === state.order.id) {
+    if (lastRoundKey === roundKey) {
       setSelectedIngredientId(state.makingStep === "SAUCE" ? findPrimarySauceId(state.recipe) : null);
     }
     // Pizza Cutting 1.0 Phase 4A: a duplicate-line rejection message never survives past the CUT
@@ -773,6 +779,10 @@ function App() {
   // --- Dinner Mission (DM-3, Issue #242) ---------------------------------------------------
   function handleStartDinner(missionId: string, durationMs: number) {
     if (dinnerRuntime.active || mission.mode !== "FREE") return;
+    // Leave for GAME only with a run the reducer will accept (the same checks as startDinnerRun),
+    // so a rejected START never lands on an unrelated non-Dinner round.
+    const target = getDinnerMission(missionId);
+    if (!target || dinnerStartBlock(target, state) !== null || !Number.isFinite(durationMs) || durationMs <= 0) return;
     setDexOpen(false);
     dinnerRuntime.startDinner(missionId, durationMs);
     setScreen("GAME");
