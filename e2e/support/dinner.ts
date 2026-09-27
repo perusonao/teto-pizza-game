@@ -104,29 +104,41 @@ export interface CookOptions {
   extra?: { chip: RegExp; count: number };
   /** Take the pizza out far from its target so the Completion Gate fails (UNDERBAKED). */
   underbake?: boolean;
+  /** Human Verification recordings: hold this many ms after each step (0 in tests). */
+  pauseMs?: number;
+  /** Called on the DOUGH step and after the toppings (e.g. to capture the cooking HUD). */
+  onStep?: (step: "dough" | "toppings") => Promise<void>;
 }
 
 /** From the Target Board: select `recipeId`, cook it with real gestures, and land on its result. */
 export async function cookDinnerTarget(page: Page, recipeId: string, nameJa: RegExp, options: CookOptions = {}) {
   const spec = RECIPES[recipeId];
+  const hold = () => (options.pauseMs ? page.waitForTimeout(options.pauseMs) : Promise.resolve());
   spotCursor = 0;
   await page.locator(".dinner-board__item", { hasText: nameJa }).click();
   await page.waitForSelector(".pizza-stage");
   await expect(page.getByTestId("dinner-hud")).toBeVisible();
+  await hold();
+  await options.onStep?.("dough");
   await completeDoughStep(page);
   await next(page);
   await selectChip(page, /トマトソース/);
   await paintSauceRing(page, 25, 16);
+  await hold();
   await next(page);
   for (const p of spec.cheese) await place(page, p.chip, p.count);
+  await hold();
   await next(page);
   for (const p of spec.toppings) {
     const extra = options.extra && p.chip.source === options.extra.chip.source ? options.extra.count : 0;
     await place(page, p.chip, p.count + extra);
   }
+  await hold();
+  await options.onStep?.("toppings");
   await enterBakePaused(page);
   await landNeedleAndTakeOut(page, options.underbake ? { start: 2, end: 4 } : spec.bake);
   await expect(page.getByRole("button", { name: /切り終わる/ })).toBeVisible();
   await cutThreeLines(page);
+  await hold();
   await page.getByRole("button", { name: /切り終わる/ }).click();
 }
