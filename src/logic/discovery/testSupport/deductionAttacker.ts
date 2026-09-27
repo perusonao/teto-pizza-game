@@ -204,3 +204,18 @@ export function partialAttack(guard: GuardUnderAttack, state: AttackState, known
   walk(0, []);
   return { reserveCandidates: [...reserves], leak: reserves.size < 2 };
 }
+
+/**
+ * The purchase-timing attacker (independent review of PR #267, P1-1; OPEN, pending an Owner
+ * Decision). A player who saw the target (its free key chip, a Dex pin) before buying `lateIds`
+ * knows those ingredients are not the reserve: the target was already makeable without them. The
+ * endgame attacker with that knowledge simply drops them from its candidates.
+ */
+export function timingAttack(guard: GuardUnderAttack, state: AttackState, lateIds: readonly string[]): EndgameResult[] {
+  const late = new Set(lateIds);
+  return endgameAttack(guard, state).map((r) => {
+    const candidates = r.candidates.filter((id) => !late.has(id));
+    const before = r.before - lateIds.length;
+    return { ...r, candidates, before, leak: r.priorHolds && !late.has(state.reserveId) && before >= 2 && candidates.length < 2 };
+  });
+}

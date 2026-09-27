@@ -261,8 +261,8 @@ export function toppingClauseAllowedForParts(parts: ReserveParts): boolean {
   const h = hypotheticalReserves(parts);
   if (!h.includes(parts.reserveId)) return false;
   const knownToppings = toppingTotalOf(knownPart(parts));
+  // The real reserve is in H, so this also gives the real recipe T >= 1: never 0.
   if (h.some((x) => knownToppings + (categoryOf(x) === "topping" ? 1 : 0) < 1)) return false;
-  if (toppingTotalOf(parts.recipeIngredientIds) < 1) return false;
   const sides = new Map<string, number>();
   for (const id of h) sides.set(categoryOf(id)!, (sides.get(categoryOf(id)!) ?? 0) + 1);
   return allClassesSafe(sides);

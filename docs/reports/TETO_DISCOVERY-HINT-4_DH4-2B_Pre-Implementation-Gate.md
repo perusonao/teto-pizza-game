@@ -5,9 +5,10 @@
 > - Nothing is wired: there is no change to the reducer, App, flag, persistence, HintSheet, CSS, e2e, prices or Dinner.
 > - Production imports of the DH4 layer: **0**. Tests now also check dynamic `import(…)`.
 >
-> **Verdict: B. READY AFTER SMALL PURE FIX.**
-> - The fix is in this PR.
-> - Once it is merged, the gate is **A. READY FOR DH4-2B**.
+> **Verdict: C. OWNER DECISION REQUIRED** (§9).
+> - The pure hardening in this PR (P2-1, P2-2, the key rule, the P3 items) is sound and strictly safer than DH4-2A. It needs no Owner decision.
+> - The independent review found **P1-1, purchase timing**: a privacy leak that no pure change can close without an Owner decision on the threat model or persistence.
+> - DH4-2B does not start until the Owner decides.
 
 ## 1. Fresh state (2026-09-27)
 
@@ -32,6 +33,7 @@ So a sauceless recipe loses its real reserve from H.
 
 **The independent attacker.**
 - It lives in `testSupport/deductionAttacker.ts` and never reads `hypotheticalReserves`.
+- It is only partly independent. It re-implements Rule W and the key rule through the same `recipeKeyStep` / `hintKeyIngredientId` the guard uses, so it shares the guard's world model. That is how both missed P1-1 until the independent review.
 - It takes the candidates from what the player can observe: the owned set, the known part, the free key, N, the clause, the answer, the catalog, the Discovery Ladder, Rule W and the key rule.
 - The key rule: the free key is the ingredient with the recipe's key step, so nothing in the recipe is unlocked later than it.
 - It tests the candidates with no prior, and separately with one-sauce, not-one-sauce, Rule W, the key rule, Rule W + key, and a known category (alone and with Rule W + key).
@@ -162,8 +164,8 @@ The first run left three layered reserve-in-H checks alive, because each one mas
 
 | Check | Result |
 |---|---|
-| Focused `src/logic/discovery` | green, including the 14 gate tests and 3 future-category tests |
-| Full Vitest | 197 files, **4143 passed**, 1 skipped |
+| Focused `src/logic/discovery` | green, including the 14 gate tests, 3 future-category tests and 2 timing tests (P1-1, pinned as OPEN) |
+| Full Vitest | 198 files, **4145 passed**, 1 skipped |
 | `tsc -b` | clean |
 | `oxlint` | 0 warnings |
 | `npm run build` | OK; 0 DH4 strings in `dist` |
@@ -171,14 +173,50 @@ The first run left three layered reserve-in-H checks alive, because each one mas
 
 No UI change, so Human Verification does not apply.
 
-## 8. Verdict
+## 8. Independent review of the hardened guard (HEAD `172144a`)
 
-**B. READY AFTER SMALL PURE FIX.**
-- The fix is pure and fail closed.
-- It strengthens OD-DH4-2-1 / -2 without changing any decision: the D′ wording, the guard (c) structure and existence-only are all unchanged.
-- No Owner decision is required.
-- After this PR merges: **A. READY FOR DH4-2B.**
+The review ran full Vitest (4143 passed) and wrote its own attacker code. It found:
+
+| ID | Severity | Finding | Status |
+|---|---|---|---|
+| P1-1 | **P1** | **Purchase timing.** A hint target is DISCOVERABLE, and the player sees it: the free key chip, a Dex pin, a sticky target. Any ingredient bought **after** the player saw the target cannot be the reserve. The guard's H and the DH4-1 decoys still count such ingredients, so a late purchase makes the answer finer while the player can discount it. | **OPEN: Owner Decision** (§9) |
+| P2-1 | P2, pre-existing | **Ladder pairs** (Hint 3.0 / ladder generation, not DH4). When a ladder step unlocks two ingredients and one of them is the free key, the other must be in the target too. Rule W then makes it the reserve: capricciosa (black-olive), quattro-formaggi (fontina). No hint is needed. | Recorded for Hint 3.0; DH4 adds nothing to it |
+| P3-1 | P3 | Discovered-recipe exclusion: if the known part + x is a recipe the player has already discovered, x is ruled out. On the 25 runtime recipes this excludes nothing beyond the key rule. | Residual, re-checked at each catalog batch |
+| P3-2 | P3 | TC-G's `toppingTotalOf(recipe) < 1` check was dead (an equivalent mutant) | **Fixed**: removed. The min-over-H rule implies T ≥ 1. |
+| P3-3 | P3 | The attacker is only partly independent | Recorded (§2.1) |
+| P3-4 | P3 | The post-balance `NOT_A_TARGET` branches in the request authority are unreachable | Harmless; kept as fail-closed defaults |
+
+**P1-1, reproduced** (`deductionGuard.timing.test.ts`):
+- **The case.** Pepperoni at step 6 with parmigiano not bought: the answer is `attr:existence`. After parmigiano is bought, it is `attr:category:cheese`. Parmigiano was bought after the target was makeable, so the reserve is mozzarella: **named**.
+- **Size.** 300 states × one late decoy (not a starter, unlocked no later than the key): **44 leaking (state, decoy) pairs** in pepperoni (19), salsiccia (18) and genovese (7).
+  - The reviewer's sweep with 1–2 late decoys found 772 states in the same 3 recipes.
+  - DH4-2A leaks identically, so this is not a regression of this PR.
+
+## 9. Owner Decision required: the purchase-timing threat model (P1-1)
+
+| Option | What it does | Usefulness (300-state ladder model: states with an informative 特徴) | Persistence | Privacy |
+|---|---|---|---|---|
+| **T1. Snapshot at makeable** (recommended) | H and the DH4-1 decoys come from the owned set **at the moment the target became makeable**, not from today's inventory. | **177 / 300**, the same as now: in the ladder model nothing bought later ever counted | **T1a:** derived from the order of `ownedIngredientIds`. It is append order today (starters first, then purchases; Firebase merge appends), so there is **no schema change**. The order becomes a guaranteed contract, pinned by tests.<br>**T1b:** a stored per-target snapshot (schema addition, migration) | Closes P1-1. A player's timing knowledge (what they owned when the target appeared) is exactly the snapshot. |
+| T2. Restrictive, pure | Informative 特徴 and the clause only when **nothing was acquired after the latest known-part ingredient**; otherwise existence (free) | **13 / 300** (only the step where the target became makeable) | none | Closes P1-1 |
+| T3. Accept | Keep today's inventory as H; document P1-1 as accepted interaction inference | 177 / 300 | none | 44+ named states in 3 recipes |
+
+**Also for the Owner to note, pre-existing and not DH4:**
+- **The moment a target becomes DISCOVERABLE is observable.** The Dex `？？？` card gains its hint button, and HOME says 「作れそう」. So the purchase that made it DISCOVERABLE is in the recipe.
+- **The same leak in both T1 and today's code.** When that last purchase is the reserve and the rest is known, the reserve is named without any hint. T1 and today's code behave the same here.
+- **Ladder pairs** (P2-1 above).
+
+**Recommendation: T1a.**
+- It keeps the Owner-decided usefulness.
+- It needs no schema change.
+- The ordering contract gets tests: purchase appends, load keeps order, the Firebase merge appends.
+
+## 10. Verdict
+
+**C. OWNER DECISION REQUIRED.**
+- **This PR** is a safe, pure strengthening of the DH4-2A authority: P2-1, P2-2, the key rule and the P3 items. Its tests pin the P1-1 leak as OPEN, so nothing hides it.
+- **DH4-2B does not start** until the Owner decides T1 / T2 / T3.
+- **With T1a or T2,** that is a further small pure change in this gate before DH4-2B.
 
 **Residual, not blocking:**
-- Priors that are not category-defined are outside this model, for example "X and Y never appear together". They go to the catalog batch re-audit and DH4-2D.
+- Priors that are not category-defined are outside this model, for example "X and Y never appear together" and the discovered-recipe exclusion. They go to the catalog batch re-audit and DH4-2D.
 - The Python audit tool still models the DH4-2A guard. A port is optional and belongs to DH4-2D.
