@@ -738,6 +738,7 @@ describe("loadSave: v2 sanitize/pass-through (Save v2 / Inventory E0)", () => {
       unlockedForShopIngredientIds: ["egg", "onion"],
       discoveryHintPurchases: { bismarck: 2 },
       discoveryHintFacts: { bismarck: ["ing:tomato-sauce"] },
+      discoveredTechniqueIds: ["no-sauce"],
     };
     const storage = fakeStorage({ [SAVE_STORAGE_KEY]: JSON.stringify(v2) });
     expect(loadSave(storage)).toEqual(v2);
@@ -1002,6 +1003,8 @@ describe("Save schema unaffected by Scoring 2.0 Shadow (Phase 4A-2 scope guard)"
         "discoveryHintPurchases",
         // Discovery Hint 3.0 (Issue #238, H3-2): the Selectable Hint fact ledger, not a scoring field.
         "discoveryHintFacts",
+        // Cooking Techniques 1.0 TQ-1A (Issue #262): the technique ledger, not a scoring field.
+        "discoveredTechniqueIds",
       ].sort(),
     );
   });
@@ -1054,6 +1057,7 @@ describe("Save compatibility across the A1 Authority Cutover (pre-cutover save s
       unlockedForShopIngredientIds: [],
       discoveryHintPurchases: {},
       discoveryHintFacts: {},
+      discoveredTechniqueIds: [],
     };
     const storage = fakeStorage({ [SAVE_STORAGE_KEY]: JSON.stringify(preCutoverSave) });
     const loaded = loadSave(storage);

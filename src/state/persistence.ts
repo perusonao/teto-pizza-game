@@ -4,6 +4,7 @@ import type { DexEntry, DexState } from "./dex";
 import type { QualityStars } from "../logic/scoring";
 import { isNewMissionBest } from "../logic/missionScoring";
 import type { InventoryState } from "./inventory";
+import { isTechniqueId, KNOWN_TECHNIQUE_IDS } from "../data/techniques";
 
 /**
  * Minimal cross-reload persistence (Phase 3C-2, see
@@ -162,7 +163,18 @@ export interface PersistentSaveV2 {
    *  recipe id this build does not know is kept in storage by `writeSave`. `discoveryHintPurchases`
    *  stays the read-only legacy authority (Hint Economy 1.0 levels); nothing here rewrites it. */
   discoveryHintFacts: Record<string, string[]>;
+  /** Cooking Techniques 1.0 TQ-1A (Issue #262): the ledger of discovered cooking techniques
+   *  (../data/techniques.ts ids, e.g. `no-sauce`). Added to v2 without a schema bump, exactly like
+   *  the ledgers above: an absent/malformed value reads back as `[]`. A ledger -- merged as a
+   *  union, never lowered or removed except by `resetSave` (Full Game Reset). Known ids are kept
+   *  once each in first-seen order (at most `MAX_TECHNIQUE_LEDGER_SIZE`); a well-formed id this
+   *  build does not know (a technique a newer build added) is kept in storage by `writeSave`,
+   *  never dropped, and never read by gameplay. Unwired in TQ-1A: nothing writes it yet. */
+  discoveredTechniqueIds: string[];
 }
+
+/** TQ-1A: upper bound of stored technique ids (known + unknown). The registry is far smaller. */
+export const MAX_TECHNIQUE_LEDGER_SIZE = 64;
 
 const KNOWN_RECIPE_IDS: readonly string[] = RECIPES.map((r) => r.id);
 const KNOWN_INGREDIENT_IDS: readonly string[] = INGREDIENTS.map((i) => i.id);
@@ -296,6 +308,17 @@ function sanitizeStarterGrantClaimedRecipeIds(raw: unknown): string[] {
  * A starter is never listed (always unlimited, never for sale); an unknown id is not returned
  * here but survives in storage through `extractForwardCompatExtras`/`writeSave`.
  */
+/** TQ-1A: known technique ids, once each, first-seen order, capped. Anything else is dropped here
+ *  (a well-formed unknown id survives in storage through `extractForwardCompatExtras`). */
+function sanitizeDiscoveredTechniqueIds(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return [];
+  const seen: string[] = [];
+  for (const id of raw) {
+    if (isTechniqueId(id) && !seen.includes(id)) seen.push(id);
+  }
+  return seen.slice(0, MAX_TECHNIQUE_LEDGER_SIZE);
+}
+
 function sanitizeUnlockedForShopIngredientIds(raw: unknown): string[] {
   if (!Array.isArray(raw)) return [];
   const seen = new Set<string>();
@@ -464,6 +487,8 @@ export function migrateV1toV2(v1: PersistentSaveV1): PersistentSaveV2 {
     discoveryHintPurchases: {},
     // H3-2: no Selectable Hint facts existed in v1.
     discoveryHintFacts: emptyHintFacts(),
+    // TQ-1A: no technique existed in v1.
+    discoveredTechniqueIds: [],
   };
 }
 
@@ -479,6 +504,7 @@ export function createDefaultSave(): PersistentSaveV2 {
     unlockedForShopIngredientIds: [],
     discoveryHintPurchases: {},
     discoveryHintFacts: emptyHintFacts(),
+    discoveredTechniqueIds: [],
   };
 }
 
@@ -547,6 +573,8 @@ interface ForwardCompatExtras {
   discoveryHintPurchases: Record<string, number>;
   /** H3-2: fact ledgers of well-formed recipe ids this build does not know. */
   discoveryHintFacts: Record<string, string[]>;
+  /** TQ-1A: well-formed technique ids this build does not know. */
+  discoveredTechniqueIds: string[];
 }
 
 const KNOWN_SAVE_KEYS: ReadonlySet<string> = new Set([
@@ -560,6 +588,7 @@ const KNOWN_SAVE_KEYS: ReadonlySet<string> = new Set([
   "unlockedForShopIngredientIds",
   "discoveryHintPurchases",
   "discoveryHintFacts",
+  "discoveredTechniqueIds",
 ]);
 
 const FORWARD_COMPAT_ID_PATTERN = /^[a-z0-9][a-z0-9_-]{0,63}$/;
@@ -630,6 +659,7 @@ function extractForwardCompatExtras(raw: unknown): ForwardCompatExtras | null {
     unlockedForShopIngredientIds: unknownIdsIn(r.unlockedForShopIngredientIds, KNOWN_INGREDIENT_IDS),
     discoveryHintPurchases,
     discoveryHintFacts: hintFactsFor(r.discoveryHintFacts, isUnknownRecipeId),
+    discoveredTechniqueIds: unknownIdsIn(r.discoveredTechniqueIds, KNOWN_TECHNIQUE_IDS),
   };
 }
 
@@ -669,6 +699,10 @@ function writeSave(storage: StorageLike, next: PersistentSaveV2): void {
     ),
     discoveryHintPurchases: { ...extras.discoveryHintPurchases, ...next.discoveryHintPurchases },
     discoveryHintFacts: unionHintFacts(next.discoveryHintFacts, extras.discoveryHintFacts),
+    discoveredTechniqueIds: appendNew(next.discoveredTechniqueIds, extras.discoveredTechniqueIds).slice(
+      0,
+      MAX_TECHNIQUE_LEDGER_SIZE,
+    ),
   };
   storage.setItem(SAVE_STORAGE_KEY, JSON.stringify(merged));
 }
@@ -702,6 +736,7 @@ function sanitizeSave(raw: unknown): PersistentSaveV2 | null {
     ),
     discoveryHintPurchases: sanitizeDiscoveryHintPurchases(intermediate.discoveryHintPurchases),
     discoveryHintFacts: sanitizeDiscoveryHintFacts(intermediate.discoveryHintFacts),
+    discoveredTechniqueIds: sanitizeDiscoveredTechniqueIds(intermediate.discoveredTechniqueIds),
   };
 }
 
@@ -835,6 +870,9 @@ export interface ProgressionSnapshot {
    *  (no caller passes it before H3-3); a given one is merged per recipe as a set union (never
    *  lowered, never removed). */
   discoveryHintFacts?: Readonly<Record<string, readonly string[]>>;
+  /** TQ-1A: the technique ledger. Optional -- absent leaves the stored ledger as it is (no caller
+   *  passes it before TQ-1C); a given one is merged as a union (never lowered, never removed). */
+  discoveredTechniqueIds?: readonly string[];
 }
 
 /** Per-id `max` of two purchase ledgers, sanitized. A level can only go up. */
@@ -923,6 +961,12 @@ export function persistProgress(
         ? current.discoveryHintFacts
         : unionHintFacts(current.discoveryHintFacts, sanitizeDiscoveryHintFacts(snapshot.discoveryHintFacts));
     const factsUnchanged = sameHintFacts(nextDiscoveryHintFacts, current.discoveryHintFacts);
+    // TQ-1A: the technique ledger -- a union, so a stale snapshot never drops a technique.
+    const nextDiscoveredTechniqueIds =
+      snapshot.discoveredTechniqueIds === undefined
+        ? current.discoveredTechniqueIds
+        : sanitizeDiscoveredTechniqueIds([...current.discoveredTechniqueIds, ...snapshot.discoveredTechniqueIds]);
+    const techniquesUnchanged = sameStringSet(nextDiscoveredTechniqueIds, current.discoveredTechniqueIds);
     if (
       dexUnchanged &&
       pitzUnchanged &&
@@ -931,7 +975,8 @@ export function persistProgress(
       claimedUnchanged &&
       unlockedForShopUnchanged &&
       purchasesUnchanged &&
-      factsUnchanged
+      factsUnchanged &&
+      techniquesUnchanged
     ) {
       return;
     }
@@ -946,6 +991,7 @@ export function persistProgress(
       unlockedForShopIngredientIds: nextUnlockedForShop,
       discoveryHintPurchases: nextDiscoveryHintPurchases,
       discoveryHintFacts: nextDiscoveryHintFacts,
+      discoveredTechniqueIds: nextDiscoveredTechniqueIds,
     };
     writeSave(storage, next);
   } catch {

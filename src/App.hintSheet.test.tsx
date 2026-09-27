@@ -85,8 +85,11 @@ describe("Free Cooking hint sheet in the App (229-B)", () => {
     await user.click(within(dialog).getByRole("button", { name: "閉じる" }));
 
     const after = JSON.parse(window.localStorage.getItem(SAVE_STORAGE_KEY)!);
-    const { pitzBalance, discoveryHintPurchases, discoveryHintFacts, ...rest } = after;
+    const { pitzBalance, discoveryHintPurchases, discoveryHintFacts, discoveredTechniqueIds, ...rest } = after;
     expect(pitzBalance).toBe(300 - 15);
+    // Cooking Techniques TQ-1A: a write fills the technique ledger's empty default on a save that
+    // predates it -- the only other key a write may add; the hint purchase never touches it.
+    expect(discoveredTechniqueIds).toEqual([]);
     expect(discoveryHintPurchases).toEqual({});
     expect(discoveryHintFacts).toEqual({ "breakfast-pizza": ["ing:mozzarella", "ing:tomato-sauce"] });
     expect(after.schemaVersion).toBe(2);
