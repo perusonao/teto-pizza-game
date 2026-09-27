@@ -263,7 +263,7 @@ The R-numbers are the required test list. The files are `gameReducer.dinner.test
 | `oxlint` | 0 warnings / 0 errors |
 | `vite build` | success. Production bundle: 0 `location.search`. |
 | Chromium E2E (iphone-390x844, iphone-360x800, layout-chromium) | see §10.1 |
-| WebKit / Layout Contract Gate (CI) | see §20 |
+| WebKit / Layout Contract Gate (CI) | success on `7a18e29` (§20) |
 
 ### 10.1 Chromium E2E
 
@@ -390,4 +390,8 @@ Full Vitest after the fix: 190 files, **4037 passed / 1 skipped**. `tsc -b`, `ox
 ## 20. PR / CI
 
 - PR #252 (`claude/dm-3r-2-result-detection-ioac6d` → `main`), no auto-merge.
-- CI on the final head: recorded on the PR checks.
+- GitHub CI on the code head `7a18e29` (after the review fix): **all 9 checks succeeded**:
+  - `classify`, `build`, `layout-chromium`, **Layout Contract Gate**
+  - `webkit webkit-390x844 shard 1/2` and `2/2`, `webkit webkit-360x800 shard 1/2` and `2/2`, **WebKit Gate**
+- Mergeable: clean against `main` `726b0ac`. No open review threads (both Codex P2 threads are fixed and resolved).
+- This CI record is a docs-only commit (no code change).
