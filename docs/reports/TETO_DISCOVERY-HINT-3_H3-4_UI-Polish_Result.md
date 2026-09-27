@@ -16,7 +16,7 @@
 | Issue | #238 (the parent of every Hint 3.0 slice; the Duplicate Gate found no H3-4 issue or PR) |
 | Branch | `claude/h3-4-fresh-audit-5hhkoi`: `main` + the audit commit + this implementation. That is linear history on top of the latest `main`, so the branch was reused. |
 | PR | #251 (`main` ← `claude/h3-4-fresh-audit-5hhkoi`), OPEN, no auto-merge |
-| Final HEAD | {{HEAD}} |
+| Final HEAD | The docs-only commit that records this table, on top of `9a47b6e`. The code is unchanged since `9b3db21`. CI was verified green on `9a47b6e` (§11). |
 
 ## 2. Owner Decisions (Owner Authority, recorded)
 
@@ -283,7 +283,15 @@ Key comparisons:
 | `npm run build` | OK (only the existing chunk-size warning) |
 | Hint E2E (Chromium: `iphone-390x844`, `iphone-360x800`, `layout-chromium`) | 13 passed, 11 skipped (width guards) |
 | Full Chromium E2E + Layout Contract | `iphone-390x844` + `iphone-360x800` + `layout-chromium` (the full suite, including the Layout Contract LC-* and the DM-3R-0 Stage Size Stability LC-S1..S4): **175 passed, 22 skipped (width guards), 0 failed** |
-| CI / WebKit (PR) | {{CI}} |
+| CI / WebKit (PR) | PR #251 head `9a47b6e` (the same code as `9b3db21`): **all green**. Runs 36304820218 (E2E) / 36304820216 (build).
+- `classify`, `build` (lint + Vitest + build), `layout-chromium`, `Layout Contract Gate`: success.
+- `webkit-390x844` shards 1/2 and 2/2: success.
+- `webkit-360x800` shards 1/2 and 2/2: success.
+- `WebKit Gate`: success.
+
+On the first head `9b3db21`, the WebKit Gate reported *failure*. The only cause was that the docs push `9a47b6e` cancelled shard 390 1/2 mid-run (`WEBKIT_RESULT: cancelled`). The other three shards had passed, and no test failed.
+- `main` at the end: still `726b0ac`.
+- The PR is mergeable (`clean`). |
 
 ## 12. Residual risks
 
@@ -318,4 +326,18 @@ No economy number changes in H3-4.
 
 ## 14. Verdict
 
-{{VERDICT}}
+**A. H3-4 READY FOR OWNER REVIEW.**
+
+- OD-H3-4-1…10 are implemented as presentation only.
+- Must-preserve items verified:
+  - authority, persistence/migration and the reducer are unchanged;
+  - the latch and the stale-request guard are green;
+  - the legacy 0-price real fact is exercised end to end;
+  - GUIDANCE_ONLY charges nothing.
+- Full Vitest, Chromium E2E + Layout Contract, and WebKit CI are green.
+- The HV package (videos, screenshots, Preview-only seeds) is ready.
+
+Open for the Owner:
+- (1) Dispatch the Preview build for PR #251 (outside this session's scope, §10) and do the real-iPhone pass of HV-1…17.
+- (2) Optionally re-word 「今あるヒントはここまで」 (§12).
+- (3) Merge decision. **Not merged.**
