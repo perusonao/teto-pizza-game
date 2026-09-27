@@ -37,10 +37,17 @@ import {
 import { buildHintSteps, type HintLevel, type HintStep } from "../logic/discovery/hintSteps";
 import { discoverableHintCandidates, selectHintTarget, type HintEmptyKind } from "../logic/discovery/hintTarget";
 import { selectableHintSavedState } from "../logic/discovery/hintFactMigration";
+import { DEDUCTION_HINTS_ENABLED } from "../logic/discovery/deductionFlag";
+import { INGREDIENT_TOTAL_FACT_ID } from "../logic/discovery/deductionHint";
+import { TOPPING_TOTAL_FACT_ID } from "../logic/discovery/deductionGuard";
+import { deductionKnownLines, deductionOwnership, requestDeductionHint, type DeductionFamily } from "../logic/discovery/deductionRequest";
+
+export type { DeductionFamily };
 import {
   buildSelectableHintModel,
   hintFactId,
   purchaseSelectableHint,
+  selectableHintBatchPrice,
   selectableHintPresentation,
   type HintCategory,
   type SelectableHintModel,
@@ -74,8 +81,41 @@ export interface DiscoveryHintState {
   hintOutcome?: HintOutcome | null;
 }
 
-/** OD-H3-17: a request with nothing unrevealed for sale answers with generic guidance only. */
-export type HintOutcome = "GUIDANCE_ONLY";
+/**
+ * The last request's non-purchase outcome, shown once in the sheet (session UI only).
+ * - `GUIDANCE_ONLY` (OD-H3-17): a 材料 request with nothing unrevealed for sale.
+ * - DH4-2B (OD-DH4-2-4 / §15): a 構成 request with nothing new to tell (`STRUCTURE_GUIDANCE_ONLY`), a
+ *   特徴 request whose answer is existence only (`ATTRIBUTE_EXISTENCE_ONLY`), or a family already
+ *   answered (`*_ALREADY_OWNED`). None of them charges or stores anything.
+ */
+export type HintOutcome =
+  | "GUIDANCE_ONLY"
+  | "STRUCTURE_GUIDANCE_ONLY"
+  | "STRUCTURE_ALREADY_OWNED"
+  | "ATTRIBUTE_EXISTENCE_ONLY"
+  | "ATTRIBUTE_ALREADY_OWNED";
+
+/**
+ * DH4-2B: the 構成 / 特徴 part of the SELECTABLE sheet (flag only, E3). Built from the player's own
+ * ledgers only: no availability, answer level, candidate count, remaining count or reserve.
+ */
+export interface DeductionSheetView {
+  /** 構成: the stored total line, then the stored topping line (never 0). */
+  structureLines: readonly string[];
+  /** 特徴: the stored informative attribute line. */
+  attributeLines: readonly string[];
+  /** The total is known only through a legacy 「材料は全部で○種類」 line (the 「以前のヒント」 archive). */
+  legacyStructure: boolean;
+  /** A 構成 request was answered under Hint 4.0 (stored total or clause): 「✓ もらいずみ」. */
+  structureOwned: boolean;
+  /** An informative 特徴 answer is stored: 「✓ もらいずみ」. */
+  attributeOwned: boolean;
+  /** The provisional price of the next 構成 / 特徴 request (the same for both, for every target). */
+  nextPrice: number;
+  /** The shared paid count to echo back as `expectedPaidCount`. */
+  paidCount: number;
+  affordable: boolean;
+}
 
 /** The next level the sheet offers. Says nothing about what that level reveals. */
 export interface HintUnlockOffer {
@@ -109,6 +149,8 @@ export type HintSheetView =
        *  fact, never for sale, never priced. H3-4 decides the final presentation. */
       grandfatheredSteps: readonly HintStep[];
       outcome: HintOutcome | null;
+      /** DH4-2B: `null` unless the E3 flag is on (DEV / Preview). */
+      deduction: DeductionSheetView | null;
     }
   | { kind: HintEmptyKind };
 
@@ -294,13 +336,119 @@ export function purchaseSelectableHintFact(
   return { pitzBalance: result.nextPitzBalance, discoveryHintFacts: ledger, hintOutcome: null };
 }
 
-export function hintSheetView(state: DiscoveryHintState): HintSheetView {
+/** The recipe's stored Hint fact ids (unknown / future ids included, as H3-2 keeps them). */
+function storedFactIds(state: Pick<DiscoveryHintState, "discoveryHintFacts">, recipeId: string): readonly string[] {
+  const facts = state.discoveryHintFacts;
+  const own = Object.prototype.hasOwnProperty.call(facts, recipeId) ? facts[recipeId] : undefined;
+  return Array.isArray(own) ? own.filter((id): id is string => typeof id === "string") : [];
+}
+
+/**
+ * DH4-2B (E3, provisional until DH4-ECON): 構成 and 特徴 share the material ESC rung. The shared
+ * paid count is the 材料 paid count (legacy rungs included) plus one per deduction family bought
+ * under Hint 4.0; the next request costs that rung (5 / 10 / 20 / 40, then 40). It depends only on
+ * what this player paid, never on the target's answers. The 材料 price itself is unchanged.
+ */
+function deductionPricing(state: DiscoveryHintState, context: NonNullable<ReturnType<typeof selectableContext>>) {
+  const { model, saved } = context;
+  const materialPaid = selectableHintPresentation(model, saved.purchasedFactIds, state.pitzBalance, saved.legacy).paidCount;
+  const stored = storedFactIds(state, model.recipeId);
+  const own = deductionOwnership(model.recipeId, stored, {});
+  const structureBought = stored.includes(INGREDIENT_TOTAL_FACT_ID) || stored.includes(TOPPING_TOTAL_FACT_ID);
+  const paidCount = materialPaid + (structureBought ? 1 : 0) + (own.attributeOwned ? 1 : 0);
+  return { paidCount, nextPrice: selectableHintBatchPrice(paidCount, 1, Number.POSITIVE_INFINITY), stored, structureBought, attributeOwned: own.attributeOwned };
+}
+
+function deductionContext(state: DiscoveryHintState) {
+  return { discoveredCount: discoveredCount(state.dex), ownedIngredientIds: state.ownedIngredientIds };
+}
+
+const DEDUCTION_OUTCOMES = {
+  structure: { GUIDANCE_ONLY: "STRUCTURE_GUIDANCE_ONLY", ALREADY_OWNED: "STRUCTURE_ALREADY_OWNED" },
+  attribute: { EXISTENCE_ONLY: "ATTRIBUTE_EXISTENCE_ONLY", ALREADY_OWNED: "ATTRIBUTE_ALREADY_OWNED" },
+} as const;
+
+/**
+ * DH4-2B: one 構成 / 特徴 request for the session target -- the patch to apply, or `null` when it is
+ * rejected (nothing changes). The DH4-2A pure authority (`requestDeductionHint`) decides everything
+ * in its fixed order (family -> target -> price -> STALE -> balance -> answer); this only supplies
+ * its inputs and applies the result.
+ *
+ * - Only with the E3 flag (`enabled`, DEV / Preview). Production: always `null`.
+ * - ANSWERED: Pitz is debited once and the new fact ids are appended to the target's ledger (unknown
+ *   / future ids kept) in the same patch.
+ * - EXISTENCE_ONLY / GUIDANCE_ONLY / ALREADY_OWNED: only the transient `hintOutcome` changes -- no
+ *   Pitz, no ledger (OD-DH4-2-4).
+ * - Any rejection (not the session's DISCOVERABLE target, stale paid count, balance, ...) is `null`:
+ *   the reason is never surfaced.
+ */
+export function requestDeductionHintFact(
+  state: DiscoveryHintState,
+  family: DeductionFamily,
+  expectedPaidCount: number,
+  enabled: boolean = DEDUCTION_HINTS_ENABLED,
+): SelectableHintPatch | null {
+  if (!enabled) return null;
+  const session = state.hintSession;
+  if (!session || !isSessionTarget(state, session)) return null;
+  const context = selectableContext(state, session);
+  if (!context) return null;
+  const pricing = deductionPricing(state, context);
+  const result = requestDeductionHint({
+    family,
+    recipeId: context.model.recipeId,
+    context: deductionContext(state),
+    storedFactIds: pricing.stored,
+    legacyPurchases: state.discoveryHintPurchases,
+    requestPrice: pricing.nextPrice,
+    paidCount: pricing.paidCount,
+    expectedPaidCount,
+    pitzBalance: state.pitzBalance,
+  });
+  switch (result.outcome) {
+    case "REJECTED":
+      return null;
+    case "ANSWERED": {
+      const merged = [...pricing.stored, ...result.addFactIds.filter((id) => !pricing.stored.includes(id))];
+      const ledger: Record<string, readonly string[]> = Object.create(null) as Record<string, readonly string[]>;
+      for (const [id, facts] of Object.entries(state.discoveryHintFacts)) ledger[id] = facts;
+      ledger[context.model.recipeId] = merged;
+      return { pitzBalance: state.pitzBalance - result.charge, discoveryHintFacts: ledger, hintOutcome: null };
+    }
+    case "EXISTENCE_ONLY":
+      return { hintOutcome: DEDUCTION_OUTCOMES.attribute.EXISTENCE_ONLY };
+    case "GUIDANCE_ONLY":
+      return { hintOutcome: DEDUCTION_OUTCOMES.structure.GUIDANCE_ONLY };
+    case "ALREADY_OWNED":
+      return { hintOutcome: DEDUCTION_OUTCOMES[result.family].ALREADY_OWNED };
+  }
+}
+
+/** DH4-2B: the 構成 / 特徴 sheet part, or `null` when the flag is off. */
+function deductionSheetView(state: DiscoveryHintState, context: NonNullable<ReturnType<typeof selectableContext>>, enabled: boolean): DeductionSheetView | null {
+  if (!enabled) return null;
+  const pricing = deductionPricing(state, context);
+  const lines = deductionKnownLines(context.model.recipeId, deductionContext(state), pricing.stored, state.discoveryHintPurchases);
+  const balance = Number.isFinite(state.pitzBalance) ? state.pitzBalance : 0;
+  return {
+    structureLines: lines.structure,
+    attributeLines: lines.attribute,
+    legacyStructure: lines.legacyStructure,
+    structureOwned: pricing.structureBought,
+    attributeOwned: pricing.attributeOwned,
+    nextPrice: pricing.nextPrice,
+    paidCount: pricing.paidCount,
+    affordable: balance >= pricing.nextPrice,
+  };
+}
+
+export function hintSheetView(state: DiscoveryHintState, deductionEnabled: boolean = DEDUCTION_HINTS_ENABLED): HintSheetView {
   const session = state.hintSession;
   const steps = session ? stepsFor(session.targetId, state.dex) : [];
   if (!session || steps.length === 0) {
     const target = selectHintTarget(state);
     // A target without a session only happens before SHOW_HINT ran; show it as SHOW_HINT would.
-    if (target.kind === "TARGET") return hintSheetView({ ...state, hintSession: { targetId: target.recipeId, revealedIndex: 0 } });
+    if (target.kind === "TARGET") return hintSheetView({ ...state, hintSession: { targetId: target.recipeId, revealedIndex: 0 } }, deductionEnabled);
     return { kind: target.kind };
   }
   const context = selectableContext(state, session);
@@ -312,6 +460,7 @@ export function hintSheetView(state: DiscoveryHintState): HintSheetView {
       presentation: selectableHintPresentation(model, saved.purchasedFactIds, state.pitzBalance, saved.legacy),
       grandfatheredSteps: saved.grandfatheredSteps,
       outcome: state.hintOutcome ?? null,
+      deduction: deductionSheetView(state, context, deductionEnabled),
     };
   }
   const index = shownIndex(state, session, steps);

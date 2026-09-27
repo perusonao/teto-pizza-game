@@ -340,8 +340,8 @@ describe("DH4-1 fact ids survive the real save path", () => {
   });
 });
 
-describe("DH4-1 is unwired", () => {
-  it("no production module imports the Deduction Hint layer or the taxonomy yet (only tests and testSupport)", () => {
+describe("DH4-1 wiring boundary", () => {
+  it("only the layer itself and the DH4-2B hint state module import deductionHint / the taxonomy", () => {
     const sources = import.meta.glob<string>(["../../**/*.{ts,tsx}", "!../../**/*.test.{ts,tsx}"], { query: "?raw", import: "default", eager: true });
     const importers = Object.entries(sources)
       .filter(([path]) => !path.includes("/testSupport/"))
@@ -352,7 +352,8 @@ describe("DH4-1 is unwired", () => {
     // DH4-2A (Issue #253) adds the guard and the request authority to the same unwired layer. They are
     // the only importers besides DH4-1 itself; no production module imports the layer
     // (deductionGuard.test.ts T-15 pins the same boundary for the DH4-2A modules).
-    expect(importers).toEqual(["./deductionGuard.ts", "./deductionHint.ts", "./deductionRequest.ts"]);
+    // DH4-2B: src/state/discoveryHint.ts is the one production module that wires the layer.
+    expect(importers).toEqual(["../../state/discoveryHint.ts", "./deductionGuard.ts", "./deductionHint.ts", "./deductionRequest.ts"]);
   });
 });
 
