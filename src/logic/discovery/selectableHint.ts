@@ -217,9 +217,25 @@ export type SelectableHintPurchaseFailure =
   /** The event was built for another paid count (double tap, stale sheet). */
   | "STALE"
   /** The balance does not cover the requested batch. Decided on the request, not on what is left. */
-  | "INSUFFICIENT_PITZ"
-  /** Nothing unrevealed is for sale. No Pitz is taken. */
-  | "NOTHING_TO_REVEAL";
+  | "INSUFFICIENT_PITZ";
+
+/** OD-H3-17: the only thing a request with nothing unrevealed for sale may say -- "think with the
+ *  hints you already have". Never a count, a category absence, "that's all" or the reserve. */
+export const SELECTABLE_HINT_GUIDANCE = "THINK_WITH_KNOWN_HINTS";
+
+/**
+ * OD-H3-17 (zero purchasable fact): the request is answered with generic guidance. Nothing is
+ * charged, the paid progress and the purchased facts do not move, and nothing is to be persisted.
+ * Same for every recipe and every exhausted target (pizza-bianca is not special-cased). A player
+ * may guess from it that no more hints exist: INTERACTION INFERENCE, allowed like OD-H3-16's paid
+ * inference; the pre-purchase presentation still leaks nothing (FREE LEAK stays forbidden).
+ */
+export interface SelectableHintGuidanceResult {
+  success: false;
+  reason: "GUIDANCE_ONLY";
+  guidance: typeof SELECTABLE_HINT_GUIDANCE;
+  price: 0;
+}
 
 export interface SelectableHintPurchaseInput {
   model: SelectableHintModel | null;
@@ -281,7 +297,8 @@ export type SelectableHintPurchaseResult =
       /** false for the Dex-0 onboarding: the caller must not write it to the save. */
       persist: boolean;
     }
-  | { success: false; reason: SelectableHintPurchaseFailure };
+  | { success: false; reason: SelectableHintPurchaseFailure }
+  | SelectableHintGuidanceResult;
 
 /**
  * The single authority for one Selectable Hint purchase (same "pure rule, the reducer only applies
@@ -301,7 +318,7 @@ export function purchaseSelectableHint(input: SelectableHintPurchaseInput): Sele
   const requestedPrice = model.onboarding ? 0 : selectableHintBatchPrice(paidCount, preferences.length, model.priceCap);
   if (!Number.isFinite(input.pitzBalance) || input.pitzBalance < requestedPrice) return { success: false, reason: "INSUFFICIENT_PITZ" };
   const revealed = resolveHintPreferences(model, owned, preferences);
-  if (revealed.length === 0) return { success: false, reason: "NOTHING_TO_REVEAL" };
+  if (revealed.length === 0) return { success: false, reason: "GUIDANCE_ONLY", guidance: SELECTABLE_HINT_GUIDANCE, price: 0 };
   const price = model.onboarding ? 0 : selectableHintBatchPrice(paidCount, revealed.length, model.priceCap);
   const ownedIds = new Set([...bought, ...revealed].map((f) => f.ingredientId));
   return {

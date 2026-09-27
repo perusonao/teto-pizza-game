@@ -13,6 +13,7 @@ import {
   purchaseSelectableHint,
   reservedIngredientId,
   resolveHintPreferences,
+  SELECTABLE_HINT_GUIDANCE,
   selectableHintBatchPrice,
   selectableHintNextPrice,
   selectableHintPresentation,
@@ -29,6 +30,8 @@ import {
  */
 
 const DEX1 = { discoveredCount: 1 };
+/** OD-H3-17: the zero-purchasable-fact answer. */
+const GUIDANCE = { success: false, reason: "GUIDANCE_ONLY", guidance: SELECTABLE_HINT_GUIDANCE, price: 0 } as const;
 const PAID_TARGETS = RECIPES.filter((r) => r.id !== "margherita");
 /** Fresh Design §3: unique by (cheese count, topping count) among the 25. */
 const SLOT_COUNT_LEAK_RECIPES = ["quattro-formaggi", "pizza-bianca", "parmigiana-pizza", "pesto-tonno", "puttanesca-pizza"];
@@ -257,10 +260,7 @@ describe("Dex 0 Margherita onboarding (OD-H3-8)", () => {
     }
     expect(owned).toHaveLength(3);
     expect(selectableHintPresentation(m, owned, 0)).toMatchObject({ nextPrice: 0, onboarding: true, affordable: true });
-    expect(purchaseSelectableHint({ model: m, purchasedFactIds: owned, preferences: ["sauce"], expectedPaidCount: 0, pitzBalance: 0 })).toEqual({
-      success: false,
-      reason: "NOTHING_TO_REVEAL",
-    });
+    expect(purchaseSelectableHint({ model: m, purchasedFactIds: owned, preferences: ["sauce"], expectedPaidCount: 0, pitzBalance: 0 })).toEqual(GUIDANCE);
   });
 
   it("only Margherita at Dex 0 is free; any other target at Dex 0 is priced", () => {
@@ -302,14 +302,14 @@ describe("category preference and fallback (OD-H3-14)", () => {
       const m = model(recipe.id);
       for (const pref of HINT_CATEGORIES) {
         const r = purchaseSelectableHint({ model: m, purchasedFactIds: [], preferences: [pref], expectedPaidCount: 0, pitzBalance: 999 });
-        if (m.purchasableFacts.length === 0) expect(r).toEqual({ success: false, reason: "NOTHING_TO_REVEAL" });
+        if (m.purchasableFacts.length === 0) expect(r).toEqual(GUIDANCE);
         else expect(r.success).toBe(true);
         expect(JSON.stringify(r)).not.toMatch(/EMPTY|NONE|none:|COMPLETE/);
       }
     }
   });
 
-  it("exhaustive: any preference sequence reveals all sellable facts, and only them, before NOTHING_TO_REVEAL", () => {
+  it("exhaustive: any preference sequence reveals all sellable facts, and only them, before the generic guidance", () => {
     for (const recipe of PAID_TARGETS) {
       const m = model(recipe.id);
       for (const seq of sequences(m.purchasableFacts.length)) {
@@ -324,7 +324,7 @@ describe("category preference and fallback (OD-H3-14)", () => {
         expect([...owned].sort()).toEqual(m.purchasableFacts.map((f) => f.id).sort());
         expect(999 - balance).toBe(fullCost(m));
         const after = purchaseSelectableHint({ model: m, purchasedFactIds: owned, preferences: ["sauce"], expectedPaidCount: owned.length, pitzBalance: balance });
-        expect(after).toEqual({ success: false, reason: "NOTHING_TO_REVEAL" });
+        expect(after).toEqual(GUIDANCE);
       }
     }
   });
@@ -520,7 +520,7 @@ describe("legacy Hint Economy 1.0 progress (OD-H3-9: no rung roll-back, no re-ch
   it("old H4: everything sellable is owned, the cap is reached, nothing is charged", () => {
     const legacy = { paidRungs: 4, grantedFactIds: nap.purchasableFacts.map((f) => f.id) };
     expect(selectableHintPresentation(nap, [], 0, legacy)).toMatchObject({ paidCount: 4, nextPrice: 0 });
-    expect(buy(nap, [], legacy, 0)).toEqual({ success: false, reason: "NOTHING_TO_REVEAL" });
+    expect(buy(nap, [], legacy, 0)).toEqual(GUIDANCE);
   });
 
   it("a granted fact also present in the new ledger is not counted twice", () => {
@@ -553,6 +553,154 @@ describe("legacy Hint Economy 1.0 progress (OD-H3-9: no rung roll-back, no re-ch
   });
 });
 
+describe("OD-H3-17: zero purchasable facts -> generic guidance (no charge, no progress, no record)", () => {
+  const bianca = model("pizza-bianca");
+  /** A future recipe with the same shape as pizza-bianca (free key + reserve, nothing to sell),
+   *  under another id: proves there is no recipe-id special case. */
+  const FUTURE: Recipe = {
+    id: "future-zero-fact" as Recipe["id"],
+    nameJa: "",
+    description: "",
+    requiredIngredients: [
+      { ingredientId: "pesto", minCount: 1 },
+      { ingredientId: "cherry-tomato", minCount: 3 },
+    ],
+    bakeTarget: { start: 50, end: 70 },
+    baseRewardPitz: 100,
+  };
+  const future = buildSelectableHintModel(FUTURE.id, DEX1, [FUTURE])!;
+  const capricciosa = model("capricciosa");
+  const exhausted = capricciosa.purchasableFacts.map((f) => f.id);
+  const legacyH4 = { paidRungs: 4, grantedFactIds: model("napoletana").purchasableFacts.map((f) => f.id) };
+
+  type Case = { name: string; m: SelectableHintModel; owned: readonly string[]; legacy?: Parameters<typeof selectableHintPresentation>[3] };
+  const CASES: Case[] = [
+    { name: "pizza-bianca", m: bianca, owned: [] },
+    { name: "future zero-fact recipe", m: future, owned: [] },
+    { name: "capricciosa, everything bought", m: capricciosa, owned: exhausted },
+    { name: "napoletana, legacy H4", m: model("napoletana"), owned: [], legacy: legacyH4 },
+  ];
+  const request = (c: Case, purchase = purchaseSelectableHint, prefs: HintCategory[] = ["topping"]) =>
+    purchase({ model: c.m, purchasedFactIds: c.owned, preferences: prefs, expectedPaidCount: selectableHintPresentation(c.m, c.owned, 0, c.legacy).paidCount, pitzBalance: 50, legacy: c.legacy });
+
+  /** Everything OD-H3-17 requires of the zero-fact answer, for one purchase implementation. */
+  function zeroFactViolations(purchase: typeof purchaseSelectableHint): string[] {
+    const v: string[] = [];
+    for (const c of CASES) {
+      for (const prefs of sequences(2)) {
+        const r = request(c, purchase, prefs);
+        const json = JSON.stringify(r);
+        if (json !== JSON.stringify(GUIDANCE)) v.push(`${c.name} ${prefs}: not the generic guidance: ${json}`);
+        if (r.success) v.push(`${c.name}: success on a zero-fact request`);
+        if ("price" in r && r.price !== 0) v.push(`${c.name}: charged ${r.price}`);
+        if (c.m.reservedIngredientId && json.includes(c.m.reservedIngredientId)) v.push(`${c.name}: reserved ingredient returned`);
+        if (/ing:|none|empty|remain|count|left|sauce|cheese|topping|[1-9]/i.test(json)) v.push(`${c.name}: structural content ${json}`);
+      }
+    }
+    return v;
+  }
+
+  it("1. pizza-bianca has zero purchasable facts (and a free key and a reserve)", () => {
+    expect(bianca.purchasableFacts).toEqual([]);
+    expect(ids(bianca.freeFacts)).toEqual(["rosemary"]);
+    expect(bianca.reservedIngredientId).toBe("olive-oil");
+  });
+
+  it("2. the request charges 0 Pitz and says only the generic guidance", () => {
+    for (const c of CASES) {
+      const r = request(c);
+      expect(r, c.name).toEqual(GUIDANCE);
+      expect(r).not.toHaveProperty("nextPitzBalance");
+    }
+  });
+
+  it("3-5. paid count, legacy progress and purchased facts are unchanged (inputs untouched, nothing to record)", () => {
+    for (const c of CASES) {
+      const owned = Object.freeze([...c.owned]);
+      const legacy = c.legacy && Object.freeze({ ...c.legacy, grantedFactIds: Object.freeze([...(c.legacy.grantedFactIds as string[])]) });
+      const before = selectableHintPresentation(c.m, owned, 50, legacy);
+      const r = purchaseSelectableHint({ model: c.m, purchasedFactIds: owned, preferences: ["sauce"], expectedPaidCount: before.paidCount, pitzBalance: 50, legacy });
+      expect(r).toEqual(GUIDANCE);
+      expect(r).not.toHaveProperty("nextPurchasedFactIds");
+      expect(r).not.toHaveProperty("persist");
+      expect(selectableHintPresentation(c.m, owned, 50, legacy)).toEqual(before);
+      expect(owned).toEqual(c.owned);
+    }
+  });
+
+  it("6. a repeated request is idempotent", () => {
+    for (const c of CASES) {
+      const results = Array.from({ length: 5 }, () => request(c));
+      for (const r of results) expect(r).toEqual(results[0]);
+      expect(selectableHintPresentation(c.m, c.owned, 50, c.legacy).paidCount).toBe(selectableHintPresentation(c.m, c.owned, 0, c.legacy).paidCount);
+    }
+  });
+
+  it("7-10, 13. no negative fact, no reserve, no count, no category absence: the serialization carries no hidden identity", () => {
+    expect(zeroFactViolations(purchaseSelectableHint)).toEqual([]);
+    for (const c of CASES) {
+      const json = JSON.stringify([request(c), selectableHintPresentation(c.m, c.owned, 50, c.legacy)]);
+      expect(json).not.toContain(`"${c.m.reservedIngredientId}"`);
+      expect(json).not.toMatch(/none:|EMPTY|COMPLETE|remaining|absent/);
+    }
+  });
+
+  it("11. hostile or stale requests stay fail closed, exactly as for any other target", () => {
+    for (const m of [bianca, future, model("bismarck")]) {
+      expect(purchaseSelectableHint({ model: m, purchasedFactIds: [], preferences: ["topping"], expectedPaidCount: 1, pitzBalance: 50 })).toEqual({ success: false, reason: "STALE" });
+      expect(purchaseSelectableHint({ model: m, purchasedFactIds: [], preferences: ["topping"], expectedPaidCount: 0, pitzBalance: 4 })).toEqual({ success: false, reason: "INSUFFICIENT_PITZ" });
+      expect(purchaseSelectableHint({ model: m, purchasedFactIds: [], preferences: ["__proto__"], expectedPaidCount: 0, pitzBalance: 50 })).toEqual({ success: false, reason: "INVALID_PREFERENCES" });
+      expect(purchaseSelectableHint({ model: m, purchasedFactIds: ["ing:__proto__", "tech:fold"], preferences: ["sauce"], expectedPaidCount: 0, pitzBalance: Number.NaN })).toEqual({ success: false, reason: "INSUFFICIENT_PITZ" });
+    }
+  });
+
+  it("12. a future zero-fact recipe behaves exactly like pizza-bianca (no recipe-id special case)", () => {
+    expect(future.purchasableFacts).toEqual([]);
+    expect(future.freeFacts).toHaveLength(1);
+    expect(future.reservedIngredientId).not.toBeNull();
+    expect(structureWithoutKey(selectableHintPresentation(future, [], 50))).toBe(structureWithoutKey(selectableHintPresentation(bianca, [], 50)));
+    for (const prefs of sequences(2)) {
+      expect(purchaseSelectableHint({ model: future, purchasedFactIds: [], preferences: prefs, expectedPaidCount: 0, pitzBalance: 50 })).toEqual(
+        purchaseSelectableHint({ model: bianca, purchasedFactIds: [], preferences: prefs, expectedPaidCount: 0, pitzBalance: 50 }),
+      );
+    }
+  });
+
+  it("14. mutation: a zero-fact path that returns the reserved ingredient is caught", () => {
+    const leaky: typeof purchaseSelectableHint = (input) => {
+      const r = purchaseSelectableHint(input);
+      const m = input.model;
+      if (!r.success && r.reason === "GUIDANCE_ONLY" && m?.reservedIngredientId) {
+        const fact = { id: hintFactId(m.reservedIngredientId), ingredientId: m.reservedIngredientId, category: getIngredient(m.reservedIngredientId)!.category };
+        return { success: true, revealed: [fact], price: 0, nextPurchasedFactIds: [fact.id], nextPitzBalance: input.pitzBalance, persist: true };
+      }
+      return r;
+    };
+    expect(zeroFactViolations(leaky).some((v) => v.includes("reserved ingredient returned"))).toBe(true);
+  });
+
+  it("15. mutation: a zero-fact request that charges 5 Pitz is caught", () => {
+    const charging: typeof purchaseSelectableHint = (input) => {
+      const r = purchaseSelectableHint(input);
+      return !r.success && r.reason === "GUIDANCE_ONLY" ? ({ ...r, price: 5 } as unknown as typeof r) : r;
+    };
+    expect(zeroFactViolations(charging).some((v) => v.includes("charged 5"))).toBe(true);
+  });
+
+  it("mutation: other zero-fact breakages are caught too (negative fact, count, success)", () => {
+    const negative: typeof purchaseSelectableHint = (input) => {
+      const r = purchaseSelectableHint(input);
+      return !r.success && r.reason === "GUIDANCE_ONLY" ? ({ ...r, guidance: "none:cheese" } as unknown as typeof r) : r;
+    };
+    const counting: typeof purchaseSelectableHint = (input) => {
+      const r = purchaseSelectableHint(input);
+      return !r.success && r.reason === "GUIDANCE_ONLY" ? ({ ...r, remaining: 0, ingredients: 2 } as unknown as typeof r) : r;
+    };
+    expect(zeroFactViolations(negative).length).toBeGreaterThan(0);
+    expect(zeroFactViolations(counting).length).toBeGreaterThan(0);
+  });
+});
+
 // ---- privacy ----
 
 describe("privacy: FREE LEAK rejected (OD-H3-16)", () => {
@@ -567,10 +715,7 @@ describe("privacy: FREE LEAK rejected (OD-H3-16)", () => {
     const shared = structureWithoutKey(selectableHintPresentation(model("capricciosa"), [], 50));
     expect(structureWithoutKey(selectableHintPresentation(m, [], 50))).toBe(shared);
     expect(selectableHintPresentation(m, [], 50)).toMatchObject({ nextPrice: 5, affordable: true, preferences: HINT_CATEGORIES });
-    expect(purchaseSelectableHint({ model: m, purchasedFactIds: [], preferences: ["topping"], expectedPaidCount: 0, pitzBalance: 50 })).toEqual({
-      success: false,
-      reason: "NOTHING_TO_REVEAL",
-    });
+    expect(purchaseSelectableHint({ model: m, purchasedFactIds: [], preferences: ["topping"], expectedPaidCount: 0, pitzBalance: 50 })).toEqual(GUIDANCE);
   });
 
   it("puttanesca and all 5 slot-count leak recipes share the pre-purchase structure of every other target", () => {
@@ -618,13 +763,13 @@ describe("privacy: FREE LEAK rejected (OD-H3-16)", () => {
 });
 
 describe("privacy: PAID INFERENCE allowed (OD-H3-16)", () => {
-  it("after paying for every fact, the player may learn there is nothing more (NOTHING_TO_REVEAL), never a negative fact", () => {
+  it("after paying for every fact, the player may learn there is nothing more (generic guidance), never a negative fact", () => {
     for (const recipe of PAID_TARGETS) {
       const m = model(recipe.id);
       if (m.purchasableFacts.length === 0) continue;
       const all = m.purchasableFacts.map((f) => f.id);
       const r = purchaseSelectableHint({ model: m, purchasedFactIds: all, preferences: ["topping"], expectedPaidCount: all.length, pitzBalance: 999 });
-      expect(r).toEqual({ success: false, reason: "NOTHING_TO_REVEAL" });
+      expect(r).toEqual(GUIDANCE);
       const p = selectableHintPresentation(m, all, 999);
       expect(p.rows.flatMap((row) => row.revealed).length).toBe(all.length + 1); // everything paid + the key, never the reserve
       expect(JSON.stringify(p)).not.toContain(`"${m.reservedIngredientId}"`);
