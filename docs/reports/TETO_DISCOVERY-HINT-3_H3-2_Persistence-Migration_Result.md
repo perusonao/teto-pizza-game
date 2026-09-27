@@ -142,10 +142,17 @@ discoveryHintFacts: Record<recipeId, string[]>   // e.g. { "napoletana": ["ing:m
    is included, and is free under Hint 3.0 anyway.
 4. Lines that named no ingredient (H3's count + cheese line, the coarse "not tomato" line) become
    `progressOnlySteps`. **No fact is fabricated for them** (OD-H3-7 forbids count and negative
-   facts). Their value is kept as paid progress.
+   facts). Their value is kept twice:
+   - as paid progress (`paidRungs`);
+   - and, after the Codex P2 review on PR #244, **verbatim as `grandfatheredSteps`** in the saved
+     state.
+
+   So the text the player already paid for survives the cutover. These lines only ever exist for a
+   player who bought them, are never sold again, and are never a fact.
 5. `legacy = { paidRungs: L, grantedFactIds }` is the H3-1 `LegacyHintProgress` input.
    `selectableHintSavedState(recipe, save)` returns `{ purchasedFactIds (the new ledger as stored),
-   legacy }`: H3-3's whole input.
+   legacy, grandfatheredSteps }`: H3-3's whole input. `legacy` is typed `MigratedLegacyProgress`
+   (well-typed, assignable to H3-1's `unknown`-typed input).
 6. Nothing is written. Reading twice gives the same result, so the migration is idempotent by
    construction (tested with frozen inputs).
 
@@ -282,7 +289,9 @@ Column meanings:
 | puttanesca-pizza | H3 | capers, tomato-sauce, count+cheese | capers, tomato-sauce | 1 | 3 | 40 | 2 | 0 | 0 |
 | puttanesca-pizza | H4 | capers, tomato-sauce, count+cheese, anchovy, black-olive | capers, tomato-sauce, anchovy, black-olive | 1 | 4 | 0 | 0 | 0 | 0 |
 
-**Totals: lost information = 0, duplicate-charge candidates = 0** (also asserted in
+**Totals: lost information = 0, duplicate-charge candidates = 0.** Lost information now counts
+*every* visible line: an ingredient line must come back as a granted fact, and a line that named no
+ingredient must come back verbatim in `grandfatheredSteps`. (also asserted in
 `hintFactMigration.test.ts` over every recipe × level and, for duplicates, over every 3-step
 preference sequence).
 
@@ -293,9 +302,11 @@ granted fact: **0 lost** out of all 116 rows.
 
 - **Rule W:** the reserve is never granted. Legacy H4 never named it (25/25, pinned in H3-1), so the
   n-1 protection holds after migration.
-- **Count and cheese lines:** these are the only legacy lines without a positive equivalent. Their
-  value is kept as `paidRungs`, which keeps the price ladder in place. No count or negative fact is
-  created.
+- **Count and cheese lines:** these are the only legacy lines without a positive equivalent. They
+  are kept as `paidRungs`, which keeps the price ladder in place, **and** as their own text
+  (`grandfatheredSteps`), so the information is not lost (Codex P2, fixed in this PR). No count or
+  negative fact is created. A player who never bought such a line gets nothing grandfathered, so
+  nothing is disclosed for free (tested for H0/H1 on all 25 recipes).
 
 ## 11. Pricing progress preservation
 
@@ -399,13 +410,14 @@ So an old build round-trip does **not** lose the new field.
 
 ## 19. Mutation tests
 
-**In-test mutants (3), all detected:**
+**In-test mutants (4), all detected:**
 - a naive "H3 = 3 facts" mapping
 - a migration that resets paid progress
 - a migration that forgets granted facts (which would re-sell them)
+- a migration that drops the grandfathered lines
 
-**Source mutants (7):** each was applied temporarily, the two H3-2 suites were run, and the file was
-restored (diff-verified). **All 7 were killed.**
+**Source mutants (8):** each was applied temporarily, the two H3-2 suites were run, and the file was
+restored (diff-verified). **All 8 were killed.**
 
 | Mutant | Tests failed |
 |---|---:|
@@ -416,6 +428,7 @@ restored (diff-verified). **All 7 were killed.**
 | `paidRungs` from the fact count | 8 |
 | Grant uses level − 1 | 6 |
 | Future level not clamped | 3 |
+| `grandfatheredSteps` dropped (text lost, price kept) | 4 |
 
 ## 20. Regression
 
@@ -435,8 +448,8 @@ Chromium storage and hint e2e: 19/19 (hint sheet, Dex hint, near-miss, ladder in
 
 | Check | Result |
 |---|---|
-| H3-2 focused (`persistence.discoveryHintFacts.test.ts` 24, `hintFactMigration.test.ts` 17) | **41 / 41** |
-| Full Vitest | **182 files, 3868 passed, 1 skipped** (base 3827 + 41) |
+| H3-2 focused (`persistence.discoveryHintFacts.test.ts` 24, `hintFactMigration.test.ts` 21) | **45 / 45** |
+| Full Vitest | **182 files, 3872 passed, 1 skipped** (base 3827 + 45) |
 | `tsc -b` / `oxlint` / `vite build` | exit 0 / 0 / 0 |
 | Chromium e2e (storage + hint specs, 390×844; the new spec also at 360×800) | 19/19 and 2/2 |
 
@@ -452,7 +465,7 @@ WebKit mandatory; the classify job decides whether the full WebKit run applies.
 | `src/state/persistence.ts` | the `discoveryHintFacts` field, sanitizer, forward-compat extras, union merge in `writeSave` / `persistProgress`, defaults |
 | `src/logic/discovery/hintFactMigration.ts` | **new**: pure legacy mapping and saved-state reader (unwired) |
 | `src/state/persistence.discoveryHintFacts.test.ts` | **new**: 24 tests |
-| `src/logic/discovery/hintFactMigration.test.ts` | **new**: 17 tests |
+| `src/logic/discovery/hintFactMigration.test.ts` | **new**: 21 tests |
 | `e2e/discovery-hint-facts-save.spec.ts` | **new**: real-browser storage round trip |
 | `src/state/persistence.test.ts`, `src/state/phase4a1b.regression.test.ts`, `src/state/gameReducer.discovery.test.ts`, `src/App.hintSheet.test.tsx` | additive-key pins / fixtures (§20) |
 | `docs/reports/TETO_DISCOVERY-HINT-3_H3-2_Persistence-Migration_Result.md` | this report |
@@ -479,7 +492,8 @@ stays 2.
 | R-1 | The first write after H3-2 adds an empty `discoveryHintFacts: {}` to every save | Additive and harmless, the same as HE-1's `discoveryHintPurchases: {}`. Pinned. |
 | R-2 | Snapshots sanitize to known recipe ids, so an unknown recipe only survives through storage extras, not through a snapshot | Same model as every other ledger. A snapshot never originates unknown recipes. |
 | R-3 | Mixed-version tabs: an old tab can still raise the legacy level while a new tab holds facts | The derived state stays consistent: granted facts are never re-sold. At most one rung of overlap, as noted in the Fresh Design (R-5). |
-| R-4 | The legacy count + cheese line has no fact equivalent | Kept as paid progress (OD-H3-7). Documented per row in §9. |
+| R-4 | The legacy count + cheese / coarse sauce lines have no fact equivalent | Kept as paid progress **and** verbatim text (`grandfatheredSteps`). No fact is created (OD-H3-7). |
+| **OD (for H3-4)** | How the sheet shows a grandfathered line (e.g. 「材料は全部で4種類。チーズを使うみたい」) to the player who already bought it | The data is preserved, so no information is lost. Showing a count/absence line under Hint 3.0 is the player's own old purchase, not a new sale. The Owner decides at H3-4 whether and how it is displayed (recommendation: display it as a "以前のヒント" line). |
 
 ## 26. H3-3 plan (not started)
 
