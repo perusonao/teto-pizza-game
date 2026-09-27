@@ -4,9 +4,9 @@
 >
 > - Nothing is implemented. There is no `src/`, CSS, reducer, persistence, pricing or save-schema change. No DH4-2 branch was created and nothing was merged.
 > - PR #255, PR #252, Dinner, PR #243 and Issue #238 are not touched.
-> - Nothing here is authority until the Owner decides §19.
+> - **The Owner decided OD-DH4-2-1…13 on 2026-09-27.** They are recorded in §0 (Owner Authority) and in the JSON `ownerDecisions`. The option tables in §4–§20 are the evidence behind them. Where an option table recommends something the Owner did not adopt (for example option (d)), §0 wins.
 >
-> **Machine-readable outputs** (regenerated deterministically by `python3 tools/dh4_2_topping_count_audit.py`):
+> **Machine-readable outputs.** Regenerate them deterministically with `python3 tools/dh4_2_topping_count_audit.py`. `--check` fails on drift and on any broken Owner-decided invariant.
 >
 > | File | Content |
 > |---|---|
@@ -14,8 +14,35 @@
 > | `docs/reports/data/TETO_DISCOVERY-HINT-4_DH4-2_RUNTIME-SNAPSHOT.json` | Input: the runtime data of `5a33d85` |
 > | `docs/reports/data/TETO_DISCOVERY-HINT-4_DH4-2_HINT-SHEET-VSPACE.json` | Hint Sheet vertical-space measurements |
 > | `docs/reports/screenshots/dh4-2-pre-audit/before-*.png` | Baseline screenshots, the before images for DH4-2 |
+> | `docs/reports/TETO_DISCOVERY-HINT-4_DH4-2A_Implementation-Plan.md` | The DH4-2A plan (files, pure APIs, test matrix) |
+> | `docs/reports/TETO_DISCOVERY-HINT-4_DH4-2_PR255-DOCS-DIFF-PROPOSAL.md` | The docs diff proposed for PR #255 (OD-DH4-2-12) |
 >
-> **Verdict: A. DH4-2 DESIGN READY FOR OWNER DECISIONS** (§22)
+> **Verdict: OWNER DECISIONS RECORDED — DH4-2A READY TO START** (§22)
+
+## 0. Owner Decision record (Owner Authority, 2026-09-27)
+
+| ID | Owner Decision | Evidence | Enforced by |
+|---|---|---|---|
+| **OD-DH4-2-1** | **構成 = D′.**<br>- Base fact: 「材料は全部で○種類」.<br>- Added fact 「トッピングは○種類使うよ」 **only when the safety check (TC-G) passes**.<br>- **Forbidden:** topping 0, remaining ingredient count, remaining topping count, category-zero, any count that names the Rule W reserve, pre-purchase availability / granularity leak. | §4.2. TC-G names the reserve in 0 of 300 states and never states 0. | Tool `--check` invariants; DH4-2A T-08 / T-09 |
+| **OD-DH4-2-2** | **特徴 guard = option (c) partition check**, as an **outer privacy guard**; DH4-1's answer function is not replaced.<br>- Over W (`privacyWorstCaseCandidates`-based), each hypothetical reserve's DH4-1 answer is partitioned.<br>- If the answer level would single out a reserve, fall back to the strict (coarser) answer.<br>- **Requirements:** inversion name leak = 0; the decision comes from W only; the granularity cannot be inferred from the pre-purchase UI; deterministic. | §5.3. 0 of 300 states named (DH4-1 alone: 29 states in 5 recipes). | `--check`; DH4-2A T-02…T-05 |
+| **OD-DH4-2-3** | **No semantic reclassification for privacy alone.**<br>- pineapple / capers / black-olive / garlic are decided at PR #255's Human Classification Gate by meaning.<br>- Nothing moves to 「その他」 just to get more family answers.<br>- **Option (d) is not production authority.** | §5.3 (d) is measured only | JSON `ownerDecisions.meta.notAuthority` |
+| **OD-DH4-2-4** | **Existence-only outcome:** charge 0; no persistence mutation; not recorded as a purchased fact; consistent with 「Pitzはヒントが出たときだけ使うよ」.<br>The pre-purchase UI must **not** say 「今回は無料」 or 「具体的なヒントは出ない」 (FREE LEAK). | §8 (option D) | DH4-2A T-11 |
+| **OD-DH4-2-5** | **E3.**<br>- 構成 / 特徴 are wired and verifiable under the DEV / Preview flag only.<br>- Production does not enable their purchase.<br>- No production 0 Pitz price.<br>- Production prices come from DH4-ECON / H3-ECON-1.<br>- The material ESC 5 / 10 / 20 / 40 is unchanged. | §9 | DH4-2A takes the price as input; DH4-2B flag |
+| **OD-DH4-2-6** | **U3-C.**<br>- 「わかっていること」 (材料 / 構成 / 特徴 / 以前のヒント).<br>- 「ヒントをもらう」 (材料 / 構成 / 特徴).<br>- 材料 gets 「おまかせ」.<br>- A card is the choice of a question type; it never shows availability, granularity or candidate counts in advance. | §10, §14 | DH4-2C |
+| **OD-DH4-2-7** | **The 45dvh cap is revisited: OD-H3-4-7 is superseded by DH4-2.**<br>- A near-full-screen sheet on mobile.<br>- Fixed header; 「わかっていること」 is the main scroll area; fixed footer (mainly 「ヒントをもらう」 + the Pitz line).<br>- Safe area.<br>- Verified at 390×844, 360×800 and 360×640.<br>- Scrollability is visible, with 「▾ 下にもヒントがあるよ」 when needed. | §11, §12 (measured) | DH4-2C e2e contract + HV |
+| **OD-DH4-2-8** | **The 「？」 rows are removed in the new U3.**<br>- Only real positive facts are shown.<br>- The legacy 「以前のヒント」 stays in its own box with its display right, including legacy negative lines as archive. | §13, §16 | DH4-2C |
+| **OD-DH4-2-9** | **「その他」 wording is final only after the taxonomy authority is settled.**<br>「ちょっと変わった材料があるよ」 is provisional and usable in Preview only. It must not imply a classification for undecided ingredients. | PR #255 OD-TAX-8 | DH4-2C (Preview copy) |
+| **OD-DH4-2-10** | **Near-miss unchanged; no free attribute hint; the hint purchase flow stays blocked in Dinner.** | §5.4, §17 | DH4-2B tests |
+| **OD-DH4-2-11** | **Slice order is fixed: DH4-2A → 2B → 2C → 2D.**<br>- 2A: pure logic, no production wiring.<br>- 2B: runtime wiring behind the DEV / Preview flag, production purchase disabled.<br>- 2C: U3 UI + the near-full-screen sheet, with iPhone Human Verification.<br>- 2D: adversarial privacy tests, legacy migration / regression, purchase / persistence regression, full final gate.<br>Each slice is its own PR or a clearly separate commit, rollback-able on its own. | §20 | — |
+| **OD-DH4-2-12** | **PR #255 is not merged now.**<br>- Its audit docs gain the level-inversion finding: the 5 sampled cases, and the full 29 / 300 sweep.<br>- Statements reading "runtime singletons are safe by the DH4-1 guard" are corrected, and the need for the DH4-2 partition guard is stated.<br>- No production taxonomy change. The Human Classification Gate stays. | §18, proposal file | Proposal: `…DH4-2_PR255-DOCS-DIFF-PROPOSAL.md` |
+| **OD-DH4-2-13** | **The Hint UI is re-checked on the current Preview / build.** Not a blocker for DH4-2A; recorded as the DH4-2C Human Verification baseline. | §3.1 | DH4-2C |
+
+**Consequences of these decisions for the sections below:**
+
+- §5.3 now reads "**(c)** is adopted; (d) is not authority" (OD-DH4-2-3).
+- §8 option D is adopted (OD-DH4-2-4).
+- §11 verification viewports are 390×844 / 360×800 / 360×640 (OD-DH4-2-7); 390×664 stays in the e2e contract as today.
+- §19 is kept as the option / evidence table that led to §0.
 
 ## 1. Audited main SHA
 
@@ -27,7 +54,7 @@
 | DH4-1 replica check | The audit tool re-implements `reserveAttributeAnswer`. A throw-away probe compared it with the merged module: **48 / 48 identical** (24 targets × ladder-owned / all-owned). |
 | Hint Sheet measurement | Local Chromium (Playwright), the 7 layout-contract profiles including the CDP safe-area override (47 / 34). The probe spec was deleted afterwards. |
 
-## 2. Current GitHub state (fresh)
+## 2. Current GitHub state (fresh, re-checked at the Owner Decision record)
 
 | Item | State | Role in this audit |
 |---|---|---|
@@ -35,8 +62,10 @@
 | PR #254 (DH4-1) | **MERGED / POST-MERGE PASS**: WebKit run 36312634317 and Pages run 36312634344 green. Unwired. | The pure authority DH4-2 must use |
 | Issue #253 | OPEN. The DH4-1 row reads MERGED; the DH4-2 row reads "Not started". | Parent issue. Carries OD-DH4-1…10. |
 | Issue #238 | OPEN (kept open). H3-1…H3-4 are all merged. | Hint 3.0 authority: material facts, ESC, Rule W, GUIDANCE_ONLY |
-| PR #255 (172 taxonomy) | OPEN, not merged, head `e221e36`, base `5a33d85`. docs / data / tools only (3 files). OD-TAX-1…9 are recorded. | **Read only** (§18) |
-| PR #252 (DM-3R-2) | OPEN, base `726b0ac`. Not touched. | Dinner boundary only (§17) |
+| PR #255 (172 taxonomy) | OPEN, not merged, head `e221e36`, base `5a33d85`, `mergeable_state: clean`. docs / data / tools only (3 files). OD-TAX-1…9 are recorded. **1 unresolved Codex P2 review thread** (tool line 755–758). | **Read only** (§18). Docs diff proposal per OD-DH4-2-12. |
+| PR #252 (DM-3R-2) | OPEN, head `3e3ae0d` (updated 13:26Z), base `726b0ac`. Not touched. | Dinner boundary only (§17) |
+| Issue #256 (skip CUT on failed bake) | OPEN (2026-09-27). All-mode cooking-flow question, not a hint topic. | Out of scope. Not implemented (instruction). |
+| Duplicates | No other open PR or issue covers DH4-2 (open PR list and issue search, 2026-09-27) | — |
 | Production (Firebase) | Last successful deploy 2026-09-21 (`7e5692f`). That predates H3-3 and H3-4. | Explains the observed copy (§3.1) |
 
 ## 3. iPhone Owner Findings
@@ -181,18 +210,33 @@ This is §4.2. Raw counts name the reserve in 3/24 (ladder) and 1/24 (all owned)
 
 | Option | DH4-1 answer function | Levels, ladder | Levels, all owned | Named after inversion | Data change |
 |---|---|---|---|---|---|
-| **(a)** DH4-1 as merged | unchanged | family 13 · category 8 · existence 3 | family 15 · category 7 · group 1 · existence 1 | **5 cases** | none |
+| **(a)** DH4-1 as merged | unchanged | family 13 · category 8 · existence 3 | family 15 · category 7 · group 1 · existence 1 | **5 cases at the 2 sampled inventories; 29 of 300 states (5 recipes) in the full inventory sweep** | none |
 | **(b)** reserve-isolation wrapper (keep DH4-1 when ≥ 2 hypotheses share its answer) | unchanged, wrapped | family 13 · category 8 · existence 3 | family 15 · category 8 · existence 1 | **1** (funghi @ ladder) | none |
 | **(c)** partition check (keep DH4-1 only if **every** DH4-1 answer class over the hypotheses has ≥ 2; else a strict answer for all) | unchanged, wrapped | category 11 · existence 13 | category 22 · group 1 · existence 1 | **0** | none |
 | **(d)** (c) + runtime merge **pineapple, capers → `other`** (ids kept) | unchanged, wrapped | family 3 · group 1 · category 7 · existence 13 | **family 16** · category 6 · group 1 · existence 1 | **0** | 2 rows. **Needs PR #255's Human Classification Gate** (capers is in the runtime review queue). |
 
 **Why (c) gives up family answers at 25 recipes:** the runtime singleton families mean the partition check almost always falls back. At 105 / 172 every family has ≥ 3 / ≥ 8 members (PR #255), so (c) returns family answers by data alone as the catalog grows.
 
-**Recommendation: (c) now, becoming (d) through data after the Human Classification Gate.**
+**Owner decision (OD-DH4-2-2 / OD-DH4-2-3): (c) is adopted. (d) is NOT production authority.**
 
-- (c) makes every answer inversion-safe **today**.
-- It needs no taxonomy decision and keeps DH4-1's answer function and all 7 ids (OD-TAX-2).
-- (b) is a fallback if the Owner prefers family answers now and accepts one early residual (funghi, whose reserve is the starter mozzarella). Under (b), the no-charge existence UX (§8) is **not** allowed, because it would make that residual free.
+- (c) makes every answer inversion-safe **today**, with no taxonomy decision. It keeps DH4-1's answer function and all 7 ids (OD-TAX-2).
+- Family answers return only through data: semantic classification at the Human Classification Gate, or catalog growth. They never come from reclassifying an ingredient for privacy.
+
+**Inventory sweep** (JSON `finalGate.inventorySweep`): every target at its own ladder step and at every later step (a Dex-pinned or late target), 300 states.
+
+- **DH4-1 as merged names the reserve in 29 of the 300 states:**
+
+  | Recipe | Ladder steps | Named reserve |
+  |---|---|---|
+  | bismarck | 2–4 | mozzarella |
+  | funghi | 3–4 | mozzarella |
+  | breakfast-pizza | 11–24 | egg |
+  | meat-lovers | 16–24 | sausage |
+  | quattro-formaggi | 24 | fontina |
+
+- **With (c): 0**, with and without the TC-G clause. Levels: existence 144 · category 155 · group 1.
+- **N + clause + guarded attribute** forces the reserve in 0 of 300 states. The only unbought-material inference is mozzarella in breakfast / melanzane / parmigiana, an economy note.
+- `--check` enforces all of this.
 
 **Per-recipe answers** under (a) / (c) / (d): JSON `finalGate.attributeAnswersPerRecipe`.
 
@@ -518,7 +562,9 @@ All values in px.
 **One finding to report to the Owner** (PR #255 is not changed):
 
 - PR #255 §5 states that the runtime singleton families are protected by the DH4-1 guard.
-- §5.3 shows that the guard protects only the reserve's own class. Singleton families elsewhere in W make the answer *level* invertible (5 cases).
+- §5.3 shows that the guard protects only the reserve's own class. Singleton families elsewhere in W make the answer *level* invertible: 5 sampled cases, and 29 of 300 states in the sweep.
+- **OD-DH4-2-12:** PR #255 stays unmerged. Its docs receive the finding. The exact hunks are in `docs/reports/TETO_DISCOVERY-HINT-4_DH4-2_PR255-DOCS-DIFF-PROPOSAL.md`: §5 row, §6, §10 note, §13 + new §13.1, §14 FR-4, §18 open-items row, §19 step 1, the final verdict, and an additive JSON key.
+- PR #255 also has **one unresolved Codex P2 review thread** (cross-axis tag buckets count `false` as a positive axis). It is out of DH4-2 scope and belongs to #255's own session.
 - This does not contradict OD-TAX-1…9. It adds weight to resolving the runtime fruit / spice / other singletons at the Human Classification Gate: option (d).
 
 ## 19. Owner Decision table (STEP 12)
@@ -557,7 +603,7 @@ All values in px.
 
 | Risk | Severity | Mitigation |
 |---|---|---|
-| The level inversion (§5.3) is kept (guard option (a)) | High for a guard-aware player: names the reserve in 5 cases | Guard (c) / (d) |
+| The level inversion (§5.3) | High for a guard-aware player: 29 / 300 states under DH4-1 alone | **Adopted guard (c)** (OD-DH4-2-2): 0 / 300; `--check` + DH4-2A T-02 / T-05 |
 | Guard (c) makes 特徴 weak at 25 recipes (existence 13 / 24 early) | Medium (value) | Existence = no charge (§8); (d) after the Human Classification Gate; the catalog growth restores family answers |
 | TC-G withholds the topping clause early (passes 11 / 24 on the ladder) | Low | Explained as the single-shot 構成 answer; 23 / 24 late |
 | Mozzarella inferred through T instead of bought (3 early recipes) | Low (economy) | DH4-ECON |
@@ -579,7 +625,35 @@ All values in px.
 - No subfamily, sauce or cheese families, multi-axis or technique hints (PR #255 OD-TAX-9).
 - No near-miss change.
 
-**Final verdict: A. DH4-2 DESIGN READY FOR OWNER DECISIONS.**
+**Final verdict (after the Owner decisions): OWNER DECISIONS RECORDED — DH4-2A READY TO START.**
+
+- **OD-DH4-2-1…13** are recorded in §0 and in the JSON `ownerDecisions`, and the tool enforces the Owner-decided invariants (`--check`).
+- **The DH4-2A plan is complete** (`docs/reports/TETO_DISCOVERY-HINT-4_DH4-2A_Implementation-Plan.md`). Nothing in DH4-2A depends on an unresolved decision:
+  - prices are an input (E3);
+  - the taxonomy is unchanged (OD-DH4-2-3);
+  - the 「その他」 copy is not in the pure layer.
+- **Still open, blocking later slices only:**
+  - the DH4-2C baseline re-check (OD-DH4-2-13);
+  - the final 「その他」 wording (OD-DH4-2-9, after the Human Classification Gate);
+  - production prices (DH4-ECON).
+
+**Final Gate (Owner Decision record):**
+
+| Gate | Result |
+|---|---|
+| Scope | docs / data / tools only. The diff vs `origin/main` holds 3 audit / plan / proposal documents, 3 data JSON, 8 baseline PNG and 1 tool. |
+| `src/**` diff | 0 |
+| `e2e/**` diff | 0 |
+| CSS diff | 0 |
+| Generator deterministic | Two consecutive regenerations are byte-identical (same MD5) |
+| `python3 tools/dh4_2_topping_count_audit.py --check` | **CHECK OK**. It fails on drift (verified by appending a byte) and on any broken Owner-decided invariant: adopted-guard inversion leak, TC-G reserve naming or a stated 0. |
+| Production imports of the DH4 layer | **0**. No production module (outside tests, testSupport and the DH4 modules themselves) imports `deductionHint` / `ingredientTaxonomy`. |
+| DH4-1 regression on main | `deductionHint.test.ts` + `deductionHint.audit.test.ts`: 29 / 29 passed |
+
+<details><summary>Verdict before the Owner decisions</summary>
+
+A. DH4-2 DESIGN READY FOR OWNER DECISIONS.
+</details>
 
 **Answered with machine evidence on the 25 runtime recipes:**
 

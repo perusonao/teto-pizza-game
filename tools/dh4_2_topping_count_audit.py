@@ -20,12 +20,18 @@ Player model (worst case = a smart player):
   OWNED ingredients not in the recipe, the reserve included).
 A hypothesis is a set U of owned, not-known ingredients with K + U consistent with every given fact.
 An ingredient is FORCED when it is in every hypothesis: the player can name it.
+
+Usage:
+  python3 tools/dh4_2_topping_count_audit.py           # regenerate the JSON
+  python3 tools/dh4_2_topping_count_audit.py --check   # fail (exit 1) on drift or on a broken
+                                                       # Owner-decided invariant (OD-DH4-2-1/2/4)
 """
 from __future__ import annotations
 
 import itertools
 import json
 import math
+import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
@@ -613,6 +619,43 @@ def option_d_run():
         FAMILY.update(base)
 
 
+# Inventory sweep: every target at its own ladder step and at every later ladder step (a Dex-pinned
+# or late target), 300 states. The two sampled inventories above are a subset.
+inventory_sweep = {"states": 0, "a_dh41_as_merged": [], "c_partition_checked": [], "c_partition_checked_withTCG": [], "c_levels": Counter()}
+for index, rid in enumerate(ORDER):
+    if index == 0:
+        continue
+    r = RECIPES[rid]
+    for step in range(index, len(ORDER)):
+        owned = owned_at(step)
+        inventory_sweep["states"] += 1
+        if len(inversion_candidates(r, owned, attribute_answer)) < 2:
+            inventory_sweep["a_dh41_as_merged"].append({"recipeId": rid, "ladderStep": step, "answer": fmt_answer(attribute_answer(r, owned)),
+                                                        "named": inversion_candidates(r, owned, attribute_answer)})
+        if len(inversion_candidates(r, owned, partition_checked)) < 2:
+            inventory_sweep["c_partition_checked"].append({"recipeId": rid, "ladderStep": step})
+        if len(inversion_candidates(r, owned, with_tcg(partition_checked))) < 2:
+            inventory_sweep["c_partition_checked_withTCG"].append({"recipeId": rid, "ladderStep": step})
+        inventory_sweep["c_levels"][partition_checked(r, owned)[0]] += 1
+        # TC-G closure over every reachable purchase state: N (bought or ADD_ONE) + clause (+ the
+        # adopted guarded attribute) must never force the reserve.
+        facts = {"N": n_total(r)}
+        if safe_T_guard(r, owned):
+            facts["T"] = t_total(r)
+        guarded = partition_checked(r, owned)
+        for k in reachable_known_sets(r):
+            for extra in ({}, {"A": guarded}):
+                _, forced = analyse(r, owned, k, dict(facts, **extra))
+                _, base = analyse(r, owned, k, extra)
+                if r["reserve"] in forced and r["reserve"] not in base:
+                    inventory_sweep.setdefault("tcg_reserveForced", []).append({"recipeId": rid, "ladderStep": step})
+                if (forced - base) & (set(r["sellable"]) - k):
+                    inventory_sweep.setdefault("tcg_unboughtMaterialNamedRecipes", set()).add(rid)
+inventory_sweep["c_levels"] = dict(inventory_sweep["c_levels"])
+inventory_sweep.setdefault("tcg_reserveForced", [])
+inventory_sweep["tcg_unboughtMaterialNamedRecipes"] = sorted(inventory_sweep.get("tcg_unboughtMaterialNamedRecipes", set()))
+inventory_sweep["a_dh41_recipes"] = sorted({x["recipeId"] for x in inventory_sweep["a_dh41_as_merged"]})
+
 attribute_options["d_partition_checked_plus_runtime_merge"], per_d = option_d_run()
 attribute_answers_per_recipe = {}
 for index, rid in enumerate(ORDER):
@@ -676,6 +719,29 @@ topping_count_options = {
     "D_prime_total_plus_topping_TCG": {"copy": "材料は全部で○種類（+ ガード通過時のみ トッピングは○種類）", **option_summary(("N", "T"), use_tcg=True)},
     "E_total_only": {"copy": "材料総数だけ", "sameInformationAs": "A", "recipeClasses24": classes(n_total), **option_summary(("N",))},
 }
+
+
+# ---- Owner Decisions (Owner Authority, recorded at the DH4-2 Final Owner Decision Gate) ------------
+OWNER_DECISIONS = [
+    {"id": "OD-DH4-2-1", "topic": "構成ヒント (structure)", "decision": "D-prime: base fact 「材料は全部で○種類」; the added fact 「トッピングは○種類使うよ」 only when the TC-G safety check passes.",
+     "forbidden": ["topping 0", "remaining ingredient count", "remaining topping count", "category-zero", "a count that names the Rule W reserve", "pre-purchase availability / granularity leak"]},
+    {"id": "OD-DH4-2-2", "topic": "特徴ヒント guard", "decision": "Option (c) partition check, as an outer privacy guard around the unchanged DH4-1 answer function. Over W, the DH4-1 answer of every hypothetical reserve is partitioned; if any class would single out a reserve, fall back to the strict (coarser) answer.",
+     "requirements": ["inversion name leak = 0", "decision from W only", "granularity not inferable from the pre-purchase UI", "deterministic"]},
+    {"id": "OD-DH4-2-3", "topic": "Taxonomy", "decision": "No semantic reclassification for privacy alone. pineapple / capers / black-olive / garlic are decided at the PR #255 Human Classification Gate. Option (d) is not production authority."},
+    {"id": "OD-DH4-2-4", "topic": "Existence-only outcome", "decision": "charge 0, no persistence mutation, not recorded as a purchased fact, consistent with 「Pitzはヒントが出たときだけ使うよ」. The pre-purchase UI must not say 「今回は無料」 or 「具体的なヒントは出ない」 (FREE LEAK)."},
+    {"id": "OD-DH4-2-5", "topic": "Economy", "decision": "E3: structure and attribute purchases are wired and verifiable under the DEV / Preview flag only; production does not enable them; no production 0 Pitz price; production prices are decided in DH4-ECON / H3-ECON-1. The material ESC 5/10/20/40 is unchanged."},
+    {"id": "OD-DH4-2-6", "topic": "UI", "decision": "U3-C. 「わかっていること」 (材料 / 構成 / 特徴 / 以前のヒント) and 「ヒントをもらう」 (材料 / 構成 / 特徴). The material card gets 「おまかせ」. A card is a choice of question type and never shows availability, granularity or candidate counts in advance."},
+    {"id": "OD-DH4-2-7", "topic": "Vertical layout", "decision": "The 45dvh cap is revisited: H3-4 OD-H3-4-7 is superseded by DH4-2. A near-full-screen sheet on mobile with a fixed header, 「わかっていること」 as the main scroll area, and a fixed footer holding mainly 「ヒントをもらう」 and the Pitz line. Safe area. Verified at 390x844, 360x800 and 360x640. Scrollability visible; 「▾ 下にもヒントがあるよ」 when needed.", "supersedes": ["OD-H3-4-7"]},
+    {"id": "OD-DH4-2-8", "topic": "Known Information", "decision": "The unknown 「？」 rows are removed in the new U3. Only real positive facts are shown. The legacy 「以前のヒント」 stays in a separate box with its display right, including legacy negative lines as archive.", "supersedes": ["OD-H3-4-5 / OD-H3-4-6 「？」 rows and legend (in the U3 sheet)"]},
+    {"id": "OD-DH4-2-9", "topic": "「その他」 wording", "decision": "Final wording after the taxonomy authority is settled. 「ちょっと変わった材料があるよ」 is provisional and usable in Preview only, and must not imply a classification for undecided ingredients."},
+    {"id": "OD-DH4-2-10", "topic": "Near-miss / Dinner", "decision": "Near-miss unchanged; no free attribute hint; the hint purchase flow stays blocked in Dinner."},
+    {"id": "OD-DH4-2-11", "topic": "Slicing", "decision": "DH4-2A pure logic only (no production wiring) -> DH4-2B runtime wiring behind the DEV / Preview flag (production purchase disabled) -> DH4-2C U3 UI + near-full-screen sheet + iPhone Human Verification -> DH4-2D adversarial privacy, legacy migration / regression, purchase / persistence regression, full final gate. Each slice is its own PR or a clearly separate commit, rollback-able on its own."},
+    {"id": "OD-DH4-2-12", "topic": "PR #255", "decision": "Not merged now. Its audit docs gain the 5 level-inversion cases; statements that read 'runtime singletons are safe by the DH4-1 guard' are corrected, and the need for the DH4-2 partition guard is stated. No production taxonomy logic change. The Human Classification Gate stays."},
+    {"id": "OD-DH4-2-13", "topic": "Re-verify the current build", "decision": "The Hint UI is re-checked on the current Preview / build. Not a blocker for DH4-2A; recorded as the DH4-2C Human Verification baseline."},
+]
+OWNER_DECISIONS_META = {"authority": "Owner Authority, recorded 2026-09-27 at the DH4-2 Final Owner Decision Gate",
+                        "adoptedAttributeGuard": "c_partition_checked", "notAuthority": ["d_partition_checked_plus_runtime_merge"],
+                        "adoptedStructure": "D_prime_total_plus_topping_TCG"}
 
 # ---- 172 scalability ----------------------------------------------------------------------------
 m172 = json.loads(MATRIX_172.read_text())
@@ -760,7 +826,8 @@ out = {
     "auditedMainSha": snap["auditedMainSha"],
     "dh41MergedAs": "5a33d855674652ab3483c3cedb8815859e88ce6e (PR #254, tree identical to its head 057e387)",
     "replicaCheck": "DH4-1 attribute answer replica == merged reserveAttributeAnswer for 24 targets x {ladderOwned, allOwned}: 48/48",
-    "authorityNote": "Docs-only audit. Not authority. Proposed rules (strict guard, TC-G) are measurement only until the Owner decides.",
+    "authorityNote": "Docs-only audit. The Owner Decisions below are Owner Authority for DH4-2; the tool's measurements are evidence, not production code.",
+    "ownerDecisions": {"meta": OWNER_DECISIONS_META, "decisions": OWNER_DECISIONS},
     "playerModel": __doc__.split("Player model")[1].strip(),
     "distributions": dist,
     "combinationSummary": summary,
@@ -789,15 +856,50 @@ out = {
         "guardTC_G": {"failLadderOwned": [x["recipeId"] for x in midgame if not x["guardTC_G_ladderOwned"]],
                       "failAllOwned": [x["recipeId"] for x in midgame if not x["guardTC_G_allOwned"]]},
     },
-    "finalGate": {"attributeGuardOptions": attribute_options, "attributeAnswersPerRecipe": attribute_answers_per_recipe,
+    "finalGate": {"attributeGuardOptions": attribute_options, "inventorySweep": inventory_sweep, "attributeAnswersPerRecipe": attribute_answers_per_recipe,
                   "runtimeMergeForOptionD": RUNTIME_MERGE, "toppingCountOptions": topping_count_options},
     "recipes": rows,
     "scalability172": {"summary": special, "rows": rows172},
 }
-OUT.write_text(json.dumps(out, ensure_ascii=False, indent=1) + "\n")
-print(json.dumps(out["finalGate"], ensure_ascii=False))
-print(json.dumps(out["informationValue"]["guardTC_G"]), mavg("avgBits_T_given_N"), mavg("avgBits_A_given_N"), mavg("avgBits_T_given_NA"), [x for x in endgame_T_given_NA if x["bits"]])
-print(out["informationValue"]["guardAwareNameEquivalent_A"], out["informationValue"]["guardAwareNameEquivalent_A_plus_TCG"])
-print(json.dumps({k: v for k, v in out["informationValue"]["inversionSafeProposal"].items() if k != "rows"}))
-print(json.dumps({"T0": special["T0"], "allLate": special["lateAdditionRowsWhereAllToppingsAreLate"], "sauce0": special["sauce0"]}, ensure_ascii=False))
-print(json.dumps({"summary": summary, "dist": dist, "info": {"T|N": avg("bits_T_given_N"), "A|N": avg("bits_A_given_N")}, "172": {k: v for k, v in special.items() if k not in ("T0", "lateAdditionRowsWhereAllToppingsAreLate")}}, ensure_ascii=False, indent=1))
+TEXT = json.dumps(out, ensure_ascii=False, indent=1) + "\n"
+
+
+def invariant_failures():
+    """Owner-decided invariants (OD-DH4-2-1 / 2 / 4): any failure makes --check exit 1."""
+    fails = []
+    adopted = out["finalGate"]["attributeGuardOptions"]["c_partition_checked"]
+    for sc, v in adopted.items():
+        if v["namedAfterLevelInversion"] or v["namedAfterLevelInversion_withTCG"]:
+            fails.append("OD-DH4-2-2: inversion name leak under the adopted guard (%s)" % sc)
+    sweep = out["finalGate"]["inventorySweep"]
+    if sweep["tcg_reserveForced"]:
+        fails.append("OD-DH4-2-1: N + TC-G clause (+ guarded attribute) forces the reserve in the inventory sweep")
+    if sweep["c_partition_checked"] or sweep["c_partition_checked_withTCG"]:
+        fails.append("OD-DH4-2-2: inversion name leak under the adopted guard in the inventory sweep")
+    tcg = out["finalGate"]["toppingCountOptions"]["D_prime_total_plus_topping_TCG"]
+    for sc, v in tcg.items() if isinstance(tcg, dict) else []:
+        if isinstance(v, dict) and (v.get("reserveNamed") or v.get("zeroCountStated")):
+            fails.append("OD-DH4-2-1: TC-G names the reserve or states 0 (%s)" % sc)
+    for index, rid in enumerate(ORDER):
+        if index and t_total(RECIPES[rid]) == 0 and (safe_T_guard(RECIPES[rid], ALL_IDS) or safe_T_guard(RECIPES[rid], owned_at(index))):
+            fails.append("OD-DH4-2-1: TC-G passes for a zero-topping recipe (%s)" % rid)
+    return fails
+
+
+if "--check" in sys.argv[1:]:
+    problems = invariant_failures()
+    current = OUT.read_text() if OUT.exists() else ""
+    if current != TEXT:
+        problems.append("drift: %s differs from a fresh regeneration" % OUT.relative_to(ROOT))
+    if problems:
+        print("CHECK FAILED\n- " + "\n- ".join(problems))
+        sys.exit(1)
+    print("CHECK OK: %s is up to date; Owner-decided invariants hold (adopted guard: 0 inversion names; TC-G: 0 named, never 0)" % OUT.relative_to(ROOT))
+    sys.exit(0)
+
+problems = invariant_failures()
+if problems:
+    print("REFUSING TO WRITE: Owner-decided invariant broken\n- " + "\n- ".join(problems))
+    sys.exit(1)
+OUT.write_text(TEXT)
+print("wrote %s" % OUT.relative_to(ROOT))
