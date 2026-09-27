@@ -53,7 +53,7 @@ PREPARE（自由に作る） ──START_BAKE──▶ Stage A: planDinnerBake(p
                                       dinnerBakePlanView(plan) ← BAKE / CUT UI が読んでよいのはここだけ
 BAKE ──CONFIRM_BAKE──▶ (CUT 必要なら CUT) ──▶ Stage B: resolveDinnerAttempt({...})
                                            ├─ classification（6 category、内部）
-                                           ├─ inventoryAfter（consumePizzaInventory）
+                                           ├─ postConsumptionInventory（consumePizzaInventory）
                                            ├─ remainingShortages
                                            └─ run（CLEAR / INFEASIBLE / PLAYING）
                                       dinnerAttemptView(classification, dex) ← 結果 panel が読んでよいのはここだけ
@@ -161,14 +161,14 @@ API に intent / 宣言の入力は存在しない（OD-R1 / OD-R3）。
 
 ## 13. Inventory consumption
 
-- 入力は `inventoryBeforeBake`、出力の `inventoryAfter = consumePizzaInventory(pizza, inventoryBeforeBake)`。**全 category で同じ**（refund なし）。
-- test 18〜22 + INVALID_PIZZA + 未発見 ORIGINAL: 7 ケースすべてで `inventoryAfter` が消費後の値と一致し、元の在庫と異なる。
+- 入力は `preConsumptionInventory`、出力の `postConsumptionInventory = consumePizzaInventory(pizza, preConsumptionInventory)`。**全 category で同じ**（refund なし）。
+- test 18〜22 + INVALID_PIZZA + 未発見 ORIGINAL: 7 ケースすべてで `postConsumptionInventory` が消費後の値と一致し、元の在庫と異なる。
 - REJECTED / TIME_UP は消費しない（CONFIRM_BAKE が受理されないのと同じ）。
 - OD-R5（全 OWNED 材料の tray）は runtime の話なので DM-3R-2。ここでは任意の owned 集合と在庫で pure に検証した。
 
 ## 14. Feasibility
 
-- 解決後、毎回 `remainingTargetShortages(next, { ownedIngredientIds, inventory: inventoryAfter })`（DM-1 authority）で残り target を再評価。
+- 解決後、毎回 `remainingTargetShortages(next, { ownedIngredientIds, inventory: postConsumptionInventory })`（DM-1 authority）で残り target を再評価。
 - 実例（すべて pin）:
   - test 23: DM-A 最小在庫で bismarck PASS → egg 1、残り実行可能 → PLAYING。
   - test 24: DM-A で funghi + egg（ORIGINAL）→ mushroom 0 / egg 1 → INFEASIBLE。
@@ -245,7 +245,7 @@ API に intent / 宣言の入力は存在しない（OD-R1 / OD-R3）。
 |---|---|---|
 | Dinner round の生成 | target ごとの guided round → **free round**（`FREE_COOK` 系 tray、Discovery / Dex / Hint / Pitz は Dinner guard で無効のまま） | — |
 | `START_BAKE`（Dinner） | `planDinnerBake(state.pizza)` を round に保存。BAKE gauge と `cookingProfile` の POST_BAKE を `dinnerBakePlanView(plan)` から設定 | Stage A |
-| `CONFIRM_BAKE`（Dinner） | 焼き判定の窓は plan の窓。消費は今の `consumePizzaInventory` のまま（1 回）。CUT が不要なら、ここで Stage B | Stage B（`inventoryBeforeBake = state.inventory`、`inventoryAfter` と reducer の消費結果が一致することを parity test で固定） |
+| `CONFIRM_BAKE`（Dinner） | 焼き判定の窓は plan の窓。消費は今の `consumePizzaInventory` のまま（1 回）。CUT が不要なら、ここで Stage B | Stage B（`preConsumptionInventory = state.inventory`、`postConsumptionInventory` と reducer の消費結果が一致することを parity test で固定） |
 | 最後の `CONFIRM_MAKING_STEP`（CUT） | CUT 後に Stage B（`cutCompleted: true`） | Stage B |
 | `DinnerRunState` / `DinnerRunAction` | `activeRecipeId` / `SELECT_TARGET` / `CANCEL_TARGET` を削除、`attempts` を分類付きに拡張。`RESOLVE_ATTEMPT` を Stage B の結果（`run`）の採用に置き換え | Stage B の `run` |
 | 結果 panel | `dinnerAttemptView(classification, dex)` だけを読む。文言は UI 側 | view |
@@ -257,6 +257,44 @@ API に intent / 宣言の入力は存在しない（OD-R1 / OD-R3）。
 1. **S が未決定:** production で `minimumStars` をどこから渡すかは DM-3R-2 / DM-5 の Owner 判断。値がないと Stage B は `REJECTED` になる（安全側だが、wiring 時に必ず供給すること）。
 2. **Stage A と Stage B の一致:** 両方とも組成だけから identity を出すので一致する（test で pin）。ただし DM-3R-2 で BAKE 後に組成を変える操作を追加すると崩れる。現行 runtime では BAKE / CUT は `toppings` / `sauceIds` を変えない。
 3. **attempt ログ:** この slice は run の `attempts` を更新しない。DM-3R-2 で分類付きの attempt 型に拡張するまで、runtime に wiring しないこと。
-4. **二重消費:** Stage B は `inventoryBeforeBake` から消費を計算する。DM-3R-2 で post-bake 在庫を誤って渡すと二重に減る。wiring 時に reducer の消費結果との parity test を必須にする。
+4. **二重消費（DM-3R-2 で最も危険）:** Stage B は `preConsumptionInventory`（CONFIRM_BAKE 前の在庫）から自分で消費を計算する。CUT 確定時点の `state.inventory` は CONFIRM_BAKE で既に減っているので、それを渡すと二重に減る。§23.3 で名前・doc comment・実 reducer との parity test の 3 か所に pin 済み。
 5. **将来の catalog 衝突:** 衝突時は ORIGINAL（progress なし）で安全だが、target 自体が衝突すると mission が CLEAR 不能になる。test 32 が先に落ちるので、recipe 追加時に mission 側の見直しが必要。
 6. **近さの情報:** `QUALITY_FAIL` の `COMPLETION_GATE` は target の材料 id を view に含む。target は発見済み（unlock 条件）なので leak ではないが、view は Dex で再確認している（fail closed）。
+
+## 23. Owner Review 承認後の pre-merge 統合（DM-3R-1 FINAL GATE PASS → OWNER MERGE APPROVED）
+
+§1〜§22 は `da1727c`（code）/ `453ba58`（docs）時点の記録。以下は Owner 承認後、merge 前に行ったこと。
+
+### 23.1 Fresh gate
+
+- `origin/main` は `3f084b3` → **`8692013`**（Merge PR #247、Discovery Hint 3.0 H3-3）に進んでいた。
+- PR #249 は OPEN、HEAD `453ba58`、未解決 review thread 0、全 9 check success（`da1727c`）。
+
+### 23.2 Latest main の取り込み
+
+- file の重なり: **なし**（H3-3 は HintSheet / discoveryHint / gameReducer の hint 購入 / App / e2e のみ。DM-3R-1 の 5 file と交差しない）。
+- 意味の重なり: H3-3 の diff は matcher・signature・`freeCook.ts`・Completion Gate・Scoring 2.0・inventory・Dex・`roundKind`・Dinner module を**一切変更していない**（該当 path の diff は 0 行）。gameReducer の変更は hint 購入のみで、CONFIRM_BAKE / START_BAKE / 消費 / Dinner guard には触れていない。新 action `PURCHASE_SELECTABLE_HINT` は `DINNER_BLOCKED_ACTIONS` に入っている（Dinner 中は拒否）。
+- merge commit `74c977f`（rebase / force-push なし）。conflict なし。
+
+### 23.3 Inventory の pre-consumption contract（誤配線対策）
+
+Owner Review の指摘どおり、`inventoryBeforeBake` という名前は「CUT 確定時の `state.inventory`（消費済み）」を渡しやすいと判断し、最小変更で 3 か所に pin した:
+
+1. **API 名:** 入力 `inventoryBeforeBake` → **`preConsumptionInventory`**、出力 `inventoryAfter` → **`postConsumptionInventory`**（ロジック変更なし）。
+2. **doc comment:** 入力の型に「CONFIRM_BAKE dispatch 時の `state.inventory`。CUT 確定時の在庫を渡すと二重消費」と明記。
+3. **test:** `inventory contract: PRE-consumption stock in, consumed exactly once` — 実際の `gameReducer`（guided round の START_BAKE → CONFIRM_BAKE）で funghi / bismarck / melanzane を焼き、`postConsumptionInventory` が reducer の消費後在庫と**完全一致**すること、さらに消費後在庫を誤って渡すと**一致しなくなる**（二重消費が検出できる）ことを pin。
+
+### 23.4 `evaluateFreeCookCompletion` 拡張の focused regression
+
+- 追加 test: 25 recipe × bake {0, 40, 47.9, 48, 68, 88, 88.1, 100, null} と空の生地で、引数省略と `FREE_COOK_BAKE_TARGET` 明示が完全に同じ結果（既定経路は同じ sentinel オブジェクトを使うので byte-identical）。
+- recipe 窓を渡すと bake 帯だけが動き、空ピザの規則は変わらない（bismarck @86: 省略 PASS / bismarck 窓 OVERBAKED、空ピザは MISSING_REQUIRED_INGREDIENT）。
+- 既存 caller（`resolveFreeCookPizza`、gameReducer の Free Cooking 経路）は引数なしのまま。CUT semantics は無関係（POST_BAKE は cooking profile 側）。
+
+### 23.5 Final gate（merge 済み tree、`74c977f` + この commit）
+
+- Focused `dinnerResultDetection.test.ts`: **50 passed**（47 + contract 1 + extension 2）。Dinner module 全体 101 passed。
+- Mutation: **19/19 DETECTED**（final code で再実行。refund は 11 failed で検出）。
+- Regression 36 files（§17 の一式 + H3-3 の `gameReducer.selectableHint` + `lunchRushScoring`）: **1151 passed / 1 skipped**。
+- Full Vitest: **185 files、3983 passed / 1 skipped**。
+- `tsc -b` clean、`oxlint` 0、`vite build` 成功。
+- GitHub CI: push 後の exact HEAD で確認（final report に記録）。

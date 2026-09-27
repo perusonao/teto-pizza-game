@@ -156,8 +156,13 @@ export interface DinnerAttemptInput {
   pizza: PizzaState;
   /** Whether the CUT step (when the identity has one) has been confirmed. */
   cutCompleted: boolean;
-  /** Stock *before* this pizza's consumption; the resolver applies `consumePizzaInventory`. */
-  inventoryBeforeBake: InventoryState;
+  /**
+   * Stock *before* this pizza's consumption -- in the runtime, `state.inventory` as it was when
+   * CONFIRM_BAKE was dispatched. The resolver subtracts the pizza itself (`consumePizzaInventory`),
+   * so passing the post-bake stock (e.g. `state.inventory` at CUT confirm, which CONFIRM_BAKE has
+   * already reduced) consumes the pizza twice. Pinned against the real CONFIRM_BAKE in the tests.
+   */
+  preConsumptionInventory: InventoryState;
   ownedIngredientIds: readonly string[];
   /** Read only for what may be shown (OD-R4). Never written. */
   dex: DexState;
@@ -186,8 +191,8 @@ export type DinnerAttemptResult =
       /** The target this pizza completed, if any (only ever set for TARGET_PASS). */
       completedTargetId: RecipeId | null;
       /** Always the consumed stock, whatever the category (no refund). */
-      inventoryAfter: InventoryState;
-      /** Shortages of the remaining targets against `inventoryAfter` (empty after a CLEAR). */
+      postConsumptionInventory: InventoryState;
+      /** Shortages of the remaining targets against `postConsumptionInventory` (empty after a CLEAR). */
       remainingShortages: SetIngredientShortage[];
       run: DinnerRunState;
     };
@@ -298,14 +303,14 @@ export function resolveDinnerAttempt(input: DinnerAttemptInput): DinnerAttemptRe
   const classification = classify(input, plan);
   const completedTargetId = classification.category === "TARGET_PASS" ? classification.recipeId : null;
   // Every category consumed what the pizza used (CONFIRM_BAKE's one consumption authority).
-  const inventoryAfter = consumePizzaInventory(pizza, input.inventoryBeforeBake);
-  const settled = settleRun(run, completedTargetId, { ownedIngredientIds: input.ownedIngredientIds, inventory: inventoryAfter }, now);
+  const postConsumptionInventory = consumePizzaInventory(pizza, input.preConsumptionInventory);
+  const settled = settleRun(run, completedTargetId, { ownedIngredientIds: input.ownedIngredientIds, inventory: postConsumptionInventory }, now);
   return {
     status: "RESOLVED",
     plan,
     classification,
     completedTargetId,
-    inventoryAfter,
+    postConsumptionInventory,
     remainingShortages: settled.remainingShortages,
     run: settled.run,
   };

@@ -8,7 +8,10 @@ import { getRecipe, RECIPES, type RecipeId } from "../../data/recipes";
 import type { RecipeDiscoveryTarget } from "../../logic/discovery/matcher";
 import type { QualityStars } from "../../logic/scoring";
 import { computeScoringV2, toLegacyScoreBreakdown } from "../../logic/scoringV2";
+import { evaluateFreeCookCompletion } from "../../logic/discovery/freeCook";
 import type { DexEntry, DexState } from "../../state/dex";
+import { gameReducer } from "../../state/gameReducer";
+import { startGuidedPrepare } from "../../state/testSupport/guidedRound";
 import { consumePizzaInventory, type InventoryState } from "../../state/inventory";
 import { createEmptyPizza, type PizzaState } from "../../state/pizzaState";
 import { getDinnerMission, type DinnerMissionDefinition } from "./dinnerMission";
@@ -87,7 +90,7 @@ function pizzaFor(
 }
 
 /** A PLAYING run with `completed` already done. The run holds no stock: each attempt's stock is
- *  its own `inventoryBeforeBake`, so START uses a stock that fits every mission. */
+ *  its own `preConsumptionInventory`, so START uses a stock that fits every mission. */
 function runOf(mission: DinnerMissionDefinition, completed: readonly string[] = []): DinnerRunState {
   const started = startDinnerRun(mission, { dex: DEX, ownedIngredientIds: ALL_IDS, inventory: { ...EXACT_A, ...EXACT_B, egg: 2 } }, T0, DURATION);
   if (!started.ok) throw new Error(`start failed: ${JSON.stringify(started.block)}`);
@@ -103,7 +106,7 @@ function input(
     run,
     pizza,
     cutCompleted: true,
-    inventoryBeforeBake: EXACT_A,
+    preConsumptionInventory: EXACT_A,
     ownedIngredientIds: ALL_IDS,
     dex: DEX,
     minimumStars: 3,
@@ -231,7 +234,7 @@ describe("Stage A: bake window and CUT from the composition (§9 / §10)", () =>
     const result = resolveDinnerAttempt(
       input(runOf(DM_A), pizzaFor("new-haven-apizza"), {
         cutCompleted: false,
-        inventoryBeforeBake: { ...EXACT_A, "olive-oil": 1, parmigiano: 2, clam: 3, garlic: 2 },
+        preConsumptionInventory: { ...EXACT_A, "olive-oil": 1, parmigiano: 2, clam: 3, garlic: 2 },
       }),
     );
     expect(resolved(result).classification).toEqual({ category: "NON_TARGET", recipeId: "new-haven-apizza" });
@@ -338,7 +341,7 @@ describe("Stage B: classification (§6)", () => {
   it("6: a discovered non-target recipe is NON_TARGET, named, no progress", () => {
     const pizza = pizzaFor("marinara");
     const result = resolved(
-      resolveDinnerAttempt(input(runOf(DM_A), pizza, { inventoryBeforeBake: { ...EXACT_A, garlic: 3, oregano: 2 } })),
+      resolveDinnerAttempt(input(runOf(DM_A), pizza, { preConsumptionInventory: { ...EXACT_A, garlic: 3, oregano: 2 } })),
     );
     expect(result.classification).toEqual({ category: "NON_TARGET", recipeId: "marinara" });
     expect(result.run.completedRecipeIds).toEqual([]);
@@ -358,7 +361,7 @@ describe("Stage B: classification (§6)", () => {
     for (const mission of [DM_A, DM_B]) {
       for (const recipe of RECIPES) {
         for (const pizza of [pizzaFor(recipe.id), pizzaFor(recipe.id, { bake: 0 })]) {
-          const result = resolved(resolveDinnerAttempt(input(runOf(mission), pizza, { inventoryBeforeBake: stock })));
+          const result = resolved(resolveDinnerAttempt(input(runOf(mission), pizza, { preConsumptionInventory: stock })));
           const text = JSON.stringify(dinnerAttemptView(result.classification, DEX));
           for (const hidden of undiscovered) {
             expect(text, `${mission.missionId}/${recipe.id}`).not.toContain(hidden.id);
@@ -434,7 +437,7 @@ describe("nested targets (OD-R3: the composition decides, never an intent)", () 
   it("12: DM-B -- parmigiana ingredients without parmigiano ARE melanzane, and complete melanzane", () => {
     const pizza = pizzaFor("parmigiana-pizza", { counts: { parmigiano: 0 } });
     expect(resolveDinnerIdentity(pizza)).toEqual({ kind: "RECIPE", recipeId: "melanzane-pizza" });
-    const result = resolved(resolveDinnerAttempt(input(runOf(DM_B), pizza, { inventoryBeforeBake: EXACT_B })));
+    const result = resolved(resolveDinnerAttempt(input(runOf(DM_B), pizza, { preConsumptionInventory: EXACT_B })));
     expect(result.classification).toMatchObject({ category: "TARGET_PASS", recipeId: "melanzane-pizza" });
     expect(result.run.completedRecipeIds).toEqual(["melanzane-pizza"]);
     // margherita + eggplant is melanzane too (margherita ⊂ melanzane)
@@ -446,7 +449,7 @@ describe("nested targets (OD-R3: the composition decides, never an intent)", () 
 
   it("13: DM-B -- parmigiana's Reference completes parmigiana, never melanzane", () => {
     const result = resolved(
-      resolveDinnerAttempt(input(runOf(DM_B), pizzaFor("parmigiana-pizza"), { inventoryBeforeBake: EXACT_B })),
+      resolveDinnerAttempt(input(runOf(DM_B), pizzaFor("parmigiana-pizza"), { preConsumptionInventory: EXACT_B })),
     );
     expect(result.classification).toMatchObject({ category: "TARGET_PASS", recipeId: "parmigiana-pizza" });
     expect(result.run.completedRecipeIds).toEqual(["parmigiana-pizza"]);
@@ -455,7 +458,7 @@ describe("nested targets (OD-R3: the composition decides, never an intent)", () 
   it("melanzane made while melanzane is done and parmigiana is open stays a DUPLICATE (no promotion)", () => {
     const run = runOf(DM_B, ["melanzane-pizza"]);
     const result = resolved(
-      resolveDinnerAttempt(input(run, pizzaFor("melanzane-pizza"), { inventoryBeforeBake: { ...EXACT_B, eggplant: 12 } })),
+      resolveDinnerAttempt(input(run, pizzaFor("melanzane-pizza"), { preConsumptionInventory: { ...EXACT_B, eggplant: 12 } })),
     );
     expect(result.classification).toEqual({ category: "DUPLICATE_TARGET", recipeId: "melanzane-pizza" });
     expect(result.run.completedRecipeIds).toEqual(["melanzane-pizza"]);
@@ -474,13 +477,13 @@ describe("inventory: every attempt is consumed, none refunded (§13)", () => {
     ["INVALID_PIZZA", pizzaFor("funghi", { bake: 0 }), runOf(DM_A), 3],
   ];
   for (const [name, pizza, run, minimumStars] of cases) {
-    it(`${name}: inventoryAfter is consumePizzaInventory(pizza, before)`, () => {
+    it(`${name}: postConsumptionInventory is consumePizzaInventory(pizza, before)`, () => {
       const result = resolved(
-        resolveDinnerAttempt(input(run, pizza, { inventoryBeforeBake: stock, minimumStars: minimumStars as QualityStars })),
+        resolveDinnerAttempt(input(run, pizza, { preConsumptionInventory: stock, minimumStars: minimumStars as QualityStars })),
       );
       expect(result.classification.category).toBe(name.replace(/^\S+ /, "").replace(/ \(.*\)$/, ""));
-      expect(result.inventoryAfter).toEqual(consumePizzaInventory(pizza, stock));
-      expect(result.inventoryAfter).not.toEqual(stock);
+      expect(result.postConsumptionInventory).toEqual(consumePizzaInventory(pizza, stock));
+      expect(result.postConsumptionInventory).not.toEqual(stock);
     });
   }
 });
@@ -488,7 +491,7 @@ describe("inventory: every attempt is consumed, none refunded (§13)", () => {
 describe("feasibility after every attempt, and CLEAR precedence (§14 / §15)", () => {
   it("23: bismarck PASS on the exact DM-A stock leaves the rest cookable", () => {
     const result = resolved(resolveDinnerAttempt(input(runOf(DM_A), pizzaFor("bismarck"))));
-    expect(result.inventoryAfter.egg).toBe(1);
+    expect(result.postConsumptionInventory.egg).toBe(1);
     expect(result.remainingShortages).toEqual([]);
     expect(result.run.status).toBe("PLAYING");
   });
@@ -507,10 +510,10 @@ describe("feasibility after every attempt, and CLEAR precedence (§14 / §15)", 
     const first = resolved(resolveDinnerAttempt(input(runOf(DM_A), pizzaFor("bismarck"))));
     expect(first.run.status).toBe("PLAYING");
     const second = resolved(
-      resolveDinnerAttempt(input(first.run, pizzaFor("bismarck"), { inventoryBeforeBake: first.inventoryAfter, now: NOW + 1 })),
+      resolveDinnerAttempt(input(first.run, pizzaFor("bismarck"), { preConsumptionInventory: first.postConsumptionInventory, now: NOW + 1 })),
     );
     expect(second.classification).toEqual({ category: "DUPLICATE_TARGET", recipeId: "bismarck" });
-    expect(second.inventoryAfter.egg).toBe(0);
+    expect(second.postConsumptionInventory.egg).toBe(0);
     expect(second.run.status).toBe("FAILED");
     expect(second.run.outcome).toMatchObject({ reason: "INFEASIBLE" });
     expect(second.remainingShortages).toEqual([{ ingredientId: "egg", need: 1, have: 0, recipeIds: ["breakfast-pizza"] }]);
@@ -518,11 +521,11 @@ describe("feasibility after every attempt, and CLEAR precedence (§14 / §15)", 
 
   it("26: DM-B -- a duplicate melanzane uses parmigiana's eggplant", () => {
     const first = resolved(
-      resolveDinnerAttempt(input(runOf(DM_B), pizzaFor("melanzane-pizza"), { inventoryBeforeBake: EXACT_B })),
+      resolveDinnerAttempt(input(runOf(DM_B), pizzaFor("melanzane-pizza"), { preConsumptionInventory: EXACT_B })),
     );
     expect(first.run.status).toBe("PLAYING");
     const second = resolved(
-      resolveDinnerAttempt(input(first.run, pizzaFor("melanzane-pizza"), { inventoryBeforeBake: first.inventoryAfter, now: NOW + 1 })),
+      resolveDinnerAttempt(input(first.run, pizzaFor("melanzane-pizza"), { preConsumptionInventory: first.postConsumptionInventory, now: NOW + 1 })),
     );
     expect(second.classification.category).toBe("DUPLICATE_TARGET");
     expect(second.run.status).toBe("FAILED");
@@ -531,9 +534,9 @@ describe("feasibility after every attempt, and CLEAR precedence (§14 / §15)", 
 
   it("27: a QUALITY_FAIL melanzane still eats its eggplant, and melanzane + parmigiana no longer fit", () => {
     const pizza = pizzaFor("melanzane-pizza", { bake: edgeBake("melanzane-pizza") });
-    const result = resolved(resolveDinnerAttempt(input(runOf(DM_B), pizza, { inventoryBeforeBake: EXACT_B, minimumStars: 5 })));
+    const result = resolved(resolveDinnerAttempt(input(runOf(DM_B), pizza, { preConsumptionInventory: EXACT_B, minimumStars: 5 })));
     expect(result.classification.category).toBe("QUALITY_FAIL");
-    expect(result.inventoryAfter.eggplant).toBe(3);
+    expect(result.postConsumptionInventory.eggplant).toBe(3);
     expect(result.run.status).toBe("FAILED");
     expect(result.remainingShortages).toEqual([
       { ingredientId: "eggplant", need: 6, have: 3, recipeIds: ["melanzane-pizza", "parmigiana-pizza"] },
@@ -542,8 +545,8 @@ describe("feasibility after every attempt, and CLEAR precedence (§14 / §15)", 
 
   it("28: the last target CLEARs, even when the stock is then empty (CLEAR wins, as in DM-1)", () => {
     const run = runOf(DM_A, ["margherita", "bismarck", "funghi"]);
-    const result = resolved(resolveDinnerAttempt(input(run, pizzaFor("breakfast-pizza"), { inventoryBeforeBake: { egg: 1, bacon: 3 } })));
-    expect(result.inventoryAfter).toMatchObject({ egg: 0, bacon: 0 });
+    const result = resolved(resolveDinnerAttempt(input(run, pizzaFor("breakfast-pizza"), { preConsumptionInventory: { egg: 1, bacon: 3 } })));
+    expect(result.postConsumptionInventory).toMatchObject({ egg: 0, bacon: 0 });
     expect(result.run.status).toBe("CLEARED");
     expect(result.run.outcome).toEqual({ kind: "CLEAR", endedAt: NOW, clearMs: NOW - T0 });
     expect(result.remainingShortages).toEqual([]);
@@ -558,14 +561,14 @@ describe("feasibility after every attempt, and CLEAR precedence (§14 / §15)", 
     ];
     for (const [mission, stock, completed, pizza, minimumStars] of scenarios) {
       const run = runOf(mission, completed);
-      const result = resolved(resolveDinnerAttempt(input(run, pizza, { inventoryBeforeBake: stock, minimumStars })));
+      const result = resolved(resolveDinnerAttempt(input(run, pizza, { preConsumptionInventory: stock, minimumStars })));
       const recipeId = (result.classification as { recipeId: string }).recipeId;
       const selected = dinnerRunReducer(run, { type: "SELECT_TARGET", recipeId, now: NOW });
       const dm1 = dinnerRunReducer(selected, {
         type: "RESOLVE_ATTEMPT",
         recipeId,
         completion: result.completedTargetId ? "PASS" : "FAILED",
-        stock: { ownedIngredientIds: ALL_IDS, inventory: result.inventoryAfter },
+        stock: { ownedIngredientIds: ALL_IDS, inventory: result.postConsumptionInventory },
         now: NOW,
       });
       expect({ ...result.run, attempts: [] }).toEqual({ ...dm1, attempts: [] });
@@ -579,7 +582,7 @@ describe("purity, privacy and determinism (§11)", () => {
     const snapshot = JSON.stringify(dex);
     for (const id of ["funghi", "hawaiian", "marinara", "bismarck"]) {
       const result = resolveDinnerAttempt(
-        input(runOf(DM_A), pizzaFor(id), { dex, inventoryBeforeBake: { ...EXACT_A, garlic: 3, oregano: 2, ham: 2, pineapple: 3 } }),
+        input(runOf(DM_A), pizzaFor(id), { dex, preConsumptionInventory: { ...EXACT_A, garlic: 3, oregano: 2, ham: 2, pineapple: 3 } }),
       );
       const text = JSON.stringify(result);
       expect(text).not.toMatch(/NEW_DISCOVERY|ALREADY_DISCOVERED|lastDiscovery|pitz/i);
@@ -598,9 +601,9 @@ describe("purity, privacy and determinism (§11)", () => {
   it("35: deterministic -- same input, same output; catalog order does not matter", () => {
     const run = runOf(DM_B);
     const pizza = pizzaFor("parmigiana-pizza", { counts: { parmigiano: 0 } });
-    const a = resolveDinnerAttempt(input(run, pizza, { inventoryBeforeBake: EXACT_B }));
-    const b = resolveDinnerAttempt(input(run, pizza, { inventoryBeforeBake: EXACT_B }));
-    const c = resolveDinnerAttempt(input(run, pizza, { inventoryBeforeBake: EXACT_B, catalog: [...RECIPE_DISCOVERY_CATALOG].reverse() }));
+    const a = resolveDinnerAttempt(input(run, pizza, { preConsumptionInventory: EXACT_B }));
+    const b = resolveDinnerAttempt(input(run, pizza, { preConsumptionInventory: EXACT_B }));
+    const c = resolveDinnerAttempt(input(run, pizza, { preConsumptionInventory: EXACT_B, catalog: [...RECIPE_DISCOVERY_CATALOG].reverse() }));
     expect(b).toEqual(a);
     expect(c).toEqual(a);
   });
@@ -613,12 +616,56 @@ describe("purity, privacy and determinism (§11)", () => {
     const dex = deepFreeze(dexOf(DM_A_IDS));
     const before = JSON.stringify({ run, pizza, inventory, owned, dex });
     const result = resolved(
-      resolveDinnerAttempt({ run, pizza, cutCompleted: true, inventoryBeforeBake: inventory, ownedIngredientIds: owned, dex, minimumStars: 3, now: NOW }),
+      resolveDinnerAttempt({ run, pizza, cutCompleted: true, preConsumptionInventory: inventory, ownedIngredientIds: owned, dex, minimumStars: 3, now: NOW }),
     );
     expect(result.run).not.toBe(run);
     expect(JSON.stringify({ run, pizza, inventory, owned, dex })).toBe(before);
     planDinnerBake(pizza);
     dinnerAttemptView(result.classification, dex);
     expect(JSON.stringify({ run, pizza, inventory, owned, dex })).toBe(before);
+  });
+});
+
+describe("inventory contract: PRE-consumption stock in, consumed exactly once (DM-3R-2 wiring guard)", () => {
+  it("postConsumptionInventory equals the real CONFIRM_BAKE's stock when given the stock CONFIRM_BAKE saw", () => {
+    for (const id of ["funghi", "bismarck", "melanzane-pizza"] as const) {
+      // Twice the minimum, so a second subtraction is visible (consumption clamps at 0).
+      const stock: InventoryState = { egg: 4, bacon: 6, mushroom: 6, eggplant: 12, parmigiano: 4 };
+      const prepared = startGuidedPrepare(id, { inventory: stock });
+      const pizza = pizzaFor(id, { bake: null });
+      const baking = gameReducer({ ...prepared, pizza }, { type: "START_BAKE" });
+      const baked = gameReducer(baking, { type: "CONFIRM_BAKE", value: midBake(id) });
+      expect(baked.inventory, id).not.toEqual(stock);
+      const result = resolved(
+        resolveDinnerAttempt(input(runOf(DM_A), baked.pizza, { preConsumptionInventory: baking.inventory, ownedIngredientIds: baked.ownedIngredientIds })),
+      );
+      expect(result.postConsumptionInventory, id).toEqual(baked.inventory);
+      // Mis-wiring guard: the post-bake stock would consume the pizza a second time.
+      const doubled = resolved(resolveDinnerAttempt(input(runOf(DM_A), baked.pizza, { preConsumptionInventory: baked.inventory })));
+      expect(doubled.postConsumptionInventory, id).not.toEqual(baked.inventory);
+    }
+  });
+});
+
+describe("evaluateFreeCookCompletion's optional bake window (the one extension to existing code)", () => {
+  it("omitted and explicit FREE_COOK_BAKE_TARGET agree for every recipe at raw / mid / edge / burnt bakes", () => {
+    for (const recipe of RECIPES) {
+      for (const bake of [0, 40, 47.9, 48, 68, 88, 88.1, 100, null]) {
+        const pizza = pizzaFor(recipe.id, { bake });
+        expect(evaluateFreeCookCompletion(pizza), `${recipe.id}@${bake}`).toEqual(evaluateFreeCookCompletion(pizza, FREE_COOK_BAKE_TARGET));
+      }
+    }
+    const dough = { ...createEmptyPizza(), bakeResult: 0 };
+    expect(evaluateFreeCookCompletion(dough)).toEqual(evaluateFreeCookCompletion(dough, FREE_COOK_BAKE_TARGET));
+  });
+
+  it("a recipe window moves only the bake band; the empty-pizza rule is unchanged", () => {
+    const bismarck = getRecipe("bismarck")!.bakeTarget;
+    expect(evaluateFreeCookCompletion(pizzaFor("bismarck", { bake: 86 }))).toEqual({ status: "PASS" });
+    expect(evaluateFreeCookCompletion(pizzaFor("bismarck", { bake: 86 }), bismarck)).toMatchObject({ status: "FAILED", reason: "OVERBAKED" });
+    expect(evaluateFreeCookCompletion({ ...createEmptyPizza(), bakeResult: 65 }, bismarck)).toMatchObject({
+      status: "FAILED",
+      reason: "MISSING_REQUIRED_INGREDIENT",
+    });
   });
 });
