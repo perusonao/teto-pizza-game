@@ -322,6 +322,10 @@ Primary device: smartphone vertical. Verification baseline: 390×844.
 ## Current roadmap issues
 
 - Issue #22 — overall development roadmap / session handoff SSOT.
+- **Issue #257 — Dinner Mission DM-4 / DM-5 (parent).**
+  - Status: DM-3R-2 is merged (PR #252, `51e0923`). Production START stays closed until DM-4-3 and DM-5-2 (OD-DM5-5).
+  - Owner Decisions SSOT (OD-DM4-1..6 / OD-DM5-1..6), slices, save schema, exactly-once settlement, exploit matrix and Human Timing protocol: `docs/reports/TETO_DINNER-MISSION_DM-4_Phase4-0_Plan.md`.
+  - Next: DM-4-1 (pure, unwired). DM-5-1 Human Timing can run in parallel on the Preview.
 - Issue #32 — Reference / Recipe / Interaction consistency gate before Scoring 2.0 authority. **Complete** — Recipe correctness, Interaction Consistency Fresh Audit, and the sauce-parity/olive-oil-visibility fix (PR #45) have all landed.
 - **Issue #47 — Making UX Cleanup (実機レビュー導線・見本・再挑戦・操作性改善). Complete.** Fresh Audit — see `docs/reports/TETO_ISSUE-47_MAKING-UX_Fresh-Audit.md` (audited SHA `6e554918c42fc4d8ed267b715992e5ed5cf68e4f`). Verdict: **B. READY — 3 IMPLEMENTATION SLICES**. Slice A (PR #49, Findings A/B/C/D/E/K) and Slice B (PR #50, Findings F/H) are both **merged**, Human Feel **PASS**. Slice C's own findings: I (sauce repaint vs. one-way flow) confirmed already correct, no code change needed; J (Cheese/Topping drag scope) explicitly handed to **Issue #37 M2** rather than implemented here, per Issue #47's own "don't double-implement" scope guard — this hand-off is not unfinished Issue #47 work, it is Issue #47's own decision.
 - **Issue #33 — Dough Shaping. D1/D2 COMPLETE** via **PR #54** (base SHA

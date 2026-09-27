@@ -1,7 +1,7 @@
 # Dinner Mission DM-4 / DM-5 — Fresh Audit（報酬・永続化・時間・品質バランス設計）
 
 - **Audited main:** `5a33d85`（Merge PR #254: Discovery Hint 4.0 DH4-1）
-- **Audited DM-3R-2 head:** PR #252 `claude/dm-3r-2-result-detection-ioac6d` @ `d11858a`（OPEN、Final Merge Gate 中）
+- **Audited DM-3R-2 head:** PR #252 `claude/dm-3r-2-result-detection-ioac6d` @ `d11858a`（監査時は OPEN。その後 `51e0923` で MERGED）
 - **Branch:** `claude/dinner-mission-dm4-dm5-audit-0dotex`（docs / data / tools のみ）
 - **Machine-readable data:**
   - 実測: `docs/reports/data/TETO_DINNER-MISSION_DM4-DM5_measure.jsonl`（144 件）
@@ -17,6 +17,16 @@
 - production deploy
 
 **production 値について。** この文書の数値はすべて **Owner Decision の選択肢**。production 値ではない。
+
+> **Update（2026-09-27、Phase 4-0）:**
+> - PR #252 は **MERGED**（`51e0923`、post-merge CI green）。§9 の B-1 は解消した。
+> - Owner Decision は確定し、SSOT は `docs/reports/TETO_DINNER-MISSION_DM-4_Phase4-0_Plan.md` §3（親 Issue #257）。この文書 §8 の OD 番号は **旧番号** で、正式ではない。
+> - 証拠は次の 3 つに区分する。混同しないこと。
+>   - **AUTOMATED:** 144 / 144 の scripted run（§5、§6.1）
+>   - **MODEL:** KLM / Fitts による人の操作時間の仮定（§6.2、§6.3、§7.1、§7.3 の per-minute）
+>   - **HUMAN:** まだ無い
+> - **§7.1 の T-1（DM-A 320 s / DM-B 355 s）は MODEL の値で、人では検証していない。** Owner はこれを Human Validation の baseline として採用した（OD-DM5-2）。最終値ではない。
+> - tier の閾値は Human Timing の後に決める（OD-DM5-3）。§7.1 の GOLD / SILVER の列は、model 上の例示にすぎない。
 
 ---
 
@@ -248,7 +258,7 @@ AVERAGE の breakfast-pizza の内訳は次のとおり。
 
 ## 7. DM-5 balance matrix（Owner の選択肢）
 
-### 7.1 制限時間と tier の閾値（秒。5 s 単位で丸めた。BRONZE = 制限時間）
+### 7.1 制限時間と tier の閾値（**MODEL**。秒。5 s 単位で丸めた。BRONZE = 制限時間）
 
 | 案 | mission | 制限時間 | GOLD ≤ | SILVER ≤ | BRONZE ≤ | EXPERT | AVERAGE | BEGINNER |
 |---|---|---:|---:|---:|---:|---|---|---|
@@ -338,7 +348,7 @@ AVERAGE の breakfast-pizza の内訳は次のとおり。
 
 | # | 項目 | 種類 | 影響する slice |
 |---|---|---|---|
-| B-1 | **PR #252（DM-3R-2）の merge** | ハード | DM-4-3 / 4-4、DM-5-2（run の出力、CLEAR 遷移の場所、UI、attempt log は #252 で決まる）。DM-4-1 / 4-2 は main の DM-1 の型だけでも書けるが、#252 の `dinnerRun.ts` の変更と衝突しないよう、**merge 後に着手する** |
+| B-1 | ~~PR #252（DM-3R-2）の merge~~ **解消（`51e0923` で MERGED、2026-09-27）** | ~~ハード~~ | DM-4-3 / 4-4、DM-5-2（run の出力、CLEAR 遷移の場所、UI、attempt log は #252 で決まる）。DM-4-1 / 4-2 は main の DM-1 の型だけでも書けるが、#252 の `dinnerRun.ts` の変更と衝突しないよう、**merge 後に着手する** |
 | B-2 | OD-DM4-1〜8 の決定 | ハード | DM-4 全体。特に 4-1（schedule の形）と 4-2（record の field） |
 | B-3 | OD-DM5-1〜3 ＋ DM-5-1 の人の実測 | ハード（DM-5-2 だけ） | production の START を開けること |
 | B-4 | #234 / OD-DM-11 | 条件付き | OD-DM4-5 で D-2 を選んだ場合だけ |
