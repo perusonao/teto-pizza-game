@@ -3,7 +3,7 @@
 - **Lane:** D (Dinner only). Independent of DH4-x / HintSheet / Recipe Taxonomy lanes.
 - **Scope guard:** no production code changed, nothing merged. PR #252, #243 and #242 are untouched. No production deploy.
 - **Verdict (prep):** **A. DINNER PREVIEW READY FOR OWNER HUMAN VERIFICATION**
-- **Owner iPhone HV:** round 1 is in §9 and round 2 (TIME_UP) is in §10. Every item run passed. Two Owner tests remain before merge (§10.4), so #252 is **not merge-ready yet**. §10.3 supersedes the §9.6 classification.
+- **Owner iPhone HV:** round 1 is in §9, round 2 (TIME_UP) in §10, round 3 (CUT invalid-bake reclassification) in §11. Every item run passed. One Owner test remains before merge: HOME abandon (§11.4). #252 is **not merge-ready yet**. §11 supersedes the classification in §9.6 / §10.3–§10.5.
 - Captured: 2026-09-27 (UTC ~10:40–10:50)
 
 ## 1. Fresh GitHub Gate
@@ -432,3 +432,67 @@ Preview: https://perusonao.github.io/teto-pizza-game-preview/dm3r2-setup.html
 If TEST 2 is decided as "skip CUT", a production change is needed, and this lane stops for a new decision before any implementation.
 
 #252 stays OPEN, and #243 / #242 stay OPEN. There has been no production deploy, and DM-4 / DM-5 are not started.
+
+## 11. Round 3 — CUT on an invalid bake is shared behaviour (supersedes §10.3–§10.5)
+
+**Owner finding:** in the existing modes outside Dinner, a CUT recipe also goes through CUT when it is raw or burnt. So in #252 this is not treated as a Dinner-specific regression.
+
+### 11.1 Fresh check (code at `7a18e29`; `main 5a33d85` does not touch these files)
+
+| mode | how CUT is decided | CUT on raw / burnt? |
+|---|---|---|
+| Guided (Pizza Select) | the round's `cookingProfile = getCookingProfile(recipe.id)`. At base `CONFIRM_BAKE`, `postBakeSteps(state.cookingProfile)` decides `POST_BAKE` vs `RESULT`. `bakeState` and `completion` are not read for that choice. | **yes** for any `CUT_ELIGIBLE_RECIPE_IDS` recipe (24 / 25; `new-haven-apizza` has no CUT) |
+| Lunch Rush | same base `CONFIRM_BAKE` path, with the order recipe's profile | **yes** |
+| Free Cooking (じぶんのピザ) | sentinel `free-cook` is not CUT-eligible, and a matched pizza keeps the sentinel profile | no CUT step at all, in any case |
+| Dinner (#252) | Stage A picks the identified recipe's profile at START_BAKE, and the same base `CONFIRM_BAKE` then runs | **yes** when the composition identifies as a CUT recipe; no CUT when it identifies as nothing (§9.3) |
+
+- **Existing test pinning it:** `src/state/gameReducer.cutStep.test.ts`, "CUT never gates completion: a FAILED (empty) margherita pizza still walks CUT to RESULT".
+  - `CONFIRM_BAKE value: 5` → `phase: POST_BAKE` with `completion: FAILED` → walks CUT → RESULT.
+  - It has been on main since `3c71597`, Pizza Cutting 1.0 Phase 2 (#128), which predates Dinner.
+  - The same test exists at `origin/main 5a33d85`.
+- **Owner-confirmed on iPhone:** the same in the non-Dinner modes (this round).
+
+**Conclusion:** CUT on a failed bake is the pre-existing, shared cooking-flow behaviour. #252 reuses it unchanged, so Dinner is consistent with every other CUT mode.
+
+### 11.2 Decision for #252
+
+- The "CUT recipe invalid-bake UX" item is **removed from the #252 merge blockers**.
+- #252 does not change the shared behaviour, and Dinner is not made to behave differently.
+- The UX question stays open as an all-mode follow-up: "When the bake has already failed, should CUT be skipped straight to the result?"
+  - Duplicate Gate: no open or closed Issue covered it. #176 Areas 1 and 4 are related but different: CUT's score weight, and recipe-dependent step lists.
+  - **New Issue #256 was opened** for it. No implementation is started.
+- The TEST 2 device check in §10.4 is **no longer needed** before merge.
+  - raw INVALID stays "automated coverage sufficient": unit R9/R10, E2E R5/R9, and the Preview re-check in §9.3.
+  - Burnt INVALID is already Owner-confirmed.
+
+### 11.3 Reclassification (final for now)
+
+| item | class |
+|---|---|
+| **HOME abandon** | **merge blocker (Owner HV, TEST 1)**, because `7a18e29` is a real-touch fix |
+| TIME_UP | Owner-confirmed on iPhone (round 2, §10.1) |
+| CLEAR / Entry / auto-detection / burnt INVALID / QUALITY_FAIL ★3·★4 | Owner-confirmed on iPhone (round 1, §9.1) |
+| raw INVALID | automated coverage sufficient |
+| arbitrary order / DUPLICATE_TARGET / ORIGINAL / NON_TARGET / INFEASIBLE | automated coverage sufficient |
+| CUT on an invalid bake (all modes) | non-blocking follow-up: **#256** (shared behaviour, not changed in #252) |
+| target row (30px thumbnail, 「マルゲリ…」「ブレックフ…」 ellipsis, chip-as-selection perception) | non-blocking follow-up, UI polish (OD-R7 conformant, §10.2 C) |
+| long last-pizza name (F1) / 「DINNER CLEAR!」 English (F2) | non-blocking follow-up, UI polish |
+| QUALITY_FAIL guidance, e.g. 「あと★1」 (F3) | non-blocking follow-up, DM-5 / UI polish |
+
+No new blocking defect has been found.
+
+### 11.4 Remaining Owner device check (1 test)
+
+TEST 1, HOME abandon, as in §10.4:
+1. On the helper page, tap 「通常セーブ」 → 「HV-normal」.
+2. ディナーミッション 1 → スタート. Stretch the dough, or place a few pieces.
+3. Tap 「ホーム」. With the dialog open, touching the pizza does nothing, and the timer keeps counting.
+4. Tap 「続ける」: you are back in the same cooking state and can continue.
+5. Tap 「ホーム」 → 「やめる」: you land on HOME, with no reward.
+
+### 11.5 PR #252 merge readiness
+
+**Not yet. The only blocker left is TEST 1 (HOME abandon) PASS on iPhone.**
+- Everything else is ready: CI green, review threads resolved, `clean` against its base, and the trial merge with `5a33d85` passes (§2).
+- #252 stays OPEN, and #243 / #242 stay OPEN.
+- No production code change and no production deploy. DM-4 / DM-5 are not started. #256 is not started.
