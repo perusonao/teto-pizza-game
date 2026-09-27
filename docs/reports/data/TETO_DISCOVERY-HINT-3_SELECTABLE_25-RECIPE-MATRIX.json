@@ -1,0 +1,3559 @@
+{
+ "schema": "teto.discovery-hint-3.selectable.matrix/v1",
+ "auditedMainSha": "42feec70f4e2b659c590b1c236116c0bf579200a",
+ "generatedFrom": [
+  "src/data/recipes.ts (RECIPES)",
+  "src/data/ingredients.ts",
+  "src/data/discoveryCatalog.ts (RECIPE_DISCOVERY_CATALOG)",
+  "src/data/cookingProfiles.ts (getCookingProfile)",
+  "src/data/discoveryLadder.ts (DISCOVERY_LADDER)",
+  "src/logic/discovery/hintSteps.ts (buildHintSteps, hintKeyIngredientId, discoveredCount=1)",
+  "src/logic/discovery/signature.ts (identity axes)"
+ ],
+ "generator": "scratch vitest dump + python (not committed); see report §A",
+ "rules": {
+  "factIds": {
+   "ing:<ingredientId>": "names one ingredient (row = its category)",
+   "none:<category>": "the category is empty for this recipe (cheese / topping)",
+   "sauce:not-tomato": "coarse sauce fact, only when the sauce itself is the reserved ingredient (pizza-bianca)",
+   "meta:ingredient-count": "distinct ingredient count",
+   "meta:uses-cheese": "display-only, migration from legacy H3 (never sold)"
+  },
+  "rowOrder": [
+   "SAUCE",
+   "CHEESE",
+   "TOPPING",
+   "COUNT"
+  ],
+  "inRowRevealOrder": "key ingredient first (if in that row), then requiredIngredients declaration order; the order is internal and never displayed as 1st/2nd",
+  "reservedIngredient_RuleW": "last non-key ingredient in declaration order of the highest-entropy category present (topping > cheese > sauce); never sold at Dex>=1. Equals the ingredient current H4 withholds for 25/25 recipes.",
+  "pricing": {
+   "ESC_PARITY": "k-th fact bought for a recipe costs [5,10,20,40,40..][k], total capped at 35 (<=3 distinct ingredients) or 75 (>=4) = the current full H-cost of that recipe",
+   "ESC75": "same ladder, cap 75 for every recipe",
+   "FLAT10": "10 per fact",
+   "VALUE": "sauce/cheese 5, topping/count 10",
+   "keyFree": "variant: the key ingredient is a free line (not a sellable fact)"
+  }
+ },
+ "summary": {
+  "recipes": 25,
+  "cheeseToppingShapeCollisions": {
+   "1,1": 6,
+   "0,2": 2,
+   "4,0": 1,
+   "1,2": 9,
+   "0,1": 1,
+   "1,4": 3,
+   "2,2": 1,
+   "0,3": 1,
+   "0,4": 1
+  },
+  "fullCostTotal_24PaidTargets": {
+   "ESC75": 1600,
+   "ESC75_keyFree": 1020,
+   "FLAT10": 1030,
+   "FLAT10_keyFree": 790,
+   "VALUE": 800,
+   "VALUE_keyFree": 580,
+   "ESC_PARITY": 1480,
+   "ESC_PARITY_keyFree": 1020
+  },
+  "currentFullCostTotal_24PaidTargets": 1480,
+  "reservedEqualsCurrentWithheld": 25
+ },
+ "recipes": [
+  {
+   "recipeId": "margherita",
+   "nameJa": "マルゲリータ",
+   "declIndex": 0,
+   "ladderKeyStep": 0,
+   "identityAxes": {
+    "ingredientSet": [
+     "basil",
+     "mozzarella",
+     "tomato-sauce"
+    ],
+    "sauceBase": [
+     "tomato-sauce"
+    ],
+    "otherDimensions": "all 11 Phase-2 dimensions at DEFAULT (FIXED_BY_FLOW / UNAVAILABLE); no capability required",
+    "orderSensitive": false,
+    "minCountIsIdentity": false
+   },
+   "cookingProfileSteps": [
+    "DOUGH",
+    "SAUCE",
+    "CHEESE",
+    "TOPPING",
+    "CUT"
+   ],
+   "cutIsIdentity": false,
+   "sauceSlot": [
+    "tomato-sauce"
+   ],
+   "cheeseSlots": [
+    "mozzarella"
+   ],
+   "toppingSlots": [
+    "basil"
+   ],
+   "distinctIngredients": 3,
+   "cheeseCount": 1,
+   "toppingCount": 1,
+   "minCounts": {
+    "tomato-sauce": 1,
+    "mozzarella": 3,
+    "basil": 2
+   },
+   "keyIngredient": null,
+   "reservedIngredient_RuleW": "basil",
+   "currentWithheld": [
+    "basil"
+   ],
+   "proposedSelectableFacts": {
+    "SAUCE": [
+     "ing:tomato-sauce"
+    ],
+    "CHEESE": [
+     "ing:mozzarella"
+    ],
+    "TOPPING": [],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount": 3,
+   "proposedSelectableFacts_keyFree": {
+    "SAUCE": [
+     "ing:tomato-sauce"
+    ],
+    "CHEESE": [
+     "ing:mozzarella"
+    ],
+    "TOPPING": [],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount_keyFree": 3,
+   "currentMaxHLevel": 3,
+   "currentHintLines": 4,
+   "currentFullCost": 35,
+   "candidateFullCost": {
+    "ESC75": 35,
+    "ESC75_keyFree": 35,
+    "FLAT10": 30,
+    "FLAT10_keyFree": 30,
+    "VALUE": 20,
+    "VALUE_keyFree": 20,
+    "ESC_PARITY": 35,
+    "ESC_PARITY_keyFree": 35
+   },
+   "ownedAtStage": {
+    "sauces": [
+     "tomato-sauce"
+    ],
+    "cheeses": [
+     "mozzarella"
+    ],
+    "toppings": [
+     "basil"
+    ]
+   },
+   "privacyRisks": [
+    "model A would leak cheeseCount=1 toppingCount=1 (= current H3 count+cheese, 35 Pitz cumulative) for free",
+    "storage: ledger key is the undiscovered recipe id (accepted since HE-1, same exposure as unlockedForShopIngredientIds)"
+   ],
+   "specialCases": [
+    "Dex0 onboarding: free, all 3 ingredients (LK-6 exception); never a paid target at Dex>=1 because it is always discovered first"
+   ],
+   "slotCountLeak": {
+    "stageOwnedIngredients": 3,
+    "candidateSets_noFreeInfo": 3,
+    "candidateSets_modelA_exactSlots": 1,
+    "bitsLeaked_modelA": 1.58,
+    "candidateSets_categoryPresence": 1,
+    "bitsLeaked_categoryPresence": 1.58,
+    "withShopNewKnown": {
+     "candidateSets": 3,
+     "modelA": 1,
+     "bitsLeaked_modelA": 1.58,
+     "categoryPresence": 1,
+     "bitsLeaked_categoryPresence": 1.58
+    },
+    "modelC_fixedRows_bitsLeaked": 0.0
+   },
+   "onboarding": {
+    "free": true,
+    "dex0Rows": [
+     "SAUCE",
+     "CHEESE",
+     "TOPPING"
+    ],
+    "revealsAll3": true,
+    "persisted": false
+   }
+  },
+  {
+   "recipeId": "marinara",
+   "nameJa": "マリナーラ",
+   "declIndex": 1,
+   "ladderKeyStep": 14,
+   "identityAxes": {
+    "ingredientSet": [
+     "garlic",
+     "oregano",
+     "tomato-sauce"
+    ],
+    "sauceBase": [
+     "tomato-sauce"
+    ],
+    "otherDimensions": "all 11 Phase-2 dimensions at DEFAULT (FIXED_BY_FLOW / UNAVAILABLE); no capability required",
+    "orderSensitive": false,
+    "minCountIsIdentity": false
+   },
+   "cookingProfileSteps": [
+    "DOUGH",
+    "SAUCE",
+    "TOPPING",
+    "CUT"
+   ],
+   "cutIsIdentity": false,
+   "sauceSlot": [
+    "tomato-sauce"
+   ],
+   "cheeseSlots": [],
+   "toppingSlots": [
+    "garlic",
+    "oregano"
+   ],
+   "distinctIngredients": 3,
+   "cheeseCount": 0,
+   "toppingCount": 2,
+   "minCounts": {
+    "tomato-sauce": 1,
+    "garlic": 3,
+    "oregano": 2
+   },
+   "keyIngredient": "garlic",
+   "reservedIngredient_RuleW": "oregano",
+   "currentWithheld": [
+    "oregano"
+   ],
+   "proposedSelectableFacts": {
+    "SAUCE": [
+     "ing:tomato-sauce"
+    ],
+    "CHEESE": [
+     "none:cheese"
+    ],
+    "TOPPING": [
+     "ing:garlic"
+    ],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount": 4,
+   "proposedSelectableFacts_keyFree": {
+    "SAUCE": [
+     "ing:tomato-sauce"
+    ],
+    "CHEESE": [
+     "none:cheese"
+    ],
+    "TOPPING": [],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount_keyFree": 3,
+   "currentMaxHLevel": 3,
+   "currentHintLines": 4,
+   "currentFullCost": 35,
+   "candidateFullCost": {
+    "ESC75": 75,
+    "ESC75_keyFree": 35,
+    "FLAT10": 40,
+    "FLAT10_keyFree": 30,
+    "VALUE": 30,
+    "VALUE_keyFree": 20,
+    "ESC_PARITY": 35,
+    "ESC_PARITY_keyFree": 35
+   },
+   "ownedAtStage": {
+    "sauces": [
+     "tomato-sauce",
+     "olive-oil"
+    ],
+    "cheeses": [
+     "mozzarella",
+     "parmigiano"
+    ],
+    "toppings": [
+     "basil",
+     "egg",
+     "bacon",
+     "mushroom",
+     "eggplant",
+     "pepperoni",
+     "sausage",
+     "ham",
+     "corn",
+     "pineapple",
+     "black-olive",
+     "oregano",
+     "onion",
+     "garlic"
+    ]
+   },
+   "privacyRisks": [
+    "model A would leak cheeseCount=0 toppingCount=2 (= current H3 count+cheese, 35 Pitz cumulative) for free",
+    "a cheese row hidden for this recipe would leak no-cheese: row must always render",
+    "storage: ledger key is the undiscovered recipe id (accepted since HE-1, same exposure as unlockedForShopIngredientIds)"
+   ],
+   "specialCases": [
+    "no cheese: CHEESE row sells a NONE fact (same price, no ingredient named)"
+   ],
+   "slotCountLeak": {
+    "stageOwnedIngredients": 18,
+    "candidateSets_noFreeInfo": 13768,
+    "candidateSets_modelA_exactSlots": 182,
+    "bitsLeaked_modelA": 6.24,
+    "candidateSets_categoryPresence": 6944,
+    "bitsLeaked_categoryPresence": 0.99,
+    "withShopNewKnown": {
+     "candidateSets": 3882,
+     "modelA": 26,
+     "bitsLeaked_modelA": 7.22,
+     "categoryPresence": 2186,
+     "bitsLeaked_categoryPresence": 0.83
+    },
+    "modelC_fixedRows_bitsLeaked": 0.0
+   }
+  },
+  {
+   "recipeId": "quattro-formaggi",
+   "nameJa": "クアトロ フォルマッジ",
+   "declIndex": 2,
+   "ladderKeyStep": 24,
+   "identityAxes": {
+    "ingredientSet": [
+     "fontina",
+     "gorgonzola",
+     "mozzarella",
+     "olive-oil",
+     "parmigiano"
+    ],
+    "sauceBase": [
+     "olive-oil"
+    ],
+    "otherDimensions": "all 11 Phase-2 dimensions at DEFAULT (FIXED_BY_FLOW / UNAVAILABLE); no capability required",
+    "orderSensitive": false,
+    "minCountIsIdentity": false
+   },
+   "cookingProfileSteps": [
+    "DOUGH",
+    "SAUCE",
+    "CHEESE",
+    "CUT"
+   ],
+   "cutIsIdentity": false,
+   "sauceSlot": [
+    "olive-oil"
+   ],
+   "cheeseSlots": [
+    "mozzarella",
+    "gorgonzola",
+    "parmigiano",
+    "fontina"
+   ],
+   "toppingSlots": [],
+   "distinctIngredients": 5,
+   "cheeseCount": 4,
+   "toppingCount": 0,
+   "minCounts": {
+    "olive-oil": 1,
+    "mozzarella": 2,
+    "gorgonzola": 2,
+    "parmigiano": 2,
+    "fontina": 2
+   },
+   "keyIngredient": "gorgonzola",
+   "reservedIngredient_RuleW": "fontina",
+   "currentWithheld": [
+    "fontina"
+   ],
+   "proposedSelectableFacts": {
+    "SAUCE": [
+     "ing:olive-oil"
+    ],
+    "CHEESE": [
+     "ing:gorgonzola",
+     "ing:mozzarella",
+     "ing:parmigiano"
+    ],
+    "TOPPING": [
+     "none:topping"
+    ],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount": 6,
+   "proposedSelectableFacts_keyFree": {
+    "SAUCE": [
+     "ing:olive-oil"
+    ],
+    "CHEESE": [
+     "ing:mozzarella",
+     "ing:parmigiano"
+    ],
+    "TOPPING": [
+     "none:topping"
+    ],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount_keyFree": 5,
+   "currentMaxHLevel": 4,
+   "currentHintLines": 6,
+   "currentFullCost": 75,
+   "candidateFullCost": {
+    "ESC75": 75,
+    "ESC75_keyFree": 75,
+    "FLAT10": 60,
+    "FLAT10_keyFree": 50,
+    "VALUE": 40,
+    "VALUE_keyFree": 35,
+    "ESC_PARITY": 75,
+    "ESC_PARITY_keyFree": 75
+   },
+   "ownedAtStage": {
+    "sauces": [
+     "tomato-sauce",
+     "olive-oil",
+     "pesto"
+    ],
+    "cheeses": [
+     "mozzarella",
+     "parmigiano",
+     "fontina",
+     "gorgonzola"
+    ],
+    "toppings": [
+     "basil",
+     "egg",
+     "bacon",
+     "mushroom",
+     "eggplant",
+     "pepperoni",
+     "sausage",
+     "ham",
+     "corn",
+     "pineapple",
+     "black-olive",
+     "oregano",
+     "onion",
+     "garlic",
+     "anchovy",
+     "tuna",
+     "cherry-tomato",
+     "clam",
+     "fresh-tomato",
+     "potato",
+     "rosemary",
+     "capers"
+    ]
+   },
+   "privacyRisks": [
+    "model A would leak cheeseCount=4 toppingCount=0 (= current H3 count+cheese, 35 Pitz cumulative) for free",
+    "storage: ledger key is the undiscovered recipe id (accepted since HE-1, same exposure as unlockedForShopIngredientIds)"
+   ],
+   "specialCases": [
+    "no topping: TOPPING row sells a NONE fact",
+    "4 cheeses: CHEESE row is multi-fact",
+    "key ingredient is a cheese (first fact of that row)",
+    "non-tomato sauce"
+   ],
+   "slotCountLeak": {
+    "stageOwnedIngredients": 29,
+    "candidateSets_noFreeInfo": 251043,
+    "candidateSets_modelA_exactSlots": 3,
+    "bitsLeaked_modelA": 16.35,
+    "candidateSets_categoryPresence": 45,
+    "bitsLeaked_categoryPresence": 12.45,
+    "withShopNewKnown": {
+     "candidateSets": 45828,
+     "modelA": 3,
+     "bitsLeaked_modelA": 13.9,
+     "categoryPresence": 24,
+     "bitsLeaked_categoryPresence": 10.9
+    },
+    "modelC_fixedRows_bitsLeaked": 0.0
+   }
+  },
+  {
+   "recipeId": "genovese",
+   "nameJa": "ジェノベーゼ",
+   "declIndex": 3,
+   "ladderKeyStep": 18,
+   "identityAxes": {
+    "ingredientSet": [
+     "cherry-tomato",
+     "mozzarella",
+     "pesto"
+    ],
+    "sauceBase": [
+     "pesto"
+    ],
+    "otherDimensions": "all 11 Phase-2 dimensions at DEFAULT (FIXED_BY_FLOW / UNAVAILABLE); no capability required",
+    "orderSensitive": false,
+    "minCountIsIdentity": false
+   },
+   "cookingProfileSteps": [
+    "DOUGH",
+    "SAUCE",
+    "CHEESE",
+    "TOPPING",
+    "CUT"
+   ],
+   "cutIsIdentity": false,
+   "sauceSlot": [
+    "pesto"
+   ],
+   "cheeseSlots": [
+    "mozzarella"
+   ],
+   "toppingSlots": [
+    "cherry-tomato"
+   ],
+   "distinctIngredients": 3,
+   "cheeseCount": 1,
+   "toppingCount": 1,
+   "minCounts": {
+    "pesto": 1,
+    "mozzarella": 2,
+    "cherry-tomato": 3
+   },
+   "keyIngredient": "cherry-tomato",
+   "reservedIngredient_RuleW": "mozzarella",
+   "currentWithheld": [
+    "mozzarella"
+   ],
+   "proposedSelectableFacts": {
+    "SAUCE": [
+     "ing:pesto"
+    ],
+    "CHEESE": [],
+    "TOPPING": [
+     "ing:cherry-tomato"
+    ],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount": 3,
+   "proposedSelectableFacts_keyFree": {
+    "SAUCE": [
+     "ing:pesto"
+    ],
+    "CHEESE": [],
+    "TOPPING": [],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount_keyFree": 2,
+   "currentMaxHLevel": 3,
+   "currentHintLines": 4,
+   "currentFullCost": 35,
+   "candidateFullCost": {
+    "ESC75": 35,
+    "ESC75_keyFree": 15,
+    "FLAT10": 30,
+    "FLAT10_keyFree": 20,
+    "VALUE": 25,
+    "VALUE_keyFree": 15,
+    "ESC_PARITY": 35,
+    "ESC_PARITY_keyFree": 15
+   },
+   "ownedAtStage": {
+    "sauces": [
+     "tomato-sauce",
+     "olive-oil",
+     "pesto"
+    ],
+    "cheeses": [
+     "mozzarella",
+     "parmigiano"
+    ],
+    "toppings": [
+     "basil",
+     "egg",
+     "bacon",
+     "mushroom",
+     "eggplant",
+     "pepperoni",
+     "sausage",
+     "ham",
+     "corn",
+     "pineapple",
+     "black-olive",
+     "oregano",
+     "onion",
+     "garlic",
+     "anchovy",
+     "tuna",
+     "cherry-tomato"
+    ]
+   },
+   "privacyRisks": [
+    "model A would leak cheeseCount=1 toppingCount=1 (= current H3 count+cheese, 35 Pitz cumulative) for free",
+    "storage: ledger key is the undiscovered recipe id (accepted since HE-1, same exposure as unlockedForShopIngredientIds)"
+   ],
+   "specialCases": [
+    "non-tomato sauce"
+   ],
+   "slotCountLeak": {
+    "stageOwnedIngredients": 22,
+    "candidateSets_noFreeInfo": 49989,
+    "candidateSets_modelA_exactSlots": 102,
+    "bitsLeaked_modelA": 8.94,
+    "candidateSets_categoryPresence": 21777,
+    "bitsLeaked_categoryPresence": 1.2,
+    "withShopNewKnown": {
+     "candidateSets": 12144,
+     "modelA": 6,
+     "bitsLeaked_modelA": 10.98,
+     "categoryPresence": 4593,
+     "bitsLeaked_categoryPresence": 1.4
+    },
+    "modelC_fixedRows_bitsLeaked": 0.0
+   }
+  },
+  {
+   "recipeId": "bismarck",
+   "nameJa": "ビスマルク",
+   "declIndex": 4,
+   "ladderKeyStep": 1,
+   "identityAxes": {
+    "ingredientSet": [
+     "egg",
+     "mozzarella",
+     "tomato-sauce"
+    ],
+    "sauceBase": [
+     "tomato-sauce"
+    ],
+    "otherDimensions": "all 11 Phase-2 dimensions at DEFAULT (FIXED_BY_FLOW / UNAVAILABLE); no capability required",
+    "orderSensitive": false,
+    "minCountIsIdentity": false
+   },
+   "cookingProfileSteps": [
+    "DOUGH",
+    "SAUCE",
+    "CHEESE",
+    "TOPPING",
+    "CUT"
+   ],
+   "cutIsIdentity": false,
+   "sauceSlot": [
+    "tomato-sauce"
+   ],
+   "cheeseSlots": [
+    "mozzarella"
+   ],
+   "toppingSlots": [
+    "egg"
+   ],
+   "distinctIngredients": 3,
+   "cheeseCount": 1,
+   "toppingCount": 1,
+   "minCounts": {
+    "tomato-sauce": 1,
+    "mozzarella": 3,
+    "egg": 1
+   },
+   "keyIngredient": "egg",
+   "reservedIngredient_RuleW": "mozzarella",
+   "currentWithheld": [
+    "mozzarella"
+   ],
+   "proposedSelectableFacts": {
+    "SAUCE": [
+     "ing:tomato-sauce"
+    ],
+    "CHEESE": [],
+    "TOPPING": [
+     "ing:egg"
+    ],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount": 3,
+   "proposedSelectableFacts_keyFree": {
+    "SAUCE": [
+     "ing:tomato-sauce"
+    ],
+    "CHEESE": [],
+    "TOPPING": [],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount_keyFree": 2,
+   "currentMaxHLevel": 3,
+   "currentHintLines": 4,
+   "currentFullCost": 35,
+   "candidateFullCost": {
+    "ESC75": 35,
+    "ESC75_keyFree": 15,
+    "FLAT10": 30,
+    "FLAT10_keyFree": 20,
+    "VALUE": 25,
+    "VALUE_keyFree": 15,
+    "ESC_PARITY": 35,
+    "ESC_PARITY_keyFree": 15
+   },
+   "ownedAtStage": {
+    "sauces": [
+     "tomato-sauce"
+    ],
+    "cheeses": [
+     "mozzarella"
+    ],
+    "toppings": [
+     "basil",
+     "egg"
+    ]
+   },
+   "privacyRisks": [
+    "model A would leak cheeseCount=1 toppingCount=1 (= current H3 count+cheese, 35 Pitz cumulative) for free",
+    "storage: ledger key is the undiscovered recipe id (accepted since HE-1, same exposure as unlockedForShopIngredientIds)"
+   ],
+   "specialCases": [],
+   "slotCountLeak": {
+    "stageOwnedIngredients": 4,
+    "candidateSets_noFreeInfo": 7,
+    "candidateSets_modelA_exactSlots": 2,
+    "bitsLeaked_modelA": 1.81,
+    "candidateSets_categoryPresence": 3,
+    "bitsLeaked_categoryPresence": 1.22,
+    "withShopNewKnown": {
+     "candidateSets": 4,
+     "modelA": 1,
+     "bitsLeaked_modelA": 2.0,
+     "categoryPresence": 2,
+     "bitsLeaked_categoryPresence": 1.0
+    },
+    "modelC_fixedRows_bitsLeaked": 0.0
+   }
+  },
+  {
+   "recipeId": "funghi",
+   "nameJa": "フンギ",
+   "declIndex": 5,
+   "ladderKeyStep": 3,
+   "identityAxes": {
+    "ingredientSet": [
+     "mozzarella",
+     "mushroom",
+     "tomato-sauce"
+    ],
+    "sauceBase": [
+     "tomato-sauce"
+    ],
+    "otherDimensions": "all 11 Phase-2 dimensions at DEFAULT (FIXED_BY_FLOW / UNAVAILABLE); no capability required",
+    "orderSensitive": false,
+    "minCountIsIdentity": false
+   },
+   "cookingProfileSteps": [
+    "DOUGH",
+    "SAUCE",
+    "CHEESE",
+    "TOPPING",
+    "CUT"
+   ],
+   "cutIsIdentity": false,
+   "sauceSlot": [
+    "tomato-sauce"
+   ],
+   "cheeseSlots": [
+    "mozzarella"
+   ],
+   "toppingSlots": [
+    "mushroom"
+   ],
+   "distinctIngredients": 3,
+   "cheeseCount": 1,
+   "toppingCount": 1,
+   "minCounts": {
+    "tomato-sauce": 1,
+    "mozzarella": 2,
+    "mushroom": 3
+   },
+   "keyIngredient": "mushroom",
+   "reservedIngredient_RuleW": "mozzarella",
+   "currentWithheld": [
+    "mozzarella"
+   ],
+   "proposedSelectableFacts": {
+    "SAUCE": [
+     "ing:tomato-sauce"
+    ],
+    "CHEESE": [],
+    "TOPPING": [
+     "ing:mushroom"
+    ],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount": 3,
+   "proposedSelectableFacts_keyFree": {
+    "SAUCE": [
+     "ing:tomato-sauce"
+    ],
+    "CHEESE": [],
+    "TOPPING": [],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount_keyFree": 2,
+   "currentMaxHLevel": 3,
+   "currentHintLines": 4,
+   "currentFullCost": 35,
+   "candidateFullCost": {
+    "ESC75": 35,
+    "ESC75_keyFree": 15,
+    "FLAT10": 30,
+    "FLAT10_keyFree": 20,
+    "VALUE": 25,
+    "VALUE_keyFree": 15,
+    "ESC_PARITY": 35,
+    "ESC_PARITY_keyFree": 15
+   },
+   "ownedAtStage": {
+    "sauces": [
+     "tomato-sauce"
+    ],
+    "cheeses": [
+     "mozzarella"
+    ],
+    "toppings": [
+     "basil",
+     "egg",
+     "bacon",
+     "mushroom"
+    ]
+   },
+   "privacyRisks": [
+    "model A would leak cheeseCount=1 toppingCount=1 (= current H3 count+cheese, 35 Pitz cumulative) for free",
+    "storage: ledger key is the undiscovered recipe id (accepted since HE-1, same exposure as unlockedForShopIngredientIds)"
+   ],
+   "specialCases": [],
+   "slotCountLeak": {
+    "stageOwnedIngredients": 6,
+    "candidateSets_noFreeInfo": 31,
+    "candidateSets_modelA_exactSlots": 4,
+    "bitsLeaked_modelA": 2.95,
+    "candidateSets_categoryPresence": 15,
+    "bitsLeaked_categoryPresence": 1.05,
+    "withShopNewKnown": {
+     "candidateSets": 16,
+     "modelA": 1,
+     "bitsLeaked_modelA": 4.0,
+     "categoryPresence": 8,
+     "bitsLeaked_categoryPresence": 1.0
+    },
+    "modelC_fixedRows_bitsLeaked": 0.0
+   }
+  },
+  {
+   "recipeId": "fugazza",
+   "nameJa": "フガッサ",
+   "declIndex": 6,
+   "ladderKeyStep": 13,
+   "identityAxes": {
+    "ingredientSet": [
+     "olive-oil",
+     "onion",
+     "oregano"
+    ],
+    "sauceBase": [
+     "olive-oil"
+    ],
+    "otherDimensions": "all 11 Phase-2 dimensions at DEFAULT (FIXED_BY_FLOW / UNAVAILABLE); no capability required",
+    "orderSensitive": false,
+    "minCountIsIdentity": false
+   },
+   "cookingProfileSteps": [
+    "DOUGH",
+    "SAUCE",
+    "TOPPING",
+    "CUT"
+   ],
+   "cutIsIdentity": false,
+   "sauceSlot": [
+    "olive-oil"
+   ],
+   "cheeseSlots": [],
+   "toppingSlots": [
+    "onion",
+    "oregano"
+   ],
+   "distinctIngredients": 3,
+   "cheeseCount": 0,
+   "toppingCount": 2,
+   "minCounts": {
+    "olive-oil": 1,
+    "onion": 4,
+    "oregano": 1
+   },
+   "keyIngredient": "olive-oil",
+   "reservedIngredient_RuleW": "oregano",
+   "currentWithheld": [
+    "oregano"
+   ],
+   "proposedSelectableFacts": {
+    "SAUCE": [
+     "ing:olive-oil"
+    ],
+    "CHEESE": [
+     "none:cheese"
+    ],
+    "TOPPING": [
+     "ing:onion"
+    ],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount": 4,
+   "proposedSelectableFacts_keyFree": {
+    "SAUCE": [],
+    "CHEESE": [
+     "none:cheese"
+    ],
+    "TOPPING": [
+     "ing:onion"
+    ],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount_keyFree": 3,
+   "currentMaxHLevel": 3,
+   "currentHintLines": 4,
+   "currentFullCost": 35,
+   "candidateFullCost": {
+    "ESC75": 75,
+    "ESC75_keyFree": 35,
+    "FLAT10": 40,
+    "FLAT10_keyFree": 30,
+    "VALUE": 30,
+    "VALUE_keyFree": 25,
+    "ESC_PARITY": 35,
+    "ESC_PARITY_keyFree": 35
+   },
+   "ownedAtStage": {
+    "sauces": [
+     "tomato-sauce",
+     "olive-oil"
+    ],
+    "cheeses": [
+     "mozzarella",
+     "parmigiano"
+    ],
+    "toppings": [
+     "basil",
+     "egg",
+     "bacon",
+     "mushroom",
+     "eggplant",
+     "pepperoni",
+     "sausage",
+     "ham",
+     "corn",
+     "pineapple",
+     "black-olive",
+     "oregano",
+     "onion"
+    ]
+   },
+   "privacyRisks": [
+    "model A would leak cheeseCount=0 toppingCount=2 (= current H3 count+cheese, 35 Pitz cumulative) for free",
+    "a cheese row hidden for this recipe would leak no-cheese: row must always render",
+    "storage: ledger key is the undiscovered recipe id (accepted since HE-1, same exposure as unlockedForShopIngredientIds)"
+   ],
+   "specialCases": [
+    "no cheese: CHEESE row sells a NONE fact (same price, no ingredient named)",
+    "key ingredient is a sauce (first fact of that row)",
+    "non-tomato sauce"
+   ],
+   "slotCountLeak": {
+    "stageOwnedIngredients": 17,
+    "candidateSets_noFreeInfo": 9886,
+    "candidateSets_modelA_exactSlots": 156,
+    "bitsLeaked_modelA": 5.99,
+    "candidateSets_categoryPresence": 4758,
+    "bitsLeaked_categoryPresence": 1.06,
+    "withShopNewKnown": {
+     "candidateSets": 4943,
+     "modelA": 78,
+     "bitsLeaked_modelA": 5.99,
+     "categoryPresence": 2379,
+     "bitsLeaked_categoryPresence": 1.06
+    },
+    "modelC_fixedRows_bitsLeaked": 0.0
+   }
+  },
+  {
+   "recipeId": "salsiccia",
+   "nameJa": "サルシッチャ",
+   "declIndex": 7,
+   "ladderKeyStep": 7,
+   "identityAxes": {
+    "ingredientSet": [
+     "mozzarella",
+     "sausage",
+     "tomato-sauce"
+    ],
+    "sauceBase": [
+     "tomato-sauce"
+    ],
+    "otherDimensions": "all 11 Phase-2 dimensions at DEFAULT (FIXED_BY_FLOW / UNAVAILABLE); no capability required",
+    "orderSensitive": false,
+    "minCountIsIdentity": false
+   },
+   "cookingProfileSteps": [
+    "DOUGH",
+    "SAUCE",
+    "CHEESE",
+    "TOPPING",
+    "CUT"
+   ],
+   "cutIsIdentity": false,
+   "sauceSlot": [
+    "tomato-sauce"
+   ],
+   "cheeseSlots": [
+    "mozzarella"
+   ],
+   "toppingSlots": [
+    "sausage"
+   ],
+   "distinctIngredients": 3,
+   "cheeseCount": 1,
+   "toppingCount": 1,
+   "minCounts": {
+    "tomato-sauce": 1,
+    "mozzarella": 2,
+    "sausage": 3
+   },
+   "keyIngredient": "sausage",
+   "reservedIngredient_RuleW": "mozzarella",
+   "currentWithheld": [
+    "mozzarella"
+   ],
+   "proposedSelectableFacts": {
+    "SAUCE": [
+     "ing:tomato-sauce"
+    ],
+    "CHEESE": [],
+    "TOPPING": [
+     "ing:sausage"
+    ],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount": 3,
+   "proposedSelectableFacts_keyFree": {
+    "SAUCE": [
+     "ing:tomato-sauce"
+    ],
+    "CHEESE": [],
+    "TOPPING": [],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount_keyFree": 2,
+   "currentMaxHLevel": 3,
+   "currentHintLines": 4,
+   "currentFullCost": 35,
+   "candidateFullCost": {
+    "ESC75": 35,
+    "ESC75_keyFree": 15,
+    "FLAT10": 30,
+    "FLAT10_keyFree": 20,
+    "VALUE": 25,
+    "VALUE_keyFree": 15,
+    "ESC_PARITY": 35,
+    "ESC_PARITY_keyFree": 15
+   },
+   "ownedAtStage": {
+    "sauces": [
+     "tomato-sauce"
+    ],
+    "cheeses": [
+     "mozzarella",
+     "parmigiano"
+    ],
+    "toppings": [
+     "basil",
+     "egg",
+     "bacon",
+     "mushroom",
+     "eggplant",
+     "pepperoni",
+     "sausage"
+    ]
+   },
+   "privacyRisks": [
+    "model A would leak cheeseCount=1 toppingCount=1 (= current H3 count+cheese, 35 Pitz cumulative) for free",
+    "storage: ledger key is the undiscovered recipe id (accepted since HE-1, same exposure as unlockedForShopIngredientIds)"
+   ],
+   "specialCases": [],
+   "slotCountLeak": {
+    "stageOwnedIngredients": 10,
+    "candidateSets_noFreeInfo": 381,
+    "candidateSets_modelA_exactSlots": 14,
+    "bitsLeaked_modelA": 4.77,
+    "candidateSets_categoryPresence": 259,
+    "bitsLeaked_categoryPresence": 0.56,
+    "withShopNewKnown": {
+     "candidateSets": 163,
+     "modelA": 2,
+     "bitsLeaked_modelA": 6.35,
+     "categoryPresence": 106,
+     "bitsLeaked_categoryPresence": 0.62
+    },
+    "modelC_fixedRows_bitsLeaked": 0.0
+   }
+  },
+  {
+   "recipeId": "pepperoni",
+   "nameJa": "ペパロニ",
+   "declIndex": 8,
+   "ladderKeyStep": 6,
+   "identityAxes": {
+    "ingredientSet": [
+     "mozzarella",
+     "pepperoni",
+     "tomato-sauce"
+    ],
+    "sauceBase": [
+     "tomato-sauce"
+    ],
+    "otherDimensions": "all 11 Phase-2 dimensions at DEFAULT (FIXED_BY_FLOW / UNAVAILABLE); no capability required",
+    "orderSensitive": false,
+    "minCountIsIdentity": false
+   },
+   "cookingProfileSteps": [
+    "DOUGH",
+    "SAUCE",
+    "CHEESE",
+    "TOPPING",
+    "CUT"
+   ],
+   "cutIsIdentity": false,
+   "sauceSlot": [
+    "tomato-sauce"
+   ],
+   "cheeseSlots": [
+    "mozzarella"
+   ],
+   "toppingSlots": [
+    "pepperoni"
+   ],
+   "distinctIngredients": 3,
+   "cheeseCount": 1,
+   "toppingCount": 1,
+   "minCounts": {
+    "tomato-sauce": 1,
+    "mozzarella": 2,
+    "pepperoni": 4
+   },
+   "keyIngredient": "pepperoni",
+   "reservedIngredient_RuleW": "mozzarella",
+   "currentWithheld": [
+    "mozzarella"
+   ],
+   "proposedSelectableFacts": {
+    "SAUCE": [
+     "ing:tomato-sauce"
+    ],
+    "CHEESE": [],
+    "TOPPING": [
+     "ing:pepperoni"
+    ],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount": 3,
+   "proposedSelectableFacts_keyFree": {
+    "SAUCE": [
+     "ing:tomato-sauce"
+    ],
+    "CHEESE": [],
+    "TOPPING": [],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount_keyFree": 2,
+   "currentMaxHLevel": 3,
+   "currentHintLines": 4,
+   "currentFullCost": 35,
+   "candidateFullCost": {
+    "ESC75": 35,
+    "ESC75_keyFree": 15,
+    "FLAT10": 30,
+    "FLAT10_keyFree": 20,
+    "VALUE": 25,
+    "VALUE_keyFree": 15,
+    "ESC_PARITY": 35,
+    "ESC_PARITY_keyFree": 15
+   },
+   "ownedAtStage": {
+    "sauces": [
+     "tomato-sauce"
+    ],
+    "cheeses": [
+     "mozzarella",
+     "parmigiano"
+    ],
+    "toppings": [
+     "basil",
+     "egg",
+     "bacon",
+     "mushroom",
+     "eggplant",
+     "pepperoni"
+    ]
+   },
+   "privacyRisks": [
+    "model A would leak cheeseCount=1 toppingCount=1 (= current H3 count+cheese, 35 Pitz cumulative) for free",
+    "storage: ledger key is the undiscovered recipe id (accepted since HE-1, same exposure as unlockedForShopIngredientIds)"
+   ],
+   "specialCases": [],
+   "slotCountLeak": {
+    "stageOwnedIngredients": 9,
+    "candidateSets_noFreeInfo": 218,
+    "candidateSets_modelA_exactSlots": 12,
+    "bitsLeaked_modelA": 4.18,
+    "candidateSets_categoryPresence": 153,
+    "bitsLeaked_categoryPresence": 0.51,
+    "withShopNewKnown": {
+     "candidateSets": 99,
+     "modelA": 2,
+     "bitsLeaked_modelA": 5.63,
+     "categoryPresence": 68,
+     "bitsLeaked_categoryPresence": 0.54
+    },
+    "modelC_fixedRows_bitsLeaked": 0.0
+   }
+  },
+  {
+   "recipeId": "napoletana",
+   "nameJa": "ナポリ",
+   "declIndex": 9,
+   "ladderKeyStep": 15,
+   "identityAxes": {
+    "ingredientSet": [
+     "anchovy",
+     "mozzarella",
+     "oregano",
+     "tomato-sauce"
+    ],
+    "sauceBase": [
+     "tomato-sauce"
+    ],
+    "otherDimensions": "all 11 Phase-2 dimensions at DEFAULT (FIXED_BY_FLOW / UNAVAILABLE); no capability required",
+    "orderSensitive": false,
+    "minCountIsIdentity": false
+   },
+   "cookingProfileSteps": [
+    "DOUGH",
+    "SAUCE",
+    "CHEESE",
+    "TOPPING",
+    "CUT"
+   ],
+   "cutIsIdentity": false,
+   "sauceSlot": [
+    "tomato-sauce"
+   ],
+   "cheeseSlots": [
+    "mozzarella"
+   ],
+   "toppingSlots": [
+    "anchovy",
+    "oregano"
+   ],
+   "distinctIngredients": 4,
+   "cheeseCount": 1,
+   "toppingCount": 2,
+   "minCounts": {
+    "tomato-sauce": 1,
+    "mozzarella": 2,
+    "anchovy": 3,
+    "oregano": 1
+   },
+   "keyIngredient": "anchovy",
+   "reservedIngredient_RuleW": "oregano",
+   "currentWithheld": [
+    "oregano"
+   ],
+   "proposedSelectableFacts": {
+    "SAUCE": [
+     "ing:tomato-sauce"
+    ],
+    "CHEESE": [
+     "ing:mozzarella"
+    ],
+    "TOPPING": [
+     "ing:anchovy"
+    ],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount": 4,
+   "proposedSelectableFacts_keyFree": {
+    "SAUCE": [
+     "ing:tomato-sauce"
+    ],
+    "CHEESE": [
+     "ing:mozzarella"
+    ],
+    "TOPPING": [],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount_keyFree": 3,
+   "currentMaxHLevel": 4,
+   "currentHintLines": 5,
+   "currentFullCost": 75,
+   "candidateFullCost": {
+    "ESC75": 75,
+    "ESC75_keyFree": 35,
+    "FLAT10": 40,
+    "FLAT10_keyFree": 30,
+    "VALUE": 30,
+    "VALUE_keyFree": 20,
+    "ESC_PARITY": 75,
+    "ESC_PARITY_keyFree": 35
+   },
+   "ownedAtStage": {
+    "sauces": [
+     "tomato-sauce",
+     "olive-oil"
+    ],
+    "cheeses": [
+     "mozzarella",
+     "parmigiano"
+    ],
+    "toppings": [
+     "basil",
+     "egg",
+     "bacon",
+     "mushroom",
+     "eggplant",
+     "pepperoni",
+     "sausage",
+     "ham",
+     "corn",
+     "pineapple",
+     "black-olive",
+     "oregano",
+     "onion",
+     "garlic",
+     "anchovy"
+    ]
+   },
+   "privacyRisks": [
+    "model A would leak cheeseCount=1 toppingCount=2 (= current H3 count+cheese, 35 Pitz cumulative) for free",
+    "storage: ledger key is the undiscovered recipe id (accepted since HE-1, same exposure as unlockedForShopIngredientIds)"
+   ],
+   "specialCases": [],
+   "slotCountLeak": {
+    "stageOwnedIngredients": 19,
+    "candidateSets_noFreeInfo": 18802,
+    "candidateSets_modelA_exactSlots": 420,
+    "bitsLeaked_modelA": 5.48,
+    "candidateSets_categoryPresence": 8910,
+    "bitsLeaked_categoryPresence": 1.08,
+    "withShopNewKnown": {
+     "candidateSets": 5034,
+     "modelA": 56,
+     "bitsLeaked_modelA": 6.49,
+     "categoryPresence": 2092,
+     "bitsLeaked_categoryPresence": 1.27
+    },
+    "modelC_fixedRows_bitsLeaked": 0.0
+   }
+  },
+  {
+   "recipeId": "tonno-e-cipolla",
+   "nameJa": "トンノ・エ・チポッラ",
+   "declIndex": 10,
+   "ladderKeyStep": 16,
+   "identityAxes": {
+    "ingredientSet": [
+     "mozzarella",
+     "onion",
+     "tomato-sauce",
+     "tuna"
+    ],
+    "sauceBase": [
+     "tomato-sauce"
+    ],
+    "otherDimensions": "all 11 Phase-2 dimensions at DEFAULT (FIXED_BY_FLOW / UNAVAILABLE); no capability required",
+    "orderSensitive": false,
+    "minCountIsIdentity": false
+   },
+   "cookingProfileSteps": [
+    "DOUGH",
+    "SAUCE",
+    "CHEESE",
+    "TOPPING",
+    "CUT"
+   ],
+   "cutIsIdentity": false,
+   "sauceSlot": [
+    "tomato-sauce"
+   ],
+   "cheeseSlots": [
+    "mozzarella"
+   ],
+   "toppingSlots": [
+    "onion",
+    "tuna"
+   ],
+   "distinctIngredients": 4,
+   "cheeseCount": 1,
+   "toppingCount": 2,
+   "minCounts": {
+    "tomato-sauce": 1,
+    "mozzarella": 2,
+    "onion": 2,
+    "tuna": 3
+   },
+   "keyIngredient": "tuna",
+   "reservedIngredient_RuleW": "onion",
+   "currentWithheld": [
+    "onion"
+   ],
+   "proposedSelectableFacts": {
+    "SAUCE": [
+     "ing:tomato-sauce"
+    ],
+    "CHEESE": [
+     "ing:mozzarella"
+    ],
+    "TOPPING": [
+     "ing:tuna"
+    ],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount": 4,
+   "proposedSelectableFacts_keyFree": {
+    "SAUCE": [
+     "ing:tomato-sauce"
+    ],
+    "CHEESE": [
+     "ing:mozzarella"
+    ],
+    "TOPPING": [],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount_keyFree": 3,
+   "currentMaxHLevel": 4,
+   "currentHintLines": 5,
+   "currentFullCost": 75,
+   "candidateFullCost": {
+    "ESC75": 75,
+    "ESC75_keyFree": 35,
+    "FLAT10": 40,
+    "FLAT10_keyFree": 30,
+    "VALUE": 30,
+    "VALUE_keyFree": 20,
+    "ESC_PARITY": 75,
+    "ESC_PARITY_keyFree": 35
+   },
+   "ownedAtStage": {
+    "sauces": [
+     "tomato-sauce",
+     "olive-oil"
+    ],
+    "cheeses": [
+     "mozzarella",
+     "parmigiano"
+    ],
+    "toppings": [
+     "basil",
+     "egg",
+     "bacon",
+     "mushroom",
+     "eggplant",
+     "pepperoni",
+     "sausage",
+     "ham",
+     "corn",
+     "pineapple",
+     "black-olive",
+     "oregano",
+     "onion",
+     "garlic",
+     "anchovy",
+     "tuna"
+    ]
+   },
+   "privacyRisks": [
+    "model A would leak cheeseCount=1 toppingCount=2 (= current H3 count+cheese, 35 Pitz cumulative) for free",
+    "storage: ledger key is the undiscovered recipe id (accepted since HE-1, same exposure as unlockedForShopIngredientIds)"
+   ],
+   "specialCases": [],
+   "slotCountLeak": {
+    "stageOwnedIngredients": 20,
+    "candidateSets_noFreeInfo": 25230,
+    "candidateSets_modelA_exactSlots": 480,
+    "bitsLeaked_modelA": 5.72,
+    "candidateSets_categoryPresence": 11456,
+    "bitsLeaked_categoryPresence": 1.14,
+    "withShopNewKnown": {
+     "candidateSets": 6428,
+     "modelA": 60,
+     "bitsLeaked_modelA": 6.74,
+     "categoryPresence": 2546,
+     "bitsLeaked_categoryPresence": 1.34
+    },
+    "modelC_fixedRows_bitsLeaked": 0.0
+   }
+  },
+  {
+   "recipeId": "pizza-bianca",
+   "nameJa": "ピッツァ・ビアンカ",
+   "declIndex": 11,
+   "ladderKeyStep": 22,
+   "identityAxes": {
+    "ingredientSet": [
+     "olive-oil",
+     "rosemary"
+    ],
+    "sauceBase": [
+     "olive-oil"
+    ],
+    "otherDimensions": "all 11 Phase-2 dimensions at DEFAULT (FIXED_BY_FLOW / UNAVAILABLE); no capability required",
+    "orderSensitive": false,
+    "minCountIsIdentity": false
+   },
+   "cookingProfileSteps": [
+    "DOUGH",
+    "SAUCE",
+    "TOPPING",
+    "CUT"
+   ],
+   "cutIsIdentity": false,
+   "sauceSlot": [
+    "olive-oil"
+   ],
+   "cheeseSlots": [],
+   "toppingSlots": [
+    "rosemary"
+   ],
+   "distinctIngredients": 2,
+   "cheeseCount": 0,
+   "toppingCount": 1,
+   "minCounts": {
+    "olive-oil": 1,
+    "rosemary": 3
+   },
+   "keyIngredient": "rosemary",
+   "reservedIngredient_RuleW": "olive-oil",
+   "currentWithheld": [
+    "olive-oil"
+   ],
+   "proposedSelectableFacts": {
+    "SAUCE": [
+     "sauce:not-tomato"
+    ],
+    "CHEESE": [
+     "none:cheese"
+    ],
+    "TOPPING": [
+     "ing:rosemary"
+    ],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount": 4,
+   "proposedSelectableFacts_keyFree": {
+    "SAUCE": [
+     "sauce:not-tomato"
+    ],
+    "CHEESE": [
+     "none:cheese"
+    ],
+    "TOPPING": [],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount_keyFree": 3,
+   "currentMaxHLevel": 3,
+   "currentHintLines": 4,
+   "currentFullCost": 35,
+   "candidateFullCost": {
+    "ESC75": 75,
+    "ESC75_keyFree": 35,
+    "FLAT10": 40,
+    "FLAT10_keyFree": 30,
+    "VALUE": 30,
+    "VALUE_keyFree": 20,
+    "ESC_PARITY": 35,
+    "ESC_PARITY_keyFree": 35
+   },
+   "ownedAtStage": {
+    "sauces": [
+     "tomato-sauce",
+     "olive-oil",
+     "pesto"
+    ],
+    "cheeses": [
+     "mozzarella",
+     "parmigiano"
+    ],
+    "toppings": [
+     "basil",
+     "egg",
+     "bacon",
+     "mushroom",
+     "eggplant",
+     "pepperoni",
+     "sausage",
+     "ham",
+     "corn",
+     "pineapple",
+     "black-olive",
+     "oregano",
+     "onion",
+     "garlic",
+     "anchovy",
+     "tuna",
+     "cherry-tomato",
+     "clam",
+     "fresh-tomato",
+     "potato",
+     "rosemary"
+    ]
+   },
+   "privacyRisks": [
+    "model A would leak cheeseCount=0 toppingCount=1 (= current H3 count+cheese, 35 Pitz cumulative) for free",
+    "a cheese row hidden for this recipe would leak no-cheese: row must always render",
+    "storage: ledger key is the undiscovered recipe id (accepted since HE-1, same exposure as unlockedForShopIngredientIds)"
+   ],
+   "specialCases": [
+    "no cheese: CHEESE row sells a NONE fact (same price, no ingredient named)",
+    "sauce is the reserved ingredient: SAUCE row sells only the coarse not-tomato fact (current H2 rule)",
+    "non-tomato sauce"
+   ],
+   "slotCountLeak": {
+    "stageOwnedIngredients": 26,
+    "candidateSets_noFreeInfo": 133653,
+    "candidateSets_modelA_exactSlots": 63,
+    "bitsLeaked_modelA": 11.05,
+    "candidateSets_categoryPresence": 83685,
+    "bitsLeaked_categoryPresence": 0.68,
+    "withShopNewKnown": {
+     "candidateSets": 27327,
+     "modelA": 3,
+     "bitsLeaked_modelA": 13.15,
+     "categoryPresence": 18588,
+     "bitsLeaked_categoryPresence": 0.56
+    },
+    "modelC_fixedRows_bitsLeaked": 0.0
+   }
+  },
+  {
+   "recipeId": "breakfast-pizza",
+   "nameJa": "ブレックファストピザ",
+   "declIndex": 12,
+   "ladderKeyStep": 2,
+   "identityAxes": {
+    "ingredientSet": [
+     "bacon",
+     "egg",
+     "mozzarella",
+     "tomato-sauce"
+    ],
+    "sauceBase": [
+     "tomato-sauce"
+    ],
+    "otherDimensions": "all 11 Phase-2 dimensions at DEFAULT (FIXED_BY_FLOW / UNAVAILABLE); no capability required",
+    "orderSensitive": false,
+    "minCountIsIdentity": false
+   },
+   "cookingProfileSteps": [
+    "DOUGH",
+    "SAUCE",
+    "CHEESE",
+    "TOPPING",
+    "CUT"
+   ],
+   "cutIsIdentity": false,
+   "sauceSlot": [
+    "tomato-sauce"
+   ],
+   "cheeseSlots": [
+    "mozzarella"
+   ],
+   "toppingSlots": [
+    "egg",
+    "bacon"
+   ],
+   "distinctIngredients": 4,
+   "cheeseCount": 1,
+   "toppingCount": 2,
+   "minCounts": {
+    "tomato-sauce": 1,
+    "mozzarella": 2,
+    "egg": 1,
+    "bacon": 3
+   },
+   "keyIngredient": "bacon",
+   "reservedIngredient_RuleW": "egg",
+   "currentWithheld": [
+    "egg"
+   ],
+   "proposedSelectableFacts": {
+    "SAUCE": [
+     "ing:tomato-sauce"
+    ],
+    "CHEESE": [
+     "ing:mozzarella"
+    ],
+    "TOPPING": [
+     "ing:bacon"
+    ],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount": 4,
+   "proposedSelectableFacts_keyFree": {
+    "SAUCE": [
+     "ing:tomato-sauce"
+    ],
+    "CHEESE": [
+     "ing:mozzarella"
+    ],
+    "TOPPING": [],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount_keyFree": 3,
+   "currentMaxHLevel": 4,
+   "currentHintLines": 5,
+   "currentFullCost": 75,
+   "candidateFullCost": {
+    "ESC75": 75,
+    "ESC75_keyFree": 35,
+    "FLAT10": 40,
+    "FLAT10_keyFree": 30,
+    "VALUE": 30,
+    "VALUE_keyFree": 20,
+    "ESC_PARITY": 75,
+    "ESC_PARITY_keyFree": 35
+   },
+   "ownedAtStage": {
+    "sauces": [
+     "tomato-sauce"
+    ],
+    "cheeses": [
+     "mozzarella"
+    ],
+    "toppings": [
+     "basil",
+     "egg",
+     "bacon"
+    ]
+   },
+   "privacyRisks": [
+    "model A would leak cheeseCount=1 toppingCount=2 (= current H3 count+cheese, 35 Pitz cumulative) for free",
+    "storage: ledger key is the undiscovered recipe id (accepted since HE-1, same exposure as unlockedForShopIngredientIds)"
+   ],
+   "specialCases": [],
+   "slotCountLeak": {
+    "stageOwnedIngredients": 5,
+    "candidateSets_noFreeInfo": 15,
+    "candidateSets_modelA_exactSlots": 3,
+    "bitsLeaked_modelA": 2.32,
+    "candidateSets_categoryPresence": 7,
+    "bitsLeaked_categoryPresence": 1.1,
+    "withShopNewKnown": {
+     "candidateSets": 8,
+     "modelA": 2,
+     "bitsLeaked_modelA": 2.0,
+     "categoryPresence": 4,
+     "bitsLeaked_categoryPresence": 1.0
+    },
+    "modelC_fixedRows_bitsLeaked": 0.0
+   }
+  },
+  {
+   "recipeId": "capricciosa",
+   "nameJa": "カプリチョーザ",
+   "declIndex": 13,
+   "ladderKeyStep": 11,
+   "identityAxes": {
+    "ingredientSet": [
+     "black-olive",
+     "ham",
+     "mozzarella",
+     "mushroom",
+     "oregano",
+     "tomato-sauce"
+    ],
+    "sauceBase": [
+     "tomato-sauce"
+    ],
+    "otherDimensions": "all 11 Phase-2 dimensions at DEFAULT (FIXED_BY_FLOW / UNAVAILABLE); no capability required",
+    "orderSensitive": false,
+    "minCountIsIdentity": false
+   },
+   "cookingProfileSteps": [
+    "DOUGH",
+    "SAUCE",
+    "CHEESE",
+    "TOPPING",
+    "CUT"
+   ],
+   "cutIsIdentity": false,
+   "sauceSlot": [
+    "tomato-sauce"
+   ],
+   "cheeseSlots": [
+    "mozzarella"
+   ],
+   "toppingSlots": [
+    "mushroom",
+    "oregano",
+    "ham",
+    "black-olive"
+   ],
+   "distinctIngredients": 6,
+   "cheeseCount": 1,
+   "toppingCount": 4,
+   "minCounts": {
+    "tomato-sauce": 1,
+    "mozzarella": 2,
+    "mushroom": 2,
+    "oregano": 1,
+    "ham": 1,
+    "black-olive": 2
+   },
+   "keyIngredient": "oregano",
+   "reservedIngredient_RuleW": "black-olive",
+   "currentWithheld": [
+    "black-olive"
+   ],
+   "proposedSelectableFacts": {
+    "SAUCE": [
+     "ing:tomato-sauce"
+    ],
+    "CHEESE": [
+     "ing:mozzarella"
+    ],
+    "TOPPING": [
+     "ing:oregano",
+     "ing:mushroom",
+     "ing:ham"
+    ],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount": 6,
+   "proposedSelectableFacts_keyFree": {
+    "SAUCE": [
+     "ing:tomato-sauce"
+    ],
+    "CHEESE": [
+     "ing:mozzarella"
+    ],
+    "TOPPING": [
+     "ing:mushroom",
+     "ing:ham"
+    ],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount_keyFree": 5,
+   "currentMaxHLevel": 4,
+   "currentHintLines": 7,
+   "currentFullCost": 75,
+   "candidateFullCost": {
+    "ESC75": 75,
+    "ESC75_keyFree": 75,
+    "FLAT10": 60,
+    "FLAT10_keyFree": 50,
+    "VALUE": 50,
+    "VALUE_keyFree": 40,
+    "ESC_PARITY": 75,
+    "ESC_PARITY_keyFree": 75
+   },
+   "ownedAtStage": {
+    "sauces": [
+     "tomato-sauce"
+    ],
+    "cheeses": [
+     "mozzarella",
+     "parmigiano"
+    ],
+    "toppings": [
+     "basil",
+     "egg",
+     "bacon",
+     "mushroom",
+     "eggplant",
+     "pepperoni",
+     "sausage",
+     "ham",
+     "corn",
+     "pineapple",
+     "black-olive",
+     "oregano"
+    ]
+   },
+   "privacyRisks": [
+    "model A would leak cheeseCount=1 toppingCount=4 (= current H3 count+cheese, 35 Pitz cumulative) for free",
+    "topping-count 4 is rare (4 recipes): exact slot count narrows identity strongly",
+    "storage: ledger key is the undiscovered recipe id (accepted since HE-1, same exposure as unlockedForShopIngredientIds)"
+   ],
+   "specialCases": [
+    "4 toppings: many-slot recipe (UI V)"
+   ],
+   "slotCountLeak": {
+    "stageOwnedIngredients": 15,
+    "candidateSets_noFreeInfo": 3472,
+    "candidateSets_modelA_exactSlots": 990,
+    "bitsLeaked_modelA": 1.81,
+    "candidateSets_categoryPresence": 1884,
+    "bitsLeaked_categoryPresence": 0.88,
+    "withShopNewKnown": {
+     "candidateSets": 1093,
+     "modelA": 330,
+     "bitsLeaked_modelA": 1.73,
+     "categoryPresence": 531,
+     "bitsLeaked_categoryPresence": 1.04
+    },
+    "modelC_fixedRows_bitsLeaked": 0.0
+   }
+  },
+  {
+   "recipeId": "meat-lovers",
+   "nameJa": "ミートラヴァーズ",
+   "declIndex": 14,
+   "ladderKeyStep": 8,
+   "identityAxes": {
+    "ingredientSet": [
+     "bacon",
+     "ham",
+     "mozzarella",
+     "pepperoni",
+     "sausage",
+     "tomato-sauce"
+    ],
+    "sauceBase": [
+     "tomato-sauce"
+    ],
+    "otherDimensions": "all 11 Phase-2 dimensions at DEFAULT (FIXED_BY_FLOW / UNAVAILABLE); no capability required",
+    "orderSensitive": false,
+    "minCountIsIdentity": false
+   },
+   "cookingProfileSteps": [
+    "DOUGH",
+    "SAUCE",
+    "CHEESE",
+    "TOPPING",
+    "CUT"
+   ],
+   "cutIsIdentity": false,
+   "sauceSlot": [
+    "tomato-sauce"
+   ],
+   "cheeseSlots": [
+    "mozzarella"
+   ],
+   "toppingSlots": [
+    "bacon",
+    "ham",
+    "pepperoni",
+    "sausage"
+   ],
+   "distinctIngredients": 6,
+   "cheeseCount": 1,
+   "toppingCount": 4,
+   "minCounts": {
+    "tomato-sauce": 1,
+    "mozzarella": 2,
+    "bacon": 2,
+    "ham": 1,
+    "pepperoni": 1,
+    "sausage": 2
+   },
+   "keyIngredient": "ham",
+   "reservedIngredient_RuleW": "sausage",
+   "currentWithheld": [
+    "sausage"
+   ],
+   "proposedSelectableFacts": {
+    "SAUCE": [
+     "ing:tomato-sauce"
+    ],
+    "CHEESE": [
+     "ing:mozzarella"
+    ],
+    "TOPPING": [
+     "ing:ham",
+     "ing:bacon",
+     "ing:pepperoni"
+    ],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount": 6,
+   "proposedSelectableFacts_keyFree": {
+    "SAUCE": [
+     "ing:tomato-sauce"
+    ],
+    "CHEESE": [
+     "ing:mozzarella"
+    ],
+    "TOPPING": [
+     "ing:bacon",
+     "ing:pepperoni"
+    ],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount_keyFree": 5,
+   "currentMaxHLevel": 4,
+   "currentHintLines": 7,
+   "currentFullCost": 75,
+   "candidateFullCost": {
+    "ESC75": 75,
+    "ESC75_keyFree": 75,
+    "FLAT10": 60,
+    "FLAT10_keyFree": 50,
+    "VALUE": 50,
+    "VALUE_keyFree": 40,
+    "ESC_PARITY": 75,
+    "ESC_PARITY_keyFree": 75
+   },
+   "ownedAtStage": {
+    "sauces": [
+     "tomato-sauce"
+    ],
+    "cheeses": [
+     "mozzarella",
+     "parmigiano"
+    ],
+    "toppings": [
+     "basil",
+     "egg",
+     "bacon",
+     "mushroom",
+     "eggplant",
+     "pepperoni",
+     "sausage",
+     "ham"
+    ]
+   },
+   "privacyRisks": [
+    "model A would leak cheeseCount=1 toppingCount=4 (= current H3 count+cheese, 35 Pitz cumulative) for free",
+    "topping-count 4 is rare (4 recipes): exact slot count narrows identity strongly",
+    "storage: ledger key is the undiscovered recipe id (accepted since HE-1, same exposure as unlockedForShopIngredientIds)"
+   ],
+   "specialCases": [
+    "4 toppings: many-slot recipe (UI V)"
+   ],
+   "slotCountLeak": {
+    "stageOwnedIngredients": 11,
+    "candidateSets_noFreeInfo": 637,
+    "candidateSets_modelA_exactSlots": 140,
+    "bitsLeaked_modelA": 2.19,
+    "candidateSets_categoryPresence": 416,
+    "bitsLeaked_categoryPresence": 0.61,
+    "withShopNewKnown": {
+     "candidateSets": 256,
+     "modelA": 70,
+     "bitsLeaked_modelA": 1.87,
+     "categoryPresence": 157,
+     "bitsLeaked_categoryPresence": 0.71
+    },
+    "modelC_fixedRows_bitsLeaked": 0.0
+   }
+  },
+  {
+   "recipeId": "melanzane-pizza",
+   "nameJa": "メランザーネピザ",
+   "declIndex": 15,
+   "ladderKeyStep": 4,
+   "identityAxes": {
+    "ingredientSet": [
+     "basil",
+     "eggplant",
+     "mozzarella",
+     "tomato-sauce"
+    ],
+    "sauceBase": [
+     "tomato-sauce"
+    ],
+    "otherDimensions": "all 11 Phase-2 dimensions at DEFAULT (FIXED_BY_FLOW / UNAVAILABLE); no capability required",
+    "orderSensitive": false,
+    "minCountIsIdentity": false
+   },
+   "cookingProfileSteps": [
+    "DOUGH",
+    "SAUCE",
+    "CHEESE",
+    "TOPPING",
+    "CUT"
+   ],
+   "cutIsIdentity": false,
+   "sauceSlot": [
+    "tomato-sauce"
+   ],
+   "cheeseSlots": [
+    "mozzarella"
+   ],
+   "toppingSlots": [
+    "eggplant",
+    "basil"
+   ],
+   "distinctIngredients": 4,
+   "cheeseCount": 1,
+   "toppingCount": 2,
+   "minCounts": {
+    "tomato-sauce": 1,
+    "mozzarella": 2,
+    "eggplant": 3,
+    "basil": 2
+   },
+   "keyIngredient": "eggplant",
+   "reservedIngredient_RuleW": "basil",
+   "currentWithheld": [
+    "basil"
+   ],
+   "proposedSelectableFacts": {
+    "SAUCE": [
+     "ing:tomato-sauce"
+    ],
+    "CHEESE": [
+     "ing:mozzarella"
+    ],
+    "TOPPING": [
+     "ing:eggplant"
+    ],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount": 4,
+   "proposedSelectableFacts_keyFree": {
+    "SAUCE": [
+     "ing:tomato-sauce"
+    ],
+    "CHEESE": [
+     "ing:mozzarella"
+    ],
+    "TOPPING": [],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount_keyFree": 3,
+   "currentMaxHLevel": 4,
+   "currentHintLines": 5,
+   "currentFullCost": 75,
+   "candidateFullCost": {
+    "ESC75": 75,
+    "ESC75_keyFree": 35,
+    "FLAT10": 40,
+    "FLAT10_keyFree": 30,
+    "VALUE": 30,
+    "VALUE_keyFree": 20,
+    "ESC_PARITY": 75,
+    "ESC_PARITY_keyFree": 35
+   },
+   "ownedAtStage": {
+    "sauces": [
+     "tomato-sauce"
+    ],
+    "cheeses": [
+     "mozzarella"
+    ],
+    "toppings": [
+     "basil",
+     "egg",
+     "bacon",
+     "mushroom",
+     "eggplant"
+    ]
+   },
+   "privacyRisks": [
+    "model A would leak cheeseCount=1 toppingCount=2 (= current H3 count+cheese, 35 Pitz cumulative) for free",
+    "storage: ledger key is the undiscovered recipe id (accepted since HE-1, same exposure as unlockedForShopIngredientIds)"
+   ],
+   "specialCases": [],
+   "slotCountLeak": {
+    "stageOwnedIngredients": 7,
+    "candidateSets_noFreeInfo": 62,
+    "candidateSets_modelA_exactSlots": 10,
+    "bitsLeaked_modelA": 2.63,
+    "candidateSets_categoryPresence": 30,
+    "bitsLeaked_categoryPresence": 1.05,
+    "withShopNewKnown": {
+     "candidateSets": 31,
+     "modelA": 4,
+     "bitsLeaked_modelA": 2.95,
+     "categoryPresence": 15,
+     "bitsLeaked_categoryPresence": 1.05
+    },
+    "modelC_fixedRows_bitsLeaked": 0.0
+   }
+  },
+  {
+   "recipeId": "parmigiana-pizza",
+   "nameJa": "パルミジャーナピザ",
+   "declIndex": 16,
+   "ladderKeyStep": 5,
+   "identityAxes": {
+    "ingredientSet": [
+     "basil",
+     "eggplant",
+     "mozzarella",
+     "parmigiano",
+     "tomato-sauce"
+    ],
+    "sauceBase": [
+     "tomato-sauce"
+    ],
+    "otherDimensions": "all 11 Phase-2 dimensions at DEFAULT (FIXED_BY_FLOW / UNAVAILABLE); no capability required",
+    "orderSensitive": false,
+    "minCountIsIdentity": false
+   },
+   "cookingProfileSteps": [
+    "DOUGH",
+    "SAUCE",
+    "CHEESE",
+    "TOPPING",
+    "CUT"
+   ],
+   "cutIsIdentity": false,
+   "sauceSlot": [
+    "tomato-sauce"
+   ],
+   "cheeseSlots": [
+    "mozzarella",
+    "parmigiano"
+   ],
+   "toppingSlots": [
+    "eggplant",
+    "basil"
+   ],
+   "distinctIngredients": 5,
+   "cheeseCount": 2,
+   "toppingCount": 2,
+   "minCounts": {
+    "tomato-sauce": 1,
+    "mozzarella": 2,
+    "eggplant": 3,
+    "parmigiano": 2,
+    "basil": 2
+   },
+   "keyIngredient": "parmigiano",
+   "reservedIngredient_RuleW": "basil",
+   "currentWithheld": [
+    "basil"
+   ],
+   "proposedSelectableFacts": {
+    "SAUCE": [
+     "ing:tomato-sauce"
+    ],
+    "CHEESE": [
+     "ing:parmigiano",
+     "ing:mozzarella"
+    ],
+    "TOPPING": [
+     "ing:eggplant"
+    ],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount": 5,
+   "proposedSelectableFacts_keyFree": {
+    "SAUCE": [
+     "ing:tomato-sauce"
+    ],
+    "CHEESE": [
+     "ing:mozzarella"
+    ],
+    "TOPPING": [
+     "ing:eggplant"
+    ],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount_keyFree": 4,
+   "currentMaxHLevel": 4,
+   "currentHintLines": 6,
+   "currentFullCost": 75,
+   "candidateFullCost": {
+    "ESC75": 75,
+    "ESC75_keyFree": 75,
+    "FLAT10": 50,
+    "FLAT10_keyFree": 40,
+    "VALUE": 35,
+    "VALUE_keyFree": 30,
+    "ESC_PARITY": 75,
+    "ESC_PARITY_keyFree": 75
+   },
+   "ownedAtStage": {
+    "sauces": [
+     "tomato-sauce"
+    ],
+    "cheeses": [
+     "mozzarella",
+     "parmigiano"
+    ],
+    "toppings": [
+     "basil",
+     "egg",
+     "bacon",
+     "mushroom",
+     "eggplant"
+    ]
+   },
+   "privacyRisks": [
+    "model A would leak cheeseCount=2 toppingCount=2 (= current H3 count+cheese, 35 Pitz cumulative) for free",
+    "storage: ledger key is the undiscovered recipe id (accepted since HE-1, same exposure as unlockedForShopIngredientIds)"
+   ],
+   "specialCases": [
+    "2 cheeses: CHEESE row is multi-fact",
+    "key ingredient is a cheese (first fact of that row)"
+   ],
+   "slotCountLeak": {
+    "stageOwnedIngredients": 8,
+    "candidateSets_noFreeInfo": 119,
+    "candidateSets_modelA_exactSlots": 10,
+    "bitsLeaked_modelA": 3.57,
+    "candidateSets_categoryPresence": 85,
+    "bitsLeaked_categoryPresence": 0.49,
+    "withShopNewKnown": {
+     "candidateSets": 57,
+     "modelA": 10,
+     "bitsLeaked_modelA": 2.51,
+     "categoryPresence": 55,
+     "bitsLeaked_categoryPresence": 0.05
+    },
+    "modelC_fixedRows_bitsLeaked": 0.0
+   }
+  },
+  {
+   "recipeId": "bambino",
+   "nameJa": "バンビーノ",
+   "declIndex": 17,
+   "ladderKeyStep": 9,
+   "identityAxes": {
+    "ingredientSet": [
+     "corn",
+     "ham",
+     "mozzarella",
+     "tomato-sauce"
+    ],
+    "sauceBase": [
+     "tomato-sauce"
+    ],
+    "otherDimensions": "all 11 Phase-2 dimensions at DEFAULT (FIXED_BY_FLOW / UNAVAILABLE); no capability required",
+    "orderSensitive": false,
+    "minCountIsIdentity": false
+   },
+   "cookingProfileSteps": [
+    "DOUGH",
+    "SAUCE",
+    "CHEESE",
+    "TOPPING",
+    "CUT"
+   ],
+   "cutIsIdentity": false,
+   "sauceSlot": [
+    "tomato-sauce"
+   ],
+   "cheeseSlots": [
+    "mozzarella"
+   ],
+   "toppingSlots": [
+    "ham",
+    "corn"
+   ],
+   "distinctIngredients": 4,
+   "cheeseCount": 1,
+   "toppingCount": 2,
+   "minCounts": {
+    "tomato-sauce": 1,
+    "mozzarella": 2,
+    "ham": 2,
+    "corn": 3
+   },
+   "keyIngredient": "corn",
+   "reservedIngredient_RuleW": "ham",
+   "currentWithheld": [
+    "ham"
+   ],
+   "proposedSelectableFacts": {
+    "SAUCE": [
+     "ing:tomato-sauce"
+    ],
+    "CHEESE": [
+     "ing:mozzarella"
+    ],
+    "TOPPING": [
+     "ing:corn"
+    ],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount": 4,
+   "proposedSelectableFacts_keyFree": {
+    "SAUCE": [
+     "ing:tomato-sauce"
+    ],
+    "CHEESE": [
+     "ing:mozzarella"
+    ],
+    "TOPPING": [],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount_keyFree": 3,
+   "currentMaxHLevel": 4,
+   "currentHintLines": 5,
+   "currentFullCost": 75,
+   "candidateFullCost": {
+    "ESC75": 75,
+    "ESC75_keyFree": 35,
+    "FLAT10": 40,
+    "FLAT10_keyFree": 30,
+    "VALUE": 30,
+    "VALUE_keyFree": 20,
+    "ESC_PARITY": 75,
+    "ESC_PARITY_keyFree": 35
+   },
+   "ownedAtStage": {
+    "sauces": [
+     "tomato-sauce"
+    ],
+    "cheeses": [
+     "mozzarella",
+     "parmigiano"
+    ],
+    "toppings": [
+     "basil",
+     "egg",
+     "bacon",
+     "mushroom",
+     "eggplant",
+     "pepperoni",
+     "sausage",
+     "ham",
+     "corn"
+    ]
+   },
+   "privacyRisks": [
+    "model A would leak cheeseCount=1 toppingCount=2 (= current H3 count+cheese, 35 Pitz cumulative) for free",
+    "storage: ledger key is the undiscovered recipe id (accepted since HE-1, same exposure as unlockedForShopIngredientIds)"
+   ],
+   "specialCases": [],
+   "slotCountLeak": {
+    "stageOwnedIngredients": 12,
+    "candidateSets_noFreeInfo": 1023,
+    "candidateSets_modelA_exactSlots": 72,
+    "bitsLeaked_modelA": 3.83,
+    "candidateSets_categoryPresence": 639,
+    "bitsLeaked_categoryPresence": 0.68,
+    "withShopNewKnown": {
+     "candidateSets": 386,
+     "modelA": 16,
+     "bitsLeaked_modelA": 4.59,
+     "categoryPresence": 223,
+     "bitsLeaked_categoryPresence": 0.79
+    },
+    "modelC_fixedRows_bitsLeaked": 0.0
+   }
+  },
+  {
+   "recipeId": "hawaiian",
+   "nameJa": "ハワイアンピザ",
+   "declIndex": 18,
+   "ladderKeyStep": 10,
+   "identityAxes": {
+    "ingredientSet": [
+     "ham",
+     "mozzarella",
+     "pineapple",
+     "tomato-sauce"
+    ],
+    "sauceBase": [
+     "tomato-sauce"
+    ],
+    "otherDimensions": "all 11 Phase-2 dimensions at DEFAULT (FIXED_BY_FLOW / UNAVAILABLE); no capability required",
+    "orderSensitive": false,
+    "minCountIsIdentity": false
+   },
+   "cookingProfileSteps": [
+    "DOUGH",
+    "SAUCE",
+    "CHEESE",
+    "TOPPING",
+    "CUT"
+   ],
+   "cutIsIdentity": false,
+   "sauceSlot": [
+    "tomato-sauce"
+   ],
+   "cheeseSlots": [
+    "mozzarella"
+   ],
+   "toppingSlots": [
+    "ham",
+    "pineapple"
+   ],
+   "distinctIngredients": 4,
+   "cheeseCount": 1,
+   "toppingCount": 2,
+   "minCounts": {
+    "tomato-sauce": 1,
+    "mozzarella": 2,
+    "ham": 2,
+    "pineapple": 3
+   },
+   "keyIngredient": "pineapple",
+   "reservedIngredient_RuleW": "ham",
+   "currentWithheld": [
+    "ham"
+   ],
+   "proposedSelectableFacts": {
+    "SAUCE": [
+     "ing:tomato-sauce"
+    ],
+    "CHEESE": [
+     "ing:mozzarella"
+    ],
+    "TOPPING": [
+     "ing:pineapple"
+    ],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount": 4,
+   "proposedSelectableFacts_keyFree": {
+    "SAUCE": [
+     "ing:tomato-sauce"
+    ],
+    "CHEESE": [
+     "ing:mozzarella"
+    ],
+    "TOPPING": [],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount_keyFree": 3,
+   "currentMaxHLevel": 4,
+   "currentHintLines": 5,
+   "currentFullCost": 75,
+   "candidateFullCost": {
+    "ESC75": 75,
+    "ESC75_keyFree": 35,
+    "FLAT10": 40,
+    "FLAT10_keyFree": 30,
+    "VALUE": 30,
+    "VALUE_keyFree": 20,
+    "ESC_PARITY": 75,
+    "ESC_PARITY_keyFree": 35
+   },
+   "ownedAtStage": {
+    "sauces": [
+     "tomato-sauce"
+    ],
+    "cheeses": [
+     "mozzarella",
+     "parmigiano"
+    ],
+    "toppings": [
+     "basil",
+     "egg",
+     "bacon",
+     "mushroom",
+     "eggplant",
+     "pepperoni",
+     "sausage",
+     "ham",
+     "corn",
+     "pineapple"
+    ]
+   },
+   "privacyRisks": [
+    "model A would leak cheeseCount=1 toppingCount=2 (= current H3 count+cheese, 35 Pitz cumulative) for free",
+    "storage: ledger key is the undiscovered recipe id (accepted since HE-1, same exposure as unlockedForShopIngredientIds)"
+   ],
+   "specialCases": [],
+   "slotCountLeak": {
+    "stageOwnedIngredients": 13,
+    "candidateSets_noFreeInfo": 1585,
+    "candidateSets_modelA_exactSlots": 90,
+    "bitsLeaked_modelA": 4.14,
+    "candidateSets_categoryPresence": 945,
+    "bitsLeaked_categoryPresence": 0.75,
+    "withShopNewKnown": {
+     "candidateSets": 562,
+     "modelA": 18,
+     "bitsLeaked_modelA": 4.96,
+     "categoryPresence": 306,
+     "bitsLeaked_categoryPresence": 0.88
+    },
+    "modelC_fixedRows_bitsLeaked": 0.0
+   }
+  },
+  {
+   "recipeId": "pizza-portuguesa",
+   "nameJa": "ピッツァ・ポルトゲーザ",
+   "declIndex": 19,
+   "ladderKeyStep": 12,
+   "identityAxes": {
+    "ingredientSet": [
+     "black-olive",
+     "egg",
+     "ham",
+     "mozzarella",
+     "onion",
+     "tomato-sauce"
+    ],
+    "sauceBase": [
+     "tomato-sauce"
+    ],
+    "otherDimensions": "all 11 Phase-2 dimensions at DEFAULT (FIXED_BY_FLOW / UNAVAILABLE); no capability required",
+    "orderSensitive": false,
+    "minCountIsIdentity": false
+   },
+   "cookingProfileSteps": [
+    "DOUGH",
+    "SAUCE",
+    "CHEESE",
+    "TOPPING",
+    "CUT"
+   ],
+   "cutIsIdentity": false,
+   "sauceSlot": [
+    "tomato-sauce"
+   ],
+   "cheeseSlots": [
+    "mozzarella"
+   ],
+   "toppingSlots": [
+    "ham",
+    "egg",
+    "onion",
+    "black-olive"
+   ],
+   "distinctIngredients": 6,
+   "cheeseCount": 1,
+   "toppingCount": 4,
+   "minCounts": {
+    "tomato-sauce": 1,
+    "mozzarella": 2,
+    "ham": 3,
+    "egg": 1,
+    "onion": 2,
+    "black-olive": 2
+   },
+   "keyIngredient": "onion",
+   "reservedIngredient_RuleW": "black-olive",
+   "currentWithheld": [
+    "black-olive"
+   ],
+   "proposedSelectableFacts": {
+    "SAUCE": [
+     "ing:tomato-sauce"
+    ],
+    "CHEESE": [
+     "ing:mozzarella"
+    ],
+    "TOPPING": [
+     "ing:onion",
+     "ing:ham",
+     "ing:egg"
+    ],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount": 6,
+   "proposedSelectableFacts_keyFree": {
+    "SAUCE": [
+     "ing:tomato-sauce"
+    ],
+    "CHEESE": [
+     "ing:mozzarella"
+    ],
+    "TOPPING": [
+     "ing:ham",
+     "ing:egg"
+    ],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount_keyFree": 5,
+   "currentMaxHLevel": 4,
+   "currentHintLines": 7,
+   "currentFullCost": 75,
+   "candidateFullCost": {
+    "ESC75": 75,
+    "ESC75_keyFree": 75,
+    "FLAT10": 60,
+    "FLAT10_keyFree": 50,
+    "VALUE": 50,
+    "VALUE_keyFree": 40,
+    "ESC_PARITY": 75,
+    "ESC_PARITY_keyFree": 75
+   },
+   "ownedAtStage": {
+    "sauces": [
+     "tomato-sauce"
+    ],
+    "cheeses": [
+     "mozzarella",
+     "parmigiano"
+    ],
+    "toppings": [
+     "basil",
+     "egg",
+     "bacon",
+     "mushroom",
+     "eggplant",
+     "pepperoni",
+     "sausage",
+     "ham",
+     "corn",
+     "pineapple",
+     "black-olive",
+     "oregano",
+     "onion"
+    ]
+   },
+   "privacyRisks": [
+    "model A would leak cheeseCount=1 toppingCount=4 (= current H3 count+cheese, 35 Pitz cumulative) for free",
+    "topping-count 4 is rare (4 recipes): exact slot count narrows identity strongly",
+    "storage: ledger key is the undiscovered recipe id (accepted since HE-1, same exposure as unlockedForShopIngredientIds)"
+   ],
+   "specialCases": [
+    "4 toppings: many-slot recipe (UI V)"
+   ],
+   "slotCountLeak": {
+    "stageOwnedIngredients": 16,
+    "candidateSets_noFreeInfo": 4943,
+    "candidateSets_modelA_exactSlots": 1430,
+    "bitsLeaked_modelA": 1.79,
+    "candidateSets_categoryPresence": 2561,
+    "bitsLeaked_categoryPresence": 0.95,
+    "withShopNewKnown": {
+     "candidateSets": 1471,
+     "modelA": 440,
+     "bitsLeaked_modelA": 1.74,
+     "categoryPresence": 677,
+     "bitsLeaked_categoryPresence": 1.12
+    },
+    "modelC_fixedRows_bitsLeaked": 0.0
+   }
+  },
+  {
+   "recipeId": "pesto-tonno",
+   "nameJa": "ペストトンノピザ",
+   "declIndex": 20,
+   "ladderKeyStep": 17,
+   "identityAxes": {
+    "ingredientSet": [
+     "black-olive",
+     "onion",
+     "pesto",
+     "tuna"
+    ],
+    "sauceBase": [
+     "pesto"
+    ],
+    "otherDimensions": "all 11 Phase-2 dimensions at DEFAULT (FIXED_BY_FLOW / UNAVAILABLE); no capability required",
+    "orderSensitive": false,
+    "minCountIsIdentity": false
+   },
+   "cookingProfileSteps": [
+    "DOUGH",
+    "SAUCE",
+    "TOPPING",
+    "CUT"
+   ],
+   "cutIsIdentity": false,
+   "sauceSlot": [
+    "pesto"
+   ],
+   "cheeseSlots": [],
+   "toppingSlots": [
+    "tuna",
+    "black-olive",
+    "onion"
+   ],
+   "distinctIngredients": 4,
+   "cheeseCount": 0,
+   "toppingCount": 3,
+   "minCounts": {
+    "pesto": 1,
+    "tuna": 3,
+    "black-olive": 2,
+    "onion": 2
+   },
+   "keyIngredient": "pesto",
+   "reservedIngredient_RuleW": "onion",
+   "currentWithheld": [
+    "onion"
+   ],
+   "proposedSelectableFacts": {
+    "SAUCE": [
+     "ing:pesto"
+    ],
+    "CHEESE": [
+     "none:cheese"
+    ],
+    "TOPPING": [
+     "ing:tuna",
+     "ing:black-olive"
+    ],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount": 5,
+   "proposedSelectableFacts_keyFree": {
+    "SAUCE": [],
+    "CHEESE": [
+     "none:cheese"
+    ],
+    "TOPPING": [
+     "ing:tuna",
+     "ing:black-olive"
+    ],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount_keyFree": 4,
+   "currentMaxHLevel": 4,
+   "currentHintLines": 5,
+   "currentFullCost": 75,
+   "candidateFullCost": {
+    "ESC75": 75,
+    "ESC75_keyFree": 75,
+    "FLAT10": 50,
+    "FLAT10_keyFree": 40,
+    "VALUE": 40,
+    "VALUE_keyFree": 35,
+    "ESC_PARITY": 75,
+    "ESC_PARITY_keyFree": 75
+   },
+   "ownedAtStage": {
+    "sauces": [
+     "tomato-sauce",
+     "olive-oil",
+     "pesto"
+    ],
+    "cheeses": [
+     "mozzarella",
+     "parmigiano"
+    ],
+    "toppings": [
+     "basil",
+     "egg",
+     "bacon",
+     "mushroom",
+     "eggplant",
+     "pepperoni",
+     "sausage",
+     "ham",
+     "corn",
+     "pineapple",
+     "black-olive",
+     "oregano",
+     "onion",
+     "garlic",
+     "anchovy",
+     "tuna"
+    ]
+   },
+   "privacyRisks": [
+    "model A would leak cheeseCount=0 toppingCount=3 (= current H3 count+cheese, 35 Pitz cumulative) for free",
+    "a cheese row hidden for this recipe would leak no-cheese: row must always render",
+    "storage: ledger key is the undiscovered recipe id (accepted since HE-1, same exposure as unlockedForShopIngredientIds)"
+   ],
+   "specialCases": [
+    "no cheese: CHEESE row sells a NONE fact (same price, no ingredient named)",
+    "key ingredient is a sauce (first fact of that row)",
+    "non-tomato sauce"
+   ],
+   "slotCountLeak": {
+    "stageOwnedIngredients": 21,
+    "candidateSets_noFreeInfo": 37845,
+    "candidateSets_modelA_exactSlots": 1680,
+    "bitsLeaked_modelA": 4.49,
+    "candidateSets_categoryPresence": 20652,
+    "bitsLeaked_categoryPresence": 0.87,
+    "withShopNewKnown": {
+     "candidateSets": 12615,
+     "modelA": 560,
+     "bitsLeaked_modelA": 4.49,
+     "categoryPresence": 6884,
+     "bitsLeaked_categoryPresence": 0.87
+    },
+    "modelC_fixedRows_bitsLeaked": 0.0
+   }
+  },
+  {
+   "recipeId": "new-haven-apizza",
+   "nameJa": "ニューヘイブンアピッツァ",
+   "declIndex": 21,
+   "ladderKeyStep": 19,
+   "identityAxes": {
+    "ingredientSet": [
+     "clam",
+     "garlic",
+     "olive-oil",
+     "parmigiano"
+    ],
+    "sauceBase": [
+     "olive-oil"
+    ],
+    "otherDimensions": "all 11 Phase-2 dimensions at DEFAULT (FIXED_BY_FLOW / UNAVAILABLE); no capability required",
+    "orderSensitive": false,
+    "minCountIsIdentity": false
+   },
+   "cookingProfileSteps": [
+    "DOUGH",
+    "SAUCE",
+    "CHEESE",
+    "TOPPING"
+   ],
+   "cutIsIdentity": false,
+   "sauceSlot": [
+    "olive-oil"
+   ],
+   "cheeseSlots": [
+    "parmigiano"
+   ],
+   "toppingSlots": [
+    "clam",
+    "garlic"
+   ],
+   "distinctIngredients": 4,
+   "cheeseCount": 1,
+   "toppingCount": 2,
+   "minCounts": {
+    "olive-oil": 1,
+    "parmigiano": 2,
+    "clam": 3,
+    "garlic": 2
+   },
+   "keyIngredient": "clam",
+   "reservedIngredient_RuleW": "garlic",
+   "currentWithheld": [
+    "garlic"
+   ],
+   "proposedSelectableFacts": {
+    "SAUCE": [
+     "ing:olive-oil"
+    ],
+    "CHEESE": [
+     "ing:parmigiano"
+    ],
+    "TOPPING": [
+     "ing:clam"
+    ],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount": 4,
+   "proposedSelectableFacts_keyFree": {
+    "SAUCE": [
+     "ing:olive-oil"
+    ],
+    "CHEESE": [
+     "ing:parmigiano"
+    ],
+    "TOPPING": [],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount_keyFree": 3,
+   "currentMaxHLevel": 4,
+   "currentHintLines": 5,
+   "currentFullCost": 75,
+   "candidateFullCost": {
+    "ESC75": 75,
+    "ESC75_keyFree": 35,
+    "FLAT10": 40,
+    "FLAT10_keyFree": 30,
+    "VALUE": 30,
+    "VALUE_keyFree": 20,
+    "ESC_PARITY": 75,
+    "ESC_PARITY_keyFree": 35
+   },
+   "ownedAtStage": {
+    "sauces": [
+     "tomato-sauce",
+     "olive-oil",
+     "pesto"
+    ],
+    "cheeses": [
+     "mozzarella",
+     "parmigiano"
+    ],
+    "toppings": [
+     "basil",
+     "egg",
+     "bacon",
+     "mushroom",
+     "eggplant",
+     "pepperoni",
+     "sausage",
+     "ham",
+     "corn",
+     "pineapple",
+     "black-olive",
+     "oregano",
+     "onion",
+     "garlic",
+     "anchovy",
+     "tuna",
+     "cherry-tomato",
+     "clam"
+    ]
+   },
+   "privacyRisks": [
+    "model A would leak cheeseCount=1 toppingCount=2 (= current H3 count+cheese, 35 Pitz cumulative) for free",
+    "storage: ledger key is the undiscovered recipe id (accepted since HE-1, same exposure as unlockedForShopIngredientIds)"
+   ],
+   "specialCases": [
+    "no CUT step (not identity; no hint slot)",
+    "non-tomato sauce"
+   ],
+   "slotCountLeak": {
+    "stageOwnedIngredients": 23,
+    "candidateSets_noFreeInfo": 65097,
+    "candidateSets_modelA_exactSlots": 918,
+    "bitsLeaked_modelA": 6.15,
+    "candidateSets_categoryPresence": 27243,
+    "bitsLeaked_categoryPresence": 1.26,
+    "withShopNewKnown": {
+     "candidateSets": 15108,
+     "modelA": 102,
+     "bitsLeaked_modelA": 7.21,
+     "categoryPresence": 5466,
+     "bitsLeaked_categoryPresence": 1.47
+    },
+    "modelC_fixedRows_bitsLeaked": 0.0
+   }
+  },
+  {
+   "recipeId": "pesto-caprese",
+   "nameJa": "ペストカプレーゼピザ",
+   "declIndex": 22,
+   "ladderKeyStep": 20,
+   "identityAxes": {
+    "ingredientSet": [
+     "basil",
+     "fresh-tomato",
+     "mozzarella",
+     "pesto"
+    ],
+    "sauceBase": [
+     "pesto"
+    ],
+    "otherDimensions": "all 11 Phase-2 dimensions at DEFAULT (FIXED_BY_FLOW / UNAVAILABLE); no capability required",
+    "orderSensitive": false,
+    "minCountIsIdentity": false
+   },
+   "cookingProfileSteps": [
+    "DOUGH",
+    "SAUCE",
+    "CHEESE",
+    "TOPPING",
+    "CUT"
+   ],
+   "cutIsIdentity": false,
+   "sauceSlot": [
+    "pesto"
+   ],
+   "cheeseSlots": [
+    "mozzarella"
+   ],
+   "toppingSlots": [
+    "fresh-tomato",
+    "basil"
+   ],
+   "distinctIngredients": 4,
+   "cheeseCount": 1,
+   "toppingCount": 2,
+   "minCounts": {
+    "pesto": 1,
+    "mozzarella": 2,
+    "fresh-tomato": 3,
+    "basil": 2
+   },
+   "keyIngredient": "fresh-tomato",
+   "reservedIngredient_RuleW": "basil",
+   "currentWithheld": [
+    "basil"
+   ],
+   "proposedSelectableFacts": {
+    "SAUCE": [
+     "ing:pesto"
+    ],
+    "CHEESE": [
+     "ing:mozzarella"
+    ],
+    "TOPPING": [
+     "ing:fresh-tomato"
+    ],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount": 4,
+   "proposedSelectableFacts_keyFree": {
+    "SAUCE": [
+     "ing:pesto"
+    ],
+    "CHEESE": [
+     "ing:mozzarella"
+    ],
+    "TOPPING": [],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount_keyFree": 3,
+   "currentMaxHLevel": 4,
+   "currentHintLines": 5,
+   "currentFullCost": 75,
+   "candidateFullCost": {
+    "ESC75": 75,
+    "ESC75_keyFree": 35,
+    "FLAT10": 40,
+    "FLAT10_keyFree": 30,
+    "VALUE": 30,
+    "VALUE_keyFree": 20,
+    "ESC_PARITY": 75,
+    "ESC_PARITY_keyFree": 35
+   },
+   "ownedAtStage": {
+    "sauces": [
+     "tomato-sauce",
+     "olive-oil",
+     "pesto"
+    ],
+    "cheeses": [
+     "mozzarella",
+     "parmigiano"
+    ],
+    "toppings": [
+     "basil",
+     "egg",
+     "bacon",
+     "mushroom",
+     "eggplant",
+     "pepperoni",
+     "sausage",
+     "ham",
+     "corn",
+     "pineapple",
+     "black-olive",
+     "oregano",
+     "onion",
+     "garlic",
+     "anchovy",
+     "tuna",
+     "cherry-tomato",
+     "clam",
+     "fresh-tomato"
+    ]
+   },
+   "privacyRisks": [
+    "model A would leak cheeseCount=1 toppingCount=2 (= current H3 count+cheese, 35 Pitz cumulative) for free",
+    "storage: ledger key is the undiscovered recipe id (accepted since HE-1, same exposure as unlockedForShopIngredientIds)"
+   ],
+   "specialCases": [
+    "non-tomato sauce"
+   ],
+   "slotCountLeak": {
+    "stageOwnedIngredients": 24,
+    "candidateSets_noFreeInfo": 83685,
+    "candidateSets_modelA_exactSlots": 1026,
+    "bitsLeaked_modelA": 6.35,
+    "candidateSets_categoryPresence": 33687,
+    "bitsLeaked_categoryPresence": 1.31,
+    "withShopNewKnown": {
+     "candidateSets": 18588,
+     "modelA": 108,
+     "bitsLeaked_modelA": 7.43,
+     "categoryPresence": 6444,
+     "bitsLeaked_categoryPresence": 1.53
+    },
+    "modelC_fixedRows_bitsLeaked": 0.0
+   }
+  },
+  {
+   "recipeId": "pesto-patate",
+   "nameJa": "ペストパターテピザ",
+   "declIndex": 23,
+   "ladderKeyStep": 21,
+   "identityAxes": {
+    "ingredientSet": [
+     "bacon",
+     "mozzarella",
+     "pesto",
+     "potato"
+    ],
+    "sauceBase": [
+     "pesto"
+    ],
+    "otherDimensions": "all 11 Phase-2 dimensions at DEFAULT (FIXED_BY_FLOW / UNAVAILABLE); no capability required",
+    "orderSensitive": false,
+    "minCountIsIdentity": false
+   },
+   "cookingProfileSteps": [
+    "DOUGH",
+    "SAUCE",
+    "CHEESE",
+    "TOPPING",
+    "CUT"
+   ],
+   "cutIsIdentity": false,
+   "sauceSlot": [
+    "pesto"
+   ],
+   "cheeseSlots": [
+    "mozzarella"
+   ],
+   "toppingSlots": [
+    "potato",
+    "bacon"
+   ],
+   "distinctIngredients": 4,
+   "cheeseCount": 1,
+   "toppingCount": 2,
+   "minCounts": {
+    "pesto": 1,
+    "mozzarella": 2,
+    "potato": 3,
+    "bacon": 2
+   },
+   "keyIngredient": "potato",
+   "reservedIngredient_RuleW": "bacon",
+   "currentWithheld": [
+    "bacon"
+   ],
+   "proposedSelectableFacts": {
+    "SAUCE": [
+     "ing:pesto"
+    ],
+    "CHEESE": [
+     "ing:mozzarella"
+    ],
+    "TOPPING": [
+     "ing:potato"
+    ],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount": 4,
+   "proposedSelectableFacts_keyFree": {
+    "SAUCE": [
+     "ing:pesto"
+    ],
+    "CHEESE": [
+     "ing:mozzarella"
+    ],
+    "TOPPING": [],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount_keyFree": 3,
+   "currentMaxHLevel": 4,
+   "currentHintLines": 5,
+   "currentFullCost": 75,
+   "candidateFullCost": {
+    "ESC75": 75,
+    "ESC75_keyFree": 35,
+    "FLAT10": 40,
+    "FLAT10_keyFree": 30,
+    "VALUE": 30,
+    "VALUE_keyFree": 20,
+    "ESC_PARITY": 75,
+    "ESC_PARITY_keyFree": 35
+   },
+   "ownedAtStage": {
+    "sauces": [
+     "tomato-sauce",
+     "olive-oil",
+     "pesto"
+    ],
+    "cheeses": [
+     "mozzarella",
+     "parmigiano"
+    ],
+    "toppings": [
+     "basil",
+     "egg",
+     "bacon",
+     "mushroom",
+     "eggplant",
+     "pepperoni",
+     "sausage",
+     "ham",
+     "corn",
+     "pineapple",
+     "black-olive",
+     "oregano",
+     "onion",
+     "garlic",
+     "anchovy",
+     "tuna",
+     "cherry-tomato",
+     "clam",
+     "fresh-tomato",
+     "potato"
+    ]
+   },
+   "privacyRisks": [
+    "model A would leak cheeseCount=1 toppingCount=2 (= current H3 count+cheese, 35 Pitz cumulative) for free",
+    "storage: ledger key is the undiscovered recipe id (accepted since HE-1, same exposure as unlockedForShopIngredientIds)"
+   ],
+   "specialCases": [
+    "non-tomato sauce"
+   ],
+   "slotCountLeak": {
+    "stageOwnedIngredients": 25,
+    "candidateSets_noFreeInfo": 106326,
+    "candidateSets_modelA_exactSlots": 1140,
+    "bitsLeaked_modelA": 6.54,
+    "candidateSets_categoryPresence": 41220,
+    "bitsLeaked_categoryPresence": 1.37,
+    "withShopNewKnown": {
+     "candidateSets": 22641,
+     "modelA": 114,
+     "bitsLeaked_modelA": 7.63,
+     "categoryPresence": 7533,
+     "bitsLeaked_categoryPresence": 1.59
+    },
+    "modelC_fixedRows_bitsLeaked": 0.0
+   }
+  },
+  {
+   "recipeId": "puttanesca-pizza",
+   "nameJa": "プッタネスカ",
+   "declIndex": 24,
+   "ladderKeyStep": 23,
+   "identityAxes": {
+    "ingredientSet": [
+     "anchovy",
+     "black-olive",
+     "capers",
+     "garlic",
+     "tomato-sauce"
+    ],
+    "sauceBase": [
+     "tomato-sauce"
+    ],
+    "otherDimensions": "all 11 Phase-2 dimensions at DEFAULT (FIXED_BY_FLOW / UNAVAILABLE); no capability required",
+    "orderSensitive": false,
+    "minCountIsIdentity": false
+   },
+   "cookingProfileSteps": [
+    "DOUGH",
+    "SAUCE",
+    "TOPPING",
+    "CUT"
+   ],
+   "cutIsIdentity": false,
+   "sauceSlot": [
+    "tomato-sauce"
+   ],
+   "cheeseSlots": [],
+   "toppingSlots": [
+    "anchovy",
+    "black-olive",
+    "capers",
+    "garlic"
+   ],
+   "distinctIngredients": 5,
+   "cheeseCount": 0,
+   "toppingCount": 4,
+   "minCounts": {
+    "tomato-sauce": 1,
+    "anchovy": 3,
+    "black-olive": 2,
+    "capers": 2,
+    "garlic": 2
+   },
+   "keyIngredient": "capers",
+   "reservedIngredient_RuleW": "garlic",
+   "currentWithheld": [
+    "garlic"
+   ],
+   "proposedSelectableFacts": {
+    "SAUCE": [
+     "ing:tomato-sauce"
+    ],
+    "CHEESE": [
+     "none:cheese"
+    ],
+    "TOPPING": [
+     "ing:capers",
+     "ing:anchovy",
+     "ing:black-olive"
+    ],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount": 6,
+   "proposedSelectableFacts_keyFree": {
+    "SAUCE": [
+     "ing:tomato-sauce"
+    ],
+    "CHEESE": [
+     "none:cheese"
+    ],
+    "TOPPING": [
+     "ing:anchovy",
+     "ing:black-olive"
+    ],
+    "COUNT": [
+     "meta:ingredient-count"
+    ]
+   },
+   "sellableFactCount_keyFree": 5,
+   "currentMaxHLevel": 4,
+   "currentHintLines": 6,
+   "currentFullCost": 75,
+   "candidateFullCost": {
+    "ESC75": 75,
+    "ESC75_keyFree": 75,
+    "FLAT10": 60,
+    "FLAT10_keyFree": 50,
+    "VALUE": 50,
+    "VALUE_keyFree": 40,
+    "ESC_PARITY": 75,
+    "ESC_PARITY_keyFree": 75
+   },
+   "ownedAtStage": {
+    "sauces": [
+     "tomato-sauce",
+     "olive-oil",
+     "pesto"
+    ],
+    "cheeses": [
+     "mozzarella",
+     "parmigiano"
+    ],
+    "toppings": [
+     "basil",
+     "egg",
+     "bacon",
+     "mushroom",
+     "eggplant",
+     "pepperoni",
+     "sausage",
+     "ham",
+     "corn",
+     "pineapple",
+     "black-olive",
+     "oregano",
+     "onion",
+     "garlic",
+     "anchovy",
+     "tuna",
+     "cherry-tomato",
+     "clam",
+     "fresh-tomato",
+     "potato",
+     "rosemary",
+     "capers"
+    ]
+   },
+   "privacyRisks": [
+    "model A would leak cheeseCount=0 toppingCount=4 (= current H3 count+cheese, 35 Pitz cumulative) for free",
+    "a cheese row hidden for this recipe would leak no-cheese: row must always render",
+    "topping-count 4 is rare (4 recipes): exact slot count narrows identity strongly",
+    "storage: ledger key is the undiscovered recipe id (accepted since HE-1, same exposure as unlockedForShopIngredientIds)"
+   ],
+   "specialCases": [
+    "no cheese: CHEESE row sells a NONE fact (same price, no ingredient named)",
+    "4 toppings: many-slot recipe (UI V)"
+   ],
+   "slotCountLeak": {
+    "stageOwnedIngredients": 27,
+    "candidateSets_noFreeInfo": 166362,
+    "candidateSets_modelA_exactSlots": 21945,
+    "bitsLeaked_modelA": 2.92,
+    "candidateSets_categoryPresence": 106326,
+    "bitsLeaked_categoryPresence": 0.65,
+    "withShopNewKnown": {
+     "candidateSets": 32709,
+     "modelA": 3990,
+     "bitsLeaked_modelA": 3.04,
+     "categoryPresence": 22641,
+     "bitsLeaked_categoryPresence": 0.53
+    },
+    "modelC_fixedRows_bitsLeaked": 0.0
+   }
+  }
+ ]
+}
