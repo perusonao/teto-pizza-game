@@ -389,6 +389,27 @@ describe("independent review follow-ups (PR #276)", () => {
   });
 });
 
+describe("mission ids that spell Object.prototype members (Codex review on 80e923d)", () => {
+  const PROTO_IDS = ["constructor", "tostring", "valueof", "hasownproperty", "isprototypeof"];
+
+  it.each(PROTO_IDS)("%s: the first record is written, reloaded and merged like any other id", (id) => {
+    const storage = fakeStorage(storedSave());
+    expect(persistProgress(snapshotOf(storage, { dinnerMissionRecordUpdates: { [id]: REC_B } }), storage)).toEqual({
+      refusedDinnerMissionIds: [],
+    });
+    expect((storage.raw()!.dinnerMissionRecords as Record<string, unknown>)[id]).toEqual(REC_B);
+    const state = loadSave(storage).dinnerMissionRecordsState;
+    expect(dinnerRecordForSettlement(state, id)).toEqual({ blocked: false, record: REC_B });
+    persistProgress(snapshotOf(storage, { dinnerMissionRecordUpdates: { [id]: { ...REC_B, clears: 2, bestTier: "GOLD" } } }), storage);
+    expect((storage.raw()!.dinnerMissionRecords as Record<string, unknown>)[id]).toEqual({ ...REC_B, clears: 2, bestTier: "GOLD" });
+  });
+
+  it("an absent prototype-named id reads as no record (never an inherited function)", () => {
+    expect(dinnerRecordForSettlement(EMPTY_DINNER_MISSION_RECORDS_STATE, "constructor")).toEqual({ blocked: false, record: undefined });
+    expect(dinnerRecordForSettlement(parseDinnerMissionRecords({}), "tostring")).toEqual({ blocked: false, record: undefined });
+  });
+});
+
 describe("Full Reset (case 15)", () => {
   it("resetSave removes the records with the rest of the save", () => {
     const storage = fakeStorage(storedSave({ dinnerMissionRecords: { "dm-a": REC, "dm-x": BROKEN } }));

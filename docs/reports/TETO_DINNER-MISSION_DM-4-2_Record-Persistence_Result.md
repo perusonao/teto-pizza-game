@@ -214,3 +214,33 @@ DM-4-1 の `decideDinnerSettlement` も、壊れた record を INVALID_INPUT で
 | build | success |
 | E2E（Chromium 390×844 と 360×800） | 新しい spec、`save-forward-compat-3-4b`、`dinner-mission`、`discovery-hint-facts-save`: **30 passed** |
 
+## 9. Codex review（`80e923d` に対するもの）
+
+| 指摘 | 判断 | 対応 |
+|---|---|---|
+| **P2:** mission id として正しい `constructor` などを最初に書くと、`stored.records[id]` が `Object.prototype.constructor` を返す。その結果 merge が不正な record を作り、更新が黙って消える | **妥当** | record を読む 3 か所を、own-property lookup（`ownValue`）に変えた |
+
+**Test:**
+
+- `constructor` / `tostring` / `valueof` / `hasownproperty` / `isprototypeof` の 5 つの id について、次の流れを確認した: 初回の write → reload → settlement accessor → 2 回目の merge。
+- 存在しない prototype 名の id が「record なし」として読まれることも確認した。
+
+**Mutation:**
+
+| mutant | 結果 |
+|---|---|
+| O1: accessor を plain lookup に戻す | DETECTED |
+| O2: merge の current を plain lookup に戻す | DETECTED |
+| O3: raw record を plain lookup に戻す | **equivalent** |
+
+O3 が equivalent である理由: 継承される値はすべて関数なので `isPlainObject` が弾く。また `__proto__` は id 文法を通らない。
+
+**Verification:**
+
+| check | result |
+|---|---|
+| full Vitest | 197 files、**4261 passed / 1 skipped** |
+| `tsc -b` | clean |
+| `oxlint` | 0 / 0 |
+| build | success |
+

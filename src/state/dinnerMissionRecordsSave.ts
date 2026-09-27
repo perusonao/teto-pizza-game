@@ -40,6 +40,12 @@ export const EMPTY_DINNER_MISSION_RECORDS_STATE: DinnerMissionRecordsState = Obj
   containerCorrupt: false,
 });
 
+/** Own-property read. A mission id may legally spell an `Object.prototype` member (`constructor`,
+ *  `tostring`, ...): a plain `map[id]` would then return the inherited value instead of "absent". */
+function ownValue<T>(map: Readonly<Record<string, T>>, id: string): T | undefined {
+  return Object.prototype.hasOwnProperty.call(map, id) ? map[id] : undefined;
+}
+
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -89,7 +95,7 @@ export function dinnerRecordForSettlement(
   missionId: string,
 ): { blocked: true } | { blocked: false; record: DinnerMissionRecord | undefined } {
   if (isDinnerMissionRecordBlocked(state, missionId)) return { blocked: true };
-  return { blocked: false, record: state.records[missionId] };
+  return { blocked: false, record: ownValue(state.records, missionId) };
 }
 
 function minBest(a: number | null, b: number | null): number | null {
@@ -174,11 +180,12 @@ export function mergeDinnerMissionRecordsForWrite(
       refused.push(id);
       continue;
     }
-    const current = stored.records[id];
+    const current = ownValue(stored.records, id);
     const next = current ? mergeDinnerMissionRecord(current, record) : pickRecord(record as unknown as Record<string, unknown>);
     if (current && sameRecord(current, next)) continue;
     // Unknown fields a newer build stored inside the record stay; the five known fields are ours.
-    const rawRecord = isPlainObject(base[id]) ? (base[id] as Record<string, unknown>) : {};
+    const rawValue = ownValue(base, id);
+    const rawRecord = isPlainObject(rawValue) ? rawValue : {};
     base[id] = { ...rawRecord, ...next };
     changed = true;
   }
