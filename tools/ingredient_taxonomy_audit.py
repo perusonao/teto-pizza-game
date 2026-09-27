@@ -8,7 +8,7 @@ hierarchical, multi-axis taxonomy against it. The PROPOSED classification below 
 hand, one row per ingredient. Each row carries a status. PROPOSED means the class follows from
 the canonical ingredient identity alone. NEEDS_REVIEW means a boundary call that a human must
 make. UNKNOWN means there is no canonical id yet. Nothing here is promoted to src/**. DH4-1
-(PR #254, src/data/ingredientTaxonomy.ts) is read as input only and is never changed.
+(merged via PR #254, src/data/ingredientTaxonomy.ts on main) is read as input only and is never changed.
 
 Inputs (read-only):
   src/data/ingredients.ts, src/data/recipes.ts                        runtime 29 / 25
@@ -17,7 +17,7 @@ Inputs (read-only):
   docs/design/data/TETO_PROGRESSION2_PHASE2_UNLOCK-MATRIX.json        101-target pool
   docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json  172 rows (Phase 1)
   tools/progression2_ingredient_canonicalizer.py                       canonicalization tables
-  PR #254 head (git object) src/data/ingredientTaxonomy.ts             DH4-1 families
+  src/data/ingredientTaxonomy.ts (main, merged PR #254)               DH4-1 families
 
 Usage:
   python3 tools/ingredient_taxonomy_audit.py            # writes the audit JSON
@@ -28,7 +28,6 @@ import itertools
 import json
 import math
 import re
-import subprocess
 import sys
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -38,9 +37,10 @@ sys.path.insert(0, str(ROOT / "tools"))
 import progression2_ingredient_canonicalizer as CANON  # noqa: E402
 
 OUT = ROOT / "docs/reports/data/TETO_INGREDIENT-TAXONOMY_172_FRESH-AUDIT.json"
-DH4_1_REF = "origin/claude/dh4-1-deduction-pure-layer"
-DH4_1_HEAD = "057e387b8ca065cb4f2e8c438fa4734a0fd2c40d"
-AUDITED_MAIN = "22658f7f2313264b686d299ea9fc11ba8679e8e5"
+DH4_1_FILE = ROOT / "src/data/ingredientTaxonomy.ts"
+DH4_1_MERGE = "5a33d855674652ab3483c3cedb8815859e88ce6e"  # Merge PR #254 into main
+AUDITED_MAIN = "5a33d855674652ab3483c3cedb8815859e88ce6e"
+FIRST_AUDITED_MAIN = "22658f7f2313264b686d299ea9fc11ba8679e8e5"
 
 # ---------------------------------------------------------------------------------------------
 # Layer definitions (PROPOSED, not authority).
@@ -327,6 +327,30 @@ UNRESOLVED_TOKEN_CLASS = {
     "ナッツ": ("topping", "other", "other.nut-seed", "Nuts of an unknown variety (generic_unspecified)."),
 }
 
+# Owner Decisions on this audit (Owner review, 2026-09-27). They are recorded as design-decision
+# metadata only. They do NOT make any classification row a production authority (OD-TAX-7).
+OWNER_DECISIONS = {
+    "status": "APPROVED_BY_OWNER_AS_DESIGN_DIRECTION (not production authority)",
+    "decisions": {
+        "OD-TAX-1": "Adopt the 3-layer taxonomy: L1 group, L2 family, L3 subfamily.",
+        "OD-TAX-2": "Keep DH4-1's 7 family ids. Do not rebuild the DH4-1 algorithm for the taxonomy.",
+        "OD-TAX-3": "The player may be shown at most the L2 family. L3 subfamily is internal metadata only; it is not shown or sold now.",
+        "OD-TAX-4": "Keep k>=2. A future multi-axis hint re-checks k>=2 on the intersected candidate set (future requirement; DH4-1 unchanged).",
+        "OD-TAX-5": "Never show or sell the whole taxonomy signature. One fact per hint.",
+        "OD-TAX-6": "Ingredient identity is separate from cooking role / timing / technique (late topping, post-bake, multi-spread, shape, special cut belong to Cooking Steps / Technique Discovery).",
+        "OD-TAX-7": "The 47 NEEDS_REVIEW and 13 UNKNOWN entries are not decided by guess. They stay in the Human Review Queue. Promoting the 105/172 taxonomy to production authority needs a separate Human Classification Gate.",
+        "OD-TAX-8": "The internal other family/group ids may stay for compatibility. Player copy must not use a weak label such as 「その他系」. The candidate 「ちょっと変わった材料があるよ」 goes to the DH4-2 UI audit; the final wording is a DH4-2 Owner Decision.",
+        "OD-TAX-9": "Subfamily hints, sauce families, cheese families and multi-axis hints are not in DH4-2's required scope. They are future requirements.",
+    },
+    "futureRequirements": {
+        "FR-1": "L3 subfamily as a display level (algorithm change; not scheduled).",
+        "FR-2": "Sauce / cheese families (lift the topping-only gate; not scheduled).",
+        "FR-3": "Joint-axis k>=2 on the intersected candidate set before any multi-axis hint (OD-TAX-4).",
+        "FR-4": "Runtime coverage test: every runtime topping has a family, with a size floor, when the runtime catalog grows.",
+        "HCG": "Human Classification Gate before any 105/172 taxonomy row becomes production authority (OD-TAX-7).",
+    },
+}
+
 # Axis boundary (Audit E/G): the axes an ingredient row may carry and the axes it must not carry.
 AXES = {
     "identity": {"owner": "ingredient catalog", "examples": ["family", "subfamily"], "inIngredientRow": True},
@@ -362,12 +386,14 @@ def runtime_recipes():
 
 
 def dh4_1_families():
-    try:
-        src = subprocess.run(["git", "show", f"{DH4_1_HEAD}:src/data/ingredientTaxonomy.ts"], cwd=ROOT,
-                             capture_output=True, text=True, check=True).stdout
-    except subprocess.CalledProcessError:
-        src = subprocess.run(["git", "show", f"{DH4_1_REF}:src/data/ingredientTaxonomy.ts"], cwd=ROOT,
-                             capture_output=True, text=True, check=True).stdout
+    """Reads the merged DH4-1 table (main, PR #254). It also checks that the family and group ids and
+    their labels here are exactly DH4-1's, so this audit never forks the taxonomy source."""
+    src = DH4_1_FILE.read_text(encoding="utf-8")
+    fams = dict((i, (g, lab)) for i, g, lab in re.findall(
+        r'\{ id: "(\w+)", group: "(\w+)", labelJa: "([^"]+)" \}', src))
+    grps = dict(re.findall(r'\{ id: "(\w+)", labelJa: "([^"]+)" \}', src))
+    if fams != FAMILIES or grps != GROUPS:
+        raise SystemExit(f"DH4-1 family/group ids or labels drifted from this audit: {fams} {grps}")
     rows = src[src.index("TOPPING_FAMILY_ROWS"):]
     rows = rows[:rows.index("];")]
     return dict(re.findall(r'\["([^"]+)", "(\w+)"\]', rows))
@@ -491,7 +517,7 @@ def build():
             "categorySource": cat_src,
             "broadGroup": FAMILIES[fam][0] if fam else None,
             "family": fam,
-            "familySource": "DH4-1 PR #254 (open, not on main)" if dh4_family else ("proposed" if fam else "n/a (category-level)"),
+            "familySource": "DH4-1 src/data/ingredientTaxonomy.ts (merged PR #254)" if dh4_family else ("proposed" if fam else "n/a (category-level)"),
             "subfamily": sub,
             "flavorTags": tags,
             "classificationStatus": status,
@@ -536,11 +562,13 @@ def build():
 
     audit = {
         "schemaNote": ("172 Recipe Ingredient Taxonomy Fresh Audit (Discovery Hint 4.0 Lane C, parent Issue #253). "
-                       "Docs/data-only. NOT a production authority, NOT wired into src/**. DH4-1 (PR #254) is read, never changed. "
+                       "Docs/data-only. NOT a production authority, NOT wired into src/**. DH4-1 (merged PR #254) is read, never changed. "
                        "Every classification is PROPOSED / NEEDS_REVIEW / UNKNOWN; none is final."),
         "generatedBy": "tools/ingredient_taxonomy_audit.py",
         "auditedMainSha": AUDITED_MAIN,
-        "dh4_1ReadFrom": {"pr": 254, "headSha": DH4_1_HEAD, "file": "src/data/ingredientTaxonomy.ts"},
+        "firstAuditedMainSha": FIRST_AUDITED_MAIN,
+        "dh4_1ReadFrom": {"pr": 254, "state": "MERGED", "mainMergeSha": DH4_1_MERGE, "file": "src/data/ingredientTaxonomy.ts"},
+        "ownerDecisions": OWNER_DECISIONS,
         "inputs": [
             "src/data/ingredients.ts", "src/data/recipes.ts", "data/recipes/ingredient_master_catalog.json",
             "docs/design/data/TETO_PROGRESSION2_PHASE34_INGREDIENT-UNLOCK-MATRIX.json",

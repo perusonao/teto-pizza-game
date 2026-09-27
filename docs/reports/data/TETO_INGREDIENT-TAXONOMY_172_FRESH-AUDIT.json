@@ -1,11 +1,34 @@
 {
- "schemaNote": "172 Recipe Ingredient Taxonomy Fresh Audit (Discovery Hint 4.0 Lane C, parent Issue #253). Docs/data-only. NOT a production authority, NOT wired into src/**. DH4-1 (PR #254) is read, never changed. Every classification is PROPOSED / NEEDS_REVIEW / UNKNOWN; none is final.",
+ "schemaNote": "172 Recipe Ingredient Taxonomy Fresh Audit (Discovery Hint 4.0 Lane C, parent Issue #253). Docs/data-only. NOT a production authority, NOT wired into src/**. DH4-1 (merged PR #254) is read, never changed. Every classification is PROPOSED / NEEDS_REVIEW / UNKNOWN; none is final.",
  "generatedBy": "tools/ingredient_taxonomy_audit.py",
- "auditedMainSha": "22658f7f2313264b686d299ea9fc11ba8679e8e5",
+ "auditedMainSha": "5a33d855674652ab3483c3cedb8815859e88ce6e",
+ "firstAuditedMainSha": "22658f7f2313264b686d299ea9fc11ba8679e8e5",
  "dh4_1ReadFrom": {
   "pr": 254,
-  "headSha": "057e387b8ca065cb4f2e8c438fa4734a0fd2c40d",
+  "state": "MERGED",
+  "mainMergeSha": "5a33d855674652ab3483c3cedb8815859e88ce6e",
   "file": "src/data/ingredientTaxonomy.ts"
+ },
+ "ownerDecisions": {
+  "status": "APPROVED_BY_OWNER_AS_DESIGN_DIRECTION (not production authority)",
+  "decisions": {
+   "OD-TAX-1": "Adopt the 3-layer taxonomy: L1 group, L2 family, L3 subfamily.",
+   "OD-TAX-2": "Keep DH4-1's 7 family ids. Do not rebuild the DH4-1 algorithm for the taxonomy.",
+   "OD-TAX-3": "The player may be shown at most the L2 family. L3 subfamily is internal metadata only; it is not shown or sold now.",
+   "OD-TAX-4": "Keep k>=2. A future multi-axis hint re-checks k>=2 on the intersected candidate set (future requirement; DH4-1 unchanged).",
+   "OD-TAX-5": "Never show or sell the whole taxonomy signature. One fact per hint.",
+   "OD-TAX-6": "Ingredient identity is separate from cooking role / timing / technique (late topping, post-bake, multi-spread, shape, special cut belong to Cooking Steps / Technique Discovery).",
+   "OD-TAX-7": "The 47 NEEDS_REVIEW and 13 UNKNOWN entries are not decided by guess. They stay in the Human Review Queue. Promoting the 105/172 taxonomy to production authority needs a separate Human Classification Gate.",
+   "OD-TAX-8": "The internal other family/group ids may stay for compatibility. Player copy must not use a weak label such as 「その他系」. The candidate 「ちょっと変わった材料があるよ」 goes to the DH4-2 UI audit; the final wording is a DH4-2 Owner Decision.",
+   "OD-TAX-9": "Subfamily hints, sauce families, cheese families and multi-axis hints are not in DH4-2's required scope. They are future requirements."
+  },
+  "futureRequirements": {
+   "FR-1": "L3 subfamily as a display level (algorithm change; not scheduled).",
+   "FR-2": "Sauce / cheese families (lift the topping-only gate; not scheduled).",
+   "FR-3": "Joint-axis k>=2 on the intersected candidate set before any multi-axis hint (OD-TAX-4).",
+   "FR-4": "Runtime coverage test: every runtime topping has a family, with a size floor, when the runtime catalog grows.",
+   "HCG": "Human Classification Gate before any 105/172 taxonomy row becomes production authority (OD-TAX-7)."
+  }
  },
  "inputs": [
   "src/data/ingredients.ts",
@@ -2359,7 +2382,7 @@
    "categorySource": "runtime:src/data/ingredients.ts",
    "broadGroup": "protein",
    "family": "seafood",
-   "familySource": "DH4-1 PR #254 (open, not on main)",
+   "familySource": "DH4-1 src/data/ingredientTaxonomy.ts (merged PR #254)",
    "subfamily": "seafood.fish",
    "flavorTags": [
     "salty-cured"
@@ -2531,7 +2554,7 @@
    "categorySource": "runtime:src/data/ingredients.ts",
    "broadGroup": "protein",
    "family": "meat",
-   "familySource": "DH4-1 PR #254 (open, not on main)",
+   "familySource": "DH4-1 src/data/ingredientTaxonomy.ts (merged PR #254)",
    "subfamily": "meat.cured",
    "flavorTags": [
     "salty-cured"
@@ -2649,7 +2672,7 @@
    "categorySource": "runtime:src/data/ingredients.ts",
    "broadGroup": "aroma",
    "family": "herb",
-   "familySource": "DH4-1 PR #254 (open, not on main)",
+   "familySource": "DH4-1 src/data/ingredientTaxonomy.ts (merged PR #254)",
    "subfamily": "herb.leaf",
    "flavorTags": [],
    "classificationStatus": "PROPOSED",
@@ -2769,7 +2792,7 @@
    "categorySource": "runtime:src/data/ingredients.ts",
    "broadGroup": "produce",
    "family": "vegetable",
-   "familySource": "DH4-1 PR #254 (open, not on main)",
+   "familySource": "DH4-1 src/data/ingredientTaxonomy.ts (merged PR #254)",
    "subfamily": "vegetable.fruiting",
    "flavorTags": [
     "salty-cured"
@@ -3089,7 +3112,7 @@
    "categorySource": "runtime:src/data/ingredients.ts",
    "broadGroup": "aroma",
    "family": "spice",
-   "familySource": "DH4-1 PR #254 (open, not on main)",
+   "familySource": "DH4-1 src/data/ingredientTaxonomy.ts (merged PR #254)",
    "subfamily": "spice.condiment",
    "flavorTags": [
     "salty-cured"
@@ -3317,7 +3340,7 @@
    "categorySource": "runtime:src/data/ingredients.ts",
    "broadGroup": "produce",
    "family": "vegetable",
-   "familySource": "DH4-1 PR #254 (open, not on main)",
+   "familySource": "DH4-1 src/data/ingredientTaxonomy.ts (merged PR #254)",
    "subfamily": "vegetable.fruiting",
    "flavorTags": [],
    "classificationStatus": "PROPOSED",
@@ -3621,7 +3644,7 @@
    "categorySource": "runtime:src/data/ingredients.ts",
    "broadGroup": "protein",
    "family": "seafood",
-   "familySource": "DH4-1 PR #254 (open, not on main)",
+   "familySource": "DH4-1 src/data/ingredientTaxonomy.ts (merged PR #254)",
    "subfamily": "seafood.shellfish",
    "flavorTags": [],
    "classificationStatus": "PROPOSED",
@@ -3709,7 +3732,7 @@
    "categorySource": "runtime:src/data/ingredients.ts",
    "broadGroup": "produce",
    "family": "vegetable",
-   "familySource": "DH4-1 PR #254 (open, not on main)",
+   "familySource": "DH4-1 src/data/ingredientTaxonomy.ts (merged PR #254)",
    "subfamily": "vegetable.fruiting",
    "flavorTags": [
     "sweet"
@@ -3981,7 +4004,7 @@
    "categorySource": "runtime:src/data/ingredients.ts",
    "broadGroup": "other",
    "family": "other",
-   "familySource": "DH4-1 PR #254 (open, not on main)",
+   "familySource": "DH4-1 src/data/ingredientTaxonomy.ts (merged PR #254)",
    "subfamily": "other.egg",
    "flavorTags": [],
    "classificationStatus": "PROPOSED",
@@ -4009,7 +4032,7 @@
    "categorySource": "runtime:src/data/ingredients.ts",
    "broadGroup": "produce",
    "family": "vegetable",
-   "familySource": "DH4-1 PR #254 (open, not on main)",
+   "familySource": "DH4-1 src/data/ingredientTaxonomy.ts (merged PR #254)",
    "subfamily": "vegetable.fruiting",
    "flavorTags": [],
    "classificationStatus": "PROPOSED",
@@ -4219,7 +4242,7 @@
    "categorySource": "runtime:src/data/ingredients.ts",
    "broadGroup": "produce",
    "family": "vegetable",
-   "familySource": "DH4-1 PR #254 (open, not on main)",
+   "familySource": "DH4-1 src/data/ingredientTaxonomy.ts (merged PR #254)",
    "subfamily": "vegetable.fruiting",
    "flavorTags": [],
    "classificationStatus": "PROPOSED",
@@ -4303,7 +4326,7 @@
    "categorySource": "runtime:src/data/ingredients.ts",
    "broadGroup": "aroma",
    "family": "herb",
-   "familySource": "DH4-1 PR #254 (open, not on main)",
+   "familySource": "DH4-1 src/data/ingredientTaxonomy.ts (merged PR #254)",
    "subfamily": "herb.allium",
    "flavorTags": [],
    "classificationStatus": "NEEDS_REVIEW",
@@ -4599,7 +4622,7 @@
    "categorySource": "runtime:src/data/ingredients.ts",
    "broadGroup": "protein",
    "family": "meat",
-   "familySource": "DH4-1 PR #254 (open, not on main)",
+   "familySource": "DH4-1 src/data/ingredientTaxonomy.ts (merged PR #254)",
    "subfamily": "meat.cured",
    "flavorTags": [],
    "classificationStatus": "PROPOSED",
@@ -5215,7 +5238,7 @@
    "categorySource": "runtime:src/data/ingredients.ts",
    "broadGroup": "produce",
    "family": "vegetable",
-   "familySource": "DH4-1 PR #254 (open, not on main)",
+   "familySource": "DH4-1 src/data/ingredientTaxonomy.ts (merged PR #254)",
    "subfamily": "vegetable.mushroom",
    "flavorTags": [],
    "classificationStatus": "PROPOSED",
@@ -5515,7 +5538,7 @@
    "categorySource": "runtime:src/data/ingredients.ts",
    "broadGroup": "produce",
    "family": "vegetable",
-   "familySource": "DH4-1 PR #254 (open, not on main)",
+   "familySource": "DH4-1 src/data/ingredientTaxonomy.ts (merged PR #254)",
    "subfamily": "vegetable.allium",
    "flavorTags": [],
    "classificationStatus": "PROPOSED",
@@ -5573,7 +5596,7 @@
    "categorySource": "runtime:src/data/ingredients.ts",
    "broadGroup": "aroma",
    "family": "herb",
-   "familySource": "DH4-1 PR #254 (open, not on main)",
+   "familySource": "DH4-1 src/data/ingredientTaxonomy.ts (merged PR #254)",
    "subfamily": "herb.leaf",
    "flavorTags": [],
    "classificationStatus": "PROPOSED",
@@ -5833,7 +5856,7 @@
    "categorySource": "runtime:src/data/ingredients.ts",
    "broadGroup": "protein",
    "family": "meat",
-   "familySource": "DH4-1 PR #254 (open, not on main)",
+   "familySource": "DH4-1 src/data/ingredientTaxonomy.ts (merged PR #254)",
    "subfamily": "meat.cured",
    "flavorTags": [
     "spicy"
@@ -5947,7 +5970,7 @@
    "categorySource": "runtime:src/data/ingredients.ts",
    "broadGroup": "produce",
    "family": "fruit",
-   "familySource": "DH4-1 PR #254 (open, not on main)",
+   "familySource": "DH4-1 src/data/ingredientTaxonomy.ts (merged PR #254)",
    "subfamily": "fruit.tropical",
    "flavorTags": [
     "sweet"
@@ -6067,7 +6090,7 @@
    "categorySource": "runtime:src/data/ingredients.ts",
    "broadGroup": "produce",
    "family": "vegetable",
-   "familySource": "DH4-1 PR #254 (open, not on main)",
+   "familySource": "DH4-1 src/data/ingredientTaxonomy.ts (merged PR #254)",
    "subfamily": "vegetable.root",
    "flavorTags": [],
    "classificationStatus": "PROPOSED",
@@ -6363,7 +6386,7 @@
    "categorySource": "runtime:src/data/ingredients.ts",
    "broadGroup": "aroma",
    "family": "herb",
-   "familySource": "DH4-1 PR #254 (open, not on main)",
+   "familySource": "DH4-1 src/data/ingredientTaxonomy.ts (merged PR #254)",
    "subfamily": "herb.leaf",
    "flavorTags": [],
    "classificationStatus": "PROPOSED",
@@ -6625,7 +6648,7 @@
    "categorySource": "runtime:src/data/ingredients.ts",
    "broadGroup": "protein",
    "family": "meat",
-   "familySource": "DH4-1 PR #254 (open, not on main)",
+   "familySource": "DH4-1 src/data/ingredientTaxonomy.ts (merged PR #254)",
    "subfamily": "meat.cured",
    "flavorTags": [],
    "classificationStatus": "PROPOSED",
@@ -7217,7 +7240,7 @@
    "categorySource": "runtime:src/data/ingredients.ts",
    "broadGroup": "protein",
    "family": "seafood",
-   "familySource": "DH4-1 PR #254 (open, not on main)",
+   "familySource": "DH4-1 src/data/ingredientTaxonomy.ts (merged PR #254)",
    "subfamily": "seafood.fish",
    "flavorTags": [],
    "classificationStatus": "PROPOSED",

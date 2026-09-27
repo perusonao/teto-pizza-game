@@ -4,8 +4,10 @@ Parent Issue: **#253** (Discovery Hint 4.0, OD-DH4-4). Docs/data-only.
 
 **Status: NOT an authority.** Every classification here is PROPOSED, NEEDS_REVIEW or UNKNOWN. This audit:
 - changes no production code;
-- leaves DH4-1 / PR #254 untouched (it is read only);
+- leaves DH4-1 untouched (merged via PR #254; it is read only);
 - does not implement DH4-2.
+
+**Owner review (2026-09-27):** OD-TAX-1…9 are **approved** as design direction (§18). They do not promote any classification row to production authority. That needs a separate Human Classification Gate (OD-TAX-7).
 
 Machine-readable audit: `docs/reports/data/TETO_INGREDIENT-TAXONOMY_172_FRESH-AUDIT.json`.
 Generator: `tools/ingredient_taxonomy_audit.py`. It is deterministic, docs tooling only, and not wired into CI. `--check` reports byte drift.
@@ -16,12 +18,28 @@ Generator: `tools/ingredient_taxonomy_audit.py`. It is deterministic, docs tooli
 
 | Item | State (fetched 2026-09-27) |
 |---|---|
-| `origin/main` | `22658f7f2313264b686d299ea9fc11ba8679e8e5` (Merge PR #251) |
+| `origin/main` (first audit) | `22658f7f2313264b686d299ea9fc11ba8679e8e5` (Merge PR #251) |
+| `origin/main` (**re-audited**, §1.1) | `5a33d855674652ab3483c3cedb8815859e88ce6e` (Merge PR #254, DH4-1) |
 | Issue #253 | OPEN. It is the parent issue for every DH4 slice. OD-DH4-4 requires the taxonomy to be a data model extensible to 105 / 172 and to Technique Discovery, with no singleton or near-singleton classes. |
-| PR #254 (DH4-1) | OPEN, head `057e387b8ca065cb4f2e8c438fa4734a0fd2c40d`, mergeable clean. **Read only** (`git show`). Never checked out or pushed. |
+| PR #254 (DH4-1) | **MERGED** 2026-09-27T10:28Z as `5a33d85` (head `057e387`). Read only; never changed by this audit. |
 | PR #252 (Dinner DM-3R-2) | OPEN, head `5e217ea7`. Not touched. |
 | PR #251 (H3-4) | MERGED 2026-09-27T10:03Z. It carries the DH4 Fresh Design. |
-| Duplicate gate | An issue search for taxonomy / 172 / attribute family found **0 other issues**. This work belongs to #253 (OD-DH4-4), so **no new issue** is proposed (§18). |
+| Duplicate gate | An issue search for taxonomy / 172 / attribute family found **0 other issues**. This work belongs to #253 (OD-DH4-4), so **no new issue** is created (§18). |
+
+### 1.1 Latest-main follow (re-audit on `5a33d85`)
+
+| Check | Result |
+|---|---|
+| Latest `origin/main` | `5a33d855674652ab3483c3cedb8815859e88ce6e` |
+| DH4-1 merge state | PR #254 MERGED. `src/data/ingredientTaxonomy.ts` and `deductionHint.ts` on main are **byte-identical** to the PR head `057e387` that the first audit read (empty `git diff`). |
+| Diff between the audit branch and main | main added only the 7 DH4-1 files (src, tests, result report, audit JSON). This branch adds only the 3 files of this audit. **No shared file.** |
+| Conflict | None. `origin/main` was merged into the audit branch cleanly. |
+| Semantic overlap | None. DH4-1 owns the runtime 22-row table and the guard. This audit only reads them and proposes rows for ids that are not in the runtime catalog. |
+| Generator source | It now reads the **merged** `src/data/ingredientTaxonomy.ts` from the working tree instead of the PR-head git object. It fails if DH4-1's family or group ids or labels differ from the audit's layers. They match exactly: 7 families and 4 groups. |
+| `tools/ingredient_taxonomy_audit.py --check` | OK, no drift |
+| Deterministic regeneration | Two regenerations gave the same SHA-256 (`4638137f…c833`) |
+| Audit values | **Unchanged.** universeCounts, classCounts, singletonReport, dh4_1CompatibilitySimulation, intersection, recipeIdentity and humanReviewQueue are identical to the first audit. The ingredient rows are identical except for the `familySource` wording (open PR → merged). Only metadata changed: `auditedMainSha`, `firstAuditedMainSha`, `dh4_1ReadFrom` and `ownerDecisions`. |
+| DH4-1 compatibility | Unchanged (§14). All 22 DH4-1 rows agree with the proposed families. |
 
 ## 2. Audited source files
 
@@ -34,7 +52,7 @@ Generator: `tools/ingredient_taxonomy_audit.py`. It is deterministic, docs tooli
 | `docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json` | The 172 rows: identity sets, unresolved tokens, token traces, post/mid-bake evidence, required capabilities |
 | `docs/reports/data/TETO_PIZZADB_172_MASTER-EVIDENCE.json` | Raw `ingredientsJa`, used for alias frequency |
 | `tools/progression2_ingredient_canonicalizer.py` + `docs/design/TETO_PROGRESS2_INGREDIENT-CANONICALIZATION-RULES.md` | **Existing canonicalization authority**: alias, ambiguity, registry and taxonomy-flag tables |
-| PR #254 `src/data/ingredientTaxonomy.ts`, `deductionHint.ts` | The DH4-1 taxonomy (7 families, 4 groups, 22 topping rows) and its guard |
+| `src/data/ingredientTaxonomy.ts`, `src/logic/discovery/deductionHint.ts` (main, merged PR #254) | The DH4-1 taxonomy (7 families, 4 groups, 22 topping rows) and its guard |
 | `docs/reports/TETO_DISCOVERY-HINT-4_DEDUCTION-HINTS_Fresh-Design.md` §7 / §13 | The earlier 181-name keyword heuristic, which this audit replaces with authored rows |
 
 **Existing authorities that were reused, not duplicated:**
@@ -85,7 +103,7 @@ Generator: `tools/ingredient_taxonomy_audit.py`. It is deterministic, docs tooli
 - **Chili.** 唐辛子 5, 赤唐辛子 1 and 青唐辛子 1 are all unresolved. They are separate from chili-oil / chili-powder / jalapeno.
 - **Generic tokens.** 肉, チーズ (3 rows), ナッツ, ひき肉 (5 rows). These have a certain **family** but no id, so they are UNKNOWN (§16).
 
-## 5. Current DH4 taxonomy assessment (DH4-1, PR #254)
+## 5. Current DH4 taxonomy assessment (DH4-1, merged PR #254)
 
 DH4-1 has 7 families and 4 groups:
 - **Families:** 肉 / 魚介 / 野菜・きのこ / 果物 / ハーブ・香味 / スパイス・薬味 / その他.
@@ -187,10 +205,10 @@ Three kinds of term must not be mixed:
 | 果物 | ✓ | Clear, but near-singleton at 105 |
 | ハーブ・香味 | △ | にんにく reads as 香味野菜 or 薬味 to many players. It overlaps with スパイス・薬味 (わさび, 青ねぎ, 柚子胡椒). |
 | スパイス・薬味 | △ | It mixes dried spice (クミン), condiment (わさび) and pickled bud (ケッパー). 岩塩 is not a スパイス. |
-| その他 | ✗ as a hint | Semantically weak: 「その他の仲間があるよ」 tells the player only "not in the other six". Proposed copy: 「ちょっと変わった材料があるよ」. Owner call (OD-TAX-4). |
+| その他 | ✗ as a hint | Semantically weak: 「その他の仲間があるよ」 tells the player only "not in the other six". Candidate copy: 「ちょっと変わった材料があるよ」. It is passed to the DH4-2 UI audit; the final wording is a DH4-2 Owner Decision (**approved OD-TAX-8**). |
 | 仕上げ系 / 乳製品系 | Do not use | Role, and non-cheese dairy (2 ids) respectively. Both fail the boundary or the size rule. |
 
-**Aroma group alternatives for the Owner (OD-TAX-3):**
+**Aroma group alternatives (still open; not decided by OD-TAX-1…9, so these stay in the Human Review Queue under OD-TAX-7):**
 - **(a)** Keep DH4-1 as is.
 - **(b)** ハーブ (leafy herbs only) + 薬味・スパイス, with garlic moved to 野菜・きのこ.
 
@@ -281,7 +299,7 @@ Three kinds of term must not be mixed:
 | **FR-3** joint-axis k | Needed only if a second attribute axis is sold (§13). |
 | **FR-4** coverage test | When the runtime catalog grows, add a test that every runtime topping has a family and every family has at least N members in the runtime catalog. Before that, singleton families rely on the guard (as documented in DH4-1). |
 
-PR #254 is not touched. None of FR-1 to FR-4 blocks DH4-1 or DH4-2.
+DH4-1 (merged PR #254) is not touched. None of FR-1 to FR-4 blocks DH4-1 or DH4-2. By OD-TAX-9, none of them is in DH4-2's required scope.
 
 ## 15. Technique Discovery boundary (Audit G)
 
@@ -344,30 +362,51 @@ There are **60 entries**: 47 NEEDS_REVIEW ids and 13 UNKNOWN tokens. The full li
 - `dh4_1CompatibilitySimulation`
 - `intersection`, `recipeIdentity`
 - `humanReviewQueue`
+- `ownerDecisions`: OD-TAX-1…9 and FR-1…4 / HCG, with status `APPROVED_BY_OWNER_AS_DESIGN_DIRECTION (not production authority)`.
+- `auditedMainSha` (`5a33d85`), `firstAuditedMainSha` (`22658f7`), `dh4_1ReadFrom` (merged PR #254)
 
 The generator refuses to write:
 - when an id has no row, or a row has no evidence (no silent guess);
 - when a proposed category disagrees with the evidence;
 - when a proposed family disagrees with DH4-1.
 
-## 18. Owner Decisions required
+## 18. Owner Decisions (approved 2026-09-27)
 
-| ID | Decision | Recommendation |
-|---|---|---|
-| OD-TAX-1 | Adopt the 3-layer model: L1 group / L2 family (display) / L3 subfamily (internal only, never displayed in DH4) | Adopt |
-| OD-TAX-2 | Keep DH4-1's 7 family ids for 105 / 172. No new family (no nuts, sweets, dairy or seaweed family). | Adopt. Every class is ≥ 8 at 172. |
-| OD-TAX-3 | The runtime boundary calls: garlic, capers, black-olive, plus the aroma-group labels (§9 a or b) | Decide together. A change is a data-only change to DH4-1 rows after #254 merges. |
-| OD-TAX-4 | 「その他」 answer copy | Consider 「ちょっと変わった材料があるよ」 (DH4-2 copy) |
-| OD-TAX-5 | Flavor, timing and role axes are **not** player-facing in DH4. Any future second axis about the same ingredient requires joint-class k ≥ 2 (FR-3). | Adopt |
-| OD-TAX-6 | Where the family lives: DH4-1's separate table now, or a catalog field later, when Progression 2.0 ingredients land in `src/data/ingredients.ts` | Keep the table now. Move it with the ingredient migration. |
-| OD-TAX-7 | Canonicalization clusters: beef / steak / ground-beef / ひき肉; the sausage cluster; salami / spicy-salami; cod-roe / mentaiko; オリーブ → black-olive; タラ → salt-cod; cabbage / red-cabbage; chicory / puntarelle | Resolve through the existing canonicalizer tables (not here) |
-| OD-TAX-8 | fruit (3) and spice (5 or fewer) are near-singleton at the 105 stage | Accept. The k ≥ 2 guard covers it, and the classes are ≥ 10 at 172. |
-| OD-TAX-9 | Issue handling | Track under **#253** (OD-DH4-4). **No new issue.** |
+The Owner approved OD-TAX-1…9 as below. The IDs are the Owner's. They **replace** the numbering of the proposal table in the first audit revision. They are design decisions, not production authority.
+
+| ID | Owner Decision |
+|---|---|
+| **OD-TAX-1** | Adopt the 3-layer taxonomy: **L1 = group, L2 = family, L3 = subfamily**. |
+| **OD-TAX-2** | Keep DH4-1's **7 family ids**. Do not rebuild the existing DH4-1 algorithm for the taxonomy. |
+| **OD-TAX-3** | The player may be shown **at most the L2 family**. L3 subfamily is internal metadata only. It is not shown or sold as a hint now. |
+| **OD-TAX-4** | Keep **k ≥ 2**. If a future hint combines several axes, k ≥ 2 is re-checked on the **intersected** candidate set, not per axis. This is a future requirement (FR-3). DH4-1 is not changed. |
+| **OD-TAX-5** | Never show or sell the **whole taxonomy signature**. Discovery Hint stays **one fact per hint**. |
+| **OD-TAX-6** | **Ingredient identity** is separate from **cooking role / timing / technique**. Late topping, post-bake, multi-spread, shape and special cut are not ingredient families. They belong to Cooking Steps / Technique Discovery. |
+| **OD-TAX-7** | The **47 NEEDS_REVIEW** and **13 UNKNOWN** entries are not decided by guess. They stay in the Human Review Queue. Promoting the 105 / 172 taxonomy to production authority needs a separate **Human Classification Gate**. |
+| **OD-TAX-8** | The internal `other` family / group ids may stay for compatibility. Player copy must not use a weak label such as 「その他系」. The candidate 「ちょっと変わった材料があるよ」 goes to the **DH4-2 UI audit**. The final wording is a DH4-2 Owner Decision. |
+| **OD-TAX-9** | Subfamily hints, sauce families, cheese families and multi-axis hints are **not** in DH4-2's required scope. They are recorded as future requirements. |
+
+**Future requirements (recorded, not scheduled):**
+- **FR-1:** L3 subfamily as a display level (OD-TAX-3, OD-TAX-9).
+- **FR-2:** sauce and cheese families (OD-TAX-9).
+- **FR-3:** joint-axis k ≥ 2 on the intersected candidate set (OD-TAX-4, OD-TAX-9).
+- **FR-4:** a runtime family coverage test when the runtime catalog grows.
+- **HCG:** the Human Classification Gate (OD-TAX-7).
+
+**First-revision proposals that the approved decisions do not settle.** They are left open. They are not assumed.
+
+| First-revision proposal | State after Owner review |
+|---|---|
+| Runtime boundary calls: garlic, capers, black-olive, and the aroma-group labels (§9 a / b) | **Open.** They stay in the Human Review Queue (OD-TAX-7). DH4-1's merged rows stay as they are. |
+| Where the family lives (DH4-1 table now, or a catalog field later) | **Open.** The DH4-1 table remains the only runtime source. |
+| Canonicalization clusters (beef / steak / ground-beef / ひき肉, the sausage cluster, salami / spicy-salami, cod-roe / mentaiko, オリーブ → black-olive, タラ → salt-cod, cabbage / red-cabbage, chicory / puntarelle) | **Open.** Part of the Human Classification Gate (OD-TAX-7), through the existing canonicalizer tables |
+| Near-singleton fruit (3) and spice (≤ 5) at the 105 stage | **Open** as a note. The k ≥ 2 guard (OD-TAX-4) covers privacy. |
+| Issue handling | **Settled by the Owner's instruction:** tracked under **#253**, no new issue. |
 
 ## 19. Recommended implementation phase
 
-1. **Now:** nothing to implement. DH4-1 (#254) and DH4-2 proceed unchanged. This audit is input to the Owner's review of OD-TAX-1…9.
-2. **After #254 merges and OD-TAX-3 is decided:** a tiny data-only follow-up, **DH4-T1**. It changes at most 3 DH4-1 rows plus the audit snapshot. Only if the Owner changes a runtime boundary.
+1. **Now:** nothing to implement. DH4-1 is merged and unchanged. DH4-2 proceeds without taxonomy scope (OD-TAX-9). It receives only the 「ちょっと変わった材料があるよ」 copy candidate (OD-TAX-8).
+2. **Human Classification Gate (OD-TAX-7):** work through the Human Review Queue and the canonicalization clusters. If the Owner changes a runtime boundary (garlic / capers / black-olive), a tiny data-only follow-up (**DH4-T1**) changes at most 3 DH4-1 rows plus the DH4-1 audit snapshot.
 3. **With each Progression 2.0 ingredient batch** (when ingredients are added to `src/data/ingredients.ts`):
    - add the family row in the same PR, from this audit's PROPOSED rows;
    - resolve its Human Review Queue entries first;
@@ -376,7 +415,7 @@ The generator refuses to write:
 
 ## 20. Non-goals
 
-- No change to production runtime code, `src/**`, the reducer, persistence, HintSheet, `App.css`, Dinner, PR #243, PR #252 or PR #254.
+- No change to production runtime code, `src/**` (including the merged DH4-1 files), the reducer, persistence, HintSheet, `App.css`, Dinner, PR #243 or PR #252.
 - No DH4-2 implementation, no prices, no UI.
 - No new canonical ids, no change to canonicalizer tables, no ingredient added to any catalog.
 - No classification promoted to authority. PROPOSED rows are proposals.
@@ -386,11 +425,19 @@ The generator refuses to write:
 
 ## Final verdict
 
-**A. TAXONOMY DESIGN READY FOR OWNER DECISIONS**
+**A. TAXONOMY OWNER DECISIONS RECORDED — READY FOR DOCS PR REVIEW**
 
-- **Design:** the 3-layer model and the axis boundary are ready.
-- **DH4-1:** its 7-family layer scales to 105 and 172 by data only, with no algorithm change.
-- **Data (caveat, B-type):**
-  - Authoring the 105 and 172 rows as authority still needs the **Human Review Queue** (60 entries) and the canonicalization clusters (OD-TAX-7).
-  - These are human classification tasks. They block no current slice.
-  - Only 3 runtime rows are affected: garlic, capers, black-olive.
+- **Owner decisions:** OD-TAX-1…9 are recorded here (§18) and in the audit JSON (`ownerDecisions`). They are design direction, not production authority.
+- **Latest main:** the re-audit on `5a33d85` (DH4-1 merged) gave the same audit values, with no conflict and no semantic overlap (§1.1).
+- **DH4-1:** unchanged. Its 7 family and 4 group ids and labels match this audit exactly.
+- **Still open (by design):**
+  - the Human Review Queue (47 NEEDS_REVIEW + 13 UNKNOWN);
+  - the canonicalization clusters;
+  - the garlic / capers / black-olive boundary.
+
+  All of them wait for the Human Classification Gate (OD-TAX-7). They block neither DH4-2 nor any current slice.
+
+<details><summary>First-revision verdict (audit on <code>22658f7</code>)</summary>
+
+A. TAXONOMY DESIGN READY FOR OWNER DECISIONS. The design was ready, and the 105 / 172 data rows needed human classification (B-type caveat).
+</details>
