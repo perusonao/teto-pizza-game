@@ -20,8 +20,9 @@ import {
  * Rules (docs/reports/TETO_DINNER-MISSION_Phase0_Fresh-Design.md §17):
  * - START only when the mission is unlocked and the whole target set is cookable with the minimum
  *   amounts (OD-DM-2).
- * - The player picks any remaining target, cooks it, and the result is resolved as PASS or FAILED
- *   (Completion Gate). PASS completes the target; FAILED does not (OD-DM-4).
+ * - DM-3R-2 (Issue #250): the player never picks a target. Each finished pizza is classified by the
+ *   result detection (./dinnerResultDetection.ts, OD-R1 / OD-R3) and recorded as one attempt; only
+ *   a TARGET_PASS completes the target it was detected as. Everything else does not (OD-DM-4).
  * - After every resolved pizza the remaining targets are checked against the stock *after* that
  *   pizza's consumption. Not completable any more -> FAILED at once, reason INFEASIBLE (OD-DM-3).
  *   Nothing prevents over-placement; using too much is the player's mistake to make.
@@ -55,11 +56,37 @@ export type DinnerRunOutcome =
   | { kind: "FAILED"; reason: "TIME_UP" | "ABANDONED"; endedAt: number }
   | { kind: "FAILED"; reason: "INFEASIBLE"; endedAt: number; shortages: SetIngredientShortage[] };
 
-/** One resolved pizza: the Completion Gate result for a target the player chose. */
+/** DM-3R-2: the result categories of one finished pizza (./dinnerResultDetection.ts). */
+export type DinnerAttemptCategory =
+  | "TARGET_PASS"
+  | "QUALITY_FAIL"
+  | "DUPLICATE_TARGET"
+  | "NON_TARGET"
+  | "ORIGINAL"
+  | "INVALID_PIZZA";
+
+/**
+ * One resolved pizza (DM-3R-2, Issue #250). Session-only, like the whole run: never saved (DM-4
+ * decides what, if anything, is persisted).
+ *
+ * Privacy boundary: `identityRecipeId` is the composition's internal identity and may name an
+ * undiscovered recipe -- it is for tests and debugging only and must never be rendered. What the
+ * player was shown is `displayedRecipeId` (a target or a discovered recipe; `null` = anonymous).
+ */
 export interface DinnerAttempt {
-  recipeId: string;
-  completion: "PASS" | "FAILED";
   at: number;
+  category: DinnerAttemptCategory;
+  /** INTERNAL. The unique composition match, or `null` (no match / ambiguous). */
+  identityRecipeId: string | null;
+  /** The recipe the result named, or `null` for an anonymous ORIGINAL / INVALID_PIZZA. */
+  displayedRecipeId: string | null;
+  /** The target this pizza completed: set for TARGET_PASS only. */
+  completedTargetId: string | null;
+  /** Scoring 2.0 ★ when the quality gate ran (TARGET_PASS / QUALITY_FAIL below ★), else `null`. */
+  stars: number | null;
+  /** What this pizza consumed (pre-consumption stock minus post-consumption stock), per finite
+   *  ingredient; never refunded, whatever the category. */
+  consumed: Readonly<Record<string, number>>;
 }
 
 export interface DinnerRunState {
@@ -69,8 +96,6 @@ export interface DinnerRunState {
   targetRecipeIds: readonly string[];
   /** Completed targets, in completion order. */
   completedRecipeIds: readonly string[];
-  /** The target being cooked, or `null` on the target-selection screen. */
-  activeRecipeId: string | null;
   clock: DinnerClock;
   attempts: readonly DinnerAttempt[];
   /** Set exactly when `status` leaves PLAYING. */
@@ -131,7 +156,6 @@ export function startDinnerRun(
       status: "PLAYING",
       targetRecipeIds: [...mission.targetRecipeIds],
       completedRecipeIds: [],
-      activeRecipeId: null,
       clock: { startedAt: now, endsAt: now + duration },
       attempts: [],
       outcome: null,
@@ -176,20 +200,19 @@ export function isRemainingTargetSetFeasible(state: DinnerRunState, stock: Recip
 }
 
 export type DinnerRunAction =
-  /** The player picks a remaining target on the selection screen. */
-  | { type: "SELECT_TARGET"; recipeId: string; now: number }
-  /** Back to the selection screen before baking. Stock is only consumed at bake, so nothing else
-   *  changes; whether the UI offers this is a DM-2/DM-3 decision. */
-  | { type: "CANCEL_TARGET"; now: number }
-  /** The active target's pizza was baked and judged. `stock` is the inventory *after* that pizza's
-   *  consumption (CONFIRM_BAKE's `consumePizzaInventory`), over-placement and FAILED pizzas included. */
-  | { type: "RESOLVE_ATTEMPT"; recipeId: string; completion: "PASS" | "FAILED"; stock: RecipeSetInputs; now: number }
+  /**
+   * DM-3R-2: one finished pizza, already classified by the result detection. There is no declared
+   * target: progress comes only from `attempt.completedTargetId`, which must be a remaining target
+   * (anything else rejects the whole action as stale). `stock` is the inventory *after* that pizza's
+   * consumption (CONFIRM_BAKE's `consumePizzaInventory`), over-placement and failed pizzas included.
+   */
+  | { type: "RESOLVE_ATTEMPT"; attempt: DinnerAttempt; stock: RecipeSetInputs; now: number }
   | { type: "TICK"; now: number }
   /** Reload / HOME / navigation away: the run is lost and pays nothing. */
   | { type: "ABANDON"; now: number };
 
 function fail(state: DinnerRunState, outcome: Extract<DinnerRunOutcome, { kind: "FAILED" }>): DinnerRunState {
-  return { ...state, status: "FAILED", activeRecipeId: null, outcome };
+  return { ...state, status: "FAILED", outcome };
 }
 
 export function dinnerRunReducer(state: DinnerRunState, action: DinnerRunAction): DinnerRunState {
@@ -201,28 +224,19 @@ export function dinnerRunReducer(state: DinnerRunState, action: DinnerRunAction)
   }
 
   switch (action.type) {
-    case "SELECT_TARGET": {
-      if (state.activeRecipeId !== null) return state;
-      if (!remainingTargetIds(state).includes(action.recipeId)) return state;
-      return { ...state, activeRecipeId: action.recipeId };
-    }
-
-    case "CANCEL_TARGET":
-      return state.activeRecipeId === null ? state : { ...state, activeRecipeId: null };
-
     case "RESOLVE_ATTEMPT": {
-      // Only the target the player chose can be resolved: a different or off-target pizza never
-      // counts (it cannot be cooked in a Dinner round at all; this is the backstop).
-      if (state.activeRecipeId === null || action.recipeId !== state.activeRecipeId) return state;
-      const attempt: DinnerAttempt = { recipeId: action.recipeId, completion: action.completion, at: action.now };
-      const completedRecipeIds =
-        action.completion === "PASS" ? [...state.completedRecipeIds, action.recipeId] : state.completedRecipeIds;
+      const { attempt } = action;
+      const completed = attempt.completedTargetId;
+      // Only a TARGET_PASS completes anything, and only a target that is still open: a stale or
+      // repeated resolution (the target already done, not a target at all) changes nothing.
+      if ((completed === null) !== (attempt.category !== "TARGET_PASS")) return state;
+      if (completed !== null && !remainingTargetIds(state).includes(completed)) return state;
       const next: DinnerRunState = {
         ...state,
-        completedRecipeIds,
-        activeRecipeId: null,
-        attempts: [...state.attempts, attempt],
+        completedRecipeIds: completed === null ? state.completedRecipeIds : [...state.completedRecipeIds, completed],
+        attempts: [...state.attempts, { ...attempt, at: action.now }],
       };
+      // Every target done -> CLEARED, before any stock check (nothing is left to cook).
       if (remainingTargetIds(next).length === 0) {
         return {
           ...next,
