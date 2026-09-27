@@ -19,6 +19,7 @@
  * partial reveal -- a later phase can split that out once there's a reason to.
  */
 import type { BakeState } from "../bake";
+import type { ReferencePieceGroup, ReferenceSauce } from "../../data/referencePizza";
 
 /** A component that has nothing meaningful to report (no Reference fixture for this recipe,
  *  or -- for Bake -- no reviewed Scoring 2.0 primitive yet). Never a stand-in zero score. */
@@ -176,4 +177,33 @@ export interface ScoringV2Result {
    *  own tolerance/clamping guarantees -- see ./tolerance.ts). */
   totalScore: number | null;
   components: ScoringV2Components;
+  /** TQ-1B (Issue #263, OD-TQ-S1): which weight profile built `totalScore`. `STANDARD` for every
+   *  recipe whose Reference has a sauce (all production recipes today); `NO_SAUCE` only when the
+   *  Reference has none. `null` when no total was built (`available: false`). */
+  weightProfile: ScoringV2WeightProfileId | null;
+}
+
+/** TQ-1B (Issue #263, OD-TQ-S1): the weight profiles `computeScoringV2` can combine the component
+ *  scores with. See ./index.ts `SCORING_V2_WEIGHT_PROFILES`. */
+export type ScoringV2WeightProfileId = "STANDARD" | "NO_SAUCE";
+
+export interface ScoringV2WeightProfile {
+  id: ScoringV2WeightProfileId;
+  sauce: number;
+  pieces: number;
+  recipe: number;
+  bake: number;
+}
+
+/**
+ * TQ-1B (Issue #263): the Reference shape Scoring 2.0 reads. The production `ReferencePizza`
+ * (../../data/referencePizza.ts) always carries a sauce and is assignable to this type unchanged;
+ * `sauce: null` means "this recipe is made without a spread sauce" and selects the `NO_SAUCE`
+ * weight profile. Widening the production type itself (and the UI null guards that come with it)
+ * belongs to the slice that first ships a no-sauce recipe (TQ-1D), not to this scoring foundation.
+ */
+export interface ScoringReferencePizza {
+  recipeId: string;
+  sauce: ReferenceSauce | null;
+  pieceGroups: readonly ReferencePieceGroup[];
 }

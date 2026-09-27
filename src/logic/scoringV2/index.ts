@@ -14,6 +14,7 @@
  * makes that true for both FREE and Lunch Rush, since both dispatch the exact same
  * CONFIRM_BAKE action.
  */
+import { getIngredient } from "../../data/ingredients";
 import { getReferencePizza } from "../../data/referencePizza";
 import type { Recipe } from "../../data/recipes";
 import { createEmptyPizza, type PizzaState } from "../../state/pizzaState";
@@ -25,7 +26,12 @@ import { scorePiecesComponentV2 } from "./piecesComponent";
 import { scoreQuantityComponentV2 } from "./quantityComponent";
 import { scoreRecipeComponentV2 } from "./recipeComponent";
 import { safeUnit } from "./tolerance";
-import type { ScoringV2Result } from "./types";
+import type {
+  ScoringReferencePizza,
+  ScoringV2Result,
+  ScoringV2WeightProfile,
+  ScoringV2WeightProfileId,
+} from "./types";
 
 /** Issue #215: bumped from `phase-4a-2-shadow-3` for the quantity factor Q (./quantityComponent.ts).
  *  Existing Dex BEST values are kept as-is (BEST only ever goes up; never recomputed). */
@@ -53,7 +59,62 @@ const PIECES_WEIGHT = 16;
 const RECIPE_WEIGHT = 12;
 const BAKE_WEIGHT = 20;
 
-export function computeScoringV2(recipe: Recipe, pizza: PizzaState): ScoringV2Result {
+/**
+ * TQ-1B (Issue #263, Owner Decision OD-TQ-S1 = option B, which also answers Wave 2 OD-W2-8): the
+ * weight profiles. `STANDARD` is the B1 split above, unchanged, and is used for every recipe whose
+ * Reference has a sauce -- every production recipe today. `NO_SAUCE` is used only when the
+ * Reference has no sauce: the sauce component does not apply, and its 52 points move to Pieces,
+ * the other hand-skill component, so Recipe + Bake keep exactly the same weight (32) they have in
+ * `STANDARD`. At equal skill (sauce skill = pieces skill) a no-sauce pizza therefore lands on
+ * exactly the same total -- and the same stars and Pitz band -- as a sauce pizza (the Gate's
+ * 11-point comparison, pinned by scoringV2.noSauceProfile.test.ts). The alternatives the Gate
+ * rejected give free credit instead: proportional redistribution puts pieces 0 at ★3, and
+ * "sauce counts as full" puts it at ★4.
+ *
+ * No constant above changes, and neither does `SCORING_V2_RULESET_VERSION` (OD-TQ-S2): no existing
+ * result can change, because only a Reference without a sauce reaches `NO_SAUCE`.
+ */
+export const SCORING_V2_WEIGHT_PROFILES: Readonly<Record<ScoringV2WeightProfileId, ScoringV2WeightProfile>> = {
+  STANDARD: { id: "STANDARD", sauce: SAUCE_WEIGHT, pieces: PIECES_WEIGHT, recipe: RECIPE_WEIGHT, bake: BAKE_WEIGHT },
+  NO_SAUCE: { id: "NO_SAUCE", sauce: 0, pieces: PIECES_WEIGHT + SAUCE_WEIGHT, recipe: RECIPE_WEIGHT, bake: BAKE_WEIGHT },
+};
+
+/** The weighted 0-1 unit total of four 0-100 component scores under `profile`. The expression
+ *  (term order, then `/ 100 / 100`) is exactly the pre-TQ-1B one, so `STANDARD` is bit-identical. */
+export function combineWeightedComponents(
+  scores: { sauce: number; pieces: number; recipe: number; bake: number },
+  profile: ScoringV2WeightProfile,
+): number {
+  return safeUnit(
+    (scores.sauce * profile.sauce +
+      scores.pieces * profile.pieces +
+      scores.recipe * profile.recipe +
+      scores.bake * profile.bake) /
+      100 /
+      100,
+  );
+}
+
+const NO_SAUCE_NOT_APPLICABLE_REASON = "このピザはソースを使わないため、ソースは評価しません。";
+const NO_SAUCE_REFERENCE_MISMATCH_REASON =
+  "お手本にソースがないのに、レシピはソースを必要としています（データ不整合のため採点しません）。";
+
+function recipeRequiresSauce(recipe: Recipe): boolean {
+  return recipe.requiredIngredients.some((req) => getIngredient(req.ingredientId)?.category === "sauce");
+}
+
+export interface ComputeScoringV2Options {
+  /** TQ-1B: the Reference to score against. Omitted = `getReferencePizza(recipe.id)` (every
+   *  production caller). Given (including `null` = no Reference) = used as-is -- the seam the
+   *  no-sauce foundation is tested through before a production no-sauce recipe exists. */
+  reference?: ScoringReferencePizza | null;
+}
+
+export function computeScoringV2(
+  recipe: Recipe,
+  pizza: PizzaState,
+  options: ComputeScoringV2Options = {},
+): ScoringV2Result {
   // Codex P1 blocker fix: `pizza` itself (not just its fields) is a public-API argument that
   // can violate its own TypeScript type at runtime -- a `null`/`undefined`/non-object value
   // here would throw on the very first `pizza.sauceDeposits` read below. Falls back to a
@@ -65,7 +126,8 @@ export function computeScoringV2(recipe: Recipe, pizza: PizzaState): ScoringV2Re
   // recipes from this PR onward, even though `reference`-gated Sauce/Pieces/Recipe (and
   // therefore the whole result's `available`/`totalScore`) still are not, pending B2.
   const bake = scoreBakeComponentV2(safePizza.bakeResult, recipe.bakeTarget);
-  const reference = getReferencePizza(recipe.id);
+  const reference: ScoringReferencePizza | null | undefined =
+    "reference" in options ? options.reference : getReferencePizza(recipe.id);
 
   if (!reference) {
     return {
@@ -81,6 +143,7 @@ export function computeScoringV2(recipe: Recipe, pizza: PizzaState): ScoringV2Re
         bake,
         quantity: { available: false, reason: REFERENCE_UNAVAILABLE_REASON },
       },
+      weightProfile: null,
     };
   }
 
@@ -95,9 +158,15 @@ export function computeScoringV2(recipe: Recipe, pizza: PizzaState): ScoringV2Re
   // modify) -- that primitive assumes a well-formed array and does not itself validate, so a
   // malformed `sauceDeposits` (non-array, or containing null/malformed/non-finite elements)
   // is normalized to a clean subset here, at the Scoring 2.0 boundary, instead.
-  const safeSauceDeposits = sanitizeSauceDeposits(safePizza.sauceDeposits);
-  const sauceMetrics = computeSauceMetrics(safeSauceDeposits);
-  const sauce = scoreSauceComponentV2(sauceMetrics, reference.sauce);
+  //
+  // TQ-1B: a Reference without a sauce has no sauce target to compare against -- the component
+  // does not apply (never a fabricated 0 or 100), and the NO_SAUCE profile below drops its weight.
+  const referenceSauce = reference.sauce;
+  const sauce =
+    referenceSauce === null
+      ? ({ available: false, reason: NO_SAUCE_NOT_APPLICABLE_REASON } as const)
+      : scoreSauceComponentV2(computeSauceMetrics(sanitizeSauceDeposits(safePizza.sauceDeposits)), referenceSauce);
+  const profile = SCORING_V2_WEIGHT_PROFILES[referenceSauce === null ? "NO_SAUCE" : "STANDARD"];
   const pieces = scorePiecesComponentV2(safePizza.toppings, reference.pieceGroups);
   const recipeComponent = scoreRecipeComponentV2(recipe, safePizza);
   const quantity = pieces.available
@@ -120,6 +189,7 @@ export function computeScoringV2(recipe: Recipe, pizza: PizzaState): ScoringV2Re
       unavailableReason: pieces.reason,
       totalScore: null,
       components: { sauce, pieces, recipe: recipeComponent, bake, quantity },
+      weightProfile: null,
     };
   }
   if (!recipeComponent.available) {
@@ -130,6 +200,7 @@ export function computeScoringV2(recipe: Recipe, pizza: PizzaState): ScoringV2Re
       unavailableReason: recipeComponent.reason,
       totalScore: null,
       components: { sauce, pieces, recipe: recipeComponent, bake, quantity },
+      weightProfile: null,
     };
   }
   // B1: `bake` can only be unavailable here if `recipe.bakeTarget` itself is malformed (see
@@ -144,16 +215,32 @@ export function computeScoringV2(recipe: Recipe, pizza: PizzaState): ScoringV2Re
       unavailableReason: bake.reason,
       totalScore: null,
       components: { sauce, pieces, recipe: recipeComponent, bake, quantity },
+      weightProfile: null,
     };
   }
 
-  const weightedUnit = safeUnit(
-    (sauce.score * SAUCE_WEIGHT +
-      pieces.score * PIECES_WEIGHT +
-      recipeComponent.score * RECIPE_WEIGHT +
-      bake.score * BAKE_WEIGHT) /
-      100 /
-      100,
+  // TQ-1B: a Reference without a sauce for a recipe that *requires* a sauce is inconsistent data --
+  // fail closed like the branches above rather than silently scoring without the sauce.
+  if (referenceSauce === null && recipeRequiresSauce(recipe)) {
+    return {
+      rulesetVersion: SCORING_V2_RULESET_VERSION,
+      recipeId: recipe.id,
+      available: false,
+      unavailableReason: NO_SAUCE_REFERENCE_MISMATCH_REASON,
+      totalScore: null,
+      components: { sauce, pieces, recipe: recipeComponent, bake, quantity },
+      weightProfile: null,
+    };
+  }
+
+  const weightedUnit = combineWeightedComponents(
+    {
+      sauce: sauce.available ? sauce.score : 0,
+      pieces: pieces.score,
+      recipe: recipeComponent.score,
+      bake: bake.score,
+    },
+    profile,
   );
   // Issue #215: the quantity factor multiplies the whole weighted total (never rounded here --
   // stars, the Pitz band and Lunch Rush quality all read this unrounded value; only the final
@@ -170,6 +257,7 @@ export function computeScoringV2(recipe: Recipe, pizza: PizzaState): ScoringV2Re
     unavailableReason: null,
     totalScore,
     components: { sauce, pieces, recipe: recipeComponent, bake, quantity },
+    weightProfile: profile.id,
   };
 }
 
