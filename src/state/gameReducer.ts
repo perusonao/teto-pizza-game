@@ -45,6 +45,10 @@ import {
 } from "./inventory";
 import { cookableMissionRecipeIds, missionOrderRecipeIds, pickMissionOrder } from "../mission/lunchRush";
 import { isInsideDough } from "../logic/pizzaCoordinates";
+import { getDinnerMission } from "../mission/dinner/dinnerMission";
+import { dinnerRunReducer, remainingTargetIds, startDinnerRun, type DinnerRunState } from "../mission/dinner/dinnerRun";
+import type { DinnerSession } from "../mission/dinner/dinnerSession";
+import { completionPolicyForRound, isDinnerRound, roundKindFor, type RoundKind } from "./roundKind";
 import {
   addCutLine,
   createCutState,
@@ -217,6 +221,12 @@ export interface GameState {
    *  this as an interaction gate: FREE and Lunch Rush resolve the same recipe sauce profile
    *  and dispatch through the same reducer action. Transient only; never persisted. */
   isMissionRound: boolean;
+  /** Dinner Mission DM-2 (Issue #239): the explicit round authority (./roundKind.ts). Set once by
+   *  `buildOrderState` for every round; `isMissionRound` / `freeCook` always agree with it. */
+  roundKind: RoundKind;
+  /** Dinner Mission DM-2: the Dinner run while a Dinner Mission is on screen, else `null`. Never
+   *  saved. Non-null exactly when `roundKind === "DINNER"`. */
+  dinner: DinnerSession | null;
   /** Issue #212 (H-R): recipes skipped as short in the current Lunch Rush run -- SOLD OUT for the
    *  rest of it, never drawn again (stock cannot rise mid-run: the Shop is not reachable while
    *  PLAYING). Run-local: MISSION_SKIP_ORDER adds to it, MISSION_NEXT_ORDER carries it,
@@ -431,7 +441,31 @@ export type GameAction =
   | { type: "ADD_CUT_LINE"; line: CutLine }
   // design doc §8.4: removes exactly the most recently committed line ("1本戻す"). A no-op
   // outside POST_BAKE's own CUT step or with zero lines to undo.
-  | { type: "UNDO_CUT_LINE" };
+  | { type: "UNDO_CUT_LINE" }
+  | DinnerAction;
+
+/**
+ * Dinner Mission DM-2 (Issue #239): the runtime actions of a Dinner run. `now` is the wall clock
+ * (`Date.now()`); the run's deadline is checked against it on every action that carries one.
+ */
+export type DinnerAction =
+  /** Starts a run from any non-Lunch-Rush round when none is active. `durationMs` overrides the
+   *  mission's own (untuned until DM-5) time limit; with neither, the start is rejected. */
+  | { type: "DINNER_START"; missionId: string; now: number; durationMs?: number }
+  /** Target selection -> a guided PREPARE round for that remaining target. */
+  | { type: "DINNER_SELECT_TARGET"; recipeId: string; now: number }
+  /** Back to target selection from PREPARE (nothing baked, so nothing consumed or completed). */
+  | { type: "DINNER_CANCEL_TARGET"; now: number }
+  /** From a resolved target's RESULT back to target selection (run still PLAYING). */
+  | { type: "DINNER_RETURN_TO_TARGETS"; now: number }
+  | { type: "DINNER_TICK"; now: number }
+  /** HOME during a PLAYING run: ask for confirmation first. */
+  | { type: "DINNER_REQUEST_ABANDON" }
+  | { type: "DINNER_CANCEL_ABANDON" }
+  /** Confirmed HOME / navigation away: the run is FAILED (ABANDONED), no reward. */
+  | { type: "DINNER_CONFIRM_ABANDON"; now: number }
+  /** Leaves a finished (CLEARED / FAILED) run for a normal round. */
+  | { type: "DINNER_EXIT" };
 
 /** Progression fields every "start a new round" path must carry forward unchanged --
  *  factored out so `buildOrderState`'s signature can't silently drop one when a new field is
@@ -463,6 +497,7 @@ function buildOrderState(
   isMissionRound: boolean,
   freeCook = false,
   missionSoldOutRecipeIds: readonly string[] = [],
+  dinner: DinnerSession | null = null,
 ): GameState {
   const recipe = freeCook ? FREE_COOK_RECIPE : getRecipe(order.recipeId);
   if (!recipe) {
@@ -493,6 +528,10 @@ function buildOrderState(
     cookingTiming: null,
     ...carry,
     isMissionRound,
+    // Dinner Mission DM-2: a Dinner round is only ever built with `isMissionRound: false` /
+    // `freeCook: false` (see `dinnerRoundState`), so the kind is DINNER exactly while a session exists.
+    roundKind: dinner ? "DINNER" : roundKindFor(isMissionRound, freeCook),
+    dinner,
     missionSoldOutRecipeIds: isMissionRound ? missionSoldOutRecipeIds : [],
     justDiscovered: false,
     justGotNewBest: false,
@@ -655,7 +694,7 @@ export function createInitialGameState(
 let placedIdCounter = 0;
 let placementTokenCounter = 0;
 
-export function gameReducer(state: GameState, action: GameAction): GameState {
+function baseGameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case "BEGIN_PREPARE":
       // Issue #212: only an ORDER round can begin preparing. Without this, a BEGIN_PREPARE that
@@ -1097,7 +1136,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const completion = evaluatePizzaCompletion(
         recipe,
         pizza,
-        state.isMissionRound ? "order" : "recipe",
+        // Lunch Rush keeps its own flag exactly as before; Dinner (DM-2) reads the round kind.
+        state.isMissionRound ? "order" : completionPolicyForRound(state),
       );
       // EP2: consumes exactly the finite ingredients this canonical `pizza` actually used
       // (placed-piece count for scatter, 1-per-sauce-id for spread), computed as one pure
@@ -1152,6 +1192,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (state.phase !== "RESULT") {
         return state;
       }
+      // Dinner Mission DM-2 (OD-DM-11): a Dinner pizza never registers -- no discovery, no Dex
+      // timesMade / BEST, no FREE Pitz. (The Dinner guard in `gameReducer` already rejects this
+      // action during a run; this is the per-case backstop.)
+      if (isDinnerRound(state)) return state;
       // Progression 2.0 Phase 3-2: an unmatched free-cook pizza (CONFIRM_BAKE left `score` null
       // and the sentinel recipe in place). A FAILED one stays parked exactly like any FAILED
       // round. A finished ORIGINAL pizza is a normal result, not a failure: it moves on to
@@ -1565,4 +1609,205 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     default:
       return state;
   }
+}
+
+// ---------------------------------------------------------------------------------------------
+// Dinner Mission DM-2 (Issue #239): runtime integration of the DM-1 pure core
+// (../mission/dinner/, docs/reports/TETO_DINNER-MISSION_DM-2_Runtime-Integration_Result.md §3).
+// ---------------------------------------------------------------------------------------------
+
+function carryOf(state: GameState): ProgressionCarry {
+  return {
+    dex: state.dex,
+    ownedIngredientIds: state.ownedIngredientIds,
+    pitzBalance: state.pitzBalance,
+    lastClaimedMissionRunId: state.lastClaimedMissionRunId,
+    inventory: state.inventory,
+    starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
+    unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
+    preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
+    hintSession: state.hintSession,
+    discoveryHintPurchases: state.discoveryHintPurchases,
+  };
+}
+
+/**
+ * A fresh DINNER-kind round around `recipeId`'s order: the target-selection round (phase ORDER,
+ * nothing to cook -- the DM-3 UI shows the target list there) or, via `startPreparing`, a target's
+ * guided PREPARE round. Always `isMissionRound: false`, `freeCook: false`; no Cooking Time (CT1 /
+ * CT2 are FREE-only). `null` if the recipe has no order (fails closed).
+ */
+function dinnerRoundState(state: GameState, recipeId: string, session: DinnerSession): GameState | null {
+  const order = findOrderForRecipe(recipeId as RecipeId);
+  if (!order) return null;
+  return buildOrderState(order, carryOf(state), false, false, [], session);
+}
+
+/** The target-selection round for `run`, anchored on its first remaining (else first) target. */
+function dinnerSelectionState(state: GameState, session: DinnerSession): GameState {
+  const anchor = remainingTargetIds(session.run)[0] ?? session.run.targetRecipeIds[0];
+  return dinnerRoundState(state, anchor, session) ?? { ...state, dinner: session };
+}
+
+function withRun(state: GameState, session: DinnerSession, run: DinnerRunState): GameState {
+  return run === session.run ? state : { ...state, dinner: { ...session, run } };
+}
+
+/** The Dinner run after a deadline check at `now` (a TICK). */
+function tickedRun(session: DinnerSession, now: number): DinnerRunState {
+  return dinnerRunReducer(session.run, { type: "TICK", now });
+}
+
+function dinnerActionReducer(state: GameState, action: DinnerAction): GameState {
+  if (action.type === "DINNER_START") {
+    // One run at a time, never on top of a Lunch Rush round.
+    if (state.dinner !== null || state.isMissionRound) return state;
+    const mission = getDinnerMission(action.missionId);
+    if (!mission) return state;
+    const started = startDinnerRun(
+      mission,
+      { dex: state.dex, ownedIngredientIds: state.ownedIngredientIds, inventory: state.inventory },
+      action.now,
+      action.durationMs,
+    );
+    if (!started.ok) return state;
+    const session: DinnerSession = { run: started.state, abandonRequested: false };
+    return dinnerRoundState(state, started.state.targetRecipeIds[0], session) ?? state;
+  }
+
+  const session = state.dinner;
+  if (session === null) return state;
+
+  switch (action.type) {
+    case "DINNER_TICK":
+      return withRun(state, session, tickedRun(session, action.now));
+
+    case "DINNER_SELECT_TARGET": {
+      // Only from the target-selection round (no target in progress).
+      if (session.run.activeRecipeId !== null || state.phase !== "ORDER") return state;
+      const run = dinnerRunReducer(session.run, { type: "SELECT_TARGET", recipeId: action.recipeId, now: action.now });
+      if (run.status !== "PLAYING") return withRun(state, session, run); // the deadline passed
+      if (run === session.run) return state; // not a remaining target
+      // LK-8 backstop: a Dinner target is still a guided round of a DISCOVERED, cookable recipe.
+      if (!canStartGuidedRound(action.recipeId, state)) return state;
+      const next = dinnerRoundState(state, action.recipeId, { ...session, run });
+      return next ? startPreparing(next) : state;
+    }
+
+    case "DINNER_CANCEL_TARGET": {
+      if (session.run.activeRecipeId === null || state.phase !== "PREPARE") return state;
+      const run = dinnerRunReducer(session.run, { type: "CANCEL_TARGET", now: action.now });
+      if (run.status !== "PLAYING") return withRun(state, session, run);
+      return dinnerSelectionState(state, { ...session, run });
+    }
+
+    case "DINNER_RETURN_TO_TARGETS": {
+      if (session.run.activeRecipeId !== null || state.phase !== "RESULT") return state;
+      const run = tickedRun(session, action.now);
+      if (run.status !== "PLAYING") return withRun(state, session, run);
+      return dinnerSelectionState(state, { ...session, run });
+    }
+
+    case "DINNER_REQUEST_ABANDON":
+      if (session.run.status !== "PLAYING" || session.abandonRequested) return state;
+      return { ...state, dinner: { ...session, abandonRequested: true } };
+
+    case "DINNER_CANCEL_ABANDON":
+      if (!session.abandonRequested) return state;
+      return { ...state, dinner: { ...session, abandonRequested: false } };
+
+    case "DINNER_CONFIRM_ABANDON": {
+      if (!session.abandonRequested) return state;
+      const run = dinnerRunReducer(session.run, { type: "ABANDON", now: action.now });
+      return { ...state, dinner: { run, abandonRequested: false } };
+    }
+
+    case "DINNER_EXIT":
+      // A PLAYING run is left only through the abandon confirmation (or the clock).
+      if (session.run.status === "PLAYING") return state;
+      return nextOrderState(carryOf(state), { excludeRecipeId: state.recipe.id });
+
+    default:
+      return state;
+  }
+}
+
+/** While a Dinner session exists: actions that would start another round, register to the Dex,
+ *  or move Pitz / stock outside the Dinner rules (the Shop is closed during Dinner, OD-DM-8). */
+const DINNER_BLOCKED_ACTIONS: ReadonlySet<GameAction["type"]> = new Set<GameAction["type"]>([
+  "BEGIN_PREPARE",
+  "SELECT_RECIPE",
+  "START_FREE_COOK",
+  "RETRY_SAME_RECIPE",
+  "PLAY_AGAIN",
+  "MISSION_NEXT_ORDER",
+  "MISSION_RESET_ORDER",
+  "MISSION_SKIP_ORDER",
+  "REGISTER_TO_DEX",
+  "PURCHASE_INGREDIENT",
+  "RESTOCK_INGREDIENT",
+  "PURCHASE_DISCOVERY_HINT",
+  "CLAIM_MISSION_REWARD",
+]);
+
+/** Pizza-changing actions: in a Dinner round only for the target being cooked while PLAYING. */
+const DINNER_COOKING_ACTIONS: ReadonlySet<GameAction["type"]> = new Set<GameAction["type"]>([
+  "APPLY_SAUCE",
+  "COMMIT_SAUCE_DISPENSE",
+  "PLACE_TOPPING",
+  "RESET_PIZZA",
+  "COMMIT_DOUGH_STRETCH",
+  "CONFIRM_MAKING_STEP",
+  "START_BAKE",
+  "CONFIRM_BAKE",
+  "ADD_CUT_LINE",
+  "UNDO_CUT_LINE",
+]);
+
+function isDinnerAction(action: GameAction): action is DinnerAction {
+  return action.type.startsWith("DINNER_");
+}
+
+/**
+ * A normal action during a Dinner session. The attempt is resolved *inside* the transition that
+ * takes the target round to RESULT -- `CONFIRM_BAKE` for a recipe without CUT, the last
+ * `CONFIRM_MAKING_STEP` for a CUT recipe -- against that transition's own `inventory`, i.e. the
+ * stock after `CONFIRM_BAKE`'s consumption. No pre-bake stock can reach the run.
+ */
+function dinnerGuardedReducer(state: GameState, action: GameAction, session: DinnerSession): GameState {
+  if (DINNER_BLOCKED_ACTIONS.has(action.type)) return state;
+  if (!DINNER_COOKING_ACTIONS.has(action.type)) return baseGameReducer(state, action);
+
+  const cookingTarget = session.run.status === "PLAYING" && session.run.activeRecipeId === state.recipe.id;
+  if (!cookingTarget) return state;
+  if (action.type === "START_BAKE" && state.phase !== "PREPARE") return state;
+
+  if (action.type === "CONFIRM_BAKE" || action.type === "CONFIRM_MAKING_STEP") {
+    const now = action.now;
+    const next = baseGameReducer(state, action);
+    const reachesResult = next.phase === "RESULT" && state.phase !== "RESULT";
+    // Baking consumes stock, and RESULT completes a target: both need the clock.
+    if (action.type === "CONFIRM_BAKE" || reachesResult) {
+      if (now === undefined) return state;
+      const run = tickedRun(session, now);
+      if (run.status !== "PLAYING") return withRun(state, session, run); // time is up: nothing baked
+    }
+    if (!reachesResult || now === undefined) return next;
+    const run = dinnerRunReducer(session.run, {
+      type: "RESOLVE_ATTEMPT",
+      recipeId: state.recipe.id,
+      completion: next.completion?.status === "PASS" ? "PASS" : "FAILED",
+      stock: { ownedIngredientIds: next.ownedIngredientIds, inventory: next.inventory },
+      now,
+    });
+    return { ...next, dinner: { ...session, run } };
+  }
+
+  return baseGameReducer(state, action);
+}
+
+export function gameReducer(state: GameState, action: GameAction): GameState {
+  if (isDinnerAction(action)) return dinnerActionReducer(state, action);
+  if (state.dinner !== null) return dinnerGuardedReducer(state, action, state.dinner);
+  return baseGameReducer(state, action);
 }

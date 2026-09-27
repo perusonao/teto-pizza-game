@@ -49,6 +49,8 @@ import {
 import { missionScore } from "./logic/missionScoring";
 import { calculateMissionReward } from "./logic/economy";
 import { canStartGuidedRound, countRecipeDiscoveryStates, isRecipeCookable } from "./state/recipeDiscoveryState";
+import { useDinnerRuntime } from "./state/useDinnerRuntime";
+import { isDinnerRound } from "./state/roundKind";
 import "./App.css";
 
 const MISSION_TICK_MS = 250;
@@ -156,6 +158,9 @@ function App() {
       save.discoveryHintPurchases,
     );
   });
+  // Dinner Mission DM-2 (Issue #239): the Dinner run's clock and HOME exit. No Dinner UI yet
+  // (DM-3); the run itself lives in `state.dinner` (./state/gameReducer.ts).
+  const dinnerRuntime = useDinnerRuntime(state, dispatch);
   // HOME is always the first screen shown (Issue #24 requirement) regardless of what round
   // hydration produced -- a resumed ORDER-phase round from a prior session is simply what
   // GAME shows once the player taps into it from HOME.
@@ -493,6 +498,8 @@ function App() {
     // Issue #212 (OD-2): never start (or retry) a run with nothing cookable -- the HOME button and
     // RESULT's 「もう一度」 are disabled for it, and this is the backstop behind both.
     if (!canStartLunchRush(state)) return;
+    // Dinner Mission DM-2: never a Lunch Rush run on top of a Dinner one.
+    if (dinnerRuntime.active) return;
     setDexOpen(false);
     setMissionBestAtStartOfRun(loadMissionBest(LUNCH_RUSH_MISSION_ID));
     missionDispatch({ type: "START", now: Date.now(), config: resolveMissionConfig() });
@@ -512,7 +519,8 @@ function App() {
   // MISSION_NEXT_ORDER/MISSION_SERVE path, untouched by this change.
   function handleConfirmBake(value: number) {
     dispatch({ type: "CONFIRM_BAKE", value, now: Date.now() });
-    if (!state.isMissionRound) {
+    // Dinner Mission DM-2: a Dinner target never registers (its result goes to the Dinner run).
+    if (!state.isMissionRound && !isDinnerRound(state)) {
       // REGISTER_TO_DEX's own `state.phase !== "RESULT"` guard makes this a safe no-op the
       // instant a CUT-enabled recipe's profile lands the round on "POST_BAKE" instead --
       // handleConfirmMakingStep below is what actually fires it once POST_BAKE's own last step
@@ -531,7 +539,7 @@ function App() {
   // tap once phase is "RESULT" -- untouched by this dispatch.
   function handleConfirmMakingStep() {
     dispatch({ type: "CONFIRM_MAKING_STEP", now: Date.now() });
-    if (!state.isMissionRound) {
+    if (!state.isMissionRound && !isDinnerRound(state)) {
       dispatch({ type: "REGISTER_TO_DEX" });
     }
   }
@@ -732,7 +740,20 @@ function App() {
     );
   }
 
+  // Dinner Mission DM-2 (OD-DM-8): no Shop while a Dinner run is on screen (the reducer rejects
+  // purchases and refills during Dinner too; this keeps the overlay closed).
+  function openShop() {
+    if (dinnerRuntime.active) return;
+    setShopOpen(true);
+  }
+
   function handleGoHome() {
+    // Dinner Mission DM-2 (OD-DM-7): HOME during a Dinner run asks first, then abandons it (no
+    // reward); cancelling keeps the run going.
+    if (dinnerRuntime.active) {
+      if (dinnerRuntime.leaveDinner((message) => window.confirm(message))) setScreen("HOME");
+      return;
+    }
     if (isRoundInProgress() && !window.confirm(GO_HOME_CONFIRM_MESSAGE)) {
       return;
     }
@@ -845,7 +866,7 @@ function App() {
   // `missionRunReducer` (../mission/lunchRush.ts) has no Dex awareness of its own, so the guard
   // lives here rather than inside SHOW_INTRO's own case.
   function handleStartLunchRush() {
-    if (!hasAnyDiscovery || !lunchRushCookable) return;
+    if (!hasAnyDiscovery || !lunchRushCookable || dinnerRuntime.active) return;
     setScreen("GAME");
     missionDispatch({ type: "SHOW_INTRO" });
   }
@@ -933,7 +954,7 @@ function App() {
           lunchRushLocked={!hasAnyDiscovery}
           lunchRushNoCookable={hasAnyDiscovery && !lunchRushCookable}
           onOpenDex={() => setDexOpen(true)}
-          onOpenShop={() => setShopOpen(true)}
+          onOpenShop={openShop}
           onOpenInventory={() => setInventoryOpen(true)}
           onOpenSettings={() => setSettingsOpen(true)}
           onOpenRanking={() => setRankingOpen(true)}
@@ -952,7 +973,7 @@ function App() {
           onSelectRecipe={handleSelectRecipe}
           onBack={handleBackFromPizzaSelect}
           onGoFreeCook={handleStartFreeCook}
-          onOpenShop={() => setShopOpen(true)}
+          onOpenShop={openShop}
           newlyDiscoveredId={state.justDiscovered ? state.recipe.id : null}
         />
       )}
@@ -996,7 +1017,7 @@ function App() {
           onConfirmBake={handleConfirmBake}
           onRetrySameRecipe={handleRetrySameRecipe}
           onBackToPizzaSelect={handleBackToPizzaSelectFromDiscovered}
-          onOpenShop={() => setShopOpen(true)}
+          onOpenShop={openShop}
           onOpenDex={() => setDexOpen(true)}
           onMissionServeNext={handleMissionServeNext}
           onMissionSkipOrder={handleMissionSkipOrder}
@@ -1036,7 +1057,7 @@ function App() {
               : undefined
           }
           onShowHint={mission.mode === "FREE" ? handleDexShowHint : undefined}
-          onOpenShop={() => setShopOpen(true)}
+          onOpenShop={openShop}
         />
       )}
 
