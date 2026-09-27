@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState, type RefObject } from "react";
+import { useCallback, useEffect, useId, useRef, useState, type RefObject } from "react";
 import { getIngredient } from "../data/ingredients";
 import type { HintEmptyKind } from "../logic/discovery/hintTarget";
 import type { HintCategory } from "../logic/discovery/selectableHint";
@@ -35,7 +35,21 @@ import { IngredientGlyph } from "./IngredientGlyph";
  * the same for every target, so nothing says how many facts are left or which category has one.
  * The CTA reports `(preference, paidCount)` and the reducer's PURCHASE_SELECTABLE_HINT decides. A
  * request with nothing left to sell shows the generic guidance line only (OD-H3-17).
- * H3-4 TODO: final copy, chip styling, preference control polish, Human Verification.
+ *
+ * Discovery Hint 3.0 H3-4 (Issue #238, OD-H3-4-1..10): the final SELECTABLE copy and layout. It is
+ * presentation only: every branch reads fields the view already carries (`nextPrice`, `affordable`,
+ * `onboarding`, `outcome`, the chips, `grandfatheredSteps`) and nothing about what is left to sell.
+ * - CTA 「ヒントを1つもらう {n} Pitz」 (no 🔒, OD-H3-4-9). At a price of 0 (the cap is paid) it reads
+ *   「ヒントをたずねる」 + 「支払いずみ」 and stays enabled (OD-H3-4-1): on a fresh save that request is
+ *   answered with guidance, but a legacy Economy 1.0 buyer gets a real fact there (cap parity), so
+ *   the pre-request view must not tell the two apart.
+ * - Only after the reducer answered GUIDANCE_ONLY is the CTA disabled and relabelled (OD-H3-4-3).
+ * - A fixed line says Pitz is spent only when a hint is given (OD-H3-4-2).
+ * - The preference legend says a category is a wish, not a promise, and 「？」 has a fixed legend
+ *   that some categories go unused (OD-H3-4-5/6). Both are the same for every target.
+ * - Chips revealed by the last request get a light highlight (a diff of this sheet's own chips).
+ * - 「以前のヒント」 is an archive box at the end of the body (OD-H3-4-4).
+ * - The body shows a fade + chevron while more content is below or above (OD-H3-4-7).
  */
 const EMPTY_COPY: Record<HintEmptyKind, { title: string; body: string }> = {
   SHOP_NEW: {
@@ -63,8 +77,24 @@ const CATEGORY_LABEL: Record<HintCategory, string> = {
  *  new paid count, so the reducer's `expectedPaidCount` check alone cannot catch it. */
 export const SELECTABLE_BUY_LATCH_MS = 450;
 
-/** OD-H3-17 generic guidance. H3-4 TODO: final copy. */
+/** OD-H3-17 generic guidance (H3-4: kept verbatim). */
 export const SELECTABLE_GUIDANCE_TEXT = "このピザは、今わかっているヒントを手がかりに考えてみよう！";
+
+/** H3-4 SELECTABLE copy (OD-H3-4-1..9). Every string is the same for every target. */
+const SELECTABLE_COPY = {
+  legend: "知りたいジャンル（ないときは別のジャンルから1つ）",
+  unknownLegend: "？＝まだわからない（使わないジャンルもあるよ）",
+  cta: "ヒントを1つもらう",
+  ctaCapPaid: "ヒントをたずねる",
+  capPaidBadge: "支払いずみ",
+  ctaAfterGuidance: "今あるヒントはここまで",
+  payOnlyWhenGiven: "Pitzはヒントが出たときだけ使うよ",
+  capPaidNote: "このピザのヒント代は上限まで支払いずみ",
+  noChargeNote: "今回はPitzを使っていないよ",
+  shortNote: "Pitzがたまったら、またためしてね。このまま作ってもOK！",
+  legacyTitle: "以前のヒント",
+  legacyExplainer: "前のヒント方式で買ったメモ（そのまま残してあるよ）",
+} as const;
 
 export function HintSheet({
   view,
@@ -96,7 +126,8 @@ export function HintSheet({
     [],
   );
   const next = view.kind === "TARGET" ? view.next : null;
-  const ctaEnabled = view.kind === "SELECTABLE" ? view.presentation.affordable : !!next && next.affordable;
+  const ctaEnabled =
+    view.kind === "SELECTABLE" ? view.presentation.affordable && view.outcome !== "GUIDANCE_ONLY" : !!next && next.affordable;
   const stepCount = view.kind === "TARGET" ? view.steps.length : 0;
 
   // Opening lands on the next-hint CTA (or 閉じる); when the last step removes the CTA, or a
@@ -218,6 +249,33 @@ export function HintSheet({
   );
 }
 
+/** H3-4 (OD-H3-4-7): whether the scrollable body has more content below / above its viewport.
+ *  Re-measured after every render, on scroll, when the body itself is resized (e.g. a safe-area or
+ *  toolbar change that fires no window resize) and on window resize; state only changes when it
+ *  differs. */
+function useScrollCue(ref: RefObject<HTMLElement | null>) {
+  const [cue, setCue] = useState({ above: false, below: false });
+  const measure = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    const above = el.scrollTop > 1;
+    const below = el.scrollHeight - el.clientHeight - el.scrollTop > 1;
+    setCue((prev) => (prev.above === above && prev.below === below ? prev : { above, below }));
+  }, [ref]);
+  useEffect(measure);
+  useEffect(() => {
+    window.addEventListener("resize", measure);
+    const el = ref.current;
+    const observer = el && typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null;
+    if (el) observer?.observe(el);
+    return () => {
+      window.removeEventListener("resize", measure);
+      observer?.disconnect();
+    };
+  }, [measure, ref]);
+  return { cue, measure };
+}
+
 function SelectableHintBody({
   view,
   preference,
@@ -236,63 +294,110 @@ function SelectableHintBody({
 }) {
   const groupName = useId();
   const guidanceRef = useRef<HTMLParagraphElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const freshChipRef = useRef<HTMLSpanElement>(null);
   const { presentation } = view;
+  const guided = view.outcome === "GUIDANCE_ONLY";
+  // OD-H3-4-1: the cap is paid. The same view whether or not anything is left (a legacy buyer gets
+  // a real fact here), so it stays a request, never "free" and never "sold out".
+  const capPaid = presentation.nextPrice === 0 && !presentation.onboarding;
+  const { cue, measure } = useScrollCue(bodyRef);
+
+  // Chips revealed since the previous render of this open sheet (never on opening it).
+  const chipIds = presentation.rows.flatMap((row) => row.revealed.map((chip) => chip.factId));
+  const chipKey = chipIds.join(" ");
+  const seenChips = useRef<string | null>(null);
+  const [freshChips, setFreshChips] = useState<ReadonlySet<string>>(() => new Set());
+  useEffect(() => {
+    const before = seenChips.current;
+    seenChips.current = chipKey;
+    if (before === null || before === chipKey) return;
+    const known = new Set(before.split(" "));
+    setFreshChips(new Set(chipKey.split(" ").filter((id) => id && !known.has(id))));
+  }, [chipKey]);
+  useEffect(() => {
+    if (freshChips.size > 0) freshChipRef.current?.scrollIntoView?.({ block: "nearest" });
+  }, [freshChips]);
+
   // The body scrolls inside the 45dvh sheet: bring the guidance line into view when it appears.
   useEffect(() => {
     if (view.outcome) guidanceRef.current?.scrollIntoView?.({ block: "nearest" });
   }, [view.outcome]);
+
+  let walletNote: string = SELECTABLE_COPY.payOnlyWhenGiven;
+  if (guided) walletNote = SELECTABLE_COPY.noChargeNote;
+  else if (capPaid) walletNote = SELECTABLE_COPY.capPaidNote;
+  const ctaEnabled = presentation.affordable && !guided;
+  let firstFresh = true;
   return (
     <>
-      <div className="hint-sheet__steps hint-sheet__selectable" aria-live="polite">
-        <p className="hint-sheet__step">
-          <span className="hint-sheet__text">{view.existenceText}</span>
-        </p>
-        <ul className="hint-sheet__rows">
-          {presentation.rows.map((row) => (
-            <li key={row.category} className="hint-sheet__row" data-hint-category={row.category}>
-              <span className="hint-sheet__row-label">{CATEGORY_LABEL[row.category]}</span>
-              <span className="hint-sheet__chips">
-                {row.revealed.length === 0 ? (
-                  <span className="hint-sheet__chip hint-sheet__chip--unknown">？</span>
-                ) : (
-                  row.revealed.map((chip) => {
-                    const ingredient = getIngredient(chip.ingredientId);
-                    return (
-                      <span key={chip.factId} className="hint-sheet__chip">
-                        {ingredient && (
-                          <span className="hint-sheet__glyph" aria-hidden="true">
-                            <IngredientGlyph ingredient={ingredient} />
-                          </span>
-                        )}
-                        {ingredient?.nameJa ?? chip.ingredientId}
-                      </span>
-                    );
-                  })
-                )}
-              </span>
-            </li>
-          ))}
-        </ul>
-        {view.grandfatheredSteps.length > 0 && (
-          // H3-4 TODO (H3-2 Result Report §25): final presentation of the legacy lines.
-          <div className="hint-sheet__legacy">
-            <p className="hint-sheet__legacy-title">以前のヒント</p>
-            {view.grandfatheredSteps.map((step) => (
-              <p key={step.level} className="hint-sheet__step">
-                <span className="hint-sheet__text">{step.textJa}</span>
-              </p>
-            ))}
-          </div>
-        )}
-        {view.outcome === "GUIDANCE_ONLY" && (
-          <p ref={guidanceRef} className="hint-sheet__guidance">
-            {SELECTABLE_GUIDANCE_TEXT}
+      <div
+        className={`hint-sheet__scroll${cue.above ? " hint-sheet__scroll--above" : ""}${cue.below ? " hint-sheet__scroll--below" : ""}`}
+      >
+        <div ref={bodyRef} className="hint-sheet__steps hint-sheet__selectable" aria-live="polite" onScroll={measure}>
+          <p className="hint-sheet__step">
+            <span className="hint-sheet__text">{view.existenceText}</span>
           </p>
-        )}
+          <ul className="hint-sheet__rows">
+            {presentation.rows.map((row) => (
+              <li key={row.category} className="hint-sheet__row" data-hint-category={row.category}>
+                <span className="hint-sheet__row-label">{CATEGORY_LABEL[row.category]}</span>
+                <span className="hint-sheet__chips">
+                  {row.revealed.length === 0 ? (
+                    <span className="hint-sheet__chip hint-sheet__chip--unknown">？</span>
+                  ) : (
+                    row.revealed.map((chip) => {
+                      const ingredient = getIngredient(chip.ingredientId);
+                      const fresh = freshChips.has(chip.factId);
+                      const attachRef = fresh && firstFresh;
+                      if (attachRef) firstFresh = false;
+                      return (
+                        <span
+                          key={chip.factId}
+                          ref={attachRef ? freshChipRef : undefined}
+                          className={`hint-sheet__chip${fresh ? " hint-sheet__chip--new" : ""}`}
+                        >
+                          {ingredient && (
+                            <span className="hint-sheet__glyph" aria-hidden="true">
+                              <IngredientGlyph ingredient={ingredient} />
+                            </span>
+                          )}
+                          {ingredient?.nameJa ?? chip.ingredientId}
+                        </span>
+                      );
+                    })
+                  )}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p className="hint-sheet__unknown-legend">{SELECTABLE_COPY.unknownLegend}</p>
+          {guided && (
+            <p ref={guidanceRef} className="hint-sheet__guidance">
+              {SELECTABLE_GUIDANCE_TEXT}
+            </p>
+          )}
+          {view.grandfatheredSteps.length > 0 && (
+            // OD-H3-4-4: this player's own Economy 1.0 lines, verbatim. An archive at the end of the
+            // body: not a row, chip, price or category.
+            <div className="hint-sheet__legacy">
+              <p className="hint-sheet__legacy-title">{SELECTABLE_COPY.legacyTitle}</p>
+              <p className="hint-sheet__legacy-explainer">{SELECTABLE_COPY.legacyExplainer}</p>
+              {view.grandfatheredSteps.map((step) => (
+                <p key={step.level} className="hint-sheet__legacy-line">
+                  {step.textJa}
+                </p>
+              ))}
+            </div>
+          )}
+        </div>
+        <span className="hint-sheet__scroll-cue" aria-hidden="true">
+          {"\u{25BE}"}
+        </span>
       </div>
-      <div className="hint-sheet__footer">
+      <div className="hint-sheet__footer hint-sheet__footer--selectable">
         <fieldset className="hint-sheet__prefs">
-          <legend className="hint-sheet__prefs-legend">どれのヒントがほしい？</legend>
+          <legend className="hint-sheet__prefs-legend">{SELECTABLE_COPY.legend}</legend>
           {presentation.preferences.map((category) => (
             <label key={category} className={`hint-sheet__pref${preference === category ? " hint-sheet__pref--on" : ""}`}>
               <input
@@ -309,19 +414,25 @@ function SelectableHintBody({
         <button
           ref={buyRef}
           type="button"
-          className={`cta-button hint-sheet__next hint-sheet__next--paid${presentation.affordable ? "" : " hint-sheet__next--short"}`}
-          disabled={!presentation.affordable}
+          className={`cta-button hint-sheet__next hint-sheet__next--paid${ctaEnabled ? "" : " hint-sheet__next--short"}`}
+          disabled={!ctaEnabled}
           aria-disabled={latched || undefined}
           onClick={onBuy}
         >
-          <span className="hint-sheet__lock" aria-hidden="true">
-            {"\u{1F512}"}
-          </span>
-          <span className="hint-sheet__next-label">{presentation.affordable ? "ヒントを1つ解除" : "ヒント"}</span>{" "}
-          <span className="hint-sheet__price">{presentation.nextPrice} Pitz</span>
+          {guided ? (
+            <span className="hint-sheet__next-label">{SELECTABLE_COPY.ctaAfterGuidance}</span>
+          ) : (
+            <>
+              <span className="hint-sheet__next-label">{capPaid ? SELECTABLE_COPY.ctaCapPaid : SELECTABLE_COPY.cta}</span>{" "}
+              <span className="hint-sheet__price">{capPaid ? SELECTABLE_COPY.capPaidBadge : `${presentation.nextPrice} Pitz`}</span>
+            </>
+          )}
         </button>
-        <p className="hint-sheet__wallet">所持 {presentation.pitzBalance} Pitz</p>
-        {!presentation.affordable && <p className="hint-sheet__wallet hint-sheet__wallet-note">たまったら解除できるよ。このまま作ってもOK！</p>}
+        <p className="hint-sheet__wallet">
+          所持 {presentation.pitzBalance} Pitz<span className="hint-sheet__wallet-sep"> ・ </span>
+          {walletNote}
+        </p>
+        {!presentation.affordable && !guided && <p className="hint-sheet__wallet hint-sheet__wallet-note">{SELECTABLE_COPY.shortNote}</p>}
       </div>
     </>
   );
