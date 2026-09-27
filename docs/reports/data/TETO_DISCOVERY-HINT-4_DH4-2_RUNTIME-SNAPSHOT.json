@@ -1,0 +1,1102 @@
+{
+ "schemaNote": "Runtime snapshot of origin/main 22658f7, re-verified identical at 5a33d85 (PR #254 merge adds only the DH4-1 pure layer; src/data/recipes.ts, ingredients.ts, discoveryLadder.ts unchanged) (src/data/recipes.ts, src/data/ingredients.ts, src/data/discoveryLadder.ts DISCOVERY_LADDER, hintKeyIngredientId, buildSelectableHintModel at Dex>=1). Dumped by a throw-away Vitest probe that was deleted afterwards. Input to tools/dh4_2_topping_count_audit.py.",
+ "auditedMainSha": "5a33d855674652ab3483c3cedb8815859e88ce6e",
+ "ingredients": [
+  {
+   "id": "tomato-sauce",
+   "category": "sauce",
+   "nameJa": "トマトソース",
+   "placement": "spread",
+   "starter": true
+  },
+  {
+   "id": "olive-oil",
+   "category": "sauce",
+   "nameJa": "オリーブオイル",
+   "placement": "spread",
+   "starter": false
+  },
+  {
+   "id": "pesto",
+   "category": "sauce",
+   "nameJa": "ジェノベーゼソース",
+   "placement": "spread",
+   "starter": false
+  },
+  {
+   "id": "mozzarella",
+   "category": "cheese",
+   "nameJa": "モッツァレラ",
+   "placement": "scatter",
+   "starter": true
+  },
+  {
+   "id": "gorgonzola",
+   "category": "cheese",
+   "nameJa": "ゴルゴンゾーラ",
+   "placement": "scatter",
+   "starter": false
+  },
+  {
+   "id": "parmigiano",
+   "category": "cheese",
+   "nameJa": "パルミジャーノ",
+   "placement": "scatter",
+   "starter": false
+  },
+  {
+   "id": "fontina",
+   "category": "cheese",
+   "nameJa": "フォンティーナ",
+   "placement": "scatter",
+   "starter": false
+  },
+  {
+   "id": "basil",
+   "category": "topping",
+   "nameJa": "バジル",
+   "placement": "scatter",
+   "starter": true
+  },
+  {
+   "id": "garlic",
+   "category": "topping",
+   "nameJa": "にんにく",
+   "placement": "scatter",
+   "starter": false
+  },
+  {
+   "id": "oregano",
+   "category": "topping",
+   "nameJa": "オレガノ",
+   "placement": "scatter",
+   "starter": false
+  },
+  {
+   "id": "cherry-tomato",
+   "category": "topping",
+   "nameJa": "チェリートマト",
+   "placement": "scatter",
+   "starter": false
+  },
+  {
+   "id": "egg",
+   "category": "topping",
+   "nameJa": "たまご",
+   "placement": "scatter",
+   "starter": false
+  },
+  {
+   "id": "mushroom",
+   "category": "topping",
+   "nameJa": "マッシュルーム",
+   "placement": "scatter",
+   "starter": false
+  },
+  {
+   "id": "onion",
+   "category": "topping",
+   "nameJa": "たまねぎ",
+   "placement": "scatter",
+   "starter": false
+  },
+  {
+   "id": "sausage",
+   "category": "topping",
+   "nameJa": "ソーセージ",
+   "placement": "scatter",
+   "starter": false
+  },
+  {
+   "id": "pepperoni",
+   "category": "topping",
+   "nameJa": "ペパロニ",
+   "placement": "scatter",
+   "starter": false
+  },
+  {
+   "id": "anchovy",
+   "category": "topping",
+   "nameJa": "アンチョビ",
+   "placement": "scatter",
+   "starter": false
+  },
+  {
+   "id": "tuna",
+   "category": "topping",
+   "nameJa": "ツナ",
+   "placement": "scatter",
+   "starter": false
+  },
+  {
+   "id": "rosemary",
+   "category": "topping",
+   "nameJa": "ローズマリー",
+   "placement": "scatter",
+   "starter": false
+  },
+  {
+   "id": "bacon",
+   "category": "topping",
+   "nameJa": "ベーコン",
+   "placement": "scatter",
+   "starter": false
+  },
+  {
+   "id": "ham",
+   "category": "topping",
+   "nameJa": "ハム",
+   "placement": "scatter",
+   "starter": false
+  },
+  {
+   "id": "black-olive",
+   "category": "topping",
+   "nameJa": "ブラックオリーブ",
+   "placement": "scatter",
+   "starter": false
+  },
+  {
+   "id": "capers",
+   "category": "topping",
+   "nameJa": "ケッパー",
+   "placement": "scatter",
+   "starter": false
+  },
+  {
+   "id": "clam",
+   "category": "topping",
+   "nameJa": "あさり",
+   "placement": "scatter",
+   "starter": false
+  },
+  {
+   "id": "corn",
+   "category": "topping",
+   "nameJa": "コーン",
+   "placement": "scatter",
+   "starter": false
+  },
+  {
+   "id": "eggplant",
+   "category": "topping",
+   "nameJa": "ナス",
+   "placement": "scatter",
+   "starter": false
+  },
+  {
+   "id": "fresh-tomato",
+   "category": "topping",
+   "nameJa": "トマト",
+   "placement": "scatter",
+   "starter": false
+  },
+  {
+   "id": "pineapple",
+   "category": "topping",
+   "nameJa": "パイナップル",
+   "placement": "scatter",
+   "starter": false
+  },
+  {
+   "id": "potato",
+   "category": "topping",
+   "nameJa": "じゃがいも",
+   "placement": "scatter",
+   "starter": false
+  }
+ ],
+ "ladder": [
+  {
+   "step": 1,
+   "kind": "MATERIAL",
+   "ingredientIds": [
+    "egg"
+   ],
+   "keyRecipeId": "bismarck"
+  },
+  {
+   "step": 2,
+   "kind": "MATERIAL",
+   "ingredientIds": [
+    "bacon"
+   ],
+   "keyRecipeId": "breakfast-pizza"
+  },
+  {
+   "step": 3,
+   "kind": "MATERIAL",
+   "ingredientIds": [
+    "mushroom"
+   ],
+   "keyRecipeId": "funghi"
+  },
+  {
+   "step": 4,
+   "kind": "MATERIAL",
+   "ingredientIds": [
+    "eggplant"
+   ],
+   "keyRecipeId": "melanzane-pizza"
+  },
+  {
+   "step": 5,
+   "kind": "MATERIAL",
+   "ingredientIds": [
+    "parmigiano"
+   ],
+   "keyRecipeId": "parmigiana-pizza"
+  },
+  {
+   "step": 6,
+   "kind": "MATERIAL",
+   "ingredientIds": [
+    "pepperoni"
+   ],
+   "keyRecipeId": "pepperoni"
+  },
+  {
+   "step": 7,
+   "kind": "MATERIAL",
+   "ingredientIds": [
+    "sausage"
+   ],
+   "keyRecipeId": "salsiccia"
+  },
+  {
+   "step": 8,
+   "kind": "MATERIAL",
+   "ingredientIds": [
+    "ham"
+   ],
+   "keyRecipeId": "meat-lovers"
+  },
+  {
+   "step": 9,
+   "kind": "MATERIAL",
+   "ingredientIds": [
+    "corn"
+   ],
+   "keyRecipeId": "bambino"
+  },
+  {
+   "step": 10,
+   "kind": "MATERIAL",
+   "ingredientIds": [
+    "pineapple"
+   ],
+   "keyRecipeId": "hawaiian"
+  },
+  {
+   "step": 11,
+   "kind": "MATERIAL",
+   "ingredientIds": [
+    "black-olive",
+    "oregano"
+   ],
+   "keyRecipeId": "capricciosa"
+  },
+  {
+   "step": 12,
+   "kind": "MATERIAL",
+   "ingredientIds": [
+    "onion"
+   ],
+   "keyRecipeId": "pizza-portuguesa"
+  },
+  {
+   "step": 13,
+   "kind": "MATERIAL",
+   "ingredientIds": [
+    "olive-oil"
+   ],
+   "keyRecipeId": "fugazza"
+  },
+  {
+   "step": 14,
+   "kind": "MATERIAL",
+   "ingredientIds": [
+    "garlic"
+   ],
+   "keyRecipeId": "marinara"
+  },
+  {
+   "step": 15,
+   "kind": "MATERIAL",
+   "ingredientIds": [
+    "anchovy"
+   ],
+   "keyRecipeId": "napoletana"
+  },
+  {
+   "step": 16,
+   "kind": "MATERIAL",
+   "ingredientIds": [
+    "tuna"
+   ],
+   "keyRecipeId": "tonno-e-cipolla"
+  },
+  {
+   "step": 17,
+   "kind": "MATERIAL",
+   "ingredientIds": [
+    "pesto"
+   ],
+   "keyRecipeId": "pesto-tonno"
+  },
+  {
+   "step": 18,
+   "kind": "MATERIAL",
+   "ingredientIds": [
+    "cherry-tomato"
+   ],
+   "keyRecipeId": "genovese"
+  },
+  {
+   "step": 19,
+   "kind": "MATERIAL",
+   "ingredientIds": [
+    "clam"
+   ],
+   "keyRecipeId": "new-haven-apizza"
+  },
+  {
+   "step": 20,
+   "kind": "MATERIAL",
+   "ingredientIds": [
+    "fresh-tomato"
+   ],
+   "keyRecipeId": "pesto-caprese"
+  },
+  {
+   "step": 21,
+   "kind": "MATERIAL",
+   "ingredientIds": [
+    "potato"
+   ],
+   "keyRecipeId": "pesto-patate"
+  },
+  {
+   "step": 22,
+   "kind": "MATERIAL",
+   "ingredientIds": [
+    "rosemary"
+   ],
+   "keyRecipeId": "pizza-bianca"
+  },
+  {
+   "step": 23,
+   "kind": "MATERIAL",
+   "ingredientIds": [
+    "capers"
+   ],
+   "keyRecipeId": "puttanesca-pizza"
+  },
+  {
+   "step": 24,
+   "kind": "MATERIAL",
+   "ingredientIds": [
+    "fontina",
+    "gorgonzola"
+   ],
+   "keyRecipeId": "quattro-formaggi"
+  }
+ ],
+ "recipes": [
+  {
+   "id": "margherita",
+   "nameJa": "マルゲリータ",
+   "ingredients": [
+    {
+     "id": "tomato-sauce",
+     "category": "sauce"
+    },
+    {
+     "id": "mozzarella",
+     "category": "cheese"
+    },
+    {
+     "id": "basil",
+     "category": "topping"
+    }
+   ],
+   "key": null,
+   "reserve": "basil",
+   "sellable": [
+    "tomato-sauce",
+    "mozzarella"
+   ]
+  },
+  {
+   "id": "marinara",
+   "nameJa": "マリナーラ",
+   "ingredients": [
+    {
+     "id": "tomato-sauce",
+     "category": "sauce"
+    },
+    {
+     "id": "garlic",
+     "category": "topping"
+    },
+    {
+     "id": "oregano",
+     "category": "topping"
+    }
+   ],
+   "key": "garlic",
+   "reserve": "oregano",
+   "sellable": [
+    "tomato-sauce"
+   ]
+  },
+  {
+   "id": "quattro-formaggi",
+   "nameJa": "クアトロ フォルマッジ",
+   "ingredients": [
+    {
+     "id": "olive-oil",
+     "category": "sauce"
+    },
+    {
+     "id": "mozzarella",
+     "category": "cheese"
+    },
+    {
+     "id": "gorgonzola",
+     "category": "cheese"
+    },
+    {
+     "id": "parmigiano",
+     "category": "cheese"
+    },
+    {
+     "id": "fontina",
+     "category": "cheese"
+    }
+   ],
+   "key": "gorgonzola",
+   "reserve": "fontina",
+   "sellable": [
+    "olive-oil",
+    "mozzarella",
+    "parmigiano"
+   ]
+  },
+  {
+   "id": "genovese",
+   "nameJa": "ジェノベーゼ",
+   "ingredients": [
+    {
+     "id": "pesto",
+     "category": "sauce"
+    },
+    {
+     "id": "mozzarella",
+     "category": "cheese"
+    },
+    {
+     "id": "cherry-tomato",
+     "category": "topping"
+    }
+   ],
+   "key": "cherry-tomato",
+   "reserve": "mozzarella",
+   "sellable": [
+    "pesto"
+   ]
+  },
+  {
+   "id": "bismarck",
+   "nameJa": "ビスマルク",
+   "ingredients": [
+    {
+     "id": "tomato-sauce",
+     "category": "sauce"
+    },
+    {
+     "id": "mozzarella",
+     "category": "cheese"
+    },
+    {
+     "id": "egg",
+     "category": "topping"
+    }
+   ],
+   "key": "egg",
+   "reserve": "mozzarella",
+   "sellable": [
+    "tomato-sauce"
+   ]
+  },
+  {
+   "id": "funghi",
+   "nameJa": "フンギ",
+   "ingredients": [
+    {
+     "id": "tomato-sauce",
+     "category": "sauce"
+    },
+    {
+     "id": "mozzarella",
+     "category": "cheese"
+    },
+    {
+     "id": "mushroom",
+     "category": "topping"
+    }
+   ],
+   "key": "mushroom",
+   "reserve": "mozzarella",
+   "sellable": [
+    "tomato-sauce"
+   ]
+  },
+  {
+   "id": "fugazza",
+   "nameJa": "フガッサ",
+   "ingredients": [
+    {
+     "id": "olive-oil",
+     "category": "sauce"
+    },
+    {
+     "id": "onion",
+     "category": "topping"
+    },
+    {
+     "id": "oregano",
+     "category": "topping"
+    }
+   ],
+   "key": "olive-oil",
+   "reserve": "oregano",
+   "sellable": [
+    "onion"
+   ]
+  },
+  {
+   "id": "salsiccia",
+   "nameJa": "サルシッチャ",
+   "ingredients": [
+    {
+     "id": "tomato-sauce",
+     "category": "sauce"
+    },
+    {
+     "id": "mozzarella",
+     "category": "cheese"
+    },
+    {
+     "id": "sausage",
+     "category": "topping"
+    }
+   ],
+   "key": "sausage",
+   "reserve": "mozzarella",
+   "sellable": [
+    "tomato-sauce"
+   ]
+  },
+  {
+   "id": "pepperoni",
+   "nameJa": "ペパロニ",
+   "ingredients": [
+    {
+     "id": "tomato-sauce",
+     "category": "sauce"
+    },
+    {
+     "id": "mozzarella",
+     "category": "cheese"
+    },
+    {
+     "id": "pepperoni",
+     "category": "topping"
+    }
+   ],
+   "key": "pepperoni",
+   "reserve": "mozzarella",
+   "sellable": [
+    "tomato-sauce"
+   ]
+  },
+  {
+   "id": "napoletana",
+   "nameJa": "ナポリ",
+   "ingredients": [
+    {
+     "id": "tomato-sauce",
+     "category": "sauce"
+    },
+    {
+     "id": "mozzarella",
+     "category": "cheese"
+    },
+    {
+     "id": "anchovy",
+     "category": "topping"
+    },
+    {
+     "id": "oregano",
+     "category": "topping"
+    }
+   ],
+   "key": "anchovy",
+   "reserve": "oregano",
+   "sellable": [
+    "tomato-sauce",
+    "mozzarella"
+   ]
+  },
+  {
+   "id": "tonno-e-cipolla",
+   "nameJa": "トンノ・エ・チポッラ",
+   "ingredients": [
+    {
+     "id": "tomato-sauce",
+     "category": "sauce"
+    },
+    {
+     "id": "mozzarella",
+     "category": "cheese"
+    },
+    {
+     "id": "onion",
+     "category": "topping"
+    },
+    {
+     "id": "tuna",
+     "category": "topping"
+    }
+   ],
+   "key": "tuna",
+   "reserve": "onion",
+   "sellable": [
+    "tomato-sauce",
+    "mozzarella"
+   ]
+  },
+  {
+   "id": "pizza-bianca",
+   "nameJa": "ピッツァ・ビアンカ",
+   "ingredients": [
+    {
+     "id": "olive-oil",
+     "category": "sauce"
+    },
+    {
+     "id": "rosemary",
+     "category": "topping"
+    }
+   ],
+   "key": "rosemary",
+   "reserve": "olive-oil",
+   "sellable": []
+  },
+  {
+   "id": "breakfast-pizza",
+   "nameJa": "ブレックファストピザ",
+   "ingredients": [
+    {
+     "id": "tomato-sauce",
+     "category": "sauce"
+    },
+    {
+     "id": "mozzarella",
+     "category": "cheese"
+    },
+    {
+     "id": "egg",
+     "category": "topping"
+    },
+    {
+     "id": "bacon",
+     "category": "topping"
+    }
+   ],
+   "key": "bacon",
+   "reserve": "egg",
+   "sellable": [
+    "tomato-sauce",
+    "mozzarella"
+   ]
+  },
+  {
+   "id": "capricciosa",
+   "nameJa": "カプリチョーザ",
+   "ingredients": [
+    {
+     "id": "tomato-sauce",
+     "category": "sauce"
+    },
+    {
+     "id": "mozzarella",
+     "category": "cheese"
+    },
+    {
+     "id": "mushroom",
+     "category": "topping"
+    },
+    {
+     "id": "oregano",
+     "category": "topping"
+    },
+    {
+     "id": "ham",
+     "category": "topping"
+    },
+    {
+     "id": "black-olive",
+     "category": "topping"
+    }
+   ],
+   "key": "oregano",
+   "reserve": "black-olive",
+   "sellable": [
+    "tomato-sauce",
+    "mozzarella",
+    "mushroom",
+    "ham"
+   ]
+  },
+  {
+   "id": "meat-lovers",
+   "nameJa": "ミートラヴァーズ",
+   "ingredients": [
+    {
+     "id": "tomato-sauce",
+     "category": "sauce"
+    },
+    {
+     "id": "mozzarella",
+     "category": "cheese"
+    },
+    {
+     "id": "bacon",
+     "category": "topping"
+    },
+    {
+     "id": "ham",
+     "category": "topping"
+    },
+    {
+     "id": "pepperoni",
+     "category": "topping"
+    },
+    {
+     "id": "sausage",
+     "category": "topping"
+    }
+   ],
+   "key": "ham",
+   "reserve": "sausage",
+   "sellable": [
+    "tomato-sauce",
+    "mozzarella",
+    "bacon",
+    "pepperoni"
+   ]
+  },
+  {
+   "id": "melanzane-pizza",
+   "nameJa": "メランザーネピザ",
+   "ingredients": [
+    {
+     "id": "tomato-sauce",
+     "category": "sauce"
+    },
+    {
+     "id": "mozzarella",
+     "category": "cheese"
+    },
+    {
+     "id": "eggplant",
+     "category": "topping"
+    },
+    {
+     "id": "basil",
+     "category": "topping"
+    }
+   ],
+   "key": "eggplant",
+   "reserve": "basil",
+   "sellable": [
+    "tomato-sauce",
+    "mozzarella"
+   ]
+  },
+  {
+   "id": "parmigiana-pizza",
+   "nameJa": "パルミジャーナピザ",
+   "ingredients": [
+    {
+     "id": "tomato-sauce",
+     "category": "sauce"
+    },
+    {
+     "id": "mozzarella",
+     "category": "cheese"
+    },
+    {
+     "id": "eggplant",
+     "category": "topping"
+    },
+    {
+     "id": "parmigiano",
+     "category": "cheese"
+    },
+    {
+     "id": "basil",
+     "category": "topping"
+    }
+   ],
+   "key": "parmigiano",
+   "reserve": "basil",
+   "sellable": [
+    "tomato-sauce",
+    "mozzarella",
+    "eggplant"
+   ]
+  },
+  {
+   "id": "bambino",
+   "nameJa": "バンビーノ",
+   "ingredients": [
+    {
+     "id": "tomato-sauce",
+     "category": "sauce"
+    },
+    {
+     "id": "mozzarella",
+     "category": "cheese"
+    },
+    {
+     "id": "ham",
+     "category": "topping"
+    },
+    {
+     "id": "corn",
+     "category": "topping"
+    }
+   ],
+   "key": "corn",
+   "reserve": "ham",
+   "sellable": [
+    "tomato-sauce",
+    "mozzarella"
+   ]
+  },
+  {
+   "id": "hawaiian",
+   "nameJa": "ハワイアンピザ",
+   "ingredients": [
+    {
+     "id": "tomato-sauce",
+     "category": "sauce"
+    },
+    {
+     "id": "mozzarella",
+     "category": "cheese"
+    },
+    {
+     "id": "ham",
+     "category": "topping"
+    },
+    {
+     "id": "pineapple",
+     "category": "topping"
+    }
+   ],
+   "key": "pineapple",
+   "reserve": "ham",
+   "sellable": [
+    "tomato-sauce",
+    "mozzarella"
+   ]
+  },
+  {
+   "id": "pizza-portuguesa",
+   "nameJa": "ピッツァ・ポルトゲーザ",
+   "ingredients": [
+    {
+     "id": "tomato-sauce",
+     "category": "sauce"
+    },
+    {
+     "id": "mozzarella",
+     "category": "cheese"
+    },
+    {
+     "id": "ham",
+     "category": "topping"
+    },
+    {
+     "id": "egg",
+     "category": "topping"
+    },
+    {
+     "id": "onion",
+     "category": "topping"
+    },
+    {
+     "id": "black-olive",
+     "category": "topping"
+    }
+   ],
+   "key": "onion",
+   "reserve": "black-olive",
+   "sellable": [
+    "tomato-sauce",
+    "mozzarella",
+    "ham",
+    "egg"
+   ]
+  },
+  {
+   "id": "pesto-tonno",
+   "nameJa": "ペストトンノピザ",
+   "ingredients": [
+    {
+     "id": "pesto",
+     "category": "sauce"
+    },
+    {
+     "id": "tuna",
+     "category": "topping"
+    },
+    {
+     "id": "black-olive",
+     "category": "topping"
+    },
+    {
+     "id": "onion",
+     "category": "topping"
+    }
+   ],
+   "key": "pesto",
+   "reserve": "onion",
+   "sellable": [
+    "tuna",
+    "black-olive"
+   ]
+  },
+  {
+   "id": "new-haven-apizza",
+   "nameJa": "ニューヘイブンアピッツァ",
+   "ingredients": [
+    {
+     "id": "olive-oil",
+     "category": "sauce"
+    },
+    {
+     "id": "parmigiano",
+     "category": "cheese"
+    },
+    {
+     "id": "clam",
+     "category": "topping"
+    },
+    {
+     "id": "garlic",
+     "category": "topping"
+    }
+   ],
+   "key": "clam",
+   "reserve": "garlic",
+   "sellable": [
+    "olive-oil",
+    "parmigiano"
+   ]
+  },
+  {
+   "id": "pesto-caprese",
+   "nameJa": "ペストカプレーゼピザ",
+   "ingredients": [
+    {
+     "id": "pesto",
+     "category": "sauce"
+    },
+    {
+     "id": "mozzarella",
+     "category": "cheese"
+    },
+    {
+     "id": "fresh-tomato",
+     "category": "topping"
+    },
+    {
+     "id": "basil",
+     "category": "topping"
+    }
+   ],
+   "key": "fresh-tomato",
+   "reserve": "basil",
+   "sellable": [
+    "pesto",
+    "mozzarella"
+   ]
+  },
+  {
+   "id": "pesto-patate",
+   "nameJa": "ペストパターテピザ",
+   "ingredients": [
+    {
+     "id": "pesto",
+     "category": "sauce"
+    },
+    {
+     "id": "mozzarella",
+     "category": "cheese"
+    },
+    {
+     "id": "potato",
+     "category": "topping"
+    },
+    {
+     "id": "bacon",
+     "category": "topping"
+    }
+   ],
+   "key": "potato",
+   "reserve": "bacon",
+   "sellable": [
+    "pesto",
+    "mozzarella"
+   ]
+  },
+  {
+   "id": "puttanesca-pizza",
+   "nameJa": "プッタネスカ",
+   "ingredients": [
+    {
+     "id": "tomato-sauce",
+     "category": "sauce"
+    },
+    {
+     "id": "anchovy",
+     "category": "topping"
+    },
+    {
+     "id": "black-olive",
+     "category": "topping"
+    },
+    {
+     "id": "capers",
+     "category": "topping"
+    },
+    {
+     "id": "garlic",
+     "category": "topping"
+    }
+   ],
+   "key": "capers",
+   "reserve": "garlic",
+   "sellable": [
+    "tomato-sauce",
+    "anchovy",
+    "black-olive"
+   ]
+  }
+ ]
+}
