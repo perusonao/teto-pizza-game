@@ -35,6 +35,7 @@ import {
   persistMissionBest,
   resetSave,
 } from "./state/persistence";
+import { initialTechniqueLedger } from "./logic/techniques/runtime";
 import { ingredientCollectionCount, newShopMaterialCount, resolveShopEntitlement } from "./state/materialEntitlement";
 import { ensureAnonymousUser, isFirebaseAvailable, submitLunchRushScore } from "./firebase";
 import {
@@ -192,6 +193,9 @@ function App() {
       // DM-4-3: the Dinner records, blocked (broken) missions included, so a settlement can never
       // mistake a broken record for "no record".
       save.dinnerMissionRecordsState,
+      // Cooking Techniques TQ-1C: the technique ledger (known ids), repaired at load so every
+      // technique a discovered recipe requires is present (INV-TQ-1). A no-op for today's saves.
+      initialTechniqueLedger(save.discoveredTechniqueIds, save.dex),
     );
   });
   // Dinner Mission DM-2 / DM-3R-2 (Issues #239, #250): the Dinner run's clock, START and HOME exit;
@@ -356,6 +360,9 @@ function App() {
       unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
       discoveryHintPurchases: state.discoveryHintPurchases,
       discoveryHintFacts: state.discoveryHintFacts,
+      // TQ-1C: saved in the same write as the Dex it came with (a union: never lowered, and ids a
+      // newer build wrote are kept by the write's forward-compat merge).
+      discoveredTechniqueIds: state.discoveredTechniqueIds,
       // DM-4-3: a Dinner CLEAR changes `pitzBalance` and a record in the same reducer step, so they
       // arrive here together and are written in one save write. `requireDinnerRecords`: if a record
       // cannot be stored (its mission became blocked in storage underneath), nothing is written --
@@ -377,6 +384,7 @@ function App() {
     state.unlockedForShopIngredientIds,
     state.discoveryHintPurchases,
     state.discoveryHintFacts,
+    state.discoveredTechniqueIds,
     state.dinnerMissionRecordsState,
   ]);
 

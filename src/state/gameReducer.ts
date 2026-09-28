@@ -34,6 +34,12 @@ import { RECIPE_DISCOVERY_CATALOG } from "../data/discoveryCatalog";
 import { evaluateDiscovery, type DiscoveryOutcome } from "../logic/discovery/matcher";
 import { signatureOfPizza } from "../logic/discovery/signature";
 import { registerDiscoveryToDex } from "./discoveryRegistration";
+import type { TechniqueId } from "../data/techniques";
+import {
+  productionTechniqueContext,
+  resolveRoundTechniques,
+  techniqueRoundEligibility,
+} from "../logic/techniques/runtime";
 import { FREE_COOK_ORDER, FREE_COOK_RECIPE, isFreeCookRecipe } from "../data/freeCook";
 import { resolveFreeCookPizza } from "../logic/discovery/freeCook";
 import { canStartGuidedRound, isRecipeCookable } from "./recipeDiscoveryState";
@@ -327,6 +333,14 @@ export interface GameState {
    *  as `lastPitzCredit`), `null` until REGISTER_TO_DEX credits a round, and reset for every fresh
    *  round. Not rendered by any UI in this slice; never persisted. */
   lastDiscovery: DiscoveryOutcome | null;
+  /** Cooking Techniques 1.0 TQ-1C: the technique ledger (known ids only; unknown ids stay in the
+   *  save through persistence's forward-compat merge). Hydrated from the save, changed only by
+   *  REGISTER_TO_DEX, and saved by App in the same write as the Dex. */
+  discoveredTechniqueIds: readonly TechniqueId[];
+  /** TQ-1C: techniques REGISTER_TO_DEX newly discovered this round, in registry order -- revealed
+   *  before the recipe (SSOT P5, `discoveryRevealOrder`). `null` until REGISTER_TO_DEX, reset every
+   *  fresh round, never persisted (so a reload never replays it). Not rendered until TQ-1D. */
+  lastTechniqueDiscovery: readonly TechniqueId[] | null;
   /** Progression 2.0 Phase 3-2 (Issue #194): true for a free-cook round (START_FREE_COOK) -- no
    *  recipe was selected, the tray offers every OWNED ingredient, and CONFIRM_BAKE decides what
    *  the pizza is with the Phase 3-1 matcher (../logic/discovery/freeCook.ts). Until CONFIRM_BAKE
@@ -537,6 +551,8 @@ interface ProgressionCarry {
   discoveryHintFacts: Readonly<Record<string, readonly string[]>>;
   /** DM-4-3: must survive every round transition, or a later clear would read a stale record. */
   dinnerMissionRecordsState: DinnerMissionRecordsState;
+  /** TQ-1C: the technique ledger survives every round transition like the Dex. */
+  discoveredTechniqueIds: readonly TechniqueId[];
 }
 
 /** Builds a fresh ORDER-phase state around an already-picked `order` -- the one place that
@@ -602,6 +618,7 @@ function buildOrderState(
     lastMaterialUnlockNotice: null,
     lastEfficiencyCredit: null,
     lastDiscovery: null,
+    lastTechniqueDiscovery: null,
     freeCook,
   };
 }
@@ -724,6 +741,7 @@ export function createInitialGameState(
   discoveryHintPurchases: DiscoveryHintPurchases = {},
   discoveryHintFacts: Readonly<Record<string, readonly string[]>> = {},
   dinnerMissionRecordsState: DinnerMissionRecordsState = EMPTY_DINNER_MISSION_RECORDS_STATE,
+  discoveredTechniqueIds: readonly TechniqueId[] = [],
 ): GameState {
   return nextOrderState(
     {
@@ -739,6 +757,7 @@ export function createInitialGameState(
       discoveryHintPurchases,
       discoveryHintFacts,
       dinnerMissionRecordsState,
+      discoveredTechniqueIds,
     },
     { preferFirst: true },
   );
@@ -1259,7 +1278,16 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
         if (state.completion?.status !== "PASS") return state;
         const resolution = resolveFreeCookPizza(state.pizza, state.dex);
         if (resolution.kind !== "ORIGINAL") return state;
-        return { ...state, phase: "DISCOVERED", lastDiscovery: resolution.outcome };
+        // TQ-1C: an original pizza can still reveal a technique it used (usage path, affordance-
+        // gated). The Dex does not change, so the recipe path adds nothing here.
+        const techniques = roundTechniques(state, state.dex);
+        return {
+          ...state,
+          phase: "DISCOVERED",
+          lastDiscovery: resolution.outcome,
+          discoveredTechniqueIds: techniques.ledger,
+          lastTechniqueDiscovery: techniques.newlyDiscovered,
+        };
       }
       if (!state.score) {
         return state;
@@ -1306,6 +1334,10 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
           )
         : null;
       const dex = discoveryRegistration ? discoveryRegistration.dex : selectedRegistration.dex;
+      // TQ-1C: techniques in the same transition as the Dex -- the usage path (Free Cooking only)
+      // and the recipe path (INV-TQ-1: every recipe discovered now implies its techniques). Lunch
+      // Rush records nothing (`techniqueRoundEligibility`); Dinner never reaches this case.
+      const techniques = roundTechniques(state, dex);
       // Progression 2.0 W1 Integration I4b-3 (REC-04): this is one of the two places `dex` can
       // change (the other is MISSION_NEXT_ORDER below), so it is where the Discovery Ladder is
       // resolved -- atomically with the Dex update, exactly where EP4's Starter Grant used to be
@@ -1371,6 +1403,8 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
         lastEfficiencyCredit,
         lastMaterialUnlockNotice: buildMaterialUnlockNotice(entitlement.newlyUnlockedMaterialIds),
         lastDiscovery: discoveryRegistration?.outcome ?? null,
+        discoveredTechniqueIds: techniques.ledger,
+        lastTechniqueDiscovery: techniques.newlyDiscovered,
       };
     }
 
@@ -1635,6 +1669,27 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
 // (../mission/dinner/, docs/reports/TETO_DINNER-MISSION_DM-2_Runtime-Integration_Result.md §3).
 // ---------------------------------------------------------------------------------------------
 
+/** TQ-1C: this round's technique step (../logic/techniques/runtime.ts), from REGISTER_TO_DEX only.
+ *  `dexAfter` is the Dex this transition writes. The usage path needs a Completion Gate PASS; the
+ *  recipe path follows `dexAfter`. The ledger keeps its identity when nothing was discovered, so
+ *  App's persistence effect does not re-run for nothing. */
+function roundTechniques(state: GameState, dexAfter: DexState) {
+  const result = resolveRoundTechniques({
+    eligibility: techniqueRoundEligibility({
+      isMissionRound: state.isMissionRound,
+      isDinnerRound: isDinnerRound(state),
+      freeCook: state.freeCook,
+    }),
+    ledger: state.discoveredTechniqueIds,
+    signature: signatureOfPizza(state.pizza),
+    completionPassed: state.completion?.status === "PASS",
+    dexBefore: state.dex,
+    dexAfter,
+    context: productionTechniqueContext(),
+  });
+  return result.newlyDiscovered.length > 0 ? result : { ...result, ledger: state.discoveredTechniqueIds };
+}
+
 function carryOf(state: GameState): ProgressionCarry {
   return {
     dex: state.dex,
@@ -1649,6 +1704,7 @@ function carryOf(state: GameState): ProgressionCarry {
     discoveryHintPurchases: state.discoveryHintPurchases,
     discoveryHintFacts: state.discoveryHintFacts,
     dinnerMissionRecordsState: state.dinnerMissionRecordsState,
+    discoveredTechniqueIds: state.discoveredTechniqueIds,
   };
 }
 
