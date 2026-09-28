@@ -23,7 +23,7 @@
 | OD-TQ-P2 | DH4 の購入済み情報を組み合わせた推測は許容 | — |
 | OD-TQ-16 | SAUCE step の「なしでもOK」を維持 | — |
 | OD-TQ-18 | Aussie を TQ-1 recipe として採用し、CUT なし（production への追加は TQ-1D） | — |
-| OD-TQ-10改 | Technique Discovery は Free Cooking のみ。Dinner では行わない | — |
+| OD-TQ-10改 | Technique Discovery は Free Cooking のみ。Dinner では行わない | **OD-TQ1C-3（2026-09-28）で詳細化:** 使用経路は Free Cooking のみ。レシピ経路（INV-TQ-1）は FREE の全 round（guided を含む）。Lunch Rush / Dinner は両経路とも 0（SSOT P8） |
 | 同時発見 | 表示順は ① Technique → ② Recipe。save mutation は 1 回の atomic な登録処理 | 二重登録・二重報酬なし |
 
 ## 2. Fresh GitHub state

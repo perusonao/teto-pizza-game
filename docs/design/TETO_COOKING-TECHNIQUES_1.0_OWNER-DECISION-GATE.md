@@ -9,6 +9,8 @@
 > **Verdict: A. TQ-1 READY FOR OWNER FINAL DECISIONS**
 > （条件: §9 の hard prerequisite 3 件、OD-TQ-S1・OD-W2-1・OD-TQ-P1 を実装前に確定すること）
 
+> **2026-09-28 の Owner Decision（OD-TQ1C-1/2/3）で置き換えた記述には、その場で ~~取り消し線~~ と「→ OD-TQ1C-n で置き換え」を付けた（§7.3、§8 の guided 行、§9 の TQ-1B / TQ-1C 行、§11 の OD-TQ-10 行）。SSOT が優先する。**
+>
 > **main での位置付け（TQ-1C-0、OD-TQ1C-1）:** main に入っているのは本書（authority の詳細）だけ。下表の機械可読データと生成ツールは、設計 archive（branch `claude/cooking-techniques-design-n0qfwj`、commit `ab77b82`）に固定して残す。いずれも TQ-1C / TQ-1D の runtime や test からは参照しない。**Cooking Techniques 1.0 の要約 authority は `docs/design/TETO_COOKING-TECHNIQUES_1.0_SSOT.md`（本書より優先）。**
 
 | Artifact | 置き場所 |
@@ -225,6 +227,8 @@ DH4 の `privacyWorstCaseCandidates`（k≥2、所持品 universe、単調安全
 
 ### 7.3 ルール（OD-TQ-P1、pure function として TQ-1A で定義し TQ-1C で wiring）
 
+> **OD-TQ1C-2（2026-09-28）で置き換え:** 下の「未発見技法を要求する target に限る」条件は採らない。k 規則は **SAUCE_ONLY に一律に適用**する（side channel を作らない）。k < 2 なら fail-closed で fallback にする。production の文言が変わる（canonical ladder で SAUCE_ONLY 44 件中 12 件）ので、**有効化は TQ-1D（Human Verification 付き）**で行い、TQ-1C では wiring しない。SSOT P7 / §1.1。
+
 > near-miss の最近傍 target が、**未発見技法を要求し**、かつ出力 class がその技法の軸を示す（SAUCE_ONLY → NO_SAUCE、将来は late / spread 軸）場合:
 >
 > - 整合する具体的な答えの数 k（所持ソースのうち使った以外のもの＋「なし」）が 2 未満なら、class を **`SOMETHING_DIFFERENT`**（新設。文言「おしい！あと少し、なにかが違うみたい…？」）に落とす。
@@ -257,7 +261,7 @@ DH4 の `privacyWorstCaseCandidates`（k≥2、所持品 universe、単調安全
 | reload（DISCOVERED 表示中） | save 済み。overlay は消えるが、Dex の「調理法」欄には記録済み | なし |
 | reload（CONFIRM_BAKE 後・REGISTER 前） | FREE は `handleConfirmBake` で即 REGISTER。万一この間に落ちても、何も書かれない（レシピと同じ挙動） | なし |
 | ORIGINAL 経路 | 既存の `state.freeCook && !state.score` 分岐の中で技法だけを記録し、Dex / Pitz は触らない | なし |
-| Lunch Rush / guided | 検出しない。guided の Aussie は発見済みなので、技法も INV-TQ-1 で既知 | — |
+| Lunch Rush / guided | ~~検出しない。guided の Aussie は発見済みなので、技法も INV-TQ-1 で既知~~ **→ OD-TQ1C-3（2026-09-28）で置き換え:** Lunch Rush は両経路とも 0。guided の FREE round は、使用経路は 0 だが、**レシピ経路（INV-TQ-1）は記録する**（guided round は matcher 経由で別のレシピを新しく発見しうるため）。SSOT P8 | — |
 | Dinner | `REGISTER_TO_DEX` 自体を拒否する（DM-2 OD-DM-11）→ **技法検出もしない**（49b0976 の OD-TQ-10「Dinner も検出」を撤回、§11） | — |
 
 ---
@@ -286,8 +290,8 @@ DH4 の `privacyWorstCaseCandidates`（k≥2、所持品 universe、単調安全
 | **TQ-0** | Owner Decisions / SSOT（本 PR 系列、docs のみ） | — | docs / data / tools | 各ツールの `--check` | docs のみ |
 | **LAD-1** | append-only ladder（Wave 2 と共有） | OD-W2-1 | `src/data/discoveryLadder.ts`、`src/logic/testSupport/discoveryLadderRule.ts`、`discoveryLadder.test.ts` | W1 24 step の pin が不変、append の決定性、既存の reachability test | 単独 revert 可（RECIPES が 25 のままなら結果は同じ） |
 | **TQ-1A** | 技法 ID registry、pure detection、requiredTechniques の派生、near-miss privacy rule（pure）、save model（sanitize / forward-compat / union / backfill）。**production 未配線** | TQ-0 | 新規 `src/data/techniques.ts`、`src/logic/techniques/*`、`src/state/persistence.ts`（KNOWN_SAVE_KEYS・sanitizer・extras・writeSave） | unit: 検出、INV-TQ-NB（静的＋property）、INV-TQ-4、persistence（§10 の全ケース）、INV-TQ-5 の pure 版 | 新規ファイル削除＋persistence の差分 revert。書かれた key は旧 build でも保持される |
-| **TQ-1B** | no-sauce scoring（案 B）。`ReferencePizza.sauce` を nullable にし、null ガード。**既存 recipe の score 不変** | OD-TQ-S1 | `src/logic/scoringV2/index.ts`・`types.ts`、`src/data/referencePizza.ts`、`src/logic/completionGate.ts`、null ガードのみ: `ReferencePreview.tsx`・`DinnerGameUi.tsx`・`GameScreen.tsx`・`App.tsx` | golden（25×fixture 不変）、synthetic の no-sauce fixture で B の式、Completion Gate、型検査。**見た目の変化なし → HV 不要**（ポリシー対象外であることを Result Report に明記） | 単独 revert 可（no-sauce recipe が存在しない間は到達不能） |
-| **TQ-1C** | runtime wiring: REGISTER_TO_DEX で技法検出、台帳、`lastTechniqueDiscovery`、load 時 backfill、affordance gate（ladder から派生）、near-miss privacy の wiring。**Aussie はまだ入れない → INV-TQ-4 によって production では不活性** | TQ-1A、TQ-1B、LAD-1 | `src/state/gameReducer.ts`、`src/state/resultNearMiss.ts`、`App.tsx`（persist の引数） | reducer: 同時発生、ORIGINAL 経路、二重 dispatch、retry、Dinner / Lunch Rush で検出しないこと。synthetic catalog で全ループ | 単独 revert 可（不活性なので） |
+| **TQ-1B** | no-sauce scoring（案 B）。~~`ReferencePizza.sauce` を nullable にし、null ガード~~ **→ 実装（#271）では型を変えず、`ScoringReferencePizza` の seam だけにした。nullable 化と null ガードは TQ-1D に移動（SSOT §3）**。**既存 recipe の score 不変** | OD-TQ-S1 | `src/logic/scoringV2/index.ts`・`types.ts`、`src/data/referencePizza.ts`、`src/logic/completionGate.ts`、null ガードのみ: `ReferencePreview.tsx`・`DinnerGameUi.tsx`・`GameScreen.tsx`・`App.tsx` | golden（25×fixture 不変）、synthetic の no-sauce fixture で B の式、Completion Gate、型検査。**見た目の変化なし → HV 不要**（ポリシー対象外であることを Result Report に明記） | 単独 revert 可（no-sauce recipe が存在しない間は到達不能） |
+| **TQ-1C** | runtime wiring: REGISTER_TO_DEX で技法検出、台帳、`lastTechniqueDiscovery`、load 時 backfill、affordance gate（ladder から派生）、~~near-miss privacy の wiring~~（**OD-TQ1C-2 で TQ-1D に移動**）。**Aussie はまだ入れない → INV-TQ-4 によって production では不活性** | TQ-1A、TQ-1B、LAD-1 | `src/state/gameReducer.ts`、~~`src/state/resultNearMiss.ts`~~、`App.tsx`（persist の引数） | reducer: 同時発生、ORIGINAL 経路、二重 dispatch、retry、Dinner / Lunch Rush で検出しないこと、guided round のレシピ経路（OD-TQ1C-3）。synthetic catalog で全ループ | 単独 revert 可（不活性なので） |
 | **TQ-1D** | 表示と内容: Aussie（recipe・reference（sauce null）・catalog id・CUT なし）、DISCOVERED の技法段、Pizza Dex の「調理法」欄（？？？／発見済み）、RESULT の sauce 行「なし」、`SOMETHING_DIFFERENT` 文言。**ここで初めてループが production で有効になる** | TQ-1C、OD-TQ-4/5/P1、OD-W2-4 | `src/data/recipes.ts`・`referencePizza.ts`・`discoveryCatalog.ts`、Dex / DISCOVERED / Result コンポーネント、CSS、e2e | unit ＋ e2e（free cook でソースを飛ばして Aussie → 技法段 → レシピ段 → Dex 記録 → reload → retry）、`RECIPES` pin の更新、HV | 単独 revert でループが無効に戻る。発見済みの Dex / 台帳は forward-compat で保持される |
 | **TQ-1E** | Human Verification（390×844 動画は直接納品、before/after スクショは commit）。確認観点: 未発見 → ソースを飛ばして試す → 技法段 → レシピ段 → Dex、k=1 状況での near-miss 文言、オージーの★の体感（R-S1） | TQ-1D | docs / reports、screenshots | ポリシー準拠 | — |
 
@@ -329,7 +333,7 @@ LAD-1 / TQ-1A / TQ-1B は互いに独立しているので並行できる。た�
 
 | 49b0976 の記述 | 修正 |
 |---|---|
-| OD-TQ-10「free cook ＋ Dinner で検出」 | **free cook のみ**。Dinner は REGISTER_TO_DEX 自体を拒否する設計（OD-DM-11）なので、技法だけ別経路で書くと exactly-once の境界が増える |
+| OD-TQ-10「free cook ＋ Dinner で検出」 | **free cook のみ**（**OD-TQ1C-3 で詳細化:** 使用経路は Free Cooking だけ。レシピ経路は FREE の全 round）。Dinner は REGISTER_TO_DEX 自体を拒否する設計（OD-DM-11）なので、技法だけ別経路で書くと exactly-once の境界が増える |
 | §10「`ProgressionStepKind += TECHNIQUE_SLOT`」 | **TQ-1 では新しい step kind を足さない。** affordance ＝「その技法を要求する runtime recipe が、ladder で解放済みの材料だけで作れるようになる最初の step」として**派生**させる（Aussie → step 12）。ladder data も Wave 2 との衝突も増えない。TQ-2 以降で UI の余地が必要になった時に再検討 |
 | OD-TQ-6（near-miss の DIMENSION_MISMATCH） | 既存 SAUCE_ONLY の k=1 漏れを発見 → OD-TQ-P1（§7.3）の抑制ルールを追加 |
 | scoring「実装監査で確認」 | 案 B に確定して推奨（§4） |
