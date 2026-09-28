@@ -318,6 +318,31 @@ describe("TQ-1B: adversarial Reference data fails closed", () => {
     expect(score(noSaucePizza(), SYN_RECIPE, synThinned).result.available).toBe(false);
   });
 
+  it("injected Reference values must be authoritative (Codex review on #271)", () => {
+    const margherita = getRecipe("margherita")!;
+    const ref = getReferencePizza("margherita")!;
+    const pizza: PizzaState = { ...createEmptyPizza(), sauceIds: ["tomato-sauce"], bakeResult: 60 };
+    const [first, ...rest] = ref.pieceGroups;
+    const withGroup = (group: typeof first) => ({ ...ref, pieceGroups: [group, ...rest] });
+    // A production recipe is scored only against its own Reference data.
+    const inflated = withGroup({ ...first, matching: { fullCreditRadius: 10000, zeroCreditRadius: 10001 } });
+    expect(computeScoringV2(margherita, pizza, { reference: inflated }).available).toBe(false);
+    const moved = withGroup({ ...first, positions: first.positions.map((p) => ({ x: p.x + 1, y: p.y })) });
+    expect(computeScoringV2(margherita, pizza, { reference: moved }).available).toBe(false);
+    const otherSauce = { ...ref, sauce: { ...ref.sauce, coverage: ref.sauce.coverage / 2 } };
+    expect(computeScoringV2(margherita, pizza, { reference: otherSauce }).available).toBe(false);
+    // A structurally equal copy of the production Reference is accepted.
+    expect(computeScoringV2(margherita, pizza, { reference: structuredClone(ref) }).available).toBe(true);
+    // A recipe without a production Reference: only approved tolerance bands and in-area positions.
+    const [synFirst, ...synRest] = SYN_REFERENCE.pieceGroups;
+    const synWith = (group: typeof synFirst) => ({ ...SYN_REFERENCE, pieceGroups: [group, ...synRest] });
+    const synInflated = synWith({ ...synFirst, matching: { fullCreditRadius: 10000, zeroCreditRadius: 10001 } });
+    expect(score(noSaucePizza(), SYN_RECIPE, synInflated).result.available).toBe(false);
+    const synOutside = synWith({ ...synFirst, positions: synFirst.positions.map(() => ({ x: 99, y: 50 })) });
+    expect(score(noSaucePizza(), SYN_RECIPE, synOutside).result.available).toBe(false);
+    expect(score(noSaucePizza(), SYN_RECIPE, SYN_REFERENCE).result.available).toBe(true);
+  });
+
   it("a non-object options argument fails closed instead of throwing (Codex review on #271)", () => {
     const margherita = getRecipe("margherita")!;
     const pizza: PizzaState = { ...createEmptyPizza(), sauceIds: ["tomato-sauce"], bakeResult: 60 };
@@ -339,8 +364,13 @@ describe("TQ-1B: adversarial Reference data fails closed", () => {
       expect(result.available, JSON.stringify(bad)).toBe(false);
       expect(result.totalScore).toBeNull();
     }
+    // The range edges are valid targets. A production recipe accepts only its own Reference, so
+    // the edges are checked on a non-production copy of Margherita.
+    const synId = "syn-sauce-edge" as RecipeId;
+    const synRecipe: Recipe = { ...margherita, id: synId };
     for (const edge of [{ quantity: 0, coverage: 0 }, { quantity: 1, coverage: 1 }]) {
-      expect(computeScoringV2(margherita, pizza, { reference: { ...ref, sauce: { ...ref.sauce, ...edge } } }).available).toBe(true);
+      const synRef = { ...ref, recipeId: synId, sauce: { ...ref.sauce, ...edge } };
+      expect(computeScoringV2(synRecipe, pizza, { reference: synRef }).available).toBe(true);
     }
   });
 

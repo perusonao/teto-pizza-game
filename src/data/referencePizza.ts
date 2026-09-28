@@ -1561,3 +1561,8 @@ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
 export function getReferencePizza(recipeId: string): ReferencePizza | null {
   return REFERENCE_PIZZAS.get(recipeId as RecipeId) ?? null;
 }
+
+/** Every production Reference, in registration order. */
+export function listReferencePizzas(): readonly ReferencePizza[] {
+  return [...REFERENCE_PIZZAS.values()];
+}

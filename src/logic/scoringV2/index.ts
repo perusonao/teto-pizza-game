@@ -15,9 +15,10 @@
  * CONFIRM_BAKE action.
  */
 import { getIngredient } from "../../data/ingredients";
-import { getReferencePizza } from "../../data/referencePizza";
+import { getReferencePizza, listReferencePizzas } from "../../data/referencePizza";
 import type { Recipe } from "../../data/recipes";
 import { createEmptyPizza, type PizzaState } from "../../state/pizzaState";
+import { REFERENCE_SLOT_MAX_RADIUS } from "../pizzaReferenceLayout";
 import { computeSauceMetrics } from "../sauceField";
 import { scoreBakeComponentV2 } from "./bakeComponent";
 import { sanitizeSauceDeposits } from "./boundary";
@@ -111,6 +112,66 @@ function isUnitNumber(value: unknown): value is number {
  *  and its sauce is a well-formed target. `sauce: null` is the one valid "no sauce" value --
  *  anything else that is not a target (absent, `undefined`, a partial object) is malformed. */
 function invalidReferenceReason(recipe: Recipe, reference: ScoringReferencePizza): string | null {
+  return invalidReferenceShapeReason(recipe, reference) ?? invalidReferenceValueReason(recipe, reference);
+}
+
+const REFERENCE_NOT_AUTHORITATIVE_REASON = "お手本が正式なお手本データと一致しません（採点しません）。";
+/** Reference pieces are laid out on a 0..100 dough-percent square centred here. */
+const REFERENCE_CENTER = 50;
+
+let approvedToleranceBands: ReadonlySet<string> | null = null;
+function toleranceBandKey(full: unknown, zero: unknown): string {
+  return `${String(full)}/${String(zero)}`;
+}
+/** The placement tolerance bands production References use (today 8/22 and Bismarck's egg 14/30). */
+function isApprovedToleranceBand(full: unknown, zero: unknown): boolean {
+  if (approvedToleranceBands === null) approvedToleranceBands = new Set(
+    listReferencePizzas().flatMap((ref) =>
+      ref.pieceGroups.map((g) => toleranceBandKey(g.matching.fullCreditRadius, g.matching.zeroCreditRadius)),
+    ),
+  );
+  return approvedToleranceBands.has(toleranceBandKey(full, zero));
+}
+
+/** Structural equality over plain Reference data (objects, arrays, primitives). */
+function sameReferenceData(a: unknown, b: unknown): boolean {
+  if (Object.is(a, b)) return true;
+  if (typeof a !== "object" || typeof b !== "object" || a === null || b === null) return false;
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+  const aKeys = Object.keys(a);
+  const bKeys = Object.keys(b);
+  if (aKeys.length !== bKeys.length) return false;
+  const bRecord = b as Record<string, unknown>;
+  return aKeys.every((key) => Object.prototype.hasOwnProperty.call(bRecord, key) && sameReferenceData((a as Record<string, unknown>)[key], bRecord[key]));
+}
+
+/** The Reference's values, after its shape has passed (Codex review on #271). A recipe with a
+ *  production Reference is scored only against exactly that data -- any other value (positions,
+ *  tolerance radii, sauce targets, ...) is corrupted authoritative data. A recipe without one
+ *  (the synthetic no-sauce seam) is held to the value ranges production data uses: approved
+ *  tolerance bands and piece positions within the reference slot area. */
+function invalidReferenceValueReason(recipe: Recipe, reference: ScoringReferencePizza): string | null {
+  const production = getReferencePizza(recipe.id);
+  if (production) {
+    return reference === production || sameReferenceData(reference, production) ? null : REFERENCE_NOT_AUTHORITATIVE_REASON;
+  }
+  for (const group of reference.pieceGroups as readonly unknown[]) {
+    const record = group as Record<string, unknown>;
+    const matching = record.matching;
+    if (typeof matching !== "object" || matching === null) return REFERENCE_MALFORMED_REASON;
+    const { fullCreditRadius, zeroCreditRadius } = matching as Record<string, unknown>;
+    if (!isApprovedToleranceBand(fullCreditRadius, zeroCreditRadius)) return REFERENCE_NOT_AUTHORITATIVE_REASON;
+    for (const position of record.positions as readonly unknown[]) {
+      const { x, y } = (typeof position === "object" && position !== null ? position : {}) as Record<string, unknown>;
+      const distance = typeof x === "number" && typeof y === "number" ? Math.hypot(x - REFERENCE_CENTER, y - REFERENCE_CENTER) : NaN;
+      if (!(distance <= REFERENCE_SLOT_MAX_RADIUS)) return REFERENCE_NOT_AUTHORITATIVE_REASON;
+    }
+  }
+  return null;
+}
+
+/** Null when the Reference's shape and identity fit `recipe` (see `invalidReferenceReason`). */
+function invalidReferenceShapeReason(recipe: Recipe, reference: ScoringReferencePizza): string | null {
   if (typeof reference !== "object" || reference === null) return REFERENCE_MALFORMED_REASON;
   if (reference.recipeId !== recipe.id) return REFERENCE_RECIPE_MISMATCH_REASON;
   if (!Array.isArray(reference.pieceGroups)) return REFERENCE_MALFORMED_REASON;
