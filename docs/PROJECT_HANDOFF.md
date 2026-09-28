@@ -303,6 +303,18 @@ Pitz reward belongs to P3-3, and onboarding and hint tiers are also pending.
 
 > Fresh GitHub/main state always wins if this document becomes stale.
 
+## Post-W1 Cooking Steps (Issue #294, PR #295) — status
+
+- Design / authority: `docs/design/TETO_POST-W1_COOKING-STEPS_NEXT-PHASE_DESIGN.md` (§13 Owner
+  Decisions: OD-CS-1 = A — Cooking Steps builds the late-addition engine inert, TQ-2 enables it in
+  Production; OD-CS-2 = B — normal recipes final at CONFIRM_BAKE, future late-addition recipes
+  provisional → final after FINISH; OD-CS-9 (a) — Production max 6 tabs, never relaxed, 7+ needs
+  CS-4; OD-CS-20 — CS-1 split into CS-1a / CS-1b).
+- **CS-1a done, not merged** (`docs/reports/TETO_POST-W1_COOKING-STEPS_CS-1A_Result.md`): tab gate
+  test + GameScreen generic post-bake rendering, no visible change.
+- **CS-1b waits on PR #275** (OPEN, Owner HV). Do not extract `finalizeRound` before it is resolved.
+- FREE POST_BAKE HOME confirm gap: independent Issue candidate (Pre-start Gate §10.1), not fixed.
+
 ## Cooking Techniques 1.0 — authority (TQ-1C-0, Issue #285)
 
 **Read first for any technique work (TQ-1C, TQ-1D and later):**
