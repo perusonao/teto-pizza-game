@@ -18,7 +18,8 @@ const W1 = ["capers", "clam", "corn", "eggplant", "fresh-tomato", "pineapple", "
 describe("obtainableIngredientIds", () => {
   it("is the 3 starters + the 26 current ladder materials = the whole 29-row catalog, in catalog order", () => {
     const ids = obtainableIngredientIds();
-    expect(DISCOVERY_LADDER).toBe(W1_25_DISCOVERY_LADDER);
+    // LAD-1 (OD-W2-1): frozen W1 + appended steps (none yet) -- an equal copy, not the same object.
+    expect(DISCOVERY_LADDER).toEqual(W1_25_DISCOVERY_LADDER);
     expect(ids).toHaveLength(29);
     expect(new Set(ids)).toEqual(new Set([...STARTER_INGREDIENT_IDS, ...materialIdsOfSteps(DISCOVERY_LADDER.steps)]));
     expect(ids).toEqual(INGREDIENTS.map((i) => i.id));
