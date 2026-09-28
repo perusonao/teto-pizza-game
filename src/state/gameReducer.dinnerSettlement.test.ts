@@ -506,6 +506,37 @@ describe("persistence of a settlement (App's effect)", () => {
     expect((storage.raw()!.dinnerMissionRecords as Record<string, unknown>)["dm-a"]).toEqual({ broken: true });
   });
 
+  it("7 (review #1/#2): after a refusal, memory reconciles (payout reverted, mission blocked) and saving resumes", () => {
+    const storage = fakeStorage(seedSave());
+    const cleared = clearRun(withTable(startFrom(hydrate(storage)), TUNED), 80_000);
+    storage.setItem(SAVE_STORAGE_KEY, JSON.stringify(seedSave({ dinnerMissionRecords: { "dm-a": { broken: true } } })));
+    const refused = persistProgress(appSnapshot(cleared), storage);
+    // What App does with the result:
+    const reconciled = gameReducer(cleared, { type: "DINNER_RECORDS_REFUSED", missionIds: refused.refusedDinnerMissionIds });
+    expect(reconciled.pitzBalance).toBe(PITZ); // the unsaved 250 is reverted
+    expect(reconciled.dinner!.settlement).toEqual({ kind: "BLOCKED", runKey: `dm-a@1#${T0}`, pitz: 0 });
+    expect(records(reconciled).blockedMissionIds).toEqual(["dm-a"]);
+    expect(records(reconciled).records["dm-a"]).toBeUndefined();
+    // The next save no longer carries dm-a, so it goes through (no session-long freeze), and the
+    // broken stored record stays verbatim.
+    expect(persistProgress(appSnapshot(reconciled), storage)).toEqual({ refusedDinnerMissionIds: [] });
+    expect(storage.raw()!.pitzBalance).toBe(PITZ);
+    expect((storage.raw()!.inventory as Record<string, number>).egg).toBe(PLENTY.egg - 2);
+    expect((storage.raw()!.dinnerMissionRecords as Record<string, unknown>)["dm-a"]).toEqual({ broken: true });
+    // Idempotent: a repeated refusal changes nothing; other missions are untouched.
+    expect(gameReducer(reconciled, { type: "DINNER_RECORDS_REFUSED", missionIds: ["dm-a"] })).toBe(reconciled);
+  });
+
+  it("7: a refusal for a mission that is not the settled one only blocks that mission", () => {
+    const base = saved(PLENTY, undefined, recordsOf({ "dm-b": REC_REWARDED }));
+    const cleared = clearRun(withTable(startFrom(base), TUNED), 80_000);
+    const after = gameReducer(cleared, { type: "DINNER_RECORDS_REFUSED", missionIds: ["dm-b"] });
+    expect(after.pitzBalance).toBe(cleared.pitzBalance);
+    expect(after.dinner!.settlement).toEqual(cleared.dinner!.settlement);
+    expect(records(after).records).toEqual({ "dm-a": records(cleared).records["dm-a"] });
+    expect(records(after).blockedMissionIds).toEqual(["dm-b"]);
+  });
+
   it("9: a blocked mission's broken record is carried verbatim; the rest of the progress is saved", () => {
     const broken = { revision: 1, clears: -2, bestClearMs: "?", bestTier: "Z", firstClearRewarded: "no" };
     const storage = fakeStorage(seedSave({ dinnerMissionRecords: { "dm-a": broken } }));
@@ -542,6 +573,7 @@ describe("App wiring (the one persistence effect)", () => {
     expect(effect).toContain("dinnerMissionRecordUpdates: state.dinnerMissionRecordsState.records");
     expect(effect).toContain("requireDinnerRecords: true");
     expect(effect).toContain("state.dinnerMissionRecordsState,");
+    expect(effect).toContain('dispatch({ type: "DINNER_RECORDS_REFUSED", missionIds: persisted.refusedDinnerMissionIds })');
   });
 
   it("hydrates the records (blocked missions included) from the save", () => {

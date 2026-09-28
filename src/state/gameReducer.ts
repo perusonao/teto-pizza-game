@@ -504,7 +504,13 @@ export type DinnerAction =
   /** Confirmed HOME / navigation away: the run is FAILED (ABANDONED), no reward. */
   | { type: "DINNER_CONFIRM_ABANDON"; now: number }
   /** Leaves a finished (CLEARED / FAILED) run for a normal round. */
-  | { type: "DINNER_EXIT" };
+  | { type: "DINNER_EXIT" }
+  /** DM-4-3: App's save write refused these missions' records (their stored record is broken --
+   *  it became so underneath this session). Fail-closed reconciliation: the missions become blocked
+   *  in memory too, their in-memory records are dropped, and an unsaved settlement of one of them is
+   *  reverted (its Pitz removed, shown as BLOCKED) -- so memory never keeps a payout storage refused,
+   *  and the next save (which no longer carries the record) goes through. */
+  | { type: "DINNER_RECORDS_REFUSED"; missionIds: readonly string[] };
 
 /** Progression fields every "start a new round" path must carry forward unchanged --
  *  factored out so `buildOrderState`'s signature can't silently drop one when a new field is
@@ -637,20 +643,7 @@ function nextMissionOrderState(
   if (!order) return null;
   return buildOrderState(
     order,
-    {
-      dex: state.dex,
-      ownedIngredientIds: state.ownedIngredientIds,
-      pitzBalance: state.pitzBalance,
-      lastClaimedMissionRunId: state.lastClaimedMissionRunId,
-      inventory: state.inventory,
-      starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
-      unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
-      preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
-      hintSession: state.hintSession,
-      discoveryHintPurchases: state.discoveryHintPurchases,
-      discoveryHintFacts: state.discoveryHintFacts,
-      dinnerMissionRecordsState: state.dinnerMissionRecordsState,
-    },
+    carryOf(state),
     true,
     false,
     missionSoldOutRecipeIds,
@@ -1375,20 +1368,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
 
     case "PLAY_AGAIN":
       return nextOrderState(
-        {
-          dex: state.dex,
-          ownedIngredientIds: state.ownedIngredientIds,
-          pitzBalance: state.pitzBalance,
-          lastClaimedMissionRunId: state.lastClaimedMissionRunId,
-          inventory: state.inventory,
-          starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
-          unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
-          preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
-          hintSession: state.hintSession,
-          discoveryHintPurchases: state.discoveryHintPurchases,
-          discoveryHintFacts: state.discoveryHintFacts,
-          dinnerMissionRecordsState: state.dinnerMissionRecordsState,
-        },
+        carryOf(state),
         { excludeRecipeId: state.recipe.id },
       );
 
@@ -1400,39 +1380,13 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // Dex-0-only guard, which this subsumes.)
       if (!canStartGuidedRound(action.recipeId, state)) return state;
       return (
-        startPreparingRecipe(action.recipeId, {
-          dex: state.dex,
-          ownedIngredientIds: state.ownedIngredientIds,
-          pitzBalance: state.pitzBalance,
-          lastClaimedMissionRunId: state.lastClaimedMissionRunId,
-          inventory: state.inventory,
-          starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
-          unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
-          preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
-          hintSession: state.hintSession,
-          discoveryHintPurchases: state.discoveryHintPurchases,
-          discoveryHintFacts: state.discoveryHintFacts,
-          dinnerMissionRecordsState: state.dinnerMissionRecordsState,
-        }, action.now) ?? state
+        startPreparingRecipe(action.recipeId, carryOf(state), action.now) ?? state
       );
     }
 
     case "START_FREE_COOK":
       return startFreeCook(
-        {
-          dex: state.dex,
-          ownedIngredientIds: state.ownedIngredientIds,
-          pitzBalance: state.pitzBalance,
-          lastClaimedMissionRunId: state.lastClaimedMissionRunId,
-          inventory: state.inventory,
-          starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
-          unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
-          preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
-          hintSession: state.hintSession,
-          discoveryHintPurchases: state.discoveryHintPurchases,
-          discoveryHintFacts: state.discoveryHintFacts,
-          dinnerMissionRecordsState: state.dinnerMissionRecordsState,
-        },
+        carryOf(state),
         action.now,
       );
 
@@ -1441,40 +1395,14 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
     case "RETRY_SAME_RECIPE":
       if (state.freeCook) {
         return startFreeCook(
-          {
-            dex: state.dex,
-            ownedIngredientIds: state.ownedIngredientIds,
-            pitzBalance: state.pitzBalance,
-            lastClaimedMissionRunId: state.lastClaimedMissionRunId,
-            inventory: state.inventory,
-            starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
-            unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
-            preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
-            hintSession: state.hintSession,
-            discoveryHintPurchases: state.discoveryHintPurchases,
-            discoveryHintFacts: state.discoveryHintFacts,
-            dinnerMissionRecordsState: state.dinnerMissionRecordsState,
-          },
+          carryOf(state),
           action.now,
         );
       }
       // LK-8 backstop (NF-4): the guided retry follows the same authority as SELECT_RECIPE.
       if (!canStartGuidedRound(state.recipe.id, state)) return state;
       return (
-        startPreparingRecipe(state.recipe.id, {
-          dex: state.dex,
-          ownedIngredientIds: state.ownedIngredientIds,
-          pitzBalance: state.pitzBalance,
-          lastClaimedMissionRunId: state.lastClaimedMissionRunId,
-          inventory: state.inventory,
-          starterGrantClaimedRecipeIds: state.starterGrantClaimedRecipeIds,
-          unlockedForShopIngredientIds: state.unlockedForShopIngredientIds,
-          preDiscoveryFreeCookAttempts: state.preDiscoveryFreeCookAttempts,
-          hintSession: state.hintSession,
-          discoveryHintPurchases: state.discoveryHintPurchases,
-          discoveryHintFacts: state.discoveryHintFacts,
-          dinnerMissionRecordsState: state.dinnerMissionRecordsState,
-        }, action.now) ?? state
+        startPreparingRecipe(state.recipe.id, carryOf(state), action.now) ?? state
       );
 
     // Registers the current RESULT into the Dex (same rule as REGISTER_TO_DEX: BEST never
@@ -1737,6 +1665,7 @@ function isValidMinimumStars(value: unknown): value is QualityStars {
 }
 
 function dinnerActionReducer(state: GameState, action: DinnerAction): GameState {
+  if (action.type === "DINNER_RECORDS_REFUSED") return dinnerRecordsRefused(state, action.missionIds);
   if (action.type === "DINNER_START") {
     // One run at a time, never on top of a Lunch Rush round.
     if (state.dinner !== null || state.isMissionRound) return state;
@@ -1918,6 +1847,26 @@ function dinnerResolve(
   return resolved;
 }
 
+/** DM-4-3: see `DINNER_RECORDS_REFUSED`. Idempotent: an already-blocked mission changes nothing. */
+function dinnerRecordsRefused(state: GameState, missionIds: readonly string[]): GameState {
+  const recs = state.dinnerMissionRecordsState;
+  const ids = [...new Set(missionIds)].filter((id) => typeof id === "string" && !recs.blockedMissionIds.includes(id));
+  if (ids.length === 0) return state;
+  const records = Object.fromEntries(Object.entries(recs.records).filter(([id]) => !ids.includes(id)));
+  let { pitzBalance, dinner } = state;
+  const settlement = dinner?.settlement;
+  if (dinner && settlement?.kind === "SETTLED" && ids.includes(dinner.run.missionId)) {
+    pitzBalance = Math.max(0, pitzBalance - settlement.pitz);
+    dinner = { ...dinner, settlement: { kind: "BLOCKED", runKey: settlement.runKey, pitz: 0 } };
+  }
+  return {
+    ...state,
+    pitzBalance,
+    dinner,
+    dinnerMissionRecordsState: { ...recs, records, blockedMissionIds: [...recs.blockedMissionIds, ...ids] },
+  };
+}
+
 /**
  * DM-4-3 (OD-DM4-3): settles a run's CLEAR exactly once, entirely through the approved authorities --
  * DM-4-1 `decideDinnerSettlement` (reward, first-clear vs repeat, tier, record update, replay
@@ -1932,7 +1881,8 @@ function dinnerSettle(state: GameState): GameState {
   const run = session.run;
   const runKey = dinnerRunKey(run);
   // Backstop: this session already settled this run (a replayed transition changes nothing).
-  if (session.settlement !== null) return state;
+  const settledRunKey = session.settlement?.runKey ?? null;
+  if (settledRunKey === runKey) return state;
   const withSettlement = (settlement: DinnerSettlementView, extra: Partial<GameState> = {}): GameState => ({
     ...state,
     ...extra,
@@ -1947,8 +1897,9 @@ function dinnerSettle(state: GameState): GameState {
     mission: getDinnerMission(run.missionId),
     record: access.record,
     table: session.rewardTable,
-    settledRunKey: null,
+    settledRunKey,
   });
+  if (decision.kind === "NO_SETTLEMENT" && decision.reason === "ALREADY_SETTLED") return state;
   if (decision.kind !== "SETTLE") {
     return withSettlement({ kind: "REFUSED", runKey, pitz: 0, problems: [decision.reason, ...decision.problems] });
   }

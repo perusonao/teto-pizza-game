@@ -347,7 +347,7 @@ function App() {
   // src/state/persistence.ts). `missionBest` is a separate concern, saved by its own effect
   // below.
   useEffect(() => {
-    persistProgress({
+    const persisted = persistProgress({
       dex: state.dex,
       pitzBalance: state.pitzBalance,
       ownedIngredientIds: state.ownedIngredientIds,
@@ -363,6 +363,11 @@ function App() {
       dinnerMissionRecordUpdates: state.dinnerMissionRecordsState.records,
       requireDinnerRecords: true,
     });
+    // Refused (nothing was written): reconcile memory with storage -- the missions become blocked,
+    // an unsaved payout is reverted, and the next save (without those records) goes through.
+    if (persisted.refusedDinnerMissionIds.length > 0) {
+      dispatch({ type: "DINNER_RECORDS_REFUSED", missionIds: persisted.refusedDinnerMissionIds });
+    }
   }, [
     state.dex,
     state.pitzBalance,

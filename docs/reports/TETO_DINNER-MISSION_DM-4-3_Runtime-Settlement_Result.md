@@ -153,14 +153,57 @@ test は `src/state/gameReducer.dinnerSettlement.test.ts`（28 件）。E2E は 
 
 ## 8. 残るリスク（P3）
 
-**storage の破損で保存が止まる場合がある**
+**storage の破損による保存の停止**
 
-- session の実行中に、storage 側で record が壊れることがある（別の build / 手動の改変）。
-- その場合、`requireDinnerRecords` により、その session の保存は reload まで止まる（fail-closed）。
-- reload すると、その mission は blocked になり、他の進捗の保存は再開する。
-- 通常の操作では起きない。この build は壊れた record を書かないし、blocked な mission は memory 上でも精算しない。
+- 当初は、storage 側の破損で session の保存が reload まで止まりうる設計だった。
+- review #1 / #2 の対応で解消した（§9）。拒否された write は 1 回だけ起き、memory 側を reconcile したあとの保存は通常どおり進む。
 
 **2 つの tab での同時 clear**
 
 - `clears` の max merge（DM-4-2 #3）により、2 つの tab で同時に clear すると 1 回分が失われうる。
 - 支払いへの影響はない。
+
+## 9. Independent review（`21a898a`、PR #281）
+
+`/code-review high` で 8 件の指摘が出た。
+
+| # | 指摘 | 判断 | 対応 |
+|---|---|---|---|
+| 1 | `requireDinnerRecords` と records の全体 map を毎回渡しているので、1 件の拒否で session の全保存が止まる | **妥当（P2）** | 下の reconcile を追加した。拒否された write は 1 回で済み、次の保存（拒否された record を含まない）は通る |
+| 2 | persist の結果（拒否）を無視しているので、memory 上は SETTLED のまま、保存されていない Pitz を使えてしまう | **妥当（P2）** | App は拒否されたら `DINNER_RECORDS_REFUSED` を dispatch する。reducer は次のことを行う: その mission を blocked にする、in-memory の record を外す、未保存の settlement の Pitz を戻す、settlement を BLOCKED にする。冪等で、他の mission には影響しない |
+| 3 | first-clear の判定が mount 時に hydrate した record なので、2 つの tab で初回が二重に払われうる | **exploit ではない（記録のみ）** | `pitzBalance` は絶対値で保存され、last-writer-wins。そのため 2 つの tab が両方 FIRST_CLEAR を選んでも、最終的な増分は初回 1 回分になる（もう一方の tab の支払いは失われるだけで、二重にはならない）。既存の multi-tab の非目標（E22）。`firstClearRewarded` は OR merge で保持される |
+| 4 | `settledRunKey: null` 固定では、DM-4-1 の ALREADY_SETTLED backstop が使われない | **妥当（P3）** | `session.settlement?.runKey` を authority に渡すようにした。ALREADY_SETTLED なら state を変えない |
+| 5 | 全件ではなく、settlement の差分だけを gate すべき | #1 / #2 で解消 | 拒否 → reconcile の設計で、停止は 1 回の write に限られる |
+| 6 | `ProgressionCarry` の object literal が 6 か所にコピーされている | **妥当（P3）** | 6 か所を `carryOf(state)` に置き換えた。新しい必須 field の落とし漏れの危険を直接減らす（全遷移の test と mutant G7 / G11 / G12 で固定） |
+| 7 | 保存のたびに records を再 merge する | P3 | records は数件なので、コストは無視できる。変更しない |
+| 8 | Human Verification を対象外にしている | **対象外を維持（理由つき）** | Policy §2 の「原則不要」には「見た目 / 操作が変化しない」変更が含まれる。DM-4-3 は UI を変えず、production の payout は 0 で、player が見る・操作するものは何も変わらない。Acceptance Criteria は保存の内容で、E2E が save を読んで検証している。報酬の表示が入る DM-4-4 で HV を行う。**Owner が必要と判断すれば、Preview で追加撮影する** |
+
+**追加した test（3 件）:**
+
+- 拒否 → reconcile: payout が戻り、mission が blocked になり、record が外れる。次の保存は通り、在庫は保存され、壊れた record は verbatim に残る。
+- 拒否が冪等であること。
+- 別の mission の拒否は、その mission だけを block すること。
+- あわせて、App が拒否時に dispatch することを source で固定した。
+
+**Mutation（review 対応後、追加分）:**
+
+| mutant | 結果 |
+|---|---|
+| V1: payout を戻さない | DETECTED |
+| V2: block しない | DETECTED |
+| V3: record を外さない | DETECTED |
+| V4: 無関係な settlement まで relabel する | DETECTED |
+| V5: action を無視する | DETECTED |
+| V6: App が dispatch しない | DETECTED |
+| 再確認: G1 / G4 / G7 | DETECTED |
+
+**Verification（review 対応後）:**
+
+| check | result |
+|---|---|
+| full Vitest | 202 files、**4331 passed / 1 skipped** |
+| `tsc -b` | clean |
+| `oxlint` | 0 / 0 |
+| build | success |
+| E2E（Chromium 390×844 と 360×800） | `dinner-settlement-dm4-3`、`dinner-mission`、`save-dinner-records-dm4-2`、`lunch-rush-material-shortage`、`free-cooking-phase3-2`: **40 passed** |
+
