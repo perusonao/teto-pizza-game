@@ -1,0 +1,407 @@
+{
+ "schemaNote": "Hint 5.0 Fresh Audit — runtime ingredient taxonomy coverage snapshot. Docs/data only, NOT an authority. Families/groups are read from src/data/ingredientTaxonomy.ts (DH4-1). NEEDS_REVIEW markers come from PR #255 (OD-TAX-7 Human Review Queue).",
+ "auditedMainSha": "86b48fd51423a8f76db5398ab88ecfd944e2ae10",
+ "proposedGate": {
+  "rule": "every ingredient with category topping in src/data/ingredients.ts MUST have exactly one family row; unknown -> test failure (fail closed), never a guessed family",
+  "scope": "hint-eligible = category topping (sauce/cheese are named by their own rungs)"
+ },
+ "counts": {
+  "runtime": {
+   "ingredients": 29,
+   "byCategory": {
+    "sauce": 3,
+    "cheese": 4,
+    "topping": 22
+   },
+   "toppings": 22,
+   "toppingsClassified": 22,
+   "toppingsUnclassified": 0,
+   "ambiguousNeedsReview": 3,
+   "observedAsSubTopping": 12
+  },
+  "catalog62": {
+   "ingredients": 62,
+   "byCategory": {
+    "topping": 42,
+    "sauce": 10,
+    "cheese": 10
+   },
+   "toppingsWithRuntimeFamily": 19,
+   "toppingsWithoutRuntimeFamily": 23,
+   "runtimeOnlyIdsNotInCatalog": [
+    "capers",
+    "clam",
+    "fresh-tomato"
+   ]
+  },
+  "matrix172": {
+   "canonicalIds": 169,
+   "unresolvedTokens": 13,
+   "unionWithCatalogAndRuntime": 179,
+   "pr255Proposed": 125,
+   "pr255NeedsReview": 44,
+   "pr255Unknown": 13,
+   "newFamilyIdsNeeded": 0,
+   "status": "PROPOSED only (PR #255 OPEN); Human Classification Gate OD-TAX-7 pending"
+  }
+ },
+ "rows": [
+  {
+   "id": "tomato-sauce",
+   "nameJa": "トマトソース",
+   "category": "sauce",
+   "hintEligibleAsSubTopping": false,
+   "observedAsSubToppingIn": [],
+   "family": null,
+   "group": null,
+   "status": "NOT_APPLICABLE_CATEGORY_ONLY",
+   "note": null
+  },
+  {
+   "id": "olive-oil",
+   "nameJa": "オリーブオイル",
+   "category": "sauce",
+   "hintEligibleAsSubTopping": false,
+   "observedAsSubToppingIn": [],
+   "family": null,
+   "group": null,
+   "status": "NOT_APPLICABLE_CATEGORY_ONLY",
+   "note": null
+  },
+  {
+   "id": "pesto",
+   "nameJa": "ジェノベーゼソース",
+   "category": "sauce",
+   "hintEligibleAsSubTopping": false,
+   "observedAsSubToppingIn": [],
+   "family": null,
+   "group": null,
+   "status": "NOT_APPLICABLE_CATEGORY_ONLY",
+   "note": null
+  },
+  {
+   "id": "mozzarella",
+   "nameJa": "モッツァレラ",
+   "category": "cheese",
+   "hintEligibleAsSubTopping": false,
+   "observedAsSubToppingIn": [],
+   "family": null,
+   "group": null,
+   "status": "NOT_APPLICABLE_CATEGORY_ONLY",
+   "note": null
+  },
+  {
+   "id": "gorgonzola",
+   "nameJa": "ゴルゴンゾーラ",
+   "category": "cheese",
+   "hintEligibleAsSubTopping": false,
+   "observedAsSubToppingIn": [],
+   "family": null,
+   "group": null,
+   "status": "NOT_APPLICABLE_CATEGORY_ONLY",
+   "note": null
+  },
+  {
+   "id": "parmigiano",
+   "nameJa": "パルミジャーノ",
+   "category": "cheese",
+   "hintEligibleAsSubTopping": false,
+   "observedAsSubToppingIn": [],
+   "family": null,
+   "group": null,
+   "status": "NOT_APPLICABLE_CATEGORY_ONLY",
+   "note": null
+  },
+  {
+   "id": "fontina",
+   "nameJa": "フォンティーナ",
+   "category": "cheese",
+   "hintEligibleAsSubTopping": false,
+   "observedAsSubToppingIn": [],
+   "family": null,
+   "group": null,
+   "status": "NOT_APPLICABLE_CATEGORY_ONLY",
+   "note": null
+  },
+  {
+   "id": "basil",
+   "nameJa": "バジル",
+   "category": "topping",
+   "hintEligibleAsSubTopping": true,
+   "observedAsSubToppingIn": [
+    "melanzane-pizza",
+    "parmigiana-pizza",
+    "pesto-caprese"
+   ],
+   "family": "herb",
+   "group": "aroma",
+   "status": "CLASSIFIED",
+   "note": null
+  },
+  {
+   "id": "garlic",
+   "nameJa": "にんにく",
+   "category": "topping",
+   "hintEligibleAsSubTopping": true,
+   "observedAsSubToppingIn": [
+    "new-haven-apizza",
+    "puttanesca-pizza"
+   ],
+   "family": "herb",
+   "group": "aroma",
+   "status": "CLASSIFIED_NEEDS_REVIEW",
+   "note": "herb vs vegetable.allium (PR #255 §16)"
+  },
+  {
+   "id": "oregano",
+   "nameJa": "オレガノ",
+   "category": "topping",
+   "hintEligibleAsSubTopping": true,
+   "observedAsSubToppingIn": [
+    "marinara",
+    "fugazza",
+    "napoletana"
+   ],
+   "family": "herb",
+   "group": "aroma",
+   "status": "CLASSIFIED",
+   "note": null
+  },
+  {
+   "id": "cherry-tomato",
+   "nameJa": "チェリートマト",
+   "category": "topping",
+   "hintEligibleAsSubTopping": true,
+   "observedAsSubToppingIn": [],
+   "family": "vegetable",
+   "group": "produce",
+   "status": "CLASSIFIED",
+   "note": null
+  },
+  {
+   "id": "egg",
+   "nameJa": "たまご",
+   "category": "topping",
+   "hintEligibleAsSubTopping": true,
+   "observedAsSubToppingIn": [
+    "breakfast-pizza",
+    "pizza-portuguesa"
+   ],
+   "family": "other",
+   "group": "other",
+   "status": "CLASSIFIED",
+   "note": "family other: label ≈ ingredient name at runtime (singleton), OD-TAX-8 copy open"
+  },
+  {
+   "id": "mushroom",
+   "nameJa": "マッシュルーム",
+   "category": "topping",
+   "hintEligibleAsSubTopping": true,
+   "observedAsSubToppingIn": [
+    "capricciosa"
+   ],
+   "family": "vegetable",
+   "group": "produce",
+   "status": "CLASSIFIED",
+   "note": "vegetable (きのこ folded, OD-DH4-4)"
+  },
+  {
+   "id": "onion",
+   "nameJa": "たまねぎ",
+   "category": "topping",
+   "hintEligibleAsSubTopping": true,
+   "observedAsSubToppingIn": [
+    "tonno-e-cipolla",
+    "pesto-tonno"
+   ],
+   "family": "vegetable",
+   "group": "produce",
+   "status": "CLASSIFIED",
+   "note": null
+  },
+  {
+   "id": "sausage",
+   "nameJa": "ソーセージ",
+   "category": "topping",
+   "hintEligibleAsSubTopping": true,
+   "observedAsSubToppingIn": [
+    "meat-lovers"
+   ],
+   "family": "meat",
+   "group": "protein",
+   "status": "CLASSIFIED",
+   "note": null
+  },
+  {
+   "id": "pepperoni",
+   "nameJa": "ペパロニ",
+   "category": "topping",
+   "hintEligibleAsSubTopping": true,
+   "observedAsSubToppingIn": [
+    "meat-lovers"
+   ],
+   "family": "meat",
+   "group": "protein",
+   "status": "CLASSIFIED",
+   "note": null
+  },
+  {
+   "id": "anchovy",
+   "nameJa": "アンチョビ",
+   "category": "topping",
+   "hintEligibleAsSubTopping": true,
+   "observedAsSubToppingIn": [
+    "puttanesca-pizza"
+   ],
+   "family": "seafood",
+   "group": "protein",
+   "status": "CLASSIFIED",
+   "note": null
+  },
+  {
+   "id": "tuna",
+   "nameJa": "ツナ",
+   "category": "topping",
+   "hintEligibleAsSubTopping": true,
+   "observedAsSubToppingIn": [],
+   "family": "seafood",
+   "group": "protein",
+   "status": "CLASSIFIED",
+   "note": null
+  },
+  {
+   "id": "rosemary",
+   "nameJa": "ローズマリー",
+   "category": "topping",
+   "hintEligibleAsSubTopping": true,
+   "observedAsSubToppingIn": [],
+   "family": "herb",
+   "group": "aroma",
+   "status": "CLASSIFIED",
+   "note": null
+  },
+  {
+   "id": "bacon",
+   "nameJa": "ベーコン",
+   "category": "topping",
+   "hintEligibleAsSubTopping": true,
+   "observedAsSubToppingIn": [
+    "meat-lovers",
+    "pesto-patate"
+   ],
+   "family": "meat",
+   "group": "protein",
+   "status": "CLASSIFIED",
+   "note": null
+  },
+  {
+   "id": "ham",
+   "nameJa": "ハム",
+   "category": "topping",
+   "hintEligibleAsSubTopping": true,
+   "observedAsSubToppingIn": [
+    "capricciosa",
+    "bambino",
+    "hawaiian",
+    "pizza-portuguesa"
+   ],
+   "family": "meat",
+   "group": "protein",
+   "status": "CLASSIFIED",
+   "note": null
+  },
+  {
+   "id": "black-olive",
+   "nameJa": "ブラックオリーブ",
+   "category": "topping",
+   "hintEligibleAsSubTopping": true,
+   "observedAsSubToppingIn": [
+    "capricciosa",
+    "pizza-portuguesa",
+    "pesto-tonno",
+    "puttanesca-pizza"
+   ],
+   "family": "vegetable",
+   "group": "produce",
+   "status": "CLASSIFIED_NEEDS_REVIEW",
+   "note": "vegetable vs fruit/condiment (PR #255 §16)"
+  },
+  {
+   "id": "capers",
+   "nameJa": "ケッパー",
+   "category": "topping",
+   "hintEligibleAsSubTopping": true,
+   "observedAsSubToppingIn": [],
+   "family": "spice",
+   "group": "aroma",
+   "status": "CLASSIFIED_NEEDS_REVIEW",
+   "note": "spice vs vegetable.pickled (PR #255 §16)"
+  },
+  {
+   "id": "clam",
+   "nameJa": "あさり",
+   "category": "topping",
+   "hintEligibleAsSubTopping": true,
+   "observedAsSubToppingIn": [],
+   "family": "seafood",
+   "group": "protein",
+   "status": "CLASSIFIED",
+   "note": null
+  },
+  {
+   "id": "corn",
+   "nameJa": "コーン",
+   "category": "topping",
+   "hintEligibleAsSubTopping": true,
+   "observedAsSubToppingIn": [],
+   "family": "vegetable",
+   "group": "produce",
+   "status": "CLASSIFIED",
+   "note": null
+  },
+  {
+   "id": "eggplant",
+   "nameJa": "ナス",
+   "category": "topping",
+   "hintEligibleAsSubTopping": true,
+   "observedAsSubToppingIn": [],
+   "family": "vegetable",
+   "group": "produce",
+   "status": "CLASSIFIED",
+   "note": null
+  },
+  {
+   "id": "fresh-tomato",
+   "nameJa": "トマト",
+   "category": "topping",
+   "hintEligibleAsSubTopping": true,
+   "observedAsSubToppingIn": [],
+   "family": "vegetable",
+   "group": "produce",
+   "status": "CLASSIFIED",
+   "note": null
+  },
+  {
+   "id": "pineapple",
+   "nameJa": "パイナップル",
+   "category": "topping",
+   "hintEligibleAsSubTopping": true,
+   "observedAsSubToppingIn": [],
+   "family": "fruit",
+   "group": "produce",
+   "status": "CLASSIFIED",
+   "note": "fruit singleton at runtime"
+  },
+  {
+   "id": "potato",
+   "nameJa": "じゃがいも",
+   "category": "topping",
+   "hintEligibleAsSubTopping": true,
+   "observedAsSubToppingIn": [],
+   "family": "vegetable",
+   "group": "produce",
+   "status": "CLASSIFIED",
+   "note": null
+  }
+ ]
+}
