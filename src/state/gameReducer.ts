@@ -71,14 +71,13 @@ import {
   isOnboardingHintSession,
   purchaseSelectableHintFact,
   requestDeductionHintFact,
-  type DeductionFamily,
   resolveHintSession,
   unlockNextHint,
+  type DeductionFamily,
   type HintOutcome,
   type HintSession,
 } from "./discoveryHint";
 import type { HintCategory } from "../logic/discovery/selectableHint";
-
 import type { DiscoveryHintPurchases } from "../logic/discovery/hintPurchase";
 import {
   createEmptyPizza,

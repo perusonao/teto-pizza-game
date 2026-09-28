@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 import { INGREDIENTS } from "../data/ingredients";
 import { RECIPES } from "../data/recipes";
 import { W1_25_DISCOVERY_LADDER } from "../data/discoveryLadder";
@@ -10,6 +10,7 @@ import type { HintCategory } from "../logic/discovery/selectableHint";
 import { EMPTY_DEX, registerScoreToDex, type DexState } from "./dex";
 import { hintSheetView, requestDeductionHintFact, type HintSheetView } from "./discoveryHint";
 import { createInitialGameState, gameReducer, type GameAction, type GameState } from "./gameReducer";
+import type { ResultNearMissInput } from "./resultNearMiss";
 import { createDefaultSave, loadSave, persistProgress, resetSave, SAVE_STORAGE_KEY, type StorageLike } from "./persistence";
 
 /**
@@ -364,6 +365,11 @@ describe("DH4-2B boundaries", () => {
     const s = sheetOn(INFORMATIVE[0], 100);
     for (const family of ["structure", "attribute"] as const) expect(requestDeductionHintFact(s, family, 0, false)).toBeNull();
     expect(hintSheetView(s, false)).toMatchObject({ kind: "SELECTABLE", deduction: null });
+  });
+  it("near-miss cannot read any hint ledger: its input type carries none (OD-DH4-2-10)", () => {
+    expectTypeOf<keyof ResultNearMissInput>().not.toEqualTypeOf<"discoveryHintFacts" | "discoveryHintPurchases" | "hintOutcome">();
+    type Leaks = Extract<keyof ResultNearMissInput, "discoveryHintFacts" | "discoveryHintPurchases" | "hintOutcome">;
+    expectTypeOf<Leaks>().toBeNever();
   });
   it("near-miss stays independent of the deduction ledger (OD-DH4-2-10)", () => {
     const sources = import.meta.glob<string>("../logic/discovery/nearMiss.ts", { query: "?raw", import: "default", eager: true });

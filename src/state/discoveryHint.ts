@@ -41,8 +41,6 @@ import { DEDUCTION_HINTS_ENABLED } from "../logic/discovery/deductionFlag";
 import { INGREDIENT_TOTAL_FACT_ID } from "../logic/discovery/deductionHint";
 import { TOPPING_TOTAL_FACT_ID } from "../logic/discovery/deductionGuard";
 import { deductionKnownLines, deductionOwnership, requestDeductionHint, type DeductionFamily } from "../logic/discovery/deductionRequest";
-
-export type { DeductionFamily };
 import {
   buildSelectableHintModel,
   hintFactId,
@@ -55,6 +53,8 @@ import {
 } from "../logic/discovery/selectableHint";
 import { discoveredRecipeIds, type DexState } from "./dex";
 import type { InventoryState } from "./inventory";
+
+export type { DeductionFamily };
 
 export interface HintSession {
   targetId: string;

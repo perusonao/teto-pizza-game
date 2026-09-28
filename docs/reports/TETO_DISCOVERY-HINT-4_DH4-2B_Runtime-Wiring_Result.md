@@ -86,3 +86,17 @@ A redundant reducer family check was an equivalent mutant (the pure authority re
 **Production bundle.** It contains the layer code, but the code is inert: `DEDUCTION_HINTS_ENABLED` is `false`, so every request is a no-op and `deduction` is `null`. The flag-off test pins this.
 
 **No UI change.** 2B adds no production-visible UI; the U3-C sheet is DH4-2C, with Human Verification. No App or HintSheet change beyond a test-fixture field.
+
+## 4. Reviews
+
+**Codex (on `ccd8483`):** no major issues.
+
+**Independent review (on `6fbbeff`): APPROVE WITH NITS.** P0 / P1 / P2 = 0.
+
+| Nit | Handling |
+|---|---|
+| P3-1: the 構成 paid count is a yes/no | Kept. Under T1a, TC-G is fixed per target, so a second 構成 answer cannot happen today. Counting stored `meta:` ids would over-charge a total and clause bought together. **Noted for DH4-ECON.** |
+| P3-2: a stale outcome survives a refused request | DH4-2C shows each outcome only on its own family's card, so a refused 構成 tap never shows a 特徴 message |
+| P3-3: the near-miss test is source-only | Added a type-level test: `ResultNearMissInput` carries no hint ledger |
+| P3-4: import order | Tidied |
+| P3-5: free outcomes still need the Pitz balance | By design. The balance is checked before the answer (OD order, DH4-2A). DH4-2C words the unaffordable state as "save up", never "nothing to learn". |
