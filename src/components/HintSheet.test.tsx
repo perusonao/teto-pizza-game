@@ -401,7 +401,11 @@ describe("HintSheet -- U3-C board (材料 only: the production view, flag off)",
     const props = { onUnlock: vi.fn(), onBuySelectable, onClose: vi.fn() };
     const { rerender } = render(<HintSheet view={selectableView("capricciosa", { facts: ["ing:tomato-sauce"] })} {...props} />);
     expect(document.querySelectorAll(".hint-sheet__chip--new")).toHaveLength(0);
+    // One live region, empty on opening, kept across the board <-> panel steps.
+    const live = screen.getByRole("status");
+    expect(live).toHaveTextContent("");
     openPanel();
+    expect(screen.getByRole("status")).toBe(live);
     fireEvent.click(cta());
     rerender(<HintSheet view={selectableView("capricciosa", { facts: ["ing:tomato-sauce", "ing:mozzarella"] })} {...props} />);
     expect(document.querySelector(".hint-sheet__panel")).toBeNull();
@@ -414,6 +418,9 @@ describe("HintSheet -- U3-C board (材料 only: the production view, flag off)",
     expect(fresh[0]).toHaveTextContent("モッツァレラ");
     expect(fresh[0].closest(".hint-sheet__row")).toHaveAttribute("data-hint-category", "cheese");
     expect(entry()).toHaveFocus();
+    // The answer arrives on a freshly mounted board; the persistent region announces it.
+    expect(screen.getByRole("status")).toBe(live);
+    expect(live).toHaveTextContent("わかったこと：モッツァレラ");
     expect(document.body.textContent).not.toMatch(/ソースは(もう)?ない|使わないみたい/);
   });
 
@@ -442,7 +449,8 @@ describe("HintSheet -- U3-C board (材料 only: the production view, flag off)",
         cleanup();
       }
     }
-  });
+    // 125 renders (25 recipes x 5 legacy levels, each opening the panel): ~3.5s alone, so give it room.
+  }, 30_000);
 });
 
 describe("HintSheet -- U3-C family cards 構成 / 特徴 (DH4-2B view, E3 flag)", () => {

@@ -524,96 +524,116 @@ function SelectableHintBody({
     </p>
   );
 
+  // One live region, mounted across both steps (it is the first child of either return, so React
+  // keeps the same element): it announces what a request just brought -- the new facts, which
+  // arrive on a freshly mounted board, or a no-charge outcome -- since a live region created
+  // together with its text is often not read. It repeats only what the sheet itself now shows.
+  const settledLine =
+    currentSettled && (currentSettled === "material" || deduction) ? familyCta(view, currentSettled, true).outcomeLine : null;
+  const freshText = keys
+    .filter((k) => fresh.has(k))
+    .map((k) => {
+      if (k.startsWith("structure:") || k.startsWith("attribute:")) return k.slice(k.indexOf(":") + 1);
+      const chip = presentation.rows.flatMap((row) => row.revealed).find((c) => c.factId === k);
+      return chip ? (getIngredient(chip.ingredientId)?.nameJa ?? chip.ingredientId) : "";
+    })
+    .filter(Boolean)
+    .join("、");
+  const liveRegion = (
+    <p key="hint-live" className="sr-only" role="status" aria-live="polite">
+      {settledLine ?? (freshText ? `わかったこと：${freshText}` : "")}
+    </p>
+  );
+
   if (panelOpen) {
     return (
-      <div ref={panelRef} className="hint-sheet__panel" role="group" aria-labelledby={panelTitleId}>
-        <div className="hint-sheet__panel-head">
-          <button ref={backRef} type="button" className="hint-sheet__back" onClick={() => setPanelOpen(false)}>
-            {"\u{2039}"} {SELECTABLE_COPY.back}
-          </button>
-          <p id={panelTitleId} className="hint-sheet__panel-title">
-            {SELECTABLE_COPY.askTitle}
-          </p>
-        </div>
-        <div
-          className={`hint-sheet__scroll hint-sheet__cards-wrap${cardsCue.above ? " hint-sheet__scroll--above" : ""}${cardsCue.below ? " hint-sheet__scroll--below" : ""}`}
-        >
-          <div ref={cardsRef} className="hint-sheet__cards" onScroll={measureCards}>
-            {families.map((family) => {
-              const card = FAMILY_CARDS[family];
-              const cta = familyCta(view, family, isSettled(family));
-              const capPaid = family === "material" && presentation.nextPrice === 0 && !presentation.onboarding;
-              const moreFamilies = family === "material" && guided && !!deduction && (!deduction.structureOwned || !deduction.attributeOwned);
-              return (
-                <div key={family} className="hint-sheet__card" data-hint-family={family}>
-                  <p className="hint-sheet__card-title">
-                    {card.title}
-                    <span className="hint-sheet__card-desc">{card.description}</span>
-                  </p>
-                  {family === "material" && !cta.outcomeLine && (
-                    <fieldset className="hint-sheet__prefs">
-                      <legend className="hint-sheet__prefs-legend sr-only">{SELECTABLE_COPY.preferenceLegend}</legend>
-                      {PREFERENCE_CHIPS.map((chip) => (
-                        <label key={chip.id} className={`hint-sheet__pref${preferenceId === chip.id ? " hint-sheet__pref--on" : ""}`}>
-                          <input type="radio" name={groupName} value={chip.id} checked={preferenceId === chip.id} onChange={() => onPreference(chip.id)} />
-                          {chip.label}
-                        </label>
-                      ))}
-                    </fieldset>
-                  )}
-                  {cta.outcomeLine ? (
-                    <p className="hint-sheet__outcome">
-                      {cta.outcomeLine}
-                    </p>
-                  ) : (
-                    <>
-                      {card.notes.map((note) => (
-                        <p key={note} className="hint-sheet__card-note">
-                          {note}
-                        </p>
-                      ))}
-                      {capPaid && <p className="hint-sheet__card-note">{SELECTABLE_COPY.capPaidNote}</p>}
-                    </>
-                  )}
-                  {moreFamilies && <p className="hint-sheet__card-note">{SELECTABLE_COPY.moreFamilies}</p>}
-                  {!cta.outcomeLine && (
-                    <button
-                      type="button"
-                      className={`cta-button hint-sheet__next hint-sheet__next--paid${cta.enabled ? "" : " hint-sheet__next--short"}`}
-                      disabled={!cta.enabled}
-                      aria-disabled={latched || undefined}
-                      onClick={() => onBuy(family)}
-                    >
-                      <span className="hint-sheet__next-label">{cta.label}</span>
-                      {cta.badge && (
-                        <>
-                          {" "}
-                          <span className="hint-sheet__price">{cta.badge}</span>
-                        </>
-                      )}
-                    </button>
-                  )}
-                  {cta.short && <p className="hint-sheet__wallet hint-sheet__wallet-note">{SELECTABLE_COPY.shortNote}</p>}
-                </div>
-              );
-            })}
+      <>
+        {liveRegion}
+        <div ref={panelRef} className="hint-sheet__panel" role="group" aria-labelledby={panelTitleId}>
+          <div className="hint-sheet__panel-head">
+            <button ref={backRef} type="button" className="hint-sheet__back" onClick={() => setPanelOpen(false)}>
+              {"\u{2039}"} {SELECTABLE_COPY.back}
+            </button>
+            <p id={panelTitleId} className="hint-sheet__panel-title">
+              {SELECTABLE_COPY.askTitle}
+            </p>
           </div>
-          <span className="hint-sheet__scroll-cue" aria-hidden="true">
-            {"\u{25BE}"} 下にもつづくよ
-          </span>
+          <div
+            className={`hint-sheet__scroll hint-sheet__cards-wrap${cardsCue.above ? " hint-sheet__scroll--above" : ""}${cardsCue.below ? " hint-sheet__scroll--below" : ""}`}
+          >
+            <div ref={cardsRef} className="hint-sheet__cards" onScroll={measureCards}>
+              {families.map((family) => {
+                const card = FAMILY_CARDS[family];
+                const cta = familyCta(view, family, isSettled(family));
+                const capPaid = family === "material" && presentation.nextPrice === 0 && !presentation.onboarding;
+                const moreFamilies = family === "material" && guided && !!deduction && (!deduction.structureOwned || !deduction.attributeOwned);
+                return (
+                  <div key={family} className="hint-sheet__card" data-hint-family={family}>
+                    <p className="hint-sheet__card-title">
+                      {card.title}
+                      <span className="hint-sheet__card-desc">{card.description}</span>
+                    </p>
+                    {family === "material" && !cta.outcomeLine && (
+                      <fieldset className="hint-sheet__prefs">
+                        <legend className="hint-sheet__prefs-legend sr-only">{SELECTABLE_COPY.preferenceLegend}</legend>
+                        {PREFERENCE_CHIPS.map((chip) => (
+                          <label key={chip.id} className={`hint-sheet__pref${preferenceId === chip.id ? " hint-sheet__pref--on" : ""}`}>
+                            <input type="radio" name={groupName} value={chip.id} checked={preferenceId === chip.id} onChange={() => onPreference(chip.id)} />
+                            {chip.label}
+                          </label>
+                        ))}
+                      </fieldset>
+                    )}
+                    {cta.outcomeLine ? (
+                      <p className="hint-sheet__outcome">
+                        {cta.outcomeLine}
+                      </p>
+                    ) : (
+                      <>
+                        {card.notes.map((note) => (
+                          <p key={note} className="hint-sheet__card-note">
+                            {note}
+                          </p>
+                        ))}
+                        {capPaid && <p className="hint-sheet__card-note">{SELECTABLE_COPY.capPaidNote}</p>}
+                      </>
+                    )}
+                    {moreFamilies && <p className="hint-sheet__card-note">{SELECTABLE_COPY.moreFamilies}</p>}
+                    {!cta.outcomeLine && (
+                      <button
+                        type="button"
+                        className={`cta-button hint-sheet__next hint-sheet__next--paid${cta.enabled ? "" : " hint-sheet__next--short"}`}
+                        disabled={!cta.enabled}
+                        aria-disabled={latched || undefined}
+                        onClick={() => onBuy(family)}
+                      >
+                        <span className="hint-sheet__next-label">{cta.label}</span>
+                        {cta.badge && (
+                          <>
+                            {" "}
+                            <span className="hint-sheet__price">{cta.badge}</span>
+                          </>
+                        )}
+                      </button>
+                    )}
+                    {cta.short && <p className="hint-sheet__wallet hint-sheet__wallet-note">{SELECTABLE_COPY.shortNote}</p>}
+                  </div>
+                );
+              })}
+            </div>
+            <span className="hint-sheet__scroll-cue" aria-hidden="true">
+              {"\u{25BE}"} 下にもつづくよ
+            </span>
+          </div>
+          {walletLine}
         </div>
-        {/* Always mounted while the panel is open, so screen readers announce a no-charge outcome
-            when it arrives (a live region created together with its text is often not read). */}
-        <p className="sr-only" role="status" aria-live="polite">
-          {currentSettled && (currentSettled === "material" || deduction) ? familyCta(view, currentSettled, true).outcomeLine : ""}
-        </p>
-        {walletLine}
-      </div>
+      </>
     );
   }
 
   return (
     <>
+      {liveRegion}
       <p className="hint-sheet__caption">{view.existenceText}</p>
       <div
         className={`hint-sheet__scroll${cue.above ? " hint-sheet__scroll--above" : ""}${cue.below ? " hint-sheet__scroll--below" : ""}`}
