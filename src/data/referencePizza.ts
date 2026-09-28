@@ -1520,6 +1520,17 @@ export const PUTTANESCA_PIZZA_REFERENCE: ReferencePizza = {
   ],
 };
 
+/** Freezes Reference data in place, all the way down. The registry is authoritative scoring
+ *  data: a caller that mutates a returned Reference (or an exported constant) must not be able
+ *  to change what every later score is measured against (Codex review on #271). */
+function deepFreezeReference<T>(value: T): T {
+  if (typeof value === "object" && value !== null && !Object.isFrozen(value)) {
+    Object.freeze(value);
+    for (const child of Object.values(value)) deepFreezeReference(child);
+  }
+  return value;
+}
+
 const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [MARGHERITA_REFERENCE.recipeId, MARGHERITA_REFERENCE],
   [MARINARA_REFERENCE.recipeId, MARINARA_REFERENCE],
@@ -1547,6 +1558,7 @@ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [PESTO_PATATE_REFERENCE.recipeId, PESTO_PATATE_REFERENCE],
   [PUTTANESCA_PIZZA_REFERENCE.recipeId, PUTTANESCA_PIZZA_REFERENCE],
 ]);
+for (const ref of REFERENCE_PIZZAS.values()) deepFreezeReference(ref);
 
 /**
  * Returns the Reference Pizza for `recipeId`, or null for an unrecognized id.

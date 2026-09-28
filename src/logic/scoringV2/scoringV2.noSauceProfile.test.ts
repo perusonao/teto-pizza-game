@@ -3,6 +3,7 @@ import {
   BREAKFAST_PIZZA_REFERENCE,
   TONNO_E_CIPOLLA_REFERENCE,
   getReferencePizza,
+  listReferencePizzas,
 } from "../../data/referencePizza";
 import { getRecipe, RECIPES, type Recipe, type RecipeId } from "../../data/recipes";
 import { createEmptyPizza, type PizzaState } from "../../state/pizzaState";
@@ -355,6 +356,24 @@ describe("TQ-1B: adversarial Reference data fails closed", () => {
     expect(score(noSaucePizza(), SYN_RECIPE, borrowed).result.available).toBe(false);
     // Every group keeps its own production band: accepted.
     expect(score(noSaucePizza(), SYN_RECIPE, SYN_REFERENCE).result.available).toBe(true);
+  });
+
+  it("the production Reference registry is immutable, so scores cannot be inflated through it (Codex review on #271)", () => {
+    const margherita = getRecipe("margherita")!;
+    const ref = getReferencePizza("margherita")!;
+    const pizza: PizzaState = { ...createEmptyPizza(), sauceIds: ["tomato-sauce"], bakeResult: 60 };
+    const before = computeScoringV2(margherita, pizza);
+    const matching = ref.pieceGroups[0].matching as { fullCreditRadius: number };
+    const sauce = ref.sauce as { coverage: number };
+    expect(() => {
+      matching.fullCreditRadius = 10000;
+    }).toThrow(TypeError);
+    expect(() => {
+      sauce.coverage = 0;
+    }).toThrow(TypeError);
+    expect(() => (ref.pieceGroups as unknown[]).push(ref.pieceGroups[0])).toThrow(TypeError);
+    for (const reference of listReferencePizzas()) expect(Object.isFrozen(reference.pieceGroups[0]?.matching ?? reference.sauce)).toBe(true);
+    expect(computeScoringV2(margherita, pizza)).toEqual(before);
   });
 
   it("a non-object options argument fails closed instead of throwing (Codex review on #271)", () => {
