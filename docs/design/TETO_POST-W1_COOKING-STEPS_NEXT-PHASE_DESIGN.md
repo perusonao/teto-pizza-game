@@ -378,6 +378,8 @@ leak Technique identity through a hint.
 
 **STOP.** No implementation starts from this document.
 
+> Pre-start Fresh Check (Owner Decision prep, same `main` `86b48fd`): `docs/reports/TETO_POST-W1_COOKING-STEPS_CS-1_PRE-START-GATE.md` — CS-1 start = **WAIT**.
+
 | Gate | Condition to pass |
 |---|---|
 | G-CS-A | The Owner has read this design and answered **OD-CS-1, OD-CS-2, OD-CS-9 (a)**. |
