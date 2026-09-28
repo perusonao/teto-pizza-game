@@ -10,7 +10,7 @@ import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
  *
  * Dex 11 ladder save: capricciosa (chapter 2) is the one DISCOVERABLE card. At 390x844, 360x800,
  * the short 390x664 / 360x640 and (Chromium) the three safe-area profiles: no horizontal overflow, the card
- * CTA fully visible and no card overlap in the chapter list, the sheet <= 45dvh with its CTA above
+ * CTA fully visible and no card overlap in the chapter list, the sheet inside the viewport (OD-DH4-2-7) with its CTA above
  * the bottom inset, and the Free Cooking screen underneath unmoved. Runs once per engine.
  */
 
@@ -110,11 +110,11 @@ async function checkSheet(page: Page, driver: ProfileDriver, browserName: string
     const m = await page.evaluate(() => {
       const s = document.querySelector(".hint-sheet")!.getBoundingClientRect();
       const cta = (document.querySelector(".hint-sheet__next") ?? document.querySelector(".hint-sheet__done"))!.getBoundingClientRect();
-      return { scrollWidth: document.documentElement.scrollWidth, height: s.height, bottom: s.bottom, ctaBottom: cta.bottom };
+      return { scrollWidth: document.documentElement.scrollWidth, top: s.top, bottom: s.bottom, ctaBottom: cta.bottom };
     });
     const where = `${label} @${profile.id}`;
     expect.soft(m.scrollWidth, `${where}: overflow`).toBeLessThanOrEqual(vp.innerWidth);
-    expect.soft(m.height, `${where}: sheet <= 45dvh`).toBeLessThanOrEqual(vp.innerHeight * 0.45 + 1);
+    expect.soft(m.top, `${where}: sheet below the top safe area (OD-DH4-2-7)`).toBeGreaterThanOrEqual(vp.sat - 0.5);
     expect.soft(m.bottom, `${where}: sheet in viewport`).toBeLessThanOrEqual(vp.innerHeight + 0.5);
     expect.soft(m.ctaBottom, `${where}: CTA above the inset`).toBeLessThanOrEqual(vp.innerHeight - vp.sab + 0.5);
     expect.soft(await rects(page), `${where}: Free Cooking unmoved`).toEqual(closed.get(profile.id));
@@ -146,7 +146,7 @@ test.describe("Discovery Hint 2.0 Dex entry (229-D)", () => {
     await expect(page.locator(".order-card--free-cook")).toBeVisible();
     const sheet = page.getByRole("dialog", { name: /ヒント/ });
     await expect(sheet).toBeVisible();
-    await expect(sheet.locator(".hint-sheet__step")).toHaveCount(1);
+    await expect(sheet.locator(".hint-sheet__caption")).toHaveCount(1);
     await expectNoUndiscoveredIdentity(page, DEX11_IDS, "Dex -> Free Cooking + sheet H0");
     await capture(page, "d2-free-cook-sheet-h0");
 
@@ -159,18 +159,18 @@ test.describe("Discovery Hint 2.0 Dex entry (229-D)", () => {
     }
     await driver.apply(PROFILES.N390);
     await page.locator(".prepare-bake-bar").getByRole("button", { name: "ヒント" }).click();
-    await expect(sheet.locator(".hint-sheet__step")).toHaveCount(1); // same pinned session, still H0
+    await expect(sheet.locator(".hint-sheet__caption")).toHaveCount(1); // same pinned session, still H0
 
     // Discovery Hint 3.0 (Issue #238, H3-3): the Selectable sheet. The free key (capricciosa's
     // oregano) is shown from H0; the recipe itself is never named.
     await expect(sheet.locator(".hint-sheet__chip")).toContainText(["オレガノ"]);
     await sheet.locator(".hint-sheet__next").click();
-    await expect(sheet.locator(".hint-sheet__chip:not(.hint-sheet__chip--unknown)")).toHaveCount(2);
+    await expect(sheet.locator(".hint-sheet__chip")).toHaveCount(2);
     await checkSheet(page, driver, browserName, "one fact", closed);
     await capture(page, "d3-one-fact");
     await sheet.locator(".hint-sheet__next").click();
     await sheet.locator(".hint-sheet__next").click();
-    await expect(sheet.locator(".hint-sheet__chip:not(.hint-sheet__chip--unknown)")).toHaveCount(4);
+    await expect(sheet.locator(".hint-sheet__chip")).toHaveCount(4);
     await checkSheet(page, driver, browserName, "three facts", closed);
     await expectNoUndiscoveredIdentity(page, DEX11_IDS, "Dex -> sheet three facts");
     await capture(page, "d4-three-facts");

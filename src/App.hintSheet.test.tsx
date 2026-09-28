@@ -59,7 +59,9 @@ describe("Free Cooking hint sheet in the App (229-B)", () => {
     expect(dialog).toHaveTextContent("今の材料で、まだ見つけていないピザが作れそう！");
     expect(dialog).toHaveTextContent("ベーコン");
     expect(dialog).not.toHaveTextContent("トマトソース");
-    expect(within(dialog).getAllByRole("radio").map((r) => r.getAttribute("value"))).toEqual(["sauce", "cheese", "topping"]);
+    // DH4-2C U3-C: the family choice (Vitest is a DEV build, so the E3 flag shows 構成 / 特徴 too) and
+    // the 材料 preferences with 「おまかせ」.
+    expect(within(dialog).getAllByRole("radio").map((r) => r.getAttribute("value"))).toEqual(["material", "structure", "attribute", "any", "sauce", "cheese", "topping"]);
     expect(cta(dialog)).toHaveTextContent("5 Pitz");
     expect(dialog).toHaveTextContent("所持 300 Pitz");
 
@@ -78,7 +80,7 @@ describe("Free Cooking hint sheet in the App (229-B)", () => {
     expect(dialog).toHaveTextContent("所持 285 Pitz");
     // H3-4 (OD-H3-4-3): only now, after the reducer answered GUIDANCE_ONLY, the CTA stops.
     expect(cta(dialog)).toBeDisabled();
-    expect(cta(dialog)).toHaveTextContent("今あるヒントはここまで");
+    expect(dialog).toHaveTextContent("材料ヒントはここまで（Pitzは使っていないよ）");
     expect(dialog).toHaveTextContent("今回はPitzを使っていないよ");
     expect(dialog).not.toHaveTextContent("ブレックファストピザ");
     expect(dialog).not.toHaveTextContent("たまご");
@@ -198,7 +200,7 @@ describe("Free Cooking hint sheet in the App (229-B)", () => {
     const user = userEvent.setup();
     render(<App />);
     const dialog = await openSheet(user);
-    expect(cta(dialog)).toHaveTextContent("ヒントを1つもらう 10 Pitz");
+    expect(cta(dialog).textContent).toBe("たずねる 10 Pitz");
     await buy(user, dialog);
     await buy(user, dialog);
     await buy(user, dialog);
@@ -206,7 +208,7 @@ describe("Free Cooking hint sheet in the App (229-B)", () => {
     const before = chips(dialog);
 
     // Cap reached, one real fact left: the CTA is a request, enabled, and never says 0 Pitz / free.
-    expect(cta(dialog).textContent).toBe("ヒントをたずねる 支払いずみ");
+    expect(cta(dialog).textContent).toBe("たずねる 支払いずみ");
     expect(cta(dialog)).toBeEnabled();
     expect(dialog).toHaveTextContent("このピザのヒント代は上限まで支払いずみ");
     await buy(user, dialog);
@@ -218,13 +220,13 @@ describe("Free Cooking hint sheet in the App (229-B)", () => {
     expect(dialog.querySelector(".hint-sheet__guidance")).toBeNull();
 
     // Same wording again (the view cannot tell that nothing is left) -> this time GUIDANCE_ONLY.
-    expect(cta(dialog).textContent).toBe("ヒントをたずねる 支払いずみ");
+    expect(cta(dialog).textContent).toBe("たずねる 支払いずみ");
     expect(cta(dialog)).toBeEnabled();
     const snapshot = window.localStorage.getItem(SAVE_STORAGE_KEY);
     await user.click(cta(dialog));
     await waitFor(() => expect(dialog.querySelector(".hint-sheet__guidance")).not.toBeNull());
     expect(cta(dialog)).toBeDisabled();
-    expect(cta(dialog)).toHaveTextContent("今あるヒントはここまで");
+    expect(dialog).toHaveTextContent("材料ヒントはここまで（Pitzは使っていないよ）");
     expect(window.localStorage.getItem(SAVE_STORAGE_KEY)).toBe(snapshot);
 
     // Re-operating after the guidance changes nothing (clicks, Enter).
@@ -240,7 +242,7 @@ describe("Free Cooking hint sheet in the App (229-B)", () => {
     const bar = document.querySelector(".prepare-bake-bar") as HTMLElement;
     await user.click(within(bar).getByRole("button", { name: "ヒント" }));
     const reopened = screen.getByRole("dialog", { name: /ヒント/ });
-    expect(cta(reopened).textContent).toBe("ヒントをたずねる 支払いずみ");
+    expect(cta(reopened).textContent).toBe("たずねる 支払いずみ");
     expect(cta(reopened)).toBeEnabled();
     expect(reopened.querySelector(".hint-sheet__guidance")).toBeNull();
     expect(reopened.querySelectorAll(".hint-sheet__chip--new")).toHaveLength(0);

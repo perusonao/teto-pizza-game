@@ -5431,6 +5431,175 @@ p.hint-sheet__step {
   font-weight: 700;
 }
 
+/* Discovery Hint 4.0 DH4-2C (Issue #253, OD-DH4-2-6..8): the U3-C Selectable sheet. OD-DH4-2-7
+   supersedes the 45dvh cap (OD-H3-4-7): a near-full-screen sheet on mobile (up to the safe-area top
+   plus a 40px peek of the header), `height: auto` so a short board stays short. The header and the
+   「ヒントをもらう」 footer never scroll; 「わかっていること」 is the one scroll area, with a labelled
+   cue when more is below. Every control is >= 44px tall. */
+.hint-sheet.hint-sheet--u3 {
+  max-height: calc(100vh - 16px);
+  max-height: calc(100dvh - 16px - env(safe-area-inset-top, 0px));
+  gap: 6px;
+  padding-top: 10px;
+}
+
+.hint-sheet--u3 .hint-sheet__close {
+  min-height: 44px;
+  min-width: 64px;
+}
+
+.hint-sheet__caption {
+  flex: none;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #6b4a2b;
+  overflow-wrap: anywhere;
+}
+
+.hint-sheet__board {
+  gap: 8px;
+}
+
+.hint-sheet__board-title,
+.hint-sheet__ask-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: #3d2a16;
+}
+
+.hint-sheet__section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: #f3e6c8;
+}
+
+.hint-sheet__section-label {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 800;
+  color: #8a5a1c;
+}
+
+.hint-sheet--u3 .hint-sheet__rows {
+  gap: 4px;
+}
+
+.hint-sheet__fact-line {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: #3d2a16;
+  overflow-wrap: anywhere;
+}
+
+.hint-sheet--u3 .hint-sheet__scroll-cue {
+  left: 0;
+  right: 0;
+  bottom: 2px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.hint-sheet--u3 .hint-sheet__footer--selectable {
+  gap: 6px;
+  padding-top: 6px;
+  border-top: 1px solid #ecd9ae;
+}
+
+.hint-sheet__families {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.hint-sheet__family {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 44px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  border: 2px solid #e0c48f;
+  background: #fffaf0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #3d2a16;
+  cursor: pointer;
+}
+
+.hint-sheet__family input,
+.hint-sheet__pref input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.hint-sheet__family--on {
+  border-color: #d9822b;
+  background: #ffe7b0;
+}
+
+.hint-sheet__family:focus-within,
+.hint-sheet__pref:focus-within {
+  outline: 2px solid #d9822b;
+  outline-offset: 1px;
+}
+
+.hint-sheet__card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hint-sheet__card-title {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 8px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #3d2a16;
+}
+
+.hint-sheet__card-desc {
+  font-size: 12px;
+  font-weight: 400;
+  color: #6b4a2b;
+}
+
+.hint-sheet__card-note,
+.hint-sheet__outcome {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #6b4a2b;
+  overflow-wrap: anywhere;
+}
+
+.hint-sheet__outcome {
+  font-weight: 700;
+  color: #3d2a16;
+}
+
+.hint-sheet--u3 .hint-sheet__prefs {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.hint-sheet--u3 .hint-sheet__pref {
+  position: relative;
+  font-size: 12px;
+  padding: 2px 4px;
+}
+
 /* ---------- Dinner Mission DM-3 (Issue #242) ----------
    Reuses the existing skeletons (home-menu card, pizza-select screen, mission-hud,
    mission-serve-panel, mission-overlay); Dinner only adds a light "night" accent. */

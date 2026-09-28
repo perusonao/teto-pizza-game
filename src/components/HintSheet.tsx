@@ -80,21 +80,52 @@ export const SELECTABLE_BUY_LATCH_MS = 450;
 /** OD-H3-17 generic guidance (H3-4: kept verbatim). */
 export const SELECTABLE_GUIDANCE_TEXT = "このピザは、今わかっているヒントを手がかりに考えてみよう！";
 
-/** H3-4 SELECTABLE copy (OD-H3-4-1..9). Every string is the same for every target. */
+/** H3-4 SELECTABLE copy (OD-H3-4-1..9), revised for the DH4-2C U3-C sheet (OD-DH4-2-6..9, audit
+ *  §13-§15). Every string is the same for every target. */
 const SELECTABLE_COPY = {
-  legend: "知りたいジャンル（ないときは別のジャンルから1つ）",
-  unknownLegend: "？＝まだわからない（使わないジャンルもあるよ）",
-  cta: "ヒントを1つもらう",
-  ctaCapPaid: "ヒントをたずねる",
+  boardTitle: "わかっていること",
+  askTitle: "ヒントをもらう",
+  ask: "たずねる",
   capPaidBadge: "支払いずみ",
-  ctaAfterGuidance: "今あるヒントはここまで",
+  owned: "✓ もらいずみ",
   payOnlyWhenGiven: "Pitzはヒントが出たときだけ使うよ",
   capPaidNote: "このピザのヒント代は上限まで支払いずみ",
   noChargeNote: "今回はPitzを使っていないよ",
   shortNote: "Pitzがたまったら、またためしてね。このまま作ってもOK！",
   legacyTitle: "以前のヒント",
   legacyExplainer: "前のヒント方式で買ったメモ（そのまま残してあるよ）",
+  materialDone: "材料ヒントはここまで（Pitzは使っていないよ）",
+  moreFamilies: "構成・特徴のヒントもあるよ",
+  structureNothingNew: "今は新しくわかることがなかったよ（Pitzは使っていないよ）",
+  attributeNothingYet: "今はまだ、大きな手がかりが見つからなかったよ（Pitzは使っていないよ）",
+  preferenceLegend: "知りたいジャンル",
+  anyPreference: "おまかせ",
 } as const;
+
+export type HintFamily = "material" | "structure" | "attribute";
+
+/** OD-DH4-2-6 / audit §14: the family cards. The same for every target; a card never shows
+ *  availability, granularity or a candidate count. */
+const FAMILY_CARDS: Record<HintFamily, { tab: string; title: string; description: string; notes: readonly string[] }> = {
+  material: {
+    tab: "材料",
+    title: "材料ヒント",
+    description: "材料の名前を1つ教えるよ",
+    // 「Pitzはヒントが出たときだけ使うよ」 (the wallet line) already covers "nothing left -> no charge".
+    notes: ["えらんだジャンルに無いときは、ほかのジャンルから教えるよ"],
+  },
+  structure: { tab: "構成", title: "構成ヒント", description: "材料の数を教えるよ", notes: [] },
+  attribute: { tab: "特徴", title: "特徴ヒント", description: "まだわからない材料の「なかま」を教えるよ", notes: [] },
+};
+
+/** The 材料 preference chips. 「おまかせ」 is the existing fallback order (sauce -> cheese -> topping),
+ *  which is exactly what a 「ソース」 preference resolves to, so it adds no new authority. */
+const PREFERENCE_CHIPS: readonly { id: string; label: string; category: HintCategory }[] = [
+  { id: "any", label: SELECTABLE_COPY.anyPreference, category: "sauce" },
+  { id: "sauce", label: CATEGORY_LABEL.sauce, category: "sauce" },
+  { id: "cheese", label: CATEGORY_LABEL.cheese, category: "cheese" },
+  { id: "topping", label: CATEGORY_LABEL.topping, category: "topping" },
+];
 
 export function HintSheet({
   view,
@@ -105,17 +136,19 @@ export function HintSheet({
   view: HintSheetView;
   /** Unlocks the offered level (`view.next.level`). */
   onUnlock: (level: number) => void;
-  /** H3-3: buys one Selectable Hint fact, echoing the paid count the sheet showed. */
-  onBuySelectable?: (preference: HintCategory, expectedPaidCount: number) => void;
+  /** H3-3 / DH4-2C: one request of `family` (材料 with its preference, or 構成 / 特徴), echoing the
+   *  paid count the sheet showed. The reducer's PURCHASE_SELECTABLE_HINT decides. */
+  onBuySelectable?: (preference: HintCategory, expectedPaidCount: number, family?: HintFamily) => void;
   onClose: () => void;
 }) {
   const titleId = useId();
   const nextRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const latestRef = useRef<HTMLLIElement>(null);
-  const [preference, setPreference] = useState<HintCategory>("sauce");
-  // H3-3: the Selectable CTA's activation latch (see SELECTABLE_BUY_LATCH_MS). The ref blocks a
-  // second activation synchronously; the state only mirrors it into `aria-disabled`.
+  const [preferenceId, setPreferenceId] = useState<string>("any");
+  const [family, setFamily] = useState<HintFamily>("material");
+  // H3-3: the request CTA's activation latch (see SELECTABLE_BUY_LATCH_MS). The ref blocks a second
+  // activation synchronously; the state only mirrors it into `aria-disabled`.
   const buyLatchRef = useRef(false);
   const buyLatchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [buyLatched, setBuyLatched] = useState(false);
@@ -126,13 +159,13 @@ export function HintSheet({
     [],
   );
   const next = view.kind === "TARGET" ? view.next : null;
-  const ctaEnabled =
-    view.kind === "SELECTABLE" ? view.presentation.affordable && view.outcome !== "GUIDANCE_ONLY" : !!next && next.affordable;
+  // A family the view no longer offers (the flag is off) falls back to 材料.
+  const activeFamily: HintFamily = view.kind === "SELECTABLE" && family !== "material" && !view.deduction ? "material" : family;
+  const ctaEnabled = view.kind === "SELECTABLE" ? familyCta(view, activeFamily).enabled : !!next && next.affordable;
   const stepCount = view.kind === "TARGET" ? view.steps.length : 0;
 
-  // Opening lands on the next-hint CTA (or 閉じる); when the last step removes the CTA, or a
-  // purchase leaves the next one unaffordable (disabled), focus moves to 閉じる instead of falling
-  // back to <body>.
+  // Opening lands on the request CTA (or 閉じる); when a request leaves it disabled, focus moves to
+  // 閉じる instead of falling back to <body>.
   useEffect(() => {
     (ctaEnabled ? nextRef.current : closeRef.current)?.focus();
   }, [ctaEnabled]);
@@ -144,7 +177,7 @@ export function HintSheet({
   return (
     <div className="hint-sheet__backdrop" role="presentation" onClick={onClose}>
       <section
-        className="hint-sheet"
+        className={`hint-sheet${view.kind === "SELECTABLE" ? " hint-sheet--u3" : ""}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
@@ -169,8 +202,10 @@ export function HintSheet({
         {view.kind === "SELECTABLE" ? (
           <SelectableHintBody
             view={view}
-            preference={preference}
-            onPreference={setPreference}
+            family={activeFamily}
+            onFamily={setFamily}
+            preferenceId={preferenceId}
+            onPreference={setPreferenceId}
             buyRef={nextRef}
             latched={buyLatched}
             onBuy={() => {
@@ -181,7 +216,12 @@ export function HintSheet({
                 buyLatchRef.current = false;
                 setBuyLatched(false);
               }, SELECTABLE_BUY_LATCH_MS);
-              onBuySelectable(preference, view.presentation.paidCount);
+              if (activeFamily === "material") {
+                const category = PREFERENCE_CHIPS.find((p) => p.id === preferenceId)?.category ?? "sauce";
+                onBuySelectable(category, view.presentation.paidCount, "material");
+              } else {
+                onBuySelectable("sauce", view.deduction!.paidCount, activeFamily);
+              }
             }}
           />
         ) : view.kind === "TARGET" ? (
@@ -249,6 +289,55 @@ export function HintSheet({
   );
 }
 
+type SelectableView = Extract<HintSheetView, { kind: "SELECTABLE" }>;
+
+interface FamilyCta {
+  enabled: boolean;
+  /** Button label and price badge; `null` badge = none. */
+  label: string;
+  badge: string | null;
+  /** A no-charge outcome line for this family, shown in place of the card note. */
+  outcomeLine: string | null;
+  affordable: boolean;
+}
+
+/** The request button of one family, from fields the view already carries (own ledger, price,
+ *  balance, the last outcome) -- never from what is left to sell. */
+function familyCta(view: SelectableView, family: HintFamily): FamilyCta {
+  if (family === "material") {
+    const { presentation } = view;
+    const guided = view.outcome === "GUIDANCE_ONLY";
+    // OD-H3-4-1: the cap is paid. The same view whether or not anything is left (a legacy buyer gets
+    // a real fact here), so it stays a request, never "free" and never "sold out".
+    const capPaid = presentation.nextPrice === 0 && !presentation.onboarding;
+    return {
+      enabled: presentation.affordable && !guided,
+      label: SELECTABLE_COPY.ask,
+      badge: guided ? null : capPaid ? SELECTABLE_COPY.capPaidBadge : `${presentation.nextPrice} Pitz`,
+      outcomeLine: guided ? SELECTABLE_COPY.materialDone : null,
+      affordable: presentation.affordable,
+    };
+  }
+  const d = view.deduction!;
+  const owned = family === "structure" ? d.structureOwned : d.attributeOwned;
+  const outcomeLine =
+    family === "structure"
+      ? view.outcome === "STRUCTURE_GUIDANCE_ONLY" || view.outcome === "STRUCTURE_ALREADY_OWNED"
+        ? SELECTABLE_COPY.structureNothingNew
+        : null
+      : view.outcome === "ATTRIBUTE_EXISTENCE_ONLY" || view.outcome === "ATTRIBUTE_ALREADY_OWNED"
+        ? SELECTABLE_COPY.attributeNothingYet
+        : null;
+  if (owned) return { enabled: false, label: SELECTABLE_COPY.owned, badge: null, outcomeLine: null, affordable: d.affordable };
+  return {
+    enabled: d.affordable && outcomeLine === null,
+    label: SELECTABLE_COPY.ask,
+    badge: outcomeLine === null ? `${d.nextPrice} Pitz` : null,
+    outcomeLine,
+    affordable: d.affordable,
+  };
+}
+
 /** H3-4 (OD-H3-4-7): whether the scrollable body has more content below / above its viewport.
  *  Re-measured after every render, on scroll, when the body itself is resized (e.g. a safe-area or
  *  toolbar change that fires no window resize) and on window resize; state only changes when it
@@ -276,31 +365,82 @@ function useScrollCue(ref: RefObject<HTMLElement | null>) {
   return { cue, measure };
 }
 
+/** 材料 chips grouped by category, catalog order inside a category. Empty categories are omitted
+ *  (OD-DH4-2-8: no 「？」 rows). */
+function MaterialFacts({ view, freshChips, freshChipRef }: { view: SelectableView; freshChips: ReadonlySet<string>; freshChipRef: RefObject<HTMLSpanElement | null> }) {
+  const rows = view.presentation.rows.filter((row) => row.revealed.length > 0);
+  if (rows.length === 0) return null;
+  const firstFreshId = rows.flatMap((row) => row.revealed).find((chip) => freshChips.has(chip.factId))?.factId ?? null;
+  return (
+    <div className="hint-sheet__section" data-hint-section="material">
+      <p className="hint-sheet__section-label">材料</p>
+      <ul className="hint-sheet__rows">
+        {rows.map((row) => (
+          <li key={row.category} className="hint-sheet__row" data-hint-category={row.category}>
+            <span className="hint-sheet__row-label">{CATEGORY_LABEL[row.category]}</span>
+            <span className="hint-sheet__chips">
+              {row.revealed.map((chip) => {
+                const ingredient = getIngredient(chip.ingredientId);
+                const fresh = freshChips.has(chip.factId);
+                return (
+                  <span key={chip.factId} ref={chip.factId === firstFreshId ? freshChipRef : undefined} className={`hint-sheet__chip${fresh ? " hint-sheet__chip--new" : ""}`}>
+                    {ingredient && (
+                      <span className="hint-sheet__glyph" aria-hidden="true">
+                        <IngredientGlyph ingredient={ingredient} />
+                      </span>
+                    )}
+                    {ingredient?.nameJa ?? chip.ingredientId}
+                  </span>
+                );
+              })}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function FactSection({ id, label, lines }: { id: "structure" | "attribute"; label: string; lines: readonly string[] }) {
+  if (lines.length === 0) return null;
+  return (
+    <div className="hint-sheet__section" data-hint-section={id}>
+      <p className="hint-sheet__section-label">{label}</p>
+      {lines.map((line) => (
+        <p key={line} className="hint-sheet__fact-line">
+          {line}
+        </p>
+      ))}
+    </div>
+  );
+}
+
 function SelectableHintBody({
   view,
-  preference,
+  family,
+  onFamily,
+  preferenceId,
   onPreference,
   buyRef,
   latched,
   onBuy,
 }: {
-  view: Extract<HintSheetView, { kind: "SELECTABLE" }>;
-  preference: HintCategory;
-  onPreference: (category: HintCategory) => void;
+  view: SelectableView;
+  family: HintFamily;
+  onFamily: (family: HintFamily) => void;
+  preferenceId: string;
+  onPreference: (id: string) => void;
   buyRef: RefObject<HTMLButtonElement | null>;
   /** Right after a request: further activations are ignored (focus stays on the CTA). */
   latched: boolean;
   onBuy: () => void;
 }) {
   const groupName = useId();
-  const guidanceRef = useRef<HTMLParagraphElement>(null);
+  const familyGroup = useId();
+  const outcomeRef = useRef<HTMLParagraphElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
   const freshChipRef = useRef<HTMLSpanElement>(null);
-  const { presentation } = view;
-  const guided = view.outcome === "GUIDANCE_ONLY";
-  // OD-H3-4-1: the cap is paid. The same view whether or not anything is left (a legacy buyer gets
-  // a real fact here), so it stays a request, never "free" and never "sold out".
-  const capPaid = presentation.nextPrice === 0 && !presentation.onboarding;
+  const { presentation, deduction } = view;
   const { cue, measure } = useScrollCue(bodyRef);
 
   // Chips revealed since the previous render of this open sheet (never on opening it).
@@ -319,67 +459,35 @@ function SelectableHintBody({
     if (freshChips.size > 0) freshChipRef.current?.scrollIntoView?.({ block: "nearest" });
   }, [freshChips]);
 
-  // The body scrolls inside the 45dvh sheet: bring the guidance line into view when it appears.
+  const families: HintFamily[] = deduction ? ["material", "structure", "attribute"] : ["material"];
+  const cta = familyCta(view, family);
+  const card = FAMILY_CARDS[family];
   useEffect(() => {
-    if (view.outcome) guidanceRef.current?.scrollIntoView?.({ block: "nearest" });
-  }, [view.outcome]);
+    if (cta.outcomeLine) outcomeRef.current?.scrollIntoView?.({ block: "nearest" });
+  }, [cta.outcomeLine]);
 
+  const guided = view.outcome === "GUIDANCE_ONLY";
+  const noCharge = cta.outcomeLine !== null;
+  const capPaid = family === "material" && presentation.nextPrice === 0 && !presentation.onboarding;
   let walletNote: string = SELECTABLE_COPY.payOnlyWhenGiven;
-  if (guided) walletNote = SELECTABLE_COPY.noChargeNote;
+  if (noCharge) walletNote = SELECTABLE_COPY.noChargeNote;
   else if (capPaid) walletNote = SELECTABLE_COPY.capPaidNote;
-  const ctaEnabled = presentation.affordable && !guided;
-  let firstFresh = true;
+  const moreFamilies = guided && family === "material" && !!deduction && (!deduction.structureOwned || !deduction.attributeOwned);
   return (
     <>
+      <p className="hint-sheet__caption">{view.existenceText}</p>
       <div
         className={`hint-sheet__scroll${cue.above ? " hint-sheet__scroll--above" : ""}${cue.below ? " hint-sheet__scroll--below" : ""}`}
       >
-        <div ref={bodyRef} className="hint-sheet__steps hint-sheet__selectable" aria-live="polite" onScroll={measure}>
-          <p className="hint-sheet__step">
-            <span className="hint-sheet__text">{view.existenceText}</span>
-          </p>
-          <ul className="hint-sheet__rows">
-            {presentation.rows.map((row) => (
-              <li key={row.category} className="hint-sheet__row" data-hint-category={row.category}>
-                <span className="hint-sheet__row-label">{CATEGORY_LABEL[row.category]}</span>
-                <span className="hint-sheet__chips">
-                  {row.revealed.length === 0 ? (
-                    <span className="hint-sheet__chip hint-sheet__chip--unknown">？</span>
-                  ) : (
-                    row.revealed.map((chip) => {
-                      const ingredient = getIngredient(chip.ingredientId);
-                      const fresh = freshChips.has(chip.factId);
-                      const attachRef = fresh && firstFresh;
-                      if (attachRef) firstFresh = false;
-                      return (
-                        <span
-                          key={chip.factId}
-                          ref={attachRef ? freshChipRef : undefined}
-                          className={`hint-sheet__chip${fresh ? " hint-sheet__chip--new" : ""}`}
-                        >
-                          {ingredient && (
-                            <span className="hint-sheet__glyph" aria-hidden="true">
-                              <IngredientGlyph ingredient={ingredient} />
-                            </span>
-                          )}
-                          {ingredient?.nameJa ?? chip.ingredientId}
-                        </span>
-                      );
-                    })
-                  )}
-                </span>
-              </li>
-            ))}
-          </ul>
-          <p className="hint-sheet__unknown-legend">{SELECTABLE_COPY.unknownLegend}</p>
-          {guided && (
-            <p ref={guidanceRef} className="hint-sheet__guidance">
-              {SELECTABLE_GUIDANCE_TEXT}
-            </p>
-          )}
+        <div ref={bodyRef} className="hint-sheet__steps hint-sheet__selectable hint-sheet__board" aria-live="polite" onScroll={measure}>
+          <p className="hint-sheet__board-title">{SELECTABLE_COPY.boardTitle}</p>
+          <MaterialFacts view={view} freshChips={freshChips} freshChipRef={freshChipRef} />
+          {deduction && <FactSection id="structure" label="構成" lines={deduction.structureLines} />}
+          {deduction && <FactSection id="attribute" label="特徴" lines={deduction.attributeLines} />}
+          {guided && <p className="hint-sheet__guidance">{SELECTABLE_GUIDANCE_TEXT}</p>}
           {view.grandfatheredSteps.length > 0 && (
             // OD-H3-4-4: this player's own Economy 1.0 lines, verbatim. An archive at the end of the
-            // body: not a row, chip, price or category.
+            // board: not a row, chip, price or category.
             <div className="hint-sheet__legacy">
               <p className="hint-sheet__legacy-title">{SELECTABLE_COPY.legacyTitle}</p>
               <p className="hint-sheet__legacy-explainer">{SELECTABLE_COPY.legacyExplainer}</p>
@@ -392,47 +500,74 @@ function SelectableHintBody({
           )}
         </div>
         <span className="hint-sheet__scroll-cue" aria-hidden="true">
-          {"\u{25BE}"}
+          {"\u{25BE}"} 下にもヒントがあるよ
         </span>
       </div>
       <div className="hint-sheet__footer hint-sheet__footer--selectable">
-        <fieldset className="hint-sheet__prefs">
-          <legend className="hint-sheet__prefs-legend">{SELECTABLE_COPY.legend}</legend>
-          {presentation.preferences.map((category) => (
-            <label key={category} className={`hint-sheet__pref${preference === category ? " hint-sheet__pref--on" : ""}`}>
-              <input
-                type="radio"
-                name={groupName}
-                value={category}
-                checked={preference === category}
-                onChange={() => onPreference(category)}
-              />
-              {CATEGORY_LABEL[category]}
-            </label>
-          ))}
-        </fieldset>
-        <button
-          ref={buyRef}
-          type="button"
-          className={`cta-button hint-sheet__next hint-sheet__next--paid${ctaEnabled ? "" : " hint-sheet__next--short"}`}
-          disabled={!ctaEnabled}
-          aria-disabled={latched || undefined}
-          onClick={onBuy}
-        >
-          {guided ? (
-            <span className="hint-sheet__next-label">{SELECTABLE_COPY.ctaAfterGuidance}</span>
-          ) : (
-            <>
-              <span className="hint-sheet__next-label">{capPaid ? SELECTABLE_COPY.ctaCapPaid : SELECTABLE_COPY.cta}</span>{" "}
-              <span className="hint-sheet__price">{capPaid ? SELECTABLE_COPY.capPaidBadge : `${presentation.nextPrice} Pitz`}</span>
-            </>
+        {/* The family choice itself is the visible heading; the title stays for screen readers. */}
+        <p className="hint-sheet__ask-title sr-only">{SELECTABLE_COPY.askTitle}</p>
+        {families.length > 1 && (
+          <div className="hint-sheet__families" role="radiogroup" aria-label={SELECTABLE_COPY.askTitle}>
+            {families.map((f) => (
+              <label key={f} className={`hint-sheet__family${family === f ? " hint-sheet__family--on" : ""}`}>
+                <input type="radio" name={familyGroup} value={f} checked={family === f} onChange={() => onFamily(f)} />
+                {FAMILY_CARDS[f].tab}
+              </label>
+            ))}
+          </div>
+        )}
+        <div className="hint-sheet__card" data-hint-family={family}>
+          <p className="hint-sheet__card-title">
+            {card.title}
+            <span className="hint-sheet__card-desc">{card.description}</span>
+          </p>
+          {family === "material" && (
+            <fieldset className="hint-sheet__prefs">
+              <legend className="hint-sheet__prefs-legend sr-only">{SELECTABLE_COPY.preferenceLegend}</legend>
+              {PREFERENCE_CHIPS.map((chip) => (
+                <label key={chip.id} className={`hint-sheet__pref${preferenceId === chip.id ? " hint-sheet__pref--on" : ""}`}>
+                  <input type="radio" name={groupName} value={chip.id} checked={preferenceId === chip.id} onChange={() => onPreference(chip.id)} />
+                  {chip.label}
+                </label>
+              ))}
+            </fieldset>
           )}
-        </button>
+          {cta.outcomeLine ? (
+            <p ref={outcomeRef} className="hint-sheet__outcome">
+              {cta.outcomeLine}
+            </p>
+          ) : (
+            card.notes.map((note) => (
+              <p key={note} className="hint-sheet__card-note">
+                {note}
+              </p>
+            ))
+          )}
+          {moreFamilies && <p className="hint-sheet__card-note">{SELECTABLE_COPY.moreFamilies}</p>}
+          <button
+            ref={buyRef}
+            type="button"
+            className={`cta-button hint-sheet__next hint-sheet__next--paid${cta.enabled ? "" : " hint-sheet__next--short"}`}
+            disabled={!cta.enabled}
+            aria-disabled={latched || undefined}
+            onClick={onBuy}
+          >
+            <span className="hint-sheet__next-label">{cta.label}</span>
+            {cta.badge && (
+              <>
+                {" "}
+                <span className="hint-sheet__price">{cta.badge}</span>
+              </>
+            )}
+          </button>
+        </div>
         <p className="hint-sheet__wallet">
           所持 {presentation.pitzBalance} Pitz<span className="hint-sheet__wallet-sep"> ・ </span>
           {walletNote}
         </p>
-        {!presentation.affordable && !guided && <p className="hint-sheet__wallet hint-sheet__wallet-note">{SELECTABLE_COPY.shortNote}</p>}
+        {!cta.affordable && !noCharge && cta.enabled === false && cta.badge !== null && (
+          <p className="hint-sheet__wallet hint-sheet__wallet-note">{SELECTABLE_COPY.shortNote}</p>
+        )}
       </div>
     </>
   );
