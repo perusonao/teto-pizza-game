@@ -1136,8 +1136,8 @@ function App() {
           onStartBake={() => dispatch({ type: "START_BAKE", now: Date.now() })}
           onShowHint={() => dispatch({ type: "SHOW_HINT" })}
           onUnlockHint={(level) => dispatch({ type: "PURCHASE_DISCOVERY_HINT", level })}
-          onBuySelectableHint={(preference, expectedPaidCount) =>
-            dispatch({ type: "PURCHASE_SELECTABLE_HINT", preference, expectedPaidCount })
+          onBuySelectableHint={(preference, expectedPaidCount, family) =>
+            dispatch({ type: "PURCHASE_SELECTABLE_HINT", preference, expectedPaidCount, ...(family && family !== "material" ? { family } : {}) })
           }
           onCloseHint={() => dispatch({ type: "CLOSE_HINT" })}
           onRetryWithHint={handleRetryWithHint}
