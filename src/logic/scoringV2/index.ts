@@ -185,8 +185,15 @@ export function computeScoringV2(
   // recipes from this PR onward, even though `reference`-gated Sauce/Pieces/Recipe (and
   // therefore the whole result's `available`/`totalScore`) still are not, pending B2.
   const bake = scoreBakeComponentV2(safePizza.bakeResult, recipe.bakeTarget);
+  // An `options` value that is not an object (`null`, a primitive -- only reachable from an
+  // untyped caller) fails closed as "no Reference" rather than throwing on `in` (Codex review on #271).
+  const optionsValue: unknown = options;
   const reference: ScoringReferencePizza | null | undefined =
-    "reference" in options ? options.reference : getReferencePizza(recipe.id);
+    typeof optionsValue !== "object" || optionsValue === null
+      ? null
+      : "reference" in optionsValue
+        ? (optionsValue as ComputeScoringV2Options).reference
+        : getReferencePizza(recipe.id);
 
   // TQ-1B (Codex review on #271): an injected Reference is untrusted input like `pizza` -- a
   // Reference for another recipe, or one whose shape is broken (e.g. `sauce` missing rather than

@@ -13,6 +13,7 @@ import { LUNCH_RUSH_RULESET_VERSION } from "../../shared/lunchRushScoring";
 import {
   combineWeightedComponents,
   computeScoringV2,
+  type ComputeScoringV2Options,
   SCORING_V2_RULESET_VERSION,
   SCORING_V2_WEIGHT_PROFILES,
   toLegacyScoreBreakdown,
@@ -300,6 +301,18 @@ describe("TQ-1B: adversarial Reference data fails closed", () => {
     for (const recipe of RECIPES) {
       expect(computeScoringV2(recipe, pizza, { reference: getReferencePizza(recipe.id) }).available, recipe.id).toBe(true);
     }
+  });
+
+  it("a non-object options argument fails closed instead of throwing (Codex review on #271)", () => {
+    const margherita = getRecipe("margherita")!;
+    const pizza: PizzaState = { ...createEmptyPizza(), sauceIds: ["tomato-sauce"], bakeResult: 60 };
+    for (const bad of [null, 0, "reference", true]) {
+      const result = computeScoringV2(margherita, pizza, bad as unknown as ComputeScoringV2Options);
+      expect(result.available, String(bad)).toBe(false);
+      expect(result.totalScore).toBeNull();
+    }
+    expect(computeScoringV2(margherita, pizza, undefined).available).toBe(true);
+    expect(computeScoringV2(margherita, pizza, {}).available).toBe(true);
   });
 
   it("an out-of-range sauce target fails closed instead of being clamped into a score (Codex review on #271)", () => {
