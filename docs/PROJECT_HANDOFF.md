@@ -316,9 +316,15 @@ The Fresh Audit behind it is `docs/reports/TETO_HINT-5_SUB-TOPPING-CLASSIFICATIO
   - a single linear ladder with no FREE LEAK;
   - sub-topping names are never sold;
   - authored `hintKeyToppingId` / `hintSubToppingOrder`.
-- **Open:**
-  - **P4** is reserved (the empty sauce / cheese rung, together with TQ-1D);
-  - **pricing** E1 / E2 (recommended P-C, not decided).
+- **Round 2 (2026-09-28):**
+  - **pricing = P-C** (sauce / cheese / key 10, structure 5, each classification 5, no cap);
+  - the 7 existing families only (display-only labels, and the emoji must never equal an
+    ingredient's emoji);
+  - no E3b courtesy grant and no M1 free-key carry-over;
+  - T-COV: runtime 25 / 29 proceed, with a fail-fast taxonomy gate and no silent fallback. PR #293
+    is the reference audit.
+- **Open:** C1a (5 key toppings, compared in Final Design §6.2), P4 / P4b (with TQ-1D) and M2
+  (19-first vs 25).
 - **State:** no production code yet. H5-1 (pure layer, unwired) is the next step and has not
   started. The TQ-1D re-audit tripwire is extended to Hint 5.0 (Final Design §12).
 

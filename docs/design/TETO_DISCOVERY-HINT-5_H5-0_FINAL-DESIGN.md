@@ -5,11 +5,21 @@
   `docs/reports/TETO_HINT-5_SUB-TOPPING-CLASSIFICATION-LADDER_Fresh-Audit.md`.
 
 **Status:**
-- The Owner Decisions **P1, P2, P3, C1, C2, C3, C4, U1 and E3 are APPROVED** (2026-09-28) and
-  recorded here as the Hint 5.0 authority.
-- **P4 is RESERVED**, deferred to later design together with TQ-1D.
-- **Pricing (E1 / E2) is NOT decided.** §10 compares the options; no price is an authority.
-- **No production code is changed by H5-0.** Implementation starts at H5-1, after this document.
+- **Round 1 (2026-09-28):** the Owner Decisions **P1, P2, P3, C1, C2, C3, C4, U1 and E3** are
+  APPROVED.
+- **Round 2 (2026-09-28):** these are APPROVED:
+  - **E1 = P-C** (the Hint 5.0 price authority, §10);
+  - **E2** (no cap);
+  - **C4 final** (the 7 existing families, display only, §7);
+  - **E3b** (no courtesy grant);
+  - **M1** (no free-key carry-over);
+  - **T-COV** (taxonomy coverage and the fail-fast gate, §11). PR #293 is the reference audit.
+- All of these are recorded here as the Hint 5.0 authority.
+- **Still open:**
+  - **C1a** (the 5 key-topping choices, compared in §6.2, not decided);
+  - **P4 / P4b** (deferred with TQ-1D);
+  - **M2** (enable 19 targets first, or all 25 at once).
+- **No production code is changed by H5-0.** H5-1 has **not started**.
 
 This document wins over the Fresh Audit wherever they differ.
 
@@ -46,10 +56,17 @@ sub-topping of a target, **down to the very last one**, can be given a **classif
 | **OD-H5-C1** | The key topping and the sub-topping order have **explicit authority**, based on `hintKeyToppingId` / `hintSubToppingOrder`. Array order (for example `requiredIngredients`) is never authority. The field names and their placement are fixed in this document (§6). | APPROVED |
 | **OD-H5-C2** | The current **free key** (`hintKeyIngredientId`, the latest-unlocked ingredient on the ladder) and the Hint 5.0 **key topping** are **different concepts**. The key-topping rung is a normal **paid** rung. Making it free is not the default. | APPROVED |
 | **OD-H5-C3** | Sub-topping **names are not sold**. There is no "classification → name" upgrade step. | APPROVED |
-| **OD-H5-C4** | The UI uses human-friendly classification labels (🥩 肉系 …). Internal taxonomy ids are separate from display text and emoji. They must not contradict DH4-1 or PR #255 OD-TAX. A new family id is never added silently; it goes back to the Owner (§7). | APPROVED (the labels themselves: §7, OD-H5-C4a / b) |
+| **OD-H5-C4** | The UI uses human-friendly classification labels (🥩 肉系 …). Internal taxonomy ids are separate from display text and emoji. They must not contradict DH4-1 or PR #255 OD-TAX. A new family id is never added silently; it goes back to the Owner (§7). | APPROVED |
+| **OD-H5-C4 (final, round 2)** | **No new taxonomy family.** The existing **7 families** of DH4-1 / PR #255 OD-TAX are kept. Only the UI display is made human-friendly. **「きのこ系」 is not an independent family**: mushroom stays in `vegetable`, and the display 「野菜・きのこ系」 is wording only. The invariant **"a classification emoji never collides with a real ingredient's emoji" is kept** (H5-INV-2, G18). | APPROVED (C4a / C4b closed) |
 | **OD-H5-U1** | The basic UX is a **single ladder**, not the 3-way choice: sauce → cheese → key topping → structure → sub-topping ① … ⓝ. There is **no FREE LEAK**: the final rung count, the sub-topping count and the kinds of later rungs are not visible before purchase. The player always sees **what the next hint is** and **its price**. | APPROVED |
 | **OD-H5-E3** | Existing coarse `attr:group:*` / `attr:category:*` facts are **never deleted** and **never converted** to `cls:<ingredientId>`. Stored facts stay forward-compatible. Only facts that map safely are reused. Full Reset, unknown ids and forward compatibility are kept. | APPROVED |
-| OD-H5-E1 / E2 | The price table, and whether a per-recipe cap applies | **OPEN** (§10) |
+| **OD-H5-E1** | **Pricing = P-C:** sauce **10**, cheese **10**, key topping **10**, structure **5**, sub-topping classification **5 each**. The price depends on the rung kind only. | **APPROVED (price authority)** |
+| **OD-H5-E2** | **No per-recipe cap.** None is needed: every runtime recipe totals ≤ its existing 35 / 75 cap under P-C. | APPROVED |
+| **OD-H5-E3b** | Owning a coarse 特徴 fact (`attr:group:*` / `attr:category:*`) does **not** auto-grant any individual classification. The facts stay stored, forward-compatible. | APPROVED |
+| **OD-H5-M1** | The Hint 3.0 **free key**'s shown / purchased state is **not** carried over to the Hint 5.0 paid key-topping rung. They are separate concepts. | APPROVED |
+| **OD-H5-T-COV** | Using PR #293: Hint 5.0 proceeds for the **runtime 25 recipes / 29 ingredients**, and the 62 / 172 unclassified-ingredient problem is **not an H5-1 blocker**. For production, the **fail-fast gate "every hint-eligible topping resolves to exactly one valid taxonomy family"** is mandatory. **A silent fallback from a missing classification to existence (or group / category) is forbidden** (§11). | APPROVED |
+| OD-H5-C1a | Key-topping choice for margherita, quattro-formaggi, fugazza, parmigiana and pesto-tonno | **OPEN** (§6.2) |
+| OD-H5-P4b / M2 | A recipe with no key topping under P4, and 19-first vs all-25 enablement | **OPEN** |
 
 ## 3. Authority: deduction vs. disclosure (normative)
 
@@ -84,7 +101,8 @@ does not govern Hint 5.0 rungs.
 | OD-H3-7 / -15 (no negative fact) | – | **Kept**. It is exactly why empty rungs are RESERVED (P4, §5.3). |
 | OD-H3-14 (category preference), DH4-2C 3-card UI | 材料 / 構成 / 特徴 | **Replaced for Hint 5.0 targets** (U1) |
 | OD-H3-16 / OD-DH4-10 (FREE LEAK) | – | **Kept** (H5-INV-5) |
-| OD-H3-4 ESC + cap 35 / 75, OD-H3-9 (the rung never rolls back), OD-DH4-PROD-1 (5 / 5), OD-HE-5 (Dex-0 onboarding is free), OD-HE-7 ("No H5") | – | **Pricing is open** (§10). OD-HE-5 is **kept**: the Dex-0 Margherita onboarding is free and never persisted. OD-HE-7 refers to the Hint 2.0 level H5 and is unrelated; player copy must avoid 「H5」. |
+| OD-H3-4 ESC + cap 35 / 75, OD-H3-9 (the rung never rolls back), OD-DH4-PROD-1 (5 / 5), OD-HE-5 (Dex-0 onboarding is free), OD-HE-7 ("No H5") | – | **Superseded for Hint 5.0 rungs by OD-H5-E1 (P-C) / E2 (no cap).** The prices are fixed per rung kind, so OD-H3-9 rung continuity has nothing to roll back. The ESC ladder and 5 / 5 still govern non-Hint-5.0 targets. OD-HE-5 is **kept**: the Dex-0 Margherita onboarding is free and never persisted. OD-HE-7 refers to the Hint 2.0 level H5 and is unrelated; player copy must avoid 「H5」. |
+| DH4-1 `ingredientTaxonomy.ts` header ("an ingredient without a row has no family; the guard answers at category level") and the DH4 coarsening (`deductionHint.ts`, `deductionGuard.ts` `classOf`) | A missing row silently coarsens | **Not reused by Hint 5.0** (OD-H5-T-COV, PR #293 F-2). The Hint 5.0 answer fails closed (`NOT_A_TARGET`, 0 Pitz) and CI fails first. The DH4 path is unchanged. H5-1 amends the header comment to say the DH4 behaviour does not apply to Hint 5.0. |
 | OD-TQ1C-2, INV-TQ-4, the OD-DH4-PROD-1 TQ-1D contract | Re-audit when a Technique recipe ships | **Kept and extended** (§12) |
 
 ## 5. The ladder model
@@ -217,7 +235,54 @@ The seed below is an **authoring proposal**:
 sort. With a family-sorted order, 「サブ① = 野菜」 would imply "no meat", which is a free negative
 fact.
 
-### 6.2 Fact ids
+### 6.2 OD-H5-C1a: comparison for the 5 open recipes (NOT decided)
+
+**Common facts:**
+- The P-C price per rung is sauce 10, cheese 10, key 10, structure 5 and 5 per sub-class. Empty
+  rungs are never charged.
+- The sub order listed for each option is the one that option would author.
+- 「RESERVED」 means an empty fixed rung (§5.3). While P4 / P4b is open, a target with one stays on
+  the current sheet.
+
+| Recipe (composition) | Ladder free key (Hint 3.0) | Key-topping candidates | Sub order with that key | Hint 5.0 ladder (P-C total) | Notes |
+|---|---|---|---|---|---|
+| **margherita**: tomato-sauce, mozzarella, basil | none (starter-only) | **(a) basil** | [] | sauce → cheese → key basil → structure: 4 rungs (35). **In practice free:** margherita is a Hint target at Dex 0 only, as the onboarding (OD-HE-5: every rung free, nothing persisted). | ★ **Recommended: basil.** It is the only topping. There is no empty rung, and the onboarding is simple. It matches pepperoni / funghi-style 0-sub recipes (P3). |
+| | | (b) null | [basil] | Key rung RESERVED (P4b) → sub① 🪴 ハーブ・香味系: 4 non-empty rungs (30) | Makes the onboarding depend on P4b. It teaches classification on the first recipe, but a RESERVED rung on the tutorial is poor UX. |
+| **quattro-formaggi**: olive-oil, mozzarella, gorgonzola, parmigiano, fontina (no topping) | gorgonzola (cheese) | **(a) null** (no topping exists) | [] | sauce → cheese (all 4 cheese names in one rung) → key **RESERVED (P4b)** → structure: 3 non-empty rungs (25) | ★ **Recommended: null.** C1 / G17 define the key topping as a topping, and none exists. Because of P4b, this recipe cannot be enabled until P4b is decided. |
+| | | (b) a cheese as "key" (e.g. gorgonzola) | [] | The key rung would repeat a name the cheese rung already revealed | **Not recommended.** It breaks C2 (key topping ≠ the free key concept) and G17, and it duplicates information. |
+| | | (c) a special rule for recipes with no topping (the rung is omitted) | [] | 3 rungs | This amounts to deciding P4b. It is listed for the Owner's P4b decision, not for C1a. |
+| **fugazza**: olive-oil, onion, oregano (no cheese) | olive-oil (sauce) | **(a) onion** | [oregano] | sauce → cheese **RESERVED (P4)** → key onion → structure → sub① 🪴 ハーブ・香味系 (30) | ★ **Recommended: onion.** It is fugazza's identity ingredient: an onion pizza, its description leads with it, and onion's Starter Grant is tied to fugazza. The oregano classification leaves a real herb deduction (basil / garlic / oregano / rosemary). |
+| | | (b) oregano | [onion] | … → key oregano → structure → sub① 🥬 野菜・きのこ系 (30) | Oregano is a secondary seasoning (marinara / napoletana use it too), so it makes a weak "key". |
+| | | Either way | | | Blocked by **P4** (no cheese), whichever key is chosen |
+| **parmigiana-pizza**: tomato-sauce, mozzarella, eggplant, parmigiano, basil | parmigiano (cheese) | **(a) eggplant** | [basil] | sauce → cheese (mozzarella + parmigiano) → key eggplant → structure → sub① 🪴 ハーブ・香味系 (45) | ★ **Recommended: eggplant.** Parmigiana is an eggplant dish, and eggplant is the main topping (×3). It matches melanzane-pizza (key eggplant, sub basil); the two are told apart by the cheese rung (parmigiano), which is good deduction play. |
+| | | (b) basil | [eggplant] | … → key basil → structure → sub① 🥬 野菜・きのこ系 (45) | Basil is a garnish, and it is shared with margherita, melanzane and pesto-caprese, so it makes a weak key |
+| **pesto-tonno**: pesto, tuna, black-olive, onion (no cheese) | pesto (sauce) | **(a) tuna** | [black-olive, onion] | sauce → cheese **RESERVED (P4)** → key tuna → structure → sub① 🥬, sub② 🥬 (40) | ★ **Recommended: tuna.** It is the named ingredient (tonno = tuna) and the main topping (×3). It mirrors tonno-e-cipolla (key tuna). The two vegetable subs give a two-step vegetable deduction. |
+| | | (b) onion | [tuna, black-olive] | … → sub① 🦐 魚介系, sub② 🥬 (40) | Onion is shared with many recipes, so it makes a weak key. It gives a seafood classification instead. |
+| | | (c) black-olive | [tuna, onion] | … → sub① 🦐, sub② 🥬 (40) | Black-olive is a secondary topping. Its family is also under review (PR #255 NEEDS_REVIEW), so it would be a fragile key. |
+| | | Any choice | | | Blocked by **P4** (no cheese) |
+
+**Summary of the recommendations (Owner to decide):**
+
+| Recipe | Recommended key | Sub order |
+|---|---|---|
+| margherita | basil | [] |
+| quattro-formaggi | null | [] (P4b) |
+| fugazza | onion | [oregano] |
+| parmigiana-pizza | eggplant | [basil] |
+| pesto-tonno | tuna | [black-olive, onion] |
+
+The recommendations follow one principle: **"the key topping is the recipe's identity topping,
+never a garnish or seasoning"**. It can be written into the authoring guide for 172.
+
+**Effect on enablement.** With the recommended keys, the targets blocked until P4 / P4b are still
+the same 6:
+- marinara, fugazza, pizza-bianca, pesto-tonno and puttanesca (P4);
+- quattro-formaggi (P4b).
+
+No C1a choice changes that set, **except** margherita option (b), which would add a 7th
+(RESERVED key).
+
+### 6.3 Fact ids
 
 The fact grammar is unchanged: `HINT_FACT_ID_PATTERN` is `<kind>:<value>[:<qualifier>]`, with at
 most 64 facts per recipe. **No save schema bump.**
@@ -236,7 +301,7 @@ most 64 facts per recipe. **No save schema bump.**
 **Display layer.** A new, separate table, `HINT_CLASS_DISPLAY: Record<AttributeFamilyId, { emoji,
 labelJa }>`. The DH4-1 `labelJa` stays for the legacy 特徴 lines.
 
-| Family id | Proposed display | Note |
+| Family id | Display (OD-H5-C4 final; wording may be polished at H5-3) | Note |
 |---|---|---|
 | meat | 🥩 肉系 | |
 | seafood | 🦐 魚介系 | The Owner's example **🐟 is anchovy's glyph** (H5-INV-2), so it must not be used |
@@ -246,21 +311,20 @@ labelJa }>`. The DH4-1 `labelJa` stays for the legacy 特徴 lines.
 | fruit | 🍇 果物系 | 🍍 is pineapple's glyph |
 | other | ✨ ちょっと変わった材料 | OD-TAX-8: never 「その他系」 |
 
-**Returned to the Owner (not decided here):**
-- **OD-H5-C4a:** the Owner's example 「🍄 きのこ系」 needs a **new family id** (`mushroom`)
-  split out of `vegetable`. This is not added (per C4).
-  - At runtime it would be a singleton (mushroom only). P2 allows singletons, but **🍄 is
-    mushroom's own glyph**, so the emoji would still have to change.
-  - Options:
-    - (a) keep 🥬 野菜・きのこ系 (recommended; no taxonomy change);
-    - (b) approve a `mushroom` family: this needs an OD-TAX amendment and a PR #255 re-run, and a
-      non-glyph emoji.
-- **OD-H5-C4b:** final wording and emoji for all 7. **Gate G18** enforces H5-INV-2 at any time:
-  no display emoji may equal any catalog ingredient's emoji.
-  - 🦐 is safe today, but shrimp is a 172 candidate. When shrimp lands, G18 forces a change or
-    a different glyph for shrimp.
-  - The garlic / capers / black-olive boundary stays with OD-TAX-7. Hint 5.0 uses the current
-    DH4-1 rows as they are.
+**Decided (OD-H5-C4 final, round 2):**
+- **No new family.** The 7 ids above are the whole Hint 5.0 classification space.
+- **「きのこ系」 is not a family.** Mushroom remains `vegetable`, and its display reads
+  「野菜・きのこ系」. (A `mushroom` family was also impractical: at runtime it would be a singleton,
+  and 🍄 is mushroom's own glyph.)
+- The table above is the **display authority H5-1 starts from**. Wording may be polished at H5-3
+  Human Verification without touching ids.
+- **Gate G18 enforces H5-INV-2 permanently:** no display emoji may equal any catalog ingredient's
+  emoji.
+  - 🐟 is anchovy's glyph, 🌿 is basil's / pesto's and 🍍 is pineapple's, so none is used.
+  - 🦐 is safe today. If shrimp ever lands with 🦐, G18 fails, and the seafood emoji or shrimp's
+    glyph must change.
+- The garlic / capers / black-olive boundary stays with OD-TAX-7. Hint 5.0 uses the current DH4-1
+  rows as they are.
 
 ## 8. UX (U1) and FREE LEAK
 
@@ -323,8 +387,8 @@ buying, and for how much".
 | `ing:<ladder free key>` | Never stored (free keys were derived). No mapping (§9.3). | – |
 | `meta:ingredient-total`, or a legacy 「材料は全部で○種類」 (OD-DH4-8, `legacyOwnsIngredientTotal`) | Rung 4 owned | none |
 | `meta:topping-total` | Displayed as an owned structure line. No rung. | none |
-| `attr:family:<f>` | **Safe mapping** only when the Rule W reserve of that recipe is a Hint 5.0 sub-topping **and** its current family is `f`: that SUB_CLASS rung is owned (derived, **no** `cls:` written). Otherwise it goes to the archive. | none |
-| `attr:group:*`, `attr:category:*` | **Archive only** (「以前のヒント」). No rung is owned. Never converted (E3). | none |
+| `attr:family:<f>` | **Safe mapping** only when the Rule W reserve of that recipe is a Hint 5.0 sub-topping **and** its current family is `f`: that SUB_CLASS rung is owned (derived, **no** `cls:` written). Otherwise it goes to the archive. If a future HCG moves that ingredient's family, the condition stops holding, and the fact falls back to archive-only, never deleted (PR #293 F-8). | none |
+| `attr:group:*`, `attr:category:*` | **Archive only** (「以前のヒント」). No rung is owned. Never converted (E3). **No courtesy classification is granted (OD-H5-E3b).** | none |
 | Legacy `discoveryHintPurchases` (Economy 1.0) | The existing `legacyHintMapping` grants `ing:` facts and archive lines, read as above | none |
 | Unknown / future kinds (`tech:`, …) | Kept, not displayed | none |
 
@@ -339,19 +403,14 @@ The previous build:
 
 So a rollback loses no data.
 
-### 9.3 Consequences for the Owner to acknowledge (C2)
+### 9.3 Decided consequences (C2, M1, E3b)
 
-- **No free key in Hint 5.0.** A player in the middle of a target who saw the Hint 3.0 free key
-  (for example 「ペパロニを使うピザ」) does not see it on the Hint 5.0 board unless they buy
-  rung 3.
-  - Nothing was stored, so E3's "safe mapping only" gives no grant.
-  - **OD-H5-M1 (open, optional):** grant rung 3 when the authored key topping equals the ladder
-    key **and** the recipe has any stored hint fact or legacy purchase. That is evidence that
-    the player opened the sheet.
-  - The default is **no grant**, following strict E3.
-- **Coarse-特徴 buyers get no free classification** (E3: coarse facts are not mapped). They keep
-  their archive line. Whether they receive a courtesy classification is part of pricing
-  (OD-H5-E3b, §10.4).
+- **No free key in Hint 5.0 (OD-H5-M1).** The Hint 3.0 free key's shown / purchased state is
+  **not** carried over to the paid key-topping rung.
+  - A player who saw 「ペパロニを使うピザ」 under Hint 3.0 does not see it on the Hint 5.0 board
+    until they buy rung 3.
+  - The Hint 3.0 free key and the Hint 5.0 key topping are separate concepts (C2).
+- **No courtesy classification (OD-H5-E3b).** Coarse 特徴 buyers keep their archive line only.
 
 ### 9.4 STALE / double-request token
 
@@ -361,7 +420,33 @@ So a rollback loses no data.
   when the index differs.
 - The index reveals nothing unbought.
 
-## 10. Pricing comparison (OD-H5-E1 / E2: NOT decided)
+## 10. Pricing (OD-H5-E1 = P-C, OD-H5-E2 = no cap: APPROVED)
+
+### 10.0 Price authority
+
+| Rung kind | Price (Pitz) |
+|---|---:|
+| SAUCE (every sauce, one rung) | **10** |
+| CHEESE (every cheese, one rung) | **10** |
+| KEY_TOPPING | **10** |
+| STRUCTURE | **5** |
+| SUB_CLASS (each) | **5** |
+
+**Rules:**
+- **The price depends only on the rung kind.** This is FREE-LEAK safe, and there is no rung
+  continuity (OD-H3-9) to maintain.
+- **No per-recipe cap** (E2).
+- **Never charged:** an empty rung (RESERVED), a rung that is ALREADY_KNOWN, a completed ladder,
+  and the Dex-0 onboarding (OD-HE-5, free).
+- **Partly known multi-subject rung:** a rung whose subjects are partly known through legacy
+  `ing:` facts (for example 1 of 2 cheeses) costs its full kind price, because it reveals at least
+  one new name.
+- **0 Pitz** is never a production price.
+- **Tests:**
+  - G-PRICE asserts the table and the kind-only dependency;
+  - H5-2 re-runs the Hint Economy simulation with these prices before H5-4.
+
+The rest of this section is kept as the decision record.
 
 ### 10.1 The options, with concrete numbers
 
@@ -401,7 +486,7 @@ So a rollback loses no data.
 | **(7) Fit with "buy classifications, then deduce"** | Good. Classifications are cheap, but the key at 20 is the priciest step, just before the cheap part. | Poor. Every classification costs 40, which discourages deduction. | **Best**: every classification costs 5, and the price is easy to read (names 10, the rest 5). | Good, but the cap makes the last classification sometimes cost less than its label suggests (confusing) |
 | Explainability (the Owner's priority) | Medium | Low | **High** | Low |
 
-### 10.3 Recommendation (NOT an authority; for the Owner's decision)
+### 10.3 Recommendation (as presented; the Owner adopted P-C on 2026-09-28)
 
 - **Recommended: P-C.** Sauce 10 / cheese 10 / key topping 10 / structure 5 / each sub-topping
   classification 5. **No cap is needed**, because every runtime recipe already fits within the
@@ -419,13 +504,13 @@ So a rollback loses no data.
 **H5-2 must re-run the Hint Economy simulation** (`discoveryHintEconomy.sim.test.ts` harness)
 with the chosen curve before H5-4.
 
-### 10.4 Pricing sub-decisions still open
+### 10.4 Pricing sub-decisions (all closed)
 
-- **OD-H5-E1:** the price table.
-- **OD-H5-E2:** whether a per-recipe cap applies (P-D only).
-- **OD-H5-E3b:** a courtesy classification for players who got only a coarse 特徴 answer. It would
-  be a read-time grant, never a stored conversion. The recommendation is **no**, to keep E3
-  strict.
+| Decision | Outcome |
+|---|---|
+| E1 | P-C |
+| E2 | No cap |
+| E3b | No courtesy classification |
 
 ## 11. Taxonomy gate and the relation to PR #255
 
@@ -436,6 +521,20 @@ with the chosen curve before H5-4.
 - A row enters production only through a PR that adds the ingredient to
   `src/data/ingredients.ts`, **after** the OD-TAX-7 Human Classification Gate has decided it.
 - Hint 5.0 changes no taxonomy row and adds no family id.
+
+**Relation to PR #293 (Taxonomy Coverage Fresh Audit, OPEN, docs only, not an authority):**
+- It is the reference audit for OD-H5-T-COV.
+- Its invariants **INV-T1..T7** and gate names are adopted below. It is not merged or changed here.
+- **Scope decision (OD-H5-T-COV):**
+  - Hint 5.0 proceeds for the runtime 25 recipes / 29 ingredients, where PR #293 F-1 found that
+    22 / 22 toppings have a family and 0 / 25 recipes are uncovered.
+  - The 62 / 172 gaps are **not H5-1 blockers**. PR #293 F-6: 96 topping ids plus 8 tokens have no
+    taxonomy, and 0 new family ids are required.
+  - The 62 / 172 gaps are handled when those ingredients enter production, through the HCG
+    (OD-TAX-7). PR #293 F-4 recommends that the HCG decide **category** as well as family.
+- **No silent fallback (PR #293 F-2).** The DH4 coarsening of a missing family is not reused by
+  Hint 5.0. A missing classification at runtime is `NOT_A_TARGET` (0 Pitz, no fact, a uniform
+  line), and the gates make that state unreachable in production (INV-T6).
 
 **Required invariant (H5-INV-7):**
 
@@ -452,6 +551,9 @@ with the chosen curve before H5-4.
 | **G2** | Unit test: every id in every `hintSubToppingOrder` has a family, and `subToppingClass` returns a family for it | A missing row → `NOT_A_TARGET` at runtime (fail closed, no charge). The gate makes it a CI failure first. |
 | **G16** | A fixture test over the 62-catalog / 172 ids: roles built from the matrix rows; ids without a row must fail closed (never guessed) | Proves that expansion cannot silently ship an unclassified topping |
 | **G18** | Unit test: no `HINT_CLASS_DISPLAY` emoji equals any catalog ingredient's emoji | H5-INV-2 |
+| **G22 (G-REC-1)** | Unit test: every `requiredIngredients` id of every production recipe exists in `INGREDIENTS` (INV-T3). This closes PR #293 F-3; the gap exists today. | A recipe cannot carry an id that G1 never sees |
+| **G23 (G-UNKNOWN / no silent fallback)** | Unit test: an unknown, hostile or row-less id (`__proto__`, `""`, a synthetic topping without a row) given to the Hint 5.0 answer is `NOT_A_TARGET`, with 0 Pitz and no fact. It is **never** existence, group or category (INV-T6). The G4 sweep also asserts that no production state ever reaches `NOT_A_TARGET`. | Missing-classification → existence is impossible in Hint 5.0 |
+| **G24 (INV-T2)** | Unit test: `TOPPING_FAMILY_ROWS` ids are unique, each is in `INGREDIENTS`, and each has category `topping` | "Exactly one" family |
 | **P-HCG (process)** | PR checklist: a new ingredient's family row cites its OD-TAX-7 decision. NEEDS_REVIEW rows (garlic, capers and black-olive at runtime) keep their current DH4-1 value until the HCG decides. | Keeps PR #255's review queue authoritative |
 
 ## 12. TQ-1D: Technique leak and the re-audit tripwire
@@ -494,18 +596,28 @@ with the chosen curve before H5-4.
 | G19 | Empty fixed rung → `RESERVED_EMPTY_RUNG` (no charge, no fact, no line). The production enable list excludes such targets while P4 is reserved. | pure (H5-1), production gate (H5-4) | H5-1 / H5-4 |
 | G20 | P3: a recipe with 0 sub-toppings has exactly 4 rungs, and the next is the generic completion | pure | H5-1 |
 | G21 | Dex-0 Margherita: every rung is free and nothing is persisted (OD-HE-5) | pure / reducer | H5-1 / H5-2 |
+| G22 | G-REC-1: every recipe ingredient id exists in `INGREDIENTS` (INV-T3) | data | H5-1 |
+| G23 | No silent fallback: a missing classification → `NOT_A_TARGET` (0 Pitz, no fact), never existence / group / category. Unreachable in production. | pure + sweep | H5-1 |
+| G24 | `TOPPING_FAMILY_ROWS`: unique, in the catalog, topping only (INV-T2) | data | H5-1 |
+| G-PRICE | The P-C table (10 / 10 / 10 / 5 / 5). The price depends on the rung kind only. No cap. Empty / known / complete / onboarding rungs are 0 and never charged. | pure (H5-1), reducer (H5-2) | H5-1 / H5-2 |
 
 ## 14. H5-1 implementation scope (concrete; not started)
 
 **Goal:** the pure, **unwired** Hint 5.0 layer and its data gates. It has **no** reducer, sheet,
-save writer, price constant or flag. The price is an input, as in DH4-2A.
+save writer or flag.
+- The P-C table may be declared as data (`HINT5_RUNG_PRICE`) and pinned by G-PRICE.
+- `requestHint5Rung` still takes the price as an input, the DH4-2A pattern, so the wiring stays
+  in H5-2.
+- H5-1 also amends the `ingredientTaxonomy.ts` header comment, a comment-only change. It will
+  state that DH4's "no row → category" coarsening does not apply to Hint 5.0 (PR #293 F-2).
+- Gates G22 / G23 / G24 are included.
 
 **New files:**
 
 | File | Contents |
 |---|---|
 | `src/data/recipeHintRoles.ts` | `RecipeHintRoles`, `RECIPE_HINT_ROLES` (25 entries, §6.1, after OD-H5-C1a) |
-| `src/data/hintClassDisplay.ts` | `HINT_CLASS_DISPLAY` (after OD-H5-C4a / b; until then, the provisional §7 table marked provisional) |
+| `src/data/hintClassDisplay.ts` | `HINT_CLASS_DISPLAY`: the §7 table (OD-H5-C4 final), pinned by G18 |
 | `src/logic/discovery/hint5Ladder.ts` | `recipeHintRoles(recipeId)`; `hint5Rungs(recipeId, context)`; `subToppingClass(recipeId, ingredientId)` (fail closed); `hint5Ownership(recipeId, storedFactIds, legacyPurchases)` (the §9.1 read-time mapping); `requestHint5Rung({ recipeId, context, storedFactIds, legacyPurchases, expectedRungIndex, rungPrice, pitzBalance })`, which returns `ANSWERED \| ALREADY_KNOWN \| RESERVED_EMPTY_RUNG \| LADDER_COMPLETE \| REJECTED(reason)` in the fixed evaluation order target → rung → price → STALE → balance → answer; `hint5Presentation(...)`, the privacy-safe view model (§8) |
 
 **New tests:**
@@ -531,20 +643,17 @@ save writer, price constant or flag. The price is an input, as in DH4-2A.
 - TQ-1D, #275 and #260.
 
 **H5-1 entry conditions:**
-- OD-H5-C1a (the 5 ⚠ seeds).
-- OD-H5-C4a (きのこ). H5-1 can also start with the provisional display table and gate G18, and
-  swap labels later.
+- **OD-H5-C1a** (the 5 open key-topping choices, §6.2). This is the only remaining H5-1 entry
+  condition.
+- The Owner's explicit instruction to start H5-1.
 
-**Not needed for H5-1:** E1 / E2, since the price is an input.
+**Already decided for H5-1:** E1 / E2 (P-C, no cap), C4 (the §7 display table) and T-COV (§11).
 
-**Needed before H5-3 / H5-4:**
+**Needed before the later phases:**
 
 | Decision | Needed by |
 |---|---|
-| OD-H5-E1 / E2 (pricing) | H5-2 wiring |
 | OD-H5-P4 / P4b and OD-H5-M2 | H5-4 enable list |
-| OD-H5-M1 | H5-2 |
-| OD-H5-C4b | H5-3 copy |
 
 **Later phases (unchanged from the audit):**
 
@@ -554,20 +663,26 @@ save writer, price constant or flag. The price is an input, as in DH4-2A.
 | H5-3 | HintSheet ladder UI behind the flag, with Human Verification (390×844) |
 | H5-4 | Production enablement: the Fresh Gate on real data and the Owner's iPhone Human Verification |
 
-## 15. Open items after H5-0
+## 15. Open items after H5-0 (round 2)
 
 | ID | Question | Needed by |
 |---|---|---|
-| OD-H5-E1 | The price table (recommended P-C, runner-up P-D) | H5-2 |
-| OD-H5-E2 | The per-recipe cap (only with P-D) | H5-2 |
-| OD-H5-E3b | A courtesy classification for coarse-特徴 buyers (recommended no) | H5-2 |
+| OD-H5-C1a | Key topping and sub order for margherita, quattro-formaggi, fugazza, parmigiana and pesto-tonno (comparison and recommendation in §6.2) | H5-1 |
 | OD-H5-P4 | The "no sauce" / "no cheese" hint (with TQ-1D) | H5-4 enable list |
 | OD-H5-P4b | Does a recipe with no key topping (quattro-formaggi) fall under P4? | H5-4 enable list |
-| OD-H5-M1 | The Hint 3.0 free-key grant (default: no) | H5-2 |
-| OD-H5-M2 | Mixed mode (19 on Hint 5.0, 6 on the current sheet) or wait for P4 | H5-4 |
-| OD-H5-C1a | Key-topping seeds for margherita, quattro-formaggi, fugazza, parmigiana and pesto-tonno | H5-1 |
-| OD-H5-C4a | 「きのこ系」 needs a new family id: keep 🥬 野菜・きのこ系 (recommended) or amend OD-TAX | H5-1 labels (H5-1 can start provisional) |
-| OD-H5-C4b | Final labels and emoji for the 7 families (under G18) | H5-3 |
+| OD-H5-M2 | Enable the 19 unblocked targets first, or all 25 together once P4 / P4b are decided | H5-4 |
+
+**Closed in round 2:**
+- E1 / E2: P-C, no cap.
+- E3b: no courtesy classification.
+- M1: no free-key carry-over.
+- C4a / C4b: 7 families, display only, emoji invariant.
+- T-COV.
+
+**Recorded, but not H5 blockers.** These are PR #293's owner items for the HCG track (OD-TAX-7):
+- OD-A: HCG scope = category + family + canonicalization;
+- OD-B: the `other` copy;
+- OD-C: condiment placement.
 
 ## 16. Human Verification plan (H5-3 / H5-4)
 
