@@ -1,0 +1,2109 @@
+{
+ "c1pCandidateCheck": [
+  {
+   "candidate": "clam",
+   "category": "topping",
+   "family": "seafood",
+   "isAroma": false,
+   "recipeId": "vongole"
+  },
+  {
+   "candidate": "garlic",
+   "category": "topping",
+   "family": "herb",
+   "isAroma": true,
+   "recipeId": "vongole"
+  },
+  {
+   "candidate": "parsley",
+   "category": "topping",
+   "family": "herb",
+   "isAroma": true,
+   "recipeId": "vongole"
+  },
+  {
+   "candidate": "bacon",
+   "category": "topping",
+   "family": "meat",
+   "isAroma": false,
+   "recipeId": "flammkuchen"
+  },
+  {
+   "candidate": "onion",
+   "category": "topping",
+   "family": "vegetable",
+   "isAroma": false,
+   "recipeId": "flammkuchen"
+  },
+  {
+   "candidate": "prosciutto-crudo",
+   "category": "topping",
+   "family": "meat",
+   "isAroma": false,
+   "recipeId": "jamon-serrano-pizza"
+  },
+  {
+   "candidate": "arugula",
+   "category": "topping",
+   "family": "vegetable",
+   "isAroma": false,
+   "recipeId": "jamon-serrano-pizza"
+  },
+  {
+   "candidate": "sausage",
+   "category": "topping",
+   "family": "meat",
+   "isAroma": false,
+   "recipeId": "brazilian-calabresa"
+  },
+  {
+   "candidate": "onion",
+   "category": "topping",
+   "family": "vegetable",
+   "isAroma": false,
+   "recipeId": "brazilian-calabresa"
+  },
+  {
+   "candidate": "black-olive",
+   "category": "topping",
+   "family": "vegetable",
+   "isAroma": false,
+   "recipeId": "brazilian-calabresa"
+  },
+  {
+   "candidate": "oregano",
+   "category": "topping",
+   "family": "herb",
+   "isAroma": true,
+   "recipeId": "brazilian-calabresa"
+  },
+  {
+   "candidate": "mushroom",
+   "category": "topping",
+   "family": "vegetable",
+   "isAroma": false,
+   "recipeId": "prosciutto-funghi"
+  },
+  {
+   "candidate": "prosciutto-crudo",
+   "category": "topping",
+   "family": "meat",
+   "isAroma": false,
+   "recipeId": "prosciutto-funghi"
+  },
+  {
+   "candidate": "shrimp",
+   "category": "topping",
+   "family": "seafood",
+   "isAroma": false,
+   "recipeId": "pesto-gamberi"
+  },
+  {
+   "candidate": "fresh-tomato",
+   "category": "topping",
+   "family": "vegetable",
+   "isAroma": false,
+   "recipeId": "pesto-gamberi"
+  },
+  {
+   "candidate": "garlic",
+   "category": "topping",
+   "family": "herb",
+   "isAroma": true,
+   "recipeId": "pesto-gamberi"
+  },
+  {
+   "candidate": "eggplant",
+   "category": "topping",
+   "family": "vegetable",
+   "isAroma": false,
+   "recipeId": "pesto-vegetariana"
+  },
+  {
+   "candidate": "zucchini",
+   "category": "topping",
+   "family": "vegetable",
+   "isAroma": false,
+   "recipeId": "pesto-vegetariana"
+  },
+  {
+   "candidate": "bell-pepper",
+   "category": "topping",
+   "family": "vegetable",
+   "isAroma": false,
+   "recipeId": "pesto-vegetariana"
+  },
+  {
+   "candidate": "chicken",
+   "category": "topping",
+   "family": "meat",
+   "isAroma": false,
+   "recipeId": "pesto-pollo"
+  },
+  {
+   "candidate": "fresh-tomato",
+   "category": "topping",
+   "family": "vegetable",
+   "isAroma": false,
+   "recipeId": "pesto-pollo"
+  },
+  {
+   "candidate": "eggplant",
+   "category": "topping",
+   "family": "vegetable",
+   "isAroma": false,
+   "recipeId": "ratatouille-pizza"
+  },
+  {
+   "candidate": "zucchini",
+   "category": "topping",
+   "family": "vegetable",
+   "isAroma": false,
+   "recipeId": "ratatouille-pizza"
+  },
+  {
+   "candidate": "bell-pepper",
+   "category": "topping",
+   "family": "vegetable",
+   "isAroma": false,
+   "recipeId": "ratatouille-pizza"
+  },
+  {
+   "candidate": "oregano",
+   "category": "topping",
+   "family": "herb",
+   "isAroma": true,
+   "recipeId": "ratatouille-pizza"
+  }
+ ],
+ "pins": {
+  "authorityMatrix": "79873c0",
+  "da1Prep": "e829a17",
+  "hint5H53": "1ec4253",
+  "hint5Head": "5eadb96",
+  "main": "86b48fd51423a8f76db5398ab88ecfd944e2ae10",
+  "wave2": "2bc40e41f320f9c46ea6110e9df4d50866325cf3"
+ },
+ "principle": {
+  "C1-P": "Hint 5.0 key topping = the main topping that characterises the recipe. A main ingredient is preferred over an aroma or garnish, and the key never duplicates sauce / cheese information (OD-H5-C1-P, H5-0 §4).",
+  "g17": "The key is a topping of the recipe (null only without toppings). The sub order is exactly the other toppings, once each. No sub-order rule exists.",
+  "notAuthority": [
+   "recipe requiredIngredients array order (OD-H5-C1)",
+   "name-match candidates (DA-1 Preparation Audit: guideline only)",
+   "the H5-0 §6.4 tie-break (\"NOT Owner authority\")",
+   "the W2-A minCount roles (R-MC): quantity authoring, not Hint 5.0 role authority; cited as evidence only"
+  ]
+ },
+ "recipes": [
+  {
+   "c1pConflict": false,
+   "cheese": [],
+   "evidenceId": "vongole-pizzadb",
+   "extraConsideration": null,
+   "garnishAromaRisk": "garlic / parsley は herb family の aroma。key にすると C1-P に反する。clam はどちらでもない。",
+   "hasCheese": false,
+   "hint5LadderTotalPitzIfP4CheeseAdopted": 45,
+   "keyCandidates": [
+    {
+     "ingredientId": "clam",
+     "reason": "C1-P main (魚介の主役)。名前 vongole = あさり。W2-A A1 の primary。W1 の new-haven-apizza (olive-oil base, clam 3) と同じ構成で、その runtime key も clam。"
+    },
+    {
+     "ingredientId": "garlic",
+     "reason": "aroma。C1-P は aroma より main を優先するので不採用寄り。"
+    },
+    {
+     "ingredientId": "parsley",
+     "reason": "aroma / garnish。C1-P は aroma・添え物より main を優先するので不採用寄り。"
+    }
+   ],
+   "keyClass": "CLEAR_MAIN",
+   "keyOwnerDecisionKind": "CONFIRM_UNIQUE_MAIN",
+   "keyOwnerDecisionNeeded": true,
+   "keyUniqueMainUnderC1P": true,
+   "nameJa": "ヴォンゴレピザ",
+   "note": null,
+   "p4CheeseApplicable": true,
+   "recipeId": "vongole",
+   "recommendationConfidence": "high (confirm)",
+   "recommendationWhy": null,
+   "recommendedKey": "clam",
+   "remainingSubToppings": [
+    "garlic",
+    "parsley"
+   ],
+   "sauce": [
+    "olive-oil"
+   ],
+   "sauceCheeseOverlapRisk": "なし。sauce = olive-oil、cheese = なし。clam は topping で、sauce / cheese の情報と重複しない。",
+   "subOrderByKey": {
+    "clam": {
+     "distinctFamilyLabelSequences": [
+      "herb > herb"
+     ],
+     "forcedOrder": false,
+     "isCandidate": true,
+     "orderCount": 2,
+     "orders": [
+      [
+       "garlic",
+       "parsley"
+      ],
+      [
+       "parsley",
+       "garlic"
+      ]
+     ],
+     "subToppings": [
+      "garlic",
+      "parsley"
+     ]
+    },
+    "garlic": {
+     "distinctFamilyLabelSequences": [
+      "herb > seafood",
+      "seafood > herb"
+     ],
+     "forcedOrder": false,
+     "isCandidate": true,
+     "orderCount": 2,
+     "orders": [
+      [
+       "clam",
+       "parsley"
+      ],
+      [
+       "parsley",
+       "clam"
+      ]
+     ],
+     "subToppings": [
+      "clam",
+      "parsley"
+     ]
+    },
+    "parsley": {
+     "distinctFamilyLabelSequences": [
+      "herb > seafood",
+      "seafood > herb"
+     ],
+     "forcedOrder": false,
+     "isCandidate": true,
+     "orderCount": 2,
+     "orders": [
+      [
+       "clam",
+       "garlic"
+      ],
+      [
+       "garlic",
+       "clam"
+      ]
+     ],
+     "subToppings": [
+      "clam",
+      "garlic"
+     ]
+    }
+   },
+   "subOrderUnderRecommendedKey": {
+    "authorityBasis": "NONE",
+    "distinctFamilyLabelSequences": [
+     "herb > herb"
+    ],
+    "orderCount": 2,
+    "orders": [
+     [
+      "garlic",
+      "parsley"
+     ],
+     [
+      "parsley",
+      "garlic"
+     ]
+    ],
+    "ownerDecisionNeeded": true,
+    "recommendedOrder": null
+   },
+   "toppings": [
+    {
+     "candidateForKey": true,
+     "family": "seafood",
+     "familyOnMain": "seafood",
+     "ingredientId": "clam",
+     "minCount": 3
+    },
+    {
+     "candidateForKey": true,
+     "family": "herb",
+     "familyOnMain": "herb",
+     "ingredientId": "garlic",
+     "minCount": 2
+    },
+    {
+     "candidateForKey": true,
+     "family": "herb",
+     "familyOnMain": null,
+     "ingredientId": "parsley",
+     "minCount": 2
+    }
+   ],
+   "w2aEvidence": {
+    "description": "オリーブオイルを塗った生地に、あさり、にんにく、パセリをのせて焼き上げた、チーズを使わない魚介の一枚。",
+    "descriptionMentionOrderReferenceOnly": [
+     "clam",
+     "garlic",
+     "parsley"
+    ],
+    "descriptionStatus": "APPROVED_OWNER (A3)",
+    "ingredients": {
+     "clam": {
+      "minCount": 3,
+      "status": "DERIVED_FROM_AUTHORITY",
+      "why": "R-MC primary; = new-haven-apizza clam 3"
+     },
+     "garlic": {
+      "minCount": 2,
+      "status": "DERIVED_FROM_AUTHORITY",
+      "why": "R-MC supporting; = new-haven-apizza garlic 2"
+     },
+     "olive-oil": {
+      "minCount": 1,
+      "status": "DERIVED_FROM_AUTHORITY",
+      "why": "R-MC sauce; OD-W2-7(a) olive oil as base"
+     },
+     "parsley": {
+      "minCount": 2,
+      "status": "DERIVED_FROM_AUTHORITY",
+      "why": "R-MC herb baseline"
+     }
+    },
+    "w1Analog": "new-haven-apizza"
+   }
+  },
+  {
+   "c1pConflict": false,
+   "cheese": [],
+   "evidenceId": "flammkuchen-pizzadb",
+   "extraConsideration": null,
+   "garnishAromaRisk": "どちらも aroma / garnish ではない (onion は vegetable family で herb / spice ではない)。C1-P はどちらも排除しない。",
+   "hasCheese": false,
+   "hint5LadderTotalPitzIfP4CheeseAdopted": 40,
+   "keyCandidates": [
+    {
+     "ingredientId": "bacon",
+     "reason": "meat。W2-A A1 は bacon 3 / onion 2 を採用したが、これは minCount であって Hint role の authority ではない。W1 の breakfast-pizza (bacon key, egg sub) が analog。"
+    },
+    {
+     "ingredientId": "onion",
+     "reason": "vegetable。W2-A A1 が bacon と並ぶ co-defining topping と記録。W1 の fugazza は onion key (C1a) で、onion を key にした前例はある。"
+    }
+   ],
+   "keyClass": "CO_EQUAL",
+   "keyOwnerDecisionKind": "CHOOSE_AMONG_CO_EQUAL",
+   "keyOwnerDecisionNeeded": true,
+   "keyUniqueMainUnderC1P": false,
+   "nameJa": "タルトフランベ",
+   "note": null,
+   "p4CheeseApplicable": true,
+   "recipeId": "flammkuchen",
+   "recommendationConfidence": "low (genuine co-equal; Owner choice)",
+   "recommendationWhy": "弱い推奨。bacon は承認済み minCount が最大 (evidence only)、protein で W1 breakfast-pizza と同型。ただし onion も co-defining と明記されているので、これは Owner 判断。",
+   "recommendedKey": "bacon",
+   "remainingSubToppings": [
+    "onion"
+   ],
+   "sauce": [
+    "fromage-blanc-sauce"
+   ],
+   "sauceCheeseOverlapRisk": "なし。sauce = fromage-blanc-sauce、cheese = なし。",
+   "subOrderByKey": {
+    "bacon": {
+     "distinctFamilyLabelSequences": [
+      "vegetable"
+     ],
+     "forcedOrder": true,
+     "isCandidate": true,
+     "orderCount": 1,
+     "orders": [
+      [
+       "onion"
+      ]
+     ],
+     "subToppings": [
+      "onion"
+     ]
+    },
+    "onion": {
+     "distinctFamilyLabelSequences": [
+      "meat"
+     ],
+     "forcedOrder": true,
+     "isCandidate": true,
+     "orderCount": 1,
+     "orders": [
+      [
+       "bacon"
+      ]
+     ],
+     "subToppings": [
+      "bacon"
+     ]
+    }
+   },
+   "subOrderUnderRecommendedKey": {
+    "authorityBasis": "FORCED_BY_KEY",
+    "distinctFamilyLabelSequences": [
+     "vegetable"
+    ],
+    "orderCount": 1,
+    "orders": [
+     [
+      "onion"
+     ]
+    ],
+    "ownerDecisionNeeded": false,
+    "recommendedOrder": [
+     "onion"
+    ]
+   },
+   "toppings": [
+    {
+     "candidateForKey": true,
+     "family": "meat",
+     "familyOnMain": "meat",
+     "ingredientId": "bacon",
+     "minCount": 3
+    },
+    {
+     "candidateForKey": true,
+     "family": "vegetable",
+     "familyOnMain": "vegetable",
+     "ingredientId": "onion",
+     "minCount": 2
+    }
+   ],
+   "w2aEvidence": {
+    "description": "フロマージュブランを塗った生地に、ベーコンとたまねぎをのせて焼き上げた、アルザス生まれの白い一枚。",
+    "descriptionMentionOrderReferenceOnly": [
+     "bacon",
+     "onion"
+    ],
+    "descriptionStatus": "APPROVED_OWNER (A3)",
+    "ingredients": {
+     "bacon": {
+      "minCount": 3,
+      "status": "APPROVED_OWNER",
+      "why": "two co-defining toppings (bacon + onion); R-MC has one primary. Candidate bacon 3 / onion 2; alternatives 2/3 or 3/3 -- Owner A1: recommended candidate adopted"
+     },
+     "fromage-blanc-sauce": {
+      "minCount": 1,
+      "status": "DERIVED_FROM_AUTHORITY",
+      "why": "R-MC sauce"
+     },
+     "onion": {
+      "minCount": 2,
+      "status": "APPROVED_OWNER",
+      "why": "see bacon -- Owner A1: recommended candidate adopted"
+     }
+    },
+    "w1Analog": "breakfast-pizza / fugazza"
+   }
+  },
+  {
+   "c1pConflict": false,
+   "cheese": [
+    "mozzarella"
+   ],
+   "evidenceId": "jamon-serrano-pizza-pizzadb-p7",
+   "extraConsideration": null,
+   "garnishAromaRisk": "arugula は葉物の添え物。key にすると C1-P に反する。prosciutto-crudo は protein main。",
+   "hasCheese": true,
+   "hint5LadderTotalPitzIfP4CheeseAdopted": 40,
+   "keyCandidates": [
+    {
+     "ingredientId": "prosciutto-crudo",
+     "reason": "C1-P main (protein)。名前 jamón = 生ハム。W2-A A1 の primary (jamón)。"
+    },
+    {
+     "ingredientId": "arugula",
+     "reason": "leaf の添え物 (supporting)。C1-P は garnish より main を優先するので不採用寄り。"
+    }
+   ],
+   "keyClass": "CLEAR_MAIN",
+   "keyOwnerDecisionKind": "CONFIRM_UNIQUE_MAIN",
+   "keyOwnerDecisionNeeded": true,
+   "keyUniqueMainUnderC1P": true,
+   "nameJa": "ハモンセラーノピザ",
+   "note": "runtime id は W2-A authoring では `jamon-serrano-pizza` (PIZZA DB evidence id `jamon-serrano-pizza-pizzadb-p7`)。task の `jamon-serrano` と同じ recipe。pinsa-romana と ingredient set が完全一致 (P0-COLL-4, OD-W2-7: DOUGH_VARIANT で後に分離)。pinsa-romana の role はこの review の対象外。",
+   "p4CheeseApplicable": false,
+   "recipeId": "jamon-serrano-pizza",
+   "recommendationConfidence": "high (confirm)",
+   "recommendationWhy": null,
+   "recommendedKey": "prosciutto-crudo",
+   "remainingSubToppings": [
+    "arugula"
+   ],
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "sauceCheeseOverlapRisk": "なし。sauce = tomato-sauce、cheese = mozzarella。key は topping。",
+   "subOrderByKey": {
+    "arugula": {
+     "distinctFamilyLabelSequences": [
+      "meat"
+     ],
+     "forcedOrder": true,
+     "isCandidate": true,
+     "orderCount": 1,
+     "orders": [
+      [
+       "prosciutto-crudo"
+      ]
+     ],
+     "subToppings": [
+      "prosciutto-crudo"
+     ]
+    },
+    "prosciutto-crudo": {
+     "distinctFamilyLabelSequences": [
+      "vegetable"
+     ],
+     "forcedOrder": true,
+     "isCandidate": true,
+     "orderCount": 1,
+     "orders": [
+      [
+       "arugula"
+      ]
+     ],
+     "subToppings": [
+      "arugula"
+     ]
+    }
+   },
+   "subOrderUnderRecommendedKey": {
+    "authorityBasis": "FORCED_BY_KEY",
+    "distinctFamilyLabelSequences": [
+     "vegetable"
+    ],
+    "orderCount": 1,
+    "orders": [
+     [
+      "arugula"
+     ]
+    ],
+    "ownerDecisionNeeded": false,
+    "recommendedOrder": [
+     "arugula"
+    ]
+   },
+   "toppings": [
+    {
+     "candidateForKey": true,
+     "family": "vegetable",
+     "familyOnMain": null,
+     "ingredientId": "arugula",
+     "minCount": 2
+    },
+    {
+     "candidateForKey": true,
+     "family": "meat",
+     "familyOnMain": null,
+     "ingredientId": "prosciutto-crudo",
+     "minCount": 3
+    }
+   ],
+   "w2aEvidence": {
+    "description": "トマトソースとモッツァレラに、生ハムとルッコラを合わせた、スペイン風のシンプルな一枚。",
+    "descriptionMentionOrderReferenceOnly": [
+     "prosciutto-crudo",
+     "arugula"
+    ],
+    "descriptionStatus": "APPROVED_OWNER (A3)",
+    "ingredients": {
+     "arugula": {
+      "minCount": 2,
+      "status": "DERIVED_FROM_AUTHORITY",
+      "why": "R-MC supporting"
+     },
+     "mozzarella": {
+      "minCount": 2,
+      "status": "DERIVED_FROM_AUTHORITY",
+      "why": "R-MC mozzarella"
+     },
+     "prosciutto-crudo": {
+      "minCount": 3,
+      "status": "DERIVED_FROM_AUTHORITY",
+      "why": "R-MC primary (jamón)"
+     },
+     "tomato-sauce": {
+      "minCount": 1,
+      "status": "DERIVED_FROM_AUTHORITY",
+      "why": "R-MC sauce"
+     }
+    },
+    "w1Analog": "hawaiian (structure)"
+   }
+  },
+  {
+   "c1pConflict": false,
+   "cheese": [],
+   "evidenceId": "brazilian-calabresa-pizzadb-p10",
+   "extraConsideration": null,
+   "garnishAromaRisk": "oregano は accent の aroma (herb)。key にすると C1-P に反する。onion / black-olive は supporting で main ではない。sausage は main。",
+   "hasCheese": false,
+   "hint5LadderTotalPitzIfP4CheeseAdopted": 50,
+   "keyCandidates": [
+    {
+     "ingredientId": "sausage",
+     "reason": "C1-P main (calabresa = sausage)。W2-A A1 の primary。W1 の salsiccia (sausage key) が analog。"
+    },
+    {
+     "ingredientId": "onion",
+     "reason": "supporting vegetable。W2-A A1 は supporting 扱い。"
+    },
+    {
+     "ingredientId": "black-olive",
+     "reason": "supporting vegetable。W2-A A1 は supporting 扱い。family は HCG watch。"
+    },
+    {
+     "ingredientId": "oregano",
+     "reason": "aroma (accent, minCount 1)。C1-P は aroma を優先しない。"
+    }
+   ],
+   "keyClass": "CLEAR_MAIN",
+   "keyOwnerDecisionKind": "CONFIRM_UNIQUE_MAIN",
+   "keyOwnerDecisionNeeded": true,
+   "keyUniqueMainUnderC1P": true,
+   "nameJa": "ブラジリアン・カラブレーザ",
+   "note": null,
+   "p4CheeseApplicable": true,
+   "recipeId": "brazilian-calabresa",
+   "recommendationConfidence": "high (confirm)",
+   "recommendationWhy": null,
+   "recommendedKey": "sausage",
+   "remainingSubToppings": [
+    "black-olive",
+    "onion",
+    "oregano"
+   ],
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "sauceCheeseOverlapRisk": "なし。sauce = tomato-sauce、cheese = なし。",
+   "subOrderByKey": {
+    "black-olive": {
+     "distinctFamilyLabelSequences": [
+      "herb > meat > vegetable",
+      "herb > vegetable > meat",
+      "meat > herb > vegetable",
+      "meat > vegetable > herb",
+      "vegetable > herb > meat",
+      "vegetable > meat > herb"
+     ],
+     "forcedOrder": false,
+     "isCandidate": true,
+     "orderCount": 6,
+     "orders": [
+      [
+       "onion",
+       "oregano",
+       "sausage"
+      ],
+      [
+       "onion",
+       "sausage",
+       "oregano"
+      ],
+      [
+       "oregano",
+       "onion",
+       "sausage"
+      ],
+      [
+       "oregano",
+       "sausage",
+       "onion"
+      ],
+      [
+       "sausage",
+       "onion",
+       "oregano"
+      ],
+      [
+       "sausage",
+       "oregano",
+       "onion"
+      ]
+     ],
+     "subToppings": [
+      "onion",
+      "oregano",
+      "sausage"
+     ]
+    },
+    "onion": {
+     "distinctFamilyLabelSequences": [
+      "herb > meat > vegetable",
+      "herb > vegetable > meat",
+      "meat > herb > vegetable",
+      "meat > vegetable > herb",
+      "vegetable > herb > meat",
+      "vegetable > meat > herb"
+     ],
+     "forcedOrder": false,
+     "isCandidate": true,
+     "orderCount": 6,
+     "orders": [
+      [
+       "black-olive",
+       "oregano",
+       "sausage"
+      ],
+      [
+       "black-olive",
+       "sausage",
+       "oregano"
+      ],
+      [
+       "oregano",
+       "black-olive",
+       "sausage"
+      ],
+      [
+       "oregano",
+       "sausage",
+       "black-olive"
+      ],
+      [
+       "sausage",
+       "black-olive",
+       "oregano"
+      ],
+      [
+       "sausage",
+       "oregano",
+       "black-olive"
+      ]
+     ],
+     "subToppings": [
+      "black-olive",
+      "oregano",
+      "sausage"
+     ]
+    },
+    "oregano": {
+     "distinctFamilyLabelSequences": [
+      "meat > vegetable > vegetable",
+      "vegetable > meat > vegetable",
+      "vegetable > vegetable > meat"
+     ],
+     "forcedOrder": false,
+     "isCandidate": true,
+     "orderCount": 6,
+     "orders": [
+      [
+       "black-olive",
+       "onion",
+       "sausage"
+      ],
+      [
+       "black-olive",
+       "sausage",
+       "onion"
+      ],
+      [
+       "onion",
+       "black-olive",
+       "sausage"
+      ],
+      [
+       "onion",
+       "sausage",
+       "black-olive"
+      ],
+      [
+       "sausage",
+       "black-olive",
+       "onion"
+      ],
+      [
+       "sausage",
+       "onion",
+       "black-olive"
+      ]
+     ],
+     "subToppings": [
+      "black-olive",
+      "onion",
+      "sausage"
+     ]
+    },
+    "sausage": {
+     "distinctFamilyLabelSequences": [
+      "herb > vegetable > vegetable",
+      "vegetable > herb > vegetable",
+      "vegetable > vegetable > herb"
+     ],
+     "forcedOrder": false,
+     "isCandidate": true,
+     "orderCount": 6,
+     "orders": [
+      [
+       "black-olive",
+       "onion",
+       "oregano"
+      ],
+      [
+       "black-olive",
+       "oregano",
+       "onion"
+      ],
+      [
+       "onion",
+       "black-olive",
+       "oregano"
+      ],
+      [
+       "onion",
+       "oregano",
+       "black-olive"
+      ],
+      [
+       "oregano",
+       "black-olive",
+       "onion"
+      ],
+      [
+       "oregano",
+       "onion",
+       "black-olive"
+      ]
+     ],
+     "subToppings": [
+      "black-olive",
+      "onion",
+      "oregano"
+     ]
+    }
+   },
+   "subOrderUnderRecommendedKey": {
+    "authorityBasis": "NONE",
+    "distinctFamilyLabelSequences": [
+     "herb > vegetable > vegetable",
+     "vegetable > herb > vegetable",
+     "vegetable > vegetable > herb"
+    ],
+    "orderCount": 6,
+    "orders": [
+     [
+      "black-olive",
+      "onion",
+      "oregano"
+     ],
+     [
+      "black-olive",
+      "oregano",
+      "onion"
+     ],
+     [
+      "onion",
+      "black-olive",
+      "oregano"
+     ],
+     [
+      "onion",
+      "oregano",
+      "black-olive"
+     ],
+     [
+      "oregano",
+      "black-olive",
+      "onion"
+     ],
+     [
+      "oregano",
+      "onion",
+      "black-olive"
+     ]
+    ],
+    "ownerDecisionNeeded": true,
+    "recommendedOrder": null
+   },
+   "toppings": [
+    {
+     "candidateForKey": true,
+     "family": "vegetable",
+     "familyOnMain": "vegetable",
+     "ingredientId": "black-olive",
+     "minCount": 2
+    },
+    {
+     "candidateForKey": true,
+     "family": "vegetable",
+     "familyOnMain": "vegetable",
+     "ingredientId": "onion",
+     "minCount": 2
+    },
+    {
+     "candidateForKey": true,
+     "family": "herb",
+     "familyOnMain": "herb",
+     "ingredientId": "oregano",
+     "minCount": 1
+    },
+    {
+     "candidateForKey": true,
+     "family": "meat",
+     "familyOnMain": "meat",
+     "ingredientId": "sausage",
+     "minCount": 3
+    }
+   ],
+   "w2aEvidence": {
+    "description": "トマトソースにソーセージ、たまねぎ、ブラックオリーブ、オレガノをのせた、サンパウロ生まれのチーズを使わない一枚。",
+    "descriptionMentionOrderReferenceOnly": [
+     "sausage",
+     "onion",
+     "black-olive",
+     "oregano"
+    ],
+    "descriptionStatus": "APPROVED_OWNER (A3)",
+    "ingredients": {
+     "black-olive": {
+      "minCount": 2,
+      "status": "DERIVED_FROM_AUTHORITY",
+      "why": "R-MC supporting"
+     },
+     "onion": {
+      "minCount": 2,
+      "status": "DERIVED_FROM_AUTHORITY",
+      "why": "R-MC supporting"
+     },
+     "oregano": {
+      "minCount": 1,
+      "status": "DERIVED_FROM_AUTHORITY",
+      "why": "R-MC oregano accent (napoletana precedent: tomato + protein + oregano 1)"
+     },
+     "sausage": {
+      "minCount": 3,
+      "status": "DERIVED_FROM_AUTHORITY",
+      "why": "R-MC primary (calabresa = the sausage)"
+     },
+     "tomato-sauce": {
+      "minCount": 1,
+      "status": "DERIVED_FROM_AUTHORITY",
+      "why": "R-MC sauce"
+     }
+    },
+    "w1Analog": "salsiccia"
+   }
+  },
+  {
+   "c1pConflict": false,
+   "cheese": [
+    "mozzarella"
+   ],
+   "evidenceId": "prosciutto-funghi-pizzadb-p11",
+   "extraConsideration": "key の被り: mushroom は W1 funghi の key と同じ、prosciutto-crudo は jamon-serrano の key 候補と同じ。sauce / cheese rung が先に出るので recipe は区別されるが、どちらを選んでも 1 つの sibling と key が重なる。",
+   "garnishAromaRisk": "どちらも aroma / garnish ではない。C1-P はどちらも排除しない。",
+   "hasCheese": true,
+   "hint5LadderTotalPitzIfP4CheeseAdopted": 40,
+   "keyCandidates": [
+    {
+     "ingredientId": "mushroom",
+     "reason": "vegetable。W2-A A1: 'two name-giving toppings' で、'keeps funghi's mushroom 3, so the recipe reads as funghi + prosciutto'。承認済み minCount は mushroom 3 (最大)。W1 funghi の key は mushroom。"
+    },
+    {
+     "ingredientId": "prosciutto-crudo",
+     "reason": "meat。名前の先頭 (prosciutto e funghi)。W2-A A1 で minCount 2。jamon-serrano の key 候補と同じ ingredient。"
+    }
+   ],
+   "keyClass": "CO_EQUAL",
+   "keyOwnerDecisionKind": "CHOOSE_AMONG_CO_EQUAL",
+   "keyOwnerDecisionNeeded": true,
+   "keyUniqueMainUnderC1P": false,
+   "nameJa": "プロシュットフンギ",
+   "note": null,
+   "p4CheeseApplicable": false,
+   "recipeId": "prosciutto-funghi",
+   "recommendationConfidence": "low (genuine co-equal; Owner choice)",
+   "recommendationWhy": "弱い推奨。承認済み authoring は「funghi + prosciutto」と読める形で mushroom 3 を保持している (evidence only)。一方、名前順では prosciutto-crudo が先で、W1 の funghi (key mushroom) との区別も prosciutto-crudo の方が付く。名前順と数量の両基準が食い違うので、これは Owner 判断。",
+   "recommendedKey": "mushroom",
+   "remainingSubToppings": [
+    "prosciutto-crudo"
+   ],
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "sauceCheeseOverlapRisk": "なし。sauce = tomato-sauce、cheese = mozzarella。",
+   "subOrderByKey": {
+    "mushroom": {
+     "distinctFamilyLabelSequences": [
+      "meat"
+     ],
+     "forcedOrder": true,
+     "isCandidate": true,
+     "orderCount": 1,
+     "orders": [
+      [
+       "prosciutto-crudo"
+      ]
+     ],
+     "subToppings": [
+      "prosciutto-crudo"
+     ]
+    },
+    "prosciutto-crudo": {
+     "distinctFamilyLabelSequences": [
+      "vegetable"
+     ],
+     "forcedOrder": true,
+     "isCandidate": true,
+     "orderCount": 1,
+     "orders": [
+      [
+       "mushroom"
+      ]
+     ],
+     "subToppings": [
+      "mushroom"
+     ]
+    }
+   },
+   "subOrderUnderRecommendedKey": {
+    "authorityBasis": "FORCED_BY_KEY",
+    "distinctFamilyLabelSequences": [
+     "meat"
+    ],
+    "orderCount": 1,
+    "orders": [
+     [
+      "prosciutto-crudo"
+     ]
+    ],
+    "ownerDecisionNeeded": false,
+    "recommendedOrder": [
+     "prosciutto-crudo"
+    ]
+   },
+   "toppings": [
+    {
+     "candidateForKey": true,
+     "family": "vegetable",
+     "familyOnMain": "vegetable",
+     "ingredientId": "mushroom",
+     "minCount": 3
+    },
+    {
+     "candidateForKey": true,
+     "family": "meat",
+     "familyOnMain": null,
+     "ingredientId": "prosciutto-crudo",
+     "minCount": 2
+    }
+   ],
+   "w2aEvidence": {
+    "description": "トマトソースとモッツァレラに、生ハムとマッシュルームを合わせた、イタリア定番の組み合わせの一枚。",
+    "descriptionMentionOrderReferenceOnly": [
+     "prosciutto-crudo",
+     "mushroom"
+    ],
+    "descriptionStatus": "APPROVED_OWNER (A3)",
+    "ingredients": {
+     "mozzarella": {
+      "minCount": 2,
+      "status": "DERIVED_FROM_AUTHORITY",
+      "why": "R-MC mozzarella"
+     },
+     "mushroom": {
+      "minCount": 3,
+      "status": "APPROVED_OWNER",
+      "why": "see prosciutto-crudo -- Owner A1: recommended candidate adopted"
+     },
+     "prosciutto-crudo": {
+      "minCount": 2,
+      "status": "APPROVED_OWNER",
+      "why": "two name-giving toppings. Candidate: prosciutto 2 / mushroom 3 (keeps funghi's mushroom 3, so the recipe reads as funghi + prosciutto); alternative 3/2 -- Owner A1: recommended candidate adopted"
+     },
+     "tomato-sauce": {
+      "minCount": 1,
+      "status": "DERIVED_FROM_AUTHORITY",
+      "why": "R-MC sauce"
+     }
+    },
+    "w1Analog": "funghi"
+   }
+  },
+  {
+   "c1pConflict": false,
+   "cheese": [],
+   "evidenceId": "pesto-gamberi-pizzadb-p11",
+   "extraConsideration": null,
+   "garnishAromaRisk": "garlic は aroma (herb)。key にすると C1-P に反する。fresh-tomato は supporting。shrimp は main。",
+   "hasCheese": false,
+   "hint5LadderTotalPitzIfP4CheeseAdopted": 45,
+   "keyCandidates": [
+    {
+     "ingredientId": "shrimp",
+     "reason": "C1-P main (gamberi = shrimp)。W2-A A1 の primary。W1 の pesto-tonno (pesto base, seafood primary, tuna key) が analog。"
+    },
+    {
+     "ingredientId": "fresh-tomato",
+     "reason": "supporting vegetable。W1 の pesto-caprese は fresh-tomato key だが、あちらは名前の主役 (caprese)。"
+    },
+    {
+     "ingredientId": "garlic",
+     "reason": "aroma。C1-P は aroma を優先しない。family は HCG watch。"
+    }
+   ],
+   "keyClass": "CLEAR_MAIN",
+   "keyOwnerDecisionKind": "CONFIRM_UNIQUE_MAIN",
+   "keyOwnerDecisionNeeded": true,
+   "keyUniqueMainUnderC1P": true,
+   "nameJa": "ペストガンベリピザ",
+   "note": null,
+   "p4CheeseApplicable": true,
+   "recipeId": "pesto-gamberi",
+   "recommendationConfidence": "high (confirm)",
+   "recommendationWhy": null,
+   "recommendedKey": "shrimp",
+   "remainingSubToppings": [
+    "fresh-tomato",
+    "garlic"
+   ],
+   "sauce": [
+    "pesto"
+   ],
+   "sauceCheeseOverlapRisk": "なし。sauce = pesto、cheese = なし。key は topping。",
+   "subOrderByKey": {
+    "fresh-tomato": {
+     "distinctFamilyLabelSequences": [
+      "herb > seafood",
+      "seafood > herb"
+     ],
+     "forcedOrder": false,
+     "isCandidate": true,
+     "orderCount": 2,
+     "orders": [
+      [
+       "garlic",
+       "shrimp"
+      ],
+      [
+       "shrimp",
+       "garlic"
+      ]
+     ],
+     "subToppings": [
+      "garlic",
+      "shrimp"
+     ]
+    },
+    "garlic": {
+     "distinctFamilyLabelSequences": [
+      "seafood > vegetable",
+      "vegetable > seafood"
+     ],
+     "forcedOrder": false,
+     "isCandidate": true,
+     "orderCount": 2,
+     "orders": [
+      [
+       "fresh-tomato",
+       "shrimp"
+      ],
+      [
+       "shrimp",
+       "fresh-tomato"
+      ]
+     ],
+     "subToppings": [
+      "fresh-tomato",
+      "shrimp"
+     ]
+    },
+    "shrimp": {
+     "distinctFamilyLabelSequences": [
+      "herb > vegetable",
+      "vegetable > herb"
+     ],
+     "forcedOrder": false,
+     "isCandidate": true,
+     "orderCount": 2,
+     "orders": [
+      [
+       "fresh-tomato",
+       "garlic"
+      ],
+      [
+       "garlic",
+       "fresh-tomato"
+      ]
+     ],
+     "subToppings": [
+      "fresh-tomato",
+      "garlic"
+     ]
+    }
+   },
+   "subOrderUnderRecommendedKey": {
+    "authorityBasis": "NONE",
+    "distinctFamilyLabelSequences": [
+     "herb > vegetable",
+     "vegetable > herb"
+    ],
+    "orderCount": 2,
+    "orders": [
+     [
+      "fresh-tomato",
+      "garlic"
+     ],
+     [
+      "garlic",
+      "fresh-tomato"
+     ]
+    ],
+    "ownerDecisionNeeded": true,
+    "recommendedOrder": null
+   },
+   "toppings": [
+    {
+     "candidateForKey": true,
+     "family": "vegetable",
+     "familyOnMain": "vegetable",
+     "ingredientId": "fresh-tomato",
+     "minCount": 2
+    },
+    {
+     "candidateForKey": true,
+     "family": "herb",
+     "familyOnMain": "herb",
+     "ingredientId": "garlic",
+     "minCount": 2
+    },
+    {
+     "candidateForKey": true,
+     "family": "seafood",
+     "familyOnMain": null,
+     "ingredientId": "shrimp",
+     "minCount": 3
+    }
+   ],
+   "w2aEvidence": {
+    "description": "ジェノベーゼソースにエビ、トマト、にんにくを合わせた、香りの立つ魚介のペストピザ。",
+    "descriptionMentionOrderReferenceOnly": [
+     "shrimp",
+     "fresh-tomato",
+     "garlic"
+    ],
+    "descriptionStatus": "APPROVED_OWNER (A3)",
+    "ingredients": {
+     "fresh-tomato": {
+      "minCount": 2,
+      "status": "DERIVED_FROM_AUTHORITY",
+      "why": "R-MC supporting"
+     },
+     "garlic": {
+      "minCount": 2,
+      "status": "DERIVED_FROM_AUTHORITY",
+      "why": "R-MC supporting"
+     },
+     "pesto": {
+      "minCount": 1,
+      "status": "DERIVED_FROM_AUTHORITY",
+      "why": "R-MC sauce"
+     },
+     "shrimp": {
+      "minCount": 3,
+      "status": "DERIVED_FROM_AUTHORITY",
+      "why": "R-MC primary (gamberi)"
+     }
+    },
+    "w1Analog": "pesto-tonno"
+   }
+  },
+  {
+   "c1pConflict": false,
+   "cheese": [
+    "mozzarella"
+   ],
+   "evidenceId": "pesto-vegetariana-pizzadb-p12",
+   "extraConsideration": "ratatouille-pizza と vegetable 3 種が同じ。両者は sauce rung (pesto / tomato-sauce) で区別されるので、key が同じでも recipe は曖昧にならない。key を分けるかどうかも Owner 判断。",
+   "garnishAromaRisk": "3 つとも vegetable family で aroma / garnish ではない。C1-P はどれも排除しない。",
+   "hasCheese": true,
+   "hint5LadderTotalPitzIfP4CheeseAdopted": 45,
+   "keyCandidates": [
+    {
+     "ingredientId": "eggplant",
+     "reason": "vegetable。3 つの co-equal vegetable の 1 つ。W1 の melanzane-pizza / parmigiana-pizza の key が eggplant。3 つの中で main の catalog に既にある ingredient (zucchini / bell-pepper は W2-A1 branch のみ)。"
+    },
+    {
+     "ingredientId": "zucchini",
+     "reason": "vegetable。3 つの co-equal vegetable の 1 つ。新規 ingredient (W2-A1 branch のみ)。"
+    },
+    {
+     "ingredientId": "bell-pepper",
+     "reason": "vegetable。3 つの co-equal vegetable の 1 つ。新規 ingredient (W2-A1 branch のみ)。"
+    }
+   ],
+   "keyClass": "CO_EQUAL",
+   "keyOwnerDecisionKind": "CHOOSE_AMONG_CO_EQUAL",
+   "keyOwnerDecisionNeeded": true,
+   "keyUniqueMainUnderC1P": false,
+   "nameJa": "ペストベジタリアーナピザ",
+   "note": null,
+   "p4CheeseApplicable": false,
+   "recipeId": "pesto-vegetariana",
+   "recommendationConfidence": "low (genuine co-equal; Owner choice)",
+   "recommendationWhy": "弱い推奨。3 つは W2-A A1 と description (「野菜が主役」) の両方で co-equal。eggplant は W1 で key になった前例があり、main に既にある ingredient、という 2 点だけが差。一般則ではない。",
+   "recommendedKey": "eggplant",
+   "remainingSubToppings": [
+    "bell-pepper",
+    "zucchini"
+   ],
+   "sauce": [
+    "pesto"
+   ],
+   "sauceCheeseOverlapRisk": "なし。sauce = pesto、cheese = mozzarella。",
+   "subOrderByKey": {
+    "bell-pepper": {
+     "distinctFamilyLabelSequences": [
+      "vegetable > vegetable"
+     ],
+     "forcedOrder": false,
+     "isCandidate": true,
+     "orderCount": 2,
+     "orders": [
+      [
+       "eggplant",
+       "zucchini"
+      ],
+      [
+       "zucchini",
+       "eggplant"
+      ]
+     ],
+     "subToppings": [
+      "eggplant",
+      "zucchini"
+     ]
+    },
+    "eggplant": {
+     "distinctFamilyLabelSequences": [
+      "vegetable > vegetable"
+     ],
+     "forcedOrder": false,
+     "isCandidate": true,
+     "orderCount": 2,
+     "orders": [
+      [
+       "bell-pepper",
+       "zucchini"
+      ],
+      [
+       "zucchini",
+       "bell-pepper"
+      ]
+     ],
+     "subToppings": [
+      "bell-pepper",
+      "zucchini"
+     ]
+    },
+    "zucchini": {
+     "distinctFamilyLabelSequences": [
+      "vegetable > vegetable"
+     ],
+     "forcedOrder": false,
+     "isCandidate": true,
+     "orderCount": 2,
+     "orders": [
+      [
+       "bell-pepper",
+       "eggplant"
+      ],
+      [
+       "eggplant",
+       "bell-pepper"
+      ]
+     ],
+     "subToppings": [
+      "bell-pepper",
+      "eggplant"
+     ]
+    }
+   },
+   "subOrderUnderRecommendedKey": {
+    "authorityBasis": "NONE",
+    "distinctFamilyLabelSequences": [
+     "vegetable > vegetable"
+    ],
+    "orderCount": 2,
+    "orders": [
+     [
+      "bell-pepper",
+      "zucchini"
+     ],
+     [
+      "zucchini",
+      "bell-pepper"
+     ]
+    ],
+    "ownerDecisionNeeded": true,
+    "recommendedOrder": null
+   },
+   "toppings": [
+    {
+     "candidateForKey": true,
+     "family": "vegetable",
+     "familyOnMain": null,
+     "ingredientId": "bell-pepper",
+     "minCount": 2
+    },
+    {
+     "candidateForKey": true,
+     "family": "vegetable",
+     "familyOnMain": "vegetable",
+     "ingredientId": "eggplant",
+     "minCount": 2
+    },
+    {
+     "candidateForKey": true,
+     "family": "vegetable",
+     "familyOnMain": null,
+     "ingredientId": "zucchini",
+     "minCount": 2
+    }
+   ],
+   "w2aEvidence": {
+    "description": "ジェノベーゼソースにズッキーニ、パプリカ、ナス、モッツァレラを合わせた、野菜が主役のペストピザ。",
+    "descriptionMentionOrderReferenceOnly": [
+     "zucchini",
+     "bell-pepper",
+     "eggplant"
+    ],
+    "descriptionStatus": "APPROVED_OWNER (A3)",
+    "ingredients": {
+     "bell-pepper": {
+      "minCount": 2,
+      "status": "APPROVED_OWNER",
+      "why": "see zucchini -- Owner A1: recommended candidate adopted"
+     },
+     "eggplant": {
+      "minCount": 2,
+      "status": "APPROVED_OWNER",
+      "why": "see zucchini -- Owner A1: recommended candidate adopted"
+     },
+     "mozzarella": {
+      "minCount": 2,
+      "status": "DERIVED_FROM_AUTHORITY",
+      "why": "R-MC mozzarella"
+     },
+     "pesto": {
+      "minCount": 1,
+      "status": "DERIVED_FROM_AUTHORITY",
+      "why": "R-MC sauce"
+     },
+     "zucchini": {
+      "minCount": 2,
+      "status": "APPROVED_OWNER",
+      "why": "three co-equal vegetables. Candidate 2/2/2 (8 pieces) -- Owner A1: recommended candidate adopted"
+     }
+    },
+    "w1Analog": "pesto-caprese / pesto-patate"
+   }
+  },
+  {
+   "c1pConflict": false,
+   "cheese": [
+    "mozzarella"
+   ],
+   "evidenceId": "pesto-pollo-pizzadb-p12",
+   "extraConsideration": null,
+   "garnishAromaRisk": "fresh-tomato は supporting で main ではない。chicken は protein main。",
+   "hasCheese": true,
+   "hint5LadderTotalPitzIfP4CheeseAdopted": 40,
+   "keyCandidates": [
+    {
+     "ingredientId": "chicken",
+     "reason": "C1-P main (pollo = chicken)。W2-A A1 の primary。"
+    },
+    {
+     "ingredientId": "fresh-tomato",
+     "reason": "supporting vegetable。W1 の pesto-caprese は fresh-tomato key だが、あちらは名前の主役。"
+    }
+   ],
+   "keyClass": "CLEAR_MAIN",
+   "keyOwnerDecisionKind": "CONFIRM_UNIQUE_MAIN",
+   "keyOwnerDecisionNeeded": true,
+   "keyUniqueMainUnderC1P": true,
+   "nameJa": "ペストポッロピザ",
+   "note": null,
+   "p4CheeseApplicable": false,
+   "recipeId": "pesto-pollo",
+   "recommendationConfidence": "high (confirm)",
+   "recommendationWhy": null,
+   "recommendedKey": "chicken",
+   "remainingSubToppings": [
+    "fresh-tomato"
+   ],
+   "sauce": [
+    "pesto"
+   ],
+   "sauceCheeseOverlapRisk": "なし。sauce = pesto、cheese = mozzarella。key は topping。",
+   "subOrderByKey": {
+    "chicken": {
+     "distinctFamilyLabelSequences": [
+      "vegetable"
+     ],
+     "forcedOrder": true,
+     "isCandidate": true,
+     "orderCount": 1,
+     "orders": [
+      [
+       "fresh-tomato"
+      ]
+     ],
+     "subToppings": [
+      "fresh-tomato"
+     ]
+    },
+    "fresh-tomato": {
+     "distinctFamilyLabelSequences": [
+      "meat"
+     ],
+     "forcedOrder": true,
+     "isCandidate": true,
+     "orderCount": 1,
+     "orders": [
+      [
+       "chicken"
+      ]
+     ],
+     "subToppings": [
+      "chicken"
+     ]
+    }
+   },
+   "subOrderUnderRecommendedKey": {
+    "authorityBasis": "FORCED_BY_KEY",
+    "distinctFamilyLabelSequences": [
+     "vegetable"
+    ],
+    "orderCount": 1,
+    "orders": [
+     [
+      "fresh-tomato"
+     ]
+    ],
+    "ownerDecisionNeeded": false,
+    "recommendedOrder": [
+     "fresh-tomato"
+    ]
+   },
+   "toppings": [
+    {
+     "candidateForKey": true,
+     "family": "meat",
+     "familyOnMain": null,
+     "ingredientId": "chicken",
+     "minCount": 3
+    },
+    {
+     "candidateForKey": true,
+     "family": "vegetable",
+     "familyOnMain": "vegetable",
+     "ingredientId": "fresh-tomato",
+     "minCount": 2
+    }
+   ],
+   "w2aEvidence": {
+    "description": "ジェノベーゼソースにチキン、トマト、モッツァレラを合わせた、食べごたえのあるペストピザ。",
+    "descriptionMentionOrderReferenceOnly": [
+     "chicken",
+     "fresh-tomato"
+    ],
+    "descriptionStatus": "APPROVED_OWNER (A3)",
+    "ingredients": {
+     "chicken": {
+      "minCount": 3,
+      "status": "DERIVED_FROM_AUTHORITY",
+      "why": "R-MC primary (pollo)"
+     },
+     "fresh-tomato": {
+      "minCount": 2,
+      "status": "DERIVED_FROM_AUTHORITY",
+      "why": "R-MC supporting"
+     },
+     "mozzarella": {
+      "minCount": 2,
+      "status": "DERIVED_FROM_AUTHORITY",
+      "why": "R-MC mozzarella"
+     },
+     "pesto": {
+      "minCount": 1,
+      "status": "DERIVED_FROM_AUTHORITY",
+      "why": "R-MC sauce"
+     }
+    },
+    "w1Analog": "pesto-caprese"
+   }
+  },
+  {
+   "c1pConflict": false,
+   "cheese": [],
+   "evidenceId": "ratatouille-pizza-pizzadb-p13",
+   "extraConsideration": "key を選ぶと sub は残り 2 vegetable + oregano の 3 つで、順序の組合せは 6 通り。",
+   "garnishAromaRisk": "oregano は accent の aroma (herb)。key にすると C1-P に反する。3 つの vegetable は main 側。",
+   "hasCheese": false,
+   "hint5LadderTotalPitzIfP4CheeseAdopted": 50,
+   "keyCandidates": [
+    {
+     "ingredientId": "eggplant",
+     "reason": "vegetable。3 つの co-equal vegetable の 1 つ。W1 の melanzane-pizza / parmigiana-pizza の key が eggplant。main の catalog に既にある。"
+    },
+    {
+     "ingredientId": "zucchini",
+     "reason": "vegetable。3 つの co-equal vegetable の 1 つ。新規 ingredient (W2-A1 branch のみ)。"
+    },
+    {
+     "ingredientId": "bell-pepper",
+     "reason": "vegetable。3 つの co-equal vegetable の 1 つ。新規 ingredient (W2-A1 branch のみ)。"
+    },
+    {
+     "ingredientId": "oregano",
+     "reason": "accent の aroma (minCount 1)。W2-A A1: 'R-MC oregano accent'。C1-P は aroma を優先しないので不採用寄り。"
+    }
+   ],
+   "keyClass": "CO_EQUAL",
+   "keyOwnerDecisionKind": "CHOOSE_AMONG_CO_EQUAL",
+   "keyOwnerDecisionNeeded": true,
+   "keyUniqueMainUnderC1P": false,
+   "nameJa": "ラタトゥイユピザ",
+   "note": null,
+   "p4CheeseApplicable": true,
+   "recipeId": "ratatouille-pizza",
+   "recommendationConfidence": "low (genuine co-equal; Owner choice)",
+   "recommendationWhy": "弱い推奨。pesto-vegetariana と同じ理由 (W1 で key になった前例、main に既にある ingredient)。W2-A A1: 'three co-equal vegetables, no name-giving primary'。一般則ではない。",
+   "recommendedKey": "eggplant",
+   "remainingSubToppings": [
+    "bell-pepper",
+    "oregano",
+    "zucchini"
+   ],
+   "sauce": [
+    "tomato-sauce"
+   ],
+   "sauceCheeseOverlapRisk": "なし。sauce = tomato-sauce、cheese = なし。",
+   "subOrderByKey": {
+    "bell-pepper": {
+     "distinctFamilyLabelSequences": [
+      "herb > vegetable > vegetable",
+      "vegetable > herb > vegetable",
+      "vegetable > vegetable > herb"
+     ],
+     "forcedOrder": false,
+     "isCandidate": true,
+     "orderCount": 6,
+     "orders": [
+      [
+       "eggplant",
+       "oregano",
+       "zucchini"
+      ],
+      [
+       "eggplant",
+       "zucchini",
+       "oregano"
+      ],
+      [
+       "oregano",
+       "eggplant",
+       "zucchini"
+      ],
+      [
+       "oregano",
+       "zucchini",
+       "eggplant"
+      ],
+      [
+       "zucchini",
+       "eggplant",
+       "oregano"
+      ],
+      [
+       "zucchini",
+       "oregano",
+       "eggplant"
+      ]
+     ],
+     "subToppings": [
+      "eggplant",
+      "oregano",
+      "zucchini"
+     ]
+    },
+    "eggplant": {
+     "distinctFamilyLabelSequences": [
+      "herb > vegetable > vegetable",
+      "vegetable > herb > vegetable",
+      "vegetable > vegetable > herb"
+     ],
+     "forcedOrder": false,
+     "isCandidate": true,
+     "orderCount": 6,
+     "orders": [
+      [
+       "bell-pepper",
+       "oregano",
+       "zucchini"
+      ],
+      [
+       "bell-pepper",
+       "zucchini",
+       "oregano"
+      ],
+      [
+       "oregano",
+       "bell-pepper",
+       "zucchini"
+      ],
+      [
+       "oregano",
+       "zucchini",
+       "bell-pepper"
+      ],
+      [
+       "zucchini",
+       "bell-pepper",
+       "oregano"
+      ],
+      [
+       "zucchini",
+       "oregano",
+       "bell-pepper"
+      ]
+     ],
+     "subToppings": [
+      "bell-pepper",
+      "oregano",
+      "zucchini"
+     ]
+    },
+    "oregano": {
+     "distinctFamilyLabelSequences": [
+      "vegetable > vegetable > vegetable"
+     ],
+     "forcedOrder": false,
+     "isCandidate": true,
+     "orderCount": 6,
+     "orders": [
+      [
+       "bell-pepper",
+       "eggplant",
+       "zucchini"
+      ],
+      [
+       "bell-pepper",
+       "zucchini",
+       "eggplant"
+      ],
+      [
+       "eggplant",
+       "bell-pepper",
+       "zucchini"
+      ],
+      [
+       "eggplant",
+       "zucchini",
+       "bell-pepper"
+      ],
+      [
+       "zucchini",
+       "bell-pepper",
+       "eggplant"
+      ],
+      [
+       "zucchini",
+       "eggplant",
+       "bell-pepper"
+      ]
+     ],
+     "subToppings": [
+      "bell-pepper",
+      "eggplant",
+      "zucchini"
+     ]
+    },
+    "zucchini": {
+     "distinctFamilyLabelSequences": [
+      "herb > vegetable > vegetable",
+      "vegetable > herb > vegetable",
+      "vegetable > vegetable > herb"
+     ],
+     "forcedOrder": false,
+     "isCandidate": true,
+     "orderCount": 6,
+     "orders": [
+      [
+       "bell-pepper",
+       "eggplant",
+       "oregano"
+      ],
+      [
+       "bell-pepper",
+       "oregano",
+       "eggplant"
+      ],
+      [
+       "eggplant",
+       "bell-pepper",
+       "oregano"
+      ],
+      [
+       "eggplant",
+       "oregano",
+       "bell-pepper"
+      ],
+      [
+       "oregano",
+       "bell-pepper",
+       "eggplant"
+      ],
+      [
+       "oregano",
+       "eggplant",
+       "bell-pepper"
+      ]
+     ],
+     "subToppings": [
+      "bell-pepper",
+      "eggplant",
+      "oregano"
+     ]
+    }
+   },
+   "subOrderUnderRecommendedKey": {
+    "authorityBasis": "NONE",
+    "distinctFamilyLabelSequences": [
+     "herb > vegetable > vegetable",
+     "vegetable > herb > vegetable",
+     "vegetable > vegetable > herb"
+    ],
+    "orderCount": 6,
+    "orders": [
+     [
+      "bell-pepper",
+      "oregano",
+      "zucchini"
+     ],
+     [
+      "bell-pepper",
+      "zucchini",
+      "oregano"
+     ],
+     [
+      "oregano",
+      "bell-pepper",
+      "zucchini"
+     ],
+     [
+      "oregano",
+      "zucchini",
+      "bell-pepper"
+     ],
+     [
+      "zucchini",
+      "bell-pepper",
+      "oregano"
+     ],
+     [
+      "zucchini",
+      "oregano",
+      "bell-pepper"
+     ]
+    ],
+    "ownerDecisionNeeded": true,
+    "recommendedOrder": null
+   },
+   "toppings": [
+    {
+     "candidateForKey": true,
+     "family": "vegetable",
+     "familyOnMain": null,
+     "ingredientId": "bell-pepper",
+     "minCount": 2
+    },
+    {
+     "candidateForKey": true,
+     "family": "vegetable",
+     "familyOnMain": "vegetable",
+     "ingredientId": "eggplant",
+     "minCount": 2
+    },
+    {
+     "candidateForKey": true,
+     "family": "herb",
+     "familyOnMain": "herb",
+     "ingredientId": "oregano",
+     "minCount": 1
+    },
+    {
+     "candidateForKey": true,
+     "family": "vegetable",
+     "familyOnMain": null,
+     "ingredientId": "zucchini",
+     "minCount": 2
+    }
+   ],
+   "w2aEvidence": {
+    "description": "トマトソースにナス、ズッキーニ、パプリカ、オレガノを合わせた、プロヴァンス風の野菜たっぷりの一枚。",
+    "descriptionMentionOrderReferenceOnly": [
+     "eggplant",
+     "zucchini",
+     "bell-pepper",
+     "oregano"
+    ],
+    "descriptionStatus": "APPROVED_OWNER (A3)",
+    "ingredients": {
+     "bell-pepper": {
+      "minCount": 2,
+      "status": "APPROVED_OWNER",
+      "why": "see eggplant -- Owner A1: recommended candidate adopted"
+     },
+     "eggplant": {
+      "minCount": 2,
+      "status": "APPROVED_OWNER",
+      "why": "three co-equal vegetables, no name-giving primary. Candidate 2/2/2; alternative one of them 3 -- Owner A1: recommended candidate adopted"
+     },
+     "oregano": {
+      "minCount": 1,
+      "status": "DERIVED_FROM_AUTHORITY",
+      "why": "R-MC oregano accent"
+     },
+     "tomato-sauce": {
+      "minCount": 1,
+      "status": "DERIVED_FROM_AUTHORITY",
+      "why": "R-MC sauce"
+     },
+     "zucchini": {
+      "minCount": 2,
+      "status": "APPROVED_OWNER",
+      "why": "see eggplant -- Owner A1: recommended candidate adopted"
+     }
+    },
+    "w1Analog": "melanzane-pizza"
+   }
+  }
+ ],
+ "resolved": {
+  "da1Prep": "e829a176661f671e3f6e21d914d00b6a68ed2e62",
+  "hint5H53": "1ec42531e0a0098ca82d64704e51655859f2cd3e",
+  "hint5Head": "5eadb96e85ba1cd311b4f112a48978e0fd9bd0da",
+  "main": "86b48fd51423a8f76db5398ab88ecfd944e2ae10",
+  "wave2": "2bc40e41f320f9c46ea6110e9df4d50866325cf3"
+ },
+ "schema": "teto-w2a-hint5-role-authoring-review/1",
+ "status": "OWNER_REVIEW_PACK: NOT_AUTHORITY. Every key / sub value is a CANDIDATE. Docs/data/tools only. DA-1 is not implemented.",
+ "summary": {
+  "c1pConflictCount": 0,
+  "c1pNonDeterminativeRecipes": [
+   "flammkuchen",
+   "prosciutto-funghi",
+   "pesto-vegetariana",
+   "ratatouille-pizza"
+  ],
+  "clearMainCount": 5,
+  "clearMainRecipes": [
+   "vongole",
+   "jamon-serrano-pizza",
+   "brazilian-calabresa",
+   "pesto-gamberi",
+   "pesto-pollo"
+  ],
+  "coEqualCount": 4,
+  "coEqualRecipes": [
+   "flammkuchen",
+   "prosciutto-funghi",
+   "pesto-vegetariana",
+   "ratatouille-pizza"
+  ],
+  "keyOwnerDecisionCount": 9,
+  "p4Cheese": {
+   "applicable": [
+    "vongole",
+    "flammkuchen",
+    "brazilian-calabresa",
+    "pesto-gamberi",
+    "ratatouille-pizza"
+   ],
+   "applicableCount": 5,
+   "notApplicable": [
+    "jamon-serrano-pizza",
+    "prosciutto-funghi",
+    "pesto-vegetariana",
+    "pesto-pollo"
+   ],
+   "note": "No W2-A recipe has zero toppings, so P4b (key none) never applies. Roles do not depend on the cheese rung.",
+   "p4bKeyNone": []
+  },
+  "recipes": 9,
+  "recommendedKeyIsAromaOrSpice": [],
+  "roleIdsInRecipeHintRolesTs": 25,
+  "subOrderForcedAfterKeyRecipes": [
+   "flammkuchen",
+   "jamon-serrano-pizza",
+   "prosciutto-funghi",
+   "pesto-pollo"
+  ],
+  "subOrderOwnerDecisionCount": 5,
+  "subOrderOwnerDecisionRecipes": [
+   "vongole",
+   "brazilian-calabresa",
+   "pesto-gamberi",
+   "pesto-vegetariana",
+   "ratatouille-pizza"
+  ],
+  "taxonomy": {
+   "authority": "OD-W2-5 (APPROVED, scoped)",
+   "branchOnly": "claude/wave2-runtime-recipe-design-os06j1 @ 2bc40e4 (W2-A1, no PR)",
+   "familyRowsNotOnMain": [
+    "prosciutto-crudo",
+    "arugula",
+    "shrimp",
+    "chicken",
+    "parsley",
+    "bell-pepper",
+    "zucchini"
+   ],
+   "familyRowsUsedByTheNine": [
+    "arugula",
+    "bell-pepper",
+    "chicken",
+    "parsley",
+    "prosciutto-crudo",
+    "shrimp",
+    "zucchini"
+   ],
+   "onMain": false,
+   "recipesNotUsingThem": [
+    "flammkuchen",
+    "brazilian-calabresa"
+   ],
+   "recipesUsingThem": 7,
+   "watch": {
+    "black-olive": [
+     "brazilian-calabresa"
+    ],
+    "garlic": [
+     "vongole",
+     "pesto-gamberi"
+    ]
+   },
+   "watchIsKeyCandidate": false
+  },
+  "w2aIdsInRecipeHintRolesTs": []
+ }
+}
