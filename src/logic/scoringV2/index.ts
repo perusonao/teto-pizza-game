@@ -99,6 +99,31 @@ const NO_SAUCE_NOT_APPLICABLE_REASON = "このピザはソースを使わない�
 const NO_SAUCE_REFERENCE_MISMATCH_REASON =
   "お手本にソースがないのに、レシピはソースを必要としています（データ不整合のため採点しません）。";
 
+const REFERENCE_RECIPE_MISMATCH_REASON = "お手本が別のレシピのものです（採点しません）。";
+const REFERENCE_MALFORMED_REASON = "お手本データの形が正しくありません（採点しません）。";
+
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value);
+}
+
+/** Null when `reference` can be scored for `recipe`; otherwise why not. Every production
+ *  Reference passes (pinned by the score-parity snapshot): its `recipeId` is its own recipe's id
+ *  and its sauce is a well-formed target. `sauce: null` is the one valid "no sauce" value --
+ *  anything else that is not a target (absent, `undefined`, a partial object) is malformed. */
+function invalidReferenceReason(recipe: Recipe, reference: ScoringReferencePizza): string | null {
+  if (typeof reference !== "object" || reference === null) return REFERENCE_MALFORMED_REASON;
+  if (reference.recipeId !== recipe.id) return REFERENCE_RECIPE_MISMATCH_REASON;
+  if (!Array.isArray(reference.pieceGroups)) return REFERENCE_MALFORMED_REASON;
+  const sauce: unknown = reference.sauce;
+  if (sauce === null) return null;
+  if (typeof sauce !== "object" || sauce === undefined) return REFERENCE_MALFORMED_REASON;
+  const target = sauce as Record<string, unknown>;
+  if (typeof target.ingredientId !== "string" || !isFiniteNumber(target.quantity) || !isFiniteNumber(target.coverage)) {
+    return REFERENCE_MALFORMED_REASON;
+  }
+  return null;
+}
+
 function recipeRequiresSauce(recipe: Recipe): boolean {
   return recipe.requiredIngredients.some((req) => getIngredient(req.ingredientId)?.category === "sauce");
 }
@@ -129,19 +154,24 @@ export function computeScoringV2(
   const reference: ScoringReferencePizza | null | undefined =
     "reference" in options ? options.reference : getReferencePizza(recipe.id);
 
-  if (!reference) {
+  // TQ-1B (Codex review on #271): an injected Reference is untrusted input like `pizza` -- a
+  // Reference for another recipe, or one whose shape is broken (e.g. `sauce` missing rather than
+  // an explicit `null`), fails closed here instead of producing a hybrid score or throwing.
+  const unavailableReason = !reference ? REFERENCE_UNAVAILABLE_REASON : invalidReferenceReason(recipe, reference);
+  if (!reference || unavailableReason !== null) {
+    const reason = unavailableReason ?? REFERENCE_UNAVAILABLE_REASON;
     return {
       rulesetVersion: SCORING_V2_RULESET_VERSION,
       recipeId: recipe.id,
       available: false,
-      unavailableReason: REFERENCE_UNAVAILABLE_REASON,
+      unavailableReason: reason,
       totalScore: null,
       components: {
-        sauce: { available: false, reason: REFERENCE_UNAVAILABLE_REASON },
-        pieces: { available: false, reason: REFERENCE_UNAVAILABLE_REASON },
-        recipe: { available: false, reason: REFERENCE_UNAVAILABLE_REASON },
+        sauce: { available: false, reason },
+        pieces: { available: false, reason },
+        recipe: { available: false, reason },
         bake,
-        quantity: { available: false, reason: REFERENCE_UNAVAILABLE_REASON },
+        quantity: { available: false, reason },
       },
       weightProfile: null,
     };

@@ -228,6 +228,41 @@ describe("TQ-1B: adversarial Reference data fails closed", () => {
     expect(computeScoringV2(recipe, pizza)).toEqual(computeScoringV2(recipe, pizza, { reference: getReferencePizza("funghi")! }));
   });
 
+  it("a Reference for another recipe fails closed instead of producing a hybrid score (Codex review on #271)", () => {
+    const margherita = getRecipe("margherita")!;
+    const pizza: PizzaState = { ...createEmptyPizza(), sauceIds: ["tomato-sauce"], bakeResult: 60 };
+    const result = computeScoringV2(margherita, pizza, { reference: getReferencePizza("funghi")! });
+    expect(result.available).toBe(false);
+    expect(result.totalScore).toBeNull();
+    expect(result.weightProfile).toBeNull();
+    expect(result.unavailableReason).toContain("別のレシピ");
+    const noSauce = score(noSaucePizza(), SYN_RECIPE, { ...SYN_REFERENCE, recipeId: "margherita" }).result;
+    expect(noSauce.available).toBe(false);
+  });
+
+  it("a malformed injected Reference fails closed and never throws (Codex review on #271)", () => {
+    const malformed: unknown[] = [
+      { recipeId: SYN_ID, pieceGroups: PIECE_GROUPS },
+      { recipeId: SYN_ID, sauce: undefined, pieceGroups: PIECE_GROUPS },
+      { recipeId: SYN_ID, sauce: {}, pieceGroups: PIECE_GROUPS },
+      { recipeId: SYN_ID, sauce: { ingredientId: "tomato-sauce", quantity: Number.NaN, coverage: 0.5 }, pieceGroups: PIECE_GROUPS },
+      { recipeId: SYN_ID, sauce: { ingredientId: 7, quantity: 0.5, coverage: 0.5 }, pieceGroups: PIECE_GROUPS },
+      { recipeId: SYN_ID, sauce: "tomato-sauce", pieceGroups: PIECE_GROUPS },
+      { recipeId: SYN_ID, sauce: null, pieceGroups: "not-an-array" },
+      "not-an-object",
+      42,
+    ];
+    for (const reference of malformed) {
+      let result: ReturnType<typeof computeScoringV2> | undefined;
+      expect(() => {
+        result = computeScoringV2(SYN_RECIPE, noSaucePizza(), { reference: reference as ScoringReferencePizza });
+      }).not.toThrow();
+      expect(result!.available, JSON.stringify(reference)).toBe(false);
+      expect(result!.totalScore).toBeNull();
+      expect(result!.weightProfile).toBeNull();
+    }
+  });
+
   it("the synthetic recipe without the seam has no Reference (it is not a production recipe)", () => {
     expect(computeScoringV2(SYN_RECIPE, noSaucePizza()).available).toBe(false);
   });
