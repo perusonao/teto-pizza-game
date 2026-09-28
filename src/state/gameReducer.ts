@@ -80,10 +80,12 @@ import { isEdgeToEdgeCutLine, resolveRequestedSliceCount, type CutLine } from ".
 import { requiredCutCount } from "../logic/cut/evaluation";
 import { isDuplicateCutLine } from "../logic/cut/geometry";
 import { isValidDoughShape, type DoughShape } from "../logic/doughShape";
+import { HINT5_LADDER_ENABLED } from "../logic/discovery/hint5Flag";
 import {
   isOnboardingHintSession,
   purchaseSelectableHintFact,
   requestDeductionHintFact,
+  requestHint5RungFact,
   resolveHintSession,
   unlockNextHint,
   type DeductionFamily,
@@ -464,6 +466,10 @@ export type GameAction =
       /** DH4-2B: the hint family; omitted = 材料 (today's request). 構成 / 特徴 need the E3 flag. */
       family?: "material" | DeductionFamily;
     }
+  // Discovery Hint 5.0 (Issue #292, H5-2): buys the next ladder rung for the open sheet's target,
+  // behind HINT5_LADDER_ENABLED (off in every build: a no-op). `expectedRungIndex` is the rung the
+  // sheet offered; a double tap or a stale sheet no longer matches and changes nothing.
+  | { type: "PURCHASE_HINT5_RUNG"; expectedRungIndex: number }
   | { type: "CLOSE_HINT" }
   // Phase 3C-4 (Lunch Rush): both below reuse this same round machinery (an ORDER phase with
   // a freshly-picked, available recipe) -- there is no separate Mission round state. See
@@ -1562,6 +1568,9 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
     // sets the transient `hintOutcome`; any rejection returns `state` unchanged.
     case "PURCHASE_SELECTABLE_HINT": {
       if (!state.hintSheetOpen || state.phase !== "PREPARE" || !state.freeCook) return state;
+      // Hint 5.0 (H5-2): with the ladder flag on, the ladder replaces 材料 / 構成 / 特徴, so a
+      // sub-topping name is never sold (OD-H5-C3). With the flag off (every build) this line is inert.
+      if (HINT5_LADDER_ENABLED) return state;
       // DH4-2B: 構成 / 特徴 go to the DH4-2A request authority (flag only, E3), which also refuses any
       // family it does not know (INVALID_FAMILY -> no change).
       const family = action.family ?? "material";
@@ -1572,6 +1581,16 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       if (!patch) return state;
       if (patch.hintOutcome && patch.hintOutcome === state.hintOutcome && Object.keys(patch).length === 1) return state;
       return { ...state, ...patch };
+    }
+
+    // Hint 5.0 (H5-2): the only place a ladder rung is bought. `requestHint5RungFact`
+    // (./discoveryHint.ts -> ../logic/discovery/hint5Ladder.ts) re-validates the flag, the target,
+    // the rung index, the P-C price and the balance. A purchase debits `pitzBalance` and extends
+    // `discoveryHintFacts` in this one step; anything else returns `state` unchanged.
+    case "PURCHASE_HINT5_RUNG": {
+      if (!state.hintSheetOpen || state.phase !== "PREPARE" || !state.freeCook) return state;
+      const patch = requestHint5RungFact(state, action.expectedRungIndex);
+      return patch ? { ...state, ...patch } : state;
     }
 
     case "CLOSE_HINT":
@@ -1827,6 +1846,7 @@ const DINNER_BLOCKED_ACTIONS: ReadonlySet<GameAction["type"]> = new Set<GameActi
   "SHOW_HINT",
   "PURCHASE_DISCOVERY_HINT",
   "PURCHASE_SELECTABLE_HINT",
+  "PURCHASE_HINT5_RUNG",
   "CLAIM_MISSION_REWARD",
 ]);
 

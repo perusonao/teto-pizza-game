@@ -324,10 +324,12 @@ The Fresh Audit behind it is `docs/reports/TETO_HINT-5_SUB-TOPPING-CLASSIFICATIO
   - T-COV: runtime 25 / 29 proceed, with a fail-fast taxonomy gate and no silent fallback. PR #293
     is the reference audit.
 - **Round 3:** C1a approved (basil / none / onion / eggplant / tuna) together with the C1 key-topping principle. 3 of the 20 remaining seeds break it (capricciosa, pizza-portuguesa, puttanesca), which is OD-H5-C1b and blocks H5-1.
-- **Open:** C1b, P4 / P4b (with TQ-1D) and M2
+- **H5-1** (the unwired pure layer, `de11ae2`) is done.
+- **H5-2** (reducer wiring behind `HINT5_LADDER_ENABLED`, OFF in every build) is done. See
+  `docs/reports/TETO_DISCOVERY-HINT-5_H5-2_Reducer-Flag_Result.md`.
+- **Open:** OD-H5-M3 (the legacy `ing:*` FREE LEAK, before H5-3), P4 / P4b (with TQ-1D) and M2
   (19-first vs 25).
-- **State:** no production code yet. H5-1 (pure layer, unwired) is the next step and has not
-  started. The TQ-1D re-audit tripwire is extended to Hint 5.0 (Final Design §12).
+- **State:** H5-3 (the ladder UI) has not started. The TQ-1D re-audit tripwire is extended to Hint 5.0 (Final Design §12).
 
 ## Cooking Techniques 1.0 — authority (TQ-1C-0, Issue #285)
 

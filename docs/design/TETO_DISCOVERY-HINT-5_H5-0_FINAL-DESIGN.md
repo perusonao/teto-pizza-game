@@ -741,6 +741,11 @@ save writer or flag.
   - the display field is `symbol`, not `emoji`, so the IngredientGlyph render-site guard stays
     as it is;
   - the DH4 import-boundary tests list the Hint 5.0 readers explicitly.
+- **H5-2 is implemented behind `HINT5_LADDER_ENABLED`**, which is **off in every build**. See
+  `docs/reports/TETO_DISCOVERY-HINT-5_H5-2_Reducer-Flag_Result.md`.
+  - The P-C economy re-run matches §10 exactly.
+  - A legacy `ing:*` FREE LEAK in the §9.1 settle rule is recorded as **OD-H5-M3 (open)**. The
+    recommendation is free-on-request settlement for name rungs. It must be decided before H5-3.
 - The Owner's explicit instruction to start H5-1.
 
 **Already decided for H5-1:** E1 / E2 (P-C, no cap), C4 (the §7 display table) and T-COV (§11).
@@ -766,6 +771,7 @@ save writer or flag.
 | OD-H5-P4 | The "no sauce" / "no cheese" hint (with TQ-1D) | H5-4 enable list |
 | OD-H5-P4b | Does a recipe with no key topping (quattro-formaggi) fall under P4? | H5-4 enable list |
 | OD-H5-M2 | Enable the 19 unblocked targets first, or all 25 together once P4 / P4b are decided | H5-4 |
+| **OD-H5-M3** | The legacy `ing:*` FREE LEAK: whether a name rung settles from legacy facts at view time (H5-2 Result §5). Recommended: option D, free-on-request settlement. | H5-3 |
 
 **Closed in round 2:**
 - E1 / E2: P-C, no cap.

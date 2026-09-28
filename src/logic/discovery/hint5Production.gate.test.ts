@@ -206,8 +206,8 @@ describe("Cooking Techniques tripwire (TQ-1D, §12) — G7", () => {
   });
 });
 
-describe("H5-1 is unwired", () => {
-  it("no production module imports the Hint 5.0 layer yet (reducer, state, UI and save are untouched)", () => {
+describe("wiring boundary (H5-1 unwired -> H5-2 behind the flag)", () => {
+  it("H5-2: the only production importer of the Hint 5.0 layer is the hint state module (no UI, no save, no reducer import)", () => {
     const sources = import.meta.glob<string>(["../../**/*.ts", "../../**/*.tsx", "!../../**/*.test.ts", "!../../**/*.test.tsx", "!../../**/testSupport/**"], {
       query: "?raw",
       import: "default",
@@ -217,6 +217,6 @@ describe("H5-1 is unwired", () => {
       .filter(([path]) => !/\/(hint5Ladder|recipeHintRoles|hintClassDisplay)\.ts$/.test(path))
       .filter(([, text]) => /from\s+["'][^"']*\/(hint5Ladder|recipeHintRoles|hintClassDisplay)["']/.test(text))
       .map(([path]) => path);
-    expect(importers).toEqual([]);
+    expect(importers).toEqual(["../../state/discoveryHint.ts"]);
   });
 });
