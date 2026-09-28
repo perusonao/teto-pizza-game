@@ -72,7 +72,11 @@ The sheet is 「少しずつ情報を得て自分で推理するUI」, not 「�
 | Panel, flag on (3 cards): cards | 404 / 404 | 421 / 421 | 404 / 404 | 421 / 421 | 404 / 404 | **378 / 404** (cue) | **354 / 421** (cue) |
 | Panel, production (材料 only): cards | 204 / 204 | 204 / 204 | 204 / 204 | 204 / 204 | 204 / 204 | 204 / 204 | 204 / 204 |
 
-- **Board:** it never scrolls in any measured state, at any profile. The typical and the longest boards fit even at 360×640 + safe area.
+- **Board:** it does not scroll in any state in the table, at any profile.
+  - **The heaviest flag-on state** is the legacy archive + every 材料 fact + guidance + 構成 + 特徴, about 444 px of content. It was measured by the independent re-review.
+  - At 390×844 and 360×800 it fits.
+  - It scrolls, with the cue, at S390 / S360 / E390i / E360i, showing 433 / 409 / 352 / 328 px.
+  - CAP-2 and CAP-3 still hold there.
 - **Capacity bars:**
   - CAP-2 (board ≥ min(150, content)) holds everywhere.
   - CAP-3 (board ≥ min(footer + bottom safe area, content)) holds everywhere.
@@ -141,7 +145,7 @@ The sheet is 「少しずつ情報を得て自分で推理するUI」, not 「�
 
 **Independent review on `4cf4172`: APPROVE WITH NITS**, with P0 / P1 = 0 and 2 P2 findings. All findings are addressed in the next head:
 
-| Finding | Handling |
+| Finding (first review) | Handling |
 |---|---|
 | **P2-1:** the flag-on footer was not the compact Layout C footer; CAP-3 failed at E360i / E390i | **Fixed.** The family choices moved to the transient panel (audit §10 / §12); the footer is one 「ヒントをもらう」 button plus one Pitz line (74 px). CAP-3 is now an e2e assertion, and it holds on every profile (§2). |
 | **P2-2:** switching family moved focus off the radio group | **Fixed.** There is no family radio group any more. Focus moves only when the step changes (board ↔ panel) or when the focused request is disabled. There is a unit test that a preference change keeps focus. |
@@ -152,6 +156,15 @@ The sheet is 「少しずつ情報を得て自分で推理するUI」, not 「�
 | P3-5: outcome lines were not announced | **Fixed.** `role="status"`. |
 | P3-6: no production-build evidence; the 45dvh check was dropped for non-SELECTABLE sheets | **Fixed.** The `prod-*` screenshots and measurements (§2 / §3) were added, and the 45dvh assertion is back for TARGET / EMPTY. The through-`hintSheetView` privacy sweep stays with DH4-2D (OD-DH4-2-11). |
 | P3-7: stale docs | **Fixed.** The HintSheet header and the App.css comments. |
+
+**Independent re-review on `30cf00e`: APPROVE WITH NITS**, with P0 / P1 / P2 = 0. Every first-review finding is confirmed fixed, and no leak or regression was found. Its P3 nits are handled in the next head:
+
+| Finding (re-review) | Handling |
+|---|---|
+| **P3-a:** in production, a fast double tap on 「たずねる」 could land on 「ヒントをもらう」 and reopen the panel (one charge) | **Fixed.** The request latch also covers 「ヒントをもらう」 (`aria-disabled` while latched). Unit, App and e2e tests assert it. |
+| **P3-b:** a `role="status"` line mounted together with its text may not be announced | **Fixed.** One live region is always mounted in the panel; the outcome text arrives into it. There is a unit test that it is the same element before and after. |
+| **P3-c:** two layout claims were inaccurate | **Fixed.** See §2 (the heaviest flag-on state scrolls on the short profiles, with the cue and the CAP bars intact) and the App.css panel comment. |
+| **P3-d:** the double-tap App test had become conditional | **Fixed.** It now unconditionally asserts one charge, no reopened panel, and focus on 「ヒントをもらう」. |
 
 ## 6. Human Verification Videos
 

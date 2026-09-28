@@ -468,7 +468,9 @@ describe("Cooking Time: Discovery Hint sheet pause (#229)", () => {
     expect(screen.getByRole("dialog", { name: /ヒント/ })).toBeInTheDocument();
     now += 15_000;
     for (let i = 0; i < 2; i += 1) {
-      // DH4-2C U3-C: 「ヒントをもらう」 opens the family panel (an answer returns to the board).
+      // DH4-2C U3-C: 「ヒントをもらう」 opens the family panel (an answer returns to the board; the
+      // request latch covers 「ヒントをもらう」 too, so wait it out like a player).
+      await waitFor(() => expect(screen.getByRole("button", { name: "ヒントをもらう" })).not.toHaveAttribute("aria-disabled"), { timeout: 2000 });
       await user.click(screen.getByRole("button", { name: "ヒントをもらう" }));
       // H3-3: wait out the CTA's activation latch between two deliberate purchases.
       await waitFor(() => expect(document.querySelector(".hint-sheet__next")).not.toHaveAttribute("aria-disabled"), { timeout: 2000 });

@@ -149,6 +149,7 @@ test.describe("Discovery Hint 2.0 near-miss RESULT (229-C)", () => {
     const before = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!).pitzBalance, SAVE_KEY);
     await cta.click();
     await expect(sheet.locator(".hint-sheet__chip")).toHaveCount(2);
+    await expect(sheet.getByRole("button", { name: "ヒントをもらう" })).not.toHaveAttribute("aria-disabled", "true");
     await sheet.getByRole("button", { name: "ヒントをもらう" }).click();
     await expect(cta).toHaveText("たずねる 10 Pitz");
     await expect(sheet).toContainText(`所持 ${before - 5} Pitz`);

@@ -172,7 +172,9 @@ test.describe("Discovery Hint 2.0 Dex entry (229-D)", () => {
     await expect(sheet.locator(".hint-sheet__chip")).toContainText(["オレガノ"]);
     // DH4-2C U3-C: 「ヒントをもらう」 opens the family panel; 「たずねる」 on the 材料 card asks.
     const ask = async () => {
-      await sheet.getByRole("button", { name: "ヒントをもらう" }).click();
+      const entry = sheet.getByRole("button", { name: "ヒントをもらう" });
+      await expect(entry).not.toHaveAttribute("aria-disabled", "true");
+      await entry.click();
       const cta = sheet.locator('.hint-sheet__card[data-hint-family="material"] .hint-sheet__next');
       await expect(cta).not.toHaveAttribute("aria-disabled", "true");
       await cta.click();

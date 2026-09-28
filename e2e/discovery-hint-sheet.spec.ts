@@ -233,7 +233,11 @@ const materialCta = (page: Page) => sheet(page).locator('.hint-sheet__card[data-
 
 /** DH4-2C U3-C: open the family panel (from the board) and wait out the request latch. */
 async function openPanel(page: Page) {
-  if (await entry(page).count()) await entry(page).click();
+  if (await entry(page).count()) {
+    // Right after an answer the request latch also covers 「ヒントをもらう」 (a double tap never reopens).
+    await expect(entry(page)).not.toHaveAttribute("aria-disabled", "true");
+    await entry(page).click();
+  }
   await expect(sheet(page).locator(".hint-sheet__panel")).toBeVisible();
 }
 

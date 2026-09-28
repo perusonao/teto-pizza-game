@@ -5547,8 +5547,8 @@ p.hint-sheet__step {
   background: #ffe7b0;
 }
 
-/* The transient 「ヒントをもらう」 step: it replaces the board and the footer; the cards scroll if a
-   short viewport needs it (audit §12: they fit without scrolling at every profile). */
+/* The transient 「ヒントをもらう」 step: it replaces the board and the footer. The cards scroll, with
+   the labelled cue, when a short viewport needs it (flag on: 390x664 / 360x640 + safe area). */
 .hint-sheet__panel {
   flex: 1 1 auto;
   min-height: 0;

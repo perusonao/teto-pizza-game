@@ -44,7 +44,12 @@ describe("Free Cooking hint sheet in the App (229-B)", () => {
 
   /** Opens the 「ヒントをもらう」 panel (if the board is showing) and waits out the request latch. */
   async function openPanel(user: ReturnType<typeof userEvent.setup>, dialog: HTMLElement) {
-    if (!dialog.querySelector(".hint-sheet__panel")) await user.click(within(dialog).getByRole("button", { name: "ヒントをもらう" }));
+    if (!dialog.querySelector(".hint-sheet__panel")) {
+      const entry = within(dialog).getByRole("button", { name: "ヒントをもらう" });
+      // Right after an answer the request latch also covers 「ヒントをもらう」 (a double tap never reopens).
+      await waitFor(() => expect(entry).not.toHaveAttribute("aria-disabled"), { timeout: 2000 });
+      await user.click(entry);
+    }
     await waitFor(() => expect(cta(dialog)).not.toHaveAttribute("aria-disabled"), { timeout: 2000 });
   }
 
@@ -147,18 +152,19 @@ describe("Free Cooking hint sheet in the App (229-B)", () => {
     await openPanel(user, dialog);
     const first = cta(dialog);
     await user.dblClick(first);
-    // The answer returned to the board; a stray tap / Enter lands on 「ヒントをもらう」 at most.
-    await user.keyboard("{Enter}");
+    // The answer returned to the board with focus on 「ヒントをもらう」; the stray second tap and more
+    // taps / Enter within the latch neither buy nor reopen the panel.
+    const entry = within(dialog).getByRole("button", { name: "ヒントをもらう" });
+    expect(dialog.querySelector(".hint-sheet__panel")).toBeNull();
+    expect(entry).toHaveFocus();
+    await user.click(entry);
+    await user.keyboard("{Enter}{Enter}");
+    expect(dialog.querySelector(".hint-sheet__panel")).toBeNull();
     expect(JSON.parse(window.localStorage.getItem(SAVE_STORAGE_KEY)!)).toMatchObject({
       pitzBalance: 295,
       discoveryHintFacts: { "breakfast-pizza": ["ing:tomato-sauce"] },
     });
     expect(dialog).toHaveTextContent("所持 295 Pitz");
-    // Enter on 「ヒントをもらう」 reopened the panel; its request is latched until the latch releases.
-    if (cta(dialog)) {
-      await user.click(cta(dialog));
-      expect(JSON.parse(window.localStorage.getItem(SAVE_STORAGE_KEY)!).pitzBalance).toBe(295);
-    }
     // Once the latch releases, the next deliberate tap buys the next fact at the next price.
     await buy(user, dialog);
     await waitFor(() => expect(dialog.querySelector(".hint-sheet__panel")).toBeNull());
@@ -260,11 +266,11 @@ describe("Free Cooking hint sheet in the App (229-B)", () => {
     expect(cta(dialog)).toBeNull();
     expect(window.localStorage.getItem(SAVE_STORAGE_KEY)).toBe(snapshot);
 
-    // Re-operating after the guidance changes nothing (Enter on whatever has focus).
+    // Re-operating after the guidance changes nothing: focus is on もどる (the card's request is gone),
+    // so Enter returns to the board, and a second Enter on 「ヒントをもらう」 within the latch is ignored.
+    expect(within(dialog).getByRole("button", { name: /もどる/ })).toHaveFocus();
     await user.keyboard("{Enter}{Enter}");
-    await waitFor(() => expect(dialog.querySelector(".hint-sheet__panel")).not.toBeNull());
-    expect(cta(dialog)).toBeNull();
-    await backToBoard(user, dialog);
+    expect(dialog.querySelector(".hint-sheet__panel")).toBeNull();
     expect(dialog.querySelector(".hint-sheet__guidance")).not.toBeNull();
     expect(window.localStorage.getItem(SAVE_STORAGE_KEY)).toBe(snapshot);
     expect(chips(dialog)).toBe(before + 1);

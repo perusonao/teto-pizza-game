@@ -562,7 +562,7 @@ function SelectableHintBody({
                     </fieldset>
                   )}
                   {cta.outcomeLine ? (
-                    <p className="hint-sheet__outcome" role="status">
+                    <p className="hint-sheet__outcome">
                       {cta.outcomeLine}
                     </p>
                   ) : (
@@ -602,6 +602,11 @@ function SelectableHintBody({
             {"\u{25BE}"} 下にもつづくよ
           </span>
         </div>
+        {/* Always mounted while the panel is open, so screen readers announce a no-charge outcome
+            when it arrives (a live region created together with its text is often not read). */}
+        <p className="sr-only" role="status" aria-live="polite">
+          {currentSettled && (currentSettled === "material" || deduction) ? familyCta(view, currentSettled, true).outcomeLine : ""}
+        </p>
         {walletLine}
       </div>
     );
@@ -638,7 +643,17 @@ function SelectableHintBody({
         </span>
       </div>
       <div className="hint-sheet__footer hint-sheet__footer--selectable">
-        <button ref={entryRef} type="button" className="cta-button hint-sheet__entry" onClick={() => setPanelOpen(true)}>
+        {/* A fast second tap of a request that just returned here lands on this button: the request
+            latch covers it too, so a double tap never reopens the panel. */}
+        <button
+          ref={entryRef}
+          type="button"
+          className="cta-button hint-sheet__entry"
+          aria-disabled={latched || undefined}
+          onClick={() => {
+            if (!latched) setPanelOpen(true);
+          }}
+        >
           {SELECTABLE_COPY.askTitle}
         </button>
         {walletLine}

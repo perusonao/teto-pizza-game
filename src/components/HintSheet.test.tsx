@@ -360,7 +360,8 @@ describe("HintSheet -- U3-C board (材料 only: the production view, flag off)",
     openPanel();
     const outcome = card("material")!.querySelector(".hint-sheet__outcome")!;
     expect(outcome.textContent).toBe("材料ヒントはここまで（Pitzは使っていないよ）");
-    expect(outcome).toHaveAttribute("role", "status");
+    // Announced through the panel's always-mounted live region.
+    expect(screen.getByRole("status")).toHaveTextContent("材料ヒントはここまで（Pitzは使っていないよ）");
     expect(card("material")!.querySelector(".hint-sheet__next")).toBeNull(); // no request left on this card for this sheet session
     expect(screen.queryAllByRole("radio")).toHaveLength(0);
     expect(back()).toHaveFocus();
@@ -403,6 +404,10 @@ describe("HintSheet -- U3-C board (材料 only: the production view, flag off)",
     openPanel();
     fireEvent.click(cta());
     rerender(<HintSheet view={selectableView("capricciosa", { facts: ["ing:tomato-sauce", "ing:mozzarella"] })} {...props} />);
+    expect(document.querySelector(".hint-sheet__panel")).toBeNull();
+    // A fast second tap lands on 「ヒントをもらう」: the request latch covers it (no reopened panel).
+    expect(entry()).toHaveAttribute("aria-disabled", "true");
+    fireEvent.click(entry());
     expect(document.querySelector(".hint-sheet__panel")).toBeNull();
     const fresh = [...document.querySelectorAll(".hint-sheet__chip--new")];
     expect(fresh).toHaveLength(1);
@@ -485,11 +490,16 @@ describe("HintSheet -- U3-C family cards 構成 / 特徴 (DH4-2B view, E3 flag)"
 
   it("no-charge outcomes stay on their own card, as a status, for the rest of the sheet session (a later answer elsewhere never re-arms them)", () => {
     const props = { onUnlock: vi.fn(), onBuySelectable: vi.fn(), onClose: vi.fn() };
-    const { rerender } = render(<HintSheet view={selectableView("capricciosa", { deduction: {}, outcome: "STRUCTURE_GUIDANCE_ONLY" })} {...props} />);
+    const { rerender } = render(<HintSheet view={selectableView("capricciosa", { deduction: {} })} {...props} />);
     openPanel();
+    // The live region is mounted (empty) before the outcome arrives, so it is announced.
+    const live = screen.getByRole("status");
+    expect(live).toHaveTextContent("");
+    rerender(<HintSheet view={selectableView("capricciosa", { deduction: {}, outcome: "STRUCTURE_GUIDANCE_ONLY" })} {...props} />);
     const structureOutcome = card("structure")!.querySelector(".hint-sheet__outcome")!;
     expect(structureOutcome.textContent).toBe("今は新しくわかることがなかったよ（Pitzは使っていないよ）");
-    expect(structureOutcome).toHaveAttribute("role", "status");
+    expect(screen.getByRole("status")).toBe(live);
+    expect(live).toHaveTextContent("今は新しくわかることがなかったよ（Pitzは使っていないよ）");
     expect(card("structure")!.querySelector(".hint-sheet__next")).toBeNull();
     // Another family's outcome replaces the transient view outcome; 構成 stays settled.
     rerender(<HintSheet view={selectableView("capricciosa", { deduction: {}, outcome: "ATTRIBUTE_EXISTENCE_ONLY" })} {...props} />);
